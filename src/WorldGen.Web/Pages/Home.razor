@@ -1,0 +1,81 @@
+@page "/"
+@using System.Reflection
+@using System.Globalization
+@using WorldGen.Core
+@using WorldGen.Serialization
+@using WorldGen.Presentation
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<PageTitle>WorldGen · Planet laboratory</PageTitle>
+<header class="topbar"><div class="brand"><span class="brand-orbit">◉</span> WORLDGEN <span class="edition">PLANET LABORATORY / 01</span></div><span class="status-dot">●</span><span class="top-status">@(busy ? "Generating in worker" : world == null ? "Ready to explore" : "World ready")</span></header>
+<main class="workspace">
+    <aside class="controls">
+        <div class="panel-heading"><span class="eyebrow">YOUR NEXT WORLD</span><h1>Shape a planet.</h1><p>From tectonic motion to the water that follows.</p></div>
+        <label class="preset-label">Starting recipe<select aria-label="Preset" @onchange="Preset"><option>Preview</option><option>Balanced</option><option>Connected</option><option>Isolated</option><option>Glacial</option><option>500 microplates</option></select></label>
+        @foreach (var group in Recipe.Settings.GroupBy(f => f.GetCustomAttribute<SettingAttribute>().Group))
+        {
+            <details class="settings-group" open="@(group.Key == "World" || group.Key == "Plates")"><summary><span>@group.Key</span><span class="group-count">@group.Count().ToString("00")</span></summary>
+                @foreach (var field in group)
+                {
+                    var meta = field.GetCustomAttribute<SettingAttribute>();
+                    <label class="setting"><span>@meta.Label</span><input aria-label="@meta.Label" type="number" min="@Invariant(meta.Min)" max="@Invariant(meta.Max)" step="@Invariant(meta.Step)" value="@Convert.ToString(field.GetValue(recipe), CultureInfo.InvariantCulture)" @onchange="e => Update(field,e)" /></label>
+                }
+            </details>
+        }
+        <div class="version">Recipe v@(recipe.SchemaVersion) · @recipe.AlgorithmVersion</div>
+        <div class="generation-actions"><button class="primary" disabled="@busy" @onclick="Generate">@(world == null ? "Generate world" : "Regenerate / reapply") <span>↗</span></button>@if (busy){<button @onclick="Cancel">Cancel</button>}</div>
+        <div class="file-actions"><button @onclick="SaveRecipe">Save recipe</button><label class="file-button">Load recipe<InputFile OnChange="LoadRecipe" accept=".json" /></label></div>
+        @if(dirty && world != null){<p class="notice">Settings changed. Regenerate to apply.</p>}
+        @if(error.Length > 0){<p class="error" role="alert">@error</p>}
+    </aside>
+    <section class="observatory">
+        <div class="view-toolbar"><div><span class="eyebrow">SURFACE OBSERVATORY</span><h2>@LayerName(layer)</h2></div><label class="layer-picker">Inspection layer<select aria-label="Diagnostic layer" value="@layer" @onchange="ChangeLayer">@foreach(var l in Enum.GetValues<Layer>()){<option value="@l">@LayerName(l)</option>}</select></label></div>
+        <div class="globe-area"><canvas id="globe" aria-label="Rotatable generated planet" tabindex="0"></canvas>
+            @if(world == null){<div class="empty-orbit"><span>◌</span><p>@(busy?"Constructing your world…":"A world of possibilities.")</p></div>}
+            <div class="globe-caption"><span class="tiny-cross">+</span> SPHERE-NATIVE / @((world?.Surface.Cells.Length ?? 0).ToString("N0")) CELLS</div>
+            <div class="interaction-hint">Drag to orbit · scroll to zoom · click to inspect</div>
+            @if(busy){<div class="progress-card"><div><span>@progressStage</span><strong>@percent%</strong></div><progress value="@percent" max="100"></progress></div>}
+        </div>
+        <div class="sea-preview"><label>Sea-level preview <strong>@seaLevel m</strong><input aria-label="Sea-level preview" type="range" min="-1000" max="1000" step="10" value="@seaLevel" @oninput="ChangeSea" /></label><span>Display and connectivity preview · tectonics retained</span></div>
+        <div class="metrics-strip"><div><span>LAND COVERAGE</span><strong>@MetricText("land_fraction",true)</strong></div><div><span>LANDMASSES</span><strong>@MetricText("landmass_count")</strong></div><div><span>INDEPENDENT MICROPLATES</span><strong>@MetricText("preserved_microplates")</strong></div><div><span>HIGHEST SUMMIT</span><strong>@MetricText("max_elevation") <small>m</small></strong></div></div>
+        <div class="below-globe"><section class="inspection"><span class="eyebrow">SURFACE SAMPLE</span><pre>@inspection</pre></section><section class="export"><span class="eyebrow">TAKE YOUR WORLD WITH YOU</span><p>Physical heights, persistent water, and the complete recipe.</p><button disabled="@(world == null)" @onclick="ExportWorld">Export result ↗</button><button disabled="@(world == null)" @onclick="ExportHeight">Heightmap</button><button disabled="@(world == null)" @onclick="ExportCsv">Cell CSV</button></section></div>
+        @if(world != null)
+        {
+            <details class="diagnostics"><summary>Generation report · @world.Stages.Last().Hash.Substring(0,16)</summary>
+                @foreach(var warning in world.Warnings){<p class="notice">@warning</p>}
+                <p>River potential uses 1 mm/day of uniform runoff. Seasonal discharge is unavailable.</p>
+                <div class="stage-hashes">@foreach(var s in world.Stages){<div><span>@s.Name</span><code>@s.Hash</code></div>}</div>
+                <table><tbody>@foreach(var m in world.Metrics){<tr><td>@m.Name.Replace('_',' ')</td><td>@m.Value.ToString("N3") @m.Unit</td></tr>}</tbody></table>
+            </details>
+        }
+    </section>
+</main>
+<footer>WORLDGEN <span>A deterministic world, one recipe at a time.</span><span>GEOLOGY → TERRAIN → WATER</span></footer>
+
+@code {
+    Recipe recipe=Recipe.Preset("Preview");World world;Layer layer=Layer.Terrain;int seaLevel,percent;bool busy,dirty;string error="",progressStage="",inspection="Select a cell on the globe to inspect its geology and drainage.";
+    IJSObjectReference module;DotNetObjectReference<Home> callback;
+    static string Invariant(double d)=>d.ToString(CultureInfo.InvariantCulture);
+    static string LayerName(Layer l)=>System.Text.RegularExpressions.Regex.Replace(l.ToString(),"([a-z])([A-Z])","$1 $2");
+    protected override async Task OnAfterRenderAsync(bool first){if(first){try{module=await JS.InvokeAsync<IJSObjectReference>("import","./globe.js");callback=DotNetObjectReference.Create(this);await module.InvokeVoidAsync("init",callback);await Generate();}catch(Exception ex){error=ex.Message;StateHasChanged();}}}
+    void Update(FieldInfo f,ChangeEventArgs e){if(double.TryParse(e.Value?.ToString(),NumberStyles.Float,CultureInfo.InvariantCulture,out double v)){f.SetValue(recipe,f.FieldType==typeof(int)?(object)(int)v:v);dirty=true;}}
+    void Preset(ChangeEventArgs e){int seed=recipe.Seed;recipe=Recipe.Preset(e.Value?.ToString()??"Preview");recipe.Seed=seed;dirty=true;}
+    async Task Generate(){try{recipe.Validate();error="";busy=true;percent=0;progressStage="Starting .NET worker";await module.InvokeVoidAsync("generate",WorldJson.Write(recipe));}catch(Exception ex){error=ex.Message;busy=false;}}
+    async Task Cancel(){await module.InvokeVoidAsync("cancel");busy=false;progressStage="Cancelled";}
+    [JSInvokable] public Task Progress(string stage,int value){progressStage=stage;percent=value;StateHasChanged();return Task.CompletedTask;}
+    [JSInvokable] public async Task Complete(string json){try{world=WorldJson.ReadWorld(json);busy=false;dirty=StateHash.Compute(recipe)!=StateHash.Compute(world.Recipe);await Draw();}catch(Exception ex){error=ex.Message;busy=false;}StateHasChanged();}
+    [JSInvokable] public Task Failed(string message){error=message;busy=false;StateHasChanged();return Task.CompletedTask;}
+    [JSInvokable] public Task Pick(int cell){if(world!=null)inspection=GlobeView.Describe(world,cell);StateHasChanged();return Task.CompletedTask;}
+    async Task Draw(){if(world!=null)await module.InvokeVoidAsync("draw",WorldJson.Write(GlobeView.Build(world,layer,seaLevel)));}
+    async Task ChangeLayer(ChangeEventArgs e){layer=Enum.Parse<Layer>(e.Value.ToString());await Draw();}
+    async Task ChangeSea(ChangeEventArgs e){seaLevel=int.Parse(e.Value.ToString());await Draw();}
+    string MetricText(string name,bool fraction=false){var m=world?.Metrics.FirstOrDefault(m=>m.Name==name);return m==null?"—":fraction?(m.Value*100).ToString("F1")+"%":m.Value.ToString("N0");}
+    async Task Download(string name,string text)=>await module.InvokeVoidAsync("download",name,text,"application/json");
+    async Task SaveRecipe()=>await Download("worldgen.recipe.json",WorldJson.Write(recipe));
+    async Task LoadRecipe(InputFileChangeEventArgs e){try{using var reader=new StreamReader(e.File.OpenReadStream(1000000));recipe=WorldJson.ReadRecipe(await reader.ReadToEndAsync());dirty=true;error="";}catch(Exception ex){error=ex.Message;}}
+    async Task ExportWorld()=>await Download("worldgen.result.json",WorldJson.Write(world));
+    async Task ExportCsv()=>await module.InvokeVoidAsync("download","worldgen.cells.csv",WorldJson.Csv(world),"text/csv");
+    async Task ExportHeight()=>await module.InvokeVoidAsync("downloadBytes","worldgen.heightmap.pgm",Convert.ToBase64String(WorldJson.Heightmap(world)));
+    public async ValueTask DisposeAsync(){if(module!=null){await module.InvokeVoidAsync("dispose");await module.DisposeAsync();}callback?.Dispose();}
+}

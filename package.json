@@ -1,0 +1,15 @@
+{
+  "name": "worldgen-validation",
+  "version": "1.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "Development browser validation for WorldGen",
+  "scripts": {
+    "test": "dotnet run --project tests/WorldGen.Core.Tests -c Release",
+    "test:browser": "node scripts/browser-check.mjs",
+    "test:worker": "node scripts/worker-check.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.58.2"
+  }
+}
