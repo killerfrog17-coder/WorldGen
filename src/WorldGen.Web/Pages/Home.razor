@@ -69,7 +69,7 @@
     static string LayerName(Layer l)=>GlobeView.LayerName(l);
     protected override async Task OnAfterRenderAsync(bool first){if(first){try{module=await JS.InvokeAsync<IJSObjectReference>("import","./globe.js");callback=DotNetObjectReference.Create(this);await module.InvokeVoidAsync("init",callback);await Generate();}catch(Exception ex){error=ex.Message;StateHasChanged();}}}
     async Task Update(FieldInfo f,ChangeEventArgs e){if(double.TryParse(e.Value?.ToString(),NumberStyles.Float,CultureInfo.InvariantCulture,out double v)){f.SetValue(recipe,f.FieldType==typeof(int)?(object)(int)v:v);if(f.GetCustomAttribute<DisplaySettingAttribute>()!=null)await RefreshView();else dirty=true;}}
-    async Task RollSeed(){recipe.Seed=RandomNumberGenerator.GetInt32(0,1<<24);dirty=true;await Generate();}
+    void RollSeed(){recipe.Seed=RandomNumberGenerator.GetInt32(0,1<<24);dirty=true;error="";}
     void Preset(ChangeEventArgs e){int seed=recipe.Seed;recipe=Recipe.Preset(e.Value?.ToString()??"Preview");recipe.Seed=seed;dirty=true;}
     async Task Generate(){try{recipe.Validate();error="";busy=true;percent=0;progressStage="Starting .NET worker";await module.InvokeVoidAsync("generate",WorldJson.Write(recipe));}catch(Exception ex){error=ex.Message;busy=false;}}
     async Task Cancel(){await module.InvokeVoidAsync("cancel");busy=false;progressStage="Cancelled";}

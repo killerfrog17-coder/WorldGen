@@ -66,7 +66,7 @@ public sealed class WorldGenRuntime : MonoBehaviour
         if (uiCheck) StartCoroutine(CheckInteraction());
     }
     void Generate() => BeginWork(true);
-    void RollSeed() { recipe.Seed = UnityEngine.Random.Range(0, 1 << 24); inputText.Remove(nameof(Recipe.Seed)); dirty = true; Generate(); }
+    void RollSeed() { recipe.Seed = UnityEngine.Random.Range(0, 1 << 24); inputText.Remove(nameof(Recipe.Seed)); dirty = true; }
     void Refresh() { if (world != null) BeginWork(false); }
     void BeginWork(bool generate)
     {
