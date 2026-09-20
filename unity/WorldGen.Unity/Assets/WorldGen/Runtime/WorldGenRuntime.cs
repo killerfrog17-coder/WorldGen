@@ -330,19 +330,32 @@ public sealed class WorldGenRuntime : MonoBehaviour
         if (job != null) { GUILayout.Label(progress + " · " + percent + "%"); if (GUILayout.Button("Cancel")) cancel.Cancel(); }
         */
         GUILayout.EndArea();
-        GUI.Box(new Rect(8, Screen.height - 86, width - 16, 76), "");
+        float bottomHeight = Mathf.Min(205, Mathf.Max(165, Screen.height - 15));
+        float bottomY = Screen.height - bottomHeight;
+        GUI.Box(new Rect(8, bottomY, width - 16, bottomHeight), "");
+        GUILayout.BeginArea(new Rect(16, bottomY + 7, width - 32, bottomHeight - 7));
+        GUILayout.Label("Recipe v" + recipe.SchemaVersion + " · " + recipe.AlgorithmVersion);
+        filePath = GUILayout.TextField(filePath);
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Save recipe")) Try(() => { ValidateInputs(); recipe.Validate(); File.WriteAllText(filePath, WorldJson.Write(recipe)); });
+        if (GUILayout.Button("Load recipe")) Try(() => { recipe = WorldJson.ReadRecipe(File.ReadAllText(filePath)); inputText.Clear(); dirty = true; });
+        GUILayout.EndHorizontal();
+        GUI.enabled = world != null && !Busy && exportJob == null;
+        if (GUILayout.Button("Export result")) Export("result.json", (w, path) => File.WriteAllText(path, WorldJson.Write(w)));
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Heightmap")) Export("pgm", (w, path) => File.WriteAllBytes(path, WorldJson.Heightmap(w)));
+        if (GUILayout.Button("Cell CSV")) Export("csv", (w, path) => File.WriteAllText(path, WorldJson.Csv(w)));
+        GUILayout.EndHorizontal();
+        GUI.enabled = true;
+        if (Busy) GUILayout.Label(progress + " · " + percent + "%");
+        else if (world != null) GUILayout.Label("Land: " + (world.Metrics.First(m => m.Name == "land_fraction").Value * 100).ToString("0.0") + "%");
+        GUILayout.EndArea();
+        GUI.enabled = true;
         if (Busy)
         {
-            GUI.Label(new Rect(16, Screen.height - 84, width - 32, 18), progress + " · " + percent + "%");
-            GUI.enabled = true;
-            if (GUI.Button(new Rect(16, Screen.height - 62, width - 32, 45), "Cancel")) cancel.Cancel();
+            if (GUI.Button(new Rect(16, Screen.height - 49, width - 32, 38), "Cancel")) cancel.Cancel();
         }
-        else
-        {
-            GUI.enabled = true;
-            if (GUI.Button(new Rect(16, Screen.height - 62, width - 32, 45), world == null ? "BUILD WORLD" : "REGENERATE / REAPPLY")) Generate();
-        }
-        GUI.enabled = true;
+        else if (GUI.Button(new Rect(16, Screen.height - 49, width - 32, 38), world == null ? "BUILD WORLD" : "REGENERATE / REAPPLY")) Generate();
         GUI.Box(new Rect(width - 3, 0, 6, Screen.height), "");
         GUI.enabled = !Busy;
         GUILayout.BeginArea(new Rect(width + 24, 18, Math.Max(220, Screen.width - width - 48), 195));
