@@ -1,6 +1,6 @@
 # Determinism and versioning
 
-Schema **3**, algorithm **worldgen-3.6.0**. The determinism key is seed + complete recipe + algorithm version, including Detail, Irregularity and continental-complex topology. Older recipes are rejected. View projection, longitude, wireframe, plate coloring, grid and window controls are presentation only.
+Schema **3**, algorithm **worldgen-3.7.0**. The determinism key is seed + complete recipe + algorithm version, including Detail, Irregularity, continental-complex topology and superplate enclave repair. Older recipes are rejected. View projection, longitude, wireframe, plate coloring, grid and window controls are presentation only.
 
 `World.CoarseSurface` has exactly 20,000 cells; `CoarsePlate`, `CoarseContinent` and `CoarseHash` retain the independent coarse partition. Changing only detail or irregularity preserves `CoarseHash`. The final Surface and terrain/climate arrays have Recipe.Detail cells. Fine terrain is recomputed; no display interpolation changes the apparent resolution of a 20k simulation.
 

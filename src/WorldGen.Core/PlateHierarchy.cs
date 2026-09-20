@@ -95,7 +95,41 @@ namespace WorldGen.Core
                 foreach (int i in members) motion += plates[i].Motion * (plates[i].AreaM2 / (double)area);
                 groups.Add(new ParentPlate { Id = id, SeedMicroplate = seed.Id, AreaM2 = area, TargetAreaM2 = area, Microplates = members.OrderBy(i => i).ToArray(), Motion = motion, ContinentalFraction = seed.ContinentId < 0 ? 0 : 1 });
             }
-            w.Parents = groups.ToArray(); w.Metric("superplates", groups.Count);
+            int enclosedMerges = RepairEnclosedGroups(plates, groups);
+            w.Parents = groups.ToArray(); w.Metric("superplates", groups.Count); w.Metric("enclosed_superplate_merges", enclosedMerges);
+        }
+
+        // A same-crust group completely surrounded by one other same-crust
+        // group is an artificial enclave at this hierarchy level. Merge it
+        // into the surrounding group while preserving all microplates.
+        private static int RepairEnclosedGroups(Microplate[] plates, List<ParentPlate> groups)
+        {
+            int merges = 0;
+            bool changed;
+            do
+            {
+                changed = false;
+                for (int source = 0; source < groups.Count; source++)
+                {
+                    var members = new HashSet<int>(groups[source].Microplates); var neighbors = new HashSet<int>();
+                    foreach (int p in members) foreach (int n in plates[p].Neighbors)
+                        if (plates[n].ParentAffinityId != source) neighbors.Add(plates[n].ParentAffinityId);
+                    if (neighbors.Count != 1) continue;
+                    int target = neighbors.First(); if (target < 0 || target >= groups.Count) continue;
+                    if (groups[target].ContinentalFraction != groups[source].ContinentalFraction) continue;
+                    if (target < source) { int swap = source; source = target; target = swap; }
+                    var merged = groups[target].Microplates.Concat(groups[source].Microplates).OrderBy(i => i).ToArray();
+                    groups[target].Microplates = merged; groups[target].AreaM2 += groups[source].AreaM2; groups[target].TargetAreaM2 = groups[target].AreaM2;
+                    groups.RemoveAt(source);
+                    for (int id = 0; id < groups.Count; id++)
+                    {
+                        groups[id].Id = id;
+                        foreach (int p in groups[id].Microplates) plates[p].ParentAffinityId = id;
+                    }
+                    merges++; changed = true; break;
+                }
+            } while (changed);
+            return merges;
         }
     }
 }
