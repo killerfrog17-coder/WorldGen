@@ -286,11 +286,7 @@ public sealed class WorldGenRuntime : MonoBehaviour
         GUILayout.Label("WORLDGEN", new GUIStyle(GUI.skin.label) { fontSize = 24, fontStyle = FontStyle.Bold }); GUILayout.Label("Shape your world");
         GUILayout.BeginHorizontal(); GUILayout.Label(preset, GUILayout.MinWidth(0), GUILayout.ExpandWidth(true));
         if (GUILayout.Button("Next preset", GUILayout.Width(95))) { presetIndex = (presetIndex + 1) % presets.Length; preset = presets[presetIndex]; int seed = recipe.Seed; recipe = Recipe.Preset(preset); recipe.Seed = seed; inputText.Clear(); dirty = true; }
-        GUILayout.EndHorizontal();
-        GUI.enabled = !Busy;
-        if (GUILayout.Button(world == null ? "BUILD WORLD" : "REGENERATE / REAPPLY", GUILayout.Height(35))) Generate();
-        GUI.enabled = true;
-        scroll = GUILayout.BeginScrollView(scroll, GUILayout.Height(Mathf.Max(180, Screen.height - 300)));
+        GUILayout.EndHorizontal(); scroll = GUILayout.BeginScrollView(scroll, GUILayout.Height(Mathf.Max(180, Screen.height - 300)));
         for (int g = 0; g < groups.Length; g++)
         {
             if (GUILayout.Button((panels[g] ? "−  " : "+  ") + groups[g])) panels[g] = !panels[g]; if (!panels[g]) continue;
@@ -332,6 +328,9 @@ public sealed class WorldGenRuntime : MonoBehaviour
         if (dirty && world != null) GUILayout.Label("Settings changed. Regenerate to apply."); if (error.Length > 0) GUILayout.Label(error);
         if (job != null) { GUILayout.Label(progress + " · " + percent + "%"); if (GUILayout.Button("Cancel")) cancel.Cancel(); }
         GUILayout.EndArea();
+        GUI.enabled = !Busy;
+        if (GUI.Button(new Rect(16, Screen.height - 62, width - 32, 45), world == null ? "BUILD WORLD" : "REGENERATE / REAPPLY")) Generate();
+        GUI.enabled = true;
         GUI.Box(new Rect(width - 3, 0, 6, Screen.height), "");
         GUI.enabled = !Busy;
         GUILayout.BeginArea(new Rect(width + 24, 18, Math.Max(220, Screen.width - width - 48), 195));
