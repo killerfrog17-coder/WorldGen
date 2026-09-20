@@ -328,8 +328,18 @@ public sealed class WorldGenRuntime : MonoBehaviour
         if (dirty && world != null) GUILayout.Label("Settings changed. Regenerate to apply."); if (error.Length > 0) GUILayout.Label(error);
         if (job != null) { GUILayout.Label(progress + " · " + percent + "%"); if (GUILayout.Button("Cancel")) cancel.Cancel(); }
         GUILayout.EndArea();
-        GUI.enabled = !Busy;
-        if (GUI.Button(new Rect(16, Screen.height - 62, width - 32, 45), world == null ? "BUILD WORLD" : "REGENERATE / REAPPLY")) Generate();
+        GUI.Box(new Rect(8, Screen.height - 86, width - 16, 76), "");
+        if (Busy)
+        {
+            GUI.Label(new Rect(16, Screen.height - 84, width - 32, 18), progress + " · " + percent + "%");
+            GUI.enabled = true;
+            if (GUI.Button(new Rect(16, Screen.height - 62, width - 32, 45), "Cancel")) cancel.Cancel();
+        }
+        else
+        {
+            GUI.enabled = true;
+            if (GUI.Button(new Rect(16, Screen.height - 62, width - 32, 45), world == null ? "BUILD WORLD" : "REGENERATE / REAPPLY")) Generate();
+        }
         GUI.enabled = true;
         GUI.Box(new Rect(width - 3, 0, 6, Screen.height), "");
         GUI.enabled = !Busy;
