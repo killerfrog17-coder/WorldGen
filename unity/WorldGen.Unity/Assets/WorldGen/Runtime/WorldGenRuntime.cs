@@ -326,6 +326,7 @@ public sealed class WorldGenRuntime : MonoBehaviour
         }
         if (exportJob != null) GUILayout.Label("Exporting...");
         if (dirty && world != null) GUILayout.Label("Settings changed. Regenerate to apply."); if (error.Length > 0) GUILayout.Label(error);
+        /* The progress/cancel row is owned by the fixed bottom action section. */
         if (job != null) { GUILayout.Label(progress + " · " + percent + "%"); if (GUILayout.Button("Cancel")) cancel.Cancel(); }
         GUILayout.EndArea();
         GUI.Box(new Rect(8, Screen.height - 86, width - 16, 76), "");
