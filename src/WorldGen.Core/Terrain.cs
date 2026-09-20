@@ -7,135 +7,163 @@ namespace WorldGen.Core
 {
     public static class Terrain
     {
-        public static double Noise(V p, int seed, int frequency)
-        {
-            double x = (p.X + 2) * frequency, y = (p.Y + 2) * frequency, z = (p.Z + 2) * frequency; int ix = (int)x, iy = (int)y, iz = (int)z;
-            double fx = x - ix, fy = y - iy, fz = z - iz; fx *= fx * (3 - 2 * fx); fy *= fy * (3 - 2 * fy); fz *= fz * (3 - 2 * fz); double value = 0;
-            for (int a = 0; a < 2; a++) for (int b = 0; b < 2; b++) for (int c = 0; c < 2; c++)
-            { uint h = Rng.Mix(unchecked((uint)(seed ^ (ix + a) * 73856093 ^ (iy + b) * 19349663 ^ (iz + c) * 83492791))); value += (h / 4294967295.0 * 2 - 1) * (a == 0 ? 1 - fx : fx) * (b == 0 ? 1 - fy : fy) * (c == 0 ? 1 - fz : fz); }
-            return D.Q(value, 1e6);
-        }
+        public static double Noise(V p, int seed, int frequency) => SphereNoise.Sample(p, seed, frequency);
         public static void Build(World w, CancellationToken token)
         {
-            var r = w.Recipe; var s = w.Surface; int n = s.Cells.Length; var features = new List<Feature>(); var height = new double[n];
+            var s = w.Surface; var r = w.Recipe; int n = s.Cells.Length;
             var coast = Enumerable.Range(0, n).Where(i => s.Cells[i].Neighbors.Any(j => (w.Continent[i] >= 0) != (w.Continent[j] >= 0))).ToArray();
-            w.CoastDistanceM = Graph.Distances(s, coast, out _);
-            w.FoldPermille = new int[n]; w.CratonPermille = new int[n]; w.BasinPermille = new int[n]; w.PlateauPermille = new int[n];
-            var deadDistance = Graph.Distances(s, w.Boundaries.Where(b => b.Context == CollisionContext.DeadEnd).SelectMany(b => new[] { s.Edges[b.EdgeId].A, s.Edges[b.EdgeId].B }), out _);
-            for (int i = 0; i < n; i++)
-            {
-                var p = s.Cells[i].Position; double distance = w.CoastDistanceM[i]; double broad = Noise(p, r.Seed, 6), detail = Noise(p, r.Seed ^ 57291, 30);
-                double coastNoise = Noise(p, r.Seed ^ 741, 16) * r.Relief * 500;
-                double fold = D.Clamp(w.Stress[i] / 1700.0), plateau = D.Kernel(deadDistance[i], 1600000) * r.CollisionStrength, basin = D.Clamp(-broad) * (.8 - .5 * fold), craton = (1 - fold) * (1 - D.Kernel(w.BoundaryDistanceM[i], 800000));
-                double sum = Math.Max(.001, fold + plateau + basin + craton); w.FoldPermille[i] = (int)(fold / sum * 1000); w.PlateauPermille[i] = (int)(plateau / sum * 1000); w.BasinPermille[i] = (int)(basin / sum * 1000); w.CratonPermille[i] = 1000 - w.FoldPermille[i] - w.PlateauPermille[i] - w.BasinPermille[i];
-                if (w.Continent[i] >= 0) height[i] = 120 + Math.Min(700, distance * .0006) + r.Relief * (broad * 550 + detail * 180) + coastNoise * D.Kernel(distance, 350000);
-                else
-                { double shelf = 170000 + 450000 * r.NearStrait; double slope = D.Clamp((distance - shelf * .35) / (shelf + 500000)); height[i] = -120 - 4400 * slope * slope * (3 - 2 * slope) + r.OceanDetail * (broad * 400 + detail * 100) + coastNoise * D.Kernel(distance, 300000); }
-                if (w.Continent[i] >= 0) height[i] += w.CratonPermille[i] * .18 - w.BasinPermille[i] * .2 + w.PlateauPermille[i] * .35;
-            }
-            Feature Add(FeatureKind kind, Boundary b, V center, V axis, int amp, int width, int owner = -1)
-            { var f = new Feature { Id = features.Count, Name = kind + " " + features.Count, Kind = kind, BoundaryId = b?.Id ?? -1, Center = center, Axis = axis, AmplitudeM = amp, WidthM = width, OwnerMicroplate = owner, AgeMyr = b?.AgeMyr ?? 0 }; features.Add(f); return f; }
-            // One semantic record per boundary kernel. The same record supplies terrain and inspection.
+            w.CoastDistanceM = Graph.Distances(s, coast, out _, token);
+            var collision = new SortedDictionary<int, Boundary>(); var spreading = new SortedDictionary<int, Boundary>(); var transforms = new SortedDictionary<int, Boundary>();
+            void Seed(SortedDictionary<int, Boundary> sources, int cell, Boundary b)
+            { if (!sources.TryGetValue(cell, out var old) || b.Stress > old.Stress || b.Stress == old.Stress && b.Id < old.Id) sources[cell] = b; }
             foreach (var b in w.Boundaries)
             {
-                var e = s.Edges[b.EdgeId]; var at = (s.Cells[e.A].Position + s.Cells[e.B].Position).Unit; var normal = V.Tangent(at, s.Cells[e.B].Position - s.Cells[e.A].Position); var axis = V.Cross(at, normal);
-                double stress = D.Clamp(b.Stress / 1000.0, 0, 2); bool bothLand = w.Continent[e.A] >= 0 && w.Continent[e.B] >= 0;
-                if (b.Ghost)
-                {
-                    if (Rng.Value(r.Seed, "ghost-feature", b.MicroA * 503 + b.MicroB) > r.GhostFrequency) continue;
-                    int amplitude = D.M((b.FormerKind == BoundaryKind.Convergent ? 1500 : b.FormerKind == BoundaryKind.Divergent ? -350 : 100) * stress * r.GhostStrength * (1 - .8 * r.GhostAge));
-                    Add(b.FormerKind == BoundaryKind.Convergent ? FeatureKind.AncientOrogen : b.FormerKind == BoundaryKind.Divergent ? FeatureKind.AncientRift : FeatureKind.TransformCorridor, b, at, axis, amplitude, r.GhostWidthKm * 1000); continue;
-                }
-                if (b.Kind == BoundaryKind.Convergent && bothLand)
-                {
-                    double special = Rng.Value(r.Seed, "collision-feature", b.MicroA * 503 + b.MicroB) < r.CollisionFrequency ? r.CollisionStrength : 0;
-                    double dead = 1 - b.EscapePermille / 1000.0; int amp = D.M((1900 + 3200 * dead * special) * stress); int width = D.M(600000 + 500000 * dead * special);
-                    Add(FeatureKind.CollisionBelt, b, at, axis, amp, width);
-                    if (special > 0) Add(b.Context == CollisionContext.EscapeFace ? FeatureKind.EscapeBlocks : FeatureKind.Plateau, b, at, axis, D.M(1100 * dead * special * stress), width * 2);
-                    // Flexural foreland lies on the denser underthrust continental side.
-                    double side = w.Microplates[b.MicroA].DensityKgM3 > w.Microplates[b.MicroB].DensityKgM3 ? -1 : 1;
-                    Add(FeatureKind.ForelandBasin, b, (at + normal * (side * .11)).Unit, axis, -D.M(1800 * stress * r.ForelandStrength), 450000, side < 0 ? b.MicroA : b.MicroB);
-                }
-                else if (b.Kind == BoundaryKind.Convergent)
-                {
-                    double side = b.SubductingMicroplate == b.MicroA ? -1 : 1;
-                    Add(FeatureKind.Trench, b, (at + normal * (side * .025)).Unit, axis, -D.M(2400 * stress), 220000, b.SubductingMicroplate);
-                    Add(w.Continent[e.A] < 0 && w.Continent[e.B] < 0 ? FeatureKind.IslandArc : FeatureKind.VolcanicArc, b, (at - normal * (side * .045)).Unit, axis, D.M((3400 + stress * 1400) * r.Volcanism), 340000, b.SubductingMicroplate == b.MicroA ? b.MicroB : b.MicroA);
-                }
-                else if (b.Kind == BoundaryKind.Divergent) Add(bothLand ? FeatureKind.Rift : FeatureKind.MidOceanRidge, b, at, axis, D.M((bothLand ? -1400 : 2300) * stress), 650000);
-                else Add(FeatureKind.TransformCorridor, b, at, axis, -D.M(180 * r.TectonicIntensity), 170000);
+                if (b.Ghost) continue;
+                var edge = s.Edges[b.EdgeId]; var target = b.Kind == BoundaryKind.Convergent ? collision : b.Kind == BoundaryKind.Divergent ? spreading : transforms;
+                Seed(target, edge.A, b); Seed(target, edge.B, b);
             }
-            // Sample compact kernels grouped by kind: weighted averages avoid uplift scaling with mesh edge density.
-            foreach (var group in features.GroupBy(f => f.Kind).ToArray())
+            var convergenceDistance = Graph.Distances(s, collision.Keys, out var convergenceSource, token);
+            var divergenceDistance = Graph.Distances(s, spreading.Keys, out var divergenceSource, token);
+            var transformDistance = Graph.Distances(s, transforms.Keys, out _, token);
+            w.FoldPermille = new int[n]; w.CratonPermille = new int[n]; w.BasinPermille = new int[n]; w.PlateauPermille = new int[n];
+            var heights = new double[n]; var features = new List<Feature>();
+            var featureCells = new SortedDictionary<long, List<int>>();
+            var featureRecords = new SortedDictionary<long, Feature>();
+            void FeatureCell(FeatureKind kind, Boundary b, int cell, double amplitude, int width)
             {
-                token.ThrowIfCancellationRequested(); var sum = new double[n]; var weights = new double[n]; var affected = group.ToDictionary(f => f.Id, f => new List<int>());
-                foreach (var f in group)
+                // Retain one feature per plate pair and kind, in stable first-cell order.
+                int parentA = w.Microplates[b.MicroA].ParentAffinityId, parentB = w.Microplates[b.MicroB].ParentAffinityId;
+                if (parentA > parentB) { int swap = parentA; parentA = parentB; parentB = swap; }
+                long key = ((long)(int)kind << 40) | ((long)parentA << 20) | (uint)parentB;
+                if (!featureCells.ContainsKey(key))
                 {
-                    double angular = f.WidthM / (double)(r.RadiusKm * 1000); double chordLimit = angular * angular * .65;
-                    for (int i = 0; i < n; i++)
+                    var edge = s.Edges[b.EdgeId]; var center = (s.Cells[edge.A].Position + s.Cells[edge.B].Position).Unit;
+                    featureCells[key] = new List<int>();
+                    featureRecords[key] = new Feature { BoundaryId = b.Id, Kind = kind, Center = center, Axis = V.Cross(center, V.Tangent(center, s.Cells[edge.B].Position - s.Cells[edge.A].Position)), AmplitudeM = D.M(amplitude), WidthM = width };
+                }
+                featureCells[key].Add(cell);
+            }
+            for (int i = 0; i < n; i++)
+            {
+                if ((i & 255) == 0) token.ThrowIfCancellationRequested();
+                V p = s.Cells[i].Position; bool land = w.Continent[i] >= 0;
+                double shore = w.CoastDistanceM[i], compression = convergenceDistance[i], extension = divergenceDistance[i];
+                double broad = Noise(p, r.Seed, 3), province = Noise(p, r.Seed ^ 7613, 7), detail = Noise(p, r.Seed ^ 19277, 28);
+                double fold = D.Kernel(compression, 1300000) * D.Clamp(w.Stress[i] / 700.0);
+                double craton = (1 - fold) * (1 - D.Kernel(w.BoundaryDistanceM[i], 1200000));
+                double basin = (1 - fold) * D.Clamp(-province * 1.7);
+                double plateau = fold * D.Clamp(shore / 1700000);
+                double total = Math.Max(.001, fold + craton + basin + plateau);
+                w.FoldPermille[i] = (int)(1000 * fold / total); w.BasinPermille[i] = (int)(1000 * basin / total); w.PlateauPermille[i] = (int)(1000 * plateau / total);
+                w.CratonPermille[i] = 1000 - w.FoldPermille[i] - w.BasinPermille[i] - w.PlateauPermille[i];
+                double coastMask = D.Kernel(shore, 450000);
+                double h;
+                if (land)
+                {
+                    h = 70 + 750 * (1 - D.Kernel(shore, 1800000));
+                    // Continental crust has a coherent buoyant basement before
+                    // localized rifts, basins and texture are applied. This keeps
+                    // continent shape controlled by the structural plate field.
+                    double interior = D.Clamp((shore - 700000) / 1800000);
+                    h += 700 * interior * (.65 + .35 * craton);
+                    double noiseGate = D.Clamp(h / 400.0) * (.35 + .65 * interior);
+                    h += (broad * 180 + province * 110) * noiseGate * (1 - .6 * craton) - basin * 420;
+                }
+                else
+                {
+                    double shelfWidth = 180000 + 100000 * (province + 1);
+                    double t = D.Clamp((shore - shelfWidth * .3) / (shelfWidth + 650000));
+                    h = -90 - 4800 * t * t * (3 - 2 * t) + 170 * broad + 65 * detail;
+                }
+                if (convergenceSource[i] >= 0)
+                {
+                    var b = collision[convergenceSource[i]]; var edge = s.Edges[b.EdgeId];
+                    bool bothLand = w.Continent[edge.A] >= 0 && w.Continent[edge.B] >= 0;
+                    V at = (s.Cells[edge.A].Position + s.Cells[edge.B].Position).Unit;
+                    V normal = V.Tangent(at, s.Cells[edge.B].Position - s.Cells[edge.A].Position), along = V.Cross(at, normal);
+                    double cross = V.Dot(p - at, normal) * r.RadiusKm * 1000, strike = V.Dot(p - at, along) * r.RadiusKm * 1000;
+                    double power = D.Clamp(b.Stress / 950.0, .12, 1.6);
+                    double phase = cross / 230000 * 2 * D.Pi + Noise(p, r.Seed ^ 3541, 11) * 3;
+                    double ridge = .5 + .5 * D.Sin(phase), passes = .65 + .35 * (.5 + .5 * D.Sin(strike / 170000 + broad * 5));
+                    if (bothLand && land)
                     {
-                        var p = s.Cells[i].Position; double dot = 1 - V.Dot(p, f.Center); if (dot > chordLimit) continue;
-                        if (f.OwnerMicroplate >= 0 && w.CellMicroplate[i] != f.OwnerMicroplate) continue;
-                        double distance = D.Angle(p, f.Center) * r.RadiusKm * 1000; if (distance >= f.WidthM) continue;
-                        double envelope = D.Kernel(distance, f.WidthM); double value = f.AmplitudeM;
-                        if (f.Kind == FeatureKind.CollisionBelt)
+                        double envelope = D.Kernel(compression, 1450000), uplift = 4700 * power * envelope;
+                        double orogen = uplift * (.36 + .64 * ridge * ridge * passes);
+                        h += orogen + 1600 * power * D.Kernel(compression, 2200000) * (1 - .65 * b.EscapePermille / 1000.0);
+                        double foreland = D.Kernel(Math.Abs(compression - 1050000), 420000) * 550 * power;
+                        h -= foreland;
+                        if (envelope > .01) FeatureCell(FeatureKind.CollisionBelt, b, i, uplift, 1450000);
+                        if (foreland > 40) FeatureCell(FeatureKind.ForelandBasin, b, i, -foreland, 420000);
+                    }
+                    else if (!bothLand)
+                    {
+                        bool underthrust = w.CellMicroplate[i] == b.SubductingMicroplate;
+                        if (underthrust && !land)
                         {
-                            var across = V.Cross(f.Center, f.Axis); double cross = V.Dot(p - f.Center, across), along = V.Dot(p - f.Center, f.Axis);
-                            double warp = Noise(p, r.Seed, 14) * .012; double ridge = .5 + .5 * D.Sin((cross + warp) * 180 + Noise(p, r.Seed, 8) * 2);
-                            double passes = .65 + .35 * (.5 + .5 * D.Sin(along * 90 + f.BoundaryId * .017)); value *= .55 + .7 * ridge * ridge * passes;
+                            double trench = 2100 * power * D.Kernel(compression, 360000); h -= trench;
+                            if (trench > 30) FeatureCell(FeatureKind.Trench, b, i, -trench, 360000);
                         }
-                        else if (f.Kind == FeatureKind.EscapeBlocks) value -= 1200 * (.5 + .5 * Noise(p, r.Seed, 23));
-                        else if (f.Kind == FeatureKind.Plateau) value *= .8 + .2 * Noise(p, r.Seed, 11);
-                        else if (f.Kind == FeatureKind.AncientOrogen) value *= .8 + .2 * Noise(p, r.Seed, 6);
-                        sum[i] += value * envelope; weights[i] += envelope; affected[f.Id].Add(i);
+                        else
+                        {
+                            double arcEnvelope = D.Kernel(Math.Abs(compression - 250000), 530000);
+                            double volcanoes = .35 + .65 * Math.Pow(.5 + .5 * D.Sin(strike / 160000 + province * 4), 2);
+                            double arc = (land ? 3100 : 5800) * Math.Min(1.3, power) * arcEnvelope * volcanoes;
+                            h += arc;
+                            if (arcEnvelope > .01) FeatureCell(land ? FeatureKind.VolcanicArc : FeatureKind.IslandArc, b, i, arc, 530000);
+                        }
                     }
                 }
-                for (int i = 0; i < n; i++) if (weights[i] > 0) height[i] += sum[i] / Math.Max(1, weights[i]);
-                foreach (var f in group) f.Cells = affected[f.Id].ToArray();
+                if (divergenceSource[i] >= 0)
+                {
+                    var b = spreading[divergenceSource[i]]; double power = D.Clamp(b.Stress / 700.0, .1, 1.5), envelope = D.Kernel(extension, land ? 550000 : 1100000);
+                    double relief = (land ? -700 : 2400) * power * envelope; h += relief;
+                    if (envelope > .01) FeatureCell(land ? FeatureKind.Rift : FeatureKind.MidOceanRidge, b, i, relief, land ? 550000 : 1100000);
+                }
+                h -= 130 * D.Kernel(transformDistance[i], 200000);
+                h += r.Relief / .4 * ((land ? 340 : 85) * detail * (1 - .7 * craton) + 120 * province * coastMask);
+                h += w.MantlePermille[i] * (land ? .5 : .25);
+                // Crust labels are distinct from coastlines; roughness may submerge a continental coast.
+                if (land) h -= coastMask * Math.Max(0, -province) * 120;
+                heights[i] = h;
             }
-            for (int k = 0; k < D.M(r.Volcanism * 14); k++)
+            foreach (var entry in featureRecords)
+            { var f = entry.Value; f.Id = features.Count; f.Name = f.Kind + " " + f.Id; f.Cells = featureCells[entry.Key].ToArray(); features.Add(f); }
+            int hotspots = 10;
+            for (int k = 0; k < hotspots; k++)
             {
-                var rng = new Rng(r.Seed, "hotspot", k); int cell = (int)(rng.Next() % (uint)n); var at = s.Cells[cell].Position; var motion = V.Cross(w.Microplates[w.CellMicroplate[cell]].Motion, at).Unit;
+                var random = new Rng(r.Seed, "hotspots", k); V at = random.Vector().Unit; int cell = Erosion.Nearest(s, at);
+                V drift = V.Cross(w.Microplates[w.CellMicroplate[cell]].Motion, at).Unit;
                 for (int age = 0; age < 5; age++)
                 {
-                    var center = (at - motion * (age * .055)).Unit; int amplitude = D.M((height[cell] < 0 ? 6500 : 2200) * r.Volcanism * (1 - age * .13));
-                    var f = Add(age == 0 ? FeatureKind.Hotspot : FeatureKind.IslandChain, null, center, motion, amplitude, age == 0 ? 450000 : 280000); f.AgeMyr = age * 12; var cells = new List<int>();
-                    for (int i = 0; i < n; i++) { double d = D.Angle(s.Cells[i].Position, center) * r.RadiusKm * 1000; if (d < f.WidthM) { height[i] += f.AmplitudeM * D.Kernel(d, f.WidthM); cells.Add(i); } }
-                    f.Cells = cells.ToArray();
+                    V center = (at - drift * (age * .04)).Unit; int width = age == 0 ? 430000 : 300000;
+                    double amplitude = (w.Continent[cell] >= 0 ? 2100 : 6300) * (1 - age * .16);
+                    var cells = new List<int>();
+                    for (int i = 0; i < n; i++)
+                    {
+                        if ((i & 4095) == 0) token.ThrowIfCancellationRequested();
+                        double chord = 1 - V.Dot(s.Cells[i].Position, center); if (chord > .01) continue;
+                        double distance = D.Angle(s.Cells[i].Position, center) * r.RadiusKm * 1000;
+                        if (distance >= width) continue;
+                        heights[i] += amplitude * D.Kernel(distance, width); cells.Add(i);
+                    }
+                    features.Add(new Feature { Id = features.Count, Name = (age == 0 ? "Hotspot " : "Volcanic trail ") + k + "/" + age, Kind = age == 0 ? FeatureKind.Hotspot : FeatureKind.IslandChain, Center = center, Axis = drift, AmplitudeM = D.M(amplitude), WidthM = width, AgeMyr = age * 10, Cells = cells.ToArray() });
                 }
-                if (k % 4 == 0) { var f = Add(FeatureKind.LargeIgneousProvince, null, at, motion, D.M(850 * r.Volcanism), 1100000); var cells = new List<int>(); for (int i = 0; i < n; i++) { double d = D.Angle(s.Cells[i].Position, at) * r.RadiusKm * 1000; if (d < f.WidthM) { height[i] += f.AmplitudeM * D.Kernel(d, f.WidthM); cells.Add(i); } } f.Cells = cells.ToArray(); }
+                if (k % 4 == 0)
+                {
+                    var cells = new List<int>();
+                    for (int i = 0; i < n; i++)
+                    {
+                        if ((i & 4095) == 0) token.ThrowIfCancellationRequested();
+                        if (1 - V.Dot(s.Cells[i].Position, at) > .025) continue;
+                        double distance = D.Angle(s.Cells[i].Position, at) * r.RadiusKm * 1000;
+                        if (distance < 1100000) { heights[i] += 650 * D.Kernel(distance, 1100000); cells.Add(i); }
+                    }
+                    features.Add(new Feature { Id = features.Count, Name = "Igneous province " + k, Kind = FeatureKind.LargeIgneousProvince, Center = at, WidthM = 1100000, AmplitudeM = 650, Cells = cells.ToArray() });
+                }
             }
-            // Stable shallow sills between nearby distinct continental identities.
-            var bridges = new List<int>();
-            for (int i = 0; i < n; i++) if (w.Continent[i] < 0 && w.CoastDistanceM[i] < 800000)
-            {
-                var identities = s.Cells[i].Neighbors.Select(j => w.Continent[j]).Where(c => c >= 0).Distinct().ToArray();
-                if (identities.Length >= 2)
-                { double u = Rng.Value(r.Seed, "land-bridge", i); if (u < r.Isthmus * r.Connectedness) { height[i] = Math.Max(height[i], 80 + 120 * u); bridges.Add(i); } else if (u < r.NearStrait) { height[i] = Math.Max(height[i], -80 - 160 * u); bridges.Add(i); } }
-            }
-            if (bridges.Count > 0) Add(FeatureKind.LandBridge, null, s.Cells[bridges[0]].Position, new V(), 0, 0).Cells = bridges.ToArray();
-            var shelves = Enumerable.Range(0, n).Where(i => w.Continent[i] < 0 && height[i] >= -350).ToArray(); if (shelves.Length > 0) Add(FeatureKind.Shelf, null, s.Cells[shelves[0]].Position, new V(), 0, 0).Cells = shelves;
-            var slopes = Enumerable.Range(0, n).Where(i => w.Continent[i] < 0 && height[i] < -350 && height[i] > -4000).ToArray(); if (slopes.Length > 0) Add(FeatureKind.Slope, null, s.Cells[slopes[0]].Position, new V(), 0, 0).Cells = slopes;
-            w.TectonicM = height.Select(D.M).ToArray(); w.Features = features.ToArray(); ProtectInlandSeas(w);
-            // A bounded tangent-space warp blends neighboring heights; authoritative and retained before erosion.
-            w.PreErosionM = (int[])w.TectonicM.Clone();
-            for (int i = 0; i < n; i++) if (!w.ProtectedInlandSea[i])
-            { var p = s.Cells[i].Position; V dir = V.Tangent(p, new V(Noise(p, r.Seed, 9), Noise(p, r.Seed ^ 123, 9), Noise(p, r.Seed ^ 731, 9))); int nb = s.Cells[i].Neighbors.OrderByDescending(j => V.Dot(V.Tangent(p, s.Cells[j].Position), dir)).ThenBy(j => j).First(); w.PreErosionM[i] = D.M(w.TectonicM[i] * (1 - r.Relief * .12) + w.TectonicM[nb] * r.Relief * .12); }
-            w.ElevationM = (int[])w.PreErosionM.Clone();
-        }
-        public static void ProtectInlandSeas(World w)
-        {
-            var s = w.Surface; var r = w.Recipe; int n = s.Cells.Length; w.ProtectedInlandSea = new bool[n]; if (r.PreserveInlandSeas == 0) return;
-            var labels = Graph.Components(s, i => w.TectonicM[i] < 0); int main = Graph.LargestComponent(s, labels); var list = w.Features.ToList();
-            foreach (int id in labels.Where(i => i >= 0 && i != main).Distinct().OrderBy(i => i))
-            {
-                var cells = Enumerable.Range(0, n).Where(i => labels[i] == id).ToArray(); long area = cells.Sum(i => s.Cells[i].AreaM2); bool marine = cells.Any(i => w.Continent[i] < 0);
-                bool enclosed = cells.SelectMany(i => s.Cells[i].Neighbors).Any(i => w.Continent[i] >= 0 && w.Stress[i] > 100);
-                if (!marine || !enclosed || area < r.InlandSeaMinAreaKm2 * 1e6 || -cells.Min(i => w.TectonicM[i]) < r.InlandSeaMinDepthM) continue;
-                foreach (int c in cells) w.ProtectedInlandSea[c] = true;
-                list.Add(new Feature { Id = list.Count, Name = "Tectonic inland sea " + id, Kind = FeatureKind.InlandSea, Center = s.Cells[cells[0]].Position, Cells = cells });
-            }
-            w.Features = list.ToArray();
+            w.TectonicM = heights.Select(h => D.M(h > 6000 ? 6000 + (h - 6000) * .18 : h)).ToArray(); w.Features = features.ToArray();
+            w.ProtectedInlandSea = new bool[n];
+            w.PreErosionM = (int[])w.TectonicM.Clone(); w.ElevationM = (int[])w.TectonicM.Clone();
         }
     }
 }

@@ -1,23 +1,48 @@
-param([string]$Unity='C:/Program Files/Unity/Hub/Editor/6000.6.0f1/Editor/Unity.exe',[switch]$BuildPlayer,[switch]$PlayerCheck)
+param(
+    [string]$Unity='C:/Program Files/Unity/Hub/Editor/6000.6.0f1/Editor/Unity.exe',
+    [switch]$BuildPlayer,
+    [switch]$PlayerCheck,
+    [switch]$Isolated,
+    [string]$PlayerFolder="player"
+)
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot
-$project=Join-Path $repoRoot 'unity/WorldGen.Unity'
-$artifacts=Join-Path $repoRoot 'artifacts'
+$sourceProject=Join-Path $repoRoot 'unity/WorldGen.Unity'
+$validationRoot=if($Isolated){Join-Path $repoRoot 'artifacts/unity-v2'}else{$repoRoot}
+$project=Join-Path $validationRoot 'unity/WorldGen.Unity'
+$normalizedProject=([IO.Path]::GetFullPath($project)).Replace('\','/')
+$open=Get-CimInstance Win32_Process -Filter "Name='Unity.exe'" | Where-Object {
+    $_.CommandLine -and !$_.CommandLine.Contains('-adb2') -and $_.CommandLine.Replace('\','/').IndexOf($normalizedProject,[StringComparison]::OrdinalIgnoreCase) -ge 0
+}
+if($open){throw "An editor already has this project open. Close that editor, or use -Isolated when validating the main project."}
+if($Isolated){
+    New-Item -ItemType Directory -Force $project | Out-Null
+    foreach($part in @('Assets','Packages','ProjectSettings')){
+        robocopy (Join-Path $sourceProject $part) (Join-Path $project $part) /E /NFL /NDL /NJH /NJS /NP | Out-Null
+        if($LASTEXITCODE -gt 7){throw "Failed to copy $part into the isolated project"}
+    }
+    $goldenDestination=Join-Path $validationRoot 'tests/golden/v3'
+    New-Item -ItemType Directory -Force $goldenDestination | Out-Null
+    Copy-Item -Path (Join-Path $repoRoot 'tests/golden/v3/*.json') -Destination $goldenDestination -Force
+}
+$artifacts=Join-Path $validationRoot 'artifacts'
 New-Item -ItemType Directory -Force $artifacts | Out-Null
 $method=if($BuildPlayer){'WorldGenBatch.BuildPlayer'}else{'WorldGenBatch.Validate'}
 $log=Join-Path $artifacts $(if($BuildPlayer){'unity-build.log'}else{'unity-validation.log'})
-$arguments=@('-batchmode','-nographics','-quit','-projectPath',('"'+$project+'"'),'-executeMethod',$method,'-logFile',('"'+$log+'"'))
+$playerOutput=[IO.Path]::GetFullPath((Join-Path $artifacts ($PlayerFolder+'/WorldGen.exe')))
+if(!$playerOutput.StartsWith([IO.Path]::GetFullPath($artifacts)+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Player folder must stay inside validation artifacts'}
+$arguments=@('-batchmode' ,'-nographics','-quit','-projectPath',('"'+$project+'"'),'-executeMethod',$method,'--worldgen-build-output',('"'+$playerOutput+'"'),'-logFile',('"'+$log+'"'))
 $run=Start-Process -FilePath $Unity -ArgumentList $arguments -WindowStyle Hidden -PassThru
 $run.WaitForExit()
 if($run.ExitCode -ne 0){throw "Unity failed. Inspect $log"}
 if($PlayerCheck){
     $output=Join-Path $artifacts 'unity-player'
-    $player=Start-Process -FilePath (Join-Path $artifacts 'player/WorldGen.exe') -ArgumentList @('-batchmode','-nographics','--worldgen-check','--worldgen-output',('"'+$output+'"'),'-logFile',('"'+(Join-Path $artifacts 'player-check.log')+'"')) -WindowStyle Hidden -PassThru
+    $player=Start-Process -FilePath $playerOutput -ArgumentList @('-batchmode','-nographics','--worldgen-check','--worldgen-output',('"'+$output+'"'),'-logFile',('"'+(Join-Path $artifacts 'player-check.log')+'"')) -WindowStyle Hidden -PassThru
     $player.WaitForExit()
     if($player.ExitCode -ne 0){throw 'Player checks failed'}
-    foreach($golden in Get-ChildItem (Join-Path $repoRoot 'tests/golden') -Filter '*.hashes.json'){
-        $expected=Get-Content -Raw $golden.FullName | ConvertFrom-Json
-        $actual=Get-Content -Raw (Join-Path $output $golden.Name) | ConvertFrom-Json
+    foreach($golden in Get-ChildItem (Join-Path $repoRoot 'tests/golden/v3') -Filter '*.hashes.json'){
+        $expected=Get-Content -Raw -LiteralPath $golden.FullName | ConvertFrom-Json
+        $actual=Get-Content -Raw -LiteralPath (Join-Path $output $golden.Name) | ConvertFrom-Json
         if(($expected.Hash -join ',') -ne ($actual.Hash -join ',')){throw "Player hash mismatch: $($golden.Name)"}
     }
     Write-Host 'All player stage hashes match CLI golden corpus.'

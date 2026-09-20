@@ -1,3 +1,7 @@
+> Current scope is schema 3 / worldgen-3.0.0. See docs/OROGEN_ALIGNMENT.md and docs/ALGORITHMS.md: fixed coarse plates, detail-dependent terrain, persistent hydrology deferred. Earlier fixed-all-20k or hydrology requirements below are historical. The owner declined GPL translation.
+
+> Historical version-1 brief/audit. The 17 September 2026 owner instructions and [OROGEN_ALIGNMENT.md](OROGEN_ALIGNMENT.md) define the current independent version-2 implementation and supersede conflicting scope/algorithm decisions below. No GPL source translation is authorized.
+
 # First world-generator build: decisions, setup, and Codex implementation prompt
 
 Prepared 10 September 2026. This brief carries the Map2/World Orogen analysis into the first implementation milestone.

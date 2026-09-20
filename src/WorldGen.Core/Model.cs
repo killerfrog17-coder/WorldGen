@@ -77,15 +77,18 @@ namespace WorldGen.Core
     [Serializable]
     public sealed class World
     {
-        public int SchemaVersion = 1; public Recipe Recipe = new Recipe(); public Surface Surface = new Surface();
+        public int SchemaVersion = 3; public Recipe Recipe = new Recipe(); public Surface Surface = new Surface();
+        public Surface CoarseSurface = new Surface(); public int[] CoarsePlate = Array.Empty<int>(), CoarseContinent = Array.Empty<int>(); public string CoarseHash = "";
         public Microplate[] Microplates = Array.Empty<Microplate>(); public ParentPlate[] Parents = Array.Empty<ParentPlate>(); public Boundary[] Boundaries = Array.Empty<Boundary>(); public Feature[] Features = Array.Empty<Feature>();
         public int[] CellMicroplate = Array.Empty<int>(), Continent = Array.Empty<int>(), Landmass = Array.Empty<int>(), TectonicM = Array.Empty<int>(), PreErosionM = Array.Empty<int>(), ElevationM = Array.Empty<int>(), Stress = Array.Empty<int>(), BoundaryDistanceM = Array.Empty<int>(), CoastDistanceM = Array.Empty<int>();
         public bool[] ProtectedInlandSea = Array.Empty<bool>(); public HydrologyResult Hydrology = new HydrologyResult();
         public int[] FoldPermille = Array.Empty<int>(), CratonPermille = Array.Empty<int>(), BasinPermille = Array.Empty<int>(), PlateauPermille = Array.Empty<int>();
+        public int[] MantlePermille = Array.Empty<int>();
+        public ClimateResult Climate = new ClimateResult();
         public List<StageRecord> Stages = new List<StageRecord>(); public List<Metric> Metrics = new List<Metric>(); public List<string> Warnings = new List<string>();
         public void Metric(string name, double value, string unit = "") => Metrics.Add(new Metric { Name = name, Value = D.Q(value, 1000000), Unit = unit });
     }
     public sealed class GenerationProgress { public string Stage; public int Percent; public GenerationProgress(string s, int p) { Stage = s; Percent = p; } }
-    // Future climate module supplies actual runoff for each of four seasons; no climate simulation lives here.
+    // Orogen-style two-season climate is not a four-season hydrological runoff model.
     public interface ISeasonalRunoffProvider { double[] RunoffDepthMetres(World world, int seasonIndex); }
 }

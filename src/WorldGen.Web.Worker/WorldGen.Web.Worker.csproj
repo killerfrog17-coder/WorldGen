@@ -2,6 +2,7 @@
   <ItemGroup>
     <ProjectReference Include="..\WorldGen.Core\WorldGen.Core.csproj" />
     <ProjectReference Include="..\WorldGen.Serialization\WorldGen.Serialization.csproj" />
+    <ProjectReference Include="../WorldGen.Presentation/WorldGen.Presentation.csproj" />
   </ItemGroup>
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>

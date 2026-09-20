@@ -21,5 +21,6 @@ try {
         foreach($name in @('Core','Serialization','Presentation')){
             Copy-Item -LiteralPath "src/WorldGen.$name/bin/Release/netstandard2.1/WorldGen.$name.dll" -Destination $pluginDestination -Force
         }
+        Copy-Item -LiteralPath 'src/WorldGen.Core/bin/Release/netstandard2.1/DelaunatorSharp.dll' -Destination $pluginDestination -Force
     }
 } finally {Pop-Location}

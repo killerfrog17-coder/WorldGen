@@ -1,3 +1,7 @@
+> Current scope is schema 3 / worldgen-3.0.0. See docs/OROGEN_ALIGNMENT.md and docs/ALGORITHMS.md: fixed coarse plates, detail-dependent terrain, persistent hydrology deferred. Earlier fixed-all-20k or hydrology requirements below are historical. The owner declined GPL translation.
+
+> Historical version-1 brief/audit. The 17 September 2026 owner instructions and [OROGEN_ALIGNMENT.md](OROGEN_ALIGNMENT.md) define the current independent version-2 implementation and supersede conflicting scope/algorithm decisions below. No GPL source translation is authorized.
+
 # World Orogen reference audit and implementation map
 
 Reference: [planet_heightmap_generation at cc2662b4edd52231c4f65d8765f3ef12cd82d9b7](https://github.com/raguilar011095/planet_heightmap_generation/tree/cc2662b4edd52231c4f65d8765f3ef12cd82d9b7). Source was fetched into a temporary directory outside this repository and inspected before implementation. No Orogen source, assets, parameter tables, or mechanical translations are included here. Its GPL-3.0 license remains relevant to any future proposal to copy code. This implementation is independently written C#.

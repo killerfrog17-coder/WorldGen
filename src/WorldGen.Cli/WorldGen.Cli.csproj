@@ -3,7 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\WorldGen.Core\WorldGen.Core.csproj" />
     <ProjectReference Include="..\WorldGen.Serialization\WorldGen.Serialization.csproj" />
-  </ItemGroup>
+  <ProjectReference Include="../WorldGen.Presentation/WorldGen.Presentation.csproj" /></ItemGroup>
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>

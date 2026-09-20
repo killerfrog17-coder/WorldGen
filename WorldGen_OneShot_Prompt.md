@@ -1,3 +1,7 @@
+> Current scope is schema 3 / worldgen-3.0.0. See docs/OROGEN_ALIGNMENT.md and docs/ALGORITHMS.md: fixed coarse plates, detail-dependent terrain, persistent hydrology deferred. Earlier fixed-all-20k or hydrology requirements below are historical. The owner declined GPL translation.
+
+> Historical version-1 brief/audit. The 17 September 2026 owner instructions and [docs/OROGEN_ALIGNMENT.md](docs/OROGEN_ALIGNMENT.md) define the current independent version-2 implementation and supersede conflicting scope/algorithm decisions below. No GPL source translation is authorized.
+
 Build the first complete milestone of this procedural world generator in the current repository. Work autonomously through implementation, testing, and review. Do not stop after scaffolding or a plan. Inspect all existing files and AGENTS.md first, preserve relevant existing work, and keep the repository buildable throughout.
 
 The current directory is the WorldGen repository root. An existing Unity project should be at unity/WorldGen.Unity. Detect and preserve it if present. Create the shared solution, browser, CLI, tests, documentation, and supporting projects as siblings under this repository. A suitable layout is:

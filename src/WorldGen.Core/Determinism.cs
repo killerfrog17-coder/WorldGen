@@ -13,8 +13,10 @@ namespace WorldGen.Core
         public static double Sqrt(double x)
         {
             if (x <= 0) return 0;
-            double y = x >= 1 ? x : 1;
-            for (int i = 0; i < 48; i++) y = .5 * (y + x / y);
+            // An exponent-derived starting value avoids dozens of redundant iterations
+            // for the small tangent vectors used by circulation and spherical geometry.
+            double y = BitConverter.Int64BitsToDouble((BitConverter.DoubleToInt64Bits(x) >> 1) + 0x1ff8000000000000L);
+            for (int i = 0; i < 8; i++) y = .5 * (y + x / y);
             return Q(y);
         }
         public static double Atan(double x)

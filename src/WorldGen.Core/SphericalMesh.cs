@@ -2,54 +2,89 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using DelaunatorSharp;
 
 namespace WorldGen.Core
 {
     public static class SphericalMesh
     {
+        public const int CanonicalCellCount = 20000;
         public const int MinCellsPerMicroplate = 16;
-        public static Surface Build(Recipe r, CancellationToken token)
+        public static Surface Build(Recipe r, CancellationToken token) => Build(r, r.Detail, r.Irregularity, "detail-geometry", token);
+        public static Surface BuildCoarse(Recipe r, CancellationToken token) => Build(r, CanonicalCellCount, .75, "canonical-geometry", token);
+        static Surface Build(Recipe r, int count, double irregularity, string stream, CancellationToken token)
         {
-            double phi = (1 + D.Sqrt(5)) / 2;
-            var v = new List<V> { new V(-1,phi,0).Unit,new V(1,phi,0).Unit,new V(-1,-phi,0).Unit,new V(1,-phi,0).Unit,
-                new V(0,-1,phi).Unit,new V(0,1,phi).Unit,new V(0,-1,-phi).Unit,new V(0,1,-phi).Unit,
-                new V(phi,0,-1).Unit,new V(phi,0,1).Unit,new V(-phi,0,-1).Unit,new V(-phi,0,1).Unit };
-            var tris = new List<int> { 0, 11, 5, 0, 5, 1, 0, 1, 7, 0, 7, 10, 0, 10, 11, 1, 5, 9, 5, 11, 4, 11, 10, 2, 10, 7, 6, 7, 1, 8, 3, 9, 4, 3, 4, 2, 3, 2, 6, 3, 6, 8, 3, 8, 9, 4, 9, 5, 2, 4, 11, 6, 2, 10, 8, 6, 7, 9, 8, 1 };
-            int required = Math.Max(r.MacroCellCount, r.MicroplateCount * MinCellsPerMicroplate);
-            while (v.Count < required)
+            var geometry = Fibonacci(count, irregularity, r.Seed, stream, token);
+            var v = geometry.Positions; var tris = geometry.Triangles;
+            var surface = new Surface { Triangles = tris, Cells = new Cell[v.Length], Corners = new V[tris.Length / 3] };
+            var area = new double[v.Length]; var degree = new int[v.Length];
+            // Sorted packed edge keys replace millions of tree nodes and per-cell sets.
+            var keys = new long[tris.Length]; var faces = new int[tris.Length];
+            for (int t = 0; t < tris.Length; t += 3)
             {
-                token.ThrowIfCancellationRequested(); var mid = new Dictionary<long, int>(); var next = new List<int>();
-                int Mid(int a, int b) { long key = Key(a, b); if (mid.TryGetValue(key, out int id)) return id; id = v.Count; v.Add((v[a] + v[b]).Unit); mid.Add(key, id); return id; }
-                for (int t = 0; t < tris.Count; t += 3) { int a = tris[t], b = tris[t + 1], c = tris[t + 2], ab = Mid(a, b), bc = Mid(b, c), ca = Mid(c, a); next.AddRange(new[] { a, ab, ca, b, bc, ab, c, ca, bc, ab, bc, ca }); }
-                tris = next;
-            }
-            // Sphere-native irregularity without a projection seam; each vertex stays in its local neighborhood.
-            double jitter = .22 * D.Sqrt(4 * D.Pi / v.Count);
-            for (int i = 0; i < v.Count; i++) { var rng = new Rng(r.Seed, "mesh-jitter", i); v[i] = (v[i] + V.Tangent(v[i], rng.Vector()) * (jitter * (.3 + .7 * rng.Unit()))).Unit; }
-            var surface = new Surface { Triangles = tris.ToArray(), Cells = new Cell[v.Count], Corners = new V[tris.Count / 3] };
-            var area = new double[v.Count]; var adjacency = new SortedSet<int>[v.Count]; for (int i = 0; i < v.Count; i++) adjacency[i] = new SortedSet<int>();
-            var edges = new SortedDictionary<long, Edge>();
-            for (int t = 0; t < tris.Count; t += 3)
-            {
+                if ((t & 4095) == 0) token.ThrowIfCancellationRequested();
                 int a = tris[t], b = tris[t + 1], c = tris[t + 2]; var center = (v[a] + v[b] + v[c]).Unit; surface.Corners[t / 3] = center;
-                int[] ids = { a, b, c };
                 for (int k = 0; k < 3; k++)
                 {
-                    int x = ids[k], y = ids[(k + 1) % 3], z = ids[(k + 2) % 3];
+                    int x = tris[t + k], y = tris[t + (k + 1) % 3], z = tris[t + (k + 2) % 3];
                     area[x] += TriangleArea(v[x], (v[x] + v[y]).Unit, center) + TriangleArea(v[x], center, (v[x] + v[z]).Unit);
-                    adjacency[x].Add(y); adjacency[y].Add(x); long key = Key(x, y);
-                    if (edges.TryGetValue(key, out var edge)) edge.TriangleB = t / 3;
-                    else edges.Add(key, new Edge { A = Math.Min(x, y), B = Math.Max(x, y), TriangleA = t / 3, TriangleB = -1 });
+                    keys[t + k] = Key(x, y); faces[t + k] = t / 3;
                 }
             }
-            int radiusM = r.RadiusKm * 1000;
-            for (int i = 0; i < v.Count; i++)
+            Array.Sort(keys, faces); token.ThrowIfCancellationRequested();
+            surface.Edges = new Edge[keys.Length / 2]; int radiusM = r.RadiusKm * 1000;
+            for (int k = 0; k < keys.Length; k += 2)
             {
-                var n = adjacency[i].ToArray(); surface.Cells[i] = new Cell { Id = i, Position = v[i], AreaM2 = (long)Math.Round(area[i] * radiusM * radiusM), Neighbors = n, DistanceM = n.Select(j => Math.Max(1, D.M(D.Angle(v[i], v[j]) * radiusM))).ToArray() };
+                if ((k & 4095) == 0) token.ThrowIfCancellationRequested();
+                if (k + 1 >= keys.Length || keys[k] != keys[k + 1]) throw new InvalidOperationException("Open sphere.");
+                int a = (int)(keys[k] >> 32), b = (int)keys[k], ta = Math.Min(faces[k], faces[k + 1]), tb = Math.Max(faces[k], faces[k + 1]);
+                surface.Edges[k / 2] = new Edge { Id = k / 2, A = a, B = b, TriangleA = ta, TriangleB = tb,
+                    LengthM = Math.Max(1, D.M(D.Angle(surface.Corners[ta], surface.Corners[tb]) * radiusM)) };
+                degree[a]++; degree[b]++;
             }
-            surface.Edges = edges.Values.ToArray();
-            for (int i = 0; i < surface.Edges.Length; i++) { var e = surface.Edges[i]; if (e.TriangleB < 0) throw new InvalidOperationException("Open sphere."); e.Id = i; e.LengthM = Math.Max(1, D.M(D.Angle(surface.Corners[e.TriangleA], surface.Corners[e.TriangleB]) * radiusM)); }
-            return surface;
+            for (int i = 0; i < v.Length; i++)
+                surface.Cells[i] = new Cell { Id = i, Position = v[i], AreaM2 = Math.Max(1, (long)Math.Round(area[i] * radiusM * radiusM)), Neighbors = new int[degree[i]], DistanceM = new int[degree[i]] };
+            Array.Clear(degree, 0, degree.Length);
+            foreach (var e in surface.Edges)
+            {
+                int distance = Math.Max(1, D.M(D.Angle(v[e.A], v[e.B]) * radiusM));
+                int a = degree[e.A]++, b = degree[e.B]++;
+                surface.Cells[e.A].Neighbors[a] = e.B; surface.Cells[e.A].DistanceM[a] = distance;
+                surface.Cells[e.B].Neighbors[b] = e.A; surface.Cells[e.B].DistanceM[b] = distance;
+            }
+            for (int i = 0; i < v.Length; i++) Array.Sort(surface.Cells[i].Neighbors, surface.Cells[i].DistanceM);
+            token.ThrowIfCancellationRequested(); return surface;
+        }
+        public sealed class Geometry { public V[] Positions; public int[] Triangles; }
+        // Independently constructed Fibonacci sampling and stereographic triangulation.
+        // Count includes the north-pole closure vertex; the coarse plate mesh always has exactly 20,000 cells.
+        public static Geometry Fibonacci(int count, double irregularity, int seed, string stream, CancellationToken token = default)
+        {
+            if (count < 4 || count > 2560000) throw new ArgumentOutOfRangeException(nameof(count));
+            var positions = new V[count]; var flat = new IPoint[count - 1];
+            double turn = D.Pi * (3 - D.Sqrt(5)), spacing = D.Sqrt(4 * D.Pi / count);
+            var rng = new Rng(seed, stream);
+            for (int i = 0; i < count - 1; i++)
+            {
+                if ((i & 1023) == 0) token.ThrowIfCancellationRequested();
+                double z = -1 + 2 * (i + .5) / (count - 1), radial = D.Sqrt(1 - z * z), longitude = i * turn;
+                var p = new V(radial * D.Sin(longitude + D.Pi / 2), radial * D.Sin(longitude), z);
+                var east = V.Tangent(p, new V(-p.Y, p.X, 0)); var north = V.Cross(p, east);
+                p = (p + (east * (rng.Unit() - rng.Unit()) + north * (rng.Unit() - rng.Unit())) * (spacing * irregularity * .4)).Unit;
+                positions[i] = p; double denominator = Math.Max(1e-12, 1 - p.Z);
+                flat[i] = new Point(D.Q(p.X / denominator, 1e9), D.Q(p.Y / denominator, 1e9));
+            }
+            positions[count - 1] = new V(0, 0, 1);
+            var delaunay = new Delaunator(flat); token.ThrowIfCancellationRequested();
+            var faces = new List<int>(delaunay.Triangles.Length + delaunay.Hull.Length * 3);
+            void Face(int a, int b, int c)
+            {
+                if (V.Dot(V.Cross(positions[b] - positions[a], positions[c] - positions[a]), positions[a]) < 0) { int swap = b; b = c; c = swap; }
+                faces.Add(a); faces.Add(b); faces.Add(c);
+            }
+            for (int i = 0; i < delaunay.Triangles.Length; i += 3) Face(delaunay.Triangles[i], delaunay.Triangles[i + 1], delaunay.Triangles[i + 2]);
+            for (int i = 0; i < delaunay.Hull.Length; i++) Face(delaunay.Hull[i], delaunay.Hull[(i + 1) % delaunay.Hull.Length], count - 1);
+            return new Geometry { Positions = positions, Triangles = faces.ToArray() };
         }
         static long Key(int a, int b) => ((long)Math.Min(a, b) << 32) | (uint)Math.Max(a, b);
         static double TriangleArea(V a, V b, V c) => 2 * D.Atan(Math.Abs(V.Dot(a, V.Cross(b, c))) / Math.Max(1e-15, 1 + V.Dot(a, b) + V.Dot(b, c) + V.Dot(c, a)));
@@ -63,12 +98,13 @@ namespace WorldGen.Core
             { labels[i] = id; q.Enqueue(i); while (q.Count > 0) { int c = q.Dequeue(); foreach (int n in s.Cells[c].Neighbors) if (labels[n] < 0 && included(n)) { labels[n] = id; q.Enqueue(n); } } id++; }
             return labels;
         }
-        public static int[] Distances(Surface s, IEnumerable<int> seeds, out int[] nearest)
+        public static int[] Distances(Surface s, IEnumerable<int> seeds, out int[] nearest, CancellationToken token = default)
         {
             var dist = Enumerable.Repeat(int.MaxValue, s.Cells.Length).ToArray(); nearest = Enumerable.Repeat(-1, s.Cells.Length).ToArray(); var heap = new Heap();
             foreach (int i in seeds.OrderBy(i => i)) { dist[i] = 0; nearest[i] = i; heap.Push(0, i, i); }
             while (heap.Count > 0)
             {
+                if ((heap.Count & 1023) == 0) token.ThrowIfCancellationRequested();
                 var item = heap.Pop(); int c = item.Id; if (item.Key != dist[c] || item.From != nearest[c]) continue;
                 var cell = s.Cells[c]; for (int k = 0; k < cell.Neighbors.Length; k++) { int n = cell.Neighbors[k]; long d = item.Key + cell.DistanceM[k]; if (d < dist[n] || d == dist[n] && nearest[c] < nearest[n]) { dist[n] = (int)d; nearest[n] = nearest[c]; heap.Push(d, n, nearest[n]); } }
             }

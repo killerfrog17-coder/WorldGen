@@ -10,6 +10,7 @@
     "test:worker": "node scripts/worker-check.mjs"
   },
   "devDependencies": {
+    "delaunator": "5.0.1",
     "playwright": "1.58.2"
   }
 }

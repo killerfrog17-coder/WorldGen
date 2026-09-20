@@ -1,40 +1,15 @@
-# Determinism contract, versions and cross-host validation
+# Determinism and versioning
 
-The current recipe schema is 1; the algorithm is `worldgen-1.0.0`. A complete recipe, seed and algorithm version determine authoritative output. Unsupported versions fail rather than silently invoking a new generator. Recipe loading requires all known fields exactly once and rejects unknown settings.
+Schema **3**, algorithm **worldgen-3.5.0**. The determinism key is seed + complete recipe + algorithm version, including Detail and Irregularity. Older recipes are rejected. View projection, longitude, wireframe, plate coloring, grid and window controls are presentation only.
 
-Randomness is project-owned xorshift32. Each stream starts from the seed, FNV-1a of a named stream, and a mixed stable entity ID. Mixing uses explicitly unchecked 32-bit integer overflow; random fractions use exactly 24 bits. Geometry, seeding, plate motion, frontier variation, continents, ghosts, volcanic chains and endorheic choice have distinct streams. No System.Random, Unity random state, JavaScript random state, wall clock or GPU results enter authoritative decisions.
+`World.CoarseSurface` has exactly 20,000 cells; `CoarsePlate`, `CoarseContinent` and `CoarseHash` retain the independent coarse partition. Changing only detail or irregularity preserves `CoarseHash`. The final Surface and terrain/climate arrays have Recipe.Detail cells. Fine terrain is recomputed; no display interpolation changes the apparent resolution of a 20k simulation.
 
-Vectors quantize scalar components to 1e-9 on construction and dot products to the same scale. Owned fixed-iteration Newton square root and series atan/sine avoid runtime transcendental-library selection. Noise outputs quantize to 1e-6. Growth ranking uses integer millionths; metres, motion/stress units, permille province weights, graph distances and hydrology levels are integers; area and accumulation are signed 64-bit square metres. All graph ties have ordered IDs. Collections used for lookup are not enumerated to choose authoritative winners; frontiers, components, neighbors and reductions have explicit ordering.
+Owned named xorshift32 streams, stable IDs, sorted packed mesh edges, ordered adjacency/frontiers and stable graph ties govern generation. Vector operations quantize to 1e-9; scalar noise to 1e-6; physical heights, distances, areas and climate storage use integer fields. Owned fixed-iteration square root, sine and atan avoid runtime math discrepancies in authoritative calculations.
 
-Stage hashes serialize public instance fields in ordinal name order, with canonical primitive type tags and ordered arrays/lists. Generic type tags exclude runtime assembly identities (e.g. `mscorlib` versus `System.Private.CoreLib`). Floating diagnostics hash at 1e-6 precision; integer authoritative fields hash exactly. SHA-256 produces a stable digest after geometry, microplates, parents, continents, boundaries, terrain, erosion, hydrology and completion. Each digest covers the complete state available at that stage, including recipe, semantic records, warnings and accumulated metrics; the digest list itself is excluded. Wall-clock timings and presentation state are excluded.
+Stages: coarse-plates, geometry, plate-projection, plate-physics, superplates, boundaries, terrain, erosion, climate, complete. Each intermediate stage hashes its name, previous hash and its outputs. The chain starts with the complete recipe hash. The final hash covers all public world state except the stage-record list. This avoids repeatedly hashing a multi-million-cell mesh at every intermediate stage while retaining snapshot integrity.
 
-`Reapply` and `Reconstruct` call the same complete pipeline. Cache reconstruction validates a result's integrity, then regenerates from its recipe. This deliberately prioritizes consistent output over incremental cache optimization. Changing render size, rotation, colors or preview sea level never enters this pipeline.
+SHA-256 uses ordinal field names, explicit type tags and ordered collections. Floating diagnostics quantize to 1e-6 and normalize signed zero. Specialized mesh-record writers preserve the exact canonical byte format while avoiding reflection/boxing; runtime layout guards reject newly added fields until these writers are updated. A buffered streaming writer checks cancellation while hashing; it does not allocate a second full serialized copy. Timings and presentation never enter authoritative hashes.
 
-## Commands
+Fresh, repeat, reapply, recipe roundtrip and cached reconstruction all call WorldPipeline. Tests require every stage to match, not only the final result. The reviewed fixtures in tests/golden/v3 are generated explicitly outside passing tests. V1/V2 remain historical. V3 changes are intentional: fine simulation, ocean-connectivity topology without persistent hydrology, no collision-context route, and the new hash chain.
 
-Run from the repository root:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/build.ps1
-dotnet run --project tests/WorldGen.Core.Tests -c Release
-dotnet run --project src/WorldGen.Cli -c Release -- --preset Preview --verify
-dotnet run --project src/WorldGen.Web -c Release --no-build --urls http://127.0.0.1:5080
-# In another shell, while the web server is running:
-npm ci
-node scripts/browser-check.mjs
-node scripts/worker-check.mjs
-powershell -ExecutionPolicy Bypass -File scripts/unity-check.ps1
-powershell -ExecutionPolicy Bypass -File scripts/unity-check.ps1 -BuildPlayer -PlayerCheck
-```
-
-`tests/golden/*.recipe.json` and `*.hashes.json` are the expected cross-host corpus. Worker tests compare **every stage**, not only final elevation. Unity editor tests compare reapply and JSON reconstruction with the same corpus. Player checks execute the built Windows runtime and compare its exported stage hashes. Outputs live under `artifacts/browser-worker`, `artifacts/unity-editor` and `artifacts/unity-player`.
-
-Regenerating golden files is an explicit maintenance action, not part of tests:
-
-```powershell
-dotnet run --project src/WorldGen.Cli -c Release -- --corpus tests/golden
-```
-
-Review algorithm changes before updating this corpus; after release, output-changing edits require a new algorithm version. The corpus covers ordinary, connected, isolated, escape-face, dead-end, inland-sea, glacial-basin and 500-microplate recipes. Tests require the named special cases to actually contain their intended features.
-
-Supported execution is validated against the exact hosts in `VALIDATION.md`. Matching x64 .NET, Unity Mono and Chrome Wasm does not establish untested IL2CPP, mobile ARM, console or all-browser parity. Treat those as additional targets requiring the same corpus rather than asserting universal floating-point equivalence.
+CLI, Unity Mono and Chrome Wasm must be compared. Their agreement does not establish untested IL2CPP, ARM, other operating systems or other browsers. See VALIDATION.md for actual evidence.

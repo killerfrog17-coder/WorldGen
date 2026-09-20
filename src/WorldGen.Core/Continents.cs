@@ -2,42 +2,46 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-
 namespace WorldGen.Core
 {
     public static class Continents
     {
         public static void Build(World w, CancellationToken token)
         {
-            var r = w.Recipe; var m = w.Microplates; int count = r.ContinentCount;
-            var seeds = Graph.SeparatedSeeds(m.Select(p => p.Centroid).ToArray(), count, r.Seed, "continent-seeds");
-            // Move some identity seeds toward the first seed while keeping distinct regions.
-            if (r.Connectedness > .5)
-                for (int k = 1; k < count; k++)
-                { var candidates = Enumerable.Range(0, m.Length).Where(i => !seeds.Take(k).Contains(i)).OrderBy(i => D.M((1 - V.Dot(m[i].Centroid, m[seeds[0]].Centroid)) * 1e6)).ThenBy(i => i).ToArray(); int index = Math.Min(candidates.Length - 1, D.M((1 - r.Connectedness) * candidates.Length * .5) + k); seeds[k] = candidates[index]; }
-            var areas = new long[count]; var targets = new double[count]; long total = m.Sum(p => p.AreaM2); double sum = 0;
-            for (int k = 0; k < count; k++) { targets[k] = 1 + r.ContinentVariation * (Rng.Value(r.Seed, "continent-size", k) * 3 - 1); sum += targets[k]; m[seeds[k]].ContinentId = k; areas[k] = m[seeds[k]].AreaM2; }
-            for (int k = 0; k < count; k++) targets[k] = targets[k] / sum * total * r.LandFraction;
-            long land = areas.Sum();
-            while (land < total * r.LandFraction)
+            var r = w.Recipe; var plates = w.Microplates; long total = plates.Sum(p => p.AreaM2);
+            // LandFraction is the user-facing final coverage target. The previous
+            // generator mapped it to too much final land, so invert the measured
+            // sweep fit before allocating whole continental plates.
+            double structuralFraction = D.Clamp((r.LandFraction - .0589175484) / 1.0526993813);
+            double target = total * structuralFraction;
+            int count = structuralFraction <= 0 ? 0 : Math.Min(r.ContinentCount, Math.Max(1, D.M(plates.Length * structuralFraction)));
+            var seeds = count == 0 ? Array.Empty<int>() : Graph.SeparatedSeeds(plates.Select(p => p.Centroid).ToArray(), count, r.Seed, "continent-seeds");
+            var areas = new double[count]; var weights = new double[count]; double weightSum = 0; long land = 0;
+            for (int g = 0; g < count; g++) { double v = Rng.Value(r.Seed, "continent-size", g); weights[g] = (1 - r.ContinentVariation) + r.ContinentVariation * (.15 + 3 * v * v); weightSum += weights[g]; }
+            for (int g = 0; g < count; g++) { var p = plates[seeds[g]]; p.ContinentId = g; areas[g] = p.AreaM2; land += p.AreaM2; }
+            while (land < target)
             {
-                token.ThrowIfCancellationRequested(); long best = long.MinValue; int chosen = -1, group = -1;
-                foreach (var p in m) if (p.ContinentId < 0)
+                token.ThrowIfCancellationRequested(); long best = long.MinValue; int winner = -1, identity = -1;
+                foreach (var p in plates) if (p.ContinentId < 0)
                 {
-                    foreach (int g in p.Neighbors.Select(n => m[n].ContinentId).Where(g => g >= 0).Distinct().OrderBy(g => g))
+                    foreach (int g in p.Neighbors.Select(i => plates[i].ContinentId).Where(i => i >= 0).Distinct().OrderBy(i => i))
                     {
-                        int other = p.Neighbors.Count(n => m[n].ContinentId >= 0 && m[n].ContinentId != g);
-                        double score = 3 * (1 - areas[g] / targets[g]) - (1 - r.Connectedness) * other * 5 + (r.Connectedness * 2 - 1) * p.Neighbors.Count(n => m[n].ContinentId >= 0) + .5 * Rng.Value(r.Seed, "continent-growth", p.Id * 13 + g);
-                        long q = (long)(score * 1e6); if (q > best) { best = q; chosen = p.Id; group = g; }
+                        double deficit = 1 - areas[g] / Math.Max(1, target * weights[g] / weightSum);
+                        int other = p.Neighbors.Count(i => plates[i].ContinentId >= 0 && plates[i].ContinentId != g);
+                        int contact = p.Neighbors.Count(i => plates[i].ContinentId == g);
+                        double score = 3 * deficit + .35 * contact - 4 * other + .6 * Rng.Value(r.Seed, "continent-frontier", p.Id * 11 + g);
+                        long key = (long)(score * 1e6);
+                        if (key > best) { best = key; winner = p.Id; identity = g; }
                     }
                 }
-                if (chosen < 0) break; m[chosen].ContinentId = group; areas[group] += m[chosen].AreaM2; land += m[chosen].AreaM2;
+                if (winner < 0) break;
+                // Whole plates are indivisible; retain whichever side of the target is closer.
+                if (land > 0 && target < total && Math.Abs(land + plates[winner].AreaM2 - target) > Math.Abs(land - target)) break;
+                plates[winner].ContinentId = identity; areas[identity] += plates[winner].AreaM2; land += plates[winner].AreaM2;
             }
-            foreach (var p in m) p.DensityKgM3 = (p.ContinentId >= 0 ? 2650 : 3150) + (int)(Rng.Value(r.Seed, "density", p.Id) * 250);
-            foreach (var p in w.Parents) p.ContinentalFraction = D.Q(p.Microplates.Where(i => m[i].ContinentId >= 0).Sum(i => m[i].AreaM2) / (double)p.AreaM2, 1e6);
-            w.Continent = w.CellMicroplate.Select(i => m[i].ContinentId).ToArray();
-            w.Metric("continent_identity_count", m.Where(p => p.ContinentId >= 0).Select(p => p.ContinentId).Distinct().Count());
-            w.Metric("continental_crust_fraction", land / (double)total);
+            foreach (var p in plates) p.DensityKgM3 = (p.ContinentId >= 0 ? 2400 : 3000) + D.M(500 * Rng.Value(r.Seed, "plate-density", p.Id));
+            w.Continent = w.CellMicroplate.Select(i => plates[i].ContinentId).ToArray();
+            w.Metric("continent_identity_count", count); w.Metric("continental_crust_fraction", land / (double)total);
         }
     }
 }

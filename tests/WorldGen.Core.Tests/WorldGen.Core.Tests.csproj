@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="../../src/WorldGen.Presentation/WorldGen.Presentation.csproj" />
     <ProjectReference Include="..\..\src\WorldGen.Core\WorldGen.Core.csproj" />
     <ProjectReference Include="..\..\src\WorldGen.Serialization\WorldGen.Serialization.csproj" />
   </ItemGroup>
