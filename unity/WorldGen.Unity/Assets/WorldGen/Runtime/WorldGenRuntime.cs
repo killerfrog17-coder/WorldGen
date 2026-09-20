@@ -307,6 +307,7 @@ public sealed class WorldGenRuntime : MonoBehaviour
             if (groups[g] == "World") GUILayout.Label("20,000 base plate cells; terrain runs at selected detail.");
         }
         GUILayout.EndScrollView();
+        /* The lower controls are rendered in the fixed bottom panel below.
         GUILayout.Label("Recipe v" + recipe.SchemaVersion + " · " + recipe.AlgorithmVersion);
         filePath = GUILayout.TextField(filePath);
         GUILayout.BeginHorizontal();
@@ -326,6 +327,7 @@ public sealed class WorldGenRuntime : MonoBehaviour
         }
         if (exportJob != null) GUILayout.Label("Exporting...");
         if (dirty && world != null) GUILayout.Label("Settings changed. Regenerate to apply."); if (error.Length > 0) GUILayout.Label(error);
+        */
         /* The progress/cancel row is owned by the fixed bottom action section.
         if (job != null) { GUILayout.Label(progress + " · " + percent + "%"); if (GUILayout.Button("Cancel")) cancel.Cancel(); }
         */
