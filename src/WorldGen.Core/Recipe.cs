@@ -15,7 +15,7 @@ namespace WorldGen.Core
     [Serializable]
     public sealed class Recipe
     {
-        public const string CurrentAlgorithm = "worldgen-3.8.0";
+        public const string CurrentAlgorithm = "worldgen-3.10.0";
         public int SchemaVersion = 3;
         public string AlgorithmVersion = CurrentAlgorithm;
         [Setting("World", "Seed", 0, 16777215, 1)] public int Seed = 73421;

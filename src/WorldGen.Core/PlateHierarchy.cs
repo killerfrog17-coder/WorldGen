@@ -95,15 +95,16 @@ namespace WorldGen.Core
                 foreach (int i in members) motion += plates[i].Motion * (plates[i].AreaM2 / (double)area);
             groups.Add(new ParentPlate { Id = id, SeedMicroplate = seed.Id, AreaM2 = area, TargetAreaM2 = area, Microplates = members.OrderBy(i => i).ToArray(), Motion = motion, ContinentalFraction = members.Sum(i => plates[i].ContinentId >= 0 ? plates[i].AreaM2 : 0) / (double)area });
             }
-            int enclosedMerges = RepairEnclosedGroups(plates, groups);
+            int enclosedMerges = RepairEnclosedGroups(w, groups);
             w.Parents = groups.ToArray(); w.Metric("superplates", groups.Count); w.Metric("enclosed_superplate_merges", enclosedMerges);
         }
 
         // Any group completely surrounded by one other group is an artificial
         // enclave at this hierarchy level. Merge it into the surrounding group
         // regardless of crust type while preserving all microplates.
-        private static int RepairEnclosedGroups(Microplate[] plates, List<ParentPlate> groups)
+        private static int RepairEnclosedGroups(World w, List<ParentPlate> groups)
         {
+            var plates = w.Microplates;
             int merges = 0;
             bool changed;
             do
@@ -116,7 +117,13 @@ namespace WorldGen.Core
                         if (plates[n].ParentAffinityId != source) neighbors.Add(plates[n].ParentAffinityId);
                     if (neighbors.Count != 1) continue;
                     int target = neighbors.First(); if (target < 0 || target >= groups.Count) continue;
-                    if (target < source) { int swap = source; source = target; target = swap; }
+                    bool targetLand = groups[target].ContinentalFraction >= .5;
+                    int targetContinent = targetLand ? LargestContinentId(groups[target], plates) : -1;
+                    foreach (int p in groups[source].Microplates)
+                    {
+                        plates[p].ContinentId = targetContinent;
+                        foreach (int cell in plates[p].Cells) w.Continent[cell] = targetContinent;
+                    }
                     var merged = groups[target].Microplates.Concat(groups[source].Microplates).OrderBy(i => i).ToArray();
                     groups[target].Microplates = merged; groups[target].AreaM2 += groups[source].AreaM2; groups[target].TargetAreaM2 = groups[target].AreaM2;
                     groups[target].ContinentalFraction = merged.Sum(i => plates[i].ContinentId >= 0 ? plates[i].AreaM2 : 0) / (double)groups[target].AreaM2;
@@ -130,6 +137,12 @@ namespace WorldGen.Core
                 }
             } while (changed);
             return merges;
+        }
+
+        private static int LargestContinentId(ParentPlate group, Microplate[] plates)
+        {
+            return group.Microplates.Where(i => plates[i].ContinentId >= 0).GroupBy(i => plates[i].ContinentId)
+                .OrderByDescending(g => g.Sum(i => plates[i].AreaM2)).ThenBy(g => g.Key).Select(g => g.Key).FirstOrDefault();
         }
     }
 }
