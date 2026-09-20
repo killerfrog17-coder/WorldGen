@@ -15,7 +15,7 @@ namespace WorldGen.Core
     [Serializable]
     public sealed class Recipe
     {
-        public const string CurrentAlgorithm = "worldgen-3.5.0";
+        public const string CurrentAlgorithm = "worldgen-3.6.0";
         public int SchemaVersion = 3;
         public string AlgorithmVersion = CurrentAlgorithm;
         [Setting("World", "Seed", 0, 16777215, 1)] public int Seed = 73421;
@@ -23,6 +23,7 @@ namespace WorldGen.Core
         [Setting("World", "Irregularity")] public double Irregularity = .75;
         [Setting("World", "Plates", 4, 500, 1)] public int MicroplateCount = 80;
         [Setting("World", "Continents", 1, 10, 1)] public int ContinentCount = 4;
+        [Setting("World", "Continental complexes", 1, 10, 1)] public int ContinentalComplexCount = 4;
         [Setting("World", "Roughness", 0, .5, .01)] public double Relief = .4;
         [Setting("World", "Continent size variety")] public double ContinentVariation = .35;
         [Setting("World", "Land coverage", 0, 1, .01)] public double LandFraction = .3;
@@ -48,6 +49,7 @@ namespace WorldGen.Core
                 if (f.FieldType == typeof(double)) f.SetValue(this, D.Q(v, 1000000));
             }
             if (ContinentCount > MicroplateCount) throw new ArgumentException("Continent count cannot exceed plate count.");
+            if (ContinentalComplexCount > ContinentCount) ContinentalComplexCount = ContinentCount;
         }
         public static Recipe Preset(string name)
         {

@@ -9,6 +9,7 @@ Both faces enumerate `Recipe.Settings`. Detail and Irregularity control the actu
 | Irregularity | .75 | 0–1 |
 | Plates | 80 | 4–500 (reference UI ends at 120) |
 | Continents | 4 | 1–10, no more than plates |
+| Continental complexes | 4 | 1–10, no more than continents; groups continent identities into connected systems |
 | Roughness | .40 | 0–.5 |
 | Continent size variety | .35 | 0–1 |
 | Land coverage | .30 | 0–1 |

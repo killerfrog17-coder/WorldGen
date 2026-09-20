@@ -121,6 +121,7 @@ namespace WorldGen.Core
                 var coarseRecipe = r.Clone(); coarseRecipe.Detail = SphericalMesh.CanonicalCellCount; coarseRecipe.Irregularity = .75;
                 var coarse = new World { Recipe = coarseRecipe, Surface = SphericalMesh.BuildCoarse(r, cancellation) };
                 PlateHierarchy.Microplates(coarse, cancellation); Continents.Build(coarse, cancellation);
+                w.Metrics.AddRange(coarse.Metrics);
                 w.CoarseSurface = coarse.Surface; w.CoarsePlate = coarse.CellMicroplate; w.CoarseContinent = coarse.Continent;
                 w.CoarseHash = StateHash.Compute(new object[] { coarse.Surface, coarse.CellMicroplate, coarse.Continent, coarse.Microplates }, cancellation);
                 w.Microplates = coarse.Microplates;

@@ -51,6 +51,12 @@ try
     var invalid = recipe.Clone(); invalid.AlgorithmVersion = "future"; try { pipe.Generate(invalid); throw new Exception("Version accepted"); } catch (ArgumentException) { assertions++; }
     try { WorldJson.ReadRecipe(WorldJson.Write(recipe).Replace("\"Hydraulic\":0.5,", "")); throw new Exception("Incomplete recipe accepted"); } catch (ArgumentException) { assertions++; }
     var minimum = recipe.Clone(); minimum.MicroplateCount = 4; minimum.ContinentCount = 2; Validate(pipe.Generate(minimum));
+    var isolated = recipe.Clone(); isolated.ContinentCount = 2; isolated.ContinentalComplexCount = 2;
+    var isolatedWorld = pipe.Generate(isolated);
+    Check(isolatedWorld.Metrics.Single(m => m.Name == "continental_complex_components").Value == 2, "Requested isolated continental complexes");
+    var connected = recipe.Clone(); connected.ContinentCount = 6; connected.ContinentalComplexCount = 1;
+    var connectedWorld = pipe.Generate(connected);
+    Check(connectedWorld.Metrics.Single(m => m.Name == "continental_complex_components").Value == 1, "Requested connected continental complex");
     using (var cancel = new CancellationTokenSource()) { cancel.Cancel(); try { pipe.Generate(recipe, cancellation: cancel.Token); throw new Exception("Cancellation ignored"); } catch (OperationCanceledException) { assertions++; } }
     var from = new V(1, 0, 0); var to = new V(0, 1, 0); var direction = new V(0, 1, 0); var transported = V.Transport(direction, from, to); Check(Math.Abs(V.Dot(transported, to)) < .000001 && V.Dot(transported, new V(-1, 0, 0)) > .99999, "Great-circle transport");
     var detailRecipe = recipe.Clone(); detailRecipe.Detail = 5000; detailRecipe.Irregularity = .1;
