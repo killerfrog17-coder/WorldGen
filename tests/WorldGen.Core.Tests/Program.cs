@@ -22,7 +22,7 @@ void Validate(World w)
     foreach (var p in w.Parents)
     {
         Connected(p.Microplates, i => w.Microplates[i].Neighbors, "superplate");
-        Check(p.Microplates.Select(i => w.Microplates[i].ContinentId >= 0).Distinct().Count() == 1, "Like-crust superplates");
+        Check(p.ContinentalFraction >= 0 && p.ContinentalFraction <= 1, "Superplate crust fraction");
     }
     if (w.Microplates.Length >= 8) Check(w.Boundaries.Any(b => b.Ghost), "Parent seams produce ghost boundaries");
     Check(w.Boundaries.Any(b => !b.Ghost && b.Kind != BoundaryKind.Inactive), "Parent boundaries remain active");
