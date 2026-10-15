@@ -51,8 +51,17 @@ namespace WorldGen.Core
         static int[] BuildUsefulLevels(){var result=Enumerable.Repeat(2,Count).ToArray();foreach(var branch in requirements)foreach(var r in branch)result[r.Technology]=Math.Max(result[r.Technology],r.Level);return result;}
         public static int UsefulLevel(int technology)=>useful[technology];
         public static HistoricalTechnicalRequirement[] Requirements(int technology)=>requirements[technology];
-        public static long Cost(int technology,int nextLevel)
-        {long result=costs[technology]*1000000L;for(int level=1;level<nextLevel;level++)result=checked((result*33+10)/20);return result;}
+        public static long Cost(int technology,int nextLevel,string historyVersion=null)
+        {
+            long result=costs[technology]*1000000L;for(int level=1;level<nextLevel;level++)result=checked((result*33+10)/20);
+            if(historyVersion!=Prehistory.ResearchPacingHistoryVersion)return result;
+            // Material difficulty, not a date lock. Imported learning retains
+            // its independent one-eighth cost and real-contact requirements.
+            int numerator=technology==(int)HistoricalTechnology.Bronze?65:technology==(int)HistoricalTechnology.Iron?(nextLevel==1?400:nextLevel==2?250:165):
+                technology==(int)HistoricalTechnology.Steel?115:technology==(int)HistoricalTechnology.Scholasticism?120:
+                technology==(int)HistoricalTechnology.SteamPower||technology==(int)HistoricalTechnology.IndustrialMetallurgy?110:100;
+            return checked((result*numerator+50)/100);
+        }
         public static bool Prerequisites(int technology,int[] levels)
         {foreach(var r in requirements[technology])if(levels[r.Technology]<r.Level)return false;return true;}
         public static bool Military(int k)=>k==7||k==9||k==12||k==16||k==29;

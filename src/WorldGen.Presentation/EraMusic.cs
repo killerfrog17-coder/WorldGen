@@ -12,6 +12,7 @@ namespace WorldGen.Presentation
         public string Title {get;}
         public int FirstEra {get;}
         public int LastEra {get;}
+        public bool Supports(int era)=>era>=FirstEra&&era<=LastEra;
         EraMusicTrack(string path,string title,int first,int last){Path=path;Title=title;FirstEra=first;LastEra=last;}
         public static bool TryParse(string path,out EraMusicTrack? track)
         {
@@ -31,7 +32,7 @@ namespace WorldGen.Presentation
         // when every eligible track is excluded; non-eligible songs never fill a gap.
         public static EraMusicTrack[] Candidates(IEnumerable<EraMusicTrack> tracks,int era,IReadOnlyList<string> recent)
         {
-            var eligible=tracks.Where(t=>t.FirstEra<=era&&era<=t.LastEra).ToArray();
+            var eligible=tracks.Where(t=>t.Supports(era)).ToArray();
             if(eligible.Length==0)return eligible;
             for(int keep=Math.Min(3,recent.Count);keep>=0;keep--)
             {

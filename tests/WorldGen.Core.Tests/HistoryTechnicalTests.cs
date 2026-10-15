@@ -91,7 +91,9 @@ public static class HistoryTechnicalTests
         var seafaring=new HistoricalCulture{Technology=new int[37],Technical=new HistoricalTechnicalPractice()};seafaring.Technology[17]=1;seafaring.Technical.Deployment[17]=1000;
         check(WorldEraView.CultureEra(seafaring)<7,"One ocean-going boat tradition does not declare an early-modern society");
         seafaring.Technology[15]=1;seafaring.Technical.Deployment[15]=1000;
-        check(WorldEraView.CultureEra(seafaring)==7,"Era presentation recognizes a deployed technological bundle");
+        check(WorldEraView.CultureEra(seafaring)<7,"Printing and blue-water craft alone do not declare a complete early-modern society");
+        foreach(var technology in new[]{HistoricalTechnology.ScientificMethod,HistoricalTechnology.CropRotation}){seafaring.Technology[(int)technology]=1;seafaring.Technical.Deployment[(int)technology]=1000;}
+        check(WorldEraView.CultureEra(seafaring)==7,"Era presentation recognizes the complete deployed early-modern package");
         var article=HistoryAtlas.Read(state,"state",patron,world);
         check(article.Sections.Any(s=>s.Technical.Length>0)&&HistoryAtlas.PlainText(article).Contains("research share"),"Profiles and plain-text exports expose levels, research allocation and deployment");
         var saved=state.Copy();saved.Seal();world.Prehistory=saved;var loaded=WorldFile.Read(WorldFile.Write(world));

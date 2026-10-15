@@ -26,10 +26,13 @@ namespace WorldGen.Presentation
         }
         public static readonly string[] Units={"seconds","minutes","hours","days","weeks","months","years"};
         public static readonly long[] UnitSeconds={1,SimulationTime.Minute,SimulationTime.Hour,SimulationTime.Day,7*SimulationTime.Day,30*SimulationTime.Day,SimulationTime.Year};
-        public static readonly double[] Rates={1,60,3600,43200,86400,604800,1209600,2592000,15768000,31536000,315360000,3153600000,15768000000,31536000000};
+        public static readonly double[] Rates={1,60,3600,43200,86400,604800,1209600,2592000,15768000,
+            SimulationTime.Year,2d*SimulationTime.Year,5d*SimulationTime.Year,10d*SimulationTime.Year,20d*SimulationTime.Year,50d*SimulationTime.Year,
+            100d*SimulationTime.Year,200d*SimulationTime.Year,500d*SimulationTime.Year,1000d*SimulationTime.Year,2000d*SimulationTime.Year,5000d*SimulationTime.Year,10000d*SimulationTime.Year};
         static readonly string[] Months={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
         static readonly int[] MonthDays={31,28,31,30,31,30,31,31,30,31,30,31};
         public static double DefaultRate(int stepYears)=>5*stepYears*(double)SimulationTime.Year;
+        public static double EraRate(int era)=>(era<=2?1000:era==3?100:era==4?20:era==5?10:era==6?2:1)*(double)SimulationTime.Year;
         // First recorded state institutions are the model's civilization trigger.
         // Retired states remain recorded, so collapse cannot reset the epoch.
         public static int EpochYear(PrehistoryState? state)
@@ -63,10 +66,13 @@ namespace WorldGen.Presentation
     // no simulation events are dropped to fabricate the chosen speed.
     public sealed class SimulationPlayback
     {
-        double credit;public double Rate {get;private set;}=SimulationClockView.DefaultRate(100);
+        double credit;public double Rate {get;private set;}=SimulationClockView.EraRate(2);
         public bool Manual {get;private set;}
         public void SetRate(double rate,bool manual=true)
-        {if(double.IsNaN(rate)||double.IsInfinity(rate)||rate<.0001||rate>1000*SimulationTime.Year)throw new ArgumentOutOfRangeException(nameof(rate));Rate=rate;Manual=manual;credit=0;}
+        {if(double.IsNaN(rate)||double.IsInfinity(rate)||rate<.0001||rate>10000d*SimulationTime.Year)throw new ArgumentOutOfRangeException(nameof(rate));Rate=rate;Manual=manual;credit=0;}
+        public void AutoEra(int era)=>SetRate(SimulationClockView.EraRate(era),false);
+        public void Era(int era){if(!Manual&&Rate!=SimulationClockView.EraRate(era))AutoEra(era);}
+        public void HoldRate()=>SetRate(Rate,true);
         public void Auto(int stepYears){SetRate(SimulationClockView.DefaultRate(stepYears),false);}
         public void Phase(int stepYears){if(!Manual&&Rate!=SimulationClockView.DefaultRate(stepYears))Auto(stepYears);}
         public void Change(int direction)

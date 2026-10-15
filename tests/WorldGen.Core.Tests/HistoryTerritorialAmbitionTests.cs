@@ -11,7 +11,7 @@ public static class HistoryTerritorialAmbitionTests
         object Call(string name,params object[] values)=>typeof(Prehistory).GetMethod(name,BindingFlags.Instance|BindingFlags.NonPublic)!.Invoke(engine,values)!;
         check(h.Version==Prehistory.TerritorialHistoryVersion&&source.History.Aggregates.Empires.Connections.Ambitions==null&&source.ComputeHash()==before,"Regional ambitions require an explicit upgrade and leave the source untouched");
         check(c.Ambitions.Governments.Length==h.Polities.Length&&h.Aggregates.TotalPopulation==source.History.Aggregates.TotalPopulation&&h.Archive.Count==source.History.Archive.Count,"Intent records do not invent population, recognition, territory or history");
-        check(engine.UpgradeToCurrentHistory(s)==s&&engine.UpgradeToCoastalHistory(s)==s,"Current and older upgrade entry points cannot downgrade regional rules");
+        check(engine.UpgradeToCurrentHistory(s).History.Version==Prehistory.CurrentHistoryVersion&&engine.UpgradeToCoastalHistory(s)==s,"Current and older upgrade entry points cannot downgrade regional rules");
         int polity=Array.FindIndex(h.Polities,p=>p.EndedYear<0&&engine.CellPatch[s.Society.Settlements[p.CapitalId].Cell]>=0);
         int capital=s.Society.Settlements[h.Polities[polity].CapitalId].Cell,region=engine.CellPatch[capital];
         var probe=s.Copy();var aim=probe.History.Aggregates.Empires.Connections.Ambitions.Governments[polity];

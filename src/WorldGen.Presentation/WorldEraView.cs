@@ -23,21 +23,22 @@ namespace WorldGen.Presentation
                 if(c.Technical!=null)
                 {
                     Record(3,Year(HistoricalTechnology.Cultivation));Record(4,Year(HistoricalTechnology.Bronze));Record(5,Year(HistoricalTechnology.Iron));
-                    Record(6,Year(HistoricalTechnology.Scholasticism));Record(6,Together(Year(HistoricalTechnology.Steel),Year(HistoricalTechnology.Mills)));
-                    Record(7,Second(Year(HistoricalTechnology.Printing),Year(HistoricalTechnology.Gunpowder),Year(HistoricalTechnology.OceanNavigation),Year(HistoricalTechnology.ScientificMethod)));
-                    Record(8,Together(Year(HistoricalTechnology.SteamPower),Year(HistoricalTechnology.IndustrialMetallurgy)));Record(8,Year(HistoricalTechnology.Railways));
-                    Record(9,Together(Year(HistoricalTechnology.Electricity),Year(HistoricalTechnology.CombustionEngines)));Record(9,Year(HistoricalTechnology.Radio));
-                    Record(10,Together(Year(HistoricalTechnology.Computing),Year(HistoricalTechnology.Telecommunications)));continue;
+                    RecordPackages(Year,Record);continue;
                 }
                 Record(3,Year(HistoricalTechnology.Cultivation));Record(4,Year(HistoricalTechnology.Bronze));Record(5,Year(HistoricalTechnology.Iron));
-                Record(6,Year(HistoricalTechnology.Scholasticism));
-                int steel=Year(HistoricalTechnology.Steel),mills=Year(HistoricalTechnology.Mills);if(steel>=0&&mills>=0)Record(6,Math.Max(steel,mills));
-                Record(7,Year(HistoricalTechnology.Printing));Record(7,Year(HistoricalTechnology.Gunpowder));Record(7,Year(HistoricalTechnology.OceanNavigation));
-                Record(8,Year(HistoricalTechnology.SteamPower));Record(9,Year(HistoricalTechnology.Electricity));Record(9,Year(HistoricalTechnology.CombustionEngines));Record(10,Year(HistoricalTechnology.Computing));
+                RecordPackages(Year,Record);
             }
             return first;
         }
         static int Together(int a,int b)=>a<0||b<0?-1:Math.Max(a,b);
+        static void RecordPackages(Func<HistoricalTechnology,int> year,Action<int,int> record)
+        {
+            record(6,Together(year(HistoricalTechnology.Scholasticism),Together(year(HistoricalTechnology.Steel),year(HistoricalTechnology.Mills))));
+            record(7,Together(Together(year(HistoricalTechnology.Printing),year(HistoricalTechnology.ScientificMethod)),Second(year(HistoricalTechnology.Gunpowder),year(HistoricalTechnology.OceanNavigation),year(HistoricalTechnology.CropRotation))));
+            record(8,Together(year(HistoricalTechnology.SteamPower),Together(year(HistoricalTechnology.IndustrialMetallurgy),year(HistoricalTechnology.Mills))));
+            record(9,Together(Together(year(HistoricalTechnology.Electricity),year(HistoricalTechnology.CombustionEngines)),Second(year(HistoricalTechnology.GermTheory),year(HistoricalTechnology.Sanitation),year(HistoricalTechnology.Telegraph),year(HistoricalTechnology.Radio))));
+            record(10,Together(Together(year(HistoricalTechnology.Computing),year(HistoricalTechnology.Telecommunications)),Together(year(HistoricalTechnology.Electronics),year(HistoricalTechnology.Electricity))));
+        }
         static int Second(params int[] dates)
         {int first=int.MaxValue,second=int.MaxValue;foreach(int date in dates)if(date>=0){if(date<first){second=first;first=date;}else if(date<second)second=date;}return second==int.MaxValue?-1:second;}
         public static int CultureEra(HistoricalCulture culture,bool historicalPeak=false)
@@ -48,11 +49,13 @@ namespace WorldGen.Presentation
         public static int KnowledgeEra(HistoricalCulture culture)=>BundleEra(t=>(int)t<culture.Technology.Length&&culture.Technology[(int)t]>0);
         static int BundleEra(Func<HistoricalTechnology,bool> Has)
         {
-            int early=(Has(HistoricalTechnology.Printing)?1:0)+(Has(HistoricalTechnology.Gunpowder)?1:0)+(Has(HistoricalTechnology.OceanNavigation)?1:0)+(Has(HistoricalTechnology.ScientificMethod)?1:0);
-            return Has(HistoricalTechnology.Computing)&&Has(HistoricalTechnology.Telecommunications)?10:
-                Has(HistoricalTechnology.Electricity)&&Has(HistoricalTechnology.CombustionEngines)||Has(HistoricalTechnology.Radio)?9:
-                Has(HistoricalTechnology.SteamPower)&&Has(HistoricalTechnology.IndustrialMetallurgy)||Has(HistoricalTechnology.Railways)?8:early>=2?7:
-                Has(HistoricalTechnology.Scholasticism)||Has(HistoricalTechnology.Steel)&&Has(HistoricalTechnology.Mills)?6:Has(HistoricalTechnology.Iron)?5:Has(HistoricalTechnology.Bronze)?4:Has(HistoricalTechnology.Cultivation)?3:2;
+            int early=(Has(HistoricalTechnology.Gunpowder)?1:0)+(Has(HistoricalTechnology.OceanNavigation)?1:0)+(Has(HistoricalTechnology.CropRotation)?1:0);
+            int modern=(Has(HistoricalTechnology.GermTheory)?1:0)+(Has(HistoricalTechnology.Sanitation)?1:0)+(Has(HistoricalTechnology.Telegraph)?1:0)+(Has(HistoricalTechnology.Radio)?1:0);
+            return Has(HistoricalTechnology.Computing)&&Has(HistoricalTechnology.Telecommunications)&&Has(HistoricalTechnology.Electronics)&&Has(HistoricalTechnology.Electricity)?10:
+                Has(HistoricalTechnology.Electricity)&&Has(HistoricalTechnology.CombustionEngines)&&modern>=2?9:
+                Has(HistoricalTechnology.SteamPower)&&Has(HistoricalTechnology.IndustrialMetallurgy)&&Has(HistoricalTechnology.Mills)?8:
+                Has(HistoricalTechnology.Printing)&&Has(HistoricalTechnology.ScientificMethod)&&early>=2?7:
+                Has(HistoricalTechnology.Scholasticism)&&Has(HistoricalTechnology.Steel)&&Has(HistoricalTechnology.Mills)?6:Has(HistoricalTechnology.Iron)?5:Has(HistoricalTechnology.Bronze)?4:Has(HistoricalTechnology.Cultivation)?3:2;
         }
         // Highest capability actually reached anywhere, including a culture whose state fell.
         // These are soundtrack/display periods, not a claim that every society shares one era.
@@ -63,19 +66,7 @@ namespace WorldGen.Presentation
             if(state.History==null)return era;
             foreach(var culture in state.History.Cultures)
             {
-                bool Has(HistoricalTechnology t)=>culture.Technical!=null?culture.Technical.InstalledYear[(int)t]>0:HistoricalTechnologies.Has(culture,t);
-                if(culture.Technical!=null)
-                {
-                    int technical=CultureEra(culture,true);
-                    era=Math.Max(era,technical);if(era==10)break;continue;
-                }
-                int reached=Has(HistoricalTechnology.Computing)?10:
-                    Has(HistoricalTechnology.Electricity)||Has(HistoricalTechnology.CombustionEngines)?9:
-                    Has(HistoricalTechnology.SteamPower)?8:
-                    Has(HistoricalTechnology.Printing)||Has(HistoricalTechnology.Gunpowder)||Has(HistoricalTechnology.OceanNavigation)?7:
-                    Has(HistoricalTechnology.Scholasticism)||Has(HistoricalTechnology.Steel)&&Has(HistoricalTechnology.Mills)?6:
-                    Has(HistoricalTechnology.Iron)?5:Has(HistoricalTechnology.Bronze)?4:Has(HistoricalTechnology.Cultivation)?3:2;
-                era=Math.Max(era,reached);
+                era=Math.Max(era,CultureEra(culture,true));
                 if(era==10)break;
             }
             return era;

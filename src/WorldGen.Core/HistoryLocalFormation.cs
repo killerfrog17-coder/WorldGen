@@ -107,7 +107,7 @@ namespace WorldGen.Core
         public PrehistoryState UpgradeToCurrentHistory(PrehistoryState source)
         {
             Validate(source);if(source.History?.Version==CurrentHistoryVersion)return source;
-            if(ModernHistory(source))return UpgradeToTerritorialHistory(source);
+            if(ModernHistory(source))return UpgradeToResearchPacingHistory(source);
             var delegated=DelegatedHistory(source)?source:UpgradeToDelegatedHistory(source.History?.Version=="history-9"?UpgradeHistoricalModel(source):source);
             return UpgradeToCurrentHistory(UpgradeToModernHistory(UpgradeToInstitutionalHistory(delegated)));
         }
