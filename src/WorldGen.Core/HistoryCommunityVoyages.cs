@@ -31,7 +31,7 @@ namespace WorldGen.Core
                     {
                         var town=s.Society.Settlements[port];var farms=a.Cities[port];
                         if(!DiffusionShore(town.Cell)||!farms.Supported||town.Population<300||farms.Rural<250)continue;
-                        sourceTown=port;sourceState=a.Resolve(town.PolityId,h);culture=town.CultureId;
+                        sourceTown=port;sourceState=a.Resolve(town.PolityId,h);culture=ColonialHistory(s)&&sourceState>=0?h.Polities[sourceState].CultureId:town.CultureId;
                         residents=farms.Rural;break;
                     }
                 }
@@ -46,6 +46,7 @@ namespace WorldGen.Core
                 if(peer>=0&&peer!=culture)LivingCultureContact(s,culture,peer);
                 if(PassageHistory(s))DiffusionPortContact(s,route,culture,elapsed);
                 TryTerritorialSeaCharter(s,route,culture,elapsed);
+                if(ColonialHistory(s)){RecordCoastChart(s,culture,to,culture);destinationState=HistoricalCells.Polity(s,route.CellB);}
                 if(target.Teacher<0||CurrentProvincialKnowledgeCount(s,target.Teacher)<=CurrentProvincialKnowledgeCount(s,culture))target.Teacher=culture;
                 target.Exposure=Math.Min(1000,target.Exposure+Math.Max(100,elapsed*2));target.LastExchangeYear=s.Years;a.Provinces.RegionalKnowledge[to]|=ProvincialKnowledge(hc);
                 int court=sourceState>=0?sourceState:a.Living.CivicOrigins[culture];if(court>=0){target.CivicTeacher=court;target.CivicExposure=Math.Min(1000,target.CivicExposure+elapsed*2);}
@@ -65,6 +66,7 @@ namespace WorldGen.Core
                 if(a.Regions[to].Culture<0&&HistoricalCells.Culture(s,route.CellB)<0&&s.Population[to]>=400)
                 {
                     FoundAggregateCulture(s,to,route.CellB);int child=s.Society.Cultures.Length-1;InheritDevelopmentCommunity(s,child,culture,route.CellB);
+                    if(ColonialHistory(s)&&sourceState>=0){var continuity=a.Empires.Connections.Cultures[child];continuity.ColonialSponsor=sourceState;continuity.CivilizationRoot=HistoricalRecognizedClaims.Civilization(s,culture);}
                     HistoryEvent(s,"overseas-community",s.Society.Cultures[culture].Name+" voyagers establish a community along a sea route of approximately "+route.DistanceM/1000+" km, bringing crops and practical knowledge that must work in their new environment.",route.CellB,child,category:ChronicleCategory.Society);
                 }
                 break;

@@ -16,7 +16,7 @@ namespace WorldGen.Presentation
             public void Reset(PrehistoryState source){Hash=source.Hash;Value=new Lazy<HistoricalMapSnapshot>(()=>new HistoricalMapSnapshot(source),LazyThreadSafetyMode.ExecutionAndPublication);}
         }
         static readonly ConditionalWeakTable<PrehistoryState,Entry> Entries=new ConditionalWeakTable<PrehistoryState,Entry>();
-        readonly PrehistoryState source;readonly int[] cells,resolved,sovereigns,technology,boundaries;readonly long[] remote;
+        readonly PrehistoryState source;readonly int[] cells,resolved,sovereigns,technology,boundaries,claims;readonly long[] remote;
         readonly System.Collections.Generic.Dictionary<int,int> technologySites=new System.Collections.Generic.Dictionary<int,int>();
         public int Count=>cells.Length/5;
         public static HistoricalMapSnapshot For(PrehistoryState state)
@@ -34,7 +34,8 @@ namespace WorldGen.Presentation
             remote=new long[resolved.Length];if(state.History?.Aggregates!=null)for(int i=0;i<remote.Length;i++)remote[i]=state.History.Aggregates.Polities[state.History.Aggregates.PopulationCohort(i)].Remote;
             sovereigns=new int[resolved.Length];for(int i=0;i<sovereigns.Length;i++)sovereigns[i]=state.History!.Aggregates?.Empires==null?resolved[i]:HistoricalImperialHierarchy.Sovereign(state,i);
             technology=state.History?.Cultures.Select(c=>c.Technical!=null?WorldEraView.KnowledgeEra(c):HistoricalImperialHierarchy.InstalledPractices(c)).ToArray()??Array.Empty<int>();
-            boundaries=new int[count];for(int i=0;i<count;i++){int p=Sovereign(i),c=Culture(i);boundaries[i]=p>=0?p:c>=0?-2-c:-1;int key=OverlayId(i,HistoryOverlay.Technology);if(key>=0&&!technologySites.ContainsKey(key))technologySites.Add(key,i);}
+            claims=new int[count];for(int i=0;i<count;i++)claims[i]=HistoricalRecognizedClaims.Holder(state,i);
+            boundaries=new int[count];for(int i=0;i<count;i++){int p=PoliticalSovereign(i),c=Culture(i);boundaries[i]=p>=0?p:c>=0?-2-c:-1;int key=OverlayId(i,HistoryOverlay.Technology);if(key>=0&&!technologySites.ContainsKey(key))technologySites.Add(key,i);}
         }
         public int TechnologySite(int key)=>technologySites.TryGetValue(key,out int cell)?cell:-1;
         public int Culture(int cell)=>cell>=0&&cell<Count?cells[cell*5]:-1;
@@ -43,6 +44,9 @@ namespace WorldGen.Presentation
         public int Polity(int cell){int raw=cell>=0&&cell<Count?cells[cell*5+1]:-1;return raw>=0&&raw<resolved.Length?resolved[raw]:-1;}
         public long RemotePopulation(int cell){int raw=cell>=0&&cell<Count?cells[cell*5+1]:-1;return raw>=0&&raw<remote.Length?remote[raw]:0;}
         public int Sovereign(int cell){int raw=cell>=0&&cell<Count?cells[cell*5+1]:-1;return raw>=0&&raw<sovereigns.Length?sovereigns[raw]:-1;}
+        // Recognized external title is deliberately separate from administration,
+        // population and local culture. An actual state's territory always wins.
+        public int PoliticalSovereign(int cell){int p=Sovereign(cell);return p>=0?p:cell>=0&&cell<Count&&claims[cell]>=0?sovereigns[claims[cell]]:-1;}
         public int Boundary(int cell)=>boundaries[cell];
         public int Boundary(int cell,HistoryOverlay overlay){if(overlay==HistoryOverlay.Provinces){int province=HistoricalProvinceIdentity.Of(source,cell);return province>=0?province:Boundary(cell);}if(overlay!=HistoryOverlay.Territories)return Boundary(cell);int p=Polity(cell),c=Culture(cell);return p>=0?p:c>=0?-2-c:-1;}
         public bool SameBoundaries(HistoricalMapSnapshot? other)
@@ -53,11 +57,11 @@ namespace WorldGen.Presentation
             if(h==null)return culture>=0&&source.Society.Cultures[culture].Stage==SocietyStage.Civilization?culture:-1;
             if(overlay==HistoryOverlay.Provinces)return HistoricalProvinceIdentity.Of(source,cell);
             if(overlay==HistoryOverlay.Territories)return p;
-            if(overlay==HistoryOverlay.Civilizations||overlay==HistoryOverlay.States)p=Sovereign(cell);
+            if(overlay==HistoryOverlay.Civilizations||overlay==HistoryOverlay.States)p=PoliticalSovereign(cell);
             if(overlay==HistoryOverlay.States)return p;if(overlay==HistoryOverlay.Religions)return Religion(cell);
             if(culture<0&&p>=0)culture=h.Polities[p].CultureId;if(culture<0)return -1;
             if(overlay==HistoryOverlay.Cultures)return culture;if(overlay==HistoryOverlay.Technology)return technology[culture];
-            return p>=0?h.Polities[p].CultureId:-1;
+            return p>=0?HistoricalRecognizedClaims.Civilization(source,h.Polities[p].CultureId):-1;
         }
         public int ColorId(int cell,HistoryOverlay overlay)
         {int owner=OverlayId(cell,overlay);return owner>=0&&overlay==HistoryOverlay.States&&source.History!=null?source.History.Polities[owner].CultureId:owner;}

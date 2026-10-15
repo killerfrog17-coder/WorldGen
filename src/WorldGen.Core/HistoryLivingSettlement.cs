@@ -112,6 +112,7 @@ namespace WorldGen.Core
             var ca=a.Cultures[culture];ca.Cities.Add(id);ca.CityCount=ca.Cities.Count;ca.Urban+=founders;ca.Rural+=rural;ca.SupportedUrban+=founders;ca.SupportedCities++;ca.FoodCapacity+=urbanCapacity;ca.LargestCity=Math.Max(ca.LargestCity,founders);a.TotalUrban+=founders;
             SetAggregateLayer(s,cell,0,culture);SetAggregateLayer(s,cell,2,h.Cultures[culture].ReligionId);SetAggregateLayer(s,cell,3,id);SetAggregateLayer(s,cell,4,2);ScheduleAggregate(s,CityProcess,id);
             int host=HistoricalCells.Polity(s,cell);if(host>=0)AssignAggregateTown(s,id,host);
+            if(host<0)ConnectColonialTown(s,id);
             HistoryEvent(s,"settlement",town.Name+" begins as a community of "+founders+" people supported by neighboring farms.",cell,culture,town:id,category:ChronicleCategory.Society);
         }
         void AbandonLivingTown(PrehistoryState s,int id,string reason)

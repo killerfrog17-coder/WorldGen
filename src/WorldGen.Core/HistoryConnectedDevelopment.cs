@@ -30,7 +30,7 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         public const string ConnectedHistoryVersion="history-19";
-        public static bool IsAggregateHistoryVersion(string version)=>version==AggregateHistoryVersion||version==LivingHistoryVersion||version==ConnectedHistoryVersion||version==RegionalHistoryVersion||version==CommunityHistoryVersion||version==DiffusionHistoryVersion||version==AgronomicHistoryVersion||version==TechnicalHistoryVersion||version==ProvincialFrontierHistoryVersion;
+        public static bool IsAggregateHistoryVersion(string version)=>version==AggregateHistoryVersion||version==LivingHistoryVersion||version==ConnectedHistoryVersion||version==RegionalHistoryVersion||version==CommunityHistoryVersion||version==DiffusionHistoryVersion||version==AgronomicHistoryVersion||version==TechnicalHistoryVersion||version==ProvincialFrontierHistoryVersion||version==ColonialHistoryVersion;
         static bool ConnectedHistory(PrehistoryState s)=>s?.History?.Version==ConnectedHistoryVersion||ProvincialHistory(s);
         public static bool CanUpgradeHistory(PrehistoryState s)
         {
@@ -136,13 +136,14 @@ namespace WorldGen.Core
             if(p.Cohesion<450||p.Treasury<100)return;
             int budget=HistoricalDevelopmentEffects.FrontierBudget(hc,s.Years,account.CityCount,true);
             int capital=s.Society.Settlements[p.CapitalId].Cell;
-            bool colonialFronts=ProvincialFrontierHistory(s)&&(HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Railways,s.Years)>.25||HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years)>.25);
+            bool colonialFronts=ProvincialFrontierHistory(s)&&(HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Railways,s.Years)>.25||HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years)>.25||ColonialHistory(s)&&HistoricalTechnologies.Has(hc,HistoricalTechnology.OceanNavigation));
             for(int trial=0;trial<budget;trial++)
             {
                 int target=colonialFronts&&trial<budget/2?ProvincialFrontierTarget(s,polity,trial):-1;
                 if(target<0)target=LocalFrontierTarget(s,account.Frontier,polity,"development-state-front-"+trial,1);if(target<0)continue;
                 int other=HistoricalCells.Polity(s,target);
                 if(other>=0){if(other!=polity&&trial<3)ConsiderAggregateDiplomacy(s,polity,other,h.Dynamics.Leaders[h.Dynamics.States[polity].LeaderId],elapsed);continue;}
+                if(ColonialHistory(s)&&RespectRecognizedClaim(s,polity,target))continue;
                 int region=CellPatch[target];var habitat=World.Ecology.Habitat[target];
                 double distance=LivingTravelKm(s,capital,target,p.CultureId);
                 if(!TechnicalHistory(s)&&distance>account.ReachKm*(1+.15*Math.Log(1+account.CityCount)))continue;

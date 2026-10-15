@@ -140,6 +140,7 @@ namespace WorldGen.Core
                 if(o is HistoricalAggregateState oldCommunity && f.Name==nameof(HistoricalAggregateState.Communities) && oldCommunity.Communities==null)continue;
                 if(o is HistoricalAggregateState oldImperial && f.Name==nameof(HistoricalAggregateState.Empires) && oldImperial.Empires==null)continue;
                 if(o is HistoricalImperialSystem oldFrontiers && f.Name==nameof(HistoricalImperialSystem.Frontiers) && oldFrontiers.Frontiers==null)continue;
+                if(o is HistoricalImperialSystem oldConnections && f.Name==nameof(HistoricalImperialSystem.Connections) && oldConnections.Connections==null)continue;
                 if(o is HistoricalModernSettings shippingSettings && f.Name==nameof(HistoricalModernSettings.Shipping) && shippingSettings.Shipping?.Length==0)continue;
                 if(o is HistoricalAgriculture wildSites && f.Name==nameof(HistoricalAgriculture.WildOriginCell) && wildSites.WildOriginCell==null)continue;
                 if(o is HistoricalReligion reachReligion && f.Name==nameof(HistoricalReligion.Reach) && reachReligion.Reach==ReligiousReach.Local)continue;

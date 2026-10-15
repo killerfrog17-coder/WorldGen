@@ -21,6 +21,7 @@ namespace WorldGen.Core
             }
             if(polity<0)return;var p=h.Polities[polity];var government=a.Empires.Governments[polity];var finances=a.Polities[polity];
             int target=route.CellB,other=HistoricalCells.Polity(s,target);
+            if(ColonialHistory(s)&&(RespectRecognizedClaim(s,polity,target)||World.Ecology.Habitat[target].GrowingDays<60&&!HistoricalTechnologies.Has(hc,HistoricalTechnology.CombustionEngines)))return;
             if(other>=0)
             {
                 if(other!=polity&&p.Cohesion>=600&&HistoricalModernEffects.Military(hc,s.Years)>HistoricalModernEffects.Military(h.Cultures[h.Polities[other].CultureId],s.Years)*1.5)

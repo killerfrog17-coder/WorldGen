@@ -30,14 +30,23 @@ namespace WorldGen.Core
         {
             var crops=s.History.Agriculture[culture];
             int start=founded>=0?founded:crops.AdoptedYear.Where(y=>y>0).DefaultIfEmpty(1).Min()-1;
-            return HistoricalCommunityEffects.RuralGrowth(s.History.Cultures[culture],s.Years,Math.Max(0,s.Years-start),founded>=0);
+            double rate=HistoricalCommunityEffects.RuralGrowth(s.History.Cultures[culture],s.Years,Math.Max(0,s.Years-start),founded>=0);
+            if(ColonialHistory(s))
+            {
+                // 0.035% per year was a near-stagnation prior even for established
+                // cultivators with usable land. A modest net agrarian increase is
+                // still capped by local food and reduced by actual disease/war.
+                double cultivation=0;for(int k=0;k<6;k++)if(crops.AdoptedYear[k]>0)cultivation=Math.Max(cultivation,crops.Practice[k]/1000.0);
+                rate+=.00065*D.Clamp(cultivation)*(1-.7*HistoricalModernEffects.Adoption(s.History.Cultures[culture],HistoricalTechnology.Telecommunications,s.Years));
+            }
+            return D.Q(rate,1000000000);
         }
         long CommunityRuralCapacity(PrehistoryState s,int city)
         {
             var a=s.History.Aggregates;var town=s.Society.Settlements[city];var c=a.Cities[city];var hc=s.History.Cultures[town.CultureId];
             double farm=(100.0+s.Society.Cultures[town.CultureId].Farming)/(100+c.BaseFarming);
             double crop=(.4+.6*AggregateCropSupport(s,town.CultureId,town.Cell,false))/c.BaseCropFactor;
-            return Math.Max(1,(long)(c.RuralCapacity*farm*crop*HistoricalModernEffects.FoodMultiplier(hc,s.Years)*a.Living.Cities[city].Productivity*AnimalFoodMultiplier(s,town.CultureId,town.Cell)*(1-HistoricalProvincialEffects.UrbanShare(hc,s.Years))));
+            return Math.Max(1,(long)(c.RuralCapacity*farm*crop*EffectiveFoodMultiplier(s,hc)*a.Living.Cities[city].Productivity*AnimalFoodMultiplier(s,town.CultureId,town.Cell)*(1-HistoricalProvincialEffects.UrbanShare(hc,s.Years))));
         }
         long CommunityUrbanCapacity(PrehistoryState s,int city)
         {
@@ -47,7 +56,7 @@ namespace WorldGen.Core
             double produce=(.65+1.35*D.Clamp(storage/.35))*a.Living.Cities[city].Productivity*AnimalFoodMultiplier(s,t.CultureId,t.Cell);
             // Potential acreage alone never feeds a town. Actual farm workers,
             // storable local produce and transported surplus must support it.
-            double local=c.Rural*share/Math.Max(.1,1-share)*produce*HistoricalModernEffects.FoodMultiplier(hc,s.Years);
+            double local=c.Rural*share/Math.Max(.1,1-share)*produce*EffectiveFoodMultiplier(s,hc);
             double potential=CommunityRuralCapacity(s,city)*share/Math.Max(.1,1-share)*produce;
             long capacity=(long)Math.Min(local,potential);int owner=a.Resolve(t.PolityId,h);
             if(owner>=0)capacity+=CommunityUrbanImports(s,owner,city);
@@ -58,7 +67,7 @@ namespace WorldGen.Core
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var hc=h.Cultures[p.CultureId];var t=s.Society.Settlements[city];
             bool water=riverAccess[t.Cell]>.02||World.Surface.Cells[t.Cell].Neighbors.Any(n=>World.Hydrology.OceanConnected[n]);
             double integration=HistoricalCommunityEffects.MarketIntegration(hc,s.Years,water),share=HistoricalProvincialEffects.UrbanShare(hc,s.Years);
-            double potential=a.Provinces.FarmPotential[polity]*D.Clamp(s.Society.Cultures[p.CultureId].Farming/600.0)*HistoricalModernEffects.FoodMultiplier(hc,s.Years);
+            double potential=a.Provinces.FarmPotential[polity]*D.Clamp(s.Society.Cultures[p.CultureId].Farming/600.0)*EffectiveFoodMultiplier(s,hc);
             double market=Math.Min(potential*share,a.Polities[polity].Remote*share/Math.Max(.1,1-share));
             double weight=(t.Population+250.0)/Math.Max(1,a.Polities[polity].Urban+250.0*a.Polities[polity].CityCount);
             return (long)(market*integration*weight/1.15);

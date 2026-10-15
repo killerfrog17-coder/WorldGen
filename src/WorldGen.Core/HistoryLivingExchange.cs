@@ -15,6 +15,7 @@ namespace WorldGen.Core
             if(first<0||second<0||first==second)return;
             foreach(var pair in new[]{(first,second),(second,first)})
             {var c=s.Society.Cultures[pair.Item1];if(!c.Contacts.Contains(pair.Item2))c.Contacts=c.Contacts.Concat(new[]{pair.Item2}).TakeLast(16).ToArray();if(ProvincialHistory(s))OfferProvincialKnowledge(s,pair.Item1,pair.Item2,ProvincialKnowledge(s.History.Cultures[pair.Item2]),s.Years,true);}
+            ShareCoastCharts(s,first,second);
         }
         void AdvanceLivingRegionalExchange(PrehistoryState s,int id,int elapsed)
         {
@@ -71,7 +72,16 @@ namespace WorldGen.Core
             double occupied=HistoricalLocalEffects.RegionalTraditionOpportunity(s.Years-s.ArrivalYear[id]);
             double independent=.0025*Math.Pow(D.Clamp(Math.Max(stored,aquatic*.65)/.45),2)*ecological*occupied;
             double diffusion=local.Teacher>=0?.03*D.Clamp(local.Exposure/600.0)*(.02+.98*ecological)*D.Clamp(concentration):0;
-            return 1-Math.Exp(-(independent+diffusion)*elapsed/100.0);
+            if(ColonialHistory(s)&&local.Teacher>=0)
+            {
+                // Recognition of an actually contacted regional tradition must
+                // not take another ten millennia. Ecological/crop compatibility
+                // still governs livelihoods and state formation separately.
+                var teacher=s.History.Cultures[local.Teacher];
+                diffusion*=8*(1+HistoricalModernEffects.Adoption(teacher,HistoricalTechnology.Printing,s.Years)+2*HistoricalModernEffects.Adoption(teacher,HistoricalTechnology.Telecommunications,s.Years));
+            }
+            double maturity=ColonialHistory(s)?CulturalRecognitionMaturity(s,id):1;
+            return 1-Math.Exp(-(independent+diffusion)*maturity*elapsed/100.0);
         }
         int LivingContact(PrehistoryState s,int culture,int fallback)
         {

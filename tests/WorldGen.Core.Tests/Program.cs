@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--colonial-review")){HistoryColonialReview.Run(args);return;}
+if(args.Contains("--colonial-only")){int at=Array.IndexOf(args,"--colonial-only"),count=0;HistoryColonialTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" colonial continuity assertions");return;}
 if(args.Contains("--archive-only")){int count=0;HistoryArchiveTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" persistent archive assertions");return;}
 if(args.Contains("--territorial-audit")){HistoryTerritorialAudit.Run(args);return;}
 if(args.Contains("--provincial-frontiers-only")){int at=Array.IndexOf(args,"--provincial-frontiers-only"),count=0;HistoryProvincialFrontierTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" provincial frontier assertions");return;}

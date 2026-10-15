@@ -1,0 +1,35 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using WorldGen.Core;
+namespace WorldGen.Presentation
+{
+    public static partial class HistoryAtlas
+    {
+        static AtlasLink ClaimLink(PrehistoryState s,int id)
+        {var t=s.History.Aggregates.Empires.Connections.Titles[id];int holder=s.History.Aggregates.Resolve(t.Holder,s.History);return new AtlasLink{Kind="claim",Id=id,Name=(holder<0?"Lapsed":s.History.Polities[holder].Name)+" territorial title",Detail="Recognized sovereignty; not uniform direct control",Value=t.AreaKm2};}
+        static string ClaimSummary(PrehistoryState s,int id)
+        {var t=s.History.Aggregates.Empires.Connections.Titles[id];return ClaimLink(s,id).Name+" covers a recognized claim of "+N(t.AreaKm2)+" km², agreed in year "+Y(s,t.EstablishedYear)+". This is not a census of settlers or evidence of control over every local community. "+t.Basis+".";}
+        static void Claim(PrehistoryState s,int id,AtlasDocument d,List<AtlasSection> sections)
+        {
+            var c=s.History.Aggregates?.Empires?.Connections;if(c==null||id<0||id>=c.Titles.Length){d.Title="Title unavailable";return;}
+            var t=c.Titles[id];d.Title=ClaimLink(s,id).Name;d.Introduction=ClaimSummary(s,id);
+            int owner=s.History!.Aggregates!.Resolve(t.Holder,s.History);var links=new List<AtlasLink>();if(owner>=0)links.Add(StateLink(s,s.History.Polities[owner],"Current title holder"));links.Add(StateLink(s,s.History.Polities[t.Recognizer],"Government recording recognition"));
+            if(t.PreviousHolder>=0)links.Add(StateLink(s,s.History.Polities[t.PreviousHolder],"Previous title holder"));
+            sections.Add(Links("Parties to the title",links,"A transfer changes legal title and exchanges treasury funds. It does not replace inhabitants or erase their culture."));
+            sections.Add(new AtlasSection{Title="Title record",Facts=new[]{F("Recognized extent",N(t.AreaKm2)+" km²"),F("Established",Y(s,t.EstablishedYear)),F("Latest transfer",Y(s,t.LastTransferYear)),F("Latest consideration",N(t.LastPrice)+" account units")}});
+        }
+        static void ColonialSections(PrehistoryState s,string kind,int id,List<AtlasSection> sections)
+        {
+            var c=s.History.Aggregates?.Empires?.Connections;if(c==null||id<0)return;
+            if(kind=="state"&&id<c.Governments.Length)
+            {var titles=c.Titles.Where(t=>s.History!.Aggregates!.Resolve(t.Holder,s.History)==id).Select(t=>ClaimLink(s,t.Id));if(titles.Any())sections.Add(Links("Recognized territorial titles",titles,"These agreements are separate from administered territory and resident population."));}
+            if(kind!="people"||id>=c.Cultures.Length)return;var record=c.Cultures[id];
+            var facts=new List<AtlasFact>{F("Regional ancestry","Ecoregional community "+record.PrecursorRegion)};
+            if(record.DormantSince>=0)facts.Add(F("No surviving recorded communities",Y(s,record.DormantSince)));
+            var links=new List<AtlasLink>();if(record.ColonialSponsor>=0)links.Add(StateLink(s,s.History.Polities[record.ColonialSponsor],"Founding overseas sponsor"));if(record.CivilizationRoot>=0&&record.CivilizationRoot!=id)links.Add(CultureLink(s.Society.Cultures[record.CivilizationRoot]));
+            sections.Add(new AtlasSection{Title="Continuity and changing traditions",Text="Named traditions can change with livelihoods and institutions without their communities appearing independently or their ancestry disappearing.",Facts=facts.ToArray(),Links=links.ToArray(),Timeline=record.Episodes.Select(e=>F(Y(s,e.Since)+"–"+Y(s,e.Until),e.Name+": "+e.Reason)).ToArray()});
+            if(record.Charts.Length>0)sections.Add(new AtlasSection{Title="Exchanged sailing knowledge",Text="Only routes actually charted or learned through contact are recorded here.",Facts=record.Charts.Select(x=>F("Coast chart, year "+Y(s,x.Year),"Region "+x.Region+"; source: "+s.Society.Cultures[x.SourceCulture].Name)).ToArray()});
+        }
+    }
+}

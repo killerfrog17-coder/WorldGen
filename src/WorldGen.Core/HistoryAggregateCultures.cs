@@ -7,6 +7,7 @@ namespace WorldGen.Core
         void AdvanceAggregateCulture(PrehistoryState s,int id)
         {
             var h=s.History;var a=h.Aggregates;var c=s.Society.Cultures[id];var hc=h.Cultures[id];var ca=a.Cultures[id];int elapsed=s.Years-ca.LastYear;if(elapsed<=0)return;ca.LastYear=s.Years;
+            AdvanceCulturalContinuity(s,id);
             int cell=c.OriginCell;var habitat=World.Ecology.Habitat[cell];var crops=h.Agriculture[id];
             int target=LocalFrontierTarget(s,ca.Frontier,id,"aggregate-culture-frontier",0),contact=-1;
             if(target>=0&&!LivingHistory(s))

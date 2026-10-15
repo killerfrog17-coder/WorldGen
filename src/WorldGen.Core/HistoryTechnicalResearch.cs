@@ -52,6 +52,10 @@ namespace WorldGen.Core
             for(int p=0;p<Math.Min(4,memory.Peers.Length);p++)
             {int at=(offset+p)%memory.Peers.Length;if(s.Years-memory.LastYear[at]<=100)importedCommunication=Math.Max(importedCommunication,Math.Sqrt(HistoricalModernEffects.Communication(h.Cultures[memory.Peers[at]],s.Years)));}
             double annual=4.2*scale*institutions*surplus*(1+4*science)*(1+literacy)*communication;
+            // Recalibrate invention against the corrected producing population,
+            // rather than preserving the old low-population coefficient. Actual
+            // contact learning remains cheap; this is not a calendar era lock.
+            if(ColonialHistory(s))annual*=.78;
             if(ca.SupportedCities==0)annual*=.12;
             long budget=Math.Max(0,(long)Math.Round(D.Q(annual,1000000)*1000000))*elapsed;
             long learningBudget=Math.Max(0,(long)Math.Round(D.Q((.8+urban*3+literacy*4)*Math.Max(communication,importedCommunication),1000000)*1000000))*elapsed;

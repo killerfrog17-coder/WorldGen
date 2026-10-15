@@ -27,6 +27,7 @@ namespace WorldGen.Core
             h.Dynamics.States=h.Dynamics.States.Concat(new[]{new HistoricalStateDynamics{Id=id,FoundationPotential=(int)(AggregateCropSupport(s,town.CultureId,town.Cell,true)*1000),LastSuccession=s.Years,Tradition="Local provisioning, public works and collective defense",Cycle=new HistoricalPoliticalCycle()}}).ToArray();
             AppointAggregateLeader(s,id);ClaimAggregatePolity(s,town.Cell,id);AssignAggregateTown(s,city,id);ScheduleAggregate(s,StateProcess,id);s.Society.Cultures[town.CultureId].Stage=SocietyStage.Civilization;
             if(a.Cultures[town.CultureId].CivilizationSince<0)a.Cultures[town.CultureId].CivilizationSince=s.Years;
+            EstablishCivilizationalLineage(s,town.CultureId);
             if(LivingHistory(s)&&a.Living.CivicOrigins[town.CultureId]<0)a.Living.CivicOrigins=a.Living.CivicOrigins.With(town.CultureId,id);
             HistoryEvent(s,parent<0?"state":"secession",polity.Name+(parent<0?" establishes independent institutions at ":" emerges as an independent successor court at ")+town.Name+".",town.Cell,town.CultureId,id,other:parent,town:city,category:ChronicleCategory.Politics);
         }
@@ -73,6 +74,8 @@ namespace WorldGen.Core
             ds.PeakPopulation=Math.Max(ds.PeakPopulation,p.Population);ds.PeakAreaKm2=Math.Max(ds.PeakAreaKm2,p.AreaKm2);p.LastEstimateYear=s.Years;
             AdvanceImperialGovernment(s,id,elapsed);
             AdvanceTerritorialAdministration(s,id,elapsed);
+            AdvanceColonialExpedition(s,id,elapsed);
+            AdvanceRecognizedTitles(s,id,elapsed);
             if(h.Administration.Accounts.Length<h.Polities.Length){int old=h.Administration.Accounts.Length;Array.Resize(ref h.Administration.Accounts,h.Polities.Length);for(int k=old;k<h.Polities.Length;k++)h.Administration.Accounts[k]=new HistoricalAdministrativeAccount{PolityId=k};}
             var ledger=h.Administration.Accounts[id];ledger.Year=s.Years;ledger.ReachM=account.ReachKm*1000;ledger.UrbanReceipts=(long)(account.Urban*.065);ledger.RuralReceipts=receipts-ledger.UrbanReceipts;ledger.ServiceCost=service;ledger.TaxableUrbanResidents=account.Urban;ledger.DisconnectedResidents=(long)(account.Remote*(1-served));
             int sampledCity=account.Cities.At((int)(HistoryRoll("aggregate-province",id,s.Years)*account.Cities.Count));var town=s.Society.Settlements[sampledCity];double distance=D.Angle(World.Surface.Cells[town.Cell].Position,World.Surface.Cells[s.Society.Settlements[p.CapitalId].Cell].Position)*World.Recipe.RadiusKm;

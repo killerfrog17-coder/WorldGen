@@ -7,7 +7,8 @@ namespace WorldGen.Core
         public HistoricalImperialGovernment[] Governments=Array.Empty<HistoricalImperialGovernment>();
         public HistoricalTerritorialAdministration Territories;
         [System.Runtime.Serialization.OptionalField] public HistoricalProvincialFrontiers Frontiers;
-        public HistoricalImperialSystem Copy()=>new HistoricalImperialSystem{Governments=Governments.Select(g=>g.Copy()).ToArray(),Territories=Territories?.Copy(),Frontiers=Frontiers?.Copy()};
+        [System.Runtime.Serialization.OptionalField] public HistoricalColonialConnections Connections;
+        public HistoricalImperialSystem Copy()=>new HistoricalImperialSystem{Governments=Governments.Select(g=>g.Copy()).ToArray(),Territories=Territories?.Copy(),Frontiers=Frontiers?.Copy(),Connections=Connections?.Copy()};
     }
     [Serializable] public sealed class HistoricalImperialGovernment
     {
@@ -73,6 +74,7 @@ namespace WorldGen.Core
             var a=s.History.Aggregates;if(!TechnicalHistory(s))return;
             var next=predecessor<0?new HistoricalImperialGovernment{SinceYear=s.Years,LastReportYear=s.Years}:a.Empires.Governments[predecessor].Copy();
             a.Empires.Governments=a.Empires.Governments.Concat(new[]{next}).ToArray();
+            AppendColonialGovernment(s,predecessor);
             // Succession roots preserve every existing local allegiance without
             // a census of subjects, cities or territorial holdings.
             if(predecessor>=0)a.Empires.Governments[predecessor]=new HistoricalImperialGovernment{SinceYear=s.Years,LastReportYear=s.Years};
@@ -152,6 +154,8 @@ namespace WorldGen.Core
             if(parent>=0)
             {
                 var patron=h.Polities[parent];var account=a.Polities[polity];var leader=h.Dynamics.Leaders[h.Dynamics.States[polity].LeaderId];
+                if(ColonialHistory(s)&&a.Resolve(a.Empires.Connections.Governments[polity].Sponsor,h)==parent&&patron.Cohesion>=500&&patron.Exhaustion<250)
+                {long subsidy=Math.Min(patron.Treasury/20,Math.Max(0,account.ServiceCost-account.Receipts)*elapsed);patron.Treasury-=subsidy;p.Treasury=Math.Min(1000000000,p.Treasury+subsidy);}
                 long due=Math.Max(1,(long)(account.Receipts*(g.Imposed?.18:.10)))*elapsed;
                 long payment=Math.Min(p.Treasury,due);payment=Math.Min(payment,Math.Max(0,1000000000-patron.Treasury));p.Treasury-=payment;patron.Treasury+=payment;g.TotalTribute+=payment;g.AnnualTribute=payment/Math.Max(1,elapsed);
                 g.ArrearsYears=Math.Max(0,Math.Min(100,g.ArrearsYears+(payment<due?elapsed:-elapsed)));
@@ -162,6 +166,19 @@ namespace WorldGen.Core
                 double stress=.45*neglect+.3*g.ArrearsYears/100.0+.45*patron.Exhaustion/1000.0+.5*(1-patron.Cohesion/1000.0)+.4*weakness;
                 if(succession)stress+=.35*D.Clamp((h.Dynamics.States[parent].Cycle?.ConquestDebt??0)/600.0)+.15;
                 double risk=.00015+.025*Math.Pow(Math.Max(0,stress-.45),2)*(.4+leader.Ambition/1000.0);
+                if(ColonialHistory(s))
+                {
+                    var policy=a.Communities.Governments[parent];double representation=policy.RepresentationMilli/1000.0;
+                    double foreign=p.CultureId==patron.CultureId?0:1;
+                    risk=(g.Imposed?.0015:.00065)*(.65+.65*foreign)*(1-.8*representation)
+                        +.035*Math.Pow(Math.Max(0,stress-.25),2)*(.4+leader.Ambition/1000.0);
+                    if(succession)
+                    {
+                        double crisis=.015+.10*D.Clamp((h.Dynamics.States[parent].Cycle?.ConquestDebt??0)/600.0)+.08*D.Clamp((650-patron.Cohesion)/400.0);
+                        if(g.Imposed)crisis+=.04*foreign;
+                        if(HistoryRoll("colonial-imperial-succession",polity,s.Years)<crisis*(1-.75*representation))risk+=.25/Math.Max(1,elapsed);
+                    }
+                }
                 if(s.Years-g.SinceYear>35&&HistoryRoll("imperial-separation",polity,s.Years)<1-Math.Exp(-risk*elapsed))SetImperialPatron(s,polity,-1,false,neglect>.5?"Protection and regular communication have broken down.":succession?"A disputed succession gives local institutions room to assert sovereignty.":"Local elites reject obligations as the imperial balance weakens.");
                 else if(p.CultureId!=patron.CultureId)LivingCultureContact(s,p.CultureId,patron.CultureId);
             }

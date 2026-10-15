@@ -51,10 +51,11 @@ namespace WorldGen.Presentation
         {
             if(s?.Society==null||s.History==null||cell<0||cell>=HistoricalCells.Count(s))return null;
             var h=s.History;
+            if((overlay==HistoryOverlay.States||overlay==HistoryOverlay.Civilizations)&&HistoricalCells.Polity(s,cell)<0){int claim=HistoricalRecognizedClaims.TitleAt(s,cell);if(claim>=0&&HistoricalRecognizedClaims.Holder(s,cell)>=0)return ClaimLink(s,claim);}
             if(overlay==HistoryOverlay.Provinces){int province=HistoricalProvinceIdentity.Of(s,cell);if(province>=0)return ProvinceLink(s,province);}
             if(overlay==HistoryOverlay.Religions&&HistoricalCells.Religion(s,cell)>=0)return FaithLink(h.Religions[HistoricalCells.Religion(s,cell)]);
             if((overlay==HistoryOverlay.States||overlay==HistoryOverlay.Territories)&&HistoricalCells.Polity(s,cell)>=0)return StateLink(s,h.Polities[overlay==HistoryOverlay.Territories?HistoricalCells.Polity(s,cell):HistoricalImperialHierarchy.Sovereign(s,HistoricalCells.Polity(s,cell))]);
-            if(overlay==HistoryOverlay.Civilizations&&HistoricalCells.Polity(s,cell)>=0)return CultureLink(s.Society.Cultures[h.Polities[HistoricalImperialHierarchy.Sovereign(s,HistoricalCells.Polity(s,cell))].CultureId]);
+            if(overlay==HistoryOverlay.Civilizations&&HistoricalCells.Polity(s,cell)>=0)return CultureLink(s.Society.Cultures[HistoricalRecognizedClaims.Civilization(s,h.Polities[HistoricalImperialHierarchy.Sovereign(s,HistoricalCells.Polity(s,cell))].CultureId)]);
             var town=s.Society.Settlements.FirstOrDefault(t=>t.Cell==cell&&t.Population>0);
             if(town!=null)return TownLink(s,town);
             var culture=SocietyView.Culture(s,cell);
@@ -68,6 +69,7 @@ namespace WorldGen.Presentation
             {
                 case "state":return StateSummary(s,s.History.Polities[link.Id]);
                 case "province":return ProvinceSummary(s,link.Id);
+                case "claim":return ClaimSummary(s,link.Id);
                 case "city":var t=s.Society.Settlements[link.Id];return t.Name+" is home to "+N(t.Population)+" residents of the "+s.Society.Cultures[t.CultureId].Name+" people. "+(t.PolityId>=0?"It belongs to "+s.History.Polities[t.PolityId].Name+".":"It is outside centralized state administration.")+" The settlement dates to year "+Y(s,t.FoundedYear)+".";
                 case "people":var c=s.Society.Cultures[link.Id];return "The "+c.Name+" people number "+N(c.Population)+". Their recorded way of life centers on "+c.Subsistence.ToLowerInvariant()+". Explore their profile for cultural contacts, crops, and adopted practices.";
                 case "religion":var r=s.History.Religions[link.Id];return r.Name+" originated among the "+s.Society.Cultures[r.CultureId].Name+" people in year "+Y(s,r.FoundedYear)+". "+r.Tradition+". Its recorded ethos is "+r.Ethos+".";
@@ -87,6 +89,7 @@ namespace WorldGen.Presentation
         {
             if(s?.History==null||s.Society==null||cell<0||cell>=HistoricalCells.Count(s))return Array.Empty<AtlasLink>();
             var links=new List<AtlasLink>();int state=HistoricalCells.Polity(s,cell),faith=HistoricalCells.Religion(s,cell);
+            int claim=HistoricalRecognizedClaims.TitleAt(s,cell);if(claim>=0&&HistoricalRecognizedClaims.Holder(s,cell)>=0)links.Add(ClaimLink(s,claim));
             int sovereign=state<0?-1:HistoricalImperialHierarchy.Sovereign(s,state);
             if(state>=0)links.Add(StateLink(s,s.History.Polities[state],sovereign==state?"Sovereign state":"Local government"));
             int province=HistoricalProvinceIdentity.Of(s,cell);if(province>=0)links.Add(ProvinceLink(s,province));
@@ -95,7 +98,7 @@ namespace WorldGen.Presentation
             var culture=SocietyView.Culture(s,cell);if(culture==null&&state>=0)culture=s.Society.Cultures[s.History.Polities[state].CultureId];
             if(culture!=null)links.Add(CultureLink(culture));if(faith>=0)links.Add(FaithLink(s.History.Religions[faith]));return links.ToArray();
         }
-        public static string ProfileLabel(AtlasLink link)=>link.Kind=="province"?"Province":link.Kind=="religion"?"Belief":link.Kind=="people"?"People":link.Kind=="city"?"City":link.Kind=="ruler"?"Ruler":link.Detail=="Imperial government"?"Realm":link.Detail=="Local government"?"Local state":"State";
+        public static string ProfileLabel(AtlasLink link)=>link.Kind=="claim"?"Title":link.Kind=="province"?"Province":link.Kind=="religion"?"Belief":link.Kind=="people"?"People":link.Kind=="city"?"City":link.Kind=="ruler"?"Ruler":link.Detail=="Imperial government"?"Realm":link.Detail=="Local government"?"Local state":"State";
         public static AtlasLink[] Directory(PrehistoryState? s,string kind,string search="",bool past=false)
         {
             if(s?.Society==null||s.History==null)return Array.Empty<AtlasLink>();
@@ -121,6 +124,7 @@ namespace WorldGen.Presentation
             {
                 case "world":Overview(s,d,sections);break;
                 case "province":Province(s,id,d,sections);break;
+                case "claim":Claim(s,id,d,sections);break;
                 case "state" when id>=0&&id<h.Polities.Length:State(s,h.Polities[id],d,sections);break;
                 case "city" when id>=0&&id<s.Society.Settlements.Length:City(s,s.Society.Settlements[id],d,sections);break;
                 case "people" when id>=0&&id<s.Society.Cultures.Length:People(s,s.Society.Cultures[id],d,sections);break;
@@ -135,7 +139,7 @@ namespace WorldGen.Presentation
                 var setting=Setting(world,d.Cell,kind=="state"||kind=="ruler"?"Capital's setting":"Local setting");
                 if(setting!=null)sections.Insert(Math.Min(1,sections.Count),setting);
             }
-            d.Sections=sections.ToArray();return d;
+            ColonialSections(s,kind,id,sections);d.Sections=sections.ToArray();return d;
         }
         static AtlasSection? Setting(World world,int cell,string title)
         {

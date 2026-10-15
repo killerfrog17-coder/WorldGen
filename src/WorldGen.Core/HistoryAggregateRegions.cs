@@ -67,11 +67,18 @@ namespace WorldGen.Core
             var crops=new HistoricalAgriculture{CultureId=id,NativeMask=nativeCrops[cell],PracticeCell=Enumerable.Repeat(cell,6).ToArray(),WildOriginCell=Enumerable.Range(0,6).Select(k=>(nativeCrops[cell]&(1<<k))!=0?cell:-1).ToArray(),Cultivars=new HistoricalCultivar[6],HusbandryYears=new int[6]};h.Agriculture=h.Agriculture.Concat(new[]{crops}).ToArray();
             if(CommunityHistory(s)){crops.NativeMask=CommunityNativeCropMask(s,cell);for(int k=0;k<6;k++)crops.WildOriginCell[k]=(crops.NativeMask&(1<<k))!=0?cell:-1;}
             a.Cultures=a.Cultures.Concat(new[]{new HistoricalCultureAggregate{Id=id,LastYear=s.Years,Region=patch}}).ToArray();a.Regions[patch].Culture=id;a.Regions[patch].LastCultureYear=s.Years;
+            AppendColonialCulture(s,patch);
             if(ProvincialHistory(s))a.Provinces.Exchanges=a.Provinces.Exchanges.Concat(new[]{new HistoricalExchangeMemory()}).ToArray();
             if(LivingHistory(s))
             {
                 int teacher=a.Living.Regions[patch].Teacher;
                 if(teacher>=0&&teacher<id){hc.ParentCultureId=teacher;if(ProvincialHistory(s))OfferProvincialKnowledge(s,id,teacher,a.Provinces.RegionalKnowledge[patch],a.Living.Regions[patch].LastExchangeYear,false);else LivingCultureContact(s,id,teacher);HistoryEvent(s,"cultural-exchange",c.Name+" develops a distinct local tradition through exchange with "+s.Society.Cultures[teacher].Name+"; crops and institutions still need local support.",cell,id,category:ChronicleCategory.Society);}
+                if(ColonialHistory(s)&&teacher>=0&&s.Years-s.Society.Cultures[teacher].FoundedYear<3000)
+                {
+                    int from=s.Society.Cultures[teacher].OriginCell;double distance=D.Angle(World.Surface.Cells[from].Position,World.Surface.Cells[cell].Position)*World.Recipe.RadiusKm;
+                    double continuity=HistoricalLandscapeEffects.LivelihoodContinuity(World.Ecology.Habitat[from],World.Ecology.Habitat[from],habitat);
+                    if(distance<750&&continuity>.6&&HistoryRoll("regional-cultural-lineage",id,s.Years)<.85)hc.LanguageId=h.Cultures[teacher].LanguageId;
+                }
             }
             SetAggregateLayer(s,cell,0,id);SetAggregateLayer(s,cell,2,religion);SetAggregateLayer(s,cell,4,1);
             c.Population=Math.Min(s.Population[patch],RuralCellPopulation(s,cell));ScheduleAggregate(s,CultureProcess,id);

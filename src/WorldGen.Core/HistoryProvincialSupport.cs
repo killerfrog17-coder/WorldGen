@@ -40,7 +40,7 @@ namespace WorldGen.Core
             var a=s.History.Aggregates;var c=s.Society.Cultures[culture];double total=Math.Max(1,a.Regions[region].AreaKm2);
             double area=Math.Max(0,total-a.Provinces.ClaimedAreaKm2[region])*(1-D.Clamp(a.Living.Regions[region].CommittedAreaKm2/total));
             double yield=ProvincialPhysicalYield(s,culture,a.Regions[region].BestCell);
-            return a.Regions[region].Capacity+(long)(area*65*yield*D.Clamp(c.Farming/600.0)*HistoricalModernEffects.FoodMultiplier(s.History.Cultures[culture],s.Years));
+            return a.Regions[region].Capacity+(long)(area*65*yield*D.Clamp(c.Farming/600.0)*EffectiveFoodMultiplier(s,s.History.Cultures[culture]));
         }
         long ProvincialFarmPotential(PrehistoryState s,int cell,int culture)
         {
@@ -60,13 +60,13 @@ namespace WorldGen.Core
             var a=s.History.Aggregates;int culture=s.History.Polities[polity].CultureId;
             double farming=D.Clamp(s.Society.Cultures[culture].Farming/600.0);
             var hc=s.History.Cultures[culture];
-            return Math.Max(1,a.Polities[polity].RemoteCapacity+(long)(a.Provinces.FarmPotential[polity]*farming*HistoricalModernEffects.FoodMultiplier(hc,s.Years)*(1-HistoricalProvincialEffects.UrbanShare(hc,s.Years))));
+            return Math.Max(1,a.Polities[polity].RemoteCapacity+(long)(a.Provinces.FarmPotential[polity]*farming*EffectiveFoodMultiplier(s,hc)*(1-HistoricalProvincialEffects.UrbanShare(hc,s.Years))));
         }
         long ProvincialUrbanSupply(PrehistoryState s,int polity)
         {
             var a=s.History.Aggregates;var p=s.History.Polities[polity];var hc=s.History.Cultures[p.CultureId];
             double integration=D.Clamp((HistoricalModernEffects.LandTransport(hc,s.Years)-1)/3.5);
-            double potential=a.Provinces.FarmPotential[polity]*D.Clamp(s.Society.Cultures[p.CultureId].Farming/600.0)*HistoricalModernEffects.FoodMultiplier(hc,s.Years);
+            double potential=a.Provinces.FarmPotential[polity]*D.Clamp(s.Society.Cultures[p.CultureId].Farming/600.0)*EffectiveFoodMultiplier(s,hc);
             double share=HistoricalProvincialEffects.UrbanShare(hc,s.Years);
             double marketed=Math.Min(potential*share,a.Polities[polity].Remote*share/Math.Max(.1,1-share));
             return (long)(marketed*integration/Math.Max(1,a.Polities[polity].CityCount)/1.15);
