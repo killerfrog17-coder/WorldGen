@@ -24,12 +24,18 @@ namespace WorldGen.Presentation
             switch((int)h){case 0:return new V(v,t,p);case 1:return new V(q,v,p);case 2:return new V(p,v,t);case 3:return new V(p,q,v);case 4:return new V(t,p,v);default:return new V(v,p,q);}
         }
         public static string ColorHex(int id){var c=CivilizationColor(id);return "#"+((int)Math.Round(c.X*255)).ToString("X2")+((int)Math.Round(c.Y*255)).ToString("X2")+((int)Math.Round(c.Z*255)).ToString("X2");}
+        // Observer-era colors are a readable categorical key, not political identities.
+        static readonly int[] EraColors={0xa6adb5,0xd2c488,0xc78c4a,0x938aa9,0x6384b9,0x3ca8a4,0xd4b347,0xd36d58,0x9d65bb};
+        static V EraColor(int era){int rgb=EraColors[Math.Max(0,Math.Min(EraColors.Length-1,era-2))];return new V((rgb>>16)/255.0,((rgb>>8)&255)/255.0,(rgb&255)/255.0);}
+        public static V OverlayColor(PrehistoryState state,int id,HistoryOverlay overlay)=>overlay==HistoryOverlay.Technology&&state.History?.Aggregates?.Empires!=null?EraColor(id):CivilizationColor(id);
+        public static V LegendColor(HistoryLegendEntry entry)=>entry.EraColor?EraColor(entry.ColorId):CivilizationColor(entry.ColorId);
+        public static string LegendColorHex(HistoryLegendEntry entry){var c=LegendColor(entry);return "#"+((int)Math.Round(c.X*255)).ToString("X2")+((int)Math.Round(c.Y*255)).ToString("X2")+((int)Math.Round(c.Z*255)).ToString("X2");}
         public static void ColorPalette(PrehistoryState state,byte[] bytes,int offset,HistoryOverlay overlay=HistoryOverlay.Civilizations)
         {
             if(state==null)return;
             var h=state.Society;if(h==null)return;
             var display=HistoricalMapSnapshot.For(state);
-            for(int i=0;i<HistoricalCells.Count(state);i++){int owner=display.ColorId(i,overlay);if(owner<0)continue;var c=CivilizationColor(owner);int at=offset+i*4;bytes[at]=(byte)Math.Round(c.X*255);bytes[at+1]=(byte)Math.Round(c.Y*255);bytes[at+2]=(byte)Math.Round(c.Z*255);}
+            for(int i=0;i<HistoricalCells.Count(state);i++){int owner=display.ColorId(i,overlay);if(owner<0)continue;var c=OverlayColor(state,owner,overlay);int at=offset+i*4;bytes[at]=(byte)Math.Round(c.X*255);bytes[at+1]=(byte)Math.Round(c.Y*255);bytes[at+2]=(byte)Math.Round(c.Z*255);}
         }
         // Selection/borders identify the court; political tint identifies its ruling
         // culture. Local identity survives conquest and is exposed only in Cultures.

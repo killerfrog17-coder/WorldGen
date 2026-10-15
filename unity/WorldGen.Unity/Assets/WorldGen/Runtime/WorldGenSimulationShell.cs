@@ -39,7 +39,7 @@ public sealed partial class WorldGenRuntime
         var valueStyle=new GUIStyle(nameStyle){fontSize=11,alignment=TextAnchor.MiddleRight};
         string value=SocietyView.SortValue(entry,societySort);float valueWidth=value.Length==0?0:valueStyle.CalcSize(new GUIContent(value)).x+2;
         valueWidth=Mathf.Min(valueWidth,row.width*.48f);float nameWidth=Mathf.Max(12,row.width-18-valueWidth);
-        var box=new Rect(row.x,row.y+2,10,14);var rgb=SocietyView.CivilizationColor(entry.ColorId);
+        var box=new Rect(row.x,row.y+2,10,14);var rgb=SocietyView.LegendColor(entry);
         GUI.color=new Color((float)rgb.X,(float)rgb.Y,(float)rgb.Z);GUI.DrawTexture(box,Texture2D.whiteTexture);GUI.color=Color.white;
         if(GUI.Button(new Rect(row.x+15,row.y,nameWidth,20),new GUIContent(SocietyView.Short(entry.Name,Math.Max(2,(int)(nameWidth/6))),entry.Name),nameStyle)){selectedCell=entry.Cell;detailsOpen=true;mapSettings=false;}
         if(value.Length>0)GUI.Label(new Rect(row.xMax-valueWidth,row.y,valueWidth,20),new GUIContent(value,value),valueStyle);
@@ -114,7 +114,7 @@ public sealed partial class WorldGenRuntime
                 if(subject!=null&&GUILayout.Button("Read "+SocietyView.Short(subject.Name,24)))OpenAtlas(subject.Kind,subject.Id);
                 GUILayout.Label(subject!=null?HistoryAtlas.Summary(state,subject):humanOverlayOpacity>0?CurrentHumanInspection():selectedCell>=0?(layer==Layer.Ecoregions?EcologyView.Summary(displayedWorld,selectedCell):CellInspection.Describe(displayedWorld,selectedCell,layer)):"Select a map location",new GUIStyle(GUI.skin.label){wordWrap=true});
                 if(humanOverlayOpacity==0&&layer==Layer.Ecoregions&&selectedCell>=0&&displayedWorld?.Ecology!=null&&GUILayout.Button("Species and food web"))expandedInspection=true;
-                if(humanOverlayOpacity>0){GUILayout.BeginHorizontal();foreach(var profile in HistoryAtlas.ProfilesAt(state,selectedCell))if(GUILayout.Button(new GUIContent(profile.Kind=="religion"?"Belief":profile.Kind=="people"?"People":profile.Kind=="city"?"City":"State",profile.Name),new GUIStyle(GUI.skin.button){fontSize=11,padding=new RectOffset(5,5,4,4)}))OpenAtlas(profile.Kind,profile.Id);GUILayout.EndHorizontal();}
+                if(humanOverlayOpacity>0){GUILayout.BeginHorizontal();foreach(var profile in HistoryAtlas.ProfilesAt(state,selectedCell))if(GUILayout.Button(new GUIContent(HistoryAtlas.ProfileLabel(profile),profile.Name),new GUIStyle(GUI.skin.button){fontSize=11,padding=new RectOffset(5,5,4,4)}))OpenAtlas(profile.Kind,profile.Id);GUILayout.EndHorizontal();}
                 var c=humanOverlayOpacity>0?SocietyView.Culture(state,selectedCell):null;
                 if(c!=null){GUILayout.Space(8);SubsistenceBar("Cultivation",c.Farming);SubsistenceBar("Gathering",c.Gathering*(1000-c.Farming)/1000);SubsistenceBar("Hunting",c.Hunting*(1000-c.Farming)/1000);SubsistenceBar("Fishing",c.Fishing*(1000-c.Farming)/1000);SubsistenceBar("Herding",c.Herding*(1000-c.Farming)/1000);}
             }

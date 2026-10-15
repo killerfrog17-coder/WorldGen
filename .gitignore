@@ -26,6 +26,11 @@ src/WorldGen.Web/wwwroot/world/
 unity/WorldGen.Unity/Assets/Plugins/WorldGen/*.dll
 unity/WorldGen.Unity/Assets/Plugins/WorldGen/*.pdb
 
+# Unity's performance-test package writes host-specific build metadata.
+unity/WorldGen.Unity/Assets/Resources/PerformanceTestRunInfo.json*
+unity/WorldGen.Unity/Assets/Resources/PerformanceTestRunSettings.json*
+unity/WorldGen.Unity/Assets/Resources.meta
+
 # Local credentials must never enter source checkpoints.
 .env
 .env.*

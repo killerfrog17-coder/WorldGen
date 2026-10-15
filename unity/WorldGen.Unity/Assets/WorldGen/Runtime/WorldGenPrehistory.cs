@@ -110,7 +110,7 @@ public sealed partial class WorldGenRuntime
             for(int i=0;i<codes.Length;i++)
             {
                 colors[i].a=codes[i];int owner=display.ColorId(i,overlay);if(owner<0)continue;
-                if(!tint.TryGetValue(owner,out var rgb)){var v=SocietyView.CivilizationColor(owner);rgb=new Color32((byte)Math.Round(v.X*255),(byte)Math.Round(v.Y*255),(byte)Math.Round(v.Z*255),0);tint.Add(owner,rgb);}
+                if(!tint.TryGetValue(owner,out var rgb)){var v=SocietyView.OverlayColor(state,owner,overlay);rgb=new Color32((byte)Math.Round(v.X*255),(byte)Math.Round(v.Y*255),(byte)Math.Round(v.Z*255),0);tint.Add(owner,rgb);}
                 colors[i].r=rgb.r;colors[i].g=rgb.g;colors[i].b=rgb.b;
             }
             return new HumanPaletteResult{World=captured,State=state,Selection=selection,Overlay=overlay,Sort=sort,Colors=colors,Legend=SocietyView.Legend(state,overlay,sort,engine),MapLabels=SocietyView.MapLabels(captured,state,overlay,engine)};

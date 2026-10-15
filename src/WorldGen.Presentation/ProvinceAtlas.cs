@@ -6,6 +6,17 @@ namespace WorldGen.Presentation
 {
     public static partial class HistoryAtlas
     {
+        static string ProvinceSummary(PrehistoryState s,int identity)
+        {
+            if(!HistoricalProvinceIdentity.Exists(s,identity))return "No provincial service record is available here.";
+            int cell=HistoricalProvinceIdentity.Center(s,identity),local=HistoricalCells.Polity(s,cell),root=local<0?-1:HistoricalImperialHierarchy.Sovereign(s,local);
+            string text=HistoricalProvinceIdentity.Name(s,identity)+" has a recorded service district of "+N(HistoricalProvinceIdentity.Area(s,identity))+" km².";
+            if(local>=0)text+=" Local government belongs to "+s.History.Polities[local].Name+(root!=local?", within "+s.History.Polities[root].Name:" for foreign affairs and administration")+".";
+            else text+=" No surviving central government is recorded at its administrative center.";
+            if(identity>=HistoricalProvinceIdentity.PostIdentityOffset){var office=s.History.Aggregates.Empires.Territories.Posts[identity-HistoricalProvinceIdentity.PostIdentityOffset];text+=" The "+(office.ClosedYear>=0?"former":"funded")+" provincial office dates to year "+Y(s,office.FoundedYear)+".";}
+            else text+=" Its "+(s.Society.Settlements[identity].Population>0?"inhabited":"former")+" center is "+s.Society.Settlements[identity].Name+".";
+            return text;
+        }
         static AtlasLink ProvinceLink(PrehistoryState s,int identity)=>new AtlasLink{Kind="province",Id=identity,Cell=HistoricalProvinceIdentity.Center(s,identity),Name=HistoricalProvinceIdentity.Name(s,identity),Detail=N(HistoricalProvinceIdentity.Area(s,identity))+" km²",Value=HistoricalProvinceIdentity.Area(s,identity)};
         static AtlasLink[] ProvinceDirectory(PrehistoryState s)
         {
@@ -19,7 +30,7 @@ namespace WorldGen.Presentation
             bool post=identity>=HistoricalProvinceIdentity.PostIdentityOffset;int index=post?identity-HistoricalProvinceIdentity.PostIdentityOffset:identity;
             if(index<0||index>=(post?t.Posts.Length:a.Cities.Length)){d.Introduction="This provincial record is unavailable.";return;}
             var office=post?t.Posts[index]:null;int cell=HistoricalProvinceIdentity.Center(s,identity),local=HistoricalCells.Polity(s,cell),sovereign=local<0?-1:HistoricalImperialHierarchy.Sovereign(s,local);
-            d.Title=HistoricalProvinceIdentity.Name(s,identity);d.Cell=cell;d.Subtitle=post?"Delegated provincial administration":"District of an inhabited administrative center";
+            d.Title=HistoricalProvinceIdentity.Name(s,identity);d.Cell=cell;d.Subtitle=post?"Delegated provincial administration":s.Society.Settlements[index].Population>0?"District of an inhabited administrative center":"Historical service district of a former center";
             d.Introduction=d.Title+(local>=0?" belongs to "+s.History.Polities[local].Name:" has no surviving central government")+(sovereign>=0&&sovereign!=local?", a constituent of "+s.History.Polities[sovereign].Name:"")+". Its recorded service district covers "+N(HistoricalProvinceIdentity.Area(s,identity))+" km². These are administrative connections, not an assertion that the countryside shares one culture.";
             if(post&&office!=null)d.Introduction+=" The office was established in year "+Y(s,office.FoundedYear)+". "+(office.ClosedYear>=0?"Its funding ended in year "+Y(s,office.ClosedYear)+"; local people and the historical district remain.":"It extends government through a paid local official rather than a newly created city.");
             var facts=new List<AtlasFact>{F("Recorded district area",N(HistoricalProvinceIdentity.Area(s,identity))+" km²")};

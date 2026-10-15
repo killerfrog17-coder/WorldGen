@@ -17,6 +17,7 @@ namespace WorldGen.Presentation
         }
         static readonly ConditionalWeakTable<PrehistoryState,Entry> Entries=new ConditionalWeakTable<PrehistoryState,Entry>();
         readonly PrehistoryState source;readonly int[] cells,resolved,sovereigns,technology,boundaries;readonly long[] remote;
+        readonly System.Collections.Generic.Dictionary<int,int> technologySites=new System.Collections.Generic.Dictionary<int,int>();
         public int Count=>cells.Length/5;
         public static HistoricalMapSnapshot For(PrehistoryState state)
         {
@@ -33,8 +34,9 @@ namespace WorldGen.Presentation
             remote=new long[resolved.Length];if(state.History?.Aggregates!=null)for(int i=0;i<remote.Length;i++)remote[i]=state.History.Aggregates.Polities[state.History.Aggregates.PopulationCohort(i)].Remote;
             sovereigns=new int[resolved.Length];for(int i=0;i<sovereigns.Length;i++)sovereigns[i]=state.History!.Aggregates?.Empires==null?resolved[i]:HistoricalImperialHierarchy.Sovereign(state,i);
             technology=state.History?.Cultures.Select(c=>c.Technical!=null?WorldEraView.KnowledgeEra(c):HistoricalImperialHierarchy.InstalledPractices(c)).ToArray()??Array.Empty<int>();
-            boundaries=new int[count];for(int i=0;i<count;i++){int p=Sovereign(i),c=Culture(i);boundaries[i]=p>=0?p:c>=0?-2-c:-1;}
+            boundaries=new int[count];for(int i=0;i<count;i++){int p=Sovereign(i),c=Culture(i);boundaries[i]=p>=0?p:c>=0?-2-c:-1;int key=OverlayId(i,HistoryOverlay.Technology);if(key>=0&&!technologySites.ContainsKey(key))technologySites.Add(key,i);}
         }
+        public int TechnologySite(int key)=>technologySites.TryGetValue(key,out int cell)?cell:-1;
         public int Culture(int cell)=>cell>=0&&cell<Count?cells[cell*5]:-1;
         public int Stage(int cell)=>cell>=0&&cell<Count?cells[cell*5+4]:-1;
         public int Religion(int cell)=>cell>=0&&cell<Count?cells[cell*5+2]:-1;

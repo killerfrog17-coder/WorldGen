@@ -33,6 +33,9 @@ public static class HistoryTechnicalTests
         int province=HistoricalProvinceIdentity.Of(probe,site);
         check(province>=0&&HistoryAtlas.Selection(probe,site,HistoryOverlay.Provinces)!.Kind=="province","A province is independently selectable beneath its local and imperial governments");
         check(HistoryAtlas.Read(probe,"province",province,world).Introduction.Contains("administrative"),"Province profiles explain their actual administrative role");
+        check(HistoryAtlas.Summary(probe,HistoryAtlas.Selection(probe,site,HistoryOverlay.Provinces)).Contains("service district"),"Compact province selections explain the district rather than only repeating its name");
+        var localLinks=HistoryAtlas.ProfilesAt(probe,site).Select(HistoryAtlas.ProfileLabel).ToArray();
+        check(localLinks.Contains("Realm")&&localLinks.Contains("Local state")&&localLinks.Contains("Province"),"The compact profile links distinguish imperial, local-state and provincial records");
         check(HistoryAtlas.Selection(probe,site,HistoryOverlay.States)!.Id==patron&&HistoryAtlas.Selection(probe,site,HistoryOverlay.Territories)!.Id==client,"Map selection follows the chosen political level");
         check((bool)Call(engine,"SetImperialPatron",probe,client,-1,false,"Test independence."),"A breakaway retains existing towns and population");
         check(HistoricalImperialHierarchy.Sovereign(probe,third)==client&&probe.History.Aggregates.Empires.Governments[patron].SubjectPopulation==0,"Breaking away takes the local delegated hierarchy, not its former empire");

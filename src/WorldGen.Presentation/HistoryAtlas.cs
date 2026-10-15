@@ -67,6 +67,7 @@ namespace WorldGen.Presentation
             switch(link.Kind)
             {
                 case "state":return StateSummary(s,s.History.Polities[link.Id]);
+                case "province":return ProvinceSummary(s,link.Id);
                 case "city":var t=s.Society.Settlements[link.Id];return t.Name+" is home to "+N(t.Population)+" residents of the "+s.Society.Cultures[t.CultureId].Name+" people. "+(t.PolityId>=0?"It belongs to "+s.History.Polities[t.PolityId].Name+".":"It is outside centralized state administration.")+" The settlement dates to year "+Y(s,t.FoundedYear)+".";
                 case "people":var c=s.Society.Cultures[link.Id];return "The "+c.Name+" people number "+N(c.Population)+". Their recorded way of life centers on "+c.Subsistence.ToLowerInvariant()+". Explore their profile for cultural contacts, crops, and adopted practices.";
                 case "religion":var r=s.History.Religions[link.Id];return r.Name+" originated among the "+s.Society.Cultures[r.CultureId].Name+" people in year "+Y(s,r.FoundedYear)+". "+r.Tradition+". Its recorded ethos is "+r.Ethos+".";
@@ -76,7 +77,7 @@ namespace WorldGen.Presentation
         static string StateSummary(PrehistoryState s,HistoricalPolity p)
         {
             if(p.EndedYear>=0)return p.Name+" was founded in year "+Y(s,p.FoundedYear)+" and its government ended in year "+Y(s,p.EndedYear)+". Its people and cities may survive under later courts.";
-            string text=p.Name+" is a "+p.Government.ToLowerInvariant()+" based at "+s.Society.Settlements[p.CapitalId].Name+". It directly administers "+N(p.Population)+" people; "+p.Ruler+" currently rules.";
+            string text=p.Name+" is based at "+s.Society.Settlements[p.CapitalId].Name+" and governed under "+p.Government.ToLowerInvariant()+". It directly administers "+N(p.Population)+" people; "+p.Ruler+" currently rules.";
             int patron=HistoricalImperialHierarchy.Patron(s,p.Id),subjects=s.History.Aggregates?.Empires?.Governments[p.Id].SubjectCount??0;
             if(patron>=0)text+=" It retains its local institutions as a constituent of "+s.History.Polities[patron].Name+".";
             if(subjects>0)text+=" Including "+N(subjects)+" constituent governments, its realm contains "+N(HistoricalImperialHierarchy.Population(s,p.Id))+" people.";
@@ -86,13 +87,15 @@ namespace WorldGen.Presentation
         {
             if(s?.History==null||s.Society==null||cell<0||cell>=HistoricalCells.Count(s))return Array.Empty<AtlasLink>();
             var links=new List<AtlasLink>();int state=HistoricalCells.Polity(s,cell),faith=HistoricalCells.Religion(s,cell);
-            if(state>=0)links.Add(StateLink(s,s.History.Polities[state]));
+            int sovereign=state<0?-1:HistoricalImperialHierarchy.Sovereign(s,state);
+            if(state>=0)links.Add(StateLink(s,s.History.Polities[state],sovereign==state?"Sovereign state":"Local government"));
             int province=HistoricalProvinceIdentity.Of(s,cell);if(province>=0)links.Add(ProvinceLink(s,province));
-            if(state>=0){int sovereign=HistoricalImperialHierarchy.Sovereign(s,state);if(sovereign!=state)links.Insert(0,StateLink(s,s.History.Polities[sovereign],"Imperial government"));}
+            if(sovereign>=0&&sovereign!=state)links.Insert(0,StateLink(s,s.History.Polities[sovereign],"Imperial government"));
             var town=s.Society.Settlements.FirstOrDefault(t=>t.Cell==cell&&t.Population>0);if(town!=null)links.Add(TownLink(s,town));
             var culture=SocietyView.Culture(s,cell);if(culture==null&&state>=0)culture=s.Society.Cultures[s.History.Polities[state].CultureId];
             if(culture!=null)links.Add(CultureLink(culture));if(faith>=0)links.Add(FaithLink(s.History.Religions[faith]));return links.ToArray();
         }
+        public static string ProfileLabel(AtlasLink link)=>link.Kind=="province"?"Province":link.Kind=="religion"?"Belief":link.Kind=="people"?"People":link.Kind=="city"?"City":link.Kind=="ruler"?"Ruler":link.Detail=="Imperial government"?"Realm":link.Detail=="Local government"?"Local state":"State";
         public static AtlasLink[] Directory(PrehistoryState? s,string kind,string search="",bool past=false)
         {
             if(s?.Society==null||s.History==null)return Array.Empty<AtlasLink>();
