@@ -1,9 +1,136 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--interface-only")){int count=0;WorldInterfaceTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" world interface assertions");return;}
+if(args.Contains("--living-only")){int at=Array.IndexOf(args,"--living-only"),count=0;HistoryLivingTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" living-history assertions");return;}
+if(args.Contains("--living-review")){HistoryLivingReview.Run(args);return;}
+if(args.Contains("--aggregate-fixture")){int at=Array.IndexOf(args,"--aggregate-fixture");HistoryAggregateTests.Fixture(args[at+1],args[at+2]);return;}
+if(args.Contains("--aggregate-only")){int at=Array.IndexOf(args,"--aggregate-only"),count=0;HistoryAggregateTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" aggregate simulation assertions");return;}
+if(args.Contains("--contact-only")){int count=0;HistoryDiplomacyTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});HistoryContactCacheTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" physical contact assertions");return;}
+if(args.Contains("--routing-only")){int at=Array.IndexOf(args,"--routing-only"),count=0;HistoryRoutingPerformanceTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" routing cache assertions");return;}
+if(args.Contains("--performance-only")){int at=Array.IndexOf(args,"--performance-only"),count=0;HistoryPerformanceTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" history performance assertions");return;}
+if(args.Contains("--realism-project")){int at=Array.IndexOf(args,"--realism-project");HistoryRealismTests.Project(args[at+1],int.Parse(args[at+2]),args[at+3]);return;}
+if(args.Contains("--realism-political")){int at=Array.IndexOf(args,"--realism-political"),count=0;HistoryRealismTests.Political(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" political realism assertions");return;}
+if(args.Contains("--realism-only")){int at=Array.IndexOf(args,"--realism-only"),count=0;HistoryRealismTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" ecology/history realism assertions");return;}
+if(args.Contains("--realism-fixture")){int at=Array.IndexOf(args,"--realism-fixture");HistoryRealismTests.Fixture(args[at+1],int.Parse(args[at+2]),int.Parse(args[at+3]),args[at+4]);return;}
+if(args.Contains("--emergence-only")){int at=Array.IndexOf(args,"--emergence-only"),count=0;HistoryEmergenceTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" emergence assertions");return;}
+if(args.Contains("--index-only")){int at=Array.IndexOf(args,"--index-only"),count=0;HistoryIndexTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" history index assertions");return;}
+if(args.Contains("--index-profile")){int at=Array.IndexOf(args,"--index-profile");HistoryIndexTests.Profile(args[at+1],int.Parse(args[at+2]),args[at+3],!args.Contains("--literal"));return;}
+if(args.Contains("--history-save-years")){int at=Array.IndexOf(args,"--history-save-years");HistoryIndexTests.Prepare(args[at+1],args[at+3],int.Parse(args[at+2]));return;}
+if(args.Contains("--history-fresh-fixture"))
+{
+    int at=Array.IndexOf(args,"--history-fresh-fixture");
+    var world=WorldFile.Read(File.ReadAllBytes(args[at+1]));world.Prehistory=null;
+    var engine=new Prehistory(world);world.Prehistory=engine.Start(engine.Prepare());
+    File.WriteAllBytes(args[at+2],WorldFile.Write(world));Console.WriteLine("Fresh history fixture: "+world.Surface.Cells.Length+" cells; "+world.Prehistory.Hash);return;
+}
+if(args.Contains("--history-playback-hash"))
+{
+    int at=Array.IndexOf(args,"--history-playback-hash"),years=int.Parse(args[at+2]);
+    if(years<1||years>10000)throw new ArgumentOutOfRangeException(nameof(years));
+    var world=WorldFile.Read(File.ReadAllBytes(args[at+1]));var engine=new Prehistory(world);var source=world.Prehistory;string sourceHash=source.Hash;
+    var session=new SimulationSession(engine,source);long begin=session.Seconds,target=checked(begin+years*SimulationTime.Year);int publications=0,lastReport=source.Years;
+    while(session.Seconds<target)
+    {
+        long before=session.Seconds;var slice=SimulationClockView.Publication(before,target-before,1000*SimulationTime.Year);
+        var next=session.AdvanceSeconds(slice.Seconds,slice.MaximumEvents,maximumGlobalWork:slice.MaximumGlobalWork);publications++;
+        if(session.Seconds<=before||session.Seconds>before+slice.Seconds)throw new Exception("Playback publication lost or fabricated calendar progress.");
+        if(next.Years-lastReport>=100){lastReport=next.Years;Console.WriteLine("Playback continuation year "+next.Years+", publications "+publications);}
+    }
+    var result=session.Snapshot();engine.Validate(result);
+    if(source.ComputeHash()!=sourceHash||SimulationTime.Seconds(result)!=target)throw new Exception("Playback changed its source or lost exact requested time.");
+    File.WriteAllText(args[at+3],result.Hash);Console.WriteLine("Playback resume "+result.Hash+"; "+publications+" bounded publications");return;
+}
+if(args.Contains("--history-ceiling-scenarios")){int at=Array.IndexOf(args,"--history-ceiling-scenarios");HistoryModernTests.CeilingScenarios(args[at+1],args[at+2]);return;}
+if(args.Contains("--history-checkpoint-hash")){int at=Array.IndexOf(args,"--history-checkpoint-hash");var world=WorldFile.Read(File.ReadAllBytes(args[at+1]));new Prehistory(world).Validate(world.Prehistory);File.WriteAllText(args[at+2],world.Prehistory.Hash);Console.WriteLine("Validated checkpoint "+world.Prehistory.Hash);return;}
+if(args.Contains("--parallel-history-only")){int at=Array.IndexOf(args,"--parallel-history-only"),count=0;HistoryParallelTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" parallel history assertions");return;}
+if(args.Contains("--history-hash-profile")){int at=Array.IndexOf(args,"--history-hash-profile");var world=WorldFile.Read(File.ReadAllBytes(args[at+1]));var rows=new List<string>{"stage,milliseconds"};foreach(var metric in SimulationHashProfile.Capture(world.Prehistory).OrderByDescending(m=>m.Milliseconds)){var row=FormattableString.Invariant($"{metric.Stage},{metric.Milliseconds:F3}");rows.Add(row);Console.WriteLine(row);}File.WriteAllLines(args[at+2],rows);return;}
+if(args.Contains("--history-upgrade")){int at=Array.IndexOf(args,"--history-upgrade");var world=WorldFile.Read(File.ReadAllBytes(args[at+1]));var engine=new Prehistory(world);world.Prehistory=engine.UpgradeToModernHistory(world.Prehistory);engine.Validate(world.Prehistory);File.WriteAllBytes(args[at+2],WorldFile.Write(world));Console.WriteLine("Upgraded without rewriting the past: "+world.Prehistory.Hash);return;}
+if(args.Contains("--modern-only")){int count=0;HistoryModernTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" modern history assertions");return;}
+
+if(args.Contains("--history-work-profile")){int at=Array.IndexOf(args,"--history-work-profile");var w=WorldFile.Read(File.ReadAllBytes(args[at+1]));var engine=new Prehistory(w);var metrics=new List<SimulationWorkMetric>();engine.WorkObserver=metrics.Add;var next=engine.AdvanceYears(w.Prehistory,int.Parse(args[at+2]));engine.Validate(next);var rows=new List<string>{"stage,count,totalMilliseconds,maxMilliseconds,meanMilliseconds"};foreach(var g in metrics.GroupBy(m=>m.Stage).OrderByDescending(g=>g.Sum(m=>m.Milliseconds))){string row=FormattableString.Invariant($"{g.Key},{g.Count()},{g.Sum(m=>m.Milliseconds):F3},{g.Max(m=>m.Milliseconds):F3},{g.Average(m=>m.Milliseconds):F3}");rows.Add(row);Console.WriteLine(row);}File.WriteAllLines(args[at+3],rows);Console.WriteLine("HASH "+next.Hash);return;}
+
+if(args.Contains("--institutional-only")){int count=0;HistoryInstitutionalTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" institutional succession assertions");return;}
+
+if(args.Contains("--delegation-network-only")){int at=Array.IndexOf(args,"--delegation-network-only"),count=0;HistoryDelegationTests.Network(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual delegated network assertions");return;}
+if(args.Contains("--delegation-only")){int count=0;HistoryDelegationTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" delegated administration and urban demography assertions");return;}
+if(args.Contains("--local-history-only")){int count=0;HistoryLocalTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" local formation/administration assertions");return;}
+
+if(args.Contains("--calendar-resume")){int at=Array.IndexOf(args,"--calendar-resume");var w=WorldFile.Read(File.ReadAllBytes(args[at+1]));var engine=new Prehistory(w);var s=engine.AdvanceSeconds(w.Prehistory,long.Parse(args[at+2]));engine.Validate(s);File.WriteAllText(args[at+3],s.Hash);if(args.Length>at+4){w.Prehistory=s;File.WriteAllBytes(args[at+4],WorldFile.Write(w));}Console.WriteLine("Calendar resume "+s.Hash);return;}
+
+if(args.Contains("--calendar-only")){int count=0;SimulationCalendarTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" calendar assertions");return;}
+
+if (args.Contains("--plate-shape-report"))
+{
+    int option = Array.IndexOf(args, "--plate-shape-report"), labelOption = Array.IndexOf(args, "--label");
+    if (option + 1 >= args.Length) throw new ArgumentException("--plate-shape-report requires an output JSON path.");
+    string label = labelOption >= 0 && labelOption + 1 < args.Length ? args[labelOption + 1] : Recipe.CurrentAlgorithm;
+    var reports = new List<PlateShapeDiagnostics.Report>();
+    foreach (int count in new[] { 80, 500 }) foreach (int seed in new[] { 73421, 42, 0, 17, 98765 })
+    {
+        var recipe = Recipe.Preset("Preview"); recipe.Seed = seed; recipe.MicroplateCount = count;
+        var coarse = new World { Recipe = recipe, Surface = SphericalMesh.BuildCoarse(recipe, default) };
+        PlateHierarchy.Microplates(coarse, default);
+        var report = PlateShapeDiagnostics.Assess(coarse, label); reports.Add(report);
+        Console.WriteLine($"{label} P{count} seed {seed}: q {report.MedianQ:F3}/{report.P90Q:F3}, axis {report.MedianAxisRatio:F3}/{report.P90AxisRatio:F3}, min {report.MinimumCells}, disconnected {report.DisconnectedPlates}");
+    }
+    string output = Path.GetFullPath(args[option + 1]); Directory.CreateDirectory(Path.GetDirectoryName(output)!);
+    File.WriteAllText(output, System.Text.Json.JsonSerializer.Serialize(reports, new System.Text.Json.JsonSerializerOptions { IncludeFields = true, WriteIndented = true }));
+    return;
+}
+
+if (args.Contains("--island-ring-report"))
+{
+    int option = Array.IndexOf(args, "--island-ring-report"), detailOption = Array.IndexOf(args, "--detail");
+    if (option + 1 >= args.Length) throw new ArgumentException("--island-ring-report requires an output JSON path.");
+    int detail = detailOption >= 0 ? int.Parse(args[detailOption + 1]) : 20000;
+    var reports = new List<IslandRingDiagnostics.Report>();
+    foreach (int seed in new[] { 73421, 42, 0, 17, 98765 })
+    {
+        var recipe = Recipe.Preset("Preview"); recipe.Seed = seed; recipe.Detail = detail;
+        var report = IslandRingDiagnostics.Assess(new WorldPipeline().Generate(recipe)); reports.Add(report);
+        Console.WriteLine($"seed {seed}: suspicious plates {report.SuspiciousPlates}, detached islands {report.DetachedIslands}, island-near perimeter {report.CoveredPerimeterKm / report.EligiblePerimeterKm:P1}");
+    }
+    string output = Path.GetFullPath(args[option + 1]); Directory.CreateDirectory(Path.GetDirectoryName(output));
+    File.WriteAllText(output, System.Text.Json.JsonSerializer.Serialize(reports, new System.Text.Json.JsonSerializerOptions { IncludeFields = true, WriteIndented = true }));
+    return;
+}
 
 int assertions = 0;
+if(args.Contains("--history-review-only")){int at=Array.IndexOf(args,"--history-review-only");var w=WorldFile.Read(File.ReadAllBytes(args[at+1]));string folder=Path.GetFullPath(args[at+2]);Directory.CreateDirectory(folder);HistoryAuditReview.Write(w,new Prehistory(w),w.Prehistory,folder);Console.WriteLine("Saved read-only review "+folder);return;}
+if(args.Contains("--ocean-review")){OceanReview.Run(args);return;}
+if(args.Contains("--history-resume-hash")){int at=Array.IndexOf(args,"--history-resume-hash");var w=WorldFile.Read(File.ReadAllBytes(args[at+1]));var engine=new Prehistory(w);var next=engine.AdvanceYears(w.Prehistory,int.Parse(args[at+2]));engine.Validate(next);File.WriteAllText(args[at+3],next.Hash);Console.WriteLine("History resume "+next.Hash);return;}
+if(args.Contains("--history-town-trace")){int at=Array.IndexOf(args,"--history-town-trace");HistoryAuditReview.TraceTown(WorldFile.Read(File.ReadAllBytes(args[at+1])),int.Parse(args[at+2]),int.Parse(args[at+3]),args[at+4]);return;}
+if(args.Contains("--hash-batches-only")){HashBatchTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+assertions+" canonical hash batch assertions");return;}
+if(args.Contains("--history-snapshot")){int at=Array.IndexOf(args,"--history-snapshot");var w=WorldFile.Read(File.ReadAllBytes(args[at+1]));string folder=Path.GetFullPath(args[at+2]);Directory.CreateDirectory(folder);HistoryAudit.Snapshot(w,new Prehistory(w),w.Prehistory,folder);Console.WriteLine("Saved historical snapshot "+folder);return;}
+if(args.Contains("--history-profile")){int at=Array.IndexOf(args,"--history-profile");var w=WorldFile.Read(File.ReadAllBytes(args[at+1]));var e=new Prehistory(w);var s=w.Prehistory;var watch=new System.Diagnostics.Stopwatch();void Measure(string label,Action action){watch.Restart();for(int i=0;i<5;i++)action();Console.WriteLine($"{label}: {watch.Elapsed.TotalMilliseconds/5:F1}ms");}Measure("Hash",()=>s.ComputeHash());Measure("Validate",()=>e.Validate(s));Measure("Copy",()=>s.Copy());Measure("Annual step",()=>e.AdvanceYears(s,1));return;}
+if(args.Contains("--history-benchmark")){int at=Array.IndexOf(args,"--history-benchmark");var watch=System.Diagnostics.Stopwatch.StartNew();var w=WorldFile.Read(File.ReadAllBytes(args[at+1]));Console.WriteLine($"Load {watch.Elapsed.TotalSeconds:F2}s");watch.Restart();var e=new Prehistory(w);Console.WriteLine($"Graph {watch.Elapsed.TotalSeconds:F2}s");var s=w.Prehistory;var samples=new List<double>();for(int i=0;i<20;i++){watch.Restart();s=e.AdvanceYears(s,1);samples.Add(watch.Elapsed.TotalMilliseconds);}watch.Restart();var codes=PrehistoryView.Codes(w,e,s);Console.WriteLine($"{w.Surface.Cells.Length} cells, {s.History.Archive.Count} events: annual ticks median {samples.OrderBy(x=>x).ElementAt(10):F1}ms, p95 {samples.OrderBy(x=>x).ElementAt(18):F1}ms; overlay {watch.Elapsed.TotalMilliseconds:F1}ms");return;}
+if(args.Contains("--history-presentation-only")){HistoryPresentationTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+assertions+" historical presentation assertions");return;}
+if(args.Contains("--atlas-check")){HistoryAtlasTests.ReviewWorld(args[Array.IndexOf(args,"--atlas-check")+1]);return;}
+if(args.Contains("--history-geography")){int at=Array.IndexOf(args,"--history-geography");var setup=new WorldSetup();var recipe=setup.Resolve(setup.Preset(args[at+1],new Recipe{Seed=int.Parse(args[at+2]),Detail=int.Parse(args[at+3])}));var world=new WorldPipeline().Generate(recipe);string file=Path.GetFullPath(args[at+4]);Directory.CreateDirectory(Path.GetDirectoryName(file)!);File.WriteAllBytes(file,WorldFile.Write(world));Console.WriteLine("Saved audit geography "+file+" "+world.Stages.Last().Hash);return;}
+if(args.Contains("--history-cohort-review")){int at=Array.IndexOf(args,"--history-cohort-review");HistoryRegionalReview.Run(args[at+1],args[at+2]);return;}
+if(args.Contains("--history-audit")){HistoryAudit.Run(args);return;}
+if(args.Contains("--history-legend-only")){var w=WorldFile.Read(File.ReadAllBytes("artifacts/history-1/Earth-preview.world"));var s=w.Prehistory;foreach(var entry in SocietyView.Legend(s,HistoryOverlay.Religions)){if(s.History.CellReligion[entry.Cell]!=entry.ColorId)throw new Exception("Religion legend selected a converted holy site");assertions++;}Console.WriteLine("PASS "+assertions+" current-faith legend references");return;}
+if(args.Contains("--history-era-only")){HistoryEraTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+assertions+" era assertions");return;}
+if(args.Contains("--history-only")){HistoryEraTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});HistoryTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+assertions+" history assertions");return;}
+if(args.Contains("--history-6-only")){HistoryEraTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});HistoryTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);},"history-6");Console.WriteLine("PASS "+assertions+" history-6 assertions");return;}
+if(args.Contains("--history-7-only")){HistoryTerritoryTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});HistoryEraTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});HistoryTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);},"history-7");Console.WriteLine("PASS "+assertions+" history-7 assertions");return;}
+if(args.Contains("--history-8-only")){HistoryFormationTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});HistoryTerritoryTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});HistoryEraTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});HistoryTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);},"history-8");Console.WriteLine("PASS "+assertions+" history-8 assertions");return;}
+if(args.Contains("--history-9-only")){HistoryRegionalTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});HistoryFormationTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});HistoryTerritoryTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});HistoryEraTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});HistoryTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);},"history-9");Console.WriteLine("PASS "+assertions+" history-9 assertions");return;}
+if(args.Contains("--regional-only")){HistoryRegionalTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+assertions+" regional-learning assertions");return;}
+if(args.Contains("--formation-only")){HistoryFormationTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+assertions+" formation/diffusion assertions");return;}
+if(args.Contains("--territory-only")){HistoryTerritoryTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+assertions+" territorial assertions");return;}
+if(args.Contains("--autonomy-scenario")){HistoryAutonomyTests.Run(args[Array.IndexOf(args,"--autonomy-scenario")+1],(ok,message)=>{assertions++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+assertions+" provincial autonomy assertions");return;}
+if(args.Contains("--coastal-only")){CoastalDispersalTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+assertions+" coastal assertions");return;}
+if(args.Contains("--prehistory-replay")){var at=Array.IndexOf(args,"--prehistory-replay");var w=WorldFile.Read(File.ReadAllBytes(args[at+1]));var engine=new Prehistory(w);var s=engine.Prepare(w.Prehistory.Origin);s.Version=w.Prehistory.Version;s.Seal();s=engine.Start(s);s=engine.Advance(s,w.Prehistory.Years/Prehistory.YearsPerStep(s));if(s.Hash!=w.Prehistory.Hash)throw new Exception("Native/CoreCLR demographic replay mismatch");Console.WriteLine("PASS native/CoreCLR demographic replay "+s.Hash);return;}
+if(args.Contains("--prehistory-only")){PrehistoryTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+assertions+" prehistory assertions");return;}
+if(args.Contains("--presets-only")){PresetTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+assertions+" preset assertions");return;}
+if(args.Contains("--shore-only")){ShoreSamplerTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+assertions+" shore sampler assertions");return;}
+if(args.Contains("--subcell-only")){SubcellTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+assertions+" sub-cell assertions");return;}
+if(args.Contains("--display-performance-only")){int at=Array.IndexOf(args,"--detail");DisplayPerformanceTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);},at<0?20000:int.Parse(args[at+1]),args.Contains("--mesh-only"));Console.WriteLine("PASS "+assertions+" display assertions");return;}
+if(args.Contains("--setup-only")){SetupTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+assertions+" setup assertions");return;}
 void Check(bool condition, string message) { assertions++; if (!condition) throw new Exception(message); }
+WorldInterfaceTests.Run(Check);
 void Connected(int[] members, Func<int, int[]> neighbors, string name)
 { var set = members.ToHashSet(); var visited = new HashSet<int> { members[0] }; var queue = new Queue<int>(); queue.Enqueue(members[0]); while (queue.Count > 0) foreach (int n in neighbors(queue.Dequeue())) if (set.Contains(n) && visited.Add(n)) queue.Enqueue(n); Check(visited.Count == members.Length, name + " disconnected"); }
 void Validate(World w)
@@ -12,6 +139,8 @@ void Validate(World w)
     double expected = 4 * Math.PI * Math.Pow(w.Recipe.RadiusKm * 1000.0, 2); Check(Math.Abs(s.Cells.Sum(c => (double)c.AreaM2) / expected - 1) < .00001, "Spherical area");
     foreach (var c in s.Cells) { Check(Math.Abs(c.Position.Length - 1) < .000001, "Unit sphere"); Check(c.AreaM2 > 0, "Positive area"); foreach (int nb in c.Neighbors) Check(s.Cells[nb].Neighbors.Contains(c.Id), "Symmetric adjacency"); }
     Check(n == w.Recipe.Detail, "Detail is terrain resolution"); Check(w.CoarseSurface.Cells.Length == 20000, "Fixed 20,000-cell coarse plate base"); Check(w.Microplates.Length == w.Recipe.MicroplateCount, "Plate count");
+    Check(w.ContinentalCandidateScores.Length == w.Recipe.Interconnectedness, "Coarse search diagnostics retained through the pipeline");
+    Check(w.ContinentalScore == w.ContinentalCandidateScores.Max() && w.ContinentalCandidate == Array.IndexOf(w.ContinentalCandidateScores, w.ContinentalScore), "Pipeline retains the selected maximum and earliest tie");
     foreach (var p in w.Microplates)
     {
         Check(p.Cells.Length >= 1, "Useful plate"); Connected(p.Cells, i => s.Cells[i].Neighbors, "plate");
@@ -27,7 +156,7 @@ void Validate(World w)
     if (w.Microplates.Length >= 8) Check(w.Boundaries.Any(b => b.Ghost), "Parent seams produce ghost boundaries");
     Check(w.Boundaries.Any(b => !b.Ghost && b.Kind != BoundaryKind.Inactive), "Parent boundaries remain active");
     Check(w.Climate.Classification.Length == n && w.Climate.Classification.All(c => Enum.IsDefined(c)), "Climate classes");
-    foreach (var season in new[] { w.Climate.NorthernSummer, w.Climate.NorthernWinter })
+    foreach (var season in new[] { w.Climate.NorthernSpring, w.Climate.NorthernSummer, w.Climate.NorthernAutumn, w.Climate.NorthernWinter })
     {
         Check(season.TemperatureTenthsC.Length == n && season.TemperatureTenthsC.All(t => t >= -900 && t <= 650), "Climate temperature bounds");
         Check(season.PrecipitationMm.Length == n && season.PrecipitationMm.All(p => p >= 0), "Seasonal precipitation bounds");
@@ -35,13 +164,87 @@ void Validate(World w)
     }
     Check(w.Features.All(f => f.Cells.All(c => c >= 0 && c < n)), "Feature membership");
     for (int i = 0; i < n; i++) Check(w.FoldPermille[i] >= 0 && w.CratonPermille[i] >= 0 && w.BasinPermille[i] >= 0 && w.PlateauPermille[i] >= 0 && w.FoldPermille[i] + w.CratonPermille[i] + w.BasinPermille[i] + w.PlateauPermille[i] == 1000, "Continuous province partition");
-    Check(w.Hydrology.Waters.Length == 0 && w.Hydrology.Rivers.Length == 0 && w.Hydrology.Receiver.Length == 0, "No deferred hydrology generated");
+    HydrologyTests.Validate(w, Check);
     Check(w.Hydrology.OceanConnected.Length == n, "Ocean connectivity mask");
     Check(Enumerable.Range(0, n).All(i => !w.Hydrology.OceanConnected[i] || w.ElevationM[i] < 0), "Ocean connectivity only marks below-sea-level cells");
     Check(!w.ProtectedInlandSea.Any(b => b), "No custom inland-sea preservation");
 }
+void ContinentalSearch()
+{
+    var recipe = Recipe.Preset("Preview");
+    var surface = SphericalMesh.BuildCoarse(recipe, default);
+    World Assign(Recipe r, CancellationToken cancellation = default)
+    {
+        var w = new World { Recipe = r, Surface = surface };
+        PlateHierarchy.Microplates(w, default); Continents.Build(w, cancellation); return w;
+    }
+    {
+        World previous = null;
+        foreach (int attempts in new[] { 1, 2, 7, 50 })
+        {
+            var r = recipe.Clone(); r.Interconnectedness = attempts;
+            var w = Assign(r);
+            Check(w.ContinentalCandidateScores.Length == attempts, "Exactly N land/sea candidates are scored");
+            Check(w.ContinentalScore == w.ContinentalCandidateScores.Max(), "Highest scoring candidate selected");
+            Check(w.ContinentalCandidate == Array.IndexOf(w.ContinentalCandidateScores, w.ContinentalScore), "Equal scores prefer earliest candidate");
+            foreach (var plate in w.Microplates)
+                Check(plate.Cells.All(c => w.Continent[c] == plate.ContinentId), "Land/sea assignment uses whole plates");
+            if (previous != null)
+            {
+                Check(previous.CellMicroplate.SequenceEqual(w.CellMicroplate), "Search does not regenerate plate geometry");
+                Check(previous.ContinentalCandidateScores.SequenceEqual(w.ContinentalCandidateScores.Take(previous.ContinentalCandidateScores.Length)), "Candidate seeds form a stable prefix");
+                Check(w.ContinentalScore >= previous.ContinentalScore, "More search iterations cannot lower the score");
+            }
+            previous = w;
+        }
+        var repeat = Assign(previous!.Recipe.Clone());
+        Check(repeat.Continent.SequenceEqual(previous.Continent) && repeat.ContinentalCandidateScores.SequenceEqual(previous.ContinentalCandidateScores), "Search is reproducible");
+        var detail = previous.Recipe.Clone(); detail.Detail = 5000; detail.Irregularity = .1;
+        var changed = Assign(detail);
+        Check(changed.Continent.SequenceEqual(previous.Continent) && changed.ContinentalCandidateScores.SequenceEqual(previous.ContinentalCandidateScores), "Search is independent of fine detail and irregularity");
+    }
+    var waterRecipe = recipe.Clone(); waterRecipe.LandFraction = 0; waterRecipe.Interconnectedness = 50;
+    var water = Assign(waterRecipe);
+    Check(water.ContinentalCandidateScores.Length == 50 && water.ContinentalCandidateScores.Distinct().Count() == 1 && water.ContinentalCandidate == 0, "All-water candidates exercise a real tie and still run all iterations");
+    foreach (int invalidValue in new[] { 0, 51 })
+    {
+        var invalid = recipe.Clone(); invalid.Interconnectedness = invalidValue;
+        try { invalid.Validate(); throw new Exception("Invalid search count accepted"); } catch (ArgumentException) { assertions++; }
+    }
+    foreach (string field in new[] { "Interconnectedness" })
+    {
+        var values = System.Text.Json.Nodes.JsonNode.Parse(WorldJson.Write(recipe))!.AsObject(); values.Remove(field);
+        try { WorldJson.ReadRecipe(values.ToJsonString()); throw new Exception("Missing " + field + " accepted"); } catch (ArgumentException) { assertions++; }
+    }
+    using var cancel = new CancellationTokenSource(); cancel.Cancel();
+    try { Assign(recipe, cancel.Token); throw new Exception("Continental search cancellation ignored"); } catch (OperationCanceledException) { assertions++; }
+}
 try
 {
+    HashBatchTests.Run(Check);
+    if (args.Contains("--ecology-review")) { EcologyTests.WriteReview(); return; }
+    if (args.Contains("--ecology-only")) { EcologyTests.Run(Check); Console.WriteLine("PASS " + assertions + " ecology assertions."); return; }
+    if (args.Contains("--terrain-controls-only")) { TerrainControlTests.Run(Check); Console.WriteLine("PASS " + assertions + " terrain control assertions."); return; }
+    if (args.Contains("--world-library-only")) { WorldLibraryTests.Run(Check); Console.WriteLine("PASS " + assertions + " world library assertions."); return; }
+    PlateShapeTests.Run(Check);
+    if (args.Contains("--plates-only")) { Console.WriteLine("PASS " + assertions + " plate growth assertions."); return; }
+    TectonicTests.Run(Check);
+    TerrainScaleTests.Run(Check);
+    DrainageIncisionTests.Run(Check);
+    if (args.Contains("--tectonics-only")) { Console.WriteLine("PASS " + assertions + " tectonic mechanism assertions."); return; }
+    ClimateTests.Run(Check);
+    if (args.Contains("--climate-only")) { Console.WriteLine("PASS " + assertions + " climate assertions."); return; }
+    HydrologyTests.Run(Check);
+    LakePresentationTests.Run(Check);
+    EarthTests.Run(Check);
+    WorldLibraryTests.Run(Check);
+    if (args.Contains("--hydrology-only")) { Console.WriteLine("PASS " + assertions + " hydrology / Earth assertions."); return; }
+    ContinentalSearch();
+    if (args.Contains("--continents-only")) { Console.WriteLine("PASS " + assertions + " continental search assertions."); return; }
+    TerrainControlTests.Run(Check);
+    EcologyTests.Run(Check);
+    SubcellTests.Run(Check);
+    ShoreSamplerTests.Run(Check);
     Check(StateHash.Compute(-0.0) == StateHash.Compute(0.0), "Signed zero has a canonical hash across JSON runtimes");
     foreach(double x in new[]{1e-20,1e-8,.2,1.0,100.0,1e12})Check(Math.Abs(D.Sqrt(x)-D.Q(Math.Sqrt(x)))<=1e-9,"Deterministic square root accuracy");
     var recipe = Recipe.Preset("Preview"); var pipe = new WorldPipeline(); var world = pipe.Generate(recipe); Validate(world);
@@ -51,12 +254,6 @@ try
     var invalid = recipe.Clone(); invalid.AlgorithmVersion = "future"; try { pipe.Generate(invalid); throw new Exception("Version accepted"); } catch (ArgumentException) { assertions++; }
     try { WorldJson.ReadRecipe(WorldJson.Write(recipe).Replace("\"Hydraulic\":0.5,", "")); throw new Exception("Incomplete recipe accepted"); } catch (ArgumentException) { assertions++; }
     var minimum = recipe.Clone(); minimum.MicroplateCount = 4; minimum.ContinentCount = 2; Validate(pipe.Generate(minimum));
-    var isolated = recipe.Clone(); isolated.ContinentCount = 2; isolated.ContinentalComplexCount = 2;
-    var isolatedWorld = pipe.Generate(isolated);
-    Check(isolatedWorld.Metrics.Single(m => m.Name == "continental_complex_components").Value == 2, "Requested isolated continental complexes");
-    var connected = recipe.Clone(); connected.ContinentCount = 6; connected.ContinentalComplexCount = 1;
-    var connectedWorld = pipe.Generate(connected);
-    Check(connectedWorld.Metrics.Single(m => m.Name == "continental_complex_components").Value == 1, "Requested connected continental complex");
     using (var cancel = new CancellationTokenSource()) { cancel.Cancel(); try { pipe.Generate(recipe, cancellation: cancel.Token); throw new Exception("Cancellation ignored"); } catch (OperationCanceledException) { assertions++; } }
     var from = new V(1, 0, 0); var to = new V(0, 1, 0); var direction = new V(0, 1, 0); var transported = V.Transport(direction, from, to); Check(Math.Abs(V.Dot(transported, to)) < .000001 && V.Dot(transported, new V(-1, 0, 0)) > .99999, "Great-circle transport");
     var detailRecipe = recipe.Clone(); detailRecipe.Detail = 5000; detailRecipe.Irregularity = .1;
@@ -72,8 +269,11 @@ try
     {
         var globe = GlobeView.Build(world, layer, detail: 20000);
         Check(globe.CellIds.All(i => i >= 0 && i < world.Recipe.Detail), "Cell surface picking provenance");
-        if (layer != Layer.Heightmap) for (int i = 0; i < globe.Colors.Length; i += 9)
-            Check(globe.Colors[i] == globe.Colors[i + 3] && globe.Colors[i] == globe.Colors[i + 6], "Flat cell colors are crisp");
+        if (layer != Layer.Heightmap) for (int i = 0; i < globe.Triangles.Length; i += 3)
+        {
+            int a=globe.Triangles[i]*3,b=globe.Triangles[i+1]*3,c=globe.Triangles[i+2]*3;
+            for(int channel=0;channel<3;channel++)Check(globe.Colors[a+channel]==globe.Colors[b+channel] && globe.Colors[a+channel]==globe.Colors[c+channel],"Indexed categorical cell colors are crisp");
+        }
         foreach (double longitude in new[] { 0.0, 179.0, -179.0 })
         {
             var map = MapView.Build(world, layer, centerLongitude: longitude, detail: 20000);
@@ -100,9 +300,24 @@ try
     Check(overlay.LineColors.Length == overlay.Lines.Length, "Overlay colors accompany every line");
     var terrainPlates = SurfaceMesh.Combine(SurfaceMesh.Chunks(world, new ViewOptions { ShowPlates = true, GridSpacing = 0 }));
     var plateView = GlobeView.Build(world, Layer.Microplates);
-    Check(terrainPlates.Colors.SequenceEqual(plateView.Colors), "Show plates colors terrain by plate");
+    Check(terrainPlates.Colors.SequenceEqual(GlobeView.Build(world,Layer.Terrain).Colors), "Legacy plate overlay option does not replace terrain colors; plates have their own view");
     var climatePlates = SurfaceMesh.Combine(SurfaceMesh.Chunks(world, new ViewOptions { Layer = Layer.Climate, ShowPlates = true, GridSpacing = 0 }));
     Check(climatePlates.Colors.SequenceEqual(GlobeView.Build(world, Layer.Climate).Colors), "Plate outlines preserve climate colors");
+    var riverOptions = new ViewOptions { ShowRivers = true, GridSpacing = 0 };
+    var riverChunks = SurfaceMesh.Chunks(world, riverOptions).ToArray();
+    int surfaceChunkCount = (world.Surface.Edges.Length + SurfaceMesh.EdgesPerChunk - 1) / SurfaceMesh.EdgesPerChunk;
+    var ribbonChunks = riverChunks.Skip(surfaceChunkCount).ToArray();
+    Check(riverChunks.Length == SurfaceMesh.ExpectedChunkCount(world, riverOptions), "River overlay reports its bounded presentation chunk count");
+    Check(ribbonChunks.All(p => p.CellIds.Length <= SurfaceMesh.RiverReachesPerChunk * 6 && p.Triangles.Length == p.CellIds.Length), "River ribbons stay bounded and use triangle geometry");
+    Check(ribbonChunks.Sum(p => p.CellIds.Length) == world.Hydrology.Rivers.Length * 6, "Every river reach produces one two-triangle ribbon");
+    var ribbonPositions = ribbonChunks.SelectMany(p => p.Positions).ToArray();
+    var scalable = world.Hydrology.Rivers.Select((r, i) => new { Reach = r, Index = i }).Where(x => x.Reach.WidthM > 100).OrderBy(x => x.Reach.WidthM).ToArray();
+    double RenderedWidth(int reach)
+    {
+        int p = reach * 18; double x = ribbonPositions[p] - ribbonPositions[p + 3], y = ribbonPositions[p + 1] - ribbonPositions[p + 4], z = ribbonPositions[p + 2] - ribbonPositions[p + 5];
+        return Math.Sqrt(x * x + y * y + z * z);
+    }
+    Check(scalable.Length < 2 || scalable[0].Reach.WidthM == scalable[^1].Reach.WidthM || RenderedWidth(scalable[^1].Index) > RenderedWidth(scalable[0].Index), "Major rivers render wider than smaller above-floor rivers");
     using (var cancelView = new CancellationTokenSource())
     {
         var enumerator = SurfaceMesh.Chunks(world, overlayOptions, cancelView.Token).GetEnumerator();
@@ -117,6 +332,21 @@ try
     foreach (var entry in GoldenCorpus.Recipes())
     {
         var w = pipe.Generate(entry.Recipe); Validate(w);
+        if (entry.Name == "earth")
+        {
+            // The owner rebased the slider20-fold. Preserve the old geographic
+            // regression contract at equivalent forcing, not at a different input.
+            // Default100% still receives full hydraulic validation above and exact
+            // snapshot/golden checks below; its coarse Amazon limitation is recorded.
+            var lowerRecipe = w.Recipe.Clone(); lowerRecipe.LakeAmountPercent = 5;
+            var lower = pipe.Generate(lowerRecipe);
+            EarthTests.LegacyForcingLakeSanity(lower, Check);
+            HydrologyTests.Validate(lower, Check);
+            Check(w.Hydrology.Waters.Where(b => b.Kind != WaterKind.Ocean).Sum(b => (double)b.AreaM2)
+                >= lower.Hydrology.Waters.Where(b => b.Kind != WaterKind.Ocean).Sum(b => (double)b.AreaM2), "Rebased Earth default retains at least as much lake area as previous forcing");
+            Check(w.ElevationM.SequenceEqual(lower.ElevationM) && StateHash.Compute(w.Climate) == StateHash.Compute(lower.Climate), "Lake amount cannot change Earth terrain or climate");
+        }
+        Check(StateHash.Compute(w) == StateHash.Compute(WorldFile.Read(WorldFile.Write(w))), entry.Name + " compact snapshot roundtrip");
         string golden = Path.Combine("tests", "golden", "v3", entry.Name + ".hashes.json"); if (!File.Exists(golden)) throw new Exception("Missing reviewed golden: " + golden); Check(WorldJson.Read<List<StageRecord>>(File.ReadAllText(golden)).Select(s => s.Hash).SequenceEqual(w.Stages.Select(s => s.Hash)), entry.Name + " golden stage hashes");
         Console.WriteLine("PASS " + entry.Name + " " + w.Stages.Last().Hash);
     }

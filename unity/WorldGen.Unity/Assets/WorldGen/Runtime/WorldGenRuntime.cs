@@ -16,29 +16,36 @@ using WorldGen.Core;
 using WorldGen.Presentation;
 using WorldGen.Serialization;
 
-public sealed class WorldGenRuntime : MonoBehaviour
+public sealed partial class WorldGenRuntime : MonoBehaviour
 {
     Recipe recipe = new Recipe();
     World world; Task exportJob; Task<World> job; CancellationTokenSource cancel;
+    WorldLibrary library; WorldLibraryEntry[] saves = Array.Empty<WorldLibraryEntry>();
+    bool libraryOpen; Vector2 libraryScroll; string saveName = "My world", libraryNotice = "";
     string progress = "Ready", error = "", inspection = "Click a cell to inspect its terrain and climate.", filePath;
+    Vector2 inspectionScroll;
+    bool expandedInspection;
     int percent, seaLevel; Layer layer; Projection projection; float centerLongitude;
-    GameObject globe, pendingRoot; Material surfaceMaterial, lineMaterial; Camera cameraView;
+    GameObject globe, pendingRoot; Material surfaceMaterial, lineMaterial, naturalMaterial, smallFeatureMaterial; Camera cameraView;
+    UnityEngine.Rendering.Universal.UniversalAdditionalCameraData presentationCamera;bool originalPostProcessing;
+    bool naturalTerrain=true;
     BlockingCollection<UploadPiece> pieces; ViewOptions viewOptions = new ViewOptions();
-    bool wireframe, showPlates, resizingPanel; int gridSpacing = 30;
-    float panelWidth = 350, yaw = 150, pitch = -12, globeDistance = 3.2f;
-    bool Busy => job != null;
+    bool wireframe, showPlates, showRivers, resizingPanel, loadingSnapshot; int gridSpacing = 30;
+    float panelWidth = 350, yaw = 30, pitch = -12, globeDistance = 3.2f;
+    bool Busy => job != null || Generating;
     ViewOptions committedOptions; int uploadedChunks; long lastFrameTick; double maxBusyFrameMs; int busyFrames;
     bool uiCheck;
-    [Serializable] sealed class UiEvidence { public int Detail, BusyFrames, MeshChunks; public double MaxBusyFrameMs, CancelMilliseconds, LongitudeMilliseconds; public bool Completed, CancelledPresentation, Resized, NorthUp; }
+    bool reusePendingGeometry;
+    [Serializable] sealed class UiEvidence { public int Detail, BusyFrames, MeshChunks; public double MaxBusyFrameMs, CancelMilliseconds, LongitudeMilliseconds, CachedSwitchMilliseconds, ProjectionSwitchMilliseconds; public bool Completed, CancelledPresentation, Resized, NorthUp, InstantDisplay, StableProjection; }
     sealed class UploadPiece
     {
-        public Vector3[] Vertices, Lines; public Color32[] Colors, LineColors; public int[] Triangles, LineIndices;
+        public string Kind = "surface"; public Vector2[] UV, NaturalHeight, BlendCells; public Vector3[] MapVertices, MapLines, Vertices, Lines; public Color32[] Colors, LineColors; public int[] Triangles, LineIndices;
     }
     Vector2 scroll, layerScroll; bool layerMenu, dirty, dragging, screenshotPending;
     string[] groups = Recipe.Settings.Select(f => f.GetCustomAttribute<SettingAttribute>().Group).Distinct().ToArray();
-    bool[] panels; string preset = "Orogen defaults"; int presetIndex;
-    readonly string[] presets = { "Orogen defaults", "Preview", "Ocean world", "Continental", "Glacial", "500 plates" };
-    Vector2 previousMouse; float dragDistance, mapZoom = 1.1f; Quaternion globeRotation = Quaternion.Euler(-12, 150, 0);
+    bool[] panels; string preset = "Continents plus"; int presetIndex;
+    readonly string[] presets = WorldPresets.Names;
+    Vector2 previousMouse; float dragDistance, mapZoom = 1f; Quaternion globeRotation = Quaternion.Euler(-12, 150, 0);
     Vector3 mapPan; bool autoRotate;
     readonly Dictionary<string, string> inputText = new Dictionary<string, string>();
     float PanelWidth => Mathf.Clamp(panelWidth, 240, Math.Max(240, Screen.width - 360));
@@ -51,47 +58,134 @@ public sealed class WorldGenRuntime : MonoBehaviour
         panels = groups.Select(g => g == "World").ToArray();
         filePath = Path.Combine(Application.persistentDataPath, "worldgen.recipe.json");
         if (Environment.GetCommandLineArgs().Contains("--worldgen-check")) { RunPlayerChecks(); return; }
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-history-resume")){CheckHistoricalResume();return;}
+        string requestedPreset = Argument("--worldgen-preset", "");
+        if (requestedPreset.Length > 0) { recipe = Recipe.Preset(requestedPreset); preset = requestedPreset; presetIndex = Array.IndexOf(presets, requestedPreset); inputText.Clear(); }
         if (int.TryParse(Argument("--worldgen-detail", ""), out int detail)) recipe.Detail = detail;
         if (Enum.TryParse(Argument("--worldgen-layer", ""), out Layer requestedLayer)) layer = requestedLayer;
         if (Argument("--worldgen-view", "") == "Map") projection = Projection.Map;
         cameraView = Camera.main;
         if (cameraView == null) cameraView = new GameObject("WorldGen Camera", typeof(Camera)).GetComponent<Camera>();
+        presentationCamera=cameraView.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();if(presentationCamera!=null)originalPostProcessing=presentationCamera.renderPostProcessing;
         cameraView.transform.position = new Vector3(0, 0, -3.2f); cameraView.transform.LookAt(Vector3.zero);
         cameraView.clearFlags = CameraClearFlags.SolidColor; cameraView.nearClipPlane = .005f; cameraView.backgroundColor = new Color(.035f, .065f, .09f); cameraView.fieldOfView = 45;
         surfaceMaterial = new Material(Resources.Load<Shader>("WorldGenVertex"));
         lineMaterial = new Material(surfaceMaterial); lineMaterial.SetFloat("_Unlit", 1);
-        wireframe = Environment.GetCommandLineArgs().Contains("--worldgen-wireframe"); showPlates = Environment.GetCommandLineArgs().Contains("--worldgen-plates");
-        if (int.TryParse(Argument("--worldgen-grid", "30"), out int grid) && (grid == 0 || grid == 15 || grid == 30)) gridSpacing = grid;
-        Generate();
+        smallFeatureMaterial=new Material(lineMaterial);smallFeatureMaterial.SetFloat("_SmallFeatures",1);
+        naturalMaterial=new Material(surfaceMaterial);naturalMaterial.SetFloat("_Natural",1);naturalMaterial.SetFloat("_Linear",QualitySettings.activeColorSpace==ColorSpace.Linear?1:0);
+        wireframe = Environment.GetCommandLineArgs().Contains("--worldgen-wireframe"); showPlates = Environment.GetCommandLineArgs().Contains("--worldgen-plates"); showRivers = Environment.GetCommandLineArgs().Contains("--worldgen-rivers");
+        if (int.TryParse(Argument("--worldgen-grid", "30"), out int grid) && (grid == 0 || grid == 5 || grid == 10 || grid == 15 || grid == 30)) gridSpacing = grid;
+        InitializeLibrary();
+        InitializeMusic();
+        if (WorldPresets.Names.Contains(preset)) recipe=setup.Preset(preset,recipe); else setup.From(recipe);
+        if (!Environment.GetCommandLineArgs().Contains("--worldgen-library-earth") &&
+            (requestedPreset.Length > 0 || uiCheck || Environment.GetCommandLineArgs().Contains("--worldgen-screenshot"))) Generate();
+        else screen = "Menu";
         if (uiCheck) StartCoroutine(CheckInteraction());
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-screen-check"))StartCoroutine(CheckScreens());
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-prehistory-check"))StartCoroutine(CheckPrehistory());
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-history-view")){screen="Setup";BeginWork(false,Argument("--worldgen-history-view",""));StartCoroutine(CheckHistoricalView());}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-history-playback")){screen="Setup";BeginWork(false,Argument("--worldgen-history-playback",""));StartCoroutine(CheckHistoricalPlayback());}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-dock-check")){screen="Setup";BeginWork(false,Argument("--worldgen-dock-check",""));StartCoroutine(CheckHistoryDock());}
     }
-    void Generate() => BeginWork(true);
-    void RollSeed() { recipe.Seed = UnityEngine.Random.Range(0, 1 << 24); inputText.Remove(nameof(Recipe.Seed)); dirty = true; }
-    void Refresh() { if (world != null) BeginWork(false); }
-    void BeginWork(bool generate)
+    void Generate() => StartGeneration();
+    async void InitializeLibrary()
     {
-        if (Busy) return;
         try
         {
-            if (generate) { ValidateInputs(); recipe.Validate(); }
+            string root = Path.GetDirectoryName(Application.dataPath);
+            for (var directory = new DirectoryInfo(root); directory != null; directory = directory.Parent)
+                if (File.Exists(Path.Combine(directory.FullName, "WorldGen.sln"))) { root = directory.FullName; break; }
+            try { library = new WorldLibrary(Argument("--worldgen-library-root", Path.Combine(root, "world"))); }
+            catch (UnauthorizedAccessException) { library = new WorldLibrary(Path.Combine(Application.persistentDataPath, "world")); }
+            string bundled = Path.Combine(Application.streamingAssetsPath, "world", "Earth.world");
+            if (Environment.GetCommandLineArgs().Contains("--worldgen-library-earth") && File.Exists(bundled))
+            {
+                libraryNotice = "Installing bundled Earth...";
+                exportJob = Task.Run(() => library.InstallEarth(bundled)); await exportJob;
+                libraryNotice = "";
+            }
+            else libraryNotice = "";
+            saves = library.Entries();
+            if (Environment.GetCommandLineArgs().Contains("--worldgen-library-earth"))
+            {
+                // Integration check and convenient direct launch use the same saved-world path.
+                var earth = saves.First(e => e.Id == "earth");
+                var loaded = await Task.Run(() => library.Load(earth.Id));
+                var copy = await Task.Run(() => library.SaveNew("Earth round-trip check", loaded));
+                var restored = await Task.Run(() => library.Load(copy.Id));
+                if (StateHash.Compute(loaded) != StateHash.Compute(restored)) throw new InvalidOperationException("World library round-trip mismatch.");
+                Debug.Log("WORLD LIBRARY PASS full Earth snapshot load/save/reload " + StateHash.Compute(restored));
+                saves = library.Entries(); libraryOpen = false; BeginWork(false, earth.SnapshotPath);
+            }
+        }
+        catch (Exception e)
+        {
+            libraryNotice = e.Message; Debug.LogException(e);
+            if (Environment.GetCommandLineArgs().Contains("--worldgen-library-earth")) Application.Quit(1);
+        }
+        finally { exportJob = null; }
+    }
+    async void SaveToLibrary()
+    {
+        if (library == null || world == null || Busy || exportJob != null) return;
+        // Geography is immutable; retain this exact immutable demographic checkpoint while saving.
+        var snapshot=new World();foreach(var field in typeof(World).GetFields())field.SetValue(snapshot,field.GetValue(world));string name=saveName;
+        try
+        {
+            libraryNotice = "Saving complete world...";
+            var saving = Task.Run(() => activeWorldId == null ? library.SaveNew(name, snapshot) : library.SaveAdditional(activeWorldId, snapshot)); exportJob = saving; var saved = await saving; activeWorldId = saved.GroupId; saveDialog = false;
+            saves = library.Entries(); libraryNotice = "Saved. Existing worlds were not overwritten.";
+        }
+        catch (Exception e) { libraryNotice = "Save failed: " + e.Message; }
+        finally { exportJob = null; }
+    }
+    void RollSeed() { recipe.Seed = UnityEngine.Random.Range(0, 1 << 24); inputText.Remove(nameof(Recipe.Seed)); dirty = true; }
+    void Refresh() { if (world != null && !ApplyCachedDisplay()) BeginWork(false); }
+    void LoadWorldSnapshot()
+    {
+        if (Busy) return; string compact = Path.ChangeExtension(filePath, "world"), json = Path.ChangeExtension(filePath, "result.json");
+        string path = Path.GetExtension(filePath).Equals(".world", StringComparison.OrdinalIgnoreCase) && File.Exists(filePath) ? filePath
+            : File.Exists(compact) ? compact : filePath.EndsWith(".result.json", StringComparison.OrdinalIgnoreCase) && File.Exists(filePath) ? filePath : json;
+        BeginWork(false, path);
+    }
+    void BeginWork(bool generate, string snapshotPath = null)
+    {
+        if (job != null) return;
+        try
+        {
+            if (generate) { ValidateInputs(); ClimateCalibration.Upgrade(recipe); recipe.Validate(); }
             cancel?.Dispose(); cancel = new CancellationTokenSource(); var token = cancel.Token;
             var snapshot = recipe.Clone(); var existing = world;
-            viewOptions = new ViewOptions { Projection = projection, Layer = layer, Wireframe = wireframe, ShowPlates = showPlates, GridSpacing = gridSpacing, SeaLevel = 0 };
+            loadingSnapshot = snapshotPath != null;
+            reusePendingGeometry=!generate && snapshotPath==null && displayedWorld!=null && globe!=null &&
+                ReferenceEquals(displayedWorld.Surface,world.Surface) && ReferenceEquals(displayedWorld.ElevationM,world.ElevationM) &&
+                ReferenceEquals(displayedWorld.Hydrology.Waters,world.Hydrology.Waters) && ReferenceEquals(displayedWorld.Hydrology.Rivers,world.Hydrology.Rivers) &&
+                ReferenceEquals(displayedWorld.Ecology,world.Ecology) && ReferenceEquals(displayedWorld.Subcells,world.Subcells);
+            viewOptions = new ViewOptions { Projection = projection, Layer = layer, Wireframe = wireframe, ShowPlates = showPlates, ShowRivers = showRivers, GridSpacing = gridSpacing, SeaLevel = 0 };
             var options = viewOptions.Clone(); bool linear = QualitySettings.activeColorSpace == ColorSpace.Linear;
             uploadedChunks = 0;
-            pendingRoot = new GameObject("Preparing world"); pendingRoot.SetActive(false);
-            pieces = new BlockingCollection<UploadPiece>(2); var queue = pieces; error = ""; percent = 0; progress = generate ? "Starting generation" : "Preparing view";
+            pendingRoot = reusePendingGeometry?null:new GameObject("Preparing world"); if(pendingRoot!=null)pendingRoot.SetActive(false);
+            pieces = new BlockingCollection<UploadPiece>(2); var queue = pieces; error = ""; percent = 0; progress = snapshotPath != null ? "Loading world snapshot" : generate ? "Starting generation" : "Preparing view";
             job = Task.Run(() =>
             {
                 try
                 {
                     var elapsed = Stopwatch.StartNew();
-                    var result = generate ? new WorldPipeline().Generate(snapshot, p => { progress = p.Stage; percent = p.Percent * 80 / 100; if (uiCheck) Debug.Log("WORLDGEN UI STAGE " + p.Stage + " " + elapsed.ElapsedMilliseconds + "ms"); }, token) : existing;
-                    int index = 0, total = (result.Surface.Edges.Length + SurfaceMesh.EdgesPerChunk - 1) / SurfaceMesh.EdgesPerChunk + (options.GridSpacing == 0 ? 0 : 1);
-                    foreach (var data in SurfaceMesh.Chunks(result, options, token))
+                    var result = snapshotPath != null ? Path.GetExtension(snapshotPath).Equals(".world", StringComparison.OrdinalIgnoreCase)
+                        ? WorldFile.Read(File.ReadAllBytes(snapshotPath), token,stage=>progress=stage) : WorldJson.ReadWorld(File.ReadAllText(snapshotPath))
+                        : generate ? new WorldPipeline().Generate(snapshot, p => { progress = p.Stage; percent = p.Percent * 80 / 100; if (uiCheck) Debug.Log("WORLDGEN UI STAGE " + p.Stage + " " + elapsed.ElapsedMilliseconds + "ms"); }, token) : existing;
+                    token.ThrowIfCancellationRequested();
+                    int index = 0, total = DisplayCache.ExpectedChunkCount(result);
+                    pendingPalettes = BuildPalettes(result, options.Layer, linear, token);
+                    if(reusePendingGeometry)return result;
+                    foreach (var cached in DisplayCache.Geometry(result, Projection.Globe, token))
                     {
-                        token.ThrowIfCancellationRequested(); progress = "Preparing / uploading cell surfaces"; percent = 80 + 19 * index++ / Math.Max(1, total);
-                        queue.Add(Prepare(data, linear, token), token);
+                        token.ThrowIfCancellationRequested(); progress = "Preparing / uploading cell surfaces"; percent = Math.Min(99,80 + 19 * index++ / Math.Max(1, total));
+                        var data=MapView.Project(cached.Data,0,cached.Kind=="smallfeatures"?-.004:cached.Kind=="rivers"?-.003:0,true);
+                        var piece=Prepare(data, linear, token); piece.Kind=cached.Kind;
+                        if(cached.Kind=="surface" || cached.Kind=="natural"){piece.UV=new Vector2[data.CellIds.Length]; int height=(result.Surface.Cells.Length+2047)/2048; for(int v=0;v<piece.UV.Length;v++){int id=data.CellIds[v];piece.UV[v]=new Vector2((id%2048+.5f)/2048,(id/2048+.5f)/height);}}
+                        queue.Add(piece, token);
                         if (uiCheck && index % 100 == 0) Debug.Log("WORLDGEN UI MESH " + index + "/" + total);
                     }
                     token.ThrowIfCancellationRequested(); return result;
@@ -105,16 +199,31 @@ public sealed class WorldGenRuntime : MonoBehaviour
     {
         var piece = new UploadPiece { Vertices = new Vector3[data.Positions.Length / 3], Colors = new Color32[data.Colors.Length / 3], Triangles = data.Triangles,
             Lines = new Vector3[data.Lines.Length / 3], LineColors = new Color32[data.Lines.Length / 3], LineIndices = new int[data.Lines.Length / 3] };
+        piece.MapVertices=new Vector3[piece.Vertices.Length];piece.MapLines=new Vector3[piece.Lines.Length];
+        if(data.BlendCellIds.Length>0){piece.BlendCells=new Vector2[data.BlendCellIds.Length/2];for(int i=0;i<piece.BlendCells.Length;i++)piece.BlendCells[i]=new Vector2(data.BlendCellIds[i*2],data.BlendCellIds[i*2+1]);}
+        if(data.NaturalHeight.Length>0){piece.NaturalHeight=new Vector2[data.NaturalHeight.Length];for(int i=0;i<piece.NaturalHeight.Length;i++)piece.NaturalHeight[i]=new Vector2(data.NaturalHeight[i],0);}
         byte Channel(float value) { double v = Math.Max(0, Math.Min(1, value)); if (linear) v = v <= .04045 ? v / 12.92 : Math.Pow((v + .055) / 1.055, 2.4); return (byte)Math.Round(v * 255); }
+        // Shared geometry uses the browser's right-handed camera convention.
+        // Unity looks from negative Z: reflect globe depth, including overlays,
+        // and reverse winding to preserve outward lighting. Maps are unchanged.
+        float depthSign = data.IsMap ? 1 : -1;
+        if (!data.IsMap)
+        {
+            piece.Triangles = (int[])data.Triangles.Clone();
+            for (int t = 0; t < piece.Triangles.Length; t += 3)
+            { int swap = piece.Triangles[t + 1]; piece.Triangles[t + 1] = piece.Triangles[t + 2]; piece.Triangles[t + 2] = swap; }
+        }
         for (int i = 0; i < piece.Vertices.Length; i++)
         {
             if ((i & 2047) == 0) token.ThrowIfCancellationRequested(); int k = i * 3;
-            piece.Vertices[i] = new Vector3(data.Positions[k], data.Positions[k + 1], data.Positions[k + 2]);
+            piece.MapVertices[i] = new Vector3(data.Positions[k], data.Positions[k + 1], data.Positions[k + 2]);
+            piece.Vertices[i] = new Vector3(data.SpherePositions[k],data.SpherePositions[k+1],-data.SpherePositions[k+2]);
             piece.Colors[i] = new Color32(Channel(data.Colors[k]), Channel(data.Colors[k + 1]), Channel(data.Colors[k + 2]), 255);
         }
         for (int i = 0; i < piece.Lines.Length; i++)
         {
-            int k = i * 3; piece.Lines[i] = new Vector3(data.Lines[k], data.Lines[k + 1], data.Lines[k + 2]); piece.LineIndices[i] = i;
+            int k = i * 3; piece.MapLines[i]=new Vector3(data.Lines[k],data.Lines[k+1],data.Lines[k+2]);
+            piece.Lines[i] = new Vector3(data.SphereLines[k], data.SphereLines[k + 1], -data.SphereLines[k + 2]); piece.LineIndices[i] = i;
             piece.LineColors[i] = new Color32(Channel(data.LineColors[k]), Channel(data.LineColors[k + 1]), Channel(data.LineColors[k + 2]), 255);
         }
         return piece;
@@ -126,14 +235,21 @@ public sealed class WorldGenRuntime : MonoBehaviour
         {
             if (vertices.Length == 0) return;
             var mesh = new Mesh { indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
-            mesh.vertices = vertices; mesh.colors32 = colors; mesh.SetIndices(indices, lines ? MeshTopology.Lines : MeshTopology.Triangles, 0);
+            mesh.vertices = vertices; mesh.colors32 = colors; if(!lines && piece.UV!=null)mesh.uv=piece.UV; mesh.SetIndices(indices, lines ? MeshTopology.Lines : MeshTopology.Triangles, 0);
+            mesh.SetUVs(1,lines?piece.MapLines:piece.MapVertices);
+            if(!lines && piece.NaturalHeight!=null)mesh.SetUVs(2,piece.NaturalHeight);
+            if(!lines && piece.BlendCells!=null)mesh.SetUVs(3,piece.BlendCells);
+            mesh.bounds=new Bounds(Vector3.zero,new Vector3(4.2f,3,3));
             mesh.UploadMeshData(true);
-            int copies = viewOptions.Projection == Projection.Map ? 3 : 1;
+            int copies = 3;
             for (int copy = 0; copy < copies; copy++)
             {
                 var part = new GameObject(lines ? "Cell edges / grid" : "Cell surfaces", typeof(MeshFilter), typeof(MeshRenderer));
-                part.transform.SetParent(pendingRoot.transform, false); part.transform.localPosition = new Vector3(copies == 1 ? 0 : (copy - 1) * 4, 0, 0);
-                part.GetComponent<MeshFilter>().sharedMesh = mesh; part.GetComponent<MeshRenderer>().sharedMaterial = lines ? lineMaterial : surfaceMaterial;
+                var parent=pendingRoot.transform.Find(piece.Kind); if(parent==null){var group=new GameObject(piece.Kind);group.transform.SetParent(pendingRoot.transform,false);parent=group.transform;}
+                string copyName="copy"+(copy-1);var copyRoot=parent.Find(copyName);
+                if(copyRoot==null){var container=new GameObject(copyName);container.transform.SetParent(parent,false);container.transform.localPosition=new Vector3((copy-1)*4,0,0);copyRoot=container.transform;}
+                part.transform.SetParent(copyRoot, false);
+                part.GetComponent<MeshFilter>().sharedMesh = mesh; part.GetComponent<MeshRenderer>().sharedMaterial = piece.Kind=="natural"?naturalMaterial:piece.Kind=="smallfeatures"?smallFeatureMaterial:piece.Kind == "surface" ? surfaceMaterial : lineMaterial;
             }
         }
         Part(piece.Vertices, piece.Colors, piece.Triangles, false); Part(piece.Lines, piece.LineColors, piece.LineIndices, true);
@@ -150,29 +266,33 @@ public sealed class WorldGenRuntime : MonoBehaviour
     }
     void Update()
     {
+        UpdateMusic();
+        if(screen=="Simulation"&&!saveDialog&&Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame){if(atlasOpen){atlasOpen=false;atlasSearchFocused=false;}else ToggleSimulationPause();}
+        PollHumans();
+        if(screen=="Simulation"&&!atlasOpen&&!simulationPaused&&!saveDialog&&Keyboard.current!=null&&!yearStepFocused&&!atlasSearchFocused)
+        {
+            if(Keyboard.current.spaceKey.wasPressedThisFrame)humanPlaying=!humanPlaying;
+            bool add=Keyboard.current.equalsKey.wasPressedThisFrame||Keyboard.current.numpadPlusKey.wasPressedThisFrame,subtract=Keyboard.current.minusKey.wasPressedThisFrame||Keyboard.current.numpadMinusKey.wasPressedThisFrame;
+            if(add||subtract){float delta=add?.25f:-.25f;if(Keyboard.current.leftShiftKey.isPressed||Keyboard.current.rightShiftKey.isPressed)humanOverlayOpacity=Mathf.Clamp01(humanOverlayOpacity+delta);else satelliteOpacity=Mathf.Clamp01(satelliteOpacity+delta);ApplyCachedDisplay();}
+            if(Keyboard.current.commaKey.wasPressedThisFrame)ChangeHumanSpeed(-1);
+            if(Keyboard.current.periodKey.wasPressedThisFrame)ChangeHumanSpeed(1);
+        }
         if (cameraView == null) return;
         long tick = Stopwatch.GetTimestamp();
         if (Busy && lastFrameTick != 0) { maxBusyFrameMs = Math.Max(maxBusyFrameMs, (tick - lastFrameTick) * 1000.0 / Stopwatch.Frequency); busyFrames++; }
         lastFrameTick = tick;
         if (Keyboard.current != null && Keyboard.current.f11Key.wasPressedThisFrame)
             Screen.fullScreenMode = Screen.fullScreen ? FullScreenMode.Windowed : FullScreenMode.FullScreenWindow;
-        cameraView.rect = new Rect(PanelWidth / Screen.width, 0, 1 - PanelWidth / Screen.width, 1);
-        if (projection == Projection.Map)
-        {
-            cameraView.orthographic = true; cameraView.orthographicSize = Math.Max(1.05f, 2.1f / cameraView.aspect) * mapZoom;
-            cameraView.transform.position = new Vector3(mapPan.x, mapPan.y, -3.2f);
-        }
-        else
-        {
-            cameraView.orthographic = false; cameraView.transform.position = new Vector3(0, 0, -globeDistance);
-            if (autoRotate && !dragging) yaw += 6 * Time.deltaTime;
-        }
+        float sidebar=screen=="Setup"?PanelWidth:screen=="Simulation"?SimulationSidebar:0;
+        cameraView.rect = new Rect(sidebar / Screen.width, screen=="Simulation"?DockHeight/Screen.height:0, 1 - sidebar / Screen.width, screen=="Simulation"?1-(52f+DockHeight)/Screen.height:1);
+        PollGeneration();
         if (globe != null)
         {
+            globe.SetActive(!libraryOpen && screen!="Menu" && screen!="Options");
             globe.transform.rotation = (committedOptions?.Projection ?? projection) == Projection.Map ? Quaternion.identity : Quaternion.Euler(pitch, 0, 0) * Quaternion.Euler(0, yaw, 0);
             globe.transform.position = (committedOptions?.Projection ?? projection) == Projection.Map ? new Vector3(-centerLongitude / 90, 0, 0) : Vector3.zero;
         }
-        if (Busy)
+        if (job != null)
         {
             if (!cancel.IsCancellationRequested)
             {
@@ -186,32 +306,52 @@ public sealed class WorldGenRuntime : MonoBehaviour
                 else if (job.IsFaulted) { error = job.Exception.GetBaseException().Message; StartCoroutine(Release(pendingRoot)); RestoreView(); }
                 else
                 {
-                    world = job.Result; committedOptions = viewOptions.Clone(); dirty = StateHash.Compute(recipe) != StateHash.Compute(world.Recipe);
-                    StartCoroutine(Release(globe)); globe = pendingRoot; globe.name = "World surface"; globe.SetActive(true);
+                    world = job.Result;
+                    if (loadingSnapshot) { recipe = world.Recipe.Clone(); preset = recipe.TerrainSource == "Earth" ? "Earth" : "Saved world"; presetIndex = Array.IndexOf(presets, preset); inputText.Clear(); }
+                    viewOptions.Layer=GenerationPreview.Available(world,layer)?layer:viewOptions.Layer;layer=viewOptions.Layer;
+                    viewOptions.Projection=projection;committedOptions = viewOptions.Clone();
+                    InstallPalettes(); displayedWorld=world;
+                    if(loadingSnapshot){activeWorldId=pendingWorldId;saveName=pendingWorldName??"My world";worldReady=true;screen="Simulation";simulationTab="";simulationPaused=false;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;setup.From(recipe);dirty=false;}
+                    if(!reusePendingGeometry){StartCoroutine(Release(globe)); globe = pendingRoot;}
+                    globe.name = "World surface"; globe.SetActive(!libraryOpen && screen!="Menu" && screen!="Options"); ApplyCachedDisplay();
+                    globe.transform.rotation=VisibleProjection==Projection.Map?Quaternion.identity:Quaternion.Euler(pitch,0,0)*Quaternion.Euler(0,yaw,0);
+                    globe.transform.position=VisibleProjection==Projection.Map?new Vector3(-centerLongitude/90,0,0):Vector3.zero;
                     bool map = viewOptions.Projection == Projection.Map;
                     surfaceMaterial.SetFloat("_MapMode", map ? 1 : 0); lineMaterial.SetFloat("_MapMode", map ? 1 : 0);
-                    surfaceMaterial.SetFloat("_Unlit", map || layer == Layer.Climate || layer == Layer.Heightmap ? 1 : 0);
-                    progress = "Ready"; percent = 100;
-                    if (Environment.GetCommandLineArgs().Contains("--worldgen-screenshot") && !screenshotPending) { screenshotPending = true; StartCoroutine(Screenshot()); }
+                    surfaceMaterial.SetFloat("_Unlit", map || layer == Layer.Climate || layer == Layer.Heightmap || EcologyView.IsLayer(layer) ? 1 : 0);
+                    if(!Generating){progress = "Ready"; percent = 100;}
+                    if (worldReady && Environment.GetCommandLineArgs().Contains("--worldgen-screenshot") && !screenshotPending) { screenshotPending = true; StartCoroutine(Screenshot()); }
                 }
-                pendingRoot = null; job = null; pieces.Dispose(); pieces = null;
+                pendingRoot = null; job = null; pieces.Dispose(); pieces = null; loadingSnapshot = false;pendingWorldId=pendingWorldName=null;ApplyCachedDisplay();
             }
         }
-        var mouse = Mouse.current; if (mouse == null) return; var pos = mouse.position.ReadValue();
-        if (mouse.leftButton.wasPressedThisFrame && Math.Abs(pos.x - PanelWidth) < 7) resizingPanel = true;
+        if (VisibleProjection == Projection.Map)
+        {
+            cameraView.orthographic = true; cameraView.orthographicSize = Math.Max(1f, 2f / cameraView.aspect) * Mathf.Min(1f,mapZoom);
+            float panLimit=Mathf.Max(0,1-cameraView.orthographicSize);mapPan.y=Mathf.Clamp(mapPan.y,-panLimit,panLimit);
+            cameraView.transform.position = new Vector3(mapPan.x, mapPan.y, -3.2f);
+        }
+        else
+        {
+            cameraView.orthographic = false; cameraView.transform.position = new Vector3(0, 0, -globeDistance);
+            if (autoRotate && !dragging) yaw += 6 * Time.deltaTime;
+        }
+        var mouse = Mouse.current; if (mouse == null || saveDialog || libraryOpen || simulationPaused || screen=="Menu" || screen=="Options") return; var pos = mouse.position.ReadValue();
+        if (screen=="Setup" && mouse.leftButton.wasPressedThisFrame && Math.Abs(pos.x - PanelWidth) < 7) resizingPanel = true;
         if (resizingPanel) { panelWidth = pos.x; if (!mouse.leftButton.isPressed) resizingPanel = false; }
-        bool overSurface = !resizingPanel && pos.x > PanelWidth + 8 && pos.y > 175 && pos.y < Screen.height - 170;
+        float inspectorTop=expandedInspection ? Screen.height : layer==Layer.Simulation?120:65;
+        bool overSurface = screen=="Simulation"?!OverSocietyPanel(pos)&&pos.y<Screen.height-52:!gridMenu && !resizingPanel && pos.x > sidebar + 8 && pos.y > inspectorTop && pos.y < Screen.height - (layerMenu?350:layer==Layer.Simulation?140:100);
         if (mouse.leftButton.wasPressedThisFrame && overSurface) { dragging = true; dragDistance = 0; previousMouse = pos; }
         if (dragging && mouse.leftButton.isPressed)
         {
             var delta = pos - previousMouse; dragDistance += delta.magnitude;
-            if (projection == Projection.Globe) { yaw -= delta.x * .3f; pitch = Mathf.Clamp(pitch + delta.y * .3f, -89, 89); }
-            else { float scale = cameraView.orthographicSize * 2 / Screen.height; mapPan += new Vector3(-delta.x * scale, -delta.y * scale, 0); mapPan.x = Mathf.Clamp(mapPan.x, -2, 2); mapPan.y = Mathf.Clamp(mapPan.y, -1, 1); }
+            if (VisibleProjection == Projection.Globe) { yaw -= delta.x * .3f; pitch = Mathf.Clamp(pitch + delta.y * .3f, -89, 89); }
+            else { float scale = cameraView.orthographicSize * 2 / Screen.height; centerLongitude=Mathf.Repeat(centerLongitude-delta.x*scale*90+180,360)-180; mapPan.y = Mathf.Clamp(mapPan.y-delta.y*scale,-1,1); }
             previousMouse = pos;
         }
         if (mouse.leftButton.wasReleasedThisFrame && dragging)
         {
-            dragging = false; if (dragDistance < 5 && !Busy && world != null && globe != null) Pick(pos);
+            dragging = false; if (dragDistance < 5 && displayedWorld == world && world != null && globe != null) Pick(pos);
         }
         if (overSurface)
         {
@@ -221,7 +361,7 @@ public sealed class WorldGenRuntime : MonoBehaviour
                 // Input System scroll can be normalized to 1 or reported as 120 per notch.
                 float steps = Math.Abs(wheel) >= 20 ? wheel / 120 : wheel;
                 float factor = Mathf.Exp(-steps * .22f);
-                if (projection == Projection.Map) mapZoom = Mathf.Clamp(mapZoom * factor, .015f, 2);
+                if (VisibleProjection == Projection.Map) mapZoom = Mathf.Clamp(mapZoom * factor, .015f, 1);
                 else globeDistance = 1.025f + Mathf.Clamp((globeDistance - 1.025f) * factor, .035f, 5);
             }
         }
@@ -229,7 +369,7 @@ public sealed class WorldGenRuntime : MonoBehaviour
     void Pick(Vector2 screen)
     {
         var ray = cameraView.ScreenPointToRay(screen); V point;
-        if (projection == Projection.Map)
+        if (VisibleProjection == Projection.Map)
         {
             float t = -ray.origin.z / ray.direction.z; var p = ray.GetPoint(t);
             if (p.x < -2 || p.x > 2 || p.y < -1 || p.y > 1) return;
@@ -241,29 +381,42 @@ public sealed class WorldGenRuntime : MonoBehaviour
             float b = Vector3.Dot(ray.origin, ray.direction), c = ray.origin.sqrMagnitude - 1, d = b * b - c; if (d < 0) return;
             var p = globe.transform.InverseTransformPoint(ray.GetPoint(-b - Mathf.Sqrt(d))).normalized; point = new V(p.x, -p.z, p.y);
         }
-        inspection = GlobeView.Describe(world, Erosion.Nearest(world.Surface, point));
+        selectedCell = Erosion.Nearest(world.Surface, point);
+        inspectionScroll=Vector2.zero;
     }
     void SetProjection(Projection next)
     {
-        if (projection == next || Busy) return; projection = next; mapPan = Vector3.zero; mapZoom = 1.1f; Refresh();
+        if (projection == next) return; projection = next;
+        if(committedOptions!=null)committedOptions.Projection=next;
+        ApplyCachedDisplay();
     }
     void RestoreView()
     {
         if (committedOptions == null) return;
-        projection = committedOptions.Projection; layer = committedOptions.Layer; wireframe = committedOptions.Wireframe; showPlates = committedOptions.ShowPlates; gridSpacing = committedOptions.GridSpacing;
+        projection = committedOptions.Projection; layer = committedOptions.Layer; wireframe = committedOptions.Wireframe; showPlates = committedOptions.ShowPlates; showRivers = committedOptions.ShowRivers; gridSpacing = committedOptions.GridSpacing;
     }
     IEnumerator CheckInteraction()
     {
         var evidence = new UiEvidence { Detail = recipe.Detail };
         while (Busy && uploadedChunks < 3) yield return null;
         if (!Busy) { Debug.LogError("UI check did not reach cancellable presentation: " + error); Application.Quit(1); yield break; }
-        var watch = Stopwatch.StartNew(); cancel.Cancel();
+        var watch = Stopwatch.StartNew(); CancelGeneration();
         while (Busy) yield return null;
         evidence.CancelMilliseconds = watch.Elapsed.TotalMilliseconds; evidence.CancelledPresentation = world == null;
         Generate(); while (Busy) yield return null;
         if (world == null || error.Length > 0) { Debug.LogError("UI generation failed: " + error); Application.Quit(1); yield break; }
-        evidence.Completed = world.Surface.Cells.Length == evidence.Detail; evidence.MeshChunks = globe.transform.childCount;
-        SetProjection(Projection.Map); while (Busy) yield return null;
+        evidence.Completed = world.Surface.Cells.Length == evidence.Detail; evidence.MeshChunks = globe.GetComponentsInChildren<MeshFilter>(true).Length;
+        var originalRoot=globe;var displayTimer=Stopwatch.StartNew();
+        foreach(var main in DisplayCache.MainLayers){layer=main;Refresh();}
+        foreach(int spacing in new[]{0,5,10,15,30}){gridSpacing=spacing;showRivers=!showRivers;wireframe=!wireframe;Refresh();}
+        evidence.CachedSwitchMilliseconds=displayTimer.Elapsed.TotalMilliseconds;
+        evidence.InstantDisplay=job==null && globe==originalRoot && palettes.Count>=6;
+        displayTimer.Restart();for(int i=0;i<10;i++){SetProjection(Projection.Globe);SetProjection(Projection.Map);}
+        evidence.ProjectionSwitchMilliseconds=displayTimer.Elapsed.TotalMilliseconds/20;
+        evidence.StableProjection=globe==originalRoot && VisibleProjection==Projection.Map && job==null;
+        var preparing=job;layer=Layer.Terrain;Refresh();
+        evidence.InstantDisplay &= job==preparing && committedOptions.Layer==Layer.Terrain;
+        while (Busy) yield return null;
         watch.Restart();
         for (int i = 0; i < 120; i++) { centerLongitude = -180 + i * 3; yield return null; }
         evidence.LongitudeMilliseconds = watch.Elapsed.TotalMilliseconds / 120;
@@ -277,130 +430,7 @@ public sealed class WorldGenRuntime : MonoBehaviour
         string path = Argument("--worldgen-ui-check", Path.Combine(Application.persistentDataPath, "ui-check.json"));
         File.WriteAllText(path, JsonUtility.ToJson(evidence, true));
         Debug.Log("WORLDGEN UI CHECK " + JsonUtility.ToJson(evidence));
-        Application.Quit(evidence.Completed && evidence.CancelledPresentation && evidence.Resized && evidence.NorthUp && evidence.BusyFrames > 30 && evidence.MaxBusyFrameMs < 2000 && evidence.CancelMilliseconds < 2000 ? 0 : 1);
-    }
-    void OnGUI()
-    {
-        if (cameraView == null) return; GUI.skin.label.wordWrap = true; GUI.backgroundColor = new Color(.13f, .23f, .28f); float width = PanelWidth;
-        GUI.Box(new Rect(0, 0, width, Screen.height), ""); GUILayout.BeginArea(new Rect(16, 15, width - 32, Screen.height - 30));
-        GUILayout.Label("WORLDGEN", new GUIStyle(GUI.skin.label) { fontSize = 24, fontStyle = FontStyle.Bold }); GUILayout.Label("Shape your world");
-        GUILayout.BeginHorizontal(); GUILayout.Label(preset, GUILayout.MinWidth(0), GUILayout.ExpandWidth(true));
-        if (GUILayout.Button("Next preset", GUILayout.Width(95))) { presetIndex = (presetIndex + 1) % presets.Length; preset = presets[presetIndex]; int seed = recipe.Seed; recipe = Recipe.Preset(preset); recipe.Seed = seed; inputText.Clear(); dirty = true; }
-        GUILayout.EndHorizontal(); scroll = GUILayout.BeginScrollView(scroll, GUILayout.Height(Mathf.Max(180, Screen.height - 300)));
-        for (int g = 0; g < groups.Length; g++)
-        {
-            if (GUILayout.Button((panels[g] ? "−  " : "+  ") + groups[g])) panels[g] = !panels[g]; if (!panels[g]) continue;
-            foreach (var field in Recipe.Settings.Where(f => f.GetCustomAttribute<SettingAttribute>().Group == groups[g]))
-            {
-                var meta = field.GetCustomAttribute<SettingAttribute>(); GUILayout.BeginHorizontal(); GUILayout.Label(meta.Label, GUILayout.MinWidth(0), GUILayout.ExpandWidth(true));
-                if (!inputText.TryGetValue(field.Name, out string old)) old = Convert.ToString(field.GetValue(recipe), CultureInfo.InvariantCulture);
-                string value = GUILayout.TextField(old, GUILayout.Width(76));
-                if (value != old)
-                {
-                    inputText[field.Name] = value;
-                    if (double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed) && !double.IsNaN(parsed) && !double.IsInfinity(parsed))
-                    { field.SetValue(recipe, field.FieldType == typeof(int) ? (object)(int)parsed : parsed); if (field.GetCustomAttribute<DisplaySettingAttribute>() == null) dirty = true; }
-                }
-                if (field.Name == nameof(Recipe.Seed) && GUILayout.Button("Roll", GUILayout.Width(42))) RollSeed();
-                GUILayout.EndHorizontal();
-            }
-            if (groups[g] == "World") GUILayout.Label("20,000 base plate cells; terrain runs at selected detail.");
-        }
-        GUILayout.EndScrollView();
-        /* The lower controls are rendered in the fixed bottom panel below.
-        GUILayout.Label("Recipe v" + recipe.SchemaVersion + " · " + recipe.AlgorithmVersion);
-        filePath = GUILayout.TextField(filePath);
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Save recipe")) Try(() => { ValidateInputs(); recipe.Validate(); File.WriteAllText(filePath, WorldJson.Write(recipe)); });
-        if (GUILayout.Button("Load recipe")) Try(() => { recipe = WorldJson.ReadRecipe(File.ReadAllText(filePath)); inputText.Clear(); dirty = true; });
-        GUILayout.EndHorizontal(); GUI.enabled = world != null && !Busy && exportJob == null;
-        if (GUILayout.Button("Export result")) Export("result.json", (w, path) => File.WriteAllText(path, WorldJson.Write(w)));
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Heightmap")) Export("pgm", (w, path) => File.WriteAllBytes(path, WorldJson.Heightmap(w)));
-        if (GUILayout.Button("Cell CSV")) Export("csv", (w, path) => File.WriteAllText(path, WorldJson.Csv(w)));
-        GUILayout.EndHorizontal(); GUI.enabled = true;
-        if (world != null)
-        {
-            foreach (var warning in world.Warnings) GUILayout.Label(warning);
-            GUILayout.Label("Land: " + (world.Metrics.First(m => m.Name == "land_fraction").Value * 100).ToString("0.0") + "%");
-            GUILayout.Label("Inspect a cell for plate, terrain and climate data.");
-        }
-        if (exportJob != null) GUILayout.Label("Exporting...");
-        if (dirty && world != null) GUILayout.Label("Settings changed. Regenerate to apply."); if (error.Length > 0) GUILayout.Label(error);
-        */
-        /* The progress/cancel row is owned by the fixed bottom action section.
-        if (job != null) { GUILayout.Label(progress + " · " + percent + "%"); if (GUILayout.Button("Cancel")) cancel.Cancel(); }
-        */
-        GUILayout.EndArea();
-        float bottomHeight = Mathf.Min(205, Mathf.Max(165, Screen.height - 15));
-        float bottomY = Screen.height - bottomHeight;
-        GUI.Box(new Rect(8, bottomY, width - 16, bottomHeight), "");
-        GUILayout.BeginArea(new Rect(16, bottomY + 7, width - 32, bottomHeight - 7));
-        GUILayout.Label("Recipe v" + recipe.SchemaVersion + " · " + recipe.AlgorithmVersion);
-        filePath = GUILayout.TextField(filePath);
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Save recipe")) Try(() => { ValidateInputs(); recipe.Validate(); File.WriteAllText(filePath, WorldJson.Write(recipe)); });
-        if (GUILayout.Button("Load recipe")) Try(() => { recipe = WorldJson.ReadRecipe(File.ReadAllText(filePath)); inputText.Clear(); dirty = true; });
-        GUILayout.EndHorizontal();
-        GUI.enabled = world != null && !Busy && exportJob == null;
-        if (GUILayout.Button("Export result")) Export("result.json", (w, path) => File.WriteAllText(path, WorldJson.Write(w)));
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Heightmap")) Export("pgm", (w, path) => File.WriteAllBytes(path, WorldJson.Heightmap(w)));
-        if (GUILayout.Button("Cell CSV")) Export("csv", (w, path) => File.WriteAllText(path, WorldJson.Csv(w)));
-        GUILayout.EndHorizontal();
-        GUI.enabled = true;
-        if (Busy) GUILayout.Label(progress + " · " + percent + "%");
-        else if (world != null) GUILayout.Label("Land: " + (world.Metrics.First(m => m.Name == "land_fraction").Value * 100).ToString("0.0") + "%");
-        GUILayout.EndArea();
-        GUI.enabled = true;
-        if (Busy)
-        {
-            if (GUI.Button(new Rect(16, Screen.height - 49, width - 32, 38), "Cancel")) cancel.Cancel();
-        }
-        else if (GUI.Button(new Rect(16, Screen.height - 49, width - 32, 38), world == null ? "BUILD WORLD" : "REGENERATE / REAPPLY")) Generate();
-        GUI.Box(new Rect(width - 3, 0, 6, Screen.height), "");
-        GUI.enabled = !Busy;
-        GUILayout.BeginArea(new Rect(width + 24, 18, Math.Max(220, Screen.width - width - 48), 195));
-        GUILayout.BeginHorizontal();
-        foreach (Layer candidate in new[] { Layer.Terrain, Layer.Satellite, Layer.Climate, Layer.Heightmap })
-            if (GUILayout.Toggle(layer == candidate, candidate.ToString(), GUI.skin.button, GUILayout.Width(95)) && layer != candidate) { layer = candidate; Try(Refresh); }
-        if (GUILayout.Toggle(projection == Projection.Globe, "Globe", GUI.skin.button, GUILayout.Width(90))) SetProjection(Projection.Globe);
-        if (GUILayout.Toggle(projection == Projection.Map, "Map", GUI.skin.button, GUILayout.Width(90))) SetProjection(Projection.Map);
-        if (projection == Projection.Globe) autoRotate = GUILayout.Toggle(autoRotate, "Auto rotate", GUILayout.Width(120));
-        if (GUILayout.Button("Fullscreen (F11)", GUILayout.Width(135))) Screen.fullScreenMode = Screen.fullScreen ? FullScreenMode.Windowed : FullScreenMode.FullScreenWindow;
-        GUILayout.EndHorizontal(); GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Inspect: " + GlobeView.LayerName(layer) + " ▾", GUILayout.Width(250))) layerMenu = !layerMenu;
-        GUILayout.EndHorizontal();
-        if (layerMenu)
-        {
-            layerScroll = GUILayout.BeginScrollView(layerScroll, GUILayout.Height(110), GUILayout.Width(270));
-            foreach (Layer candidate in GlobeView.VisibleLayers) if (GUILayout.Button(GlobeView.LayerName(candidate))) { layer = candidate; layerMenu = false; Try(Refresh); }
-            GUILayout.EndScrollView();
-        }
-        else
-        {
-            if (projection == Projection.Map)
-            {
-                GUILayout.BeginHorizontal(); GUILayout.Label("Center longitude", GUILayout.Width(125)); float lon = GUILayout.HorizontalSlider(centerLongitude, -180, 180, GUILayout.Width(200));
-                if (Math.Abs(lon - centerLongitude) > .001f) centerLongitude = lon; GUILayout.Label(centerLongitude.ToString("0") + "°"); GUILayout.EndHorizontal();
-            }
-            GUILayout.BeginHorizontal(); bool wire = GUILayout.Toggle(wireframe, "Wireframe", GUILayout.Width(110)); bool plates = GUILayout.Toggle(showPlates, "Show plates", GUILayout.Width(110));
-            GUILayout.Label("Grid", GUILayout.Width(35)); int grid = GUILayout.SelectionGrid(gridSpacing == 0 ? 0 : gridSpacing == 15 ? 1 : 2, new[] { "Off", "15 deg", "30 deg" }, 3, GUILayout.Width(145));
-            int spacing = grid == 0 ? 0 : grid == 1 ? 15 : 30;
-            if (wire != wireframe || plates != showPlates || spacing != gridSpacing) { wireframe = wire; showPlates = plates; gridSpacing = spacing; Refresh(); }
-            GUILayout.EndHorizontal();
-            GUILayout.Label(layer == Layer.Heightmap ? "Black −5,000 m · White +6,000 m · Absolute elevation" : layer == Layer.Climate ? "Köppen climate · click a cell for its classification" : "Drag to " + (projection == Projection.Map ? "pan" : "orbit") + " · scroll to zoom · click to inspect");
-        }
-        GUILayout.EndArea(); GUI.enabled = true;
-        if (Busy)
-        {
-            float x = width + (Screen.width - width - 380) / 2;
-            GUI.Box(new Rect(x, Screen.height / 2 - 55, 380, 115), "Preparing world");
-            GUI.Label(new Rect(x + 20, Screen.height / 2 - 25, 340, 28), progress + " - " + percent + "%");
-            if (GUI.Button(new Rect(x + 140, Screen.height / 2 + 15, 100, 28), cancel.IsCancellationRequested ? "Cancelling..." : "Cancel")) cancel.Cancel();
-        }
-        GUI.Box(new Rect(width + 20, Screen.height - 170, Math.Max(200, Screen.width - width - 40), 150), "");
-        GUI.Label(new Rect(width + 34, Screen.height - 160, Math.Max(190, Screen.width - width - 65), 135), inspection);
+        Application.Quit(evidence.Completed && evidence.InstantDisplay && evidence.StableProjection && evidence.CancelledPresentation && evidence.Resized && evidence.NorthUp && evidence.BusyFrames > 30 && evidence.MaxBusyFrameMs < 2000 && evidence.CancelMilliseconds < 2000 ? 0 : 1);
     }
     async void Export(string extension, Action<World, string> action)
     {
@@ -417,7 +447,11 @@ public sealed class WorldGenRuntime : MonoBehaviour
             if (!double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double value) || double.IsNaN(value) || double.IsInfinity(value)
                 || field.FieldType == typeof(int) && (value != Math.Truncate(value) || value < int.MinValue || value > int.MaxValue))
                 throw new ArgumentException("Enter a valid " + (field.FieldType == typeof(int) ? "whole number" : "number") + " for " + field.GetCustomAttribute<SettingAttribute>().Label + ".");
+            var limits=field.GetCustomAttribute<SettingAttribute>();
+            if(value<limits.Min || value>limits.Max)throw new ArgumentException(limits.Label+" must be between "+limits.Min+" and "+limits.Max+".");
         }
+        foreach(var key in new[]{"PlatesMin","PlatesMax","ContinentsMin","ContinentsMax","InterconnectednessMin","InterconnectednessMax"})
+            if(inputText.TryGetValue(key,out string text) && !int.TryParse(text,out _))throw new ArgumentException("Enter a whole number for "+key+".");
     }
     void Try(Action action) { try { action(); error = ""; } catch (Exception e) { error = e.Message; Debug.LogException(e); } }
     async void RunPlayerChecks()
@@ -426,7 +460,12 @@ public sealed class WorldGenRuntime : MonoBehaviour
         {
             string output = Argument("--worldgen-output", Path.Combine(Application.persistentDataPath, "cross-host")); Directory.CreateDirectory(output);
             foreach (var entry in GoldenCorpus.Recipes())
-            { var w = await Task.Run(() => new WorldPipeline().Generate(entry.Recipe)); File.WriteAllText(Path.Combine(output, entry.Name + ".hashes.json"), WorldJson.Write(w.Stages)); Debug.Log("WORLDGEN PLAYER " + entry.Name + " " + w.Stages.Last().Hash); }
+            {
+                var w = await Task.Run(() => new WorldPipeline().Generate(entry.Recipe));
+                var packed = await Task.Run(() => WorldFile.Write(w)); var restored = await Task.Run(() => WorldFile.Read(packed));
+                if (StateHash.Compute(w) != StateHash.Compute(restored)) throw new InvalidOperationException("Compact world snapshot mismatch: " + entry.Name);
+                File.WriteAllText(Path.Combine(output, entry.Name + ".hashes.json"), WorldJson.Write(w.Stages)); Debug.Log("WORLDGEN PLAYER " + entry.Name + " " + w.Stages.Last().Hash);
+            }
             Application.Quit(0);
         }
         catch (Exception e) { Debug.LogException(e); Application.Quit(1); }
@@ -435,12 +474,17 @@ public sealed class WorldGenRuntime : MonoBehaviour
     {
         yield return new WaitForEndOfFrame();
         var target = new RenderTexture(1600, 1000, 24); cameraView.targetTexture = target; cameraView.rect = new Rect(0, 0, 1, 1);
-        if (projection == Projection.Map) { cameraView.orthographic = true; cameraView.orthographicSize = 1.4f; globe.transform.rotation = Quaternion.identity; cameraView.transform.position = new Vector3(0, 0, -3.2f); }
+        if (projection == Projection.Map)
+        {
+            float CaptureNumber(string flag,float fallback)=>float.TryParse(Argument(flag,""),System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out float value)?value:fallback;
+            cameraView.orthographic = true; cameraView.orthographicSize = Mathf.Clamp(CaptureNumber("--worldgen-capture-scale",1.4f),.015f,1.4f); globe.transform.rotation = Quaternion.identity;
+            cameraView.transform.position = new Vector3(CaptureNumber("--worldgen-capture-lon",0)/90,CaptureNumber("--worldgen-capture-lat",0)/90,-3.2f);
+        }
         cameraView.Render(); var prior = RenderTexture.active; RenderTexture.active = target; var texture = new Texture2D(1600, 1000, TextureFormat.RGB24, false);
         texture.ReadPixels(new Rect(0, 0, 1600, 1000), 0, 0); texture.Apply();
         File.WriteAllBytes(Argument("--worldgen-screenshot", Path.Combine(Application.persistentDataPath, "worldgen.png")), texture.EncodeToPNG());
         RenderTexture.active = prior; cameraView.targetTexture = null; Destroy(texture); target.Release(); Destroy(target); yield return null; Application.Quit(error.Length == 0 ? 0 : 1);
     }
     static string Argument(string flag, string fallback) { var args = Environment.GetCommandLineArgs(); int i = Array.IndexOf(args, flag); return i >= 0 && i + 1 < args.Length ? args[i + 1] : fallback; }
-    void OnDestroy() { cancel?.Cancel(); if (surfaceMaterial != null) Destroy(surfaceMaterial); if (lineMaterial != null) Destroy(lineMaterial); }
+        void OnDestroy() { DisposeMusic(); generationCancel?.Cancel(); cancel?.Cancel(); humanCancellation?.Cancel(); if (surfaceMaterial != null) Destroy(surfaceMaterial); if (lineMaterial != null) Destroy(lineMaterial);if(naturalMaterial!=null)Destroy(naturalMaterial);if(smallFeatureMaterial!=null)Destroy(smallFeatureMaterial);if(borderMaterial!=null)Destroy(borderMaterial);if(borderMesh!=null)Destroy(borderMesh); }
 }

@@ -9,6 +9,7 @@ const progressTimer=setInterval(async()=>{try{console.log('PROGRESS',await page.
 const errors=[];page.on('pageerror',e=>{errors.push(String(e));console.log('PAGE ERROR',String(e));});page.on('console',m=>{if(m.type()==='error')console.log('CONSOLE',m.text());});
 try{
  await page.goto(process.env.WORLDGEN_URL||'http://127.0.0.1:5080');
+ await page.getByText('Advanced import / export',{exact:true}).click();
  // Use the shared Preview preset for the interactive browser suite. Full-detail
  // rendering is exercised separately in the native Unity player.
  await page.getByRole('button',{name:'Cancel',exact:true}).click();
@@ -30,10 +31,10 @@ try{
  const repeat=JSON.parse(await page.evaluate(async()=> (await import('/globe.js')).snapshot()));
  if(JSON.stringify(first.Stages)!==JSON.stringify(repeat.Stages))throw new Error('Browser repeat mismatch');
  console.log('PASS browser regeneration hashes');
- const save=page.waitForEvent('download');await page.getByRole('button',{name:'Save recipe',exact:true}).click();const recipeDownload=await save;await recipeDownload.saveAs('artifacts/browser/saved.recipe.json');
+ const save=page.waitForEvent('download');await page.getByRole('button',{name:'Export recipe',exact:true}).click();const recipeDownload=await save;await recipeDownload.saveAs('artifacts/browser/saved.recipe.json');
  if(JSON.stringify(JSON.parse(fs.readFileSync('artifacts/browser/saved.recipe.json','utf8')))!==JSON.stringify(first.Recipe))throw new Error('Saved recipe mismatch');
  console.log('PASS saved recipe');
- await page.locator('.file-button input').setInputFiles('artifacts/browser/saved.recipe.json');
+ await page.locator('.file-button').filter({hasText:'Import recipe'}).locator('input').setInputFiles('artifacts/browser/saved.recipe.json');
  await page.getByRole('button',{name:'Regenerate / reapply'}).click();await page.waitForFunction(()=>document.querySelector('.top-status')?.textContent==='World ready',{},{timeout:600000});
  const loaded=JSON.parse(await page.evaluate(async()=> (await import('/globe.js')).snapshot()));if(loaded.Stages.some((s,i)=>s.Hash!==first.Stages[i].Hash))throw new Error('Loaded recipe reconstruction mismatch');
  console.log('PASS loaded-recipe reconstruction');

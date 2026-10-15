@@ -9,6 +9,24 @@
 unity/**/*.csproj
 unity/**/*.sln
 artifacts/
+music/*.mp3
+music/*.ogg
+music/*.wav
+src/WorldGen.Web/wwwroot/music/
+world/*/
+unity/WorldGen.Unity/Assets/StreamingAssets/world/
+unity/WorldGen.Unity/Assets/StreamingAssets/world.meta
 src/WorldGen.Web/wwwroot/worker/
+src/WorldGen.Web/wwwroot/world/
 unity/WorldGen.Unity/Assets/Plugins/WorldGen/*.dll
 unity/WorldGen.Unity/Assets/Plugins/WorldGen/*.pdb
+
+# Local credentials must never enter source checkpoints.
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.pfx
+*.p12

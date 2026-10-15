@@ -1,0 +1,15 @@
+{
+  "id": "ETOPO2022-ice-surface-10arcmin-v1",
+  "publisher": "NOAA National Centers for Environmental Information",
+  "citation": "NOAA NCEI (2022), ETOPO 2022 15 Arc-Second Global Relief Model, doi:10.25921/fd45-gt74",
+  "product": "https://www.ncei.noaa.gov/products/etopo-global-relief-model",
+  "metadataAndRedistributionTerms": "https://oceanwatch.pifsc.noaa.gov/erddap/info/ETOPO_2022_v1_60s/index.html",
+  "download": "https://oceanwatch.pifsc.noaa.gov/erddap/griddap/ETOPO_2022_v1_60s.csv?z[5:10:10795][5:10:21595]",
+  "accessDate": "2026-10-01",
+  "terms": "NOAA's dataset metadata permits free use and redistribution. Supplied without warranty; not intended for legal use. This derived grid is not endorsed by NOAA.",
+  "processing": "Select every tenth row/column from NOAA's 60-arcsecond ice-surface grid; round physical EGM2008 metres to signed Int16, away from zero at half metres. No invented elevations. Not a block-average or a 15-arcsecond distribution.",
+  "converter": "scripts/prepare-earth.ps1",
+  "binaryLayout": "Little endian: Int32 width=2160, Int32 height=1080, Float64 south=-89.90833333333333, Float64 west=0.09166666666666856, Float64 step=1/6 degree, then 2332800 Int16 elevations. Rows south to north, columns eastward 0..360.",
+  "sha256": "12422c5fc5be4196adc505d8a6c0fc327ee1c1ec2157b2b7011f149c4a23fb62",
+  "limitations": "10 arcminutes is approximately 18.5 km north-south; fine meshes cannot recover smaller features. Nearest-sample projection preserves source values but not all straits/lakes. Ice-surface elevations are not subglacial bedrock. Climate and hydrology are simulated, not observational benchmarks. Procedural plate diagnostics are not actual Earth plates."
+}

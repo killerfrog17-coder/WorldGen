@@ -7,93 +7,228 @@
 @using WorldGen.Presentation
 @implements IAsyncDisposable
 @inject IJSRuntime JS
-
-<PageTitle>WorldGen · Planet laboratory</PageTitle>
-<header class="topbar"><div class="brand"><span class="brand-orbit">◉</span> WORLDGEN <span class="edition">PLANET LABORATORY / 01</span></div><span class="status-dot">●</span><span class="top-status">@(busy ? "Generating in worker" : world == null ? "Ready to explore" : "World ready")</span></header>
-<main class="workspace">
-    <aside class="controls">
-        <div class="panel-heading"><span class="eyebrow">YOUR NEXT WORLD</span><h1>Shape a planet.</h1><p>Tectonic terrain, from plate to planet.</p></div>
-        <label class="preset-label">Starting recipe<select aria-label="Preset" @onchange="Preset"><option>Orogen defaults</option><option>Preview</option><option>Ocean world</option><option>Continental</option><option>Glacial</option><option>500 plates</option></select></label>
-        @foreach (var group in Recipe.Settings.GroupBy(f => f.GetCustomAttribute<SettingAttribute>().Group))
-        {
-            <details class="settings-group" open="@(group.Key == "World")"><summary><span>@group.Key</span><span class="group-count">@group.Count().ToString("00")</span></summary>
-                @foreach (var field in group)
-                {
-                    var meta = field.GetCustomAttribute<SettingAttribute>();
-                    <label class="setting"><span>@meta.Label</span><span class="setting-control"><input aria-label="@meta.Label" type="number" min="@Invariant(meta.Min)" max="@Invariant(meta.Max)" step="@Invariant(meta.Step)" value="@Convert.ToString(field.GetValue(recipe), CultureInfo.InvariantCulture)" @onchange="e => Update(field,e)" />@if(field.Name == nameof(Recipe.Seed)){<button class="seed-roll" type="button" disabled="@busy" title="Generate a random seed" @onclick="RollSeed">Roll</button>}</span></label>
-                }
-            </details>
-        }
-        <div class="version">Recipe v@(recipe.SchemaVersion) · @recipe.AlgorithmVersion</div>
-        <div class="generation-actions"><button class="primary" disabled="@busy" @onclick="Generate">@(world == null ? "Generate world" : "Regenerate / reapply") <span>↗</span></button>@if (busy){<button @onclick="Cancel">Cancel</button>}</div>
-        <div class="file-actions"><button @onclick="SaveRecipe">Save recipe</button><label class="file-button">Load recipe<InputFile OnChange="LoadRecipe" accept=".json" /></label></div>
-        @if(dirty && world != null){<p class="notice">Settings changed. Regenerate to apply.</p>}
-        @if(error.Length > 0){<p class="error" role="alert">@error</p>}
-    </aside>
-    <section class="observatory">
-        <div class="view-toolbar"><div><span class="eyebrow">SURFACE OBSERVATORY</span><h2>@LayerName(layer)</h2></div><label class="layer-picker">Inspection layer<select disabled="@busy" aria-label="Diagnostic layer" value="@layer" @onchange="ChangeLayer">@foreach(var l in GlobeView.VisibleLayers){<option value="@l" data-layer="@((int)l)">@LayerName(l)</option>}</select></label></div>
-        <div class="map-controls">
-            <div class="map-tabs">@foreach(var main in new[]{Layer.Terrain,Layer.Satellite,Layer.Climate,Layer.Heightmap}){<button disabled="@busy" class="@(layer==main?"selected":"")" @onclick="()=>SelectLayer(main)">@main</button>}</div>
-            <label>View <select disabled="@busy" aria-label="View" value="@projection" @onchange="ChangeProjection"><option>Globe</option><option>Map</option></select></label>
-            @if(projection==Projection.Map){<label>Center longitude @centerLongitude° <input aria-label="Center longitude" type="range" min="-180" max="180" step="1" value="@centerLongitude" @oninput="ChangeLongitude" /></label>}
-            <label><input disabled="@busy" aria-label="Wireframe" type="checkbox" @bind="wireframe" @bind:after="RefreshView" /> Wireframe</label>
-            <label><input disabled="@busy" aria-label="Show plates" type="checkbox" @bind="showPlates" @bind:after="RefreshView" /> Show plates</label>
-            <label>Grid <select disabled="@busy" aria-label="Grid spacing" @bind="gridSpacing" @bind:after="RefreshView"><option value="0">Off</option><option value="15">15 degrees</option><option value="30">30 degrees</option></select></label>
-            <button @onclick="Fullscreen">Fullscreen</button>
-            <span class="view-legend">@(layer==Layer.Heightmap?"Black −5,000 m · White +6,000 m":layer==Layer.Climate?"Köppen classification · inspect a cell for its class":"")</span>
-        </div>
-        <div class="globe-area"><canvas id="globe" aria-label="Generated planet globe or map" tabindex="0"></canvas>
-            @if(world == null){<div class="empty-orbit"><span>◌</span><p>@(busy?"Constructing your world…":"A world of possibilities.")</p></div>}
-            <div class="globe-caption"><span class="tiny-cross">+</span> SPHERE-NATIVE / @((world?.CellCount ?? 0).ToString("N0")) CELLS</div>
-            <div class="interaction-hint">Drag to @(projection==Projection.Map?"pan":"orbit") · scroll to zoom · click to inspect</div>
-            @if(busy){<div class="progress-card"><div><span>@progressStage</span><strong>@percent%</strong></div><progress value="@percent" max="100"></progress></div>}
-        </div>
-        <div class="metrics-strip"><div><span>LAND COVERAGE</span><strong>@MetricText("land_fraction",true)</strong></div><div><span>LANDMASSES</span><strong>@MetricText("landmass_count")</strong></div><div><span>SUPERPLATES</span><strong>@MetricText("superplates")</strong></div><div><span>HIGHEST SUMMIT</span><strong>@MetricText("max_elevation") <small>m</small></strong></div></div>
-        <div class="below-globe"><section class="inspection"><span class="eyebrow">SURFACE SAMPLE</span><pre>@inspection</pre></section><section class="export"><span class="eyebrow">TAKE YOUR WORLD WITH YOU</span><p>Physical heights and the complete recipe.</p><button disabled="@(world == null)" @onclick="ExportWorld">Export result ↗</button><button disabled="@(world == null)" @onclick="ExportHeight">Export heightmap</button><button disabled="@(world == null)" @onclick="ExportCsv">Cell CSV</button></section></div>
-        @if(world != null)
-        {
-            <details class="diagnostics"><summary>Generation report · @world.Stages.Last().Hash.Substring(0,16)</summary>
-                @foreach(var warning in world.Warnings){<p class="notice">@warning</p>}
-                <div class="stage-hashes">@foreach(var s in world.Stages){<div><span>@s.Name</span><code>@s.Hash</code></div>}</div>
-                <table><tbody>@foreach(var m in world.Metrics){<tr><td>@m.Name.Replace('_',' ')</td><td>@m.Value.ToString("N3") @m.Unit</td></tr>}</tbody></table>
-            </details>
-        }
-    </section>
-</main>
-<footer>WORLDGEN <span>A deterministic world, one recipe at a time.</span><span>GEOLOGY → TERRAIN → CLIMATE</span></footer>
+<PageTitle>WorldGen</PageTitle>
+<div class="game-shell">
+@if(screen=="Menu" || screen=="Options" || screen=="Load"){
+<div class="menu-overlay"><div class="menu-card">
+@if(screen!="Load"){<span class="eyebrow">A WORLD WAITING TO UNFOLD</span><h1>WORLDGEN</h1>}
+@if(screen=="Menu"){
+<button @onclick='()=>screen="Setup"'>Set Up World</button><button @onclick='()=>screen="Load"'>Load World</button><button @onclick='()=>screen="Options"'>Options</button><button @onclick="Exit">Exit</button>
+<small>@Recipe.CurrentAlgorithm · @Prehistory.CurrentHistoryVersion</small>
+}else if(screen=="Options"){
+<h2>Display</h2><label><input type="checkbox" @bind="naturalTerrain" @bind:after="RefreshView"/> Smooth terrain and small lake/island features</label><button @onclick="Fullscreen">Toggle fullscreen</button><p>Browser display and sound follow your system settings.</p><button @onclick='()=>screen="Menu"'>Back</button>
+}else{
+<h2>YOUR WORLDS</h2>
+<div class="world-list">
+@foreach(var group in savedWorlds.GroupBy(s=>s.GroupId??s.Id)){
+var versions=group.OrderByDescending(s=>s.SavedUtc).ToArray();var latest=versions[0];
+<div class="world-row">
+@if(versions.Length>1){<button class="expand-world" @onclick="()=>ToggleWorld(group.Key)">@(expandedWorlds.Contains(group.Key)?"−":"+")</button>}else{<span class="expand-world"></span>}
+<span>@latest.Name</span><button disabled="@busy" @onclick="()=>OpenSavedWorld(latest)">Load last save</button><button disabled="@busy" @onclick="()=>DeleteSaved(group.Key,true)">Delete</button>
+</div>
+@if(versions.Length>1 && expandedWorlds.Contains(group.Key)){@foreach(var save in versions){<div class="world-row save-row"><span>@save.SavedUtc.ToLocalTime().ToString("g")</span><button disabled="@busy" @onclick="()=>OpenSavedWorld(save)">Load</button><button disabled="@busy" @onclick="()=>DeleteSaved(save.Id,false)">Delete</button></div>}}
+}
+@if(savedWorlds.Length==0){<p>No saved worlds yet.</p>}
+</div>
+@if(error.Length>0){<p class="error">@error</p>}
+<button class="library-back" @onclick='()=>screen="Menu"'>Back</button>
+}
+</div></div>
+}
+<main class="workspace @(screen=="Simulation"?"simulation":"")">
+<aside class="controls" style="@(screen=="Simulation"?"display:none":"")">
+<div class="panel-heading"><span class="eyebrow">WORLD CREATION</span><h1>Set up world</h1></div>
+<fieldset disabled="@busy" class="base-settings">
+<label>Map type<select aria-label="Map type" value="@worldType" @onchange="ChooseType">@foreach(var name in WorldPresets.Names){<option>@name</option>}<option>Custom</option></select></label>
+<SetupSetting Name="Map detail" Recipe="recipe" Setup="setup" Field='typeof(Recipe).GetField(nameof(Recipe.Detail))' Changed="RangeChanged"/>
+<label>Seed<div class="setting-control"><input aria-label="Seed" type="number" min="0" max="16777215" @bind="recipe.Seed" @bind:after="RangeChanged"/><button title="Roll seed" aria-label="Roll seed" @onclick="RollSeed"><span class="dice"></span></button></div></label>
+</fieldset>
+<div class="settings-scroll">
+@foreach(var group in new[]{"World","Terrain sculpting","Climate"}){
+<details class="settings-group" open="@(group=="World")"><summary>@(group=="Terrain sculpting"?"Terrain warp":group)</summary>
+<fieldset disabled="@(busy || group=="World" && recipe.TerrainSource=="Earth")">
+@if(group=="World"){
+@if(recipe.LandShape!=null){<small>Shape-constrained layout</small>}
+}
+@foreach(var field in WorldSetup.Fields(group)){
+var meta=field.GetCustomAttribute<SettingAttribute>();
+<SetupSetting Recipe="recipe" Setup="setup" Field="field" Changed="RangeChanged"/>
+}
+</fieldset></details>
+}
+<details class="settings-group" open><summary>Sapients</summary><p>Homo sapiens</p><p>@humanStatus</p>
+@if(society.TechnologyCeiling>=0){<label>Technology limit<select aria-label="Technology limit" value="@society.TechnologyCeiling" disabled="@(humanBusy||busy)" @onchange="ChangeTechnologyCeiling">@foreach(HistoricalTechnologyCeiling ceiling in Enum.GetValues(typeof(HistoricalTechnologyCeiling))){<option value="@((int)ceiling)">@ceiling</option>}</select></label>}
+<button disabled="@(busy||humanBusy||world==null||humanStarted)" @onclick='()=>HumanCommand("another")'>Choose another</button>
+<button disabled="@(busy||humanBusy||!humanCanMove||humanStarted)" @onclick='()=>HumanCommand("move")'>Move here</button>
+<button disabled="@(!Available(Layer.Simulation))" @onclick="ShowHumanOrigin">Show starting region</button></details>
+</div>
+<div class="setup-actions">
+@if(dirty && world!=null){<small>Settings changed</small>}
+@if(error.Length>0){<p class="error" role="alert">@error</p>}
+<button class="primary" disabled="@busy" @onclick="Generate">@(world==null?"Generate world":"Regenerate world")</button>
+<button class="primary start" disabled="@(busy||dirty||humanBusy||world==null||!world.Stages.Any(s=>s.Name=="complete"))" @onclick="StartPeople">Start world</button>
+@if(busy){<button @onclick="Cancel">Cancel</button>}else{<button @onclick='()=>screen="Menu"'>Main menu</button>}
+</div></aside>
+<section class="observatory @(screen=="Simulation"?"sim-observatory":"")" style="--sim-sidebar:@(simulationTab.Length>0?"330px":"0px")">
+@if(screen!="Simulation"){
+<div class="map-controls">
+<div class="map-tabs">@foreach(var main in new[]{Layer.Microplates,Layer.Terrain,Layer.Satellite,Layer.Simulation,Layer.Climate,Layer.Heightmap,Layer.Ecoregions}){<button disabled="@(!Available(main))" class="@(layer==main?"selected":"")" @onclick="()=>SelectLayer(main)">@LayerName(main)</button>}</div>
+<label class="inspect-picker">Inspect<select aria-label="Diagnostic layer" value="@layer" @onchange="ChangeLayer">@foreach(var l in GlobeView.VisibleLayers){<option value="@l" disabled="@(!Available(l))">@LayerName(l)</option>}</select></label>
+<button aria-label="Toggle globe or map" title="Toggle globe or map" @onclick="ToggleProjection">@(projection==Projection.Globe?"▧":"◉")</button>
+</div>
+<div class="map-controls secondary">
+<label><input type="checkbox" @bind="wireframe" @bind:after="RefreshView"/> Wireframe</label>
+<label><input type="checkbox" @bind="showRivers" @bind:after="RefreshView"/> Rivers</label>
+<label>Grid<select aria-label="Grid spacing" @bind="gridSpacing" @bind:after="RefreshView"><option value="0">Off</option><option value="5">5°</option><option value="10">10°</option><option value="15">15°</option><option value="30">30°</option></select></label>
+@if(screen=="Simulation"){<input aria-label="World name" maxlength="80" @bind="worldName"/><button disabled="@busy" @onclick="SaveToLibrary">Save world</button><button @onclick='()=>screen="Menu"'>Main menu</button>}
+</div>
+@if(layer==Layer.Simulation){<label>Satellite opacity <input aria-label="Satellite opacity" type="range" min="0" max="1" step=".01" value="@Invariant(humanOpacity)" @oninput="SetHumanOpacity"/></label>}
+}else{
+<div class="sim-bar"><div class="sim-navigation"><button @onclick="OpenWorldAtlas">World</button><button @onclick="OpenSelectedAtlas">Atlas</button><button @onclick="OpenViewSettings">View</button></div><strong>@SimulationClockView.Date(society.Seconds,playback.Rate,society.EpochYear)</strong><button @onclick="TogglePeople" disabled="@(simulationPaused||atlasOpen)">@(humanPlaying?"Ⅱ":"▶")</button><button @onclick="()=>ChangeSpeed(-1)">‹</button><span title="Requested simulated time per real second; processing slows if events exceed available throughput">@SimulationClockView.Rate(playback.Rate)</span><button @onclick="()=>ChangeSpeed(1)">›</button><button title="Advance to the next scheduled event" disabled="@(busy||humanBusy||simulationPaused||atlasOpen)" @onclick="StepPeople">Step</button><input aria-label="Simulation time rate" type="number" min="0.0001" step="any" @bind="rateEntry"/><select aria-label="Simulation rate unit" @bind="rateUnit">@for(int n=0;n<SimulationClockView.Units.Length;n++){<option value="@n">@SimulationClockView.Units[n]/s</option>}</select><button disabled="@(humanBusy||atlasOpen)" @onclick="SetTimeRate">Set</button><button disabled="@(humanBusy||atlasOpen)" title="Restore the playback rate for this historical phase" @onclick="AutoTimeRate">@(playback.Manual?"Manual":"Auto")</button></div>
+@if(peoplesOpen){<aside class="society-panel peoples" data-dock="peoples"><button class="panel-resizer" aria-label="Resize states panel" role="separator" aria-orientation="horizontal"></button><header><strong>@historyOverlay.ToString().ToUpperInvariant()</strong><select aria-label="Sort societies" @bind="societySort"><option>Default</option><option>Population</option><option>Land area</option></select></header><div class="state-list-scroll"><div class="state-columns">
+@foreach(var c in (societySort=="Default"?society.Legend:society.Legend.OrderByDescending(c=>societySort=="Land area"?c.AreaKm2:c.Population).ToArray())){<button class="society-entry" title="@c.Name" @onclick='()=>SelectHistoryEntry(c.Cell)'><i style="background:@SocietyView.ColorHex(c.ColorId)"></i><span class="society-name">@c.Name</span>@if(societySort!="Default"){<span class="society-value">@SocietyView.SortValue(c,societySort)</span>}</button>}
+@if(society.Legend.Length==0){<p>None yet.</p>}</div></div></aside>}
+@if(chronicleOpen){<aside class="society-panel chronicle" data-dock="chronicle"><button class="panel-resizer" aria-label="Resize world chronicle" role="separator" aria-orientation="horizontal"></button><div class="chronicle-columns"><section class="chronicle-population"><h4>Global population</h4><strong>@society.Population.ToString("N0")</strong><span class="world-era">@WorldEraView.Name(society.Era)</span></section>@foreach(var category in new[]{ChronicleCategory.Politics,ChronicleCategory.Society,ChronicleCategory.Discoveries}){<section><h4>@(category==ChronicleCategory.Politics?"Politics & diplomacy":category==ChronicleCategory.Society?"Society & culture":"Inventions & discoveries")</h4>@foreach(var e in society.Events.Where(e=>e.Category==category).Reverse().Take(1)){<button title="@e.Text" @onclick="()=>chronicleEvent=e"><small>Year @SimulationClockView.YearNumber(e.Year,society.EpochYear)</small>@e.Text</button>}</section>}</div></aside>}
+@if(detailsOpen){<aside class="society-panel selection" data-dock="selection"><button class="panel-resizer" aria-label="Resize selection panel" role="separator" aria-orientation="horizontal"></button><header><button @onclick="()=>mapSettings=false">Selection</button><button @onclick="()=>mapSettings=true">Map settings</button></header>
+@if(mapSettings){
+<label>Historical overlay<select aria-label="Historical overlay" value="@historyOverlay" @onchange="ChangeHistoricalOverlay">@foreach(HistoryOverlay mode in Enum.GetValues(typeof(HistoryOverlay))){<option value="@mode">@mode</option>}</select></label>
+@if(society.TechnologyCeiling>=0){<label>Technology limit<select aria-label="Technology limit" value="@society.TechnologyCeiling" disabled="@(humanBusy||busy)" @onchange="ChangeTechnologyCeiling">@foreach(HistoricalTechnologyCeiling ceiling in Enum.GetValues(typeof(HistoricalTechnologyCeiling))){<option value="@((int)ceiling)">@ceiling</option>}</select></label>}
+<button @onclick="ExportChronicle">Export campaign chronicle</button>
+<label>Base map<select aria-label="Base map" value="@layer" @onchange="ChangeLayer">@foreach(var mode in GlobeView.VisibleLayers.Where(l=>l!=Layer.Simulation)){<option value="@mode" disabled="@(!Available(mode))">@LayerName(mode)</option>}</select></label>
+<label>Map opacity<input aria-label="Map opacity" type="range" min="0" max="1" step=".01" @bind="humanOpacity" @bind:event="oninput"/></label>
+<label>Societies opacity<input aria-label="Population opacity" type="range" min="0" max="1" step=".01" @bind="humanOverlayOpacity" @bind:event="oninput"/></label>
+<label><input type="checkbox" @bind="wireframe" @bind:after="RefreshView"/> Cell boundaries</label><label><input type="checkbox" @bind="showRivers" @bind:after="RefreshView"/> Rivers</label>
+<label>Grid<select @bind="gridSpacing" @bind:after="RefreshView">@foreach(int n in new[]{0,5,10,15,30}){<option value="@n">@(n==0?"Off":n+"°")</option>}</select></label><button @onclick="ToggleProjection">@(projection==Projection.Globe?"Switch to map":"Switch to globe")</button>
+}else{
+@if(humanOverlayOpacity>0&&society.Subject!=null){<button @onclick="()=>OpenAtlas(society.Subject)">Read @society.Subject.Name</button>}
+<p class="selection-summary">@(humanOverlayOpacity>0&&society.Subject!=null?society.SelectionSummary:humanOverlayOpacity>0?humanInspection:layer==Layer.Ecoregions&&details.Length>0?details.Split(new[]{"\n\nECOREGION"},StringSplitOptions.None)[0]:inspection)</p>
+@if(humanOverlayOpacity==0&&layer==Layer.Ecoregions&&details.Length>0){<button @onclick="()=>expandedInspection=true">Species and food web</button>}
+@if(humanOverlayOpacity>0){<div class="selection-links">@foreach(var profile in society.Profiles){<button title="@profile.Name" @onclick="()=>OpenAtlas(profile)">@(profile.Kind=="religion"?"Belief":profile.Kind=="people"?"People":profile.Kind=="city"?"City":"State")</button>}</div>}
+@if(humanOverlayOpacity>0&&society.Culture is CultureIdentity c){@foreach(var item in new[]{("Cultivation",c.Farming),("Gathering",c.Gathering*(1000-c.Farming)/1000),("Hunting",c.Hunting*(1000-c.Farming)/1000),("Fishing",c.Fishing*(1000-c.Farming)/1000),("Herding",c.Herding*(1000-c.Farming)/1000)}){<label class="subsistence">@item.Item1 <span>@(item.Item2/10)%</span><progress value="@item.Item2" max="1000"></progress></label>}}
+}
+@if(error.Length>0){<p class="error">@error</p>}</aside>}
+<div class="society-dock"><button @onclick="()=>peoplesOpen=!peoplesOpen">@(peoplesOpen?"▾":"▴") @historyOverlay</button><button @onclick="()=>chronicleOpen=!chronicleOpen">@(chronicleOpen?"▾":"▴") World Chronicle · @society.Population.ToString("N0") people</button><button @onclick="()=>detailsOpen=!detailsOpen">@(detailsOpen?"▾":"▴") @SelectionCaption()</button></div>
+@if(chronicleEvent!=null){<div class="menu-overlay"><div class="menu-card"><h3>Year @SimulationClockView.YearNumber(chronicleEvent.Year,society.EpochYear)</h3><p>@chronicleEvent.Text</p><button @onclick="()=>chronicleEvent=null">Close</button></div></div>}
+@if(atlasOpen&&atlasDocument!=null){<AtlasReader Document="atlasDocument" Directory="atlasDirectory" DirectoryKind="atlasKind" CanBack="@(atlasBack.Count>0)" Busy="atlasBusy" TimelinePage="atlasTimeline" Page="AtlasPage" Routine="AtlasRoutine" Navigate="OpenAtlas" Category="AtlasCategory" Back="AtlasPrevious" Close="CloseAtlas" Refresh="RefreshAtlas" Map="AtlasMap"/>}
+}
+<div class="globe-area"><canvas id="globe" aria-label="World map" tabindex="0"></canvas>
+@if(world==null){<div class="empty-orbit"><span>◌</span><p>@(busy?"Creating your world":"Your world begins here")</p></div>}
+@if(busy){<div class="progress-card"><div><span>@progressStage</span><strong>@percent%</strong></div><progress value="@percent" max="100"></progress></div>}
+</div>
+@if(screen!="Simulation"){<div class="cell-info"><span>@inspection</span>@if(layer==Layer.Ecoregions && details.Length>0){<button @onclick="()=>expandedInspection=!expandedInspection">Details</button>}</div>}
+@if(screen=="Simulation"&&simulationPaused){<div class="menu-overlay"><div class="menu-card"><h2>PAUSED</h2><button @onclick="PauseSimulation">Resume</button><input aria-label="World name" @bind="worldName"/><button disabled="@(busy||humanBusy)" @onclick="SaveToLibrary">Save world</button>@if(society.CanUpgradeHistory){<button disabled="@(busy||humanBusy)" title="Preserve the recorded past and use the new formation and administration rules for future events" @onclick='()=>HumanCommand("upgradeHistory")'>Update simulation rules</button>}<button @onclick='()=>LeaveSimulation()'>Main menu</button><p>@libraryNotice</p></div></div>}
+@if(expandedInspection && layer==Layer.Ecoregions){<div class="ecology-dialog" role="dialog" aria-label="Ecoregion details"><button @onclick="()=>expandedInspection=false">Close</button><div class="ecology-layout"><pre>@details</pre><div class="food-web-scroll">@((MarkupString)foodWeb)</div></div></div>}
+</section></main></div>
 
 @code {
-    Recipe recipe=new Recipe();WorldSummary world;Layer layer=Layer.Terrain;Projection projection;int centerLongitude;int seaLevel,percent;bool busy,dirty,wireframe,showPlates;int gridSpacing=30;string error="",progressStage="",inspection="Select a cell to inspect its terrain and climate.";
-    IJSObjectReference module;DotNetObjectReference<Home> callback;
+    string screen="Menu",worldType="Continents plus"; bool generating,expandedInspection; string details="",foodWeb=""; readonly WorldSetup setup=new WorldSetup();
+    Recipe recipe=new Recipe(),importRollbackRecipe;WorldSummary world;Layer layer=Layer.Terrain;Projection projection;int centerLongitude;bool naturalTerrain=true;int seaLevel,percent,viewRevision;bool busy,dirty,wireframe,showPlates,showRivers;int gridSpacing=30;string error="",progressStage="",inspection="Select a location";
+    IJSObjectReference module,interfaceModule;DotNetObjectReference<Home> callback;
+    readonly List<string> recentMusic=new();readonly HashSet<string> brokenMusic=new(StringComparer.OrdinalIgnoreCase);
+    [JSInvokable] public async Task NextMusic()
+    {
+        if(humanDisposed||interfaceModule==null)return;
+        string[] files=await interfaceModule.InvokeAsync<string[]>("catalog");var tracks=new List<EraMusicTrack>();
+        foreach(string file in files)if(!brokenMusic.Contains(file)&&EraMusicTrack.TryParse(file,out var track))tracks.Add(track);
+        var candidates=EraMusic.Candidates(tracks,screen=="Simulation"?society.Era:1,recentMusic);
+        if(candidates.Length==0){await interfaceModule.InvokeVoidAsync("scheduleMusic");return;}
+        var chosen=candidates[RandomNumberGenerator.GetInt32(candidates.Length)];string result=await interfaceModule.InvokeAsync<string>("playTrack",chosen.Path);
+        if(result=="playing")EraMusic.Remember(recentMusic,chosen.Path);
+        else{if(result=="failed")brokenMusic.Add(chosen.Path);await interfaceModule.InvokeVoidAsync("scheduleMusic");}
+    }
+    string activeWorldId; readonly HashSet<string> expandedWorlds=new();
+    string simulationTab="",humanInspection="Select a population";bool simulationPaused,resumeHumanPlayback;int humanYears;double humanOverlayOpacity=.6;
+    [JSInvokable] public Task PauseSimulation(){if(atlasOpen){CloseAtlas();return Task.CompletedTask;}if(screen=="Simulation"){if(!simulationPaused){resumeHumanPlayback=humanPlaying;humanPlaying=false;simulationPaused=true;}else{simulationPaused=false;humanPlaying=resumeHumanPlayback;}StateHasChanged();}return Task.CompletedTask;}
+    void LeaveSimulation(){humanPlaying=false;simulationPaused=false;screen="Menu";}
+    async Task TogglePeople(){if(!humanStarted)await StartPeople();humanPlaying=!humanPlaying;}
+    bool humanPlaying,humanBusy,humanStarted,humanCanMove,humanDisposed;int humanStepYears=100;double humanOpacity=1,humanLon,humanLat;string humanStatus="Generate the world to place humans";
+    bool peoplesOpen,chronicleOpen,detailsOpen,mapSettings;string societySort="Default";int stepEntry=100;ChronicleEvent chronicleEvent;HumanSummary society=new HumanSummary();
+    readonly SimulationPlayback playback=new SimulationPlayback();double rateEntry=500;int rateUnit=6;
+    public sealed class HumanSummary{public int Era=2;public int TechnologyCeiling=-1;public bool CanUpgradeHistory;public int EpochYear=-1;public long Seconds;public bool ClockOnly;public int PhaseStepYears=100;public HistoryLegendEntry[] Legend=Array.Empty<HistoryLegendEntry>();public string Status="",Inspection="",SelectionSummary="";public bool Started,CanMove,ManualStep;public int Years,StepYears=100;public double OriginLon,OriginLat;public long Population;public CultureIdentity Culture;public CultureIdentity[] Cultures=Array.Empty<CultureIdentity>();public ChronicleEvent[] Events=Array.Empty<ChronicleEvent>();public AtlasLink Subject;public AtlasLink[] Profiles=Array.Empty<AtlasLink>();}
+    bool atlasOpen,atlasBusy;string atlasKind="state";AtlasDocument atlasDocument;AtlasTimeline atlasTimeline;AtlasLink[] atlasDirectory=Array.Empty<AtlasLink>();readonly Stack<AtlasLink> atlasBack=new();
+    void OpenViewSettings(){detailsOpen=!detailsOpen||!mapSettings;mapSettings=true;}
+    Task OpenWorldAtlas()=>OpenAtlas(new AtlasLink{Kind="world",Id=-1});
+    Task OpenSelectedAtlas()=>OpenAtlas(society.Subject??new AtlasLink{Kind="world",Id=-1});
+    void CloseAtlas(){atlasOpen=false;StateHasChanged();}
+    async Task OpenAtlas(AtlasLink link){if(atlasBusy)return;if(!atlasOpen){atlasBack.Clear();atlasDocument=null;}atlasOpen=true;atlasBusy=true;try{while(humanBusy&&!humanDisposed)await Task.Delay(25);if(humanDisposed)return;if(atlasDocument!=null)atlasBack.Push(new AtlasLink{Kind=atlasDocument.Kind,Id=atlasDocument.Id});atlasTimeline=null;atlasDocument=WorldJson.Read<AtlasDocument>(await module.InvokeAsync<string>("people","atlas:"+link.Kind,link.Id));atlasDirectory=WorldJson.Read<AtlasLink[]>(await module.InvokeAsync<string>("people","atlas-directory:"+atlasKind,0));}catch(Exception ex){error=ex.Message;atlasOpen=false;}finally{atlasBusy=false;}}
+    Task AtlasRoutine(bool enabled)=>AtlasPage(0,enabled);
+    Task AtlasPage(int offset)=>AtlasPage(offset,atlasTimeline?.IncludeRoutine??false);
+    async Task AtlasPage(int offset,bool routine){if(atlasBusy||atlasDocument==null)return;atlasBusy=true;try{string command="atlas-events:"+atlasDocument.Kind+":"+offset+":"+(routine?"all":"major");atlasTimeline=WorldJson.Read<AtlasTimeline>(await module.InvokeAsync<string>("people",command,atlasDocument.Id));}catch(Exception ex){error=ex.Message;}finally{atlasBusy=false;}}
+    async Task AtlasCategory(string kind){if(atlasBusy)return;atlasBusy=true;try{atlasKind=kind;atlasDirectory=WorldJson.Read<AtlasLink[]>(await module.InvokeAsync<string>("people","atlas-directory:"+kind,0));}catch(Exception ex){error=ex.Message;}finally{atlasBusy=false;}}
+    async Task AtlasPrevious(){if(atlasBack.Count==0||atlasBusy)return;var prior=atlasBack.Pop();atlasBusy=true;try{atlasTimeline=null;atlasDocument=WorldJson.Read<AtlasDocument>(await module.InvokeAsync<string>("people","atlas:"+prior.Kind,prior.Id));}catch(Exception ex){atlasBack.Push(prior);error=ex.Message;}finally{atlasBusy=false;}}
+    async Task RefreshAtlas(){if(atlasBusy||atlasDocument==null)return;var link=new AtlasLink{Kind=atlasDocument.Kind,Id=atlasDocument.Id};atlasDocument=null;await OpenAtlas(link);}
+    async Task AtlasMap(int cell){atlasOpen=false;await SelectHistoryEntry(cell);await module.InvokeVoidAsync("focusAtlas",atlasDocument.Longitude,atlasDocument.Latitude);}
+    IEnumerable<CultureIdentity> RankedCultures()=>society.Cultures.Where(c=>c.Stage==SocietyStage.Civilization).OrderByDescending(c=>c.Stage).ThenByDescending(c=>societySort=="Population"?c.Population:societySort=="Land area"?c.AreaKm2:c.Population+Math.Sqrt(c.AreaKm2)*100).ThenBy(c=>c.Id);
+    HistoryOverlay historyOverlay=HistoryOverlay.States;
+    async Task ChangeHistoricalOverlay(ChangeEventArgs e){historyOverlay=Enum.Parse<HistoryOverlay>(e.Value!.ToString()!);await HumanCommand("overlay",(int)historyOverlay);}
+    async Task ChangeTechnologyCeiling(ChangeEventArgs e)=>await HumanCommand("technologyCeiling",int.Parse(e.Value!.ToString()!,CultureInfo.InvariantCulture));
+    async Task ExportChronicle(){string text=await module.InvokeAsync<string>("people","lore",0);await module.InvokeVoidAsync("downloadChronicle",text);}
+    async Task SelectCulture(CultureIdentity c){detailsOpen=true;mapSettings=false;await HumanCommand("select",c.OriginCell);}
+    string SelectionCaption()=>SocietyView.Short((humanOverlayOpacity>0?humanInspection:inspection).Split('\n')[0]);
+    async Task SelectHistoryEntry(int cell){detailsOpen=true;mapSettings=false;await HumanCommand("select",cell);}
+    [JSInvokable] public Task OpacityKey(int direction,bool overlay){if(screen=="Simulation"&&!atlasOpen&&!simulationPaused){if(overlay)humanOverlayOpacity=Math.Clamp(humanOverlayOpacity+direction*.25,0,1);else humanOpacity=Math.Clamp(humanOpacity+direction*.25,0,1);StateHasChanged();}return Task.CompletedTask;}
+    void SyncRateInput(){rateUnit=playback.Rate>=SimulationTime.Year?6:playback.Rate>=30*SimulationTime.Day?5:playback.Rate>=7*SimulationTime.Day?4:playback.Rate>=SimulationTime.Day?3:playback.Rate>=SimulationTime.Hour?2:playback.Rate>=60?1:0;rateEntry=playback.Rate/SimulationClockView.UnitSeconds[rateUnit];}
+    void ChangeSpeed(int delta){playback.Change(delta);SyncRateInput();}
+    void SetTimeRate(){try{playback.SetRate(rateEntry*SimulationClockView.UnitSeconds[rateUnit]);}catch(Exception ex){error=ex.Message;}}
+    void AutoTimeRate(){playback.Auto(society.PhaseStepYears);SyncRateInput();}
+    [JSInvokable] public async Task SimulationKey(string key){if(screen!="Simulation"||atlasOpen||simulationPaused)return;if(key==" ")await TogglePeople();else ChangeSpeed(key=="<"?-1:1);StateHasChanged();}
+    [JSInvokable] public Task HumanUpdate(string json){var status=WorldJson.Read<HumanSummary>(json);if(status.ClockOnly){society.Seconds=status.Seconds;society.EpochYear=status.EpochYear;society.Years=status.Years;humanYears=status.Years;}else{society=status;humanYears=status.Years;humanInspection=status.Inspection;if(humanStepYears!=status.StepYears)stepEntry=status.StepYears;humanStepYears=status.StepYears;humanLon=status.OriginLon;humanLat=status.OriginLat;humanStatus=status.Status;humanStarted=status.Started;humanCanMove=status.CanMove;if(layer==Layer.Simulation)inspection=status.Inspection;}double oldRate=playback.Rate;playback.Phase(status.PhaseStepYears);if(oldRate!=playback.Rate)SyncRateInput();StateHasChanged();return Task.CompletedTask;}
+    async Task ShowHumanOrigin(){await SelectLayer(Layer.Simulation);await module.InvokeVoidAsync("focusHuman",humanLon,humanLat);}
+    async Task HumanCommand(string command,long value=0){if(humanBusy||atlasOpen)return;humanBusy=true;StateHasChanged();try{string json=await module.InvokeAsync<string>("people",command,value);await HumanUpdate(json);if(command=="another"||command=="move")await ShowHumanOrigin();}catch(Exception ex){error=ex.Message;humanPlaying=false;}finally{humanBusy=false;StateHasChanged();}}
+    async Task StartPeople(){while(humanBusy&&!humanDisposed)await Task.Delay(25);if(humanDisposed)return;await HumanCommand("start");if(humanStarted){screen="Simulation";simulationTab="";simulationPaused=false;humanPlaying=false;humanOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;await HumanCommand("overlay",(int)historyOverlay);await SelectLayer(Layer.Climate);await module.InvokeVoidAsync("focusHuman",humanLon,humanLat);}}
+    async Task StepPeople(){humanPlaying=false;playback.Reset();if(!humanStarted)await StartPeople();await HumanCommand("nextEvent");}
+    async Task SetHumanOpacity(ChangeEventArgs e){humanOpacity=double.Parse(e.Value.ToString(),CultureInfo.InvariantCulture);await module.InvokeVoidAsync("humanOpacity",humanOpacity);}
+    async Task HumanClock(){var watch=System.Diagnostics.Stopwatch.StartNew();double previous=0;while(!humanDisposed){await Task.Delay(50);if(humanDisposed)return;double now=watch.Elapsed.TotalSeconds,elapsed=now-previous;previous=now;await InvokeAsync(async()=>{bool run=humanPlaying&&screen=="Simulation"&&!atlasOpen&&!atlasBusy&&!simulationPaused&&!busy;playback.Accumulate(elapsed,run);if(run&&!humanBusy&&playback.Pending>0){long before=society.Seconds;var slice=SimulationClockView.Publication(before,playback.Pending,playback.Rate);await HumanCommand(slice.MaximumEvents>1?"timeBatch":"time",slice.Seconds);playback.Consume(Math.Max(0,society.Seconds-before));}});}}
+    void ToggleWorld(string id){if(!expandedWorlds.Add(id))expandedWorlds.Remove(id);}
+    async Task DeleteSaved(string id,bool group){try{await module.InvokeAsync<bool>("deleteLibraryWorld",id,group);await RefreshLibrary();if(!savedWorlds.Any(s=>(s.GroupId??s.Id)==activeWorldId))activeWorldId=null;}catch(Exception ex){error=ex.Message;}}
+    string worldName="My world",libraryNotice="";SavedWorld[] savedWorlds=Array.Empty<SavedWorld>();
+    public sealed class SavedWorld{public string Id{get;set;} public string GroupId{get;set;} public string Name{get;set;} public DateTime SavedUtc{get;set;} public int Cells{get;set;} public string Algorithm{get;set;}}
     static string Invariant(double d)=>d.ToString(CultureInfo.InvariantCulture);
     static string LayerName(Layer l)=>GlobeView.LayerName(l);
-    protected override async Task OnAfterRenderAsync(bool first){if(first){try{module=await JS.InvokeAsync<IJSObjectReference>("import","./globe.js");callback=DotNetObjectReference.Create(this);await module.InvokeVoidAsync("init",callback);await Generate();}catch(Exception ex){error=ex.Message;StateHasChanged();}}}
-    async Task Update(FieldInfo f,ChangeEventArgs e){if(double.TryParse(e.Value?.ToString(),NumberStyles.Float,CultureInfo.InvariantCulture,out double v)){f.SetValue(recipe,f.FieldType==typeof(int)?(object)(int)v:v);if(f.GetCustomAttribute<DisplaySettingAttribute>()!=null)await RefreshView();else dirty=true;}}
+    protected override void OnInitialized(){recipe=setup.Preset("Continents plus",recipe);_ = HumanClock();}
+    protected override async Task OnAfterRenderAsync(bool first){if(first){try{module=await JS.InvokeAsync<IJSObjectReference>("import","./globe.js");callback=DotNetObjectReference.Create(this);await module.InvokeVoidAsync("init",callback);interfaceModule=await JS.InvokeAsync<IJSObjectReference>("import","./game-interface.js");await interfaceModule.InvokeVoidAsync("init",callback);try{await RefreshLibrary();}catch(Exception ex){libraryNotice=ex.Message;}StateHasChanged();}catch(Exception ex){error=ex.Message;StateHasChanged();}}if(module!=null)await module.InvokeVoidAsync("humanLayers",screen=="Simulation"||layer==Layer.Simulation,humanOpacity,humanOverlayOpacity);}
+    async Task RefreshLibrary(){savedWorlds=await module.InvokeAsync<SavedWorld[]>("listWorlds");}
+    async Task OpenEarth(){try{importRollbackRecipe=recipe.Clone();busy=true;error="";percent=0;progressStage="Opening bundled Earth";await module.InvokeVoidAsync("openBundledEarth");worldName="Earth";}catch(Exception ex){error=ex.Message;busy=false;}}
+    async Task SaveToLibrary(){try{busy=true;error="";progressStage="Saving complete world";var savedId=await module.InvokeAsync<string>("saveLibraryWorld",worldName,activeWorldId);activeWorldId??=savedId;await RefreshLibrary();libraryNotice="Saved a complete world copy in this browser.";}catch(Exception ex){error=ex.Message;}finally{busy=false;}}
+    async Task OpenSavedWorld(SavedWorld saved){screen="Simulation";humanOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;layer=Layer.Climate;try{importRollbackRecipe=recipe.Clone();busy=true;error="";percent=0;progressStage="Opening saved world";await module.InvokeVoidAsync("openLibraryWorld",saved.Id);worldName=saved.Name;activeWorldId=saved.GroupId??saved.Id;}catch(Exception ex){error=ex.Message;busy=false;}}
+    async Task Update(FieldInfo f,ChangeEventArgs e){if(double.TryParse(e.Value?.ToString(),NumberStyles.Float,CultureInfo.InvariantCulture,out double v)){f.SetValue(recipe,f.FieldType==typeof(int)?(object)(int)v:v);if(f.GetCustomAttribute<DisplaySettingAttribute>()!=null)await RefreshView();else {dirty=true;worldType="Custom";}}}
+    void UpdatePercentage(FieldInfo f,ChangeEventArgs e){if(double.TryParse(e.Value?.ToString(),NumberStyles.Float,CultureInfo.InvariantCulture,out double position)){f.SetValue(recipe,PercentageControl.Value(position));dirty=true;}}
     void RollSeed(){recipe.Seed=RandomNumberGenerator.GetInt32(0,1<<24);dirty=true;error="";}
     void Preset(ChangeEventArgs e){int seed=recipe.Seed;recipe=Recipe.Preset(e.Value?.ToString()??"Preview");recipe.Seed=seed;dirty=true;}
-    async Task Generate(){try{recipe.Validate();error="";busy=true;percent=0;progressStage="Starting .NET worker";await module.InvokeVoidAsync("generate",WorldJson.Write(recipe));}catch(Exception ex){error=ex.Message;busy=false;}}
-    async Task Cancel(){await module.InvokeVoidAsync("cancel");busy=false;progressStage="Cancelled";}
+    void ResetCalibration(){ClimateCalibration.Reset(recipe);dirty=true;}
+    void UseTrainedDefaults(){ClimateCalibration.UseDefault(recipe);dirty=true;}
+    async Task Generate(){try{humanPlaying=false;humanStarted=false;humanCanMove=false;ClimateCalibration.Upgrade(recipe);var resolved=setup.Resolve(recipe);error="";dirty=false;busy=true;generating=true;percent=0;progressStage="Starting .NET worker";await module.InvokeVoidAsync("generate",WorldJson.Write(resolved));}catch(Exception ex){error=ex.Message;busy=false;}}
+    async Task Cancel(){await module.InvokeVoidAsync("cancel");generating=false;busy=false;progressStage="Cancelled";}
     [JSInvokable] public Task Progress(string stage,int value){progressStage=stage;percent=value;StateHasChanged();return Task.CompletedTask;}
-    [JSInvokable] public async Task Complete(string json){try{world=WorldJson.Read<WorldSummary>(json);dirty=StateHash.Compute(recipe)!=StateHash.Compute(world.Recipe);await Draw();}catch(Exception ex){error=ex.Message;busy=false;}StateHasChanged();}
-    [JSInvokable] public Task Restore(string json){world=string.IsNullOrEmpty(json)?null:WorldJson.Read<WorldSummary>(json);busy=false;dirty=world!=null&&StateHash.Compute(recipe)!=StateHash.Compute(world.Recipe);StateHasChanged();return Task.CompletedTask;}
-    [JSInvokable] public Task RestoreView(string json){var v=WorldJson.Read<ViewOptions>(json);projection=v.Projection;layer=v.Layer;wireframe=v.Wireframe;showPlates=v.ShowPlates;gridSpacing=v.GridSpacing;StateHasChanged();return Task.CompletedTask;}
-    [JSInvokable] public Task Failed(string message){error=message;busy=false;StateHasChanged();return Task.CompletedTask;}
+    [JSInvokable] public async Task Complete(string json,bool imported){generating=false;try{if(!imported)activeWorldId=null;world=WorldJson.Read<WorldSummary>(json);if(imported){recipe=world.Recipe.Clone();worldType=recipe.TerrainSource=="Earth"?"Earth":"Custom";}dirty=false;if(imported)setup.From(recipe);await Draw(true);humanPlaying=false;await HumanCommand("status");}catch(Exception ex){error=ex.Message;busy=false;}StateHasChanged();}
+    [JSInvokable] public Task Restore(string json,bool imported){world=string.IsNullOrEmpty(json)?null:WorldJson.Read<WorldSummary>(json);if(imported&&importRollbackRecipe!=null){recipe=importRollbackRecipe;importRollbackRecipe=null;}busy=false;dirty=world!=null&&StateHash.Compute(recipe)!=StateHash.Compute(world.Recipe);StateHasChanged();return Task.CompletedTask;}
+    [JSInvokable] public Task RestoreView(string json){var v=WorldJson.Read<ViewOptions>(json);projection=v.Projection;layer=v.Layer;wireframe=v.Wireframe;showPlates=v.ShowPlates;showRivers=v.ShowRivers;gridSpacing=v.GridSpacing;naturalTerrain=v.Natural;StateHasChanged();return Task.CompletedTask;}
+    [JSInvokable] public Task Failed(string message){error=message;busy=false;generating=false;StateHasChanged();return Task.CompletedTask;}
     [JSInvokable] public async Task Pick(int cell){if(world!=null)await module.InvokeVoidAsync("pickCell",cell);}
-    [JSInvokable] public Task Inspection(string text){inspection=text;StateHasChanged();return Task.CompletedTask;}
-    async Task Draw(){if(world!=null){busy=true;percent=80;progressStage="Preparing view";StateHasChanged();try{await module.InvokeVoidAsync("view",WorldJson.Write(new ViewOptions{Projection=projection,Layer=layer,Wireframe=wireframe,ShowPlates=showPlates,GridSpacing=gridSpacing}));}finally{busy=false;StateHasChanged();}}}
+    [JSInvokable] public Task Inspection(string text){var parts=text.Split(new[]{"\n---DETAILS---\n"},StringSplitOptions.None);inspection=parts[0];var ecology=parts.Length>1?parts[1].Split(new[]{"\n---WEB---\n"},StringSplitOptions.None):Array.Empty<string>();details=ecology.Length>0?ecology[0]:"";foodWeb=ecology.Length>1?ecology[1]:"";int foodStart=details.IndexOf("\n\nFOOD WEB",StringComparison.Ordinal);if(foodStart>=0)details=details.Substring(0,foodStart);StateHasChanged();return Task.CompletedTask;}
+    async Task Draw(bool replaceWorld=false){if(world!=null){int request=++viewRevision;busy=true;if(!generating){percent=80;progressStage="Preparing view";}StateHasChanged();try{await module.InvokeVoidAsync("view",WorldJson.Write(new ViewOptions{Projection=projection,Layer=layer,Wireframe=wireframe,ShowPlates=showPlates,ShowRivers=showRivers,GridSpacing=gridSpacing,Natural=naturalTerrain}),replaceWorld);}finally{if(request==viewRevision)busy=generating;StateHasChanged();}}}
     async Task RefreshView(){try{await Draw();error="";}catch(Exception ex){error=ex.Message;}}
-    async Task SelectLayer(Layer value){layer=value;await RefreshView();}
+    async Task SelectLayer(Layer value){expandedInspection=false;inspection="Select a location";layer=value;await RefreshView();}
     async Task ChangeProjection(ChangeEventArgs e){projection=Enum.Parse<Projection>(e.Value.ToString());await RefreshView();}
     async Task ChangeLongitude(ChangeEventArgs e){centerLongitude=int.Parse(e.Value.ToString());await module.InvokeVoidAsync("longitude",centerLongitude);}
-    async Task ChangeLayer(ChangeEventArgs e){layer=Enum.Parse<Layer>(e.Value.ToString());await Draw();}
+    async Task ChangeLayer(ChangeEventArgs e){expandedInspection=false;inspection="Select a location";layer=Enum.Parse<Layer>(e.Value.ToString());await Draw();}
     async Task ChangeSea(ChangeEventArgs e){seaLevel=int.Parse(e.Value.ToString());await Draw();}
     string MetricText(string name,bool fraction=false){var m=world?.Metrics.FirstOrDefault(m=>m.Name==name);return m==null?"—":fraction?(m.Value*100).ToString("F1")+"%":m.Value.ToString("N0");}
     async Task Download(string name,string text)=>await module.InvokeVoidAsync("download",name,text,"application/json");
     async Task SaveRecipe()=>await Download("worldgen.recipe.json",WorldJson.Write(recipe));
+    async Task SaveWorld()=>await module.InvokeVoidAsync("exportWorld","world");
+    async Task LoadWorld(InputFileChangeEventArgs e){screen="Simulation";try{importRollbackRecipe=recipe.Clone();busy=true;var file=e.File;if(Path.GetExtension(file.Name).Equals(".world",StringComparison.OrdinalIgnoreCase)){using var input=file.OpenReadStream(WorldFile.MaximumFileBytes);using var memory=new MemoryStream();await input.CopyToAsync(memory);await module.InvokeVoidAsync("loadWorldFile",Convert.ToBase64String(memory.ToArray()));}else{using var reader=new StreamReader(file.OpenReadStream(250000000));await module.InvokeVoidAsync("loadWorld",await reader.ReadToEndAsync());}}catch(Exception ex){error=ex.Message;busy=false;}}
     async Task LoadRecipe(InputFileChangeEventArgs e){try{using var reader=new StreamReader(e.File.OpenReadStream(1000000));recipe=WorldJson.ReadRecipe(await reader.ReadToEndAsync());dirty=true;error="";}catch(Exception ex){error=ex.Message;}}
+    bool Available(Layer l){if(world==null)return false;if(l==Layer.Simulation)return world.Stages.Any(s=>s.Name=="biogeography");if(l==Layer.Microplates||l==Layer.Continents||l==Layer.Crust)return true;if(EcologyView.IsLayer(l))return world.Stages.Any(s=>s.Name=="biogeography");if(l==Layer.Climate||l==Layer.Satellite||l>=Layer.TemperatureSummer&&l<=Layer.OceanCurrentsWinter||l>=Layer.TemperatureSpring&&l<=Layer.PrecipitationAutumn)return world.Stages.Any(s=>s.Name=="climate");if(l>=Layer.WaterBodies&&l<=Layer.ContributingArea)return world.Stages.Any(s=>s.Name=="hydrology");return world.Stages.Any(s=>s.Name=="erosion");}
+    [JSInvokable] public async Task Preview(string json){world=WorldJson.Read<WorldSummary>(json);if(!Available(layer))layer=Layer.Microplates;await Draw(true);StateHasChanged();}
+    void ChooseType(ChangeEventArgs e){worldType=e.Value?.ToString()??"Custom";if(worldType=="Custom"){recipe.TerrainSource="Procedural";recipe.LandShape=null;}else recipe=setup.Preset(worldType,recipe);dirty=true;}
+    void ChangeNumber(FieldInfo f,double v){f.SetValue(recipe,f.FieldType==typeof(int)?(object)(int)v:v);dirty=true;worldType="Custom";}
+    void RangeChanged(){dirty=true;worldType="Custom";}
+    async Task ToggleProjection(){projection=projection==Projection.Globe?Projection.Map:Projection.Globe;await RefreshView();}
+    async Task Exit(){await module.InvokeVoidAsync("exitApp");}
     async Task Fullscreen()=>await module.InvokeVoidAsync("fullscreen");
     async Task ExportWorld()=>await module.InvokeVoidAsync("exportWorld","result");
     async Task ExportCsv()=>await module.InvokeVoidAsync("exportWorld","csv");
     async Task ExportHeight()=>await module.InvokeVoidAsync("exportWorld","heightmap");
-    public async ValueTask DisposeAsync(){if(module!=null){await module.InvokeVoidAsync("dispose");await module.DisposeAsync();}callback?.Dispose();}
+    public async ValueTask DisposeAsync(){humanDisposed=true;humanPlaying=false;if(interfaceModule!=null){await interfaceModule.InvokeVoidAsync("dispose");await interfaceModule.DisposeAsync();}if(module!=null){await module.InvokeVoidAsync("dispose");await module.DisposeAsync();}callback?.Dispose();}
 }

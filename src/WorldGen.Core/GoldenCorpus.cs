@@ -6,6 +6,7 @@ namespace WorldGen.Core
     {
         public static IEnumerable<GoldenCase> Recipes()
         {
+            var earth = Recipe.Preset("Earth"); earth.Detail = 20000; yield return new GoldenCase { Name = "earth", Recipe = earth };
             yield return new GoldenCase { Name = "ordinary", Recipe = Recipe.Preset("Preview") };
             var ocean = Recipe.Preset("Ocean world"); ocean.Detail = 20000; ocean.Seed = 42; yield return new GoldenCase { Name = "ocean-world", Recipe = ocean };
             var continental = Recipe.Preset("Continental"); continental.Detail = 20000; continental.Seed = 812; yield return new GoldenCase { Name = "continental", Recipe = continental };
@@ -14,6 +15,8 @@ namespace WorldGen.Core
             var stress = Recipe.Preset("500 plates"); stress.Detail = 20000; stress.Seed = 500; yield return new GoldenCase { Name = "500-plates", Recipe = stress };
             var wet = Recipe.Preset("Preview"); wet.LandFraction = 0; wet.Seed = 154; yield return new GoldenCase { Name = "water-world", Recipe = wet };
             var dry = Recipe.Preset("Preview"); dry.LandFraction = 1; dry.Seed = 912; yield return new GoldenCase { Name = "land-world", Recipe = dry };
+            var interconnected = Recipe.Preset("Preview"); interconnected.Interconnectedness = 10; interconnected.Seed = 42; yield return new GoldenCase { Name = "interconnection-search", Recipe = interconnected };
+            var search = Recipe.Preset("Preview"); search.Interconnectedness = 50; search.Seed = 1701; yield return new GoldenCase { Name = "search-50", Recipe = search };
         }
     }
 }

@@ -1,0 +1,17 @@
+@using WorldGen.Presentation
+@using System.Globalization
+<div class="setup-range"><label>@Label</label><div class="range-inputs"><input aria-label="@(Label+" minimum")" type="number" min="@Min" max="@Max" value="@Low" @onchange="e=>Typed(e,true)"/><span>to</span><input aria-label="@(Label+" maximum")" type="number" min="@Min" max="@Max" value="@High" @onchange="e=>Typed(e,false)"/></div>
+<div class="double-slider"><input aria-label="@(Label+" minimum slider")" type="range" min="0" max="1" step="0.0001" value="@P(Low)" @oninput="e=>Slide(e,true)"/><input aria-label="@(Label+" maximum slider")" type="range" min="0" max="1" step="0.0001" value="@P(High)" @oninput="e=>Slide(e,false)"/></div></div>
+@code{
+    [Parameter]public string Label{get;set;}="";
+    [Parameter]public int Min{get;set;}=1;
+    [Parameter]public int Max{get;set;}=50;
+    [Parameter]public int Low{get;set;}
+    [Parameter]public int High{get;set;}
+    [Parameter]public EventCallback<int> LowChanged{get;set;}
+    [Parameter]public EventCallback<int> HighChanged{get;set;}
+    [Parameter]public EventCallback Changed{get;set;}
+    string P(int v)=>WorldSetup.Position(v,Min,Max).ToString(CultureInfo.InvariantCulture);
+    async Task Typed(ChangeEventArgs e,bool low){if(int.TryParse(e.Value?.ToString(),out int v)){if(low)await LowChanged.InvokeAsync(v);else await HighChanged.InvokeAsync(v);await Changed.InvokeAsync();}}
+    async Task Slide(ChangeEventArgs e,bool low){int v=(int)Math.Round(WorldSetup.Value(double.Parse(e.Value!.ToString()!,CultureInfo.InvariantCulture),Min,Max));if(low){await LowChanged.InvokeAsync(v);if(v>High)await HighChanged.InvokeAsync(v);}else{await HighChanged.InvokeAsync(v);if(v<Low)await LowChanged.InvokeAsync(v);}await Changed.InvokeAsync();}
+}

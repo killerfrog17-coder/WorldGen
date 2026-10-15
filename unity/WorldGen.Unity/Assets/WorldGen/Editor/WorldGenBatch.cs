@@ -57,7 +57,10 @@ public static class WorldGenBatch
         try
         {
             if(stripping!=null)stripping.stripUnusedPostProcessingVariants=false;
-            var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=EditorBuildSettings.scenes.Where(s=>s.enabled).Select(s=>s.path).ToArray(),locationPathName=output,target=BuildTarget.StandaloneWindows64,options=BuildOptions.Development});
+            // Ordinary player builds should not silently carry the development
+            // runtime/debug overlay. Diagnostic development builds are opt-in.
+            var options=arguments.Contains("--worldgen-development-player")?BuildOptions.Development:BuildOptions.None;
+            var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=EditorBuildSettings.scenes.Where(s=>s.enabled).Select(s=>s.path).ToArray(),locationPathName=output,target=BuildTarget.StandaloneWindows64,options=options});
             if(report.summary.result!=BuildResult.Succeeded)throw new Exception("Player build failed: "+report.summary.result);
         }
         finally{if(stripping!=null)stripping.stripUnusedPostProcessingVariants=prior;}

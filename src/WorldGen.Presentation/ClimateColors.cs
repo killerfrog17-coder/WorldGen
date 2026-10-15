@@ -45,11 +45,11 @@ namespace WorldGen.Presentation
                 case Koppen.EF: color = new V(.92, .95, .94); break;
                 default: color = (int)kind >= (int)Koppen.Dsa ? new V(.19, .3, .22) : new V(.28, .4, .18); break;
             }
-            double hot = Math.Max(climate.NorthernSummer.TemperatureTenthsC[i], climate.NorthernWinter.TemperatureTenthsC[i]) / 10.0;
+            double hot = Math.Max(Math.Max(climate.NorthernSpring.TemperatureTenthsC[i], climate.NorthernAutumn.TemperatureTenthsC[i]), Math.Max(climate.NorthernSummer.TemperatureTenthsC[i], climate.NorthernWinter.TemperatureTenthsC[i])) / 10.0;
             color = Mix(color, new V(.52, .5, .46), D.Clamp((h - 1800) / 2200.0) * .65);
             return Mix(color, new V(.94, .96, .97), D.Clamp((3 - hot) / 8.0));
         }
         public static V Temperature(int tenths) => Mix(new V(.2, .25, .7), new V(.95, .35, .12), (tenths + 450) / 900.0);
-        public static V Rain(int mm) => Mix(new V(.6, .4, .2), new V(.12, .58, .74), mm / 1800.0);
+        public static V Rain(int mm) => Mix(new V(.6, .4, .2), new V(.12, .58, .74), mm / 900.0);
     }
 }

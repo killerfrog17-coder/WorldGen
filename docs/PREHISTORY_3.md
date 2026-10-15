@@ -1,0 +1,25 @@
+# Prehistory 3: dispersal and simulation shell
+
+The generator is unchanged. New demographic checkpoints use `prehistory-3`; versions 1 and 2 reconstruct their original graphs/rules and remain replayable. Start a new simulation to use this version. No agriculture, advanced cultures or disease model is included.
+
+## Environmental migration
+
+Authoritative steps remain 100 years, independently batched by the host's chosen step size and playback speed. A deterministic 100,000-year cycle accumulates ice slowly to year 85,000 and deglaciates faster; the smooth intensity controls a 0–130 m sea-level fall and cold-dependent carrying-capacity reduction. Regional seeded resource variation interpolates between 2,000-year samples (±16%). Populations grow or decline toward the resulting capacity; generation climate, ocean masks and elevation remain immutable. This is a demographic climate proxy, not a coupled ice-sheet/ocean simulation or a reconstruction of dated Earth events.
+
+Ordered multi-source searches retain separate open-water and 30/70/130 m shelf alternatives. Open routes are bounded at 900 km, shelf routes at 1,800 km. Shelf routes open only when the cycle exposes their sampled depth band. Deep-water probability per 100-year opportunity is `0.35 exp(-distanceMetres / 70000)` before environmental, population and residence modifiers, with no bonus from glaciation. Long deep crossings are thus possible but very rare; a ceiling is also needed to bound graph work. Routes measure coarse-cell-center paths, not detailed coastline navigation; narrow straits and mixed deep/shallow routes remain resolution-limited. The best accessible alternative is selected once per pair per step, so shelf alternatives do not multiply migration attempts.
+
+Habitat similarity uses temperature, aridity, biome and forager lifestyle. Similar habitats encourage exploration by small populations; unfamiliar habitats reduce willingness and need larger sources, with crowding increasing pressure to move. Traversal delay and viable founding bands prevent instant continent-wide propagation. Sea crossings require a larger founding group. Existing populations remain separate by connected ecoregion patch; no identical-name teleportation.
+
+Ocean cells containing a sufficiently large persistent sub-cell island receive an additional demographic refuge node. Capacity conservatively uses only the largest island's area, local rainfall and temperature. It does not assume every small island in that cell is settled, accessible, or supplied with drinking water. This first version has one refuge per island cell, not separate populations per individual island. Water links join these nodes; habitation persists through interglacials. Tiny refuges can support people without necessarily producing enough emigrants for another successful crossing. Inspection and saved population/ancestry arrays include refuges. Their overlay is drawn on small-island geometry in natural views, never as an occupied whole ocean cell.
+
+Disease is intentionally deferred: century-wide outbreaks without contact networks, immunity, age structure and recovery would be an unreliable surrogate. Capacity variation already produces demographic fluctuations. Later disease and advanced-culture state must be versioned and hashed separately from immutable geography.
+
+## Presentation
+
+Simulation opens on Satellite, with an independent population mask. Base-map opacity blends the chosen view toward white land / blue water; population opacity independently ranges from invisible to fully opaque. Climate, terrain and diagnostics can remain underneath the same overlay. Smooth terrain retains its natural surface; island occupancy is clipped to rendered island land. The `Simulation` enum/palette remains an internal backwards-compatible mask/placement adapter, not a selectable simulation base view.
+
+One 52-pixel top bar contains View, Time, Population, elapsed years, playback and Escape. Side panels occupy their own viewport space rather than covering the map. Save and Main menu are only in the Escape pause menu. Pause prevents new requests; an already executing immutable step can finish before the checkpoint is saved. The Unity camera rectangle and browser canvas both resize around panels. World-setup controls are unchanged.
+
+## References and limits
+
+Independent research guidance, no code copied: [Bird et al., 2019](https://www.nature.com/articles/s41598-019-42946-9) distinguishes demographic viability and purposeful sea crossing from accidental drift; [Bradshaw et al., 2021](https://www.nature.com/articles/s41467-021-21551-3) models stochastic environmental dispersal; [Timmermann-related climatic windows study](https://www.nature.com/articles/s41467-021-24779-1) discusses climate-dependent migration opportunities. Our coefficients are game priors, not fits to these studies. [Agricultural-origins review](https://doi.org/10.1073/pnas.1308938110) cautions against a single universal cause: a future post-glacial agricultural opportunity should not automatically synchronize agriculture everywhere.

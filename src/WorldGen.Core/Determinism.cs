@@ -78,6 +78,7 @@ namespace WorldGen.Core
         public struct Item { public long Key; public int Id, From; public Item(long k, int i, int f) { Key = k; Id = i; From = f; } }
         private readonly List<Item> a = new List<Item>();
         public int Count => a.Count;
+        public void Clear() => a.Clear();
         static bool Less(Item x, Item y) => x.Key != y.Key ? x.Key < y.Key : x.Id != y.Id ? x.Id < y.Id : x.From < y.From;
         public void Push(long k, int id, int from = -1)
         { var v = new Item(k, id, from); a.Add(v); int i = a.Count - 1; while (i > 0) { int p = (i - 1) / 2; if (!Less(v, a[p])) break; a[i] = a[p]; i = p; } a[i] = v; }

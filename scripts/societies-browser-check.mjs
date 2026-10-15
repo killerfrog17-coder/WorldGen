@@ -1,0 +1,36 @@
+import { chromium } from 'playwright';
+import fs from 'node:fs/promises';
+await fs.mkdir('artifacts/societies-1/browser',{recursive:true});
+const browser=await chromium.launch({headless:true,channel:'msedge'});
+let page;
+try {
+ page=await browser.newPage({viewport:{width:1600,height:1000}});const errors=[];page.on('pageerror',e=>{errors.push(String(e));console.log('PAGE ERROR '+e);});
+ const heartbeat=setInterval(async()=>{try{console.log((await page.locator('.progress-card,.error').allTextContents()).join(' | '));await page.screenshot({path:'artifacts/societies-1/browser/current.png'});}catch{}},20000);heartbeat.unref();
+ await page.goto('http://127.0.0.1:5094');await page.getByRole('button',{name:'Set Up World',exact:true}).click();
+ await page.evaluate(async()=>window.__wg=await import('/globe.js'));
+ const bytes=await fs.readFile('artifacts/societies-1/Earth.world');await page.evaluate(data=>window.__wg.loadWorldFile(data),bytes.toString('base64'));
+ await page.waitForFunction(()=>!Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='Start world')?.disabled,{},{timeout:240000});
+ await page.getByRole('button',{name:'Start world',exact:true}).click();await page.getByRole('button',{name:'Step',exact:true}).waitFor({timeout:60000});
+ await page.waitForTimeout(1500);const state=JSON.parse(await page.evaluate(()=>window.__wg.people('status')));
+ if(state.Years!==200000||!state.Cultures.length||state.StepYears!==1)throw Error('Saved societies not restored');
+ await page.screenshot({path:'artifacts/societies-1/browser/folded.png'});
+ const bounds=await page.locator('#globe').boundingBox();if(bounds.y<50||bounds.y+bounds.height>965)throw Error('Folded HUD covers viewport');
+ await page.getByRole('button',{name:/Details & map settings/}).click();await page.getByRole('button',{name:'Map settings',exact:true}).click();
+ await page.getByLabel('Map opacity',{exact:true}).fill('0');await page.getByLabel('Population opacity',{exact:true}).fill('1');await page.getByRole('button',{name:'Switch to map',exact:true}).click();
+ await page.getByRole('button',{name:/Peoples & Civilizations/}).click();await page.getByRole('button',{name:/World Chronicle/}).click();
+ await page.waitForFunction(()=>window.__wg.viewInfo().map&&!window.__wg.viewInfo().loading,{},{timeout:90000});
+ await page.locator('.society-entry').first().click();await page.waitForTimeout(500);await page.screenshot({path:'artifacts/societies-1/browser/societies.png'});
+ if(!(await page.locator('.subsistence').count()))throw Error('No lifestyle infographic');
+ await page.getByLabel('Sort societies').selectOption('Population');
+ await page.getByLabel('Years per simulation step').fill('37');await page.getByRole('button',{name:'Set',exact:true}).click();await page.waitForTimeout(300);await page.getByRole('button',{name:'Step',exact:true}).click();
+ await page.waitForFunction(()=>document.querySelector('.sim-bar').innerText.includes('200,037'),{},{timeout:60000});
+ await page.locator('#globe').focus();await page.keyboard.press('.');await page.waitForTimeout(200);if(await page.getByLabel('Simulation speed').inputValue()!=='10')throw Error('Speed shortcut failed');await page.keyboard.press(',');
+ await page.keyboard.press('Space');await page.waitForTimeout(700);await page.keyboard.press('Space');await page.waitForTimeout(300);const paused=JSON.parse(await page.evaluate(()=>window.__wg.people('status')));await page.waitForTimeout(500);if(JSON.parse(await page.evaluate(()=>window.__wg.people('status'))).Years!==paused.Years)throw Error('Space did not pause');
+ await page.keyboard.press('Escape');await page.getByRole('button',{name:'Resume',exact:true}).waitFor();await page.screenshot({path:'artifacts/societies-1/browser/pause.png'});await page.getByRole('button',{name:'Resume',exact:true}).click();
+ await page.locator('.chronicle-columns button').first().click();await page.getByRole('button',{name:'Close',exact:true}).waitFor();await page.getByRole('button',{name:'Close',exact:true}).click();
+ await page.getByRole('button',{name:'Map settings',exact:true}).click();await page.getByLabel('Population opacity',{exact:true}).fill('0');await page.getByLabel('Base map',{exact:true}).selectOption('Climate');await page.getByLabel('Map opacity',{exact:true}).fill('0.7');await page.screenshot({path:'artifacts/societies-1/browser/climate.png'});
+ await page.getByLabel('Population opacity',{exact:true}).fill('1');await page.getByLabel('Map opacity',{exact:true}).fill('0');
+ await page.getByRole('button',{name:/Peoples & Civilizations/}).click();await page.getByRole('button',{name:/World Chronicle/}).click();await page.getByRole('button',{name:/Details & map settings/}).click();
+ const mapBox=await page.locator('#globe').boundingBox();await page.mouse.move(mapBox.x+mapBox.width/2,mapBox.y+mapBox.height/2);await page.mouse.wheel(0,-500);await page.waitForTimeout(500);await page.screenshot({path:'artifacts/societies-1/browser/cities.png'});
+ if(errors.length)throw Error(errors.join('\n'));console.log('PASS browser society save/load, dock, infographic, timer, keyboard, event popup and independent layers');
+}catch(e){console.log(await page.locator('body').innerText());await page.screenshot({path:'artifacts/societies-1/browser/failure.png'});throw e;}finally{await browser.close();}

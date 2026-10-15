@@ -1,0 +1,56 @@
+.world-library small { display: block; margin: 6px 0 10px; overflow-wrap: anywhere; }
+.world-library label { display: block; margin-top: 10px; }
+.world-library label input { display: block; width: 100%; box-sizing: border-box; margin-top: 5px; }
+.world-library-entry { display: grid; gap: 3px; margin-top: 12px; }
+.world-library-entry button { text-align: left; overflow-wrap: anywhere; }
+.world-library button { max-width: 100%; }
+.human-playback { background:#10232f; border:1px solid #38505e; border-radius:6px; padding:14px 20px; color:#f1f3ee; margin:8px 0; }
+.human-playback header { display:flex; justify-content:space-between; font-size:12px; letter-spacing:.12em; color:#c7ab72; }
+.human-playback p { color:#f1f3ee; font-size:20px; margin:10px 0; line-height:1.4; }
+.human-controls { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
+.human-controls label { display:flex; align-items:center; gap:8px; font-size:13px; color:#d8e3e9; }
+.human-controls select { width:auto; min-width:80px; margin:0; }
+.human-controls button { min-height:38px; }
+.cell-info { white-space:normal; height:auto; min-height:48px; line-height:1.6; background:#10232f; padding:12px 18px; }
+.sim-observatory { display:grid; position:relative; grid-template-columns:minmax(0,1fr); grid-template-rows:52px minmax(0,1fr) 36px; padding:0; gap:0; }
+.sim-bar { grid-column:1 / -1; display:flex; gap:6px; align-items:center; padding:6px 10px; background:#10232f; border-bottom:1px solid #38505e; }
+.sim-bar { justify-content:flex-end; }
+.sim-navigation { display:flex;gap:6px;margin-right:auto; }
+.sim-observatory { font-family:'Segoe UI',Arial,sans-serif; }
+.sim-observatory button,.sim-observatory select,.sim-observatory input { font-family:'Segoe UI',Arial,sans-serif; }
+.sim-bar { font-variant-numeric:tabular-nums; }
+.sim-bar strong { margin-right:12px; color:#f1f3ee; font-size:15px; }
+.sim-bar input { width:72px; }
+.sim-bar select { width:105px; }
+.sim-bar button,.sim-bar select,.sim-bar input { margin:0; padding:5px 8px; height:34px; }
+.sim-sidebar { grid-column:1; grid-row:2; padding:20px; overflow:auto; background:#10232f; border-right:1px solid #38505e; }
+.sim-sidebar label { display:block; margin-bottom:18px; }
+.sim-sidebar p { color:#dbe5e8; line-height:1.6; overflow-wrap:anywhere; }
+.sim-observatory .globe-area { grid-column:1; grid-row:2; min-width:0; min-height:0; }
+.society-dock { grid-column:1; grid-row:3; display:grid; grid-template-columns:26% 48% 26%; background:#10232f; z-index:4; }
+.society-dock button { padding:4px; margin:0; border-radius:0; font-size:13px; }
+.society-panel { position:absolute; bottom:36px; height:285px; box-sizing:border-box; padding:16px; background:#10232f; border:1px solid #45606a; z-index:5; overflow:auto; color:#eceddf; }
+.society-panel.peoples { left:0; width:26%; }.society-panel.chronicle { left:26%; width:48%; }.society-panel.selection { right:0; width:26%; }
+.society-panel header { display:flex; align-items:center; gap:8px; margin-bottom:14px; }.society-panel header strong { flex:1; font-size:13px; }.society-panel header select { width:105px; }
+.society-entry { display:block; width:100%; text-align:left; padding:10px; margin-bottom:6px; }.society-entry small,.society-entry span { display:block; font-size:12px; color:#c5d0cf; margin-top:4px; }
+.chronicle-columns { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }.chronicle-columns h4 { font-size:13px; color:#d1bd88; }.chronicle-columns button { width:100%; text-align:left; font-size:12px; line-height:1.5; margin-bottom:8px; }.chronicle-columns small { display:block; color:#cdb986; }.chronicle-population strong { display:block;margin-top:10px;font:18px Georgia,serif;font-variant-numeric:tabular-nums; }
+.society-panel h3 { font-size:16px; margin:0 0 10px; }.society-panel pre { font-family:inherit; white-space:pre-wrap; font-size:14px; line-height:1.6; }.society-panel label { display:block; margin-bottom:10px; }.society-panel input[type=range] { width:100%; }.subsistence span { float:right; }.subsistence progress { display:block; width:100%; height:7px; accent-color:#baac74; }
+.society-panel.peoples { width:26%; height:240px; padding:12px 10px 10px; display:flex; flex-direction:column; overflow:hidden; }
+.society-entry { display:flex; gap:6px; align-items:center; height:21px; padding:1px 2px; margin:0; background:none; border:0; font-size:12px; }
+.society-entry i { width:11px; height:14px; flex-shrink:0; }
+.society-entry .society-name { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; text-align:left; margin:0; }
+.society-entry .society-value { margin:0 0 0 auto; white-space:nowrap; font:11px sans-serif; font-variant-numeric:tabular-nums; }
+.society-panel.chronicle { height:140px; padding:12px 14px 10px; overflow:auto; }
+.society-panel { min-height:100px; max-height:calc(100% - 100px); }
+.panel-resizer { position:absolute; top:0; left:0; width:100%; height:9px; min-height:0; margin:0; padding:0; border:0; background:transparent; cursor:ns-resize; touch-action:none; border-radius:0; z-index:1; }
+.panel-resizer::after { content:""; display:block; width:48px; height:2px; margin:3px auto; background:#637e82; }
+.panel-resizer:hover::after,.panel-resizer:focus-visible::after { background:#d9c47d; }
+.state-list-scroll { overflow:auto; flex:1; min-height:0; }
+.state-columns { display:grid; grid-auto-flow:column; grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:repeat(var(--state-rows,9),21px); grid-auto-rows:21px; column-gap:8px; }
+.world-era { display:block; margin-top:6px; font-size:12px; color:#d1bd88; }
+.chronicle-columns h4 { margin:3px 0; white-space:normal; }
+.chronicle-columns button { white-space:normal; overflow-wrap:anywhere; padding:3px 5px; margin:0; min-height:25px; height:auto; }
+.society-panel.chronicle h3 { font-size:13px; margin:0 0 6px; }
+.society-dock button { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.selection-summary { font-size:14px;line-height:1.7;white-space:pre-line; }
+.selection-links{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}.selection-links button{font-size:12px;padding:4px 8px}

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Delaunator" Version="1.0.11" />
+    <EmbeddedResource Include="Data/earth-etopo2022-10min.bin" LogicalName="WorldGen.Earth.ETOPO2022" />
   </ItemGroup>
 
 </Project>

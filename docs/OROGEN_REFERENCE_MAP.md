@@ -4,6 +4,10 @@
 
 # World Orogen reference audit and implementation map
 
+October2026 climate follow-up (3.22): the supplied Orogen climate files were inspected in place as a conceptual/behavioral reference. Coastal exposure, warm eastern-margin supply and separate thermal continentality informed independent experiments. No source, constants or parameter tables were copied or mechanically translated. The five-candidate Earth/procedural review and remaining limitations are recorded in VALIDATION.md and ignored `artifacts/climate-322/QA.md`; the historical mapping below is not the current climate scope.
+
+October 2026 update: the owner superseded the continental-complex redesign. Version 3.15 restores whole-plate allocation and the pre-redesign downstream pipeline, adding only a deterministic best-of-N interconnectedness search; world types are deferred. [ALGORITHMS.md](ALGORITHMS.md) is the current contract. No new reference-source translation is involved.
+
 Reference: [planet_heightmap_generation at cc2662b4edd52231c4f65d8765f3ef12cd82d9b7](https://github.com/raguilar011095/planet_heightmap_generation/tree/cc2662b4edd52231c4f65d8765f3ef12cd82d9b7). Source was fetched into a temporary directory outside this repository and inspected before implementation. No Orogen source, assets, parameter tables, or mechanical translations are included here. Its GPL-3.0 license remains relevant to any future proposal to copy code. This implementation is independently written C#.
 
 The executed worker path, rather than the README feature list, is the baseline. It builds a requested sphere, independently constructs a fixed coarse sphere, grows coarse plates and land groups, projects labels, smooths/reconnects them, assigns density, adjusts plate motion, creates super-plates, propagates mantle fields, synthesizes elevation, postprocesses terrain, optionally calculates climate, builds display data, retains regeneration inputs, and reports metrics.

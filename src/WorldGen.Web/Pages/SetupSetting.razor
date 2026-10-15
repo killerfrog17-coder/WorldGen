@@ -1,0 +1,30 @@
+@using WorldGen.Core
+@using WorldGen.Presentation
+@using System.Reflection
+@using System.Globalization
+<div class="optional-range">
+<div class="setting-heading"><label>@Label</label><label><input type="checkbox" checked="@Range.Enabled" @onchange="Toggle"/> Range</label></div>
+<SetupNumber Label="@(Range.Enabled?Label+" min":Label)" Caption="@(Range.Enabled?"Min":"")" Min="@Meta.Min" Max="@(Range.Enabled?Range.Max:Meta.Max)" Step="@Meta.Step" Value="@(Range.Enabled?Range.Min:Current)" Percentage="@Percentage" Integer="@Integer" ValueChanged="Low"/>
+@if(Range.Enabled){
+<div class="range-high"><SetupNumber Label="@(Label+" max")" Caption="Max" Min="@Range.Min" Max="@Meta.Max" Step="@Meta.Step" Value="@Range.Max" Percentage="@Percentage" Integer="@Integer" ValueChanged="High"/>
+<button class="roll-options" title="Roll distribution" aria-label="@(Label+" roll options")" @onclick="()=>rollOpen=!rollOpen"><span class="dice"></span> ▾</button></div>
+@if(rollOpen){<select aria-label="@(Label+" roll distribution")" value="@Range.Distribution" @onchange="Distribution"><option value="Linear">Linear</option><option value="Low">Logarithmic · favor lower</option><option value="High">Logarithmic · favor higher</option></select>}
+}
+</div>
+@code{
+ [Parameter] public Recipe Recipe{get;set;}=null!;
+ [Parameter] public WorldSetup Setup{get;set;}=null!;
+ [Parameter] public FieldInfo Field{get;set;}=null!;
+ [Parameter] public string Name{get;set;}
+ [Parameter] public EventCallback Changed{get;set;}
+ bool rollOpen;WorldSetup.Range Range=>Setup.Get(Field,Recipe);
+ SettingAttribute Meta=>Field.GetCustomAttribute<SettingAttribute>()!;
+ string Label=>Name??Meta.Label;
+ bool Integer=>Field.FieldType==typeof(int);
+ bool Percentage=>Field.Name==nameof(Recipe.LakeAmountPercent)||Field.Name==nameof(Recipe.MountainStrengthPercent);
+ double Current=>Convert.ToDouble(Field.GetValue(Recipe));
+ async Task Toggle(ChangeEventArgs e){Range.Enabled=(bool)e.Value!;Range.Min=Current;Range.Max=Math.Max(Current,Range.Max);await Changed.InvokeAsync();}
+ async Task Low(double value){value=Math.Max(Meta.Min,Math.Min(Range.Enabled?Range.Max:Meta.Max,WorldSetup.Round(value,Integer)));Range.Min=value;Field.SetValue(Recipe,Integer?(object)(int)value:value);await Changed.InvokeAsync();}
+ async Task High(double value){Range.Max=Math.Max(Range.Min,Math.Min(Meta.Max,WorldSetup.Round(value,Integer)));await Changed.InvokeAsync();}
+ async Task Distribution(ChangeEventArgs e){Range.Distribution=Enum.Parse<WorldSetup.Roll>(e.Value!.ToString()!);rollOpen=false;await Changed.InvokeAsync();}
+}

@@ -1,0 +1,71 @@
+@using WorldGen.Presentation
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+<div class="atlas-backdrop" @onclick="Close">
+<section class="atlas-reader" @ref="reader" role="dialog" aria-modal="true" aria-label="World atlas" @onclick:stopPropagation="true">
+<header class="atlas-header"><strong>WORLD ATLAS</strong><span>Reading pauses playback · year @SimulationClockView.YearNumber(Document.Year,Document.EpochYear)</span><button disabled="@Busy" @onclick="Refresh">Refresh</button><button @onclick="Close">Close</button></header>
+<div class="atlas-layout">
+<nav class="atlas-directory" aria-label="Atlas directory">
+<button disabled="@Busy" @onclick='()=>Navigate.InvokeAsync(new AtlasLink{Kind="world",Id=-1})'>World overview</button>
+@foreach(var kind in new[]{("state","States"),("city","Cities"),("people","Peoples"),("religion","Religions"),("ruler","Rulers")}){<button disabled="@Busy" class="@(DirectoryKind==kind.Item1?"selected":"")" @onclick="()=>Category.InvokeAsync(kind.Item1)">@kind.Item2</button>}
+<input aria-label="Search atlas names" placeholder="Search names" @bind="search" @bind:event="oninput"/>
+<label><input type="checkbox" @bind="past"/> Include historical records</label>
+@{var matching=Directory.Where(l=>(past||!l.Historical)&&l.Name.Contains(search,StringComparison.OrdinalIgnoreCase)).ToArray();string filter=search+"|"+past+"|"+DirectoryKind;if(filter!=directoryFilter){directoryFilter=filter;directoryPage=0;}int pages=Math.Max(1,(matching.Length+199)/200);directoryPage=Math.Min(directoryPage,pages-1);}
+@if(pages>1){<div class="atlas-directory-paging"><button disabled="@(directoryPage==0)" aria-label="Previous directory page" @onclick="()=>directoryPage--">‹</button><span>@(directoryPage+1) / @pages</span><button disabled="@(directoryPage==pages-1)" aria-label="Next directory page" @onclick="()=>directoryPage++">›</button></div>}
+<div class="atlas-directory-list">@foreach(var link in matching.Skip(directoryPage*200).Take(200)){<button data-kind="@link.Kind" data-id="@link.Id" disabled="@Busy" title="@(link.Context.Length>0?link.Context+" · "+link.Detail:link.Detail)" @onclick="()=>Navigate.InvokeAsync(link)">@link.Name@if(repeatedNames.Contains(link.Name)&&link.Context.Length>0){<small>@link.Context</small>}</button>}@if(matching.Length==0){<p>No matching records.</p>}</div>
+</nav>
+<article class="atlas-article" data-kind="@Document.Kind" data-id="@Document.Id" @key="Document">
+<div class="atlas-actions"><button disabled="@(Busy||!CanBack)" @onclick="Back">Back</button><button @onclick="CopyArticle">Copy article</button><button disabled="@(Busy||Document.Cell<0)" @onclick="()=>Map.InvokeAsync(Document.Cell)">Show on map</button></div>
+@if(copyNotice.Length>0){<p role="status" class="atlas-copy-notice">@copyNotice</p>}
+@if(Busy){<p role="status" class="atlas-loading">Opening record…</p>}
+<h1>@Document.Title</h1><p class="atlas-subtitle">@Document.Subtitle</p>
+<div class="atlas-contents" role="navigation" aria-label="Article sections"><button class="@(section=="Overview"?"selected":"")" aria-current="@(section=="Overview"?"page":null)" @onclick='()=>SelectSection("Overview")'>Overview</button>@foreach(var item in Document.Sections){<button @key="item.Title" disabled="@Busy" class="@(section==item.Title?"selected":"")" aria-current="@(section==item.Title?"page":null)" @onclick="()=>SelectSection(item.Title)">@item.Title</button>}</div>
+<div class="atlas-reading" @key="section">
+@if(section=="Overview"){
+<p class="atlas-lead">@Document.Introduction</p>
+<dl>@foreach(var fact in Document.Facts){<dt>@fact.Label</dt><dd>@fact.Value</dd>}</dl>
+<p>Explore the sections above for connections, livelihoods, institutions, and recorded events. Names in the article open related entries.</p>
+}else{
+var item=Document.Sections.FirstOrDefault(s=>s.Title==section);
+@if(item!=null){
+<h2>@item.Title</h2>@if(item.Text.Length>0){<p>@item.Text</p>}
+<dl>@foreach(var fact in item.Facts){<dt>@fact.Label</dt><dd>@fact.Value</dd>}</dl>
+@if(item.Diagram){@((MarkupString)AtlasDiagram.DiplomaticSvg(Document,item))}
+var maximum=item.Unit=="/ 1,000"?1000:Math.Max(1,item.Links.Select(l=>l.Value).DefaultIfEmpty(1).Max());
+@foreach(var link in item.Links){<div class="atlas-link-row">@if(link.Kind.Length>0){<button disabled="@Busy" title="@link.Context" @onclick="()=>Navigate.InvokeAsync(link)">@link.Name</button>}else{<strong>@link.Name</strong>}<span>@link.Detail</span>@if(item.Bars){<progress aria-label="@link.Name" style="accent-color:@ChartColor(link)" value="@link.Value" max="@maximum"></progress>}</div>}
+var records=item.Timeline;
+@if(item.Title=="Recorded history"&&TimelinePage!=null){
+records=TimelinePage.Records;
+<div class="atlas-history-controls"><label><input type="checkbox" disabled="@Busy" checked="@TimelinePage.IncludeRoutine" @onchange="e=>Routine.InvokeAsync((bool)e.Value)"/> Include routine records</label><button disabled="@(Busy||TimelinePage.Offset==0)" @onclick="()=>Page.InvokeAsync(TimelinePage.Offset-40)">Newer</button><button disabled="@(Busy||TimelinePage.Offset+TimelinePage.Records.Length>=TimelinePage.Total)" @onclick="()=>Page.InvokeAsync(TimelinePage.Offset+40)">Older</button></div>
+<p class="atlas-record-count">@(TimelinePage.Total==0?"No matching records.":$"Records {TimelinePage.Offset+1:N0}–{TimelinePage.Offset+TimelinePage.Records.Length:N0} of {TimelinePage.Total:N0}")</p>
+}
+<div class="atlas-timeline">@foreach(var point in records){<div><small>@point.Label</small><p>@point.Value</p><div class="atlas-event-links">@foreach(var related in point.Related.Where(l=>l.Kind!=Document.Kind||l.Id!=Document.Id)){<button title="@related.Context" disabled="@Busy" @onclick="()=>Navigate.InvokeAsync(related)">@related.Name</button>}</div></div>}</div>
+@if(item.Links.Length==0&&item.Facts.Length==0&&item.Timeline.Length==0&&item.Text.Length==0){<p>No records yet.</p>}
+}}
+<p class="atlas-note">@Document.Note</p>
+</div>
+</article></div></section></div>
+@code {
+    [Parameter] public AtlasDocument Document{get;set;}=new();
+    [Parameter] public AtlasLink[] Directory{get;set;}=Array.Empty<AtlasLink>();
+    [Parameter] public string DirectoryKind{get;set;}="state";
+    [Parameter] public bool CanBack{get;set;}
+    [Parameter] public bool Busy{get;set;}
+    [Parameter] public AtlasTimeline TimelinePage{get;set;}
+    [Parameter] public EventCallback<int> Page{get;set;}
+    [Parameter] public EventCallback<bool> Routine{get;set;}
+    [Parameter] public EventCallback<AtlasLink> Navigate{get;set;}
+    [Parameter] public EventCallback<string> Category{get;set;}
+    [Parameter] public EventCallback<int> Map{get;set;}
+    [Parameter] public EventCallback Back{get;set;}
+    [Parameter] public EventCallback Close{get;set;}
+    [Parameter] public EventCallback Refresh{get;set;}
+    string section="Overview",search="",copyNotice="",directoryFilter="";bool past;int directoryPage;AtlasDocument previous;AtlasLink[] priorDirectory;HashSet<string> repeatedNames=new();
+    ElementReference reader;IJSObjectReference focusModule;bool disposed;
+    string ChartColor(AtlasLink link)=>link.Kind=="state"||link.Kind=="people"||link.Kind=="religion"?SocietyView.ColorHex(link.Id):"#baa475";
+    async Task SelectSection(string name){section=name;if(name=="Recorded history")await Page.InvokeAsync(0);}
+    async Task CopyArticle(){try{await JS.InvokeVoidAsync("navigator.clipboard.writeText",HistoryAtlas.PlainText(Document,TimelinePage));copyNotice="Article copied.";}catch(JSException){copyNotice="The browser blocked clipboard access. You can still select and copy the text.";}}
+    protected override void OnParametersSet(){if(!ReferenceEquals(previous,Document)){previous=Document;section="Overview";copyNotice="";}if(!ReferenceEquals(priorDirectory,Directory)){priorDirectory=Directory;directoryPage=0;repeatedNames=Directory.GroupBy(x=>x.Name).Where(g=>g.Count()>1).Select(g=>g.Key).ToHashSet();}}
+    protected override async Task OnAfterRenderAsync(bool first){if(first){var loaded=await JS.InvokeAsync<IJSObjectReference>("import","./atlas-focus.js");if(disposed){await loaded.DisposeAsync();return;}focusModule=loaded;await focusModule.InvokeVoidAsync("activate",reader);}}
+    public async ValueTask DisposeAsync(){disposed=true;if(focusModule!=null){try{await focusModule.InvokeVoidAsync("deactivate");await focusModule.DisposeAsync();}catch(JSDisconnectedException){}}}
+}

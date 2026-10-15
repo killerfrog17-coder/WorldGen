@@ -12,22 +12,39 @@ namespace WorldGen.Core
             var s = w.Surface; int n = s.Cells.Length, count = w.Recipe.MicroplateCount, seed = w.Recipe.Seed;
             int[] seeds = Graph.SeparatedSeeds(s.Cells.Select(c => c.Position).ToArray(), count, seed, "plate-seeds");
             var labels = Enumerable.Repeat(-1, n).ToArray(); var fronts = new Heap[count]; var sizes = new int[count]; var weights = new double[count]; var axes = new V[count];
+            var elongation = new double[count]; var fabricSeeds = new int[count];
+            double fabricFrequency = Math.Max(1.5, D.Sqrt(count) * .42);
             var schedule = new Heap();
             for (int p = 0; p < count; p++)
             {
                 var random = new Rng(seed, "plate-growth", p); weights[p] = .3 + 1.7 * random.Unit(); axes[p] = V.Tangent(s.Cells[seeds[p]].Position, random.Vector());
+                var fabric = new Rng(seed, "plate-fabric", p);
+                elongation[p] = .8 + 3.2 * fabric.Unit(); fabricSeeds[p] = unchecked((int)fabric.Next());
                 fronts[p] = new Heap(); labels[seeds[p]] = p; sizes[p] = 1;
             }
             void Expand(int p, int cell, long distance)
             {
                 var at = s.Cells[cell];
                 var direction = V.Transport(axes[p], s.Cells[seeds[p]].Position, at.Position);
+                // A linear directional bias merely displaces a round front.
+                // Axial resistance stretches it; coherent bends/barriers create
+                // lobes and embayments at plate scale rather than cell-scale fuzz.
+                double bend = 1.6 * SphereNoise.Sample(at.Position, fabricSeeds[p], fabricFrequency);
+                direction = (direction + V.Cross(at.Position, direction) * bend).Unit;
+                double resistance = D.Clamp(1 + 1.2 * SphereNoise.Sample(at.Position, fabricSeeds[p] ^ 19331, fabricFrequency * 1.6)
+                    + .35 * SphereNoise.Sample(at.Position, fabricSeeds[p] ^ 43717, fabricFrequency * 3.5), .4, 2);
                 for (int k = 0; k < at.Neighbors.Length; k++)
                 {
                     int next = at.Neighbors[k]; if (labels[next] >= 0) continue;
                     double aligned = V.Dot(direction, V.Tangent(at.Position, s.Cells[next].Position));
                     double rough = Rng.Value(seed, "plate-frontier", unchecked(cell * 73856093 ^ next * 19349663 ^ p));
-                    long cost = distance + (long)(at.DistanceM[k] * (1.3 - .45 * aligned + .8 * rough));
+                    double crossing = .65 + elongation[p] * (1 - aligned * aligned) - .16 * aligned;
+                    long entry = Math.Max(1, D.M(at.DistanceM[k] * (crossing * resistance + .18 * rough)));
+                    // Retain the strongest encountered barrier, plus a smaller
+                    // positive travel cost. Pure summed distance inflates circles
+                    // around seeds; barrier fronts follow lobed weak zones while
+                    // travel still bounds long corridors. All claims remain adjacent.
+                    long cost = Math.Max(distance, entry * 6) + Math.Max(1, entry * 22 / 100);
                     fronts[p].Push(cost, next);
                 }
             }

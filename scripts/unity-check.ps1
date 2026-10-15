@@ -1,6 +1,7 @@
 param(
     [string]$Unity='C:/Program Files/Unity/Hub/Editor/6000.6.0f1/Editor/Unity.exe',
     [switch]$BuildPlayer,
+    [switch]$DevelopmentPlayer,
     [switch]$PlayerCheck,
     [switch]$Isolated,
     [string]$PlayerFolder="player"
@@ -32,9 +33,13 @@ $log=Join-Path $artifacts $(if($BuildPlayer){'unity-build.log'}else{'unity-valid
 $playerOutput=[IO.Path]::GetFullPath((Join-Path $artifacts ($PlayerFolder+'/WorldGen.exe')))
 if(!$playerOutput.StartsWith([IO.Path]::GetFullPath($artifacts)+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Player folder must stay inside validation artifacts'}
 $arguments=@('-batchmode' ,'-nographics','-quit','-projectPath',('"'+$project+'"'),'-executeMethod',$method,'--worldgen-build-output',('"'+$playerOutput+'"'),'-logFile',('"'+$log+'"'))
+if($DevelopmentPlayer){$arguments+='--worldgen-development-player'}
 $run=Start-Process -FilePath $Unity -ArgumentList $arguments -WindowStyle Hidden -PassThru
 $run.WaitForExit()
 if($run.ExitCode -ne 0){throw "Unity failed. Inspect $log"}
+if($BuildPlayer){
+    Copy-Item -LiteralPath (Join-Path $repoRoot 'src/WorldGen.Core/Data/earth-etopo2022-10min.source.json') -Destination (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'EARTH-DATA.json') -Force
+}
 if($PlayerCheck){
     $output=Join-Path $artifacts 'unity-player'
     $player=Start-Process -FilePath $playerOutput -ArgumentList @('-batchmode','-nographics','--worldgen-check','--worldgen-output',('"'+$output+'"'),'-logFile',('"'+(Join-Path $artifacts 'player-check.log')+'"')) -WindowStyle Hidden -PassThru

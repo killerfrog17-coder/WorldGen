@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>disable</Nullable></PropertyGroup>
+  <ItemGroup><ProjectReference Include="../WorldGen.Core/WorldGen.Core.csproj" /><ProjectReference Include="../WorldGen.Serialization/WorldGen.Serialization.csproj" /></ItemGroup>
+  <ItemGroup><Compile Include="../../tests/WorldGen.Core.Tests/ClimateTests.cs" Link="Tests/ClimateTests.cs" /></ItemGroup>
+</Project>

@@ -91,11 +91,11 @@ namespace WorldGen.Core
     }
     public static class Graph
     {
-        public static int[] Components(Surface s, Func<int, bool> included)
+        public static int[] Components(Surface s, Func<int, bool> included, CancellationToken token = default)
         {
             var labels = Enumerable.Repeat(-1, s.Cells.Length).ToArray(); int id = 0; var q = new Queue<int>();
             for (int i = 0; i < labels.Length; i++) if (labels[i] < 0 && included(i))
-            { labels[i] = id; q.Enqueue(i); while (q.Count > 0) { int c = q.Dequeue(); foreach (int n in s.Cells[c].Neighbors) if (labels[n] < 0 && included(n)) { labels[n] = id; q.Enqueue(n); } } id++; }
+            { token.ThrowIfCancellationRequested(); labels[i] = id; q.Enqueue(i); while (q.Count > 0) { int c = q.Dequeue(); if ((c & 1023) == 0) token.ThrowIfCancellationRequested(); foreach (int n in s.Cells[c].Neighbors) if (labels[n] < 0 && included(n)) { labels[n] = id; q.Enqueue(n); } } id++; }
             return labels;
         }
         public static int[] Distances(Surface s, IEnumerable<int> seeds, out int[] nearest, CancellationToken token = default)

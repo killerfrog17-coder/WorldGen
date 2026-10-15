@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace WorldGen.Core
 {
@@ -14,12 +15,20 @@ namespace WorldGen.Core
             var coarse = w.CoarseSurface; var fine = w.Surface; int n = fine.Cells.Length, count = w.Microplates.Length;
             var locator = new CellLocator(coarse.Cells); var desired = new int[n];
             var seeds = Enumerable.Repeat(-1, count).ToArray(); var scores = Enumerable.Repeat(double.NegativeInfinity, count).ToArray();
-            for (int i = 0; i < n; i++)
+            void Select(int i)
             {
                 if ((i & 1023) == 0) token.ThrowIfCancellationRequested();
                 V p = fine.Cells[i].Position;
                 V perturb = new V(Terrain.Noise(p, w.Recipe.Seed ^ 1291, 12), Terrain.Noise(p, w.Recipe.Seed ^ 4371, 12), Terrain.Noise(p, w.Recipe.Seed ^ 8317, 12));
                 int plate = w.CoarsePlate[locator.Nearest((p + perturb * .013).Unit)]; desired[i] = plate;
+            }
+            if(Environment.ProcessorCount>1 && n>=20000)
+                Parallel.For(0,n,new ParallelOptions { CancellationToken=token, MaxDegreeOfParallelism=Math.Min(8,Environment.ProcessorCount) },Select);
+            else for(int i=0;i<n;i++)Select(i);
+            // The ordered reduction preserves the original first-cell tie break.
+            for(int i=0;i<n;i++)
+            {
+                int plate=desired[i]; V p=fine.Cells[i].Position;
                 double score = V.Dot(p, coarse.Cells[w.Microplates[plate].SeedCell].Position);
                 if (score > scores[plate]) { scores[plate] = score; seeds[plate] = i; }
             }
