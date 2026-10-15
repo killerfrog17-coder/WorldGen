@@ -9,9 +9,10 @@ public sealed partial class WorldGenRuntime
 {
     readonly HistoryBorders historyBorders=new HistoryBorders();
     World borderWorld;PrehistoryState borderState;GameObject borderRoot;Mesh borderMesh;Material borderMaterial;bool borderLoading;HistoryOverlay borderOverlay;
+    int HistoryBorderMode(HistoryOverlay value)=>value==HistoryOverlay.Provinces?2:value==HistoryOverlay.Territories?1:0;
     void RequestHistoryBorders()
     {
-        if(borderLoading||world==null||globe==null||(borderOverlay==HistoryOverlay.Territories)==(historyOverlay==HistoryOverlay.Territories)&&ReferenceEquals(borderWorld,world)&&(ReferenceEquals(borderState,world.Prehistory)||borderState?.Timeline!=null&&world.Prehistory?.Timeline!=null&&borderState.Timeline.ProcessedEvents==world.Prehistory.Timeline.ProcessedEvents)&&borderRoot!=null)return;
+        if(borderLoading||world==null||globe==null||HistoryBorderMode(borderOverlay)==HistoryBorderMode(historyOverlay)&&ReferenceEquals(borderWorld,world)&&(ReferenceEquals(borderState,world.Prehistory)||borderState?.Timeline!=null&&world.Prehistory?.Timeline!=null&&borderState.Timeline.ProcessedEvents==world.Prehistory.Timeline.ProcessedEvents)&&borderRoot!=null)return;
         StartCoroutine(PrepareHistoryBorders());
     }
     System.Collections.IEnumerator PrepareHistoryBorders()
@@ -38,7 +39,7 @@ public sealed partial class WorldGenRuntime
     void ApplyHistoryBorders()
     {
         if(borderRoot==null)return;
-        bool political=historyOverlay==HistoryOverlay.States||historyOverlay==HistoryOverlay.Civilizations||historyOverlay==HistoryOverlay.Territories;
+        bool political=historyOverlay==HistoryOverlay.States||historyOverlay==HistoryOverlay.Civilizations||historyOverlay==HistoryOverlay.Territories||historyOverlay==HistoryOverlay.Provinces;
         borderRoot.SetActive(screen=="Simulation"&&humanOverlayOpacity>0&&political&&borderWorld==displayedWorld);
         borderMaterial.SetFloat("_Opacity",humanOverlayOpacity);borderMaterial.SetFloat("_MapMode",VisibleProjection==Projection.Map?1:0);
         foreach(Transform copy in borderRoot.transform)copy.gameObject.SetActive(copy.name=="copy0"||VisibleProjection==Projection.Map);

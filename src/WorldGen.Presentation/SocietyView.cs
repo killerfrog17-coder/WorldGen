@@ -41,6 +41,8 @@ namespace WorldGen.Presentation
         public static int OverlayId(PrehistoryState s,int cell,HistoryOverlay overlay=HistoryOverlay.Civilizations)
         {
             if(s==null)return -1;
+            if(overlay==HistoryOverlay.Territories)return s.History==null?-1:HistoricalCells.Polity(s,cell);
+            if(overlay==HistoryOverlay.Provinces)return HistoricalProvinceIdentity.Of(s,cell);
             if(s.History?.Aggregates?.Empires!=null)return HistoricalMapSnapshot.For(s).OverlayId(cell,overlay);
             var c=Culture(s,cell);var h=s.History;if(h!=null&&cell>=0&&cell<HistoricalCells.Count(s)){if(overlay==HistoryOverlay.States)return HistoricalCells.Polity(s,cell);if(overlay==HistoryOverlay.Religions)return HistoricalCells.Religion(s,cell);if(c==null&&HistoricalCells.Polity(s,cell)>=0)c=s.Society.Cultures[h.Polities[HistoricalCells.Polity(s,cell)].CultureId];}if(c==null)return -1;
             if(h==null)return c.Stage==SocietyStage.Civilization?c.Id:-1;

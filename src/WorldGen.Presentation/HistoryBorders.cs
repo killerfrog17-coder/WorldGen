@@ -12,10 +12,11 @@ namespace WorldGen.Presentation
         HistoryOverlay overlay;
         public float[] Segments(World w,PrehistoryState? s,HistoryOverlay selected=HistoryOverlay.States)
         {
-            bool sameMode=(selected==HistoryOverlay.Territories)==(overlay==HistoryOverlay.Territories);
+            int Mode(HistoryOverlay value)=>value==HistoryOverlay.Provinces?2:value==HistoryOverlay.Territories?1:0;
+            bool sameMode=Mode(selected)==Mode(overlay);
             if(ReferenceEquals(w,world)&&ReferenceEquals(s,state)&&sameMode)return segments;
             var next=s==null?null:HistoricalMapSnapshot.For(s);
-            if(sameMode&&selected!=HistoryOverlay.Territories&&ReferenceEquals(w,world)&&s?.Started==state?.Started&&next!=null&&next.SameBoundaries(projection)){state=s;projection=next;return segments;}
+            if(sameMode&&Mode(selected)==0&&ReferenceEquals(w,world)&&s?.Started==state?.Started&&next!=null&&next.SameBoundaries(projection)){state=s;projection=next;return segments;}
             world=w;state=s;projection=next;overlay=selected;var list=new List<float>();var h=s?.History;
             if(h!=null&&s!.Started&&HistoricalCells.Count(s)==w.Surface.Cells.Length)foreach(var edge in w.Surface.Edges)
             {

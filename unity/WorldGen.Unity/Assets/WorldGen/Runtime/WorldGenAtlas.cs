@@ -42,7 +42,7 @@ public sealed partial class WorldGenRuntime
         GUILayout.Space(8);GUILayout.BeginHorizontal();
         GUILayout.BeginVertical(GUILayout.Width(205));
         if(GUILayout.Button("World overview")){atlasBack.Push(Tuple.Create(atlasDocument.Kind,atlasDocument.Id));LoadAtlasArticle("world",-1);EndAtlasUiChange();}
-        foreach(var category in new[]{("state","States"),("city","Cities"),("people","Peoples"),("religion","Religions"),("ruler","Rulers")})
+        foreach(var category in new[]{("state","States"),("province","Provinces"),("city","Cities"),("people","Peoples"),("religion","Religions"),("ruler","Rulers")})
             if(GUILayout.Toggle(atlasKind==category.Item1,category.Item2,GUI.skin.button)&&atlasKind!=category.Item1){atlasKind=category.Item1;RefreshAtlasDirectory();EndAtlasUiChange();}
         GUI.SetNextControlName("AtlasSearch");string search=GUILayout.TextField(atlasSearch);atlasSearchFocused=GUI.GetNameOfFocusedControl()=="AtlasSearch";
         if(search!=atlasSearch){atlasSearch=search;RefreshAtlasDirectory();EndAtlasUiChange();}GUILayout.Label("Search names",new GUIStyle(GUI.skin.label){fontSize=11});

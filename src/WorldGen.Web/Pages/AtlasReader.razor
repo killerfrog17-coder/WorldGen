@@ -7,7 +7,7 @@
 <div class="atlas-layout">
 <nav class="atlas-directory" aria-label="Atlas directory">
 <button disabled="@Busy" @onclick='()=>Navigate.InvokeAsync(new AtlasLink{Kind="world",Id=-1})'>World overview</button>
-@foreach(var kind in new[]{("state","States"),("city","Cities"),("people","Peoples"),("religion","Religions"),("ruler","Rulers")}){<button disabled="@Busy" class="@(DirectoryKind==kind.Item1?"selected":"")" @onclick="()=>Category.InvokeAsync(kind.Item1)">@kind.Item2</button>}
+@foreach(var kind in new[]{("state","States"),("province","Provinces"),("city","Cities"),("people","Peoples"),("religion","Religions"),("ruler","Rulers")}){<button disabled="@Busy" class="@(DirectoryKind==kind.Item1?"selected":"")" @onclick="()=>Category.InvokeAsync(kind.Item1)">@kind.Item2</button>}
 <input aria-label="Search atlas names" placeholder="Search names" @bind="search" @bind:event="oninput"/>
 <label><input type="checkbox" @bind="past"/> Include historical records</label>
 @{var matching=Directory.Where(l=>(past||!l.Historical)&&l.Name.Contains(search,StringComparison.OrdinalIgnoreCase)).ToArray();string filter=search+"|"+past+"|"+DirectoryKind;if(filter!=directoryFilter){directoryFilter=filter;directoryPage=0;}int pages=Math.Max(1,(matching.Length+199)/200);directoryPage=Math.Min(directoryPage,pages-1);}

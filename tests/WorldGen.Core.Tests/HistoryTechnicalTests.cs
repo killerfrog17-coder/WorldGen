@@ -30,10 +30,18 @@ public static class HistoryTechnicalTests
         int site=probe.Society.Settlements[probe.History.Polities[client].CapitalId].Cell;
         check(SocietyView.OverlayId(probe,site,HistoryOverlay.States)==patron&&SocietyView.OverlayId(probe,site,HistoryOverlay.Territories)==client,"States and Territories expose overarching and constituent governments separately");
         check(HistoricalCells.Polity(probe,site)==client,"Imperial rendering never rewrites local ownership or culture");
+        int province=HistoricalProvinceIdentity.Of(probe,site);
+        check(province>=0&&HistoryAtlas.Selection(probe,site,HistoryOverlay.Provinces)!.Kind=="province","A province is independently selectable beneath its local and imperial governments");
+        check(HistoryAtlas.Read(probe,"province",province,world).Introduction.Contains("administrative"),"Province profiles explain their actual administrative role");
         check(HistoryAtlas.Selection(probe,site,HistoryOverlay.States)!.Id==patron&&HistoryAtlas.Selection(probe,site,HistoryOverlay.Territories)!.Id==client,"Map selection follows the chosen political level");
         check((bool)Call(engine,"SetImperialPatron",probe,client,-1,false,"Test independence."),"A breakaway retains existing towns and population");
         check(HistoricalImperialHierarchy.Sovereign(probe,third)==client&&probe.History.Aggregates.Empires.Governments[patron].SubjectPopulation==0,"Breaking away takes the local delegated hierarchy, not its former empire");
         Call(engine,"ValidateImperialSystem",probe);
+        var wrongPayroll=state.Copy();wrongPayroll.History.Aggregates.Empires.Governments[patron].AdministrativePostCost++;bool rejectedPayroll=false;
+        try{Call(engine,"ValidateTerritorialAdministration",wrongPayroll);}catch(TargetInvocationException e)when(e.InnerException is ArgumentException){rejectedPayroll=true;}
+        check(rejectedPayroll,"A saved province payroll must match actual active offices");
+        var territorialCopy=state.Copy();int originalSource=state.History.Aggregates.Empires.Territories.Sources[site];Call(engine,"AssignTerritorialSource",territorialCopy,site,state.History.Polities[patron].CapitalId);
+        check(state.History.Aggregates.Empires.Territories.Sources[site]==originalSource,"Administrative source writes cannot mutate a published map");
         int culture=state.History.Polities[patron].CultureId;var research=state.Copy();var hc=research.History.Cultures[culture];var t=hc.Technical;
         hc.Technology=new int[37];hc.Technology[0]=1;t.Levels=new int[37];t.Levels[0]=1;t.Deployment=new int[37];t.Deployment[0]=500;t.Progress=new long[37];t.Learning=new long[37];
         Call(engine,"AdvanceTechnicalResearch",research,culture,40,-1,research.Society.Cultures[culture].OriginCell);
@@ -44,6 +52,15 @@ public static class HistoryTechnicalTests
         check(HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Railways,research.Years)==0&&!HistoricalTechnologies.Has(hc,HistoricalTechnology.Railways),"Knowing the railway recipe does not create an installed railway network");
         t.Deployment[(int)HistoricalTechnology.Railways]=800;
         check(HistoricalModernEffects.LandTransport(hc,research.Years)>1&&HistoricalTechnologies.Has(hc,HistoricalTechnology.Railways),"Practical deployment changes real logistical effects");
+        var demand=typeof(Prehistory).GetMethod("TechnicalDemand",BindingFlags.NonPublic|BindingFlags.Static)!;
+        double peace=(double)demand.Invoke(null,new object[]{16,0d,0d,0d,1d,false,1d,true})!,war=(double)demand.Invoke(null,new object[]{16,1d,1d,0d,1d,false,1d,true})!;
+        check(peace==0&&war>peace,"No military threat means no free gunpowder-research incentive; war creates demand");
+        double lowDisease=(double)demand.Invoke(null,new object[]{23,0d,0d,0d,1d,false,1d,true})!,highDisease=(double)demand.Invoke(null,new object[]{23,0d,0d,1d,1d,false,1d,true})!;
+        check(highDisease>lowDisease*3,"Medical investigation responds strongly to disease pressure rather than just elapsed years");
+        var seafaring=new HistoricalCulture{Technology=new int[37],Technical=new HistoricalTechnicalPractice()};seafaring.Technology[17]=1;seafaring.Technical.Deployment[17]=1000;
+        check(WorldEraView.CultureEra(seafaring)<7,"One ocean-going boat tradition does not declare an early-modern society");
+        seafaring.Technology[15]=1;seafaring.Technical.Deployment[15]=1000;
+        check(WorldEraView.CultureEra(seafaring)==7,"Era presentation recognizes a deployed technological bundle");
         var article=HistoryAtlas.Read(state,"state",patron,world);
         check(article.Sections.Any(s=>s.Technical.Length>0)&&HistoryAtlas.PlainText(article).Contains("research share"),"Profiles and plain-text exports expose levels, research allocation and deployment");
         var saved=state.Copy();saved.Seal();world.Prehistory=saved;var loaded=WorldFile.Read(WorldFile.Write(world));

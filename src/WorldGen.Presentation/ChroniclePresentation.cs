@@ -38,11 +38,12 @@ namespace WorldGen.Presentation
                     return h.Aggregates?.Living!=null&&e.SettlementId>=0&&e.SettlementId<h.Aggregates.Living.Cities.Length&&h.Aggregates.Living.Cities[e.SettlementId].PeakPopulation>=Math.Max(10000,global/500);
                 case "settlement":return e.SettlementId==0||e.SettlementId>=0&&e.SettlementId<state.Society.Settlements.Length&&state.Society.Settlements[e.SettlementId].Population>=Math.Max(5000,global/500);
                 case "peace":if(h.Version=="history-5"||h.Version=="history-6"||h.Version=="history-7"||h.Version=="history-8"||h.Version=="history-9"||h.Version=="history-10"||(h.Version=="history-11"||(h.Version=="history-12"||(h.Version=="history-13"||(h.Version=="history-14"||(h.Version=="history-15"||h.Version=="history-16"))))))return false;goto case "war";
-                case "frontier-retreat":case "provincial-unrest":case "provincial-resistance":case "settlement-abandoned":case "settlement-reoccupied":case "administration-retained":return false;
+                case "frontier-retreat":case "provincial-unrest":case "provincial-resistance":case "settlement-abandoned":case "settlement-reoccupied":case "administration-retained":case "administrative-post":case "administrative-withdrawal":return false;
                 case "election":case "succession":case "succession-dispute":case "contact":case "trade":case "treaty-lapse":case "battle":case "religious-contact":case "religious-community":case "sea-contact":case "government":case "incorporation":case "district-incorporated":case "incorporation-abandoned":case "district-office":case "district-office-closed":return false;
                 case "great-conquest":case "great-ruler-death":case "succession-crisis":case "empire-founded":case "public-works":case "collapse":
                 case "campaign-start":case "campaign-end":
                 case "dependency-founded":case "dependency-ended":case "tributary-revolt":
+                case "imperial-allegiance":case "imperial-independence":
                 case "dynasty-change":
                 case "regime-change":
                 case "provincial-revolt":

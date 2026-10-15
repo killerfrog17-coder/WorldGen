@@ -25,7 +25,7 @@ namespace WorldGen.Core
         {
             var progress=s.History.Aggregates.Communities.Campaigns[campaign];
             ref long budget=ref (attacker?ref progress.AttackerAreaKm2:ref progress.DefenderAreaKm2);
-            long cost=Math.Max(1,(long)Math.Round(inhabitableArea[target]*(1+World.Ecology.Habitat[target].ReliefM/1200.0)));
+            long cost=Math.Max(1,(long)Math.Round((TechnicalHistory(s)?TerritorialPoliticalArea(target):inhabitableArea[target])*(1+World.Ecology.Habitat[target].ReliefM/1200.0)));
             if(budget<cost)return false;budget-=cost;return true;
         }
     }

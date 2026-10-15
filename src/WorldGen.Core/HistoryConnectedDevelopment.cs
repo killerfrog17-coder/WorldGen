@@ -144,15 +144,19 @@ namespace WorldGen.Core
                 int region=CellPatch[target];var habitat=World.Ecology.Habitat[target];
                 double distance=LivingTravelKm(s,capital,target,p.CultureId);
                 if(!TechnicalHistory(s)&&distance>account.ReachKm*(1+.15*Math.Log(1+account.CityCount)))continue;
-                if(s.Population[region]+a.Living.Regions[region].SettledPopulation<25&&!HistoricalTechnologies.Has(hc,HistoricalTechnology.Railways))continue;
+                if(region<0&&!HistoricalTechnologies.Has(hc,HistoricalTechnology.Railways))continue;
+                if(region>=0&&s.Population[region]+a.Living.Regions[region].SettledPopulation<25&&!HistoricalTechnologies.Has(hc,HistoricalTechnology.Railways))continue;
                 double burden=1+habitat.ReliefM/700.0+(habitat.AridityMilli<150?2:0);
-                long cost=Math.Max(50,(long)(inhabitableArea[target]*.025*burden));if(p.Treasury<cost)continue;
+                long cost=Math.Max(50,(long)((TechnicalHistory(s)?TerritorialPoliticalArea(target):inhabitableArea[target])*.025*burden));if(p.Treasury<cost)continue;
                 double chance=(.25+.5*p.Legitimacy/1000.0)/burden;
-                int center=ProvincialHistory(s)?ProvincialServiceCenter(s,polity,target):-1;if(ProvincialHistory(s)&&center<0)continue;
-                if(ProvincialHistory(s)&&!ProvincialIncorporationWorthwhile(s,polity,target,center))continue;
+                int center=TechnicalHistory(s)?TerritorialServiceSource(s,polity,target):ProvincialHistory(s)?ProvincialServiceCenter(s,polity,target):-1;
+                if(TechnicalHistory(s)&&center== -1)center=TryEstablishTerritorialPost(s,polity,target);
+                if(ProvincialHistory(s)&&(TechnicalHistory(s)?center== -1:center<0))continue;
+                if(TechnicalHistory(s)?!TerritorialIncorporationWorthwhile(s,polity,target,center):ProvincialHistory(s)&&!ProvincialIncorporationWorthwhile(s,polity,target,center))continue;
                 if(HistoryRoll("development-incorporation-"+trial,polity,s.Years)>1-Math.Exp(-chance*elapsed/5.0))continue;
                 ClaimAggregatePolity(s,target,polity);p.Treasury-=cost;
-                if(ProvincialHistory(s))a.Provinces.Centers=a.Provinces.Centers.With(target,center);
+                if(ProvincialHistory(s))a.Provinces.Centers=a.Provinces.Centers.With(target,center>=0?center:p.CapitalId);
+                if(TechnicalHistory(s))AssignTerritorialSource(s,target,center);
                 int localCulture=HistoricalCells.Culture(s,target);if(localCulture>=0)LivingCultureContact(s,p.CultureId,localCulture);
             }
         }

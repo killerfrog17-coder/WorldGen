@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 namespace WorldGen.Core
 {
-    public enum HistoryOverlay { Civilizations, States, Cultures, Religions, Technology, Territories }
+    public enum HistoryOverlay { Civilizations, States, Cultures, Religions, Technology, Territories, Provinces }
     // Stable IDs: append capabilities; never reinterpret a saved adoption date.
     public enum HistoricalTechnology { Storage, Cultivation, Pottery, Sailing, Irrigation, Copper, Writing, Bronze, Roads, Iron, Coinage, Mills, Steel, Navigation, Scholasticism,
         Printing,Gunpowder,OceanNavigation,ScientificMethod,CropRotation,SteamPower,IndustrialMetallurgy,Railways,GermTheory,Sanitation,Electricity,Telegraph,

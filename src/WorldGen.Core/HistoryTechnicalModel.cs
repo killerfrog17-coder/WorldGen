@@ -45,7 +45,8 @@ namespace WorldGen.Core
         static int[] BuildUsefulLevels(){var result=Enumerable.Repeat(2,Count).ToArray();foreach(var branch in requirements)foreach(var r in branch)result[r.Technology]=Math.Max(result[r.Technology],r.Level);return result;}
         public static int UsefulLevel(int technology)=>useful[technology];
         public static HistoricalTechnicalRequirement[] Requirements(int technology)=>requirements[technology];
-        public static long Cost(int technology,int nextLevel)=>checked((long)Math.Round(costs[technology]*Math.Pow(1.65,nextLevel-1)*1000000));
+        public static long Cost(int technology,int nextLevel)
+        {long result=costs[technology]*1000000L;for(int level=1;level<nextLevel;level++)result=checked((result*33+10)/20);return result;}
         public static bool Prerequisites(int technology,int[] levels)
         {foreach(var r in requirements[technology])if(levels[r.Technology]<r.Level)return false;return true;}
         public static bool Military(int k)=>k==7||k==9||k==12||k==16||k==29;
@@ -74,6 +75,9 @@ namespace WorldGen.Core
             {t.Levels[k]=1;t.LevelYear[k]=culture.Technology[k]-1;t.Deployment[k]=(int)Math.Round(D.Clamp((year-culture.Technology[k]+2)/80.0)*1000);if(t.Deployment[k]>=250)t.InstalledYear[k]=Math.Min(year+1,culture.Technology[k]+19);}
             // Migration does not invent supporting discoveries or rewrite their
             // dates. Further improvements must meet the new prerequisites.
+            if(migration)for(int k=0;k<HistoricalTechnicalGraph.Count;k++)if(culture.Technology[k]>0)
+                foreach(var r in HistoricalTechnicalGraph.Requirements(k))if(culture.Technology[r.Technology]>0&&t.Levels[r.Technology]<r.Level)
+                {t.Levels[r.Technology]=r.Level;t.LevelYear[r.Technology]=year;}
         }
         void ValidateTechnicalPractice(PrehistoryState s,HistoricalCulture c)
         {

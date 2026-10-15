@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--technical-review")){HistoryTechnicalReview.Run(args);return;}
 if(args.Contains("--technical-only")){int count=0,at=Array.IndexOf(args,"--technical-only");HistoryTechnicalTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" leveled-technology/imperial assertions");return;}
 if(args.Contains("--verify-review-input")){
     int at=Array.IndexOf(args,"--verify-review-input");var source=WorldFile.Read(File.ReadAllBytes(args[at+1]));

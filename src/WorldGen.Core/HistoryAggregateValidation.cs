@@ -49,6 +49,7 @@ namespace WorldGen.Core
             var urban=new long[h.Cultures.Length];var supported=new long[h.Cultures.Length];var supportCount=new int[h.Cultures.Length];
             foreach(var culture in h.Cultures)ValidateTechnicalPractice(s,culture);
             ValidateImperialSystem(s);
+            ValidateTerritorialAdministration(s);
             var stateUrban=new long[h.Polities.Length];var stateRural=new long[h.Polities.Length];var stateSuburban=new long[h.Polities.Length];var settledRegions=new long[a.Regions.Length];
             for(int i=0;i<a.Cities.Length;i++)
             {
@@ -60,7 +61,13 @@ namespace WorldGen.Core
                 int owner=a.Resolve(town.PolityId,h);if(owner>=0){stateUrban[owner]+=town.Population;stateRural[owner]+=city.Rural;stateSuburban[owner]+=city.Suburban;}
             }
             for(int i=0;i<a.Cultures.Length;i++)
-            {var c=a.Cultures[i];var hc=h.Cultures[i];Require(c.Id==i&&s.Society.Cultures[i].Id==i&&hc.Id==i&&c.Urban==urban[i]&&c.SupportedUrban==supported[i]&&c.SupportedCities==supportCount[i]&&c.Cities.Count==c.CityCount,"culture aggregates");Require(hc.Technology.Length==HistoricalTechnologies.Names.Length&&hc.Research.Length==hc.Technology.Length&&hc.Technology.All(y=>y>=0&&y<=s.Years+1),"capability dates");for(int k=0;k<hc.Technology.Length;k++)if(hc.Technology[k]>0)Require(HistoricalTechnologies.Requirements(ProvincialHistory(s)&&hc.Technology[k]-1<=a.Provinces.UpgradedYear?ConnectedHistoryVersion:h.Version,k).All(p=>hc.Technology[p]>0&&hc.Technology[p]<=hc.Technology[k]),"capability prerequisites");}
+            {
+                var c=a.Cultures[i];var hc=h.Cultures[i];Require(c.Id==i&&s.Society.Cultures[i].Id==i&&hc.Id==i&&c.Urban==urban[i]&&c.SupportedUrban==supported[i]&&c.SupportedCities==supportCount[i]&&c.Cities.Count==c.CityCount,"culture aggregates");Require(hc.Technology.Length==HistoricalTechnologies.Names.Length&&hc.Research.Length==hc.Technology.Length&&hc.Technology.All(y=>y>=0&&y<=s.Years+1),"capability dates");
+                // Under the leveled model, delivered knowledge may precede a
+                // local manufacturing chain. Invention checks the graph before
+                // spending effort; legacy capability dates keep their old rule.
+                if(!TechnicalHistory(s))for(int k=0;k<hc.Technology.Length;k++)if(hc.Technology[k]>0)Require(HistoricalTechnologies.Requirements(ProvincialHistory(s)&&hc.Technology[k]-1<=a.Provinces.UpgradedYear?ConnectedHistoryVersion:h.Version,k).All(p=>hc.Technology[p]>0&&hc.Technology[p]<=hc.Technology[k]),"capability prerequisites");
+            }
             for(int i=0;i<a.Polities.Length;i++)
             {
                 var p=h.Polities[i];var account=a.Polities[i];Require(p.Id==i&&account.Id==i&&account.Remote>=0&&account.RemoteCapacity>=0&&p.CapitalId>=0&&p.CapitalId<a.Cities.Length,"state");

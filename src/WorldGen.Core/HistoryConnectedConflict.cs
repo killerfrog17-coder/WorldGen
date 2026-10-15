@@ -40,6 +40,7 @@ namespace WorldGen.Core
                 foreach(int next in World.Surface.Cells[cell].Neighbors)
                 {
                     if(CellPatch[next]<0||seen.Count>=128||!seen.Add(next)||HistoricalCells.Polity(s,next)!=parent)continue;
+                    if(TechnicalHistory(s)&&a.TownAt[next]==h.Polities[parent].CapitalId)continue;
                     if(LivingTravelKm(s,town.Cell,next,town.CultureId)>reach)continue;
                     ClaimAggregatePolity(s,next,owner);pending.Enqueue(next);
                 }

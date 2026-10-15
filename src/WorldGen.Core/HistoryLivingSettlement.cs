@@ -102,6 +102,7 @@ namespace WorldGen.Core
             }
             a.Living.Regions[patch].SettledPopulation+=founders+rural;
             s.Society.Settlements=s.Society.Settlements.Concat(new[]{town}).ToArray();h.Towns=h.Towns.Concat(new[]{new HistoricalTown{Id=id,FoodBase=urbanCapacity}}).ToArray();a.Cities=a.Cities.Concat(new[]{city}).ToArray();
+            if(TechnicalHistory(s))Array.Resize(ref a.Empires.Territories.DistrictAreas,a.Cities.Length);
             a.Living.Cities=a.Living.Cities.Concat(new[]{new HistoricalLivingCity{PeakPopulation=founders,PeakYear=s.Years}}).ToArray();a.TownAt=a.TownAt.With(cell,id);RegisterLivingTown(s,id);
             if(CommunityHistory(s))a.Communities.Cities=a.Communities.Cities.Concat(new[]{new HistoricalLocalCommunity{SinceYear=s.Years}}).ToArray();
             city.Neighbors=NearbyLivingTowns(s,cell,280).Where(n=>n!=id&&LivingTownConnection(s,id,n)).Take(12).ToArray();

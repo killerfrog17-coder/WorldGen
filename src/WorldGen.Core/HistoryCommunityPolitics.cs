@@ -57,6 +57,8 @@ namespace WorldGen.Core
             else
             {
                 policy.CentralizationMilli=Math.Min(950,policy.CentralizationMilli+75);p.Legitimacy=Math.Max(100,p.Legitimacy-70);p.Exhaustion=Math.Min(1000,p.Exhaustion+60);
+                if(TechnicalHistory(s))
+                {policy.RepresentationMilli=Math.Max(50,policy.RepresentationMilli-(p.Exhaustion>300?150:75));if(policy.RepresentationMilli<650)p.Government="A central executive and negotiated provincial privileges";}
                 HistoryEvent(s,"political-repression",p.Name+" strengthens central control amid demands for participation, increasing the risk of a disputed transfer of power.",s.Society.Settlements[p.CapitalId].Cell,p.CultureId,polity,category:ChronicleCategory.Politics);
             }
         }

@@ -21,6 +21,13 @@ namespace WorldGen.Core
                 else if((mask&(1L<<(int)HistoricalTechnology.Telegraph))!=0)cadence=5;
                 else if((mask&(1L<<(int)HistoricalTechnology.Printing))!=0)cadence=process==CultureProcess?15:20;
             }
+            if(TechnicalHistory(state)&&process==CultureProcess)
+            {
+                var known=state.History.Cultures[entity].Technical;
+                if(known.Offers[(int)HistoricalTechnology.Telecommunications]>0&&state.Years-known.OfferYear[(int)HistoricalTechnology.Telecommunications]<=100)cadence=Math.Min(cadence,2);
+                else if(known.Offers[(int)HistoricalTechnology.Telegraph]>0&&state.Years-known.OfferYear[(int)HistoricalTechnology.Telegraph]<=100)cadence=Math.Min(cadence,5);
+                else if(known.Offers[(int)HistoricalTechnology.Printing]>0&&state.Years-known.OfferYear[(int)HistoricalTechnology.Printing]<=250)cadence=Math.Min(cadence,15);
+            }
             return SimulationEventQueue.Window(World.Recipe.Seed,"aggregate-1-"+process,entity,unchecked((int)ticket),(long)(cadence*SimulationTime.Year),(long)(cadence*.3*SimulationTime.Year));
         }
         SimulationTimeline InitialAggregateTimeline(PrehistoryState s)

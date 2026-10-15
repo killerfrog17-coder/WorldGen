@@ -12,7 +12,7 @@ namespace WorldGen.Presentation
     }
     public static partial class HistoryAtlas
     {
-        static readonly HashSet<string> RoutineKinds=new HashSet<string>(new[]{"succession","battle","trade","contact","religious-community","harvest-shock","incorporation","sea-contact","frontier-retreat","provincial-unrest","provincial-resistance","district-office","district-office-closed","district-incorporated","incorporation-abandoned","settlement-sponsorship"},StringComparer.Ordinal);
+        static readonly HashSet<string> RoutineKinds=new HashSet<string>(new[]{"succession","battle","trade","contact","religious-community","harvest-shock","incorporation","sea-contact","frontier-retreat","provincial-unrest","provincial-resistance","district-office","district-office-closed","district-incorporated","incorporation-abandoned","settlement-sponsorship","administrative-post","administrative-withdrawal"},StringComparer.Ordinal);
         static AtlasFact Record(PrehistoryState s,HistoricalEvent e)
         {
             var links=new List<AtlasLink>();var h=s.History;
@@ -33,6 +33,7 @@ namespace WorldGen.Presentation
                 switch(kind)
                 {
                     case "world":return true;
+                    case "province":return HistoricalProvinceIdentity.Exists(s,id)&&e.Cell==HistoricalProvinceIdentity.Center(s,id);
                     case "state":return id>=0&&(e.PolityId==id||e.OtherPolityId==id);
                     case "city":return id>=0&&(e.SettlementId==id||cell>=0&&e.Cell==cell);
                     case "people":return id>=0&&e.CultureId==id;

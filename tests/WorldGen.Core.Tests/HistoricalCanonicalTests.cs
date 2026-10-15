@@ -14,7 +14,7 @@ public static class HistoricalCanonicalTests
         string trusted=changed.Fingerprint();values[17&31]++;
         check(changed.Fingerprint(true)!=trusted,"Explicit verification detects tampered backing values even after a trusted fingerprint was cached");
         var types=new[]{typeof(HistoricalCityAggregate),typeof(HistoricalRegionAggregate),typeof(HistoricalCultureAggregate),typeof(HistoricalPolityAggregate),typeof(HistoricalLivingCity),typeof(HistoricalLivingRegion),typeof(HistoricalExchangeMemory),typeof(HistoricalCampaignTheater),typeof(HistoricalPolity),typeof(HistoricalRelation),typeof(HistoricalTown),typeof(HistoricalStateDynamics),typeof(HistoricalCampaign),typeof(HistoricalAgriculture),typeof(HistoricalCulture),typeof(HistoricalCultivar),typeof(Settlement),typeof(CultureIdentity),typeof(HistoricalAdministrativeAccount),typeof(HistoricalUrbanDemography),typeof(HistoricalLocalHarvest),typeof(HistoricalLocalCommunity),typeof(HistoricalGovernmentPolicy),typeof(HistoricalCampaignAdvance)};
-        foreach(var type in types)
+        foreach(var type in types.Concat(new[]{typeof(HistoricalTechnicalPractice),typeof(HistoricalImperialGovernment),typeof(HistoricalAdministrativePost)}))
         {
             var records=Array.CreateInstance(type,19);var fields=type.GetFields(BindingFlags.Public|BindingFlags.Instance);
             for(int row=0;row<records.Length;row++)

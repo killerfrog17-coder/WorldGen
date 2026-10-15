@@ -54,7 +54,9 @@ namespace WorldGen.Core
             if(PassageHistory(s))account.ReachKm=(int)(account.ReachKm*DiffusionPortAdministration(s,id));
             double geography=Math.Sqrt(Math.Max(1,p.AreaKm2)/Math.PI)/Math.Max(50,account.ReachKm);
             double served=D.Clamp(1/(1+geography*geography));long receipts=(long)(account.Urban*.065+(account.Rural+account.Suburban)*.025+account.Remote*.012*served);
-            long service=(long)((account.Urban+account.Rural+account.Remote)*.003*(.5+geography*geography)+p.AreaKm2*.0001);account.Receipts=receipts;account.ServiceCost=service;p.Treasury=Math.Max(0,Math.Min(1000000000,p.Treasury+(receipts-service)*elapsed));
+            long service=(long)((account.Urban+account.Rural+account.Remote)*.003*(.5+geography*geography)+p.AreaKm2*.0001);
+            if(TechnicalHistory(s))service+=a.Empires.Governments[id].AdministrativePostCost;
+            account.Receipts=receipts;account.ServiceCost=service;p.Treasury=Math.Max(0,Math.Min(1000000000,p.Treasury+(receipts-service)*elapsed));
             long remoteCapacity=ProvincialHistory(s)?ProvincialRemoteCapacity(s,id):Math.Max(1,(long)(account.RemoteCapacity*HistoricalModernEffects.FoodMultiplier(hc,s.Years)));long remote=AggregateLogisticPopulation(account.Remote,remoteCapacity,CommunityHistory(s)?CommunityRuralGrowth(s,p.CultureId):.004,elapsed);long delta=remote-account.Remote;account.Remote=remote;p.Population=Math.Max(0,p.Population+delta);a.TotalPopulation+=delta;s.Society.Cultures[p.CultureId].Population=Math.Max(0,s.Society.Cultures[p.CultureId].Population+delta);
             var cycle=ds.Cycle??(ds.Cycle=new HistoricalPoliticalCycle());
             if(LivingHistory(s))
@@ -70,6 +72,7 @@ namespace WorldGen.Core
             if(p.Treasury>account.Urban&&leader.Administration>550){long spend=Math.Min(p.Treasury/20,Math.Max(1,account.Urban/40));p.Treasury-=spend;ds.PublicWorks=Math.Min(1000,ds.PublicWorks+(int)Math.Min(elapsed*3,spend/100+1));}else ds.PublicWorks=Math.Max(0,ds.PublicWorks-elapsed);
             ds.PeakPopulation=Math.Max(ds.PeakPopulation,p.Population);ds.PeakAreaKm2=Math.Max(ds.PeakAreaKm2,p.AreaKm2);p.LastEstimateYear=s.Years;
             AdvanceImperialGovernment(s,id,elapsed);
+            AdvanceTerritorialAdministration(s,id,elapsed);
             if(h.Administration.Accounts.Length<h.Polities.Length){int old=h.Administration.Accounts.Length;Array.Resize(ref h.Administration.Accounts,h.Polities.Length);for(int k=old;k<h.Polities.Length;k++)h.Administration.Accounts[k]=new HistoricalAdministrativeAccount{PolityId=k};}
             var ledger=h.Administration.Accounts[id];ledger.Year=s.Years;ledger.ReachM=account.ReachKm*1000;ledger.UrbanReceipts=(long)(account.Urban*.065);ledger.RuralReceipts=receipts-ledger.UrbanReceipts;ledger.ServiceCost=service;ledger.TaxableUrbanResidents=account.Urban;ledger.DisconnectedResidents=(long)(account.Remote*(1-served));
             int sampledCity=account.Cities.At((int)(HistoryRoll("aggregate-province",id,s.Years)*account.Cities.Count));var town=s.Society.Settlements[sampledCity];double distance=D.Angle(World.Surface.Cells[town.Cell].Position,World.Surface.Cells[s.Society.Settlements[p.CapitalId].Cell].Position)*World.Recipe.RadiusKm;

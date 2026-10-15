@@ -13,8 +13,15 @@ namespace WorldGen.Core
         int ProvincialWarFront(PrehistoryState s,int attacker,int defender)
         {
             var a=s.History.Aggregates;
+            int frontier=-1;double frontierValue=double.MinValue;
             for(int trial=0;trial<16;trial++)
-            {int cell=LocalFrontierTarget(s,a.Polities[attacker].Frontier,attacker,"provincial-war-front-"+defender+"-"+trial,1);if(cell>=0&&HistoricalCells.Polity(s,cell)==defender)return cell;}
+            {
+                int cell=LocalFrontierTarget(s,a.Polities[attacker].Frontier,attacker,"provincial-war-front-"+defender+"-"+trial,1);if(cell<0||HistoricalCells.Polity(s,cell)!=defender)continue;
+                if(!TechnicalHistory(s))return cell;
+                double value=(a.TownAt[cell]>=0?100:0)+(a.Empires.Territories.PostAt[cell]>=0?40:0)+10*riverAccess[cell]+Math.Log(1+Math.Max(0,ruralWeight[cell]));
+                if(value>frontierValue||value==frontierValue&&(frontier<0||cell<frontier)){frontier=cell;frontierValue=value;}
+            }
+            if(frontier>=0)return frontier;
             var own=a.Polities[attacker];var hc=s.History.Cultures[s.History.Polities[attacker].CultureId];
             if(own.Cities.Count==0)return -1;
             int offset=(int)(HistoryRoll("provincial-war-port-"+defender,attacker,s.Years)*own.Cities.Count);

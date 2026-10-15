@@ -18,7 +18,7 @@ namespace WorldGen.Core
             var a=s.History.Aggregates;int old=a.Cells[cell*5+layer];if(old==owner)return;
             a.Cells=a.Cells.With(cell*5+layer,owner);a.CellWrites++;
             if(layer!=0&&layer!=1)return;
-            long area=(long)Math.Round(inhabitableArea[cell]);
+            long area=(long)Math.Round(layer==1&&TechnicalHistory(s)?TerritorialPoliticalArea(cell):inhabitableArea[cell]);
             if(layer==0){if(old>=0)s.Society.Cultures[old].AreaKm2-=area;if(owner>=0)s.Society.Cultures[owner].AreaKm2+=area;}
             else {old=old>=0?a.Resolve(old,s.History):-1;if(old>=0)s.History.Polities[old].AreaKm2=Math.Max(0,s.History.Polities[old].AreaKm2-area);if(owner>=0)s.History.Polities[owner].AreaKm2+=area;}
             RefreshAggregateFrontier(s,cell,layer,old);RefreshAggregateFrontier(s,cell,layer,owner);
@@ -29,21 +29,30 @@ namespace WorldGen.Core
             if(owner<0)return;var a=s.History.Aggregates;var bag=layer==0?a.Cultures[owner].Frontier:a.Polities[owner].Frontier;
             int current=layer==0?HistoricalCells.Culture(s,cell):HistoricalCells.Polity(s,cell);a.CellReads++;
             if(current!=owner){bag.Remove(cell);return;}
-            foreach(int neighbor in World.Surface.Cells[cell].Neighbors){a.CellReads++;if(CellPatch[neighbor]>=0&&(layer==0?HistoricalCells.Culture(s,neighbor):HistoricalCells.Polity(s,neighbor))!=owner){bag.Add(cell);return;}}
+            foreach(int neighbor in World.Surface.Cells[cell].Neighbors){a.CellReads++;if(PoliticalFrontierCell(s,neighbor,layer)&&(layer==0?HistoricalCells.Culture(s,neighbor):HistoricalCells.Polity(s,neighbor))!=owner){bag.Add(cell);return;}}
             bag.Remove(cell);
         }
         int LocalFrontierTarget(PrehistoryState s,HistoricalLocalBag bag,int id,string stream,int layer)
         {
             if(bag.Count==0)return -1;int cell=bag.At(Math.Min(bag.Count-1,(int)(HistoryRoll(stream,id,s.Years)*bag.Count)));var neighbors=World.Surface.Cells[cell].Neighbors;
             int offset=(int)(HistoryRoll(stream+"-edge",id,s.Years)*neighbors.Length);
-            for(int k=0;k<neighbors.Length;k++){int next=neighbors[(offset+k)%neighbors.Length];s.History.Aggregates.CellReads++;if(CellPatch[next]<0||World.Hydrology.LakeCoverageFraction[next]>=.9)continue;int owner=layer==0?HistoricalCells.Culture(s,next):HistoricalCells.Polity(s,next);if(owner!=id)return next;}
+            for(int k=0;k<neighbors.Length;k++){int next=neighbors[(offset+k)%neighbors.Length];s.History.Aggregates.CellReads++;if(!PoliticalFrontierCell(s,next,layer)||World.Hydrology.LakeCoverageFraction[next]>=.9)continue;int owner=layer==0?HistoricalCells.Culture(s,next):HistoricalCells.Polity(s,next);if(owner!=id)return next;}
             RefreshAggregateFrontier(s,cell,layer,id);return -1;
         }
         void ClaimAggregatePolity(PrehistoryState s,int cell,int polity)
         {
             var h=s.History;var a=h.Aggregates;int old=HistoricalCells.Polity(s,cell),raw=a.Cells[cell*5+1];if(old==polity)return;
             if(LivingHistory(s))raw=a.PopulationCohort(raw);
-            int patch=CellPatch[cell];if(patch<0)return;var region=a.Regions[patch];long people;
+            int patch=CellPatch[cell];
+            if(patch<0)
+            {
+                if(!TechnicalHistory(s)||World.Hydrology.OceanConnected[cell])return;
+                // Sovereignty over empty land is not a demographic account.
+                // No invented villagers, farmland or ecological patch results.
+                SetAggregateLayer(s,cell,1,polity);SetAggregateLayer(s,cell,4,polity>=0?3:0);
+                a.Provinces.Centers=a.Provinces.Centers.With(cell,polity>=0?h.Polities[polity].CapitalId:-1);AssignTerritorialSource(s,cell,polity>=0?h.Polities[polity].CapitalId:-1);TransferTerritorialPost(s,cell,polity);return;
+            }
+            var region=a.Regions[patch];long people;
             double oldFraction=raw<0?0:Math.Min(1,inhabitableArea[cell]/Math.Max(1,a.Polities[raw].RemoteAreaKm2));
             if(ProvincialHistory(s)&&raw>=0)a.Provinces.FarmPotential[raw]=Math.Max(0,a.Provinces.FarmPotential[raw]-(long)(a.Provinces.FarmPotential[raw]*oldFraction));
             if(raw<0){double remaining=ProvincialHistory(s)?region.AreaKm2-a.Provinces.ClaimedAreaKm2[patch]:region.AreaKm2;people=Math.Min(s.Population[patch],(long)(s.Population[patch]*Math.Min(1,inhabitableArea[cell]/Math.Max(1,remaining))));s.Population[patch]-=people;}
@@ -59,6 +68,8 @@ namespace WorldGen.Core
                 RefreshProvincialRegionalCapacity(s,patch);
             }
             SetAggregateLayer(s,cell,1,polity);SetAggregateLayer(s,cell,4,polity>=0?3:HistoricalCells.Culture(s,cell)>=0?1:0);
+            if(TechnicalHistory(s))AssignTerritorialSource(s,cell,polity>=0?h.Polities[polity].CapitalId:-1);
+            TransferTerritorialPost(s,cell,polity);
             int town=a.TownAt[cell];if(town>=0)AssignAggregateTown(s,town,polity);
         }
         void AssignAggregateTown(PrehistoryState s,int id,int polity)
@@ -70,6 +81,7 @@ namespace WorldGen.Core
             town.PolityId=polity;
             if(CommunityHistory(s))TransferCommunityGovernment(s,id,polity);
             if(ProvincialHistory(s))a.Provinces.Centers=a.Provinces.Centers.With(town.Cell,polity>=0?id:-1);
+            if(TechnicalHistory(s))AssignTerritorialSource(s,town.Cell,polity>=0?id:-1);
             if(old>=0&&h.Polities[old].CapitalId==id){var prior=a.Polities[old];if(prior.Cities.Count>0)h.Polities[old].CapitalId=prior.Cities.At(0);else EndAggregateState(s,old,"Its last administrative center was lost.");}
         }
         void EndAggregateState(PrehistoryState s,int id,string reason,int successor=-1)

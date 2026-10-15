@@ -5,34 +5,37 @@ namespace WorldGen.Core
     [Serializable] public sealed class HistoricalImperialSystem
     {
         public HistoricalImperialGovernment[] Governments=Array.Empty<HistoricalImperialGovernment>();
-        public HistoricalImperialSystem Copy()=>new HistoricalImperialSystem{Governments=Governments.Select(g=>g.Copy()).ToArray()};
+        public HistoricalTerritorialAdministration Territories;
+        public HistoricalImperialSystem Copy()=>new HistoricalImperialSystem{Governments=Governments.Select(g=>g.Copy()).ToArray(),Territories=Territories?.Copy()};
     }
     [Serializable] public sealed class HistoricalImperialGovernment
     {
         public int Patron=-1,SinceYear,AutonomyMilli=800,ArrearsYears,LastReportYear,LastPatronSuccession,SubjectCount;
         public long SubjectPopulation,SubjectAreaKm2,SubjectArmy,ReportedPopulation,ReportedAreaKm2,ReportedArmy,AnnualTribute,TotalTribute;
         public bool Imposed;
-        public HistoricalImperialGovernment Copy()=>(HistoricalImperialGovernment)MemberwiseClone();
+        public long AdministrativePostCost;
+        public HistoricalLocalBag AdministrativePosts=new HistoricalLocalBag();
+        public HistoricalImperialGovernment Copy(){var copy=(HistoricalImperialGovernment)MemberwiseClone();copy.AdministrativePosts=AdministrativePosts.Copy();return copy;}
     }
     public static class HistoricalImperialHierarchy
     {
         public const int MaximumDepth=8;
         public static int Patron(PrehistoryState s,int polity)
         {
-            var a=s.History?.Aggregates;int current=a?.Resolve(polity,s.History)??-1;
-            if(current<0||a.Empires==null)return -1;int raw=a.Empires.Governments[current].Patron;
+            var a=s.History?.Aggregates;int current=a!=null?a.Resolve(polity,s.History):polity>=0&&polity<(s.History?.Polities.Length??0)&&s.History.Polities[polity].EndedYear<0?polity:-1;
+            if(current<0||a?.Empires==null)return -1;int raw=a.Empires.Governments[current].Patron;
             return raw<0?-1:a.Resolve(raw,s.History);
         }
         public static int Sovereign(PrehistoryState s,int polity)
         {
-            var a=s.History?.Aggregates;int current=a?.Resolve(polity,s.History)??-1;
-            if(current<0||a.Empires==null)return current;
+            var a=s.History?.Aggregates;int current=a!=null?a.Resolve(polity,s.History):polity>=0&&polity<(s.History?.Polities.Length??0)&&s.History.Polities[polity].EndedYear<0?polity:-1;
+            if(current<0||a?.Empires==null)return current;
             for(int depth=0;depth<MaximumDepth;depth++)
             {int next=Patron(s,current);if(next<0)return current;if(next==current)throw new InvalidOperationException("Cyclic imperial allegiance.");current=next;}
             throw new InvalidOperationException("Imperial delegation exceeds its bounded depth.");
         }
-        public static long Population(PrehistoryState s,int polity)=>s.History.Polities[polity].Population+(s.History.Aggregates.Empires?.Governments[polity].SubjectPopulation??0);
-        public static long AreaKm2(PrehistoryState s,int polity)=>s.History.Polities[polity].AreaKm2+(s.History.Aggregates.Empires?.Governments[polity].SubjectAreaKm2??0);
+        public static long Population(PrehistoryState s,int polity)=>s.History.Polities[polity].Population+(s.History.Aggregates?.Empires?.Governments[polity].SubjectPopulation??0);
+        public static long AreaKm2(PrehistoryState s,int polity)=>s.History.Polities[polity].AreaKm2+(s.History.Aggregates?.Empires?.Governments[polity].SubjectAreaKm2??0);
         public static int InstalledPractices(HistoricalCulture culture)=>culture.Technical==null?culture.Technology.Count(y=>y>0):culture.Technical.Deployment.Count(y=>y>=300);
     }
     public sealed partial class Prehistory
@@ -41,6 +44,7 @@ namespace WorldGen.Core
         {
             var a=s.History.Aggregates;if(a.Empires!=null)return;
             a.Empires=new HistoricalImperialSystem{Governments=s.History.Polities.Select(p=>new HistoricalImperialGovernment{SinceYear=s.Years,LastReportYear=s.Years}).ToArray()};
+            InitializeTerritorialAdministration(s);
         }
         void ValidateImperialSystem(PrehistoryState s)
         {
@@ -106,6 +110,7 @@ namespace WorldGen.Core
                 ImperialDelta(s,patron,g.ReportedPopulation,g.ReportedAreaKm2,g.ReportedArmy,count);
                 var relation=AggregateRelation(s,client,patron);relation.Trade=true;relation.Alliance=true;relation.WarSince=-1;relation.Trust=Math.Max(20,relation.Trust);
                 g.LastPatronSuccession=h.Dynamics.States[patron].LastSuccession;
+                if(imposed){var cycle=h.Dynamics.States[patron].Cycle;if(cycle!=null){cycle.ConquestDebt=Math.Min(1000,cycle.ConquestDebt+75+Math.Min(100,g.SubjectCount*10));cycle.LastConquestYear=s.Years;}}
             }
             var p=h.Polities[client];
             HistoryEvent(s,patron>=0?"imperial-allegiance":"imperial-independence",p.Name+(patron>=0?" becomes a constituent government of "+h.Polities[patron].Name+", retaining its local court and communities.":" resumes independent foreign policy.")+" "+reason,s.Society.Settlements[p.CapitalId].Cell,p.CultureId,client,patron>=0?patron:previous,category:ChronicleCategory.Politics);

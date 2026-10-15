@@ -20,6 +20,9 @@ namespace WorldGen.Core
     // capability is useful only after sustained adoption, not on discovery day.
     public static class HistoricalModernEffects
     {
+        static readonly double[] NetworkResponse=BuildNetworkResponse();
+        static double[] BuildNetworkResponse()
+        {var values=new double[1001];for(int k=0;k<values.Length;k++)values[k]=D.Q((1-Math.Exp(-5*k/1000.0))/(1-Math.Exp(-5)),1000000);return values;}
         public static HistoricalTechnologyCeiling Era(HistoricalTechnology technology)
         {
             int k=(int)technology;
@@ -42,14 +45,16 @@ namespace WorldGen.Core
             return D.Q(Math.Max(.12,(1-.55*sanitation)*(1-treatment*medicine)*(1-.45*vaccines)),1000000);
         }
         public static double ChronicMortalityMultiplier(HistoricalCulture c,int year)=>D.Q(Math.Max(.15,1-.35*Adoption(c,HistoricalTechnology.Sanitation,year)-.2*Adoption(c,HistoricalTechnology.Vaccination,year)-.25*Adoption(c,HistoricalTechnology.Antibiotics,year)),1000000);
-        public static double LandTransport(HistoricalCulture c,int year)=>D.Q(1+2*Adoption(c,HistoricalTechnology.Railways,year)+1.5*Adoption(c,HistoricalTechnology.CombustionEngines,year),1000000);
-        public static double Communication(HistoricalCulture c,int year)=>D.Q(1+2*Adoption(c,HistoricalTechnology.Telegraph,year)+4*Adoption(c,HistoricalTechnology.Radio,year)+8*Adoption(c,HistoricalTechnology.Telecommunications,year),1000000);
+        public static double NetworkUse(HistoricalCulture c,HistoricalTechnology technology,int year)
+        {if(c.Technical==null)return Adoption(c,technology,year);int k=(int)technology;return c.Technology[k]==0?0:NetworkResponse[Math.Max(0,Math.Min(1000,c.Technical.Deployment[k]))];}
+        public static double LandTransport(HistoricalCulture c,int year)=>D.Q(1+2*NetworkUse(c,HistoricalTechnology.Railways,year)+1.5*NetworkUse(c,HistoricalTechnology.CombustionEngines,year),1000000);
+        public static double Communication(HistoricalCulture c,int year)=>D.Q(1+2*NetworkUse(c,HistoricalTechnology.Telegraph,year)+4*NetworkUse(c,HistoricalTechnology.Radio,year)+8*NetworkUse(c,HistoricalTechnology.Telecommunications,year),1000000);
         public static double Military(HistoricalCulture c,int year)=>c.Technical==null?D.Q(1+.3*Adoption(c,HistoricalTechnology.Gunpowder,year)+.4*Adoption(c,HistoricalTechnology.IndustrialMetallurgy,year)+.6*Adoption(c,HistoricalTechnology.CombustionEngines,year)+.5*Adoption(c,HistoricalTechnology.Aviation,year),1000000):D.Q((1+.2*Adoption(c,HistoricalTechnology.Bronze,year)+.3*Adoption(c,HistoricalTechnology.Iron,year)+.4*Adoption(c,HistoricalTechnology.Steel,year))*(1+1.4*Adoption(c,HistoricalTechnology.Gunpowder,year))*(1+1.8*Adoption(c,HistoricalTechnology.IndustrialMetallurgy,year))*(1+1.5*Adoption(c,HistoricalTechnology.CombustionEngines,year)+Adoption(c,HistoricalTechnology.Aviation,year))*(1+.5*Adoption(c,HistoricalTechnology.Radio,year)),1000000);
         // Account units are not percentages of the harvest. Rural households
         // have lower market receipts than urban ones, but are not nearly free
         // of fiscal value in an agrarian state. Service costs still apply.
         public static double RuralReceiptRate(HistoricalCulture c,int year)=>D.Q(.025+.005*Adoption(c,HistoricalTechnology.Printing,year)+.01*Adoption(c,HistoricalTechnology.Telecommunications,year),1000000);
-        public static double AdministrativeCapacity(HistoricalCulture c,int year)=>D.Q(1+.5*Adoption(c,HistoricalTechnology.Printing,year)+Adoption(c,HistoricalTechnology.Railways,year)+Adoption(c,HistoricalTechnology.Telegraph,year)+1.5*Adoption(c,HistoricalTechnology.Computing,year),1000000);
+        public static double AdministrativeCapacity(HistoricalCulture c,int year)=>D.Q(1+.5*NetworkUse(c,HistoricalTechnology.Printing,year)+NetworkUse(c,HistoricalTechnology.Railways,year)+NetworkUse(c,HistoricalTechnology.Telegraph,year)+1.5*NetworkUse(c,HistoricalTechnology.Computing,year),1000000);
         public static bool CarriedAtFounding(HistoricalCulture parent,int technology,int foundedYear)
             =>technology>=0&&technology<parent.Technology.Length&&parent.Technology[technology]>0&&parent.Technology[technology]<=foundedYear;
     }

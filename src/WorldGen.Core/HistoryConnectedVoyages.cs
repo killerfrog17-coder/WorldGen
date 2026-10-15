@@ -120,6 +120,19 @@ namespace WorldGen.Core
             var h=s.History;var hc=h.Cultures[child];hc.ParentCultureId=parent;hc.LanguageId=h.Cultures[parent].LanguageId;
             provincialKnowledgeMasks.Remove(child);
             for(int k=0;k<hc.Technology.Length;k++)if(h.Cultures[parent].Technology[k]>0&&(!ProvincialHistory(s)||k<15))hc.Technology[k]=s.Years+1;
+            if(TechnicalHistory(s))
+            {
+                var source=h.Cultures[parent].Technical;var knowledge=hc.Technical;
+                for(int k=0;k<hc.Technology.Length;k++)if(source.Levels[k]>0)
+                {
+                    hc.Technology[k]=s.Years+1;knowledge.Levels[k]=source.Levels[k];knowledge.LevelYear[k]=s.Years;
+                    knowledge.Offers[k]=source.Levels[k];knowledge.OfferYear[k]=s.Years;knowledge.Sources[k]=parent;
+                    // Settlers carry technical knowledge, not a free steel mill,
+                    // railway or electricity grid. Portable skills differ.
+                    knowledge.Deployment[k]=k<4?Math.Min(500,source.Deployment[k]):0;
+                    if(knowledge.Deployment[k]>=250)knowledge.InstalledYear[k]=s.Years+1;
+                }
+            }
             var crops=h.Agriculture[child];var donor=h.Agriculture[parent];
             for(int k=0;k<6;k++)if(donor.AdoptedYear[k]>0&&donor.Cultivars[k]!=null&&(CommunityHistory(s)?CommunityTransferFit(s,site,donor.Cultivars[k]):HistoricalCropCatalog.TransferFit(CropHabitat(s,site),donor.Cultivars[k],CropLatitude(site),riverSites[site]))>.12)
             {crops.AdoptedYear[k]=s.Years+1;crops.SourceCulture[k]=parent;crops.Cultivars[k]=donor.Cultivars[k].Copy();crops.Cultivars[k].ParentCulture=parent;

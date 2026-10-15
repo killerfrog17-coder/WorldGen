@@ -51,6 +51,7 @@ namespace WorldGen.Presentation
         {
             if(s?.Society==null||s.History==null||cell<0||cell>=HistoricalCells.Count(s))return null;
             var h=s.History;
+            if(overlay==HistoryOverlay.Provinces){int province=HistoricalProvinceIdentity.Of(s,cell);if(province>=0)return ProvinceLink(s,province);}
             if(overlay==HistoryOverlay.Religions&&HistoricalCells.Religion(s,cell)>=0)return FaithLink(h.Religions[HistoricalCells.Religion(s,cell)]);
             if((overlay==HistoryOverlay.States||overlay==HistoryOverlay.Territories)&&HistoricalCells.Polity(s,cell)>=0)return StateLink(s,h.Polities[overlay==HistoryOverlay.Territories?HistoricalCells.Polity(s,cell):HistoricalImperialHierarchy.Sovereign(s,HistoricalCells.Polity(s,cell))]);
             if(overlay==HistoryOverlay.Civilizations&&HistoricalCells.Polity(s,cell)>=0)return CultureLink(s.Society.Cultures[h.Polities[HistoricalImperialHierarchy.Sovereign(s,HistoricalCells.Polity(s,cell))].CultureId]);
@@ -65,18 +66,28 @@ namespace WorldGen.Presentation
             if(s?.History==null||s.Society==null||link==null)return "Select an inhabited location to explore its history.";
             switch(link.Kind)
             {
-                case "state":var p=s.History.Polities[link.Id];return p.EndedYear>=0?p.Name+" was founded in year "+Y(s,p.FoundedYear)+" and ended as an independent state in year "+Y(s,p.EndedYear)+". Its people and cities may survive under later courts.":p.Name+" is a "+p.Government.ToLowerInvariant()+" based at "+s.Society.Settlements[p.CapitalId].Name+". It administers "+N(p.Population)+" people; "+p.Ruler+" currently rules. Founded in year "+Y(s,p.FoundedYear)+".";
+                case "state":return StateSummary(s,s.History.Polities[link.Id]);
                 case "city":var t=s.Society.Settlements[link.Id];return t.Name+" is home to "+N(t.Population)+" residents of the "+s.Society.Cultures[t.CultureId].Name+" people. "+(t.PolityId>=0?"It belongs to "+s.History.Polities[t.PolityId].Name+".":"It is outside centralized state administration.")+" The settlement dates to year "+Y(s,t.FoundedYear)+".";
                 case "people":var c=s.Society.Cultures[link.Id];return "The "+c.Name+" people number "+N(c.Population)+". Their recorded way of life centers on "+c.Subsistence.ToLowerInvariant()+". Explore their profile for cultural contacts, crops, and adopted practices.";
                 case "religion":var r=s.History.Religions[link.Id];return r.Name+" originated among the "+s.Society.Cultures[r.CultureId].Name+" people in year "+Y(s,r.FoundedYear)+". "+r.Tradition+". Its recorded ethos is "+r.Ethos+".";
                 default:return link.Name;
             }
         }
+        static string StateSummary(PrehistoryState s,HistoricalPolity p)
+        {
+            if(p.EndedYear>=0)return p.Name+" was founded in year "+Y(s,p.FoundedYear)+" and its government ended in year "+Y(s,p.EndedYear)+". Its people and cities may survive under later courts.";
+            string text=p.Name+" is a "+p.Government.ToLowerInvariant()+" based at "+s.Society.Settlements[p.CapitalId].Name+". It directly administers "+N(p.Population)+" people; "+p.Ruler+" currently rules.";
+            int patron=HistoricalImperialHierarchy.Patron(s,p.Id),subjects=s.History.Aggregates?.Empires?.Governments[p.Id].SubjectCount??0;
+            if(patron>=0)text+=" It retains its local institutions as a constituent of "+s.History.Polities[patron].Name+".";
+            if(subjects>0)text+=" Including "+N(subjects)+" constituent governments, its realm contains "+N(HistoricalImperialHierarchy.Population(s,p.Id))+" people.";
+            return text+" Founded in year "+Y(s,p.FoundedYear)+".";
+        }
         public static AtlasLink[] ProfilesAt(PrehistoryState? s,int cell)
         {
             if(s?.History==null||s.Society==null||cell<0||cell>=HistoricalCells.Count(s))return Array.Empty<AtlasLink>();
             var links=new List<AtlasLink>();int state=HistoricalCells.Polity(s,cell),faith=HistoricalCells.Religion(s,cell);
             if(state>=0)links.Add(StateLink(s,s.History.Polities[state]));
+            int province=HistoricalProvinceIdentity.Of(s,cell);if(province>=0)links.Add(ProvinceLink(s,province));
             if(state>=0){int sovereign=HistoricalImperialHierarchy.Sovereign(s,state);if(sovereign!=state)links.Insert(0,StateLink(s,s.History.Polities[sovereign],"Imperial government"));}
             var town=s.Society.Settlements.FirstOrDefault(t=>t.Cell==cell&&t.Population>0);if(town!=null)links.Add(TownLink(s,town));
             var culture=SocietyView.Culture(s,cell);if(culture==null&&state>=0)culture=s.Society.Cultures[s.History.Polities[state].CultureId];
@@ -88,6 +99,7 @@ namespace WorldGen.Presentation
             var h=s.History;IEnumerable<AtlasLink> entries;
             switch(kind)
             {
+                case "province":entries=ProvinceDirectory(s);break;
                 case "state":entries=h.Polities.Where(p=>past||p.EndedYear<0).OrderByDescending(p=>p.Population).ThenBy(p=>p.Id).Select(p=>StateLink(s,p,p.EndedYear<0?p.Government:"Ended in year "+Y(s,p.EndedYear),p.Population));break;
                 case "city":entries=s.Society.Settlements.Where(t=>past||t.Population>0).OrderByDescending(t=>t.Population).ThenBy(t=>t.Id).Select(t=>TownLink(s,t));break;
                 case "people":entries=s.Society.Cultures.OrderByDescending(c=>c.Population).ThenBy(c=>c.Id).Select(CultureLink);break;
@@ -105,6 +117,7 @@ namespace WorldGen.Presentation
             switch(kind)
             {
                 case "world":Overview(s,d,sections);break;
+                case "province":Province(s,id,d,sections);break;
                 case "state" when id>=0&&id<h.Polities.Length:State(s,h.Polities[id],d,sections);break;
                 case "city" when id>=0&&id<s.Society.Settlements.Length:City(s,s.Society.Settlements[id],d,sections);break;
                 case "people" when id>=0&&id<s.Society.Cultures.Length:People(s,s.Society.Cultures[id],d,sections);break;
@@ -138,10 +151,12 @@ namespace WorldGen.Presentation
         static void Overview(PrehistoryState s,AtlasDocument d,List<AtlasSection> a)
         {
             var h=s.History;var states=h.Polities.Where(p=>p.EndedYear<0).OrderByDescending(p=>p.Population).ThenBy(p=>p.Id).ToArray();var towns=s.Society.Settlements.Where(t=>t.Population>0).ToArray();
+            int governments=states.Length;states=states.Where(p=>HistoricalImperialHierarchy.Patron(s,p.Id)<0).OrderByDescending(p=>HistoricalImperialHierarchy.Population(s,p.Id)).ThenBy(p=>p.Id).ToArray();
             long global=SocietyView.Population(s),urban=towns.Sum(t=>t.Population);int wars=h.Relations.Count(r=>r.WarSince>=0&&h.Polities[r.A].EndedYear<0&&h.Polities[r.B].EndedYear<0);
             d.Introduction="This world has "+N(global)+" people, "+N(states.Length)+" surviving states, and "+N(towns.Length)+" inhabited named settlements. "+(states.Length==0?"Political life is still organized outside centralized states.":states[0].Name+" is the most populous surviving state; political and cultural boundaries are not necessarily the same.")+" "+(wars==0?"No interstate wars are currently recorded.":N(wars)+" interstate wars are currently active.");
             d.Facts=new[]{F("People",N(global)),F("Named-settlement residents",N(urban)+(global>0?" ("+(100.0*urban/global).ToString("0.#",CultureInfo.InvariantCulture)+"% of all people)":"")),F("Surviving states",N(states.Length)),F("Active wars",N(wars))};
-            a.Add(Links("Political centers",states.Take(12).Select(p=>StateLink(s,p,N(p.Population)+" people · "+p.Government,p.Population)),"Compare current state populations. People outside these states are not missing from the world total.",true,"people"));
+            if(h.Aggregates?.Empires!=null){d.Introduction+=" These overarching entities include "+N(governments-states.Length)+" constituent governments with their own local institutions.";d.Facts=d.Facts.Concat(new[]{F("Constituent governments",N(governments-states.Length))}).ToArray();}
+            a.Add(Links("Political centers",states.Take(12).Select(p=>StateLink(s,p,N(HistoricalImperialHierarchy.Population(s,p.Id))+" people · "+p.Government,HistoricalImperialHierarchy.Population(s,p.Id))),"Compare overarching populations, including constituent governments. People outside these entities are not missing from the world total.",true,"people"));
             a.Add(Links("Urban centers",towns.OrderByDescending(t=>t.Population).ThenBy(t=>t.Id).Take(12).Select(t=>TownLink(s,t)),"Named-settlement population only, not the surrounding rural catchment.",true,"residents"));
             a.Add(Text("Reading this moment",(global==0?"No population is currently recorded.":"About "+(100.0*urban/global).ToString("0.#",CultureInfo.InvariantCulture)+"% of the world's people live in named settlements; the rest are represented by rural communities.")+" "+(states.Length>0?states[0].Name+" is the largest surviving court by population, but size alone says nothing about how secure its rule is.":"No centralized state is currently recorded.")+" "+(wars>0?"Open a belligerent state's diplomatic neighborhood and campaign records to explore the current conflicts.":"Peace in the interstate records does not imply that every community is stable or prosperous.")));
             var ties=h.Relations.Where(r=>h.Polities[r.A].EndedYear<0&&h.Polities[r.B].EndedYear<0&&(r.WarSince>=0||r.Alliance||r.Trade)).OrderByDescending(r=>r.WarSince>=0).ThenBy(r=>r.A).ThenBy(r=>r.B);
