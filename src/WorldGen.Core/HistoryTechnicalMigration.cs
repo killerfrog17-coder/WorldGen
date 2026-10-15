@@ -16,5 +16,18 @@ namespace WorldGen.Core
             bool portable=technology<4||technology==(int)HistoricalTechnology.Writing||technology==(int)HistoricalTechnology.Coinage||technology==(int)HistoricalTechnology.Navigation||technology==(int)HistoricalTechnology.Scholasticism||technology==(int)HistoricalTechnology.ScientificMethod;
             return portable?Math.Min(500,Math.Max(0,parentDeployment)):0;
         }
+        public static int SeaRangeM(HistoricalCulture culture,int year)
+        {
+            var t=culture.Technical;double range=120000;
+            if(HistoricalTechnologies.Has(culture,HistoricalTechnology.Sailing))range=Math.Max(range,Math.Min(1250000,250000+125000*t.Levels[(int)HistoricalTechnology.Sailing]));
+            if(HistoricalTechnologies.Has(culture,HistoricalTechnology.Navigation))range=Math.Max(range,1000000+500000*Math.Min(5,t.Levels[(int)HistoricalTechnology.Navigation]));
+            if(HistoricalTechnologies.Has(culture,HistoricalTechnology.OceanNavigation))
+            {
+                double craft=2000000+750000*t.Levels[(int)HistoricalTechnology.OceanNavigation];
+                double powered=2500000*HistoricalModernEffects.NetworkUse(culture,HistoricalTechnology.SteamPower,year)+4000000*HistoricalModernEffects.NetworkUse(culture,HistoricalTechnology.CombustionEngines,year);
+                range=Math.Max(range,Math.Min(14000000,craft+powered));
+            }
+            return (int)(Math.Round(range/50000)*50000);
+        }
     }
 }

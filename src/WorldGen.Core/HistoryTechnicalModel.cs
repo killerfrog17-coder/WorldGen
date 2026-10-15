@@ -27,9 +27,9 @@ namespace WorldGen.Core
             new[]{R(HistoricalTechnology.Cultivation,2),R(HistoricalTechnology.Pottery,1)},new[]{R(HistoricalTechnology.Pottery,2)},new[]{R(HistoricalTechnology.Storage,2),R(HistoricalTechnology.Pottery,2)},
             new[]{R(HistoricalTechnology.Copper,2),R(HistoricalTechnology.Pottery,2)},new[]{R(HistoricalTechnology.Cultivation,2)},new[]{R(HistoricalTechnology.Copper,3),R(HistoricalTechnology.Pottery,3)},
             new[]{R(HistoricalTechnology.Writing,2),R(HistoricalTechnology.Copper,2)},new[]{R(HistoricalTechnology.Roads,2),R(HistoricalTechnology.Iron,2)},new[]{R(HistoricalTechnology.Iron,3),R(HistoricalTechnology.Mills,2)},
-            new[]{R(HistoricalTechnology.Sailing,3),R(HistoricalTechnology.Writing,2)},new[]{R(HistoricalTechnology.Writing,3),R(HistoricalTechnology.Mills,2),R(HistoricalTechnology.Coinage,2)},
+            new[]{R(HistoricalTechnology.Sailing,3),R(HistoricalTechnology.Storage,2)},new[]{R(HistoricalTechnology.Writing,3),R(HistoricalTechnology.Mills,2),R(HistoricalTechnology.Coinage,2)},
             new[]{R(HistoricalTechnology.Writing,4),R(HistoricalTechnology.Mills,3),R(HistoricalTechnology.Scholasticism,3)},new[]{R(HistoricalTechnology.Iron,4),R(HistoricalTechnology.Scholasticism,3)},
-            new[]{R(HistoricalTechnology.Navigation,3),R(HistoricalTechnology.Steel,2)},new[]{R(HistoricalTechnology.Scholasticism,4),R(HistoricalTechnology.Printing,2)},new[]{R(HistoricalTechnology.Cultivation,4),R(HistoricalTechnology.Mills,2)},
+            new[]{R(HistoricalTechnology.Navigation,4),R(HistoricalTechnology.Sailing,4),R(HistoricalTechnology.Storage,3)},new[]{R(HistoricalTechnology.Scholasticism,4),R(HistoricalTechnology.Printing,2)},new[]{R(HistoricalTechnology.Cultivation,4),R(HistoricalTechnology.Mills,2)},
             new[]{R(HistoricalTechnology.Steel,3),R(HistoricalTechnology.ScientificMethod,2),R(HistoricalTechnology.Mills,4)},new[]{R(HistoricalTechnology.SteamPower,2),R(HistoricalTechnology.Steel,4)},
             new[]{R(HistoricalTechnology.SteamPower,2),R(HistoricalTechnology.IndustrialMetallurgy,2),R(HistoricalTechnology.Roads,3)},new[]{R(HistoricalTechnology.ScientificMethod,3),R(HistoricalTechnology.Printing,3)},
             new[]{R(HistoricalTechnology.GermTheory,1),R(HistoricalTechnology.Roads,3)},new[]{R(HistoricalTechnology.ScientificMethod,3),R(HistoricalTechnology.IndustrialMetallurgy,2)},
@@ -55,6 +55,11 @@ namespace WorldGen.Core
         public static bool Medical(int k)=>k==23||k==24||k==31||k==32;
         public static bool Agricultural(int k)=>k==1||k==4||k==19||k==27||k==33;
         public static bool Maritime(int k)=>k==3||k==13||k==17;
+        // Traditional blue-water navigation predates industrial materials and
+        // is possible without literacy. A medieval technology limit must not
+        // erase that independent craft tradition.
+        public static bool WithinCeiling(int k,HistoricalTechnologyCeiling ceiling)
+            =>k==(int)HistoricalTechnology.OceanNavigation||HistoricalModernEffects.Era((HistoricalTechnology)k)<=ceiling;
         public static double Installed(HistoricalCulture culture,int technology)=>culture.Technical==null?0:culture.Technical.Deployment[technology]/1000.0;
     }
     public sealed partial class Prehistory

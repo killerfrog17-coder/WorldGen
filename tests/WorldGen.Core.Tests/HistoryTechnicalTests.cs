@@ -67,6 +67,13 @@ public static class HistoryTechnicalTests
         check(HistoricalTechnicalMigration.SettlementInvestment(modernMigrants,100)>4,"Actual transport makes provisioned descendant settlements easier to establish");
         check(HistoricalTechnicalMigration.CarriedDeployment((int)HistoricalTechnology.Writing,800)==500,"Migrants retain portable accounting skills rather than relearning writing from scratch");
         check(HistoricalTechnicalMigration.CarriedDeployment((int)HistoricalTechnology.Railways,800)==0&&HistoricalTechnicalMigration.CarriedDeployment((int)HistoricalTechnology.IndustrialMetallurgy,800)==0,"Knowing industrial technology does not let emigrants carry away an installed industrial network");
+        check(HistoricalTechnicalGraph.Requirements((int)HistoricalTechnology.Navigation).All(r=>r.Technology!=(int)HistoricalTechnology.Writing)&&HistoricalTechnicalGraph.Requirements((int)HistoricalTechnology.OceanNavigation).All(r=>r.Technology!=(int)HistoricalTechnology.Steel),"Oral maritime traditions do not require writing or steel");
+        check(HistoricalTechnicalGraph.WithinCeiling((int)HistoricalTechnology.OceanNavigation,HistoricalTechnologyCeiling.Medieval)&&!HistoricalTechnicalGraph.WithinCeiling((int)HistoricalTechnology.SteamPower,HistoricalTechnologyCeiling.Medieval),"A medieval ceiling allows traditional ocean navigation without allowing steam industry");
+        var oceanCraft=new HistoricalCulture{Technology=new int[37],Technical=new HistoricalTechnicalPractice()};int oceanId=(int)HistoricalTechnology.OceanNavigation;
+        oceanCraft.Technology[oceanId]=1;oceanCraft.Technical.Levels[oceanId]=1;oceanCraft.Technical.Deployment[oceanId]=800;int earlyRange=HistoricalModernVoyageEffects.RangeM(oceanCraft,100);
+        oceanCraft.Technical.Levels[oceanId]=4;
+        check(earlyRange<4000000&&HistoricalModernVoyageEffects.RangeM(oceanCraft,100)>earlyRange,"Further navigation levels expand range; the first ocean craft is not an instant intercontinental fleet");
+        check(WorldEraView.CultureEra(oceanCraft)<7,"Independent traditional ocean navigation does not turn a people into an early-modern industrial society");
         var demand=typeof(Prehistory).GetMethod("TechnicalDemand",BindingFlags.NonPublic|BindingFlags.Static)!;
         double peace=(double)demand.Invoke(null,new object[]{16,0d,0d,0d,1d,false,1d,true})!,war=(double)demand.Invoke(null,new object[]{16,1d,1d,0d,1d,false,1d,true})!;
         check(peace==0&&war>peace,"No military threat means no free gunpowder-research incentive; war creates demand");

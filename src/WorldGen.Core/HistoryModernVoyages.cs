@@ -8,6 +8,7 @@ namespace WorldGen.Core
     {
         public static int RangeM(HistoricalCulture culture,int year)
         {
+            if(culture.Technical!=null)return HistoricalTechnicalMigration.SeaRangeM(culture,year);
             double ocean=HistoricalModernEffects.Adoption(culture,HistoricalTechnology.OceanNavigation,year);
             double steam=HistoricalModernEffects.Adoption(culture,HistoricalTechnology.SteamPower,year);
             return 3500000+(int)Math.Round(3000000*ocean/500000)*500000+(int)Math.Round(2500000*ocean*steam/500000)*500000;

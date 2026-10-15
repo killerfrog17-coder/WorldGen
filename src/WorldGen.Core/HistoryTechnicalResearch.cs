@@ -59,7 +59,7 @@ namespace WorldGen.Core
             Array.Clear(t.Allocation,0,n);
             for(int k=0;k<n;k++)
             {
-                if(HistoricalModernEffects.Era((HistoricalTechnology)k)>h.Modern.TechnologyCeiling||t.Levels[k]>=HistoricalTechnicalGraph.MaximumLevel)continue;
+                if(!HistoricalTechnicalGraph.WithinCeiling(k,h.Modern.TechnologyCeiling)||t.Levels[k]>=HistoricalTechnicalGraph.MaximumLevel)continue;
                 double demand=TechnicalDemand(k,war,competition,disease,farming,maritime,urban,ca.CivilizationSince>=0);
                 if(k==(int)HistoricalTechnology.Irrigation)demand*=.2+D.Clamp((650-habitat.AridityMilli)/650.0)+.5*D.Clamp(riverSites[site]);
                 int needed=HistoricalTechnicalGraph.UsefulLevel(k);double relevance=t.Levels[k]>=needed?.06:1;
@@ -105,7 +105,7 @@ namespace WorldGen.Core
                 foreach(var r in HistoricalTechnicalGraph.Requirements(k))target=Math.Min(target,t.Deployment[r.Technology]/700.0);
                 bool imported=t.Offers[k]>0&&s.Years-t.OfferYear[k]<=150;
                 if(imported&&k!=6&&k!=14&&k!=15&&k!=18)target=Math.Max(target,.55*D.Clamp(importedCommunication/2));
-                double capital=k<15?.4+.6*urban:.12+.5*urban+.38*wealth;
+                double capital=k<15||HistoricalTechnicalGraph.Maritime(k)?.4+.6*urban:.12+.5*urban+.38*wealth;
                 if(k>=20)capital*=.2+.8*Math.Min(1,HistoricalTechnicalGraph.Installed(hc,(int)HistoricalTechnology.IndustrialMetallurgy)+.35);
                 if(HistoricalTechnicalGraph.WeaponsOnly(k))capital*=.15+.85*Math.Max(war,competition);
                 if(HistoricalTechnicalGraph.Agricultural(k))capital*=Math.Max(.15,farming);

@@ -24,7 +24,7 @@ namespace WorldGen.Core
         }
         public static int ResearchCost(int technology)=>technology<15?100+technology*24:260+(technology-15)*22;
         public static double CoastRangeKm(HistoricalCulture c,int year)
-            =>HistoricalTechnologies.Has(c,HistoricalTechnology.OceanNavigation)?Math.Max(7000,HistoricalModernVoyageEffects.RangeM(c,year)/1000.0)
+            =>c.Technical!=null?HistoricalTechnicalMigration.SeaRangeM(c,year)/1000.0:HistoricalTechnologies.Has(c,HistoricalTechnology.OceanNavigation)?Math.Max(7000,HistoricalModernVoyageEffects.RangeM(c,year)/1000.0)
                 :HistoricalTechnologies.Has(c,HistoricalTechnology.Navigation)?2500:HistoricalTechnologies.Has(c,HistoricalTechnology.Sailing)?650:120;
     }
     public sealed partial class Prehistory
