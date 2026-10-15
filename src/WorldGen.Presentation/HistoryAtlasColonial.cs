@@ -29,6 +29,11 @@ namespace WorldGen.Presentation
             var c=s.History.Aggregates?.Empires?.Connections;if(c==null||id<0)return;
             if(kind=="state"&&id<c.Governments.Length)
             {var titles=c.Titles.Where(t=>s.History!.Aggregates!.Resolve(t.Holder,s.History)==id).Select(t=>ClaimLink(s,t.Id));if(titles.Any())sections.Add(Links("Recognized territorial titles",titles,"These agreements are separate from administered territory and resident population."));}
+            if(kind=="state"&&c.Ambitions!=null&&id<c.Ambitions.Governments.Length)
+            {
+                var aim=c.Ambitions.Governments[id];
+                sections.Add(new AtlasSection{Title="Territorial ambitions",Text=aim.Description+". Desired territory is not a recognized claim or actual control. Expansion still requires forces, funds, administration and tolerable war exhaustion.",Facts=new[]{F("Goal adopted",Y(s,aim.SinceYear)),F("Geographic scope",aim.Scope==HistoricalAmbitionScope.Subcontinental?"Surrounding landmass within approximately 1,800 km of the homeland":aim.Scope.ToString())}});
+            }
             if(kind!="people"||id>=c.Cultures.Length)return;var record=c.Cultures[id];
             var facts=new List<AtlasFact>{F("Regional ancestry","Ecoregional community "+record.PrecursorRegion)};
             if(record.DormantSince>=0)facts.Add(F("No surviving recorded communities",Y(s,record.DormantSince)));

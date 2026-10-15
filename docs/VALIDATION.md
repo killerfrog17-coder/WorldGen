@@ -1,5 +1,13 @@
 # Version 3 validation evidence
 
+## History28 regional intent - 15 October 2026
+
+Focused change: inland whole-ecoregional recognition and separate regional/subcontinental/continental ambitions. `scripts/build.ps1` and native `scripts/unity-check.ps1 -BuildPlayer -PlayerFolder player-history-28-release` succeed. Generation is unchanged. The root shortcut now opens this28 build; earlier27 remains available. This pass does not rerun the lengthy global realism or200k native throughput acceptance; those27 results below remain27 evidence, not28 performance claims.
+
+On the existing20k Earth27 checkpoint:19 focused ambition assertions pass, including multi-cell district extent, distinct continental/subcontinental targeting, war exhaustion/funding gates, save roundtrip, partitioned replay and malformed-record rejection. Aggregate suite:1,022 assertions pass with maximum584 local cell reads/event under the unchanged64,000 supported-model bound. No recurring territorial membership scan was added.
+
+Explicit28-upgrade checkpoint: `460a4f8e52e60e12cb9b86736d7a04e49d8f370f04ef6f7e3ff291b333d7ced4`. Its+3year continuation is identical in packaged Unity and.NET: `ab2a21f8d81f833c42a649e0acf43ef8cbfc85cf775ff4f09b8c3a00f1a47e7c`. Frozen27 versus new executable continuing the original27 checkpoint+3years both yield `9e5a60386da870fd90027b683b75b442cc72790a36f48a6bdd71aa651e668854`; loading does not silently change historical rules. Evidence is under ignored `artifacts/history28/`. The inherited whole-suite Earth golden stage-count mismatch documented below is not repaired or waived by these focused passes.
+
 ## History27 handoff — 15 October 2026
 
 Current historical rules are27; generation remains worldgen-3.32.0/schema3. The root shortcut opens `artifacts/player-history-27-release/WorldGen.exe`. Shared and packaged Core DLLs both have SHA256 `05BF7015F66C18C314EA14BB9249C40A1647334655A0D0B2D32068FBF3DF9971`; Presentation DLLs both have `B692937CD4EB41FE4D7FAEB5D4D323D5A9DF3A1D9495DB2C10D8AA18BAF5E76F`. See [HISTORY24_REVIEW.md](HISTORY24_REVIEW.md) for the chronological24–27 development, including rejected experiments and failed checks.

@@ -1,5 +1,13 @@
 # Implementation contracts - version 3
 
+## Regional territorial intent - history28
+
+The optional `Connections.Ambitions` extension contains one saved goal per government: scope, homeland anchor, patch/landmass identity and adoption year. Null is omitted from legacy canonical hashes. Explicit upgrade from27 initializes actor records without changing old events, people, control or titles; earlier histories preserve their original continuation. Current rules dispatch includes28. Succession refreshes scope using ruler ambition and a stable named institutional-disposition stream; regime successors inherit the homeland anchor. Scope thresholds are ambition>=750 with disposition<.55 for continental, otherwise ambition>=550 with disposition<.85 for subcontinental, otherwise regional. A subcontinental sphere provisionally means same landmass and distance<=1,800km. Regional means the entire connected habitat patch, not one cell.
+
+Frontier selection can sample one additional existing local frontier candidate, with unchanged action budgets. Existing bounded campaign-front ranking adds30 for a goal-matching cell; voyage opportunity multiplies1.75. Discretionary war motivation multiplies1.75 for a goal-matching opponent capital, then `clamp(1-exhaustion/750)`; it is zero at exhaustion>=650, cohesion<450, or treasury<max(100,army). Existing physical fronts, military, fiscal, logistics and campaign resolution gates remain. A goal is never looked up as recognized sovereignty or actual control.
+
+Inland recognition needs an actual controlled capital established>=25years or a sampled funded live post>=10years, writing, an untitled district, funds>=1,000, and the existing informed peaceful trading partner. Partner knowledge is a chart or same-landmass capital travel effort<=max(300km,3*partner administrative reach). Recognition records the entire patch's precomputed area and title index, not per-cell writes. No terrain enumeration occurs in recurring intent, diplomacy or frontier events. Exact subcontinent outlines and continent-wide recognition treaties are not implemented by this change.
+
 ## Leveled technical networks and constituent government - history24 review
 
 New Core histories use24; the desktop release is staged separately after review. Generation remains3.32. Historical23 and earlier saves keep their recorded behavior/hash layout until explicit upgrade. A nullable `HistoricalCulture.Technical` and aggregate `Empires` extension separate the new records; absent extensions are omitted from historical hashing. Migration preserves people, actors and recorded discovery dates rather than resimulating the past. See HISTORY24_REVIEW.md for candidate evidence and outstanding validation.

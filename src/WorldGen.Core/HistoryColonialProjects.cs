@@ -32,6 +32,7 @@ namespace WorldGen.Core
                 int owner=HistoricalCells.Polity(s,cell);if(owner>=0&&HistoricalImperialHierarchy.Sovereign(s,owner)==HistoricalImperialHierarchy.Sovereign(s,polity))continue;
                 double yield=ProvincialPhysicalYield(s,p.CultureId,cell),opportunity=.2+Math.Min(2,yield*4)+(World.Landmass[source]!=World.Landmass[cell]?1:.25);
                 opportunity*=.75+.5*HistoryRoll("colonial-route-preference-"+k,polity,s.Years);
+                if(TerritorialAmbitionContains(s,polity,cell))opportunity*=1.75;
                 if(opportunity>best){best=opportunity;destination=to;}
             }
             if(destination<0||HistoryRoll("colonial-expedition-departure",polity,s.Years)>1-Math.Exp(-elapsed/12.0))return;
@@ -77,7 +78,7 @@ namespace WorldGen.Core
         void AdvanceRecognizedTitles(PrehistoryState s,int polity,int elapsed)
         {
             if(!ColonialHistory(s))return;var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var hc=h.Cultures[p.CultureId];
-            if(!HistoricalTechnologies.Has(hc,HistoricalTechnology.Writing)||!HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation))return;
+            if(!HistoricalTechnologies.Has(hc,HistoricalTechnology.Writing)||!RegionalAmbitionHistory(s)&&!HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation))return;
             var connections=a.Empires.Connections;var contacts=s.Society.Cultures[p.CultureId].Contacts;if(contacts.Length==0)return;
             int offset=(int)(HistoryRoll("colonial-recognition-partner",polity,s.Years)*contacts.Length),partner=-1;
             for(int k=0;k<Math.Min(4,contacts.Length);k++)
@@ -89,7 +90,8 @@ namespace WorldGen.Core
             }
             if(partner<0)return;
             var government=connections.Governments[polity];var posts=a.Empires.Governments[polity].AdministrativePosts;
-            if(posts.Count>0)
+            if(RegionalAmbitionHistory(s))TryRecognizeRegionalTitle(s,polity,partner);
+            else if(posts.Count>0)
             {
                 int id=posts.At((int)(HistoryRoll("colonial-title-basis",polity,s.Years)*posts.Count));var post=a.Empires.Territories.Posts[id];int region=CellPatch[post.Cell];
                 if(post.Maritime&&region>=0&&World.Ecology.Habitat[post.Cell].GrowingDays>=60&&post.ClosedYear<0&&s.Years-post.FoundedYear>=10&&connections.TitleAt[region]<0&&TerritorialNodeLive(s,polity,-2-id)

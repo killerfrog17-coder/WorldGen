@@ -19,6 +19,7 @@ namespace WorldGen.Core
                 int cell=LocalFrontierTarget(s,a.Polities[attacker].Frontier,attacker,"provincial-war-front-"+defender+"-"+trial,1);if(cell<0||HistoricalCells.Polity(s,cell)!=defender)continue;
                 if(!TechnicalHistory(s))return cell;
                 double value=(a.TownAt[cell]>=0?100:0)+(a.Empires.Territories.PostAt[cell]>=0?40:0)+10*riverAccess[cell]+Math.Log(1+Math.Max(0,ruralWeight[cell]));
+                if(TerritorialAmbitionContains(s,attacker,cell))value+=30;
                 if(value>frontierValue||value==frontierValue&&(frontier<0||cell<frontier)){frontier=cell;frontierValue=value;}
             }
             if(frontier>=0)return frontier;

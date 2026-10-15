@@ -33,13 +33,14 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalColonialConnections
     {
+        [System.Runtime.Serialization.OptionalField] public HistoricalTerritorialAmbitions Ambitions;
         [System.Runtime.Serialization.OptionalField] public HistoricalColonialCoasts Coasts;
         public HistoricalCellTree CellRegions,TitleAt,FamilyRoots;
         public long[] RegionAreas=Array.Empty<long>();
         public HistoricalCulturalContinuity[] Cultures=Array.Empty<HistoricalCulturalContinuity>();
         public HistoricalColonialGovernment[] Governments=Array.Empty<HistoricalColonialGovernment>();
         public HistoricalRecognizedTitle[] Titles=Array.Empty<HistoricalRecognizedTitle>();
-        public HistoricalColonialConnections Copy()=>new HistoricalColonialConnections{Coasts=Coasts?.Copy(),CellRegions=CellRegions,TitleAt=TitleAt,FamilyRoots=FamilyRoots,RegionAreas=(long[])RegionAreas.Clone(),Cultures=Cultures.Select(c=>c.Copy()).ToArray(),Governments=Governments.Select(g=>g.Copy()).ToArray(),Titles=Titles.Select(t=>t.Copy()).ToArray()};
+        public HistoricalColonialConnections Copy()=>new HistoricalColonialConnections{Ambitions=Ambitions?.Copy(),Coasts=Coasts?.Copy(),CellRegions=CellRegions,TitleAt=TitleAt,FamilyRoots=FamilyRoots,RegionAreas=(long[])RegionAreas.Clone(),Cultures=Cultures.Select(c=>c.Copy()).ToArray(),Governments=Governments.Select(g=>g.Copy()).ToArray(),Titles=Titles.Select(t=>t.Copy()).ToArray()};
     }
     public static class HistoricalRecognizedClaims
     {
@@ -53,7 +54,7 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         public const string ColonialHistoryVersion="history-26";
-        static bool ColonialHistory(PrehistoryState s)=>s?.History?.Version==ColonialHistoryVersion||s?.History?.Version==CoastalHistoryVersion;
+        static bool ColonialHistory(PrehistoryState s)=>s?.History?.Version==ColonialHistoryVersion||s?.History?.Version==CoastalHistoryVersion||RegionalAmbitionHistory(s);
         public PrehistoryState UpgradeToColonialHistory(PrehistoryState source)
         {
             Validate(source);if(ColonialHistory(source))return source;source=UpgradeToProvincialFrontierHistory(source);
@@ -68,7 +69,7 @@ namespace WorldGen.Core
         void AppendColonialCulture(PrehistoryState s,int region)
         {if(ColonialHistory(s)){var c=s.History.Aggregates.Empires.Connections;c.Cultures=c.Cultures.Concat(new[]{new HistoricalCulturalContinuity{PrecursorRegion=region,LastEvolutionYear=s.Years}}).ToArray();}}
         void AppendColonialGovernment(PrehistoryState s,int predecessor=-1)
-        {if(ColonialHistory(s)){var c=s.History.Aggregates.Empires.Connections;c.Governments=c.Governments.Concat(new[]{predecessor<0?new HistoricalColonialGovernment():c.Governments[predecessor].Copy()}).ToArray();if(predecessor>=0)c.Governments[predecessor]=new HistoricalColonialGovernment();AppendColonialCoast(s,predecessor);}}
+        {if(ColonialHistory(s)){var c=s.History.Aggregates.Empires.Connections;c.Governments=c.Governments.Concat(new[]{predecessor<0?new HistoricalColonialGovernment():c.Governments[predecessor].Copy()}).ToArray();if(predecessor>=0)c.Governments[predecessor]=new HistoricalColonialGovernment();AppendColonialCoast(s,predecessor);AppendTerritorialAmbition(s,predecessor);}}
         void RecordCoastChart(PrehistoryState s,int culture,int region,int source)
         {
             if(!ColonialHistory(s)||culture<0||region<0)return;var c=s.History.Aggregates.Empires.Connections.Cultures[culture];
@@ -138,6 +139,7 @@ namespace WorldGen.Core
             var areas=new long[Patches.Length];for(int i=0;i<CellPatch.Length;i++){if(c.CellRegions[i]!=CellPatch[i])throw new ArgumentException("Changed claim geography.");if(CellPatch[i]>=0)areas[CellPatch[i]]+=(long)Math.Round(TerritorialPoliticalArea(i));}
             for(int i=0;i<areas.Length;i++)if(c.RegionAreas[i]!=areas[i]||c.TitleAt[i]<-1||c.TitleAt[i]>=c.Titles.Length||c.TitleAt[i]>=0&&c.Titles[c.TitleAt[i]].Region!=i)throw new ArgumentException("Changed regional title extent.");
             ValidateColonialCoasts(s);
+            ValidateTerritorialAmbitions(s);
         }
     }
 }

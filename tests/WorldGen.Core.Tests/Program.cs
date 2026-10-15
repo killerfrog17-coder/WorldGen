@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--ambitions-upgrade")){int at=Array.IndexOf(args,"--ambitions-upgrade");if(File.Exists(args[at+2]))throw new IOException("Refusing to overwrite a world");var w=WorldFile.Read(File.ReadAllBytes(args[at+1]));var p=new Prehistory(w);w.Prehistory=p.UpgradeToTerritorialHistory(w.Prehistory);p.Validate(w.Prehistory);Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[at+2]))!);File.WriteAllBytes(args[at+2],WorldFile.Write(w));Console.WriteLine("Upgraded territorial fixture "+w.Prehistory.Hash);return;}
+if(args.Contains("--ambitions-only")){int at=Array.IndexOf(args,"--ambitions-only"),count=0;HistoryTerritorialAmbitionTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" territorial ambition assertions");return;}
 if(args.Contains("--coasts-only")){int at=Array.IndexOf(args,"--coasts-only"),count=0;HistoryCoastalTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" coastal network assertions");return;}
 if(args.Contains("--colonial-review")){HistoryColonialReview.Run(args);return;}
 if(args.Contains("--colonial-only")){int at=Array.IndexOf(args,"--colonial-only"),count=0;HistoryColonialTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" colonial continuity assertions");return;}

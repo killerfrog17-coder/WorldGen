@@ -11,7 +11,7 @@ namespace WorldGen.Core
     {
         public const string CoastalHistoryVersion="history-27";
         public PrehistoryState UpgradeToCoastalHistory(PrehistoryState source)
-        {Validate(source);if(source.History?.Version==CoastalHistoryVersion)return source;source=UpgradeToColonialHistory(source);var s=source.Copy();s.History.Version=CoastalHistoryVersion;PrepareColonialCoasts(s);s.Seal();return s;}
+        {Validate(source);if(source.History?.Version==CoastalHistoryVersion||RegionalAmbitionHistory(source))return source;source=UpgradeToColonialHistory(source);var s=source.Copy();s.History.Version=CoastalHistoryVersion;PrepareColonialCoasts(s);s.Seal();return s;}
         void PrepareColonialCoasts(PrehistoryState s)
         {
             var a=s.History.Aggregates;var c=a.Empires.Connections;c.Coasts=new HistoricalColonialCoasts{Governments=s.History.Polities.Select(_=>new HistoricalLocalBag()).ToArray()};
@@ -32,7 +32,7 @@ namespace WorldGen.Core
         }
         void ValidateColonialCoasts(PrehistoryState s)
         {
-            var c=s.History.Aggregates.Empires.Connections.Coasts;if(s.History.Version!=CoastalHistoryVersion){if(c!=null)throw new ArgumentException("Legacy coastal network extension.");return;}if(c==null)throw new ArgumentException("Missing coastal network.");
+            var c=s.History.Aggregates.Empires.Connections.Coasts;if(s.History.Version!=CoastalHistoryVersion&&!RegionalAmbitionHistory(s)){if(c!=null)throw new ArgumentException("Legacy coastal network extension.");return;}if(c==null)throw new ArgumentException("Missing coastal network.");
             if(c.Governments.Length!=s.History.Polities.Length)throw new ArgumentException("Coastal government alignment.");
             for(int p=0;p<c.Governments.Length;p++){var b=c.Governments[p];if(b==null||b.Count<0||b.Count>CellPatch.Length)throw new ArgumentException("Invalid coastal index.");for(int k=0;k<b.Count;k++){int cell=b.At(k);if(cell<0||cell>=CellPatch.Length||CellPatch[cell]<0||!DiffusionShore(cell)||b.Positions[cell]!=k||s.History.Polities[p].EndedYear<0&&HistoricalCells.Polity(s,cell)!=p)throw new ArgumentException("Invalid coastal control reference.");}}
             for(int cell=0;cell<CellPatch.Length;cell++){int p=HistoricalCells.Polity(s,cell);if(p>=0&&CellPatch[cell]>=0&&DiffusionShore(cell)&&c.Governments[p].Positions[cell]<0)throw new ArgumentException("Missing controlled coastline.");}
