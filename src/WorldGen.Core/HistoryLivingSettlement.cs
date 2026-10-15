@@ -7,10 +7,12 @@ namespace WorldGen.Core
         void TryLivingTownOpportunity(PrehistoryState s,int culture,int elapsed)
         {
             var a=s.History.Aggregates;var ca=a.Cultures[culture];var c=s.Society.Cultures[culture];
-            if(c.Farming<180||s.Years-c.FoundedYear<1000)return;
+            int maturation=ConnectedHistory(s)&&s.History.Cultures[culture].ParentCultureId>=0?100:1000;
+            if(c.Farming<180||s.Years-c.FoundedYear<maturation)return;
             if(ca.Cities.Count==0)
-            {if(HistoryRoll("living-first-town",culture,s.Years)<1-Math.Exp(-elapsed/600.0))FoundLivingTown(s,culture,c.OriginCell,-1);return;}
-            if(HistoryRoll("living-secondary-town",culture,s.Years)>1-Math.Exp(-elapsed*Math.Sqrt(ca.Cities.Count)/600.0))return;
+            {if(HistoryRoll("living-first-town",culture,s.Years)<1-Math.Exp(-elapsed/600.0))FoundLivingTown(s,culture,ConnectedHistory(s)?DevelopmentEconomicSite(s,culture,c.OriginCell):c.OriginCell,-1);return;}
+            double mobility=ConnectedHistory(s)?Math.Sqrt(HistoricalModernEffects.LandTransport(s.History.Cultures[culture],s.Years))*(1+.4*HistoricalModernEffects.Adoption(s.History.Cultures[culture],HistoricalTechnology.Roads,s.Years)):1;
+            if(HistoryRoll("living-secondary-town",culture,s.Years)>1-Math.Exp(-elapsed*Math.Sqrt(ca.Cities.Count)*mobility/600.0))return;
             int parent=ca.Cities.At((int)(HistoryRoll("living-town-source",culture,s.Years)*ca.Cities.Count)),from=s.Society.Settlements[parent].Cell;
             for(int trial=0;trial<3;trial++)
             {
@@ -18,7 +20,7 @@ namespace WorldGen.Core
                 for(int step=0;step<4+trial;step++)
                 {var ns=World.Surface.Cells[site].Neighbors;int offset=(int)(HistoryRoll("living-town-walk-"+trial+"-"+step,culture,s.Years)*ns.Length);int next=-1;for(int k=0;k<ns.Length;k++){int n=ns[(offset+k)%ns.Length];if(CellPatch[n]>=0&&World.Landmass[n]==World.Landmass[from]&&World.Ecology.Habitat[n].ReliefM<2000){next=n;break;}}if(next<0)break;site=next;}
                 int owner=HistoricalCells.Culture(s,site);if(owner>=0&&owner!=culture)continue;
-                double continuity=HistoricalLandscapeEffects.LivelihoodContinuity(World.Ecology.Habitat[c.OriginCell],World.Ecology.Habitat[from],World.Ecology.Habitat[site]);
+                double continuity=HistoricalLandscapeEffects.LivelihoodContinuity(World.Ecology.Habitat[ConnectedHistory(s)?from:c.OriginCell],World.Ecology.Habitat[from],World.Ecology.Habitat[site]);
                 if(HistoryRoll("living-town-adaptation-"+trial,culture,s.Years)>Math.Max(.03,continuity))continue;
                 if(CanFoundLivingTown(s,culture,site,parent)){FoundLivingTown(s,culture,site,parent);return;}
             }
@@ -26,7 +28,7 @@ namespace WorldGen.Core
         double LivingCropLandscape(PrehistoryState s,int culture,int cell,bool storage)
         {
             var h=World.Ecology.Habitat[cell];var hc=s.History.Cultures[culture];bool managed=HistoricalTechnologies.Has(hc,HistoricalTechnology.CropRotation);
-            double landscape=storage?landscapeStored[cell]:landscapeYield[cell];
+            double landscape=storage?(ConnectedHistory(s)?developmentStored[cell]:landscapeStored[cell]):landscapeYield[cell]*(ConnectedHistory(s)?HistoricalDevelopmentEffects.GrowingSeason(h):1);
             // Irrigated desert strips can support a court without pretending the
             // whole cell is irrigable. Evergreen clearing/soil costs still apply.
             double fraction=Math.Min(1,Math.Max(.08,D.Clamp((h.AridityMilli-100)/550.0)+riverAccess[cell]));

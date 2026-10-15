@@ -8,6 +8,7 @@ const browser=await chromium.launch({headless:true,channel:'msedge'});
 try {
  const page=await browser.newPage({viewport:{width:1800,height:960}});
  for(const mode of ['States','Religions','Technology']) {
+  if(!await fs.access(path.resolve(folder,`${mode}-${year}.svg`)).then(()=>true,()=>false))continue;
   await page.goto(pathToFileURL(path.resolve(folder,`${mode}-${year}.svg`)).href,{timeout:120000});
   const dated=path.join(folder,`${mode.toLowerCase()}-${year}.png`);
   await page.screenshot({path:dated});

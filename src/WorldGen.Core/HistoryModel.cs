@@ -97,11 +97,11 @@ public HistoryState Copy()=>new HistoryState{Version=Version,CellPolity=(int[])C
         public static readonly int[][] Prerequisites={Array.Empty<int>(),new[]{0},new[]{0},new[]{0},new[]{1,2},new[]{2},new[]{0,2},new[]{5},new[]{1},new[]{5},new[]{6,5},new[]{8,9},new[]{9},new[]{3,6},new[]{6,11},
             new[]{6,11},new[]{9,14},new[]{13,12},new[]{14,15},new[]{1,11},new[]{12,18},new[]{20,12},new[]{20,21,8},new[]{18,15},new[]{23,8},new[]{18,21},new[]{25,15},
             new[]{18,21,19},new[]{20,21},new[]{28,18},new[]{25,26},new[]{23},new[]{23,21},new[]{28,19},new[]{25,30},new[]{34,15},new[]{35,30}};
-        public static int Count(string version)=>(version==Prehistory.AggregateHistoryVersion||version==Prehistory.LivingHistoryVersion)?Names.Length:(version=="history-13"||(version=="history-14"||(version=="history-15"||version=="history-16")))?Names.Length:15;
+        public static int Count(string version)=>Prehistory.IsAggregateHistoryVersion(version)?Names.Length:(version=="history-13"||(version=="history-14"||(version=="history-15"||version=="history-16")))?Names.Length:15;
         static readonly int[] WayfindingPrerequisites={(int)HistoricalTechnology.Sailing};
-        public static int[] Requirements(string version,int technology)=>LegacyRequirements((version==Prehistory.AggregateHistoryVersion||version==Prehistory.LivingHistoryVersion)?"history-16":version,technology);
+        public static int[] Requirements(string version,int technology)=>LegacyRequirements(Prehistory.IsAggregateHistoryVersion(version)?"history-16":version,technology);
         static int[] LegacyRequirements(string version,int technology)=>(version=="history-6"||version=="history-7"||version=="history-8"||(version=="history-9"||(version=="history-10"||(version=="history-11"||(version=="history-12"||(version=="history-13"||(version=="history-14"||(version=="history-15"||version=="history-16"))))))))&&technology==(int)HistoricalTechnology.Navigation?WayfindingPrerequisites:Prerequisites[technology];
-        public static string Name(string version,int technology)=>LegacyName((version==Prehistory.AggregateHistoryVersion||version==Prehistory.LivingHistoryVersion)?"history-16":version,technology);
+        public static string Name(string version,int technology)=>LegacyName(Prehistory.IsAggregateHistoryVersion(version)?"history-16":version,technology);
         static string LegacyName(string version,int technology)=>(version=="history-6"||version=="history-7"||version=="history-8"||(version=="history-9"||(version=="history-10"||(version=="history-11"||(version=="history-12"||(version=="history-13"||(version=="history-14"||(version=="history-15"||version=="history-16"))))))))&&technology==(int)HistoricalTechnology.Navigation?"Ocean wayfinding and navigation":Names[technology];
         public static bool Has(HistoricalCulture c,HistoricalTechnology t)=>(int)t<c.Technology.Length&&c.Technology[(int)t]>0;
     }

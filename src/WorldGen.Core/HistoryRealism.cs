@@ -30,7 +30,7 @@ namespace WorldGen.Core
     }
     public sealed partial class Prehistory
     {
-        static bool RealismHistory(PrehistoryState s)=>s.History?.Version=="history-16"||(s.History?.Version==AggregateHistoryVersion||s.History?.Version==LivingHistoryVersion);
+        static bool RealismHistory(PrehistoryState s)=>s.History?.Version=="history-16"||IsAggregateHistoryVersion(s.History?.Version);
         double[] landscapeYield,landscapeStored,landscapeOpportunity,landscapeSeason;
         void PrepareLandscape()
         {

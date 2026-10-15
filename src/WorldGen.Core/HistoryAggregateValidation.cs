@@ -11,7 +11,7 @@ namespace WorldGen.Core
             PrepareAggregateEnvironment(s);
             var h=s.History;var a=h.Aggregates;
             void Require(bool condition,string what){if(!condition)throw new ArgumentException("Invalid aggregate history: "+what);}
-            Require((h.Version==AggregateHistoryVersion&&a.Living==null||h.Version==LivingHistoryVersion&&a.Living!=null)&&a.Version=="aggregate-history-1"&&s.Society!=null,"version");
+            Require((h.Version==AggregateHistoryVersion&&a.Living==null||(h.Version==LivingHistoryVersion||h.Version==ConnectedHistoryVersion)&&a.Living!=null)&&a.Version=="aggregate-history-1"&&s.Society!=null,"version");
             Require(a.Cells?.Length==CellPatch.Length*5&&a.TownAt?.Length==CellPatch.Length&&a.Successors!=null&&a.LeaderDigests!=null,"persistent geography");
             Require(h.CellPolity.Length==0&&h.CellReligion.Length==0&&h.CellMarket.Length==0&&h.CellStage.Length==0&&s.Society.CellCulture.Length==0&&h.Faith==null&&h.RegionalLearning==null,"retired dense working arrays");
             Require(a.Cities.Length==s.Society.Settlements.Length&&a.Cities.Length==h.Towns.Length&&a.Cultures.Length==h.Cultures.Length&&a.Cultures.Length==s.Society.Cultures.Length&&a.Polities.Length==h.Polities.Length&&h.Dynamics.States.Length==h.Polities.Length&&a.Regions.Length==Patches.Length,"actor alignment");

@@ -32,6 +32,11 @@ namespace WorldGen.Core
                 }
             }
             if(LivingHistory(s)){ExpandLivingCulture(s,id,elapsed);contact=LivingContact(s,id,contact);if(governingCulture>=0&&HistoryRoll("living-civic-knowledge",id,s.Years)<.5)contact=governingCulture;}
+            if(ConnectedHistory(s))
+            {
+                StudyDevelopmentCropSites(s,id,a.Regions[ca.Region].BestCell);StudyDevelopmentCropSites(s,id,urbanSite);
+                cell=DevelopmentEconomicSite(s,id,cell);habitat=World.Ecology.Habitat[cell];
+            }
             if(contact>=0&&contact!=id)
             {if(!c.Contacts.Contains(contact))c.Contacts=c.Contacts.Concat(new[]{contact}).OrderBy(x=>x).ToArray();var other=s.Society.Cultures[contact];if(!other.Contacts.Contains(id))other.Contacts=other.Contacts.Concat(new[]{id}).OrderBy(x=>x).ToArray();}
             double pressure=(s.Population[CellPatch[cell]]+ca.Urban+ca.Rural)/(double)Math.Max(1,Patches[CellPatch[cell]].Capacity);
@@ -39,20 +44,24 @@ namespace WorldGen.Core
             if(HistoricalLocalEffects.AgricultureOpen(s.Years)&&s.Years-c.FoundedYear>=500)
             for(int k=0;k<6;k++)
             {
+                int practiceCell=ConnectedHistory(s)?crops.PracticeCell[k]:cell;
+                var practiceHabitat=World.Ecology.Habitat[practiceCell];
                 if(crops.AdoptedYear[k]>0){var cultivar=crops.Cultivars?[k];if(cultivar!=null){int delta=Math.Min(elapsed,Math.Max(0,4000-cultivar.SelectedYears));cultivar.SelectedYears+=delta;crops.HusbandryYears[k]=Math.Min(20000,crops.HusbandryYears[k]+elapsed);var definition=HistoricalCropCatalog.Crops[cultivar.CropId];cultivar.YieldPermille=Math.Min(1500,650+cultivar.SelectedYears/5);cultivar.MaturityDays=Math.Max(definition.MaturityDays-35,definition.MaturityDays-cultivar.SelectedYears/100);cultivar.MinimumWarmTenthsC=Math.Max((definition.MinimumWarmC-4)*10,definition.MinimumWarmC*10-cultivar.SelectedYears/100);}continue;}
                 int donor=contact>=0&&h.Agriculture[contact].AdoptedYear[k]>0&&h.Agriculture[contact].AdoptedYear[k]-1<s.Years?contact:-1;
+                if(ConnectedHistory(s))donor=DevelopmentCropDonor(s,id,k,practiceCell,donor);
                 if(donor<0&&(crops.NativeMask&(1<<k))==0)continue;
-                var selected=donor>=0?h.Agriculture[donor].Cultivars?[k]?.Copy():AggregateCultivar(s,id,k);if(selected==null)continue;
-                double fit=HistoricalCropCatalog.TransferFit(habitat,selected,Math.Abs(Math.Asin(World.Surface.Cells[cell].Position.Z)*180/Math.PI),riverSites[cell]);if(fit<.12)continue;
+                var selected=donor>=0?h.Agriculture[donor].Cultivars?[k]?.Copy():AggregateCultivar(s,id,k,practiceCell);if(selected==null)continue;
+                double fit=HistoricalCropCatalog.TransferFit(practiceHabitat,selected,Math.Abs(Math.Asin(World.Surface.Cells[practiceCell].Position.Z)*180/Math.PI),riverSites[practiceCell]);if(fit<.12)continue;
                 double surplus=fit*HistoricalCrops.Storage[k]/1000.0;double incentive=D.Clamp((pressure-.5)*1.3)*D.Clamp(surplus*2)*HistoricalCropCatalog.LeachingPenalty(habitat,false);
                 double gain=elapsed/50.0*(donor>=0?12:1.2)*incentive*fit;
                 if(LivingHistory(s))
                 {
                     double localAdvantage=HistoricalEmergenceEffects.CultivationIncentive(pressure,fit,landscapeSeason[cell],D.Clamp(ruralWeight[cell]/Math.Max(1,inhabitableArea[cell]*150)));
                     bool cultivationContact=contact>=0&&s.Society.Cultures[contact].Farming>=250;
-                    double native=donor>=0?1:cultivationContact?.1+.9*Math.Pow(NativeDomesticability(cell,k),2):.02+.98*Math.Pow(NativeDomesticability(cell,k),3);
-                    double clearing=Math.Max(.015,D.Clamp(landscapeYield[cell]/.5));
+                    double native=donor>=0?1:cultivationContact?.1+.9*Math.Pow(NativeDomesticability(practiceCell,k),2):.02+.98*Math.Pow(NativeDomesticability(practiceCell,k),3);
+                    double clearing=Math.Max(.015,D.Clamp(landscapeYield[practiceCell]/.5));
                     gain=elapsed/50.0*(donor>=0?65:cultivationContact?60:24)*localAdvantage*fit*native*clearing;
+                    if(ConnectedHistory(s))gain*=HistoricalDevelopmentEffects.GrowingSeason(practiceHabitat);
                 }
                 int whole=(int)gain;if(HistoryRoll("aggregate-crop-practice-"+k,id,s.Years)<gain-whole)whole++;crops.Practice[k]=Math.Min(1000,crops.Practice[k]+whole);
                 if(crops.Practice[k]>=600&&HistoryRoll("aggregate-crop-adoption-"+k,id,s.Years)<.2)
@@ -63,18 +72,21 @@ namespace WorldGen.Core
             c.Farming=Math.Max(0,Math.Min(1000,c.Farming+(int)((farmingTarget-c.Farming)*Math.Min(.3,elapsed/600.0))));
             hc.Sedentism=Math.Min(1000,150+c.Farming/2+(int)(300*D.Clamp(settlementOpportunity[cell])));hc.Surplus=(int)Math.Min(1000,100+700*AggregateCropSupport(s,id,cell,true)+100*D.Clamp(ca.FoodCapacity/(double)Math.Max(1,ca.Urban)-.8));
             if(LivingHistory(s)&&ca.Cities.Count>0)hc.Surplus=(int)Math.Min(1000,100+700*Math.Max(AggregateCropSupport(s,id,cell,true),AggregateCropSupport(s,id,urbanSite,true))+100*D.Clamp(ca.FoodCapacity/(double)Math.Max(1,ca.Urban)-.8));
+            if(ConnectedHistory(s))hc.Surplus=(int)Math.Min(1000,100+750*D.Clamp(Math.Max(LivingCropLandscape(s,id,cell,true),LivingCropLandscape(s,id,urbanSite,true))/.4)+100*D.Clamp(ca.FoodCapacity/(double)Math.Max(1,ca.Urban)-.8));
             hc.Institution=Math.Max(0,Math.Min(1000,hc.Institution+(int)((hc.Sedentism*.6+Math.Log(1+ca.Urban)*25-hc.Institution)*Math.Min(.3,elapsed/500.0))));c.Organization=hc.Institution;
             for(int k=0;k<hc.Technology.Length;k++)
             {
                 if(hc.Technology[k]>0||HistoricalModernEffects.Era((HistoricalTechnology)k)>h.Modern.TechnologyCeiling)continue;
                 int[] required=HistoricalTechnologies.Requirements("history-16",k);if(required.Any(p=>hc.Technology[p]==0))continue;
-                bool learned=contact>=0&&h.Cultures[contact].Technology[k]>0&&h.Cultures[contact].Technology[k]-1<s.Years;
+                int teacher=ConnectedHistory(s)?DevelopmentTeacher(s,id,k,contact):contact;
+                bool learned=teacher>=0&&h.Cultures[teacher].Technology[k]>0&&h.Cultures[teacher].Technology[k]-1<s.Years;
                 int mature=required.Select(p=>hc.Technology[p]-1).DefaultIfEmpty(c.FoundedYear).Max();if(s.Years-mature<(learned?80:k>=27?100:k>=15?180:k>=5?300:100))continue;
                 if(!AggregatePracticeSupported(s,id,k,learned))continue;
                 double effort=(2+Math.Log(1+ca.SupportedUrban)/2.0)*(hc.Institution+200)/800.0*(hc.Surplus+200)/700.0*(learned?3:1)*elapsed/40.0;
                 if(LivingHistory(s))effort*=learned?4:1+3*D.Clamp(c.Contacts.Length/4.0);
+                if(ConnectedHistory(s))effort*=learned?1+Math.Log(1+HistoricalModernEffects.Communication(h.Cultures[teacher],s.Years)):.65+1.35*D.Clamp(Math.Sqrt(ca.SupportedCities)/3.0);
                 hc.Research[k]+=Math.Max(1,(int)(effort*(.7+.6*HistoryRoll("aggregate-research-"+k,id,s.Years))));
-                if(hc.Research[k]>=120+k*30){hc.Technology[k]=s.Years+1;HistoryEvent(s,"technology",c.Name+(learned?" adopts ":" develops ")+HistoricalTechnologies.Name("history-16",k)+".",cell,id,category:ChronicleCategory.Discoveries);}
+                if(hc.Research[k]>=(ConnectedHistory(s)?HistoricalDevelopmentEffects.ResearchCost(k):120+k*30)){hc.Technology[k]=s.Years+1;HistoryEvent(s,"technology",c.Name+(learned?" adopts ":" develops ")+HistoricalTechnologies.Name("history-16",k)+(ConnectedHistory(s)&&learned?" through exchange with "+s.Society.Cultures[teacher].Name:"")+".",cell,id,category:ChronicleCategory.Discoveries);}
             }
             if(a.FirstMaximumTechnologyYear<0&&hc.Technology.All(y=>y>0))a.FirstMaximumTechnologyYear=s.Years;
             if(LivingHistory(s))TryLivingTownOpportunity(s,id,elapsed);
@@ -95,6 +107,15 @@ namespace WorldGen.Core
         bool AggregatePracticeSupported(PrehistoryState s,int id,int k,bool contact)
         {
             var c=s.Society.Cultures[id];var hc=s.History.Cultures[id];var a=s.History.Aggregates.Cultures[id];bool water=c.Fishing>=200||riverSites[c.OriginCell]>.2;
+            if(ConnectedHistory(s)&&!contact&&DevelopmentResearchNetwork(s,id,k,water))return true;
+            if(ConnectedHistory(s)&&contact&&k>=7&&k!=(int)HistoricalTechnology.Navigation&&a.CivilizationSince>=0&&a.SupportedCities>=1&&a.SupportedUrban>=1200&&hc.Institution>=400&&hc.Surplus>=150)
+            {
+                // Importing/operating a known practice does not require locally
+                // recreating the metropolitan research network that invented it.
+                if(k==(int)HistoricalTechnology.OceanNavigation)return water||c.Fishing>=150;
+                if(k==(int)HistoricalTechnology.CropRotation||k==(int)HistoricalTechnology.ArtificialFertilizers||k==(int)HistoricalTechnology.MechanizedAgriculture)return c.Farming>=250;
+                return true;
+            }
             if(LivingHistory(s))
             {
                 if(a.Cities.Count>0){int town=a.Cities.At((int)(HistoryRoll("living-maritime-practice",id,s.Years)*a.Cities.Count));int site=s.Society.Settlements[town].Cell;water|=riverSites[site]>.2||World.Surface.Cells[site].Neighbors.Any(n=>World.Hydrology.OceanConnected[n]);}
@@ -124,9 +145,9 @@ namespace WorldGen.Core
                 default:return true;
             }
         }
-        HistoricalCultivar AggregateCultivar(PrehistoryState s,int culture,int group)
+        HistoricalCultivar AggregateCultivar(PrehistoryState s,int culture,int group,int site=-1)
         {
-            int cell=s.Society.Cultures[culture].OriginCell;var habitat=World.Ecology.Habitat[cell];double latitude=Math.Abs(Math.Asin(World.Surface.Cells[cell].Position.Z)*180/Math.PI);HistoricalCultivar best=null;double score=0;
+            int cell=site>=0?site:s.Society.Cultures[culture].OriginCell;var habitat=World.Ecology.Habitat[cell];double latitude=Math.Abs(Math.Asin(World.Surface.Cells[cell].Position.Z)*180/Math.PI);HistoricalCultivar best=null;double score=0;
             for(int k=0;k<HistoricalCropCatalog.Crops.Length;k++)
             {var crop=HistoricalCropCatalog.Crops[k];if(crop.Group!=group)continue;var cultivar=new HistoricalCultivar{CropId=k,OriginCulture=culture,MaturityDays=crop.MaturityDays,MinimumWarmTenthsC=crop.MinimumWarmC*10,DaylengthLatitudeTenths=(int)(latitude*10),WaterRequirementPermille=crop.MinimumWaterPermille};double fit=HistoricalCropCatalog.Fit(habitat,cultivar,latitude,riverSites[cell]);if(fit>score){score=fit;best=cultivar;}}
             return best;

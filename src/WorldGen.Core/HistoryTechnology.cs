@@ -32,7 +32,7 @@ namespace WorldGen.Core
         // Shared pure diagnostic boundary: hosts do not implement a second technology model.
         public static bool Supports(int year,CultureIdentity c,HistoricalCulture hc,Settlement[] towns,HistoricalTechnology practice,bool contact,bool water,string version="history-5",bool coastalSpecialists=false)
         {
-            if((version==Prehistory.AggregateHistoryVersion||version==Prehistory.LivingHistoryVersion))version="history-16";
+            if(Prehistory.IsAggregateHistoryVersion(version))version="history-16";
             int technology=(int)practice;
             var prerequisites=HistoricalTechnologies.Requirements(version,technology);
             if(prerequisites.Any(p=>hc.Technology[p]==0))return false;

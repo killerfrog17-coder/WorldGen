@@ -54,7 +54,7 @@ namespace WorldGen.Core
     }
     public sealed partial class Prehistory
     {
-        static bool ModernHistory(PrehistoryState s)=>(s.History?.Version==AggregateHistoryVersion||s.History?.Version==LivingHistoryVersion)||(s.History?.Version=="history-13"||(s.History?.Version=="history-14"||(s.History?.Version=="history-15"||s.History?.Version=="history-16")));
+        static bool ModernHistory(PrehistoryState s)=>IsAggregateHistoryVersion(s.History?.Version)||(s.History?.Version=="history-13"||(s.History?.Version=="history-14"||(s.History?.Version=="history-15"||s.History?.Version=="history-16")));
         public PrehistoryState UpgradeToModernHistory(PrehistoryState source)
         {
             Validate(source);if(ModernHistory(source))return source;

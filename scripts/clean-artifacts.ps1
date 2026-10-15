@@ -7,7 +7,7 @@ if ((Get-Item -LiteralPath $artifactRoot).Attributes -band [IO.FileAttributes]::
 }
 # Keep the installed player, latest review, training checkpoints and small
 # provenance/rollback records. Never traverse links into other drives.
-$keep = @('player-history-18-realism', 'history18-review', 'climate-learning',
+$keep = @('player-history-19', 'history19', 'player-history-18-realism', 'history18-review', 'climate-learning',
     'orogen-reference', 'pre-complex-goldens', 'pre-interconnectedness-goldens',
     'pre-interconnectedness-core', 'pre-tectonic-realism')
 $targets = @()

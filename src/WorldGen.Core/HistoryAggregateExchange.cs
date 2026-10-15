@@ -13,13 +13,14 @@ namespace WorldGen.Core
             PrepareWildCrops();PrepareLandscape();
             if(LivingHistory(s)&&livingCoastalRegions==null)livingCoastalRegions=Enumerable.Range(0,Patches.Length).Where(i=>Patches[i].Island||Patches[i].Cells.Any(cell=>World.Surface.Cells[cell].Neighbors.Any(n=>World.Hydrology.OceanConnected[n]))).ToArray();
             if(aggregateDomesticTaxa==null)aggregateDomesticTaxa=World.Ecology.Taxa.Where(t=>NativeLifePack.Domesticability(t.Traits)>=.15).Select(t=>t.Id).OrderBy(i=>i).ToArray();
-            if(aggregateOceanRaster!=null)return;
+            if(aggregateOceanRaster!=null){if(ConnectedHistory(s))PrepareConnectedEnvironment();return;}
             foreach(var patch in Patches)if(patch.Island)CropHabitat(s,patch.Cell);
             // A fixed-size physical approximation, built once. Voyages query
             // 32 samples, never run a fine-cell flood fill or A* in a turn.
             var locator=new CellLocator(World.Surface.Cells);var raster=new bool[OceanRasterWidth*OceanRasterHeight];
             for(int y=0;y<OceanRasterHeight;y++)for(int x=0;x<OceanRasterWidth;x++)
             {double lat=Math.PI*(.5-(y+.5)/OceanRasterHeight),lon=2*Math.PI*((x+.5)/OceanRasterWidth-.5);var p=new V(Math.Cos(lat)*Math.Cos(lon),Math.Cos(lat)*Math.Sin(lon),Math.Sin(lat));raster[y*OceanRasterWidth+x]=World.Hydrology.OceanConnected[locator.Nearest(p)];}aggregateOceanRaster=raster;
+            if(ConnectedHistory(s))PrepareConnectedEnvironment();
         }
         bool AggregateSeaLane(int from,int to)
         {

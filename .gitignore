@@ -12,6 +12,8 @@ artifacts/
 music/*.mp3
 music/*.ogg
 music/*.wav
+music/*.pending
+music/*.flac
 src/WorldGen.Web/wwwroot/music/
 world/*/
 unity/WorldGen.Unity/Assets/StreamingAssets/world/

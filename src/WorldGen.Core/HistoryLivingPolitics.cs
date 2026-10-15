@@ -12,6 +12,15 @@ namespace WorldGen.Core
             if(HistoryRoll("living-disputed-succession",polity,s.Years)>=disputed*accountability)return false;
             int id=h.Polities.Length;var successor=p.Copy();successor.Id=id;successor.ParentId=polity;successor.FoundedYear=s.Years;successor.RulerSince=s.Years;successor.EndedYear=-1;successor.Legitimacy=550;successor.Cohesion=Math.Max(450,p.Cohesion);successor.Treasury=p.Treasury*3/4;
             bool literate=HistoricalTechnologies.Has(hc,HistoricalTechnology.Printing);successor.Name=s.Society.Settlements[p.CapitalId].Name+(literate?" Commonwealth":" Kingdom");successor.Government=literate?"Reconstituted representative government":"Successor dynasty and provincial councils";
+            if(ConnectedHistory(s))
+            {
+                // Printing permits wider participation; it does not automatically
+                // turn every literate state into the same representative regime.
+                bool assembly=literate&&cycle.EliteCapture<450&&old.Diplomacy>=500&&HistoryRoll("development-assembly-succession",polity,s.Years)<.35;
+                bool imperial=!assembly&&a.Polities[polity].CityCount>=6&&old.Military>=650;
+                successor.Name=s.Society.Settlements[p.CapitalId].Name+(assembly?" Commonwealth":imperial?" Empire":" Kingdom");
+                successor.Government=assembly?"A negotiated assembly and provincial councils":imperial?"A successor imperial court with provincial administration":"A successor dynasty and negotiated local privileges";
+            }
             var account=a.Polities[polity].Copy();account.Id=id;account.LastYear=s.Years;account.LastSuccession=s.Years;
             h.Polities=h.Polities.Concat(new[]{successor}).ToArray();a.Polities=a.Polities.Concat(new[]{account}).ToArray();
             var next=ds.Copy();next.Id=id;next.LeaderId=-1;next.LastSuccession=s.Years;next.Cycle=cycle.Copy();next.Cycle.EliteCapture/=2;next.Cycle.ConquestDebt/=2;h.Dynamics.States=h.Dynamics.States.Concat(new[]{next}).ToArray();

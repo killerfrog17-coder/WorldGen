@@ -1,4 +1,20 @@
-# Historical simulation: history-18 / prehistory-6
+# Historical simulation: history-19 / prehistory-6
+
+## Connected development and technological reach — 15 October 2026
+
+New histories use19. Existing18 histories retain their recorded algorithms until **Esc → Update simulation rules** (the action is now shared by both hosts). Updating preserves people, actors, dates and the archive; it cannot repair an implausible recorded past. Generation, accepted climate/hydrology/ecology and their hashes are unchanged. Old18 continuation is checked against the previous executable, not merely against itself.
+
+The underlying failures were fixed frontiers despite improving transport, city-only overseas opportunities, one sampled learning contact, birthplace-only cultivation, excessive compounding of institutional readiness, a cold-winter storage advantage without an annual growing-season cost, and treating adoption like independent invention. Winter amplitude is no longer a substitute for reliable warm-season production. Seasonal warm environments and floodplain acreage can support surplus without promoting evergreen jungle or desert cells wholesale. Crops can be studied at bounded nearby inhabited sites; the native-progenitor and cultivar-transfer checks remain.
+
+Knowledge follows regional relays, neighboring communities, city contacts and sea crossings. A recipient considers its bounded contact set rather than losing an available teacher to an unrelated random sample. Known practices can be adopted by smaller supported institutions; independent research still requires sustained surplus, towns and suitable institutions. A bounded six-partner network can support research without every contributing city belonging to one culture. This is a network-support proxy, not a reconstruction of universities, laboratories or industrial supply chains.
+
+Transport increases actual cultural/state frontier work, not just a nominal radius. State claims pay terrain-sensitive incorporation costs and retain service, fiscal, cohesion and succession constraints. Premodern writing/roads support larger funded administrative networks. War opportunities consider relative capability, resources, relations and ambition; campaign throughput responds to transport and forces. Provincial independence retains a bounded neighboring hinterland. Printing enables, but does not guarantee, representative successors. There is no prescribed modern country count or identical expansion timeline for every planet.
+
+Coastal communities can undertake voyages before an urban port happens to form. A deterministic static shore index builds at most16 physically checked destinations per region using bounded directional probes. Recurring voyages examine at most4; vessel capability limits range, population/provisions constrain departures, and suitable crops must actually travel. Indigenous inland societies still learn along inhabited routes, not from a global technology clock. Small sub-cell island patches remain possible stepping stones. The coarse ocean mask can miss narrow straits and indirect passages; naval logistics are approximated, not simulated vessels.
+
+All ordinary work remains actor-local. Frontier actions cap at64, campaigns at12, and a secession explores a bounded128-entry neighborhood. No recurring event enumerates an empire's, culture's or ecoregion's terrain membership. Initialization, diagnostic maps, explicit integrity validation and rendering may traverse terrain. Coefficients remain transparent gameplay priors; these changes do not establish scientific validation or claim that modern borders, demography or geopolitical diversity are finished.
+
+Research context: [multiregional, protracted domestication](https://doi.org/10.1073/pnas.1612797113), [seasonality and varied cultivation pathways](https://doi.org/10.1073/pnas.1308937110), and [actual interregional trade networks](https://www.metmuseum.org/de/essays/trade-routes-between-europe-and-asia-during-antiquity). No external implementation or geographic origin script is copied. Earth controls test environmental behavior, not a requirement to reproduce the same historical countries or invention dates.
 
 ## Observer eras and soundtrack
 

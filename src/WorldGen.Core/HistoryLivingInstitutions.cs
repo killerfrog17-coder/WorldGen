@@ -50,6 +50,15 @@ namespace WorldGen.Core
             double seasonal=.25+.75*landscapeSeason[t.Cell];
             double core=D.Clamp(fiscal/.35)*concentration*institutions*(.60+.25*waterCoordination+.15*exchange)*(.6+.4*seasonal);
             double independent=.00000003+.00015*Math.Pow(core,8),transmitted=.008*Math.Pow(core,2)*record.CivicExampleExposure/1000.0;
+            if(ConnectedHistory(s))
+            {
+                // A supported alluvial/seasonal food network need not win eight
+                // compounded lotteries before institutions can arise. Poor local
+                // surplus remains strongly disfavored, without a cold-winter bonus.
+                core=D.Clamp(fiscal/.30)*concentration*institutions*(.60+.25*waterCoordination+.15*exchange)*(.85+.15*seasonal);
+                independent=.000000002+.0008*Math.Pow(core,5);
+                transmitted=.008*Math.Pow(core,2)*record.CivicExampleExposure/1000.0;
+            }
             if(record.CivicPreparationYears>=120&&s.Society.Cultures[t.CultureId].Farming>=250&&HistoryRoll("living-state-foundation",id,s.Years)<1-Math.Exp(-(independent+transmitted)*elapsed))
             {
                 FoundAggregateState(s,id,restoration?raw:-1);

@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--connected-only")){int at=Array.IndexOf(args,"--connected-only"),count=0;HistoryConnectedTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" connected-development assertions");return;}
 if(args.Contains("--interface-only")){int count=0;WorldInterfaceTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" world interface assertions");return;}
 if(args.Contains("--living-only")){int at=Array.IndexOf(args,"--living-only"),count=0;HistoryLivingTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" living-history assertions");return;}
 if(args.Contains("--living-review")){HistoryLivingReview.Run(args);return;}

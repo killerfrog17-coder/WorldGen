@@ -44,6 +44,7 @@ namespace WorldGen.Core
             var hc=h.Cultures[p.CultureId];var ds=h.Dynamics.States[id];if(ds.LeaderId<0)AppointAggregateLeader(s,id);var leader=h.Dynamics.Leaders[ds.LeaderId];
             if(s.Years>=leader.ExpectedEndYear){if(LivingHistory(s)&&TryLivingRegimeChange(s,id))return;AppointAggregateLeader(s,id);leader=h.Dynamics.Leaders[ds.LeaderId];}
             account.ReachKm=(int)(HistoricalLocalEffects.AdministrativeReachKm(account.Urban,leader.Administration,ds.PublicWorks,HistoricalTechnologies.Has(hc,HistoricalTechnology.Writing),HistoricalTechnologies.Has(hc,HistoricalTechnology.Roads))*HistoricalModernEffects.AdministrativeCapacity(hc,s.Years)*HistoricalModernEffects.LandTransport(hc,s.Years));
+            if(ConnectedHistory(s))account.ReachKm=(int)(account.ReachKm*(1+.8*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Writing,s.Years)+1.2*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Roads,s.Years)));
             double geography=Math.Sqrt(Math.Max(1,p.AreaKm2)/Math.PI)/Math.Max(50,account.ReachKm);
             double served=D.Clamp(1/(1+geography*geography));long receipts=(long)(account.Urban*.065+(account.Rural+account.Suburban)*.025+account.Remote*.012*served);
             long service=(long)((account.Urban+account.Rural+account.Remote)*.003*(.5+geography*geography)+p.AreaKm2*.0001);account.Receipts=receipts;account.ServiceCost=service;p.Treasury=Math.Max(0,Math.Min(1000000000,p.Treasury+(receipts-service)*elapsed));
@@ -69,12 +70,20 @@ namespace WorldGen.Core
             if(sampledCity!=p.CapitalId&&town.PolityId==id&&town.Population>=1000)
             {
                 double stress=D.Clamp((distance/Math.Max(50,account.ReachKm)-.5)/2)+cycle.ConquestDebt/2000.0+cycle.EliteCapture/2500.0+(town.CultureId==p.CultureId?0:.1);h.Towns[sampledCity].AutonomyPressure=(int)Math.Min(1000,stress*1000);
+                if(ConnectedHistory(s)&&town.CultureId!=p.CultureId)
+                {
+                    var local=h.Cultures[town.CultureId];
+                    double localInstitutions=D.Clamp(local.Institution/650.0)*D.Clamp(town.Population/5000.0);
+                    stress+=.2+.3*localInstitutions+.15*(1-p.Legitimacy/1000.0);
+                    h.Towns[sampledCity].AutonomyPressure=(int)Math.Min(1000,stress*1000);
+                }
                 double risk=LivingHistory(s)?Math.Max(0,stress-.55)*.006*(.25+.75*D.Clamp((650-p.Cohesion)/400.0)):stress*.008;
-                if(HistoryRoll("aggregate-secession",id,s.Years)<Math.Min(.4,risk*elapsed)){FoundAggregateState(s,sampledCity,id);return;}
+                if(HistoryRoll("aggregate-secession",id,s.Years)<Math.Min(.4,risk*elapsed)){FoundAggregateState(s,sampledCity,id);if(ConnectedHistory(s))ClaimDevelopmentProvince(s,sampledCity,id);return;}
             }
             if((p.Cohesion<250||cycle.EliteCapture>800)&&HistoryRoll("aggregate-court-crisis",id,s.Years)<.005*elapsed){EndAggregateState(s,id,"Fiscal strain and rival local elites dissolve the central court; local communities and their histories survive.");return;}
             int target=LocalFrontierTarget(s,account.Frontier,id,"aggregate-state-frontier",1);
-            if(target>=0)
+            if(ConnectedHistory(s))AdvanceDevelopmentFrontier(s,id,elapsed);
+            if(target>=0&&!ConnectedHistory(s))
             {
                 int other=HistoricalCells.Polity(s,target);double km=D.Angle(World.Surface.Cells[target].Position,World.Surface.Cells[s.Society.Settlements[p.CapitalId].Cell].Position)*World.Recipe.RadiusKm;
                 if(other<0&&HistoricalCells.Culture(s,target)>=0&&km<account.ReachKm*(1+.3*Math.Log(1+account.CityCount))&&p.Treasury>100&&p.Cohesion>500&&HistoryRoll("aggregate-incorporation",id,s.Years)<.15*elapsed/5){ClaimAggregatePolity(s,target,id);p.Treasury-=100;}
@@ -87,6 +96,7 @@ namespace WorldGen.Core
         }
         void ConsiderAggregateDiplomacy(PrehistoryState s,int id,int other,HistoricalLeader leader,int elapsed)
         {
+            if(ConnectedHistory(s)){ConsiderDevelopmentDiplomacy(s,id,other,leader,elapsed);return;}
             var p=s.History.Polities[id];var relation=AggregateRelation(s,id,other);relation.Trust=Math.Max(-100,Math.Min(100,relation.Trust+(int)(HistoryRoll("aggregate-trust-"+other,id,s.Years)*11)-5));
             if(relation.WarSince<0&&relation.TruceUntil<s.Years&&p.Army>20&&p.Cohesion>400&&HistoryRoll("aggregate-war-"+other,id,s.Years)<.018*elapsed*(.2+leader.Ambition/1000.0))BeginAggregateCampaign(s,id,other,relation);
             else if(relation.WarSince<0){relation.Trade=relation.Trust>0;relation.Alliance=relation.Trust>75;}
@@ -105,6 +115,7 @@ namespace WorldGen.Core
         }
         void AdvanceAggregateCampaign(PrehistoryState s,int id)
         {
+            if(ConnectedHistory(s)){AdvanceDevelopmentCampaign(s,id);return;}
             var h=s.History;var a=h.Aggregates;var c=h.Dynamics.Campaigns[id];int elapsed=s.Years-c.LastActionYear;if(elapsed<=0)return;c.LastActionYear=s.Years;int attacker=c.AttackerId,defender=attacker==c.A?c.B:c.A;var pa=h.Polities[attacker];var pb=h.Polities[defender];var relation=AggregateRelation(s,attacker,defender);
             if(pa.EndedYear>=0||pb.EndedYear>=0||s.Years-c.StartedYear>8+(int)(HistoryRoll("aggregate-war-duration",id,c.StartedYear)*18)||pa.Exhaustion>750||pb.Exhaustion>750)
             {c.EndedYear=s.Years;c.Outcome=pa.EndedYear>=0||pb.EndedYear>=0?"One court ceased to exist":"Negotiated peace after exhaustion and frontier conflict";relation.WarSince=-1;relation.TruceUntil=s.Years+8+(int)(HistoryRoll("aggregate-truce",id,s.Years)*20);HistoryEvent(s,"peace",c.Name+" ends. "+c.Outcome+".",s.Society.Settlements[pa.CapitalId].Cell,pa.CultureId,pa.Id,pb.Id,category:ChronicleCategory.Politics);return;}

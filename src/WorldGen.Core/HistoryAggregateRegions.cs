@@ -8,6 +8,7 @@ namespace WorldGen.Core
         {
             var a=s.History.Aggregates;var r=a.Regions[id];int elapsed=s.Years-r.LastYear;if(elapsed<=0)return;r.LastYear=s.Years;
             if(LivingHistory(s))AdvanceLivingRegionalExchange(s,id,elapsed);
+            if(ConnectedHistory(s))AdvanceDevelopmentVoyage(s,id,elapsed);
             long before=s.Population[id];double variability=.85+.3*HistoryRoll("aggregate-region-productivity",id,s.Years/400);
             long capacity=Math.Max(0,(long)(r.Capacity*variability));
             if(r.Culture>=0){var c=s.Society.Cultures[r.Culture];capacity=(long)(capacity*(1+c.Farming/80.0*r.YieldMilli/1000.0*HistoricalModernEffects.FoodMultiplier(s.History.Cultures[c.Id],s.Years)));}

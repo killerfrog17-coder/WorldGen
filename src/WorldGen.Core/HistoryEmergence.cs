@@ -37,7 +37,7 @@ namespace WorldGen.Core
     }
     public sealed partial class Prehistory
     {
-        static bool EmergenceHistory(PrehistoryState s)=>(s.History?.Version=="history-15"||s.History?.Version=="history-16"||(s.History?.Version==AggregateHistoryVersion||s.History?.Version==LivingHistoryVersion));
+        static bool EmergenceHistory(PrehistoryState s)=>(s.History?.Version=="history-15"||s.History?.Version=="history-16"||IsAggregateHistoryVersion(s.History?.Version));
         double NativeDomesticability(int cell,int crop)
         {
             int province=World.Ecology.Province[cell];

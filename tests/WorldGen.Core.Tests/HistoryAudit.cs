@@ -115,7 +115,7 @@ Snapshot(w,engine,s,folder);w.Prehistory=s;File.WriteAllBytes(Path.Combine(folde
         File.WriteAllText(Path.Combine(folder,"audit-summary.txt"),$"History {s.History.Version}; origin patch {s.Origin}; end {s.Years}; first state {firstState}; {ceilingLabel} capstones {maxTechYear}; post-capstone years {(maxTechYear<0?-1:s.Years-maxTechYear)}.\n"+(tail>=0&&(maxTechYear<0||s.Years<maxTechYear+tail)?"Safety limit reached without the full ceiling/tail interval; do not report a completed era progression.\n":""));
         Console.WriteLine("DONE "+folder+" first state "+firstState+" "+ceilingLabel+" capstones "+maxTechYear+" end "+s.Years);
     }
-    public static void Snapshot(World w,Prehistory engine,PrehistoryState s,string folder)
+    public static void Snapshot(World w,Prehistory engine,PrehistoryState s,string folder,IEnumerable<HistoryOverlay> selected=null)
     {
         var text=new StringBuilder("kind,id,name,year,latitude,longitude,biome,flood,aridity,population\n");
         void Entry(string kind,int id,string name,int year,int cell,long population){var p=w.Surface.Cells[cell].Position;var h=w.Ecology.Habitat[cell];text.AppendLine(FormattableString.Invariant($"{kind},{id},{name.Replace(',',' ')},{year},{Math.Asin(p.Z)*180/Math.PI:F2},{Math.Atan2(p.Y,p.X)*180/Math.PI:F2},{h.Biome},{h.Flooding},{h.AridityMilli},{population}"));}
@@ -126,7 +126,7 @@ Snapshot(w,engine,s,folder);w.Prehistory=s;File.WriteAllBytes(Path.Combine(folde
         var corners=Enumerable.Range(0,w.Surface.Cells.Length).Select(_=>new List<V>()).ToArray();
         for(int t=0;t<w.Surface.Triangles.Length;t+=3)for(int k=0;k<3;k++)corners[w.Surface.Triangles[t+k]].Add(w.Surface.Corners[t/3]);
         var humanCodes=PrehistoryView.Codes(w,engine,s);
-        foreach(var overlay in new[]{HistoryOverlay.States,HistoryOverlay.Cultures,HistoryOverlay.Religions,HistoryOverlay.Technology})
+        foreach(var overlay in selected??new[]{HistoryOverlay.States,HistoryOverlay.Cultures,HistoryOverlay.Religions,HistoryOverlay.Technology})
         {
             var b=new StringBuilder("<svg xmlns='http://www.w3.org/2000/svg' width='1800' height='960' viewBox='0 0 1800 960'><rect width='1800' height='960' fill='#8cc7e6'/>");
             b.Append($"<text x='24' y='30' fill='white' font-family='sans-serif' font-size='22'>{overlay} / climate · {SimulationClockView.Year(s,s.Years)} · {s.Society.Cultures.Length} cultures · {s.History.Polities.Count(p=>p.EndedYear<0)} states</text>");
