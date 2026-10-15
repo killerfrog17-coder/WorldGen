@@ -20,6 +20,7 @@ try {
  if(Number(await page.getByLabel('Population opacity',{exact:true}).inputValue())!==.75)throw Error('Overlay keyboard increment is not 25%');
  await page.getByLabel('Map opacity',{exact:true}).fill('0');await page.getByLabel('Population opacity',{exact:true}).fill('1');
  const scheduled=JSON.parse(await page.evaluate(async()=>{const map=await import('/globe.js');return await map.people('calendar');}));
+ if(process.env.HISTORY_EXPECTED_RULE&&scheduled.RulesVersion!==process.env.HISTORY_EXPECTED_RULE)throw Error('The staged browser worker is using the wrong historical rules: '+scheduled.RulesVersion);
  await page.getByRole('button',{name:'Step',exact:true}).click();
  await page.waitForFunction(()=>!document.querySelector('.sim-bar strong')?.textContent.startsWith('Year 0')&&[...document.querySelectorAll('.sim-bar button')].some(b=>b.textContent==='Step'&&!b.disabled),{},{timeout:90000});
  const summary=JSON.parse(await page.evaluate(async()=>{const map=await import('/globe.js');return await map.people('status');}));

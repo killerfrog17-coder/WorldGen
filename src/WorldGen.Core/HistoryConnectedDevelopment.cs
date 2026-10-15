@@ -30,7 +30,7 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         public const string ConnectedHistoryVersion="history-19";
-        public static bool IsAggregateHistoryVersion(string version)=>version==AggregateHistoryVersion||version==LivingHistoryVersion||version==ConnectedHistoryVersion||version==RegionalHistoryVersion||version==CommunityHistoryVersion||version==DiffusionHistoryVersion;
+        public static bool IsAggregateHistoryVersion(string version)=>version==AggregateHistoryVersion||version==LivingHistoryVersion||version==ConnectedHistoryVersion||version==RegionalHistoryVersion||version==CommunityHistoryVersion||version==DiffusionHistoryVersion||version==AgronomicHistoryVersion;
         static bool ConnectedHistory(PrehistoryState s)=>s?.History?.Version==ConnectedHistoryVersion||ProvincialHistory(s);
         public static bool CanUpgradeHistory(PrehistoryState s)
         {
@@ -103,7 +103,7 @@ namespace WorldGen.Core
             int requiredCenters=technology>=27?4:technology>=20?3:2;long requiredPeople=technology>=27?100000:technology>=20?50000:15000;
             if(centers<requiredCenters||people<requiredPeople)return false;
             if(technology==(int)HistoricalTechnology.OceanNavigation&&!water)return false;
-            if((technology==(int)HistoricalTechnology.CropRotation||technology==(int)HistoricalTechnology.ArtificialFertilizers||technology==(int)HistoricalTechnology.MechanizedAgriculture)&&c.Farming<400)return false;
+            if((technology==(int)HistoricalTechnology.CropRotation||technology==(int)HistoricalTechnology.ArtificialFertilizers||technology==(int)HistoricalTechnology.MechanizedAgriculture)&&!AgronomicResearchSupported(s,culture))return false;
             return true;
         }
         int DevelopmentCropDonor(PrehistoryState s,int culture,int group,int site,int fallback)

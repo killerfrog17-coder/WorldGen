@@ -1,5 +1,30 @@
 # Version 3 validation evidence
 
+## Final history23 handoff - 15 October 2026
+
+The final rules are23, a narrow correction on the22 pass below. See [HISTORY23_REVIEW.md](HISTORY23_REVIEW.md). Generation stays worldgen-3.32.0/schema3. Current Core SHA256 is `d3f6d36f3f987784ac8a9fce4c99ba8da73744aa226e1840a529a35ee845ae38`, identical in the compiled shared assembly and `artifacts/player-history-23-final/WorldGen_Data/Managed/WorldGen.Core.dll`.
+
+Fresh Earth200k, Continents Plus200k and Archipelago80k reached all37 capabilities and another1000-plus years. Earth and Archipelago retain22's same demographic/actor outcomes, with the required new version/hash. Continents Plus changes modestly. Independent nine-era replays of final Earth and Continents Plus match their endpoint hashes; both overviews were actually viewed. The cold-world continuation demonstrates the specific deadlock is removed without retroactively changing its22 past. It is an explicitly upgraded continuation, not a claim of a fresh23 replay over600000 years.
+
+Final native Unity acceptance, actual current model, no skipped actors/events or forced inventions:
+
+| 200k world | Additional simulated years | Overall years/s | Minimum rolling years/s | Worst calculated year | Mean / P95 frame |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Continents Plus | 1008.20 | 4.410 | 4.238 | 757.60ms | 17.27 / 20.60ms |
+| Earth | 1009.37 | 7.226 | 7.042 | 462.66ms | 17.01 / 18.43ms |
+
+Both passed the requested minimum3years/s, no calculated year above1second,1000-year tail and folded-selection gates. Maximum frames54.15ms /32.73ms respectively. Evidence: `artifacts/history20/unity23-final-{continents,earth}-performance/playback.json`. Loading/setup is excluded and remains slow; these two host measurements are not an unlimited-actor scalability guarantee.
+
+The final23 fresh Earth checkpoint passed1022 aggregate assertions; final23 generated terrain passed19 dense-display assertions across all overlays. The33 local-community checks include actual-farmer support, rejection without crop records,22 compatibility, accounting, literal-cache equivalence, detached publications and cancellation. Canonical73, crop8 and atlas39 checks passed. A20-year22 continuation matches the frozen22 executable exactly, as recorded in HISTORY23_REVIEW.md. The old21 continuation also remains unchanged. Final solution and Unity player builds passed. The preexisting full-suite Earth golden mismatch documented below remains; no golden was silently regenerated.
+
+The browser passed all five overlays, matching selections/legends, numeric population/area rankings, opaque-score hiding,25% opacity keys/clamps, chronicle export and an irregular37-year continuation. Its saved history hash `b30d748b7a9af811cf6ff26eea6afe957bdbf067133110938d5c3b7ffe9fb3b8` matches an independent .NET continuation exactly. Current staged23 worker additionally passed the default-layer/opacity/next-event check, explicitly asserting its reported rule version. The atlas's five profile types, lazy habitat images, real-condition tiles, search/history paging/focus/copy/compact layout passed with unchanged campaign lore. Browser loading is still roughly200seconds for this20k late save; phase reporting does not make that fast. Native hidden-window HUD capture remains black on this host; valid offscreen maps and browser UI captures are the visual evidence.
+
+The complete three review recipes are intentionally retained input fixtures in `tests/fixtures/history23`, including accepted climate weights. Each was exported only after independently generating it and matching every named original stage hash. Their README documents reproduction without old external validation folders. They are not regenerated golden expectations. Raw worlds, screenshots and binaries remain ignored.
+
+The root shortcut targets the final23 player; the22 player/checkpoint remains available for rollback. Existing histories require an explicit upgrade, which changes future behavior and cannot repair already-recorded implausible past events. Premodern direct/indirect state scale, local economy detail and several political/technical abstractions remain unfinished; this pass is not a declaration of a scientifically validated or complete historical simulator.
+
+Final23 native Earth200k subsequently replayed all nine observer eras to the same final hash `bc30aa450ebb3229c16df695145246f53d34027f1d9714d4376fd4821965bd94`. Evidence: `artifacts/history20/native-era23-earth/verified.txt`. The actual native final offscreen map and final browser illustrated-city profile were viewed; the latter shows narrative introduction before illustration. The remaining political-scale limitation includes modern sparse-region claims, not only ancient empires; the concrete diagnosis/next mechanism is recorded in HISTORY23_REVIEW.md.
+
 ## Current history22 release candidate - 15 October 2026
 
 See [HISTORY22_REVIEW.md](HISTORY22_REVIEW.md) for actual mechanisms, longitudinal outputs, research and unresolved realism limitations. Generation remains worldgen-3.32.0; historical output changes are separately versioned. Final accepted experimental runner is `review22d-bin`, not the earlier unshipped22a/b/c trials.

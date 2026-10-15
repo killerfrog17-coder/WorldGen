@@ -30,8 +30,16 @@ namespace WorldGen.Core
     {
         public const string CommunityHistoryVersion="history-21";
         public const string DiffusionHistoryVersion="history-22";
-        static bool PassageHistory(PrehistoryState s)=>s?.History?.Version==DiffusionHistoryVersion;
+        public const string AgronomicHistoryVersion="history-23";
+        static bool AgronomicHistory(PrehistoryState s)=>s?.History?.Version==AgronomicHistoryVersion;
+        static bool PassageHistory(PrehistoryState s)=>s?.History?.Version==DiffusionHistoryVersion||AgronomicHistory(s);
         static bool CommunityHistory(PrehistoryState s)=>s?.History?.Version==CommunityHistoryVersion||PassageHistory(s);
+        public PrehistoryState UpgradeToAgronomicHistory(PrehistoryState source)
+        {
+            Validate(source);if(AgronomicHistory(source))return source;
+            if(!PassageHistory(source))source=UpgradeToDiffusionHistory(source);
+            var s=source.Copy();s.History.Version=AgronomicHistoryVersion;s.Seal();return s;
+        }
         public PrehistoryState UpgradeToDiffusionHistory(PrehistoryState source)
         {
             Validate(source);if(PassageHistory(source))return source;

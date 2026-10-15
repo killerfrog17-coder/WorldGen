@@ -46,7 +46,7 @@ public static class HistoryCommunityTests
         for(int from=0;from<routes.Length;from++)foreach(var route in routes[from])
         {endpoints&=route.A==from&&engine.CellPatch[route.CellA]==from&&engine.CellPatch[route.CellB]==route.B&&route.DistanceM>0;reciprocal&=routes[route.B].Any(r=>r.B==from&&r.DistanceM==route.DistanceM&&r.CellA==route.CellB&&r.CellB==route.CellA);}
         check(reciprocal&&endpoints,"Ocean paths have real shore endpoints and exactly reciprocal lengths");
-        if(state.History.Version==Prehistory.DiffusionHistoryVersion)
+        if(state.History.Version==Prehistory.DiffusionHistoryVersion||state.History.Version==Prehistory.AgronomicHistoryVersion)
         {
             var passages=(Prehistory.Route[][])typeof(Prehistory).GetField("diffusionPassages",Hidden)!.GetValue(engine)!;
             check(passages.Length==engine.Patches.Length&&passages.All(routes=>routes.Length<=12),"Sparse-habitat passages are prepared once with a bounded departure list");
@@ -63,6 +63,18 @@ public static class HistoryCommunityTests
             check((double)Call(engine,"DiffusionSeaEffort",state,shore,shore,culture)==0,"A local port has no artificial loading-distance floor for same-location queries");
         }
         int child=state.History.Cultures.Length-1,parent=0;var inherited=state.Copy();inherited.History.Cultures[parent].Technology[(int)HistoricalTechnology.Computing]=1;inherited.History.Cultures[child].Technology=new int[HistoricalTechnologies.Names.Length];
+        if(state.History.Version==Prehistory.AgronomicHistoryVersion)
+        {
+            var farm=state.Copy();int farmers=state.Society.Settlements.First(t=>t.Population>1000).CultureId;var farmersAccount=farm.History.Aggregates.Cultures[farmers];
+            farm.Society.Cultures[farmers].Farming=200;farmersAccount.Rural=20000;farmersAccount.SupportedUrban=10000;
+            for(int k=0;k<farmersAccount.Cities.Count;k++)
+            {int center=farmersAccount.Cities.At(k);farm.History.Aggregates.Cities[center].Rural=6000;farm.History.Aggregates.Cities[center].Supported=true;farm.Society.Settlements[center].Population=1200;farm.History.Towns[center].Cropping=new HistoricalLocalHarvest{CropIds=new[]{0}};}
+            check((bool)Call(engine,"AgronomicResearchSupported",farm,farmers),"A real supported farming community can research agronomy even when its wider culture is mostly fishers or foragers");
+            var previousRules=farm.Copy();previousRules.History.Version=Prehistory.DiffusionHistoryVersion;
+            check(!(bool)Call(engine,"AgronomicResearchSupported",previousRules,farmers),"History22 keeps its exact older agronomy threshold unless explicitly upgraded");
+            for(int k=0;k<farmersAccount.Cities.Count;k++)farm.History.Towns[farmersAccount.Cities.At(k)].Cropping.CropIds=Array.Empty<int>();
+            check(!(bool)Call(engine,"AgronomicResearchSupported",farm,farmers),"People and urban institutions alone cannot invent agronomy without actual cultivated crop records");
+        }
         Call(engine,"InheritDevelopmentCommunity",inherited,child,parent,inherited.Society.Cultures[child].OriginCell);
         check(inherited.History.Cultures[child].Technology[(int)HistoricalTechnology.Computing]==0,"A boatload of settlers does not instantiate a complete industrial economy");
         var fast=new Prehistory(world);var slow=new Prehistory(world){UseProvincialCaches=false};

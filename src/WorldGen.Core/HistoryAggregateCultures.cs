@@ -120,7 +120,7 @@ namespace WorldGen.Core
                 // Importing/operating a known practice does not require locally
                 // recreating the metropolitan research network that invented it.
                 if(k==(int)HistoricalTechnology.OceanNavigation)return water||c.Fishing>=150;
-                if(k==(int)HistoricalTechnology.CropRotation||k==(int)HistoricalTechnology.ArtificialFertilizers||k==(int)HistoricalTechnology.MechanizedAgriculture)return c.Farming>=250;
+                if(k==(int)HistoricalTechnology.CropRotation||k==(int)HistoricalTechnology.ArtificialFertilizers||k==(int)HistoricalTechnology.MechanizedAgriculture)return c.Farming>=250||AgronomicHistory(s)&&AgronomicResearchSupported(s,id);
                 return true;
             }
             if(LivingHistory(s))
@@ -132,7 +132,7 @@ namespace WorldGen.Core
                 if(k==(int)HistoricalTechnology.Writing)return a.SupportedUrban>=2500&&a.CivilizationSince>=0&&hc.Institution>=400;
                 if(k>=15&&a.SupportedCities<2)return false;
             }
-            if(k>=15){int centers=k>=27?4:k>=20?3:2;long people=k>=27?100000:k>=20?50000:15000;if(LivingHistory(s)&&contact){centers=2;people=people*2/5;}return a.SupportedCities>=centers&&a.SupportedUrban>=people&&hc.Institution>=550&&hc.Surplus>=350&&((HistoricalTechnology)k!=HistoricalTechnology.OceanNavigation||water)&&((HistoricalTechnology)k!=HistoricalTechnology.CropRotation&&(HistoricalTechnology)k!=HistoricalTechnology.ArtificialFertilizers&&(HistoricalTechnology)k!=HistoricalTechnology.MechanizedAgriculture||c.Farming>=400);}
+            if(k>=15){int centers=k>=27?4:k>=20?3:2;long people=k>=27?100000:k>=20?50000:15000;if(LivingHistory(s)&&contact){centers=2;people=people*2/5;}return a.SupportedCities>=centers&&a.SupportedUrban>=people&&hc.Institution>=550&&hc.Surplus>=350&&((HistoricalTechnology)k!=HistoricalTechnology.OceanNavigation||water)&&((HistoricalTechnology)k!=HistoricalTechnology.CropRotation&&(HistoricalTechnology)k!=HistoricalTechnology.ArtificialFertilizers&&(HistoricalTechnology)k!=HistoricalTechnology.MechanizedAgriculture||AgronomicResearchSupported(s,id));}
             switch((HistoricalTechnology)k)
             {
                 case HistoricalTechnology.Cultivation:return c.Farming>0;

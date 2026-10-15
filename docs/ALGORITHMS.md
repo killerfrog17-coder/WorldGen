@@ -1,5 +1,9 @@
 # Implementation contracts - version 3
 
+## Actual agricultural practice - history23, 15 October 2026
+
+New histories use23. History22 and every earlier version retain their exact behavior unless explicitly upgraded. Version23 adds a bounded alternative to a culture-wide farming-score gate for agricultural research: at least10000 catchment rural and5000 supported urban residents, plus a supported center among at most3 samples with4000 rural,1000 town residents and actual recorded crops. Existing research institutions, relevant prerequisites, maturation, production/crop fit and the previous easier known-practice adoption path remain. This fixes a cold-world deadlock in which computing was possible but every agricultural improvement was permanently vetoed. No cell census, past-history rewrite, schema change or generation-version change is involved. See HISTORY23_REVIEW.md and VALIDATION.md; the named22 contracts below remain its baseline.
+
 ## Current historical contracts - history22, 15 October 2026
 
 Current new histories use22; generation remains worldgen-3.32.0. Versions20/21/22 extend the aggregate actor dispatcher, not the legacy whole-territory turns. `HistoryCommunityModel`, `HistoryDiffusionPassages`, `HistoryDiffusionTransport` and `HistoryCropEcology` contain the current version guards. Old saves retain their version and integrity representation until an explicit upgrade. Derived passage/shore/crop/sea-lane caches are rebuilt, not persisted as alternate authoritative data. Literal cache-off equivalence and previous-version executable comparisons are required. See HISTORY22_REVIEW.md for measured evidence, priors, citations and limitations.

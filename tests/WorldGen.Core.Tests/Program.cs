@@ -1,6 +1,12 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--verify-review-input")){
+    int at=Array.IndexOf(args,"--verify-review-input");var source=WorldFile.Read(File.ReadAllBytes(args[at+1]));
+    var rebuilt=new WorldPipeline().Generate(source.Recipe);
+    if(!source.Stages.Select(s=>(s.Name,s.Hash)).SequenceEqual(rebuilt.Stages.Select(s=>(s.Name,s.Hash))))throw new Exception("Review input cannot be reproduced from its complete recipe");
+    Console.WriteLine(WorldJson.Write(source.Recipe));return;
+}
 if(args.Contains("--world-load-review")){int at=Array.IndexOf(args,"--world-load-review");var timer=System.Diagnostics.Stopwatch.StartNew();var w=WorldFile.Read(File.ReadAllBytes(args[at+1]),status:stage=>Console.WriteLine(timer.ElapsedMilliseconds+" ms: "+stage));Console.WriteLine("Validated "+w.Surface.Cells.Length+" cells, historical hash "+w.Prehistory?.Hash+", elapsed "+timer.ElapsedMilliseconds+" ms");return;}
 if(args.Contains("--canonical-wide-layout")){var types=new[]{typeof(HistoricalPolity),typeof(HistoricalRelation),typeof(HistoricalTown),typeof(HistoricalStateDynamics),typeof(HistoricalCampaign),typeof(HistoricalAgriculture),typeof(HistoricalCulture),typeof(HistoricalCultivar),typeof(Settlement),typeof(CultureIdentity),typeof(HistoricalAdministrativeAccount),typeof(HistoricalUrbanDemography),typeof(HistoricalLocalHarvest),typeof(HistoricalLocalCommunity),typeof(HistoricalGovernmentPolicy),typeof(HistoricalCampaignAdvance)};Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(types.Select(t=>new{Name=t.Name,Fields=t.GetFields().OrderBy(f=>f.Name,StringComparer.Ordinal).Select(f=>new{Name=f.Name,Type=f.FieldType.FullName,Scalar=f.FieldType.IsPrimitive||f.FieldType.IsEnum})})));return;}
 if(args.Contains("--community-only")){int count=0,at=Array.IndexOf(args,"--community-only");HistoryCommunityTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" local-community assertions");return;}
