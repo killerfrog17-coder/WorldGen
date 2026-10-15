@@ -50,6 +50,7 @@ namespace WorldGen.Core
             foreach(var culture in h.Cultures)ValidateTechnicalPractice(s,culture);
             ValidateImperialSystem(s);
             ValidateTerritorialAdministration(s);
+            ValidateProvincialFrontiers(s);
             var stateUrban=new long[h.Polities.Length];var stateRural=new long[h.Polities.Length];var stateSuburban=new long[h.Polities.Length];var settledRegions=new long[a.Regions.Length];
             for(int i=0;i<a.Cities.Length;i++)
             {

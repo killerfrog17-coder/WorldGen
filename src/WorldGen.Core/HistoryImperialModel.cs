@@ -6,7 +6,8 @@ namespace WorldGen.Core
     {
         public HistoricalImperialGovernment[] Governments=Array.Empty<HistoricalImperialGovernment>();
         public HistoricalTerritorialAdministration Territories;
-        public HistoricalImperialSystem Copy()=>new HistoricalImperialSystem{Governments=Governments.Select(g=>g.Copy()).ToArray(),Territories=Territories?.Copy()};
+        [System.Runtime.Serialization.OptionalField] public HistoricalProvincialFrontiers Frontiers;
+        public HistoricalImperialSystem Copy()=>new HistoricalImperialSystem{Governments=Governments.Select(g=>g.Copy()).ToArray(),Territories=Territories?.Copy(),Frontiers=Frontiers?.Copy()};
     }
     [Serializable] public sealed class HistoricalImperialGovernment
     {

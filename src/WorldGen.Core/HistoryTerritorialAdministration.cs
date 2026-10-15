@@ -51,6 +51,7 @@ namespace WorldGen.Core
             if(p.Treasury<setup+annual*30||finances.Receipts-finances.ServiceCost<annual*1.5)return -1;
             p.Treasury-=setup;var post=new HistoricalAdministrativePost{Id=id,PolityId=polity,Cell=choice,ParentSource=parent,Depth=parent>=0?1:t.Posts[-parent-2].Depth+1,FoundedYear=s.Years,AnnualCost=annual,MessageEffortKm=D.Q(distance,1000000),AutonomyMilli=(int)(700/Math.Sqrt(communications)),Name=HistoricalName("province",unchecked(choice+id*7919))+" Province"};
             t.Posts=t.Posts.Concat(new[]{post}).ToArray();t.PostAt=t.PostAt.With(choice,id);g.AdministrativePosts.Add(id);g.AdministrativePostCost+=annual;
+            AppendProvincialFrontier(s);
             AssignTerritorialSource(s,choice,-2-id);
             HistoryEvent(s,"administrative-post",p.Name+" establishes a funded local administration at "+post.Name+", extending its provincial network without creating a city or population.",choice,p.CultureId,polity,category:ChronicleCategory.Politics);
             return -2-id;

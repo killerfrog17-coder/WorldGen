@@ -60,6 +60,12 @@ namespace WorldGen.Core
             if(old>=0)t.DistrictAreas[old]=Math.Max(0,t.DistrictAreas[old]-area);else if(old<=-2)t.Posts[-old-2].AreaKm2=Math.Max(0,t.Posts[-old-2].AreaKm2-area);
             if(source>=0)t.DistrictAreas[source]+=area;else if(source<=-2)t.Posts[-source-2].AreaKm2+=area;
             t.Sources=t.Sources.With(cell,source);
+            if(ProvincialFrontierHistory(s))
+            {
+                if(old<=-2)s.History.Aggregates.Empires.Frontiers.Posts[-old-2].Remove(cell);
+                RefreshProvincialFrontier(s,cell);
+                foreach(int neighbor in World.Surface.Cells[cell].Neighbors)RefreshProvincialFrontier(s,neighbor);
+            }
         }
         int TerritorialNodeCell(PrehistoryState s,int source)=>source>=0?s.Society.Settlements[source].Cell:s.History.Aggregates.Empires.Territories.Posts[-source-2].Cell;
         bool TerritorialNodeLive(PrehistoryState s,int polity,int source)

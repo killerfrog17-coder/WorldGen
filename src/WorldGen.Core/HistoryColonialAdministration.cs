@@ -44,6 +44,7 @@ namespace WorldGen.Core
             int id=territory.Posts.Length;double parentEffort=source>=0?LivingTravelKm(s,s.Society.Settlements[p.CapitalId].Cell,TerritorialNodeCell(s,source),p.CultureId):territory.Posts[-source-2].MessageEffortKm;
             var post=new HistoricalAdministrativePost{Id=id,PolityId=polity,Cell=target,ParentSource=source,Depth=depth,FoundedYear=s.Years,AnnualCost=annual,MessageEffortKm=D.Q(parentEffort+distance,1000000),AutonomyMilli=ocean?700:850,Maritime=true,Founders=(int)migrants,LegDistanceM=route.DistanceM,Name=HistoricalName("overseas-province",unchecked(target+id*7919))+" Charter"};
             territory.Posts=territory.Posts.Concat(new[]{post}).ToArray();territory.PostAt=territory.PostAt.With(target,id);government.AdministrativePosts.Add(id);government.AdministrativePostCost+=annual;p.Treasury-=setup;
+            AppendProvincialFrontier(s);
             ClaimAggregatePolity(s,target,polity);AssignTerritorialSource(s,target,-2-id);
             if(s.ArrivalYear[route.B]<0)s.ArrivalYear[route.B]=s.Years;
             int local=HistoricalCells.Culture(s,target);if(local>=0&&local!=culture)LivingCultureContact(s,culture,local);

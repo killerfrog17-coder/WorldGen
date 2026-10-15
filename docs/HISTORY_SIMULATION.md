@@ -1,8 +1,8 @@
-# Historical simulation: history-24 / prehistory-6
+# Historical simulation: history-25 experiment / prehistory-6
 
 ## Current rules - 15 October 2026
 
-New Core histories now use24. [HISTORY24_REVIEW.md](HISTORY24_REVIEW.md) tracks the finite leveled research graph, contact-delivered knowledge versus installed capacity, constituent governments, funded provinces and overseas charters. The same actor calendar remains authoritative. The root shortcut now opens the verified `player-history-24-final` milestone; broader realism review continues. Older saves retain their recorded rules until explicitly upgraded.
+New Core source experiments use25; the installed milestone still uses24. [HISTORY24_REVIEW.md](HISTORY24_REVIEW.md) tracks24's finite leveled research graph, contact-delivered knowledge versus installed capacity, constituent governments, funded provinces and overseas charters, followed by25's bounded district-frontier experiment. The same actor calendar remains authoritative. The root shortcut opens the verified `player-history-24-final` milestone while the experiment is reviewed. Older saves retain their recorded rules until explicitly upgraded.
 
 The preceding release used23. Its histories retain their version unless explicitly upgraded through **Esc -> Update simulation rules**; loading alone never changes the recorded model. Generation remains worldgen-3.32.0. [HISTORY23_REVIEW.md](HISTORY23_REVIEW.md) describes the final agricultural-research deadlock correction. [HISTORY22_REVIEW.md](HISTORY22_REVIEW.md) records the main changes, research, longitudinal evidence and unresolved issues; [HISTORY21_REVIEW.md](HISTORY21_REVIEW.md) describes the preceding agricultural-account, political and execution work. Sections below retain earlier milestone descriptions and are not a statement that those earlier defaults are still current.
 

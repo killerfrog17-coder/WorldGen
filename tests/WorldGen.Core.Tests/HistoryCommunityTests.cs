@@ -76,7 +76,7 @@ public static class HistoryCommunityTests
             check(!(bool)Call(engine,"AgronomicResearchSupported",farm,farmers),"People and urban institutions alone cannot invent agronomy without actual cultivated crop records");
         }
         Call(engine,"InheritDevelopmentCommunity",inherited,child,parent,inherited.Society.Cultures[child].OriginCell);
-        check(inherited.History.Version==Prehistory.TechnicalHistoryVersion?inherited.History.Cultures[child].Technical.Deployment[(int)HistoricalTechnology.Computing]==0:inherited.History.Cultures[child].Technology[(int)HistoricalTechnology.Computing]==0,"A boatload of settlers does not instantiate a complete industrial economy");
+        check(inherited.History.Cultures[child].Technical!=null?inherited.History.Cultures[child].Technical.Deployment[(int)HistoricalTechnology.Computing]==0:inherited.History.Cultures[child].Technology[(int)HistoricalTechnology.Computing]==0,"A boatload of settlers does not instantiate a complete industrial economy");
         var fast=new Prehistory(world);var slow=new Prehistory(world){UseProvincialCaches=false};
         var advanced=fast.AdvanceYears(state,3);var literal=slow.AdvanceYears(state,3);
         check(advanced.Hash==literal.Hash,"Bounded derived caches preserve literal actor outcomes and accounting hashes");

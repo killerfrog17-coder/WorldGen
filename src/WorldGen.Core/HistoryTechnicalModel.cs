@@ -65,7 +65,7 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         public const string TechnicalHistoryVersion="history-24";
-        static bool TechnicalHistory(PrehistoryState s)=>s?.History?.Version==TechnicalHistoryVersion;
+        static bool TechnicalHistory(PrehistoryState s)=>s?.History?.Version==TechnicalHistoryVersion||ProvincialFrontierHistory(s);
         public PrehistoryState UpgradeToTechnicalHistory(PrehistoryState source)
         {
             Validate(source);if(TechnicalHistory(source))return source;
