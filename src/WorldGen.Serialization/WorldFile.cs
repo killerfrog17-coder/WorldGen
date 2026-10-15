@@ -49,7 +49,7 @@ namespace WorldGen.Serialization
                 status?.Invoke("Reading terrain and saved history");
                 var world=(World)Serializer().ReadObject(reader);
                 status?.Invoke("Checking world and history integrity");
-                return WorldJson.ValidateWorld(world, cancellation);
+                return WorldJson.ValidateWorld(world, cancellation, status);
             }
         }
         sealed class GuardedStream : Stream

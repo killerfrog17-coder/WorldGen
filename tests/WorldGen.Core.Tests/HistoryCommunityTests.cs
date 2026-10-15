@@ -1,6 +1,7 @@
 using System.Reflection;
 using WorldGen.Core;
 using WorldGen.Serialization;
+using WorldGen.Presentation;
 public static class HistoryCommunityTests
 {
     static readonly BindingFlags Hidden=BindingFlags.Instance|BindingFlags.NonPublic;
@@ -23,7 +24,10 @@ public static class HistoryCommunityTests
         check(coldGrain<winterGrain,"A short cool continental season does not receive warm-year crop productivity");
         var world=WorldFile.Read(File.ReadAllBytes(path));var engine=new Prehistory(world);string original=world.Prehistory.Hash;
         var state=engine.UpgradeToCurrentHistory(world.Prehistory);engine.Validate(state);var a=state.History.Aggregates;
-        check(a.Communities!=null&&state.History.Version==Prehistory.CommunityHistoryVersion,"Community rules require an explicit versioned upgrade");
+        check(a.Communities!=null&&state.History.Version==Prehistory.CurrentHistoryVersion,"Community rules require an explicit versioned upgrade");
+        var coverage=HistoricalTechnologyCoverage.Measure(state);
+        check(coverage.Length==HistoricalTechnologies.Names.Length&&coverage.All(p=>p>=0&&p<=a.TotalPopulation),"Capability coverage counts disjoint population accounts, not overlapping city/state totals");
+        check(coverage[(int)HistoricalTechnology.Printing]<=coverage[(int)HistoricalTechnology.Writing],"Population-weighted diffusion respects actual prerequisite adoption");
         var copy=state.Copy();copy.History.Aggregates.Communities.Governments[0].RepresentationMilli=800;
         check(a.Communities.Governments[0].RepresentationMilli!=800,"A policy edit cannot mutate the published source");
         int city=Enumerable.Range(0,a.Cities.Length).First(i=>a.Living.Cities[i].AbandonedYear<0&&a.Cities[i].Rural>100);
@@ -42,6 +46,22 @@ public static class HistoryCommunityTests
         for(int from=0;from<routes.Length;from++)foreach(var route in routes[from])
         {endpoints&=route.A==from&&engine.CellPatch[route.CellA]==from&&engine.CellPatch[route.CellB]==route.B&&route.DistanceM>0;reciprocal&=routes[route.B].Any(r=>r.B==from&&r.DistanceM==route.DistanceM&&r.CellA==route.CellB&&r.CellB==route.CellA);}
         check(reciprocal&&endpoints,"Ocean paths have real shore endpoints and exactly reciprocal lengths");
+        if(state.History.Version==Prehistory.DiffusionHistoryVersion)
+        {
+            var passages=(Prehistory.Route[][])typeof(Prehistory).GetField("diffusionPassages",Hidden)!.GetValue(engine)!;
+            check(passages.Length==engine.Patches.Length&&passages.All(routes=>routes.Length<=12),"Sparse-habitat passages are prepared once with a bounded departure list");
+            check(passages.SelectMany(routes=>routes).All(r=>!r.Sea&&r.DistanceM<=500000&&r.DistanceM>0&&engine.Patches[r.B].Capacity>=125),"Transit shortcuts do not cross arbitrary oceans or require colonies in each small resource patch");
+            var inactive=state.Copy();inactive.Society.Cultures[culture].Farming=0;
+            int group=Array.FindIndex(inactive.History.Agriculture[culture].Cultivars,c=>c!=null);
+            if(group>=0)check((int)Call(engine,"ActiveCommunityCropYears",inactive,culture,group,100,inactive.Society.Settlements[city].Cell)==0,"Merely knowing a crop does not improve it during a century without cultivation");
+            var invalid=state.Copy();invalid.History.Aggregates.Communities.Governments[0].RepresentationMilli=1001;invalid.Seal();bool refused=false;
+            try{engine.Validate(invalid);}catch(ArgumentException){refused=true;}
+            check(refused,"Loading validates local institutional ranges, not only array alignment");
+            int interior=Enumerable.Range(0,engine.CellPatch.Length).First(cell=>engine.CellPatch[cell]>=0&&!(bool)Call(engine,"DiffusionShore",cell));
+            int shore=Enumerable.Range(0,engine.CellPatch.Length).First(cell=>engine.CellPatch[cell]>=0&&(bool)Call(engine,"DiffusionShore",cell));
+            check((double)Call(engine,"DiffusionSeaEffort",state,interior,shore,culture)==double.MaxValue,"Maritime logistics cannot lower the cost of an inland route merely because a culture can sail");
+            check((double)Call(engine,"DiffusionSeaEffort",state,shore,shore,culture)==0,"A local port has no artificial loading-distance floor for same-location queries");
+        }
         int child=state.History.Cultures.Length-1,parent=0;var inherited=state.Copy();inherited.History.Cultures[parent].Technology[(int)HistoricalTechnology.Computing]=1;inherited.History.Cultures[child].Technology=new int[HistoricalTechnologies.Names.Length];
         Call(engine,"InheritDevelopmentCommunity",inherited,child,parent,inherited.Society.Cultures[child].OriginCell);
         check(inherited.History.Cultures[child].Technology[(int)HistoricalTechnology.Computing]==0,"A boatload of settlers does not instantiate a complete industrial economy");

@@ -124,7 +124,7 @@ namespace WorldGen.Core
         void SurveyAggregateCityCrops(PrehistoryState s,int id)
         {
             var town=s.Society.Settlements[id];var crops=s.History.Agriculture[town.CultureId];var habitat=CropHabitat(s,town.Cell);double latitude=Math.Abs(Math.Asin(World.Surface.Cells[town.Cell].Position.Z)*180/Math.PI);var ids=new System.Collections.Generic.List<int>();var weights=new System.Collections.Generic.List<double>();
-            for(int k=0;k<6;k++)if(crops.AdoptedYear[k]>0&&crops.Cultivars?[k]!=null){double fit=HistoricalCropCatalog.TransferFit(habitat,crops.Cultivars[k],latitude,riverSites[town.Cell],HistoricalTechnologies.Has(s.History.Cultures[town.CultureId],HistoricalTechnology.CropRotation));if(fit>=.02){ids.Add(crops.Cultivars[k].CropId);weights.Add(fit);}}
+            for(int k=0;k<6;k++)if(crops.AdoptedYear[k]>0&&crops.Cultivars?[k]!=null){bool managed=HistoricalTechnologies.Has(s.History.Cultures[town.CultureId],HistoricalTechnology.CropRotation);double fit=PassageHistory(s)?CommunityTransferFit(s,town.Cell,crops.Cultivars[k],managed):HistoricalCropCatalog.TransferFit(habitat,crops.Cultivars[k],latitude,riverSites[town.Cell],managed);if(fit>=.02){ids.Add(crops.Cultivars[k].CropId);weights.Add(fit);}}
             int[] shares=new int[ids.Count];double sum=weights.Sum();int assigned=0;for(int k=0;k<shares.Length;k++){shares[k]=k==shares.Length-1?1000-assigned:(int)(weights[k]/sum*1000);assigned+=shares[k];}
             s.History.Towns[id].Cropping=new HistoricalLocalHarvest{Year=s.Years,CultureId=town.CultureId,CropIds=ids.ToArray(),SharesPermille=shares};
         }

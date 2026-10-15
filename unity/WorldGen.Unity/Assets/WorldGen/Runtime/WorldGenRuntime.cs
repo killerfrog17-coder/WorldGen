@@ -85,6 +85,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         if(Environment.GetCommandLineArgs().Contains("--worldgen-screen-check"))StartCoroutine(CheckScreens());
         if(Environment.GetCommandLineArgs().Contains("--worldgen-prehistory-check"))StartCoroutine(CheckPrehistory());
         if(Environment.GetCommandLineArgs().Contains("--worldgen-history-view")){screen="Setup";BeginWork(false,Argument("--worldgen-history-view",""));StartCoroutine(CheckHistoricalView());}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-era-review")){screen="Setup";BeginWork(false,Argument("--worldgen-era-review",""));StartCoroutine(CheckHistoricalEras());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-history-playback")){screen="Setup";BeginWork(false,Argument("--worldgen-history-playback",""));StartCoroutine(CheckHistoricalPlayback());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-dock-check")){screen="Setup";BeginWork(false,Argument("--worldgen-dock-check",""));StartCoroutine(CheckHistoryDock());}
     }
@@ -486,5 +487,5 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         RenderTexture.active = prior; cameraView.targetTexture = null; Destroy(texture); target.Release(); Destroy(target); yield return null; Application.Quit(error.Length == 0 ? 0 : 1);
     }
     static string Argument(string flag, string fallback) { var args = Environment.GetCommandLineArgs(); int i = Array.IndexOf(args, flag); return i >= 0 && i + 1 < args.Length ? args[i + 1] : fallback; }
-        void OnDestroy() { DisposeMusic(); generationCancel?.Cancel(); cancel?.Cancel(); humanCancellation?.Cancel(); if (surfaceMaterial != null) Destroy(surfaceMaterial); if (lineMaterial != null) Destroy(lineMaterial);if(naturalMaterial!=null)Destroy(naturalMaterial);if(smallFeatureMaterial!=null)Destroy(smallFeatureMaterial);if(borderMaterial!=null)Destroy(borderMaterial);if(borderMesh!=null)Destroy(borderMesh); }
+        void OnDestroy() { DisposeMusic(); DisposeHabitatPortraits(); generationCancel?.Cancel(); cancel?.Cancel(); humanCancellation?.Cancel(); if (surfaceMaterial != null) Destroy(surfaceMaterial); if (lineMaterial != null) Destroy(lineMaterial);if(naturalMaterial!=null)Destroy(naturalMaterial);if(smallFeatureMaterial!=null)Destroy(smallFeatureMaterial);if(borderMaterial!=null)Destroy(borderMaterial);if(borderMesh!=null)Destroy(borderMesh); }
 }

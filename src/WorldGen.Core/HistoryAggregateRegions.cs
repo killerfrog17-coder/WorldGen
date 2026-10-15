@@ -19,6 +19,13 @@ namespace WorldGen.Core
                 if(ProvincialHistory(s)&&r.Culture>=0)capacity=(long)(ProvincialRegionalCapacity(s,id,r.Culture)*variability);
             }
             double rate=.12;
+            if(PassageHistory(s))
+            {
+                double room=D.Clamp(1-before/(double)Math.Max(1,capacity));
+                // Colonizing an underused habitat differs from the near-zero
+                // net growth of an established, resource-limited population.
+                rate=.12+.68*room*room;
+            }
             if(LivingHistory(s)&&r.Culture>=0&&s.Society.Cultures[r.Culture].Farming>=180)rate=.45+.35*HistoricalModernEffects.Adoption(s.History.Cultures[r.Culture],HistoricalTechnology.Sanitation,s.Years);
             if(CommunityHistory(s)&&r.Culture>=0&&s.Society.Cultures[r.Culture].Farming>=180)rate=100*CommunityRuralGrowth(s,r.Culture);
             long after=AggregateLogisticPopulation(before,capacity,rate,elapsed/100.0);

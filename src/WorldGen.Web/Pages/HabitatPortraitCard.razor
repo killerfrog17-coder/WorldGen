@@ -1,0 +1,8 @@
+@using WorldGen.Presentation
+@if(Portrait!=null){
+<section class="habitat-portrait" aria-label="Illustrated habitat profile">
+<figure><img src="@($"atlas/biomes/{Portrait.Key}.jpg")" alt="@($"Illustrative {Portrait.Title.ToLowerInvariant()} landscape")" loading="lazy"/><figcaption><strong>@Portrait.Title</strong><span>@Portrait.Caption</span></figcaption></figure>
+<div class="habitat-conditions">@foreach(var fact in Portrait.Conditions){<div><small>@fact.Label</small><strong>@fact.Value</strong></div>}</div>
+@if(Portrait.Fauna.Length>0){<h3>Recorded native fauna</h3><div class="habitat-fauna">@foreach(var animal in Portrait.Fauna){<div title="@animal.Variant"><strong>@animal.Name</strong><span>@animal.Role · @animal.BodyMass</span>@if(animal.Variant.Length>0&&animal.Variant!=animal.Name){<small>@animal.Variant</small>}</div>}</div><p class="habitat-note">Representative pack members suited to this cell; not a census of animal abundance.</p>}
+</section>}
+@code{[Parameter]public HabitatPortrait Portrait{get;set;}}

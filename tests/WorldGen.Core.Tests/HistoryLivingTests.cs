@@ -17,10 +17,10 @@ public static class HistoryLivingTests
         while(partition.Seconds<target)partition.AdvanceSeconds(target-partition.Seconds,97,maximumGlobalWork:64);
         check(partition.Hash==expected.Hash,"Living exchanges, retirement and political succession are partition deterministic");
         check(metrics.All(m=>m.Stage=="publication copy"||(m.Stage=="aggregate checkpoint copy"||m.Stage=="aggregate checkpoint hash")&&m.Items==0||m.Stage.StartsWith("aggregate event ",StringComparison.Ordinal)),"New historical mechanisms do not restore any global cell turn");
-        int localBound=source.History.Version==Prehistory.CommunityHistoryVersion?64000:16000;
+        int localBound=source.History.Version==Prehistory.CommunityHistoryVersion||source.History.Version==Prehistory.DiffusionHistoryVersion?64000:16000;
         check(metrics.Where(m=>m.Stage.StartsWith("aggregate event ")).All(m=>m.Items<localBound),"Events retain bounded terrain access, including capped physical-area campaigns");
         var isolated=source.Copy();int city=Array.FindIndex(isolated.Society.Settlements,t=>t.Population>0&&isolated.History.Aggregates.Resolve(t.PolityId,isolated.History)<0);
-        if(city<0)city=0;
+        if(city<0)city=isolated.Society.Settlements.First(t=>t.Population>0).Id;
         var life=isolated.History.Aggregates.Living.Cities[city];life.Productivity=.1;life.DisruptedUntil=isolated.Years+200;life.DeclineYears=79;isolated.Seal();
         var decline=new SimulationSession(new Prehistory(world),isolated);decline.AdvanceSeconds(3*SimulationTime.Year,int.MaxValue);var retired=decline.Snapshot();engine.Validate(retired);
         check(retired.History.Aggregates.Living.Cities[city].AbandonedYear>=0&&retired.Society.Settlements[city].Population==0,"An unsupported center can actually cease to exist");
@@ -43,7 +43,9 @@ public static class HistoryLivingTests
         typeof(Prehistory).GetMethod("AdvanceLivingRegionalExchange",BindingFlags.Instance|BindingFlags.NonPublic)!.Invoke(engine,new object[]{relay,destination,100000});
         check(relay.History.Aggregates.Living.Regions[destination].Teacher==culture,"A settled region is not treated as empty when its unallocated forager population is zero");
         var canFound=typeof(Prehistory).GetMethod("CanFoundLivingTown",BindingFlags.Instance|BindingFlags.NonPublic)!;
-        var town=source.Society.Settlements[0];check(!(bool)canFound.Invoke(engine,new object[]{source,town.CultureId,town.Cell,-1})!,"An occupied center cannot be duplicated");
+        // The oldest recorded site may now be ruins, which correctly permits
+        // later reoccupation. Exercise an actually occupied center instead.
+        var town=source.Society.Settlements.First(t=>t.Population>0&&source.History.Aggregates.TownAt[t.Cell]==t.Id);check(!(bool)canFound.Invoke(engine,new object[]{source,town.CultureId,town.Cell,-1})!,"An occupied center cannot be duplicated");
         var chain=new HistoricalAggregateState{Successors=new HistoricalCellTree(32)};chain.Successors=chain.Successors.With(0,1).With(1,2);var record=new HistoryState{Polities=new[]{new HistoricalPolity{Id=0,EndedYear=100},new HistoricalPolity{Id=1,EndedYear=200},new HistoricalPolity{Id=2}}};
         check(chain.Resolve(0,record)==2&&chain.PopulationCohort(0)==2,"Political and demographic ownership follow successor governments");record.Polities[2].EndedYear=300;
         check(chain.Resolve(0,record)==-1&&chain.PopulationCohort(0)==2,"Communities survive a final court collapse without duplicating or losing their people");

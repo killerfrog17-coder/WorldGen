@@ -1,4 +1,14 @@
-# Historical simulation: history-19 / prehistory-6
+# Historical simulation: history-22 / prehistory-6
+
+## Current rules - 15 October 2026
+
+New histories use22. Existing histories retain their version unless explicitly upgraded through **Esc -> Update simulation rules**; loading alone never changes the recorded model. Generation remains worldgen-3.32.0. [HISTORY22_REVIEW.md](HISTORY22_REVIEW.md) records the current changes, research, longitudinal evidence and unresolved issues; [HISTORY21_REVIEW.md](HISTORY21_REVIEW.md) describes the preceding agricultural-account, political and execution work. Sections below retain earlier milestone descriptions and are not a statement that those earlier defaults are still current.
+
+Current development uses actual producing households and transported food surplus, dated capability offers, distinct invention/adoption costs, crop growing windows and reproductive requirements, local political inclusion, and physical-area/supply-limited campaigns. Sparse low-capacity habitat patches can be crossed without permanently colonizing each one. Farmers carry compatible crop/knowledge packages; improved plants require actual cultivation. Maritime institutions follow real coasts and physically eligible sea lanes, with bounded earned port contacts rather than universal cheap transport. Older rules remain guarded by their historical version.
+
+Ordinary historical events do not enumerate world, empire, culture, ecoregion or city-catchment terrain memberships. Static setup may build regional/shore graphs; explicit validation and rendering may inspect the mesh. Actor events have bounded frontiers, contacts and campaign actions. Snapshot publication still copies actor/archive arrays and is not constant-time at unlimited actor counts. Fast playback publishes less frequently without skipping actors, events or simulated years; public snapshots stay detached and cancellation rolls back the complete private transaction.
+
+The atlas has optional illustrative habitat panels, actual recorded fauna/variants, local conditions, and population-weighted reach of practices. These are lazy, read-only views, not additional simulation or claims of actual city reconstruction. Unsupported habitat paintings are omitted rather than guessed. See `assets/atlas/README.txt` for image provenance and full production prompts.
 
 ## Connected development and technological reach — 15 October 2026
 

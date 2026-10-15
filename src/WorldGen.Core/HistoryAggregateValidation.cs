@@ -14,6 +14,12 @@ namespace WorldGen.Core
             Require((h.Version==AggregateHistoryVersion&&a.Living==null||(h.Version==LivingHistoryVersion||ConnectedHistory(s))&&a.Living!=null)&&a.Version=="aggregate-history-1"&&s.Society!=null,"version");
             if(CommunityHistory(s))Require(a.Communities!=null&&a.Communities.Cities.Length==a.Cities.Length&&a.Communities.Governments.Length==a.Polities.Length&&a.Communities.Campaigns.Length==h.Dynamics.Campaigns.Length,"local community alignment");
             else Require(a.Communities==null,"legacy community extension");
+            if(CommunityHistory(s))
+            {
+                foreach(var local in a.Communities.Cities)Require(local!=null&&local.RulerId>=-1&&local.RulerId<h.Polities.Length&&local.SinceYear>=0&&local.SinceYear<=s.Years&&local.InclusionMilli>=0&&local.InclusionMilli<=1000,"local inclusion account");
+                foreach(var policy in a.Communities.Governments)Require(policy!=null&&policy.RepresentationMilli>=0&&policy.RepresentationMilli<=1000&&policy.CentralizationMilli>=0&&policy.CentralizationMilli<=1000&&policy.LastReformYear>=0&&policy.LastReformYear<=s.Years,"government policy account");
+                foreach(var campaign in a.Communities.Campaigns)Require(campaign!=null&&campaign.AttackerAreaKm2>=0&&campaign.DefenderAreaKm2>=0,"campaign area account");
+            }
             Require(a.Cells?.Length==CellPatch.Length*5&&a.TownAt?.Length==CellPatch.Length&&a.Successors!=null&&a.LeaderDigests!=null,"persistent geography");
             Require(h.CellPolity.Length==0&&h.CellReligion.Length==0&&h.CellMarket.Length==0&&h.CellStage.Length==0&&s.Society.CellCulture.Length==0&&h.Faith==null&&h.RegionalLearning==null,"retired dense working arrays");
             Require(a.Cities.Length==s.Society.Settlements.Length&&a.Cities.Length==h.Towns.Length&&a.Cultures.Length==h.Cultures.Length&&a.Cultures.Length==s.Society.Cultures.Length&&a.Polities.Length==h.Polities.Length&&h.Dynamics.States.Length==h.Polities.Length&&a.Regions.Length==Patches.Length,"actor alignment");

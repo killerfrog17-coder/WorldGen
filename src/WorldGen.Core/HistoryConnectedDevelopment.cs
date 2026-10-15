@@ -30,7 +30,7 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         public const string ConnectedHistoryVersion="history-19";
-        public static bool IsAggregateHistoryVersion(string version)=>version==AggregateHistoryVersion||version==LivingHistoryVersion||version==ConnectedHistoryVersion||version==RegionalHistoryVersion||version==CommunityHistoryVersion;
+        public static bool IsAggregateHistoryVersion(string version)=>version==AggregateHistoryVersion||version==LivingHistoryVersion||version==ConnectedHistoryVersion||version==RegionalHistoryVersion||version==CommunityHistoryVersion||version==DiffusionHistoryVersion;
         static bool ConnectedHistory(PrehistoryState s)=>s?.History?.Version==ConnectedHistoryVersion||ProvincialHistory(s);
         public static bool CanUpgradeHistory(PrehistoryState s)
         {

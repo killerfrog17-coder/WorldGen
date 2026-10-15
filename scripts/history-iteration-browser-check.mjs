@@ -5,6 +5,13 @@ const output=process.env.HISTORY_CHECK_OUTPUT??'artifacts/history-3/browser';
 await fs.mkdir(output,{recursive:true});
 const browser=await chromium.launch({headless:true,channel:'msedge'});
 const page=await browser.newPage({viewport:{width:1600,height:1000}}),errors=[];
+async function readPeople(command){
+ const deadline=Date.now()+120000;
+ for(;;){try{return await page.evaluate(command=>window.__wg.people(command),command);}catch(error){
+  if(!String(error).includes('A simulation update is already running')||Date.now()>deadline)throw error;
+  await page.waitForTimeout(100);
+ }}
+}
 const timings=[],started=Date.now();
 await page.addInitScript(()=>{const Base=window.Worker;window.Worker=class extends Base{constructor(...args){super(...args);this.addEventListener('message',event=>{const d=event.data;if(['ready','progress','complete','view-complete'].includes(d?.type))console.info('HISTORY_TIMING '+JSON.stringify({type:d.type,stage:d.stage,percent:d.percent}));});}};});
 page.on('pageerror',e=>errors.push(String(e)));
@@ -32,7 +39,7 @@ try{
  await page.locator('.society-dock button').nth(0).click();await page.locator('.society-dock button').nth(1).click();
  for(const mode of ['Civilizations','States','Cultures','Religions','Technology']){
   await page.getByLabel('Historical overlay').selectOption(mode);await page.waitForTimeout(1000);
-  const summary=JSON.parse(await page.evaluate(()=>window.__wg.people('status')));
+  const summary=JSON.parse(await readPeople('status'));
   if(!summary.Legend.length)throw Error('Empty '+mode+' legend');
   if(summary.Events.some(e=>/takes office|opens a trade agreement|do not renew their defensive pact/.test(e.Text)))throw Error('Routine diplomatic record leaked into headline feed');
   if(mode==='States'){
@@ -48,7 +55,7 @@ try{
   }
   await page.locator('.society-entry').first().click();await page.waitForTimeout(500);
   await page.getByRole('button',{name:'Selection',exact:true}).click();
-  const selected=JSON.parse(await page.evaluate(()=>window.__wg.people('status')));
+  const selected=JSON.parse(await readPeople('status'));
   if(!selected.Inspection.includes('LOCAL CHRONICLE')||!(await page.locator('.selection-summary').innerText()).length)throw Error('Missing underlying linked lore or narrative selection '+mode);
   if(mode==='Religions'&&selected.Subject?.Name!==await page.locator('.society-name').first().innerText())throw Error('Religious legend selected a converted holy site rather than current followers');
   await page.screenshot({path:output+'/'+mode.toLowerCase()+'.png'});
@@ -58,12 +65,13 @@ try{
  await download.saveAs(output+'/exported-chronicle.txt');
  const lore=await fs.readFile(output+'/exported-chronicle.txt','utf8');
  for(const heading of ['Complete event archive','Settlement gazetteer','Religious traditions','Notable and current leaders','Military campaigns'])if(!lore.includes(heading))throw Error('Incomplete lore export: '+heading);
- const beforeStep=JSON.parse(await page.evaluate(()=>window.__wg.people('status')));
+ const beforeStep=JSON.parse(await readPeople('status'));
  console.log('Before step '+JSON.stringify(beforeStep).slice(0,300));
- await page.getByLabel('Simulation time rate').fill('37');await page.getByLabel('Simulation rate unit').selectOption('6');await page.getByRole('button',{name:'Set',exact:true}).click();await page.waitForTimeout(500);await page.evaluate(async()=>{let s=JSON.parse(await window.__wg.people('status'));const target=s.Seconds+37*31536000;while(s.Seconds<target)s=JSON.parse(await window.__wg.people('time',target-s.Seconds));});
- await page.waitForFunction(year=>document.querySelector('.sim-bar').innerText.includes(year.toLocaleString('en-US')),beforeStep.Years+37,{timeout:90000});
+ await page.getByLabel('Simulation time rate').fill('37');await page.getByLabel('Simulation rate unit').selectOption('6');await page.getByRole('button',{name:'Set',exact:true}).click();await page.waitForTimeout(500);await page.evaluate(async()=>{let s=JSON.parse(await window.__wg.people('status'));const target=s.Seconds+37*31536000;while(s.Seconds<target)s=JSON.parse(await window.__wg.people('timeBatch',target-s.Seconds));});
+ const displayedYear=beforeStep.Years+37-(beforeStep.EpochYear>=0?beforeStep.EpochYear:0);
+ await page.waitForFunction(year=>document.querySelector('.sim-bar').innerText.includes(year.toLocaleString('en-US')),displayedYear,{timeout:90000});
  await page.getByRole('button',{name:'Manual',exact:true}).click();await page.getByRole('button',{name:'Auto',exact:true}).waitFor();
- const settings=await page.getByRole('button',{name:'Map settings',exact:true});await settings.click();
+ const settings=await page.getByRole('button',{name:'Map settings',exact:true});if(!await page.getByLabel('Map opacity',{exact:true}).isVisible())await settings.click();
  await page.getByLabel('Map opacity',{exact:true}).fill('0.5');await page.getByLabel('Population opacity',{exact:true}).fill('1');
  await page.locator('#globe').focus();
  for(const [key,label,expected] of [['-','Map opacity',.25],['=','Map opacity',.5],['Shift+-','Population opacity',.75],['Shift+=','Population opacity',1]]) {

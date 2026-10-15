@@ -31,6 +31,8 @@ namespace WorldGen.Serialization
         public static World ReadWorld(string json)
         { return ValidateWorld(Read<World>(json)); }
         public static World ValidateWorld(World w, System.Threading.CancellationToken cancellation = default)
+            => ValidateWorld(w,cancellation,null);
+        public static World ValidateWorld(World w, System.Threading.CancellationToken cancellation, Action<string> status)
         {
             if (w == null || w.SchemaVersion != 3 || w.Recipe == null) throw new ArgumentException("Unsupported result version.");
             //3.23 snapshots have the same field contract. Validate their settings
@@ -45,8 +47,15 @@ namespace WorldGen.Serialization
                 if(e==null || e.Habitat==null || e.Habitat.Length!=n || e.Region==null || e.Region.Length!=n || e.Province==null || e.Province.Length!=n || e.Taxa==null || e.Regions==null || e.SpeciesBits==null || e.SpeciesBits.LongLength!=(long)n*((e.Taxa.Length+31L)/32))
                     throw new ArgumentException("Current world snapshot is missing its complete ecological state.");
             }
+            status?.Invoke("Checking generated terrain integrity");
             if (w.Surface == null || w.Surface.Cells == null || w.Surface.Cells.Length != w.Recipe.Detail || w.Stages == null || w.Stages.Count == 0 || StateHash.Compute(w, cancellation) != w.Stages[w.Stages.Count - 1].Hash) throw new ArgumentException("Result integrity hash mismatch.");
-            if(w.Prehistory!=null)new Prehistory(w,cancellation).Validate(w.Prehistory);
+            if(w.Prehistory!=null)
+            {
+                status?.Invoke("Preparing historical geography");
+                var engine=new Prehistory(w,cancellation);
+                status?.Invoke("Checking historical fingerprint and population accounts");
+                engine.Validate(w.Prehistory);
+            }
             return w;
         }
         public static string Csv(World w)

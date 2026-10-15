@@ -31,6 +31,7 @@ namespace WorldGen.Core
                 if(HistoryRoll("community-sea-contact-"+trial,region,s.Years)>1-Math.Exp(-chance*elapsed/50.0))continue;
                 var target=a.Living.Regions[to];int peer=a.Regions[to].Culture;if(destinationState>=0)peer=h.Polities[destinationState].CultureId;
                 if(peer>=0&&peer!=culture)LivingCultureContact(s,culture,peer);
+                if(PassageHistory(s))DiffusionPortContact(s,route,culture,elapsed);
                 if(target.Teacher<0||CurrentProvincialKnowledgeCount(s,target.Teacher)<=CurrentProvincialKnowledgeCount(s,culture))target.Teacher=culture;
                 target.Exposure=Math.Min(1000,target.Exposure+Math.Max(100,elapsed*2));target.LastExchangeYear=s.Years;a.Provinces.RegionalKnowledge[to]|=ProvincialKnowledge(hc);
                 int court=sourceState>=0?sourceState:a.Living.CivicOrigins[culture];if(court>=0){target.CivicTeacher=court;target.CivicExposure=Math.Min(1000,target.CivicExposure+elapsed*2);}

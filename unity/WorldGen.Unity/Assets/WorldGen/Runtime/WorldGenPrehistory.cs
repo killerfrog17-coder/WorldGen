@@ -210,9 +210,10 @@ public sealed partial class WorldGenRuntime
     void CaptureHumanMap(string path)
     {
         var target=new RenderTexture(1600,1000,24);var priorRect=cameraView.rect;var priorPosition=cameraView.transform.position;float priorSize=cameraView.orthographicSize;
+        bool priorOrthographic=cameraView.orthographic;var priorRotation=globe.transform.rotation;var priorTarget=cameraView.targetTexture;
         cameraView.targetTexture=target;cameraView.rect=new Rect(0,0,1,1);cameraView.orthographic=true;cameraView.orthographicSize=1.3f;cameraView.transform.position=new Vector3(0,0,-3.2f);globe.transform.rotation=Quaternion.identity;
         cameraView.Render();var active=RenderTexture.active;RenderTexture.active=target;var texture=new Texture2D(1600,1000,TextureFormat.RGB24,false);texture.ReadPixels(new Rect(0,0,1600,1000),0,0);texture.Apply();
-        System.IO.File.WriteAllBytes(path,texture.EncodeToPNG());RenderTexture.active=active;cameraView.targetTexture=null;cameraView.rect=priorRect;cameraView.transform.position=priorPosition;cameraView.orthographicSize=priorSize;
+        System.IO.File.WriteAllBytes(path,texture.EncodeToPNG());RenderTexture.active=active;cameraView.targetTexture=priorTarget;cameraView.rect=priorRect;cameraView.transform.position=priorPosition;cameraView.orthographicSize=priorSize;cameraView.orthographic=priorOrthographic;globe.transform.rotation=priorRotation;
         Destroy(texture);target.Release();Destroy(target);
     }
     async void CheckHistoricalResume()

@@ -7,7 +7,7 @@ namespace WorldGen.Core
         public static int GrowingWindowWarmth(int spring,int summer,int autumn,int winter,int group)
         {
             int[] temperatures={spring,summer,autumn,winter};double best=-1;int selected=0;
-            double optimum=group==1||group==2||group==3?270:220;
+            double optimum=group==6?180:group==7?320:group==1||group==2||group==3?270:220;
             for(int k=0;k<4;k++)
             {
                 int average=(temperatures[k]+temperatures[(k+1)%4])/2;
@@ -23,7 +23,7 @@ namespace WorldGen.Core
         readonly Queue<int> communityAgronomicOrder=new Queue<int>();
         HabitatCell CommunityAgronomicHabitat(PrehistoryState s,int cell,int group)
         {
-            int key=cell*6+group;if(communityAgronomicHabitats.TryGetValue(key,out var cached))return cached;
+            int key=cell*8+group;if(communityAgronomicHabitats.TryGetValue(key,out var cached))return cached;
             var h=CropHabitat(s,cell);var climate=World.Climate;
             int warm=HistoricalCropCalendarEffects.GrowingWindowWarmth(climate.NorthernSpring.TemperatureTenthsC[cell],climate.NorthernSummer.TemperatureTenthsC[cell],climate.NorthernAutumn.TemperatureTenthsC[cell],climate.NorthernWinter.TemperatureTenthsC[cell],group);
             // A crop's growing season is not necessarily the hottest part of
@@ -38,15 +38,30 @@ namespace WorldGen.Core
         double CommunityTransferFit(PrehistoryState s,int cell,HistoricalCultivar cultivar,bool managed=false)
         {
             if(cultivar==null)return 0;
-            var habitat=CommunityHistory(s)?CommunityAgronomicHabitat(s,cell,HistoricalCropCatalog.Crops[cultivar.CropId].Group):CropHabitat(s,cell);
-            return HistoricalCropCatalog.TransferFit(habitat,cultivar,CropLatitude(cell),riverSites[cell],managed);
+            int group=PassageHistory(s)&&cultivar.CropId==10?6:PassageHistory(s)&&cultivar.CropId==12?7:HistoricalCropCatalog.Crops[cultivar.CropId].Group;
+            var habitat=CommunityHistory(s)?CommunityAgronomicHabitat(s,cell,group):CropHabitat(s,cell);
+            double fit=HistoricalCropCatalog.TransferFit(habitat,cultivar,CropLatitude(cell),riverSites[cell],managed);
+            return PassageHistory(s)?D.Q(fit*HistoricalCropEcology.ReproductiveFit(habitat,cultivar),1000000):fit;
         }
         double CommunityWildCropFit(PrehistoryState s,int cell,int group)
             =>HistoricalCrops.Suitability(CommunityAgronomicHabitat(s,cell,group),group,riverSites[cell]);
+        int ActiveCommunityCropYears(PrehistoryState s,int culture,int group,int elapsed,int urbanSite)
+        {
+            var crops=s.History.Agriculture[culture];var cultivar=crops.Cultivars[group];
+            double fit=Math.Max(CommunityTransferFit(s,crops.PracticeCell[group],cultivar),CommunityTransferFit(s,urbanSite,cultivar));
+            double effort=D.Clamp(s.Society.Cultures[culture].Farming/300.0)*D.Clamp((fit-.12)/.45);
+            double years=elapsed*effort;int whole=(int)years;
+            if(HistoryRoll("community-active-crop-"+group,culture,s.Years)<years-whole)whole++;
+            return whole;
+        }
         int CommunityNativeCropMask(PrehistoryState s,int cell)
         {
             int mask=0,province=World.Ecology.Province[cell];
-            for(int k=0;k<6;k++){double fit=CommunityWildCropFit(s,cell,k),occurrence=Rng.Value(World.Recipe.Seed,"crop-wild-province",unchecked(province*31+k));if(fit>.28&&occurrence<.35+.55*fit)mask|=1<<k;}
+            var climate=World.Climate;
+            double low=Math.Min(Math.Min(climate.NorthernSpring.PrecipitationMm[cell],climate.NorthernSummer.PrecipitationMm[cell]),Math.Min(climate.NorthernAutumn.PrecipitationMm[cell],climate.NorthernWinter.PrecipitationMm[cell]));
+            double high=Math.Max(Math.Max(climate.NorthernSpring.PrecipitationMm[cell],climate.NorthernSummer.PrecipitationMm[cell]),Math.Max(climate.NorthernAutumn.PrecipitationMm[cell],climate.NorthernWinter.PrecipitationMm[cell]));
+            double season=(high-low)/Math.Max(1,high);
+            for(int k=0;k<6;k++){double fit=CommunityWildCropFit(s,cell,k),occurrence=Rng.Value(World.Recipe.Seed,"crop-wild-province",unchecked(province*31+k));double niche=PassageHistory(s)?HistoricalCropEcology.WildAnnualOpportunity(CropHabitat(s,cell),season,k):1;if(fit>.28&&occurrence<(.35+.55*fit)*niche)mask|=1<<k;}
             return mask;
         }
         double CommunityCropLandscape(PrehistoryState s,int culture,int cell,bool storage)
@@ -59,7 +74,7 @@ namespace WorldGen.Core
             double rainfallSeason=(high-low)/Math.Max(1,high);
             for(int k=0;k<6;k++)if(crops.AdoptedYear[k]>0)
             {
-                var agronomic=CommunityAgronomicHabitat(s,cell,k);var cultivar=crops.Cultivars?[k];
+                var cultivar=crops.Cultivars?[k];var agronomic=CommunityAgronomicHabitat(s,cell,PassageHistory(s)&&cultivar?.CropId==10?6:PassageHistory(s)&&cultivar?.CropId==12?7:k);
                 double fit=cultivar==null?CommunityWildCropFit(s,cell,k):CommunityTransferFit(s,cell,cultivar,managed);
                 double area=HistoricalLandscapeEffects.CropAreaYield(agronomic,riverAccess[cell],rainfallSeason)*HistoricalDevelopmentEffects.GrowingSeason(agronomic);
                 double quality=D.Clamp(area/fraction);

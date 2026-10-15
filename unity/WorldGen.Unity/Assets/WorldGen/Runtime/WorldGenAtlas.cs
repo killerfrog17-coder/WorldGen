@@ -72,7 +72,9 @@ public sealed partial class WorldGenRuntime
         GUILayout.Space(8);atlasArticleScroll=GUILayout.BeginScrollView(atlasArticleScroll);
         if(atlasSection=="Overview")
         {
-            AtlasParagraph(atlasDocument.Introduction,16);GUILayout.Space(12);AtlasFacts(atlasDocument.Facts);
+            AtlasParagraph(atlasDocument.Introduction,16);GUILayout.Space(12);
+            DrawHabitatPortrait(atlasDocument.Habitat);
+            AtlasFacts(atlasDocument.Facts);
             GUILayout.Space(14);AtlasParagraph("Explore the sections above for connections, livelihoods, institutions, and recorded events. Names in the article open related entries.",13);
         }
         else

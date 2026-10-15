@@ -122,7 +122,9 @@ namespace WorldGen.Core
             for(int k=0;k<hc.Technology.Length;k++)if(h.Cultures[parent].Technology[k]>0&&(!ProvincialHistory(s)||k<15))hc.Technology[k]=s.Years+1;
             var crops=h.Agriculture[child];var donor=h.Agriculture[parent];
             for(int k=0;k<6;k++)if(donor.AdoptedYear[k]>0&&donor.Cultivars[k]!=null&&(CommunityHistory(s)?CommunityTransferFit(s,site,donor.Cultivars[k]):HistoricalCropCatalog.TransferFit(CropHabitat(s,site),donor.Cultivars[k],CropLatitude(site),riverSites[site]))>.12)
-            {crops.AdoptedYear[k]=s.Years+1;crops.SourceCulture[k]=parent;crops.Cultivars[k]=donor.Cultivars[k].Copy();crops.Cultivars[k].ParentCulture=parent;crops.HusbandryYears[k]=donor.HusbandryYears[k];}
+            {crops.AdoptedYear[k]=s.Years+1;crops.SourceCulture[k]=parent;crops.Cultivars[k]=donor.Cultivars[k].Copy();crops.Cultivars[k].ParentCulture=parent;
+                double localPractice=PassageHistory(s)?HistoricalLandscapeEffects.LivelihoodContinuity(CropHabitat(s,donor.PracticeCell[k]),CropHabitat(s,donor.PracticeCell[k]),CropHabitat(s,site)):1;
+                crops.HusbandryYears[k]=(int)Math.Round(donor.HusbandryYears[k]*localPractice);}
             s.Society.Cultures[child].Farming=crops.AdoptedYear.Any(y=>y>0)?Math.Min(600,s.Society.Cultures[parent].Farming):0;
             if(CommunityHistory(s))crops.Animals=(donor.Animals??Array.Empty<HistoricalAnimalHusbandry>()).Where(animal=>animal.AdoptedYear>0&&Biogeography.Suitable(World.Ecology.Taxa[animal.TaxonId],CropHabitat(s,site),World.ElevationM[site])).Select(animal=>new HistoricalAnimalHusbandry{TaxonId=animal.TaxonId,Name=animal.Name,Practice=animal.Practice,AdoptedYear=s.Years+1,SourceCulture=parent,OriginCell=site}).ToArray();
             LivingCultureContact(s,child,parent);

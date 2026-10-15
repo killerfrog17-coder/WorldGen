@@ -50,6 +50,7 @@ namespace WorldGen.Core
             if(s.Years>=leader.ExpectedEndYear){if(LivingHistory(s)&&TryLivingRegimeChange(s,id))return;AppointAggregateLeader(s,id);leader=h.Dynamics.Leaders[ds.LeaderId];}
             account.ReachKm=(int)(HistoricalLocalEffects.AdministrativeReachKm(account.Urban,leader.Administration,ds.PublicWorks,HistoricalTechnologies.Has(hc,HistoricalTechnology.Writing),HistoricalTechnologies.Has(hc,HistoricalTechnology.Roads))*HistoricalModernEffects.AdministrativeCapacity(hc,s.Years)*HistoricalModernEffects.LandTransport(hc,s.Years));
             if(ConnectedHistory(s))account.ReachKm=(int)(account.ReachKm*(1+.8*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Writing,s.Years)+1.2*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Roads,s.Years)));
+            if(PassageHistory(s))account.ReachKm=(int)(account.ReachKm*DiffusionPortAdministration(s,id));
             double geography=Math.Sqrt(Math.Max(1,p.AreaKm2)/Math.PI)/Math.Max(50,account.ReachKm);
             double served=D.Clamp(1/(1+geography*geography));long receipts=(long)(account.Urban*.065+(account.Rural+account.Suburban)*.025+account.Remote*.012*served);
             long service=(long)((account.Urban+account.Rural+account.Remote)*.003*(.5+geography*geography)+p.AreaKm2*.0001);account.Receipts=receipts;account.ServiceCost=service;p.Treasury=Math.Max(0,Math.Min(1000000000,p.Treasury+(receipts-service)*elapsed));

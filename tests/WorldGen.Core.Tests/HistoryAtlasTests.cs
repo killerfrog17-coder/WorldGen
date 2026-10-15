@@ -44,7 +44,7 @@ public static class HistoryAtlasTests
         check(HistoryAtlas.Directory(s,"state","river").Single().Name=="River Court","Atlas names can be searched case-insensitively");
         var state=HistoryAtlas.Read(s,"state",0);check(state.Introduction.Contains("Aster")&&state.Sections.Any(x=>x.Title=="Diplomatic neighborhood"),"State articles combine prose, connected records, and diplomatic context");
         check(state.Sections.Single(x=>x.Title=="Recorded history").Timeline.Length==1&&s.History.Archive.Count==2,"Reader omits routine noise without deleting history");
-        check(HistoryAtlas.Selection(s,0,HistoryOverlay.States)?.Kind=="city","A named settlement can be opened directly from its map cell");
+        check(HistoryAtlas.Selection(s,0,HistoryOverlay.States)?.Kind=="state"&&HistoryAtlas.ProfilesAt(s,0).Any(l=>l.Kind=="city"&&l.Id==0),"State overlay selects its court while retaining direct access to the local named settlement");
         check(HistoryAtlas.Selection(s,1,HistoryOverlay.States)?.Kind=="state","A hinterland state cell opens its court rather than another culture");
         check(HistoryAtlas.Selection(s,0,HistoryOverlay.Religions)?.Kind=="religion","Religious view respects the selected dominant tradition");
         check(HistoryAtlas.Read(s,"people",0).Sections.Single(x=>x.Title=="Practices and knowledge").Timeline.Single().Label=="Year 1,200","Practice dates decode stored adoption-year-plus-one correctly");
@@ -72,6 +72,9 @@ public static class HistoryAtlasTests
         var geography=new World{Surface=new Surface{Cells=new[]{new Cell{Position=new V(1,0,0)},new Cell{Position=new V(0,1,0)},new Cell{Position=new V(-1,0,0)}}},Hydrology=new HydrologyResult{OceanConnected=new bool[3]},Ecology=new EcologyResult{Region=new[]{0,0,0},Habitat=new[]{local,local,local},Regions=new[]{new Ecoregion{Id=0,Name="River woods"}}}};
         string geographyHash=StateHash.Compute(geography);var setting=HistoryAtlas.Read(s,"city",0,geography).Sections.Single(x=>x.Title=="Local setting");
         check(setting.Text.Contains("River woods")&&setting.Text.Contains("Seasonal river flooding")&&setting.Facts.Any(f=>f.Value=="14 °C"),"Geographic context reads the existing biome, flood regime, and temperature in English");
+        var portrait=HistoryAtlas.Read(s,"city",0,geography).Habitat;
+        check(portrait!=null&&portrait.Key=="temperate"&&portrait.Conditions.Any(f=>f.Value.Contains("180 days")),"Habitat portraits use actual local biome and growing season");
+        check(portrait.Fauna.Length==0&&portrait.Caption.Contains("Illustrative"),"A landscape illustration invents neither local animals nor a reconstruction of the city");
         check(StateHash.Compute(geography)==geographyHash,"Reading geographic context does not regenerate or mutate terrain, climate, or ecology");
         check(s.ComputeHash()==hash&&WorldJson.Write(s)==serialized,"Atlas browsing and chart generation do not mutate the simulation checkpoint or archive");
         var closed=s.Copy();closed.History.Administration=new HistoricalAdministration{Accounts=new[]{new HistoricalAdministrativeAccount{PolityId=1,Year=2000}}};

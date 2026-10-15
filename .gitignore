@@ -15,6 +15,9 @@ music/*.wav
 music/*.pending
 music/*.flac
 src/WorldGen.Web/wwwroot/music/
+src/WorldGen.Web/wwwroot/atlas/
+unity/WorldGen.Unity/Assets/StreamingAssets/atlas/
+unity/WorldGen.Unity/Assets/StreamingAssets/atlas.meta
 world/*/
 unity/WorldGen.Unity/Assets/StreamingAssets/world/
 unity/WorldGen.Unity/Assets/StreamingAssets/world.meta

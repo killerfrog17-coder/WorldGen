@@ -27,6 +27,7 @@ namespace WorldGen.Presentation
         public double Longitude,Latitude;
         public AtlasFact[] Facts=Array.Empty<AtlasFact>();
         public AtlasSection[] Sections=Array.Empty<AtlasSection>();
+        public HabitatPortrait? Habitat;
     }
     public static partial class HistoryAtlas
     {
@@ -112,6 +113,7 @@ namespace WorldGen.Presentation
             if(world!=null&&d.Cell>=0&&d.Cell<world.Surface.Cells.Length)
             {
                 var location=SocietyView.Location(world,d.Cell);d.Longitude=Math.Atan2(location.Y,location.X)*180/Math.PI;d.Latitude=Math.Asin(location.Z)*180/Math.PI;
+                d.Habitat=HabitatPortrait.At(world,d.Cell);
                 var setting=Setting(world,d.Cell,kind=="state"||kind=="ruler"?"Capital's setting":"Local setting");
                 if(setting!=null)sections.Insert(Math.Min(1,sections.Count),setting);
             }
@@ -144,6 +146,11 @@ namespace WorldGen.Presentation
             a.Add(new AtlasSection{Title="Connections and fault lines",Text="Recorded interstate ties, not every possible route. Select a state for its diplomatic neighborhood.",Links=ties.Take(40).Select(r=>StateLink(s,h.Polities[r.A],Relation(s,r)+" — "+h.Polities[r.B].Name)).ToArray()});
             a.Add(Links("Peoples and ways of life",s.Society.Cultures.OrderByDescending(c=>c.Population).ThenBy(c=>c.Id).Take(12).Select(CultureLink),"Peoples can live under several states; a civilization is not necessarily a united empire.",true,"people"));
             a.Add(new AtlasSection{Title="Knowledge across the world",Text="How many recorded cultures have adopted each practice. These are independent capabilities, not a single progress score. "+(h.Modern==null?"This save retains its medieval technology ceiling.":"Further development is limited to "+h.Modern.TechnologyCeiling+" practices; adoption and infrastructure effects take time."),Bars=true,Unit="cultures",Links=Enumerable.Range(0,HistoricalTechnologies.Count(h.Version)).Select(k=>new AtlasLink{Name=HistoricalTechnologies.Name(h.Version,k),Value=h.Cultures.Count(c=>HistoricalTechnologies.Has(c,(HistoricalTechnology)k)),Detail=N(h.Cultures.Count(c=>HistoricalTechnologies.Has(c,(HistoricalTechnology)k)))+" of "+N(h.Cultures.Length)+" recorded cultures"}).ToArray()});
+            if(h.Aggregates!=null)
+            {
+                var coverage=HistoricalTechnologyCoverage.Measure(s);
+                a.Add(new AtlasSection{Title="Reach of practices",Text="Estimated people represented by communities with each recorded capability. Local city/catchment accounts use their local culture; country remote accounts use their recorded governing institutions; other regional accounts use their recorded regional tradition. This is an institutional-access proxy, not individual literacy, access to electricity, or a census of users. Unassigned foragers are not assumed to possess a practice merely because a distant teacher knows it.",Bars=true,Unit="people",Links=Enumerable.Range(0,HistoricalTechnologies.Count(h.Version)).Select(k=>new AtlasLink{Name=HistoricalTechnologies.Name(h.Version,k),Value=coverage[k],Detail=N(coverage[k])+" people · "+(100.0*coverage[k]/Math.Max(1,global)).ToString("0.#",CultureInfo.InvariantCulture)+"% of world population"}).ToArray()});
+            }
             a.Add(Links("Belief and political patronage",h.Religions.Select(r=>new{Religion=r,Courts=states.Count(p=>p.ReligionId==r.Id)}).Where(x=>x.Courts>0).OrderByDescending(x=>x.Courts).ThenBy(x=>x.Religion.Id).Take(12).Select(x=>{var link=FaithLink(x.Religion);link.Value=x.Courts;link.Detail=N(x.Courts)+" affiliated surviving courts";return link;}),"Court affiliations compare political patronage, not numbers of believers. Open a tradition to explore its beliefs and related communities.",true,"courts"));
             a.Add(Events(s,e=>true));
         }

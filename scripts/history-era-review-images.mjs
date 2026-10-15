@@ -14,6 +14,17 @@ try {
   if(!await fs.access(svg).then(()=>true,()=>false))continue;
   const page=await browser.newPage({viewport:{width:1800,height:960}});
   await page.setContent(gunzipSync(await fs.readFile(svg)).toString('utf8'),{timeout:120000,waitUntil:'load'});
+  // Match the interactive viewers' collision rejection. The diagnostic SVG
+  // retains every candidate label; a world-scale screenshot should not stack
+  // eighty names on top of one another and misrepresent the actual interface.
+  await page.evaluate(()=>{
+   const occupied=[];
+   for(const label of document.querySelectorAll('text[text-anchor="middle"]')){
+    const r=label.getBBox(),box={x:r.x-3,y:r.y-2,width:r.width+6,height:r.height+4};
+    if(occupied.some(p=>box.x<p.x+p.width&&box.x+box.width>p.x&&box.y<p.y+p.height&&box.y+box.height>p.y))label.style.display='none';
+    else occupied.push(box);
+   }
+  });
   await page.screenshot({path:path.join(folder,`${mode.toLowerCase()}-${era.Year}.png`)});
   await page.close();
   process.stdout.write(`${era.Name}: ${mode} ${era.Year}\n`);

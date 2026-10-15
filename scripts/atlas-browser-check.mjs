@@ -6,12 +6,23 @@ await fs.mkdir(output,{recursive:true});
 const browser=await chromium.launch({headless:true,channel:'msedge'});
 const context=await browser.newContext({viewport:{width:1600,height:1000},permissions:['clipboard-read','clipboard-write']});
 const page=await context.newPage(),errors=[];
+let illustratedProfiles=0;
+async function checkHabitat(){
+ const card=page.getByRole('region',{name:'Illustrated habitat profile'});
+ if(!await card.count())return;
+ await card.locator('img').scrollIntoViewIfNeeded();
+ await page.waitForFunction(()=>[...document.querySelectorAll('.habitat-portrait img')].every(img=>img.complete&&img.naturalWidth>0),{},{timeout:30000});
+ if(!(await card.innerText()).includes('Illustrative habitat'))throw Error('Missing illustration disclaimer');
+ if(await card.locator('.habitat-conditions>div').count()!==3)throw Error('Missing actual local condition tiles');
+ illustratedProfiles++;
+ await page.screenshot({path:output+'/illustrated-habitat-'+illustratedProfiles+'.png'});
+}
 async function enabled(locator){await locator.waitFor();const deadline=Date.now()+30000;while(!await locator.isEnabled()){if(Date.now()>deadline)throw Error('UI control remained disabled');await page.waitForTimeout(30);}}
 async function contains(locator,text){const deadline=Date.now()+30000;while(!(await locator.innerText()).includes(text)){if(Date.now()>deadline)throw Error('Expected UI text: '+text);await page.waitForTimeout(30);}}
 // Exercise the UI-to-clipboard payload without replacing the user's OS clipboard.
 await page.addInitScript(()=>Object.defineProperty(navigator,'clipboard',{value:{writeText:async text=>{window.__atlasCopied=text;},readText:async()=>window.__atlasCopied??''}}));
 page.on('pageerror',e=>errors.push(String(e)));
-const heartbeat=setInterval(()=>console.log('Atlas browser check running'),20000);heartbeat.unref();
+const heartbeat=setInterval(async()=>{try{console.log('Atlas browser check: '+(await page.locator('.progress-card,.error,.sim-bar').allTextContents()).join(' | '));}catch{}},20000);heartbeat.unref();
 try{
  await page.goto('http://127.0.0.1:5094');
  await page.evaluate(async bytes=>{const library=await import('/world-library.js');await library.write('Atlas UI audit',bytes,{CellCount:5000,Recipe:{AlgorithmVersion:'worldgen-3.32.0'}});},(await fs.readFile(source)).toString('base64'));
@@ -35,6 +46,7 @@ try{
  for(const [category,section,file] of [['Cities','Provisioning and resilience','city'],['Peoples','Practices and knowledge','people'],['Religions','Beliefs and observance','religion'],['Rulers','Leadership profile','ruler']]){
   await page.locator('.atlas-directory').getByRole('button',{name:category,exact:true}).click();await enabled(page.locator('.atlas-directory-list button').first());await page.locator('.atlas-directory-list button').first().click();
   await page.getByRole('button',{name:section,exact:true}).waitFor();await page.screenshot({path:output+'/'+file+'-profile.png'});
+  await checkHabitat();
   await page.getByRole('button',{name:section,exact:true}).click();await page.screenshot({path:output+'/'+file+'-detail.png'});
  }
  await page.getByLabel('Include historical records').check();
@@ -60,6 +72,7 @@ try{
  await page.getByRole('dialog',{name:'World atlas'}).waitFor({state:'hidden',timeout:10000});
  if(await page.getByRole('heading',{name:'PAUSED',exact:true}).count())throw Error('Closing reader unexpectedly opened pause menu');
  const after=await page.evaluate(()=>window.__wg.people('lore'));if(before!==after)throw Error('Reading profiles changed simulated history');
+ if(!illustratedProfiles)throw Error('No illustrative habitat was exercised by the profile checks');
  await page.getByRole('button',{name:'World',exact:true}).click();await page.setViewportSize({width:1024,height:768});await page.waitForTimeout(300);
  await page.screenshot({path:output+'/compact-reader.png'});
  const bounds=await page.locator('.atlas-reader').boundingBox();if(bounds.x<0||bounds.y<52||bounds.x+bounds.width>1025||bounds.y+bounds.height>733)throw Error('Reader escapes usable viewport');

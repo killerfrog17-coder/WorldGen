@@ -46,7 +46,7 @@ namespace WorldGen.Core
             {
                 int practiceCell=ConnectedHistory(s)?crops.PracticeCell[k]:cell;
                 var practiceHabitat=World.Ecology.Habitat[practiceCell];
-                if(crops.AdoptedYear[k]>0){var cultivar=crops.Cultivars?[k];if(cultivar!=null){int delta=Math.Min(elapsed,Math.Max(0,4000-cultivar.SelectedYears));cultivar.SelectedYears+=delta;crops.HusbandryYears[k]=Math.Min(20000,crops.HusbandryYears[k]+elapsed);var definition=HistoricalCropCatalog.Crops[cultivar.CropId];cultivar.YieldPermille=Math.Min(1500,650+cultivar.SelectedYears/5);cultivar.MaturityDays=Math.Max(definition.MaturityDays-35,definition.MaturityDays-cultivar.SelectedYears/100);cultivar.MinimumWarmTenthsC=Math.Max((definition.MinimumWarmC-4)*10,definition.MinimumWarmC*10-cultivar.SelectedYears/100);}continue;}
+                if(crops.AdoptedYear[k]>0){var cultivar=crops.Cultivars?[k];if(cultivar!=null){int practiced=PassageHistory(s)?ActiveCommunityCropYears(s,id,k,elapsed,urbanSite):elapsed;int delta=Math.Min(practiced,Math.Max(0,4000-cultivar.SelectedYears));cultivar.SelectedYears+=delta;crops.HusbandryYears[k]=Math.Min(20000,crops.HusbandryYears[k]+practiced);var definition=HistoricalCropCatalog.Crops[cultivar.CropId];cultivar.YieldPermille=Math.Min(1500,650+cultivar.SelectedYears/5);cultivar.MaturityDays=Math.Max(definition.MaturityDays-35,definition.MaturityDays-cultivar.SelectedYears/100);cultivar.MinimumWarmTenthsC=Math.Max((definition.MinimumWarmC-4)*10,definition.MinimumWarmC*10-cultivar.SelectedYears/100);}continue;}
                 int donor=contact>=0&&h.Agriculture[contact].AdoptedYear[k]>0&&h.Agriculture[contact].AdoptedYear[k]-1<s.Years?contact:-1;
                 if(ConnectedHistory(s))donor=DevelopmentCropDonor(s,id,k,practiceCell,donor);
                 if(donor<0&&(crops.NativeMask&(1<<k))==0)continue;
@@ -61,6 +61,7 @@ namespace WorldGen.Core
                     double native=donor>=0?1:cultivationContact?.1+.9*Math.Pow(NativeDomesticability(practiceCell,k),2):.02+.98*Math.Pow(NativeDomesticability(practiceCell,k),3);
                     double clearing=Math.Max(.015,D.Clamp(landscapeYield[practiceCell]/.5));
                     gain=elapsed/50.0*(donor>=0?65:cultivationContact?60:24)*localAdvantage*fit*native*clearing;
+                    if(PassageHistory(s)&&donor>=0)gain*=4;
                     if(ConnectedHistory(s))gain*=HistoricalDevelopmentEffects.GrowingSeason(practiceHabitat);
                 }
                 int whole=(int)gain;if(HistoryRoll("aggregate-crop-practice-"+k,id,s.Years)<gain-whole)whole++;crops.Practice[k]=Math.Min(1000,crops.Practice[k]+whole);
@@ -156,7 +157,7 @@ namespace WorldGen.Core
             int cell=site>=0?site:s.Society.Cultures[culture].OriginCell;var habitat=World.Ecology.Habitat[cell];double latitude=Math.Abs(Math.Asin(World.Surface.Cells[cell].Position.Z)*180/Math.PI);HistoricalCultivar best=null;double score=0;
             if(CommunityHistory(s))habitat=CommunityAgronomicHabitat(s,cell,group);
             for(int k=0;k<HistoricalCropCatalog.Crops.Length;k++)
-            {var crop=HistoricalCropCatalog.Crops[k];if(crop.Group!=group)continue;var cultivar=new HistoricalCultivar{CropId=k,OriginCulture=culture,MaturityDays=crop.MaturityDays,MinimumWarmTenthsC=crop.MinimumWarmC*10,DaylengthLatitudeTenths=(int)(latitude*10),WaterRequirementPermille=crop.MinimumWaterPermille};double fit=HistoricalCropCatalog.Fit(habitat,cultivar,latitude,riverSites[cell]);if(fit>score){score=fit;best=cultivar;}}
+            {var crop=HistoricalCropCatalog.Crops[k];if(crop.Group!=group)continue;var cultivar=new HistoricalCultivar{CropId=k,OriginCulture=culture,MaturityDays=crop.MaturityDays,MinimumWarmTenthsC=crop.MinimumWarmC*10,DaylengthLatitudeTenths=(int)(latitude*10),WaterRequirementPermille=crop.MinimumWaterPermille};double fit=PassageHistory(s)?CommunityTransferFit(s,cell,cultivar):HistoricalCropCatalog.Fit(habitat,cultivar,latitude,riverSites[cell]);if(fit>score){score=fit;best=cultivar;}}
             return best;
         }
         void FoundAggregateTown(PrehistoryState s,int culture,int cell,int parent)

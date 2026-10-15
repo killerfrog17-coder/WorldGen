@@ -19,10 +19,11 @@ try {
  await page.keyboard.press('Shift+-');await page.waitForTimeout(100);
  if(Number(await page.getByLabel('Population opacity',{exact:true}).inputValue())!==.75)throw Error('Overlay keyboard increment is not 25%');
  await page.getByLabel('Map opacity',{exact:true}).fill('0');await page.getByLabel('Population opacity',{exact:true}).fill('1');
+ const scheduled=JSON.parse(await page.evaluate(async()=>{const map=await import('/globe.js');return await map.people('calendar');}));
  await page.getByRole('button',{name:'Step',exact:true}).click();
  await page.waitForFunction(()=>!document.querySelector('.sim-bar strong')?.textContent.startsWith('Year 0')&&[...document.querySelectorAll('.sim-bar button')].some(b=>b.textContent==='Step'&&!b.disabled),{},{timeout:90000});
  const summary=JSON.parse(await page.evaluate(async()=>{const map=await import('/globe.js');return await map.people('status');}));
- if(!summary.Started||summary.Seconds<30*31536000||summary.Seconds>60*31536000||summary.Seconds%31536000===0)throw Error('A geography-only save must begin through its seeded, sub-year cultural event');
+ if(!summary.Started||scheduled.NextEventSeconds<=scheduled.Seconds||summary.Seconds!==scheduled.NextEventSeconds||summary.Seconds%31536000===0)throw Error('A geography-only save must begin at the actual seeded, sub-year next event, not a hard-coded year window');
  await page.screenshot({path:output+'/defaults-and-first-step.png'});
  if(errors.length)throw Error(errors.join('\n'));
  console.log('PASS: Climate/States, white/opaque defaults, 25% opacity keys, geography-only save starts at its next scheduled event.');

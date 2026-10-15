@@ -137,6 +137,18 @@ namespace WorldGen.Core
         }
         void LinkLivingTowns(PrehistoryState s,int first,int second)
         {
+            if(PassageHistory(s))
+            {
+                foreach(var pair in new[]{(first,second),(second,first)})
+                {
+                    var c=s.History.Aggregates.Cities[pair.Item1];int from=s.Society.Settlements[pair.Item1].Cell;
+                    double Km(int city)=>D.Angle(World.Surface.Cells[from].Position,World.Surface.Cells[s.Society.Settlements[city].Cell].Position)*World.Recipe.RadiusKm;
+                    var candidates=c.Neighbors.Concat(new[]{pair.Item2}).Where(n=>s.History.Aggregates.Living.Cities[n].AbandonedYear<0).Distinct().ToArray();
+                    var ports=candidates.Where(n=>Km(n)>280&&DiffusionShore(from)&&DiffusionShore(s.Society.Settlements[n].Cell)).OrderBy(Km).ThenBy(n=>n).Take(2).ToArray();
+                    c.Neighbors=candidates.Except(ports).OrderBy(Km).ThenBy(n=>n).Take(12-ports.Length).Concat(ports).ToArray();
+                }
+                return;
+            }
             foreach(var pair in new[]{(first,second),(second,first)})
             {var c=s.History.Aggregates.Cities[pair.Item1];c.Neighbors=c.Neighbors.Concat(new[]{pair.Item2}).Where(n=>s.History.Aggregates.Living.Cities[n].AbandonedYear<0).Distinct().OrderBy(n=>D.Angle(World.Surface.Cells[s.Society.Settlements[pair.Item1].Cell].Position,World.Surface.Cells[s.Society.Settlements[n].Cell].Position)).ThenBy(n=>n).Take(12).ToArray();}
         }

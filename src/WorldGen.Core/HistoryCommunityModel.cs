@@ -29,7 +29,16 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         public const string CommunityHistoryVersion="history-21";
-        static bool CommunityHistory(PrehistoryState s)=>s?.History?.Version==CommunityHistoryVersion;
+        public const string DiffusionHistoryVersion="history-22";
+        static bool PassageHistory(PrehistoryState s)=>s?.History?.Version==DiffusionHistoryVersion;
+        static bool CommunityHistory(PrehistoryState s)=>s?.History?.Version==CommunityHistoryVersion||PassageHistory(s);
+        public PrehistoryState UpgradeToDiffusionHistory(PrehistoryState source)
+        {
+            Validate(source);if(PassageHistory(source))return source;
+            if(!CommunityHistory(source))source=UpgradeToCommunityHistory(source);
+            var s=source.Copy();s.History.Version=DiffusionHistoryVersion;
+            PrepareDiffusionPassages();s.Seal();return s;
+        }
         public PrehistoryState UpgradeToCommunityHistory(PrehistoryState source)
         {
             Validate(source);if(CommunityHistory(source))return source;

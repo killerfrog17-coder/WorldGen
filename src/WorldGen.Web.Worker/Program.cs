@@ -35,6 +35,7 @@ public static partial class WorkerApi
         if(command.StartsWith("atlas-directory:",StringComparison.Ordinal))return WorldJson.Write(HistoryAtlas.Directory(world.Prehistory,command.Substring(16),past:true));
         if(command=="overlay"){if(value<0||value>4)throw new ArgumentException("Unknown historical overlay.");historyOverlay=(HistoryOverlay)value;}
         if(command=="lore")return SocietyView.CampaignLore(world.Prehistory,world);
+        if(command=="calendar"){var timeline=world.Prehistory.Timeline;return WorldJson.Write(new CalendarSummary{Seconds=SimulationTime.Seconds(world.Prehistory),NextEventSeconds=timeline!=null&&timeline.Events.Length>0?timeline.Events[0].Due:-1});}
         if(command=="start")world.Prehistory=humans.Start(world.Prehistory);
         if(command=="upgradeHistory")world.Prehistory=humans.UpgradeToCurrentHistory(world.Prehistory);
         if(command=="technologyCeiling"){world.Prehistory=humans.SetTechnologyCeiling(world.Prehistory,(HistoricalTechnologyCeiling)value);preferredTechnologyCeiling=(HistoricalTechnologyCeiling)value;}
@@ -62,6 +63,7 @@ public static partial class WorkerApi
         return WorldJson.Write(new HumanSummary{Borders=historyOverlay==HistoryOverlay.States||historyOverlay==HistoryOverlay.Civilizations?historyBorders.Segments(world,state):Array.Empty<float>(),Profiles=HistoryAtlas.ProfilesAt(state,humanSelection),Subject=subject,SelectionSummary=HistoryAtlas.Summary(state,subject),Legend=SocietyView.Legend(state,historyOverlay,engine:humans),Culture=SocietyView.Culture(state,humanSelection),Cultures=state.Society?.Cultures??Array.Empty<CultureIdentity>(),Events=SocietyView.Headlines(state),Population=SocietyView.Population(state),ManualStep=state.Society?.ManualStep??false,Marks=SocietyMarks(state),StepYears=Prehistory.YearsPerStep(state),OriginLon=Math.Atan2(p.Y,p.X)*180/Math.PI,OriginLat=Math.Asin(p.Z)*180/Math.PI,Status=PrehistoryView.Status(humans,state),Inspection=PrehistoryView.Describe(humans,state,humanSelection,historyOverlay),Started=state.Started,Years=state.Years,CanMove=humanSelection>=0&&humans.CellPatch[humanSelection]>=0&&humans.Patches[humans.CellPatch[humanSelection]].Capacity>=25});
     }
     public sealed class HumanSummary{public int Era=WorldEraView.Of(world.Prehistory);public int TechnologyCeiling=world.Prehistory.History?.Modern==null?-1:(int)world.Prehistory.History.Modern.TechnologyCeiling;public bool CanUpgradeHistory=Prehistory.CanUpgradeHistory(world.Prehistory);public int EpochYear=SimulationClockView.EpochYear(world.Prehistory);public long Seconds=SimulationTime.Seconds(world.Prehistory);public int PhaseStepYears=SocietyState.DefaultStep(world.Prehistory.Society?.Phase??SocietyStage.Foragers);public bool ClockOnly;public float[] Borders=Array.Empty<float>();public HistoryLegendEntry[] Legend;public string Status="",Inspection="",SelectionSummary="";public bool Started,CanMove,ManualStep;public int Years,StepYears;public double OriginLon,OriginLat;public long Population;public CultureIdentity Culture;public CultureIdentity[] Cultures;public ChronicleEvent[] Events;public SocietyMark[] Marks;public AtlasLink Subject;public AtlasLink[] Profiles=Array.Empty<AtlasLink>();}
+    public sealed class CalendarSummary{public long Seconds,NextEventSeconds;}
     public sealed class SocietyMark{public string Name="";public double X,Y,Z;public bool City;}
     static SocietyMark[] SocietyMarks(PrehistoryState s){var marks=new List<SocietyMark>();if(s.Society!=null){foreach(var c in SocietyView.MapLabels(world,s,historyOverlay,humans)){var p=SocietyView.Location(world,c.LabelCell>=0?c.LabelCell:c.Cell);marks.Add(new SocietyMark{Name=c.LabelName.Length>0?c.LabelName:c.Name,X=p.X,Y=p.Y,Z=p.Z,City=false});}foreach(var t in s.Society.Settlements){if(t.Population<100)continue;var p=SocietyView.Location(world,t.Cell);marks.Add(new SocietyMark{Name=t.Name,X=p.X,Y=p.Y,Z=p.Z,City=true});}}return marks.ToArray();}
     static IEnumerator<ViewData> view;
@@ -109,7 +111,7 @@ public static partial class WorkerApi
     [JSExport] public static string LoadWorldFile(string base64)
     {
         Progress("Opening saved world",1);
-        world = WorldFile.Read(Convert.FromBase64String(base64),status:stage=>Progress(stage,stage.StartsWith("Checking")?50:5));
+        world = WorldFile.Read(Convert.FromBase64String(base64),status:stage=>Progress(stage,stage.StartsWith("Checking historical")?75:stage.StartsWith("Preparing historical")?60:stage.StartsWith("Checking generated")?40:stage.StartsWith("Checking")?30:10));
         return WorldJson.Write(WorldSummary.From(world));
     }
     // Internal worker-to-worker presentation input. Never exposed as a saved world.
@@ -126,7 +128,7 @@ public static partial class WorkerApi
         if (!BitConverter.IsLittleEndian) for (int i = 0; i < packed.Length; i += 4) Array.Reverse(packed, i, 4);
         return packed;
     }
-    [JSExport] public static string Describe(int cell){humanSelection=cell;if(selectedLayer==Layer.Simulation){EnsureHumans();humanSelection=cell;return PrehistoryView.Describe(humans,world.Prehistory,cell,historyOverlay);}return CellInspection.Describe(world, cell,selectedLayer)+(selectedLayer==Layer.Ecoregions?"\n---DETAILS---\n"+EcologyView.Summary(world,cell)+"\n\n"+EcologyView.Describe(world,cell)+"\n---WEB---\n"+FoodWebDiagram.Svg(world,cell):"");}
+    [JSExport] public static string Describe(int cell){humanSelection=cell;if(selectedLayer==Layer.Simulation){EnsureHumans();humanSelection=cell;return PrehistoryView.Describe(humans,world.Prehistory,cell,historyOverlay);}return CellInspection.Describe(world, cell,selectedLayer)+(selectedLayer==Layer.Ecoregions?"\n---DETAILS---\n"+EcologyView.Summary(world,cell)+"\n\n"+EcologyView.Describe(world,cell)+"\n---WEB---\n"+FoodWebDiagram.Svg(world,cell)+"\n---PORTRAIT---\n"+WorldJson.Write(HabitatPortrait.At(world,cell)):"");}
     [JSExport] public static string DescribePoint(double x,double y,double z) => Describe(Erosion.Nearest(world.Surface,new V(x,y,z)));
     [JSExport] public static string Export(string kind) => kind == "world" ? Convert.ToBase64String(WorldFile.Write(world))
         : kind == "heightmap" ? Convert.ToBase64String(WorldJson.Heightmap(world)) : kind == "csv" ? WorldJson.Csv(world) : WorldJson.Write(world);

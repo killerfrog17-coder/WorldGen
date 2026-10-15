@@ -25,7 +25,7 @@ namespace WorldGen.Core
             {
                 // Printing permits wider participation; it does not automatically
                 // turn every literate state into the same representative regime.
-                bool assembly=literate&&cycle.EliteCapture<450&&old.Diplomacy>=500&&HistoryRoll("development-assembly-succession",polity,s.Years)<.35;
+                bool assembly=PassageHistory(s)?a.Communities.Governments[polity].RepresentationMilli>=650:literate&&cycle.EliteCapture<450&&old.Diplomacy>=500&&HistoryRoll("development-assembly-succession",polity,s.Years)<.35;
                 bool imperial=!assembly&&a.Polities[polity].CityCount>=6&&old.Military>=650;
                 successor.Name=s.Society.Settlements[p.CapitalId].Name+(assembly?" Commonwealth":imperial?" Empire":" Kingdom");
                 successor.Government=assembly?"A negotiated assembly and provincial councils":imperial?"A successor imperial court with provincial administration":"A successor dynasty and negotiated local privileges";
@@ -47,7 +47,8 @@ namespace WorldGen.Core
             double km=D.Angle(World.Surface.Cells[from].Position,World.Surface.Cells[to].Position)*World.Recipe.RadiusKm;
             bool river=riverAccess[from]>.02&&riverAccess[to]>.02&&World.Hydrology.Watershed[from]>=0&&World.Hydrology.Watershed[from]==World.Hydrology.Watershed[to];
             double relief=(World.Ecology.Habitat[from].ReliefM+World.Ecology.Habitat[to].ReliefM)/3000.0;
-            return km*(river?.45:1+relief);
+            double effort=km*(river?.45:1+relief);
+            return PassageHistory(s)?Math.Min(effort,DiffusionSeaEffort(s,from,to,culture)):effort;
         }
         void AdvanceLivingIncorporation(PrehistoryState s,int polity,int city,int elapsed)
         {

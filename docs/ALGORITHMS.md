@@ -1,5 +1,15 @@
 # Implementation contracts - version 3
 
+## Current historical contracts - history22, 15 October 2026
+
+Current new histories use22; generation remains worldgen-3.32.0. Versions20/21/22 extend the aggregate actor dispatcher, not the legacy whole-territory turns. `HistoryCommunityModel`, `HistoryDiffusionPassages`, `HistoryDiffusionTransport` and `HistoryCropEcology` contain the current version guards. Old saves retain their version and integrity representation until an explicit upgrade. Derived passage/shore/crop/sea-lane caches are rebuilt, not persisted as alternate authoritative data. Literal cache-off equivalence and previous-version executable comparisons are required. See HISTORY22_REVIEW.md for measured evidence, priors, citations and limitations.
+
+Setup-only passage contraction visits at most32 regional nodes/source, crosses only low-capacity land patches, caps distance500km and keeps12 endpoints. Ordinary departure trials remain bounded4. Maritime lane cache32768 and crop-habitat cache16384 use ordered FIFO eviction and exact recomputation; cache residency cannot change outcomes. Distant successful port contacts reserve at most2 slots within the existing12-city list. Administrative shipping support samples at most3 owned centers and their bounded neighbors; inland paths gain no sea discount. Passage version alone changes native annual-crop niches, reproductive fit, inherited local husbandry and known-crop adoption rates.
+
+Typed canonical writers are byte-compared with the independent encoder. Trusted unchanged-node/terminal-record reuse is restricted to private validated transactions; public snapshots are detached, and explicit hash recomputation invalidates trusted terminal bytes. Fast publication budgets may batch more actor events, never skip them. Terrain enumeration is permitted for initialization, explicit diagnostics/validation and rendering, not ordinary population, culture, polity or campaign turns. On-demand atlas capability coverage sums disjoint regional, city and country-remote population accounts, not cell populations; its attribution is a culture/institution proxy, not a household access estimate.
+
+Earlier historical sections below describe their named versions, not the current default.
+
 ## Connected historical development — history19, 15 October 2026
 
 History19 is an explicit historical-rule version, not a change to WorldPipeline or worldgen3.32. `HistoryConnectedDevelopment`, `HistoryConnectedVoyages` and `HistoryConnectedConflict` extend the aggregate actor dispatcher; no legacy whole-territory turns are restored. New `Prepare` requests opt into19, while17/18 remain supported and19 migration requires the shared explicit upgrade action. The existing saved actor records, practice sites and contact lists remain authoritative. The rule version separates the changed interpretation; no new null model field changes older integrity layouts.

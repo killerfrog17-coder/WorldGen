@@ -23,6 +23,7 @@
 <div class="atlas-reading" @key="section">
 @if(section=="Overview"){
 <p class="atlas-lead">@Document.Introduction</p>
+<HabitatPortraitCard Portrait="@Document.Habitat"/>
 <dl>@foreach(var fact in Document.Facts){<dt>@fact.Label</dt><dd>@fact.Value</dd>}</dl>
 <p>Explore the sections above for connections, livelihoods, institutions, and recorded events. Names in the article open related entries.</p>
 }else{

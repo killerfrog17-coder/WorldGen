@@ -27,9 +27,10 @@ public static class HistoryEraReview
             HistoryAudit.Snapshot(world,engine,s,output,sample.Era>=7?new[]{HistoryOverlay.States,HistoryOverlay.Technology}:new[]{HistoryOverlay.States},compressed:true);
             var communities=towns.Select(t=>new{t.Id,t.Name,t.Cell,t.CultureId,t.PolityId,t.FoundedYear,t.Population,t.FoodCapacity,t.FoodReserve,t.Stability,Rural=h.Aggregates.Cities[t.Id].Rural,RuralCapacity=h.Aggregates.Cities[t.Id].RuralCapacity,Productivity=h.Aggregates.Living.Cities[t.Id].Productivity,Farming=s.Society.Cultures[t.CultureId].Farming,Climate=world.Climate.Classification[t.Cell].ToString(),Latitude=Math.Asin(world.Surface.Cells[t.Cell].Position.Z)*180/Math.PI});
             File.WriteAllText(Path.Combine(output,"communities-era-"+sample.Era+".json"),JsonSerializer.Serialize(communities,new JsonSerializerOptions{WriteIndented=true}));
+            var coverage=HistoricalTechnologyCoverage.Measure(s);
             var row=new{Era=sample.Era,Name=WorldEraView.Name(sample.Era),Began=first[sample.Era],Year=s.Years,Population=h.Aggregates.TotalPopulation,Urban=h.Aggregates.TotalUrban,
                 Cultures=s.Society.Cultures.Length,Towns=towns.Length,States=live.Length,LargestStateKm2=live.Select(p=>p.AreaKm2).DefaultIfEmpty().Max(),
-                Technology=Enumerable.Range(0,HistoricalTechnologies.Names.Length).Select(k=>new{Name=HistoricalTechnologies.Names[k],Cultures=h.Cultures.Count(c=>c.Technology[k]>0),Urban=towns.Where(t=>h.Cultures[t.CultureId].Technology[k]>0).Sum(t=>t.Population),States=live.Count(p=>h.Cultures[p.CultureId].Technology[k]>0)})};
+                Technology=Enumerable.Range(0,HistoricalTechnologies.Names.Length).Select(k=>new{Name=HistoricalTechnologies.Names[k],Cultures=h.Cultures.Count(c=>c.Technology[k]>0),Population=coverage[k],Urban=towns.Where(t=>h.Cultures[t.CultureId].Technology[k]>0).Sum(t=>t.Population),States=live.Count(p=>h.Cultures[p.CultureId].Technology[k]>0)})};
             rows.Add(row);Console.WriteLine(WorldEraView.Name(sample.Era)+" at "+sample.Year+": "+live.Length+" states, "+towns.Length+" centers");
         }
         if(session.Seconds<saved.Years*SimulationTime.Year)session.AdvanceSeconds(saved.Years*SimulationTime.Year-session.Seconds,int.MaxValue);
