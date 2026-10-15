@@ -14,6 +14,10 @@ public sealed partial class WorldGenRuntime
     AudioSource musicSource;
     string musicFolder;
     bool musicBusy;
+    float musicVolume=.6f,musicGain;
+    bool musicSimulationStarted;
+    string musicScreen;
+    EraMusicTrack currentMusicTrack;
     float nextMusicCheck;
     readonly List<string> recentMusic=new List<string>();
     readonly HashSet<string> brokenMusic=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -33,13 +37,30 @@ public sealed partial class WorldGenRuntime
         // The launcher can live outside the checkout (including on another drive).
         if(Directory.Exists(Path.Combine(Environment.CurrentDirectory,"music")))root=Environment.CurrentDirectory;
         musicFolder=Argument("--worldgen-music-root",Path.Combine(root,"music"));
-        musicSource=gameObject.AddComponent<AudioSource>();musicSource.playOnAwake=false;musicSource.loop=false;musicSource.spatialBlend=0;musicSource.volume=.6f;
+        musicVolume=Mathf.Clamp01(PlayerPrefs.GetFloat("music-volume",.6f));
+        musicSource=gameObject.AddComponent<AudioSource>();musicSource.playOnAwake=false;musicSource.loop=false;musicSource.spatialBlend=0;musicSource.volume=0;
         if(FindAnyObjectByType<AudioListener>()==null)gameObject.AddComponent<AudioListener>();
     }
     void UpdateMusic()
     {
-        if(musicSource==null||musicBusy||musicSource.isPlaying||Time.unscaledTime<nextMusicCheck)return;
+        if(musicSource==null)return;
+        if(screen!=musicScreen){if(screen=="Simulation")musicSimulationStarted=false;musicScreen=screen;nextMusicCheck=0;}
+        if(screen=="Simulation"&&humanPlaying)musicSimulationStarted=true;
+        int desired=DesiredMusicEra();bool compatible=currentMusicTrack!=null&&currentMusicTrack.Supports(desired);
+        float target=musicSource.isPlaying&&compatible?1:0;
+        musicGain=Mathf.MoveTowards(musicGain,target,Time.unscaledDeltaTime/(target==0?1.1f:.8f));musicSource.volume=musicVolume*musicGain;
+        if(musicSource.isPlaying&&!compatible){if(musicGain>0)return;musicSource.Stop();currentMusicTrack=null;nextMusicCheck=0;}
+        if(desired==0||musicBusy||musicSource.isPlaying||Time.unscaledTime<nextMusicCheck)return;
         musicBusy=true;StartCoroutine(PlayNextMusic());
+    }
+    int DesiredMusicEra()=>screen=="Simulation"&&!musicSimulationStarted?0:CurrentMusicEra();
+    void DrawAudioOptions()
+    {
+        GUILayout.Label("AUDIO",new GUIStyle(GUI.skin.label){fontStyle=FontStyle.Bold});
+        GUILayout.Label("Music  "+Mathf.RoundToInt(musicVolume*100)+"%");
+        float next=GUILayout.HorizontalSlider(musicVolume,0,1);
+        if(next!=musicVolume){musicVolume=next;PlayerPrefs.SetFloat("music-volume",musicVolume);}
+        GUILayout.Space(12);
     }
     IEnumerator PlayNextMusic()
     {
@@ -51,7 +72,7 @@ public sealed partial class WorldGenRuntime
         var tracks=new List<EraMusicTrack>();
         foreach(string file in scan.Result.OrderBy(p=>p,StringComparer.OrdinalIgnoreCase))
             if(!brokenMusic.Contains(file)&&EraMusicTrack.TryParse(file,out var track))tracks.Add(track);
-        var candidates=EraMusic.Candidates(tracks,CurrentMusicEra(),recentMusic);
+        var candidates=EraMusic.Candidates(tracks,DesiredMusicEra(),recentMusic);
         if(candidates.Length==0){nextMusicCheck=Time.unscaledTime+10;musicBusy=false;yield break;}
         // Soundtrack-only entropy: never touches a world, recipe or simulation stream.
         int choice=UnityEngine.Random.Range(0,candidates.Length);var selected=candidates[choice];
@@ -67,10 +88,11 @@ public sealed partial class WorldGenRuntime
             {
                 var clip=DownloadHandlerAudioClip.GetContent(request);
                 if(clip==null||clip.length<=0)brokenMusic.Add(selected.Path);
+                else if(!selected.Supports(DesiredMusicEra()))Destroy(clip);
                 else
                 {
                     var previous=musicSource.clip;musicSource.clip=clip;if(previous!=null)Destroy(previous);
-                    musicSource.Play();EraMusic.Remember(recentMusic,selected.Path);
+                    currentMusicTrack=selected;musicGain=0;musicSource.volume=0;musicSource.Play();EraMusic.Remember(recentMusic,selected.Path);
                 }
             }
         }

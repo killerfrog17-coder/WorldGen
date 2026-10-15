@@ -270,7 +270,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         UpdateMusic();
         if(screen=="Simulation"&&!saveDialog&&Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame){if(atlasOpen){atlasOpen=false;atlasSearchFocused=false;}else ToggleSimulationPause();}
         PollHumans();
-        if(screen=="Simulation"&&!atlasOpen&&!simulationPaused&&!saveDialog&&Keyboard.current!=null&&!yearStepFocused&&!atlasSearchFocused)
+        if(screen=="Simulation"&&!atlasOpen&&!simulationPaused&&!saveDialog&&Keyboard.current!=null&&!atlasSearchFocused)
         {
             if(Keyboard.current.spaceKey.wasPressedThisFrame)humanPlaying=!humanPlaying;
             bool add=Keyboard.current.equalsKey.wasPressedThisFrame||Keyboard.current.numpadPlusKey.wasPressedThisFrame,subtract=Keyboard.current.minusKey.wasPressedThisFrame||Keyboard.current.numpadMinusKey.wasPressedThisFrame;

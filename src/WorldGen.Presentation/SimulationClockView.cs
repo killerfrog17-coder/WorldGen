@@ -46,7 +46,7 @@ namespace WorldGen.Presentation
         public static string Year(PrehistoryState? state,int year)=>"Year "+YearNumber(year,EpochYear(state));
         public static string Date(PrehistoryState state,double rate)=>Date(SimulationTime.Seconds(state),rate,EpochYear(state));
         public static string Rate(double seconds)
-        {int unit=seconds>=SimulationTime.Year?6:seconds>=30*SimulationTime.Day?5:seconds>=7*SimulationTime.Day?4:seconds>=SimulationTime.Day?3:seconds>=SimulationTime.Hour?2:seconds>=60?1:0;return (seconds/UnitSeconds[unit]).ToString("0.###",CultureInfo.InvariantCulture)+" "+Units[unit]+"/s";}
+        {int unit=seconds>=SimulationTime.Year?6:seconds>=30*SimulationTime.Day?5:seconds>=7*SimulationTime.Day?4:seconds>=SimulationTime.Day?3:seconds>=SimulationTime.Hour?2:seconds>=60?1:0;double value=seconds/UnitSeconds[unit];return value.ToString("0.###",CultureInfo.InvariantCulture)+" "+(value==1?Units[unit].TrimEnd('s'):Units[unit])+"/s";}
         public static string Date(long seconds,double rate,int epochYear=-1)
         {
             if(seconds<0||double.IsNaN(rate)||double.IsInfinity(rate)||rate<=0)throw new ArgumentOutOfRangeException();

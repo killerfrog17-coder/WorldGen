@@ -12,6 +12,15 @@ namespace WorldGen.Presentation
             6=>"Medieval",7=>"Early Modern",8=>"Industrial",9=>"Modern",10=>"Postmodern",
             _=>throw new ArgumentOutOfRangeException(nameof(era))
         };
+        public static string Description(int era)=>Name(era)+": "+(era switch
+        {
+            3=>"established cultivation",4=>"bronze production",5=>"iron production",
+            6=>"steel, mills and organized scholarly institutions",
+            7=>"printing, experimental science and a broader maritime, agricultural or gunpowder package",
+            8=>"steam-powered industry and industrial metallurgy",
+            9=>"electricity, combustion engines and supporting public-health/communication systems",
+            10=>"electronics, computing and digital telecommunications",_=>"before an established agricultural package"
+        })+". The world's technological frontier, not a calendar date or universal adoption.";
         public static int[] FirstYears(PrehistoryState state)
         {
             var first=new int[11];for(int k=0;k<first.Length;k++)first[k]=-1;first[2]=0;

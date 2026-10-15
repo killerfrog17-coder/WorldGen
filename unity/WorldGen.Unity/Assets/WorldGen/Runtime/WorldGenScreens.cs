@@ -92,6 +92,7 @@ public sealed partial class WorldGenRuntime
             }
             else
             {
+                DrawAudioOptions();
                 GUILayout.Label("DISPLAY");bool full=GUILayout.Toggle(Screen.fullScreen,"Fullscreen");if(full!=Screen.fullScreen)Screen.fullScreenMode=full?FullScreenMode.FullScreenWindow:FullScreenMode.Windowed;
                 bool sync=GUILayout.Toggle(QualitySettings.vSyncCount>0,"VSync");QualitySettings.vSyncCount=sync?1:0;
                 bool smooth=GUILayout.Toggle(naturalTerrain,"Smooth terrain and small water / island features");if(smooth!=naturalTerrain){naturalTerrain=smooth;ApplyCachedDisplay();}

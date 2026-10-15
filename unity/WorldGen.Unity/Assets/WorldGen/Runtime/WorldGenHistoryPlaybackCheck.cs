@@ -38,7 +38,7 @@ public sealed partial class WorldGenRuntime
             if(metric.Milliseconds>cost.Maximum){cost.Maximum=metric.Milliseconds;cost.Year=observedYear;cost.Items=metric.Items;}
             if(metric.Milliseconds>=25&&spikes.Count<4096)spikes.Add(observedYear+","+metric.Stage.Replace(',',';')+","+metric.Items+","+metric.Milliseconds.ToString("F6",System.Globalization.CultureInfo.InvariantCulture)+","+GC.CollectionCount(0)+","+GC.CollectionCount(1)+","+GC.CollectionCount(2));
         };
-        humanPlayback.SetRate(1000*SimulationTime.Year);SyncRateInput();humanPlaying=true;
+        humanPlayback.SetRate(1000*SimulationTime.Year);humanPlaying=true;
         double duration=double.Parse(Argument("--worldgen-duration","45"),System.Globalization.CultureInfo.InvariantCulture),start=Time.realtimeSinceStartupAsDouble,last=start;long seconds=SimulationTime.Seconds(world.Prehistory);var state=world.Prehistory;
         int tail=int.Parse(Argument("--worldgen-history-tail","0"));long target=seconds+tail*SimulationTime.Year;
         var evidence=new PlaybackEvidence{Cells=world.Surface.Cells.Length,SelectionStayedFolded=true,RequestedTailYears=tail,MinimumRollingYearsPerSecond=double.MaxValue,InputHash=world.Prehistory.Hash,InitialSeconds=seconds};var frames=new List<double>();bool selected=false;

@@ -54,3 +54,5 @@
 .society-dock button { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .selection-summary { font-size:14px;line-height:1.7;white-space:pre-line; }
 .selection-links{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}.selection-links button{font-size:12px;padding:4px 8px}
+.sim-bar .auto-pace { display:inline-flex; align-items:center; gap:6px; white-space:nowrap; margin:0 8px; }
+.sim-bar .auto-pace input { width:auto; min-width:0; margin:0; }

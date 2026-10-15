@@ -6,7 +6,7 @@ using WorldGen.Presentation;
 
 public sealed partial class WorldGenRuntime
 {
-    bool peoplesOpen,chronicleOpen,detailsOpen,mapSettings,sortOpen,yearStepFocused;
+    bool peoplesOpen,chronicleOpen,detailsOpen,mapSettings,sortOpen;
     Vector2 peoplesScroll,chronicleScroll,detailsScroll,eventScroll;string societySort="Default";
     ChronicleEvent selectedEvent;
     PrehistoryState legendState;Prehistory legendEngine;HistoryOverlay legendOverlay;string legendSort;
@@ -77,7 +77,7 @@ public sealed partial class WorldGenRuntime
     {
         var gui=new Vector2(p.x,Screen.height-p.y);return resizingSociety>=0||atlasOpen||expandedInspection||p.y<DockHeight||peoplesOpen&&SocietyPanel(0).Contains(gui)||chronicleOpen&&SocietyPanel(1).Contains(gui)||detailsOpen&&SocietyPanel(2).Contains(gui)||selectedEvent!=null;
     }
-    void ChangeHumanSpeed(int direction){humanPlayback.Change(direction);SyncRateInput();}
+    void ChangeHumanSpeed(int direction)=>humanPlayback.Change(direction);
     void DrawSimulationShell()
     {
         // Reserve stable handles before variable-length legends or selections
@@ -88,20 +88,18 @@ public sealed partial class WorldGenRuntime
         if(GUI.Button(new Rect(8,7,68,36),"World"))OpenAtlas();
         if(GUI.Button(new Rect(82,7,68,36),"Atlas")){var subject=humanOverlayOpacity>0?HistoryAtlas.Selection(state,selectedCell,historyOverlay):null;atlasKind="state";OpenAtlas(subject?.Kind??"world",subject?.Id??-1);}
         if(GUI.Button(new Rect(156,7,68,36),"View")){detailsOpen=!detailsOpen||!mapSettings;mapSettings=true;}
-        GUILayout.BeginArea(new Rect(Mathf.Max(232,Screen.width-930),7,Mathf.Min(924,Screen.width-238),40));GUILayout.BeginHorizontal();
+        GUILayout.BeginArea(new Rect(Mathf.Max(232,Screen.width-600),7,Mathf.Min(594,Screen.width-238),40));GUILayout.BeginHorizontal();
         GUILayout.Label(state==null?"Preparing…":SimulationClockView.Date(state,humanPlayback.Rate),new GUIStyle(GUI.skin.label){fontStyle=FontStyle.Bold},GUILayout.Width(195));
         GUI.enabled=!atlasOpen&&humans!=null&&!simulationPaused;
         if(GUILayout.Button(humanPlaying?"Ⅱ":"▶",GUILayout.Width(40))){humanPlaying=!humanPlaying;humanPlayback.Reset();}
         if(GUILayout.Button("‹",GUILayout.Width(28)))ChangeHumanSpeed(-1);GUILayout.Label(SimulationClockView.Rate(humanPlayback.Rate),GUILayout.Width(130));if(GUILayout.Button("›",GUILayout.Width(28)))ChangeHumanSpeed(1);
-        GUI.enabled=GUI.enabled&&humanStep==null;
-        if(GUILayout.Button(new GUIContent("Step","Advance to the next scheduled event"),GUILayout.Width(48)))StepHumanEvent();
-        GUI.SetNextControlName("TimeRate");rateInput=GUILayout.TextField(rateInput,12,GUILayout.Width(65));timeRateFocused=GUI.GetNameOfFocusedControl()=="TimeRate";yearStepFocused=timeRateFocused;
-        if(GUILayout.Button(SimulationClockView.Units[rateUnit]+"/s",GUILayout.Width(82)))rateUnit=(rateUnit+1)%SimulationClockView.Units.Length;
-        if(GUILayout.Button("Set",GUILayout.Width(45))&&double.TryParse(rateInput,System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out double value)){try{humanPlayback.SetRate(value*SimulationClockView.UnitSeconds[rateUnit]);}catch(Exception ex){error=ex.Message;}}
-        if(GUILayout.Button(new GUIContent(humanPlayback.Manual?"Manual":"Auto","Restore the playback rate for this historical phase"),GUILayout.Width(65))){humanPlayback.Auto(SocietyState.DefaultStep(state?.Society?.Phase??SocietyStage.Foragers));SyncRateInput();}GUI.enabled=!atlasOpen;GUILayout.EndHorizontal();GUILayout.EndArea();
+        bool automatic=!humanPlayback.Manual;
+        bool nextAutomatic=GUILayout.Toggle(automatic,new GUIContent("Auto","Adjust playback speed to the current technological age"),GUILayout.Width(68));
+        if(nextAutomatic!=automatic){if(nextAutomatic)humanPlayback.AutoEra(CurrentMusicEra());else humanPlayback.HoldRate();}
+        GUI.enabled=!atlasOpen;GUILayout.EndHorizontal();GUILayout.EndArea();
         GUI.Box(new Rect(0,Screen.height-DockHeight,Screen.width,DockHeight),"");
         if(GUI.Button(new Rect(5,Screen.height-32,Screen.width*.26f-10,28),(peoplesOpen?"▾  ":"▴  ")+historyOverlay.ToString()))peoplesOpen=!peoplesOpen;
-        if(GUI.Button(new Rect(Screen.width*.26f+5,Screen.height-32,Screen.width*.48f-10,28),(chronicleOpen?"▾  ":"▴  ")+"World Chronicle  ·  "+SocietyView.Population(state).ToString("N0")+" people"))chronicleOpen=!chronicleOpen;
+        if(GUI.Button(new Rect(Screen.width*.26f+5,Screen.height-32,Screen.width*.48f-10,28),new GUIContent((chronicleOpen?"▾  ":"▴  ")+WorldEraView.Name(CurrentMusicEra())+"  ·  "+SocietyView.Population(state).ToString("N0")+" people",WorldEraView.Description(CurrentMusicEra()))))chronicleOpen=!chronicleOpen;
         if(GUI.Button(new Rect(Screen.width*.74f+5,Screen.height-32,Screen.width*.26f-10,28),(detailsOpen?"▾  ":"▴  ")+SelectionCaption()))detailsOpen=!detailsOpen;
         if(peoplesOpen)DrawHistoryLegendPanel();
         if(chronicleOpen){BeginSocietyPanel(1);chronicleScroll=GUILayout.BeginScrollView(chronicleScroll);GUILayout.BeginHorizontal();float columnWidth=Mathf.Max(60,(Screen.width*.48f-54)/4);GUILayout.BeginVertical(GUILayout.Width(columnWidth));GUILayout.Label("Global population",new GUIStyle(GUI.skin.label){fontSize=12,wordWrap=true,fontStyle=FontStyle.Bold});GUILayout.Space(10);GUILayout.Label(SocietyView.Population(state).ToString("N0"),new GUIStyle(GUI.skin.label){fontSize=18});GUILayout.Label(WorldEraView.Name(CurrentMusicEra()),new GUIStyle(GUI.skin.label){fontSize=12,wordWrap=true});GUILayout.EndVertical();
@@ -121,7 +119,7 @@ public sealed partial class WorldGenRuntime
             if(error.Length>0)GUILayout.Label(error);GUILayout.EndScrollView();GUILayout.EndArea();}
         if(selectedEvent!=null){float width=Mathf.Min(580,Screen.width-40),height=Mathf.Min(350,Screen.height-80);var r=new Rect((Screen.width-width)/2,(Screen.height-height)/2,width,height);GUI.Box(r,"");GUILayout.BeginArea(new Rect(r.x+20,r.y+20,r.width-40,r.height-40));GUILayout.Label(SimulationClockView.Year(world?.Prehistory,selectedEvent.Year));eventScroll=GUILayout.BeginScrollView(eventScroll);GUILayout.Label(selectedEvent.Text,new GUIStyle(GUI.skin.label){wordWrap=true,fontSize=18});GUILayout.EndScrollView();if(GUILayout.Button("Close",GUILayout.Height(32)))selectedEvent=null;GUILayout.EndArea();}
         GUI.enabled=true;if(expandedInspection&&layer==Layer.Ecoregions&&selectedCell>=0&&displayedWorld?.Ecology!=null)DrawEcologyDetails(0);DrawAtlas();
-        if(simulationPaused){var r=new Rect(Screen.width/2-170,Screen.height/2-150,340,300);GUI.Box(r,"");GUILayout.BeginArea(new Rect(r.x+24,r.y+20,r.width-48,r.height-40));GUILayout.Label("PAUSED",new GUIStyle(GUI.skin.label){fontSize=26,fontStyle=FontStyle.Bold});GUILayout.Space(16);if(GUILayout.Button("Resume",GUILayout.Height(42)))ToggleSimulationPause();if(GUILayout.Button("Save world",GUILayout.Height(42))){libraryNotice="";saveDialog=true;}if(Prehistory.CanUpgradeHistory(world?.Prehistory)&&humanStep==null&&GUILayout.Button(new GUIContent("Update simulation rules","Preserve recorded history; use new formation and administration rules for future events"),GUILayout.Height(42))){var engine=humans;var source=world.Prehistory;calendarWorkStarted=SimulationTime.Seconds(source);humanStep=System.Threading.Tasks.Task.Run(()=>engine.UpgradeToCurrentHistory(source));}if(GUILayout.Button("Main menu",GUILayout.Height(42))){humanPlaying=false;simulationPaused=false;screen="Menu";}GUILayout.EndArea();}
+        if(simulationPaused){var r=new Rect(Screen.width/2-170,Screen.height/2-205,340,410);GUI.Box(r,"");GUILayout.BeginArea(new Rect(r.x+24,r.y+20,r.width-48,r.height-40));GUILayout.Label("SETTINGS · PAUSED",new GUIStyle(GUI.skin.label){fontSize=23,fontStyle=FontStyle.Bold});GUILayout.Space(16);DrawAudioOptions();if(GUILayout.Button("Resume",GUILayout.Height(42)))ToggleSimulationPause();if(GUILayout.Button("Save world",GUILayout.Height(42))){libraryNotice="";saveDialog=true;}if(Prehistory.CanUpgradeHistory(world?.Prehistory)&&humanStep==null&&GUILayout.Button(new GUIContent("Update simulation rules","Preserve recorded history; use new formation and administration rules for future events"),GUILayout.Height(42))){var engine=humans;var source=world.Prehistory;calendarWorkStarted=SimulationTime.Seconds(source);humanStep=System.Threading.Tasks.Task.Run(()=>engine.UpgradeToCurrentHistory(source));}if(GUILayout.Button("Main menu",GUILayout.Height(42))){humanPlaying=false;simulationPaused=false;screen="Menu";}GUILayout.EndArea();}
     }
     string SelectionCaption(){if(selectedCell<0||humans==null)return "Select a location";return SocietyView.Short(humanOverlayOpacity>0?CurrentHumanInspection().Split('\n')[0]:CellInspection.Describe(displayedWorld,selectedCell,layer),38);}
     void BeginSocietyPanel(int index){var r=SocietyPanel(index);DrawSocietyPanelFrame(index);GUILayout.BeginArea(new Rect(r.x+12,r.y+12,r.width-24,r.height-24));}

@@ -29,10 +29,10 @@ try{
  await page.evaluate(async()=>{window.__wg=await import('/globe.js');});console.log('Module ready');
  await page.evaluate(bytes=>window.__wg.loadWorldFile(bytes),(await fs.readFile(source)).toString('base64'));
  console.log('Snapshot dispatched');await page.waitForFunction(()=>!Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='Start world')?.disabled,{},{timeout:240000});
- console.log('Starting loaded world');await page.getByRole('button',{name:'Start world',exact:true}).click();await page.getByRole('button',{name:'Step',exact:true}).waitFor();
+ console.log('Starting loaded world');await page.getByRole('button',{name:'Start world',exact:true}).click();await page.getByLabel('Automatic era speed').waitFor();
  }
  await page.evaluate(async()=>{window.__wg=await import('/globe.js');});
- await page.waitForFunction(()=>{const bar=document.querySelector('.sim-bar');return bar&&!bar.innerText.startsWith('Year 0')&&[...bar.querySelectorAll('button')].some(b=>b.textContent==='Step'&&!b.disabled);},{},{timeout:420000});
+ await page.waitForFunction(()=>{const bar=document.querySelector('.sim-bar');return bar&&!bar.innerText.startsWith('Year 0')&&bar.querySelector('[aria-label="Automatic era speed"]');},{},{timeout:420000});
  await page.waitForTimeout(1000);
  await page.locator('.society-dock button').nth(2).click();await page.getByRole('button',{name:'Map settings',exact:true}).click();
  await page.getByLabel('Map opacity',{exact:true}).fill('0.15');await page.getByLabel('Population opacity',{exact:true}).fill('1');
@@ -72,11 +72,11 @@ try{
  for(const heading of ['Complete event archive','Settlement gazetteer','Religious traditions','Notable and current leaders','Military campaigns'])if(!lore.includes(heading))throw Error('Incomplete lore export: '+heading);
  const beforeStep=JSON.parse(await readPeople('status'));
  console.log('Before step '+JSON.stringify(beforeStep).slice(0,300));
- await page.getByLabel('Simulation time rate').fill(String(continuation));await page.getByLabel('Simulation rate unit').selectOption('6');await page.getByRole('button',{name:'Set',exact:true}).click();await page.waitForTimeout(500);
+ await page.getByLabel('Automatic era speed').uncheck();
  const batchTiming=await page.evaluate(async years=>{let s=JSON.parse(await window.__wg.people('status'));const start=s.Seconds,rows=[];for(const target of [start+31536000,start+years*31536000]){if(target<=s.Seconds)continue;const begin=performance.now(),before=s.Seconds;while(s.Seconds<target)s=JSON.parse(await window.__wg.people('timeBatch',target-s.Seconds));rows.push({years:(s.Seconds-before)/31536000,seconds:(performance.now()-begin)/1000});}return rows;},continuation);console.log('Cold/session then hot batch timings '+JSON.stringify(batchTiming));
  const displayedYear=beforeStep.Years+continuation-(beforeStep.EpochYear>=0?beforeStep.EpochYear:0);
  await page.waitForFunction(year=>document.querySelector('.sim-bar').innerText.includes(year.toLocaleString('en-US')),displayedYear,{timeout:90000});
- await page.getByRole('button',{name:'Manual',exact:true}).click();await page.getByRole('button',{name:'Auto',exact:true}).waitFor();
+ await page.getByLabel('Automatic era speed').check();
  const settings=await page.getByRole('button',{name:'Map settings',exact:true});if(!await page.getByLabel('Map opacity',{exact:true}).isVisible())await settings.click();
  await page.getByLabel('Map opacity',{exact:true}).fill('0.5');await page.getByLabel('Population opacity',{exact:true}).fill('1');
  await page.locator('#globe').focus();

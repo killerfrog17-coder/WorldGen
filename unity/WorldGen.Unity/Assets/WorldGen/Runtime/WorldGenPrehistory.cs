@@ -18,7 +18,7 @@ public sealed partial class WorldGenRuntime
     HumanPaletteResult humanPaletteReady;
     Color32[] humanSpareColors,humanUploadBlock,humanUploadTail;byte[] humanCodesScratch;
     sealed class HumanPaletteResult { public World World;public PrehistoryState State;public HistoryOverlay Overlay;public int Selection;public string Sort;public Color32[] Colors;public HistoryLegendEntry[] Legend,MapLabels; }
-    readonly SimulationPlayback humanPlayback=new SimulationPlayback();double humanClockSample,calendarWorkStarted;string rateInput="500";int rateUnit=6;bool timeRateFocused;
+    readonly SimulationPlayback humanPlayback=new SimulationPlayback();double humanClockSample,calendarWorkStarted;
     bool simulationPaused,resumeHumanPlayback;string simulationTab="";
     bool technologyCeilingOpen;
     HistoricalTechnologyCeiling preferredTechnologyCeiling=HistoricalTechnologyCeiling.Modern;
@@ -30,7 +30,7 @@ public sealed partial class WorldGenRuntime
         if(!worldReady||world==null||world.Ecology==null)return;
         if(humanWorld!=world)
         {
-            humanPlaying=false;humans=null;humanWorld=world;humanStep=null;lastHumanSelection=-2;atlasOpen=false;atlasSearchFocused=false;
+            humanPlaying=false;humans=null;humanWorld=world;humanStep=null;lastHumanSelection=-2;atlasOpen=false;atlasSearchFocused=false;musicSimulationStarted=false;humanPlayback.AutoEra(2);
             humanCancellation?.Cancel();humanCancellation?.Dispose();humanCancellation=new System.Threading.CancellationTokenSource();
             humanSession=null;humanPlaybackWork=null;
             cachedHistoryLegend=Array.Empty<HistoryLegendEntry>();cachedMapLabels=Array.Empty<HistoryLegendEntry>();legendState=null;legendEngine=null;
@@ -51,7 +51,7 @@ public sealed partial class WorldGenRuntime
         if(displayedWorld==world)RequestHistoryBorders();
         if((screen=="Simulation"||layer==Layer.Simulation)&&lastHumanSelection!=selectedCell)UpdateHumanPalette();
         double clockNow=Time.realtimeSinceStartupAsDouble,elapsed=humanClockSample==0?0:clockNow-humanClockSample;humanClockSample=clockNow;
-        double oldRate=humanPlayback.Rate;humanPlayback.Phase(SocietyState.DefaultStep(world.Prehistory.Society?.Phase??SocietyStage.Foragers));if(oldRate!=humanPlayback.Rate)SyncRateInput();
+        humanPlayback.Era(CurrentMusicEra());
         bool run=screen=="Simulation"&&!atlasOpen&&!simulationPaused&&humanPlaying&&!Busy&&!saveDialog&&exportJob==null;
         humanPlayback.Accumulate(elapsed,run);
         if(run&&humanStep==null&&humanPlayback.Pending>0)
@@ -124,7 +124,6 @@ public sealed partial class WorldGenRuntime
     }
     void StepHumanEvent()
     {if(humans==null||humanStep!=null||world.Prehistory==null)return;if(!world.Prehistory.Started)world.Prehistory=humans.Start(world.Prehistory);humanPlaying=false;humanPlayback.Reset();var engine=humans;var state=engine.UpgradeScheduling(world.Prehistory);var reusable=humanSession;var work=new HumanPlaybackWork();humanPlaybackWork=work;calendarWorkStarted=SimulationTime.Seconds(state);humanStep=work.Task=Task.Run(()=>{var session=reusable;if(session==null||!ReferenceEquals(session.LastSnapshot,state))session=new SimulationSession(engine,state);work.Session=session;return session.AdvanceSeconds(session.NextEventDue-session.Seconds,1,humanCancellation.Token);});}
-    void SyncRateInput(){rateUnit=humanPlayback.Rate>=SimulationTime.Year?6:humanPlayback.Rate>=30*SimulationTime.Day?5:humanPlayback.Rate>=7*SimulationTime.Day?4:humanPlayback.Rate>=SimulationTime.Day?3:humanPlayback.Rate>=SimulationTime.Hour?2:humanPlayback.Rate>=60?1:0;rateInput=(humanPlayback.Rate/SimulationClockView.UnitSeconds[rateUnit]).ToString("0.###",System.Globalization.CultureInfo.InvariantCulture);}
     void StartHumanWorld()
     {
         if(humans==null)return;
@@ -175,7 +174,7 @@ public sealed partial class WorldGenRuntime
         if(GUILayout.Button(humanPlaying?"Pause":"Play")){if(!state.Started)StartHumanWorld();humanPlaying=!humanPlaying;}
         if(GUILayout.Button("Previous speed"))ChangeHumanSpeed(-1);
         if(GUILayout.Button("Next speed"))ChangeHumanSpeed(1);
-        GUI.enabled=humanStep==null&&!Busy;if(GUILayout.Button("Next event"))StepHumanEvent();GUI.enabled=true;GUILayout.EndHorizontal();
+        GUI.enabled=true;GUILayout.EndHorizontal();
     }
     System.Collections.IEnumerator CheckPrehistory()
     {
@@ -262,7 +261,7 @@ public sealed partial class WorldGenRuntime
         while((Busy||humans==null||!worldReady)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(Busy||humans==null){Debug.LogError("HISTORY VIEW failed: "+error);Application.Quit(1);yield break;}
         string unchangedCheckpoint=world.Prehistory.ComputeHash();
-        if(double.TryParse(Argument("--worldgen-time-rate",""),System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out double captureRate)){humanPlayback.SetRate(captureRate);SyncRateInput();}
+        if(double.TryParse(Argument("--worldgen-time-rate",""),System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out double captureRate))humanPlayback.SetRate(captureRate);
         screen="Simulation";humanPlaying=false;SetProjection(Projection.Map);mapPan=Vector3.zero;centerLongitude=0;
         while(Busy||borderLoading)yield return null;
         for(int frame=0;frame<5;frame++)yield return new WaitForEndOfFrame();

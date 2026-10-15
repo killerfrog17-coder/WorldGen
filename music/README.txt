@@ -19,9 +19,13 @@ The inclusive range must use these numbers:
 9  Modern
 10 Postmodern
 
-During simulation the era is the highest technological milestone reached
-anywhere, not a claim that every society has the same technology.
-A playing track finishes normally; the next track uses the current era.
+During simulation the era is the highest established capability package
+reached within one society, not a claim that everyone shares its technology.
+A compatible playing track continues across an era change. An incompatible
+track fades out over about 1.1 seconds; the replacement fades in over 0.8.
+Entering a world fades menu/setup music and waits for Play before resuming.
+Music volume is available in main-menu Options and Esc settings and is
+remembered locally; it does not change the world or simulation.
 The previous three tracks are excluded, relaxing the oldest exclusions
 only when there are too few eligible songs. Selection is random and does
 not use or alter simulation randomness. Broken audio files are skipped.

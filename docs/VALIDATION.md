@@ -1,5 +1,30 @@
 # Version 3 validation evidence
 
+## History29 capability-era and playback/audio pass - 15 October 2026
+
+Current historical version29; generation remains worldgen-3.32.0/schema3. Root shortcut: `artifacts/player-history-29-release/WorldGen.exe`;28 remains available. Full solution/staging build and final Unity player build succeed. Packaged and source Core SHA256 both `8DFBC1F60241847462FA30350D4CAF34DBE0C0150354DC2B7257AD843163BF2A`; Presentation both `42AF12A1072E9351B45C96B33F2568A8FDAA95D3A59EDD00DC77945F4AE632C7`. A redirected PowerShell build initially reported a native stderr/progress error despite successful compilation/staging; the unredirected complete rerun exits0. No golden expectations changed.
+
+Fresh200k Earth and Continents Plus controls, seeds73421/261015, run1000years beyond all37 discoveries. Selected29 trialB ends with hashes `318f12d19964567332a758abee2082180029e8c2d3ce93639f58962e594a13c5` / `090c470fcb62f76b130ab60609530d1ff05d4c4b1332794d98110aadf2aec02d`, populations7.275B /5.785B. Date reports: `artifacts/history29/b-earth-technical.json` and `b-continents-technical.json`; first installed era dates relative to the first state:
+
+| Package | Earth | Continents Plus |
+|---|---:|---:|
+| Neolithic | -6,135 | -6,467 |
+| Bronze |645|708|
+| Iron |1,965|2,028|
+| Medieval |3,298|3,144|
+| Early Modern |5,421|5,106|
+| Industrial |5,714|5,346|
+| Modern |5,916|5,509|
+| Postmodern |5,975|5,587|
+
+TrialA was retained, not hidden: industry5226/5089 but iron1479/1590. TrialB better separates initial iron production from later refinements; Earth is now somewhat later than the rough3500BCE-anchored industrial benchmark, and scholarly/medieval capability remains comparatively early. These are procedural comparisons, not exact Earth dates, scientific validation or proof of complete historical realism. No calendar gate or country-specific technology script is used.
+
+Passing focused checks:313 interface/era/rate/music assertions;130 technical/imperial;82 canonical;40 atlas;35 calendar;19 regional ambitions. The29-upgraded20k aggregate suite passes1,022 assertions with maximum584 local cell reads/event under the unchanged64,000 supported-model limit. CLI repeat/reapply/serialized-recipe/cache reconstruction matches all stage hashes. Frozen27 and current code continuing the original20k save+3years still match `9e5a60386da870fd90027b683b75b442cc72790a36f48a6bdd71aa651e668854`.
+
+Actual Unity continuation of the new29 fresh200k Earth+3years matches.NET: `9444f182f4051a79471246adc376f83ebac41521818c199e5ca3da2f703af485`. Native dock integration passes: era, resize/clamp/adjacency, silent-until-Play context, actual asynchronous WAV decoding, and unchanged simulation checkpoint. Browser tests exercise the Auto checkbox/keyboard, absent step/rate editors, collapsed age caption, Esc and main-menu volume preferences, dock layout and resizing at1440x1000 and1024x720; screenshots `artifacts/history29/browser-ui-b/{expanded,small-window}.png` were visually inspected. The separate browser audio test measures compatible continuation, timed incompatible fades, quiet context and resumed volume-scaled playback using a silent synthetic WAV, not the owner's music library.
+
+The first browser UI attempt timed out at180seconds loading the large historical save; the420-second run passes with no page errors. Initial browser load remains slow and is not presented as improved throughput. No new200k native+1000year wall-clock acceptance is claimed here; the older27 performance evidence below remains27 evidence. The pre-existing whole-suite Earth golden stage-count mismatch also remains as documented. Generated reports, worlds, screenshots, fixtures and binaries remain ignored source artifacts.
+
 ## History28 regional intent - 15 October 2026
 
 Focused change: inland whole-ecoregional recognition and separate regional/subcontinental/continental ambitions. `scripts/build.ps1` and native `scripts/unity-check.ps1 -BuildPlayer -PlayerFolder player-history-28-release` succeed. Generation is unchanged. The root shortcut now opens this28 build; earlier27 remains available. This pass does not rerun the lengthy global realism or200k native throughput acceptance; those27 results below remain27 evidence, not28 performance claims.
