@@ -14,8 +14,10 @@ namespace WorldGen.Core
         public long SubjectPopulation,SubjectAreaKm2,SubjectArmy,ReportedPopulation,ReportedAreaKm2,ReportedArmy,AnnualTribute,TotalTribute;
         public bool Imposed;
         public long AdministrativePostCost;
+        public int Height;
+        public int[] ChildrenByHeight=new int[8];
         public HistoricalLocalBag AdministrativePosts=new HistoricalLocalBag();
-        public HistoricalImperialGovernment Copy(){var copy=(HistoricalImperialGovernment)MemberwiseClone();copy.AdministrativePosts=AdministrativePosts.Copy();return copy;}
+        public HistoricalImperialGovernment Copy(){var copy=(HistoricalImperialGovernment)MemberwiseClone();copy.AdministrativePosts=AdministrativePosts.Copy();copy.ChildrenByHeight=(int[])ChildrenByHeight.Clone();return copy;}
     }
     public static class HistoricalImperialHierarchy
     {
@@ -51,15 +53,19 @@ namespace WorldGen.Core
             var h=s.History;var a=h.Aggregates;
             if(!TechnicalHistory(s)){if(a.Empires!=null)throw new ArgumentException("Legacy imperial extension.");return;}
             var records=a.Empires?.Governments;if(records==null||records.Length!=h.Polities.Length)throw new ArgumentException("Imperial government alignment.");
-            var population=new long[records.Length];var area=new long[records.Length];var army=new long[records.Length];var count=new int[records.Length];
+            var population=new long[records.Length];var area=new long[records.Length];var army=new long[records.Length];var count=new int[records.Length];var heights=new int[records.Length*8];
             for(int i=0;i<records.Length;i++)
             {
                 var g=records[i];if(g==null||g.Patron<-1||g.Patron>=records.Length||g.Patron==i||g.SinceYear>s.Years||g.LastReportYear>s.Years||g.AutonomyMilli<0||g.AutonomyMilli>1000||g.ArrearsYears<0||g.ArrearsYears>100||g.SubjectPopulation<0||g.SubjectAreaKm2<0||g.SubjectArmy<0||g.SubjectCount<0||g.ReportedPopulation<0||g.ReportedAreaKm2<0||g.ReportedArmy<0||g.AnnualTribute<0||g.TotalTribute<0)throw new ArgumentException("Invalid imperial government "+i+".");
+                if(g.ChildrenByHeight?.Length!=8||g.Height<0||g.Height>=8||g.ChildrenByHeight.Any(v=>v<0))throw new ArgumentException("Invalid imperial hierarchy height.");
+                int height=0;for(int k=0;k<8;k++)if(g.ChildrenByHeight[k]>0)height=k+1;if(height!=g.Height)throw new ArgumentException("Imperial height cache.");
                 if(h.Polities[i].EndedYear>=0)continue;
                 HistoricalImperialHierarchy.Sovereign(s,i);int patron=HistoricalImperialHierarchy.Patron(s,i);if(patron<0)continue;
                 population[patron]+=g.ReportedPopulation;area[patron]+=g.ReportedAreaKm2;army[patron]+=g.ReportedArmy;count[patron]+=1+g.SubjectCount;
+                heights[patron*8+g.Height]++;
             }
             for(int i=0;i<records.Length;i++)if(h.Polities[i].EndedYear<0&&(population[i]!=records[i].SubjectPopulation||area[i]!=records[i].SubjectAreaKm2||army[i]!=records[i].SubjectArmy||count[i]!=records[i].SubjectCount))throw new ArgumentException("Imperial cached obligation totals "+i+".");
+            for(int i=0;i<records.Length;i++)if(h.Polities[i].EndedYear<0)for(int k=0;k<8;k++)if(heights[i*8+k]!=records[i].ChildrenByHeight[k])throw new ArgumentException("Imperial direct-child height counts.");
         }
         void AppendImperialGovernment(PrehistoryState s,int predecessor=-1)
         {
@@ -83,6 +89,19 @@ namespace WorldGen.Core
                 patron=g.Patron;
             }
         }
+        void ChangeImperialHeight(PrehistoryState s,int patron,int remove,int add)
+        {
+            var a=s.History.Aggregates;
+            for(int depth=0;patron>=0&&depth<HistoricalImperialHierarchy.MaximumDepth;depth++)
+            {
+                patron=a.Resolve(patron,s.History);if(patron<0)return;var g=a.Empires.Governments[patron];int previous=g.Height;
+                if(remove>=0){if(g.ChildrenByHeight[remove]<=0)throw new InvalidOperationException("Missing imperial height delta.");g.ChildrenByHeight[remove]--;}
+                if(add>=0)g.ChildrenByHeight[add]++;
+                int next=0;for(int k=0;k<8;k++)if(g.ChildrenByHeight[k]>0)next=k+1;g.Height=next;
+                if(next>=8)throw new InvalidOperationException("Imperial hierarchy depth budget exceeded.");
+                if(next==previous)return;remove=previous;add=next;patron=HistoricalImperialHierarchy.Patron(s,patron);
+            }
+        }
         void ReportImperialGovernment(PrehistoryState s,int polity)
         {
             if(!TechnicalHistory(s))return;var h=s.History;var a=h.Aggregates;var g=a.Empires.Governments[polity];var p=h.Polities[polity];
@@ -98,16 +117,18 @@ namespace WorldGen.Core
             if(patron>=0)
             {
                 if(h.Polities[patron].EndedYear>=0)return false;
-                int ancestor=patron;
+                int ancestor=patron,parentDepth=0;
                 for(int depth=0;depth<HistoricalImperialHierarchy.MaximumDepth;depth++)
-                {if(ancestor==client)return false;ancestor=HistoricalImperialHierarchy.Patron(s,ancestor);if(ancestor<0)break;if(depth>=HistoricalImperialHierarchy.MaximumDepth-2)return false;}
+                {if(ancestor==client)return false;ancestor=HistoricalImperialHierarchy.Patron(s,ancestor);if(ancestor<0)break;parentDepth++;}
+                if(parentDepth+1+a.Empires.Governments[client].Height>=HistoricalImperialHierarchy.MaximumDepth)return false;
             }
             ReportImperialGovernment(s,client);var g=a.Empires.Governments[client];int count=1+g.SubjectCount;
-            if(previous>=0)ImperialDelta(s,previous,-g.ReportedPopulation,-g.ReportedAreaKm2,-g.ReportedArmy,-count);
+            if(previous>=0){ImperialDelta(s,previous,-g.ReportedPopulation,-g.ReportedAreaKm2,-g.ReportedArmy,-count);ChangeImperialHeight(s,previous,g.Height,-1);}
             g.Patron=patron;g.SinceYear=s.Years;g.Imposed=imposed;g.ArrearsYears=0;g.AnnualTribute=0;g.AutonomyMilli=imposed?650:850;
             if(patron>=0)
             {
                 ImperialDelta(s,patron,g.ReportedPopulation,g.ReportedAreaKm2,g.ReportedArmy,count);
+                ChangeImperialHeight(s,patron,-1,g.Height);
                 var relation=AggregateRelation(s,client,patron);relation.Trade=true;relation.Alliance=true;relation.WarSince=-1;relation.Trust=Math.Max(20,relation.Trust);
                 g.LastPatronSuccession=h.Dynamics.States[patron].LastSuccession;
                 if(imposed){var cycle=h.Dynamics.States[patron].Cycle;if(cycle!=null){cycle.ConquestDebt=Math.Min(1000,cycle.ConquestDebt+75+Math.Min(100,g.SubjectCount*10));cycle.LastConquestYear=s.Years;}}
@@ -119,7 +140,7 @@ namespace WorldGen.Core
         void EndImperialGovernment(PrehistoryState s,int polity)
         {
             if(!TechnicalHistory(s))return;var g=s.History.Aggregates.Empires.Governments[polity];int parent=HistoricalImperialHierarchy.Patron(s,polity);
-            if(parent>=0)ImperialDelta(s,parent,-g.ReportedPopulation,-g.ReportedAreaKm2,-g.ReportedArmy,-1-g.SubjectCount);
+            if(parent>=0){ImperialDelta(s,parent,-g.ReportedPopulation,-g.ReportedAreaKm2,-g.ReportedArmy,-1-g.SubjectCount);ChangeImperialHeight(s,parent,g.Height,-1);}
             g.Patron=-1;
         }
         void AdvanceImperialGovernment(PrehistoryState s,int polity,int elapsed)

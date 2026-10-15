@@ -84,7 +84,7 @@ public sealed partial class WorldGenRuntime
             {
                 GUILayout.Space(12);GUILayout.Label(project.Name+" — Level "+project.Level,new GUIStyle(GUI.skin.label){fontSize=16,fontStyle=FontStyle.Bold});AtlasParagraph(project.Source,12);
                 if(project.AllocationBasisPoints>0)DrawTechnicalBar("Research share",project.AllocationBasisPoints/100f);
-                DrawTechnicalBar("Next level",project.ResearchPermille/10f);DrawTechnicalBar("Practical deployment",project.DeploymentPermille/10f);AtlasParagraph(project.Prerequisites,12);
+                if(project.AtCeiling)AtlasParagraph("At current model ceiling",12);else DrawTechnicalBar("Next level",project.ResearchPermille/10f);DrawTechnicalBar("Practical deployment",project.DeploymentPermille/10f);AtlasParagraph(project.Prerequisites.Length>0?"Research prerequisites: "+project.Prerequisites:"",12);
             }
             if(section.Diagram)DrawAtlasDiplomacy(section,width-300);
             long maximum=section.Unit=="/ 1,000"?1000:Math.Max(1,section.Links.Select(x=>x.Value).DefaultIfEmpty(1).Max());
@@ -143,7 +143,7 @@ public sealed partial class WorldGenRuntime
             GUI.color=color;GUI.DrawTexture(new Rect(endX-3,y-3,6,6),Texture2D.whiteTexture);GUI.color=Color.white;
             if(GUI.Button(new Rect(endX+10,y-15,Mathf.Max(80,r.xMax-endX-10),30),links[i].Name,new GUIStyle(GUI.skin.button){fontSize=12,alignment=TextAnchor.MiddleLeft,padding=new RectOffset(4,4,3,3)}))AtlasNavigate(links[i]);
         }
-        AtlasParagraph("Red: war · Blue: alliance · Gold: trade · Gray: contact",12);
+        AtlasParagraph(section.Title.StartsWith("Empire",StringComparison.Ordinal)?"Lines connect overarching and constituent governments, not geographic positions.":"Red: war · Blue: alliance · Gold: trade · Gray: contact",12);
     }
     void DrawAtlasLine(Vector2 start,Vector2 end,Color color)
     {

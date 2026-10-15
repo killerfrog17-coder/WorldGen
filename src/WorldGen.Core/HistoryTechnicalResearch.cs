@@ -7,7 +7,7 @@ namespace WorldGen.Core
         {
             if(!TechnicalHistory(s)||receiver==sender)return;
             var from=s.History.Cultures[sender].Technical;var to=s.History.Cultures[receiver].Technical;if(from==null||to==null)return;
-            for(int k=0;k<HistoricalTechnicalGraph.Count;k++)if((mask&(1L<<k))!=0&&from.LevelYear[k]<year&&(from.Levels[k]>to.Offers[k]||from.Levels[k]==to.Offers[k]&&year>to.OfferYear[k]))
+            for(int k=0;k<HistoricalTechnicalGraph.Count;k++)if((mask&(1L<<k))!=0&&from.Levels[k]>0&&from.LevelYear[k]<year&&(from.Levels[k]>to.Offers[k]||from.Levels[k]==to.Offers[k]&&year>to.OfferYear[k]))
             {to.Offers[k]=from.Levels[k];to.OfferYear[k]=year;to.Sources[k]=sender;}
         }
         void AdvanceTechnicalResearch(PrehistoryState s,int id,int elapsed,int contact,int site)
@@ -59,7 +59,7 @@ namespace WorldGen.Core
             Array.Clear(t.Allocation,0,n);
             for(int k=0;k<n;k++)
             {
-                if(HistoricalModernEffects.Era((HistoricalTechnology)k)>h.Modern.TechnologyCeiling||t.Levels[k]>=8)continue;
+                if(HistoricalModernEffects.Era((HistoricalTechnology)k)>h.Modern.TechnologyCeiling||t.Levels[k]>=HistoricalTechnicalGraph.MaximumLevel)continue;
                 double demand=TechnicalDemand(k,war,competition,disease,farming,maritime,urban,ca.CivilizationSince>=0);
                 if(k==(int)HistoricalTechnology.Irrigation)demand*=.2+D.Clamp((650-habitat.AridityMilli)/650.0)+.5*D.Clamp(riverSites[site]);
                 int needed=HistoricalTechnicalGraph.UsefulLevel(k);double relevance=t.Levels[k]>=needed?.06:1;
@@ -109,7 +109,8 @@ namespace WorldGen.Core
                 double years=k<15?100:k<20?65:k<27?45:25;
                 int current=t.Deployment[k];double gain=D.Q((target*1000-current)*(1-Math.Exp(-elapsed/years)),1000000);
                 // Knowledge survives a depression; installed capacity can decay.
-                t.Deployment[k]=Math.Max(0,Math.Min(1000,current+(int)Math.Round(gain)));
+                int change=(int)Math.Floor(gain);if(gain>change&&HistoryRoll("technical-deployment-fraction-"+k,id,s.Years)<gain-change)change++;
+                t.Deployment[k]=Math.Max(0,Math.Min(1000,current+change));
                 if(t.Deployment[k]>=250&&t.InstalledYear[k]==0)t.InstalledYear[k]=s.Years+1;
             }
         }

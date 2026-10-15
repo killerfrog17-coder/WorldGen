@@ -38,6 +38,21 @@ try{
  if(!(await page.locator('.atlas-reading progress').count()))throw Error('Missing population comparison chart');
  await page.screenshot({path:output+'/population-comparison.png'});
  await page.locator('.atlas-directory-list button').first().click();
+ if(process.argv.includes('--technical')){
+  await page.getByRole('button',{name:'Research and practical technology',exact:true}).click();
+  await page.locator('.technical-card').first().waitFor();
+  if(await page.locator('.technical-card').count()<10)throw Error('Missing leveled technical practices');
+  if(!(await page.locator('.technical-card').first().innerText()).includes('Practical deployment'))throw Error('Knowledge and deployment are not independently visible');
+  await page.screenshot({path:output+'/technical-research.png'});
+  await page.getByRole('button',{name:'Empire and constituent governments',exact:true}).click();
+  if(!(await page.locator('.atlas-reading').innerText()).includes('Territories'))throw Error('Missing imperial/local-government explanation');
+  await page.screenshot({path:output+'/imperial-governments.png'});
+  await page.locator('.atlas-directory').getByRole('button',{name:'Provinces',exact:true}).click();await page.locator('.atlas-directory-list button').first().click();
+  await page.waitForFunction(()=>document.querySelector('.atlas-article')?.dataset.kind==='province');
+  if(!(await page.locator('.atlas-lead').innerText()).includes('administrative'))throw Error('Missing actual provincial narrative');
+  await page.screenshot({path:output+'/province-profile.png'});
+  await page.locator('.atlas-directory').getByRole('button',{name:'States',exact:true}).click();await page.locator('.atlas-directory-list button').first().click();
+ }
  await page.getByRole('button',{name:'Diplomatic neighborhood',exact:true}).waitFor();await page.screenshot({path:output+'/state-profile.png'});
  await page.getByRole('button',{name:"Capital's setting",exact:true}).click();await page.screenshot({path:output+'/capital-setting.png'});
  await page.getByRole('button',{name:'Diplomatic neighborhood',exact:true}).click();await page.screenshot({path:output+'/diplomatic-neighborhood.png'});
@@ -55,7 +70,7 @@ try{
  await page.locator('.atlas-directory').getByRole('button',{name:'World overview',exact:true}).click();
  await contains(page.locator('.atlas-article h1'),'World at a glance');await enabled(page.getByRole('button',{name:'Recorded history',exact:true}));
  await page.getByRole('button',{name:'Recorded history',exact:true}).click();await enabled(page.getByRole('button',{name:'Older',exact:true}));
- const firstRecord=await page.locator('.atlas-timeline>div').first().innerText();await page.getByRole('button',{name:'Older',exact:true}).click();await contains(page.locator('.atlas-record-count'),'41');
+ const firstRecord=await page.locator('.atlas-timeline>div').first().innerText();await page.getByRole('button',{name:'Older',exact:true}).click();await contains(page.locator('.atlas-record-count'),'Records 41');
  if(firstRecord===await page.locator('.atlas-timeline>div').first().innerText())throw Error('History page did not advance');
  await page.getByLabel('Include routine records').check();await contains(page.locator('.atlas-record-count'),'Records 1');
  await page.screenshot({path:output+'/linked-history.png'});

@@ -36,7 +36,12 @@ public static class HistoryTechnicalTests
         check(HistoryAtlas.Selection(probe,site,HistoryOverlay.States)!.Id==patron&&HistoryAtlas.Selection(probe,site,HistoryOverlay.Territories)!.Id==client,"Map selection follows the chosen political level");
         check((bool)Call(engine,"SetImperialPatron",probe,client,-1,false,"Test independence."),"A breakaway retains existing towns and population");
         check(HistoricalImperialHierarchy.Sovereign(probe,third)==client&&probe.History.Aggregates.Empires.Governments[patron].SubjectPopulation==0,"Breaking away takes the local delegated hierarchy, not its former empire");
+        check(probe.History.Aggregates.Empires.Governments[patron].Height==0&&probe.History.Aggregates.Empires.Governments[client].Height==1,"Removing a branch reduces cached hierarchy heights without scanning its subjects");
         Call(engine,"ValidateImperialSystem",probe);
+        var chain=state.Copy();var chainIds=chain.History.Polities.Where(p=>p.EndedYear<0).Take(9).Select(p=>p.Id).ToArray();
+        for(int k=1;k<8;k++)check((bool)Call(engine,"SetImperialPatron",chain,chainIds[k],chainIds[k-1],false,"Bounded hierarchy test."),"A supported local hierarchy may use depth "+k);
+        check(!(bool)Call(engine,"SetImperialPatron",chain,chainIds[8],chainIds[7],false,"Excessive hierarchy."),"An eighth nested delegation is rejected before creating an unresolvable graph");
+        check(HistoricalImperialHierarchy.Sovereign(chain,chainIds[7])==chainIds[0],"The maximum supported delegation depth resolves deterministically");Call(engine,"ValidateImperialSystem",chain);
         var wrongPayroll=state.Copy();wrongPayroll.History.Aggregates.Empires.Governments[patron].AdministrativePostCost++;bool rejectedPayroll=false;
         try{Call(engine,"ValidateTerritorialAdministration",wrongPayroll);}catch(TargetInvocationException e)when(e.InnerException is ArgumentException){rejectedPayroll=true;}
         check(rejectedPayroll,"A saved province payroll must match actual active offices");

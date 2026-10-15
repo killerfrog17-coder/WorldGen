@@ -19,7 +19,10 @@ public static class HistoryLivingReview
         while(session.LastSnapshot.Years<target)
         {
             long chunk=args.Contains("--era-maps")&&session.LastSnapshot.History.Polities.Length>0?250:1000;
-            session.AdvanceSeconds(Math.Min(chunk*SimulationTime.Year,target*SimulationTime.Year-session.Seconds),int.MaxValue);
+            int requestedTarget=target,maximum=session.LastSnapshot.History.Aggregates.FirstMaximumTechnologyYear;
+            if(maximum>=0)requestedTarget=Math.Min(requestedTarget,maximum+1000);
+            if(requestedTarget*SimulationTime.Year<=session.Seconds)break;
+            session.AdvanceSeconds(Math.Min(chunk*SimulationTime.Year,requestedTarget*SimulationTime.Year-session.Seconds),int.MaxValue);
             state=session.LastSnapshot;var h=state.History;int first=h.Polities.Select(p=>p.FoundedYear).DefaultIfEmpty(-1).Min();
             var towns=state.Society.Settlements.Where(t=>t.Population>0).ToArray();var live=h.Polities.Where(p=>p.EndedYear<0).ToArray();
             var row=new {Year=state.Years,Population=SocietyView.Population(state),Occupied=state.Population.Count(p=>p>0),Cultures=state.Society.Cultures.Length,

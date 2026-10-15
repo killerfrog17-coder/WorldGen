@@ -20,6 +20,7 @@ namespace WorldGen.Core
     public static class HistoricalTechnicalGraph
     {
         public const int Count=37;
+        public const int MaximumLevel=8;
         public static HistoricalTechnicalRequirement R(HistoricalTechnology t,int level)=>new HistoricalTechnicalRequirement(t,level);
         static readonly HistoricalTechnicalRequirement[][] requirements={
             Array.Empty<HistoricalTechnicalRequirement>(),new[]{R(HistoricalTechnology.Storage,1)},new[]{R(HistoricalTechnology.Storage,1)},new[]{R(HistoricalTechnology.Storage,1)},
@@ -89,7 +90,7 @@ namespace WorldGen.Core
             for(int k=0;k<n;k++)
             {
                 allocations+=t.Allocation[k];
-                if(t.Levels[k]<0||t.Levels[k]>12||t.Deployment[k]<0||t.Deployment[k]>1000||t.Allocation[k]<0||t.Allocation[k]>10000||t.Progress[k]<0||t.Learning[k]<0||t.Offers[k]<0||t.Offers[k]>12||t.OfferYear[k]>s.Years||t.LevelYear[k]>s.Years||t.Sources[k]<-1||t.Sources[k]>=s.History.Cultures.Length||t.Levels[k]>0&&c.Technology[k]==0||t.Levels[k]==0&&t.Deployment[k]>0)throw new ArgumentException("Invalid leveled technical practice "+k+".");
+                if(t.Levels[k]<0||t.Levels[k]>HistoricalTechnicalGraph.MaximumLevel||t.Deployment[k]<0||t.Deployment[k]>1000||t.Allocation[k]<0||t.Allocation[k]>10000||t.Progress[k]<0||t.Learning[k]<0||t.Offers[k]<0||t.Offers[k]>HistoricalTechnicalGraph.MaximumLevel||t.OfferYear[k]<0||t.OfferYear[k]>s.Years||t.LevelYear[k]<0||t.LevelYear[k]>s.Years||t.InstalledYear[k]<0||t.InstalledYear[k]>s.Years+1||t.Sources[k]<-1||t.Sources[k]>=s.History.Cultures.Length||t.Levels[k]>0&&c.Technology[k]==0||t.Levels[k]==0&&t.Deployment[k]>0)throw new ArgumentException("Invalid leveled technical practice "+k+".");
             }
             if(allocations>10000)throw new ArgumentException("Research allocations exceed the available budget.");
         }
