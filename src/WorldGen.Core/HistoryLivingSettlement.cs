@@ -8,9 +8,11 @@ namespace WorldGen.Core
         {
             var a=s.History.Aggregates;var ca=a.Cultures[culture];var c=s.Society.Cultures[culture];
             int maturation=ConnectedHistory(s)&&s.History.Cultures[culture].ParentCultureId>=0?100:1000;
+            double investment=TechnicalHistory(s)?HistoricalTechnicalMigration.SettlementInvestment(s.History.Cultures[culture],s.Years):1;
+            if(TechnicalHistory(s))maturation=Math.Max(5,(int)(maturation/investment));
             if(c.Farming<180||s.Years-c.FoundedYear<maturation)return;
             if(ca.Cities.Count==0)
-            {if(HistoryRoll("living-first-town",culture,s.Years)<1-Math.Exp(-elapsed/600.0))FoundLivingTown(s,culture,ConnectedHistory(s)?DevelopmentEconomicSite(s,culture,c.OriginCell):c.OriginCell,-1);return;}
+            {if(HistoryRoll("living-first-town",culture,s.Years)<1-Math.Exp(-elapsed*investment/600.0))FoundLivingTown(s,culture,ConnectedHistory(s)?DevelopmentEconomicSite(s,culture,c.OriginCell):c.OriginCell,-1);return;}
             double mobility=ConnectedHistory(s)?Math.Sqrt(HistoricalModernEffects.LandTransport(s.History.Cultures[culture],s.Years))*(1+.4*HistoricalModernEffects.Adoption(s.History.Cultures[culture],HistoricalTechnology.Roads,s.Years)):1;
             if(ProvincialHistory(s))mobility*=Math.Min(8,Math.Max(1,Math.Sqrt(ca.Rural/20000.0)));
             if(HistoryRoll("living-secondary-town",culture,s.Years)>1-Math.Exp(-elapsed*Math.Sqrt(ca.Cities.Count)*mobility/600.0))return;

@@ -57,6 +57,16 @@ public static class HistoryTechnicalTests
         check(HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Railways,research.Years)==0&&!HistoricalTechnologies.Has(hc,HistoricalTechnology.Railways),"Knowing the railway recipe does not create an installed railway network");
         t.Deployment[(int)HistoricalTechnology.Railways]=800;
         check(HistoricalModernEffects.LandTransport(hc,research.Years)>1&&HistoricalTechnologies.Has(hc,HistoricalTechnology.Railways),"Practical deployment changes real logistical effects");
+        var oldMigrants=new HistoricalCulture{Technology=new int[37]};
+        check(HistoricalTechnicalMigration.ResidencyYears(400,300,.5,oldMigrants,100)==1610,"Legacy/forager residency remains geography-dependent and unchanged");
+        var modernMigrants=new HistoricalCulture{Technology=new int[37],Technical=new HistoricalTechnicalPractice()};
+        modernMigrants.Technology[(int)HistoricalTechnology.Railways]=1;
+        check(HistoricalTechnicalMigration.ResidencyYears(400,300,.5,modernMigrants,100)==1610,"Merely knowing a railway recipe does not accelerate a settlement front");
+        modernMigrants.Technical.Deployment[(int)HistoricalTechnology.Railways]=800;
+        check(HistoricalTechnicalMigration.ResidencyYears(400,300,.5,modernMigrants,100)<150,"A deployed railway network removes millennia-long forager residency delays");
+        check(HistoricalTechnicalMigration.SettlementInvestment(modernMigrants,100)>4,"Actual transport makes provisioned descendant settlements easier to establish");
+        check(HistoricalTechnicalMigration.CarriedDeployment((int)HistoricalTechnology.Writing,800)==500,"Migrants retain portable accounting skills rather than relearning writing from scratch");
+        check(HistoricalTechnicalMigration.CarriedDeployment((int)HistoricalTechnology.Railways,800)==0&&HistoricalTechnicalMigration.CarriedDeployment((int)HistoricalTechnology.IndustrialMetallurgy,800)==0,"Knowing industrial technology does not let emigrants carry away an installed industrial network");
         var demand=typeof(Prehistory).GetMethod("TechnicalDemand",BindingFlags.NonPublic|BindingFlags.Static)!;
         double peace=(double)demand.Invoke(null,new object[]{16,0d,0d,0d,1d,false,1d,true})!,war=(double)demand.Invoke(null,new object[]{16,1d,1d,0d,1d,false,1d,true})!;
         check(peace==0&&war>peace,"No military threat means no free gunpowder-research incentive; war creates demand");

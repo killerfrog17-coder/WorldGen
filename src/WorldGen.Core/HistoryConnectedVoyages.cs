@@ -123,13 +123,16 @@ namespace WorldGen.Core
             if(TechnicalHistory(s))
             {
                 var source=h.Cultures[parent].Technical;var knowledge=hc.Technical;
+                hc.Sedentism=Math.Max(hc.Sedentism,Math.Min(650,h.Cultures[parent].Sedentism));
+                hc.Institution=Math.Max(hc.Institution,Math.Min(450,h.Cultures[parent].Institution));
+                s.Society.Cultures[child].Organization=hc.Institution;
                 for(int k=0;k<hc.Technology.Length;k++)if(source.Levels[k]>0)
                 {
                     hc.Technology[k]=s.Years+1;knowledge.Levels[k]=source.Levels[k];knowledge.LevelYear[k]=s.Years;
                     knowledge.Offers[k]=source.Levels[k];knowledge.OfferYear[k]=s.Years;knowledge.Sources[k]=parent;
                     // Settlers carry technical knowledge, not a free steel mill,
                     // railway or electricity grid. Portable skills differ.
-                    knowledge.Deployment[k]=k<4?Math.Min(500,source.Deployment[k]):0;
+                    knowledge.Deployment[k]=HistoricalTechnicalMigration.CarriedDeployment(k,source.Deployment[k]);
                     if(knowledge.Deployment[k]>=250)knowledge.InstalledYear[k]=s.Years+1;
                 }
             }

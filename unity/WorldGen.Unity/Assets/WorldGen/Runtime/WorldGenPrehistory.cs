@@ -270,7 +270,7 @@ public sealed partial class WorldGenRuntime
         for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();
         layer=preferredLayer=Layer.Climate;satelliteOpacity=.45f;humanOverlayOpacity=1;gridSpacing=30;Refresh();
         peoplesOpen=true;chronicleOpen=true;detailsOpen=true;mapSettings=false;
-        foreach(var mode in new[]{HistoryOverlay.States,HistoryOverlay.Religions,HistoryOverlay.Cultures,HistoryOverlay.Technology})
+        foreach(var mode in new[]{HistoryOverlay.States,HistoryOverlay.Territories,HistoryOverlay.Provinces,HistoryOverlay.Religions,HistoryOverlay.Cultures,HistoryOverlay.Technology})
         {
             historyOverlay=mode;var entries=SocietyView.Legend(world.Prehistory,mode);selectedCell=entries.Length>0?entries[0].Cell:-1;UpdateHumanPalette();ApplyCachedDisplay();
             for(int frame=0;frame<12;frame++)yield return new WaitForEndOfFrame();

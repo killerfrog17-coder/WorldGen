@@ -2,6 +2,7 @@ import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
 const source=process.argv[2]??'artifacts/history-3/tests/Earth-preview.world';
 const output=process.env.HISTORY_CHECK_OUTPUT??'artifacts/history-3/browser';
+const continuation=process.argv.includes('--short-continuation')?3:37;
 await fs.mkdir(output,{recursive:true});
 const browser=await chromium.launch({headless:true,channel:'msedge'});
 const page=await browser.newPage({viewport:{width:1600,height:1000}}),errors=[];
@@ -37,9 +38,13 @@ try{
  await page.getByLabel('Map opacity',{exact:true}).fill('0.15');await page.getByLabel('Population opacity',{exact:true}).fill('1');
  await page.getByRole('button',{name:'Switch to map',exact:true}).click();await page.waitForFunction(()=>window.__wg.viewInfo().map&&!window.__wg.viewInfo().loading,{},{timeout:90000});
  await page.locator('.society-dock button').nth(0).click();await page.locator('.society-dock button').nth(1).click();
- for(const mode of ['Civilizations','States','Cultures','Religions','Technology']){
+ const overlays=['Civilizations','States','Cultures','Religions','Technology'];
+ if(process.argv.includes('--technical'))overlays.push('Territories','Provinces');
+ for(const mode of overlays){
   await page.getByLabel('Historical overlay').selectOption(mode);await page.waitForTimeout(1000);
   const summary=JSON.parse(await readPeople('status'));
+  if(summary.Overlay!==mode)throw Error('Worker did not accept requested '+mode+' overlay; actual '+summary.Overlay);
+  if((await page.locator('.error').allTextContents()).some(text=>text.trim()))throw Error('Viewer reported an error while selecting '+mode);
   if(!summary.Legend.length)throw Error('Empty '+mode+' legend');
   if(summary.Events.some(e=>/takes office|opens a trade agreement|do not renew their defensive pact/.test(e.Text)))throw Error('Routine diplomatic record leaked into headline feed');
   if(mode==='States'){
@@ -67,8 +72,8 @@ try{
  for(const heading of ['Complete event archive','Settlement gazetteer','Religious traditions','Notable and current leaders','Military campaigns'])if(!lore.includes(heading))throw Error('Incomplete lore export: '+heading);
  const beforeStep=JSON.parse(await readPeople('status'));
  console.log('Before step '+JSON.stringify(beforeStep).slice(0,300));
- await page.getByLabel('Simulation time rate').fill('37');await page.getByLabel('Simulation rate unit').selectOption('6');await page.getByRole('button',{name:'Set',exact:true}).click();await page.waitForTimeout(500);await page.evaluate(async()=>{let s=JSON.parse(await window.__wg.people('status'));const target=s.Seconds+37*31536000;while(s.Seconds<target)s=JSON.parse(await window.__wg.people('timeBatch',target-s.Seconds));});
- const displayedYear=beforeStep.Years+37-(beforeStep.EpochYear>=0?beforeStep.EpochYear:0);
+ await page.getByLabel('Simulation time rate').fill(String(continuation));await page.getByLabel('Simulation rate unit').selectOption('6');await page.getByRole('button',{name:'Set',exact:true}).click();await page.waitForTimeout(500);await page.evaluate(async years=>{let s=JSON.parse(await window.__wg.people('status'));const target=s.Seconds+years*31536000;while(s.Seconds<target)s=JSON.parse(await window.__wg.people('timeBatch',target-s.Seconds));},continuation);
+ const displayedYear=beforeStep.Years+continuation-(beforeStep.EpochYear>=0?beforeStep.EpochYear:0);
  await page.waitForFunction(year=>document.querySelector('.sim-bar').innerText.includes(year.toLocaleString('en-US')),displayedYear,{timeout:90000});
  await page.getByRole('button',{name:'Manual',exact:true}).click();await page.getByRole('button',{name:'Auto',exact:true}).waitFor();
  const settings=await page.getByRole('button',{name:'Map settings',exact:true});if(!await page.getByLabel('Map opacity',{exact:true}).isVisible())await settings.click();
@@ -88,5 +93,5 @@ try{
   await fs.writeFile(output+'/continued.world',Buffer.from(packed,'base64'));
   console.log('Saved browser-written checkpoint for independent .NET validation.');
  }
- if(errors.length)throw Error(errors.join('\n'));console.log('PASS: saved history, five overlays, matching legends, locality inspection, campaign export, irregular manual step.');
+ if(errors.length)throw Error(errors.join('\n'));console.log('PASS: saved history, '+overlays.length+' overlays, matching legends, locality inspection, campaign export, irregular manual step.');
 }catch(e){console.log(await page.locator('body').innerText());await page.screenshot({path:output+'/failure.png'});throw e;}finally{clearInterval(heartbeat);await fs.writeFile(output+'/timings.json',JSON.stringify(timings,null,2));await browser.close();}

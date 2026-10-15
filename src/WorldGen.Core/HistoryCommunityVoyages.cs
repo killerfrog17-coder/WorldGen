@@ -22,7 +22,20 @@ namespace WorldGen.Core
                 var route=options[(offset+trial)%options.Length];int sourceState=HistoricalCells.Polity(s,route.CellA),culture=HistoricalCells.Culture(s,route.CellA);
                 if(culture<0)culture=a.Regions[region].Culture;
                 if(sourceState>=0)culture=h.Polities[sourceState].CultureId;
-                if(culture<0)continue;long residents=sourceState>=0?a.Polities[sourceState].Remote:s.Population[region];if(residents<250)continue;
+                long residents=sourceState>=0?a.Polities[sourceState].Remote:s.Population[region];int sourceTown=-1;
+                if(TechnicalHistory(s)&&(culture<0||residents<250))
+                {
+                    // A populated port does not become unable to sail merely
+                    // because its households left the unallocated region pool.
+                    foreach(int port in NearbyLivingTowns(s,route.CellA,180))
+                    {
+                        var town=s.Society.Settlements[port];var farms=a.Cities[port];
+                        if(!DiffusionShore(town.Cell)||!farms.Supported||town.Population<300||farms.Rural<250)continue;
+                        sourceTown=port;sourceState=a.Resolve(town.PolityId,h);culture=town.CultureId;
+                        residents=farms.Rural;break;
+                    }
+                }
+                if(culture<0||residents<250)continue;
                 var hc=h.Cultures[culture];if(!HistoricalTechnologies.Has(hc,HistoricalTechnology.Sailing))continue;
                 double range=HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years);if(route.DistanceM>range*1000)continue;
                 int to=route.B,destinationState=HistoricalCells.Polity(s,route.CellB);if(sourceState>=0&&sourceState==destinationState)continue;
@@ -41,7 +54,9 @@ namespace WorldGen.Core
                 long destination=destinationState>=0?a.Polities[destinationState].Remote:s.Population[to];
                 if(destinationState>=0)carrying=ProvincialRemoteCapacity(s,destinationState);
                 long migrants=Math.Min(residents/20,Math.Min(1000,Math.Max(0,carrying-destination)));if(migrants<50)continue;
-                if(sourceState>=0){a.Polities[sourceState].Remote-=migrants;h.Polities[sourceState].Population-=migrants;s.Society.Cultures[h.Polities[sourceState].CultureId].Population=Math.Max(0,s.Society.Cultures[h.Polities[sourceState].CultureId].Population-migrants);}
+                if(sourceTown>=0)
+                {var town=s.Society.Settlements[sourceTown];var farms=a.Cities[sourceTown];ChangeAggregateCityPopulation(s,sourceTown,town.Population,farms.Suburban,farms.Rural-migrants);a.TotalPopulation+=migrants;}
+                else if(sourceState>=0){a.Polities[sourceState].Remote-=migrants;h.Polities[sourceState].Population-=migrants;s.Society.Cultures[h.Polities[sourceState].CultureId].Population=Math.Max(0,s.Society.Cultures[h.Polities[sourceState].CultureId].Population-migrants);}
                 else s.Population[region]-=migrants;
                 if(destinationState>=0){a.Polities[destinationState].Remote+=migrants;h.Polities[destinationState].Population+=migrants;s.Society.Cultures[h.Polities[destinationState].CultureId].Population+=migrants;}
                 else s.Population[to]+=migrants;

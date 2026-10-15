@@ -64,7 +64,15 @@ namespace WorldGen.Core
                 if(k==(int)HistoricalTechnology.Irrigation)demand*=.2+D.Clamp((650-habitat.AridityMilli)/650.0)+.5*D.Clamp(riverSites[site]);
                 int needed=HistoricalTechnicalGraph.UsefulLevel(k);double relevance=t.Levels[k]>=needed?.06:1;
                 long priority=Math.Max(0,(long)Math.Round(D.Q(demand*relevance/Math.Pow(1.35,t.Levels[k]),1000000)*1000000));
-                if(t.Offers[k]>t.Levels[k]){learningWeights[k]=priority;learningTotal+=priority;}
+                if(t.Offers[k]>t.Levels[k])
+                {
+                    // Accessible textbooks/teachers can convey a technique
+                    // even without a local incentive to invent or deploy it.
+                    // Peaceful isolation still supplies neither an offer nor
+                    // any military-only independent research effort.
+                    long learningPriority=Math.Max(priority,50000/(t.Levels[k]+1));
+                    learningWeights[k]=learningPriority;learningTotal+=learningPriority;
+                }
                 else if(HistoricalTechnicalGraph.Prerequisites(k,t.Levels)&&AggregatePracticeSupported(s,id,k,false))
                 {researchWeights[k]=priority;researchTotal+=priority;}
             }
