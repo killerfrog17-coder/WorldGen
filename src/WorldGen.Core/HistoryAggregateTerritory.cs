@@ -22,6 +22,7 @@ namespace WorldGen.Core
             if(layer==0){if(old>=0)s.Society.Cultures[old].AreaKm2-=area;if(owner>=0)s.Society.Cultures[owner].AreaKm2+=area;}
             else {old=old>=0?a.Resolve(old,s.History):-1;if(old>=0)s.History.Polities[old].AreaKm2=Math.Max(0,s.History.Polities[old].AreaKm2-area);if(owner>=0)s.History.Polities[owner].AreaKm2+=area;}
             RefreshAggregateFrontier(s,cell,layer,old);RefreshAggregateFrontier(s,cell,layer,owner);
+            if(layer==1)ChangeColonialCoast(s,cell,old,owner);
             foreach(int neighbor in World.Surface.Cells[cell].Neighbors){int id=layer==0?HistoricalCells.Culture(s,neighbor):HistoricalCells.Polity(s,neighbor);if(id>=0)RefreshAggregateFrontier(s,neighbor,layer,id);}
         }
         void RefreshAggregateFrontier(PrehistoryState s,int cell,int layer,int owner)

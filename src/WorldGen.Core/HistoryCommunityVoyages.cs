@@ -8,11 +8,13 @@ namespace WorldGen.Core
         {
             bool Shore(int cell)=>Patches[CellPatch[cell]].Island||World.Surface.Cells[cell].Neighbors.Any(n=>World.Hydrology.OceanConnected[n]);
             int origin=s.Society.Cultures[culture].OriginCell;if(Shore(origin))return true;
+            if(ColonialHistory(s)&&ColonialCoastalPractice(s,culture,s.History.Aggregates.Living.CivicOrigins[culture]))return true;
             var cities=s.History.Aggregates.Cultures[culture].Cities;
             int offset=cities.Count==0?0:(int)(HistoryRoll("community-maritime-centers",culture,s.Years)*cities.Count);
             for(int k=0;k<Math.Min(3,cities.Count);k++)
             {
                 var town=s.Society.Settlements[cities.At((offset+k)%cities.Count)];if(Shore(town.Cell))return true;
+                if(ColonialHistory(s)&&ColonialCoastalPractice(s,culture,town.PolityId))return true;
                 if(ColonialHistory(s))
                 {
                     int court=s.History.Aggregates.Resolve(town.PolityId,s.History);if(court<0||s.History.Polities[court].CultureId!=culture)continue;

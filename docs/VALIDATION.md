@@ -1,5 +1,26 @@
 # Version 3 validation evidence
 
+## History27 handoff — 15 October 2026
+
+Current historical rules are27; generation remains worldgen-3.32.0/schema3. The root shortcut opens `artifacts/player-history-27-release/WorldGen.exe`. Shared and packaged Core DLLs both have SHA256 `05BF7015F66C18C314EA14BB9249C40A1647334655A0D0B2D32068FBF3DF9971`; Presentation DLLs both have `B692937CD4EB41FE4D7FAEB5D4D323D5A9DF3A1D9495DB2C10D8AA18BAF5E76F`. See [HISTORY24_REVIEW.md](HISTORY24_REVIEW.md) for the chronological24–27 development, including rejected experiments and failed checks.
+
+Actual200k-cell Unity playback, another1000-plus years after review saves that already end1000years beyond the first complete37-capability knowledge milestone; no actors skipped or inventions forced. The two27 players ran concurrently:
+
+| World | Simulated years | Years/second | Minimum rolling | Worst year |
+|---|---:|---:|---:|---:|
+| Earth | 1021.957 | 5.657 | 5.420 | 845.817ms |
+| Continents Plus261015 | 1028.793 | 5.879 | 5.260 | 695.533ms |
+
+Evidence: `artifacts/history27/native-earth/playback.json` and `native-continents/playback.json`. Independent.NET continuations to the exact native final seconds matched `930fbc4c0941ab8aa12f6b670c519d03989b787dfa6db639f4854b94ce4214b8` (Earth) and `aa3466b561b5af071c1e518419c3dc2828c48f0536ab62ab0641e5934b0fe52c` (Continents Plus). Earlier26 also passed both worlds; an earlier26 trial failed the one-second-year requirement and remains recorded, not hidden.
+
+Fresh27 endpoint hashes: Earth `9f78cf25c5e714edab6e02d1176a1449d838b84b5baae3698152f516bd18a0e1`; Continents Plus `f485f1746e715036a069afed489f97694f2b179fdb97c2fb4d18f0a68fe733d1`. Full independent dated CLI replays match both; both era-overview image sequences were actually viewed. Native offscreen maps are valid; hidden-window HUD captures are not accepted as native HUD evidence.
+
+Browser27 passed all seven overlays, matching legends/selection, numeric rankings, full campaign export,25% opacity shortcuts, split1+2year advancement, and a browser-written saved world. That saved checkpoint and independent.NET+3year continuation both hash to `9e5a60386da870fd90027b683b75b442cc72790a36f48a6bdd71aa651e668854`. Browser cold startup remains slow: first session/year116.724s; subsequent two-year batch10.783s. Native playback results are not presented as browser performance results.
+
+Focused tests: 11 new coastal-index assertions,23 colonial-continuity assertions,129 technical/imperial assertions,1022 aggregate assertions (maximum373local cell reads/event on27),29 display assertions,82 literal-canonical assertions,40 atlas assertions and18 archive assertions across this pass. The existing whole-suite Earth golden stage-count mismatch remains pre-existing and was not repaired by regenerating goldens. CLI Preview reconstruction verification passes repeat/reapply/serialized-recipe/cache with identical all-stage hashes. Legacy24+3years stays `cf14d57b263cb5ba01adfa0e5cb734c55c2652d20b69c2e3b0c40c3f081540ac`; legacy26+3years matches the frozen26 runner at `125198c0118c8078876c0ce30878381a19eb8abdca8d9ac26e8a2bb7e2c27948`.
+
+These checks support determinism, specific modeling corrections and observed performance—not scientific validation or a claim that every generated history is realistic. Early agrarian population and the timing/geography of colonial expansion remain balance-sensitive.
+
 ## Final history23 handoff - 15 October 2026
 
 The final rules are23, a narrow correction on the22 pass below. See [HISTORY23_REVIEW.md](HISTORY23_REVIEW.md). Generation stays worldgen-3.32.0/schema3. Current Core SHA256 is `d3f6d36f3f987784ac8a9fce4c99ba8da73744aa226e1840a529a35ee845ae38`, identical in the compiled shared assembly and `artifacts/player-history-23-final/WorldGen_Data/Managed/WorldGen.Core.dll`.

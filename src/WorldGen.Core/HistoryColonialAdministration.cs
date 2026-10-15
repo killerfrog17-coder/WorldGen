@@ -19,6 +19,11 @@ namespace WorldGen.Core
                 if(owner<0||!DiffusionShore(town.Cell)||town.Population<500||!a.Cities[port].Supported||h.Polities[owner].CultureId!=culture)continue;
                 source=port;polity=owner;break;
             }
+            if(polity<0&&a.Empires.Connections?.Coasts!=null)
+            {
+                int owner=HistoricalCells.Polity(s,route.CellA),harborSource=a.Empires.Territories.Sources[route.CellA];
+                if(owner>=0&&h.Polities[owner].CultureId==culture&&DiffusionShore(route.CellA)&&TerritorialNodeLive(s,owner,harborSource)){source=harborSource;polity=owner;}
+            }
             if(polity<0)return;var p=h.Polities[polity];var government=a.Empires.Governments[polity];var finances=a.Polities[polity];
             int target=route.CellB,other=HistoricalCells.Polity(s,target);
             if(ColonialHistory(s)&&(RespectRecognizedClaim(s,polity,target)||World.Ecology.Habitat[target].GrowingDays<60&&!HistoricalTechnologies.Has(hc,HistoricalTechnology.CombustionEngines)))return;
@@ -32,6 +37,7 @@ namespace WorldGen.Core
             if(p.Cohesion<550||finances.Receipts<=finances.ServiceCost||government.AdministrativePosts.Count>=128||territory.PostAt[target]>=0||a.TownAt[target]>=0)return;
             int depth=source>=0?1:territory.Posts[-source-2].Depth+1;if(depth>7)return;
             double distance=LivingTravelKm(s,TerritorialNodeCell(s,source),target,p.CultureId);if(distance==double.MaxValue)return;
+            if(a.Empires.Connections?.Coasts!=null){distance=LivingTravelKm(s,TerritorialNodeCell(s,source),route.CellA,p.CultureId)+DiffusionSeaEffort(s,route.CellA,target,p.CultureId);if(double.IsInfinity(distance)||distance>=double.MaxValue)return;}
             long annual=Math.Max(80,(long)(80+route.DistanceM/18000.0)),setup=annual*(ocean?60:100);
             if(p.Treasury<setup+annual*40||finances.Receipts-finances.ServiceCost<annual*2)return;
             int recruitment=source>=0?source:p.CapitalId;var home=s.Society.Settlements[recruitment];var catchment=a.Cities[recruitment];

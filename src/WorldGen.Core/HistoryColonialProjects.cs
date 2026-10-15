@@ -17,6 +17,7 @@ namespace WorldGen.Core
                 int start=(int)(HistoryRoll("colonial-forward-port-index",polity,s.Years)*posts.Count);
                 for(int k=0;k<Math.Min(6,posts.Count);k++){int id=posts.At((start+k)%posts.Count);var post=a.Empires.Territories.Posts[id];if(DiffusionShore(post.Cell)&&CellPatch[post.Cell]>=0&&TerritorialNodeLive(s,polity,-2-id)){source=post.Cell;break;}}
             }
+            if(a.Empires.Connections.Coasts!=null&&(source<0||HistoryRoll("colonial-provincial-departure",polity,s.Years)<.35)){int harbor=ColonialProvincialHarbor(s,polity);if(harbor>=0)source=harbor;}
             if(source<0||CellPatch[source]<0)return;int region=CellPatch[source];var charts=a.Empires.Connections.Cultures[p.CultureId].Charts;
             var options=communityVoyages[region];if(options.Length==0&&charts.Length==0)return;
             int destination=-1;double best=-1;
