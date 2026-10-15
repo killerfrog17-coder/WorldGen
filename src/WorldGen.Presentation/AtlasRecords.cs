@@ -12,7 +12,7 @@ namespace WorldGen.Presentation
     }
     public static partial class HistoryAtlas
     {
-        static readonly HashSet<string> RoutineKinds=new HashSet<string>(new[]{"succession","battle","trade","contact","religious-community","harvest-shock","incorporation","sea-contact","frontier-retreat","provincial-unrest","provincial-resistance","district-office","district-office-closed","district-incorporated","incorporation-abandoned","settlement-sponsorship","administrative-post","administrative-withdrawal"},StringComparer.Ordinal);
+        static readonly HashSet<string> RoutineKinds=new HashSet<string>(new[]{"succession","battle","trade","contact","religious-community","harvest-shock","incorporation","sea-contact","charted-coast","frontier-retreat","provincial-unrest","provincial-resistance","district-office","district-office-closed","district-incorporated","incorporation-abandoned","settlement-sponsorship","administrative-post","administrative-withdrawal"},StringComparer.Ordinal);
         static AtlasFact Record(PrehistoryState s,HistoricalEvent e)
         {
             var links=new List<AtlasLink>();var h=s.History;

@@ -6,9 +6,9 @@ namespace WorldGen.Core
 {
     public static class HistoricalModernVoyageEffects
     {
-        public static int RangeM(HistoricalCulture culture,int year)
+        public static int RangeM(HistoricalCulture culture,int year,bool provisionedOceanCraft=false)
         {
-            if(culture.Technical!=null)return HistoricalTechnicalMigration.SeaRangeM(culture,year);
+            if(culture.Technical!=null)return HistoricalTechnicalMigration.SeaRangeM(culture,year,provisionedOceanCraft);
             double ocean=HistoricalModernEffects.Adoption(culture,HistoricalTechnology.OceanNavigation,year);
             double steam=HistoricalModernEffects.Adoption(culture,HistoricalTechnology.SteamPower,year);
             return 3500000+(int)Math.Round(3000000*ocean/500000)*500000+(int)Math.Round(2500000*ocean*steam/500000)*500000;
@@ -56,7 +56,7 @@ namespace WorldGen.Core
                 }
                 if(shore.Count==0)continue;var staging=new List<ModernVoyageStaging>{shore.OrderByDescending(x=>x.Residents).ThenBy(x=>x.Cell).First()};
                 while(staging.Count<4&&staging.Count<shore.Count)staging.Add(shore.Where(x=>staging.All(y=>y.Cell!=x.Cell)).OrderByDescending(x=>staging.Min(y=>D.Angle(World.Surface.Cells[x.Cell].Position,World.Surface.Cells[y.Cell].Position))).ThenBy(x=>x.Cell).First());
-                int range=HistoricalModernVoyageEffects.RangeM(hc,s.Years);double vessels=1+HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years)+HistoricalModernEffects.Adoption(hc,HistoricalTechnology.SteamPower,s.Years)*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years);
+                int range=HistoricalModernVoyageEffects.RangeM(hc,s.Years,ColonialHistory(s));double vessels=1+HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years)+HistoricalModernEffects.Adoption(hc,HistoricalTechnology.SteamPower,s.Years)*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years);
                 Route best=null;ModernVoyageStaging departure=null;double probability=0;int bestSailing=0;
                 foreach(var from in staging)
                 {

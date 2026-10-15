@@ -77,7 +77,7 @@ namespace WorldGen.Core
                 if(source== -1||-source-2>=t.Posts.Length)return false;var post=t.Posts[-source-2];
                 if(post.ClosedYear>=0||a.Resolve(post.PolityId,s.History)!=polity||HistoricalCells.Polity(s,post.Cell)!=polity)return false;
                 if(post.Maritime)
-                {var hc=s.History.Cultures[s.History.Polities[polity].CultureId];if(!HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)||post.LegDistanceM>HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years)*1000)return false;}
+                {var hc=s.History.Cultures[s.History.Polities[polity].CultureId];if(!HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)||post.LegDistanceM>HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years,ColonialHistory(s))*1000)return false;}
                 source=post.ParentSource;
             }
             return false;

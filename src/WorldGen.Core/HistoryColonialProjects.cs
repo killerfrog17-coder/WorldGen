@@ -27,7 +27,7 @@ namespace WorldGen.Core
                     options.Length>0?options[(int)(HistoryRoll("colonial-explore-route-"+k,polity,s.Years)*options.Length)].B:-1;
                 if(to<0||to==region||developmentCoast[to]<0)continue;int cell=developmentCoast[to];
                 double distance=D.Angle(World.Surface.Cells[source].Position,World.Surface.Cells[cell].Position)*World.Recipe.RadiusKm*1000;
-                if(distance>HistoricalTechnicalMigration.SeaRangeM(hc,s.Years)||!DiffusionSeaLane(source,cell))continue;
+                if(distance>HistoricalTechnicalMigration.SeaRangeM(hc,s.Years,true)||!DiffusionSeaLane(source,cell))continue;
                 int owner=HistoricalCells.Polity(s,cell);if(owner>=0&&HistoricalImperialHierarchy.Sovereign(s,owner)==HistoricalImperialHierarchy.Sovereign(s,polity))continue;
                 double yield=ProvincialPhysicalYield(s,p.CultureId,cell),opportunity=.2+Math.Min(2,yield*4)+(World.Landmass[source]!=World.Landmass[cell]?1:.25);
                 opportunity*=.75+.5*HistoryRoll("colonial-route-preference-"+k,polity,s.Years);

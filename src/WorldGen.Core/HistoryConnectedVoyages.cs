@@ -76,7 +76,7 @@ namespace WorldGen.Core
             }
             if(culture<0||residents<250||developmentVoyages[region].Length==0)return;
             var hc=h.Cultures[culture];bool sailing=HistoricalTechnologies.Has(hc,HistoricalTechnology.Sailing);if(!sailing)return;
-            double range=HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years);var options=developmentVoyages[region];
+            double range=HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years,ColonialHistory(s));var options=developmentVoyages[region];
             int offset=(int)(HistoryRoll("development-expedition",region,s.Years)*options.Length);
             for(int trial=0;trial<Math.Min(4,options.Length);trial++)
             {

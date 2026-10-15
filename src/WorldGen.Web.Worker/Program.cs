@@ -43,7 +43,10 @@ public static partial class WorkerApi
         if(command=="stepYears")world.Prehistory=humans.SetStepYears(world.Prehistory,value);
         if(command=="autoStep")world.Prehistory=humans.SetStepYears(world.Prehistory,100,true);
         if(command=="years")world.Prehistory=humans.AdvanceYears(world.Prehistory,value);
-        if(clock||command=="nextEvent")world.Prehistory=humans.UpgradeScheduling(world.Prehistory);
+        // Current aggregate timelines are already prepared (the upgrader also
+        // short-circuits them). Keep legacy scheduling upgrades explicitly in
+        // setup; initial private-session validation still happens exactly once.
+        if((clock||command=="nextEvent")&&world.Prehistory.Timeline==null)world.Prehistory=humans.UpgradeScheduling(world.Prehistory);
         if(clock)
         {
             if(humanSession==null||!ReferenceEquals(humanSession.LastSnapshot,world.Prehistory))humanSession=new SimulationSession(humans,world.Prehistory);world.Prehistory=humanSession.AdvanceSeconds((long)rawValue,command=="timeBatch"?SimulationClockView.FastMaximumEvents:1,maximumGlobalWork:command=="timeBatch"?SimulationClockView.FastMaximumGlobalWork:int.MaxValue);

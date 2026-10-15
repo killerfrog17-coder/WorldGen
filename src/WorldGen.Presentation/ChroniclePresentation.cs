@@ -50,7 +50,7 @@ namespace WorldGen.Presentation
                     return new[]{e.PolityId,e.OtherPolityId}.Any(id=>id>=0&&id<h.Polities.Length&&Math.Max(h.Polities[id].Population,h.Dynamics?.States.Length>id?h.Dynamics.States[id].PeakPopulation:0)>=Math.Max(2500,global/100));
                 case "war":case "alliance":case "conquest":case "capital-moved":case "secession":
                     return new[]{e.PolityId,e.OtherPolityId}.Any(id=>id>=0&&id<h.Polities.Length&&h.Polities[id].Population>=Math.Max(2500,global/100));
-                case "epidemic":return false;
+                case "epidemic":case "charted-coast":return false;
                 case "harvest-shock":return false;
                 case "food-shortage":case "major-epidemic":
                     return e.SettlementId>=0&&e.SettlementId<state.Society.Settlements.Length&&state.Society.Settlements[e.SettlementId].Population>=Math.Max(5000,global/500);

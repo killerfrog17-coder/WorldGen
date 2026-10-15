@@ -23,7 +23,7 @@ namespace WorldGen.Core
             var hc=s.History.Cultures[culture];
             if(!HistoricalTechnologies.Has(hc,HistoricalTechnology.Sailing)||!DiffusionShore(first)||!DiffusionShore(second))return double.MaxValue;
             double km=D.Angle(World.Surface.Cells[first].Position,World.Surface.Cells[second].Position)*World.Recipe.RadiusKm;
-            if(km>HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years)||!DiffusionSeaLane(first,second))return double.MaxValue;
+            if(km>HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years,ColonialHistory(s))||!DiffusionSeaLane(first,second))return double.MaxValue;
             // A real coastal sailing route has loading/port overhead but lower
             // bulk-transport cost than carrying supplies over the same distance
             // inland. This is a logistics proxy, not a ship or ORBIS replica.

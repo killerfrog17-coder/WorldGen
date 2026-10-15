@@ -16,7 +16,7 @@ namespace WorldGen.Core
             foreach(var group in ports.GroupBy(t=>t.CultureId).OrderBy(g=>g.Key))
             {
                 var hc=h.Cultures[group.Key];if(!HistoricalTechnologies.Has(hc,HistoricalTechnology.OceanNavigation))continue;
-                int limit=HistoricalModernVoyageEffects.RangeM(hc,s.Years);
+                int limit=HistoricalModernVoyageEffects.RangeM(hc,s.Years,ColonialHistory(s));
                 foreach(var port in group.OrderByDescending(t=>t.Population).ThenBy(t=>t.Id).Take(3))
                 {
                     token.ThrowIfCancellationRequested();int attempts=0,detours=0;

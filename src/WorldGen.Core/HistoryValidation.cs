@@ -43,7 +43,7 @@ namespace WorldGen.Core
                     if(v.DepartureTownId>=0)Require(society.Settlements[v.DepartureTownId].FoundedYear<=v.Year,"ocean departure depot provenance");
                     Require(v.ArrivalFood>=0&&v.ArrivalFood<=v.Migrants&&(v.ArrivalFood==0||ModernHistory(s)&&v.DepartureTownId>=0),"ocean arrival reserve ledger");
                     Require(v.SailingDistanceM==0||ModernHistory(s)&&v.SailingDistanceM>=v.DistanceM,"ocean sailing distance");
-                    if(ModernHistory(s))Require(Math.Max(v.DistanceM,v.SailingDistanceM)<=HistoricalModernVoyageEffects.RangeM(h.Cultures[v.SourceCulture],v.Year)&&v.Migrants<=149*HistoricalModernVoyageEffects.FounderScale(h.Cultures[v.SourceCulture],v.Year),"ocean vessel capability at departure");
+                    if(ModernHistory(s))Require(Math.Max(v.DistanceM,v.SailingDistanceM)<=HistoricalModernVoyageEffects.RangeM(h.Cultures[v.SourceCulture],v.Year,ColonialHistory(s))&&v.Migrants<=149*HistoricalModernVoyageEffects.FounderScale(h.Cultures[v.SourceCulture],v.Year),"ocean vessel capability at departure");
                 }
                 foreach(var voyage in h.OceanSettlements){var child=society.Cultures[voyage.DestinationCulture];Require(child.FoundedYear==voyage.Year&&child.OriginCell==voyage.ToCell&&h.Cultures[child.Id].ParentCultureId==voyage.SourceCulture&&h.Cultures[voyage.SourceCulture].Technology[(int)HistoricalTechnology.Navigation]>0&&h.Cultures[voyage.SourceCulture].Technology[(int)HistoricalTechnology.Navigation]<=voyage.Year+1&&Math.Abs(voyage.DistanceM-D.Angle(World.Surface.Cells[voyage.FromCell].Position,World.Surface.Cells[voyage.ToCell].Position)*World.Recipe.RadiusKm*1000)<=1,"ocean settlement provenance");}
             }

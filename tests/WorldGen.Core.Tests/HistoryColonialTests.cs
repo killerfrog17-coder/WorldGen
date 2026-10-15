@@ -16,6 +16,12 @@ public static class HistoryColonialTests
         check((double)Call("TechnicalAgriculturalWorkforce",farmProbe,0)==995000,"Remote agricultural residents count toward deployed farming demand even without city catchment farmers");
         farmProbe.History.Version=Prehistory.TechnicalHistoryVersion;
         check((double)Call("TechnicalAgriculturalWorkforce",farmProbe,0)==0,"The corrected demand does not silently rewrite older technical rules");
+        var technical=s.History.Cultures[0].Technical;var technicalCopy=technical.Copy();
+        check(StateHash.Compute(technical)==StateHash.Compute(technicalCopy)&&typeof(HistoricalTechnicalPractice).GetFields().Where(f=>f.FieldType.IsArray).All(f=>!ReferenceEquals(f.GetValue(technical),f.GetValue(technicalCopy))),"Allocation-efficient technical copying preserves all values and detaches every public array");
+        var sailor=s.History.Cultures[0].Copy();Array.Clear(sailor.Technical.Deployment);Array.Clear(sailor.Technical.Levels);int navigation=(int)HistoricalTechnology.OceanNavigation;sailor.Technical.Deployment[navigation]=1000;sailor.Technical.Levels[navigation]=1;
+        check(HistoricalTechnicalMigration.SeaRangeM(sailor,s.Years)==2750000&&HistoricalTechnicalMigration.SeaRangeM(sailor,s.Years,true)==5000000,"Provisioned blue-water craft can cross an ocean without waiting for industrial engines; old range rules remain unchanged");
+        sailor.Technical.Deployment[navigation]=0;sailor.Technical.Levels[navigation]=0;
+        check(HistoricalTechnicalMigration.SeaRangeM(sailor,s.Years)==HistoricalTechnicalMigration.SeaRangeM(sailor,s.Years,true),"The ocean provisioning correction does not give primitive voyagers ocean-going ships");
         var early=s.Copy();early.Years=10000;var middle=s.Copy();middle.Years=115000;var late=s.Copy();late.Years=170000;
         double start=(double)Call("CulturalRecognitionMaturity",early,0)!,peak=(double)Call("CulturalRecognitionMaturity",middle,0)!,end=(double)Call("CulturalRecognitionMaturity",late,0)!;
         check(start<.001&&peak>start&&end>.97,"Recognizable traditions have a soft late-prehistory opportunity window, not an early universal unlock");

@@ -47,7 +47,7 @@ namespace WorldGen.Core
             }
             int destination=AggregateCoastalSite(patch,s.Years);if(destination<0)return;
             double km=D.Angle(World.Surface.Cells[town.Cell].Position,World.Surface.Cells[destination].Position)*World.Recipe.RadiusKm;
-            int range=HistoricalModernVoyageEffects.RangeM(hc,s.Years);if(km*1000>range||km<70||!AggregateSeaLane(town.Cell,destination))return;
+            int range=HistoricalModernVoyageEffects.RangeM(hc,s.Years,ColonialHistory(s));if(km*1000>range||km<70||!AggregateSeaLane(town.Cell,destination))return;
             int local=HistoricalCells.Culture(s,destination);int destinationTown=a.TownAt[destination];
             if(LivingHistory(s))
             {

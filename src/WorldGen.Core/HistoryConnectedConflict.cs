@@ -78,7 +78,7 @@ namespace WorldGen.Core
                         var destination=s.Society.Settlements[peer];if(a.Resolve(destination.PolityId,h)!=loser||a.Living.Cities[peer].AbandonedYear>=0)continue;
                         int from=s.Society.Settlements[town].Cell;double km=D.Angle(World.Surface.Cells[from].Position,World.Surface.Cells[destination.Cell].Position)*World.Recipe.RadiusKm;
                         bool land=World.Landmass[from]==World.Landmass[destination.Cell]&&km<a.Polities[winner].ReachKm*1.5;
-                        bool sea=HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)&&km<HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years)&&AggregateSeaLane(from,destination.Cell);
+                        bool sea=HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)&&km<HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years,ColonialHistory(s))&&AggregateSeaLane(from,destination.Cell);
                         if(land||sea){target=destination.Cell;break;}
                     }
                 }

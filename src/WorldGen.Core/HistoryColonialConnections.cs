@@ -23,7 +23,7 @@ namespace WorldGen.Core
     {
         public HistoricalLocalBag Titles=new HistoricalLocalBag();
         public int LastExpeditionYear,Sponsor=-1;
-        public HistoricalColonialGovernment Copy()=>new HistoricalColonialGovernment{Titles=Titles.Copy(),LastExpeditionYear=LastExpeditionYear,Sponsor=Sponsor};
+        public HistoricalColonialGovernment Copy(){var c=(HistoricalColonialGovernment)MemberwiseClone();c.Titles=Titles.Copy();return c;}
     }
     [Serializable] public sealed class HistoricalRecognizedTitle
     {

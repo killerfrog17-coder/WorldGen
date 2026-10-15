@@ -46,7 +46,7 @@ namespace WorldGen.Core
                 }
                 if(culture<0||residents<250)continue;
                 var hc=h.Cultures[culture];if(!HistoricalTechnologies.Has(hc,HistoricalTechnology.Sailing))continue;
-                double range=HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years);if(route.DistanceM>range*1000)continue;
+                double range=HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years,ColonialHistory(s));if(route.DistanceM>range*1000)continue;
                 int to=route.B,destinationState=HistoricalCells.Polity(s,route.CellB);if(sourceState>=0&&sourceState==destinationState)continue;
                 double ships=HistoricalTechnologies.Has(hc,HistoricalTechnology.OceanNavigation)?1:HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)?.35:.08;
                 double chance=ships*Math.Exp(-route.DistanceM/(range*700))*Math.Min(3,Math.Sqrt(residents/1000.0));

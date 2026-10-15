@@ -35,13 +35,21 @@ namespace WorldGen.Core
             long annual=Math.Max(80,(long)(80+route.DistanceM/18000.0)),setup=annual*(ocean?60:100);
             if(p.Treasury<setup+annual*40||finances.Receipts-finances.ServiceCost<annual*2)return;
             int recruitment=source>=0?source:p.CapitalId;var home=s.Society.Settlements[recruitment];var catchment=a.Cities[recruitment];
-            long migrants=Math.Min(250,catchment.Rural/30);if(migrants<80)return;
+            bool remoteRecruitment=ColonialHistory(s)&&finances.Remote>=2400&&(source<0||catchment.Rural<2400);
+            long migrants=Math.Min(250,remoteRecruitment?finances.Remote/300:catchment.Rural/30);if(migrants<80)return;
             double opportunity=.3+.7*D.Clamp(ProvincialPhysicalYield(s,culture,target)*3);
             if(HistoryRoll("territorial-sea-charter-"+target,polity,s.Years)>1-Math.Exp(-elapsed*(ocean?.025:.005)*opportunity))return;
             // Transfer actual households. The global account loses and regains
             // precisely the same migrants; a charter cannot create colonists.
-            ChangeAggregateCityPopulation(s,recruitment,home.Population,catchment.Suburban,catchment.Rural-migrants);
-            a.TotalPopulation+=migrants;a.Polities[polity].Remote+=migrants;p.Population+=migrants;s.Society.Cultures[home.CultureId].Population+=migrants;
+            if(!remoteRecruitment)
+            {
+                ChangeAggregateCityPopulation(s,recruitment,home.Population,catchment.Suburban,catchment.Rural-migrants);
+                a.TotalPopulation+=migrants;a.Polities[polity].Remote+=migrants;p.Population+=migrants;s.Society.Cultures[home.CultureId].Population+=migrants;
+            }
+            // A funded provincial harbor recruits from its already accounted
+            // rural households, not exclusively the distant capital's farms.
+            // Both departure and arrival are in this state's remote ledger:
+            // moving them changes neither total population nor local identity.
             int id=territory.Posts.Length;double parentEffort=source>=0?LivingTravelKm(s,s.Society.Settlements[p.CapitalId].Cell,TerritorialNodeCell(s,source),p.CultureId):territory.Posts[-source-2].MessageEffortKm;
             var post=new HistoricalAdministrativePost{Id=id,PolityId=polity,Cell=target,ParentSource=source,Depth=depth,FoundedYear=s.Years,AnnualCost=annual,MessageEffortKm=D.Q(parentEffort+distance,1000000),AutonomyMilli=ocean?700:850,Maritime=true,Founders=(int)migrants,LegDistanceM=route.DistanceM,Name=HistoricalName("overseas-province",unchecked(target+id*7919))+" Charter"};
             territory.Posts=territory.Posts.Concat(new[]{post}).ToArray();territory.PostAt=territory.PostAt.With(target,id);government.AdministrativePosts.Add(id);government.AdministrativePostCost+=annual;p.Treasury-=setup;

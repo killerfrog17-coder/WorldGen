@@ -145,7 +145,7 @@ namespace WorldGen.Core
                 foreach(int peer in a.Cities[origin].Neighbors)
                 {
                     var destination=s.Society.Settlements[peer];if(a.Resolve(destination.PolityId,h)!=loser)continue;int from=s.Society.Settlements[origin].Cell;double km=D.Angle(World.Surface.Cells[from].Position,World.Surface.Cells[destination.Cell].Position)*World.Recipe.RadiusKm;
-                    if(km<=a.Polities[winner].ReachKm*3||HistoricalTechnologies.Has(h.Cultures[h.Polities[winner].CultureId],HistoricalTechnology.Navigation)&&km*1000<=HistoricalModernVoyageEffects.RangeM(h.Cultures[h.Polities[winner].CultureId],s.Years)&&AggregateSeaLane(from,destination.Cell)){target=destination.Cell;break;}
+                    if(km<=a.Polities[winner].ReachKm*3||HistoricalTechnologies.Has(h.Cultures[h.Polities[winner].CultureId],HistoricalTechnology.Navigation)&&km*1000<=HistoricalModernVoyageEffects.RangeM(h.Cultures[h.Polities[winner].CultureId],s.Years,ColonialHistory(s))&&AggregateSeaLane(from,destination.Cell)){target=destination.Cell;break;}
                 }
             }
             if(target>=0)

@@ -10,7 +10,12 @@ namespace WorldGen.Core
         public long[] Progress=new long[37],Learning=new long[37];
         public long LastResearchBudget,LastLearningBudget,LastResearchSpent,LastLearningSpent;
         public int LastYear;
-        public HistoricalTechnicalPractice Copy()=>new HistoricalTechnicalPractice{Levels=(int[])Levels.Clone(),LevelYear=(int[])LevelYear.Clone(),InstalledYear=(int[])InstalledYear.Clone(),Deployment=(int[])Deployment.Clone(),Allocation=(int[])Allocation.Clone(),Offers=(int[])Offers.Clone(),OfferYear=(int[])OfferYear.Clone(),Sources=(int[])Sources.Clone(),Progress=(long[])Progress.Clone(),Learning=(long[])Learning.Clone(),LastResearchBudget=LastResearchBudget,LastLearningBudget=LastLearningBudget,LastResearchSpent=LastResearchSpent,LastLearningSpent=LastLearningSpent,LastYear=LastYear};
+        public HistoricalTechnicalPractice Copy()
+        {
+            // Do not allocate ten default arrays only to immediately discard
+            // them in an object initializer during every checkpoint copy.
+            var c=(HistoricalTechnicalPractice)MemberwiseClone();c.Levels=(int[])Levels.Clone();c.LevelYear=(int[])LevelYear.Clone();c.InstalledYear=(int[])InstalledYear.Clone();c.Deployment=(int[])Deployment.Clone();c.Allocation=(int[])Allocation.Clone();c.Offers=(int[])Offers.Clone();c.OfferYear=(int[])OfferYear.Clone();c.Sources=(int[])Sources.Clone();c.Progress=(long[])Progress.Clone();c.Learning=(long[])Learning.Clone();return c;
+        }
     }
     public readonly struct HistoricalTechnicalRequirement
     {

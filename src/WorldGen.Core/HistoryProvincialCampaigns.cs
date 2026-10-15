@@ -33,7 +33,7 @@ namespace WorldGen.Core
                     var town=s.Society.Settlements[peer];if(a.Resolve(town.PolityId,s.History)!=defender||a.Living.Cities[peer].AbandonedYear>=0)continue;
                     double km=LivingTravelKm(s,from,town.Cell,s.History.Polities[attacker].CultureId);
                     bool land=World.Landmass[from]==World.Landmass[town.Cell]&&km<250*HistoricalModernEffects.LandTransport(hc,s.Years);
-                    bool sea=HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)&&km<HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years)&&AggregateSeaLane(from,town.Cell);
+                    bool sea=HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)&&km<HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years,ColonialHistory(s))&&AggregateSeaLane(from,town.Cell);
                     if(land||sea)return town.Cell;
                 }
             }
@@ -50,7 +50,7 @@ namespace WorldGen.Core
             supply=best;if(best<0)return .01;
             var town=s.Society.Settlements[best];var cityAccount=a.Cities[best];
             double range=HistoricalProvincialEffects.LocalServiceKm(hc,s.Years,h.Dynamics.States[polity].PublicWorks)*2;
-            if(HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)&&AggregateSeaLane(town.Cell,front))range=Math.Max(range,HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years));
+            if(HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)&&AggregateSeaLane(town.Cell,front))range=Math.Max(range,HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years,ColonialHistory(s)));
             double provision=D.Clamp(.25+town.FoodReserve/Math.Max(1.0,town.Population));
             double forces=Math.Min(p.Army,p.Army*.15+(town.Population*.025+cityAccount.Rural*.015)*Math.Sqrt(HistoricalModernEffects.LandTransport(hc,s.Years)));
             if(TechnicalHistory(s))
