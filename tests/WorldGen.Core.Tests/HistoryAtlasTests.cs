@@ -58,6 +58,10 @@ public static class HistoryAtlasTests
         foreach(string kind in new[]{"state","city","people","religion","ruler"})foreach(var link in HistoryAtlas.Directory(s,kind,past:true))check(HistoryAtlas.Read(s,link.Kind,link.Id).Title==link.Name,"Directory entries resolve to matching profiles");
         check(HistoryAtlas.ProfilesAt(s,0).Select(l=>l.Kind).SequenceEqual(new[]{"state","city","people","religion"}),"Map inspection links separately to its court, city, people, and belief");
         check(HistoryAtlas.ProfilesAt(s,-1).Length==0,"No location has no accidental historical links");
+        var foragers=s.Copy();foragers.Society.CellCulture[1]=-1;foragers.History.CellPolity[1]=-1;
+        foragers.History.Archive.Add(new HistoricalEvent{Id=foragers.History.Archive.Count,Year=1800,Cell=1,ReligionId=0,Text="Traveling teachers share the river tradition."});
+        string faithInspection=SocietyView.Describe(foragers,1,HistoryOverlay.Religions);
+        check(faithInspection.Contains("River tradition")&&faithInspection.Contains("LOCAL CHRONICLE")&&faithInspection.Contains("Traveling teachers"),"Religious inspection works among followers without a named culture or state");
         var paged=s.Copy();paged.History.Archive=Enumerable.Range(0,97).Select(i=>new HistoricalEvent{Id=i,Year=1000+i,PolityId=0,SettlementId=0,Cell=0,Kind=i%2==0?"great-conquest":"battle",Text="Episode "+i}).ToList();
         string beforePaging=paged.ComputeHash();var first=HistoryAtlas.Timeline(paged,"state",0);var second=HistoryAtlas.Timeline(paged,"state",0,40);
         check(first.Total==49&&first.Records.Length==40&&second.Records.Length==9,"Milestone pages expose older history instead of truncating it permanently");

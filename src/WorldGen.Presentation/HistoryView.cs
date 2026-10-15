@@ -74,7 +74,15 @@ namespace WorldGen.Presentation
         }
         public static string HistoricalDescription(PrehistoryState s,int cell,HistoryOverlay overlay,string fallback)
         {
-            var h=s.History;var culture=Culture(s,cell);if(h!=null&&culture==null&&cell>=0&&cell<HistoricalCells.Count(s)&&HistoricalCells.Polity(s,cell)>=0)culture=s.Society.Cultures[h.Polities[HistoricalCells.Polity(s,cell)].CultureId];if(h==null||culture==null)return fallback;
+            var h=s.History;var culture=Culture(s,cell);if(h!=null&&culture==null&&cell>=0&&cell<HistoricalCells.Count(s)&&HistoricalCells.Polity(s,cell)>=0)culture=s.Society.Cultures[h.Polities[HistoricalCells.Polity(s,cell)].CultureId];if(h==null)return fallback;
+            if(culture==null)
+            {
+                int localFaith=cell>=0&&cell<HistoricalCells.Count(s)?HistoricalCells.Religion(s,cell):-1;
+                if(overlay!=HistoryOverlay.Religions||localFaith<0)return fallback;
+                var faithRecord=h.Religions[localFaith];var faithText=new StringBuilder().AppendLine(faithRecord.Name).AppendLine(faithRecord.Tradition).AppendLine("Belief: "+faithRecord.Ethos).AppendLine("Observance: "+faithRecord.Ritual).AppendLine("Followers here need not belong to a named regional culture or state.").AppendLine().AppendLine("LOCAL CHRONICLE");
+                foreach(var record in RecentEvents(h,e=>e.Cell==cell||e.ReligionId==localFaith).Reverse())faithText.AppendLine($"{SimulationClockView.Year(s,record.Year)}: {record.Text}");
+                return faithText.ToString().TrimEnd();
+            }
             if(overlay==HistoryOverlay.Civilizations&&HistoricalCells.Polity(s,cell)>=0)culture=s.Society.Cultures[h.Polities[HistoricalImperialHierarchy.Sovereign(s,HistoricalCells.Polity(s,cell))].CultureId];
             int id=HistoricalCells.Polity(s,cell),religion=HistoricalCells.Religion(s,cell);var hc=h.Cultures[culture.Id];
             int localId=id;if(id>=0&&(overlay==HistoryOverlay.States||overlay==HistoryOverlay.Civilizations))id=HistoricalImperialHierarchy.Sovereign(s,id);

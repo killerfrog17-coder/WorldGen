@@ -13,7 +13,9 @@ public sealed partial class WorldGenRuntime
         public double MaximumYearMilliseconds,MinimumRollingYearsPerSecond;
         public int FirstMaximumTechnologyYear=-1,RequestedTailYears,FinalYear,FinalTowns,FinalStates;
         public string InputHash="",FinalHash="";public long InitialSeconds,FinalSeconds;
+        public int MaximumYear,Collections0,Collections1,Collections2;
     }
+    sealed class PlaybackStageCost {public long Count;public double Total,Maximum;public int Year,Items;}
     System.Collections.IEnumerator CheckHistoricalPlayback()
     {
         string output=Argument("--worldgen-output","");System.IO.Directory.CreateDirectory(output);double deadline=Time.realtimeSinceStartupAsDouble+300;
@@ -26,7 +28,16 @@ public sealed partial class WorldGenRuntime
         // simulated year. Playback below still includes every publication copy.
         var prepare=System.Threading.Tasks.Task.Run(()=>new SimulationSession(humans,world.Prehistory));while(!prepare.IsCompleted)yield return null;
         if(prepare.IsFaulted){Debug.LogException(prepare.Exception);Application.Quit(1);yield break;}humanSession=prepare.Result;
-        var yearCosts=new Dictionary<int,double>();humans.YearWorkObserver=(year,ms)=>{lock(yearCosts)yearCosts[year]=(yearCosts.TryGetValue(year,out double previous)?previous:0)+ms;};
+        var yearCosts=new Dictionary<int,double>();int observedYear=world.Prehistory.Years;var stageCosts=new Dictionary<string,PlaybackStageCost>();var spikes=new List<string>();
+        int gc0=GC.CollectionCount(0),gc1=GC.CollectionCount(1),gc2=GC.CollectionCount(2);
+        humans.YearWorkObserver=(year,ms)=>{observedYear=year;lock(yearCosts)yearCosts[year]=(yearCosts.TryGetValue(year,out double previous)?previous:0)+ms;};
+        humans.WorkObserver=metric=>
+        {
+            if(!stageCosts.TryGetValue(metric.Stage,out var cost))stageCosts[metric.Stage]=cost=new PlaybackStageCost();
+            cost.Count++;cost.Total+=metric.Milliseconds;
+            if(metric.Milliseconds>cost.Maximum){cost.Maximum=metric.Milliseconds;cost.Year=observedYear;cost.Items=metric.Items;}
+            if(metric.Milliseconds>=25&&spikes.Count<4096)spikes.Add(observedYear+","+metric.Stage.Replace(',',';')+","+metric.Items+","+metric.Milliseconds.ToString("F6",System.Globalization.CultureInfo.InvariantCulture)+","+GC.CollectionCount(0)+","+GC.CollectionCount(1)+","+GC.CollectionCount(2));
+        };
         humanPlayback.SetRate(1000*SimulationTime.Year);SyncRateInput();humanPlaying=true;
         double duration=double.Parse(Argument("--worldgen-duration","45"),System.Globalization.CultureInfo.InvariantCulture),start=Time.realtimeSinceStartupAsDouble,last=start;long seconds=SimulationTime.Seconds(world.Prehistory);var state=world.Prehistory;
         int tail=int.Parse(Argument("--worldgen-history-tail","0"));long target=seconds+tail*SimulationTime.Year;
@@ -47,8 +58,11 @@ public sealed partial class WorldGenRuntime
         while(humanStep!=null||humanPaletteJob!=null||humanPaletteReady!=null||humanPalettePending)yield return null;
         evidence.MaximumYearMilliseconds=yearCosts.Values.DefaultIfEmpty(0).Max();evidence.FirstMaximumTechnologyYear=world.Prehistory.History.Aggregates?.FirstMaximumTechnologyYear??-1;evidence.FinalYear=world.Prehistory.Years;evidence.FinalTowns=world.Prehistory.Society.Settlements.Length;evidence.FinalStates=world.Prehistory.History.Polities.Count(p=>p.EndedYear<0);
         evidence.FinalHash=world.Prehistory.Hash;evidence.FinalSeconds=SimulationTime.Seconds(world.Prehistory);
+        evidence.MaximumYear=yearCosts.OrderByDescending(p=>p.Value).Select(p=>p.Key).FirstOrDefault();evidence.Collections0=GC.CollectionCount(0)-gc0;evidence.Collections1=GC.CollectionCount(1)-gc1;evidence.Collections2=GC.CollectionCount(2)-gc2;
         evidence.AcceptancePassed=evidence.PublishedCheckpoints>0&&evidence.SelectionStayedFolded&&evidence.Error.Length==0&&(tail==0||evidence.Cells==200000&&evidence.SimulatedYears>=tail&&evidence.FirstMaximumTechnologyYear>=0&&evidence.FinalYear>=evidence.FirstMaximumTechnologyYear+1000&&evidence.AchievedYearsPerSecond>=3&&evidence.MinimumRollingYearsPerSecond>=3&&evidence.MaximumYearMilliseconds<=1000);
         System.IO.File.WriteAllLines(System.IO.Path.Combine(output,"year-work.csv"),new[]{"year,milliseconds"}.Concat(yearCosts.OrderBy(p=>p.Key).Select(p=>p.Key+","+p.Value.ToString("F6",System.Globalization.CultureInfo.InvariantCulture))));
+        System.IO.File.WriteAllLines(System.IO.Path.Combine(output,"work-stages.csv"),new[]{"stage,count,totalMilliseconds,maximumMilliseconds,maximumYear,maximumItems"}.Concat(stageCosts.OrderByDescending(p=>p.Value.Total).Select(p=>p.Key.Replace(',',';')+","+p.Value.Count+","+p.Value.Total.ToString("F6",System.Globalization.CultureInfo.InvariantCulture)+","+p.Value.Maximum.ToString("F6",System.Globalization.CultureInfo.InvariantCulture)+","+p.Value.Year+","+p.Value.Items)));
+        System.IO.File.WriteAllLines(System.IO.Path.Combine(output,"work-spikes.csv"),new[]{"year,stage,items,milliseconds,gc0,gc1,gc2"}.Concat(spikes));
         System.IO.File.WriteAllText(System.IO.Path.Combine(output,"playback.json"),JsonUtility.ToJson(evidence,true));
         CaptureHumanMap(System.IO.Path.Combine(output,"playback-map.png"));
         ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(output,"playback-hud.png"));for(int i=0;i<8;i++)yield return null;

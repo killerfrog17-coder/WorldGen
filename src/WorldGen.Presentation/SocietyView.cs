@@ -59,7 +59,7 @@ public static CultureIdentity? Culture(PrehistoryState? s,int cell)=>s?.Society!
         public static string Describe(PrehistoryState s,int cell,HistoryOverlay overlay=HistoryOverlay.Civilizations)
         {
             if(s==null)return "";
-            var c=Culture(s,cell);if(c==null&&s.History!=null&&cell>=0&&cell<HistoricalCells.Count(s)&&HistoricalCells.Polity(s,cell)>=0)c=s.Society.Cultures[s.History.Polities[HistoricalCells.Polity(s,cell)].CultureId];if(c==null)return "";var towns=s.Society.Settlements.Where(t=>t.CultureId==c.Id).ToArray();
+            var c=Culture(s,cell);if(c==null&&s.History!=null&&cell>=0&&cell<HistoricalCells.Count(s)&&HistoricalCells.Polity(s,cell)>=0)c=s.Society.Cultures[s.History.Polities[HistoricalCells.Polity(s,cell)].CultureId];if(c==null)return s.History!=null?HistoricalDescription(s,cell,overlay,""):"";var towns=s.Society.Settlements.Where(t=>t.CultureId==c.Id).ToArray();
             string text=$"{c.Name}\n{Stage(c.Stage)}\n{c.Population:N0} people · {c.AreaKm2:N0} km²\n{c.Subsistence}\nLocal resources: {c.Resources}\n{towns.Length} settlements · {c.Contacts.Length} cultural contacts";
             var town=towns.FirstOrDefault(t=>t.Cell==cell);if(town!=null)text+=$"\n\n{town.Name} · {town.Government}\n{town.Population:N0} residents\nFood reserve: {town.FoodReserve:N0} person-years\nHealth {town.Health/10}% · stability {town.Stability/10}%";
             if(s.History!=null)text=HistoricalDescription(s,cell,overlay,text);

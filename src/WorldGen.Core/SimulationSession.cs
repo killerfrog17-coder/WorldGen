@@ -29,10 +29,9 @@ namespace WorldGen.Core
         {
             var copy=source.Copy();
             copy.DomainToken=source.DomainToken;
-            // Ordinary engine steps share append-only event records. Public
-            // publications must not expose those mutable record objects to the
-            // private trusted state, even though normal viewers only read them.
-            if(copy.History!=null)copy.History.Archive=source.History.Archive.Select(e=>e.Copy()).ToList();
+            // The archive fork isolates records on first public access. Frozen
+            // pages can be shared without exposing mutable private records or
+            // cloning the entire lifetime chronicle for each publication.
             if(copy.Society!=null)copy.Society.Events=source.Society.Events.Select(e=>new ChronicleEvent{Year=e.Year,Cell=e.Cell,CultureId=e.CultureId,Category=e.Category,Text=e.Text}).ToArray();
             return copy;
         }

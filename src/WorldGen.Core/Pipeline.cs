@@ -94,7 +94,7 @@ namespace WorldGen.Core
             if(!literalAggregateRecords&&t==typeof(HistoricalLivingRegion[])){HistoricalLivingRegionArrayBody(w,(HistoricalLivingRegion[])o);return;}
             if(!literalAggregateRecords&&t==typeof(HistoricalExchangeMemory[])){HistoricalExchangeMemoryArrayBody(w,(HistoricalExchangeMemory[])o);return;}
             if(!literalAggregateRecords&&t==typeof(HistoricalCampaignTheater[])){HistoricalCampaignTheaterArrayBody(w,(HistoricalCampaignTheater[])o);return;}
-            if(t==typeof(System.Collections.Generic.List<HistoricalEvent>)){HistoryArchive(w,(System.Collections.Generic.List<HistoricalEvent>)o);return;}
+            if(t==typeof(System.Collections.Generic.List<HistoricalEvent>)||t==typeof(HistoricalEventArchive)){HistoryArchive(w,(System.Collections.Generic.IEnumerable<HistoricalEvent>)o);return;}
             if(t==typeof(HistoricalLeader[])){LeaderArrayBody(w,(HistoricalLeader[])o);return;}
             // Mesh records dominate large snapshots. Preserve the canonical bytes
             // while avoiding reflection and boxing for every cell, edge and corner.
@@ -240,7 +240,7 @@ namespace WorldGen.Core
         }
         static readonly HistoryTemplate HistoryHead=new HistoryTemplate(0),HistoryMiddle=new HistoryTemplate(1),HistoryTail=new HistoryTemplate(2);
         static void PutInteger(byte[] bytes,int at,int value){bytes[at]=(byte)value;bytes[at+1]=(byte)(value>>8);bytes[at+2]=(byte)(value>>16);bytes[at+3]=(byte)(value>>24);}
-        static void HistoryArchive(BinaryWriter writer,System.Collections.Generic.List<HistoricalEvent> archive)
+        static void HistoryArchive(BinaryWriter writer,System.Collections.Generic.IEnumerable<HistoricalEvent> archive)
         {
             // Immutable templates; scratch belongs to this hash invocation. No cached
             // authoritative values or skipped integrity checks, including old saves.
@@ -255,7 +255,7 @@ namespace WorldGen.Core
             }
             writer.Write((byte)0);
         }
-        static void CompactHistoryArchive(BinaryWriter writer,System.Collections.Generic.List<HistoricalEvent> archive)
+        static void CompactHistoryArchive(BinaryWriter writer,System.Collections.Generic.IReadOnlyList<HistoricalEvent> archive)
         {
             // New history-3 contract only. Hash every value on every verification,
             // without repeating type and field names eleven times per event.
@@ -304,7 +304,7 @@ namespace WorldGen.Core
             writer.Write("LengthM"); Integer(writer, edge.LengthM); writer.Write("TriangleA"); Integer(writer, edge.TriangleA); writer.Write("TriangleB"); Integer(writer, edge.TriangleB);
         }
         static void Double(BinaryWriter writer, double value) { double quantized = D.Q(value, 1e6); writer.Write(quantized == 0 ? 0.0 : quantized); }
-        static string TypeName(Type t) => TypeNames.GetOrAdd(t, type => type.IsGenericType ? (type.GetGenericTypeDefinition().FullName ?? type.Name).Split('`')[0] + "<" + string.Join(",", type.GetGenericArguments().Select(TypeName)) + ">" : type.FullName ?? type.Name);
+        static string TypeName(Type t) => TypeNames.GetOrAdd(t, type => type==typeof(HistoricalEventArchive)?TypeName(typeof(System.Collections.Generic.List<HistoricalEvent>)):type.IsGenericType ? (type.GetGenericTypeDefinition().FullName ?? type.Name).Split('`')[0] + "<" + string.Join(",", type.GetGenericArguments().Select(TypeName)) + ">" : type.FullName ?? type.Name);
     }
     public sealed class WorldPipeline
     {

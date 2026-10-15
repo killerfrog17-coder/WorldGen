@@ -74,6 +74,12 @@ public static class HistoryTechnicalTests
         oceanCraft.Technical.Levels[oceanId]=4;
         check(earlyRange<4000000&&HistoricalModernVoyageEffects.RangeM(oceanCraft,100)>earlyRange,"Further navigation levels expand range; the first ocean craft is not an instant intercontinental fleet");
         check(WorldEraView.CultureEra(oceanCraft)<7,"Independent traditional ocean navigation does not turn a people into an early-modern industrial society");
+        var maritime=state.Copy();var maritimeCulture=maritime.Society.Cultures[culture];var maritimeHistory=maritime.History.Cultures[culture];var maritimeAccount=maritime.History.Aggregates.Cultures[culture];
+        maritimeCulture.Fishing=400;maritimeCulture.FoundedYear=maritime.Years-5000;maritimeAccount.CivilizationSince=-1;maritimeAccount.SupportedUrban=2000;maritimeHistory.Surplus=300;maritimeHistory.Technology[(int)HistoricalTechnology.Writing]=maritimeHistory.Technology[(int)HistoricalTechnology.Steel]=0;
+        check((bool)Call(engine,"AggregatePracticeSupported",maritime,culture,(int)HistoricalTechnology.OceanNavigation,false),"A provisioned maritime craft tradition can innovate without a literate state or steel industry");
+        int computing=(int)HistoricalTechnology.Computing;hc.Technology[computing]=0;t.Levels[computing]=0;t.Deployment[computing]=0;t.Offers[computing]=1;t.OfferYear[computing]=research.Years;t.Sources[computing]=state.History.Polities[client].CultureId;t.Learning[computing]=HistoricalTechnicalGraph.Cost(computing,1)/8;
+        Call(engine,"AdvanceTechnicalResearch",research,culture,40,-1,research.Society.Cultures[culture].OriginCell);
+        check(t.Levels[computing]==1&&hc.Technology[computing]>0&&t.Deployment[computing]==0,"Delivered learning can convey advanced knowledge without pretending a computer industry has been installed");
         var demand=typeof(Prehistory).GetMethod("TechnicalDemand",BindingFlags.NonPublic|BindingFlags.Static)!;
         double peace=(double)demand.Invoke(null,new object[]{16,0d,0d,0d,1d,false,1d,true})!,war=(double)demand.Invoke(null,new object[]{16,1d,1d,0d,1d,false,1d,true})!;
         check(peace==0&&war>peace,"No military threat means no free gunpowder-research incentive; war creates demand");

@@ -89,10 +89,10 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public HistoricalModernSettings Modern;
         [System.Runtime.Serialization.OptionalField] public HistoricalAggregateState Aggregates;
         // Lifetime archive: UI's 256-event feed must never erase campaign lore.
-        public List<HistoricalEvent> Archive=new List<HistoricalEvent>();
+        public HistoricalEventArchive Archive=new HistoricalEventArchive();
         public HistoryState Copy()=>CopyRecords(false);
         internal HistoryState CopyOwned()=>CopyRecords(true);
-        HistoryState CopyRecords(bool owned)=>new HistoryState{Version=Version,CellPolity=(int[])CellPolity.Clone(),CellReligion=(int[])CellReligion.Clone(),CellStage=(int[])CellStage.Clone(),CellMarket=(int[])CellMarket.Clone(),Cultures=Cultures.Select(c=>c.Copy()).ToArray(),Religions=Religions.Select(r=>r.Copy()).ToArray(),Towns=Towns.Select(t=>owned&&Aggregates?.Living?.Cities[t.Id].AbandonedYear>=0?t:t.Copy()).ToArray(),Polities=Polities.Select(p=>owned&&p.EndedYear>=0?p:p.Copy()).ToArray(),Relations=Relations.Select(r=>r.Copy()).ToArray(),Agriculture=Agriculture?.Select(a=>a.Copy()).ToArray(),Dynamics=owned?Dynamics?.CopyOwned(Polities):Dynamics?.Copy(),Faith=Faith?.Copy(),RegionalLearning=RegionalLearning?.Copy(),Administration=Administration?.Copy(),OceanSettlements=OceanSettlements?.Select(v=>v.Copy()).ToArray(),Modern=Modern?.Copy(),Aggregates=Aggregates?.Copy(),Archive=new List<HistoricalEvent>(Archive)};
+        HistoryState CopyRecords(bool owned)=>new HistoryState{Version=Version,CellPolity=(int[])CellPolity.Clone(),CellReligion=(int[])CellReligion.Clone(),CellStage=(int[])CellStage.Clone(),CellMarket=(int[])CellMarket.Clone(),Cultures=Cultures.Select(c=>c.Copy()).ToArray(),Religions=Religions.Select(r=>r.Copy()).ToArray(),Towns=Towns.Select(t=>owned&&Aggregates?.Living?.Cities[t.Id].AbandonedYear>=0?t:t.Copy()).ToArray(),Polities=Polities.Select(p=>owned&&p.EndedYear>=0?p:p.Copy()).ToArray(),Relations=Relations.Select(r=>r.Copy()).ToArray(),Agriculture=Agriculture?.Select(a=>a.Copy()).ToArray(),Dynamics=owned?Dynamics?.CopyOwned(Polities):Dynamics?.Copy(),Faith=Faith?.Copy(),RegionalLearning=RegionalLearning?.Copy(),Administration=Administration?.Copy(),OceanSettlements=OceanSettlements?.Select(v=>v.Copy()).ToArray(),Modern=Modern?.Copy(),Aggregates=Aggregates?.Copy(),Archive=Archive.Fork(!owned)};
     }
     public static class HistoricalTechnologies
     {

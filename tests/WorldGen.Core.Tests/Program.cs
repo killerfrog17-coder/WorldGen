@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--archive-only")){int count=0;HistoryArchiveTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" persistent archive assertions");return;}
 if(args.Contains("--history-resume-seconds-hash")){int at=Array.IndexOf(args,"--history-resume-seconds-hash");var w=WorldFile.Read(File.ReadAllBytes(args[at+1]));var session=new SimulationSession(new Prehistory(w),w.Prehistory);long target=long.Parse(args[at+2]);if(target>session.Seconds)session.AdvanceSeconds(target-session.Seconds,int.MaxValue);File.WriteAllText(args[at+3],session.Hash);Console.WriteLine("History resume "+session.Hash);return;}
 if(args.Contains("--technical-review")){HistoryTechnicalReview.Run(args);return;}
 if(args.Contains("--technical-only")){int count=0,at=Array.IndexOf(args,"--technical-only");HistoryTechnicalTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" leveled-technology/imperial assertions");return;}
@@ -242,6 +243,7 @@ void ContinentalSearch()
 }
 try
 {
+    HistoryArchiveTests.Run(Check);
     HashBatchTests.Run(Check);
     if (args.Contains("--ecology-review")) { EcologyTests.WriteReview(); return; }
     if (args.Contains("--ecology-only")) { EcologyTests.Run(Check); Console.WriteLine("PASS " + assertions + " ecology assertions."); return; }
