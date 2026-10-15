@@ -19,7 +19,34 @@ namespace WorldGen.Core
         }
         [DataMember] Node root;
         [DataMember] int length;
+        [IgnoreDataMember] string fingerprint;
+        [IgnoreDataMember] byte[] canonicalFingerprint;
+        [IgnoreDataMember] string canonicalFingerprintHash;
+        internal void WriteCanonicalFingerprint(BinaryWriter target)
+        {
+            string hash=Fingerprint();
+            if(canonicalFingerprint==null||!ReferenceEquals(hash,canonicalFingerprintHash))
+            {
+                using(var stream=new MemoryStream())using(var writer=new BinaryWriter(stream))
+                {writer.Write("WorldGen.Core.HistoricalCellTree");writer.Write(hash);canonicalFingerprint=stream.ToArray();canonicalFingerprintHash=hash;}
+            }
+            target.Write(canonicalFingerprint);
+        }
         public int Length=>length;
+        // Read-only bulk export for rendering/diagnostics, not actor turns.
+        // Leaf copies avoid a five-level lookup for each displayed value.
+        public void CopyTo(int[] destination,int offset=0)
+        {
+            if(destination==null||offset<0||offset>destination.Length-length)throw new ArgumentOutOfRangeException(nameof(destination));
+            for(int i=0;i<length;i++)destination[offset+i]=-1;
+            CopyValues(root,0,20,destination,offset);
+        }
+        void CopyValues(Node node,int first,int shift,int[] destination,int offset)
+        {
+            if(node==null||first>=length)return;
+            if(shift==0){Array.Copy(node.Values,0,destination,offset+first,Math.Min(32,length-first));return;}
+            for(int i=0;i<32;i++){int start=first+(i<<shift);if(start>=length)break;CopyValues(node.Children[i],start,shift-5,destination,offset);}
+        }
         public int this[int index] { get { if((uint)index>=(uint)length)throw new ArgumentOutOfRangeException(nameof(index));var node=root;for(int shift=20;shift>0;shift-=5){node=node?.Children[(index>>shift)&31];if(node==null)return -1;}return node?.Values[index&31]??-1; } }
         public HistoricalCellTree(int length){if(length<0||length>33554432)throw new ArgumentOutOfRangeException(nameof(length));this.length=length;}
         HistoricalCellTree(int length,Node root){this.length=length;this.root=root;}
@@ -42,8 +69,12 @@ namespace WorldGen.Core
         }
         public string Fingerprint(bool verify=false)
         {
-            using(var sha=SHA256.Create())using(var stream=new MemoryStream())using(var writer=new BinaryWriter(stream))
-            {writer.Write(length);writer.Write(Digest(root,sha,verify));return Hex(sha.ComputeHash(stream.ToArray()));}
+            if(!verify&&fingerprint!=null)return fingerprint;
+            // The tree and its length are immutable. Trusted publication can
+            // reuse their digest; explicit integrity verification still walks
+            // every actual node and recomputes the result, including old saves.
+            using(var sha=CanonicalSha256.Create())using(var stream=new MemoryStream())using(var writer=new BinaryWriter(stream))
+            {writer.Write(length);writer.Write(Digest(root,sha,verify));return fingerprint=Hex(sha.ComputeHash(stream.ToArray()));}
         }
         static readonly byte[] Absent=new byte[32];
         static byte[] Digest(Node node,SHA256 sha,bool verify)

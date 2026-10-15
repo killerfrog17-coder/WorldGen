@@ -15,6 +15,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalCityAggregate
     {
+        [NonSerialized] internal byte[] OwnedCanonicalRecord;
         public int Id,LastYear,LastHarvestYear,LastPoliticalYear,LastVoyageYear,ParentCity=-1;
         public long Suburban,Rural,RuralCapacity,AreaKm2,BaseUrbanCapacity;
         public int BaseFarming;
@@ -52,6 +53,8 @@ namespace WorldGen.Core
     {
         public string Version="aggregate-history-1";
         [System.Runtime.Serialization.OptionalField] public HistoricalLivingHistory Living;
+        [System.Runtime.Serialization.OptionalField] public HistoricalProvincialSupport Provinces;
+        [System.Runtime.Serialization.OptionalField] public HistoricalCommunityDynamics Communities;
         public HistoricalCellTree Cells,TownAt,Successors,LeaderDigests;
         public HistoricalFrozenAdministration PreviousAdministration;
         public HistoricalCityAggregate[] Cities=Array.Empty<HistoricalCityAggregate>();
@@ -61,7 +64,7 @@ namespace WorldGen.Core
         public int ArchiveBaseCount,LeaderBaseCount,FirstMaximumTechnologyYear=-1;
         public string ArchiveBaseHash="",LeaderBaseHash="",ArchiveHash="";
         public long TotalPopulation,TotalUrban,ProcessedLocalEvents,CellReads,CellWrites;
-        public HistoricalAggregateState Copy()=>new HistoricalAggregateState{Version=Version,Living=Living?.Copy(),Cells=Cells,TownAt=TownAt,Successors=Successors,LeaderDigests=LeaderDigests,PreviousAdministration=PreviousAdministration,Cities=Cities.Select(c=>c.Copy()).ToArray(),Cultures=Cultures.Select(c=>c.Copy()).ToArray(),Polities=Polities.Select(c=>c.Copy()).ToArray(),Regions=Regions.Select(c=>c.Copy()).ToArray(),ArchiveBaseCount=ArchiveBaseCount,LeaderBaseCount=LeaderBaseCount,ArchiveBaseHash=ArchiveBaseHash,LeaderBaseHash=LeaderBaseHash,ArchiveHash=ArchiveHash,FirstMaximumTechnologyYear=FirstMaximumTechnologyYear,TotalPopulation=TotalPopulation,TotalUrban=TotalUrban,ProcessedLocalEvents=ProcessedLocalEvents,CellReads=CellReads,CellWrites=CellWrites};
+        public HistoricalAggregateState Copy()=>new HistoricalAggregateState{Version=Version,Living=Living?.Copy(),Provinces=Provinces?.Copy(),Communities=Communities?.Copy(),Cells=Cells,TownAt=TownAt,Successors=Successors,LeaderDigests=LeaderDigests,PreviousAdministration=PreviousAdministration,Cities=Cities.Select(c=>c.Copy()).ToArray(),Cultures=Cultures.Select(c=>c.Copy()).ToArray(),Polities=Polities.Select(c=>c.Copy()).ToArray(),Regions=Regions.Select(c=>c.Copy()).ToArray(),ArchiveBaseCount=ArchiveBaseCount,LeaderBaseCount=LeaderBaseCount,ArchiveBaseHash=ArchiveBaseHash,LeaderBaseHash=LeaderBaseHash,ArchiveHash=ArchiveHash,FirstMaximumTechnologyYear=FirstMaximumTechnologyYear,TotalPopulation=TotalPopulation,TotalUrban=TotalUrban,ProcessedLocalEvents=ProcessedLocalEvents,CellReads=CellReads,CellWrites=CellWrites};
         public int Resolve(int polity,HistoryState history)
         {
             // Successions point only to higher IDs: no cycles, no terrain rewrite.

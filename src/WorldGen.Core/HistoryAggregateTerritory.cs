@@ -44,10 +44,20 @@ namespace WorldGen.Core
             var h=s.History;var a=h.Aggregates;int old=HistoricalCells.Polity(s,cell),raw=a.Cells[cell*5+1];if(old==polity)return;
             if(LivingHistory(s))raw=a.PopulationCohort(raw);
             int patch=CellPatch[cell];if(patch<0)return;var region=a.Regions[patch];long people;
-            if(raw<0){people=Math.Min(s.Population[patch],(long)(s.Population[patch]*Math.Min(1,inhabitableArea[cell]/Math.Max(1,region.AreaKm2))));s.Population[patch]-=people;}
+            double oldFraction=raw<0?0:Math.Min(1,inhabitableArea[cell]/Math.Max(1,a.Polities[raw].RemoteAreaKm2));
+            if(ProvincialHistory(s)&&raw>=0)a.Provinces.FarmPotential[raw]=Math.Max(0,a.Provinces.FarmPotential[raw]-(long)(a.Provinces.FarmPotential[raw]*oldFraction));
+            if(raw<0){double remaining=ProvincialHistory(s)?region.AreaKm2-a.Provinces.ClaimedAreaKm2[patch]:region.AreaKm2;people=Math.Min(s.Population[patch],(long)(s.Population[patch]*Math.Min(1,inhabitableArea[cell]/Math.Max(1,remaining))));s.Population[patch]-=people;}
             else {var before=a.Polities[raw];double fraction=Math.Min(1,inhabitableArea[cell]/Math.Max(1,before.RemoteAreaKm2));people=Math.Min(before.Remote,(long)(before.Remote*fraction));before.Remote-=people;before.RemoteCapacity=Math.Max(0,before.RemoteCapacity-(long)(before.RemoteCapacity*fraction));before.RemoteAreaKm2=Math.Max(0,before.RemoteAreaKm2-(long)Math.Round(inhabitableArea[cell]));if(h.Polities[raw].EndedYear<0)h.Polities[raw].Population=Math.Max(0,h.Polities[raw].Population-people);}
             if(polity>=0){a.Polities[polity].Remote+=people;a.Polities[polity].RemoteCapacity+=Math.Max(people,ruralWeight[cell]/1000);a.Polities[polity].RemoteAreaKm2+=(long)Math.Round(inhabitableArea[cell]);h.Polities[polity].Population+=people;}
             else s.Population[patch]+=people;
+            if(ProvincialHistory(s))
+            {
+                if(polity>=0)a.Provinces.FarmPotential[polity]+=ProvincialFarmPotential(s,cell,h.Polities[polity].CultureId);
+                a.Provinces.Centers=a.Provinces.Centers.With(cell,polity>=0?h.Polities[polity].CapitalId:-1);
+                if(raw<0&&polity>=0)a.Provinces.ClaimedAreaKm2[patch]+=(long)Math.Round(inhabitableArea[cell]);
+                if(raw>=0&&polity<0)a.Provinces.ClaimedAreaKm2[patch]=Math.Max(0,a.Provinces.ClaimedAreaKm2[patch]-(long)Math.Round(inhabitableArea[cell]));
+                RefreshProvincialRegionalCapacity(s,patch);
+            }
             SetAggregateLayer(s,cell,1,polity);SetAggregateLayer(s,cell,4,polity>=0?3:HistoricalCells.Culture(s,cell)>=0?1:0);
             int town=a.TownAt[cell];if(town>=0)AssignAggregateTown(s,town,polity);
         }
@@ -58,6 +68,8 @@ namespace WorldGen.Core
             if(old>=0){var p=a.Polities[old];p.Cities.Remove(id);p.CityCount=p.Cities.Count;p.Urban-=town.Population;p.Rural-=city.Rural;p.Suburban-=city.Suburban;h.Polities[old].Population=Math.Max(0,h.Polities[old].Population-residents);}
             if(polity>=0){var p=a.Polities[polity];p.Cities.Add(id);p.CityCount=p.Cities.Count;p.Urban+=town.Population;p.Rural+=city.Rural;p.Suburban+=city.Suburban;h.Polities[polity].Population+=residents;town.Government=h.Polities[polity].Government;}
             town.PolityId=polity;
+            if(CommunityHistory(s))TransferCommunityGovernment(s,id,polity);
+            if(ProvincialHistory(s))a.Provinces.Centers=a.Provinces.Centers.With(town.Cell,polity>=0?id:-1);
             if(old>=0&&h.Polities[old].CapitalId==id){var prior=a.Polities[old];if(prior.Cities.Count>0)h.Polities[old].CapitalId=prior.Cities.At(0);else EndAggregateState(s,old,"Its last administrative center was lost.");}
         }
         void EndAggregateState(PrehistoryState s,int id,string reason,int successor=-1)
@@ -70,6 +82,7 @@ namespace WorldGen.Core
             if(successor>=0){var target=a.Polities[successor];target.Remote+=account.Remote;target.RemoteCapacity+=account.RemoteCapacity;h.Polities[successor].Population+=account.Remote;h.Polities[successor].AreaKm2+=p.AreaKm2;}
             else if(account.Remote>0){account.LastYear=s.Years;ScheduleAggregate(s,RemoteProcess,id);}
             if(successor>=0){account.Remote=0;account.RemoteCapacity=0;}
+            if(ProvincialHistory(s)&&successor>=0){a.Provinces.FarmPotential[successor]+=a.Provinces.FarmPotential[id];a.Provinces.FarmPotential[id]=0;}
             int leader=h.Dynamics.States[id].LeaderId;if(leader>=0){h.Dynamics.Leaders[leader].EndedYear=s.Years;h.Dynamics.Leaders[leader].Legacy=reason;SealAggregateLeader(s,leader);}
             HistoryEvent(s,"collapse",p.Name+" loses its independent government. "+reason,s.Society.Settlements[p.CapitalId].Cell,p.CultureId,id,other:successor,category:ChronicleCategory.Politics);
         }

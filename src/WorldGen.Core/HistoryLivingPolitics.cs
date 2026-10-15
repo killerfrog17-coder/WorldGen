@@ -9,6 +9,15 @@ namespace WorldGen.Core
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var ds=h.Dynamics.States[polity];var old=h.Dynamics.Leaders[ds.LeaderId];var cycle=ds.Cycle??new HistoricalPoliticalCycle();var hc=h.Cultures[p.CultureId];
             double accountability=1-.35*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Writing,s.Years)-.30*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Printing,s.Years)-.20*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Telecommunications,s.Years);
             double disputed=.015+.16*cycle.EliteCapture/1000.0+.22*cycle.ConquestDebt/1000.0+.20*(1-p.Cohesion/1000.0)*(1-old.Administration/1000.0)+.15*p.Exhaustion/1000.0;
+            if(CommunityHistory(s))
+            {
+                var policy=a.Communities.Governments[polity];
+                // Communications alone cannot make an unrepresentative dynasty
+                // almost immune to succession disputes. Legitimate elections,
+                // however, need not refound the country on every change of leader.
+                accountability=.65+.35*(1-policy.RepresentationMilli/1000.0);
+                if(policy.RepresentationMilli>=650)disputed*=.12;
+            }
             if(HistoryRoll("living-disputed-succession",polity,s.Years)>=disputed*accountability)return false;
             int id=h.Polities.Length;var successor=p.Copy();successor.Id=id;successor.ParentId=polity;successor.FoundedYear=s.Years;successor.RulerSince=s.Years;successor.EndedYear=-1;successor.Legitimacy=550;successor.Cohesion=Math.Max(450,p.Cohesion);successor.Treasury=p.Treasury*3/4;
             bool literate=HistoricalTechnologies.Has(hc,HistoricalTechnology.Printing);successor.Name=s.Society.Settlements[p.CapitalId].Name+(literate?" Commonwealth":" Kingdom");successor.Government=literate?"Reconstituted representative government":"Successor dynasty and provincial councils";
@@ -23,6 +32,8 @@ namespace WorldGen.Core
             }
             var account=a.Polities[polity].Copy();account.Id=id;account.LastYear=s.Years;account.LastSuccession=s.Years;
             h.Polities=h.Polities.Concat(new[]{successor}).ToArray();a.Polities=a.Polities.Concat(new[]{account}).ToArray();
+            if(ProvincialHistory(s)){Array.Resize(ref a.Provinces.FarmPotential,h.Polities.Length);a.Provinces.FarmPotential[id]=a.Provinces.FarmPotential[polity];a.Provinces.FarmPotential[polity]=0;}
+            if(CommunityHistory(s))a.Communities.Governments=a.Communities.Governments.Concat(new[]{a.Communities.Governments[polity].Copy()}).ToArray();
             var next=ds.Copy();next.Id=id;next.LeaderId=-1;next.LastSuccession=s.Years;next.Cycle=cycle.Copy();next.Cycle.EliteCapture/=2;next.Cycle.ConquestDebt/=2;h.Dynamics.States=h.Dynamics.States.Concat(new[]{next}).ToArray();
             // The polity changes, not its entire population or culture. Cached
             // accounts and persistent territory roots transfer without a census.

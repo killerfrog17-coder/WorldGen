@@ -14,6 +14,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalStateDynamics
     {
+        [NonSerialized] internal byte[] OwnedCanonicalRecord;
         public int Id,LeaderId=-1,FoundationPotential,Strain,LastSuccession,PublicWorks;
         public long PeakPopulation,PeakAreaKm2;
         public string Tradition="";
@@ -23,6 +24,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalCampaign
     {
+        [NonSerialized] internal byte[] OwnedCanonicalRecord;
         public int Id,A,B,AttackerId,LeaderId,StartedYear,EndedYear=-1,LastActionYear,Conquests,Repulses,TributeRecipientId=-1;
         public long CasualtiesA,CasualtiesB,TributePaid,Spoils;
         public HistoricalWarAim Aim;
@@ -39,6 +41,7 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public HistoricalDependency[] Dependencies=Array.Empty<HistoricalDependency>();
         [System.Runtime.Serialization.OnDeserializing] void InitializeOptionalDependencies(System.Runtime.Serialization.StreamingContext context){Dependencies=Array.Empty<HistoricalDependency>();}
         public HistoricalDynamics Copy()=>new HistoricalDynamics{States=States.Select(s=>s.Copy()).ToArray(),Leaders=Leaders.Select(s=>s.Copy()).ToArray(),Campaigns=Campaigns.Select(s=>s.Copy()).ToArray(),Dependencies=Dependencies?.Select(s=>s.Copy()).ToArray()};
+        internal HistoricalDynamics CopyOwned(HistoricalPolity[] polities)=>new HistoricalDynamics{States=States.Select(s=>polities[s.Id].EndedYear>=0?s:s.Copy()).ToArray(),Leaders=Leaders.Select(s=>s.EndedYear>=0?s:s.Copy()).ToArray(),Campaigns=Campaigns.Select(s=>s.EndedYear>=0?s:s.Copy()).ToArray(),Dependencies=Dependencies?.Select(s=>s.Copy()).ToArray()};
     }
     public static class HistoricalInstitutionRequirements
     {

@@ -30,8 +30,8 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         public const string ConnectedHistoryVersion="history-19";
-        public static bool IsAggregateHistoryVersion(string version)=>version==AggregateHistoryVersion||version==LivingHistoryVersion||version==ConnectedHistoryVersion;
-        static bool ConnectedHistory(PrehistoryState s)=>s?.History?.Version==ConnectedHistoryVersion;
+        public static bool IsAggregateHistoryVersion(string version)=>version==AggregateHistoryVersion||version==LivingHistoryVersion||version==ConnectedHistoryVersion||version==RegionalHistoryVersion||version==CommunityHistoryVersion;
+        static bool ConnectedHistory(PrehistoryState s)=>s?.History?.Version==ConnectedHistoryVersion||ProvincialHistory(s);
         public static bool CanUpgradeHistory(PrehistoryState s)
         {
             string version=s?.History?.Version;
@@ -72,10 +72,12 @@ namespace WorldGen.Core
         }
         int DevelopmentTeacher(PrehistoryState s,int culture,int technology,int fallback)
         {
+            if(ProvincialHistory(s))return ProvincialTeacher(s,culture,technology);
             var c=s.Society.Cultures[culture];int best=-1,score=-1;
             foreach(int peer in c.Contacts.Concat(new[]{fallback}).Where(p=>p>=0&&p!=culture).Distinct().Take(17))
             {
                 var hc=s.History.Cultures[peer];if(technology>=hc.Technology.Length||hc.Technology[technology]<=0||hc.Technology[technology]-1>=s.Years)continue;
+                if(ProvincialHistory(s)&&!ProvincialHasOffer(s,culture,peer,technology))continue;
                 int value=hc.Technology.Count(y=>y>0);if(value>score){best=peer;score=value;}
             }
             return best;
@@ -84,7 +86,7 @@ namespace WorldGen.Core
         {
             int best=fallback;double score=LivingCropLandscape(s,culture,best,true);
             foreach(int site in s.History.Agriculture[culture].PracticeCell)
-            {double value=LivingCropLandscape(s,culture,site,true);if(value>score){best=site;score=value;}}
+            {if(site==fallback||site==best)continue;double value=LivingCropLandscape(s,culture,site,true);if(value>score){best=site;score=value;}}
             return best;
         }
         bool DevelopmentResearchNetwork(PrehistoryState s,int culture,int technology,bool water)
@@ -95,6 +97,7 @@ namespace WorldGen.Core
             foreach(int peer in c.Contacts)
             {
                 var other=h.Aggregates.Cultures[peer];if(other.CivilizationSince<0||other.SupportedCities<1)continue;
+                if(ProvincialHistory(s)&&!ProvincialRecentContact(s,culture,peer,true))continue;
                 centers+=Math.Min(2,other.SupportedCities);people+=Math.Min(50000,other.SupportedUrban)/3;if(++peers>=6)break;
             }
             int requiredCenters=technology>=27?4:technology>=20?3:2;long requiredPeople=technology>=27?100000:technology>=20?50000:15000;
@@ -109,7 +112,8 @@ namespace WorldGen.Core
             foreach(int peer in s.Society.Cultures[culture].Contacts.Concat(new[]{fallback}).Where(p=>p>=0&&p!=culture).Distinct().Take(17))
             {
                 var a=s.History.Agriculture[peer];if(a.AdoptedYear[group]<=0||a.AdoptedYear[group]-1>=s.Years||a.Cultivars?[group]==null)continue;
-                double value=HistoricalCropCatalog.TransferFit(h,a.Cultivars[group],latitude,riverSites[site]);if(value>score){best=peer;score=value;}
+                if(ProvincialHistory(s)&&!ProvincialRecentContact(s,culture,peer,false))continue;
+                double value=CommunityHistory(s)?CommunityTransferFit(s,site,a.Cultivars[group]):HistoricalCropCatalog.TransferFit(h,a.Cultivars[group],latitude,riverSites[site]);if(value>score){best=peer;score=value;}
             }
             return best;
         }
@@ -119,9 +123,10 @@ namespace WorldGen.Core
             for(int k=0;k<6;k++)
             {
                 if(crops.AdoptedYear[k]>0)continue;
-                if((nativeCrops[cell]&(1<<k))!=0){crops.NativeMask|=1<<k;if(crops.WildOriginCell[k]<0)crops.WildOriginCell[k]=cell;}
-                int old=crops.PracticeCell[k];double prior=CropSuitability(old,k)*HistoricalDevelopmentEffects.GrowingSeason(World.Ecology.Habitat[old]);
-                double value=CropSuitability(cell,k)*HistoricalDevelopmentEffects.GrowingSeason(World.Ecology.Habitat[cell]);
+                int mask=CommunityHistory(s)?CommunityNativeCropMask(s,cell):nativeCrops[cell];
+                if((mask&(1<<k))!=0){crops.NativeMask|=1<<k;if(crops.WildOriginCell[k]<0)crops.WildOriginCell[k]=cell;}
+                int old=crops.PracticeCell[k];double prior=(CommunityHistory(s)?CommunityWildCropFit(s,old,k):CropSuitability(old,k))*HistoricalDevelopmentEffects.GrowingSeason(World.Ecology.Habitat[old]);
+                double value=(CommunityHistory(s)?CommunityWildCropFit(s,cell,k):CropSuitability(cell,k))*HistoricalDevelopmentEffects.GrowingSeason(World.Ecology.Habitat[cell]);
                 if(value>prior)crops.PracticeCell[k]=cell;
             }
         }
@@ -143,8 +148,11 @@ namespace WorldGen.Core
                 double burden=1+habitat.ReliefM/700.0+(habitat.AridityMilli<150?2:0);
                 long cost=Math.Max(50,(long)(inhabitableArea[target]*.025*burden));if(p.Treasury<cost)continue;
                 double chance=(.25+.5*p.Legitimacy/1000.0)/burden;
+                int center=ProvincialHistory(s)?ProvincialServiceCenter(s,polity,target):-1;if(ProvincialHistory(s)&&center<0)continue;
+                if(ProvincialHistory(s)&&!ProvincialIncorporationWorthwhile(s,polity,target,center))continue;
                 if(HistoryRoll("development-incorporation-"+trial,polity,s.Years)>1-Math.Exp(-chance*elapsed/5.0))continue;
                 ClaimAggregatePolity(s,target,polity);p.Treasury-=cost;
+                if(ProvincialHistory(s))a.Provinces.Centers=a.Provinces.Centers.With(target,center);
                 int localCulture=HistoricalCells.Culture(s,target);if(localCulture>=0)LivingCultureContact(s,p.CultureId,localCulture);
             }
         }

@@ -8,16 +8,16 @@ namespace WorldGen.Presentation
     // projection/opacity changes reuse these exact edge endpoints.
     public sealed class HistoryBorders
     {
-        World? world; PrehistoryState? state; float[] segments=Array.Empty<float>();
+        World? world; PrehistoryState? state; HistoricalMapSnapshot? projection;float[] segments=Array.Empty<float>();
         public float[] Segments(World w,PrehistoryState? s)
         {
             if(ReferenceEquals(w,world)&&ReferenceEquals(s,state))return segments;
-            world=w;state=s;var list=new List<float>();var h=s?.History;
+            var next=s==null?null:HistoricalMapSnapshot.For(s);
+            if(ReferenceEquals(w,world)&&s?.Started==state?.Started&&next!=null&&next.SameBoundaries(projection)){state=s;projection=next;return segments;}
+            world=w;state=s;projection=next;var list=new List<float>();var h=s?.History;
             if(h!=null&&s!.Started&&HistoricalCells.Count(s)==w.Surface.Cells.Length)foreach(var edge in w.Surface.Edges)
             {
-                int a=HistoricalCells.Polity(s,edge.A),b=HistoricalCells.Polity(s,edge.B);
-                if(a<0)a=HistoricalCells.Culture(s,edge.A)>=0?-2-HistoricalCells.Culture(s,edge.A):-1;
-                if(b<0)b=HistoricalCells.Culture(s,edge.B)>=0?-2-HistoricalCells.Culture(s,edge.B):-1;
+                int a=projection!.Boundary(edge.A),b=projection.Boundary(edge.B);
                 if(a==b||w.Hydrology.OceanConnected[edge.A]||w.Hydrology.OceanConnected[edge.B])continue;
                 foreach(int triangle in new[]{edge.TriangleA,edge.TriangleB})
                 {

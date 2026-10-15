@@ -10,9 +10,17 @@ namespace WorldGen.Core
         // Diagnostic only: observers cannot change authoritative dates or work.
         public Action<int,double> YearWorkObserver;
         const int RegionProcess=20,CityProcess=21,CultureProcess=22,StateProcess=23,CampaignProcess=24,RemoteProcess=26;
-        long AggregateInterval(int process,int entity,long ticket)
+        long AggregateInterval(int process,int entity,long ticket,PrehistoryState state=null)
         {
             double cadence=process==RegionProcess||process==RemoteProcess?100:process==CityProcess||process==CampaignProcess?1:process==CultureProcess?40:5;
+            if(ProvincialHistory(state)&&(process==CultureProcess||process==RegionProcess))
+            {
+                long mask=process==CultureProcess?ProvincialKnowledge(state.History.Cultures[entity]):state.History.Aggregates.Provinces.RegionalKnowledge[entity];
+                if(process==RegionProcess){int c=state.History.Aggregates.Regions[entity].Culture;if(c>=0)mask|=ProvincialKnowledge(state.History.Cultures[c]);}
+                if((mask&(1L<<(int)HistoricalTechnology.Telecommunications))!=0)cadence=2;
+                else if((mask&(1L<<(int)HistoricalTechnology.Telegraph))!=0)cadence=5;
+                else if((mask&(1L<<(int)HistoricalTechnology.Printing))!=0)cadence=process==CultureProcess?15:20;
+            }
             return SimulationEventQueue.Window(World.Recipe.Seed,"aggregate-1-"+process,entity,unchecked((int)ticket),(long)(cadence*SimulationTime.Year),(long)(cadence*.3*SimulationTime.Year));
         }
         SimulationTimeline InitialAggregateTimeline(PrehistoryState s)
@@ -30,12 +38,12 @@ namespace WorldGen.Core
         // Only in an active private transaction; never survives cancellation.
         SimulationEventQueue aggregateQueue;
         void ScheduleAggregate(PrehistoryState s,int process,int id,long due=0)
-        {long ticket=s.Timeline.NextTicket++;aggregateQueue.Push(new SimulationEvent{Process=process,Entity=id,Ticket=ticket,Due=due>0?due:s.Timeline.Seconds+AggregateInterval(process,id,ticket)});}
+        {long ticket=s.Timeline.NextTicket++;aggregateQueue.Push(new SimulationEvent{Process=process,Entity=id,Ticket=ticket,Due=due>0?due:s.Timeline.Seconds+AggregateInterval(process,id,ticket,s)});}
         PrehistoryState AdvanceAggregateCalendar(PrehistoryState source,long seconds,int maximumEvents,CancellationToken token,bool validate,int workBudget)
         {
             if(validate)Validate(source);if(!source.Started)throw new InvalidOperationException("Start the world first.");
             long now=SimulationTime.Seconds(source);if(seconds<1||seconds>SimulationTime.Maximum-now||maximumEvents<1||workBudget<1)throw new ArgumentOutOfRangeException(nameof(seconds));
-            token.ThrowIfCancellationRequested();var overhead=Stopwatch.StartNew();var s=source.Copy();var a=s.History.Aggregates;long target=now+seconds;int count=0;
+            token.ThrowIfCancellationRequested();var overhead=Stopwatch.StartNew();PrehistoryState s;using(ProfileWork("aggregate checkpoint copy"))s=validate?source.Copy():source.CopyAggregateOwned();var a=s.History.Aggregates;long target=now+seconds;int count=0;
             var queue=new SimulationEventQueue(s.Timeline.Events);aggregateQueue=queue;PrepareAggregateRelations(source);double eventMilliseconds=0;bool completed=false;
             try
             {
@@ -58,7 +66,7 @@ namespace WorldGen.Core
                     double elapsed=watch.Elapsed.TotalMilliseconds;eventMilliseconds+=elapsed;YearWorkObserver?.Invoke(s.Years,elapsed);WorkObserver?.Invoke(new SimulationWorkMetric{Stage="aggregate event "+e.Process,Items=(int)(a.CellReads-reads),Milliseconds=elapsed});a.ProcessedLocalEvents++;count++;s.Timeline.ProcessedEvents++;
                 }
                 if(queue.Count==0||queue.Peek.Due>target)s.Timeline.Seconds=target;
-                s.Years=(int)(s.Timeline.Seconds/SimulationTime.Year);s.Timeline.Events=queue.Ordered();s.DomainToken=new object();s.SealAggregateOwned();
+                s.Years=(int)(s.Timeline.Seconds/SimulationTime.Year);s.Timeline.Events=queue.Ordered();s.DomainToken=new object();using(ProfileWork("aggregate checkpoint hash"))s.SealAggregateOwned(token);
                 YearWorkObserver?.Invoke(s.Years,Math.Max(0,overhead.Elapsed.TotalMilliseconds-eventMilliseconds));aggregateRelationCheckpoint=s.Hash;completed=true;return s;
             }
             finally {aggregateQueue=null;if(!completed)aggregateRelationCheckpoint=null;}

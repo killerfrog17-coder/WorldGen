@@ -7,9 +7,10 @@ namespace WorldGen.Presentation
     public static class PrehistoryView
     {
         // Alpha codes are data, not transparency: water 0, land85, occupied170, selected255.
-        public static byte[] Codes(World w,Prehistory engine=null,PrehistoryState state=null,int selectedCell=-1,HistoryOverlay overlay=HistoryOverlay.Civilizations,byte[] destination=null)
+        public static byte[] Codes(World w,Prehistory engine=null,PrehistoryState state=null,int selectedCell=-1,HistoryOverlay overlay=HistoryOverlay.Civilizations,byte[] destination=null,bool optimized=true)
         {
             var result=destination??new byte[w.Surface.Cells.Length];if(result.Length!=w.Surface.Cells.Length)throw new ArgumentException("Overlay buffer must match the surface.",nameof(destination));var clusters=engine!=null&&state!=null?engine.Clusters(state):null;
+            var display=optimized&&engine!=null&&state!=null?HistoricalMapSnapshot.For(state):null;
             int selected=selectedCell>=0&&selectedCell<result.Length&&engine!=null?engine.CellPatch[selectedCell]:-1;
             int cluster=selected>=0&&clusters!=null?clusters[selected]:-1;var selectedCulture=SocietyView.Culture(state,selectedCell);
             for(int i=0;i<result.Length;i++)
@@ -20,11 +21,11 @@ namespace WorldGen.Presentation
                 if(!state.Started){if(patch==state.Origin)result[i]=(byte)(water?65:255);}
                 else if(state.Population[patch]>0)
                 {
-                    var culture=SocietyView.Culture(state,i);bool chosen=selectedCulture!=null?culture?.Id==selectedCulture.Id:culture==null&&cluster>=0&&clusters[patch]==cluster;
+                    int local=display!=null?display.Culture(i):HistoricalCells.Culture(state,i);var culture=local>=0?state.Society.Cultures[local]:null;bool chosen=selectedCulture!=null?culture?.Id==selectedCulture.Id:culture==null&&cluster>=0&&clusters[patch]==cluster;
                     result[i]=(byte)(chosen?(water?65:culture?.Stage==SocietyStage.Civilization?245:255):water?42:culture==null?170:195+20*((int)culture.Stage-1));
                 }
             }
-            if(engine!=null&&state?.History!=null&&state.Started){int selection=SocietyView.OverlayId(state,selectedCell,overlay);for(int i=0;i<result.Length;i++){if(engine.CellPatch[i]<0)continue;bool island=w.Hydrology.OceanConnected[i];int id=SocietyView.OverlayId(state,i,overlay);if(id>=0)result[i]=(byte)(island?(selection>=0&&id==selection?60:50):selection>=0&&id==selection?245:235);else if(!island&&SocietyView.Culture(state,i)!=null)result[i]=(byte)(HistoricalCells.Stage(state,i)>=2?215:195);}}
+            if(engine!=null&&state?.History!=null&&state.Started){int selection=display!=null?display.OverlayId(selectedCell,overlay):SocietyView.OverlayId(state,selectedCell,overlay);for(int i=0;i<result.Length;i++){if(engine.CellPatch[i]<0)continue;bool island=w.Hydrology.OceanConnected[i];int id=display!=null?display.OverlayId(i,overlay):SocietyView.OverlayId(state,i,overlay);if(id>=0)result[i]=(byte)(island?(selection>=0&&id==selection?60:50):selection>=0&&id==selection?245:235);else if(!island&&(display!=null?display.Culture(i)>=0:SocietyView.Culture(state,i)!=null))result[i]=(byte)((display!=null?display.Stage(i):HistoricalCells.Stage(state,i))>=2?215:195);}}
             return result;
         }
         public static string Lifestyle(ForagerLifestyle style)=>style+" foragers";

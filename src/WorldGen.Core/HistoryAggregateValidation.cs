@@ -11,11 +11,21 @@ namespace WorldGen.Core
             PrepareAggregateEnvironment(s);
             var h=s.History;var a=h.Aggregates;
             void Require(bool condition,string what){if(!condition)throw new ArgumentException("Invalid aggregate history: "+what);}
-            Require((h.Version==AggregateHistoryVersion&&a.Living==null||(h.Version==LivingHistoryVersion||h.Version==ConnectedHistoryVersion)&&a.Living!=null)&&a.Version=="aggregate-history-1"&&s.Society!=null,"version");
+            Require((h.Version==AggregateHistoryVersion&&a.Living==null||(h.Version==LivingHistoryVersion||ConnectedHistory(s))&&a.Living!=null)&&a.Version=="aggregate-history-1"&&s.Society!=null,"version");
+            if(CommunityHistory(s))Require(a.Communities!=null&&a.Communities.Cities.Length==a.Cities.Length&&a.Communities.Governments.Length==a.Polities.Length&&a.Communities.Campaigns.Length==h.Dynamics.Campaigns.Length,"local community alignment");
+            else Require(a.Communities==null,"legacy community extension");
             Require(a.Cells?.Length==CellPatch.Length*5&&a.TownAt?.Length==CellPatch.Length&&a.Successors!=null&&a.LeaderDigests!=null,"persistent geography");
             Require(h.CellPolity.Length==0&&h.CellReligion.Length==0&&h.CellMarket.Length==0&&h.CellStage.Length==0&&s.Society.CellCulture.Length==0&&h.Faith==null&&h.RegionalLearning==null,"retired dense working arrays");
             Require(a.Cities.Length==s.Society.Settlements.Length&&a.Cities.Length==h.Towns.Length&&a.Cultures.Length==h.Cultures.Length&&a.Cultures.Length==s.Society.Cultures.Length&&a.Polities.Length==h.Polities.Length&&h.Dynamics.States.Length==h.Polities.Length&&a.Regions.Length==Patches.Length,"actor alignment");
             Require(h.Modern!=null&&Enum.IsDefined(typeof(HistoricalTechnologyCeiling),h.Modern.TechnologyCeiling),"technology ceiling");
+            if(ProvincialHistory(s))Require(a.Provinces?.Centers?.Length==CellPatch.Length&&a.Provinces.FarmPotential.Length==a.Polities.Length&&a.Provinces.FarmPotential.All(v=>v>=0)&&a.Provinces.ClaimedAreaKm2.Length==a.Regions.Length&&a.Provinces.ClaimedAreaKm2.All(v=>v>=0),"provincial support accounts");
+            else Require(a.Provinces==null,"legacy provincial extension");
+            if(ProvincialHistory(s))
+            {
+                Require(a.Provinces.Exchanges.Length==a.Cultures.Length&&a.Provinces.RegionalKnowledge.Length==a.Regions.Length,"exchange memory alignment");
+                Require(a.Provinces.Theaters.Length==h.Dynamics.Campaigns.Length&&a.Provinces.Theaters.All(t=>t.Cell>=0&&t.Cell<CellPatch.Length&&t.SupplyA>=-1&&t.SupplyA<a.Cities.Length&&t.SupplyB>=-1&&t.SupplyB<a.Cities.Length),"campaign theater alignment");
+                foreach(var e in a.Provinces.Exchanges)Require(e.Peers.Length<=16&&e.Peers.Length==e.LastYear.Length&&e.Peers.Length==e.LastDirectYear.Length&&e.Peers.Length==e.Capabilities.Length&&e.Peers.All(p=>p>=0&&p<a.Cultures.Length)&&e.LastYear.All(y=>y<=s.Years),"bounded dated exchange offers");
+            }
             if(LivingHistory(s))
             {
                 var living=a.Living;Require(living.Version=="living-history-1"&&living.Cities.Length==a.Cities.Length&&living.Regions.Length==a.Regions.Length,"living actor alignment");
@@ -42,7 +52,7 @@ namespace WorldGen.Core
                 int owner=a.Resolve(town.PolityId,h);if(owner>=0){stateUrban[owner]+=town.Population;stateRural[owner]+=city.Rural;stateSuburban[owner]+=city.Suburban;}
             }
             for(int i=0;i<a.Cultures.Length;i++)
-            {var c=a.Cultures[i];var hc=h.Cultures[i];Require(c.Id==i&&s.Society.Cultures[i].Id==i&&hc.Id==i&&c.Urban==urban[i]&&c.SupportedUrban==supported[i]&&c.SupportedCities==supportCount[i]&&c.Cities.Count==c.CityCount,"culture aggregates");Require(hc.Technology.Length==HistoricalTechnologies.Names.Length&&hc.Research.Length==hc.Technology.Length&&hc.Technology.All(y=>y>=0&&y<=s.Years+1),"capability dates");for(int k=0;k<hc.Technology.Length;k++)if(hc.Technology[k]>0)Require(HistoricalTechnologies.Requirements("history-16",k).All(p=>hc.Technology[p]>0&&hc.Technology[p]<=hc.Technology[k]),"capability prerequisites");}
+            {var c=a.Cultures[i];var hc=h.Cultures[i];Require(c.Id==i&&s.Society.Cultures[i].Id==i&&hc.Id==i&&c.Urban==urban[i]&&c.SupportedUrban==supported[i]&&c.SupportedCities==supportCount[i]&&c.Cities.Count==c.CityCount,"culture aggregates");Require(hc.Technology.Length==HistoricalTechnologies.Names.Length&&hc.Research.Length==hc.Technology.Length&&hc.Technology.All(y=>y>=0&&y<=s.Years+1),"capability dates");for(int k=0;k<hc.Technology.Length;k++)if(hc.Technology[k]>0)Require(HistoricalTechnologies.Requirements(ProvincialHistory(s)&&hc.Technology[k]-1<=a.Provinces.UpgradedYear?ConnectedHistoryVersion:h.Version,k).All(p=>hc.Technology[p]>0&&hc.Technology[p]<=hc.Technology[k]),"capability prerequisites");}
             for(int i=0;i<a.Polities.Length;i++)
             {
                 var p=h.Polities[i];var account=a.Polities[i];Require(p.Id==i&&account.Id==i&&account.Remote>=0&&account.RemoteCapacity>=0&&p.CapitalId>=0&&p.CapitalId<a.Cities.Length,"state");

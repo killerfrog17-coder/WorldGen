@@ -14,7 +14,7 @@ namespace WorldGen.Core
         {
             if(first<0||second<0||first==second)return;
             foreach(var pair in new[]{(first,second),(second,first)})
-            {var c=s.Society.Cultures[pair.Item1];if(!c.Contacts.Contains(pair.Item2))c.Contacts=c.Contacts.Concat(new[]{pair.Item2}).TakeLast(16).ToArray();}
+            {var c=s.Society.Cultures[pair.Item1];if(!c.Contacts.Contains(pair.Item2))c.Contacts=c.Contacts.Concat(new[]{pair.Item2}).TakeLast(16).ToArray();if(ProvincialHistory(s))OfferProvincialKnowledge(s,pair.Item1,pair.Item2,ProvincialKnowledge(s.History.Cultures[pair.Item2]),s.Years,true);}
         }
         void AdvanceLivingRegionalExchange(PrehistoryState s,int id,int elapsed)
         {
@@ -24,7 +24,7 @@ namespace WorldGen.Core
         void TryLivingRegionalExchange(PrehistoryState s,int id,int elapsed,int trial)
         {
             var a=s.History.Aggregates;var region=a.Regions[id];var local=a.Living.Regions[id];
-            if(region.Routes.Length==0||s.Population[id]+local.SettledPopulation<100)return;
+            if(region.Routes.Length==0||(ProvincialHistory(s)?ProvincialContactResidents(s,id):s.Population[id]+local.SettledPopulation)<100)return;
             int routeId=region.Routes[(int)(HistoryRoll("living-knowledge-route-"+trial,id,s.Years)*region.Routes.Length)];var route=Routes[routeId];int other=route.A==id?route.B:route.A;
             int donor=ConnectedHistory(s)?DevelopmentRegionalTeacher(s,other):a.Regions[other].Culture;
             // Itinerant exchange can cross inhabited, decentralized communities;
@@ -40,10 +40,13 @@ namespace WorldGen.Core
             double transport=HistoricalModernEffects.LandTransport(hc,s.Years)*(ConnectedHistory(s)?Math.Sqrt(HistoricalModernEffects.Communication(hc,s.Years)):1);
             double transit=(.15+.85*continuity)*elapsed*transport/Math.Max(80,60+distance*barrier*.3);
             if(HistoryRoll("living-knowledge-exchange-"+trial,id,s.Years)>1-Math.Exp(-transit))return;
-            if(!ConnectedHistory(s)||local.Teacher<0||s.History.Cultures[local.Teacher].Technology.Count(y=>y>0)<=hc.Technology.Count(y=>y>0))local.Teacher=donor;
+            if(!ConnectedHistory(s)||local.Teacher<0||(ProvincialHistory(s)?CurrentProvincialKnowledgeCount(s,local.Teacher)<=CurrentProvincialKnowledgeCount(s,donor):s.History.Cultures[local.Teacher].Technology.Count(y=>y>0)<=hc.Technology.Count(y=>y>0)))local.Teacher=donor;
             local.Exposure=Math.Min(1000,local.Exposure+Math.Max(10,(int)(elapsed*(.15+.85*continuity))));local.LastExchangeYear=s.Years;
+            long package=ProvincialHistory(s)?ProvincialRegionalKnowledge(s,other,donor):0;
+            if(ProvincialHistory(s))a.Provinces.RegionalKnowledge[id]|=package;
             var donorRegion=a.Living.Regions[other];int court=donorRegion.CivicTeacher;
-            if(a.Cultures[donor].Cities.Count>0)
+            if(ProvincialHistory(s))court=ProvincialRegionalCourt(s,other)>=0?ProvincialRegionalCourt(s,other):court;
+            if(!ProvincialHistory(s)&&a.Cultures[donor].Cities.Count>0)
             {int town=a.Cultures[donor].Cities.At((int)(HistoryRoll("living-institution-example",id,s.Years)*a.Cultures[donor].Cities.Count));int ruler=a.Resolve(s.Society.Settlements[town].PolityId,s.History);if(ruler>=0)court=ruler;}
             if(court>=0)
             {
@@ -51,7 +54,11 @@ namespace WorldGen.Core
                 double inherited=a.Cultures[donor].CivilizationSince>=0?1:D.Clamp(donorRegion.CivicExposure/700.0)*.7;
                 local.CivicExposure=Math.Min(1000,local.CivicExposure+(int)(elapsed*(.2+.8*continuity)*inherited));
             }
-            if(region.Culture>=0)LivingCultureContact(s,region.Culture,donor);
+            if(region.Culture>=0)
+            {
+                if(ProvincialHistory(s))OfferProvincialKnowledge(s,region.Culture,donor,package,s.Years,false);
+                else LivingCultureContact(s,region.Culture,donor);
+            }
         }
         double LivingCommunityChance(PrehistoryState s,int id,int elapsed)
         {
@@ -70,7 +77,12 @@ namespace WorldGen.Core
         {
             var c=s.Society.Cultures[culture];var a=s.History.Aggregates;int region=a.Cultures[culture].Region;
             if(fallback>=0&&fallback!=culture)LivingCultureContact(s,culture,fallback);
-            if(region>=0&&a.Living.Regions[region].Teacher>=0)LivingCultureContact(s,culture,a.Living.Regions[region].Teacher);
+            if(region>=0&&a.Living.Regions[region].Teacher>=0)
+            {
+                int teacher=a.Living.Regions[region].Teacher;
+                if(ProvincialHistory(s))OfferProvincialKnowledge(s,culture,teacher,ProvincialRegionalKnowledge(s,region,teacher),a.Living.Regions[region].LastExchangeYear,false);
+                else LivingCultureContact(s,culture,teacher);
+            }
             if(c.Contacts.Length==0)return fallback;
             return c.Contacts[(int)(HistoryRoll("living-retained-contact",culture,s.Years)*c.Contacts.Length)];
         }
@@ -80,6 +92,7 @@ namespace WorldGen.Core
             // A bounded number of frontier opportunities represents physical
             // travel, not one entire cell per culture regardless of resolution.
             int attempts=ConnectedHistory(s)?HistoricalDevelopmentEffects.FrontierBudget(s.History.Cultures[id],s.Years,ca.CityCount):Math.Min(12,Math.Max(1,(int)Math.Round(elapsed/12.0)));
+            if(ProvincialHistory(s)){double expected=attempts*elapsed/40.0;attempts=(int)expected;if(HistoryRoll("provincial-frontier-fraction",id,s.Years)<expected-attempts)attempts++;}
             for(int trial=0;trial<attempts;trial++)
             {
                 int target=LocalFrontierTarget(s,ca.Frontier,id,"living-cultural-front-"+trial,0);if(target<0)continue;int other=HistoricalCells.Culture(s,target);

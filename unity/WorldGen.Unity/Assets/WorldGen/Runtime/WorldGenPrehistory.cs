@@ -105,10 +105,11 @@ public sealed partial class WorldGenRuntime
         if(humanCodesScratch==null||humanCodesScratch.Length!=captured.Surface.Cells.Length)humanCodesScratch=new byte[captured.Surface.Cells.Length];var scratch=humanCodesScratch;
         humanPaletteJob=Task.Run(()=>{
             Array.Copy(baseline,colors,baseline.Length);var codes=PrehistoryView.Codes(captured,engine,state,selection,overlay,scratch);
+            var display=HistoricalMapSnapshot.For(state);
             var tint=new System.Collections.Generic.Dictionary<int,Color32>();
             for(int i=0;i<codes.Length;i++)
             {
-                colors[i].a=codes[i];int owner=SocietyView.OverlayColorId(state,i,overlay);if(owner<0)continue;
+                colors[i].a=codes[i];int owner=display.ColorId(i,overlay);if(owner<0)continue;
                 if(!tint.TryGetValue(owner,out var rgb)){var v=SocietyView.CivilizationColor(owner);rgb=new Color32((byte)Math.Round(v.X*255),(byte)Math.Round(v.Y*255),(byte)Math.Round(v.Z*255),0);tint.Add(owner,rgb);}
                 colors[i].r=rgb.r;colors[i].g=rgb.g;colors[i].b=rgb.b;
             }
@@ -228,7 +229,15 @@ public sealed partial class WorldGenRuntime
             string loadProfile=Argument("--worldgen-load-profile","");
             string hash=await Task.Run(()=>{var loadWatch=System.Diagnostics.Stopwatch.StartNew();var loadRows=new System.Collections.Generic.List<string>{"stage,elapsedMilliseconds"};var w=WorldGen.Serialization.WorldFile.Read(System.IO.File.ReadAllBytes(source),status:stage=>loadRows.Add(FormattableString.Invariant($"{stage},{loadWatch.Elapsed.TotalMilliseconds:F3}")));loadRows.Add(FormattableString.Invariant($"Complete,{loadWatch.Elapsed.TotalMilliseconds:F3}"));if(loadProfile.Length>0)System.IO.File.WriteAllLines(loadProfile,loadRows);
                 if(hashProfile.Length>0){var rows=new System.Collections.Generic.List<string>{"stage,milliseconds"};foreach(var metric in SimulationHashProfile.Capture(w.Prehistory).OrderByDescending(m=>m.Milliseconds))rows.Add(FormattableString.Invariant($"{metric.Stage},{metric.Milliseconds:F3}"));System.IO.File.WriteAllLines(hashProfile,rows);}
-                var engine=new Prehistory(w){MaximumWorkers=int.Parse(Argument("--worldgen-workers","4"))};var metrics=new System.Collections.Generic.List<SimulationWorkMetric>();if(workProfile.Length>0)engine.WorkObserver=metrics.Add;var s=secondsArgument.Length>0?engine.AdvanceSeconds(w.Prehistory,long.Parse(secondsArgument)):engine.AdvanceYears(w.Prehistory,years);engine.Validate(s);
+                var engine=new Prehistory(w){MaximumWorkers=int.Parse(Argument("--worldgen-workers","4"))};var metrics=new System.Collections.Generic.List<SimulationWorkMetric>();if(workProfile.Length>0)engine.WorkObserver=metrics.Add;
+                PrehistoryState s;
+                if(Environment.GetCommandLineArgs().Contains("--worldgen-session-profile"))
+                {
+                    var session=new SimulationSession(engine,w.Prehistory);long target=session.Seconds+years*SimulationTime.Year;
+                    while(session.Seconds<target){var slice=SimulationClockView.Publication(session.Seconds,target-session.Seconds,1000*SimulationTime.Year);session.AdvanceSeconds(slice.Seconds,slice.MaximumEvents,maximumGlobalWork:slice.MaximumGlobalWork);}
+                    s=session.Snapshot();
+                }
+                else s=secondsArgument.Length>0?engine.AdvanceSeconds(w.Prehistory,long.Parse(secondsArgument)):engine.AdvanceYears(w.Prehistory,years);engine.Validate(s);
                 if(workProfile.Length>0){var rows=new System.Collections.Generic.List<string>{"stage,count,totalMilliseconds,maxMilliseconds,meanMilliseconds"};foreach(var g in metrics.GroupBy(m=>m.Stage).OrderByDescending(g=>g.Sum(m=>m.Milliseconds)))rows.Add(FormattableString.Invariant($"{g.Key},{g.Count()},{g.Sum(m=>m.Milliseconds):F3},{g.Max(m=>m.Milliseconds):F3},{g.Average(m=>m.Milliseconds):F3}"));System.IO.File.WriteAllLines(workProfile,rows);}
                 if(roundtrip.Length>0)
                 {

@@ -16,6 +16,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class Settlement
     {
+        [NonSerialized] internal byte[] OwnedCanonicalRecord;
         public int Id, CultureId, PolityId, Cell, FoundedYear;
         public string Name="", Government="Local council";
         public long Population, FoodCapacity, FoodReserve;
@@ -36,6 +37,8 @@ namespace WorldGen.Core
         public int SelectedStepYears=100;public bool ManualStep;
         public SocietyStage Phase=>Cultures.Length==0?SocietyStage.Foragers:Cultures.Max(c=>c.Stage);
         public SocietyState Copy()=>new SocietyState{Version=Version,Knowledge=(int[])Knowledge.Clone(),CellCulture=(int[])CellCulture.Clone(),Cultures=Cultures.Select(c=>c.Copy()).ToArray(),Settlements=Settlements.Select(t=>t.Copy()).ToArray(),Events=(ChronicleEvent[])Events.Clone(),SelectedStepYears=SelectedStepYears,ManualStep=ManualStep};
+        internal SocietyState CopyOwned(HistoricalLivingHistory living)
+            =>new SocietyState{Version=Version,Knowledge=(int[])Knowledge.Clone(),CellCulture=(int[])CellCulture.Clone(),Cultures=Cultures.Select(c=>c.Copy()).ToArray(),Settlements=Settlements.Select(t=>living?.Cities[t.Id].AbandonedYear>=0?t:t.Copy()).ToArray(),Events=(ChronicleEvent[])Events.Clone(),SelectedStepYears=SelectedStepYears,ManualStep=ManualStep};
         internal SocietyState CopyDemographicKnowledge(){var copy=(SocietyState)MemberwiseClone();copy.Knowledge=(int[])Knowledge.Clone();return copy;}
         public static int DefaultStep(SocietyStage stage)=>stage==SocietyStage.Civilization?1:stage==SocietyStage.EmbryonicCivilization?10:stage==SocietyStage.AdvancedCulture?50:100;
     }

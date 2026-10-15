@@ -1,0 +1,22 @@
+using WorldGen.Core;
+using WorldGen.Presentation;
+using WorldGen.Serialization;
+public static class HistoryMapSnapshotTests
+{
+    public static void Run(string path,Action<bool,string> check)
+    {
+        var world=WorldFile.Read(File.ReadAllBytes(path));var s=world.Prehistory;var engine=new Prehistory(world);string hash=s.Hash;
+        var display=HistoricalMapSnapshot.For(s);int count=world.Surface.Cells.Length;
+        check(ReferenceEquals(display,HistoricalMapSnapshot.For(s)),"A published checkpoint shares one projection across views and borders");
+        check(Enumerable.Range(0,count).All(i=>display.Culture(i)==HistoricalCells.Culture(s,i)&&display.Polity(i)==HistoricalCells.Polity(s,i)&&display.Stage(i)==HistoricalCells.Stage(s,i)),"Bulk display projection matches exact local culture, ownership succession and stage lookups");
+        foreach(var mode in Enum.GetValues<HistoryOverlay>())
+        {
+            check(Enumerable.Range(0,count).All(i=>display.OverlayId(i,mode)==SocietyView.OverlayId(s,i,mode)&&display.ColorId(i,mode)==SocietyView.OverlayColorId(s,i,mode)),mode+" retains literal selection and ruling/local color identities");
+            foreach(int cell in new[]{-1,engine.Patches[s.Origin].Cell})
+                check(PrehistoryView.Codes(world,engine,s,cell,mode).SequenceEqual(PrehistoryView.Codes(world,engine,s,cell,mode,optimized:false)),mode+" occupancy/selection codes match the literal renderer");
+        }
+        var export=new int[s.History.Aggregates.Cells.Length+6];Array.Fill(export,8123);s.History.Aggregates.Cells.CopyTo(export,3);
+        check(export[0]==8123&&export[^1]==8123&&Enumerable.Range(0,s.History.Aggregates.Cells.Length).All(i=>export[i+3]==s.History.Aggregates.Cells[i]),"Bulk tree export preserves absent values, bounds and offsets");
+        check(s.ComputeHash()==hash,"Display caches do not edit, validate away or rehash the authoritative history");
+    }
+}

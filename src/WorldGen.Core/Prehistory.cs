@@ -22,6 +22,10 @@ namespace WorldGen.Core
         public static bool SameDomain(PrehistoryState a,PrehistoryState b)=>ReferenceEquals(a,b)||a!=null&&b!=null&&a.DomainToken!=null&&ReferenceEquals(a.DomainToken,b.DomainToken);
         public PrehistoryState Copy(bool copySociety=true){var s=(PrehistoryState)MemberwiseClone();s.DomainToken=new object();s.Timeline=Timeline?.Copy();s.Population=(long[])Population.Clone();s.ArrivalYear=(int[])ArrivalYear.Clone();s.Ancestry=(int[])Ancestry.Clone();if(copySociety){s.Society=Society?.Copy();s.History=History?.Copy();}return s;}
         internal PrehistoryState CopyClockOnly(){var s=(PrehistoryState)MemberwiseClone();s.Timeline=Timeline?.Copy();return s;}
+        internal PrehistoryState CopyAggregateOwned()
+        {
+            var copy=Copy(false);copy.Society=Society.CopyOwned(History.Aggregates.Living);copy.History=History.CopyOwned();return copy;
+        }
         public string ComputeHash()=>History?.Aggregates!=null?AggregateHash(true):Timeline!=null?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,History,Timeline}):Version=="prehistory-6"?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,History}):Version=="prehistory-4"||Version=="prehistory-5"?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society}):StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry});
         public void Seal(){Hash=ComputeHash();}
     }
@@ -39,7 +43,7 @@ namespace WorldGen.Core
         // Derived habitat weights, not a second population store. Prefix allocation conserves every person.
         readonly long[] ruralWeight,ruralPrefix;readonly long[] ruralPatchWeight;
         public const int StepYears=100;
-        public static string CurrentHistoryVersion=>ConnectedHistoryVersion;
+        public static string CurrentHistoryVersion=>CommunityHistoryVersion;
         public static int YearsPerStep(PrehistoryState state)=>state.Version=="prehistory-1"?250:state.Society?.SelectedStepYears??StepYears;
         public static double CrossingChance(int distanceM,bool shallow)=>shallow?.22:.015+.30*Math.Exp(-Math.Max(0,distanceM)/55000.0);
         public static bool LowSeaLevel(int years)=>years%100000>=20000 && years%100000<80000;
@@ -148,7 +152,7 @@ namespace WorldGen.Core
             if(ModernHistory(s))s.History.Modern=new HistoricalModernSettings{TechnologyCeiling=World.Prehistory?.History?.Modern?.TechnologyCeiling??HistoricalTechnologyCeiling.Modern};
             string requested=s.History?.Version;
             if(IsAggregateHistoryVersion(requested))s.History.Version="history-16";
-            s.Seal();if(requested==AggregateHistoryVersion)return UpgradeToAggregateHistory(s);if(requested==LivingHistoryVersion)return UpgradeToLivingHistory(s);if(requested==ConnectedHistoryVersion)return UpgradeToConnectedHistory(s);return s;
+            s.Seal();if(requested==AggregateHistoryVersion)return UpgradeToAggregateHistory(s);if(requested==LivingHistoryVersion)return UpgradeToLivingHistory(s);if(requested==ConnectedHistoryVersion)return UpgradeToConnectedHistory(s);if(requested==RegionalHistoryVersion)return UpgradeToRegionalHistory(s);if(requested==CommunityHistoryVersion)return UpgradeToCommunityHistory(s);return s;
         }
         public PrehistoryState Start(PrehistoryState source){Validate(source);if(source.Started)return source;var s=source.Copy();s.Started=true;s.Population[s.Origin]=Math.Min(200,Patches[s.Origin].Capacity);s.ArrivalYear[s.Origin]=0;if(s.History?.Aggregates!=null)s.History.Aggregates.TotalPopulation+=s.Population[s.Origin];s.Seal();return s;}
         public void Validate(PrehistoryState s)

@@ -23,7 +23,7 @@ namespace WorldGen.Core
         {
             var next=engine.AdvanceOwnedSeconds(current,seconds,maximumEvents,token,maximumGlobalWork);
             // Commit only after all work and publication copying succeed.
-            var publicationTimer=System.Diagnostics.Stopwatch.StartNew();PrehistoryState publication;using(engine.ProfileWork("publication copy"))publication=DetachedCopy(next);if(next.History?.Aggregates!=null)engine.YearWorkObserver?.Invoke(next.Years,publicationTimer.Elapsed.TotalMilliseconds);current=next;LastSnapshot=publication;return publication;
+            var publicationTimer=System.Diagnostics.Stopwatch.StartNew();PrehistoryState publication;using(engine.ProfileWork("publication copy"))publication=DetachedCopy(next);token.ThrowIfCancellationRequested();if(next.History?.Aggregates!=null)engine.YearWorkObserver?.Invoke(next.Years,publicationTimer.Elapsed.TotalMilliseconds);current=next;LastSnapshot=publication;return publication;
         }
         static PrehistoryState DetachedCopy(PrehistoryState source)
         {

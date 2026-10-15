@@ -115,7 +115,7 @@ Snapshot(w,engine,s,folder);w.Prehistory=s;File.WriteAllBytes(Path.Combine(folde
         File.WriteAllText(Path.Combine(folder,"audit-summary.txt"),$"History {s.History.Version}; origin patch {s.Origin}; end {s.Years}; first state {firstState}; {ceilingLabel} capstones {maxTechYear}; post-capstone years {(maxTechYear<0?-1:s.Years-maxTechYear)}.\n"+(tail>=0&&(maxTechYear<0||s.Years<maxTechYear+tail)?"Safety limit reached without the full ceiling/tail interval; do not report a completed era progression.\n":""));
         Console.WriteLine("DONE "+folder+" first state "+firstState+" "+ceilingLabel+" capstones "+maxTechYear+" end "+s.Years);
     }
-    public static void Snapshot(World w,Prehistory engine,PrehistoryState s,string folder,IEnumerable<HistoryOverlay> selected=null)
+    public static void Snapshot(World w,Prehistory engine,PrehistoryState s,string folder,IEnumerable<HistoryOverlay> selected=null,bool compressed=false)
     {
         var text=new StringBuilder("kind,id,name,year,latitude,longitude,biome,flood,aridity,population\n");
         void Entry(string kind,int id,string name,int year,int cell,long population){var p=w.Surface.Cells[cell].Position;var h=w.Ecology.Habitat[cell];text.AppendLine(FormattableString.Invariant($"{kind},{id},{name.Replace(',',' ')},{year},{Math.Asin(p.Z)*180/Math.PI:F2},{Math.Atan2(p.Y,p.X)*180/Math.PI:F2},{h.Biome},{h.Flooding},{h.AridityMilli},{population}"));}
@@ -152,7 +152,9 @@ Snapshot(w,engine,s,folder);w.Prehistory=s;File.WriteAllBytes(Path.Combine(folde
             for(int latitude=-60;latitude<=60;latitude+=30)b.Append(FormattableString.Invariant($"<path d='M0 {510-latitude*5}H1800' stroke='#ffffff' stroke-opacity='.25'/><text x='5' y='{505-latitude*5}' fill='#29343e' font-size='13'>{latitude}°</text>"));
             foreach(var t in s.Society.Settlements.Where(t=>t.Population>=800)){var p=w.Surface.Cells[t.Cell].Position;double x=900+Math.Atan2(p.Y,p.X)*900/Math.PI,y=510-Math.Asin(p.Z)*900/Math.PI;b.Append(FormattableString.Invariant($"<circle cx='{x:F2}' cy='{y:F2}' r='{(t.PolityId>=0?3:2)}' fill='white' stroke='black'/>"));}
             foreach(var entry in SocietyView.MapLabels(w,s,overlay,engine).Take(80)){var p=w.Surface.Cells[entry.LabelCell>=0?entry.LabelCell:entry.Cell].Position;double x=900+Math.Atan2(p.Y,p.X)*900/Math.PI,y=510-Math.Asin(p.Z)*900/Math.PI;b.Append(FormattableString.Invariant($"<text x='{x:F2}' y='{y:F2}' text-anchor='middle' fill='#151b20' stroke='#ffffffaa' stroke-width='2' paint-order='stroke' font-family='Georgia' font-size='12'>{System.Security.SecurityElement.Escape(entry.LabelName.Length>0?entry.LabelName:entry.Name)}</text>"));}
-            b.Append("</svg>");File.WriteAllText(Path.Combine(folder,$"{overlay}-{s.Years}.svg"),b.ToString());
+            b.Append("</svg>");string target=Path.Combine(folder,$"{overlay}-{s.Years}.svg");
+            if(compressed){using var stream=new System.IO.Compression.GZipStream(File.Create(target+".gz"),System.IO.Compression.CompressionLevel.Fastest);using var writer=new StreamWriter(stream);writer.Write(b.ToString());}
+            else File.WriteAllText(target,b.ToString());
         }
     }
 }

@@ -1,0 +1,46 @@
+using System;
+using System.Linq;
+namespace WorldGen.Core
+{
+    // Separate nullable extension: existing history-17..20 checkpoints keep
+    // both their hashes and their rules until the owner explicitly upgrades.
+    [Serializable] public sealed class HistoricalCommunityDynamics
+    {
+        public HistoricalLocalCommunity[] Cities=Array.Empty<HistoricalLocalCommunity>();
+        public HistoricalGovernmentPolicy[] Governments=Array.Empty<HistoricalGovernmentPolicy>();
+        public HistoricalCampaignAdvance[] Campaigns=Array.Empty<HistoricalCampaignAdvance>();
+        public HistoricalCommunityDynamics Copy()=>new HistoricalCommunityDynamics{Cities=Cities.Select(c=>c.Copy()).ToArray(),Governments=Governments.Select(g=>g.Copy()).ToArray(),Campaigns=Campaigns.Select(c=>c.Copy()).ToArray()};
+    }
+    [Serializable] public sealed class HistoricalLocalCommunity
+    {
+        public int RulerId=-1,SinceYear,InclusionMilli;
+        public HistoricalLocalCommunity Copy()=>(HistoricalLocalCommunity)MemberwiseClone();
+    }
+    [Serializable] public sealed class HistoricalGovernmentPolicy
+    {
+        public int RepresentationMilli=100,CentralizationMilli=600,LastReformYear;
+        public HistoricalGovernmentPolicy Copy()=>(HistoricalGovernmentPolicy)MemberwiseClone();
+    }
+    [Serializable] public sealed class HistoricalCampaignAdvance
+    {
+        public long AttackerAreaKm2,DefenderAreaKm2;
+        public HistoricalCampaignAdvance Copy()=>(HistoricalCampaignAdvance)MemberwiseClone();
+    }
+    public sealed partial class Prehistory
+    {
+        public const string CommunityHistoryVersion="history-21";
+        static bool CommunityHistory(PrehistoryState s)=>s?.History?.Version==CommunityHistoryVersion;
+        public PrehistoryState UpgradeToCommunityHistory(PrehistoryState source)
+        {
+            Validate(source);if(CommunityHistory(source))return source;
+            if(!ProvincialHistory(source))source=UpgradeToRegionalHistory(source);
+            var s=source.Copy();s.History.Version=CommunityHistoryVersion;var a=s.History.Aggregates;
+            a.Communities=new HistoricalCommunityDynamics{
+                Cities=s.Society.Settlements.Select(t=>new HistoricalLocalCommunity{RulerId=a.Resolve(t.PolityId,s.History),SinceYear=s.Years,InclusionMilli=400}).ToArray(),
+                Governments=s.History.Polities.Select(p=>new HistoricalGovernmentPolicy{LastReformYear=s.Years}).ToArray(),
+                Campaigns=s.History.Dynamics.Campaigns.Select(c=>new HistoricalCampaignAdvance()).ToArray()};
+            PrepareCommunityShores();
+            s.Seal();return s;
+        }
+    }
+}

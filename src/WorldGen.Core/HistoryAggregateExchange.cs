@@ -13,7 +13,7 @@ namespace WorldGen.Core
             PrepareWildCrops();PrepareLandscape();
             if(LivingHistory(s)&&livingCoastalRegions==null)livingCoastalRegions=Enumerable.Range(0,Patches.Length).Where(i=>Patches[i].Island||Patches[i].Cells.Any(cell=>World.Surface.Cells[cell].Neighbors.Any(n=>World.Hydrology.OceanConnected[n]))).ToArray();
             if(aggregateDomesticTaxa==null)aggregateDomesticTaxa=World.Ecology.Taxa.Where(t=>NativeLifePack.Domesticability(t.Traits)>=.15).Select(t=>t.Id).OrderBy(i=>i).ToArray();
-            if(aggregateOceanRaster!=null){if(ConnectedHistory(s))PrepareConnectedEnvironment();return;}
+            if(aggregateOceanRaster!=null){if(ConnectedHistory(s))PrepareConnectedEnvironment();if(CommunityHistory(s))PrepareCommunityShores();return;}
             foreach(var patch in Patches)if(patch.Island)CropHabitat(s,patch.Cell);
             // A fixed-size physical approximation, built once. Voyages query
             // 32 samples, never run a fine-cell flood fill or A* in a turn.
@@ -21,6 +21,7 @@ namespace WorldGen.Core
             for(int y=0;y<OceanRasterHeight;y++)for(int x=0;x<OceanRasterWidth;x++)
             {double lat=Math.PI*(.5-(y+.5)/OceanRasterHeight),lon=2*Math.PI*((x+.5)/OceanRasterWidth-.5);var p=new V(Math.Cos(lat)*Math.Cos(lon),Math.Cos(lat)*Math.Sin(lon),Math.Sin(lat));raster[y*OceanRasterWidth+x]=World.Hydrology.OceanConnected[locator.Nearest(p)];}aggregateOceanRaster=raster;
             if(ConnectedHistory(s))PrepareConnectedEnvironment();
+            if(CommunityHistory(s))PrepareCommunityShores();
         }
         bool AggregateSeaLane(int from,int to)
         {
@@ -53,6 +54,7 @@ namespace WorldGen.Core
                 if(local<0)local=a.Regions[patch].Culture;
                 var ports=NearbyLivingTowns(s,destination,280);foreach(int candidate in ports)if(candidate!=cityId&&a.Living.Cities[candidate].AbandonedYear<0){destinationTown=candidate;break;}
                 if(local>=0){LivingCultureContact(s,town.CultureId,local);a.Living.Regions[patch].Teacher=town.CultureId;a.Living.Regions[patch].Exposure=Math.Min(1000,a.Living.Regions[patch].Exposure+200);}
+                if(ProvincialHistory(s)){a.Provinces.RegionalKnowledge[patch]|=ProvincialKnowledge(hc);a.Living.Regions[patch].LastExchangeYear=s.Years;}
             }
             if(destinationTown<0&&local>=0&&a.Cultures[local].Cities.Count>0)
             {int candidate=a.Cultures[local].Cities.At((int)(HistoryRoll("aggregate-destination-port",cityId,s.Years)*a.Cultures[local].Cities.Count));var port=s.Society.Settlements[candidate];if(D.Angle(World.Surface.Cells[port.Cell].Position,World.Surface.Cells[destination].Position)*World.Recipe.RadiusKm<180&&World.Surface.Cells[port.Cell].Neighbors.Any(n=>World.Hydrology.OceanConnected[n]))destinationTown=candidate;}
@@ -72,9 +74,14 @@ namespace WorldGen.Core
             town.FoodReserve-=people*2;ChangeAggregateCityPopulation(s,cityId,town.Population-people,a.Cities[cityId].Suburban,a.Cities[cityId].Rural);long previous=s.Population[patch];s.Population[patch]+=people;a.TotalPopulation+=people;if(s.ArrivalYear[patch]<0)s.ArrivalYear[patch]=s.Years;for(int g=0;g<8;g++)s.Ancestry[patch*8+g]=(int)((previous*s.Ancestry[patch*8+g]+people*s.Ancestry[CellPatch[town.Cell]*8+g])/Math.Max(1,s.Population[patch]));
             if(HistoricalCells.Culture(s,destination)<0)
             {
-                FoundAggregateCulture(s,patch,destination);int child=h.Cultures.Length-1;var inherited=h.Cultures[child];inherited.ParentCultureId=town.CultureId;inherited.LanguageId=hc.LanguageId;inherited.Technology=(int[])hc.Technology.Clone();s.Society.Cultures[child].Farming=s.Society.Cultures[town.CultureId].Farming;
+                FoundAggregateCulture(s,patch,destination);int child=h.Cultures.Length-1;
+                if(CommunityHistory(s))InheritDevelopmentCommunity(s,child,town.CultureId,destination);
+                else
+                {
+                var inherited=h.Cultures[child];inherited.ParentCultureId=town.CultureId;inherited.LanguageId=hc.LanguageId;inherited.Technology=(int[])hc.Technology.Clone();s.Society.Cultures[child].Farming=s.Society.Cultures[town.CultureId].Farming;
                 var crops=h.Agriculture[child];var parent=h.Agriculture[town.CultureId];for(int k=0;k<6;k++)if(parent.AdoptedYear[k]>0){crops.AdoptedYear[k]=s.Years+1;crops.SourceCulture[k]=town.CultureId;crops.Cultivars[k]=parent.Cultivars?[k]?.Copy();}
                 crops.Animals=(parent.Animals??Array.Empty<HistoricalAnimalHusbandry>()).Where(animal=>animal.AdoptedYear>0&&Biogeography.Suitable(World.Ecology.Taxa[animal.TaxonId],CropHabitat(s,destination),World.ElevationM[destination])).Select(animal=>new HistoricalAnimalHusbandry{TaxonId=animal.TaxonId,Name=animal.Name,Practice=animal.Practice,AdoptedYear=s.Years+1,SourceCulture=town.CultureId,OriginCell=destination}).ToArray();
+                }
                 HistoryEvent(s,"ocean-settlement",town.Name+" sends "+people+" settlers to a new shore; their inherited practices still require local crops and support.",destination,child,town.PolityId,town:cityId,category:ChronicleCategory.Society);
             }
         }
@@ -87,7 +94,8 @@ namespace WorldGen.Core
             if(!Biogeography.Present(World.Ecology,site,taxon)&&(source<0||!Biogeography.Suitable(animal,CropHabitat(s,site),World.ElevationM[site])))return;
             if(record==null){record=new HistoricalAnimalHusbandry{TaxonId=taxon,OriginCell=site,Name=animal.Name,SourceCulture=source};agriculture.Animals=records.Concat(new[]{record}).OrderBy(r=>r.TaxonId).ToArray();}
             var traits=animal.Traits;int region=World.Ecology.Region[site];var form=region>=0?World.Ecology.Regions[region].Species.FirstOrDefault(p=>p.TaxonId==taxon)?.Variant:null;if(form!=null){traits=traits.Copy();traits.Docility=form.Docility;traits.PanicResistance=form.PanicResistance;}
-            double gain=elapsed*(source>=0?.8:NativeLifePack.Domesticability(traits)*(.15+.85*c.Farming/1000.0)/6);record.Practice=Math.Min(1000,record.Practice+(int)Math.Round(gain));
+            double gain=elapsed*(source>=0?.8:NativeLifePack.Domesticability(traits)*(.15+.85*c.Farming/1000.0)/6);int whole=(int)Math.Round(gain);
+            if(CommunityHistory(s)){whole=(int)gain;if(HistoryRoll("community-husbandry-fraction-"+taxon,culture,s.Years)<gain-whole)whole++;}record.Practice=Math.Min(1000,record.Practice+whole);
             if(record.Practice>=600){record.AdoptedYear=s.Years+1;record.SourceCulture=source;HistoryEvent(s,"animal-domestication",c.Name+(source<0?" develops breeding traditions for ":" adopts management of ")+animal.Name+".",site,culture,category:ChronicleCategory.Discoveries);}
         }
         void AdvanceAggregateFaith(PrehistoryState s,int culture,int contact,int elapsed)

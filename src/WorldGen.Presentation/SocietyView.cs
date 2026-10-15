@@ -28,7 +28,8 @@ namespace WorldGen.Presentation
         {
             if(state==null)return;
             var h=state.Society;if(h==null)return;
-            for(int i=0;i<HistoricalCells.Count(state);i++){int owner=OverlayColorId(state,i,overlay);if(owner<0)continue;var c=CivilizationColor(owner);int at=offset+i*4;bytes[at]=(byte)Math.Round(c.X*255);bytes[at+1]=(byte)Math.Round(c.Y*255);bytes[at+2]=(byte)Math.Round(c.Z*255);}
+            var display=HistoricalMapSnapshot.For(state);
+            for(int i=0;i<HistoricalCells.Count(state);i++){int owner=display.ColorId(i,overlay);if(owner<0)continue;var c=CivilizationColor(owner);int at=offset+i*4;bytes[at]=(byte)Math.Round(c.X*255);bytes[at+1]=(byte)Math.Round(c.Y*255);bytes[at+2]=(byte)Math.Round(c.Z*255);}
         }
         // Selection/borders identify the court; political tint identifies its ruling
         // culture. Local identity survives conquest and is exposed only in Cultures.

@@ -19,7 +19,7 @@ namespace WorldGen.Core
             // Superior transport/weapons permit larger campaigns, not a forced
             // global conquest clock. Costly peer wars and negotiated trade remain.
             if(relation.TruceUntil<s.Years&&p.Army>30&&p.Cohesion>450&&HistoryRoll("development-war-"+other,id,s.Years)<1-Math.Exp(-risk*elapsed))
-            {p.Treasury=Math.Max(0,p.Treasury-Math.Max(50,p.Army/2));BeginAggregateCampaign(s,id,other,relation);}
+            {int front=ProvincialHistory(s)?ProvincialWarFront(s,id,other):-1;if(ProvincialHistory(s)&&front<0)return;p.Treasury=Math.Max(0,p.Treasury-Math.Max(50,p.Army/2));BeginAggregateCampaign(s,id,other,relation,front);}
             else{relation.Trade=relation.Trust>-25;relation.Alliance=relation.Trust>65&&power<2.5&&power>.4;}
         }
         void ClaimDevelopmentProvince(PrehistoryState s,int city,int parent)
@@ -44,6 +44,7 @@ namespace WorldGen.Core
         }
         void AdvanceDevelopmentCampaign(PrehistoryState s,int id)
         {
+            if(ProvincialHistory(s)){AdvanceProvincialCampaign(s,id);return;}
             var h=s.History;var a=h.Aggregates;var campaign=h.Dynamics.Campaigns[id];int elapsed=s.Years-campaign.LastActionYear;if(elapsed<=0)return;campaign.LastActionYear=s.Years;
             int attacker=campaign.AttackerId,defender=attacker==campaign.A?campaign.B:campaign.A;
             var pa=h.Polities[attacker];var pb=h.Polities[defender];var relation=AggregateRelation(s,attacker,defender);

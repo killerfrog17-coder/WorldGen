@@ -26,6 +26,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalPolity
     {
+        [NonSerialized] internal byte[] OwnedCanonicalRecord;
         public int Id, CultureId, CapitalId, FoundedYear, EndedYear=-1, ParentId=-1, RulerSince;
         public string Name="", Government="City council", Ruler="";
         public int Legitimacy=650, Cohesion=700, ReligionId, Army, Exhaustion;
@@ -41,6 +42,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalTown
     {
+        [NonSerialized] internal byte[] OwnedCanonicalRecord;
         public int Id, DiseaseUntil, ImmunityUntil, Walls;
         public long FoodBase;
         [System.Runtime.Serialization.OptionalField] public HarvestHazard LastHarvestHazard;
@@ -87,7 +89,9 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public HistoricalAggregateState Aggregates;
         // Lifetime archive: UI's 256-event feed must never erase campaign lore.
         public List<HistoricalEvent> Archive=new List<HistoricalEvent>();
-public HistoryState Copy()=>new HistoryState{Version=Version,CellPolity=(int[])CellPolity.Clone(),CellReligion=(int[])CellReligion.Clone(),CellStage=(int[])CellStage.Clone(),CellMarket=(int[])CellMarket.Clone(),Cultures=Cultures.Select(c=>c.Copy()).ToArray(),Religions=Religions.Select(r=>r.Copy()).ToArray(),Towns=Towns.Select(t=>t.Copy()).ToArray(),Polities=Polities.Select(p=>p.Copy()).ToArray(),Relations=Relations.Select(r=>r.Copy()).ToArray(),Agriculture=Agriculture?.Select(a=>a.Copy()).ToArray(),Dynamics=Dynamics?.Copy(),Faith=Faith?.Copy(),RegionalLearning=RegionalLearning?.Copy(),Administration=Administration?.Copy(),OceanSettlements=OceanSettlements?.Select(v=>v.Copy()).ToArray(),Modern=Modern?.Copy(),Aggregates=Aggregates?.Copy(),Archive=new List<HistoricalEvent>(Archive)};
+        public HistoryState Copy()=>CopyRecords(false);
+        internal HistoryState CopyOwned()=>CopyRecords(true);
+        HistoryState CopyRecords(bool owned)=>new HistoryState{Version=Version,CellPolity=(int[])CellPolity.Clone(),CellReligion=(int[])CellReligion.Clone(),CellStage=(int[])CellStage.Clone(),CellMarket=(int[])CellMarket.Clone(),Cultures=Cultures.Select(c=>c.Copy()).ToArray(),Religions=Religions.Select(r=>r.Copy()).ToArray(),Towns=Towns.Select(t=>owned&&Aggregates?.Living?.Cities[t.Id].AbandonedYear>=0?t:t.Copy()).ToArray(),Polities=Polities.Select(p=>owned&&p.EndedYear>=0?p:p.Copy()).ToArray(),Relations=Relations.Select(r=>r.Copy()).ToArray(),Agriculture=Agriculture?.Select(a=>a.Copy()).ToArray(),Dynamics=owned?Dynamics?.CopyOwned(Polities):Dynamics?.Copy(),Faith=Faith?.Copy(),RegionalLearning=RegionalLearning?.Copy(),Administration=Administration?.Copy(),OceanSettlements=OceanSettlements?.Select(v=>v.Copy()).ToArray(),Modern=Modern?.Copy(),Aggregates=Aggregates?.Copy(),Archive=new List<HistoricalEvent>(Archive)};
     }
     public static class HistoricalTechnologies
     {
@@ -99,7 +103,8 @@ public HistoryState Copy()=>new HistoryState{Version=Version,CellPolity=(int[])C
             new[]{18,21,19},new[]{20,21},new[]{28,18},new[]{25,26},new[]{23},new[]{23,21},new[]{28,19},new[]{25,30},new[]{34,15},new[]{35,30}};
         public static int Count(string version)=>Prehistory.IsAggregateHistoryVersion(version)?Names.Length:(version=="history-13"||(version=="history-14"||(version=="history-15"||version=="history-16")))?Names.Length:15;
         static readonly int[] WayfindingPrerequisites={(int)HistoricalTechnology.Sailing};
-        public static int[] Requirements(string version,int technology)=>LegacyRequirements(Prehistory.IsAggregateHistoryVersion(version)?"history-16":version,technology);
+        static readonly int[] LiteratePrintingPrerequisites={(int)HistoricalTechnology.Writing,(int)HistoricalTechnology.Mills,(int)HistoricalTechnology.Scholasticism};
+        public static int[] Requirements(string version,int technology)=>(version==Prehistory.RegionalHistoryVersion||version==Prehistory.CommunityHistoryVersion)&&technology==(int)HistoricalTechnology.Printing?LiteratePrintingPrerequisites:LegacyRequirements(Prehistory.IsAggregateHistoryVersion(version)?"history-16":version,technology);
         static int[] LegacyRequirements(string version,int technology)=>(version=="history-6"||version=="history-7"||version=="history-8"||(version=="history-9"||(version=="history-10"||(version=="history-11"||(version=="history-12"||(version=="history-13"||(version=="history-14"||(version=="history-15"||version=="history-16"))))))))&&technology==(int)HistoricalTechnology.Navigation?WayfindingPrerequisites:Prerequisites[technology];
         public static string Name(string version,int technology)=>LegacyName(Prehistory.IsAggregateHistoryVersion(version)?"history-16":version,technology);
         static string LegacyName(string version,int technology)=>(version=="history-6"||version=="history-7"||version=="history-8"||(version=="history-9"||(version=="history-10"||(version=="history-11"||(version=="history-12"||(version=="history-13"||(version=="history-14"||(version=="history-15"||version=="history-16"))))))))&&technology==(int)HistoricalTechnology.Navigation?"Ocean wayfinding and navigation":Names[technology];

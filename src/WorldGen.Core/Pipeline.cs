@@ -12,10 +12,23 @@ namespace WorldGen.Core
 {
     public static partial class StateHash
     {
+        [ThreadStatic] static bool literalAggregateRecords;
+        // Diagnostic reference for the typed historical record writers.
+        public static string ComputeHistoricalReference(object value,CancellationToken cancellation=default)
+        {bool previous=literalAggregateRecords;literalAggregateRecords=true;try{return Compute(value,cancellation);}finally{literalAggregateRecords=previous;}}
         static readonly ConcurrentDictionary<Type, string> TypeNames = new ConcurrentDictionary<Type, string>();
         static readonly ConcurrentDictionary<Type, FieldInfo[]> Fields = new ConcurrentDictionary<Type, FieldInfo[]>();
         static StateHash()
         {
+            CheckWideHistoricalRecords();
+            CheckRecord(typeof(HistoricalCityAggregate),"AreaKm2:System.Int64","BaseCropFactor:System.Double","BaseFarming:System.Int32","BaseFoodMultiplier:System.Double","BaseUrbanCapacity:System.Int64","ExchangeMilli:System.Int32","FloodMilli:System.Int32","FoodYieldMilli:System.Int32","Id:System.Int32","LastHarvestYear:System.Int32","LastPoliticalYear:System.Int32","LastVoyageYear:System.Int32","LastYear:System.Int32","Neighbors:System.Int32[]","ParentCity:System.Int32","Rural:System.Int64","RuralCapacity:System.Int64","SoilMilli:System.Int32","StoredYieldMilli:System.Int32","Suburban:System.Int64","Supported:System.Boolean");
+            CheckRecord(typeof(HistoricalRegionAggregate),"AreaKm2:System.Int64","AridityMilli:System.Int32","BestCell:System.Int32","Capacity:System.Int64","Culture:System.Int32","Id:System.Int32","LastCultureYear:System.Int32","LastYear:System.Int32","MeanTenthsC:System.Int32","NativeMask:System.Int32","OpportunityMilli:System.Int32","ReliefM:System.Int32","Routes:System.Int32[]","SoilMilli:System.Int32","StoredMilli:System.Int32","YieldMilli:System.Int32");
+            CheckRecord(typeof(HistoricalCultureAggregate),"Cities:WorldGen.Core.HistoricalLocalBag","CityCount:System.Int32","CivilizationSince:System.Int32","FoodCapacity:System.Int64","Frontier:WorldGen.Core.HistoricalLocalBag","Id:System.Int32","LargestCity:System.Int64","LastYear:System.Int32","NextTechnology:System.Int32","Region:System.Int32","Rural:System.Int64","SupportedCities:System.Int32","SupportedUrban:System.Int64","Urban:System.Int64");
+            CheckRecord(typeof(HistoricalPolityAggregate),"Cities:WorldGen.Core.HistoricalLocalBag","CityCount:System.Int32","ConquestDebtMilli:System.Int32","Frontier:WorldGen.Core.HistoricalLocalBag","Id:System.Int32","LastSuccession:System.Int32","LastYear:System.Int32","ReachKm:System.Int32","Receipts:System.Int64","Remote:System.Int64","RemoteAreaKm2:System.Int64","RemoteCapacity:System.Int64","Rural:System.Int64","ServiceCost:System.Int64","Suburban:System.Int64","SuccessionDue:System.Int32","UnrestMilli:System.Int32","Urban:System.Int64");
+            CheckRecord(typeof(HistoricalLivingCity),"AbandonedYear:System.Int32","DeclineYears:System.Int32","DisruptedUntil:System.Int32","LastContactYear:System.Int32","PeakPopulation:System.Int64","PeakYear:System.Int32","Productivity:System.Double","StressMilli:System.Int32");
+            CheckRecord(typeof(HistoricalLivingRegion),"CivicExposure:System.Int32","CivicTeacher:System.Int32","CommittedAreaKm2:System.Int64","Exposure:System.Int32","LastExchangeYear:System.Int32","SettledPopulation:System.Int64","Teacher:System.Int32");
+            CheckRecord(typeof(HistoricalExchangeMemory),"Capabilities:System.Int64[]","LastDirectYear:System.Int32[]","LastYear:System.Int32[]","Peers:System.Int32[]");
+            CheckRecord(typeof(HistoricalCampaignTheater),"Cell:System.Int32","SupplyA:System.Int32","SupplyB:System.Int32");
             CheckRecord(typeof(HistoricalEvent),"Category:WorldGen.Core.ChronicleCategory","Cell:System.Int32","CultureId:System.Int32","Id:System.Int32","Kind:System.String","OtherPolityId:System.Int32","PolityId:System.Int32","ReligionId:System.Int32","SettlementId:System.Int32","Text:System.String","Year:System.Int32");
             CheckRecord(typeof(HistoricalLeader),"Administration:System.Int32","Ambition:System.Int32","Defeats:System.Int32","Diplomacy:System.Int32","EndedYear:System.Int32","ExpectedEndYear:System.Int32","Id:System.Int32","Legacy:System.String","Military:System.Int32","Name:System.String","PolityId:System.Int32","PredecessorId:System.Int32","Reforms:System.Int32","Renown:System.Int32","Selection:System.String","StartedYear:System.Int32","Victories:System.Int32");
             CheckRecord(typeof(Cell), "AreaM2:System.Int64", "DistanceM:System.Int32[]", "Id:System.Int32", "Neighbors:System.Int32[]", "Position:WorldGen.Core.V");
@@ -62,7 +75,7 @@ namespace WorldGen.Core
             // Preserve the exact canonical byte format while avoiding type lookup
             // and reflection on the millions of scalar values hashed in WASM.
             if (o is string text) { w.Write("System.String"); w.Write(text); return; }
-            if(o is HistoricalCellTree spatial){w.Write("WorldGen.Core.HistoricalCellTree");w.Write(spatial.Fingerprint());return;}
+            if(o is HistoricalCellTree spatial){spatial.WriteCanonicalFingerprint(w);return;}
             if(o is HistoricalFrozenAdministration frozen){w.Write("WorldGen.Core.HistoricalFrozenAdministration");w.Write(frozen.Fingerprint());return;}
             if (o is int i) { w.Write("System.Int32"); w.Write(i); return; }
             if (o is long l) { w.Write("System.Int64"); w.Write(l); return; }
@@ -71,6 +84,16 @@ namespace WorldGen.Core
             if (o is V vector) { VectorBody(w, vector); return; }
             if(o is HistoricalEvent historyEvent){HistoryEventBody(w,historyEvent);return;}
             var t = o.GetType(); w.Write(TypeName(t));
+            if(!literalAggregateRecords&&(o is Array?TryWriteWideHistoricalArray(w,o,t):TryWriteWideHistoricalRecord(w,o,t)))return;
+            if(!literalAggregateRecords&&o is HistoricalLocalBag bag){w.Write("Count");Integer(w,bag.Count);w.Write("Items");Write(w,bag.Items);w.Write("Positions");Write(w,bag.Positions);return;}
+            if(!literalAggregateRecords&&t==typeof(HistoricalCityAggregate[])){HistoricalCityAggregateArrayBody(w,(HistoricalCityAggregate[])o);return;}
+            if(!literalAggregateRecords&&t==typeof(HistoricalRegionAggregate[])){HistoricalRegionAggregateArrayBody(w,(HistoricalRegionAggregate[])o);return;}
+            if(!literalAggregateRecords&&t==typeof(HistoricalCultureAggregate[])){HistoricalCultureAggregateArrayBody(w,(HistoricalCultureAggregate[])o);return;}
+            if(!literalAggregateRecords&&t==typeof(HistoricalPolityAggregate[])){HistoricalPolityAggregateArrayBody(w,(HistoricalPolityAggregate[])o);return;}
+            if(!literalAggregateRecords&&t==typeof(HistoricalLivingCity[])){HistoricalLivingCityArrayBody(w,(HistoricalLivingCity[])o);return;}
+            if(!literalAggregateRecords&&t==typeof(HistoricalLivingRegion[])){HistoricalLivingRegionArrayBody(w,(HistoricalLivingRegion[])o);return;}
+            if(!literalAggregateRecords&&t==typeof(HistoricalExchangeMemory[])){HistoricalExchangeMemoryArrayBody(w,(HistoricalExchangeMemory[])o);return;}
+            if(!literalAggregateRecords&&t==typeof(HistoricalCampaignTheater[])){HistoricalCampaignTheaterArrayBody(w,(HistoricalCampaignTheater[])o);return;}
             if(t==typeof(System.Collections.Generic.List<HistoricalEvent>)){HistoryArchive(w,(System.Collections.Generic.List<HistoricalEvent>)o);return;}
             if(t==typeof(HistoricalLeader[])){LeaderArrayBody(w,(HistoricalLeader[])o);return;}
             // Mesh records dominate large snapshots. Preserve the canonical bytes
@@ -112,6 +135,8 @@ namespace WorldGen.Core
                 if(o is HistoryState modernHistory && f.Name==nameof(HistoryState.Modern) && modernHistory.Modern==null)continue;
                 if(o is HistoryState aggregateHistory && f.Name==nameof(HistoryState.Aggregates) && aggregateHistory.Aggregates==null)continue;
                 if(o is HistoricalAggregateState oldAggregate && f.Name==nameof(HistoricalAggregateState.Living) && oldAggregate.Living==null)continue;
+                if(o is HistoricalAggregateState oldProvince && f.Name==nameof(HistoricalAggregateState.Provinces) && oldProvince.Provinces==null)continue;
+                if(o is HistoricalAggregateState oldCommunity && f.Name==nameof(HistoricalAggregateState.Communities) && oldCommunity.Communities==null)continue;
                 if(o is HistoricalModernSettings shippingSettings && f.Name==nameof(HistoricalModernSettings.Shipping) && shippingSettings.Shipping?.Length==0)continue;
                 if(o is HistoricalAgriculture wildSites && f.Name==nameof(HistoricalAgriculture.WildOriginCell) && wildSites.WildOriginCell==null)continue;
                 if(o is HistoricalReligion reachReligion && f.Name==nameof(HistoricalReligion.Reach) && reachReligion.Reach==ReligiousReach.Local)continue;

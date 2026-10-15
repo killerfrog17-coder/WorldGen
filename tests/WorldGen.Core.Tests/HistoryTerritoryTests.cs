@@ -4,7 +4,7 @@ public static class HistoryTerritoryTests
 {
     public static void Run(Action<bool,string> check)
     {
-        check(Prehistory.CurrentHistoryVersion=="history-15","New histories distinguish independent emergence from local diffusion without a generic knowledge clock");
+        check(Prehistory.IsAggregateHistoryVersion(Prehistory.CurrentHistoryVersion),"New histories retain local emergence and diffusion on the aggregate actor calendar");
         double grievance=HistoricalAutonomyEffects.Grievance(650,250,600,500,true);
         check(grievance>HistoricalAutonomyEffects.Grievance(50,800,0,750,false),"Imperial stress and contested transitions can support provincial grievances");
         check(HistoricalAutonomyEffects.Pressure(300,grievance,false)==240,"Cultural difference without an organized local base cannot build a revolt");

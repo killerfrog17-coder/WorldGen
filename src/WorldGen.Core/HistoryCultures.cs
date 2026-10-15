@@ -6,7 +6,7 @@ namespace WorldGen.Core
 {
     public sealed partial class Prehistory
     {
-        double HistoryRoll(string stream,int id,int year)=>Rng.Value(World.Recipe.Seed,"history-1-"+stream,unchecked(id*104729+year*7919));
+        double HistoryRoll(string stream,int id,int year)=>CachedHistoricalRoll(stream,id,year);
         double HistoryPairRoll(PrehistoryState s,string stream,int first,int second)=>ModernHistory(s)?HistoryRoll(stream+"-13-actor-"+first,second,s.Years):HistoryRoll(stream,unchecked(first*31+second),s.Years);
         double LocalDensity(PrehistoryState s,int cell)=>RuralCellPopulation(s,cell)/Math.Max(1,World.Surface.Cells[cell].AreaM2/1e6);
         double StorageOpportunity(int cell)

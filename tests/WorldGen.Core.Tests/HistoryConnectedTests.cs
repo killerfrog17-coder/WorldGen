@@ -20,7 +20,7 @@ public static class HistoryConnectedTests
         check(HistoricalDevelopmentEffects.CoastRangeKm(technology,1000)>coast*30,"Ocean-going capabilities unlock genuinely longer voyages");
         var world=WorldFile.Read(File.ReadAllBytes(path));var original=world.Prehistory;string originalHash=original.Hash;
         var engine=new Prehistory(world);var source=engine.UpgradeToCurrentHistory(original);engine.Validate(source);
-        check(source.History.Version==Prehistory.ConnectedHistoryVersion&&original.ComputeHash()==originalHash,"Connected rules are explicit and do not reinterpret the saved history");
+        check(source.History.Version==Prehistory.CurrentHistoryVersion&&original.ComputeHash()==originalHash,"Connected rules are explicit and do not reinterpret the saved history");
         check(!Prehistory.CanUpgradeHistory(source),"The current rules do not offer a spurious update button");
         if(original.History.Version==Prehistory.LivingHistoryVersion)check(Prehistory.CanUpgradeHistory(original),"Existing history18 saves expose the explicit upgrade action in both hosts");
         check(source.Years==original.Years&&SocietyView.Population(source)==SocietyView.Population(original),"Upgrade neither advances time nor creates people");
@@ -34,13 +34,16 @@ public static class HistoryConnectedTests
         if(source.Society.Cultures.Length>=3)
         {
             var probe=source.Copy();probe.Society.Cultures[0].Contacts=new[]{1,2};
+            if(probe.History.Aggregates.Provinces!=null)probe.History.Aggregates.Provinces.Exchanges[0]=new HistoricalExchangeMemory();
             probe.History.Cultures[1].Technology[(int)HistoricalTechnology.Sailing]=0;
             probe.History.Cultures[2].Technology[(int)HistoricalTechnology.Sailing]=1;
+            typeof(Prehistory).GetMethod("LivingCultureContact",BindingFlags.Instance|BindingFlags.NonPublic)!.Invoke(engine,new object[]{probe,0,2});
             var method=typeof(Prehistory).GetMethod("DevelopmentTeacher",BindingFlags.Instance|BindingFlags.NonPublic)!;
             check((int)method.Invoke(engine,new object[]{probe,0,(int)HistoricalTechnology.Sailing,1})! ==2,"A valid second contact is not hidden by an unhelpful sampled first contact");
             var own=probe.History.Aggregates.Cultures[0];own.CivilizationSince=0;own.SupportedUrban=5000;own.SupportedCities=1;
             var peer=probe.History.Aggregates.Cultures[1];peer.CivilizationSince=0;peer.SupportedUrban=60000;peer.SupportedCities=2;
             probe.History.Cultures[0].Institution=600;probe.History.Cultures[0].Surplus=500;
+            typeof(Prehistory).GetMethod("LivingCultureContact",BindingFlags.Instance|BindingFlags.NonPublic)!.Invoke(engine,new object[]{probe,0,1});
             var network=typeof(Prehistory).GetMethod("DevelopmentResearchNetwork",BindingFlags.Instance|BindingFlags.NonPublic)!;
             check((bool)network.Invoke(engine,new object[]{probe,0,(int)HistoricalTechnology.Printing,false})!,"A supported research network need not all belong to one culture");
         }

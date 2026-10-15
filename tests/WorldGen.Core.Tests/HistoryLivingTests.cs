@@ -16,8 +16,9 @@ public static class HistoryLivingTests
         var partition=new SimulationSession(new Prehistory(world),source);long target=partition.Seconds+20*SimulationTime.Year;
         while(partition.Seconds<target)partition.AdvanceSeconds(target-partition.Seconds,97,maximumGlobalWork:64);
         check(partition.Hash==expected.Hash,"Living exchanges, retirement and political succession are partition deterministic");
-        check(metrics.All(m=>m.Stage=="publication copy"||m.Stage.StartsWith("aggregate event ",StringComparison.Ordinal)),"New historical mechanisms do not restore any global cell turn");
-        check(metrics.Where(m=>m.Stage.StartsWith("aggregate event ")).All(m=>m.Items<16000),"Events retain bounded terrain access, including capped technology-scaled frontiers");
+        check(metrics.All(m=>m.Stage=="publication copy"||(m.Stage=="aggregate checkpoint copy"||m.Stage=="aggregate checkpoint hash")&&m.Items==0||m.Stage.StartsWith("aggregate event ",StringComparison.Ordinal)),"New historical mechanisms do not restore any global cell turn");
+        int localBound=source.History.Version==Prehistory.CommunityHistoryVersion?64000:16000;
+        check(metrics.Where(m=>m.Stage.StartsWith("aggregate event ")).All(m=>m.Items<localBound),"Events retain bounded terrain access, including capped physical-area campaigns");
         var isolated=source.Copy();int city=Array.FindIndex(isolated.Society.Settlements,t=>t.Population>0&&isolated.History.Aggregates.Resolve(t.PolityId,isolated.History)<0);
         if(city<0)city=0;
         var life=isolated.History.Aggregates.Living.Cities[city];life.Productivity=.1;life.DisruptedUntil=isolated.Years+200;life.DeclineYears=79;isolated.Seal();

@@ -8,7 +8,7 @@ namespace WorldGen.Presentation
     {
         public readonly struct PlaybackSlice
         {public readonly long Seconds;public readonly int MaximumEvents,MaximumGlobalWork;public PlaybackSlice(long seconds,int events,int globals=int.MaxValue){Seconds=seconds;MaximumEvents=events;MaximumGlobalWork=globals;}}
-        public const int FastMaximumEvents=4096,FastMaximumGlobalWork=512;
+        public const int FastMaximumEvents=16384,FastMaximumGlobalWork=2048;
         public static PlaybackSlice Publication(long now,long requested,double rate)
         {
             if(now<0||requested<1)throw new ArgumentOutOfRangeException(nameof(requested));
@@ -17,9 +17,12 @@ namespace WorldGen.Presentation
             // and the calendar still processes every due/coincident event.
             // Batch several populated years too: copying/hashing an entire
             // checkpoint after every year can cost more than its actual actors.
-            // Slow clocks retain the original fine event publication cadence.
+            // Slow clocks publish short DATE intervals, not one private actor
+            // event. A modern world may have thousands of unrelated events in
+            // a year: repainting/resealing after every one destroys throughput.
             bool yearOnly=rate>=20*(SimulationTime.Year/12.0);
-            return new PlaybackSlice(requested,yearOnly?FastMaximumEvents:1,yearOnly?FastMaximumGlobalWork:int.MaxValue);
+            long seconds=yearOnly?requested:Math.Min(requested,Math.Max(1,(long)Math.Floor(rate/5)));
+            return new PlaybackSlice(seconds,FastMaximumEvents,FastMaximumGlobalWork);
         }
         public static readonly string[] Units={"seconds","minutes","hours","days","weeks","months","years"};
         public static readonly long[] UnitSeconds={1,SimulationTime.Minute,SimulationTime.Hour,SimulationTime.Day,7*SimulationTime.Day,30*SimulationTime.Day,SimulationTime.Year};

@@ -150,8 +150,9 @@ public static class HistoryModernTests
         check(new Prehistory(w).AdvanceSeconds(high,137*SimulationTime.Year+17*SimulationTime.Day).Hash==next.Hash,"Actor search caches cannot change modern outcomes");
         var session=new SimulationSession(engine,high);long sessionTarget=SimulationTime.Seconds(high)+3*SimulationTime.Year+17*SimulationTime.Day;
         var fast=SimulationClockView.Publication(10*SimulationTime.Year+123,1000*SimulationTime.Year,1000*SimulationTime.Year);
-        check(fast.Seconds==1000*SimulationTime.Year&&fast.MaximumEvents==4096&&fast.MaximumGlobalWork==512,"Fast publication crosses empty years and batches populated years while bounding estimated global work");
-        var fine=SimulationClockView.Publication(10*SimulationTime.Year+123,17,1);check(fine.Seconds==17&&fine.MaximumEvents==1,"Fine-speed playback retains exact requested seconds and one-event publication");
+        check(fast.Seconds==1000*SimulationTime.Year&&fast.MaximumEvents==SimulationClockView.FastMaximumEvents&&fast.MaximumGlobalWork==SimulationClockView.FastMaximumGlobalWork,"Fast publication crosses empty years and batches populated years while bounding estimated global work");
+        var fine=SimulationClockView.Publication(10*SimulationTime.Year+123,17,1);check(fine.Seconds==1&&fine.MaximumEvents==SimulationClockView.FastMaximumEvents,"Fine-speed playback batches by an exact short date interval, not one unrelated actor event");
+        var monthly=SimulationClockView.Publication(0,SimulationTime.Year,SimulationTime.Year/2.0);check(monthly.Seconds==SimulationTime.Year/10&&monthly.MaximumEvents>1,"Half-year-per-second playback processes every event within a fifth-second display interval");
         var batched=new SimulationSession(new Prehistory(w),high);
         while(batched.Seconds<sessionTarget){var slice=SimulationClockView.Publication(batched.Seconds,sessionTarget-batched.Seconds,1000*SimulationTime.Year);batched.AdvanceSeconds(slice.Seconds,slice.MaximumEvents,maximumGlobalWork:slice.MaximumGlobalWork);}
         check(batched.Snapshot().Hash==engine.AdvanceSeconds(high,sessionTarget-SimulationTime.Seconds(high)).Hash,"Multi-year playback batching preserves the exact calendar, domain effects and final integrity hash");
