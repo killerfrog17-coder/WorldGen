@@ -50,6 +50,7 @@ try{
   await page.locator('.atlas-directory').getByRole('button',{name:'Provinces',exact:true}).click();await page.locator('.atlas-directory-list button').first().click();
   await page.waitForFunction(()=>document.querySelector('.atlas-article')?.dataset.kind==='province');
   if(!(await page.locator('.atlas-lead').innerText()).includes('administrative'))throw Error('Missing actual provincial narrative');
+  await checkHabitat();
   await page.screenshot({path:output+'/province-profile.png'});
   await page.locator('.atlas-directory').getByRole('button',{name:'States',exact:true}).click();await page.locator('.atlas-directory-list button').first().click();
  }
