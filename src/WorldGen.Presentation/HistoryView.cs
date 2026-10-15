@@ -150,8 +150,8 @@ namespace WorldGen.Presentation
         public static string CampaignLore(PrehistoryState s,World? world=null)
         {
             if(s?.History==null)return "This save predates the historical simulation.";
-            var b=new StringBuilder("# World chronicle\n\n"+SimulationClockView.Year(s,s.Years)+"\n\n");var h=s.History;
-            foreach(var c in s.Society.Cultures)b.AppendLine("## "+c.Name).AppendLine(HistoricalDescription(s,c.OriginCell,HistoryOverlay.Cultures,"")).AppendLine();
+            int epoch=SimulationClockView.EpochYear(s);var b=new StringBuilder("# World chronicle\n\nYear "+SimulationClockView.YearNumber(s.Years,epoch)+"\n\n");var h=s.History;
+            AppendCultureGazetteer(b,s,world,epoch);
             b.AppendLine("## States, including fallen states");foreach(var p in h.Polities)
             {
                 b.AppendLine().AppendLine($"### {p.Name} [state {p.Id}]");
@@ -162,7 +162,7 @@ namespace WorldGen.Presentation
                 if(h.Dynamics!=null){var ds=h.Dynamics.States[p.Id];b.AppendLine("Institutional tradition: "+ds.Tradition).AppendLine($"Recorded peak: {ds.PeakPopulation:N0} people; {ds.PeakAreaKm2:N0} km². Foundation readiness: {ds.FoundationPotential/10}%; a game-model context score, not archaeological probability.");}
             }
             AppendGazetteer(b,s,world);
-            b.AppendLine("\n## Complete event archive");foreach(var e in h.Archive)b.AppendLine($"- {SimulationClockView.Year(s,e.Year)}: {e.Text}");return b.ToString();
+            b.AppendLine("\n## Complete event archive");foreach(var e in h.Archive)b.AppendLine($"- Year {SimulationClockView.YearNumber(e.Year,epoch)}: {e.Text}");return b.ToString();
         }
     }
 }

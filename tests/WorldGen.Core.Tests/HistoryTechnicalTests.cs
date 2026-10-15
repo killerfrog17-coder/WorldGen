@@ -14,7 +14,7 @@ public static class HistoryTechnicalTests
             check(HistoricalTechnicalGraph.Cost(k,2)>HistoricalTechnicalGraph.Cost(k,1)&&HistoricalTechnicalGraph.Cost(k,3)>HistoricalTechnicalGraph.Cost(k,2),"Further levels require additional effort: "+k);
         }
         var world=WorldFile.Read(File.ReadAllBytes(path));string legacy=world.Prehistory.Hash;var engine=new Prehistory(world);
-        var state=engine.UpgradeToCurrentHistory(world.Prehistory);engine.Validate(state);
+        var state=engine.UpgradeToTechnicalHistory(world.Prehistory);engine.Validate(state);
         check(world.Prehistory.Hash==legacy&&state.History.Version==Prehistory.TechnicalHistoryVersion,"An explicit upgrade preserves the source checkpoint");
         check(state.History.Cultures.All(c=>c.Technical!=null)&&state.History.Aggregates.Empires!=null,"Every current actor has persisted technical/imperial accounts");
         check(SocietyView.Population(state)==SocietyView.Population(world.Prehistory),"The new rules do not create migrants or residents during migration");

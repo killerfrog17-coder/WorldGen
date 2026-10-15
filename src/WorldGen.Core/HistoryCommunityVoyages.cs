@@ -10,7 +10,16 @@ namespace WorldGen.Core
             int origin=s.Society.Cultures[culture].OriginCell;if(Shore(origin))return true;
             var cities=s.History.Aggregates.Cultures[culture].Cities;
             int offset=cities.Count==0?0:(int)(HistoryRoll("community-maritime-centers",culture,s.Years)*cities.Count);
-            for(int k=0;k<Math.Min(3,cities.Count);k++)if(Shore(s.Society.Settlements[cities.At((offset+k)%cities.Count)].Cell))return true;
+            for(int k=0;k<Math.Min(3,cities.Count);k++)
+            {
+                var town=s.Society.Settlements[cities.At((offset+k)%cities.Count)];if(Shore(town.Cell))return true;
+                if(ColonialHistory(s))
+                {
+                    int court=s.History.Aggregates.Resolve(town.PolityId,s.History);if(court<0||s.History.Polities[court].CultureId!=culture)continue;
+                    var posts=s.History.Aggregates.Empires.Governments[court].AdministrativePosts;
+                    for(int p=0;p<Math.Min(2,posts.Count);p++){int post=posts.At((int)(HistoryRoll("colonial-maritime-practice-"+p,court,s.Years)*posts.Count));var port=s.History.Aggregates.Empires.Territories.Posts[post];if(DiffusionShore(port.Cell)&&TerritorialNodeLive(s,court,-2-post))return true;}
+                }
+            }
             return false;
         }
         void AdvanceCommunityVoyage(PrehistoryState s,int region,int elapsed)

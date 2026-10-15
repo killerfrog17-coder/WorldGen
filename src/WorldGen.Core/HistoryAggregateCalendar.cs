@@ -28,6 +28,10 @@ namespace WorldGen.Core
                 else if(known.Offers[(int)HistoricalTechnology.Telegraph]>0&&state.Years-known.OfferYear[(int)HistoricalTechnology.Telegraph]<=100)cadence=Math.Min(cadence,5);
                 else if(known.Offers[(int)HistoricalTechnology.Printing]>0&&state.Years-known.OfferYear[(int)HistoricalTechnology.Printing]<=250)cadence=Math.Min(cadence,15);
             }
+            // Fast communications must not turn every empty/remote habitat into
+            // a biennial census. Analytic population and adoption use the actual
+            // elapsed time; city, conflict and political calendars stay separate.
+            if(ColonialHistory(state)){if(process==RegionProcess)cadence=Math.Max(10,cadence);if(process==CultureProcess)cadence=Math.Max(5,cadence);}
             return SimulationEventQueue.Window(World.Recipe.Seed,"aggregate-1-"+process,entity,unchecked((int)ticket),(long)(cadence*SimulationTime.Year),(long)(cadence*.3*SimulationTime.Year));
         }
         SimulationTimeline InitialAggregateTimeline(PrehistoryState s)

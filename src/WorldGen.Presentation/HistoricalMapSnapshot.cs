@@ -48,7 +48,14 @@ namespace WorldGen.Presentation
         // population and local culture. An actual state's territory always wins.
         public int PoliticalSovereign(int cell){int p=Sovereign(cell);return p>=0?p:cell>=0&&cell<Count&&claims[cell]>=0?sovereigns[claims[cell]]:-1;}
         public int Boundary(int cell)=>boundaries[cell];
-        public int Boundary(int cell,HistoryOverlay overlay){if(overlay==HistoryOverlay.Provinces){int province=HistoricalProvinceIdentity.Of(source,cell);return province>=0?province:Boundary(cell);}if(overlay!=HistoryOverlay.Territories)return Boundary(cell);int p=Polity(cell),c=Culture(cell);return p>=0?p:c>=0?-2-c:-1;}
+        public int Boundary(int cell,HistoryOverlay overlay)
+        {
+            if(overlay==HistoryOverlay.Cultures)return Culture(cell);
+            if(overlay==HistoryOverlay.Religions)return Religion(cell);
+            if(overlay==HistoryOverlay.Technology)return OverlayId(cell,overlay);
+            if(overlay==HistoryOverlay.Provinces){int province=HistoricalProvinceIdentity.Of(source,cell);return province>=0?province:Boundary(cell);}
+            if(overlay!=HistoryOverlay.Territories)return Boundary(cell);int p=Polity(cell),c=Culture(cell);return p>=0?p:c>=0?-2-c:-1;
+        }
         public bool SameBoundaries(HistoricalMapSnapshot? other)
         {if(other==null||other.Count!=Count)return false;for(int i=0;i<boundaries.Length;i++)if(boundaries[i]!=other.boundaries[i])return false;return true;}
         public int OverlayId(int cell,HistoryOverlay overlay)

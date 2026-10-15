@@ -14,7 +14,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalCulturalContinuity
     {
-        public int PrecursorRegion,LastEvolutionYear,WayOfLife,ColonialSponsor=-1,CivilizationRoot=-1,DormantSince=-1;
+        public int PrecursorRegion,LastEvolutionYear,WayOfLife,ColonialSponsor=-1,CivilizationRoot=-1,InstitutionalOriginCulture=-1,DormantSince=-1;
         public HistoricalCoastChart[] Charts=Array.Empty<HistoricalCoastChart>();
         public HistoricalCulturalEpisode[] Episodes=Array.Empty<HistoricalCulturalEpisode>();
         public HistoricalCulturalContinuity Copy(){var c=(HistoricalCulturalContinuity)MemberwiseClone();c.Charts=Charts.Select(x=>x.Copy()).ToArray();c.Episodes=Episodes.Select(x=>x.Copy()).ToArray();return c;}
@@ -76,9 +76,15 @@ namespace WorldGen.Core
             HistoryEvent(s,"charted-coast",s.Society.Cultures[culture].Name+" obtains sailing directions to "+ColonialRegionName(region)+" through "+(source==culture?"an actual voyage.":"maritime exchange with "+s.Society.Cultures[source].Name+"."),Patches[region].Cell,culture,category:ChronicleCategory.Discoveries);
         }
         string ColonialRegionName(int region)=>Patches[region].Region>=0?World.Ecology.Regions[Patches[region].Region].Name:"the outer island shores";
-        void EstablishCivilizationalLineage(PrehistoryState s,int culture)
+        void EstablishCivilizationalLineage(PrehistoryState s,int culture,int city)
         {
             if(!ColonialHistory(s))return;var connections=s.History.Aggregates.Empires.Connections;var record=connections.Cultures[culture];
+            if(record.InstitutionalOriginCulture<0)
+            {
+                int teacher=s.History.Towns[city].CivicTeacherPolityId;if(teacher<0)teacher=record.ColonialSponsor;
+                int source=teacher>=0?s.History.Polities[teacher].CultureId:culture;
+                record.InstitutionalOriginCulture=source!=culture&&connections.Cultures[source].InstitutionalOriginCulture>=0?connections.Cultures[source].InstitutionalOriginCulture:source;
+            }
             if(record.CivilizationRoot>=0)return;int language=s.History.Cultures[culture].LanguageId,root=connections.FamilyRoots[language];
             record.CivilizationRoot=root>=0?root:culture;if(root<0)connections.FamilyRoots=connections.FamilyRoots.With(language,culture);
         }
@@ -114,7 +120,7 @@ namespace WorldGen.Core
             if(!ColonialHistory(s)){if(c!=null)throw new ArgumentException("Legacy colonial extension.");return;}
             if(c?.Cultures?.Length!=s.Society.Cultures.Length||c.Governments?.Length!=s.History.Polities.Length||c.CellRegions?.Length!=CellPatch.Length||c.TitleAt?.Length!=Patches.Length||c.FamilyRoots?.Length!=33554432||c.RegionAreas?.Length!=Patches.Length)throw new ArgumentException("Colonial connection alignment.");
             for(int i=0;i<c.Cultures.Length;i++){var r=c.Cultures[i];if(r.PrecursorRegion<0||r.PrecursorRegion>=Patches.Length||r.CivilizationRoot>=c.Cultures.Length||r.CivilizationRoot<-1||r.ColonialSponsor>=c.Governments.Length||r.ColonialSponsor<-1||r.Charts==null||r.Charts.Length>24||r.Episodes==null||r.LastEvolutionYear>s.Years||r.DormantSince>s.Years)throw new ArgumentException("Cultural continuity record.");foreach(var chart in r.Charts)if(chart.Region<0||chart.Region>=Patches.Length||chart.SourceCulture<0||chart.SourceCulture>=c.Cultures.Length||chart.Year>s.Years)throw new ArgumentException("Invalid coast chart.");}
-            for(int i=0;i<c.Titles.Length;i++){var t=c.Titles[i];if(t.Id!=i||t.Region<0||t.Region>=Patches.Length||t.Holder<0||t.Holder>=c.Governments.Length||t.Recognizer<0||t.Recognizer>=c.Governments.Length||t.Holder==t.Recognizer||t.EstablishedYear>s.Years||t.LastTransferYear>s.Years||t.AreaKm2<0||t.LastPrice<0||c.TitleAt[t.Region]!=i)throw new ArgumentException("Invalid recognized title.");}
+            for(int i=0;i<c.Titles.Length;i++){var t=c.Titles[i];if(t.Id!=i||t.Region<0||t.Region>=Patches.Length||t.Holder<0||t.Holder>=c.Governments.Length||t.Recognizer<0||t.Recognizer>=c.Governments.Length||t.PreviousHolder<-1||t.PreviousHolder>=c.Governments.Length||t.Holder==t.Recognizer||t.EstablishedYear<0||t.EstablishedYear>s.Years||t.LastTransferYear<t.EstablishedYear||t.LastTransferYear>s.Years||t.AreaKm2!=c.RegionAreas[t.Region]||t.LastPrice<0||string.IsNullOrWhiteSpace(t.Basis)||c.TitleAt[t.Region]!=i)throw new ArgumentException("Invalid recognized title.");}
             var titleOwners=new int[c.Titles.Length];
             for(int i=0;i<c.Governments.Length;i++)
             {
@@ -124,7 +130,7 @@ namespace WorldGen.Core
             for(int i=0;i<titleOwners.Length;i++)if(titleOwners[i]!=1)throw new ArgumentException("Missing recognized title index.");
             for(int i=0;i<c.Cultures.Length;i++)
             {
-                var r=c.Cultures[i];if(r.LastEvolutionYear<0||r.DormantSince<-1||r.WayOfLife<0||r.WayOfLife>5||r.Charts.Select(x=>x.Region).Distinct().Count()!=r.Charts.Length)throw new ArgumentException("Invalid cultural continuity.");
+                var r=c.Cultures[i];if(r.InstitutionalOriginCulture<-1||r.InstitutionalOriginCulture>=c.Cultures.Length||r.LastEvolutionYear<0||r.DormantSince<-1||r.WayOfLife<0||r.WayOfLife>5||r.Charts.Select(x=>x.Region).Distinct().Count()!=r.Charts.Length)throw new ArgumentException("Invalid cultural continuity.");
                 int until=0;foreach(var e in r.Episodes){if(e==null||string.IsNullOrWhiteSpace(e.Name)||e.Since<until||e.Until<e.Since||e.Until>r.LastEvolutionYear||e.WayOfLife<0||e.WayOfLife>5)throw new ArgumentException("Invalid cultural episode.");until=e.Until;}
                 foreach(var chart in r.Charts)if(chart.Year<0)throw new ArgumentException("Negative chart date.");
             }

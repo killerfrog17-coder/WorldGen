@@ -59,6 +59,13 @@ namespace WorldGen.Core
                 independent=.000000002+.0008*Math.Pow(core,5);
                 transmitted=.008*Math.Pow(core,2)*record.CivicExampleExposure/1000.0;
             }
+            if(ColonialHistory(s))
+            {
+                // A city learning an existing institutional practice is not a
+                // pristine invention. Truly independent origins require an
+                // unusually strong, persistent local provisioning network.
+                independent=.000000002+.00015*Math.Pow(core,8);
+            }
             if(record.CivicPreparationYears>=120&&s.Society.Cultures[t.CultureId].Farming>=250&&HistoryRoll("living-state-foundation",id,s.Years)<1-Math.Exp(-(independent+transmitted)*elapsed))
             {
                 FoundAggregateState(s,id,restoration?raw:-1);

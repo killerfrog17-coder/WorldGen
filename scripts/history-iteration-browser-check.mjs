@@ -66,7 +66,7 @@ try{
   await page.screenshot({path:output+'/'+mode.toLowerCase()+'.png'});
   await page.getByRole('button',{name:'Map settings',exact:true}).click();
  }
- const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Export campaign chronicle',exact:true}).click()]);
+ const [download]=await Promise.all([page.waitForEvent('download',{timeout:120000}),page.getByRole('button',{name:'Export campaign chronicle',exact:true}).click()]);
  await download.saveAs(output+'/exported-chronicle.txt');
  const lore=await fs.readFile(output+'/exported-chronicle.txt','utf8');
  for(const heading of ['Complete event archive','Settlement gazetteer','Religious traditions','Notable and current leaders','Military campaigns'])if(!lore.includes(heading))throw Error('Incomplete lore export: '+heading);

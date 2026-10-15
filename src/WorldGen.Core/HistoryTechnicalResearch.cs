@@ -40,7 +40,12 @@ namespace WorldGen.Core
             disease=Math.Max(disease,D.Clamp((habitat.MeanTenthsC-80)/220.0)*D.Clamp(habitat.AridityMilli/800.0)*.55);
             disease=Math.Max(disease,D.Clamp(ca.LargestCity/50000.0)*.55);
             var animals=h.Agriculture[id].Animals;for(int k=0;k<Math.Min(8,animals?.Length??0);k++)if(animals[k].AdoptedYear>0)disease=Math.Min(1,disease+.035);
-            bool maritime=CommunityMaritimePractice(s,id);double farming=D.Clamp(ca.Rural/20000.0),urban=D.Clamp(ca.SupportedUrban/12000.0);
+            bool maritime=CommunityMaritimePractice(s,id);
+            // Remote and unallocated rural residents are already in the culture's
+            // population ledger. They must not vanish from practical demand just
+            // because their farms are not one city's immediate catchment.
+            double farmers=TechnicalAgriculturalWorkforce(s,id);
+            double farming=D.Clamp(farmers/20000.0),urban=D.Clamp(ca.SupportedUrban/12000.0);
             // Technical effort comes from supported specialist communities. A
             // million dispersed people are not a million free laboratories.
             double scale=.35+.35*Math.Log(1+ca.SupportedUrban/1500.0);
@@ -55,7 +60,7 @@ namespace WorldGen.Core
             // Recalibrate invention against the corrected producing population,
             // rather than preserving the old low-population coefficient. Actual
             // contact learning remains cheap; this is not a calendar era lock.
-            if(ColonialHistory(s))annual*=.78;
+            if(ColonialHistory(s))annual*=.68;
             if(ca.SupportedCities==0)annual*=.12;
             long budget=Math.Max(0,(long)Math.Round(D.Q(annual,1000000)*1000000))*elapsed;
             long learningBudget=Math.Max(0,(long)Math.Round(D.Q((.8+urban*3+literacy*4)*Math.Max(communication,importedCommunication),1000000)*1000000))*elapsed;
@@ -128,6 +133,8 @@ namespace WorldGen.Core
         }
         static long TechnicalAllocation(long budget,long weight,long total)
             =>total<=0||weight<=0?0:budget/total*weight+(budget%total)*weight/total;
+        double TechnicalAgriculturalWorkforce(PrehistoryState s,int culture)
+        {var c=s.Society.Cultures[culture];var a=s.History.Aggregates.Cultures[culture];return ColonialHistory(s)&&c.Farming>=180?Math.Max(a.Rural,Math.Max(0,c.Population-a.Urban)*D.Clamp(c.Farming/600.0)):a.Rural;}
         static double TechnicalDemand(int k,double war,double competition,double disease,double farming,bool maritime,double urban,bool administration)
         {
             double demand=.35+.65*urban;

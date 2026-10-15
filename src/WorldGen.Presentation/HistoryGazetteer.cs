@@ -16,6 +16,27 @@ namespace WorldGen.Presentation
             int region=world.Ecology?.Region[cell]??-1;
             return coordinates+(region>=0?" · "+world.Ecology!.Regions[region].Name+" · "+world.Ecology.Habitat[cell].Biome:world.Hydrology.OceanConnected[cell]?" · island refuge":"");
         }
+        static void AppendCultureGazetteer(StringBuilder b,PrehistoryState s,World? world,int epoch)
+        {
+            var h=s.History;b.AppendLine("## Peoples and changing traditions");
+            foreach(var culture in s.Society.Cultures)
+            {
+                var knowledge=h.Cultures[culture.Id];b.AppendLine().AppendLine($"### {culture.Name} [people {culture.Id}]");
+                b.AppendLine("Their recorded regional tradition dates to year "+SimulationClockView.YearNumber(culture.FoundedYear,epoch)+" at "+GazetteerLocation(world,culture.OriginCell)+". This is an ancestral location, not a claim that they still control it.");
+                b.AppendLine($"{Stage(culture.Stage)}; {culture.Population:N0} recorded people and {culture.AreaKm2:N0} km² of mapped local identity.");b.AppendLine("Way of life: "+culture.Subsistence+". Local resources: "+culture.Resources+".");
+                if(knowledge.ParentCultureId>=0)b.AppendLine("Early exchange and inherited practices: "+s.Society.Cultures[knowledge.ParentCultureId].Name+" [people "+knowledge.ParentCultureId+"].");
+                b.AppendLine("Cultivated crops: "+HistoricalCrops.Description(h.Agriculture[culture.Id])+".");
+                if(knowledge.ReligionId>=0)b.AppendLine("Recorded religious tradition: "+h.Religions[knowledge.ReligionId].Name+".");
+                for(int k=0;k<knowledge.Technology.Length;k++)if(knowledge.Technology[k]>0)b.AppendLine("- Year "+SimulationClockView.YearNumber(knowledge.Technology[k]-1,epoch)+": knowledge of "+HistoricalTechnologies.Name(h.Version,k)+"; actual installed practice is tracked separately.");
+                var continuity=h.Aggregates?.Empires?.Connections?.Cultures[culture.Id];
+                if(continuity!=null)
+                {
+                    if(continuity.ColonialSponsor>=0)b.AppendLine("Founding overseas sponsor: "+h.Polities[continuity.ColonialSponsor].Name+".");
+                    if(continuity.InstitutionalOriginCulture>=0)b.AppendLine("Recorded institutional origin: "+s.Society.Cultures[continuity.InstitutionalOriginCulture].Name+". This does not imply identical culture or permanent political unity.");
+                    foreach(var episode in continuity.Episodes)b.AppendLine("- Years "+SimulationClockView.YearNumber(episode.Since,epoch)+"–"+SimulationClockView.YearNumber(episode.Until,epoch)+": "+episode.Name+"; "+episode.Reason+".");
+                }
+            }
+        }
         static void AppendGazetteer(StringBuilder b,PrehistoryState s,World? world)
         {
             var h=s.History;var towns=s.Society.Settlements;

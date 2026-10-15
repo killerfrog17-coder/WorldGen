@@ -12,6 +12,10 @@ public static class HistoryColonialTests
         check(connections.RegionAreas.Sum()>0&&connections.Titles.Length==0&&a.TotalPopulation==source.History.Aggregates.TotalPopulation,"Claim geography initializes without inventing population or territorial titles");
         check(s.History.Archive.Count==source.History.Archive.Count&&s.Society.Cultures.Select(c=>c.Name).SequenceEqual(source.Society.Cultures.Select(c=>c.Name)),"Setup does not rewrite past names or events");
         object Call(string name,params object[] args)=>typeof(Prehistory).GetMethod(name,BindingFlags.Instance|BindingFlags.NonPublic)!.Invoke(engine,args);
+        var farmProbe=s.Copy();farmProbe.Society.Cultures[0].Farming=600;farmProbe.Society.Cultures[0].Population=1000000;farmProbe.History.Aggregates.Cultures[0].Urban=5000;farmProbe.History.Aggregates.Cultures[0].Rural=0;
+        check((double)Call("TechnicalAgriculturalWorkforce",farmProbe,0)==995000,"Remote agricultural residents count toward deployed farming demand even without city catchment farmers");
+        farmProbe.History.Version=Prehistory.TechnicalHistoryVersion;
+        check((double)Call("TechnicalAgriculturalWorkforce",farmProbe,0)==0,"The corrected demand does not silently rewrite older technical rules");
         var early=s.Copy();early.Years=10000;var middle=s.Copy();middle.Years=115000;var late=s.Copy();late.Years=170000;
         double start=(double)Call("CulturalRecognitionMaturity",early,0)!,peak=(double)Call("CulturalRecognitionMaturity",middle,0)!,end=(double)Call("CulturalRecognitionMaturity",late,0)!;
         check(start<.001&&peak>start&&end>.97,"Recognizable traditions have a soft late-prehistory opportunity window, not an early universal unlock");
@@ -19,6 +23,7 @@ public static class HistoryColonialTests
         if(first!=second)
         {
             Call("RecordCoastChart",s,first,region,first);Call("ShareCoastCharts",s,first,second);
+            check(StateHash.Compute(connections.Cultures[first].Charts)==StateHash.ComputeHistoricalReference(connections.Cultures[first].Charts),"Typed chart hashing preserves the exact reference canonical bytes");
             check(connections.Cultures[second].Charts.Any(c=>c.Region==region&&c.SourceCulture==first&&c.Year==s.Years),"A delivered contact shares a dated chart with its actual source");
             var branch=s.Copy();branch.History.Aggregates.Empires.Connections.Cultures[second].Charts[0].Region=1;
             check(connections.Cultures[second].Charts[0].Region==region,"Chart records are isolated between published branches");
@@ -35,6 +40,11 @@ public static class HistoryColonialTests
             Call("TransferRecognizedTitle",s,0,buyer.Id,2000L);
             check(seller.Treasury+buyer.Treasury==beforeTreasury&&a.TotalPopulation==beforePopulation&&HistoricalCells.Culture(s,cell)==beforeCulture&&HistoricalCells.Polity(s,cell)<0,"A title sale conserves money and people without replacing local identity or administration");
             check(connections.Titles[0].Holder==buyer.Id&&connections.Governments[seller.Id].Titles.Count==0&&connections.Governments[buyer.Id].Titles.Count==1,"A sale moves the dated legal title and its indexes together");
+            var broken=s.Copy();broken.History.Aggregates.Empires.Connections.Governments[buyer.Id].Titles.Remove(0);bool rejected=false;
+            try{Call("ValidateColonialConnections",broken);}catch(TargetInvocationException ex)when(ex.InnerException is ArgumentException){rejected=true;}
+            check(rejected,"Untrusted saves cannot silently lose a recognized title's ownership index");
+            long beforeSale=seller.Treasury+buyer.Treasury;Call("TransferRecognizedTitle",s,0,seller.Id,long.MaxValue);
+            check(seller.Treasury+buyer.Treasury==beforeSale&&connections.Titles[0].Holder==buyer.Id,"An unaffordable title sale cannot mint money or transfer title");
         }
         s.Seal();engine.Validate(s);var three=engine.AdvanceYears(s,3);engine.Validate(three);var split=engine.AdvanceYears(engine.AdvanceYears(s,1),2);
         check(three.Hash==split.Hash,"Colonial events remain publication-partition deterministic");

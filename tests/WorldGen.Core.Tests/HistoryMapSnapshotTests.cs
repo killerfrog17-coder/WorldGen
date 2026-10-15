@@ -8,6 +8,7 @@ public static class HistoryMapSnapshotTests
         var world=WorldFile.Read(File.ReadAllBytes(path));var s=world.Prehistory;var engine=new Prehistory(world);string hash=s.Hash;
         var display=HistoricalMapSnapshot.For(s);int count=world.Surface.Cells.Length;
         check(ReferenceEquals(display,HistoricalMapSnapshot.For(s)),"A published checkpoint shares one projection across views and borders");
+        check(Enumerable.Range(0,count).All(i=>display.Boundary(i,HistoryOverlay.Cultures)==display.Culture(i)&&display.Boundary(i,HistoryOverlay.Religions)==display.Religion(i)),"Local cultural and religious borders are not replaced by state or recognized-title borders");
         check(Enumerable.Range(0,count).All(i=>display.Culture(i)==HistoricalCells.Culture(s,i)&&display.Polity(i)==HistoricalCells.Polity(s,i)&&display.Stage(i)==HistoricalCells.Stage(s,i)),"Bulk display projection matches exact local culture, ownership succession and stage lookups");
         foreach(var mode in Enum.GetValues<HistoryOverlay>())
         {

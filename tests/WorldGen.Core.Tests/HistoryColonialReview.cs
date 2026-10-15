@@ -14,7 +14,7 @@ public static class HistoryColonialReview
         var first=h.Polities.Min(p=>p.FoundedYear);var eras=WorldEraView.FirstYears(s);
         var report=new{h.Version,s.Years,a.TotalPopulation,FarmerPeople=farmerPeople,ForagerPeople=foragerPeople,Remote=remote,CatchmentRural=rural,RemoteBaseCapacity=capacity,
             FirstCultures=s.Society.Cultures.OrderBy(x=>x.FoundedYear).Take(12).Select(x=>new{x.Id,x.Name,x.FoundedYear,x.Farming}),
-            IndependentCivilizationRoots=c?.Cultures.Where(x=>x.CivilizationRoot>=0).Select(x=>x.CivilizationRoot).Distinct().Count(),SponsoredCultures=c?.Cultures.Count(x=>x.ColonialSponsor>=0),Charts=c?.Cultures.Sum(x=>x.Charts.Length),RecognizedTitles=c?.Titles.Length,
+            CivilizationFamilies=c?.Cultures.Where(x=>x.CivilizationRoot>=0).Select(x=>x.CivilizationRoot).Distinct().Count(),IndependentInstitutionalOrigins=c?.Cultures.Where(x=>x.InstitutionalOriginCulture>=0).Select(x=>x.InstitutionalOriginCulture).Distinct().Count(),SponsoredCultures=c?.Cultures.Count(x=>x.ColonialSponsor>=0),Charts=c?.Cultures.Sum(x=>x.Charts.Length),RecognizedTitles=c?.Titles.Length,
             Roots=c?.Cultures.Select((x,i)=>new{Culture=i,x.CivilizationRoot,x.ColonialSponsor,x.DormantSince,Episodes=x.Episodes.Length}).Where(x=>x.CivilizationRoot>=0),
             OldestActiveGovernments=h.Polities.Where(p=>p.EndedYear<0).OrderBy(p=>p.FoundedYear).Take(12).Select(p=>new{p.Id,p.Name,Age=s.Years-p.FoundedYear,Area=HistoricalImperialHierarchy.AreaKm2(s,p.Id),Patron=HistoricalImperialHierarchy.Patron(s,p.Id)}),
             LongestAllegiances=a.Empires.Governments.Select((g,i)=>new{State=i,g.Patron,Age=s.Years-g.SinceYear,g.Imposed}).Where(x=>x.Patron>=0).OrderByDescending(x=>x.Age).Take(12),
