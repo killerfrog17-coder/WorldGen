@@ -13,6 +13,7 @@ namespace WorldGen.Presentation
             {
                 text.AppendLine().AppendLine(section.Title).AppendLine(section.Text);
                 foreach(var fact in section.Facts)text.AppendLine(fact.Label+": "+fact.Value);
+                foreach(var project in section.Technical)text.AppendLine(project.Name+" — level "+project.Level+"; research share "+(project.AllocationBasisPoints/100.0).ToString("0.0",System.Globalization.CultureInfo.InvariantCulture)+"%; next level "+(project.ResearchPermille/10.0).ToString("0.0",System.Globalization.CultureInfo.InvariantCulture)+"%; practical deployment "+(project.DeploymentPermille/10.0).ToString("0.0",System.Globalization.CultureInfo.InvariantCulture)+"%. "+project.Source+". "+project.Prerequisites);
                 foreach(var link in section.Links)text.AppendLine(link.Name+(link.Detail.Length>0?": "+link.Detail:""));
                 var records=section.Title=="Recorded history"&&page!=null?page.Records:section.Timeline;
                 foreach(var record in records)text.AppendLine(record.Label+": "+record.Value);

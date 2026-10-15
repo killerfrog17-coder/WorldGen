@@ -19,7 +19,7 @@ namespace WorldGen.Presentation
             void Record(int era,int year){if(year>=0&&(first[era]<0||year<first[era]))first[era]=year;}
             foreach(var c in state.History.Cultures)
             {
-                int Year(HistoricalTechnology t)=>HistoricalTechnologies.Has(c,t)?c.Technology[(int)t]-1:-1;
+                int Year(HistoricalTechnology t)=>c.Technical!=null?c.Technical.InstalledYear[(int)t]-1:HistoricalTechnologies.Has(c,t)?c.Technology[(int)t]-1:-1;
                 Record(3,Year(HistoricalTechnology.Cultivation));Record(4,Year(HistoricalTechnology.Bronze));Record(5,Year(HistoricalTechnology.Iron));
                 Record(6,Year(HistoricalTechnology.Scholasticism));
                 int steel=Year(HistoricalTechnology.Steel),mills=Year(HistoricalTechnology.Mills);if(steel>=0&&mills>=0)Record(6,Math.Max(steel,mills));
@@ -37,7 +37,7 @@ namespace WorldGen.Presentation
             if(state.History==null)return era;
             foreach(var culture in state.History.Cultures)
             {
-                bool Has(HistoricalTechnology t)=>HistoricalTechnologies.Has(culture,t);
+                bool Has(HistoricalTechnology t)=>culture.Technical!=null?culture.Technical.InstalledYear[(int)t]>0:HistoricalTechnologies.Has(culture,t);
                 int reached=Has(HistoricalTechnology.Computing)?10:
                     Has(HistoricalTechnology.Electricity)||Has(HistoricalTechnology.CombustionEngines)?9:
                     Has(HistoricalTechnology.SteamPower)?8:

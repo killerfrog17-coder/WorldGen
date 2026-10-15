@@ -126,6 +126,7 @@ namespace WorldGen.Core
                 if (o is World oldWorld && f.Name == nameof(World.Subcells) && oldWorld.Subcells == null) continue;
                 if(o is HistoricalCulture lineageCulture && f.Name==nameof(HistoricalCulture.ParentCultureId) && lineageCulture.ParentCultureId==-1)continue;
                 if(o is HistoricalCulture institutionalCulture && f.Name==nameof(HistoricalCulture.InstitutionalExamples) && institutionalCulture.InstitutionalExamples==0)continue;
+                if(o is HistoricalCulture technicalCulture && f.Name==nameof(HistoricalCulture.Technical) && technicalCulture.Technical==null)continue;
                 if(o is PrehistoryState calendarState && f.Name==nameof(PrehistoryState.Timeline) && calendarState.Timeline==null)continue;
                 if(o is HistoricalAgriculture cropSites && f.Name==nameof(HistoricalAgriculture.PracticeCell) && cropSites.PracticeCell==null)continue;
                 if(o is HistoricalAgriculture cultivarRecord && f.Name==nameof(HistoricalAgriculture.Cultivars) && cultivarRecord.Cultivars==null)continue;
@@ -137,6 +138,7 @@ namespace WorldGen.Core
                 if(o is HistoricalAggregateState oldAggregate && f.Name==nameof(HistoricalAggregateState.Living) && oldAggregate.Living==null)continue;
                 if(o is HistoricalAggregateState oldProvince && f.Name==nameof(HistoricalAggregateState.Provinces) && oldProvince.Provinces==null)continue;
                 if(o is HistoricalAggregateState oldCommunity && f.Name==nameof(HistoricalAggregateState.Communities) && oldCommunity.Communities==null)continue;
+                if(o is HistoricalAggregateState oldImperial && f.Name==nameof(HistoricalAggregateState.Empires) && oldImperial.Empires==null)continue;
                 if(o is HistoricalModernSettings shippingSettings && f.Name==nameof(HistoricalModernSettings.Shipping) && shippingSettings.Shipping?.Length==0)continue;
                 if(o is HistoricalAgriculture wildSites && f.Name==nameof(HistoricalAgriculture.WildOriginCell) && wildSites.WildOriginCell==null)continue;
                 if(o is HistoricalReligion reachReligion && f.Name==nameof(HistoricalReligion.Reach) && reachReligion.Reach==ReligiousReach.Local)continue;

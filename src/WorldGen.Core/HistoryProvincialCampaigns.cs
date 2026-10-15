@@ -46,6 +46,12 @@ namespace WorldGen.Core
             if(HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)&&AggregateSeaLane(town.Cell,front))range=Math.Max(range,HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years));
             double provision=D.Clamp(.25+town.FoodReserve/Math.Max(1.0,town.Population));
             double forces=Math.Min(p.Army,p.Army*.15+(town.Population*.025+cityAccount.Rural*.015)*Math.Sqrt(HistoricalModernEffects.LandTransport(hc,s.Years)));
+            if(TechnicalHistory(s))
+            {
+                int sovereign=HistoricalImperialHierarchy.Sovereign(s,polity);var imperial=a.Empires.Governments[sovereign];
+                double allied=(h.Polities[sovereign].Army+imperial.SubjectArmy-p.Army)*.12;
+                forces+=Math.Max(0,allied)*Math.Exp(-distance/Math.Max(100,range));
+            }
             var leader=h.Dynamics.Leaders[h.Dynamics.States[polity].LeaderId];
             return Math.Max(.01,forces*provision*Math.Exp(-distance/Math.Max(50,range))*(.4+leader.Military/1000.0)*HistoricalModernEffects.Military(hc,s.Years));
         }
@@ -77,6 +83,8 @@ namespace WorldGen.Core
         {
             var h=s.History;var a=h.Aggregates;var c=h.Dynamics.Campaigns[id];var theater=a.Provinces.Theaters[id];int elapsed=s.Years-c.LastActionYear;if(elapsed<=0)return;c.LastActionYear=s.Years;
             int attacker=c.AttackerId,defender=attacker==c.A?c.B:c.A;var pa=h.Polities[attacker];var pb=h.Polities[defender];var relation=AggregateRelation(s,attacker,defender);
+            if(TechnicalHistory(s)&&pa.EndedYear<0&&pb.EndedYear<0&&HistoricalImperialHierarchy.Sovereign(s,attacker)==HistoricalImperialHierarchy.Sovereign(s,defender))
+            {c.EndedYear=s.Years;c.Outcome="The belligerents enter the same imperial settlement; local governments remain.";relation.WarSince=-1;relation.TruceUntil=s.Years+20;return;}
             if(pa.EndedYear>=0||pb.EndedYear>=0||s.Years-c.StartedYear>6+(int)(HistoryRoll("development-war-duration",id,c.StartedYear)*16)||pa.Exhaustion>800||pb.Exhaustion>800)
             {
                 c.EndedYear=s.Years;c.Outcome=pa.EndedYear>=0||pb.EndedYear>=0?"A change or loss of government ends this campaign":"Negotiations end a costly local campaign";
@@ -87,6 +95,8 @@ namespace WorldGen.Core
             double powerA=ProvincialFieldPower(s,attacker,theater.Cell,ref baseA),powerB=ProvincialFieldPower(s,defender,theater.Cell,ref baseB);
             int casualtySourceA=baseA,casualtySourceB=baseB;
             bool won=HistoryRoll("provincial-battle",id,s.Years)<powerA/(powerA+powerB);int winner=won?attacker:defender,loser=won?defender:attacker;
+            if(TryImperialSubmission(s,winner,loser,true,elapsed,theater.Cell))
+            {c.EndedYear=s.Years;c.Outcome="A tributary settlement retains the defeated court within the victor's empire.";relation.WarSince=-1;relation.TruceUntil=s.Years+25;HistoryEvent(s,"peace",c.Name+" ends with a constituent-state agreement rather than direct annexation.",theater.Cell,h.Polities[winner].CultureId,winner,loser,category:ChronicleCategory.Politics);return;}
             var hc=h.Cultures[h.Polities[winner].CultureId];int actions=Math.Min(8,Math.Max(1,(int)Math.Ceiling(Math.Sqrt(HistoricalModernEffects.LandTransport(hc,s.Years)))));
             if(CommunityHistory(s))actions=CommunityCampaignActions(s,id,winner,won,won?powerA:powerB,elapsed);
             for(int action=0;action<actions;action++)

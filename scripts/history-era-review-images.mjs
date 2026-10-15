@@ -9,7 +9,7 @@ const report=JSON.parse(await fs.readFile(path.join(folder,'era-review.json'),'u
 if(!report.Verified)throw Error('Only a hash-verified era replay may be rendered.');
 const browser=await chromium.launch({headless:true,channel:'msedge'});
 try {
- for(const era of report.Eras)for(const mode of ['States','Technology']) {
+ for(const era of report.Eras)for(const mode of ['States','Technology','Territories']) {
   const svg=path.join(folder,`${mode}-${era.Year}.svg.gz`);
   if(!await fs.access(svg).then(()=>true,()=>false))continue;
   const page=await browser.newPage({viewport:{width:1800,height:960}});

@@ -8,16 +8,16 @@ using WorldGen.Presentation;
 public sealed partial class WorldGenRuntime
 {
     readonly HistoryBorders historyBorders=new HistoryBorders();
-    World borderWorld;PrehistoryState borderState;GameObject borderRoot;Mesh borderMesh;Material borderMaterial;bool borderLoading;
+    World borderWorld;PrehistoryState borderState;GameObject borderRoot;Mesh borderMesh;Material borderMaterial;bool borderLoading;HistoryOverlay borderOverlay;
     void RequestHistoryBorders()
     {
-        if(borderLoading||world==null||globe==null||ReferenceEquals(borderWorld,world)&&(ReferenceEquals(borderState,world.Prehistory)||borderState?.Timeline!=null&&world.Prehistory?.Timeline!=null&&borderState.Timeline.ProcessedEvents==world.Prehistory.Timeline.ProcessedEvents)&&borderRoot!=null)return;
+        if(borderLoading||world==null||globe==null||(borderOverlay==HistoryOverlay.Territories)==(historyOverlay==HistoryOverlay.Territories)&&ReferenceEquals(borderWorld,world)&&(ReferenceEquals(borderState,world.Prehistory)||borderState?.Timeline!=null&&world.Prehistory?.Timeline!=null&&borderState.Timeline.ProcessedEvents==world.Prehistory.Timeline.ProcessedEvents)&&borderRoot!=null)return;
         StartCoroutine(PrepareHistoryBorders());
     }
     System.Collections.IEnumerator PrepareHistoryBorders()
     {
-        borderLoading=true;var captured=world;var state=captured.Prehistory;bool linear=QualitySettings.activeColorSpace==ColorSpace.Linear;
-        var task=Task.Run(()=>Prepare(historyBorders.Mesh(captured,state),linear,CancellationToken.None));
+        borderLoading=true;var captured=world;var state=captured.Prehistory;var overlay=historyOverlay;bool linear=QualitySettings.activeColorSpace==ColorSpace.Linear;
+        var task=Task.Run(()=>Prepare(historyBorders.Mesh(captured,state,overlay),linear,CancellationToken.None));
         while(!task.IsCompleted)yield return null;
         borderLoading=false;
         if(task.IsFaulted){Debug.LogException(task.Exception);yield break;}
@@ -33,12 +33,12 @@ public sealed partial class WorldGenRuntime
             var part=new GameObject("copy"+copy,typeof(MeshFilter),typeof(MeshRenderer));part.transform.SetParent(borderRoot.transform,false);part.transform.localPosition=new Vector3(copy*4,0,0);
             part.GetComponent<MeshFilter>().sharedMesh=borderMesh;part.GetComponent<MeshRenderer>().sharedMaterial=borderMaterial;
         }
-        borderWorld=captured;borderState=state;ApplyCachedDisplay();
+        borderWorld=captured;borderState=state;borderOverlay=overlay;ApplyCachedDisplay();
     }
     void ApplyHistoryBorders()
     {
         if(borderRoot==null)return;
-        bool political=historyOverlay==HistoryOverlay.States||historyOverlay==HistoryOverlay.Civilizations;
+        bool political=historyOverlay==HistoryOverlay.States||historyOverlay==HistoryOverlay.Civilizations||historyOverlay==HistoryOverlay.Territories;
         borderRoot.SetActive(screen=="Simulation"&&humanOverlayOpacity>0&&political&&borderWorld==displayedWorld);
         borderMaterial.SetFloat("_Opacity",humanOverlayOpacity);borderMaterial.SetFloat("_MapMode",VisibleProjection==Projection.Map?1:0);
         foreach(Transform copy in borderRoot.transform)copy.gameObject.SetActive(copy.name=="copy0"||VisibleProjection==Projection.Map);

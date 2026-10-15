@@ -9,15 +9,17 @@ namespace WorldGen.Presentation
     public sealed class HistoryBorders
     {
         World? world; PrehistoryState? state; HistoricalMapSnapshot? projection;float[] segments=Array.Empty<float>();
-        public float[] Segments(World w,PrehistoryState? s)
+        HistoryOverlay overlay;
+        public float[] Segments(World w,PrehistoryState? s,HistoryOverlay selected=HistoryOverlay.States)
         {
-            if(ReferenceEquals(w,world)&&ReferenceEquals(s,state))return segments;
+            bool sameMode=(selected==HistoryOverlay.Territories)==(overlay==HistoryOverlay.Territories);
+            if(ReferenceEquals(w,world)&&ReferenceEquals(s,state)&&sameMode)return segments;
             var next=s==null?null:HistoricalMapSnapshot.For(s);
-            if(ReferenceEquals(w,world)&&s?.Started==state?.Started&&next!=null&&next.SameBoundaries(projection)){state=s;projection=next;return segments;}
-            world=w;state=s;projection=next;var list=new List<float>();var h=s?.History;
+            if(sameMode&&selected!=HistoryOverlay.Territories&&ReferenceEquals(w,world)&&s?.Started==state?.Started&&next!=null&&next.SameBoundaries(projection)){state=s;projection=next;return segments;}
+            world=w;state=s;projection=next;overlay=selected;var list=new List<float>();var h=s?.History;
             if(h!=null&&s!.Started&&HistoricalCells.Count(s)==w.Surface.Cells.Length)foreach(var edge in w.Surface.Edges)
             {
-                int a=projection!.Boundary(edge.A),b=projection.Boundary(edge.B);
+                int a=projection!.Boundary(edge.A,selected),b=projection.Boundary(edge.B,selected);
                 if(a==b||w.Hydrology.OceanConnected[edge.A]||w.Hydrology.OceanConnected[edge.B])continue;
                 foreach(int triangle in new[]{edge.TriangleA,edge.TriangleB})
                 {
@@ -27,9 +29,9 @@ namespace WorldGen.Presentation
             }
             return segments=list.ToArray();
         }
-        public ViewData Mesh(World w,PrehistoryState? s)
+        public ViewData Mesh(World w,PrehistoryState? s,HistoryOverlay selected=HistoryOverlay.States)
         {
-            var values=Segments(w,s);var data=new ViewData{Lines=new float[values.Length],LineColors=new float[values.Length],Unlit=true};
+            var values=Segments(w,s,selected);var data=new ViewData{Lines=new float[values.Length],LineColors=new float[values.Length],Unlit=true};
             for(int i=0;i<values.Length;i+=3)
             {
                 // Lift above the accepted exaggerated relief; borders are a map

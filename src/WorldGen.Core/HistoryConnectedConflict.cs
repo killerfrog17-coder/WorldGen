@@ -7,6 +7,11 @@ namespace WorldGen.Core
         void ConsiderDevelopmentDiplomacy(PrehistoryState s,int id,int other,HistoricalLeader leader,int elapsed)
         {
             var h=s.History;var p=h.Polities[id];var peer=h.Polities[other];if(peer.EndedYear>=0)return;
+            if(TechnicalHistory(s))
+            {
+                if(HistoricalImperialHierarchy.Sovereign(s,id)==HistoricalImperialHierarchy.Sovereign(s,other))return;
+                if(TryImperialSubmission(s,id,other,false,elapsed))return;
+            }
             var relation=AggregateRelation(s,id,other);if(relation.WarSince>=0)return;
             var hc=h.Cultures[p.CultureId];var pc=h.Cultures[peer.CultureId];
             double shared=p.CultureId==peer.CultureId?1:p.ReligionId==peer.ReligionId?.4:0;

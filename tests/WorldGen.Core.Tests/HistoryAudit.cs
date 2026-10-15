@@ -138,9 +138,9 @@ Snapshot(w,engine,s,folder);w.Prehistory=s;File.WriteAllBytes(Path.Combine(folde
                 var points=corners[i].Select(v=>{double x=Math.Atan2(v.Y,v.X);while(x-lon>Math.PI)x-=2*Math.PI;while(x-lon< -Math.PI)x+=2*Math.PI;return(x,y:Math.Asin(v.Z));}).OrderBy(v=>Math.Atan2(v.y-lat,(v.x-lon)*Math.Cos(lat))).ToArray();
                 foreach(int wrap in new[]{-1,0,1}){if(points.All(v=>v.x+wrap*2*Math.PI< -Math.PI)||points.All(v=>v.x+wrap*2*Math.PI>Math.PI))continue;string pts=string.Join(" ",points.Select(v=>FormattableString.Invariant($"{900+(v.x+wrap*2*Math.PI)*900/Math.PI:F2},{510-v.y*900/Math.PI:F2}")));b.Append($"<polygon points='{pts}' fill='{hex}'/>");}
             }
-            if(overlay==HistoryOverlay.States)
+            if(overlay==HistoryOverlay.States||overlay==HistoryOverlay.Territories)
             {
-                var borders=new HistoryBorders().Segments(w,s);
+                var borders=new HistoryBorders().Segments(w,s,overlay);
                 for(int at=0;at<borders.Length;at+=6)
                 {
                     double x=900+Math.Atan2(borders[at+1],borders[at])*900/Math.PI,y=510-Math.Asin(borders[at+2])*900/Math.PI;

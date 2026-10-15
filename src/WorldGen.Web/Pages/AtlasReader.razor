@@ -31,6 +31,7 @@ var item=Document.Sections.FirstOrDefault(s=>s.Title==section);
 @if(item!=null){
 <h2>@item.Title</h2>@if(item.Text.Length>0){<p>@item.Text</p>}
 <dl>@foreach(var fact in item.Facts){<dt>@fact.Label</dt><dd>@fact.Value</dd>}</dl>
+@if(item.Technical.Length>0){<div class="technical-grid">@foreach(var project in item.Technical){<section class="technical-card"><h3>@project.Name <small>Level @project.Level</small></h3><p>@project.Source</p>@if(project.AllocationBasisPoints>0){<label>Research share @((project.AllocationBasisPoints/100.0).ToString("0.0"))%<progress value="@project.AllocationBasisPoints" max="10000"></progress></label>}<label>Next level @((project.ResearchPermille/10.0).ToString("0.0"))%<progress value="@project.ResearchPermille" max="1000"></progress></label><label>Practical deployment @((project.DeploymentPermille/10.0).ToString("0.0"))%<progress value="@project.DeploymentPermille" max="1000"></progress></label>@if(project.Prerequisites.Length>0){<details><summary>Prerequisites</summary><p>@project.Prerequisites</p></details>}</section>}</div>}
 @if(item.Diagram){@((MarkupString)AtlasDiagram.DiplomaticSvg(Document,item))}
 var maximum=item.Unit=="/ 1,000"?1000:Math.Max(1,item.Links.Select(l=>l.Value).DefaultIfEmpty(1).Max());
 @foreach(var link in item.Links){<div class="atlas-link-row">@if(link.Kind.Length>0){<button disabled="@Busy" title="@link.Context" @onclick="()=>Navigate.InvokeAsync(link)">@link.Name</button>}else{<strong>@link.Name</strong>}<span>@link.Detail</span>@if(item.Bars){<progress aria-label="@link.Name" style="accent-color:@ChartColor(link)" value="@link.Value" max="@maximum"></progress>}</div>}
@@ -41,7 +42,7 @@ records=TimelinePage.Records;
 <p class="atlas-record-count">@(TimelinePage.Total==0?"No matching records.":$"Records {TimelinePage.Offset+1:N0}–{TimelinePage.Offset+TimelinePage.Records.Length:N0} of {TimelinePage.Total:N0}")</p>
 }
 <div class="atlas-timeline">@foreach(var point in records){<div><small>@point.Label</small><p>@point.Value</p><div class="atlas-event-links">@foreach(var related in point.Related.Where(l=>l.Kind!=Document.Kind||l.Id!=Document.Id)){<button title="@related.Context" disabled="@Busy" @onclick="()=>Navigate.InvokeAsync(related)">@related.Name</button>}</div></div>}</div>
-@if(item.Links.Length==0&&item.Facts.Length==0&&item.Timeline.Length==0&&item.Text.Length==0){<p>No records yet.</p>}
+@if(item.Links.Length==0&&item.Facts.Length==0&&item.Timeline.Length==0&&item.Text.Length==0&&item.Technical.Length==0){<p>No records yet.</p>}
 }}
 <p class="atlas-note">@Document.Note</p>
 </div>

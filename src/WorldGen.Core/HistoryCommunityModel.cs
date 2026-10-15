@@ -31,7 +31,7 @@ namespace WorldGen.Core
         public const string CommunityHistoryVersion="history-21";
         public const string DiffusionHistoryVersion="history-22";
         public const string AgronomicHistoryVersion="history-23";
-        static bool AgronomicHistory(PrehistoryState s)=>s?.History?.Version==AgronomicHistoryVersion;
+        static bool AgronomicHistory(PrehistoryState s)=>s?.History?.Version==AgronomicHistoryVersion||TechnicalHistory(s);
         static bool PassageHistory(PrehistoryState s)=>s?.History?.Version==DiffusionHistoryVersion||AgronomicHistory(s);
         static bool CommunityHistory(PrehistoryState s)=>s?.History?.Version==CommunityHistoryVersion||PassageHistory(s);
         public PrehistoryState UpgradeToAgronomicHistory(PrehistoryState source)

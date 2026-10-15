@@ -19,6 +19,7 @@ namespace WorldGen.Presentation
         public AtlasLink[] Links=Array.Empty<AtlasLink>();
         public AtlasFact[] Timeline=Array.Empty<AtlasFact>();
         public bool Bars,Diagram;
+        public TechnicalProgress[] Technical=Array.Empty<TechnicalProgress>();
     }
     [Serializable] public sealed class AtlasDocument
     {
@@ -51,8 +52,8 @@ namespace WorldGen.Presentation
             if(s?.Society==null||s.History==null||cell<0||cell>=HistoricalCells.Count(s))return null;
             var h=s.History;
             if(overlay==HistoryOverlay.Religions&&HistoricalCells.Religion(s,cell)>=0)return FaithLink(h.Religions[HistoricalCells.Religion(s,cell)]);
-            if(overlay==HistoryOverlay.States&&HistoricalCells.Polity(s,cell)>=0)return StateLink(s,h.Polities[HistoricalCells.Polity(s,cell)]);
-            if(overlay==HistoryOverlay.Civilizations&&HistoricalCells.Polity(s,cell)>=0)return CultureLink(s.Society.Cultures[h.Polities[HistoricalCells.Polity(s,cell)].CultureId]);
+            if((overlay==HistoryOverlay.States||overlay==HistoryOverlay.Territories)&&HistoricalCells.Polity(s,cell)>=0)return StateLink(s,h.Polities[overlay==HistoryOverlay.Territories?HistoricalCells.Polity(s,cell):HistoricalImperialHierarchy.Sovereign(s,HistoricalCells.Polity(s,cell))]);
+            if(overlay==HistoryOverlay.Civilizations&&HistoricalCells.Polity(s,cell)>=0)return CultureLink(s.Society.Cultures[h.Polities[HistoricalImperialHierarchy.Sovereign(s,HistoricalCells.Polity(s,cell))].CultureId]);
             var town=s.Society.Settlements.FirstOrDefault(t=>t.Cell==cell&&t.Population>0);
             if(town!=null)return TownLink(s,town);
             var culture=SocietyView.Culture(s,cell);
@@ -76,6 +77,7 @@ namespace WorldGen.Presentation
             if(s?.History==null||s.Society==null||cell<0||cell>=HistoricalCells.Count(s))return Array.Empty<AtlasLink>();
             var links=new List<AtlasLink>();int state=HistoricalCells.Polity(s,cell),faith=HistoricalCells.Religion(s,cell);
             if(state>=0)links.Add(StateLink(s,s.History.Polities[state]));
+            if(state>=0){int sovereign=HistoricalImperialHierarchy.Sovereign(s,state);if(sovereign!=state)links.Insert(0,StateLink(s,s.History.Polities[sovereign],"Imperial government"));}
             var town=s.Society.Settlements.FirstOrDefault(t=>t.Cell==cell&&t.Population>0);if(town!=null)links.Add(TownLink(s,town));
             var culture=SocietyView.Culture(s,cell);if(culture==null&&state>=0)culture=s.Society.Cultures[s.History.Polities[state].CultureId];
             if(culture!=null)links.Add(CultureLink(culture));if(faith>=0)links.Add(FaithLink(s.History.Religions[faith]));return links.ToArray();
@@ -169,7 +171,16 @@ namespace WorldGen.Presentation
             var neighborhood=Links("Diplomatic neighborhood",relations.OrderByDescending(r=>r.WarSince>=0).ThenBy(r=>r.A).ThenBy(r=>r.B).Select(r=>StateLink(s,h.Polities[r.A==p.Id?r.B:r.A],Relation(s,r))),"War, alliance, and exchange are separate relationships. Diagram shows up to eight recorded neighbors, not geographical distance. The list includes all recorded neighbors.");
             neighborhood.Diagram=true;a.Add(neighborhood);
             var deps=h.Dynamics?.Dependencies??Array.Empty<HistoricalDependency>();
-            a.Add(Links("Overlords and dependent courts",deps.Where(x=>x.EndedYear<0&&(x.PatronId==p.Id||x.ClientId==p.Id)).Select(x=>StateLink(s,h.Polities[x.PatronId==p.Id?x.ClientId:x.PatronId],x.ClientId==p.Id?"Receives tribute from this court":"Pays tribute to this court")),"Dependent courts retain their own political identity."));
+            if(h.Aggregates?.Empires!=null&&p.EndedYear<0)
+            {
+                int patron=HistoricalImperialHierarchy.Patron(s,p.Id);var g=h.Aggregates.Empires.Governments[p.Id];
+                var constituents=h.Polities.Where(x=>x.EndedYear<0&&HistoricalImperialHierarchy.Patron(s,x.Id)==p.Id).Select(x=>StateLink(s,x,"Constituent government; local institutions retained",x.Population));
+                if(patron>=0)constituents=new[]{StateLink(s,h.Polities[patron],"Overarching imperial government")}.Concat(constituents);
+                var imperial=Links("Empire and constituent governments",constituents,"Imperial allegiance governs foreign affairs and tribute, not local culture. Constituents keep their own courts, cities and population accounts. The States map shows the overarching entity; Territories reveals its local governments.",true,"directly administered residents");
+                imperial.Facts=new[]{F("Imperial population",N(HistoricalImperialHierarchy.Population(s,p.Id))),F("Imperial area",N(HistoricalImperialHierarchy.AreaKm2(s,p.Id))+" km²"),F("Constituent governments",N(g.SubjectCount)),F("Local autonomy",(g.AutonomyMilli/10.0).ToString("0.0",CultureInfo.InvariantCulture)+" / 100"),F("Annual tribute delivered",N(g.AnnualTribute)+" account units")};imperial.Diagram=true;a.Add(imperial);
+            }
+            else a.Add(Links("Overlords and dependent courts",deps.Where(x=>x.EndedYear<0&&(x.PatronId==p.Id||x.ClientId==p.Id)).Select(x=>StateLink(s,h.Polities[x.PatronId==p.Id?x.ClientId:x.PatronId],x.ClientId==p.Id?"Receives tribute from this court":"Pays tribute to this court")),"Dependent courts retain their own political identity."));
+            if(h.Cultures[p.CultureId].Technical!=null)a.Add(new AtlasSection{Title="Research and practical technology",Text="Specialist communities divide finite effort among concurrent projects. Knowledge can arrive through exchange long before workshops, infrastructure and resources support widespread use. These are the ruling culture's technical networks, not a claim that every resident has identical equipment.",Technical=TechnicalResearchView.Read(s,p.CultureId)});
             var metrics=new List<AtlasFact>{F("Cohesion",N(p.Cohesion)+" / 1,000"),F("Legitimacy",N(p.Legitimacy)+" / 1,000"),F("War exhaustion",N(p.Exhaustion)+" / 1,000")};
             if(h.Dynamics!=null&&p.Id<h.Dynamics.States.Length)
             {
@@ -270,6 +281,7 @@ namespace WorldGen.Presentation
             a.Add(Links("Settlements",s.Society.Settlements.Where(t=>t.CultureId==c.Id&&t.Population>0).OrderByDescending(t=>t.Population).ThenBy(t=>t.Id).Select(t=>TownLink(s,t)),bars:true,unit:"residents"));
             a.Add(Links("Cultural contacts",c.Contacts.Where(i=>i>=0&&i<s.Society.Cultures.Length).Select(i=>CultureLink(s.Society.Cultures[i])),"Recorded contact does not imply conquest, migration, or friendship."));
             a.Add(new AtlasSection{Title="Practices and knowledge",Text="Dates are first recorded adoption by this culture, not claims of world-first invention.",Timeline=hc.Technology.Select((year,k)=>new{year,k}).Where(x=>x.year>0).OrderBy(x=>x.year).ThenBy(x=>x.k).Select(x=>F("Year "+Y(s,x.year-1),HistoricalTechnologies.Name(h.Version,x.k))).ToArray()});
+            if(hc.Technical!=null)a.Add(new AtlasSection{Title="Research and practical technology",Text="A level records accumulated technical knowledge. Research shares sum to no more than 100%; adding projects does not create effort. Practical deployment is separate and depends on supporting skills, livelihoods and capital.",Technical=TechnicalResearchView.Read(s,c.Id)});
             if(h.Agriculture!=null&&c.Id<h.Agriculture.Length)
             {
                 var crops=h.Agriculture[c.Id];

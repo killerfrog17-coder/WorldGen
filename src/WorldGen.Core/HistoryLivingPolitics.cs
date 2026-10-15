@@ -34,6 +34,7 @@ namespace WorldGen.Core
             h.Polities=h.Polities.Concat(new[]{successor}).ToArray();a.Polities=a.Polities.Concat(new[]{account}).ToArray();
             if(ProvincialHistory(s)){Array.Resize(ref a.Provinces.FarmPotential,h.Polities.Length);a.Provinces.FarmPotential[id]=a.Provinces.FarmPotential[polity];a.Provinces.FarmPotential[polity]=0;}
             if(CommunityHistory(s))a.Communities.Governments=a.Communities.Governments.Concat(new[]{a.Communities.Governments[polity].Copy()}).ToArray();
+            AppendImperialGovernment(s,polity);
             var next=ds.Copy();next.Id=id;next.LeaderId=-1;next.LastSuccession=s.Years;next.Cycle=cycle.Copy();next.Cycle.EliteCapture/=2;next.Cycle.ConquestDebt/=2;h.Dynamics.States=h.Dynamics.States.Concat(new[]{next}).ToArray();
             // The polity changes, not its entire population or culture. Cached
             // accounts and persistent territory roots transfer without a census.

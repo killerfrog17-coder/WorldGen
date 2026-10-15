@@ -29,6 +29,7 @@ namespace WorldGen.Core
         public static double Adoption(HistoricalCulture c,HistoricalTechnology technology,int year)
         {
             int k=(int)technology;if(k>=c.Technology.Length||c.Technology[k]==0)return 0;
+            if(c.Technical!=null)return D.Q(c.Technical.Deployment[k]/1000.0,1000000);
             return D.Q(D.Clamp((year-(c.Technology[k]-1)+1)/80.0),1000000);
         }
         public static double FoodMultiplier(HistoricalCulture c,int year)=>D.Q(1+.25*Adoption(c,HistoricalTechnology.CropRotation,year)+.5*Adoption(c,HistoricalTechnology.ArtificialFertilizers,year)+.65*Adoption(c,HistoricalTechnology.MechanizedAgriculture,year),1000000);
@@ -43,7 +44,7 @@ namespace WorldGen.Core
         public static double ChronicMortalityMultiplier(HistoricalCulture c,int year)=>D.Q(Math.Max(.15,1-.35*Adoption(c,HistoricalTechnology.Sanitation,year)-.2*Adoption(c,HistoricalTechnology.Vaccination,year)-.25*Adoption(c,HistoricalTechnology.Antibiotics,year)),1000000);
         public static double LandTransport(HistoricalCulture c,int year)=>D.Q(1+2*Adoption(c,HistoricalTechnology.Railways,year)+1.5*Adoption(c,HistoricalTechnology.CombustionEngines,year),1000000);
         public static double Communication(HistoricalCulture c,int year)=>D.Q(1+2*Adoption(c,HistoricalTechnology.Telegraph,year)+4*Adoption(c,HistoricalTechnology.Radio,year)+8*Adoption(c,HistoricalTechnology.Telecommunications,year),1000000);
-        public static double Military(HistoricalCulture c,int year)=>D.Q(1+.3*Adoption(c,HistoricalTechnology.Gunpowder,year)+.4*Adoption(c,HistoricalTechnology.IndustrialMetallurgy,year)+.6*Adoption(c,HistoricalTechnology.CombustionEngines,year)+.5*Adoption(c,HistoricalTechnology.Aviation,year),1000000);
+        public static double Military(HistoricalCulture c,int year)=>c.Technical==null?D.Q(1+.3*Adoption(c,HistoricalTechnology.Gunpowder,year)+.4*Adoption(c,HistoricalTechnology.IndustrialMetallurgy,year)+.6*Adoption(c,HistoricalTechnology.CombustionEngines,year)+.5*Adoption(c,HistoricalTechnology.Aviation,year),1000000):D.Q((1+.2*Adoption(c,HistoricalTechnology.Bronze,year)+.3*Adoption(c,HistoricalTechnology.Iron,year)+.4*Adoption(c,HistoricalTechnology.Steel,year))*(1+1.4*Adoption(c,HistoricalTechnology.Gunpowder,year))*(1+1.8*Adoption(c,HistoricalTechnology.IndustrialMetallurgy,year))*(1+1.5*Adoption(c,HistoricalTechnology.CombustionEngines,year)+Adoption(c,HistoricalTechnology.Aviation,year))*(1+.5*Adoption(c,HistoricalTechnology.Radio,year)),1000000);
         // Account units are not percentages of the harvest. Rural households
         // have lower market receipts than urban ones, but are not nearly free
         // of fiscal value in an agrarian state. Service costs still apply.

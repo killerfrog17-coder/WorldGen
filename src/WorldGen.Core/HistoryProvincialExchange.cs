@@ -31,6 +31,7 @@ namespace WorldGen.Core
         void OfferProvincialKnowledge(PrehistoryState s,int receiver,int sender,long mask,int year,bool direct)
         {
             if(receiver<0||sender<0||receiver==sender)return;var p=s.History.Aggregates.Provinces;var memory=p.Exchanges[receiver];
+            OfferTechnicalKnowledge(s,receiver,sender,mask,year);
             int at=Array.IndexOf(memory.Peers,sender);
             if(at<0)
             {

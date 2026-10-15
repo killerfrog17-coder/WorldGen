@@ -23,6 +23,7 @@ namespace WorldGen.Core
             h.Polities=h.Polities.Concat(new[]{polity}).ToArray();a.Polities=a.Polities.Concat(new[]{new HistoricalPolityAggregate{Id=id,LastYear=s.Years,LastSuccession=s.Years,ReachKm=100}}).ToArray();
             if(ProvincialHistory(s))Array.Resize(ref a.Provinces.FarmPotential,h.Polities.Length);
             if(CommunityHistory(s))a.Communities.Governments=a.Communities.Governments.Concat(new[]{new HistoricalGovernmentPolicy{LastReformYear=s.Years}}).ToArray();
+            AppendImperialGovernment(s);
             h.Dynamics.States=h.Dynamics.States.Concat(new[]{new HistoricalStateDynamics{Id=id,FoundationPotential=(int)(AggregateCropSupport(s,town.CultureId,town.Cell,true)*1000),LastSuccession=s.Years,Tradition="Local provisioning, public works and collective defense",Cycle=new HistoricalPoliticalCycle()}}).ToArray();
             AppointAggregateLeader(s,id);ClaimAggregatePolity(s,town.Cell,id);AssignAggregateTown(s,city,id);ScheduleAggregate(s,StateProcess,id);s.Society.Cultures[town.CultureId].Stage=SocietyStage.Civilization;
             if(a.Cultures[town.CultureId].CivilizationSince<0)a.Cultures[town.CultureId].CivilizationSince=s.Years;
@@ -68,6 +69,7 @@ namespace WorldGen.Core
             p.Army=(int)Math.Min(int.MaxValue,Math.Max(0,(account.Urban+account.Rural*.1+account.Remote*.02)*.03*p.Cohesion/1000));
             if(p.Treasury>account.Urban&&leader.Administration>550){long spend=Math.Min(p.Treasury/20,Math.Max(1,account.Urban/40));p.Treasury-=spend;ds.PublicWorks=Math.Min(1000,ds.PublicWorks+(int)Math.Min(elapsed*3,spend/100+1));}else ds.PublicWorks=Math.Max(0,ds.PublicWorks-elapsed);
             ds.PeakPopulation=Math.Max(ds.PeakPopulation,p.Population);ds.PeakAreaKm2=Math.Max(ds.PeakAreaKm2,p.AreaKm2);p.LastEstimateYear=s.Years;
+            AdvanceImperialGovernment(s,id,elapsed);
             if(h.Administration.Accounts.Length<h.Polities.Length){int old=h.Administration.Accounts.Length;Array.Resize(ref h.Administration.Accounts,h.Polities.Length);for(int k=old;k<h.Polities.Length;k++)h.Administration.Accounts[k]=new HistoricalAdministrativeAccount{PolityId=k};}
             var ledger=h.Administration.Accounts[id];ledger.Year=s.Years;ledger.ReachM=account.ReachKm*1000;ledger.UrbanReceipts=(long)(account.Urban*.065);ledger.RuralReceipts=receipts-ledger.UrbanReceipts;ledger.ServiceCost=service;ledger.TaxableUrbanResidents=account.Urban;ledger.DisconnectedResidents=(long)(account.Remote*(1-served));
             int sampledCity=account.Cities.At((int)(HistoryRoll("aggregate-province",id,s.Years)*account.Cities.Count));var town=s.Society.Settlements[sampledCity];double distance=D.Angle(World.Surface.Cells[town.Cell].Position,World.Surface.Cells[s.Society.Settlements[p.CapitalId].Cell].Position)*World.Recipe.RadiusKm;

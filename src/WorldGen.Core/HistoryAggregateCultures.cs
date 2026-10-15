@@ -76,7 +76,8 @@ namespace WorldGen.Core
             if(LivingHistory(s)&&ca.Cities.Count>0)hc.Surplus=(int)Math.Min(1000,100+700*Math.Max(AggregateCropSupport(s,id,cell,true),AggregateCropSupport(s,id,urbanSite,true))+100*D.Clamp(ca.FoodCapacity/(double)Math.Max(1,ca.Urban)-.8));
             if(ConnectedHistory(s))hc.Surplus=(int)Math.Min(1000,100+750*D.Clamp(Math.Max(LivingCropLandscape(s,id,cell,true),LivingCropLandscape(s,id,urbanSite,true))/.4)+100*D.Clamp(ca.FoodCapacity/(double)Math.Max(1,ca.Urban)-.8));
             hc.Institution=Math.Max(0,Math.Min(1000,hc.Institution+(int)((hc.Sedentism*.6+Math.Log(1+ca.Urban)*25-hc.Institution)*Math.Min(.3,elapsed/500.0))));c.Organization=hc.Institution;
-            for(int k=0;k<hc.Technology.Length;k++)
+            if(TechnicalHistory(s))AdvanceTechnicalResearch(s,id,elapsed,contact,urbanSite);
+            else for(int k=0;k<hc.Technology.Length;k++)
             {
                 if(hc.Technology[k]>0||HistoricalModernEffects.Era((HistoricalTechnology)k)>h.Modern.TechnologyCeiling)continue;
                 int[] required=HistoricalTechnologies.Requirements(h.Version,k);if(required.Any(p=>hc.Technology[p]==0))continue;

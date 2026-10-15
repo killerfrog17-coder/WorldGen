@@ -30,7 +30,7 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         public const string ConnectedHistoryVersion="history-19";
-        public static bool IsAggregateHistoryVersion(string version)=>version==AggregateHistoryVersion||version==LivingHistoryVersion||version==ConnectedHistoryVersion||version==RegionalHistoryVersion||version==CommunityHistoryVersion||version==DiffusionHistoryVersion||version==AgronomicHistoryVersion;
+        public static bool IsAggregateHistoryVersion(string version)=>version==AggregateHistoryVersion||version==LivingHistoryVersion||version==ConnectedHistoryVersion||version==RegionalHistoryVersion||version==CommunityHistoryVersion||version==DiffusionHistoryVersion||version==AgronomicHistoryVersion||version==TechnicalHistoryVersion;
         static bool ConnectedHistory(PrehistoryState s)=>s?.History?.Version==ConnectedHistoryVersion||ProvincialHistory(s);
         public static bool CanUpgradeHistory(PrehistoryState s)
         {
@@ -143,7 +143,7 @@ namespace WorldGen.Core
                 if(other>=0){if(other!=polity&&trial<3)ConsiderAggregateDiplomacy(s,polity,other,h.Dynamics.Leaders[h.Dynamics.States[polity].LeaderId],elapsed);continue;}
                 int region=CellPatch[target];var habitat=World.Ecology.Habitat[target];
                 double distance=LivingTravelKm(s,capital,target,p.CultureId);
-                if(distance>account.ReachKm*(1+.15*Math.Log(1+account.CityCount)))continue;
+                if(!TechnicalHistory(s)&&distance>account.ReachKm*(1+.15*Math.Log(1+account.CityCount)))continue;
                 if(s.Population[region]+a.Living.Regions[region].SettledPopulation<25&&!HistoricalTechnologies.Has(hc,HistoricalTechnology.Railways))continue;
                 double burden=1+habitat.ReliefM/700.0+(habitat.AridityMilli<150?2:0);
                 long cost=Math.Max(50,(long)(inhabitableArea[target]*.025*burden));if(p.Treasury<cost)continue;

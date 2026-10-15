@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 namespace WorldGen.Core
 {
-    public enum HistoryOverlay { Civilizations, States, Cultures, Religions, Technology }
+    public enum HistoryOverlay { Civilizations, States, Cultures, Religions, Technology, Territories }
     // Stable IDs: append capabilities; never reinterpret a saved adoption date.
     public enum HistoricalTechnology { Storage, Cultivation, Pottery, Sailing, Irrigation, Copper, Writing, Bronze, Roads, Iron, Coinage, Mills, Steel, Navigation, Scholasticism,
         Printing,Gunpowder,OceanNavigation,ScientificMethod,CropRotation,SteamPower,IndustrialMetallurgy,Railways,GermTheory,Sanitation,Electricity,Telegraph,
@@ -13,9 +13,10 @@ namespace WorldGen.Core
         public int Id, ReligionId, LanguageId, Sedentism, Surplus, Institution;
         [System.Runtime.Serialization.OptionalField] public int ParentCultureId=-1;
         [System.Runtime.Serialization.OptionalField] public int InstitutionalExamples;
+        [System.Runtime.Serialization.OptionalField] public HistoricalTechnicalPractice Technical;
         [System.Runtime.Serialization.OnDeserializing] void InitializeOptionalLineage(System.Runtime.Serialization.StreamingContext context){ParentCultureId=-1;}
         public int[] Technology=new int[15], Research=new int[15]; // adoption year + 1 (zero = absent), accumulated effort
-        public HistoricalCulture Copy(){var c=(HistoricalCulture)MemberwiseClone();c.Technology=(int[])Technology.Clone();c.Research=(int[])Research.Clone();return c;}
+        public HistoricalCulture Copy(){var c=(HistoricalCulture)MemberwiseClone();c.Technology=(int[])Technology.Clone();c.Research=(int[])Research.Clone();c.Technical=Technical?.Copy();return c;}
     }
     [Serializable] public sealed class HistoricalReligion
     {
@@ -108,6 +109,6 @@ namespace WorldGen.Core
         static int[] LegacyRequirements(string version,int technology)=>(version=="history-6"||version=="history-7"||version=="history-8"||(version=="history-9"||(version=="history-10"||(version=="history-11"||(version=="history-12"||(version=="history-13"||(version=="history-14"||(version=="history-15"||version=="history-16"))))))))&&technology==(int)HistoricalTechnology.Navigation?WayfindingPrerequisites:Prerequisites[technology];
         public static string Name(string version,int technology)=>LegacyName(Prehistory.IsAggregateHistoryVersion(version)?"history-16":version,technology);
         static string LegacyName(string version,int technology)=>(version=="history-6"||version=="history-7"||version=="history-8"||(version=="history-9"||(version=="history-10"||(version=="history-11"||(version=="history-12"||(version=="history-13"||(version=="history-14"||(version=="history-15"||version=="history-16"))))))))&&technology==(int)HistoricalTechnology.Navigation?"Ocean wayfinding and navigation":Names[technology];
-        public static bool Has(HistoricalCulture c,HistoricalTechnology t)=>(int)t<c.Technology.Length&&c.Technology[(int)t]>0;
+        public static bool Has(HistoricalCulture c,HistoricalTechnology t)=>(int)t<c.Technology.Length&&c.Technology[(int)t]>0&&(c.Technical==null||c.Technical.Deployment[(int)t]>=250);
     }
 }

@@ -43,7 +43,7 @@ namespace WorldGen.Core
         // Derived habitat weights, not a second population store. Prefix allocation conserves every person.
         readonly long[] ruralWeight,ruralPrefix;readonly long[] ruralPatchWeight;
         public const int StepYears=100;
-        public static string CurrentHistoryVersion=>AgronomicHistoryVersion;
+        public static string CurrentHistoryVersion=>TechnicalHistoryVersion;
         public static int YearsPerStep(PrehistoryState state)=>state.Version=="prehistory-1"?250:state.Society?.SelectedStepYears??StepYears;
         public static double CrossingChance(int distanceM,bool shallow)=>shallow?.22:.015+.30*Math.Exp(-Math.Max(0,distanceM)/55000.0);
         public static bool LowSeaLevel(int years)=>years%100000>=20000 && years%100000<80000;
@@ -152,7 +152,7 @@ namespace WorldGen.Core
             if(ModernHistory(s))s.History.Modern=new HistoricalModernSettings{TechnologyCeiling=World.Prehistory?.History?.Modern?.TechnologyCeiling??HistoricalTechnologyCeiling.Modern};
             string requested=s.History?.Version;
             if(IsAggregateHistoryVersion(requested))s.History.Version="history-16";
-            s.Seal();if(requested==AggregateHistoryVersion)return UpgradeToAggregateHistory(s);if(requested==LivingHistoryVersion)return UpgradeToLivingHistory(s);if(requested==ConnectedHistoryVersion)return UpgradeToConnectedHistory(s);if(requested==RegionalHistoryVersion)return UpgradeToRegionalHistory(s);if(requested==CommunityHistoryVersion)return UpgradeToCommunityHistory(s);if(requested==DiffusionHistoryVersion)return UpgradeToDiffusionHistory(s);if(requested==AgronomicHistoryVersion)return UpgradeToAgronomicHistory(s);return s;
+            s.Seal();if(requested==AggregateHistoryVersion)return UpgradeToAggregateHistory(s);if(requested==LivingHistoryVersion)return UpgradeToLivingHistory(s);if(requested==ConnectedHistoryVersion)return UpgradeToConnectedHistory(s);if(requested==RegionalHistoryVersion)return UpgradeToRegionalHistory(s);if(requested==CommunityHistoryVersion)return UpgradeToCommunityHistory(s);if(requested==DiffusionHistoryVersion)return UpgradeToDiffusionHistory(s);if(requested==AgronomicHistoryVersion)return UpgradeToAgronomicHistory(s);if(requested==TechnicalHistoryVersion)return UpgradeToTechnicalHistory(s);return s;
         }
         public PrehistoryState Start(PrehistoryState source){Validate(source);if(source.Started)return source;var s=source.Copy();s.Started=true;s.Population[s.Origin]=Math.Min(200,Patches[s.Origin].Capacity);s.ArrivalYear[s.Origin]=0;if(s.History?.Aggregates!=null)s.History.Aggregates.TotalPopulation+=s.Population[s.Origin];s.Seal();return s;}
         public void Validate(PrehistoryState s)

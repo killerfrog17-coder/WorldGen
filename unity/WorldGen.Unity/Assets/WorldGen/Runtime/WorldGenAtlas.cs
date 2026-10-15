@@ -80,6 +80,12 @@ public sealed partial class WorldGenRuntime
         else
         {
             var section=atlasDocument.Sections.First(s=>s.Title==atlasSection);GUILayout.Label(section.Title,new GUIStyle(GUI.skin.label){fontSize=18,fontStyle=FontStyle.Bold});AtlasParagraph(section.Text,14);AtlasFacts(section.Facts);
+            foreach(var project in section.Technical)
+            {
+                GUILayout.Space(12);GUILayout.Label(project.Name+" — Level "+project.Level,new GUIStyle(GUI.skin.label){fontSize=16,fontStyle=FontStyle.Bold});AtlasParagraph(project.Source,12);
+                if(project.AllocationBasisPoints>0)DrawTechnicalBar("Research share",project.AllocationBasisPoints/100f);
+                DrawTechnicalBar("Next level",project.ResearchPermille/10f);DrawTechnicalBar("Practical deployment",project.DeploymentPermille/10f);AtlasParagraph(project.Prerequisites,12);
+            }
             if(section.Diagram)DrawAtlasDiplomacy(section,width-300);
             long maximum=section.Unit=="/ 1,000"?1000:Math.Max(1,section.Links.Select(x=>x.Value).DefaultIfEmpty(1).Max());
             foreach(var link in section.Links)
@@ -109,11 +115,15 @@ public sealed partial class WorldGenRuntime
                 GUILayout.Space(10);GUILayout.Label(point.Label,new GUIStyle(GUI.skin.label){fontSize=12,fontStyle=FontStyle.Bold});AtlasParagraph(point.Value,15);
                 foreach(var related in point.Related.Where(x=>x.Kind!=atlasDocument.Kind||x.Id!=atlasDocument.Id))if(GUILayout.Button(new GUIContent(related.Name,related.Context),new GUIStyle(GUI.skin.button){fontSize=12,alignment=TextAnchor.MiddleLeft,padding=new RectOffset(5,5,3,3)}))AtlasNavigate(related);
             }
-            if(section.Links.Length==0&&section.Timeline.Length==0&&section.Facts.Length==0&&section.Text.Length==0)AtlasParagraph("No records yet.",14);
+            if(section.Links.Length==0&&section.Timeline.Length==0&&section.Facts.Length==0&&section.Text.Length==0&&section.Technical.Length==0)AtlasParagraph("No records yet.",14);
         }
         GUILayout.Space(20);AtlasParagraph(atlasDocument.Note,11);GUILayout.EndScrollView();GUILayout.EndVertical();GUILayout.EndHorizontal();GUILayout.EndArea();
     }
     void AtlasParagraph(string text,int size){if(!string.IsNullOrEmpty(text))GUILayout.Label(text,new GUIStyle(GUI.skin.label){fontSize=size,wordWrap=true,padding=new RectOffset(0,8,3,3)});}
+    void DrawTechnicalBar(string label,float percent)
+    {
+        GUILayout.BeginHorizontal();GUILayout.Label(label+" "+percent.ToString("0.0")+"%",GUILayout.Width(230));var bar=GUILayoutUtility.GetRect(60,10,GUILayout.ExpandWidth(true));GUI.color=new Color(.18f,.25f,.29f);GUI.DrawTexture(bar,Texture2D.whiteTexture);bar.width*=Mathf.Clamp01(percent/100);GUI.color=new Color(.77f,.69f,.46f);GUI.DrawTexture(bar,Texture2D.whiteTexture);GUI.color=Color.white;GUILayout.EndHorizontal();
+    }
     string AtlasTabCaption(string title)
     {
         switch(title){case "Overlords and dependent courts":return "Dependent courts";case "People, court, and belief":return "People & belief";case "States associated with these people":return "Associated states";case "Origins, language, and belief":return "Origins & language";case "Ways of making a living":return "Livelihoods";case "Institutions and pressures":return "Institutions";case "Diplomatic neighborhood":return "Diplomacy";case "Food and everyday security":return "Food security";case "Provisioning and resilience":return "Food & resilience";case "Belief and political patronage":return "Belief & courts";case "Connections and fault lines":return "World relationships";default:return SocietyView.Short(title,24);}

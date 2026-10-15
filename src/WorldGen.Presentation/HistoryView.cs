@@ -15,8 +15,8 @@ namespace WorldGen.Presentation
         public static HistoryLegendEntry[] MapLabels(World w,PrehistoryState? s,HistoryOverlay overlay,Prehistory? engine=null)
         {
             if(s?.History==null||s.Society==null)return Legend(s,overlay,engine:engine);
-            if(overlay!=HistoryOverlay.Civilizations&&overlay!=HistoryOverlay.States)return Legend(s,overlay,engine:engine);
-            var labels=Legend(s,HistoryOverlay.States,engine:engine).ToList();
+            if(overlay!=HistoryOverlay.Civilizations&&overlay!=HistoryOverlay.States&&overlay!=HistoryOverlay.Territories)return Legend(s,overlay,engine:engine);
+            var labels=Legend(s,overlay==HistoryOverlay.Territories?overlay:HistoryOverlay.States,engine:engine).ToList();
             var groups=new System.Collections.Generic.Dictionary<int,System.Collections.Generic.List<int>>();
             for(int cell=0;cell<HistoricalCells.Count(s);cell++)
             {
@@ -46,12 +46,12 @@ namespace WorldGen.Presentation
                 foreach(var town in s.Society.Settlements){int faith=HistoricalCells.Religion(s,town.Cell);if(faith>=0)faithPopulation[faith]+=town.Population;}
             }
             if(h!=null&&overlay==HistoryOverlay.Religions)for(int cell=0;cell<HistoricalCells.Count(s);cell++){int faith=HistoricalCells.Religion(s,cell);if(faith>=0&&!faithSites.ContainsKey(faith))faithSites.Add(faith,cell);}
-            if(h!=null&&overlay==HistoryOverlay.States)entries=h.Polities.Where(p=>p.EndedYear<0).Select(p=>new HistoryLegendEntry{Name=p.Name,Cell=s.Society.Settlements[p.CapitalId].Cell,ColorId=p.CultureId,Population=p.Population,AreaKm2=p.AreaKm2});
+            if(h!=null&&(overlay==HistoryOverlay.States||overlay==HistoryOverlay.Territories))entries=h.Polities.Where(p=>p.EndedYear<0&&(overlay==HistoryOverlay.Territories||HistoricalImperialHierarchy.Patron(s,p.Id)<0)).Select(p=>new HistoryLegendEntry{Name=p.Name,Cell=s.Society.Settlements[p.CapitalId].Cell,ColorId=overlay==HistoryOverlay.Territories?p.Id:p.CultureId,Population=overlay==HistoryOverlay.Territories?p.Population:HistoricalImperialHierarchy.Population(s,p.Id),AreaKm2=overlay==HistoryOverlay.Territories?p.AreaKm2:HistoricalImperialHierarchy.AreaKm2(s,p.Id)});
             else if(h!=null&&overlay==HistoryOverlay.Religions)entries=h.Religions.Where(r=>faithSites.ContainsKey(r.Id)).Select(r=>new HistoryLegendEntry{Name=r.Name,Cell=HistoricalCells.Religion(s,r.HolyCell)==r.Id?r.HolyCell:faithSites[r.Id],ColorId=r.Id,Population=faithPopulation[r.Id],AreaKm2=faithArea[r.Id]});
-            else if(h!=null&&overlay==HistoryOverlay.Technology)entries=h.Cultures.GroupBy(c=>c.Technology.Count(t=>t>0)).OrderByDescending(g=>g.Key).Select(g=>new HistoryLegendEntry{Name=g.Key+" adopted practices",ColorId=g.Key,Cell=s.Society.Cultures[g.First().Id].OriginCell,Population=g.Sum(c=>s.Society.Cultures[c.Id].Population),AreaKm2=g.Sum(c=>s.Society.Cultures[c.Id].AreaKm2)});
+            else if(h!=null&&overlay==HistoryOverlay.Technology)entries=h.Cultures.GroupBy(HistoricalImperialHierarchy.InstalledPractices).OrderByDescending(g=>g.Key).Select(g=>new HistoryLegendEntry{Name=g.Key+" deployed practices",ColorId=g.Key,Cell=s.Society.Cultures[g.First().Id].OriginCell,Population=g.Sum(c=>s.Society.Cultures[c.Id].Population),AreaKm2=g.Sum(c=>s.Society.Cultures[c.Id].AreaKm2)});
             else entries=s.Society.Cultures.Where(c=>overlay==HistoryOverlay.Cultures||(h==null?c.Stage==SocietyStage.Civilization:civilizationSites.ContainsKey(c.Id))).Select(c=>new HistoryLegendEntry{Name=c.Name,Cell=overlay==HistoryOverlay.Civilizations&&h!=null?(OverlayId(s,c.OriginCell,overlay)==c.Id?c.OriginCell:civilizationSites[c.Id]):c.OriginCell,ColorId=c.Id,Population=overlay==HistoryOverlay.Civilizations&&h!=null?h.Polities.Where(p=>p.EndedYear<0&&p.CultureId==c.Id).Sum(p=>p.Population):c.Population,AreaKm2=overlay==HistoryOverlay.Civilizations&&h!=null?h.Polities.Where(p=>p.EndedYear<0&&p.CultureId==c.Id).Sum(p=>p.AreaKm2):c.AreaKm2});
             var ranked=entries.OrderByDescending(e=>sort=="Population"?e.Population:sort=="Land area"?e.AreaKm2:overlay==HistoryOverlay.Technology?e.ColorId:e.Population+Math.Sqrt(e.AreaKm2)*100).ThenBy(e=>e.ColorId).ToArray();
-            if(engine!=null&&h!=null&&(overlay==HistoryOverlay.States||overlay==HistoryOverlay.Civilizations))
+            if(engine!=null&&h!=null&&(overlay==HistoryOverlay.States||overlay==HistoryOverlay.Civilizations||overlay==HistoryOverlay.Territories))
             {
                 var sites=PoliticalLabelSites(engine.World,s,overlay);
                 foreach(var entry in ranked){int owner=OverlayId(s,entry.Cell,overlay);if(sites.TryGetValue(owner,out int site))entry.LabelCell=site;entry.LabelName=entry.Name.EndsWith(" State",StringComparison.Ordinal)?entry.Name.Substring(0,entry.Name.Length-6):entry.Name;}
@@ -69,12 +69,14 @@ namespace WorldGen.Presentation
         public static string HistoricalDescription(PrehistoryState s,int cell,HistoryOverlay overlay,string fallback)
         {
             var h=s.History;var culture=Culture(s,cell);if(h!=null&&culture==null&&cell>=0&&cell<HistoricalCells.Count(s)&&HistoricalCells.Polity(s,cell)>=0)culture=s.Society.Cultures[h.Polities[HistoricalCells.Polity(s,cell)].CultureId];if(h==null||culture==null)return fallback;
-            if(overlay==HistoryOverlay.Civilizations&&HistoricalCells.Polity(s,cell)>=0)culture=s.Society.Cultures[h.Polities[HistoricalCells.Polity(s,cell)].CultureId];
+            if(overlay==HistoryOverlay.Civilizations&&HistoricalCells.Polity(s,cell)>=0)culture=s.Society.Cultures[h.Polities[HistoricalImperialHierarchy.Sovereign(s,HistoricalCells.Polity(s,cell))].CultureId];
             int id=HistoricalCells.Polity(s,cell),religion=HistoricalCells.Religion(s,cell);var hc=h.Cultures[culture.Id];
+            int localId=id;if(id>=0&&(overlay==HistoryOverlay.States||overlay==HistoryOverlay.Civilizations))id=HistoricalImperialHierarchy.Sovereign(s,id);
             var b=new StringBuilder();
-            if(overlay==HistoryOverlay.States&&id>=0)b.AppendLine(h.Polities[id].Name);
+            if((overlay==HistoryOverlay.States||overlay==HistoryOverlay.Territories)&&id>=0)b.AppendLine(h.Polities[id].Name);
             else if(overlay==HistoryOverlay.Religions&&religion>=0)b.AppendLine(h.Religions[religion].Name);
             else b.AppendLine(culture.Name);
+            if(localId>=0&&localId!=HistoricalImperialHierarchy.Sovereign(s,localId))b.AppendLine("Local government: "+h.Polities[localId].Name+" · Imperial allegiance: "+h.Polities[HistoricalImperialHierarchy.Sovereign(s,localId)].Name);
             b.AppendLine(HistoricalCells.Stage(s,cell)>=3?"Urban state hinterland":HistoricalCells.Stage(s,cell)>=2?"Regional settlement center":"Decentralized regional culture");
             string subsistence=(h.Version=="history-3"||h.Version=="history-4"||h.Version=="history-5"||h.Version=="history-6"||h.Version=="history-7"||h.Version=="history-8"||(h.Version=="history-9"||(h.Version=="history-10"||(h.Version=="history-11"||(h.Version=="history-12"||(h.Version=="history-13"||(h.Version=="history-14"||(h.Version=="history-15"||(h.Version=="history-16"||h.Aggregates!=null)))))))))&&culture.Farming>0?(culture.Farming>200?"Crop cultivation":"Early crop tending")+(culture.Fishing>=300?" with fishing":" with wild-food gathering"):culture.Subsistence;
             b.AppendLine(subsistence).AppendLine("Resources: "+culture.Resources);
