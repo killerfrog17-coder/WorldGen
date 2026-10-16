@@ -1238,3 +1238,22 @@ Use README.md's build/core/CLI/browser commands. For an already-open Unity proje
 Player flags: --worldgen-detail N, --worldgen-view Globe|Map, --worldgen-layer Terrain|Satellite|Climate|Heightmap, --worldgen-wireframe, --worldgen-plates, --worldgen-grid 0|15|30, --worldgen-screenshot <absolute PNG path>. Run `scripts/unity-interaction-check.ps1 -Isolated -Detail 2000000` for the actual window-message probe. The player harness uses --worldgen-ui-check <absolute JSON path> and exercises presentation cancellation, complete regeneration, map scrolling and resizing while recording frame latency.
 
 Generated binaries, logs, captures, candidate corpora and reference results are ignored artifacts. The supplied reference remains outside this repository and is never modified.
+
+## Review-output cleanup, 16 October 2026
+
+At the owner's request, obsolete historical captures, retired players and
+superseded saved test runs were permanently removed from the project artifacts
+and the separate build-artifact drives. Earlier review documents retain their
+original diagnostic paths as historical provenance; most intermediate outputs
+at those paths are intentionally no longer retained. Those outputs can be
+regenerated, but are not backed up by source-control checkpoints.
+
+The project `artifacts` directory is approximately0.87GiB after cleanup. The
+retained evidence consists of fourteen selected review screenshots, compact
+reports, the current reproduction/failed-holdout worlds, the official31 player,
+the V review player and the U2 rollback player. User worlds, source, music,
+training records and the current shared compiler cache were not deleted.
+`scripts/clean-review-artifacts.ps1` previews this reviewed retention manifest
+by default; `-Apply` deletes its obsolete outputs. It refuses active players,
+unexpected junctions, embedded Git checkouts and newer history-version folders.
+It is not automatically run or scheduled.
