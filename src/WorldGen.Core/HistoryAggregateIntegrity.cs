@@ -23,6 +23,11 @@ namespace WorldGen.Core
                 a.Living?.CivicOrigins.Fingerprint(true);
                 a.Provinces?.Centers.Fingerprint(true);
                 if(a.Empires?.Connections!=null)foreach(var culture in a.Empires.Connections.Cultures)culture.SeenCharts?.Fingerprint(true);
+                if(a.Empires?.Connections?.PortSettlements!=null)
+                {
+                    var retry=a.Empires.Connections.PortSettlements;retry.LastTestYear.Fingerprint(true);
+                    foreach(var government in retry.Governments){government.Pending.Items.Fingerprint(true);government.Pending.Positions.Fingerprint(true);}
+                }
                 a.PreviousAdministration?.Fingerprint(true);
                 string archive=StateHash.Compute(h.Archive.Take(a.ArchiveBaseCount).ToList());
                 if(archive!=a.ArchiveBaseHash)throw new ArgumentException("Modified frozen history archive.");

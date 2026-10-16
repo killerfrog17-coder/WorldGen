@@ -77,6 +77,7 @@ namespace WorldGen.Core
             territory.Posts=territory.Posts.Concat(new[]{post}).ToArray();territory.PostAt=territory.PostAt.With(target,id);government.AdministrativePosts.Add(id);government.AdministrativePostCost+=annual;p.Treasury-=setup;
             AppendProvincialFrontier(s);
             ClaimAggregatePolity(s,target,polity);AssignTerritorialSource(s,target,-2-id);
+            TrackPendingColonialPort(s,target);
             if(s.ArrivalYear[route.B]<0)s.ArrivalYear[route.B]=s.Years;
             int local=HistoricalCells.Culture(s,target);if(local>=0&&local!=culture)LivingCultureContact(s,culture,local);
             HistoryEvent(s,"overseas-charter",p.Name+" establishes "+post.Name+" across a sea route of approximately "+route.DistanceM/1000+" km, funded from its port network"+(LivingWorldHistory(s)&&migrants==0?" as an administrative and shipping office, not a new migrant population.":" and settled by "+migrants+" existing households.")+" Local peoples retain their own cultures.",target,culture,polity,category:ChronicleCategory.Politics);
@@ -85,6 +86,7 @@ namespace WorldGen.Core
         {
             if(!TechnicalHistory(s))return;var h=s.History;var a=h.Aggregates;var t=a.Empires.Territories;int id=t.PostAt[cell];if(id<0)return;var post=t.Posts[id];if(post.ClosedYear>=0)return;
             int previous=a.Resolve(post.PolityId,h);if(previous==polity)return;
+            RemovePendingColonialPort(s,a.PopulationCohort(post.PolityId),id);
             int cohort=a.PopulationCohort(post.PolityId);var old=a.Empires.Governments[cohort];old.AdministrativePosts.Remove(id);old.AdministrativePostCost=Math.Max(0,old.AdministrativePostCost-post.AnnualCost);
             if(polity<0){post.ClosedYear=s.Years;t.PostAt=t.PostAt.With(cell,-1);return;}
             int parent=TerritorialServiceSource(s,polity,cell);

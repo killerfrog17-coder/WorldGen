@@ -6,6 +6,7 @@ namespace WorldGen.Core
     {
         bool CommunityMaritimePractice(PrehistoryState s,int culture)
         {
+            if(LivingWorldHistory(s))return LivingCommunityMaritimePractice(s,culture);
             bool Shore(int cell)=>Patches[CellPatch[cell]].Island||World.Surface.Cells[cell].Neighbors.Any(n=>World.Hydrology.OceanConnected[n]);
             int origin=s.Society.Cultures[culture].OriginCell;if(Shore(origin))return true;
             if(ColonialHistory(s)&&ColonialCoastalPractice(s,culture,s.History.Aggregates.Living.CivicOrigins[culture]))return true;

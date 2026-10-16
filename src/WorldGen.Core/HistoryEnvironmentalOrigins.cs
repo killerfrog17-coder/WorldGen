@@ -137,22 +137,21 @@ namespace WorldGen.Core
         {
             if(from==to)return 1;
             var hc=s.History.Cultures[culture];double transport=HistoricalModernEffects.LandTransport(hc,s.Years)*(1+1.5*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Roads,s.Years)),management=EnvironmentalManagement(s,culture);
-            double km=D.Angle(World.Surface.Cells[from].Position,World.Surface.Cells[to].Position)*World.Recipe.RadiusKm,cost=0;
+            var geometry=sea?default(EnvironmentalGeometrySample):EnvironmentalGeometry(from,to);
+            double km=sea?D.Angle(World.Surface.Cells[from].Position,World.Surface.Cells[to].Position)*World.Recipe.RadiusKm:geometry.DistanceKm,cost=0;
             if(!sea)
             {
-                var start=World.Surface.Cells[from].Position;var end=World.Surface.Cells[to].Position;
-                // Fixed8-sample static raster query. No fine-cell path/census.
+                // The immutable directional raster samples are memoized;
+                // current management and every quantized cost stay live.
                 for(int k=0;k<8;k++)
                 {
-                    double t=(k+.5)/8;var point=(start*(1-t)+end*t).Unit;
-                    int x=Math.Max(0,Math.Min(OceanRasterWidth-1,(int)((Math.Atan2(point.Y,point.X)/(2*Math.PI)+.5)*OceanRasterWidth))),y=Math.Max(0,Math.Min(OceanRasterHeight-1,(int)((.5-Math.Asin(point.Z)/Math.PI)*OceanRasterHeight)));
-                    int cell=aggregateTerrainRaster[y*OceanRasterWidth+x];
+                    int cell=geometry.Cell(k);
                     cost+=World.Hydrology.OceanConnected[cell]?8:HistoricalEnvironmentalEffects.TraversalCost(World.Ecology.Habitat[cell],landscapeSeason[cell],management);
                 }
                 cost=1+(Math.Max(1,cost/8)-1)*Math.Min(3,km/150.0)/Math.Max(1,transport);
             }
             else cost=1;
-            double latitude=HistoricalEnvironmentalEffects.LatitudeTransfer(CropLatitude(from),CropLatitude(to),management);
+            double latitude=HistoricalEnvironmentalEffects.LatitudeTransfer(sea?CropLatitude(from):geometry.FromLatitude,sea?CropLatitude(to):geometry.ToLatitude,management);
             // Learning industrial knowledge need not transport the founder crop.
             double communication=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Telegraph,s.Years);
             latitude+=(1-latitude)*communication;cost=1+(cost-1)*(1-.9*communication);

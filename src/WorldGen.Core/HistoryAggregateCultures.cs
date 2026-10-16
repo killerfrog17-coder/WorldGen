@@ -114,16 +114,19 @@ namespace WorldGen.Core
             AdvanceAggregateHusbandry(s,id,contact,elapsed);AdvanceAggregateFaith(s,id,contact,elapsed);
         }
         bool AggregatePracticeSupported(PrehistoryState s,int id,int k,bool contact)
+            =>AggregatePracticeWithMaritime(s,id,k,contact,CommunityHistory(s)&&CommunityMaritimePractice(s,id));
+        bool AggregatePracticeWithMaritime(PrehistoryState s,int id,int k,bool contact,bool maritime)
         {
             var c=s.Society.Cultures[id];var hc=s.History.Cultures[id];var a=s.History.Aggregates.Cultures[id];bool water=c.Fishing>=200||riverSites[c.OriginCell]>.2;
-            if(CommunityHistory(s))water|=CommunityMaritimePractice(s,id);
+            water|=maritime;
             if(TechnicalHistory(s)&&(k==(int)HistoricalTechnology.Navigation||k==(int)HistoricalTechnology.OceanNavigation))
             {
                 int age=s.Years-c.FoundedYear;
                 if(k==(int)HistoricalTechnology.Navigation)return water&&((a.SupportedUrban>=1200&&age>=500)||(c.Fishing>=300&&age>=2500));
                 // A sustained craft/provisioning tradition can support ocean
                 // navigation without a literate state or a steel industry.
-                return water&&hc.Surplus>=200&&((a.SupportedUrban>=1500&&age>=1500)||(c.Fishing>=300&&c.Population>=5000&&age>=4000));
+                int provisions=LivingWorldHistory(s)?HistoricalForagerMaritime.Provisioning(hc.Surplus,ForagerMaritimeSupport(s,id,maritime)):hc.Surplus;
+                return water&&provisions>=200&&((a.SupportedUrban>=1500&&age>=1500)||(c.Fishing>=300&&c.Population>=5000&&age>=4000));
             }
             if(ConnectedHistory(s)&&!contact&&DevelopmentResearchNetwork(s,id,k,water))return true;
             if(ConnectedHistory(s)&&contact&&k>=7&&k!=(int)HistoricalTechnology.Navigation&&a.CivilizationSince>=0&&a.SupportedCities>=1&&a.SupportedUrban>=1200&&hc.Institution>=400&&hc.Surplus>=150)

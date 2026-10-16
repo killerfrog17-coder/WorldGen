@@ -6,11 +6,13 @@ namespace WorldGen.Core
     {
         public static int GrowingWindowWarmth(int spring,int summer,int autumn,int winter,int group)
         {
-            int[] temperatures={spring,summer,autumn,winter};double best=-1;int selected=0;
+            double best=-1;int selected=0;
             double optimum=group==6?180:group==7?320:group==1||group==2||group==3?270:220;
             for(int k=0;k<4;k++)
             {
-                int average=(temperatures[k]+temperatures[(k+1)%4])/2;
+                int current=k==0?spring:k==1?summer:k==2?autumn:winter;
+                int next=k==0?summer:k==1?autumn:k==2?winter:spring;
+                int average=(current+next)/2;
                 double fit=Math.Max(0,1-Math.Abs(average-optimum)/180.0);
                 if(fit>best){best=fit;selected=average;}
             }
@@ -32,7 +34,10 @@ namespace WorldGen.Core
             var result=new HabitatCell{PetMm=h.PetMm,AridityMilli=h.AridityMilli,WaterDeficitMm=h.WaterDeficitMm,GrowingDays=h.GrowingDays,ColdTenthsC=h.ColdTenthsC,WarmTenthsC=warm,MeanTenthsC=h.MeanTenthsC,WarmSeasonDryPermille=h.WarmSeasonDryPermille,
                 WaterTableCm=h.WaterTableCm,PermafrostPermille=h.PermafrostPermille,FloodFractionPermille=h.FloodFractionPermille,FloodDaysPerYear=h.FloodDaysPerYear,FloodPulsesPerYear=h.FloodPulsesPerYear,
                 SalinityMilliPpt=h.SalinityMilliPpt,SoilFertilityPermille=h.SoilFertilityPermille,FirePotentialPermille=h.FirePotentialPermille,ProductivityGCM2Year=h.ProductivityGCM2Year,ReliefM=h.ReliefM,Soil=h.Soil,Flooding=h.Flooding,Biome=h.Biome,Habitat=h.Habitat};
-            if(communityAgronomicHabitats.Count>=16384)communityAgronomicHabitats.Remove(communityAgronomicOrder.Dequeue());
+            // Immutable world/cell/group fits are shared by many annual town
+            // actors. A late 200k-cell world can exceed16k active crop niches;
+            // a bounded64k cache avoids cycling the same objects every year.
+            if(communityAgronomicHabitats.Count>=65536)communityAgronomicHabitats.Remove(communityAgronomicOrder.Dequeue());
             communityAgronomicHabitats[key]=result;communityAgronomicOrder.Enqueue(key);return result;
         }
         double CommunityTransferFit(PrehistoryState s,int cell,HistoricalCultivar cultivar,bool managed=false)

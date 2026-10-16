@@ -49,6 +49,8 @@ namespace WorldGen.Core
             return Math.Max(1,(long)(c.RuralCapacity*farm*crop*EffectiveFoodMultiplier(s,hc)*a.Living.Cities[city].Productivity*AnimalFoodMultiplier(s,town.CultureId,town.Cell)*(1-HistoricalProvincialEffects.UrbanShare(hc,s.Years))*(LivingWorldHistory(s)?LivingClimateFood(s,town.Cell,town.CultureId):1)));
         }
         long CommunityUrbanCapacity(PrehistoryState s,int city)
+            =>CommunityUrbanCapacity(s,city,CommunityRuralCapacity(s,city));
+        long CommunityUrbanCapacity(PrehistoryState s,int city,long ruralCapacity)
         {
             var h=s.History;var a=h.Aggregates;var t=s.Society.Settlements[city];var c=a.Cities[city];var hc=h.Cultures[t.CultureId];
             double share=HistoricalProvincialEffects.UrbanShare(hc,s.Years);
@@ -58,7 +60,7 @@ namespace WorldGen.Core
             // storable local produce and transported surplus must support it.
             double local=c.Rural*share/Math.Max(.1,1-share)*produce*EffectiveFoodMultiplier(s,hc);
             if(LivingWorldHistory(s))local*=LivingClimateFood(s,t.Cell,t.CultureId);
-            double potential=CommunityRuralCapacity(s,city)*share/Math.Max(.1,1-share)*produce;
+            double potential=ruralCapacity*share/Math.Max(.1,1-share)*produce;
             long capacity=(long)Math.Min(local,potential);int owner=a.Resolve(t.PolityId,h);
             if(owner>=0)capacity+=CommunityUrbanImports(s,owner,city);
             return Math.Max(0,capacity);

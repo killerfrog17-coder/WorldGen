@@ -92,6 +92,7 @@ namespace WorldGen.Core
             CloseInternationalState(s,id);
             EndImperialGovernment(s,id);
             p.EndedYear=s.Years;p.Army=0;a.Successors=a.Successors.With(id,successor);
+            if(LivingWorldHistory(s)&&a.Empires.Connections.PortSettlements!=null)a.Empires.Connections.PortSettlements.Governments[id]=new HistoricalPendingPortGovernment();
             // Remote communities outlive the court. Their cohort retains its
             // geography and slower demographic event until locally reclaimed.
             // No teleportation to the capital and no visit to former holdings.

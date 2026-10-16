@@ -114,8 +114,10 @@ namespace WorldGen.Core
             if(EnvironmentalHistory(s))
             {
                 double environment=EnvironmentalEstablishment(s,cell),management=local.Teacher>=0?EnvironmentalManagement(s,local.Teacher):0;
-                independent*=4*Math.Pow(environment,.75)*EnvironmentalWildResources(s,cell)*HomelandOriginFactor(s,cell);
-                if(LivingWorldHistory(s))independent=Math.Max(independent,HistoricalMarineForagerEffects.IndependentCultureOpportunity(MarineForagerSupport(s,cell),occupied,HomelandOriginFactor(s,cell)));
+                double homeland=HomelandOriginFactor(s,cell);
+                if(LivingWorldHistory(s))homeland=HistoricalForagerMaritime.RecognitionHomeland(homeland);
+                independent*=4*Math.Pow(environment,.75)*EnvironmentalWildResources(s,cell)*homeland;
+                if(LivingWorldHistory(s))independent=Math.Max(independent,HistoricalMarineForagerEffects.IndependentCultureOpportunity(MarineForagerSupport(s,cell),occupied,homeland));
                 // Forest management and later practical capacity can ease uptake;
                 // merely hearing that a distant court exists cannot clear a forest.
                 diffusion*=HistoricalEnvironmentalEffects.CulturalAdoption(environment,management);

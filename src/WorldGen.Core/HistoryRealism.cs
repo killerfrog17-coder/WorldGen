@@ -11,7 +11,7 @@ namespace WorldGen.Core
             double physical=heat*D.Clamp(1-h.ReliefM/1800.0)*D.Clamp(1-h.SalinityMilliPpt/3000.0);
             // Wetland/floodplain labels can conceal the surrounding forest.
             bool evergreen=EverWet(h);
-            double clearing=evergreen?.20:h.Habitat.HasFlag(Habitat.Forest)?.70:1;
+            double clearing=evergreen?.20:(h.Habitat&Habitat.Forest)!=0?.70:1;
             double soil=D.Clamp(h.SoilFertilityPermille/700.0);if(evergreen)soil=Math.Min(soil,.35+.4*D.Clamp(freshwater));
             double rainfed=D.Clamp((h.AridityMilli-100)/550.0)*soil*clearing;
             double alluvial=.9*(.55+.45*soil)*(evergreen?.22:1);
@@ -22,7 +22,7 @@ namespace WorldGen.Core
             double Contrast(HabitatCell a,HabitatCell b)
             {
                 double moisture=Math.Abs(Math.Log((a.AridityMilli+100.0)/(b.AridityMilli+100.0)));
-                double cover=a.Habitat.HasFlag(Habitat.Forest)==b.Habitat.HasFlag(Habitat.Forest)?0:1.4;
+                double cover=(a.Habitat&Habitat.Forest)==(b.Habitat&Habitat.Forest)?0:1.4;
                 return moisture*1.4+Math.Abs(a.ColdTenthsC-b.ColdTenthsC)/150.0+cover+Math.Abs(a.GrowingDays-b.GrowingDays)/150.0;
             }
             return D.Q(Math.Exp(-Contrast(local,target)-.7*Contrast(origin,target)),1000000);

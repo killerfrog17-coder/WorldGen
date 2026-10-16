@@ -21,6 +21,8 @@ namespace WorldGen.Core
             var tangent=east*D.Sin(angle+D.Pi/2)+north*D.Sin(angle);
             return (from*D.Sin(distance+D.Pi/2)+tangent*D.Sin(distance)).Unit;
         }
+        public static V TransportProbe(V from,double radiusKm,double bearingTurns,int trial,double reachFactor)
+            =>LocalProbe(from,radiusKm/HistoricalInlandSettlement.ProbeScale(reachFactor,trial),bearingTurns,trial);
     }
     public sealed partial class Prehistory
     {
@@ -49,9 +51,12 @@ namespace WorldGen.Core
             // the surrounding population remains native and can exchange later.
             if(!CanFoundLivingTown(s,culture,target,parent))return false;
             long available=LivingFounderAvailability(s,parent),founders=Math.Min(250,available/12),farms=Math.Min(available/3,Math.Max(800,founders*8)),people=founders+farms;
-            long investment=Math.Max(100,people/5);
-            if(town.FoodReserve<people+town.Population/4||owner>=0&&(h.Polities[owner].Treasury<investment*2||a.Polities[owner].Receipts<=a.Polities[owner].ServiceCost))return false;
+            LivingInlandSettlementCosts(s,parent,target,people,out long provisions,out long investment);
+            if(town.FoodReserve<people+provisions+town.Population/4||owner>=0&&(h.Polities[owner].Treasury<investment*2||a.Polities[owner].Receipts<=a.Polities[owner].ServiceCost))return false;
             int before=a.Cities.Length;FoundLivingTownFunded(s,culture,target,parent,owner);if(a.Cities.Length==before)return false;
+            // Founder transfer already pays startup food and debits existing
+            // households. Charge only additional carriage rations here.
+            town.FoodReserve-=provisions;
             if(owner>=0)
             {
                 h.Polities[owner].Treasury-=investment;int city=a.TownAt[target];
@@ -63,8 +68,9 @@ namespace WorldGen.Core
         int LivingLocalTownCandidate(PrehistoryState s,int parent,int trial)
         {
             int from=s.Society.Settlements[parent].Cell;
-            var point=HistoricalSettlementNetworks.LocalProbe(World.Surface.Cells[from].Position,World.Recipe.RadiusKm,
-                HistoryRoll("living-local-town-bearing",parent,s.Years),trial);
+            double bearing=HistoryRoll("living-local-town-bearing",parent,s.Years);
+            var point=LivingWorldHistory(s)?HistoricalSettlementNetworks.TransportProbe(World.Surface.Cells[from].Position,World.Recipe.RadiusKm,bearing,trial,LivingSettlementProbeReach(s,parent)):
+                HistoricalSettlementNetworks.LocalProbe(World.Surface.Cells[from].Position,World.Recipe.RadiusKm,bearing,trial);
             int site=aggregateTerrainRaster[InstitutionalRasterNode(point)];
             // The existing immutable routing raster supplies a constant-size
             // seed. At most four nearest-neighbor refinements recover detail

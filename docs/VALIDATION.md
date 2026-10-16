@@ -2,6 +2,49 @@
 
 ## History32 overnight experiments - 16 October 2026, still under review
 
+### Later overnight review: S1/B2 and a failed native performance gate
+
+The combined subject-shipyard/rural-boatbuilding, fair pending-port review and
+political bargaining candidate was replayed on the identical saved geography
+and ecology, not a succession of differently generated maps. Independent agents
+actually viewed first-state/Bronze/early-modern/late state and technology PNGs.
+Continents Plus200k reached all major landmasses with differentiated coastal
+networks; Archipelago42 reached83 cumulative sponsored port foundations by early
+modern versus O's10. Cumulative foundations are not a current active-port count.
+Earth still has excessive late concentration in North America and weak Indian/
+Chinese urbanization; this remains a rejected realism outcome, not hidden by a
+stronger generated-world result.
+
+The B2 forager-only recognition correction retains the exact pristine-state
+homeland/ecology prior. Matched200k Earth and Continents Plus keep first state
+119944 and154770, with one and two independent origins. The hostile20k Aborea73
+control instead reaches a state at583559 (three independent origins by the late
+tail), rather than no state by700000. Its first state is in temperate rainforest
+at38.67N/115.92W, on a different continent from the original human homeland. Actual
+PNGs show localized early traditions, not simultaneous global states. Apparent
+ocean town markers were checked against saved subcell records and are inhabited
+islands, not settlements invented on empty water. See HISTORY32_MARINE_FORAGERS.
+
+A stricter O native Unity200k Continents Plus stress run FAILED:1510.96 years at
+2.54 years/s, minimum rolling1.89, worst summed-year1182ms. P95 frames remained
+17.13ms, so smooth rendering did not imply acceptable simulation throughput.
+The run ended with4733 recorded settlements and242 active governments. Measured
+work was232.5s city actors,108.7s regions,108.6s cultures,61.7s states and53.6s
+checkpoint hashing;998 Mono collections were observed. Evidence is on D under
+artifacts/history32/unity-o-cp-performance1500. This failed gate supersedes any
+inference that the earlier H8.91yr/s control proves the latest source fast enough.
+
+Round T removes discarded legacy capacity calculations and reuses an unchanged
+actor-local rural capacity, adds current-version fast-positive feature checks,
+retains64k bounded immutable agronomic niches, and avoids per-event stopwatch/
+metric-label allocations. Exact100-year continuation hashes match the frozen
+pre-T build on both200k Earth (`df71fc8f78839f51a96eb83ca3055cd431442075ba6d5a416e286d9511937c76`)
+and Continents Plus (`2c486fd3cfd2d144dd12b80486dbc09df021d41a68032ee44c97d99bbafb9a0d`).
+Official31+20years still matches its released fingerprint below. These prove
+output preservation for the controls, not native speed; a new native gate is
+required. Focused combined mechanisms currently pass2108 assertions. No golden
+expectations or user saves were changed.
+
 Source candidate32 is not yet the desktop release. Focused current checks include sponsored colonial foundations12, institutional transmission15, local-carrier provenance3, nuclear technology99, resource economy126, political programs132, appearance45, living-atlas13 and general historical presentation78 assertions. International continuity adds an actual mid-campaign regime replacement regression; annexation is separately excluded. Exact official31 continuation remains `f4e260d19883e9dfd894c63c9ff8215646b023fdb25090d3795819e6f48d2fef`, compared against the old released31 shared DLLs, not just another new build. No golden was changed.
 
 Frozen roundG Continents Plus261015/200000 cells reached its first state at176813 elapsed years and Postmodern at183600; it continued to184600. The184500 image has48 active states,587 populated towns and4.19 billion total population, with two recorded independent institutional origins. Actual state/technology screenshots at Early Modern183100 and Postmodern184500 were viewed by root and an independent critic: populated coastal networks now span all major landmasses, with competitive regional ruling colors rather than a solitary modern enclave. Desert/mountain interiors remain less organized. Archipelago42/20000 reached first state267962 and Postmodern279800, with137 active towns but only two surviving states by280700; a second seed is required before deciding whether naval hegemony is an outlier or excessive lock-in.

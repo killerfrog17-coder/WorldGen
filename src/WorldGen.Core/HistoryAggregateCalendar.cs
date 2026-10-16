@@ -63,7 +63,11 @@ namespace WorldGen.Core
                 int limit=Math.Min(maximumEvents,workBudget==int.MaxValue?int.MaxValue:Math.Max(64,workBudget*8));
                 while(queue.Count>0&&queue.Peek.Due<=target&&(count<limit||queue.Peek.Due==s.Timeline.Seconds))
                 {
-                    token.ThrowIfCancellationRequested();var e=queue.Pop();s.Timeline.Seconds=e.Due;s.Years=(int)(e.Due/SimulationTime.Year);var watch=Stopwatch.StartNew();long reads=a.CellReads;
+                    token.ThrowIfCancellationRequested();var e=queue.Pop();s.Timeline.Seconds=e.Due;s.Years=(int)(e.Due/SimulationTime.Year);long started=Stopwatch.GetTimestamp(),reads=a.CellReads;
+                    // Optional diagnostic only, never a calendar/work-budget
+                    // input. Count this worker's allocations, not total heap
+                    // movement caused by unrelated rendering/other threads.
+                    long allocated=WorkObserver==null?0:GC.GetAllocatedBytesForCurrentThread();
                     switch(e.Process)
                     {
                         case RegionProcess:AdvanceAggregateRegion(s,e.Entity);ScheduleAggregate(s,e.Process,e.Entity);break;
@@ -74,7 +78,7 @@ namespace WorldGen.Core
                         case RemoteProcess:if(a.Polities[e.Entity].Remote>0){AdvanceAggregateRemote(s,e.Entity);if(a.Polities[e.Entity].Remote>0)ScheduleAggregate(s,e.Process,e.Entity);}break;
                         default:throw new ArgumentException("Unknown aggregate process.");
                     }
-                    double elapsed=watch.Elapsed.TotalMilliseconds;eventMilliseconds+=elapsed;YearWorkObserver?.Invoke(s.Years,elapsed);WorkObserver?.Invoke(new SimulationWorkMetric{Stage="aggregate event "+e.Process,Items=(int)(a.CellReads-reads),Milliseconds=elapsed});a.ProcessedLocalEvents++;count++;s.Timeline.ProcessedEvents++;
+                    double elapsed=(Stopwatch.GetTimestamp()-started)*1000.0/Stopwatch.Frequency;eventMilliseconds+=elapsed;YearWorkObserver?.Invoke(s.Years,elapsed);WorkObserver?.Invoke(new SimulationWorkMetric{Stage=AggregateProcessLabel(e.Process),Items=(int)(a.CellReads-reads),Milliseconds=elapsed,AllocatedBytes=GC.GetAllocatedBytesForCurrentThread()-allocated});a.ProcessedLocalEvents++;count++;s.Timeline.ProcessedEvents++;
                 }
                 if(queue.Count==0||queue.Peek.Due>target)s.Timeline.Seconds=target;
                 s.Years=(int)(s.Timeline.Seconds/SimulationTime.Year);s.Timeline.Events=queue.Ordered();s.DomainToken=new object();using(ProfileWork("aggregate checkpoint hash"))s.SealAggregateOwned(token);
@@ -82,6 +86,7 @@ namespace WorldGen.Core
             }
             finally {aggregateQueue=null;if(!completed)aggregateRelationCheckpoint=null;}
         }
+        static string AggregateProcessLabel(int process)=>process==RegionProcess?"aggregate event 20":process==CityProcess?"aggregate event 21":process==CultureProcess?"aggregate event 22":process==StateProcess?"aggregate event 23":process==CampaignProcess?"aggregate event 24":"aggregate event 26";
         void ValidateAggregateTimeline(PrehistoryState s)
         {
             var t=s.Timeline;var a=s.History.Aggregates;

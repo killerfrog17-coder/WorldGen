@@ -123,6 +123,7 @@ namespace WorldGen.Core
             s.Society.Settlements=s.Society.Settlements.Concat(new[]{town}).ToArray();h.Towns=h.Towns.Concat(new[]{new HistoricalTown{Id=id,FoodBase=urbanCapacity}}).ToArray();a.Cities=a.Cities.Concat(new[]{city}).ToArray();
             if(TechnicalHistory(s))Array.Resize(ref a.Empires.Territories.DistrictAreas,a.Cities.Length);
             a.Living.Cities=a.Living.Cities.Concat(new[]{new HistoricalLivingCity{PeakPopulation=founders,PeakYear=s.Years}}).ToArray();a.TownAt=a.TownAt.With(cell,id);RegisterLivingTown(s,id);
+            TrackPendingColonialPort(s,cell);
             if(CommunityHistory(s))a.Communities.Cities=a.Communities.Cities.Concat(new[]{new HistoricalLocalCommunity{SinceYear=s.Years}}).ToArray();
             city.Neighbors=NearbyLivingTowns(s,cell,280).Where(n=>n!=id&&LivingTownConnection(s,id,n)).Take(12).ToArray();
             foreach(int neighbor in city.Neighbors)LinkLivingTowns(s,id,neighbor);
@@ -141,6 +142,7 @@ namespace WorldGen.Core
             AssignAggregateTown(s,id,-1);ChangeAggregateCityPopulation(s,id,0,0,0);s.Population[patch]+=refugees;a.TotalPopulation+=refugees;s.Society.Cultures[t.CultureId].Population+=refugees;
             var ca=a.Cultures[t.CultureId];if(city.Supported){ca.SupportedCities--;city.Supported=false;}ca.FoodCapacity-=t.FoodCapacity;ca.Cities.Remove(id);ca.CityCount=ca.Cities.Count;
             life.AbandonedYear=s.Years;t.FoodCapacity=t.FoodReserve=0;UnregisterLivingTown(s,id);if(a.TownAt[t.Cell]==id)a.TownAt=a.TownAt.With(t.Cell,-1);
+            TrackPendingColonialPort(s,t.Cell,true);
             a.Living.Regions[patch].CommittedAreaKm2=Math.Max(0,a.Living.Regions[patch].CommittedAreaKm2-city.AreaKm2);
             a.Regions[patch].Capacity+=(long)(Patches[patch].Capacity*city.AreaKm2/Math.Max(1.0,a.Regions[patch].AreaKm2));
             if(ProvincialHistory(s))

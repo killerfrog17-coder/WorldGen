@@ -99,6 +99,45 @@ All policy calculations use fixed-size vectors and existing actor aggregates.
 No policy event enumerates every city, province, culture, ecoregion or terrain
 cell. No new persisted fields require reinterpreting the old canonical records.
 
+### Round Q: remove one-way constitutional drift
+
+Two late controls converged on representation950 and centralization150. The
+old concession test added low centralization to the same leader-skill sum that
+decided whether to concede. Each concession then raised representation60 and
+lowered centralization35, making the next concession easier. In a uniform
+200..850 leader-skill comparison its concession probability rose from about
+7.4% at centralization950 to92.6% at150. This was an endogenous feedback defect,
+not evidence that all prosperous societies should become federations.
+
+The revised rare bargaining opportunity retains its actor schedule. A bounded
+coalition probability now uses the five existing interest weights, leader
+inclinations, elite capture, war/exhaustion and modest literacy pressure.
+Representation supplies negative feedback; decentralization is not a positive
+input to another concession. Administrative centralization instead approaches
+a slow, bounded target from actual fiscal capacity, geographical load divided
+by current effective reach, court/notable influence and leadership. Concessions
+and restrictions can both be accepted or contested. Repression still creates
+exhaustion. These are explicit simulation priors, not fitted constitutional
+predictions or a claim that printing inevitably produces democracy.
+
+A matched1500-year continuation of the same O Earth131700 checkpoint held the
+other P1 rules constant. The old branch ended with19 states,11 labeled federated
+representative and161 reforms versus38 restrictions. Round Q ended with29
+states:7 representative,2 federated representative,16 merchant/civic oligarchies,
+3 dynastic/provincial administrations and1 central dynastic administration;
+141 reforms versus62 restrictions. Both branches had approximately1.35 billion
+people. Actual Q state-map imagery was reviewed: broader political and town
+networks appeared, but this single control is not a validated distribution of
+real governments. Eurasian settlement gaps and some very remote coastal titles
+remain review questions. Counts describe the modeled labels, not measured
+popular participation or universal suffrage.
+
+The Q assertions exercise counter-pressure, war/coalition effects, finite
+funding and administrative reach. The focused political suite currently passes
+153 pure and7 world/save/replay assertions. The history31 continuation hash is
+unchanged. Independent source review found the positive-feedback defect removed;
+larger multi-world controls remain necessary.
+
 ## Sources and limits
 
 Mechanisms and counterexamples, not the numeric game priors, are informed by:
@@ -115,6 +154,12 @@ Mechanisms and counterexamples, not the numeric game priors, are informed by:
 - [Metropolitan Museum: Venice and the Islamic World](https://www.metmuseum.org/essays/venice-and-the-islamic-world-828-1797),
   a comparative maritime-trade case, not a rule that all coastal communities
   inevitably develop identical governments.
+
+- [Acemoglu, Ticchi and Vindigni: A Theory of Military Dictatorships](https://www.nber.org/papers/w13915)
+  and [Acemoglu, Egorov and Sonin: Democracy By Mistake](https://www.nber.org/papers/w23944),
+  for contingent institutional bargaining and conflict rather than automatic
+  technology-to-regime transitions. Their models do not supply the numeric
+  game coefficients above.
 
 No source code was copied. These reduced actor models do not claim scientific
 genetic reconstruction, a complete parliament, population-level electoral

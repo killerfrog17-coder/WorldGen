@@ -188,6 +188,74 @@ guards, has 28 viable proposals. This is evidence for improving the proposal
 geometry, not permission to grant free towns, bypass crop compatibility, or
 claim that a roughly twofold proposal improvement alone solves late expansion.
 
+The matched O geometry experiment replays the N saved worlds without changing
+their terrain, climate, ecology or recipe. On Earth it produces six sponsored
+ports by early modern (N: zero), and 454 live centers with 18 sponsored ports
+by its final postmodern+1,000-year checkpoint. Actual climate-overlay and
+identity-only screenshots show more populated Caribbean, southern South
+American, Japanese and Australian coastal networks, but sparse European towns
+and nearly absent Indian urbanization remain rejected outcomes. Shared ruling
+colors must not be mistaken for one state: this final map has eight states,
+three sovereigns and several dependent administrations; two sovereigns share
+the same ruling culture/color. Its 64 recorded states include 56 ended states,
+a 299-year median among ended states and ten secessions, but some surviving
+large polities are still two to nearly three millennia old.
+
+The same O proposal change is not a universal port-count increase. Matched
+Continents Plus has 28 early-modern sponsored ports versus N's nine, and 73
+after 900 postmodern years versus N's 37. Archipelago 42 instead has ten versus
+N's 25 in early modern, and 38 versus 64 at postmodern+900. The actual latter
+maps nevertheless show populated networks across the major island groups.
+Those differences, changed political trajectories and preserved origin counts
+(one Earth, two Continents Plus, one Archipelago) are observations rather than
+a golden expectation or an assertion of a fully calibrated history simulator.
+
+The P candidate addresses a separately reproduced support defect, not a naval
+technology grant. At O Earth's early-modern checkpoint, state 48 is ruled by
+culture 11 but its current capital 103 is a real supported, provisioned coastal
+city of culture 10. The former three-cultural-town sampler can report no
+maritime practice despite five populated subject ports. The new32 helper checks
+at most eight actual cultural towns, two current courts, each court's actual
+capital, four indexed city candidates and four coastal source pointers. A
+working subject port must have real residents, food, boatbuilding practice,
+membership, treasury/service support and a finite verified court-to-port route.
+Claimed beaches and empty offices do not qualify. Native coastal communities
+retain an independent boatbuilding path without needing a literate state.
+This support boolean is computed once per research actor call; it neither
+copies subject technologies nor changes the conserved research budget. The
+history-31 path and its four-argument reflection entry point are preserved.
+
+Nine pure controls and thirteen checks on the actual O48 checkpoint cover the
+culturally different shipyard, empty food, unsupported offices, foreign ports,
+unfunded government, populated rural boat communities and unchanged
+technology/population accounts. The rural path samples at most four owned
+shore cells. It requires actual downscaled rural residents and aquatic food or
+fishing practice, a live supported service depot and capital, surplus-funded
+government, real depot provisions and finite physical routes. Zeroing the
+actual resident account makes an otherwise identical office fail. This avoids
+mistaking the absence of an urban marker for the absence of coastal craft
+workers. There is still no gift of skills, deployment, residents or food.
+
+A matched
+full Earth replay still exposes unresolved late-history weaknesses: P reaches
+postmodern earlier but has fewer overseas settled nodes at the same era tail
+than O. It must not be presented as a completed global colonization correction.
+The first city-only P version also produces zero early-modern sponsored ports
+on the matched Continents Plus world, versus O's 28. Its exclusion of serviced
+rural shore communities was therefore rejected; P2 retains that real support
+alongside the current-state subject-shipyard correction. P2's local controls
+are not a substitute for new matched-world map inspection.
+
+A separate matched continuation isolates the mechanism from the divergent
+full-history trajectories: the exact O early-modern world advances 200 years
+under frozen O versus P. The same state 48 and culturally different capital
+103 survive both. Ocean-navigation deployment is 0.205 under O versus 0.934
+under P; navigation is 0.307 versus 0.886, and the exact supplied planner
+portfolio has three versus eleven candidates. World populations differ by
+only about 24,000 of 212 million. This supports fixing the real shipbuilding
+support error; it is not a target deployment, a hardcoded date or proof that
+all overseas crop, city-growth and geographical diffusion issues are solved.
+
 ## O: bounded physical proposal geometry
 
 O uses three separated spherical bearings at 120/180/240 km, resolved through
@@ -228,3 +296,27 @@ This supports a geometry correction, not acceptance of globally realistic
 colonization, diffusion, political variety or historical pacing. Current-state
 shipbuilding exposure and destination crop/supply choices remain separately
 audited causes; no blanket food/crop bypass was added in O.
+
+## Combined S1: actual working shores and fair unsettled-office reviews
+
+The immutable S1 control (Core SHA-256 beginning `98a370df`) combines the
+current-state shipyard/rural-shore correction, separate political bargaining,
+marine-forager support, and saved fair pending-office reviews. It replays the
+same stored N terrain/ecology; none of these comparisons regenerates the world.
+
+| Same saved world | First state | Independent origins at late observation | Live / abandoned towns | Active states | Cumulative funded port foundings | Worst summed simulation year |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Continents Plus 261015, 200k | 154770 | 2 | 859 / 561 | 30 | 134 | 284 ms |
+| Archipelago 42, 20k | 269804 | 3 | 740 / 1867 | 9 | 265 | 138 ms |
+
+Late observations are 900 years after each first postmodern observation.
+Funded port foundings are historical deliveries of actual settlers, not a
+guarantee that every founded town remains active. The reviewer actually viewed
+first-state, Bronze, early-modern and late state maps, plus late technology
+maps for both worlds. Initial courts remain small and geographically localized;
+late populated maritime networks reach all major landmasses or island groups.
+Cold, dry and difficult interiors remain much sparser. The island world's
+early-modern network is visibly stronger than O; Continents Plus has fewer
+overseas nodes at its early-modern transition, but a broader populated late
+network than the rejected city-only P control. These are conditional controls,
+not a declaration of universal historical realism or a Unity benchmark.

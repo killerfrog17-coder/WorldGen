@@ -30,8 +30,8 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         public const string ConnectedHistoryVersion="history-19";
-        public static bool IsAggregateHistoryVersion(string version)=>version==AggregateHistoryVersion||version==LivingHistoryVersion||version==ConnectedHistoryVersion||version==RegionalHistoryVersion||version==CommunityHistoryVersion||version==DiffusionHistoryVersion||version==AgronomicHistoryVersion||version==TechnicalHistoryVersion||version==ProvincialFrontierHistoryVersion||version==ColonialHistoryVersion||version==CoastalHistoryVersion||version==TerritorialHistoryVersion||version==ResearchPacingHistoryVersion||version==LanguageHistoryVersion||version==EnvironmentalHistoryVersion||version==LivingWorldHistoryVersion;
-        static bool ConnectedHistory(PrehistoryState s)=>s?.History?.Version==ConnectedHistoryVersion||ProvincialHistory(s);
+        public static bool IsAggregateHistoryVersion(string version)=>version==LivingWorldHistoryVersion||version==EnvironmentalHistoryVersion||version==AggregateHistoryVersion||version==LivingHistoryVersion||version==ConnectedHistoryVersion||version==RegionalHistoryVersion||version==CommunityHistoryVersion||version==DiffusionHistoryVersion||version==AgronomicHistoryVersion||version==TechnicalHistoryVersion||version==ProvincialFrontierHistoryVersion||version==ColonialHistoryVersion||version==CoastalHistoryVersion||version==TerritorialHistoryVersion||version==ResearchPacingHistoryVersion||version==LanguageHistoryVersion;
+        static bool ConnectedHistory(PrehistoryState s)=>LivingWorldHistory(s)||s?.History?.Version==ConnectedHistoryVersion||ProvincialHistory(s);
         public static bool CanUpgradeHistory(PrehistoryState s)
         {
             string version=s?.History?.Version;

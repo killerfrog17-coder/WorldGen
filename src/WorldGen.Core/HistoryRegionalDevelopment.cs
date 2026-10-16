@@ -29,7 +29,7 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         public const string RegionalHistoryVersion="history-20";
-        static bool ProvincialHistory(PrehistoryState s)=>s?.History?.Version==RegionalHistoryVersion||CommunityHistory(s);
+        static bool ProvincialHistory(PrehistoryState s)=>LivingWorldHistory(s)||s?.History?.Version==RegionalHistoryVersion||CommunityHistory(s);
         public PrehistoryState UpgradeToRegionalHistory(PrehistoryState source)
         {
             Validate(source);if(ProvincialHistory(source))return source;

@@ -160,7 +160,7 @@ public static class HistorySettlementNetworkAudit
                     nearby.Length>0?nearby[(int)((double)Call("HistoryRoll","living-colonial-explore-"+source+"-"+k,p.Id,s.Years)*nearby.Length)].B:-1;
                 var route=region<0?null:(Prehistory.Route)Call("ColonialTargetRoute",s,source,region,p.Id);
                 if(route==null)return (object)new{Source=source,Trial=k,Region=region,Target=-1,Supplied=false};
-                object[] args={s,p.Id,route,-1,-1,0L};bool supplied=(bool)Call("MaritimeCharterLogistics",args);
+                object[] args={s,p.Id,route,a.TownAt[source],-1,0L};bool supplied=(bool)Call("MaritimeCharterLogistics",args);
                 int port=(int)args[4],target=route.CellB,post=a.Empires.Territories.PostAt[target],owner=HistoricalCells.Polity(s,target),parent=a.Empires.Territories.Sources[source];
                 var founderOptions=Enumerable.Range(0,live.Count).Select(i=>
                 {
@@ -182,6 +182,7 @@ public static class HistorySettlementNetworkAudit
                     SourceHouseholds=port<0?0:(long)Call("LivingFounderAvailability",s,port),SourceFood=port<0?0:s.Society.Settlements[port].FoodReserve,FounderOptions=founderOptions};
             })).ToArray();
             return new{p.Id,p.Name,p.CultureId,Sovereign=HistoricalImperialHierarchy.Sovereign(s,p.Id),Patron=HistoricalImperialHierarchy.Patron(s,p.Id),p.Population,p.AreaKm2,Age=s.Years-p.FoundedYear,
+                Capital=p.CapitalId,CapitalCell=s.Society.Settlements[p.CapitalId].Cell,
                 p.Treasury,a.Polities[p.Id].Receipts,a.Polities[p.Id].ServiceCost,RulingNavigation=Navigation(p.CultureId),Harbor=harbor,Coasts=a.Empires.Connections.Coasts.Governments[p.Id].Count,
                 Ports=Enumerable.Range(0,live.Count).Select(k=>s.Society.Settlements[live.At(k)]).Where(t=>(bool)Call("DiffusionShore",t.Cell)).Select(t=>new{t.Id,t.Name,t.Population,t.FoodReserve,a.Cities[t.Id].Supported,Navigation=Navigation(t.CultureId)}),
                 Offices=a.Empires.Governments[p.Id].AdministrativePosts.Count,Charts=charts.Length,
@@ -199,7 +200,7 @@ public static class HistorySettlementNetworkAudit
                 }),CompatibleKnownTargets=departures.SelectMany(source=>charts.Select(chart=>
                 {
                     var route=(Prehistory.Route)Call("ColonialTargetRoute",s,source,chart.Region,p.Id);if(route==null)return (object)null;
-                    object[] logistics={s,p.Id,route,-1,-1,0L};if(!(bool)Call("MaritimeCharterLogistics",logistics))return null;
+                    object[] logistics={s,p.Id,route,a.TownAt[source],-1,0L};if(!(bool)Call("MaritimeCharterLogistics",logistics))return null;
                     int port=(int)logistics[4];var depot=s.Society.Settlements[port];
                     var farmers=Enumerable.Range(0,live.Count).Select(k=>s.Society.Settlements[live.At(k)]).Where(t=>world.Landmass[t.Cell]==world.Landmass[depot.Cell]
                         &&(double)Call("LivingTravelKm",s,t.Cell,depot.Cell,t.CultureId)<=(double)Call("TerritorialServiceRadius",s,p.Id,depot.Cell)*1.5

@@ -4,11 +4,12 @@ namespace WorldGen.Core
 {
     // Optional, read-only diagnostics. Elapsed time must never determine model
     // decisions, event dates, tie order or authoritative work budgets.
-    public sealed class SimulationWorkMetric
+    public struct SimulationWorkMetric
     {
         public string Stage;
         public int Items;
         public double Milliseconds;
+        public long AllocatedBytes;
     }
     public sealed partial class Prehistory
     {

@@ -23,9 +23,17 @@ namespace WorldGen.Core
             var culture=s.Society.Cultures[t.CultureId];var hc=h.Cultures[t.CultureId];var account=a.Cultures[t.CultureId];var record=h.Towns[id];
             if(LivingHistory(s)&&owner>=0){record.CivicTeacherPolityId=owner;record.CivicExampleExposure=1000;}
             bool wasSupported=t.FoodCapacity>=t.Population*.8&&t.Stability>=450;long oldCapacity=t.FoodCapacity,oldPopulation=t.Population;
+            // Community capacity replaces, rather than adjusts, the legacy
+            // estimates below. Do not evaluate those discarded crop/animal/
+            // climate calculations for every city actor. The rural production
+            // context is unchanged until this actor's population commit.
+            bool community=CommunityHistory(s);long communityRural=community?CommunityRuralCapacity(s,id):0;
+            double farm=0,modern=0,yield=0;
+            if(!community)
+            {
             double cropSupport=AggregateCropSupport(s,t.CultureId,t.Cell,false);
-            double farm=(100.0+culture.Farming)/(100+city.BaseFarming);double modern=HistoricalModernEffects.FoodMultiplier(hc,s.Years)/city.BaseFoodMultiplier;
-            double yield=(.4+.6*cropSupport)/city.BaseCropFactor;t.FoodCapacity=Math.Max(100,(long)Math.Round(city.BaseUrbanCapacity*farm*modern*yield));
+            farm=(100.0+culture.Farming)/(100+city.BaseFarming);modern=HistoricalModernEffects.FoodMultiplier(hc,s.Years)/city.BaseFoodMultiplier;
+            yield=(.4+.6*cropSupport)/city.BaseCropFactor;t.FoodCapacity=Math.Max(100,(long)Math.Round(city.BaseUrbanCapacity*farm*modern*yield));
             if(LivingHistory(s))
             {
                 double urbanShare=.10+.05*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Roads,s.Years)+.05*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Printing,s.Years)+.20*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Railways,s.Years)+.15*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Sanitation,s.Years)+.10*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.MechanizedAgriculture,s.Years);
@@ -37,7 +45,8 @@ namespace WorldGen.Core
                     if(owner>=0)t.FoodCapacity+=ProvincialUrbanSupply(s,owner);
                 }
             }
-            if(CommunityHistory(s))t.FoodCapacity=CommunityUrbanCapacity(s,id);
+            }
+            else t.FoodCapacity=CommunityUrbanCapacity(s,id,communityRural);
             if(LivingWorldHistory(s))t.FoodCapacity=LivingProtocentreCapacity(s,id,t.FoodCapacity);
             double weather=.82+.36*HistoryRoll("aggregate-harvest",id,s.Years);long harvest=(long)Math.Round(t.FoodCapacity*weather);
             record.LastHarvestHazard=HarvestHazard.None;record.ImportedFood=record.ExportedFood=record.FoodTransportLoss=0;
@@ -66,10 +75,13 @@ namespace WorldGen.Core
                 disease=(long)(t.Population*(.02+.08*HistoryRoll("aggregate-disease-loss",id,s.Years))*HistoricalModernEffects.MortalityMultiplier(hc,s.Years,record.DiseaseKind));record.DiseaseDeaths+=disease;
                 if(disease>=Math.Max(100,t.Population/20))HistoryEvent(s,"epidemic","An epidemic strikes "+t.Name+", with approximately "+disease.ToString("N0",System.Globalization.CultureInfo.InvariantCulture)+" deaths.",t.Cell,t.CultureId,owner,town:id,category:ChronicleCategory.Society);
             }
-            long ruralCapacity=Math.Max(city.Rural,(long)(city.RuralCapacity*(1+culture.Farming/90.0*city.FoodYieldMilli/1000.0)*modern));
-            if(LivingHistory(s))ruralCapacity=Math.Max(1,(long)(city.RuralCapacity*modern*a.Living.Cities[id].Productivity));
-            if(ProvincialHistory(s))ruralCapacity=(long)(ruralCapacity*(1-HistoricalProvincialEffects.UrbanShare(hc,s.Years)));
-            if(CommunityHistory(s))ruralCapacity=CommunityRuralCapacity(s,id);
+            long ruralCapacity=communityRural;
+            if(!community)
+            {
+                ruralCapacity=Math.Max(city.Rural,(long)(city.RuralCapacity*(1+culture.Farming/90.0*city.FoodYieldMilli/1000.0)*modern));
+                if(LivingHistory(s))ruralCapacity=Math.Max(1,(long)(city.RuralCapacity*modern*a.Living.Cities[id].Productivity));
+                if(ProvincialHistory(s))ruralCapacity=(long)(ruralCapacity*(1-HistoricalProvincialEffects.UrbanShare(hc,s.Years)));
+            }
             double ruralRate=CommunityHistory(s)?CommunityRuralGrowth(s,t.CultureId,t.FoundedYear):.006;
             long rural= Math.Max(0,city.Rural+(long)Math.Round(city.Rural*ruralRate*elapsed*(1-city.Rural/(double)Math.Max(1,ruralCapacity))));
             long migrants=Math.Min(rural/200,Math.Max(0,(t.FoodCapacity-t.Population)/30));if(supply<.9)migrants=0;rural-=migrants;

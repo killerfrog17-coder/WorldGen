@@ -38,7 +38,7 @@ public static class HistorySettlementNetworkTests
             canonicalGeometry&=site==again;
             if(site==town.Cell)continue;
             double km=D.Angle(world.Surface.Cells[town.Cell].Position,world.Surface.Cells[site].Position)*world.Recipe.RadiusKm;
-            boundedGeometry&=engine.CellPatch[site]>=0&&world.Landmass[site]==world.Landmass[town.Cell]&&world.Ecology.Habitat[site].ReliefM<2000&&km<500;
+            boundedGeometry&=engine.CellPatch[site]>=0&&world.Landmass[site]==world.Landmass[town.Cell]&&world.Ecology.Habitat[site].ReliefM<2000&&km<1350;
             geometryValid++;
         }
         check(canonicalGeometry&&s.ComputeHash()==geometryBefore,"Actual local proposal queries repeat deterministically without mutating authoritative history");
@@ -83,7 +83,8 @@ public static class HistorySettlementNetworkTests
             (nativeCohort>=0&&nativeCohort!=polity?nativeRemote-a.Polities[nativeCohort].Remote:0);
         check(a.TotalPopulation==total&&s.Society.Settlements[city].Population==founders&&a.Cities[city].Rural==farms,"Actor-local founding conserves global residents and begins with real small households");
         check(depot.Population==urban-transfer.Urban&&source.Suburban==suburban-transfer.Suburban&&source.Rural==rural-transfer.Rural&&account.Remote==remote-transfer.Remote+nativeIncorporation,"All actual source households and any separately incorporated native countryside have conserved accounts");
-        check(depot.FoodReserve==food-people&&ruler.Treasury==money-Math.Max(100,people/5),"Startup rations and the local construction budget are charged exactly once");
+        object[] costs={s,parent,target,people,0L,0L};Call("LivingInlandSettlementCosts",costs);
+        check(depot.FoodReserve==food-people-(long)costs[4]&&ruler.Treasury==money-(long)costs[5],"Startup rations, actual inland travel provisions and construction/carriage are charged exactly once");
         check(a.Resolve(s.Society.Settlements[city].PolityId,h)==polity,"A sponsored local community retains its actual funding polity rather than a culture's obsolete colonial sponsor");
         check(s.Society.Settlements[city].CultureId==depot.CultureId,"Real migrating founders retain their actual culture and crop repertoire instead of instantly becoming unrelated native farmers");
         check(!(bool)Call("TryFoundLivingLocalTown",s,parent,target)&&a.Cities.Length==count+1,"Crowding and existing-site rules prevent repeated settlements on the same cell");

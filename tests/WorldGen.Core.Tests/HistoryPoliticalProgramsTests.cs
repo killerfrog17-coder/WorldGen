@@ -20,6 +20,22 @@ public static class HistoryPoliticalProgramsTests
         check(HistoricalPoliticalPrograms.FundedRecruitmentMultiplier(court,0)<HistoricalPoliticalPrograms.FundedRecruitmentMultiplier(court,1),"Military policy receives no free mobilization bonus when its treasury cannot fund defense");
         check(HistoricalPoliticalPrograms.TaxMultiplier(800,900)>HistoricalPoliticalPrograms.TaxMultiplier(100,100),"Administrative reach and negotiated taxation affect receipts with bounded amplitude");
         check(assembly.Participation.Contains("contingent")&&port.Participation.Contains("privileged"),"Ancient political voice is not misrepresented as automatic universal modern suffrage");
+        double Chance(HistoricalPoliticalProfile profile,int representation,int capture=200,int fatigue=0,double literacy=0,bool war=false)
+            =>HistoricalPoliticalPrograms.ConcessionChance(profile,representation,550,550,500,500,capture,fatigue,literacy,war);
+        check(Chance(port,150)>Chance(port,900),"Extending formal voice is not a self-reinforcing one-way move to maximum representation");
+        check(Chance(court,400,800)<Chance(assembly,400,100),"Organized court/elite power differs from a civilian bargaining coalition");
+        check(Chance(port,400,200,0,1)<.96&&Chance(court,900,800,0,1)<.5,"Printing does not guarantee representative outcomes or erase entrenched elite interests");
+        check(Chance(port,400,200,0,0,true)<Chance(port,400),"An active supplied war can strengthen coercive bargaining leverage independently of exhaustion");
+        check(Chance(port,400,200,900,0,true)>Chance(port,400,200,0,0,true),"Severe war fatigue is not automatically treated as stronger military authority");
+        double funded=HistoricalPoliticalPrograms.AdministrationTarget(assembly,1,.1,700,0,false);
+        double overstretched=HistoricalPoliticalPrograms.AdministrationTarget(assembly,0,3,700,0,false);
+        check(funded>overstretched+.3,"Real fiscal capacity and actual reach distinguish sustainable administration from unfunded distant holdings");
+        check(funded>.3,"A representative bargain can coexist with stronger central administration rather than mandatory federalization");
+        check(HistoricalPoliticalPrograms.AdministrationTarget(port,1,.3,600,0,true)>HistoricalPoliticalPrograms.AdministrationTarget(port,1,.3,600,0,false),"Funded wartime mobilization can consolidate administration");
+        check(HistoricalPoliticalPrograms.AdministrationTarget(port,0,2,600,900,true)<HistoricalPoliticalPrograms.AdministrationTarget(port,1,.3,600,0,true),"Exhaustion and fiscal breakdown can undo wartime consolidation");
+        check(Chance(port,400)==Chance(port,400),"Bargaining probability is a deterministic constant-size query");
+        for(int representation=0;representation<=1000;representation+=100)
+        {double chance=Chance(port,representation);check(chance>=.04&&chance<=.96,"Neither political direction is an impossible or guaranteed universal destination");}
         for(int r=0;r<=1000;r+=100)for(int c=0;c<=1000;c+=100)
         {var p=HistoricalPoliticalPrograms.At(r,c,1,1,1,1,1,1);check(p.WorksPermille>=0&&p.DefensePermille+p.WorksPermille+p.ReliefPermille+p.LearningPermille==1000,"All policy extremes retain nonnegative conserved shares");}
     }
@@ -37,5 +53,9 @@ public static class HistoryPoliticalProgramsTests
         check(source.ComputeHash()==original,"Political diagnostic and new-rule upgrade do not mutate the old saved world");
         s.Seal();engine.Validate(s);world.Prehistory=s;var loaded=WorldFile.Read(WorldFile.Write(world));
         check(loaded.Prehistory.Hash==s.Hash&&engine.PoliticalProfile(loaded.Prehistory,state)!.Form==engine.PoliticalProfile(s,state)!.Form,"Constitutional policy views survive serialization without new canonical fields");
+        var future=engine.AdvanceYears(s,50);var partitioned=engine.AdvanceYears(engine.AdvanceYears(s,17),33);
+        check(future.Hash==partitioned.Hash,"Political coalition draws and independent administration response are publication-partition deterministic");
+        check(new Prehistory(loaded).AdvanceYears(loaded.Prehistory,50).Hash==future.Hash,"The actual political continuation survives full save/load with no new persisted policy fields");
+        check(source.ComputeHash()==original,"Political evolution and all diagnostic branches preserve the old rules checkpoint");
     }
 }

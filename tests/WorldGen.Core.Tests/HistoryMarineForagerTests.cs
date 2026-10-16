@@ -15,7 +15,7 @@ public static class HistoryMarineForagerTests
         check(HistoricalMarineForagerEffects.FoodSupport(true,true,true,.1,1,160,false)<rich&&HistoricalMarineForagerEffects.FoodSupport(true,true,true,.8,1,-40,false)<rich,"Shelf access and difficult seasonal access vary aquatic opportunity rather than making every coast identical");
         double chance=HistoricalMarineForagerEffects.IndependentCultureOpportunity(rich,.12,1);
         check(chance>0&&chance<.0001&&HistoricalMarineForagerEffects.IndependentCultureOpportunity(rich,0,1)==0,"Marine opportunities remain rare occupied-tradition hazards, not an immediate cultural unlock");
-        check(HistoricalMarineForagerEffects.IndependentCultureOpportunity(rich,.12,.00001)<chance/50000,"The new livelihood does not bypass the owner's anti-human-homeland origin prior");
+        check(HistoricalMarineForagerEffects.IndependentCultureOpportunity(rich,.12,.00001)<chance/50000,"The marine hazard respects its supplied recognition prior; the pristine-state homeland prior remains a separate calculation");
     }
     public static void World(string path,Action<bool,string> check)
     {

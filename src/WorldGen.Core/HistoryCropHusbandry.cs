@@ -6,7 +6,7 @@ namespace WorldGen.Core
         // Plot-management priors, not a claim that an entire forest cell is
         // cleared or that charcoal alone creates fertile Amazonian dark earth.
         public static double ClearingMultiplier(HabitatCell habitat,int practicedYears)
-            =>D.Q(1+(habitat.Biome==Biome.TropicalRainforest?.8:habitat.Habitat.HasFlag(Habitat.Forest)?.35:0)*D.Clamp(practicedYears/4000.0),1000000);
+            =>D.Q(1+(habitat.Biome==Biome.TropicalRainforest?.8:(habitat.Habitat&Habitat.Forest)!=0?.35:0)*D.Clamp(practicedYears/4000.0),1000000);
         public static double LeachingPenalty(HabitatCell habitat,int practicedYears,bool soilManagement)
         {
             double first=HistoricalCropCatalog.LeachingPenalty(habitat,false),last=HistoricalCropCatalog.LeachingPenalty(habitat,true);
@@ -26,14 +26,14 @@ namespace WorldGen.Core
         {
             var a=s.History.Agriculture[culture];int years=a.HusbandryYears?[crop]??0;if(years==0)return 0;
             var learned=CropHabitat(s,a.PracticeCell[crop]);var destination=CropHabitat(s,cell);
-            double match=(learned.Soil==destination.Soil?1:.25)*(learned.Habitat.HasFlag(Habitat.Forest)==destination.Habitat.HasFlag(Habitat.Forest)?1:.5);
+            double match=(learned.Soil==destination.Soil?1:.25)*((learned.Habitat&Habitat.Forest)==(destination.Habitat&Habitat.Forest)?1:.5);
             return (int)Math.Round(years*match);
         }
         double CropSoilPenalty(PrehistoryState s,int culture,int cell,int crop)
             =>HistoricalHusbandryEffects.LeachingPenalty(CropHabitat(s,cell),LocalHusbandryYears(s,culture,cell,crop),HistoricalTechnologies.Has(s.History.Cultures[culture],HistoricalTechnology.CropRotation));
         double ManagedLandMultiplier(PrehistoryState s,int culture,int cell)
         {
-            if(!ModernHistory(s))return 1;var habitat=CropHabitat(s,cell);bool everWet=RealismHistory(s)&&HistoricalLandscapeEffects.EverWet(habitat);if(!habitat.Habitat.HasFlag(Habitat.Forest)&&!everWet)return 1;
+            if(!ModernHistory(s))return 1;var habitat=CropHabitat(s,cell);bool everWet=RealismHistory(s)&&HistoricalLandscapeEffects.EverWet(habitat);if((habitat.Habitat&Habitat.Forest)==0&&!everWet)return 1;
             var a=s.History.Agriculture[culture];int years=0;
             for(int k=0;k<6;k++)if(a.AdoptedYear[k]>0&&LocalCultivarFit(s,culture,cell,k)>=.2)years=Math.Max(years,LocalHusbandryYears(s,culture,cell,k));
             return everWet?D.Q(1+5*D.Clamp(years/16000.0),1000000):HistoricalHusbandryEffects.ClearingMultiplier(habitat,years);

@@ -53,7 +53,7 @@ namespace WorldGen.Core
         {
             double physical=HistoricalCrops.AbioticPotential(h,freshwater);
             double system=Math.Min(1.2,HistoricalCrops.Suitability(h,group,freshwater)/Math.Max(.01,physical));
-            double clearing=h.Biome==Biome.TropicalRainforest?(managed?.85:.55):h.Habitat.HasFlag(Habitat.Forest)?.85:1;
+            double clearing=h.Biome==Biome.TropicalRainforest?(managed?.85:.55):(h.Habitat&Habitat.Forest)!=0?.85:1;
             return D.Q(system*D.Clamp(physical/.2)*LeachingPenalty(h,managed)*clearing,1000000);
         }
         public static double TransferFit(HabitatCell h,HistoricalCultivar cultivar,double latitude,double freshwater=0,bool managed=false)

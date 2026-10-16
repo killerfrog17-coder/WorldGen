@@ -1,6 +1,16 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--late-regional-audit")){int at=Array.IndexOf(args,"--late-regional-audit");HistoryLateRegionalAudit.Run(args[at+1],args[at+2]);return;}
+if(args.Contains("--inland-settlement-only")){int count=0;HistoryInlandSettlementTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" inland settlement assertions");return;}
+if(args.Contains("--inland-settlement-world")){int count=0;HistoryInlandSettlementTests.World(args[Array.IndexOf(args,"--inland-settlement-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" inland settlement integration assertions");return;}
+if(args.Contains("--environmental-geometry-world")){int count=0;HistoryEnvironmentalGeometryTests.World(args[Array.IndexOf(args,"--environmental-geometry-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" environmental geometry assertions");return;}
+if(args.Contains("--colonial-port-retry-only")){int count=0;HistoryColonialPortRetryTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" colonial port retry assertions");return;}
+if(args.Contains("--colonial-port-retry-world")){int count=0;HistoryColonialPortRetryTests.World(args[Array.IndexOf(args,"--colonial-port-retry-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" colonial port retry integration assertions");return;}
+if(args.Contains("--forager-maritime-only")){int count=0;HistoryForagerMaritimeTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" forager maritime assertions");return;}
+if(args.Contains("--forager-maritime-world")){int count=0;HistoryForagerMaritimeTests.World(args[Array.IndexOf(args,"--forager-maritime-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" forager maritime integration assertions");return;}
+if(args.Contains("--maritime-practice-only")){int count=0;HistoryMaritimePracticeTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" maritime practice assertions");return;}
+if(args.Contains("--maritime-practice-world")){int count=0;HistoryMaritimePracticeTests.World(args[Array.IndexOf(args,"--maritime-practice-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual current-state maritime practice assertions");return;}
 if(args.Contains("--political-review")){int at=Array.IndexOf(args,"--political-review");HistoryPoliticalReview.Run(args[at+1],args[at+2]);return;}
 if(args.Contains("--living-mechanisms-only")){int count=0;HistoryLivingMechanismTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" living-world pure mechanism assertions");return;}
 if(args.Contains("--protocentre-only")){int count=0;HistoryProtocentreTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" protocentre assertions");return;}

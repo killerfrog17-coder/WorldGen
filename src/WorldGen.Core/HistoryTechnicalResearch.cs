@@ -42,6 +42,7 @@ namespace WorldGen.Core
             disease=Math.Max(disease,D.Clamp(ca.LargestCity/50000.0)*.55);
             var animals=h.Agriculture[id].Animals;for(int k=0;k<Math.Min(8,animals?.Length??0);k++)if(animals[k].AdoptedYear>0)disease=Math.Min(1,disease+.035);
             bool maritime=CommunityMaritimePractice(s,id);
+            double foragerMaritime=LivingWorldHistory(s)?ForagerMaritimeSupport(s,id,maritime):0;
             // Remote and unallocated rural residents are already in the culture's
             // population ledger. They must not vanish from practical demand just
             // because their farms are not one city's immediate catchment.
@@ -84,7 +85,7 @@ namespace WorldGen.Core
                     long learningPriority=Math.Max(priority,50000/(t.Levels[k]+1));
                     learningWeights[k]=learningPriority;learningTotal+=learningPriority;
                 }
-                else if(HistoricalTechnicalGraph.Prerequisites(k,t.Levels)&&AggregatePracticeSupported(s,id,k,false)&&(k<HistoricalTechnicalGraph.LegacyCount||NuclearInvestigationSupported(s,id,k)))
+                else if(HistoricalTechnicalGraph.Prerequisites(k,t.Levels)&&(LivingWorldHistory(s)?AggregatePracticeWithMaritime(s,id,k,false,maritime):AggregatePracticeSupported(s,id,k,false))&&(k<HistoricalTechnicalGraph.LegacyCount||NuclearInvestigationSupported(s,id,k)))
                 {researchWeights[k]=priority;researchTotal+=priority;}
             }
             // Several projects may progress together, but adding a project
@@ -118,6 +119,7 @@ namespace WorldGen.Core
                 bool imported=t.Offers[k]>0&&s.Years-t.OfferYear[k]<=150;
                 if(imported&&k!=6&&k!=14&&k!=15&&k!=18&&k<HistoricalTechnicalGraph.LegacyCount)target=Math.Max(target,.55*D.Clamp(importedCommunication/2));
                 double capital=k<15||HistoricalTechnicalGraph.Maritime(k)?.4+.6*urban:.12+.5*urban+.38*wealth;
+                if(LivingWorldHistory(s))capital=HistoricalForagerMaritime.DeploymentCapital(k,capital,foragerMaritime);
                 if(k>=20)capital*=.2+.8*Math.Min(1,HistoricalTechnicalGraph.Installed(hc,(int)HistoricalTechnology.IndustrialMetallurgy)+.35);
                 if(HistoricalTechnicalGraph.WeaponsOnly(k))capital*=.15+.85*(k==(int)HistoricalTechnology.NuclearWeapons?Math.Max(nuclearWar,nuclearThreat):Math.Max(war,competition));
                 if(HistoricalTechnicalGraph.Agricultural(k))capital*=Math.Max(.15,farming);

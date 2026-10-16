@@ -6,7 +6,7 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         public const string LanguageHistoryVersion="history-30";
-        static bool LanguageHistory(PrehistoryState s)=>s?.History?.Version==LanguageHistoryVersion||EnvironmentalHistory(s);
+        static bool LanguageHistory(PrehistoryState s)=>LivingWorldHistory(s)||s?.History?.Version==LanguageHistoryVersion||EnvironmentalHistory(s);
         public PrehistoryState UpgradeToLanguageHistory(PrehistoryState source)
         {
             Validate(source);if(LanguageHistory(source))return source;

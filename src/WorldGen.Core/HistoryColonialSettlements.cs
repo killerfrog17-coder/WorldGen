@@ -34,6 +34,31 @@ namespace WorldGen.Core
         }
         void RetryLivingColonialPorts(PrehistoryState s,int polity,int elapsed,int[] departures)
         {
+            var retry=s.History.Aggregates.Empires.Connections.PortSettlements;
+            if(retry!=null)
+            {
+                var pending=retry.Governments[polity];
+                foreach(int id in pending.Take())
+                {
+                    var post=s.History.Aggregates.Empires.Territories.Posts[id];
+                    if(!PendingColonialPort(s,polity,post)){pending.Remove(id);continue;}
+                    int opportunity=HistoricalColonialPortRetryEffects.OpportunityYears(s.Years,post.FoundedYear,retry.LastTestYear[id]);
+                    retry.LastTestYear=retry.LastTestYear.With(id,s.Years);
+                    if(opportunity<=0)continue;
+                    // The review tests today's real service/households/cultivars,
+                    // not a hypothetical uninterrupted supply since founding.
+                    foreach(int source in departures)
+                    {
+                        if(source==post.Cell)continue;
+                        var route=new Route{A=CellPatch[source],B=CellPatch[post.Cell],CellA=source,CellB=post.Cell,Sea=true,
+                            DistanceM=(int)Math.Round(D.Angle(World.Surface.Cells[source].Position,World.Surface.Cells[post.Cell].Position)*World.Recipe.RadiusKm*1000)};
+                        if(TryFoundLivingColonialPort(s,polity,route,opportunity))break;
+                    }
+                }
+                return;
+            }
+            // Existing candidate32 saves retain their exact old-null behavior
+            // until the explicit port-retry upgrade. <=31 never calls this path.
             var posts=s.History.Aggregates.Empires.Governments[polity].AdministrativePosts;
             int offset=posts.Count==0?0:(int)(HistoryRoll("living-colonial-unsettled-offices",polity,s.Years)*posts.Count);
             for(int k=0;k<Math.Min(2,posts.Count);k++)

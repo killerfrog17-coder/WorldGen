@@ -57,6 +57,28 @@ namespace WorldGen.Core
             =>.85+(RecruitmentMultiplier(p)-.85)*D.Clamp(funding);
         public static double LearningMultiplier(HistoricalPoliticalProfile p,int fundedWorks)
             =>.90+Math.Min(.25,1.0*p.LearningPermille/1000)*D.Clamp(fundedWorks/600.0);
+        // A bargaining prior, not an election forecast. Formal decentralization
+        // is deliberately absent: granting voice must not automatically make
+        // the next concession easier by weakening the same court again.
+        public static double ConcessionChance(HistoricalPoliticalProfile p,int representation,int diplomacy,int administration,int military,int ambition,
+            int eliteCapture,int exhaustion,double literacy,bool activeWar)
+        {
+            double civilian=(p.InfluencePermille[4]+.65*p.InfluencePermille[1]+.15*p.InfluencePermille[0])/1000.0;
+            double court=(p.InfluencePermille[2]+.6*p.InfluencePermille[0]+.25*p.InfluencePermille[3])/1000.0;
+            double inclination=.20*(diplomacy-500)/500.0+.12*(administration-500)/500.0-.12*(military+ambition-1000)/1000.0;
+            double strain=D.Clamp(exhaustion/1000.0);
+            double chance=.42+.65*(civilian-court)+inclination+.10*D.Clamp(literacy)-.20*D.Clamp(eliteCapture/1000.0)
+                -.12*(activeWar?1-strain:0)+.06*strain-.65*(D.Clamp(representation/1000.0)-.4);
+            return D.Q(Math.Max(.04,Math.Min(.96,chance)),1000000000);
+        }
+        public static double AdministrationTarget(HistoricalPoliticalProfile p,double fiscalCapacity,double geographicalLoad,int administration,int exhaustion,bool activeWar)
+        {
+            double fatigue=D.Clamp(exhaustion/1000.0);
+            double target=.30+.40*D.Clamp(fiscalCapacity)+.15*D.Clamp(administration/1000.0)
+                +.20*p.InfluencePermille[2]/1000.0-.20*p.InfluencePermille[0]/1000.0-.40*D.Clamp(geographicalLoad/1.5)
+                +(activeWar?.16*(1-fatigue):0)-.18*fatigue;
+            return D.Q(Math.Max(.15,Math.Min(.90,target)),1000000000);
+        }
     }
     public sealed partial class Prehistory
     {
@@ -105,13 +127,28 @@ namespace WorldGen.Core
             pressure+=.35*HistoricalModernEffects.Adoption(h.Cultures[p.CultureId],HistoricalTechnology.Printing,s.Years)+.25*HistoricalModernEffects.Adoption(h.Cultures[p.CultureId],HistoricalTechnology.Telecommunications,s.Years);
             if(s.Years-policy.LastReformYear<25||HistoryRoll("living-political-bargain",polity,s.Years)>=1-Math.Exp(-.008*pressure*elapsed))return;
             policy.LastReformYear=s.Years;
-            bool bargain=leader.Diplomacy+leader.Administration+(1000-policy.CentralizationMilli)>1500;
-            if(bargain)
-            {policy.RepresentationMilli=Math.Min(950,policy.RepresentationMilli+60);policy.CentralizationMilli=Math.Max(150,policy.CentralizationMilli-35);p.Legitimacy=Math.Min(950,p.Legitimacy+45);p.Cohesion=Math.Min(950,p.Cohesion+25);}
-            else
-            {policy.RepresentationMilli=Math.Max(50,policy.RepresentationMilli-40);policy.CentralizationMilli=Math.Min(950,policy.CentralizationMilli+45);p.Legitimacy=Math.Max(100,p.Legitimacy-30);p.Exhaustion=Math.Min(1000,p.Exhaustion+25);}
+            bool war=false;var contacts=h.International?.Accounts[polity].Relations;
+            int offset=contacts==null||contacts.Count==0?0:(int)(HistoryRoll("living-political-war-sample",polity,s.Years)*contacts.Count);
+            for(int k=0;k<Math.Min(4,contacts?.Count??0);k++)
+            {var relation=h.Relations[contacts.At((offset+k)%contacts.Count)];int other=relation.A==polity?relation.B:relation.A;if(relation.WarSince>=0&&h.Polities[other].EndedYear<0){war=true;break;}}
+            double literacy=HistoricalModernEffects.Adoption(h.Cultures[p.CultureId],HistoricalTechnology.Printing,s.Years);
+            double chance=HistoricalPoliticalPrograms.ConcessionChance(profile,policy.RepresentationMilli,leader.Diplomacy,leader.Administration,leader.Military,leader.Ambition,ds.Cycle?.EliteCapture??0,p.Exhaustion,literacy,war);
+            bool bargain=HistoryRoll("living-political-coalition",polity,s.Years)<chance;
+            policy.RepresentationMilli=Math.Max(50,Math.Min(950,policy.RepresentationMilli+(bargain?40:-30)));
+            // Capacity, not a second treasury debit or a claim that a floored
+            // unpaid bill was serviced. Existing paid works remain separate.
+            var account=h.Aggregates.Polities[polity];
+            double fiscal=Math.Min(D.Clamp(p.Treasury/Math.Max(1000.0,account.ServiceCost*20.0)),D.Clamp(account.Receipts/Math.Max(1.0,account.ServiceCost)));
+            double load=Math.Sqrt(Math.Max(1,p.AreaKm2)/Math.PI)/Math.Max(50,account.ReachKm);
+            double target=HistoricalPoliticalPrograms.AdministrationTarget(profile,fiscal,load,leader.Administration,p.Exhaustion,war);
+            int administrativeChange=(int)Math.Round(Math.Max(-30,Math.Min(30,(target*1000-policy.CentralizationMilli)*.12)));
+            policy.CentralizationMilli=Math.Max(150,Math.Min(950,policy.CentralizationMilli+administrativeChange));
+            int acceptance=(int)Math.Round(40*(2*(bargain?chance:1-chance)-1));
+            p.Legitimacy=Math.Max(100,Math.Min(950,p.Legitimacy+acceptance));p.Cohesion=Math.Max(50,Math.Min(950,p.Cohesion+acceptance/2));
+            if(!bargain)p.Exhaustion=Math.Min(1000,p.Exhaustion+10);
             RefreshPoliticalDescription(s,polity);
-            HistoryEvent(s,bargain?"political-reform":"political-repression",p.Name+(bargain?" bargains over taxation and local representation, widening the voice of its communities.":" concentrates executive power as court and provincial interests contest taxation and authority."),s.Society.Settlements[p.CapitalId].Cell,p.CultureId,polity,category:ChronicleCategory.Politics);
+            string administrationText=administrativeChange>0?" The settlement also strengthens central administration.":administrativeChange<0?" More administrative responsibility remains with provincial institutions.":"";
+            HistoryEvent(s,bargain?"political-reform":"political-repression",p.Name+(bargain?" bargains over taxation and local representation, widening the formal voice of its communities.":" restricts formal representation as court and organized interests contest taxation and authority.")+administrationText,s.Society.Settlements[p.CapitalId].Cell,p.CultureId,polity,category:ChronicleCategory.Politics);
         }
         void FundPoliticalProgram(PrehistoryState s,int polity,int elapsed)
         {
