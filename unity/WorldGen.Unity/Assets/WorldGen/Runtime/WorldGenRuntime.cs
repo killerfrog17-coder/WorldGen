@@ -274,7 +274,11 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         {
             if(Keyboard.current.spaceKey.wasPressedThisFrame)humanPlaying=!humanPlaying;
             bool add=Keyboard.current.equalsKey.wasPressedThisFrame||Keyboard.current.numpadPlusKey.wasPressedThisFrame,subtract=Keyboard.current.minusKey.wasPressedThisFrame||Keyboard.current.numpadMinusKey.wasPressedThisFrame;
-            if(add||subtract){float delta=add?.25f:-.25f;if(Keyboard.current.leftShiftKey.isPressed||Keyboard.current.rightShiftKey.isPressed)humanOverlayOpacity=Mathf.Clamp01(humanOverlayOpacity+delta);else satelliteOpacity=Mathf.Clamp01(satelliteOpacity+delta);ApplyCachedDisplay();}
+            bool background=Keyboard.current.leftShiftKey.isPressed||Keyboard.current.rightShiftKey.isPressed;
+            if(add||subtract){float delta=add?.25f:-.25f;if(background)satelliteOpacity=Mathf.Clamp01(satelliteOpacity+delta);else humanOverlayOpacity=Mathf.Clamp01(humanOverlayOpacity+delta);ApplyCachedDisplay();}
+            if(!Keyboard.current.ctrlKey.isPressed&&!Keyboard.current.altKey.isPressed)
+                for(int n=1;n<=7;n++)if(Keyboard.current[(Key)((int)Key.Digit1+n-1)].wasPressedThisFrame)
+                {if(background){var mode=MapShortcuts.Backgrounds[n-1];if(GenerationPreview.Available(displayedWorld,mode)){layer=preferredLayer=mode;Refresh();}}else{historyOverlay=MapShortcuts.Overlays[n-1];UpdateHumanPalette();}}
             if(Keyboard.current.commaKey.wasPressedThisFrame)ChangeHumanSpeed(-1);
             if(Keyboard.current.periodKey.wasPressedThisFrame)ChangeHumanSpeed(1);
         }

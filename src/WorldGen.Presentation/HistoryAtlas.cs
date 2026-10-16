@@ -52,8 +52,10 @@ namespace WorldGen.Presentation
             if(s?.Society==null||s.History==null||cell<0||cell>=HistoricalCells.Count(s))return null;
             var h=s.History;
             if((overlay==HistoryOverlay.States||overlay==HistoryOverlay.Civilizations)&&HistoricalCells.Polity(s,cell)<0){int claim=HistoricalRecognizedClaims.TitleAt(s,cell);if(claim>=0&&HistoricalRecognizedClaims.Holder(s,cell)>=0)return ClaimLink(s,claim);}
-            if(overlay==HistoryOverlay.Provinces){int province=HistoricalProvinceIdentity.Of(s,cell);if(province>=0)return ProvinceLink(s,province);}
-            if(overlay==HistoryOverlay.Religions&&HistoricalCells.Religion(s,cell)>=0)return FaithLink(h.Religions[HistoricalCells.Religion(s,cell)]);
+            if(overlay==HistoryOverlay.Provinces){int province=HistoricalProvinceIdentity.Of(s,cell);return province>=0?ProvinceLink(s,province):null;}
+            if(overlay==HistoryOverlay.Religions){int faith=HistoricalCells.Religion(s,cell);return faith>=0?FaithLink(h.Religions[faith]):null;}
+            if(overlay==HistoryOverlay.Cultures)return SocietyView.Culture(s,cell) is CultureIdentity local?CultureLink(local):null;
+            if(overlay==HistoryOverlay.Technology){int id=HistoricalCells.Culture(s,cell),p=HistoricalCells.Polity(s,cell);if(id<0&&p>=0)id=h.Polities[p].CultureId;return id>=0?TechnologyLink(s,id,cell):null;}
             if((overlay==HistoryOverlay.States||overlay==HistoryOverlay.Territories)&&HistoricalCells.Polity(s,cell)>=0)return StateLink(s,h.Polities[overlay==HistoryOverlay.Territories?HistoricalCells.Polity(s,cell):HistoricalImperialHierarchy.Sovereign(s,HistoricalCells.Polity(s,cell))]);
             if(overlay==HistoryOverlay.Civilizations&&HistoricalCells.Polity(s,cell)>=0)return CultureLink(s.Society.Cultures[HistoricalRecognizedClaims.Civilization(s,h.Polities[HistoricalImperialHierarchy.Sovereign(s,HistoricalCells.Polity(s,cell))].CultureId)]);
             var town=s.Society.Settlements.FirstOrDefault(t=>t.Cell==cell&&t.Population>0);
@@ -67,6 +69,7 @@ namespace WorldGen.Presentation
             if(s?.History==null||s.Society==null||link==null)return "Select an inhabited location to explore its history.";
             switch(link.Kind)
             {
+                case "technology":return WorldEraView.Name(WorldEraView.KnowledgeEra(s.History.Cultures[link.Id]))+" · "+s.Society.Cultures[link.Id].Name;
                 case "state":return StateSummary(s,s.History.Polities[link.Id]);
                 case "province":return ProvinceSummary(s,link.Id);
                 case "claim":return ClaimSummary(s,link.Id);
@@ -98,13 +101,14 @@ namespace WorldGen.Presentation
             var culture=SocietyView.Culture(s,cell);if(culture==null&&state>=0)culture=s.Society.Cultures[s.History.Polities[state].CultureId];
             if(culture!=null)links.Add(CultureLink(culture));if(faith>=0)links.Add(FaithLink(s.History.Religions[faith]));return links.ToArray();
         }
-        public static string ProfileLabel(AtlasLink link)=>link.Kind=="claim"?"Title":link.Kind=="province"?"Province":link.Kind=="religion"?"Belief":link.Kind=="people"?"People":link.Kind=="city"?"City":link.Kind=="ruler"?"Ruler":link.Detail=="Imperial government"?"Realm":link.Detail=="Local government"?"Local state":"State";
+        public static string ProfileLabel(AtlasLink link)=>link.Kind=="technology"?"Technology":link.Kind=="claim"?"Title":link.Kind=="province"?"Province":link.Kind=="religion"?"Belief":link.Kind=="people"?"People":link.Kind=="city"?"City":link.Kind=="ruler"?"Ruler":link.Detail=="Imperial government"?"Realm":link.Detail=="Local government"?"Local state":"State";
         public static AtlasLink[] Directory(PrehistoryState? s,string kind,string search="",bool past=false)
         {
             if(s?.Society==null||s.History==null)return Array.Empty<AtlasLink>();
             var h=s.History;IEnumerable<AtlasLink> entries;
             switch(kind)
             {
+                case "technology":entries=s.Society.Cultures.Where(c=>c.Population>0||past).OrderByDescending(c=>WorldEraView.KnowledgeEra(h.Cultures[c.Id])).ThenBy(c=>c.Id).Select(c=>TechnologyLink(s,c.Id,c.OriginCell));break;
                 case "province":entries=ProvinceDirectory(s);break;
                 case "state":entries=h.Polities.Where(p=>past||p.EndedYear<0).OrderByDescending(p=>p.Population).ThenBy(p=>p.Id).Select(p=>StateLink(s,p,p.EndedYear<0?p.Government:"Ended in year "+Y(s,p.EndedYear),p.Population));break;
                 case "city":entries=s.Society.Settlements.Where(t=>past||t.Population>0).OrderByDescending(t=>t.Population).ThenBy(t=>t.Id).Select(t=>TownLink(s,t));break;
@@ -123,6 +127,7 @@ namespace WorldGen.Presentation
             switch(kind)
             {
                 case "world":Overview(s,d,sections);break;
+                case "technology" when id>=0&&id<h.Cultures.Length:Technology(s,id,d,sections);break;
                 case "province":Province(s,id,d,sections);break;
                 case "claim":Claim(s,id,d,sections);break;
                 case "state" when id>=0&&id<h.Polities.Length:State(s,h.Polities[id],d,sections);break;

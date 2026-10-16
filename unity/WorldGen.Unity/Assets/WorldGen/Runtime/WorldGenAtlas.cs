@@ -42,7 +42,7 @@ public sealed partial class WorldGenRuntime
         GUILayout.Space(8);GUILayout.BeginHorizontal();
         GUILayout.BeginVertical(GUILayout.Width(205));
         if(GUILayout.Button("World overview")){atlasBack.Push(Tuple.Create(atlasDocument.Kind,atlasDocument.Id));LoadAtlasArticle("world",-1);EndAtlasUiChange();}
-        foreach(var category in new[]{("state","States"),("province","Provinces"),("city","Cities"),("people","Peoples"),("religion","Religions"),("ruler","Rulers")})
+        foreach(var category in new[]{("state","States"),("province","Provinces"),("city","Cities"),("people","Peoples"),("religion","Religions"),("technology","Technology"),("ruler","Rulers")})
             if(GUILayout.Toggle(atlasKind==category.Item1,category.Item2,GUI.skin.button)&&atlasKind!=category.Item1){atlasKind=category.Item1;RefreshAtlasDirectory();EndAtlasUiChange();}
         GUI.SetNextControlName("AtlasSearch");string search=GUILayout.TextField(atlasSearch);atlasSearchFocused=GUI.GetNameOfFocusedControl()=="AtlasSearch";
         if(search!=atlasSearch){atlasSearch=search;RefreshAtlasDirectory();EndAtlasUiChange();}GUILayout.Label("Search names",new GUIStyle(GUI.skin.label){fontSize=11});
@@ -66,15 +66,23 @@ public sealed partial class WorldGenRuntime
         GUI.enabled=true;GUILayout.EndHorizontal();
         GUILayout.Label(atlasDocument.Title,new GUIStyle(GUI.skin.label){fontSize=26,fontStyle=FontStyle.Bold});GUILayout.Label(atlasDocument.Subtitle,new GUIStyle(GUI.skin.label){fontSize=12});
         // A narrow table of contents keeps each deep section one click away.
-        var contents=new[]{"Overview"}.Concat(atlasDocument.Sections.Select(s=>s.Title)).ToArray();
-        int selected=Math.Max(0,Array.IndexOf(contents,atlasSection));int choice=GUILayout.SelectionGrid(selected,contents.Select(AtlasTabCaption).ToArray(),Mathf.Max(2,Mathf.Min(4,(int)((width-260)/170))),new GUIStyle(GUI.skin.button){fontSize=12,padding=new RectOffset(5,5,5,5),wordWrap=false});
+        var allContents=new[]{"Overview"}.Concat(atlasDocument.Sections.Select(s=>s.Title)).ToArray();
+        var groups=AtlasNavigation.Groups.Where(g=>allContents.Any(t=>AtlasNavigation.Group(t)==g)).ToArray();
+        int activeGroup=Math.Max(0,Array.IndexOf(groups,AtlasNavigation.Group(atlasSection)));
+        int chosenGroup=GUILayout.SelectionGrid(activeGroup,groups,groups.Length,new GUIStyle(GUI.skin.button){fontSize=11,padding=new RectOffset(4,4,7,7)});
+        if(chosenGroup!=activeGroup){atlasSection=allContents.First(t=>AtlasNavigation.Group(t)==groups[chosenGroup]);atlasArticleScroll=Vector2.zero;EndAtlasUiChange();}
+        var contents=allContents.Where(t=>AtlasNavigation.Group(t)==groups[activeGroup]).ToArray();
+        int selected=Math.Max(0,Array.IndexOf(contents,atlasSection));int choice=selected;
+        if(contents.Length>1)choice=GUILayout.SelectionGrid(selected,contents.Select(AtlasTabCaption).ToArray(),Mathf.Max(2,Mathf.Min(4,(int)((width-260)/170))),new GUIStyle(GUI.skin.button){fontSize=12,padding=new RectOffset(5,5,5,5),wordWrap=false});
         if(choice!=selected){atlasSection=contents[choice];atlasArticleScroll=Vector2.zero;EndAtlasUiChange();}
         GUILayout.Space(8);atlasArticleScroll=GUILayout.BeginScrollView(atlasArticleScroll);
         if(atlasSection=="Overview")
         {
             AtlasParagraph(atlasDocument.Introduction,16);GUILayout.Space(12);
             DrawHabitatPortrait(atlasDocument.Habitat);
-            AtlasFacts(atlasDocument.Facts);
+            AtlasFactTiles(atlasDocument.Facts,3);
+            var visual=HistoryAtlas.OverviewVisual(atlasDocument);
+            if(visual!=null){GUILayout.Space(14);GUILayout.Label(visual.Title,new GUIStyle(GUI.skin.label){fontSize=16,fontStyle=FontStyle.Bold});if(visual.Diagram)DrawAtlasDiplomacy(visual,width-300);else if(visual.Technical.Length>0){foreach(var project in visual.Technical){AtlasParagraph(project.Name+" · level "+project.Level+" → "+(project.Level+1),13);DrawTechnicalBar("Next level",project.ResearchPermille/10f);}}else{long max=visual.Unit=="/ 1,000"?1000:Math.Max(1,visual.Links.Max(l=>l.Value));foreach(var item in visual.Links){AtlasParagraph(item.Name+" · "+item.Detail,12);DrawTechnicalBar("Relative scale",100f*item.Value/max);}}}
             GUILayout.Space(14);AtlasParagraph("Explore the sections above for connections, livelihoods, institutions, and recorded events. Names in the article open related entries.",13);
         }
         else
@@ -131,6 +139,10 @@ public sealed partial class WorldGenRuntime
     void AtlasFacts(AtlasFact[] facts)
     {
         foreach(var fact in facts){GUILayout.BeginHorizontal();GUILayout.Label(fact.Label,new GUIStyle(GUI.skin.label){fontSize=13,fontStyle=FontStyle.Bold},GUILayout.Width(190));GUILayout.Label(fact.Value,new GUIStyle(GUI.skin.label){fontSize=14,wordWrap=true});GUILayout.EndHorizontal();}
+    }
+    void AtlasFactTiles(AtlasFact[] facts,int columns)
+    {
+        for(int i=0;i<facts.Length;i+=columns){GUILayout.BeginHorizontal();for(int j=i;j<Math.Min(facts.Length,i+columns);j++){GUILayout.BeginVertical(GUI.skin.box,GUILayout.ExpandWidth(true));GUILayout.Label(facts[j].Label,new GUIStyle(GUI.skin.label){fontSize=10,wordWrap=true});GUILayout.Label(facts[j].Value,new GUIStyle(GUI.skin.label){fontSize=16,wordWrap=true,fontStyle=FontStyle.Bold});GUILayout.EndVertical();}GUILayout.EndHorizontal();}
     }
     void DrawAtlasDiplomacy(AtlasSection section,float width)
     {

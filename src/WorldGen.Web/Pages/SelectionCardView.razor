@@ -1,0 +1,10 @@
+@using WorldGen.Presentation
+<section class="selection-card">
+<h3>@Card.Title</h3><p class="card-subtitle">@Card.Subtitle</p>
+@if(Card.IllustrationKey.Length>0){<figure><img src="@($"atlas/biomes/{Card.IllustrationKey}.jpg")" alt="Illustrative habitat landscape"/><figcaption>Illustrative habitat · not a reconstruction</figcaption></figure>}
+<div class="card-facts">@foreach(var fact in Card.Facts){<div><small>@fact.Label</small><strong>@fact.Value</strong></div>}</div>
+@foreach(var bar in Card.Bars){<label class="card-bar">@bar.Name <span>@(bar.Value/10)%</span><progress value="@bar.Value" max="1000"></progress></label>}
+@if(Card.Note.Length>0){<small class="card-note">@Card.Note</small>}
+@foreach(var project in Card.Projects){<label class="card-bar">@project.Name <span>Lv @project.Level → @(project.Level+1)</span><progress value="@project.ResearchPermille" max="1000"></progress></label>}
+</section>
+@code { [Parameter] public SelectionCard Card{get;set;}=new(); }

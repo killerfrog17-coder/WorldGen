@@ -12,6 +12,13 @@ namespace WorldGen.Presentation
     }
     public static partial class HistoryAtlas
     {
+        public static AtlasFact NewsDetail(PrehistoryState state,int year,int culture,int cell,ChronicleCategory category)
+        {
+            if(state?.History==null)return new AtlasFact();var archive=state.History.Archive;var news=new ChronicleNews(state);
+            int first=ChronicleFeed.FirstAtOrAfter(archive,year);
+            for(int i=first;i<Math.Min(archive.Count,first+4096);i++){var e=archive[i];if(e.Year>year)break;if(e.CultureId==culture&&e.Cell==cell&&e.Category==category&&news.Project(e)!=null)return Record(state,e);}
+            return new AtlasFact{Label="Year "+Y(state,year),Value="Open the world's recorded history for earlier details."};
+        }
         static readonly HashSet<string> RoutineKinds=new HashSet<string>(new[]{"succession","battle","trade","contact","religious-community","harvest-shock","incorporation","sea-contact","charted-coast","frontier-retreat","provincial-unrest","provincial-resistance","district-office","district-office-closed","district-incorporated","incorporation-abandoned","settlement-sponsorship","administrative-post","administrative-withdrawal"},StringComparer.Ordinal);
         static AtlasFact Record(PrehistoryState s,HistoricalEvent e)
         {

@@ -20,7 +20,7 @@ export function longitude(value){centerLongitude=value;}
 export function fullscreen(){if(document.fullscreenElement)return document.exitFullscreen();return document.querySelector('.observatory').requestFullscreen();}
 export function exitApp(){window.close();if(!window.closed)callback.invokeMethodAsync('Failed','Your browser does not allow this tab to close itself. You can close the tab now.');}
 export function init(dotnet){
- document.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();callback?.invokeMethodAsync('PauseSimulation');}else if(!['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName)&&['+','=','-','_'].includes(e.key)){e.preventDefault();callback?.invokeMethodAsync('OpacityKey',e.key==='+'||e.key==='='?1:-1,e.shiftKey);}else if(!['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName)&&[' ', ',', '.', '<', '>'].includes(e.key)){e.preventDefault();callback?.invokeMethodAsync('SimulationKey',e.key===','?'<':e.key==='.'?'>':e.key);}});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();callback?.invokeMethodAsync('PauseSimulation');}else if(e.ctrlKey||e.altKey||e.metaKey||e.target.isContentEditable||['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName))return;else if(/^Digit[1-7]$/.test(e.code)){e.preventDefault();callback?.invokeMethodAsync('MapKey',Number(e.code.slice(-1)),e.shiftKey);}else if(['+','=','-','_'].includes(e.key)){e.preventDefault();callback?.invokeMethodAsync('OpacityKey',e.key==='+'||e.key==='='?1:-1,e.shiftKey);}else if([' ', ',', '.', '<', '>'].includes(e.key)){e.preventDefault();callback?.invokeMethodAsync('SimulationKey',e.key===','?'<':e.key==='.'?'>':e.key);}});
  callback=dotnet;canvas=document.getElementById('globe');gl=canvas.getContext('webgl',{antialias:true,alpha:true,preserveDrawingBuffer:true});
  if(!gl||!gl.getExtension('OES_element_index_uint'))throw new Error('WebGL with 32-bit indices is required.');
  const derivatives=!!gl.getExtension('OES_standard_derivatives');
@@ -120,9 +120,9 @@ function pick(e){
   const b=zoom*dz,disc=b*b-zoom*zoom+1;if(disc<0)return;const t=-b-Math.sqrt(disc),px=dx*t,py=dy*t,pz=zoom+dz*t,r=rotation();
   x=r[0]*px+r[1]*py+r[2]*pz;z=r[3]*px+r[4]*py+r[5]*pz;y=-(r[6]*px+r[7]*py+r[8]*pz);
  }
- readyWorker.postMessage({type:'point',x,y,z,people:humanLayersEnabled&&overlayOpacity>0});
+ readyWorker.postMessage({type:'point',x,y,z,people:humanLayersEnabled});
 }
-export function pickCell(cell){readyWorker?.postMessage({type:'pick',cell,people:humanLayersEnabled&&overlayOpacity>0});}
+export function pickCell(cell){readyWorker?.postMessage({type:'pick',cell,people:humanLayersEnabled});}
 export function view(options,replaceWorld=false){
  if(paletteRequest){paletteRequest.resolve();paletteRequest=null;}
  const cached=JSON.parse(options);

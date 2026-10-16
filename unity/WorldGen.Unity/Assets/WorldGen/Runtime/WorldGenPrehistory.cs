@@ -17,7 +17,7 @@ public sealed partial class WorldGenRuntime
     Task<HumanPaletteResult> humanPaletteJob;bool humanPalettePending;int humanPaletteUpload;
     HumanPaletteResult humanPaletteReady;
     Color32[] humanSpareColors,humanUploadBlock,humanUploadTail;byte[] humanCodesScratch;
-    sealed class HumanPaletteResult { public World World;public PrehistoryState State;public HistoryOverlay Overlay;public int Selection;public string Sort;public Color32[] Colors;public HistoryLegendEntry[] Legend,MapLabels; }
+    sealed class HumanPaletteResult { public World World;public PrehistoryState State;public HistoryOverlay Overlay;public int Selection;public string Sort;public Color32[] Colors;public HistoryLegendEntry[] Legend,MapLabels;public ChronicleEvent[] Headlines; }
     readonly SimulationPlayback humanPlayback=new SimulationPlayback();double humanClockSample,calendarWorkStarted;
     bool simulationPaused,resumeHumanPlayback;string simulationTab="";
     bool technologyCeilingOpen;
@@ -33,7 +33,7 @@ public sealed partial class WorldGenRuntime
             humanPlaying=false;humans=null;humanWorld=world;humanStep=null;lastHumanSelection=-2;atlasOpen=false;atlasSearchFocused=false;musicSimulationStarted=false;humanPlayback.AutoEra(2);
             humanCancellation?.Cancel();humanCancellation?.Dispose();humanCancellation=new System.Threading.CancellationTokenSource();
             humanSession=null;humanPlaybackWork=null;
-            cachedHistoryLegend=Array.Empty<HistoryLegendEntry>();cachedMapLabels=Array.Empty<HistoryLegendEntry>();legendState=null;legendEngine=null;
+            cachedHistoryLegend=Array.Empty<HistoryLegendEntry>();cachedMapLabels=Array.Empty<HistoryLegendEntry>();cachedHeadlines=Array.Empty<ChronicleEvent>();legendState=null;legendEngine=null;
             var captured=world;humanPreparation=Task.Run(()=>new Prehistory(captured));
         }
         if(humanPreparation!=null&&humanPreparation.IsCompleted)
@@ -96,7 +96,7 @@ public sealed partial class WorldGenRuntime
                 if(rows!=64&&(humanUploadTail==null||humanUploadTail.Length!=rows*2048))humanUploadTail=new Color32[rows*2048];
                 var block=rows==64?humanUploadBlock:humanUploadTail;Array.Copy(ready.Colors,humanPaletteUpload*2048,block,0,block.Length);
                 texture.SetPixels32(0,humanPaletteUpload,2048,rows,block);humanPaletteUpload+=rows;
-                if(humanPaletteUpload==texture.height){texture.Apply(false,false);humanSpareColors=humanColors;humanColors=ready.Colors;legendState=ready.State;legendEngine=humans;legendOverlay=ready.Overlay;legendSort=ready.Sort;cachedHistoryLegend=ready.Legend;cachedMapLabels=ready.MapLabels;humanPaletteReady=null;}
+                if(humanPaletteUpload==texture.height){texture.Apply(false,false);humanSpareColors=humanColors;humanColors=ready.Colors;legendState=ready.State;legendEngine=humans;legendOverlay=ready.Overlay;legendSort=ready.Sort;cachedHistoryLegend=ready.Legend;cachedMapLabels=ready.MapLabels;cachedHeadlines=ready.Headlines;humanPaletteReady=null;}
             }
         }
         if(!humanPalettePending||humanPaletteJob!=null||humanPaletteReady!=null||humans==null||humanColors==null||displayedWorld!=world)return;
@@ -113,7 +113,7 @@ public sealed partial class WorldGenRuntime
                 if(!tint.TryGetValue(owner,out var rgb)){var v=SocietyView.OverlayColor(state,owner,overlay);rgb=new Color32((byte)Math.Round(v.X*255),(byte)Math.Round(v.Y*255),(byte)Math.Round(v.Z*255),0);tint.Add(owner,rgb);}
                 colors[i].r=rgb.r;colors[i].g=rgb.g;colors[i].b=rgb.b;
             }
-            return new HumanPaletteResult{World=captured,State=state,Selection=selection,Overlay=overlay,Sort=sort,Colors=colors,Legend=SocietyView.Legend(state,overlay,sort,engine),MapLabels=SocietyView.MapLabels(captured,state,overlay,engine)};
+            return new HumanPaletteResult{World=captured,State=state,Selection=selection,Overlay=overlay,Sort=sort,Colors=colors,Headlines=SocietyView.Headlines(state,engine),Legend=SocietyView.Legend(state,overlay,sort,engine),MapLabels=SocietyView.MapLabels(captured,state,overlay,engine)};
         });
     }
     void StepHumans(int steps)

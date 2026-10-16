@@ -10,7 +10,7 @@ self.onmessage = async event => {
         else if (d.type === 'load-preview') self.postMessage({type:'preview-ready',json:api.LoadPreview(d.json)});
         else if (d.type === 'load-world') self.postMessage({ type: 'complete', json: api.LoadWorld(d.json) });
         else if (d.type === 'load-world-file') self.postMessage({ type: 'complete', json: api.LoadWorldFile(d.data) });
-        else if (d.type === 'select-layer') api.SelectLayer(d.layer);
+        else if (d.type === 'select-layer') {api.SelectLayer(d.layer);const text=api.CurrentInspection();if(text)self.postMessage({type:'inspection',text});}
         else if (d.type === 'palette') { const bytes=api.Palette(d.layer);self.postMessage({type:'palette',bytes,layer:d.layer},[bytes.buffer]); }
         else if (d.type === 'cached-view') {
             const ticket=++viewTicket;api.BeginCachedView(d.options);

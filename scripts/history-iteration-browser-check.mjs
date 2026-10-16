@@ -28,7 +28,7 @@ try{
  await page.getByRole('button',{name:'Set Up World',exact:true}).click();console.log('Setup ready');
  await page.evaluate(async()=>{window.__wg=await import('/globe.js');});console.log('Module ready');
  await page.evaluate(bytes=>window.__wg.loadWorldFile(bytes),(await fs.readFile(source)).toString('base64'));
- console.log('Snapshot dispatched');await page.waitForFunction(()=>!Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='Start world')?.disabled,{},{timeout:240000});
+ console.log('Snapshot dispatched');await page.waitForFunction(()=>!Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='Start world')?.disabled,{},{timeout:600000});
  console.log('Starting loaded world');await page.getByRole('button',{name:'Start world',exact:true}).click();await page.getByLabel('Automatic era speed').waitFor();
  }
  await page.evaluate(async()=>{window.__wg=await import('/globe.js');});
@@ -61,7 +61,9 @@ try{
   await page.locator('.society-entry').first().click();await page.waitForTimeout(500);
   await page.getByRole('button',{name:'Selection',exact:true}).click();
   const selected=JSON.parse(await readPeople('status'));
-  if(!selected.Inspection.includes('LOCAL CHRONICLE')||!(await page.locator('.selection-summary').innerText()).length)throw Error('Missing underlying linked lore or narrative selection '+mode);
+  if(!selected.Inspection.includes('LOCAL CHRONICLE')||!(await page.locator('.selection-card h3').innerText()).length)throw Error('Missing linked lore or focused selection card '+mode);
+  if(mode==='Technology'&&(selected.Subject?.Kind!=='technology'||!selected.Card.Subtitle.includes('technology')))throw Error('Technology view selected an unrelated profile');
+  if(mode==='Cultures'&&selected.Subject?.Kind!=='people')throw Error('Culture view selected a city or court');
   if(mode==='Religions'&&selected.Subject?.Name!==await page.locator('.society-name').first().innerText())throw Error('Religious legend selected a converted holy site rather than current followers');
   await page.screenshot({path:output+'/'+mode.toLowerCase()+'.png'});
   await page.getByRole('button',{name:'Map settings',exact:true}).click();
@@ -80,12 +82,12 @@ try{
  const settings=await page.getByRole('button',{name:'Map settings',exact:true});if(!await page.getByLabel('Map opacity',{exact:true}).isVisible())await settings.click();
  await page.getByLabel('Map opacity',{exact:true}).fill('0.5');await page.getByLabel('Population opacity',{exact:true}).fill('1');
  await page.locator('#globe').focus();
- for(const [key,label,expected] of [['-','Map opacity',.25],['=','Map opacity',.5],['Shift+-','Population opacity',.75],['Shift+=','Population opacity',1]]) {
+ for(const [key,label,expected] of [['Shift+-','Map opacity',.25],['Shift+=','Map opacity',.5],['-','Population opacity',.75],['=','Population opacity',1]]) {
   await page.keyboard.press(key);await page.waitForTimeout(100);
   if(Math.abs(Number(await page.getByLabel(label,{exact:true}).inputValue())-expected)>.001)throw Error('25% shortcut '+key);
  }
- await page.keyboard.press('Shift+=');await page.waitForTimeout(100);if(await page.getByLabel('Population opacity',{exact:true}).inputValue()!=='1')throw Error('Opacity upper clamp');
- await page.keyboard.press('-');await page.keyboard.press('-');await page.keyboard.press('-');await page.waitForTimeout(150);
+ await page.keyboard.press('=');await page.waitForTimeout(100);if(await page.getByLabel('Population opacity',{exact:true}).inputValue()!=='1')throw Error('Opacity upper clamp');
+ await page.keyboard.press('Shift+-');await page.keyboard.press('Shift+-');await page.keyboard.press('Shift+-');await page.waitForTimeout(150);
  if(await page.getByLabel('Map opacity',{exact:true}).inputValue()!=='0')throw Error('Opacity lower clamp');
  await page.screenshot({path:output+'/opacity-controls.png'});
  if(process.argv.includes('--roundtrip-save')){

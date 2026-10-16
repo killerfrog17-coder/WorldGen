@@ -7,7 +7,7 @@
 <div class="atlas-layout">
 <nav class="atlas-directory" aria-label="Atlas directory">
 <button disabled="@Busy" @onclick='()=>Navigate.InvokeAsync(new AtlasLink{Kind="world",Id=-1})'>World overview</button>
-@foreach(var kind in new[]{("state","States"),("province","Provinces"),("city","Cities"),("people","Peoples"),("religion","Religions"),("ruler","Rulers")}){<button disabled="@Busy" class="@(DirectoryKind==kind.Item1?"selected":"")" @onclick="()=>Category.InvokeAsync(kind.Item1)">@kind.Item2</button>}
+@foreach(var kind in new[]{("state","States"),("province","Provinces"),("city","Cities"),("people","Peoples"),("religion","Religions"),("technology","Technology"),("ruler","Rulers")}){<button disabled="@Busy" class="@(DirectoryKind==kind.Item1?"selected":"")" @onclick="()=>Category.InvokeAsync(kind.Item1)">@kind.Item2</button>}
 <input aria-label="Search atlas names" placeholder="Search names" @bind="search" @bind:event="oninput"/>
 <label><input type="checkbox" @bind="past"/> Include historical records</label>
 @{var matching=Directory.Where(l=>(past||!l.Historical)&&l.Name.Contains(search,StringComparison.OrdinalIgnoreCase)).ToArray();string filter=search+"|"+past+"|"+DirectoryKind;if(filter!=directoryFilter){directoryFilter=filter;directoryPage=0;}int pages=Math.Max(1,(matching.Length+199)/200);directoryPage=Math.Min(directoryPage,pages-1);}
@@ -19,12 +19,16 @@
 @if(copyNotice.Length>0){<p role="status" class="atlas-copy-notice">@copyNotice</p>}
 @if(Busy){<p role="status" class="atlas-loading">Opening record…</p>}
 <h1>@Document.Title</h1><p class="atlas-subtitle">@Document.Subtitle</p>
-<div class="atlas-contents" role="navigation" aria-label="Article sections"><button class="@(section=="Overview"?"selected":"")" aria-current="@(section=="Overview"?"page":null)" @onclick='()=>SelectSection("Overview")'>Overview</button>@foreach(var item in Document.Sections){<button @key="item.Title" disabled="@Busy" class="@(section==item.Title?"selected":"")" aria-current="@(section==item.Title?"page":null)" @onclick="()=>SelectSection(item.Title)">@item.Title</button>}</div>
+@{var chapters=new[]{"Overview"}.Concat(Document.Sections.Select(s=>s.Title)).ToArray();var group=AtlasNavigation.Group(section);}
+<div class="atlas-chapters" role="navigation" aria-label="Article chapters">@foreach(var chapter in AtlasNavigation.Groups.Where(g=>chapters.Any(t=>AtlasNavigation.Group(t)==g))){<button class="@(chapter==group?"selected":"")" @onclick="()=>SelectSection(chapters.First(t=>AtlasNavigation.Group(t)==chapter))">@chapter</button>}</div>
+<div class="atlas-contents" role="navigation" aria-label="Article sections">@foreach(var title in chapters.Where(t=>t!="Overview"&&AtlasNavigation.Group(t)==group)){<button disabled="@Busy" class="@(section==title?"selected":"")" aria-current="@(section==title?"page":null)" @onclick="()=>SelectSection(title)">@title</button>}</div>
 <div class="atlas-reading" @key="section">
 @if(section=="Overview"){
 <p class="atlas-lead">@Document.Introduction</p>
 <HabitatPortraitCard Portrait="@Document.Habitat"/>
-<dl>@foreach(var fact in Document.Facts){<dt>@fact.Label</dt><dd>@fact.Value</dd>}</dl>
+<div class="atlas-fact-tiles">@foreach(var fact in Document.Facts){<div><small>@fact.Label</small><strong>@fact.Value</strong></div>}</div>
+var visual=HistoryAtlas.OverviewVisual(Document);
+@if(visual!=null){<section class="atlas-overview-chart"><h2>@visual.Title</h2>@if(visual.Diagram){@((MarkupString)AtlasDiagram.DiplomaticSvg(Document,visual))}else if(visual.Technical.Length>0){@foreach(var project in visual.Technical){<label class="overview-project">@project.Name · level @project.Level → @(project.Level+1)<progress value="@project.ResearchPermille" max="1000"></progress><small>@project.Source · @((project.AllocationBasisPoints/100.0).ToString("0.#"))% of research effort</small></label>}}else{var maximum=visual.Unit=="/ 1,000"?1000:Math.Max(1,visual.Links.Max(l=>l.Value));@foreach(var link in visual.Links){<div class="atlas-link-row">@if(link.Kind.Length>0){<button @onclick="()=>Navigate.InvokeAsync(link)">@link.Name</button>}else{<strong>@link.Name</strong>}<span>@link.Detail</span><progress aria-label="@link.Name" value="@link.Value" max="@maximum"></progress></div>}}</section>}
 <p>Explore the sections above for connections, livelihoods, institutions, and recorded events. Names in the article open related entries.</p>
 }else{
 var item=Document.Sections.FirstOrDefault(s=>s.Title==section);

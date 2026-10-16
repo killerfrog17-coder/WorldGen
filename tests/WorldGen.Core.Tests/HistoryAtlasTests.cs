@@ -47,6 +47,14 @@ public static class HistoryAtlasTests
         check(HistoryAtlas.Selection(s,0,HistoryOverlay.States)?.Kind=="state"&&HistoryAtlas.ProfilesAt(s,0).Any(l=>l.Kind=="city"&&l.Id==0),"State overlay selects its court while retaining direct access to the local named settlement");
         check(HistoryAtlas.Selection(s,1,HistoryOverlay.States)?.Kind=="state","A hinterland state cell opens its court rather than another culture");
         check(HistoryAtlas.Selection(s,0,HistoryOverlay.Religions)?.Kind=="religion","Religious view respects the selected dominant tradition");
+        check(HistoryAtlas.Selection(s,0,HistoryOverlay.Technology)?.Kind=="technology"&&HistoryAtlas.Card(s,0,HistoryOverlay.Technology).Subtitle.Contains("technology"),"Technology map opens technology, even on a city cell");
+        check(HistoryAtlas.Read(s,"technology",0).Sections.Any(x=>x.Title=="Knowledge and deployment"),"Technology reader has a dedicated knowledge/deployment section");
+        check(HistoryAtlas.Selection(s,0,HistoryOverlay.Cultures)?.Kind=="people","Culture map selects people rather than a city's government");
+        var noFaith=s.Copy();noFaith.History.CellReligion[0]=-1;
+        check(HistoryAtlas.Selection(noFaith,0,HistoryOverlay.Religions)==null,"An unrecorded religion never falls back to an unrelated city or culture");
+        check(HistoryAtlas.Selection(s,0,HistoryOverlay.Provinces)==null,"An absent provincial record does not masquerade as a city profile");
+        check(HistoryAtlas.Card(s,0,HistoryOverlay.States).Facts.Any(x=>x.Label=="Capital"&&x.Value=="First Harbor"),"Political selection uses compact labeled facts");
+        check(HistoryAtlas.OverviewVisual(state)?.Links.Length<=6,"Overview charts stay compact and use recorded data");
         check(HistoryAtlas.Read(s,"people",0).Sections.Single(x=>x.Title=="Practices and knowledge").Timeline.Single().Label=="Year 1,200","Practice dates decode stored adoption-year-plus-one correctly");
         check(HistoryAtlas.Read(s,"state",1).Introduction.Contains("does not by itself imply"),"Historic state entries do not equate state collapse with extinction of a people");
         check(HistoryAtlas.Read(s,"religion",0).Sections.Any(x=>x.Text.Contains("not unanimous belief")),"Religion profiles do not invent adherent counts");
@@ -79,6 +87,9 @@ public static class HistoryAtlasTests
         var portrait=HistoryAtlas.Read(s,"city",0,geography).Habitat;
         check(portrait!=null&&portrait.Key=="temperate"&&portrait.Conditions.Any(f=>f.Value.Contains("180 days")),"Habitat portraits use actual local biome and growing season");
         check(portrait.Fauna.Length==0&&portrait.Caption.Contains("Illustrative"),"A landscape illustration invents neither local animals nor a reconstruction of the city");
+        var habitatCard=MapSelection.Read(geography,0,Layer.Ecoregions);
+        check(habitatCard.Title=="River woods"&&habitatCard.IllustrationKey=="temperate"&&habitatCard.Facts.Any(f=>f.Label=="Growing season"),"Ecoregion selection uses actual habitat facts and an explicitly illustrative landscape");
+        check(MapSelection.Read(geography,-1,Layer.Ecoregions).Title=="Select a location","Base-map cards are safe without a selected location");
         check(StateHash.Compute(geography)==geographyHash,"Reading geographic context does not regenerate or mutate terrain, climate, or ecology");
         check(s.ComputeHash()==hash&&WorldJson.Write(s)==serialized,"Atlas browsing and chart generation do not mutate the simulation checkpoint or archive");
         var closed=s.Copy();closed.History.Administration=new HistoricalAdministration{Accounts=new[]{new HistoricalAdministrativeAccount{PolityId=1,Year=2000}}};
