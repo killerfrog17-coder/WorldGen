@@ -112,8 +112,8 @@ namespace WorldGen.Core
             if(way!=record.WayOfLife&&s.Years-record.LastEvolutionYear>=1200)
             {
                 string old=c.Name;record.Episodes=record.Episodes.Concat(new[]{new HistoricalCulturalEpisode{Name=old,Since=record.LastEvolutionYear,Until=s.Years,WayOfLife=record.WayOfLife,Reason=way>=2?"Changed cultivation, settlement and institutions":"Changed regional livelihoods"}}).ToArray();
-                c.Name=HistoricalName("cultural-renewal",unchecked(id*7919+s.Years));record.LastEvolutionYear=s.Years;record.WayOfLife=way;
-                HistoryEvent(s,"cultural-transformation",old+" develops into the regional tradition now called "+c.Name+" as livelihoods and institutions change. Its communities and ancestry continue rather than appearing independently.",c.OriginCell,id,category:ChronicleCategory.Society);
+                c.Name=LanguageHistory(s)?RenewLanguageName(s,id):HistoricalName("cultural-renewal",unchecked(id*7919+s.Years));record.LastEvolutionYear=s.Years;record.WayOfLife=way;
+                HistoryEvent(s,"cultural-transformation",(LanguageHistory(s)&&old==c.Name?old+" retains its name while its livelihoods, speech and institutions evolve.":old+" develops into the regional tradition now called "+c.Name+" as livelihoods and institutions change.")+" Its communities and ancestry continue rather than appearing independently.",c.OriginCell,id,category:ChronicleCategory.Society);
             }
         }
         void ValidateColonialConnections(PrehistoryState s)

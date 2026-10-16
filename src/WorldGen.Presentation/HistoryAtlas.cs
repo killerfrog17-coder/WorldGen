@@ -132,7 +132,7 @@ namespace WorldGen.Presentation
                 case "claim":Claim(s,id,d,sections);break;
                 case "state" when id>=0&&id<h.Polities.Length:State(s,h.Polities[id],d,sections);break;
                 case "city" when id>=0&&id<s.Society.Settlements.Length:City(s,s.Society.Settlements[id],d,sections);break;
-                case "people" when id>=0&&id<s.Society.Cultures.Length:People(s,s.Society.Cultures[id],d,sections);break;
+                case "people" when id>=0&&id<s.Society.Cultures.Length:People(s,s.Society.Cultures[id],d,sections,world);break;
                 case "religion" when id>=0&&id<h.Religions.Length:Religion(s,h.Religions[id],d,sections);break;
                 case "ruler" when id>=0&&id<(h.Dynamics?.Leaders.Length??0):Ruler(s,h.Dynamics!.Leaders[id],d,sections);break;
                 default:d.Title="Record unavailable";d.Introduction="This record is not present in the current world.";break;
@@ -299,13 +299,29 @@ namespace WorldGen.Presentation
             }
             a.Add(Events(s,e=>e.SettlementId==t.Id||e.Cell==t.Cell));
         }
-        static void People(PrehistoryState s,CultureIdentity c,AtlasDocument d,List<AtlasSection> a)
+        static void People(PrehistoryState s,CultureIdentity c,AtlasDocument d,List<AtlasSection> a,World? world)
         {
             var h=s.History;var hc=h.Cultures[c.Id];d.Title=c.Name;d.Cell=c.OriginCell;d.Subtitle="People and cultural tradition";
             d.Introduction="The "+c.Name+" are a recorded cultural community dating to year "+Y(s,c.FoundedYear)+". Their modeled way of life centers on "+c.Subsistence.ToLowerInvariant()+". They number "+N(c.Population)+" people in the current checkpoint. Shared culture does not mean that all members answer to a single court.";
             d.Facts=new[]{F("Recorded origin","Year "+Y(s,c.FoundedYear)),F("People",N(c.Population)),F("Cultural footprint",N(c.AreaKm2)+" km²"),F("Organization index",N(c.Organization)+" / 1,000"),F("Settlement tendency",N(hc.Sedentism)+" / 1,000"),F("Surplus index",N(hc.Surplus)+" / 1,000"),F("Institutional index",N(hc.Institution)+" / 1,000")};
             var links=new List<AtlasLink>();if(hc.ParentCultureId>=0)links.Add(CultureLink(s.Society.Cultures[hc.ParentCultureId]));if(hc.LanguageId>=0)links.Add(CultureLink(s.Society.Cultures[hc.LanguageId]));if(hc.ReligionId>=0)links.Add(FaithLink(h.Religions[hc.ReligionId]));
             a.Add(Links("Origins, language, and belief",links,"The language-family label refers to the originating recorded culture. Ancestry and language do not determine a people's abilities."));
+            if(h.Languages!=null)
+            {
+                var language=h.Languages.Profiles[c.Id];bool writing=HistoricalTechnologies.Has(hc,HistoricalTechnology.Writing);
+                a.Add(new AtlasSection{Title="Language and names",Text="Names share reusable roots and sound rules. Related languages inherit roots with regular sound changes; borrowed vocabulary follows recorded contact. Pronunciations are procedural IPA guides, not recorded speech. Existing place names survive later language changes.",
+                    Facts=new[]{F("Language family",s.Society.Cultures[language.FamilyId].Name),F("Sounds",LanguageGenerator.SoundInventory(language)),F("Sentence order",language.WordOrder),F("Name pattern",language.ModifierFirst?"Descriptive root before place word":"Place word before descriptive root"),F("Writing",writing?language.Script+" profile; shown in transliteration":"Unwritten; shown in transliteration"),F("Recorded loan roots",N(language.Loans.Length))},
+                    Timeline=new[]{"river","sea","settlement","land","people","stone"}.Select(concept=>{var word=LanguageGenerator.Word(language,concept);return F(concept,LanguageGenerator.Capitalize(word.Text)+" /"+word.Phonetics+"/");}).ToArray()});
+                if(world?.Ecology!=null)
+                {
+                    var names=new List<AtlasFact>();
+                    string LocalName(LanguageNameKind kind,int identity)=>LanguageGenerator.Capitalize(LanguageGenerator.Name(language,kind,identity).Text);
+                    names.Add(F("Home region",LocalName(LanguageNameKind.Region,world.Ecology.Region[c.OriginCell])));
+                    names.Add(F("Home landmass",LocalName(LanguageNameKind.Continent,world.Landmass[c.OriginCell])));
+                    if(world.Hydrology.RiverOrder[c.OriginCell]>0)names.Add(F("Home river system",LocalName(LanguageNameKind.River,world.Hydrology.Watershed[c.OriginCell])));
+                    a.Add(new AtlasSection{Title="Names for the homeland",Text="Names in this people's current language, not universal labels. Another language may name the same geographical feature differently. The home region uses the existing ecoregion identity; this is not yet a historical regional-boundary system.",Facts=names.ToArray()});
+                }
+            }
             var activities=new[]{("Cultivation",c.Farming),("Gathering",c.Gathering*(1000-c.Farming)/1000),("Hunting",c.Hunting*(1000-c.Farming)/1000),("Fishing",c.Fishing*(1000-c.Farming)/1000),("Herding",c.Herding*(1000-c.Farming)/1000)};
             a.Add(new AtlasSection{Title="Ways of making a living",Text="Relative modeled livelihood intensities, not a census of workers or exact calorie shares. Resources: "+c.Resources,Unit="/ 1,000",Bars=true,Links=activities.Select(x=>new AtlasLink{Name=x.Item1,Value=x.Item2,Detail=N(x.Item2)+" / 1,000"}).ToArray()});
             a.Add(Links("States associated with these people",h.Polities.Where(p=>p.CultureId==c.Id).OrderBy(p=>p.EndedYear>=0).ThenByDescending(p=>p.Population).ThenBy(p=>p.Id).Select(p=>StateLink(s,p,p.EndedYear<0?p.Government:"Historical state"))));

@@ -74,7 +74,7 @@ namespace WorldGen.Core
             town.FoodReserve-=people*2;ChangeAggregateCityPopulation(s,cityId,town.Population-people,a.Cities[cityId].Suburban,a.Cities[cityId].Rural);long previous=s.Population[patch];s.Population[patch]+=people;a.TotalPopulation+=people;if(s.ArrivalYear[patch]<0)s.ArrivalYear[patch]=s.Years;for(int g=0;g<8;g++)s.Ancestry[patch*8+g]=(int)((previous*s.Ancestry[patch*8+g]+people*s.Ancestry[CellPatch[town.Cell]*8+g])/Math.Max(1,s.Population[patch]));
             if(HistoricalCells.Culture(s,destination)<0)
             {
-                FoundAggregateCulture(s,patch,destination);int child=h.Cultures.Length-1;
+                FoundAggregateCulture(s,patch,destination,town.CultureId);int child=h.Cultures.Length-1;
                 if(CommunityHistory(s))InheritDevelopmentCommunity(s,child,town.CultureId,destination);
                 else
                 {

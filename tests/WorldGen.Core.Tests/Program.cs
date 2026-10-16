@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--languages-only")){int count=0;LanguageTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" procedural language assertions");return;}
+if(args.Contains("--language-world")){int count=0,at=Array.IndexOf(args,"--language-world");LanguageTests.World(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);},args.Length>at+2?args[at+2]:null);Console.WriteLine("PASS "+count+" language/history integration assertions");return;}
 if(args.Contains("--ambitions-upgrade")){int at=Array.IndexOf(args,"--ambitions-upgrade");if(File.Exists(args[at+2]))throw new IOException("Refusing to overwrite a world");var w=WorldFile.Read(File.ReadAllBytes(args[at+1]));var p=new Prehistory(w);w.Prehistory=p.UpgradeToTerritorialHistory(w.Prehistory);p.Validate(w.Prehistory);Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(args[at+2]))!);File.WriteAllBytes(args[at+2],WorldFile.Write(w));Console.WriteLine("Upgraded territorial fixture "+w.Prehistory.Hash);return;}
 if(args.Contains("--ambitions-only")){int at=Array.IndexOf(args,"--ambitions-only"),count=0;HistoryTerritorialAmbitionTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" territorial ambition assertions");return;}
 if(args.Contains("--coasts-only")){int at=Array.IndexOf(args,"--coasts-only"),count=0;HistoryCoastalTests.Run(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" coastal network assertions");return;}
@@ -161,6 +163,7 @@ if(args.Contains("--subcell-only")){SubcellTests.Run((ok,message)=>{assertions++
 if(args.Contains("--display-performance-only")){int at=Array.IndexOf(args,"--detail");DisplayPerformanceTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);},at<0?20000:int.Parse(args[at+1]),args.Contains("--mesh-only"));Console.WriteLine("PASS "+assertions+" display assertions");return;}
 if(args.Contains("--setup-only")){SetupTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+assertions+" setup assertions");return;}
 void Check(bool condition, string message) { assertions++; if (!condition) throw new Exception(message); }
+LanguageTests.Run(Check);
 WorldInterfaceTests.Run(Check);
 void Connected(int[] members, Func<int, int[]> neighbors, string name)
 { var set = members.ToHashSet(); var visited = new HashSet<int> { members[0] }; var queue = new Queue<int>(); queue.Enqueue(members[0]); while (queue.Count > 0) foreach (int n in neighbors(queue.Dequeue())) if (set.Contains(n) && visited.Add(n)) queue.Enqueue(n); Check(visited.Count == members.Length, name + " disconnected"); }

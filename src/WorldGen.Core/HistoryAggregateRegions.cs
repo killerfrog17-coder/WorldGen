@@ -56,7 +56,7 @@ namespace WorldGen.Core
         }
         static long AggregateLogisticPopulation(long population,long capacity,double rate,double elapsed)
         {if(population<=0)return 0;if(capacity<=0)return Math.Max(0,(long)Math.Round(population*Math.Exp(-rate*elapsed)));double result=capacity/(1+(capacity/(double)population-1)*Math.Exp(-rate*elapsed));return Math.Max(0,(long)Math.Round(result));}
-        void FoundAggregateCulture(PrehistoryState s,int patch,int cell)
+        void FoundAggregateCulture(PrehistoryState s,int patch,int cell,int languageParent=-1)
         {
             var h=s.History;var a=h.Aggregates;int id=s.Society.Cultures.Length,religion=h.Religions.Length;var habitat=World.Ecology.Habitat[cell];
             var c=new CultureIdentity{Id=id,Name=HistoricalName("people",unchecked(cell+id*7919)),OriginCell=cell,FoundedYear=s.Years,StageYear=s.Years,Stage=SocietyStage.AdvancedCulture,Fishing=Patches[patch].Lifestyle==ForagerLifestyle.Coastal?400:HistoricalRiverAccess(cell)>.03?300:50,Hunting=300,Gathering=400,Resources="Native plants, seasonal game and local exchange",Subsistence="Seasonal foraging with persistent storage and exchange"};
@@ -72,7 +72,7 @@ namespace WorldGen.Core
             if(LivingHistory(s))
             {
                 int teacher=a.Living.Regions[patch].Teacher;
-                if(teacher>=0&&teacher<id){hc.ParentCultureId=teacher;if(ProvincialHistory(s))OfferProvincialKnowledge(s,id,teacher,a.Provinces.RegionalKnowledge[patch],a.Living.Regions[patch].LastExchangeYear,false);else LivingCultureContact(s,id,teacher);HistoryEvent(s,"cultural-exchange",c.Name+" develops a distinct local tradition through exchange with "+s.Society.Cultures[teacher].Name+"; crops and institutions still need local support.",cell,id,category:ChronicleCategory.Society);}
+                if(teacher>=0&&teacher<id){hc.ParentCultureId=teacher;if(ProvincialHistory(s))OfferProvincialKnowledge(s,id,teacher,a.Provinces.RegionalKnowledge[patch],a.Living.Regions[patch].LastExchangeYear,false);else LivingCultureContact(s,id,teacher);if(!LanguageHistory(s))HistoryEvent(s,"cultural-exchange",c.Name+" develops a distinct local tradition through exchange with "+s.Society.Cultures[teacher].Name+"; crops and institutions still need local support.",cell,id,category:ChronicleCategory.Society);}
                 if(ColonialHistory(s)&&teacher>=0&&s.Years-s.Society.Cultures[teacher].FoundedYear<3000)
                 {
                     int from=s.Society.Cultures[teacher].OriginCell;double distance=D.Angle(World.Surface.Cells[from].Position,World.Surface.Cells[cell].Position)*World.Recipe.RadiusKm;
@@ -80,6 +80,9 @@ namespace WorldGen.Core
                     if(distance<750&&continuity>.6&&HistoryRoll("regional-cultural-lineage",id,s.Years)<.85)hc.LanguageId=h.Cultures[teacher].LanguageId;
                 }
             }
+            if(LanguageHistory(s)&&languageParent>=0){hc.LanguageId=h.Cultures[languageParent].LanguageId;hc.ParentCultureId=languageParent;}
+            AppendLanguage(s,id);
+            if(LanguageHistory(s)&&hc.ParentCultureId>=0)HistoryEvent(s,"cultural-exchange",c.Name+" develops a distinct local tradition through exchange with "+s.Society.Cultures[hc.ParentCultureId].Name+"; crops and institutions still need local support.",cell,id,category:ChronicleCategory.Society);
             SetAggregateLayer(s,cell,0,id);SetAggregateLayer(s,cell,2,religion);SetAggregateLayer(s,cell,4,1);
             c.Population=Math.Min(s.Population[patch],RuralCellPopulation(s,cell));ScheduleAggregate(s,CultureProcess,id);
             HistoryEvent(s,"culture","A persistent regional exchange and storage tradition emerges among "+c.Name+".",cell,id,religion:religion);

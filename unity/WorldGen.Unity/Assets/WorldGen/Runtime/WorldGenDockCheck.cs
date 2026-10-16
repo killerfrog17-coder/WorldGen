@@ -9,7 +9,7 @@ public sealed partial class WorldGenRuntime
 {
     [Serializable] sealed class DockEvidence
     {
-        public bool PanelsMeet,Resizable,Clamped,EraCorrect,MusicLoaded,MusicWaitsForPlay,CheckpointUnchanged,ContextualSelections,AtlasProfiles,BaseCard,Passed;
+        public bool PanelsMeet,Resizable,Clamped,EraCorrect,MusicLoaded,MusicWaitsForPlay,CheckpointUnchanged,ContextualSelections,AtlasProfiles,LanguageProfiles,BaseCard,Passed;
         public string[] GuiErrors;
         public int Era;public string EraName,MusicDirectory;public Rect[] Panels;
     }
@@ -33,6 +33,11 @@ public sealed partial class WorldGenRuntime
         }
         resizingSociety=-1;
         evidence.Era=CurrentMusicEra();evidence.EraName=WorldEraView.Name(evidence.Era);evidence.EraCorrect=evidence.Era==WorldEraView.Of(world.Prehistory);
+        // Isolate this check from tracks already decoded from the real library.
+        // This modifies only the disposable diagnostic player, never preferences.
+        musicSimulationStarted=false;deadline=Time.realtimeSinceStartupAsDouble+15;
+        while(musicBusy&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+        musicSource.Stop();if(musicSource.clip!=null)Destroy(musicSource.clip);musicSource.clip=null;currentMusicTrack=null;recentMusic.Clear();musicGain=0;
         // A silent, tiny WAV in the isolated check output proves the real async
         // file/decoder path without adding an audio asset to the owner's library.
         musicFolder=Path.Combine(output,"music-fixture");Directory.CreateDirectory(musicFolder);brokenMusic.Clear();
@@ -46,7 +51,7 @@ public sealed partial class WorldGenRuntime
         musicSimulationStarted=true;nextMusicCheck=0;deadline=Time.realtimeSinceStartupAsDouble+15;
         while(recentMusic.Count==0&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         evidence.MusicLoaded=recentMusic.Contains(track)&&musicSource.clip!=null;evidence.MusicDirectory=musicFolder;
-        var checkpoint=world.Prehistory;
+        var checkpoint=world.Prehistory;evidence.LanguageProfiles=checkpoint.History?.Languages==null;
         if(checkpoint.History?.Cultures.Length>0)
         {
             selectedCell=checkpoint.Society.Cultures[0].OriginCell;historyOverlay=HistoryOverlay.Technology;mapSettings=false;UpdateHumanPalette();
@@ -55,6 +60,11 @@ public sealed partial class WorldGenRuntime
             OpenAtlas("technology",0);atlasSection="Knowledge and deployment";for(int i=0;i<8;i++)yield return null;
             evidence.AtlasProfiles=atlasDocument.Kind=="technology";
             if(checkpoint.History.Polities.Length>0){OpenAtlas("state",0);for(int i=0;i<8;i++)yield return null;evidence.AtlasProfiles&=atlasDocument.Kind=="state";}
+            if(checkpoint.History.Languages!=null)
+            {
+                OpenAtlas("people",0);atlasSection="Language and names";for(int i=0;i<8;i++)yield return null;
+                evidence.LanguageProfiles=Array.Exists(atlasDocument.Sections,x=>x.Title=="Language and names"&&x.Timeline.Length==6)&&LanguageGenerator.Valid(checkpoint.History.Languages.Profiles[0]);
+            }
             atlasOpen=false;humanOverlayOpacity=0;layer=preferredLayer=Layer.Ecoregions;Refresh();while(Busy)yield return null;
             evidence.BaseCard=CurrentBaseCard().Facts.Length>0;for(int i=0;i<8;i++)yield return null;
             humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;UpdateHumanPalette();
@@ -64,7 +74,7 @@ public sealed partial class WorldGenRuntime
         for(int i=0;i<8;i++)yield return null;
         evidence.Panels=new[]{SocietyPanel(0),SocietyPanel(1),SocietyPanel(2)};evidence.CheckpointUnchanged=world.Prehistory.ComputeHash()==before;
         Application.logMessageReceived-=recordError;evidence.GuiErrors=guiErrors.ToArray();
-        evidence.Passed=evidence.PanelsMeet&&evidence.Resizable&&evidence.Clamped&&evidence.EraCorrect&&evidence.MusicLoaded&&evidence.MusicWaitsForPlay&&evidence.CheckpointUnchanged&&evidence.ContextualSelections&&evidence.AtlasProfiles&&evidence.BaseCard&&guiErrors.Count==0&&error.Length==0;
+        evidence.Passed=evidence.PanelsMeet&&evidence.Resizable&&evidence.Clamped&&evidence.EraCorrect&&evidence.MusicLoaded&&evidence.MusicWaitsForPlay&&evidence.CheckpointUnchanged&&evidence.ContextualSelections&&evidence.AtlasProfiles&&evidence.LanguageProfiles&&evidence.BaseCard&&guiErrors.Count==0&&error.Length==0;
         File.WriteAllText(Path.Combine(output,"dock-check.json"),JsonUtility.ToJson(evidence,true));Debug.Log("DOCK CHECK "+JsonUtility.ToJson(evidence));Application.Quit(evidence.Passed?0:1);
     }
 }

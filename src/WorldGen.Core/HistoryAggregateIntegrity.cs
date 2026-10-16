@@ -31,6 +31,7 @@ namespace WorldGen.Core
                 {string digest=StateHash.Compute(h.Dynamics.Leaders[i]);for(int k=0;k<8;k++)if(a.LeaderDigests[i*8+k]!=unchecked((int)Convert.ToUInt32(digest.Substring(k*8,8),16)))throw new ArgumentException("Modified historical leader record.");}
             }
             var values=new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,h.Version,a,h.Cultures,h.Religions,h.Polities,h.Relations,h.Towns,h.Agriculture,h.Dynamics.States,h.Dynamics.Campaigns,h.Dynamics.Dependencies,h.Modern,h.OceanSettlements,h.Administration,Timeline};
+            if(h.Languages!=null)values=values.Concat(new object[]{h.Languages}).ToArray();
             return verify?StateHash.Compute(values,token):StateHash.ComputeOwnedHistorical(values,h,token);
         }
         internal void SealAggregateOwned(CancellationToken token=default){Hash=AggregateHash(false,token);}

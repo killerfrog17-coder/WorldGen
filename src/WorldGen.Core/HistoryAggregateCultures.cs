@@ -40,6 +40,7 @@ namespace WorldGen.Core
             }
             if(contact>=0&&contact!=id)
             {if(!c.Contacts.Contains(contact))c.Contacts=c.Contacts.Concat(new[]{contact}).OrderBy(x=>x).ToArray();var other=s.Society.Cultures[contact];if(!other.Contacts.Contains(id))other.Contacts=other.Contacts.Concat(new[]{id}).OrderBy(x=>x).ToArray();}
+            LanguageContact(s,id,contact);
             double pressure=(s.Population[CellPatch[cell]]+ca.Urban+ca.Rural)/(double)Math.Max(1,Patches[CellPatch[cell]].Capacity);
             if(LivingHistory(s))pressure=(s.Population[CellPatch[cell]]+a.Living.Regions[CellPatch[cell]].SettledPopulation)/(double)Math.Max(1,Patches[CellPatch[cell]].Capacity);
             if(HistoricalLocalEffects.AgricultureOpen(s.Years)&&s.Years-c.FoundedYear>=500)

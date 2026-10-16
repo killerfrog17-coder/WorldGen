@@ -10,6 +10,7 @@ namespace WorldGen.Core
             // are permitted to appear inside a subsequent actor event.
             PrepareAggregateEnvironment(s);
             var h=s.History;var a=h.Aggregates;
+            ValidateLanguages(s);
             void Require(bool condition,string what){if(!condition)throw new ArgumentException("Invalid aggregate history: "+what);}
             Require((h.Version==AggregateHistoryVersion&&a.Living==null||(h.Version==LivingHistoryVersion||ConnectedHistory(s))&&a.Living!=null)&&a.Version=="aggregate-history-1"&&s.Society!=null,"version");
             if(CommunityHistory(s))Require(a.Communities!=null&&a.Communities.Cities.Length==a.Cities.Length&&a.Communities.Governments.Length==a.Polities.Length&&a.Communities.Campaigns.Length==h.Dynamics.Campaigns.Length,"local community alignment");

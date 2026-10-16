@@ -18,7 +18,7 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         public const string TerritorialHistoryVersion="history-28";
-        static bool RegionalAmbitionHistory(PrehistoryState s)=>s?.History?.Version==TerritorialHistoryVersion||s?.History?.Version==ResearchPacingHistoryVersion;
+        static bool RegionalAmbitionHistory(PrehistoryState s)=>s?.History?.Version==TerritorialHistoryVersion||s?.History?.Version==ResearchPacingHistoryVersion||LanguageHistory(s);
         public PrehistoryState UpgradeToTerritorialHistory(PrehistoryState source)
         {
             Validate(source);if(RegionalAmbitionHistory(source))return source;source=UpgradeToCoastalHistory(source);

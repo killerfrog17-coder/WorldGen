@@ -20,6 +20,7 @@ namespace WorldGen.Core
         {
             var h=s.History;var a=h.Aggregates;var town=s.Society.Settlements[city];int id=h.Polities.Length;
             var polity=new HistoricalPolity{Id=id,CultureId=town.CultureId,CapitalId=city,ParentId=parent,FoundedYear=s.Years,RulerSince=s.Years,Name=town.Name+" State",ReligionId=HistoricalCells.Religion(s,town.Cell),Treasury=town.Population/2,Government="Local council and agrarian court"};
+            if(LanguageHistory(s))polity.Name=LanguageStateName(s,town);
             h.Polities=h.Polities.Concat(new[]{polity}).ToArray();a.Polities=a.Polities.Concat(new[]{new HistoricalPolityAggregate{Id=id,LastYear=s.Years,LastSuccession=s.Years,ReachKm=100}}).ToArray();
             if(ProvincialHistory(s))Array.Resize(ref a.Provinces.FarmPotential,h.Polities.Length);
             if(CommunityHistory(s))a.Communities.Governments=a.Communities.Governments.Concat(new[]{new HistoricalGovernmentPolicy{LastReformYear=s.Years}}).ToArray();
@@ -37,6 +38,7 @@ namespace WorldGen.Core
             if(previous>=0){var former=h.Dynamics.Leaders[previous];former.EndedYear=s.Years;former.Legacy=former.Victories+" victories, "+former.Defeats+" defeats, "+former.Reforms+" public-work reforms.";SealAggregateLeader(s,previous);}
             double Roll(string key)=>HistoryRoll("aggregate-leader-"+key,id,s.Years);
             var leader=new HistoricalLeader{Id=id,PolityId=polity,StartedYear=s.Years,ExpectedEndYear=s.Years+18+(int)(32*Roll("tenure")),PredecessorId=previous,Military=200+(int)(650*Roll("military")),Administration=200+(int)(650*Roll("administration")),Diplomacy=200+(int)(650*Roll("diplomacy")),Ambition=150+(int)(750*Roll("ambition")),Name=HistoricalName("leader-name",unchecked(id*7919+s.Years)),Selection=previous<0?"Acclamation by the founding community":"Succession through the established court and local elites"};
+            if(LanguageHistory(s))leader.Name=LanguageName(s,p.CultureId,LanguageNameKind.Person,unchecked(id*7919+s.Years));
             if(Roll("exceptional")<.015){leader.Military=900;leader.Ambition=950;leader.Administration=Math.Max(650,leader.Administration);}
             bool elected=CommunityHistory(s)&&h.Aggregates.Communities.Governments[polity].RepresentationMilli>=650;
             if(elected){leader.ExpectedEndYear=s.Years+4+(int)(6*Roll("elected-term"));leader.Selection="Selection through representative institutions and local councils";}

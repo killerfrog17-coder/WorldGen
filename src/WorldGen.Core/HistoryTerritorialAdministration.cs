@@ -50,6 +50,7 @@ namespace WorldGen.Core
             long annual=Math.Max(30,(long)(60*burden)),setup=annual*(HistoricalTechnologies.Has(hc,HistoricalTechnology.Railways)?25:60);
             if(p.Treasury<setup+annual*30||finances.Receipts-finances.ServiceCost<annual*1.5)return -1;
             p.Treasury-=setup;var post=new HistoricalAdministrativePost{Id=id,PolityId=polity,Cell=choice,ParentSource=parent,Depth=parent>=0?1:t.Posts[-parent-2].Depth+1,FoundedYear=s.Years,AnnualCost=annual,MessageEffortKm=D.Q(distance,1000000),AutonomyMilli=(int)(700/Math.Sqrt(communications)),Name=HistoricalName("province",unchecked(choice+id*7919))+" Province"};
+            if(LanguageHistory(s))post.Name=LanguageName(s,p.CultureId,LanguageNameKind.Region,unchecked(choice+id*7919));
             t.Posts=t.Posts.Concat(new[]{post}).ToArray();t.PostAt=t.PostAt.With(choice,id);g.AdministrativePosts.Add(id);g.AdministrativePostCost+=annual;
             AppendProvincialFrontier(s);
             AssignTerritorialSource(s,choice,-2-id);
