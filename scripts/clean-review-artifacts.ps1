@@ -55,6 +55,18 @@ foreach($relative in @(
  'artifacts/history32/living-v-browser/harbor-food-flows.png','artifacts/history32/living-v-browser/compact-reader.png',
  'artifacts/history32/unity-u2-cp-performance1500/playback-map.png','artifacts/history32/unity-v-cp-performance1500/playback-map.png'
 )){$null=$keepImages.Add((Safe-Child $externalRoot $relative))}
+foreach($relative in @(
+ 'history32/fresh-w2-earth200/year-121900/states.png','history32/fresh-w2-earth200/year-128200/states.png',
+ 'history32/fresh-w2-earth200/year-129600/states.png','history32/fresh-w2-earth200/year-129600/technology.png',
+ 'history32/fresh-w2-cp200/year-172500/states.png','history32/fresh-w2-cp200/year-177500/states.png',
+ 'history32/fresh-w2-cp200/year-179000/states.png','history32/fresh-w2-cp200/year-179000/technology.png',
+ 'history32/stopping-w-earth500/baseline/states.png','history32/stopping-w-earth500/candidate/states.png',
+ 'history32/stopping-w-cp500/baseline/states.png','history32/stopping-w-cp500/candidate/states.png',
+ 'history32/living-w2-browser/harbor-supply.png','history32/living-w2-browser/harbor-footprint.png',
+ 'history32/living-w2-browser/harbor-food-flows.png','history32/living-w2-browser/compact-reader.png'
+)){$null=$keepImages.Add((Safe-Child $localRoot $relative))}
+$null=$keepImages.Add((Safe-Child $externalRoot 'artifacts/history32/unity-w2-fresh-cp-performance1000/playback-map.png'))
+$null=$keepImages.Add((Safe-Child $externalRoot 'artifacts/history32/unity-w2-complete-cp-performance1000/playback-map.png'))
 function Prune-Evidence([string]$root,[string[]]$worldNames=@('final.world')){
     if(!(Test-Path -LiteralPath $root)){return}
     foreach($file in Get-ChildItem -LiteralPath $root -Recurse -File -Force){
@@ -82,10 +94,12 @@ foreach($name in $knownLinks.Keys){$link=Safe-Child $localRoot $name;if(Test-Pat
     if([IO.Path]::GetFullPath([string]$item.Target[0])-ne$knownLinks[$name]){throw "Junction target changed: $link"}
     Remove-ReviewItem $knownLinks[$name];if($Apply){[IO.Directory]::Delete($link)}
 }}
-Prune-Directories $localRoot @('history31','history32','player-history-31-environment','player-history-32-review-v','player-history-32-review-u2','climate-learning','latest')
+Prune-Directories $localRoot @('history31','history32','player-history-31-environment','player-history-32-review-v','player-history-32-review-u2','player-history-32-review-w2','climate-learning','latest')
 $localHistory=Safe-Child $localRoot 'history32'
-Prune-Directories $localHistory @('checkpoint-v-bin','native-h-current-controls','round-n-archipelago42','round-n-aborea73','round-n-lakes17')
+Prune-Directories $localHistory @('checkpoint-v-bin','native-h-current-controls','round-n-archipelago42','round-n-aborea73','round-n-lakes17','fresh-w2-earth200','fresh-w2-cp200','fresh-w2-cp200-maxtech','stopping-w-earth500','stopping-w-cp500','living-w2-browser','unity-w2-dock')
 foreach($dir in @('round-n-archipelago42','round-n-aborea73','round-n-lakes17')){Prune-Evidence (Safe-Child $localHistory $dir)}
+foreach($dir in @('fresh-w2-earth200','fresh-w2-cp200','stopping-w-earth500','stopping-w-cp500','living-w2-browser','unity-w2-dock')){Prune-Evidence (Safe-Child $localHistory $dir)}
+Prune-Evidence (Safe-Child $localHistory 'fresh-w2-cp200-maxtech') @('final.world','ready.world')
 foreach($file in Get-ChildItem -LiteralPath $localHistory -File){if($file.Extension-eq'.world'-and$file.Name-ne'arc42-k-prestate300.world'){Remove-ReviewItem $file.FullName}}
 Prune-Directories (Safe-Child $localRoot 'history31') @('earth-release')
 Prune-Evidence (Safe-Child $localRoot 'history31/earth-release')
@@ -93,8 +107,9 @@ Prune-Directories $externalRoot @('artifacts','unity-cache','experiments','histo
 Prune-Directories (Safe-Child $externalRoot 'experiments') @('monsoon-333')
 Prune-Directories (Safe-Child $externalRoot 'artifacts') @('history32')
 $externalHistory=Safe-Child $externalRoot 'artifacts/history32'
-Prune-Directories $externalHistory @('fresh-o-continents200','round-v-pangeae31415','round-v-iceage27182','round-q-b2-aborea73-replay','receiver-learning-ab','regional-delivery-ab','living-v-browser','unity-u2-cp-performance1500','unity-v-cp-performance1500','unity-v-il2cpp-cp-performance1500','unity-v-il2cpp-dock')
+Prune-Directories $externalHistory @('fresh-o-continents200','round-v-pangeae31415','round-v-iceage27182','round-q-b2-aborea73-replay','receiver-learning-ab','regional-delivery-ab','living-v-browser','unity-u2-cp-performance1500','unity-v-cp-performance1500','unity-v-il2cpp-cp-performance1500','unity-v-il2cpp-dock','unity-w-cache-cp-performance1500','unity-w2-fresh-cp-performance1000','unity-w2-dense-v-cp-performance1500','unity-w2-complete-cp-performance1000')
 foreach($dir in @('fresh-o-continents200','round-v-pangeae31415','round-v-iceage27182','round-q-b2-aborea73-replay','living-v-browser','unity-u2-cp-performance1500','unity-v-cp-performance1500','unity-v-il2cpp-cp-performance1500','unity-v-il2cpp-dock')){Prune-Evidence (Safe-Child $externalHistory $dir)}
+foreach($dir in @('unity-w-cache-cp-performance1500','unity-w2-fresh-cp-performance1000','unity-w2-dense-v-cp-performance1500','unity-w2-complete-cp-performance1000')){Prune-Evidence (Safe-Child $externalHistory $dir)}
 Prune-Evidence (Safe-Child $externalHistory 'receiver-learning-ab') @('baseline500.world','enabled500.world')
 Prune-Evidence (Safe-Child $externalHistory 'regional-delivery-ab') @('delivery500.world')
 foreach($dir in @('history32-v-earth200-replay','history32-v-cp200-replay')){Prune-Evidence (Safe-Child $externalRoot $dir)}

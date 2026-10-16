@@ -43,7 +43,8 @@ public static class HistoryWorldRealismReview
             session.AdvanceSeconds(Math.Min(step,safetyYear-session.LastSnapshot.Years)*SimulationTime.Year,int.MaxValue);
             var s=session.LastSnapshot;first=s.History.Polities.Select(p=>p.FoundedYear).DefaultIfEmpty(-1).Min();
             int era=WorldEraView.Of(s);bool milestone=seen.Add(era);
-            if(era>=10&&tail<0)tail=s.Years;
+            int maximumTechnology=s.History.Aggregates?.FirstMaximumTechnologyYear??-1;
+            if(maximumTechnology>=0&&tail<0)tail=maximumTechnology;
             bool observe=milestone||first>=0&&(lastMap<0||s.Years-lastMap>=(era>=7?300:1000))||first<0&&(lastMap<0||s.Years-lastMap>=20000)||s.Years==100000;
             if(observe)
             {
@@ -58,7 +59,7 @@ public static class HistoryWorldRealismReview
                     ColonialCouncils=s.History.Archive.Count(e=>e.Kind=="colonial-council"),ColonialProtectorates=s.History.Archive.Count(e=>e.Kind=="colonial-protectorate"),SponsoredPorts=s.History.Archive.Count(e=>e.Kind=="sponsored-port"),Charters=s.History.Aggregates.Empires.Territories.Posts.Count(p=>p.ClosedYear<0),
                     ActiveOrganizations=s.History.International?.Organizations.Count(o=>o.EndedYear<0)??0,CoalitionEntries=s.History.International?.CoalitionEntries.Length??0,
                     NuclearArsenals=s.History.Nuclear?.States.Count(n=>n.Stockpile>0)??0,NuclearUses=s.History.Nuclear?.States.Sum(n=>n.Used)??0,
-                    WorstYearMs=worst,WallSeconds=watch.Elapsed.TotalSeconds};
+                    FirstMaximumTechnologyYear=maximumTechnology,WorstYearMs=worst,WallSeconds=watch.Elapsed.TotalSeconds};
                 rows.Add(row);File.WriteAllText(Path.Combine(output,"review.json"),JsonSerializer.Serialize(new{Preset=preset,Seed=seed,Recipe=recipe,SourceWorld=source,Rules=s.History.Version,Rows=rows},new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));
                 File.WriteAllText(Path.Combine(directory,"towns.json"),JsonSerializer.Serialize(towns.Select(t=>new{t.Id,t.Name,t.Cell,t.CultureId,t.PolityId,t.Population,Age=s.Years-t.FoundedYear,Latitude=Math.Asin(world.Surface.Cells[t.Cell].Position.Z)*180/Math.PI,Climate=world.Climate.Classification[t.Cell].ToString(),world.Ecology.Habitat[t.Cell].Biome}),new JsonSerializerOptions{WriteIndented=true}));
                 lastMap=s.Years;Console.WriteLine(JsonSerializer.Serialize(row));

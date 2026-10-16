@@ -2,6 +2,12 @@
 
 ## Overnight history32 candidate - 16 October 2026 (not yet a player release)
 
+The [current stopping-point review](HISTORY32_STOPPING_POINT.md) records the W2
+source checkpoint, fresh200k Earth/Continents Plus screenshot criticism,
+explicitly rejected experiments, compatibility checks and native acceptance
+limits. The normal shortcut remains31; a review executable is not a realism
+acceptance declaration.
+
 Source experiments now use32; the verified project shortcut still uses31 pending longitudinal review. The candidate adds finite-lived early villages, bounded regional climate anomalies acting on local production, physical/datable institutional shipping, wider funded colonial target portfolios and settled-port councils, terrain-sensitive mounted/engineering/maritime supply, coherent strategic-resource potentials, and proper state endonyms without compulsory government suffixes. Old31 and earlier remain version guarded. See the new focused tests; no new recurring fine-cell/territorial census is authorized.
 
 The first candidate was explicitly rejected: Earth and Continents Plus did not form any states by420000 elapsed years. Hard protocentre limits/turnover and the old eighth-power compounded civic readiness made successful centers implausibly rare. A subsequent candidate permits rare durable early agrotowns, retains severe environmental/staple/homeland penalties, and uses a fourth-power32-only urban readiness hazard. Climate was also corrected to charge domestic food once, not imports twice; state-owned remote populations use a bounded capital-region climate proxy, not immunity or a territory scan. These are experiments, not a claim of accepted realism. Snapshots/diagnostic JSON under ignored artifacts/history32 retain failed outcomes for independent criticism. The baseline still has synthetic Earth crop/resource distributions, not a fitted historical Earth origin map.
