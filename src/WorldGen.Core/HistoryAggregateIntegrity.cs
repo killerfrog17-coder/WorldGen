@@ -22,6 +22,7 @@ namespace WorldGen.Core
                 a.Living?.TownBuckets.Fingerprint(true);a.Living?.BucketCounts.Fingerprint(true);
                 a.Living?.CivicOrigins.Fingerprint(true);
                 a.Provinces?.Centers.Fingerprint(true);
+                a.Empires?.Connections?.ProvisionedPorts?.ByTown.Fingerprint(true);
                 if(a.Empires?.Connections!=null)foreach(var culture in a.Empires.Connections.Cultures)culture.SeenCharts?.Fingerprint(true);
                 if(a.Empires?.Connections?.PortSettlements!=null)
                 {

@@ -14,6 +14,8 @@ public static class HistoryLivingMechanismTests
         HistoryColonialPortRetryTests.Run(check);
         HistorySettlementNetworkTests.Run(check);
         HistoryInlandSettlementTests.Run(check);
+        HistoryRegionalTownExchangeTests.Run(check);
+        HistoryProvisionedPortTests.Run(check);
         HistoryMilitarySpecializationTests.Run(check);
         HistoryNaturalResourceTests.Run(check);
         HistoryResourceEconomyTests.Run(check);

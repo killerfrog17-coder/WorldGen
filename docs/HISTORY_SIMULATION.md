@@ -38,6 +38,37 @@ O replaces cell-step-based local candidate geometry with three bounded physical-
 
 Chart receipts now prevent the same learned region from repeatedly filling the archive after active-chart eviction. The finite active chart list, reacquisition, route availability and named randomness remain unchanged. Immediate and three-year mechanical-parity tests separate suppressed duplicate announcements from actual history outcomes; disease archive-reference numbers can shift without changing their epidemiological state. The optional browser AOT route has additionally matched all 15 stages of eleven current-recipe controls, including a finite-JSON all-ocean display summary, on the frozen L assemblies. Newer source changes still require their own cross-host checks. See [the archive review](HISTORY32_CHART_RECEIPTS.md) and [AOT evidence](BROWSER_AOT_REVIEW.md).
 
+### Physical delivery and runtime follow-up
+
+The later32 candidate distinguishes current subject shipyards from an obsolete
+ruling culture's homeland. Real supported rural boatbuilding remains possible;
+empty coastal offices are not ports. A sparse saved pending-office queue fixes
+starvation of genuinely funded, supplied settlement attempts without granting
+crops or migrants. See [port retry accounting](HISTORY32_PORT_RETRIES.md).
+
+[Inland settlement reach](HISTORY32_INLAND_SETTLEMENT.md) keeps three bounded
+probes but allows deployed, funded transport to broaden two of them. Actual
+households pay distance-dependent journey food and carriage. [Forager maritime
+support](HISTORY32_MARINE_FORAGERS.md) permits portable boatbuilding before urban
+states, using actual occupied coastal density rather than raw cell population.
+Its B2 recognition adjustment affects advanced forager traditions only: the
+strong pristine-state homeland prior remains unchanged. [Political bargaining](HISTORY32_HUMAN_POLITICS.md)
+no longer automatically drives every court towards the same federal label.
+
+Exact-output hot-path work removes discarded/repeated food calculations and
+memoizes immutable directional geography while reevaluating live technology.
+The O native200k stress gate nevertheless failed2.54years/s. T improves to4.17
+overall and909.7ms worst-year, but its minimum rolling2.98985 is still below the
+strict3years/s gate; it is not rounded into a pass. Further native checks are
+required. See [measured performance](HISTORY32_PERFORMANCE_REVIEW.md).
+
+Late Earth still has an unacceptable geographic concentration of urbanism.
+The read-only [monsoon diagnosis](CLIMATE_MONSOON_REVIEW.md) separates a major
+upstream climate problem from historical rules: saved Delhi/Kolkata rainfall
+is102/159mm per year. No history multiplier should disguise that input. A
+separately versioned climate experiment is isolated from the current3.32 world
+and release candidate; saved geography is never rewritten during simulation.
+
 ## Ecological origins and physical transmission - history31, 16 October 2026
 
 Fresh histories use31. Independent advanced communities now depend strongly on local growing-season warmth, soil, seasonal harvest/storage, water and plausible native food resources. Initial state institutions additionally depend on actual adopted, locally viable storable crops; a river, long occupation or large population alone cannot substitute. Ever-wet lowland forest incurs a severe clearing/storage/soil penalty. Cool above-freezing days no longer count as equivalent warm productive crop days. Seasonal tropical uplands and genuinely productive irrigated/alluvial sites remain possible. These are continuous environmental factors, not a latitude, continent or Koppen whitelist. Recorded practice, selected crops and deployed crop management/sanitation/fertilizers can ease constraints later.

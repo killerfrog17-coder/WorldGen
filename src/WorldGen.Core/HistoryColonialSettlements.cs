@@ -15,7 +15,11 @@ namespace WorldGen.Core
             // These are real people from this source community, with its actual
             // crop practice. Conquered foragers cannot turn into metropolitan
             // farmers merely because their ruler owns ships.
-            if(!CanFoundLivingTown(s,culture,target,port))return false;
+            if(!CanFoundLivingTown(s,culture,target,port))
+            {
+                if(!CanPrepareProvisionedPort(s,polity,route,port,out var plan)||HistoryRoll("living-sponsored-port-"+target,polity,s.Years)>=1-Math.Exp(-elapsed/40.0))return false;
+                int before=a.Cities.Length;FoundLivingTownBasis(s,culture,target,port,polity,plan);return a.Cities.Length>before;
+            }
             long available=LivingFounderAvailability(s,port),founders=Math.Min(250,available/12),farms=Math.Min(available/3,Math.Max(800,founders*8)),people=founders+farms;
             double stagingKm=D.Angle(World.Surface.Cells[source.Cell].Position,World.Surface.Cells[route.CellA].Position)*World.Recipe.RadiusKm;
             long provisions=HistoricalVoyageEffects.Provisioning(people,(int)Math.Min(int.MaxValue,route.DistanceM+stagingKm*1000));

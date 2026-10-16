@@ -1,6 +1,12 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--provisioned-port-review")){int at=Array.IndexOf(args,"--provisioned-port-review");HistoryProvisionedPortTests.Review(args[at+1],args[at+2]);return;}
+if(args.Contains("--provisioned-port-atlas-world")){int count=0;HistoryLivingAtlasTests.ProvisionedWorld(args[Array.IndexOf(args,"--provisioned-port-atlas-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual harbor atlas assertions");return;}
+if(args.Contains("--provisioned-port-only")){int count=0;HistoryProvisionedPortTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" provisioned port assertions");return;}
+if(args.Contains("--provisioned-port-world")){int count=0;HistoryProvisionedPortTests.World(args[Array.IndexOf(args,"--provisioned-port-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" provisioned port integration assertions");return;}
+if(args.Contains("--regional-town-exchange-only")){int count=0;HistoryRegionalTownExchangeTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" regional town exchange assertions");return;}
+if(args.Contains("--regional-town-exchange-world")){int count=0;HistoryRegionalTownExchangeTests.World(args[Array.IndexOf(args,"--regional-town-exchange-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" regional town exchange integration assertions");return;}
 if(args.Contains("--late-regional-audit")){int at=Array.IndexOf(args,"--late-regional-audit");HistoryLateRegionalAudit.Run(args[at+1],args[at+2]);return;}
 if(args.Contains("--inland-settlement-only")){int count=0;HistoryInlandSettlementTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" inland settlement assertions");return;}
 if(args.Contains("--inland-settlement-world")){int count=0;HistoryInlandSettlementTests.World(args[Array.IndexOf(args,"--inland-settlement-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" inland settlement integration assertions");return;}

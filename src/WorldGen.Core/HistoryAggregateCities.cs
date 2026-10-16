@@ -27,7 +27,8 @@ namespace WorldGen.Core
             // estimates below. Do not evaluate those discarded crop/animal/
             // climate calculations for every city actor. The rural production
             // context is unchanged until this actor's population commit.
-            bool community=CommunityHistory(s);long communityRural=community?CommunityRuralCapacity(s,id):0;
+            var provisioned=ProvisionedPort(s,id);
+            bool community=CommunityHistory(s);long communityRural=community&&provisioned==null?CommunityRuralCapacity(s,id):0;
             double farm=0,modern=0,yield=0;
             if(!community)
             {
@@ -46,13 +47,23 @@ namespace WorldGen.Core
                 }
             }
             }
-            else t.FoodCapacity=CommunityUrbanCapacity(s,id,communityRural);
+            else if(provisioned==null)t.FoodCapacity=CommunityUrbanCapacity(s,id,communityRural);
             if(LivingWorldHistory(s))t.FoodCapacity=LivingProtocentreCapacity(s,id,t.FoodCapacity);
-            double weather=.82+.36*HistoryRoll("aggregate-harvest",id,s.Years);long harvest=(long)Math.Round(t.FoodCapacity*weather);
+            if(provisioned!=null)t.FoodCapacity=provisioned.MaximumResidents;
+            double weather=.82+.36*HistoryRoll("aggregate-harvest",id,s.Years),provisionedSupply=0;long harvest=(long)Math.Round(t.FoodCapacity*weather);
             record.LastHarvestHazard=HarvestHazard.None;record.ImportedFood=record.ExportedFood=record.FoodTransportLoss=0;
-            if(HistoryRoll("aggregate-harvest-shock",id,s.Years)<.018*elapsed){harvest=(long)(harvest*(.3+.4*HistoryRoll("aggregate-harvest-severity",id,s.Years)));record.LastHarvestHazard=HarvestHazard.Drought;record.LastHarvestHazardYear=s.Years;}
-            t.FoodReserve=Math.Max(0,Math.Min(t.FoodCapacity*3,t.FoodReserve+(harvest-t.Population)*elapsed));
-            if(city.Neighbors.Length>0)
+            if(provisioned==null&&HistoryRoll("aggregate-harvest-shock",id,s.Years)<.018*elapsed){harvest=(long)(harvest*(.3+.4*HistoryRoll("aggregate-harvest-severity",id,s.Years)));record.LastHarvestHazard=HarvestHazard.Drought;record.LastHarvestHazardYear=s.Years;}
+            if(provisioned==null)t.FoodReserve=Math.Max(0,Math.Min(t.FoodCapacity*3,t.FoodReserve+(harvest-t.Population)*elapsed));
+            else
+            {
+                // A delivered ration is stock, not a new local harvest as well.
+                // Account all consumption, but never invent centuries of cargo
+                // when a stale actor is reviewed with today's route/resources.
+                long delivered=SupplyProvisionedPort(s,id,elapsed,provisioned);
+                provisionedSupply=Math.Min(1,(t.FoodReserve+delivered)/Math.Max(1.0,t.Population*(double)elapsed));
+                harvest=delivered/elapsed;t.FoodReserve=Math.Max(0,Math.Min(t.FoodCapacity*3,t.FoodReserve+delivered-t.Population*elapsed));
+            }
+            if(provisioned==null&&city.Neighbors.Length>0)
             {
                 int peer=city.Neighbors[(int)(HistoryRoll("aggregate-trade-partner",id,s.Years)*city.Neighbors.Length)];var other=s.Society.Settlements[peer];double km=D.Angle(World.Surface.Cells[t.Cell].Position,World.Surface.Cells[other.Cell].Position)*World.Recipe.RadiusKm;
                 bool compatible=(!LivingHistory(s)||a.Living.Cities[peer].AbandonedYear<0)&&(owner<0||other.PolityId<0||owner==a.Resolve(other.PolityId,h)||t.Stability>400&&other.Stability>400);
@@ -64,7 +75,7 @@ namespace WorldGen.Core
                     if(export>0){t.FoodReserve-=export;long loss=(long)(export*Math.Min(.8,km/((sea?15000:1000)*HistoricalModernEffects.LandTransport(hc,s.Years))));other.FoodReserve+=export-loss;record.ExportedFood=export;record.FoodTransportLoss=loss;h.Towns[peer].ImportedFood+=export-loss;}
                 }
             }
-            double supply=(harvest+Math.Min(t.FoodReserve,t.Population*.3))/Math.Max(1.0,t.Population),medical=HistoricalModernEffects.ChronicMortalityMultiplier(hc,s.Years);
+            double supply=provisioned==null?(harvest+Math.Min(t.FoodReserve,t.Population*.3))/Math.Max(1.0,t.Population):provisionedSupply,medical=HistoricalModernEffects.ChronicMortalityMultiplier(hc,s.Years);
             long chronic=(long)(t.Population*HistoricalUrbanEffects.ChronicLossRate(t.Population,owner>=0?h.Dynamics.States[owner].PublicWorks:0,World.Ecology.Habitat[t.Cell].AridityMilli/2000.0)*medical*elapsed);
             long natural=(long)Math.Round(t.Population*(.009+.005*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Sanitation,s.Years))*elapsed*(1-t.Population/(double)Math.Max(1,t.FoodCapacity)));
             if(supply<.8)natural-=(long)(t.Population*(.8-supply)*.025*elapsed);
@@ -85,8 +96,8 @@ namespace WorldGen.Core
             double ruralRate=CommunityHistory(s)?CommunityRuralGrowth(s,t.CultureId,t.FoundedYear):.006;
             long rural= Math.Max(0,city.Rural+(long)Math.Round(city.Rural*ruralRate*elapsed*(1-city.Rural/(double)Math.Max(1,ruralCapacity))));
             long migrants=Math.Min(rural/200,Math.Max(0,(t.FoodCapacity-t.Population)/30));if(supply<.9)migrants=0;rural-=migrants;
-            long urban=Math.Max(0,t.Population+natural-chronic-disease+migrants);long suburban=Math.Max(0,city.Suburban+(long)((urban*.15-city.Suburban)*Math.Min(1,.02*elapsed)));
-            if(ProvincialHistory(s)&&owner>=0&&supply>=.9&&urban<t.FoodCapacity)
+            long urban=Math.Max(0,t.Population+natural-chronic-disease+migrants);long suburban=provisioned==null?Math.Max(0,city.Suburban+(long)((urban*.15-city.Suburban)*Math.Min(1,.02*elapsed))):0;
+            if(provisioned==null&&ProvincialHistory(s)&&owner>=0&&supply>=.9&&urban<t.FoodCapacity)
             {
                 var country=a.Polities[owner];double connection=D.Clamp((HistoricalModernEffects.LandTransport(h.Cultures[h.Polities[owner].CultureId],s.Years)-1)/3.5);
                 long arrivals=Math.Min(country.Remote/Math.Max(1,country.CityCount),(long)Math.Min((t.FoodCapacity-urban)/20.0,country.Remote*.006*connection*elapsed/Math.Max(1,country.CityCount)));
@@ -104,8 +115,9 @@ namespace WorldGen.Core
                 {AbandonLivingTown(s,id,"Prolonged insecurity or loss of its provisioning base makes the old center untenable.");return;}
                 if(LivingWorldHistory(s)&&LivingProtocentreDispersal(s,id,elapsed))return;
             }
-            t.Health=(int)Math.Max(100,Math.Min(950,600+200*D.Clamp(supply)-disease*1000/Math.Max(1,oldPopulation)));t.Stability=Math.Max(100,Math.Min(950,t.Stability+(supply>=.9?3:-12)*elapsed));t.CultivatedPermille=culture.Farming;
-            bool supported=t.FoodCapacity>=t.Population*.8&&t.Stability>=450;if(supported!=city.Supported){account.SupportedCities+=supported?1:-1;account.SupportedUrban+=supported?t.Population:-t.Population;city.Supported=supported;}if(!LivingHistory(s))account.FoodCapacity+=t.FoodCapacity-oldCapacity;
+            t.Health=(int)Math.Max(100,Math.Min(950,600+200*D.Clamp(supply)-disease*1000/Math.Max(1,oldPopulation)));t.Stability=Math.Max(100,Math.Min(950,t.Stability+(supply>=.9?3:-12)*elapsed));t.CultivatedPermille=provisioned==null?culture.Farming:0;
+            bool supported=t.FoodCapacity>=t.Population*.8&&t.Stability>=450&&(provisioned==null||supply>=.8);if(supported!=city.Supported){account.SupportedCities+=supported?1:-1;account.SupportedUrban+=supported?t.Population:-t.Population;city.Supported=supported;}if(!LivingHistory(s))account.FoodCapacity+=t.FoodCapacity-oldCapacity;
+            if(provisioned!=null)ExpandProvisionedPort(s,id,provisioned,supply);
             var demography=record.Demography??(record.Demography=new HistoricalUrbanDemography());demography.Year=s.Years;demography.NaturalChange=natural;demography.ChronicLoss=chronic;demography.RuralInflow=migrants;demography.TotalRuralInflow+=migrants;demography.TotalChronicLoss+=chronic;
             if(owner<0&&t.Population>=800&&t.Stability>=550&&s.Years-city.LastPoliticalYear>=10)
             {
@@ -122,9 +134,9 @@ namespace WorldGen.Core
             }
             if(!LivingHistory(s)&&owner<0&&t.PolityId<0&&a.Cells[t.Cell*5+1]>=0&&s.Years-city.LastPoliticalYear>20&&t.Population>=800){city.LastPoliticalYear=s.Years;if(HistoryRoll("aggregate-successor-city",id,s.Years)<.15)FoundAggregateState(s,id,a.Cells[t.Cell*5+1]);}
             if(s.Years-city.LastVoyageYear>=10){city.LastVoyageYear=s.Years;AdvanceAggregateVoyage(s,id);}
-            if(s.Years-city.LastHarvestYear>=20){city.LastHarvestYear=s.Years;SurveyAggregateCityCrops(s,id);}
+            if(provisioned==null&&s.Years-city.LastHarvestYear>=20){city.LastHarvestYear=s.Years;SurveyAggregateCityCrops(s,id);}
             if(ProvincialHistory(s))AdvanceRegionalCityPolitics(s,id);
-            if(LivingWorldHistory(s))TryLivingLocalTownOpportunity(s,id,elapsed);
+            if(provisioned==null&&LivingWorldHistory(s))TryLivingLocalTownOpportunity(s,id,elapsed);
         }
         double AggregateCropSupport(PrehistoryState s,int culture,int cell,bool stored)
         {

@@ -10,6 +10,7 @@ public sealed partial class WorldGenRuntime
     {
         public int Cells,Frames,PublishedCheckpoints;public double DurationSeconds,SimulatedYears,AchievedYearsPerSecond,MeanFrameMs,P95FrameMs,MaximumFrameMs;
         public bool SelectionStayedFolded,AcceptancePassed;public string Error="";
+        public bool AllocationCounterSupported;
         public double MaximumYearMilliseconds,MinimumRollingYearsPerSecond;
         public int FirstMaximumTechnologyYear=-1,RequestedTailYears,FinalYear,FinalTowns,FinalStates;
         public string InputHash="",FinalHash="";public long InitialSeconds,FinalSeconds;
@@ -41,7 +42,9 @@ public sealed partial class WorldGenRuntime
         humanPlayback.SetRate(1000*SimulationTime.Year);humanPlaying=true;
         double duration=double.Parse(Argument("--worldgen-duration","45"),System.Globalization.CultureInfo.InvariantCulture),start=Time.realtimeSinceStartupAsDouble,last=start;long seconds=SimulationTime.Seconds(world.Prehistory);var state=world.Prehistory;
         int tail=int.Parse(Argument("--worldgen-history-tail","0"));long target=seconds+tail*SimulationTime.Year;
-        var evidence=new PlaybackEvidence{Cells=world.Surface.Cells.Length,SelectionStayedFolded=true,RequestedTailYears=tail,MinimumRollingYearsPerSecond=double.MaxValue,InputHash=world.Prehistory.Hash,InitialSeconds=seconds};var frames=new List<double>();bool selected=false;
+        long allocatedBefore=GC.GetAllocatedBytesForCurrentThread();var allocationProbe=new byte[1024];allocationProbe[0]=1;
+        bool allocationCounterSupported=GC.GetAllocatedBytesForCurrentThread()>allocatedBefore;GC.KeepAlive(allocationProbe);
+        var evidence=new PlaybackEvidence{Cells=world.Surface.Cells.Length,SelectionStayedFolded=true,RequestedTailYears=tail,MinimumRollingYearsPerSecond=double.MaxValue,InputHash=world.Prehistory.Hash,InitialSeconds=seconds,AllocationCounterSupported=allocationCounterSupported};var frames=new List<double>();bool selected=false;
         long rollingSeconds=seconds;double rollingStart=start,nextProgress=start+10;
         while(Time.realtimeSinceStartupAsDouble-start<duration&&(tail==0||SimulationTime.Seconds(world.Prehistory)<target))
         {
@@ -61,7 +64,15 @@ public sealed partial class WorldGenRuntime
         evidence.MaximumYear=yearCosts.OrderByDescending(p=>p.Value).Select(p=>p.Key).FirstOrDefault();evidence.Collections0=GC.CollectionCount(0)-gc0;evidence.Collections1=GC.CollectionCount(1)-gc1;evidence.Collections2=GC.CollectionCount(2)-gc2;
         evidence.AcceptancePassed=evidence.PublishedCheckpoints>0&&evidence.SelectionStayedFolded&&evidence.Error.Length==0&&(tail==0||evidence.Cells==200000&&evidence.SimulatedYears>=tail&&evidence.FirstMaximumTechnologyYear>=0&&evidence.FinalYear>=evidence.FirstMaximumTechnologyYear+1000&&evidence.AchievedYearsPerSecond>=3&&evidence.MinimumRollingYearsPerSecond>=3&&evidence.MaximumYearMilliseconds<=1000);
         System.IO.File.WriteAllLines(System.IO.Path.Combine(output,"year-work.csv"),new[]{"year,milliseconds"}.Concat(yearCosts.OrderBy(p=>p.Key).Select(p=>p.Key+","+p.Value.ToString("F6",System.Globalization.CultureInfo.InvariantCulture))));
-        System.IO.File.WriteAllLines(System.IO.Path.Combine(output,"work-stages.csv"),new[]{"stage,count,totalMilliseconds,maximumMilliseconds,maximumYear,maximumItems,allocatedBytes,maximumAllocatedBytes"}.Concat(stageCosts.OrderByDescending(p=>p.Value.Total).Select(p=>p.Key.Replace(',',';')+","+p.Value.Count+","+p.Value.Total.ToString("F6",System.Globalization.CultureInfo.InvariantCulture)+","+p.Value.Maximum.ToString("F6",System.Globalization.CultureInfo.InvariantCulture)+","+p.Value.Year+","+p.Value.Items+","+p.Value.AllocatedBytes+","+p.Value.MaximumAllocatedBytes)));
+        var stageRows=stageCosts.OrderByDescending(p=>p.Value.Total).Select(p=>
+            p.Key.Replace(',',';')+","+p.Value.Count+","+
+            p.Value.Total.ToString("F6",System.Globalization.CultureInfo.InvariantCulture)+","+
+            p.Value.Maximum.ToString("F6",System.Globalization.CultureInfo.InvariantCulture)+","+
+            p.Value.Year+","+p.Value.Items+","+
+            (allocationCounterSupported?p.Value.AllocatedBytes.ToString(System.Globalization.CultureInfo.InvariantCulture):"unavailable")+","+
+            (allocationCounterSupported?p.Value.MaximumAllocatedBytes.ToString(System.Globalization.CultureInfo.InvariantCulture):"unavailable"));
+        System.IO.File.WriteAllLines(System.IO.Path.Combine(output,"work-stages.csv"),
+            new[]{"stage,count,totalMilliseconds,maximumMilliseconds,maximumYear,maximumItems,allocatedBytes,maximumAllocatedBytes"}.Concat(stageRows));
         System.IO.File.WriteAllLines(System.IO.Path.Combine(output,"work-spikes.csv"),new[]{"year,stage,items,milliseconds,gc0,gc1,gc2"}.Concat(spikes));
         System.IO.File.WriteAllText(System.IO.Path.Combine(output,"playback.json"),JsonUtility.ToJson(evidence,true));
         CaptureHumanMap(System.IO.Path.Combine(output,"playback-map.png"));

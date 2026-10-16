@@ -20,6 +20,7 @@ namespace WorldGen.Core
             {
                 life.LastContactYear=s.Years;var neighbors=NearbyLivingTowns(s,t.Cell,280);
                 foreach(int peer in neighbors)if(peer!=id&&LivingTownConnection(s,id,peer))LinkLivingTowns(s,id,peer);
+                if(LivingWorldHistory(s))AdvanceLivingTownRegionalExchange(s,id);
             }
         }
         void TryLivingInstitutions(PrehistoryState s,int id)

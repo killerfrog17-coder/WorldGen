@@ -87,6 +87,22 @@ try{
  await page.locator('.atlas-directory').getByRole('button',{name:'Peoples',exact:true}).click();await page.locator('.atlas-directory-list button').first().click();
  await page.waitForFunction(()=>document.querySelector('.atlas-article')?.dataset.kind==='people');
  await section('People and appearance');assert.equal(await page.locator('.appearance-swatch').count(),3);await screenshot('appearance');
+ if(process.env.WORLDGEN_PORT_TOWN){
+  stage='harbor-reader';const townId=Number(process.env.WORLDGEN_PORT_TOWN);
+  const port=JSON.parse(await page.evaluate(id=>window.__wg.people('atlas:city',id),townId));
+  await page.locator('.atlas-directory').getByRole('button',{name:'Cities',exact:true}).click();
+  await page.getByRole('textbox',{name:'Search atlas names'}).fill(port.Title);
+  await page.locator(`.atlas-directory-list button[data-kind="city"][data-id="${townId}"]`).click();
+  await page.waitForFunction(id=>document.querySelector('.atlas-article')?.dataset.id===String(id),townId);
+  await section('Harbor and supply');await screenshot('harbor-supply');
+  const supply=await page.locator('.atlas-reading').innerText();
+  assert.ok(supply.includes('not a new farming hinterland')&&supply.includes('Total cargo received')&&supply.includes('Freight paid'));
+  assert.ok(await page.locator('.atlas-reading .atlas-link-row button').count());
+  await section('Settlement history and hinterland');assert.ok((await page.locator('.atlas-reading').innerText()).includes('Reserved harbor footprint'));await screenshot('harbor-footprint');
+  await section('Provisioning and resilience');const food=await page.locator('.atlas-reading').innerText();
+  assert.ok(food.includes('Latest recorded food imports')&&!food.includes('Lifetime food imports'));await screenshot('harbor-food-flows');
+  await page.getByRole('textbox',{name:'Search atlas names'}).fill('');
+ }
  await page.locator('.atlas-directory').getByRole('button',{name:'Organizations',exact:true}).click();
  const count=await page.locator('.atlas-directory-list button').count();
  if(count){

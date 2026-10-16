@@ -111,5 +111,40 @@ need causal investigation; this change does not waive them.
 
 Compact reports, world checkpoints and viewed maps are outside source control
 under `D:/WorldGenBuildArtifacts/history32-lakes17-{n,o,t,s1,s2}-continuation`.
-Fresh-history replays of saved N Earth200k and Continents Plus200k terrain and
-ecology are being reviewed separately before acceptance.
+## Full saved-world history replays
+
+Both additional controls reset history through ordinary preparation/start while
+preserving the exact saved N200k terrain, climate and ecology. Both completed
+1000 years after the first postmodern observation and passed final validation.
+The table uses the last routine image sample,900 years after that observation:
+
+| Observation | Earth73421 | Continents Plus261015 |
+| --- | ---: | ---: |
+| First state, elapsed year | 119944 | 154770 |
+| First Bronze observation | 122900 | 156600 |
+| First early-modern observation | 128100 | 162400 |
+| First postmodern observation | 128700 | 163000 |
+| Last image year | 129600 | 163900 |
+| World population at that image | 699823945 | 1253697844 |
+| Living centers / governments | 306 / 40 | 754 / 38 |
+| Sponsored port foundations | 23 | 148 |
+| Worst summed-year native work | 82.1ms | 255.7ms |
+
+Wall times were112 and141 seconds, including repeated four-layer compressed
+200k-cell map exports; these are not Unity measurements. The author actually
+viewed Bronze, early-modern and late state images and late technology maps.
+The Continents Plus world has actual populated overseas clusters on every major
+landmass, with sparse desert/mountain interiors. Earth has a denser eastern
+North American urban network and actual Atlantic, Iberian, Maghreb and
+Mediterranean ports, but India and much of Asia remain extraordinarily sparse
+and outside the modern technical network. This is an unresolved realism failure,
+not a successful global-postmodern validation. The first-state-to-postmodern
+intervals are about8756 and8230 years, also longer than the owner's approximate
+Earth-history comparison. No research weights were changed to hide that result.
+
+Viewed images and complete frozen-world histories are retained under
+`D:/WorldGenBuildArtifacts/history32-s2-earth200-replay` and
+`D:/WorldGenBuildArtifacts/history32-s2-cp200-replay`. Their accepted abiotic and
+ecological snapshots were not regenerated to obtain a preferred historical
+outcome. Target selection, physical contact and real local supply remain the
+next diagnostic questions; a generalized free food/crop bypass was not added.

@@ -61,15 +61,38 @@ public static class HistoryLateRegionalAudit
                     Nearest=nearest.Select(v=>new{v.t.Id,v.t.Name,v.t.CultureId,v.t.Population,Km=v.Item2,LocalYield=(double)Call("LivingCropLandscape",s,v.t.CultureId,x.Id,false),
                         RouteAllowed=(bool)Call("InstitutionalRouteAllowed",s,v.t.Cell,x.Id,v.t.CultureId),Transmission=(double)Call("EnvironmentalTransmission",s,v.t.Cell,x.Id,v.t.CultureId,false)})};
             }
+            object Town(Settlement t)
+            {
+                var city=a.Cities[t.Id];var life=a.Living.Cities[t.Id];
+                return new{t.Id,t.Name,t.Cell,t.CultureId,t.Population,t.FoodReserve,city.Rural,city.Suburban,city.Supported,life.DeclineYears,
+                    Owner=a.Resolve(t.PolityId,h),Latitude=Latitude(t.Cell),Longitude=Longitude(t.Cell),
+                    FounderAvailability=(long)Call("LivingFounderAvailability",s,t.Id),LocalRate=(double)Call("LivingLocalTownRate",s,t.Id),
+                    Targets=Enumerable.Range(0,3).Select(trial=>{int target=(int)Call("LivingLocalTownCandidate",s,t.Id,trial);return new{Trial=trial,Cell=target,Latitude=Latitude(target),Longitude=Longitude(target),
+                        Km=D.Angle(world.Surface.Cells[t.Cell].Position,world.Surface.Cells[target].Position)*world.Recipe.RadiusKm,
+                        LocalYield=engine.CellPatch[target]<0?0:(double)Call("LivingCropLandscape",s,t.CultureId,target,false),
+                        RouteAllowed=(bool)Call("InstitutionalRouteAllowed",s,t.Cell,target,t.CultureId),CanFound=(bool)Call("CanFoundLivingTown",s,t.CultureId,target,t.Id)};})};
+            }
             reports.Add(new{Name=box.Item1,Cells=cells.Count,InhabitedCells=cells.Count(x=>x.Rural>0),NamedCultureCells=cells.Count(x=>x.Culture>=0),StateCells=cells.Count(x=>x.Polity>=0),
                 RuralDownscaledEstimate=cells.Sum(x=>x.Rural),Urban=towns.Sum(t=>t.Population),ActiveTowns=towns.Length,
                 Habitats=cells.GroupBy(x=>world.Ecology.Habitat[x.Id].Biome.ToString()).Select(g=>new{Biome=g.Key,Cells=g.Count(),Rural=g.Sum(x=>x.Rural),EnvironmentMean=g.Average(x=>x.Environment),CropMaskCells=g.Count(x=>x.NativeMask!=0)}),
                 Regions=cells.Select(x=>x.Region).Distinct().Select(id=>new{Id=id,a.Regions[id].Culture,a.Regions[id].BestCell,Unallocated=s.Population[id],Settled=a.Living.Regions[id].SettledPopulation,a.Living.Regions[id].Teacher,a.Living.Regions[id].Exposure,a.Living.Regions[id].CivicExposure}),
                 Cultures=cells.Where(x=>x.Culture>=0).GroupBy(x=>x.Culture).OrderByDescending(g=>g.Sum(x=>x.Rural)).Take(12).Select(g=>Culture(g.Key)).ToArray(),
+                TownActors=towns.OrderByDescending(t=>t.Population).Take(8).Select(Town).ToArray(),
                 BestUnurbanizedSites=cells.Where(x=>a.TownAt[x.Id]<0).OrderByDescending(x=>x.Environment).Take(6).Concat(cells.Where(x=>a.TownAt[x.Id]<0).OrderByDescending(x=>x.Rural).Take(6)).Distinct().Select(Site).ToArray()});
         }
+        var places=new[]{("Delhi",28.61,77.21),("Kolkata",22.57,88.36),("Chennai",13.08,80.27),("Mumbai",19.08,72.88),("NorthChinaPlain",34.36,114.03),("SouthChinaFarmTown",21.53,110.18)};
+        var points=places.Select(place=>
+        {
+            int cell=Enumerable.Range(0,world.Surface.Cells.Length).OrderBy(c=>Math.Pow(Latitude(c)-place.Item2,2)+Math.Pow((Longitude(c)-place.Item3)*Math.Cos(place.Item2*Math.PI/180),2)).First();
+            var habitat=world.Ecology.Habitat[cell];var seasons=new[]{world.Climate.NorthernSpring,world.Climate.NorthernSummer,world.Climate.NorthernAutumn,world.Climate.NorthernWinter};
+            return new{Name=place.Item1,Cell=cell,Latitude=Latitude(cell),Longitude=Longitude(cell),ElevationM=world.ElevationM[cell],Climate=world.Climate.Classification[cell].ToString(),Biome=habitat.Biome.ToString(),
+                habitat.PetMm,habitat.AridityMilli,habitat.WaterDeficitMm,habitat.GrowingDays,habitat.ColdTenthsC,habitat.WarmTenthsC,habitat.MeanTenthsC,habitat.SoilFertilityPermille,habitat.ReliefM,
+                SeasonalTemperaturesC=seasons.Select(season=>season.TemperatureTenthsC[cell]/10.0),SeasonalPrecipitationMm=seasons.Select(season=>season.PrecipitationMm[cell]),AnnualPrecipitationMm=seasons.Sum(season=>season.PrecipitationMm[cell]),
+                SeasonalWindEast=seasons.Select(season=>season.WindEastMilli[cell]/1000.0),SeasonalWindNorth=seasons.Select(season=>season.WindNorthMilli[cell]/1000.0),
+                SeasonalHumidity=seasons.Select(season=>season.MoisturePermille[cell]),SeasonalShadow=seasons.Select(season=>season.RainShadowPermille[cell]),SeasonalPressurePa=seasons.Select(season=>season.PressureAnomalyPa[cell])};
+        }).ToArray();
         bool preserved=before==world.Prehistory.ComputeHash();
-        File.WriteAllText(Path.Combine(folder,"regional-audit.json"),JsonSerializer.Serialize(new{Year=s.Years,Version=h.Version,InputPreserved=preserved,Note="Offline Earth boxes; rural figures are existing map downscaling proxies, not new authoritative population accounts.",Regions=reports},new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));
+        File.WriteAllText(Path.Combine(folder,"regional-audit.json"),JsonSerializer.Serialize(new{Year=s.Years,Version=h.Version,InputPreserved=preserved,Note="Offline Earth boxes; rural figures are existing map downscaling proxies, not new authoritative population accounts.",Points=points,Regions=reports},new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));
         Console.WriteLine("Late regional audit complete; input preserved="+preserved);
     }
 }

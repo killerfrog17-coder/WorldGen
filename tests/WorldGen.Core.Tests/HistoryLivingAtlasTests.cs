@@ -4,6 +4,24 @@ using WorldGen.Serialization;
 
 public static class HistoryLivingAtlasTests
 {
+    public static void ProvisionedWorld(string path,Action<bool,string> check)
+    {
+        var world=WorldFile.Read(File.ReadAllBytes(path));var engine=new Prehistory(world);var s=world.Prehistory;engine.Validate(s);string hash=s.ComputeHash();
+        var ledger=s.History.Aggregates?.Empires?.Connections?.ProvisionedPorts??throw new Exception("Harbor atlas fixture needs recorded provisioned ports.");
+        var port=ledger.Ports.FirstOrDefault(p=>p.ReceivedFood>0)??throw new Exception("Harbor atlas fixture needs an actual delivered shipment.");
+        var town=s.Society.Settlements[port.TownId];var document=HistoryAtlas.Read(s,"city",town.Id,world,engine);
+        var supply=document.Sections.Single(x=>x.Title=="Harbor and supply");
+        check(supply.Links.Single().Id==port.SupplierTownId&&supply.Links.Single().Kind=="city","Harbor page links its recorded real supplier, not an invented local farming economy");
+        check(supply.Text.Contains("not a new farming hinterland")&&supply.Text.Contains("not a guarantee"),"Harbor page distinguishes installed infrastructure from food actually available");
+        check(supply.Facts.Any(f=>f.Label=="Total cargo received")&&supply.Facts.Any(f=>f.Label=="Freight paid")&&supply.Facts.Any(f=>f.Label=="Last received cargo"),"Actual cargo, freight and review interval are visible together");
+        check(document.Facts.Any(f=>f.Label=="Installed harbor capacity")&&!document.Facts.Any(f=>f.Label=="Food-support capacity"),"Harbor headline does not mistake handling capacity for actual food supply");
+        var footprint=document.Sections.Single(x=>x.Title=="Settlement history and hinterland");
+        check(footprint.Facts.Any(f=>f.Label=="Reserved harbor footprint")&&!footprint.Facts.Any(f=>f.Label=="Supply area"),"Reserved port land is not described as farming hinterland");
+        var provisioning=document.Sections.Single(x=>x.Title=="Provisioning and resilience");
+        check(provisioning.Facts.Any(f=>f.Label=="Latest recorded food imports")&&!provisioning.Facts.Any(f=>f.Label=="Lifetime food imports"),"Aggregate food flow labels do not misrepresent reset-per-update accounts as lifetime totals");
+        check(HistoryAtlas.PlainText(document).Contains("Harbor and supply")&&s.ComputeHash()==hash,"Reading and copying actual harbor information never mutates saved cargo or history");
+        Console.WriteLine("Harbor atlas town "+town.Id+" · "+town.Name+" · "+port.ReceivedFood+" recorded person-years received");
+    }
     public static void ContinuityWorld(string path,Action<bool,string> check)
     {
         var world=WorldFile.Read(File.ReadAllBytes(path));var engine=new Prehistory(world);var s=world.Prehistory;engine.Validate(s);string hash=s.ComputeHash();
