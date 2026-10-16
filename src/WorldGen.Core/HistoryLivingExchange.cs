@@ -14,6 +14,11 @@ namespace WorldGen.Core
         void LivingCultureContactAt(PrehistoryState s,int first,int second,int firstCell,int secondCell)
         {
             if(first<0||second<0||first==second)return;
+            if(LivingWorldHistory(s))
+            {
+                int from=firstCell>=0?firstCell:EnvironmentalContactAnchor(s,first),to=secondCell>=0?secondCell:EnvironmentalContactAnchor(s,second);
+                if(!InstitutionalRouteAllowed(s,from,to,first))return;
+            }
             if(EnvironmentalHistory(s)&&!EnvironmentalDirectContact(s,first,second,firstCell,secondCell))return;
             foreach(var pair in new[]{(first,second),(second,first)})
             {var c=s.Society.Cultures[pair.Item1];if(!c.Contacts.Contains(pair.Item2))c.Contacts=c.Contacts.Concat(new[]{pair.Item2}).TakeLast(16).ToArray();if(ProvincialHistory(s))OfferProvincialKnowledge(s,pair.Item1,pair.Item2,ProvincialKnowledge(s.History.Cultures[pair.Item2]),s.Years,true);}
@@ -21,6 +26,13 @@ namespace WorldGen.Core
         }
         void AdvanceLivingRegionalExchange(PrehistoryState s,int id,int elapsed)
         {
+            if(LivingWorldHistory(s))
+            {
+                var local=s.History.Aggregates.Living.Regions[id];
+                // Exposure is local practice, not an everlasting signal from
+                // the first court anywhere in the source culture.
+                if(ProvincialRegionalCourt(s,id)<0)local.CivicExposure=Math.Max(0,local.CivicExposure-Math.Max(1,elapsed/10));
+            }
             int contacts=Math.Min(12,s.History.Aggregates.Regions[id].Routes.Length);
             for(int trial=0;trial<contacts;trial++)TryLivingRegionalExchange(s,id,elapsed,trial);
         }
@@ -34,6 +46,11 @@ namespace WorldGen.Core
             // a missing colored culture must not be an impermeable knowledge wall.
             if(donor<0&&s.Population[other]+a.Living.Regions[other].SettledPopulation>=100&&a.Living.Regions[other].Exposure>=100)donor=a.Living.Regions[other].Teacher;
             if(donor<0)return;var hc=s.History.Cultures[donor];
+            int fromCell=route.A==other?route.CellA:route.CellB,toCell=route.A==id?route.CellA:route.CellB;
+            if(fromCell<0)fromCell=route.Sea&&developmentCoast[other]>=0?developmentCoast[other]:a.Regions[other].BestCell;
+            if(toCell<0)toCell=route.Sea&&developmentCoast[id]>=0?developmentCoast[id]:region.BestCell;
+            if(LivingWorldHistory(s)&&!InstitutionalRouteAllowed(s,fromCell,toCell,donor))return;
+            if(LivingWorldHistory(s)&&route.Sea&&!InstitutionalVoyageDelivery(s,new Route{A=other,B=id,CellA=fromCell,CellB=toCell,DistanceM=route.DistanceM,Sea=true},donor,ProvincialRegionalCourt(s,other),-1))return;
             double km=route.DistanceM/1000.0;
             if(route.Sea&&(km>(HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)?1800:HistoricalTechnologies.Has(hc,HistoricalTechnology.Sailing)?220:40)))return;
             var from=World.Ecology.Habitat[a.Regions[other].BestCell];var to=World.Ecology.Habitat[region.BestCell];
@@ -55,9 +72,18 @@ namespace WorldGen.Core
             {int town=a.Cultures[donor].Cities.At((int)(HistoryRoll("living-institution-example",id,s.Years)*a.Cultures[donor].Cities.Count));int ruler=a.Resolve(s.Society.Settlements[town].PolityId,s.History);if(ruler>=0)court=ruler;}
             if(court>=0)
             {
-                local.CivicTeacher=court;
-                double inherited=a.Cultures[donor].CivilizationSince>=0?1:D.Clamp(donorRegion.CivicExposure/700.0)*.7;
-                local.CivicExposure=Math.Min(1000,local.CivicExposure+(int)(elapsed*(.2+.8*continuity)*inherited*Math.Sqrt(transmission)));
+                if(LivingWorldHistory(s))
+                {
+                    double source=InstitutionalRegionalExample(s,other,court),limit=source*.55*transmission;
+                    if(source>0&&(local.CivicTeacher==court||local.CivicExposure<limit))
+                    {local.CivicTeacher=court;local.CivicExposure=Math.Max(local.CivicExposure,Math.Min((int)limit,local.CivicExposure+(int)HistoricalInstitutionalTransmission.RelayExposure(source,transmission,elapsed)));}
+                }
+                else
+                {
+                    local.CivicTeacher=court;
+                    double inherited=a.Cultures[donor].CivilizationSince>=0?1:D.Clamp(donorRegion.CivicExposure/700.0)*.7;
+                    local.CivicExposure=Math.Min(1000,local.CivicExposure+(int)(elapsed*(.2+.8*continuity)*inherited*Math.Sqrt(transmission)));
+                }
             }
             if(region.Culture>=0)
             {

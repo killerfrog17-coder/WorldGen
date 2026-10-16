@@ -37,6 +37,12 @@ namespace WorldGen.Core
                 for(int g=0;g<8;g++)s.Ancestry[other*8+g]=(int)((s.Ancestry[other*8+g]*before+s.Ancestry[id*8+g]*people)/Math.Max(1,before+people));
                 if(PassageHistory(s)&&r.Culture>=0&&s.Society.Cultures[r.Culture].Farming>=180)
                 {
+                    int sourceCell=route.A==id?route.CellA:route.CellB,targetCell=route.A==id?route.CellB:route.CellA;
+                    if(sourceCell<0)sourceCell=route.Sea&&developmentCoast[id]>=0?developmentCoast[id]:r.BestCell;
+                    if(targetCell<0)targetCell=route.Sea&&developmentCoast[other]>=0?developmentCoast[other]:destination.BestCell;
+                    // A rare primitive crossing can move people without a
+                    // reliable farm/institution-carrying supply connection.
+                    if(LivingWorldHistory(s)&&!InstitutionalRouteAllowed(s,sourceCell,targetCell,r.Culture))continue;
                     // Migrating households carry an available agricultural
                     // package. This creates contact, not automatic farming or
                     // a state: seeds still have to fit the destination.
@@ -46,7 +52,18 @@ namespace WorldGen.Core
                     if(knowledge!=null)
                     {
                         int court=a.Living.CivicOrigins[source];if(court<0)court=a.Living.Regions[id].CivicTeacher;
-                        if(court>=0){local.CivicTeacher=court;local.CivicExposure=Math.Min(1000,local.CivicExposure+(int)Math.Min(400,people));}
+                        if(court>=0)
+                        {
+                            if(!LivingWorldHistory(s)){local.CivicTeacher=court;local.CivicExposure=Math.Min(1000,local.CivicExposure+(int)Math.Min(400,people));}
+                            else
+                            {
+                                int capital=s.Society.Settlements[s.History.Polities[court].CapitalId].Cell;
+                                double sourceExample=Math.Max(InstitutionalRegionalExample(s,id,court),1000*InstitutionalLocalExample(s,court,capital,sourceCell));
+                                double exposureLimit=sourceExample*.65*EnvironmentalTransmission(s,sourceCell,targetCell,source,route.Sea);
+                                if(sourceExample>0&&(local.CivicTeacher==court||local.CivicExposure<exposureLimit))
+                                {local.CivicTeacher=court;local.CivicExposure=Math.Max(local.CivicExposure,Math.Min((int)exposureLimit,local.CivicExposure+(int)Math.Min(400,people)));}
+                            }
+                        }
                     }
                     if(destination.Culture>=0)LivingCultureContactAt(s,destination.Culture,source,destination.BestCell,destination.BestCell);
                     if(knowledge!=null&&destination.Culture<0&&s.Population[other]>=400)

@@ -56,6 +56,15 @@ namespace WorldGen.Core
             double localYield=LivingCropLandscape(s,culture,cell,false);int practiced=s.History.Agriculture[culture].HusbandryYears?.Max()??0;
             int host=HistoricalCells.Polity(s,cell);bool remoteHouseholds=ProvincialHistory(s)&&host>=0&&a.Polities[host].Remote>=1600;
             if(parent<0&&s.Population[region]<800&&!remoteHouseholds||s.Society.Cultures[culture].Farming<180||localYield<.10&&(localYield<.02||practiced<10000))return false;
+            if(LivingWorldHistory(s))
+            {
+                var habitat=CropHabitat(s,cell);
+                // A procedural maritime arrival cannot conjure viable fields on
+                // an icecap. Heated/import-dependent stations need later supply.
+                bool modernSupply=HistoricalModernEffects.Adoption(s.History.Cultures[culture],HistoricalTechnology.CombustionEngines,s.Years)>.3;
+                if((habitat.GrowingDays<90||habitat.WarmTenthsC<80||habitat.PermafrostPermille>700)&&!modernSupply)return false;
+                if(parent<0&&HistoricalProtocentreEffects.MaximumResidents(EnvironmentalEstablishment(s,cell,culture),LivingCropLandscape(s,culture,cell,true),s.History.Cultures[culture].Institution,0)<120)return false;
+            }
             int bucket=LivingTownBucket(World.Surface.Cells[cell].Position);if(a.Living.BucketCounts[bucket]>=16)return false;
             double modern=HistoricalModernEffects.Adoption(s.History.Cultures[culture],HistoricalTechnology.Railways,s.Years);
             double spacing=(100-45*modern)*Math.Sqrt(Math.Min(4,Math.Max(1,.25/Math.Max(.02,localYield))));var nearby=NearbyLivingTowns(s,cell,spacing);
@@ -136,6 +145,7 @@ namespace WorldGen.Core
         bool LivingTownConnection(PrehistoryState s,int first,int second)
         {
             int from=s.Society.Settlements[first].Cell,to=s.Society.Settlements[second].Cell;
+            if(LivingWorldHistory(s)&&!InstitutionalRouteAllowed(s,from,to,s.Society.Settlements[first].CultureId))return false;
             if(EnvironmentalHistory(s))
             {
                 int culture=s.Society.Settlements[first].CultureId;

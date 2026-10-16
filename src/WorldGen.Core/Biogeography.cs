@@ -11,7 +11,11 @@ namespace WorldGen.Core
         public static bool Suitable(Taxon t,HabitatCell a,int elevation)
             => (t.Habitats&a.Habitat)!=0 && a.ColdTenthsC>=t.MinColdTenthsC && a.ColdTenthsC<=t.MaxColdTenthsC && a.WarmTenthsC>=t.MinWarmTenthsC && a.WarmTenthsC<=t.MaxWarmTenthsC
             && a.AridityMilli>=t.MinAridityMilli && a.AridityMilli<=t.MaxAridityMilli && elevation<=t.MaxElevationM
-            && a.SalinityMilliPpt<=t.MaxSalinityMilliPpt && (a.FloodFractionPermille<500 || a.FloodDaysPerYear<=t.MaxFloodDays);
+            && a.SalinityMilliPpt<=t.MaxSalinityMilliPpt && (a.FloodFractionPermille<500 || a.FloodDaysPerYear<=t.MaxFloodDays)
+            && (t.Lineage==null || (( !t.Lineage.RequiresCoast||(a.Habitat&Habitat.Coastal)!=0)
+                && (!t.Lineage.RequiresFreshwater||((a.Habitat&Habitat.Freshwater)!=0||a.FloodFractionPermille>=10&&a.SalinityMilliPpt<3000))
+                && a.SalinityMilliPpt>=t.Lineage.MinSalinityMilliPpt
+                && AnimalEcotypes.Canopy(a)>=t.Lineage.MinCanopyPermille&&AnimalEcotypes.Canopy(a)<=t.Lineage.MaxCanopyPermille));
 
         public static bool CanEat(Taxon consumer,Taxon resource)
         {
@@ -32,14 +36,25 @@ namespace WorldGen.Core
 
         public static void Build(World w,CancellationToken token)
         {
-            var e=w.Ecology; bool native=w.Recipe.EcologyProfile==NativeLifePack.Version;
-            e.Taxa=native?NativeLifePack.Create():EarthLifePack.Create();e.PackVersion=native?NativeLifePack.Version:"earth-starter-1"; int n=w.Surface.Cells.Length;
+            var e=w.Ecology;bool fauna=w.Recipe.EcologyProfile==EarthFaunaPack.Version; bool native=fauna||w.Recipe.EcologyProfile==NativeLifePack.Version;
+            e.Taxa=fauna?EarthFaunaPack.Create():native?NativeLifePack.Create():EarthLifePack.Create();e.PackVersion=fauna?EarthFaunaPack.Version:native?NativeLifePack.Version:"earth-starter-1"; int n=w.Surface.Cells.Length;
             e.SpeciesBits=new int[n*((e.Taxa.Length+31)/32)]; e.Origins=Enumerable.Repeat(-1,e.Taxa.Length).ToArray();
             var homelands=new Dictionary<string,int>(StringComparer.Ordinal); var used=new List<int>();
             var landSizes=w.Landmass.Where(id=>id>=0).GroupBy(id=>id).ToDictionary(g=>g.Key,g=>g.Count());int largestLand=landSizes.Count==0?1:landSizes.Values.Max();
             var historical=new bool[e.Taxa.Length][];
             // Homeland selection depends on earlier origins, so retain its exact order.
-            foreach(var t in e.Taxa)if(t.Rank!=TaxonRank.FunctionalGuild)e.Origins[t.Id]=FindOrigin(w,t,homelands,used,landSizes,largestLand,token);
+            foreach(var t in e.Taxa)if(t.Rank!=TaxonRank.FunctionalGuild)
+            {
+                if(fauna&&t.Lineage!=null)
+                {
+                    foreach(var source in t.Lineage.Sources)
+                    {
+                        source.OriginCell=FindOrigin(w,t,homelands,used,landSizes,largestLand,token,source);
+                        if(e.Origins[t.Id]<0&&source.OriginCell>=0)e.Origins[t.Id]=source.OriginCell;
+                    }
+                }
+                else e.Origins[t.Id]=FindOrigin(w,t,homelands,used,landSizes,largestLand,token);
+            }
             int workers=Environment.ProcessorCount>1 && n>=20000?Math.Min(3,Environment.ProcessorCount):1;
             for(int first=0;first<e.Taxa.Length;first+=workers)
             {
@@ -55,7 +70,14 @@ namespace WorldGen.Core
                     return;
                 }
                 int origin=e.Origins[t.Id];if(origin<0)return;
-                var current=Reach(w,t,origin,false,token); var past=t.HistoricalBridgeAllowed ? Reach(w,t,origin,true,token) : current; historical[t.Id]=new bool[e.Regions.Length];
+                var current=Reach(w,t,origin,false,token); var past=t.HistoricalBridgeAllowed ? Reach(w,t,origin,true,token) : current;
+                if(fauna&&t.Lineage!=null)foreach(var source in t.Lineage.Sources)
+                    if(source.OriginCell>=0&&source.OriginCell!=origin)
+                    {
+                        var alternative=Reach(w,t,source.OriginCell,false,token);var former=t.HistoricalBridgeAllowed?Reach(w,t,source.OriginCell,true,token):alternative;
+                        for(int i=0;i<n;i++){if((i&2047)==0)token.ThrowIfCancellationRequested();current[i]|=alternative[i];past[i]|=former[i];}
+                    }
+                historical[t.Id]=new bool[e.Regions.Length];
                 for(int i=0;i<n;i++)
                 {
                     if((i&2047)==0) token.ThrowIfCancellationRequested();
@@ -100,25 +122,38 @@ namespace WorldGen.Core
             foreach(var r in e.Regions)
             {
                 token.ThrowIfCancellationRequested(); var areas=new long[e.Taxa.Length]; var links=new long[pairs.Count];
+                int[] formCells=fauna?Enumerable.Repeat(-1,e.Taxa.Length).ToArray():null,formCosts=fauna?Enumerable.Repeat(int.MaxValue,e.Taxa.Length).ToArray():null;
                 foreach(int i in r.Cells)
                 {
                     if((i&1023)==0) token.ThrowIfCancellationRequested(); long area=w.Surface.Cells[i].AreaM2;
-                    for(int t=0;t<areas.Length;t++) if(Present(e,i,t)){areas[t]+=area;foreach(int k in pairIndices[t])if(Present(e,i,pairs[k].Item2))links[k]+=area;}
+                    int formCost=fauna?D.M(1000000*(1-V.Dot(w.Surface.Cells[i].Position,w.Surface.Cells[r.RepresentativeCell].Position))):0;
+                    for(int t=0;t<areas.Length;t++) if(Present(e,i,t)){areas[t]+=area;if(fauna&&(formCost<formCosts[t]||formCost==formCosts[t]&&i<formCells[t])){formCosts[t]=formCost;formCells[t]=i;}foreach(int k in pairIndices[t])if(Present(e,i,pairs[k].Item2))links[k]+=area;}
                 }
                 var presence=new List<SpeciesPresence>();
                 for(int t=0;t<areas.Length;t++) if(areas[t]>0) presence.Add(new SpeciesPresence { TaxonId=t, SuitableAreaPermille=Math.Max(1,D.M(1000.0*areas[t]/r.AreaM2)),OriginCell=e.Origins[t], UsedHistoricalBridge=historical[t]!=null && historical[t][r.Id] });
-                r.Species=presence.ToArray();if(native)foreach(var species in r.Species)species.Variant=NativeLifePack.Variant(w,e.Taxa[species.TaxonId],r); var web=new List<FoodLink>();
+                r.Species=presence.ToArray();if(native)foreach(var species in r.Species)
+                {
+                    var t=e.Taxa[species.TaxonId];species.Variant=fauna?AnimalEcotypes.Create(w,t,r,formCells[t.Id]):NativeLifePack.Variant(w,t,r);
+                    if(fauna&&t.Lineage!=null)
+                    {
+                        double best=double.MaxValue;
+                        foreach(var source in t.Lineage.Sources)if(source.OriginCell>=0)
+                        {double distance=D.Angle(w.Surface.Cells[source.OriginCell].Position,w.Surface.Cells[r.RepresentativeCell].Position);if(distance<best){best=distance;species.OriginCell=source.OriginCell;}}
+                    }
+                }
+                var web=new List<FoodLink>();
                 for(int k=0;k<pairs.Count;k++) if(links[k]>0) web.Add(new FoodLink { ConsumerId=pairs[k].Item1,ResourceId=pairs[k].Item2,Resource=e.Taxa[pairs[k].Item1].Eats&e.Taxa[pairs[k].Item2].Provides,OverlapPermille=Math.Max(1,D.M(1000.0*links[k]/r.AreaM2)) });
                 r.FoodWeb=web.ToArray();
             }
             w.Metric("earth_pack_taxa",e.Taxa.Length); w.Metric("ecological_food_links",e.Regions.Sum(r=>r.FoodWeb.Length));
         }
 
-        static int FindOrigin(World w,Taxon t,Dictionary<string,int> homes,List<int> used,Dictionary<int,int> landSizes,int largestLand,CancellationToken token)
+        static int FindOrigin(World w,Taxon t,Dictionary<string,int> homes,List<int> used,Dictionary<int,int> landSizes,int largestLand,CancellationToken token,AnimalNativeSource source=null)
         {
             bool earth=w.Recipe.TerrainSource=="Earth";
-            int home=homes.TryGetValue(t.OriginGroup,out int h) ? h : -1;
-            double lat=t.EarthLatitude*D.Pi/180,lon=t.EarthLongitude*D.Pi/180;
+            string group=source==null?t.OriginGroup:source.Realm;
+            int home=homes.TryGetValue(group,out int h) ? h : -1;
+            double lat=(source==null?t.EarthLatitude:source.Latitude)*D.Pi/180,lon=(source==null?t.EarthLongitude:source.Longitude)*D.Pi/180;
             var anchor=earth ? new V(D.Sin(D.Pi/2-lat)*D.Sin(D.Pi/2-lon),D.Sin(D.Pi/2-lat)*D.Sin(lon),D.Sin(lat)) : home>=0 ? w.Surface.Cells[home].Position : new Rng(w.Recipe.Seed,"life-homeland",t.Id).Vector();
             int best=-1; long score=long.MaxValue;
             for(int i=0;i<w.Surface.Cells.Length;i++)
@@ -132,12 +167,12 @@ namespace WorldGen.Core
                 long cost=D.M(km*100);
                 // Do not accidentally strand an entire continental fauna on a
                 // tiny islet chosen for the first species in its realm.
-                if(!earth&&home<0&&w.Recipe.EcologyProfile==NativeLifePack.Version&&landSizes.TryGetValue(w.Landmass[i],out int landSize))cost+=D.M(1000000*Math.Max(0,1-landSize/(largestLand*.15)));
+                if(!earth&&home<0&&(w.Recipe.EcologyProfile==NativeLifePack.Version||w.Recipe.EcologyProfile==EarthFaunaPack.Version)&&landSizes.TryGetValue(w.Landmass[i],out int landSize))cost+=D.M(1000000*Math.Max(0,1-landSize/(largestLand*.15)));
                 if(!earth && home<0) foreach(int other in used) cost+=D.M(Math.Max(0,4500-D.Angle(w.Surface.Cells[other].Position,w.Surface.Cells[i].Position)*6371)*150);
                 if(!earth && home>=0 && w.Landmass[i]!=w.Landmass[home]) cost+=10000000;
                 if(cost<score) { score=cost; best=i; }
             }
-            if(best>=0 && home<0) { homes[t.OriginGroup]=best; used.Add(best); }
+            if(best>=0 && home<0) { homes[group]=best; used.Add(best); }
             return best;
         }
 
@@ -158,6 +193,7 @@ namespace WorldGen.Core
                     int j=cell.Neighbors[k]; var a=w.Ecology.Habitat[j]; int cold=a.ColdTenthsC-(historical?50:0),warm=a.WarmTenthsC-(historical?50:0);
                     bool ocean=w.Hydrology.OceanConnected[j], shelf=historical && ocean && w.ElevationM[j]>=-120;
                     bool sea=ocean && !shelf; int length=Math.Max(1,cell.DistanceM[k]);
+                    if(t.Lineage!=null&&t.Lineage.AdjacentSeaOnly&&!ocean&&(a.Habitat&Habitat.Coastal)==0)continue;
                     if(!sea && (cold<t.PassageColdTenthsC || cold>t.MaxColdTenthsC+40 || warm>t.PassageMaxWarmTenthsC || w.ElevationM[j]>t.MaxElevationM+800)) continue;
                     int oceanDistance=sea ? seaRun[i]+length : 0;
                     if(sea && oceanDistance>t.OceanCrossingKm*1000) continue;
@@ -167,7 +203,8 @@ namespace WorldGen.Core
                     // it does not become a present-day species residence.
                     if(shelf) gapDistance=0;
                     if(gapDistance>t.MaxGapKm*1000 && !sea) continue;
-                    long next=item.Key+length*(sea ? 12L : habitat ? 1L : 3L)+Math.Abs(w.ElevationM[j]-w.ElevationM[i])*20L;
+                    long relief=t.Lineage!=null&&t.Lineage.AdjacentSeaOnly?0:Math.Abs(w.ElevationM[j]-w.ElevationM[i])*20L;
+                    long next=item.Key+length*(sea ? 12L : habitat ? 1L : 3L)+relief;
                     if(next>t.SpreadBudgetKm*1000L) continue;
                     if(next<cost[j]) { cost[j]=next; gap[j]=gapDistance; seaRun[j]=oceanDistance; heap.Push(next,j); }
                 }

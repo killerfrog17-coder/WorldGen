@@ -35,6 +35,7 @@ namespace WorldGen.Core
             int FirstPort(int shore)=>NearbyLivingTowns(s,shore,180).Where(city=>DiffusionShore(s.Society.Settlements[city].Cell)&&s.Society.Settlements[city].Population>=300).DefaultIfEmpty(-1).First();
             int first=FirstPort(route.CellA),second=FirstPort(route.CellB);if(first<0||second<0||first==second)return;
             var a=s.History.Aggregates;int from=s.Society.Settlements[first].Cell,to=s.Society.Settlements[second].Cell;
+            if(LivingWorldHistory(s)&&!InstitutionalRouteAllowed(s,from,to,culture))return;
             if(DiffusionSeaEffort(s,from,to,culture)==double.MaxValue)return;
             // Reserve a small share of the existing bounded contact list for a
             // successful overseas journey, rather than dropping it behind every

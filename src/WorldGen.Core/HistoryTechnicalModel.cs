@@ -54,7 +54,7 @@ namespace WorldGen.Core
         public static long Cost(int technology,int nextLevel,string historyVersion=null)
         {
             long result=costs[technology]*1000000L;for(int level=1;level<nextLevel;level++)result=checked((result*33+10)/20);
-            if(historyVersion!=Prehistory.ResearchPacingHistoryVersion&&historyVersion!=Prehistory.LanguageHistoryVersion&&historyVersion!=Prehistory.EnvironmentalHistoryVersion)return result;
+            if(historyVersion!=Prehistory.ResearchPacingHistoryVersion&&historyVersion!=Prehistory.LanguageHistoryVersion&&historyVersion!=Prehistory.EnvironmentalHistoryVersion&&historyVersion!=Prehistory.LivingWorldHistoryVersion)return result;
             // Material difficulty, not a date lock. Imported learning retains
             // its independent one-eighth cost and real-contact requirements.
             int numerator=technology==(int)HistoricalTechnology.Bronze?65:technology==(int)HistoricalTechnology.Iron?(nextLevel==1?400:nextLevel==2?250:165):

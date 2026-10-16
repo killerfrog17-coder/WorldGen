@@ -38,6 +38,7 @@ namespace WorldGen.Core
                 }
             }
             if(CommunityHistory(s))t.FoodCapacity=CommunityUrbanCapacity(s,id);
+            if(LivingWorldHistory(s))t.FoodCapacity=LivingProtocentreCapacity(s,id,t.FoodCapacity);
             double weather=.82+.36*HistoryRoll("aggregate-harvest",id,s.Years);long harvest=(long)Math.Round(t.FoodCapacity*weather);
             record.LastHarvestHazard=HarvestHazard.None;record.ImportedFood=record.ExportedFood=record.FoodTransportLoss=0;
             if(HistoryRoll("aggregate-harvest-shock",id,s.Years)<.018*elapsed){harvest=(long)(harvest*(.3+.4*HistoryRoll("aggregate-harvest-severity",id,s.Years)));record.LastHarvestHazard=HarvestHazard.Drought;record.LastHarvestHazardYear=s.Years;}
@@ -89,6 +90,7 @@ namespace WorldGen.Core
                 life.DeclineYears=declining?life.DeclineYears+elapsed:Math.Max(0,life.DeclineYears-elapsed*2);
                 if(life.DeclineYears>=30&&urban<Math.Max(150,life.PeakPopulation*.35)||life.DeclineYears>=80||urban<25)
                 {AbandonLivingTown(s,id,"Prolonged insecurity or loss of its provisioning base makes the old center untenable.");return;}
+                if(LivingWorldHistory(s)&&LivingProtocentreDispersal(s,id,elapsed))return;
             }
             t.Health=(int)Math.Max(100,Math.Min(950,600+200*D.Clamp(supply)-disease*1000/Math.Max(1,oldPopulation)));t.Stability=Math.Max(100,Math.Min(950,t.Stability+(supply>=.9?3:-12)*elapsed));t.CultivatedPermille=culture.Farming;
             bool supported=t.FoodCapacity>=t.Population*.8&&t.Stability>=450;if(supported!=city.Supported){account.SupportedCities+=supported?1:-1;account.SupportedUrban+=supported?t.Population:-t.Population;city.Supported=supported;}if(!LivingHistory(s))account.FoodCapacity+=t.FoodCapacity-oldCapacity;

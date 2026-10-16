@@ -49,12 +49,14 @@ namespace WorldGen.Core
             int destination=AggregateCoastalSite(patch,s.Years);if(destination<0)return;
             double km=D.Angle(World.Surface.Cells[town.Cell].Position,World.Surface.Cells[destination].Position)*World.Recipe.RadiusKm;
             int range=HistoricalModernVoyageEffects.RangeM(hc,s.Years,ColonialHistory(s));if(km*1000>range||km<70||!AggregateSeaLane(town.Cell,destination))return;
+            if(LivingWorldHistory(s)&&!InstitutionalRouteAllowed(s,town.Cell,destination,town.CultureId))return;
+            if(LivingWorldHistory(s)&&!InstitutionalVoyageDelivery(s,new Route{A=CellPatch[town.Cell],B=patch,CellA=town.Cell,CellB=destination,DistanceM=(int)Math.Round(km*1000),Sea=true},town.CultureId,a.Resolve(town.PolityId,h),cityId))return;
             int local=HistoricalCells.Culture(s,destination);int destinationTown=a.TownAt[destination];
             if(LivingHistory(s))
             {
                 if(local<0)local=a.Regions[patch].Culture;
                 var ports=NearbyLivingTowns(s,destination,280);foreach(int candidate in ports)if(candidate!=cityId&&a.Living.Cities[candidate].AbandonedYear<0){destinationTown=candidate;break;}
-                if(local>=0){LivingCultureContact(s,town.CultureId,local);a.Living.Regions[patch].Teacher=town.CultureId;a.Living.Regions[patch].Exposure=Math.Min(1000,a.Living.Regions[patch].Exposure+200);}
+                if(local>=0){if(LivingWorldHistory(s))LivingCultureContactAt(s,town.CultureId,local,town.Cell,destination);else LivingCultureContact(s,town.CultureId,local);a.Living.Regions[patch].Teacher=town.CultureId;a.Living.Regions[patch].Exposure=Math.Min(1000,a.Living.Regions[patch].Exposure+200);}
                 if(ProvincialHistory(s)){a.Provinces.RegionalKnowledge[patch]|=ProvincialKnowledge(hc);a.Living.Regions[patch].LastExchangeYear=s.Years;}
             }
             if(destinationTown<0&&local>=0&&a.Cultures[local].Cities.Count>0)

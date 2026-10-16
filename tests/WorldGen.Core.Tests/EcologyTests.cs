@@ -18,6 +18,7 @@ public static class EcologyTests
     }
     public static void Run(Action<bool,string> check)
     {
+        FaunaPackTests.Run(check);
         var taxa=EarthLifePack.Create(); Taxon T(string name)=>taxa.Single(t=>t.Name==name);
         check(!Biogeography.CanEat(T("Gray wolf"),T("Red-tailed hawk")),"Ground predator cannot routinely catch aerial hawks");
         check(!Biogeography.CanEat(T("Gray wolf"),T("Lion")),"Pack ungulate-hunting capacity does not allow routine adult apex-predator prey");
@@ -38,9 +39,13 @@ public static class EcologyTests
         check(!Biogeography.Reach(corridor,T("Gray wolf"),0,true,default)[4],"Deep ocean cannot become land bridge");
         check(Ecology.PotentialEvaporationMm(0,30,0)>Ecology.PotentialEvaporationMm(0,10,0),"Heat increases evaporative demand");
         using(var canceled=new CancellationTokenSource()) { canceled.Cancel(); try { Ecology.BuildHabitats(corridor,canceled.Token); check(false,"Habitat cancellation"); } catch(OperationCanceledException) { check(true,"Habitat cancellation"); } }
-        var r=Recipe.Preset("Preview"); r.Detail=5000; var pipeline=new WorldPipeline();string abioticBefore="";
+        var r=Recipe.Preset("Preview"); r.Detail=5000;r.EcologyProfile=EarthFaunaPack.Version; var pipeline=new WorldPipeline();string abioticBefore="";
         var w=pipeline.Generate(r,preview:(stage,before)=>{if(stage=="hydrology")abioticBefore=StateHash.Compute(new object[]{before.ElevationM,before.Climate,before.Hydrology});});
         Validate(w,check);
+        var oldContent=r.Clone();oldContent.EcologyProfile=NativeLifePack.Version;var previousContent=pipeline.Generate(oldContent);
+        check(w.Ecology!.Region.SequenceEqual(previousContent.Ecology!.Region)&&w.Ecology.Province.SequenceEqual(previousContent.Ecology.Province)&&w.Ecology.Habitat.Select(h=>h.Biome).SequenceEqual(previousContent.Ecology.Habitat.Select(h=>h.Biome)),"Fauna-3 coastal/resource access changes neither biome classification nor province/ecoregion membership");
+        check(StateHash.Compute(new object[]{w.ElevationM,w.Climate,w.Hydrology})==StateHash.Compute(new object[]{previousContent.ElevationM,previousContent.Climate,previousContent.Hydrology}),"Content profile changes do not modify accepted abiotic generation");
+        check(previousContent.Ecology.Taxa.All(t=>t.Lineage==null)&&previousContent.Ecology.Regions.All(region=>region.Species.All(p=>p.Variant?.Ecotype==null)),"Explicit native-2 retains absent lineage/ecotype extensions");
         var legacy=r.Clone(); legacy.AlgorithmVersion=Recipe.TerrainControlsAlgorithm; var prior=pipeline.Generate(legacy);
         check(abioticBefore==StateHash.Compute(new object[]{w.ElevationM,w.Climate,w.Hydrology}),"Ecology never changes terrain, trained climate or water within the same algorithm");
         check(WorldFile.Read(WorldFile.Write(prior)).Ecology==null,"Pre-ecology snapshots retain their old hash and null ecology");
@@ -52,7 +57,7 @@ public static class EcologyTests
             check(GlobeView.Build(w,layer).Colors.All(float.IsFinite),"Ecology layer finite: "+layer);
         foreach(string test in new[]{"Earth","one50","six30"})
         {
-            var recipe=Recipe.Preset(test=="Earth"?"Earth":"Preview"); recipe.Detail=5000;
+            var recipe=Recipe.Preset(test=="Earth"?"Earth":"Preview"); recipe.Detail=5000;recipe.EcologyProfile=EarthFaunaPack.Version;
             if(test!="Earth") { recipe.Seed=test=="one50"?73421:42; recipe.ContinentCount=test=="one50"?1:6; recipe.LandFraction=test=="one50"?.5:.3; }
             var world=pipeline.Generate(recipe); Validate(world,check);
             Console.WriteLine(test+": "+world.Ecology.Regions.Length+" ecoregions; "+world.Ecology.Regions.SelectMany(x=>x.Species).Select(x=>x.TaxonId).Distinct().Count()+" taxa present; "+world.Ecology.Regions.Sum(x=>x.FoodWeb.Length)+" food links.");
@@ -68,6 +73,7 @@ public static class EcologyTests
     static void Validate(World w,Action<bool,string> check)
     {
         var e=w.Ecology!;
+        FaunaPackTests.Validate(w,check);
         check(e.Region.Length==w.Surface.Cells.Length && w.Surface.Cells.All(c=>w.Hydrology.OceanConnected[c.Id]?e.Region[c.Id]==-1:e.Region[c.Id]>=0),"Every non-ocean cell belongs to one ecoregion");
         check(e.Regions.Sum(r=>r.Cells.Length)==w.Surface.Cells.Count(c=>!w.Hydrology.OceanConnected[c.Id]),"No duplicate or missing regional membership");
         check(e.Regions.All(r=>r.Cells.All(i=>e.Region[i]==r.Id && e.Habitat[i].Biome==r.Biome)),"Ecoregions agree with habitat and membership");

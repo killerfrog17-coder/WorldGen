@@ -51,7 +51,8 @@ namespace WorldGen.Core
             supply=best;if(best<0)return .01;
             var town=s.Society.Settlements[best];var cityAccount=a.Cities[best];
             double range=HistoricalProvincialEffects.LocalServiceKm(hc,s.Years,h.Dynamics.States[polity].PublicWorks)*2;
-            if(HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)&&AggregateSeaLane(town.Cell,front))range=Math.Max(range,HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years,ColonialHistory(s)));
+            bool maritime=LivingWorldHistory(s)?MilitaryMaritimeSupply(s,polity,best,front):HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)&&AggregateSeaLane(town.Cell,front);
+            if(maritime)range=Math.Max(range,HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years,ColonialHistory(s)));
             double provision=D.Clamp(.25+town.FoodReserve/Math.Max(1.0,town.Population));
             double forces=Math.Min(p.Army,p.Army*.15+(town.Population*.025+cityAccount.Rural*.015)*Math.Sqrt(HistoricalModernEffects.LandTransport(hc,s.Years)));
             if(TechnicalHistory(s))
@@ -61,7 +62,8 @@ namespace WorldGen.Core
                 forces+=Math.Max(0,allied)*Math.Exp(-distance/Math.Max(100,range));
             }
             var leader=h.Dynamics.Leaders[h.Dynamics.States[polity].LeaderId];
-            return Math.Max(.01,forces*provision*Math.Exp(-distance/Math.Max(50,range))*(.4+leader.Military/1000.0)*HistoricalModernEffects.Military(hc,s.Years));
+            double specialization=LivingWorldHistory(s)?MilitarySpecialization(s,polity,best,front):1;
+            return Math.Max(.01,forces*provision*Math.Exp(-distance/Math.Max(50,range))*(.4+leader.Military/1000.0)*HistoricalModernEffects.Military(hc,s.Years)*specialization);
         }
         int ProvincialBattleTarget(PrehistoryState s,int front,int loser)
         {

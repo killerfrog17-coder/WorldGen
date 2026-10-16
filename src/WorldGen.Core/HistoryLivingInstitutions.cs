@@ -31,15 +31,36 @@ namespace WorldGen.Core
             {record.CivicPreparationYears=Math.Max(0,record.CivicPreparationYears-elapsed);return;}
             int teacher=-1;
             foreach(int neighbor in city.Neighbors)
-            {int polity=a.Resolve(s.Society.Settlements[neighbor].PolityId,h);if(polity>=0&&s.Years-h.Polities[polity].FoundedYear>=50){teacher=polity;break;}}
+            {
+                var peer=s.Society.Settlements[neighbor];int polity=a.Resolve(peer.PolityId,h);
+                if(polity>=0&&s.Years-h.Polities[polity].FoundedYear>=50)
+                {
+                    double delivered=LivingWorldHistory(s)?InstitutionalLocalExample(s,polity,peer.Cell,t.Cell):1;
+                    if(delivered<=0||LivingWorldHistory(s)&&(peer.Population<500||!a.Cities[neighbor].Supported||a.Living.Cities[neighbor].AbandonedYear>=0))continue;
+                    teacher=polity;if(LivingWorldHistory(s))record.CivicExampleExposure=Math.Min(1000,record.CivicExampleExposure+(int)(elapsed*3*delivered));break;
+                }
+            }
             var regional=a.Living.Regions[CellPatch[t.Cell]];
             if(teacher<0&&regional.CivicTeacher>=0&&regional.CivicExposure>=150)
-            {teacher=regional.CivicTeacher;record.CivicExampleExposure=Math.Max(record.CivicExampleExposure,regional.CivicExposure/2);}
+            {
+                double delivered=LivingWorldHistory(s)?InstitutionalLocalExample(s,regional.CivicTeacher,a.Regions[CellPatch[t.Cell]].BestCell,t.Cell):1;
+                if(!LivingWorldHistory(s)||s.Years-regional.LastExchangeYear<=300&&delivered>0)
+                {teacher=regional.CivicTeacher;record.CivicExampleExposure=Math.Max(record.CivicExampleExposure,(int)(regional.CivicExposure/2*delivered));}
+            }
             if(teacher<0&&a.Living.CivicOrigins[t.CultureId]>=0)
-            {teacher=a.Living.CivicOrigins[t.CultureId];record.CivicExampleExposure=Math.Max(600,record.CivicExampleExposure);}
+            {
+                int origin=a.Living.CivicOrigins[t.CultureId];int from=s.Society.Settlements[h.Polities[origin].CapitalId].Cell;
+                double delivered=LivingWorldHistory(s)?InstitutionalLocalExample(s,origin,from,t.Cell):1;
+                if(delivered>0){teacher=origin;record.CivicExampleExposure=Math.Max((int)(600*delivered),record.CivicExampleExposure);}
+            }
             if(teacher<0&&record.CivicTeacherPolityId>=0)
-            {teacher=record.CivicTeacherPolityId;record.CivicExampleExposure=Math.Max(500,record.CivicExampleExposure);}
-            if(teacher>=0){record.CivicTeacherPolityId=teacher;record.CivicExampleExposure=Math.Min(1000,record.CivicExampleExposure+elapsed*3);}
+            {
+                // A remembered teacher proves prior transmission, not a live
+                // cross-world hotline or a perpetual500-point refill.
+                if(!LivingWorldHistory(s)){teacher=record.CivicTeacherPolityId;record.CivicExampleExposure=Math.Max(500,record.CivicExampleExposure);}
+                else if(record.CivicExampleExposure>0)teacher=record.CivicTeacherPolityId;
+            }
+            if(teacher>=0){record.CivicTeacherPolityId=teacher;if(!LivingWorldHistory(s))record.CivicExampleExposure=Math.Min(1000,record.CivicExampleExposure+elapsed*3);}
             else record.CivicExampleExposure=Math.Max(0,record.CivicExampleExposure-elapsed);
             // Returning communities retain institutions; this is not a pristine origin.
             int raw=a.Cells[t.Cell*5+1];bool restoration=raw>=0&&h.Polities[raw].EndedYear>=0;
@@ -70,6 +91,7 @@ namespace WorldGen.Core
             {
                 double environment=EnvironmentalEstablishment(s,t.Cell,t.CultureId),staples=EnvironmentalStaples(s,t.CultureId,t.Cell);
                 independent=HistoricalEnvironmentalEffects.IndependentStateHazard(core,environment,staples,HomelandOriginFactor(s,t.Cell));
+                if(LivingWorldHistory(s))independent=HistoricalLivingWorldOrigins.IndependentStateHazard(core,environment,staples,HomelandOriginFactor(s,t.Cell));
                 transmitted=HistoricalEnvironmentalEffects.LearnedStateHazard(core,environment,staples,record.CivicExampleExposure);
             }
             if(record.CivicPreparationYears>=120&&s.Society.Cultures[t.CultureId].Farming>=250&&(EnvironmentalHistory(s)?EnvironmentalOriginRoll("state",id,s.Years):HistoryRoll("living-state-foundation",id,s.Years))<1-Math.Exp(-(independent+transmitted)*elapsed))

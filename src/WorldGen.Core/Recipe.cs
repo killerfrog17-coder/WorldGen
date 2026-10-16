@@ -58,7 +58,7 @@ namespace WorldGen.Core
         public static readonly FieldInfo[] Settings = typeof(Recipe).GetFields().Where(f => f.GetCustomAttribute<SettingAttribute>() != null).OrderBy(f => f.MetadataToken).ToArray();
         public void Validate()
         {
-            if(EcologyProfile!=null && EcologyProfile!="earth-native-2")throw new ArgumentException("Unknown ecology content profile.");
+            if(EcologyProfile!=null && EcologyProfile!="earth-native-2" && EcologyProfile!="earth-native-3")throw new ArgumentException("Unknown ecology content profile.");
             if (TerrainSource != "Procedural" && TerrainSource != "Earth") throw new ArgumentException("Unknown terrain source.");
             if(LandShape!=null && !MapShapes.Names.Contains(LandShape))throw new ArgumentException("Unknown land shape.");
             if(TerrainSource=="Earth" && LandShape!=null)throw new ArgumentException("Earth relief cannot also use a procedural shape.");

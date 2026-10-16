@@ -17,6 +17,7 @@ namespace WorldGen.Core
                 capacity=Math.Max(0,(long)(r.Capacity*variability));
                 if(r.Culture>=0){var c=s.Society.Cultures[r.Culture];capacity=(long)(capacity*(1+c.Farming/80.0*r.YieldMilli/1000.0*HistoricalModernEffects.FoodMultiplier(s.History.Cultures[c.Id],s.Years)));}
                 if(ProvincialHistory(s)&&r.Culture>=0)capacity=(long)(ProvincialRegionalCapacity(s,id,r.Culture)*variability);
+                if(LivingWorldHistory(s))capacity=(long)(capacity*LivingClimateFood(s,r.BestCell,r.Culture));
             }
             double rate=.12;
             if(PassageHistory(s))

@@ -9,6 +9,7 @@ namespace WorldGen.Core
             if(!TechnicalHistory(s))return;var h=s.History;var a=h.Aggregates;var hc=h.Cultures[culture];var territory=a.Empires.Territories;
             bool ocean=HistoricalTechnologies.Has(hc,HistoricalTechnology.OceanNavigation);
             if(!ocean&&(!HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)||route.DistanceM>700000))return;
+            if(LivingWorldHistory(s)&&!InstitutionalRouteAllowed(s,route.CellA,route.CellB,culture))return;
             int source=-1,polity=-1;
             int postAt=territory.PostAt[route.CellA];
             if(postAt>=0)
@@ -25,16 +26,27 @@ namespace WorldGen.Core
                 if(owner>=0&&h.Polities[owner].CultureId==culture&&DiffusionShore(route.CellA)&&TerritorialNodeLive(s,owner,harborSource)){source=harborSource;polity=owner;}
             }
             if(polity<0)return;var p=h.Polities[polity];var government=a.Empires.Governments[polity];var finances=a.Polities[polity];
+            int provisionPort=-1;long provisions=0;
+            if(LivingWorldHistory(s)&&!MaritimeCharterLogistics(s,polity,route,source,out provisionPort,out provisions))return;
             int target=route.CellB,other=HistoricalCells.Polity(s,target);
             if(ColonialHistory(s)&&(RespectRecognizedClaim(s,polity,target)||World.Ecology.Habitat[target].GrowingDays<60&&!HistoricalTechnologies.Has(hc,HistoricalTechnology.CombustionEngines)))return;
             if(other>=0)
             {
                 if(other!=polity&&p.Cohesion>=600&&HistoricalModernEffects.Military(hc,s.Years)>HistoricalModernEffects.Military(h.Cultures[h.Polities[other].CultureId],s.Years)*1.5)
-                    TryImperialSubmission(s,polity,other,false,elapsed,target);
+                {
+                    bool submitted=TryImperialSubmission(s,polity,other,false,elapsed,target);
+                    bool expedition=!submitted&&LivingWorldHistory(s)&&TryMaritimeStateExpedition(s,polity,other,route,elapsed);
+                    if(LivingWorldHistory(s)&&(submitted||expedition))s.Society.Settlements[provisionPort].FoodReserve-=provisions;
+                }
                 return;
             }
+            if(LivingWorldHistory(s)&&a.TownAt[target]>=0)
+            {
+                if(TryMaritimeCouncil(s,polity,a.TownAt[target],route,elapsed))s.Society.Settlements[provisionPort].FoodReserve-=provisions;return;
+            }
             if(!ocean&&World.Landmass[route.CellA]==World.Landmass[target])return;
-            if(p.Cohesion<550||finances.Receipts<=finances.ServiceCost||government.AdministrativePosts.Count>=128||territory.PostAt[target]>=0||a.TownAt[target]>=0)return;
+            int postBudget=LivingWorldHistory(s)?HistoricalMaritimeIntegrationEffects.PostBudget(finances.Urban,HistoricalModernEffects.AdministrativeCapacity(hc,s.Years),HistoricalModernEffects.Communication(hc,s.Years)):128;
+            if(p.Cohesion<550||finances.Receipts<=finances.ServiceCost||government.AdministrativePosts.Count>=postBudget||territory.PostAt[target]>=0||a.TownAt[target]>=0)return;
             int depth=source>=0?1:territory.Posts[-source-2].Depth+1;if(depth>7)return;
             double distance=LivingTravelKm(s,TerritorialNodeCell(s,source),target,p.CultureId);if(distance==double.MaxValue)return;
             if(a.Empires.Connections?.Coasts!=null){distance=LivingTravelKm(s,TerritorialNodeCell(s,source),route.CellA,p.CultureId)+DiffusionSeaEffort(s,route.CellA,target,p.CultureId);if(double.IsInfinity(distance)||distance>=double.MaxValue)return;}
@@ -42,9 +54,11 @@ namespace WorldGen.Core
             if(p.Treasury<setup+annual*40||finances.Receipts-finances.ServiceCost<annual*2)return;
             int recruitment=source>=0?source:p.CapitalId;var home=s.Society.Settlements[recruitment];var catchment=a.Cities[recruitment];
             bool remoteRecruitment=ColonialHistory(s)&&finances.Remote>=2400&&(source<0||catchment.Rural<2400);
-            long migrants=Math.Min(250,remoteRecruitment?finances.Remote/300:catchment.Rural/30);if(migrants<80)return;
+            long migrants=LivingWorldHistory(s)&&remoteRecruitment?0:Math.Min(250,remoteRecruitment?finances.Remote/300:catchment.Rural/30);
+            if(migrants<80&&!(LivingWorldHistory(s)&&remoteRecruitment))return;
             double opportunity=.3+.7*D.Clamp(ProvincialPhysicalYield(s,culture,target)*3);
             if(HistoryRoll("territorial-sea-charter-"+target,polity,s.Years)>1-Math.Exp(-elapsed*(ocean?.025:.005)*opportunity))return;
+            if(LivingWorldHistory(s))s.Society.Settlements[provisionPort].FoodReserve-=provisions;
             // Transfer actual households. The global account loses and regains
             // precisely the same migrants; a charter cannot create colonists.
             if(!remoteRecruitment)
@@ -52,10 +66,10 @@ namespace WorldGen.Core
                 ChangeAggregateCityPopulation(s,recruitment,home.Population,catchment.Suburban,catchment.Rural-migrants);
                 a.TotalPopulation+=migrants;a.Polities[polity].Remote+=migrants;p.Population+=migrants;s.Society.Cultures[home.CultureId].Population+=migrants;
             }
-            // A funded provincial harbor recruits from its already accounted
-            // rural households, not exclusively the distant capital's farms.
-            // Both departure and arrival are in this state's remote ledger:
-            // moving them changes neither total population nor local identity.
+            // In32 an office staffed from the aggregate remote service ledger
+            // records zero emigrating founders. It is not250 new colonists at
+            // every post, and cannot seed a new settler culture on that basis.
+            // Positive founders require the real city-rural transfer above.
             int id=territory.Posts.Length;double parentEffort=source>=0?LivingTravelKm(s,s.Society.Settlements[p.CapitalId].Cell,TerritorialNodeCell(s,source),p.CultureId):territory.Posts[-source-2].MessageEffortKm;
             var post=new HistoricalAdministrativePost{Id=id,PolityId=polity,Cell=target,ParentSource=source,Depth=depth,FoundedYear=s.Years,AnnualCost=annual,MessageEffortKm=D.Q(parentEffort+distance,1000000),AutonomyMilli=ocean?700:850,Maritime=true,Founders=(int)migrants,LegDistanceM=route.DistanceM,Name=HistoricalName("overseas-province",unchecked(target+id*7919))+" Charter"};
             if(LanguageHistory(s))post.Name=LanguageName(s,p.CultureId,LanguageNameKind.Region,unchecked(target+id*7919));
@@ -64,7 +78,7 @@ namespace WorldGen.Core
             ClaimAggregatePolity(s,target,polity);AssignTerritorialSource(s,target,-2-id);
             if(s.ArrivalYear[route.B]<0)s.ArrivalYear[route.B]=s.Years;
             int local=HistoricalCells.Culture(s,target);if(local>=0&&local!=culture)LivingCultureContact(s,culture,local);
-            HistoryEvent(s,"overseas-charter",p.Name+" establishes "+post.Name+" across a sea route of approximately "+route.DistanceM/1000+" km, funded from its port network and settled by "+migrants+" existing households. Local peoples retain their own cultures.",target,culture,polity,category:ChronicleCategory.Politics);
+            HistoryEvent(s,"overseas-charter",p.Name+" establishes "+post.Name+" across a sea route of approximately "+route.DistanceM/1000+" km, funded from its port network"+(LivingWorldHistory(s)&&migrants==0?" as an administrative and shipping office, not a new migrant population.":" and settled by "+migrants+" existing households.")+" Local peoples retain their own cultures.",target,culture,polity,category:ChronicleCategory.Politics);
         }
         void TransferTerritorialPost(PrehistoryState s,int cell,int polity)
         {

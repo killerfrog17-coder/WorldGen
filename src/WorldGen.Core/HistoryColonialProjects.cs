@@ -20,26 +20,34 @@ namespace WorldGen.Core
             if(a.Empires.Connections.Coasts!=null&&(source<0||HistoryRoll("colonial-provincial-departure",polity,s.Years)<.35)){int harbor=ColonialProvincialHarbor(s,polity);if(harbor>=0)source=harbor;}
             if(source<0||CellPatch[source]<0)return;int region=CellPatch[source];var charts=a.Empires.Connections.Cultures[p.CultureId].Charts;
             var options=communityVoyages[region];if(options.Length==0&&charts.Length==0)return;
-            int destination=-1;double best=-1;
+            int destination=-1;double best=-1;Route chosenRoute=null;
             // A bounded portfolio of actual charts, not omniscient global shores.
             for(int k=0;k<6;k++)
             {
                 int to=charts.Length>0&&k<3?charts[(int)(HistoryRoll("colonial-known-route-"+k,polity,s.Years)*charts.Length)].Region:
                     options.Length>0?options[(int)(HistoryRoll("colonial-explore-route-"+k,polity,s.Years)*options.Length)].B:-1;
                 if(to<0||to==region||developmentCoast[to]<0)continue;int cell=developmentCoast[to];
+                Route actual=null;
+                if(LivingWorldHistory(s)){actual=ColonialTargetRoute(s,source,to,polity);if(actual==null)continue;cell=actual.CellB;}
                 double distance=D.Angle(World.Surface.Cells[source].Position,World.Surface.Cells[cell].Position)*World.Recipe.RadiusKm*1000;
                 if(distance>HistoricalTechnicalMigration.SeaRangeM(hc,s.Years,true)||!DiffusionSeaLane(source,cell))continue;
                 int owner=HistoricalCells.Polity(s,cell);if(owner>=0&&HistoricalImperialHierarchy.Sovereign(s,owner)==HistoricalImperialHierarchy.Sovereign(s,polity))continue;
                 double yield=ProvincialPhysicalYield(s,p.CultureId,cell),opportunity=.2+Math.Min(2,yield*4)+(World.Landmass[source]!=World.Landmass[cell]?1:.25);
+                if(LivingWorldHistory(s)&&owner>=0)
+                {
+                    double strength=Math.Max(1,p.Army)*HistoricalModernEffects.Military(hc,s.Years);
+                    var opponent=h.Polities[owner];double defense=Math.Max(1,opponent.Army)*HistoricalModernEffects.Military(h.Cultures[opponent.CultureId],s.Years);
+                    opportunity*=D.Clamp(strength/Math.Max(1,defense*3));
+                }
                 opportunity*=.75+.5*HistoryRoll("colonial-route-preference-"+k,polity,s.Years);
                 if(TerritorialAmbitionContains(s,polity,cell))opportunity*=1.75;
-                if(opportunity>best){best=opportunity;destination=to;}
+                if(opportunity>best){best=opportunity;destination=to;chosenRoute=actual;}
             }
             if(destination<0||HistoryRoll("colonial-expedition-departure",polity,s.Years)>1-Math.Exp(-elapsed/12.0))return;
-            int shore=developmentCoast[destination];p.Treasury-=100;
+            int shore=chosenRoute?.CellB??developmentCoast[destination];if(chosenRoute!=null)destination=chosenRoute.B;p.Treasury-=100;
             a.Empires.Connections.Governments[polity].LastExpeditionYear=s.Years;
             RecordCoastChart(s,p.CultureId,destination,p.CultureId);
-            var route=new Route{A=region,B=destination,CellA=source,CellB=shore,Sea=true,DistanceM=(int)Math.Round(D.Angle(World.Surface.Cells[source].Position,World.Surface.Cells[shore].Position)*World.Recipe.RadiusKm*1000)};
+            var route=chosenRoute??new Route{A=region,B=destination,CellA=source,CellB=shore,Sea=true,DistanceM=(int)Math.Round(D.Angle(World.Surface.Cells[source].Position,World.Surface.Cells[shore].Position)*World.Recipe.RadiusKm*1000)};
             TryTerritorialSeaCharter(s,route,p.CultureId,elapsed);
             // A successful state charter is a dependent venture, not a new
             // pristine civilization waiting to reinvent its sponsor's society.
@@ -47,7 +55,9 @@ namespace WorldGen.Core
             {
                 var local=a.Living.Regions[destination];local.Teacher=p.CultureId;local.LastExchangeYear=s.Years;local.Exposure=Math.Max(700,local.Exposure);local.CivicTeacher=polity;local.CivicExposure=Math.Max(700,local.CivicExposure);
                 a.Provinces.RegionalKnowledge[destination]|=ProvincialKnowledge(hc);
-                if(a.Regions[destination].Culture<0&&HistoricalCells.Culture(s,shore)<0)
+                int foundedPost=a.Empires.Territories.PostAt[shore];
+                bool settlers=!LivingWorldHistory(s)||foundedPost>=0&&a.Empires.Territories.Posts[foundedPost].Founders>0;
+                if(settlers&&a.Regions[destination].Culture<0&&HistoricalCells.Culture(s,shore)<0)
                 {
                     FoundAggregateCulture(s,destination,shore,p.CultureId);int child=s.Society.Cultures.Length-1;
                     InheritDevelopmentCommunity(s,child,p.CultureId,shore);var continuity=a.Empires.Connections.Cultures[child];

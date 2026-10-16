@@ -121,6 +121,8 @@ namespace WorldGen.Core
                 if(o is Recipe shapeRecipe && f.Name==nameof(Recipe.LandShape) && shapeRecipe.LandShape==null)continue;
                 if(o is Recipe ecologicalRecipe && f.Name==nameof(Recipe.EcologyProfile) && ecologicalRecipe.EcologyProfile==null)continue;
                 if(o is Taxon traitTaxon && f.Name==nameof(Taxon.Traits) && traitTaxon.Traits==null)continue;
+                if(o is Taxon lineageTaxon && f.Name==nameof(Taxon.Lineage) && lineageTaxon.Lineage==null)continue;
+                if(o is RegionalAnimalVariant ecotypeVariant && f.Name==nameof(RegionalAnimalVariant.Ecotype) && ecotypeVariant.Ecotype==null)continue;
                 if(o is SpeciesPresence variantPresence && f.Name==nameof(SpeciesPresence.Variant) && variantPresence.Variant==null)continue;
                 if(o is Recipe rainRecipe && f.Name==nameof(Recipe.InteriorRainMm) && rainRecipe.InteriorRainMm==0)continue;
                 if (o is Recipe oldRecipe && f.Name == nameof(Recipe.MountainStrengthPercent) && oldRecipe.AlgorithmVersion != Recipe.CurrentAlgorithm && oldRecipe.AlgorithmVersion != Recipe.SubcellAlgorithm && oldRecipe.AlgorithmVersion != Recipe.FeatureBlendAlgorithm && oldRecipe.AlgorithmVersion != Recipe.RangeControlsAlgorithm && oldRecipe.AlgorithmVersion != Recipe.EcologyAlgorithm && oldRecipe.AlgorithmVersion != Recipe.TerrainControlsAlgorithm) continue;

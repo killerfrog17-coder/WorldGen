@@ -8,7 +8,35 @@ namespace WorldGen.Core
     [Flags] public enum Habitat { None=0, Forest=1, Open=2, Desert=4, Tundra=8, Wetland=16, Freshwater=32, Coastal=64, Alpine=128, AnyLand=223 }
     [Flags] public enum Food { None=0, Grass=1, Browse=2, Fruit=4, Seed=8, Nectar=16, Detritus=32, Invertebrate=64, Vertebrate=128, Fish=256 }
     [Flags] public enum Stratum { None=0, Ground=1, Understory=2, Canopy=4, Air=8, Water=16, Soil=32 }
-    public enum TaxonRank { Species, Subspecies, FunctionalGuild }
+    public enum TaxonRank { Species, Subspecies, FunctionalGuild, Lineage }
+    // A lineage is an authored animal archetype, not a claim that a generated
+    // regional form is one of Earth's named species. Sources describe ancestry;
+    // they do not impose modern Earth coordinates on procedural worlds.
+    [Serializable] public sealed class AnimalNativeSource
+    {
+        public string Realm="";
+        public double Latitude,Longitude;
+        public int OriginCell=-1;
+    }
+    [Serializable] public sealed class AnimalLineage
+    {
+        public string Key="";
+        public AnimalNativeSource[] Sources=Array.Empty<AnimalNativeSource>();
+        public bool RequiresCoast, RequiresFreshwater, Ectotherm, Aquatic, MarineFeeder, AdjacentSeaOnly;
+        public int MinCanopyPermille,MaxCanopyPermille=1000;
+        public int MinSalinityMilliPpt;
+        public int EarVariationPermille,AppendageVariationPermille,BodyVariationPermille=200;
+        public int ThermalSizeSensitivityPermille=200;
+        public int RidingSuitabilityPermille;
+        public string DisplayTrait="",Pattern="plain";
+    }
+    [Serializable] public sealed class AnimalEcotype
+    {
+        public string LineageKey="",HabitatForm="",CoatPattern="";
+        public int SampleCell;
+        public int BodySizePermille,EarSizePermille,AppendageSizePermille,DisplaySizePermille;
+        public string DisplayTrait="";
+    }
     // Authored comparative priors, not a fitted domestication probability.
     [Serializable] public sealed class AnimalTraits
     {
@@ -23,6 +51,7 @@ namespace WorldGen.Core
         public double MassKg;
         public int InsulationPermille,CoatLightnessPermille,SeasonalWhiteningPermille;
         public int Docility,PanicResistance;
+        [System.Runtime.Serialization.OptionalField] public AnimalEcotype Ecotype;
     }
     [Serializable] public sealed class HabitatCell
     {
@@ -66,6 +95,7 @@ namespace WorldGen.Core
         public int MaxGapKm=250, OceanCrossingKm, SpreadBudgetKm=18000;
         public double EarthLatitude, EarthLongitude;
         [System.Runtime.Serialization.OptionalField] public AnimalTraits Traits;
+        [System.Runtime.Serialization.OptionalField] public AnimalLineage Lineage;
     }
     [Serializable] public sealed class EcologyResult
     {

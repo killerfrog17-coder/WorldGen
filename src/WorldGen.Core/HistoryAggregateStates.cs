@@ -16,7 +16,8 @@ namespace WorldGen.Core
             if(aggregateRelations.TryGetValue(key,out int at)&&at<h.Relations.Length&&h.Relations[at].A==low&&h.Relations[at].B==high)return h.Relations[at];
             var r=new HistoricalRelation{A=low,B=high};aggregateRelations[key]=h.Relations.Length;h.Relations=h.Relations.Concat(new[]{r}).ToArray();return r;
         }
-        void FoundAggregateState(PrehistoryState s,int city,int parent)
+        void FoundAggregateState(PrehistoryState s,int city,int parent)=>FoundAggregateStateKind(s,city,parent,null);
+        void FoundAggregateStateKind(PrehistoryState s,int city,int parent,string foundationKind)
         {
             var h=s.History;var a=h.Aggregates;var town=s.Society.Settlements[city];int id=h.Polities.Length;
             var polity=new HistoricalPolity{Id=id,CultureId=town.CultureId,CapitalId=city,ParentId=parent,FoundedYear=s.Years,RulerSince=s.Years,Name=town.Name+" State",ReligionId=HistoricalCells.Religion(s,town.Cell),Treasury=town.Population/2,Government="Local council and agrarian court"};
@@ -30,7 +31,7 @@ namespace WorldGen.Core
             if(a.Cultures[town.CultureId].CivilizationSince<0)a.Cultures[town.CultureId].CivilizationSince=s.Years;
             EstablishCivilizationalLineage(s,town.CultureId,city);
             if(LivingHistory(s)&&a.Living.CivicOrigins[town.CultureId]<0)a.Living.CivicOrigins=a.Living.CivicOrigins.With(town.CultureId,id);
-            HistoryEvent(s,parent<0?"state":"secession",polity.Name+(parent<0?" establishes independent institutions at ":" emerges as an independent successor court at ")+town.Name+".",town.Cell,town.CultureId,id,other:parent,town:city,category:ChronicleCategory.Politics);
+            HistoryEvent(s,foundationKind??(parent<0?"state":"secession"),polity.Name+(foundationKind!=null?" establishes a locally administered overseas council at ":parent<0?" establishes independent institutions at ":" emerges as an independent successor court at ")+town.Name+".",town.Cell,town.CultureId,id,other:parent,town:city,category:ChronicleCategory.Politics);
         }
         void AppointAggregateLeader(PrehistoryState s,int polity)
         {
@@ -61,7 +62,7 @@ namespace WorldGen.Core
             long service=(long)((account.Urban+account.Rural+account.Remote)*.003*(.5+geography*geography)+p.AreaKm2*.0001);
             if(TechnicalHistory(s))service+=a.Empires.Governments[id].AdministrativePostCost;
             account.Receipts=receipts;account.ServiceCost=service;p.Treasury=Math.Max(0,Math.Min(1000000000,p.Treasury+(receipts-service)*elapsed));
-            long remoteCapacity=ProvincialHistory(s)?ProvincialRemoteCapacity(s,id):Math.Max(1,(long)(account.RemoteCapacity*HistoricalModernEffects.FoodMultiplier(hc,s.Years)));long remote=AggregateLogisticPopulation(account.Remote,remoteCapacity,CommunityHistory(s)?CommunityRuralGrowth(s,p.CultureId):.004,elapsed);long delta=remote-account.Remote;account.Remote=remote;p.Population=Math.Max(0,p.Population+delta);a.TotalPopulation+=delta;s.Society.Cultures[p.CultureId].Population=Math.Max(0,s.Society.Cultures[p.CultureId].Population+delta);
+            long remoteCapacity=ProvincialHistory(s)?ProvincialRemoteCapacity(s,id):Math.Max(1,(long)(account.RemoteCapacity*HistoricalModernEffects.FoodMultiplier(hc,s.Years)));if(LivingWorldHistory(s))remoteCapacity=(long)(remoteCapacity*LivingClimateFood(s,s.Society.Settlements[p.CapitalId].Cell,p.CultureId));long remote=AggregateLogisticPopulation(account.Remote,remoteCapacity,CommunityHistory(s)?CommunityRuralGrowth(s,p.CultureId):.004,elapsed);long delta=remote-account.Remote;account.Remote=remote;p.Population=Math.Max(0,p.Population+delta);a.TotalPopulation+=delta;s.Society.Cultures[p.CultureId].Population=Math.Max(0,s.Society.Cultures[p.CultureId].Population+delta);
             var cycle=ds.Cycle??(ds.Cycle=new HistoricalPoliticalCycle());
             if(LivingHistory(s))
             {
@@ -121,7 +122,7 @@ namespace WorldGen.Core
         void AdvanceAggregateRemote(PrehistoryState s,int id)
         {
             var h=s.History;var a=h.Aggregates;var cohort=a.Polities[id];int elapsed=s.Years-cohort.LastYear;if(elapsed<=0)return;cohort.LastYear=s.Years;
-            var people=h.Cultures[h.Polities[id].CultureId];long capacity=ProvincialHistory(s)?ProvincialRemoteCapacity(s,id):(long)(cohort.RemoteCapacity*HistoricalModernEffects.FoodMultiplier(people,s.Years));long next=AggregateLogisticPopulation(cohort.Remote,capacity,CommunityHistory(s)?CommunityRuralGrowth(s,people.Id):.004,elapsed),delta=next-cohort.Remote;cohort.Remote=next;a.TotalPopulation+=delta;s.Society.Cultures[people.Id].Population=Math.Max(0,s.Society.Cultures[people.Id].Population+delta);
+            var people=h.Cultures[h.Polities[id].CultureId];long capacity=ProvincialHistory(s)?ProvincialRemoteCapacity(s,id):(long)(cohort.RemoteCapacity*HistoricalModernEffects.FoodMultiplier(people,s.Years));if(LivingWorldHistory(s))capacity=(long)(capacity*LivingClimateFood(s,s.Society.Settlements[h.Polities[id].CapitalId].Cell,people.Id));long next=AggregateLogisticPopulation(cohort.Remote,capacity,CommunityHistory(s)?CommunityRuralGrowth(s,people.Id):.004,elapsed),delta=next-cohort.Remote;cohort.Remote=next;a.TotalPopulation+=delta;s.Society.Cultures[people.Id].Population=Math.Max(0,s.Society.Cultures[people.Id].Population+delta);
         }
         void BeginAggregateCampaign(PrehistoryState s,int attacker,int defender,HistoricalRelation relation,int front=-1)
         {

@@ -30,7 +30,7 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         public const string ConnectedHistoryVersion="history-19";
-        public static bool IsAggregateHistoryVersion(string version)=>version==AggregateHistoryVersion||version==LivingHistoryVersion||version==ConnectedHistoryVersion||version==RegionalHistoryVersion||version==CommunityHistoryVersion||version==DiffusionHistoryVersion||version==AgronomicHistoryVersion||version==TechnicalHistoryVersion||version==ProvincialFrontierHistoryVersion||version==ColonialHistoryVersion||version==CoastalHistoryVersion||version==TerritorialHistoryVersion||version==ResearchPacingHistoryVersion||version==LanguageHistoryVersion||version==EnvironmentalHistoryVersion;
+        public static bool IsAggregateHistoryVersion(string version)=>version==AggregateHistoryVersion||version==LivingHistoryVersion||version==ConnectedHistoryVersion||version==RegionalHistoryVersion||version==CommunityHistoryVersion||version==DiffusionHistoryVersion||version==AgronomicHistoryVersion||version==TechnicalHistoryVersion||version==ProvincialFrontierHistoryVersion||version==ColonialHistoryVersion||version==CoastalHistoryVersion||version==TerritorialHistoryVersion||version==ResearchPacingHistoryVersion||version==LanguageHistoryVersion||version==EnvironmentalHistoryVersion||version==LivingWorldHistoryVersion;
         static bool ConnectedHistory(PrehistoryState s)=>s?.History?.Version==ConnectedHistoryVersion||ProvincialHistory(s);
         public static bool CanUpgradeHistory(PrehistoryState s)
         {
@@ -113,6 +113,7 @@ namespace WorldGen.Core
             {
                 var a=s.History.Agriculture[peer];if(a.AdoptedYear[group]<=0||a.AdoptedYear[group]-1>=s.Years||a.Cultivars?[group]==null)continue;
                 if(ProvincialHistory(s)&&!ProvincialRecentContact(s,culture,peer,false))continue;
+                if(LivingWorldHistory(s)&&a.AdoptedYear[group]-1>EnvironmentalContactYear(s,culture,peer))continue;
                 double value=CommunityHistory(s)?CommunityTransferFit(s,site,a.Cultivars[group]):HistoricalCropCatalog.TransferFit(h,a.Cultivars[group],latitude,riverSites[site]);if(value>score){best=peer;score=value;}
             }
             return best;

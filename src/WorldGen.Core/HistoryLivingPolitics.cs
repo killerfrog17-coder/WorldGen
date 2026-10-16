@@ -30,6 +30,9 @@ namespace WorldGen.Core
                 successor.Name=s.Society.Settlements[p.CapitalId].Name+(assembly?" Commonwealth":imperial?" Empire":" Kingdom");
                 successor.Government=assembly?"A negotiated assembly and provincial councils":imperial?"A successor imperial court with provincial administration":"A successor dynasty and negotiated local privileges";
             }
+            // A form of government belongs in its profile, not compulsorily in
+            // every map name. Regime replacement need not erase the endonym.
+            if(LivingWorldHistory(s)&&LanguageHistory(s))successor.Name=LanguageStateName(s,s.Society.Settlements[p.CapitalId]);
             var account=a.Polities[polity].Copy();account.Id=id;account.LastYear=s.Years;account.LastSuccession=s.Years;
             h.Polities=h.Polities.Concat(new[]{successor}).ToArray();a.Polities=a.Polities.Concat(new[]{account}).ToArray();
             if(ProvincialHistory(s)){Array.Resize(ref a.Provinces.FarmPotential,h.Polities.Length);a.Provinces.FarmPotential[id]=a.Provinces.FarmPotential[polity];a.Provinces.FarmPotential[polity]=0;}

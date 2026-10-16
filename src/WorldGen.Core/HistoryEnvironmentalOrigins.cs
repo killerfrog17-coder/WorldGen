@@ -66,7 +66,7 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         public const string EnvironmentalHistoryVersion="history-31";
-        static bool EnvironmentalHistory(PrehistoryState s)=>s?.History?.Version==EnvironmentalHistoryVersion;
+        static bool EnvironmentalHistory(PrehistoryState s)=>s?.History?.Version==EnvironmentalHistoryVersion||LivingWorldHistory(s);
         readonly Dictionary<int,int> environmentalNativeMasks=new Dictionary<int,int>();
         readonly Queue<int> environmentalNativeOrder=new Queue<int>();
         public PrehistoryState UpgradeToEnvironmentalHistory(PrehistoryState source)

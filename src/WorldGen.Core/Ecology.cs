@@ -74,6 +74,10 @@ namespace WorldGen.Core
                 a.ProductivityGCM2Year=D.M(Math.Min(1500,p*.65)*D.Clamp((a.MeanTenthsC+100)/300.0)*D.Clamp(growing/250.0));
                 a.FirePotentialPermille=D.M(1000*D.Clamp(a.ProductivityGCM2Year/500.0)*D.Clamp(dry/2.0)*(1-a.FloodFractionPermille/1000.0));
                 a.Biome=Classify(a,ocean,lake,w.ElevationM[i]); a.Habitat=HabitatOf(a.Biome);
+                // A coastal colony can occupy tundra, rocky ground or forest;
+                // the terrestrial biome need not itself be a tidal wetland.
+                if(w.Recipe.EcologyProfile==EarthFaunaPack.Version&&!ocean&&coast)a.Habitat|=Habitat.Coastal;
+                if(w.Recipe.EcologyProfile==EarthFaunaPack.Version&&a.Biome==Biome.SalineLake)a.Habitat|=Habitat.Wetland;
             }
         }
         // Oudin-style radiation/temperature PET. Quarterly averages cannot resolve

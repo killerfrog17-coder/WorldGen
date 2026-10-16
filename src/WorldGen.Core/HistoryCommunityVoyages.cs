@@ -49,18 +49,36 @@ namespace WorldGen.Core
                 if(culture<0||residents<250)continue;
                 var hc=h.Cultures[culture];if(!HistoricalTechnologies.Has(hc,HistoricalTechnology.Sailing))continue;
                 double range=HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years,ColonialHistory(s));if(route.DistanceM>range*1000)continue;
+                if(LivingWorldHistory(s)&&!InstitutionalRouteAllowed(s,route.CellA,route.CellB,culture))continue;
                 int to=route.B,destinationState=HistoricalCells.Polity(s,route.CellB);if(sourceState>=0&&sourceState==destinationState)continue;
                 double ships=HistoricalTechnologies.Has(hc,HistoricalTechnology.OceanNavigation)?1:HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)?.35:.08;
                 double chance=ships*Math.Exp(-route.DistanceM/(range*700))*Math.Min(3,Math.Sqrt(residents/1000.0));
                 if(HistoryRoll("community-sea-contact-"+trial,region,s.Years)>1-Math.Exp(-chance*elapsed/50.0))continue;
                 var target=a.Living.Regions[to];int peer=a.Regions[to].Culture;if(destinationState>=0)peer=h.Polities[destinationState].CultureId;
-                if(peer>=0&&peer!=culture)LivingCultureContact(s,culture,peer);
-                if(PassageHistory(s))DiffusionPortContact(s,route,culture,elapsed);
+                bool reliableDelivery=!LivingWorldHistory(s)||InstitutionalVoyageDelivery(s,route,culture,sourceState,sourceTown);
+                if(reliableDelivery&&peer>=0&&peer!=culture)
+                {if(LivingWorldHistory(s))LivingCultureContactAt(s,culture,peer,route.CellA,route.CellB);else LivingCultureContact(s,culture,peer);}
+                if(reliableDelivery&&PassageHistory(s))DiffusionPortContact(s,route,culture,elapsed);
                 TryTerritorialSeaCharter(s,route,culture,elapsed);
                 if(ColonialHistory(s)){RecordCoastChart(s,culture,to,culture);destinationState=HistoricalCells.Polity(s,route.CellB);}
-                if(target.Teacher<0||CurrentProvincialKnowledgeCount(s,target.Teacher)<=CurrentProvincialKnowledgeCount(s,culture))target.Teacher=culture;
-                target.Exposure=Math.Min(1000,target.Exposure+Math.Max(100,elapsed*2));target.LastExchangeYear=s.Years;a.Provinces.RegionalKnowledge[to]|=ProvincialKnowledge(hc);
-                int court=sourceState>=0?sourceState:a.Living.CivicOrigins[culture];if(court>=0){target.CivicTeacher=court;target.CivicExposure=Math.Min(1000,target.CivicExposure+elapsed*2);}
+                if(reliableDelivery)
+                {
+                    if(target.Teacher<0||CurrentProvincialKnowledgeCount(s,target.Teacher)<=CurrentProvincialKnowledgeCount(s,culture))target.Teacher=culture;
+                    target.Exposure=Math.Min(1000,target.Exposure+Math.Max(100,elapsed*2));target.LastExchangeYear=s.Years;a.Provinces.RegionalKnowledge[to]|=ProvincialKnowledge(hc);
+                }
+                int court=sourceState>=0?sourceState:a.Living.CivicOrigins[culture];
+                if(court>=0&&reliableDelivery)
+                {
+                    if(!LivingWorldHistory(s)){target.CivicTeacher=court;target.CivicExposure=Math.Min(1000,target.CivicExposure+elapsed*2);}
+                    else
+                    {
+                        int capital=s.Society.Settlements[h.Polities[court].CapitalId].Cell;
+                        double source=sourceState>=0?1000:1000*InstitutionalLocalExample(s,court,capital,route.CellA);
+                        double transmission=EnvironmentalTransmission(s,route.CellA,route.CellB,culture,true),limit=source*.55*transmission;
+                        if(source>0&&(target.CivicTeacher==court||target.CivicExposure<limit))
+                        {target.CivicTeacher=court;target.CivicExposure=Math.Max(target.CivicExposure,Math.Min((int)limit,target.CivicExposure+(int)HistoricalInstitutionalTransmission.RelayExposure(source,transmission,elapsed)));}
+                    }
+                }
                 long carrying=Patches[to].Capacity;
                 if(s.Society.Cultures[culture].Farming>=180)carrying=(long)(carrying*(1+s.Society.Cultures[culture].Farming/80.0*LivingCropLandscape(s,culture,route.CellB,false)*HistoricalModernEffects.FoodMultiplier(hc,s.Years)));
                 long destination=destinationState>=0?a.Polities[destinationState].Remote:s.Population[to];
