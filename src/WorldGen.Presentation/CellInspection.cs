@@ -17,7 +17,8 @@ namespace WorldGen.Presentation
             }
             if(layer==Layer.Microplates)return "Plate "+(w.CellMicroplate[i]+1);
             if(layer==Layer.Continents)return w.Continent[i]<0?"Ocean":"Continent "+(w.Continent[i]+1);
-            if(layer==Layer.Climate)return w.Climate.Classification[i].ToString();
+            if(layer==Layer.Climate)return GlobeView.TryVisibleWater(w,i,out var climateWater)&&climateWater.Kind!=WaterKind.Ocean
+                ? climateWater.Kind==WaterKind.TectonicInlandSea?"Inland sea":"Lake":w.Climate.Classification[i].ToString();
             if(layer==Layer.Ecoregions){if(w.Ecology==null)return "Unavailable in this saved world";int id=w.Ecology.Region[i];return id<0?"Ocean":w.Ecology.Regions[id].Name+" — "+w.Ecology.Regions[id].Biome;}
             if(EcologyView.IsLayer(layer))
             {

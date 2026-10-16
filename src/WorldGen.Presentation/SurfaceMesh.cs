@@ -32,7 +32,7 @@ namespace WorldGen.Presentation
             // Cached geometry only needs height gray; main palettes are prepared separately.
             var values = options.CachedDisplay ? null : GlobeView.CellValues(world, layer, options.SeaLevel, token: token);
             var s = world.Surface; var renderHeight = Array.ConvertAll(world.ElevationM, h => (double)h);
-            bool showWaterSurface = options.SeaLevel == 0 && (layer == Layer.Terrain || layer == Layer.Satellite || layer == Layer.WaterBodies || layer == Layer.LakesAndInlandSeas);
+            bool showWaterSurface = options.SeaLevel == 0 && (layer == Layer.Terrain || layer == Layer.Satellite || layer == Layer.Climate || layer == Layer.WaterBodies || layer == Layer.LakesAndInlandSeas);
             if (showWaterSurface) for (int i = 0; i < renderHeight.Length; i++)
                 if (GlobeView.TryVisibleWater(world, i, out var water) && water.Kind != WaterKind.Ocean) renderHeight[i] = water.SurfaceElevationM;
             double SignedHeight(int i)=>world.Hydrology.OceanConnected.Length>i?(world.Hydrology.OceanConnected[i]?Math.Min(-1,renderHeight[i]):Math.Max(1,renderHeight[i])):renderHeight[i];

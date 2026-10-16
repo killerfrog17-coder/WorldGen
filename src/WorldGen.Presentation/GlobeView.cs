@@ -66,7 +66,8 @@ namespace WorldGen.Presentation
                 {
                     case Layer.Ecoregions: case Layer.Biomes: case Layer.Floodplains: case Layer.Soils: case Layer.WaterTable: case Layer.Permafrost: case Layer.Aridity: case Layer.Salinity: case Layer.FirePotential: color=EcologyView.Color(w,i,layer); break;
                     case Layer.Simulation: case Layer.Satellite: color = ClimateColors.Satellite(w, i); if (TryVisibleWater(w, i, out var satelliteWater) && satelliteWater.Kind != WaterKind.Ocean) color = new V(.055, .34, .68); break;
-                    case Layer.Climate: color = ClimateColors.Classification(w.Climate.Classification[i]); break;
+                    case Layer.Climate: color = TryVisibleWater(w, i, out var climateWater) && climateWater.Kind != WaterKind.Ocean
+                        ? new V(.055, .34, .68) : ClimateColors.Classification(w.Climate.Classification[i]); break;
                     case Layer.Heightmap: double shade = D.Clamp((h + 5000) / 11000.0); color = new V(shade, shade, shade); break;
                     case Layer.Microplates: color = PlateColor(w, i); break;
                     case Layer.ParentPlates: color = Id(w.Microplates[mp].ParentAffinityId); break;

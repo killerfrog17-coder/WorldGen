@@ -1,12 +1,28 @@
 using WorldGen.Core;
 using WorldGen.Presentation;
+using WorldGen.Serialization;
 
 public static class LakePresentationTests
 {
+    public static void World(string path,Action<bool,string> check)
+    {
+        var world=WorldFile.Read(File.ReadAllBytes(path));var state=world.Prehistory;var engine=new Prehistory(world);
+        string hash=state.ComputeHash();
+        int cell=Enumerable.Range(0,world.Surface.Cells.Length).First(i=>!world.Hydrology.OceanConnected[i]&&engine.CellPatch[i]>=0&&HistoricalCells.Polity(state,i)>=0);
+        double original=world.Hydrology.LakeCoverageFraction[cell];
+        try
+        {
+            world.Hydrology.LakeCoverageFraction[cell]=1;
+            foreach(bool optimized in new[]{false,true})foreach(var overlay in new[]{HistoryOverlay.States,HistoryOverlay.Cultures,HistoryOverlay.Technology})
+                check(PrehistoryView.Codes(world,engine,state,cell,overlay,optimized:optimized)[cell]<77,"Occupied/selected whole lake remains water in both cached and literal civic overlays, including zero background opacity");
+        }
+        finally{world.Hydrology.LakeCoverageFraction[cell]=original;}
+        check(state.ComputeHash()==hash,"Lake display queries do not change historical state");
+    }
     public static void Run(Action<bool, string> check)
     {
         var w = Fixture();
-        foreach (var layer in new[] { Layer.Terrain, Layer.Satellite, Layer.WaterBodies, Layer.LakesAndInlandSeas })
+        foreach (var layer in new[] { Layer.Terrain, Layer.Satellite, Layer.Climate, Layer.WaterBodies, Layer.LakesAndInlandSeas })
         {
             w.Hydrology.WaterBody[0] = -1;
             var dry = GlobeView.Build(w, layer);
@@ -26,7 +42,13 @@ public static class LakePresentationTests
             check(Math.Abs(Math.Sqrt(x * x + y * y + z * z) - expectedRadius) < 1e-7, layer + " uses precise water surface");
             check(visible.Colors.Skip(9).SequenceEqual(dry.Colors.Skip(9)), layer + " ocean color unaffected by lake fraction");
         }
+        w.Hydrology.LakeCoverageFraction[0]=.9;
+        check(CellInspection.Describe(w,0,Layer.Climate)=="Lake","Climate inspection identifies whole lake cells rather than their underlying land climate");
+        w.Hydrology.Waters[0].Kind=WaterKind.TectonicInlandSea;
+        check(CellInspection.Describe(w,0,Layer.Climate)=="Inland sea","Climate inspection distinguishes inland seas");
+        w.Hydrology.Waters[0].Kind=WaterKind.Lake;
         w.Hydrology.LakeCoverageFraction[0] = .25;
+        check(CellInspection.Describe(w,0,Layer.Climate)=="Cfb","Sub-cell water retains the land climate label");
         string description = GlobeView.Describe(w, 0);
         check(description.Contains("Estimated lake coverage:") && description.Contains("sub-cell footprint in smooth terrain") && description.Contains("km² of this cell"), "Inspection retains fractional lake coverage and area");
         var options = new ViewOptions { ShowRivers = true, GridSpacing = 0 };

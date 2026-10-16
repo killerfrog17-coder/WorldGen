@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--lake-presentation-world")){int count=0;LakePresentationTests.World(args[Array.IndexOf(args,"--lake-presentation-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world lake overlay assertions");return;}
+if(args.Contains("--lake-presentation-only")){int count=0;LakePresentationTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" lake presentation assertions");return;}
 if(args.Contains("--canonical-int-arrays-only")){int count=0;CanonicalIntegerArrayTests.Run((ok,message)=>{Interlocked.Increment(ref count);if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" exact canonical integer array assertions");return;}
 if(args.Contains("--stopping-point-snapshot")){int at=Array.IndexOf(args,"--stopping-point-snapshot");HistoryStoppingPointReview.Snapshot(args[at+1],args[at+2]);return;}
 if(args.Contains("--stopping-point-review")){int at=Array.IndexOf(args,"--stopping-point-review");HistoryStoppingPointReview.Run(args[at+1],args[at+2],int.Parse(args[at+3]));return;}
