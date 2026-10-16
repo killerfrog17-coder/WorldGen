@@ -52,7 +52,7 @@ public sealed partial class WorldGenRuntime
         if((screen=="Simulation"||layer==Layer.Simulation)&&lastHumanSelection!=selectedCell)UpdateHumanPalette();
         double clockNow=Time.realtimeSinceStartupAsDouble,elapsed=humanClockSample==0?0:clockNow-humanClockSample;humanClockSample=clockNow;
         humanPlayback.Era(CurrentMusicEra());
-        bool run=screen=="Simulation"&&!atlasOpen&&!simulationPaused&&humanPlaying&&!Busy&&!saveDialog&&exportJob==null;
+        bool run=screen=="Simulation"&&!atlasOpen&&selectedEvent==null&&!simulationPaused&&humanPlaying&&!Busy&&!saveDialog&&exportJob==null;
         humanPlayback.Accumulate(elapsed,run);
         if(run&&humanStep==null&&humanPlayback.Pending>0)
         {

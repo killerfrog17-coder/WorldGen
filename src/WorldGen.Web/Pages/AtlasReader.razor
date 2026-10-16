@@ -25,16 +25,16 @@
 <div class="atlas-reading" @key="section">
 @if(section=="Overview"){
 <p class="atlas-lead">@Document.Introduction</p>
-<HabitatPortraitCard Portrait="@Document.Habitat"/>
 <div class="atlas-fact-tiles">@foreach(var fact in Document.Facts){<div><small>@fact.Label</small><strong>@fact.Value</strong></div>}</div>
 var visual=HistoryAtlas.OverviewVisual(Document);
 @if(visual!=null){<section class="atlas-overview-chart"><h2>@visual.Title</h2>@if(visual.Diagram){@((MarkupString)AtlasDiagram.DiplomaticSvg(Document,visual))}else if(visual.Technical.Length>0){@foreach(var project in visual.Technical){<label class="overview-project">@project.Name · level @project.Level → @(project.Level+1)<progress value="@project.ResearchPermille" max="1000"></progress><small>@project.Source · @((project.AllocationBasisPoints/100.0).ToString("0.#"))% of research effort</small></label>}}else{var maximum=visual.Unit=="/ 1,000"?1000:Math.Max(1,visual.Links.Max(l=>l.Value));@foreach(var link in visual.Links){<div class="atlas-link-row">@if(link.Kind.Length>0){<button @onclick="()=>Navigate.InvokeAsync(link)">@link.Name</button>}else{<strong>@link.Name</strong>}<span>@link.Detail</span><progress aria-label="@link.Name" value="@link.Value" max="@maximum"></progress></div>}}</section>}
+<HabitatPortraitCard Portrait="@Document.Habitat"/>
 <p>Explore the sections above for connections, livelihoods, institutions, and recorded events. Names in the article open related entries.</p>
 }else{
 var item=Document.Sections.FirstOrDefault(s=>s.Title==section);
 @if(item!=null){
 <h2>@item.Title</h2>@if(item.Text.Length>0){<p>@item.Text</p>}
-<dl>@foreach(var fact in item.Facts){<dt>@fact.Label</dt><dd>@fact.Value</dd>}</dl>
+@if(item.Facts.Length>0){<dl>@foreach(var fact in item.Facts){<dt>@fact.Label</dt><dd>@fact.Value</dd>}</dl>}
 @if(item.Technical.Length>0){<div class="technical-grid">@foreach(var project in item.Technical){<section class="technical-card"><h3>@project.Name <small>Level @project.Level</small></h3><p>@project.Source</p>@if(project.AllocationBasisPoints>0){<label>Research share @((project.AllocationBasisPoints/100.0).ToString("0.0"))%<progress value="@project.AllocationBasisPoints" max="10000"></progress></label>}@if(project.AtCeiling){<p>At current model ceiling</p>}else{<label>Next level @((project.ResearchPermille/10.0).ToString("0.0"))%<progress value="@project.ResearchPermille" max="1000"></progress></label>}<label>Practical deployment @((project.DeploymentPermille/10.0).ToString("0.0"))%<progress value="@project.DeploymentPermille" max="1000"></progress></label>@if(project.Prerequisites.Length>0){<details><summary>Research prerequisites</summary><p>@project.Prerequisites</p></details>}</section>}</div>}
 @if(item.Diagram){@((MarkupString)AtlasDiagram.DiplomaticSvg(Document,item))}
 var maximum=item.Unit=="/ 1,000"?1000:Math.Max(1,item.Links.Select(l=>l.Value).DefaultIfEmpty(1).Max());

@@ -79,10 +79,10 @@ public sealed partial class WorldGenRuntime
         if(atlasSection=="Overview")
         {
             AtlasParagraph(atlasDocument.Introduction,16);GUILayout.Space(12);
-            DrawHabitatPortrait(atlasDocument.Habitat);
             AtlasFactTiles(atlasDocument.Facts,3);
             var visual=HistoryAtlas.OverviewVisual(atlasDocument);
             if(visual!=null){GUILayout.Space(14);GUILayout.Label(visual.Title,new GUIStyle(GUI.skin.label){fontSize=16,fontStyle=FontStyle.Bold});if(visual.Diagram)DrawAtlasDiplomacy(visual,width-300);else if(visual.Technical.Length>0){foreach(var project in visual.Technical){AtlasParagraph(project.Name+" · level "+project.Level+" → "+(project.Level+1),13);DrawTechnicalBar("Next level",project.ResearchPermille/10f);}}else{long max=visual.Unit=="/ 1,000"?1000:Math.Max(1,visual.Links.Max(l=>l.Value));foreach(var item in visual.Links){AtlasParagraph(item.Name+" · "+item.Detail,12);DrawTechnicalBar("Relative scale",100f*item.Value/max);}}}
+            DrawHabitatPortrait(atlasDocument.Habitat);
             GUILayout.Space(14);AtlasParagraph("Explore the sections above for connections, livelihoods, institutions, and recorded events. Names in the article open related entries.",13);
         }
         else

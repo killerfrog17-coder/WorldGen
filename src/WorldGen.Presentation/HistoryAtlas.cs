@@ -140,9 +140,12 @@ namespace WorldGen.Presentation
             if(world!=null&&d.Cell>=0&&d.Cell<world.Surface.Cells.Length)
             {
                 var location=SocietyView.Location(world,d.Cell);d.Longitude=Math.Atan2(location.Y,location.X)*180/Math.PI;d.Latitude=Math.Asin(location.Z)*180/Math.PI;
-                d.Habitat=HabitatPortrait.At(world,d.Cell);
-                var setting=Setting(world,d.Cell,kind=="state"||kind=="ruler"?"Capital's setting":"Local setting");
-                if(setting!=null)sections.Insert(Math.Min(1,sections.Count),setting);
+                if(kind!="technology")
+                {
+                    d.Habitat=HabitatPortrait.At(world,d.Cell);
+                    var setting=Setting(world,d.Cell,kind=="state"||kind=="ruler"?"Capital's setting":"Local setting");
+                    if(setting!=null)sections.Insert(Math.Min(1,sections.Count),setting);
+                }
             }
             ColonialSections(s,kind,id,sections);d.Sections=sections.ToArray();return d;
         }
@@ -168,7 +171,7 @@ namespace WorldGen.Presentation
             d.Introduction="This world has "+N(global)+" people, "+N(states.Length)+" surviving states, and "+N(towns.Length)+" inhabited named settlements. "+(states.Length==0?"Political life is still organized outside centralized states.":states[0].Name+" is the most populous surviving state; political and cultural boundaries are not necessarily the same.")+" "+(wars==0?"No interstate wars are currently recorded.":N(wars)+" interstate wars are currently active.");
             d.Facts=new[]{F("People",N(global)),F("Named-settlement residents",N(urban)+(global>0?" ("+(100.0*urban/global).ToString("0.#",CultureInfo.InvariantCulture)+"% of all people)":"")),F("Surviving states",N(states.Length)),F("Active wars",N(wars))};
             if(h.Aggregates?.Empires!=null){d.Introduction+=" These overarching entities include "+N(governments-states.Length)+" constituent governments with their own local institutions.";d.Facts=d.Facts.Concat(new[]{F("Constituent governments",N(governments-states.Length))}).ToArray();}
-            d.Facts=d.Facts.Concat(new[]{F("Simulation rules",h.Version)}).ToArray();
+            d.Note+=" Simulation rules: "+h.Version+".";
             a.Add(Links("Political centers",states.Take(12).Select(p=>StateLink(s,p,N(HistoricalImperialHierarchy.Population(s,p.Id))+" people · "+p.Government,HistoricalImperialHierarchy.Population(s,p.Id))),"Compare overarching populations, including constituent governments. People outside these entities are not missing from the world total.",true,"people"));
             a.Add(Links("Urban centers",towns.OrderByDescending(t=>t.Population).ThenBy(t=>t.Id).Take(12).Select(t=>TownLink(s,t)),"Named-settlement population only, not the surrounding rural catchment.",true,"residents"));
             a.Add(Text("Reading this moment",(global==0?"No population is currently recorded.":"About "+(100.0*urban/global).ToString("0.#",CultureInfo.InvariantCulture)+"% of the world's people live in named settlements; the rest are represented by rural communities.")+" "+(states.Length>0?states[0].Name+" is the largest surviving court by population, but size alone says nothing about how secure its rule is.":"No centralized state is currently recorded.")+" "+(wars>0?"Open a belligerent state's diplomatic neighborhood and campaign records to explore the current conflicts.":"Peace in the interstate records does not imply that every community is stable or prosperous.")));

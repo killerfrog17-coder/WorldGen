@@ -2,21 +2,23 @@ import {chromium} from 'playwright';
 import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
 const output=process.env.VISUAL_CHECK_OUTPUT||'artifacts/visualization/final-browser';await fs.mkdir(output,{recursive:true});
-const browser=await chromium.launch({headless:true,channel:'msedge',args:process.env.VISUAL_DEBUG_PORT?[`--remote-debugging-port=${process.env.VISUAL_DEBUG_PORT}`]:[]}),page=await browser.newPage({viewport:{width:1600,height:1000}}),errors=[];
+const resume=process.argv.includes('--resume');
+const browser=resume?await chromium.connectOverCDP('http://127.0.0.1:'+process.env.VISUAL_DEBUG_PORT):await chromium.launch({headless:true,channel:'msedge',args:process.env.VISUAL_DEBUG_PORT?[`--remote-debugging-port=${process.env.VISUAL_DEBUG_PORT}`]:[]}),page=resume?browser.contexts().flatMap(c=>c.pages()).find(p=>p.url().includes('5094')):await browser.newPage({viewport:{width:1600,height:1000}}),errors=[];
 page.setDefaultTimeout(600000);page.on('pageerror',e=>errors.push(String(e)));
 const beat=setInterval(()=>console.log('Waiting for visualization check…'),30000);beat.unref();
 async function status(){const deadline=Date.now()+120000;for(;;){try{return await page.evaluate(async()=>JSON.parse(await window.__wg.people('status')));}catch(e){if(!String(e).includes('A simulation update is already running')||Date.now()>deadline)throw e;await page.waitForTimeout(50);}}}
 async function chapter(name){await page.getByRole('navigation',{name:'Article chapters'}).getByRole('button',{name,exact:true}).click();}
 async function section(name){if(!await page.getByRole('navigation',{name:'Article sections'}).getByRole('button',{name,exact:true}).count()){for(const c of await page.locator('.atlas-chapters button').allTextContents()){await chapter(c);if(await page.getByRole('navigation',{name:'Article sections'}).getByRole('button',{name,exact:true}).count())break;}}await page.getByRole('navigation',{name:'Article sections'}).getByRole('button',{name,exact:true}).click();}
 try{
- await page.goto(process.env.WORLDGEN_URL||'http://127.0.0.1:5094');
+ if(resume&&await page.getByRole('dialog',{name:'World atlas'}).count())await page.getByRole('button',{name:'Close',exact:true}).click();
+ if(!resume){await page.route('**/music/catalog.json',r=>r.fulfill({contentType:'application/json',body:'[]'}));await page.goto(process.env.WORLDGEN_URL||'http://127.0.0.1:5094');
  await page.getByRole('button',{name:'Set Up World',exact:true}).click();await page.evaluate(async bytes=>{window.__wg=await import('/globe.js');await window.__wg.loadWorldFile(bytes);},(await fs.readFile(process.argv[2]||'artifacts/history29/upgraded-earth20/final.world')).toString('base64'));
  await page.waitForFunction(()=>document.querySelector('button.start')&&!document.querySelector('button.start').disabled,{},{timeout:600000});
- await page.getByRole('button',{name:'Start world',exact:true}).click();await page.locator('.society-dock').waitFor();
+ await page.getByRole('button',{name:'Start world',exact:true}).click();await page.locator('.society-dock').waitFor();}
  const before=await status();console.log('Loaded history',before.Years,before.Population);
- for(let i=0;i<3;i++)await page.locator('.society-dock>button').nth(i).click();
- await page.getByRole('button',{name:'Map settings',exact:true}).click();await page.getByLabel('Map opacity',{exact:true}).fill('.15');
- await page.getByRole('button',{name:'Switch to map',exact:true}).click();await page.waitForFunction(()=>window.__wg.viewInfo().map&&!window.__wg.viewInfo().loading);
+ for(const [i,dock] of ['peoples','chronicle','selection'].entries())if(!await page.locator(`[data-dock="${dock}"]`).count())await page.locator('.society-dock>button').nth(i).click();
+ if(!await page.getByLabel('Map opacity',{exact:true}).isVisible())await page.getByRole('button',{name:'Map settings',exact:true}).click();await page.getByLabel('Map opacity',{exact:true}).fill('0.15');
+ if(await page.getByRole('button',{name:'Switch to map',exact:true}).count())await page.getByRole('button',{name:'Switch to map',exact:true}).click();await page.waitForFunction(()=>window.__wg.viewInfo().map&&!window.__wg.viewInfo().loading);
  for(const [number,mode,kind] of [[1,'States','state'],[3,'Cultures','people'],[4,'Religions','religion'],[5,'Technology','technology'],[6,'Territories','state'],[7,'Provinces','province']]){
   await page.locator('#globe').focus();await page.keyboard.press(String(number));await page.waitForFunction(mode=>document.querySelector('[aria-label="Historical overlay"]').value===mode,mode);
   const modeState=await status();assert.equal(modeState.Overlay,mode);await page.waitForFunction(name=>document.querySelector('.society-name')?.textContent===name,modeState.Legend[0].Name);
@@ -31,10 +33,10 @@ try{
   }
   await page.getByRole('button',{name:'Map settings',exact:true}).click();
  }
- await page.locator('#globe').focus();await page.keyboard.press('1');await page.locator('.society-entry').first().click();await page.getByRole('button',{name:'Atlas',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.atlas-article')?.dataset.kind==='state');
+ await page.locator('#globe').focus();await page.keyboard.press('1');await status();await page.locator('.society-entry').first().click();const selectedState=await status();await page.waitForFunction(title=>document.querySelector('.selection-card h3')?.textContent===title,selectedState.Card.Title);await page.getByRole('button',{name:'Atlas',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.atlas-article')?.dataset.kind==='state');
  assert.ok(await page.locator('.atlas-fact-tiles>div').count()>0);assert.ok(await page.locator('.atlas-chapters button').count()<=5);await page.screenshot({path:`${output}/state-atlas.png`});await section('Diplomatic neighborhood');await page.screenshot({path:`${output}/relationships.png`});await page.getByRole('button',{name:'Close',exact:true}).click();
- await page.getByRole('button',{name:'World',exact:true}).click();await page.locator('.atlas-article[data-kind="world"]').waitFor();await page.screenshot({path:`${output}/world-overview.png`});await section('Recorded history');await page.getByRole('button',{name:'Older',exact:true}).click();assert.ok((await page.locator('.atlas-record-count').innerText()).includes('Records 41'));await page.getByRole('button',{name:'Close',exact:true}).click();
- await page.getByRole('button',{name:'Map settings',exact:true}).click();await page.getByLabel('Map opacity',{exact:true}).fill('.5');await page.getByLabel('Population opacity',{exact:true}).fill('1');await page.locator('#globe').focus();
+ await page.getByRole('button',{name:'World',exact:true}).click();await page.locator('.atlas-article[data-kind="world"]').waitFor();await page.screenshot({path:`${output}/world-overview.png`});await section('Recorded history');await page.getByRole('button',{name:'Older',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.atlas-record-count')?.textContent.includes('Records 41'));await page.getByRole('button',{name:'Close',exact:true}).click();
+ await page.getByRole('button',{name:'Map settings',exact:true}).click();await page.getByLabel('Map opacity',{exact:true}).fill('0.5');await page.getByLabel('Population opacity',{exact:true}).fill('1');await page.locator('#globe').focus();
  for(const [key,label,value] of [['-','Population opacity',.75],['=','Population opacity',1],['Shift+-','Map opacity',.25],['Shift+=','Map opacity',.5]]){await page.keyboard.press(key);await page.waitForFunction(({label,value})=>Math.abs(Number(document.querySelector(`[aria-label="${label}"]`).value)-value)<.001,{label,value});}
  await page.keyboard.press('Shift+5');await page.waitForFunction(()=>document.querySelector('[aria-label="Base map"]').value==='Ecoregions');
  await page.getByLabel('Population opacity',{exact:true}).fill('0');await page.evaluate(async cell=>window.__wg.pickCell(cell),before.Legend[0].Cell);await page.getByRole('button',{name:'Selection',exact:true}).click();await page.locator('.selection-card figure img').waitFor();await page.waitForFunction(()=>document.querySelector('.selection-card img').naturalWidth>0);await page.screenshot({path:`${output}/ecoregion-card.png`});

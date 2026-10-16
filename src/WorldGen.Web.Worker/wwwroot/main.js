@@ -35,7 +35,7 @@ self.onmessage = async event => {
                 await new Promise(resolve => setTimeout(resolve, 0));
             }
         } else if (d.type === 'cancel-view') viewTicket++;
-        else if(d.type==='people'){const json=api.People(d.command,d.value||0);if(d.command==='lore'||d.command==='calendar'||d.command.startsWith('atlas')){self.postMessage({type:'lore',text:json,requestId:d.requestId});return;}const bytes=JSON.parse(json).ClockOnly?new Uint8Array():api.Palette(100);self.postMessage({type:'people',json,bytes,requestId:d.requestId},[bytes.buffer]);}
+        else if(d.type==='people'){const json=api.People(d.command,d.value||0);if(d.command==='lore'||d.command==='calendar'||d.command.startsWith('atlas')||d.command.startsWith('news:')){self.postMessage({type:'lore',text:json,requestId:d.requestId});return;}const bytes=JSON.parse(json).ClockOnly?new Uint8Array():api.Palette(100);self.postMessage({type:'people',json,bytes,requestId:d.requestId},[bytes.buffer]);}
         else if (d.type === 'point'||d.type==='pick') {self.postMessage({ type: 'inspection', text: d.type==='point'?api.DescribePoint(d.x,d.y,d.z):api.Describe(d.cell) });if(d.people){const json=api.People('status',0),bytes=api.Palette(100);self.postMessage({type:'people',json,bytes},[bytes.buffer]);}}
         else if (d.type === 'export') self.postMessage({ type: 'export', kind: d.kind, requestId: d.requestId, data: api.Export(d.kind) });
     } catch (error) { self.postMessage({ type: 'error', message: String(error) }); }

@@ -9,7 +9,8 @@ public sealed partial class WorldGenRuntime
 {
     [Serializable] sealed class DockEvidence
     {
-        public bool PanelsMeet,Resizable,Clamped,EraCorrect,MusicLoaded,MusicWaitsForPlay,CheckpointUnchanged,Passed;
+        public bool PanelsMeet,Resizable,Clamped,EraCorrect,MusicLoaded,MusicWaitsForPlay,CheckpointUnchanged,ContextualSelections,AtlasProfiles,BaseCard,Passed;
+        public string[] GuiErrors;
         public int Era;public string EraName,MusicDirectory;public Rect[] Panels;
     }
     IEnumerator CheckHistoryDock()
@@ -20,6 +21,7 @@ public sealed partial class WorldGenRuntime
         if(!worldReady||Busy||humans==null){Debug.LogError("DOCK CHECK initialization failed "+error);Application.Quit(1);yield break;}
         string before=world.Prehistory.ComputeHash();screen="Simulation";humanPlaying=false;peoplesOpen=chronicleOpen=detailsOpen=true;historyOverlay=HistoryOverlay.States;UpdateHumanPalette();
         var evidence=new DockEvidence{PanelsMeet=Mathf.Abs(SocietyPanel(0).xMax-SocietyPanel(1).x)<.1f&&Mathf.Abs(SocietyPanel(1).xMax-SocietyPanel(2).x)<.1f};
+        var guiErrors=new System.Collections.Generic.List<string>();Application.LogCallback recordError=(message,trace,type)=>{if(type==LogType.Error||type==LogType.Exception)guiErrors.Add(message);};Application.logMessageReceived+=recordError;
         evidence.Resizable=true;evidence.Clamped=true;
         for(int i=0;i<3;i++)
         {
@@ -44,11 +46,25 @@ public sealed partial class WorldGenRuntime
         musicSimulationStarted=true;nextMusicCheck=0;deadline=Time.realtimeSinceStartupAsDouble+15;
         while(recentMusic.Count==0&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         evidence.MusicLoaded=recentMusic.Contains(track)&&musicSource.clip!=null;evidence.MusicDirectory=musicFolder;
+        var checkpoint=world.Prehistory;
+        if(checkpoint.History?.Cultures.Length>0)
+        {
+            selectedCell=checkpoint.Society.Cultures[0].OriginCell;historyOverlay=HistoryOverlay.Technology;mapSettings=false;UpdateHumanPalette();
+            evidence.ContextualSelections=HistoryAtlas.Selection(checkpoint,selectedCell,historyOverlay)?.Kind=="technology"&&CurrentSelectionCard().Subtitle.Contains("technology");
+            for(int i=0;i<8;i++)yield return null;
+            OpenAtlas("technology",0);atlasSection="Knowledge and deployment";for(int i=0;i<8;i++)yield return null;
+            evidence.AtlasProfiles=atlasDocument.Kind=="technology";
+            if(checkpoint.History.Polities.Length>0){OpenAtlas("state",0);for(int i=0;i<8;i++)yield return null;evidence.AtlasProfiles&=atlasDocument.Kind=="state";}
+            atlasOpen=false;humanOverlayOpacity=0;layer=preferredLayer=Layer.Ecoregions;Refresh();while(Busy)yield return null;
+            evidence.BaseCard=CurrentBaseCard().Facts.Length>0;for(int i=0;i<8;i++)yield return null;
+            humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;UpdateHumanPalette();
+        }
         for(int i=0;i<12;i++)yield return new WaitForEndOfFrame();
         ScreenCapture.CaptureScreenshot(Path.Combine(output,"dock-hud.png"));
         for(int i=0;i<8;i++)yield return null;
         evidence.Panels=new[]{SocietyPanel(0),SocietyPanel(1),SocietyPanel(2)};evidence.CheckpointUnchanged=world.Prehistory.ComputeHash()==before;
-        evidence.Passed=evidence.PanelsMeet&&evidence.Resizable&&evidence.Clamped&&evidence.EraCorrect&&evidence.MusicLoaded&&evidence.MusicWaitsForPlay&&evidence.CheckpointUnchanged&&error.Length==0;
+        Application.logMessageReceived-=recordError;evidence.GuiErrors=guiErrors.ToArray();
+        evidence.Passed=evidence.PanelsMeet&&evidence.Resizable&&evidence.Clamped&&evidence.EraCorrect&&evidence.MusicLoaded&&evidence.MusicWaitsForPlay&&evidence.CheckpointUnchanged&&evidence.ContextualSelections&&evidence.AtlasProfiles&&evidence.BaseCard&&guiErrors.Count==0&&error.Length==0;
         File.WriteAllText(Path.Combine(output,"dock-check.json"),JsonUtility.ToJson(evidence,true));Debug.Log("DOCK CHECK "+JsonUtility.ToJson(evidence));Application.Quit(evidence.Passed?0:1);
     }
 }
