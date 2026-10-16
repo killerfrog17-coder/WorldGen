@@ -1,6 +1,6 @@
 # WorldGen repository instructions
 
-Owner launch-target update,16 October2026: the project `WorldGen.exe - Shortcut.lnk` now targets `artifacts/player-history-32-review-w2/WorldGen.exe`, explicitly requested after the regional-traditions update. This supersedes older shortcut-target notes below.31 remains the verified rollback baseline; selecting the32 review build does not declare all realism issues resolved. Existing saves keep their own rules; start a fresh simulation to use the new regional-traditions revision.
+Launch-target update,16 October2026: following the requested colonization pass, the project `WorldGen.exe - Shortcut.lnk` now targets `artifacts/player-history-32-geographic-ventures/WorldGen.exe` (state geography revision2, dated funded voyages, fair office retries and witnessed contact). This supersedes the earlier owner-selected `player-history-32-review-w2` target; W2 and verified31 remain rollback builds. Selecting the32 review build does not declare all realism issues resolved. Existing saves keep their own rules; start a fresh simulation to use the new revision.
 
 Read `docs/OROGEN_ALIGNMENT.md` (current version-3 scope), `WorldGen_OneShot_Prompt.md`, `docs/FIRST_BUILD_SPEC.md`, `docs/REFERENCE_ANALYSIS.md` and the implementation contracts in `docs/ALGORITHMS.md` before changing generation behavior. `docs/OROGEN_REFERENCE_MAP.md` records independent use of the pinned behavioral reference; never copy GPL reference code without the owner's explicit license decision.
 

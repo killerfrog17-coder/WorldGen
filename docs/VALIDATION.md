@@ -1,5 +1,81 @@
 # Version 3 validation evidence
 
+## State geography / dated overseas ventures - 16 October 2026
+
+The optional history32 `Connections.Geography` revision2 is described in
+[the implementation review](HISTORY32_GEOGRAPHIC_VENTURES.md). Final mechanisms
+include witnessed contact, fair vacant-office selection and the recorded actual
+parent service route. These are review rules, not a declaration of historical
+calibration. No geological/climate generation algorithm was changed.
+
+Focused checks:15 geography assertions,13 actual-world geography assertions
+(explicit upgrades, copy/save integrity,20 versus7+13-year partition/reload
+determinism, real voyages and bounded event portfolios),27 regional tradition,
+807 provisioned-port,129 coastal-farm,423 receiver-frontier,2953 living mechanism,
+84 presentation,313 interface and304 historical assertions. Two stale historical
+tests were repaired: nullable political-cycle integrity is now actually tested,
+and the current livelihood wording requirement no longer rewrites legacy prose.
+This does not claim a passing complete generation/golden suite.
+
+Matched200k100-year final comparisons, using exactly the same predecessor
+snapshots/terrain on both sides (`geography-release-{earth,cp}100` local reports):
+
+| Map | New ports, control / candidate | Surviving candidate ports | Candidate new-port residents | Other observations |
+| --- | --- | --- | --- | --- |
+| Earth73421 |9 /19 |19 |50,934 |Control56,476 port residents; more small starts is not uniformly greater population or territory. |
+| Continents Plus261015 |5 /52 |49 |400,054 |Control11,864 port residents; colony survival is not guaranteed. |
+
+The count includes real new towns at previously paid offices, not just towns at
+new flags. New offices, resident settlements, recognized titles, political
+protectorates and cultural identities remain distinct. The targeted Earth audit
+found89 physically supplied vacant offices, including11 currently eligible for
+normal/import settlement; a dispatch-count-dependent selection could starve
+them. Revision2's saved rotating cursor fixes that without lowering eligibility.
+
+Accepted current-regional-rule200k Earth and Continents Plus continuations also
+ran through actual maximum technology +1000 (not merely observer Postmodern).
+Selected state/climate and technology PNGs were directly viewed. Current local
+review directories are `geography-contact-earth200` and
+`geography-contact-cp200`; they retain final worlds and sparse milestone captures.
+Earth ends163610, actual max-tech162521,2.438billion people,2719 live towns and88
+living states. Continents Plus ends174515, actual max-tech173458,1.177billion
+people,875 live towns and40 living states. These continue accepted terrain and
+the earlier proto/state checks; they are not fresh independent ecological seeds.
+
+The maps show genuine overseas port/settlement networks rather than permanently
+empty distant coasts, but remain **a partial realism failure**: development is
+uneven, Earth strongly concentrates settlement in Brazil/Africa/Australia, and
+the earlier technology model stalls too long before compressing later advances.
+The sampled Earth run remains Iron Age until roughly13k years after its first
+state, then crosses the industrial/modern packages far too quickly. Continents
+Plus reaches Early Modern about8600 years after its first state. This pass does
+not certify those timelines or the resulting geopolitical geography as realistic.
+
+Legacy31 +20 years retains exact hash
+`f4e260d19883e9dfd894c63c9ff8215646b023fdb25090d3795819e6f48d2fef`.
+The version1 geographic control also retains its exact1000+year continuation
+`9f0cf2c31c979c4beff52dbfcc8dc3e59c7d908a74c977c49176bba32638acb7`
+after revision2 was added; its matching Unity/.NET endpoint is5654839933012
+seconds. Upgrades are explicit, not silently applied to saves.
+
+Current revision2 native Unity acceptance:200,000 cells,1012.75949 simulated
+years in170.28259 seconds,**5.94752 years/s average**, minimum rolling5.17197
+years/s, worst simulated year643.9194ms; all gates pass.5472 recorded towns,
+150 living states, actual max-tech178251, final179312. Input hash
+`f52da21b20b0f1767ef2c6386b0cbbf8cea9cc2ac69394849ffd4c256a813af0`,
+final hash `ad3d49e9dbc5797cfb6dda1c30917539b04ba6a84bf4c8d9816d889d5e42dd8d`,
+endpoint5654807183284 seconds. Evidence:
+`D:/WorldGenBuildArtifacts/geographic-ventures-v2-performance1000/playback.json`.
+This is an explicitly upgraded retained modern performance fixture, separate
+from the earlier fresh-state longitudinal reviews. It does not establish a
+universal speed bound on every possible denser future history. The packaged
+review player is `player-history-32-geographic-ventures`; its build-input
+manifest records Core SHA256
+`12e8394ddac9581b37f30c62a7db357bf1b4245c2e8558aa9d69c48311f96faa`.
+An exact .NET continuation to5654807183284 seconds independently matches the
+native final hash above and passes full public-state validation. The normal
+project shortcut now targets this review player; existing saves keep their rules.
+
 ## Regional traditions and nested proto-centers - 16 October 2026
 
 The32 review's optional `RegionalTraditions` revision was exercised on fresh histories over the unchanged200k Earth73421 and Continents Plus261015 terrain/ecology. First proto/state dates were144399/145710 and162922/163915 respectively. Ordinary earlier villages retained observer era2. Current reproducible worlds and compact States/Cultures screenshots are under ignored `artifacts/history32/regional-traditions-current-{earth200,cp200}`; the primary agent actually viewed full world maps of the proto and first-state periods. Regions are distinguishable from local centers; the sparse state colors do not falsely turn whole cultural homelands into states. This is not an independent visual review or a claim to reproduce Earth's actual origin geography.
