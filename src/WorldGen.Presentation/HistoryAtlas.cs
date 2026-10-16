@@ -35,7 +35,9 @@ namespace WorldGen.Presentation
         static string Y(PrehistoryState s,int year)=>SimulationClockView.YearNumber(year,SimulationClockView.EpochYear(s));
         static string N(long n)=>n.ToString("N0",CultureInfo.InvariantCulture);
         static AtlasFact F(string label,string value)=>new AtlasFact{Label=label,Value=value};
-        static AtlasLink StateLink(PrehistoryState s,HistoricalPolity p,string detail="",long value=0)=>new AtlasLink{Kind="state",Id=p.Id,Name=p.Name,Cell=s.Society.Settlements[p.CapitalId].Cell,Detail=detail,Context="Founded "+Y(s,p.FoundedYear)+" · "+s.Society.Settlements[p.CapitalId].Name,Value=value,Historical=p.EndedYear>=0};
+        static bool RegimeSuccessor(PrehistoryState s,HistoricalPolity p)
+            =>p.ParentId>=0&&s.History.International!=null&&p.ParentId<s.History.International.Accounts.Length&&s.History.International.Accounts[p.ParentId].ContinuitySuccessor==p.Id;
+        static AtlasLink StateLink(PrehistoryState s,HistoricalPolity p,string detail="",long value=0)=>new AtlasLink{Kind="state",Id=p.Id,Name=p.Name,Cell=s.Society.Settlements[p.CapitalId].Cell,Detail=detail,Context=(RegimeSuccessor(s,p)?"Regime since ":"Founded ")+Y(s,p.FoundedYear)+" · "+s.Society.Settlements[p.CapitalId].Name,Value=value,Historical=p.EndedYear>=0};
         static AtlasLink TownLink(PrehistoryState s,Settlement t)=>new AtlasLink{Kind="city",Id=t.Id,Name=t.Name,Cell=t.Cell,Detail=N(t.Population)+" residents",Context="Founded "+Y(s,t.FoundedYear),Value=t.Population,Historical=t.Population==0};
         static AtlasLink CultureLink(CultureIdentity c)=>new AtlasLink{Kind="people",Id=c.Id,Name=c.Name,Cell=c.OriginCell,Detail=N(c.Population)+" people",Value=c.Population};
         static AtlasLink FaithLink(HistoricalReligion r)=>new AtlasLink{Kind="religion",Id=r.Id,Name=r.Name,Cell=r.HolyCell,Detail=r.Tradition};
@@ -81,12 +83,12 @@ namespace WorldGen.Presentation
         }
         static string StateSummary(PrehistoryState s,HistoricalPolity p)
         {
-            if(p.EndedYear>=0)return p.Name+" was founded in year "+Y(s,p.FoundedYear)+" and its government ended in year "+Y(s,p.EndedYear)+". Its people and cities may survive under later courts.";
+            if(p.EndedYear>=0)return p.Name+(RegimeSuccessor(s,p)?"'s government took office in year ":" was founded in year ")+Y(s,p.FoundedYear)+" and its government ended in year "+Y(s,p.EndedYear)+". Its people and cities may survive under later courts.";
             string text=p.Name+" is based at "+s.Society.Settlements[p.CapitalId].Name+" and governed under "+p.Government.ToLowerInvariant()+". It directly administers "+N(p.Population)+" people; "+p.Ruler+" currently rules.";
             int patron=HistoricalImperialHierarchy.Patron(s,p.Id),subjects=s.History.Aggregates?.Empires?.Governments[p.Id].SubjectCount??0;
             if(patron>=0)text+=" It retains its local institutions as a constituent of "+s.History.Polities[patron].Name+".";
             if(subjects>0)text+=" Including "+N(subjects)+" constituent governments, its realm contains "+N(HistoricalImperialHierarchy.Population(s,p.Id))+" people.";
-            return text+" Founded in year "+Y(s,p.FoundedYear)+".";
+            return text+(RegimeSuccessor(s,p)?" Its current government dates to year ":" Founded in year ")+Y(s,p.FoundedYear)+".";
         }
         public static AtlasLink[] ProfilesAt(PrehistoryState? s,int cell)
         {
@@ -195,9 +197,10 @@ namespace WorldGen.Presentation
         {
             var h=s.History;var c=s.Society.Cultures[p.CultureId];var capital=s.Society.Settlements[p.CapitalId];var towns=s.Society.Settlements.Where(t=>t.PolityId==p.Id&&t.Population>0).OrderByDescending(t=>t.Population).ThenBy(t=>t.Id).ToArray();var relations=p.EndedYear>=0?Array.Empty<HistoricalRelation>():h.Relations.Where(r=>(r.A==p.Id||r.B==p.Id)&&h.Polities[r.A==p.Id?r.B:r.A].EndedYear<0).ToArray();
             d.Title=p.Name;d.Cell=capital.Cell;d.Subtitle=p.Government+" · "+(p.EndedYear<0?"Surviving state":"Historical state");
-            d.Introduction=p.Name+" was founded in year "+Y(s,p.FoundedYear)+" among the "+c.Name+" people. "+(p.EndedYear<0?"Its court is based at "+capital.Name+", and its current ruler is "+p.Ruler+". It administers "+N(p.Population)+" people across "+N(p.AreaKm2)+" km².":"Its independent state ended in year "+Y(s,p.EndedYear)+". The end of this state does not by itself imply the disappearance of its people or cities.");
+            bool continuity=RegimeSuccessor(s,p);
+            d.Introduction=p.Name+(continuity?"'s recorded government took office in year ":" was founded in year ")+Y(s,p.FoundedYear)+" among the "+c.Name+" people. "+(continuity?"It continues the institutions of an earlier government; this is not the first appearance of the country or its people. ":"")+(p.EndedYear<0?"Its court is based at "+capital.Name+", and its current ruler is "+p.Ruler+". It administers "+N(p.Population)+" people across "+N(p.AreaKm2)+" km².":"This government ended in year "+Y(s,p.EndedYear)+". Its people and cities may continue under later governments.");
             if(p.EndedYear<0)d.Introduction+=" "+(relations.Any(r=>r.WarSince>=0)?"War currently shapes its relations with neighboring courts.":relations.Any(r=>r.Trade)?"Recorded trading relationships connect it to neighboring courts.":"No active interstate war or trading treaty is recorded.");
-            d.Facts=new[]{F("Founded", "Year "+Y(s,p.FoundedYear)),F("Status",p.EndedYear<0?"Surviving":"Ended in year "+Y(s,p.EndedYear)),F("Population",p.EndedYear>=0&&p.LastEstimateYear==0?"No preserved last-active estimate":N(p.Population)+(p.LastEstimateYear>0?" (estimate from year "+Y(s,p.LastEstimateYear)+")":"")),F("Land area",p.EndedYear>=0&&p.LastEstimateYear==0?"No preserved last-active estimate":N(p.AreaKm2)+" km²"),F("Government",p.Government),F("Army levy",N(p.Army)),F("Treasury",N(p.Treasury)+" model units")};
+            d.Facts=new[]{F(continuity?"Regime established":"Founded", "Year "+Y(s,p.FoundedYear)),F("Status",p.EndedYear<0?"Surviving":"Ended in year "+Y(s,p.EndedYear)),F("Population",p.EndedYear>=0&&p.LastEstimateYear==0?"No preserved last-active estimate":N(p.Population)+(p.LastEstimateYear>0?" (estimate from year "+Y(s,p.LastEstimateYear)+")":"")),F("Land area",p.EndedYear>=0&&p.LastEstimateYear==0?"No preserved last-active estimate":N(p.AreaKm2)+" km²"),F("Government",p.Government),F("Army levy",N(p.Army)),F("Treasury",N(p.Treasury)+" model units")};
             a.Add(Links("People, court, and belief",new[]{CultureLink(c),TownLink(s,capital)}.Concat(p.ReligionId>=0&&p.ReligionId<h.Religions.Length?new[]{FaithLink(h.Religions[p.ReligionId])}:Array.Empty<AtlasLink>()),"The court's religious affiliation is distinct from the local faith map."));
             var lineage=(p.ParentId>=0?new[]{StateLink(s,h.Polities[p.ParentId],"Recorded predecessor realm")}:Array.Empty<AtlasLink>()).Concat(h.Polities.Where(x=>x.ParentId==p.Id).OrderBy(x=>x.FoundedYear).ThenBy(x=>x.Id).Select(x=>StateLink(s,x,"Descendant court founded in year "+Y(s,x.FoundedYear)))).ToArray();
             if(lineage.Length>0)a.Add(Links("Political lineage",lineage,"These links record predecessor and descendant courts, not a biological dynasty or proof that their people disappeared."));

@@ -19,8 +19,22 @@ public static class HistoryWorldRealismReview
     {
         if(preset=="ContinentsPlus")preset="Continents plus";
         if(!WorldPresets.Names.Contains(preset))throw new ArgumentException("Use an existing preset.");
-        Directory.CreateDirectory(output);var setup=new WorldSetup();var recipe=setup.Resolve(setup.Preset(preset,new Recipe{Seed=seed,Detail=detail,EcologyProfile=profile}));recipe.EcologyProfile=profile;
-        var world=new WorldPipeline().Generate(recipe);var engine=new Prehistory(world);var session=new SimulationSession(engine,engine.Start(engine.Prepare()));
+        var setup=new WorldSetup();var recipe=setup.Resolve(setup.Preset(preset,new Recipe{Seed=seed,Detail=detail,EcologyProfile=profile}));recipe.EcologyProfile=profile;
+        RunWorld(new WorldPipeline().Generate(recipe),preset,seed,output,safetyYear);
+    }
+    public static void Replay(string source,string output,int safetyYear)
+    {
+        if(Path.GetFullPath(source).Equals(Path.GetFullPath(Path.Combine(output,"final.world")),StringComparison.OrdinalIgnoreCase))throw new ArgumentException("A replay must not overwrite its source world.");
+        // A controlled history experiment, not another generation route. Keep
+        // every accepted terrain/climate/ecology value and reset only the loaded
+        // copy's history through the ordinary public preparation/start API.
+        var world=WorldFile.Read(File.ReadAllBytes(source));world.Prehistory=null;
+        RunWorld(world,"Saved-world history replay",world.Recipe.Seed,output,safetyYear,Path.GetFullPath(source));
+    }
+    static void RunWorld(World world,string preset,int seed,string output,int safetyYear,string source=null)
+    {
+        if(File.Exists(Path.Combine(output,"final.world")))throw new IOException("Refusing to overwrite a completed review world.");
+        Directory.CreateDirectory(output);var recipe=world.Recipe;var engine=new Prehistory(world);var session=new SimulationSession(engine,engine.Start(engine.Prepare()));
         var watch=Stopwatch.StartNew();var rows=new List<object>();var seen=new HashSet<int>();int first=-1,tail=-1,lastMap=-1,workYear=-1;double worst=0,yearWork=0;
         engine.YearWorkObserver=(year,ms)=>{if(year!=workYear){workYear=year;yearWork=0;}yearWork+=ms;worst=Math.Max(worst,yearWork);};
         while(session.LastSnapshot.Years<safetyYear)
@@ -45,7 +59,7 @@ public static class HistoryWorldRealismReview
                     ActiveOrganizations=s.History.International?.Organizations.Count(o=>o.EndedYear<0)??0,CoalitionEntries=s.History.International?.CoalitionEntries.Length??0,
                     NuclearArsenals=s.History.Nuclear?.States.Count(n=>n.Stockpile>0)??0,NuclearUses=s.History.Nuclear?.States.Sum(n=>n.Used)??0,
                     WorstYearMs=worst,WallSeconds=watch.Elapsed.TotalSeconds};
-                rows.Add(row);File.WriteAllText(Path.Combine(output,"review.json"),JsonSerializer.Serialize(new{Preset=preset,Seed=seed,Recipe=recipe,Rules=s.History.Version,Rows=rows},new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));
+                rows.Add(row);File.WriteAllText(Path.Combine(output,"review.json"),JsonSerializer.Serialize(new{Preset=preset,Seed=seed,Recipe=recipe,SourceWorld=source,Rules=s.History.Version,Rows=rows},new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));
                 File.WriteAllText(Path.Combine(directory,"towns.json"),JsonSerializer.Serialize(towns.Select(t=>new{t.Id,t.Name,t.Cell,t.CultureId,t.PolityId,t.Population,Age=s.Years-t.FoundedYear,Latitude=Math.Asin(world.Surface.Cells[t.Cell].Position.Z)*180/Math.PI,Climate=world.Climate.Classification[t.Cell].ToString(),world.Ecology.Habitat[t.Cell].Biome}),new JsonSerializerOptions{WriteIndented=true}));
                 lastMap=s.Years;Console.WriteLine(JsonSerializer.Serialize(row));
             }

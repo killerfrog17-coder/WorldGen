@@ -4,6 +4,20 @@ using WorldGen.Serialization;
 
 public static class HistoryLivingAtlasTests
 {
+    public static void ContinuityWorld(string path,Action<bool,string> check)
+    {
+        var world=WorldFile.Read(File.ReadAllBytes(path));var engine=new Prehistory(world);var s=world.Prehistory;engine.Validate(s);string hash=s.ComputeHash();
+        var system=s.History.International??throw new Exception("Continuity atlas fixture needs international continuity records.");
+        var successor=s.History.Polities.FirstOrDefault(p=>p.ParentId>=0&&system.Accounts[p.ParentId].ContinuitySuccessor==p.Id)??throw new Exception("Continuity atlas fixture needs an actual recorded regime replacement.");
+        var article=HistoryAtlas.Read(s,"state",successor.Id,world,engine);
+        check(article.Facts.Any(f=>f.Label=="Regime established")&&!article.Facts.Any(f=>f.Label=="Founded"),"Actual successor article dates the regime rather than refounding its country's entire history");
+        check(article.Introduction.Contains("not the first appearance of the country"),"Actual institutional continuity is explained in ordinary historical language");
+        var link=HistoryAtlas.Directory(s,"state",past:true).Single(x=>x.Id==successor.Id);
+        check(link.Context.StartsWith("Regime since ",StringComparison.Ordinal),"Directory and article distinguish the same regime date consistently");
+        var body=system.Organizations.FirstOrDefault();
+        if(body!=null)check(HistoryAtlas.Read(s,"organization",body.Id,world,engine).Introduction.Contains("government then ruling"),"Organization founding refers to the historical government, not a later same-named regime");
+        check(s.ComputeHash()==hash,"Reading actual regime and organization continuity cannot modify saved history");
+    }
     public static void World(string path,Action<bool,string> check)
     {
         var world=WorldFile.Read(File.ReadAllBytes(path));var engine=new Prehistory(world);var s=engine.UpgradeToLivingWorldHistory(world.Prehistory);string hash=s.ComputeHash();

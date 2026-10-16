@@ -42,9 +42,14 @@ starved by hundreds of homeland cities. New history-32 town actors each have
 their own bounded opportunity on their existing scheduled city process. The
 rate depends on actual supported population, transferable households, local
 capacity pressure, residence, civic practice and deployed transport. Only a
-rare successful opportunity samples up to three local paths. Their hop count
-uses cell area to propose approximately 120–240 km reach, capped at eight
-neighbor steps; actual physical delivery still limits the result. It does not
+rare successful opportunity samples up to three local proposals, separated by
+120 degrees around the parent at nominal radii of 120, 180 and 240 km. A
+deterministic bearing rotates between opportunities. The existing immutable
+routing raster and at most four greedy neighbor refinements choose the nearby
+detail cell; no global locator is rebuilt. Invalid ocean, relief or landmass
+targets are rejected, not snapped to convenient land across the barrier. Cell
+size and the fixed refinement cap still limit exact physical resolution, and
+actual delivery decides whether the proposal can be used. It does not
 inspect all cells or all towns of a culture/state.
 
 An actual move still requires viable source crops at the destination, crowding
@@ -126,6 +131,15 @@ homeland requirements are not removed to hide this failure. Subsequent
 productive-village survival and local-network calibration requires a fresh
 comparison, including this failed seed.
 
+The subsequent L Archipelago 42 control confirmed that fixing real nearby
+delivery was necessary but insufficient: first state 638,449, still 456,449
+years after the first farming era. The preserved 450,000-year checkpoint has
+a real 2,891-person center with 55,286 surrounding rural residents, urban food
+capacity 10,749, but an artificial proto limit of 2,986. That diagnosis is not
+resolved by pointing to its much better late map: after 900 postmodern years,
+the L map does show 47 states, 805 live towns and 176 sponsored ports across
+the archipelago. Early origins and late maritime expansion are separate tests.
+
 The [original European Neolithic demographic study](https://discovery.ucl.ac.uk/id/eprint/1398968/1/ncomms3486.pdf)
 finds regional population surges and declines rather than continuous growth;
 its tested climate proxies generally do not explain that pattern. This
@@ -144,3 +158,73 @@ balance between local diversity and naval hegemonies still require multiple
 seeds and direct map inspection after each material change. Explicit ecology
 profiles must be recorded: the review command historically defaults to native-2,
 so an omitted optional profile argument is not evidence about native-3.
+
+The N2 Earth 73421/native-3/200,000-cell control separates another successful
+origin change from a remaining maritime failure. Farming starts at 114,000;
+the first small state at 119,920 is in a suitable North American midlatitude
+environment, not a rainforest or cold-origin shortcut. There is one independent
+institutional origin. However, its first surviving governed populated harbor
+appears only at 128,227, and the early-modern checkpoint at 128,500 still has no
+sponsored settler ports. The actual late screenshots remain too concentrated
+in North America. This is not accepted as a realistic global late history.
+
+An exact saved early-modern diagnostic rules out a proposed naval-deployment
+explanation: ruling cultures have maritime practice and deployed ocean
+navigation of 0.744 and 0.997. Their actual charts already include Spain and
+Portugal, and the precomputed voyage graph is not limited to tiny crossings.
+The exact planner's five supplied proposals at that instant all target tropical
+Cuba, Yucatan or northeastern Brazil, where its actual provisioning community's
+crop repertoire has zero or negligible yield. Physically reachable inland
+farmer communities also lack viable crops at those targets; simply selecting
+the ruler's identity would not be a justified fix. An experimental farmer-source
+selector was therefore removed before any fresh control or release.
+
+There is also measurable local proposal waste, independently of origin or
+colonial hazards. Among 46 active local parents at that checkpoint, 113 of 138
+walk proposals collide with existing town spacing. Only 12 survive the complete
+real crop, claim, political, transport, food and household preflight. An offline
+counterfactual of three physically spaced spherical probes, retaining all those
+guards, has 28 viable proposals. This is evidence for improving the proposal
+geometry, not permission to grant free towns, bypass crop compatibility, or
+claim that a roughly twofold proposal improvement alone solves late expansion.
+
+## O: bounded physical proposal geometry
+
+O uses three separated spherical bearings at 120/180/240 km, resolved through
+the existing terrain raster and at most four greedy neighbor descents. It
+does not change local opportunity rates or waive the existing commit checks.
+Its controlled replays retain the exact N saved terrain and ecology rather
+than regenerating worlds while the fauna content is changing.
+
+| Same saved world | N first state | O first state | N / O early-modern sponsored ports | N / O late sponsored ports |
+| --- | ---: | ---: | ---: | ---: |
+| Earth 73421, 200k | 119920 | 119944 | 0 / 6 | 14 / 18 |
+| Continents Plus 261015, 200k | 164087 | 154770 | 9 / 28 | 37 / 73 |
+| Archipelago 42, 20k | 313164 | 317315 | 25 / 10 | 64 / 38 |
+
+The late comparison is approximately 900 years after each world's first
+postmodern observation, not a shared absolute year or identical geopolitical
+trajectory. Port counts are diagnostic, not a quality objective. The island
+control is deliberately included: this is not a uniform expansion multiplier.
+Native offline worst summed-year work is 96.5 ms Earth and 321 ms Continents
+Plus in these runs; that is not a Unity wall-clock acceptance benchmark.
+
+The independent critic actually viewed O Earth Bronze, early-modern and late
+state/technology maps, plus identity-only maps with the climate tint reduced.
+Overseas populated networks now reach more of South America, Japan and eastern
+Australia. Europe remains sparsely urban and India nearly absent. Several
+countries share a ruling culture and therefore a color: green on that map is
+not automatically one political state. The final Earth checkpoint has eight
+active states and three sovereigns. Its 64 recorded governments include 56
+ended governments, with a median ended lifetime of 299 years, ten secessions
+and twelve wars. Two surviving sovereigns still exceed 2,000 years; regime
+continuity and country identity must be distinguished, not hidden by reporting
+only a median or declaring all political turnover realistic.
+
+The parent additionally viewed the actual O Continents Plus early-modern state
+and late technology maps: maritime networks reach other major landmasses,
+while the original northeastern region retains a much denser urban system.
+This supports a geometry correction, not acceptance of globally realistic
+colonization, diffusion, political variety or historical pacing. Current-state
+shipbuilding exposure and destination crop/supply choices remain separately
+audited causes; no blanket food/crop bypass was added in O.

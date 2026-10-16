@@ -12,7 +12,7 @@ powershell -ExecutionPolicy Bypass -File scripts/publish-worker-aot.ps1 `
   -BuildArtifactsDirectory D:\WorldGenBuildArtifacts\wasm-aot-current
 ```
 
-Both directories are generated build products. The optional D-drive directory is a disposable compiler cache, **not** a project, music, model, or saved-world backup. The script does not replace the regular staged worker or the Unity player. Its publication manifest records the source revision, dirty-tree flag, build duration and asset sizes. A first native compilation can take several minutes; ordinary development builds do not incur that cost.
+Both directories are generated build products. The optional D-drive directory is a disposable compiler cache, **not** a project, music, model, or saved-world backup. The script does not replace the regular staged worker or the Unity player. Its publication manifest records the starting source revision, dirty-tree flag, actual compiled input DLL hashes, build duration and asset sizes. A first native compilation can take several minutes; ordinary development builds do not incur that cost.
 
 Test without replacing the running app's assets:
 
@@ -50,6 +50,16 @@ An actual one-year continuation through the compiled worker, followed by exporte
 The compiled native blob grew from 2.86 MiB to 17.97 MiB, but trimming reduced other framework files: total framework `.wasm` files were 27.44 MiB compiled versus 28.06 MiB interpreted. All framework gzip files totaled 12.57 MiB versus 14.06 MiB; this includes ancillary assets and is not an exact network-transfer measurement. Native compilation used roughly three minutes on this host. Artifacts are under `artifacts/history32/browser-h-pangeae-aot`, with the temporary native compiler cache under `D:\WorldGenBuildArtifacts\wasm-aot-h`.
 
 The existing repository v3 goldens use unsupported `worldgen-3.22.0` recipes and are intentionally unchanged. Their rejection must not be reported as a passing current-generator AOT test. Current-version cross-host controls, where recorded, are derived and checked outside `tests/golden`; they do not silently replace reviewed expectations. Maximum-detail browser memory, Firefox, Safari, and exhaustive simulated histories remain unverified by this control.
+
+## Actual L source publication and boundary regression
+
+The real publication script subsequently built the captured L source, before the independent M/N historical experiments, in 177.13 s. Its Core input DLL SHA256 was `1cf150c11621be2b80c5369582832b851d606b3c7b7a29befcc1531f4dac8063`; do not identify that dirty-tree candidate solely by a later repository HEAD. Publication: `artifacts/history32/wasm-aot-l-publish`; disposable compiler cache: `D:\WorldGenBuildArtifacts\wasm-aot-l`.
+
+Eleven independently generated native H current-version controls all matched the actual L compiled browser, across all 165 stage records. Cases cover high/sparse plates, continents, Earth, glaciation, interconnection searches, mostly land, mostly ocean and completely ocean. These current `worldgen-3.32.0` controls live only in ignored artifacts, not the older reviewed golden directory. Browser results and timings are under `artifacts/history32/browser-worker-aot-l-current-controls`.
+
+The completely ocean case exposed a pre-existing presentation boundary bug: the accepted world has no denominator for `continental_below_zero_fraction` and `inland_below_zero_fraction`. Its summary emitted `NaN`, which strict browser JSON rejected. The old checker cleared its timeout before parsing, leaving a permanently unresolved promise. The display adapter now omits undefined diagnostics and explains their omission in a copied warning list; accepted world diagnostics and hashes are untouched. The checker rejects parse errors promptly rather than masking them or hanging. The actual all-ocean compiled-browser case then passed all 15 hashes in 19.94 s.
+
+Actual latest atlas checks against the L2 finance-bearing save passed at `artifacts/history32/browser-l2-finance-aot-final`, including the new operating-budget page, compact resource layout, 1024×768 reader and read-only chronicle comparison. The final map screenshot explicitly waits for completed geometry; its recorded view is flat map, climate background, `loading=false`. Earlier captures made while a view was still loading are not default-map visual evidence.
 
 ## Primary runtime references
 

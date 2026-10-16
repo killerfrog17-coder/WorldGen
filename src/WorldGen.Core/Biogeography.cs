@@ -26,7 +26,10 @@ namespace WorldGen.Core
             if(resource.Producer) return true;
             // A pack's large-ungulate prey envelope must not make adult apex
             // predators routine prey. Smaller predatory animals remain possible.
-            if((resource.Eats&Food.Vertebrate)!=0 && resource.MassKg>consumer.MassKg*.25) return false;
+            var defense=resource.Lineage?.Predation;
+            bool dangerous=defense==null?(resource.Eats&Food.Vertebrate)!=0:defense.DangerousAdult;
+            bool handlesSnake=defense!=null&&defense.SnakeBody&&consumer.Lineage?.Predation?.SnakeHandling==true;
+            if(dangerous&&!handlesSnake&&resource.MassKg>consumer.MassKg*.25) return false;
             return resource.MassKg>=consumer.MinPreyKg && resource.MassKg<=consumer.MaxPreyKg;
         }
         public static bool Present(EcologyResult e,int cell,int taxon)
@@ -156,6 +159,14 @@ namespace WorldGen.Core
             double lat=(source==null?t.EarthLatitude:source.Latitude)*D.Pi/180,lon=(source==null?t.EarthLongitude:source.Longitude)*D.Pi/180;
             var anchor=earth ? new V(D.Sin(D.Pi/2-lat)*D.Sin(D.Pi/2-lon),D.Sin(D.Pi/2-lat)*D.Sin(lon),D.Sin(lat)) : home>=0 ? w.Surface.Cells[home].Position : new Rng(w.Recipe.Seed,"life-homeland",t.Id).Vector();
             int best=-1; long score=long.MaxValue;
+            // A nearest suitable stamp can strand a large terrestrial lineage
+            // inside otherwise unsuitable country. This is only a soft source
+            // preference in the new content pack, not a minimum viable range.
+            bool breadth=w.Recipe.EcologyProfile==EarthFaunaPack.Version && t.Rank==TaxonRank.Lineage && t.MassKg>=10 && t.Lineage!=null
+                && !t.Lineage.RequiresCoast && !t.Lineage.RequiresFreshwater && !t.Lineage.Aquatic && !t.Lineage.AdjacentSeaOnly
+                && (t.Occupies&Stratum.Ground)!=0 && (t.Occupies&(Stratum.Air|Stratum.Water))==0;
+            int[] candidates=breadth?Enumerable.Repeat(-1,8).ToArray():null;
+            long[] candidateCosts=breadth?Enumerable.Repeat(long.MaxValue,8).ToArray():null;
             for(int i=0;i<w.Surface.Cells.Length;i++)
             {
                 if((i&2047)==0) token.ThrowIfCancellationRequested();
@@ -171,9 +182,52 @@ namespace WorldGen.Core
                 if(!earth && home<0) foreach(int other in used) cost+=D.M(Math.Max(0,4500-D.Angle(w.Surface.Cells[other].Position,w.Surface.Cells[i].Position)*6371)*150);
                 if(!earth && home>=0 && w.Landmass[i]!=w.Landmass[home]) cost+=10000000;
                 if(cost<score) { score=cost; best=i; }
+                if(breadth)
+                {
+                    // Distance shells prevent all eight candidates being the
+                    // eight nearest cells of the same tiny habitat fragment.
+                    int band=km<125?0:km<250?1:km<500?2:km<800?3:km<1200?4:km<1800?5:km<2500?6:7;
+                    if(cost<candidateCosts[band]){candidateCosts[band]=cost;candidates[band]=i;}
+                }
+            }
+            if(breadth)
+            {
+                best=-1;score=long.MaxValue;
+                for(int k=0;k<candidates.Length;k++)if(candidates[k]>=0)
+                {
+                    long value=candidateCosts[k]+OriginHabitatPenalty(w,t,candidates[k],token);
+                    if(value<score||value==score&&candidates[k]<best){score=value;best=candidates[k];}
+                }
             }
             if(best>=0 && home<0) { homes[group]=best; used.Add(best); }
             return best;
+        }
+
+        // At most 8 candidates x 64 resident-suitable cells per source. Area,
+        // not node count, supplies an authored ~100km-radius regional breadth
+        // prior. This is not prey biomass, a species-specific MVP or a range
+        // guarantee. Allowed unsuitable transit can connect patches that this
+        // deliberately conservative resident-only probe does not join.
+        static long OriginHabitatPenalty(World w,Taxon t,int origin,CancellationToken token)
+        {
+            const long targetArea=30000000000L; // 30,000 km2.
+            var queue=new int[64];queue[0]=origin;int head=0,count=1;long area=0;bool censored=false;
+            while(head<count)
+            {
+                token.ThrowIfCancellationRequested();int cell=queue[head++];area+=w.Surface.Cells[cell].AreaM2;
+                if(area>=targetArea)return 0;
+                foreach(int next in w.Surface.Cells[cell].Neighbors)
+                {
+                    bool seen=false;for(int k=0;k<count;k++)if(queue[k]==next){seen=true;break;}
+                    if(seen||w.Hydrology.OceanConnected[next]||!Suitable(t,w.Ecology.Habitat[next],w.ElevationM[next]))continue;
+                    if(count==queue.Length){censored=true;continue;}
+                    queue[count++]=next;
+                }
+            }
+            // An open frontier after the fixed probe is unknown, not evidence
+            // of a small habitat area. Do not punish finer cell resolution for
+            // hitting the work budget, or assert the full target was measured.
+            return censored?0:100000L*(targetArea-area)/targetArea;
         }
 
         // Deterministic resistance-distance accessibility. MaxGap limits each stretch

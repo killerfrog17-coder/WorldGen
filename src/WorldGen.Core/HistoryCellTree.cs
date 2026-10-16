@@ -33,6 +33,23 @@ namespace WorldGen.Core
             target.Write(canonicalFingerprint);
         }
         public int Length=>length;
+        // Explicit saved-state validation only. Visit allocated sparse entries,
+        // not every possible cell/region and never an actor's recurring turn.
+        internal bool AllPresentValues(Func<int,int,bool> predicate)
+        {if(predicate==null)throw new ArgumentNullException(nameof(predicate));return length>=0&&length<=33554432&&PresentValues(root,0,20,predicate);}
+        bool PresentValues(Node node,int first,int shift,Func<int,int,bool> predicate)
+        {
+            if(node==null)return true;
+            if(shift==0)
+            {
+                if(node.Values?.Length!=32||node.Children!=null)return false;
+                for(int i=0;i<32;i++)if(node.Values[i]!=-1&&(first+i>=length||!predicate(first+i,node.Values[i])))return false;
+                return true;
+            }
+            if(node.Children?.Length!=32||node.Values!=null)return false;
+            for(int i=0;i<32;i++)if(!PresentValues(node.Children[i],first+(i<<shift),shift-5,predicate))return false;
+            return true;
+        }
         // Read-only bulk export for rendering/diagnostics, not actor turns.
         // Leaf copies avoid a five-level lookup for each displayed value.
         public void CopyTo(int[] destination,int offset=0)

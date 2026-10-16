@@ -22,6 +22,7 @@ namespace WorldGen.Core
                 a.Living?.TownBuckets.Fingerprint(true);a.Living?.BucketCounts.Fingerprint(true);
                 a.Living?.CivicOrigins.Fingerprint(true);
                 a.Provinces?.Centers.Fingerprint(true);
+                if(a.Empires?.Connections!=null)foreach(var culture in a.Empires.Connections.Cultures)culture.SeenCharts?.Fingerprint(true);
                 a.PreviousAdministration?.Fingerprint(true);
                 string archive=StateHash.Compute(h.Archive.Take(a.ArchiveBaseCount).ToList());
                 if(archive!=a.ArchiveBaseHash)throw new ArgumentException("Modified frozen history archive.");

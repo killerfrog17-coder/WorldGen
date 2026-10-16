@@ -33,6 +33,7 @@ namespace WorldGen.Core
                 if(name=="Deer"){t.ScientificName="Cervidae browsing lineage";t.MassKg=100;t.Lineage.DisplayTrait="antlers";t.Lineage.BodyVariationPermille=350;}
                 if(name=="Mouse"){t.ScientificName="Small murid/peromyscine lineage";t.MassKg=.025;}
                 if(name=="Bear"){t.ScientificName="Ursidae omnivorous lineage";t.MassKg=180;t.Lineage.BodyVariationPermille=350;}
+                if(name=="Beaver")t.Lineage.RequiresFreshwater=true;
                 if(name=="Forest eagle"){t.ScientificName="Forest-eagle lineage";t.Lineage.MinCanopyPermille=500;t.MaxColdTenthsC=600;}
                 if(name=="Hawk"){t.ScientificName="Buteonine hawk lineage";t.MaxColdTenthsC=160;t.Lineage.MaxCanopyPermille=750;}
                 if(name=="Horse")t.ScientificName="Equus horse lineage";
@@ -155,16 +156,19 @@ namespace WorldGen.Core
             var polar=Add("Polar bear","Ursus maritimus","arctic-coastal",Habitat.Coastal|u,450,meat|Food.Fish,-650,-80,0,75,20,g|water,g|water,maxCold:20);polar.Lineage.RequiresCoast=true;polar.MaxPreyKg=450;polar.OceanCrossingKm=250;polar.MaxSalinityMilliPpt=45000;
             Taxon Coastal(string name,string latin,string realm,double mass,Food diet,int cold,int warm,int maxCold,double lat,double lon,Stratum occupied)
             {
-                var t=Add(name,latin,realm,Habitat.Coastal,mass,diet,cold,warm,0,lat,lon,occupied,g|water,maxCold);
+                // Hauling out or nesting on land is not permission to forage
+                // there. Marine feeders use the adjacent-water food channel;
+                // genuine ground-foraging generalists opt in below.
+                var t=Add(name,latin,realm,Habitat.Coastal,mass,diet,cold,warm,0,lat,lon,occupied,water,maxCold);
                 t.Lineage.RequiresCoast=true;t.Lineage.MarineFeeder=true;t.Lineage.Aquatic=true;t.MaxFloodDays=365;t.MaxSalinityMilliPpt=60000;t.MaxElevationM=600;t.MaxGapKm=500;t.SpreadBudgetKm=30000;return t;
             }
             var penguin=Coastal("Penguin","Spheniscidae","southern-coastal",12,Food.Fish|bugs,-600,-80,160,-60,-55,g|water);penguin.OceanCrossingKm=1600;penguin.MaxPreyKg=.8;penguin.Lineage.BodyVariationPermille=550;
-            var gull=Coastal("Gull","Larinae","holarctic-coastal",1,Food.Fish|bugs|meat|Food.Seed,-500,0,300,55,10,g|air|water);gull.OceanCrossingKm=1800;gull.MaxPreyKg=.2;gull.Lineage.Aquatic=false;
+            var gull=Coastal("Gull","Larinae","holarctic-coastal",1,Food.Fish|bugs|meat|Food.Seed,-500,0,300,55,10,g|air|water);gull.OceanCrossingKm=1800;gull.MaxPreyKg=.2;gull.Lineage.Aquatic=false;gull.Hunts=g|water;
             var tern=Coastal("Tern","Sterninae","holarctic-coastal",.15,Food.Fish|bugs,-400,50,300,45,-65,g|air|water);tern.OceanCrossingKm=2200;tern.MaxPreyKg=.07;
             var puffin=Coastal("Puffin","Fratercula","arctic-coastal",.5,Food.Fish|bugs,-350,10,100,65,-20,g|air|water);puffin.OceanCrossingKm=1000;puffin.MaxPreyKg=.15;
             var albatross=Coastal("Albatross","Diomedeidae","southern-coastal",8,Food.Fish|bugs,-200,0,180,-50,70,g|air|water);albatross.OceanCrossingKm=6000;albatross.MaxPreyKg=2;
             var cormorant=Coastal("Cormorant","Phalacrocoracidae","holarctic-coastal",2.5,Food.Fish,-250,80,300,45,15,g|air|water);cormorant.OceanCrossingKm=800;cormorant.MaxPreyKg=.6;
-            var sandpiper=Coastal("Shorebird","Charadriiformes wader","holarctic-coastal",.08,bugs,-400,20,300,50,20,g|air|water);sandpiper.OceanCrossingKm=1600;sandpiper.MaxPreyKg=.005;
+            var sandpiper=Coastal("Shorebird","Charadriiformes wader","holarctic-coastal",.08,bugs,-400,20,300,50,20,g|air|water);sandpiper.OceanCrossingKm=1600;sandpiper.MaxPreyKg=.005;sandpiper.Hunts=g|water;
             var seal=Coastal("Seal","Phocidae","arctic-coastal",120,Food.Fish|bugs,-550,-30,180,65,0,g|water);seal.OceanCrossingKm=2500;seal.MaxPreyKg=8;
             var seaLion=Coastal("Sea lion","Otariidae","southern-coastal",180,Food.Fish|bugs,-150,40,220,-45,-65,g|water);seaLion.OceanCrossingKm=1800;seaLion.MaxPreyKg=8;
             var seaTurtle=Coastal("Sea turtle","Chelonioidea","tropical-coastal",80,Food.Browse|bugs,160,230,600,10,-60,g|water);seaTurtle.OceanCrossingKm=4000;seaTurtle.MaxPreyKg=.5;
@@ -201,6 +205,16 @@ namespace WorldGen.Core
             foreach(var t in list)
             {
                 if(t.Lineage==null)continue;
+                if(t.Rank==TaxonRank.Lineage&&!t.Producer&&!t.BasalResource)
+                {
+                    // Occasional meat in an omnivore's diet is not evidence of
+                    // an adult apex-predator defense. Keep dangerous large
+                    // omnivores explicit rather than deleting the risk gate.
+                    bool plantDiet=(t.Eats&(Food.Grass|Food.Browse|Food.Fruit|Food.Seed|Food.Nectar))!=0;
+                    t.Lineage.Predation=new AnimalPredationTraits{DangerousAdult=(t.Eats&meat)!=0&&!plantDiet||t.Name=="Bear"||t.Name=="Badger",
+                        SnakeBody=t.Name=="Venomous snake"||t.Name=="Boa constrictor"||t.Name.IndexOf("python",StringComparison.OrdinalIgnoreCase)>=0,
+                        SnakeHandling=t.Name=="Secretary bird"||t.Name=="Mongoose"};
+                }
                 if(t.Lineage.RequiresCoast)t.Habitats|=Habitat.Coastal;
                 if(t.Lineage.MarineFeeder)t.MaxSalinityMilliPpt=Math.Max(t.MaxSalinityMilliPpt,45000);
                 if(t.Name=="Crocodile"||t.Name=="Monitor lizard"||t.Name=="Iguana"||t.Name.IndexOf("python",StringComparison.OrdinalIgnoreCase)>=0||t.Name=="Boa constrictor"||t.Name.Contains("turtle")||t.Name=="Tortoise")t.Lineage.Ectotherm=true;

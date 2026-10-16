@@ -122,6 +122,7 @@ namespace WorldGen.Core
                 if(o is Recipe ecologicalRecipe && f.Name==nameof(Recipe.EcologyProfile) && ecologicalRecipe.EcologyProfile==null)continue;
                 if(o is Taxon traitTaxon && f.Name==nameof(Taxon.Traits) && traitTaxon.Traits==null)continue;
                 if(o is Taxon lineageTaxon && f.Name==nameof(Taxon.Lineage) && lineageTaxon.Lineage==null)continue;
+                if(o is AnimalLineage predationLineage && f.Name==nameof(AnimalLineage.Predation) && predationLineage.Predation==null)continue;
                 if(o is RegionalAnimalVariant ecotypeVariant && f.Name==nameof(RegionalAnimalVariant.Ecotype) && ecotypeVariant.Ecotype==null)continue;
                 if(o is SpeciesPresence variantPresence && f.Name==nameof(SpeciesPresence.Variant) && variantPresence.Variant==null)continue;
                 if(o is Recipe rainRecipe && f.Name==nameof(Recipe.InteriorRainMm) && rainRecipe.InteriorRainMm==0)continue;
@@ -153,6 +154,7 @@ namespace WorldGen.Core
                 if(o is HistoricalColonialConnections oldCoasts && f.Name==nameof(HistoricalColonialConnections.Coasts) && oldCoasts.Coasts==null)continue;
                 if(o is HistoricalColonialConnections oldAmbitions && f.Name==nameof(HistoricalColonialConnections.Ambitions) && oldAmbitions.Ambitions==null)continue;
                 if(o is HistoricalModernSettings shippingSettings && f.Name==nameof(HistoricalModernSettings.Shipping) && shippingSettings.Shipping?.Length==0)continue;
+                if(o is HistoricalCulturalContinuity chartHistory && f.Name==nameof(HistoricalCulturalContinuity.SeenCharts) && chartHistory.SeenCharts==null)continue;
                 if(o is HistoricalAgriculture wildSites && f.Name==nameof(HistoricalAgriculture.WildOriginCell) && wildSites.WildOriginCell==null)continue;
                 if(o is HistoricalReligion reachReligion && f.Name==nameof(HistoricalReligion.Reach) && reachReligion.Reach==ReligiousReach.Local)continue;
                 if(o is HistoryState faithHistory && f.Name==nameof(HistoryState.Faith) && faithHistory.Version!="history-6" && faithHistory.Version!="history-7" && faithHistory.Version!="history-8" && faithHistory.Version!="history-9"&&faithHistory.Version!="history-10"&&faithHistory.Version!="history-11"&&faithHistory.Version!="history-12"&&faithHistory.Version!="history-13"&&(faithHistory.Version!="history-15"&&faithHistory.Version!="history-16"))continue;

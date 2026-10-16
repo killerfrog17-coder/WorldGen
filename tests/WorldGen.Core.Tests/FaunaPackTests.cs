@@ -37,6 +37,7 @@ public static class FaunaPackTests
     }
     public static void Run(Action<bool,string> check)
     {
+        FaunaOriginTests.Run(check);
         var taxa=EarthFaunaPack.Create();Taxon T(string name)=>taxa.Single(t=>t.Name==name);
         check(taxa.Length>=175,"Expanded pack covers broad terrestrial/coastal lineages and functional prey pools");
         check(taxa.Select(t=>t.Id).SequenceEqual(Enumerable.Range(0,taxa.Length)),"Expanded pack IDs are compact and deterministic");
@@ -56,9 +57,30 @@ public static class FaunaPackTests
         check(Biogeography.Suitable(T("Forest eagle"),jungle,100),"Dense equatorial forest supports a distinct canopy-hunting raptor");
         check(!Biogeography.Suitable(T("Penguin"),temperate,100)&&Biogeography.Suitable(T("Penguin"),dryShore,10),"Penguins require actual coast, not an arbitrary cold inland cell");
         check(!Biogeography.Suitable(T("Hippopotamus"),new HabitatCell{Habitat=Habitat.Open,Biome=Biome.Savanna,ColdTenthsC=160,WarmTenthsC=280,AridityMilli=600},10),"A grazing hippopotamus still requires a fresh-water refuge");
+        check(!Biogeography.Suitable(T("Beaver"),temperate,100),"Forest alone does not supply a beaver's freshwater refuge");
+        check(Biogeography.Suitable(T("Beaver"),new HabitatCell{Habitat=Habitat.Forest|Habitat.Freshwater,Biome=Biome.TemperateForest,ColdTenthsC=0,WarmTenthsC=220,AridityMilli=1200},100),"Actual riparian freshwater can support the beaver lineage");
+        check(Biogeography.Suitable(T("Beaver"),new HabitatCell{Habitat=Habitat.Forest,Biome=Biome.TropicalRainforest,ColdTenthsC=250,WarmTenthsC=280,AridityMilli=1800,FloodFractionPermille=20,SalinityMilliPpt=0},100),"Freshwater dependence is not an invented latitude/tropical exclusion for generic beavers");
         check(Biogeography.CanEat(T("Penguin"),T("Coastal forage fish (guild)")),"Penguin food web includes physically accessible marine fish");
+        foreach(string name in new[]{"Penguin","Puffin","Albatross","Cormorant","Seal","Sea lion","Sea turtle","Walrus"})
+        {
+            check((T(name).Occupies&Stratum.Ground)!=0&&T(name).Hunts==Stratum.Water,"Coastal nesting/haul-out does not grant land foraging: "+name);
+            check(!Biogeography.CanEat(T(name),T("Native litter beetles (guild)"))&&!Biogeography.CanEat(T(name),T("Ants and termites (guild)")),"Marine feeder does not eat terrestrial insect pools: "+name);
+            check(Biogeography.CanEat(T(name),T("Coastal crustaceans and molluscs (guild)"))||Biogeography.CanEat(T(name),T("Coastal forage fish (guild)")),"Marine feeder retains a compatible actual marine resource: "+name);
+        }
+        check(Biogeography.CanEat(T("Sea turtle"),T("Coastal algae and seagrass (feeding pool)"))&&!Biogeography.CanEat(T("Sea turtle"),T("Flowering herbs (guild)"))&&!Biogeography.CanEat(T("Sea turtle"),T("Woody understory (guild)"))&&!Biogeography.CanEat(T("Sea turtle"),T("Red mangrove")),"Marine-grazing turtle uses algae/seagrass, not terrestrial leaves merely sharing a coastal cell");
+        check(Biogeography.CanEat(T("Gull"),T("Native litter beetles (guild)"))&&Biogeography.CanEat(T("Shorebird"),T("Ants and termites (guild)")),"Actual shore-ground foragers retain terrestrial opportunities");
         check(Biogeography.CanEat(T("Coastal forage fish (guild)"),T("Coastal crustaceans and molluscs (guild)"))&&Biogeography.CanEat(T("Coastal crustaceans and molluscs (guild)"),T("Coastal phytoplankton (feeding pool)")),"Coastal consumers have a genuine basal-rooted marine resource chain");
         check(!Biogeography.CanEat(T("Wolf"),T("Hawk")),"Ground predators do not routinely prey on aerial adult raptors");
+        check(Biogeography.CanEat(T("Forest eagle"),T("Capuchin")),"Occasional vertebrate-eating capuchins are not incorrectly treated as apex predators immune to forest eagles");
+        check(Biogeography.CanEat(T("Secretary bird"),T("Venomous snake")),"Explicit snake-handling technique permits a size-compatible venomous-snake feeding opportunity");
+        check(!Biogeography.CanEat(T("Secretary bird"),T("Python"))&&!Biogeography.CanEat(T("Secretary bird"),T("Boa constrictor")),"Snake handling does not bypass routine prey-size limits");
+        check(!Biogeography.CanEat(T("Wolf"),T("Lion"))&&!Biogeography.CanEat(T("Wolf"),T("Bear"))&&!Biogeography.CanEat(T("Lion"),T("Tiger")),"Dangerous adult predators and large omnivores retain the conservative counterattack gate");
+        check(!Biogeography.CanEat(T("Wolf"),T("Capuchin")),"A valid prey body size does not grant ground hunters access to canopy occupants");
+        var monkeyDefense=T("Capuchin").Lineage!.Predation;T("Capuchin").Lineage!.Predation=null;
+        check(!Biogeography.CanEat(T("Forest eagle"),T("Capuchin")),"A saved old taxon with null defense traits retains exactly the legacy predatory-prey rule");
+        T("Capuchin").Lineage!.Predation=monkeyDefense;
+        var legacyLineage=new AnimalLineage{Key="legacy-fixture",Sources=new[]{new AnimalNativeSource{Realm="test",Latitude=10,Longitude=20,OriginCell=4}}};
+        check(StateHash.Compute(legacyLineage)=="11a1629226f9ce39095ba86218052b8b046794f7aa314cd3bd9fb826b7bc4c9e","Null new predation traits preserve the independently measured old lineage canonical hash");
         check(Biogeography.CanEat(T("Giraffe"),T("Woody understory (guild)")),"Giraffe browsing can reach canopy and understory producers");
         check(Biogeography.CanEat(T("Aardvark"),T("Ants and termites (guild)")),"Specialized termite hunters have soil-accessible insect prey");
         var cold=new HabitatCell{Habitat=Habitat.Open|Habitat.Tundra,Biome=Biome.Tundra,ColdTenthsC=-280,WarmTenthsC=140,MeanTenthsC=-60,AridityMilli=800};
@@ -73,6 +95,7 @@ public static class FaunaPackTests
         check(StateHash.Compute(openElephant)==StateHash.Compute(AnimalEcotypes.Create(world,T("Elephant"),region)),"Ecotypes are query-order-independent deterministic realizations");
         check(StateHash.Compute(taxa)==StateHash.Compute(EarthFaunaPack.Create()),"New native lineage catalog is reproducible and not shared mutable state");
         check(NativeLifePack.Create().Length==96&&EarthLifePack.Create().Length==50,"Historical native packs retain their original contents");
+        check(StateHash.Compute(EarthLifePack.Create())=="4703ebda57f51ea085de98c2800eb0f60cdd9938fbb87bde357ef004f5eb6c9b"&&StateHash.Compute(NativeLifePack.Create())=="16b2fbfbfe76e58bc09e14df04dc1012e1defb296f1a4e32bc5d7003d7a42d6e","Coastal feeding correction does not change original/native-2 catalog hashes");
         Console.WriteLine("Native fauna-3: "+taxa.Length+" entries, "+taxa.Count(t=>t.Rank==TaxonRank.Lineage)+" animal lineages.");
     }
     public static void Validate(World world,Action<bool,string> check)
@@ -84,8 +107,12 @@ public static class FaunaPackTests
         check(e.Regions.All(r=>r.Species.All(p=>e.Taxa[p.TaxonId].Traits==null||p.Variant?.Ecotype?.LineageKey==e.Taxa[p.TaxonId].Lineage?.Key)),"Every retained animal has a generated matching regional ecotype");
         check(e.Regions.All(r=>r.Species.All(p=>p.Variant?.Ecotype==null||Biogeography.Present(e,p.Variant.Ecotype.SampleCell,p.TaxonId))),"Ecotype habitat is sampled where the animal actually occurs, not an unoccupied inland regional representative");
         check(e.Regions.All(r=>r.Species.All(p=>p.Variant==null||p.Variant.MassKg>0&&p.Variant.Ecotype!.BodySizePermille>=450&&p.Variant.Ecotype.BodySizePermille<=1700)),"Regional mass/shape variation remains bounded and positive");
+        var marineOnly=new HashSet<string>(new[]{"Penguin","Puffin","Albatross","Cormorant","Seal","Sea lion","Sea turtle","Walrus"});
+        check(e.Regions.All(r=>r.FoodWeb.All(link=>!marineOnly.Contains(e.Taxa[link.ConsumerId].Name)||e.Taxa[link.ResourceId].BasalResource||(e.Taxa[link.ResourceId].Occupies&Stratum.Water)!=0)),"Actual realized coastal webs have no terrestrial food links for marine-only feeders");
         var restored=WorldFile.Read(WorldFile.Write(world));
         check(StateHash.Compute(restored.Ecology)==StateHash.Compute(e),"Complete lineage, provenance, phenotype and food-web state round trips");
+        int secretary=e.Taxa.Single(t=>t.Name=="Secretary bird").Id;
+        check(restored.Ecology.Taxa[secretary].Lineage.Predation.SnakeHandling&&!ReferenceEquals(restored.Ecology.Taxa[secretary].Lineage.Predation,e.Taxa[secretary].Lineage.Predation),"Saved predation techniques survive as independent copied records, not shared mutable catalog state");
         foreach(string name in new[]{"Penguin","Gull","Elephant","Horse","Lion","Forest eagle"})
         {
             int id=e.Taxa.Single(t=>t.Name==name).Id;

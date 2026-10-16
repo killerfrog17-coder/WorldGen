@@ -69,6 +69,8 @@ try{
  await page.getByRole('button',{name:'Start world',exact:true}).click();await page.locator('.sim-bar').waitFor();
  stage='read-before';
  const before=await read('lore');
+ await page.waitForFunction(()=>!window.__wg.viewInfo().loading&&!document.querySelector('.progress-card'),{},{timeout:120000});
+ await log('simulation-view',{view:await page.evaluate(()=>window.__wg.viewInfo())});
  stage='atlas';
  await screenshot('simulation');await page.getByRole('button',{name:'World',exact:true}).click();
  await page.getByRole('dialog',{name:'World atlas'}).waitFor();await screenshot('world-overview');
@@ -91,6 +93,8 @@ try{
   await page.locator('.atlas-directory-list button').first().click();await page.waitForFunction(()=>document.querySelector('.atlas-article')?.dataset.kind==='organization');await screenshot('organization');
   await section('Member governments');assert.ok(await page.locator('.atlas-reading .atlas-link-row button').count());await screenshot('organization-members');
   await section('Common finances');assert.ok((await page.locator('.atlas-reading').innerText()).includes('Unspent reserve'));await screenshot('organization-finances');
+  if(await page.getByRole('navigation',{name:'Article sections'}).getByRole('button',{name:'Operating budget',exact:true}).count()){await section('Operating budget');await screenshot('organization-budget');}
+  else await log('legacy-organization-budget-absent');
  }else console.log('No active diplomatic organization in this control; directory empty rather than invented.');
  await page.setViewportSize({width:1024,height:768});await screenshot('compact-reader');
  const bounds=await page.locator('.atlas-reader').boundingBox();assert.ok(bounds.x>=0&&bounds.y>=0&&bounds.x+bounds.width<=1025&&bounds.y+bounds.height<=769);

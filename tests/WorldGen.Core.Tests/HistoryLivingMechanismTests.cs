@@ -6,6 +6,8 @@ public static class HistoryLivingMechanismTests
     {
         WorldSummaryTests.Run(check);
         HistoryLivingWorldTests.Run(check);
+        HistoryProtocentreTests.Run(check);
+        HistoryChartMemoryTests.Run(check);
         HistoryInstitutionalTransmissionTests.Run(check);
         HistoryMaritimeIntegrationTests.Run(check);
         HistorySettlementNetworkTests.Run(check);

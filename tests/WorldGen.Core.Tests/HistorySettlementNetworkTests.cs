@@ -16,16 +16,33 @@ public static class HistorySettlementNetworkTests
         // The pure rate has no global cultural-city-count input; the world
         // transaction below verifies this against the actual indexed actor bag.
         check(modern+modern==2*modern,"Both mature ports retain their own bounded local opportunity");
-        int coarse=HistoricalSettlementNetworks.LocalWalkSteps(25500,0),fine=HistoricalSettlementNetworks.LocalWalkSteps(2550,0);
-        check(coarse==1&&fine==6,"Local site proposals use physical scale rather than sending coarse-map farmers four to six enormous cells away");
-        check(Math.Sqrt(coarse*25500.0)/Math.Sqrt(fine*2550.0)<1.4,"Coarse and fine local proposals have comparable geographic reach within the unavoidable cell-size floor");
-        check(Enumerable.Range(0,3).All(trial=>HistoricalSettlementNetworks.LocalWalkSteps(.000001,trial)<=8&&HistoricalSettlementNetworks.LocalWalkSteps(1000000,trial)>=1),"Local candidate paths remain strictly bounded even at extreme mesh resolutions");
+        foreach(var from in new[]{new V(1,0,0),new V(0,0,1),new V(0,0,-1),new V(.4,.6,.7).Unit})
+        {
+            var probes=Enumerable.Range(0,3).Select(trial=>HistoricalSettlementNetworks.LocalProbe(from,6371,.137,trial)).ToArray();
+            check(probes.Select((point,k)=>Math.Abs(D.Angle(from,point)*6371-(120+60*k))<.1&&Math.Abs(point.Length-1)<.00001).All(x=>x),"Separated local probes retain their physical120/180/240km radii at equator, poles and midlatitudes");
+            check(probes.Select((point,k)=>D.Angle(point,probes[(k+1)%3])*6371>200).All(x=>x),"The three local proposals cover separate directions rather than repeatedly returning to their parent");
+        }
+        var canonical=HistoricalSettlementNetworks.LocalProbe(new V(1,0,0),6371,.137,1);var repeated=HistoricalSettlementNetworks.LocalProbe(new V(1,0,0),6371,.137,1);
+        check(canonical.X==repeated.X&&canonical.Y==repeated.Y&&canonical.Z==repeated.Z,"Local geometry uses deterministic quantized vector math and never consumes a mutable RNG");
     }
     public static void World(string path,Action<bool,string> check)
     {
         var world=WorldFile.Read(File.ReadAllBytes(path));var original=world.Prehistory;string originalHash=original.ComputeHash();var engine=new Prehistory(world);
         var s=engine.UpgradeToLivingWorldHistory(original).Copy();var h=s.History;var a=h.Aggregates;
         object Call(string name,params object[] args)=>typeof(Prehistory).GetMethod(name,BindingFlags.Instance|BindingFlags.NonPublic)!.Invoke(engine,args)!;
+        string geometryBefore=s.ComputeHash();int geometryValid=0;bool canonicalGeometry=true,boundedGeometry=true;
+        foreach(var town in s.Society.Settlements.Where(t=>a.Living.Cities[t.Id].AbandonedYear<0).Take(128))
+        for(int trial=0;trial<3;trial++)
+        {
+            int site=(int)Call("LivingLocalTownCandidate",s,town.Id,trial),again=(int)Call("LivingLocalTownCandidate",s,town.Id,trial);
+            canonicalGeometry&=site==again;
+            if(site==town.Cell)continue;
+            double km=D.Angle(world.Surface.Cells[town.Cell].Position,world.Surface.Cells[site].Position)*world.Recipe.RadiusKm;
+            boundedGeometry&=engine.CellPatch[site]>=0&&world.Landmass[site]==world.Landmass[town.Cell]&&world.Ecology.Habitat[site].ReliefM<2000&&km<500;
+            geometryValid++;
+        }
+        check(canonicalGeometry&&s.ComputeHash()==geometryBefore,"Actual local proposal queries repeat deterministically without mutating authoritative history");
+        check(boundedGeometry&&geometryValid>0,"Actual fine/coarse proposal outputs retain finite local reach, landmass and relief barriers");
         int parent=-1,target=-1,polity=-1;
         foreach(var town in s.Society.Settlements)
         {

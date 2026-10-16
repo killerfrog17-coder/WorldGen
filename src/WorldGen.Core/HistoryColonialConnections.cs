@@ -16,6 +16,9 @@ namespace WorldGen.Core
     {
         public int PrecursorRegion,LastEvolutionYear,WayOfLife,ColonialSponsor=-1,CivilizationRoot=-1,InstitutionalOriginCulture=-1,DormantSince=-1;
         public HistoricalCoastChart[] Charts=Array.Empty<HistoricalCoastChart>();
+        // Historical receipt, not an active navigation entitlement. Immutable
+        // sparse storage survives bounded working-chart eviction and copying.
+        [System.Runtime.Serialization.OptionalField] public HistoricalCellTree SeenCharts;
         public HistoricalCulturalEpisode[] Episodes=Array.Empty<HistoricalCulturalEpisode>();
         public HistoricalCulturalContinuity Copy(){var c=(HistoricalCulturalContinuity)MemberwiseClone();c.Charts=Charts.Select(x=>x.Copy()).ToArray();c.Episodes=Episodes.Select(x=>x.Copy()).ToArray();return c;}
     }
@@ -74,6 +77,20 @@ namespace WorldGen.Core
         {
             if(!ColonialHistory(s)||culture<0||region<0)return;var c=s.History.Aggregates.Empires.Connections.Cultures[culture];
             if(c.Charts.Any(x=>x.Region==region))return;
+            bool recordedBefore=false;
+            if(LivingWorldHistory(s))
+            {
+                var seen=c.SeenCharts;
+                if(seen==null)
+                {
+                    seen=new HistoricalCellTree(Patches.Length);
+                    // Older candidate saves have no durable receipt. Bootstrap
+                    // only their <=256 current charts, never the event archive.
+                    foreach(var chart in c.Charts)seen=seen.With(chart.Region,chart.Year);
+                }
+                recordedBefore=seen[region]>=0;
+                c.SeenCharts=recordedBefore?seen:seen.With(region,s.Years);
+            }
             int budget=24;
             if(LivingWorldHistory(s))
             {
@@ -81,7 +98,7 @@ namespace WorldGen.Core
                     HistoricalTechnologies.Has(hc,HistoricalTechnology.SteamPower)||HistoricalTechnologies.Has(hc,HistoricalTechnology.Telecommunications));
             }
             c.Charts=c.Charts.Skip(Math.Max(0,c.Charts.Length-budget+1)).Concat(new[]{new HistoricalCoastChart{Region=region,Year=s.Years,SourceCulture=source}}).ToArray();
-            HistoryEvent(s,"charted-coast",s.Society.Cultures[culture].Name+" obtains sailing directions to "+ColonialRegionName(region)+" through "+(source==culture?"an actual voyage.":"maritime exchange with "+s.Society.Cultures[source].Name+"."),Patches[region].Cell,culture,category:ChronicleCategory.Discoveries);
+            if(!recordedBefore)HistoryEvent(s,"charted-coast",s.Society.Cultures[culture].Name+" obtains sailing directions to "+ColonialRegionName(region)+" through "+(source==culture?"an actual voyage.":"maritime exchange with "+s.Society.Cultures[source].Name+"."),Patches[region].Cell,culture,category:ChronicleCategory.Discoveries);
         }
         string ColonialRegionName(int region)=>Patches[region].Region>=0?World.Ecology.Regions[Patches[region].Region].Name:"the outer island shores";
         void EstablishCivilizationalLineage(PrehistoryState s,int culture,int city)
@@ -139,6 +156,11 @@ namespace WorldGen.Core
             for(int i=0;i<c.Cultures.Length;i++)
             {
                 var r=c.Cultures[i];if(r.InstitutionalOriginCulture<-1||r.InstitutionalOriginCulture>=c.Cultures.Length||r.LastEvolutionYear<0||r.DormantSince<-1||r.WayOfLife<0||r.WayOfLife>5||r.Charts.Select(x=>x.Region).Distinct().Count()!=r.Charts.Length)throw new ArgumentException("Invalid cultural continuity.");
+                if(r.SeenCharts!=null)
+                {
+                    if(!LivingWorldHistory(s)||r.SeenCharts.Length!=Patches.Length||!r.SeenCharts.AllPresentValues((region,year)=>year>=0&&year<=s.Years))throw new ArgumentException("Invalid historical chart receipts.");
+                    foreach(var chart in r.Charts)if(r.SeenCharts[chart.Region]<0||r.SeenCharts[chart.Region]>chart.Year)throw new ArgumentException("Missing historical chart receipt.");
+                }
                 int until=0;foreach(var e in r.Episodes){if(e==null||string.IsNullOrWhiteSpace(e.Name)||e.Since<until||e.Until<e.Since||e.Until>r.LastEvolutionYear||e.WayOfLife<0||e.WayOfLife>5)throw new ArgumentException("Invalid cultural episode.");until=e.Until;}
                 foreach(var chart in r.Charts)if(chart.Year<0)throw new ArgumentException("Negative chart date.");
             }

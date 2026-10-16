@@ -11,14 +11,15 @@ namespace WorldGen.Core
             double scale=Math.Min(2,Math.Sqrt(urban/5000.0)),mobility=Math.Sqrt(Math.Max(1,landTransport));
             return D.Q((civic?.003:.0015)*scale*(.1+.9*D.Clamp(pressure))*mobility,1000000000);
         }
-        public static int LocalWalkSteps(double cellAreaKm2,int trial)
+        public static V LocalProbe(V from,double radiusKm,double bearingTurns,int trial)
         {
-            // Random-walk displacement scales approximately with sqrt(steps).
-            // A fixed cell-hop count sent coarse-map farmers hundreds of km
-            // beyond their actual local delivery range. Geometry only proposes
-            // a site; the real route/crop/spacing tests still decide viability.
-            double distance=120+60*Math.Max(0,Math.Min(2,trial));
-            return Math.Max(1,Math.Min(8,(int)Math.Round(Math.Min(8,distance*distance/Math.Max(.001,cellAreaKm2)))));
+            // Proposal geometry only. Separated bearings avoid spending all
+            // three trials wandering around the same crowded neighborhood.
+            var east=V.Tangent(from,new V(0,0,1));if(east.Length<.5)east=V.Tangent(from,new V(1,0,0));var north=V.Cross(from,east).Unit;
+            double angle=(bearingTurns+Math.Max(0,Math.Min(2,trial))/3.0)*2*D.Pi;
+            double distance=(120+60*Math.Max(0,Math.Min(2,trial)))/Math.Max(1,radiusKm);
+            var tangent=east*D.Sin(angle+D.Pi/2)+north*D.Sin(angle);
+            return (from*D.Sin(distance+D.Pi/2)+tangent*D.Sin(distance)).Unit;
         }
     }
     public sealed partial class Prehistory
@@ -61,21 +62,29 @@ namespace WorldGen.Core
         }
         int LivingLocalTownCandidate(PrehistoryState s,int parent,int trial)
         {
-            int from=s.Society.Settlements[parent].Cell,site=from,previous=-1;
-            int steps=HistoricalSettlementNetworks.LocalWalkSteps(World.Surface.Cells[from].AreaM2/1000000.0,trial);
-            for(int step=0;step<steps;step++)
+            int from=s.Society.Settlements[parent].Cell;
+            var point=HistoricalSettlementNetworks.LocalProbe(World.Surface.Cells[from].Position,World.Recipe.RadiusKm,
+                HistoryRoll("living-local-town-bearing",parent,s.Years),trial);
+            int site=aggregateTerrainRaster[InstitutionalRasterNode(point)];
+            // The existing immutable routing raster supplies a constant-size
+            // seed. At most four nearest-neighbor refinements recover detail
+            // without a locator rebuild, fine-cell search or growing path.
+            for(int step=0;step<4;step++)
             {
-                var ns=World.Surface.Cells[site].Neighbors;int offset=(int)(HistoryRoll("living-local-town-walk-"+trial+"-"+step,parent,s.Years)*ns.Length),next=-1;
-                for(int k=0;k<ns.Length;k++){int candidate=ns[(offset+k)%ns.Length];if(candidate!=previous&&CellPatch[candidate]>=0&&World.Landmass[candidate]==World.Landmass[from]&&World.Ecology.Habitat[candidate].ReliefM<2000){next=candidate;break;}}
-                if(next<0)break;previous=site;site=next;
+                int best=site;double score=V.Dot(point,World.Surface.Cells[site].Position);
+                foreach(int candidate in World.Surface.Cells[site].Neighbors)
+                {double current=V.Dot(point,World.Surface.Cells[candidate].Position);if(current>score||current==score&&candidate<best){score=current;best=candidate;}}
+                if(best==site)break;site=best;
             }
-            return site;
+            // Do not snap an invalid ocean, mountain or different-continent
+            // proposal into a conveniently free land cell across that barrier.
+            return CellPatch[site]>=0&&World.Landmass[site]==World.Landmass[from]&&World.Ecology.Habitat[site].ReliefM<2000?site:from;
         }
         void TryLivingLocalTownOpportunity(PrehistoryState s,int parent,int elapsed)
         {
             double rate=LivingLocalTownRate(s,parent);if(rate<=0||elapsed<=0||HistoryRoll("living-local-town-opportunity",parent,s.Years)>=1-Math.Exp(-rate*elapsed))return;
             var town=s.Society.Settlements[parent];int culture=town.CultureId,from=town.Cell;
-            // At most three local paths after a rare opportunity, never every
+            // At most three local probes after a rare opportunity, never every
             // cell of the region, culture, state or the worldwide city list.
             for(int trial=0;trial<3;trial++)
             {

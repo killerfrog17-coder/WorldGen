@@ -29,6 +29,13 @@ namespace WorldGen.Core
         public int ThermalSizeSensitivityPermille=200;
         public int RidingSuitabilityPermille;
         public string DisplayTrait="",Pattern="plain";
+        [System.Runtime.Serialization.OptionalField] public AnimalPredationTraits Predation;
+    }
+    // A feeding-opportunity defense proxy, not combat, venom immunity or diet
+    // proportions. Null on older saved lineages retains their original rule.
+    [Serializable] public sealed class AnimalPredationTraits
+    {
+        public bool DangerousAdult,SnakeBody,SnakeHandling;
     }
     [Serializable] public sealed class AnimalEcotype
     {

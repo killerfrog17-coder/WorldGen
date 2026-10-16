@@ -49,9 +49,12 @@ namespace WorldGen.Core
     }
     public static class HistoricalProtocentreEffects
     {
-        public static double MaximumResidents(double environment,double stored,double institution,int links)
+        public static double MaximumResidents(double environment,double stored,double institution,int links,long localFarmers=0)
         {
-            double provisioning=D.Clamp(stored/.20),network=.5+.5*D.Clamp(links/3.0);
+            // The actual surrounding farming community is also a local network,
+            // even where its constituent villages have no separate city actor.
+            // Potential acreage and distant cultural/state totals do not count.
+            double provisioning=D.Clamp(stored/.20),network=.5+.5*Math.Max(D.Clamp(links/3.0),.7*D.Clamp(localFarmers/10000.0));
             // State-emergence already charges the severe ecological hazard.
             // Do not cap every rainforest village below its formation threshold
             // forever: sustained locally stored produce can support an exception.
@@ -97,7 +100,7 @@ namespace WorldGen.Core
         {
             if(LivingInstitutionalContinuity(s,city))return potential;
             var t=s.Society.Settlements[city];var hc=s.History.Cultures[t.CultureId];
-            double maximum=HistoricalProtocentreEffects.MaximumResidents(EnvironmentalEstablishment(s,t.Cell,t.CultureId),LivingCropLandscape(s,t.CultureId,t.Cell,true),hc.Institution,s.History.Aggregates.Cities[city].Neighbors.Length);
+            double maximum=HistoricalProtocentreEffects.MaximumResidents(EnvironmentalEstablishment(s,t.Cell,t.CultureId),LivingCropLandscape(s,t.CultureId,t.Cell,true),hc.Institution,s.History.Aggregates.Cities[city].Neighbors.Length,s.History.Aggregates.Cities[city].Rural);
             return Math.Min(potential,(long)maximum);
         }
         bool LivingProtocentreDispersal(PrehistoryState s,int city,int elapsed)

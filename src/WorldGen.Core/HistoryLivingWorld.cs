@@ -7,10 +7,13 @@ namespace WorldGen.Core
         public static double IndependentStateHazard(double core,double environment,double staples,double homeland)
         {
             // Core already multiplies fiscal surplus, concentration, institutions,
-            // exchange and coordination. Requiring eight simultaneous copies of
-            // those tests is incompatible with finite-lived early communities.
+            // exchange and coordination. A fourth power of that product still
+            // made genuinely provisioned agrotowns wait millions of years per
+            // site. The conditional response is quadratic, like the learned
+            // route; actual ecology, viable staples and homeland remain separate
+            // strong barriers, not waived because a village has survived.
             double support=D.Clamp(core),crop=.01+.99*D.Clamp(staples);
-            return Math.Max(.000000000000001,D.Q((.000000002+.00025*Math.Pow(support,4))*environment*crop*crop*homeland,1000000000000000));
+            return Math.Max(.000000000000001,D.Q((.000000002+.00025*support*support)*environment*crop*crop*homeland,1000000000000000));
         }
     }
     public sealed partial class Prehistory
