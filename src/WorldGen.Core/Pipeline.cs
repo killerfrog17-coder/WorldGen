@@ -144,6 +144,7 @@ namespace WorldGen.Core
                 if(o is HistoryState originHistory && f.Name==nameof(HistoryState.OriginReach) && originHistory.OriginReach==null)continue;
                 if(o is HistoryState nuclearHistory && f.Name==nameof(HistoryState.Nuclear) && nuclearHistory.Nuclear==null)continue;
                 if(o is HistoryState internationalHistory && f.Name==nameof(HistoryState.International) && internationalHistory.International==null)continue;
+                if(o is HistoryState receiverHistory && f.Name==nameof(HistoryState.ReceiverFrontier) && receiverHistory.ReceiverFrontier==null)continue;
                 if(o is HistoricalInternationalSystem internationalSystem && f.Name==nameof(HistoricalInternationalSystem.Finances) && internationalSystem.Finances==null)continue;
                 if(o is HistoricalAggregateState oldAggregate && f.Name==nameof(HistoricalAggregateState.Living) && oldAggregate.Living==null)continue;
                 if(o is HistoricalAggregateState oldProvince && f.Name==nameof(HistoricalAggregateState.Provinces) && oldProvince.Provinces==null)continue;
@@ -155,6 +156,9 @@ namespace WorldGen.Core
                 if(o is HistoricalColonialConnections oldAmbitions && f.Name==nameof(HistoricalColonialConnections.Ambitions) && oldAmbitions.Ambitions==null)continue;
                 if(o is HistoricalColonialConnections oldPortSettlements && f.Name==nameof(HistoricalColonialConnections.PortSettlements) && oldPortSettlements.PortSettlements==null)continue;
                 if(o is HistoricalColonialConnections oldProvisionedPorts && f.Name==nameof(HistoricalColonialConnections.ProvisionedPorts) && oldProvisionedPorts.ProvisionedPorts==null)continue;
+                if(o is HistoricalColonialConnections oldCoastalFarming && f.Name==nameof(HistoricalColonialConnections.CoastalFarming) && oldCoastalFarming.CoastalFarming==null)continue;
+                if(o is HistoricalProvisionedPorts oldSupplierRouting && f.Name==nameof(HistoricalProvisionedPorts.SupplierRouting) && oldSupplierRouting.SupplierRouting==null)continue;
+                if(o is HistoricalProvisionedPort oldSupplierHistory && f.Name==nameof(HistoricalProvisionedPort.SupplierHistory) && oldSupplierHistory.SupplierHistory==null)continue;
                 if(o is HistoricalModernSettings shippingSettings && f.Name==nameof(HistoricalModernSettings.Shipping) && shippingSettings.Shipping?.Length==0)continue;
                 if(o is HistoricalCulturalContinuity chartHistory && f.Name==nameof(HistoricalCulturalContinuity.SeenCharts) && chartHistory.SeenCharts==null)continue;
                 if(o is HistoricalAgriculture wildSites && f.Name==nameof(HistoricalAgriculture.WildOriginCell) && wildSites.WildOriginCell==null)continue;
@@ -214,15 +218,27 @@ namespace WorldGen.Core
                 default:return false;
             }
         }
+        [ThreadStatic] static byte[] integerArrayScratch;
         static void IntegerArray(BinaryWriter writer, int[] values)
         {
             // Exactly the existing enumerable/scalar wire bytes, batched to avoid
             // millions of repeated string encodings and tiny stream writes per tick.
             const int stride=19, batch=2048;
-            if(values.Length<128){foreach(int value in values){writer.Write((byte)1);Integer(writer,value);}writer.Write((byte)0);return;}
-            byte[] block=new byte[stride*Math.Min(batch,values.Length)];
-            byte[] prefix={1,1,12,83,121,115,116,101,109,46,73,110,116,51,50};
-            for(int at=0;at<block.Length;at+=stride)Buffer.BlockCopy(prefix,0,block,at,prefix.Length);
+            if(literalAggregateRecords){foreach(int value in values){writer.Write((byte)1);Integer(writer,value);}writer.Write((byte)0);return;}
+            if(values.Length==0){writer.Write((byte)0);return;}
+            // Technology and institutional arrays are usually shorter than128.
+            // They must use the same batched bytes as large arrays, rather than
+            // re-encoding a type string for each scalar of each checkpoint.
+            // The primitive-only loop is non-recursive, so thread-local scratch
+            // is safe here and bounded to38KiB, not one new buffer per array.
+            var block=integerArrayScratch;
+            if(block==null)
+            {
+                block=new byte[stride*batch];
+                byte[] prefix={1,1,12,83,121,115,116,101,109,46,73,110,116,51,50};
+                for(int at=0;at<block.Length;at+=stride)Buffer.BlockCopy(prefix,0,block,at,prefix.Length);
+                integerArrayScratch=block;
+            }
             for(int first=0;first<values.Length;first+=batch)
             {
                 int count=Math.Min(batch,values.Length-first);

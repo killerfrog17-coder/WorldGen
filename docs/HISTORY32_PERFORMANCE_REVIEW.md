@@ -87,3 +87,63 @@ CLI timings or exact-output tests do **not** establish Unity throughput or a
 passing gate. The separately measured native publication/rendering run remains
 required after every material source change, including the later regional
 outreach and provisioned-port experiments.
+
+## Candidate V and exact agronomic memoization
+
+V's actual fresh-rule Continents Plus200k tail failed the strict native gate:
+1,508.17 years in456.61s (3.303years/s overall), minimum rolling2.119years/s,
+worst summed-year986.89ms, P95 frame17.90ms. It ended in173308,2,513years past
+maximum technology, with6,480 recorded settlements and406 active governments.
+There were253 displayed publications; the allocation counter correctly reported
+unsupported rather than claiming zero allocation. The source world remained
+unchanged. Evidence is `D:/WorldGenBuildArtifacts/artifacts/history32/unity-v-cp-performance1500`.
+
+Its main recorded costs were city events121.5s, region events85.0s, culture
+events76.6s, state events73.9s and checkpoint hashing72.0s. An overall average
+above3 did not make its slow rolling windows pass.
+
+The next exact experiment memoizes quantized `CommunityTransferFit` results by
+cell, crop identity, maturity, photoperiod origin, water requirement, warmth
+requirement, selection years and soil-management choice. It also caches immutable
+growing-window area yield. Historical weather, live farming effort, food stocks,
+people, budgets, institutions and research remain evaluated by their ordinary
+actors. Runtime caches are bounded (262,144 complete fits and262,144 area fits),
+are not saved and have a disabled literal path for differential checks.
+
+12,339 assertions each passed on actual V Earth200k and Continents Plus200k:
+all18 crop definitions,24 distributed cells,both management choices,in-place
+changes to every relevant cultivar trait,complete field-area arithmetic,and
+twenty-year cached versus literal full-history continuations. Official31's
+20-year continuation remains `f4e260d19883e9dfd894c63c9ff8215646b023fdb25090d3795819e6f48d2fef`.
+These exact-output checks do not themselves establish native throughput.
+
+## Optional native-code backend
+
+`scripts/unity-check.ps1 -BuildPlayer -Il2Cpp -PlayerFolder <unique-folder>`
+tests Unity's installed IL2CPP backend without changing the normal development
+backend. The build restores previous settings and records hashes of the staged
+authoritative DLL inputs in `build-inputs.json`; an input changing during the
+build invalidates acceptance. `Assets/WorldGen/link.xml` preserves all shared
+schema assemblies and their reflection-discovered fields. This is a compiler
+experiment, not a simpler or second simulation implementation.
+
+The installed Visual Studio C++ tools, Windows SDK and Unity Windows module
+meet [Unity's documented build requirements](https://docs.unity.com/en-us/engine/6000.6/manual/platform-specific/windows/requirements-and-compatibility).
+The first experimental build failed from C: disk exhaustion; its log remains.
+Only generated build/cache artifacts were moved recoverably to D:, and the
+owned compiler's temporary directory was redirected there. Source, user worlds
+and music were not moved. The retry built successfully from the identical V
+Core SHA457A3AA1… and passed the actual saved-world dock checks: unchanged
+history, contextual selections, Atlas/language pages, resize/clamping, era/music
+behavior and zero GUI errors. Native performance and cross-host continuation
+still require separate evidence before choosing this backend for release.
+
+The subsequent full IL2CPP V tail **failed**, rather than establishing a speed
+win:1,508.17 years in452.95s,3.330years/s overall,minimum rolling1.572years/s,
+worst summed-year1,489.80ms and P95 frame20.52ms. Its final time,6,480 recorded
+settlements,406 active governments and full history hash exactly match Mono V
+(`c28fe3f78d83906655e96bddca46f932c6e55ce173f73b8afb45959172fe2908`).
+This is useful cross-backend determinism evidence, not performance acceptance.
+The normal Mono backend remains the candidate; no compiler-only speed claim is
+made. Metrics survive cleanup under `unity-v-il2cpp-cp-performance1500`; the
+large experimental player was removed.

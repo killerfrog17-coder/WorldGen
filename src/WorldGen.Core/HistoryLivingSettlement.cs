@@ -85,20 +85,24 @@ namespace WorldGen.Core
         void FoundLivingTownFunded(PrehistoryState s,int culture,int cell,int parent,int fundingPolity)
             =>FoundLivingTownBasis(s,culture,cell,parent,fundingPolity,null);
         void FoundLivingTownBasis(PrehistoryState s,int culture,int cell,int parent,int fundingPolity,ProvisionedPortPlan provisioned)
+            =>FoundLivingTownPrepared(s,culture,cell,parent,fundingPolity,provisioned,null);
+        void FoundLivingTownPrepared(PrehistoryState s,int culture,int cell,int parent,int fundingPolity,ProvisionedPortPlan provisioned,CoastalFarmPlan coastal)
         {
-            if(provisioned==null?!CanFoundLivingTown(s,culture,cell,parent):!ValidProvisionedPortPlan(s,culture,cell,parent,provisioned))return;
+            if(coastal!=null?!ValidCoastalFarmPlan(s,culture,cell,parent,coastal):provisioned==null?!CanFoundLivingTown(s,culture,cell,parent):!ValidProvisionedPortPlan(s,culture,cell,parent,provisioned))return;
             var h=s.History;var a=h.Aggregates;var c=s.Society.Cultures[culture];int patch=CellPatch[cell],id=s.Society.Settlements.Length;
             int ruralSource=ProvincialHistory(s)&&parent<0&&s.Population[patch]<800?HistoricalCells.Polity(s,cell):-1;
             long available=parent>=0?(LivingWorldHistory(s)?LivingFounderAvailability(s,parent):a.Cities[parent].Rural):ruralSource>=0?a.Polities[ruralSource].Remote:s.Population[patch];
             long founders=Math.Min(250,available/12),rural=Math.Min(available/3,Math.Max(800,founders*8));
             if(provisioned!=null){founders=provisioned.Founders;rural=0;}
+            if(coastal!=null){founders=coastal.Urban;rural=coastal.People-founders;}
             // Reserve a genuine share of the region's land and forager capacity.
             // Later centers must compete for that land, rather than each gaining
             // an independent 1,500-person food source for free.
             double localYield=LivingCropLandscape(s,culture,cell,false);
             long area=Math.Min(Math.Max(500,(long)(Math.PI*55*55*Math.Min(4,Math.Max(1,.25/Math.Max(.02,localYield))))),Math.Max(0,a.Regions[patch].AreaKm2-a.Living.Regions[patch].CommittedAreaKm2));
             if(provisioned!=null)area=10;
-            if(area<(provisioned==null?500:10))return;long baseRural=Math.Min(a.Regions[patch].Capacity,(long)(Patches[patch].Capacity*area/Math.Max(1.0,a.Regions[patch].AreaKm2)));
+            if(coastal!=null)area=coastal.Area;
+            if(area<(provisioned!=null?10:coastal!=null?50:500))return;long baseRural=Math.Min(a.Regions[patch].Capacity,(long)(Patches[patch].Capacity*area/Math.Max(1.0,a.Regions[patch].AreaKm2)));
             long capacity=Math.Max(800,(long)(area*(.8+10*localYield)*(.3+.7*c.Farming/600.0)));
             if(ProvincialHistory(s))capacity=Math.Max(800,(long)(area*HistoricalProvincialEffects.FarmingDensity(ProvincialPhysicalYield(s,culture,cell),c.Farming)));
             long urbanCapacity=Math.Max(500,(long)(capacity*(.035+.08*c.Farming/1000.0)));
@@ -106,7 +110,8 @@ namespace WorldGen.Core
             var town=new Settlement{Id=id,Cell=cell,CultureId=culture,PolityId=-1,FoundedYear=s.Years,Name=LanguageHistory(s)?LanguageName(s,culture,LanguageNameKind.Settlement,unchecked(cell+id*7919),cell):HistoricalName("town",unchecked(cell+id*7919)),Population=founders,FoodCapacity=urbanCapacity,FoodReserve=founders,CultivatedPermille=c.Farming};
             if(provisioned!=null){town.FoodReserve=founders*3;town.CultivatedPermille=0;}
             var city=new HistoricalCityAggregate{Id=id,LastYear=s.Years,LastHarvestYear=s.Years,LastPoliticalYear=s.Years,LastVoyageYear=s.Years,ParentCity=parent,BaseUrbanCapacity=urbanCapacity,BaseFarming=c.Farming,BaseFoodMultiplier=HistoricalModernEffects.FoodMultiplier(h.Cultures[culture],s.Years),BaseCropFactor=.4+.6*AggregateCropSupport(s,culture,cell,false),FoodYieldMilli=(int)(landscapeYield[cell]*1000),StoredYieldMilli=(int)(landscapeStored[cell]*1000),FloodMilli=(int)(riverAccess[cell]*1000),SoilMilli=World.Ecology.Habitat[cell].SoilFertilityPermille,Rural=rural,RuralCapacity=capacity,AreaKm2=area,Supported=true};
-            if(provisioned!=null)TransferProvisionedPortFounders(s,provisioned);
+            if(coastal!=null)TransferCoastalFarmFounders(s,coastal);
+            else if(provisioned!=null)TransferProvisionedPortFounders(s,provisioned);
             else if(parent>=0){if(LivingWorldHistory(s))TransferLivingFounders(s,parent,founders+rural,culture);else{var source=s.Society.Settlements[parent];var supply=a.Cities[parent];ChangeAggregateCityPopulation(s,parent,source.Population,supply.Suburban,supply.Rural-founders-rural);a.TotalPopulation+=founders+rural;c.Population+=founders+rural;}}
             else if(ruralSource>=0)
             {
@@ -131,6 +136,7 @@ namespace WorldGen.Core
             if(TechnicalHistory(s))Array.Resize(ref a.Empires.Territories.DistrictAreas,a.Cities.Length);
             a.Living.Cities=a.Living.Cities.Concat(new[]{new HistoricalLivingCity{PeakPopulation=founders,PeakYear=s.Years}}).ToArray();a.TownAt=a.TownAt.With(cell,id);RegisterLivingTown(s,id);
             if(provisioned!=null)RegisterProvisionedPort(s,id,provisioned);
+            RegisterCoastalFarmFamily(s,id,parent);
             TrackPendingColonialPort(s,cell);
             if(CommunityHistory(s))a.Communities.Cities=a.Communities.Cities.Concat(new[]{new HistoricalLocalCommunity{SinceYear=s.Years}}).ToArray();
             city.Neighbors=NearbyLivingTowns(s,cell,280).Where(n=>n!=id&&LivingTownConnection(s,id,n)).Take(12).ToArray();
@@ -141,7 +147,9 @@ namespace WorldGen.Core
             if(host<0&&fundingPolity>=0){ClaimAggregatePolity(s,cell,fundingPolity);host=fundingPolity;}
             if(host>=0)AssignAggregateTown(s,id,host);
             if(host<0)ConnectColonialTown(s,id);
-            if(provisioned==null)HistoryEvent(s,"settlement",town.Name+" begins as a community of "+founders+" people supported by neighboring farms.",cell,culture,town:id,category:ChronicleCategory.Society);
+            if(coastal!=null)SurveyAggregateCityCrops(s,id);
+            if(coastal!=null)HistoryEvent(s,"coastal-farms",town.Name+" begins with "+coastal.People+" actual emigrants from "+s.Society.Settlements[parent].Name+", establishing fields from their carried crops across a paid "+area+" km² local farm catchment. "+rural+" rations provision the farmers' first growing season; "+founders+" remain in the urban warehouse. The existing harbor remains dependent on its own supply route.",cell,culture,coastal.Polity,town:id,category:ChronicleCategory.Society);
+            else if(provisioned==null)HistoryEvent(s,"settlement",town.Name+" begins as a community of "+founders+" people supported by neighboring farms.",cell,culture,town:id,category:ChronicleCategory.Society);
             else HistoryEvent(s,"provisioned-port",h.Polities[provisioned.Polity].Name+" finances a small harbor at "+town.Name+". "+founders+" residents arrive from "+s.Society.Settlements[parent].Name+"; its warehouses and paid shipping must continue to supply food. No local fields or farming households are assumed.",cell,culture,provisioned.Polity,town:id,category:ChronicleCategory.Society);
         }
         void AbandonLivingTown(PrehistoryState s,int id,string reason)

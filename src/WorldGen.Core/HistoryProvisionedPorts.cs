@@ -2,17 +2,47 @@ using System;
 using System.Linq;
 namespace WorldGen.Core
 {
+    public readonly struct HistoricalPortSupplierTrace
+    {
+        public readonly int Year,Port,OldSupplier,NewSupplier;
+        public readonly string Reason;
+        public readonly long Need,OldReceipt,NewReceipt,OldStock,OldUrban,OldRural,NewStock,NewSent,NewUrban,NewRural,Setup,Treasury,Receipts;
+        public readonly bool OldProvisioned;
+        public HistoricalPortSupplierTrace(int year,int port,int oldSupplier,int newSupplier,string reason,long need,long oldReceipt,long newReceipt,
+            long oldStock,long oldUrban,long oldRural,long newStock,long newSent,long newUrban,long newRural,long setup,long treasury,long receipts,bool oldProvisioned)
+        {Year=year;Port=port;OldSupplier=oldSupplier;NewSupplier=newSupplier;Reason=reason;Need=need;OldReceipt=oldReceipt;NewReceipt=newReceipt;OldStock=oldStock;OldUrban=oldUrban;OldRural=oldRural;NewStock=newStock;NewSent=newSent;NewUrban=newUrban;NewRural=newRural;Setup=setup;Treasury=treasury;Receipts=receipts;OldProvisioned=oldProvisioned;}
+    }
+    [Serializable] public sealed class HistoricalPortSupplierRouting
+    { public int Version=1; public HistoricalPortSupplierRouting Copy()=>(HistoricalPortSupplierRouting)MemberwiseClone(); }
+    [Serializable] public sealed class HistoricalPortSupplierSegment
+    {
+        public int SupplierTownId,DepartureCell,SinceYear,UntilYear=-1;
+        public long SentFood,ReceivedFood,LostFood,ShippingPaid,SetupPaid;
+        public HistoricalPortSupplierSegment Copy()=>(HistoricalPortSupplierSegment)MemberwiseClone();
+    }
+    [Serializable] public sealed class HistoricalPortSupplierHistory
+    {
+        public const int RecentLimit=16;
+        public int OriginalSupplierTownId,ActivatedYear,EarlierSegments;
+        public long EarlierSentFood,EarlierReceivedFood,EarlierLostFood,EarlierShippingPaid,EarlierSetupPaid;
+        // Keep only bounded recent accounts; every change also has a dated
+        // archive event. Rolled accounts conserve money/cargo, not fake names.
+        public HistoricalPortSupplierSegment[] Recent=Array.Empty<HistoricalPortSupplierSegment>();
+        public HistoricalPortSupplierHistory Copy(){var c=(HistoricalPortSupplierHistory)MemberwiseClone();c.Recent=Recent.Select(x=>x.Copy()).ToArray();return c;}
+    }
     [Serializable] public sealed class HistoricalProvisionedPort
     {
         public int TownId,SupplierTownId,DepartureCell,HostPostId,FoundedYear,LastSupplyYear,LastSupplyElapsedYears,LastDeliveryYear=-1,LastExpansionYear,MaximumResidents=250;
         public long SentFood,ReceivedFood,LostFood,ShippingPaid,LastReceivedFood,ExpansionPaid,AdditionalMigrants,FoundingInvestment,InitialFood,InitialVoyageFood;
-        public HistoricalProvisionedPort Copy()=>(HistoricalProvisionedPort)MemberwiseClone();
+        [System.Runtime.Serialization.OptionalField] public HistoricalPortSupplierHistory SupplierHistory;
+        public HistoricalProvisionedPort Copy(){var c=(HistoricalProvisionedPort)MemberwiseClone();c.SupplierHistory=SupplierHistory?.Copy();return c;}
     }
     [Serializable] public sealed class HistoricalProvisionedPorts
     {
         public HistoricalCellTree ByTown=new HistoricalCellTree(33554432);
         public HistoricalProvisionedPort[] Ports=Array.Empty<HistoricalProvisionedPort>();
-        public HistoricalProvisionedPorts Copy()=>new HistoricalProvisionedPorts{ByTown=ByTown,Ports=Ports.Select(x=>x.Copy()).ToArray()};
+        [System.Runtime.Serialization.OptionalField] public HistoricalPortSupplierRouting SupplierRouting;
+        public HistoricalProvisionedPorts Copy()=>new HistoricalProvisionedPorts{ByTown=ByTown,Ports=Ports.Select(x=>x.Copy()).ToArray(),SupplierRouting=SupplierRouting?.Copy()};
     }
     public static class HistoricalProvisionedPortEffects
     {
@@ -21,6 +51,8 @@ namespace WorldGen.Core
         public static int RetentionPermille(double km,double shipping)=>Math.Max(350,Math.Min(970,(int)Math.Round(970-Math.Max(0,km)/(12*Math.Max(1,shipping)))));
         public static long ShippingCost(long food,double km)=>food<=0?0:Math.Max(1,(long)Math.Ceiling(food*(.02+Math.Max(0,km)/20000)));
         public static int OpportunityYears(int elapsed)=>Math.Max(0,Math.Min(3,elapsed));
+        public static bool ReplacementSource(int targetTown,int sourceTown,bool provisioned,long rural,long ruralCapacity)
+            =>sourceTown>=0&&sourceTown!=targetTown&&!provisioned&&rural>0&&ruralCapacity>0;
         public static int HandlingCeiling(double navigation,double steam,double engines,int works)
             =>Math.Max(ResidentLimit,(int)Math.Floor(ResidentLimit*(1+4*D.Clamp(navigation)+12*D.Clamp(steam)+24*D.Clamp(engines))*(.5+.5*D.Clamp(works/1000.0))));
         public static int ExpansionResidents(int installed,int ceiling,long urban)
@@ -30,6 +62,9 @@ namespace WorldGen.Core
     }
     public sealed partial class Prehistory
     {
+        // Diagnostics receive immutable primitive values, never the state. They
+        // are not saved and cannot select a source, change dates or add work.
+        public Action<HistoricalPortSupplierTrace> SupplierRoutingObserver {get;set;}
         sealed class ProvisionedPortPlan
         {
             public int Polity,Source,Target,Departure,Post;
@@ -41,8 +76,35 @@ namespace WorldGen.Core
             if(source.History.Aggregates.Empires.Connections.ProvisionedPorts!=null)return source;
             var s=source.Copy();InitializeProvisionedPorts(s);s.Seal();return s;
         }
+        public PrehistoryState UpgradeProvisionedPortSuppliers(PrehistoryState source)
+        {
+            Validate(source);if(!LivingWorldHistory(source))throw new ArgumentException("Supplier routing requires history32.");
+            if(source.History.Aggregates.Empires.Connections.ProvisionedPorts?.SupplierRouting!=null)return source;
+            var s=source.Copy();InitializeProvisionedPorts(s);var ports=s.History.Aggregates.Empires.Connections.ProvisionedPorts;
+            ports.SupplierRouting=new HistoricalPortSupplierRouting();
+            foreach(var port in ports.Ports)InitializePortSupplierHistory(port,s.Years);
+            s.Seal();return s;
+        }
         void InitializeProvisionedPorts(PrehistoryState s)
         {var c=s.History.Aggregates.Empires.Connections;if(c.ProvisionedPorts==null)c.ProvisionedPorts=new HistoricalProvisionedPorts();}
+        static void InitializePortSupplierHistory(HistoricalProvisionedPort port,int year)
+        {
+            if(port.SupplierHistory!=null)return;
+            port.SupplierHistory=new HistoricalPortSupplierHistory{OriginalSupplierTownId=port.SupplierTownId,ActivatedYear=year,
+                Recent=new[]{new HistoricalPortSupplierSegment{SupplierTownId=port.SupplierTownId,DepartureCell=port.DepartureCell,SinceYear=port.FoundedYear,
+                    SentFood=port.SentFood,ReceivedFood=port.ReceivedFood,LostFood=port.LostFood,ShippingPaid=port.ShippingPaid}}};
+        }
+        static void AppendPortSupplierSegment(HistoricalPortSupplierHistory history,HistoricalPortSupplierSegment segment)
+        {
+            history.Recent[history.Recent.Length-1].UntilYear=segment.SinceYear;
+            if(history.Recent.Length==HistoricalPortSupplierHistory.RecentLimit)
+            {
+                var rolled=history.Recent[0];history.EarlierSegments++;history.EarlierSentFood+=rolled.SentFood;history.EarlierReceivedFood+=rolled.ReceivedFood;
+                history.EarlierLostFood+=rolled.LostFood;history.EarlierShippingPaid+=rolled.ShippingPaid;history.EarlierSetupPaid+=rolled.SetupPaid;
+                history.Recent=history.Recent.Skip(1).ToArray();
+            }
+            history.Recent=history.Recent.Concat(new[]{segment}).ToArray();
+        }
         HistoricalProvisionedPort ProvisionedPort(PrehistoryState s,int town)
         {
             if(!LivingWorldHistory(s))return null;
@@ -100,11 +162,84 @@ namespace WorldGen.Core
             var ports=s.History.Aggregates.Empires.Connections.ProvisionedPorts;int id=ports.Ports.Length;
             ports.Ports=ports.Ports.Concat(new[]{new HistoricalProvisionedPort{TownId=town,SupplierTownId=plan.Source,DepartureCell=plan.Departure,HostPostId=plan.Post,FoundedYear=s.Years,LastSupplyYear=s.Years,LastExpansionYear=s.Years,FoundingInvestment=plan.Investment,InitialFood=plan.Founders*3,InitialVoyageFood=plan.Provisions}}).ToArray();
             ports.ByTown=ports.ByTown.With(town,id);
+            if(ports.SupplierRouting!=null)InitializePortSupplierHistory(ports.Ports[id],s.Years);
+        }
+        sealed class PortSupplyOption
+        {public int Supplier,Departure;public long Sent,Received,Cost,Setup;}
+        PortSupplyOption ProvisionedSupplyOption(PrehistoryState s,int town,int supplier,int departure,int elapsed,HistoricalProvisionedPort port,bool replacement)
+        {
+            var h=s.History;var a=h.Aggregates;var target=s.Society.Settlements[town];int owner=a.Resolve(target.PolityId,h);
+            // Ordinary, already supported agricultural replacements only. A
+            // real younger hinterland farm can replace an old founding depot;
+            // excluding ALL provisioned replacements prevents port cycles.
+            if(owner<0||supplier<0||supplier==town||supplier>=a.Cities.Length||supplier>=town&&port.SupplierHistory==null||departure<0||departure>=CellPatch.Length||CellPatch[departure]<0)return null;
+            var source=s.Society.Settlements[supplier];
+            if(a.Resolve(source.PolityId,h)!=owner||!a.Cities[supplier].Supported||a.Living.Cities[supplier].AbandonedYear>=0||replacement&&!HistoricalProvisionedPortEffects.ReplacementSource(town,supplier,ProvisionedPort(s,supplier)!=null,a.Cities[supplier].Rural,a.Cities[supplier].RuralCapacity))return null;
+            int post=a.Empires.Territories.PostAt[target.Cell];
+            if(post!=port.HostPostId||post<0||a.Empires.Territories.Posts[post].ClosedYear>=0||!TerritorialNodeLive(s,owner,-2-post)||HistoricalCells.Polity(s,target.Cell)!=owner)return null;
+            var p=h.Polities[owner];var hc=h.Cultures[p.CultureId];
+            if(h.Dynamics.States[owner].PublicWorks<200||!DiffusionShore(departure)||!DiffusionSeaLane(departure,target.Cell))return null;
+            var route=new Route{CellA=departure,CellB=target.Cell,A=CellPatch[departure],B=CellPatch[target.Cell],Sea=true,
+                DistanceM=(int)Math.Round(D.Angle(World.Surface.Cells[departure].Position,World.Surface.Cells[target.Cell].Position)*World.Recipe.RadiusKm*1000)};
+            if(route.DistanceM>HistoricalTechnicalMigration.SeaRangeM(hc,s.Years,true)||!InstitutionalRouteAllowed(s,departure,target.Cell,p.CultureId))return null;
+            double staging=D.Angle(World.Surface.Cells[source.Cell].Position,World.Surface.Cells[departure].Position)*World.Recipe.RadiusKm;
+            // This preferred source must independently pass the real logistics
+            // preflight; another town selected by its fallback is not accepted.
+            if(!MaritimeCharterLogistics(s,owner,route,supplier,out int actual,out _)||actual!=supplier)return null;
+            double shipping=HistoricalProvisionedPortEffects.Shipping(HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Sailing,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Navigation,s.Years),
+                HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.SteamPower,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years),
+                HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Storage,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Pottery,s.Years));
+            int years=HistoricalProvisionedPortEffects.OpportunityYears(elapsed);if(years<=0)return null;
+            int retention=HistoricalProvisionedPortEffects.RetentionPermille(route.DistanceM/1000.0+staging*shipping/HistoricalModernEffects.LandTransport(hc,s.Years),shipping);
+            long need=Math.Max(0,target.Population*years+Math.Min(port.MaximumResidents,target.Population)-target.FoodReserve);
+            var cargo=HistoricalFoodEffects.Deliver(Math.Max(0,source.FoodReserve-source.Population/2),need,retention,port.MaximumResidents*2L*years);
+            long cost=HistoricalProvisionedPortEffects.ShippingCost(cargo.Sent,route.DistanceM/1000.0+staging);
+            long setup=replacement?HistoricalMaritimeIntegrationEffects.CouncilInvestment(0,route.DistanceM):0;
+            long annual=HistoricalProvisionedPortEffects.ShippingCost(port.MaximumResidents*2L,route.DistanceM/1000.0+staging);
+            if(cargo.Received<=0||p.Treasury<cost+setup||replacement&&a.Polities[owner].Receipts<=a.Polities[owner].ServiceCost+annual)return null;
+            return new PortSupplyOption{Supplier=supplier,Departure=departure,Sent=cargo.Sent,Received=cargo.Received,Cost=cost,Setup=setup};
+        }
+        bool ReplaceProvisionedSupplier(PrehistoryState s,int town,int elapsed,HistoricalProvisionedPort port)
+        {
+            var a=s.History.Aggregates;var ledger=a.Empires.Connections.ProvisionedPorts;
+            if(ledger.SupplierRouting==null||port.SupplierHistory==null)return false;
+            var target=s.Society.Settlements[town];int owner=a.Resolve(target.PolityId,s.History);if(owner<0||target.Population<=0)return false;
+            long minimum=Math.Max(0,target.Population*HistoricalProvisionedPortEffects.OpportunityYears(elapsed)-target.FoodReserve);
+            var current=ProvisionedSupplyOption(s,town,port.SupplierTownId,port.DepartureCell,elapsed,port,false);
+            if(current!=null&&current.Received>=minimum)return false;
+            var cities=a.Polities[owner].Cities;if(cities.Count==0)return false;
+            int offset=(int)(HistoryRoll("port-replacement-supplier",town,s.Years)*cities.Count);PortSupplyOption best=null;
+            for(int k=0;k<Math.Min(4,cities.Count);k++)
+            {
+                int id=cities.At((offset+k)%cities.Count);if(id<0||id==port.SupplierTownId||!HistoricalProvisionedPortEffects.ReplacementSource(town,id,ProvisionedPort(s,id)!=null,a.Cities[id].Rural,a.Cities[id].RuralCapacity))continue;
+                int departure=DiffusionShore(s.Society.Settlements[id].Cell)?s.Society.Settlements[id].Cell:port.DepartureCell;
+                var candidate=ProvisionedSupplyOption(s,town,id,departure,elapsed,port,true);
+                if(candidate==null||candidate.Received<minimum||current!=null&&candidate.Received<=current.Received)continue;
+                if(best==null||(decimal)candidate.Cost*best.Received<(decimal)best.Cost*candidate.Received||
+                    (decimal)candidate.Cost*best.Received==(decimal)best.Cost*candidate.Received&&candidate.Supplier<best.Supplier)best=candidate;
+            }
+            if(best==null)return false;
+            var history=port.SupplierHistory;
+            int old=port.SupplierTownId;port.SupplierTownId=best.Supplier;port.DepartureCell=best.Departure;
+            AppendPortSupplierSegment(history,new HistoricalPortSupplierSegment{SupplierTownId=best.Supplier,DepartureCell=best.Departure,SinceYear=s.Years,SetupPaid=best.Setup});
+            s.History.Polities[owner].Treasury-=best.Setup;
+            HistoryEvent(s,"harbor-supplier",target.Name+" contracts a new funded supply route from "+s.Society.Settlements[best.Supplier].Name+" after its route from "+s.Society.Settlements[old].Name+" fails. Warehouse setup and each shipment are paid; no local fields are assumed.",target.Cell,target.CultureId,owner,town:town,category:ChronicleCategory.Society);
+            var observer=SupplierRoutingObserver;
+            if(observer!=null)
+            {
+                var before=s.Society.Settlements[old];var after=s.Society.Settlements[best.Supplier];
+                string reason=a.Living.Cities[old].AbandonedYear>=0?"dead-source":a.Resolve(before.PolityId,s.History)!=owner?"foreign-source":!a.Cities[old].Supported?"unsupported-source":
+                    before.Population<500?"small-source":before.FoodReserve<=before.Population/2?"no-stock":current!=null?"partial-food":"route-or-finance";
+                observer(new HistoricalPortSupplierTrace(s.Years,town,old,best.Supplier,reason,minimum,current?.Received??0,best.Received,before.FoodReserve,before.Population,a.Cities[old].Rural,
+                    after.FoodReserve,best.Sent,after.Population,a.Cities[best.Supplier].Rural,best.Setup,s.History.Polities[owner].Treasury+best.Setup,a.Polities[owner].Receipts,ProvisionedPort(s,old)!=null));
+            }
+            return true;
         }
         long SupplyProvisionedPort(PrehistoryState s,int town,int elapsed,HistoricalProvisionedPort port)
         {
             if(elapsed<=0||port.LastSupplyYear>=s.Years)return 0;
             port.LastSupplyYear=s.Years;port.LastSupplyElapsedYears=Math.Max(0,elapsed);port.LastReceivedFood=0;
+            if(port.SupplierHistory!=null)ReplaceProvisionedSupplier(s,town,elapsed,port);
             var h=s.History;var a=h.Aggregates;var target=s.Society.Settlements[town];var source=s.Society.Settlements[port.SupplierTownId];
             int owner=a.Resolve(target.PolityId,h),supplierOwner=a.Resolve(source.PolityId,h);int years=HistoricalProvisionedPortEffects.OpportunityYears(elapsed);
             if(owner<0||owner!=supplierOwner||years==0||a.Living.Cities[port.SupplierTownId].AbandonedYear>=0||!a.Cities[port.SupplierTownId].Supported)return 0;
@@ -130,6 +265,7 @@ namespace WorldGen.Core
             h.Towns[port.SupplierTownId].ExportedFood+=shipment.Sent;h.Towns[port.SupplierTownId].FoodTransportLoss+=shipment.Lost;
             h.Towns[town].ImportedFood+=shipment.Received;
             port.SentFood+=shipment.Sent;port.ReceivedFood+=shipment.Received;port.LostFood+=shipment.Lost;port.ShippingPaid+=cost;port.LastReceivedFood=shipment.Received;port.LastDeliveryYear=s.Years;
+            if(port.SupplierHistory!=null){var segment=port.SupplierHistory.Recent[port.SupplierHistory.Recent.Length-1];segment.SentFood+=shipment.Sent;segment.ReceivedFood+=shipment.Received;segment.LostFood+=shipment.Lost;segment.ShippingPaid+=cost;}
             return shipment.Received;
         }
         void ExpandProvisionedPort(PrehistoryState s,int id,HistoricalProvisionedPort port,double supply)
@@ -165,12 +301,31 @@ namespace WorldGen.Core
         void ValidateProvisionedPorts(PrehistoryState s)
         {
             var a=s.History.Aggregates;var ports=a.Empires.Connections.ProvisionedPorts;if(ports==null)return;
+            if(ports.SupplierRouting!=null&&ports.SupplierRouting.Version!=1)throw new ArgumentException("Unknown harbor supplier routing version.");
             if(!LivingWorldHistory(s)||ports.ByTown?.Length!=33554432||ports.Ports==null||!ports.ByTown.AllPresentValues((town,index)=>town<a.Cities.Length&&index>=0&&index<ports.Ports.Length&&ports.Ports[index].TownId==town))throw new ArgumentException("Invalid provisioned port index.");
             for(int i=0;i<ports.Ports.Length;i++)
             {
-                var p=ports.Ports[i];if(p==null||p.TownId<0||p.TownId>=a.Cities.Length||ports.ByTown[p.TownId]!=i||p.SupplierTownId<0||p.SupplierTownId>=p.TownId||p.DepartureCell<0||p.DepartureCell>=CellPatch.Length||CellPatch[p.DepartureCell]<0||p.HostPostId<0||p.HostPostId>=a.Empires.Territories.Posts.Length||a.Empires.Territories.Posts[p.HostPostId].Cell!=s.Society.Settlements[p.TownId].Cell||p.FoundedYear<0||p.FoundedYear>s.Years||p.LastSupplyYear<p.FoundedYear||p.LastSupplyYear>s.Years||p.LastSupplyElapsedYears<0||p.LastDeliveryYear< -1||p.LastDeliveryYear>s.Years||p.LastExpansionYear<p.FoundedYear||p.LastExpansionYear>s.Years||p.MaximumResidents<HistoricalProvisionedPortEffects.ResidentLimit||p.MaximumResidents>10250||p.SentFood<0||p.ReceivedFood<0||p.LostFood<0||p.SentFood!=p.ReceivedFood+p.LostFood||p.ShippingPaid<0||p.LastReceivedFood<0||p.LastReceivedFood>p.ReceivedFood||p.ExpansionPaid<0||p.AdditionalMigrants!=p.MaximumResidents-HistoricalProvisionedPortEffects.ResidentLimit)throw new ArgumentException("Invalid provisioned port ledger.");
+                var p=ports.Ports[i];if(p==null||p.TownId<0||p.TownId>=a.Cities.Length||ports.ByTown[p.TownId]!=i||p.SupplierTownId<0||p.SupplierTownId>=a.Cities.Length||p.SupplierTownId==p.TownId||p.SupplierTownId>=p.TownId&&p.SupplierHistory==null||p.DepartureCell<0||p.DepartureCell>=CellPatch.Length||CellPatch[p.DepartureCell]<0||p.HostPostId<0||p.HostPostId>=a.Empires.Territories.Posts.Length||a.Empires.Territories.Posts[p.HostPostId].Cell!=s.Society.Settlements[p.TownId].Cell||p.FoundedYear<0||p.FoundedYear>s.Years||p.LastSupplyYear<p.FoundedYear||p.LastSupplyYear>s.Years||p.LastSupplyElapsedYears<0||p.LastDeliveryYear< -1||p.LastDeliveryYear>s.Years||p.LastExpansionYear<p.FoundedYear||p.LastExpansionYear>s.Years||p.MaximumResidents<HistoricalProvisionedPortEffects.ResidentLimit||p.MaximumResidents>10250||p.SentFood<0||p.ReceivedFood<0||p.LostFood<0||p.SentFood!=p.ReceivedFood+p.LostFood||p.ShippingPaid<0||p.LastReceivedFood<0||p.LastReceivedFood>p.ReceivedFood||p.ExpansionPaid<0||p.AdditionalMigrants!=p.MaximumResidents-HistoricalProvisionedPortEffects.ResidentLimit)throw new ArgumentException("Invalid provisioned port ledger.");
                 if(p.LastDeliveryYear>=0&&p.LastDeliveryYear<p.FoundedYear||(p.ReceivedFood==0)!=(p.LastDeliveryYear<0)||p.LastReceivedFood>0&&p.LastDeliveryYear!=p.LastSupplyYear||p.FoundingInvestment<=0||p.InitialFood<300||p.InitialFood>750||p.InitialVoyageFood<0||a.Cities[p.TownId].Rural!=0||a.Cities[p.TownId].Suburban!=0||a.Cities[p.TownId].RuralCapacity!=0||s.Society.Settlements[p.TownId].CultivatedPermille!=0)throw new ArgumentException("Provisioned harbor has fictitious farming households or invalid receipts.");
+                ValidatePortSuppliers(s,p,ports.SupplierRouting!=null);
             }
+        }
+        void ValidatePortSuppliers(PrehistoryState s,HistoricalProvisionedPort port,bool enabled)
+        {
+            var history=port.SupplierHistory;if(!enabled&&history==null)return;
+            if(!enabled||history==null||history.OriginalSupplierTownId<0||history.OriginalSupplierTownId>=port.TownId||history.ActivatedYear<port.FoundedYear||history.ActivatedYear>s.Years||history.EarlierSegments<0||history.Recent==null||history.Recent.Length<1||history.Recent.Length>HistoricalPortSupplierHistory.RecentLimit)throw new ArgumentException("Invalid harbor supplier history.");
+            long sent=history.EarlierSentFood,received=history.EarlierReceivedFood,lost=history.EarlierLostFood,freight=history.EarlierShippingPaid;
+            if(sent<0||received<0||lost<0||freight<0||history.EarlierSetupPaid<0||sent!=received+lost||history.EarlierSegments==0&&(sent!=0||received!=0||lost!=0||freight!=0||history.EarlierSetupPaid!=0))throw new ArgumentException("Invalid rolled harbor supplier accounts.");
+            for(int i=0;i<history.Recent.Length;i++)
+            {
+                var segment=history.Recent[i];bool last=i==history.Recent.Length-1;
+                if(segment==null||segment.SupplierTownId<0||segment.SupplierTownId>=s.History.Aggregates.Cities.Length||segment.SupplierTownId==port.TownId||(history.EarlierSegments>0||i>0)&&s.History.Aggregates.Empires.Connections.ProvisionedPorts.ByTown[segment.SupplierTownId]>=0||segment.DepartureCell<0||segment.DepartureCell>=CellPatch.Length||CellPatch[segment.DepartureCell]<0||segment.SinceYear<port.FoundedYear||segment.SinceYear>s.Years||
+                    last&&(segment.UntilYear!=-1||segment.SupplierTownId!=port.SupplierTownId||segment.DepartureCell!=port.DepartureCell)||!last&&(segment.UntilYear<segment.SinceYear||segment.UntilYear>s.Years||segment.UntilYear!=history.Recent[i+1].SinceYear)||
+                    segment.SentFood<0||segment.ReceivedFood<0||segment.LostFood<0||segment.ShippingPaid<0||segment.SetupPaid<0||segment.SentFood!=segment.ReceivedFood+segment.LostFood)throw new ArgumentException("Invalid dated harbor supplier account.");
+                sent+=segment.SentFood;received+=segment.ReceivedFood;lost+=segment.LostFood;freight+=segment.ShippingPaid;
+            }
+            if(sent!=port.SentFood||received!=port.ReceivedFood||lost!=port.LostFood||freight!=port.ShippingPaid)throw new ArgumentException("Harbor supplier accounts do not reconcile lifetime cargo.");
+            if(history.EarlierSegments==0&&(history.Recent[0].SupplierTownId!=history.OriginalSupplierTownId||history.Recent[0].SinceYear!=port.FoundedYear))throw new ArgumentException("Lost original harbor supplier attribution.");
         }
     }
 }

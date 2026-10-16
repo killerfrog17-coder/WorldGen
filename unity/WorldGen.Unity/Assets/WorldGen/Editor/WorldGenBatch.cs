@@ -54,15 +54,25 @@ public static class WorldGenBatch
         // Runtime-created cameras are invisible to scene-only postprocess stripping analysis.
         var stripping=UnityEngine.Rendering.GraphicsSettings.GetRenderPipelineSettings<UnityEngine.Rendering.Universal.URPShaderStrippingSetting>();
         bool prior=stripping!=null&&stripping.stripUnusedPostProcessingVariants;
+        var namedTarget=UnityEditor.Build.NamedBuildTarget.Standalone;
+        var priorBackend=PlayerSettings.GetScriptingBackend(namedTarget);
+        var priorManagedStripping=PlayerSettings.GetManagedStrippingLevel(namedTarget);
         try
         {
             if(stripping!=null)stripping.stripUnusedPostProcessingVariants=false;
+            // Optional native-code experiment. Restore project preferences even
+            // on failure; ordinary development builds retain their old backend.
+            if(arguments.Contains("--worldgen-il2cpp-player"))
+            {
+                PlayerSettings.SetScriptingBackend(namedTarget,ScriptingImplementation.IL2CPP);
+                PlayerSettings.SetManagedStrippingLevel(namedTarget,ManagedStrippingLevel.Minimal);
+            }
             // Ordinary player builds should not silently carry the development
             // runtime/debug overlay. Diagnostic development builds are opt-in.
             var options=arguments.Contains("--worldgen-development-player")?BuildOptions.Development:BuildOptions.None;
             var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=EditorBuildSettings.scenes.Where(s=>s.enabled).Select(s=>s.path).ToArray(),locationPathName=output,target=BuildTarget.StandaloneWindows64,options=options});
             if(report.summary.result!=BuildResult.Succeeded)throw new Exception("Player build failed: "+report.summary.result);
         }
-        finally{if(stripping!=null)stripping.stripUnusedPostProcessingVariants=prior;}
+        finally{if(stripping!=null)stripping.stripUnusedPostProcessingVariants=prior;PlayerSettings.SetScriptingBackend(namedTarget,priorBackend);PlayerSettings.SetManagedStrippingLevel(namedTarget,priorManagedStripping);}
     }
 }

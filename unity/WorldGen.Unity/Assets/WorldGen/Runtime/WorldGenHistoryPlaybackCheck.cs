@@ -15,6 +15,7 @@ public sealed partial class WorldGenRuntime
         public int FirstMaximumTechnologyYear=-1,RequestedTailYears,FinalYear,FinalTowns,FinalStates;
         public string InputHash="",FinalHash="";public long InitialSeconds,FinalSeconds;
         public int MaximumYear,Collections0,Collections1,Collections2;
+        public long AgronomicFitHits,AgronomicFitMisses,AgronomicHabitatHits,AgronomicHabitatMisses,AgronomicAreaHits,AgronomicAreaMisses;
     }
     sealed class PlaybackStageCost {public long Count,AllocatedBytes,MaximumAllocatedBytes;public double Total,Maximum;public int Year,Items;}
     System.Collections.IEnumerator CheckHistoricalPlayback()
@@ -61,6 +62,7 @@ public sealed partial class WorldGenRuntime
         while(humanStep!=null||humanPaletteJob!=null||humanPaletteReady!=null||humanPalettePending)yield return null;
         evidence.MaximumYearMilliseconds=yearCosts.Values.DefaultIfEmpty(0).Max();evidence.FirstMaximumTechnologyYear=world.Prehistory.History.Aggregates?.FirstMaximumTechnologyYear??-1;evidence.FinalYear=world.Prehistory.Years;evidence.FinalTowns=world.Prehistory.Society.Settlements.Length;evidence.FinalStates=world.Prehistory.History.Polities.Count(p=>p.EndedYear<0);
         evidence.FinalHash=world.Prehistory.Hash;evidence.FinalSeconds=SimulationTime.Seconds(world.Prehistory);
+        var cacheCounts=humans.AgronomicCacheCounters;evidence.AgronomicFitHits=cacheCounts.FitHits;evidence.AgronomicFitMisses=cacheCounts.FitMisses;evidence.AgronomicHabitatHits=cacheCounts.HabitatHits;evidence.AgronomicHabitatMisses=cacheCounts.HabitatMisses;evidence.AgronomicAreaHits=cacheCounts.AreaHits;evidence.AgronomicAreaMisses=cacheCounts.AreaMisses;
         evidence.MaximumYear=yearCosts.OrderByDescending(p=>p.Value).Select(p=>p.Key).FirstOrDefault();evidence.Collections0=GC.CollectionCount(0)-gc0;evidence.Collections1=GC.CollectionCount(1)-gc1;evidence.Collections2=GC.CollectionCount(2)-gc2;
         evidence.AcceptancePassed=evidence.PublishedCheckpoints>0&&evidence.SelectionStayedFolded&&evidence.Error.Length==0&&(tail==0||evidence.Cells==200000&&evidence.SimulatedYears>=tail&&evidence.FirstMaximumTechnologyYear>=0&&evidence.FinalYear>=evidence.FirstMaximumTechnologyYear+1000&&evidence.AchievedYearsPerSecond>=3&&evidence.MinimumRollingYearsPerSecond>=3&&evidence.MaximumYearMilliseconds<=1000);
         System.IO.File.WriteAllLines(System.IO.Path.Combine(output,"year-work.csv"),new[]{"year,milliseconds"}.Concat(yearCosts.OrderBy(p=>p.Key).Select(p=>p.Key+","+p.Value.ToString("F6",System.Globalization.CultureInfo.InvariantCulture))));

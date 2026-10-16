@@ -26,12 +26,12 @@ namespace WorldGen.Core
         long LivingFounderAvailability(PrehistoryState s,int parent)
         {
             var t=s.Society.Settlements[parent];var a=s.History.Aggregates;var city=a.Cities[parent];int owner=a.Resolve(t.PolityId,s.History);
-            return HistoricalSettlementMigration.Available(t.Population,city.Suburban,city.Rural,owner<0?0:a.Polities[owner].Remote,owner<0?1:a.Polities[owner].CityCount);
+            return HistoricalSettlementMigration.Available(t.Population,city.Suburban,city.Rural,owner<0||CoastalLocalHouseholds(s,parent)?0:a.Polities[owner].Remote,owner<0?1:a.Polities[owner].CityCount);
         }
         void TransferLivingFounders(PrehistoryState s,int parent,long people,int recipient)
         {
             var h=s.History;var a=h.Aggregates;var t=s.Society.Settlements[parent];var city=a.Cities[parent];int owner=a.Resolve(t.PolityId,h);
-            var transfer=HistoricalSettlementMigration.Allocate(people,t.Population,city.Suburban,city.Rural,owner<0?0:a.Polities[owner].Remote,owner<0?1:a.Polities[owner].CityCount);
+            var transfer=HistoricalSettlementMigration.Allocate(people,t.Population,city.Suburban,city.Rural,owner<0||CoastalLocalHouseholds(s,parent)?0:a.Polities[owner].Remote,owner<0?1:a.Polities[owner].CityCount);
             if(transfer.Total!=people)throw new InvalidOperationException("Settlement founders exceed transferable households.");
             ChangeAggregateCityPopulation(s,parent,t.Population-transfer.Urban,city.Suburban-transfer.Suburban,city.Rural-transfer.Rural);
             if(transfer.Remote>0)

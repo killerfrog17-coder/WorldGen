@@ -97,7 +97,7 @@ namespace WorldGen.Core
             long rural= Math.Max(0,city.Rural+(long)Math.Round(city.Rural*ruralRate*elapsed*(1-city.Rural/(double)Math.Max(1,ruralCapacity))));
             long migrants=Math.Min(rural/200,Math.Max(0,(t.FoodCapacity-t.Population)/30));if(supply<.9)migrants=0;rural-=migrants;
             long urban=Math.Max(0,t.Population+natural-chronic-disease+migrants);long suburban=provisioned==null?Math.Max(0,city.Suburban+(long)((urban*.15-city.Suburban)*Math.Min(1,.02*elapsed))):0;
-            if(provisioned==null&&ProvincialHistory(s)&&owner>=0&&supply>=.9&&urban<t.FoodCapacity)
+            if(provisioned==null&&!CoastalFarmDescendant(s,id)&&ProvincialHistory(s)&&owner>=0&&supply>=.9&&urban<t.FoodCapacity)
             {
                 var country=a.Polities[owner];double connection=D.Clamp((HistoricalModernEffects.LandTransport(h.Cultures[h.Polities[owner].CultureId],s.Years)-1)/3.5);
                 long arrivals=Math.Min(country.Remote/Math.Max(1,country.CityCount),(long)Math.Min((t.FoodCapacity-urban)/20.0,country.Remote*.006*connection*elapsed/Math.Max(1,country.CityCount)));
@@ -136,7 +136,7 @@ namespace WorldGen.Core
             if(s.Years-city.LastVoyageYear>=10){city.LastVoyageYear=s.Years;AdvanceAggregateVoyage(s,id);}
             if(provisioned==null&&s.Years-city.LastHarvestYear>=20){city.LastHarvestYear=s.Years;SurveyAggregateCityCrops(s,id);}
             if(ProvincialHistory(s))AdvanceRegionalCityPolitics(s,id);
-            if(provisioned==null&&LivingWorldHistory(s))TryLivingLocalTownOpportunity(s,id,elapsed);
+            if((provisioned==null||CoastalFarmingEnabled(s))&&LivingWorldHistory(s))TryLivingLocalTownOpportunity(s,id,elapsed);
         }
         double AggregateCropSupport(PrehistoryState s,int culture,int cell,bool stored)
         {

@@ -1,0 +1,8 @@
+<linker>
+  <!-- Canonical saves/hash reconstruction discover these public record fields
+       through reflection. Stripping must not change the authoritative schema. -->
+  <assembly fullname="WorldGen.Core" preserve="all" />
+  <assembly fullname="WorldGen.Serialization" preserve="all" />
+  <assembly fullname="WorldGen.Presentation" preserve="all" />
+  <assembly fullname="DelaunatorSharp" preserve="all" />
+</linker>

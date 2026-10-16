@@ -101,6 +101,7 @@ try{
   await section('Settlement history and hinterland');assert.ok((await page.locator('.atlas-reading').innerText()).includes('Reserved harbor footprint'));await screenshot('harbor-footprint');
   await section('Provisioning and resilience');const food=await page.locator('.atlas-reading').innerText();
   assert.ok(food.includes('Latest recorded food imports')&&!food.includes('Lifetime food imports'));await screenshot('harbor-food-flows');
+  if(process.env.WORLDGEN_CURRENT_PORT_LABELS)assert.ok(food.includes('Latest outgoing transport losses')&&food.includes('incoming route losses'));
   await page.getByRole('textbox',{name:'Search atlas names'}).fill('');
  }
  await page.locator('.atlas-directory').getByRole('button',{name:'Organizations',exact:true}).click();

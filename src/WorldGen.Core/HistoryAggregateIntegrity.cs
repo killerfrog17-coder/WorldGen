@@ -23,6 +23,7 @@ namespace WorldGen.Core
                 a.Living?.CivicOrigins.Fingerprint(true);
                 a.Provinces?.Centers.Fingerprint(true);
                 a.Empires?.Connections?.ProvisionedPorts?.ByTown.Fingerprint(true);
+                a.Empires?.Connections?.CoastalFarming?.Families.Fingerprint(true);
                 if(a.Empires?.Connections!=null)foreach(var culture in a.Empires.Connections.Cultures)culture.SeenCharts?.Fingerprint(true);
                 if(a.Empires?.Connections?.PortSettlements!=null)
                 {
@@ -42,6 +43,7 @@ namespace WorldGen.Core
             if(h.OriginReach!=null)values=values.Concat(new object[]{h.OriginReach}).ToArray();
             if(h.Nuclear!=null)values=values.Concat(new object[]{h.Nuclear}).ToArray();
             if(h.International!=null)values=values.Concat(new object[]{h.International}).ToArray();
+            if(h.ReceiverFrontier!=null)values=values.Concat(new object[]{h.ReceiverFrontier}).ToArray();
             return verify?StateHash.Compute(values,token):StateHash.ComputeOwnedHistorical(values,h,token);
         }
         internal void SealAggregateOwned(CancellationToken token=default){Hash=AggregateHash(false,token);}

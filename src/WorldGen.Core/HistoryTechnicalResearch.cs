@@ -68,6 +68,9 @@ namespace WorldGen.Core
             long budget=Math.Max(0,(long)Math.Round(D.Q(annual,1000000)*1000000))*elapsed;
             long learningBudget=Math.Max(0,(long)Math.Round(D.Q((.8+urban*3+literacy*4)*Math.Max(communication,importedCommunication),1000000)*1000000))*elapsed;
             Span<long> researchWeights=stackalloc long[n];Span<long> learningWeights=stackalloc long[n];long researchTotal=0,learningTotal=0;
+            bool receiverFrontier=LivingWorldHistory(s)&&h.ReceiverFrontier!=null;
+            Span<int> neededLearning=stackalloc int[n];
+            if(receiverFrontier)HistoricalReceiverFrontier.NeededLevels(t.Levels,t.Offers,neededLearning);
             Array.Clear(t.Allocation,0,n);
             for(int k=0;k<n;k++)
             {
@@ -83,6 +86,11 @@ namespace WorldGen.Core
                     // Peaceful isolation still supplies neither an offer nor
                     // any military-only independent research effort.
                     long learningPriority=Math.Max(priority,50000/(t.Levels[k]+1));
+                    // Delivered future awareness remains available. Spend most
+                    // finite instruction on an intelligible frontier and its
+                    // actually offered supporting techniques, not uniformly on
+                    // advanced blueprints whose prerequisites are absent.
+                    if(receiverFrontier)learningPriority=HistoricalReceiverFrontier.Priority(k,t.Levels,neededLearning[k],learningPriority);
                     learningWeights[k]=learningPriority;learningTotal+=learningPriority;
                 }
                 else if(HistoricalTechnicalGraph.Prerequisites(k,t.Levels)&&(LivingWorldHistory(s)?AggregatePracticeWithMaritime(s,id,k,false,maritime):AggregatePracticeSupported(s,id,k,false))&&(k<HistoricalTechnicalGraph.LegacyCount||NuclearInvestigationSupported(s,id,k)))

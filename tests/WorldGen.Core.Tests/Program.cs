@@ -1,6 +1,19 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--canonical-int-arrays-only")){int count=0;CanonicalIntegerArrayTests.Run((ok,message)=>{Interlocked.Increment(ref count);if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" exact canonical integer array assertions");return;}
+if(args.Contains("--stopping-point-snapshot")){int at=Array.IndexOf(args,"--stopping-point-snapshot");HistoryStoppingPointReview.Snapshot(args[at+1],args[at+2]);return;}
+if(args.Contains("--stopping-point-review")){int at=Array.IndexOf(args,"--stopping-point-review");HistoryStoppingPointReview.Run(args[at+1],args[at+2],int.Parse(args[at+3]));return;}
+if(args.Contains("--provisioned-supplier-trace")){int at=Array.IndexOf(args,"--provisioned-supplier-trace");HistoryProvisionedSupplierTests.Trace(args[at+1],args[at+2],int.Parse(args[at+3]));return;}
+if(args.Contains("--provisioned-supplier-audit")){int at=Array.IndexOf(args,"--provisioned-supplier-audit");HistoryProvisionedSupplierTests.Audit(args[at+1],args[at+2]);return;}
+if(args.Contains("--coastal-farm-only")){int count=0;HistoryCoastalFarmTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" coastal farm assertions");return;}
+if(args.Contains("--coastal-farm-world")){int count=0;HistoryCoastalFarmTests.World(args[Array.IndexOf(args,"--coastal-farm-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" coastal farm integration assertions");return;}
+if(args.Contains("--provisioned-supplier-review")){int at=Array.IndexOf(args,"--provisioned-supplier-review");HistoryProvisionedSupplierTests.Review(args[at+1],args[at+2],int.Parse(args[at+3]));return;}
+if(args.Contains("--receiver-frontier-only")){int count=0;HistoryReceiverFrontierTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" receiver frontier assertions");return;}
+if(args.Contains("--receiver-frontier-world")){int count=0;HistoryReceiverFrontierTests.World(args[Array.IndexOf(args,"--receiver-frontier-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" receiver frontier integration assertions");return;}
+if(args.Contains("--agronomic-fit-cache-world")){int count=0;HistoryAgronomicFitCacheTests.World(args[Array.IndexOf(args,"--agronomic-fit-cache-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" exact agronomic fit cache assertions");return;}
+if(args.Contains("--provisioned-supplier-only")){int count=0;HistoryProvisionedSupplierTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" provisioned supplier assertions");return;}
+if(args.Contains("--provisioned-supplier-world")){int count=0;HistoryProvisionedSupplierTests.World(args[Array.IndexOf(args,"--provisioned-supplier-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" provisioned supplier integration assertions");return;}
 if(args.Contains("--provisioned-port-review")){int at=Array.IndexOf(args,"--provisioned-port-review");HistoryProvisionedPortTests.Review(args[at+1],args[at+2]);return;}
 if(args.Contains("--provisioned-port-atlas-world")){int count=0;HistoryLivingAtlasTests.ProvisionedWorld(args[Array.IndexOf(args,"--provisioned-port-atlas-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual harbor atlas assertions");return;}
 if(args.Contains("--provisioned-port-only")){int count=0;HistoryProvisionedPortTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" provisioned port assertions");return;}
@@ -227,6 +240,10 @@ if(args.Contains("--shore-only")){ShoreSamplerTests.Run((ok,message)=>{assertion
 if(args.Contains("--subcell-only")){SubcellTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+assertions+" sub-cell assertions");return;}
 if(args.Contains("--display-performance-only")){int at=Array.IndexOf(args,"--detail");DisplayPerformanceTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);},at<0?20000:int.Parse(args[at+1]),args.Contains("--mesh-only"));Console.WriteLine("PASS "+assertions+" display assertions");return;}
 if(args.Contains("--setup-only")){SetupTests.Run((ok,message)=>{assertions++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+assertions+" setup assertions");return;}
+// Misspelled or not-yet-built targeted flags must not silently launch the much
+// longer complete corpus. The following legacy subsets are dispatched below.
+if(args.Length>0&&!(args.Length==1&&new[]{"--ecology-review","--ecology-only","--terrain-controls-only","--world-library-only","--plates-only","--tectonics-only","--climate-only","--hydrology-only","--continents-only"}.Contains(args[0])))
+    throw new ArgumentException("Unrecognized test command: "+string.Join(" ",args)+". Run without arguments for the complete suite.");
 void Check(bool condition, string message) { assertions++; if (!condition) throw new Exception(message); }
 LanguageTests.Run(Check);
 HistoryEnvironmentalTests.Run(Check);

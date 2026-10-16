@@ -6,11 +6,14 @@ import { gunzipSync } from 'node:zlib';
 const folder=process.argv[2],year=process.argv[3];
 if(!folder||!year)throw Error('Usage: node scripts/history-snapshot-images.mjs <snapshot-folder> <year>');
 const compact=process.argv.includes('--compact'),root=path.resolve('artifacts')+path.sep;
+const requested=process.argv.find(arg=>arg.startsWith('--modes='));
+const modes=requested?requested.slice(8).split(','):['States','Religions','Technology',...(compact?['Cultures']:[])];
+if(modes.some(mode=>!['States','Religions','Technology','Cultures'].includes(mode)))throw Error('Unsupported snapshot mode.');
 if(compact&&(!path.resolve(folder).startsWith(root)||!/^\d+$/.test(year)))throw Error('Compaction is restricted to numbered generated snapshots inside artifacts.');
 const browser=await chromium.launch({headless:true,channel:'msedge'});
 try {
  const page=await browser.newPage({viewport:{width:1800,height:960}});
- for(const mode of ['States','Religions','Technology',...(compact?['Cultures']:[])]) {
+ for(const mode of modes) {
   const plain=path.resolve(folder,`${mode}-${year}.svg`),packed=plain+'.gz';
   if(await fs.access(plain).then(()=>true,()=>false))await page.goto(pathToFileURL(plain).href,{timeout:120000});
   else if(await fs.access(packed).then(()=>true,()=>false))await page.setContent(gunzipSync(await fs.readFile(packed)).toString('utf8'),{timeout:120000,waitUntil:'load'});

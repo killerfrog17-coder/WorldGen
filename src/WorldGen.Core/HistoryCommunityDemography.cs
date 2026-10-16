@@ -62,7 +62,7 @@ namespace WorldGen.Core
             if(LivingWorldHistory(s))local*=LivingClimateFood(s,t.Cell,t.CultureId);
             double potential=ruralCapacity*share/Math.Max(.1,1-share)*produce;
             long capacity=(long)Math.Min(local,potential);int owner=a.Resolve(t.PolityId,h);
-            if(owner>=0)capacity+=CommunityUrbanImports(s,owner,city);
+            if(owner>=0&&!CoastalFarmDescendant(s,city))capacity+=CommunityUrbanImports(s,owner,city);
             return Math.Max(0,capacity);
         }
         long CommunityUrbanImports(PrehistoryState s,int polity,int city)

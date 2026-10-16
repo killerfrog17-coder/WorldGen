@@ -95,3 +95,40 @@ courts. The novel worlds' first courts are localized favorable coastal sites,
 but screenshots alone do not causally explain the very long Ice age
 agriculture-to-court interval. The next review is a frozen-calendar opportunity
 and research-gate audit, not a declaration that V is completely realistic.
+
+The second reviewer additionally inspected Earth states at 121900 and all three
+states/technology/religion views at 128100, and Continents Plus states at 164600
+and those same three views at 170200. Earth has a localized initial eastern-US
+court, but its Early Modern frame still has overwhelmingly North-American urban
+development and very small Caribbean/northeastern South-American footholds.
+Continents Plus has two localized initial nuclei and stronger later regional
+cores; its eventual late overseas coverage must not erase the earlier slow
+diffusion in the review. Neither religious colors nor a single late snapshot
+validate a complete narrative or every intervening campaign.
+
+## Ice age origin-opportunity audit
+
+The frozen-V calendar replay in
+`D:/WorldGenBuildArtifacts/artifacts/history32/v-iceage-origin-history`
+exactly reproduces first court year 444577 and preserves the original input.
+Fifty-year active-actor samples are approximate hazard integration, not an exact
+event census. The first sampled qualified community occurs at 294550, shortly
+after the agriculture-era transition. There are 517 ever-qualified town actors
+and 479,738 qualified town-years before the first court, but cumulative actual
+origin hazard is only 0.94294: approximately 39% survival probability without an
+origin through that interval. This is not evidence of a concealed dated unlock.
+
+Immediately before the founding event, the actual town has 2,498 urban and
+19,081 rural residents, stability 947, food reserve 7,887, fiscal-crop factor
+0.241, environment 0.781, staple factor 0.330, homeland factor 1, no neighboring
+town links and combined core readiness 0.264. Its annual conditional origin
+hazard is 0.000001543, roughly a 647,000-year instantaneous single-site wait.
+Preparation and small urban size exclude substantially more sampled town-years
+than the direct storable-crop gate. The latter excludes only 17,200 actor-years.
+
+This supports investigating how real productive communities accumulate local
+administrative capacity, concentrate people and maintain neighboring networks.
+It does not justify removing cold/jungle barriers or simply forcing a court at
+an Earth-like date. The ecological source of the long wait and the conditional
+readiness response remain distinct questions; no additional Core change was
+made as part of this audit.

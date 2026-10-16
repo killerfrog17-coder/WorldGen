@@ -19,6 +19,7 @@ public static class HistoryLivingAtlasTests
         check(footprint.Facts.Any(f=>f.Label=="Reserved harbor footprint")&&!footprint.Facts.Any(f=>f.Label=="Supply area"),"Reserved port land is not described as farming hinterland");
         var provisioning=document.Sections.Single(x=>x.Title=="Provisioning and resilience");
         check(provisioning.Facts.Any(f=>f.Label=="Latest recorded food imports")&&!provisioning.Facts.Any(f=>f.Label=="Lifetime food imports"),"Aggregate food flow labels do not misrepresent reset-per-update accounts as lifetime totals");
+        check(provisioning.Facts.Any(f=>f.Label=="Latest outgoing transport losses")&&provisioning.Text.Contains("incoming route losses"),"Sender-side cargo losses are not misleadingly described as the harbor's incoming shipping losses");
         check(HistoryAtlas.PlainText(document).Contains("Harbor and supply")&&s.ComputeHash()==hash,"Reading and copying actual harbor information never mutates saved cargo or history");
         Console.WriteLine("Harbor atlas town "+town.Id+" · "+town.Name+" · "+port.ReceivedFood+" recorded person-years received");
     }

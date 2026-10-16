@@ -33,6 +33,7 @@ namespace WorldGen.Core
             int owner=a.Resolve(town.PolityId,s.History);bool civic=owner>=0||s.History.Towns[parent].CivicExampleExposure>=400;
             if(owner>=0&&(s.History.Polities[owner].Treasury<1000||a.Polities[owner].Receipts<=a.Polities[owner].ServiceCost))return 0;
             double pressure=Math.Max(town.Population/(double)Math.Max(1,town.FoodCapacity),city.Rural/(double)Math.Max(1,city.RuralCapacity));
+            if(CoastalFarmingEnabled(s)&&ProvisionedPort(s,parent)!=null)return CoastalPortFarmRate(s,parent,pressure,civic,s.Years-town.FoundedYear,HistoricalModernEffects.LandTransport(s.History.Cultures[town.CultureId],s.Years));
             return HistoricalSettlementNetworks.AnnualOpportunity(town.Population,LivingFounderAvailability(s,parent),pressure,
                 HistoricalModernEffects.LandTransport(s.History.Cultures[town.CultureId],s.Years),civic,s.Years-town.FoundedYear);
         }
@@ -49,6 +50,7 @@ namespace WorldGen.Core
             // These are actual migrating households, not a spontaneous native
             // foundation. They carry their own crop repertoire and identity;
             // the surrounding population remains native and can exchange later.
+            if(CoastalFarmingEnabled(s)&&ProvisionedPort(s,parent)!=null)return TryFoundCoastalFarm(s,parent,target);
             if(!CanFoundLivingTown(s,culture,target,parent))return false;
             long available=LivingFounderAvailability(s,parent),founders=Math.Min(250,available/12),farms=Math.Min(available/3,Math.Max(800,founders*8)),people=founders+farms;
             LivingInlandSettlementCosts(s,parent,target,people,out long provisions,out long investment);

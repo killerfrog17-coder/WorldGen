@@ -25,7 +25,8 @@ namespace WorldGen.Core
         readonly Queue<int> communityAgronomicOrder=new Queue<int>();
         HabitatCell CommunityAgronomicHabitat(PrehistoryState s,int cell,int group)
         {
-            int key=cell*8+group;if(communityAgronomicHabitats.TryGetValue(key,out var cached))return cached;
+            int key=cell*8+group;if(communityAgronomicHabitats.TryGetValue(key,out var cached)){agronomicHabitatHits++;return cached;}
+            agronomicHabitatMisses++;
             var h=CropHabitat(s,cell);var climate=World.Climate;
             int warm=HistoricalCropCalendarEffects.GrowingWindowWarmth(climate.NorthernSpring.TemperatureTenthsC[cell],climate.NorthernSummer.TemperatureTenthsC[cell],climate.NorthernAutumn.TemperatureTenthsC[cell],climate.NorthernWinter.TemperatureTenthsC[cell],group);
             // A crop's growing season is not necessarily the hottest part of
@@ -36,13 +37,18 @@ namespace WorldGen.Core
                 SalinityMilliPpt=h.SalinityMilliPpt,SoilFertilityPermille=h.SoilFertilityPermille,FirePotentialPermille=h.FirePotentialPermille,ProductivityGCM2Year=h.ProductivityGCM2Year,ReliefM=h.ReliefM,Soil=h.Soil,Flooding=h.Flooding,Biome=h.Biome,Habitat=h.Habitat};
             // Immutable world/cell/group fits are shared by many annual town
             // actors. A late 200k-cell world can exceed16k active crop niches;
-            // a bounded64k cache avoids cycling the same objects every year.
-            if(communityAgronomicHabitats.Count>=65536)communityAgronomicHabitats.Remove(communityAgronomicOrder.Dequeue());
+            // Use a bounded256k niche working set for large late worlds rather
+            // than continually reallocating the same immutable soil records.
+            if(communityAgronomicHabitats.Count>=262144)communityAgronomicHabitats.Remove(communityAgronomicOrder.Dequeue());
             communityAgronomicHabitats[key]=result;communityAgronomicOrder.Enqueue(key);return result;
         }
         double CommunityTransferFit(PrehistoryState s,int cell,HistoricalCultivar cultivar,bool managed=false)
         {
             if(cultivar==null)return 0;
+            return UseAgronomicFitCache&&LivingWorldHistory(s)?CachedCommunityTransferFit(s,cell,cultivar,managed):LiteralCommunityTransferFit(s,cell,cultivar,managed);
+        }
+        double LiteralCommunityTransferFit(PrehistoryState s,int cell,HistoricalCultivar cultivar,bool managed)
+        {
             int group=PassageHistory(s)&&cultivar.CropId==10?6:PassageHistory(s)&&cultivar.CropId==12?7:HistoricalCropCatalog.Crops[cultivar.CropId].Group;
             var habitat=CommunityHistory(s)?CommunityAgronomicHabitat(s,cell,group):CropHabitat(s,cell);
             double fit=HistoricalCropCatalog.TransferFit(habitat,cultivar,CropLatitude(cell),riverSites[cell],managed);
@@ -79,9 +85,9 @@ namespace WorldGen.Core
             double rainfallSeason=(high-low)/Math.Max(1,high);
             for(int k=0;k<6;k++)if(crops.AdoptedYear[k]>0)
             {
-                var cultivar=crops.Cultivars?[k];var agronomic=CommunityAgronomicHabitat(s,cell,PassageHistory(s)&&cultivar?.CropId==10?6:PassageHistory(s)&&cultivar?.CropId==12?7:k);
+                var cultivar=crops.Cultivars?[k];int group=PassageHistory(s)&&cultivar?.CropId==10?6:PassageHistory(s)&&cultivar?.CropId==12?7:k;var agronomic=CommunityAgronomicHabitat(s,cell,group);
                 double fit=cultivar==null?CommunityWildCropFit(s,cell,k):CommunityTransferFit(s,cell,cultivar,managed);
-                double area=HistoricalLandscapeEffects.CropAreaYield(agronomic,riverAccess[cell],rainfallSeason)*HistoricalDevelopmentEffects.GrowingSeason(agronomic);
+                double area=CommunityAreaYield(s,cell,group,agronomic,rainfallSeason);
                 double quality=D.Clamp(area/fraction);
                 if(HistoricalLandscapeEffects.EverWet(h))
                 {
