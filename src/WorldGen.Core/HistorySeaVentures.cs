@@ -137,11 +137,13 @@ namespace WorldGen.Core
                     // oracle selecting ideal resources on an undiscovered coast.
                     var landing=ColonialTargetRoute(s,mission.Source,mission.Region,polity);
                     if(landing!=null){mission.Region=landing.B;mission.Target=landing.CellB;}
+                    RegisterPaidSeaContact(s,polity,mission.Source,mission.Target);
                     int previous=map.Grade[mission.Region];ObserveGeographicCoast(s,map,mission.Target,3,polity);
                     map.Surveys++;RecordCoastChart(s,p.CultureId,mission.Region,p.CultureId);
                     if(previous<2)HistoryEvent(s,"survey-return",p.Name+" receives a returning expedition's account of "+ColonialRegionName(mission.Region)+". Its coast is now navigable on the state's working map; sovereignty and settlement are separate questions.",mission.Target,p.CultureId,polity,category:ChronicleCategory.Discoveries);
                     continue;
                 }
+                RegisterPaidSeaContact(s,polity,mission.Source,mission.Target);
                 ObserveGeographicCoast(s,map,mission.Target,3,polity);
                 var route=new Route{A=CellPatch[mission.Source],B=mission.Region,CellA=mission.Source,CellB=mission.Target,DistanceM=mission.DistanceM,Sea=true};
                 int before=a.Empires.Territories.PostAt[route.CellB],townBefore=a.TownAt[route.CellB];
@@ -158,6 +160,15 @@ namespace WorldGen.Core
             // Active routes can support several subsequent voyages within years.
             // No additional 12/40-year founding lottery after a paid arrival.
             PlanSeaVentures(s,polity);ScheduleSeaMissions(s,polity);
+        }
+        void RegisterPaidSeaContact(PrehistoryState s,int polity,int source,int target)
+        {
+            if(s.History.Aggregates.Empires.Connections.Geography.Version<2)return;
+            int culture=s.History.Polities[polity].CultureId,local=HistoricalCells.Culture(s,target);
+            // An actual successful voyage creates witnessed local contact. It
+            // offers knowledge through the existing physical/adoption machinery;
+            // it neither installs a civilization nor grants usable technology.
+            if(local>=0&&local!=culture)LivingCultureContactAt(s,culture,local,source,target);
         }
         void ShareGeographicReports(PrehistoryState s,int polity)
         {

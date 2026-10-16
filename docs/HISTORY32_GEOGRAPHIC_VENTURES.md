@@ -8,6 +8,9 @@ Version1 review checkpoints also retain their exact continuation until explicitl
 upgraded; version2 replaces a voyage-count-dependent office selection with the
 saved fair pending cursor. Failed dispatches therefore cannot starve the rest of
 a state's paid office portfolio. No ecological or funding condition is relaxed.
+Successful version2 voyages also record their physically witnessed local cultural
+contact through the existing knowledge-offer/adoption machinery. Seeing a shore
+does not found a native civilization or instantly deploy the visitor's technology.
 
 ## Actual defects addressed
 
