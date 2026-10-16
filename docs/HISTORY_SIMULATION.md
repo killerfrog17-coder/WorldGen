@@ -1,5 +1,15 @@
 # Historical simulation: history-31 / prehistory-6
 
+## Regional traditions / proto-urban revision - 16 October 2026
+
+The current32 review distinguishes an ecoregion-based cultural tradition, an ordinary village, a local proto-urban center, and state institutions. Previously any village promoted its culture to embryonic civilization; cultivation alone also triggered Neolithic playback. Both shortcuts are removed for fresh histories carrying the optional saved `RegionalTraditions` marker. Cultures can share compatible neighboring habitat patches through real interaction, dissolve without killing their people, and leave descendants. Proto-centers remain local, require sustained provisioning/coordination, and can decline. Atlas and selection explain the distinction.
+
+The Neolithic observer label and100yr/s auto warp begin with a qualified proto-center; earlier traditions/farming villages retain the fast prehistory display period. This intentionally differs from the usual archaeological meaning of Neolithic. There is no forced date or quota. Existing saves are not silently upgraded. See [the implementation contract](ALGORITHMS.md#regional-traditions-and-nested-proto-centers---history32-optional-revision).
+
+Research contrasted complex forager networks at [Poverty Point](https://www.nps.gov/articles/000/monumental-earthworks-of-poverty-point-world-heritage-site.htm), the long occupation and gradual transitions at [Çatalhöyük](https://whc.unesco.org/en/list/1405), and [Uruk's city institutions](https://www.metmuseum.org/essays/uruk-the-first-city). Farming, settlement population and statehood are not interchangeable. The model is an efficient simulation approximation, not archaeological validation.
+
+Fresh accepted-terrain200k checks: Earth73421 first proto144399, first state145710, with31 surviving traditions/5 active towns/1 state at146710; Continents Plus261015 first proto162922, first state163915, with81 traditions/17 towns/1 remaining proto-center/1 state at164915. Earlier villages did not advance the observer era. Both explicit final validations conserved population. These are two seed checks, not a claim that historical geography, all later eras, or overall runtime have been fully qualified. Initial classification attempts were rejected: one still called weakly provisioned centers proto-urban too early; another stacked origin lotteries and prevented Earth states by220k. Conditional political consolidation corrected that failure without relaxing the initial ecological gate.
+
 ## Overnight history32 candidate - 16 October 2026 (not yet a player release)
 
 The [current stopping-point review](HISTORY32_STOPPING_POINT.md) records the W2

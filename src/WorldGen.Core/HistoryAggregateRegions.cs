@@ -9,6 +9,7 @@ namespace WorldGen.Core
             var a=s.History.Aggregates;var r=a.Regions[id];int elapsed=s.Years-r.LastYear;if(elapsed<=0)return;r.LastYear=s.Years;
             using var knowledgeScope=ProvincialHistory(s)?new ProvincialKnowledgeScope(this,s):default;
             if(LivingHistory(s))AdvanceLivingRegionalExchange(s,id,elapsed);
+            AdvanceRegionalTradition(s,id,elapsed);
             if(ConnectedHistory(s))AdvanceDevelopmentVoyage(s,id,elapsed);
             long before=s.Population[id],capacity=0;
             if(!ProvincialHistory(s)||before>0||!UseProvincialCaches)
@@ -52,7 +53,7 @@ namespace WorldGen.Core
             {
                 double concentration=Math.Max(r.StoredMilli/1000.0,Math.Min(.7,riverSites[r.BestCell]));double occupation=HistoricalLocalEffects.RegionalTraditionOpportunity(s.Years-s.ArrivalYear[id]);
                 double chance=LivingHistory(s)?LivingCommunityChance(s,id,elapsed):.0008*Math.Pow(Math.Max(.01,concentration),2)*occupation*elapsed/100.0;
-                if((EnvironmentalHistory(s)?EnvironmentalOriginRoll("culture",id,s.Years):HistoryRoll("aggregate-community",id,s.Years))<chance){int site=LivingHistory(s)?LivingCommunitySite(s,id):r.BestCell;if(site>=0)FoundAggregateCulture(s,id,site);}
+                if((!RegionalTraditions(s)||s.Years-r.LastCultureYear>=800)&&(EnvironmentalHistory(s)?EnvironmentalOriginRoll("culture",id,s.Years):HistoryRoll("aggregate-community",id,s.Years))<chance&&!AdoptRegionalTradition(s,id)){int site=LivingHistory(s)?LivingCommunitySite(s,id):r.BestCell;if(site>=0)FoundAggregateCulture(s,id,site,RegionalTraditions(s)?s.History.RegionalTraditions.Predecessors[id]:-1);}
             }
             if(LivingWorldHistory(s))UpdateHumanVariation(s,id,elapsed);
             else if(s.Population[id]>0)for(int g=0;g<8;g++){int at=id*8+g;double duration=ProvincialHistory(s)?Math.Sqrt(elapsed/100.0):1;int drift=(int)Math.Round((HistoryRoll("aggregate-drift-"+g,id,s.Years)-.5)*50*duration/Math.Sqrt(Math.Max(1,s.Population[id]/100.0)));s.Ancestry[at]=Math.Max(0,Math.Min(10000,s.Ancestry[at]+drift));}
@@ -71,6 +72,7 @@ namespace WorldGen.Core
             var crops=new HistoricalAgriculture{CultureId=id,NativeMask=nativeCrops[cell],PracticeCell=Enumerable.Repeat(cell,6).ToArray(),WildOriginCell=Enumerable.Range(0,6).Select(k=>(nativeCrops[cell]&(1<<k))!=0?cell:-1).ToArray(),Cultivars=new HistoricalCultivar[6],HusbandryYears=new int[6]};h.Agriculture=h.Agriculture.Concat(new[]{crops}).ToArray();
             if(CommunityHistory(s)){crops.NativeMask=CommunityNativeCropMask(s,cell);for(int k=0;k<6;k++)crops.WildOriginCell[k]=(crops.NativeMask&(1<<k))!=0?cell:-1;}
             a.Cultures=a.Cultures.Concat(new[]{new HistoricalCultureAggregate{Id=id,LastYear=s.Years,Region=patch}}).ToArray();a.Regions[patch].Culture=id;a.Regions[patch].LastCultureYear=s.Years;
+            RegisterRegionalTradition(s,patch,id);
             AppendColonialCulture(s,patch);
             if(ProvincialHistory(s))a.Provinces.Exchanges=a.Provinces.Exchanges.Concat(new[]{new HistoricalExchangeMemory()}).ToArray();
             if(LivingHistory(s))
@@ -88,7 +90,7 @@ namespace WorldGen.Core
             AppendLanguage(s,id);
             if(LanguageHistory(s)&&hc.ParentCultureId>=0)HistoryEvent(s,"cultural-exchange",c.Name+" develops a distinct local tradition through exchange with "+s.Society.Cultures[hc.ParentCultureId].Name+"; crops and institutions still need local support.",cell,id,category:ChronicleCategory.Society);
             SetAggregateLayer(s,cell,0,id);SetAggregateLayer(s,cell,2,religion);SetAggregateLayer(s,cell,4,1);
-            c.Population=Math.Min(s.Population[patch],RuralCellPopulation(s,cell));ScheduleAggregate(s,CultureProcess,id);
+            c.Population=RegionalTraditions(s)?s.Population[patch]:Math.Min(s.Population[patch],RuralCellPopulation(s,cell));ScheduleAggregate(s,CultureProcess,id);
             HistoryEvent(s,"culture","A persistent regional exchange and storage tradition emerges among "+c.Name+".",cell,id,religion:religion);
         }
     }

@@ -147,6 +147,8 @@ namespace WorldGen.Core
         }
         void ExpandLivingCulture(PrehistoryState s,int id,int elapsed)
         {
+            if(RegionalTraditions(s)&&s.History.Aggregates.Cultures[id].CivilizationSince<0)return;
+            SeedRegionalCulturalFrontier(s,id);
             var a=s.History.Aggregates;var ca=a.Cultures[id];var c=s.Society.Cultures[id];int origin=c.OriginCell;
             // A bounded number of frontier opportunities represents physical
             // travel, not one entire cell per culture regardless of resolution.

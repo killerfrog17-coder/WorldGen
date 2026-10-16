@@ -40,6 +40,7 @@ namespace WorldGen.Core
         }
         public sealed class Route { public int A,B,DistanceM,SeaDropM,CellA=-1,CellB=-1; public bool Shallow,Sea,Coastal; }
         public readonly World World; public readonly int[] CellPatch; public readonly Patch[] Patches; public readonly Route[] Routes;
+        readonly int[][] regionalCultureEdges;
         // Derived habitat weights, not a second population store. Prefix allocation conserves every person.
         readonly long[] ruralWeight,ruralPrefix;readonly long[] ruralPatchWeight;
         public const int StepYears=100;
@@ -104,7 +105,17 @@ namespace WorldGen.Core
                 var key=(a,b,modern?(sea?drop:-1):0);
                 if(!routes.TryGetValue(key,out var old)||(!sea&&old.Sea)||(sea==old.Sea&&metres<old.DistanceM))routes[key]=new Route{A=a,B=b,DistanceM=metres,Sea=sea,Shallow=shallow,SeaDropM=drop,CellA=cellA,CellB=cellB};
             }
-            foreach(var edge in s.Edges)if(!modern||!world.Hydrology.OceanConnected[edge.A]&&!world.Hydrology.OceanConnected[edge.B])Link(CellPatch[edge.A],CellPatch[edge.B],edge.LengthM,false,false);
+            var culturalEdges=new List<int>[Patches.Length];
+            void CulturalEdge(int patch,int cell)
+            {if(patch<0)return;var list=culturalEdges[patch]??(culturalEdges[patch]=new List<int>(8));if(list.Count<8&&!list.Contains(cell))list.Add(cell);}
+            foreach(var edge in s.Edges)if(!modern||!world.Hydrology.OceanConnected[edge.A]&&!world.Hydrology.OceanConnected[edge.B])
+            {
+                int first=CellPatch[edge.A],second=CellPatch[edge.B];Link(first,second,edge.LengthM,false,false);
+                if(first>=0&&second>=0&&first!=second){CulturalEdge(first,edge.A);CulturalEdge(second,edge.B);}
+            }
+            // Derived during existing geography setup, never lazily discovered
+            // by scanning a region/culture when its first state forms.
+            regionalCultureEdges=culturalEdges.Select(list=>list?.ToArray()??Array.Empty<int>()).ToArray();
             // Two bounded coast-to-coast searches: short sea trips and exposed shallow shelves.
             foreach(int depth in modern?new[]{0,30,70,130}:new[]{0,130})
             {

@@ -6,6 +6,7 @@ namespace WorldGen.Core
     {
         void AdvanceAggregateCulture(PrehistoryState s,int id)
         {
+            if(RegionalTraditions(s)&&s.History.RegionalTraditions.Retired[id]>=0)return;
             var h=s.History;var a=h.Aggregates;var c=s.Society.Cultures[id];var hc=h.Cultures[id];var ca=a.Cultures[id];int elapsed=s.Years-ca.LastYear;if(elapsed<=0)return;ca.LastYear=s.Years;
             AdvanceCulturalContinuity(s,id);
             int cell=c.OriginCell;var habitat=World.Ecology.Habitat[cell];var crops=h.Agriculture[id];
@@ -106,7 +107,7 @@ namespace WorldGen.Core
                 int parent=ca.Cities.At((int)(HistoryRoll("aggregate-town-catchment-parent",id,s.Years)*ca.Cities.Count));var candidates=World.Surface.Cells[s.Society.Settlements[parent].Cell].Neighbors;int offset=(int)(HistoryRoll("aggregate-town-catchment-edge",id,s.Years)*candidates.Length);
                 for(int k=0;k<candidates.Length;k++){int site=candidates[(offset+k)%candidates.Length];if(CellPatch[site]>=0&&HistoricalCells.Culture(s,site)==id&&a.TownAt[site]<0&&s.Population[CellPatch[site]]>=500&&AggregateCropSupport(s,id,site,false)>.2){FoundAggregateTown(s,id,site,parent);break;}}
             }
-            c.Stage=ca.CivilizationSince>=0?SocietyStage.Civilization:ca.Cities.Count>0?SocietyStage.EmbryonicCivilization:SocietyStage.AdvancedCulture;
+            c.Stage=ca.CivilizationSince>=0?SocietyStage.Civilization:RegionalTraditions(s)?s.History.RegionalTraditions.Retired[id]>=0?SocietyStage.Foragers:SocietyStage.AdvancedCulture:ca.Cities.Count>0?SocietyStage.EmbryonicCivilization:SocietyStage.AdvancedCulture;
             if(!s.Society.ManualStep)s.Society.SelectedStepYears=h.Polities.Length>0?1:SocietyState.DefaultStep(c.Stage);
             // A local community can adopt a portable religion through an actual
             // contact; political conquest does not overwrite local culture.

@@ -14,7 +14,7 @@ namespace WorldGen.Presentation
         };
         public static string Description(int era)=>Name(era)+": "+(era switch
         {
-            3=>"established cultivation",4=>"bronze production",5=>"iron production",
+            3=>"sustained proto-urban settlement institutions",4=>"bronze production",5=>"iron production",
             6=>"steel, mills and organized scholarly institutions",
             7=>"printing, experimental science and a broader maritime, agricultural or gunpowder package",
             8=>"steam-powered industry and industrial metallurgy",
@@ -25,17 +25,23 @@ namespace WorldGen.Presentation
         {
             var first=new int[11];for(int k=0;k<first.Length;k++)first[k]=-1;first[2]=0;
             if(state?.History==null)return first;
+            bool regional=state.History.RegionalTraditions!=null;
             void Record(int era,int year){if(year>=0&&(first[era]<0||year<first[era]))first[era]=year;}
             foreach(var c in state.History.Cultures)
             {
                 int Year(HistoricalTechnology t)=>c.Technical!=null?c.Technical.InstalledYear[(int)t]-1:HistoricalTechnologies.Has(c,t)?c.Technology[(int)t]-1:-1;
                 if(c.Technical!=null)
                 {
-                    Record(3,Year(HistoricalTechnology.Cultivation));Record(4,Year(HistoricalTechnology.Bronze));Record(5,Year(HistoricalTechnology.Iron));
+                    if(!regional)Record(3,Year(HistoricalTechnology.Cultivation));Record(4,Year(HistoricalTechnology.Bronze));Record(5,Year(HistoricalTechnology.Iron));
                     RecordPackages(Year,Record);continue;
                 }
-                Record(3,Year(HistoricalTechnology.Cultivation));Record(4,Year(HistoricalTechnology.Bronze));Record(5,Year(HistoricalTechnology.Iron));
+                if(!regional)Record(3,Year(HistoricalTechnology.Cultivation));Record(4,Year(HistoricalTechnology.Bronze));Record(5,Year(HistoricalTechnology.Iron));
                 RecordPackages(Year,Record);
+            }
+            if(regional)
+            {
+                first[3]=state.History.RegionalTraditions!.FirstProtoYear;
+                for(int era=4;era<=10;era++)if(first[era]>=0)first[era]=first[3]<0?-1:Math.Max(first[3],first[era]);
             }
             return first;
         }
@@ -73,12 +79,14 @@ namespace WorldGen.Presentation
             if(state==null)return 1;
             int era=2;
             if(state.History==null)return era;
+            var regional=state.History.RegionalTraditions;
+            if(regional!=null&&regional.FirstProtoYear<0)return 2;
             foreach(var culture in state.History.Cultures)
             {
                 era=Math.Max(era,CultureEra(culture,true));
                 if(era==10)break;
             }
-            return era;
+            return regional!=null?Math.Max(3,era):era;
         }
     }
 }

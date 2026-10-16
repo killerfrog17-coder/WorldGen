@@ -145,6 +145,7 @@ namespace WorldGen.Core
                 if(o is HistoryState nuclearHistory && f.Name==nameof(HistoryState.Nuclear) && nuclearHistory.Nuclear==null)continue;
                 if(o is HistoryState internationalHistory && f.Name==nameof(HistoryState.International) && internationalHistory.International==null)continue;
                 if(o is HistoryState receiverHistory && f.Name==nameof(HistoryState.ReceiverFrontier) && receiverHistory.ReceiverFrontier==null)continue;
+                if(o is HistoryState traditionHistory && f.Name==nameof(HistoryState.RegionalTraditions) && traditionHistory.RegionalTraditions==null)continue;
                 if(o is HistoricalInternationalSystem internationalSystem && f.Name==nameof(HistoricalInternationalSystem.Finances) && internationalSystem.Finances==null)continue;
                 if(o is HistoricalAggregateState oldAggregate && f.Name==nameof(HistoricalAggregateState.Living) && oldAggregate.Living==null)continue;
                 if(o is HistoricalAggregateState oldProvince && f.Name==nameof(HistoricalAggregateState.Provinces) && oldProvince.Provinces==null)continue;

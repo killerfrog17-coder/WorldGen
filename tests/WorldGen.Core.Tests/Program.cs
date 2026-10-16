@@ -1,6 +1,10 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--regional-traditions-upgrade")){int at=Array.IndexOf(args,"--regional-traditions-upgrade");var world=WorldFile.Read(File.ReadAllBytes(args[at+1]));var engine=new Prehistory(world);world.Prehistory=engine.UpgradeRegionalTraditions(world.Prehistory);engine.Validate(world.Prehistory);if(File.Exists(args[at+2]))throw new IOException("Refusing to overwrite a regional-rules fixture.");File.WriteAllBytes(args[at+2],WorldFile.Write(world));Console.WriteLine("Saved explicit regional-rules upgrade "+world.Prehistory.Hash);return;}
+if(args.Contains("--regional-traditions-only")){int count=0;HistoryRegionalTraditionTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" regional tradition assertions");return;}
+if(args.Contains("--regional-traditions-world")){int count=0;HistoryRegionalTraditionTests.World(args[Array.IndexOf(args,"--regional-traditions-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" regional tradition integration assertions");return;}
+if(args.Contains("--regional-traditions-review")){int at=Array.IndexOf(args,"--regional-traditions-review");HistoryRegionalTraditionTests.Review(args[at+1],args[at+2],int.Parse(args[at+3]));return;}
 if(args.Contains("--lake-presentation-world")){int count=0;LakePresentationTests.World(args[Array.IndexOf(args,"--lake-presentation-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world lake overlay assertions");return;}
 if(args.Contains("--lake-presentation-only")){int count=0;LakePresentationTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" lake presentation assertions");return;}
 if(args.Contains("--canonical-int-arrays-only")){int count=0;CanonicalIntegerArrayTests.Run((ok,message)=>{Interlocked.Increment(ref count);if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" exact canonical integer array assertions");return;}

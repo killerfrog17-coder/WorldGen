@@ -335,6 +335,12 @@ namespace WorldGen.Presentation
             d.Facts=new[]{F("Recorded origin","Year "+Y(s,c.FoundedYear)),F("People",N(c.Population)),F("Cultural footprint",N(c.AreaKm2)+" km²"),F("Organization index",N(c.Organization)+" / 1,000"),F("Settlement tendency",N(hc.Sedentism)+" / 1,000"),F("Surplus index",N(hc.Surplus)+" / 1,000"),F("Institutional index",N(hc.Institution)+" / 1,000")};
             var links=new List<AtlasLink>();if(hc.ParentCultureId>=0)links.Add(CultureLink(s.Society.Cultures[hc.ParentCultureId]));if(hc.LanguageId>=0)links.Add(CultureLink(s.Society.Cultures[hc.LanguageId]));if(hc.ReligionId>=0)links.Add(FaithLink(h.Religions[hc.ReligionId]));
             a.Add(Links("Origins, language, and belief",links,"The language-family label refers to the originating recorded culture. Ancestry and language do not determine a people's abilities."));
+            if(h.RegionalTraditions!=null)
+            {
+                var traditions=h.RegionalTraditions;
+                var proto=s.Society.Settlements.Where(t=>t.CultureId==c.Id&&t.Population>0&&HistoricalRegionalTraditions.Proto(s,t.Id)&&h.Aggregates.Resolve(t.PolityId,h)<0).ToArray();
+                a.Add(new AtlasSection{Title="Regional tradition and local centers",Text="A shared regional way of life is not a single state. Ordinary villages remain villages; proto-urban institutions occupy individual supported centers, not this people's entire homeland.",Facts=new[]{F("Connected habitat regions",N(Math.Max(0,traditions.RegionalCounts[c.Id]))),F("Current proto-urban centers",N(proto.Length)),F("Regional continuity",traditions.Retired[c.Id]>=0?"Tradition dissolved in "+Y(s,traditions.Retired[c.Id])+"; descendant communities continued":"Living tradition")},Links=proto.Select(t=>TownLink(s,t)).ToArray()});
+            }
             if(h.Languages!=null)
             {
                 var language=h.Languages.Profiles[c.Id];bool writing=HistoricalTechnologies.Has(hc,HistoricalTechnology.Writing);

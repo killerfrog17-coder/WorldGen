@@ -21,6 +21,7 @@ namespace WorldGen.Core
                 a.Cells.Fingerprint(true);a.TownAt.Fingerprint(true);a.Successors.Fingerprint(true);a.LeaderDigests.Fingerprint(true);
                 a.Living?.TownBuckets.Fingerprint(true);a.Living?.BucketCounts.Fingerprint(true);
                 a.Living?.CivicOrigins.Fingerprint(true);
+                if(h.RegionalTraditions!=null)foreach(var tree in new[]{h.RegionalTraditions.Predecessors,h.RegionalTraditions.RegionalCounts,h.RegionalTraditions.Retired,h.RegionalTraditions.Preparation,h.RegionalTraditions.LastReview,h.RegionalTraditions.Decline,h.RegionalTraditions.ProtoSince,h.RegionalTraditions.Qualified})tree.Fingerprint(true);
                 a.Provinces?.Centers.Fingerprint(true);
                 a.Empires?.Connections?.ProvisionedPorts?.ByTown.Fingerprint(true);
                 a.Empires?.Connections?.CoastalFarming?.Families.Fingerprint(true);
@@ -44,6 +45,7 @@ namespace WorldGen.Core
             if(h.Nuclear!=null)values=values.Concat(new object[]{h.Nuclear}).ToArray();
             if(h.International!=null)values=values.Concat(new object[]{h.International}).ToArray();
             if(h.ReceiverFrontier!=null)values=values.Concat(new object[]{h.ReceiverFrontier}).ToArray();
+            if(h.RegionalTraditions!=null)values=values.Concat(new object[]{h.RegionalTraditions}).ToArray();
             return verify?StateHash.Compute(values,token):StateHash.ComputeOwnedHistorical(values,h,token);
         }
         internal void SealAggregateOwned(CancellationToken token=default){Hash=AggregateHash(false,token);}

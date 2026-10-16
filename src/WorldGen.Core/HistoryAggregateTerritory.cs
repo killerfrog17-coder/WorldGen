@@ -16,6 +16,7 @@ namespace WorldGen.Core
         void SetAggregateLayer(PrehistoryState s,int cell,int layer,int owner)
         {
             var a=s.History.Aggregates;int old=a.Cells[cell*5+layer];if(old==owner)return;
+            if(layer==0&&RegionalTraditions(s))old=HistoricalCells.Culture(s,cell);
             a.Cells=a.Cells.With(cell*5+layer,owner);a.CellWrites++;
             if(layer!=0&&layer!=1)return;
             long area=(long)Math.Round(layer==1&&TechnicalHistory(s)?TerritorialPoliticalArea(cell):inhabitableArea[cell]);

@@ -56,7 +56,7 @@ public static class HistoryAtlasTests
         check(HistoryAtlas.Card(s,0,HistoryOverlay.States).Facts.Any(x=>x.Label=="Capital"&&x.Value=="First Harbor"),"Political selection uses compact labeled facts");
         check(HistoryAtlas.OverviewVisual(state)?.Links.Length<=6,"Overview charts stay compact and use recorded data");
         check(HistoryAtlas.Read(s,"people",0).Sections.Single(x=>x.Title=="Practices and knowledge").Timeline.Single().Label=="Year 1,200","Practice dates decode stored adoption-year-plus-one correctly");
-        check(HistoryAtlas.Read(s,"state",1).Introduction.Contains("does not by itself imply"),"Historic state entries do not equate state collapse with extinction of a people");
+        check(HistoryAtlas.Read(s,"state",1).Introduction.Contains("Its people and cities may continue under later governments"),"Historic state entries do not equate state collapse with extinction of a people");
         check(HistoryAtlas.Read(s,"religion",0).Sections.Any(x=>x.Text.Contains("not unanimous belief")),"Religion profiles do not invent adherent counts");
         check(HistoryAtlas.Read(null).Sections.Length==0&&HistoryAtlas.Directory(null,"city").Length==0&&HistoryAtlas.Selection(s,-1,HistoryOverlay.States)==null,"Loading and pre-recorded-history states are safe");
         check(HistoryAtlas.Read(s,"state",99).Title=="Record unavailable","Missing records have a safe explanation rather than broken navigation");

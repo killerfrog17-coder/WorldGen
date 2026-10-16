@@ -117,7 +117,17 @@ namespace WorldGen.Core
         public static int Stage(PrehistoryState s,int cell)=>Read(s,cell,4);
         static int Read(PrehistoryState s,int cell,int layer)
         {
-            var a=s?.History?.Aggregates;if(a!=null)return cell>=0&&cell<a.Cells.Length/5?a.Cells[cell*5+layer]:-1;
+            var a=s?.History?.Aggregates;if(a!=null)
+            {
+                if(cell<0||cell>=a.Cells.Length/5)return -1;
+                if(s.History.RegionalTraditions!=null)
+                {
+                    if(layer==0)return HistoricalRegionalTraditions.Culture(s,cell);
+                    if(layer==4)return HistoricalRegionalTraditions.Stage(s,cell);
+                    if(layer==2&&a.Cells[cell*5+2]<0){int culture=HistoricalRegionalTraditions.Culture(s,cell);return culture>=0?s.History.Cultures[culture].ReligionId:-1;}
+                }
+                return a.Cells[cell*5+layer];
+            }
             var values=layer==0?s?.Society?.CellCulture:layer==1?s?.History?.CellPolity:layer==2?s?.History?.CellReligion:layer==3?s?.History?.CellMarket:s?.History?.CellStage;
             return values!=null&&cell>=0&&cell<values.Length?values[cell]:-1;
         }

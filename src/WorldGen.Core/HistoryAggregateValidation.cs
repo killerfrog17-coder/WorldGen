@@ -52,6 +52,7 @@ namespace WorldGen.Core
             Require(expected==a.TotalPopulation&&a.TotalUrban==s.Society.Settlements.Sum(t=>t.Population),"population conservation "+expected+" != "+a.TotalPopulation);
             var urban=new long[h.Cultures.Length];var supported=new long[h.Cultures.Length];var supportCount=new int[h.Cultures.Length];
             ValidateReceiverFrontierLearning(s);
+            ValidateRegionalTraditions(s);
             foreach(var culture in h.Cultures)ValidateTechnicalPractice(s,culture);
             ValidateImperialSystem(s);
             ValidateTerritorialAdministration(s);

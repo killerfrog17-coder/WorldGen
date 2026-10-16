@@ -32,6 +32,7 @@ namespace WorldGen.Core
             // a biennial census. Analytic population and adoption use the actual
             // elapsed time; city, conflict and political calendars stay separate.
             if(ColonialHistory(state)){if(process==RegionProcess)cadence=Math.Max(10,cadence);if(process==CultureProcess)cadence=Math.Max(5,cadence);}
+            if(process==CultureProcess&&state?.History?.RegionalTraditions?.Retired[entity]>=0)cadence=10000;
             return SimulationEventQueue.Window(World.Recipe.Seed,"aggregate-1-"+process,entity,unchecked((int)ticket),(long)(cadence*SimulationTime.Year),(long)(cadence*.3*SimulationTime.Year));
         }
         SimulationTimeline InitialAggregateTimeline(PrehistoryState s)

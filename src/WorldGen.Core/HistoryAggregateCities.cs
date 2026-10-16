@@ -117,6 +117,7 @@ namespace WorldGen.Core
             }
             t.Health=(int)Math.Max(100,Math.Min(950,600+200*D.Clamp(supply)-disease*1000/Math.Max(1,oldPopulation)));t.Stability=Math.Max(100,Math.Min(950,t.Stability+(supply>=.9?3:-12)*elapsed));t.CultivatedPermille=provisioned==null?culture.Farming:0;
             bool supported=t.FoodCapacity>=t.Population*.8&&t.Stability>=450&&(provisioned==null||supply>=.8);if(supported!=city.Supported){account.SupportedCities+=supported?1:-1;account.SupportedUrban+=supported?t.Population:-t.Population;city.Supported=supported;}if(!LivingHistory(s))account.FoodCapacity+=t.FoodCapacity-oldCapacity;
+            AdvanceProtoCentre(s,id,elapsed);
             if(provisioned!=null)ExpandProvisionedPort(s,id,provisioned,supply);
             var demography=record.Demography??(record.Demography=new HistoricalUrbanDemography());demography.Year=s.Years;demography.NaturalChange=natural;demography.ChronicLoss=chronic;demography.RuralInflow=migrants;demography.TotalRuralInflow+=migrants;demography.TotalChronicLoss+=chronic;
             if(owner<0&&t.Population>=800&&t.Stability>=550&&s.Years-city.LastPoliticalYear>=10)

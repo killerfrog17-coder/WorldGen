@@ -29,6 +29,7 @@ namespace WorldGen.Presentation
             source=state;int count=HistoricalCells.Count(state);cells=new int[count*5];
             if(state.History?.Aggregates!=null)state.History.Aggregates.Cells.CopyTo(cells);
             else for(int i=0;i<count;i++){cells[i*5]=HistoricalCells.Culture(state,i);cells[i*5+1]=HistoricalCells.Polity(state,i);cells[i*5+2]=HistoricalCells.Religion(state,i);cells[i*5+3]=HistoricalCells.Market(state,i);cells[i*5+4]=HistoricalCells.Stage(state,i);}
+            if(state.History?.RegionalTraditions!=null)for(int i=0;i<count;i++){cells[i*5]=HistoricalCells.Culture(state,i);cells[i*5+2]=HistoricalCells.Religion(state,i);cells[i*5+4]=HistoricalCells.Stage(state,i);}
             resolved=new int[state.History?.Polities.Length??0];
             for(int i=0;i<resolved.Length;i++)resolved[i]=state.History!.Aggregates?.Resolve(i,state.History)??i;
             remote=new long[resolved.Length];if(state.History?.Aggregates!=null)for(int i=0;i<remote.Length;i++)remote[i]=state.History.Aggregates.Polities[state.History.Aggregates.PopulationCohort(i)].Remote;

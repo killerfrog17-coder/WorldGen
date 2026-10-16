@@ -32,6 +32,7 @@ namespace WorldGen.Core
             if(LivingWorldHistory(s))InitializePoliticalProgram(s,id);
             AppointAggregateLeader(s,id);ClaimAggregatePolity(s,town.Cell,id);AssignAggregateTown(s,city,id);ScheduleAggregate(s,StateProcess,id);s.Society.Cultures[town.CultureId].Stage=SocietyStage.Civilization;
             if(a.Cultures[town.CultureId].CivilizationSince<0)a.Cultures[town.CultureId].CivilizationSince=s.Years;
+            if(RegionalTraditions(s)&&h.RegionalTraditions.FirstProtoYear<0)h.RegionalTraditions.FirstProtoYear=s.Years;
             EstablishCivilizationalLineage(s,town.CultureId,city);
             if(LivingHistory(s)&&a.Living.CivicOrigins[town.CultureId]<0)a.Living.CivicOrigins=a.Living.CivicOrigins.With(town.CultureId,id);
             HistoryEvent(s,foundationKind??(parent<0?"state":"secession"),polity.Name+(foundationKind!=null?" establishes a locally administered overseas council at ":parent<0?" establishes independent institutions at ":" emerges as an independent successor court at ")+town.Name+".",town.Cell,town.CultureId,id,other:parent,town:city,category:ChronicleCategory.Politics);

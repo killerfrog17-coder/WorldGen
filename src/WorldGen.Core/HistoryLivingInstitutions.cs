@@ -104,7 +104,15 @@ namespace WorldGen.Core
                 if(LivingWorldHistory(s))independent=HistoricalLivingWorldOrigins.IndependentStateHazard(core,environment,staples,HomelandOriginFactor(s,t.Cell));
                 transmitted=HistoricalEnvironmentalEffects.LearnedStateHazard(core,environment,staples,record.CivicExampleExposure);
             }
-            if(record.CivicPreparationYears>=120&&s.Society.Cultures[t.CultureId].Farming>=250&&(EnvironmentalHistory(s)?EnvironmentalOriginRoll("state",id,s.Years):HistoryRoll("living-state-foundation",id,s.Years))<1-Math.Exp(-(independent+transmitted)*elapsed))
+            if(RegionalTraditions(s)&&HistoricalRegionalTraditions.Proto(s,id))
+            {
+                // Ecological opportunity selected the proto-center already.
+                // Do not make the same supported center win that origin lottery
+                // again for tens of millennia. Political consolidation remains
+                // uncertain, local and conditional on current food/residents.
+                independent=HistoricalProtoCentreEffects.InstitutionalHazard(core,Math.Max(0,s.Years-h.RegionalTraditions.ProtoSince[id]));
+            }
+            if((!RegionalTraditions(s)||HistoricalRegionalTraditions.Proto(s,id))&&record.CivicPreparationYears>=120&&s.Society.Cultures[t.CultureId].Farming>=250&&(EnvironmentalHistory(s)?EnvironmentalOriginRoll("state",id,s.Years):HistoryRoll("living-state-foundation",id,s.Years))<1-Math.Exp(-(independent+transmitted)*elapsed))
             {
                 FoundAggregateState(s,id,restoration?raw:-1);
                 HistoryEvent(s,restoration?"institutional-restoration":teacher>=0?"institutional-diffusion":"independent-institutions",t.Name+(restoration?" restores local state institutions.":teacher>=0?" establishes a court through sustained contact with neighboring states.":" becomes an independent center of state institutions backed by storable agricultural surplus."),t.Cell,t.CultureId,t.PolityId,town:id,category:ChronicleCategory.Politics);

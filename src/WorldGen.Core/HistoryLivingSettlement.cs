@@ -159,6 +159,7 @@ namespace WorldGen.Core
             AssignAggregateTown(s,id,-1);ChangeAggregateCityPopulation(s,id,0,0,0);s.Population[patch]+=refugees;a.TotalPopulation+=refugees;s.Society.Cultures[t.CultureId].Population+=refugees;
             var ca=a.Cultures[t.CultureId];if(city.Supported){ca.SupportedCities--;city.Supported=false;}ca.FoodCapacity-=t.FoodCapacity;ca.Cities.Remove(id);ca.CityCount=ca.Cities.Count;
             life.AbandonedYear=s.Years;t.FoodCapacity=t.FoodReserve=0;UnregisterLivingTown(s,id);if(a.TownAt[t.Cell]==id)a.TownAt=a.TownAt.With(t.Cell,-1);
+            if(RegionalTraditions(s))s.History.RegionalTraditions.Qualified=s.History.RegionalTraditions.Qualified.With(id,0);
             TrackPendingColonialPort(s,t.Cell,true);
             a.Living.Regions[patch].CommittedAreaKm2=Math.Max(0,a.Living.Regions[patch].CommittedAreaKm2-city.AreaKm2);
             a.Regions[patch].Capacity+=(long)(Patches[patch].Capacity*city.AreaKm2/Math.Max(1.0,a.Regions[patch].AreaKm2));
