@@ -28,6 +28,13 @@ public static class HistoryLivingWorldTests
         check(origin>HistoricalEnvironmentalEffects.IndependentStateHazard(.65,1,.8,1)*5&&origin<.0001,"A good finite-lived protocenter gets an exceptional but not hundred-millennia institutional opportunity");
         check(HistoricalLivingWorldOrigins.IndependentStateHazard(.65,.00005,.8,1)<origin/10000,"Correcting compounded urban requirements does not waive the wet-tropical environmental penalty");
         check(HistoricalLivingWorldOrigins.IndependentStateHazard(.65,1,.8,.00001)<origin/50000,"New urban calibration retains the explicit strong anti-homeland bias");
+        long earlyImports=HistoricalUrbanNetworks.ImportThroughput(10000,1,1,1,1,1,1,0,0,0),modernImports=HistoricalUrbanNetworks.ImportThroughput(10000,1,1,1,1,1,1,1,1,1);
+        check(earlyImports<2000000&&modernImports>earlyImports*5&&modernImports<20000000,"Real transport throughput permits major ancient/modern cities without allocating a whole country's surplus to one200Mcenter");
+        check(HistoricalUrbanNetworks.ImportThroughput(10000,0,.2,1,1,1,0,0,0,0)<earlyImports/5,"Unbuilt inland handling infrastructure does not receive a free ocean-port food throughput");
+        long pool=HistoricalSettlementMigration.Available(100000,10000,0,0,1);var transfer=HistoricalSettlementMigration.Allocate(2000,100000,10000,0,0,1);
+        check(pool>=1600&&transfer.Total==2000&&transfer.Rural==0,"An urbanized metropolis can supply actual founders without requiring1600obsolete local farm workers");
+        check(HistoricalSettlementMigration.Allocate(20000,1000,0,100,0,1).Total==100,"Founder allocation never creates households or empties a source center below its retained core");
+        var remote=HistoricalSettlementMigration.Allocate(1000,1000,0,0,8000,2);check(remote.Remote==1000&&remote.Total==1000,"State remote recruitment is bounded and explicitly accounted, not repeated imaginary settlers");
     }
     public static void World(string path,Action<bool,string> check)
     {
@@ -45,5 +52,25 @@ public static class HistoryLivingWorldTests
         check(probe.History.Aggregates.Living.Cities[town].AbandonedYear==probe.Years&&probe.History.Aggregates.TownAt[t.Cell]<0,"Abandoned sites leave the active spatial index, not historical records");
         check(probe.Society.Settlements[town].FoundedYear==s.Society.Settlements[town].FoundedYear&&probe.History.Archive.Last().Kind=="abandonment","A former settlement retains its dated narrative history");
         probe.Seal();engine.Validate(probe);
+        // This is an explicit diagnostic search, never an ordinary simulation
+        // event. Exercise the complete founding transaction and its ledgers.
+        probe=s.Copy();var queue=new SimulationEventQueue(probe.Timeline.Events);var queueField=typeof(Prehistory).GetField("aggregateQueue",BindingFlags.NonPublic|BindingFlags.Instance)!;queueField.SetValue(engine,queue);
+        var can=typeof(Prehistory).GetMethod("CanFoundLivingTown",BindingFlags.NonPublic|BindingFlags.Instance)!;
+        var found=typeof(Prehistory).GetMethod("FoundLivingTown",BindingFlags.NonPublic|BindingFlags.Instance)!;
+        var candidates=probe.Society.Settlements.Where(x=>probe.History.Aggregates.Living.Cities[x.Id].AbandonedYear<0&&x.Population>=1000).OrderByDescending(x=>x.Population).Take(16).ToArray();
+        bool founded=false;
+        foreach(var parent in candidates)
+        {
+            foreach(int cell in Enumerable.Range(0,world.Surface.Cells.Length).Where(cell=>engine.CellPatch[cell]>=0).OrderBy(cell=>D.Angle(world.Surface.Cells[parent.Cell].Position,world.Surface.Cells[cell].Position)))
+            {
+                if(!(bool)can.Invoke(engine,new object[]{probe,parent.CultureId,cell,parent.Id})!)continue;
+                long population=probe.History.Aggregates.TotalPopulation;int count=probe.Society.Settlements.Length;
+                found.Invoke(engine,new object[]{probe,parent.CultureId,cell,parent.Id});
+                check(probe.Society.Settlements.Length==count+1&&probe.History.Aggregates.TotalPopulation==population,"Actual secondary founding conserves all urban, suburban, local-rural and remote households");
+                probe.Timeline.Events=queue.Ordered();queueField.SetValue(engine,null);probe.Seal();engine.Validate(probe);founded=true;break;
+            }
+            if(founded)break;
+        }
+        queueField.SetValue(engine,null);check(founded,"The populated fixture contains a viable secondary settlement site, not a permanently blocked urban network");
     }
 }

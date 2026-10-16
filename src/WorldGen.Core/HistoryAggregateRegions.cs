@@ -54,7 +54,8 @@ namespace WorldGen.Core
                 double chance=LivingHistory(s)?LivingCommunityChance(s,id,elapsed):.0008*Math.Pow(Math.Max(.01,concentration),2)*occupation*elapsed/100.0;
                 if((EnvironmentalHistory(s)?EnvironmentalOriginRoll("culture",id,s.Years):HistoryRoll("aggregate-community",id,s.Years))<chance){int site=LivingHistory(s)?LivingCommunitySite(s,id):r.BestCell;if(site>=0)FoundAggregateCulture(s,id,site);}
             }
-            if(s.Population[id]>0)for(int g=0;g<8;g++){int at=id*8+g;double duration=ProvincialHistory(s)?Math.Sqrt(elapsed/100.0):1;int drift=(int)Math.Round((HistoryRoll("aggregate-drift-"+g,id,s.Years)-.5)*50*duration/Math.Sqrt(Math.Max(1,s.Population[id]/100.0)));s.Ancestry[at]=Math.Max(0,Math.Min(10000,s.Ancestry[at]+drift));}
+            if(LivingWorldHistory(s))UpdateHumanVariation(s,id,elapsed);
+            else if(s.Population[id]>0)for(int g=0;g<8;g++){int at=id*8+g;double duration=ProvincialHistory(s)?Math.Sqrt(elapsed/100.0):1;int drift=(int)Math.Round((HistoryRoll("aggregate-drift-"+g,id,s.Years)-.5)*50*duration/Math.Sqrt(Math.Max(1,s.Population[id]/100.0)));s.Ancestry[at]=Math.Max(0,Math.Min(10000,s.Ancestry[at]+drift));}
         }
         static long AggregateLogisticPopulation(long population,long capacity,double rate,double elapsed)
         {if(population<=0)return 0;if(capacity<=0)return Math.Max(0,(long)Math.Round(population*Math.Exp(-rate*elapsed)));double result=capacity/(1+(capacity/(double)population-1)*Math.Exp(-rate*elapsed));return Math.Max(0,(long)Math.Round(result));}
@@ -63,7 +64,8 @@ namespace WorldGen.Core
             var h=s.History;var a=h.Aggregates;int id=s.Society.Cultures.Length,religion=h.Religions.Length;var habitat=World.Ecology.Habitat[cell];
             var c=new CultureIdentity{Id=id,Name=HistoricalName("people",unchecked(cell+id*7919)),OriginCell=cell,FoundedYear=s.Years,StageYear=s.Years,Stage=SocietyStage.AdvancedCulture,Fishing=Patches[patch].Lifestyle==ForagerLifestyle.Coastal?400:HistoricalRiverAccess(cell)>.03?300:50,Hunting=300,Gathering=400,Resources="Native plants, seasonal game and local exchange",Subsistence="Seasonal foraging with persistent storage and exchange"};
             c.Gathering=1000-c.Fishing-c.Hunting;s.Society.Cultures=s.Society.Cultures.Concat(new[]{c}).ToArray();
-            var hc=new HistoricalCulture{Id=id,ReligionId=religion,LanguageId=id,Sedentism=150,Technology=new int[HistoricalTechnologies.Names.Length],Research=new int[HistoricalTechnologies.Names.Length]};hc.Technology[0]=s.Years+1;h.Cultures=h.Cultures.Concat(new[]{hc}).ToArray();
+            int capabilities=HistoricalTechnologies.Count(h.Version);
+            var hc=new HistoricalCulture{Id=id,ReligionId=religion,LanguageId=id,Sedentism=150,Technology=new int[capabilities],Research=new int[capabilities]};hc.Technology[0]=s.Years+1;h.Cultures=h.Cultures.Concat(new[]{hc}).ToArray();
             if(TechnicalHistory(s))InitializeTechnicalPractice(hc,s.Years);
             h.Religions=h.Religions.Concat(new[]{new HistoricalReligion{Id=religion,CultureId=id,HolyCell=cell,FoundedYear=s.Years,Name="Tradition of "+c.Name,Tradition="Ancestral and place-based tradition",Ethos="Reciprocity and stewardship",Ritual="Seasonal gatherings and shared feasts"}}).ToArray();
             var crops=new HistoricalAgriculture{CultureId=id,NativeMask=nativeCrops[cell],PracticeCell=Enumerable.Repeat(cell,6).ToArray(),WildOriginCell=Enumerable.Range(0,6).Select(k=>(nativeCrops[cell]&(1<<k))!=0?cell:-1).ToArray(),Cultivars=new HistoricalCultivar[6],HusbandryYears=new int[6]};h.Agriculture=h.Agriculture.Concat(new[]{crops}).ToArray();

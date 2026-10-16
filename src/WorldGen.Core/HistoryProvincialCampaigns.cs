@@ -20,6 +20,7 @@ namespace WorldGen.Core
                 if(!TechnicalHistory(s))return cell;
                 double value=(a.TownAt[cell]>=0?100:0)+(a.Empires.Territories.PostAt[cell]>=0?40:0)+10*riverAccess[cell]+Math.Log(1+Math.Max(0,ruralWeight[cell]));
                 if(TerritorialAmbitionContains(s,attacker,cell))value+=30;
+                if(LivingWorldHistory(s))value+=LivingStrategicResourceValue(s,attacker,cell);
                 if(value>frontierValue||value==frontierValue&&(frontier<0||cell<frontier)){frontier=cell;frontierValue=value;}
             }
             if(frontier>=0)return frontier;

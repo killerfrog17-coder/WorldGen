@@ -24,7 +24,7 @@ namespace WorldGen.Core
         public int SchemaVersion = 3;
         public string AlgorithmVersion = CurrentAlgorithm;
         public string TerrainSource = "Procedural";
-        [System.Runtime.Serialization.OptionalField] public string EcologyProfile = "earth-native-2";
+        [System.Runtime.Serialization.OptionalField] public string EcologyProfile = "earth-native-3";
         [System.Runtime.Serialization.OptionalField] public string LandShape;
         [System.Runtime.Serialization.OptionalField]
         [Setting("Climate", "Inland moisture supply (mm/year)",0,2000,10)] public double InteriorRainMm;

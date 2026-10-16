@@ -21,8 +21,8 @@ public static class HistoryWorldRealismReview
         if(!WorldPresets.Names.Contains(preset))throw new ArgumentException("Use an existing preset.");
         Directory.CreateDirectory(output);var setup=new WorldSetup();var recipe=setup.Resolve(setup.Preset(preset,new Recipe{Seed=seed,Detail=detail,EcologyProfile=profile}));recipe.EcologyProfile=profile;
         var world=new WorldPipeline().Generate(recipe);var engine=new Prehistory(world);var session=new SimulationSession(engine,engine.Start(engine.Prepare()));
-        var watch=Stopwatch.StartNew();var rows=new List<object>();var seen=new HashSet<int>();int first=-1,tail=-1,lastMap=-1;double worst=0;
-        engine.YearWorkObserver=(_,ms)=>worst=Math.Max(worst,ms);
+        var watch=Stopwatch.StartNew();var rows=new List<object>();var seen=new HashSet<int>();int first=-1,tail=-1,lastMap=-1,workYear=-1;double worst=0,yearWork=0;
+        engine.YearWorkObserver=(year,ms)=>{if(year!=workYear){workYear=year;yearWork=0;}yearWork+=ms;worst=Math.Max(worst,yearWork);};
         while(session.LastSnapshot.Years<safetyYear)
         {
             int step=first<0?1000:100;
@@ -40,6 +40,7 @@ public static class HistoryWorldRealismReview
                     ActiveTowns=towns.Length,AbandonedTowns=s.History.Aggregates.Living.Cities.Count(c=>c.AbandonedYear>=0),
                     VillagePopulation=towns.Where(t=>s.History.Aggregates.Resolve(t.PolityId,s.History)<0).Sum(t=>t.Population),
                     States=s.History.Polities.Count(p=>p.EndedYear<0),IndependentOrigins=s.History.Archive.Count(e=>e.Kind=="independent-institutions"),
+                    OldestStateAge=s.History.Polities.Where(p=>p.EndedYear<0).Select(p=>s.Years-p.FoundedYear).DefaultIfEmpty(0).Max(),LargestCity=towns.Select(t=>t.Population).DefaultIfEmpty(0).Max(),
                     ColonialCouncils=s.History.Archive.Count(e=>e.Kind=="colonial-council"),Charters=s.History.Aggregates.Empires.Territories.Posts.Count(p=>p.ClosedYear<0),
                     WorstYearMs=worst,WallSeconds=watch.Elapsed.TotalSeconds};
                 rows.Add(row);File.WriteAllText(Path.Combine(output,"review.json"),JsonSerializer.Serialize(new{Preset=preset,Seed=seed,Recipe=recipe,Rules=s.History.Version,Rows=rows},new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));

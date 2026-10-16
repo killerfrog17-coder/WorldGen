@@ -71,7 +71,8 @@ namespace WorldGen.Core
             double potential=a.Provinces.FarmPotential[polity]*D.Clamp(s.Society.Cultures[p.CultureId].Farming/600.0)*EffectiveFoodMultiplier(s,hc);
             double market=Math.Min(potential*share,a.Polities[polity].Remote*share/Math.Max(.1,1-share));
             double weight=(t.Population+250.0)/Math.Max(1,a.Polities[polity].Urban+250.0*a.Polities[polity].CityCount);
-            return (long)(market*integration*weight/1.15);
+            long supplied=(long)(market*integration*weight/1.15);
+            return LivingWorldHistory(s)?Math.Min(supplied,LivingUrbanImportLimit(s,polity,city)):supplied;
         }
     }
 }

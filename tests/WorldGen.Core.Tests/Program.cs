@@ -1,6 +1,15 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--living-atlas-world")){int count=0;HistoryLivingAtlasTests.World(args[Array.IndexOf(args,"--living-atlas-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" living atlas assertions");return;}
+if(args.Contains("--politics-only")){int count=0;HistoryPoliticalProgramsTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" political program assertions");return;}
+if(args.Contains("--politics-world")){int count=0;HistoryPoliticalProgramsTests.World(args[Array.IndexOf(args,"--politics-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" political program integration assertions");return;}
+if(args.Contains("--resource-economy-only")){int count=0;HistoryResourceEconomyTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" resource economy assertions");return;}
+if(args.Contains("--nuclear-only")){int count=0;HistoryNuclearTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" nuclear technology assertions");return;}
+if(args.Contains("--nuclear-world")){int count=0;HistoryNuclearTests.World(args[Array.IndexOf(args,"--nuclear-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" nuclear integration assertions");return;}
+if(args.Contains("--human-variation-only")){int count=0;HistoryHumanVariationTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" human variation assertions");return;}
+if(args.Contains("--human-variation-world")){int count=0;HistoryHumanVariationTests.World(args[Array.IndexOf(args,"--human-variation-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" human variation integration assertions");return;}
+if(args.Contains("--settlement-network-audit")){int at=Array.IndexOf(args,"--settlement-network-audit");HistorySettlementNetworkAudit.Run(args[at+1],args[at+2]);return;}
 if(args.Contains("--natural-resources-only")){int count=0;HistoryNaturalResourceTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" natural-resource assertions");return;}
 if(args.Contains("--natural-resources-world")){int count=0;HistoryNaturalResourceTests.World(args[Array.IndexOf(args,"--natural-resources-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" natural-resource world assertions");return;}
 if(args.Contains("--fauna-only")){int count=0;FaunaPackTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" fauna lineage assertions");return;}

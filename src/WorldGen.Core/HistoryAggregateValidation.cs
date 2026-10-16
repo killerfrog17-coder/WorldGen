@@ -66,7 +66,7 @@ namespace WorldGen.Core
             }
             for(int i=0;i<a.Cultures.Length;i++)
             {
-                var c=a.Cultures[i];var hc=h.Cultures[i];Require(c.Id==i&&s.Society.Cultures[i].Id==i&&hc.Id==i&&c.Urban==urban[i]&&c.SupportedUrban==supported[i]&&c.SupportedCities==supportCount[i]&&c.Cities.Count==c.CityCount,"culture aggregates");Require(hc.Technology.Length==HistoricalTechnologies.Names.Length&&hc.Research.Length==hc.Technology.Length&&hc.Technology.All(y=>y>=0&&y<=s.Years+1),"capability dates");
+                var c=a.Cultures[i];var hc=h.Cultures[i];Require(c.Id==i&&s.Society.Cultures[i].Id==i&&hc.Id==i&&c.Urban==urban[i]&&c.SupportedUrban==supported[i]&&c.SupportedCities==supportCount[i]&&c.Cities.Count==c.CityCount,"culture aggregates");Require(hc.Technology.Length==HistoricalTechnologies.Count(h.Version)&&hc.Research.Length==hc.Technology.Length&&hc.Technology.All(y=>y>=0&&y<=s.Years+1),"capability dates");
                 // Under the leveled model, delivered knowledge may precede a
                 // local manufacturing chain. Invention checks the graph before
                 // spending effort; legacy capability dates keep their old rule.

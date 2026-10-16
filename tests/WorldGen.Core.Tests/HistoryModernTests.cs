@@ -92,7 +92,7 @@ public static class HistoryModernTests
             check(cape.DistanceM>0&&cape.Expanded<=5000&&cape.WaterCells.All(i=>w.Hydrology.OceanConnected[i])&&cape.WaterCells.Zip(cape.WaterCells.Skip(1),(a,b)=>w.Surface.Cells[a].Neighbors.Contains(b)).All(x=>x),"The actual Earth ocean graph supports a bounded all-water passage around southern Africa");
         }
         check(start.History.Version=="history-13"&&old.Hash==oldHash&&old.ComputeHash()==oldHash,"Modern rules are explicit and leave the old checkpoint untouched");
-        check(start.History.Cultures.All(c=>c.Technology.Length==HistoricalTechnologies.Names.Length)&&start.History.Modern.TechnologyCeiling==HistoricalTechnologyCeiling.Modern,"Upgrade appends capabilities with a modern default ceiling");
+        check(start.History.Cultures.All(c=>c.Technology.Length==HistoricalTechnologies.Count(start.History.Version))&&start.History.Modern.TechnologyCeiling==HistoricalTechnologyCeiling.Modern,"Upgrade appends its versioned capabilities with a modern default ceiling");
         check(start.History.Archive.Count==old.History.Archive.Count&&start.Society.Settlements.Select(t=>t.FoundedYear).SequenceEqual(old.Society.Settlements.Select(t=>t.FoundedYear)),"No past dates or events are fabricated by the upgrade");
         var low=engine.SetTechnologyCeiling(start,HistoricalTechnologyCeiling.Medieval);var after=engine.AdvanceYears(low,120);engine.Validate(after);
         check(after.History.Cultures.All(c=>c.Technology.Skip(15).All(y=>y==0)),"A medieval ceiling actually prevents later development");

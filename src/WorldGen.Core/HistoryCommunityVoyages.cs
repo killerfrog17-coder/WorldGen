@@ -74,9 +74,8 @@ namespace WorldGen.Core
                     {
                         int capital=s.Society.Settlements[h.Polities[court].CapitalId].Cell;
                         double source=sourceState>=0?1000:1000*InstitutionalLocalExample(s,court,capital,route.CellA);
-                        double transmission=EnvironmentalTransmission(s,route.CellA,route.CellB,culture,true),limit=source*.55*transmission;
-                        if(source>0&&(target.CivicTeacher==court||target.CivicExposure<limit))
-                        {target.CivicTeacher=court;target.CivicExposure=Math.Max(target.CivicExposure,Math.Min((int)limit,target.CivicExposure+(int)HistoricalInstitutionalTransmission.RelayExposure(source,transmission,elapsed)));}
+                        double transmission=EnvironmentalTransmission(s,route.CellA,route.CellB,culture,true);
+                        AccumulateInstitutionalDelivery(s,to,court,source,transmission,elapsed,"institutional-voyage-lesson-"+trial);
                     }
                 }
                 long carrying=Patches[to].Capacity;
@@ -91,7 +90,8 @@ namespace WorldGen.Core
                 if(destinationState>=0){a.Polities[destinationState].Remote+=migrants;h.Polities[destinationState].Population+=migrants;s.Society.Cultures[h.Polities[destinationState].CultureId].Population+=migrants;}
                 else s.Population[to]+=migrants;
                 if(s.ArrivalYear[to]<0)s.ArrivalYear[to]=s.Years;
-                for(int g=0;g<8;g++)s.Ancestry[to*8+g]=(int)((s.Ancestry[to*8+g]*destination+s.Ancestry[region*8+g]*migrants)/Math.Max(1,destination+migrants));
+                if(LivingWorldHistory(s))MixHumanVariation(s,sourceTown>=0?CellPatch[s.Society.Settlements[sourceTown].Cell]:region,to,migrants,destination);
+                else for(int g=0;g<8;g++)s.Ancestry[to*8+g]=(int)((s.Ancestry[to*8+g]*destination+s.Ancestry[region*8+g]*migrants)/Math.Max(1,destination+migrants));
                 if(a.Regions[to].Culture<0&&HistoricalCells.Culture(s,route.CellB)<0&&s.Population[to]>=400)
                 {
                     FoundAggregateCulture(s,to,route.CellB,culture);int child=s.Society.Cultures.Length-1;InheritDevelopmentCommunity(s,child,culture,route.CellB);

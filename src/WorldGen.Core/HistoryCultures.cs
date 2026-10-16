@@ -31,7 +31,7 @@ namespace WorldGen.Core
             string[] ethos={"hospitality and reciprocal obligations","stewardship and ancestral duty","oaths, justice and communal service","ritual generosity and reconciliation"};
             h.Religions=h.Religions.Concat(new[]{new HistoricalReligion{Id=religion,CultureId=c.Id,HolyCell=c.OriginCell,FoundedYear=s.Years,Name="Tradition of "+c.Name,Tradition="Local ancestral and place-based traditions",Ethos=ethos[(int)(HistoryRoll("ethos",c.Id,0)*ethos.Length)],Ritual=rituals[(int)(HistoryRoll("rites",c.Id,0)*rituals.Length)]}}).ToArray();
             var hc=new HistoricalCulture{Id=c.Id,ReligionId=religion,LanguageId=c.Id,Sedentism=150};hc.Technology[0]=s.Years+1;
-            if(ModernHistory(s)){Array.Resize(ref hc.Technology,HistoricalTechnologies.Names.Length);Array.Resize(ref hc.Research,HistoricalTechnologies.Names.Length);}
+            if(ModernHistory(s)){Array.Resize(ref hc.Technology,HistoricalTechnologies.Count(s.History.Version));Array.Resize(ref hc.Research,HistoricalTechnologies.Count(s.History.Version));}
             h.Cultures=h.Cultures.Concat(new[]{hc}).ToArray();
             if(EraHistory(s))InitializeHistoricalAgriculture(s,c);
             if(h.CellPolity.Length==0){int n=World.Surface.Cells.Length;h.CellPolity=Enumerable.Repeat(-1,n).ToArray();h.CellReligion=Enumerable.Repeat(-1,n).ToArray();h.CellStage=new int[n];}

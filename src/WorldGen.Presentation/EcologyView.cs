@@ -88,6 +88,7 @@ namespace WorldGen.Presentation
             {
                 var t=e.Taxa[presence.TaxonId];
                 b.Append("\n").Append(Biogeography.Present(e,cell,t.Id)?"* ":"  ").Append(t.Name).Append(" [").Append(t.Rank).Append("] ").Append(t.ScientificName);
+                if(t.Lineage?.AdjacentSeaOnly==true)b.Append(" | adjacent-sea feeding habitat, not a land resident");
                 b.Append(" | ").Append(F(presence.SuitableAreaPermille/10.0)).Append("% of region");
                 if(!t.Producer && !t.BasalResource) b.Append(" | ").Append(Mass(t.MassKg)).Append(" | hunts ").Append(t.Hunts);
                 if(presence.UsedHistoricalBridge) b.Append(" | historical-route access");

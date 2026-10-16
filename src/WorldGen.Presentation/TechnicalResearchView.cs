@@ -14,7 +14,7 @@ namespace WorldGen.Presentation
         public static TechnicalProgress[] Read(PrehistoryState state,int culture)
         {
             var c=state.History.Cultures[culture];var t=c.Technical;if(t==null)return Array.Empty<TechnicalProgress>();
-            return Enumerable.Range(0,HistoricalTechnicalGraph.Count).Where(k=>t.Levels[k]>0||t.Allocation[k]>0||t.Offers[k]>0).Select(k=>new TechnicalProgress{
+            return Enumerable.Range(0,t.Levels.Length).Where(k=>t.Levels[k]>0||t.Allocation[k]>0||t.Offers[k]>0).Select(k=>new TechnicalProgress{
                 Id=k,Name=HistoricalTechnologies.Names[k],Level=t.Levels[k],AtCeiling=t.Levels[k]>=HistoricalTechnicalGraph.MaximumLevel,DeploymentPermille=t.Deployment[k],AllocationBasisPoints=t.Allocation[k],
                 ResearchPermille=(int)Math.Min(1000,1000*(t.Offers[k]>t.Levels[k]?t.Learning[k]*8:t.Progress[k])/(double)HistoricalTechnicalGraph.Cost(k,t.Levels[k]+1,state.History.Version)),
                 Prerequisites=string.Join("; ",HistoricalTechnicalGraph.Requirements(k).Select(r=>HistoricalTechnologies.Names[r.Technology]+" level "+r.Level+" (currently "+t.Levels[r.Technology]+")")),

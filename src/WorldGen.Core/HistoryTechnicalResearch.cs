@@ -7,13 +7,13 @@ namespace WorldGen.Core
         {
             if(!TechnicalHistory(s)||receiver==sender)return;
             var from=s.History.Cultures[sender].Technical;var to=s.History.Cultures[receiver].Technical;if(from==null||to==null)return;
-            for(int k=0;k<HistoricalTechnicalGraph.Count;k++)if((mask&(1L<<k))!=0&&from.Levels[k]>0&&from.LevelYear[k]<year&&(from.Levels[k]>to.Offers[k]||from.Levels[k]==to.Offers[k]&&year>to.OfferYear[k]))
+            for(int k=0;k<Math.Min(from.Levels.Length,to.Levels.Length);k++)if((mask&(1L<<k))!=0&&from.Levels[k]>0&&from.LevelYear[k]<year&&(from.Levels[k]>to.Offers[k]||from.Levels[k]==to.Offers[k]&&year>to.OfferYear[k]))
             {to.Offers[k]=from.Levels[k];to.OfferYear[k]=year;to.Sources[k]=sender;}
         }
         void AdvanceTechnicalResearch(PrehistoryState s,int id,int elapsed,int contact,int site)
         {
             var h=s.History;var a=h.Aggregates;var c=s.Society.Cultures[id];var hc=h.Cultures[id];var ca=a.Cultures[id];
-            InitializeTechnicalPractice(hc,s.Years);var t=hc.Technical;int n=HistoricalTechnicalGraph.Count;t.LastYear=s.Years;
+            InitializeTechnicalPractice(hc,s.Years);var t=hc.Technical;int n=t.Levels.Length;t.LastYear=s.Years;
             // Domestication and genuinely carried portable practices are also
             // real knowledge; their existing event dates remain authoritative.
             for(int k=0;k<n;k++)if(hc.Technology[k]>0&&t.Levels[k]==0)
@@ -24,7 +24,7 @@ namespace WorldGen.Core
             var memory=a.Provinces.Exchanges[id];int offset=memory.Peers.Length==0?0:(int)(HistoryRoll("technical-peer",id,s.Years)*memory.Peers.Length);
             for(int p=0;p<Math.Min(4,memory.Peers.Length);p++)
             {int at=(offset+p)%memory.Peers.Length;if(s.Years-memory.LastYear[at]<=250)OfferTechnicalKnowledge(s,id,memory.Peers[at],memory.Capabilities[at],memory.LastYear[at]);}
-            double war=0,competition=0,disease=0,wealth=0;int samples=Math.Min(3,ca.Cities.Count);
+            double war=0,competition=0,disease=0,wealth=0,nuclearWar=0,nuclearThreat=0;int samples=Math.Min(3,ca.Cities.Count);
             int cityOffset=ca.Cities.Count==0?0:(int)(HistoryRoll("technical-practice-sites",id,s.Years)*ca.Cities.Count);
             for(int k=0;k<samples;k++)
             {
@@ -35,6 +35,7 @@ namespace WorldGen.Core
                 war=Math.Max(war,D.Clamp(p.Exhaustion/350.0));wealth=Math.Max(wealth,D.Clamp(p.Treasury/(double)Math.Max(1000,p.Population/4)));
                 foreach(int peer in a.Cities[city].Neighbors)
                 {int rival=a.Resolve(s.Society.Settlements[peer].PolityId,h);if(rival>=0&&rival!=owner){competition=Math.Max(competition,.65);break;}}
+                if(LivingWorldHistory(s))NuclearSecurityAt(s,city,owner,ref nuclearWar,ref nuclearThreat);
             }
             var habitat=World.Ecology.Habitat[site];
             disease=Math.Max(disease,D.Clamp((habitat.MeanTenthsC-80)/220.0)*D.Clamp(habitat.AridityMilli/800.0)*.55);
@@ -61,6 +62,7 @@ namespace WorldGen.Core
             // rather than preserving the old low-population coefficient. Actual
             // contact learning remains cheap; this is not a calendar era lock.
             if(ColonialHistory(s))annual*=.68;
+            if(LivingWorldHistory(s))annual*=LivingCulturePoliticalLearning(s,id);
             if(ca.SupportedCities==0)annual*=.12;
             long budget=Math.Max(0,(long)Math.Round(D.Q(annual,1000000)*1000000))*elapsed;
             long learningBudget=Math.Max(0,(long)Math.Round(D.Q((.8+urban*3+literacy*4)*Math.Max(communication,importedCommunication),1000000)*1000000))*elapsed;
@@ -69,9 +71,9 @@ namespace WorldGen.Core
             for(int k=0;k<n;k++)
             {
                 if(!HistoricalTechnicalGraph.WithinCeiling(k,h.Modern.TechnologyCeiling)||t.Levels[k]>=HistoricalTechnicalGraph.MaximumLevel)continue;
-                double demand=TechnicalDemand(k,war,competition,disease,farming,maritime,urban,ca.CivilizationSince>=0);
+                double demand=TechnicalDemand(k,k==(int)HistoricalTechnology.NuclearWeapons?nuclearWar:war,k==(int)HistoricalTechnology.NuclearWeapons?nuclearThreat:competition,disease,farming,maritime,urban,ca.CivilizationSince>=0);
                 if(k==(int)HistoricalTechnology.Irrigation)demand*=.2+D.Clamp((650-habitat.AridityMilli)/650.0)+.5*D.Clamp(riverSites[site]);
-                int needed=HistoricalTechnicalGraph.UsefulLevel(k);double relevance=t.Levels[k]>=needed?.06:1;
+                int needed=HistoricalTechnicalGraph.UsefulLevel(k,h.Version);double relevance=t.Levels[k]>=needed?.06:1;
                 long priority=Math.Max(0,(long)Math.Round(D.Q(demand*relevance/Math.Pow(1.35,t.Levels[k]),1000000)*1000000));
                 if(t.Offers[k]>t.Levels[k])
                 {
@@ -82,7 +84,7 @@ namespace WorldGen.Core
                     long learningPriority=Math.Max(priority,50000/(t.Levels[k]+1));
                     learningWeights[k]=learningPriority;learningTotal+=learningPriority;
                 }
-                else if(HistoricalTechnicalGraph.Prerequisites(k,t.Levels)&&AggregatePracticeSupported(s,id,k,false))
+                else if(HistoricalTechnicalGraph.Prerequisites(k,t.Levels)&&AggregatePracticeSupported(s,id,k,false)&&(k<HistoricalTechnicalGraph.LegacyCount||NuclearInvestigationSupported(s,id,k)))
                 {researchWeights[k]=priority;researchTotal+=priority;}
             }
             // Several projects may progress together, but adding a project
@@ -105,6 +107,7 @@ namespace WorldGen.Core
                 if(hc.Technology[k]==0)
                 {hc.Technology[k]=s.Years+1;HistoryEvent(s,"technology",c.Name+(adopted?" learns ":" develops ")+HistoricalTechnologies.Names[k]+(adopted&&t.Sources[k]>=0?" through exchange with "+s.Society.Cultures[t.Sources[k]].Name:"")+". Local use still requires skills, resources and investment.",site,id,category:ChronicleCategory.Discoveries);}
             }
+            var materials=LivingWorldHistory(s)?LivingResourceMarket(s,id,site):default;
             for(int k=0;k<n;k++)
             {
                 if(t.Levels[k]==0)continue;double target=1;
@@ -113,15 +116,16 @@ namespace WorldGen.Core
                 if(hc.Technology[k]-1>=s.Years)continue;
                 foreach(var r in HistoricalTechnicalGraph.Requirements(k))target=Math.Min(target,t.Deployment[r.Technology]/700.0);
                 bool imported=t.Offers[k]>0&&s.Years-t.OfferYear[k]<=150;
-                if(imported&&k!=6&&k!=14&&k!=15&&k!=18)target=Math.Max(target,.55*D.Clamp(importedCommunication/2));
+                if(imported&&k!=6&&k!=14&&k!=15&&k!=18&&k<HistoricalTechnicalGraph.LegacyCount)target=Math.Max(target,.55*D.Clamp(importedCommunication/2));
                 double capital=k<15||HistoricalTechnicalGraph.Maritime(k)?.4+.6*urban:.12+.5*urban+.38*wealth;
                 if(k>=20)capital*=.2+.8*Math.Min(1,HistoricalTechnicalGraph.Installed(hc,(int)HistoricalTechnology.IndustrialMetallurgy)+.35);
-                if(HistoricalTechnicalGraph.WeaponsOnly(k))capital*=.15+.85*Math.Max(war,competition);
+                if(HistoricalTechnicalGraph.WeaponsOnly(k))capital*=.15+.85*(k==(int)HistoricalTechnology.NuclearWeapons?Math.Max(nuclearWar,nuclearThreat):Math.Max(war,competition));
                 if(HistoricalTechnicalGraph.Agricultural(k))capital*=Math.Max(.15,farming);
                 if(HistoricalTechnicalGraph.Maritime(k))capital*=maritime?1:.05;
                 if(HistoricalTechnicalGraph.Medical(k))capital*=.25+.75*Math.Max(disease,urban*.6);
                 if(imported&&(k==26||k==30||k==31||k==32||k==35||k==36))capital=Math.Max(capital,.10+.45*wealth+.45*urban);
-                if(imported&&HistoricalTechnicalGraph.WeaponsOnly(k))capital=Math.Max(capital,.2+.6*Math.Max(war,competition)+.2*wealth);
+                if(imported&&HistoricalTechnicalGraph.WeaponsOnly(k)&&k<HistoricalTechnicalGraph.LegacyCount)capital=Math.Max(capital,.2+.6*Math.Max(war,competition)+.2*wealth);
+                if(LivingWorldHistory(s))capital*=HistoricalResourceEconomy.DeploymentSupply(materials,(HistoricalTechnology)k);
                 target=D.Clamp(target*capital);
                 double years=k<15?100:k<20?65:k<27?45:25;
                 int current=t.Deployment[k];double gain=D.Q((target*1000-current)*(1-Math.Exp(-elapsed/years)),1000000);

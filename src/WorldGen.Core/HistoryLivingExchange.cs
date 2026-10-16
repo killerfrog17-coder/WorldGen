@@ -29,9 +29,10 @@ namespace WorldGen.Core
             if(LivingWorldHistory(s))
             {
                 var local=s.History.Aggregates.Living.Regions[id];
-                // Exposure is local practice, not an everlasting signal from
-                // the first court anywhere in the source culture.
-                if(ProvincialRegionalCourt(s,id)<0)local.CivicExposure=Math.Max(0,local.CivicExposure-Math.Max(1,elapsed/10));
+                int culture=s.History.Aggregates.Regions[id].Culture;
+                bool inhabited=ProvincialContactResidents(s,id)>=100;
+                bool practiced=inhabited&&culture>=0&&s.Society.Cultures[culture].Farming>=180;
+                if(ProvincialRegionalCourt(s,id)<0)local.CivicExposure=HistoricalInstitutionalTransmission.RetainedExposure(local.CivicExposure,elapsed,practiced,inhabited);
             }
             int contacts=Math.Min(12,s.History.Aggregates.Regions[id].Routes.Length);
             for(int trial=0;trial<contacts;trial++)TryLivingRegionalExchange(s,id,elapsed,trial);
@@ -52,7 +53,8 @@ namespace WorldGen.Core
             if(LivingWorldHistory(s)&&!InstitutionalRouteAllowed(s,fromCell,toCell,donor))return;
             if(LivingWorldHistory(s)&&route.Sea&&!InstitutionalVoyageDelivery(s,new Route{A=other,B=id,CellA=fromCell,CellB=toCell,DistanceM=route.DistanceM,Sea=true},donor,ProvincialRegionalCourt(s,other),-1))return;
             double km=route.DistanceM/1000.0;
-            if(route.Sea&&(km>(HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)?1800:HistoricalTechnologies.Has(hc,HistoricalTechnology.Sailing)?220:40)))return;
+            double seaRange=LivingWorldHistory(s)?HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years,true):HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)?1800:HistoricalTechnologies.Has(hc,HistoricalTechnology.Sailing)?220:40;
+            if(route.Sea&&km>seaRange)return;
             var from=World.Ecology.Habitat[a.Regions[other].BestCell];var to=World.Ecology.Habitat[region.BestCell];
             double continuity=HistoricalLandscapeEffects.LivelihoodContinuity(from,from,to);
             double distance=km+Math.Min(450,Patches[other].RadiusKm+Patches[id].RadiusKm);
@@ -74,9 +76,8 @@ namespace WorldGen.Core
             {
                 if(LivingWorldHistory(s))
                 {
-                    double source=InstitutionalRegionalExample(s,other,court),limit=source*.55*transmission;
-                    if(source>0&&(local.CivicTeacher==court||local.CivicExposure<limit))
-                    {local.CivicTeacher=court;local.CivicExposure=Math.Max(local.CivicExposure,Math.Min((int)limit,local.CivicExposure+(int)HistoricalInstitutionalTransmission.RelayExposure(source,transmission,elapsed)));}
+                    double source=InstitutionalRegionalExample(s,other,court);
+                    AccumulateInstitutionalDelivery(s,id,court,source,transmission,elapsed,"institutional-regional-lesson-"+trial);
                 }
                 else
                 {

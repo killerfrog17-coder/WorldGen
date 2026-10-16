@@ -9,7 +9,11 @@ namespace WorldGen.Core
         public static double OpenWaterLimitKm(double sailing,double navigation,double oceanNavigation,int navigationLevel=1)
             =>oceanNavigation>=.20?14000:navigation>=.20?Math.Min(800,250+100*Math.Max(1,navigationLevel)):sailing>=.15?120:35;
         public static double RelayExposure(double sourceExposure,double transmission,double elapsed)
-            =>Math.Max(0,Math.Min(1000,sourceExposure))*.55*Math.Max(0,Math.Min(1,transmission))*Math.Max(0,elapsed)/100;
+            =>sourceExposure<=0?0:D.Q(2*Math.Max(0,elapsed)*(.25+.75*D.Clamp(sourceExposure/500))*D.Clamp(transmission),1000000);
+        public static int RetainedExposure(int exposure,int elapsed,bool practiced,bool inhabited)
+            =>practiced?exposure:Math.Max(0,exposure-Math.Max(1,elapsed/(inhabited?100:2)));
+        public static double LocalLearning(double sourceExposure,double transmission,double elapsed)
+            =>3*Math.Max(0,elapsed)*D.Clamp(sourceExposure/350)*D.Clamp(transmission);
         public static double RegularOceanDelivery(double unsupportedKm,int navigationLevel,double oceanInfrastructure)
             =>Math.Exp(-Math.Max(0,unsupportedKm)/(350+100*Math.Max(0,navigationLevel)+6000*Math.Max(0,oceanInfrastructure)));
     }
@@ -100,8 +104,22 @@ namespace WorldGen.Core
         {
             var a=s.History.Aggregates;int court=ProvincialRegionalCourt(s,region);
             if(court>=0)return court==teacher?1000:0;
-            var local=a.Living.Regions[region];if(local.CivicTeacher!=teacher||s.Years-local.LastExchangeYear>300)return 0;
+            var local=a.Living.Regions[region];if(local.CivicTeacher!=teacher)return 0;
+            int culture=a.Regions[region].Culture;
+            bool practiced=culture>=0&&s.Society.Cultures[culture].Farming>=180&&ProvincialContactResidents(s,region)>=100;
+            if(!practiced&&s.Years-local.LastExchangeYear>300)return 0;
             return local.CivicExposure;
+        }
+        void AccumulateInstitutionalDelivery(PrehistoryState s,int region,int teacher,double source,double transmission,int elapsed,string stream)
+        {
+            if(source<=0||transmission<=0)return;var local=s.History.Aggregates.Living.Regions[region];
+            double expected=HistoricalInstitutionalTransmission.RelayExposure(source,transmission,elapsed);int gain=(int)expected;
+            if(HistoryRoll(stream,region,s.Years)<expected-gain)gain++;
+            if(gain<=0)return;
+            // Ordered local practice accumulates from actual delivered lessons;
+            // it is not capped to a shrinking fraction of every former teacher.
+            // The last contributor records provenance, not a remote live hotline.
+            local.CivicTeacher=teacher;local.CivicExposure=Math.Min(1000,local.CivicExposure+gain);
         }
         bool InstitutionalVoyageDelivery(PrehistoryState s,Route route,int culture,int sourceState,int sourceTown)
         {

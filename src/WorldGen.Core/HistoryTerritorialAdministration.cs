@@ -59,6 +59,7 @@ namespace WorldGen.Core
         }
         bool TerritorialIncorporationWorthwhile(PrehistoryState s,int polity,int target,int source)
         {
+            if(LivingWorldHistory(s)&&!LivingTerritorialInterest(s,polity,target))return false;
             int center=source>=0?source:s.History.Polities[polity].CapitalId;
             if(CellPatch[target]>=0&&ProvincialIncorporationWorthwhile(s,polity,target,center))return true;
             var h=s.History;var p=h.Polities[polity];var hc=h.Cultures[p.CultureId];var account=h.Aggregates.Polities[polity];

@@ -39,16 +39,16 @@ namespace WorldGen.Core
             }
             return Rng.ValueFromStreamHash(World.Recipe.Seed,hash,unchecked(id*104729+year*7919));
         }
-        int CachedProvincialCohort(PrehistoryState s,int region)
+        int CachedProvincialCohort(PrehistoryState s,int region,bool recordReads=true)
         {
             var a=s.History.Aggregates;
             if(!ReferenceEquals(a,provincialCacheOwner)||!ReferenceEquals(a.Cells,provincialCacheCells)||!ReferenceEquals(a.Successors,provincialCacheSuccessors))
             {provincialCacheOwner=a;provincialCacheCells=a.Cells;provincialCacheSuccessors=a.Successors;provincialCacheEpoch++;}
             if(UseProvincialCaches&&provincialCohortCache.TryGetValue(region,out var entry)&&entry.Epoch==provincialCacheEpoch)
-            {a.CellReads+=entry.Reads;return entry.Cohort;}
+            {if(recordReads)a.CellReads+=entry.Reads;return entry.Cohort;}
             var cells=Patches[region].Cells;int cohort=-1,reads=0;
             for(int k=0;k<5;k++)
-            {int cell=k==0?a.Regions[region].BestCell:cells[(cells.Length-1)*(k-1)/3];a.CellReads++;reads++;int raw=a.Cells[cell*5+1];if(raw>=0){cohort=a.PopulationCohort(raw);break;}}
+            {int cell=k==0?a.Regions[region].BestCell:cells[(cells.Length-1)*(k-1)/3];if(recordReads)a.CellReads++;reads++;int raw=a.Cells[cell*5+1];if(raw>=0){cohort=a.PopulationCohort(raw);break;}}
             if(UseProvincialCaches)provincialCohortCache[region]=(provincialCacheEpoch,cohort,reads);
             return cohort;
         }

@@ -34,7 +34,8 @@ namespace WorldGen.Core
                 long people=Math.Min(budget,Math.Min(room,Math.Min(limit,Math.Max(25,(long)(residents*.02)))));if(people<25)continue;
                 long before=s.Population[other];s.Population[id]-=people;s.Population[other]+=people;budget-=people;
                 if(s.ArrivalYear[other]<0)s.ArrivalYear[other]=s.Years;
-                for(int g=0;g<8;g++)s.Ancestry[other*8+g]=(int)((s.Ancestry[other*8+g]*before+s.Ancestry[id*8+g]*people)/Math.Max(1,before+people));
+                if(LivingWorldHistory(s))MixHumanVariation(s,id,other,people,before);
+                else for(int g=0;g<8;g++)s.Ancestry[other*8+g]=(int)((s.Ancestry[other*8+g]*before+s.Ancestry[id*8+g]*people)/Math.Max(1,before+people));
                 if(PassageHistory(s)&&r.Culture>=0&&s.Society.Cultures[r.Culture].Farming>=180)
                 {
                     int sourceCell=route.A==id?route.CellA:route.CellB,targetCell=route.A==id?route.CellB:route.CellA;
@@ -59,9 +60,8 @@ namespace WorldGen.Core
                             {
                                 int capital=s.Society.Settlements[s.History.Polities[court].CapitalId].Cell;
                                 double sourceExample=Math.Max(InstitutionalRegionalExample(s,id,court),1000*InstitutionalLocalExample(s,court,capital,sourceCell));
-                                double exposureLimit=sourceExample*.65*EnvironmentalTransmission(s,sourceCell,targetCell,source,route.Sea);
-                                if(sourceExample>0&&(local.CivicTeacher==court||local.CivicExposure<exposureLimit))
-                                {local.CivicTeacher=court;local.CivicExposure=Math.Max(local.CivicExposure,Math.Min((int)exposureLimit,local.CivicExposure+(int)Math.Min(400,people)));}
+                                double transmission=EnvironmentalTransmission(s,sourceCell,targetCell,source,route.Sea);
+                                AccumulateInstitutionalDelivery(s,other,court,sourceExample,transmission,Math.Min(200,(int)people),"institutional-migrant-lesson-"+trial);
                             }
                         }
                     }

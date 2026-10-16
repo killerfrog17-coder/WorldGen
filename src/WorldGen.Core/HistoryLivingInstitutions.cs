@@ -41,11 +41,20 @@ namespace WorldGen.Core
                 }
             }
             var regional=a.Living.Regions[CellPatch[t.Cell]];
-            if(teacher<0&&regional.CivicTeacher>=0&&regional.CivicExposure>=150)
+            if(teacher<0&&regional.CivicTeacher>=0&&regional.CivicExposure>=(LivingWorldHistory(s)?1:150))
             {
                 double delivered=LivingWorldHistory(s)?InstitutionalLocalExample(s,regional.CivicTeacher,a.Regions[CellPatch[t.Cell]].BestCell,t.Cell):1;
-                if(!LivingWorldHistory(s)||s.Years-regional.LastExchangeYear<=300&&delivered>0)
-                {teacher=regional.CivicTeacher;record.CivicExampleExposure=Math.Max(record.CivicExampleExposure,(int)(regional.CivicExposure/2*delivered));}
+                if(!LivingWorldHistory(s)||InstitutionalRegionalExample(s,CellPatch[t.Cell],regional.CivicTeacher)>0&&delivered>0)
+                {
+                    teacher=regional.CivicTeacher;
+                    if(!LivingWorldHistory(s))record.CivicExampleExposure=Math.Max(record.CivicExampleExposure,(int)(regional.CivicExposure/2*delivered));
+                    else
+                    {
+                        double expected=HistoricalInstitutionalTransmission.LocalLearning(regional.CivicExposure,delivered,elapsed);int gain=(int)expected;
+                        if(HistoryRoll("institutional-town-lesson",id,s.Years)<expected-gain)gain++;
+                        record.CivicExampleExposure=Math.Min(1000,record.CivicExampleExposure+gain);
+                    }
+                }
             }
             if(teacher<0&&a.Living.CivicOrigins[t.CultureId]>=0)
             {

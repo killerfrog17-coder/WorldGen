@@ -7,7 +7,7 @@ namespace WorldGen.Core
     // Stable IDs: append capabilities; never reinterpret a saved adoption date.
     public enum HistoricalTechnology { Storage, Cultivation, Pottery, Sailing, Irrigation, Copper, Writing, Bronze, Roads, Iron, Coinage, Mills, Steel, Navigation, Scholasticism,
         Printing,Gunpowder,OceanNavigation,ScientificMethod,CropRotation,SteamPower,IndustrialMetallurgy,Railways,GermTheory,Sanitation,Electricity,Telegraph,
-        ArtificialFertilizers,CombustionEngines,Aviation,Radio,Vaccination,Antibiotics,MechanizedAgriculture,Electronics,Computing,Telecommunications }
+        ArtificialFertilizers,CombustionEngines,Aviation,Radio,Vaccination,Antibiotics,MechanizedAgriculture,Electronics,Computing,Telecommunications,NuclearFission,NuclearWeapons }
     [Serializable] public sealed class HistoricalCulture
     {
         public int Id, ReligionId, LanguageId, Sedentism, Surplus, Institution;
@@ -100,11 +100,11 @@ namespace WorldGen.Core
     {
         public static readonly string[] Names={"Food storage","Cultivation","Pottery","Coastal sailing","Irrigation","Copper working","Writing and accounts","Bronze working","Road networks","Iron working","Coinage","Water and wind mills","Steel working","Medieval navigation","Scholastic learning",
             "Printing and broad literacy","Gunpowder weapons","Ocean-going navigation","Experimental science","Crop rotations and soil management","Steam power","Industrial metallurgy","Railway networks","Germ theory","Public sanitation","Electric power","Telegraph networks",
-            "Synthetic fertilizers","Internal combustion","Powered aviation","Radio communication","Vaccination","Antibiotics","Mechanized farming","Electronics","Computing","Digital telecommunications"};
+            "Synthetic fertilizers","Internal combustion","Powered aviation","Radio communication","Vaccination","Antibiotics","Mechanized farming","Electronics","Computing","Digital telecommunications","Nuclear fission and civilian energy","Nuclear weapons capability"};
         public static readonly int[][] Prerequisites={Array.Empty<int>(),new[]{0},new[]{0},new[]{0},new[]{1,2},new[]{2},new[]{0,2},new[]{5},new[]{1},new[]{5},new[]{6,5},new[]{8,9},new[]{9},new[]{3,6},new[]{6,11},
             new[]{6,11},new[]{9,14},new[]{13,12},new[]{14,15},new[]{1,11},new[]{12,18},new[]{20,12},new[]{20,21,8},new[]{18,15},new[]{23,8},new[]{18,21},new[]{25,15},
-            new[]{18,21,19},new[]{20,21},new[]{28,18},new[]{25,26},new[]{23},new[]{23,21},new[]{28,19},new[]{25,30},new[]{34,15},new[]{35,30}};
-        public static int Count(string version)=>Prehistory.IsAggregateHistoryVersion(version)?Names.Length:(version=="history-13"||(version=="history-14"||(version=="history-15"||version=="history-16")))?Names.Length:15;
+            new[]{18,21,19},new[]{20,21},new[]{28,18},new[]{25,26},new[]{23},new[]{23,21},new[]{28,19},new[]{25,30},new[]{34,15},new[]{35,30},new[]{18,25,21},new[]{37,18,21}};
+        public static int Count(string version)=>version==Prehistory.LivingWorldHistoryVersion?39:Prehistory.IsAggregateHistoryVersion(version)?37:(version=="history-13"||(version=="history-14"||(version=="history-15"||version=="history-16")))?37:15;
         static readonly int[] WayfindingPrerequisites={(int)HistoricalTechnology.Sailing};
         static readonly int[] LiteratePrintingPrerequisites={(int)HistoricalTechnology.Writing,(int)HistoricalTechnology.Mills,(int)HistoricalTechnology.Scholasticism};
         public static int[] Requirements(string version,int technology)=>(version==Prehistory.RegionalHistoryVersion||version==Prehistory.CommunityHistoryVersion||version==Prehistory.DiffusionHistoryVersion||version==Prehistory.AgronomicHistoryVersion)&&technology==(int)HistoricalTechnology.Printing?LiteratePrintingPrerequisites:LegacyRequirements(Prehistory.IsAggregateHistoryVersion(version)?"history-16":version,technology);

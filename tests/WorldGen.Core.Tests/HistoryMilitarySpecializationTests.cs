@@ -13,10 +13,13 @@ public static class HistoryMilitarySpecializationTests
         var drought=new HistoricalClimateAnomaly(0,500);var normal=new HistoricalClimateAnomaly(0,1000);var wet=new HistoricalClimateAnomaly(0,1400);
         double open=HistoricalMilitarySpecializationEffects.MountedTerrain(plain,normal,0),woods=HistoricalMilitarySpecializationEffects.MountedTerrain(forest,normal,0),swamp=HistoricalMilitarySpecializationEffects.MountedTerrain(marsh,wet,0);
         check(open>woods*4&&open>swamp*3,"Mounted maneuver and free grazing favor open plains rather than forest and waterlogged ground");
+        var savanna=new HabitatCell{Habitat=Habitat.Open|Habitat.Forest,Biome=Biome.Savanna,AridityMilli=650,GrowingDays=300,ReliefM=100};
+        check(HistoricalMilitarySpecializationEffects.MountedTerrain(savanna,normal,0)>woods*2,"An open wooded savanna is not mistaken for closed-canopy forest because both carry a forest habitat flag");
         check(HistoricalMilitarySpecializationEffects.MountedTerrain(mountain,normal,0)<open*.3,"A mounted advantage does not transfer unchanged into rugged mountains");
         check(HistoricalMilitarySpecializationEffects.MountedTerrain(marsh,wet,0)<HistoricalMilitarySpecializationEffects.MountedTerrain(marsh,normal,0),"A wet historical interval can impair cavalry operations without repainting the terrain");
         var dry=new HabitatCell{Habitat=Habitat.Open,Biome=Biome.Grassland,AridityMilli=250,GrowingDays=180,ReliefM=100};
         check(HistoricalMilitarySpecializationEffects.MountedTerrain(dry,drought,0)<HistoricalMilitarySpecializationEffects.MountedTerrain(dry,normal,0),"Drought limits grazing support even in otherwise open terrain");
+        check(HistoricalMilitarySpecializationEffects.MountedTerrain(dry,drought,0,1)>HistoricalMilitarySpecializationEffects.MountedTerrain(dry,drought,0),"Actual dry-browse adapted mounts do not inherit a horse's entire grass-forage drought penalty");
         check(HistoricalMilitarySpecializationEffects.MountedTerrain(forest,normal,1)>woods&&HistoricalMilitarySpecializationEffects.MountedTerrain(forest,normal,1)<open,"Engineering eases difficult terrain but does not erase its military geography");
         check(HistoricalMilitarySpecializationEffects.MountedFieldMultiplier(.8,open,0)>1&&HistoricalMilitarySpecializationEffects.MountedFieldMultiplier(.8,woods,0)<1,"The same mounted specialization has real strengths and weaknesses instead of a universal power buff");
         check(HistoricalMilitarySpecializationEffects.MountedFieldMultiplier(0,open,0)==1&&HistoricalMilitarySpecializationEffects.MountedFieldMultiplier(.8,woods,1)==1,"No actual mounted forces, or replacement by motorized forces, removes the old cavalry specialization");

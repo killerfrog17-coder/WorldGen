@@ -25,7 +25,7 @@ public sealed partial class WorldGenRuntime
     }
     void LoadAtlasArticle(string kind,int id)
     {
-        atlasDocument=HistoryAtlas.Read(atlasSnapshot,kind,id,world);atlasSection="Overview";atlasArticleScroll=Vector2.zero;atlasTimeline=null;
+        atlasDocument=HistoryAtlas.Read(atlasSnapshot,kind,id,world,humans);atlasSection="Overview";atlasArticleScroll=Vector2.zero;atlasTimeline=null;
     }
     void RefreshAtlasDirectory(){atlasDirectory=HistoryAtlas.Directory(atlasSnapshot,atlasKind,atlasSearch,atlasPast);atlasRepeatedNames=new HashSet<string>(atlasDirectory.GroupBy(x=>x.Name).Where(g=>g.Count()>1).Select(g=>g.Key));atlasDirectoryScroll=Vector2.zero;atlasDirectoryPage=0;}
     void AtlasNavigate(AtlasLink link){if(string.IsNullOrEmpty(link.Kind))return;atlasBack.Push(Tuple.Create(atlasDocument.Kind,atlasDocument.Id));LoadAtlasArticle(link.Kind,link.Id);EndAtlasUiChange();}
@@ -138,7 +138,7 @@ public sealed partial class WorldGenRuntime
     }
     void AtlasFacts(AtlasFact[] facts)
     {
-        foreach(var fact in facts){GUILayout.BeginHorizontal();GUILayout.Label(fact.Label,new GUIStyle(GUI.skin.label){fontSize=13,fontStyle=FontStyle.Bold},GUILayout.Width(190));GUILayout.Label(fact.Value,new GUIStyle(GUI.skin.label){fontSize=14,wordWrap=true});GUILayout.EndHorizontal();}
+        foreach(var fact in facts){GUILayout.BeginHorizontal();GUILayout.Label(fact.Label,new GUIStyle(GUI.skin.label){fontSize=13,fontStyle=FontStyle.Bold},GUILayout.Width(190));if(fact.Swatch.Length>0&&ColorUtility.TryParseHtmlString(fact.Swatch,out var tint)){var swatch=GUILayoutUtility.GetRect(30,20,GUILayout.Width(30));GUI.color=tint;GUI.DrawTexture(swatch,Texture2D.whiteTexture);GUI.color=Color.white;GUILayout.Space(8);}GUILayout.Label(fact.Value,new GUIStyle(GUI.skin.label){fontSize=14,wordWrap=true});GUILayout.EndHorizontal();}
     }
     void AtlasFactTiles(AtlasFact[] facts,int columns)
     {

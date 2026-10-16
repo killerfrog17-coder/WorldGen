@@ -78,6 +78,7 @@ namespace WorldGen.Core
                 cell=post.Cell;established=post.ClosedYear<0&&s.Years-post.FoundedYear>=10&&TerritorialNodeLive(s,polity,-2-id);
             }
             int region=CellPatch[cell];if(!established||region<0||c.TitleAt[region]>=0||p.Treasury<1000||HistoricalCells.Polity(s,cell)!=polity)return;
+            if(LivingWorldHistory(s)&&!LivingTerritorialInterest(s,polity,cell))return;
             int peerCell=s.Society.Settlements[h.Polities[partner].CapitalId].Cell;
             bool informed=c.Cultures[h.Polities[partner].CultureId].Charts.Any(x=>x.Region==region)||
                 World.Landmass[peerCell]>=0&&World.Landmass[peerCell]==World.Landmass[cell]&&LivingTravelKm(s,peerCell,cell,h.Polities[partner].CultureId)<=Math.Max(300,a.Polities[partner].ReachKm*3.0);

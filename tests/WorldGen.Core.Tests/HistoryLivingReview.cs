@@ -58,7 +58,7 @@ public static class HistoryLivingReview
         }).OrderByDescending(g=>g.AreaKm2).Take(12).ToArray();
         var summary=new{Year=state.Years,Rule=state.History.Version,Landmasses=land,FoundationClimates=habitatGroups,
             Origins=state.History.Archive.Where(e=>e.Kind=="independent-institutions").Select(e=>new{e.Year,e.Cell,Climate=world.Climate.Classification[e.Cell].ToString(),Latitude=Math.Asin(world.Surface.Cells[e.Cell].Position.Z)*180/Math.PI}),
-            Technology=Enumerable.Range(0,HistoricalTechnologies.Names.Length).Select(k=>new{Name=HistoricalTechnologies.Names[k],Cultures=state.History.Cultures.Count(c=>c.Technology[k]>0),First=state.History.Cultures.Where(c=>c.Technology[k]>0).Select(c=>c.Technology[k]-1).DefaultIfEmpty(-1).Min()}),
+            Technology=Enumerable.Range(0,HistoricalTechnologies.Count(state.History.Version)).Select(k=>new{Name=HistoricalTechnologies.Names[k],Cultures=state.History.Cultures.Count(c=>c.Technology[k]>0),First=state.History.Cultures.Where(c=>c.Technology[k]>0).Select(c=>c.Technology[k]-1).DefaultIfEmpty(-1).Min()}),
             LargestStates=active.OrderByDescending(p=>p.AreaKm2).Take(8).Select(p=>new{p.Name,p.AreaKm2,p.Population,Age=state.Years-p.FoundedYear}),
             SeaCommunities=state.History.Archive.Count(e=>e.Kind=="overseas-community"||e.Kind=="ocean-settlement"),Contacts=state.Society.Cultures.Sum(c=>c.Contacts.Length)/2};
         File.WriteAllText(Path.Combine(output,"development-summary.json"),JsonSerializer.Serialize(summary,new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));

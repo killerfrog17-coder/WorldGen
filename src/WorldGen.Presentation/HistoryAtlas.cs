@@ -11,7 +11,7 @@ namespace WorldGen.Presentation
     {
         public string Kind="",Name="",Detail="",Context=""; public int Id,Cell=-1; public long Value; public bool Historical;
     }
-    [Serializable] public sealed class AtlasFact { public string Label="",Value=""; public AtlasLink[] Related=Array.Empty<AtlasLink>(); }
+    [Serializable] public sealed class AtlasFact { public string Label="",Value="",Swatch=""; public AtlasLink[] Related=Array.Empty<AtlasLink>(); }
     [Serializable] public sealed class AtlasSection
     {
         public string Title="",Text="",Unit="";
@@ -119,7 +119,7 @@ namespace WorldGen.Presentation
             }
             return entries.Where(e=>e.Name.IndexOf(search??"",StringComparison.OrdinalIgnoreCase)>=0).ToArray();
         }
-        public static AtlasDocument Read(PrehistoryState? s,string kind="world",int id=-1,World? world=null)
+        public static AtlasDocument Read(PrehistoryState? s,string kind="world",int id=-1,World? world=null,Prehistory? engine=null)
         {
             var d=new AtlasDocument{Kind=kind,Id=id,Year=s?.Years??0,EpochYear=SimulationClockView.EpochYear(s),Subtitle=SimulationClockView.Year(s,s?.Years??0),Note="Generated records, not a reconstruction of Earth history. Indices describe model conditions; they are not measured percentages of people. Population history is not recorded, so no population trend is inferred."};
             if(s?.Society==null||s.History==null){d.Introduction=(s==null?"":N(SocietyView.Population(s))+" people are currently present. ")+"Human history has not yet produced recorded cultures, cities, or states. Run the simulation to begin building this world's atlas.";if(s!=null)d.Facts=new[]{F("People",N(SocietyView.Population(s)))};return d;}
@@ -147,7 +147,7 @@ namespace WorldGen.Presentation
                     if(setting!=null)sections.Insert(Math.Min(1,sections.Count),setting);
                 }
             }
-            ColonialSections(s,kind,id,sections);d.Sections=sections.ToArray();return d;
+            ColonialSections(s,kind,id,sections);LivingWorldSections(s,kind,id,d.Cell,world,engine,sections);d.Sections=sections.ToArray();return d;
         }
         static AtlasSection? Setting(World world,int cell,string title)
         {

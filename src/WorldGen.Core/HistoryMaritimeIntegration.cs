@@ -8,6 +8,8 @@ namespace WorldGen.Core
     {
         public static bool AdministrativeShipping(double unsupportedKm,double writing,double navigation,int institution)
             =>unsupportedKm<=800||writing>=.2&&navigation>=.2&&institution>=350;
+        public static bool CivilianTerritory(int growingDays,bool permanentIce,long residents,double strategicValue)
+            =>!permanentIce&&(growingDays>=60||residents>=200||growingDays>=20&&strategicValue>=15);
         public static int PostBudget(long urban,double administrativeCapacity,double communications)
             =>(int)Math.Round(Math.Max(8,Math.Min(2048,16+Math.Sqrt(Math.Max(0,urban)/2500.0)*12*Math.Max(1,administrativeCapacity)*Math.Sqrt(Math.Max(1,communications)))));
         public static long CouncilInvestment(long residents,int distanceM)
@@ -27,6 +29,12 @@ namespace WorldGen.Core
     }
     public sealed partial class Prehistory
     {
+        bool LivingTerritorialInterest(PrehistoryState s,int polity,int cell)
+        {
+            var habitat=World.Ecology.Habitat[cell];int town=s.History.Aggregates.TownAt[cell];
+            long residents=town>=0?s.Society.Settlements[town].Population:AggregateRuralCellPopulation(s,cell);
+            return HistoricalMaritimeIntegrationEffects.CivilianTerritory(habitat.GrowingDays,habitat.Biome==Biome.Ice,residents,LivingStrategicResourceValue(s,polity,cell));
+        }
         bool MaritimeCharterLogistics(PrehistoryState s,int polity,Route route,int preferred,out int port,out long provisions)
         {
             port=-1;provisions=0;var h=s.History;var a=h.Aggregates;var hc=h.Cultures[h.Polities[polity].CultureId];
@@ -40,9 +48,21 @@ namespace WorldGen.Core
             bool Consider(int city)
             {
                 if(city<0||city>=a.Cities.Length)return false;var town=s.Society.Settlements[city];
-                if(a.Resolve(town.PolityId,h)!=polity||town.Population<500||!a.Cities[city].Supported||a.Living.Cities[city].AbandonedYear>=0||!DiffusionShore(town.Cell))return false;
+                if(a.Resolve(town.PolityId,h)!=polity||town.Population<500||!a.Cities[city].Supported||a.Living.Cities[city].AbandonedYear>=0)return false;
                 double supplyKm=D.Angle(World.Surface.Cells[town.Cell].Position,World.Surface.Cells[route.CellA].Position)*World.Recipe.RadiusKm;
-                if(town.Cell!=route.CellA&&(supplyKm*1000>HistoricalTechnicalMigration.SeaRangeM(hc,s.Years,true)||!DiffusionSeaLane(town.Cell,route.CellA)||!InstitutionalRouteAllowed(s,town.Cell,route.CellA,h.Polities[polity].CultureId)))return false;
+                if(town.Cell!=route.CellA)
+                {
+                    // A coarse inland city can provision its real serviced port.
+                    // It still pays actual food and inland transport; merely
+                    // colouring an unserviced shore does not create shipping.
+                    bool coastal=DiffusionShore(town.Cell)&&supplyKm*1000<=HistoricalTechnicalMigration.SeaRangeM(hc,s.Years,true)&&DiffusionSeaLane(town.Cell,route.CellA)&&InstitutionalRouteAllowed(s,town.Cell,route.CellA,h.Polities[polity].CultureId);
+                    double inland=LivingTravelKm(s,town.Cell,route.CellA,h.Polities[polity].CultureId);
+                    int office=a.Empires.Territories.Sources[route.CellA];
+                    bool serviced=HistoricalCells.Polity(s,route.CellA)==polity&&DiffusionShore(route.CellA)&&TerritorialNodeLive(s,polity,office)
+                        &&World.Landmass[town.Cell]>=0&&World.Landmass[town.Cell]==World.Landmass[route.CellA]
+                        &&inland<=TerritorialServiceRadius(s,polity,route.CellA)*1.5;
+                    if(!coastal&&!serviced)return false;
+                }
                 long food=HistoricalVoyageEffects.Provisioning(250,(int)Math.Min(int.MaxValue,route.DistanceM+supplyKm*1000));
                 if(town.FoodReserve<food+town.Population*.2)return false;
                 return true;

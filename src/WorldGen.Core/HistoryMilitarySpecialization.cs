@@ -6,14 +6,15 @@ namespace WorldGen.Core
     // commanders, fortifications and political settlement still matter.
     public static class HistoricalMilitarySpecializationEffects
     {
-        public static double MountedTerrain(HabitatCell habitat,HistoricalClimateAnomaly weather,double engineering)
+        public static double MountedTerrain(HabitatCell habitat,HistoricalClimateAnomaly weather,double engineering,double dryForage=0)
         {
-            bool forest=(habitat.Habitat&Habitat.Forest)!=0,wetland=(habitat.Habitat&Habitat.Wetland)!=0;
-            double open=forest?.16:1,relief=1/(1+Math.Pow(Math.Max(0,habitat.ReliefM)/650.0,1.5));
+            bool wetland=(habitat.Habitat&Habitat.Wetland)!=0;
+            double open=1-.9*D.Clamp(AnimalEcotypes.Canopy(habitat)/850.0),relief=1/(1+Math.Pow(Math.Max(0,habitat.ReliefM)/650.0,1.5));
             double wet=Math.Max(habitat.FloodFractionPermille/1000.0,wetland?.75:0);
             if(habitat.Soil==SoilKind.Alluvial||wetland)wet+=Math.Max(0,weather.PrecipitationPermille/1000.0-1)*.6;
             double waterlogged=1-.85*D.Clamp(wet);
             double pasture=D.Clamp((habitat.AridityMilli*weather.PrecipitationPermille/1000.0-35)/250.0);
+            pasture+=D.Clamp(dryForage)*.65*(1-pasture);
             double frost=1-.5*D.Clamp((habitat.PermafrostPermille-200)/700.0);
             double terrain=open*relief*waterlogged*(.15+.85*pasture)*frost;
             // Roads and engineering help logistics but cannot turn a wet closed
@@ -32,10 +33,16 @@ namespace WorldGen.Core
     }
     public sealed partial class Prehistory
     {
-        double MilitaryRidingPractice(PrehistoryState s,int culture,int site)
+        readonly struct MilitaryRidingAssets
         {
-            var animals=s.History.Agriculture[culture].Animals;if(animals==null)return 0;
-            double best=0;var habitat=CropHabitat(s,site);
+            public readonly double Practice,DryForage;
+            public MilitaryRidingAssets(double practice,double dryForage){Practice=practice;DryForage=dryForage;}
+        }
+        double MilitaryRidingPractice(PrehistoryState s,int culture,int site)=>AssessMilitaryRiding(s,culture,site).Practice;
+        MilitaryRidingAssets AssessMilitaryRiding(PrehistoryState s,int culture,int site)
+        {
+            var animals=s.History.Agriculture[culture].Animals;if(animals==null)return new MilitaryRidingAssets(0,0);
+            double best=0,dryForage=0;var habitat=CropHabitat(s,site);
             // Fixed livestock portfolio, not all world taxa, culture members,
             // cells, herds or individuals. The authored pack is finite, and the
             //32-entry operational sample is an explicit approximation.
@@ -45,19 +52,24 @@ namespace WorldGen.Core
                 var taxon=World.Ecology.Taxa[managed.TaxonId];double riding=AnimalEcotypes.RidingSuitability(taxon)/1000.0;
                 if(riding<=0||!Biogeography.Suitable(taxon,habitat,World.ElevationM[site]))continue;
                 double continuity=D.Clamp((s.Years-managed.AdoptedYear+1)/150.0);
-                best=Math.Max(best,riding*D.Clamp(managed.Practice/800.0)*(.25+.75*continuity));
+                double strength=riding*D.Clamp(managed.Practice/800.0)*(.25+.75*continuity);
+                if(strength>best)
+                {
+                    best=strength;
+                    dryForage=(taxon.Habitats&Habitat.Desert)!=0&&(taxon.Eats&Food.Browse)!=0?D.Clamp((500-taxon.MinAridityMilli)/500.0):0;
+                }
             }
-            return best;
+            return new MilitaryRidingAssets(best,dryForage);
         }
         double MilitarySpecialization(PrehistoryState s,int polity,int city,int front)
         {
             var h=s.History;var p=h.Polities[polity];var hc=h.Cultures[p.CultureId];var town=s.Society.Settlements[city];
-            double riding=MilitaryRidingPractice(s,p.CultureId,town.Cell);
-            if(town.CultureId!=p.CultureId)riding=Math.Max(riding,MilitaryRidingPractice(s,town.CultureId,town.Cell)*.8);
+            var assets=AssessMilitaryRiding(s,p.CultureId,town.Cell);double riding=assets.Practice,dryForage=assets.DryForage;
+            if(town.CultureId!=p.CultureId){var local=AssessMilitaryRiding(s,town.CultureId,town.Cell);if(local.Practice*.8>riding){riding=local.Practice*.8;dryForage=local.DryForage;}}
             double pastoral=D.Clamp(s.Society.Cultures[town.CultureId].Herding/400.0);
             double mountedShare=riding*(.25+.55*pastoral),motorization=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years);
             double engineering=.35*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Roads,s.Years)+.25*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Steel,s.Years)+.4*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Gunpowder,s.Years);
-            double terrain=HistoricalMilitarySpecializationEffects.MountedTerrain(CropHabitat(s,front),LivingClimate(s,front),engineering);
+            double terrain=HistoricalMilitarySpecializationEffects.MountedTerrain(CropHabitat(s,front),LivingClimate(s,front),engineering,dryForage);
             double factor=HistoricalMilitarySpecializationEffects.MountedFieldMultiplier(mountedShare,terrain,motorization);
             int defendingCity=h.Aggregates.TownAt[front],owner=HistoricalCells.Polity(s,front);
             if(defendingCity>=0&&owner>=0&&HistoricalImperialHierarchy.Sovereign(s,owner)!=HistoricalImperialHierarchy.Sovereign(s,polity))

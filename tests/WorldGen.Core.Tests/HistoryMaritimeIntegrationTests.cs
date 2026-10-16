@@ -6,6 +6,9 @@ public static class HistoryMaritimeIntegrationTests
 {
     public static void Run(Action<bool,string> check)
     {
+        check(!HistoricalMaritimeIntegrationEffects.CivilianTerritory(0,true,0,100)&&!HistoricalMaritimeIntegrationEffects.CivilianTerritory(0,true,500,100),"A funded Antarctic station or hypothetical icecap ore does not confer a civilian district title");
+        check(HistoricalMaritimeIntegrationEffects.CivilianTerritory(30,false,500,0)&&HistoricalMaritimeIntegrationEffects.CivilianTerritory(35,false,0,20),"Actual Arctic communities and productive reachable cold resource districts remain possible");
+        check(!HistoricalMaritimeIntegrationEffects.CivilianTerritory(0,false,0,0)&&HistoricalMaritimeIntegrationEffects.CivilianTerritory(80,false,0,0),"Empty unproductive polar ground is not an automatic engine-era frontier while habitable unoccupied shores remain viable");
         check(!HistoricalMaritimeIntegrationEffects.AdministrativeShipping(3000,0,1,900),"Oral ocean-going skill alone does not create a transoceanic fiscal shipping network");
         check(!HistoricalMaritimeIntegrationEffects.AdministrativeShipping(3000,1,.19,900)&&!HistoricalMaritimeIntegrationEffects.AdministrativeShipping(3000,1,1,349),"Blue-water state ventures require deployed navigation and real administrative institutions");
         check(HistoricalMaritimeIntegrationEffects.AdministrativeShipping(3000,.2,.2,350)&&HistoricalMaritimeIntegrationEffects.AdministrativeShipping(120,0,0,0),"Actual ocean institutions qualify while short coastal ventures need not be modern bureaucracies");

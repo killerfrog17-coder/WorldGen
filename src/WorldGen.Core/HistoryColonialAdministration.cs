@@ -29,6 +29,7 @@ namespace WorldGen.Core
             int provisionPort=-1;long provisions=0;
             if(LivingWorldHistory(s)&&!MaritimeCharterLogistics(s,polity,route,source,out provisionPort,out provisions))return;
             int target=route.CellB,other=HistoricalCells.Polity(s,target);
+            if(LivingWorldHistory(s)&&!LivingTerritorialInterest(s,polity,target))return;
             if(ColonialHistory(s)&&(RespectRecognizedClaim(s,polity,target)||World.Ecology.Habitat[target].GrowingDays<60&&!HistoricalTechnologies.Has(hc,HistoricalTechnology.CombustionEngines)))return;
             if(other>=0)
             {

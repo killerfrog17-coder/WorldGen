@@ -21,7 +21,7 @@ namespace WorldGen.Core
         {
             Validate(source);if(LivingWorldHistory(source))return source;
             source=UpgradeToEnvironmentalHistory(source);var s=source.Copy();
-            s.History.Version=LivingWorldHistoryVersion;s.Seal();return s;
+            s.History.Version=LivingWorldHistoryVersion;ExpandNuclearCapabilities(s);InitializeFreshHumanVariation(s);s.Seal();return s;
         }
     }
 }

@@ -41,6 +41,7 @@ namespace WorldGen.Core
         }
         void AdvanceCommunityPolicy(PrehistoryState s,int polity,int elapsed)
         {
+            if(LivingWorldHistory(s)){AdvancePoliticalProgram(s,polity,elapsed);return;}
             var h=s.History;var p=h.Polities[polity];var ds=h.Dynamics.States[polity];var policy=h.Aggregates.Communities.Governments[polity];var hc=h.Cultures[p.CultureId];var leader=h.Dynamics.Leaders[ds.LeaderId];
             double printing=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Printing,s.Years),comms=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Telecommunications,s.Years);
             double pressure=.4*printing+.3*comms+.3*p.Exhaustion/1000.0;

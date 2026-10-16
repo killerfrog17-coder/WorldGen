@@ -67,7 +67,7 @@ namespace WorldGen.Core
             if(!InstitutionalHistory(source))return UpgradeToCurrentHistory(source);
             var institutional=source;
             var s=institutional.Copy();s.History.Version="history-13";s.History.Modern=new HistoricalModernSettings();
-            foreach(var c in s.History.Cultures){Array.Resize(ref c.Technology,HistoricalTechnologies.Names.Length);Array.Resize(ref c.Research,HistoricalTechnologies.Names.Length);}
+            foreach(var c in s.History.Cultures){Array.Resize(ref c.Technology,HistoricalTechnologies.Count(s.History.Version));Array.Resize(ref c.Research,HistoricalTechnologies.Count(s.History.Version));}
             foreach(var crops in s.History.Agriculture)crops.Cultivars=new HistoricalCultivar[6];
             foreach(var entry in s.History.Agriculture.SelectMany(a=>Enumerable.Range(0,6).Where(k=>a.AdoptedYear[k]>0).Select(k=>(Agriculture:a,Crop:k))).OrderBy(e=>e.Agriculture.AdoptedYear[e.Crop]).ThenBy(e=>e.Agriculture.CultureId).ThenBy(e=>e.Crop))
             {

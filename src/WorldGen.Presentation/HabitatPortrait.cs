@@ -48,6 +48,7 @@ namespace WorldGen.Presentation
         }
         static string Role(Taxon t)
         {
+            if(t.Lineage?.AdjacentSeaOnly==true)return "Adjacent-sea feeding habitat";
             bool animal=(t.Eats&(Food.Vertebrate|Food.Invertebrate|Food.Fish))!=0;
             bool plant=(t.Eats&(Food.Grass|Food.Browse|Food.Fruit|Food.Seed|Food.Nectar))!=0;
             return animal&&plant?"Mixed feeder":animal?"Predator":(t.Eats&Food.Detritus)!=0?"Detritivore":plant?"Plant feeder":"Food-web member";

@@ -72,7 +72,7 @@ namespace WorldGen.Core
             if(parent>=0)
             {
                 var town=s.Society.Settlements[parent];var source=a.Cities[parent];
-                if(a.Living.Cities[parent].AbandonedYear>=0||town.Population<1000||town.FoodReserve<town.Population*.5||source.Rural<1600)return false;
+                if(a.Living.Cities[parent].AbandonedYear>=0||town.Population<1000||town.FoodReserve<town.Population*.5||(LivingWorldHistory(s)?LivingFounderAvailability(s,parent):source.Rural)<1600)return false;
             }
             return a.Living.Regions[region].CommittedAreaKm2<a.Regions[region].AreaKm2*.65;
         }
@@ -81,7 +81,7 @@ namespace WorldGen.Core
             if(!CanFoundLivingTown(s,culture,cell,parent))return;
             var h=s.History;var a=h.Aggregates;var c=s.Society.Cultures[culture];int patch=CellPatch[cell],id=s.Society.Settlements.Length;
             int ruralSource=ProvincialHistory(s)&&parent<0&&s.Population[patch]<800?HistoricalCells.Polity(s,cell):-1;
-            long available=parent>=0?a.Cities[parent].Rural:ruralSource>=0?a.Polities[ruralSource].Remote:s.Population[patch];
+            long available=parent>=0?(LivingWorldHistory(s)?LivingFounderAvailability(s,parent):a.Cities[parent].Rural):ruralSource>=0?a.Polities[ruralSource].Remote:s.Population[patch];
             long founders=Math.Min(250,available/12),rural=Math.Min(available/3,Math.Max(800,founders*8));
             // Reserve a genuine share of the region's land and forager capacity.
             // Later centers must compete for that land, rather than each gaining
@@ -94,7 +94,7 @@ namespace WorldGen.Core
             long urbanCapacity=Math.Max(500,(long)(capacity*(.035+.08*c.Farming/1000.0)));
             var town=new Settlement{Id=id,Cell=cell,CultureId=culture,PolityId=-1,FoundedYear=s.Years,Name=LanguageHistory(s)?LanguageName(s,culture,LanguageNameKind.Settlement,unchecked(cell+id*7919),cell):HistoricalName("town",unchecked(cell+id*7919)),Population=founders,FoodCapacity=urbanCapacity,FoodReserve=founders,CultivatedPermille=c.Farming};
             var city=new HistoricalCityAggregate{Id=id,LastYear=s.Years,LastHarvestYear=s.Years,LastPoliticalYear=s.Years,LastVoyageYear=s.Years,ParentCity=parent,BaseUrbanCapacity=urbanCapacity,BaseFarming=c.Farming,BaseFoodMultiplier=HistoricalModernEffects.FoodMultiplier(h.Cultures[culture],s.Years),BaseCropFactor=.4+.6*AggregateCropSupport(s,culture,cell,false),FoodYieldMilli=(int)(landscapeYield[cell]*1000),StoredYieldMilli=(int)(landscapeStored[cell]*1000),FloodMilli=(int)(riverAccess[cell]*1000),SoilMilli=World.Ecology.Habitat[cell].SoilFertilityPermille,Rural=rural,RuralCapacity=capacity,AreaKm2=area,Supported=true};
-            if(parent>=0){var source=s.Society.Settlements[parent];var supply=a.Cities[parent];ChangeAggregateCityPopulation(s,parent,source.Population,supply.Suburban,supply.Rural-founders-rural);a.TotalPopulation+=founders+rural;c.Population+=founders+rural;}
+            if(parent>=0){if(LivingWorldHistory(s))TransferLivingFounders(s,parent,founders+rural,culture);else{var source=s.Society.Settlements[parent];var supply=a.Cities[parent];ChangeAggregateCityPopulation(s,parent,source.Population,supply.Suburban,supply.Rural-founders-rural);a.TotalPopulation+=founders+rural;c.Population+=founders+rural;}}
             else if(ruralSource>=0)
             {
                 a.Polities[ruralSource].Remote-=founders+rural;h.Polities[ruralSource].Population-=founders+rural;
@@ -112,6 +112,7 @@ namespace WorldGen.Core
                 }
                 RefreshProvincialRegionalCapacity(s,patch);
             }
+            if(LivingWorldHistory(s)&&parent>=0)MixHumanVariation(s,CellPatch[s.Society.Settlements[parent].Cell],patch,founders+rural,s.Population[patch]);
             a.Living.Regions[patch].SettledPopulation+=founders+rural;
             s.Society.Settlements=s.Society.Settlements.Concat(new[]{town}).ToArray();h.Towns=h.Towns.Concat(new[]{new HistoricalTown{Id=id,FoodBase=urbanCapacity}}).ToArray();a.Cities=a.Cities.Concat(new[]{city}).ToArray();
             if(TechnicalHistory(s))Array.Resize(ref a.Empires.Territories.DistrictAreas,a.Cities.Length);

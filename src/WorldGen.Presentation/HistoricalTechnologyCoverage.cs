@@ -15,7 +15,7 @@ namespace WorldGen.Presentation
             {
                 if(culture<0||culture>=history.Cultures.Length||people<=0)return;
                 var practices=history.Cultures[culture].Technology;
-                for(int k=0;k<result.Length;k++)if(practices[k]>0)result[k]+=history.Cultures[culture].Technical==null?people:(long)Math.Round(people*history.Cultures[culture].Technical.Deployment[k]/1000.0);
+                for(int k=0;k<Math.Min(result.Length,practices.Length);k++)if(practices[k]>0)result[k]+=history.Cultures[culture].Technical==null?people:(long)Math.Round(people*history.Cultures[culture].Technical.Deployment[k]/1000.0);
             }
             for(int region=0;region<aggregate.Regions.Length;region++)Add(aggregate.Regions[region].Culture,state.Population[region]);
             for(int city=0;city<aggregate.Cities.Length;city++)

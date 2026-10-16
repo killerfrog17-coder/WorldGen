@@ -12,11 +12,23 @@ public static class HistoryInstitutionalTransmissionTests
         check(HistoricalInstitutionalTransmission.OpenWaterLimitKm(1,1,0,8)==800,"Developed pre-ocean navigation remains distinct from ocean-going navigation");
         check(HistoricalInstitutionalTransmission.OpenWaterLimitKm(1,1,1)==14000,"Ocean-going craft can deliver knowledge across oceans without an arbitrary continent ban");
         double full=HistoricalInstitutionalTransmission.RelayExposure(1000,1,100),second=HistoricalInstitutionalTransmission.RelayExposure(full,1,100);
-        check(full==550&&second==302.5,"A relay transmits its actual local institutional experience rather than resetting to civilization-global experience");
-        check(HistoricalInstitutionalTransmission.RelayExposure(1000,.01,100)==5.5,"Forest, latitude and route resistance constrain civic transmission as well as ordinary contact");
+        check(full==200&&second==110,"An actually contacted novice teacher transmits less per visit, without imposing a permanent exponentially shrinking learning ceiling");
+        check(HistoricalInstitutionalTransmission.RelayExposure(1000,.01,100)==2,"Forest, latitude and route resistance constrain civic transmission as well as ordinary contact");
         check(HistoricalInstitutionalTransmission.RelayExposure(1000,1,50)*2==full,"Exposure delivery scales with elapsed opportunities rather than UI publication frequency");
         check(HistoricalInstitutionalTransmission.RegularOceanDelivery(4000,4,0)<.01,"Oral ocean voyaging is not automatically frequent transoceanic institutional trade");
         check(HistoricalInstitutionalTransmission.RegularOceanDelivery(4000,4,2)>.7,"Developed ocean infrastructure can connect the same ocean without a permanent historical blockade");
+        var corridor=new double[8];corridor[0]=1000;
+        for(int century=0;century<30;century++)
+        {
+            var previous=(double[])corridor.Clone();for(int hop=1;hop<corridor.Length;hop++)corridor[hop]=Math.Min(1000,corridor[hop]+HistoricalInstitutionalTransmission.RelayExposure(previous[hop-1],.7,100));
+        }
+        check(corridor[7]>500,"Repeated actual deliveries propagate learned institutions across a multi-hop inhabited corridor rather than stopping two regions from the first court");
+        var blocked=new double[8];blocked[0]=1000;
+        for(int century=0;century<30;century++)
+        {var previous=(double[])blocked.Clone();for(int hop=1;hop<blocked.Length;hop++)blocked[hop]=Math.Min(1000,blocked[hop]+HistoricalInstitutionalTransmission.RelayExposure(previous[hop-1],hop==3?0:.7,100));}
+        check(blocked[7]==0,"No actual delivery through a closed jungle, desert or unsupported-ocean route means no civic transmission beyond it");
+        check(HistoricalInstitutionalTransmission.RetainedExposure(500,100,true,true)==500&&HistoricalInstitutionalTransmission.RetainedExposure(500,100,false,false)<500,"Practiced inhabited communities retain local lessons while abandoned corridors forget");
+        check(HistoricalInstitutionalTransmission.LocalLearning(22,.8,10)>1,"Modest local exposure can teach a town cumulatively instead of being discarded below an arbitrary150-point gate");
     }
     public static void World(string path,Action<bool,string> check)
     {
@@ -62,6 +74,24 @@ public static class HistoryInstitutionalTransmissionTests
         check((int)Call("DevelopmentCropDonor",cropProbe,receiver,group,site,donor)==-1,"A remembered donor cannot supply a crop domesticated after the actual delivery");
         memory.LastYear[0]=cropProbe.Years;
         check((int)Call("DevelopmentCropDonor",cropProbe,receiver,group,site,donor)==donor,"A fresh delivery can introduce the same suitable crop rather than blocking diffusion categorically");
+        var lesson=engine.UpgradeToLivingWorldHistory(before).Copy();int candidate=-1,lessonTeacher=-1;var aggregates=lesson.History.Aggregates;
+        for(int id=0;id<lesson.Society.Settlements.Length;id++)
+        {
+            var town=lesson.Society.Settlements[id];if(aggregates.Living.Cities[id].AbandonedYear>=0||town.Population<1200||town.FoodReserve<town.Population*.3||lesson.Society.Cultures[town.CultureId].Farming<180)continue;
+            double fiscal=(double)Call("LivingCropLandscape",lesson,town.CultureId,town.Cell,true);
+            int localCourt=(int)Call("ProvincialRegionalCourt",lesson,engine.CellPatch[town.Cell]);int teacher=localCourt>=0?localCourt:0;
+            double physical=(double)Call("InstitutionalLocalExample",lesson,teacher,aggregates.Regions[engine.CellPatch[town.Cell]].BestCell,town.Cell);
+            if(fiscal>=.10&&physical>0&&aggregates.Living.Cities[id].DeclineYears==0){candidate=id;lessonTeacher=teacher;break;}
+        }
+        check(candidate>=0,"Local civic-learning control has a supplied physically connected farming town, not a mock climate-free site");
+        var learner=lesson.Society.Settlements[candidate];int district=engine.CellPatch[learner.Cell];
+        learner.PolityId=-1;aggregates.Cities[candidate].Neighbors=Array.Empty<int>();aggregates.Cities[candidate].LastPoliticalYear=lesson.Years-10;
+        aggregates.Cells=aggregates.Cells.With(learner.Cell*5+1,-1);aggregates.Living.CivicOrigins=aggregates.Living.CivicOrigins.With(learner.CultureId,-1);
+        aggregates.Regions[district].Culture=learner.CultureId;var local=aggregates.Living.Regions[district];local.CivicTeacher=lessonTeacher;local.CivicExposure=22;local.LastExchangeYear=lesson.Years;
+        lesson.History.Towns[candidate].CivicTeacherPolityId=-1;lesson.History.Towns[candidate].CivicExampleExposure=0;
+        for(int opportunity=0;opportunity<20&&lesson.History.Towns[candidate].CivicExampleExposure==0;opportunity++)
+        {aggregates.Cities[candidate].LastPoliticalYear=lesson.Years-10;Call("TryLivingInstitutions",lesson,candidate);lesson.Years+=10;}
+        check(lesson.History.Towns[candidate].CivicExampleExposure>0,"Actual town handler learns from a modest22-point local delivered lesson instead of discarding it below150");
         var next=engine.AdvanceYears(engine.UpgradeToLivingWorldHistory(before),20);var split=engine.AdvanceYears(engine.AdvanceYears(engine.UpgradeToLivingWorldHistory(before),7),13);
         check(next.Hash==split.Hash,"Physical transmission and local civic exposure are invariant to publication partitioning");
         Console.WriteLine($"Civic ocean control: {best:F1} km unsupported passage, coastal navigation rejected, installed ocean craft accepted.");

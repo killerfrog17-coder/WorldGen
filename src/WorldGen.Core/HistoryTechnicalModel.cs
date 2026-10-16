@@ -6,10 +6,16 @@ namespace WorldGen.Core
     // research effort is a conserved budget shared by all concurrent projects.
     [Serializable] public sealed class HistoricalTechnicalPractice
     {
-        public int[] Levels=new int[37],LevelYear=new int[37],InstalledYear=new int[37],Deployment=new int[37],Allocation=new int[37],Offers=new int[37],OfferYear=new int[37],Sources=Enumerable.Repeat(-1,37).ToArray();
-        public long[] Progress=new long[37],Learning=new long[37];
+        public int[] Levels,LevelYear,InstalledYear,Deployment,Allocation,Offers,OfferYear,Sources;
+        public long[] Progress,Learning;
         public long LastResearchBudget,LastLearningBudget,LastResearchSpent,LastLearningSpent;
         public int LastYear;
+        public HistoricalTechnicalPractice():this(HistoricalTechnicalGraph.LegacyCount){}
+        public HistoricalTechnicalPractice(int count)
+        {
+            if(count!=HistoricalTechnicalGraph.LegacyCount&&count!=HistoricalTechnicalGraph.Count)throw new ArgumentOutOfRangeException(nameof(count));
+            Levels=new int[count];LevelYear=new int[count];InstalledYear=new int[count];Deployment=new int[count];Allocation=new int[count];Offers=new int[count];OfferYear=new int[count];Sources=Enumerable.Repeat(-1,count).ToArray();Progress=new long[count];Learning=new long[count];
+        }
         public HistoricalTechnicalPractice Copy()
         {
             // Do not allocate ten default arrays only to immediately discard
@@ -24,7 +30,8 @@ namespace WorldGen.Core
     }
     public static class HistoricalTechnicalGraph
     {
-        public const int Count=37;
+        public const int LegacyCount=37;
+        public const int Count=39;
         public const int MaximumLevel=8;
         public static HistoricalTechnicalRequirement R(HistoricalTechnology t,int level)=>new HistoricalTechnicalRequirement(t,level);
         static readonly HistoricalTechnicalRequirement[][] requirements={
@@ -42,14 +49,16 @@ namespace WorldGen.Core
             new[]{R(HistoricalTechnology.SteamPower,3),R(HistoricalTechnology.IndustrialMetallurgy,3)},new[]{R(HistoricalTechnology.CombustionEngines,2),R(HistoricalTechnology.ScientificMethod,3)},
             new[]{R(HistoricalTechnology.Electricity,2),R(HistoricalTechnology.Telegraph,2)},new[]{R(HistoricalTechnology.GermTheory,2)},new[]{R(HistoricalTechnology.GermTheory,3),R(HistoricalTechnology.IndustrialMetallurgy,3)},
             new[]{R(HistoricalTechnology.CombustionEngines,2),R(HistoricalTechnology.CropRotation,3)},new[]{R(HistoricalTechnology.Electricity,3),R(HistoricalTechnology.Radio,2)},
-            new[]{R(HistoricalTechnology.Electronics,2),R(HistoricalTechnology.Printing,3)},new[]{R(HistoricalTechnology.Computing,2),R(HistoricalTechnology.Radio,3)}
+            new[]{R(HistoricalTechnology.Electronics,2),R(HistoricalTechnology.Printing,3)},new[]{R(HistoricalTechnology.Computing,2),R(HistoricalTechnology.Radio,3)},
+            new[]{R(HistoricalTechnology.ScientificMethod,4),R(HistoricalTechnology.Electricity,3),R(HistoricalTechnology.IndustrialMetallurgy,3)},
+            new[]{R(HistoricalTechnology.NuclearFission,2),R(HistoricalTechnology.ScientificMethod,5),R(HistoricalTechnology.IndustrialMetallurgy,4)}
         };
         // Material/experimental work, not a prescribed Earth year. Further
         // levels grow in cost; prerequisites constrain the possible paths.
-        static readonly int[] costs={80,140,100,140,230,210,380,370,200,540,270,350,480,430,600,620,650,620,720,430,900,650,600,650,420,700,350,500,650,680,420,420,650,450,550,650,450};
-        static readonly int[] useful=BuildUsefulLevels();
-        static int[] BuildUsefulLevels(){var result=Enumerable.Repeat(2,Count).ToArray();foreach(var branch in requirements)foreach(var r in branch)result[r.Technology]=Math.Max(result[r.Technology],r.Level);return result;}
-        public static int UsefulLevel(int technology)=>useful[technology];
+        static readonly int[] costs={80,140,100,140,230,210,380,370,200,540,270,350,480,430,600,620,650,620,720,430,900,650,600,650,420,700,350,500,650,680,420,420,650,450,550,650,450,1800,2600};
+        static readonly int[] useful=BuildUsefulLevels(Count),legacyUseful=BuildUsefulLevels(LegacyCount);
+        static int[] BuildUsefulLevels(int count){var result=Enumerable.Repeat(2,count).ToArray();for(int k=0;k<count;k++)foreach(var r in requirements[k])result[r.Technology]=Math.Max(result[r.Technology],r.Level);return result;}
+        public static int UsefulLevel(int technology,string historyVersion=null)=>(historyVersion==null||historyVersion==Prehistory.LivingWorldHistoryVersion?useful:legacyUseful)[technology];
         public static HistoricalTechnicalRequirement[] Requirements(int technology)=>requirements[technology];
         public static long Cost(int technology,int nextLevel,string historyVersion=null)
         {
@@ -63,9 +72,9 @@ namespace WorldGen.Core
             return checked((result*numerator+50)/100);
         }
         public static bool Prerequisites(int technology,int[] levels)
-        {foreach(var r in requirements[technology])if(levels[r.Technology]<r.Level)return false;return true;}
-        public static bool Military(int k)=>k==7||k==9||k==12||k==16||k==29;
-        public static bool WeaponsOnly(int k)=>k==16;
+        {foreach(var r in requirements[technology])if(r.Technology>=levels.Length||levels[r.Technology]<r.Level)return false;return true;}
+        public static bool Military(int k)=>k==7||k==9||k==12||k==16||k==29||k==(int)HistoricalTechnology.NuclearWeapons;
+        public static bool WeaponsOnly(int k)=>k==16||k==(int)HistoricalTechnology.NuclearWeapons;
         public static bool Medical(int k)=>k==23||k==24||k==31||k==32;
         public static bool Agricultural(int k)=>k==1||k==4||k==19||k==27||k==33;
         public static bool Maritime(int k)=>k==3||k==13||k==17;
@@ -74,7 +83,7 @@ namespace WorldGen.Core
         // erase that independent craft tradition.
         public static bool WithinCeiling(int k,HistoricalTechnologyCeiling ceiling)
             =>k==(int)HistoricalTechnology.OceanNavigation||HistoricalModernEffects.Era((HistoricalTechnology)k)<=ceiling;
-        public static double Installed(HistoricalCulture culture,int technology)=>culture.Technical==null?0:culture.Technical.Deployment[technology]/1000.0;
+        public static double Installed(HistoricalCulture culture,int technology)=>culture.Technical==null||technology<0||technology>=culture.Technical.Deployment.Length?0:culture.Technical.Deployment[technology]/1000.0;
     }
     public sealed partial class Prehistory
     {
@@ -90,12 +99,12 @@ namespace WorldGen.Core
         }
         static void InitializeTechnicalPractice(HistoricalCulture culture,int year,bool migration=false)
         {
-            if(culture.Technical!=null)return;var t=new HistoricalTechnicalPractice{LastYear=year};culture.Technical=t;
-            for(int k=0;k<HistoricalTechnicalGraph.Count;k++)if(culture.Technology[k]>0)
+            if(culture.Technical!=null)return;var t=new HistoricalTechnicalPractice(culture.Technology.Length){LastYear=year};culture.Technical=t;
+            for(int k=0;k<culture.Technology.Length;k++)if(culture.Technology[k]>0)
             {t.Levels[k]=1;t.LevelYear[k]=culture.Technology[k]-1;t.Deployment[k]=(int)Math.Round(D.Clamp((year-culture.Technology[k]+2)/80.0)*1000);if(t.Deployment[k]>=250)t.InstalledYear[k]=Math.Min(year+1,culture.Technology[k]+19);}
             // Migration does not invent supporting discoveries or rewrite their
             // dates. Further improvements must meet the new prerequisites.
-            if(migration)for(int k=0;k<HistoricalTechnicalGraph.Count;k++)if(culture.Technology[k]>0)
+            if(migration)for(int k=0;k<culture.Technology.Length;k++)if(culture.Technology[k]>0)
                 foreach(var r in HistoricalTechnicalGraph.Requirements(k))if(culture.Technology[r.Technology]>0&&t.Levels[r.Technology]<r.Level)
                 {t.Levels[r.Technology]=r.Level;t.LevelYear[r.Technology]=year;}
         }
@@ -103,7 +112,7 @@ namespace WorldGen.Core
         {
             var t=c.Technical;
             if(!TechnicalHistory(s)){if(t!=null)throw new ArgumentException("Legacy technical extension.");return;}
-            int n=HistoricalTechnicalGraph.Count;
+            int n=HistoricalTechnologies.Count(s.History.Version);
             if(t==null||t.Levels?.Length!=n||t.LevelYear?.Length!=n||t.InstalledYear?.Length!=n||t.Deployment?.Length!=n||t.Allocation?.Length!=n||t.Offers?.Length!=n||t.OfferYear?.Length!=n||t.Sources?.Length!=n||t.Progress?.Length!=n||t.Learning?.Length!=n||t.LastYear>s.Years||t.LastResearchSpent>t.LastResearchBudget||t.LastLearningSpent>t.LastLearningBudget||t.LastResearchSpent<0||t.LastLearningSpent<0)throw new ArgumentException("Invalid technical accounts.");
             int allocations=0;
             for(int k=0;k<n;k++)

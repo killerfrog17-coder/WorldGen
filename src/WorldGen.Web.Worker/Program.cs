@@ -29,7 +29,7 @@ public static partial class WorkerApi
         if(command.StartsWith("news:",StringComparison.Ordinal)){var parts=command.Split(':');if(parts.Length!=4)throw new ArgumentException("Invalid news request.");return WorldJson.Write(HistoryAtlas.NewsDetail(world.Prehistory,int.Parse(parts[1]),int.Parse(parts[2]),value,(ChronicleCategory)int.Parse(parts[3])));}
         if(command.StartsWith("atlas:",StringComparison.Ordinal))
         {
-            var document=HistoryAtlas.Read(world.Prehistory,command.Substring(6),value,world);
+            var document=HistoryAtlas.Read(world.Prehistory,command.Substring(6),value,world,humans);
             if(document.Cell>=0){var position=SocietyView.Location(world,document.Cell);document.Longitude=Math.Atan2(position.Y,position.X)*180/Math.PI;document.Latitude=Math.Asin(position.Z)*180/Math.PI;}
             return WorldJson.Write(document);
         }

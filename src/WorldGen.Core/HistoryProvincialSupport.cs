@@ -75,10 +75,10 @@ namespace WorldGen.Core
             =>CachedProvincialCohort(s,region);
         int ProvincialRegionalCourt(PrehistoryState s,int region)
         {int cohort=ProvincialRegionalCohort(s,region);return cohort<0?-1:s.History.Aggregates.Resolve(cohort,s.History);}
-        long ProvincialContactResidents(PrehistoryState s,int region)
+        long ProvincialContactResidents(PrehistoryState s,int region,bool recordReads=true)
         {
             var a=s.History.Aggregates;long people=s.Population[region]+a.Living.Regions[region].SettledPopulation;
-            int owner=ProvincialRegionalCohort(s,region);
+            int owner=CachedProvincialCohort(s,region,recordReads);
             // Contact staging estimate only, never a new population account.
             // Claiming countryside must not turn its residents into empty space
             // merely because they moved from a regional to a state rural ledger.
