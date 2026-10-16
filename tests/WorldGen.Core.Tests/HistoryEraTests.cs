@@ -31,7 +31,7 @@ public static class HistoryEraTests
             foreach(var field in record.GetType().GetFields())
             {
                 object original=field.GetValue(record)!;
-                object changed=field.FieldType==typeof(string)?(object)((string)original+" changed"):field.FieldType==typeof(int[])?new int[]{42}:field.FieldType.IsEnum?Enum.ToObject(field.FieldType,1):field.FieldType==typeof(long)?(object)((long)original+1):(object)((int)original+1);
+                object changed=field.FieldType==typeof(string)?(object)((string)original+" changed"):field.FieldType==typeof(int[])?new int[]{42}:field.FieldType==typeof(HistoricalPoliticalCycle)?new HistoricalPoliticalCycle{ConquestDebt=1}:field.FieldType.IsEnum?Enum.ToObject(field.FieldType,1):field.FieldType==typeof(long)?(object)((long)original+1):(object)((int)original+1);
                 field.SetValue(record,changed);check(StateHash.Compute(record)!=originalHash,"History-5 integrity includes "+record.GetType().Name+"."+field.Name);field.SetValue(record,original);
             }
         }

@@ -34,6 +34,13 @@ namespace WorldGen.Presentation
                 var aim=c.Ambitions.Governments[id];
                 sections.Add(new AtlasSection{Title="Territorial ambitions",Text=aim.Description+". Desired territory is not a recognized claim or actual control. Expansion still requires forces, funds, administration and tolerable war exhaustion.",Facts=new[]{F("Goal adopted",Y(s,aim.SinceYear)),F("Geographic scope",aim.Scope==HistoricalAmbitionScope.Subcontinental?"Surrounding landmass within approximately 1,800 km of the homeland":aim.Scope.ToString())}});
             }
+            if(kind=="state"&&c.Geography!=null&&id<c.Geography.Governments.Length)
+            {
+                var map=c.Geography.Governments[id];var places=Enumerable.Range(0,map.Places.Count).Select(k=>map.Places.At(k)).ToArray();
+                sections.Add(new AtlasSection{Title="Known world and voyages",Text="This state's dated reports are not an omniscient view. Rumors can encourage exploration; observed shores permit planning; a completed returning survey verifies navigation. Claims, actual control and populated settlements remain separate.",
+                    Facts=new[]{F("Known coastal regions",N(map.Places.Count)),F("Hearsay only",N(places.Count(r=>map.Grade[r]==1))),F("Observed or exchanged directions",N(places.Count(r=>map.Grade[r]==2))),F("Verified navigation",N(places.Count(r=>map.Grade[r]==3))),F("Completed surveys",N(map.Surveys)),F("Successful new footholds",N(map.Landfalls))},
+                    Timeline=map.Missions.Select(m=>F("Expected year "+Y(s,(int)(m.Due/SimulationTime.Year)),m.Kind==HistoricalSeaMission.Report?"A trading partner's geographical report is in transit.":m.Kind==HistoricalSeaMission.Survey?"A funded coastal survey is awaiting its return report.":"A supplied colonial venture is en route; local access and settlement are not guaranteed.")).ToArray()});
+            }
             if(kind!="people"||id>=c.Cultures.Length)return;var record=c.Cultures[id];
             var facts=new List<AtlasFact>{F("Regional ancestry","Ecoregional community "+record.PrecursorRegion)};
             if(record.DormantSince>=0)facts.Add(F("No surviving recorded communities",Y(s,record.DormantSince)));

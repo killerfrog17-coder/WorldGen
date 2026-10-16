@@ -1,5 +1,9 @@
 # Historical simulation: history-31 / prehistory-6
 
+## Geographic knowledge and organized overseas ventures - 16 October 2026
+
+The next32 review adds optional persistent state-specific geography and dated funded survey/convoy events. Actual trade can transmit hearsay or copied directions with delay; it does not grant personal first-hand charts or political control. Organized voyages keep real supplier/settler/crop/food/finances and resistance constraints, but remove independent decades-long dispatch and founding lotteries after a paid arrival. Long state-sponsored movement no longer materializes as unrelated primitive coastal communities. Claims/offices and real populated colonies remain separate. Existing saves retain their old rules unless explicitly upgraded. [Mechanisms, historical comparisons, test commands and limitations](HISTORY32_GEOGRAPHIC_VENTURES.md).
+
 Launch target,16 October2026: at the owner's explicit request, `WorldGen.exe - Shortcut.lnk` now opens `player-history-32-review-w2`, including regional traditions/proto-centers. Older31 shortcut references below describe earlier checkpoints.31 remains available as a rollback, and existing saves are not silently upgraded.
 
 ## Regional traditions / proto-urban revision - 16 October 2026

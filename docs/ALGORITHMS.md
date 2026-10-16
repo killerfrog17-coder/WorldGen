@@ -1,5 +1,9 @@
 # Implementation contracts - version 3
 
+## State geography and dated sea ventures - history32 optional revision
+
+`Connections.Geography` version1 is nullable, saved and hashed. Fresh32 histories enable it; predecessor saves keep their null continuation until `UpgradeGeographicKnowledge`. States store indexed sparse dated reports rather than querying a live global chart archive. Hearsay, observed/copied directions and verified navigation are distinct. Actual trade forwards bounded delayed reports; successors inherit maps but not duplicate ships. Fixed portfolios address at most four sailing missions and four incoming reports per state, with at most three physical candidate-route checks per planning event. Process27 wakes at actual arrival/return dates. No world/state/culture/ecoregion cell census is introduced. Exploration decisions do not score hidden destination crops, armies or resources; bounded local reconnaissance can record observations after arrival. Paid operations replace stacked dispatch/foundation lotteries, not the real food, people, crop, access, claim or campaign constraints. See [the detailed contract and historical comparisons](HISTORY32_GEOGRAPHIC_VENTURES.md).
+
 ## Regional traditions and nested proto-centers - history32 optional revision
 
 Fresh histories carry `HistoryState.RegionalTraditions` version1. Null retains prior behavior and hashes; `UpgradeRegionalTraditions` explicitly copies an existing32 history. The rule marker, sparse actor records, regional predecessors and first proto-center date are saved and hashed. Geological generation is unchanged.

@@ -5,6 +5,8 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         void TryTerritorialSeaCharter(PrehistoryState s,Route route,int culture,int elapsed)
+            =>CommitTerritorialSeaCharter(s,route,culture,elapsed,false,-1);
+        void CommitTerritorialSeaCharter(PrehistoryState s,Route route,int culture,int elapsed,bool organized,int expectedPolity)
         {
             if(!TechnicalHistory(s))return;var h=s.History;var a=h.Aggregates;var hc=h.Cultures[culture];var territory=a.Empires.Territories;
             bool ocean=HistoricalTechnologies.Has(hc,HistoricalTechnology.OceanNavigation);
@@ -26,6 +28,7 @@ namespace WorldGen.Core
                 if(owner>=0&&h.Polities[owner].CultureId==culture&&DiffusionShore(route.CellA)&&TerritorialNodeLive(s,owner,harborSource)){source=harborSource;polity=owner;}
             }
             if(polity<0)return;var p=h.Polities[polity];var government=a.Empires.Governments[polity];var finances=a.Polities[polity];
+            if(GeographicHistory(s)&&(!organized||polity!=expectedPolity||!HistoricalSeaVentureEffects.CanColonize(a.Empires.Connections.Geography.Governments[polity].Grade[route.B],HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years)>=.2,route.DistanceM)))return;
             int provisionPort=-1;long provisions=0;
             if(LivingWorldHistory(s)&&!MaritimeCharterLogistics(s,polity,route,source,out provisionPort,out provisions))return;
             int target=route.CellB,other=HistoricalCells.Polity(s,target);
@@ -36,14 +39,14 @@ namespace WorldGen.Core
                 if(other!=polity&&p.Cohesion>=600&&HistoricalModernEffects.Military(hc,s.Years)>HistoricalModernEffects.Military(h.Cultures[h.Polities[other].CultureId],s.Years)*1.5)
                 {
                     bool submitted=TryImperialSubmission(s,polity,other,false,elapsed,target);
-                    bool expedition=!submitted&&LivingWorldHistory(s)&&TryMaritimeStateExpedition(s,polity,other,route,elapsed);
+                    bool expedition=!submitted&&LivingWorldHistory(s)&&CommitMaritimeStateExpedition(s,polity,other,route,elapsed,organized);
                     if(LivingWorldHistory(s)&&(submitted||expedition))s.Society.Settlements[provisionPort].FoodReserve-=provisions;
                 }
                 return;
             }
             if(LivingWorldHistory(s)&&a.TownAt[target]>=0)
             {
-                if(TryMaritimeCouncil(s,polity,a.TownAt[target],route,elapsed))s.Society.Settlements[provisionPort].FoodReserve-=provisions;return;
+                if(CommitMaritimeCouncil(s,polity,a.TownAt[target],route,elapsed,organized))s.Society.Settlements[provisionPort].FoodReserve-=provisions;return;
             }
             if(!ocean&&World.Landmass[route.CellA]==World.Landmass[target])return;
             int postBudget=LivingWorldHistory(s)?HistoricalMaritimeIntegrationEffects.PostBudget(finances.Urban,HistoricalModernEffects.AdministrativeCapacity(hc,s.Years),HistoricalModernEffects.Communication(hc,s.Years)):128;
@@ -58,7 +61,7 @@ namespace WorldGen.Core
             long migrants=LivingWorldHistory(s)&&remoteRecruitment?0:Math.Min(250,remoteRecruitment?finances.Remote/300:catchment.Rural/30);
             if(migrants<80&&!(LivingWorldHistory(s)&&remoteRecruitment))return;
             double opportunity=.3+.7*D.Clamp(ProvincialPhysicalYield(s,culture,target)*3);
-            if(HistoryRoll("territorial-sea-charter-"+target,polity,s.Years)>1-Math.Exp(-elapsed*(ocean?.025:.005)*opportunity))return;
+            if(!organized&&HistoryRoll("territorial-sea-charter-"+target,polity,s.Years)>1-Math.Exp(-elapsed*(ocean?.025:.005)*opportunity))return;
             if(LivingWorldHistory(s))s.Society.Settlements[provisionPort].FoodReserve-=provisions;
             // Transfer actual households. The global account loses and regains
             // precisely the same migrants; a charter cannot create colonists.

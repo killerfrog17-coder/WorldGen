@@ -158,6 +158,7 @@ namespace WorldGen.Core
                 if(o is HistoricalColonialConnections oldPortSettlements && f.Name==nameof(HistoricalColonialConnections.PortSettlements) && oldPortSettlements.PortSettlements==null)continue;
                 if(o is HistoricalColonialConnections oldProvisionedPorts && f.Name==nameof(HistoricalColonialConnections.ProvisionedPorts) && oldProvisionedPorts.ProvisionedPorts==null)continue;
                 if(o is HistoricalColonialConnections oldCoastalFarming && f.Name==nameof(HistoricalColonialConnections.CoastalFarming) && oldCoastalFarming.CoastalFarming==null)continue;
+                if(o is HistoricalColonialConnections oldGeography && f.Name==nameof(HistoricalColonialConnections.Geography) && oldGeography.Geography==null)continue;
                 if(o is HistoricalProvisionedPorts oldSupplierRouting && f.Name==nameof(HistoricalProvisionedPorts.SupplierRouting) && oldSupplierRouting.SupplierRouting==null)continue;
                 if(o is HistoricalProvisionedPort oldSupplierHistory && f.Name==nameof(HistoricalProvisionedPort.SupplierHistory) && oldSupplierHistory.SupplierHistory==null)continue;
                 if(o is HistoricalModernSettings shippingSettings && f.Name==nameof(HistoricalModernSettings.Shipping) && shippingSettings.Shipping?.Length==0)continue;

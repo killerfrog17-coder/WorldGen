@@ -77,6 +77,7 @@ namespace WorldGen.Core
                         case StateProcess:if(s.History.Polities[e.Entity].EndedYear<0){AdvanceAggregateState(s,e.Entity);if(s.History.Polities[e.Entity].EndedYear<0)ScheduleAggregate(s,e.Process,e.Entity);}break;
                         case CampaignProcess:if(s.History.Dynamics.Campaigns[e.Entity].EndedYear<0){AdvanceAggregateCampaign(s,e.Entity);if(s.History.Dynamics.Campaigns[e.Entity].EndedYear<0)ScheduleAggregate(s,e.Process,e.Entity);}break;
                         case RemoteProcess:if(a.Polities[e.Entity].Remote>0){AdvanceAggregateRemote(s,e.Entity);if(a.Polities[e.Entity].Remote>0)ScheduleAggregate(s,e.Process,e.Entity);}break;
+                        case SeaMissionProcess:AdvanceSeaMissions(s,e.Entity);break;
                         default:throw new ArgumentException("Unknown aggregate process.");
                     }
                     double elapsed=(Stopwatch.GetTimestamp()-started)*1000.0/Stopwatch.Frequency;eventMilliseconds+=elapsed;YearWorkObserver?.Invoke(s.Years,elapsed);WorkObserver?.Invoke(new SimulationWorkMetric{Stage=AggregateProcessLabel(e.Process),Items=(int)(a.CellReads-reads),Milliseconds=elapsed,AllocatedBytes=GC.GetAllocatedBytesForCurrentThread()-allocated});a.ProcessedLocalEvents++;count++;s.Timeline.ProcessedEvents++;
@@ -87,7 +88,7 @@ namespace WorldGen.Core
             }
             finally {aggregateQueue=null;if(!completed)aggregateRelationCheckpoint=null;}
         }
-        static string AggregateProcessLabel(int process)=>process==RegionProcess?"aggregate event 20":process==CityProcess?"aggregate event 21":process==CultureProcess?"aggregate event 22":process==StateProcess?"aggregate event 23":process==CampaignProcess?"aggregate event 24":"aggregate event 26";
+        static string AggregateProcessLabel(int process)=>"aggregate event "+process;
         void ValidateAggregateTimeline(PrehistoryState s)
         {
             var t=s.Timeline;var a=s.History.Aggregates;
@@ -95,7 +96,7 @@ namespace WorldGen.Core
             var identities=new HashSet<(int,int)>();var tickets=new HashSet<long>();
             for(int i=0;i<t.Events.Length;i++)
             {
-                var e=t.Events[i];int length=e.Process==RegionProcess?a.Regions.Length:e.Process==CityProcess?a.Cities.Length:e.Process==CultureProcess?a.Cultures.Length:e.Process==StateProcess||e.Process==RemoteProcess?a.Polities.Length:e.Process==CampaignProcess?s.History.Dynamics.Campaigns.Length:0;
+                var e=t.Events[i];int length=e.Process==RegionProcess?a.Regions.Length:e.Process==CityProcess?a.Cities.Length:e.Process==CultureProcess?a.Cultures.Length:e.Process==StateProcess||e.Process==RemoteProcess?a.Polities.Length:e.Process==CampaignProcess?s.History.Dynamics.Campaigns.Length:e.Process==SeaMissionProcess&&GeographicHistory(s)?a.Polities.Length:0;
                 if(e.Entity<0||e.Entity>=length||e.Due<=t.Seconds||e.Ticket<0||e.Ticket>=t.NextTicket||!identities.Add((e.Process,e.Entity))||!tickets.Add(e.Ticket)||i>0&&SimulationEventQueue.Compare(t.Events[i-1],e)>=0)throw new ArgumentException("Invalid aggregate actor schedule.");
             }
             if(!a.Regions.All(r=>identities.Contains((RegionProcess,r.Id)))||!a.Cities.Where(c=>!LivingHistory(s)||a.Living.Cities[c.Id].AbandonedYear<0).All(c=>identities.Contains((CityProcess,c.Id)))||!a.Cultures.All(c=>identities.Contains((CultureProcess,c.Id)))||!s.History.Polities.Where(p=>p.EndedYear<0).All(p=>identities.Contains((StateProcess,p.Id))))throw new ArgumentException("Missing aggregate actor schedule.");

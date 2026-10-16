@@ -75,6 +75,8 @@ namespace WorldGen.Core
             provisions=HistoricalVoyageEffects.Provisioning(250,(int)Math.Min(int.MaxValue,route.DistanceM+leg*1000));return true;
         }
         bool TryMaritimeStateExpedition(PrehistoryState s,int polity,int defender,Route route,int elapsed)
+            =>CommitMaritimeStateExpedition(s,polity,defender,route,elapsed,false);
+        bool CommitMaritimeStateExpedition(PrehistoryState s,int polity,int defender,Route route,int elapsed,bool organized)
         {
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var other=h.Polities[defender];var hc=h.Cultures[p.CultureId];
             if(p.Cohesion<600||p.Exhaustion>=500||p.Army<500||!HistoricalTechnologies.Has(hc,HistoricalTechnology.OceanNavigation))return false;
@@ -86,7 +88,7 @@ namespace WorldGen.Core
             long investment=Math.Max(5000,p.Army/2+route.DistanceM/500);
             if(p.Treasury<investment*3||a.Polities[polity].Receipts<=a.Polities[polity].ServiceCost+investment/100)return false;
             double chance=HistoricalMaritimeIntegrationEffects.ExpeditionChance(elapsed,expedition/resistance,p.Exhaustion,leader.Ambition);
-            if(HistoryRoll("maritime-state-expedition-"+defender,polity,s.Years)>=chance)return false;
+            if(chance<=0||!organized&&HistoryRoll("maritime-state-expedition-"+defender,polity,s.Years)>=chance)return false;
             // Use the ordinary supplied campaign, casualties, local resistance,
             // conquests and peace machinery. A chart does not annex a country.
             int before=h.Dynamics.Campaigns.Length;BeginAggregateCampaign(s,polity,defender,relation,route.CellB);
@@ -133,6 +135,8 @@ namespace WorldGen.Core
                 DistanceM=(int)Math.Round(D.Angle(World.Surface.Cells[source].Position,World.Surface.Cells[best].Position)*World.Recipe.RadiusKm*1000)};
         }
         bool TryMaritimeCouncil(PrehistoryState s,int polity,int city,Route route,int elapsed)
+            =>CommitMaritimeCouncil(s,polity,city,route,elapsed,false);
+        bool CommitMaritimeCouncil(PrehistoryState s,int polity,int city,Route route,int elapsed,bool organized)
         {
             if(!LivingWorldHistory(s))return false;
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var town=s.Society.Settlements[city];var hc=h.Cultures[p.CultureId];
@@ -159,7 +163,11 @@ namespace WorldGen.Core
                 double expedition=p.Army*.15*HistoricalModernEffects.Military(hc,s.Years);
                 double resistance=Math.Max(20,(town.Population+a.Cities[city].Rural*.15)*.025)*HistoricalModernEffects.Military(h.Cultures[town.CultureId],s.Years);
                 double chance=HistoricalMaritimeIntegrationEffects.ExpeditionChance(elapsed,expedition/resistance,p.Exhaustion,leader.Ambition);
-                if(HistoryRoll("maritime-coercive-expedition-"+city,polity,s.Years)>=chance)return false;
+                // An explicitly funded expedition has already passed the
+                // dispatch decision. Resolve local resistance, rather than
+                // applying another decades-long decision lottery at landfall.
+                double outcome=organized&&chance>0?D.Clamp(.5+.35*(1-resistance/Math.Max(1,expedition))):chance;
+                if(HistoryRoll("maritime-coercive-expedition-"+city,polity,s.Years)>=outcome)return false;
                 imposed=true;p.Exhaustion=Math.Min(1000,p.Exhaustion+80);p.Army=Math.Max(0,p.Army-(int)Math.Min(p.Army/10,resistance*.1));
             }
             p.Treasury-=investment;

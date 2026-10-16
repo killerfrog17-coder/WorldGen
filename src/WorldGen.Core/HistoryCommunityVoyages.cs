@@ -60,7 +60,8 @@ namespace WorldGen.Core
                 if(reliableDelivery&&peer>=0&&peer!=culture)
                 {if(LivingWorldHistory(s))LivingCultureContactAt(s,culture,peer,route.CellA,route.CellB);else LivingCultureContact(s,culture,peer);}
                 if(reliableDelivery&&PassageHistory(s))DiffusionPortContact(s,route,culture,elapsed);
-                TryTerritorialSeaCharter(s,route,culture,elapsed);
+                if(!GeographicHistory(s))TryTerritorialSeaCharter(s,route,culture,elapsed);
+                if(reliableDelivery)RecordStateVoyageReport(s,sourceState,route.CellB);
                 if(ColonialHistory(s)){RecordCoastChart(s,culture,to,culture);destinationState=HistoricalCells.Polity(s,route.CellB);}
                 if(reliableDelivery)
                 {
@@ -79,6 +80,11 @@ namespace WorldGen.Core
                         AccumulateInstitutionalDelivery(s,to,court,source,transmission,elapsed,"institutional-voyage-lesson-"+trial);
                     }
                 }
+                // Stateful long-distance settlement is an organized, supplied
+                // venture, not unlocated remote people appearing as independent
+                // primitive coastal cultures. Independent human voyaging remains.
+                if(GeographicHistory(s)&&sourceState>=0&&(route.DistanceM>120000||HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years)>=.2))continue;
+                if(GeographicHistory(s)&&!reliableDelivery)continue;
                 long carrying=Patches[to].Capacity;
                 if(s.Society.Cultures[culture].Farming>=180)carrying=(long)(carrying*(1+s.Society.Cultures[culture].Farming/80.0*LivingCropLandscape(s,culture,route.CellB,false)*HistoricalModernEffects.FoodMultiplier(hc,s.Years)));
                 long destination=destinationState>=0?a.Polities[destinationState].Remote:s.Population[to];

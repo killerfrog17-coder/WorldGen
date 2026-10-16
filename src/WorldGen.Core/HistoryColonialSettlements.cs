@@ -4,6 +4,8 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         bool TryFoundLivingColonialPort(PrehistoryState s,int polity,Route route,int elapsed)
+            =>CommitLivingColonialPort(s,polity,route,elapsed,false);
+        bool CommitLivingColonialPort(PrehistoryState s,int polity,Route route,int elapsed,bool organized)
         {
             if(!LivingWorldHistory(s)||elapsed<=0)return false;
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];int target=route.CellB,postId=a.Empires.Territories.PostAt[target];
@@ -17,7 +19,7 @@ namespace WorldGen.Core
             // farmers merely because their ruler owns ships.
             if(!CanFoundLivingTown(s,culture,target,port))
             {
-                if(!CanPrepareProvisionedPort(s,polity,route,port,out var plan)||HistoryRoll("living-sponsored-port-"+target,polity,s.Years)>=1-Math.Exp(-elapsed/40.0))return false;
+                if(!CanPrepareProvisionedPort(s,polity,route,port,out var plan)||!organized&&HistoryRoll("living-sponsored-port-"+target,polity,s.Years)>=1-Math.Exp(-elapsed/40.0))return false;
                 int before=a.Cities.Length;FoundLivingTownBasis(s,culture,target,port,polity,plan);return a.Cities.Length>before;
             }
             long available=LivingFounderAvailability(s,port),founders=Math.Min(250,available/12),farms=Math.Min(available/3,Math.Max(800,founders*8)),people=founders+farms;
@@ -25,7 +27,7 @@ namespace WorldGen.Core
             long provisions=HistoricalVoyageEffects.Provisioning(people,(int)Math.Min(int.MaxValue,route.DistanceM+stagingKm*1000));
             long investment=HistoricalMaritimeIntegrationEffects.CouncilInvestment(people,route.DistanceM);
             if(p.Treasury<investment*2||source.FoodReserve<people+provisions+source.Population/4)return false;
-            if(HistoryRoll("living-sponsored-port-"+target,polity,s.Years)>=1-Math.Exp(-elapsed/40.0))return false;
+            if(!organized&&HistoryRoll("living-sponsored-port-"+target,polity,s.Years)>=1-Math.Exp(-elapsed/40.0))return false;
             int count=a.Cities.Length;FoundLivingTown(s,culture,target,port);if(a.Cities.Length==count)return false;
             // FoundLivingTown already transfers the precise household budgets
             // and their startup food. Charge only the additional voyage ration

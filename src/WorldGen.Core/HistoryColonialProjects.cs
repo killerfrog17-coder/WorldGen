@@ -7,6 +7,7 @@ namespace WorldGen.Core
         void AdvanceColonialExpedition(PrehistoryState s,int polity,int elapsed)
         {
             if(!ColonialHistory(s))return;var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var hc=h.Cultures[p.CultureId];
+            if(GeographicHistory(s)){AdvanceGeographicExpedition(s,polity);return;}
             if(!HistoricalTechnologies.Has(hc,HistoricalTechnology.OceanNavigation)||p.Treasury<1000||p.Cohesion<400)return;
             if(LivingWorldHistory(s)){AdvanceLivingColonialExpedition(s,polity,elapsed);return;}
             var cities=a.Polities[polity].Cities;int source=-1;

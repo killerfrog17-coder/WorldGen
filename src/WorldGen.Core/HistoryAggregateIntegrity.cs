@@ -31,6 +31,8 @@ namespace WorldGen.Core
                     var retry=a.Empires.Connections.PortSettlements;retry.LastTestYear.Fingerprint(true);
                     foreach(var government in retry.Governments){government.Pending.Items.Fingerprint(true);government.Pending.Positions.Fingerprint(true);}
                 }
+                if(a.Empires?.Connections?.Geography!=null)foreach(var map in a.Empires.Connections.Geography.Governments)
+                {foreach(var tree in new[]{map.Grade,map.ReportedYear,map.Opportunity,map.Host,map.Shore,map.ReviewAfter,map.Places.Items,map.Places.Positions})tree.Fingerprint(true);}
                 a.PreviousAdministration?.Fingerprint(true);
                 string archive=StateHash.Compute(h.Archive.Take(a.ArchiveBaseCount).ToList());
                 if(archive!=a.ArchiveBaseHash)throw new ArgumentException("Modified frozen history archive.");

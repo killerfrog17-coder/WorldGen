@@ -179,7 +179,10 @@ public static class HistoryTests
             check(s.Society.Settlements.All(t=>lore.Contains("[site "+t.Id+"]")),"Campaign directory includes every recorded settlement, including declined sites");
             check(s.History.Polities.All(p=>lore.Contains("[state "+p.Id+"]")),"Campaign directory preserves fallen as well as living states");
             check(lore.Contains("Coordinates locate coarse settlement sites")&&lore.Contains("Complete event archive"),"Gazetteer states coordinate limits and retains the full event archive");
-            check(!lore.Contains("Seasonal grain cultivation with fishing"),"Current crop-system inspection does not label every farming tradition as grain cultivation");
+            // Legacy archives intentionally preserve their original livelihood
+            // wording; current crop-aware presentation is not a save migration.
+            if(s.History.Version==Prehistory.LivingWorldHistoryVersion)
+                check(!lore.Contains("Seasonal grain cultivation with fishing"),"Current crop-system inspection does not label every farming tradition as grain cultivation");
             var corrupt=s.Copy();if(corrupt.History.Cultures.Length>0){corrupt.History.Cultures[0].Technology[14]=1;corrupt.History.Cultures[0].Technology[6]=0;corrupt.Seal();bool rejected=false;try{engine.Validate(corrupt);}catch(ArgumentException){rejected=true;}check(rejected,"Invalid technology prerequisite rejected");}
             File.WriteAllText(Path.Combine(folder,preset+"-resume-hash.txt"),engine.AdvanceYears(s,37).Hash);File.WriteAllBytes(Path.Combine(folder,preset+".world"),WorldFile.Write(w));File.WriteAllText(Path.Combine(folder,preset+".json"),WorldJson.Write(s));File.WriteAllText(Path.Combine(folder,preset+"-chronicle.txt"),SocietyView.CampaignLore(s));
             Console.WriteLine($"{preset}: {SocietyView.Population(s):N0} people; urban cells {s.History.CellStage.Count(x=>x>=2)}; cultural cells {s.Society.CellCulture.Count(x=>x>=0)}; technologies {s.History.Cultures.Select(c=>c.Technology.Count(t=>t>0)).DefaultIfEmpty().Max()}; wars {s.History.Archive.Count(e=>e.Kind=="war")}; conquests {s.History.Archive.Count(e=>e.Kind=="conquest")}");
