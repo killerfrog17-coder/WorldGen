@@ -23,6 +23,10 @@ public static class HistoryLivingWorldTests
         check(HistoricalProtocentreEffects.MaximumResidents(.001,.10,700,4)>1200,"Even a low-staple tropical site can exceptionally reach civic scale rather than suffer an absolute deadlock");
         double weak=HistoricalProtocentreEffects.AnnualDispersalHazard(.1,.05,1,false),robust=HistoricalProtocentreEffects.AnnualDispersalHazard(1,.35,0,false);
         check(weak>robust*10&&robust>0,"Unsupported protocenters disperse much more often while exceptional sites can persist");
+        double productive=HistoricalProtocentreEffects.AnnualDispersalHazard(.619,.141,0,false);
+        check(Math.Exp(-productive*500)>.5&&Math.Exp(-weak*500)<.001,"A viable stored-food village can maintain a centuries-long farming catchment while weak camps remain transient");
+        check(HistoricalProtocentreEffects.AnnualDispersalHazard(.619,.141,.6,false)>productive*5,"Real harvest failure still disrupts an otherwise durable productive village");
+        check(HistoricalProtocentreEffects.AnnualDispersalHazard(.00005,.04,0,false)>.03,"Removing duplicated provisioning penalties does not make unsupported ever-wet camps durable centers");
         check(HistoricalProtocentreEffects.AnnualDispersalHazard(.1,.05,1,true)==0,"An established city does not randomly vanish merely because it lacks a current ruler");
         double origin=HistoricalLivingWorldOrigins.IndependentStateHazard(.65,1,.8,1);
         check(origin>HistoricalEnvironmentalEffects.IndependentStateHazard(.65,1,.8,1)*5&&origin<.0001,"A good finite-lived protocenter gets an exceptional but not hundred-millennia institutional opportunity");

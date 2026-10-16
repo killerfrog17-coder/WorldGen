@@ -63,7 +63,7 @@ namespace WorldGen.Core
         {
             var h=s.History;var a=h.Aggregates;int id=s.Society.Cultures.Length,religion=h.Religions.Length;var habitat=World.Ecology.Habitat[cell];
             var c=new CultureIdentity{Id=id,Name=HistoricalName("people",unchecked(cell+id*7919)),OriginCell=cell,FoundedYear=s.Years,StageYear=s.Years,Stage=SocietyStage.AdvancedCulture,Fishing=Patches[patch].Lifestyle==ForagerLifestyle.Coastal?400:HistoricalRiverAccess(cell)>.03?300:50,Hunting=300,Gathering=400,Resources="Native plants, seasonal game and local exchange",Subsistence="Seasonal foraging with persistent storage and exchange"};
-            c.Gathering=1000-c.Fishing-c.Hunting;s.Society.Cultures=s.Society.Cultures.Concat(new[]{c}).ToArray();
+            c.Gathering=1000-c.Fishing-c.Hunting;InitializeMarineForagerCulture(s,c,cell);s.Society.Cultures=s.Society.Cultures.Concat(new[]{c}).ToArray();
             int capabilities=HistoricalTechnologies.Count(h.Version);
             var hc=new HistoricalCulture{Id=id,ReligionId=religion,LanguageId=id,Sedentism=150,Technology=new int[capabilities],Research=new int[capabilities]};hc.Technology[0]=s.Years+1;h.Cultures=h.Cultures.Concat(new[]{hc}).ToArray();
             if(TechnicalHistory(s))InitializeTechnicalPractice(hc,s.Years);

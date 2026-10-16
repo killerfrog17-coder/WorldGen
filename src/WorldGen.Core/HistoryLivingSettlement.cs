@@ -13,6 +13,10 @@ namespace WorldGen.Core
             if(c.Farming<180||s.Years-c.FoundedYear<maturation)return;
             if(ca.Cities.Count==0)
             {if(HistoryRoll("living-first-town",culture,s.Years)<1-Math.Exp(-elapsed*investment/600.0))FoundLivingTown(s,culture,ConnectedHistory(s)?DevelopmentEconomicSite(s,culture,c.OriginCell):c.OriginCell,-1);return;}
+            // Secondary neighborhoods belong to their actual local town actor.
+            // An overseas port must not compete with every metropolitan city
+            // for the culture's single sampled parent opportunity.
+            if(LivingWorldHistory(s))return;
             double mobility=ConnectedHistory(s)?Math.Sqrt(HistoricalModernEffects.LandTransport(s.History.Cultures[culture],s.Years))*(1+.4*HistoricalModernEffects.Adoption(s.History.Cultures[culture],HistoricalTechnology.Roads,s.Years)):1;
             if(ProvincialHistory(s))mobility*=Math.Min(8,Math.Max(1,Math.Sqrt(ca.Rural/20000.0)));
             if(HistoryRoll("living-secondary-town",culture,s.Years)>1-Math.Exp(-elapsed*Math.Sqrt(ca.Cities.Count)*mobility/600.0))return;
@@ -77,6 +81,8 @@ namespace WorldGen.Core
             return a.Living.Regions[region].CommittedAreaKm2<a.Regions[region].AreaKm2*.65;
         }
         void FoundLivingTown(PrehistoryState s,int culture,int cell,int parent)
+            =>FoundLivingTownFunded(s,culture,cell,parent,-1);
+        void FoundLivingTownFunded(PrehistoryState s,int culture,int cell,int parent,int fundingPolity)
         {
             if(!CanFoundLivingTown(s,culture,cell,parent))return;
             var h=s.History;var a=h.Aggregates;var c=s.Society.Cultures[culture];int patch=CellPatch[cell],id=s.Society.Settlements.Length;
@@ -122,7 +128,9 @@ namespace WorldGen.Core
             foreach(int neighbor in city.Neighbors)LinkLivingTowns(s,id,neighbor);
             var ca=a.Cultures[culture];ca.Cities.Add(id);ca.CityCount=ca.Cities.Count;ca.Urban+=founders;ca.Rural+=rural;ca.SupportedUrban+=founders;ca.SupportedCities++;ca.FoodCapacity+=urbanCapacity;ca.LargestCity=Math.Max(ca.LargestCity,founders);a.TotalUrban+=founders;
             SetAggregateLayer(s,cell,0,culture);SetAggregateLayer(s,cell,2,h.Cultures[culture].ReligionId);SetAggregateLayer(s,cell,3,id);SetAggregateLayer(s,cell,4,2);ScheduleAggregate(s,CityProcess,id);
-            int host=HistoricalCells.Polity(s,cell);if(host>=0)AssignAggregateTown(s,id,host);
+            int host=HistoricalCells.Polity(s,cell);
+            if(host<0&&fundingPolity>=0){ClaimAggregatePolity(s,cell,fundingPolity);host=fundingPolity;}
+            if(host>=0)AssignAggregateTown(s,id,host);
             if(host<0)ConnectColonialTown(s,id);
             HistoryEvent(s,"settlement",town.Name+" begins as a community of "+founders+" people supported by neighboring farms.",cell,culture,town:id,category:ChronicleCategory.Society);
         }
@@ -147,7 +155,10 @@ namespace WorldGen.Core
         {
             int from=s.Society.Settlements[first].Cell,to=s.Society.Settlements[second].Cell;
             if(LivingWorldHistory(s)&&!InstitutionalRouteAllowed(s,from,to,s.Society.Settlements[first].CultureId))return false;
-            if(EnvironmentalHistory(s))
+            // History32 uses the shared physical600-unit institutional reach
+            // test above. Keep31's stricter360/transmission rule for old saves,
+            // rather than applying two differently calibrated reach models.
+            if(EnvironmentalHistory(s)&&!LivingWorldHistory(s))
             {
                 int culture=s.Society.Settlements[first].CultureId;
                 bool sea=DiffusionShore(from)&&DiffusionShore(to)&&DiffusionSeaEffort(s,from,to,culture)!=double.MaxValue;

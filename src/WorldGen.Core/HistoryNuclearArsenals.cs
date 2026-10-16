@@ -93,7 +93,9 @@ namespace WorldGen.Core
         }
         void AdvanceNuclearState(PrehistoryState s,int id,int elapsed)
         {
-            var h=s.History;var record=h.Nuclear.States[id];elapsed=Math.Min(elapsed,Math.Max(0,s.Years-record.LastYear));if(elapsed<=0)return;record.LastYear=s.Years;
+            // The arsenal owns its maintenance date. A continuing government
+            // can be newer than its inherited unpaid maintenance interval.
+            var h=s.History;var record=h.Nuclear.States[id];elapsed=Math.Max(0,s.Years-record.LastYear);if(elapsed<=0)return;record.LastYear=s.Years;
             var p=h.Polities[id];var account=h.Aggregates.Polities[id];var hc=h.Cultures[p.CultureId];
             double fission=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.NuclearFission,s.Years),weapons=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.NuclearWeapons,s.Years);
             if(record.Stockpile==0&&(fission<.35||weapons<.35))return;
@@ -131,7 +133,7 @@ namespace WorldGen.Core
             if(produced>0&&record.FirstWeaponYear<0)
             {
                 record.FirstWeaponYear=s.Years;
-                HistoryEvent(s,"nuclear-arsenal",p.Name+" commissions its first paid nuclear arsenal. Design knowledge, physical weapons, maintained readiness and aircraft delivery are separate capabilities.",capital,p.CultureId,id,category:ChronicleCategory.Politics);
+                HistoryEvent(s,"nuclear-arsenal",p.Name+" commissions its first nuclear arsenal, funding the production and upkeep of weapons for aircraft delivery.",capital,p.CultureId,id,category:ChronicleCategory.Politics);
             }
         }
         bool NuclearCanReach(PrehistoryState s,int owner,int target)
@@ -158,7 +160,7 @@ namespace WorldGen.Core
                 heir.Stockpile+=transfer;heir.Inherited+=transfer;record.Stockpile-=transfer;record.Transferred+=transfer;
                 // Custody is not the former government's crew or deployment.
                 if(heir.Stockpile>0)heir.ReadinessMilli=(int)(((long)heir.ReadinessMilli*previous+(continuity?(long)record.ReadinessMilli*transfer:0))/heir.Stockpile);
-                if(continuity){heir.DeliveryMilli=record.DeliveryMilli;heir.ProductionWork=record.ProductionWork;heir.ProgramYear=record.ProgramYear;heir.FirstWeaponYear=record.FirstWeaponYear;heir.LastUseYear=record.LastUseYear;}
+                if(continuity){heir.LastYear=record.LastYear;heir.DeliveryMilli=record.DeliveryMilli;heir.ProductionWork=record.ProductionWork;heir.ProgramYear=record.ProgramYear;heir.FirstWeaponYear=record.FirstWeaponYear;heir.LastUseYear=record.LastUseYear;}
             }
             record.ProductionWork=0;record.Dismantled+=record.Stockpile;record.Stockpile=0;record.ReadinessMilli=0;record.DeliveryMilli=0;
         }
@@ -198,7 +200,7 @@ namespace WorldGen.Core
                 int witness=h.Aggregates.Resolve(s.Society.Settlements[peer].PolityId,h);if(witness<0||witness==actor)continue;
                 var diplomacy=AggregateRelation(s,actor,witness);diplomacy.Trust=Math.Max(-100,diplomacy.Trust-50);diplomacy.Alliance=false;
             }
-            HistoryEvent(s,"nuclear-strike",p.Name+" uses a nuclear weapon against "+town.Name+" during "+c.Name+". "+deaths+" existing residents die; the city, local population and political repercussions remain in the historical record.",town.Cell,town.CultureId,actor,rival,town:city,category:ChronicleCategory.Politics);
+            HistoryEvent(s,"nuclear-strike",p.Name+" uses a nuclear weapon against "+town.Name+" during "+c.Name+". "+deaths+" residents die, food reserves are destroyed and local production is disrupted.",town.Cell,town.CultureId,actor,rival,town:city,category:ChronicleCategory.Politics);
             return true;
         }
     }

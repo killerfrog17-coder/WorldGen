@@ -112,6 +112,7 @@ namespace WorldGen.Core
             if(s.Years-city.LastVoyageYear>=10){city.LastVoyageYear=s.Years;AdvanceAggregateVoyage(s,id);}
             if(s.Years-city.LastHarvestYear>=20){city.LastHarvestYear=s.Years;SurveyAggregateCityCrops(s,id);}
             if(ProvincialHistory(s))AdvanceRegionalCityPolitics(s,id);
+            if(LivingWorldHistory(s))TryLivingLocalTownOpportunity(s,id,elapsed);
         }
         double AggregateCropSupport(PrehistoryState s,int culture,int cell,bool stored)
         {

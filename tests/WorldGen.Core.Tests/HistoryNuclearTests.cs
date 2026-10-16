@@ -96,11 +96,24 @@ public static class HistoryNuclearTests
         check(!(bool)Call(engine,"NuclearCanReach",succession,rival,owner),"An inheriting nonnuclear government does not instantly gain operational strategic attack capability");
         var queueField=typeof(Prehistory).GetField("aggregateQueue",BindingFlags.Instance|BindingFlags.NonPublic)!;
         var regime=s.Copy();var former=regime.History.Polities[owner];var dynamics=regime.History.Dynamics.States[owner];former.Cohesion=50;former.Exhaustion=1000;dynamics.Cycle.EliteCapture=dynamics.Cycle.ConquestDebt=1000;
+        int unpaidSince=regime.Years-7;regime.History.Nuclear.States[owner].LastYear=unpaidSince;
         regime.History.Dynamics.Leaders[dynamics.LeaderId].Administration=0;regime.History.Aggregates.Communities.Governments[owner].RepresentationMilli=0;
         queueField.SetValue(engine,new SimulationEventQueue(regime.Timeline.Events));int formerCount=regime.History.Polities.Length;
         for(int opportunity=0;opportunity<20&&regime.History.Polities.Length==formerCount;opportunity++){Call(engine,"TryLivingRegimeChange",regime,owner);regime.Years++;}
         queueField.SetValue(engine,null);int replacement=regime.History.Polities.Length-1;
         check(regime.History.Polities.Length==formerCount+1&&regime.History.Nuclear.States.Length==regime.History.Polities.Length&&regime.History.Nuclear.States[owner].Stockpile==0&&regime.History.Nuclear.States[replacement].Stockpile==arsenal&&regime.History.Nuclear.States[replacement].ReadinessMilli==record.ReadinessMilli,"Actual regime-change creation appends an aligned account and transfers the continuing institution's arsenal and crews without duplication");
+        check(regime.History.Nuclear.States[replacement].LastYear==unpaidSince,"A real constitutional replacement retains the predecessor's actual last-paid arsenal date instead of forgiving its unpaid interval");
+        var upkeep=regime.Copy();var inherited=upkeep.History.Nuclear.States[replacement];long previousPaid=inherited.UpkeepPaid;
+        var successorCulture=upkeep.History.Cultures[upkeep.History.Polities[replacement].CultureId];successorCulture.Technology[38]=successorCulture.Technical.Levels[38]=successorCulture.Technical.Deployment[38]=0;
+        upkeep.History.Polities[replacement].Treasury=100000000;upkeep.History.Dynamics.Leaders[upkeep.History.Dynamics.States[replacement].LeaderId].ExpectedEndYear=upkeep.Years+100;
+        upkeep.Years+=3;long expectedUpkeep=(long)arsenal*1200*(upkeep.Years-unpaidSince);
+        queueField.SetValue(engine,new SimulationEventQueue(upkeep.Timeline.Events));Call(engine,"AdvanceAggregateState",upkeep,replacement);queueField.SetValue(engine,null);
+        check(inherited.UpkeepPaid-previousPaid==expectedUpkeep&&inherited.LastYear==upkeep.Years,"The actual next heir state event pays all inherited elapsed maintenance, not merely the shorter new-government event interval");
+        long settled=inherited.UpkeepPaid;Call(engine,"AdvanceNuclearState",upkeep,replacement,1000);check(inherited.UpkeepPaid==settled,"Reprocessing a settled successor maintenance date cannot charge upkeep twice");
+        var unpaid=regime.Copy();var unpaidArsenal=unpaid.History.Nuclear.States[replacement];unpaid.History.Polities[replacement].Treasury=0;unpaid.Years+=100;Call(engine,"AdvanceNuclearState",unpaid,replacement,1);
+        check(unpaidArsenal.Stockpile==0&&unpaidArsenal.Dismantled==arsenal&&unpaidArsenal.LastYear==unpaid.Years,"A short parent-event argument cannot hide a century of unpaid inherited stewardship; unfunded weapons retire");
+        var future=regime.Copy();future.History.Nuclear.States[replacement].LastYear=future.Years+1;long futureCash=future.History.Polities[replacement].Treasury;Call(engine,"AdvanceNuclearState",future,replacement,1000);
+        check(future.History.Polities[replacement].Treasury==futureCash&&future.History.Nuclear.States[replacement].UpkeepPaid==regime.History.Nuclear.States[replacement].UpkeepPaid,"A future maintenance timestamp cannot generate negative costs or a cash credit");
         relation.WarSince=-1;var queue=new SimulationEventQueue(s.Timeline.Events);queueField.SetValue(engine,queue);
         Call(engine,"BeginAggregateCampaign",s,owner,rival,relation,s.Society.Settlements[h.Polities[rival].CapitalId].Cell);int campaign=h.Dynamics.Campaigns.Length-1;
         long population=a.TotalPopulation,targetPopulation=s.Society.Settlements[h.Polities[rival].CapitalId].Population;

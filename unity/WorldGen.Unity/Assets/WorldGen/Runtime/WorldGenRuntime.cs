@@ -316,7 +316,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
                     viewOptions.Layer=GenerationPreview.Available(world,layer)?layer:viewOptions.Layer;layer=viewOptions.Layer;
                     viewOptions.Projection=projection;committedOptions = viewOptions.Clone();
                     InstallPalettes(); displayedWorld=world;
-                    if(loadingSnapshot){activeWorldId=pendingWorldId;saveName=pendingWorldName??"My world";worldReady=true;screen="Simulation";simulationTab="";simulationPaused=false;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;setup.From(recipe);dirty=false;}
+                    if(loadingSnapshot){activeWorldId=pendingWorldId;saveName=pendingWorldName??"My world";worldReady=true;screen="Simulation";simulationTab="";simulationPaused=false;projection=viewOptions.Projection=committedOptions.Projection=Projection.Map;mapPan=Vector3.zero;mapZoom=1;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;setup.From(recipe);dirty=false;}
                     if(!reusePendingGeometry){StartCoroutine(Release(globe)); globe = pendingRoot;}
                     globe.name = "World surface"; globe.SetActive(!libraryOpen && screen!="Menu" && screen!="Options"); ApplyCachedDisplay();
                     globe.transform.rotation=VisibleProjection==Projection.Map?Quaternion.identity:Quaternion.Euler(pitch,0,0)*Quaternion.Euler(0,yaw,0);

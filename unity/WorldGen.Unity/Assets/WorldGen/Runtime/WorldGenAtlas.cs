@@ -96,7 +96,8 @@ public sealed partial class WorldGenRuntime
             }
             if(section.Diagram)DrawAtlasDiplomacy(section,width-300);
             long maximum=section.Unit=="/ 1,000"?1000:Math.Max(1,section.Links.Select(x=>x.Value).DefaultIfEmpty(1).Max());
-            foreach(var link in section.Links)
+            if(section.CompactGrid)DrawCompactAtlasResources(section);
+            foreach(var link in section.CompactGrid?Array.Empty<AtlasLink>():section.Links)
             {
                 GUILayout.Space(5);if(!string.IsNullOrEmpty(link.Kind)){if(GUILayout.Button(link.Name,new GUIStyle(GUI.skin.button){alignment=TextAnchor.MiddleLeft,padding=new RectOffset(8,8,5,5)}))AtlasNavigate(link);}else GUILayout.Label(link.Name);
                 if(!string.IsNullOrEmpty(link.Detail))AtlasParagraph(link.Detail,13);
@@ -128,6 +129,25 @@ public sealed partial class WorldGenRuntime
         GUILayout.Space(20);AtlasParagraph(atlasDocument.Note,11);GUILayout.EndScrollView();GUILayout.EndVertical();GUILayout.EndHorizontal();GUILayout.EndArea();
     }
     void AtlasParagraph(string text,int size){if(!string.IsNullOrEmpty(text))GUILayout.Label(text,new GUIStyle(GUI.skin.label){fontSize=size,wordWrap=true,padding=new RectOffset(0,8,3,3)});}
+    void DrawCompactAtlasResources(AtlasSection section)
+    {
+        for(int k=0;k<section.Links.Length;k+=2)
+        {
+            GUILayout.BeginHorizontal();
+            for(int column=0;column<2;column++)
+            {
+                GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
+                if(k+column<section.Links.Length)
+                {
+                    var link=section.Links[k+column];AtlasParagraph(link.Name,13);AtlasParagraph(link.Detail,11);
+                    var bar=GUILayoutUtility.GetRect(10,5,GUILayout.ExpandWidth(true));GUI.color=new Color(.18f,.25f,.29f);GUI.DrawTexture(bar,Texture2D.whiteTexture);
+                    bar.width*=Mathf.Clamp01(link.Value/1000f);GUI.color=new Color(.77f,.69f,.46f);GUI.DrawTexture(bar,Texture2D.whiteTexture);GUI.color=Color.white;
+                }
+                GUILayout.EndVertical();if(column==0)GUILayout.Space(18);
+            }
+            GUILayout.EndHorizontal();GUILayout.Space(3);
+        }
+    }
     void DrawTechnicalBar(string label,float percent)
     {
         GUILayout.BeginHorizontal();GUILayout.Label(label+" "+percent.ToString("0.0")+"%",GUILayout.Width(230));var bar=GUILayoutUtility.GetRect(60,10,GUILayout.ExpandWidth(true));GUI.color=new Color(.18f,.25f,.29f);GUI.DrawTexture(bar,Texture2D.whiteTexture);bar.width*=Mathf.Clamp01(percent/100);GUI.color=new Color(.77f,.69f,.46f);GUI.DrawTexture(bar,Texture2D.whiteTexture);GUI.color=Color.white;GUILayout.EndHorizontal();

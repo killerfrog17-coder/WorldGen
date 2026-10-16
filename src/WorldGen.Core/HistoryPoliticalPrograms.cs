@@ -97,7 +97,7 @@ namespace WorldGen.Core
             if(p.ParentId>=0){var parent=h.Aggregates.Communities.Governments[p.ParentId];policy.RepresentationMilli=(policy.RepresentationMilli+parent.RepresentationMilli)/2;policy.CentralizationMilli=(policy.CentralizationMilli+parent.CentralizationMilli)/2;}
         }
         void RefreshPoliticalDescription(PrehistoryState s,int polity)
-        {var p=s.History.Polities[polity];var profile=PoliticalProfile(s,polity);p.Government=profile.Form+". "+profile.Participation;}
+        {var p=s.History.Polities[polity];p.Government=PoliticalProfile(s,polity).Form;}
         void AdvancePoliticalProgram(PrehistoryState s,int polity,int elapsed)
         {
             var h=s.History;var p=h.Polities[polity];var ds=h.Dynamics.States[polity];var policy=h.Aggregates.Communities.Governments[polity];var leader=h.Dynamics.Leaders[ds.LeaderId];var profile=PoliticalProfile(s,polity);

@@ -8,4 +8,20 @@
     <TargetFramework>net10.0</TargetFramework>
     <PublishTrimmed>false</PublishTrimmed><WasmBuildNative>false</WasmBuildNative><AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <!-- Explicit release-only opt-in. Ordinary solution builds retain the fast
+       interpreter build; authoritative C# and canonical bytes are unchanged. -->
+  <PropertyGroup Condition="'$(WorldGenWorkerAot)' == 'true'">
+    <PublishTrimmed>true</PublishTrimmed>
+    <RunAOTCompilation>true</RunAOTCompilation>
+    <WasmBuildNative>true</WasmBuildNative>
+    <WasmStripILAfterAOT>false</WasmStripILAfterAOT>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(WorldGenWorkerAot)' == 'true'">
+    <!-- Saved contracts and atlas records use reflection. Never let the
+         trimmer infer their field/method reachability from generation alone. -->
+    <TrimmerRootAssembly Include="WorldGen.Core" />
+    <TrimmerRootAssembly Include="WorldGen.Serialization" />
+    <TrimmerRootAssembly Include="WorldGen.Presentation" />
+    <TrimmerRootAssembly Include="DelaunatorSharp" />
+  </ItemGroup>
 </Project>

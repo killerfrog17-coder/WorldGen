@@ -32,7 +32,8 @@ namespace WorldGen.Core
         public HistoricalInternationalOrganization[] Organizations=Array.Empty<HistoricalInternationalOrganization>();
         public HistoricalCoalitionEntry[] CoalitionEntries=Array.Empty<HistoricalCoalitionEntry>();
         public int[] RelationCampaigns=Array.Empty<int>();
-        public HistoricalInternationalSystem Copy()=>new HistoricalInternationalSystem{Version=Version,Accounts=Accounts.Select(x=>x.Copy()).ToArray(),Organizations=Organizations.Select(x=>x.Copy()).ToArray(),CoalitionEntries=CoalitionEntries.Select(x=>x.Copy()).ToArray(),RelationCampaigns=(int[])RelationCampaigns.Clone()};
+        [System.Runtime.Serialization.OptionalField] public HistoricalInternationalFinances Finances;
+        public HistoricalInternationalSystem Copy()=>new HistoricalInternationalSystem{Version=Version,Accounts=Accounts.Select(x=>x.Copy()).ToArray(),Organizations=Organizations.Select(x=>x.Copy()).ToArray(),CoalitionEntries=CoalitionEntries.Select(x=>x.Copy()).ToArray(),RelationCampaigns=(int[])RelationCampaigns.Clone(),Finances=Finances?.Copy()};
     }
     public sealed class HistoricalOrganizationView
     {
@@ -78,6 +79,7 @@ namespace WorldGen.Core
             for(int k=0;k<h.Relations.Length;k++)RememberInternationalRelation(s,k);
             for(int k=0;k<h.Dynamics.Campaigns.Length;k++)
             {var c=h.Dynamics.Campaigns[k];system.Accounts[c.A].LastWarYear=Math.Max(system.Accounts[c.A].LastWarYear,c.StartedYear);system.Accounts[c.B].LastWarYear=Math.Max(system.Accounts[c.B].LastWarYear,c.StartedYear);if(c.EndedYear>=0)continue;if(aggregateRelations.TryGetValue((Math.Min(c.A,c.B),Math.Max(c.A,c.B)),out int relation))system.RelationCampaigns[relation]=k;}
+            InitializeInternationalFinances(s);
         }
         void RememberInternationalRelation(PrehistoryState s,int relation)
         {
@@ -90,6 +92,7 @@ namespace WorldGen.Core
             var system=s.History.International;if(!LivingWorldHistory(s)||system==null)return;
             int id=s.History.Polities.Length-1;var account=successor&&parent>=0?system.Accounts[parent].Copy():new HistoricalDiplomaticAccount{LastTradeDuesYear=s.Years,LastPeaceDuesYear=s.Years};account.Id=id;
             system.Accounts=system.Accounts.Concat(new[]{account}).ToArray();
+            if(system.Finances!=null){var f=system.Finances;f.Accounts=f.Accounts.Concat(new[]{successor&&parent>=0?f.Accounts[parent].Copy():new HistoricalInternationalFinanceAccount()}).ToArray();if(successor&&parent>=0)f.Accounts[parent]=new HistoricalInternationalFinanceAccount();}
             if(successor&&parent>=0)
             {
                 account.ContinuitySuccessor=-1;system.Accounts[parent].ContinuitySuccessor=id;
@@ -131,7 +134,7 @@ namespace WorldGen.Core
             var system=s.History.International;if(!LivingWorldHistory(s)||system==null)return;
             var account=system.Accounts[polity];
             foreach(int organization in new[]{account.TradeOrganization,account.PeaceOrganization})if(organization>=0)
-            {var body=system.Organizations[organization];body.Members.Remove(polity);if(body.Members.Count<2&&body.EndedYear<0)body.EndedYear=s.Years;}
+            {var body=system.Organizations[organization];if(system.Finances!=null){SettleInternationalOperatingWork(s,organization);FundInternationalOperatingWork(s,organization);RemoveInternationalAssessment(s,polity,organization);}body.Members.Remove(polity);if(body.Members.Count<2&&body.EndedYear<0)body.EndedYear=s.Years;}
             account.TradeOrganization=account.PeaceOrganization=-1;
         }
         int InternationalPeer(PrehistoryState s,int polity,int relation)
@@ -165,7 +168,7 @@ namespace WorldGen.Core
             {
                 int id=ActiveInternationalOrganization(s,polity,kind);if(id<0)continue;var body=system.Organizations[id];
                 result.Organizations=result.Organizations.Concat(new[]{new HistoricalOrganizationView{Id=id,Name=body.Name,Members=body.Members.Count,FoundedYear=body.FoundedYear,Authority=body.Authority,Mediations=body.Mediations,Reserve=body.Reserve,
-                    Purpose=kind==HistoricalOrganizationKind.TradeLeague?"Negotiated trade rules reduce friction on already supplied physical routes; membership creates neither deposits nor free technical knowledge.":"A funded diplomatic forum can mediate between members. Its decisions are not automatic peace, disarmament or a world government.",Standing=body.Reserve>0?"Funded secretariat and active member contributions":"The common fund is exhausted; institutional benefits are limited."}}).ToArray();
+                    Purpose=kind==HistoricalOrganizationKind.TradeLeague?"Negotiated trade rules reduce friction on already supplied physical routes; membership creates neither deposits nor free technical knowledge.":"A funded diplomatic forum can mediate between members. Its decisions are not automatic peace, disarmament or a world government.",Standing=InternationalFunding(s,id)>=.5?"Funded secretariat and active member contributions":"Operating work is underfunded; institutional benefits are limited."}}).ToArray();
             }
             return result;
         }
@@ -177,19 +180,22 @@ namespace WorldGen.Core
         }
         void JoinInternationalOrganization(PrehistoryState s,int polity,int organization)
         {
-            var system=s.History.International;var body=system.Organizations[organization];var account=system.Accounts[polity];body.Members.Add(polity);
+            var system=s.History.International;var body=system.Organizations[organization];var account=system.Accounts[polity];
+            if(system.Finances!=null){int previous=body.Kind==HistoricalOrganizationKind.TradeLeague?account.TradeOrganization:account.PeaceOrganization;if(previous>=0&&previous!=organization)RemoveInternationalAssessment(s,polity,previous);SettleInternationalOperatingWork(s,organization);FundInternationalOperatingWork(s,organization);}
+            body.Members.Add(polity);if(system.Finances!=null){RefreshInternationalAssessment(s,polity,organization);if(body.Reserve>=HistoricalInternationalBudgetEffects.ReserveTarget(InternationalAnnualBudget(s,organization)))CreditInternationalReservePledge(s,polity,organization,long.MaxValue);}
             if(body.Kind==HistoricalOrganizationKind.TradeLeague){account.TradeOrganization=organization;account.LastTradeDuesYear=s.Years;account.TradeArrearsYears=0;}
             else{account.PeaceOrganization=organization;account.LastPeaceDuesYear=s.Years;account.PeaceArrearsYears=0;}
         }
         void LeaveInternationalOrganization(PrehistoryState s,int polity,int organization,string reason)
         {
-            var system=s.History.International;var body=system.Organizations[organization];body.Members.Remove(polity);var account=system.Accounts[polity];
+            var system=s.History.International;var body=system.Organizations[organization];if(system.Finances!=null){SettleInternationalOperatingWork(s,organization);FundInternationalOperatingWork(s,organization);RemoveInternationalAssessment(s,polity,organization);}body.Members.Remove(polity);var account=system.Accounts[polity];
             if(body.Kind==HistoricalOrganizationKind.TradeLeague)account.TradeOrganization=-1;else account.PeaceOrganization=-1;
             if(body.Members.Count<2)body.EndedYear=s.Years;
             var p=s.History.Polities[polity];HistoryEvent(s,"treaty-withdrawal",p.Name+" leaves "+body.Name+". "+reason,s.Society.Settlements[p.CapitalId].Cell,p.CultureId,polity,category:ChronicleCategory.Politics);
         }
         void PayInternationalDues(PrehistoryState s,int polity,int organization)
         {
+            if(s.History.International.Finances!=null){PayInternationalOperatingDues(s,polity,organization);return;}
             var h=s.History;var body=h.International.Organizations[organization];var account=h.International.Accounts[polity];var p=h.Polities[polity];
             bool trade=body.Kind==HistoricalOrganizationKind.TradeLeague;int last=trade?account.LastTradeDuesYear:account.LastPeaceDuesYear,elapsed=s.Years-last;if(elapsed<=0)return;
             long due=HistoricalInternationalEffects.Dues(h.Aggregates.Polities[polity].Receipts,elapsed,p.Treasury,body.Reserve);p.Treasury-=due;body.Reserve+=due;body.Contributions+=due;
@@ -215,20 +221,22 @@ namespace WorldGen.Core
             int invited=own>=0?peer:polity;int body=own>=0?own:other;
             if(body>=0)
             {
-                var target=h.Polities[invited];long deposit=Math.Min(Math.Max(10,h.Aggregates.Polities[invited].Receipts/2),Math.Max(0,1000000000000L-h.International.Organizations[body].Reserve));if(target.Treasury<deposit*3)return;
-                target.Treasury-=deposit;h.International.Organizations[body].Reserve+=deposit;h.International.Organizations[body].Contributions+=deposit;JoinInternationalOrganization(s,invited,body);
+                var target=h.Polities[invited];long deposit=h.International.Finances==null?Math.Min(Math.Max(10,h.Aggregates.Polities[invited].Receipts/2),Math.Max(0,1000000000000L-h.International.Organizations[body].Reserve)):InternationalAccessionDeposit(s,invited,body);if(target.Treasury<deposit*3)return;
+                target.Treasury-=deposit;h.International.Organizations[body].Reserve+=deposit;h.International.Organizations[body].Contributions+=deposit;JoinInternationalOrganization(s,invited,body);CreditInternationalReservePledge(s,invited,body,deposit);
                 HistoryEvent(s,"treaty-accession",target.Name+" joins "+h.International.Organizations[body].Name+" after negotiations with a known partner and a contribution to its common fund.",s.Society.Settlements[target.CapitalId].Cell,target.CultureId,invited,category:ChronicleCategory.Politics);return;
             }
-            long founding=Math.Max(50,Math.Min(h.Aggregates.Polities[polity].Receipts,h.Aggregates.Polities[peer].Receipts)*2);if(p.Treasury<founding*3||q.Treasury<founding*3)return;
-            p.Treasury-=founding;q.Treasury-=founding;int id=h.International.Organizations.Length;
-            var organization=new HistoricalInternationalOrganization{Id=id,FounderPolity=polity,FoundedYear=s.Years,LastActionYear=s.Years,Kind=kind,Name=(trade?"League of ":"Congress of ")+s.Society.Settlements[p.CapitalId].Name,Reserve=founding*2,Contributions=founding*2};
-            h.International.Organizations=h.International.Organizations.Concat(new[]{organization}).ToArray();JoinInternationalOrganization(s,polity,id);JoinInternationalOrganization(s,peer,id);
-            HistoryEvent(s,"international-foundation",p.Name+" and "+q.Name+" establish the "+organization.Name+(trade?" to negotiate commerce along their existing routes.":" to negotiate disputes after costly conflict. Membership does not guarantee peace."),s.Society.Settlements[p.CapitalId].Cell,p.CultureId,polity,peer,category:ChronicleCategory.Politics);
+            long founding=Math.Max(50,Math.Min(h.Aggregates.Polities[polity].Receipts,h.Aggregates.Polities[peer].Receipts)*2),otherFounding=founding;
+            if(h.International.Finances!=null){founding=HistoricalInternationalBudgetEffects.ReserveTarget(HistoricalInternationalBudgetEffects.Assessment(h.Aggregates.Polities[polity].Receipts));otherFounding=HistoricalInternationalBudgetEffects.ReserveTarget(HistoricalInternationalBudgetEffects.Assessment(h.Aggregates.Polities[peer].Receipts));if(founding<=0||otherFounding<=0)return;}
+            if(p.Treasury<founding*3||q.Treasury<otherFounding*3)return;
+            p.Treasury-=founding;q.Treasury-=otherFounding;int id=h.International.Organizations.Length;
+            var organization=new HistoricalInternationalOrganization{Id=id,FounderPolity=polity,FoundedYear=s.Years,LastActionYear=s.Years,Kind=kind,Name=(trade?"League of ":"Congress of ")+s.Society.Settlements[p.CapitalId].Name,Reserve=founding+otherFounding,Contributions=founding+otherFounding};
+            h.International.Organizations=h.International.Organizations.Concat(new[]{organization}).ToArray();if(h.International.Finances!=null)h.International.Finances.Organizations=h.International.Finances.Organizations.Concat(new[]{new HistoricalInternationalOperatingBudget()}).ToArray();JoinInternationalOrganization(s,polity,id);JoinInternationalOrganization(s,peer,id);CreditInternationalReservePledge(s,polity,id,founding);CreditInternationalReservePledge(s,peer,id,otherFounding);
+            HistoryEvent(s,"international-foundation",p.Name+" and "+q.Name+" establish the "+organization.Name+(trade?" to coordinate commerce along their trade routes.":" to negotiate settlements after costly conflict."),s.Society.Settlements[p.CapitalId].Cell,p.CultureId,polity,peer,category:ChronicleCategory.Politics);
         }
         double InternationalWarRestraint(PrehistoryState s,int a,int b)
-        {int body=ActiveInternationalOrganization(s,a,HistoricalOrganizationKind.PeaceCongress);if(body<0||body!=ActiveInternationalOrganization(s,b,HistoricalOrganizationKind.PeaceCongress))return 1;var org=s.History.International.Organizations[body];return HistoricalInternationalEffects.WarRestraint(org.Authority,org.Reserve,org.Members.Count);}
+        {int body=ActiveInternationalOrganization(s,a,HistoricalOrganizationKind.PeaceCongress);if(body<0||body!=ActiveInternationalOrganization(s,b,HistoricalOrganizationKind.PeaceCongress))return 1;var org=s.History.International.Organizations[body];return s.History.International.Finances==null?HistoricalInternationalEffects.WarRestraint(org.Authority,org.Reserve,org.Members.Count):1-.35*D.Clamp(org.Authority/1000.0)*InternationalFunding(s,body);}
         double InternationalTradeEfficiency(PrehistoryState s,int a,int b)
-        {int body=ActiveInternationalOrganization(s,a,HistoricalOrganizationKind.TradeLeague);if(body<0||body!=ActiveInternationalOrganization(s,b,HistoricalOrganizationKind.TradeLeague))return 1;var org=s.History.International.Organizations[body];return HistoricalInternationalEffects.TradeEfficiency(org.Authority,org.Reserve,org.Members.Count);}
+        {int body=ActiveInternationalOrganization(s,a,HistoricalOrganizationKind.TradeLeague);if(body<0||body!=ActiveInternationalOrganization(s,b,HistoricalOrganizationKind.TradeLeague))return 1;var org=s.History.International.Organizations[body];return s.History.International.Finances==null?HistoricalInternationalEffects.TradeEfficiency(org.Authority,org.Reserve,org.Members.Count):1+.12*D.Clamp(org.Authority/1000.0)*InternationalFunding(s,body);}
         void RegisterInternationalCampaign(PrehistoryState s,int attacker,int defender,int campaign)
         {
             var system=s.History.International;if(!LivingWorldHistory(s)||system==null)return;
@@ -236,7 +244,7 @@ namespace WorldGen.Core
             if(!aggregateRelations.TryGetValue((Math.Min(attacker,defender),Math.Max(attacker,defender)),out int relation))return;
             system.RelationCampaigns[relation]=campaign;
             int body=ActiveInternationalOrganization(s,attacker,HistoricalOrganizationKind.PeaceCongress);if(body>=0&&body==ActiveInternationalOrganization(s,defender,HistoricalOrganizationKind.PeaceCongress))
-            {var org=system.Organizations[body];org.Authority=Math.Max(0,org.Authority-80);s.History.Relations[relation].Trust=Math.Max(-100,s.History.Relations[relation].Trust-20);HistoryEvent(s,"treaty-breach",s.History.Polities[attacker].Name+" goes to war with a fellow member of "+org.Name+", damaging the forum's authority and bilateral trust. Its charter does not magically prevent conflict.",s.Society.Settlements[s.History.Polities[attacker].CapitalId].Cell,s.History.Polities[attacker].CultureId,attacker,defender,category:ChronicleCategory.Politics);}
+            {var org=system.Organizations[body];org.Authority=Math.Max(0,org.Authority-80);s.History.Relations[relation].Trust=Math.Max(-100,s.History.Relations[relation].Trust-20);HistoryEvent(s,"treaty-breach",s.History.Polities[attacker].Name+" goes to war with a fellow member of "+org.Name+", undermining its charter and mutual trust.",s.Society.Settlements[s.History.Polities[attacker].CapitalId].Cell,s.History.Polities[attacker].CultureId,attacker,defender,category:ChronicleCategory.Politics);}
         }
         void TryInternationalMediation(PrehistoryState s,int polity,int peer,int relation,int elapsed)
         {
@@ -249,7 +257,7 @@ namespace WorldGen.Core
             if(HistoryRoll("international-mediation-"+peer,polity,s.Years)>=chance){org.FailedMediations++;org.Authority=Math.Max(0,org.Authority-10);return;}
             var war=h.Dynamics.Campaigns[campaign];if(war.EndedYear>=0)return;war.EndedYear=s.Years;war.Outcome="Both governments accept mediation through "+org.Name+"; the settlement does not erase local peoples or sovereignty.";
             r.WarSince=-1;r.TruceUntil=s.Years+10;r.Trust=Math.Min(100,r.Trust+10);org.Mediations++;org.Authority=Math.Min(1000,org.Authority+25);
-            HistoryEvent(s,"international-mediation",org.Name+" mediates a ceasefire between "+a.Name+" and "+b.Name+". Both governments accept the proposal after a funded, uncertain negotiation.",s.Society.Settlements[a.CapitalId].Cell,a.CultureId,polity,peer,category:ChronicleCategory.Politics);
+            HistoryEvent(s,"international-mediation",org.Name+" mediates a ceasefire between "+a.Name+" and "+b.Name+". Both governments accept the negotiated proposal.",s.Society.Settlements[a.CapitalId].Cell,a.CultureId,polity,peer,category:ChronicleCategory.Politics);
         }
         void TryInternationalCoalitionEntry(PrehistoryState s,int polity,int ally,int elapsed,int trust)
         {
@@ -270,7 +278,7 @@ namespace WorldGen.Core
                 p.Treasury-=cost;p.Exhaustion=Math.Min(1000,p.Exhaustion+35);system.Accounts[polity].CoalitionEntries++;
                 system.CoalitionEntries=system.CoalitionEntries.Concat(new[]{new HistoricalCoalitionEntry{CampaignId=next,OriginCampaignId=origin,AllyId=ally,PolityId=polity,Year=s.Years}}).ToArray();
                 h.Dynamics.Campaigns[next].Context="A linked front supporting "+h.Polities[ally].Name+" in "+h.Dynamics.Campaigns[origin].Name+". Each participant still requires its own forces, provisions and reachable theater.";
-                HistoryEvent(s,"coalition-war",p.Name+" enters the conflict alongside "+h.Polities[ally].Name+", opening a supplied front against "+h.Polities[enemy].Name+" rather than teleporting an army across the world.",front,p.CultureId,polity,enemy,category:ChronicleCategory.Politics);return;
+                HistoryEvent(s,"coalition-war",p.Name+" enters the conflict alongside "+h.Polities[ally].Name+", opening a new front against "+h.Polities[enemy].Name+".",front,p.CultureId,polity,enemy,category:ChronicleCategory.Politics);return;
             }
         }
         void AdvanceInternational(PrehistoryState s,int polity,int elapsed)
@@ -326,6 +334,7 @@ namespace WorldGen.Core
             }
             for(int k=0;k<system.RelationCampaigns.Length;k++){int campaign=system.RelationCampaigns[k];Require(campaign>=-1&&campaign<h.Dynamics.Campaigns.Length,"campaign index");}
             foreach(var link in system.CoalitionEntries)Require(link!=null&&link.CampaignId>=0&&link.CampaignId<h.Dynamics.Campaigns.Length&&link.OriginCampaignId>=0&&link.OriginCampaignId<link.CampaignId&&link.AllyId>=0&&link.AllyId<h.Polities.Length&&link.PolityId>=0&&link.PolityId<h.Polities.Length&&link.Year>=0&&link.Year<=s.Years,"linked campaign");
+            ValidateInternationalFinances(s);
         }
     }
 }

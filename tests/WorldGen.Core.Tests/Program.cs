@@ -1,6 +1,16 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--living-mechanisms-only")){int count=0;HistoryLivingMechanismTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" living-world pure mechanism assertions");return;}
+if(args.Contains("--origin-suitability-audit")){int at=Array.IndexOf(args,"--origin-suitability-audit");HistoryOriginSuitabilityAudit.Run(args[at+1],args[at+2]);return;}
+if(args.Contains("--resource-economy-world")){int count=0;HistoryResourceEconomyTests.World(args[Array.IndexOf(args,"--resource-economy-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" resource economy integration assertions");return;}
+if(args.Contains("--marine-forager-only")){int count=0;HistoryMarineForagerTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" marine forager assertions");return;}
+if(args.Contains("--marine-forager-world")){int count=0;HistoryMarineForagerTests.World(args[Array.IndexOf(args,"--marine-forager-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" marine forager integration assertions");return;}
+if(args.Contains("--settlement-network-only")){int count=0;HistorySettlementNetworkTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" settlement network assertions");return;}
+if(args.Contains("--settlement-network-prestate-world")){int count=0;HistorySettlementNetworkTests.PrestateWorld(args[Array.IndexOf(args,"--settlement-network-prestate-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" prestate settlement network integration assertions");return;}
+if(args.Contains("--settlement-network-world")){int count=0;HistorySettlementNetworkTests.World(args[Array.IndexOf(args,"--settlement-network-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" settlement network integration assertions");return;}
+if(args.Contains("--international-finance-only")){int count=0;HistoryInternationalFinanceTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" international finance assertions");return;}
+if(args.Contains("--international-finance-world")){int count=0;HistoryInternationalFinanceTests.World(args[Array.IndexOf(args,"--international-finance-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" international finance integration assertions");return;}
 if(args.Contains("--international-only")){int count=0;HistoryInternationalTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" international diplomacy assertions");return;}
 if(args.Contains("--international-world")){int count=0;HistoryInternationalTests.World(args[Array.IndexOf(args,"--international-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" international diplomacy integration assertions");return;}
 if(args.Contains("--colonial-settlements-world")){int count=0;HistoryColonialSettlementTests.World(args[Array.IndexOf(args,"--colonial-settlements-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" sponsored colonial settlement assertions");return;}
@@ -21,7 +31,7 @@ if(args.Contains("--fauna-review")){int at=Array.IndexOf(args,"--fauna-review");
 if(args.Contains("--military-specialization-only")){int count=0;HistoryMilitarySpecializationTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" military-specialization assertions");return;}
 if(args.Contains("--military-specialization-world")){int count=0;HistoryMilitarySpecializationTests.World(args[Array.IndexOf(args,"--military-specialization-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" military-specialization world assertions");return;}
 if(args.Contains("--world-realism-inspect")){HistoryWorldRealismReview.Inspect(args[Array.IndexOf(args,"--world-realism-inspect")+1]);return;}
-if(args.Contains("--world-realism-review")){int at=Array.IndexOf(args,"--world-realism-review");HistoryWorldRealismReview.Run(args[at+1],int.Parse(args[at+2]),int.Parse(args[at+3]),args[at+4],int.Parse(args[at+5]),args.Length>at+6?args[at+6]:"earth-native-2");return;}
+if(args.Contains("--world-realism-review")){int at=Array.IndexOf(args,"--world-realism-review");HistoryWorldRealismReview.Run(args[at+1],int.Parse(args[at+2]),int.Parse(args[at+3]),args[at+4],int.Parse(args[at+5]),args.Length>at+6?args[at+6]:"earth-native-3");return;}
 if(args.Contains("--living-world-only")){int count=0;HistoryLivingWorldTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" living-world mechanism assertions");return;}
 if(args.Contains("--living-world-test")){int count=0;HistoryLivingWorldTests.World(args[Array.IndexOf(args,"--living-world-test")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" living-world integration assertions");return;}
 if(args.Contains("--institutional-transmission-only")){int count=0;HistoryInstitutionalTransmissionTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" institutional transmission assertions");return;}
@@ -60,7 +70,7 @@ if(args.Contains("--canonical-layout")){var types=new[]{typeof(HistoricalCityAgg
 if(args.Contains("--era-review")){HistoryEraReview.Run(args);return;}
 if(args.Contains("--history-geography-review")){HistoryGeographyReview.Run(args);return;}
 if(args.Contains("--news-audit")){PresentationNewsAudit.Run(args[Array.IndexOf(args,"--news-audit")+1]);return;}
-if(args.Contains("--presentation-only")){int count=0;HistoryPresentationTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" historical presentation assertions");return;}
+if(args.Contains("--presentation-only")){int count=0;void CheckPresentation(bool ok,string message){count++;if(!ok)throw new Exception(message);}HistoryPresentationTests.Run(CheckPresentation);WorldSummaryTests.Run(CheckPresentation);Console.WriteLine("PASS "+count+" historical presentation and summary assertions");return;}
 if(args.Contains("--atlas-only")){int count=0;HistoryAtlasTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" atlas presentation assertions");return;}
 if(args.Contains("--crop-ecology-only")){int count=0;HistoryCropEcologyTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" crop ecology assertions");return;}
 if(args.Contains("--provincial-only")){int count=0,at=Array.IndexOf(args,"--provincial-only");HistoryProvincialTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);},args.Length>at+1?args[at+1]:null);Console.WriteLine("PASS "+count+" provincial-development assertions");return;}
@@ -287,6 +297,7 @@ void ContinentalSearch()
 }
 try
 {
+    if(args.Length==0)HistoryLivingMechanismTests.Run(Check);
     HistoryArchiveTests.Run(Check);
     HashBatchTests.Run(Check);
     if (args.Contains("--ecology-review")) { EcologyTests.WriteReview(); return; }

@@ -12,6 +12,7 @@ namespace WorldGen.Core
         void PrepareAggregateEnvironment(PrehistoryState s)
         {
             PrepareWildCrops();PrepareLandscape();
+            if(LivingWorldHistory(s))PrepareMarineForagerResources();
             if(LivingHistory(s)&&livingCoastalRegions==null)livingCoastalRegions=Enumerable.Range(0,Patches.Length).Where(i=>Patches[i].Island||Patches[i].Cells.Any(cell=>World.Surface.Cells[cell].Neighbors.Any(n=>World.Hydrology.OceanConnected[n]))).ToArray();
             if(aggregateDomesticTaxa==null)aggregateDomesticTaxa=World.Ecology.Taxa.Where(t=>NativeLifePack.Domesticability(t.Traits)>=.15).Select(t=>t.Id).OrderBy(i=>i).ToArray();
             if(aggregateOceanRaster!=null){if(ConnectedHistory(s))PrepareConnectedEnvironment();if(CommunityHistory(s))PrepareCommunityShores();if(PassageHistory(s))PrepareDiffusionPassages();return;}

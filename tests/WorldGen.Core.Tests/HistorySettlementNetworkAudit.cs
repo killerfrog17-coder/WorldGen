@@ -15,9 +15,35 @@ public static class HistorySettlementNetworkAudit
         // Inspect an isolated branch; never mutate or reseal the loaded input.
         var s=engine.UpgradeToLivingWorldHistory(world.Prehistory).Copy();var h=s.History;var a=h.Aggregates;
         object Call(string name,params object[] args)=>typeof(Prehistory).GetMethod(name,BindingFlags.Instance|BindingFlags.NonPublic)!.Invoke(engine,args)!;
+        bool actorLocal=typeof(Prehistory).GetMethod("LivingLocalTownRate",BindingFlags.Instance|BindingFlags.NonPublic)!=null;
+        bool householdTransfer=typeof(Prehistory).GetMethod("LivingFounderAvailability",BindingFlags.Instance|BindingFlags.NonPublic)!=null;
         double[] Field(string name)=>(double[])typeof(Prehistory).GetField(name,BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(engine)!;
         var river=Field("riverAccess");var seasons=Field("landscapeSeason");
         double Km(int from,int to)=>D.Angle(world.Surface.Cells[from].Position,world.Surface.Cells[to].Position)*world.Recipe.RadiusKm;
+        object[] LocalTargets(int parent)
+        {
+            if(!actorLocal)return Array.Empty<object>();var source=s.Society.Settlements[parent];
+            return Enumerable.Range(0,3).Select(trial=>
+            {
+                int site=source.Cell,previous=-1;
+                bool sharedCandidate=typeof(Prehistory).GetMethod("LivingLocalTownCandidate",BindingFlags.Instance|BindingFlags.NonPublic)!=null;
+                if(sharedCandidate)site=(int)Call("LivingLocalTownCandidate",s,parent,trial);
+                // Frozen older candidate binaries retain their exact original
+                // fixed-hop proposal for before/after diagnostic comparison.
+                for(int step=0;!sharedCandidate&&step<4+trial;step++)
+                {
+                    var ns=world.Surface.Cells[site].Neighbors;int offset=(int)((double)Call("HistoryRoll","living-local-town-walk-"+trial+"-"+step,parent,s.Years)*ns.Length),next=-1;
+                    for(int k=0;k<ns.Length;k++){int n=ns[(offset+k)%ns.Length];if(n!=previous&&engine.CellPatch[n]>=0&&world.Landmass[n]==world.Landmass[source.Cell]&&world.Ecology.Habitat[n].ReliefM<2000){next=n;break;}}
+                    if(next<0)break;previous=site;site=next;
+                }
+                double localYield=(double)Call("LivingCropLandscape",s,source.CultureId,site,false),rails=HistoricalModernEffects.Adoption(h.Cultures[source.CultureId],HistoricalTechnology.Railways,s.Years);
+                double spacing=(100-45*rails)*Math.Sqrt(Math.Min(4,Math.Max(1,.25/Math.Max(.02,localYield))));
+                int[] nearby=(int[])Call("NearbyLivingTowns",s,site,spacing);
+                return (object)new{Trial=trial,Cell=site,Km=Km(source.Cell,site),LocalYield=localYield,SpacingKm=spacing,Nearby=nearby,
+                    RouteAllowed=(bool)Call("InstitutionalRouteAllowed",s,source.Cell,site,source.CultureId),Transmission=(double)Call("EnvironmentalTransmission",s,source.Cell,site,source.CultureId,false),
+                    CanFound=(bool)Call("CanFoundLivingTown",s,source.CultureId,site,parent),ExistingTown=a.TownAt[site]};
+            }).ToArray();
+        }
         var towns=s.Society.Settlements.Where(t=>a.Living.Cities[t.Id].AbandonedYear<0).Select(t=>
         {
             var city=a.Cities[t.Id];var record=h.Towns[t.Id];var hc=h.Cultures[t.CultureId];var life=a.Living.Cities[t.Id];int owner=a.Resolve(t.PolityId,h);
@@ -27,6 +53,7 @@ public static class HistorySettlementNetworkAudit
             int husbandry=h.Agriculture[t.CultureId].HusbandryYears?.Max()??0;
             double homeland=(double)Call("HomelandOriginFactor",s,t.Cell);
             bool provisioningGate=t.Population>=1200&&(fiscal>=.10||fiscal>=.04&&husbandry>=12000)&&t.FoodReserve>=t.Population*.3&&life.DeclineYears<=0;
+            long transferable=householdTransfer?(long)Call("LivingFounderAvailability",s,t.Id):city.Rural;
             var region=a.Living.Regions[engine.CellPatch[t.Cell]];
             return new
             {
@@ -40,7 +67,10 @@ public static class HistorySettlementNetworkAudit
                 Continuous=(bool)Call("LivingInstitutionalContinuity",s,t.Id),ProtoCapacity=(long)Call("LivingProtocentreCapacity",s,t.Id,long.MaxValue),
                 ComputedUrbanCapacity=(long)Call("CommunityUrbanCapacity",s,t.Id),ImportedCapacity=owner<0?0:(long)Call("CommunityUrbanImports",s,owner,t.Id),
                 RegionTeacher=region.Teacher,RegionExposure=region.Exposure,RegionCivicTeacher=region.CivicTeacher,RegionCivicExposure=region.CivicExposure,RegionLastDeliveryAge=s.Years-region.LastExchangeYear,
-                ParentsCanFound=t.Population>=1000&&t.FoodReserve>=t.Population*.5&&city.Rural>=1600,
+                TransferableHouseholds=transferable,
+                ActorLocalAnnualOpportunity=actorLocal?(double)Call("LivingLocalTownRate",s,t.Id):0,
+                ActorLocalTargets=LocalTargets(t.Id),
+                ParentsCanFound=t.Population>=1000&&t.FoodReserve>=t.Population*.5&&transferable>=1600,
                 Neighbors=city.Neighbors.Select(id=>{var n=s.Society.Settlements[id];int court=a.Resolve(n.PolityId,h);return new{n.Id,n.Name,n.Cell,n.Population,Owner=court,DistanceKm=Km(t.Cell,n.Cell),a.Cities[id].Supported,Abandoned=a.Living.Cities[id].AbandonedYear>=0,RouteAllowed=(bool)Call("InstitutionalRouteAllowed",s,n.Cell,t.Cell,n.CultureId),DeliveredExample=court<0?0:(double)Call("InstitutionalLocalExample",s,court,n.Cell,t.Cell)};})
             };
         }).ToArray();
@@ -81,7 +111,8 @@ public static class HistorySettlementNetworkAudit
                 Ports=Enumerable.Range(0,live.Count).Select(k=>s.Society.Settlements[live.At(k)]).Where(t=>(bool)Call("DiffusionShore",t.Cell)).Select(t=>new{t.Id,t.Name,t.Population,t.FoodReserve,a.Cities[t.Id].Supported}),
                 Offices=a.Empires.Governments[p.Id].AdministrativePosts.Count,Charts=charts.Length,Departures=departures,Plans=plans};
         }).ToArray();
-        var result=new{Year=s.Years,h.Version,a.TotalPopulation,a.TotalUrban,LiveTowns=towns.Length,Towns=towns,SecondaryFounding=secondary,Maritime=maritime};
+        var result=new{Year=s.Years,h.Version,a.TotalPopulation,a.TotalUrban,LiveTowns=towns.Length,Towns=towns,
+            ActorLocalSecondaryOpportunities=actorLocal,LegacyCultureLotteryActive=!actorLocal,LegacyCultureLotteryDiagnostic=secondary,Maritime=maritime};
         File.WriteAllText(Path.Combine(folder,"settlement-network.json"),JsonSerializer.Serialize(result,new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));
         if(world.Prehistory.ComputeHash()!=hash)throw new Exception("Diagnostic unexpectedly mutated the loaded authoritative history.");
         Console.WriteLine($"AUDIT {towns.Length} live centers; {a.TotalUrban:N0} urban / {a.TotalPopulation:N0} world residents; {towns.Count(t=>t.Owner<0&&t.CivicProvisioningGate)} unruled centers pass fiscal gates.");

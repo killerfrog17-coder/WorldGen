@@ -61,6 +61,57 @@ the less willing government's acceptance, not by a favorable unrelated ruler.
 Their governments contribute actual treasury funds. Dues are capped by available treasury and a
 finite reserve limit. Contributions are not tax receipts created from nothing.
 
+### Operating budgets, rather than indefinite accumulation
+
+Fresh history32 institutions additionally carry an optional `Finances` ledger.
+Each actual member has a cached annual assessment based on fiscal receipts;
+their sum sets the organization's operating scale. Current capacity-to-pay
+assessment is approximately 0.1% of annual model receipts, with small integer
+office overhead and explicit extreme-value caps. This is an authored fiscal
+proxy, not a literal UN tax rate or a claim that UN and WTO budgets use identical
+assessment formulae.
+
+The normal reserve-funding target is three annual operating budgets. Contributions
+are limited by the member's accrued assessment, actual treasury, and outstanding
+operating work plus the deficit below that target. A fully funded reserve waives
+additional dues without marking the member delinquent. Founding and accession
+deposits also use bounded operating assessments, rather than years of the state's
+entire taxation. No routine sweep recomputes a world's or organization's members:
+joining, leaving, succession and each member's own update change cached sums in
+constant time.
+
+When a member's assessment increases, it pledges three times its own increase
+toward the enlarged working-capital target. Its actual payment shares the same
+5% current-treasury exposure cap as ordinary dues, and is still capped by the
+common funding deficit. This is not permission to debit one country for the
+whole organization's budget. Founding/accession payments credit that member's
+pledge so startup cash is not charged twice. Lower assessments reduce outstanding
+pledges as appropriate, but do not manufacture a cash refund. A sufficient common
+reserve waives an unneeded remaining pledge.
+
+A separate body-level date records the elapsed operating requirement exactly
+once. Actual common cash funds that work and enters `ServiceSpending`; unfunded
+work remains an unmet requirement, not magically paid staff or an income stream.
+When member events are batched several years apart, a later member can fund the
+same outstanding requirement without charging a second bill. This avoids a
+three-year reserve cap spuriously starving an institution merely because its
+members' actor updates arrive five or twenty years apart. Institutional effects
+use funded operating coverage, including actual cash backing for newly elapsed
+work. Already-paid current work remains real service even if it consumed the
+last reserve unit. Unfunded new work gradually reduces that coverage; a high old
+authority score or one leftover unit cannot buy permanent service.
+The operating window also retains its already-applied authority adjustment.
+Later-arriving member payments reconcile that same interval's funded outcome,
+rather than permanently punishing the first payer's temporary cash shortfall or
+granting a fresh authority bonus once per member.
+
+Earlier interim history32 snapshots retain null `Finances`, their old hashes and
+their previous financial continuation. The explicit
+`UpgradeInternationalOperatingBudgets` operation creates the new ledger on a
+copy, preserves every existing reserve unit, and begins assessment at the upgrade
+boundary. It neither burns an old accumulated hoard nor invents a retrospective
+refund or operating bill. The null field is omitted from canonical hashes.
+
 The fiscal invariant is:
 
 ```text
@@ -114,6 +165,16 @@ clauses, war reparations and a complete international legal system are deferred.
 - The [WTO's description of regional trade agreement scope](https://www.wto.org/English/Tratop_E/region_e/scope_rta_e.htm)
   supports modeling reduced trade barriers rather than free physical output or
   a magical route to every distant member.
+- The [UN Committee on Contributions' assessment explanation](https://www.un.org/en/ga/contributions/assessments.shtml)
+  ties member assessments to financing an approved appropriation. Its
+  [scale criteria](https://www.un.org/en/ga/contributions/budget.shtml) include
+  capacity to pay and adjustments, rather than equal unlimited cash collection.
+- The [WTO budget description](https://www.wto.org/english/thewto_e/secre_e/budget_e.htm)
+  weights contributions by international trade. The
+  [2025 expenditure budget](https://www.wto.org/english/thewto_e/secre_e/budget_e/budget2025_e.pdf)
+  allocates real staff, services and other expenditure rather than accumulating
+  nearly all historical contributions indefinitely. Our three-year reserve
+  target is a conservative game liquidity buffer, not a measured UN/WTO rule.
 
 These institutional examples motivate mechanisms and failure modes, not our
 numerical coefficients. All thresholds, finances and probabilities are explicit
@@ -130,6 +191,17 @@ contacts, bounded cleanup of a stale-heavy portfolio, read-only profiles,
 canonical save roundtrip and partition-independent continuation. The official
 history31 Earth fixture passes 14 pure and 22 integration assertions, including
 an actual contested regime replacement during war and scheduled continuation.
+
+`--international-finance-only` adds nine pure budget assertions.
+`--international-finance-world <interim-history32-world>` adds nineteen checks
+against an actual saved organization: old-null integrity and fund preservation,
+isolated copies, 2,000 years of bounded reserve and paid operation, exact cash
+conservation, same-date idempotence, twenty-year versus annual fiscal batching,
+reversed-payment-order authority reconciliation,
+assessment growth and bounded own working-capital pledges, falling assessments
+without refunds, current paid work versus unfunded future work,
+unfunded effects, withdrawal and succession cached sums, read-only profiles,
+new-ledger save/load integrity and actual-calendar partition determinism.
 
 `InternationalProfile` exposes only recorded contacts and bounded membership
 summaries for the atlas. Known-relation counts may temporarily include obsolete

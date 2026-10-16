@@ -29,7 +29,7 @@ namespace WorldGen.Core
             source.FoodReserve-=provisions;p.Treasury-=investment;
             post.Founders=Math.Max(post.Founders,(int)founders);
             int city=a.TownAt[target];h.Towns[city].CivicTeacherPolityId=polity;h.Towns[city].CivicExampleExposure=Math.Max(700,h.Towns[city].CivicExampleExposure);
-            HistoryEvent(s,"sponsored-port",p.Name+" finances a new port at "+s.Society.Settlements[city].Name+". "+people+" existing people relocate from "+source.Name+", bringing their own crops and practices; neighboring indigenous communities retain their identities.",target,culture,polity,town:city,category:ChronicleCategory.Society);
+            HistoryEvent(s,"sponsored-port",p.Name+" finances a new port at "+s.Society.Settlements[city].Name+". "+people+" settlers arrive from "+source.Name+", bringing their crops and practices; neighboring indigenous communities retain their identities.",target,culture,polity,town:city,category:ChronicleCategory.Society);
             return true;
         }
         void RetryLivingColonialPorts(PrehistoryState s,int polity,int elapsed,int[] departures)

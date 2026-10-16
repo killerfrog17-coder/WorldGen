@@ -60,7 +60,12 @@ namespace WorldGen.Core
         public static double AnnualDispersalHazard(double environment,double stored,double shock,bool institutionalContinuity)
         {
             if(institutionalContinuity)return 0;
-            double reliability=D.Clamp(environment)*D.Clamp(stored/.35);
+            // Stored support already contains crop, soil and seasonal costs;
+            // multiplying it by the full establishment penalty again made
+            // viable Neolithic villages disperse before their farms matured.
+            // Poor camps remain transient; genuinely provisioned communities
+            // may persist for centuries without thereby becoming a state.
+            double reliability=Math.Sqrt(D.Clamp(environment))*D.Clamp(stored/.18);
             return D.Q(.00015+.035*Math.Pow(1-reliability,4)+.012*D.Clamp(shock),1000000000);
         }
     }

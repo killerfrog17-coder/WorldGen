@@ -20,6 +20,12 @@ Each update samples at most three already indexed owned cities and their at-most
 
 Maintenance spends actual treasury. Funding shortfalls reduce readiness and eventually dismantle weapons. A conquest/succession transfers physical custody without granting an untrained successor operational crews. Existing trained weapons of the successor are not erased by that transfer. A continuing institution under a new regime transfers its arsenal, deployment/readiness and unfinished paid program once. No weapon is duplicated. Unsupported inventory without a successor is abstractly dismantled rather than becoming an untracked permanent arsenal.
 
+The continuing arsenal also retains its actual last-maintained date. Its next
+update settles elapsed upkeep from that date, not the younger government's
+shorter state-event interval. Regime replacement cannot forgive unpaid upkeep;
+same-date processing cannot charge it twice. This avoids the early-return path
+for a state succession silently skipping the predecessor's maintenance interval.
+
 The custody invariant is:
 
 `stockpile = produced + inherited - transferred - dismantled - used`
@@ -48,5 +54,10 @@ There is no resolved blast footprint, fallout transport, global climate effect, 
 `--nuclear-only` covers stable IDs, versioned catalog lengths/useful levels, finite prerequisites and cost growth, conserved research allocation, knowledge-versus-deployment, resource/fiscal/security production constraints, delivery-dependent deterrence and rare escalation gates.
 
 `--nuclear-world artifacts/history31/earth-release/final.world` checks an explicitly upgraded old checkpoint, unchanged old integrity, zero free weapons, 39-entry continuation/save-load, imported designs without free deployment, actual paid state production, same-date idempotence, unfunded dismantling, custody conservation, real regime-change account alignment, an actual city's casualty deltas, diplomatic consequences, read-only profile integrity, nonempty arsenal serialization and exact 10-year versus 3+7-year continuation hashes.
+
+The current suites pass 99 pure and 27 integration assertions. The latter include
+actual successor state-event upkeep across an inherited unpaid interval,
+same-date successor idempotence, unfunded inherited retirement despite a short
+parent-event argument, and prevention of future-date negative-cost cash credits.
 
 The independent code critic found no duplicated population deduction or free custody creation. A misleading levy-only casualty label was corrected. Longitudinal fresh-world pacing and the frequency of nuclear programs remain separate validation tasks: mechanism tests do not prove realistic world-history outcomes.

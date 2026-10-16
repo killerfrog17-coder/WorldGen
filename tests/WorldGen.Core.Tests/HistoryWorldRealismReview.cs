@@ -15,7 +15,7 @@ public static class HistoryWorldRealismReview
             Console.WriteLine(JsonSerializer.Serialize(new{t.Name,t.Id,t.Population,t.FoodCapacity,Age=s.Years-t.FoundedYear,Farming=s.Society.Cultures[t.CultureId].Farming,Institution=s.History.Cultures[t.CultureId].Institution,Climate=world.Climate.Classification[t.Cell].ToString(),Environment=Call("EnvironmentalEstablishment",s,t.Cell,t.CultureId),Storage=Call("LivingCropLandscape",s,t.CultureId,t.Cell,true),Links=s.History.Aggregates.Cities[t.Id].Neighbors.Length,Rural=s.History.Aggregates.Cities[t.Id].Rural,RuralCapacity=s.History.Aggregates.Cities[t.Id].RuralCapacity,Uncapped=Call("CommunityUrbanCapacity",s,t.Id),Staples=Call("EnvironmentalStaples",s,t.CultureId,t.Cell),Homeland=Call("HomelandOriginFactor",s,t.Cell),Civic=s.History.Towns[t.Id].CivicPreparationYears,Reserve=t.FoodReserve}));
         Console.WriteLine("Active:"+s.Society.Settlements.Count(t=>t.Population>0)+" abandoned:"+s.History.Aggregates.Living.Cities.Count(t=>t.AbandonedYear>=0));
     }
-    public static void Run(string preset,int seed,int detail,string output,int safetyYear,string profile="earth-native-2")
+    public static void Run(string preset,int seed,int detail,string output,int safetyYear,string profile="earth-native-3")
     {
         if(preset=="ContinentsPlus")preset="Continents plus";
         if(!WorldPresets.Names.Contains(preset))throw new ArgumentException("Use an existing preset.");

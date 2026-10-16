@@ -127,7 +127,7 @@ public sealed partial class WorldGenRuntime
     void StartHumanWorld()
     {
         if(humans==null)return;
-        try{world.Prehistory=humans.Start(world.Prehistory);screen="Simulation";simulationTab="";simulationPaused=false;expandedInspection=false;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;humanPlaying=false;FocusHumanOrigin();UpdateHumanPalette();Refresh();}catch(Exception ex){error=ex.Message;}
+        try{world.Prehistory=humans.Start(world.Prehistory);screen="Simulation";simulationTab="";simulationPaused=false;expandedInspection=false;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;humanPlaying=false;SetProjection(Projection.Map);mapPan=Vector3.zero;mapZoom=1;FocusHumanOrigin();UpdateHumanPalette();Refresh();}catch(Exception ex){error=ex.Message;}
     }
     void FocusHumanOrigin()
     {

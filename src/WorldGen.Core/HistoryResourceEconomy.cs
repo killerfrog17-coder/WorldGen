@@ -22,7 +22,7 @@ namespace WorldGen.Core
                 case HistoricalTechnology.Electricity:material=Math.Min(copper,Math.Max(coal,Math.Max(oil,.5*timber)));break;
                 case HistoricalTechnology.NuclearFission:case HistoricalTechnology.NuclearWeapons:material=Ore(p.Uranium);break;
             }
-            // Sparse three-site sampling must not create an absolute absence
+            // Sparse bounded sampling must not create an absolute absence
             // claim. Recycling, small overlooked deposits and costly substitutes
             // remain possible, but cannot match a well-supplied industry.
             return D.Q(.30+.70*D.Clamp(material),1000000);
@@ -38,10 +38,21 @@ namespace WorldGen.Core
         }
         public static double StrategicValue(HistoricalResourcePotential p,double metalWork,double steam,double oilWork)
             =>D.Q(10*Math.Max(Ore(p.Copper),Ore(p.Iron))*D.Clamp(metalWork)+15*Ore(p.Coal)*D.Clamp(steam)+20*Ore(p.Oil)*D.Clamp(oilWork),1000000);
+        public const int StateSupplierCandidateLimit=16;
+        public static double StateSupplyCapacity(long supplierUrban,long treasury,long annualReceipts,int publicWorks,double installedTransport)
+        {
+            if(supplierUrban<500||treasury<=0||publicWorks<=0||installedTransport<.20)return 0;
+            // Public works were funded by the ordinary political budget. This
+            // read-only capacity query neither debits money a second time nor
+            // creates a free income/import when a window asks for information.
+            double funded=D.Clamp(treasury/(double)Math.Max(1000,Math.Max(0,annualReceipts)/20));
+            return D.Q(D.Clamp(supplierUrban/5000.0)*Math.Sqrt(D.Clamp(publicWorks/600.0))*funded,1000000);
+        }
     }
     public sealed partial class Prehistory
     {
         HistoricalNaturalResourceCache livingResourceCache;
+        public int LastMaterialSupplierCandidates {get;private set;}
         HistoricalResourcePotential LivingResources(int cell)=>(livingResourceCache??(livingResourceCache=new HistoricalNaturalResourceCache(World))).At(cell);
         static HistoricalResourcePotential MergeResourceMarket(HistoricalResourcePotential own,HistoricalResourcePotential other,double connection)
         {
@@ -94,6 +105,47 @@ namespace WorldGen.Core
                     result=MergeResourceMarket(result,LivingResources(other.Cell),sourceConnection*(domestic?.85:.60)*Math.Exp(-km/Math.Max(50,transport)));
                 }
             }
+            if(LivingWorldHistory(s))result=LivingStateMaterialMarket(s,site,result);
+            return result;
+        }
+        HistoricalResourcePotential LivingStateMaterialSource(PrehistoryState s,int owner,int site,int city)
+        {
+            var h=s.History;var a=h.Aggregates;var empty=new HistoricalResourcePotential();
+            if(owner<0||owner>=h.Polities.Length||h.Polities[owner].EndedYear>=0||city<0||city>=a.Cities.Length)return empty;
+            var town=s.Society.Settlements[city];if(a.Resolve(town.PolityId,h)!=owner||!a.Cities[city].Supported||a.Living.Cities[city].AbandonedYear>=0)return empty;
+            var state=h.Polities[owner];var carrier=h.Cultures[state.CultureId];
+            double transport=Math.Max(HistoricalModernEffects.Adoption(carrier,HistoricalTechnology.Railways,s.Years),Math.Max(HistoricalModernEffects.Adoption(carrier,HistoricalTechnology.Roads,s.Years),HistoricalModernEffects.Adoption(carrier,HistoricalTechnology.Sailing,s.Years)));
+            double capacity=HistoricalResourceEconomy.StateSupplyCapacity(town.Population,state.Treasury,a.Polities[owner].Receipts,h.Dynamics.States[owner].PublicWorks,transport);
+            if(capacity<=0)return empty;
+            double connection=LivingMaterialConnection(s,state.CultureId,site,town.Cell);if(connection<=0)return empty;
+            var worker=h.Cultures[town.CultureId];
+            double Practice(HistoricalTechnology t)=>Math.Max(HistoricalModernEffects.Adoption(worker,t,s.Years),HistoricalModernEffects.Adoption(carrier,t,s.Years));
+            double copper=Practice(HistoricalTechnology.Copper),iron=Practice(HistoricalTechnology.Iron),industry=Practice(HistoricalTechnology.IndustrialMetallurgy),science=Practice(HistoricalTechnology.ScientificMethod);
+            var raw=LivingResources(town.Cell);double supply=capacity*connection;
+            int Worked(int potential,double skill)=>(int)(potential*supply*D.Clamp(skill));
+            // A state can send its deployed specialist skills to an owned,
+            // inhabited working center. A claim, remembered foreign textbook or
+            // same-language island across an unsupported ocean cannot do this.
+            return new HistoricalResourcePotential(Worked(raw.Copper,copper),Worked(raw.Tin,copper),Worked(raw.Iron,iron),Worked(raw.PreciousMetals,Math.Max(copper,iron)),
+                Worked(raw.Coal,Math.Max(iron,industry)),Worked(raw.Oil,Math.Max(industry,Practice(HistoricalTechnology.CombustionEngines))),Worked(raw.Uranium,Math.Min(industry,science)),
+                Worked(raw.Stone,1),Worked(raw.Timber,1),Worked(raw.Salt,1),0,0,0,raw.SyntheticEarthGeology);
+        }
+        HistoricalResourcePotential LivingStateMaterialMarket(PrehistoryState s,int site,HistoricalResourcePotential result)
+        {
+            LastMaterialSupplierCandidates=0;var a=s.History.Aggregates;int owner=HistoricalCells.Polity(s,site);
+            if(owner<0||s.History.Polities[owner].EndedYear>=0)return result;
+            void Consider(int city)
+            {
+                LastMaterialSupplierCandidates++;
+                result=MergeResourceMarket(result,LivingStateMaterialSource(s,owner,site,city),1);
+            }
+            // Constant work: one actual capital, three indexed state centers and
+            // at most twelve existing local town links. Never scan an empire's
+            // city portfolio, cells, district memberships or all mineral sites.
+            Consider(s.History.Polities[owner].CapitalId);var cities=a.Polities[owner].Cities;
+            int offset=cities.Count==0?0:(site%cities.Count);
+            for(int k=0;k<Math.Min(3,cities.Count);k++)Consider(cities.At((offset+k)%cities.Count));
+            int town=a.TownAt[site];if(town>=0){var peers=a.Cities[town].Neighbors;for(int k=0;k<Math.Min(12,peers.Length);k++)Consider(peers[k]);}
             return result;
         }
         long LivingExtractiveReceipts(PrehistoryState s,int polity)

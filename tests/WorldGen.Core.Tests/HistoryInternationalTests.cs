@@ -55,9 +55,11 @@ public static class HistoryInternationalTests
         check(h.Polities[a].Treasury+body.Reserve==total&&system.Accounts[a].LastTradeDuesYear==s.Years,"Dues are actual transfers with a saved per-member payment date");
         Call(engine,"PayInternationalDues",s,a,body.Id);check(body.Contributions==paid,"Repeated state work at the same date cannot collect a second set of dues");
         body.LastActionYear=s.Years-10;system.Accounts[b].LastTradeDuesYear=s.Years-10;Call(engine,"PayInternationalDues",s,b,body.Id);long service=body.ServiceSpending;
+        long unserved=system.Finances?.Organizations[body.Id].UnfundedWork??0,charge=system.Finances?.Organizations[body.Id].LastOperatingCharge??0;
         system.Accounts[a].LastTradeDuesYear=s.Years-1;Call(engine,"PayInternationalDues",s,a,body.Id);
-        check(body.ServiceSpending==service&&body.Reserve+body.ServiceSpending+body.MediationSpending==body.Contributions,"Multiple member updates cannot duplicate the organization's elapsed service bill");
+        check((system.Finances==null?body.ServiceSpending==service:system.Finances.Organizations[body.Id].LastOperatingCharge==charge&&body.ServiceSpending-service==unserved-system.Finances.Organizations[body.Id].UnfundedWork)&&body.Reserve+body.ServiceSpending+body.MediationSpending==body.Contributions,"Multiple member updates cannot duplicate an elapsed bill, though another member may fund still-unserved operating work");
         int peaceId=system.Organizations.Length;system.Organizations=system.Organizations.Concat(new[]{new HistoricalInternationalOrganization{Id=peaceId,FounderPolity=a,FoundedYear=s.Years,LastActionYear=s.Years,Kind=HistoricalOrganizationKind.PeaceCongress,Name="Diagnostic Congress",Reserve=500,Contributions=500}}).ToArray();
+        if(system.Finances!=null)system.Finances.Organizations=system.Finances.Organizations.Concat(new[]{new HistoricalInternationalOperatingBudget()}).ToArray();
         Call(engine,"JoinInternationalOrganization",s,a,peaceId);Call(engine,"JoinInternationalOrganization",s,b,peaceId);
         int campaign=h.Dynamics.Campaigns.Length;Call(engine,"BeginAggregateCampaign",s,a,b,relation,s.Society.Settlements[h.Polities[b].CapitalId].Cell);
         check(h.Dynamics.Campaigns.Length==campaign+1&&system.RelationCampaigns[ri]==campaign,"Known war entry records the exact campaign for bounded mediation and allied calls");
