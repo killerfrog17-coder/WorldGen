@@ -22,6 +22,7 @@ namespace WorldGen.Core
             double ambition=leader.Ambition/1000.0,provisioned=D.Clamp(p.Treasury/Math.Max(100.0,p.Army*4.0));
             double risk=.004*(.3+ambition)*(.1+1.8*opportunity+.5*rivalry)*(1-.65*shared)*provisioned;
             risk*=TerritorialWarMotivation(s,id,s.Society.Settlements[peer.CapitalId].Cell);
+            if(LivingWorldHistory(s))risk*=InternationalWarRestraint(s,id,other);
             // Superior transport/weapons permit larger campaigns, not a forced
             // global conquest clock. Costly peer wars and negotiated trade remain.
             if(relation.TruceUntil<s.Years&&p.Army>30&&p.Cohesion>450&&HistoryRoll("development-war-"+other,id,s.Years)<1-Math.Exp(-risk*elapsed))

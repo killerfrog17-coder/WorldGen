@@ -20,5 +20,18 @@ public static class HistoryLivingAtlasTests
         check(appearance.Text.Contains("no effect on intelligence"),"Appearance remains separate from historical capability");
         check(document.Sections.Any(x=>x.Title=="Climate and livelihoods")&&HistoryAtlas.PlainText(document).Contains("Local resource potential"),"Climate/resource explanations are available in the article and copied text");
         check(s.ComputeHash()==hash,"Opening all living-world infographics does not mutate history");
+        var illustrated=s.Copy();
+        var body=new HistoricalInternationalOrganization{Id=0,Name="River Compact",FounderPolity=state,FoundedYear=s.Years,LastActionYear=s.Years,Kind=HistoricalOrganizationKind.TradeLeague,Reserve=800,Contributions=1000,ServiceSpending=200};body.Members.Add(state);
+        illustrated.History.International.Organizations=new[]{body};illustrated.History.International.Accounts[state].TradeOrganization=0;
+        var arsenal=illustrated.History.Nuclear.States[state];arsenal.ProgramYear=s.Years;arsenal.FirstWeaponYear=s.Years;arsenal.Produced=arsenal.Stockpile=2;arsenal.ReadinessMilli=600;arsenal.Investment=500000;
+        string illustratedHash=illustrated.ComputeHash();
+        var illustratedState=HistoryAtlas.Read(illustrated,"state",state,world,engine);
+        check(illustratedState.Sections.Single(x=>x.Title=="Diplomatic institutions").Links.Single().Name=="River Compact","State page links its actual recorded organization rather than inventing a global institution");
+        check(illustratedState.Sections.Single(x=>x.Title=="Nuclear capabilities").Facts.Single(x=>x.Label=="Weapons in custody").Value=="2","Nuclear infographic distinguishes actual physical inventory from design knowledge");
+        var organization=HistoryAtlas.Read(illustrated,"organization",0,world,engine);
+        check(organization.Title=="River Compact"&&organization.Sections.Single(x=>x.Title=="Member governments").Links.Single().Id==state,"Diplomatic organization opens its own roster and linked government");
+        check(organization.Sections.Single(x=>x.Title=="Common finances").Facts.Single(x=>x.Label=="Unspent reserve").Value=="800","Organization article uses the actual funded reserve");
+        check(HistoryAtlas.Directory(illustrated,"organization").Single().Kind=="organization"&&HistoryAtlas.ProfileLabel(new AtlasLink{Kind="organization"})=="Organization","New diplomatic records are discoverable and correctly labeled in the atlas directory");
+        check(illustrated.ComputeHash()==illustratedHash,"Reading nuclear and organization records does not mutate their accounts");
     }
 }

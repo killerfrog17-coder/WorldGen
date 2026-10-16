@@ -41,7 +41,9 @@ public static class HistoryWorldRealismReview
                     VillagePopulation=towns.Where(t=>s.History.Aggregates.Resolve(t.PolityId,s.History)<0).Sum(t=>t.Population),
                     States=s.History.Polities.Count(p=>p.EndedYear<0),IndependentOrigins=s.History.Archive.Count(e=>e.Kind=="independent-institutions"),
                     OldestStateAge=s.History.Polities.Where(p=>p.EndedYear<0).Select(p=>s.Years-p.FoundedYear).DefaultIfEmpty(0).Max(),LargestCity=towns.Select(t=>t.Population).DefaultIfEmpty(0).Max(),
-                    ColonialCouncils=s.History.Archive.Count(e=>e.Kind=="colonial-council"),Charters=s.History.Aggregates.Empires.Territories.Posts.Count(p=>p.ClosedYear<0),
+                    ColonialCouncils=s.History.Archive.Count(e=>e.Kind=="colonial-council"),ColonialProtectorates=s.History.Archive.Count(e=>e.Kind=="colonial-protectorate"),SponsoredPorts=s.History.Archive.Count(e=>e.Kind=="sponsored-port"),Charters=s.History.Aggregates.Empires.Territories.Posts.Count(p=>p.ClosedYear<0),
+                    ActiveOrganizations=s.History.International?.Organizations.Count(o=>o.EndedYear<0)??0,CoalitionEntries=s.History.International?.CoalitionEntries.Length??0,
+                    NuclearArsenals=s.History.Nuclear?.States.Count(n=>n.Stockpile>0)??0,NuclearUses=s.History.Nuclear?.States.Sum(n=>n.Used)??0,
                     WorstYearMs=worst,WallSeconds=watch.Elapsed.TotalSeconds};
                 rows.Add(row);File.WriteAllText(Path.Combine(output,"review.json"),JsonSerializer.Serialize(new{Preset=preset,Seed=seed,Recipe=recipe,Rules=s.History.Version,Rows=rows},new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));
                 File.WriteAllText(Path.Combine(directory,"towns.json"),JsonSerializer.Serialize(towns.Select(t=>new{t.Id,t.Name,t.Cell,t.CultureId,t.PolityId,t.Population,Age=s.Years-t.FoundedYear,Latitude=Math.Asin(world.Surface.Cells[t.Cell].Position.Z)*180/Math.PI,Climate=world.Climate.Classification[t.Cell].ToString(),world.Ecology.Habitat[t.Cell].Biome}),new JsonSerializerOptions{WriteIndented=true}));

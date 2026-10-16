@@ -88,7 +88,14 @@ namespace WorldGen.Core
         double InstitutionalLocalExample(PrehistoryState s,int teacher,int from,int to)
         {
             if(teacher<0||teacher>=s.History.Polities.Length)return 0;
-            int culture=s.History.Polities[teacher].CultureId;if(!InstitutionalRouteAllowed(s,from,to,culture))return 0;
+            // The remembered first court records provenance, not a requirement
+            // that every later pupil personally meet its original inhabitants.
+            // A relay uses the people/infrastructure actually at its local end.
+            int culture=HistoricalCells.Culture(s,from),owner=HistoricalCells.Polity(s,from);
+            if(owner>=0)culture=s.History.Polities[owner].CultureId;
+            if(culture<0&&CellPatch[from]>=0)culture=s.History.Aggregates.Regions[CellPatch[from]].Culture;
+            if(culture<0)culture=s.History.Polities[teacher].CultureId;
+            if(!InstitutionalRouteAllowed(s,from,to,culture))return 0;
             bool sea=DiffusionShore(from)&&DiffusionShore(to)&&DiffusionSeaEffort(s,from,to,culture)!=double.MaxValue;
             double transmission=EnvironmentalTransmission(s,from,to,culture,sea);
             double km=D.Angle(World.Surface.Cells[from].Position,World.Surface.Cells[to].Position)*World.Recipe.RadiusKm;
@@ -123,21 +130,34 @@ namespace WorldGen.Core
         }
         bool InstitutionalVoyageDelivery(PrehistoryState s,Route route,int culture,int sourceState,int sourceTown)
         {
-            if(route.CellA<0||route.CellB<0)return false;
+            if(route.CellA<0||route.CellB<0||route.CellA>=World.Surface.Cells.Length||route.CellB>=World.Surface.Cells.Length)return false;
             if(route.DistanceM<=120000)return true;
-            var a=s.History.Aggregates;int port=sourceTown;
+            var a=s.History.Aggregates;int port=sourceTown;long provisions;
+            if(LivingWorldHistory(s)&&sourceState>=0)
+            {
+                if(sourceState>=s.History.Polities.Length||!MaritimeCharterLogistics(s,sourceState,route,sourceTown,out port,out provisions))return false;
+            }
+            else
+            {
+            bool Qualified(int candidate)
+            {
+                if(candidate<0||candidate>=a.Cities.Length)return false;var town=s.Society.Settlements[candidate];
+                if(!a.Cities[candidate].Supported||a.Living.Cities[candidate].AbandonedYear>=0||town.Population<300||!DiffusionShore(town.Cell)||town.CultureId!=culture)return false;
+                double km=D.Angle(World.Surface.Cells[town.Cell].Position,World.Surface.Cells[route.CellA].Position)*World.Recipe.RadiusKm;
+                return km<=180&&(town.Cell==route.CellA||InstitutionalRouteAllowed(s,town.Cell,route.CellA,culture));
+            }
+            if(port>=0&&!Qualified(port))return false;
             if(port<0)foreach(int candidate in NearbyLivingTowns(s,route.CellA,180))
             {
-                var t=s.Society.Settlements[candidate];
-                if(!a.Cities[candidate].Supported||a.Living.Cities[candidate].AbandonedYear>=0||t.Population<300||!DiffusionShore(t.Cell))continue;
-                if(t.CultureId!=culture&&(sourceState<0||a.Resolve(t.PolityId,s.History)!=sourceState))continue;
-                port=candidate;break;
+                if(Qualified(candidate)){port=candidate;break;}
+            }
+            provisions=Math.Max(24,route.DistanceM/500000*24);
             }
             // Occasional forager voyages still move people below. A region's
             // remote population is not a free provisioned departure port.
             if(port<0||!a.Cities[port].Supported||a.Living.Cities[port].AbandonedYear>=0)return false;
             var town=s.Society.Settlements[port];var hc=s.History.Cultures[culture];
-            long provisions=Math.Max(24,route.DistanceM/500000*24);if(town.FoodReserve<provisions+town.Population/4)return false;
+            if(town.FoodReserve<provisions+town.Population/4)return false;
             double open=InstitutionalUnsupportedWaterKm(route.CellA,route.CellB,out _);
             double infrastructure=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Printing,s.Years)
                 +HistoricalModernEffects.NetworkUse(hc,HistoricalTechnology.SteamPower,s.Years)

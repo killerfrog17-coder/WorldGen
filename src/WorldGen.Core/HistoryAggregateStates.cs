@@ -14,7 +14,7 @@ namespace WorldGen.Core
         {
             int low=Math.Min(first,second),high=Math.Max(first,second);var key=(low,high);var h=s.History;
             if(aggregateRelations.TryGetValue(key,out int at)&&at<h.Relations.Length&&h.Relations[at].A==low&&h.Relations[at].B==high)return h.Relations[at];
-            var r=new HistoricalRelation{A=low,B=high};aggregateRelations[key]=h.Relations.Length;h.Relations=h.Relations.Concat(new[]{r}).ToArray();return r;
+            var r=new HistoricalRelation{A=low,B=high};int relation=h.Relations.Length;aggregateRelations[key]=relation;h.Relations=h.Relations.Concat(new[]{r}).ToArray();RememberInternationalRelation(s,relation);return r;
         }
         void FoundAggregateState(PrehistoryState s,int city,int parent)=>FoundAggregateStateKind(s,city,parent,null);
         void FoundAggregateStateKind(PrehistoryState s,int city,int parent,string foundationKind)
@@ -23,6 +23,8 @@ namespace WorldGen.Core
             var polity=new HistoricalPolity{Id=id,CultureId=town.CultureId,CapitalId=city,ParentId=parent,FoundedYear=s.Years,RulerSince=s.Years,Name=town.Name+" State",ReligionId=HistoricalCells.Religion(s,town.Cell),Treasury=town.Population/2,Government="Local council and agrarian court"};
             if(LanguageHistory(s))polity.Name=LanguageStateName(s,town);
             h.Polities=h.Polities.Concat(new[]{polity}).ToArray();a.Polities=a.Polities.Concat(new[]{new HistoricalPolityAggregate{Id=id,LastYear=s.Years,LastSuccession=s.Years,ReachKm=100}}).ToArray();
+            AppendInternationalState(s);
+            if(LivingWorldHistory(s))AppendNuclearState(s);
             if(ProvincialHistory(s))Array.Resize(ref a.Provinces.FarmPotential,h.Polities.Length);
             if(CommunityHistory(s))a.Communities.Governments=a.Communities.Governments.Concat(new[]{new HistoricalGovernmentPolicy{LastReformYear=s.Years}}).ToArray();
             AppendImperialGovernment(s);
@@ -66,6 +68,7 @@ namespace WorldGen.Core
             if(LivingWorldHistory(s))receipts+=LivingExtractiveReceipts(s,id);
             if(LivingWorldHistory(s)){var policy=a.Communities.Governments[id];receipts=(long)(receipts*HistoricalPoliticalPrograms.TaxMultiplier(policy.RepresentationMilli,policy.CentralizationMilli));}
             account.Receipts=receipts;account.ServiceCost=service;p.Treasury=Math.Max(0,Math.Min(1000000000,p.Treasury+(receipts-service)*elapsed));
+            if(LivingWorldHistory(s))AdvanceNuclearState(s,id,elapsed);
             long remoteCapacity=ProvincialHistory(s)?ProvincialRemoteCapacity(s,id):Math.Max(1,(long)(account.RemoteCapacity*HistoricalModernEffects.FoodMultiplier(hc,s.Years)));if(LivingWorldHistory(s))remoteCapacity=(long)(remoteCapacity*LivingClimateFood(s,s.Society.Settlements[p.CapitalId].Cell,p.CultureId));long remote=AggregateLogisticPopulation(account.Remote,remoteCapacity,CommunityHistory(s)?CommunityRuralGrowth(s,p.CultureId):.004,elapsed);long delta=remote-account.Remote;account.Remote=remote;p.Population=Math.Max(0,p.Population+delta);a.TotalPopulation+=delta;s.Society.Cultures[p.CultureId].Population=Math.Max(0,s.Society.Cultures[p.CultureId].Population+delta);
             var cycle=ds.Cycle??(ds.Cycle=new HistoricalPoliticalCycle());
             if(LivingHistory(s))
@@ -80,6 +83,7 @@ namespace WorldGen.Core
             p.Army=(int)Math.Min(int.MaxValue,Math.Max(0,(account.Urban+account.Rural*.1+account.Remote*.02)*.03*p.Cohesion/1000));
             if(LivingWorldHistory(s))FundPoliticalProgram(s,id,elapsed);
             else if(p.Treasury>account.Urban&&leader.Administration>550){long spend=Math.Min(p.Treasury/20,Math.Max(1,account.Urban/40));p.Treasury-=spend;ds.PublicWorks=Math.Min(1000,ds.PublicWorks+(int)Math.Min(elapsed*3,spend/100+1));}else ds.PublicWorks=Math.Max(0,ds.PublicWorks-elapsed);
+            if(LivingWorldHistory(s))AdvanceInternational(s,id,elapsed);
             ds.PeakPopulation=Math.Max(ds.PeakPopulation,p.Population);ds.PeakAreaKm2=Math.Max(ds.PeakAreaKm2,p.AreaKm2);p.LastEstimateYear=s.Years;
             AdvanceImperialGovernment(s,id,elapsed);
             AdvanceTerritorialAdministration(s,id,elapsed);
@@ -131,17 +135,21 @@ namespace WorldGen.Core
         }
         void BeginAggregateCampaign(PrehistoryState s,int attacker,int defender,HistoricalRelation relation,int front=-1)
         {
+            if(LivingWorldHistory(s)&&NuclearWarDeterred(s,attacker,defender))return;
             var h=s.History;int id=h.Dynamics.Campaigns.Length;var leader=h.Dynamics.Leaders[h.Dynamics.States[attacker].LeaderId];
             var campaign=new HistoricalCampaign{Id=id,A=relation.A,B=relation.B,AttackerId=attacker,LeaderId=leader.Id,StartedYear=s.Years,LastActionYear=s.Years,Aim=HistoricalWarAim.Conquest,Name=h.Polities[attacker].Name+"–"+h.Polities[defender].Name+" War",Objective="Secure the contested frontier and its administrative centers"};
             if(RegionalAmbitionHistory(s)&&TerritorialAmbitionContains(s,attacker,front>=0?front:s.Society.Settlements[h.Polities[defender].CapitalId].Cell))
             {campaign.Objective=h.Aggregates.Empires.Connections.Ambitions.Governments[attacker].Description;campaign.Context="The court seeks "+campaign.Objective.ToLowerInvariant()+". This is an ambition, not recognized sovereignty or a guarantee of conquest; supply, resistance, finances and war exhaustion still constrain the campaign.";}
             h.Dynamics.Campaigns=h.Dynamics.Campaigns.Concat(new[]{campaign}).ToArray();relation.WarSince=s.Years;relation.Trade=relation.Alliance=false;ScheduleAggregate(s,CampaignProcess,id);
+            RegisterInternationalCampaign(s,attacker,defender,id);
             if(ProvincialHistory(s))h.Aggregates.Provinces.Theaters=h.Aggregates.Provinces.Theaters.Concat(new[]{new HistoricalCampaignTheater{Cell=front}}).ToArray();
             if(CommunityHistory(s))h.Aggregates.Communities.Campaigns=h.Aggregates.Communities.Campaigns.Concat(new[]{new HistoricalCampaignAdvance()}).ToArray();
             HistoryEvent(s,"war",campaign.Name+" begins.",s.Society.Settlements[h.Polities[attacker].CapitalId].Cell,h.Polities[attacker].CultureId,attacker,defender,category:ChronicleCategory.Politics);
         }
         void AdvanceAggregateCampaign(PrehistoryState s,int id)
         {
+            if(LivingWorldHistory(s)&&!ContinueInternationalCampaign(s,id))return;
+            if(LivingWorldHistory(s))TryNuclearEscalation(s,id);
             if(ConnectedHistory(s)){AdvanceDevelopmentCampaign(s,id);return;}
             var h=s.History;var a=h.Aggregates;var c=h.Dynamics.Campaigns[id];int elapsed=s.Years-c.LastActionYear;if(elapsed<=0)return;c.LastActionYear=s.Years;int attacker=c.AttackerId,defender=attacker==c.A?c.B:c.A;var pa=h.Polities[attacker];var pb=h.Polities[defender];var relation=AggregateRelation(s,attacker,defender);
             if(pa.EndedYear>=0||pb.EndedYear>=0||s.Years-c.StartedYear>8+(int)(HistoryRoll("aggregate-war-duration",id,c.StartedYear)*18)||pa.Exhaustion>750||pb.Exhaustion>750)

@@ -64,6 +64,7 @@ namespace WorldGen.Core
             bool sea=DiffusionShore(from)&&DiffusionShore(to)&&HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Sailing,s.Years)>.15&&AggregateSeaLane(from,to);
             if(sea)range=Math.Max(range,HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years,true));
             else if(World.Landmass[from]!=World.Landmass[to])return 0;
+            if(owner>=0&&other>=0&&!domestic)range*=InternationalTradeEfficiency(s,owner,other);
             if(km>range*2)return 0;
             return (domestic?.90:.60)*Math.Exp(-km/Math.Max(50,range));
         }
@@ -89,6 +90,7 @@ namespace WorldGen.Core
                     double km=D.Angle(World.Surface.Cells[town.Cell].Position,World.Surface.Cells[other.Cell].Position)*World.Recipe.RadiusKm;
                     bool sea=DiffusionShore(town.Cell)&&DiffusionShore(other.Cell)&&AggregateSeaLane(town.Cell,other.Cell);
                     double transport=sea?HistoricalDevelopmentEffects.CoastRangeKm(h.Cultures[culture],s.Years,true):200*HistoricalModernEffects.LandTransport(h.Cultures[culture],s.Years);
+                    if(!domestic&&trade)transport*=InternationalTradeEfficiency(s,owner,foreign);
                     result=MergeResourceMarket(result,LivingResources(other.Cell),sourceConnection*(domestic?.85:.60)*Math.Exp(-km/Math.Max(50,transport)));
                 }
             }

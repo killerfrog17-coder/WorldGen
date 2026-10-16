@@ -59,7 +59,7 @@ namespace WorldGen.Presentation
                     b.AppendLine($"Year {SimulationClockView.YearNumber(c.StartedYear,SimulationClockView.EpochYear(s))} — "+(c.EndedYear<0?"ongoing":$"year {SimulationClockView.YearNumber(c.EndedYear,SimulationClockView.EpochYear(s))}")+"; "+h.Polities[c.A].Name+" versus "+h.Polities[c.B].Name+".");
                     b.AppendLine("Initial commander: "+h.Dynamics.Leaders[c.LeaderId].Name+". Objective: "+c.Objective+". Outcome: "+c.Outcome);
                     if(!string.IsNullOrEmpty(c.Context))b.AppendLine("Recorded campaign context: "+c.Context);
-                    b.AppendLine($"Recorded levy casualties: {c.CasualtiesA:N0} / {c.CasualtiesB:N0}. Settlement captures: {c.Conquests:N0}.");
+                    b.AppendLine((h.Version==Prehistory.LivingWorldHistoryVersion?"Recorded casualties":"Recorded levy casualties")+$": {c.CasualtiesA:N0} / {c.CasualtiesB:N0}. Settlement captures: {c.Conquests:N0}.");
                     b.AppendLine($"Repulsed assaults: {c.Repulses:N0}; captured state funds: {c.Spoils:N0} abstract account units.");
                     if(c.TributePaid>0)b.AppendLine($"One-time peace payment: {c.TributePaid:N0} account units to {h.Polities[c.TributeRecipientId].Name}. This is not an ongoing vassal obligation.");
                     if(c.CapturedSettlements.Length>0)b.AppendLine("Captured sites (in sequence): "+string.Join(", ",c.CapturedSettlements.Select(id=>towns[id].Name+" [site "+id+"]")));

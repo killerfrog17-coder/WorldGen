@@ -11,7 +11,7 @@ namespace WorldGen.Presentation
         static string SwatchHex(V color)=>"#"+((int)Math.Round(color.X*255)).ToString("X2",CultureInfo.InvariantCulture)+((int)Math.Round(color.Y*255)).ToString("X2",CultureInfo.InvariantCulture)+((int)Math.Round(color.Z*255)).ToString("X2",CultureInfo.InvariantCulture);
         static void LivingWorldSections(PrehistoryState s,string kind,int id,int cell,World? world,Prehistory? engine,List<AtlasSection> sections)
         {
-            if(world?.Ecology==null||s.History.Version!=Prehistory.LivingWorldHistoryVersion||cell<0||cell>=world.Surface.Cells.Length)return;
+            if(world?.Ecology==null||s.History.Version!=Prehistory.LivingWorldHistoryVersion||cell<0||cell>=world.Surface.Cells.Length||cell>=world.Hydrology.OceanConnected.Length||cell>=world.Ecology.Habitat.Length||cell>=world.Ecology.Province.Length)return;
             if(!world.Hydrology.OceanConnected[cell])
             {
                 var resource=HistoricalNaturalResources.At(world,cell);
@@ -34,6 +34,22 @@ namespace WorldGen.Presentation
                         Facts=new[]{F("Transfer of power",politics.Succession)},Links=politics.Blocs.Select((name,k)=>new AtlasLink{Name=name,Value=politics.InfluencePermille[k],Detail=(politics.InfluencePermille[k]/10.0).ToString("0.#",CultureInfo.InvariantCulture)+"% of the modeled influence mix"}).ToArray()});
                     sections.Add(new AtlasSection{Title="Public priorities",Bars=true,Unit="/ 1,000",Text="The government divides a finite funded program among competing priorities. These shares express allocation within that program—not a full GDP estimate. An empty treasury cannot fund it.",Links=new[]{
                         new AtlasLink{Name="Defense",Value=politics.DefensePermille},new AtlasLink{Name="Civil works",Value=politics.WorksPermille},new AtlasLink{Name="Relief",Value=politics.ReliefPermille},new AtlasLink{Name="Learning",Value=politics.LearningPermille}}});
+                }
+                var international=engine.InternationalProfile(s,id);
+                if(international.Available&&(international.Organizations.Length>0||international.CoalitionEntries>0))
+                {
+                    sections.Add(new AtlasSection{Title="Diplomatic institutions",Text="These organizations arise from existing diplomatic contacts and paid contributions. Their charters can ease trade or support uncertain mediation; they do not erase wars, borders or transport costs.",Facts=new[]{F("Known relationships",international.KnownRelations.ToString("N0",CultureInfo.InvariantCulture)),F("Recorded coalition entries",international.CoalitionEntries.ToString("N0",CultureInfo.InvariantCulture))},
+                        Links=international.Organizations.Select(o=>new AtlasLink{Kind="organization",Id=o.Id,Name=o.Name,Detail=o.Purpose+" · "+o.Members.ToString("N0",CultureInfo.InvariantCulture)+" members · "+o.Standing}).ToArray()});
+                }
+                var nuclear=engine.NuclearProfile(s,id);
+                if(nuclear.Available&&(nuclear.ProgramYear>=0||nuclear.FirstWeaponYear>=0||nuclear.Stockpile>0))
+                {
+                    sections.Add(new AtlasSection{Title="Nuclear capabilities",Text=nuclear.Status+". "+nuclear.Delivery+". Stockpile units are an abstract strategic measure, not calibrated real-world warhead counts. Knowledge alone does not create a weapon.",Facts=new[]{
+                        F("Weapons in custody",nuclear.Stockpile.ToString("N0",CultureInfo.InvariantCulture)),F("Operational readiness",(nuclear.ReadinessMilli/10.0).ToString("0.#",CultureInfo.InvariantCulture)+"%"),
+                        F("Programme began",nuclear.ProgramYear<0?"Not recorded":Y(s,nuclear.ProgramYear)),F("First physical arsenal",nuclear.FirstWeaponYear<0?"Not yet recorded":Y(s,nuclear.FirstWeaponYear)),
+                        F("Weapons used",nuclear.Used.ToString("N0",CultureInfo.InvariantCulture)),F("Recorded deterrence episodes",nuclear.DeterrenceEpisodes.ToString("N0",CultureInfo.InvariantCulture)),
+                        F("Programme investment",nuclear.Investment.ToString("N0",CultureInfo.InvariantCulture)+" treasury units"),F("Maintenance paid",nuclear.UpkeepPaid.ToString("N0",CultureInfo.InvariantCulture)+" treasury units"),
+                        F("Attributed civilian deaths",nuclear.InflictedCivilianDeaths.ToString("N0",CultureInfo.InvariantCulture))}});
                 }
             }
             HumanAppearance? appearance=null;

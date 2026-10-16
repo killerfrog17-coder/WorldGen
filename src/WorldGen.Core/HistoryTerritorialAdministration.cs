@@ -31,6 +31,7 @@ namespace WorldGen.Core
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var hc=h.Cultures[p.CultureId];var g=a.Empires.Governments[polity];var t=a.Empires.Territories;var finances=a.Polities[polity];
             if(!HistoricalTechnologies.Has(hc,HistoricalTechnology.Writing)||p.Cohesion<500||h.Dynamics.States[polity].PublicWorks<200)return -1;
             int maximum=Math.Min(128,2+(int)(Math.Sqrt(Math.Max(0,finances.Urban)/2500.0)*HistoricalModernEffects.AdministrativeCapacity(hc,s.Years)*3));
+            if(LivingWorldHistory(s))maximum=HistoricalMaritimeIntegrationEffects.PostBudget(finances.Urban,HistoricalModernEffects.AdministrativeCapacity(hc,s.Years),HistoricalModernEffects.Communication(hc,s.Years));
             if(g.AdministrativePosts.Count>=maximum||finances.Receipts<finances.ServiceCost*1.15)return -1;
             int choice=-1,parent=-1;double best=double.MaxValue;
             foreach(int next in World.Surface.Cells[target].Neighbors)

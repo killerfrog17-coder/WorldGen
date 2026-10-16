@@ -15,6 +15,7 @@ namespace WorldGen.Core
         // inventions, deployment, dates or material are granted by resizing.
         static void ExpandNuclearCapabilities(PrehistoryState s)
         {
+            InitializeNuclearHistory(s);
             foreach(var c in s.History.Cultures)
             {
                 Array.Resize(ref c.Technology,HistoricalTechnicalGraph.Count);Array.Resize(ref c.Research,HistoricalTechnicalGraph.Count);

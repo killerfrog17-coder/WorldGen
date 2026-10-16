@@ -35,6 +35,8 @@ namespace WorldGen.Core
             if(LivingWorldHistory(s))successor.Name=p.Name;
             var account=a.Polities[polity].Copy();account.Id=id;account.LastYear=s.Years;account.LastSuccession=s.Years;
             h.Polities=h.Polities.Concat(new[]{successor}).ToArray();a.Polities=a.Polities.Concat(new[]{account}).ToArray();
+            if(LivingWorldHistory(s)){AppendNuclearState(s);CloseNuclearState(s,polity,id,true);}
+            AppendInternationalState(s,polity,true);
             if(ProvincialHistory(s)){Array.Resize(ref a.Provinces.FarmPotential,h.Polities.Length);a.Provinces.FarmPotential[id]=a.Provinces.FarmPotential[polity];a.Provinces.FarmPotential[polity]=0;}
             if(CommunityHistory(s))a.Communities.Governments=a.Communities.Governments.Concat(new[]{a.Communities.Governments[polity].Copy()}).ToArray();
             AppendImperialGovernment(s,polity);

@@ -6,6 +6,7 @@ public static class HistoryMaritimeIntegrationTests
 {
     public static void Run(Action<bool,string> check)
     {
+        check(HistoricalMaritimeIntegrationEffects.ChartBudget(false,false)==48&&HistoricalMaritimeIntegrationEffects.ChartBudget(true,false)==128&&HistoricalMaritimeIntegrationEffects.ChartBudget(true,true)==256,"Coastal directions expand with oceangoing and global-shipping knowledge while retaining a fixed256-entry maximum");
         check(!HistoricalMaritimeIntegrationEffects.CivilianTerritory(0,true,0,100)&&!HistoricalMaritimeIntegrationEffects.CivilianTerritory(0,true,500,100),"A funded Antarctic station or hypothetical icecap ore does not confer a civilian district title");
         check(HistoricalMaritimeIntegrationEffects.CivilianTerritory(30,false,500,0)&&HistoricalMaritimeIntegrationEffects.CivilianTerritory(35,false,0,20),"Actual Arctic communities and productive reachable cold resource districts remain possible");
         check(!HistoricalMaritimeIntegrationEffects.CivilianTerritory(0,false,0,0)&&HistoricalMaritimeIntegrationEffects.CivilianTerritory(80,false,0,0),"Empty unproductive polar ground is not an automatic engine-era frontier while habitable unoccupied shores remain viable");
@@ -13,6 +14,7 @@ public static class HistoryMaritimeIntegrationTests
         check(!HistoricalMaritimeIntegrationEffects.AdministrativeShipping(3000,1,.19,900)&&!HistoricalMaritimeIntegrationEffects.AdministrativeShipping(3000,1,1,349),"Blue-water state ventures require deployed navigation and real administrative institutions");
         check(HistoricalMaritimeIntegrationEffects.AdministrativeShipping(3000,.2,.2,350)&&HistoricalMaritimeIntegrationEffects.AdministrativeShipping(120,0,0,0),"Actual ocean institutions qualify while short coastal ventures need not be modern bureaucracies");
         int early=HistoricalMaritimeIntegrationEffects.PostBudget(10000,1,1),modern=HistoricalMaritimeIntegrationEffects.PostBudget(1000000,4,8);
+        check(HistoricalMaritimeIntegrationEffects.PostBudget(1000000,1,1)<modern&&early<modern/4,"Urban scale alone does not grant the same office portfolio as deployed modern administration and communications");
         check(early<128&&modern>128,"Funded maritime-post capacity scales beyond the old128 ceiling with real institutions and communications");
         check(HistoricalMaritimeIntegrationEffects.PostBudget(long.MaxValue,1000,1000)<=2048,"Maritime post portfolio retains a finite actor budget");
         double familiar=HistoricalMaritimeIntegrationEffects.ConsentChance(10,800,800,700,true,.5),stranger=HistoricalMaritimeIntegrationEffects.ConsentChance(10,800,800,700,false,.5);
@@ -31,6 +33,8 @@ public static class HistoryMaritimeIntegrationTests
         object Call(string name,params object[] args)=>typeof(Prehistory).GetMethod(name,BindingFlags.Instance|BindingFlags.NonPublic)!.Invoke(engine,args)!;
         var supplyTown=s.Society.Settlements.First(t=>a.Resolve(t.PolityId,h)>=0&&a.Cities[t.Id].Supported&&t.Population>=500&&(bool)Call("DiffusionShore",t.Cell));
         int supplier=a.Resolve(supplyTown.PolityId,h);
+        int[] departures=(int[])Call("LivingColonialDepartures",s,supplier);
+        check(departures.Length<=4&&departures.Distinct().Count()==departures.Length&&departures.All(cell=>HistoricalCells.Polity(s,cell)==supplier&&(bool)Call("DiffusionShore",cell)),"The colonial planning portfolio is at most four distinct actual owned coastal departures, not an empire-wide scan or foreign supply base");
         var suppliedCities=s.Society.Settlements.Where(t=>a.Resolve(t.PolityId,h)==supplier).ToArray();
         var reserves=suppliedCities.Select(t=>t.FoodReserve).ToArray();
         foreach(var t in suppliedCities)t.FoodReserve=100000;
@@ -44,6 +48,19 @@ public static class HistoryMaritimeIntegrationTests
         var queueField=typeof(Prehistory).GetField("aggregateQueue",BindingFlags.Instance|BindingFlags.NonPublic)!;
         queueField.SetValue(engine,queue);
         var sponsor=h.Polities.First(p=>p.EndedYear<0);int polity=sponsor.Id;
+        var fiscalAccount=a.Polities[polity];var stateRecord=h.Dynamics.States[polity];var stateCulture=h.Cultures[sponsor.CultureId];
+        long receipts=fiscalAccount.Receipts,service=fiscalAccount.ServiceCost;int works=stateRecord.PublicWorks,cohesion=sponsor.Cohesion,writing=stateCulture.Technology[(int)HistoricalTechnology.Writing],writingDeployment=stateCulture.Technical?.Deployment[(int)HistoricalTechnology.Writing]??0,offices=a.Empires.Governments[polity].AdministrativePosts.Count;
+        stateRecord.PublicWorks=900;sponsor.Cohesion=900;stateCulture.Technology[(int)HistoricalTechnology.Writing]=1;fiscalAccount.Receipts=0;fiscalAccount.ServiceCost=100;
+        if(stateCulture.Technical!=null)stateCulture.Technical.Deployment[(int)HistoricalTechnology.Writing]=1000;
+        check((int)Call("TryEstablishTerritorialPost",s,polity,s.Society.Settlements[sponsor.CapitalId].Cell)==-1&&a.Empires.Governments[polity].AdministrativePosts.Count==offices,"A larger inland-office allowance does not waive an actual fiscal surplus");
+        fiscalAccount.Receipts=100000;stateCulture.Technology[(int)HistoricalTechnology.Writing]=0;
+        check((int)Call("TryEstablishTerritorialPost",s,polity,s.Society.Settlements[sponsor.CapitalId].Cell)==-1&&a.Empires.Governments[polity].AdministrativePosts.Count==offices,"Even a rich state cannot establish funded inland administration without actual writing institutions");
+        fiscalAccount.Receipts=receipts;fiscalAccount.ServiceCost=service;stateRecord.PublicWorks=works;sponsor.Cohesion=cohesion;stateCulture.Technology[(int)HistoricalTechnology.Writing]=writing;
+        if(stateCulture.Technical!=null)stateCulture.Technical.Deployment[(int)HistoricalTechnology.Writing]=writingDeployment;
+        // A retention fixture, not a simulation of discovering these shores.
+        // Actual discovery remains gated by physical voyages in production.
+        for(int region=0;region<Math.Min(32,engine.Patches.Length);region++)Call("RecordCoastChart",s,sponsor.CultureId,region,sponsor.CultureId);
+        check(a.Empires.Connections.Cultures[sponsor.CultureId].Charts.Length>=32&&a.Empires.Connections.Cultures[sponsor.CultureId].Charts.Length<=256,"A32 shipping society retains more than24 actual direction records and saves them within the bounded chart portfolio");
         int city=s.Society.Settlements.First(t=>t.Id!=sponsor.CapitalId&&t.Population>=500&&a.Cities[t.Id].Supported&&a.Living.Cities[t.Id].AbandonedYear<0&&a.Resolve(t.PolityId,h)<0).Id;
         var town=s.Society.Settlements[city];
         sponsor.Treasury=100000000;sponsor.Cohesion=900;sponsor.Legitimacy=1000;sponsor.Exhaustion=0;

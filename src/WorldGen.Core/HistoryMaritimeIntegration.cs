@@ -10,6 +10,7 @@ namespace WorldGen.Core
             =>unsupportedKm<=800||writing>=.2&&navigation>=.2&&institution>=350;
         public static bool CivilianTerritory(int growingDays,bool permanentIce,long residents,double strategicValue)
             =>!permanentIce&&(growingDays>=60||residents>=200||growingDays>=20&&strategicValue>=15);
+        public static int ChartBudget(bool oceanGoing,bool globalShipping)=>globalShipping?256:oceanGoing?128:48;
         public static int PostBudget(long urban,double administrativeCapacity,double communications)
             =>(int)Math.Round(Math.Max(8,Math.Min(2048,16+Math.Sqrt(Math.Max(0,urban)/2500.0)*12*Math.Max(1,administrativeCapacity)*Math.Sqrt(Math.Max(1,communications)))));
         public static long CouncilInvestment(long residents,int distanceM)
@@ -86,10 +87,11 @@ namespace WorldGen.Core
             if(p.Treasury<investment*3||a.Polities[polity].Receipts<=a.Polities[polity].ServiceCost+investment/100)return false;
             double chance=HistoricalMaritimeIntegrationEffects.ExpeditionChance(elapsed,expedition/resistance,p.Exhaustion,leader.Ambition);
             if(HistoryRoll("maritime-state-expedition-"+defender,polity,s.Years)>=chance)return false;
-            p.Treasury-=investment;p.Exhaustion=Math.Min(1000,p.Exhaustion+35);
             // Use the ordinary supplied campaign, casualties, local resistance,
             // conquests and peace machinery. A chart does not annex a country.
-            BeginAggregateCampaign(s,polity,defender,relation,route.CellB);
+            int before=h.Dynamics.Campaigns.Length;BeginAggregateCampaign(s,polity,defender,relation,route.CellB);
+            if(h.Dynamics.Campaigns.Length==before)return false;
+            p.Treasury-=investment;p.Exhaustion=Math.Min(1000,p.Exhaustion+35);
             HistoryEvent(s,"overseas-expedition",p.Name+" funds a naval expedition against "+other.Name+" through its charted port route. The result depends on supplied armies, local resistance and the campaign, not an automatic colonial claim.",route.CellB,p.CultureId,polity,defender,category:ChronicleCategory.Politics);
             return true;
         }

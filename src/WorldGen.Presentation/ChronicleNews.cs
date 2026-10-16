@@ -43,9 +43,15 @@ namespace WorldGen.Presentation
                 case "war":if(Major(e.PolityId)||Major(e.OtherPolityId))text=Court(e.PolityId)+" went to war with "+Court(e.OtherPolityId)+".";break;
                 case "peace":if(Major(e.PolityId)||Major(e.OtherPolityId))text=Court(e.PolityId)+" and "+Court(e.OtherPolityId)+" made peace.";break;
                 case "collapse":if(Major(e.PolityId))text=Court(e.PolityId)+" fell apart.";break;
-                case "state-founded":case "state-foundation":case "empire-founded":if(e.PolityId==0||Major(e.PolityId))text=Court(e.PolityId)+" was founded.";break;
-                case "settlement":if(e.SettlementId==0&&state.Society.Settlements.Length>0)text=state.Society.Settlements[0].Name+" became the first recorded permanent settlement.";break;
-                case "overseas-charter":if(Major(e.PolityId))text=Court(e.PolityId)+" established an overseas colony.";break;
+                case "state":case "independent-institutions":case "state-founded":case "state-foundation":case "empire-founded":if(e.PolityId==0||Major(e.PolityId))text=Court(e.PolityId)+" was founded.";break;
+                case "settlement":if(e.SettlementId==0&&state.Society.Settlements.Length>0)text=state.Society.Settlements[0].Name+" became the first recorded settlement.";break;
+                case "overseas-charter":if(Major(e.PolityId))text=Court(e.PolityId)+(state.History.Version==Prehistory.LivingWorldHistoryVersion?" established an overseas office.":" established an overseas colony.");break;
+                case "sponsored-port":if(Major(e.PolityId))text=e.SettlementId>=0&&e.SettlementId<state.Society.Settlements.Length?Court(e.PolityId)+" settled a new overseas port at "+state.Society.Settlements[e.SettlementId].Name+".":Sentence(e.Text);break;
+                case "international-foundation":case "international-mediation":case "treaty-breach":case "coalition-war":
+                case "colonial-council":case "colonial-protectorate":case "political-repression":
+                    if(Major(e.PolityId)||Major(e.OtherPolityId))text=Sentence(e.Text);break;
+                case "nuclear-strike":text=Sentence(e.Text);break;
+                case "nuclear-arsenal":if(Major(e.PolityId))text=Court(e.PolityId)+" commissioned its first nuclear arsenal.";break;
                 case "colonial-transfer":case "title-transfer":if(Major(e.PolityId)||Major(e.OtherPolityId))text=Sentence(e.Text);break;
                 case "imperial-independence":case "secession":case "provincial-revolt":
                 case "great-ruler-death":
@@ -65,6 +71,9 @@ namespace WorldGen.Presentation
             return text.Length==0?null:new ChronicleEvent{Year=e.Year,CultureId=e.CultureId,Cell=e.Cell,Category=e.Category,Text=text};
         }
         public static int Window(ChronicleCategory category)=>category==ChronicleCategory.Politics?5:category==ChronicleCategory.Society?20:1;
+        // A genuinely extraordinary development can replace a lesser lead in
+        // the same editorial window. This never removes its archival record.
+        public static int Priority(string kind)=>kind=="nuclear-strike"?100:kind=="coalition-war"||kind=="treaty-breach"?60:kind=="collapse"||kind=="great-conquest"?40:kind=="international-foundation"||kind=="international-mediation"||kind=="nuclear-arsenal"?20:0;
         bool MajorPeople(int id)=>id>=0&&id<state.Society.Cultures.Length&&state.Society.Cultures[id].Population>=Math.Max(5000,significant/10);
         static string Sentence(string text){int end=text.IndexOf(". ",StringComparison.Ordinal);return end>=0?text.Substring(0,end+1):text;}
         static string Between(string text,string start,string end){int first=text.IndexOf(start,StringComparison.Ordinal);if(first<0)return "";first+=start.Length;int last=text.IndexOf(end,first,StringComparison.Ordinal);return last<0?"":text.Substring(first,last-first);}

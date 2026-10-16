@@ -301,8 +301,15 @@ public sealed partial class WorldGenRuntime
             atlasSection="Diplomatic neighborhood";
             for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();
             ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(folder,"atlas-diplomacy.png"));
+            foreach(var section in new[]{"Political interests","Public priorities","Local resource potential","Climate and livelihoods","Diplomatic institutions","Nuclear capabilities"})
+            {
+                if(!atlasDocument.Sections.Any(x=>x.Title==section))continue;
+                atlasSection=section;for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();
+                ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(folder,"atlas-"+section.ToLowerInvariant().Replace(' ','-')+".png"));
+                for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();
+            }
         }
-        foreach(var entry in new[]{("city","atlas-city"),("people","atlas-people"),("religion","atlas-religion"),("ruler","atlas-ruler")})
+        foreach(var entry in new[]{("city","atlas-city"),("people","atlas-people"),("religion","atlas-religion"),("ruler","atlas-ruler"),("organization","atlas-organization")})
         {
             var record=HistoryAtlas.Directory(world.Prehistory,entry.Item1).FirstOrDefault();if(record==null)continue;
             OpenAtlas(record.Kind,record.Id);for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();
@@ -313,8 +320,21 @@ public sealed partial class WorldGenRuntime
             {
                 atlasSection=modelSection;for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(folder,entry.Item2+"-model.png"));for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();
             }
-            atlasSection="Recorded history";for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();
-            ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(folder,entry.Item2+"-history.png"));
+            if(entry.Item1=="people"&&atlasDocument.Sections.Any(s=>s.Title=="People and appearance"))
+            {
+                atlasSection="People and appearance";for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();
+                ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(folder,"atlas-appearance.png"));for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();
+            }
+            if(entry.Item1=="organization")
+            {
+                atlasSection="Common finances";for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();
+                ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(folder,"atlas-organization-finances.png"));for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();
+            }
+            if(atlasDocument.Sections.Any(s=>s.Title=="Recorded history"))
+            {
+                atlasSection="Recorded history";for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();
+                ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(folder,entry.Item2+"-history.png"));
+            }
         }
         for(int frame=0;frame<8;frame++)yield return new WaitForEndOfFrame();atlasOpen=false;
         peoplesOpen=false;chronicleOpen=false;detailsOpen=false;selectedCell=-1;historyOverlay=HistoryOverlay.States;UpdateHumanPalette();

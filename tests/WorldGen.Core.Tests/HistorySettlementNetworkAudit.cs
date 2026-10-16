@@ -69,16 +69,17 @@ public static class HistorySettlementNetworkAudit
             int harbor=(int)Call("ColonialProvincialHarbor",s,p.Id);
             var live=a.Polities[p.Id].Cities;
             var charts=a.Empires.Connections.Cultures[p.CultureId].Charts;
-            var plans=charts.Take(6).Select(chart=>
+            int[] departures=(int[])Call("LivingColonialDepartures",s,p.Id);
+            var plans=departures.SelectMany(source=>charts.Take(6).Select(chart=>
             {
-                var route=harbor<0?null:(Prehistory.Route)Call("ColonialTargetRoute",s,harbor,chart.Region,p.Id);
-                if(route==null)return new{chart.Region,Target=-1,Town=-1,TargetPolity=-1,Supplied=false,SupplyPort=-1,Provisions=0L};
+                var route=(Prehistory.Route)Call("ColonialTargetRoute",s,source,chart.Region,p.Id);
+                if(route==null)return new{Source=source,chart.Region,Target=-1,Town=-1,TargetPolity=-1,Supplied=false,SupplyPort=-1,Provisions=0L};
                 object[] args={s,p.Id,route,-1,-1,0L};bool supplied=(bool)Call("MaritimeCharterLogistics",args);
-                return new{chart.Region,Target=route.CellB,Town=a.TownAt[route.CellB],TargetPolity=HistoricalCells.Polity(s,route.CellB),Supplied=supplied,SupplyPort=(int)args[4],Provisions=(long)args[5]};
-            }).ToArray();
+                return new{Source=source,chart.Region,Target=route.CellB,Town=a.TownAt[route.CellB],TargetPolity=HistoricalCells.Polity(s,route.CellB),Supplied=supplied,SupplyPort=(int)args[4],Provisions=(long)args[5]};
+            })).ToArray();
             return new{p.Id,p.Name,p.Treasury,a.Polities[p.Id].Receipts,a.Polities[p.Id].ServiceCost,Harbor=harbor,Coasts=a.Empires.Connections.Coasts.Governments[p.Id].Count,
                 Ports=Enumerable.Range(0,live.Count).Select(k=>s.Society.Settlements[live.At(k)]).Where(t=>(bool)Call("DiffusionShore",t.Cell)).Select(t=>new{t.Id,t.Name,t.Population,t.FoodReserve,a.Cities[t.Id].Supported}),
-                Offices=a.Empires.Governments[p.Id].AdministrativePosts.Count,Charts=charts.Length,Plans=plans};
+                Offices=a.Empires.Governments[p.Id].AdministrativePosts.Count,Charts=charts.Length,Departures=departures,Plans=plans};
         }).ToArray();
         var result=new{Year=s.Years,h.Version,a.TotalPopulation,a.TotalUrban,LiveTowns=towns.Length,Towns=towns,SecondaryFounding=secondary,Maritime=maritime};
         File.WriteAllText(Path.Combine(folder,"settlement-network.json"),JsonSerializer.Serialize(result,new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));

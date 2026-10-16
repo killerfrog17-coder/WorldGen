@@ -141,6 +141,8 @@ namespace WorldGen.Core
                 if(o is HistoryState aggregateHistory && f.Name==nameof(HistoryState.Aggregates) && aggregateHistory.Aggregates==null)continue;
                 if(o is HistoryState languageHistory && f.Name==nameof(HistoryState.Languages) && languageHistory.Languages==null)continue;
                 if(o is HistoryState originHistory && f.Name==nameof(HistoryState.OriginReach) && originHistory.OriginReach==null)continue;
+                if(o is HistoryState nuclearHistory && f.Name==nameof(HistoryState.Nuclear) && nuclearHistory.Nuclear==null)continue;
+                if(o is HistoryState internationalHistory && f.Name==nameof(HistoryState.International) && internationalHistory.International==null)continue;
                 if(o is HistoricalAggregateState oldAggregate && f.Name==nameof(HistoricalAggregateState.Living) && oldAggregate.Living==null)continue;
                 if(o is HistoricalAggregateState oldProvince && f.Name==nameof(HistoricalAggregateState.Provinces) && oldProvince.Provinces==null)continue;
                 if(o is HistoricalAggregateState oldCommunity && f.Name==nameof(HistoricalAggregateState.Communities) && oldCommunity.Communities==null)continue;

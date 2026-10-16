@@ -183,7 +183,7 @@ namespace WorldGen.Core
                 var client=s.History.Polities[c.AttackerId];var patron=s.History.Polities[c.AttackerId==c.A?c.B:c.A];
                 if(TryHistoricalDependency(s,patron,client,true))c.Outcome+=" After repeated defeats, "+client.Name+" renews tributary obligations to "+patron.Name+" while retaining its local court.";
             }
-            HistoryEvent(s,"campaign-end",c.Name+" ends: "+c.Outcome+" "+c.Conquests+" settlements changed hands; "+(c.CasualtiesA+c.CasualtiesB).ToString("N0",CultureInfo.InvariantCulture)+" levy casualties are recorded.",s.Society.Settlements[s.History.Polities[c.AttackerId].CapitalId].Cell,polity:c.AttackerId,other:c.AttackerId==c.A?c.B:c.A,category:ChronicleCategory.Politics);
+            HistoryEvent(s,"campaign-end",c.Name+" ends: "+c.Outcome+" "+c.Conquests+" settlements changed hands; "+(c.CasualtiesA+c.CasualtiesB).ToString("N0",CultureInfo.InvariantCulture)+(LivingWorldHistory(s)?" casualties are recorded.":" levy casualties are recorded."),s.Society.Settlements[s.History.Polities[c.AttackerId].CapitalId].Cell,polity:c.AttackerId,other:c.AttackerId==c.A?c.B:c.A,category:ChronicleCategory.Politics);
         }
         void AdvanceCivicCampaigns(PrehistoryState s,CancellationToken token)
         {

@@ -101,13 +101,14 @@ namespace WorldGen.Presentation
             var culture=SocietyView.Culture(s,cell);if(culture==null&&state>=0)culture=s.Society.Cultures[s.History.Polities[state].CultureId];
             if(culture!=null)links.Add(CultureLink(culture));if(faith>=0)links.Add(FaithLink(s.History.Religions[faith]));return links.ToArray();
         }
-        public static string ProfileLabel(AtlasLink link)=>link.Kind=="technology"?"Technology":link.Kind=="claim"?"Title":link.Kind=="province"?"Province":link.Kind=="religion"?"Belief":link.Kind=="people"?"People":link.Kind=="city"?"City":link.Kind=="ruler"?"Ruler":link.Detail=="Imperial government"?"Realm":link.Detail=="Local government"?"Local state":"State";
+        public static string ProfileLabel(AtlasLink link)=>link.Kind=="organization"?"Organization":link.Kind=="technology"?"Technology":link.Kind=="claim"?"Title":link.Kind=="province"?"Province":link.Kind=="religion"?"Belief":link.Kind=="people"?"People":link.Kind=="city"?"City":link.Kind=="ruler"?"Ruler":link.Detail=="Imperial government"?"Realm":link.Detail=="Local government"?"Local state":"State";
         public static AtlasLink[] Directory(PrehistoryState? s,string kind,string search="",bool past=false)
         {
             if(s?.Society==null||s.History==null)return Array.Empty<AtlasLink>();
             var h=s.History;IEnumerable<AtlasLink> entries;
             switch(kind)
             {
+                case "organization":entries=(h.International?.Organizations??Array.Empty<HistoricalInternationalOrganization>()).Where(o=>past||o.EndedYear<0).OrderByDescending(o=>o.Members.Count).ThenBy(o=>o.Id).Select(o=>OrganizationLink(s,o));break;
                 case "technology":entries=s.Society.Cultures.Where(c=>c.Population>0||past).OrderByDescending(c=>WorldEraView.KnowledgeEra(h.Cultures[c.Id])).ThenBy(c=>c.Id).Select(c=>TechnologyLink(s,c.Id,c.OriginCell));break;
                 case "province":entries=ProvinceDirectory(s);break;
                 case "state":entries=h.Polities.Where(p=>past||p.EndedYear<0).OrderByDescending(p=>p.Population).ThenBy(p=>p.Id).Select(p=>StateLink(s,p,p.EndedYear<0?p.Government:"Ended in year "+Y(s,p.EndedYear),p.Population));break;
@@ -127,6 +128,7 @@ namespace WorldGen.Presentation
             switch(kind)
             {
                 case "world":Overview(s,d,sections);break;
+                case "organization":Organization(s,id,d,sections);break;
                 case "technology" when id>=0&&id<h.Cultures.Length:Technology(s,id,d,sections);break;
                 case "province":Province(s,id,d,sections);break;
                 case "claim":Claim(s,id,d,sections);break;
@@ -178,6 +180,7 @@ namespace WorldGen.Presentation
             var ties=h.Relations.Where(r=>h.Polities[r.A].EndedYear<0&&h.Polities[r.B].EndedYear<0&&(r.WarSince>=0||r.Alliance||r.Trade)).OrderByDescending(r=>r.WarSince>=0).ThenBy(r=>r.A).ThenBy(r=>r.B);
             a.Add(new AtlasSection{Title="Connections and fault lines",Text="Recorded interstate ties, not every possible route. Select a state for its diplomatic neighborhood.",Links=ties.Take(40).Select(r=>StateLink(s,h.Polities[r.A],Relation(s,r)+" — "+h.Polities[r.B].Name)).ToArray()});
             a.Add(Links("Peoples and ways of life",s.Society.Cultures.OrderByDescending(c=>c.Population).ThenBy(c=>c.Id).Take(12).Select(CultureLink),"Peoples can live under several states; a civilization is not necessarily a united empire.",true,"people"));
+            if(h.International!=null)a.Add(Links("International organizations",h.International.Organizations.Where(o=>o.EndedYear<0).OrderByDescending(o=>o.Members.Count).ThenBy(o=>o.Id).Take(12).Select(o=>OrganizationLink(s,o)),"Actual member governments and paid common funds; membership does not guarantee peace."));
             a.Add(new AtlasSection{Title="Knowledge across the world",Text="How many recorded cultures have adopted each practice. These are independent capabilities, not a single progress score. "+(h.Modern==null?"This save retains its medieval technology ceiling.":"Further development is limited to "+h.Modern.TechnologyCeiling+" practices; adoption and infrastructure effects take time."),Bars=true,Unit="cultures",Links=Enumerable.Range(0,HistoricalTechnologies.Count(h.Version)).Select(k=>new AtlasLink{Name=HistoricalTechnologies.Name(h.Version,k),Value=h.Cultures.Count(c=>HistoricalTechnologies.Has(c,(HistoricalTechnology)k)),Detail=N(h.Cultures.Count(c=>HistoricalTechnologies.Has(c,(HistoricalTechnology)k)))+" of "+N(h.Cultures.Length)+" recorded cultures"}).ToArray()});
             if(h.Aggregates!=null)
             {

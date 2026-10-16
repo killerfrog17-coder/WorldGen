@@ -1,6 +1,10 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--international-only")){int count=0;HistoryInternationalTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" international diplomacy assertions");return;}
+if(args.Contains("--international-world")){int count=0;HistoryInternationalTests.World(args[Array.IndexOf(args,"--international-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" international diplomacy integration assertions");return;}
+if(args.Contains("--colonial-settlements-world")){int count=0;HistoryColonialSettlementTests.World(args[Array.IndexOf(args,"--colonial-settlements-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" sponsored colonial settlement assertions");return;}
+if(args.Contains("--institutional-provenance-world")){int count=0;HistoryInstitutionalProvenanceTests.World(args[Array.IndexOf(args,"--institutional-provenance-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" local institutional provenance assertions");return;}
 if(args.Contains("--living-atlas-world")){int count=0;HistoryLivingAtlasTests.World(args[Array.IndexOf(args,"--living-atlas-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" living atlas assertions");return;}
 if(args.Contains("--politics-only")){int count=0;HistoryPoliticalProgramsTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" political program assertions");return;}
 if(args.Contains("--politics-world")){int count=0;HistoryPoliticalProgramsTests.World(args[Array.IndexOf(args,"--politics-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" political program integration assertions");return;}

@@ -88,6 +88,8 @@ namespace WorldGen.Core
         void EndAggregateState(PrehistoryState s,int id,string reason,int successor=-1)
         {
             var h=s.History;var a=h.Aggregates;var p=h.Polities[id];if(p.EndedYear>=0)return;var account=a.Polities[id];
+            if(LivingWorldHistory(s))CloseNuclearState(s,id,successor);
+            CloseInternationalState(s,id);
             EndImperialGovernment(s,id);
             p.EndedYear=s.Years;p.Army=0;a.Successors=a.Successors.With(id,successor);
             // Remote communities outlive the court. Their cohort retains its

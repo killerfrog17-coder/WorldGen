@@ -92,6 +92,27 @@ public static class HistoryInstitutionalTransmissionTests
         for(int opportunity=0;opportunity<20&&lesson.History.Towns[candidate].CivicExampleExposure==0;opportunity++)
         {aggregates.Cities[candidate].LastPoliticalYear=lesson.Years-10;Call("TryLivingInstitutions",lesson,candidate);lesson.Years+=10;}
         check(lesson.History.Towns[candidate].CivicExampleExposure>0,"Actual town handler learns from a modest22-point local delivered lesson instead of discarding it below150");
+        var shipping=engine.UpgradeToLivingWorldHistory(before).Copy();var accounts=shipping.History.Aggregates;
+        var provisioner=shipping.Society.Settlements.First(t=>accounts.Resolve(t.PolityId,shipping.History)>=0&&accounts.Cities[t.Id].Supported&&t.Population>=500&&(bool)Call("DiffusionShore",t.Cell));
+        int state=accounts.Resolve(provisioner.PolityId,shipping.History),harbor=provisioner.Cell,providerCulture=shipping.History.Polities[state].CultureId;
+        var shippingCulture=shipping.History.Cultures[providerCulture];
+        for(int k=0;k<HistoricalTechnicalGraph.LegacyCount;k++){shippingCulture.Technology[k]=1;shippingCulture.Technical.Levels[k]=10;shippingCulture.Technical.LevelYear[k]=0;shippingCulture.Technical.Deployment[k]=1000;}
+        shippingCulture.Institution=1000;
+        int inland=Enumerable.Range(0,world.Surface.Cells.Length).Where(cell=>world.Landmass[cell]==world.Landmass[harbor]&&!(bool)Call("DiffusionShore",cell)&&engine.CellPatch[cell]>=0)
+            .OrderBy(cell=>D.Angle(world.Surface.Cells[harbor].Position,world.Surface.Cells[cell].Position)).First();
+        // Controlled coarse-cell fixture: an actual supported city provisions
+        // its owned serviced coastal office rather than occupying the shore cell.
+        provisioner.Cell=inland;accounts.Empires.Territories.Sources=accounts.Empires.Territories.Sources.With(harbor,provisioner.Id);
+        var suppliedCities=accounts.Polities[state].Cities;for(int k=0;k<suppliedCities.Count;k++)shipping.Society.Settlements[suppliedCities.At(k)].FoodReserve=0;
+        provisioner.FoodReserve=10000000;
+        var cargoRoute=new Prehistory.Route{A=engine.CellPatch[harbor],B=engine.CellPatch[harbor],CellA=harbor,CellB=harbor,DistanceM=200000,Sea=true};
+        object[] shippingArgs={shipping,state,cargoRoute,provisioner.Id,-1,0L};
+        check((bool)Call("MaritimeCharterLogistics",shippingArgs)&&(int)shippingArgs[4]==provisioner.Id,"Actual owned coastal office has a finite inland supply leg from a supported city");
+        long cargo=provisioner.FoodReserve,cost=(long)shippingArgs[5];
+        check((bool)Call("InstitutionalVoyageDelivery",shipping,cargoRoute,providerCulture,state,-1)&&provisioner.FoodReserve==cargo-cost,"Institutional delivery reuses the real serviced harbor and charges the selected inland city's exact provisions");
+        check(!(bool)Call("InstitutionalVoyageDelivery",shipping,cargoRoute,providerCulture,-1,provisioner.Id),"An unowned inland forager town cannot obtain the state's serviced-harbor exemption just by being passed as a preferred port");
+        provisioner.FoodReserve=0;
+        check(!(bool)Call("InstitutionalVoyageDelivery",shipping,cargoRoute,providerCulture,state,-1),"An owned coastal office without an actually provisioned city cannot deliver institutional cargo");
         var next=engine.AdvanceYears(engine.UpgradeToLivingWorldHistory(before),20);var split=engine.AdvanceYears(engine.AdvanceYears(engine.UpgradeToLivingWorldHistory(before),7),13);
         check(next.Hash==split.Hash,"Physical transmission and local civic exposure are invariant to publication partitioning");
         Console.WriteLine($"Civic ocean control: {best:F1} km unsupported passage, coastal navigation rejected, installed ocean craft accepted.");

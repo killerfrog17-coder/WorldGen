@@ -8,6 +8,7 @@ namespace WorldGen.Core
         {
             if(!ColonialHistory(s))return;var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var hc=h.Cultures[p.CultureId];
             if(!HistoricalTechnologies.Has(hc,HistoricalTechnology.OceanNavigation)||p.Treasury<1000||p.Cohesion<400)return;
+            if(LivingWorldHistory(s)){AdvanceLivingColonialExpedition(s,polity,elapsed);return;}
             var cities=a.Polities[polity].Cities;int source=-1;
             int offset=cities.Count==0?0:(int)(HistoryRoll("colonial-funded-port",polity,s.Years)*cities.Count);
             for(int k=0;k<Math.Min(6,cities.Count);k++){int city=cities.At((offset+k)%cities.Count);var town=s.Society.Settlements[city];if(town.Population>=300&&a.Cities[city].Supported&&DiffusionShore(town.Cell)){source=town.Cell;break;}}
