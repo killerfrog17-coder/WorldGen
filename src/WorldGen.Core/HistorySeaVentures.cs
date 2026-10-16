@@ -61,12 +61,20 @@ namespace WorldGen.Core
             }
             // The office's own service ledger is already first-hand knowledge.
             // Address two fair pending entries, not every holding of an empire.
-            var pending=a.Empires.Connections.PortSettlements?.Governments[polity].Pending;
+            var retries=a.Empires.Connections.PortSettlements?.Governments[polity];var pending=retries?.Pending;
             for(int k=0;pending!=null&&k<Math.Min(2,pending.Count);k++)
             {
-                int postId=pending.At((map.Voyages+k)%pending.Count);var post=a.Empires.Territories.Posts[postId];int region=CellPatch[post.Cell];
+                int postId=a.Empires.Connections.Geography.Version>=2?retries.TakeOne():pending.At((map.Voyages+k)%pending.Count);var post=a.Empires.Territories.Posts[postId];int region=CellPatch[post.Cell];
                 if(!PendingColonialPort(s,polity,post)||map.ReviewAfter[region]>s.Years||map.Missions.Any(m=>m.Region==region&&m.Kind!=HistoricalSeaMission.Report))continue;
                 int source=departures[(map.Voyages+k)%departures.Length];if(source==post.Cell)continue;
+                if(a.Empires.Connections.Geography.Version>=2)
+                {
+                    // A funded office has an actual recorded parent service
+                    // route. Prefer that owned shore over an unrelated random
+                    // port on the other side of the empire/ocean basin.
+                    int original=TerritorialNodeCell(s,post.ParentSource);
+                    if(original>=0&&DiffusionShore(original)&&HistoricalCells.Polity(s,original)==polity)source=original;
+                }
                 ObserveGeographicCoast(s,map,post.Cell,3,polity);
                 if(!proposals.Any(x=>x.source==source&&x.region==region))proposals.Add((source,region,post.Cell,3));
             }

@@ -34,7 +34,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalGeographicKnowledge
     {
-        public int Version=1,SinceYear;
+        public int Version=2,SinceYear;
         public HistoricalGeographicMap[] Governments=Array.Empty<HistoricalGeographicMap>();
         public HistoricalGeographicKnowledge Copy()=>new HistoricalGeographicKnowledge{Version=Version,SinceYear=SinceYear,Governments=Governments.Select(m=>m.Copy()).ToArray()};
     }
@@ -60,7 +60,8 @@ namespace WorldGen.Core
         public PrehistoryState UpgradeGeographicKnowledge(PrehistoryState source)
         {
             Validate(source);if(!LivingWorldHistory(source))throw new ArgumentException("Geographical knowledge requires history32.");
-            if(GeographicHistory(source))return source;var s=source.Copy();InitializeGeographicKnowledge(s);s.Seal();return s;
+            if(GeographicHistory(source)&&source.History.Aggregates.Empires.Connections.Geography.Version==2)return source;
+            var s=source.Copy();InitializeGeographicKnowledge(s);s.History.Aggregates.Empires.Connections.Geography.Version=2;s.Seal();return s;
         }
         void InitializeGeographicKnowledge(PrehistoryState s)
         {
@@ -111,7 +112,7 @@ namespace WorldGen.Core
         void ValidateGeographicKnowledge(PrehistoryState s)
         {
             var g=s.History.Aggregates.Empires.Connections.Geography;if(g==null)return;
-            if(!LivingWorldHistory(s)||g.Version!=1||g.SinceYear<0||g.SinceYear>s.Years||g.Governments?.Length!=s.History.Polities.Length)throw new ArgumentException("Invalid geographical knowledge policy.");
+            if(!LivingWorldHistory(s)||(g.Version!=1&&g.Version!=2)||g.SinceYear<0||g.SinceYear>s.Years||g.Governments?.Length!=s.History.Polities.Length)throw new ArgumentException("Invalid geographical knowledge policy.");
             long now=SimulationTime.Seconds(s);
             for(int id=0;id<g.Governments.Length;id++)
             {

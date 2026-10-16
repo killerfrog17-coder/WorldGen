@@ -7,6 +7,10 @@ namespace WorldGen.Core
         public HistoricalLocalBag Pending=new HistoricalLocalBag();
         public int Cursor;
         public HistoricalPendingPortGovernment Copy()=>new HistoricalPendingPortGovernment{Pending=Pending.Copy(),Cursor=Cursor};
+        public int TakeOne()
+        {
+            if(Pending.Count==0)return -1;int next=Pending.At(Cursor);Cursor=(Cursor+1)%Pending.Count;return next;
+        }
         public int[] Take()
         {
             int count=Math.Min(HistoricalColonialPortRetryEffects.Budget,Pending.Count);var result=new int[count];

@@ -1,9 +1,13 @@
 # History 32: state geography and dated sea ventures
 
-This is the nullable `Connections.Geography` version-1 review extension. It does
+This is the nullable `Connections.Geography` version-2 review extension. It does
 not change the heightmap, climate, crop suitability, or old saves on load.
 Fresh history-32 simulations enable it. `UpgradeGeographicKnowledge` is explicit;
 history-31 and predecessor null-geography checkpoints retain their old rules.
+Version1 review checkpoints also retain their exact continuation until explicitly
+upgraded; version2 replaces a voyage-count-dependent office selection with the
+saved fair pending cursor. Failed dispatches therefore cannot starve the rest of
+a state's paid office portfolio. No ecological or funding condition is relaxed.
 
 ## Actual defects addressed
 
