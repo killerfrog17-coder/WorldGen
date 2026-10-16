@@ -32,6 +32,7 @@ namespace WorldGen.Core
             }
             var values=new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,h.Version,a,h.Cultures,h.Religions,h.Polities,h.Relations,h.Towns,h.Agriculture,h.Dynamics.States,h.Dynamics.Campaigns,h.Dynamics.Dependencies,h.Modern,h.OceanSettlements,h.Administration,Timeline};
             if(h.Languages!=null)values=values.Concat(new object[]{h.Languages}).ToArray();
+            if(h.OriginReach!=null)values=values.Concat(new object[]{h.OriginReach}).ToArray();
             return verify?StateHash.Compute(values,token):StateHash.ComputeOwnedHistorical(values,h,token);
         }
         internal void SealAggregateOwned(CancellationToken token=default){Hash=AggregateHash(false,token);}

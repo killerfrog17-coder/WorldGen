@@ -89,6 +89,6 @@ public static class LanguageTests
             check(probe.History.Archive.Last().Text.Contains(probe.Society.Cultures[child].Name),"Culture foundation records its final language-based name");
         }
         world.Prehistory=null;var fresh=new Prehistory(world);var prepared=fresh.Prepare();fresh.Validate(prepared);
-        check(prepared.History.Version==Prehistory.LanguageHistoryVersion&&prepared.History.Languages.Profiles.Length==0,"Fresh worlds initialize the new language rules before humans form cultures");
+        check(prepared.History.Version==Prehistory.CurrentHistoryVersion&&prepared.History.Languages.Profiles.Length==0,"Fresh worlds initialize the new language rules before humans form cultures");
     }
 }

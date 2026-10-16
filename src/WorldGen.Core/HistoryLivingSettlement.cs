@@ -24,9 +24,10 @@ namespace WorldGen.Core
                 {var ns=World.Surface.Cells[site].Neighbors;int offset=(int)(HistoryRoll("living-town-walk-"+trial+"-"+step,culture,s.Years)*ns.Length);int next=-1;for(int k=0;k<ns.Length;k++){int n=ns[(offset+k)%ns.Length];if(CellPatch[n]>=0&&World.Landmass[n]==World.Landmass[from]&&World.Ecology.Habitat[n].ReliefM<2000){next=n;break;}}if(next<0)break;site=next;}
                 int owner=HistoricalCells.Culture(s,site);if(owner>=0&&owner!=culture&&!ProvincialHistory(s))continue;
                 int recipient=ProvincialHistory(s)&&owner>=0?owner:culture;
-                if(recipient!=culture)LivingCultureContact(s,culture,recipient);
+                if(recipient!=culture)LivingCultureContactAt(s,culture,recipient,from,site);
                 double continuity=HistoricalLandscapeEffects.LivelihoodContinuity(World.Ecology.Habitat[ConnectedHistory(s)?from:c.OriginCell],World.Ecology.Habitat[from],World.Ecology.Habitat[site]);
                 if(HistoryRoll("living-town-adaptation-"+trial,culture,s.Years)>Math.Max(.03,continuity))continue;
+                if(EnvironmentalHistory(s)&&HistoryRoll("environment-settlement-migration-"+trial,culture,s.Years)>EnvironmentalTransmission(s,from,site,culture))continue;
                 if(CanFoundLivingTown(s,recipient,site,parent)){FoundLivingTown(s,culture==recipient?culture:recipient,site,parent);return;}
             }
         }
@@ -135,6 +136,13 @@ namespace WorldGen.Core
         bool LivingTownConnection(PrehistoryState s,int first,int second)
         {
             int from=s.Society.Settlements[first].Cell,to=s.Society.Settlements[second].Cell;
+            if(EnvironmentalHistory(s))
+            {
+                int culture=s.Society.Settlements[first].CultureId;
+                bool sea=DiffusionShore(from)&&DiffusionShore(to)&&DiffusionSeaEffort(s,from,to,culture)!=double.MaxValue;
+                double km=D.Angle(World.Surface.Cells[from].Position,World.Surface.Cells[to].Position)*World.Recipe.RadiusKm;
+                if(!sea&&km/EnvironmentalTransmission(s,from,to,culture)>360*HistoricalModernEffects.LandTransport(s.History.Cultures[culture],s.Years))return false;
+            }
             if(World.Landmass[from]>=0&&World.Landmass[from]==World.Landmass[to])
             {var a=World.Ecology.Habitat[from];var b=World.Ecology.Habitat[to];return Math.Max(a.ReliefM,b.ReliefM)<2000||HistoricalTechnologies.Has(s.History.Cultures[s.Society.Settlements[first].CultureId],HistoricalTechnology.Roads);}
             return HistoricalTechnologies.Has(s.History.Cultures[s.Society.Settlements[first].CultureId],HistoricalTechnology.Sailing)&&AggregateSeaLane(from,to);

@@ -24,12 +24,12 @@ namespace WorldGen.Core
             if(ca.Cities.Count>0)
             {
                 int townId=ca.Cities.At((int)(HistoryRoll("aggregate-culture-city",id,s.Years)*ca.Cities.Count));var town=s.Society.Settlements[townId];urbanSite=town.Cell;
-                var neighbors=a.Cities[townId].Neighbors;if(neighbors.Length>0){int peer=neighbors[(int)(HistoryRoll("aggregate-culture-contact",id,s.Years)*neighbors.Length)];int other=s.Society.Settlements[peer].CultureId;if(other!=id)contact=other;}
+                var neighbors=a.Cities[townId].Neighbors;if(neighbors.Length>0){int peer=neighbors[(int)(HistoryRoll("aggregate-culture-contact",id,s.Years)*neighbors.Length)];int other=s.Society.Settlements[peer].CultureId;if(other!=id){contact=other;if(EnvironmentalHistory(s))LivingCultureContactAt(s,id,other,town.Cell,s.Society.Settlements[peer].Cell);}}
                 if(LivingHistory(s))
                 {
                     int ruler=a.Resolve(town.PolityId,h);
                     if(ruler>=0&&town.Population>=1200&&a.Cities[townId].Supported)
-                    {if(ca.CivilizationSince<0)ca.CivilizationSince=s.Years;governingCulture=h.Polities[ruler].CultureId;if(governingCulture==id)governingCulture=-1;else LivingCultureContact(s,id,governingCulture);}
+                    {if(ca.CivilizationSince<0)ca.CivilizationSince=s.Years;governingCulture=h.Polities[ruler].CultureId;if(governingCulture==id)governingCulture=-1;else if(EnvironmentalHistory(s))LivingCultureContactAt(s,id,governingCulture,town.Cell,town.Cell);else LivingCultureContact(s,id,governingCulture);}
                 }
             }
             if(LivingHistory(s)){ExpandLivingCulture(s,id,elapsed);contact=LivingContact(s,id,contact);if(governingCulture>=0&&HistoryRoll("living-civic-knowledge",id,s.Years)<.5)contact=governingCulture;}

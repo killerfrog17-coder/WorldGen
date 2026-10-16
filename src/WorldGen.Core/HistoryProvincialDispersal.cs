@@ -24,6 +24,7 @@ namespace WorldGen.Core
                     else if(HistoricalTechnologies.Has(hc,HistoricalTechnology.Sailing))chance=Math.Max(chance,.2*Math.Exp(-route.DistanceM/300000.0));
                 }
                 chance*=(.2+.8*similarity)*(.3+.7*D.Clamp(residents/(double)Math.Max(1,capacity)));
+                if(EnvironmentalHistory(s)&&knowledge!=null&&s.Society.Cultures[r.Culture].Farming>=180)chance*=EnvironmentalTransmission(s,r.BestCell,destination.BestCell,r.Culture,route.Sea);
                 double residence=(route.DistanceM/1000.0+Patches[id].RadiusKm)*(.8+3*(1-similarity));
                 if(knowledge!=null&&!route.Sea){residence=HistoricalTechnicalMigration.ResidencyYears(route.DistanceM/1000.0,Patches[id].RadiusKm,similarity,knowledge,s.Years);chance=Math.Min(.98,chance*Math.Sqrt(mobility));}
                 if(destination.Capacity<25||HistoryRoll("provincial-dispersal-"+trial,id,s.Years)>=ElapsedChance(chance,elapsed/100.0)
@@ -47,7 +48,7 @@ namespace WorldGen.Core
                         int court=a.Living.CivicOrigins[source];if(court<0)court=a.Living.Regions[id].CivicTeacher;
                         if(court>=0){local.CivicTeacher=court;local.CivicExposure=Math.Min(1000,local.CivicExposure+(int)Math.Min(400,people));}
                     }
-                    if(destination.Culture>=0)LivingCultureContact(s,destination.Culture,source);
+                    if(destination.Culture>=0)LivingCultureContactAt(s,destination.Culture,source,destination.BestCell,destination.BestCell);
                     if(knowledge!=null&&destination.Culture<0&&s.Population[other]>=400)
                     {
                         int site=route.A==id?route.CellB:route.CellA;

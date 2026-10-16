@@ -41,7 +41,7 @@ namespace WorldGen.Core
             int group=PassageHistory(s)&&cultivar.CropId==10?6:PassageHistory(s)&&cultivar.CropId==12?7:HistoricalCropCatalog.Crops[cultivar.CropId].Group;
             var habitat=CommunityHistory(s)?CommunityAgronomicHabitat(s,cell,group):CropHabitat(s,cell);
             double fit=HistoricalCropCatalog.TransferFit(habitat,cultivar,CropLatitude(cell),riverSites[cell],managed);
-            return PassageHistory(s)?D.Q(fit*HistoricalCropEcology.ReproductiveFit(habitat,cultivar),1000000):fit;
+            return PassageHistory(s)?D.Q(fit*HistoricalCropEcology.ReproductiveFit(habitat,cultivar)*(EnvironmentalHistory(s)?EnvironmentalCropTransfer(s,cell,cultivar):1),1000000):fit;
         }
         double CommunityWildCropFit(PrehistoryState s,int cell,int group)
             =>HistoricalCrops.Suitability(CommunityAgronomicHabitat(s,cell,group),group,riverSites[cell]);
@@ -81,7 +81,7 @@ namespace WorldGen.Core
                 if(HistoricalLandscapeEffects.EverWet(h))
                 {
                     double husbandry=D.Clamp((crops.HusbandryYears?[k]??0)/15000.0);
-                    quality=Math.Max(quality,(managed?.35:.30*husbandry)*HistoricalCropCatalog.LeachingPenalty(h,true));
+                    quality=Math.Max(quality,(managed?.35:(EnvironmentalHistory(s)?.20:.30)*husbandry)*HistoricalCropCatalog.LeachingPenalty(h,EnvironmentalHistory(s)?managed:true));
                 }
                 double preservation=storage?HistoricalHusbandryEffects.StoragePermille(k,cultivar,HistoricalTechnologies.Has(hc,HistoricalTechnology.Pottery))/1000.0*(.65+.35*rainfallSeason):1;
                 best=Math.Max(best,quality*fit*preservation);

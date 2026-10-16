@@ -45,7 +45,7 @@ namespace WorldGen.Core
                 if(list.Length<12)a.Cities[pair.Item1].Neighbors=list.Concat(new[]{pair.Item2}).ToArray();
                 else{list=(int[])list.Clone();list[11]=pair.Item2;a.Cities[pair.Item1].Neighbors=list;}
             }
-            LivingCultureContact(s,s.Society.Settlements[first].CultureId,s.Society.Settlements[second].CultureId);
+            LivingCultureContactAt(s,s.Society.Settlements[first].CultureId,s.Society.Settlements[second].CultureId,from,to);
         }
         double DiffusionPortAdministration(PrehistoryState s,int polity)
         {

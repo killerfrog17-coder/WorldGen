@@ -10,9 +10,11 @@ namespace WorldGen.Core
             int best=-1;double score=-1;var cells=Patches[region].Cells;
             for(int k=0;k<16;k++){int cell=cells[(int)(HistoryRoll("living-community-site-"+k,region,s.Years)*cells.Length)];if(HistoricalCells.Culture(s,cell)>=0||s.History.Aggregates.TownAt[cell]>=0)continue;double value=landscapeStored[cell]+wildCropStorage[cell]*LandscapeCropFactor(cell);if(value>score){score=value;best=cell;}}return best;
         }
-        void LivingCultureContact(PrehistoryState s,int first,int second)
+        void LivingCultureContact(PrehistoryState s,int first,int second)=>LivingCultureContactAt(s,first,second,-1,-1);
+        void LivingCultureContactAt(PrehistoryState s,int first,int second,int firstCell,int secondCell)
         {
             if(first<0||second<0||first==second)return;
+            if(EnvironmentalHistory(s)&&!EnvironmentalDirectContact(s,first,second,firstCell,secondCell))return;
             foreach(var pair in new[]{(first,second),(second,first)})
             {var c=s.Society.Cultures[pair.Item1];if(!c.Contacts.Contains(pair.Item2))c.Contacts=c.Contacts.Concat(new[]{pair.Item2}).TakeLast(16).ToArray();if(ProvincialHistory(s))OfferProvincialKnowledge(s,pair.Item1,pair.Item2,ProvincialKnowledge(s.History.Cultures[pair.Item2]),s.Years,true);}
             ShareCoastCharts(s,first,second);
@@ -40,9 +42,11 @@ namespace WorldGen.Core
             double barrier=1+region.ReliefM/1200.0+(to.AridityMilli<180?3:0)+(to.PermafrostPermille>300?3:0);
             double transport=HistoricalModernEffects.LandTransport(hc,s.Years)*(ConnectedHistory(s)?Math.Sqrt(HistoricalModernEffects.Communication(hc,s.Years)):1);
             double transit=(.15+.85*continuity)*elapsed*transport/Math.Max(80,60+distance*barrier*.3);
+            double transmission=EnvironmentalHistory(s)?EnvironmentalTransmission(s,a.Regions[other].BestCell,region.BestCell,donor,route.Sea):1;
+            transit*=transmission;
             if(HistoryRoll("living-knowledge-exchange-"+trial,id,s.Years)>1-Math.Exp(-transit))return;
             if(!ConnectedHistory(s)||local.Teacher<0||(ProvincialHistory(s)?CurrentProvincialKnowledgeCount(s,local.Teacher)<=CurrentProvincialKnowledgeCount(s,donor):s.History.Cultures[local.Teacher].Technology.Count(y=>y>0)<=hc.Technology.Count(y=>y>0)))local.Teacher=donor;
-            local.Exposure=Math.Min(1000,local.Exposure+Math.Max(10,(int)(elapsed*(.15+.85*continuity))));local.LastExchangeYear=s.Years;
+            local.Exposure=Math.Min(1000,local.Exposure+Math.Max(EnvironmentalHistory(s)?1:10,(int)(elapsed*(.15+.85*continuity)*Math.Sqrt(transmission))));local.LastExchangeYear=s.Years;
             long package=ProvincialHistory(s)?ProvincialRegionalKnowledge(s,other,donor):0;
             if(ProvincialHistory(s))a.Provinces.RegionalKnowledge[id]|=package;
             var donorRegion=a.Living.Regions[other];int court=donorRegion.CivicTeacher;
@@ -53,7 +57,7 @@ namespace WorldGen.Core
             {
                 local.CivicTeacher=court;
                 double inherited=a.Cultures[donor].CivilizationSince>=0?1:D.Clamp(donorRegion.CivicExposure/700.0)*.7;
-                local.CivicExposure=Math.Min(1000,local.CivicExposure+(int)(elapsed*(.2+.8*continuity)*inherited));
+                local.CivicExposure=Math.Min(1000,local.CivicExposure+(int)(elapsed*(.2+.8*continuity)*inherited*Math.Sqrt(transmission)));
             }
             if(region.Culture>=0)
             {
@@ -78,7 +82,15 @@ namespace WorldGen.Core
                 // not take another ten millennia. Ecological/crop compatibility
                 // still governs livelihoods and state formation separately.
                 var teacher=s.History.Cultures[local.Teacher];
-                diffusion*=8*(1+HistoricalModernEffects.Adoption(teacher,HistoricalTechnology.Printing,s.Years)+2*HistoricalModernEffects.Adoption(teacher,HistoricalTechnology.Telecommunications,s.Years));
+                diffusion*=(EnvironmentalHistory(s)?1:8)*(1+HistoricalModernEffects.Adoption(teacher,HistoricalTechnology.Printing,s.Years)+2*HistoricalModernEffects.Adoption(teacher,HistoricalTechnology.Telecommunications,s.Years));
+            }
+            if(EnvironmentalHistory(s))
+            {
+                double environment=EnvironmentalEstablishment(s,cell),management=local.Teacher>=0?EnvironmentalManagement(s,local.Teacher):0;
+                independent*=4*Math.Pow(environment,.75)*EnvironmentalWildResources(s,cell)*HomelandOriginFactor(s,cell);
+                // Forest management and later practical capacity can ease uptake;
+                // merely hearing that a distant court exists cannot clear a forest.
+                diffusion*=HistoricalEnvironmentalEffects.CulturalAdoption(environment,management);
             }
             double maturity=ColonialHistory(s)?CulturalRecognitionMaturity(s,id):1;
             return 1-Math.Exp(-(independent+diffusion)*maturity*elapsed/100.0);
@@ -87,6 +99,7 @@ namespace WorldGen.Core
         {
             var c=s.Society.Cultures[culture];var a=s.History.Aggregates;int region=a.Cultures[culture].Region;
             if(fallback>=0&&fallback!=culture)LivingCultureContact(s,culture,fallback);
+            if(EnvironmentalHistory(s)&&fallback>=0&&EnvironmentalContactYear(s,culture,fallback)<s.Years-250)fallback=-1;
             if(region>=0&&a.Living.Regions[region].Teacher>=0)
             {
                 int teacher=a.Living.Regions[region].Teacher;
@@ -94,6 +107,12 @@ namespace WorldGen.Core
                 else LivingCultureContact(s,culture,teacher);
             }
             if(c.Contacts.Length==0)return fallback;
+            if(EnvironmentalHistory(s))
+            {
+                var memory=s.History.Aggregates.Provinces.Exchanges[culture];int start=memory.Peers.Length==0?0:(int)(HistoryRoll("environment-recent-contact",culture,s.Years)*memory.Peers.Length);
+                for(int k=0;k<memory.Peers.Length;k++){int at=(start+k)%memory.Peers.Length;if(s.Years-memory.LastYear[at]<=250)return memory.Peers[at];}
+                return -1;
+            }
             return c.Contacts[(int)(HistoryRoll("living-retained-contact",culture,s.Years)*c.Contacts.Length)];
         }
         void ExpandLivingCulture(PrehistoryState s,int id,int elapsed)
@@ -106,7 +125,7 @@ namespace WorldGen.Core
             for(int trial=0;trial<attempts;trial++)
             {
                 int target=LocalFrontierTarget(s,ca.Frontier,id,"living-cultural-front-"+trial,0);if(target<0)continue;int other=HistoricalCells.Culture(s,target);
-                if(other>=0){LivingCultureContact(s,id,other);continue;}
+                if(other>=0){int edge=origin;if(EnvironmentalHistory(s))foreach(int neighbor in World.Surface.Cells[target].Neighbors)if(HistoricalCells.Culture(s,neighbor)==id){edge=neighbor;break;}LivingCultureContactAt(s,id,other,edge,target);continue;}
                 if(s.Population[CellPatch[target]]<100)continue;
                 var local=World.Ecology.Habitat[target];int from=origin;
                 if(ConnectedHistory(s))foreach(int neighbor in World.Surface.Cells[target].Neighbors)if(HistoricalCells.Culture(s,neighbor)==id){from=neighbor;break;}
@@ -114,6 +133,7 @@ namespace WorldGen.Core
                 double adaptable=HistoricalTechnologies.Has(s.History.Cultures[id],HistoricalTechnology.CropRotation)?.15:.02;
                 if(ConnectedHistory(s))adaptable=Math.Min(.7,.08+.12*HistoricalModernEffects.LandTransport(s.History.Cultures[id],s.Years));
                 double chance=(.2+Math.Min(.5,c.Farming/1500.0))*(adaptable+(1-adaptable)*continuity);
+                if(EnvironmentalHistory(s))chance*=EnvironmentalTransmission(s,from,target,id)*HistoricalEnvironmentalEffects.CulturalAdoption(EnvironmentalEstablishment(s,target,id),EnvironmentalManagement(s,id));
                 if(HistoryRoll("living-cultural-claim-"+trial,id,s.Years)<chance)
                 {SetAggregateLayer(s,target,0,id);SetAggregateLayer(s,target,2,s.History.Cultures[id].ReligionId);SetAggregateLayer(s,target,4,1);if(ConnectedHistory(s))StudyDevelopmentCropSites(s,id,target);int region=CellPatch[target];if(a.Regions[region].Culture<0){var r=a.Living.Regions[region];r.Teacher=id;r.Exposure=Math.Min(1000,r.Exposure+100);}}
             }

@@ -30,6 +30,7 @@ namespace WorldGen.Core
             if(CommunityHistory(s)&&r.Culture>=0&&s.Society.Cultures[r.Culture].Farming>=180)rate=100*CommunityRuralGrowth(s,r.Culture);
             long after=AggregateLogisticPopulation(before,capacity,rate,elapsed/100.0);
             s.Population[id]=after;a.TotalPopulation+=after-before;if(r.Culture>=0)s.Society.Cultures[r.Culture].Population=Math.Max(0,s.Society.Cultures[r.Culture].Population+after-before);
+            RecordDistantResidence(s,id);
             if(ProvincialHistory(s))AdvanceProvincialDispersal(s,id,elapsed,capacity);
             if(!ProvincialHistory(s)&&after>=100&&r.Routes.Length>0)
             {
@@ -50,7 +51,7 @@ namespace WorldGen.Core
             {
                 double concentration=Math.Max(r.StoredMilli/1000.0,Math.Min(.7,riverSites[r.BestCell]));double occupation=HistoricalLocalEffects.RegionalTraditionOpportunity(s.Years-s.ArrivalYear[id]);
                 double chance=LivingHistory(s)?LivingCommunityChance(s,id,elapsed):.0008*Math.Pow(Math.Max(.01,concentration),2)*occupation*elapsed/100.0;
-                if(HistoryRoll("aggregate-community",id,s.Years)<chance){int site=LivingHistory(s)?LivingCommunitySite(s,id):r.BestCell;if(site>=0)FoundAggregateCulture(s,id,site);}
+                if((EnvironmentalHistory(s)?EnvironmentalOriginRoll("culture",id,s.Years):HistoryRoll("aggregate-community",id,s.Years))<chance){int site=LivingHistory(s)?LivingCommunitySite(s,id):r.BestCell;if(site>=0)FoundAggregateCulture(s,id,site);}
             }
             if(s.Population[id]>0)for(int g=0;g<8;g++){int at=id*8+g;double duration=ProvincialHistory(s)?Math.Sqrt(elapsed/100.0):1;int drift=(int)Math.Round((HistoryRoll("aggregate-drift-"+g,id,s.Years)-.5)*50*duration/Math.Sqrt(Math.Max(1,s.Population[id]/100.0)));s.Ancestry[at]=Math.Max(0,Math.Min(10000,s.Ancestry[at]+drift));}
         }

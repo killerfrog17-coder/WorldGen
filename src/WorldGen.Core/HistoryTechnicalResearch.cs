@@ -18,7 +18,7 @@ namespace WorldGen.Core
             // real knowledge; their existing event dates remain authoritative.
             for(int k=0;k<n;k++)if(hc.Technology[k]>0&&t.Levels[k]==0)
             {t.Levels[k]=1;t.LevelYear[k]=hc.Technology[k]-1;t.Deployment[k]=k<4?500:0;if(t.Deployment[k]>=250)t.InstalledYear[k]=s.Years+1;}
-            if(contact>=0)OfferTechnicalKnowledge(s,id,contact,ProvincialKnowledge(h.Cultures[contact]),s.Years);
+            if(contact>=0&&(!EnvironmentalHistory(s)||EnvironmentalContactYear(s,id,contact)>=s.Years-250))OfferTechnicalKnowledge(s,id,contact,ProvincialKnowledge(h.Cultures[contact]),EnvironmentalHistory(s)?EnvironmentalContactYear(s,id,contact):s.Years);
             // Inspect at most four ACTUALLY RECENT delivered contacts. No
             // culture census, geographical teleportation, or global frontier.
             var memory=a.Provinces.Exchanges[id];int offset=memory.Peers.Length==0?0:(int)(HistoryRoll("technical-peer",id,s.Years)*memory.Peers.Length);

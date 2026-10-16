@@ -7,6 +7,7 @@ namespace WorldGen.Core
         int[] aggregateDomesticTaxa;
         int[] livingCoastalRegions;
         bool[] aggregateOceanRaster;
+        int[] aggregateTerrainRaster;
         const int OceanRasterWidth=256,OceanRasterHeight=128;
         void PrepareAggregateEnvironment(PrehistoryState s)
         {
@@ -17,9 +18,9 @@ namespace WorldGen.Core
             foreach(var patch in Patches)if(patch.Island)CropHabitat(s,patch.Cell);
             // A fixed-size physical approximation, built once. Voyages query
             // 32 samples, never run a fine-cell flood fill or A* in a turn.
-            var locator=new CellLocator(World.Surface.Cells);var raster=new bool[OceanRasterWidth*OceanRasterHeight];
+            var locator=new CellLocator(World.Surface.Cells);var raster=new bool[OceanRasterWidth*OceanRasterHeight];var terrainRaster=new int[raster.Length];
             for(int y=0;y<OceanRasterHeight;y++)for(int x=0;x<OceanRasterWidth;x++)
-            {double lat=Math.PI*(.5-(y+.5)/OceanRasterHeight),lon=2*Math.PI*((x+.5)/OceanRasterWidth-.5);var p=new V(Math.Cos(lat)*Math.Cos(lon),Math.Cos(lat)*Math.Sin(lon),Math.Sin(lat));raster[y*OceanRasterWidth+x]=World.Hydrology.OceanConnected[locator.Nearest(p)];}aggregateOceanRaster=raster;
+            {double lat=Math.PI*(.5-(y+.5)/OceanRasterHeight),lon=2*Math.PI*((x+.5)/OceanRasterWidth-.5);var p=new V(Math.Cos(lat)*Math.Cos(lon),Math.Cos(lat)*Math.Sin(lon),Math.Sin(lat));int cell=locator.Nearest(p);terrainRaster[y*OceanRasterWidth+x]=cell;raster[y*OceanRasterWidth+x]=World.Hydrology.OceanConnected[cell];}aggregateOceanRaster=raster;aggregateTerrainRaster=terrainRaster;
             if(ConnectedHistory(s))PrepareConnectedEnvironment();
             if(CommunityHistory(s))PrepareCommunityShores();if(PassageHistory(s))PrepareDiffusionPassages();
         }
