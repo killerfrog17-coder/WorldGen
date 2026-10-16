@@ -1,5 +1,7 @@
 # Historical simulation: history-31 / prehistory-6
 
+Launch target,16 October2026: at the owner's explicit request, `WorldGen.exe - Shortcut.lnk` now opens `player-history-32-review-w2`, including regional traditions/proto-centers. Older31 shortcut references below describe earlier checkpoints.31 remains available as a rollback, and existing saves are not silently upgraded.
+
 ## Regional traditions / proto-urban revision - 16 October 2026
 
 The current32 review distinguishes an ecoregion-based cultural tradition, an ordinary village, a local proto-urban center, and state institutions. Previously any village promoted its culture to embryonic civilization; cultivation alone also triggered Neolithic playback. Both shortcuts are removed for fresh histories carrying the optional saved `RegionalTraditions` marker. Cultures can share compatible neighboring habitat patches through real interaction, dissolve without killing their people, and leave descendants. Proto-centers remain local, require sustained provisioning/coordination, and can decline. Atlas and selection explain the distinction.
