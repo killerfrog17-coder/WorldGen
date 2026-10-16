@@ -189,7 +189,9 @@ namespace WorldGen.Core
                 double shifted = latitude[i] - season * .14, lat = Math.Abs(shifted), continentality = w.Climate.ContinentalityPermille[i] / 1000.0;
                 pressure[i] = 750 * D.Sin(lat * 6 - D.Pi / 2) - season * D.Sin(latitude[i]) * continentality * 1300;
             }
-            var basinWind = AtmosphericCirculation.BasinWind(s, oceanFraction, season, token, out var basinPressure, out var basinStream);
+            var thermalPressure=w.Recipe.AlgorithmVersion==Recipe.CurrentAlgorithm?new double[n]:null;
+            var basinWind = AtmosphericCirculation.BasinWind(s, oceanFraction, season, token, out var basinPressure, out var basinStream,thermalPressure);
+            var boundaryInflow=thermalPressure==null?null:AtmosphericBoundaryInflow.Solve(s,thermalPressure,w.Recipe.BoundaryInflow,token);
             for (int i = 0; i < n; i++)
             {
                 if ((i & 255) == 0) token.ThrowIfCancellationRequested();
@@ -220,6 +222,7 @@ namespace WorldGen.Core
             for (int i = 0; i < n; i++)
             {
                 wind[i] += basinWind[i];
+                if(boundaryInflow!=null)wind[i]+=boundaryInflow[i];
                 output.WindEastMilli[i] = D.M(V.Dot(wind[i], east[i]) * 1000);
                 output.WindNorthMilli[i] = D.M(V.Dot(wind[i], north[i]) * 1000);
             }

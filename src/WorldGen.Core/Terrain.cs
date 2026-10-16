@@ -71,7 +71,7 @@ namespace WorldGen.Core
             if(Environment.ProcessorCount>1 && n>=20000)Parallel.Invoke(new ParallelOptions{CancellationToken=token,MaxDegreeOfParallelism=Math.Min(3,Environment.ProcessorCount)},fields);
             else foreach(var build in fields)build();
             w.FoldPermille = new int[n]; w.CratonPermille = new int[n]; w.BasinPermille = new int[n]; w.PlateauPermille = new int[n];
-            var heights = new double[n]; var background = ((r.AlgorithmVersion == Recipe.CurrentAlgorithm || r.AlgorithmVersion == Recipe.SubcellAlgorithm) || r.AlgorithmVersion==Recipe.FeatureBlendAlgorithm) ? new double[n] : null; var features = new List<Feature>();
+            var heights = new double[n]; var background = (Recipe.SubcellVersion(r.AlgorithmVersion) || r.AlgorithmVersion==Recipe.FeatureBlendAlgorithm) ? new double[n] : null; var features = new List<Feature>();
             var records = new SortedDictionary<long, Feature>(); var members = new SortedDictionary<long, List<int>>();
             void Add(FeatureKind kind, Boundary b, int i, double relief, int width, int age = 0)
             {
@@ -89,7 +89,7 @@ namespace WorldGen.Core
                 members[key].Add(i);
             }
             double Strength(Boundary b) => D.Clamp(Math.Max(0, b.NormalMotion) / 1100.0, 0, 1.35);
-            bool variedBelts=((r.AlgorithmVersion == Recipe.CurrentAlgorithm || r.AlgorithmVersion == Recipe.SubcellAlgorithm) || r.AlgorithmVersion==Recipe.FeatureBlendAlgorithm) || r.AlgorithmVersion==Recipe.RangeControlsAlgorithm;
+            bool variedBelts=Recipe.SubcellVersion(r.AlgorithmVersion) || r.AlgorithmVersion==Recipe.FeatureBlendAlgorithm || r.AlgorithmVersion==Recipe.RangeControlsAlgorithm;
             double MountainScale(Boundary b,V p)
             {
                 double scale=r.MountainStrengthPercent/100;
@@ -330,7 +330,7 @@ namespace WorldGen.Core
                     double texture = .58 + .42 * (.5 + .5 * Noise(p, r.Seed ^ (candidate * 7919 + 173), 18));
                     double endpoint = D.Clamp(Math.Min(nearestNode + 1, centers.Length - nearestNode) / 3.0);
                     double relief = amplitude * D.Kernel(nearest, width) * texture * endpoint;
-                    if(((r.AlgorithmVersion == Recipe.CurrentAlgorithm || r.AlgorithmVersion == Recipe.SubcellAlgorithm) || r.AlgorithmVersion==Recipe.FeatureBlendAlgorithm))relief*=1-D.Kernel(w.BoundaryDistanceM[i]-420000,230000);
+                    if(Recipe.SubcellVersion(r.AlgorithmVersion) || r.AlgorithmVersion==Recipe.FeatureBlendAlgorithm)relief*=1-D.Kernel(w.BoundaryDistanceM[i]-420000,230000);
                     if (relief < 35) continue;
                     heights[i] += relief; cells.Add(i);
                 }
@@ -347,7 +347,7 @@ namespace WorldGen.Core
 
         static void Hotspots(World w, double[] heights, int[] ridgeDistance, List<Feature> features, CancellationToken token)
         {
-            if(((w.Recipe.AlgorithmVersion == Recipe.CurrentAlgorithm || w.Recipe.AlgorithmVersion == Recipe.SubcellAlgorithm) || w.Recipe.AlgorithmVersion==Recipe.FeatureBlendAlgorithm)){Hotspots330(w,heights,ridgeDistance,features,token);return;}
+            if(Recipe.SubcellVersion(w.Recipe.AlgorithmVersion) || w.Recipe.AlgorithmVersion==Recipe.FeatureBlendAlgorithm){Hotspots330(w,heights,ridgeDistance,features,token);return;}
             var s = w.Surface; var r = w.Recipe;
             for (int k = 0; k < 10; k++)
             {

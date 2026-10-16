@@ -126,7 +126,8 @@ namespace WorldGen.Core
                 if(o is RegionalAnimalVariant ecotypeVariant && f.Name==nameof(RegionalAnimalVariant.Ecotype) && ecotypeVariant.Ecotype==null)continue;
                 if(o is SpeciesPresence variantPresence && f.Name==nameof(SpeciesPresence.Variant) && variantPresence.Variant==null)continue;
                 if(o is Recipe rainRecipe && f.Name==nameof(Recipe.InteriorRainMm) && rainRecipe.InteriorRainMm==0)continue;
-                if (o is Recipe oldRecipe && f.Name == nameof(Recipe.MountainStrengthPercent) && oldRecipe.AlgorithmVersion != Recipe.CurrentAlgorithm && oldRecipe.AlgorithmVersion != Recipe.SubcellAlgorithm && oldRecipe.AlgorithmVersion != Recipe.FeatureBlendAlgorithm && oldRecipe.AlgorithmVersion != Recipe.RangeControlsAlgorithm && oldRecipe.AlgorithmVersion != Recipe.EcologyAlgorithm && oldRecipe.AlgorithmVersion != Recipe.TerrainControlsAlgorithm) continue;
+                if (o is Recipe inflowRecipe && f.Name == nameof(Recipe.BoundaryInflow) && inflowRecipe.BoundaryInflow==null) continue;
+                if (o is Recipe oldRecipe && f.Name == nameof(Recipe.MountainStrengthPercent) && !Recipe.SubcellVersion(oldRecipe.AlgorithmVersion) && oldRecipe.AlgorithmVersion != Recipe.FeatureBlendAlgorithm && oldRecipe.AlgorithmVersion != Recipe.RangeControlsAlgorithm && oldRecipe.AlgorithmVersion != Recipe.EcologyAlgorithm && oldRecipe.AlgorithmVersion != Recipe.TerrainControlsAlgorithm) continue;
                 if (o is World legacy && f.Name == nameof(World.Ecology) && legacy.Ecology == null) continue;
                 if (o is World oldWorld && f.Name == nameof(World.Subcells) && oldWorld.Subcells == null) continue;
                 if(o is HistoricalCulture lineageCulture && f.Name==nameof(HistoricalCulture.ParentCultureId) && lineageCulture.ParentCultureId==-1)continue;
@@ -359,8 +360,8 @@ namespace WorldGen.Core
             Stage("erosion", 65, () => { if (r.TerrainSource != "Earth") { Erosion.Apply(w, cancellation); MapShapes.ApplyTerrain(w,cancellation); } }, () => new object[] { w.ElevationM, w.PreErosionM, w.Landmass, w.Hydrology.OceanConnected, w.Glaciated });
             Stage("climate", 80, () => Climate.Build(w, cancellation), () => w.Climate);
             Stage("hydrology", 90, () => Hydrology.Build(w, cancellation), () => w.Hydrology);
-            if((r.AlgorithmVersion == Recipe.CurrentAlgorithm || r.AlgorithmVersion == Recipe.SubcellAlgorithm))Stage("subcell-geography",91,()=>SubcellGeography.Build(w,cancellation),()=>w.Subcells);
-            if (((r.AlgorithmVersion == Recipe.CurrentAlgorithm || r.AlgorithmVersion == Recipe.SubcellAlgorithm) || r.AlgorithmVersion == Recipe.FeatureBlendAlgorithm || r.AlgorithmVersion == Recipe.RangeControlsAlgorithm || r.AlgorithmVersion == Recipe.EcologyAlgorithm))
+            if(Recipe.SubcellVersion(r.AlgorithmVersion))Stage("subcell-geography",91,()=>SubcellGeography.Build(w,cancellation),()=>w.Subcells);
+            if (Recipe.SubcellVersion(r.AlgorithmVersion) || r.AlgorithmVersion == Recipe.FeatureBlendAlgorithm || r.AlgorithmVersion == Recipe.RangeControlsAlgorithm || r.AlgorithmVersion == Recipe.EcologyAlgorithm)
             {
                 Stage("habitats", 92, () => Ecology.BuildHabitats(w, cancellation), () => new object[] { w.Ecology.Habitat, w.Ecology.WaterSalinityPpt });
                 Stage("ecoregions", 94, () => Ecology.BuildRegions(w, cancellation), () => new object[] { w.Ecology.Province, w.Ecology.Region, w.Ecology.Regions });

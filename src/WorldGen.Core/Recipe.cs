@@ -20,7 +20,10 @@ namespace WorldGen.Core
         public const string RangeControlsAlgorithm = "worldgen-3.29.0";
         public const string FeatureBlendAlgorithm = "worldgen-3.30.0";
         public const string SubcellAlgorithm = "worldgen-3.31.0";
-        public const string CurrentAlgorithm = "worldgen-3.32.0";
+        public const string PreviousAlgorithm = "worldgen-3.32.0";
+        public const string CurrentAlgorithm = "worldgen-3.33.0";
+        public static bool PresetsVersion(string version)=>version==CurrentAlgorithm||version==PreviousAlgorithm;
+        public static bool SubcellVersion(string version)=>PresetsVersion(version)||version==SubcellAlgorithm;
         public int SchemaVersion = 3;
         public string AlgorithmVersion = CurrentAlgorithm;
         public string TerrainSource = "Procedural";
@@ -30,6 +33,9 @@ namespace WorldGen.Core
         [Setting("Climate", "Inland moisture supply (mm/year)",0,2000,10)] public double InteriorRainMm;
         // Optional experimental profile; null preserves the 3.24 recipe/hash contract.
         [System.Runtime.Serialization.OptionalField] public double[] ClimateWeights = ClimateCalibration.DefaultWeights();
+        // Experimental3.33 physical closure; absent selects the fixed3.33 constants.
+        // Legacy algorithms require null and omit it from canonical hashes.
+        [System.Runtime.Serialization.OptionalField] public ClimateBoundaryInflow BoundaryInflow;
         [Setting("World", "Seed", 0, 16777215, 1)] public int Seed = 73421;
         [Setting("World", "Detail", 5000, 2560000, 1000)] public int Detail = 204000;
         [Setting("World", "Irregularity")] public double Irregularity = .75;
@@ -54,7 +60,7 @@ namespace WorldGen.Core
         [Setting("Terrain sculpting", "Lake amount (%)", 0, 100000, .0001)] public double LakeAmountPercent = 100;
         public int RadiusKm => 6371;
         public int MacroCellCount => SphericalMesh.CanonicalCellCount;
-        public Recipe Clone() { var copy = (Recipe)MemberwiseClone(); copy.ClimateWeights = ClimateWeights == null ? null : (double[])ClimateWeights.Clone(); return copy; }
+        public Recipe Clone() { var copy = (Recipe)MemberwiseClone(); copy.ClimateWeights = ClimateWeights == null ? null : (double[])ClimateWeights.Clone(); copy.BoundaryInflow=BoundaryInflow?.Copy(); return copy; }
         public static readonly FieldInfo[] Settings = typeof(Recipe).GetFields().Where(f => f.GetCustomAttribute<SettingAttribute>() != null).OrderBy(f => f.MetadataToken).ToArray();
         public void Validate()
         {
@@ -62,10 +68,11 @@ namespace WorldGen.Core
             if (TerrainSource != "Procedural" && TerrainSource != "Earth") throw new ArgumentException("Unknown terrain source.");
             if(LandShape!=null && !MapShapes.Names.Contains(LandShape))throw new ArgumentException("Unknown land shape.");
             if(TerrainSource=="Earth" && LandShape!=null)throw new ArgumentException("Earth relief cannot also use a procedural shape.");
-            if(AlgorithmVersion!=CurrentAlgorithm && (LandShape!=null||InteriorRainMm!=0||ContinentCount>20))throw new ArgumentException("Shape presets, inland moisture and over 20 continents require the current generator.");
-            if (SchemaVersion != 3 || (AlgorithmVersion != CurrentAlgorithm && AlgorithmVersion != SubcellAlgorithm && AlgorithmVersion != FeatureBlendAlgorithm && AlgorithmVersion != RangeControlsAlgorithm && AlgorithmVersion != EcologyAlgorithm && AlgorithmVersion != TerrainControlsAlgorithm && AlgorithmVersion != ClimateCalibration.UntrainedAlgorithm && AlgorithmVersion != ClimateCalibration.Algorithm && AlgorithmVersion != ClimateCalibration.AggressiveAlgorithm)) throw new ArgumentException("This recipe uses an older or unsupported generator. Version 3 uses a fixed plate base and detail-dependent terrain; save a new recipe from the current settings.");
+            if(!PresetsVersion(AlgorithmVersion) && (LandShape!=null||InteriorRainMm!=0||ContinentCount>20))throw new ArgumentException("Shape presets, inland moisture and over 20 continents require3.32 or later.");
+            if (SchemaVersion != 3 || (!SubcellVersion(AlgorithmVersion) && AlgorithmVersion != FeatureBlendAlgorithm && AlgorithmVersion != RangeControlsAlgorithm && AlgorithmVersion != EcologyAlgorithm && AlgorithmVersion != TerrainControlsAlgorithm && AlgorithmVersion != ClimateCalibration.UntrainedAlgorithm && AlgorithmVersion != ClimateCalibration.Algorithm && AlgorithmVersion != ClimateCalibration.AggressiveAlgorithm)) throw new ArgumentException("This recipe uses an older or unsupported generator. Version 3 uses a fixed plate base and detail-dependent terrain; save a new recipe from the current settings.");
+            if(BoundaryInflow!=null){if(AlgorithmVersion!=CurrentAlgorithm)throw new ArgumentException("Boundary-layer inflow requires3.33.");BoundaryInflow.Validate();}
             ClimateCalibration.Validate(this);
-            if (AlgorithmVersion != CurrentAlgorithm && AlgorithmVersion != SubcellAlgorithm && AlgorithmVersion != FeatureBlendAlgorithm && AlgorithmVersion != RangeControlsAlgorithm && AlgorithmVersion != EcologyAlgorithm && AlgorithmVersion != TerrainControlsAlgorithm && MountainStrengthPercent != 100) throw new ArgumentException("Mountain control requires the current generator version. Regenerate with current settings.");
+            if (!SubcellVersion(AlgorithmVersion) && AlgorithmVersion != FeatureBlendAlgorithm && AlgorithmVersion != RangeControlsAlgorithm && AlgorithmVersion != EcologyAlgorithm && AlgorithmVersion != TerrainControlsAlgorithm && MountainStrengthPercent != 100) throw new ArgumentException("Mountain control requires the current generator version. Regenerate with current settings.");
             foreach (var f in Settings)
             {
                 var s = f.GetCustomAttribute<SettingAttribute>(); double v = Convert.ToDouble(f.GetValue(this));

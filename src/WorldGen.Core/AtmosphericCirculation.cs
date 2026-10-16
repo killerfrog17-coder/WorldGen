@@ -11,7 +11,7 @@ namespace WorldGen.Core
     internal static class AtmosphericCirculation
     {
         internal static V[] BasinWind(Surface s, double[] oceanFraction, double season,
-            CancellationToken token, out double[] anomalyPressure, out double[] streamFunction)
+            CancellationToken token, out double[] anomalyPressure, out double[] streamFunction,double[] thermalPressureField=null)
         {
             int n = s.Cells.Length;
             var smooth = new double[n]; var next = new double[n]; var latitude = new double[n];
@@ -81,6 +81,7 @@ namespace WorldGen.Core
                 double thermal = season * D.Clamp(2 * sine, -1, 1);
                 double gyrePressure = contrast * 900 * high * equatorialTaper * polarTaper;
                 double thermalPressure = contrast * 1100 * thermal * polarTaper;
+                if(thermalPressureField!=null)thermalPressureField[i]=D.Q(thermalPressure,1000);
                 anomalyPressure[i] = D.Q(gyrePressure + thermalPressure, 1000);
                 double coriolis = .000146 * sine;
                 double boundedF = Math.Max(.000025, Math.Abs(coriolis)) * (latitude[i] < 0 ? -1 : 1);

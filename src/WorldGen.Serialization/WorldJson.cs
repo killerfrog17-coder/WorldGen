@@ -22,10 +22,11 @@ namespace WorldGen.Serialization
             if(!found.Contains(nameof(Recipe.LandShape)))expected.Remove(nameof(Recipe.LandShape));
             if(!found.Contains(nameof(Recipe.EcologyProfile)))expected.Remove(nameof(Recipe.EcologyProfile));
             if(!found.Contains(nameof(Recipe.InteriorRainMm)))expected.Remove(nameof(Recipe.InteriorRainMm));
+            if(!found.Contains(nameof(Recipe.BoundaryInflow)))expected.Remove(nameof(Recipe.BoundaryInflow));
             if (!found.Contains(nameof(Recipe.MountainStrengthPercent))) expected.Remove(nameof(Recipe.MountainStrengthPercent));
             if (!expected.SetEquals(found)) throw new ArgumentException("A recipe must contain every versioned setting. Save a complete recipe from either interface.");
             var r = Read<Recipe>(json); if (r == null) throw new ArgumentException("Missing recipe.");
-            if ((((r.AlgorithmVersion == Recipe.CurrentAlgorithm || r.AlgorithmVersion == Recipe.SubcellAlgorithm) || r.AlgorithmVersion == Recipe.FeatureBlendAlgorithm || r.AlgorithmVersion == Recipe.RangeControlsAlgorithm || r.AlgorithmVersion == Recipe.EcologyAlgorithm) || r.AlgorithmVersion == Recipe.TerrainControlsAlgorithm) && !found.Contains(nameof(Recipe.MountainStrengthPercent))) throw new ArgumentException("Current recipes must include mountain strength.");
+            if ((Recipe.SubcellVersion(r.AlgorithmVersion) || r.AlgorithmVersion == Recipe.FeatureBlendAlgorithm || r.AlgorithmVersion == Recipe.RangeControlsAlgorithm || r.AlgorithmVersion == Recipe.EcologyAlgorithm || r.AlgorithmVersion == Recipe.TerrainControlsAlgorithm) && !found.Contains(nameof(Recipe.MountainStrengthPercent))) throw new ArgumentException("Current recipes must include mountain strength.");
             r.Validate(); return r;
         }
         public static World ReadWorld(string json)
@@ -40,8 +41,8 @@ namespace WorldGen.Serialization
             var validationRecipe = w.Recipe.Clone();
             if (validationRecipe.AlgorithmVersion == "worldgen-3.23.0") validationRecipe.AlgorithmVersion = ClimateCalibration.UntrainedAlgorithm;
             validationRecipe.Validate();
-            if((w.Recipe.AlgorithmVersion == Recipe.CurrentAlgorithm || w.Recipe.AlgorithmVersion == Recipe.SubcellAlgorithm))SubcellGeography.Validate(w);
-            if(((w.Recipe.AlgorithmVersion == Recipe.CurrentAlgorithm || w.Recipe.AlgorithmVersion == Recipe.SubcellAlgorithm) || w.Recipe.AlgorithmVersion==Recipe.FeatureBlendAlgorithm || w.Recipe.AlgorithmVersion==Recipe.RangeControlsAlgorithm || w.Recipe.AlgorithmVersion==Recipe.EcologyAlgorithm))
+            if(Recipe.SubcellVersion(w.Recipe.AlgorithmVersion))SubcellGeography.Validate(w);
+            if(Recipe.SubcellVersion(w.Recipe.AlgorithmVersion) || w.Recipe.AlgorithmVersion==Recipe.FeatureBlendAlgorithm || w.Recipe.AlgorithmVersion==Recipe.RangeControlsAlgorithm || w.Recipe.AlgorithmVersion==Recipe.EcologyAlgorithm)
             {
                 var e=w.Ecology; int n=w.Recipe.Detail;
                 if(e==null || e.Habitat==null || e.Habitat.Length!=n || e.Region==null || e.Region.Length!=n || e.Province==null || e.Province.Length!=n || e.Taxa==null || e.Regions==null || e.SpeciesBits==null || e.SpeciesBits.LongLength!=(long)n*((e.Taxa.Length+31L)/32))

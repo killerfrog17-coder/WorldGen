@@ -18,7 +18,7 @@ namespace WorldGen.Core
         // Owner-selected 3.22 baseline: 5% now reproduces the 3.21 100%
         // hydrological forcing. This rescales water retention, not lake area.
         public const double DefaultLakeAmountScale = 20;
-        public static double LakeScale(Recipe recipe) => (((recipe.AlgorithmVersion == Recipe.CurrentAlgorithm || recipe.AlgorithmVersion == Recipe.SubcellAlgorithm) || recipe.AlgorithmVersion==Recipe.FeatureBlendAlgorithm || recipe.AlgorithmVersion==Recipe.RangeControlsAlgorithm)?4:DefaultLakeAmountScale)*recipe.LakeAmountPercent/100.0;
+        public static double LakeScale(Recipe recipe) => ((Recipe.SubcellVersion(recipe.AlgorithmVersion) || recipe.AlgorithmVersion==Recipe.FeatureBlendAlgorithm || recipe.AlgorithmVersion==Recipe.RangeControlsAlgorithm)?4:DefaultLakeAmountScale)*recipe.LakeAmountPercent/100.0;
 
         public static void Build(World w, CancellationToken token, ISeasonalRunoffProvider provider = null)
         {
