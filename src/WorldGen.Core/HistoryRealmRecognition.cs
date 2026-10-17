@@ -78,7 +78,7 @@ namespace WorldGen.Core
             }
             int[] routes=realmLandRoutes[district];int offset=routes.Length==0?0:(int)(HistoryRoll("realm-treaty-district",polity,s.Years)*routes.Length);
             int peerCell=s.Society.Settlements[h.Polities[partner].CapitalId].Cell;var peer=h.Cultures[h.Polities[partner].CultureId];
-            int signed=0,lastTarget=source,lastRegion=home;
+            int signed=0,lastTarget=source,lastRegion=home;bool forwardOffice=false;
             int documentsPerAgreement=Math.Min(8,1+(int)(2*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years)+3*rail+2*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Telegraph,s.Years)+2*engines));
             long priorObligations=record.RecognitionUpkeep;
             for(int trial=0;trial<1+(adjoining?Math.Min(8,routes.Length):0);trial++)
@@ -128,6 +128,7 @@ namespace WorldGen.Core
                 title.Basis=region==home?"Established local administration and an informed bilateral recognition agreement":"A funded neighboring administration, physically reachable hinterland and an informed territorial agreement; local communities retain their institutions";
                 c.Governments[polity].Titles.Add(titleId);ChangeRealmTitleAccount(s,polity,title.AreaKm2,1);p.Treasury-=cost;
                 RecordRealmClaimRoute(s,region,source,proposedM);
+                if(!forwardOffice&&region!=home)forwardOffice=FundRealmForwardAdministration(s,polity,region,source,proposedM);
                 h.Polities[partner].Treasury=Math.Min(1000000000,h.Polities[partner].Treasury+cost);
                 RealmRecognitionObserver?.Invoke(polity,region,"recognized");signed++;lastTarget=target;lastRegion=region;if(signed>=documentsPerAgreement)break;
             }

@@ -38,6 +38,21 @@ namespace WorldGen.Core
         }
         bool MaritimeCharterLogistics(PrehistoryState s,int polity,Route route,int preferred,out int port,out long provisions)
             =>MaritimeVoyageLogistics(s,polity,route,preferred,250,out port,out provisions);
+        double RealmSupplierChainKm(PrehistoryState s,int polity,int shore,int city)
+        {
+            if(!RealmHistory(s))return -1;var a=s.History.Aggregates;int source=a.Empires.Territories.Sources[shore];
+            if(!TerritorialNodeLive(s,polity,source))return -1;
+            if(source>=0)
+            {
+                if(source!=city)return -1;
+                double direct=LivingTravelKm(s,s.Society.Settlements[city].Cell,shore,s.History.Polities[polity].CultureId);
+                return direct<=TerritorialServiceRadius(s,polity,shore)*1.5?direct:-1;
+            }
+            double effort=source< -1?a.Empires.Territories.Posts[-source-2].MessageEffortKm:0;
+            for(int depth=0;depth<8&&source!= -1;depth++)
+            {if(source>=0)return source==city?effort:-1;source=a.Empires.Territories.Posts[-source-2].ParentSource;}
+            return -1;
+        }
         bool MaritimeVoyageLogistics(PrehistoryState s,int polity,Route route,int preferred,int crew,out int port,out long provisions)
         {
             port=-1;provisions=0;var h=s.History;var a=h.Aggregates;var hc=h.Cultures[h.Polities[polity].CultureId];
@@ -53,6 +68,7 @@ namespace WorldGen.Core
                 if(city<0||city>=a.Cities.Length)return false;var town=s.Society.Settlements[city];
                 if(a.Resolve(town.PolityId,h)!=polity||town.Population<500||!a.Cities[city].Supported||a.Living.Cities[city].AbandonedYear>=0)return false;
                 double supplyKm=D.Angle(World.Surface.Cells[town.Cell].Position,World.Surface.Cells[route.CellA].Position)*World.Recipe.RadiusKm;
+                double recordedKm=RealmSupplierChainKm(s,polity,route.CellA,city);if(recordedKm>=0)supplyKm=Math.Max(supplyKm,recordedKm);
                 if(town.Cell!=route.CellA)
                 {
                     // A coarse inland city can provision its real serviced port.
@@ -62,8 +78,8 @@ namespace WorldGen.Core
                     double inland=LivingTravelKm(s,town.Cell,route.CellA,h.Polities[polity].CultureId);
                     int office=a.Empires.Territories.Sources[route.CellA];
                     bool serviced=HistoricalCells.Polity(s,route.CellA)==polity&&DiffusionShore(route.CellA)&&TerritorialNodeLive(s,polity,office)
-                        &&World.Landmass[town.Cell]>=0&&World.Landmass[town.Cell]==World.Landmass[route.CellA]
-                        &&inland<=TerritorialServiceRadius(s,polity,route.CellA)*1.5;
+                        &&(recordedKm>=0||World.Landmass[town.Cell]>=0&&World.Landmass[town.Cell]==World.Landmass[route.CellA]
+                        &&inland<=TerritorialServiceRadius(s,polity,route.CellA)*1.5);
                     if(!coastal&&!serviced)return false;
                 }
                 long food=HistoricalVoyageEffects.Provisioning(crew,(int)Math.Min(int.MaxValue,route.DistanceM+supplyKm*1000));
@@ -83,6 +99,7 @@ namespace WorldGen.Core
             for(int k=0;port<0&&k<Math.Min(8,cities.Count);k++){int candidate=cities.At((offset+k)%cities.Count);if(Consider(candidate))port=candidate;}
             if(port<0)return false;
             double leg=D.Angle(World.Surface.Cells[s.Society.Settlements[port].Cell].Position,World.Surface.Cells[route.CellA].Position)*World.Recipe.RadiusKm;
+            leg=Math.Max(leg,RealmSupplierChainKm(s,polity,route.CellA,port));
             provisions=HistoricalVoyageEffects.Provisioning(crew,(int)Math.Min(int.MaxValue,route.DistanceM+leg*1000));return true;
         }
         bool TryMaritimeStateExpedition(PrehistoryState s,int polity,int defender,Route route,int elapsed)
@@ -90,7 +107,7 @@ namespace WorldGen.Core
         bool CommitMaritimeStateExpedition(PrehistoryState s,int polity,int defender,Route route,int elapsed,bool organized)
         {
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var other=h.Polities[defender];var hc=h.Cultures[p.CultureId];
-            if(p.Cohesion<600||p.Exhaustion>=500||p.Army<500||!HistoricalTechnologies.Has(hc,HistoricalTechnology.OceanNavigation))return false;
+            if(p.Cohesion<600-(RealmHistory(s)?250*RealmBureaucracy(s,polity):0)||p.Exhaustion>=500||p.Army<500||!HistoricalTechnologies.Has(hc,HistoricalTechnology.OceanNavigation))return false;
             if(HistoricalImperialHierarchy.Sovereign(s,polity)==HistoricalImperialHierarchy.Sovereign(s,defender))return false;
             var relation=AggregateRelation(s,polity,defender);if(relation.WarSince>=0||relation.TruceUntil>=s.Years||relation.Alliance)return false;
             var leader=h.Dynamics.Leaders[h.Dynamics.States[polity].LeaderId];

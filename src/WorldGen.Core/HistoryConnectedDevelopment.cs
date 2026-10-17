@@ -134,7 +134,7 @@ namespace WorldGen.Core
         void AdvanceDevelopmentFrontier(PrehistoryState s,int polity,int elapsed)
         {
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var account=a.Polities[polity];var hc=h.Cultures[p.CultureId];
-            if(p.Cohesion<450||p.Treasury<100)return;
+            if(p.Cohesion<450-(RealmHistory(s)?150*RealmBureaucracy(s,polity):0)||p.Treasury<100)return;
             int budget=HistoricalDevelopmentEffects.FrontierBudget(hc,s.Years,account.CityCount,true);
             int capital=s.Society.Settlements[p.CapitalId].Cell;
             bool colonialFronts=ProvincialFrontierHistory(s)&&(HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Railways,s.Years)>.25||HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years)>.25||ColonialHistory(s)&&HistoricalTechnologies.Has(hc,HistoricalTechnology.OceanNavigation));

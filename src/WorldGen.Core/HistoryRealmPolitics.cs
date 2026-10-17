@@ -3,6 +3,7 @@ namespace WorldGen.Core
 {
     public static class HistoricalRealmPoliticalEffects
     {
+        public static double FleetCohesionFloor(double bureaucracy)=>500-180*D.Clamp(bureaucracy);
         public static double WarHazard(double ambition,double opportunity,double rivalry,bool sharedCulture,bool allied,bool sphere,double personal,double funding)
             =>D.Q(.018*(.3+D.Clamp(ambition))*(.25+1.6*D.Clamp(opportunity)+.6*D.Clamp(rivalry)+(sphere?.6:0))
                 *(sharedCulture?.8:1)*(allied?.3:1)*(1+2*D.Clamp(personal))*D.Clamp(funding),1000000000);

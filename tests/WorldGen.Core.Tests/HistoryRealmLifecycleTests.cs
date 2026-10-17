@@ -30,6 +30,19 @@ public static class HistoryRealmLifecycleTests
         check(HistoricalRealmEffects.CourtFailureHazard(.9)<HistoricalRealmEffects.CourtFailureHazard(.1)/40,"Functioning impersonal institutions sharply reduce whole-court failure without erasing local opposition or war.");
         var routes=new HistoricalRealmClaimRoutes{IndexCount=new HistoricalRealmIndexCount{Value=3}};var routesCopy=routes.Copy();routesCopy.IndexCount.Value=4;
         check(routes.IndexCount.Value==3,"Published bounded title indexes detach their mutable allocation counter.");
+        check(HistoricalRealmPoliticalEffects.FleetCohesionFloor(0)==500&&HistoricalRealmPoliticalEffects.FleetCohesionFloor(1)==320,"Modern funded naval administration can operate through ordinary cabinet instability; early courts retain the stricter unity requirement.");
+        var legacyRoutes=new HistoricalRealmClaimRoutes{Sources=new HistoricalCellTree(10).With(2,5),EffortM=new HistoricalCellTree(10).With(2,1234)};
+        using(var bytes=new MemoryStream())
+        {
+            using(var writer=new BinaryWriter(bytes,System.Text.Encoding.UTF8,true))
+            {
+                writer.Write((byte)1);writer.Write("WorldGen.Core.HistoricalRealmClaimRoutes");
+                var write=typeof(StateHash).GetMethod("Write",BindingFlags.Static|BindingFlags.NonPublic);
+                writer.Write("EffortM");write.Invoke(null,new object[]{writer,legacyRoutes.EffortM});writer.Write("Sources");write.Invoke(null,new object[]{writer,legacyRoutes.Sources});
+            }
+            string preceding=Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes.ToArray())).ToLowerInvariant();
+            check(StateHash.Compute(legacyRoutes)==preceding,"Absent title indexes preserve the exact two-field prototype canonical representation.");
+        }
     }
     public static void World(string path)
     {
@@ -49,6 +62,18 @@ public static class HistoryRealmLifecycleTests
         Check(new Prehistory(w).AdvanceYears(loaded,30).Hash==full.Hash,"Cold geographical/bearing caches produce identical outcomes to a reused engine.");
         Check(source.ComputeHash()==original,"Original checkpoint remains unchanged.");
         Check(HistoryAtlas.Read(s,"state",p,w,e).Facts[0].Label=="Country founded","The actual state profile distinguishes country foundation from regime and allegiance dates.");
+        var supply=typeof(Prehistory).GetMethod("RealmSupplierChainKm",BindingFlags.Instance|BindingFlags.NonPublic);
+        foreach(var office in s.History.Aggregates.Empires.Territories.Posts)
+        {
+            int owner=s.History.Aggregates.Resolve(office.PolityId,s.History);if(owner<0||office.ClosedYear>=0)continue;
+            int node=s.History.Aggregates.Empires.Territories.Sources[office.Cell],supplier=node;
+            for(int depth=0;depth<8&&supplier< -1;depth++)supplier=s.History.Aggregates.Empires.Territories.Posts[-supplier-2].ParentSource;
+            if(supplier<0)continue;double distance=(double)supply.Invoke(e,new object[]{s,owner,office.Cell,supplier});if(distance<0)continue;
+            Check(distance>=office.MessageEffortKm,"An actual recorded administrative supply chain retains its full travel effort rather than a single local service radius.");
+            var interrupted=s.Copy();interrupted.History.Aggregates.Empires.Territories.Posts[office.Id].ClosedYear=interrupted.Years;
+            Check((double)supply.Invoke(e,new object[]{interrupted,owner,office.Cell,supplier})<0,"Closing a real link interrupts supply; an owned coastline alone never becomes a food supplier.");
+            break;
+        }
         var country=s.History.Polities.Where(x=>x.EndedYear<0&&s.History.Aggregates.Polities[x.Id].Cities.Count>=2)
             .OrderByDescending(x=>{int r=e.CellPatch[s.Society.Settlements[x.CapitalId].Cell],t=s.History.Aggregates.Empires.Connections.TitleAt[r];return t>=0&&s.History.Aggregates.Resolve(s.History.Aggregates.Empires.Connections.Titles[t].Holder,s.History)==x.Id;}).FirstOrDefault();
         if(country!=null)
@@ -153,6 +178,22 @@ public static class HistoryRealmLifecycleTests
         }
         File.WriteAllText(output,JsonSerializer.Serialize(rows,new JsonSerializerOptions{WriteIndented=true}));
         Console.WriteLine("Missing-region audit: "+rows.Count);
+    }
+    public static void Frames(string path,string folder,int[] years)
+    {
+        if(Directory.Exists(folder)||years.Length<1||years.Length>8)throw new ArgumentException("Use a new folder and at most eight explicit dates.");
+        var w=WorldFile.Read(File.ReadAllBytes(path));var e=new Prehistory(w);var start=e.UpgradeRealmLifecycles(e.UpgradeGeographicKnowledge(w.Prehistory));var session=new SimulationSession(e,start);
+        Directory.CreateDirectory(folder);var rows=new List<object>();
+        foreach(int year in years.OrderBy(x=>x).Distinct())
+        {
+            if(year<session.LastSnapshot.Years||year>start.Years+30000)throw new ArgumentOutOfRangeException(nameof(years));
+            while(session.LastSnapshot.Years<year){int step=Math.Min(250,year-session.LastSnapshot.Years);session.AdvanceSeconds(step*SimulationTime.Year,int.MaxValue);}
+            var s=session.Snapshot();e.Validate(s);string output=Path.Combine(folder,year.ToString());Directory.CreateDirectory(output);
+            HistoryAudit.Snapshot(w,e,s,output,new[]{HistoryOverlay.States},compressed:true,backgroundOpacity:0,overlayOpacity:.85,includeLabels:true,includeSettlements:false);
+            var leaders=s.History.Polities.Where(p=>p.EndedYear<0&&HistoricalImperialHierarchy.Patron(s,p.Id)<0).OrderByDescending(p=>HistoricalImperialHierarchy.AreaKm2(s,p.Id)).Take(8).Select(p=>new{p.Id,p.Name,Area=HistoricalImperialHierarchy.AreaKm2(s,p.Id),Subjects=s.History.Aggregates.Empires.Governments[p.Id].SubjectCount}).ToArray();
+            rows.Add(new{Year=year,s.Hash,Leaders=leaders});Console.WriteLine("Replayed screenshot "+year+" "+s.Hash);
+        }
+        File.WriteAllText(Path.Combine(folder,"frames.json"),JsonSerializer.Serialize(new{Source=path,StartHash=start.Hash,Rows=rows},new JsonSerializerOptions{WriteIndented=true}));
     }
     public static void Crisis(string path,string folder)
     {

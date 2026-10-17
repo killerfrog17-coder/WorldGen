@@ -137,6 +137,22 @@ and ice biome. Intermediate snapshots use the shared presentation adapter.
 - I: Earth66.6%, Continents Plus85.3%. This still failed near-complete modern borders.
 - K: Earth52.3%, Continents Plus89.8%. The Earth regression is retained in the
   evidence; reaching90% on one seed is not grounds to declare the problem solved.
+- N: Earth59.8%, Continents Plus94.0%, after bounded supplier-chain provisioning,
+  a modern institutional cohesion floor for functioning naval/provincial services,
+  and up to12 geometric proposal checks rather than abandoning a whole expedition
+  after three blocked routes. At most three funded dispatches remain permitted.
+- O: Earth55.4%, Continents Plus94.0%. This includes paid forward administration
+  along already recognized, reachable land corridors. Each office has an existing
+  live parent, bounded depth, setup cost, recurring payroll, public-works/fiscal
+  requirements and a physical service-radius limit. At most one is founded per
+  agreement; it creates no city or additional people. Ordinary secession/conquest
+  can subsequently change its controller. This does not resolve Earth's coverage
+  shortfall and is not presented as a monotonic improvement on N.
+- In ordinary O Continents Plus, realm581 grew from5.58 million km² at raw176515
+  to28.59 million at176815, fell to7.16 million by176915, and held2.05 million
+  at177115. The dates refer to one deterministic generated world, not Earth or
+  a fitted universal empire lifespan. Exact-date visual replay is available via
+  `--realms-replay-frames <input.world> <new-output-folder> <comma-separated-years>`.
 - A controlled real-court comparison, not a natural-frequency estimate, joined
   six existing constituent courts. A contested branch fell from30.2 to1.17 million
   km² in30 years; its continuing-government branch retained all six courts and
@@ -146,6 +162,13 @@ and ice biome. Intermediate snapshots use the shared presentation adapter.
   matched its final hash. These measurements apply to prototype CoreSHA256
   `8e842a58e089ec83a87e28c1b14086a4cbdf05a2b09085fe7e27c1c395794f66`,
   not automatically to subsequent edits. Final-player verification remains separate.
+
+Actual-world assertions additionally check supported supplier-chain effort and
+failure after closing a link, country-foundation presentation, and multi-center
+court failure becoming a real contest. A literal two-field canonical-format
+contrast and loading the preceding private performance checkpoint cover absent
+title indexes. Explicit validation rejects incomplete indexes and missing
+document entries; ordinary simulation does not run those full integrity checks.
 
 Outstanding: early-era geographic spread and technology pacing remain too slow
 in these Earth continuations, modern northern-interior coverage is incomplete,

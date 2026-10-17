@@ -58,9 +58,12 @@ namespace WorldGen.Core
             var c=s.History.Aggregates.Empires.Connections;var r=c.Realms.ClaimRoutes;if(r==null)return;
             if(r.Sources?.Length!=Patches.Length||r.EffortM?.Length!=Patches.Length||!r.Sources.AllPresentValues((region,source)=>source>=0&&source<CellPatch.Length&&r.EffortM[region]>=0&&c.TitleAt[region]>=0)
                 ||!r.EffortM.AllPresentValues((region,meters)=>meters>=0&&r.Sources[region]>=0))throw new ArgumentException("Invalid witnessed territorial service routes.");
+            if(r.SourceHeads==null&&(r.PendingHeads!=null||r.EntryTitles!=null||r.EntryNext!=null||r.IndexCount!=null))throw new ArgumentException("Incomplete territorial succession index.");
+            int indexed=0;
             if(r.SourceHeads!=null&&(r.SourceHeads.Length!=CellPatch.Length||r.PendingHeads?.Length!=CellPatch.Length||r.EntryTitles?.Length!=33554432||r.EntryNext?.Length!=33554432||r.IndexCount==null||r.IndexCount.Value<0||r.IndexCount.Value>33554432
                 ||!r.SourceHeads.AllPresentValues((cell,entry)=>entry>=0&&entry<r.IndexCount.Value)||!r.PendingHeads.AllPresentValues((cell,entry)=>entry>=0&&entry<r.IndexCount.Value)
-                ||!r.EntryTitles.AllPresentValues((entry,title)=>entry<r.IndexCount.Value&&title>=0&&title<c.Titles.Length)||!r.EntryNext.AllPresentValues((entry,next)=>entry<r.IndexCount.Value&&next>=0&&next<entry)))throw new ArgumentException("Invalid bounded territorial succession index.");
+                ||!r.EntryTitles.AllPresentValues((entry,title)=>{indexed++;return entry<r.IndexCount.Value&&title>=0&&title<c.Titles.Length;})||indexed!=r.IndexCount.Value
+                ||!r.EntryNext.AllPresentValues((entry,next)=>entry<r.IndexCount.Value&&next>=0&&next<entry)))throw new ArgumentException("Invalid bounded territorial succession index.");
         }
     }
 }

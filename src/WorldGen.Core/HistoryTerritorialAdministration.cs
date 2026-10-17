@@ -29,7 +29,7 @@ namespace WorldGen.Core
         int TryEstablishTerritorialPost(PrehistoryState s,int polity,int target)
         {
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var hc=h.Cultures[p.CultureId];var g=a.Empires.Governments[polity];var t=a.Empires.Territories;var finances=a.Polities[polity];
-            if(!HistoricalTechnologies.Has(hc,HistoricalTechnology.Writing)||p.Cohesion<500||h.Dynamics.States[polity].PublicWorks<200)return -1;
+            if(!HistoricalTechnologies.Has(hc,HistoricalTechnology.Writing)||p.Cohesion<500-(RealmHistory(s)?200*RealmBureaucracy(s,polity):0)||h.Dynamics.States[polity].PublicWorks<200)return -1;
             int maximum=Math.Min(128,2+(int)(Math.Sqrt(Math.Max(0,finances.Urban)/2500.0)*HistoricalModernEffects.AdministrativeCapacity(hc,s.Years)*3));
             if(LivingWorldHistory(s))maximum=HistoricalMaritimeIntegrationEffects.PostBudget(finances.Urban,HistoricalModernEffects.AdministrativeCapacity(hc,s.Years),HistoricalModernEffects.Communication(hc,s.Years));
             if(g.AdministrativePosts.Count>=maximum||finances.Receipts<finances.ServiceCost*1.15)return -1;
@@ -65,7 +65,7 @@ namespace WorldGen.Core
             if(CellPatch[target]>=0&&ProvincialIncorporationWorthwhile(s,polity,target,center))return true;
             var h=s.History;var p=h.Polities[polity];var hc=h.Cultures[p.CultureId];var account=h.Aggregates.Polities[polity];
             double modern=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Telegraph,s.Years)+HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years);
-            if(modern<.5||account.Receipts<=account.ServiceCost||p.Cohesion<550)return false;
+            if(modern<.5||account.Receipts<=account.ServiceCost||p.Cohesion<550-(RealmHistory(s)?250*RealmBureaucracy(s,polity):0))return false;
             // Paid strategic hinterland belongs to an actual reachable service
             // network, not free paint across empty deserts or polar ice.
             double terrain=1+World.Ecology.Habitat[target].ReliefM/1000.0;

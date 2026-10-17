@@ -26,7 +26,7 @@ namespace WorldGen.Core
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var hc=h.Cultures[p.CultureId];var map=a.Empires.Connections.Geography.Governments[polity];long now=SimulationTime.Seconds(s);
             double ocean=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years),nav=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Navigation,s.Years);
             if(p.EndedYear>=0)return;
-            if(p.Cohesion<500){SeaVentureObserver?.Invoke(polity,"court-cohesion");return;}
+            if(p.Cohesion<(RealmHistory(s)?HistoricalRealmPoliticalEffects.FleetCohesionFloor(RealmBureaucracy(s,polity)):500)){SeaVentureObserver?.Invoke(polity,"court-cohesion");return;}
             if(nav<.2){SeaVentureObserver?.Invoke(polity,"navigation-not-deployed");return;}
             if(p.Treasury<2500||a.Polities[polity].Receipts<=a.Polities[polity].ServiceCost){SeaVentureObserver?.Invoke(polity,"court-finances");return;}
             int capacity=HistoricalSeaVentureEffects.Fleet(a.Polities[polity].Urban,a.Polities[polity].Receipts-a.Polities[polity].ServiceCost,p.Exhaustion);
@@ -81,13 +81,13 @@ namespace WorldGen.Core
                 ObserveGeographicCoast(s,map,post.Cell,3,polity);
                 if(!proposals.Any(x=>x.source==source&&x.region==region))proposals.Add((source,region,post.Cell,3));
             }
-            int checkedRoutes=0;
+            int checkedRoutes=0,dispatched=0;
             // Reserve exploration opportunities. Otherwise known nearby offices
             // always outscore unknown seas and discovery stalls indefinitely.
             bool explore=HistoryRoll("sea-exploration-policy",polity,unchecked(s.Years+map.Voyages*7919))<.35;
             foreach(var proposal in proposals.OrderByDescending(x=>(map.Grade[x.region]<2)==explore).ThenByDescending(x=>x.score).ThenBy(x=>x.region).ThenBy(x=>x.source))
             {
-                if(checkedRoutes>=3||map.Missions.Count(m=>m.Kind!=HistoricalSeaMission.Report)>=capacity||map.Missions.Length>=8)break;
+                if(checkedRoutes>=(RealmHistory(s)?12:3)||dispatched>=3||map.Missions.Count(m=>m.Kind!=HistoricalSeaMission.Report)>=capacity||map.Missions.Length>=8)break;
                 if(map.Missions.Any(m=>m.Region==proposal.region&&m.Kind!=HistoricalSeaMission.Report))continue;
                 checkedRoutes++;
                 var route=new Route{A=CellPatch[proposal.source],B=proposal.region,CellA=proposal.source,CellB=proposal.cell,Sea=true,
@@ -110,7 +110,7 @@ namespace WorldGen.Core
                 double steam=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.SteamPower,s.Years),modern=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years);
                 long duration=HistoricalSeaVentureEffects.Duration(route.DistanceM,!convoy,ocean,steam,modern,HistoryRoll("sea-voyage-weather",polity,map.Voyages+1));
                 if(now>SimulationTime.Maximum-duration)continue;
-                p.Treasury-=cost;port.FoodReserve-=food;map.Voyages++;
+                p.Treasury-=cost;port.FoodReserve-=food;map.Voyages++;dispatched++;
                 var mission=new HistoricalSeaMission{Kind=convoy?HistoricalSeaMission.Convoy:HistoricalSeaMission.Survey,Source=route.CellA,Target=route.CellB,Region=route.B,DistanceM=route.DistanceM,Departed=now,Due=now+duration,Investment=cost,ReportedYear=s.Years};
                 map.Missions=map.Missions.Concat(new[]{mission}).ToArray();
                 SeaVentureObserver?.Invoke(polity,convoy?"convoy-departed":"survey-departed");
