@@ -1337,6 +1337,53 @@ Accepted evidence: `D:/WorldGenBuildArtifacts/overnight-20261017/native-map-mark
 and `browser-map-marks-final` in the same review directory. The project shortcut
 now selects `artifacts/player-history-32-map-marks/WorldGen.exe`.
 
+## Structured religion review, 17 October 2026
+
+History32 optional realm31 is implemented in Core, with saved inherited doctrine,
+particular denomination/synthesis issues and separate provisioned local public/
+lay bodies. Religious authority is not political ownership or public belief.
+See HISTORY32_RELIGIOUS_TRADITIONS.md for actual effects and limitations.
+
+Release solution/staged worker/shared-DLL builds pass with0 warnings/errors.
+377 focused doctrine/record-update assertions and772 historical-presentation
+assertions pass. The latter include both cached and literal eight-overlay
+selection/highlight checks.24 actual20k Earth and22 actual20k generated forest
+world assertions pass: non-mutating explicit upgrade, particular coercion and
+authority counterfactuals, specific paid branching, actual100-year versus37+63
+replay, binary world roundtrip, cold12-year continuation, extension-level JSON,
+fresh activation/first actor registration, and read-only atlas records.
+
+The first dense CP multi-counterfactual harness attempt exhausted memory and is
+not accepted evidence. Full mature-history JSON also exceeded the existing
+250MB document limit in the forest fixture; this limit was not relaxed. Full
+world persistence is tested in the supported binary format, with JSON scoped to
+the new optional extension. A separate low-copy200k Earth compatibility smoke
+passes upgrade/validation and12 due years on4951 recorded towns/139 faiths:
+7867.93ms continuation, worst computed year702.05ms. That approximately1.53yr/s
+CLR observation is not acceptance of the outstanding3yr/s or max-tech+1000-year
+performance requirement, nor an all-era religious realism calibration.
+
+The IL2CPP review player builds successfully. Native Religion and Religious
+institutions camera captures, actual selection/atlas documents and unchanged
+historical hash pass. Both maps were visually inspected. The actual new12-year
+native and CLR continuation is exactly
+`32d3200dcbecf929365f5f8e52820b6ecc235f06dbb72bec10cdc5f6d273b6d4`.
+Unupgraded source30 continuation still matches the frozen preceding native
+player exactly (`8166b3c5c4e5b83bbd65a96867354d94b7a7f80a65d7fdcfb11304aaf7118119`).
+
+The browser UI check loads the actual new-rules Earth save and passes doctrine,
+observance and institution article navigation, distinct institutional overlay,
+correct focused body, unchanged paused time and no JavaScript errors.38 public
+institution seats are present. Doctrine/observance and native maps were opened
+for visual review. The initial180s loading deadline timed out; a240s retry
+passed without a runtime-code workaround.
+This is not a browser loading-speed acceptance claim.
+
+Evidence: `D:/WorldGenBuildArtifacts/religion31-review` (Earth, forest,200k,
+browser and native subdirectories). Generated outputs stay out of Git.
+The selected project shortcut is `artifacts/player-history-32-religion31/WorldGen.exe`;
+fresh histories enable it, while existing saves use Esc -> Update simulation rules.
+
 ## Practical limits
 
 This is independently written C#, not a source translation or numerically identical World Orogen port. The reference comparison and outstanding parity gaps are in OROGEN_ALIGNMENT.md. In particular, climate is still eager at high detail; editing/import/planet codes and extended export modes are absent. Old recipes are explicitly rejected rather than silently reinterpreted.

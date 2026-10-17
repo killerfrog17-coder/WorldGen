@@ -64,7 +64,7 @@ public static class HistoryReligiousDoctrineTests
         int rival=Enumerable.Range(0,coercion.History.Religions.Length).First(i=>i!=faith);int ruler=coercion.History.Polities.First(p=>p.EndedYear<0).Id;
         var localDoctrine=cr.Traditions.Doctrines[faith];localDoctrine.Images=1000;localDoctrine.Exclusivity=localDoctrine.Orthodoxy=1000;
         var opposing=localDoctrine.Copy();opposing.Id=rival;opposing.Images=0;cr.Traditions.Doctrines[rival]=opposing;
-        coercion.History.Polities[ruler].ReligionId=rival;target.Stability=900;string ownership=coercion.History.Aggregates.Cells.Fingerprint();
+        coercion.History.Polities[ruler].ReligionId=rival;coercion.History.Aggregates.Communities.Cities[t.Id].InclusionMilli=0;target.Stability=900;string ownership=coercion.History.Aggregates.Cells.Fingerprint();
         coercion.Years+=40;Call(e,"AdvanceStructuredReligiousInstitutions",coercion,target.Cell,target.Id,ruler,2,true);
         var grievance=Prehistory.ReligiousInstitutionAt(coercion,target.Cell);
         check(grievance.Tension>100&&target.Stability<900,"A specific image prohibition plus funded coercion creates actual local tension and a stability consequence.");
@@ -102,7 +102,10 @@ public static class HistoryReligiousDoctrineTests
         check(full.History.Aggregates.Empires.Connections.Religion.Traditions.Institutions.Fingerprint()!=s.History.Aggregates.Empires.Connections.Religion.Traditions.Institutions.Fingerprint(),"Real due city events populate the saved institutional ledger.");
         world.Prehistory=full;var restoredWorld=WorldFile.Read(WorldFile.Write(world));var restored=restoredWorld.Prehistory;var cold=new Prehistory(restoredWorld);cold.Validate(restored);
         check(restored.Hash==full.Hash&&cold.AdvanceYears(restored,12).Hash==e.AdvanceYears(full,12).Hash,"Full-world persistence and cold12-year continuation preserve doctrines, bodies and future events.");
-        var json=WorldJson.Read<PrehistoryState>(WorldJson.Write(full));e.Validate(json);check(json.Hash==full.Hash,"JSON roundtrip retains the optional religious extension and its integrity.");
+        // The supported binary world format above covers the full history.
+        // Old mature histories can expand beyond JSON's intentional250MB cap;
+        // test this extension's JSON contract without expanding that archive.
+        var json=full.Copy();json.History.Aggregates.Empires.Connections.Religion.Traditions=WorldJson.Read<HistoricalReligiousTraditions>(WorldJson.Write(full.History.Aggregates.Empires.Connections.Religion.Traditions));e.Validate(json);check(json.Hash==full.Hash,"JSON roundtrip retains the optional religious extension and its integrity.");
         var fresh=e.Start(e.Prepare());e.Validate(fresh);check(fresh.History.Aggregates.Empires.Connections.Religion.Traditions!=null,"Fresh histories enable the new religion rules without an upgrade action.");
         var firstCulture=fresh.Copy();int origin=Array.FindIndex(e.CellPatch,p=>p==fresh.Origin);
         var queue=new SimulationEventQueue(firstCulture.Timeline.Events);var queueField=typeof(Prehistory).GetField("aggregateQueue",BindingFlags.Instance|BindingFlags.NonPublic)!;

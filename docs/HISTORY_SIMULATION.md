@@ -1,5 +1,15 @@
 # Historical simulation: history-31 / prehistory-6
 
+## Structured religion - 17 October 2026
+
+Optional realm31 separates inherited doctrinal profiles, denomination ancestry,
+and maintained local religious institutions. Specific disagreements and actual
+funded treatment condition transmission, authority, grievance and diplomatic
+effects; different religion IDs alone do not cause war or transfer territory.
+The separate Religious institutions map and Ritual bodies atlas directory expose
+actual institutional affiliation. Old saves require explicit rules upgrade;
+fresh histories enable it. See [mechanisms, compatibility and limits](HISTORY32_RELIGIOUS_TRADITIONS.md).
+
 ## Continuing countries and contested realms - 16 October review
 
 The next32 optional `Connections.Realms` extension separates country foundation from government replacement, adds actual regional/constituent succession contests, updates known-court competition, and distinguishes modern administrative continuity from colonial self-determination. Adjacent recognized sovereignty has real upkeep, and extinct holders can be replaced. Actual-port sea bearings and actual-landfall reconnaissance address representative-beach routing failures. Existing saves retain their preceding rules until the explicit update-rules action; generation is unchanged. This is still a longitudinal experiment, not a claim that the late-world sovereignty target has passed. [Mechanisms, references and limitations](HISTORY32_REALM_LIFECYCLES.md).

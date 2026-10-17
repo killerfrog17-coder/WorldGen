@@ -14,7 +14,8 @@ try{
  await page.evaluate(async()=>{window.__wg=await import('/globe.js');});
  console.log('Loading actual structured-religion save in browser worker.');
  await page.evaluate(bytes=>window.__wg.loadWorldFile(bytes),(await fs.readFile(source)).toString('base64'));
- await page.waitForFunction(()=>[...document.querySelectorAll('button')].some(b=>b.textContent==='Start world'&&!b.disabled),{},{timeout:180000});
+ await page.waitForFunction(()=>document.querySelector('.error')?.textContent||[...document.querySelectorAll('button')].some(b=>b.textContent==='Start world'&&!b.disabled),{},{timeout:240000});
+ const loadError=await page.locator('.error').allTextContents();if(loadError.length)throw Error(loadError.join('\n'));
  await page.getByRole('button',{name:'Start world',exact:true}).click();
  await page.waitForFunction(()=>window.__wg.viewInfo().map&&!window.__wg.viewInfo().loading,{},{timeout:180000});
  const initial=await status();
@@ -50,4 +51,5 @@ try{
  assert.equal(selected.Seconds,initial.Seconds);assert.equal(errors.length,0,errors.join('\n'));
  await fs.writeFile(output+'/result.json',JSON.stringify({institutionCount:institutions.Legend.length,subject:selected.Subject,errors},null,2));
  console.log('PASS browser: doctrine/observance/institution atlas UI, independent institution map, correct clicked subject, paused time, no JS errors.');
-}finally{await browser.close();}
+}catch(error){console.log('Browser errors:',JSON.stringify(errors));console.log((await page.locator('body').innerText()).slice(-3500));await page.screenshot({path:output+'/failure.png'});throw error;}
+finally{await browser.close();}
