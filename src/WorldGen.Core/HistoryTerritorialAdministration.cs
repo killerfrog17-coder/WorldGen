@@ -77,6 +77,8 @@ namespace WorldGen.Core
             int at=(int)(HistoryRoll("provincial-office-review",polity,s.Years)*g.AdministrativePosts.Count),id=g.AdministrativePosts.At(at);var post=a.Empires.Territories.Posts[id];var account=a.Polities[polity];
             bool reachable=HistoricalCells.Polity(s,post.Cell)==polity&&TerritorialNodeLive(s,polity,post.ParentSource);
             if(RevisedRealmHistory(s)&&post.Maritime)reachable=reachable&&TerritorialNodeLive(s,polity,-2-id);
+            if(reachable&&CourtConnectivityHistory(s)&&!post.Maritime)
+                reachable=CourtLandConnection(s,polity,TerritorialNodeCell(s,post.ParentSource),post.Cell)!=HistoricalCourtConnection.Blocked;
             bool paid=h.Polities[polity].Treasury>0||account.Receipts>=account.ServiceCost;
             if(reachable&&paid){ReviewRealmSourceTitles(s,post.Cell,polity);return;}
             if(reachable&&HistoryRoll("provincial-office-shortfall",id,s.Years)>1-Math.Exp(-elapsed/40.0))return;

@@ -31,6 +31,8 @@ public static class HistoryRegionalTraditionTests
         check(HistoricalCells.Religion(s,1)==0,"Regional ritual tradition is available without a separate cell flood fill.");
         s.History.RegionalTraditions.Qualified=s.History.RegionalTraditions.Qualified.With(0,1);
         check(HistoricalCells.Stage(s,0)==2&&HistoricalCells.Stage(s,1)==1,"A qualified proto-center is nested locally inside its broader advanced culture.");
+        check(SocietyView.LocalStage(s,0,SocietyStage.AdvancedCulture)=="Embryonic civilization"&&SocietyView.LocalStage(s,1,SocietyStage.AdvancedCulture)=="Advanced culture","Local proto-center labels do not contradict or globally promote their parent tradition.");
+        check(PrehistoryView.PrimitiveGray(170)==.78&&PrehistoryView.PrimitiveGray(195)==.70&&PrehistoryView.PrimitiveGray(215)==.46,"Foragers, advanced cultures and embryonic civilizations have distinct progressively darker grays.");
         s.History.Aggregates.Living.Cities[0].AbandonedYear=450;
         check(HistoricalCells.Stage(s,0)==1,"An abandoned town cannot maintain proto-civilization status.");
         s.History.Aggregates.Regions[0].Culture=-1;

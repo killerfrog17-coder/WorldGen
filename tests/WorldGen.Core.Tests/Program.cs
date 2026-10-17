@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--court-connectivity-only")){int count=0;HistoryCourtConnectivityTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" court connectivity and state-map assertions");return;}
+if(args.Contains("--court-connectivity-world")){int at=Array.IndexOf(args,"--court-connectivity-world"),count=0;HistoryCourtConnectivityTests.World(args[at+1],args[at+2],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world court connectivity assertions");return;}
 if(args.Contains("--claim-style-only")){int count=0;HistoryClaimStyleTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" political claim display assertions");return;}
 if(args.Contains("--migrant-religion-only")){int count=0;HistoryMigrantReligiousContinuityTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" migrant religious continuity assertions");return;}
 if(args.Contains("--migrant-religion-world")){int at=Array.IndexOf(args,"--migrant-religion-world");HistoryMigrantReligiousContinuityWorldTests.Run(args[at+1],args[at+2]);return;}

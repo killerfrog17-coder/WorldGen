@@ -25,11 +25,11 @@ public static class HistoryTerritoryTests
         double good=HistoricalCrops.AbioticPotential(fertile);fertile.ReliefM=1100;
         check(HistoricalCrops.AbioticPotential(fertile)==good*.5,"Shared abiotic crop baseline exposes the same slope factor for relative adaptation");
         check(HistoricalTerritorialEffects.WithdrawalChance(200,0,650)>HistoricalTerritorialEffects.WithdrawalChance(800,10000,0),"Institutional and fiscal stress increase unsupported frontier withdrawal");
-        var s=new PrehistoryState{Started=true,Society=new SocietyState{CellCulture=new[]{0,1,1},Cultures=new[]{new CultureIdentity{Id=0,Stage=SocietyStage.Civilization},new CultureIdentity{Id=1,Stage=SocietyStage.Civilization}}},History=new HistoryState{CellPolity=new[]{0,0,1},CellStage=new[]{3,3,3},Polities=new[]{new HistoricalPolity{Id=0,CultureId=0},new HistoricalPolity{Id=1,CultureId=0}}}};
+        var s=new PrehistoryState{Started=true,Society=new SocietyState{CellCulture=new[]{0,1,1},Cultures=new[]{new CultureIdentity{Id=0,Stage=SocietyStage.Civilization},new CultureIdentity{Id=1,Stage=SocietyStage.Civilization}}},History=new HistoryState{Cultures=new[]{new HistoricalCulture{Id=0},new HistoricalCulture{Id=1}},CellPolity=new[]{0,0,1},CellStage=new[]{3,3,3},Polities=new[]{new HistoricalPolity{Id=0,CultureId=0},new HistoricalPolity{Id=1,CultureId=0}}}};
         check(SocietyView.OverlayId(s,1,HistoryOverlay.Civilizations)==0,"Conquered political territory takes its ruler's culture");
         check(SocietyView.OverlayId(s,1,HistoryOverlay.Cultures)==1,"Conquest does not recolor the local culture layer");
         check(SocietyView.OverlayId(s,1,HistoryOverlay.States)==0&&SocietyView.OverlayId(s,2,HistoryOverlay.States)==1,"State identity remains distinct from its tint");
-        check(SocietyView.OverlayColorId(s,1,HistoryOverlay.States)==SocietyView.OverlayColorId(s,2,HistoryOverlay.States),"Separate courts of one ruling culture share a political color");
+        check(SocietyView.OverlayColorId(s,1,HistoryOverlay.States)!=SocietyView.OverlayColorId(s,2,HistoryOverlay.States),"Separate states of one ruling culture have distinct political colors");
         var w=new World{Surface=new Surface{Cells=new[]{new Cell(),new Cell(),new Cell()},Corners=new[]{new V(1,0,0),new V(.99,.1,0).Unit},Edges=new[]{new Edge{A=0,B=1,TriangleA=0,TriangleB=1},new Edge{A=1,B=2,TriangleA=0,TriangleB=1}}},Hydrology=new HydrologyResult{OceanConnected=new[]{false,false,false}}};
         var borders=new HistoryBorders();var edges=borders.Segments(w,s);
         check(edges.Length==6,"Borders follow state ownership even between identically colored states, not culture cells");

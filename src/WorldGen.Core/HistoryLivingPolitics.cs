@@ -65,6 +65,7 @@ namespace WorldGen.Core
             int other=neighbors[(int)(HistoryRoll("living-incorporation-peer",polity,s.Years)*neighbors.Length)];var town=s.Society.Settlements[other];
             if(a.Living.Cities[other].AbandonedYear>=0||a.Resolve(town.PolityId,h)>=0||town.Population<300)return;
             double effort=LivingTravelKm(s,s.Society.Settlements[p.CapitalId].Cell,town.Cell,p.CultureId);
+            if(!CourtFrontierWithinCore(s,polity,effort))return;
             if(effort>a.Polities[polity].ReachKm*(1+.15*Math.Log(1+a.Polities[polity].CityCount)))return;
             double familiarity=town.CultureId==p.CultureId?1:.25;
             double benefit=(.3+.7*p.Legitimacy/1000.0)*familiarity;

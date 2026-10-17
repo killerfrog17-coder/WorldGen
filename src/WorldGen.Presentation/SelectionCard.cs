@@ -39,12 +39,12 @@ namespace WorldGen.Presentation
                     facts.Add(F(realm?"Realm population":"Direct population",N(realm?HistoricalImperialHierarchy.Population(s,p.Id):p.Population)));facts.Add(F(realm?"Realm area":"Direct area",N(realm?HistoricalImperialHierarchy.AreaKm2(s,p.Id):p.AreaKm2)+" km²"));facts.Add(F("Capital",s.Society.Settlements[p.CapitalId].Name));facts.Add(F("Ruler",p.Ruler));facts.Add(F("Founded",Y(s,p.FoundedYear)));
                     int patron=HistoricalImperialHierarchy.Patron(s,p.Id);if(patron>=0)facts.Add(F("Within",h.Polities[patron].Name));break;
                 case "people":
-                    var c=s.Society.Cultures[link.Id];card.Subtitle=(s.History?.RegionalTraditions!=null&&HistoricalCells.Stage(s,cell)==2?"Proto-urban center · ":"")+SocietyView.Stage(c.Stage)+" · "+c.Subsistence;
+                    var c=s.Society.Cultures[link.Id];card.Subtitle=SocietyView.LocalStage(s,cell,c.Stage)+" · "+c.Subsistence;
                     facts.Add(F("Population",N(c.Population)));facts.Add(F("Area",N(c.AreaKm2)+" km²"));
                     card.Bars=new[]{("Cultivation",c.Farming),("Gathering",c.Gathering*(1000-c.Farming)/1000),("Hunting",c.Hunting*(1000-c.Farming)/1000),("Fishing",c.Fishing*(1000-c.Farming)/1000),("Herding",c.Herding*(1000-c.Farming)/1000)}.Where(v=>v.Item2>0).Select(v=>new AtlasLink{Name=v.Item1,Value=v.Item2}).ToArray();card.Note="Livelihood intensity · not population shares";break;
                 case "city":
                     var t=s.Society.Settlements[link.Id];card.Subtitle=t.PolityId>=0?h.Polities[t.PolityId].Name:"Independent settlement";
-                    if(h.RegionalTraditions!=null&&h.Aggregates.Resolve(t.PolityId,h)<0)card.Subtitle=HistoricalRegionalTraditions.Proto(s,t.Id)?"Proto-urban center · "+s.Society.Cultures[t.CultureId].Name:"Village · "+s.Society.Cultures[t.CultureId].Name;
+                    if(h.RegionalTraditions!=null&&h.Aggregates.Resolve(t.PolityId,h)<0)card.Subtitle=HistoricalRegionalTraditions.Proto(s,t.Id)?"Embryonic civilization · "+s.Society.Cultures[t.CultureId].Name:"Village · "+s.Society.Cultures[t.CultureId].Name;
                     facts.Add(F("Residents",N(t.Population)));facts.Add(F("Food supports",N(t.FoodCapacity)));facts.Add(F("Founded",Y(s,t.FoundedYear)));
                     card.Bars=new[]{new AtlasLink{Name="Health",Value=t.Health},new AtlasLink{Name="Stability",Value=t.Stability}};break;
                 case "religion":

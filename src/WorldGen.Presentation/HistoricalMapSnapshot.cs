@@ -74,7 +74,7 @@ namespace WorldGen.Presentation
             return p>=0?HistoricalRecognizedClaims.Civilization(source,h.Polities[p].CultureId):-1;
         }
         public int ColorId(int cell,HistoryOverlay overlay)
-        {int owner=OverlayId(cell,overlay);return owner>=0&&overlay==HistoryOverlay.States&&source.History!=null?source.History.Polities[owner].CultureId:owner;}
+        {return OverlayId(cell,overlay);}
         public int SelectionId(int cell,HistoryOverlay overlay)
         {
             if(cell<0||cell>=Count||source.History==null)return -1;

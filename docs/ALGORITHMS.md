@@ -2,6 +2,8 @@
 
 ## Continuing countries and contested realms - history32 optional review
 
+Owner revision30 adds bounded actual-court connectivity, local early direct-administration envelopes and loss of isolated office support.96 route expansions cannot become a territorial census; exhausted searches mean unknown, not disconnected. Supported sea lanes and later delegated ocean/rail transport remain distinct from ancient direct administration. Existing29 and earlier histories retain exact continuation until explicit upgrade. State colors now identify sovereign state IDs; claims are not pale. [Scope, mechanisms and evidence](HISTORY32_COURT_CONNECTIVITY.md).
+
 `Connections.Realms` is a nullable saved/hashed opt-in extension. Fresh32 histories enable it; old saves retain their previous continuation until explicit upgrade. Regime changes preserve the country and its foundation. Saved personal-conquest succession crises can activate bounded existing regional/subject political actors; modern bureaucracy damps ruler-mortality shocks without immunizing colonial exclusion. Ordinary diplomacy examines at most two known courts. Funded adjacent recognition and extinct-title replacement maintain separate sovereignty-area/upkeep deltas; they create no people, farms or uniform occupation. Actual-port sea bearings use96 fixed raster probes and an ordered16,384-entry geometry-only cache, preserving actual landfall for local reconnaissance. No recurring terrain, empire, culture or ecoregion census is introduced. Old null-realm canonical bytes and rules remain unchanged. [Review contract and historical comparisons](HISTORY32_REALM_LIFECYCLES.md).
 
 ## State geography and dated sea ventures - history32 optional revision

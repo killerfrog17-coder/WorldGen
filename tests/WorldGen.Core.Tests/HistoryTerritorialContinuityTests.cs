@@ -6,6 +6,7 @@ public static class HistoryTerritorialContinuityTests
 {
     public static void Run(Action<bool,string> check)
     {
+        HistoryCourtConnectivityTests.Run(check);
         double P(double bureaucracy=.8,int inclusion=700,int representation=650,long receipts=1000,long cost=800,double distance=1,bool served=true)
             =>HistoricalTerritorialContinuityEffects.SecessionPressure(.7,bureaucracy,inclusion,representation,receipts,cost,distance,served);
         check(P()<.45,"Actually included, financed, connected communities under installed modern administration need not turn ordinary autonomy demands into secession.");

@@ -25,6 +25,7 @@ namespace WorldGen.Core
             double inclusionTarget=D.Clamp(.10+.30*p.Legitimacy/1000.0+.25*ds.PublicWorks/1000.0+.25*leader.Diplomacy/1000.0+.25*policy.RepresentationMilli/1000.0+.15*(1-policy.CentralizationMilli/1000.0)-.25*p.Exhaustion/1000.0);
             local.InclusionMilli=(int)Math.Round(local.InclusionMilli+(1000*inclusionTarget-local.InclusionMilli)*(1-Math.Exp(-elapsed/180.0)));
             AdvanceRealmClaimant(s,owner,city,elapsed);
+            if(ReviewDisconnectedCourt(s,owner,city,elapsed))return;
             if(city==p.CapitalId||t.Population<(RealmHistory(s)&&(RealmCrisis(s,owner)>0||RealmClaimantShock(s,owner,city)>0)?600:1800)||a.Living.Cities[city].DeclineYears>0)return;
             var hc=h.Cultures[t.CultureId];var account=a.Polities[owner];bool continuityRules=(a.Empires?.Connections?.Realms?.Version??0)>=23;int serviceCulture=continuityRules?p.CultureId:t.CultureId;
             double distance=LivingTravelKm(s,s.Society.Settlements[p.CapitalId].Cell,t.Cell,serviceCulture)/Math.Max(50,HistoricalProvincialEffects.LocalServiceKm(h.Cultures[p.CultureId],s.Years,ds.PublicWorks));

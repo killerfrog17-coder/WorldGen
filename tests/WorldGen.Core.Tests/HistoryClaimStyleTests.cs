@@ -27,11 +27,10 @@ public static class HistoryClaimStyleTests
                 Polities=new[]{new HistoricalPolity{Id=0,Name="Title holder",CapitalId=0,CultureId=0},new HistoricalPolity{Id=1,Name="Actual controller",CapitalId=1,CultureId=1}}}};
     }
     static bool Same(V a,V b)=>a.X==b.X&&a.Y==b.Y&&a.Z==b.Z;
-    static double Chroma(V a)=>Math.Max(a.X,Math.Max(a.Y,a.Z))-Math.Min(a.X,Math.Min(a.Y,a.Z));
     public static void Run(Action<bool,string> check)
     {
         var s=Fixture();string before=WorldJson.Write(s),hash=s.ComputeHash();var display=HistoricalMapSnapshot.For(s);
-        check(!display.ClaimOnly(0)&&display.ClaimOnly(1)&&!display.ClaimOnly(2)&&!display.ClaimOnly(3),"Only title-without-controller is pale");
+        check(!display.ClaimOnly(0)&&display.ClaimOnly(1)&&!display.ClaimOnly(2)&&!display.ClaimOnly(3),"Only title-without-controller has a claim-only inspection note");
         check(!display.ClaimOnly(-1)&&!display.ClaimOnly(4),"Out-of-range display queries are not claims");
         for(int cell=-1;cell<=4;cell++)check(display.ClaimOnly(cell)==SocietyView.ClaimOnly(s,cell),"Bounded click query matches cached display classification: "+cell);
         check(!SocietyView.ClaimOnly(null,0),"Missing checkpoint has no claim-only selection");
@@ -42,8 +41,7 @@ public static class HistoryClaimStyleTests
             V full=SocietyView.OverlayColor(s,0,mode),pale=SocietyView.OverlayColor(s,0,mode,true);
             bool political=mode==HistoryOverlay.States||mode==HistoryOverlay.Civilizations;
             check(Same(full,SocietyView.OverlayColor(s,0,mode,false)),"Actual controller retains original RGB in "+mode);
-            check(political?!Same(full,pale):Same(full,pale),"Claim styling is limited to political overlays: "+mode);
-            if(political)check(Chroma(pale)<Chroma(full)&&pale.X+pale.Y+pale.Z>full.X+full.Y+full.Z,"Claim RGB is lighter and less saturated: "+mode);
+            check(Same(full,pale),"Claims retain their holder's full color without pale styling: "+mode);
             var bytes=Enumerable.Range(0,16).Select(i=>(byte)(i%4==3?(i==7?245:235):17)).ToArray();
             var alpha=Enumerable.Range(0,4).Select(i=>bytes[i*4+3]).ToArray();
             SocietyView.ColorPalette(s,bytes,0,mode);
@@ -51,11 +49,9 @@ public static class HistoryClaimStyleTests
             {
                 check(bytes[cell*4+3]==alpha[cell],"Occupied and selected alpha codes remain unchanged: "+cell+"/"+mode);
                 int owner=display.ColorId(cell,mode);if(owner<0)continue;
-                // Same shared call and (owner,claimOnly) key as the Unity upload path.
-                bool claim=display.ClaimOnly(cell);long key=((long)owner<<1)|(claim?1L:0L);
-                var native=SocietyView.OverlayColor(s,owner,mode,claim);
+                var native=SocietyView.OverlayColor(s,owner,mode);
                 check(bytes[cell*4]==(byte)Math.Round(native.X*255)&&bytes[cell*4+1]==(byte)Math.Round(native.Y*255)&&bytes[cell*4+2]==(byte)Math.Round(native.Z*255),"Browser/native shared RGB agrees: "+cell+"/"+mode);
-                if(cell==1&&political)check(key!=((long)display.ColorId(0,mode)<<1),"Same-holder claim has a separate native tint-cache key");
+                if(cell==1&&political)check(display.ColorId(cell,mode)==display.ColorId(0,mode),"Same-holder claim keeps its state's full color and tint-cache key");
             }
         }
         check(display.SelectionId(0,HistoryOverlay.States)==display.SelectionId(1,HistoryOverlay.States),"Selecting a title still focuses its existing sovereign identity");

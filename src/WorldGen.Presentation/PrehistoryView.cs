@@ -6,6 +6,8 @@ namespace WorldGen.Presentation
 {
     public static class PrehistoryView
     {
+        // Match the primitive-stage grayscale decoder in both browser and Unity shaders.
+        public static double PrimitiveGray(byte code)=>code>224?.24:code>204?.46:code>186?.70:.78;
         // Alpha codes are data, not transparency: water 0, land85, occupied170, selected255.
         public static byte[] Codes(World w,Prehistory engine=null,PrehistoryState state=null,int selectedCell=-1,HistoryOverlay overlay=HistoryOverlay.Civilizations,byte[] destination=null,bool optimized=true)
         {

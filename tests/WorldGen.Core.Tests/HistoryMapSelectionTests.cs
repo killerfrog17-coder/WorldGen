@@ -52,7 +52,7 @@ public static class HistoryMapSelectionTests
         Subject(7,HistoryOverlay.Cultures,"people",0);Subject(7,HistoryOverlay.Technology,"technology",0);
         foreach(var mode in new[]{HistoryOverlay.Provinces,HistoryOverlay.Religions})check(HistoryAtlas.Selection(s,7,mode)==null,"Missing "+mode+" never substitutes a court or people");
         check(display.OverlayId(0,HistoryOverlay.Technology)==display.OverlayId(2,HistoryOverlay.Technology)&&display.SelectionId(0,HistoryOverlay.Technology)!=display.SelectionId(2,HistoryOverlay.Technology),"A shared technology-era color does not merge unrelated research subjects");
-        check(display.ColorId(0,HistoryOverlay.States)==display.ColorId(5,HistoryOverlay.States)&&display.SelectionId(0,HistoryOverlay.States)!=display.SelectionId(5,HistoryOverlay.States),"Same ruling culture color does not merge independent states");
+        check(display.ColorId(0,HistoryOverlay.States)!=display.ColorId(5,HistoryOverlay.States)&&display.SelectionId(0,HistoryOverlay.States)!=display.SelectionId(5,HistoryOverlay.States),"Independent states of the same ruling culture have distinct colors and selection identities");
         check(HistoryAtlas.ProfilesAt(s,3).Any(l=>l.Kind=="claim"),"Territorial-title documents remain accessible as secondary profiles");
         check(WorldJson.Write(s)==before,"All map focus queries leave authoritative history unchanged");
         var legacy=s.Copy();legacy.History.Aggregates=null;

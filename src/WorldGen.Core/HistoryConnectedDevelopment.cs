@@ -148,6 +148,7 @@ namespace WorldGen.Core
                 if(ColonialHistory(s)&&RespectRecognizedClaim(s,polity,target))continue;
                 int region=CellPatch[target];var habitat=World.Ecology.Habitat[target];
                 double distance=LivingTravelKm(s,capital,target,p.CultureId);
+                if(!CourtFrontierWithinCore(s,polity,distance))continue;
                 if(!TechnicalHistory(s)&&distance>account.ReachKm*(1+.15*Math.Log(1+account.CityCount)))continue;
                 if(region<0&&!HistoricalTechnologies.Has(hc,HistoricalTechnology.Railways))continue;
                 if(region>=0&&s.Population[region]+a.Living.Regions[region].SettledPopulation<25&&!HistoricalTechnologies.Has(hc,HistoricalTechnology.Railways))continue;

@@ -52,8 +52,6 @@ public sealed partial class WorldGenRuntime
         GUI.Label(new Rect(r.x+12,r.y+12,r.width-92,25),historyOverlay.ToString().ToUpperInvariant());
         if(GUI.Button(new Rect(r.xMax-77,r.y+10,65,26),"Sort ▾"))sortOpen=!sortOpen;
         float top=r.y+43;
-        if(historyOverlay==HistoryOverlay.States||historyOverlay==HistoryOverlay.Civilizations)
-        {GUI.Label(new Rect(r.x+12,r.y+36,r.width-24,15),SocietyView.PoliticalClaimShortLegend,new GUIStyle(GUI.skin.label){fontSize=11});top+=15;}
         if(sortOpen){float optionWidth=(r.width-24)/3;int i=0;foreach(string option in new[]{"Default","Population","Land area"}){if(GUI.Button(new Rect(r.x+12+i*optionWidth,top,optionWidth,25),option)){societySort=option;sortOpen=false;}i++;}top+=30;}
         var entries=CurrentHistoryLegend();var viewport=new Rect(r.x+10,top,r.width-20,Mathf.Max(20,r.yMax-top-10));
         int rows=Math.Max(1,(int)(viewport.height/21)),pages=Math.Max(1,(entries.Length+2*rows-1)/(2*rows));
