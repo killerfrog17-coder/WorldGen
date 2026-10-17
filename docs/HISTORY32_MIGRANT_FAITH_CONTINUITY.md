@@ -2,7 +2,8 @@
 
 Status: activated29 in the frozen `candidate-ae29b-freeze` review;24 tiny actor,
 14 actual-source and11 genuine cold assertions pass. Full fresh outcomes and
-native acceptance remain separate checks, currently in progress.
+native acceptance remain separate checks. Both full fresh replays have now saved
+and validated; their religious/geographical outcomes are still being inspected.
 Revision28 and earlier retain their
 literal behavior. No existing religion IDs are merged, removed or retrospectively
 reinterpreted on upgrade.
@@ -144,6 +145,10 @@ Eleven assertions pass through the ordinary public upgrade/advance/WorldFile API
 The preceding saved28 marker continues twelve years to exactly the independently
 frozen28 result
 `b95021f81ec0a087bb5891ea3494ae2c3987331ff43921c82369c668aead2f29`.
+An additional complete preceding-rule28 replay under the final29b source,
+`candidate-ae29-literal28-earth200`, also saves/validates at157700 with the exact
+frozen28 final hash `db43d25fa111a430f5fbead5491738f3467091c83a84d6b4188c1fea98a34cff`.
+This explicitly old-marker control is distinct from fresh ordinary29 setup.
 The explicit28→29 upgrade preserves total population, each raw regional cohort,
 all town residents, every town food reserve/court treasury, and every existing
 technical rank/progress/lesson/research/deployment record. A genuine initial
@@ -159,3 +164,98 @@ old-save upgrade is introduced. These checks establish conservation, exact legac
 continuation and cold determinism, not the desired full-history religious
 concentration, geographical development or native performance. Actual fresh29
 public/household/lay maps and observed carriers must be reviewed separately.
+
+## Fresh longitudinal checkpoints
+
+Ordinary frozen29b replays on the accepted200k terrain reached at least1,000 years
+beyond their first complete maximum-technology package, then saved and validated:
+
+- Earth year158000, first maximum156969, final hash
+  `aadce44b43b5823970e45c80d53ec9ebfb415294cf65893b8a032327606936e3`,
+  `candidate-ae29-earth200/final.world`109,493,898 bytes.
+- Continents Plus year165400, first maximum164390, final hash
+  `c69af098ae184c9f8492e2f180e0337fe7527467179fcc74f92430ce600d1703`,
+  `candidate-ae29-cp200/final.world`127,576,422 bytes.
+
+These are successful complete history/persistence checks, not proof of historical
+religious consolidation, realistic Asian coverage or native speed acceptance.
+The independent reviewer owns one combined saved-world evidence load per final;
+religion summaries will be derived from its actual exported public, household,
+lay-organization and event records rather than inferred from color or ancestry.
+
+## Actual final29 identities, institutions and renewal
+
+The independent combined evidence loader subsequently exported both final worlds
+using the exact29b assemblies and verified their source hashes unchanged. The
+following derives only from its JSON; it required no second world load.
+
+| Observed final indicator | Earth158000 | Continents Plus165400 |
+| --- | ---: | ---: |
+| Living towns | 3,748 | 4,093 |
+| Recorded religion IDs, including non-town traditions | 139 | 211 |
+| Public-predominance IDs in living towns | 58 | 81 |
+| Remembered household IDs in living towns | 58 | 91 |
+| Provisioned lay-association IDs | 40 | 58 |
+| Union of those three observed town roles | 59 | 97 |
+| Inherited-migrant-description religion records | 0 | 0 |
+| Towns with household memory different from public faith | 145 | 177 |
+| Provisioned lay organizations / public-minority organizations | 2,573 /85 | 2,786 /100 |
+| Recorded schisms / syntheses / ethical renewals | 0 /0 /0 | 2 /7 /0 |
+
+This is not an adherent census or a claim that every recorded religion remains
+equally active. Observed public/household/association roles overlap; rural memory
+and map fallback also exist. The model retains only one principal household
+memory, one association and one recent visitor per observed site, not every
+minority. A town's current population under public predominance is not its number
+of believers. The absence of the old `religious-diaspora` event kind in29 also
+reflects the new helper's event classification: real migration/founding records
+remain, so that counter is not evidence that religious migration ceased.
+
+Earth's largest **same-ID** faith1, *Tradition of Nganiltom*, is Missionary /
+TravelingTeaching:1,465 towns (39.09%),37 cultures,216 courts and40 landmasses.
+Its71.29 million urban residents under public predominance are42.23% of observed
+town residents, **not**42.23% adherents. There are295 high-support, currently
+provisionable public institutions, and the largest presently permitted same-faith
+town-link component contains759 towns. This is a real shared identity, not the
+preceding artificial sum of numerous migration-child faith IDs. Current graph
+disconnections do not prove teleportation: past migration, now-disrupted routes
+and contacts through unlike-faith towns are not a current same-faith edge census.
+
+Continents Plus's largest faith42, *Tradition of Kranpruru*, remains Local /
+SacredPlaces:1,048 towns (25.60%),26 cultures,191 courts and seven landmasses,
+118 high-support/provisionable sites and a largest current permitted component
+of505 towns. Its37.00 million urban residents under public predominance are31.14%
+of observed town residents. Earth also has Local/SacredPlaces faith7 in450 towns.
+Thus a widely inherited public tradition need not become a missionary organization
+or one centralized church. Recorded origin age and one shared profile are not
+proof that every local rite or doctrine remained unchanged for millennia; detailed
+local theological variation and multiple sacred-site inventories remain simplified.
+
+The genuine CP schisms illustrate the distinction between public, household and
+organized private practice. At town1632 (*Lelansebel*) the current public faith is54,
+remembered household faith85, and separately provisioned lay faith184 (support604,
+last gift165392). Faith184 is a real recorded ritual-authority renewal descended
+from54, not an automatically generated culture-child or an instantaneous public
+conversion. The other schism, faith99, survives at town549 as a different lay
+identity with declining current support374; its warehouse is empty and latest
+gift is older, so persistence is not a promise of unlimited material support.
+
+Earth's zero renewals are **not** a universal failure or justification for quotas:
+CP actually records two schisms and seven syntheses. There is a specific remaining
+mechanistic limit. All139 Earth religion records currently have no parent; the
+lay ritual-dispute branch requires the visitor and association faith already to
+be parent/child related. It therefore cannot currently initiate that type of
+disagreement from unrelated but sustained contact, even at a real supported site
+such as town506 (association6/support747, visitor34/blending1000, public institution820).
+An initial public synthesis or genuine patronage dispute can create lineage
+relations; CP demonstrates this route. Neither world records an ethical renewal.
+This calls for a future evidence-led review of actual instruction/patronage
+disagreements, not silent29 edits, an automatic repression-to-sect rule or thresholds
+chosen to guarantee events. No such further physics change is included here.
+
+Exact derived evidence under the overnight artifact root:
+`religion-ae29-earth-continuity-review.json` and
+`religion-ae29-cp-continuity-review.json`, from the independent
+`evidence-ae29-{earth,cp}-final/religion/evidence.json` exports. These observed
+outcomes substantiate removal of the source-identity/automatic-fork bug, not complete
+religious realism, geographical coverage or strict native performance acceptance.

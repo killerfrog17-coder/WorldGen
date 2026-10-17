@@ -3,12 +3,93 @@
 Source experiments, not an assertion of historical/scientific validation. The
 existing selected player is the rollback build until native review is complete.
 
+## Latest candidate: realm29 (17 October,13:23UTC)
+
 Current source is optional realm29. [Actual migrant faith continuity](HISTORY32_MIGRANT_FAITH_CONTINUITY.md)
 removes automatic new religions at migrant-culture foundation, carries the actual
 departing public/remembered identities separately, and protects resident rites,
 existing faith metadata and funding provenance. It passes24 focused,14 actual
-identity and11 genuine cold-upgrade assertions. Complete fresh29/native review
-is ongoing; the older milestone results below are controls, not its acceptance.
+identity and11 genuine cold-upgrade assertions. An entire fresh preceding28 Earth
+history also remains exactly `db43d25fa111a430f5fbead5491738f3467091c83a84d6b4188c1fea98a34cff`
+under the final29 assemblies: old rules do not silently acquire the new behavior.
+
+Both ordinary fresh200,000-cell29 histories now finish, save and validate at least
+1,000 years beyond the first complete maximum-technology package:
+
+| World | First state | First maximum technology | Final year | Final history hash |
+| --- | ---: | ---: | ---: | --- |
+| Earth123 | 149728 | 156969 | 158000 | `aadce44b43b5823970e45c80d53ec9ebfb415294cf65893b8a032327606936e3` |
+| Continents Plus17017 | 158491 | 164390 | 165400 | `c69af098ae184c9f8492e2f180e0337fe7527467179fcc74f92430ce600d1703` |
+
+These runs reuse accepted physical geometry through the ordinary public
+prepare/start APIs. Neither changes the terrain, climate, ecology, origin,
+classification or generation version. They are not native speed measurements.
+Earth has3,748 living towns and578 courts at its final checkpoint; Continents
+Plus has4,093 and556. Lifetime settlement-record lengths include abandoned towns
+and must not be substituted for those active counts.
+
+The independent reviewer exported each final world once, then actually inspected
+opaque public/household/lay faith and actual-sovereign images. The main agent also
+inspected Earth's three-layer religious comparison and actual-sovereign image.
+Earth's largest **same** public faith now spans1,465 observed towns,39.09% of live
+towns,37 cultures and216 courts;58 public identities remain, versus258 in the
+preceding26 control. Continents Plus has81 public identities; its largest is a
+place-bound tradition in1,048 towns,25.60%, across26 cultures and191 courts.
+Neither count is an adherent census. Both histories contain zero automatic
+migrant-profile religions. The CP archive includes two actual schisms and seven
+syntheses; Earth includes neither. Thus migration continuity is fixed, not every
+remaining religious development mechanism or its historical frequency.
+
+Important current failures remain visible: insufficient inland Asian development,
+late geographical uptake of leading technical capabilities, too much small-court
+fragmentation in several regions, and low modern-era world population. Indian
+fine-field failures partly reflect the already-diagnosed upstream Earth monsoon
+deficit, not a reason to grant historical actors free food. North China/Yangtze
+have viable actual fields and cities, so the Indian climate explanation must not
+be generalized to all Asia. Current snapshots are not evidence of conditions
+thousands of years earlier. See the bounded household-frontier audit and
+`CLIMATE_MONSOON_REVIEW.md` for the distinction.
+
+The independently derived actual-controller audit finds491 sovereigns among578
+Earth courts. Its largest population share is11.05% of state-controlled people
+(10.06% of the world); its largest territorial share is11.31% of controlled land.
+The median court age is161.5 years, with32 older than1,000 years and12 older than
+2,000. CP is considerably more fragmented:437 sovereigns among556 courts, largest
+population share2.75% of controlled people, largest land share3.94%, median age
+206.5 years. These are actual current sovereigns, not color groups or recognition
+claims. Court identity age is not the duration of present borders or one regime.
+
+A dated China example narrows the remaining cause. Town465, founded152062,
+adopts its culture's crop package early but qualifies as proto-urban only156966.
+Actual saved observations at152700,153700,154700,155700 and156100 have2,141,
+2,519,2,296,2,216 and2,290 urban residents, positive food reserves, supported
+status and zero current distress years. Civic institution rises496 to595;
+proto-preparation reaches600 at153700, falls235 by154700 and returns600 by155700.
+The records do not establish uninterrupted conditions between observations.
+Local civic-example exposure remains zero through157200, reaches415 at157800
+and1,000 at158000. Its late qualification/contact is therefore not explained by
+an absent crop, an intrinsically unsuitable Chinese field or an anti-homeland
+factor (the latter is1). This stage still needs repair; the current patch does
+not disguise it by granting worldwide teachers or changing the era label.
+
+The frozen native29 review player is
+`artifacts/player-history-32-overnight-ae29-review/WorldGen.exe`.
+Its manifest SHA256 is
+`582056fcd761f0e430117cefa1efc45783efaab1c54bc0e2fc3950b4670383f8`;
+Core is `4eca1ddd14068acff1c2fa71a30ea069970a28c1ee06fab60c47a954e1e28428`.
+Actual native era replays and isolated speed acceptance are still being completed
+at this checkpoint. Hidden-window HUD captures are black on this host and are
+not HUD validation. No shortcut switch or3yr/s acceptance is implied yet.
+
+The all-stage CLI reconstruction check passes with final world hash
+`0475b16902e04155747f406b5c789f7144773eedcd0e44861de6879120176584`.
+Full solution/worker/adapter staging succeeds with zero warnings or errors.
+Focused final-assembly checks pass71 trusted-relation,82 historical canonical,
+56 relation-page,83 local-bag,147 provider,234 international/calendar and121
+geographic canonical assertions. The unchanged older Earth golden failure is
+not rewritten or represented as a passing full suite.
+
+All older sections below are chronological controls, not the current result.
 
 ## Latest review: revisions20–28 (17 October,12:53UTC)
 
