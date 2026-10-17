@@ -6,11 +6,12 @@ namespace WorldGen.Core
         void TransferCommunityGovernment(PrehistoryState s,int city,int polity)
         {
             var a=s.History.Aggregates;var local=a.Communities.Cities[city];
+            RecordIdentityGovernmentTransfer(s,city,local.RulerId,polity);
             // A constitutional or dynastic successor does not erase a town's
             // negotiated privileges, population or cultural identity.
             if(local.RulerId>=0&&a.Resolve(local.RulerId,s.History)==polity){local.RulerId=polity;return;}
             local.RulerId=polity;local.SinceYear=s.Years;
-            local.InclusionMilli=polity<0?0:s.Society.Settlements[city].CultureId==s.History.Polities[polity].CultureId?650:100;
+            local.InclusionMilli=polity<0?0:IdentityHistory(s)?(int)Math.Round(650-550*LocalIdentityDifference(s,city,polity)):s.Society.Settlements[city].CultureId==s.History.Polities[polity].CultureId?650:100;
         }
         void AdvanceCommunityPolitics(PrehistoryState s,int city)
         {
@@ -22,6 +23,7 @@ namespace WorldGen.Core
             int interval=RealmCrisis(s,owner)>0||RealmClaimantShock(s,owner,city)>0?1:recent&&succession?3:recent?7:20,elapsed=s.Years-record.LastAutonomyActionYear;if(elapsed<interval)return;
             record.LastAutonomyActionYear=s.Years;record.UnrestPolityId=owner;
             var leader=h.Dynamics.Leaders[ds.LeaderId];bool foreign=t.CultureId!=p.CultureId;
+            double identityDifference=LocalIdentityDifference(s,city,owner);if(IdentityHistory(s))foreign=identityDifference>=.5;
             double inclusionTarget=D.Clamp(.10+.30*p.Legitimacy/1000.0+.25*ds.PublicWorks/1000.0+.25*leader.Diplomacy/1000.0+.25*policy.RepresentationMilli/1000.0+.15*(1-policy.CentralizationMilli/1000.0)-.25*p.Exhaustion/1000.0);
             local.InclusionMilli=(int)Math.Round(local.InclusionMilli+(1000*inclusionTarget-local.InclusionMilli)*(1-Math.Exp(-elapsed/180.0)));
             AdvanceRealmClaimant(s,owner,city,elapsed);
@@ -33,11 +35,13 @@ namespace WorldGen.Core
             double organization=D.Clamp(hc.Institution/650.0)*D.Clamp(Math.Sqrt(t.Population/6000.0)),printing=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Printing,s.Years);
             double deficit=D.Clamp((account.ServiceCost-account.Receipts)/(double)Math.Max(1,account.ServiceCost));
             double conquest=(ds.Cycle?.ConquestDebt??0)/1000.0;
-            double pressure=D.Clamp(.18+.18*D.Clamp(distance/4)+(foreign?.25+.25*printing:.05)*organization*(1-local.InclusionMilli/1000.0)
+            double culturalPressure=IdentityHistory(s)?.05+identityDifference*(.20+.25*printing):foreign?.25+.25*printing:.05;
+            double pressure=D.Clamp(.18+.18*D.Clamp(distance/4)+culturalPressure*organization*(1-local.InclusionMilli/1000.0)
                 +.22*printing*(1-policy.RepresentationMilli/1000.0)+.35*deficit+.22*p.Exhaustion/1000.0+.40*conquest
                 -.22*p.Legitimacy/1000.0-.12*ds.PublicWorks/1000.0);
             if(RealmHistory(s))pressure=D.Clamp(pressure+.4*D.Clamp((distance-1)/4)*policy.CentralizationMilli/1000.0*(1-.85*RealmBureaucracy(s,owner)));
             pressure=D.Clamp(pressure+ReligiousLocalPoliticalGrievance(s,t.Cell,owner));
+            pressure=D.Clamp(pressure+LocalIdentityPoliticalGrievance(s,city,owner,identityDifference));
             if(recent&&foreign&&succession)pressure=D.Clamp(pressure+.25*(1-local.InclusionMilli/1000.0)*conquest);
             double previous=record.AutonomyPressure/1000.0,tau=recent?12:80;
             pressure=previous+(pressure-previous)*(1-Math.Exp(-elapsed/tau));record.AutonomyPressure=(int)Math.Round(pressure*1000);

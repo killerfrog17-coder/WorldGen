@@ -16,7 +16,7 @@ namespace WorldGen.Presentation
             public void Reset(PrehistoryState source){Hash=source.Hash;Value=new Lazy<HistoricalMapSnapshot>(()=>new HistoricalMapSnapshot(source),LazyThreadSafetyMode.ExecutionAndPublication);}
         }
         static readonly ConditionalWeakTable<PrehistoryState,Entry> Entries=new ConditionalWeakTable<PrehistoryState,Entry>();
-        readonly PrehistoryState source;readonly int[] cells,resolved,sovereigns,technology,boundaries,claims,languages;readonly long[] remote;
+        readonly PrehistoryState source;readonly int[] cells,resolved,sovereigns,technology,boundaries,claims,languages,ethnicities;readonly long[] remote;
         readonly System.Collections.Generic.Dictionary<int,int> technologySites=new System.Collections.Generic.Dictionary<int,int>();
         public int Count=>cells.Length/5;
         public static HistoricalMapSnapshot For(PrehistoryState state)
@@ -37,6 +37,7 @@ namespace WorldGen.Presentation
             technology=state.History?.Cultures.Select(c=>c.Technical!=null?WorldEraView.KnowledgeEra(c):HistoricalImperialHierarchy.InstalledPractices(c)).ToArray()??Array.Empty<int>();
             claims=new int[count];for(int i=0;i<count;i++)claims[i]=HistoricalRecognizedClaims.Holder(state,i);
             languages=new int[count];for(int i=0;i<count;i++)languages[i]=Prehistory.PrimarySpokenLanguageAt(state,i);
+            ethnicities=new int[count];for(int i=0;i<count;i++)ethnicities[i]=Prehistory.PrimaryEthnicityAt(state,i);
             boundaries=new int[count];for(int i=0;i<count;i++){int p=PoliticalSovereign(i),c=Culture(i);boundaries[i]=p>=0?p:c>=0?-2-c:-1;int key=OverlayId(i,HistoryOverlay.Technology);if(key>=0&&!technologySites.ContainsKey(key))technologySites.Add(key,i);}
         }
         public int TechnologySite(int key)=>technologySites.TryGetValue(key,out int cell)?cell:-1;
@@ -55,6 +56,7 @@ namespace WorldGen.Presentation
         public int Boundary(int cell,HistoryOverlay overlay)
         {
             if(overlay==HistoryOverlay.Languages)return languages[cell];
+            if(overlay==HistoryOverlay.Ethnicities)return ethnicities[cell];
             if(overlay==HistoryOverlay.ReligiousInstitutions)return ReligiousInstitutionIdentity(source,cell);
             if(overlay==HistoryOverlay.Cultures)return Culture(cell);
             if(overlay==HistoryOverlay.Religions)return Religion(cell);
@@ -70,6 +72,7 @@ namespace WorldGen.Presentation
             if(h==null)return culture>=0&&source.Society.Cultures[culture].Stage==SocietyStage.Civilization?culture:-1;
             if(overlay==HistoryOverlay.Provinces)return HistoricalProvinceIdentity.Of(source,cell);
             if(overlay==HistoryOverlay.Languages)return languages[cell];
+            if(overlay==HistoryOverlay.Ethnicities)return ethnicities[cell];
             if(overlay==HistoryOverlay.ReligiousInstitutions)return ReligiousInstitutionIdentity(source,cell);
             if(overlay==HistoryOverlay.Territories)return p;
             if(overlay==HistoryOverlay.Civilizations||overlay==HistoryOverlay.States)p=PoliticalSovereign(cell);

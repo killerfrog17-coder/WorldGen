@@ -61,6 +61,7 @@ namespace WorldGen.Core
             InheritDevelopmentCommunityWithReligiousProfile(s,child,parent,site,sourceCell,sourceTown,false);
             ApplyMigrantReligiousContinuity(s,site,continuity);
             if(continuity.SourceCell>=0){if(previousResidents<=0)InheritSpokenHouseholds(s,site,continuity.SourceCell,0,1);else RecordSpokenContact(s,continuity.SourceCell,site);}
+            if(continuity.SourceCell>=0){if(previousResidents<=0)InheritEthnicHouseholds(s,site,continuity.SourceCell,0,1);else RecordIdentityContact(s,continuity.SourceCell,site);}
             return child;
         }
 

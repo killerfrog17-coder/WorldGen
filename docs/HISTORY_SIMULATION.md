@@ -1,5 +1,16 @@
 # Historical simulation: history-31 / prehistory-6
 
+## Peoples and local memory - 17 October 2026
+
+Optional realm33 adds distinct ethnic identities and local historical memory.
+Migrant minorities, inherited and emerging identities, independent ruling
+heritage, remembered local rights and attributed siege grievances inform
+existing local political decisions without making ethnic difference an
+automatic cause of rebellion. Ethnicities has a separate map (9) and atlas.
+Regional updates cannot erase town minorities; sustained resident language
+practice is separate from transient outside contact. Old saves require explicit
+upgrade. See [mechanisms, cost and limits](HISTORY32_IDENTITIES.md).
+
 ## Spoken-language communities - 17 October 2026
 
 Optional realm32 builds on the existing naming/sound foundation with an

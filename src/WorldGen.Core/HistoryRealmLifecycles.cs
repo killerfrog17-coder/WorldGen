@@ -10,7 +10,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalRealmLifecycles
     {
-        internal const int CurrentRevision=32;
+        internal const int CurrentRevision=33;
         public int Version=CurrentRevision,SinceYear;
         [System.Runtime.Serialization.OptionalField] public HistoricalRealmClaimRoutes ClaimRoutes;
         [System.Runtime.Serialization.OptionalField] public HistoricalRealmClaimants Claimants;
@@ -45,9 +45,9 @@ namespace WorldGen.Core
         public PrehistoryState UpgradeRealmLifecycles(PrehistoryState source)
         {
             Validate(source);if(!LivingWorldHistory(source))throw new ArgumentException("Realm lifecycles require history32.");
-            if(RevisedRealmHistory(source)&&source.History.Aggregates.Empires.Connections.Realms.Version>=HistoricalRealmLifecycles.CurrentRevision&&source.History.Aggregates.Empires.Connections.Realms.ClaimRoutes?.SourceHeads!=null&&source.History.Aggregates.Empires.Connections.Realms.Claimants!=null&&source.History.Aggregates.Empires.Connections.SeaService!=null&&source.History.Aggregates.Empires.Connections.Religion?.Version>=2&&source.History.Aggregates.Empires.Connections.Military!=null&&source.History.Aggregates.Empires.Connections.ServiceRecovery?.Version>=2&&source.History.Aggregates.Empires.Connections.LocalSeeds!=null&&source.History.Aggregates.Empires.Connections.PreparedPlots?.Version>=2&&source.History.Aggregates.Empires.Connections.Religion.LayAssociations!=null&&source.History.Aggregates.Empires.Connections.Religion.Traditions!=null&&source.History.Languages?.Spoken!=null)return source;
+            if(RevisedRealmHistory(source)&&source.History.Aggregates.Empires.Connections.Realms.Version>=HistoricalRealmLifecycles.CurrentRevision&&source.History.Aggregates.Empires.Connections.Realms.ClaimRoutes?.SourceHeads!=null&&source.History.Aggregates.Empires.Connections.Realms.Claimants!=null&&source.History.Aggregates.Empires.Connections.SeaService!=null&&source.History.Aggregates.Empires.Connections.Religion?.Version>=2&&source.History.Aggregates.Empires.Connections.Military!=null&&source.History.Aggregates.Empires.Connections.ServiceRecovery?.Version>=2&&source.History.Aggregates.Empires.Connections.LocalSeeds!=null&&source.History.Aggregates.Empires.Connections.PreparedPlots?.Version>=2&&source.History.Aggregates.Empires.Connections.Religion.LayAssociations!=null&&source.History.Aggregates.Empires.Connections.Religion.Traditions!=null&&source.History.Languages?.Spoken!=null&&source.History.Identities!=null)return source;
             int preceding=source.History.Aggregates.Empires.Connections.Realms?.Version??0;
-            var s=source.Copy();InitializeRealmLifecycles(s);InitializeRealmClaimRoutes(s);s.History.Aggregates.Empires.Connections.Realms.Version=HistoricalRealmLifecycles.CurrentRevision;UpgradeReligiousNetworkRules(s);InitializeMilitaryOperations(s);UpgradeTerritorialServiceRecovery(s);InitializeRealmClaimants(s);InitializeSeaService(s);if(preceding<8)InitializeLocalReligiousCityClocks(s);InitializeLocalSeedlots(s);InitializePreparedPlots(s);InitializeLayReligiousAssociations(s);InitializeStructuredReligions(s);InitializeSpokenLanguages(s);s.Seal();return s;
+            var s=source.Copy();InitializeRealmLifecycles(s);InitializeRealmClaimRoutes(s);s.History.Aggregates.Empires.Connections.Realms.Version=HistoricalRealmLifecycles.CurrentRevision;UpgradeReligiousNetworkRules(s);InitializeMilitaryOperations(s);UpgradeTerritorialServiceRecovery(s);InitializeRealmClaimants(s);InitializeSeaService(s);if(preceding<8)InitializeLocalReligiousCityClocks(s);InitializeLocalSeedlots(s);InitializePreparedPlots(s);InitializeLayReligiousAssociations(s);InitializeStructuredReligions(s);InitializeSpokenLanguages(s);InitializeIdentityHistory(s);s.Seal();return s;
         }
         void InitializeRealmLifecycles(PrehistoryState s)
         {
@@ -71,6 +71,7 @@ namespace WorldGen.Core
             InitializeLayReligiousAssociations(s);
             InitializeStructuredReligions(s);
             InitializeSpokenLanguages(s);
+            InitializeIdentityHistory(s);
         }
         void AppendRealmGovernment(PrehistoryState s,int predecessor)
         {
@@ -78,6 +79,7 @@ namespace WorldGen.Core
             var next=predecessor>=0?r.Governments[predecessor].Copy():new HistoricalRealmAccount{FoundedYear=s.History.Polities[id].FoundedYear,RegimeSince=s.Years};
             r.Governments=r.Governments.Concat(new[]{next}).ToArray();
             AppendMilitaryGovernment(s);
+            AppendRulingIdentity(s,id,predecessor);
         }
         double RealmIntegration(PrehistoryState s,int polity)
         {
@@ -152,7 +154,7 @@ namespace WorldGen.Core
             double shock=Math.Max(RealmCrisis(s,owner),RealmClaimantShock(s,owner,city));if(shock<=0)return false;
             var h=s.History;var a=h.Aggregates;var p=h.Polities[owner];var town=s.Society.Settlements[city];var local=a.Communities.Cities[city];
             if(city==p.CapitalId||town.Population<600||!a.Cities[city].Supported||s.Years-town.FoundedYear<50)return false;
-            double hazard=HistoricalRealmEffects.ProvincialRupture(shock,distance,local.InclusionMilli/1000.0,town.CultureId!=p.CultureId,a.Communities.Governments[owner].RepresentationMilli/1000.0);
+            double hazard=HistoricalRealmEffects.ProvincialRupture(shock,distance,local.InclusionMilli/1000.0,LocalIdentityDifference(s,city,owner)>=.5,a.Communities.Governments[owner].RepresentationMilli/1000.0);
             if(HistoryRoll("realm-provincial-contest-1",city,s.Years)>=1-Math.Exp(-hazard*elapsed))return false;
             int rival=-1;double best=double.MaxValue;
             // Existing physical city contacts only. Nearby compatible courts
@@ -160,7 +162,7 @@ namespace WorldGen.Core
             foreach(int peer in a.Cities[city].Neighbors)
             {
                 var candidate=s.Society.Settlements[peer];int state=a.Resolve(candidate.PolityId,h);
-                if(state<0||state==owner||h.Polities[state].ParentId!=owner||h.Polities[state].CultureId!=town.CultureId||s.Years-h.Polities[state].FoundedYear>50)continue;
+                if(state<0||state==owner||h.Polities[state].ParentId!=owner||!SharedLocalPoliticalIdentity(s,city,state)||s.Years-h.Polities[state].FoundedYear>50)continue;
                 double km=LivingTravelKm(s,candidate.Cell,town.Cell,town.CultureId);if(km<best&&km<Math.Max(180,a.Polities[state].ReachKm*2.0)){best=km;rival=state;}
             }
             if(rival<0){rival=h.Polities.Length;FoundAggregateState(s,city,owner);}

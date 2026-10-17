@@ -11,6 +11,7 @@ namespace WorldGen.Core
             PrepareAggregateEnvironment(s);
             var h=s.History;var a=h.Aggregates;
             ValidateLanguages(s);
+            ValidateIdentityHistory(s);
             ValidateOriginReach(s);
             ValidateNuclearHistory(s);
             ValidateInternational(s);

@@ -40,6 +40,7 @@ namespace WorldGen.Presentation
             sections.Add(Links("Institutions and allegiance",links,"Direct administration, constituent allegiance and local culture are distinct."));
             var worship=ReligiousLocalSection(s,cell);if(worship!=null){worship.Text="Administrative center only; this is not a uniform religion assigned to the whole province. "+worship.Text;sections.Add(worship);}
             var speech=SpokenLocalSection(s,cell);if(speech!=null){speech.Text="Administrative center only; the province can contain other speech communities. "+speech.Text;sections.Add(speech);}
+            AddIdentityLocalSections(s,cell,sections);
             sections.Add(Events(s,e=>e.Cell==cell));
         }
     }

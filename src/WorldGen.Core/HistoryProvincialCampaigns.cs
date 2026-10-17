@@ -132,6 +132,7 @@ namespace WorldGen.Core
                 if(town>=0)
                 {
                     var captured=s.Society.Settlements[town];captured.Stability=Math.Max(150,captured.Stability-150);captured.FoodReserve=captured.FoodReserve*2/3;
+                    RecordIdentityViolence(s,town,winner,350);
                     c.CapturedSettlements=c.CapturedSettlements.Concat(new[]{town}).Distinct().ToArray();
                     HistoryEvent(s,"conquest",h.Polities[winner].Name+" takes "+captured.Name+" during "+c.Name+".",target,h.Polities[winner].CultureId,winner,loser,town,category:ChronicleCategory.Politics);
                     if(won)theater.SupplyA=town;else theater.SupplyB=town;

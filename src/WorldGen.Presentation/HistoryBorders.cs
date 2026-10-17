@@ -12,7 +12,7 @@ namespace WorldGen.Presentation
         HistoryOverlay overlay;
         public float[] Segments(World w,PrehistoryState? s,HistoryOverlay selected=HistoryOverlay.States)
         {
-            int Mode(HistoryOverlay value)=>value==HistoryOverlay.Provinces?2:value==HistoryOverlay.Territories?1:value==HistoryOverlay.Cultures?3:value==HistoryOverlay.Religions?4:value==HistoryOverlay.Technology?5:value==HistoryOverlay.ReligiousInstitutions?6:value==HistoryOverlay.Languages?7:0;
+            int Mode(HistoryOverlay value)=>value==HistoryOverlay.Provinces?2:value==HistoryOverlay.Territories?1:value==HistoryOverlay.Cultures?3:value==HistoryOverlay.Religions?4:value==HistoryOverlay.Technology?5:value==HistoryOverlay.ReligiousInstitutions?6:value==HistoryOverlay.Languages?7:value==HistoryOverlay.Ethnicities?8:0;
             bool sameMode=Mode(selected)==Mode(overlay);
             if(ReferenceEquals(w,world)&&ReferenceEquals(s,state)&&sameMode)return segments;
             var next=s==null?null:HistoricalMapSnapshot.For(s);

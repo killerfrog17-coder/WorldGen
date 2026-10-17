@@ -12,6 +12,7 @@ namespace WorldGen.Core
             if(LivingHistory(s))AdvanceLivingRegionalExchange(s,id,elapsed);
             AdvanceRegionalTradition(s,id,elapsed);
             AdvanceSpokenCommunity(s,r.BestCell,true);
+            AdvanceEthnicCommunity(s,r.BestCell,true);
             if(ConnectedHistory(s))AdvanceDevelopmentVoyage(s,id,elapsed);
             long before=s.Population[id],capacity=0;
             if(!ProvincialHistory(s)||before>0||!UseProvincialCaches)
@@ -96,6 +97,7 @@ namespace WorldGen.Core
             if(ReligiousInstitutionHistory(s)&&!inherited)InitializeReligiousProfile(s,religion);
             if(LanguageHistory(s)&&hc.ParentCultureId>=0)HistoryEvent(s,"cultural-exchange",c.Name+" develops a distinct local tradition through exchange with "+s.Society.Cultures[hc.ParentCultureId].Name+"; crops and institutions still need local support.",cell,id,category:ChronicleCategory.Society);
             SetAggregateLayer(s,cell,0,id);SetAggregateLayer(s,cell,2,religion);SetAggregateLayer(s,cell,4,1);
+            RegisterPeopleIdentity(s,id,languageParent);
             c.Population=RegionalTraditions(s)?s.Population[patch]:Math.Min(s.Population[patch],RuralCellPopulation(s,cell));ScheduleAggregate(s,CultureProcess,id);
             HistoryEvent(s,"culture","A persistent regional exchange and storage tradition emerges among "+c.Name+".",cell,id,religion:religion);
         }

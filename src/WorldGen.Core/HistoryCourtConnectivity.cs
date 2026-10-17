@@ -109,7 +109,7 @@ namespace WorldGen.Core
                 if(km>=best||central>CourtCoreRadius(s,state)||CourtLandConnection(s,state,rivalCapital,town.Cell)!=HistoricalCourtConnection.Connected)continue;
                 // Existing neighboring successor courts are preferred to another
                 // flag, while incompatible local identities retain a choice.
-                if(town.CultureId!=h.Polities[state].CultureId&&HistoryRoll("court-local-protection-30-"+state,city,s.Years)>.25)continue;
+                if(!SharedLocalPoliticalIdentity(s,city,state)&&HistoryRoll("court-local-protection-30-"+state,city,s.Years)>.25)continue;
                 best=km;rival=state;
             }
             if(rival>=0)

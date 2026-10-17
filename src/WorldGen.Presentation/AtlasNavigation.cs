@@ -7,6 +7,9 @@ namespace WorldGen.Presentation
         public static string Group(string title)
         {
             if(title=="Overview")return "Overview";
+            if(title=="Identity and belonging"||title=="Inherited traditions"||title=="Inherited and emerging identities"||title=="Recorded communities")return "People & place";
+            if(title=="Local historical memory")return "History";
+            if(title=="Founding context")return "People & place";
             if(title=="Spoken languages here"||title=="Sounds and reusable roots"||title=="Related speech communities"||title=="Recorded speech communities")return "People & place";
             if(title=="Social teachings"||title=="Observance and sacred obligations"||title=="Beliefs and sources of authority"||title=="Branches and doctrinal relationships")return "People & place";
             if(title=="Affiliated ritual bodies"||title=="Public worship and household practice"||title=="Ritual community and institutions")return "Power & relations";

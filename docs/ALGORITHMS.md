@@ -1,5 +1,20 @@
 # Implementation contracts - version 3
 
+## Ethnic identity and local memory - history32 optional realm33
+
+Nullable `HistoryState.Identities` is saved/hashed and absent from old canonical
+bytes. Identities, minority membership estimates, court heritage and salient
+town memories are distinct from culture, language, faith, genes and citizenship.
+Actual migrants/contact/co-residence and prolonged shared/local experience
+condition continuity and new identities; neither flags nor taught practices
+move people. Actual sieges, lost rights and inclusion condition memory and
+political effects, not ethnic difference alone. Existing route/finance/campaign
+gates remain. Fixed local records and at most four compiled social origins add
+no recurring terrain/membership census or genealogy walk. New33 additionally
+keeps regional clocks out of town minority accounts and makes linguistic
+relatedness a learning-rate factor, not a proficiency cap. Frozen32 is literal.
+See [mechanisms and limits](HISTORY32_IDENTITIES.md).
+
 ## Spoken communities - history32 optional realm32
 
 Nullable `HistoricalLanguages.Spoken` is absent from old canonical bytes.

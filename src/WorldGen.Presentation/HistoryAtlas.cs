@@ -62,6 +62,7 @@ namespace WorldGen.Presentation
                 case HistoryOverlay.Religions:return FaithLink(s.History.Religions[id]);
                 case HistoryOverlay.ReligiousInstitutions:return ReligiousBodyLink(s,id/2,id%2);
                 case HistoryOverlay.Languages:return SpokenLanguageLink(s,id,cell);
+                case HistoryOverlay.Ethnicities:return EthnicLink(s,id,cell);
                 case HistoryOverlay.Technology:return TechnologyLink(s,id,cell);
                 default:return null;
             }
@@ -102,9 +103,9 @@ namespace WorldGen.Presentation
             if(sovereign>=0&&sovereign!=state)links.Insert(0,StateLink(s,s.History.Polities[sovereign],"Imperial government"));
             var town=s.Society.Settlements.FirstOrDefault(t=>t.Cell==cell&&t.Population>0);if(town!=null)links.Add(TownLink(s,town));
             var culture=SocietyView.Culture(s,cell);if(culture==null&&state>=0)culture=s.Society.Cultures[s.History.Polities[state].CultureId];
-            if(culture!=null)links.Add(CultureLink(culture));if(faith>=0)links.Add(FaithLink(s.History.Religions[faith]));int voice=Prehistory.PrimarySpokenLanguageAt(s,cell);if(voice>=0)links.Add(SpokenLanguageLink(s,voice,cell));return links.ToArray();
+            if(culture!=null)links.Add(CultureLink(culture));if(faith>=0)links.Add(FaithLink(s.History.Religions[faith]));int voice=Prehistory.PrimarySpokenLanguageAt(s,cell);if(voice>=0)links.Add(SpokenLanguageLink(s,voice,cell));int identity=Prehistory.PrimaryEthnicityAt(s,cell);if(identity>=0)links.Add(EthnicLink(s,identity,cell));return links.ToArray();
         }
-        public static string ProfileLabel(AtlasLink link)=>link.Kind=="language"?"Language":link.Kind=="organization"?"Organization":link.Kind=="technology"?"Technology":link.Kind=="claim"?"Title":link.Kind=="province"?"Province":link.Kind=="religion"?"Belief":link.Kind=="people"?"People":link.Kind=="city"?"City":link.Kind=="ruler"?"Ruler":link.Detail=="Imperial government"?"Realm":link.Detail=="Local government"?"Local state":"State";
+        public static string ProfileLabel(AtlasLink link)=>link.Kind=="ethnicity"?"Ethnic identity":link.Kind=="language"?"Language":link.Kind=="organization"?"Organization":link.Kind=="technology"?"Technology":link.Kind=="claim"?"Title":link.Kind=="province"?"Province":link.Kind=="religion"?"Belief":link.Kind=="people"?"People":link.Kind=="city"?"City":link.Kind=="ruler"?"Ruler":link.Detail=="Imperial government"?"Realm":link.Detail=="Local government"?"Local state":"State";
         public static AtlasLink[] Directory(PrehistoryState? s,string kind,string search="",bool past=false)
         {
             if(s?.Society==null||s.History==null)return Array.Empty<AtlasLink>();
@@ -119,6 +120,7 @@ namespace WorldGen.Presentation
                 case "people":entries=s.Society.Cultures.OrderByDescending(c=>c.Population).ThenBy(c=>c.Id).Select(CultureLink);break;
                 case "religion":entries=h.Religions.Select(FaithLink);break;
                 case "language":entries=(h.Languages?.Spoken?.Varieties??Array.Empty<HistoricalSpeechVariety>()).Select(v=>SpokenLanguageLink(s,v.Id,v.Cell));break;
+                case "ethnicity":entries=(h.Identities?.Peoples??Array.Empty<HistoricalPeopleIdentity>()).Select(v=>EthnicLink(s,v.Id,v.HomeCell));break;
                 case "religious-body":entries=s.Society.Settlements.SelectMany(t=>new[]{0,1}.Select(slot=>Prehistory.ReligiousInstitutionAt(s,t.Cell,slot))).Where(b=>b!=null&&b.Support>=100).OrderBy(b=>b.Town).ThenBy(b=>b.Slot).Select(b=>ReligiousBodyLink(s,b.Town,b.Slot));break;
                 case "ruler":entries=(h.Dynamics?.Leaders??Array.Empty<HistoricalLeader>()).Where(l=>past||l.EndedYear<0&&h.Polities[l.PolityId].EndedYear<0).OrderByDescending(l=>l.Renown).ThenBy(l=>l.Id).Select(l=>LeaderLink(s,l));break;
                 default:return Array.Empty<AtlasLink>();
@@ -143,6 +145,7 @@ namespace WorldGen.Presentation
                 case "religion" when id>=0&&id<h.Religions.Length:Religion(s,h.Religions[id],d,sections);break;
                 case "religious-body" when id>=0&&id<s.Society.Settlements.Length*2:ReligiousBody(s,id,d,sections);break;
                 case "language" when id>=0&&id<(h.Languages?.Spoken?.Varieties.Length??0):SpokenLanguage(s,id,d,sections);break;
+                case "ethnicity" when id>=0&&id<(h.Identities?.Peoples.Length??0):EthnicPeople(s,id,d,sections);break;
                 case "ruler" when id>=0&&id<(h.Dynamics?.Leaders.Length??0):Ruler(s,h.Dynamics!.Leaders[id],d,sections);break;
                 default:d.Title="Record unavailable";d.Introduction="This record is not present in the current world.";break;
             }
@@ -214,8 +217,10 @@ namespace WorldGen.Presentation
                 d.Introduction=d.Introduction.Replace(prefix,p.Name+" dates its state institutions to year "+Y(s,realm.FoundedYear));
             }
             a.Add(Links("People, court, and belief",new[]{CultureLink(c),TownLink(s,capital)}.Concat(p.ReligionId>=0&&p.ReligionId<h.Religions.Length?new[]{FaithLink(h.Religions[p.ReligionId])}:Array.Empty<AtlasLink>()),"The court's religious affiliation is distinct from the local faith map."));
+            if(h.Identities!=null){int ruling=h.Identities.RulingIdentities[p.Id];a.Add(Links("Ruling heritage",new[]{EthnicLink(s,ruling,h.Identities.Peoples[ruling].HomeCell)},"The court's inherited identity is recorded separately from the capital's residents and the other peoples living under its rule."));}
             var capitalWorship=ReligiousLocalSection(s,capital.Cell);if(capitalWorship!=null)a.Add(capitalWorship);
             var capitalSpeech=SpokenLocalSection(s,capital.Cell);if(capitalSpeech!=null)a.Add(capitalSpeech);
+            AddIdentityLocalSections(s,capital.Cell,a);
             var fieldForces=MilitaryOperationsSection(s,p.Id);if(fieldForces!=null)a.Add(fieldForces);
             var claimants=RealmClaimantsSection(s,p.Id);if(claimants!=null)a.Add(claimants);
             var lineage=(p.ParentId>=0?new[]{StateLink(s,h.Polities[p.ParentId],"Recorded predecessor realm")}:Array.Empty<AtlasLink>()).Concat(h.Polities.Where(x=>x.ParentId==p.Id).OrderBy(x=>x.FoundedYear).ThenBy(x=>x.Id).Select(x=>StateLink(s,x,"Descendant court founded in year "+Y(s,x.FoundedYear)))).ToArray();
@@ -310,6 +315,7 @@ namespace WorldGen.Presentation
             var ties=new List<AtlasLink>{CultureLink(c)};if(p!=null)ties.Add(StateLink(s,p));int faith=HistoricalCells.Religion(s,t.Cell);if(faith>=0)ties.Add(FaithLink(h.Religions[faith]));a.Add(Links("Community and connections",ties));
             var localWorship=ReligiousLocalSection(s,t.Cell);if(localWorship!=null)a.Add(localWorship);
             var localSpeech=SpokenLocalSection(s,t.Cell);if(localSpeech!=null)a.Add(localSpeech);
+            AddIdentityLocalSections(s,t.Cell,a);
             var localClaimant=LocalClaimantSection(s,t.Id);if(localClaimant!=null)a.Add(localClaimant);
             a.Add(Text("Daily life",c.Subsistence+". Recorded local resources include "+c.Resources+". The model tracks cultivation, food reserves, health, and a craft share; it does not yet record individual occupations, buildings, or named residents beyond rulers."));
             if(h.Modern?.CivicRivalries!=null)
@@ -354,6 +360,7 @@ namespace WorldGen.Presentation
             var h=s.History;var hc=h.Cultures[c.Id];d.Title=c.Name;d.Cell=c.OriginCell;d.Subtitle="People and cultural tradition";
             d.Introduction="The "+c.Name+" are a recorded cultural community dating to year "+Y(s,c.FoundedYear)+". Their modeled way of life centers on "+c.Subsistence.ToLowerInvariant()+". They number "+N(c.Population)+" people in the current checkpoint. Shared culture does not mean that all members answer to a single court.";
             var homeSpeech=SpokenLocalSection(s,c.OriginCell);if(homeSpeech!=null)a.Add(homeSpeech);
+            var homeIdentity=EthnicLocalSection(s,c.OriginCell);if(homeIdentity!=null)a.Add(homeIdentity);
             d.Facts=new[]{F("Recorded origin","Year "+Y(s,c.FoundedYear)),F("People",N(c.Population)),F("Cultural footprint",N(c.AreaKm2)+" km²"),F("Organization index",N(c.Organization)+" / 1,000"),F("Settlement tendency",N(hc.Sedentism)+" / 1,000"),F("Surplus index",N(hc.Surplus)+" / 1,000"),F("Institutional index",N(hc.Institution)+" / 1,000")};
             var links=new List<AtlasLink>();if(hc.ParentCultureId>=0)links.Add(CultureLink(s.Society.Cultures[hc.ParentCultureId]));if(hc.LanguageId>=0)links.Add(CultureLink(s.Society.Cultures[hc.LanguageId]));if(hc.ReligionId>=0)links.Add(FaithLink(h.Religions[hc.ReligionId]));
             a.Add(Links("Origins, language, and belief",links,"The language-family label refers to the originating recorded culture. Ancestry and language do not determine a people's abilities."));

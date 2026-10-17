@@ -28,6 +28,9 @@ namespace WorldGen.Presentation
             var h=s.History;var facts=new List<AtlasFact>();
             switch(link.Kind)
             {
+                case "ethnicity":
+                    var identity=Prehistory.EthnicCommunityAt(s,cell);card.Subtitle="Ethnic identity";
+                    if(identity!=null){facts.Add(F("Local identity",EthnicName(s,identity.Primary)));if(identity.Minority>=0&&identity.MinorityPermille>0)facts.Add(F("Resident minority",EthnicName(s,identity.Minority)+" · "+(identity.MinorityPermille/10.0).ToString("0.#")+"% estimated"));card.Bars=new[]{new AtlasLink{Name="Community cohesion",Value=identity.Cohesion},new AtlasLink{Name="Homeland attachment",Value=identity.HomeAttachment}};card.Note="Shared history and belonging; distinct from language, faith, appearance and citizenship. Open the atlas for inherited traditions and local communities.";}break;
                 case "language":
                     var speech=Prehistory.SpokenCommunityAt(s,cell);card.Subtitle="Spoken language";
                     if(speech!=null){facts.Add(F("Home language",SpeechName(s,speech.Primary)));if(speech.Minority>=0&&speech.MinorityPermille>0)facts.Add(F("Resident minority",SpeechName(s,speech.Minority)+" · "+(speech.MinorityPermille/10.0).ToString("0.#")+"% estimated"));if(speech.Second>=0&&speech.Second!=speech.Primary)facts.Add(F("Second language",SpeechName(s,speech.Second)+" · "+speech.BilingualPermille+" / 1,000"));if(speech.Administrative>=0)facts.Add(F("Administration",SpeechName(s,speech.Administrative)));card.Note="Home speech, bilingual ability and state language are separate. Open the atlas for sounds, ancestry and local communities.";}break;

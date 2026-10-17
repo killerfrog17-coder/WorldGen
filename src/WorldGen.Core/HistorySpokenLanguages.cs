@@ -42,6 +42,12 @@ namespace WorldGen.Core
         }
         public static int HomeShift(int bilingual,int elapsed,int opportunity,int protection)
             =>Math.Max(0,(int)Math.Round(Math.Min(30,elapsed/30.0)*bilingual/1000.0*opportunity/1000.0*(1-.95*protection/1000.0)));
+        public static int PracticedCompetence(int previous,int elapsed,int exposure,int affinity)
+        {
+            if(elapsed<=0)return previous;double target=Math.Min(900,Math.Max(0,exposure));
+            double rate=exposure>0?(.35+.65*affinity/1000.0)/90.0:1/200.0;
+            return Math.Max(0,Math.Min(1000,(int)Math.Round(previous+(target-previous)*(1-Math.Exp(-elapsed*rate)))));
+        }
         public static int MigrantShare(long residents,long migrants)=>residents<=0?1000:migrants<=0?0:(int)Math.Round(1000.0*migrants/(residents+(double)migrants));
     }
     public sealed partial class Prehistory
@@ -93,6 +99,13 @@ namespace WorldGen.Core
             if(region>=0){local=r.Regions[region*HistoricalSpokenLanguages.Fields];if(local>=0)return local;}
             int c=HistoricalCells.Culture(s,cell);return c>=0?r.CultureVarieties[c]:-1;
         }
+        static SpokenCommunity RegionalSpokenCommunity(PrehistoryState s,int region)
+        {
+            if(!SpokenHistory(s)||region<0)return null;var r=s.History.Languages.Spoken;
+            if(r.Regions[region*12]>=0)return ReadSpeech(r.Regions,region*12,true);
+            int culture=s.History.Aggregates.Regions[region].Culture,id=culture<0?-1:r.CultureVarieties[culture];
+            return id<0?null:new SpokenCommunity{Primary=id,SinceYear=r.SinceYear,ReviewedYear=r.SinceYear,RegionalEstimate=true};
+        }
         int[] SpeechFields(SpokenCommunity p)=>new[]{p.Primary,p.Minority,p.MinorityPermille,p.Second,p.BilingualPermille,p.LastContact,p.ReviewedYear,p.SinceYear,p.IsolationYears,p.Administrative,p.Liturgical,p.ContactSource};
         void StoreSpeech(PrehistoryState s,int cell,SpokenCommunity p,bool regional=false)
         {
@@ -118,9 +131,11 @@ namespace WorldGen.Core
             // A rural regional clock must not repeatedly reread an older local
             // visitor record and then write its result into a different account.
             var speech=s.History.Languages.Spoken;
+            if(regional&&IdentityHistory(s)){p=RegionalSpokenCommunity(s,CellPatch[cell]);if(p==null)return;}
             if(regional&&speech.Regions[CellPatch[cell]*HistoricalSpokenLanguages.Fields]>=0)p=ReadSpeech(speech.Regions,CellPatch[cell]*HistoricalSpokenLanguages.Fields,true);
             int elapsed=s.Years-p.ReviewedYear;if(elapsed<40)return;
             var r=s.History.Languages.Spoken;var a=s.History.Aggregates;int town=a.TownAt[cell],owner=HistoricalCells.Polity(s,cell);
+            if(regional&&IdentityHistory(s)){town=-1;owner=-1;}
             // Local households survive a flag change. A working local office can
             // encourage bilingualism; conquest by itself never replaces speech.
             int admin=-1,ritual=-1;
@@ -134,10 +149,15 @@ namespace WorldGen.Core
             int exposure=contact&&p.ContactSource>=0&&PrimarySpokenLanguageAt(s,p.ContactSource)==p.Second?650*contactYears/elapsed:0;
             if(admin>=0&&admin!=p.Primary&&(p.Second<0||exposure==0)){if(p.Second!=admin)p.BilingualPermille=0;p.Second=admin;exposure=office?450:0;}
             else if(ritual>=0&&ritual!=p.Primary&&p.Second<0){p.Second=ritual;exposure=250;}
+            if(IdentityHistory(s)&&town>=0&&a.Cities[town].Supported&&p.Minority>=0&&p.MinorityPermille>0&&(p.Second<0||p.Second==p.Minority||exposure==0))
+            {
+                if(p.Second!=p.Minority){p.Second=p.Minority;p.BilingualPermille=0;}
+                exposure=Math.Max(exposure,350+p.MinorityPermille);
+            }
             if(p.Second>=0)
             {
                 int affinity=SpokenLanguageEffects.Intelligibility(r.Varieties[p.Primary].Sounds,r.Varieties[p.Second].Sounds);
-                p.BilingualPermille=SpokenLanguageEffects.Competence(p.BilingualPermille,elapsed,exposure,affinity);
+                p.BilingualPermille=IdentityHistory(s)?SpokenLanguageEffects.PracticedCompetence(p.BilingualPermille,elapsed,exposure,affinity):SpokenLanguageEffects.Competence(p.BilingualPermille,elapsed,exposure,affinity);
                 // Home-language shift requires an actually sustained domain;
                 // bilingual trade by itself does not erase minority households.
                 if(p.Second!=p.Primary&&p.Second==admin)
@@ -165,7 +185,7 @@ namespace WorldGen.Core
                 int old=p.Primary;p.Primary=AddSpeechVariety(s,HistoricalCells.Culture(s,cell)>=0?HistoricalCells.Culture(s,cell):r.Varieties[old].Culture,cell,old);p.IsolationYears=0;
                 HistoryEvent(s,"language-divergence",r.Varieties[p.Primary].Name+" develops as a local descendant of "+r.Varieties[old].Name+" through prolonged separation. Political and religious allegiance are unchanged.",cell,HistoricalCells.Culture(s,cell),town:town,category:ChronicleCategory.Society);
             }
-            p.ReviewedYear=s.Years;StoreSpeech(s,cell,p,regional&&town<0);
+            p.ReviewedYear=s.Years;StoreSpeech(s,cell,p,regional&&(IdentityHistory(s)||town<0));
         }
         void InheritSpokenHouseholds(PrehistoryState s,int target,int source,long residents,long migrants)
         {

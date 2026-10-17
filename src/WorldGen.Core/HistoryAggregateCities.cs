@@ -127,6 +127,7 @@ namespace WorldGen.Core
             AdvanceProtoCentre(s,id,elapsed);
             if(LocalReligiousCityHistory(s))AdvanceLocalReligiousCity(s,id);
             AdvanceSpokenCommunity(s,t.Cell,false);
+            AdvanceEthnicCommunity(s,t.Cell,false);
             if(provisioned!=null)ExpandProvisionedPort(s,id,provisioned,supply);
             var demography=record.Demography??(record.Demography=new HistoricalUrbanDemography());demography.Year=s.Years;demography.NaturalChange=natural;demography.ChronicLoss=chronic;demography.RuralInflow=migrants;demography.TotalRuralInflow+=migrants;demography.TotalChronicLoss+=chronic;
             if(owner<0&&t.Population>=800&&t.Stability>=550&&s.Years-city.LastPoliticalYear>=10)

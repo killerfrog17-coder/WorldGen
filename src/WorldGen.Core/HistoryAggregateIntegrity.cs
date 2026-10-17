@@ -32,6 +32,7 @@ namespace WorldGen.Core
                 a.Empires?.Connections?.Religion?.LayAssociations?.Records.Fingerprint(true);
                 a.Empires?.Connections?.Religion?.Traditions?.Institutions.Fingerprint(true);
                 if(h.Languages?.Spoken!=null){h.Languages.Spoken.Places.Fingerprint(true);h.Languages.Spoken.Regions.Fingerprint(true);h.Languages.Spoken.CultureVarieties.Fingerprint(true);}
+                if(h.Identities!=null)foreach(var tree in new[]{h.Identities.Places,h.Identities.Regions,h.Identities.CultureDefaults,h.Identities.Memories,h.Identities.RulingIdentities})tree.Fingerprint(true);
                 a.Empires?.Connections?.Realms?.Claimants?.At.Fingerprint(true);
                 a.Empires?.Connections?.SeaService?.BySource.Fingerprint(true);
                 a.Empires?.Connections?.LocalSeeds?.Towns.Fingerprint(true);
@@ -68,6 +69,7 @@ namespace WorldGen.Core
             if(h.International!=null)values=values.Concat(new object[]{h.International}).ToArray();
             if(h.ReceiverFrontier!=null)values=values.Concat(new object[]{h.ReceiverFrontier}).ToArray();
             if(h.RegionalTraditions!=null)values=values.Concat(new object[]{h.RegionalTraditions}).ToArray();
+            if(h.Identities!=null)values=values.Concat(new object[]{h.Identities}).ToArray();
             return verify?StateHash.Compute(values,token):StateHash.ComputeOwnedHistorical(values,h,token);
         }
         internal void SealAggregateOwned(CancellationToken token=default){Hash=AggregateHash(false,token);}

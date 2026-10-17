@@ -68,6 +68,7 @@ namespace WorldGen.Core
             if(!ReligiousNetworkHistory(s)||firstCell<0||secondCell<0||firstCell==secondCell)return;
             if(firstCell>=CellPatch.Length||secondCell>=CellPatch.Length||first<0||second<0||first>=s.History.Cultures.Length||second>=s.History.Cultures.Length||!InstitutionalRouteAllowed(s,firstCell,secondCell,first))return;
             RecordSpokenContact(s,firstCell,secondCell);RecordSpokenContact(s,secondCell,firstCell);
+            RecordIdentityContact(s,firstCell,secondCell);RecordIdentityContact(s,secondCell,firstCell);
             int a=HistoricalCells.Religion(s,firstCell),b=HistoricalCells.Religion(s,secondCell);
             if(LayReligiousHistory(s))
             {

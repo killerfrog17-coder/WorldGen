@@ -18,7 +18,7 @@ public sealed partial class WorldGenRuntime
         string hash=world.Prehistory.ComputeHash();screen="Simulation";humanPlaying=false;simulationPaused=false;
         if(world.Prehistory.History.Aggregates.Empires.Connections.Religion.Traditions==null){Debug.LogError("RELIGION CHECK requires an explicitly upgraded/new history.");Application.Quit(1);yield break;}
         SetProjection(Projection.Map);layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;gridSpacing=30;
-        var modes=world.Prehistory.History.Languages?.Spoken!=null?new[]{HistoryOverlay.Religions,HistoryOverlay.ReligiousInstitutions,HistoryOverlay.Languages}:new[]{HistoryOverlay.Religions,HistoryOverlay.ReligiousInstitutions};
+        var modes=world.Prehistory.History.Identities!=null?new[]{HistoryOverlay.Religions,HistoryOverlay.ReligiousInstitutions,HistoryOverlay.Languages,HistoryOverlay.Ethnicities}:world.Prehistory.History.Languages?.Spoken!=null?new[]{HistoryOverlay.Religions,HistoryOverlay.ReligiousInstitutions,HistoryOverlay.Languages}:new[]{HistoryOverlay.Religions,HistoryOverlay.ReligiousInstitutions};
         foreach(var mode in modes)
         {
             historyOverlay=mode;var entries=SocietyView.Legend(world.Prehistory,mode);if(entries.Length==0){Debug.LogError("RELIGION CHECK missing "+mode+" actors.");Application.Quit(1);yield break;}
@@ -32,6 +32,7 @@ public sealed partial class WorldGenRuntime
             var document=HistoryAtlas.Read(world.Prehistory,subject.Kind,subject.Id,world,humans);File.WriteAllText(Path.Combine(output,mode+".json"),WorldJson.Write(document));
             if(mode==HistoryOverlay.Religions&&!document.Sections.Any(x=>x.Title=="Social teachings")){Debug.LogError("RELIGION CHECK stripped/missing doctrinal profile.");Application.Quit(1);yield break;}
             if(mode==HistoryOverlay.Languages&&(subject.Kind!="language"||!document.Sections.Any(x=>x.Title=="Sounds and reusable roots"))){Debug.LogError("RELIGION CHECK stripped/missing spoken-language profile or wrong selection.");Application.Quit(1);yield break;}
+            if(mode==HistoryOverlay.Ethnicities&&(subject.Kind!="ethnicity"||!document.Sections.Any(x=>x.Title=="Inherited traditions"))){Debug.LogError("RELIGION CHECK stripped/missing ethnic profile or wrong selection.");Application.Quit(1);yield break;}
         }
         if(world.Prehistory.ComputeHash()!=hash){Debug.LogError("RELIGION CHECK presentation mutated history.");Application.Quit(1);yield break;}
         File.WriteAllText(Path.Combine(output,"result.txt"),"PASS native doctrinal/institutional overlays, actual selection/atlas and unchanged history "+hash);Debug.Log("RELIGION CHECK PASS "+hash);Application.Quit(0);

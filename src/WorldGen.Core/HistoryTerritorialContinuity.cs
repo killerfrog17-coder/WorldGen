@@ -35,7 +35,7 @@ namespace WorldGen.Core
             foreach(int peer in a.Cities[city].Neighbors)
             {
                 var candidate=s.Society.Settlements[peer];if(candidate.Population<=0||a.Living.Cities[peer].AbandonedYear>=0)continue;int state=a.Resolve(candidate.PolityId,h);
-                if(state<0||state==owner||h.Polities[state].ParentId!=owner||h.Polities[state].CultureId!=town.CultureId||s.Years-h.Polities[state].FoundedYear>50)continue;
+                if(state<0||state==owner||h.Polities[state].ParentId!=owner||!SharedLocalPoliticalIdentity(s,city,state)||s.Years-h.Polities[state].FoundedYear>50)continue;
                 double km=LivingTravelKm(s,candidate.Cell,town.Cell,town.CultureId);
                 if(km<best&&km<Math.Max(180,a.Polities[state].ReachKm*2.0)&&InstitutionalRouteAllowed(s,candidate.Cell,town.Cell,town.CultureId)){best=km;rival=state;}
             }

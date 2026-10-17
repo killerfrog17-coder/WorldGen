@@ -169,7 +169,7 @@ namespace WorldGen.Core
                 if(ColonialHistory(s))
                 {
                     var policy=a.Communities.Governments[parent];double representation=policy.RepresentationMilli/1000.0;
-                    double foreign=p.CultureId==patron.CultureId?0:1;
+                    double foreign=IdentityHistory(s)?LocalIdentityDifference(s,p.CapitalId,parent):p.CultureId==patron.CultureId?0:1;
                     risk=(g.Imposed?.0015:.00065)*(.65+.65*foreign)*(1-.8*representation)
                         +.035*Math.Pow(Math.Max(0,stress-.25),2)*(.4+leader.Ambition/1000.0);
                     if(succession)
@@ -187,6 +187,7 @@ namespace WorldGen.Core
                     // Mass politics can delegitimize a foreign imposed empire
                     // even when modern communications improve its military reach.
                     bool excluded=p.CultureId!=patron.CultureId||s.Society.Settlements[p.CapitalId].CultureId!=patron.CultureId;
+                    if(IdentityHistory(s))excluded=LocalIdentityDifference(s,p.CapitalId,parent)>=.5&&(g.Imposed||a.Communities.Cities[p.CapitalId].InclusionMilli<600);
                     risk+=HistoricalRealmPoliticalEffects.SelfDetermination(HistoricalModernEffects.Adoption(pc,HistoricalTechnology.Printing,s.Years),communication,excluded,g.Imposed,a.Communities.Governments[parent].RepresentationMilli/1000.0,patron.Exhaustion/1000.0);
                     if(a.Resolve(a.Empires.Connections.Governments[polity].Sponsor,h)==parent&&World.Landmass[s.Society.Settlements[p.CapitalId].Cell]!=World.Landmass[s.Society.Settlements[patron.CapitalId].Cell])
                     {
