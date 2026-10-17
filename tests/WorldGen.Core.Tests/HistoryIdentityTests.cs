@@ -24,6 +24,24 @@ public static class HistoryIdentityTests
         var r=new HistoricalIdentityHistory{Peoples=new[]{a},Places=new HistoricalCellTree(12),Regions=new HistoricalCellTree(12)};var c=r.Copy();c.Peoples[0].Weights[0]=1;c.Memories=c.Memories.With(0,2);
         check(r.Peoples[0].Weights[0]==1000&&r.Memories[0]==-1,"Published social inheritance and immutable memory pages detach safely.");
     }
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+    static void UpgradeLarge(World world,Prehistory engine)
+    {world.Prehistory=engine.UpgradeRealmLifecycles(world.Prehistory);engine.Validate(world.Prehistory);}
+    public static void Large(string path,string output)
+    {
+        Directory.CreateDirectory(output);var world=WorldFile.Read(File.ReadAllBytes(path));var e=new Prehistory(world);UpgradeLarge(world,e);
+        GC.Collect();GC.WaitForPendingFinalizers();GC.Collect();
+        // Reach past the new40-year update guard: a12-year cold-only test would
+        // leave most ordinary identity/language reviews dormant.
+        world.Prehistory=e.AdvanceYears(world.Prehistory,48);e.Validate(world.Prehistory);
+        double worst=0;e.YearWorkObserver=(_,ms)=>worst=Math.Max(worst,ms);var watch=System.Diagnostics.Stopwatch.StartNew();
+        world.Prehistory=e.AdvanceYears(world.Prehistory,12);watch.Stop();e.Validate(world.Prehistory);
+        var r=world.Prehistory.History.Identities;int memories=Enumerable.Range(0,world.Prehistory.Society.Settlements.Length).Count(city=>Prehistory.LocalHistoricalMemoryAt(world.Prehistory,city)!=null);
+        if(memories==0||r.Peoples.Length==0)throw new Exception("Large-world identity/memory processes remained dormant.");
+        var result=new{Cells=world.Surface.Cells.Length,WarmYears=48,MeasuredYears=12,Milliseconds=watch.Elapsed.TotalMilliseconds,WorstYearMilliseconds=worst,Peoples=r.Peoples.Length,TownMemories=memories,Hash=world.Prehistory.Hash};
+        File.WriteAllText(Path.Combine(output,"result.json"),System.Text.Json.JsonSerializer.Serialize(result,new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
+        File.WriteAllBytes(Path.Combine(output,"review.world"),WorldFile.Write(world));Console.WriteLine("PASS active large-world identity/memory continuation: "+System.Text.Json.JsonSerializer.Serialize(result));
+    }
     public static void World(string path,string output,Action<bool,string> check)
     {
         Directory.CreateDirectory(output);var world=WorldFile.Read(File.ReadAllBytes(path));var old=world.Prehistory;string before=old.ComputeHash();var e=new Prehistory(world);
@@ -70,6 +88,7 @@ public static class HistoryIdentityTests
         check(display.OverlayId(cell,HistoryOverlay.Ethnicities)==SocietyView.SelectionId(probe,cell,HistoryOverlay.Ethnicities)&&HistoryAtlas.Selection(probe,cell,HistoryOverlay.Ethnicities)?.Kind=="ethnicity","Literal/cached ethnic map, selection and document use the same group identity.");
         string readHash=probe.ComputeHash();var card=HistoryAtlas.Card(probe,cell,HistoryOverlay.Ethnicities);var doc=HistoryAtlas.Read(probe,"ethnicity",native,world);var cityDoc=HistoryAtlas.Read(probe,"city",town.Id,world);
         check(card.Facts.Any(f=>f.Label=="Resident minority")&&doc.Sections.Any(x=>x.Title=="Inherited traditions")&&cityDoc.Sections.Any(x=>x.Title=="Local historical memory")&&probe.ComputeHash()==readHash,"Ethnic minority cards, inherited-tradition charts and local history articles are available and read-only.");
+        var identityBars=HistoryAtlas.EthnicLocalSection(probe,cell);check(identityBars.Unit=="/ 1,000"&&identityBars.Links.Sum(x=>x.Value)==1000&&HistoryAtlas.SpokenLocalSection(probe,cell).Unit=="/ 1,000","Household charts use a fixed1,000 denominator, not a misleading tallest-bar normalization.");
         var copy=s.Copy();copy.History.Identities.Peoples[0].Weights[0]=1;check(s.History.Identities.Peoples[0].Weights[0]==1000&&copy.ComputeHash()!=s.ComputeHash(),"Social inheritance is detached and protected by integrity hashes.");
         var full=e.AdvanceYears(s,80);var split=e.AdvanceYears(e.AdvanceYears(s,31),49);e.Validate(full);check(full.Hash==split.Hash,"Actual80-year identity/political/contact events replay across31+49-year partition.");
         world.Prehistory=full;var restored=WorldFile.Read(WorldFile.Write(world));var cold=new Prehistory(restored);check(restored.Prehistory.Hash==full.Hash&&cold.AdvanceYears(restored.Prehistory,12).Hash==e.AdvanceYears(full,12).Hash,"Cold binary save/load retains identities, town memories and future politics.");

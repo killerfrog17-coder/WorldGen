@@ -19,7 +19,7 @@ namespace WorldGen.Presentation
             if(p.Administrative>=0)facts.Add(F("Administrative language",SpeechName(s,p.Administrative)));
             if(p.Liturgical>=0)facts.Add(F("Ritual language",SpeechName(s,p.Liturgical)));
             if(p.LastContact>=0)facts.Add(F("Last physical language contact",Y(s,p.LastContact)));
-            return new AtlasSection{Title="Spoken languages here",Facts=facts.ToArray(),Links=bars.ToArray(),Bars=true,Unit="household estimate / 1,000",Text=(p.RegionalEstimate?"Regional approximation. ":"Local community estimate. ")+"Home-language shares partition households; second-language ability overlaps them. Neither a ruler's language nor a ritual language implies that everyone speaks it at home. Up to two home communities and one second language are represented, not a complete linguistic census."};
+            return new AtlasSection{Title="Spoken languages here",Facts=facts.ToArray(),Links=bars.ToArray(),Bars=true,Unit="/ 1,000",Text=(p.RegionalEstimate?"Regional approximation. ":"Local community estimate. ")+"Home-language shares partition households; second-language ability overlaps them. Neither a ruler's language nor a ritual language implies that everyone speaks it at home. Up to two home communities and one second language are represented, not a complete linguistic census."};
         }
         static void SpokenLanguage(PrehistoryState s,int id,AtlasDocument d,List<AtlasSection> sections)
         {

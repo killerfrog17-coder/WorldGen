@@ -13,7 +13,7 @@ namespace WorldGen.Presentation
             var p=Prehistory.EthnicCommunityAt(s,cell);if(p==null)return null;
             var main=EthnicLink(s,p.Primary,cell);main.Value=1000-p.MinorityPermille;var links=new List<AtlasLink>{main};
             if(p.Minority>=0&&p.MinorityPermille>0){var minor=EthnicLink(s,p.Minority,cell);minor.Value=p.MinorityPermille;links.Add(minor);}
-            return new AtlasSection{Title="Identity and belonging",Facts=new[]{F("Community cohesion",p.Cohesion+" / 1,000"),F("Homeland attachment",p.HomeAttachment+" / 1,000")},Links=links.ToArray(),Bars=true,Unit="household estimate / 1,000",Text=(p.RegionalEstimate?"Regional estimate. ":"Local community estimate. ")+"Shared heritage and historical experience are distinct from genes, appearance, home language, religion and citizenship. The map shows the main identity; a resident minority may also be present. Two communities are retained as a coarse estimate, not an exhaustive census."};
+            return new AtlasSection{Title="Identity and belonging",Facts=new[]{F("Community cohesion",p.Cohesion+" / 1,000"),F("Homeland attachment",p.HomeAttachment+" / 1,000")},Links=links.ToArray(),Bars=true,Unit="/ 1,000",Text=(p.RegionalEstimate?"Regional estimate. ":"Local community estimate. ")+"Shared heritage and historical experience are distinct from genes, appearance, home language, religion and citizenship. Bars estimate household shares. The map shows the main identity; a resident minority may also be present. Two communities are retained as a coarse estimate, not an exhaustive census."};
         }
         static void AddIdentityLocalSections(PrehistoryState s,int cell,List<AtlasSection> sections)
         {
