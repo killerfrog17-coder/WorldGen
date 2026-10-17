@@ -1,5 +1,57 @@
 # Version 3 validation evidence
 
+## Spoken communities / religious plurality - 17 October 2026
+
+History32 optional realm32 is documented in
+[the spoken-community contract](HISTORY32_SPOKEN_COMMUNITIES.md).
+The selected IL2CPP player is `artifacts/player-history-32-speech32/WorldGen.exe`,
+built2026-10-17T21:56:34Z; its staged-DLL hashes are in `build-inputs.json`.
+The previous religion31 player is retained. Source checkpoint8edaf87 contains
+the implementation; evidence/launch notes follow separately.
+
+Executed Release checks:306 `--spoken-only`,267 existing `--languages-only`,
+377 `--religion-doctrine-only`,799 `--history-presentation-only`,23 actual
+Earth and23 generated Aborea `--spoken-world` assertions. Both world checks use
+the preceding religion31 review saves, not altered terrain. Explicit upgrade
+preserves people, food, public-faith/control layers and the source save. Controlled
+migrant ratios, bilingual learning (including80 contact-years inside a100-year
+rural interval), isolated inherited divergence, local public/lay religious
+coexistence, visitor-versus-resident distinction, first-cultural-actor speech
+registration, actual60 versus23+37-year replay, binary/JSON persistence and cold
+12-year replay pass. The earlier invalid pure canonical comparison used a
+different test-class type name and was removed; actual old-save hashes and the
+frozen executable are the compatibility evidence, not that failed comparison.
+
+`scripts/build.ps1` passes0warnings/errors and stages current adapters/Unity DLLs.
+The new IL2CPP player's12-year continuation matches CLR exactly:
+`4c6e97023736a704b96dc73da9bdb5d98e53ae17584f7aa5a361aee35f8d2382`.
+The preceding religion31 native player and current CLR on its UNUPGRADED save
+match exactly:
+`32d3200dcbecf929365f5f8e52820b6ecc235f06dbb72bec10cdc5f6d273b6d4`.
+
+Native `--worldgen-religion-check` now also checks Languages when the extension
+is present: three real map exports, correct religious-body/language selection,
+available doctrine/sound atlas data and unchanged history pass. Languages and
+institution-map screenshots were actually inspected. These map-only captures
+are not native HUD-layout proof. Headless Edge's actual .NET worker/UI passes
+`scripts/speech-browser-check.mjs`: saved-world import, language directory,
+sound/root and local-domain articles, hotkey8, exact language subject, paused
+time and zero JS errors. All three browser screenshots were inspected; language
+article fields and pronunciation guides are readable. The map is the existing
+historical fixture, not a new geographical/pacing calibration result.
+
+The existing large-world smoke harness also passes3 assertions on200000cells /
+4951 recorded towns with the new extension: explicit upgrade/integrity and12
+actual simulated years,7840.39ms total,676.85ms worst computed year. This is
+about1.53yr/s and explicitly DOES NOT satisfy the separate3yr/s/max-tech+1000
+acceptance criterion. No new recurring territory/membership census is used;
+snapshot hashing/actor work remains a separate performance concern.
+
+Small local evidence is under `D:/WorldGenBuildArtifacts/speech32-review`;
+no screenshots, review saves, compiled outputs or user data are committed.
+These checks establish causal mechanics, compatibility and presentation, not
+calibrated world-scale language/religion histories or a complete minority census.
+
 ## State geography / dated overseas ventures - 16 October 2026
 
 The optional history32 `Connections.Geography` revision2 is described in
