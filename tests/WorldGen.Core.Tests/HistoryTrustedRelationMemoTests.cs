@@ -26,7 +26,7 @@ public static class HistoryTrustedRelationMemoTests
         var publicCopy=rows.Copy();check(Memo(Peek(publicCopy,0))==null&&Owned(publicCopy)==StateHash.Compute(rows),"An edit made before public fork cannot smuggle stale bytes through public Copy.");
         var historyCopy=new HistoryState{Relations=rows}.Copy();check(Owned(historyCopy.Relations)==StateHash.Compute(rows),"HistoryState.Copy never selects the trusted-private relation path.");
         string publicFixed=Owned(publicCopy);held.Trust=29;check(Owned(publicCopy)==publicFixed,"A later retained-source edit cannot change a public fork's detached fields.");
-        var changed=trusted[0];check(Memo(changed)==null,"Mutable Get still clears a trusted clone's memo before exposing its fields.");
+        var changed=trusted[0];var readMemo=Memo(changed);check(readMemo!=null&&Owned(trusted)==initial&&ReferenceEquals(readMemo,Memo(changed)),"A mutable read without a changed scalar retains exactly verified private bytes.");
         changed.Trust=31;check(Owned(trusted)==StateHash.ComputeHistoricalReference(trusted)&&Owned(trusted)!=initial,"A genuine private mutation is encoded again with exactly current fields.");
         var after=Trusted(trusted);string afterHash=Owned(after);changed.Trust=37;
         check(Owned(after)==afterHash&&StateHash.Compute(trusted)!=afterHash,"References retained after a trusted branch hash cannot affect its next cloned branch.");
@@ -51,6 +51,15 @@ public static class HistoryTrustedRelationMemoTests
         var clearedBytes=large.Copy();before=GC.GetAllocatedBytesForCurrentThread();Owned(clearedBytes);long clearedAllocated=GC.GetAllocatedBytesForCurrentThread()-before;
         check(retainedAllocated<clearedAllocated/3,"A private fork avoids rebuilding thousands of unchanged record byte arrays while public forks remain conservative.");
         check(Owned(retainedBytes)==Owned(clearedBytes),"Allocation savings retain identical canonical output.");
+        foreach(string field in new[]{"A","B","Trust","WarSince","TruceUntil","LastBattle","Trade","Alliance"})
+        {
+            var one=new HistoricalRelationCollection(new[]{new HistoricalRelation{A=2,B=4,Trust=19,WarSince=7,TruceUntil=11,LastBattle=13,Trade=true}}).Copy();
+            var retained=one[0];string first=Owned(one);var firstMemo=Memo(retained);var info=typeof(HistoricalRelation).GetField(field)!;object value=info.GetValue(retained)!;
+            info.SetValue(retained,info.FieldType==typeof(bool)?!(bool)value:(object)((int)value+3));
+            string second=Owned(one);check(second!=first&&second==StateHash.ComputeHistoricalReference(one)&&!ReferenceEquals(firstMemo,Memo(retained)),"Retained-reference edits of "+field+" rebuild exact private bytes without needing another mutable getter.");
+            var changedMemo=Memo(retained);check(Owned(one)==second&&ReferenceEquals(changedMemo,Memo(retained)),"Unchanged "+field+" snapshots reuse bytes after the real edit.");
+            info.SetValue(retained,value);check(Owned(one)==first&&StateHash.Compute(one)==first,"Restoring "+field+" restores the original literal hash.");
+        }
         Console.WriteLine("5000 exposed relations: trusted hash "+retainedAllocated+"B; public fork cold hash "+clearedAllocated+"B.");
     }
 }

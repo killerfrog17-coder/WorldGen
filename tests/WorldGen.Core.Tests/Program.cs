@@ -1,6 +1,11 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--civil-maritime-only")){int count=0;HistoryCivilMaritimeTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" civil maritime assertions");return;}
+if(args.Contains("--civil-maritime-world")){int at=Array.IndexOf(args,"--civil-maritime-world"),count=0;HistoryCivilMaritimeTests.World(args[at+1],args[at+2],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" recorded civil maritime assertions");return;}
+if(args.Contains("--seed-landscape-cache-world")){int count=0;HistorySeedLandscapeCacheTests.World(args[Array.IndexOf(args,"--seed-landscape-cache-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" immutable seed-landscape cache assertions");return;}
+if(args.Contains("--overnight-evidence-bundle")){int at=Array.IndexOf(args,"--overnight-evidence-bundle"),profile=Array.IndexOf(args,"--profile-years"),earlier=Array.IndexOf(args,"--earlier-colonial-year");HistoryOvernightEvidenceBundle.Run(args[at+1],args[at+2],profile<0?0:int.Parse(args[profile+1]),earlier<0?-1:int.Parse(args[earlier+1]));return;}
+if(args.Contains("--political-episode-evidence")){int at=Array.IndexOf(args,"--political-episode-evidence");HistoryPoliticalEpisodeEvidence.Run(args[at+1],args[at+2],int.Parse(args[at+3]),int.Parse(args[at+4]),int.Parse(args[at+5]));return;}
 if(args.Contains("--scholarly-cost-only")){int count=0;HistoryScholarlyCostTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" scholarly rank-cost assertions");return;}
 if(args.Contains("--scholarly-cost-recorded")){int count=0;HistoryScholarlyCostTests.Recorded(args[Array.IndexOf(args,"--scholarly-cost-recorded")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" recorded scholarly rank-cost assertions");return;}
 if(args.Contains("--conquest-integration-only")){int count=0;HistoryConquestIntegrationTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" conquest integration assertions");return;}

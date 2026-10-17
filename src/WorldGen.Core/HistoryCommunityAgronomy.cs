@@ -101,9 +101,11 @@ namespace WorldGen.Core
         double CommunityCropLandscape(PrehistoryState s,int culture,int cell,bool storage)=>CommunitySeededCropLandscape(s,culture,cell,storage,null,false);
         double CommunitySeededCropLandscape(PrehistoryState s,int culture,int cell,bool storage,HistoricalTownSeeds seedContext,bool carried)
         {
-            var h=CropHabitat(s,cell);var crops=s.History.Agriculture[culture];var hc=s.History.Cultures[culture];
+            var crops=s.History.Agriculture[culture];var hc=s.History.Cultures[culture];
             var localSeeds=LocalSeedlotHistory(s)?(carried?seedContext:LocalSeedHolder(s,culture,cell)):null;
-            bool managed=HistoricalTechnologies.Has(hc,HistoricalTechnology.CropRotation);double best=0;
+            bool managed=HistoricalTechnologies.Has(hc,HistoricalTechnology.CropRotation),pottery=HistoricalTechnologies.Has(hc,HistoricalTechnology.Pottery);
+            if(TrySeedLandscape(s,localSeeds,cell,managed,pottery,carried,storage,out double memo))return memo;
+            var h=CropHabitat(s,cell);double best=0;
             double fraction=Math.Min(1,Math.Max(.08,D.Clamp((h.AridityMilli-100)/550.0)+riverAccess[cell]));
             var climate=World.Climate;double low=Math.Min(Math.Min(climate.NorthernSpring.PrecipitationMm[cell],climate.NorthernSummer.PrecipitationMm[cell]),Math.Min(climate.NorthernAutumn.PrecipitationMm[cell],climate.NorthernWinter.PrecipitationMm[cell]));
             double high=Math.Max(Math.Max(climate.NorthernSpring.PrecipitationMm[cell],climate.NorthernSummer.PrecipitationMm[cell]),Math.Max(climate.NorthernAutumn.PrecipitationMm[cell],climate.NorthernWinter.PrecipitationMm[cell]));
@@ -120,10 +122,12 @@ namespace WorldGen.Core
                     double husbandry=D.Clamp((LocalSeedlotHistory(s)?LocalSeedPracticeAt(s,culture,k,localSeeds,cell,carried):crops.HusbandryYears?[k]??0)/15000.0);
                     quality=Math.Max(quality,(managed?.35:(EnvironmentalHistory(s)?.20:.30)*husbandry)*HistoricalCropCatalog.LeachingPenalty(h,EnvironmentalHistory(s)?managed:true));
                 }
-                double preservation=storage?HistoricalHusbandryEffects.StoragePermille(k,cultivar,HistoricalTechnologies.Has(hc,HistoricalTechnology.Pottery))/1000.0*(.65+.35*rainfallSeason):1;
+                double preservation=storage?HistoricalHusbandryEffects.StoragePermille(k,cultivar,pottery)/1000.0*(.65+.35*rainfallSeason):1;
                 best=Math.Max(best,quality*fit*preservation);
             }
-            return D.Q(D.Clamp(best),1000000);
+            double result=D.Q(D.Clamp(best),1000000);
+            RememberSeedLandscape(s,localSeeds,cell,managed,pottery,carried,storage,result);
+            return result;
         }
     }
 }

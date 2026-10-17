@@ -28,7 +28,7 @@ namespace WorldGen.Core
         internal IEnumerable<HistoricalRelation> ReadOnlyValues(){int length=count;for(int i=0;i<length;i++)yield return Peek(i);}
         public HistoricalRelation this[int index]
         {
-            get{Check(index);lock(gate){if(materialized!=null&&materialized.TryGetValue(index,out var record)){CanonicalHashCosts.RelationRead(record);if(record!=null)record.OwnedCanonicalRecord=null;return record;}var source=pages[index/PageSize][index%PageSize];var copy=source?.Copy();CanonicalHashCosts.RelationRead(copy,source);if(copy!=null)copy.OwnedCanonicalRecord=null;Local()[index]=copy;return copy;}}
+            get{Check(index);lock(gate){if(materialized!=null&&materialized.TryGetValue(index,out var record)){CanonicalHashCosts.RelationRead(record);return record;}var source=pages[index/PageSize][index%PageSize];var copy=source?.Copy();CanonicalHashCosts.RelationRead(copy,source);Local()[index]=copy;return copy;}}
             set{Check(index);lock(gate){if(value!=null)value.OwnedCanonicalRecord=null;Local()[index]=value;}}
         }
         internal HistoricalRelationCollection Fork()=>ForkRecords(false);

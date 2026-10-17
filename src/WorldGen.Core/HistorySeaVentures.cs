@@ -131,7 +131,9 @@ namespace WorldGen.Core
                 SeaVentureObserver?.Invoke(polity,convoy?"convoy-departed":"survey-departed");
                 a.Empires.Connections.Governments[polity].LastExpeditionYear=s.Years;
             }
-            map.NextPlan=now+(long)((map.Missions.Length>0?.5:5+15*HistoryRoll("sea-idle-review",polity,s.Years))*SimulationTime.Year);
+            if(CivilMaritimeHistory(s)&&map.Missions.Length==0)
+                map.NextPlan=now+(long)(HistoricalCivilMaritimeEffects.IdleReviewYears(27,ReturningFleetCapacity(s,polity),HistoryRoll("sea-idle-review",polity,s.Years))*SimulationTime.Year);
+            else map.NextPlan=now+(long)((map.Missions.Length>0?.5:5+15*HistoryRoll("sea-idle-review",polity,s.Years))*SimulationTime.Year);
             if(proposals.Count==0)SeaVentureObserver?.Invoke(polity,"no-proposals");
         }
         void AdvanceSeaMissions(PrehistoryState s,int polity)

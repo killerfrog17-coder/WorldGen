@@ -95,5 +95,34 @@ and absent institution negatives, no zero-work acquisition, and at most one
 rank per review. These frames are not represented as validated full worlds.
 The dormant source builds with zero warnings/errors and the coherent
 `candidate-aa26-freeze` subsequently activates the explicit26 marker.
-Genuine26 cold/save, literal preceding-world continuation and fresh Earth/Continents Plus review remain separate
-activation gates; no geographical or chronological acceptance is claimed here.
+
+Eleven actual full-world controls pass on the Y24 Earth final, year159300,
+123,360,589 bytes, source hash
+`8079bc1492469f21d53007da3cf715009a400c667386c257936dd3dc05b9b232`.
+Frozen24 and the activated26 source both advance that exact saved24 history12
+years to
+`497a97b9c2891df92659d7b070df51c1c22054a5e920a4386ada46cccd5db8c9`.
+The public explicit24→26 upgrade preserves every regional raw cohort, town
+resident count, town food stock, court treasury and technical bank/rank/state.
+It does not retroactively award discoveries at the lower thresholds.
+
+A full initial world save/reload and12 years versus5 years, a full intermediate
+save/reload, and7 years agree exactly at
+`f14c7acae2aa4d7dfbf57dabc72aefe6fcc4f92bca220eac2ecbc0f7f7bd5cb9`.
+Both final states validate their ordinary material accounts; the source24
+checkpoint remains unchanged and ordinary fresh setup selects26. Evidence
+files are `realm26-frozen24-earth12.hash`,
+`realm26-current24-earth12.hash` and the latter's `.cold.hash`, under
+`D:/WorldGenBuildArtifacts/overnight-20261017/`.
+
+The external cold driver runtime DLLs were SHA256-verified against the named
+freeze, not merely assumed correct from build success: Core
+`059a0dcc4db0cb3e6f057842577ce0c22ca41419d5336dbcb803225cca9f5e01`,
+Serialization
+`73e9214ce65ce34bb137a397f196fb6d9619e4b03fec643d60bbca36dbd0d2e3`.
+It does not reference Presentation. Prior23/24 external cold drivers' Core and
+Serialization DLLs were also byte-matched to their respective freezes.
+
+Fresh Earth/Continents Plus chronology and geography remain a separate review.
+These conservation and determinism controls do not establish a repaired era
+date, realistic global diffusion or independent isolation of26's world effect.

@@ -10,7 +10,7 @@ namespace WorldGen.Core
             if(!LivingWorldHistory(s)||elapsed<=0)return false;
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];int target=route.CellB,postId=a.Empires.Territories.PostAt[target];
             if(RevisedRealmHistory(s)&&(!RevisedMaritimeDeparture(s,polity,route.CellA)||!RevisedMaritimeReach(s,polity,route,a.Empires.Territories.Sources[route.CellA])))return false;
-            if(postId<0||HistoricalCells.Polity(s,target)!=polity||a.TownAt[target]>=0||p.Cohesion<500||!LivingTerritorialInterest(s,polity,target))return false;
+            if(postId<0||HistoricalCells.Polity(s,target)!=polity||a.TownAt[target]>=0||p.Cohesion<CivilMaritimeCohesionFloor(s,polity,500)||!LivingTerritorialInterest(s,polity,target))return false;
             var post=a.Empires.Territories.Posts[postId];
             if(!post.Maritime||post.ClosedYear>=0||!TerritorialNodeLive(s,polity,-2-postId)||!InstitutionalRouteAllowed(s,route.CellA,target,p.CultureId))return false;
             if(!MaritimeCharterLogistics(s,polity,route,a.TownAt[route.CellA],out int port,out _))return false;

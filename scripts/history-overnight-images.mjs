@@ -9,17 +9,21 @@ import {gunzipSync} from 'node:zlib';
 const timeline=process.argv.includes('--timeline');
 const requestedStatesOnly=process.argv.includes('--states-only');
 const noCities=process.argv.includes('--no-cities');
+const boundsArg=process.argv.find(arg=>arg.startsWith('--bounds='));
+const bounds=boundsArg?boundsArg.slice(9).split(',').map(Number):null;
+if(bounds&&(bounds.length!==4||bounds.some(value=>!Number.isFinite(value))||bounds[0]>=bounds[2]||bounds[1]>=bounds[3]||bounds[0]<-180||bounds[2]>180||bounds[1]<-90||bounds[3]>90))throw Error('Bounds must be west,south,east,north in degrees.');
+if(bounds&&!process.argv.some(arg=>arg.startsWith('--set=')))throw Error('A bounded crop requires a distinct --set name.');
 const yearsArg=process.argv.find(arg=>arg.startsWith('--years='));
 const focusYears=yearsArg?yearsArg.slice(8).split(',').map(Number):[];
 const setArg=process.argv.find(arg=>arg.startsWith('--set='));
 const setName=setArg?setArg.slice(6):'';
 const modesArg=process.argv.find(arg=>arg.startsWith('--modes='));
 const requestedModes=modesArg?modesArg.slice(8).split(','):[];
-if(requestedModes.some(mode=>!['States','Technology','Cultures','Religions'].includes(mode)))throw Error('Unknown diagnostic overlay mode.');
+if(requestedModes.some(mode=>!['States','Territories','Technology','Cultures','Religions'].includes(mode)))throw Error('Unknown diagnostic overlay mode.');
 if(setName&&!/^[a-z0-9-]+$/.test(setName))throw Error('Set name must contain lowercase letters, digits or hyphens.');
 if(focusYears.some(year=>!Number.isInteger(year)||year<0))throw Error('Focused years must be nonnegative integers.');
 const sequence=timeline||focusYears.length>0;
-const folders=process.argv.slice(2).filter(arg=>!['--timeline','--states-only','--no-cities'].includes(arg)&&!arg.startsWith('--years=')&&!arg.startsWith('--set=')&&!arg.startsWith('--modes=')).map(folder=>path.resolve(folder));
+const folders=process.argv.slice(2).filter(arg=>!['--timeline','--states-only','--no-cities'].includes(arg)&&!arg.startsWith('--years=')&&!arg.startsWith('--set=')&&!arg.startsWith('--modes=')&&!arg.startsWith('--bounds=')).map(folder=>path.resolve(folder));
 const browser=await chromium.launch({headless:true,channel:'msedge'});
 const escape=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;');
 try{
@@ -29,7 +33,7 @@ try{
   const status=await fs.readFile(path.join(folder,'review-status.json'),'utf8').then(JSON.parse,error=>{if(error.code==='ENOENT')return null;throw error;});
   const isEpisode=reportFile==='episode.json',statesOnly=requestedStatesOnly||isEpisode;
   const modes=requestedModes.length?requestedModes:sequence||statesOnly?['States']:['States','Technology','Cultures','Religions'];
-  const presentation=(isEpisode?'opaque overlay 1, neutral background 0':'climate background 1, overlay opacity .58')+(noCities?'; settlement marker overlay hidden for border review':'');
+  const presentation=(isEpisode?'opaque overlay 1, neutral background 0':'climate background 1, overlay opacity .58')+(noCities?'; settlement marker overlay hidden for border review':'')+(bounds?`; crop W/S/E/N ${bounds.join('/')}`:'');
   const eraNames={4:'Bronze Age',5:'Iron Age',6:'Medieval',7:'Early Modern',8:'Industrial',9:'Modern',10:'Postmodern'};
   const rows=isEpisode?report.Rows.map(row=>({...row,EraName:eraNames[row.Era]??`Era ${row.Era}`,FirstState:-1,States:row.Courts.length,ActiveTowns:null,OldestStateAge:Math.max(0,...row.Courts.map(court=>row.Year-court.FoundedYear)),SponsoredPorts:null})):report.Rows;
   let selection=[];
@@ -49,7 +53,7 @@ try{
     const file=`${mode.toLowerCase()}-${row.Year}.png`;
     const sourceStat=await fs.stat(source).catch(error=>{if(error.code==='ENOENT')return null;throw error;});
     let cached=null;
-    for(const candidate of [...new Set([path.join(out,file),...(noCities?[]:['screenshots','focused','focused-late','reference-comparison'].map(dir=>path.join(folder,dir,file)))])]){
+    for(const candidate of [...new Set([path.join(out,file),...(noCities||bounds?[]:['screenshots','focused','focused-late','reference-comparison'].map(dir=>path.join(folder,dir,file)))])]){
      const stat=await fs.stat(candidate).catch(error=>{if(error.code==='ENOENT')return null;throw error;});
      if(stat&&(!sourceStat||stat.mtimeMs>=sourceStat.mtimeMs)){cached=candidate;break;}
     }
@@ -66,6 +70,13 @@ try{
     const page=await browser.newPage({viewport:{width:1800,height:960}});
     await page.setContent('<style>body{margin:0}svg{display:block}</style>'+svg,{timeout:120000,waitUntil:'load'});
     if(noCities)await page.addStyleTag({content:'circle{display:none}'});
+    // HistoryAudit's equirectangular diagnostic export uses x=900+5*lon,
+    // y=510-5*lat. Reframe existing paths only; source SVG stays untouched.
+    if(bounds)await page.evaluate(([west,south,east,north])=>{
+     const svg=document.querySelector('svg');
+     svg.setAttribute('viewBox',`${900+5*west} ${510-5*north} ${5*(east-west)} ${5*(north-south)}`);
+     svg.setAttribute('width','1800');svg.setAttribute('height','960');
+    },bounds);
     await page.evaluate(()=>{
      const occupied=[];
      for(const label of document.querySelectorAll('text[text-anchor="middle"]')){
@@ -86,7 +97,7 @@ try{
    const page=await browser.newPage({viewport:{width:3608,height:1200}});await page.goto(pathToFileURL(file).href,{waitUntil:'load'});await page.screenshot({path:file.replace('.html','.png'),fullPage:true});await page.close();
    }
   }
-  await fs.writeFile(path.join(out,'screenshots.json'),JSON.stringify({source:path.join(folder,reportFile),settlementMarkers:!noCities,selection:rendered},null,2));
+  await fs.writeFile(path.join(out,'screenshots.json'),JSON.stringify({source:path.join(folder,reportFile),settlementMarkers:!noCities,bounds,selection:rendered},null,2));
   console.log(`${path.basename(folder)}: ${rendered.length} images, ${sequence?'six-frame chronological sheets':statesOnly?'States overview':'4 mode sheets'}`);
  }
 }finally{await browser.close();}

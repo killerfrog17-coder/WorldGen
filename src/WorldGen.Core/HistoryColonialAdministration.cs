@@ -51,7 +51,7 @@ namespace WorldGen.Core
             }
             if(!ocean&&World.Landmass[route.CellA]==World.Landmass[target])return;
             int postBudget=LivingWorldHistory(s)?HistoricalMaritimeIntegrationEffects.PostBudget(finances.Urban,HistoricalModernEffects.AdministrativeCapacity(hc,s.Years),HistoricalModernEffects.Communication(hc,s.Years)):128;
-            if(p.Cohesion<550||finances.Receipts<=finances.ServiceCost||government.AdministrativePosts.Count>=postBudget||territory.PostAt[target]>=0||a.TownAt[target]>=0)return;
+            if(p.Cohesion<CivilMaritimeCohesionFloor(s,polity,550)||finances.Receipts<=finances.ServiceCost||government.AdministrativePosts.Count>=postBudget||territory.PostAt[target]>=0||a.TownAt[target]>=0)return;
             int depth=source>=0?1:territory.Posts[-source-2].Depth+1;if(depth>7)return;
             double distance=LivingTravelKm(s,TerritorialNodeCell(s,source),target,p.CultureId);if(distance==double.MaxValue)return;
             if(a.Empires.Connections?.Coasts!=null){distance=LivingTravelKm(s,TerritorialNodeCell(s,source),route.CellA,p.CultureId)+DiffusionSeaEffort(s,route.CellA,target,p.CultureId);if(double.IsInfinity(distance)||distance>=double.MaxValue)return;}

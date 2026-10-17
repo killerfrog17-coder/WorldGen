@@ -142,3 +142,92 @@ no automatic foreign submission, dated report arrival and source isolation.
 There are11 distinct actual-world assertions across the full cold fixture and
 the added fleet-exhaustion fixture. Cold12 versus5+7years matches exactly at
 18cdf5e23a8def39e40b66af17bb94f22aa996bb768590358e9adda8f7664dee.
+
+## Current26 actual readiness and dated Early Modern replay
+
+The single-load frozen26 diagnostic uses exactly Core SHA256
+`059a0dcc4db0cb3e6f057842577ce0c22ca41419d5336dbcb803225cca9f5e01`,
+not the subsequent unproven performance-cache source. Earth final157700 retains
+hash `153e69ae9800322c28105ba0e355affa921ab673360387c65af524ec5d1df096`.
+All534 living courts are now included, even if they have no departure. Final
+gates are74 cohesion,7 finances,13 fleet capacity,79 funded departure,
+102 navigation not deployed and259 no departure. These are current observations,
+not facts backdated to an earlier era. Of103 sampled pending offices,81 have
+actual suppliers,3 can found carried farms and none can prepare an imported-food
+station. No fully funded ready alternative source is found among the bounded
+nearby12 and same8 source-funding candidates. The wrong-first-supplier hypothesis
+is therefore not established by this sample; farm eligibility alone is no longer
+misreported as a complete funded alternative.
+
+The same loaded geometry is freshly replayed under frozen26 to155700, yielding
+`0beab36e532f22af31db9d39a272e2464a2271f27ad569fd6fb753b9d1059116`.
+Origin699 and first-state149728 reproduce the original review. All69 dated
+technical practice rows, including every exported practice field, match exactly;
+all350 exported town population and culture rows also match. It is a genuine
+earlier frame, not final finances assigned an earlier date.
+
+Court21 Boduru actually has ruling culture1 Ngonilsum, not culture3. Its real
+treasury is117633990, receipts161427 against25541 service cost, cohesion516,
+exhaustion128, army9354 with no reservations, leader ambition884, institution676,
+returning fleet.951283, leg10094.79km and network15962.75km. Its four actual
+departures lie in the western Mediterranean. It has633 voyages,517 surveys,
+40 landfalls,38 failures,63 charted regions, no pending missions and a stored
+next review at155716.089. This rejects both a universal missing ocean-fleet
+product and the speculative wrong-ruling-culture explanation.
+
+`HistoryMaritimePlannerProbe` separately reads the saved earlier frame and runs
+the real bounded planner on independent detached copies. The actual-scheduler
+baseline correctly does nothing before the stored next review. A clearly labeled
+review-due-only counterfactual at actual cohesion516 funds two surveys:1342 cash
+and12 food, with six known-purpose failures and three physical-route failures.
+Changing only cohesion to550 or600 instead funds one convoy to an actually
+unowned Moroccan shore606.885km away and one survey:1593 cash and19 food. No
+people are created, and the original source remains unchanged. These are actual
+funded planner proposals, NOT successful landfalls or counterfactual valid saves.
+
+The source has a corresponding hard550 gate in both new-coast readiness and
+`CommitTerritorialSeaCharter`, while the fleet-planning floor is500 at zero
+electronic bureaucracy. Thus a rich physically capable court at516 can pay to
+resurvey this known shore but cannot charter its convoy. Separately, an empty
+mission portfolio after a bounded failed planning pass receives5–20 years of
+idle backoff. These are concrete remaining candidates for a versioned correction,
+not authorization to ignore foreign control, physical routes, people, freight,
+cash, local crops or recurring service. No revision27 physics is introduced by
+these diagnostics. External evidence lives in `evidence-aa26-combined-frozen`.
+
+## Revision27: civil continuity and funded empty-review cadence
+
+The approved correction reuses the existing `FleetCohesionFloor` for civil
+charter readiness AND commitment, independent-town consensual entry, and owned
+port/provisioned-station readiness. It introduces no new cohesion credit or
+epoch bonus. Hostile-state expedition readiness remains `600-250*bureaucracy`;
+a refusing independent town still requires the preceding550 cohesion before
+any armed fallback. Actual consent, cash, food, people, route qualification,
+finite coastal-craft service and port-founding constraints remain required.
+Independent oral community voyages are unchanged.
+
+Only after the planner passes its existing funding, capacity and actual
+departure gates, a truly empty mission array with returning-fleet capacity
+at least.2 receives a1-3-year review instead of5-20. It uses the same single
+named review roll, with no additional proposals or world loop. Weak fleets
+retain the preceding delay. Revisions0-26 retain their old threshold and exact
+review arithmetic without evaluating the new capacity branch.
+
+`civil27-final-bin` passes562 pure and26 real-frame controlled assertions.
+The actual155700 court at cohesion516 still produces the exact revision26
+result (two surveys,1342 cash and12 food). Under the guarded27 branch it instead
+pays1593 cash and19 food for one convoy and one survey. The paid convoy travels
+through the real event calendar and establishes a serviced Moroccan charter;
+the controlled arrival hash is
+`52084dfb4d5c71c1b16a2823c829d4a9a6d074daa34fa9f18848f95107a61eb4`.
+Absent treasury or actual source food prevents all missions and debits. Real
+independent town605 passes supplier, treasury, fiscal-margin, exhaustion and
+hierarchy preconditions, fails its actual consent roll, and is NOT coerced at516.
+
+A deliberately deferred opportunity portfolio with the same real funded fleet
+produces6.492920 years to review under26 and1.199056 under27. Removing its cash
+causes the unchanged early exit, not an accelerated retry. All probes preserve
+the original earlier-frame hash `0beab36e...`. These are labeled detached
+future-rule fixtures, not a claim of valid future-rule saved-world compatibility;
+literal older continuation and genuine cold-upgrade proofs are separate checks.
+External evidence: `civil27-em-final.json`.

@@ -38,9 +38,20 @@ namespace WorldGen.Core
     [Serializable] public sealed class HistoricalRelation
     {
         [NonSerialized] internal byte[] OwnedCanonicalRecord;
+        [NonSerialized] internal RelationCanonicalSnapshot OwnedCanonicalSnapshot;
         public int A,B,Trust=0,WarSince=-1,TruceUntil,LastBattle;
         public bool Trade,Alliance;
         public HistoricalRelation Copy()=>(HistoricalRelation)MemberwiseClone();
+    }
+    // Exact runtime guard, not saved history. Mutable reads alone are not
+    // changes: compare every canonical scalar before reusing private bytes.
+    internal readonly struct RelationCanonicalSnapshot
+    {
+        readonly int a,b,trust,warSince,truceUntil,lastBattle;
+        readonly bool trade,alliance;
+        internal RelationCanonicalSnapshot(HistoricalRelation r)
+        {a=r.A;b=r.B;trust=r.Trust;warSince=r.WarSince;truceUntil=r.TruceUntil;lastBattle=r.LastBattle;trade=r.Trade;alliance=r.Alliance;}
+        internal bool Matches(HistoricalRelation r)=>a==r.A&&b==r.B&&trust==r.Trust&&warSince==r.WarSince&&truceUntil==r.TruceUntil&&lastBattle==r.LastBattle&&trade==r.Trade&&alliance==r.Alliance;
     }
     [Serializable] public sealed class HistoricalTown
     {

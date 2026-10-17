@@ -70,7 +70,7 @@ namespace WorldGen.Core
         bool ReadyOwnedColonialPort(PrehistoryState s,int polity,Route route,int supplier)
         {
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];int target=route.CellB,id=a.Empires.Territories.PostAt[target];
-            if(id<0||HistoricalCells.Polity(s,target)!=polity||a.TownAt[target]>=0||p.Cohesion<500||!LivingTerritorialInterest(s,polity,target))return false;
+            if(id<0||HistoricalCells.Polity(s,target)!=polity||a.TownAt[target]>=0||p.Cohesion<CivilMaritimeCohesionFloor(s,polity,500)||!LivingTerritorialInterest(s,polity,target))return false;
             var post=a.Empires.Territories.Posts[id];if(!post.Maritime||post.ClosedYear>=0||!TerritorialNodeLive(s,polity,-2-id))return false;
             var source=s.Society.Settlements[supplier];
             if(!CanFoundLivingTown(s,source.CultureId,target,supplier))return CanPrepareProvisionedPort(s,polity,route,supplier,out _);
@@ -88,7 +88,7 @@ namespace WorldGen.Core
             // arrival, not by consulting hidden overseas armies at dispatch.
             if(host==polity)return ReadyOwnedColonialPort(s,polity,route,supplier);
             if(host>=0)return OwnMaritimeExpeditionReady(s,polity,route,out long investment)&&QuotedMaritimeMen(s,polity,route.CellB,supplier,investment)>0;
-            return h.Polities[polity].Cohesion>=550;
+            return h.Polities[polity].Cohesion>=CivilMaritimeCohesionFloor(s,polity,550);
         }
     }
 }

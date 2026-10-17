@@ -117,7 +117,7 @@ namespace WorldGen.Core
             plan=null;var h=s.History;var a=h.Aggregates;
             if(!LivingWorldHistory(s)||a.Empires.Connections.ProvisionedPorts==null||polity<0||polity>=h.Polities.Length||supplier<0||supplier>=a.Cities.Length)return false;
             var p=h.Polities[polity];var source=s.Society.Settlements[supplier];int target=route.CellB,region=target>=0&&target<CellPatch.Length?CellPatch[target]:-1;
-            if(region<0||!route.Sea||!DiffusionShore(target)||a.TownAt[target]>=0||World.Hydrology.LakeCoverageFraction[target]>=.9||p.EndedYear>=0||p.Cohesion<500)return false;
+            if(region<0||!route.Sea||!DiffusionShore(target)||a.TownAt[target]>=0||World.Hydrology.LakeCoverageFraction[target]>=.9||p.EndedYear>=0||p.Cohesion<CivilMaritimeCohesionFloor(s,polity,500))return false;
             var habitat=World.Ecology.Habitat[target];
             if(habitat.Biome==Biome.Ice||habitat.WarmTenthsC<80||habitat.GrowingDays<60||habitat.PermafrostPermille>700||habitat.ReliefM>2000)return false;
             double drinking=D.Clamp(habitat.AridityMilli/500.0+riverAccess[target]*12+(habitat.WaterTableCm<=300&&habitat.SalinityMilliPpt<3000?.15:0));

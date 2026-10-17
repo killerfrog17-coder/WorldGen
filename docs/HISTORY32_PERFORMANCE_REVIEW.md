@@ -489,3 +489,86 @@ medians about40.8 to45.3ms; optimized non-tiered medians40.1 to42.6ms. Hash and
 allocation are unchanged. It was rejected and reverted before checkpoint;
 the nonempty-node shortcut above remains. No extra native build or cold-world
 load is spent on this rejected candidate.
+
+## Current26 dense native acceptance,17October
+
+The frozen nondevelopment IL2CPP review player
+`player-history-32-overnight-aa-review` includes the retained exact bag,
+nonempty-node, sparse-branch, trusted-row, scratch, typed-codec and reusable-CNG
+optimizations. Its build-input manifest SHA256 is
+`b3f3c2067d3758d972341f434e6e70853f644827424dd3c5a7b6324f87f83501`;
+Core is `059a0dcc4db0cb3e6f057842577ce0c22ca41419d5336dbcb803225cca9f5e01`.
+Component timers remain off. Native provider13 and tree-transport12 smoke
+vectors pass. All other team builds, world loads and renderers were held.
+
+Current ContinentsPlus26 **fails** strict1000-year acceptance:1004.0776 years
+in859.8857s,1.167687yr/s, minimum50-year rolling1.027484yr/s, worst computed
+year2279.691ms at166693,473 Boehm collections. Input165700 is
+`4113cad9963a9bc700899d05cc728ad52e924f81e3a446298d63d137cfb521fe`;
+final166704 is `7925d810ab8f84da14b956f266ca0303f5f6650af0321d8b30ac8b238787c791`.
+Courts grow565 to715 during the measured span. The input has4251 inhabited
+towns plus945 abandoned records; the player's final6631 is lifetime settlement
+records, NOT final active towns, and must not be compared directly with4251.
+No simulation error occurs; the input file remains unchanged.
+
+Full-run CPU totals are hash246.290s/366 checkpoints, city244.693s/5.078million
+events, sea107.210s, state72.447s, region60.945s, checkpoint copies29.996s and
+publication copies28.143s. Maximum single observed city event is321.957ms,
+state195.189ms, sea173.781ms and region150.119ms. Native allocated-byte counters
+are unavailable; these measurements must not be represented as allocation data.
+
+Cold sealing costs1665.877ms and freezes289461 rows/94.14MB. Excluding it,
+warm root hashes average670.156ms (p95 888.206,max1455.152), rising from545.217ms
+in the first50 warm checks to752.232ms in the last50. Each warm seal processes
+about19.95MB of dirty-tree payload and4082 newly frozen rows/1.025MB. Warm newly
+frozen bytes are chiefly relations318.66MB across1.374million row freezes;
+this alone does not show whether those rows' actual fields changed. The worst
+computed year includes a782.826ms hash and323.031ms publication copy crossing
+a GC, not simply one pathological battle. Evidence is retained in external
+`native-aa26-cp-current-isolated` CSV/JSON files. Current Earth26 runs next,
+sequentially under the same isolation; no performance acceptance is claimed.
+
+The sequential current Earth26 run also **fails**:1004.1966 years in716.4112s,
+1.401704yr/s, minimum rolling1.127319yr/s, worst2531.836ms at158661,487 Boehm
+collections, no simulation error. Input157700 is
+`153e69ae9800322c28105ba0e355affa921ab673360387c65af524ec5d1df096`;
+final158704 is `211eea136385f6c3cf6263c2d8b54ce33ada2b6c04f80cfb531042c35b420a36`.
+Final5918 is again lifetime settlement records, not final active towns;
+active courts are642. CPU totals: city190.752s/4.075million events,
+hash170.285s/310 checks, sea115.006s, state68.553s, region64.137s,
+culture28.824s, campaigns22.013s, copies21.523+17.052s. Cold root944.277ms
+freezes138596 rows/44.20MB; warm root averages547.952ms(p95 815.062,
+max1352.748), with23.58MB dirty-tree payload and5210 new rows/1.310MB per
+check. Worst-year spikes include624.655ms hashing and233.238ms campaigning
+across a GC, alongside actual city/sea/region/state work. Neither initial
+setup timing nor excluding the first hash can turn either run into a pass.
+Both player processes exited and isolation was released at12:17:21UTC.
+
+## Exact relation read-versus-edit memo,17October
+
+The subsequent relation optimization distinguishes exposing a mutable record
+from actually changing one. Its public getter still detaches the record for
+the receiving branch, but no longer discards exact private bytes merely because
+the caller read it. Before **every** owned canonical reuse, a nonserialized
+snapshot compares all six canonical integers (`A`, `B`, `Trust`, `WarSince`,
+`TruceUntil`, `LastBattle`) and both booleans (`Trade`, `Alliance`). Missing
+bytes or any changed scalar rebuild the full preceding canonical record.
+This is exact field comparison, not collision-prone hashing or trust in an
+unchanged object reference.
+
+An independent source/test review checks that public hashing still reads actual
+fields, public collection forks clear exposed-record memo bytes, owned forks
+detach exposed mutable values, and frozen byte arrays do not alias writable
+encoding scratch. Both memo bytes and the scalar snapshot are internal and
+`NonSerialized`; neither enters saved history or canonical public-field output.
+The owned-history context remains thread-local and is restored after failures.
+No dates, actor frequency, rule markers, RNG, relation order or diplomatic
+scalars change.
+
+The main build passes71 trusted-memo and82 canonical assertions. Coverage includes
+each of the eight fields edited through a reference retained across an owned
+hash, restoration to its original value, read-only reuse, source/public/owned
+fork isolation, concurrent public edits, cancellation and cold serialization.
+See `HistoryTrustedRelationMemoTests` and `HistoricalCanonicalTests`.
+The actual preceding26 continuation/cold check is being run separately; these
+pure assertions and source review do not establish a strict native speed gain.

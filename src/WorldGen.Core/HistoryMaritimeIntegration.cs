@@ -197,7 +197,7 @@ namespace WorldGen.Core
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var town=s.Society.Settlements[city];var hc=h.Cultures[p.CultureId];
             int seaSupplier=-1;
             if(RevisedRealmHistory(s)&&!MaritimeCharterLogistics(s,polity,route,a.TownAt[route.CellA],out seaSupplier,out _))return false;
-            if(a.Resolve(town.PolityId,h)>=0||town.Population<500||!a.Cities[city].Supported||a.Living.Cities[city].AbandonedYear>=0||p.Cohesion<550||p.Exhaustion>=500)return false;
+            if(a.Resolve(town.PolityId,h)>=0||town.Population<500||!a.Cities[city].Supported||a.Living.Cities[city].AbandonedYear>=0||p.Cohesion<CivilMaritimeCohesionFloor(s,polity,550)||p.Exhaustion>=500)return false;
             var account=a.Polities[polity];long investment=HistoricalMaritimeIntegrationEffects.CouncilInvestment(town.Population,route.DistanceM);
             if(p.Treasury<investment*2||account.Receipts<=account.ServiceCost+investment/100)return false;
             int ancestor=polity;
@@ -217,6 +217,9 @@ namespace WorldGen.Core
             bool imposed=false;
             if(HistoryRoll("maritime-local-council-"+city,polity,s.Years)>=consent)
             {
+                // Civil institutional continuity is not permission to coerce a
+                // refusing independent town below the preceding armed floor.
+                if(CivilMaritimeHistory(s)&&p.Cohesion<550)return false;
                 int availableArmy=RevisedMilitaryHistory(s)?Math.Max(0,p.Army-a.Empires.Connections.Military.Governments[polity].Reserved):p.Army;
                 double expedition=availableArmy*.15*HistoricalModernEffects.Military(hc,s.Years);
                 int transported=(int)(availableArmy*.15);

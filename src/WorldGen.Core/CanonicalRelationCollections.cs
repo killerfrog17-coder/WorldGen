@@ -12,14 +12,18 @@ namespace WorldGen.Core
                 var record=records.Peek(i);writer.Write((byte)1);
                 if(literalAggregateRecords){Write(writer,record);continue;}
                 // Only a private transaction may reuse a record's bytes. The
-                // collection invalidates them on every mutable access, and
-                // detaches/invalidate exposed records when forking. Public
+                // collection detaches mutable records on access and invalidates
+                // bytes for public forks. Exact scalar snapshots detect edits,
+                // including through references retained across owned hashes. Public
                 // integrity hashing always reads all actual fields, including
                 // edits made through a reference retained before a prior hash.
                 if(record!=null&&ownedHistoryContext!=null)
                 {
-                    if(record.OwnedCanonicalRecord==null)
+                    if(record.OwnedCanonicalRecord==null||!record.OwnedCanonicalSnapshot.Matches(record))
+                    {
                         record.OwnedCanonicalRecord=FreezeRelation(record,scratch);
+                        record.OwnedCanonicalSnapshot=new RelationCanonicalSnapshot(record);
+                    }
                     writer.Write(record.OwnedCanonicalRecord);continue;
                 }
                 writer.Write((byte)(record==null?0:1));if(record==null)continue;

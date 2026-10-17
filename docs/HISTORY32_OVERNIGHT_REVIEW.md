@@ -3,7 +3,124 @@
 Source experiments, not an assertion of historical/scientific validation. The
 existing selected player is the rollback build until native review is complete.
 
-## Latest checkpoint: prepared fields16 / local phenology17
+## Latest review: revisions20–26 (17 October,12:35UTC)
+
+The older entries below are a chronological audit trail, **not the current
+acceptance status**. The selected desktop player is still the preceding
+rollback while the new native player is being checked. No flawless or finished
+historical-realism claim is made.
+
+Completed fresh200,000-cell ordinary-pipeline runs now include current26 Earth
+and Continents Plus, both saved and validated beyond1,000 years after actual
+maximum technology. Their final history hashes are respectively
+`153e69ae9800322c28105ba0e355affa921ab673360387c65af524ec5d1df096`
+and `4113cad9963a9bc700899d05cc728ad52e924f81e3a446298d63d137cfb521fe`.
+Earth reaches its first state at149728 and Early Modern at155700; Continents
+Plus reaches these at158491 and163700. Compared with23, the interval from
+first state to Early Modern falls by1,800 and1,000 years respectively. These
+are leading-capability milestones, not evidence that every region is modern.
+
+The latest causal changes are documented separately:
+
+- [Locally financed lay religious associations](HISTORY32_LAY_ASSOCIATIONS_DESIGN.md),
+  distinct from inherited household and publicly sponsored religion.
+- [Qualified proto-centre continuity](HISTORY32_PROTO_CONTINUITY.md), preserving
+  viable institutional centers without protecting genuinely distressed towns.
+- [Actual annual cultivar maturity windows](HISTORY32_CROP_MATURITY_CALENDAR.md),
+  not a fixed season shared by all annual crops; perennial behavior is retained.
+- [Conserved partial research and delivered lessons](HISTORY32_TECHNICAL_LEARNING_CREDIT.md),
+  rather than forcing a partially completed technical rank to restart.
+- [Served territorial continuity](HISTORY32_TERRITORIAL_CONTINUITY.md), separating
+  autonomy demands from secession when actual inclusive services are delivered.
+- [Marginal first farmsteads](HISTORY32_MARGINAL_FARMSTEADS.md), replacing one
+  sharp proposal rejection with a continuous probability while retaining
+  physical yield, people, stocks and the separate city/state requirements.
+- [Proportionate conquest and paid integration](HISTORY32_CONQUEST_INTEGRATION.md),
+  charging actual transferred residents relative to served capacity rather than
+  the same flat debt for every small town.
+- [Repeated scholarly-rank costs](HISTORY32_SCHOLARLY_RANK_COSTS.md), retaining
+  foundational costs, prerequisites, budgets, physical lessons and deployment.
+
+The independent critic sampled the entire documentary at two-second intervals
+and inspected all51 dated era contact sheets. It also inspected the generated
+era sheets and full-resolution SVG-export images. These exports are **not
+native Unity screenshots**. Opaque actual-controller and sovereign exports were
+added because culture colors and chartered claims cannot establish who really
+controls territory. In current26 Earth,534 living courts resolve to428 actual
+sovereigns; the largest population share is10.94% of state-controlled people,
+and the largest territorial share is11.33% of controlled land. The earlier23
+maxima were2.67% and3.28%. A country age does not imply it held its present
+territory throughout that age.
+
+Important remaining failures: current Earth still has weak inland Asian urban
+development, sparse political coverage in several regions and low world
+population relative to modern Earth. First Early Modern capability precedes
+broad geographical uptake. Actual Indian field queries find no named local
+culture actor at the inspected fine fields, rather than existing townless
+cultures. Administered Remote households already have real country accounts;
+their apportioned contact estimate is not proof of presence at any one field.
+Another blanket easing of first-city requirements would address the wrong
+stage. The [bounded household-frontier audit](HISTORY32_ASIAN_HOUSEHOLD_FRONTIER_AUDIT.md)
+rejects the inspected BestCell alternatives and separates actual carried-field
+and service failures from teacher memories. Religious ancestry is not one
+contemporary church or an adherent census.
+
+The native Release player `artifacts/player-history-32-overnight-aa-review`
+**fails both isolated strict1,000-year performance checks**. Continents Plus
+advances1004.0776 years in859.8857s:1.167687yr/s, minimum rolling1.027484yr/s,
+worst computed year2279.691ms. Earth advances1004.1966 years in716.4112s:
+1.401704yr/s, minimum rolling1.127319yr/s, worst2531.836ms. Both players exit
+without simulation errors; neither passes the3yr/s/sub-second-year requirement.
+All other team builds, world loads and renders were held during measurement.
+Exact inputs, outputs, stage costs and unavailable allocation-counter caveats
+are in [the native performance review](HISTORY32_PERFORMANCE_REVIEW.md).
+
+A separate actual native Earth era replay captures nine dated map/HUD pairs,
+Prehistory through Postmodern. Its log and `verified.txt` finish at157700 with
+the exact original history hash
+`153e69ae9800322c28105ba0e355affa921ab673360387c65af524ec5d1df096`.
+Evidence is `native-aa26-earth-era-review`; these are actual Unity captures,
+distinct from the SVG rasterizations above. A matching final hash establishes
+replay integrity, not graphical/historical correctness or a throughput pass.
+
+The subsequent runtime-only whole-seed-landscape memo passes3294 focused
+assertions and the frozen-Core26 actual Earth12-year continuation exactly:
+`4232e559789f84884b94b87a2609a9b22892fb7ab26e9c210ad3feaa109c755a`.
+Its complete fresh26 Earth and Continents Plus replays also save and validate
+at the same final hashes `153e69ae...` and `4113cad9...` given above; external
+`candidate-ab-memo-{earth200,cp200}/review-status.json` records completion.
+This memo changes no rules, crop physics or saved fields. These are exactness
+checks, **not an isolated strict native performance-benefit claim**.
+
+Current CLI repeat/reapply/recipe/cached-reconstruction hashes match, and the
+rebuilt WASM worker reproduces
+`0475b16902e04155747f406b5c789f7144773eedcd0e44861de6879120176584`.
+The pre-existing old Earth golden mismatch remains explicitly unmodified.
+
+### Reproduce the offline review
+
+After a normal solution build, use a new output directory for each command:
+
+```powershell
+dotnet run --project tests/WorldGen.Core.Tests -c Release --no-build -- --overnight-evidence-bundle PATH/TO/final.world PATH/TO/new-evidence
+dotnet run --project tests/WorldGen.Core.Tests -c Release --no-build -- --political-episode-evidence PATH/TO/final.world PATH/TO/new-episode 5 500 25
+```
+
+The bundle loads one saved world and exports separate religious, political,
+colonial and (for Earth) bounded field/frontier evidence, checking that the
+historical checkpoint remains unchanged. It does not advance or upgrade it.
+An optional `--profile-years 20` additionally measures a detached private
+continuation (maximum100 years), explicitly separate from current-state
+evidence; the loaded world still remains unchanged.
+The episode command instead explicitly starts fresh history on the saved
+physical world, runs the ordinary event calendar to the requested observer era
+(`5` = Iron), then observes500 years at25-year intervals. It includes campaigns
+completed between frames and actual leadership transitions, rather than calling
+every declaration a battle. These are opt-in offline diagnostics; no census or
+export is added to a normal simulation turn. Native player review remains a
+separate step.
+
+## Earlier checkpoint: prepared fields16 / local phenology17
 
 Independent screenshot review of N15 still finds a severe agrarian geography
 failure: Early Modern Europe has no active towns, while Australia already has
