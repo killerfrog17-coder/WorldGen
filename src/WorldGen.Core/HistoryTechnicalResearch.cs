@@ -110,8 +110,18 @@ namespace WorldGen.Core
                 // the problem. Material deployment is handled separately below.
                 bool adopted=learn>0&&t.Learning[k]>=Math.Max(1000000,cost/8);
                 bool invented=work>0&&t.Progress[k]>=cost;
-                if(!adopted&&!invented)continue;
-                if(adopted)t.Learning[k]-=Math.Max(1000000,cost/8);else t.Progress[k]-=cost;
+                if(!adopted&&!invented)
+                {
+                    if((a.Empires?.Connections?.Realms?.Version??0)<23)continue;
+                    var credit=HistoricalTechnicalLearningCredit.Mixed(a.Empires.Connections.Realms.Version,cost,t.Progress[k],t.Learning[k],learn,
+                        t.Levels[k],t.Offers[k],t.OfferYear[k],s.Years,t.Sources[k]>=0&&t.Sources[k]<h.Cultures.Length,HistoricalTechnicalGraph.Prerequisites(k,t.Levels));
+                    if(!credit.Acquired)continue;
+                    t.Progress[k]-=credit.ResearchUsed;t.Learning[k]-=credit.LessonsUsed;adopted=true;
+                }
+                else
+                {
+                    if(adopted)t.Learning[k]-=Math.Max(1000000,cost/8);else t.Progress[k]-=cost;
+                }
                 t.Levels[k]++;t.LevelYear[k]=s.Years;
                 if(hc.Technology[k]==0)
                 {hc.Technology[k]=s.Years+1;HistoryEvent(s,"technology",c.Name+(adopted?" learns ":" develops ")+HistoricalTechnologies.Names[k]+(adopted&&t.Sources[k]>=0?" through exchange with "+s.Society.Cultures[t.Sources[k]].Name:"")+". Local use still requires skills, resources and investment.",site,id,category:ChronicleCategory.Discoveries);}

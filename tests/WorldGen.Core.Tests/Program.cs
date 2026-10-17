@@ -1,6 +1,14 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--technical-credit-only")){int count=0;HistoryTechnicalCreditTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" partial technical-learning credit assertions");return;}
+if(args.Contains("--technical-credit-recorded")){int count=0;HistoryTechnicalCreditTests.Recorded(args[Array.IndexOf(args,"--technical-credit-recorded")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" recorded technical-learning credit assertions");return;}
+if(args.Contains("--crop-maturity-world")){int count=0;HistoryCropMaturityWorldTests.World(args[Array.IndexOf(args,"--crop-maturity-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world crop-maturity assertions");return;}
+if(args.Contains("--territorial-continuity-only")){int count=0;HistoryTerritorialContinuityTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" territorial continuity assertions");return;}
+if(args.Contains("--local-bag-canonical-only")){int count=0;HistoryLocalBagCanonicalTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" local-bag canonical assertions");return;}
+if(args.Contains("--tree-set-benchmark")){int at=Array.IndexOf(args,"--tree-set-benchmark"),repeats=args.Length>at+1?int.Parse(args[at+1]):1;for(int i=0;i<repeats;i++)HistoryTreeScratchTests.SetBenchmark();return;}
+if(args.Contains("--crop-maturity-only")){int count=0;HistoryCropMaturityCalendarTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" crop-maturity calendar assertions");return;}
+if(args.Contains("--crop-maturity-recorded")){int count=0;HistoryCropMaturityCalendarTests.Recorded(args[Array.IndexOf(args,"--crop-maturity-recorded")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" recorded crop-maturity assertions");return;}
 if(args.Contains("--copy-cost-world")){int at=Array.IndexOf(args,"--copy-cost-world");HistoryCopyCostAudit.World(args[at+1],args[at+2]);return;}
 if(args.Contains("--proto-continuity-only")){int count=0;HistoryProtoContinuityTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" proto-continuity assertions");return;}
 if(args.Contains("--tree-scratch-only")){int count=0;HistoryTreeScratchTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" scoped tree-scratch assertions");return;}

@@ -396,4 +396,96 @@ It retains the exact100-year control hash. Hash allocation falls further from
 709.36 to431.36MB across20 checkpoints (39.2%, about13.9MB saved per checkpoint).
 Combined savings against the pre-correction type-traced fixture are365.43MB/45.9%.
 CoreCLR hash times3.913 to3.716 to3.566s are contention-qualified; they are not
-native acceptance. A new isolated native run must measure these post-R changes.
+native acceptance.
+
+### Isolated native S: allocation corrections active, acceptance still fails
+
+The S19 IL2CPP player includes both corrections above. Its isolated F6 tail
+advances1007.6129 years in362.9217 seconds:2.77639yr/s, minimum rolling2.11288,
+worst computed year1910.65ms at181121. It therefore still fails both requested
+acceptance limits. Final hash remains exactly
+`eb1a49f19de71711533357288c2db276363f7188e5d57d067504e4c07a002de6`.
+Throughput improves only1.81% over R; observed Boehm collections fall395 to365.
+Native allocation counters remain unavailable.
+
+Hash CPU totals109999.95ms/191 stages, down6.20%; warm seals average573.84ms.
+Warm new frozen rows fall12777 to4743 and bytes3.11MB to1.25MB, proving the
+corrections are active. Tree counts/payloads remain unchanged. Other large costs
+remain city85487.5ms, state53225.8ms, region41080.7ms and sea21837.0ms.
+Private/publication copies total10412.9/10936.9ms. The worst computed year combines
+a655.57ms hash with a605.98ms publication and a collection increment; it is not
+an initial cold-cache year. Evidence is under
+`native-s-trusted-scratch-f6-isolated` in the external overnight artifacts.
+
+Further diagnosis is explicitly opt-in: top-level private canonical component
+timers perform only one timing pair per root component, not per record, and do
+not change bytes or cadence. The scope fixture now passes56 assertions. A
+read-only warmed F6 copy audit measures13.91MB/private copy and15.07MB/public
+publication. Allocation is spread across aggregate/imperial containers, geography,
+port settlements and other records; these inclusive totals overlap. CoreCLR
+times are qualified by concurrent replay/GC and are not native acceptance.
+
+The actual20x5-year F6 component trace also retains `93add43f...` and validates
+the source/publication independently. Its19 warm CoreCLR root hashes average
+158.80ms under shared CPU: aggregate state85.13ms, relations22.73ms,
+international19.78ms, campaigns8.12ms and towns5.73ms. These are existing
+advancing private seals, not repeated hashing of a warmed stand-alone root.
+Native component timing is still required before selecting another exact
+optimization. Evidence: `canonical-f6-root-components-costs.csv` and sidecars.
+
+A short V IL2CPP diagnostic (concurrent replays; not acceptance) advances106.83
+years in31.04s. Its16 warm root components average aggregate260.87ms,
+relations54.96ms, towns31.33ms, international29.27ms and campaigns12.23ms.
+The first computed year still reaches1265.36ms. Evidence is under
+`native-v-components-f6-shared`. This short/early tail cannot replace the failed
+1000-year isolated S result.
+
+The subsequent optional nested trace times fields only on three fixed containers
+(aggregate, imperial, connections); it does not time each world cell or actor.
+Its actual100-year F6 control remains exact. Warm checkpoints visit14977 dirty
+branches, with only18.56% of their32 child slots present. Thus81.44% of branch
+copies/recursive calls merely obtain the common zero digest. The narrow next
+experiment clears a branch's1024-byte payload once and copies present children
+only. The independent Merkle-byte/radix-boundary/removal/extreme-value tests,
+dense-to-sparse reuse, malformed-shape rejection, nested/cancel/concurrency and
+transport checks pass76/62/290 assertions, including explicit no-op identity and
+complete ancestor pruning. Actual20x5-year playback retains
+`93add43f...` with identical node/payload/fingerprint/frozen-record counters and
+independent source/final-publication validation. Warm CoreCLR root time falls
+136.10 to134.07ms (shared CPU); allocation is unchanged. The actual old-world
+roundtrip/12 versus5+7/cancellation fixture passes6 assertions with unchanged
+`2b8cc0c4...`. Native measurement remains required; this is not a throughput
+acceptance claim.
+
+The W short diagnostic reaches the exact same year180306/hash`7294322e...` as
+V with unchanged towns/states. Under different concurrent load it achieves
+2.975yr/s, with1448.75ms worst year; neither short run establishes acceptance.
+Its warm fixed-container timings identify geography56.72ms, aggregate polities
+41.20ms, imperial governments32.09ms, port retries27.75ms and service recovery
+17.19ms. These inclusive fields contain many local bags; imperial government
+records already have typed writers, while pending-port records still reflected.
+
+Two further exact corrections are tested separately from W. The persistent-tree
+setter returns immediately when the changed value/child proves the node nonempty;
+deletions still check/prune empty nodes. A mixed65536-edit benchmark includes13312
+no-ops,15859 removals/default values and7097 other signed values. Before/after
+allocation and hash are exactly81,198,256B/`ed2e1826...`; shared-CPU timings overlap,
+so no speed claim is made. Actual100-year and cold12-year controls remain exact.
+
+Local bags now bypass unrelated type-dispatch families and use immutable literal
+framing plus thread-local scalar scratch; every live count/tree is still read.
+Pending-port arrays receive an equivalent typed writer, preserving ordered null
+and duplicate entries.83 independent literal/public-mutation/copy/reentrant/
+concurrent/cancellation assertions pass. The actual100-year control remains
+`93add43f...`; CoreCLR pending-port encoding falls3.40 to1.70ms/check and overall
+warm root153.27 to149.12ms under shared CPU. Hash allocation falls431.43 to429.31MB
+over20 checkpoints. The combined old-world binary roundtrip/12 versus5+7/source
+isolation/cancellation fixture also passes6 assertions with exact`2b8cc0c4...`.
+Final native/dense-world measurement is still pending.
+
+A later fused single-traversal`With`/setter experiment also preserves the actual
+100-year control, but its mixed-operation benchmark regresses: process-warm
+medians about40.8 to45.3ms; optimized non-tiered medians40.1 to42.6ms. Hash and
+allocation are unchanged. It was rejected and reverted before checkpoint;
+the nonempty-node shortcut above remains. No extra native build or cold-world
+load is spent on this rejected candidate.

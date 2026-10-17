@@ -64,6 +64,17 @@ public static class HistoryCanonicalCostTests
         check(metric.Components.All(p=>p.Completed&&p.Milliseconds>=0)&&metric.Components.Sum(p=>p.Milliseconds)<=metric.RootMilliseconds,"Inclusive component timings remain bounded by the root timing.");
         immutable=false;try{((IList<CanonicalComponentCost>)metric.Components).Clear();}catch(NotSupportedException){immutable=true;}check(immutable,"Published component timings are read-only.");
         rows.Clear();using(var scope=Begin(rows.Add,40)){Owned(root);Complete(scope);}check(rows.Single().Components.Count==0,"Ordinary canonical counters do not enable component timers implicitly.");
+        rows.Clear();var nestedAggregate=new HistoricalAggregateState{Cells=new HistoricalCellTree(73).With(17,29).With(45,-7),Empires=new HistoricalImperialSystem{Connections=new HistoricalColonialConnections()}};
+        string nestedExpected=StateHash.ComputeHistoricalReference(new HistoricalAggregateState{Cells=new HistoricalCellTree(73).With(17,29).With(45,-7),Empires=new HistoricalImperialSystem{Connections=new HistoricalColonialConnections()}});
+        using(var scope=(IDisposable)BeginFrameMethod.Invoke(null,new object[]{(Action<CanonicalHashMetric>)rows.Add,40,true})!)
+        {check(Owned(nestedAggregate)==nestedExpected,"Fixed-container field timing preserves independent literal bytes.");Complete(scope);}
+        metric=rows.Single();check(metric.Fields.Select(f=>f.Container).Distinct().Count()==3&&metric.Fields.Count<128&&metric.Fields.All(f=>f.Completed&&f.Milliseconds>=0),"Nested timers address only three fixed aggregate containers, never growing record collections.");
+        check(metric.DirtyTreeBranches==4&&metric.DirtyTreeBranchSlots==128&&metric.DirtyTreePresentChildren==5,"Existing dirty-branch visits count actual slots and present children without a second tree walk.");
+        immutable=false;try{((IList<CanonicalFieldCost>)metric.Fields).Clear();}catch(NotSupportedException){immutable=true;}check(immutable,"Published nested field timings are read-only.");
+        var fieldMetrics=new CanonicalHashMetric[8];Parallel.For(0,fieldMetrics.Length,i=>
+        {using(var scope=(IDisposable)BeginFrameMethod.Invoke(null,new object[]{(Action<CanonicalHashMetric>)(m=>fieldMetrics[i]=m),i,true})!){Owned(new HistoricalAggregateState{Cells=new HistoricalCellTree(73).With(i,i)});Complete(scope);}});
+        check(fieldMetrics.All(m=>m.Fields.Count>0&&m.Fields.All(f=>f.Container==typeof(HistoricalAggregateState).FullName)&&m.DirtyTreeBranchSlots==128),"Concurrent nested field and dirty-branch metrics remain isolated.");
+        rows.Clear();using(var scope=Begin(rows.Add,40)){Owned(new HistoricalAggregateState{Cells=new HistoricalCellTree(73).With(17,29)});Complete(scope);}check(rows.Single().Fields.Count==0&&rows[0].DirtyTreeBranchSlots==0,"Ordinary canonical counters leave nested timers and sparse-branch tracing inactive.");
         var relations=new HistoricalRelationCollection(new[]{new HistoricalRelation{A=1,B=2},new HistoricalRelation{A=3,B=4},new HistoricalRelation{A=5,B=6}}).Copy();Owned(relations);
         // Expose rows, refill their memo, then fork while retaining the old refs.
         var retained0=relations[0];var retained1=relations[1];Owned(relations);rows.Clear();
@@ -92,6 +103,7 @@ public static class HistoryCanonicalCostTests
         File.WriteAllLines(output,lines);File.WriteAllText(output+".json",JsonSerializer.Serialize(new{InitialHash=original,FinalHash=session.Hash,Years=steps*5,Costs=costs,Work=work.GroupBy(m=>m.Stage).Select(g=>new{Stage=g.Key,Count=g.Count(),Milliseconds=g.Sum(m=>m.Milliseconds),AllocatedBytes=g.Sum(m=>m.AllocatedBytes)})},new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));
         File.WriteAllLines(output+".types.csv",new[]{"year,type,count,bytes"}.Concat(costs.SelectMany(m=>m.FrozenRecordsByType.Select(r=>FormattableString.Invariant($"{m.Year},{r.Type},{r.Count},{r.Bytes}")))));
         File.WriteAllLines(output+".components.csv",new[]{"year,index,type,milliseconds,completed"}.Concat(costs.SelectMany(m=>m.Components.Select(r=>FormattableString.Invariant($"{m.Year},{r.Index},{r.Type.Replace(',',';')},{r.Milliseconds:F6},{r.Completed}")))));
+        File.WriteAllLines(output+".fields.csv",new[]{"year,container,field,type,milliseconds,completed"}.Concat(costs.SelectMany(m=>m.Fields.Select(r=>FormattableString.Invariant($"{m.Year},{r.Container},{r.Field},{r.Type.Replace(',',';')},{r.Milliseconds:F6},{r.Completed}")))));
         File.WriteAllLines(output+".relations.csv",new[]{"year,readCalls,readsWithMemo,forkInvalidations,capturedOriginals,unchangedFreezes,changedFreezes,uncomparedFreezes"}.Concat(costs.Select(m=>FormattableString.Invariant($"{m.Year},{m.RelationReadCalls},{m.RelationReadsWithMemo},{m.RelationForkInvalidations},{m.RelationCapturedOriginals},{m.UnchangedRelationFreezes},{m.ChangedRelationFreezes},{m.UncomparedRelationFreezes}"))));
         Console.WriteLine("HASH "+session.Hash);
     }

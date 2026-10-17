@@ -4,6 +4,24 @@ namespace WorldGen.Core
 {
     public static class HistoricalCropCalendarEffects
     {
+        public static int MaturityWindowWarmth(int spring,int summer,int autumn,int winter,int group,int maturityDays)
+        {
+            if(maturityDays<1||maturityDays>365)throw new ArgumentOutOfRangeException(nameof(maturityDays));
+            // Only the four accepted seasonal observations are available. Treat
+            // each as three equal months, not invented daily climate. At most
+            // twelve contiguous windows are evaluated, including year wrap.
+            int optimum=group==6?180:group==7?320:group==1||group==2||group==3?270:220;
+            int selected=0,best=int.MaxValue,units=maturityDays*12;
+            for(int start=0;start<12;start++)
+            {
+                long sum=0;int remaining=units;
+                for(int offset=0;remaining>0;offset++)
+                {int quarter=((start+offset)%12)/3,take=Math.Min(365,remaining);sum+=(long)take*(quarter==0?spring:quarter==1?summer:quarter==2?autumn:winter);remaining-=take;}
+                int average=(int)(sum/units),distance=(int)Math.Min(int.MaxValue,Math.Abs((long)average-optimum));
+                if(distance<best){best=distance;selected=average;}
+            }
+            return selected;
+        }
         public static int GrowingWindowWarmth(int spring,int summer,int autumn,int winter,int group)
         {
             double best=-1;int selected=0;
@@ -21,14 +39,16 @@ namespace WorldGen.Core
     }
     public sealed partial class Prehistory
     {
-        readonly Dictionary<int,HabitatCell> communityAgronomicHabitats=new Dictionary<int,HabitatCell>();
-        readonly Queue<int> communityAgronomicOrder=new Queue<int>();
-        HabitatCell CommunityAgronomicHabitat(PrehistoryState s,int cell,int group)
+        readonly Dictionary<long,HabitatCell> communityAgronomicHabitats=new Dictionary<long,HabitatCell>();
+        readonly Queue<long> communityAgronomicOrder=new Queue<long>();
+        HabitatCell CommunityAgronomicHabitat(PrehistoryState s,int cell,int group)=>CommunityCalendarHabitat(s,cell,group,0);
+        HabitatCell CommunityCalendarHabitat(PrehistoryState s,int cell,int group,int maturityDays)
         {
-            int key=cell*8+group;if(communityAgronomicHabitats.TryGetValue(key,out var cached)){agronomicHabitatHits++;return cached;}
+            long key=(long)cell*4096+group*512+maturityDays;if(communityAgronomicHabitats.TryGetValue(key,out var cached)){agronomicHabitatHits++;return cached;}
             agronomicHabitatMisses++;
             var h=CropHabitat(s,cell);var climate=World.Climate;
-            int warm=HistoricalCropCalendarEffects.GrowingWindowWarmth(climate.NorthernSpring.TemperatureTenthsC[cell],climate.NorthernSummer.TemperatureTenthsC[cell],climate.NorthernAutumn.TemperatureTenthsC[cell],climate.NorthernWinter.TemperatureTenthsC[cell],group);
+            int spring=climate.NorthernSpring.TemperatureTenthsC[cell],summer=climate.NorthernSummer.TemperatureTenthsC[cell],autumn=climate.NorthernAutumn.TemperatureTenthsC[cell],winter=climate.NorthernWinter.TemperatureTenthsC[cell];
+            int warm=maturityDays==0?HistoricalCropCalendarEffects.GrowingWindowWarmth(spring,summer,autumn,winter,group):HistoricalCropCalendarEffects.MaturityWindowWarmth(spring,summer,autumn,winter,group,maturityDays);
             // A crop's growing season is not necessarily the hottest part of
             // the year. In warm dry places winter cereals are possible; a short
             // cool continental summer does not count as year-round warm yield.
@@ -50,7 +70,10 @@ namespace WorldGen.Core
         double LiteralCommunityTransferFit(PrehistoryState s,int cell,HistoricalCultivar cultivar,bool managed)
         {
             int group=PassageHistory(s)&&cultivar.CropId==10?6:PassageHistory(s)&&cultivar.CropId==12?7:HistoricalCropCatalog.Crops[cultivar.CropId].Group;
-            var habitat=CommunityHistory(s)?CommunityAgronomicHabitat(s,cell,group):CropHabitat(s,cell);
+            // Orchard flowering/chilling and perennial survival are not an
+            // annual field-maturation window. Keep their preceding calendar.
+            int duration=s?.History?.Aggregates?.Empires?.Connections?.Realms?.Version>=22&&HistoricalCropCatalog.Crops[cultivar.CropId].Group!=4?Math.Min(365,cultivar.MaturityDays):0;
+            var habitat=CommunityHistory(s)?CommunityCalendarHabitat(s,cell,group,duration):CropHabitat(s,cell);
             double fit=SpeciesCropNicheHistory(s)?HistoricalCropSpeciesNiches.TransferFit(habitat,cultivar,CropLatitude(cell),riverSites[cell],managed):HistoricalCropCatalog.TransferFit(habitat,cultivar,CropLatitude(cell),riverSites[cell],managed);
             return PassageHistory(s)?D.Q(fit*HistoricalCropEcology.ReproductiveFit(habitat,cultivar)*(EnvironmentalHistory(s)?EnvironmentalCropTransfer(s,cell,cultivar):1),1000000):fit;
         }

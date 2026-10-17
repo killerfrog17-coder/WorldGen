@@ -219,8 +219,8 @@ namespace WorldGen.Core
         {if((uint)index>=(uint)length)throw new ArgumentOutOfRangeException(nameof(index));if(this[index]==value)return this;return new HistoricalCellTree(length,Set(root,index,20,value));}
         static Node Set(Node old,int index,int shift,int value)
         {
-            if(shift==0){var values=old?.Values==null?EmptyValues():(int[])old.Values.Clone();values[index&31]=value;for(int i=0;i<32;i++)if(values[i]!=-1)return new Node{Values=values};return null;}
-            var children=old==null?new Node[32]:(Node[])old.Children.Clone();int at=(index>>shift)&31;children[at]=Set(children[at],index,shift-5,value);for(int i=0;i<32;i++)if(children[i]!=null)return new Node{Children=children};return null;
+            if(shift==0){var values=old?.Values==null?EmptyValues():(int[])old.Values.Clone();values[index&31]=value;if(value!=-1)return new Node{Values=values};for(int i=0;i<32;i++)if(values[i]!=-1)return new Node{Values=values};return null;}
+            var children=old==null?new Node[32]:(Node[])old.Children.Clone();int at=(index>>shift)&31;children[at]=Set(children[at],index,shift-5,value);if(children[at]!=null)return new Node{Children=children};for(int i=0;i<32;i++)if(children[i]!=null)return new Node{Children=children};return null;
         }
         static int[] EmptyValues(){var values=new int[32];for(int i=0;i<32;i++)values[i]=-1;return values;}
         public static HistoricalCellTree From(int length,Func<int,int> read)
@@ -271,7 +271,13 @@ namespace WorldGen.Core
             else
             {
                 if(node.Children?.Length!=32)throw new SerializationException("Invalid spatial branch.");
-                for(int k=0;k<32;k++)Buffer.BlockCopy(Digest(node.Children[k],sha,verify,scratch,depth+1),0,bytes,1+k*32,32);
+                // Absent child digests are exactly32 zero bytes. Clear the
+                // reused branch payload once instead of crossing BlockCopy
+                // (and recursing) once for every absent slot.
+                Array.Clear(bytes,1,1024);
+                bool trace=CanonicalHashCosts.TraceTreeBranches;int present=0;
+                for(int k=0;k<32;k++){var child=node.Children[k];if(child==null)continue;if(trace)present++;Buffer.BlockCopy(Digest(child,sha,verify,scratch,depth+1),0,bytes,1+k*32,32);}
+                if(trace)CanonicalHashCosts.TreeBranch(present);
             }
             return node.Digest=sha.ComputeHash(bytes,0,count);
         }

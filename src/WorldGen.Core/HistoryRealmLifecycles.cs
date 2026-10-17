@@ -10,7 +10,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalRealmLifecycles
     {
-        internal const int CurrentRevision=21;
+        internal const int CurrentRevision=23;
         public int Version=CurrentRevision,SinceYear;
         [System.Runtime.Serialization.OptionalField] public HistoricalRealmClaimRoutes ClaimRoutes;
         [System.Runtime.Serialization.OptionalField] public HistoricalRealmClaimants Claimants;

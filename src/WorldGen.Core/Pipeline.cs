@@ -26,6 +26,7 @@ namespace WorldGen.Core
             CheckServiceRecords();
             CheckNuclearRecords();
             CheckInternationalRecords();
+            CheckLocalBagRecords();
             CheckRecord(typeof(HistoricalCoastChart),"Region:System.Int32","SourceCulture:System.Int32","Year:System.Int32");
             CheckRecord(typeof(HistoricalCityAggregate),"AreaKm2:System.Int64","BaseCropFactor:System.Double","BaseFarming:System.Int32","BaseFoodMultiplier:System.Double","BaseUrbanCapacity:System.Int64","ExchangeMilli:System.Int32","FloodMilli:System.Int32","FoodYieldMilli:System.Int32","Id:System.Int32","LastHarvestYear:System.Int32","LastPoliticalYear:System.Int32","LastVoyageYear:System.Int32","LastYear:System.Int32","Neighbors:System.Int32[]","ParentCity:System.Int32","Rural:System.Int64","RuralCapacity:System.Int64","SoilMilli:System.Int32","StoredYieldMilli:System.Int32","Suburban:System.Int64","Supported:System.Boolean");
             CheckRecord(typeof(HistoricalRegionAggregate),"AreaKm2:System.Int64","AridityMilli:System.Int32","BestCell:System.Int32","Capacity:System.Int64","Culture:System.Int32","Id:System.Int32","LastCultureYear:System.Int32","LastYear:System.Int32","MeanTenthsC:System.Int32","NativeMask:System.Int32","OpportunityMilli:System.Int32","ReliefM:System.Int32","Routes:System.Int32[]","SoilMilli:System.Int32","StoredMilli:System.Int32","YieldMilli:System.Int32");
@@ -82,6 +83,11 @@ namespace WorldGen.Core
             // LeaderHead already contains the ordinary non-null/type framing.
             // Arrays and single live records share the same checked templates.
             if(!literalAggregateRecords&&o is HistoricalLeader singleLeader){LeaderRecordBody(w,singleLeader);return;}
+            // These sealed, frequent bag records must not traverse unrelated
+            // optional-record dispatch families or reflect their scalar fields.
+            if(!literalAggregateRecords&&o is HistoricalLocalBag localBag){LocalBagRecord(w,localBag);return;}
+            if(!literalAggregateRecords&&o is HistoricalPendingPortGovernment pendingPort){PendingPortRecord(w,pendingPort);return;}
+            if(!literalAggregateRecords&&o is HistoricalPendingPortGovernment[] pendingPorts){PendingPortArray(w,pendingPorts);return;}
             w.Write((byte)1);
             // Preserve the exact canonical byte format while avoiding type lookup
             // and reflection on the millions of scalar values hashed in WASM.
@@ -109,7 +115,6 @@ namespace WorldGen.Core
             if(!literalAggregateRecords&&TryWriteInternationalRecord(w,o,t))return;
             if(!literalAggregateRecords&&(o is Array?TryWriteWideHistoricalArray(w,o,t):TryWriteWideHistoricalRecord(w,o,t)))return;
             if(!literalAggregateRecords&&(o is Array?TryWriteOptionalHistoricalArray(w,o,t):TryWriteOptionalHistoricalRecord(w,o,t)))return;
-            if(!literalAggregateRecords&&o is HistoricalLocalBag bag){w.Write("Count");Integer(w,bag.Count);w.Write("Items");Write(w,bag.Items);w.Write("Positions");Write(w,bag.Positions);return;}
             if(!literalAggregateRecords&&t==typeof(HistoricalCityAggregate[])){HistoricalCityAggregateArrayBody(w,(HistoricalCityAggregate[])o);return;}
             if(!literalAggregateRecords&&t==typeof(HistoricalCoastChart[])){HistoricalCoastChartArrayBody(w,(HistoricalCoastChart[])o);return;}
             if(!literalAggregateRecords&&t==typeof(HistoricalRegionAggregate[])){HistoricalRegionAggregateArrayBody(w,(HistoricalRegionAggregate[])o);return;}
@@ -143,6 +148,7 @@ namespace WorldGen.Core
                 else foreach(var item in seq){w.Write((byte)1);Write(w,item);}
                 w.Write((byte)0);return;
             }
+            string timedFieldContainer=CanonicalHashCosts.TimedFieldContainer(o);
             foreach (var f in Fields.GetOrAdd(t, type => type.GetFields(BindingFlags.Instance | BindingFlags.Public)
                 .Where(f => !(type == typeof(World) && (f.Name == nameof(World.Stages)||f.Name==nameof(World.Prehistory))) && f.GetCustomAttribute<DisplaySettingAttribute>() == null)
                 .OrderBy(f => f.Name, StringComparer.Ordinal).ToArray()))
@@ -233,6 +239,13 @@ namespace WorldGen.Core
                 if(o is HistoricalIncorporation districtProject&&f.Name==nameof(HistoricalIncorporation.Cells)&&districtProject.Cells==null)continue;
                 if(o is HistoryState history && f.Name==nameof(HistoryState.Agriculture) && history.Version!="history-3" && history.Version!="history-4" && history.Version!="history-5" && history.Version!="history-6" && history.Version!="history-7" && history.Version!="history-8" && history.Version!="history-9"&&history.Version!="history-10"&&history.Version!="history-11"&&history.Version!="history-12"&&history.Version!="history-13"&&(history.Version!="history-15"&&history.Version!="history-16"))continue;
                 if(o is HistoryState dynamicsHistory && f.Name==nameof(HistoryState.Dynamics) && dynamicsHistory.Version!="history-5" && dynamicsHistory.Version!="history-6" && dynamicsHistory.Version!="history-7" && dynamicsHistory.Version!="history-8" && dynamicsHistory.Version!="history-9"&&dynamicsHistory.Version!="history-10"&&dynamicsHistory.Version!="history-11"&&dynamicsHistory.Version!="history-12"&&dynamicsHistory.Version!="history-13"&&(dynamicsHistory.Version!="history-15"&&dynamicsHistory.Version!="history-16"))continue;
+                if(timedFieldContainer!=null)
+                {
+                    long started=System.Diagnostics.Stopwatch.GetTimestamp();object value=null;bool completed=false;
+                    try{w.Write(f.Name);value=f.GetValue(o);Write(w,value);completed=true;}
+                    finally{CanonicalHashCosts.Field(timedFieldContainer,f.Name,value,started,completed);}
+                    continue;
+                }
                 w.Write(f.Name);
                 if(o is HistoryState compactHistory&&(compactHistory.Version=="history-3"||compactHistory.Version=="history-4"||compactHistory.Version=="history-5"||compactHistory.Version=="history-6"||compactHistory.Version=="history-7"||compactHistory.Version=="history-8"||(compactHistory.Version=="history-9"||(compactHistory.Version=="history-10"||(compactHistory.Version=="history-11"||(compactHistory.Version=="history-12"||(compactHistory.Version=="history-13"||(compactHistory.Version=="history-14"||(compactHistory.Version=="history-15"||compactHistory.Version=="history-16"))))))))&&f.Name==nameof(HistoryState.Archive))CompactHistoryArchive(w,compactHistory.Archive);
                 else Write(w, f.GetValue(o));

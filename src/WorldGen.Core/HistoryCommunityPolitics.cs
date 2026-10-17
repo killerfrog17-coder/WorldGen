@@ -26,7 +26,8 @@ namespace WorldGen.Core
             local.InclusionMilli=(int)Math.Round(local.InclusionMilli+(1000*inclusionTarget-local.InclusionMilli)*(1-Math.Exp(-elapsed/180.0)));
             AdvanceRealmClaimant(s,owner,city,elapsed);
             if(city==p.CapitalId||t.Population<(RealmHistory(s)&&(RealmCrisis(s,owner)>0||RealmClaimantShock(s,owner,city)>0)?600:1800)||a.Living.Cities[city].DeclineYears>0)return;
-            var hc=h.Cultures[t.CultureId];var account=a.Polities[owner];double distance=LivingTravelKm(s,s.Society.Settlements[p.CapitalId].Cell,t.Cell,t.CultureId)/Math.Max(50,HistoricalProvincialEffects.LocalServiceKm(h.Cultures[p.CultureId],s.Years,ds.PublicWorks));
+            var hc=h.Cultures[t.CultureId];var account=a.Polities[owner];bool continuityRules=(a.Empires?.Connections?.Realms?.Version??0)>=23;int serviceCulture=continuityRules?p.CultureId:t.CultureId;
+            double distance=LivingTravelKm(s,s.Society.Settlements[p.CapitalId].Cell,t.Cell,serviceCulture)/Math.Max(50,HistoricalProvincialEffects.LocalServiceKm(h.Cultures[p.CultureId],s.Years,ds.PublicWorks));
             if(TryRealmRegionalSeparation(s,owner,city,elapsed,distance))return;
             double organization=D.Clamp(hc.Institution/650.0)*D.Clamp(Math.Sqrt(t.Population/6000.0)),printing=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Printing,s.Years);
             double deficit=D.Clamp((account.ServiceCost-account.Receipts)/(double)Math.Max(1,account.ServiceCost));
@@ -38,10 +39,11 @@ namespace WorldGen.Core
             if(recent&&foreign&&succession)pressure=D.Clamp(pressure+.25*(1-local.InclusionMilli/1000.0)*conquest);
             double previous=record.AutonomyPressure/1000.0,tau=recent?12:80;
             pressure=previous+(pressure-previous)*(1-Math.Exp(-elapsed/tau));record.AutonomyPressure=(int)Math.Round(pressure*1000);
-            double risk=.08*Math.Pow(Math.Max(0,pressure-.35),2)*(.3+.7*(1-p.Cohesion/1000.0));
+            double secessionPressure=CommunityTerritorialSecessionPressure(s,owner,city,pressure,distance);
+            double risk=.08*Math.Pow(Math.Max(0,secessionPressure-.35),2)*(.3+.7*(1-p.Cohesion/1000.0));
             if(succession)risk*=3;
             if(s.Years-t.FoundedYear>=120&&HistoryRoll("community-independence",city,s.Years)<1-Math.Exp(-risk*elapsed))
-            {FoundAggregateState(s,city,owner);ClaimDevelopmentProvince(s,city,owner);record.UnrestPolityId=t.PolityId;record.AutonomyPressure=100;}
+            {if(!continuityRules||!JoinRecentCommunitySuccessor(s,owner,city))FoundAggregateState(s,city,owner);ClaimDevelopmentProvince(s,city,owner);record.UnrestPolityId=t.PolityId;record.AutonomyPressure=100;}
         }
         void AdvanceCommunityPolicy(PrehistoryState s,int polity,int elapsed)
         {

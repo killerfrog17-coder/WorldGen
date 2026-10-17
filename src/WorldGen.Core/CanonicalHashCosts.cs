@@ -12,9 +12,11 @@ namespace WorldGen.Core
         public int Year;
         public bool Completed;
         public long UncachedTreeNodes,TreePayloadBytes,TreeFingerprints,NewFrozenRecords,NewFrozenBytes;
+        public long DirtyTreeBranches,DirtyTreeBranchSlots,DirtyTreePresentChildren;
         public double SealMilliseconds,RootMilliseconds;
         public IReadOnlyList<CanonicalFrozenRecordCost> FrozenRecordsByType {get;internal set;}=Array.Empty<CanonicalFrozenRecordCost>();
         public IReadOnlyList<CanonicalComponentCost> Components {get;internal set;}=Array.Empty<CanonicalComponentCost>();
+        public IReadOnlyList<CanonicalFieldCost> Fields {get;internal set;}=Array.Empty<CanonicalFieldCost>();
         public long RelationReadCalls,RelationReadsWithMemo,RelationForkInvalidations,RelationCapturedOriginals,UnchangedRelationFreezes,ChangedRelationFreezes,UncomparedRelationFreezes;
     }
     public sealed class CanonicalFrozenRecordCost
@@ -26,6 +28,11 @@ namespace WorldGen.Core
     {
         public int Index {get;}public string Type {get;}public double Milliseconds {get;}public bool Completed {get;}
         internal CanonicalComponentCost(int index,string type,double milliseconds,bool completed){Index=index;Type=type;Milliseconds=milliseconds;Completed=completed;}
+    }
+    public sealed class CanonicalFieldCost
+    {
+        public string Container {get;}public string Field {get;}public string Type {get;}public double Milliseconds {get;}public bool Completed {get;}
+        internal CanonicalFieldCost(string container,string field,object value,double milliseconds,bool completed){Container=container;Field=field;Type=value?.GetType().FullName??"<null>";Milliseconds=milliseconds;Completed=completed;}
     }
     internal static class CanonicalHashCosts
     {
@@ -44,6 +51,7 @@ namespace WorldGen.Core
             internal readonly CanonicalHashMetric Metric;internal long RootTicks;bool disposed;
             internal readonly bool TraceComponents;internal object RootValue;
             internal List<CanonicalComponentCost> Components;
+            internal List<CanonicalFieldCost> Fields;
             readonly Dictionary<string,(long Count,long Bytes)> frozenTypes=new Dictionary<string,(long,long)>(StringComparer.Ordinal);
             internal Scope(Action<CanonicalHashMetric> observer,int year,bool traceComponents=false)
             {this.observer=observer;TraceComponents=traceComponents;previous=current;Metric=new CanonicalHashMetric{Year=year};started=Stopwatch.GetTimestamp();current=this;if(relationReads!=null){Metric.RelationReadCalls=relationReads.Reads;Metric.RelationReadsWithMemo=relationReads.ReadsWithMemo;Metric.RelationForkInvalidations=relationReads.ForkInvalidations;Metric.RelationCapturedOriginals=relationReads.Originals.Count;}}
@@ -68,6 +76,7 @@ namespace WorldGen.Core
                 Metric.SealMilliseconds=(Stopwatch.GetTimestamp()-started)*1000.0/Stopwatch.Frequency;Metric.RootMilliseconds=RootTicks*1000.0/Stopwatch.Frequency;
                 Metric.FrozenRecordsByType=Array.AsReadOnly(frozenTypes.OrderBy(p=>p.Key,StringComparer.Ordinal).Select(p=>new CanonicalFrozenRecordCost(p.Key,p.Value.Count,p.Value.Bytes)).ToArray());
                 if(Components!=null)Metric.Components=Array.AsReadOnly(Components.ToArray());
+                if(Fields!=null)Metric.Fields=Array.AsReadOnly(Fields.ToArray());
                 RootValue=null;
                 // Restore the thread-local scope before invoking external code,
                 // even if an observer fails or begins another diagnostic scope.
@@ -90,6 +99,8 @@ namespace WorldGen.Core
         {var scope=current;if(scope==null)return;scope.Metric.UncachedTreeNodes++;scope.Metric.TreePayloadBytes+=bytes;}
         [MethodImpl(MethodImplOptions.AggressiveInlining)] internal static void TreeFingerprint()
         {var scope=current;if(scope==null)return;scope.Metric.TreeFingerprints++;scope.Metric.TreePayloadBytes+=36;}
+        internal static bool TraceTreeBranches=>current!=null&&current.TraceComponents;
+        internal static void TreeBranch(int present){var metric=current.Metric;metric.DirtyTreeBranches++;metric.DirtyTreeBranchSlots+=32;metric.DirtyTreePresentChildren+=present;}
         [MethodImpl(MethodImplOptions.AggressiveInlining)] internal static void FrozenRecord(string type,byte[] bytes,object identity=null)
         {var scope=current;if(scope!=null)scope.Frozen(type,bytes,identity);}
         [MethodImpl(MethodImplOptions.AggressiveInlining)] internal static void FrozenRecord(object identity,byte[] bytes)
@@ -97,6 +108,10 @@ namespace WorldGen.Core
         internal static long StartRoot(object value){var scope=current;if(scope==null)return 0;if(scope.TraceComponents&&scope.RootValue==null)scope.RootValue=value;return Stopwatch.GetTimestamp();}
         internal static void EndRoot(long started){if(started!=0&&current!=null)current.RootTicks+=Stopwatch.GetTimestamp()-started;}
         [MethodImpl(MethodImplOptions.AggressiveInlining)] internal static bool IsTimedRoot(object value)=>current!=null&&current.TraceComponents&&ReferenceEquals(current.RootValue,value);
+        internal static string TimedFieldContainer(object value)
+        {if(current==null||!current.TraceComponents)return null;return value is HistoricalAggregateState||value is HistoricalImperialSystem||value is HistoricalColonialConnections?value.GetType().FullName:null;}
+        internal static void Field(string container,string field,object value,long started,bool completed)
+        {var scope=current;if(scope.Fields==null)scope.Fields=new List<CanonicalFieldCost>();scope.Fields.Add(new CanonicalFieldCost(container,field,value,(Stopwatch.GetTimestamp()-started)*1000.0/Stopwatch.Frequency,completed));}
         internal static void Component(int index,object value,long started,bool completed)
         {var scope=current;if(scope==null)return;if(scope.Components==null)scope.Components=new List<CanonicalComponentCost>();scope.Components.Add(new CanonicalComponentCost(index,value?.GetType().FullName??"<null>",(Stopwatch.GetTimestamp()-started)*1000.0/Stopwatch.Frequency,completed));}
     }

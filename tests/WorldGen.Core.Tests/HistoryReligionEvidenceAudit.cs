@@ -11,9 +11,14 @@ using WorldGen.Serialization;
 public static class HistoryReligionEvidenceAudit
 {
     public static void Run(string path,string folder)
+        =>RunLoaded(WorldFile.Read(File.ReadAllBytes(path)),path,folder);
+
+    // Shared offline drivers may inspect several evidence layers after one
+    // immutable saved-world load. The ordinary command retains its API.
+    public static void RunLoaded(World world,string path,string folder)
     {
         if(Directory.Exists(folder))throw new ArgumentException("Use a new religion evidence directory.");
-        var world=WorldFile.Read(File.ReadAllBytes(path));var s=world.Prehistory;var engine=new Prehistory(world);engine.Validate(s);
+        var s=world.Prehistory;var engine=new Prehistory(world);engine.Validate(s);
         string hash=s.ComputeHash();var h=s.History;var a=h.Aggregates;var r=a.Empires.Connections.Religion;
         if(r==null)throw new ArgumentException("This evidence audit requires saved local religious networks.");
         object Call(string method,params object[] args)=>typeof(Prehistory).GetMethod(method,BindingFlags.NonPublic|BindingFlags.Instance)!.Invoke(engine,args);
