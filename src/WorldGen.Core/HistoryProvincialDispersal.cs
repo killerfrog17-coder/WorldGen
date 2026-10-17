@@ -6,6 +6,7 @@ namespace WorldGen.Core
         void AdvanceProvincialDispersal(PrehistoryState s,int id,int elapsed,long capacity)
         {
             var a=s.History.Aggregates;var r=a.Regions[id];long residents=s.Population[id],budget=residents/5;
+            if(RemoteFarmerFrontierHistory(s)&&residents<125)AdvanceRemoteFarmerFrontier(s,id,elapsed);
             var knowledge=TechnicalHistory(s)&&r.Culture>=0?s.History.Cultures[r.Culture]:null;
             double mobility=HistoricalTechnicalMigration.Mobility(knowledge,s.Years);
             int options=r.Routes.Length+(PassageHistory(s)?diffusionPassages[id].Length:0);

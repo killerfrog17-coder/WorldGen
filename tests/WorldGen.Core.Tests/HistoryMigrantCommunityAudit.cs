@@ -5,13 +5,13 @@ using WorldGen.Core;
 using WorldGen.Presentation;
 using WorldGen.Serialization;
 
-// Saved-world inspection only: no simulation turns, upgrades or model changes.
+// Offline saved inspection or explicitly requested fresh replay; no model changes.
 public static class HistoryMigrantCommunityAudit
 {
     public static void RunFrontiers(string source,string output)
     {
         if(File.Exists(output))throw new IOException("Use a new frontier audit output.");
-        var world=WorldFile.Read(File.ReadAllBytes(source));WriteFrontiers(world,world.Prehistory,source,output);
+        var world=WorldFile.Read(File.ReadAllBytes(source));WriteFrontiers(world,world.Prehistory,source,output,false);
     }
     public static void RunReplayFrontiers(string source,string output,int year)
     {
@@ -25,9 +25,9 @@ public static class HistoryMigrantCommunityAudit
             session.AdvanceSeconds(Math.Min(step,year-session.LastSnapshot.Years)*SimulationTime.Year,int.MaxValue);
             if(session.LastSnapshot.Years%20000==0)Console.WriteLine("Frontier replay "+session.LastSnapshot.Years);
         }
-        var s=session.Snapshot();engine.Validate(s);world.Prehistory=s;WriteFrontiers(world,s,source,output);
+        var s=session.Snapshot();engine.Validate(s);world.Prehistory=s;WriteFrontiers(world,s,source,output,true);
     }
-    static void WriteFrontiers(World world,PrehistoryState original,string source,string output)
+    static void WriteFrontiers(World world,PrehistoryState original,string source,string output,bool replay)
     {
         string before=original.ComputeHash();
         var engine=new Prehistory(world);var s=original.Copy();var h=s.History;var a=h.Aggregates;
@@ -81,11 +81,11 @@ public static class HistoryMigrantCommunityAudit
             }
         }
         if(original.ComputeHash()!=before)throw new Exception("Frontier audit changed its published source snapshot.");
-        File.WriteAllText(output,JsonSerializer.Serialize(new{Source=Path.GetFullPath(source),Year=s.Years,Hash=before,Realm=a.Empires.Connections.Realms.Version,
+        File.WriteAllText(output,JsonSerializer.Serialize(new{Source=Path.GetFullPath(source),Replay=replay,Year=s.Years,Hash=before,Realm=a.Empires.Connections.Realms.Version,
             Counts=new{Regions=regions.Length,RawDepartureBlocked=regions.Count(r=>r.DepartureBlockedByRawPool),RemoteContactMissingDeparture=regions.Count(r=>r.HasRemoteContactButNoDeparture),
                 OwnedFarmerDirectedLandEdges=ownedFarmerEdges,MissingRawDepartureDirectedEdges=missingRawPoolEdges,AnonymousUnownedDirectedEdges=anonymousUnownedEdges,
                 ViableDirectedEdges=viableEdges,ViableSourceRegions=viableSourceRegions.Count,ViableTargetRegions=viableTargetRegions.Count},Regions=regions,AnonymousFrontiers=edges,
-            Notes=new[]{"Offline census of a detached saved snapshot; no simulation advance, household movement or rule upgrade.",
+            Notes=new[]{"Offline census of a detached snapshot. Replay=true means a requested fresh run preceded inspection; no input-world mutation or rule upgrade.",
                 "ContactResidents includes regional apportionment of a state Remote ledger and is not a population account that can be debited.",
                 "CohortRemote is the actual shared ledger, not a fresh population copy per region; do not sum its repeated appearances.",
                 "Viable frontier means current carried-crop yield>=.12, physical adjacent land gate passes, and recipient is unowned/anonymous. This does not authorize a free culture, town or state or prove food/household conservation.",

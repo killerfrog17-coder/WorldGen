@@ -50,7 +50,7 @@ public static class HistoryRealmLifecycleTests
         var s=e.UpgradeRealmLifecycles(source);e.Validate(s);int count=0;
         void Check(bool ok,string message){count++;if(!ok)throw new Exception(message);}
         Check((source.History.Aggregates.Empires.Connections.Realms?.Version??0)<8,"Source retains its preceding realm rules.");
-        Check(s.History.Aggregates.Empires.Connections.Realms.Version==8&&s.History.Aggregates.Empires.Connections.Realms.Claimants!=null&&s.History.Aggregates.Empires.Connections.SeaService!=null&&s.History.Aggregates.Empires.Connections.Religion?.Version==2&&s.History.Aggregates.Empires.Connections.Military!=null&&s.History.Aggregates.Empires.Connections.ServiceRecovery!=null,"Explicit upgrade installs revision8 without rewriting the past.");
+        Check(s.History.Aggregates.Empires.Connections.Realms.Version==9&&s.History.Aggregates.Empires.Connections.Realms.Claimants!=null&&s.History.Aggregates.Empires.Connections.SeaService!=null&&s.History.Aggregates.Empires.Connections.Religion?.Version==2&&s.History.Aggregates.Empires.Connections.Military!=null&&s.History.Aggregates.Empires.Connections.ServiceRecovery!=null,"Explicit upgrade installs revision9 without rewriting the past.");
         Check(s.History.Aggregates.TotalPopulation==source.History.Aggregates.TotalPopulation,"Upgrade changes no population.");
         Check(ReferenceEquals(e.UpgradeRealmLifecycles(s),s),"Upgrade is idempotent.");
         Check(Prehistory.CanUpgradeHistory(source)&&!Prehistory.CanUpgradeHistory(s),"Existing32 worlds expose the explicit update-rules action; current realm worlds do not auto-upgrade.");

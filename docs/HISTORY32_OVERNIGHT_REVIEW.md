@@ -106,6 +106,41 @@ is clearly reported and cannot pass the all-technology performance gate.
 The older Pangea E review was similarly stopped with frames/metadata retained.
 No simulation technology or player time limit was added.
 
+## Source revision9 / candidate I
+
+The independent offline census found an additional rural-ledger exclusion:
+once administered, actual farming households move from a region's raw pool
+to a state's Remote account. The ordinary regional departure path then sees
+fewer than125 people and stops. At G's final snapshot this excluded119
+otherwise physically/crop-viable anonymous frontier edges;102 also had enough
+free field capacity for400people. At the exact Early Modern checkpoint the
+corresponding genuinely free opportunities were only8 local edges, not a
+ready-made corridor across Eurasia. This fix must not be sold as a complete
+explanation of the geographical failure.
+
+Revision9 probes at most two existing physical land-boundary links per
+regional event. A downscaled local presence limits the proposal; only the
+actual shared state Remote account pays the50–500 emigrants. A working
+service center must supply real travel/first-harvest food and investment.
+Actual viable crops, free border fields and physical institutional passage
+remain required. The arrival gains neither a town nor a sovereign claim.
+An actual descendant community can inherit its households' viable package.
+
+Eleven controlled production-method assertions on accepted G Earth geography
+pass:499 actual people leave the Remote/country/cultural accounts, arrive
+locally without changing world population, and pay real food and money.
+Empty granaries/treasury, a sea route and saved revision8 cannot dispatch it.
+The source snapshot remains untouched. Current versus frozen-H continuation
+of the same old8 Earth save for12years remains exactly
+`88248acd606e2fbec4ffc1c681439b2ac774becbfa15b1a42b082a22af33ffd0`.
+
+Native F (before paged storage) failed the dense200k performance acceptance:
+1007.61years/986.15s=1.02yr/s, minimum rolling0.75yr/s, worst3725.25ms.
+This was a concurrent-workload measurement, not an isolated acceptance test.
+The fully rebuilt H player is now being measured on that identical old6
+world, so exact-output allocation improvements can be tested independently
+of new historical rules. No passing performance claim is made yet.
+
 ## Reference and review method
 
 The owner's [Ollie Bye reference](https://www.youtube.com/watch?v=-6Wu0Q7x5D0)

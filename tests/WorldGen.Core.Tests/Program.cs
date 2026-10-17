@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--remote-farmer-world")){int count=0;HistoryRemoteFarmerTests.World(args[Array.IndexOf(args,"--remote-farmer-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual remote-farmer assertions");return;}
+if(args.Contains("--colonial-throughput-audit")){int at=Array.IndexOf(args,"--colonial-throughput-audit");HistoryColonialThroughputAudit.Run(args[at+1],args[at+2],args.Length>at+3?int.Parse(args[at+3]):-1,args.Length>at+4?int.Parse(args[at+4]):0,args.Length>at+5?int.Parse(args[at+5]):-1);return;}
 if(args.Contains("--relation-pages-only")){int count=0;HistoryRelationCollectionTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" relation-page assertions");return;}
 if(args.Contains("--relation-pages-world")){int count=0;HistoryRelationCollectionTests.World(args[Array.IndexOf(args,"--relation-pages-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world relation-page assertions");return;}
 if(args.Contains("--migrant-frontier-world")){int count=0;HistoryMigrantFrontierTests.World(args[Array.IndexOf(args,"--migrant-frontier-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual migrant-frontier assertions");return;}
@@ -16,6 +18,7 @@ if(args.Contains("--service-recovery-checkpoint")){int count=0;HistoryServiceRec
 if(args.Contains("--realm-episodes-audit")){int at=Array.IndexOf(args,"--realm-episodes-audit");HistoryRealmEpisodesAudit.Run(args[at+1],args[at+2]);return;}
 if(args.Contains("--capital-transitions-audit")){int at=Array.IndexOf(args,"--capital-transitions-audit");HistoryCapitalTransitionsAudit.Run(args[at+1],int.Parse(args[at+2]),args[at+3]);return;}
 if(args.Contains("--religion-evidence-audit")){int at=Array.IndexOf(args,"--religion-evidence-audit");HistoryReligionEvidenceAudit.Run(args[at+1],args[at+2]);return;}
+if(args.Contains("--agronomy-lineage-audit")){int at=Array.IndexOf(args,"--agronomy-lineage-audit");HistoryAgronomyLineageAudit.Run(args[at+1],args[at+2],args[at+3]);return;}
 if(args.Contains("--religion-city-clocks-world")){int count=0,at=Array.IndexOf(args,"--religion-city-clocks-world");HistoryReligiousCityClockTests.World(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);},args.Length>at+2?args[at+2]:null);Console.WriteLine("PASS "+count+" actual-world religious city-clock assertions");return;}
 if(args.Contains("--realm-claimants-only")){int count=0;HistoryRealmClaimantTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" realm-claimant assertions");return;}
 if(args.Contains("--realm-claimants-world")){int count=0;HistoryRealmClaimantTests.World(args[Array.IndexOf(args,"--realm-claimants-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world realm-claimant assertions");return;}
