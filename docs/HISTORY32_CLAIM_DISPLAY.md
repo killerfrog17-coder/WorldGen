@@ -1,5 +1,7 @@
 # Political claim display
 
+Superseded17October2026: the owner requested removal of pale claim shading and separate colors for individual sovereign states. See `HISTORY32_COURT_CONNECTIVITY.md`. The AF29 evidence below remains historical evidence for that earlier player, not the current requested style.
+
 This is a presentation-only correction, not a historical rule change or a fix for missing geopolitical coverage. Frozen nativeAE29 era/performance evidence uses the preceding renderer; the separately rebuilt AF29 final-world camera evidence below verifies the new RGB distinction.
 
 The measured example is final Earth29 at year158000/hash `aadce44b43b5823970e45c80d53ec9ebfb415294cf65893b8a032327606936e3`: the old native States image has a broad same-color Siberian/Indian extent, while the independent opaque actual-sovereign export leaves substantial interior land unowned. Those are different questions, not contradictory historical checkpoints. The external evidence is `native-ae29-earth-eras/10-Postmodern-map.png` versus `evidence-ae29-earth-final/political-identities/sovereigns.png` under the overnight artifact root. Neither old image demonstrates the new styling.
