@@ -8,7 +8,7 @@ The next32 optional `Connections.Realms` extension separates country foundation 
 
 The next32 review adds optional persistent state-specific geography and dated funded survey/convoy events. Actual trade can transmit hearsay or copied directions with delay; it does not grant personal first-hand charts or political control. Organized voyages keep real supplier/settler/crop/food/finances and resistance constraints, but remove independent decades-long dispatch and founding lotteries after a paid arrival. Long state-sponsored movement no longer materializes as unrelated primitive coastal communities. Claims/offices and real populated colonies remain separate. Existing saves retain their old rules unless explicitly upgraded. [Mechanisms, historical comparisons, test commands and limitations](HISTORY32_GEOGRAPHIC_VENTURES.md).
 
-Launch target,16 October2026: after the requested colonization pass, `WorldGen.exe - Shortcut.lnk` opens `player-history-32-geographic-ventures`, including geography revision2 and the earlier regional traditions/proto-centers. The earlier owner-selected W2 target and verified31 remain available as rollbacks. Existing saves are not silently upgraded; start a fresh simulation for the new revision.
+Launch target,16 October2026: the project shortcut opens `player-history-32-realms-review`, including realms1 and geography2. Geographic-ventures, W2 and verified31 remain rollbacks. The realm review has documented Earth-coverage and dense-checkpoint latency failures; selecting it is not performance or realism certification. Existing saves are not silently upgraded; use a fresh simulation or the explicit historical-rules update.
 
 ## Regional traditions / proto-urban revision - 16 October 2026
 

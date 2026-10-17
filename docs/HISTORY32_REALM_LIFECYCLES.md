@@ -153,6 +153,8 @@ and ice biome. Intermediate snapshots use the shared presentation adapter.
   at177115. The dates refer to one deterministic generated world, not Earth or
   a fitted universal empire lifespan. Exact-date visual replay is available via
   `--realms-replay-frames <input.world> <new-output-folder> <comma-separated-years>`.
+  This particular natural example occurs during the observer's Postmodern phase;
+  it is not evidence that ancient Macedonian-scale conquest is already calibrated.
 - A controlled real-court comparison, not a natural-frequency estimate, joined
   six existing constituent courts. A contested branch fell from30.2 to1.17 million
   km² in30 years; its continuing-government branch retained all six courts and
@@ -169,6 +171,64 @@ court failure becoming a real contest. A literal two-field canonical-format
 contrast and loading the preceding private performance checkpoint cover absent
 title indexes. Explicit validation rejects incomplete indexes and missing
 document entries; ordinary simulation does not run those full integrity checks.
+
+## Selected review build: final native evidence
+
+The project shortcut selects `artifacts/player-history-32-realms-review/WorldGen.exe`,
+built2026-10-17T02:39:11Z from source checkpoint
+`8db1198119ef29f074d316fa14814c4c7e65d471`. Staged, compiled and player Core
+SHA256 agree: `5803f047135018cd3c1579ef1c2e1a2ad17f3fe1b519a716b86c6d6fa44cd804`.
+The preceding geographic player and verified31 are retained, not overwritten.
+
+The ordinary O Continents Plus final world was loaded in Unity and advanced
+another1,019.14 years, ending2,039 years after its actual maximum capability.
+It contained200,000 cells,6,036 recorded towns and190 surviving states at the end.
+Measured playback: **3.5306yr/s**, minimum50-year rolling rate **3.3780yr/s**,
+P95frame **19.15ms**, maximum frame **81.02ms**. Selection remained folded.
+However, the slowest measured year cost **1,802ms**, so **the strict acceptance
+gate failed**. Do not describe this run as a performance pass. Its largest
+individual checkpoint hash cost1,236ms; the worst year included a1,049ms hash
+plus publication/event work. No individual domain event exceeded215ms in this run.
+This is accumulated checkpoint/publication work, not a newly added terrain census.
+
+Loading/render setup is excluded from these playback rates and was itself slow
+for the dense save. That is a separate outstanding user-experience issue, not
+time hidden inside a claimed1000yr/s result.
+
+Exact .NET continuation to Unity's final second **5642867159856** passed full
+validation and matched final hash
+`b5324612cb646e1410d52f17b71d12004f04a732cc46c8b55347dcce52028fd0`.
+Input hash: `9d0ce5e39c415d86e682713fe77fce07972eaeaffb70b0fbed7e9d390a56fdda`.
+Evidence is in `D:/WorldGenBuildArtifacts/realm-final-cp-performance1000`;
+that folder is disposable test output, not a user-save backup.
+
+A second200k checkpoint, explicitly upgraded from the preceding private review,
+advanced1,018.21 years at **3.8394yr/s**, minimum rolling **3.4465yr/s**, with
+P95frame19.19ms and maximum frame46.29ms. Its slowest year was **1,206ms**:
+this also fails the strict one-second gate despite satisfying throughput.
+It ended with5,499 recorded towns and247 surviving states. Exact .NET resume to
+**5654979122723** matched Unity hash
+`1ab7d0a3c70a32e141864b2035713c4c147e60c5ee62b8955c8252765f590c06`.
+Input hash: `77b4df8ef2c24032bcce899d1f67a2cb1977e55b3349e31eb5d4a3db1e2854e8`.
+Evidence: `D:/WorldGenBuildArtifacts/realm-final-existing-performance1000`.
+Its first playback portion overlapped the independent .NET parity diagnostic;
+the dense ordinary O run above was the isolated playback measurement. Neither
+test is evidence of1000 achieved years/s or completed performance acceptance.
+
+Passed source checks:19 pure realm contrasts,14 actual-world continuity/supply/
+save-load/cold-cache/conservation assertions,304 historical regressions,15
+geographical knowledge contrasts,84 presentation/summary and313 interface
+assertions. CLI Preview repeat/reapply/recipe/cached reconstruction matched all
+stage hashes. Released31's20-year continuation retains frozen hash
+`f4e260d19883e9dfd894c63c9ff8215646b023fdb25090d3795819e6f48d2fef`.
+
+Inspected outputs include the actual Unity camera map and labeled replay PNGs
+at raw176515,176815,176915 and177115 under
+`artifacts/history32/realm-o-natural-rise-fall`. All four replay leader/area
+portfolios match the ordinary run's corresponding25-year records. Culture-based
+colors deliberately persist through political breakup; borders and state names,
+not arbitrary palette changes, show the new governments. Coarse regional claims
+can still give some remote borders artificial-looking boundaries.
 
 Outstanding: early-era geographic spread and technology pacing remain too slow
 in these Earth continuations, modern northern-interior coverage is incomplete,
