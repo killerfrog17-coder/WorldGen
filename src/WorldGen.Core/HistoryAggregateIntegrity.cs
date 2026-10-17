@@ -14,7 +14,9 @@ namespace WorldGen.Core
                 // carry trusted closed-record bytes through that boundary.
                 foreach(var p in h.Polities)p.OwnedCanonicalRecord=null;
                 foreach(var d in h.Dynamics.States)d.OwnedCanonicalRecord=null;
-                foreach(var c in h.Dynamics.Campaigns)c.OwnedCanonicalRecord=null;
+                // Campaign pages detach and invalidate on mutable access/Fork.
+                // Public writers never trust their cached bytes; clearing raw
+                // shared frozen rows here would race a private snapshot hash.
                 foreach(var t in h.Towns)t.OwnedCanonicalRecord=null;
                 foreach(var c in a.Cities)c.OwnedCanonicalRecord=null;
                 foreach(var t in Society.Settlements)t.OwnedCanonicalRecord=null;

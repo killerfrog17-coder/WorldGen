@@ -75,6 +75,24 @@ public static class HistoryRemoteFarmerTests
         try{fieldSuccess=(bool)Call("TryRemoteFarmerFrontier",overfull,from,selected,100,0);}
         finally{queueField.SetValue(engine,null);}
         check(fieldSuccess&&overfull.History.Aggregates.Polities[owner].Remote<overRemote&&overfull.History.Aggregates.TotalPopulation==overTotal,"A physically viable free farm plot admits only actual debited households despite unrelated regional forager overpopulation.");
+        // Exercise the CALLER, not merely TryRemoteFarmerFrontier: an actual
+        // supplied farm account must remain eligible beside a regional pool.
+        var mixed=s.Copy();mixed.Years=trialYear;mixed.Timeline.Seconds=(long)trialYear*SimulationTime.Year;
+        mixed.History.Aggregates.Empires.Connections.Realms.Version=15;
+        long addition=Math.Max(0,1250-mixed.Population[from]);mixed.Population[from]+=addition;mixed.History.Aggregates.TotalPopulation+=addition;
+        Call("ChangeRegionalCultureCount",mixed,from,addition);
+        var precedingMixed=mixed.Copy();precedingMixed.History.Aggregates.Empires.Connections.Realms.Version=13;
+        var links=(int[][])typeof(Prehistory).GetField("realmLandRoutes",BindingFlags.NonPublic|BindingFlags.Instance)!.GetValue(engine)!;
+        int[] previousLinks=links[from];links[from]=new[]{Array.IndexOf(engine.Routes,selected)};
+        long mixedRemote=mixed.History.Aggregates.Polities[owner].Remote,mixedTotal=mixed.History.Aggregates.TotalPopulation;
+        try
+        {
+            foreach(var attempt in new[]{precedingMixed,mixed})
+            {sourceQueueStart();try{Call("AdvanceProvincialDispersal",attempt,from,100,attempt.History.Aggregates.Regions[from].Capacity);}finally{queueField.SetValue(engine,null);}}
+        }
+        finally{links[from]=previousLinks;}
+        check(precedingMixed.History.Aggregates.Polities[owner].Remote==mixedRemote,"The preceding mixed-pool caller really skips the independently supplied farmer account.");
+        check(mixed.History.Aggregates.Polities[owner].Remote<mixedRemote&&mixed.History.Aggregates.TotalPopulation==mixedTotal,"A mixed-pool region can dispatch real paid farmer households without creating people or sweeping its territory.");
         Console.WriteLine($"Remote migration: {moved} real people, {from}->{to}, {origin}->{target}, year{trialYear}.");
         void sourceQueueStart()=>queueField.SetValue(engine,new SimulationEventQueue(Array.Empty<SimulationEvent>()));
     }

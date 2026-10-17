@@ -201,6 +201,57 @@ they are not isolated CPU benchmarks. They do not contain the new leader,
 owned-byte-cache or all-Windows provider changes. No passing native claim or
 new selected player is implied by these source optimizations.
 
+## Source revisions14–15 / crop carriers and mixed population accounts
+
+Revision14 saves immutable local seed inventories for actual towns. An Iberian
+farm no longer has to use its culture's contemporary Chinese practice location.
+Actual departure seeds and local husbandry feed settlement planning, inheritance,
+production and delivered seed replacement. Unfunded teacher memory and an
+unfarmed supply port cannot breed a free local cultivar. A bounded14-only trait
+floor also avoids weakening the formerly active aggregate crop curve on fresh
+seed; literal10–13 numerical rules remain unchanged. The latitude-selection
+rate is an authored prior, not a claimed universal genetic rate.
+
+Genuine full-world seedlot save/cold continuation passes22 CP and24 larger-Earth
+checks, including12years versus5+7. The same saved13 input continued by frozen13,
+current14 and current15 remains exactly
+`fdba8ee3ca7a00241559d0c646d6dbb0adc4a6b94d56cfcd2e4a3b27657a1422`.
+The first complete M14 CP run ends172600,1048years after its optional maximum,
+hash `03969648e3e62a43f0619f451aa12f939ae8606a0e9ce3974db78c6c6467515f`,
+with a221,665,532-byte complete save. M14 Earth ends180500,1053years after maximum,
+hash `d79b1a4ac4ec852cd7597bedf1bdc4df512af5e93ec1d9411f8416897d67506d`.
+The critic still finds no European towns at the late Medieval milestone;
+increased population and more coastal colonies are not a continental pass.
+
+Revision15 corrects a separate caller exclusion. The Remote farmer departure
+was only attempted when the region's independent raw population was below125.
+The new bounded two-edge attempt can coexist with that population. Fifteen
+actual fixture checks include the preceding caller's negative case, the new
+paid-departure positive and unchanged world population. Exact contemporary
+Indian edges include two physically funded opportunities which still lose
+their deterministic probability rolls; two others genuinely lack live local
+service and must remain blocked. No claim that all four should migrate is made.
+
+### Campaign storage and field diagnosis
+
+All four aligned campaign/operation collections now share paged copy-on-access
+storage.137 pure and10 actual dense-world assertions cover old/new DataContract
+directions, literal canonical bytes, retained nested arrays, concurrent public
+verification, source isolation and cancellation. An old checkpoint13 executable
+reads a new complete F6 roundtrip and preserves its original history hash.
+Dense F6+100 still reproduces `93add43f84c56e5241d9c474a9e7d56538b654b069b898c6bc55e10ccf3801b4`;
+state-event allocations fall another39%,1.315→0.807GB per100years. Native speed
+acceptance is still pending and must not be inferred from that allocation result.
+
+The exact French example is not a peatland failure: the target is forest at
+49.461N, while the nearby departing cell is peatland. Direct factor experiments
+show unchanged crop outputs when water table/flood duration are altered alone.
+Two ordinary-forest factors constrain even a hypothetically locally adapted
+crop: removing those factors would move the target's quality.090489→.151777.
+That counterfactual is NOT an implemented free yield boost. Paid, bounded plot
+preparation is being designed separately; accepted terrain/ecoregions remain
+unchanged. See `HISTORY32_CROP_FIELD_AUDIT.md` for negative controls and sources.
+
 ## Reference and review method
 
 The owner's [Ollie Bye reference](https://www.youtube.com/watch?v=-6Wu0Q7x5D0)

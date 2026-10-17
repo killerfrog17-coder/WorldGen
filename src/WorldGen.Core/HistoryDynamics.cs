@@ -162,7 +162,7 @@ namespace WorldGen.Core
             var h=s.History;var a=h.Polities[relation.A];var b=h.Polities[relation.B];var la=CivicLeader(s,a.Id);var lb=CivicLeader(s,b.Id);
             var attacker=initiator>=0?(initiator==a.Id?a:b):la.Ambition*D.Sqrt(Math.Max(1,a.Army))>=lb.Ambition*D.Sqrt(Math.Max(1,b.Army))?a:b;var defender=attacker==a?b:a;
             var leader=CivicLeader(s,attacker.Id);var aim=forcedAim??CivicWarAim(s,attacker,defender,leader);var c=new HistoricalCampaign{Id=h.Dynamics.Campaigns.Length,A=relation.A,B=relation.B,AttackerId=attacker.Id,LeaderId=leader.Id,StartedYear=s.Years,LastActionYear=s.Years,Name="Campaign for "+s.Society.Settlements[defender.CapitalId].Name,Aim=aim,Objective=CivicWarObjective(aim)};
-            h.Dynamics.Campaigns=h.Dynamics.Campaigns.Concat(new[]{c}).ToArray();
+            h.Dynamics.Campaigns.Add(c);
             if(ModernHistory(s))RecordCivicRivalry(s,s.Society.Settlements[attacker.CapitalId],s.Society.Settlements[defender.CapitalId],c.Id,280);
             if(DelegatedHistory(s))c.Context=HistoricalCampaignContext(s,attacker,defender);
             HistoryEvent(s,"war",attacker.Name+" declares war on "+defender.Name+" over "+c.Objective.ToLowerInvariant()+".",s.Society.Settlements[attacker.CapitalId].Cell,attacker.CultureId,attacker.Id,defender.Id,category:ChronicleCategory.Politics);

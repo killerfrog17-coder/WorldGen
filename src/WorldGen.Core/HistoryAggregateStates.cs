@@ -168,10 +168,10 @@ namespace WorldGen.Core
             if(RevisedMilitaryHistory(s)){campaign.Aim=RevisedMilitaryAim(s,attacker,defender,front);campaign.Objective=CivicWarObjective(campaign.Aim);}
             if(RegionalAmbitionHistory(s)&&TerritorialAmbitionContains(s,attacker,front>=0?front:s.Society.Settlements[h.Polities[defender].CapitalId].Cell))
             {campaign.Objective=h.Aggregates.Empires.Connections.Ambitions.Governments[attacker].Description;campaign.Context="The court seeks "+campaign.Objective.ToLowerInvariant()+". This is an ambition, not recognized sovereignty or a guarantee of conquest; supply, resistance, finances and war exhaustion still constrain the campaign.";}
-            h.Dynamics.Campaigns=h.Dynamics.Campaigns.Concat(new[]{campaign}).ToArray();relation.WarSince=s.Years;relation.Trade=relation.Alliance=false;ScheduleAggregate(s,CampaignProcess,id);
+            h.Dynamics.Campaigns.Add(campaign);relation.WarSince=s.Years;relation.Trade=relation.Alliance=false;ScheduleAggregate(s,CampaignProcess,id);
             RegisterInternationalCampaign(s,attacker,defender,id);
-            if(ProvincialHistory(s))h.Aggregates.Provinces.Theaters=h.Aggregates.Provinces.Theaters.Concat(new[]{new HistoricalCampaignTheater{Cell=front}}).ToArray();
-            if(CommunityHistory(s))h.Aggregates.Communities.Campaigns=h.Aggregates.Communities.Campaigns.Concat(new[]{new HistoricalCampaignAdvance()}).ToArray();
+            if(ProvincialHistory(s))h.Aggregates.Provinces.Theaters.Add(new HistoricalCampaignTheater{Cell=front});
+            if(CommunityHistory(s))h.Aggregates.Communities.Campaigns.Add(new HistoricalCampaignAdvance());
             RegisterMilitaryOperation(s,id);
             HistoryEvent(s,"war",campaign.Name+" begins.",s.Society.Settlements[h.Polities[attacker].CapitalId].Cell,h.Polities[attacker].CultureId,attacker,defender,category:ChronicleCategory.Politics);
         }

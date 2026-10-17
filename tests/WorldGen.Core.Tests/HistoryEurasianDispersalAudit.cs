@@ -35,7 +35,7 @@ public static class HistoryEurasianDispersalAudit
             teacher[id]=(int)Call("DevelopmentRegionalTeacher",s,id);contacts[id]=(long)Call("ProvincialContactResidents",s,id,false);
             if(teacher[id]<0&&s.Population[id]+a.Living.Regions[id].SettledPopulation>=100&&a.Living.Regions[id].Exposure>=100)teacher[id]=a.Living.Regions[id].Teacher;
         }
-        var edges=new List<object>();var counts=new SortedDictionary<string,int>();
+        var edges=new List<object>();var remoteCandidates=new List<(int Route,int From,int To)>();var counts=new SortedDictionary<string,int>();
         void Count(string key){counts.TryGetValue(key,out int count);counts[key]=count+1;}
         for(int routeId=0;routeId<engine.Routes.Length;routeId++)
         {
@@ -68,6 +68,8 @@ public static class HistoryEurasianDispersalAudit
                     ?(long)Call("FarmFrontierRoom",s,to,arrival,probe,0L):0;
                 long currentRoom=Math.Max(legacyRoom,farmFieldRoom);
                 bool rawEligible=s.Population[from]>=125,quality=yield>=.12&&gate;
+                if(a.Empires.Connections.Realms.Version>=9&&sourceKind=="OwnerRemoteFarmer"&&targetOwner<0&&anonymous&&quality&&fields>=400
+                    &&Lon(arrival)>=25&&Lon(arrival)<90&&Lat(arrival)>=5)remoteCandidates.Add((routeId,from,to));
                 Count("Recipient."+sourceKind+"."+targetKind);
                 if(targetOwner<0&&quality)
                 {
@@ -92,15 +94,76 @@ public static class HistoryEurasianDispersalAudit
         }
         var births=h.Archive.Where(e=>e.Kind=="migrant-community"&&world.Landmass[e.Cell]==landmass).Select(e=>new{e.Id,e.Year,e.CultureId,Parent=h.Cultures[e.CultureId].ParentCultureId,e.Cell,Latitude=Lat(e.Cell),Longitude=Lon(e.Cell)}).ToArray();
         var frontiers=h.Archive.Where(e=>e.Kind=="migrant-frontier"&&world.Landmass[e.Cell]==landmass).Select(e=>new{e.Id,e.Year,e.CultureId,e.Cell,Latitude=Lat(e.Cell),Longitude=Lon(e.Cell),e.Text}).ToArray();
+        // Deliberately counterfactual dispatch only, not a physics alteration:
+        // invoke the existing helper with all its real gates on detached copies.
+        // Do this after the census, using separate engines so no trial cache can
+        // leak back into edge observations or into the published checkpoint.
+        var remoteTrials=new List<object>();
+        foreach(var candidate in remoteCandidates)
+        foreach(int trialIndex in new[]{0,1})
+        {
+            var branch=original.Copy();var trialEngine=new Prehistory(world);var trialA=branch.History.Aggregates;
+            object TrialCall(string name,params object[] values)=>typeof(Prehistory).GetMethod(name,BindingFlags.NonPublic|BindingFlags.Instance)!.Invoke(trialEngine,values)!;
+            TrialCall("PrepareAggregateEnvironment",branch);TrialCall("PrepareAggregateRelations",branch);
+            var route=trialEngine.Routes[candidate.Route];int cell=(int)TrialCall("RegionalContactCell",branch,route,candidate.From);
+            int raw=trialA.Cells[cell*5+1],cohort=raw>=0?trialA.PopulationCohort(raw):-1;
+            long remoteBefore=cohort>=0?trialA.Polities[cohort].Remote:0,targetBefore=branch.Population[candidate.To],totalBefore=trialA.TotalPopulation;
+            long courtBefore=cohort>=0?branch.History.Polities[cohort].Population:0;
+            int owner=HistoricalCells.Polity(branch,cell),target=(int)TrialCall("RegionalContactCell",branch,route,candidate.To);
+            int farmer=cohort>=0?branch.History.Polities[cohort].CultureId:-1;
+            var account=cohort>=0?trialA.Polities[cohort]:null;
+            var habitable=(double[])typeof(Prehistory).GetField("inhabitableArea",BindingFlags.NonPublic|BindingFlags.Instance)!.GetValue(trialEngine)!;
+            long local=account!=null&&account.RemoteAreaKm2>0?(long)(remoteBefore*Math.Min(1,habitable[cell]/account.RemoteAreaKm2)):0;
+            double yield=farmer>=0?(double)TrialCall("LivingCropLandscape",branch,farmer,target,false):0;
+            bool gate=farmer>=0&&(bool)TrialCall("InstitutionalRouteAllowed",branch,cell,target,farmer);
+            long fields=farmer>=0?(long)((long)TrialCall("ProvincialFarmPotential",branch,target,farmer)*D.Clamp(branch.Society.Cultures[farmer].Farming/600.0)):0;
+            long room=Math.Max(0,trialA.Regions[candidate.To].Capacity+Math.Min(500,fields)-targetBefore);
+            if(a.Empires.Connections.Realms.Version>=12&&farmer>=0)room=(long)TrialCall("FarmFrontierRoom",branch,candidate.To,target,farmer,room);
+            long planned=Math.Min(500,Math.Min(room,Math.Min(local/20,remoteBefore/100)));
+            int service=trialA.Empires.Territories.Sources[cell],rootCity=service;
+            bool live=owner>=0&&(bool)TrialCall("TerritorialNodeLive",branch,owner,service);
+            for(int depth=0;rootCity<=-2&&depth<8;depth++)rootCity=trialA.Empires.Territories.Posts[-rootCity-2].ParentSource;
+            bool rootValid=rootCity>=0&&rootCity<trialA.Cities.Length;
+            bool supported=rootValid&&trialA.Cities[rootCity].Supported,abandoned=rootValid&&trialA.Living.Cities[rootCity].AbandonedYear>=0;
+            long reserve=rootValid?branch.Society.Settlements[rootCity].FoodReserve:0,rootPopulation=rootValid?branch.Society.Settlements[rootCity].Population:0;
+            double transport=farmer>=0?HistoricalModernEffects.LandTransport(branch.History.Cultures[farmer],branch.Years):1;
+            double effort=rootValid&&farmer>=0?(double)TrialCall("LivingTravelKm",branch,branch.Society.Settlements[rootCity].Cell,cell,farmer)
+                +(double)TrialCall("LivingTravelKm",branch,cell,target,farmer):double.PositiveInfinity;
+            long food=double.IsFinite(effort)?HistoricalInlandSettlement.Provisions(planned,effort,transport)+planned/2:long.MaxValue;
+            long investment=double.IsFinite(effort)?HistoricalInlandSettlement.Investment(planned,effort,transport):long.MaxValue/2;
+            long treasury=owner>=0?branch.History.Polities[owner].Treasury:0;
+            double transmission=farmer>=0?(double)TrialCall("EnvironmentalTransmission",branch,cell,target,farmer,false):0;
+            double similarity=Math.Exp(-Math.Abs(trialA.Regions[candidate.From].MeanTenthsC-trialA.Regions[candidate.To].MeanTenthsC)/180.0
+                -Math.Abs(trialA.Regions[candidate.From].AridityMilli-trialA.Regions[candidate.To].AridityMilli)/1000.0);
+            double chance=.45*(.2+.8*similarity)*transmission,roll=(double)TrialCall("HistoryRoll","remote-farmer-departure-"+trialIndex,candidate.From,branch.Years);
+            string firstBlock=trialA.Regions[candidate.To].Culture>=0?"named recipient":HistoricalCells.Culture(branch,target)>=0?"recipient cell culture":HistoricalCells.Polity(branch,target)>=0?"owned recipient":
+                cohort!=owner?"owner/cohort mismatch":remoteBefore<250?"Remote below250":farmer<0||branch.Society.Cultures[farmer].Farming<250?"farmer practice below250":account.RemoteAreaKm2<=0?"Remote area":
+                !gate?"institutional route":yield<.12?"crop yield":local<250?"local Remote presence":planned<50?"planned migrants below50":!live?"non-live territorial service":
+                !rootValid?"invalid granary":!supported||abandoned?"unsupported/abandoned granary":!double.IsFinite(effort)?"travel effort":reserve<food+rootPopulation/2?"granary food":treasury<investment*2?"treasury":roll>=chance?"deterministic roll":"none";
+            bool accepted=(bool)TrialCall("TryRemoteFarmerFrontier",branch,candidate.From,route,100,trialIndex);
+            long remoteAfter=cohort>=0?trialA.Polities[cohort].Remote:0,moved=branch.Population[candidate.To]-targetBefore;
+            long courtAfter=cohort>=0?branch.History.Polities[cohort].Population:0;
+            if(remoteBefore-remoteAfter!=moved||courtBefore-courtAfter!=moved||totalBefore!=trialA.TotalPopulation)
+                throw new Exception("Counterfactual remote dispatch failed its actual debit/credit invariants.");
+            remoteTrials.Add(new{candidate.Route,candidate.From,candidate.To,SourceRaw=original.Population[candidate.From],Cohort=cohort,
+                Elapsed=100,Trial=trialIndex,Accepted=accepted,FirstBlock=firstBlock,Owner=owner,FarmerCulture=farmer,
+                SourceHabitableArea=habitable[cell],RemoteArea=account?.RemoteAreaKm2,LocalRemotePresence=local,ActualYield=yield,Gate=gate,ActualFields=fields,ActualRoom=room,PlannedMigrants=planned,
+                ServiceSource=service,ServiceLive=live,RootCity=rootCity,RootSupported=supported,RootAbandoned=abandoned,FoodReserve=reserve,RootPopulation=rootPopulation,
+                EffortKm=double.IsFinite(effort)?(double?)effort:null,FoodCost=food,Investment=investment,Treasury=treasury,Chance=chance,Roll=roll,
+                Moved=moved,RemoteBefore=remoteBefore,RemoteAfter=remoteAfter,TargetBefore=targetBefore,
+                TargetAfter=branch.Population[candidate.To],WorldTotalBefore=totalBefore,WorldTotalAfter=trialA.TotalPopulation,
+                Events=branch.History.Archive.Skip(original.History.Archive.Count).Select(e=>new{e.Kind,e.Text,e.Cell,e.CultureId}).ToArray()});
+        }
         if(original.ComputeHash()!=before)throw new Exception("Dispersal audit changed its published source.");
         string assembly=typeof(Prehistory).Assembly.Location;
         File.WriteAllText(output,JsonSerializer.Serialize(new{Source=Path.GetFullPath(source),Replay=replayYear>=0,Year=s.Years,Hash=before,Realm=a.Empires.Connections.Realms.Version,
-            CoreAssembly=assembly,CoreSha256=Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(assembly))),InspectedFirstStateLandmass=landmass,Counts=counts,Edges=edges,MigrantBirths=births,RemoteFrontierEvents=frontiers,
+            CoreAssembly=assembly,CoreSha256=Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(assembly))),InspectedFirstStateLandmass=landmass,Counts=counts,Edges=edges,MigrantBirths=births,RemoteFrontierEvents=frontiers,CounterfactualRemoteDispatch=remoteTrials,
             Notes=new[]{"Explicit offline directed-land-edge census; no physics or input-world changes. Source landmass is selected from the actual first court, not a required homeland.",
                 "TeacherOnly is a memory of farming knowledge, not actual farmer households or a debitable population account. OwnerRemoteFarmer is separate from the current regional raw departure pool.",
                 "CurrentRawAndRoom uses a50-person receiving-room screen; CurrentRawAndRoom25 uses the ordinary25-person minimum. Neither is a simulated migration: stochastic choice, residence time, crop practice and food conservation still matter.",
                 "Free-field and crop-quality tests are separate. LegacyCurrentRoom mirrors the older anonymous-only farm allowance; realm12+ CurrentRoom additionally calls the frozen engine's actual FarmFrontierRoom helper. OwnerRemoteFarmer remains a source proxy, not a full service/payment eligibility result.",
                 "RemoteFrontierEvents are actual paid frontier-departure archive records, not all new community births. MigrantBirths is the separate migrant-community event kind; do not conflate event counts or infer an unrecorded exact departure route.",
+                "CounterfactualRemoteDispatch manually calls the existing frozen helper with elapsed100 and both trial0/1 on separate detached copies. It bypasses ONLY ordinary caller scheduling, not the helper's actual owner/service/food/treasury/crop/random gates. FirstBlock decomposes pre14 conditions; false is not full eligibility, true has asserted Remote/recipient/country/world counter conservation.",
                 "Region contact counts apportion shared Remote ledgers. Do not sum repeated SourceRemote values or debit contact estimates."}
         },new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));
         Console.WriteLine($"Dispersal audit {s.Years}: {edges.Count} farmer/teacher source edges, {births.Length} birth events, preserved {before}");

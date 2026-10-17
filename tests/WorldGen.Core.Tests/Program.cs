@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--campaign-pages-only")){int count=0;HistoryCampaignCollectionTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" campaign-page assertions");return;}
+if(args.Contains("--campaign-pages-world")){int count=0,at=Array.IndexOf(args,"--campaign-pages-world");HistoryCampaignCollectionTests.World(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);},args.Length>at+2?args[at+2]:null);Console.WriteLine("PASS "+count+" actual campaign-page assertions");return;}
 if(args.Contains("--canonical-provider-only")){int count=0;HistoryCanonicalProviderTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" canonical-provider assertions");return;}
 if(args.Contains("--canonical-provider-benchmark")){HistoryCanonicalProviderTests.Benchmark(args[Array.IndexOf(args,"--canonical-provider-benchmark")+1]);return;}
 if(args.Contains("--leader-pages-only")){int count=0;HistoryLeaderCollectionTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" leader-page assertions");return;}
@@ -28,6 +30,7 @@ if(args.Contains("--realm-episodes-audit")){int at=Array.IndexOf(args,"--realm-e
 if(args.Contains("--capital-transitions-audit")){int at=Array.IndexOf(args,"--capital-transitions-audit");HistoryCapitalTransitionsAudit.Run(args[at+1],int.Parse(args[at+2]),args[at+3]);return;}
 if(args.Contains("--religion-evidence-audit")){int at=Array.IndexOf(args,"--religion-evidence-audit");HistoryReligionEvidenceAudit.Run(args[at+1],args[at+2]);return;}
 if(args.Contains("--agronomy-lineage-audit")){int at=Array.IndexOf(args,"--agronomy-lineage-audit");HistoryAgronomyLineageAudit.Run(args[at+1],args[at+2],args[at+3]);return;}
+if(args.Contains("--crop-field-audit")){int at=Array.IndexOf(args,"--crop-field-audit");HistoryCropFieldAudit.Run(args[at+1],args[at+2]);return;}
 if(args.Contains("--local-crop-selection-only")){int count=0;HistoryLocalCropSelectionTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" local crop-selection assertions");return;}
 if(args.Contains("--local-seedlots-only")){int count=0;HistoryLocalSeedlotTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" local seedlot assertions");return;}
 if(args.Contains("--local-seedlots-world")){int count=0;HistoryLocalSeedlotTests.World(args[Array.IndexOf(args,"--local-seedlots-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);},!args.Contains("--skip-cold"));Console.WriteLine("PASS "+count+" actual local seedlot assertions");return;}

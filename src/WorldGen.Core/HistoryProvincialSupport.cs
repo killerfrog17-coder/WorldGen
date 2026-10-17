@@ -10,8 +10,8 @@ namespace WorldGen.Core
         public long[] ClaimedAreaKm2=Array.Empty<long>();
         public long[] RegionalKnowledge=Array.Empty<long>();
         public HistoricalExchangeMemory[] Exchanges=Array.Empty<HistoricalExchangeMemory>();
-        public HistoricalCampaignTheater[] Theaters=Array.Empty<HistoricalCampaignTheater>();
-        public HistoricalProvincialSupport Copy()=>new HistoricalProvincialSupport{Centers=Centers,UpgradedYear=UpgradedYear,FarmPotential=(long[])FarmPotential.Clone(),ClaimedAreaKm2=(long[])ClaimedAreaKm2.Clone(),RegionalKnowledge=(long[])RegionalKnowledge.Clone(),Exchanges=Exchanges.Select(e=>e.Copy()).ToArray(),Theaters=Theaters.Select(t=>t.Copy()).ToArray()};
+        public HistoricalCampaignTheaterCollection Theaters=new HistoricalCampaignTheaterCollection();
+        public HistoricalProvincialSupport Copy()=>new HistoricalProvincialSupport{Centers=Centers,UpgradedYear=UpgradedYear,FarmPotential=(long[])FarmPotential.Clone(),ClaimedAreaKm2=(long[])ClaimedAreaKm2.Clone(),RegionalKnowledge=(long[])RegionalKnowledge.Clone(),Exchanges=Exchanges.Select(e=>e.Copy()).ToArray(),Theaters=Theaters.Copy()};
     }
     public sealed partial class Prehistory
     {
@@ -24,7 +24,7 @@ namespace WorldGen.Core
             for(int cell=0;cell<CellPatch.Length;cell++)
             {int raw=a.Cells[cell*5+1];if(raw<0||CellPatch[cell]<0)continue;int cohort=a.PopulationCohort(raw);support.FarmPotential[cohort]+=ProvincialFarmPotential(s,cell,s.History.Polities[cohort].CultureId);support.ClaimedAreaKm2[CellPatch[cell]]+=(long)Math.Round(inhabitableArea[cell]);}
             a.Provinces=support;
-            support.Theaters=s.History.Dynamics.Campaigns.Select(c=>new HistoricalCampaignTheater{Cell=s.Society.Settlements[s.History.Polities[c.AttackerId==c.A?c.B:c.A].CapitalId].Cell}).ToArray();
+            support.Theaters=s.History.Dynamics.Campaigns.ReadOnlyValues().Select(c=>new HistoricalCampaignTheater{Cell=s.Society.Settlements[s.History.Polities[c.AttackerId==c.A?c.B:c.A].CapitalId].Cell}).ToArray();
             foreach(var c in s.Society.Cultures)foreach(int peer in c.Contacts)OfferProvincialKnowledge(s,c.Id,peer,ProvincialKnowledge(s.History.Cultures[peer]),s.Years,false);
             for(int r=0;r<a.Regions.Length;r++){int teacher=DevelopmentRegionalTeacher(s,r);if(teacher>=0)support.RegionalKnowledge[r]=ProvincialKnowledge(s.History.Cultures[teacher]);}
             for(int r=0;r<a.Regions.Length;r++)RefreshProvincialRegionalCapacity(s,r);

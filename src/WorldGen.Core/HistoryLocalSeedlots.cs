@@ -70,6 +70,11 @@ namespace WorldGen.Core
             =>holder!=null?holder[group]?.Profile:s.History.Agriculture[culture].AdoptedYear[group]>0?s.History.Agriculture[culture].Cultivars?[group]:null;
         int LocalSeedPractice(PrehistoryState s,int culture,int group,HistoricalTownSeeds holder)
             =>holder!=null?holder[group]?.PracticeYears??0:s.History.Agriculture[culture].HusbandryYears?[group]??0;
+        int LocalSeedPracticeAt(PrehistoryState s,int culture,int group,HistoricalTownSeeds holder,int cell,bool carried)
+        {
+            int years=LocalSeedPractice(s,culture,group,holder);
+            return carried&&holder!=null?(int)Math.Round(years*HistoricalLandscapeEffects.LivelihoodContinuity(CropHabitat(s,holder.FieldCell),CropHabitat(s,holder.FieldCell),CropHabitat(s,cell))):years;
+        }
         double CarriedCropLandscape(PrehistoryState s,int culture,int cell,bool stored,int parent,int sourceCell=-1)
             =>LocalSeedlotHistory(s)?CommunitySeededCropLandscape(s,culture,cell,stored,LocalSeedHolder(s,culture,sourceCell>=0?sourceCell:cell,parent),true):LivingCropLandscape(s,culture,cell,stored);
         double CarriedPhysicalYield(PrehistoryState s,int culture,int cell,int parent,int sourceCell=-1)
@@ -86,7 +91,7 @@ namespace WorldGen.Core
         double CarriedCropSupport(PrehistoryState s,int culture,int cell,int parent)
         {if(!LocalSeedlotHistory(s))return AggregateCropSupport(s,culture,cell,false);var holder=LocalSeedHolder(s,culture,cell,parent);double best=0;for(int k=0;k<6;k++){var seed=LocalSeedProfile(s,culture,k,holder);if(seed!=null)best=Math.Max(best,CommunityTransferFit(s,cell,seed,HistoricalTechnologies.Has(s.History.Cultures[culture],HistoricalTechnology.CropRotation)));}return best;}
         int CarriedCropPractice(PrehistoryState s,int culture,int cell,int parent)
-        {var holder=LocalSeedHolder(s,culture,cell,parent);int best=0;for(int k=0;k<6;k++)best=Math.Max(best,LocalSeedPractice(s,culture,k,holder));return best;}
+        {var holder=LocalSeedHolder(s,culture,cell,parent);int best=0;for(int k=0;k<6;k++)best=Math.Max(best,LocalSeedPracticeAt(s,culture,k,holder,cell,true));return best;}
         void AdvanceLocalTownSeeds(PrehistoryState s,int town)
         {
             if(!LocalSeedlotHistory(s))return;var a=s.History.Aggregates;var t=s.Society.Settlements[town];var city=a.Cities[town];

@@ -94,7 +94,7 @@ namespace WorldGen.Core
                 double quality=D.Clamp(area/fraction);
                 if(HistoricalLandscapeEffects.EverWet(h))
                 {
-                    double husbandry=D.Clamp((LocalSeedlotHistory(s)?LocalSeedPractice(s,culture,k,localSeeds):crops.HusbandryYears?[k]??0)/15000.0);
+                    double husbandry=D.Clamp((LocalSeedlotHistory(s)?LocalSeedPracticeAt(s,culture,k,localSeeds,cell,carried):crops.HusbandryYears?[k]??0)/15000.0);
                     quality=Math.Max(quality,(managed?.35:(EnvironmentalHistory(s)?.20:.30)*husbandry)*HistoricalCropCatalog.LeachingPenalty(h,EnvironmentalHistory(s)?managed:true));
                 }
                 double preservation=storage?HistoricalHusbandryEffects.StoragePermille(k,cultivar,HistoricalTechnologies.Has(hc,HistoricalTechnology.Pottery))/1000.0*(.65+.35*rainfallSeason):1;

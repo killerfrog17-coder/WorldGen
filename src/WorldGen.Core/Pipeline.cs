@@ -94,6 +94,10 @@ namespace WorldGen.Core
             if(o is HistoricalRelationCollection relations){RelationCollectionBody(w,relations);return;}
             if(o is HistoricalRelationCampaigns campaigns){RelationCampaignCollectionBody(w,campaigns);return;}
             if(o is HistoricalLeaderCollection leaders){LeaderCollectionBody(w,leaders);return;}
+            if(o is HistoricalCampaignCollection wars){CampaignCollectionBody(w,wars);return;}
+            if(o is HistoricalCampaignTheaterCollection theaters){CampaignTheaterCollectionBody(w,theaters);return;}
+            if(o is HistoricalCampaignAdvanceCollection advances){CampaignAdvanceCollectionBody(w,advances);return;}
+            if(o is HistoricalMilitaryOperationCollection operations){MilitaryOperationCollectionBody(w,operations);return;}
             if(!literalAggregateRecords&&(o is Array?TryWriteWideHistoricalArray(w,o,t):TryWriteWideHistoricalRecord(w,o,t)))return;
             if(!literalAggregateRecords&&(o is Array?TryWriteOptionalHistoricalArray(w,o,t):TryWriteOptionalHistoricalRecord(w,o,t)))return;
             if(!literalAggregateRecords&&o is HistoricalLocalBag bag){w.Write("Count");Integer(w,bag.Count);w.Write("Items");Write(w,bag.Items);w.Write("Positions");Write(w,bag.Positions);return;}
@@ -361,7 +365,7 @@ namespace WorldGen.Core
             writer.Write("LengthM"); Integer(writer, edge.LengthM); writer.Write("TriangleA"); Integer(writer, edge.TriangleA); writer.Write("TriangleB"); Integer(writer, edge.TriangleB);
         }
         static void Double(BinaryWriter writer, double value) { double quantized = D.Q(value, 1e6); writer.Write(quantized == 0 ? 0.0 : quantized); }
-        static string TypeName(Type t) => TypeNames.GetOrAdd(t, type => type==typeof(HistoricalEventArchive)?TypeName(typeof(System.Collections.Generic.List<HistoricalEvent>)):type==typeof(HistoricalRelationCollection)?TypeName(typeof(HistoricalRelation[])):type==typeof(HistoricalRelationCampaigns)?TypeName(typeof(int[])):type==typeof(HistoricalLeaderCollection)?TypeName(typeof(HistoricalLeader[])):type.IsGenericType ? (type.GetGenericTypeDefinition().FullName ?? type.Name).Split('`')[0] + "<" + string.Join(",", type.GetGenericArguments().Select(TypeName)) + ">" : type.FullName ?? type.Name);
+        static string TypeName(Type t) => TypeNames.GetOrAdd(t, type => type==typeof(HistoricalEventArchive)?TypeName(typeof(System.Collections.Generic.List<HistoricalEvent>)):type==typeof(HistoricalRelationCollection)?TypeName(typeof(HistoricalRelation[])):type==typeof(HistoricalRelationCampaigns)?TypeName(typeof(int[])):type==typeof(HistoricalLeaderCollection)?TypeName(typeof(HistoricalLeader[])):type==typeof(HistoricalCampaignCollection)?TypeName(typeof(HistoricalCampaign[])):type==typeof(HistoricalCampaignTheaterCollection)?TypeName(typeof(HistoricalCampaignTheater[])):type==typeof(HistoricalCampaignAdvanceCollection)?TypeName(typeof(HistoricalCampaignAdvance[])):type==typeof(HistoricalMilitaryOperationCollection)?TypeName(typeof(HistoricalMilitaryOperation[])):type.IsGenericType ? (type.GetGenericTypeDefinition().FullName ?? type.Name).Split('`')[0] + "<" + string.Join(",", type.GetGenericArguments().Select(TypeName)) + ">" : type.FullName ?? type.Name);
     }
     public sealed class WorldPipeline
     {

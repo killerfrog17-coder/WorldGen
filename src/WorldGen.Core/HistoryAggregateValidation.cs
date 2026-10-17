@@ -22,7 +22,7 @@ namespace WorldGen.Core
             {
                 foreach(var local in a.Communities.Cities)Require(local!=null&&local.RulerId>=-1&&local.RulerId<h.Polities.Length&&local.SinceYear>=0&&local.SinceYear<=s.Years&&local.InclusionMilli>=0&&local.InclusionMilli<=1000,"local inclusion account");
                 foreach(var policy in a.Communities.Governments)Require(policy!=null&&policy.RepresentationMilli>=0&&policy.RepresentationMilli<=1000&&policy.CentralizationMilli>=0&&policy.CentralizationMilli<=1000&&policy.LastReformYear>=0&&policy.LastReformYear<=s.Years,"government policy account");
-                foreach(var campaign in a.Communities.Campaigns)Require(campaign!=null&&campaign.AttackerAreaKm2>=0&&campaign.DefenderAreaKm2>=0,"campaign area account");
+                foreach(var campaign in a.Communities.Campaigns.ReadOnlyValues())Require(campaign!=null&&campaign.AttackerAreaKm2>=0&&campaign.DefenderAreaKm2>=0,"campaign area account");
             }
             Require(a.Cells?.Length==CellPatch.Length*5&&a.TownAt?.Length==CellPatch.Length&&a.Successors!=null&&a.LeaderDigests!=null,"persistent geography");
             Require(h.CellPolity.Length==0&&h.CellReligion.Length==0&&h.CellMarket.Length==0&&h.CellStage.Length==0&&s.Society.CellCulture.Length==0&&h.Faith==null&&h.RegionalLearning==null,"retired dense working arrays");
@@ -33,7 +33,7 @@ namespace WorldGen.Core
             if(ProvincialHistory(s))
             {
                 Require(a.Provinces.Exchanges.Length==a.Cultures.Length&&a.Provinces.RegionalKnowledge.Length==a.Regions.Length,"exchange memory alignment");
-                Require(a.Provinces.Theaters.Length==h.Dynamics.Campaigns.Length&&a.Provinces.Theaters.All(t=>t.Cell>=0&&t.Cell<CellPatch.Length&&t.SupplyA>=-1&&t.SupplyA<a.Cities.Length&&t.SupplyB>=-1&&t.SupplyB<a.Cities.Length),"campaign theater alignment");
+                Require(a.Provinces.Theaters.Length==h.Dynamics.Campaigns.Length&&a.Provinces.Theaters.ReadOnlyValues().All(t=>t.Cell>=0&&t.Cell<CellPatch.Length&&t.SupplyA>=-1&&t.SupplyA<a.Cities.Length&&t.SupplyB>=-1&&t.SupplyB<a.Cities.Length),"campaign theater alignment");
                 foreach(var e in a.Provinces.Exchanges)Require(e.Peers.Length<=16&&e.Peers.Length==e.LastYear.Length&&e.Peers.Length==e.LastDirectYear.Length&&e.Peers.Length==e.Capabilities.Length&&e.Peers.All(p=>p>=0&&p<a.Cultures.Length)&&e.LastYear.All(y=>y<=s.Years),"bounded dated exchange offers");
             }
             if(LivingHistory(s))

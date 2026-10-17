@@ -8,8 +8,8 @@ namespace WorldGen.Core
     {
         public HistoricalLocalCommunity[] Cities=Array.Empty<HistoricalLocalCommunity>();
         public HistoricalGovernmentPolicy[] Governments=Array.Empty<HistoricalGovernmentPolicy>();
-        public HistoricalCampaignAdvance[] Campaigns=Array.Empty<HistoricalCampaignAdvance>();
-        public HistoricalCommunityDynamics Copy()=>new HistoricalCommunityDynamics{Cities=Cities.Select(c=>c.Copy()).ToArray(),Governments=Governments.Select(g=>g.Copy()).ToArray(),Campaigns=Campaigns.Select(c=>c.Copy()).ToArray()};
+        public HistoricalCampaignAdvanceCollection Campaigns=new HistoricalCampaignAdvanceCollection();
+        public HistoricalCommunityDynamics Copy()=>new HistoricalCommunityDynamics{Cities=Cities.Select(c=>c.Copy()).ToArray(),Governments=Governments.Select(g=>g.Copy()).ToArray(),Campaigns=Campaigns.Copy()};
     }
     [Serializable] public sealed class HistoricalLocalCommunity
     {
@@ -55,7 +55,7 @@ namespace WorldGen.Core
             a.Communities=new HistoricalCommunityDynamics{
                 Cities=s.Society.Settlements.Select(t=>new HistoricalLocalCommunity{RulerId=a.Resolve(t.PolityId,s.History),SinceYear=s.Years,InclusionMilli=400}).ToArray(),
                 Governments=s.History.Polities.Select(p=>new HistoricalGovernmentPolicy{LastReformYear=s.Years}).ToArray(),
-                Campaigns=s.History.Dynamics.Campaigns.Select(c=>new HistoricalCampaignAdvance()).ToArray()};
+                Campaigns=s.History.Dynamics.Campaigns.ReadOnlyValues().Select(c=>new HistoricalCampaignAdvance()).ToArray()};
             PrepareCommunityShores();
             s.Seal();return s;
         }

@@ -43,7 +43,7 @@ namespace WorldGen.Core
             foreach(var c in s.History.Aggregates.Cities)if(!LivingHistory(s)||s.History.Aggregates.Living.Cities[c.Id].AbandonedYear<0)Add(CityProcess,c.Id);
             foreach(var c in s.History.Aggregates.Cultures)Add(CultureProcess,c.Id);
             foreach(var p in s.History.Polities)if(p.EndedYear<0)Add(StateProcess,p.Id);
-            foreach(var c in s.History.Dynamics.Campaigns)if(c.EndedYear<0)Add(CampaignProcess,c.Id);
+            foreach(var c in s.History.Dynamics.Campaigns.ReadOnlyValues())if(c.EndedYear<0)Add(CampaignProcess,c.Id);
             foreach(var p in s.History.Polities)if(p.EndedYear>=0&&s.History.Aggregates.Polities[p.Id].Remote>0)Add(RemoteProcess,p.Id);
             t.Events=events.OrderBy(e=>e,Comparer<SimulationEvent>.Create(SimulationEventQueue.Compare)).ToArray();return t;
         }

@@ -1,10 +1,9 @@
 # Local seedlots: proposed bounded revision14 scope
 
-17 October 2026. Approved design; revision14 implementation and controlled
-fixtures are in progress, hidden behind its separate rule guard. The central
-marker is still owned by the coordinating agent; this is not longitudinal
-acceptance. Revision10 selection is a separate completed repair, documented
-in `HISTORY32_LOCAL_CROP_SELECTION.md`.
+17 October 2026. Approved revision14 implementation, enabled by its separate
+fresh/explicit-upgrade marker. Genuine cold/save controls are complete; this
+is not longitudinal acceptance. Revision10 selection is a separate completed
+repair, documented in `HISTORY32_LOCAL_CROP_SELECTION.md`.
 
 ## Actual causal gap
 
@@ -190,16 +189,40 @@ approximation to those systems, not a census or a calibrated genetic model.
 
 ## Implementation evidence and further revision14-only review
 
-The isolated seedlot build compiles with no warnings. Eleven pure assertions
+The isolated seedlot build compiles with no warnings. Fifteen pure assertions
 cover sparse lifetime IDs through `int.MaxValue`, immutable donor/public
 snapshots, independent town updates, insertion-order-independent canonical
 fingerprints, explicit fingerprint recomputation, serialization, branch/root
-isolation, and the literal preceding null-extension colonial hash.
+isolation, explicit corrupted-record fingerprint verification, fresh-seed
+aggregate floors across ninety crop/duration combinations, bounded fractional
+movement, and the literal preceding null-extension colonial hash. The separate
+revision10 suite still passes nine assertions including216 exact legacy cases.
 
-The F CP medieval fixture passes thirteen controlled mechanism assertions;
-the later G Earth suite passes sixteen including disconnected-market and
-teacher-only-memory negatives. Whole-world cold continuation is deliberately
-pending central revision14 enablement, rather than counted as passed.
+The F CP medieval fixture passes twenty-two genuine actual-world assertions;
+G Earth passes twenty-four. Both include full-world serialization and actual
+twelve-year continuation equal to a cold-loaded five-plus-seven-year split,
+source immutability, real source-town/daughter inheritance, viable supplied
+neighbor replacement, fresh global selection, local/remote independence,
+disconnected-market and teacher-only-memory negatives, zero-fit and
+zero-field controls, and material conservation. G additionally verifies the
+actual saved provisioned harbor2885 cannot breed imported seed without farms.
+
+The internally coherent immutable executable is
+`C:/Users/kille/Desktop/WorldGen/artifacts/history32/seedlots-cold14-bin/WorldGen.Core.Tests.dll`.
+Its actual constructor reports fresh realm revision14; Core SHA256 is
+`C0161ABA50BB616EE6A1DD175D60DE64F6BC08CB1C2F7378A94D45E2F77A5903`.
+This is not the separate invalid mid-campaign-model `candidate-m14-freeze`
+build, which failed an old-world initial hash and was not accepted.
+
+Exact preceding-rule control uses `checkpoint-l13-bin` and the same saved
+realm13 CP input `local-seedlots-old13-cp-medieval.world`, source hash
+`24e7dc9825d9c9f2c3c91a4600c31a2029d6aa9ffb472713e6a4078c94af5a6d`.
+Frozen13 and the above14 executable both produce after twelve years:
+`fdba8ee3ca7a00241559d0c646d6dbb0adc4a6b94d56cfcd2e4a3b27657a1422`.
+Evidence files `local-seedlots-frozen-old13-cp12.hash` and
+`local-seedlots-current-old13-cp12.hash` are under
+`D:/WorldGenBuildArtifacts/overnight-20261017/`. No expectations were
+regenerated to make the control pass.
 
 The real G Lifufi capital is town2395 at field163381. With its own actual
 occupied rural fields held fixed, fifty twenty-year practice steps change
@@ -209,6 +232,11 @@ unchanged. This is a controlled1000-year mechanism probe, not a historical
 replay. It is still below the actual.12 migration gate and does not establish
 that France can be settled. These numbers precede the separately approved
 revision14 rate/fresh-seed-floor correction below.
+
+After that correction, the same occupied Iberian control advances4000 to4375,
+daylength316 to352 and local landscape.101492 to.132516. It now exceeds.12
+at the actual occupied source field; this still does not make the distinct
+unoccupied French target viable or demonstrate an actual millennium replay.
 
 Review identified a fresh-seed regression in revision10's reused dense curve:
 preserving inherited strong traits protects old1450-yield seed, but a fresh

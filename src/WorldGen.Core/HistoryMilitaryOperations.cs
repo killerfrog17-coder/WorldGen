@@ -20,8 +20,8 @@ namespace WorldGen.Core
     {
         public int Version=1,SinceYear;
         public HistoricalMilitaryGovernment[] Governments=Array.Empty<HistoricalMilitaryGovernment>();
-        public HistoricalMilitaryOperation[] Campaigns=Array.Empty<HistoricalMilitaryOperation>();
-        public HistoricalMilitaryOperations Copy()=>new HistoricalMilitaryOperations{Version=Version,SinceYear=SinceYear,Governments=Governments.Select(x=>x.Copy()).ToArray(),Campaigns=Campaigns.Select(x=>x.Copy()).ToArray()};
+        public HistoricalMilitaryOperationCollection Campaigns=new HistoricalMilitaryOperationCollection();
+        public HistoricalMilitaryOperations Copy()=>new HistoricalMilitaryOperations{Version=Version,SinceYear=SinceYear,Governments=Governments.Select(x=>x.Copy()).ToArray(),Campaigns=Campaigns.Copy()};
     }
     public static class HistoricalMilitaryOperationEffects
     {
@@ -64,7 +64,7 @@ namespace WorldGen.Core
         {
             var c=s.History.Aggregates.Empires.Connections;if(c.Military!=null)return;
             c.Military=new HistoricalMilitaryOperations{SinceYear=s.Years,Governments=s.History.Polities.Select(_=>new HistoricalMilitaryGovernment()).ToArray(),
-                Campaigns=s.History.Dynamics.Campaigns.Select(campaign=>NewMilitaryOperation(s,campaign)).ToArray()};
+                Campaigns=s.History.Dynamics.Campaigns.ReadOnlyValues().Select(campaign=>NewMilitaryOperation(s,campaign)).ToArray()};
         }
         HistoricalMilitaryOperation NewMilitaryOperation(PrehistoryState s,HistoricalCampaign c)
             =>new HistoricalMilitaryOperation{PartyA=c.A,PartyB=c.B,OriginalCapitalA=s.Society.Settlements[s.History.Polities[c.A].CapitalId].Cell,OriginalCapitalB=s.Society.Settlements[s.History.Polities[c.B].CapitalId].Cell,Closed=c.EndedYear>=0};
@@ -78,7 +78,7 @@ namespace WorldGen.Core
             if(!RevisedMilitaryHistory(s))return;var m=s.History.Aggregates.Empires.Connections.Military;var c=s.History.Dynamics.Campaigns[id];
             if(id<m.Campaigns.Length)return;
             if(id!=m.Campaigns.Length)throw new InvalidOperationException("Military operation append alignment.");
-            m.Campaigns=m.Campaigns.Concat(new[]{NewMilitaryOperation(s,c)}).ToArray();
+            m.Campaigns.Add(NewMilitaryOperation(s,c));
         }
         void ReleaseMilitaryGovernment(PrehistoryState s,int polity)
         {
@@ -139,7 +139,7 @@ namespace WorldGen.Core
             var reserved=new long[m.Governments.Length];
             for(int i=0;i<m.Campaigns.Length;i++)
             {
-                var o=m.Campaigns[i];if(o==null||o.PartyA<0||o.PartyB<0||o.PartyA>=reserved.Length||o.PartyB>=reserved.Length||o.PartyA==o.PartyB||o.EpochA<0||o.EpochB<0||o.CommittedA<0||o.CommittedB<0||o.MarchDaysA<0||o.MarchDaysB<0||o.SiegeDays<0||o.IdleYears<0||o.CorePressureA<0||o.CorePressureB<0||o.VictoriesA<0||o.VictoriesB<0||o.OriginalCapitalA<0||o.OriginalCapitalA>=CellPatch.Length||o.OriginalCapitalB<0||o.OriginalCapitalB>=CellPatch.Length||o.SiegeTarget< -1||o.SiegeTarget>=CellPatch.Length||o.SiegeBesieger< -1||o.SiegeBesieger>=reserved.Length)throw new ArgumentException("Invalid military operation.");
+                var o=m.Campaigns.Peek(i);if(o==null||o.PartyA<0||o.PartyB<0||o.PartyA>=reserved.Length||o.PartyB>=reserved.Length||o.PartyA==o.PartyB||o.EpochA<0||o.EpochB<0||o.CommittedA<0||o.CommittedB<0||o.MarchDaysA<0||o.MarchDaysB<0||o.SiegeDays<0||o.IdleYears<0||o.CorePressureA<0||o.CorePressureB<0||o.VictoriesA<0||o.VictoriesB<0||o.OriginalCapitalA<0||o.OriginalCapitalA>=CellPatch.Length||o.OriginalCapitalB<0||o.OriginalCapitalB>=CellPatch.Length||o.SiegeTarget< -1||o.SiegeTarget>=CellPatch.Length||o.SiegeBesieger< -1||o.SiegeBesieger>=reserved.Length)throw new ArgumentException("Invalid military operation.");
                 if(o.Closed&&(o.CommittedA!=0||o.CommittedB!=0))throw new ArgumentException("Closed military commitment.");
                 if(o.EpochA==m.Governments[o.PartyA].MobilizationEpoch)reserved[o.PartyA]+=o.CommittedA;
                 if(o.EpochB==m.Governments[o.PartyB].MobilizationEpoch)reserved[o.PartyB]+=o.CommittedB;
