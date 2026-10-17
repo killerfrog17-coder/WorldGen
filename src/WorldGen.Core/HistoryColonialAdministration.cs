@@ -28,6 +28,7 @@ namespace WorldGen.Core
                 if(owner>=0&&h.Polities[owner].CultureId==culture&&DiffusionShore(route.CellA)&&TerritorialNodeLive(s,owner,harborSource)){source=harborSource;polity=owner;}
             }
             if(polity<0)return;var p=h.Polities[polity];var government=a.Empires.Governments[polity];var finances=a.Polities[polity];
+            if(RevisedRealmHistory(s)&&(!RevisedMaritimeDeparture(s,polity,route.CellA)||!RevisedMaritimeReach(s,polity,route,source)))return;
             if(GeographicHistory(s)&&(!organized||polity!=expectedPolity||!HistoricalSeaVentureEffects.CanColonize(a.Empires.Connections.Geography.Governments[polity].Grade[route.B],HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years)>=.2,route.DistanceM)))return;
             int provisionPort=-1;long provisions=0;
             if(LivingWorldHistory(s)&&!MaritimeCharterLogistics(s,polity,route,source,out provisionPort,out provisions))return;

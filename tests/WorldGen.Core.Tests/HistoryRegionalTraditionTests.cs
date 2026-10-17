@@ -43,7 +43,9 @@ public static class HistoryRegionalTraditionTests
         check(WorldEraView.Of(s)==3&&WorldEraView.FirstYears(s)[3]==500,"The first sustained proto-center supplies the observer's Neolithic milestone.");
         check(SimulationClockView.EraRate(WorldEraView.Of(s))==100d*SimulationTime.Year,"The qualified Neolithic transition selects 100 years per second.");
         s.History.Cultures[0].Technology[(int)HistoricalTechnology.Bronze]=401;
-        check(WorldEraView.FirstYears(s)[4]==500,"An earlier craft cannot date the observer's urban eras before its first proto-center.");
+        check(WorldEraView.FirstYears(s)[4]==-1&&WorldEraView.Of(s)==3,"A metalworking craft without a state does not end the observer's Neolithic.");
+        s.History.Polities=new[]{new HistoricalPolity{FoundedYear=600}};
+        check(WorldEraView.Of(s)==4&&WorldEraView.FirstYears(s)[4]==600,"First state institutions, not first bronze craft, supply the Bronze boundary.");
         s.History.RegionalTraditions=null;
         check(WorldEraView.FirstYears(s)[3]==300,"Legacy saves retain their old cultivation-based milestone.");
     }

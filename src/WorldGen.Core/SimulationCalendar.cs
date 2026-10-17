@@ -30,6 +30,10 @@ namespace WorldGen.Core
     public sealed class SimulationEventQueue
     {
         readonly List<SimulationEvent> heap=new List<SimulationEvent>();
+        readonly Dictionary<SimulationEvent,int> positions=new Dictionary<SimulationEvent,int>();
+        readonly Dictionary<long,SimulationEvent> actors=new Dictionary<long,SimulationEvent>();
+        static long ActorKey(int process,int entity)=>((long)process<<32)|(uint)entity;
+        void Put(int at,SimulationEvent e){heap[at]=e;positions[e]=at;}
         public static int Compare(SimulationEvent a,SimulationEvent b)
         {int c=a.Due.CompareTo(b.Due);if(c!=0)return c;c=a.Process.CompareTo(b.Process);if(c!=0)return c;c=a.Entity.CompareTo(b.Entity);return c!=0?c:a.Ticket.CompareTo(b.Ticket);}
         public SimulationEventQueue(IEnumerable<SimulationEvent> events){foreach(var e in events)Push(e.Copy());}
@@ -38,12 +42,22 @@ namespace WorldGen.Core
         public void Push(SimulationEvent e)
         {
             if(e==null||e.Due<0||e.Process<0||e.Entity< -1||e.Ticket<0)throw new ArgumentException("Invalid scheduled event.");
-            e=e.Copy();int at=heap.Count;heap.Add(e);while(at>0){int parent=(at-1)/2;if(Compare(heap[parent],e)<=0)break;heap[at]=heap[parent];at=parent;}heap[at]=e;
+            e=e.Copy();actors[ActorKey(e.Process,e.Entity)]=e;int at=heap.Count;heap.Add(e);while(at>0){int parent=(at-1)/2;if(Compare(heap[parent],e)<=0)break;Put(at,heap[parent]);at=parent;}Put(at,e);
         }
         public SimulationEvent Pop()
         {
             if(heap.Count==0)throw new InvalidOperationException("No scheduled event.");var result=heap[0];var last=heap[heap.Count-1];heap.RemoveAt(heap.Count-1);
-            if(heap.Count>0){int at=0;while(at*2+1<heap.Count){int child=at*2+1;if(child+1<heap.Count&&Compare(heap[child+1],heap[child])<0)child++;if(Compare(last,heap[child])<=0)break;heap[at]=heap[child];at=child;}heap[at]=last;}return result;
+            positions.Remove(result);long key=ActorKey(result.Process,result.Entity);if(actors.TryGetValue(key,out var actor)&&ReferenceEquals(actor,result))actors.Remove(key);
+            if(heap.Count>0){int at=0;while(at*2+1<heap.Count){int child=at*2+1;if(child+1<heap.Count&&Compare(heap[child+1],heap[child])<0)child++;if(Compare(last,heap[child])<=0)break;Put(at,heap[child]);at=child;}Put(at,last);}return result;
+        }
+        // One outstanding event per actor in the aggregate calendar. Earlier
+        // deliveries move that existing event in O(log n), retaining its ticket.
+        public bool TryMoveEarlier(int process,int entity,long due)
+        {
+            if(due<0)throw new ArgumentOutOfRangeException(nameof(due));
+            if(!actors.TryGetValue(ActorKey(process,entity),out var e)||e.Due<=due)return false;
+            int at=positions[e];e.Due=due;
+            while(at>0){int parent=(at-1)/2;if(Compare(heap[parent],e)<=0)break;Put(at,heap[parent]);at=parent;}Put(at,e);return true;
         }
         public SimulationEvent[] Ordered()=>heap.OrderBy(e=>e,Comparer<SimulationEvent>.Create(Compare)).Select(e=>e.Copy()).ToArray();
         // Counter-derived timing windows: scheduling frequency does not change

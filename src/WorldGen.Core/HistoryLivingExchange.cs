@@ -20,6 +20,7 @@ namespace WorldGen.Core
                 if(!InstitutionalRouteAllowed(s,from,to,first))return;
             }
             if(EnvironmentalHistory(s)&&!EnvironmentalDirectContact(s,first,second,firstCell,secondCell))return;
+            if(ReligiousNetworkHistory(s))RecordReligiousContact(s,first,second,firstCell,secondCell);
             foreach(var pair in new[]{(first,second),(second,first)})
             {var c=s.Society.Cultures[pair.Item1];if(!c.Contacts.Contains(pair.Item2))c.Contacts=c.Contacts.Concat(new[]{pair.Item2}).TakeLast(16).ToArray();if(ProvincialHistory(s))OfferProvincialKnowledge(s,pair.Item1,pair.Item2,ProvincialKnowledge(s.History.Cultures[pair.Item2]),s.Years,true);}
             ShareCoastCharts(s,first,second);

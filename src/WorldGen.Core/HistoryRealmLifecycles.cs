@@ -10,7 +10,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalRealmLifecycles
     {
-        public int Version=1,SinceYear;
+        public int Version=2,SinceYear;
         [System.Runtime.Serialization.OptionalField] public HistoricalRealmClaimRoutes ClaimRoutes;
         public HistoricalRealmAccount[] Governments=Array.Empty<HistoricalRealmAccount>();
         public HistoricalRealmLifecycles Copy()=>new HistoricalRealmLifecycles{Version=Version,SinceYear=SinceYear,ClaimRoutes=ClaimRoutes?.Copy(),Governments=Governments.Select(g=>g.Copy()).ToArray()};
@@ -39,11 +39,12 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         static bool RealmHistory(PrehistoryState s)=>s?.History?.Aggregates?.Empires?.Connections?.Realms!=null;
+        static bool RevisedRealmHistory(PrehistoryState s)=>s?.History?.Aggregates?.Empires?.Connections?.Realms?.Version>=2;
         public PrehistoryState UpgradeRealmLifecycles(PrehistoryState source)
         {
             Validate(source);if(!LivingWorldHistory(source))throw new ArgumentException("Realm lifecycles require history32.");
-            if(RealmHistory(source)&&source.History.Aggregates.Empires.Connections.Realms.ClaimRoutes?.SourceHeads!=null)return source;
-            var s=source.Copy();InitializeRealmLifecycles(s);InitializeRealmClaimRoutes(s);s.Seal();return s;
+            if(RevisedRealmHistory(source)&&source.History.Aggregates.Empires.Connections.Realms.ClaimRoutes?.SourceHeads!=null&&source.History.Aggregates.Empires.Connections.Religion!=null)return source;
+            var s=source.Copy();InitializeRealmLifecycles(s);InitializeRealmClaimRoutes(s);s.History.Aggregates.Empires.Connections.Realms.Version=2;InitializeReligiousNetworks(s);s.Seal();return s;
         }
         void InitializeRealmLifecycles(PrehistoryState s)
         {
@@ -58,6 +59,7 @@ namespace WorldGen.Core
             InitializeRealmClaimRoutes(s);
             foreach(var title in h.Aggregates.Empires.Connections.Titles)
             {int owner=h.Aggregates.Resolve(title.Holder,h);if(owner>=0)ChangeRealmTitleAccount(s,owner,title.AreaKm2,1);}
+            InitializeReligiousNetworks(s);
         }
         void AppendRealmGovernment(PrehistoryState s,int predecessor)
         {
@@ -155,7 +157,9 @@ namespace WorldGen.Core
         void ValidateRealmLifecycles(PrehistoryState s)
         {
             var r=s.History.Aggregates.Empires.Connections.Realms;if(r==null)return;
-            if(!LivingWorldHistory(s)||r.Version!=1||r.SinceYear<0||r.SinceYear>s.Years||r.Governments?.Length!=s.History.Polities.Length)throw new ArgumentException("Invalid realm lifecycle extension.");
+            if(!LivingWorldHistory(s)||r.Version<1||r.Version>2||r.SinceYear<0||r.SinceYear>s.Years||r.Governments?.Length!=s.History.Polities.Length)throw new ArgumentException("Invalid realm lifecycle extension.");
+            if(r.Version>=2&&s.History.Aggregates.Empires.Connections.Religion==null)throw new ArgumentException("Revised realm institutions require their saved religious communities.");
+            ValidateReligiousNetworks(s);
             foreach(var g in r.Governments)if(g==null||g.FoundedYear<0||g.FoundedYear>s.Years||g.RegimeSince<g.FoundedYear||g.RegimeSince>s.Years||g.CrisisUntil<0||g.CrisisUntil>s.Years+100||g.CrisisSeverity<0||g.CrisisSeverity>1000||g.RegimeChanges<0||g.RegionalSeparations<0||g.RecognizedAreaKm2<0||g.RecognitionUpkeep<0||g.RecognitionCursor<0)throw new ArgumentException("Invalid realm continuity/crisis account.");
             var areas=new long[r.Governments.Length];var costs=new long[areas.Length];
             foreach(var title in s.History.Aggregates.Empires.Connections.Titles)

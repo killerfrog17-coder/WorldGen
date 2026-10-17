@@ -1,6 +1,11 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--religion-networks-review")){int at=Array.IndexOf(args,"--religion-networks-review");HistoryReligiousNetworkTests.Review(args[at+1],args[at+2]);return;}
+if(args.Contains("--religion-networks-only")){int count=0;HistoryReligiousNetworkTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" religious-network assertions");return;}
+if(args.Contains("--religion-networks-world")){int count=0;HistoryReligiousNetworkTests.World(args[Array.IndexOf(args,"--religion-networks-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world religious-network assertions");return;}
+if(args.Contains("--maritime-control-only")){int count=0;HistoryMaritimeControlTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" maritime-control assertions");return;}
+if(args.Contains("--maritime-control-world")){int count=0;HistoryMaritimeControlTests.World(args[Array.IndexOf(args,"--maritime-control-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world maritime-control assertions");return;}
 if(args.Contains("--realms-only")){int count=0;HistoryRealmLifecycleTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" realm assertions");return;}
 if(args.Contains("--realms-upgrade")){int at=Array.IndexOf(args,"--realms-upgrade");if(File.Exists(args[at+2]))throw new Exception("Refusing to overwrite a world.");var w=WorldFile.Read(File.ReadAllBytes(args[at+1]));w.Prehistory=new Prehistory(w).UpgradeRealmLifecycles(w.Prehistory);File.WriteAllBytes(args[at+2],WorldFile.Write(w));Console.WriteLine(w.Prehistory.Hash);return;}
 if(args.Contains("--realms-world")){HistoryRealmLifecycleTests.World(args[Array.IndexOf(args,"--realms-world")+1]);return;}

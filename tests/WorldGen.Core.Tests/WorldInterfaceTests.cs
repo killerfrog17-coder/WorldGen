@@ -13,6 +13,7 @@ public static class WorldInterfaceTests
             new[]{HistoricalTechnology.Printing,HistoricalTechnology.ScientificMethod,HistoricalTechnology.OceanNavigation,HistoricalTechnology.CropRotation},new[]{HistoricalTechnology.SteamPower,HistoricalTechnology.IndustrialMetallurgy},new[]{HistoricalTechnology.Electricity,HistoricalTechnology.CombustionEngines,HistoricalTechnology.GermTheory,HistoricalTechnology.Sanitation},new[]{HistoricalTechnology.Computing,HistoricalTechnology.Telecommunications,HistoricalTechnology.Electronics}};
         for(int i=0;i<milestones.Length;i++)
         {
+            if(i==1)state.History.Polities=new[]{new HistoricalPolity{FoundedYear=100}};
             foreach(var technology in milestones[i])state.History.Cultures[0].Technology[(int)technology]=100+i;
             string before=WorldJson.Write(state);
             check(WorldEraView.Of(state)==i+3&&WorldEraView.Name(i+3).Length>0,"Era follows a coherent adopted package: "+WorldEraView.Name(i+3));
@@ -26,7 +27,11 @@ public static class WorldInterfaceTests
         isolated.Technology[(int)HistoricalTechnology.Radio]=1;isolated.Technology[(int)HistoricalTechnology.Railways]=1;
         check(WorldEraView.CultureEra(isolated)<8,"An isolated borrowed radio or railway is not an industrial or modern production system");
         var dates=WorldEraView.FirstYears(state);
-        check(Enumerable.Range(3,8).All(era=>dates[era]==(era==5?0:99+era-3)),"Historical era dates use the same complete package as the live labels");
+        check(Enumerable.Range(3,8).All(era=>dates[era]==(era==5?100:99+era-3)),"Historical era dates use first states for Bronze and coherent later packages");
+        var firstCourt=new PrehistoryState{History=new HistoryState{Polities=new[]{new HistoricalPolity{FoundedYear=123456,EndedYear=123500}}}};
+        check(WorldEraView.Of(firstCourt)==4&&WorldEraView.FirstYears(firstCourt)[4]==123456,"The first recorded state begins Bronze even without bronze technology, and collapse does not reset it");
+        var oralSailors=new PrehistoryState{History=new HistoryState{Cultures=new[]{new HistoricalCulture{Technology=new int[39]}}}};oralSailors.History.Cultures[0].Technology[(int)HistoricalTechnology.OceanNavigation]=1;
+        check(WorldEraView.Of(oralSailors)==2&&WorldEraView.FirstYears(oralSailors)[4]==-1,"Oral ocean wayfinding alone is not the first state or a world Bronze milestone");
         foreach(int technology in Enumerable.Range(0,37))foreach(int level in Enumerable.Range(1,7))
             check(HistoricalTechnicalGraph.Cost(technology,level+1,Prehistory.ResearchPacingHistoryVersion)>HistoricalTechnicalGraph.Cost(technology,level,Prehistory.ResearchPacingHistoryVersion),"Research cost still increases with level: "+technology+" / "+level);
         check(HistoricalTechnicalGraph.Cost(9,1,Prehistory.ResearchPacingHistoryVersion)>HistoricalTechnicalGraph.Cost(9,1,Prehistory.TerritorialHistoryVersion)&&HistoricalTechnicalGraph.Cost(7,1,Prehistory.ResearchPacingHistoryVersion)<HistoricalTechnicalGraph.Cost(7,1,Prehistory.TerritorialHistoryVersion),"Versioned pacing distinguishes bronze adoption from the initial iron-production breakthrough");
@@ -52,7 +57,7 @@ public static class WorldInterfaceTests
         autoState.History.RegionalTraditions.FirstProtoYear=120000;
         AutoSpeed(100,"First embryonic civilization slows Auto to100");
         autoState.History.Polities=new[]{new HistoricalPolity{EndedYear=130000}};
-        AutoSpeed(10,"First recorded state slows Auto to10 even after its collapse");
+        AutoSpeed(5,"First recorded state enters the Bronze observer era and its5 years/s Auto preset even after collapse");
         double[] eraSpeeds={5,2,2,2,1,1,1};
         for(int era=4;era<=10;era++)check(SimulationClockView.AutoRate(autoState,era)==eraSpeeds[era-4]*SimulationTime.Year,"Exact Auto rate for "+WorldEraView.Name(era));
         pace.SetRate(50d*SimulationTime.Year);pace.World(autoState,10);

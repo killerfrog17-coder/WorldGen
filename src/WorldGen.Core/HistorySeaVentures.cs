@@ -18,7 +18,13 @@ namespace WorldGen.Core
         void ScheduleSeaMissions(PrehistoryState s,int polity)
         {
             var map=s.History.Aggregates.Empires.Connections.Geography.Governments[polity];
-            if(map.ScheduledDue>0||map.Missions.Length==0)return;
+            if(map.Missions.Length==0)return;
+            if(map.ScheduledDue>0)
+            {
+                long earliest=map.Missions.Min(m=>m.Due);
+                if(RevisedRealmHistory(s)&&earliest<map.ScheduledDue&&aggregateQueue.TryMoveEarlier(SeaMissionProcess,polity,earliest))map.ScheduledDue=earliest;
+                return;
+            }
             map.ScheduledDue=map.Missions.Min(m=>m.Due);ScheduleAggregate(s,SeaMissionProcess,polity,map.ScheduledDue);
         }
         void PlanSeaVentures(PrehistoryState s,int polity)
@@ -28,6 +34,7 @@ namespace WorldGen.Core
             if(p.EndedYear>=0)return;
             if(p.Cohesion<(RealmHistory(s)?HistoricalRealmPoliticalEffects.FleetCohesionFloor(RealmBureaucracy(s,polity)):500)){SeaVentureObserver?.Invoke(polity,"court-cohesion");return;}
             if(nav<.2){SeaVentureObserver?.Invoke(polity,"navigation-not-deployed");return;}
+            if(RevisedRealmHistory(s)&&!RevisedMaritimeAdministration(s,polity)){SeaVentureObserver?.Invoke(polity,"shipping-administration");return;}
             if(p.Treasury<2500||a.Polities[polity].Receipts<=a.Polities[polity].ServiceCost){SeaVentureObserver?.Invoke(polity,"court-finances");return;}
             int capacity=HistoricalSeaVentureEffects.Fleet(a.Polities[polity].Urban,a.Polities[polity].Receipts-a.Polities[polity].ServiceCost,p.Exhaustion);
             if(capacity<=map.Missions.Count(m=>m.Kind!=HistoricalSeaMission.Report)){SeaVentureObserver?.Invoke(polity,"fleet-capacity");return;}
@@ -127,7 +134,7 @@ namespace WorldGen.Core
             foreach(var mission in completed)
             {
                 if(mission.Kind==HistoricalSeaMission.Report)
-                {map.Record(mission.Region,mission.Grade,mission.ReportedYear,mission.Opportunity,mission.Host,mission.Target);continue;}
+                {bool improved=map.Record(mission.Region,mission.Grade,mission.ReportedYear,mission.Opportunity,mission.Host,mission.Target);if(improved&&RevisedRealmHistory(s))(map.Sharing??(map.Sharing=new HistoricalGeographicSharing())).RecentRegion=mission.Region;continue;}
                 var p=h.Polities[polity];var hc=h.Cultures[p.CultureId];
                 if(HistoricalCells.Polity(s,mission.Source)!=polity){map.FailedVoyages++;continue;}
                 // Better practical navigation reduces failed searches, not the
@@ -164,6 +171,7 @@ namespace WorldGen.Core
             }
             // Active routes can support several subsequent voyages within years.
             // No additional 12/40-year founding lottery after a paid arrival.
+            if(RevisedRealmHistory(s))ShareGeographicReports(s,polity);
             PlanSeaVentures(s,polity);ScheduleSeaMissions(s,polity);
         }
         void RegisterPaidSeaContact(PrehistoryState s,int polity,int source,int target)
@@ -177,6 +185,7 @@ namespace WorldGen.Core
         }
         void ShareGeographicReports(PrehistoryState s,int polity)
         {
+            if(RevisedRealmHistory(s)){ShareRevisedGeographicReports(s,polity);return;}
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var map=a.Empires.Connections.Geography.Governments[polity];
             if(map.Places.Count==0)return;var contacts=s.Society.Cultures[p.CultureId].Contacts;if(contacts.Length==0)return;
             int start=(int)(HistoryRoll("geographic-trade-partner",polity,s.Years)*contacts.Length);

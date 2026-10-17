@@ -90,6 +90,7 @@ namespace WorldGen.Core
         {
             if(coastal!=null?!ValidCoastalFarmPlan(s,culture,cell,parent,coastal):provisioned==null?!CanFoundLivingTown(s,culture,cell,parent):!ValidProvisionedPortPlan(s,culture,cell,parent,provisioned))return;
             var h=s.History;var a=h.Aggregates;var c=s.Society.Cultures[culture];int patch=CellPatch[cell],id=s.Society.Settlements.Length;
+            int previousFaith=ReligiousNetworkHistory(s)&&parent>=0?HistoricalCells.Religion(s,cell):-1;long previousResidents=ReligiousNetworkHistory(s)&&parent>=0?RuralCellPopulation(s,cell):0;
             int ruralSource=ProvincialHistory(s)&&parent<0&&s.Population[patch]<800?HistoricalCells.Polity(s,cell):-1;
             long available=parent>=0?(LivingWorldHistory(s)?LivingFounderAvailability(s,parent):a.Cities[parent].Rural):ruralSource>=0?a.Polities[ruralSource].Remote:s.Population[patch];
             long founders=Math.Min(250,available/12),rural=Math.Min(available/3,Math.Max(800,founders*8));
@@ -143,6 +144,7 @@ namespace WorldGen.Core
             foreach(int neighbor in city.Neighbors)LinkLivingTowns(s,id,neighbor);
             var ca=a.Cultures[culture];ca.Cities.Add(id);ca.CityCount=ca.Cities.Count;ca.Urban+=founders;ca.Rural+=rural;ca.SupportedUrban+=founders;ca.SupportedCities++;ca.FoodCapacity+=urbanCapacity;ca.LargestCity=Math.Max(ca.LargestCity,founders);a.TotalUrban+=founders;
             SetAggregateLayer(s,cell,0,culture);SetAggregateLayer(s,cell,2,h.Cultures[culture].ReligionId);SetAggregateLayer(s,cell,3,id);SetAggregateLayer(s,cell,4,2);ScheduleAggregate(s,CityProcess,id);
+            if(ReligiousNetworkHistory(s)&&parent>=0)InheritReligiousHouseholds(s,cell,s.Society.Settlements[parent].Cell,previousFaith,previousResidents);
             int host=HistoricalCells.Polity(s,cell);
             if(host<0&&fundingPolity>=0){ClaimAggregatePolity(s,cell,fundingPolity);host=fundingPolity;}
             if(host>=0)AssignAggregateTown(s,id,host);

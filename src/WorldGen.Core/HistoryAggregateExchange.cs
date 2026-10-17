@@ -106,6 +106,7 @@ namespace WorldGen.Core
         }
         void AdvanceAggregateFaith(PrehistoryState s,int culture,int contact,int elapsed)
         {
+            if(ReligiousNetworkHistory(s)){AdvanceReligiousNetworks(s,culture,contact,elapsed);return;}
             var h=s.History;var hc=h.Cultures[culture];var c=s.Society.Cultures[culture];var a=h.Aggregates.Cultures[culture];var faith=h.Religions[hc.ReligionId];
             if(a.CityCount>=2&&a.Urban>=5000&&faith.Reach==ReligiousReach.Local)faith.Reach=ReligiousReach.Portable;
             if(HistoricalTechnologies.Has(hc,HistoricalTechnology.Writing)&&a.Urban>=20000&&HistoryRoll("aggregate-portable-teaching",culture,s.Years)<.02)faith.Reach=ReligiousReach.Missionary;

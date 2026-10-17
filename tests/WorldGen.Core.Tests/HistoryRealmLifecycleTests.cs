@@ -49,7 +49,8 @@ public static class HistoryRealmLifecycleTests
         var w=WorldFile.Read(File.ReadAllBytes(path));var e=new Prehistory(w);var source=w.Prehistory;string original=source.Hash;
         var s=e.UpgradeRealmLifecycles(source);e.Validate(s);int count=0;
         void Check(bool ok,string message){count++;if(!ok)throw new Exception(message);}
-        Check(source.History.Aggregates.Empires.Connections.Realms==null,"Source retains old rules.");
+        Check((source.History.Aggregates.Empires.Connections.Realms?.Version??0)<2&&source.History.Aggregates.Empires.Connections.Religion==null,"Source retains its preceding realm/religion rules.");
+        Check(s.History.Aggregates.Empires.Connections.Realms.Version==2&&s.History.Aggregates.Empires.Connections.Religion!=null,"Explicit upgrade installs revision2 without rewriting the past.");
         Check(s.History.Aggregates.TotalPopulation==source.History.Aggregates.TotalPopulation,"Upgrade changes no population.");
         Check(ReferenceEquals(e.UpgradeRealmLifecycles(s),s),"Upgrade is idempotent.");
         Check(Prehistory.CanUpgradeHistory(source)&&!Prehistory.CanUpgradeHistory(s),"Existing32 worlds expose the explicit update-rules action; current realm worlds do not auto-upgrade.");

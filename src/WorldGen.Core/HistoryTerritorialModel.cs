@@ -71,6 +71,11 @@ namespace WorldGen.Core
         bool TerritorialNodeLive(PrehistoryState s,int polity,int source)
         {
             var a=s.History.Aggregates;var t=a.Empires.Territories;
+            if(RevisedRealmHistory(s)&&source<=-2)
+            {
+                var hc=s.History.Cultures[s.History.Polities[polity].CultureId];
+                if(RevisedMaritimeChainKm(s,polity,source)>HistoricalMaritimeControlEffects.NetworkKm(HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.SteamPower,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years)))return false;
+            }
             for(int depth=0;depth<8;depth++)
             {
                 if(source>=0)return source<a.Cities.Length&&a.Living.Cities[source].AbandonedYear<0&&a.Resolve(s.Society.Settlements[source].PolityId,s.History)==polity;

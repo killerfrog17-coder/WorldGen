@@ -111,7 +111,7 @@ namespace WorldGen.Core
             if(!s.Society.ManualStep)s.Society.SelectedStepYears=h.Polities.Length>0?1:SocietyState.DefaultStep(c.Stage);
             // A local community can adopt a portable religion through an actual
             // contact; political conquest does not overwrite local culture.
-            if(contact>=0&&h.Religions[h.Cultures[contact].ReligionId].Reach!=ReligiousReach.Local&&HistoryRoll("aggregate-faith",id,s.Years)<.03){hc.ReligionId=h.Cultures[contact].ReligionId;SetAggregateLayer(s,cell,2,hc.ReligionId);}
+            if(!ReligiousNetworkHistory(s)&&contact>=0&&h.Religions[h.Cultures[contact].ReligionId].Reach!=ReligiousReach.Local&&HistoryRoll("aggregate-faith",id,s.Years)<.03){hc.ReligionId=h.Cultures[contact].ReligionId;SetAggregateLayer(s,cell,2,hc.ReligionId);}
             AdvanceAggregateHusbandry(s,id,contact,elapsed);AdvanceAggregateFaith(s,id,contact,elapsed);
         }
         bool AggregatePracticeSupported(PrehistoryState s,int id,int k,bool contact)

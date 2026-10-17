@@ -10,6 +10,7 @@ namespace WorldGen.Core
             void Offer(int cell)
             {
                 if(result.Count>=4||cell<0||CellPatch[cell]<0||!DiffusionShore(cell)||result.Contains(cell)||HistoricalCells.Polity(s,cell)!=polity)return;
+                if(RevisedRealmHistory(s)&&!RevisedMaritimeDeparture(s,polity,cell))return;
                 int town=a.TownAt[cell],source=a.Empires.Territories.Sources[cell];
                 if(town>=0&&a.Cities[town].Supported&&a.Living.Cities[town].AbandonedYear<0&&s.Society.Settlements[town].Population>=500||TerritorialNodeLive(s,polity,source))result.Add(cell);
             }

@@ -14,7 +14,7 @@ namespace WorldGen.Presentation
         };
         public static string Description(int era)=>Name(era)+": "+(era switch
         {
-            3=>"sustained proto-urban settlement institutions",4=>"bronze production",5=>"iron production",
+            3=>"sustained proto-urban settlement institutions before the first state",4=>"the first recorded state institutions",5=>"iron production",
             6=>"steel, mills and organized scholarly institutions",
             7=>"printing, experimental science and a broader maritime, agricultural or gunpowder package",
             8=>"steam-powered industry and industrial metallurgy",
@@ -41,8 +41,12 @@ namespace WorldGen.Presentation
             if(regional)
             {
                 first[3]=state.History.RegionalTraditions!.FirstProtoYear;
-                for(int era=4;era<=10;era++)if(first[era]>=0)first[era]=first[3]<0?-1:Math.Max(first[3],first[era]);
             }
+            // Owner's observer convention: first states begin the Bronze Age,
+            // even if their particular material tradition is not bronze-making.
+            // This is not a technology grant or an unlock for distant colonies.
+            first[4]=SimulationClockView.EpochYear(state);
+            for(int era=5;era<=10;era++)if(first[era]>=0)first[era]=first[4]<0?-1:Math.Max(first[4],first[era]);
             return first;
         }
         static int Together(int a,int b)=>a<0||b<0?-1:Math.Max(a,b);
@@ -80,13 +84,15 @@ namespace WorldGen.Presentation
             int era=2;
             if(state.History==null)return era;
             var regional=state.History.RegionalTraditions;
-            if(regional!=null&&regional.FirstProtoYear<0)return 2;
+            bool states=SimulationClockView.EpochYear(state)>=0;
+            if(!states&&regional!=null&&regional.FirstProtoYear<0)return 2;
             foreach(var culture in state.History.Cultures)
             {
                 era=Math.Max(era,CultureEra(culture,true));
                 if(era==10)break;
             }
-            return regional!=null?Math.Max(3,era):era;
+            if(states)return Math.Max(4,era);
+            return regional!=null?3:Math.Min(3,era);
         }
     }
 }

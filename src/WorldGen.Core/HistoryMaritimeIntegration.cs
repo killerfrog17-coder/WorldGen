@@ -56,6 +56,7 @@ namespace WorldGen.Core
         bool MaritimeVoyageLogistics(PrehistoryState s,int polity,Route route,int preferred,int crew,out int port,out long provisions)
         {
             port=-1;provisions=0;var h=s.History;var a=h.Aggregates;var hc=h.Cultures[h.Polities[polity].CultureId];
+            if(RevisedRealmHistory(s)&&(!RevisedMaritimeDeparture(s,polity,route.CellA)||!RevisedMaritimeReach(s,polity,route,a.Empires.Territories.Sources[route.CellA])))return false;
             double unsupported=InstitutionalUnsupportedWaterKm(route.CellA,route.CellB,out _);
             // Ocean-going oral navigation is possible; an overseas fiscal state
             // and a reliable protected shipping venture need additional deployed
@@ -69,6 +70,14 @@ namespace WorldGen.Core
                 if(a.Resolve(town.PolityId,h)!=polity||town.Population<500||!a.Cities[city].Supported||a.Living.Cities[city].AbandonedYear>=0)return false;
                 double supplyKm=D.Angle(World.Surface.Cells[town.Cell].Position,World.Surface.Cells[route.CellA].Position)*World.Recipe.RadiusKm;
                 double recordedKm=RealmSupplierChainKm(s,polity,route.CellA,city);if(recordedKm>=0)supplyKm=Math.Max(supplyKm,recordedKm);
+                if(RevisedRealmHistory(s)&&town.Cell!=route.CellA)
+                {
+                    // The depot-to-departure voyage is a real additional leg;
+                    // no short outward hop launders an unsupported distant base.
+                    double openSupply=InstitutionalUnsupportedWaterKm(town.Cell,route.CellA,out _);
+                    if(openSupply>35&&!HistoricalMaritimeControlEffects.Reach(supplyKm,route.DistanceM/1000.0,
+                        HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.SteamPower,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years)))return false;
+                }
                 if(town.Cell!=route.CellA)
                 {
                     // A coarse inland city can provision its real serviced port.
@@ -107,6 +116,7 @@ namespace WorldGen.Core
         bool CommitMaritimeStateExpedition(PrehistoryState s,int polity,int defender,Route route,int elapsed,bool organized)
         {
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var other=h.Polities[defender];var hc=h.Cultures[p.CultureId];
+            if(RevisedRealmHistory(s)&&!MaritimeCharterLogistics(s,polity,route,a.TownAt[route.CellA],out _,out _))return false;
             if(p.Cohesion<600-(RealmHistory(s)?250*RealmBureaucracy(s,polity):0)||p.Exhaustion>=500||p.Army<500||!HistoricalTechnologies.Has(hc,HistoricalTechnology.OceanNavigation))return false;
             if(HistoricalImperialHierarchy.Sovereign(s,polity)==HistoricalImperialHierarchy.Sovereign(s,defender))return false;
             var relation=AggregateRelation(s,polity,defender);if(relation.WarSince>=0||relation.TruceUntil>=s.Years||relation.Alliance)return false;
@@ -170,6 +180,7 @@ namespace WorldGen.Core
         {
             if(!LivingWorldHistory(s))return false;
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var town=s.Society.Settlements[city];var hc=h.Cultures[p.CultureId];
+            if(RevisedRealmHistory(s)&&!MaritimeCharterLogistics(s,polity,route,a.TownAt[route.CellA],out _,out _))return false;
             if(a.Resolve(town.PolityId,h)>=0||town.Population<500||!a.Cities[city].Supported||a.Living.Cities[city].AbandonedYear>=0||p.Cohesion<550||p.Exhaustion>=500)return false;
             var account=a.Polities[polity];long investment=HistoricalMaritimeIntegrationEffects.CouncilInvestment(town.Population,route.DistanceM);
             if(p.Treasury<investment*2||account.Receipts<=account.ServiceCost+investment/100)return false;

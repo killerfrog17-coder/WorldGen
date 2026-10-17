@@ -7,6 +7,7 @@ namespace WorldGen.Core
     // completed outward-and-return survey. Knowledge does not confer ownership.
     [Serializable] public sealed class HistoricalGeographicMap
     {
+        [System.Runtime.Serialization.OptionalField] public HistoricalGeographicSharing Sharing;
         public HistoricalLocalBag Places=new HistoricalLocalBag();
         public HistoricalCellTree Grade,ReportedYear,Opportunity,Host,Shore,ReviewAfter;
         public HistoricalSeaMission[] Missions=Array.Empty<HistoricalSeaMission>();
@@ -14,7 +15,7 @@ namespace WorldGen.Core
         public int Voyages,Surveys,Landfalls,FailedVoyages;
         public HistoricalGeographicMap(int regions)
         {Grade=new HistoricalCellTree(regions);ReportedYear=new HistoricalCellTree(regions);Opportunity=new HistoricalCellTree(regions);Host=new HistoricalCellTree(regions);Shore=new HistoricalCellTree(regions);ReviewAfter=new HistoricalCellTree(regions);}
-        public HistoricalGeographicMap Copy(){var c=(HistoricalGeographicMap)MemberwiseClone();c.Places=Places.Copy();c.Missions=Missions.Select(m=>m.Copy()).ToArray();return c;}
+        public HistoricalGeographicMap Copy(){var c=(HistoricalGeographicMap)MemberwiseClone();c.Places=Places.Copy();c.Missions=Missions.Select(m=>m.Copy()).ToArray();c.Sharing=Sharing?.Copy();return c;}
         public bool Record(int region,int grade,int year,int opportunity,int host,int shore)
         {
             if(grade<1||grade>3||region<0||region>=Grade.Length)throw new ArgumentException("Invalid geographical report.");
@@ -22,6 +23,11 @@ namespace WorldGen.Core
             Places.Add(region);Grade=Grade.With(region,grade);ReportedYear=ReportedYear.With(region,year);
             Opportunity=Opportunity.With(region,Math.Max(0,Math.Min(3000,opportunity)));Host=Host.With(region,host);Shore=Shore.With(region,shore);return previous<grade;
         }
+    }
+    [Serializable] public sealed class HistoricalGeographicSharing
+    {
+        public int ContactCursor,CityCursor,PeerCursor,ReportCursor,RecentRegion=-1;
+        public HistoricalGeographicSharing Copy()=>(HistoricalGeographicSharing)MemberwiseClone();
     }
     [Serializable] public sealed class HistoricalSeaMission
     {
@@ -102,7 +108,8 @@ namespace WorldGen.Core
             double crops=observer>=0?LivingCropLandscape(s,s.History.Polities[observer].CultureId,cell,false):yield;
             double resources=observer>=0?Math.Min(1,LivingStrategicResourceValue(s,observer,cell)/30):0;
             int interest=(int)Math.Round(300+1200*Math.Min(1,crops*3)+500*resources+(World.Ecology.Habitat[cell].Biome==Biome.Ice?-300:200));
-            map.Record(region,grade,s.Years,interest,owner,cell);
+            bool improved=map.Record(region,grade,s.Years,interest,owner,cell);
+            if(improved&&RevisedRealmHistory(s))(map.Sharing??(map.Sharing=new HistoricalGeographicSharing())).RecentRegion=region;
         }
         void RecordStateVoyageReport(PrehistoryState s,int polity,int cell)
         {
@@ -117,6 +124,7 @@ namespace WorldGen.Core
             for(int id=0;id<g.Governments.Length;id++)
             {
                 var m=g.Governments[id];if(m?.Places==null||m.Missions==null||m.Missions.Length>8||m.Missions.Count(x=>x.Kind!=HistoricalSeaMission.Report)>4||m.ScheduledDue<0||m.NextPlan<0||m.Voyages<0||m.Surveys<0||m.Landfalls<0||m.FailedVoyages<0)throw new ArgumentException("Invalid geographical map.");
+                if(m.Sharing!=null&&(!RevisedRealmHistory(s)||m.Sharing.ContactCursor<0||m.Sharing.CityCursor<0||m.Sharing.PeerCursor<0||m.Sharing.ReportCursor<0||m.Sharing.RecentRegion< -1||m.Sharing.RecentRegion>=Patches.Length))throw new ArgumentException("Invalid geographical sharing cursor.");
                 foreach(var tree in new[]{m.Grade,m.ReportedYear,m.Opportunity,m.Host,m.Shore,m.ReviewAfter})if(tree?.Length!=Patches.Length)throw new ArgumentException("Geographical report alignment.");
                 if(!m.Grade.AllPresentValues((r,v)=>v>=1&&v<=3&&m.Places.Positions[r]>=0)||!m.ReviewAfter.AllPresentValues((r,v)=>v>=0))throw new ArgumentException("Unindexed geographical reports.");
                 if(m.Places.Count<0||m.Places.Count>Patches.Length)throw new ArgumentException("Invalid known-place index.");
