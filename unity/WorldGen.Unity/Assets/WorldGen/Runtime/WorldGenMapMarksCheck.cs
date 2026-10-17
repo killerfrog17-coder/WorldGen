@@ -28,6 +28,9 @@ public sealed partial class WorldGenRuntime
             string signature;using(var sha=System.Security.Cryptography.SHA256.Create())signature=Convert.ToBase64String(sha.ComputeHash(File.ReadAllBytes(image)));
             if(signature==previousImage){Debug.LogError("MAP MARKS zoom captures are identical.");Application.Quit(1);yield break;}previousImage=signature;
         }
+        // This diagnostic runs in a hidden player. Do not let OS focus loss
+        // discard its synthetic keyboard events; normal player settings stay unchanged.
+        InputSystem.settings.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
         var testKeyboard=InputSystem.AddDevice<Keyboard>();testKeyboard.MakeCurrent();GUIUtility.keyboardControl=0;
         var priorRoot=globe;bool riverBefore=showRivers;InputSystem.QueueStateEvent(testKeyboard,new KeyboardState(Key.R));yield return null;yield return null;
         InputSystem.QueueStateEvent(testKeyboard,new KeyboardState());yield return null;

@@ -1309,6 +1309,34 @@ Candidates were explicitly generated into artifacts/v3-candidate-corpus, inspect
 
 The ordinary final hash is `2ccfec96a725dbabdd174fd226fcb855d17ca3628dd1ff4b7865ed9e4af076fa`. The full set of stage hashes is in tests/golden/v3. Algorithm outputs are intentionally different from v2 because terrain runs at actual detail, the persistent hydrology stage and collision-context route are removed, and the stage hash format is chained.
 
+## River and settlement presentation, 17 October 2026
+
+Presentation-only map-mark revision: R toggles cached river visibility; C cycles
+Off, Capitals only, All, Cities only, Large cities only. Default: Capitals only.
+Shared renderer geometry uses connected curved strokes with antialiased rounded
+caps, shoreline-trimmed mouths and screen-footprint-based width/channel visibility.
+It reveals existing recorded tributaries, not newly simulated local drainage.
+Settlement lists are filtered once per renderer publication and reused by frames.
+Large cities selects approximately the largest tenth, capped at20, with a relative
+population floor. Smaller marks and labels appear only at closer zoom.
+
+The Release solution build passes without warnings/errors;24 focused map-mark
+assertions and368 combined historical-presentation assertions pass. The browser
+check loads an actual saved20k Earth history and passes real R/C keyboard input,
+cached switching, shader/protocol checks and all five modes (0/2/36/24/3 marks).
+Reviewed full-UI browser captures and native close-ups at three distinct zooms
+show smooth thin strokes and uncluttered capital markers. River preparation uses
+bounded1024-reach chunks (26 vertices per reach); zoom requires no mesh rebuild.
+This is not a new2.56M benchmark or a hydrological/terrain realism validation.
+Generation and historical rules are unchanged; existing saves need no upgrade.
+The selected IL2CPP player also passes synthetic R/C input through its normal
+Update path, preserves the live geometry root and the saved historical hash,
+and captures three distinct zooms. Hidden diagnostic players must opt out of OS
+focus-based Input System event suppression; this override is diagnostic-only.
+Accepted evidence: `D:/WorldGenBuildArtifacts/overnight-20261017/native-map-marks-accepted`
+and `browser-map-marks-final` in the same review directory. The project shortcut
+now selects `artifacts/player-history-32-map-marks/WorldGen.exe`.
+
 ## Practical limits
 
 This is independently written C#, not a source translation or numerically identical World Orogen port. The reference comparison and outstanding parity gaps are in OROGEN_ALIGNMENT.md. In particular, climate is still eager at high detail; editing/import/planet codes and extended export modes are absent. Old recipes are explicitly rejected rather than silently reinterpreted.
