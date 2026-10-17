@@ -107,6 +107,13 @@ namespace WorldGen.Core
                 int supplier;
                 bool supplied=RealmHistory(s)?MaritimeVoyageLogistics(s,polity,route,a.TownAt[route.CellA],convoy?250:30,out supplier,out _):MaritimeCharterLogistics(s,polity,route,a.TownAt[route.CellA],out supplier,out _);
                 if(!supplied){SeaVentureObserver?.Invoke(polity,"no-actual-supplier");continue;}
+                if(convoy&&RevisedMaritimeMissionHistory(s)&&!ReadyKnownMaritimeMission(s,polity,route,supplier))
+                {
+                    // An old account can justify fresh reconnaissance, not a
+                    // repeated settlement/war convoy with no usable own aim.
+                    if(s.Years-map.ReportedYear[route.B]<15){SeaVentureObserver?.Invoke(polity,"known-purpose-not-ready");continue;}
+                    convoy=false;SeaVentureObserver?.Invoke(polity,"known-purpose-reconnaissance");
+                }
                 long cost=(convoy?750:500)+route.DistanceM/4000;
                 long food=HistoricalVoyageEffects.Provisioning(convoy?80:30,route.DistanceM*(convoy?1:2));
                 var port=s.Society.Settlements[supplier];
@@ -135,7 +142,7 @@ namespace WorldGen.Core
             foreach(var mission in completed)
             {
                 if(mission.Kind==HistoricalSeaMission.Report)
-                {bool improved=map.Record(mission.Region,mission.Grade,mission.ReportedYear,mission.Opportunity,mission.Host,mission.Target);if(improved&&RevisedRealmHistory(s))(map.Sharing??(map.Sharing=new HistoricalGeographicSharing())).RecentRegion=mission.Region;continue;}
+                {bool improved=RecordGeographicFacts(s,map,mission.Region,mission.Grade,mission.ReportedYear,mission.Opportunity,mission.Host,mission.Target);if(improved&&RevisedRealmHistory(s))(map.Sharing??(map.Sharing=new HistoricalGeographicSharing())).RecentRegion=mission.Region;continue;}
                 var p=h.Polities[polity];var hc=h.Cultures[p.CultureId];
                 if(HistoricalCells.Polity(s,mission.Source)!=polity){map.FailedVoyages++;continue;}
                 // Better practical navigation reduces failed searches, not the

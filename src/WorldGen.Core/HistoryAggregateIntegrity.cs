@@ -29,6 +29,7 @@ namespace WorldGen.Core
                 a.Empires?.Connections?.Religion?.Policies.Fingerprint(true);
                 a.Empires?.Connections?.Realms?.Claimants?.At.Fingerprint(true);
                 a.Empires?.Connections?.SeaService?.BySource.Fingerprint(true);
+                a.Empires?.Connections?.LocalSeeds?.Towns.Fingerprint(true);
                 if(a.Empires?.Connections?.ServiceRecovery!=null)
                 {
                     var service=a.Empires.Connections.ServiceRecovery;
@@ -50,7 +51,7 @@ namespace WorldGen.Core
                 for(int i=a.ArchiveBaseCount;i<h.Archive.Count;i++)archive=StateHash.Compute(new object[]{archive,h.Archive[i]});
                 if(archive!=a.ArchiveHash)throw new ArgumentException("Modified historical event log.");
                 for(int i=0;i<h.Dynamics.Leaders.Length;i++)
-                {string digest=StateHash.Compute(h.Dynamics.Leaders[i]);for(int k=0;k<8;k++)if(a.LeaderDigests[i*8+k]!=unchecked((int)Convert.ToUInt32(digest.Substring(k*8,8),16)))throw new ArgumentException("Modified historical leader record.");}
+                {string digest=StateHash.Compute(h.Dynamics.Leaders.Peek(i));for(int k=0;k<8;k++)if(a.LeaderDigests[i*8+k]!=unchecked((int)Convert.ToUInt32(digest.Substring(k*8,8),16)))throw new ArgumentException("Modified historical leader record.");}
             }
             var values=new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,h.Version,a,h.Cultures,h.Religions,h.Polities,h.Relations,h.Towns,h.Agriculture,h.Dynamics.States,h.Dynamics.Campaigns,h.Dynamics.Dependencies,h.Modern,h.OceanSettlements,h.Administration,Timeline};
             if(h.Languages!=null)values=values.Concat(new object[]{h.Languages}).ToArray();

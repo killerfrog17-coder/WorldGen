@@ -10,7 +10,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalRealmLifecycles
     {
-        internal const int CurrentRevision=9;
+        internal const int CurrentRevision=13;
         public int Version=CurrentRevision,SinceYear;
         [System.Runtime.Serialization.OptionalField] public HistoricalRealmClaimRoutes ClaimRoutes;
         [System.Runtime.Serialization.OptionalField] public HistoricalRealmClaimants Claimants;
@@ -94,6 +94,8 @@ namespace WorldGen.Core
             double extent=Math.Sqrt(Math.Max(1,HistoricalImperialHierarchy.AreaKm2(s,polity))/Math.PI)/Math.Max(50,a.Polities[polity].ReachKm);
             double personal=D.Clamp((former.Renown+Math.Max(0,former.Military-650)*.5)/500.0)*D.Clamp(cycle.ConquestDebt/300.0);
             double chance=HistoricalRealmEffects.SuccessionHazard(cycle.ConquestDebt,cycle.EliteCapture,p.Exhaustion,extent,personal,integration,representative);
+            double urbanContest=UrbanRealmSuccessionRisk(s,polity,incoming);
+            if(urbanContest>0)chance=1-(1-chance)*(1-urbanContest);
             // Impersonal fiscal/communication institutions survive the person
             // at the top. Modern territorial defeat or colonial revolt remains
             // possible; leadership mortality is no longer a general dissolution lottery.
@@ -108,7 +110,8 @@ namespace WorldGen.Core
                 record.CrisisSeverity=(int)Math.Round(1000*D.Clamp(.30+.55*chance+.25*personal+.20*extent-.30*integration));
                 record.CrisisUntil=s.Years+8+(int)(18*HistoryRoll("realm-crisis-duration-1",incoming.Id,s.Years));
                 ds.DisputedUntil=record.CrisisUntil;p.Cohesion=Math.Max(100,p.Cohesion-record.CrisisSeverity/3);
-                HistoryEvent(s,"realm-succession-crisis",p.Name+" enters a contested imperial succession after "+former.Name+". Provincial commanders and constituent courts dispute the new center's authority; the country is not refounded by this change of ruler.",s.Society.Settlements[p.CapitalId].Cell,p.CultureId,polity,category:ChronicleCategory.Politics);
+                string message=urbanContest>0?p.Name+" enters a contested succession after "+former.Name+". Substantial urban centers, provincial elites and the incoming court negotiate competing claims to authority; the country is not refounded by this change of ruler.":p.Name+" enters a contested imperial succession after "+former.Name+". Provincial commanders and constituent courts dispute the new center's authority; the country is not refounded by this change of ruler.";
+                HistoryEvent(s,"realm-succession-crisis",message,s.Society.Settlements[p.CapitalId].Cell,p.CultureId,polity,category:ChronicleCategory.Politics);
             }
             else HistoryEvent(s,"regime-change",p.Name+" replaces its ruling court after a contested succession. Its state identity, founding date, territory and inhabitants continue.",s.Society.Settlements[p.CapitalId].Cell,p.CultureId,polity,category:ChronicleCategory.Politics);
         }

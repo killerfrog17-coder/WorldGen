@@ -54,5 +54,17 @@ namespace WorldGen.Core
             }
             writer.Write((byte)0);
         }
+        static void LeaderCollectionBody(BinaryWriter writer,HistoricalLeaderCollection leaders)
+        {
+            var scratch=new LeaderRecordScratch();
+            for(int i=0;i<leaders.Length;i++)
+            {
+                var leader=leaders.Peek(i);writer.Write((byte)1);
+                if(literalAggregateRecords){Write(writer,leader);continue;}
+                if(leader==null){writer.Write((byte)0);continue;}
+                LeaderRecordBody(writer,leader,scratch);
+            }
+            writer.Write((byte)0);
+        }
     }
 }

@@ -56,7 +56,7 @@ namespace WorldGen.Core
             int people=HistoricalCoastalFarmEffects.Cohort(source.Population),urban=HistoricalCoastalFarmEffects.Urban(people);
             if(people<200||owner<0||h.Polities[owner].EndedYear>=0||a.Living.Cities[parent].AbandonedYear>=0||a.Living.Cities[parent].DeclineYears>0||!a.Cities[parent].Supported||h.Dynamics.States[owner].PublicWorks<200)return false;
             if(region<0||a.TownAt[cell]>=0||World.Hydrology.LakeCoverageFraction[cell]>=.9||World.Landmass[cell]!=World.Landmass[source.Cell])return false;
-            double yield=LivingCropLandscape(s,culture,cell,false);int practiced=h.Agriculture[culture].HusbandryYears==null?0:MaxCoastalPractice(h.Agriculture[culture].HusbandryYears);
+            double yield=CarriedCropLandscape(s,culture,cell,false,parent);int practiced=LocalSeedlotHistory(s)?CarriedCropPractice(s,culture,cell,parent):h.Agriculture[culture].HusbandryYears==null?0:MaxCoastalPractice(h.Agriculture[culture].HusbandryYears);
             if(s.Society.Cultures[culture].Farming<180||yield<.10&&(yield<.02||practiced<10000))return false;
             var habitat=CropHabitat(s,cell);bool modern=HistoricalModernEffects.Adoption(h.Cultures[culture],HistoricalTechnology.CombustionEngines,s.Years)>.3;
             if((habitat.GrowingDays<90||habitat.WarmTenthsC<80||habitat.PermafrostPermille>700)&&!modern)return false;

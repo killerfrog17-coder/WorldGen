@@ -91,7 +91,7 @@ namespace WorldGen.Core
                 if(ProvincialHistory(s))a.Provinces.RegionalKnowledge[to]|=ProvincialKnowledge(hc);
                 int court=a.Living.CivicOrigins[culture];if(court>=0){target.CivicTeacher=court;target.CivicExposure=Math.Min(1000,target.CivicExposure+elapsed*2);}
                 long carrying=Patches[to].Capacity;
-                if(s.Society.Cultures[culture].Farming>=180)carrying=(long)(carrying*(1+s.Society.Cultures[culture].Farming/80.0*LivingCropLandscape(s,culture,route.CellB,false)*HistoricalModernEffects.FoodMultiplier(hc,s.Years)));
+                if(s.Society.Cultures[culture].Farming>=180)carrying=(long)(carrying*(1+s.Society.Cultures[culture].Farming/80.0*CarriedCropLandscape(s,culture,route.CellB,false,-1,route.CellA)*HistoricalModernEffects.FoodMultiplier(hc,s.Years)));
                 int destinationState=ProvincialHistory(s)?HistoricalCells.Polity(s,route.CellB):-1;
                 long destinationPopulation=destinationState>=0?a.Polities[destinationState].Remote:s.Population[to];
                 if(destinationState>=0)carrying=ProvincialRemoteCapacity(s,destinationState);
@@ -109,13 +109,15 @@ namespace WorldGen.Core
                 if(a.Regions[to].Culture<0&&HistoricalCells.Culture(s,route.CellB)<0&&s.Population[to]>=400)
                 {
                     FoundAggregateCulture(s,to,route.CellB,culture);int child=s.Society.Cultures.Length-1;
-                    InheritDevelopmentCommunity(s,child,culture,route.CellB);
+                    InheritDevelopmentCommunityFrom(s,child,culture,route.CellB,route.CellA,-1);
                     HistoryEvent(s,"overseas-community",s.Society.Cultures[culture].Name+" voyagers establish a community on another shore, carrying crops and practical knowledge across approximately "+route.DistanceM/1000+" km of sea.",route.CellB,child,category:ChronicleCategory.Society);
                 }
                 break;
             }
         }
         void InheritDevelopmentCommunity(PrehistoryState s,int child,int parent,int site)
+            =>InheritDevelopmentCommunityFrom(s,child,parent,site,-1,-1);
+        void InheritDevelopmentCommunityFrom(PrehistoryState s,int child,int parent,int site,int sourceCell,int sourceTown)
         {
             var h=s.History;var hc=h.Cultures[child];hc.ParentCultureId=parent;hc.LanguageId=h.Cultures[parent].LanguageId;
             InheritLanguage(s,child,parent);
@@ -139,6 +141,8 @@ namespace WorldGen.Core
                 }
             }
             var crops=h.Agriculture[child];var donor=h.Agriculture[parent];
+            if(LocalSeedlotHistory(s))InheritLocalSeedCommunity(s,child,parent,site,sourceCell,sourceTown);
+            else
             for(int k=0;k<6;k++)if(donor.AdoptedYear[k]>0&&donor.Cultivars[k]!=null&&(CommunityHistory(s)?CommunityTransferFit(s,site,donor.Cultivars[k]):HistoricalCropCatalog.TransferFit(CropHabitat(s,site),donor.Cultivars[k],CropLatitude(site),riverSites[site]))>.12)
             {crops.AdoptedYear[k]=s.Years+1;crops.SourceCulture[k]=parent;crops.Cultivars[k]=donor.Cultivars[k].Copy();crops.Cultivars[k].ParentCulture=parent;
                 double localPractice=PassageHistory(s)?HistoricalLandscapeEffects.LivelihoodContinuity(CropHabitat(s,donor.PracticeCell[k]),CropHabitat(s,donor.PracticeCell[k]),CropHabitat(s,site)):1;

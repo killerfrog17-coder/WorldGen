@@ -138,22 +138,15 @@ namespace WorldGen.Core
                 double fit=LocalCultivarFit(s,culture.Id,cell,k);if(fit<.08)continue;
                 double practiced=Math.Min(elapsedYears,Math.Max(0,s.Years-(a.AdoptedYear[k]-1)));
                 int years=Math.Max(0,(int)Math.Round(practiced*Math.Min(1,culture.Farming/400.0)*fit));if(years==0)continue;
-                cultivar.SelectedYears=Math.Min(20000,cultivar.SelectedYears+years);a.HusbandryYears[k]=Math.Min(20000,a.HusbandryYears[k]+years);
-                var definition=HistoricalCropCatalog.Crops[cultivar.CropId];double selection=D.Clamp(cultivar.SelectedYears/6000.0);
-                // Long cultivation can shorten maturity by at most 30%, not
-                // grow wheat through polar darkness or remove water demand.
-                cultivar.MaturityDays=(int)Math.Round(definition.MaturityDays*(1-.3*selection));
-                cultivar.WaterRequirementPermille=(int)Math.Round(definition.MinimumWaterPermille*(1-.15*selection));
-                cultivar.MinimumWarmTenthsC=definition.MinimumWarmC*10-(int)Math.Round(40*selection);
-                cultivar.YieldPermille=650+(int)Math.Round(650*D.Clamp(cultivar.SelectedYears/8000.0));
-                int target=(int)Math.Round(CropLatitude(cell)*10),move=(int)Math.Round(Math.Min(Math.Abs(target-cultivar.DaylengthLatitudeTenths),years*.02));
-                cultivar.DaylengthLatitudeTenths+=Math.Sign(target-cultivar.DaylengthLatitudeTenths)*move;
+                a.HusbandryYears[k]=Math.Min(20000,a.HusbandryYears[k]+years);
+                HistoricalCropSelectionEffects.Apply(cultivar,years,(int)Math.Round(CropLatitude(cell)*10));
             }
             InvalidateCultivarFits(culture.Id);
         }
         public HistoricalCropUse[] AssessLocalCrops(PrehistoryState s,int cell,int culture=-1)
         {
             if(!ModernHistory(s)||cell<0||cell>=CellPatch.Length||CellPatch[cell]<0)return Array.Empty<HistoricalCropUse>();
+            if(LocalSeedlotHistory(s))return AssessLocalSeedCrops(s,cell,culture);
             if(culture<0)culture=HistoricalCells.Culture(s,cell);
             var town=s.Society.Settlements.FirstOrDefault(t=>t.Cell==cell&&t.Population>0);if(town!=null)culture=town.CultureId;
             if(culture<0||culture>=s.History.Agriculture.Length||s.Society.Cultures[culture].Farming==0)return Array.Empty<HistoricalCropUse>();

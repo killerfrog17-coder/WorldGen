@@ -68,7 +68,7 @@ namespace WorldGen.Core
                     if(receiver.Missions.Length>=8||receiver.Missions.Count(m=>m.Kind==HistoricalSeaMission.Report)>=4)break;
                     int at=trial<5?map.Places.Count-trial:(cursor.ReportCursor++%map.Places.Count);
                     if(at<0||trial==0&&cursor.RecentRegion<0)continue;int region=trial==0?cursor.RecentRegion:map.Places.At(at),grade=map.Grade[region]>=2&&relation.Trust>=40?2:1;
-                    if(receiver.Grade[region]>=grade||receiver.Missions.Any(m=>m.Kind==HistoricalSeaMission.Report&&m.Region==region))continue;
+                    if((RevisedMaritimeMissionHistory(s)?!HistoricalMaritimeMissionEffects.ShareWitnessed(map,receiver,region,grade):receiver.Grade[region]>=grade)||receiver.Missions.Any(m=>m.Kind==HistoricalSeaMission.Report&&m.Region==region))continue;
                     double distance=D.Angle(World.Surface.Cells[from].Position,World.Surface.Cells[to].Position)*World.Recipe.RadiusKm;
                     var hc=h.Cultures[p.CultureId];double comm=HistoricalModernEffects.Communication(hc,s.Years);
                     long now=SimulationTime.Seconds(s),due=now+Math.Max(SimulationTime.Day,(long)((7+distance/(30*Math.Max(1,comm)))*SimulationTime.Day));

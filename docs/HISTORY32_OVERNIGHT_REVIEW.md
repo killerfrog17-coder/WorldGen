@@ -141,6 +141,66 @@ The fully rebuilt H player is now being measured on that identical old6
 world, so exact-output allocation improvements can be tested independently
 of new historical rules. No passing performance claim is made yet.
 
+## Source revisions10–13 / candidates L and controlled continuations
+
+Revision10 restores actual crop-selection work to the aggregate calendar;
+the old dense-only implementation was never called by that route. Actual
+occupied practice sites, continued bounded selection and fractional-year
+progress are covered by independent legacy/cold/resource tests. This is not
+yet a Europe fix: one culture-wide seed package still follows the ancestral
+practice site. Dormant revision14 local seedlot infrastructure is explicitly
+unfinished and not enabled by the default13 marker in this checkpoint.
+
+Revision11 updates physically delivered observations without erasing stronger
+navigation knowledge and requires a convoy's actual departure to be preparable.
+The same100-year Industrial starting history produces902→103 convoy departures,
+433→68 no-access arrivals and440→22 office-without-port arrivals, while funded
+ports increase7→8. Real physical surveys remain75→76. This removes repeated
+impossible missions, not historical colonization constraints. See the maritime
+mission audit for frozen controls and unmet trading-factory cases.
+
+Revision12 admits real farming households to viable free plots even where an
+existing forager pool exceeds its separate native carrying capacity. It
+retains the crop, field-space, resources and actual-person debit requirements.
+Seven pure and thirteen actual frontier fixture checks pass, including the
+preceding11 rejection and new12 conserved-person positive case.
+
+Revision13 adds peacetime succession competition from actual noncapital urban
+populations and centralization, moderated by integration, representative
+institutions and deployed administration. It is an authored hazard, not an
+automatic state expiry. Actual resources and existing local coalitions decide
+outcomes; no new court, army or people are granted. Seven pure and six actual
+succession checks pass. The independent critic sees34 courts/103 towns by the
+L Earth Iron milestone versus the prior sole court, but Europe still has zero
+towns at Early Modern and Modern. Political improvement is not geographic
+acceptance. The full L Earth run ends176600, over1000years after its optional
+maximum milestone175578; image and history review continue.
+
+An old11 twelve-year continuation initially differed only because a new
+succession narrative literal was applied unconditionally. The message is now
+guarded with the new hazard; the corrected current source exactly reproduces
+frozen11 hash
+`e7ddbf0885c0747deb5d1061b48e6cff7c0f6b91a55dd51d4b3f4d0c42208d68`.
+
+### Additional exact-outcome allocation work and native failures
+
+Paged leader records preserve the old array DataContract and canonical bytes;
+35 pure and six actual dense-world checks cover retained public references,
+copy isolation, cold continuation and mutation detection. Old6+100 remains
+`93add43f84c56e5241d9c474a9e7d56538b654b069b898c6bc55e10ccf3801b4`.
+Owned relation-record byte caches are invalidated by every mutable access and
+never trusted by independent public verification;56 focused tests pass.
+Windows CNG now applies to IL2CPP as well as Mono, caches only the immutable
+provider handle, and keeps hash contexts independent.114 provider assertions
+and13 callable native smoke vectors pass on.NET; native testing follows.
+
+The preceding H Mono and IL2CPP players both **failed** the same dense-world
+native gate: respectively1.13 and1.20yr/s, worst7.34 and6.83s. Both preserve
+the identical1007.61-year final hash. These runs overlapped heavy world loads;
+they are not isolated CPU benchmarks. They do not contain the new leader,
+owned-byte-cache or all-Windows provider changes. No passing native claim or
+new selected player is implied by these source optimizations.
+
 ## Reference and review method
 
 The owner's [Ollie Bye reference](https://www.youtube.com/watch?v=-6Wu0Q7x5D0)

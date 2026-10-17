@@ -108,7 +108,7 @@ namespace WorldGen.Core
             double crops=observer>=0?LivingCropLandscape(s,s.History.Polities[observer].CultureId,cell,false):yield;
             double resources=observer>=0?Math.Min(1,LivingStrategicResourceValue(s,observer,cell)/30):0;
             int interest=(int)Math.Round(300+1200*Math.Min(1,crops*3)+500*resources+(World.Ecology.Habitat[cell].Biome==Biome.Ice?-300:200));
-            bool improved=map.Record(region,grade,s.Years,interest,owner,cell);
+            bool improved=RecordGeographicFacts(s,map,region,grade,s.Years,interest,owner,cell);
             if(improved&&RevisedRealmHistory(s))(map.Sharing??(map.Sharing=new HistoricalGeographicSharing())).RecentRegion=region;
         }
         void RecordStateVoyageReport(PrehistoryState s,int polity,int cell)

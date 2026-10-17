@@ -82,6 +82,7 @@ namespace WorldGen.Core
             // and reflection on the millions of scalar values hashed in WASM.
             if (o is string text) { w.Write("System.String"); w.Write(text); return; }
             if(o is HistoricalCellTree spatial){spatial.WriteCanonicalFingerprint(w);return;}
+            if(o is HistoricalTownSeedTree seeds){seeds.WriteCanonicalFingerprint(w);return;}
             if(o is HistoricalFrozenAdministration frozen){w.Write("WorldGen.Core.HistoricalFrozenAdministration");w.Write(frozen.Fingerprint());return;}
             if (o is int i) { w.Write("System.Int32"); w.Write(i); return; }
             if (o is long l) { w.Write("System.Int64"); w.Write(l); return; }
@@ -92,6 +93,7 @@ namespace WorldGen.Core
             var t = o.GetType(); w.Write(TypeName(t));
             if(o is HistoricalRelationCollection relations){RelationCollectionBody(w,relations);return;}
             if(o is HistoricalRelationCampaigns campaigns){RelationCampaignCollectionBody(w,campaigns);return;}
+            if(o is HistoricalLeaderCollection leaders){LeaderCollectionBody(w,leaders);return;}
             if(!literalAggregateRecords&&(o is Array?TryWriteWideHistoricalArray(w,o,t):TryWriteWideHistoricalRecord(w,o,t)))return;
             if(!literalAggregateRecords&&(o is Array?TryWriteOptionalHistoricalArray(w,o,t):TryWriteOptionalHistoricalRecord(w,o,t)))return;
             if(!literalAggregateRecords&&o is HistoricalLocalBag bag){w.Write("Count");Integer(w,bag.Count);w.Write("Items");Write(w,bag.Items);w.Write("Positions");Write(w,bag.Positions);return;}
@@ -172,6 +174,7 @@ namespace WorldGen.Core
                 if(o is HistoricalColonialConnections oldMilitary && f.Name==nameof(HistoricalColonialConnections.Military) && oldMilitary.Military==null)continue;
                 if(o is HistoricalColonialConnections oldService && f.Name==nameof(HistoricalColonialConnections.ServiceRecovery) && oldService.ServiceRecovery==null)continue;
                 if(o is HistoricalColonialConnections oldSeaService && f.Name==nameof(HistoricalColonialConnections.SeaService) && oldSeaService.SeaService==null)continue;
+                if(o is HistoricalColonialConnections oldSeeds && f.Name==nameof(HistoricalColonialConnections.LocalSeeds) && oldSeeds.LocalSeeds==null)continue;
                 if(o is HistoricalTerritorialServiceRecovery oldRetired && f.Name==nameof(HistoricalTerritorialServiceRecovery.RetiredGovernments) && oldRetired.RetiredGovernments==null)continue;
                 if(o is HistoricalTerritorialServiceRecovery oldGovernmentCursor && f.Name==nameof(HistoricalTerritorialServiceRecovery.GovernmentCursor) && oldGovernmentCursor.GovernmentCursor==null)continue;
                 if(o is HistoricalGeographicMap oldSharing && f.Name==nameof(HistoricalGeographicMap.Sharing) && oldSharing.Sharing==null)continue;
@@ -358,7 +361,7 @@ namespace WorldGen.Core
             writer.Write("LengthM"); Integer(writer, edge.LengthM); writer.Write("TriangleA"); Integer(writer, edge.TriangleA); writer.Write("TriangleB"); Integer(writer, edge.TriangleB);
         }
         static void Double(BinaryWriter writer, double value) { double quantized = D.Q(value, 1e6); writer.Write(quantized == 0 ? 0.0 : quantized); }
-        static string TypeName(Type t) => TypeNames.GetOrAdd(t, type => type==typeof(HistoricalEventArchive)?TypeName(typeof(System.Collections.Generic.List<HistoricalEvent>)):type==typeof(HistoricalRelationCollection)?TypeName(typeof(HistoricalRelation[])):type==typeof(HistoricalRelationCampaigns)?TypeName(typeof(int[])):type.IsGenericType ? (type.GetGenericTypeDefinition().FullName ?? type.Name).Split('`')[0] + "<" + string.Join(",", type.GetGenericArguments().Select(TypeName)) + ">" : type.FullName ?? type.Name);
+        static string TypeName(Type t) => TypeNames.GetOrAdd(t, type => type==typeof(HistoricalEventArchive)?TypeName(typeof(System.Collections.Generic.List<HistoricalEvent>)):type==typeof(HistoricalRelationCollection)?TypeName(typeof(HistoricalRelation[])):type==typeof(HistoricalRelationCampaigns)?TypeName(typeof(int[])):type==typeof(HistoricalLeaderCollection)?TypeName(typeof(HistoricalLeader[])):type.IsGenericType ? (type.GetGenericTypeDefinition().FullName ?? type.Name).Split('`')[0] + "<" + string.Join(",", type.GetGenericArguments().Select(TypeName)) + ">" : type.FullName ?? type.Name);
     }
     public sealed class WorldPipeline
     {

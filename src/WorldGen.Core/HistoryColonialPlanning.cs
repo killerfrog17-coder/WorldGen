@@ -70,7 +70,7 @@ namespace WorldGen.Core
             a.Provinces.RegionalKnowledge[destinationRegion]|=ProvincialKnowledge(hc);
             int post=a.Empires.Territories.PostAt[shore];
             if(post<0||a.Empires.Territories.Posts[post].Founders<=0||a.Regions[destinationRegion].Culture>=0||HistoricalCells.Culture(s,shore)>=0)return;
-            FoundAggregateCulture(s,destinationRegion,shore,p.CultureId);int child=s.Society.Cultures.Length-1;InheritDevelopmentCommunity(s,child,p.CultureId,shore);
+            FoundAggregateCulture(s,destinationRegion,shore,p.CultureId);int child=s.Society.Cultures.Length-1;InheritDevelopmentCommunityFrom(s,child,p.CultureId,shore,best.CellA,-1);
             var continuity=a.Empires.Connections.Cultures[child];continuity.ColonialSponsor=polity;continuity.CivilizationRoot=HistoricalRecognizedClaims.Civilization(s,p.CultureId);
             HistoryEvent(s,"colonial-community",s.Society.Cultures[child].Name+" develops as an overseas branch sponsored by "+p.Name+", retaining its political connection and inherited practices.",shore,child,polity,category:ChronicleCategory.Society);
         }

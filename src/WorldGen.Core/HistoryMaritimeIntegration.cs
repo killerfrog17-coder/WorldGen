@@ -128,6 +128,17 @@ namespace WorldGen.Core
             double expedition=p.Army*.20*HistoricalModernEffects.Military(hc,s.Years);
             double resistance=Math.Max(50,other.Army+a.Empires.Governments[defender].SubjectArmy*.2)*HistoricalModernEffects.Military(h.Cultures[other.CultureId],s.Years);
             long investment=Math.Max(5000,p.Army/2+route.DistanceM/500);
+            if(RevisedMaritimeMissionHistory(s))
+            {
+                if(!OwnMaritimeExpeditionReady(s,polity,route,out investment))return false;
+                expedition=QuotedMaritimeFieldPower(s,polity,route.CellB,a.TownAt[route.CellA],investment);
+                resistance=QuotedMaritimeFieldPower(s,defender,route.CellB,-1,0);
+                // Local terrain without a field force is not fictitious .01
+                // power, nor a reason to submit the whole remote government.
+                // A real campaign must still march, fight and achieve its aim.
+                if(expedition<=0)return false;
+                resistance=Math.Max(1,resistance);
+            }
             if(p.Treasury<investment*3||a.Polities[polity].Receipts<=a.Polities[polity].ServiceCost+investment/100)return false;
             double chance=HistoricalMaritimeIntegrationEffects.ExpeditionChance(elapsed,expedition/resistance,p.Exhaustion,leader.Ambition);
             if(chance<=0||!organized&&HistoryRoll("maritime-state-expedition-"+defender,polity,s.Years)>=chance)return false;

@@ -23,6 +23,9 @@ public sealed partial class WorldGenRuntime
         string output=Argument("--worldgen-output","");System.IO.Directory.CreateDirectory(output);double deadline=Time.realtimeSinceStartupAsDouble+300;
         while((!worldReady||Busy||humans==null)&&error.Length==0&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(!worldReady||Busy||humans==null){Debug.LogError("PLAYBACK CHECK initialization failed "+error);Application.Quit(1);yield break;}
+        // Verify the actual native provider before collecting performance data.
+        // This checks bytes and context isolation, not only DLL availability.
+        Debug.Log(CanonicalHashProviderDiagnostics.Verify());
         screen="Simulation";simulationPaused=false;atlasOpen=false;detailsOpen=false;peoplesOpen=false;chronicleOpen=false;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;
         SetProjection(Projection.Map);Refresh();UpdateHumanPalette();while(Busy||humanPaletteJob!=null||humanPaletteReady!=null||humanPalettePending)yield return null;
         for(int i=0;i<30;i++)yield return null;

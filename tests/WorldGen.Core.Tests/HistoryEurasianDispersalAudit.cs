@@ -63,7 +63,10 @@ public static class HistoryEurasianDispersalAudit
                 long capacity=targetCulture>=0?(long)Call("ProvincialRegionalCapacity",s,to,targetCulture):destination.Capacity;
                 long ordinaryRoom=Math.Max(0,capacity-s.Population[to]);
                 long anonymousAllowance=regionalFarmer&&Farmer(r.Culture)>=250&&targetCulture<0&&yield>=.12?Math.Min(500,(long)(fields*D.Clamp(Farmer(r.Culture)/600.0))):0;
-                long currentRoom=Math.Max(0,Math.Max(capacity,destination.Capacity+anonymousAllowance)-s.Population[to]);
+                long legacyRoom=Math.Max(0,Math.Max(capacity,destination.Capacity+anonymousAllowance)-s.Population[to]);
+                long farmFieldRoom=a.Empires.Connections.Realms.Version>=12&&(regionalFarmer||ownerFarmer)
+                    ?(long)Call("FarmFrontierRoom",s,to,arrival,probe,0L):0;
+                long currentRoom=Math.Max(legacyRoom,farmFieldRoom);
                 bool rawEligible=s.Population[from]>=125,quality=yield>=.12&&gate;
                 Count("Recipient."+sourceKind+"."+targetKind);
                 if(targetOwner<0&&quality)
@@ -71,6 +74,7 @@ public static class HistoryEurasianDispersalAudit
                     Count("CropGate."+sourceKind+"."+targetKind);
                     if(fields>=400)Count("FreeFields."+sourceKind+"."+targetKind);
                     if(rawEligible&&currentRoom>=50&&regionalFarmer)Count("CurrentRawAndRoom."+targetKind);
+                    if(rawEligible&&currentRoom>=25&&regionalFarmer)Count("CurrentRawAndRoom25."+targetKind);
                     if(!rawEligible&&ownerFarmer)Count("RemoteButRawExcluded."+targetKind);
                     if(targetKind=="ExistingNonFarmerCulture"&&currentRoom<50&&fields>=400)Count("ExistingNonFarmerFullDespiteFarmFields");
                 }
@@ -80,20 +84,23 @@ public static class HistoryEurasianDispersalAudit
                     SourceKind=sourceKind,ProbeCulture=probe,ProbeFarming=Farmer(probe),SourceLocalCulture=r.Culture,SourceLocalFarming=Farmer(r.Culture),SourceTeacher=teacher[from],SourceTeacherFarming=Farmer(teacher[from]),
                     SourceOwner=owner,SourceOwnerCulture=ownerCulture,SourceCohort=cohort,SourceRemote=remote,SourceRaw=s.Population[from],SourceContact=contacts[from],SourceRawEligible=rawEligible,
                     SourceClaimedAreaKm2=a.Provinces.ClaimedAreaKm2[from],TargetKind=targetKind,TargetOwner=targetOwner,TargetCulture=targetCulture,TargetCellCulture=targetCellCulture,TargetFarming=Farmer(targetCulture),
-                    TargetRaw=s.Population[to],TargetNativeCapacity=destination.Capacity,TargetCurrentCapacity=capacity,OrdinaryRoom=ordinaryRoom,AnonymousFarmAllowance=anonymousAllowance,CurrentRoom=currentRoom,
+                    TargetRaw=s.Population[to],TargetNativeCapacity=destination.Capacity,TargetCurrentCapacity=capacity,OrdinaryRoom=ordinaryRoom,AnonymousFarmAllowance=anonymousAllowance,
+                    LegacyCurrentRoom=legacyRoom,FarmFieldRoom=farmFieldRoom,CurrentRoom=currentRoom,
                     TargetRecognizedClaim=HistoricalRecognizedClaims.Holder(s,arrival),CropYield=yield,CarriedFit=fit,RouteAllowed=gate,BestCellTransmission=bestTransmission,PotentialFreeFields=fields,
                     Climate=world.Climate.Classification[arrival].ToString(),Biome=habitat.Biome.ToString(),habitat.GrowingDays,habitat.WarmTenthsC,habitat.PermafrostPermille,habitat.ReliefM});
             }
         }
         var births=h.Archive.Where(e=>e.Kind=="migrant-community"&&world.Landmass[e.Cell]==landmass).Select(e=>new{e.Id,e.Year,e.CultureId,Parent=h.Cultures[e.CultureId].ParentCultureId,e.Cell,Latitude=Lat(e.Cell),Longitude=Lon(e.Cell)}).ToArray();
+        var frontiers=h.Archive.Where(e=>e.Kind=="migrant-frontier"&&world.Landmass[e.Cell]==landmass).Select(e=>new{e.Id,e.Year,e.CultureId,e.Cell,Latitude=Lat(e.Cell),Longitude=Lon(e.Cell),e.Text}).ToArray();
         if(original.ComputeHash()!=before)throw new Exception("Dispersal audit changed its published source.");
         string assembly=typeof(Prehistory).Assembly.Location;
         File.WriteAllText(output,JsonSerializer.Serialize(new{Source=Path.GetFullPath(source),Replay=replayYear>=0,Year=s.Years,Hash=before,Realm=a.Empires.Connections.Realms.Version,
-            CoreAssembly=assembly,CoreSha256=Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(assembly))),InspectedFirstStateLandmass=landmass,Counts=counts,Edges=edges,MigrantBirths=births,
+            CoreAssembly=assembly,CoreSha256=Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(assembly))),InspectedFirstStateLandmass=landmass,Counts=counts,Edges=edges,MigrantBirths=births,RemoteFrontierEvents=frontiers,
             Notes=new[]{"Explicit offline directed-land-edge census; no physics or input-world changes. Source landmass is selected from the actual first court, not a required homeland.",
                 "TeacherOnly is a memory of farming knowledge, not actual farmer households or a debitable population account. OwnerRemoteFarmer is separate from the current regional raw departure pool.",
-                "CurrentRawAndRoom is only necessary raw-population/receiving-room/crop/gate eligibility, not a simulated migration: stochastic choice, residence time, crop practice and food conservation still matter.",
-                "Free-field and crop-quality tests are separate. CurrentRoom mirrors the existing anonymous-only farm allowance; existing non-farming cultures retain their own current capacity.",
+                "CurrentRawAndRoom uses a50-person receiving-room screen; CurrentRawAndRoom25 uses the ordinary25-person minimum. Neither is a simulated migration: stochastic choice, residence time, crop practice and food conservation still matter.",
+                "Free-field and crop-quality tests are separate. LegacyCurrentRoom mirrors the older anonymous-only farm allowance; realm12+ CurrentRoom additionally calls the frozen engine's actual FarmFrontierRoom helper. OwnerRemoteFarmer remains a source proxy, not a full service/payment eligibility result.",
+                "RemoteFrontierEvents are actual paid frontier-departure archive records, not all new community births. MigrantBirths is the separate migrant-community event kind; do not conflate event counts or infer an unrecorded exact departure route.",
                 "Region contact counts apportion shared Remote ledgers. Do not sum repeated SourceRemote values or debit contact estimates."}
         },new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));
         Console.WriteLine($"Dispersal audit {s.Years}: {edges.Count} farmer/teacher source edges, {births.Length} birth events, preserved {before}");

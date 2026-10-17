@@ -37,6 +37,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalRelation
     {
+        [NonSerialized] internal byte[] OwnedCanonicalRecord;
         public int A,B,Trust=0,WarSince=-1,TruceUntil,LastBattle;
         public bool Trade,Alliance;
         public HistoricalRelation Copy()=>(HistoricalRelation)MemberwiseClone();

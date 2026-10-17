@@ -280,6 +280,7 @@ namespace WorldGen.Core
             h.Towns[town].ImportedFood+=shipment.Received;
             port.SentFood+=shipment.Sent;port.ReceivedFood+=shipment.Received;port.LostFood+=shipment.Lost;port.ShippingPaid+=cost;port.LastReceivedFood=shipment.Received;port.LastDeliveryYear=s.Years;
             if(port.SupplierHistory!=null){var segment=port.SupplierHistory.Recent[port.SupplierHistory.Recent.Length-1];segment.SentFood+=shipment.Sent;segment.ReceivedFood+=shipment.Received;segment.LostFood+=shipment.Lost;segment.ShippingPaid+=cost;}
+            if(LocalSeedlotHistory(s)&&shipment.Received>0)ReceiveProvisionedSeedCargo(s,town,port.SupplierTownId);
             return shipment.Received;
         }
         void ExpandProvisionedPort(PrehistoryState s,int id,HistoricalProvisionedPort port,double supply)

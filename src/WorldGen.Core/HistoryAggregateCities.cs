@@ -142,6 +142,7 @@ namespace WorldGen.Core
             }
             if(!LivingHistory(s)&&owner<0&&t.PolityId<0&&a.Cells[t.Cell*5+1]>=0&&s.Years-city.LastPoliticalYear>20&&t.Population>=800){city.LastPoliticalYear=s.Years;if(HistoryRoll("aggregate-successor-city",id,s.Years)<.15)FoundAggregateState(s,id,a.Cells[t.Cell*5+1]);}
             if(s.Years-city.LastVoyageYear>=10){city.LastVoyageYear=s.Years;AdvanceAggregateVoyage(s,id);}
+            if(LocalSeedlotHistory(s))AdvanceLocalTownSeeds(s,id);
             if(provisioned==null&&s.Years-city.LastHarvestYear>=20){city.LastHarvestYear=s.Years;SurveyAggregateCityCrops(s,id);}
             if(ProvincialHistory(s))AdvanceRegionalCityPolitics(s,id);
             if((provisioned==null||CoastalFarmingEnabled(s))&&LivingWorldHistory(s))TryLivingLocalTownOpportunity(s,id,elapsed);
@@ -149,8 +150,11 @@ namespace WorldGen.Core
         double AggregateCropSupport(PrehistoryState s,int culture,int cell,bool stored)
         {
             var a=s.History.Agriculture[culture];var habitat=CropHabitat(s,cell);double best=0;double latitude=Math.Abs(Math.Asin(World.Surface.Cells[cell].Position.Z)*180/Math.PI);
-            for(int k=0;k<6;k++)if(a.AdoptedYear[k]>0)
+            var localSeeds=LocalSeedHolder(s,culture,cell);
+            for(int k=0;k<6;k++)if(a.AdoptedYear[k]>0||localSeeds?[k]!=null)
             {
+                if(LocalSeedlotHistory(s))
+                {var seed=LocalSeedProfile(s,culture,k,localSeeds);if(seed==null)continue;double seedFit=CommunityTransferFit(s,cell,seed,HistoricalTechnologies.Has(s.History.Cultures[culture],HistoricalTechnology.CropRotation));best=Math.Max(best,seedFit*(stored?HistoricalHusbandryEffects.StoragePermille(k,seed,HistoricalTechnologies.Has(s.History.Cultures[culture],HistoricalTechnology.Pottery))/1000.0:1));continue;}
                 double fit=CommunityHistory(s)?(a.Cultivars?[k]==null?CommunityWildCropFit(s,cell,k):CommunityTransferFit(s,cell,a.Cultivars[k],HistoricalTechnologies.Has(s.History.Cultures[culture],HistoricalTechnology.CropRotation))):a.Cultivars?[k]==null?HistoricalCrops.Suitability(habitat,k,riverSites[cell]):HistoricalCropCatalog.TransferFit(habitat,a.Cultivars[k],latitude,riverSites[cell],HistoricalTechnologies.Has(s.History.Cultures[culture],HistoricalTechnology.CropRotation));
                 double local=fit*(stored?HistoricalHusbandryEffects.StoragePermille(k,a.Cultivars?[k],HistoricalTechnologies.Has(s.History.Cultures[culture],HistoricalTechnology.Pottery))/1000.0:1);best=Math.Max(best,local);
             }
@@ -159,6 +163,9 @@ namespace WorldGen.Core
         void SurveyAggregateCityCrops(PrehistoryState s,int id)
         {
             var town=s.Society.Settlements[id];var crops=s.History.Agriculture[town.CultureId];var habitat=CropHabitat(s,town.Cell);double latitude=Math.Abs(Math.Asin(World.Surface.Cells[town.Cell].Position.Z)*180/Math.PI);var ids=new System.Collections.Generic.List<int>();var weights=new System.Collections.Generic.List<double>();
+            if(LocalSeedlotHistory(s))
+            {var local=LocalSeedsAt(s,id);for(int k=0;k<6;k++){var seed=LocalSeedProfile(s,town.CultureId,k,local);if(seed==null)continue;double fit=CommunityTransferFit(s,town.Cell,seed,HistoricalTechnologies.Has(s.History.Cultures[town.CultureId],HistoricalTechnology.CropRotation));if(fit>=.02){ids.Add(seed.CropId);weights.Add(fit);}}}
+            else
             for(int k=0;k<6;k++)if(crops.AdoptedYear[k]>0&&crops.Cultivars?[k]!=null){bool managed=HistoricalTechnologies.Has(s.History.Cultures[town.CultureId],HistoricalTechnology.CropRotation);double fit=PassageHistory(s)?CommunityTransferFit(s,town.Cell,crops.Cultivars[k],managed):HistoricalCropCatalog.TransferFit(habitat,crops.Cultivars[k],latitude,riverSites[town.Cell],managed);if(fit>=.02){ids.Add(crops.Cultivars[k].CropId);weights.Add(fit);}}
             int[] shares=new int[ids.Count];double sum=weights.Sum();int assigned=0;for(int k=0;k<shares.Length;k++){shares[k]=k==shares.Length-1?1000-assigned:(int)(weights[k]/sum*1000);assigned+=shares[k];}
             s.History.Towns[id].Cropping=new HistoricalLocalHarvest{Year=s.Years,CultureId=town.CultureId,CropIds=ids.ToArray(),SharesPermille=shares};

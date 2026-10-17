@@ -31,19 +31,21 @@ namespace WorldGen.Core
                 if(EnvironmentalHistory(s)&&knowledge!=null&&s.Society.Cultures[r.Culture].Farming>=180)chance*=EnvironmentalTransmission(s,departure,arrival,r.Culture,route.Sea);
                 double residence=(route.DistanceM/1000.0+Patches[id].RadiusKm)*(.8+3*(1-similarity));
                 if(knowledge!=null&&!route.Sea){residence=HistoricalTechnicalMigration.ResidencyYears(route.DistanceM/1000.0,Patches[id].RadiusKm,similarity,knowledge,s.Years);chance=Math.Min(.98,chance*Math.Sqrt(mobility));}
-                if(destination.Capacity<25||HistoryRoll("provincial-dispersal-"+trial,id,s.Years)>=ElapsedChance(chance,elapsed/100.0)
+                long farmRoom=migrantLand&&knowledge!=null?CarriedFarmFrontierRoom(s,other,arrival,r.Culture,0,departure):0;
+                if(destination.Capacity<25&&farmRoom<25||HistoryRoll("provincial-dispersal-"+trial,id,s.Years)>=ElapsedChance(chance,elapsed/100.0)
                     ||s.Years-s.ArrivalYear[id]<=residence)continue;
                 long receivingCapacity=destination.Culture>=0?ProvincialRegionalCapacity(s,other,destination.Culture):destination.Capacity;
-                if(migrantLand&&knowledge!=null&&destination.Culture<0&&s.Society.Cultures[r.Culture].Farming>=250&&LivingCropLandscape(s,r.Culture,arrival,false)>=.12)
+                if(migrantLand&&knowledge!=null&&destination.Culture<0&&s.Society.Cultures[r.Culture].Farming>=250&&CarriedCropLandscape(s,r.Culture,arrival,false,-1,departure)>=.12)
                 {
                     // A district at its foraging limit is not necessarily full
                     // for a real incoming farming household. Count only the
                     // viable free border-cell fields, not a fictitious regional
                     // farm economy before any households arrive and practice.
-                    long borderFields=(long)(ProvincialFarmPotential(s,arrival,r.Culture)*D.Clamp(s.Society.Cultures[r.Culture].Farming/600.0));
+                    long borderFields=(long)(CarriedFarmPotential(s,r.Culture,arrival,-1,departure)*D.Clamp(s.Society.Cultures[r.Culture].Farming/600.0));
                     receivingCapacity=Math.Max(receivingCapacity,destination.Capacity+Math.Min(500,borderFields));
                 }
                 long room=Math.Max(0,receivingCapacity-s.Population[other]);
+                if(farmRoom>room)room=farmRoom;
                 long limit=knowledge!=null&&!route.Sea?(long)(500*Math.Sqrt(mobility)):500;
                 long people=Math.Min(budget,Math.Min(room,Math.Min(limit,Math.Max(25,(long)(residents*.02)))));if(people<25)continue;
                 long before=s.Population[other];s.Population[id]-=people;s.Population[other]+=people;budget-=people;
@@ -86,13 +88,13 @@ namespace WorldGen.Core
                     {
                         int site=route.A==id?route.CellB:route.CellA;
                         if(migrantLand)site=targetCell;
-                        if(site>=0&&HistoricalCells.Culture(s,site)<0&&LivingCropLandscape(s,source,site,false)>=.12)
+                        if(site>=0&&HistoricalCells.Culture(s,site)<0&&CarriedCropLandscape(s,source,site,false,-1,sourceCell)>=.12)
                         {
                             // Descendant households do not forget their crops,
                             // language and technical knowledge merely because
                             // they crossed a demographic-region boundary.
                             FoundAggregateCulture(s,other,site,source);int child=s.Society.Cultures.Length-1;
-                            InheritDevelopmentCommunity(s,child,source,site);
+                            InheritDevelopmentCommunityFrom(s,child,source,site,sourceCell,-1);
                             HistoryEvent(s,"migrant-community",s.Society.Cultures[source].Name+" households establish "+s.Society.Cultures[child].Name+" as a local descendant community, bringing crops and skills suited to the new landscape.",site,child,category:ChronicleCategory.Society);
                         }
                     }

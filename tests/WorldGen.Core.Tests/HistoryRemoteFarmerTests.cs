@@ -49,6 +49,10 @@ public static class HistoryRemoteFarmerTests
         var old=fixture.Copy();old.History.Aggregates.Empires.Connections.Realms.Version=8;
         var poor=fixture.Copy();poor.History.Polities[owner].Treasury=0;
         var empty=fixture.Copy();foreach(var town in empty.Society.Settlements)town.FoodReserve=0;
+        var overfull=fixture.Copy();overfull.History.Aggregates.Empires.Connections.Realms.Version=12;
+        long extra=Math.Max(0,overfull.History.Aggregates.Regions[to].Capacity+2000-overfull.Population[to]);
+        overfull.Population[to]+=extra;overfull.History.Aggregates.TotalPopulation+=extra;
+        var oldOverfull=overfull.Copy();oldOverfull.History.Aggregates.Empires.Connections.Realms.Version=11;
         var sea=new Prehistory.Route{A=selected.A,B=selected.B,Sea=true,LandCellA=selected.LandCellA,LandCellB=selected.LandCellB};
         foreach(var blocked in new[]{old,poor,empty})
             check(!(bool)Call("TryRemoteFarmerFrontier",blocked,from,selected,100,0),"Old rules, no actual treasury, and empty granaries cannot dispatch the new rural migration.");
@@ -65,6 +69,13 @@ public static class HistoryRemoteFarmerTests
         int child=fa.Regions[to].Culture;
         check(child>=0&&h.Cultures[child].ParentCultureId==culture&&h.Agriculture[child].AdoptedYear.Any(y=>y>0),"An actual local descendant inherits the carried, viable farm package.");
         check(world.Prehistory.ComputeHash()==input,"Controlled frontier tests leave their saved source untouched.");
+        check(!(bool)Call("TryRemoteFarmerFrontier",oldOverfull,from,selected,100,0),"The preceding additive-capacity allowance really blocks an overfull native forager district.");
+        long overRemote=overfull.History.Aggregates.Polities[owner].Remote,overTotal=overfull.History.Aggregates.TotalPopulation;
+        sourceQueueStart();bool fieldSuccess;
+        try{fieldSuccess=(bool)Call("TryRemoteFarmerFrontier",overfull,from,selected,100,0);}
+        finally{queueField.SetValue(engine,null);}
+        check(fieldSuccess&&overfull.History.Aggregates.Polities[owner].Remote<overRemote&&overfull.History.Aggregates.TotalPopulation==overTotal,"A physically viable free farm plot admits only actual debited households despite unrelated regional forager overpopulation.");
         Console.WriteLine($"Remote migration: {moved} real people, {from}->{to}, {origin}->{target}, year{trialYear}.");
+        void sourceQueueStart()=>queueField.SetValue(engine,new SimulationEventQueue(Array.Empty<SimulationEvent>()));
     }
 }

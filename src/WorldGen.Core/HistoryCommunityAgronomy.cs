@@ -75,23 +75,26 @@ namespace WorldGen.Core
             for(int k=0;k<6;k++){double fit=CommunityWildCropFit(s,cell,k),occurrence=Rng.Value(World.Recipe.Seed,"crop-wild-province",unchecked(province*31+k));double niche=PassageHistory(s)?HistoricalCropEcology.WildAnnualOpportunity(CropHabitat(s,cell),season,k):1;if(fit>.28&&occurrence<(.35+.55*fit)*niche)mask|=1<<k;}
             return mask;
         }
-        double CommunityCropLandscape(PrehistoryState s,int culture,int cell,bool storage)
+        double CommunityCropLandscape(PrehistoryState s,int culture,int cell,bool storage)=>CommunitySeededCropLandscape(s,culture,cell,storage,null,false);
+        double CommunitySeededCropLandscape(PrehistoryState s,int culture,int cell,bool storage,HistoricalTownSeeds seedContext,bool carried)
         {
             var h=CropHabitat(s,cell);var crops=s.History.Agriculture[culture];var hc=s.History.Cultures[culture];
+            var localSeeds=LocalSeedlotHistory(s)?(carried?seedContext:LocalSeedHolder(s,culture,cell)):null;
             bool managed=HistoricalTechnologies.Has(hc,HistoricalTechnology.CropRotation);double best=0;
             double fraction=Math.Min(1,Math.Max(.08,D.Clamp((h.AridityMilli-100)/550.0)+riverAccess[cell]));
             var climate=World.Climate;double low=Math.Min(Math.Min(climate.NorthernSpring.PrecipitationMm[cell],climate.NorthernSummer.PrecipitationMm[cell]),Math.Min(climate.NorthernAutumn.PrecipitationMm[cell],climate.NorthernWinter.PrecipitationMm[cell]));
             double high=Math.Max(Math.Max(climate.NorthernSpring.PrecipitationMm[cell],climate.NorthernSummer.PrecipitationMm[cell]),Math.Max(climate.NorthernAutumn.PrecipitationMm[cell],climate.NorthernWinter.PrecipitationMm[cell]));
             double rainfallSeason=(high-low)/Math.Max(1,high);
-            for(int k=0;k<6;k++)if(crops.AdoptedYear[k]>0)
+            for(int k=0;k<6;k++)if(crops.AdoptedYear[k]>0||localSeeds?[k]!=null)
             {
-                var cultivar=crops.Cultivars?[k];int group=PassageHistory(s)&&cultivar?.CropId==10?6:PassageHistory(s)&&cultivar?.CropId==12?7:k;var agronomic=CommunityAgronomicHabitat(s,cell,group);
+                var cultivar=LocalSeedlotHistory(s)?LocalSeedProfile(s,culture,k,localSeeds):crops.Cultivars?[k];if(localSeeds!=null&&cultivar==null)continue;
+                int group=PassageHistory(s)&&cultivar?.CropId==10?6:PassageHistory(s)&&cultivar?.CropId==12?7:k;var agronomic=CommunityAgronomicHabitat(s,cell,group);
                 double fit=cultivar==null?CommunityWildCropFit(s,cell,k):CommunityTransferFit(s,cell,cultivar,managed);
                 double area=CommunityAreaYield(s,cell,group,agronomic,rainfallSeason);
                 double quality=D.Clamp(area/fraction);
                 if(HistoricalLandscapeEffects.EverWet(h))
                 {
-                    double husbandry=D.Clamp((crops.HusbandryYears?[k]??0)/15000.0);
+                    double husbandry=D.Clamp((LocalSeedlotHistory(s)?LocalSeedPractice(s,culture,k,localSeeds):crops.HusbandryYears?[k]??0)/15000.0);
                     quality=Math.Max(quality,(managed?.35:(EnvironmentalHistory(s)?.20:.30)*husbandry)*HistoricalCropCatalog.LeachingPenalty(h,EnvironmentalHistory(s)?managed:true));
                 }
                 double preservation=storage?HistoricalHusbandryEffects.StoragePermille(k,cultivar,HistoricalTechnologies.Has(hc,HistoricalTechnology.Pottery))/1000.0*(.65+.35*rainfallSeason):1;

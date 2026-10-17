@@ -1,25 +1,48 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Threading;
 using Microsoft.Win32.SafeHandles;
 
 namespace WorldGen.Core
 {
     // Provider selection only: canonical bytes and SHA-256 stay identical.
-    // Unity's Windows Mono SHA256/Cng/CSP facades all use a slow managed backend.
-    // Other hosts retain their normal BCL implementation; unavailable CNG falls back.
+    // Unity's Windows Mono and IL2CPP facades can use a managed backend.
+    // Windows uses its platform implementation; unavailable CNG falls back.
     internal static class CanonicalSha256
     {
-        static readonly bool WindowsMono=Environment.OSVersion.Platform==PlatformID.Win32NT&&Type.GetType("Mono.Runtime")!=null;
+        static readonly bool WindowsNative=Environment.OSVersion.Platform==PlatformID.Win32NT;
+        // Provider configuration is immutable. The process shares this one
+        // handle, never a writable hash context. Lazy also memoizes an absent
+        // platform provider instead of repeatedly probing an unavailable DLL.
+        static readonly Lazy<AlgorithmHandle> Provider=new Lazy<AlgorithmHandle>(OpenProvider,LazyThreadSafetyMode.ExecutionAndPublication);
+        static int providerOpenAttempts,nativeHashUnavailable;
+        internal static int ProviderOpenAttempts=>Volatile.Read(ref providerOpenAttempts);
+        internal static string Backend(SHA256 hash)=>hash is WindowsHash?"Windows CNG (cached provider)":hash.GetType().FullName+" (fallback)";
+        static AlgorithmHandle OpenProvider()
+        {
+            Interlocked.Increment(ref providerOpenAttempts);
+            try{Check(BCryptOpenAlgorithmProvider(out var handle,"SHA256",null,0));return new AlgorithmHandle(handle);}
+            catch(DllNotFoundException){}
+            catch(EntryPointNotFoundException){}
+            catch(CryptographicException){}
+            catch(PlatformNotSupportedException){}
+            catch(MarshalDirectiveException){}
+            return null;
+        }
         public static SHA256 Create()
         {
-            if(WindowsMono)
+            if(WindowsNative&&Volatile.Read(ref nativeHashUnavailable)==0)
             {
-                try{return new WindowsHash();}
+                try{var provider=Provider.Value;if(provider!=null)return new WindowsHash(provider);}
                 catch(DllNotFoundException){}
                 catch(EntryPointNotFoundException){}
                 catch(CryptographicException){}
                 catch(PlatformNotSupportedException){}
+                catch(MarshalDirectiveException){}
+                // Interop unsupported by a runtime is a backend capability,
+                // not a reason to pay its exception cost for every digest.
+                Interlocked.Exchange(ref nativeHashUnavailable,1);
             }
             return SHA256.Create();
         }
@@ -30,20 +53,23 @@ namespace WorldGen.Core
         }
         sealed class HashHandle:SafeHandleZeroOrMinusOneIsInvalid
         {
-            public HashHandle(IntPtr value):base(true){SetHandle(value);}
-            protected override bool ReleaseHandle()=>BCryptDestroyHash(handle)>=0;
+            readonly AlgorithmHandle provider;bool providerLease;
+            public HashHandle(IntPtr value,AlgorithmHandle provider):base(true)
+            {this.provider=provider;provider.DangerousAddRef(ref providerLease);SetHandle(value);}
+            protected override bool ReleaseHandle()
+            {try{return BCryptDestroyHash(handle)>=0;}finally{if(providerLease){providerLease=false;provider.DangerousRelease();}}}
         }
         sealed class WindowsHash:SHA256
         {
-            AlgorithmHandle algorithm;HashHandle hash;
-            public WindowsHash()
+            readonly AlgorithmHandle algorithm;HashHandle hash;bool disposed;
+            public WindowsHash(AlgorithmHandle provider)
             {
-                HashSizeValue=256;Check(BCryptOpenAlgorithmProvider(out var handle,"SHA256",null,0));algorithm=new AlgorithmHandle(handle);
-                try{Initialize();}catch{algorithm.Dispose();throw;}
+                HashSizeValue=256;algorithm=provider;Initialize();
             }
             public override void Initialize()
             {
-                hash?.Dispose();Check(BCryptCreateHash(algorithm,out var handle,IntPtr.Zero,0,IntPtr.Zero,0,0));hash=new HashHandle(handle);
+                if(disposed)throw new ObjectDisposedException(nameof(WindowsHash));
+                hash?.Dispose();Check(BCryptCreateHash(algorithm,out var handle,IntPtr.Zero,0,IntPtr.Zero,0,0));hash=new HashHandle(handle,algorithm);
             }
             protected override void HashCore(byte[] array,int offset,int count)
             {
@@ -52,7 +78,7 @@ namespace WorldGen.Core
                 try{Check(BCryptHashData(hash,IntPtr.Add(pinned.AddrOfPinnedObject(),offset),count,0));}finally{pinned.Free();}
             }
             protected override byte[] HashFinal(){var bytes=new byte[32];Check(BCryptFinishHash(hash,bytes,bytes.Length,0));return bytes;}
-            protected override void Dispose(bool disposing){if(disposing){hash?.Dispose();algorithm?.Dispose();}base.Dispose(disposing);}
+            protected override void Dispose(bool disposing){disposed=true;if(disposing)hash?.Dispose();base.Dispose(disposing);}
         }
         static void Check(int status){if(status<0)throw new CryptographicException("Windows SHA-256 failed: 0x"+status.ToString("X8"));}
         [DllImport("bcrypt.dll",CharSet=CharSet.Unicode),DefaultDllImportSearchPaths(DllImportSearchPath.System32)]

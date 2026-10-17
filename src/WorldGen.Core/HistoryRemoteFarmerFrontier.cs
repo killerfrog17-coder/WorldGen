@@ -31,11 +31,12 @@ namespace WorldGen.Core
             if(cohort!=owner)return false;
             var country=a.Polities[cohort];int culture=h.Polities[cohort].CultureId;var people=s.Society.Cultures[culture];
             if(country.Remote<250||people.Farming<250||country.RemoteAreaKm2<=0
-                ||!InstitutionalRouteAllowed(s,fromCell,target,culture)||LivingCropLandscape(s,culture,target,false)<.12)return false;
+                ||!InstitutionalRouteAllowed(s,fromCell,target,culture)||CarriedCropLandscape(s,culture,target,false,-1,fromCell)<.12)return false;
             long local=(long)(country.Remote*Math.Min(1,inhabitableArea[fromCell]/country.RemoteAreaKm2));
             if(local<250)return false;
-            long fields=(long)(ProvincialFarmPotential(s,target,culture)*D.Clamp(people.Farming/600.0));
+            long fields=(long)(CarriedFarmPotential(s,culture,target,-1,fromCell)*D.Clamp(people.Farming/600.0));
             long room=Math.Max(0,a.Regions[to].Capacity+Math.Min(500,fields)-s.Population[to]);
+            if(FarmFrontierVacancyHistory(s))room=CarriedFarmFrontierRoom(s,to,target,culture,room,fromCell);
             long migrants=Math.Min(500,Math.Min(room,Math.Min(local/20,country.Remote/100)));
             if(migrants<50)return false;
             int source=a.Empires.Territories.Sources[fromCell];
@@ -70,7 +71,7 @@ namespace WorldGen.Core
             if(s.Population[to]>=400)
             {
                 FoundAggregateCulture(s,to,target,culture);int child=s.Society.Cultures.Length-1;
-                InheritDevelopmentCommunity(s,child,culture,target);
+                InheritDevelopmentCommunityFrom(s,child,culture,target,fromCell,-1);
             }
             HistoryEvent(s,"migrant-frontier",migrants+" people from farming households leave "+people.Name+" for neighboring farmland, carrying viable crops and provisions from "+granary.Name+". A local farming community is not a new town or sovereign state.",target,a.Regions[to].Culture,category:ChronicleCategory.Society);
             return true;

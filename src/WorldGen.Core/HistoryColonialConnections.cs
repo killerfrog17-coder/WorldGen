@@ -47,12 +47,13 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public HistoricalMilitaryOperations Military;
         [System.Runtime.Serialization.OptionalField] public HistoricalTerritorialServiceRecovery ServiceRecovery;
         [System.Runtime.Serialization.OptionalField] public HistoricalSeaService SeaService;
+        [System.Runtime.Serialization.OptionalField] public HistoricalLocalSeedlots LocalSeeds;
         public HistoricalCellTree CellRegions,TitleAt,FamilyRoots;
         public long[] RegionAreas=Array.Empty<long>();
         public HistoricalCulturalContinuity[] Cultures=Array.Empty<HistoricalCulturalContinuity>();
         public HistoricalColonialGovernment[] Governments=Array.Empty<HistoricalColonialGovernment>();
         public HistoricalRecognizedTitle[] Titles=Array.Empty<HistoricalRecognizedTitle>();
-        public HistoricalColonialConnections Copy()=>new HistoricalColonialConnections{Ambitions=Ambitions?.Copy(),Coasts=Coasts?.Copy(),PortSettlements=PortSettlements?.Copy(),ProvisionedPorts=ProvisionedPorts?.Copy(),CoastalFarming=CoastalFarming?.Copy(),Geography=Geography?.Copy(),Realms=Realms?.Copy(),Religion=Religion?.Copy(),Military=Military?.Copy(),ServiceRecovery=ServiceRecovery?.Copy(),SeaService=SeaService?.Copy(),CellRegions=CellRegions,TitleAt=TitleAt,FamilyRoots=FamilyRoots,RegionAreas=(long[])RegionAreas.Clone(),Cultures=Cultures.Select(c=>c.Copy()).ToArray(),Governments=Governments.Select(g=>g.Copy()).ToArray(),Titles=Titles.Select(t=>t.Copy()).ToArray()};
+        public HistoricalColonialConnections Copy()=>new HistoricalColonialConnections{Ambitions=Ambitions?.Copy(),Coasts=Coasts?.Copy(),PortSettlements=PortSettlements?.Copy(),ProvisionedPorts=ProvisionedPorts?.Copy(),CoastalFarming=CoastalFarming?.Copy(),Geography=Geography?.Copy(),Realms=Realms?.Copy(),Religion=Religion?.Copy(),Military=Military?.Copy(),ServiceRecovery=ServiceRecovery?.Copy(),SeaService=SeaService?.Copy(),LocalSeeds=LocalSeeds?.Copy(),CellRegions=CellRegions,TitleAt=TitleAt,FamilyRoots=FamilyRoots,RegionAreas=(long[])RegionAreas.Clone(),Cultures=Cultures.Select(c=>c.Copy()).ToArray(),Governments=Governments.Select(g=>g.Copy()).ToArray(),Titles=Titles.Select(t=>t.Copy()).ToArray()};
     }
     public static class HistoricalRecognizedClaims
     {

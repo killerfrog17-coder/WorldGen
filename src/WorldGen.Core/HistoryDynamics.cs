@@ -52,7 +52,7 @@ namespace WorldGen.Core
             var leader=new HistoricalLeader{Id=id,PolityId=polity.Id,StartedYear=s.Years,ExpectedEndYear=s.Years+18+(int)(32*Roll("tenure")),Military=200+(int)(600*Roll("military")),Administration=200+(int)(600*Roll("administration")),Diplomacy=200+(int)(600*Roll("diplomacy")),Ambition=150+(int)(700*Roll("ambition")),Name=HistoricalName("leader-name",unchecked(id*7919+s.Years))+" of the "+HistoricalName("leader-house",polity.Id)+" House"};
             if(Roll("exceptional")<.015){leader.Military=850+(int)(150*Roll("exceptional-military"));leader.Administration=Math.Max(leader.Administration,650);leader.Ambition=800+(int)(200*Roll("exceptional-ambition"));}
             if(ExperimentalHistory(s))ConfigureHistoricalSuccession(s,polity,ds,leader,former);
-            dynamics.Leaders=dynamics.Leaders.Concat(new[]{leader}).ToArray();ds.LeaderId=id;ds.LastSuccession=s.Years;polity.Ruler=leader.Name;polity.RulerSince=s.Years;
+            dynamics.Leaders.Add(leader);ds.LeaderId=id;ds.LastSuccession=s.Years;polity.Ruler=leader.Name;polity.RulerSince=s.Years;
             if(!succession)return;
             int successionCost=45+Math.Min(150,(former?.Renown??0)/5);
             if(InstitutionalHistory(s))successionCost=HistoricalInstitutionalEffects.SuccessionLegitimacyCost(HereditaryCourt(polity,ds),s.History.Cultures[polity.CultureId].Institution,leader.Diplomacy,former?.Renown??0,leader.Selection=="Acclamation of a rival court and military supporters");

@@ -28,8 +28,8 @@ namespace WorldGen.Core
         internal IEnumerable<HistoricalRelation> ReadOnlyValues(){int length=count;for(int i=0;i<length;i++)yield return Peek(i);}
         public HistoricalRelation this[int index]
         {
-            get{Check(index);lock(gate){if(materialized!=null&&materialized.TryGetValue(index,out var record))return record;var copy=pages[index/PageSize][index%PageSize]?.Copy();Local()[index]=copy;return copy;}}
-            set{Check(index);lock(gate)Local()[index]=value;}
+            get{Check(index);lock(gate){if(materialized!=null&&materialized.TryGetValue(index,out var record)){if(record!=null)record.OwnedCanonicalRecord=null;return record;}var copy=pages[index/PageSize][index%PageSize]?.Copy();if(copy!=null)copy.OwnedCanonicalRecord=null;Local()[index]=copy;return copy;}}
+            set{Check(index);lock(gate){if(value!=null)value.OwnedCanonicalRecord=null;Local()[index]=value;}}
         }
         internal HistoricalRelationCollection Fork()
         {
@@ -42,7 +42,8 @@ namespace WorldGen.Core
                     foreach(var entry in materialized)
                     {
                         int page=entry.Key/PageSize;if(copied.Add(page))next.pages[page]=(HistoricalRelation[])next.pages[page].Clone();
-                        next.pages[page][entry.Key%PageSize]=entry.Value?.Copy();
+                        var copy=entry.Value?.Copy();if(copy!=null)copy.OwnedCanonicalRecord=null;
+                        next.pages[page][entry.Key%PageSize]=copy;
                     }
                 }
                 writableLast=false;return next;

@@ -8,7 +8,7 @@ using WorldGen.Serialization;
 // and none of these censuses run inside an authoritative actor event.
 public static class HistoryColonialThroughputAudit
 {
-    public static void Run(string path,string output,int replayStart=-1,int years=0,int realm=-1)
+    public static void Run(string path,string output,int replayStart=-1,int years=0,int realm=-1,string saveStart=null)
     {
         if(File.Exists(output)||years<0||years>300)throw new ArgumentException("Use a new audit file and a0..300year observation window.");
         var w=WorldFile.Read(File.ReadAllBytes(path));var original=w.Prehistory;string inputHash=original.Hash;long originalReads=original.History.Aggregates.CellReads;var e=new Prehistory(w);PrehistoryState s=original;
@@ -21,6 +21,11 @@ public static class HistoryColonialThroughputAudit
             var replay=new SimulationSession(e,s);replay.AdvanceSeconds(replayStart*SimulationTime.Year,int.MaxValue);s=replay.Snapshot();
         }
         e.Validate(s);int startYear=s.Years;string startHash=s.Hash;
+        if(saveStart!=null)
+        {
+            if(File.Exists(saveStart))throw new ArgumentException("Refusing to overwrite an audit checkpoint.");
+            w.Prehistory=s;File.WriteAllBytes(saveStart,WorldFile.Write(w));
+        }
         var reasons=new SortedDictionary<string,int>();var polityReasons=new SortedDictionary<string,int>();var observed=new List<object>();var arrivals=new List<object>();var newEvents=new List<object>();
         var missions=new Dictionary<string,HistoricalSeaMission>();var missionPolity=new Dictionary<string,int>();var missing=new HashSet<string>();
         string Key(int polity,HistoricalSeaMission m)=>polity+":"+m.Kind+":"+m.Departed+":"+m.Due+":"+m.Source+":"+m.Target+":"+m.Region;

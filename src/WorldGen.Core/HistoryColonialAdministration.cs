@@ -37,9 +37,9 @@ namespace WorldGen.Core
             if(ColonialHistory(s)&&(RespectRecognizedClaim(s,polity,target)||World.Ecology.Habitat[target].GrowingDays<60&&!HistoricalTechnologies.Has(hc,HistoricalTechnology.CombustionEngines)))return;
             if(other>=0)
             {
-                if(other!=polity&&p.Cohesion>=600&&HistoricalModernEffects.Military(hc,s.Years)>HistoricalModernEffects.Military(h.Cultures[h.Polities[other].CultureId],s.Years)*1.5)
+                if(other!=polity&&(RevisedMaritimeMissionHistory(s)||p.Cohesion>=600&&HistoricalModernEffects.Military(hc,s.Years)>HistoricalModernEffects.Military(h.Cultures[h.Polities[other].CultureId],s.Years)*1.5))
                 {
-                    bool submitted=TryImperialSubmission(s,polity,other,false,elapsed,target);
+                    bool submitted=!RevisedMaritimeMissionHistory(s)&&TryImperialSubmission(s,polity,other,false,elapsed,target);
                     bool expedition=!submitted&&LivingWorldHistory(s)&&CommitMaritimeStateExpedition(s,polity,other,route,elapsed,organized);
                     if(LivingWorldHistory(s)&&(submitted||expedition))s.Society.Settlements[provisionPort].FoodReserve-=provisions;
                 }

@@ -63,6 +63,15 @@ public static class HistoryRelationCollectionTests
         start=GC.GetAllocatedBytesForCurrentThread();for(int i=0;i<1000;i++){frozen.Add(new HistoricalRelation{A=i,B=i+1});cf.Add(-1);}long appendBytes=GC.GetAllocatedBytesForCurrentThread()-start;
         check(appendBytes<1024*1024,"Appending 1000 pairs to a 100k prefix uses amortized page growth, not history-length array clones ("+appendBytes+" bytes).");
         var cancelled=Fork(frozen);cancelled[0].Trust=99;using(var token=new CancellationTokenSource()){token.Cancel();bool caught=false;try{StateHash.Compute(cancelled,token.Token);}catch(OperationCanceledException){caught=true;}check(caught&&frozen[0].Trust!=99,"A cancelled branch cannot leak mutable relation changes back to its source.");}
+        string Owned(HistoricalRelationCollection rows)=>(string)typeof(StateHash).GetMethod("ComputeOwnedHistorical",BindingFlags.NonPublic|BindingFlags.Static)!.Invoke(null,new object[]{rows,new HistoryState(),default(CancellationToken)})!;
+        var cached=new HistoricalRelationCollection(new[]{new HistoricalRelation{A=1,B=2,Trust=17},new HistoricalRelation{A=3,B=4}});
+        check(Owned(cached)==StateHash.Compute(cached)&&Owned(cached)==StateHash.ComputeHistoricalReference(cached),"Private relation-byte reuse preserves public and literal canonical hashes.");
+        cached[0].Trust=27;check(Owned(cached)==StateHash.Compute(cached),"Every mutable record access invalidates private cached canonical bytes before the next owned checkpoint.");
+        var held=cached[0];Owned(cached);held.Trust=31;
+        check(StateHash.Compute(cached)==StateHash.ComputeHistoricalReference(cached),"Public integrity hashing observes edits through a retained reference even after private byte warming.");
+        var detached=Fork(cached);check(Owned(detached)==StateHash.Compute(cached),"Forking re-reads and invalidates externally exposed records rather than carrying stale private bytes into simulation.");
+        held.Trust=47;check(Owned(detached)!=StateHash.Compute(cached),"A later held-reference edit cannot mutate a fork's trusted record bytes.");
+        var edit=detached[1];edit.Trade=true;check(Owned(detached)==StateHash.Compute(detached),"A fork's independently materialized edit invalidates only its own cached record.");
         Console.WriteLine("Relation pages: fork100k="+forkBytes+"B; first getter="+getterBytes+"B; append1000="+appendBytes+"B");
     }
     public static void World(string path,Action<bool,string> check)

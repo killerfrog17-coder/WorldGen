@@ -86,7 +86,7 @@ namespace WorldGen.Core
                 if(GeographicHistory(s)&&sourceState>=0&&(route.DistanceM>120000||HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years)>=.2))continue;
                 if(GeographicHistory(s)&&!reliableDelivery)continue;
                 long carrying=Patches[to].Capacity;
-                if(s.Society.Cultures[culture].Farming>=180)carrying=(long)(carrying*(1+s.Society.Cultures[culture].Farming/80.0*LivingCropLandscape(s,culture,route.CellB,false)*HistoricalModernEffects.FoodMultiplier(hc,s.Years)));
+                if(s.Society.Cultures[culture].Farming>=180)carrying=(long)(carrying*(1+s.Society.Cultures[culture].Farming/80.0*CarriedCropLandscape(s,culture,route.CellB,false,sourceTown,route.CellA)*HistoricalModernEffects.FoodMultiplier(hc,s.Years)));
                 long destination=destinationState>=0?a.Polities[destinationState].Remote:s.Population[to];
                 if(destinationState>=0)carrying=ProvincialRemoteCapacity(s,destinationState);
                 long migrants=Math.Min(residents/20,Math.Min(1000,Math.Max(0,carrying-destination)));if(migrants<50)continue;
@@ -101,7 +101,7 @@ namespace WorldGen.Core
                 else for(int g=0;g<8;g++)s.Ancestry[to*8+g]=(int)((s.Ancestry[to*8+g]*destination+s.Ancestry[region*8+g]*migrants)/Math.Max(1,destination+migrants));
                 if(a.Regions[to].Culture<0&&HistoricalCells.Culture(s,route.CellB)<0&&s.Population[to]>=400)
                 {
-                    FoundAggregateCulture(s,to,route.CellB,culture);int child=s.Society.Cultures.Length-1;InheritDevelopmentCommunity(s,child,culture,route.CellB);
+                    FoundAggregateCulture(s,to,route.CellB,culture);int child=s.Society.Cultures.Length-1;InheritDevelopmentCommunityFrom(s,child,culture,route.CellB,route.CellA,sourceTown);
                     if(ColonialHistory(s)&&sourceState>=0){var continuity=a.Empires.Connections.Cultures[child];continuity.ColonialSponsor=sourceState;continuity.CivilizationRoot=HistoricalRecognizedClaims.Civilization(s,culture);}
                     HistoryEvent(s,"overseas-community",s.Society.Cultures[culture].Name+" voyagers establish a community along a sea route of approximately "+route.DistanceM/1000+" km, bringing crops and practical knowledge that must work in their new environment.",route.CellB,child,category:ChronicleCategory.Society);
                 }

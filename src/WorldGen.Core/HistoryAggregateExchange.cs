@@ -72,7 +72,7 @@ namespace WorldGen.Core
                 HistoryEvent(s,"ocean-exchange",town.Name+" establishes sea exchange with "+s.Society.Settlements[destinationTown].Name+".",town.Cell,town.CultureId,town.PolityId,town:cityId,category:ChronicleCategory.Discoveries);return;
             }
             long carrying=Patches[patch].Capacity;
-            if(LivingHistory(s))carrying=(long)(carrying*(1+s.Society.Cultures[town.CultureId].Farming/80.0*LivingCropLandscape(s,town.CultureId,destination,false)*HistoricalModernEffects.FoodMultiplier(hc,s.Years)));
+            if(LivingHistory(s))carrying=(long)(carrying*(1+s.Society.Cultures[town.CultureId].Farming/80.0*CarriedCropLandscape(s,town.CultureId,destination,false,cityId,town.Cell)*HistoricalModernEffects.FoodMultiplier(hc,s.Years)));
             if(local>=0||s.Population[patch]>carrying*.8||HistoryRoll("aggregate-voyage-landing",cityId,s.Years)>.25)return;
             long people=Math.Min(Math.Min(town.Population/20,149*HistoricalModernVoyageEffects.FounderScale(hc,s.Years)),Math.Min(town.FoodReserve/3,Math.Max(0,carrying-s.Population[patch])));if(people<50)return;
             town.FoodReserve-=people*2;ChangeAggregateCityPopulation(s,cityId,town.Population-people,a.Cities[cityId].Suburban,a.Cities[cityId].Rural);long previous=s.Population[patch];s.Population[patch]+=people;a.TotalPopulation+=people;if(s.ArrivalYear[patch]<0)s.ArrivalYear[patch]=s.Years;
@@ -81,7 +81,7 @@ namespace WorldGen.Core
             if(HistoricalCells.Culture(s,destination)<0)
             {
                 FoundAggregateCulture(s,patch,destination,town.CultureId);int child=h.Cultures.Length-1;
-                if(CommunityHistory(s))InheritDevelopmentCommunity(s,child,town.CultureId,destination);
+                if(CommunityHistory(s))InheritDevelopmentCommunityFrom(s,child,town.CultureId,destination,town.Cell,cityId);
                 else
                 {
                 var inherited=h.Cultures[child];inherited.ParentCultureId=town.CultureId;inherited.LanguageId=hc.LanguageId;inherited.Technology=(int[])hc.Technology.Clone();s.Society.Cultures[child].Farming=s.Society.Cultures[town.CultureId].Farming;

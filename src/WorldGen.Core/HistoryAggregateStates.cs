@@ -60,7 +60,7 @@ namespace WorldGen.Core
             bool elected=CommunityHistory(s)&&h.Aggregates.Communities.Governments[polity].RepresentationMilli>=650;
             if(elected){leader.ExpectedEndYear=s.Years+4+(int)(6*Roll("elected-term"));leader.Selection="Selection through representative institutions and local councils";}
             if(LivingWorldHistory(s)){var profile=PoliticalProfile(s,polity);leader.Selection=profile.Succession;RefreshPoliticalDescription(s,polity);}
-            h.Dynamics.Leaders=h.Dynamics.Leaders.Concat(new[]{leader}).ToArray();ds.LeaderId=id;ds.LastSuccession=s.Years;p.Ruler=leader.Name;p.RulerSince=s.Years;s.History.Aggregates.Polities[polity].SuccessionDue=leader.ExpectedEndYear;SealAggregateLeader(s,id);
+            h.Dynamics.Leaders.Add(leader);ds.LeaderId=id;ds.LastSuccession=s.Years;p.Ruler=leader.Name;p.RulerSince=s.Years;s.History.Aggregates.Polities[polity].SuccessionDue=leader.ExpectedEndYear;SealAggregateLeader(s,id);
             RefreshTerritorialAmbition(s,polity);
             if(previous>=0){if(!elected){p.Legitimacy=Math.Max(100,p.Legitimacy-75);p.Cohesion=Math.Max(100,p.Cohesion-(h.Dynamics.Leaders[previous].Renown>=250?150:45));}HistoryEvent(s,elected?"election":"succession",leader.Name+(elected?" takes office under the representative institutions of ":" succeeds to the government of ")+p.Name+".",s.Society.Settlements[p.CapitalId].Cell,p.CultureId,p.Id,category:ChronicleCategory.Politics);}
             RealmSuccession(s,polity,previous>=0?h.Dynamics.Leaders[previous]:null,leader);

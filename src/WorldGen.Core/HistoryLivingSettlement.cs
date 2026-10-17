@@ -57,7 +57,7 @@ namespace WorldGen.Core
         bool CanFoundLivingTown(PrehistoryState s,int culture,int cell,int parent)
         {
             var a=s.History.Aggregates;int region=cell>=0&&cell<CellPatch.Length?CellPatch[cell]:-1;if(region<0||a.TownAt[cell]>=0||World.Hydrology.LakeCoverageFraction[cell]>=.9)return false;
-            double localYield=LivingCropLandscape(s,culture,cell,false);int practiced=s.History.Agriculture[culture].HusbandryYears?.Max()??0;
+            double localYield=CarriedCropLandscape(s,culture,cell,false,parent);int practiced=LocalSeedlotHistory(s)?CarriedCropPractice(s,culture,cell,parent):s.History.Agriculture[culture].HusbandryYears?.Max()??0;
             int host=HistoricalCells.Polity(s,cell);bool remoteHouseholds=ProvincialHistory(s)&&host>=0&&a.Polities[host].Remote>=1600;
             if(parent<0&&s.Population[region]<800&&!remoteHouseholds||s.Society.Cultures[culture].Farming<180||localYield<.10&&(localYield<.02||practiced<10000))return false;
             if(LivingWorldHistory(s))
@@ -67,7 +67,7 @@ namespace WorldGen.Core
                 // an icecap. Heated/import-dependent stations need later supply.
                 bool modernSupply=HistoricalModernEffects.Adoption(s.History.Cultures[culture],HistoricalTechnology.CombustionEngines,s.Years)>.3;
                 if((habitat.GrowingDays<90||habitat.WarmTenthsC<80||habitat.PermafrostPermille>700)&&!modernSupply)return false;
-                if(parent<0&&HistoricalProtocentreEffects.MaximumResidents(EnvironmentalEstablishment(s,cell,culture),LivingCropLandscape(s,culture,cell,true),s.History.Cultures[culture].Institution,0)<120)return false;
+                if(parent<0&&HistoricalProtocentreEffects.MaximumResidents(EnvironmentalEstablishment(s,cell,culture),CarriedCropLandscape(s,culture,cell,true,parent),s.History.Cultures[culture].Institution,0)<120)return false;
             }
             int bucket=LivingTownBucket(World.Surface.Cells[cell].Position);if(a.Living.BucketCounts[bucket]>=16)return false;
             double modern=HistoricalModernEffects.Adoption(s.History.Cultures[culture],HistoricalTechnology.Railways,s.Years);
@@ -99,18 +99,19 @@ namespace WorldGen.Core
             // Reserve a genuine share of the region's land and forager capacity.
             // Later centers must compete for that land, rather than each gaining
             // an independent 1,500-person food source for free.
-            double localYield=LivingCropLandscape(s,culture,cell,false);
+            double localYield=CarriedCropLandscape(s,culture,cell,false,parent);
             long area=Math.Min(Math.Max(500,(long)(Math.PI*55*55*Math.Min(4,Math.Max(1,.25/Math.Max(.02,localYield))))),Math.Max(0,a.Regions[patch].AreaKm2-a.Living.Regions[patch].CommittedAreaKm2));
             if(provisioned!=null)area=10;
             if(coastal!=null)area=coastal.Area;
             if(area<(provisioned!=null?10:coastal!=null?50:500))return;long baseRural=Math.Min(a.Regions[patch].Capacity,(long)(Patches[patch].Capacity*area/Math.Max(1.0,a.Regions[patch].AreaKm2)));
             long capacity=Math.Max(800,(long)(area*(.8+10*localYield)*(.3+.7*c.Farming/600.0)));
-            if(ProvincialHistory(s))capacity=Math.Max(800,(long)(area*HistoricalProvincialEffects.FarmingDensity(ProvincialPhysicalYield(s,culture,cell),c.Farming)));
+            if(ProvincialHistory(s))capacity=Math.Max(800,(long)(area*HistoricalProvincialEffects.FarmingDensity(CarriedPhysicalYield(s,culture,cell,parent),c.Farming)));
             long urbanCapacity=Math.Max(500,(long)(capacity*(.035+.08*c.Farming/1000.0)));
             if(provisioned!=null){capacity=0;urbanCapacity=HistoricalProvisionedPortEffects.ResidentLimit;}
             var town=new Settlement{Id=id,Cell=cell,CultureId=culture,PolityId=-1,FoundedYear=s.Years,Name=LanguageHistory(s)?LanguageName(s,culture,LanguageNameKind.Settlement,unchecked(cell+id*7919),cell):HistoricalName("town",unchecked(cell+id*7919)),Population=founders,FoodCapacity=urbanCapacity,FoodReserve=founders,CultivatedPermille=c.Farming};
             if(provisioned!=null){town.FoodReserve=founders*3;town.CultivatedPermille=0;}
             var city=new HistoricalCityAggregate{Id=id,LastYear=s.Years,LastHarvestYear=s.Years,LastPoliticalYear=s.Years,LastVoyageYear=s.Years,ParentCity=parent,BaseUrbanCapacity=urbanCapacity,BaseFarming=c.Farming,BaseFoodMultiplier=HistoricalModernEffects.FoodMultiplier(h.Cultures[culture],s.Years),BaseCropFactor=.4+.6*AggregateCropSupport(s,culture,cell,false),FoodYieldMilli=(int)(landscapeYield[cell]*1000),StoredYieldMilli=(int)(landscapeStored[cell]*1000),FloodMilli=(int)(riverAccess[cell]*1000),SoilMilli=World.Ecology.Habitat[cell].SoilFertilityPermille,Rural=rural,RuralCapacity=capacity,AreaKm2=area,Supported=true};
+            if(LocalSeedlotHistory(s))city.BaseCropFactor=.4+.6*CarriedCropSupport(s,culture,cell,parent);
             var seaTransport=provisioned?.Service??transport;
             if(SeaServiceHistory(s)&&seaTransport!=null&&!CommitSeaService(s,seaTransport))return;
             if(coastal!=null)TransferCoastalFarmFounders(s,coastal);
@@ -129,7 +130,7 @@ namespace WorldGen.Core
                 if(hostState>=0)
                 {
                     double share=D.Clamp(a.Provinces.ClaimedAreaKm2[patch]/(double)Math.Max(1,a.Regions[patch].AreaKm2));
-                    if(provisioned==null)a.Provinces.FarmPotential[hostState]=Math.Max(0,a.Provinces.FarmPotential[hostState]-(long)(area*share*65*ProvincialPhysicalYield(s,culture,cell)));
+                    if(provisioned==null)a.Provinces.FarmPotential[hostState]=Math.Max(0,a.Provinces.FarmPotential[hostState]-(long)(area*share*65*CarriedPhysicalYield(s,culture,cell,parent)));
                 }
                 RefreshProvincialRegionalCapacity(s,patch);
             }
@@ -142,6 +143,7 @@ namespace WorldGen.Core
             RegisterCoastalFarmFamily(s,id,parent);
             TrackPendingColonialPort(s,cell);
             if(CommunityHistory(s))a.Communities.Cities=a.Communities.Cities.Concat(new[]{new HistoricalLocalCommunity{SinceYear=s.Years}}).ToArray();
+            if(LocalSeedlotHistory(s))RegisterLocalTownSeeds(s,id,parent);
             city.Neighbors=NearbyLivingTowns(s,cell,280).Where(n=>n!=id&&LivingTownConnection(s,id,n)).Take(12).ToArray();
             foreach(int neighbor in city.Neighbors)LinkLivingTowns(s,id,neighbor);
             var ca=a.Cultures[culture];ca.Cities.Add(id);ca.CityCount=ca.Cities.Count;ca.Urban+=founders;ca.Rural+=rural;ca.SupportedUrban+=founders;ca.SupportedCities++;ca.FoodCapacity+=urbanCapacity;ca.LargestCity=Math.Max(ca.LargestCity,founders);a.TotalUrban+=founders;

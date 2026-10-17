@@ -116,7 +116,7 @@ namespace WorldGen.Core
                 // not forced to relearn the target forest's foraging diet too.
                 // Terrain travel, crop/soil fit, food, households and spacing
                 // remain independently checked before committing a foundation.
-                if(BorderContactHistory(s))continuity=HistoricalSettlementNetworks.FarmingContinuity(continuity,AggregateCropSupport(s,culture,site,false),s.Society.Cultures[culture].Farming);
+                if(BorderContactHistory(s))continuity=HistoricalSettlementNetworks.FarmingContinuity(continuity,CarriedCropSupport(s,culture,site,parent),s.Society.Cultures[culture].Farming);
                 if(HistoryRoll("living-local-town-adaptation-"+trial,parent,s.Years)>Math.Max(.03,continuity)*EnvironmentalTransmission(s,from,site,culture))continue;
                 if(TryFoundLivingLocalTown(s,parent,site))return;
             }
