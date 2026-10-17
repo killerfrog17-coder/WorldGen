@@ -58,7 +58,42 @@ establish a universal modern stability coefficient. The simulation's.45
 pressure-credit amplitude is an authored, reversible game prior. Ancient
 conquest and modern excluded colonies must remain genuine counterexamples.
 
-Seventy pure guard/boundary assertions pass. Actual private-caller,
-conservation, cold continuation, old22 literal continuation and complete fresh
-Earth/Continents Plus era reviews remain separate acceptance work. A positive
-current counterfactual is not proof of realistic consolidation or colonization.
+Seventy pure guard/boundary assertions and48 actual-world controls pass in
+`HistoricalTerritorialContinuityWorldTests`. The actual input is
+`candidate-w22-earth200/final.world`, year164400, hash
+`11af3544b3d73098f4822f973a3be29a5b843241d818335697e8b737568ec8a6`.
+The independent query evidence is
+`evidence-w22-earth-final/community-continuity.json`; both paths are under
+`D:/WorldGenBuildArtifacts/overnight-20261017/`.
+
+The corrected activated `candidate-x23-freeze` Core has DLL SHA256
+`e02d67d4af6ca57a17c489954f84bb7646d7b918faefd61cd32d73cb16f997a9`.
+Actual private23 pressure queries agree with the independent arithmetic:
+served towns2864/4871/1495 move.508/.502/.509 to.342844/.340641/.338981.
+Unserved towns2163/2877/3987 retain.651/.928/.428. Excluded town6181 retains
+high pressure.982476 from.998 despite its ruler's modern administration.
+Bounded read-only sibling queries at towns740/918/959 verify the actual
+living, recent same-cultural successor governments and their physical routes.
+They examine only10/6/12 stored neighbors; they do not invoke an ownership
+transfer, politics handler or RNG roll. Production also rejects abandoned or
+zero-population candidate towns. Original and detached query hashes remain
+unchanged after restoring the diagnostic read counter.
+
+Frozen22 and the guarded23 source both continue that exact saved22 world12
+years to
+`dc558fd2554a8e32a5edf68d25b64e0e8a593ca71fad93c209600daab8afe489`.
+The files are `realm23-frozen22-earth12.hash` and
+`realm23-current22-earth12.hash` under the same artifact root.
+
+The public explicit23 upgrade preserves the existing total population, every
+town food stock, every court treasury and all technical banks/ranks. A genuine
+full-world initial cold reload and12 years versus5 years, a full intermediate
+save/reload, and7 more years agree exactly at
+`9c045470adfa3d2be1a67c8febebb421119af8fe15cb37ece228d272e1db019d`.
+Both final states validate their ordinary material accounts; this does not
+claim population is constant during twelve years of births, deaths and moves.
+The fresh23 marker and the original22 checkpoint's immutability also pass.
+
+Complete fresh Earth/Continents Plus era and country review remains a separate
+acceptance gate. A positive current counterfactual or cold determinism test is
+not proof of realistic consolidation or colonization.

@@ -28,12 +28,30 @@ for(const row of review.Rows.filter(row=>row.FirstState>=0)){
       'Raw-owner count matches recorded living-state count, with no owner known ended before this year; same-year alias/order uncertainty remains explicit.'});
 }
 const focus=states.get(audit.Focus.Id),events=audit.Focus.Events;
+const sovereigns=audit.CurrentSovereignGroups??null;
+const controlledPopulation=sovereigns?.reduce((total,group)=>total+group.ExclusiveCourtPopulations,0)??0;
+const controlledArea=sovereigns?.reduce((total,group)=>total+group.ExclusiveCourtAreaKm2,0)??0;
+const controlledTownResidents=sovereigns?.reduce((total,group)=>total+group.TownResidents,0)??0;
+const consolidation=sovereigns?{
+  currentCourts:audit.FinalDistribution.LivingStates,actualSovereigns:sovereigns.length,
+  oneTownSovereigns:sovereigns.filter(group=>group.TownCount===1).length,
+  controlledPopulation,controlledAreaKm2:controlledArea,controlledTownResidents,
+  recognizedTitleAreaKm2:audit.States.filter(state=>state.EndedYear<0).reduce((sum,state)=>sum+(state.RecognizedAreaKm2??0),0),
+  topByPopulation:[...sovereigns].sort((a,b)=>b.ExclusiveCourtPopulations-a.ExclusiveCourtPopulations).slice(0,8).map(group=>({...group,
+    shareOfControlledPopulation:controlledPopulation?group.ExclusiveCourtPopulations/controlledPopulation:0,
+    shareOfControlledTownResidents:controlledTownResidents?group.TownResidents/controlledTownResidents:0})),
+  topByArea:[...sovereigns].sort((a,b)=>b.ExclusiveCourtAreaKm2-a.ExclusiveCourtAreaKm2).slice(0,8).map(group=>({...group,
+    shareOfControlledArea:controlledArea?group.ExclusiveCourtAreaKm2/controlledArea:0})),
+  notes:['Current sovereign IDs resolve actual bounded imperial patrons, not ruling-culture palette colors.',
+    'Denominators are summed exclusive owned-court caches, not all world people or land. Recognized title area is separate from actual owned area.',
+    'These are final saved accounts only; they do not reconstruct earlier allegiance, borders or size. No required country count or automatic lifetime is imposed.']
+}:null;
 const capitalSamples=events.filter(event=>event.PolityId===focus.Id&&['secession','succession','election','regime-change','realm-succession-crisis'].includes(event.Kind));
 const capitalChanges=[];
 for(const event of capitalSamples)if(capitalChanges.at(-1)?.place.Cell!==event.Place.Cell)capitalChanges.push({year:event.Year,kind:event.Kind,place:event.Place});
 const output=path.join(folder,'state-continuity-review.json');
 await fs.writeFile(output,JSON.stringify({source:path.resolve(auditInput),sourceHash:audit.Hash,finalYear:audit.Year,
-  finalDistribution:distribution(audit.States.filter(state=>state.EndedYear<0).map(state=>audit.Year-state.FoundedYear)),snapshots,
+  finalDistribution:distribution(audit.States.filter(state=>state.EndedYear<0).map(state=>audit.Year-state.FoundedYear)),finalSovereignty:consolidation,snapshots,
   focus:{state:focus,eventsByKind:events.reduce((all,event)=>(all[event.Kind]=(all[event.Kind]??0)+1,all),{}),
     capitalChanges,minimumCapitalMoves:Math.max(0,capitalChanges.length-1),
     recordedCaptureWins:audit.Focus.Captures.filter(event=>event.FocusWon).length,

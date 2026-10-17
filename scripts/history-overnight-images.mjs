@@ -13,10 +13,13 @@ const yearsArg=process.argv.find(arg=>arg.startsWith('--years='));
 const focusYears=yearsArg?yearsArg.slice(8).split(',').map(Number):[];
 const setArg=process.argv.find(arg=>arg.startsWith('--set='));
 const setName=setArg?setArg.slice(6):'';
+const modesArg=process.argv.find(arg=>arg.startsWith('--modes='));
+const requestedModes=modesArg?modesArg.slice(8).split(','):[];
+if(requestedModes.some(mode=>!['States','Technology','Cultures','Religions'].includes(mode)))throw Error('Unknown diagnostic overlay mode.');
 if(setName&&!/^[a-z0-9-]+$/.test(setName))throw Error('Set name must contain lowercase letters, digits or hyphens.');
 if(focusYears.some(year=>!Number.isInteger(year)||year<0))throw Error('Focused years must be nonnegative integers.');
 const sequence=timeline||focusYears.length>0;
-const folders=process.argv.slice(2).filter(arg=>!['--timeline','--states-only','--no-cities'].includes(arg)&&!arg.startsWith('--years=')&&!arg.startsWith('--set=')).map(folder=>path.resolve(folder));
+const folders=process.argv.slice(2).filter(arg=>!['--timeline','--states-only','--no-cities'].includes(arg)&&!arg.startsWith('--years=')&&!arg.startsWith('--set=')&&!arg.startsWith('--modes=')).map(folder=>path.resolve(folder));
 const browser=await chromium.launch({headless:true,channel:'msedge'});
 const escape=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;');
 try{
@@ -25,6 +28,7 @@ try{
   const report=JSON.parse(await fs.readFile(path.join(folder,reportFile),'utf8'));
   const status=await fs.readFile(path.join(folder,'review-status.json'),'utf8').then(JSON.parse,error=>{if(error.code==='ENOENT')return null;throw error;});
   const isEpisode=reportFile==='episode.json',statesOnly=requestedStatesOnly||isEpisode;
+  const modes=requestedModes.length?requestedModes:sequence||statesOnly?['States']:['States','Technology','Cultures','Religions'];
   const presentation=(isEpisode?'opaque overlay 1, neutral background 0':'climate background 1, overlay opacity .58')+(noCities?'; settlement marker overlay hidden for border review':'');
   const eraNames={4:'Bronze Age',5:'Iron Age',6:'Medieval',7:'Early Modern',8:'Industrial',9:'Modern',10:'Postmodern'};
   const rows=isEpisode?report.Rows.map(row=>({...row,EraName:eraNames[row.Era]??`Era ${row.Era}`,FirstState:-1,States:row.Courts.length,ActiveTowns:null,OldestStateAge:Math.max(0,...row.Courts.map(court=>row.Year-court.FoundedYear)),SponsoredPorts:null})):report.Rows;
@@ -34,13 +38,13 @@ try{
    if(!selection.some(value=>value.label===label))selection.push({row,label});
   }
   const last=rows.at(-1);
-  if(!selection.some(value=>value.row.Year===last.Year))selection.push({row:last,label:`${last.EraName} / final`});
+  if(!selection.some(value=>value.row.Year===last.Year))selection.push({row:last,label:`${last.EraName} / latest mapped`});
   if(sequence)selection=rows.filter(row=>!focusYears.length||focusYears.includes(row.Year)).map(row=>({row,label:row.FirstState>=0&&row.Year>=row.FirstState&&row.Era<4?'Bronze Age / first states':row.EraName}));
   if(focusYears.some(year=>!selection.some(value=>value.row.Year===year)))throw Error('A focused year is absent from review.json.');
   const out=path.join(folder,(focusYears.length?'focused':timeline?'timeline':'screenshots')+(setName?`-${setName}`:'')+(noCities?'-no-cities':''));await fs.mkdir(out,{recursive:true});
   const rendered=[];
   for(const {row,label} of selection){
-   for(const mode of sequence||statesOnly?['States']:['States','Technology','Cultures','Religions']){
+   for(const mode of modes){
     const source=path.join(folder,`year-${row.Year}`,`${mode}-${row.Year}.svg.gz`);
     const file=`${mode.toLowerCase()}-${row.Year}.png`;
     const sourceStat=await fs.stat(source).catch(error=>{if(error.code==='ENOENT')return null;throw error;});
@@ -73,7 +77,7 @@ try{
     rendered.push({year:row.Year,label,mode,file,population:row.Population,states:row.States,towns:row.ActiveTowns,oldestStateAge:row.OldestStateAge,ports:row.SponsoredPorts});
    }
   }
-  for(const mode of sequence||statesOnly?['States']:['States','Technology','Cultures','Religions']){
+  for(const mode of modes){
    const modeFrames=rendered.filter(value=>value.mode===mode);
    for(let start=0;start<modeFrames.length;start+=sequence?6:modeFrames.length){
    const cards=modeFrames.slice(start,start+(sequence?6:modeFrames.length)).map(value=>`<article><h2>${escape(value.label)} · elapsed ${value.year}</h2><p>${value.states} states · ${value.towns===null?'town census not exported':`${value.towns} active towns`} · ${(value.population/1e6).toFixed(1)}M people · oldest state ${value.oldestStateAge}y${value.ports===null?'':` · ${value.ports} sponsored ports`}</p><a href="${value.file}"><img src="${value.file}"></a></article>`).join('');

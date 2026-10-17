@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--farmstead-establishment-only")){int count=0;HistoryFarmsteadEstablishmentTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" farmstead establishment assertions");return;}
 if(args.Contains("--technical-credit-only")){int count=0;HistoryTechnicalCreditTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" partial technical-learning credit assertions");return;}
 if(args.Contains("--technical-credit-recorded")){int count=0;HistoryTechnicalCreditTests.Recorded(args[Array.IndexOf(args,"--technical-credit-recorded")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" recorded technical-learning credit assertions");return;}
 if(args.Contains("--crop-maturity-world")){int count=0;HistoryCropMaturityWorldTests.World(args[Array.IndexOf(args,"--crop-maturity-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world crop-maturity assertions");return;}

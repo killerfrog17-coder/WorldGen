@@ -49,7 +49,8 @@ public static partial class HistoryWorldRealismReview
         if(preparedRules!=0)
         {if(!preparedAudit||preparedRules<16||preparedRules>new HistoricalRealmLifecycles().Version)throw new ArgumentException("Explicit prepared audit supports available revision16 or later only.");initial=initial.Copy();initial.History.Aggregates.Empires.Connections.Realms.Version=preparedRules;if(preparedRules==16){initial.History.Aggregates.Empires.Connections.PreparedPlots=null;typeof(Prehistory).GetMethod("InitializePreparedPlots",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.Invoke(engine,new object[]{initial});}initial.Seal();}
         var session=new SimulationSession(engine,initial);
-        var watch=Stopwatch.StartNew();var rows=new List<object>();var seen=new HashSet<int>();int first=-1,tail=-1,lastMap=-1,workYear=-1,civilianTail=-1;double worst=0,yearWork=0;
+        var watch=Stopwatch.StartNew();var rows=new List<object>();var seen=new HashSet<int>();int first=-1,tail=-1,lastMap=-1,workYear=-1,civilianTail=-1;double worst=0,yearWork=0;string endReason="Safety year reached";
+        File.WriteAllText(Path.Combine(output,"review-status.json"),JsonSerializer.Serialize(new{Completed=false,Status="Running",SourceWorld=source,RealmRevision=new HistoricalRealmLifecycles().Version}));
         engine.YearWorkObserver=(year,ms)=>{if(year!=workYear){workYear=year;yearWork=0;}yearWork+=ms;worst=Math.Max(worst,yearWork);};
         while(session.LastSnapshot.Years<safetyYear)
         {
@@ -60,7 +61,8 @@ public static partial class HistoryWorldRealismReview
             if(era>=10&&civilianTail<0)civilianTail=s.Years;
             int maximumTechnology=s.History.Aggregates?.FirstMaximumTechnologyYear??-1;
             if(maximumTechnology>=0&&tail<0)tail=maximumTechnology;
-            bool observe=milestone||first>=0&&(lastMap<0||s.Years-lastMap>=(era>=7?300:1000))||first<0&&(lastMap<0||s.Years-lastMap>=20000)||s.Years==100000;
+            bool maximumTail=tail>=0&&s.Years>=tail+1000,boundedTail=tail<0&&civilianTail>=0&&s.Years>=civilianTail+3000;
+            bool observe=milestone||maximumTail||boundedTail||s.Years==safetyYear||first>=0&&(lastMap<0||s.Years-lastMap>=(era>=7?300:1000))||first<0&&(lastMap<0||s.Years-lastMap>=20000)||s.Years==100000;
             if(observe)
             {
                 string directory=Path.Combine(output,"year-"+s.Years);Directory.CreateDirectory(directory);
@@ -87,19 +89,20 @@ public static partial class HistoryWorldRealismReview
                 lastMap=s.Years;Console.WriteLine(JsonSerializer.Serialize(row));
             }
             if(s.Years%10000==0)Console.WriteLine($"Progress {preset}/{seed}: {s.Years}, cultures {s.Society.Cultures.Length}, towns {s.Society.Settlements.Length}, {watch.Elapsed.TotalSeconds:F1}s");
-            if(tail>=0&&s.Years>=tail+1000)break;
+            if(maximumTail){endReason="At least1,000 years past all maximum technology";break;}
             // Optional weapons can remain deliberately uninvented. Do not
             // accumulate150,000 postmodern years and gigabytes of diagnostic
             // exports waiting for a universal nuclear-weapons milestone.
-            if(tail<0&&civilianTail>=0&&s.Years>=civilianTail+3000)
-            {Console.WriteLine("BOUNDED:3,000-year civilian postmodern tail; not all optional technologies discovered. This is NOT the all-technology performance acceptance.");break;}
+            if(boundedTail)
+            {endReason="Bounded civilian postmodern tail; optional maximum technology incomplete";Console.WriteLine("BOUNDED:3,000-year civilian postmodern tail; not all optional technologies discovered. This is NOT the all-technology performance acceptance.");break;}
             if(File.Exists(Path.Combine(output,"stop-after-checkpoint")))
-            {Console.WriteLine("Requested diagnostic stop at an intact checkpoint.");break;}
-            if(first>=0&&s.Years>first+30000&&era<8){Console.WriteLine("STALLED:30,000 years after first state without industry; preserve evidence for correction.");break;}
+            {endReason="Requested stop at an intact checkpoint";Console.WriteLine("Requested diagnostic stop at an intact checkpoint.");break;}
+            if(first>=0&&s.Years>first+30000&&era<8){endReason="Stalled30,000 years after first state without industry";Console.WriteLine("STALLED:30,000 years after first state without industry; preserve evidence for correction.");break;}
         }
         var final=session.Snapshot();if(preparedAudit)HistoryPreparedPlotAudit.Check(engine,final,output);engine.Validate(final);world.Prehistory=final;
         File.WriteAllBytes(Path.Combine(output,"final.world"),WorldFile.Write(world));
         FinalPoliticalChronology(world,output);
+        File.WriteAllText(Path.Combine(output,"review-status.json"),JsonSerializer.Serialize(new{Completed=true,Status="Saved and validated",Reason=endReason,final.Years,final.Hash,RealmRevision=final.History.Aggregates.Empires.Connections.Realms.Version,FirstMaximumTechnologyYear=tail,AllTechnologyTail=tail>=0&&final.Years>=tail+1000,WallSeconds=watch.Elapsed.TotalSeconds},new JsonSerializerOptions{WriteIndented=true}));
         Console.WriteLine("FINAL "+final.Hash+" at "+final.Years+" after "+watch.Elapsed.TotalSeconds.ToString("F1")+"s");
     }
 }

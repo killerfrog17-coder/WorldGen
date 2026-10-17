@@ -12,7 +12,16 @@ namespace WorldGen.Core
             if(TechnicalHistory(s))maturation=Math.Max(5,(int)(maturation/investment));
             if(c.Farming<180||s.Years-c.FoundedYear<maturation)return;
             if(ca.Cities.Count==0)
-            {if(HistoryRoll("living-first-town",culture,s.Years)<1-Math.Exp(-elapsed*investment/600.0))FoundLivingTown(s,culture,ConnectedHistory(s)?DevelopmentEconomicSite(s,culture,c.OriginCell):c.OriginCell,-1);return;}
+            {
+                if((a.Empires?.Connections?.Realms?.Version??0)>=24)
+                {
+                    int site=ConnectedHistory(s)?DevelopmentEconomicSite(s,culture,c.OriginCell):c.OriginCell;
+                    double chance=HistoricalFarmsteadEstablishment.Opportunity(FoundingFieldLandscape(s,culture,site,-1),CarriedCropPractice(s,culture,site,-1));
+                    if(HistoryRoll("living-first-town",culture,s.Years)<1-Math.Exp(-elapsed*investment*chance/600.0))FoundLivingTown(s,culture,site,-1);
+                }
+                else if(HistoryRoll("living-first-town",culture,s.Years)<1-Math.Exp(-elapsed*investment/600.0))FoundLivingTown(s,culture,ConnectedHistory(s)?DevelopmentEconomicSite(s,culture,c.OriginCell):c.OriginCell,-1);
+                return;
+            }
             // Secondary neighborhoods belong to their actual local town actor.
             // An overseas port must not compete with every metropolitan city
             // for the culture's single sampled parent opportunity.
@@ -59,7 +68,8 @@ namespace WorldGen.Core
             var a=s.History.Aggregates;int region=cell>=0&&cell<CellPatch.Length?CellPatch[cell]:-1;if(region<0||a.TownAt[cell]>=0||World.Hydrology.LakeCoverageFraction[cell]>=.9)return false;
             double localYield=FoundingFieldLandscape(s,culture,cell,parent);int practiced=LocalSeedlotHistory(s)?CarriedCropPractice(s,culture,cell,parent):s.History.Agriculture[culture].HusbandryYears?.Max()??0;
             int host=HistoricalCells.Polity(s,cell);bool remoteHouseholds=ProvincialHistory(s)&&host>=0&&a.Polities[host].Remote>=1600;
-            if(parent<0&&s.Population[region]<800&&!remoteHouseholds||s.Society.Cultures[culture].Farming<180||localYield<.10&&(localYield<.02||practiced<10000))return false;
+            bool fieldAllowed=(a.Empires?.Connections?.Realms?.Version??0)>=24?HistoricalFarmsteadEstablishment.FieldAllowed(24,parent,localYield,practiced):!(localYield<.10&&(localYield<.02||practiced<10000));
+            if(parent<0&&s.Population[region]<800&&!remoteHouseholds||s.Society.Cultures[culture].Farming<180||!fieldAllowed)return false;
             if(LivingWorldHistory(s))
             {
                 var habitat=CropHabitat(s,cell);
