@@ -88,6 +88,7 @@ namespace WorldGen.Presentation
             int patron=HistoricalImperialHierarchy.Patron(s,p.Id),subjects=s.History.Aggregates?.Empires?.Governments[p.Id].SubjectCount??0;
             if(patron>=0)text+=" It retains its local institutions as a constituent of "+s.History.Polities[patron].Name+".";
             if(subjects>0)text+=" Including "+N(subjects)+" constituent governments, its realm contains "+N(HistoricalImperialHierarchy.Population(s,p.Id))+" people.";
+            if(s.History.Aggregates?.Empires?.Connections?.Realms!=null)return text+" Its state institutions date to year "+Y(s,HistoricalRealmLifecycles.Founded(s,p.Id))+".";
             return text+(RegimeSuccessor(s,p)?" Its current government dates to year ":" Founded in year ")+Y(s,p.FoundedYear)+".";
         }
         public static AtlasLink[] ProfilesAt(PrehistoryState? s,int cell)
@@ -198,9 +199,16 @@ namespace WorldGen.Presentation
             var h=s.History;var c=s.Society.Cultures[p.CultureId];var capital=s.Society.Settlements[p.CapitalId];var towns=s.Society.Settlements.Where(t=>t.PolityId==p.Id&&t.Population>0).OrderByDescending(t=>t.Population).ThenBy(t=>t.Id).ToArray();var relations=p.EndedYear>=0?Array.Empty<HistoricalRelation>():h.Relations.Where(r=>(r.A==p.Id||r.B==p.Id)&&h.Polities[r.A==p.Id?r.B:r.A].EndedYear<0).ToArray();
             d.Title=p.Name;d.Cell=capital.Cell;d.Subtitle=p.Government+" · "+(p.EndedYear<0?"Surviving state":"Historical state");
             bool continuity=RegimeSuccessor(s,p);
+            var realm=h.Aggregates?.Empires?.Connections?.Realms?.Governments[p.Id];
             d.Introduction=p.Name+(continuity?"'s recorded government took office in year ":" was founded in year ")+Y(s,p.FoundedYear)+" among the "+c.Name+" people. "+(continuity?"It continues the institutions of an earlier government; this is not the first appearance of the country or its people. ":"")+(p.EndedYear<0?"Its court is based at "+capital.Name+", and its current ruler is "+p.Ruler+". It administers "+N(p.Population)+" people across "+N(p.AreaKm2)+" km².":"This government ended in year "+Y(s,p.EndedYear)+". Its people and cities may continue under later governments.");
             if(p.EndedYear<0)d.Introduction+=" "+(relations.Any(r=>r.WarSince>=0)?"War currently shapes its relations with neighboring courts.":relations.Any(r=>r.Trade)?"Recorded trading relationships connect it to neighboring courts.":"No active interstate war or trading treaty is recorded.");
             d.Facts=new[]{F(continuity?"Regime established":"Founded", "Year "+Y(s,p.FoundedYear)),F("Status",p.EndedYear<0?"Surviving":"Ended in year "+Y(s,p.EndedYear)),F("Population",p.EndedYear>=0&&p.LastEstimateYear==0?"No preserved last-active estimate":N(p.Population)+(p.LastEstimateYear>0?" (estimate from year "+Y(s,p.LastEstimateYear)+")":"")),F("Land area",p.EndedYear>=0&&p.LastEstimateYear==0?"No preserved last-active estimate":N(p.AreaKm2)+" km²"),F("Government",p.Government),F("Army levy",N(p.Army)),F("Treasury",N(p.Treasury)+" model units")};
+            if(realm!=null)
+            {
+                d.Facts[0]=F("Country founded","Year "+Y(s,realm.FoundedYear));
+                string prefix=p.Name+(continuity?"'s recorded government took office in year ":" was founded in year ")+Y(s,p.FoundedYear);
+                d.Introduction=d.Introduction.Replace(prefix,p.Name+" dates its state institutions to year "+Y(s,realm.FoundedYear));
+            }
             a.Add(Links("People, court, and belief",new[]{CultureLink(c),TownLink(s,capital)}.Concat(p.ReligionId>=0&&p.ReligionId<h.Religions.Length?new[]{FaithLink(h.Religions[p.ReligionId])}:Array.Empty<AtlasLink>()),"The court's religious affiliation is distinct from the local faith map."));
             var lineage=(p.ParentId>=0?new[]{StateLink(s,h.Polities[p.ParentId],"Recorded predecessor realm")}:Array.Empty<AtlasLink>()).Concat(h.Polities.Where(x=>x.ParentId==p.Id).OrderBy(x=>x.FoundedYear).ThenBy(x=>x.Id).Select(x=>StateLink(s,x,"Descendant court founded in year "+Y(s,x.FoundedYear)))).ToArray();
             if(lineage.Length>0)a.Add(Links("Political lineage",lineage,"These links record predecessor and descendant courts, not a biological dynasty or proof that their people disappeared."));
@@ -219,7 +227,7 @@ namespace WorldGen.Presentation
             else a.Add(Links("Overlords and dependent courts",deps.Where(x=>x.EndedYear<0&&(x.PatronId==p.Id||x.ClientId==p.Id)).Select(x=>StateLink(s,h.Polities[x.PatronId==p.Id?x.ClientId:x.PatronId],x.ClientId==p.Id?"Receives tribute from this court":"Pays tribute to this court")),"Dependent courts retain their own political identity."));
             if(h.Cultures[p.CultureId].Technical!=null)a.Add(new AtlasSection{Title="Research and practical technology",Text="Specialist communities divide finite effort among concurrent projects. Knowledge can arrive through exchange long before workshops, infrastructure and resources support widespread use. These are the ruling culture's technical networks, not a claim that every resident has identical equipment.",Technical=TechnicalResearchView.Read(s,p.CultureId)});
             var metrics=new List<AtlasFact>{F("Cohesion",N(p.Cohesion)+" / 1,000"),F("Legitimacy",N(p.Legitimacy)+" / 1,000"),F("War exhaustion",N(p.Exhaustion)+" / 1,000")};
-            var realm=h.Aggregates?.Empires?.Connections?.Realms?.Governments[p.Id];
+            if(realm!=null&&p.EndedYear<0)metrics.Add(F(HistoricalImperialHierarchy.Patron(s,p.Id)>=0?"Present imperial allegiance since":"Independent foreign policy since","Year "+Y(s,h.Aggregates!.Empires!.Governments[p.Id].SinceYear)));
             if(realm!=null)a.Add(new AtlasSection{Title="Country and government continuity",Text="A new ruler or constitution does not found a new country. Regional secession and the loss of imperial allegiance are separate territorial events.",Facts=new[]{F("Country founded","Year "+Y(s,realm.FoundedYear)),F("Current regime since","Year "+Y(s,realm.RegimeSince)),F("Recorded contested regime changes",N(realm.RegimeChanges)),F("Succession",realm.CrisisUntil>s.Years?"Provincial authority contested until year "+Y(s,realm.CrisisUntil):"No active realm-wide succession crisis"),F("Regional court separations",N(realm.RegionalSeparations))}});
             if(h.Dynamics!=null&&p.Id<h.Dynamics.States.Length)
             {

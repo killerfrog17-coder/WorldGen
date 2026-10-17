@@ -124,11 +124,13 @@ namespace WorldGen.Core
         void TransferRecognizedTitle(PrehistoryState s,int titleId,int buyer,long price)
         {
             var h=s.History;var a=h.Aggregates;var c=a.Empires.Connections;var title=c.Titles[titleId];int seller=a.Resolve(title.Holder,h);
+            if(seller<0&&RealmHistory(s)&&price==0)seller=title.Holder;
             if(seller<0||seller==buyer||buyer<0||buyer>=h.Polities.Length||h.Polities[buyer].EndedYear>=0||price<0||h.Polities[buyer].Treasury<price||price>1000000000-h.Polities[seller].Treasury)return;
             h.Polities[buyer].Treasury-=price;h.Polities[seller].Treasury+=price;
             ChangeRealmTitleAccount(s,seller,title.AreaKm2,-1);ChangeRealmTitleAccount(s,buyer,title.AreaKm2,1);
             c.Governments[seller].Titles.Remove(titleId);c.Governments[buyer].Titles.Add(titleId);title.PreviousHolder=seller;title.Holder=buyer;title.Recognizer=seller;title.LastTransferYear=s.Years;title.LastPrice=price;
-            HistoryEvent(s,"territorial-purchase",h.Polities[buyer].Name+" purchases the recognized territorial title of "+h.Polities[seller].Name+" for "+price+" account units. Existing communities, cultures and their actual administration are not transferred by this legal title alone.",Patches[title.Region].Cell,h.Polities[buyer].CultureId,buyer,seller,category:ChronicleCategory.Politics);
+            if(RealmHistory(s)&&price==0)HistoryEvent(s,"regional-title-succession",h.Polities[buyer].Name+" takes over the regional jurisdiction recorded at its newly controlled administrative center. The former court of "+h.Polities[seller].Name+" may contest this succession; inhabitants and local cultures are not replaced.",Patches[title.Region].Cell,h.Polities[buyer].CultureId,buyer,seller,category:ChronicleCategory.Politics);
+            else HistoryEvent(s,"territorial-purchase",h.Polities[buyer].Name+" purchases the recognized territorial title of "+h.Polities[seller].Name+" for "+price+" account units. Existing communities, cultures and their actual administration are not transferred by this legal title alone.",Patches[title.Region].Cell,h.Polities[buyer].CultureId,buyer,seller,category:ChronicleCategory.Politics);
         }
     }
 }

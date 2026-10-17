@@ -37,6 +37,8 @@ namespace WorldGen.Core
             return HistoricalMaritimeIntegrationEffects.CivilianTerritory(habitat.GrowingDays,habitat.Biome==Biome.Ice,residents,LivingStrategicResourceValue(s,polity,cell));
         }
         bool MaritimeCharterLogistics(PrehistoryState s,int polity,Route route,int preferred,out int port,out long provisions)
+            =>MaritimeVoyageLogistics(s,polity,route,preferred,250,out port,out provisions);
+        bool MaritimeVoyageLogistics(PrehistoryState s,int polity,Route route,int preferred,int crew,out int port,out long provisions)
         {
             port=-1;provisions=0;var h=s.History;var a=h.Aggregates;var hc=h.Cultures[h.Polities[polity].CultureId];
             double unsupported=InstitutionalUnsupportedWaterKm(route.CellA,route.CellB,out _);
@@ -64,15 +66,24 @@ namespace WorldGen.Core
                         &&inland<=TerritorialServiceRadius(s,polity,route.CellA)*1.5;
                     if(!coastal&&!serviced)return false;
                 }
-                long food=HistoricalVoyageEffects.Provisioning(250,(int)Math.Min(int.MaxValue,route.DistanceM+supplyKm*1000));
+                long food=HistoricalVoyageEffects.Provisioning(crew,(int)Math.Min(int.MaxValue,route.DistanceM+supplyKm*1000));
                 if(town.FoodReserve<food+town.Population*.2)return false;
                 return true;
             }
             if(preferred>=0&&Consider(preferred))port=preferred;
+            if(port<0&&RealmHistory(s))
+            {
+                int source=a.Empires.Territories.Sources[route.CellA];
+                for(int depth=0;source!= -1&&depth<8;depth++)
+                {
+                    if(source>=0){if(Consider(source))port=source;break;}
+                    source=a.Empires.Territories.Posts[-source-2].ParentSource;
+                }
+            }
             for(int k=0;port<0&&k<Math.Min(8,cities.Count);k++){int candidate=cities.At((offset+k)%cities.Count);if(Consider(candidate))port=candidate;}
             if(port<0)return false;
             double leg=D.Angle(World.Surface.Cells[s.Society.Settlements[port].Cell].Position,World.Surface.Cells[route.CellA].Position)*World.Recipe.RadiusKm;
-            provisions=HistoricalVoyageEffects.Provisioning(250,(int)Math.Min(int.MaxValue,route.DistanceM+leg*1000));return true;
+            provisions=HistoricalVoyageEffects.Provisioning(crew,(int)Math.Min(int.MaxValue,route.DistanceM+leg*1000));return true;
         }
         bool TryMaritimeStateExpedition(PrehistoryState s,int polity,int defender,Route route,int elapsed)
             =>CommitMaritimeStateExpedition(s,polity,defender,route,elapsed,false);

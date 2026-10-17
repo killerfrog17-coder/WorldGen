@@ -54,6 +54,7 @@ namespace WorldGen.Core
             var leader=new HistoricalLeader{Id=id,PolityId=polity,StartedYear=s.Years,ExpectedEndYear=s.Years+18+(int)(32*Roll("tenure")),PredecessorId=previous,Military=200+(int)(650*Roll("military")),Administration=200+(int)(650*Roll("administration")),Diplomacy=200+(int)(650*Roll("diplomacy")),Ambition=150+(int)(750*Roll("ambition")),Name=HistoricalName("leader-name",unchecked(id*7919+s.Years)),Selection=previous<0?"Acclamation by the founding community":"Succession through the established court and local elites"};
             if(LanguageHistory(s))leader.Name=LanguageName(s,p.CultureId,LanguageNameKind.Person,unchecked(id*7919+s.Years));
             if(Roll("exceptional")<.015){leader.Military=900;leader.Ambition=950;leader.Administration=Math.Max(650,leader.Administration);}
+            if(RealmHistory(s))leader.ExpectedEndYear=s.Years+HistoricalRealmEffects.RulerTenure(Roll("tenure"));
             bool elected=CommunityHistory(s)&&h.Aggregates.Communities.Governments[polity].RepresentationMilli>=650;
             if(elected){leader.ExpectedEndYear=s.Years+4+(int)(6*Roll("elected-term"));leader.Selection="Selection through representative institutions and local councils";}
             if(LivingWorldHistory(s)){var profile=PoliticalProfile(s,polity);leader.Selection=profile.Succession;RefreshPoliticalDescription(s,polity);}
@@ -127,7 +128,9 @@ namespace WorldGen.Core
                 double risk=LivingHistory(s)?Math.Max(0,stress-.55)*.006*(.25+.75*D.Clamp((650-p.Cohesion)/400.0)):stress*.008;
                 if(HistoryRoll("aggregate-secession",id,s.Years)<Math.Min(.4,risk*elapsed)){FoundAggregateState(s,sampledCity,id);if(ConnectedHistory(s))ClaimDevelopmentProvince(s,sampledCity,id);return;}
             }
-            if((p.Cohesion<250||cycle.EliteCapture>800)&&HistoryRoll("aggregate-court-crisis",id,s.Years)<.005*elapsed){EndAggregateState(s,id,"Fiscal strain and rival local elites dissolve the central court; local communities and their histories survive.");return;}
+            double courtHazard=RealmHistory(s)?HistoricalRealmEffects.CourtFailureHazard(RealmBureaucracy(s,id)):.005;
+            if((p.Cohesion<250||cycle.EliteCapture>800)&&HistoryRoll("aggregate-court-crisis",id,s.Years)<courtHazard*elapsed)
+            {if(!ContestFailingRealmCourt(s,id))EndAggregateState(s,id,"Fiscal strain and rival local elites dissolve the central court; local communities and their histories survive.");return;}
             int target=LocalFrontierTarget(s,account.Frontier,id,"aggregate-state-frontier",1);
             if(ConnectedHistory(s))AdvanceDevelopmentFrontier(s,id,elapsed);
             if(target>=0&&!ConnectedHistory(s))

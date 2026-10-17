@@ -98,6 +98,7 @@ namespace WorldGen.Core
             post.MessageEffortKm=D.Q(LivingTravelKm(s,TerritorialNodeCell(s,parent),cell,h.Polities[polity].CultureId)+(parent<0?t.Posts[-parent-2].MessageEffortKm:0),1000000);
             var next=a.Empires.Governments[polity];next.AdministrativePosts.Add(id);next.AdministrativePostCost+=post.AnnualCost;
             AssignTerritorialSource(s,cell,-2-id);
+            QueueRealmSourceTitles(s,cell);ReviewRealmSourceTitles(s,cell,polity);
         }
     }
 }

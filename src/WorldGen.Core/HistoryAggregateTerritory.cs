@@ -84,6 +84,7 @@ namespace WorldGen.Core
             if(CommunityHistory(s))TransferCommunityGovernment(s,id,polity);
             if(ProvincialHistory(s))a.Provinces.Centers=a.Provinces.Centers.With(town.Cell,polity>=0?id:-1);
             if(TechnicalHistory(s))AssignTerritorialSource(s,town.Cell,polity>=0?id:-1);
+            TransferRealmCenterTitles(s,id,old,polity);
             if(old>=0&&h.Polities[old].CapitalId==id){var prior=a.Polities[old];if(prior.Cities.Count>0)h.Polities[old].CapitalId=prior.Cities.At(0);else EndAggregateState(s,old,"Its last administrative center was lost.");}
         }
         void EndAggregateState(PrehistoryState s,int id,string reason,int successor=-1)

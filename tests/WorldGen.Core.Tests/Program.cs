@@ -6,6 +6,8 @@ if(args.Contains("--realms-upgrade")){int at=Array.IndexOf(args,"--realms-upgrad
 if(args.Contains("--realms-world")){HistoryRealmLifecycleTests.World(args[Array.IndexOf(args,"--realms-world")+1]);return;}
 if(args.Contains("--realms-review")){int at=Array.IndexOf(args,"--realms-review");HistoryRealmLifecycleTests.Review(args[at+1],args[at+2],int.Parse(args[at+3]),!args.Contains("--baseline"));return;}
 if(args.Contains("--realms-diagnostic")){int at=Array.IndexOf(args,"--realms-diagnostic");HistoryRealmLifecycleTests.Diagnostic(args[at+1],args[at+2]);return;}
+if(args.Contains("--realms-coverage-audit")){int at=Array.IndexOf(args,"--realms-coverage-audit");HistoryRealmLifecycleTests.CoverageAudit(args[at+1],args[at+2]);return;}
+if(args.Contains("--realms-crisis")){int at=Array.IndexOf(args,"--realms-crisis");HistoryRealmLifecycleTests.Crisis(args[at+1],args[at+2]);return;}
 if(args.Contains("--geography-only")){int count=0;HistoryGeographicKnowledgeTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" geographical knowledge assertions");return;}
 if(args.Contains("--geography-world")){int count=0;HistoryGeographicKnowledgeTests.World(args[Array.IndexOf(args,"--geography-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world geography assertions");return;}
 if(args.Contains("--geography-compare")){int at=Array.IndexOf(args,"--geography-compare");HistoryGeographicKnowledgeTests.Compare(args[at+1],args[at+2],int.Parse(args[at+3]));return;}

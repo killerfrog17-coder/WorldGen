@@ -188,6 +188,13 @@ namespace WorldGen.Core
                     // even when modern communications improve its military reach.
                     bool excluded=p.CultureId!=patron.CultureId||s.Society.Settlements[p.CapitalId].CultureId!=patron.CultureId;
                     risk+=HistoricalRealmPoliticalEffects.SelfDetermination(HistoricalModernEffects.Adoption(pc,HistoricalTechnology.Printing,s.Years),communication,excluded,g.Imposed,a.Communities.Governments[parent].RepresentationMilli/1000.0,patron.Exhaustion/1000.0);
+                    if(a.Resolve(a.Empires.Connections.Governments[polity].Sponsor,h)==parent&&World.Landmass[s.Society.Settlements[p.CapitalId].Cell]!=World.Landmass[s.Society.Settlements[patron.CapitalId].Cell])
+                    {
+                        bool externalWar=false;var links=h.International.Accounts[polity].Relations;
+                        for(int k=0;k<Math.Min(3,links.Count);k++)if(h.Relations[links.At(k)].WarSince>=0){externalWar=true;break;}
+                        risk+=HistoricalRealmPoliticalEffects.SettlerSelfGovernment(s.Years-p.FoundedYear,km,g.AutonomyMilli,HistoricalModernEffects.Adoption(pc,HistoricalTechnology.Printing,s.Years),
+                            g.AnnualTribute/(double)Math.Max(1,account.Receipts),a.Communities.Governments[polity].RepresentationMilli,a.Communities.Governments[parent].RepresentationMilli,externalWar);
+                    }
                 }
                 if(realmCrisis>0)risk+=.20*realmCrisis*(g.Imposed?1:.5)*(1-.7*a.Communities.Governments[parent].RepresentationMilli/1000.0);
                 int minimumTenure=realmCrisis>.3?3:35;

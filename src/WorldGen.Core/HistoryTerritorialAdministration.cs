@@ -77,7 +77,7 @@ namespace WorldGen.Core
             int at=(int)(HistoryRoll("provincial-office-review",polity,s.Years)*g.AdministrativePosts.Count),id=g.AdministrativePosts.At(at);var post=a.Empires.Territories.Posts[id];var account=a.Polities[polity];
             bool reachable=HistoricalCells.Polity(s,post.Cell)==polity&&TerritorialNodeLive(s,polity,post.ParentSource);
             bool paid=h.Polities[polity].Treasury>0||account.Receipts>=account.ServiceCost;
-            if(reachable&&paid)return;
+            if(reachable&&paid){ReviewRealmSourceTitles(s,post.Cell,polity);return;}
             if(reachable&&HistoryRoll("provincial-office-shortfall",id,s.Years)>1-Math.Exp(-elapsed/40.0))return;
             post.ClosedYear=s.Years;g.AdministrativePosts.Remove(id);g.AdministrativePostCost=Math.Max(0,g.AdministrativePostCost-post.AnnualCost);
             RemovePendingColonialPort(s,polity,id);

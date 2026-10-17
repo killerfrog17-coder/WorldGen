@@ -11,6 +11,12 @@ namespace WorldGen.Core
                 *(.5+.5*D.Clamp(representation))*(1+D.Clamp(exhaustion)),1000000000);
         public static double IdeologicalDistance(int voiceA,int centralA,int voiceB,int centralB,double massPolitics)
             =>D.Q(D.Clamp(massPolitics)*(.7*Math.Abs(voiceA-voiceB)+.3*Math.Abs(centralA-centralB))/1000.0,1000000000);
+        public static double SettlerSelfGovernment(int institutionalAge,double distanceKm,int autonomy,double printing,double tributeRatio,int localVoice,int metropolitanVoice,bool externalWar)
+        {
+            double identity=D.Clamp((institutionalAge-60)/220.0)*D.Clamp(distanceKm/1500.0)*D.Clamp(autonomy/1000.0);
+            double taxation=D.Clamp(tributeRatio/.15),voice=D.Clamp(.4+(localVoice-metropolitanVoice)/500.0);
+            return D.Q(.008*identity*(.2+.8*D.Clamp(printing))*(.25+.75*taxation)*(.35+.65*voice)*(externalWar?.35:1),1000000000);
+        }
     }
     public sealed partial class Prehistory
     {

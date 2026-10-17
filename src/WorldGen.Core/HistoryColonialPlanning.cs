@@ -16,7 +16,15 @@ namespace WorldGen.Core
             var cities=a.Polities[polity].Cities;int offset=cities.Count==0?0:(int)(HistoryRoll("living-colonial-city-ports",polity,s.Years)*cities.Count);
             // Actual urban ports get two slots; forwarded offices and serviced
             // provincial shores retain room to explore a different ocean basin.
-            for(int k=0;k<Math.Min(12,cities.Count)&&result.Count<2;k++)Offer(s.Society.Settlements[cities.At((offset+k)%cities.Count)].Cell);
+            for(int k=0;k<Math.Min(12,cities.Count)&&result.Count<(RealmHistory(s)?1:2);k++)Offer(s.Society.Settlements[cities.At((offset+k)%cities.Count)].Cell);
+            if(RealmHistory(s))
+            {
+                // Already-indexed overseas offices, not a lottery among every
+                // inland governorship in a large country. Query stays read-only.
+                var pending=a.Empires.Connections.PortSettlements?.Governments[polity].Pending;
+                int start=pending==null||pending.Count==0?0:(int)(HistoryRoll("realm-forward-departures",polity,s.Years)*pending.Count);
+                for(int k=0;pending!=null&&k<Math.Min(6,pending.Count)&&result.Count<3;k++)Offer(a.Empires.Territories.Posts[pending.At((start+k)%pending.Count)].Cell);
+            }
             var posts=a.Empires.Governments[polity].AdministrativePosts;offset=posts.Count==0?0:(int)(HistoryRoll("living-colonial-forward-ports",polity,s.Years)*posts.Count);
             for(int k=0;k<Math.Min(6,posts.Count)&&result.Count<3;k++)Offer(a.Empires.Territories.Posts[posts.At((offset+k)%posts.Count)].Cell);
             var coasts=a.Empires.Connections.Coasts.Governments[polity];offset=coasts.Count==0?0:(int)(HistoryRoll("living-colonial-serviced-shores",polity,s.Years)*coasts.Count);

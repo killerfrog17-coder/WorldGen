@@ -14,6 +14,7 @@ namespace WorldGen.Core
         }
         void AdvanceCommunityPolitics(PrehistoryState s,int city)
         {
+            ReviewRealmCenterTitles(s,city);
             var h=s.History;var a=h.Aggregates;var t=s.Society.Settlements[city];int owner=a.Resolve(t.PolityId,h);if(owner<0)return;
             var local=a.Communities.Cities[city];if(local.RulerId!=owner)TransferCommunityGovernment(s,city,owner);
             var p=h.Polities[owner];var ds=h.Dynamics.States[owner];var policy=a.Communities.Governments[owner];var record=h.Towns[city];

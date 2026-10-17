@@ -39,7 +39,8 @@ namespace WorldGen.Core
             var proposals=new List<(int source,int region,int cell,double score)>();
             for(int slot=0;slot<Math.Min(2,departures.Length);slot++)
             {
-                int source=departures[(map.Voyages+slot)%departures.Length],region=CellPatch[source];var potential=communityVoyages[region];
+                int departureOffset=RealmHistory(s)?(int)(HistoryRoll("realm-departure-rotation",polity,s.Years)*departures.Length):map.Voyages;
+                int source=departures[(departureOffset+slot)%departures.Length],region=CellPatch[source];var potential=communityVoyages[region];
                 for(int k=0;k<8;k++)
                 {
                     int bearingShore=-1;
@@ -95,8 +96,10 @@ namespace WorldGen.Core
                 // Validation uses real geometry/suppliers only after choosing a
                 // search or destination. No target resource optimization here.
                 if(!DiffusionSeaLane(route.CellA,route.CellB)||!InstitutionalRouteAllowed(s,route.CellA,route.CellB,p.CultureId)){SeaVentureObserver?.Invoke(polity,"physical-route");continue;}
-                if(!MaritimeCharterLogistics(s,polity,route,a.TownAt[route.CellA],out int supplier,out _)){SeaVentureObserver?.Invoke(polity,"no-actual-supplier");continue;}
                 bool convoy=HistoricalSeaVentureEffects.CanColonize(map.Grade[proposal.region],ocean>=.2,route.DistanceM);
+                int supplier;
+                bool supplied=RealmHistory(s)?MaritimeVoyageLogistics(s,polity,route,a.TownAt[route.CellA],convoy?250:30,out supplier,out _):MaritimeCharterLogistics(s,polity,route,a.TownAt[route.CellA],out supplier,out _);
+                if(!supplied){SeaVentureObserver?.Invoke(polity,"no-actual-supplier");continue;}
                 long cost=(convoy?750:500)+route.DistanceM/4000;
                 long food=HistoricalVoyageEffects.Provisioning(convoy?80:30,route.DistanceM*(convoy?1:2));
                 var port=s.Society.Settlements[supplier];

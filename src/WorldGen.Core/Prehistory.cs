@@ -41,6 +41,7 @@ namespace WorldGen.Core
         public sealed class Route { public int A,B,DistanceM,SeaDropM,CellA=-1,CellB=-1; public bool Shallow,Sea,Coastal; }
         public readonly World World; public readonly int[] CellPatch; public readonly Patch[] Patches; public readonly Route[] Routes;
         readonly int[][] regionalCultureEdges;
+        readonly int[][] realmLandRoutes;
         // Derived habitat weights, not a second population store. Prefix allocation conserves every person.
         readonly long[] ruralWeight,ruralPrefix;readonly long[] ruralPatchWeight;
         public const int StepYears=100;
@@ -135,6 +136,11 @@ namespace WorldGen.Core
             }
             Routes=routes.Values.ToArray();
             if(world.Prehistory==null||(world.Prehistory.Version=="prehistory-5"||world.Prehistory.Version=="prehistory-6"))Routes=Routes.Concat(CoastalDetours(token)).OrderBy(r=>r.A).ThenBy(r=>r.B).ThenBy(r=>r.Coastal).ThenBy(r=>r.SeaDropM).ToArray();
+            // Geometry-only setup index. Ordinary treaty reviews address at
+            // most eight neighboring land districts, not duplicate sea routes.
+            var landLinks=new System.Collections.Generic.List<int>[Patches.Length];
+            for(int i=0;i<Routes.Length;i++)if(!Routes[i].Sea){var r=Routes[i];(landLinks[r.A]??(landLinks[r.A]=new System.Collections.Generic.List<int>())).Add(i);(landLinks[r.B]??(landLinks[r.B]=new System.Collections.Generic.List<int>())).Add(i);}
+            realmLandRoutes=landLinks.Select(list=>list?.ToArray()??Array.Empty<int>()).ToArray();
         }
         public int ChooseOrigin(int variant=0)
         {

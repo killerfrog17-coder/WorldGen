@@ -4,19 +4,22 @@ namespace WorldGen.Core
 {
     [Serializable] public sealed class HistoricalRealmAccount
     {
-        public int FoundedYear,RegimeSince,CrisisUntil,CrisisSeverity,RegimeChanges,RegionalSeparations;
+        public int FoundedYear,RegimeSince,CrisisUntil,CrisisSeverity,RegimeChanges,RegionalSeparations,RecognitionCursor;
         public long RecognizedAreaKm2,RecognitionUpkeep;
         public HistoricalRealmAccount Copy()=>(HistoricalRealmAccount)MemberwiseClone();
     }
     [Serializable] public sealed class HistoricalRealmLifecycles
     {
         public int Version=1,SinceYear;
+        [System.Runtime.Serialization.OptionalField] public HistoricalRealmClaimRoutes ClaimRoutes;
         public HistoricalRealmAccount[] Governments=Array.Empty<HistoricalRealmAccount>();
-        public HistoricalRealmLifecycles Copy()=>new HistoricalRealmLifecycles{Version=Version,SinceYear=SinceYear,Governments=Governments.Select(g=>g.Copy()).ToArray()};
+        public HistoricalRealmLifecycles Copy()=>new HistoricalRealmLifecycles{Version=Version,SinceYear=SinceYear,ClaimRoutes=ClaimRoutes?.Copy(),Governments=Governments.Select(g=>g.Copy()).ToArray()};
         public static int Founded(PrehistoryState s,int polity)=>s.History.Aggregates?.Empires?.Connections?.Realms?.Governments[polity].FoundedYear??s.History.Polities[polity].FoundedYear;
     }
     public static class HistoricalRealmEffects
     {
+        public static int RulerTenure(double roll)=>3+(int)(47*D.Clamp(roll)*D.Clamp(roll));
+        public static double CourtFailureHazard(double bureaucracy)=>.005*Math.Pow(1-.98*D.Clamp(bureaucracy),2);
         public static int LegitimacyTarget(double integration,double serviceRatio,int capture,int conquest,int exhaustion,int representation)
             =>(int)Math.Round(1000*Math.Max(.15,Math.Min(.85,.48+.18*D.Clamp(integration)+.12*D.Clamp(serviceRatio)+.12*D.Clamp(representation/1000.0)
                 -.18*D.Clamp(capture/1000.0)-.15*D.Clamp(conquest/1000.0)-.25*D.Clamp(exhaustion/1000.0))));
@@ -39,7 +42,8 @@ namespace WorldGen.Core
         public PrehistoryState UpgradeRealmLifecycles(PrehistoryState source)
         {
             Validate(source);if(!LivingWorldHistory(source))throw new ArgumentException("Realm lifecycles require history32.");
-            if(RealmHistory(source))return source;var s=source.Copy();InitializeRealmLifecycles(s);s.Seal();return s;
+            if(RealmHistory(source)&&source.History.Aggregates.Empires.Connections.Realms.ClaimRoutes?.SourceHeads!=null)return source;
+            var s=source.Copy();InitializeRealmLifecycles(s);InitializeRealmClaimRoutes(s);s.Seal();return s;
         }
         void InitializeRealmLifecycles(PrehistoryState s)
         {
@@ -51,6 +55,7 @@ namespace WorldGen.Core
             if(diplomacy!=null)for(int i=0;i<records.Length;i++)
             {int next=diplomacy.Accounts[i].ContinuitySuccessor;if(next>i)records[next].FoundedYear=Math.Min(records[next].FoundedYear,records[i].FoundedYear);}
             h.Aggregates.Empires.Connections.Realms=new HistoricalRealmLifecycles{SinceYear=s.Years,Governments=records};
+            InitializeRealmClaimRoutes(s);
             foreach(var title in h.Aggregates.Empires.Connections.Titles)
             {int owner=h.Aggregates.Resolve(title.Holder,h);if(owner>=0)ChangeRealmTitleAccount(s,owner,title.AreaKm2,1);}
         }
@@ -103,6 +108,16 @@ namespace WorldGen.Core
             if(!RealmHistory(s)||polity<0)return 0;var r=s.History.Aggregates.Empires.Connections.Realms.Governments[polity];
             return r.CrisisUntil>s.Years?r.CrisisSeverity/1000.0:0;
         }
+        bool ContestFailingRealmCourt(PrehistoryState s,int polity)
+        {
+            if(!RealmHistory(s)||s.History.Aggregates.Polities[polity].Cities.Count<2)return false;
+            if(RealmCrisis(s,polity)>0)return true;
+            var h=s.History;var p=h.Polities[polity];var ds=h.Dynamics.States[polity];var record=h.Aggregates.Empires.Connections.Realms.Governments[polity];
+            record.RegimeSince=s.Years;record.RegimeChanges++;record.CrisisSeverity=900;
+            record.CrisisUntil=s.Years+12+(int)(14*HistoryRoll("realm-fiscal-contest-duration",polity,s.Years));ds.DisputedUntil=record.CrisisUntil;
+            HistoryEvent(s,"realm-succession-crisis",p.Name+"'s central court loses authority amid fiscal and elite conflict. Its existing regional centers contest control rather than all losing their governments at once.",s.Society.Settlements[p.CapitalId].Cell,p.CultureId,polity,category:ChronicleCategory.Politics);
+            return true;
+        }
         void AdvanceRealmLegitimacy(PrehistoryState s,int polity,int elapsed,int previous)
         {
             if(!RealmHistory(s))return;var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var account=a.Polities[polity];var cycle=h.Dynamics.States[polity].Cycle;
@@ -141,11 +156,12 @@ namespace WorldGen.Core
         {
             var r=s.History.Aggregates.Empires.Connections.Realms;if(r==null)return;
             if(!LivingWorldHistory(s)||r.Version!=1||r.SinceYear<0||r.SinceYear>s.Years||r.Governments?.Length!=s.History.Polities.Length)throw new ArgumentException("Invalid realm lifecycle extension.");
-            foreach(var g in r.Governments)if(g==null||g.FoundedYear<0||g.FoundedYear>s.Years||g.RegimeSince<g.FoundedYear||g.RegimeSince>s.Years||g.CrisisUntil<0||g.CrisisUntil>s.Years+100||g.CrisisSeverity<0||g.CrisisSeverity>1000||g.RegimeChanges<0||g.RegionalSeparations<0||g.RecognizedAreaKm2<0||g.RecognitionUpkeep<0)throw new ArgumentException("Invalid realm continuity/crisis account.");
+            foreach(var g in r.Governments)if(g==null||g.FoundedYear<0||g.FoundedYear>s.Years||g.RegimeSince<g.FoundedYear||g.RegimeSince>s.Years||g.CrisisUntil<0||g.CrisisUntil>s.Years+100||g.CrisisSeverity<0||g.CrisisSeverity>1000||g.RegimeChanges<0||g.RegionalSeparations<0||g.RecognizedAreaKm2<0||g.RecognitionUpkeep<0||g.RecognitionCursor<0)throw new ArgumentException("Invalid realm continuity/crisis account.");
             var areas=new long[r.Governments.Length];var costs=new long[areas.Length];
             foreach(var title in s.History.Aggregates.Empires.Connections.Titles)
             {int owner=s.History.Aggregates.Resolve(title.Holder,s.History);if(owner>=0){areas[owner]+=title.AreaKm2;costs[owner]+=RealmTitleUpkeep(title.AreaKm2);}}
             for(int i=0;i<areas.Length;i++)if(s.History.Polities[i].EndedYear<0&&(areas[i]!=r.Governments[i].RecognizedAreaKm2||costs[i]!=r.Governments[i].RecognitionUpkeep))throw new ArgumentException("Recognized sovereignty service ledger.");
+            ValidateRealmClaimRoutes(s);
         }
     }
 }
