@@ -42,6 +42,18 @@ public static class HistoryFarmerFrontierOpportunityAudit
             double occupied=HistoricalLocalEffects.RegionalTraditionOpportunity(s.Years-s.ArrivalYear[region]);
             double independent=.0025*Math.Pow(D.Clamp(Math.Max(stored,aquatic*.65)/.45),2)*ecological*occupied;
             double diffusion=local.Teacher>=0?.03*D.Clamp(local.Exposure/600.0)*(.02+.98*ecological)*D.Clamp(concentration):0;
+            int revision=a.Empires?.Connections?.Realms?.Version??0;
+            int civicTeacher=(int)Call("ProvincialRegionalCourt",s,region);if(civicTeacher<0)civicTeacher=local.CivicTeacher;
+            double civic=civicTeacher>=0&&civicTeacher<h.Polities.Length?(double)Call("InstitutionalRegionalExample",s,region,civicTeacher):0;
+            bool storageDelivered=(a.Provinces.RegionalKnowledge[region]&(1L<<(int)HistoricalTechnology.Storage))!=0,qualifiedContact=false;
+            if(revision>=28)
+            {
+                // Keep this offline reconstruction compilable with the original
+                // frozen26 assembly as well as the new optional rule assembly.
+                qualifiedContact=local.Teacher>=0&&local.Teacher<h.Cultures.Length&&local.Exposure>=600&&local.LastExchangeYear>0&&local.LastExchangeYear<=s.Years
+                    &&(long)s.Years-local.LastExchangeYear<=250&&s.Population[region]>=400&&storageDelivered&&civic>=600;
+                if(qualifiedContact)diffusion=.03*D.Clamp(local.Exposure/600.0)*D.Clamp(concentration);
+            }
             double dissemination=1,environment=1,management=0,homeland=1,wild=1,marine=0;
             if(colonial&&local.Teacher>=0)
             {
@@ -63,6 +75,7 @@ public static class HistoryFarmerFrontierOpportunityAudit
                 Season=season,StoredDevelopmentOrLandscape=storage,WildCropStorage=cropStorage,Stored=stored,Aquatic=aquatic,Concentration=concentration,EcologicalConcentration=ecological,
                 RegionalOccupation=occupied,EnvironmentalEstablishment=environment,TeacherManagement=management,Homeland=homeland,WildResourceFactor=wild,Dissemination=dissemination,
                 IndependentHazard=independent,MarineHazardFloor=marine,DiffusionHazard=diffusion,RegionalMaturity=maturity,RecognitionChancePer100ActorYears=probability,
+                RecognitionRevision=revision,QualifiedContactCommunity=qualifiedContact,DeliveredStorage=storageDelivered,ActualCivicTeacher=civicTeacher,ActualCivicExample=civic,
                 SameRegionalParameters=true,UsesActualBestCell=cell==a.Regions[region].BestCell};
         }
         object Remote(int to,int routeId)

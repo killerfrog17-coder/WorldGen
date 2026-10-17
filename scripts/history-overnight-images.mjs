@@ -1,6 +1,6 @@
 // Read-only renderer for the overnight review's diagnostic SVG exports.
 // Images and sheets stay beside the external review.json, outside source control.
-// Usage: node scripts/history-overnight-images.mjs [--timeline|--states-only|--years=Y1,Y2] [--set=NAME] FOLDER...
+// Usage: node scripts/history-overnight-images.mjs [--timeline|--states-only|--years=Y1,Y2] [--modes=States,Territories] [--set=NAME --bounds=W,S,E,N] [--no-cities] FOLDER...
 import {chromium} from 'playwright';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -46,6 +46,8 @@ try{
   if(sequence)selection=rows.filter(row=>!focusYears.length||focusYears.includes(row.Year)).map(row=>({row,label:row.FirstState>=0&&row.Year>=row.FirstState&&row.Era<4?'Bronze Age / first states':row.EraName}));
   if(focusYears.some(year=>!selection.some(value=>value.row.Year===year)))throw Error('A focused year is absent from review.json.');
   const out=path.join(folder,(focusYears.length?'focused':timeline?'timeline':'screenshots')+(setName?`-${setName}`:'')+(noCities?'-no-cities':''));await fs.mkdir(out,{recursive:true});
+  const previous=await fs.readFile(path.join(out,'screenshots.json'),'utf8').then(JSON.parse,error=>{if(error.code==='ENOENT')return null;throw error;});
+  const cropCacheMatches=!bounds||JSON.stringify(previous?.bounds)===JSON.stringify(bounds);
   const rendered=[];
   for(const {row,label} of selection){
    for(const mode of modes){
@@ -55,7 +57,7 @@ try{
     let cached=null;
     for(const candidate of [...new Set([path.join(out,file),...(noCities||bounds?[]:['screenshots','focused','focused-late','reference-comparison'].map(dir=>path.join(folder,dir,file)))])]){
      const stat=await fs.stat(candidate).catch(error=>{if(error.code==='ENOENT')return null;throw error;});
-     if(stat&&(!sourceStat||stat.mtimeMs>=sourceStat.mtimeMs)){cached=candidate;break;}
+     if(stat&&cropCacheMatches&&(!sourceStat||stat.mtimeMs>=sourceStat.mtimeMs)){cached=candidate;break;}
     }
     if(cached){
      if(cached!==path.join(out,file))await fs.copyFile(cached,path.join(out,file));

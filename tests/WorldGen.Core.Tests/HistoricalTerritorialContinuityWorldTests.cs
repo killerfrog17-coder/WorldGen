@@ -10,13 +10,18 @@ public static class HistoricalTerritorialContinuityWorldTests
     static object Call(Prehistory engine,string method,params object[] args)=>typeof(Prehistory).GetMethod(method,BindingFlags.Instance|BindingFlags.NonPublic)!.Invoke(engine,args)!;
     public static void ColdUpgrade(string file,int previous,int revision,string expectedLegacy,string legacyOutput,Action<bool,string> check)
     {
+        if(expectedLegacy!=null&&(expectedLegacy.Length!=64||expectedLegacy.Any(c=>!Uri.IsHexDigit(c))))throw new ArgumentException("Expected legacy history hash must be exactly64 hexadecimal characters.",nameof(expectedLegacy));
         var world=WorldFile.Read(File.ReadAllBytes(file));var source=world.Prehistory;var engine=new Prehistory(world);engine.Validate(source);string original=source.ComputeHash();
         check(source.History.Aggregates.Empires.Connections.Realms.Version==previous,"The cold-upgrade input retains its genuine preceding saved rule marker.");
         check(new HistoricalRealmLifecycles().Version==revision,"The driver uses the coherent activated target assembly, not a manually forced future marker.");
         if(File.Exists(legacyOutput)||File.Exists(legacyOutput+".cold.hash"))throw new IOException("Do not overwrite literal or cold continuation evidence.");
-        var old=engine.AdvanceYears(source,12);engine.Validate(old);File.WriteAllText(legacyOutput,old.Hash);
-        check(old.Hash==expectedLegacy,"The activated source exactly preserves the frozen preceding-rule twelve-year continuation on the identical actual checkpoint.");
-        Console.WriteLine("Literal"+previous+" +12 "+old.Hash);
+        if(expectedLegacy!=null)
+        {
+            var old=engine.AdvanceYears(source,12);engine.Validate(old);File.WriteAllText(legacyOutput,old.Hash);
+            check(old.Hash==expectedLegacy,"The activated source exactly preserves the frozen preceding-rule twelve-year continuation on the identical actual checkpoint.");
+            Console.WriteLine("Literal"+previous+" +12 "+old.Hash);
+        }
+        else Console.WriteLine("No duplicate preceding-rule control: this cold-only fixture uses a separately identified source, not another checkpoint's legacy hash.");
         var next=engine.UpgradeRealmLifecycles(source);engine.Validate(next);
         check(next.History.Aggregates.Empires.Connections.Realms.Version==revision,"The public explicit upgrade opts into the target revision without changing the source marker.");
         check(next.History.Aggregates.TotalPopulation==source.History.Aggregates.TotalPopulation&&next.Population.SequenceEqual(source.Population)&&next.Society.Settlements.Select(t=>t.Population).SequenceEqual(source.Society.Settlements.Select(t=>t.Population)),"The prospective upgrade conserves world population, every unallocated regional cohort and every town's existing residents.");

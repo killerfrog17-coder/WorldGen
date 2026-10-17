@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--contact-community-world")){int at=Array.IndexOf(args,"--contact-community-world");HistoryContactCommunityRecognitionWorldTests.Run(args[at+1],args[at+2]);return;}
+if(args.Contains("--contact-community-only")){int count=0;HistoryContactCommunityRecognitionTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" contacted-community assertions");return;}
 if(args.Contains("--civil-maritime-only")){int count=0;HistoryCivilMaritimeTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" civil maritime assertions");return;}
 if(args.Contains("--civil-maritime-world")){int at=Array.IndexOf(args,"--civil-maritime-world"),count=0;HistoryCivilMaritimeTests.World(args[at+1],args[at+2],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" recorded civil maritime assertions");return;}
 if(args.Contains("--seed-landscape-cache-world")){int count=0;HistorySeedLandscapeCacheTests.World(args[Array.IndexOf(args,"--seed-landscape-cache-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" immutable seed-landscape cache assertions");return;}

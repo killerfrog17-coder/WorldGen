@@ -570,5 +570,9 @@ each of the eight fields edited through a reference retained across an owned
 hash, restoration to its original value, read-only reuse, source/public/owned
 fork isolation, concurrent public edits, cancellation and cold serialization.
 See `HistoryTrustedRelationMemoTests` and `HistoricalCanonicalTests`.
-The actual preceding26 continuation/cold check is being run separately; these
-pure assertions and source review do not establish a strict native speed gain.
+The actual preceding26 final-Earth twelve-year continuation remains exactly
+`4232e559789f84884b94b87a2609a9b22892fb7ab26e9c210ad3feaa109c755a`.
+The activated27 build containing the memo also passes the separate genuine
+earlier-frame full-world12 versus5+save/load+7 cold control documented in
+[civil maritime continuity](HISTORY32_CIVIL_MARITIME_CONTINUITY.md). Neither
+these exactness checks nor the pure tests establish a strict native speed gain.

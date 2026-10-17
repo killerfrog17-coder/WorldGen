@@ -3,7 +3,7 @@
 Source experiments, not an assertion of historical/scientific validation. The
 existing selected player is the rollback build until native review is complete.
 
-## Latest review: revisions20–26 (17 October,12:35UTC)
+## Latest review: revisions20–28 (17 October,12:53UTC)
 
 The older entries below are a chronological audit trail, **not the current
 acceptance status**. The selected desktop player is still the preceding
@@ -40,6 +40,17 @@ The latest causal changes are documented separately:
   the same flat debt for every small town.
 - [Repeated scholarly-rank costs](HISTORY32_SCHOLARLY_RANK_COSTS.md), retaining
   foundational costs, prerequisites, budgets, physical lessons and deployment.
+- [Consistent civil maritime continuity](HISTORY32_CIVIL_MARITIME_CONTINUITY.md),
+  reusing the funded fleet floor without relaxing hostile expedition readiness,
+  failed-consent coercion or actual voyage/settler costs. Revision27 passes562
+  pure,26 actual actor and10 genuine full-world cold-upgrade assertions; its
+  fresh longitudinal and native acceptance remain separate from those proofs.
+- [Contacted community recognition](HISTORY32_CONTACT_COMMUNITY_RECOGNITION.md),
+  distinguishing substantial dated contact with actual local civic examples
+  from a pristine wild-surplus origin. It grants no farming, crops, people,
+  town or state. Revision28 passes396 pure,20 current-field/controlled-handler
+  and11 genuine27→28 cold-upgrade assertions; strengthened budget checks and
+  fresh geographical/native outcomes remain separately tracked in its review.
 
 The independent critic sampled the entire documentary at two-second intervals
 and inspected all51 dated era contact sheets. It also inspected the generated

@@ -117,6 +117,22 @@ namespace WorldGen.Core
             double occupied=HistoricalLocalEffects.RegionalTraditionOpportunity(s.Years-s.ArrivalYear[id]);
             double independent=.0025*Math.Pow(D.Clamp(Math.Max(stored,aquatic*.65)/.45),2)*ecological*occupied;
             double diffusion=local.Teacher>=0?.03*D.Clamp(local.Exposure/600.0)*(.02+.98*ecological)*D.Clamp(concentration):0;
+            int revision=a.Empires?.Connections?.Realms?.Version??0;
+            if(revision>=28)
+            {
+                // Actual accumulated, dated contact can establish a recognizable
+                // local tradition without passing the wild-surplus origin test
+                // again. Cultivation, field support, towns and courts still have
+                // their independent physical gates. No pristine hazard changes.
+                int court=ProvincialRegionalCourt(s,id);
+                if(court<0)court=local.CivicTeacher;
+                double civic=court>=0&&court<s.History.Polities.Length
+                    ?InstitutionalRegionalExample(s,id,court):0;
+                bool storageDelivered=(a.Provinces.RegionalKnowledge[id]&(1L<<(int)HistoricalTechnology.Storage))!=0;
+                if(HistoricalContactCommunityRecognition.Qualified(revision,local.Teacher,s.History.Cultures.Length,local.Exposure,
+                    local.LastExchangeYear,s.Years,s.Population[id],storageDelivered,civic))
+                    diffusion=.03*D.Clamp(local.Exposure/600.0)*D.Clamp(concentration);
+            }
             if(ColonialHistory(s)&&local.Teacher>=0)
             {
                 // Recognition of an actually contacted regional tradition must
