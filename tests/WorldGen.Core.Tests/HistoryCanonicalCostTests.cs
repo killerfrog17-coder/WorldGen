@@ -8,6 +8,7 @@ public static class HistoryCanonicalCostTests
     static readonly Type Costs=typeof(StateHash).Assembly.GetType("WorldGen.Core.CanonicalHashCosts")!;
     static readonly MethodInfo BeginMethod=Costs.GetMethod("Begin",BindingFlags.NonPublic|BindingFlags.Static)!;
     static readonly MethodInfo BeginReadsMethod=Costs.GetMethod("BeginRelationReads",BindingFlags.NonPublic|BindingFlags.Static)!;
+    static readonly MethodInfo BeginFrameMethod=Costs.GetMethod("BeginFrame",BindingFlags.NonPublic|BindingFlags.Static)!;
     static readonly MethodInfo OwnedMethod=typeof(StateHash).GetMethod("ComputeOwnedHistorical",BindingFlags.NonPublic|BindingFlags.Static)!;
     static readonly MethodInfo FreezeMethod=typeof(StateHash).GetMethod("FreezeHistoricalRecord",BindingFlags.NonPublic|BindingFlags.Static,null,new[]{typeof(object)},null)!;
     static IDisposable Begin(Action<CanonicalHashMetric> observer,int year)=>(IDisposable)BeginMethod.Invoke(null,new object[]{observer,year})!;
@@ -56,6 +57,13 @@ public static class HistoryCanonicalCostTests
         });
         for(int i=0;i<32;i++)check(results[i]&&concurrent[i].Year==i&&concurrent[i].TreeFingerprints==2&&concurrent[i].UncachedTreeNodes==10,"Concurrent scopes never share counters, tree digests or outcomes.");
         check(Begin(null,37)==null,"Nested, cancelled and failed observers leave ordinary diagnostics inactive.");
+        rows.Clear();var root=new object[]{"Root",17,new[]{1,2,3},null,new HistoricalCellTree(73).With(17,29)};string rootExpected=StateHash.ComputeHistoricalReference(root);
+        using(var scope=(IDisposable)BeginFrameMethod.Invoke(null,new object[]{(Action<CanonicalHashMetric>)rows.Add,39,true})!)
+        {check(Owned(root)==rootExpected,"Opt-in top-level component timing preserves exact root bytes.");Complete(scope);}
+        metric=rows.Single();check(metric.Components.Count==root.Length&&metric.Components.Select(p=>p.Index).SequenceEqual(Enumerable.Range(0,root.Length)),"Component diagnostics time exactly the ordered top-level items, not every nested record.");
+        check(metric.Components.All(p=>p.Completed&&p.Milliseconds>=0)&&metric.Components.Sum(p=>p.Milliseconds)<=metric.RootMilliseconds,"Inclusive component timings remain bounded by the root timing.");
+        immutable=false;try{((IList<CanonicalComponentCost>)metric.Components).Clear();}catch(NotSupportedException){immutable=true;}check(immutable,"Published component timings are read-only.");
+        rows.Clear();using(var scope=Begin(rows.Add,40)){Owned(root);Complete(scope);}check(rows.Single().Components.Count==0,"Ordinary canonical counters do not enable component timers implicitly.");
         var relations=new HistoricalRelationCollection(new[]{new HistoricalRelation{A=1,B=2},new HistoricalRelation{A=3,B=4},new HistoricalRelation{A=5,B=6}}).Copy();Owned(relations);
         // Expose rows, refill their memo, then fork while retaining the old refs.
         var retained0=relations[0];var retained1=relations[1];Owned(relations);rows.Clear();
@@ -74,7 +82,7 @@ public static class HistoryCanonicalCostTests
     {
         if(File.Exists(output)||File.Exists(output+".json"))throw new IOException("Do not overwrite cost evidence.");
         var world=WorldFile.Read(File.ReadAllBytes(source));var initial=world.Prehistory;string original=initial.Hash;var engine=new Prehistory(world);var session=new SimulationSession(engine,initial);
-        var costs=new List<CanonicalHashMetric>();var work=new List<SimulationWorkMetric>();engine.CanonicalHashObserver=costs.Add;engine.TraceCanonicalRelationReads=true;engine.WorkObserver=work.Add;
+        var costs=new List<CanonicalHashMetric>();var work=new List<SimulationWorkMetric>();engine.CanonicalHashObserver=costs.Add;engine.TraceCanonicalRelationReads=true;engine.TraceCanonicalComponents=true;engine.WorkObserver=work.Add;
         for(int step=0;step<steps;step++)
         {var next=session.AdvanceSeconds(5*SimulationTime.Year,int.MaxValue);Console.WriteLine(JsonSerializer.Serialize(new{Step=step+1,Year=next.Years,Hash=next.Hash,Cost=costs.Last()},new JsonSerializerOptions{IncludeFields=true}));}
         engine.Validate(session.LastSnapshot);
@@ -83,6 +91,7 @@ public static class HistoryCanonicalCostTests
         lines.AddRange(costs.Select(m=>FormattableString.Invariant($"{m.Year},{m.Completed},{m.SealMilliseconds:F6},{m.RootMilliseconds:F6},{m.UncachedTreeNodes},{m.TreePayloadBytes},{m.TreeFingerprints},{m.NewFrozenRecords},{m.NewFrozenBytes}")));
         File.WriteAllLines(output,lines);File.WriteAllText(output+".json",JsonSerializer.Serialize(new{InitialHash=original,FinalHash=session.Hash,Years=steps*5,Costs=costs,Work=work.GroupBy(m=>m.Stage).Select(g=>new{Stage=g.Key,Count=g.Count(),Milliseconds=g.Sum(m=>m.Milliseconds),AllocatedBytes=g.Sum(m=>m.AllocatedBytes)})},new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));
         File.WriteAllLines(output+".types.csv",new[]{"year,type,count,bytes"}.Concat(costs.SelectMany(m=>m.FrozenRecordsByType.Select(r=>FormattableString.Invariant($"{m.Year},{r.Type},{r.Count},{r.Bytes}")))));
+        File.WriteAllLines(output+".components.csv",new[]{"year,index,type,milliseconds,completed"}.Concat(costs.SelectMany(m=>m.Components.Select(r=>FormattableString.Invariant($"{m.Year},{r.Index},{r.Type.Replace(',',';')},{r.Milliseconds:F6},{r.Completed}")))));
         File.WriteAllLines(output+".relations.csv",new[]{"year,readCalls,readsWithMemo,forkInvalidations,capturedOriginals,unchangedFreezes,changedFreezes,uncomparedFreezes"}.Concat(costs.Select(m=>FormattableString.Invariant($"{m.Year},{m.RelationReadCalls},{m.RelationReadsWithMemo},{m.RelationForkInvalidations},{m.RelationCapturedOriginals},{m.UnchangedRelationFreezes},{m.ChangedRelationFreezes},{m.UncomparedRelationFreezes}"))));
         Console.WriteLine("HASH "+session.Hash);
     }

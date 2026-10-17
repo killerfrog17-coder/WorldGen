@@ -134,7 +134,15 @@ namespace WorldGen.Core
             if (t == typeof(bool[])) { foreach (bool item in (bool[])o) { w.Write((byte)1); w.Write((byte)1); w.Write("System.Boolean"); w.Write(item); } w.Write((byte)0); return; }
             if (t == typeof(double[])) { foreach (double item in (double[])o) { w.Write((byte)1); w.Write((byte)1); w.Write("System.Double"); Double(w, item); } w.Write((byte)0); return; }
             if (t.IsEnum) { w.Write(Convert.ToInt32(o)); return; }
-            if (o is IEnumerable seq) { foreach (var item in seq) { w.Write((byte)1); Write(w, item); } w.Write((byte)0); return; }
+            if (o is IEnumerable seq)
+            {
+                if(CanonicalHashCosts.IsTimedRoot(o))
+                {
+                    int part=0;foreach(var item in seq){w.Write((byte)1);long started=System.Diagnostics.Stopwatch.GetTimestamp();bool completed=false;try{Write(w,item);completed=true;}finally{CanonicalHashCosts.Component(part++,item,started,completed);}}
+                }
+                else foreach(var item in seq){w.Write((byte)1);Write(w,item);}
+                w.Write((byte)0);return;
+            }
             foreach (var f in Fields.GetOrAdd(t, type => type.GetFields(BindingFlags.Instance | BindingFlags.Public)
                 .Where(f => !(type == typeof(World) && (f.Name == nameof(World.Stages)||f.Name==nameof(World.Prehistory))) && f.GetCustomAttribute<DisplaySettingAttribute>() == null)
                 .OrderBy(f => f.Name, StringComparer.Ordinal).ToArray()))

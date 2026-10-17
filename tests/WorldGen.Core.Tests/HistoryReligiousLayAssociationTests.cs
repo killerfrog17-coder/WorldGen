@@ -65,7 +65,7 @@ public static class HistoryReligiousLayAssociationTests
         var middle=WorldFile.Read(WorldFile.Write(read));var coldEngine=new Prehistory(middle);var split=coldEngine.AdvanceYears(middle.Prehistory,7);e.Validate(full);coldEngine.Validate(split);
         check(middle.Prehistory.Hash==five.Hash&&full.Hash==split.Hash,"Revision20 twelve-year continuation exactly equals five years, a genuine intermediate cold save, and seven further years.");
         var fresh=e.Start(e.Prepare(source.Origin));var three=e.AdvanceYears(fresh,3);var oneTwo=e.AdvanceYears(e.AdvanceYears(fresh,1),2);
-        check(fresh.History.Aggregates.Empires.Connections.Realms.Version==20&&fresh.History.Aggregates.Empires.Connections.Religion.LayAssociations!=null&&three.Hash==oneTwo.Hash,"Fresh current revision20 starts with its prospective ledger and deterministic split advancement.");
+        check(fresh.History.Aggregates.Empires.Connections.Realms.Version==new HistoricalRealmLifecycles().Version&&fresh.History.Aggregates.Empires.Connections.Religion.LayAssociations!=null&&three.Hash==oneTwo.Hash,"Fresh current rules start with their prospective lay-association ledger and deterministic split advancement.");
         Console.WriteLine("Cold revision20 continuation "+full.Hash);
     }
     sealed class Fixture

@@ -92,6 +92,6 @@ does not calibrate the simulation's specific movement prior.
 - Corrected R17/ledger2 Earth subsequently completes its full saved179800
   continuation, including over1,000 years past maximum technology, with every
   export-checkpoint prepared-field audit passing. Its exact saved hash and
-  still-pending CP control are recorded in the prepared-field ledger. This is
+  completed bounded-tail CP control are recorded in the prepared-field ledger. This is
   correctness evidence, not a claim that Eurasian diffusion is geographically
   satisfactory.

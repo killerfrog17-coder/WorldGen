@@ -93,6 +93,11 @@ namespace WorldGen.Core
         }
         bool LivingInstitutionalContinuity(PrehistoryState s,int city)
         {
+            // A qualified proto-urban institution is no longer an unorganized
+            // seasonal village. Keep real food/distress retirement and the
+            // separate80-year institutional-decline test; do not randomly
+            // disperse it under the generic village rule after qualification.
+            if(s.History.Aggregates.Empires.Connections.Realms.Version>=21&&HistoricalRegionalTraditions.Proto(s,city)&&s.History.Aggregates.Living.Cities[city].AbandonedYear<0)return true;
             var t=s.Society.Settlements[city];var record=s.History.Towns[city];var hc=s.History.Cultures[t.CultureId];
             return s.History.Aggregates.Resolve(t.PolityId,s.History)>=0||record.CivicTeacherPolityId>=0&&record.CivicExampleExposure>=600&&record.CivicPreparationYears>=120||HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Writing,s.Years)>=.35&&s.History.Aggregates.Cities[city].Neighbors.Length>=2;
         }

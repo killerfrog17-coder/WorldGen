@@ -39,6 +39,7 @@ public sealed partial class WorldGenRuntime
         humans.YearWorkObserver=(year,ms)=>{observedYear=year;lock(yearCosts)yearCosts[year]=(yearCosts.TryGetValue(year,out double previous)?previous:0)+ms;};
         humans.CanonicalHashObserver=canonicalCosts.Add;
         humans.TraceCanonicalRelationReads=Argument("--worldgen-canonical-relations","")=="1";
+        humans.TraceCanonicalComponents=Argument("--worldgen-canonical-components","")=="1";
         humans.WorkObserver=metric=>
         {
             if(!stageCosts.TryGetValue(metric.Stage,out var cost))stageCosts[metric.Stage]=cost=new PlaybackStageCost();
@@ -84,6 +85,7 @@ public sealed partial class WorldGenRuntime
         System.IO.File.WriteAllLines(System.IO.Path.Combine(output,"work-spikes.csv"),new[]{"year,stage,items,milliseconds,gc0,gc1,gc2"}.Concat(spikes));
         System.IO.File.WriteAllLines(System.IO.Path.Combine(output,"canonical-costs.csv"),new[]{"year,completed,sealMilliseconds,rootMilliseconds,uncachedTreeNodes,treePayloadBytes,treeFingerprints,newFrozenRecords,newFrozenBytes"}.Concat(canonicalCosts.Select(m=>FormattableString.Invariant($"{m.Year},{m.Completed},{m.SealMilliseconds:F6},{m.RootMilliseconds:F6},{m.UncachedTreeNodes},{m.TreePayloadBytes},{m.TreeFingerprints},{m.NewFrozenRecords},{m.NewFrozenBytes}"))));
         System.IO.File.WriteAllLines(System.IO.Path.Combine(output,"canonical-record-costs.csv"),new[]{"year,type,count,bytes"}.Concat(canonicalCosts.SelectMany(m=>m.FrozenRecordsByType.Select(r=>FormattableString.Invariant($"{m.Year},{r.Type},{r.Count},{r.Bytes}")))));
+        System.IO.File.WriteAllLines(System.IO.Path.Combine(output,"canonical-components.csv"),new[]{"year,index,type,milliseconds,completed"}.Concat(canonicalCosts.SelectMany(m=>m.Components.Select(r=>FormattableString.Invariant($"{m.Year},{r.Index},{r.Type.Replace(',',';')},{r.Milliseconds:F6},{r.Completed}")))));
         System.IO.File.WriteAllLines(System.IO.Path.Combine(output,"canonical-relation-reads.csv"),new[]{"year,readCalls,readsWithMemo,forkInvalidations,capturedOriginals,unchangedFreezes,changedFreezes,uncomparedFreezes"}.Concat(canonicalCosts.Select(m=>FormattableString.Invariant($"{m.Year},{m.RelationReadCalls},{m.RelationReadsWithMemo},{m.RelationForkInvalidations},{m.RelationCapturedOriginals},{m.UnchangedRelationFreezes},{m.ChangedRelationFreezes},{m.UncomparedRelationFreezes}"))));
         System.IO.File.WriteAllText(System.IO.Path.Combine(output,"playback.json"),JsonUtility.ToJson(evidence,true));
         // The offscreen map render must not replace the frame buffer while

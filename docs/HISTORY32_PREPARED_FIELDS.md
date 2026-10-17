@@ -185,8 +185,12 @@ Every explicit export-checkpoint prepared-field audit passes. First state171106
 and Early Modern178000 match the preceding Q17 trajectory; the ledger repair
 does not masquerade as a cure for deficient western Eurasian settlement.
 This accepts the demonstrated Earth ledger correctness, not geographical
-realism or isolated performance. The corresponding CP longitudinal review is
-still pending; its bounded postmodern tail has not reached a final saved result.
+realism or isolated performance. The corresponding CP longitudinal replay also
+finishes its bounded tail and full save: `candidate-r17-cp200/final.world`,
+246,959,083 bytes, final172800,837.6 seconds wall time. Its final review has
+4,707 live towns,5,356,430,819 inhabitants and maximum-technology year−1:
+this is explicitly a completed bounded-tail run, not a claim of reaching the
+maximum package plus1,000 years. The strict final ledger validation passes.
 
 For offline first-failure diagnosis, use `--world-realism-replay SOURCE NEWDIR
 200000 --prepared-audit --prepared-rules 16`. This checks the private validator

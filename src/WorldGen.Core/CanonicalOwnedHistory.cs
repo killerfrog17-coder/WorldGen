@@ -8,7 +8,7 @@ namespace WorldGen.Core
         [ThreadStatic] static HistoryState ownedHistoryContext;
         internal static string ComputeOwnedHistorical(object value,HistoryState history,CancellationToken token=default)
         {
-            var previous=ownedHistoryContext;ownedHistoryContext=history;long started=CanonicalHashCosts.StartRoot();
+            var previous=ownedHistoryContext;ownedHistoryContext=history;long started=CanonicalHashCosts.StartRoot(value);
             try{return Compute(value,token);}finally{ownedHistoryContext=previous;CanonicalHashCosts.EndRoot(started);}
         }
         // Only private, already validated aggregate transactions may reuse these

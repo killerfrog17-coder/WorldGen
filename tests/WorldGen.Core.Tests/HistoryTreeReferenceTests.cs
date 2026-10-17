@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml;
+using System.IO.Compression;
 using WorldGen.Core;
 using WorldGen.Serialization;
 
@@ -23,14 +24,29 @@ public static class HistoryTreeReferenceTests
     {
         [DataMember] public HistoricalCellTree Tree;
         [OnDeserializing] void CancelRead(StreamingContext context){cancelProbe?.Cancel();}
+        [OnSerializing] void CancelWrite(StreamingContext context){cancelWriteProbe?.Cancel();}
     }
     [ThreadStatic] static CancellationTokenSource cancelProbe;
+    [ThreadStatic] static CancellationTokenSource cancelWriteProbe;
+    // Direct malformed wire is independent of the production write guard.
+    [DataContract(Name="HistoricalCellTree",Namespace=Contract)] public sealed class WireTree
+    {
+        [DataMember(Name="root")] public WireNode Root;
+        [DataMember(Name="length")] public int Length;
+    }
+    [DataContract(Name="HistoricalCellTree.Node",Namespace=Contract,IsReference=true)] public sealed class WireNode
+    {
+        [DataMember] public WireNode[] Children;
+        [DataMember] public int[] Values;
+    }
     static readonly FieldInfo Root=typeof(HistoricalCellTree).GetField("root",BindingFlags.Instance|BindingFlags.NonPublic)!;
     static readonly Type Node=typeof(HistoricalCellTree).GetNestedType("Node",BindingFlags.NonPublic)!;
     static readonly FieldInfo Children=Node.GetField("Children",BindingFlags.Instance|BindingFlags.NonPublic)!;
     static readonly FieldInfo Values=Node.GetField("Values",BindingFlags.Instance|BindingFlags.NonPublic)!;
-    static byte[] Write(object value,Type type)
-    {using var stream=new MemoryStream();using var transport=HistoricalCellTree.CreateBinaryTransport();var serializer=new DataContractSerializer(type);serializer.SetSerializationSurrogateProvider(transport);using(var writer=XmlDictionaryWriter.CreateBinaryWriter(stream,null,null,false))serializer.WriteObject(writer,value);return stream.ToArray();}
+    static byte[] Write(object value,Type type,CancellationToken token=default)
+    {using var stream=new MemoryStream();using var transport=HistoricalCellTree.CreateBinaryTransport(token);var serializer=new DataContractSerializer(type);serializer.SetSerializationSurrogateProvider(transport);using(var writer=XmlDictionaryWriter.CreateBinaryWriter(stream,null,null,false))serializer.WriteObject(writer,value);return stream.ToArray();}
+    static int Compressed(byte[] bytes)
+    {using var stream=new MemoryStream();using(var gzip=new GZipStream(stream,CompressionLevel.Optimal,true))gzip.Write(bytes);return checked((int)stream.Length);}
     static object Read(byte[] bytes,Type type,CancellationToken token=default)
     {using var scope=HistoricalCellTree.BeginReadInterning(token);using var transport=HistoricalCellTree.CreateBinaryTransport(token);var serializer=new DataContractSerializer(type);serializer.SetSerializationSurrogateProvider(transport);using var reader=XmlDictionaryReader.CreateBinaryReader(bytes,XmlDictionaryReaderQuotas.Max);return serializer.ReadObject(reader)!;}
     static LegacyNode CloneNode(object source,Dictionary<object,LegacyNode> seen)
@@ -40,6 +56,12 @@ public static class HistoryTreeReferenceTests
         var children=(Array)Children.GetValue(source);if(children!=null){result.Children=new LegacyNode[children.Length];for(int k=0;k<children.Length;k++)result.Children[k]=CloneNode(children.GetValue(k),seen);}return result;
     }
     static LegacyTree Legacy(HistoricalCellTree tree,Dictionary<object,LegacyNode> seen)=>new LegacyTree{Length=tree.Length,Root=CloneNode(Root.GetValue(tree),seen)};
+    static WireNode IdentityWire(object source,Dictionary<object,WireNode> seen)
+    {
+        if(source==null)return null;if(seen.TryGetValue(source,out var prior))return prior;
+        var result=new WireNode{Values=(int[])Values.GetValue(source)};seen.Add(source,result);
+        var children=(Array)Children.GetValue(source);if(children!=null){result.Children=new WireNode[children.Length];for(int i=0;i<children.Length;i++)result.Children[i]=IdentityWire(children.GetValue(i),seen);}return result;
+    }
     static int At(LegacyTree tree,int index)
     {var node=tree.Root;for(int shift=20;shift>0;shift-=5)node=node?.Children[(index>>shift)&31];return node?.Values[index&31]??-1;}
     public static void Run(Action<bool,string> check)
@@ -109,9 +131,51 @@ public static class HistoryTreeReferenceTests
         var newJsonReader=WorldJson.Read<HistoricalCellTree>(legacyJson);check(newJsonReader.Fingerprint(true)==original,"The current JSON reader accepts preceding tree JSON unchanged.");
         check(Node.GetFields(BindingFlags.Instance|BindingFlags.NonPublic).Select(f=>f.Name).OrderBy(x=>x).SequenceEqual(new[]{"Children","Digest","Values"}),"Logical simulation nodes keep their exact preceding allocation layout; temporary metadata belongs only to transport DTOs.");
         var cycle=Activator.CreateInstance(Node,true)!;var cycleChildren=Array.CreateInstance(Node,32);cycleChildren.SetValue(cycle,0);Children.SetValue(cycle,cycleChildren);var cycleTree=new HistoricalCellTree(32);Root.SetValue(cycleTree,cycle);
-        bool cyclic=false;try{Read(Write(cycleTree,typeof(HistoricalCellTree)),typeof(HistoricalCellTree));}catch(Exception){cyclic=true;}
-        check(cyclic&&roots.GetValue(null)==null,"Invalid cyclic source graphs cannot escape a bounded read or leak a scope.");
+        bool cyclic=false;try{Write(cycleTree,typeof(HistoricalCellTree));}catch(Exception){cyclic=true;}
+        check(cyclic,"Invalid cyclic logical source graphs are rejected by the bounded writer.");
+        var wireCycle=new WireNode{Children=new WireNode[32]};wireCycle.Children[0]=wireCycle;
+        cyclic=false;try{Read(Write(new WireTree{Length=32,Root=wireCycle},typeof(WireTree)),typeof(HistoricalCellTree));}catch(Exception){cyclic=true;}
+        check(cyclic&&roots.GetValue(null)==null,"Direct cyclic wire is independently rejected by the reader without leaking its scope.");
+        var wireDeep=new WireNode{Values=Enumerable.Repeat(-1,32).ToArray()};for(int i=0;i<5;i++){var next=new WireNode{Children=new WireNode[32]};next.Children[0]=wireDeep;wireDeep=next;}
+        bool deep=false;try{Read(Write(new WireTree{Length=32,Root=wireDeep},typeof(WireTree)),typeof(HistoricalCellTree));}catch(Exception){deep=true;}
+        check(deep&&roots.GetValue(null)==null,"Excessive radix depth is rejected from directly authored malformed wire, not merely blocked by the writer.");
+        FreshWriteInterning(check);
         using(var transport=HistoricalCellTree.CreateBinaryTransport()){transport.Dispose();bool stopped=false;try{transport.GetObjectToSerialize(tree,typeof(HistoricalCellTree));}catch(ObjectDisposedException){stopped=true;}check(stopped,"A disposed binary provider cannot retain or reuse source graph state.");}
+    }
+    static void FreshWriteInterning(Action<bool,string> check)
+    {
+        // From allocates independent equal pages. Never read/intern these trees
+        // before testing the first save, unlike an old-world rewrite fixture.
+        var fresh=Enumerable.Range(0,32).Select(_=>HistoricalCellTree.From(32768,i=>unchecked(i*7919)^0x13579)).ToArray();
+        check(fresh.Select(t=>Root.GetValue(t)).Distinct(ReferenceEqualityComparer.Instance).Count()==fresh.Length,"The first-save fixture starts with independent roots, not already interned or inherited pages.");
+        var prior=fresh.Select(t=>t.Fingerprint(true)).ToArray();var identitySeen=new Dictionary<object,WireNode>();
+        var identityOnly=fresh.Select(t=>new WireTree{Length=t.Length,Root=IdentityWire(Root.GetValue(t),identitySeen)}).ToArray();
+        var oldBytes=Write(identityOnly,typeof(WireTree[]));var compact=Write(fresh,typeof(HistoricalCellTree[]));
+        int oldZip=Compressed(oldBytes),newZip=Compressed(compact);
+        Console.WriteLine($"Fresh duplicate first-save decoded {oldBytes.Length}->{compact.Length}; gzip {oldZip}->{newZip}.");
+        check(compact.Length<oldBytes.Length/8&&newZip<oldZip,"Independent equal first-save pages collapse before serialization, reducing decoded and compressed payload without a prior read.");
+        var current=(HistoricalCellTree[])Read(compact,typeof(HistoricalCellTree[]));var preceding=(LegacyTree[])Read(compact,typeof(LegacyTree[]));
+        check(current.Select(t=>t.Fingerprint(true)).SequenceEqual(prior)&&fresh.Select(t=>t.Fingerprint(true)).SequenceEqual(prior),"Fresh first-save content interning preserves every exact tree fingerprint and leaves source pages unchanged.");
+        check(preceding.Length==fresh.Length&&preceding.All(t=>Enumerable.Range(0,32768).All(i=>At(t,i)==fresh[0][i])),"The preceding by-value reader retains every value from fully equal shared-root wire.");
+        var collisionA=new HistoricalCellTree(64).With(0,0).With(1,31);var collisionB=new HistoricalCellTree(64).With(0,1).With(1,0);
+        string a=collisionA.Fingerprint(true),b=collisionB.Fingerprint(true);var digest=Node.GetField("Digest",BindingFlags.Instance|BindingFlags.NonPublic)!;
+        digest.SetValue(Root.GetValue(collisionA),new byte[32]);digest.SetValue(Root.GetValue(collisionB),new byte[32]);
+        var collided=(HistoricalCellTree[])Read(Write(new[]{collisionA,collisionB},typeof(HistoricalCellTree[])),typeof(HistoricalCellTree[]));
+        check(collided[0].Fingerprint(true)==a&&collided[1].Fingerprint(true)==b&&a!=b,"Write-side structural collisions and identical stale digest caches never merge different literal leaf values.");
+        var parallel=new byte[8][];Parallel.For(0,parallel.Length,i=>parallel[i]=Write(fresh,typeof(HistoricalCellTree[])));
+        check(parallel.All(bytes=>bytes.SequenceEqual(compact)),"Concurrent scope-local write pools produce identical wire without a process-global intern table.");
+        using(var cancel=new CancellationTokenSource())
+        {
+            bool stopped=false;try{cancelWriteProbe=cancel;Write(new CancelFixture{Tree=fresh[0]},typeof(CancelFixture),cancel.Token);}catch(Exception error){for(var inner=error;inner!=null;inner=inner.InnerException)if(inner is OperationCanceledException)stopped=true;}finally{cancelWriteProbe=null;}
+            check(stopped,"Cancellation after serialization begins interrupts write-side node conversion.");
+        }
+        check(Write(fresh,typeof(HistoricalCellTree[])).SequenceEqual(compact),"A failed or canceled write cannot contaminate the next independent save.");
+        using(var transport=HistoricalCellTree.CreateBinaryTransport())
+        {
+            transport.GetObjectToSerialize(Root.GetValue(fresh[0]),Node);transport.Dispose();
+            int Count(string name){var pool=transport.GetType().GetField(name,BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(transport)!;return (int)pool.GetType().GetProperty("Count")!.GetValue(pool)!;}
+            check(Count("written")==0&&Count("writePool")==0,"Disposal releases both source-identity and content-pool references after a save.");
+        }
     }
     public static void World(string source,string destination,int coldYears=0)
     {

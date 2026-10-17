@@ -90,3 +90,63 @@ arrays; their native heap/cold-year effect must be included in the next run.
 Native performance acceptance is separate: the preceding isolated N15 run still
 fails at2.4666years/s and a2,223.44ms worst summed year. No throughput claim is
 made from these storage/compatibility fixtures.
+
+## Fresh first-save write interning
+
+The preceding writer memoized logical-node object identity only. A fresh
+simulation can construct equal immutable pages independently, whereas reading an
+old file already interns equal pages. Therefore load-and-resave evidence alone
+does not establish fresh first-save compression. The valid S18 CP run exceeding
+the unchanged compressed cap motivates this separate exact-storage correction;
+it is not a historical simulation failure.
+
+`BinaryTransportScope` now canonicalizes its transport DTOs bottom-up during
+each write. Its scope-local content set compares all32 literal leaf values or
+all32 already-canonical child references. Hashes only choose buckets; neither
+cached Merkle digests nor a structural hash collision can substitute for full
+equality. The source logical nodes remain untouched. The identity memo avoids
+reprocessing inherited nodes, while the content set merges independently built
+equal pages. Both tables are cleared at disposal, including exceptional writes;
+there is no global or cross-world pool. Cycles, malformed shapes and excessive
+depth are also rejected before encoding a logical node.
+
+The existing `--tree-reference-only` runner passes290 assertions from
+`artifacts/history32/tree-write-intern2-bin`. Its new first-save fixture constructs
+32 independent32768-entry trees and checks distinct source roots before any
+read. A separately authored identity-only reference DTO reproduces the preceding
+writer rather than comparing only to by-value encoding. Decoded bytes decrease
+8,779,966 to310,530; ordinary gzip bytes decrease3,937,236 to123,810. Every actual value remains readable by the preceding
+by-value reader, and exact fingerprints/source immutability are preserved.
+New controls also exercise structural hash collisions with deliberately identical
+stale digest caches, deterministic concurrent writes, mid-write cancellation,
+table cleanup and direct malformed cyclic/deep wire. Invalid read fixtures are
+authored independently of the new write guard, not silently skipped because the
+writer now rejects malformed sources sooner. Existing JSON bytes remain exact.
+
+The binary DTO contract and WGWRLD01 file magic are unchanged. Neither the
+256,000,000 compressed-byte nor4,000,000,000 decoded-byte guard is raised; no
+history, array entry, actor or event is removed. Actual cold continuation and a
+fresh dense CP save remain separate acceptance evidence, not inferred from the
+synthetic compression ratio.
+
+An actual T19 Earth rewrite uses
+`candidate-t19-earth200/final.world`, year171700, historical hash
+`3283a015a915024d6dd18811870d9bf3e7389d173be0477b0fddba2502a2a7c0`.
+The new `write-intern-t19-earth.world` is192,067,478 compressed bytes and
+2,213,947,961 decoded bytes, written in37.60 seconds after a47.75-second
+validated read. The original is218,178,318 compressed bytes. Real mid-write
+cancellation passes, and public source-hash verification remains exact.
+This is explicitly loaded-world evidence: the read-side pool also canonicalizes
+the original fresh file, so this size difference is not attributed solely to
+the new write-side pool. The fresh dense CP cap control is still required.
+
+The new file's genuine cold12-year continuation is
+`43d7ce2a8dd1a4826123058004a112b8fc7790e3964a1bcb603804da24647458`,
+exactly matching both its in-memory source continuation and the frozen T19
+executable's original-source12-year control. Evidence files are
+`write-intern-t19-earth.world.cold-12.hash` and
+`lay20-frozen19-earth12.hash` under the external overnight root.
+The actual preceding `candidate-t19-freeze/WorldGen.Core.Tests.dll` also reads
+the new192 MB compact file and independently advances12 years to that identical
+hash, recorded as `write-intern-frozen19-earth12.hash`. This verifies real
+old-reader compatibility in addition to the independent literal-node fixtures.

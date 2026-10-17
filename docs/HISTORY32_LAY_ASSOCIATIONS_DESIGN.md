@@ -1,7 +1,7 @@
-# Bounded household associations and religious renewal (prospective20)
+# Bounded household associations and religious renewal (revision20)
 
-Status: controlled diagnosis and authorized implementation, not an enabled or
-accepted new-world result. Central rule activation remains main-coordinated;
+Status: explicitly activated20 with focused actual-world and genuine cold
+continuation checks. Longitudinal new-world outcomes remain under review;
 this mechanism does not run under19 or earlier.
 All preceding saved religion behavior must continue literally without upgrade.
 
@@ -168,13 +168,27 @@ original S18 Earth plus12 gives
 Files live under the external `overnight-20261017` evidence directory with
 `lay20-current-q17-twelve.hash` and matching frozen reference, and
 `lay20-{frozen18,current18}-earth12.hash` respectively. Genuine activated20
-cold continuation remains a separate acceptance check. Frozen T19 Earth plus12
+Frozen T19 Earth plus12
 is also exactly preserved at
 `43d7ce2a8dd1a4826123058004a112b8fc7790e3964a1bcb603804da24647458`
 by `candidate-t19-freeze` and `religion20-actual2-bin`, recorded as
 `lay20-{frozen19,current19}-earth12.hash`. These are canonical historical hashes
 and continuation guarantees, not a claim of identical compressed wire bytes
 across serializer/model builds.
+
+After central activation, thirteen actual-world assertions pass from
+`C:/Users/kille/Desktop/WorldGen/artifacts/history32/religion20-cold-bin`
+with `--lay-associations-world
+D:/WorldGenBuildArtifacts/overnight-20261017/baseline-cp20/final.world`.
+The actual explicit20 upgrade preserves all stocks and inhabitants, starts an
+empty prospective ledger and survives a validated full-world save/load.
+Twelve actual simulation years exactly equal five years followed by a second
+full-world intermediate save/load and seven further years, at hash
+`cbdd7bee1898a38fe85aafe6bb6230a5ee24b5fc86e86fa2bef0dd9541ddb39f`.
+Fresh `Prepare`/`Start` uses revision20 and its ledger; three years exactly equal
+one plus two. These controls are separate from the controlled fifty-year actor
+experiment and do not assert that a mature global faith or new schism emerged
+in the twelve-year chronological replay.
 
 The read-only religion evidence exporter additionally records current town-held
 association identity, support, dispute and gift dates. When the optional ledger

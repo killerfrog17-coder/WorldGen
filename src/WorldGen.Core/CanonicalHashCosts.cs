@@ -14,12 +14,18 @@ namespace WorldGen.Core
         public long UncachedTreeNodes,TreePayloadBytes,TreeFingerprints,NewFrozenRecords,NewFrozenBytes;
         public double SealMilliseconds,RootMilliseconds;
         public IReadOnlyList<CanonicalFrozenRecordCost> FrozenRecordsByType {get;internal set;}=Array.Empty<CanonicalFrozenRecordCost>();
+        public IReadOnlyList<CanonicalComponentCost> Components {get;internal set;}=Array.Empty<CanonicalComponentCost>();
         public long RelationReadCalls,RelationReadsWithMemo,RelationForkInvalidations,RelationCapturedOriginals,UnchangedRelationFreezes,ChangedRelationFreezes,UncomparedRelationFreezes;
     }
     public sealed class CanonicalFrozenRecordCost
     {
         public string Type {get;}public long Count {get;}public long Bytes {get;}
         internal CanonicalFrozenRecordCost(string type,long count,long bytes){Type=type;Count=count;Bytes=bytes;}
+    }
+    public sealed class CanonicalComponentCost
+    {
+        public int Index {get;}public string Type {get;}public double Milliseconds {get;}public bool Completed {get;}
+        internal CanonicalComponentCost(int index,string type,double milliseconds,bool completed){Index=index;Type=type;Milliseconds=milliseconds;Completed=completed;}
     }
     internal static class CanonicalHashCosts
     {
@@ -36,9 +42,11 @@ namespace WorldGen.Core
         {
             readonly Scope previous;readonly Action<CanonicalHashMetric> observer;readonly long started;
             internal readonly CanonicalHashMetric Metric;internal long RootTicks;bool disposed;
+            internal readonly bool TraceComponents;internal object RootValue;
+            internal List<CanonicalComponentCost> Components;
             readonly Dictionary<string,(long Count,long Bytes)> frozenTypes=new Dictionary<string,(long,long)>(StringComparer.Ordinal);
-            internal Scope(Action<CanonicalHashMetric> observer,int year)
-            {this.observer=observer;previous=current;Metric=new CanonicalHashMetric{Year=year};started=Stopwatch.GetTimestamp();current=this;if(relationReads!=null){Metric.RelationReadCalls=relationReads.Reads;Metric.RelationReadsWithMemo=relationReads.ReadsWithMemo;Metric.RelationForkInvalidations=relationReads.ForkInvalidations;Metric.RelationCapturedOriginals=relationReads.Originals.Count;}}
+            internal Scope(Action<CanonicalHashMetric> observer,int year,bool traceComponents=false)
+            {this.observer=observer;TraceComponents=traceComponents;previous=current;Metric=new CanonicalHashMetric{Year=year};started=Stopwatch.GetTimestamp();current=this;if(relationReads!=null){Metric.RelationReadCalls=relationReads.Reads;Metric.RelationReadsWithMemo=relationReads.ReadsWithMemo;Metric.RelationForkInvalidations=relationReads.ForkInvalidations;Metric.RelationCapturedOriginals=relationReads.Originals.Count;}}
             internal void Frozen(string type,byte[] bytes,object identity)
             {
                 Metric.NewFrozenRecords++;Metric.NewFrozenBytes+=bytes.Length;
@@ -59,12 +67,15 @@ namespace WorldGen.Core
                 disposed=true;current=previous;
                 Metric.SealMilliseconds=(Stopwatch.GetTimestamp()-started)*1000.0/Stopwatch.Frequency;Metric.RootMilliseconds=RootTicks*1000.0/Stopwatch.Frequency;
                 Metric.FrozenRecordsByType=Array.AsReadOnly(frozenTypes.OrderBy(p=>p.Key,StringComparer.Ordinal).Select(p=>new CanonicalFrozenRecordCost(p.Key,p.Value.Count,p.Value.Bytes)).ToArray());
+                if(Components!=null)Metric.Components=Array.AsReadOnly(Components.ToArray());
+                RootValue=null;
                 // Restore the thread-local scope before invoking external code,
                 // even if an observer fails or begins another diagnostic scope.
                 observer(Metric);
             }
         }
         internal static Scope Begin(Action<CanonicalHashMetric> observer,int year)=>observer==null?null:new Scope(observer,year);
+        internal static Scope BeginFrame(Action<CanonicalHashMetric> observer,int year,bool components)=>observer==null?null:new Scope(observer,year,components);
         internal static RelationReadScope BeginRelationReads(bool enabled)=>enabled?new RelationReadScope():null;
         [MethodImpl(MethodImplOptions.AggressiveInlining)] internal static void RelationRead(HistoricalRelation row,HistoricalRelation source=null)
         {
@@ -83,8 +94,11 @@ namespace WorldGen.Core
         {var scope=current;if(scope!=null)scope.Frozen(type,bytes,identity);}
         [MethodImpl(MethodImplOptions.AggressiveInlining)] internal static void FrozenRecord(object identity,byte[] bytes)
         {var scope=current;if(scope!=null)scope.Frozen(identity?.GetType().FullName??"<null>",bytes,identity);}
-        internal static long StartRoot()=>current==null?0:Stopwatch.GetTimestamp();
+        internal static long StartRoot(object value){var scope=current;if(scope==null)return 0;if(scope.TraceComponents&&scope.RootValue==null)scope.RootValue=value;return Stopwatch.GetTimestamp();}
         internal static void EndRoot(long started){if(started!=0&&current!=null)current.RootTicks+=Stopwatch.GetTimestamp()-started;}
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] internal static bool IsTimedRoot(object value)=>current!=null&&current.TraceComponents&&ReferenceEquals(current.RootValue,value);
+        internal static void Component(int index,object value,long started,bool completed)
+        {var scope=current;if(scope==null)return;if(scope.Components==null)scope.Components=new List<CanonicalComponentCost>();scope.Components.Add(new CanonicalComponentCost(index,value?.GetType().FullName??"<null>",(Stopwatch.GetTimestamp()-started)*1000.0/Stopwatch.Frequency,completed));}
     }
     public sealed partial class Prehistory
     {
@@ -94,5 +108,6 @@ namespace WorldGen.Core
         // Controlled diagnostic only: retains prior immutable memo bytes during
         // one transaction to distinguish reads from genuine byte changes.
         public bool TraceCanonicalRelationReads;
+        public bool TraceCanonicalComponents;
     }
 }

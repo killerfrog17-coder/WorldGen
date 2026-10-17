@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--copy-cost-world")){int at=Array.IndexOf(args,"--copy-cost-world");HistoryCopyCostAudit.World(args[at+1],args[at+2]);return;}
+if(args.Contains("--proto-continuity-only")){int count=0;HistoryProtoContinuityTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" proto-continuity assertions");return;}
 if(args.Contains("--tree-scratch-only")){int count=0;HistoryTreeScratchTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" scoped tree-scratch assertions");return;}
 if(args.Contains("--crop-species-recorded")){int count=0;HistoryCropSpeciesNicheTests.Recorded(args[Array.IndexOf(args,"--crop-species-recorded")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" recorded crop-species assertions");return;}
 if(args.Contains("--trusted-relation-memo-only")){int count=0;HistoryTrustedRelationMemoTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" trusted-relation memo assertions");return;}

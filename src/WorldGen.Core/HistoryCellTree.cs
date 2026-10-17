@@ -80,10 +80,30 @@ namespace WorldGen.Core
             [IgnoreDataMember] internal bool Visiting;
             [IgnoreDataMember] internal byte Height;
         }
+        sealed class BinaryNodeContentComparer:IEqualityComparer<BinaryNode>
+        {
+            public int GetHashCode(BinaryNode node)
+            {
+                unchecked
+                {
+                    int hash=node.Values!=null?1231:1237;
+                    for(int i=0;i<32;i++)hash=hash*31+(node.Values!=null?node.Values[i]:node.Children[i]==null?0:RuntimeHelpers.GetHashCode(node.Children[i]));
+                    return hash;
+                }
+            }
+            public bool Equals(BinaryNode a,BinaryNode b)
+            {
+                if(ReferenceEquals(a,b))return true;if(a==null||b==null||(a.Values==null)!=(b.Values==null))return false;
+                if(a.Values!=null){for(int i=0;i<32;i++)if(a.Values[i]!=b.Values[i])return false;}
+                else for(int i=0;i<32;i++)if(!ReferenceEquals(a.Children[i],b.Children[i]))return false;
+                return true;
+            }
+        }
         public static BinaryTransportScope CreateBinaryTransport(CancellationToken cancellation=default)=>new BinaryTransportScope(cancellation);
         public sealed class BinaryTransportScope:ISerializationSurrogateProvider,IDisposable
         {
-            readonly CancellationToken token;readonly Dictionary<Node,BinaryNode> written=new Dictionary<Node,BinaryNode>();bool disposed;
+            readonly CancellationToken token;readonly Dictionary<Node,BinaryNode> written=new Dictionary<Node,BinaryNode>();
+            readonly HashSet<BinaryNode> writePool=new HashSet<BinaryNode>(new BinaryNodeContentComparer());bool disposed;
             internal BinaryTransportScope(CancellationToken cancellation){token=cancellation;cancellation.ThrowIfCancellationRequested();}
             public Type GetSurrogateType(Type type)=>type==typeof(Node)?typeof(BinaryNode):type;
             public object GetObjectToSerialize(object value,Type targetType)
@@ -91,12 +111,35 @@ namespace WorldGen.Core
             public object GetDeserializedObject(object value,Type targetType)
             {Check();return value is BinaryNode node&&targetType==typeof(Node)?ReadNode(node):value;}
             void Check(){if(disposed)throw new ObjectDisposedException(nameof(BinaryTransportScope));token.ThrowIfCancellationRequested();}
-            BinaryNode WriteNode(Node node)
+            BinaryNode WriteNode(Node node,int depth=0)
             {
-                Check();if(node==null)return null;if(written.TryGetValue(node,out var prior))return prior;
-                var result=new BinaryNode{Values=node.Values};written.Add(node,result);
-                if(node.Children!=null){result.Children=new BinaryNode[node.Children.Length];for(int i=0;i<result.Children.Length;i++)result.Children[i]=WriteNode(node.Children[i]);}
-                return result;
+                Check();if(node==null)return null;
+                if(written.TryGetValue(node,out var prior))
+                {if(prior.Visiting||depth+prior.Height>5)throw new SerializationException("Invalid spatial radix depth or cycle.");return prior;}
+                if(depth>=5)throw new SerializationException("Invalid spatial radix depth.");
+                var result=new BinaryNode{Values=node.Values,Visiting=true};written.Add(node,result);
+                try
+                {
+                    int height=1;
+                    if(node.Values!=null)
+                    {if(node.Values.Length!=32||node.Children!=null)throw new SerializationException("Invalid spatial leaf.");}
+                    else
+                    {
+                        if(node.Children?.Length!=32)throw new SerializationException("Invalid spatial branch.");
+                        result.Children=new BinaryNode[32];
+                        for(int i=0;i<32;i++){result.Children[i]=WriteNode(node.Children[i],depth+1);height=Math.Max(height,1+(result.Children[i]?.Height??0));}
+                    }
+                    if(depth+height>5)throw new SerializationException("Invalid spatial radix depth.");
+                    result.Height=(byte)height;result.Visiting=false;
+                    // Fresh simulation pages need not share object identities.
+                    // Canonicalize children first, then compare every actual
+                    // value/pointer: neither cached digests nor hash collisions
+                    // may merge unequal content. This pool lives for one save.
+                    if(writePool.TryGetValue(result,out var canonical)){written[node]=canonical;return canonical;}
+                    writePool.Add(result);return result;
+                }
+                catch{written.Remove(node);throw;}
+                finally{result.Visiting=false;}
             }
             Node ReadNode(BinaryNode node,int depth=0)
             {
@@ -119,7 +162,7 @@ namespace WorldGen.Core
                 }
                 finally{node.Visiting=false;}
             }
-            public void Dispose(){if(disposed)return;disposed=true;written.Clear();}
+            public void Dispose(){if(disposed)return;disposed=true;written.Clear();writePool.Clear();}
         }
         [DataMember] Node root;
         [DataMember] int length;
