@@ -1,5 +1,72 @@
 # Version 3 validation evidence
 
+## Peoples and local historical memory - 17 October 2026
+
+Optional history32 realm33 is described in
+[the identity/memory contract](HISTORY32_IDENTITIES.md). Implementation checkpoint
+1c818ba and active-smoke/chart follow-up77d474e are backed up on origin/main.
+Selected player: `artifacts/player-history-32-identity33/WorldGen.exe`, IL2CPP,
+built2026-10-17T22:40:02Z. `build-inputs.json` records staged-DLL hashes. Speech32
+and earlier reviewed players remain rollbacks. Old saves stay literal until
+the explicit historical-rules upgrade; generation/observer eras/music are unchanged.
+
+Executed Release evidence:
+
+- 208 `--identity-only` assertions: graded compiled social inheritance,
+  inclusion versus exclusion, coethnic grievances, learned proficiency of
+  unrelated languages, deep-copy isolation and bounded effects.
+- 26 Earth and26 generated forest-world `--identity-world` assertions, using
+  the preceding speech32 actual review saves. These distinguish controlled
+  migrant/visitor/language/transfer/violence/fusion counterfactuals from naturally
+  occurring history. Actual80 versus31+49-year continuation, first-cultural-actor
+  registration, idempotent nonmutating upgrade, binary/JSON/cold continuation,
+  separate court/resident identity, read-only atlas/focus and fixed1,000-scale
+  household charts pass. Regional clocks cannot overwrite separate town records.
+- 826 historical-presentation,377 structured-religion and306 existing spoken
+  assertions pass. `scripts/build.ps1` passes0warnings/errors; CLI Preview
+  repeat/reapply/recipe/cached reconstruction has identical all-stage hashes.
+
+The prior32 native player on its UNUPGRADED saved world and current CLR match
+the same12-year continuation:
+`4c6e97023736a704b96dc73da9bdb5d98e53ae17584f7aa5a361aee35f8d2382`.
+Current native33 and CLR on the upgraded80-year Earth review match exactly:
+`6c260f869ca569907ce647d188a644a5728952060ef24bc9592dbc88ac01b5e8`.
+
+The final native `--worldgen-religion-check` exercises Religions, Religious
+institutions, Languages and Ethnicities, correct subject selection, available
+doctrine/sound/identity atlas data, and unchanged authoritative history. The
+ethnic map was visually inspected; native captures are map-only, not HUD-layout
+proof. The native document confirms the corrected fixed household denominator.
+Actual headless Edge/.NET worker `scripts/identity-browser-check.mjs` passes
+saved-world import, separate ethnic directory, inheritance article, an actual
+town's attributed capture/rights memory, hotkey9, exact ethnic focus, paused
+time and zero JS errors. All three initial captures and final memory/native-map
+captures were inspected. Text, links and inherited-tradition charts are readable.
+The final browser rerun also passes after the household-chart normalization fix.
+
+The200000-cell existing late-world fixture with4951 recorded towns was explicitly
+upgraded, then advanced48years BEFORE timing12more years, so new40-year local
+reviews were active. `--identity-large-world` validates final state and records
+517people and3842town-memory accounts. Measured CLR processing:7187.02ms for12
+years, worst computed year534.74ms (~1.67yr/s); final hash
+`f6d20b8a364fa2edf92146c399ed7ca769be91b74bced5230135c8d440788ce8`.
+This is an active-system smoke, NOT the required native max-tech+1000-year
+acceptance run and NOT satisfaction of the3yr/s target. No claim of an
+outcome-equivalent performance improvement or complete political realism is made.
+
+Inspection also caught and corrected two meaningful issues: relatedness must
+affect language learning speed rather than impose a permanent competence cap,
+and a regional representative located in a town must not overwrite that town's
+separate minority accounts. Both corrections are confined to new33 rules;
+frozen32 remains exact. A new large-test compile attempt incorrectly called an
+internal tree visitor; the final harness counts memory records through the public
+town query in explicit diagnostics, never a recurring simulation census.
+
+Local evidence is under `D:/WorldGenBuildArtifacts/identity33-review`. No review
+saves, screenshots, binary players, caches or user content are source commits.
+These are mechanism/persistence/UI checks, not calibrated world-scale ethnic
+history, exhaustive minority censuses or completion of all historical realism.
+
 ## Spoken communities / religious plurality - 17 October 2026
 
 History32 optional realm32 is documented in
