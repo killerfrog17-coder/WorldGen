@@ -12,9 +12,44 @@ namespace WorldGen.Core
             =>ocean<.2?1800:3500+10000*D.Clamp(ocean)+8000*D.Clamp(steam)+12000*D.Clamp(engines);
         public static bool Reach(double legKm,double chainKm,double ocean,double steam,double engines)
             =>legKm>=0&&chainKm>=0&&legKm<=LegKm(ocean,steam,engines)&&legKm+chainKm<=NetworkKm(ocean,steam,engines);
+        // Ocean wayfinding can be an oral household craft long before states.
+        // Repeated imperial convoys additionally require workshops, accounts,
+        // bulk stores and a reproducible body of trained specialist practice.
+        // These are continuous model priors, not a European date/era gate.
+        public static double ReturningFleet(double ocean,double writing,double stores,double sailing,double copper,double iron,double mills,double accounts,double learning,double industrial)
+        {
+            double tools=D.Clamp(Math.Max(.45*copper+.55*iron,industrial));
+            double workshops=D.Clamp(.45*tools+.55*Math.Max(mills,industrial));
+            double organization=Math.Sqrt(D.Clamp(Math.Min(writing,accounts)));
+            double instruction=.12+.88*D.Clamp(learning);
+            return D.Q(D.Clamp(ocean)*Math.Min(D.Clamp(stores),D.Clamp(sailing))*workshops*organization*instruction,1000000);
+        }
+        public static double ReturningLegKm(double fleet,double steam,double engines)
+            =>700+10000*Math.Pow(D.Clamp(fleet),1.25)+5000*D.Clamp(steam)+7000*D.Clamp(engines);
+        public static double ReturningNetworkKm(double fleet,double steam,double engines)
+            =>1800+15000*Math.Pow(D.Clamp(fleet),1.15)+8000*D.Clamp(steam)+12000*D.Clamp(engines);
     }
     public sealed partial class Prehistory
     {
+        bool ReturningFleetHistory(PrehistoryState s)=>s?.History?.Aggregates?.Empires?.Connections?.Realms?.Version>=4;
+        double ReturningFleetCapacity(PrehistoryState s,int polity)
+        {
+            var hc=s.History.Cultures[s.History.Polities[polity].CultureId];
+            double At(HistoricalTechnology t)=>HistoricalModernEffects.Adoption(hc,t,s.Years);
+            return HistoricalMaritimeControlEffects.ReturningFleet(At(HistoricalTechnology.OceanNavigation),At(HistoricalTechnology.Writing),At(HistoricalTechnology.Storage),At(HistoricalTechnology.Sailing),
+                At(HistoricalTechnology.Copper),At(HistoricalTechnology.Iron),At(HistoricalTechnology.Mills),At(HistoricalTechnology.Coinage),
+                Math.Max(At(HistoricalTechnology.Scholasticism),Math.Max(At(HistoricalTechnology.Printing),At(HistoricalTechnology.ScientificMethod))),At(HistoricalTechnology.IndustrialMetallurgy));
+        }
+        double StateMaritimeLegKm(PrehistoryState s,int polity)
+        {
+            var hc=s.History.Cultures[s.History.Polities[polity].CultureId];double steam=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.SteamPower,s.Years),engines=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years);
+            return ReturningFleetHistory(s)?HistoricalMaritimeControlEffects.ReturningLegKm(ReturningFleetCapacity(s,polity),steam,engines):HistoricalMaritimeControlEffects.LegKm(HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years),steam,engines);
+        }
+        double StateMaritimeNetworkKm(PrehistoryState s,int polity)
+        {
+            var hc=s.History.Cultures[s.History.Polities[polity].CultureId];double steam=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.SteamPower,s.Years),engines=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years);
+            return ReturningFleetHistory(s)?HistoricalMaritimeControlEffects.ReturningNetworkKm(ReturningFleetCapacity(s,polity),steam,engines):HistoricalMaritimeControlEffects.NetworkKm(HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years),steam,engines);
+        }
         bool RevisedMaritimeAdministration(PrehistoryState s,int polity)
         {
             var hc=s.History.Cultures[s.History.Polities[polity].CultureId];
@@ -62,7 +97,7 @@ namespace WorldGen.Core
                 {
                     if(!RevisedMaritimeAdministration(s,polity))return double.MaxValue;
                     double leg=post.LegDistanceM/1000.0;
-                    if(leg>HistoricalMaritimeControlEffects.LegKm(HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.SteamPower,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years)))return double.MaxValue;
+                    if(leg>StateMaritimeLegKm(s,polity))return double.MaxValue;
                     distance+=leg;
                 }
                 source=post.ParentSource;
@@ -75,6 +110,7 @@ namespace WorldGen.Core
             if(!RevisedMaritimeAdministration(s,polity))return false;
             var hc=s.History.Cultures[s.History.Polities[polity].CultureId];
             double chain=RevisedMaritimeChainKm(s,polity,source);
+            if(ReturningFleetHistory(s))return route.DistanceM>=0&&chain>=0&&route.DistanceM/1000.0<=StateMaritimeLegKm(s,polity)&&route.DistanceM/1000.0+chain<=StateMaritimeNetworkKm(s,polity);
             return HistoricalMaritimeControlEffects.Reach(route.DistanceM/1000.0,chain,
                 HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.SteamPower,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years));
         }

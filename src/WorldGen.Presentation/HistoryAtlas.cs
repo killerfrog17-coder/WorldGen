@@ -208,6 +208,8 @@ namespace WorldGen.Presentation
                 d.Introduction=d.Introduction.Replace(prefix,p.Name+" dates its state institutions to year "+Y(s,realm.FoundedYear));
             }
             a.Add(Links("People, court, and belief",new[]{CultureLink(c),TownLink(s,capital)}.Concat(p.ReligionId>=0&&p.ReligionId<h.Religions.Length?new[]{FaithLink(h.Religions[p.ReligionId])}:Array.Empty<AtlasLink>()),"The court's religious affiliation is distinct from the local faith map."));
+            var capitalWorship=ReligiousLocalSection(s,capital.Cell);if(capitalWorship!=null)a.Add(capitalWorship);
+            var fieldForces=MilitaryOperationsSection(s,p.Id);if(fieldForces!=null)a.Add(fieldForces);
             var lineage=(p.ParentId>=0?new[]{StateLink(s,h.Polities[p.ParentId],"Recorded predecessor realm")}:Array.Empty<AtlasLink>()).Concat(h.Polities.Where(x=>x.ParentId==p.Id).OrderBy(x=>x.FoundedYear).ThenBy(x=>x.Id).Select(x=>StateLink(s,x,"Descendant court founded in year "+Y(s,x.FoundedYear)))).ToArray();
             if(lineage.Length>0)a.Add(Links("Political lineage",lineage,"These links record predecessor and descendant courts, not a biological dynasty or proof that their people disappeared."));
             a.Add(Links("Cities",towns.Select(t=>TownLink(s,t)),"Current inhabited sites under this state's administration.",true,"residents"));
@@ -298,6 +300,7 @@ namespace WorldGen.Presentation
                 a.Add(new AtlasSection{Title="Settlement history and hinterland",Facts=new[]{F("Peak recorded residents",N(life.PeakPopulation)),F("Peak year","Year "+Y(s,life.PeakYear)),F("Suburban residents",N(catchment.Suburban)),F("Surrounding rural residents",N(catchment.Rural)),F(port==null?"Supply area":"Reserved harbor footprint",N(catchment.AreaKm2)+" km²"),F("Status",life.AbandonedYear>=0?"Abandoned in year "+Y(s,life.AbandonedYear):"Inhabited")}});
             }
             var ties=new List<AtlasLink>{CultureLink(c)};if(p!=null)ties.Add(StateLink(s,p));int faith=HistoricalCells.Religion(s,t.Cell);if(faith>=0)ties.Add(FaithLink(h.Religions[faith]));a.Add(Links("Community and connections",ties));
+            var localWorship=ReligiousLocalSection(s,t.Cell);if(localWorship!=null)a.Add(localWorship);
             a.Add(Text("Daily life",c.Subsistence+". Recorded local resources include "+c.Resources+". The model tracks cultivation, food reserves, health, and a craft share; it does not yet record individual occupations, buildings, or named residents beyond rulers."));
             if(h.Modern?.CivicRivalries!=null)
             {
@@ -395,6 +398,7 @@ namespace WorldGen.Presentation
             d.Facts=new[]{F("Founded","Year "+Y(s,r.FoundedYear)),F("Dominant-local-tradition cells",N(Enumerable.Range(0,HistoricalCells.Count(s)).Count(i=>HistoricalCells.Religion(s,i)==r.Id)))};
             a.Add(Text("Beliefs and observance","Ethos: "+r.Ethos+". Practices: "+r.Ritual+"."));
             a.Add(Text("Reading the religious map","A cell's color represents its dominant recorded tradition, not unanimous belief or a census of adherents. Political conquest does not by itself establish how many people hold a belief."));
+            a.AddRange(ReligiousNetworkSections(s,r.Id));
             a.Add(Links("Related traditions",(r.ParentId>=0?new[]{FaithLink(h.Religions[r.ParentId])}:Array.Empty<AtlasLink>()).Concat(h.Religions.Where(x=>x.ParentId==r.Id).Select(FaithLink))));
             a.Add(Links("Originating people",new[]{CultureLink(s.Society.Cultures[r.CultureId])}));
             a.Add(Links("Affiliated courts",h.Polities.Where(p=>p.EndedYear<0&&p.ReligionId==r.Id).OrderByDescending(p=>p.Population).ThenBy(p=>p.Id).Select(p=>StateLink(s,p,p.Government)),"Court affiliation is not the population's religious census."));

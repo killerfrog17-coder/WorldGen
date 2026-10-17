@@ -53,8 +53,12 @@ public static class HistoryMaritimeControlTests
         check((bool)Call("MaritimeCharterLogistics",args)&&(int)args[4]==town.Id,"A real supported literate regional port can still fit out its bounded expedition.");
         route.DistanceM=5000000;
         check(!(bool)Call("MaritimeCharterLogistics",s,owner,route,town.Id,-1,0L),"An actual rich coastal state cannot use a local charter entry to send an early5000km convoy.");
+        foreach(var technology in new[]{HistoricalTechnology.Copper,HistoricalTechnology.Iron,HistoricalTechnology.Mills,HistoricalTechnology.Coinage,HistoricalTechnology.Scholasticism,HistoricalTechnology.Printing,HistoricalTechnology.ScientificMethod,HistoricalTechnology.IndustrialMetallurgy})Deploy(technology,0);
+        Deploy(HistoricalTechnology.Storage,1000);
         Deploy(HistoricalTechnology.OceanNavigation,1000);
-        check((bool)Call("MaritimeCharterLogistics",s,owner,route,town.Id,-1,0L),"The same actual populated food depot supports a5000km venture when its ocean fleet is deployed.");
+        check(!(bool)Call("MaritimeCharterLogistics",s,owner,route,town.Id,-1,0L),"Inherited oral ocean navigation alone does not make this new literate court a5000km imperial convoy service.");
+        foreach(var technology in new[]{HistoricalTechnology.Copper,HistoricalTechnology.Iron,HistoricalTechnology.Mills,HistoricalTechnology.Coinage,HistoricalTechnology.Scholasticism})Deploy(technology,1000);
+        check((bool)Call("MaritimeCharterLogistics",s,owner,route,town.Id,-1,0L),"The same populated depot supports a5000km venture with actual preindustrial fleet workshops and institutions, without requiring gunpowder or industrialization.");
         var map=a.Empires.Connections.Geography.Governments[owner];long now=SimulationTime.Seconds(s);
         map.Missions=new[]{new HistoricalSeaMission{Kind=0,Due=now+SimulationTime.Year,Source=town.Cell,Target=town.Cell,Region=e.CellPatch[town.Cell]}};map.ScheduledDue=now+SimulationTime.Year;
         var queue=new SimulationEventQueue(new[]{new SimulationEvent{Process=27,Entity=owner,Due=map.ScheduledDue,Ticket=765}});

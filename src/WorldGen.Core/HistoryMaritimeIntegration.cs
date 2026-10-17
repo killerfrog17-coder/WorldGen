@@ -75,8 +75,9 @@ namespace WorldGen.Core
                     // The depot-to-departure voyage is a real additional leg;
                     // no short outward hop launders an unsupported distant base.
                     double openSupply=InstitutionalUnsupportedWaterKm(town.Cell,route.CellA,out _);
-                    if(openSupply>35&&!HistoricalMaritimeControlEffects.Reach(supplyKm,route.DistanceM/1000.0,
-                        HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.SteamPower,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years)))return false;
+                    bool supplied=ReturningFleetHistory(s)?supplyKm<=StateMaritimeLegKm(s,polity)&&supplyKm+route.DistanceM/1000.0<=StateMaritimeNetworkKm(s,polity):HistoricalMaritimeControlEffects.Reach(supplyKm,route.DistanceM/1000.0,
+                        HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.SteamPower,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years));
+                    if(openSupply>35&&!supplied)return false;
                 }
                 if(town.Cell!=route.CellA)
                 {
@@ -201,7 +202,8 @@ namespace WorldGen.Core
             bool imposed=false;
             if(HistoryRoll("maritime-local-council-"+city,polity,s.Years)>=consent)
             {
-                double expedition=p.Army*.15*HistoricalModernEffects.Military(hc,s.Years);
+                int availableArmy=RevisedMilitaryHistory(s)?Math.Max(0,p.Army-a.Empires.Connections.Military.Governments[polity].Reserved):p.Army;
+                double expedition=availableArmy*.15*HistoricalModernEffects.Military(hc,s.Years);
                 double resistance=Math.Max(20,(town.Population+a.Cities[city].Rural*.15)*.025)*HistoricalModernEffects.Military(h.Cultures[town.CultureId],s.Years);
                 double chance=HistoricalMaritimeIntegrationEffects.ExpeditionChance(elapsed,expedition/resistance,p.Exhaustion,leader.Ambition);
                 // An explicitly funded expedition has already passed the
@@ -209,7 +211,10 @@ namespace WorldGen.Core
                 // applying another decades-long decision lottery at landfall.
                 double outcome=organized&&chance>0?D.Clamp(.5+.35*(1-resistance/Math.Max(1,expedition))):chance;
                 if(HistoryRoll("maritime-coercive-expedition-"+city,polity,s.Years)>=outcome)return false;
-                imposed=true;p.Exhaustion=Math.Min(1000,p.Exhaustion+80);p.Army=Math.Max(0,p.Army-(int)Math.Min(p.Army/10,resistance*.1));
+                imposed=true;p.Exhaustion=Math.Min(1000,p.Exhaustion+80);
+                int councilLosses=(int)Math.Min(availableArmy/10,resistance*.1);
+                if(RevisedMilitaryHistory(s))MilitaryUncommittedLosses(s,polity,MaritimeCharterLogistics(s,polity,route,a.TownAt[route.CellA],out int casualtyBase,out _)?casualtyBase:-1,councilLosses);
+                else p.Army=Math.Max(0,p.Army-councilLosses);
             }
             p.Treasury-=investment;
             h.Towns[city].CivicTeacherPolityId=polity;h.Towns[city].CivicExampleExposure=Math.Max(700,h.Towns[city].CivicExampleExposure);

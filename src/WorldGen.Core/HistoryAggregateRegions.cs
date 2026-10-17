@@ -6,6 +6,7 @@ namespace WorldGen.Core
     {
         void AdvanceAggregateRegion(PrehistoryState s,int id)
         {
+            AdvanceTerritorialServiceRecovery(s,true);
             var a=s.History.Aggregates;var r=a.Regions[id];int elapsed=s.Years-r.LastYear;if(elapsed<=0)return;r.LastYear=s.Years;
             using var knowledgeScope=ProvincialHistory(s)?new ProvincialKnowledgeScope(this,s):default;
             if(LivingHistory(s))AdvanceLivingRegionalExchange(s,id,elapsed);
@@ -88,6 +89,7 @@ namespace WorldGen.Core
             }
             if(LanguageHistory(s)&&languageParent>=0){hc.LanguageId=h.Cultures[languageParent].LanguageId;hc.ParentCultureId=languageParent;}
             AppendLanguage(s,id);
+            if(ReligiousInstitutionHistory(s))InitializeReligiousProfile(s,religion);
             if(LanguageHistory(s)&&hc.ParentCultureId>=0)HistoryEvent(s,"cultural-exchange",c.Name+" develops a distinct local tradition through exchange with "+s.Society.Cultures[hc.ParentCultureId].Name+"; crops and institutions still need local support.",cell,id,category:ChronicleCategory.Society);
             SetAggregateLayer(s,cell,0,id);SetAggregateLayer(s,cell,2,religion);SetAggregateLayer(s,cell,4,1);
             c.Population=RegionalTraditions(s)?s.Population[patch]:Math.Min(s.Population[patch],RuralCellPopulation(s,cell));ScheduleAggregate(s,CultureProcess,id);

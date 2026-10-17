@@ -1,6 +1,14 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--service-recovery-only")){int count=0;HistoryServiceRecoveryTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" service-recovery assertions");return;}
+if(args.Contains("--service-recovery-world")){int count=0;HistoryServiceRecoveryTests.World(args[Array.IndexOf(args,"--service-recovery-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world service-recovery assertions");return;}
+if(args.Contains("--returning-fleets-only")){int count=0;HistoryReturningFleetTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" returning-fleet assertions");return;}
+if(args.Contains("--world-political-chronology")){int at=Array.IndexOf(args,"--world-political-chronology");var w=WorldFile.Read(File.ReadAllBytes(args[at+1]));Directory.CreateDirectory(args[at+2]);HistoryWorldRealismReview.FinalPoliticalChronology(w,args[at+2]);return;}
+if(args.Contains("--political-continuity-audit")){int at=Array.IndexOf(args,"--political-continuity-audit");HistoryPoliticalContinuityAudit.Run(args[at+1],args[at+2]);return;}
+if(args.Contains("--world-realism-final-maps")){int at=Array.IndexOf(args,"--world-realism-final-maps");HistoryWorldRealismReview.FinalMaps(args[at+1],args[at+2]);return;}
+if(args.Contains("--military-operations-only")){int count=0;HistoryMilitaryOperationTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" military-operation assertions");return;}
+if(args.Contains("--military-operations-world")){int count=0;HistoryMilitaryOperationTests.World(args[Array.IndexOf(args,"--military-operations-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world military-operation assertions");return;}
 if(args.Contains("--religion-networks-review")){int at=Array.IndexOf(args,"--religion-networks-review");HistoryReligiousNetworkTests.Review(args[at+1],args[at+2]);return;}
 if(args.Contains("--religion-networks-only")){int count=0;HistoryReligiousNetworkTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" religious-network assertions");return;}
 if(args.Contains("--religion-networks-world")){int count=0;HistoryReligiousNetworkTests.World(args[Array.IndexOf(args,"--religion-networks-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world religious-network assertions");return;}

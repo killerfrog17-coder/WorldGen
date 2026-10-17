@@ -25,6 +25,7 @@ namespace WorldGen.Presentation
         string Court(int id)=>id>=0&&id<state.History.Polities.Length?state.History.Polities[id].Name:"A state";
         bool Major(int id)=>id>=0&&id<state.History.Polities.Length&&Math.Max(state.History.Polities[id].Population,
             state.History.Dynamics?.States.Length>id?state.History.Dynamics.States[id].PeakPopulation:0)>=significant;
+        bool MajorReligiousCommunity(HistoricalEvent e)=>Major(e.PolityId)||e.SettlementId>=0&&e.SettlementId<state.Society.Settlements.Length&&state.Society.Settlements[e.SettlementId].Population>=Math.Max(5000,significant/5);
         public ChronicleEvent? Project(HistoricalEvent e)
         {
             string text="";
@@ -62,6 +63,8 @@ namespace WorldGen.Presentation
                 case "regime-change":if(Major(e.PolityId)||Major(e.OtherPolityId))text=e.OtherPolityId>=0?Court(e.PolityId)+" succeeded "+Court(e.OtherPolityId)+".":Sentence(e.Text);break;
                 case "dynasty-change":if(Major(e.PolityId))text=Court(e.PolityId)+" came under a new ruling household.";break;
                 case "religion":case "religion-founded":case "schism":case "religious-reform":text=e.ReligionId>=0&&e.ReligionId<state.History.Religions.Length?state.History.Religions[e.ReligionId].Name+" emerged as a religious tradition.":Sentence(e.Text);break;
+                case "religious-schism":case "religious-synthesis":case "religious-renewal":if(MajorReligiousCommunity(e))text=Sentence(e.Text);break;
+                case "religious-policy":if(Major(e.PolityId))text=Sentence(e.Text);break;
                 case "culture":if(e.CultureId==0)text=People(e)+" formed the first recorded advanced culture.";else if(MajorPeople(e.CultureId))text=People(e)+" emerged as a distinct advanced culture.";break;
                 case "cultural-transformation":if(MajorPeople(e.CultureId)){int split=e.Text.IndexOf(" develops into",StringComparison.Ordinal);string successor=Between(e.Text,"now called "," as ");text=split>=0&&successor.Length>0?successor+" emerged from the "+e.Text.Substring(0,split)+" tradition.":Sentence(e.Text);}break;
                 case "political-reform":if(Major(e.PolityId))text=Court(e.PolityId)+" broadened local political participation.";break;
@@ -74,7 +77,7 @@ namespace WorldGen.Presentation
         public static int Window(ChronicleCategory category)=>category==ChronicleCategory.Politics?5:category==ChronicleCategory.Society?20:1;
         // A genuinely extraordinary development can replace a lesser lead in
         // the same editorial window. This never removes its archival record.
-        public static int Priority(string kind)=>kind=="nuclear-strike"?100:kind=="coalition-war"||kind=="treaty-breach"?60:kind=="collapse"||kind=="great-conquest"?40:kind=="international-foundation"||kind=="international-mediation"||kind=="nuclear-arsenal"?20:0;
+        public static int Priority(string kind)=>kind=="nuclear-strike"?100:kind=="coalition-war"||kind=="treaty-breach"?60:kind=="collapse"||kind=="great-conquest"?40:kind=="international-foundation"||kind=="international-mediation"||kind=="nuclear-arsenal"?20:kind=="religious-schism"||kind=="religious-synthesis"||kind=="religious-renewal"?10:0;
         bool MajorPeople(int id)=>id>=0&&id<state.Society.Cultures.Length&&state.Society.Cultures[id].Population>=Math.Max(5000,significant/10);
         static string Sentence(string text){int end=text.IndexOf(". ",StringComparison.Ordinal);return end>=0?text.Substring(0,end+1):text;}
         static string Between(string text,string start,string end){int first=text.IndexOf(start,StringComparison.Ordinal);if(first<0)return "";first+=start.Length;int last=text.IndexOf(end,first,StringComparison.Ordinal);return last<0?"":text.Substring(first,last-first);}

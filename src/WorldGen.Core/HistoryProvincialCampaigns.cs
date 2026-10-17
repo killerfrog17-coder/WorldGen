@@ -41,22 +41,29 @@ namespace WorldGen.Core
             }
             return -1;
         }
-        double ProvincialFieldPower(PrehistoryState s,int polity,int front,ref int supply)
+        double ProvincialFieldPower(PrehistoryState s,int polity,int front,ref int supply,int assigned=-1)
         {
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var account=a.Polities[polity];var hc=h.Cultures[p.CultureId];
-            if(supply<0||supply>=a.Cities.Length||a.Living.Cities[supply].AbandonedYear>=0||a.Resolve(s.Society.Settlements[supply].PolityId,h)!=polity)supply=-1;
+            if(supply<0||supply>=a.Cities.Length||a.Living.Cities[supply].AbandonedYear>=0||a.Resolve(s.Society.Settlements[supply].PolityId,h)!=polity||RevisedMilitaryHistory(s)&&!a.Cities[supply].Supported)supply=-1;
             int best=supply;double distance=best<0?double.MaxValue:LivingTravelKm(s,s.Society.Settlements[best].Cell,front,p.CultureId);
             int offset=account.Cities.Count==0?0:(int)(HistoryRoll("provincial-army-base-"+front,polity,s.Years)*account.Cities.Count);
             for(int trial=0;trial<Math.Min(12,account.Cities.Count);trial++)
-            {int city=account.Cities.At((offset+trial)%account.Cities.Count);double d=LivingTravelKm(s,s.Society.Settlements[city].Cell,front,p.CultureId);if(d<distance||d==distance&&(best<0||city<best)){best=city;distance=d;}}
-            supply=best;if(best<0)return .01;
+            {int city=account.Cities.At((offset+trial)%account.Cities.Count);if(RevisedMilitaryHistory(s)&&(a.Living.Cities[city].AbandonedYear>=0||!a.Cities[city].Supported))continue;double d=LivingTravelKm(s,s.Society.Settlements[city].Cell,front,p.CultureId);if(d<distance||d==distance&&(best<0||city<best)){best=city;distance=d;}}
+            supply=best;if(best<0)return RevisedMilitaryHistory(s)?0:.01;
             var town=s.Society.Settlements[best];var cityAccount=a.Cities[best];
             double range=HistoricalProvincialEffects.LocalServiceKm(hc,s.Years,h.Dynamics.States[polity].PublicWorks)*2;
+            if(RevisedMilitaryHistory(s))
+            {
+                double riding=MilitaryRidingPractice(s,p.CultureId,town.Cell),terrain=HistoricalMilitarySpecializationEffects.MountedTerrain(CropHabitat(s,front),LivingClimate(s,front),0);
+                range*=1+1.5*riding*terrain;
+            }
             bool maritime=LivingWorldHistory(s)?MilitaryMaritimeSupply(s,polity,best,front):HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)&&AggregateSeaLane(town.Cell,front);
             if(maritime)range=Math.Max(range,HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years,ColonialHistory(s)));
+            if(RevisedMilitaryHistory(s)&&(town.FoodReserve<town.Population*.25||p.Treasury<=0||assigned==0||distance>range*2))return 0;
             double provision=D.Clamp(.25+town.FoodReserve/Math.Max(1.0,town.Population));
             double forces=Math.Min(p.Army,p.Army*.15+(town.Population*.025+cityAccount.Rural*.015)*Math.Sqrt(HistoricalModernEffects.LandTransport(hc,s.Years)));
-            if(TechnicalHistory(s))
+            if(RevisedMilitaryHistory(s))forces=Math.Min(assigned<0?Math.Max(0,p.Army-a.Empires.Connections.Military.Governments[polity].Reserved):assigned,forces);
+            if(TechnicalHistory(s)&&!RevisedMilitaryHistory(s))
             {
                 int sovereign=HistoricalImperialHierarchy.Sovereign(s,polity);var imperial=a.Empires.Governments[sovereign];
                 double allied=(h.Polities[sovereign].Army+imperial.SubjectArmy-p.Army)*.12;
@@ -64,7 +71,8 @@ namespace WorldGen.Core
             }
             var leader=h.Dynamics.Leaders[h.Dynamics.States[polity].LeaderId];
             double specialization=LivingWorldHistory(s)?MilitarySpecialization(s,polity,best,front):1;
-            return Math.Max(.01,forces*provision*Math.Exp(-distance/Math.Max(50,range))*(.4+leader.Military/1000.0)*HistoricalModernEffects.Military(hc,s.Years)*specialization);
+            double power=forces*provision*Math.Exp(-distance/Math.Max(50,range))*(.4+leader.Military/1000.0)*HistoricalModernEffects.Military(hc,s.Years)*specialization;
+            return RevisedMilitaryHistory(s)?D.Q(Math.Max(0,power),1000000):Math.Max(.01,power);
         }
         int ProvincialBattleTarget(PrehistoryState s,int front,int loser)
         {
@@ -92,6 +100,7 @@ namespace WorldGen.Core
         }
         void AdvanceProvincialCampaign(PrehistoryState s,int id)
         {
+            if(RevisedMilitaryHistory(s)){AdvanceRevisedMilitaryCampaign(s,id);return;}
             var h=s.History;var a=h.Aggregates;var c=h.Dynamics.Campaigns[id];var theater=a.Provinces.Theaters[id];int elapsed=s.Years-c.LastActionYear;if(elapsed<=0)return;c.LastActionYear=s.Years;
             int attacker=c.AttackerId,defender=attacker==c.A?c.B:c.A;var pa=h.Polities[attacker];var pb=h.Polities[defender];var relation=AggregateRelation(s,attacker,defender);
             if(TechnicalHistory(s)&&pa.EndedYear<0&&pb.EndedYear<0&&HistoricalImperialHierarchy.Sovereign(s,attacker)==HistoricalImperialHierarchy.Sovereign(s,defender))

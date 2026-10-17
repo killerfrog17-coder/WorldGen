@@ -158,7 +158,7 @@ namespace WorldGen.Core
         {
             var h=s.History;var a=h.Aggregates;var t=s.Society.Settlements[id];var city=a.Cities[id];var life=a.Living.Cities[id];if(life.AbandonedYear>=0)return;
             int patch=CellPatch[t.Cell];long refugees=t.Population+city.Suburban+city.Rural;int oldOwner=a.Resolve(t.PolityId,h);
-            AssignAggregateTown(s,id,-1);ChangeAggregateCityPopulation(s,id,0,0,0);s.Population[patch]+=refugees;a.TotalPopulation+=refugees;s.Society.Cultures[t.CultureId].Population+=refugees;
+            AssignAggregateTown(s,id,-1);QueueTerritorialServiceRecovery(s,id);ChangeAggregateCityPopulation(s,id,0,0,0);s.Population[patch]+=refugees;a.TotalPopulation+=refugees;s.Society.Cultures[t.CultureId].Population+=refugees;
             var ca=a.Cultures[t.CultureId];if(city.Supported){ca.SupportedCities--;city.Supported=false;}ca.FoodCapacity-=t.FoodCapacity;ca.Cities.Remove(id);ca.CityCount=ca.Cities.Count;
             life.AbandonedYear=s.Years;t.FoodCapacity=t.FoodReserve=0;UnregisterLivingTown(s,id);if(a.TownAt[t.Cell]==id)a.TownAt=a.TownAt.With(t.Cell,-1);
             if(RegionalTraditions(s))s.History.RegionalTraditions.Qualified=s.History.RegionalTraditions.Qualified.With(id,0);

@@ -65,6 +65,7 @@ namespace WorldGen.Core
             double transmission=EnvironmentalHistory(s)?EnvironmentalTransmission(s,a.Regions[other].BestCell,region.BestCell,donor,route.Sea):1;
             transit*=transmission;
             if(HistoryRoll("living-knowledge-exchange-"+trial,id,s.Years)>1-Math.Exp(-transit))return;
+            RecordDeliveredRegionalReligion(s,fromCell,toCell);
             if(!ConnectedHistory(s)||local.Teacher<0||(ProvincialHistory(s)?CurrentProvincialKnowledgeCount(s,local.Teacher)<=CurrentProvincialKnowledgeCount(s,donor):s.History.Cultures[local.Teacher].Technology.Count(y=>y>0)<=hc.Technology.Count(y=>y>0)))local.Teacher=donor;
             local.Exposure=Math.Min(1000,local.Exposure+Math.Max(EnvironmentalHistory(s)?1:10,(int)(elapsed*(.15+.85*continuity)*Math.Sqrt(transmission))));local.LastExchangeYear=s.Years;
             long package=ProvincialHistory(s)?ProvincialRegionalKnowledge(s,other,donor):0;

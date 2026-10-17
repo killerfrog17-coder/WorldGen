@@ -48,7 +48,16 @@ namespace WorldGen.Presentation
                     facts.Add(F("Residents",N(t.Population)));facts.Add(F("Food supports",N(t.FoodCapacity)));facts.Add(F("Founded",Y(s,t.FoundedYear)));
                     card.Bars=new[]{new AtlasLink{Name="Health",Value=t.Health},new AtlasLink{Name="Stability",Value=t.Stability}};break;
                 case "religion":
-                    var r=h.Religions[link.Id];card.Subtitle=r.Tradition;facts.Add(F("Origin",s.Society.Cultures[r.CultureId].Name));facts.Add(F("Founded",Y(s,r.FoundedYear)));facts.Add(F("Ethos",r.Ethos));break;
+                    var r=h.Religions[link.Id];card.Subtitle=r.Tradition;
+                    var worship=Prehistory.ReligiousCommunityAt(s,cell);
+                    if(worship!=null)
+                    {
+                        if(worship.Household>=0&&worship.Household<h.Religions.Length)facts.Add(F("Household practice",h.Religions[worship.Household].Name));
+                        facts.Add(F("Local institutions",worship.Institution+" / 1,000"));facts.Add(F("Court policy",worship.Policy));
+                        card.Note="Public tradition at this location; household practice can differ. Support is not a percentage of believers.";
+                    }
+                    else{facts.Add(F("Origin",s.Society.Cultures[r.CultureId].Name));facts.Add(F("Founded",Y(s,r.FoundedYear)));}
+                    facts.Add(F("Ethos",r.Ethos));break;
                 case "province":facts.Add(F("District area",N(HistoricalProvinceIdentity.Area(s,link.Id))+" km²"));card.Note="Administrative service district · not a culture boundary";break;
                 default:card.Subtitle=link.Detail;break;
             }

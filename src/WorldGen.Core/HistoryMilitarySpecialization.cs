@@ -86,6 +86,11 @@ namespace WorldGen.Core
             bool shore=DiffusionShore(town.Cell)&&DiffusionShore(front);
             if(!shore)return false;
             bool physical=InstitutionalRouteAllowed(s,town.Cell,front,h.Polities[polity].CultureId)&&DiffusionSeaLane(town.Cell,front);
+            if(RevisedMilitaryHistory(s)&&physical)
+            {
+                var route=new Route{CellA=town.Cell,CellB=front,A=CellPatch[town.Cell],B=CellPatch[front],Sea=true,DistanceM=(int)Math.Round(D.Angle(World.Surface.Cells[town.Cell].Position,World.Surface.Cells[front].Position)*World.Recipe.RadiusKm*1000)};
+                physical=RevisedMaritimeReach(s,polity,route,h.Aggregates.Empires.Territories.Sources[town.Cell])&&RevisedMaritimeDeparture(s,polity,town.Cell);
+            }
             return HistoricalMilitarySpecializationEffects.PortSupply(true,true,h.Aggregates.Cities[city].Supported,town.FoodReserve,town.Population,
                 HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Sailing,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Navigation,s.Years),physical);
         }

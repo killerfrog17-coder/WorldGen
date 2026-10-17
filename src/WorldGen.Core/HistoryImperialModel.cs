@@ -205,11 +205,19 @@ namespace WorldGen.Core
         }
         bool TryImperialSubmission(PrehistoryState s,int patron,int client,bool imposed,int elapsed,int theater=-1)
         {
+            // Revised imposed settlements use the active supplied operation's
+            // actual losses and core pressure, never this global-army shortcut.
+            if(RevisedMilitaryHistory(s)&&imposed)return false;
             if(!TechnicalHistory(s))return false;var h=s.History;var a=h.Aggregates;
             if(patron==client||h.Polities[patron].EndedYear>=0||h.Polities[client].EndedYear>=0)return false;
             int sovereign=HistoricalImperialHierarchy.Sovereign(s,patron);
             if(sovereign==HistoricalImperialHierarchy.Sovereign(s,client)||HistoricalImperialHierarchy.Patron(s,client)>=0)return false;
             var p=h.Polities[sovereign];var c=h.Polities[client];var leader=h.Dynamics.Leaders[h.Dynamics.States[sovereign].LeaderId];var relation=AggregateRelation(s,patron,client);
+            if(RevisedMilitaryHistory(s))
+            {
+                int source=-1;
+                if(ProvincialFieldPower(s,patron,s.Society.Settlements[c.CapitalId].Cell,ref source)<=20)return false;
+            }
             double strength=(p.Army+a.Empires.Governments[sovereign].SubjectArmy*.3)*HistoricalModernEffects.Military(h.Cultures[p.CultureId],s.Years);
             double defense=Math.Max(1,(c.Army+a.Empires.Governments[client].SubjectArmy*.3)*HistoricalModernEffects.Military(h.Cultures[c.CultureId],s.Years));
             double ratio=strength/defense;if(ratio<(imposed?1.25:1.7)||p.Cohesion<450||p.Treasury<100)return false;

@@ -256,6 +256,7 @@ namespace WorldGen.Core
             double chance=HistoricalInternationalEffects.MediationChance(r.Trust,a.Exhaustion,b.Exhaustion,leaderA.Diplomacy,leaderB.Diplomacy);
             if(HistoryRoll("international-mediation-"+peer,polity,s.Years)>=chance){org.FailedMediations++;org.Authority=Math.Max(0,org.Authority-10);return;}
             var war=h.Dynamics.Campaigns[campaign];if(war.EndedYear>=0)return;war.EndedYear=s.Years;war.Outcome="Both governments accept mediation through "+org.Name+"; the settlement does not erase local peoples or sovereignty.";
+            ReleaseMilitaryOperation(s,campaign);
             r.WarSince=-1;r.TruceUntil=s.Years+10;r.Trust=Math.Min(100,r.Trust+10);org.Mediations++;org.Authority=Math.Min(1000,org.Authority+25);
             HistoryEvent(s,"international-mediation",org.Name+" mediates a ceasefire between "+a.Name+" and "+b.Name+". Both governments accept the negotiated proposal.",s.Society.Settlements[a.CapitalId].Cell,a.CultureId,polity,peer,category:ChronicleCategory.Politics);
         }

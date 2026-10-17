@@ -161,6 +161,10 @@ namespace WorldGen.Core
                 if(o is HistoricalColonialConnections oldGeography && f.Name==nameof(HistoricalColonialConnections.Geography) && oldGeography.Geography==null)continue;
                 if(o is HistoricalColonialConnections oldRealms && f.Name==nameof(HistoricalColonialConnections.Realms) && oldRealms.Realms==null)continue;
                 if(o is HistoricalColonialConnections oldReligion && f.Name==nameof(HistoricalColonialConnections.Religion) && oldReligion.Religion==null)continue;
+                if(o is HistoricalColonialConnections oldMilitary && f.Name==nameof(HistoricalColonialConnections.Military) && oldMilitary.Military==null)continue;
+                if(o is HistoricalColonialConnections oldService && f.Name==nameof(HistoricalColonialConnections.ServiceRecovery) && oldService.ServiceRecovery==null)continue;
+                if(o is HistoricalTerritorialServiceRecovery oldRetired && f.Name==nameof(HistoricalTerritorialServiceRecovery.RetiredGovernments) && oldRetired.RetiredGovernments==null)continue;
+                if(o is HistoricalTerritorialServiceRecovery oldGovernmentCursor && f.Name==nameof(HistoricalTerritorialServiceRecovery.GovernmentCursor) && oldGovernmentCursor.GovernmentCursor==null)continue;
                 if(o is HistoricalGeographicMap oldSharing && f.Name==nameof(HistoricalGeographicMap.Sharing) && oldSharing.Sharing==null)continue;
                 if(o is HistoricalRealmLifecycles oldClaimRoutes && f.Name==nameof(HistoricalRealmLifecycles.ClaimRoutes) && oldClaimRoutes.ClaimRoutes==null)continue;
                 if(o is HistoricalRealmClaimRoutes oldTitleIndex && oldTitleIndex.SourceHeads==null && f.Name!=nameof(HistoricalRealmClaimRoutes.Sources) && f.Name!=nameof(HistoricalRealmClaimRoutes.EffortM))continue;

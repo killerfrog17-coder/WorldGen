@@ -31,7 +31,7 @@ namespace WorldGen.Core
             // successor links. Ownership is tested only when taking an action.
             // A regime change therefore needs no district-membership census.
             foreach(int neighbor in World.Surface.Cells[cell].Neighbors)
-                if(PoliticalFrontierCell(s,neighbor,1)&&World.Hydrology.LakeCoverageFraction[neighbor]<.9&&e.Territories.Sources[neighbor]!=source){bag.Add(cell);return;}
+                if(PoliticalFrontierCell(s,neighbor,1)&&World.Hydrology.LakeCoverageFraction[neighbor]<.9&&(e.Territories.Sources[neighbor]!=source||ServiceRecoveryHistory(s)&&HistoricalCells.Polity(s,neighbor)!=HistoricalCells.Polity(s,cell))){bag.Add(cell);return;}
             bag.Remove(cell);
         }
         int ProvincialFrontierTarget(PrehistoryState s,int polity,int trial)

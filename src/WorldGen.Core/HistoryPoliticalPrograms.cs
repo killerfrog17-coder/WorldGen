@@ -156,7 +156,10 @@ namespace WorldGen.Core
             long available=Math.Min(p.Treasury/8,Math.Max(0,(long)(account.Receipts*.08*elapsed)));
             var budget=HistoricalPoliticalPrograms.Allocate(available,profile);p.Treasury-=budget.Total;
             double defenseFunding=budget.Defense/Math.Max(1,p.Army*.05*elapsed);
-            p.Army=(int)Math.Min(int.MaxValue,p.Army*HistoricalPoliticalPrograms.FundedRecruitmentMultiplier(profile,defenseFunding));
+            // Army strength is a conserved, paid and trained stock in revised
+            // military rules. A budget allocation cannot recreate casualties
+            // or multiply troops already committed to another campaign.
+            if(!RevisedMilitaryHistory(s))p.Army=(int)Math.Min(int.MaxValue,p.Army*HistoricalPoliticalPrograms.FundedRecruitmentMultiplier(profile,defenseFunding));
             double denominator=Math.Max(1,account.Urban/800.0),effect=Math.Min(elapsed*3,(budget.Works+.5*budget.Learning)/denominator*(.3+.7*leader.Administration/1000.0));
             ds.PublicWorks=Math.Max(0,Math.Min(1000,ds.PublicWorks+(int)Math.Round(effect)-elapsed));
             int relief=(int)Math.Min(elapsed*2,budget.Relief/denominator);

@@ -56,10 +56,12 @@ namespace WorldGen.Core
         void AssignTerritorialSource(PrehistoryState s,int cell,int source)
         {
             if(!TechnicalHistory(s))return;var t=s.History.Aggregates.Empires.Territories;int old=t.Sources[cell];if(old==source)return;
+            if(ServiceRecoveryHistory(s)&&old>=0)s.History.Aggregates.Empires.Connections.ServiceRecovery.CityEdges[old].Remove(cell);
             long area=(long)Math.Round(TerritorialPoliticalArea(cell));
             if(old>=0)t.DistrictAreas[old]=Math.Max(0,t.DistrictAreas[old]-area);else if(old<=-2)t.Posts[-old-2].AreaKm2=Math.Max(0,t.Posts[-old-2].AreaKm2-area);
             if(source>=0)t.DistrictAreas[source]+=area;else if(source<=-2)t.Posts[-source-2].AreaKm2+=area;
             t.Sources=t.Sources.With(cell,source);
+            RefreshServiceRecoveryNeighborhood(s,cell);
             if(ProvincialFrontierHistory(s))
             {
                 if(old<=-2)s.History.Aggregates.Empires.Frontiers.Posts[-old-2].Remove(cell);
@@ -74,7 +76,7 @@ namespace WorldGen.Core
             if(RevisedRealmHistory(s)&&source<=-2)
             {
                 var hc=s.History.Cultures[s.History.Polities[polity].CultureId];
-                if(RevisedMaritimeChainKm(s,polity,source)>HistoricalMaritimeControlEffects.NetworkKm(HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.SteamPower,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years)))return false;
+                if(RevisedMaritimeChainKm(s,polity,source)>StateMaritimeNetworkKm(s,polity))return false;
             }
             for(int depth=0;depth<8;depth++)
             {

@@ -5,8 +5,19 @@ using WorldGen.Serialization;
 using WorldGen.Presentation;
 
 // Explicit diagnostics may census/export geometry. Ordinary simulation may not.
-public static class HistoryWorldRealismReview
+public static partial class HistoryWorldRealismReview
 {
+    public static void FinalMaps(string path,string output)
+    {
+        if(Directory.Exists(output))throw new IOException("Use a new diagnostic folder.");
+        Directory.CreateDirectory(output);var world=WorldFile.Read(File.ReadAllBytes(path));var s=world.Prehistory;var engine=new Prehistory(world);engine.Validate(s);
+        HistoryAudit.Snapshot(world,engine,s,output,new[]{HistoryOverlay.States,HistoryOverlay.Religions},compressed:true,backgroundOpacity:0,overlayOpacity:1,includeLabels:false);
+        // Explicit offline inspection, never used by ordinary simulation turns.
+        var towns=s.Society.Settlements.Where(t=>t.Population>0&&s.History.Aggregates.Living.Cities[t.Id].AbandonedYear<0).OrderBy(t=>t.Id).ToArray();
+        File.WriteAllText(Path.Combine(output,"religions.json"),JsonSerializer.Serialize(new{Year=s.Years,Religions=s.History.Religions.Select(r=>new{r.Id,r.Name,r.FoundedYear,r.ParentId,r.CultureId,Reach=r.Reach.ToString(),r.Ethos,r.Ritual}),Towns=towns.Select(t=>new{t.Id,t.Name,t.Cell,t.Population,Public=HistoricalCells.Religion(s,t.Cell),Community=Prehistory.ReligiousCommunityAt(s,t.Cell)})},new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));
+        FinalPoliticalChronology(world,output);
+        Console.WriteLine("Exported opaque state/religious maps and actual town observations at "+s.Years);
+    }
     public static void Inspect(string path)
     {
         var world=WorldFile.Read(File.ReadAllBytes(path));var s=world.Prehistory;var engine=new Prehistory(world);engine.Validate(s);
@@ -62,6 +73,7 @@ public static class HistoryWorldRealismReview
                     FirstMaximumTechnologyYear=maximumTechnology,WorstYearMs=worst,WallSeconds=watch.Elapsed.TotalSeconds};
                 rows.Add(row);File.WriteAllText(Path.Combine(output,"review.json"),JsonSerializer.Serialize(new{Preset=preset,Seed=seed,Recipe=recipe,SourceWorld=source,Rules=s.History.Version,Rows=rows},new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));
                 File.WriteAllText(Path.Combine(directory,"towns.json"),JsonSerializer.Serialize(towns.Select(t=>new{t.Id,t.Name,t.Cell,t.CultureId,t.PolityId,t.Population,Age=s.Years-t.FoundedYear,Latitude=Math.Asin(world.Surface.Cells[t.Cell].Position.Z)*180/Math.PI,Climate=world.Climate.Classification[t.Cell].ToString(),world.Ecology.Habitat[t.Cell].Biome}),new JsonSerializerOptions{WriteIndented=true}));
+                OpportunityReview(world,engine,s,directory);
                 lastMap=s.Years;Console.WriteLine(JsonSerializer.Serialize(row));
             }
             if(s.Years%10000==0)Console.WriteLine($"Progress {preset}/{seed}: {s.Years}, cultures {s.Society.Cultures.Length}, towns {s.Society.Settlements.Length}, {watch.Elapsed.TotalSeconds:F1}s");
@@ -70,6 +82,7 @@ public static class HistoryWorldRealismReview
         }
         var final=session.Snapshot();engine.Validate(final);world.Prehistory=final;
         File.WriteAllBytes(Path.Combine(output,"final.world"),WorldFile.Write(world));
+        FinalPoliticalChronology(world,output);
         Console.WriteLine("FINAL "+final.Hash+" at "+final.Years+" after "+watch.Elapsed.TotalSeconds.ToString("F1")+"s");
     }
 }

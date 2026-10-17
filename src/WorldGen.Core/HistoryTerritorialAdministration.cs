@@ -81,6 +81,7 @@ namespace WorldGen.Core
             if(reachable&&paid){ReviewRealmSourceTitles(s,post.Cell,polity);return;}
             if(reachable&&HistoryRoll("provincial-office-shortfall",id,s.Years)>1-Math.Exp(-elapsed/40.0))return;
             post.ClosedYear=s.Years;g.AdministrativePosts.Remove(id);g.AdministrativePostCost=Math.Max(0,g.AdministrativePostCost-post.AnnualCost);
+            QueueTerritorialServiceRecovery(s,-2-id);
             RemovePendingColonialPort(s,polity,id);
             if(a.Empires.Territories.PostAt[post.Cell]==id)a.Empires.Territories.PostAt=a.Empires.Territories.PostAt.With(post.Cell,-1);
             HistoryEvent(s,"administrative-withdrawal",post.Name+" loses its funded connection to "+h.Polities[polity].Name+"; the local landscape and population remain.",post.Cell,h.Polities[polity].CultureId,polity,category:ChronicleCategory.Politics);

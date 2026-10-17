@@ -90,6 +90,7 @@ namespace WorldGen.Core
         {
             if(!TechnicalHistory(s))return;var h=s.History;var a=h.Aggregates;var t=a.Empires.Territories;int id=t.PostAt[cell];if(id<0)return;var post=t.Posts[id];if(post.ClosedYear>=0)return;
             int previous=a.Resolve(post.PolityId,h);if(previous==polity)return;
+            QueueTerritorialServiceRecovery(s,-2-id);
             RemovePendingColonialPort(s,a.PopulationCohort(post.PolityId),id);
             int cohort=a.PopulationCohort(post.PolityId);var old=a.Empires.Governments[cohort];old.AdministrativePosts.Remove(id);old.AdministrativePostCost=Math.Max(0,old.AdministrativePostCost-post.AnnualCost);
             if(polity<0){post.ClosedYear=s.Years;t.PostAt=t.PostAt.With(cell,-1);return;}

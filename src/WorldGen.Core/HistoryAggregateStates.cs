@@ -23,6 +23,7 @@ namespace WorldGen.Core
             bool inheritedFunds=RealmHistory(s)&&parent>=0&&a.Resolve(town.PolityId,h)==parent;
             long inheritedTreasury=inheritedFunds?h.Polities[parent].Treasury:0,inheritedPeople=inheritedFunds?h.Polities[parent].Population:0;
             int inheritedArmy=inheritedFunds?h.Polities[parent].Army:0;
+            if(inheritedFunds)ReleaseMilitaryGovernment(s,parent);
             var polity=new HistoricalPolity{Id=id,CultureId=town.CultureId,CapitalId=city,ParentId=parent,FoundedYear=s.Years,RulerSince=s.Years,Name=town.Name+" State",ReligionId=HistoricalCells.Religion(s,town.Cell),Treasury=town.Population/2,Government="Local council and agrarian court"};
             if(LanguageHistory(s))polity.Name=LanguageStateName(s,town);
             h.Polities=h.Polities.Concat(new[]{polity}).ToArray();a.Polities=a.Polities.Concat(new[]{new HistoricalPolityAggregate{Id=id,LastYear=s.Years,LastSuccession=s.Years,ReachKm=100}}).ToArray();
@@ -65,6 +66,7 @@ namespace WorldGen.Core
         }
         void AdvanceAggregateState(PrehistoryState s,int id)
         {
+            AdvanceTerritorialServiceRecovery(s);
             var h=s.History;var a=h.Aggregates;var p=h.Polities[id];var account=a.Polities[id];int elapsed=s.Years-account.LastYear;if(elapsed<=0)return;account.LastYear=s.Years;
             if(account.Cities.Count==0||account.Urban<25){EndAggregateState(s,id,"Its institutions no longer control an inhabited administrative center.");return;}
             var hc=h.Cultures[p.CultureId];var ds=h.Dynamics.States[id];if(ds.LeaderId<0)AppointAggregateLeader(s,id);var leader=h.Dynamics.Leaders[ds.LeaderId];
@@ -97,7 +99,8 @@ namespace WorldGen.Core
             cycle.ConquestDebt=Math.Max(0,cycle.ConquestDebt-(HistoricalTechnologies.Has(hc,HistoricalTechnology.Writing)?2:1)*elapsed);
             if(RealmHistory(s)&&(RealmCrisis(s,id)>0||receipts<service))cycle.ConquestDebt=realmPreviousDebt;
             ds.Strain=(int)Math.Min(1000,geography*150+cycle.ConquestDebt*.4+cycle.EliteCapture*.2);p.Exhaustion=Math.Max(0,p.Exhaustion-elapsed*2);p.Legitimacy=Math.Min(900,p.Legitimacy+elapsed*(p.Treasury>0?2:-3));p.Cohesion=Math.Max(50,Math.Min(950,p.Cohesion+(int)((650-ds.Strain*.6-p.Exhaustion*.2-p.Cohesion)*Math.Min(.5,elapsed/50.0))));
-            p.Army=(int)Math.Min(int.MaxValue,Math.Max(0,(account.Urban+account.Rural*.1+account.Remote*.02)*.03*p.Cohesion/1000));
+            int idealArmy=(int)Math.Min(int.MaxValue,Math.Max(0,(account.Urban+account.Rural*.1+account.Remote*.02)*.03*p.Cohesion/1000));
+            if(RevisedMilitaryHistory(s))AdvanceRevisedMilitaryReadiness(s,id,elapsed,idealArmy);else p.Army=idealArmy;
             AdvanceRealmLegitimacy(s,id,elapsed,realmPreviousLegitimacy);
             AdvanceRealmCohesion(s,id,elapsed,realmPreviousCohesion);
             if(LivingWorldHistory(s))FundPoliticalProgram(s,id,elapsed);
@@ -161,15 +164,22 @@ namespace WorldGen.Core
             if(LivingWorldHistory(s)&&NuclearWarDeterred(s,attacker,defender))return;
             var h=s.History;int id=h.Dynamics.Campaigns.Length;var leader=h.Dynamics.Leaders[h.Dynamics.States[attacker].LeaderId];
             var campaign=new HistoricalCampaign{Id=id,A=relation.A,B=relation.B,AttackerId=attacker,LeaderId=leader.Id,StartedYear=s.Years,LastActionYear=s.Years,Aim=HistoricalWarAim.Conquest,Name=h.Polities[attacker].Name+"–"+h.Polities[defender].Name+" War",Objective="Secure the contested frontier and its administrative centers"};
+            if(RevisedMilitaryHistory(s)){campaign.Aim=RevisedMilitaryAim(s,attacker,defender,front);campaign.Objective=CivicWarObjective(campaign.Aim);}
             if(RegionalAmbitionHistory(s)&&TerritorialAmbitionContains(s,attacker,front>=0?front:s.Society.Settlements[h.Polities[defender].CapitalId].Cell))
             {campaign.Objective=h.Aggregates.Empires.Connections.Ambitions.Governments[attacker].Description;campaign.Context="The court seeks "+campaign.Objective.ToLowerInvariant()+". This is an ambition, not recognized sovereignty or a guarantee of conquest; supply, resistance, finances and war exhaustion still constrain the campaign.";}
             h.Dynamics.Campaigns=h.Dynamics.Campaigns.Concat(new[]{campaign}).ToArray();relation.WarSince=s.Years;relation.Trade=relation.Alliance=false;ScheduleAggregate(s,CampaignProcess,id);
             RegisterInternationalCampaign(s,attacker,defender,id);
             if(ProvincialHistory(s))h.Aggregates.Provinces.Theaters=h.Aggregates.Provinces.Theaters.Concat(new[]{new HistoricalCampaignTheater{Cell=front}}).ToArray();
             if(CommunityHistory(s))h.Aggregates.Communities.Campaigns=h.Aggregates.Communities.Campaigns.Concat(new[]{new HistoricalCampaignAdvance()}).ToArray();
+            RegisterMilitaryOperation(s,id);
             HistoryEvent(s,"war",campaign.Name+" begins.",s.Society.Settlements[h.Polities[attacker].CapitalId].Cell,h.Polities[attacker].CultureId,attacker,defender,category:ChronicleCategory.Politics);
         }
         void AdvanceAggregateCampaign(PrehistoryState s,int id)
+        {
+            try{AdvanceAggregateCampaignBody(s,id);}
+            finally{if(s.History.Dynamics.Campaigns[id].EndedYear>=0)ReleaseMilitaryOperation(s,id);}
+        }
+        void AdvanceAggregateCampaignBody(PrehistoryState s,int id)
         {
             if(LivingWorldHistory(s)&&!ContinueInternationalCampaign(s,id))return;
             if(LivingWorldHistory(s))TryNuclearEscalation(s,id);

@@ -49,8 +49,8 @@ public static class HistoryRealmLifecycleTests
         var w=WorldFile.Read(File.ReadAllBytes(path));var e=new Prehistory(w);var source=w.Prehistory;string original=source.Hash;
         var s=e.UpgradeRealmLifecycles(source);e.Validate(s);int count=0;
         void Check(bool ok,string message){count++;if(!ok)throw new Exception(message);}
-        Check((source.History.Aggregates.Empires.Connections.Realms?.Version??0)<2&&source.History.Aggregates.Empires.Connections.Religion==null,"Source retains its preceding realm/religion rules.");
-        Check(s.History.Aggregates.Empires.Connections.Realms.Version==2&&s.History.Aggregates.Empires.Connections.Religion!=null,"Explicit upgrade installs revision2 without rewriting the past.");
+        Check((source.History.Aggregates.Empires.Connections.Realms?.Version??0)<4&&source.History.Aggregates.Empires.Connections.ServiceRecovery==null,"Source retains its preceding realm/service rules.");
+        Check(s.History.Aggregates.Empires.Connections.Realms.Version==4&&s.History.Aggregates.Empires.Connections.Religion?.Version==2&&s.History.Aggregates.Empires.Connections.Military!=null&&s.History.Aggregates.Empires.Connections.ServiceRecovery!=null,"Explicit upgrade installs revision4 without rewriting the past.");
         Check(s.History.Aggregates.TotalPopulation==source.History.Aggregates.TotalPopulation,"Upgrade changes no population.");
         Check(ReferenceEquals(e.UpgradeRealmLifecycles(s),s),"Upgrade is idempotent.");
         Check(Prehistory.CanUpgradeHistory(source)&&!Prehistory.CanUpgradeHistory(s),"Existing32 worlds expose the explicit update-rules action; current realm worlds do not auto-upgrade.");
@@ -64,17 +64,24 @@ public static class HistoryRealmLifecycleTests
         Check(source.ComputeHash()==original,"Original checkpoint remains unchanged.");
         Check(HistoryAtlas.Read(s,"state",p,w,e).Facts[0].Label=="Country founded","The actual state profile distinguishes country foundation from regime and allegiance dates.");
         var supply=typeof(Prehistory).GetMethod("RealmSupplierChainKm",BindingFlags.Instance|BindingFlags.NonPublic);
+        bool testedSupply=false;
         foreach(var office in s.History.Aggregates.Empires.Territories.Posts)
         {
             int owner=s.History.Aggregates.Resolve(office.PolityId,s.History);if(owner<0||office.ClosedYear>=0)continue;
             int node=s.History.Aggregates.Empires.Territories.Sources[office.Cell],supplier=node;
+            // A transferred office's old record can outlive reassignment of its
+            // cell to a different real service node. Test the current chain,
+            // never compare that new chain with the superseded office's cost.
+            if(node!= -2-office.Id||s.History.Aggregates.Empires.Territories.PostAt[office.Cell]!=office.Id)continue;
             for(int depth=0;depth<8&&supplier< -1;depth++)supplier=s.History.Aggregates.Empires.Territories.Posts[-supplier-2].ParentSource;
             if(supplier<0)continue;double distance=(double)supply.Invoke(e,new object[]{s,owner,office.Cell,supplier});if(distance<0)continue;
             Check(distance>=office.MessageEffortKm,"An actual recorded administrative supply chain retains its full travel effort rather than a single local service radius.");
             var interrupted=s.Copy();interrupted.History.Aggregates.Empires.Territories.Posts[office.Id].ClosedYear=interrupted.Years;
             Check((double)supply.Invoke(e,new object[]{interrupted,owner,office.Cell,supplier})<0,"Closing a real link interrupts supply; an owned coastline alone never becomes a food supplier.");
+            testedSupply=true;
             break;
         }
+        Check(testedSupply||!s.History.Aggregates.Empires.Territories.Posts.Any(x=>x.ClosedYear<0),"A world with recorded live offices exercises one actual currently supplied administrative chain.");
         var country=s.History.Polities.Where(x=>x.EndedYear<0&&s.History.Aggregates.Polities[x.Id].Cities.Count>=2)
             .OrderByDescending(x=>{int r=e.CellPatch[s.Society.Settlements[x.CapitalId].Cell],t=s.History.Aggregates.Empires.Connections.TitleAt[r];return t>=0&&s.History.Aggregates.Resolve(s.History.Aggregates.Empires.Connections.Titles[t].Holder,s.History)==x.Id;}).FirstOrDefault();
         if(country!=null)

@@ -8,7 +8,7 @@ namespace WorldGen.Core
     [Serializable] public sealed class HistoricalReligiousNetworks
     {
         public const int Fields=13;
-        public int Version=1,SinceYear;
+        public int Version=2,SinceYear;
         public HistoricalCellTree Communities,Policies=new HistoricalCellTree(33554432);
         public HistoricalReligiousNetworks Copy()=>(HistoricalReligiousNetworks)MemberwiseClone();
         public int Read(int cell,int field)=>Communities[cell*Fields+field];
@@ -50,7 +50,7 @@ namespace WorldGen.Core
         void InitializeReligiousNetworks(PrehistoryState s)
         {
             if(ReligiousNetworkHistory(s))return;
-            s.History.Aggregates.Empires.Connections.Religion=new HistoricalReligiousNetworks{SinceYear=s.Years,Communities=new HistoricalCellTree(checked(HistoricalCells.Count(s)*HistoricalReligiousNetworks.Fields))};
+            s.History.Aggregates.Empires.Connections.Religion=new HistoricalReligiousNetworks{Version=s.History.Aggregates.Empires.Connections.Realms?.Version>=4?2:1,SinceYear=s.Years,Communities=new HistoricalCellTree(checked(HistoricalCells.Count(s)*HistoricalReligiousNetworks.Fields))};
         }
         void TouchReligiousCommunity(PrehistoryState s,int cell)
         {
@@ -99,7 +99,8 @@ namespace WorldGen.Core
             }
             r.Write(cell,FaithCarrier,supported);
         }
-        public HistoricalReligiousCommunity ReligiousCommunity(PrehistoryState s,int cell)
+        public HistoricalReligiousCommunity ReligiousCommunity(PrehistoryState s,int cell)=>ReligiousCommunityAt(s,cell);
+        public static HistoricalReligiousCommunity ReligiousCommunityAt(PrehistoryState s,int cell)
         {
             if(!ReligiousNetworkHistory(s)||cell<0||cell>=HistoricalCells.Count(s))return null;
             var r=s.History.Aggregates.Empires.Connections.Religion;int polity=HistoricalCells.Polity(s,cell);
@@ -107,9 +108,21 @@ namespace WorldGen.Core
                 Pressure=Math.Max(0,r.Read(cell,FaithPressure)),Institution=Math.Max(0,r.Read(cell,FaithInstitution)),Blending=Math.Max(0,r.Read(cell,FaithBlend)),LastContact=r.Read(cell,FaithContactYear),
                 Policy=polity<0?"Local practice without a state religious policy":ReligiousPolicyName(r.Policies[polity*4+1])};
         }
+        void RecordDeliveredRegionalReligion(PrehistoryState s,int source,int target)
+        {
+            // Revision 2 is the frozen A experiment. Its later null/military
+            // migration cannot silently add rural delivery to those old rules.
+            if((s?.History?.Aggregates?.Empires?.Connections?.Realms?.Version??0)<3||!ReligiousNetworkHistory(s)||source<0||target<0||source>=CellPatch.Length||target>=CellPatch.Length)return;
+            int first=HistoricalCells.Culture(s,source),second=HistoricalCells.Culture(s,target);
+            if(first<0||second<0)return;
+            // Read religion from the actual supplied communities. The unrelated
+            // culture credited with advanced technical lessons is not a church.
+            RecordReligiousContact(s,first,second,source,target);
+        }
         void InheritReligiousHouseholds(PrehistoryState s,int target,int source,int previousFaith,long previousResidents)
         {
             var r=s.History.Aggregates.Empires.Connections.Religion;int carried=HistoricalCells.Religion(s,source);if(carried<0)return;
+            if(ReligiousInstitutionHistory(s)&&s.History.Religions[carried].Reach==ReligiousReach.Local&&ReligiousInstitutionVocation(s,carried)!=ReligiousVocation.SacredPlaces)s.History.Religions[carried].Reach=ReligiousReach.Portable;
             bool indigenous=previousResidents>0&&previousFaith>=0;
             SetAggregateLayer(s,target,2,indigenous?previousFaith:carried);TouchReligiousCommunity(s,target);
             int inherited=r.Read(source,FaithHousehold);
@@ -141,6 +154,7 @@ namespace WorldGen.Core
             {
                 int peer=peers[(offset+k)%peers.Length];var donor=s.Society.Settlements[peer];
                 if(donor.Population<100||a.Living.Cities[peer].AbandonedYear>=0||!InstitutionalRouteAllowed(s,donor.Cell,town.Cell,donor.CultureId))continue;
+                if(ReligiousInstitutionHistory(s)&&!ReligiousTownCarrierAllowed(s,peer,city))continue;
                 RecordReligiousContact(s,donor.CultureId,town.CultureId,donor.Cell,town.Cell);
             }
             // The origin can also be a town; its clock prevents double upkeep.
@@ -206,7 +220,7 @@ namespace WorldGen.Core
         void ValidateReligiousNetworks(PrehistoryState s)
         {
             var r=s.History.Aggregates.Empires.Connections.Religion;if(r==null)return;
-            if(!LivingWorldHistory(s)||r.Version!=1||r.SinceYear<0||r.SinceYear>s.Years||r.Communities?.Length!=HistoricalCells.Count(s)*HistoricalReligiousNetworks.Fields||r.Policies?.Length!=33554432)throw new ArgumentException("Invalid religious-network extension.");
+            if(!LivingWorldHistory(s)||(r.Version!=1&&r.Version!=2)||r.SinceYear<0||r.SinceYear>s.Years||r.Communities?.Length!=HistoricalCells.Count(s)*HistoricalReligiousNetworks.Fields||r.Policies?.Length!=33554432)throw new ArgumentException("Invalid religious-network extension.");
             if(!r.Communities.AllPresentValues((key,value)=>
             {
                 int field=key%HistoricalReligiousNetworks.Fields;

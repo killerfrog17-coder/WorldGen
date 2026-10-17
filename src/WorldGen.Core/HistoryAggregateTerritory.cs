@@ -24,6 +24,7 @@ namespace WorldGen.Core
             else {old=old>=0?a.Resolve(old,s.History):-1;if(old>=0)s.History.Polities[old].AreaKm2=Math.Max(0,s.History.Polities[old].AreaKm2-area);if(owner>=0)s.History.Polities[owner].AreaKm2+=area;}
             RefreshAggregateFrontier(s,cell,layer,old);RefreshAggregateFrontier(s,cell,layer,owner);
             if(layer==1)ChangeColonialCoast(s,cell,old,owner);
+            if(layer==1)RefreshServiceRecoveryNeighborhood(s,cell);
             foreach(int neighbor in World.Surface.Cells[cell].Neighbors){int id=layer==0?HistoricalCells.Culture(s,neighbor):HistoricalCells.Polity(s,neighbor);if(id>=0)RefreshAggregateFrontier(s,neighbor,layer,id);}
         }
         void RefreshAggregateFrontier(PrehistoryState s,int cell,int layer,int owner)
@@ -81,6 +82,7 @@ namespace WorldGen.Core
             if(old>=0){var p=a.Polities[old];p.Cities.Remove(id);p.CityCount=p.Cities.Count;p.Urban-=town.Population;p.Rural-=city.Rural;p.Suburban-=city.Suburban;h.Polities[old].Population=Math.Max(0,h.Polities[old].Population-residents);}
             if(polity>=0){var p=a.Polities[polity];p.Cities.Add(id);p.CityCount=p.Cities.Count;p.Urban+=town.Population;p.Rural+=city.Rural;p.Suburban+=city.Suburban;h.Polities[polity].Population+=residents;town.Government=h.Polities[polity].Government;}
             town.PolityId=polity;
+            QueueTerritorialServiceRecovery(s,id);
             if(CommunityHistory(s))TransferCommunityGovernment(s,id,polity);
             if(ProvincialHistory(s))a.Provinces.Centers=a.Provinces.Centers.With(town.Cell,polity>=0?id:-1);
             if(TechnicalHistory(s))AssignTerritorialSource(s,town.Cell,polity>=0?id:-1);
@@ -89,11 +91,13 @@ namespace WorldGen.Core
         }
         void EndAggregateState(PrehistoryState s,int id,string reason,int successor=-1)
         {
+            ReleaseMilitaryGovernment(s,id);
             var h=s.History;var a=h.Aggregates;var p=h.Polities[id];if(p.EndedYear>=0)return;var account=a.Polities[id];
             if(LivingWorldHistory(s))CloseNuclearState(s,id,successor);
             CloseInternationalState(s,id);
             EndImperialGovernment(s,id);
             p.EndedYear=s.Years;p.Army=0;a.Successors=a.Successors.With(id,successor);
+            QueueRetiredServiceGovernment(s,id);
             if(LivingWorldHistory(s)&&a.Empires.Connections.PortSettlements!=null)a.Empires.Connections.PortSettlements.Governments[id]=new HistoricalPendingPortGovernment();
             // Remote communities outlive the court. Their cohort retains its
             // geography and slower demographic event until locally reclaimed.

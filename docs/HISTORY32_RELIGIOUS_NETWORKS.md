@@ -137,3 +137,82 @@ The model has no detailed doctrine, full clergy biographies, religious law,
 competing organizational hierarchies, reliable believer counts or universal
 causal theory of religious change. Dense 200k longitudinal geography, resulting
 religious maps and runtime still require independent visual review.
+
+## Realm revision 3 follow-up: supplied rural contact
+
+The frozen realm-2 experiment receives religion through explicit cultural/town
+contact and migrant foundations. A later code-path review found that ordinary
+successful regional exchange bypassed that explicit contact hook: it delivered
+technical offers directly. Realm revision 3 adds a religious receipt after the
+existing physical route, supplied voyage and probabilistic transit succeed.
+The source religion comes from the actual supplied endpoint, not the potentially
+unrelated culture credited with an advanced technical lesson. Realm 2 retains
+its preceding continuation; its new helper returns before any write.
+
+On-demand atlas profiles now distinguish local rites, portable teaching and
+supported outreach; separate public predominance, retained household tradition
+and encountered teaching; and show up to twelve actual town examples. Local
+cards expose dated contact, institutional support and court policy. These
+indices are not believer counts. This presentation is read-only and can explain
+either experimental revision without upgrading it.
+
+## Religious institution revision 2 (post-B source experiment)
+
+`Connections.Religion.Version=2` is an independent explicit rule marker. Fresh
+realm revision 4 initializes it; frozen realms 1-3 retain their preceding
+religion continuation. The explicit upgrade changes future rules without
+rewriting established ethos, ritual, names or actors. Sparse storage is unchanged.
+
+Ordinary sampled city carriers now check live war, both endpoints' disruption,
+foreign-community stability, source provisions and actual economic travel
+range. A graph neighbor alone is insufficient. Actual migrating households and
+already supplied regional deliveries remain distinct receipts; interruption of
+ordinary trade does not erase the religion of refugees or emigrants.
+
+A stable seeded vocation distinguishes sacred-place/ancestral institutions,
+portable household tradition and traveling teaching. These are choices with
+different transmission forms, not ranked stages. Large provisioned sacred-place
+institutions may remain local indefinitely. Household portability can follow an
+actual migrant foundation; teaching institutions require recent real contact,
+funding and local support. Existing recorded outreach is not removed on upgrade.
+No fixed number or global share of any form is imposed.
+
+Court religious settlements have institutional inertia. The new ruler can
+propose a policy, but continuing capital ritual support and a long-established
+settlement damp automatic reversal. Broader political representation, war stress
+and low legitimacy can provide concrete pressure for revision. A change of
+leader is not itself a new religion or a compulsory ban/toleration cycle.
+
+Fresh profiles describe six combinations of ancestral obligation, sacred-place
+care, civic oaths, household commemoration, hospitality and ethical instruction.
+They follow vocation and a stable observance root, never biome or ethnicity.
+An actual migrant-community lineage copies its immediate stored obligations
+and practice; it does not walk ancestry or inherit a ready-made institution.
+Exclusion can produce local ritual autonomy; sustained contact can produce a
+synthesis; actual elite capture together with local instability can support an
+ethical renewal independent of court patronage. Each renewal remains locally
+provisioned, dated and parent-linked. These are limited procedural profiles,
+not full doctrines, a moral ranking or believer counts.
+
+Additional mechanism comparisons:
+
+- The Met's [Inca/Chincha serpent object research](https://www.metmuseum.org/art/collection/search/316938)
+  documents an imperial temple incorporating local forms in a polity retaining
+  some autonomy. This supports local/imperial coexistence and synthesis without
+  requiring complete public or household replacement.
+- The Met's [capac-hucha archaeological account](https://www.metmuseum.org/essays/capac-hucha-as-an-inca-assemblage)
+  relates long-distance offerings and sacred places to royal accession, death
+  and wider ritual networks. It is a counterexample to equating extensive
+  institutions exclusively with portable missionary doctrine.
+- [Original Buddhist monastery/trade spatial research](https://www.sciencedirect.com/science/article/pii/S2352226721000532)
+  and [Wood's original Syriac patronage study](https://doi.org/10.1017/S0009640725102400)
+  support provisioned connections and institutional continuity through changing
+  political authority. They do not establish the model's numerical priors.
+
+Independent A diagnostics found 179 local/97 portable/22 missionary religious
+actors on Earth200 and 156/78/23 on Continents Plus200. Earth had 2,651 court
+religious-policy changes but 386 public-community changes; the generated control
+had 3,647 versus 452. These observations motivated institutional inertia and
+live-carrier checks, not a target global religion count. Their optional detailed
+diagnostic exports now include actor forms, parent traditions and religious
+event counts alongside local-town observations.

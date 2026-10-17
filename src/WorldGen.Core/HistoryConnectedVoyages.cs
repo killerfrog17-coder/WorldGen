@@ -119,6 +119,7 @@ namespace WorldGen.Core
         {
             var h=s.History;var hc=h.Cultures[child];hc.ParentCultureId=parent;hc.LanguageId=h.Cultures[parent].LanguageId;
             InheritLanguage(s,child,parent);
+            if(ReligiousInstitutionHistory(s))InheritReligiousProfile(s,child,parent);
             provincialKnowledgeMasks.Remove(child);
             for(int k=0;k<hc.Technology.Length;k++)if(h.Cultures[parent].Technology[k]>0&&(!ProvincialHistory(s)||k<15))hc.Technology[k]=s.Years+1;
             if(TechnicalHistory(s))

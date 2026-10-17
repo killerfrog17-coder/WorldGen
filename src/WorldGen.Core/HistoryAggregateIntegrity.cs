@@ -27,6 +27,13 @@ namespace WorldGen.Core
                 a.Empires?.Connections?.CoastalFarming?.Families.Fingerprint(true);
                 a.Empires?.Connections?.Religion?.Communities.Fingerprint(true);
                 a.Empires?.Connections?.Religion?.Policies.Fingerprint(true);
+                if(a.Empires?.Connections?.ServiceRecovery!=null)
+                {
+                    var service=a.Empires.Connections.ServiceRecovery;
+                    foreach(var tree in new[]{service.PendingSources.Items,service.PendingSources.Positions,service.Cursor,service.Reviewed,service.CreditKm2,service.LastReviewYear})tree.Fingerprint(true);
+                    foreach(var edge in service.CityEdges){edge.Items.Fingerprint(true);edge.Positions.Fingerprint(true);}
+                    service.RetiredGovernments?.Items.Fingerprint(true);service.RetiredGovernments?.Positions.Fingerprint(true);service.GovernmentCursor?.Fingerprint(true);
+                }
                 if(a.Empires?.Connections!=null)foreach(var culture in a.Empires.Connections.Cultures)culture.SeenCharts?.Fingerprint(true);
                 if(a.Empires?.Connections?.PortSettlements!=null)
                 {

@@ -35,7 +35,7 @@ namespace WorldGen.Core
         public static bool CanUpgradeHistory(PrehistoryState s)
         {
             string version=s?.History?.Version;
-            return version==CurrentHistoryVersion?!RevisedRealmHistory(s)||s.History.Aggregates.Empires.Connections.Realms.ClaimRoutes?.SourceHeads==null||s.History.Aggregates.Empires.Connections.Religion==null||s.History.RegionalTraditions==null||s.History.Aggregates?.Empires?.Connections?.Geography?.Version!=2:IsAggregateHistoryVersion(version)||version=="history-9"||version=="history-10"||version=="history-11"||version=="history-12"||version=="history-13"||version=="history-14"||version=="history-15"||version=="history-16";
+            return version==CurrentHistoryVersion?!RevisedRealmHistory(s)||s.History.Aggregates.Empires.Connections.Realms.Version<4||s.History.Aggregates.Empires.Connections.Realms.ClaimRoutes?.SourceHeads==null||s.History.Aggregates.Empires.Connections.Religion?.Version!=2||s.History.Aggregates.Empires.Connections.Military==null||s.History.Aggregates.Empires.Connections.ServiceRecovery?.Version<2||s.History.Aggregates.Empires.Connections.ServiceRecovery==null||s.History.RegionalTraditions==null||s.History.Aggregates?.Empires?.Connections?.Geography?.Version!=2:IsAggregateHistoryVersion(version)||version=="history-9"||version=="history-10"||version=="history-11"||version=="history-12"||version=="history-13"||version=="history-14"||version=="history-15"||version=="history-16";
         }
         double[] developmentStored;
         public PrehistoryState UpgradeToConnectedHistory(PrehistoryState source)
