@@ -49,6 +49,7 @@ namespace WorldGen.Core
         }
         public static string Compute(object value, CancellationToken cancellation = default)
         {
+            if(!literalAggregateRecords&&SmallHistoricalValue(value))return ComputeSmallHistorical(value,cancellation);
             using (var sha = CanonicalSha256.Create())
             using (var crypto = new CryptoStream(Stream.Null, sha, CryptoStreamMode.Write))
             using (var buffer = new BufferedStream(new CancellationStream(crypto, cancellation), 65536))
@@ -73,6 +74,9 @@ namespace WorldGen.Core
         static void Write(BinaryWriter w, object o)
         {
             if (o == null) { w.Write((byte)0); return; }
+            // LeaderHead already contains the ordinary non-null/type framing.
+            // Arrays and single live records share the same checked templates.
+            if(!literalAggregateRecords&&o is HistoricalLeader singleLeader){LeaderRecordBody(w,singleLeader);return;}
             w.Write((byte)1);
             // Preserve the exact canonical byte format while avoiding type lookup
             // and reflection on the millions of scalar values hashed in WASM.
@@ -165,10 +169,12 @@ namespace WorldGen.Core
                 if(o is HistoricalColonialConnections oldReligion && f.Name==nameof(HistoricalColonialConnections.Religion) && oldReligion.Religion==null)continue;
                 if(o is HistoricalColonialConnections oldMilitary && f.Name==nameof(HistoricalColonialConnections.Military) && oldMilitary.Military==null)continue;
                 if(o is HistoricalColonialConnections oldService && f.Name==nameof(HistoricalColonialConnections.ServiceRecovery) && oldService.ServiceRecovery==null)continue;
+                if(o is HistoricalColonialConnections oldSeaService && f.Name==nameof(HistoricalColonialConnections.SeaService) && oldSeaService.SeaService==null)continue;
                 if(o is HistoricalTerritorialServiceRecovery oldRetired && f.Name==nameof(HistoricalTerritorialServiceRecovery.RetiredGovernments) && oldRetired.RetiredGovernments==null)continue;
                 if(o is HistoricalTerritorialServiceRecovery oldGovernmentCursor && f.Name==nameof(HistoricalTerritorialServiceRecovery.GovernmentCursor) && oldGovernmentCursor.GovernmentCursor==null)continue;
                 if(o is HistoricalGeographicMap oldSharing && f.Name==nameof(HistoricalGeographicMap.Sharing) && oldSharing.Sharing==null)continue;
                 if(o is HistoricalRealmLifecycles oldClaimRoutes && f.Name==nameof(HistoricalRealmLifecycles.ClaimRoutes) && oldClaimRoutes.ClaimRoutes==null)continue;
+                if(o is HistoricalRealmLifecycles oldClaimants && f.Name==nameof(HistoricalRealmLifecycles.Claimants) && oldClaimants.Claimants==null)continue;
                 if(o is HistoricalRealmClaimRoutes oldTitleIndex && oldTitleIndex.SourceHeads==null && f.Name!=nameof(HistoricalRealmClaimRoutes.Sources) && f.Name!=nameof(HistoricalRealmClaimRoutes.EffortM))continue;
                 if(o is HistoricalProvisionedPorts oldSupplierRouting && f.Name==nameof(HistoricalProvisionedPorts.SupplierRouting) && oldSupplierRouting.SupplierRouting==null)continue;
                 if(o is HistoricalProvisionedPort oldSupplierHistory && f.Name==nameof(HistoricalProvisionedPort.SupplierHistory) && oldSupplierHistory.SupplierHistory==null)continue;

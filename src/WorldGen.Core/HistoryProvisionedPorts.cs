@@ -69,6 +69,7 @@ namespace WorldGen.Core
         {
             public int Polity,Source,Target,Departure,Post;
             public long Founders,Provisions,Investment;
+            public SeaServiceQuote Service;
         }
         public PrehistoryState UpgradeProvisionedPorts(PrehistoryState source)
         {
@@ -141,7 +142,8 @@ namespace WorldGen.Core
             long investment=HistoricalMaritimeIntegrationEffects.CouncilInvestment(people,route.DistanceM);
             long annual=HistoricalProvisionedPortEffects.ShippingCost(HistoricalProvisionedPortEffects.ResidentLimit*2,route.DistanceM/1000.0+staging);
             if(source.FoodReserve<people*3+provisions+source.Population/2||p.Treasury<investment*2+annual*3||a.Polities[polity].Receipts<=a.Polities[polity].ServiceCost+annual)return false;
-            plan=new ProvisionedPortPlan{Polity=polity,Source=supplier,Target=target,Departure=route.CellA,Post=post,Founders=people,Provisions=provisions,Investment=investment};return true;
+            var service=QuoteSeaService(s,polity,supplier,route.CellA,target,people*3+provisions,people,investment,source.Population/2);if(!service.Allowed)return false;
+            plan=new ProvisionedPortPlan{Polity=polity,Source=supplier,Target=target,Departure=route.CellA,Post=post,Founders=people,Provisions=provisions,Investment=investment,Service=service};return true;
         }
         bool ValidProvisionedPortPlan(PrehistoryState s,int culture,int cell,int parent,ProvisionedPortPlan plan)
         {
@@ -193,6 +195,11 @@ namespace WorldGen.Core
             int retention=HistoricalProvisionedPortEffects.RetentionPermille(route.DistanceM/1000.0+staging*shipping/HistoricalModernEffects.LandTransport(hc,s.Years),shipping);
             long need=Math.Max(0,target.Population*years+Math.Min(port.MaximumResidents,target.Population)-target.FoodReserve);
             var cargo=HistoricalFoodEffects.Deliver(Math.Max(0,source.FoodReserve-source.Population/2),need,retention,port.MaximumResidents*2L*years);
+            if(SeaServiceHistory(s))
+            {
+                var service=QuoteSeaService(s,owner,supplier,departure,target.Cell,cargo.Sent,0,0,source.Population/2,true);if(!service.Allowed)return null;
+                cargo=HistoricalFoodEffects.Deliver(Math.Max(0,source.FoodReserve-source.Population/2),need,retention,service.Cargo);
+            }
             long cost=HistoricalProvisionedPortEffects.ShippingCost(cargo.Sent,route.DistanceM/1000.0+staging);
             long setup=replacement?HistoricalMaritimeIntegrationEffects.CouncilInvestment(0,route.DistanceM):0;
             long annual=HistoricalProvisionedPortEffects.ShippingCost(port.MaximumResidents*2L,route.DistanceM/1000.0+staging);
@@ -259,8 +266,15 @@ namespace WorldGen.Core
             long need=Math.Max(0,target.Population*years+Math.Min(port.MaximumResidents,target.Population)-target.FoodReserve);
             long surplus=Math.Max(0,source.FoodReserve-source.Population/2);
             var shipment=HistoricalFoodEffects.Deliver(surplus,need,retention,port.MaximumResidents*2L*years);
+            SeaServiceQuote service=null;
+            if(SeaServiceHistory(s))
+            {
+                service=QuoteSeaService(s,owner,port.SupplierTownId,port.DepartureCell,target.Cell,shipment.Sent,0,0,source.Population/2,true);if(!service.Allowed)return 0;
+                shipment=HistoricalFoodEffects.Deliver(surplus,need,retention,service.Cargo);
+            }
             long cost=HistoricalProvisionedPortEffects.ShippingCost(shipment.Sent,distance);
             if(shipment.Sent<=0||p.Treasury<cost)return 0;
+            if(SeaServiceHistory(s)&&!CommitSeaService(s,QuoteSeaService(s,owner,port.SupplierTownId,port.DepartureCell,target.Cell,shipment.Sent,0,cost,source.Population/2)))return 0;
             source.FoodReserve-=shipment.Sent;p.Treasury-=cost;
             h.Towns[port.SupplierTownId].ExportedFood+=shipment.Sent;h.Towns[port.SupplierTownId].FoodTransportLoss+=shipment.Lost;
             h.Towns[town].ImportedFood+=shipment.Received;
@@ -289,6 +303,7 @@ namespace WorldGen.Core
             // Its expansion needs today's real household surplus, warehouse
             // reserve and affordable recurring freight as well as construction.
             if(source.FoodReserve<source.Population/2+Math.Max(migrants*3L+voyage,(port.MaximumResidents+migrants)*3L)||p.Treasury<investment*2+annual*3||a.Polities[owner].Receipts<=a.Polities[owner].ServiceCost+annual)return;
+            if(SeaServiceHistory(s)&&!CommitSeaService(s,QuoteSeaService(s,owner,port.SupplierTownId,port.DepartureCell,town.Cell,migrants*3L+voyage,migrants,investment,source.Population/2)))return;
             var sourceCity=a.Cities[port.SupplierTownId];
             ChangeAggregateCityPopulation(s,port.SupplierTownId,source.Population-migrants,sourceCity.Suburban,sourceCity.Rural);
             ChangeAggregateCityPopulation(s,id,town.Population+migrants,0,0);

@@ -3,6 +3,56 @@
 Source experiments, not an assertion of historical/scientific validation. The
 existing selected player is the rollback build until native review is complete.
 
+## Source revision6 / candidate F
+
+Land links retained no legacy CellA/B endpoints, so regional contact used
+widely separated preferred interior sites. The new runtime-only LandCellA/B
+records preserve route ordering and old behavior, while revision6 meets at
+the actual adjacent border and charges soft travel through both interiors.
+The independent frozen-F Earth178000 audit found1630/1630/255 raw/gate/current
+reachable regions versus E1630/22/8. This fixes a demonstrated graph failure,
+not a claim that continental agricultural practice is solved: F still had
+anonymous Ganges households with farmer-teacher memory but no farming.
+Indus was graph-accessible but had no recorded teacher; European memories
+were primarily still-forager teachers, not magically delivered Iron lessons.
+
+Revision6 additionally counts actual available rural farming households in
+bounded settlement opportunity, and recognizes viable carried crops rather
+than requiring farmers to acquire an unrelated forest-foraging lifestyle.
+Food, real founders, local yields, space and payments are still checked.
+Its saved SeaService ledger shares finite cargo-days between ventures using
+the same physical departure port, not between unrelated inland grain depots.
+Installed workshop/labor capacity, finite utilization carryover and actual
+transport payments constrain surveys, settlers, administration and armies.
+Local supported succession coalitions now outlive a central crisis window,
+can reconcile or found/join real successor courts, and change spokespeople.
+No new population, army or treasury is created by a claimant record.
+
+Focused checks: land contact8 pure+9 loaded-world, sea service10 pure+14 each
+on E Earth/D Earth, claimants11 pure+18 each on E Earth/old CP, realms19 pure
++16 E Earth checks. Save/load, public mutation, cold continuation and actual
+resource conservation are included. Named old5+20 continuation remains
+`5d9abdbe27ba63a32b0f9e24f71177ac35c0e73081c89de16d77594b39ba2882`.
+Fresh F Earth200k completed180200, including1087years beyond first maximum
+technology179113; its saved hash is
+`74a2223de5ac874550624ccfdfb4ab3ff69568563bfd97d1002e2894e0fddc65`.
+It has956.7M people,529 living courts and2004 active towns. This is not a
+geographical realism pass: inland recipient practice remains deficient.
+Continents Plus200k is still being independently inspected.
+
+An additional measured exact-byte optimization reuses the existing checked
+leader field writer for single records and allocates a small per-call buffer
+for bounded leader/event-chain values. No values/digests are cached.1,000
+leader hashes measured20.05ms/67.70MB versus3.68ms/3.28MB on .NET; native
+performance must still be measured.123 independent byte/mutation/concurrency/
+cancellation checks,208 optional/tree checks and7 loaded-world controls pass;
+both old4 and old5 twenty-year continuation hashes remain exact.
+
+Native E performance is NOT accepted:1015.70years/349.70s=2.90yr/s,
+minimum rolling1.77yr/s, worst2042.54ms. State/region/sea actor work and
+checkpoint/publication allocation are measured follow-up targets; do not
+regain speed by undoing conserved large-city survival.
+
 ## Reference and review method
 
 The owner's [Ollie Bye reference](https://www.youtube.com/watch?v=-6Wu0Q7x5D0)
@@ -200,6 +250,12 @@ was slower and larger, so that experiment was rejected. The shared writer now
 uses Optimal within the SAME format,256MB compressed/4GB decoded limits and
 integrity/cancellation checks. The complete CP replay must still be rerun to
 confirm its final file fits; no lost data or successful save is implied yet.
+
+That complete replay has now succeeded: candidate-e-cp200-compact reached
+190800 and wrote218,231,644bytes, preserving the complete1000-year post-max
+tail. Its history hash is
+`d27a6e155f71a634029b77d6a82de39d9eb902111b94a84ce87aeffac15cfc78`.
+No archived history or actors were dropped to obtain the smaller file.
 
 A separate25-year checkpoint review caught a validation-only mismatch:
 service-recovery edge bags are intentionally lazy-grown, but validation

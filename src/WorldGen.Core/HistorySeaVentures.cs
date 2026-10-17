@@ -117,6 +117,7 @@ namespace WorldGen.Core
                 double steam=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.SteamPower,s.Years),modern=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years);
                 long duration=HistoricalSeaVentureEffects.Duration(route.DistanceM,!convoy,ocean,steam,modern,HistoryRoll("sea-voyage-weather",polity,map.Voyages+1));
                 if(now>SimulationTime.Maximum-duration)continue;
+                if(SeaServiceHistory(s)&&!CommitSeaService(s,QuoteSeaService(s,polity,supplier,route.CellA,route.CellB,food,convoy?80:30,cost,port.Population/2,false,food))){SeaVentureObserver?.Invoke(polity,"coastal-craft-capacity");continue;}
                 p.Treasury-=cost;port.FoodReserve-=food;map.Voyages++;dispatched++;
                 var mission=new HistoricalSeaMission{Kind=convoy?HistoricalSeaMission.Convoy:HistoricalSeaMission.Survey,Source=route.CellA,Target=route.CellB,Region=route.B,DistanceM=route.DistanceM,Departed=now,Due=now+duration,Investment=cost,ReportedYear=s.Years};
                 map.Missions=map.Missions.Concat(new[]{mission}).ToArray();

@@ -11,6 +11,10 @@ namespace WorldGen.Core
             double scale=Math.Min(2,Math.Sqrt(urban/5000.0)),mobility=Math.Sqrt(Math.Max(1,landTransport));
             return D.Q((civic?.003:.0015)*scale*(.1+.9*D.Clamp(pressure))*mobility,1000000000);
         }
+        public static double AgrarianOpportunity(long urban,long transferable,double pressure,double landTransport,bool civic,int age)
+            =>D.Q(AnnualOpportunity(urban,transferable,pressure,landTransport,civic,age)*Math.Min(10,Math.Sqrt(Math.Max(0,transferable)/1600.0)),1000000000);
+        public static double FarmingContinuity(double foragerContinuity,double actualCarriedCropFit,int farming)
+            =>farming<250?foragerContinuity:Math.Max(foragerContinuity,.85*Math.Sqrt(D.Clamp(actualCarriedCropFit)));
         public static V LocalProbe(V from,double radiusKm,double bearingTurns,int trial)
         {
             // Proposal geometry only. Separated bearings avoid spending all
@@ -40,6 +44,9 @@ namespace WorldGen.Core
             if(owner>=0&&(s.History.Polities[owner].Treasury<1000||a.Polities[owner].Receipts<=a.Polities[owner].ServiceCost))return 0;
             double pressure=Math.Max(town.Population/(double)Math.Max(1,town.FoodCapacity),city.Rural/(double)Math.Max(1,city.RuralCapacity));
             if(CoastalFarmingEnabled(s)&&ProvisionedPort(s,parent)!=null)return CoastalPortFarmRate(s,parent,pressure,civic,s.Years-town.FoundedYear,HistoricalModernEffects.LandTransport(s.History.Cultures[town.CultureId],s.Years));
+            if(BorderContactHistory(s)&&s.Society.Cultures[town.CultureId].Farming>=250)
+                return HistoricalSettlementNetworks.AgrarianOpportunity(town.Population,LivingFounderAvailability(s,parent),pressure,
+                    HistoricalModernEffects.LandTransport(s.History.Cultures[town.CultureId],s.Years),civic,s.Years-town.FoundedYear);
             return HistoricalSettlementNetworks.AnnualOpportunity(town.Population,LivingFounderAvailability(s,parent),pressure,
                 HistoricalModernEffects.LandTransport(s.History.Cultures[town.CultureId],s.Years),civic,s.Years-town.FoundedYear);
         }
@@ -105,6 +112,11 @@ namespace WorldGen.Core
             {
                 int site=LivingLocalTownCandidate(s,parent,trial);
                 double continuity=HistoricalLandscapeEffects.LivelihoodContinuity(World.Ecology.Habitat[from],World.Ecology.Habitat[from],World.Ecology.Habitat[site]);
+                // Migrating farmers carry an actual viable cultivar; they are
+                // not forced to relearn the target forest's foraging diet too.
+                // Terrain travel, crop/soil fit, food, households and spacing
+                // remain independently checked before committing a foundation.
+                if(BorderContactHistory(s))continuity=HistoricalSettlementNetworks.FarmingContinuity(continuity,AggregateCropSupport(s,culture,site,false),s.Society.Cultures[culture].Farming);
                 if(HistoryRoll("living-local-town-adaptation-"+trial,parent,s.Years)>Math.Max(.03,continuity)*EnvironmentalTransmission(s,from,site,culture))continue;
                 if(TryFoundLivingLocalTown(s,parent,site))return;
             }

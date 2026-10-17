@@ -11,10 +11,10 @@ public static class HistoryContinentalDiffusionAudit
 {
     sealed class Edge
     {
-        public int Route,From,To,Donor,BoundaryFrom,BoundaryTo;
+        public int Route,From,To,Donor,RawCellA,RawCellB,RawLandCellA,RawLandCellB,BoundaryFrom,BoundaryTo;
         public bool SameLandmass,Inhabited,BoundaryAllowed,BestCellAllowed,FixedDonorBoundaryAllowed;
         public int RecipientRouteCount,TrialsPerReview;
-        public double Km,BestCellKm,BoundaryTransmission,BestCellTransmission,PerAttemptAnnualTransit,AnnualTransit,Continuity;
+        public double Km,BestCellKm,BoundaryKm,RelayDistanceKm,BoundaryTransmission,BestCellTransmission,ActualTransmission,LandTransport,PerAttemptAnnualTransit,AnnualTransit,Continuity;
     }
     public static void Run(string source,string output,int year)
     {
@@ -31,6 +31,8 @@ public static class HistoryContinentalDiffusionAudit
         var checkpoint=session.Snapshot();engine.Validate(checkpoint);string checkpointHash=checkpoint.ComputeHash();
         // Routing getters can update read counters: inspect a detached branch.
         var s=checkpoint.Copy();var h=s.History;var a=h.Aggregates;
+        int realmVersion=a.Empires.Connections.Realms.Version;
+        bool borderContact=realmVersion>=6;
         object Call(string name,params object[] values)
         {
             var method=typeof(Prehistory).GetMethod(name,BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Instance)!;
@@ -74,19 +76,25 @@ public static class HistoryContinentalDiffusionAudit
                 int fb=a.Regions[from].BestCell,tb=a.Regions[to].BestCell;
                 int fc=direction==0?route.CellA:route.CellB,tc=direction==0?route.CellB:route.CellA;
                 if(fc<0)fc=fb;if(tc<0)tc=tb;
+                if(borderContact){fc=(int)Call("RegionalContactCell",s,route,from);tc=(int)Call("RegionalContactCell",s,route,to);}
                 bool same=world.Landmass[fc]>=0&&world.Landmass[fc]==world.Landmass[tc];
                 int donor=donors[from],probe=donor>=0?donor:firstCulture;
                 bool boundary=(bool)Call("InstitutionalRouteAllowed",s,fc,tc,probe),best=(bool)Call("InstitutionalRouteAllowed",s,fb,tb,probe);
                 double transmission=(double)Call("EnvironmentalTransmission",s,fb,tb,probe,false),boundaryTransmission=(double)Call("EnvironmentalTransmission",s,fc,tc,probe,false);
                 double continuity=HistoricalLandscapeEffects.LivelihoodContinuity(world.Ecology.Habitat[fb],world.Ecology.Habitat[fb],world.Ecology.Habitat[tb]);
                 double distance=route.DistanceM/1000.0+Math.Min(450,engine.Patches[from].RadiusKm+engine.Patches[to].RadiusKm);
+                if(typeof(Prehistory).GetMethod("RegionalLandRelayDistance",BindingFlags.NonPublic|BindingFlags.Instance)!=null)
+                    distance=(double)Call("RegionalLandRelayDistance",s,route,probe,from,to,fc,tc);
                 var habitat=world.Ecology.Habitat[tb];double barrier=1+a.Regions[to].ReliefM/1200.0+(habitat.AridityMilli<180?3:0)+(habitat.PermafrostPermille>300?3:0);
                 double transport=HistoricalModernEffects.LandTransport(h.Cultures[probe],s.Years)*Math.Sqrt(HistoricalModernEffects.Communication(h.Cultures[probe],s.Years));
-                double annual=(.15+.85*continuity)*transport/Math.Max(80,60+distance*barrier*.3)*transmission;
+                double actualTransmission=borderContact?boundaryTransmission:transmission;
+                double annual=(.15+.85*continuity)*transport/Math.Max(80,60+distance*barrier*.3)*actualTransmission;
                 int choices=a.Regions[to].Routes.Length,trials=Math.Min(12,choices);
-                edges.Add(new Edge{Route=i,From=from,To=to,Donor=donor,BoundaryFrom=fc,BoundaryTo=tc,SameLandmass=same,Inhabited=residents[from]>=100&&residents[to]>=100,
+                edges.Add(new Edge{Route=i,From=from,To=to,Donor=donor,RawCellA=route.CellA,RawCellB=route.CellB,
+                    RawLandCellA=(int?)(typeof(Prehistory.Route).GetField("LandCellA")?.GetValue(route))??-1,RawLandCellB=(int?)(typeof(Prehistory.Route).GetField("LandCellB")?.GetValue(route))??-1,
+                    BoundaryFrom=fc,BoundaryTo=tc,SameLandmass=same,Inhabited=residents[from]>=100&&residents[to]>=100,
                     BoundaryAllowed=boundary,BestCellAllowed=best,FixedDonorBoundaryAllowed=(bool)Call("InstitutionalRouteAllowed",s,fc,tc,firstCulture),
-                    Km=route.DistanceM/1000.0,BestCellKm=Km(fb,tb),BoundaryTransmission=boundaryTransmission,BestCellTransmission=transmission,
+                    Km=route.DistanceM/1000.0,BestCellKm=Km(fb,tb),BoundaryKm=Km(fc,tc),RelayDistanceKm=distance,BoundaryTransmission=boundaryTransmission,BestCellTransmission=transmission,ActualTransmission=actualTransmission,LandTransport=HistoricalModernEffects.LandTransport(h.Cultures[probe],s.Years),
                     RecipientRouteCount=choices,TrialsPerReview=trials,PerAttemptAnnualTransit=annual,AnnualTransit=annual*trials/Math.Max(1,choices),Continuity=continuity});
             }
         }
@@ -104,8 +112,10 @@ public static class HistoryContinentalDiffusionAudit
             return(dist,previous);
         }
         bool OnSourceLand(Edge e)=>e.SameLandmass&&world.Landmass[a.Regions[e.From].BestCell]==firstLandmass&&world.Landmass[a.Regions[e.To].BestCell]==firstLandmass;
-        var raw=Walk(OnSourceLand,e=>e.Km);
-        var physical=Walk(e=>OnSourceLand(e)&&e.FixedDonorBoundaryAllowed,e=>e.Km);
+        // Distances between regional anchors give readable diagnostic paths;
+        // summing only the tiny shared boundary edges is not a journey length.
+        var raw=Walk(OnSourceLand,e=>e.BestCellKm);
+        var physical=Walk(e=>OnSourceLand(e)&&e.FixedDonorBoundaryAllowed,e=>e.BestCellKm);
         var current=Walk(e=>OnSourceLand(e)&&e.Inhabited&&e.Donor>=0&&e.BoundaryAllowed,e=>1/Math.Max(1e-15,e.AnnualTransit));
         var targets=new[]{("Iberia",37.2,-6.3),("CentralEurope",48.0,15.0),("Anatolia",39.0,33.0),("Iran",35.7,51.4),("Indus",30.0,70.0),("Ganges",25.3,83.0),("Tarim",40.5,82.0),("Nile",30.0,31.0)};
         object PathTo(int region,(double[] Dist,int[] Prev) walk)
@@ -125,9 +135,18 @@ public static class HistoryContinentalDiffusionAudit
         {
             int target=(int)Call("LivingLocalTownCandidate",s,sourceTown.Id,trial);double yield=(double)Call("LivingCropLandscape",s,sourceTown.CultureId,target,false);
             double rails=HistoricalModernEffects.Adoption(h.Cultures[sourceTown.CultureId],HistoricalTechnology.Railways,s.Years),spacing=(100-45*rails)*Math.Sqrt(Math.Min(4,Math.Max(1,.25/Math.Max(.02,yield))));
+            double transmission=(double)Call("EnvironmentalTransmission",s,sourceTown.Cell,target,sourceTown.CultureId,false);
+            double continuity=HistoricalLandscapeEffects.LivelihoodContinuity(world.Ecology.Habitat[sourceTown.Cell],world.Ecology.Habitat[sourceTown.Cell],world.Ecology.Habitat[target]);
+            double foragerContinuity=continuity,carriedCropFit=(double)Call("AggregateCropSupport",s,sourceTown.CultureId,target,false);
+            if(borderContact)continuity=(double)typeof(HistoricalSettlementNetworks).GetMethod("FarmingContinuity")!.Invoke(null,new object[]{continuity,carriedCropFit,s.Society.Cultures[sourceTown.CultureId].Farming})!;
+            long available=(long)Call("LivingFounderAvailability",s,sourceTown.Id),founders=Math.Min(250,available/12),people=founders+Math.Min(available/3,Math.Max(800,founders*8));
+            object[] costArguments={s,sourceTown.Id,target,people,0L,0L};
+            typeof(Prehistory).GetMethod("LivingInlandSettlementCosts",BindingFlags.NonPublic|BindingFlags.Instance)!.Invoke(engine,costArguments);
+            long provisions=(long)costArguments[4],investment=(long)costArguments[5];
             return new{Trial=trial,Cell=target,Latitude=Lat(target),Longitude=Lon(target),Km=Km(sourceTown.Cell,target),Landmass=world.Landmass[target],Region=engine.CellPatch[target],
                 RuralResidents=(long)Call("RuralCellPopulation",s,target),LocalYield=yield,SpacingKm=spacing,Nearby=(int[])Call("NearbyLivingTowns",s,target,spacing),ExistingTown=a.TownAt[target],
-                RouteAllowed=(bool)Call("InstitutionalRouteAllowed",s,sourceTown.Cell,target,sourceTown.CultureId),Transmission=(double)Call("EnvironmentalTransmission",s,sourceTown.Cell,target,sourceTown.CultureId,false),
+                RouteAllowed=(bool)Call("InstitutionalRouteAllowed",s,sourceTown.Cell,target,sourceTown.CultureId),Transmission=transmission,ForagerContinuity=foragerContinuity,CarriedCropFit=carriedCropFit,Continuity=continuity,AdaptationAcceptance=Math.Max(.03,continuity)*transmission,
+                People=people,Provisions=provisions,Investment=investment,FoodFundingPass=sourceTown.FoodReserve>=people+provisions+sourceTown.Population/4,
                 CanFound=(bool)Call("CanFoundLivingTown",s,sourceTown.CultureId,target,sourceTown.Id),Habitat=world.Ecology.Habitat[target]};
         }
         var townDetails=active.Where(t=>Lat(t.Cell)>=10&&Lon(t.Cell)>=-15&&Lon(t.Cell)<90).Select(t=>
@@ -138,7 +157,7 @@ public static class HistoryContinentalDiffusionAudit
                 city.Rural,city.RuralCapacity,city.Supported,local.DeclineYears,Farming=s.Society.Cultures[culture].Farming,hc.Institution,hc.Surplus,
                 Fiscal=fiscal,Environment=(double)Call("EnvironmentalEstablishment",s,t.Cell,culture),Staples=(double)Call("EnvironmentalStaples",s,culture,t.Cell),
                 Proto=HistoricalRegionalTraditions.Proto(s,t.Id),h.Towns[t.Id].CivicPreparationYears,h.Towns[t.Id].CivicExampleExposure,
-                FounderAvailability=(long)Call("LivingFounderAvailability",s,t.Id),LocalTownRate=(double)Call("LivingLocalTownRate",s,t.Id),
+                FounderAvailability=(long)Call("LivingFounderAvailability",s,t.Id),LocalTownRate=(double)Call("LivingLocalTownRate",s,t.Id),Habitat=world.Ecology.Habitat[t.Cell],
                 Nearest=active.Where(other=>other.Id!=t.Id).Select(other=>new{other.Id,other.Name,other.Population,Km=Km(t.Cell,other.Cell)}).OrderBy(x=>x.Km).ThenBy(x=>x.Id).Take(5).ToArray(),
                 Candidates=Enumerable.Range(0,3).Select(trial=>Candidate(t,trial)).ToArray()};
         }).ToArray();
@@ -147,10 +166,10 @@ public static class HistoryContinentalDiffusionAudit
             Crops=h.Agriculture[c.Id],Levels=h.Cultures[c.Id].Technical?.Levels,Deployment=h.Cultures[c.Id].Technical?.Deployment}).ToArray();
         string assembly=typeof(Prehistory).Assembly.Location;
         File.WriteAllText(Path.Combine(output,"continental-diffusion.json"),JsonSerializer.Serialize(new{
-            Source=Path.GetFullPath(source),Year=s.Years,CheckpointHash=checkpointHash,CoreAssembly=assembly,CoreSha256=Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(assembly))),
+            Source=Path.GetFullPath(source),Year=s.Years,RealmVersion=realmVersion,CheckpointHash=checkpointHash,CoreAssembly=assembly,CoreSha256=Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(assembly))),
             FirstCourt=new{first.Id,first.Name,first.FoundedYear,first.CapitalId,Cell=firstCell,Region=firstRegion,Culture=firstCulture,Landmass=firstLandmass},
             RawReach=raw.Dist.Count(double.IsFinite),PhysicalReach=physical.Dist.Count(double.IsFinite),CurrentDonorReach=current.Dist.Count(double.IsFinite),Paths=paths,Regions=regions,Edges=edges,Towns=townDetails,Cultures=cultures,
-            Notes=new[]{"Offline census on a detached snapshot only; no authoritative simulation behavior is changed.","CurrentDonorRoute cost sums optimistic mean waits1/annual transit along CURRENT donor/inhabited routes; it is not a simulated historical arrival time.","Raw/physical paths use same-landmass graph routes; fixed first-culture capability is a diagnostic potential, not permission for a free transmission.","Boundary route gate and environmental transmission between distant BestCells are logged separately because the live regional exchange uses both.","Three local candidates are the exact current-year proposals, not all failed historical proposals. Geography target coordinates are inspection locations, not rules or homeland priors."}
+            Notes=new[]{"Offline census on a detached snapshot only; no authoritative simulation behavior is changed.","CurrentDonorRoute cost sums optimistic mean waits1/annual transit along CURRENT donor/inhabited routes; it is not a simulated historical arrival time.","Raw/physical path costs sum regional BestCell anchor distances, not actual terrain routes. Km is only the shared boundary edge length; never report its sum as a real journey length.","Raw/physical paths use same-landmass graph routes; fixed first-culture capability is a diagnostic potential, not permission for a free transmission.","Realm6 uses actual RegionalContactCell/RegionalLandRelayDistance and carried-crop FarmingContinuity helpers. Older rules fall back to their legacy BestCell gates and forager continuity. Identical boundary/best transmissions with missing endpoints are the same measurement, not independent checks.","Three local candidates are the exact current-year proposals, not all failed historical proposals. FoodFundingPass excludes state treasury/trade/claim gates. Geography target coordinates are inspection locations, not rules or homeland priors."}
         },new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));
         if(checkpoint.ComputeHash()!=checkpointHash)throw new Exception("Diagnostic mutated its published source checkpoint.");
         Console.WriteLine($"Continental audit {s.Years}, {checkpointHash}, raw/physical/current reach {raw.Dist.Count(double.IsFinite)}/{physical.Dist.Count(double.IsFinite)}/{current.Dist.Count(double.IsFinite)}");

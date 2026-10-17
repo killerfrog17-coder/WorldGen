@@ -19,12 +19,13 @@ namespace WorldGen.Core
             var local=a.Communities.Cities[city];if(local.RulerId!=owner)TransferCommunityGovernment(s,city,owner);
             var p=h.Polities[owner];var ds=h.Dynamics.States[owner];var policy=a.Communities.Governments[owner];var record=h.Towns[city];
             bool recent=s.Years-local.SinceYear<75, succession=s.Years-ds.LastSuccession<15;
-            int interval=RealmCrisis(s,owner)>0?1:recent&&succession?3:recent?7:20,elapsed=s.Years-record.LastAutonomyActionYear;if(elapsed<interval)return;
+            int interval=RealmCrisis(s,owner)>0||RealmClaimantShock(s,owner,city)>0?1:recent&&succession?3:recent?7:20,elapsed=s.Years-record.LastAutonomyActionYear;if(elapsed<interval)return;
             record.LastAutonomyActionYear=s.Years;record.UnrestPolityId=owner;
             var leader=h.Dynamics.Leaders[ds.LeaderId];bool foreign=t.CultureId!=p.CultureId;
             double inclusionTarget=D.Clamp(.10+.30*p.Legitimacy/1000.0+.25*ds.PublicWorks/1000.0+.25*leader.Diplomacy/1000.0+.25*policy.RepresentationMilli/1000.0+.15*(1-policy.CentralizationMilli/1000.0)-.25*p.Exhaustion/1000.0);
             local.InclusionMilli=(int)Math.Round(local.InclusionMilli+(1000*inclusionTarget-local.InclusionMilli)*(1-Math.Exp(-elapsed/180.0)));
-            if(city==p.CapitalId||t.Population<(RealmHistory(s)&&RealmCrisis(s,owner)>0?600:1800)||a.Living.Cities[city].DeclineYears>0)return;
+            AdvanceRealmClaimant(s,owner,city,elapsed);
+            if(city==p.CapitalId||t.Population<(RealmHistory(s)&&(RealmCrisis(s,owner)>0||RealmClaimantShock(s,owner,city)>0)?600:1800)||a.Living.Cities[city].DeclineYears>0)return;
             var hc=h.Cultures[t.CultureId];var account=a.Polities[owner];double distance=LivingTravelKm(s,s.Society.Settlements[p.CapitalId].Cell,t.Cell,t.CultureId)/Math.Max(50,HistoricalProvincialEffects.LocalServiceKm(h.Cultures[p.CultureId],s.Years,ds.PublicWorks));
             if(TryRealmRegionalSeparation(s,owner,city,elapsed,distance))return;
             double organization=D.Clamp(hc.Institution/650.0)*D.Clamp(Math.Sqrt(t.Population/6000.0)),printing=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Printing,s.Years);

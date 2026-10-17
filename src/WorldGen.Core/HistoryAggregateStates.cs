@@ -44,6 +44,7 @@ namespace WorldGen.Core
                 polity.Treasury=(long)(inheritedTreasury*share);h.Polities[parent].Treasury=inheritedTreasury-polity.Treasury;
                 polity.Army=(int)(inheritedArmy*share);h.Polities[parent].Army=inheritedArmy-polity.Army;
             }
+            InheritRealmClaimantGovernment(s,parent,city,id);
             if(LivingHistory(s)&&a.Living.CivicOrigins[town.CultureId]<0)a.Living.CivicOrigins=a.Living.CivicOrigins.With(town.CultureId,id);
             HistoryEvent(s,foundationKind??(parent<0?"state":"secession"),polity.Name+(foundationKind!=null?" establishes a locally administered overseas council at ":parent<0?" establishes independent institutions at ":" emerges as an independent successor court at ")+town.Name+".",town.Cell,town.CultureId,id,other:parent,town:city,category:ChronicleCategory.Politics);
         }

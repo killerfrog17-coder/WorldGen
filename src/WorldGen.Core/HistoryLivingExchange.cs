@@ -51,6 +51,7 @@ namespace WorldGen.Core
             int fromCell=route.A==other?route.CellA:route.CellB,toCell=route.A==id?route.CellA:route.CellB;
             if(fromCell<0)fromCell=route.Sea&&developmentCoast[other]>=0?developmentCoast[other]:a.Regions[other].BestCell;
             if(toCell<0)toCell=route.Sea&&developmentCoast[id]>=0?developmentCoast[id]:region.BestCell;
+            if(BorderContactHistory(s)){fromCell=RegionalContactCell(s,route,other);toCell=RegionalContactCell(s,route,id);}
             if(LivingWorldHistory(s)&&!InstitutionalRouteAllowed(s,fromCell,toCell,donor))return;
             double km=route.DistanceM/1000.0;
             double seaRange=LivingWorldHistory(s)?HistoricalDevelopmentEffects.CoastRangeKm(hc,s.Years,true):HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)?1800:HistoricalTechnologies.Has(hc,HistoricalTechnology.Sailing)?220:40;
@@ -58,11 +59,11 @@ namespace WorldGen.Core
             if(LivingWorldHistory(s)&&route.Sea&&!InstitutionalVoyageDelivery(s,new Route{A=other,B=id,CellA=fromCell,CellB=toCell,DistanceM=route.DistanceM,Sea=true},donor,ProvincialRegionalCourt(s,other),-1))return;
             var from=World.Ecology.Habitat[a.Regions[other].BestCell];var to=World.Ecology.Habitat[region.BestCell];
             double continuity=HistoricalLandscapeEffects.LivelihoodContinuity(from,from,to);
-            double distance=km+Math.Min(450,Patches[other].RadiusKm+Patches[id].RadiusKm);
+            double distance=RegionalLandRelayDistance(s,route,donor,other,id,fromCell,toCell);
             double barrier=1+region.ReliefM/1200.0+(to.AridityMilli<180?3:0)+(to.PermafrostPermille>300?3:0);
             double transport=HistoricalModernEffects.LandTransport(hc,s.Years)*(ConnectedHistory(s)?Math.Sqrt(HistoricalModernEffects.Communication(hc,s.Years)):1);
             double transit=(.15+.85*continuity)*elapsed*transport/Math.Max(80,60+distance*barrier*.3);
-            double transmission=EnvironmentalHistory(s)?EnvironmentalTransmission(s,a.Regions[other].BestCell,region.BestCell,donor,route.Sea):1;
+            double transmission=EnvironmentalHistory(s)?EnvironmentalTransmission(s,BorderContactHistory(s)?fromCell:a.Regions[other].BestCell,BorderContactHistory(s)?toCell:region.BestCell,donor,route.Sea):1;
             transit*=transmission;
             if(HistoryRoll("living-knowledge-exchange-"+trial,id,s.Years)>1-Math.Exp(-transit))return;
             RecordDeliveredRegionalReligion(s,fromCell,toCell);

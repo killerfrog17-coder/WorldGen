@@ -184,7 +184,8 @@ namespace WorldGen.Core
         {
             if(!LivingWorldHistory(s))return false;
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var town=s.Society.Settlements[city];var hc=h.Cultures[p.CultureId];
-            if(RevisedRealmHistory(s)&&!MaritimeCharterLogistics(s,polity,route,a.TownAt[route.CellA],out _,out _))return false;
+            int seaSupplier=-1;
+            if(RevisedRealmHistory(s)&&!MaritimeCharterLogistics(s,polity,route,a.TownAt[route.CellA],out seaSupplier,out _))return false;
             if(a.Resolve(town.PolityId,h)>=0||town.Population<500||!a.Cities[city].Supported||a.Living.Cities[city].AbandonedYear>=0||p.Cohesion<550||p.Exhaustion>=500)return false;
             var account=a.Polities[polity];long investment=HistoricalMaritimeIntegrationEffects.CouncilInvestment(town.Population,route.DistanceM);
             if(p.Treasury<investment*2||account.Receipts<=account.ServiceCost+investment/100)return false;
@@ -207,6 +208,14 @@ namespace WorldGen.Core
             {
                 int availableArmy=RevisedMilitaryHistory(s)?Math.Max(0,p.Army-a.Empires.Connections.Military.Governments[polity].Reserved):p.Army;
                 double expedition=availableArmy*.15*HistoricalModernEffects.Military(hc,s.Years);
+                int transported=(int)(availableArmy*.15);
+                if(SeaServiceHistory(s))
+                {
+                    double foodPerMan=HistoricalVoyageEffects.Provisioning(10000,route.DistanceM)/10000.0;
+                    var service=QuoteSeaService(s,polity,seaSupplier,route.CellA,route.CellB,(long)Math.Ceiling(transported*(foodPerMan+.25)),0,investment,s.Society.Settlements[seaSupplier].Population/4,true);
+                    transported=service.Allowed?(int)Math.Min(transported,Math.Floor(service.Cargo/(foodPerMan+.25))):0;
+                    expedition=transported*HistoricalModernEffects.Military(hc,s.Years);
+                }
                 double resistance=Math.Max(20,(town.Population+a.Cities[city].Rural*.15)*.025)*HistoricalModernEffects.Military(h.Cultures[town.CultureId],s.Years);
                 double chance=HistoricalMaritimeIntegrationEffects.ExpeditionChance(elapsed,expedition/resistance,p.Exhaustion,leader.Ambition);
                 // An explicitly funded expedition has already passed the
@@ -214,11 +223,18 @@ namespace WorldGen.Core
                 // applying another decades-long decision lottery at landfall.
                 double outcome=organized&&chance>0?D.Clamp(.5+.35*(1-resistance/Math.Max(1,expedition))):chance;
                 if(HistoryRoll("maritime-coercive-expedition-"+city,polity,s.Years)>=outcome)return false;
+                if(SeaServiceHistory(s))
+                {
+                    long provisions=HistoricalVoyageEffects.Provisioning(transported,route.DistanceM);
+                    if(!CommitSeaService(s,QuoteSeaService(s,polity,seaSupplier,route.CellA,route.CellB,provisions,transported,investment,s.Society.Settlements[seaSupplier].Population/4)))return false;
+                    s.Society.Settlements[seaSupplier].FoodReserve-=provisions;
+                }
                 imposed=true;p.Exhaustion=Math.Min(1000,p.Exhaustion+80);
                 int councilLosses=(int)Math.Min(availableArmy/10,resistance*.1);
                 if(RevisedMilitaryHistory(s))MilitaryUncommittedLosses(s,polity,MaritimeCharterLogistics(s,polity,route,a.TownAt[route.CellA],out int casualtyBase,out _)?casualtyBase:-1,councilLosses);
                 else p.Army=Math.Max(0,p.Army-councilLosses);
             }
+            if(SeaServiceHistory(s)&&!imposed&&!CommitSeaService(s,QuoteSeaService(s,polity,seaSupplier,route.CellA,route.CellB,0,30,investment,s.Society.Settlements[seaSupplier].Population/4)))return false;
             p.Treasury-=investment;
             h.Towns[city].CivicTeacherPolityId=polity;h.Towns[city].CivicExampleExposure=Math.Max(700,h.Towns[city].CivicExampleExposure);
             var continuity=a.Empires.Connections.Cultures[town.CultureId];

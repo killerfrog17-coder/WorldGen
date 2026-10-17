@@ -61,6 +61,11 @@ namespace WorldGen.Presentation
                 case "province":facts.Add(F("District area",N(HistoricalProvinceIdentity.Area(s,link.Id))+" km²"));card.Note="Administrative service district · not a culture boundary";break;
                 default:card.Subtitle=link.Detail;break;
             }
+            if((overlay==HistoryOverlay.States||overlay==HistoryOverlay.Territories)&&HistoricalRealmClaimantHistory.Enabled(s))
+            {
+                int city=h.Aggregates!.TownAt[cell];var claim=HistoricalRealmClaimantHistory.At(s,city);
+                if(HistoricalRealmClaimantHistory.Active(s,claim)){facts.Add(F("Local claimant",claim.Name));card.Note="This city retains a local political challenge; a country, court and present sovereign are not the same historical identity.";}
+            }
             card.Facts=facts.ToArray();return card;
         }
         static void Technology(PrehistoryState s,int id,AtlasDocument d,List<AtlasSection> sections)

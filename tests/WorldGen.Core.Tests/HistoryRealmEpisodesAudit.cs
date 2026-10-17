@@ -6,7 +6,7 @@ using WorldGen.Serialization;
 public static class HistoryRealmEpisodesAudit
 {
     static readonly HashSet<string> TerritorialKinds=new(StringComparer.Ordinal){"conquest","great-conquest","secession","provincial-independence","imperial-allegiance","imperial-independence","collapse","colonial-independence","realm-regional-separation"};
-    static readonly HashSet<string> EpisodeKinds=new(TerritorialKinds,StringComparer.Ordinal){"state","state-foundation","independent-institutions","institutional-diffusion","realm-succession-crisis","regime-change","dynasty-change","constitutional-reform","peace","war","capital-relocation"};
+    static readonly HashSet<string> EpisodeKinds=new(TerritorialKinds,StringComparer.Ordinal){"state","state-foundation","independent-institutions","institutional-diffusion","realm-succession-crisis","regime-change","dynasty-change","constitutional-reform","peace","war","capital-relocation","capital-moved","realm-local-claimant","realm-claimant-government","realm-claimant-reconciled","realm-claimant-displaced","realm-claimant-succession"};
     public static void Run(string path,string folder)
     {
         if(Directory.Exists(folder))throw new IOException("Use a new realm-episodes audit folder.");
@@ -44,7 +44,11 @@ public static class HistoryRealmEpisodesAudit
         }).ToArray();
         var aliveRows=rows.Where(p=>p.EndedYear<0).ToArray();var oldest=aliveRows.OrderByDescending(p=>p.ContinuedCountryAge).ThenBy(p=>p.Id).Take(15).ToArray();var largest=aliveRows.OrderByDescending(p=>p.CombinedAreaKm2).ThenBy(p=>p.Id).Take(15).ToArray();var peaks=rows.OrderByDescending(p=>p.PeakAreaKm2).ThenBy(p=>p.Id).Take(20).ToArray();
         var selected=oldest.Concat(largest).Concat(peaks).DistinctBy(p=>p.Id).OrderBy(p=>p.Id).ToArray();
+        var claimants=r.Claimants?.Records??Array.Empty<HistoricalRealmLocalClaimant>();var activeClaims=claimants.Where(c=>HistoricalRealmClaimantHistory.Active(s,c)).ToArray();
         var summary=new{Source=path,Year=s.Years,Hash=s.Hash,Realms=r.Version,ReligiousRules=a.Empires.Connections.Religion?.Version,States=h.Polities.Length,Alive=aliveRows.Length,Independent=aliveRows.Count(p=>p.IndependentNow),
+            LatestClaimantCenters=claimants.Length,CurrentActiveLocalClaims=activeClaims.Length,CurrentActiveAfterCentralDeadline=activeClaims.Count(c=>r.Governments[c.Owner].CrisisUntil<=s.Years),
+            RecordedClaimantEvents=events.Where(e=>e.Kind.StartsWith("realm-claimant-",StringComparison.Ordinal)||e.Kind=="realm-local-claimant").GroupBy(e=>e.Kind).OrderBy(g=>g.Key,StringComparer.Ordinal).ToDictionary(g=>g.Key,g=>g.Count()),
+            CurrentLocalClaimExamples=activeClaims.OrderByDescending(c=>c.SupportMilli).ThenBy(c=>c.City).Take(12).Select(c=>new{c.City,Place=s.Society.Settlements[c.City].Name,c.Owner,Court=h.Polities[c.Owner].Name,c.Name,c.DeclaredYear,c.LeaderSinceYear,c.SupportMilli,CurrentCentralCrisisUntil=r.Governments[c.Owner].CrisisUntil}),
             OldestLivingCountries=oldest.Select(p=>new{p.Id,p.Name,p.ContinuedCountryAge,p.ActorAge,p.RegimeAge,p.IndependentNow,p.Patron,p.Sovereign,p.OwnAreaKm2,p.SubjectAreaKm2,p.PeakAreaKm2,p.CurrentToObservedPeakArea,p.CrisisCount,p.RegimeChanges,p.RecordedSecessionsFrom,p.LastRecordedTerritorialYear}),
             LargestCurrent=largest.Select(p=>new{p.Id,p.Name,p.ContinuedCountryAge,p.IndependentNow,p.CombinedAreaKm2,p.PeakAreaKm2,p.CurrentToObservedPeakArea,p.SubjectCount,p.RecordedSecessionsFrom}),
             LargestHistorical=peaks.Select(p=>new{p.Id,p.Name,p.FoundedYear,p.EndedYear,p.PeakAreaKm2,p.CombinedAreaKm2,p.CurrentToObservedPeakArea,p.CrisisCount,p.RecordedSecessionsFrom}),

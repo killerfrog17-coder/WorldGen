@@ -20,10 +20,18 @@ namespace WorldGen.Core
             double foodPerMan=.35*Math.Max(1,elapsed)*(1+km/2000),payPerMan=1.5*Math.Max(1,elapsed);
             long food=Math.Max(0,source.FoodReserve-source.Population/4);
             int possible=(int)Math.Min(p.Army/2,Math.Min(food/foodPerMan,p.Treasury/payPerMan));
+            bool seaService=SeaServiceHistory(s)&&(World.Landmass[source.Cell]!=World.Landmass[front]||InstitutionalUnsupportedWaterKm(source.Cell,front,out _)>35);
+            if(seaService&&possible>=20)
+            {
+                var transport=QuoteSeaService(s,polity,supply,source.Cell,front,(long)Math.Ceiling(possible*(foodPerMan+.25)),0,0,source.Population/4,true);
+                possible=transport.Allowed?(int)Math.Min(possible,Math.Floor(transport.Cargo/(foodPerMan+.25))):0;
+            }
             if(possible<20){ReserveMilitaryContingent(s,id,polity,0);return 0;}
             int committed=ReserveMilitaryContingent(s,id,polity,possible);men=Math.Min(committed,possible);
             double power=ProvincialFieldPower(s,polity,front,ref supply,men);if(power<=0){men=0;return 0;}
             long consumed=Math.Min(source.FoodReserve,(long)Math.Ceiling(men*foodPerMan)),paid=Math.Min(p.Treasury,(long)Math.Ceiling(men*payPerMan));
+            if(seaService&&!CommitSeaService(s,QuoteSeaService(s,polity,supply,source.Cell,front,consumed,men,paid,source.Population/4)))
+            {ReserveMilitaryContingent(s,id,polity,0);men=0;return 0;}
             source.FoodReserve-=consumed;p.Treasury-=paid;var ledger=a.Empires.Connections.Military.Governments[polity];ledger.FieldPayroll+=paid;ledger.FieldProvisions+=consumed;return power;
         }
         void EndRevisedMilitaryCampaign(PrehistoryState s,int id,string outcome,int truce=15,bool trade=false)
@@ -126,6 +134,7 @@ namespace WorldGen.Core
                 cycle.ConquestDebt=Math.Min(1000,cycle.ConquestDebt+whole);cycle.LastConquestYear=s.Years;
                 if(town>=0)
                 {
+                    CreditRealmTownCapture(s,winner,town);
                     var captured=s.Society.Settlements[town];captured.Stability=Math.Max(100,captured.Stability-150);captured.FoodReserve=captured.FoodReserve*2/3;
                     c.CapturedSettlements=c.CapturedSettlements.Concat(new[]{town}).Distinct().ToArray();if(won)theater.SupplyA=town;else theater.SupplyB=town;
                     if(winner==o.PartyA)o.CorePressureA=Math.Min(1000,o.CorePressureA+200);else o.CorePressureB=Math.Min(1000,o.CorePressureB+200);

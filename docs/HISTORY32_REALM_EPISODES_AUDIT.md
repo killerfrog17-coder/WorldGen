@@ -17,6 +17,9 @@ Artifacts are under `D:/WorldGenBuildArtifacts/overnight-20261017/`:
 
 - `realm-episodes2-{c,d}-{earth200,cp200}` and
   `realm-episodes3-e-earth200` inspect complete longitudinal final worlds.
+- `realm-episodes3-e-cp200-compact` inspects the complete E5 Continents Plus
+  endpoint after compact-file serialization succeeded; this is not a new
+  simulation branch or an explicit rules upgrade.
 - `episode-e-earth-iron/episode.json` and
   `episode-e-cp-medieval/episode.json` record 25-year political observations.
   Their `Source` names baseline world files, but the driver discards their
@@ -52,6 +55,7 @@ distinct separating counterpart IDs.
 | D Earth205100 | Biqis gi16 | 3832 | 262,104 / 0 | 685,190 | 47 / 12 |
 | D CP187100 | Sasfasaši2 | 6083 | 1,026,082 / 0 | 2,739,549 | 58 / 18 |
 | E Earth194200 | Fa haji34 | 5528 | 261,248 / 0 | 1,603,565 | 242 / 12 |
+| E CP190800 | Chot noplefe66 | 6217 | 80,823 / 0 | 3,426,031 | 86 / 33 |
 
 E Earth's oldest country is a **dependency of court206**, with that stored
 relationship dating to194159. It controls only16.3% of its observed peak,
@@ -65,6 +69,26 @@ km² against a9,759,186 peak; Fo losofu217 holds892,530 against7,644,450.
 Fo sosini161, whose peak was8,904,325, actually ended194179. The first state,
 Dussikral0, ended188410 after3109 actor-years and six crises. None of these
 continued historical peak areas should be painted as current empires.
+
+The complete E5 Continents Plus endpoint contains6311 historical polity actors,
+435 surviving governments and375 presently independent courts. Its oldest
+country Chot noplefe66 has302 recorded rulers, twenty-four crises and123
+distinct recorded separating counterpart courts. It now holds2.36% of its
+observed peak. Its inhabited capital To noplefe703 has1,234,583 residents;
+its most recent narrated territorial event is another provincial separation
+at190781. The stored independent-foreign-policy relationship dates only to
+190766, not its6217-year founding age. The archive explicitly records forced
+subordination to Chus fusnu2689 at190615 and independence amid that patron's
+contested succession at190766. Earlier it was Chut sumihikh81's subject from
+185278 to185503, then defeated and subordinated its former overlord at185957.
+Those are changes of actual foreign-policy allegiance, not just new ruler names.
+The largest historical actor Lamhaso107
+actually ended190659 when Thaliso captured its remaining center Farfasal;
+its6,987,238km² peak is not current territory. Other former large actors
+Mahanso2600 and Mofyfte1099 ended190345 and189475 respectively. Conversely,
+Khufoso130 survives with10,164km² against a1,265,956 peak,42 contested court
+changes and285 rulers. These are reduced continuing countries, not preserved
+old imperial maps.
 
 The strongest remaining apparently static case, Fa lacani110, is2980 years
 old with no recorded contested court transfer. But it has157 recorded rulers,

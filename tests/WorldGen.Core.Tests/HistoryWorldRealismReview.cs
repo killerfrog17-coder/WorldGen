@@ -46,7 +46,7 @@ public static partial class HistoryWorldRealismReview
     {
         if(File.Exists(Path.Combine(output,"final.world")))throw new IOException("Refusing to overwrite a completed review world.");
         Directory.CreateDirectory(output);var recipe=world.Recipe;var engine=new Prehistory(world);var session=new SimulationSession(engine,engine.Start(engine.Prepare()));
-        var watch=Stopwatch.StartNew();var rows=new List<object>();var seen=new HashSet<int>();int first=-1,tail=-1,lastMap=-1,workYear=-1;double worst=0,yearWork=0;
+        var watch=Stopwatch.StartNew();var rows=new List<object>();var seen=new HashSet<int>();int first=-1,tail=-1,lastMap=-1,workYear=-1,civilianTail=-1;double worst=0,yearWork=0;
         engine.YearWorkObserver=(year,ms)=>{if(year!=workYear){workYear=year;yearWork=0;}yearWork+=ms;worst=Math.Max(worst,yearWork);};
         while(session.LastSnapshot.Years<safetyYear)
         {
@@ -54,6 +54,7 @@ public static partial class HistoryWorldRealismReview
             session.AdvanceSeconds(Math.Min(step,safetyYear-session.LastSnapshot.Years)*SimulationTime.Year,int.MaxValue);
             var s=session.LastSnapshot;first=s.History.Polities.Select(p=>p.FoundedYear).DefaultIfEmpty(-1).Min();
             int era=WorldEraView.Of(s);bool milestone=seen.Add(era);
+            if(era>=10&&civilianTail<0)civilianTail=s.Years;
             int maximumTechnology=s.History.Aggregates?.FirstMaximumTechnologyYear??-1;
             if(maximumTechnology>=0&&tail<0)tail=maximumTechnology;
             bool observe=milestone||first>=0&&(lastMap<0||s.Years-lastMap>=(era>=7?300:1000))||first<0&&(lastMap<0||s.Years-lastMap>=20000)||s.Years==100000;
@@ -83,6 +84,13 @@ public static partial class HistoryWorldRealismReview
             }
             if(s.Years%10000==0)Console.WriteLine($"Progress {preset}/{seed}: {s.Years}, cultures {s.Society.Cultures.Length}, towns {s.Society.Settlements.Length}, {watch.Elapsed.TotalSeconds:F1}s");
             if(tail>=0&&s.Years>=tail+1000)break;
+            // Optional weapons can remain deliberately uninvented. Do not
+            // accumulate150,000 postmodern years and gigabytes of diagnostic
+            // exports waiting for a universal nuclear-weapons milestone.
+            if(tail<0&&civilianTail>=0&&s.Years>=civilianTail+3000)
+            {Console.WriteLine("BOUNDED:3,000-year civilian postmodern tail; not all optional technologies discovered. This is NOT the all-technology performance acceptance.");break;}
+            if(File.Exists(Path.Combine(output,"stop-after-checkpoint")))
+            {Console.WriteLine("Requested diagnostic stop at an intact checkpoint.");break;}
             if(first>=0&&s.Years>first+30000&&era<8){Console.WriteLine("STALLED:30,000 years after first state without industry; preserve evidence for correction.");break;}
         }
         var final=session.Snapshot();engine.Validate(final);world.Prehistory=final;

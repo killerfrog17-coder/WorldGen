@@ -86,7 +86,7 @@ namespace WorldGen.Core
             =>FoundLivingTownBasis(s,culture,cell,parent,fundingPolity,null);
         void FoundLivingTownBasis(PrehistoryState s,int culture,int cell,int parent,int fundingPolity,ProvisionedPortPlan provisioned)
             =>FoundLivingTownPrepared(s,culture,cell,parent,fundingPolity,provisioned,null);
-        void FoundLivingTownPrepared(PrehistoryState s,int culture,int cell,int parent,int fundingPolity,ProvisionedPortPlan provisioned,CoastalFarmPlan coastal)
+        void FoundLivingTownPrepared(PrehistoryState s,int culture,int cell,int parent,int fundingPolity,ProvisionedPortPlan provisioned,CoastalFarmPlan coastal,SeaServiceQuote transport=null)
         {
             if(coastal!=null?!ValidCoastalFarmPlan(s,culture,cell,parent,coastal):provisioned==null?!CanFoundLivingTown(s,culture,cell,parent):!ValidProvisionedPortPlan(s,culture,cell,parent,provisioned))return;
             var h=s.History;var a=h.Aggregates;var c=s.Society.Cultures[culture];int patch=CellPatch[cell],id=s.Society.Settlements.Length;
@@ -111,6 +111,8 @@ namespace WorldGen.Core
             var town=new Settlement{Id=id,Cell=cell,CultureId=culture,PolityId=-1,FoundedYear=s.Years,Name=LanguageHistory(s)?LanguageName(s,culture,LanguageNameKind.Settlement,unchecked(cell+id*7919),cell):HistoricalName("town",unchecked(cell+id*7919)),Population=founders,FoodCapacity=urbanCapacity,FoodReserve=founders,CultivatedPermille=c.Farming};
             if(provisioned!=null){town.FoodReserve=founders*3;town.CultivatedPermille=0;}
             var city=new HistoricalCityAggregate{Id=id,LastYear=s.Years,LastHarvestYear=s.Years,LastPoliticalYear=s.Years,LastVoyageYear=s.Years,ParentCity=parent,BaseUrbanCapacity=urbanCapacity,BaseFarming=c.Farming,BaseFoodMultiplier=HistoricalModernEffects.FoodMultiplier(h.Cultures[culture],s.Years),BaseCropFactor=.4+.6*AggregateCropSupport(s,culture,cell,false),FoodYieldMilli=(int)(landscapeYield[cell]*1000),StoredYieldMilli=(int)(landscapeStored[cell]*1000),FloodMilli=(int)(riverAccess[cell]*1000),SoilMilli=World.Ecology.Habitat[cell].SoilFertilityPermille,Rural=rural,RuralCapacity=capacity,AreaKm2=area,Supported=true};
+            var seaTransport=provisioned?.Service??transport;
+            if(SeaServiceHistory(s)&&seaTransport!=null&&!CommitSeaService(s,seaTransport))return;
             if(coastal!=null)TransferCoastalFarmFounders(s,coastal);
             else if(provisioned!=null)TransferProvisionedPortFounders(s,provisioned);
             else if(parent>=0){if(LivingWorldHistory(s))TransferLivingFounders(s,parent,founders+rural,culture);else{var source=s.Society.Settlements[parent];var supply=a.Cities[parent];ChangeAggregateCityPopulation(s,parent,source.Population,supply.Suburban,supply.Rural-founders-rural);a.TotalPopulation+=founders+rural;c.Population+=founders+rural;}}

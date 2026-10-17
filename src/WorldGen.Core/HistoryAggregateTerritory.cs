@@ -84,6 +84,7 @@ namespace WorldGen.Core
             town.PolityId=polity;
             QueueTerritorialServiceRecovery(s,id);
             if(CommunityHistory(s))TransferCommunityGovernment(s,id,polity);
+            TransferRealmClaimantCity(s,id,old,polity);
             if(ProvincialHistory(s))a.Provinces.Centers=a.Provinces.Centers.With(town.Cell,polity>=0?id:-1);
             if(TechnicalHistory(s))AssignTerritorialSource(s,town.Cell,polity>=0?id:-1);
             TransferRealmCenterTitles(s,id,old,polity);

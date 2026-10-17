@@ -29,7 +29,8 @@ namespace WorldGen.Core
             long investment=HistoricalMaritimeIntegrationEffects.CouncilInvestment(people,route.DistanceM);
             if(p.Treasury<investment*2||source.FoodReserve<people+provisions+source.Population/4)return false;
             if(!organized&&HistoryRoll("living-sponsored-port-"+target,polity,s.Years)>=1-Math.Exp(-elapsed/40.0))return false;
-            int count=a.Cities.Length;FoundLivingTown(s,culture,target,port);if(a.Cities.Length==count)return false;
+            var transport=QuoteSeaService(s,polity,port,route.CellA,target,people+provisions,people,investment,source.Population/4);if(!transport.Allowed)return false;
+            int count=a.Cities.Length;FoundLivingTownPrepared(s,culture,target,port,-1,null,null,transport);if(a.Cities.Length==count)return false;
             // FoundLivingTown already transfers the precise household budgets
             // and their startup food. Charge only the additional voyage ration
             // and construction account here, not the same people a second time.

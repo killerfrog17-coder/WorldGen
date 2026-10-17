@@ -38,7 +38,14 @@ namespace WorldGen.Core
             public ForagerLifestyle Lifestyle;
             public bool Island;
         }
-        public sealed class Route { public int A,B,DistanceM,SeaDropM,CellA=-1,CellB=-1; public bool Shallow,Sea,Coastal; }
+        public sealed class Route
+        {
+            public int A,B,DistanceM,SeaDropM,CellA=-1,CellB=-1;
+            // Runtime geography only. Keep legacy land CellA/B=-1 unchanged;
+            // revision6 explicitly uses the actual neighboring border cells.
+            public int LandCellA=-1,LandCellB=-1;
+            public bool Shallow,Sea,Coastal;
+        }
         public readonly World World; public readonly int[] CellPatch; public readonly Patch[] Patches; public readonly Route[] Routes;
         readonly int[][] regionalCultureEdges;
         readonly int[][] realmLandRoutes;
@@ -100,18 +107,18 @@ namespace WorldGen.Core
                 ruralPrefix[cell]=ruralPatchWeight[p];ruralPatchWeight[p]+=ruralWeight[cell];
             }
             var routes=new SortedDictionary<(int,int,int),Route>();
-            void Link(int a,int b,int metres,bool sea,bool shallow,int drop=0,int cellA=-1,int cellB=-1)
+            void Link(int a,int b,int metres,bool sea,bool shallow,int drop=0,int cellA=-1,int cellB=-1,int landCellA=-1,int landCellB=-1)
             {
-                if(a<0||b<0||a==b)return;if(a>b){int t=a;a=b;b=t;t=cellA;cellA=cellB;cellB=t;}
+                if(a<0||b<0||a==b)return;if(a>b){int t=a;a=b;b=t;t=cellA;cellA=cellB;cellB=t;t=landCellA;landCellA=landCellB;landCellB=t;}
                 var key=(a,b,modern?(sea?drop:-1):0);
-                if(!routes.TryGetValue(key,out var old)||(!sea&&old.Sea)||(sea==old.Sea&&metres<old.DistanceM))routes[key]=new Route{A=a,B=b,DistanceM=metres,Sea=sea,Shallow=shallow,SeaDropM=drop,CellA=cellA,CellB=cellB};
+                if(!routes.TryGetValue(key,out var old)||(!sea&&old.Sea)||(sea==old.Sea&&metres<old.DistanceM))routes[key]=new Route{A=a,B=b,DistanceM=metres,Sea=sea,Shallow=shallow,SeaDropM=drop,CellA=cellA,CellB=cellB,LandCellA=landCellA,LandCellB=landCellB};
             }
             var culturalEdges=new List<int>[Patches.Length];
             void CulturalEdge(int patch,int cell)
             {if(patch<0)return;var list=culturalEdges[patch]??(culturalEdges[patch]=new List<int>(8));if(list.Count<8&&!list.Contains(cell))list.Add(cell);}
             foreach(var edge in s.Edges)if(!modern||!world.Hydrology.OceanConnected[edge.A]&&!world.Hydrology.OceanConnected[edge.B])
             {
-                int first=CellPatch[edge.A],second=CellPatch[edge.B];Link(first,second,edge.LengthM,false,false);
+                int first=CellPatch[edge.A],second=CellPatch[edge.B];Link(first,second,edge.LengthM,false,false,landCellA:edge.A,landCellB:edge.B);
                 if(first>=0&&second>=0&&first!=second){CulturalEdge(first,edge.A);CulturalEdge(second,edge.B);}
             }
             // Derived during existing geography setup, never lazily discovered

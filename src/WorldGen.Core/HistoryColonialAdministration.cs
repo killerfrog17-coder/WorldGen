@@ -63,6 +63,7 @@ namespace WorldGen.Core
             if(migrants<80&&!(LivingWorldHistory(s)&&remoteRecruitment))return;
             double opportunity=.3+.7*D.Clamp(ProvincialPhysicalYield(s,culture,target)*3);
             if(!organized&&HistoryRoll("territorial-sea-charter-"+target,polity,s.Years)>1-Math.Exp(-elapsed*(ocean?.025:.005)*opportunity))return;
+            if(SeaServiceHistory(s)&&!CommitSeaService(s,QuoteSeaService(s,polity,provisionPort,route.CellA,target,provisions,migrants,setup,s.Society.Settlements[provisionPort].Population/4)))return;
             if(LivingWorldHistory(s))s.Society.Settlements[provisionPort].FoodReserve-=provisions;
             // Transfer actual households. The global account loses and regains
             // precisely the same migrants; a charter cannot create colonists.

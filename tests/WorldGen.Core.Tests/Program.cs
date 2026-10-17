@@ -1,10 +1,19 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--small-canonical-only")){int count=0;HistorySmallCanonicalTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" small canonical assertions");return;}
+if(args.Contains("--prestate-opportunity-audit")){int at=Array.IndexOf(args,"--prestate-opportunity-audit");HistoryPrestateOpportunityAudit.Run(args[at+1],args[at+2]);return;}
+if(args.Contains("--land-contact-only")){int count=0;HistoryLandContactTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" land-contact assertions");return;}
+if(args.Contains("--land-contact-world")){int count=0;HistoryLandContactTests.World(args[Array.IndexOf(args,"--land-contact-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world land-contact assertions");return;}
+if(args.Contains("--sea-service-only")){int count=0;HistorySeaServiceTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" sea-service assertions");return;}
+if(args.Contains("--sea-service-world")){int count=0;HistorySeaServiceTests.World(args[Array.IndexOf(args,"--sea-service-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" sea-service world assertions");return;}
 if(args.Contains("--world-compression-audit")){int at=Array.IndexOf(args,"--world-compression-audit");WorldFileCompressionAudit.Run(args[at+1],args[at+2]);return;}
 if(args.Contains("--continental-diffusion-audit")){int at=Array.IndexOf(args,"--continental-diffusion-audit");HistoryContinentalDiffusionAudit.Run(args[at+1],args[at+2],int.Parse(args[at+3]));return;}
 if(args.Contains("--service-recovery-checkpoint")){int count=0;HistoryServiceRecoveryTests.Checkpoints(args[Array.IndexOf(args,"--service-recovery-checkpoint")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" service-recovery checkpoint assertions");return;}
 if(args.Contains("--realm-episodes-audit")){int at=Array.IndexOf(args,"--realm-episodes-audit");HistoryRealmEpisodesAudit.Run(args[at+1],args[at+2]);return;}
+if(args.Contains("--capital-transitions-audit")){int at=Array.IndexOf(args,"--capital-transitions-audit");HistoryCapitalTransitionsAudit.Run(args[at+1],int.Parse(args[at+2]),args[at+3]);return;}
+if(args.Contains("--realm-claimants-only")){int count=0;HistoryRealmClaimantTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" realm-claimant assertions");return;}
+if(args.Contains("--realm-claimants-world")){int count=0;HistoryRealmClaimantTests.World(args[Array.IndexOf(args,"--realm-claimants-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world realm-claimant assertions");return;}
 if(args.Contains("--polar-climate-source-audit")){int at=Array.IndexOf(args,"--polar-climate-source-audit");ClimatePolarSourceAudit.Run(args[at+1],args[at+2]);return;}
 if(args.Contains("--maritime-climate-audit")){int at=Array.IndexOf(args,"--maritime-climate-audit");HistoryMaritimeClimateAudit.Run(args[at+1],args[at+2],args.Length>at+3?int.Parse(args[at+3]):-1);return;}
 if(args.Contains("--political-episode")){int at=Array.IndexOf(args,"--political-episode");HistoryPoliticalEpisodes.Run(args[at+1],args[at+2],int.Parse(args[at+3]),int.Parse(args[at+4]),int.Parse(args[at+5]));return;}
