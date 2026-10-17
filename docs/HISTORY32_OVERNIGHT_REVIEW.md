@@ -72,14 +72,53 @@ an absent crop, an intrinsically unsuitable Chinese field or an anti-homeland
 factor (the latter is1). This stage still needs repair; the current patch does
 not disguise it by granting worldwide teachers or changing the era label.
 
+Historical cross-check: Lee et al.'s directly dated North China plant survey
+documents a long millet-farming sequence and later changes in the rice/wheat
+mix, not an instant transition from the first crop to a state. It places the
+large Erlitou settlement around1900–1500BCE. That evidence cautions against
+turning town465's age alone into an automatic court deadline. The simulated
+failure is its regional relationship to the rest of the already-industrial
+world, not proof that every long-lived farming village must become a state.
+[Primary archaeobotanical study](https://pmc.ncbi.nlm.nih.gov/articles/PMC1764861/).
+Craft-provenance research also distinguishes local production/exchange from
+centralized prestige production and political integration; these are not one
+generic transferable "civilization" stock.
+[Yiluo ceramic-production study](https://www.sciencedirect.com/science/article/pii/S2352226717300181).
+These sources guide interpretation; no coefficient is claimed as measured from
+them and no new Chinese coordinate exception is implemented.
+
 The frozen native29 review player is
 `artifacts/player-history-32-overnight-ae29-review/WorldGen.exe`.
 Its manifest SHA256 is
 `582056fcd761f0e430117cefa1efc45783efaab1c54bc0e2fc3950b4670383f8`;
 Core is `4eca1ddd14068acff1c2fa71a30ea069970a28c1ee06fab60c47a954e1e28428`.
-Actual native era replays and isolated speed acceptance are still being completed
-at this checkpoint. Hidden-window HUD captures are black on this host and are
-not HUD validation. No shortcut switch or3yr/s acceptance is implied yet.
+Both actual native era replays now pass: Earth ends158000 at exactly its
+`aadce44b...` history hash, and Continents Plus ends165400 at exactly
+`c69af098...`. Both source files remain byte-identical, with nine valid dated
+camera maps per world. Main inspected the native Earth Bronze, Early Modern
+and Modern captures, and both all-era diagnostic States sheets; the independent
+critic inspected the native Earth Bronze, Early Modern and final Postmodern
+captures as well as both diagnostic States/Cultures/Religions sheets. Native
+camera images and diagnostic SVG rasterizations are labeled separately.
+Hidden-window HUD captures are black on this host and are not HUD validation.
+The completed strict CP29 run fails:1,003.6758 simulated years in863.1042 seconds,
+1.162868yr/s, minimum rolling0.946059yr/s, worst computed year2449.4802ms.
+There is no simulation error, but this is not the requested3yr/s/sub-second-year
+result. Earth also fails:1,004.9310 years in781.4728 seconds,1.285945yr/s, minimum
+rolling0.996464yr/s and worst2659.6676ms. Both complete with unchanged input
+files and no simulation error. The team-work isolation was released14:03UTC.
+No shortcut switch or speed acceptance is implied yet; the full measured breakdown is in
+the [performance review](HISTORY32_PERFORMANCE_REVIEW.md).
+
+A separate [claim-display correction](HISTORY32_CLAIM_DISPLAY.md) passes85
+focused assertions in both the actual source test project and a separate driver
+against the exact frozen native Core/Serialization. Full solution compilation
+succeeds with zero warnings/errors. Its rebuilt native player remains under
+review. It makes recognized
+title-only land pale rather than presenting it as fully administered. Selection
+identities, titles, ownership, borders and simulation hashes remain unchanged.
+The selection-card query is bounded and does not build a world-sized snapshot.
+The existing29 native images above use the earlier renderer, not this new style.
 
 The all-stage CLI reconstruction check passes with final world hash
 `0475b16902e04155747f406b5c789f7144773eedcd0e44861de6879120176584`.

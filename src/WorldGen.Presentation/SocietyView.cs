@@ -28,6 +28,27 @@ namespace WorldGen.Presentation
         static readonly int[] EraColors={0xa6adb5,0xd2c488,0xc78c4a,0x938aa9,0x6384b9,0x3ca8a4,0xd4b347,0xd36d58,0x9d65bb};
         static V EraColor(int era){int rgb=EraColors[Math.Max(0,Math.Min(EraColors.Length-1,era-2))];return new V((rgb>>16)/255.0,((rgb>>8)&255)/255.0,(rgb&255)/255.0);}
         public static V OverlayColor(PrehistoryState state,int id,HistoryOverlay overlay)=>overlay==HistoryOverlay.Technology&&state.History?.Aggregates?.Empires!=null?EraColor(id):CivilizationColor(id);
+        public const string PoliticalClaimLegend="Full color: administered territory. Pale color: recognized claims without local administration.";
+        public const string PoliticalClaimShortLegend="Pale: recognized claims";
+        public const string PoliticalClaimNote="Recognized claim only; no local state administration is recorded here.";
+        // Bounded click/inspection query: do not build the cell-wide map snapshot.
+        public static bool ClaimOnly(PrehistoryState state,int cell)
+        {
+            if(state?.History==null||cell<0||cell>=HistoricalCells.Count(state))return false;
+            int actual=HistoricalCells.Polity(state,cell);
+            if(actual>=0&&HistoricalImperialHierarchy.Sovereign(state,actual)>=0)return false;
+            int holder=HistoricalRecognizedClaims.Holder(state,cell);
+            return holder>=0&&HistoricalImperialHierarchy.Sovereign(state,holder)>=0;
+        }
+        // RGB styling only: alpha remains the existing occupancy/selection code.
+        // Both browser and Unity use this overload; identities and title links stay intact.
+        public static V OverlayColor(PrehistoryState state,int id,HistoryOverlay overlay,bool claimOnly)
+        {
+            var color=OverlayColor(state,id,overlay);
+            if(!claimOnly||(overlay!=HistoryOverlay.States&&overlay!=HistoryOverlay.Civilizations))return color;
+            double gray=.2126*color.X+.7152*color.Y+.0722*color.Z;
+            return new V(.45+.55*(.35*color.X+.65*gray),.45+.55*(.35*color.Y+.65*gray),.45+.55*(.35*color.Z+.65*gray));
+        }
         public static V LegendColor(HistoryLegendEntry entry)=>entry.EraColor?EraColor(entry.ColorId):CivilizationColor(entry.ColorId);
         public static string LegendColorHex(HistoryLegendEntry entry){var c=LegendColor(entry);return "#"+((int)Math.Round(c.X*255)).ToString("X2")+((int)Math.Round(c.Y*255)).ToString("X2")+((int)Math.Round(c.Z*255)).ToString("X2");}
         public static void ColorPalette(PrehistoryState state,byte[] bytes,int offset,HistoryOverlay overlay=HistoryOverlay.Civilizations)
@@ -35,7 +56,7 @@ namespace WorldGen.Presentation
             if(state==null)return;
             var h=state.Society;if(h==null)return;
             var display=HistoricalMapSnapshot.For(state);
-            for(int i=0;i<HistoricalCells.Count(state);i++){int owner=display.ColorId(i,overlay);if(owner<0)continue;var c=OverlayColor(state,owner,overlay);int at=offset+i*4;bytes[at]=(byte)Math.Round(c.X*255);bytes[at+1]=(byte)Math.Round(c.Y*255);bytes[at+2]=(byte)Math.Round(c.Z*255);}
+            for(int i=0;i<HistoricalCells.Count(state);i++){int owner=display.ColorId(i,overlay);if(owner<0)continue;var c=OverlayColor(state,owner,overlay,display.ClaimOnly(i));int at=offset+i*4;bytes[at]=(byte)Math.Round(c.X*255);bytes[at+1]=(byte)Math.Round(c.Y*255);bytes[at+2]=(byte)Math.Round(c.Z*255);}
         }
         // Selection/borders identify the court; political tint identifies its ruling
         // culture. Local identity survives conquest and is exposed only in Cultures.

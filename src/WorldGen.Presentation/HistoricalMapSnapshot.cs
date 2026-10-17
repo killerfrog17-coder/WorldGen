@@ -48,6 +48,8 @@ namespace WorldGen.Presentation
         // Recognized external title is deliberately separate from administration,
         // population and local culture. An actual state's territory always wins.
         public int PoliticalSovereign(int cell){int p=Sovereign(cell);return p>=0?p:cell>=0&&cell<Count&&claims[cell]>=0?sovereigns[claims[cell]]:-1;}
+        // Display provenance only. A title never overrides an actual controller.
+        public bool ClaimOnly(int cell)=>Sovereign(cell)<0&&PoliticalSovereign(cell)>=0;
         public int Boundary(int cell)=>boundaries[cell];
         public int Boundary(int cell,HistoryOverlay overlay)
         {

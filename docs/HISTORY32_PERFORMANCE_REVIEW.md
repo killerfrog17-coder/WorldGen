@@ -598,3 +598,70 @@ This is a native determinism/rendering control, not isolated speed acceptance.
 Native28 CP and strict benchmarks were deliberately deferred while the separately
 versioned29 candidate was prepared. The two current26 strict failures above
 remain the latest completed dense acceptance measurements at this checkpoint.
+
+## Final29b native replay and strict current-world checks
+
+`player-history-32-overnight-ae29-review` is a nondevelopment Release IL2CPP
+build, completed13:15UTC on17 October. Its authoritative Core SHA256 is
+`4eca1ddd14068acff1c2fa71a30ea069970a28c1ee06fab60c47a954e1e28428`,
+Serialization is `cb1605e92ac892eb97c3d6e636d3dc6b21ac41fcda5982d68691b81ef6932499`,
+and input-manifest SHA256 is
+`582056fcd761f0e430117cefa1efc45783efaab1c54bc0e2fc3950b4670383f8`.
+Temporary Unity Standalone/stripping overrides were removed after the build;
+project settings returned to a clean diff. The player verifies13 SHA-provider
+and12 immutable-tree transport vectors before timing. Both actual current29b
+worlds replay through all nine observer eras to their exact saved hashes:
+
+- Earth158000: `aadce44b43b5823970e45c80d53ec9ebfb415294cf65893b8a032327606936e3`.
+- CP165400: `c69af098ae184c9f8492e2f180e0337fe7527467179fcc74f92430ce600d1703`.
+
+`native-ae29-{earth,cp}-eras` contains camera-map images and `verified.txt`.
+Input files remain byte-identical. Hidden-window HUD captures remain black
+under the existing host limitation and are not HUD acceptance. These replay
+checks are not speed measurements. A separate full fresh28 control under29b
+also preserves the preceding native28 Earth hash exactly.
+
+The strict CP29 run in `native-ae29-cp-current-isolated` **fails**:
+1003.675823 years in863.104198s,1.162868yr/s, minimum rolling0.946059yr/s,
+worst2449.4802ms at166259,446 Boehm collections, no simulation error.
+It ends166403 at
+`1276ec51551167fafdc3373cd8c87a4f0a41fb1e0b75b1111dcedd019dd07e59`.
+The starting world has4093 active towns and556 courts; final6787 is lifetime
+settlement records, not an active-town count. Final active courts are727.
+Both the initial cold seal and all publication copies are included. Team
+heavy jobs are held throughout the sequential CP/Earth pair; sampled unrelated
+Python/GPU contexts are idle, with ordinary desktop processes still present.
+
+CP CPU totals are hashing236.707s/361 checks, cities231.322s/4.933million
+events, sea123.030s, states82.000s, regions61.576s, checkpoint copies32.085s
+and publication26.718s. Cold hashing takes1588.54ms with263268 newly frozen
+records/86.36MB plus20.00MB dirty-tree payload. Warm roots average653.065ms
+(p95 827.849,max1406.725),21.14MB dirty-tree payload and1638.54 new records/
+459126 bytes per check. Seed-landscape memo counters are4689597 hits and
+415139 misses. Native allocation counters are unavailable; the three GC
+columns represent the same Boehm collection counter and must not be summed.
+The current29 and preceding26 trajectories differ, so their speed ratio is
+not an isolated causal estimate of any individual optimization.
+
+The immediately sequential Earth29 run in
+`native-ae29-earth-current-isolated` also **fails**:1004.931026 years in
+781.472793s,1.285945yr/s, minimum rolling0.996464yr/s, worst2659.6676ms
+at158935,478 Boehm collections, no simulation error. It ends159004 at
+`e340137a0175f4004840ebb2b31ae4ca2e50cc54bafe5332168be0a9bb0dc49c`.
+The input has3748 active towns and578 courts; final6366 is lifetime settlement
+records, while final active courts are748. Input bytes remain unchanged.
+
+Earth CPU totals are cities202.606s/4.445million events, hashing197.248s/
+335 checks, sea119.250s, states76.686s, regions66.102s, cultures32.316s,
+checkpoint copies24.180s and publication21.203s. Maximum individual city
+work is400.779ms; hash1477.181ms; checkpoint copy788.054ms; publication
+822.826ms. The cold root takes1082.318ms for167114 new records/54.19MB
+plus25.47MB dirty-tree payload. Warm roots average587.277ms
+(p95 811.524,max1477.144),23.12MB dirty-tree payload and2098.67 new records/
+590149 bytes per check. Landscape counters are4202142 hits/381984 misses.
+Worst-year work combines a663.948ms seal with real city/campaign/culture work
+and a collection; neither a single slow constructor nor unrelated load
+contention explains away this strict failure. Both owned player processes
+have exited and the isolation hold was released14:03:18UTC. These complete
+current-world failures supersede any earlier near-target small/old-world
+measurement as evidence of the remaining native performance gap.

@@ -66,6 +66,8 @@ namespace WorldGen.Presentation
                 int city=h.Aggregates!.TownAt[cell];var claim=HistoricalRealmClaimantHistory.At(s,city);
                 if(HistoricalRealmClaimantHistory.Active(s,claim)){facts.Add(F("Local claimant",claim.Name));card.Note="This city retains a local political challenge; a country, court and present sovereign are not the same historical identity.";}
             }
+            if((overlay==HistoryOverlay.States||overlay==HistoryOverlay.Civilizations)&&SocietyView.ClaimOnly(s,cell))
+                card.Note=(card.Note.Length>0?card.Note+" ":"")+SocietyView.PoliticalClaimNote;
             card.Facts=facts.ToArray();return card;
         }
         static void Technology(PrehistoryState s,int id,AtlasDocument d,List<AtlasSection> sections)
