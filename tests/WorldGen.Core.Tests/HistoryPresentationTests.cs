@@ -47,6 +47,7 @@ public static class HistoryPresentationTests
         check(untouched.SequenceEqual(new byte[]{1,2,3,4}),"Missing history does not alter the base palette");
         string fixture="artifacts/societies-1/Earth.world";World world;
         if(File.Exists(fixture))world=WorldFile.Read(File.ReadAllBytes(fixture));else{var recipe=Recipe.Preset("Earth");recipe.Detail=5000;world=new WorldPipeline().Generate(recipe);}
+        HistoryMapSelectionTests.Visual(world,check);
         foreach(var data in SurfaceMesh.Chunks(world,new ViewOptions{CachedDisplay=true,GridSpacing=0,ShowRivers=false}).Take(2))
         {
             check(data.BlendCellIds.Length==data.CellIds.Length*2&&data.NaturalHeight.Length==data.CellIds.Length,"Continuous ground attributes align with categorical cells");

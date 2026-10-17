@@ -44,19 +44,33 @@ namespace WorldGen.Presentation
             int owner=OverlayId(s,cell,overlay);
             return owner>=0&&overlay==HistoryOverlay.States&&s.History!=null?s.History.Polities[owner].CultureId:owner;
         }
+        // Selection identity is not a palette index: unrelated peoples can share
+        // a technology-era tint. -2-culture identifies a pre-state gray culture;
+        // -1 alone means no subject. This read never builds a world-sized export.
+        public static int SelectionId(PrehistoryState? s,int cell,HistoryOverlay overlay)
+        {
+            if(s?.Society==null||s.History==null||cell<0||cell>=HistoricalCells.Count(s))return -1;
+            int p=HistoricalCells.Polity(s,cell),culture=HistoricalCells.Culture(s,cell);
+            if(p>=0&&s.History.Polities[p].EndedYear>=0)p=-1;
+            if(overlay==HistoryOverlay.Provinces)return HistoricalProvinceIdentity.Of(s,cell);
+            if(overlay==HistoryOverlay.Religions)return HistoricalCells.Religion(s,cell);
+            if(overlay==HistoryOverlay.States||overlay==HistoryOverlay.Civilizations)
+            {
+                int holder=p>=0?p:HistoricalRecognizedClaims.Holder(s,cell);
+                int sovereign=holder>=0?HistoricalImperialHierarchy.Sovereign(s,holder):-1;
+                if(sovereign>=0)return overlay==HistoryOverlay.States?sovereign:HistoricalRecognizedClaims.Civilization(s,s.History.Polities[sovereign].CultureId);
+            }
+            if(overlay==HistoryOverlay.Territories&&p>=0)return p;
+            if(overlay==HistoryOverlay.Cultures||overlay==HistoryOverlay.Technology)
+                return culture>=0?culture:p>=0?s.History.Polities[p].CultureId:-1;
+            return culture>=0?-2-culture:-1;
+        }
+        public static bool PopulationFocus(HistoryOverlay overlay)=>overlay==HistoryOverlay.States||overlay==HistoryOverlay.Civilizations||overlay==HistoryOverlay.Cultures||overlay==HistoryOverlay.Territories;
         public static int OverlayId(PrehistoryState s,int cell,HistoryOverlay overlay=HistoryOverlay.Civilizations)
         {
             if(s==null)return -1;
-            if(overlay==HistoryOverlay.Territories)return s.History==null?-1:HistoricalCells.Polity(s,cell);
-            if(overlay==HistoryOverlay.Provinces)return HistoricalProvinceIdentity.Of(s,cell);
-            if(s.History?.Aggregates?.Empires!=null)return HistoricalMapSnapshot.For(s).OverlayId(cell,overlay);
-            var c=Culture(s,cell);var h=s.History;if(h!=null&&cell>=0&&cell<HistoricalCells.Count(s)){if(overlay==HistoryOverlay.States)return HistoricalCells.Polity(s,cell);if(overlay==HistoryOverlay.Religions)return HistoricalCells.Religion(s,cell);if(c==null&&HistoricalCells.Polity(s,cell)>=0)c=s.Society.Cultures[h.Polities[HistoricalCells.Polity(s,cell)].CultureId];}if(c==null)return -1;
-            if(h==null)return c.Stage==SocietyStage.Civilization?c.Id:-1;
-            if(overlay==HistoryOverlay.Cultures)return c.Id;
-            if(overlay==HistoryOverlay.Religions)return HistoricalCells.Religion(s,cell);
-            if(overlay==HistoryOverlay.States)return HistoricalCells.Polity(s,cell);
-            if(overlay==HistoryOverlay.Technology)return h.Cultures[c.Id].Technology.Count(t=>t>0);
-            int polity=HistoricalCells.Polity(s,cell);return polity>=0?h.Polities[polity].CultureId:-1;
+            if(s.History!=null)return HistoricalMapSnapshot.For(s).OverlayId(cell,overlay);
+            var culture=Culture(s,cell);return culture?.Stage==SocietyStage.Civilization?culture.Id:-1;
         }
         public static long Population(PrehistoryState s)=>s?.History?.Aggregates?.TotalPopulation??(s==null?0:s.Population.Sum()+(s.Society?.Settlements.Sum(t=>t.Population)??0));
         public static string Stage(SocietyStage s)=>s==SocietyStage.AdvancedCulture?"Advanced culture":s==SocietyStage.EmbryonicCivilization?"Embryonic civilization":s==SocietyStage.Civilization?"Civilization":"Foragers";

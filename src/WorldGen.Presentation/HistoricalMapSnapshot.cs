@@ -31,7 +31,7 @@ namespace WorldGen.Presentation
             else for(int i=0;i<count;i++){cells[i*5]=HistoricalCells.Culture(state,i);cells[i*5+1]=HistoricalCells.Polity(state,i);cells[i*5+2]=HistoricalCells.Religion(state,i);cells[i*5+3]=HistoricalCells.Market(state,i);cells[i*5+4]=HistoricalCells.Stage(state,i);}
             if(state.History?.RegionalTraditions!=null)for(int i=0;i<count;i++){cells[i*5]=HistoricalCells.Culture(state,i);cells[i*5+2]=HistoricalCells.Religion(state,i);cells[i*5+4]=HistoricalCells.Stage(state,i);}
             resolved=new int[state.History?.Polities.Length??0];
-            for(int i=0;i<resolved.Length;i++)resolved[i]=state.History!.Aggregates?.Resolve(i,state.History)??i;
+            for(int i=0;i<resolved.Length;i++)resolved[i]=state.History!.Aggregates?.Resolve(i,state.History)??(state.History.Polities[i].EndedYear<0?i:-1);
             remote=new long[resolved.Length];if(state.History?.Aggregates!=null)for(int i=0;i<remote.Length;i++)remote[i]=state.History.Aggregates.Polities[state.History.Aggregates.PopulationCohort(i)].Remote;
             sovereigns=new int[resolved.Length];for(int i=0;i<sovereigns.Length;i++)sovereigns[i]=state.History!.Aggregates?.Empires==null?resolved[i]:HistoricalImperialHierarchy.Sovereign(state,i);
             technology=state.History?.Cultures.Select(c=>c.Technical!=null?WorldEraView.KnowledgeEra(c):HistoricalImperialHierarchy.InstalledPractices(c)).ToArray()??Array.Empty<int>();
@@ -73,5 +73,14 @@ namespace WorldGen.Presentation
         }
         public int ColorId(int cell,HistoryOverlay overlay)
         {int owner=OverlayId(cell,overlay);return owner>=0&&overlay==HistoryOverlay.States&&source.History!=null?source.History.Polities[owner].CultureId:owner;}
+        public int SelectionId(int cell,HistoryOverlay overlay)
+        {
+            if(cell<0||cell>=Count||source.History==null)return -1;
+            int culture=Culture(cell);
+            if(overlay==HistoryOverlay.Technology)
+            {int p=Polity(cell);return culture>=0?culture:p>=0?source.History.Polities[p].CultureId:-1;}
+            int id=OverlayId(cell,overlay);
+            return id>=0?id:SocietyView.PopulationFocus(overlay)&&culture>=0?-2-culture:-1;
+        }
     }
 }

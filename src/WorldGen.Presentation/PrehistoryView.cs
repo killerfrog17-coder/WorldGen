@@ -13,6 +13,8 @@ namespace WorldGen.Presentation
             var display=optimized&&engine!=null&&state!=null?HistoricalMapSnapshot.For(state):null;
             int selected=selectedCell>=0&&selectedCell<result.Length&&engine!=null?engine.CellPatch[selectedCell]:-1;
             int cluster=selected>=0&&clusters!=null?clusters[selected]:-1;var selectedCulture=SocietyView.Culture(state,selectedCell);
+            bool populationFocus=SocietyView.PopulationFocus(overlay);
+            int selection=engine!=null&&state?.History!=null&&state.Started?(display!=null?display.SelectionId(selectedCell,overlay):SocietyView.SelectionId(state,selectedCell,overlay)):-1;
             for(int i=0;i<result.Length;i++)
             {
                 bool water=w.Hydrology.OceanConnected[i]||w.Hydrology.LakeCoverageFraction.Length>i&&w.Hydrology.LakeCoverageFraction[i]>=.9;
@@ -21,11 +23,24 @@ namespace WorldGen.Presentation
                 if(!state.Started){if(patch==state.Origin)result[i]=(byte)(water?65:255);}
                 else if(state.Population[patch]>0||state.History?.Aggregates!=null&&((state.History.Aggregates.Living?.Regions[patch].SettledPopulation??0)>0||(display!=null?display.RemotePopulation(i):RemotePopulation(state,i))>0))
                 {
-                    int local=display!=null?display.Culture(i):HistoricalCells.Culture(state,i);var culture=local>=0?state.Society.Cultures[local]:null;bool chosen=selectedCulture!=null?culture?.Id==selectedCulture.Id:culture==null&&cluster>=0&&clusters[patch]==cluster;
+                    int local=display!=null?display.Culture(i):HistoricalCells.Culture(state,i);var culture=local>=0?state.Society.Cultures[local]:null;bool chosen=populationFocus&&(selectedCulture!=null?selection<0&&culture?.Id==selectedCulture.Id:selection==-1&&culture==null&&cluster>=0&&clusters[patch]==cluster);
                     result[i]=(byte)(chosen?(water?65:culture?.Stage==SocietyStage.Civilization?245:255):water?42:culture==null?170:195+20*((int)culture.Stage-1));
                 }
             }
-            if(engine!=null&&state?.History!=null&&state.Started){int selection=display!=null?display.OverlayId(selectedCell,overlay):SocietyView.OverlayId(state,selectedCell,overlay);for(int i=0;i<result.Length;i++){if(engine.CellPatch[i]<0&&(display!=null?display.Polity(i):HistoricalCells.Polity(state,i))<0)continue;bool island=w.Hydrology.OceanConnected[i]||w.Hydrology.LakeCoverageFraction.Length>i&&w.Hydrology.LakeCoverageFraction[i]>=GlobeView.WholeCellLakeCoverage;int id=display!=null?display.OverlayId(i,overlay):SocietyView.OverlayId(state,i,overlay);if(id>=0)result[i]=(byte)(island?(selection>=0&&id==selection?60:50):selection>=0&&id==selection?245:235);else if(!island&&(display!=null?display.Culture(i)>=0:SocietyView.Culture(state,i)!=null))result[i]=(byte)((display!=null?display.Stage(i):HistoricalCells.Stage(state,i))>=2?215:195);}}
+            if(engine!=null&&state?.History!=null&&state.Started)
+            {
+                for(int i=0;i<result.Length;i++)
+                {
+                    int id=display!=null?display.OverlayId(i,overlay):SocietyView.OverlayId(state,i,overlay);
+                    if(engine.CellPatch[i]<0&&(display!=null?display.Polity(i):HistoricalCells.Polity(state,i))<0&&id<0)continue;
+                    bool island=w.Hydrology.OceanConnected[i]||w.Hydrology.LakeCoverageFraction.Length>i&&w.Hydrology.LakeCoverageFraction[i]>=GlobeView.WholeCellLakeCoverage;
+                    int focus=display!=null?display.SelectionId(i,overlay):SocietyView.SelectionId(state,i,overlay);
+                    bool chosen=selection!=-1&&focus==selection;
+                    if(id>=0)result[i]=(byte)(island?(chosen?60:50):chosen?245:235);
+                    else if(!island&&(display!=null?display.Culture(i)>=0:SocietyView.Culture(state,i)!=null))
+                        result[i]=(byte)(chosen?255:(display!=null?display.Stage(i):HistoricalCells.Stage(state,i))>=2?215:195);
+                }
+            }
             return result;
         }
         static long RemotePopulation(PrehistoryState state,int cell)

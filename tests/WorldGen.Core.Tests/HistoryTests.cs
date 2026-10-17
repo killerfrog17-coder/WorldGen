@@ -108,9 +108,9 @@ public static class HistoryTests
             }
             check(PrehistoryView.Codes(w,null,s).Length==w.Surface.Cells.Length,"Saved overlay safe before engine preparation");
             var islandPatch=engine.Patches.FirstOrDefault(p=>p.Island);
-            if(islandPatch!=null&&s.History.Polities.Length>0)
+            if(islandPatch!=null&&s.History.Polities.Any(p=>p.EndedYear<0))
             {
-                int cell=islandPatch.Cells[0];var island=s.Copy();island.Society.CellCulture[cell]=0;island.History.CellPolity[cell]=0;
+                int cell=islandPatch.Cells[0];var island=s.Copy();var owner=s.History.Polities.First(p=>p.EndedYear<0);island.Society.CellCulture[cell]=owner.CultureId;island.History.CellPolity[cell]=owner.Id;island.Seal();
                 check(PrehistoryView.Codes(w,engine,island,-1,HistoryOverlay.States)[cell]==50,"Island state tint retains the water-cell mask");
                 check(PrehistoryView.Codes(w,engine,island,cell,HistoryOverlay.States)[cell]==60,"Selected island state has a distinct color code");
                 var group=SubcellGeography.Find(w,cell);var largest=w.Subcells.Islands.Skip(group.FirstIsland).Take(group.IslandCount).OrderByDescending(i=>i.AreaM2).First();

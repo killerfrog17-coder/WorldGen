@@ -52,19 +52,17 @@ namespace WorldGen.Presentation
         public static AtlasLink? Selection(PrehistoryState? s,int cell,HistoryOverlay overlay)
         {
             if(s?.Society==null||s.History==null||cell<0||cell>=HistoricalCells.Count(s))return null;
-            var h=s.History;
-            if((overlay==HistoryOverlay.States||overlay==HistoryOverlay.Civilizations)&&HistoricalCells.Polity(s,cell)<0){int claim=HistoricalRecognizedClaims.TitleAt(s,cell);if(claim>=0&&HistoricalRecognizedClaims.Holder(s,cell)>=0)return ClaimLink(s,claim);}
-            if(overlay==HistoryOverlay.Provinces){int province=HistoricalProvinceIdentity.Of(s,cell);return province>=0?ProvinceLink(s,province):null;}
-            if(overlay==HistoryOverlay.Religions){int faith=HistoricalCells.Religion(s,cell);return faith>=0?FaithLink(h.Religions[faith]):null;}
-            if(overlay==HistoryOverlay.Cultures)return SocietyView.Culture(s,cell) is CultureIdentity local?CultureLink(local):null;
-            if(overlay==HistoryOverlay.Technology){int id=HistoricalCells.Culture(s,cell),p=HistoricalCells.Polity(s,cell);if(id<0&&p>=0)id=h.Polities[p].CultureId;return id>=0?TechnologyLink(s,id,cell):null;}
-            if((overlay==HistoryOverlay.States||overlay==HistoryOverlay.Territories)&&HistoricalCells.Polity(s,cell)>=0)return StateLink(s,h.Polities[overlay==HistoryOverlay.Territories?HistoricalCells.Polity(s,cell):HistoricalImperialHierarchy.Sovereign(s,HistoricalCells.Polity(s,cell))]);
-            if(overlay==HistoryOverlay.Civilizations&&HistoricalCells.Polity(s,cell)>=0)return CultureLink(s.Society.Cultures[HistoricalRecognizedClaims.Civilization(s,h.Polities[HistoricalImperialHierarchy.Sovereign(s,HistoricalCells.Polity(s,cell))].CultureId)]);
-            var town=s.Society.Settlements.FirstOrDefault(t=>t.Cell==cell&&t.Population>0);
-            if(town!=null)return TownLink(s,town);
-            var culture=SocietyView.Culture(s,cell);
-            if(culture!=null)return CultureLink(culture);
-            return HistoricalCells.Polity(s,cell)>=0?StateLink(s,h.Polities[HistoricalCells.Polity(s,cell)]):null;
+            int id=SocietyView.SelectionId(s,cell,overlay);if(id==-1)return null;
+            if(id<=-2)return CultureLink(s.Society.Cultures[-2-id]);
+            switch(overlay)
+            {
+                case HistoryOverlay.States:case HistoryOverlay.Territories:return StateLink(s,s.History.Polities[id]);
+                case HistoryOverlay.Civilizations:case HistoryOverlay.Cultures:return CultureLink(s.Society.Cultures[id]);
+                case HistoryOverlay.Provinces:return ProvinceLink(s,id);
+                case HistoryOverlay.Religions:return FaithLink(s.History.Religions[id]);
+                case HistoryOverlay.Technology:return TechnologyLink(s,id,cell);
+                default:return null;
+            }
         }
         public static string Summary(PrehistoryState? s,AtlasLink? link)
         {

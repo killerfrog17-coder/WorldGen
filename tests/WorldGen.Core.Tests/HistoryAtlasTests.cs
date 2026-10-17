@@ -26,6 +26,7 @@ public static class HistoryAtlasTests
     }
     public static void Run(Action<bool,string> check)
     {
+        HistoryMapSelectionTests.Run(check);
         var s=new PrehistoryState{Years=2000,Population=new long[]{8000},Society=new SocietyState{
             CellCulture=new[]{0,0,1},Cultures=new[]{new CultureIdentity{Id=0,Name="Riverfolk",OriginCell=0,Population=5000,Subsistence="Crop cultivation",Resources="Grain",Contacts=new[]{1}},new CultureIdentity{Id=1,Name="Coastfolk",OriginCell=2,Population=4000,Subsistence="Fishing"}},
             Settlements=new[]{new Settlement{Id=0,Name="First Harbor",CultureId=0,PolityId=0,Cell=0,Population=600,FoundedYear=1000},new Settlement{Id=1,Name="Old City",CultureId=1,PolityId=1,Cell=2,Population=400,FoundedYear=1200}}},
