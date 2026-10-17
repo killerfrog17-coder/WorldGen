@@ -167,6 +167,7 @@ namespace WorldGen.Core
             var ca=a.Cultures[culture];ca.Cities.Add(id);ca.CityCount=ca.Cities.Count;ca.Urban+=founders;ca.Rural+=rural;ca.SupportedUrban+=founders;ca.SupportedCities++;ca.FoodCapacity+=urbanCapacity;ca.LargestCity=Math.Max(ca.LargestCity,founders);a.TotalUrban+=founders;
             SetAggregateLayer(s,cell,0,culture);SetAggregateLayer(s,cell,2,h.Cultures[culture].ReligionId);SetAggregateLayer(s,cell,3,id);SetAggregateLayer(s,cell,4,2);ScheduleAggregate(s,CityProcess,id);
             if(ReligiousNetworkHistory(s)&&parent>=0)InheritReligiousHouseholds(s,cell,s.Society.Settlements[parent].Cell,previousFaith,previousResidents);
+            if(parent>=0)InheritSpokenHouseholds(s,cell,s.Society.Settlements[parent].Cell,previousResidents,founders+rural);
             int host=HistoricalCells.Polity(s,cell);
             if(host<0&&fundingPolity>=0){ClaimAggregatePolity(s,cell,fundingPolity);host=fundingPolity;}
             if(host>=0)AssignAggregateTown(s,id,host);

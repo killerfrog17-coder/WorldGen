@@ -31,6 +31,7 @@ namespace WorldGen.Core
                 a.Empires?.Connections?.Religion?.Policies.Fingerprint(true);
                 a.Empires?.Connections?.Religion?.LayAssociations?.Records.Fingerprint(true);
                 a.Empires?.Connections?.Religion?.Traditions?.Institutions.Fingerprint(true);
+                if(h.Languages?.Spoken!=null){h.Languages.Spoken.Places.Fingerprint(true);h.Languages.Spoken.Regions.Fingerprint(true);h.Languages.Spoken.CultureVarieties.Fingerprint(true);}
                 a.Empires?.Connections?.Realms?.Claimants?.At.Fingerprint(true);
                 a.Empires?.Connections?.SeaService?.BySource.Fingerprint(true);
                 a.Empires?.Connections?.LocalSeeds?.Towns.Fingerprint(true);

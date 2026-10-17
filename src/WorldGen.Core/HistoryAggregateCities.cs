@@ -126,6 +126,7 @@ namespace WorldGen.Core
             bool supported=t.FoodCapacity>=t.Population*.8&&t.Stability>=450&&(provisioned==null||supply>=.8);if(supported!=city.Supported){account.SupportedCities+=supported?1:-1;account.SupportedUrban+=supported?t.Population:-t.Population;city.Supported=supported;}if(!LivingHistory(s))account.FoodCapacity+=t.FoodCapacity-oldCapacity;
             AdvanceProtoCentre(s,id,elapsed);
             if(LocalReligiousCityHistory(s))AdvanceLocalReligiousCity(s,id);
+            AdvanceSpokenCommunity(s,t.Cell,false);
             if(provisioned!=null)ExpandProvisionedPort(s,id,provisioned,supply);
             var demography=record.Demography??(record.Demography=new HistoricalUrbanDemography());demography.Year=s.Years;demography.NaturalChange=natural;demography.ChronicLoss=chronic;demography.RuralInflow=migrants;demography.TotalRuralInflow+=migrants;demography.TotalChronicLoss+=chronic;
             if(owner<0&&t.Population>=800&&t.Stability>=550&&s.Years-city.LastPoliticalYear>=10)

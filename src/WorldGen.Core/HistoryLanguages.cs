@@ -32,6 +32,7 @@ namespace WorldGen.Core
             s.Society.Cultures[culture].Name=LanguageGenerator.Capitalize(LanguageGenerator.Name(profile,LanguageNameKind.People,culture).Text);
             var religion=h.Religions[h.Cultures[culture].ReligionId];
             if(!MigrantReligiousHistory(s)||religion.CultureId==culture)religion.Name="Tradition of "+s.Society.Cultures[culture].Name;
+            RegisterSpokenCulture(s,culture);
         }
         void InheritLanguage(PrehistoryState s,int child,int parent)
         {
@@ -46,7 +47,9 @@ namespace WorldGen.Core
             if(!LanguageHistory(s))return HistoricalName(kind==LanguageNameKind.Settlement?"town":kind==LanguageNameKind.Person?"leader-name":"people",identity);
             string feature=null;
             if(cell>=0){if(HistoricalRiverAccess(cell)>.03)feature="river";else if(World.Surface.Cells[cell].Neighbors.Any(i=>World.Hydrology.OceanConnected[i]))feature="coast";else if(World.ElevationM[cell]>1200)feature="mountain";}
-            return LanguageGenerator.Capitalize(LanguageGenerator.Name(s.History.Languages.Profiles[culture],kind,identity,feature).Text);
+            var profile=s.History.Languages.Profiles[culture];
+            if(SpokenHistory(s)&&cell>=0){int voice=PrimarySpokenLanguageAt(s,cell);if(voice>=0)profile=s.History.Languages.Spoken.Varieties[voice].Sounds;}
+            return LanguageGenerator.Capitalize(LanguageGenerator.Name(profile,kind,identity,feature).Text);
         }
         string RenewLanguageName(PrehistoryState s,int culture)
         {
@@ -56,6 +59,7 @@ namespace WorldGen.Core
         string LanguageStateName(PrehistoryState s,Settlement capital)
         {
             var p=s.History.Languages.Profiles[capital.CultureId];int identity=unchecked(capital.Cell+capital.Id*7919);
+            if(SpokenHistory(s)){int voice=PrimarySpokenLanguageAt(s,capital.Cell);if(voice>=0)p=s.History.Languages.Spoken.Varieties[voice].Sounds;}
             string root=LanguageGenerator.SpecificConcept(p,LanguageNameKind.Settlement,identity);
             return LanguageGenerator.Capitalize(LanguageGenerator.Compound(p,root,"land").Text);
         }
@@ -78,6 +82,7 @@ namespace WorldGen.Core
                 var p=languages.Profiles[i];if(!LanguageGenerator.Valid(p)||p.Id!=i||p.FamilyId>i||p.ChangedYear>s.Years||p.Loans.Any(x=>x.SourceId>=languages.Profiles.Length||x.Year>s.Years))throw new ArgumentException("Invalid language profile.");
                 if(p.ParentId>=0&&(p.FamilySeed!=languages.Profiles[p.ParentId].FamilySeed||p.FamilyId!=languages.Profiles[p.ParentId].FamilyId))throw new ArgumentException("Invalid language family provenance.");
             }
+            ValidateSpokenLanguages(s);
         }
     }
 }

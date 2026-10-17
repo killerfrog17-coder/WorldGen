@@ -1,5 +1,15 @@
 # Historical simulation: history-31 / prehistory-6
 
+## Spoken-language communities - 17 October 2026
+
+Optional realm32 builds on the existing naming/sound foundation with an
+independent Languages map and local home-language minorities, bilingualism,
+administrative/ritual domains, physical migrant/contact transmission and
+inherited local divergence. Religion inspection explicitly distinguishes
+resident household/denominational communities from visiting teachings; public
+map color is not religious uniformity. Old saves require explicit upgrade.
+See [scope, mechanisms and limits](HISTORY32_SPOKEN_COMMUNITIES.md).
+
 ## Structured religion - 17 October 2026
 
 Optional realm31 separates inherited doctrinal profiles, denomination ancestry,

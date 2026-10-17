@@ -48,7 +48,7 @@ public static class HistoryReligiousDoctrineTests
     {
         Directory.CreateDirectory(output);var world=WorldFile.Read(File.ReadAllBytes(path));var old=world.Prehistory;var e=new Prehistory(world);e.Validate(old);string before=old.ComputeHash();
         var s=e.UpgradeRealmLifecycles(old);e.Validate(s);var h=s.History;var a=h.Aggregates;var religion=a.Empires.Connections.Religion;
-        check(a.Empires.Connections.Realms.Version==31&&religion.Traditions.Doctrines.Length==h.Religions.Length,"Explicit31 upgrade creates exactly one structured profile per existing faith.");
+        check(a.Empires.Connections.Realms.Version>=31&&religion.Traditions.Doctrines.Length==h.Religions.Length,"Explicit current upgrade includes31's exactly one structured profile per existing faith.");
         check(old.ComputeHash()==before&&StateHash.Compute(old.History.Religions)==StateHash.Compute(h.Religions),"Upgrade leaves old beliefs' names, dates, text and historical identities untouched.");
         check(old.History.Aggregates.Cells.Fingerprint()==a.Cells.Fingerprint()&&old.History.Aggregates.TotalPopulation==a.TotalPopulation&&old.Society.Settlements.Select(t=>t.FoodReserve).SequenceEqual(s.Society.Settlements.Select(t=>t.FoodReserve)),"Upgrade creates no people, food, territorial transfers or instant conversions.");
         check(ReferenceEquals(e.UpgradeRealmLifecycles(s),s),"Structured religious upgrade is idempotent.");

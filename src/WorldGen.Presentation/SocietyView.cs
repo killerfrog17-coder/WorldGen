@@ -67,6 +67,7 @@ namespace WorldGen.Presentation
             int p=HistoricalCells.Polity(s,cell),culture=HistoricalCells.Culture(s,cell);
             if(p>=0&&s.History.Polities[p].EndedYear>=0)p=-1;
             if(overlay==HistoryOverlay.Provinces)return HistoricalProvinceIdentity.Of(s,cell);
+            if(overlay==HistoryOverlay.Languages)return Prehistory.PrimarySpokenLanguageAt(s,cell);
             if(overlay==HistoryOverlay.Religions)return HistoricalCells.Religion(s,cell);
             if(overlay==HistoryOverlay.ReligiousInstitutions)return HistoricalMapSnapshot.ReligiousInstitutionIdentity(s,cell);
             if(overlay==HistoryOverlay.States||overlay==HistoryOverlay.Civilizations)

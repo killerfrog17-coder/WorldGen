@@ -28,6 +28,9 @@ namespace WorldGen.Presentation
             var h=s.History;var facts=new List<AtlasFact>();
             switch(link.Kind)
             {
+                case "language":
+                    var speech=Prehistory.SpokenCommunityAt(s,cell);card.Subtitle="Spoken language";
+                    if(speech!=null){facts.Add(F("Home language",SpeechName(s,speech.Primary)));if(speech.Minority>=0&&speech.MinorityPermille>0)facts.Add(F("Resident minority",SpeechName(s,speech.Minority)+" · "+(speech.MinorityPermille/10.0).ToString("0.#")+"% estimated"));if(speech.Second>=0&&speech.Second!=speech.Primary)facts.Add(F("Second language",SpeechName(s,speech.Second)+" · "+speech.BilingualPermille+" / 1,000"));if(speech.Administrative>=0)facts.Add(F("Administration",SpeechName(s,speech.Administrative)));card.Note="Home speech, bilingual ability and state language are separate. Open the atlas for sounds, ancestry and local communities.";}break;
                 case "technology":
                     var hc=h.Cultures[link.Id];card.Title=WorldEraView.Name(WorldEraView.KnowledgeEra(hc));card.Subtitle=s.Society.Cultures[link.Id].Name+" · technology";
                     var projects=TechnicalResearchView.Read(s,link.Id);
@@ -55,8 +58,10 @@ namespace WorldGen.Presentation
                     if(worship!=null)
                     {
                         if(worship.Household>=0&&worship.Household<h.Religions.Length)facts.Add(F("Household practice",h.Religions[worship.Household].Name));
+                        var localLay=Prehistory.LayAssociationAt(s,cell);if(localLay!=null&&localLay.Active&&localLay.Faith!=worship.Dominant)facts.Add(F("Local religious association",h.Religions[localLay.Faith].Name));
                         facts.Add(F("Local institutions",worship.Institution+" / 1,000"));facts.Add(F("Court policy",worship.Policy));
-                        card.Note="Public tradition at this location; household practice can differ. Support is not a percentage of believers.";
+                        int otherResident=Prehistory.ReligiousPresenceAt(s,cell).Count(x=>x.ResidentEvidence&&x.Faith!=worship.Dominant);if(otherResident>0)facts.Add(F("Other recorded resident traditions",otherResident.ToString()));
+                        card.Note="Map color shows public tradition, not uniform belief. Household and denominational communities can coexist; visitors alone are not resident converts.";
                     }
                     else{facts.Add(F("Origin",s.Society.Cultures[r.CultureId].Name));facts.Add(F("Founded",Y(s,r.FoundedYear)));}
                     facts.Add(F("Ethos",doctrine!=null?"Mutual aid "+doctrine.Charity+" · ritual discipline "+doctrine.Asceticism:r.Ethos));break;

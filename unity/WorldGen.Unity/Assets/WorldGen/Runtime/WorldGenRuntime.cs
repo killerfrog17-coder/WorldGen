@@ -288,7 +288,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
             bool background=Keyboard.current.leftShiftKey.isPressed||Keyboard.current.rightShiftKey.isPressed;
             if(add||subtract){float delta=add?.25f:-.25f;if(background)satelliteOpacity=Mathf.Clamp01(satelliteOpacity+delta);else humanOverlayOpacity=Mathf.Clamp01(humanOverlayOpacity+delta);ApplyCachedDisplay();}
             if(!Keyboard.current.ctrlKey.isPressed&&!Keyboard.current.altKey.isPressed)
-                for(int n=1;n<=7;n++)if(Keyboard.current[(Key)((int)Key.Digit1+n-1)].wasPressedThisFrame)
+                for(int n=1;n<=(background?MapShortcuts.Backgrounds.Length:MapShortcuts.Overlays.Length);n++)if(Keyboard.current[(Key)((int)Key.Digit1+n-1)].wasPressedThisFrame)
                 {if(background){var mode=MapShortcuts.Backgrounds[n-1];if(GenerationPreview.Available(displayedWorld,mode)){layer=preferredLayer=mode;Refresh();}}else{historyOverlay=MapShortcuts.Overlays[n-1];UpdateHumanPalette();}}
             if(Keyboard.current.commaKey.wasPressedThisFrame)ChangeHumanSpeed(-1);
             if(Keyboard.current.periodKey.wasPressedThisFrame)ChangeHumanSpeed(1);

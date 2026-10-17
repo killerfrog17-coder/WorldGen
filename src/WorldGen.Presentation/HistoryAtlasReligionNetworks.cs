@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using WorldGen.Core;
 
 namespace WorldGen.Presentation
@@ -22,6 +23,12 @@ namespace WorldGen.Presentation
             if(local.Blending>0)facts.Add(F("Shared ritual familiarity",local.Blending+" / 1,000"));
             if(local.LastContact>=0)facts.Add(F("Last religious contact","Year "+Y(s,local.LastContact)));
             facts.Add(F("Court policy",local.Policy));
+            var presences=Prehistory.ReligiousPresenceAt(s,cell);
+            foreach(var presence in presences.Where(x=>x.Faith!=local.Dominant&&x.ResidentEvidence))
+            {
+                string role=presence.Association?"Provisioned local denomination":presence.Household?"Inherited household tradition":"Local religious body";
+                var link=FaithLink(s.History.Religions[presence.Faith]);link.Detail=role;links.Add(link);
+            }
             for(int slot=0;slot<2;slot++)
             {
                 var body=Prehistory.ReligiousInstitutionAt(s,cell,slot);if(body==null)continue;
@@ -39,7 +46,7 @@ namespace WorldGen.Presentation
                 if(lay.Dispute!=ReligiousAssociationDispute.None)facts.Add(F("Association circumstance",lay.Dispute==ReligiousAssociationDispute.SuppressedWorship?"Restricted local meetings":lay.Dispute==ReligiousAssociationDispute.CapturedPatronage?"Disputed court patronage":"Disputed inherited ritual authority"));
                 if(lay.LastGiftYear>=0)facts.Add(F("Last actual local gift","Year "+Y(s,lay.LastGiftYear)));
             }
-            return new AtlasSection{Title="Public worship and household practice",Facts=facts.ToArray(),Links=links.ToArray(),Text="Public predominance can change through sustained local adoption while household rites continue. Institutions need continuing provisions. Influence, support and familiarity are indices, not percentages of believers."};
+            return new AtlasSection{Title="Public worship and household practice",Facts=facts.ToArray(),Links=links.GroupBy(x=>(x.Kind,x.Id)).Select(g=>g.Last()).ToArray(),Text="The map shows public predominance, not religious uniformity. A town can also retain a different household tradition and a separately supported denomination. Recent visiting teachings are contact, not evidence of resident converts. The model retains two institutional bodies per town, not every congregation. Influence and support are indices, not percentages of believers."};
         }
         public static AtlasSection[] ReligiousNetworkSections(PrehistoryState s,int religion)
         {

@@ -34,7 +34,8 @@ namespace WorldGen.Core
     [Serializable] public sealed class HistoricalLanguages
     {
         public LanguageProfile[] Profiles=Array.Empty<LanguageProfile>();
-        public HistoricalLanguages Copy()=>new HistoricalLanguages{Profiles=Profiles.Select(x=>x.Copy()).ToArray()};
+        [System.Runtime.Serialization.OptionalField] public HistoricalSpokenLanguages Spoken;
+        public HistoricalLanguages Copy()=>new HistoricalLanguages{Profiles=Profiles.Select(x=>x.Copy()).ToArray(),Spoken=Spoken?.Copy()};
     }
     public readonly struct LanguageWord
     {

@@ -75,6 +75,7 @@ namespace WorldGen.Core
             double transit=(.15+.85*continuity)*elapsed*transport/Math.Max(80,60+distance*barrier*.3);
             double transmission=EnvironmentalHistory(s)?EnvironmentalTransmission(s,BorderContactHistory(s)?fromCell:a.Regions[other].BestCell,BorderContactHistory(s)?toCell:region.BestCell,donor,route.Sea):1;
             transit*=transmission*encounters;
+            transit*=SpokenCommunicationAt(s,fromCell,toCell);
             if(HistoryRoll("living-knowledge-exchange-"+trial,id,s.Years)>1-Math.Exp(-transit))return;
             RecordDeliveredRegionalReligion(s,fromCell,toCell);
             if(LocalSeedlotHistory(s))RecordDeliveredLocalSeeds(s,fromCell,toCell);

@@ -11,6 +11,7 @@ namespace WorldGen.Core
             using var knowledgeScope=ProvincialHistory(s)?new ProvincialKnowledgeScope(this,s):default;
             if(LivingHistory(s))AdvanceLivingRegionalExchange(s,id,elapsed);
             AdvanceRegionalTradition(s,id,elapsed);
+            AdvanceSpokenCommunity(s,r.BestCell,true);
             if(ConnectedHistory(s))AdvanceDevelopmentVoyage(s,id,elapsed);
             long before=s.Population[id],capacity=0;
             if(!ProvincialHistory(s)||before>0||!UseProvincialCaches)

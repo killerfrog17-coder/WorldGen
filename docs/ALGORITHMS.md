@@ -1,5 +1,18 @@
 # Implementation contracts - version 3
 
+## Spoken communities - history32 optional realm32
+
+Nullable `HistoricalLanguages.Spoken` is absent from old canonical bytes.
+Fresh realm32 histories and explicit upgrades activate sparse local/regional
+home-language, minority, second-language competence and admin/ritual records.
+Actual delivered contact and migrant quantities, not political colors or
+remembered culture IDs, drive changes. Isolation can create inherited local
+varieties; source languages/names are not globally rerolled. Existing actor
+clocks perform bounded work; no new recurring territorial/actor-membership
+census. Copies detach mutable profiles; immutable trees preserve sharing.
+Language map/borders/selection share the same literal identities. See
+[mechanisms and limitations](HISTORY32_SPOKEN_COMMUNITIES.md).
+
 ## Structured religious traditions - history32 optional realm31
 
 Fresh histories enable nullable `Religion.Traditions`; old null continuations

@@ -205,6 +205,7 @@ namespace WorldGen.Core
                 if(o is HistoricalColonialConnections oldPlots && f.Name==nameof(HistoricalColonialConnections.PreparedPlots) && oldPlots.PreparedPlots==null)continue;
                 if(o is HistoricalReligiousNetworks oldLay && f.Name==nameof(HistoricalReligiousNetworks.LayAssociations) && oldLay.LayAssociations==null)continue;
                 if(o is HistoricalReligiousNetworks oldDoctrine && f.Name==nameof(HistoricalReligiousNetworks.Traditions) && oldDoctrine.Traditions==null)continue;
+                if(o is HistoricalLanguages oldSpeech && f.Name==nameof(HistoricalLanguages.Spoken) && oldSpeech.Spoken==null)continue;
                 if(o is HistoricalTerritorialServiceRecovery oldRetired && f.Name==nameof(HistoricalTerritorialServiceRecovery.RetiredGovernments) && oldRetired.RetiredGovernments==null)continue;
                 if(o is HistoricalTerritorialServiceRecovery oldGovernmentCursor && f.Name==nameof(HistoricalTerritorialServiceRecovery.GovernmentCursor) && oldGovernmentCursor.GovernmentCursor==null)continue;
                 if(o is HistoricalGeographicMap oldSharing && f.Name==nameof(HistoricalGeographicMap.Sharing) && oldSharing.Sharing==null)continue;

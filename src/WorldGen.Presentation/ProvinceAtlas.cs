@@ -38,6 +38,8 @@ namespace WorldGen.Presentation
             else facts.Add(F("Center population",N(s.Society.Settlements[index].Population)));
             d.Facts=facts.ToArray();var links=new List<AtlasLink>();if(!post)links.Add(TownLink(s,s.Society.Settlements[index]));if(local>=0)links.Add(StateLink(s,s.History.Polities[local],"Local government"));if(sovereign>=0&&sovereign!=local)links.Add(StateLink(s,s.History.Polities[sovereign],"Overarching imperial government"));
             sections.Add(Links("Institutions and allegiance",links,"Direct administration, constituent allegiance and local culture are distinct."));
+            var worship=ReligiousLocalSection(s,cell);if(worship!=null){worship.Text="Administrative center only; this is not a uniform religion assigned to the whole province. "+worship.Text;sections.Add(worship);}
+            var speech=SpokenLocalSection(s,cell);if(speech!=null){speech.Text="Administrative center only; the province can contain other speech communities. "+speech.Text;sections.Add(speech);}
             sections.Add(Events(s,e=>e.Cell==cell));
         }
     }

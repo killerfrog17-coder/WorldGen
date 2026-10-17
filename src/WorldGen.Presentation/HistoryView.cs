@@ -45,7 +45,13 @@ namespace WorldGen.Presentation
                 foreach(var town in s.Society.Settlements){int faith=HistoricalCells.Religion(s,town.Cell);if(faith>=0)faithPopulation[faith]+=town.Population;}
             }
             if(h!=null&&overlay==HistoryOverlay.Religions)for(int cell=0;cell<HistoricalCells.Count(s);cell++){int faith=HistoricalCells.Religion(s,cell);if(faith>=0&&!faithSites.ContainsKey(faith))faithSites.Add(faith,cell);}
-            if(h!=null&&overlay==HistoryOverlay.ReligiousInstitutions)
+            if(h!=null&&overlay==HistoryOverlay.Languages)
+            {
+                var sites=new System.Collections.Generic.SortedDictionary<int,int>();var display=HistoricalMapSnapshot.For(s);
+                for(int cell=0;cell<display.Count;cell++){int id=display.OverlayId(cell,overlay);if(id>=0&&!sites.ContainsKey(id))sites.Add(id,cell);}
+                entries=sites.Select(p=>new HistoryLegendEntry{Name=h.Languages.Spoken.Varieties[p.Key].Name,Cell=p.Value,ColorId=p.Key});
+            }
+            else if(h!=null&&overlay==HistoryOverlay.ReligiousInstitutions)
                 entries=s.Society.Settlements.Select(t=>Prehistory.ReligiousInstitutionAt(s,t.Cell)).Where(b=>b!=null&&b.Support>=100).GroupBy(b=>b.Seat).Select(g=>new HistoryLegendEntry{Name="Ritual seat at "+s.Society.Settlements[g.Key].Name,Cell=s.Society.Settlements[g.Key].Cell,ColorId=g.Key*2,Population=g.Sum(b=>s.Society.Settlements[b.Town].Population)});
             else if(h?.Aggregates?.Empires?.Territories!=null&&overlay==HistoryOverlay.Provinces)
             {

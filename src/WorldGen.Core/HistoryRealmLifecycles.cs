@@ -10,7 +10,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalRealmLifecycles
     {
-        internal const int CurrentRevision=31;
+        internal const int CurrentRevision=32;
         public int Version=CurrentRevision,SinceYear;
         [System.Runtime.Serialization.OptionalField] public HistoricalRealmClaimRoutes ClaimRoutes;
         [System.Runtime.Serialization.OptionalField] public HistoricalRealmClaimants Claimants;
@@ -45,9 +45,9 @@ namespace WorldGen.Core
         public PrehistoryState UpgradeRealmLifecycles(PrehistoryState source)
         {
             Validate(source);if(!LivingWorldHistory(source))throw new ArgumentException("Realm lifecycles require history32.");
-            if(RevisedRealmHistory(source)&&source.History.Aggregates.Empires.Connections.Realms.Version>=HistoricalRealmLifecycles.CurrentRevision&&source.History.Aggregates.Empires.Connections.Realms.ClaimRoutes?.SourceHeads!=null&&source.History.Aggregates.Empires.Connections.Realms.Claimants!=null&&source.History.Aggregates.Empires.Connections.SeaService!=null&&source.History.Aggregates.Empires.Connections.Religion?.Version>=2&&source.History.Aggregates.Empires.Connections.Military!=null&&source.History.Aggregates.Empires.Connections.ServiceRecovery?.Version>=2&&source.History.Aggregates.Empires.Connections.LocalSeeds!=null&&source.History.Aggregates.Empires.Connections.PreparedPlots?.Version>=2&&source.History.Aggregates.Empires.Connections.Religion.LayAssociations!=null&&source.History.Aggregates.Empires.Connections.Religion.Traditions!=null)return source;
+            if(RevisedRealmHistory(source)&&source.History.Aggregates.Empires.Connections.Realms.Version>=HistoricalRealmLifecycles.CurrentRevision&&source.History.Aggregates.Empires.Connections.Realms.ClaimRoutes?.SourceHeads!=null&&source.History.Aggregates.Empires.Connections.Realms.Claimants!=null&&source.History.Aggregates.Empires.Connections.SeaService!=null&&source.History.Aggregates.Empires.Connections.Religion?.Version>=2&&source.History.Aggregates.Empires.Connections.Military!=null&&source.History.Aggregates.Empires.Connections.ServiceRecovery?.Version>=2&&source.History.Aggregates.Empires.Connections.LocalSeeds!=null&&source.History.Aggregates.Empires.Connections.PreparedPlots?.Version>=2&&source.History.Aggregates.Empires.Connections.Religion.LayAssociations!=null&&source.History.Aggregates.Empires.Connections.Religion.Traditions!=null&&source.History.Languages?.Spoken!=null)return source;
             int preceding=source.History.Aggregates.Empires.Connections.Realms?.Version??0;
-            var s=source.Copy();InitializeRealmLifecycles(s);InitializeRealmClaimRoutes(s);s.History.Aggregates.Empires.Connections.Realms.Version=HistoricalRealmLifecycles.CurrentRevision;UpgradeReligiousNetworkRules(s);InitializeMilitaryOperations(s);UpgradeTerritorialServiceRecovery(s);InitializeRealmClaimants(s);InitializeSeaService(s);if(preceding<8)InitializeLocalReligiousCityClocks(s);InitializeLocalSeedlots(s);InitializePreparedPlots(s);InitializeLayReligiousAssociations(s);InitializeStructuredReligions(s);s.Seal();return s;
+            var s=source.Copy();InitializeRealmLifecycles(s);InitializeRealmClaimRoutes(s);s.History.Aggregates.Empires.Connections.Realms.Version=HistoricalRealmLifecycles.CurrentRevision;UpgradeReligiousNetworkRules(s);InitializeMilitaryOperations(s);UpgradeTerritorialServiceRecovery(s);InitializeRealmClaimants(s);InitializeSeaService(s);if(preceding<8)InitializeLocalReligiousCityClocks(s);InitializeLocalSeedlots(s);InitializePreparedPlots(s);InitializeLayReligiousAssociations(s);InitializeStructuredReligions(s);InitializeSpokenLanguages(s);s.Seal();return s;
         }
         void InitializeRealmLifecycles(PrehistoryState s)
         {
@@ -70,6 +70,7 @@ namespace WorldGen.Core
             if(h.Aggregates.Empires.Connections.Realms.Version>=16)InitializePreparedPlots(s);
             InitializeLayReligiousAssociations(s);
             InitializeStructuredReligions(s);
+            InitializeSpokenLanguages(s);
         }
         void AppendRealmGovernment(PrehistoryState s,int predecessor)
         {

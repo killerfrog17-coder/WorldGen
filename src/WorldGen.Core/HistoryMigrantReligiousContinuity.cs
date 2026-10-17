@@ -60,6 +60,7 @@ namespace WorldGen.Core
             FoundAggregateCultureWithFaith(s,patch,site,parent,continuity.FoundingPublic);int child=s.Society.Cultures.Length-1;
             InheritDevelopmentCommunityWithReligiousProfile(s,child,parent,site,sourceCell,sourceTown,false);
             ApplyMigrantReligiousContinuity(s,site,continuity);
+            if(continuity.SourceCell>=0){if(previousResidents<=0)InheritSpokenHouseholds(s,site,continuity.SourceCell,0,1);else RecordSpokenContact(s,continuity.SourceCell,site);}
             return child;
         }
 
