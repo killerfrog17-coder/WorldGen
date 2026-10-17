@@ -80,10 +80,11 @@ namespace WorldGen.Core
             else for(int g=0;g<8;g++)s.Ancestry[patch*8+g]=(int)((previous*s.Ancestry[patch*8+g]+people*s.Ancestry[CellPatch[town.Cell]*8+g])/Math.Max(1,s.Population[patch]));
             if(HistoricalCells.Culture(s,destination)<0)
             {
-                FoundAggregateCulture(s,patch,destination,town.CultureId);int child=h.Cultures.Length-1;
-                if(CommunityHistory(s))InheritDevelopmentCommunityFrom(s,child,town.CultureId,destination,town.Cell,cityId);
+                int child;
+                if(CommunityHistory(s))child=FoundMigrantAggregateCulture(s,patch,destination,town.CultureId,town.Cell,cityId,previous);
                 else
                 {
+                FoundAggregateCulture(s,patch,destination,town.CultureId);child=h.Cultures.Length-1;
                 var inherited=h.Cultures[child];inherited.ParentCultureId=town.CultureId;inherited.LanguageId=hc.LanguageId;inherited.Technology=(int[])hc.Technology.Clone();s.Society.Cultures[child].Farming=s.Society.Cultures[town.CultureId].Farming;
                 var crops=h.Agriculture[child];var parent=h.Agriculture[town.CultureId];for(int k=0;k<6;k++)if(parent.AdoptedYear[k]>0){crops.AdoptedYear[k]=s.Years+1;crops.SourceCulture[k]=town.CultureId;crops.Cultivars[k]=parent.Cultivars?[k]?.Copy();}
                 crops.Animals=(parent.Animals??Array.Empty<HistoricalAnimalHusbandry>()).Where(animal=>animal.AdoptedYear>0&&Biogeography.Suitable(World.Ecology.Taxa[animal.TaxonId],CropHabitat(s,destination),World.ElevationM[destination])).Select(animal=>new HistoricalAnimalHusbandry{TaxonId=animal.TaxonId,Name=animal.Name,Practice=animal.Practice,AdoptedYear=s.Years+1,SourceCulture=town.CultureId,OriginCell=destination}).ToArray();

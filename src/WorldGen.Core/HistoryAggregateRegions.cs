@@ -63,14 +63,16 @@ namespace WorldGen.Core
         static long AggregateLogisticPopulation(long population,long capacity,double rate,double elapsed)
         {if(population<=0)return 0;if(capacity<=0)return Math.Max(0,(long)Math.Round(population*Math.Exp(-rate*elapsed)));double result=capacity/(1+(capacity/(double)population-1)*Math.Exp(-rate*elapsed));return Math.Max(0,(long)Math.Round(result));}
         void FoundAggregateCulture(PrehistoryState s,int patch,int cell,int languageParent=-1)
+            =>FoundAggregateCultureWithFaith(s,patch,cell,languageParent,-1);
+        void FoundAggregateCultureWithFaith(PrehistoryState s,int patch,int cell,int languageParent,int inheritedFaith)
         {
-            var h=s.History;var a=h.Aggregates;int id=s.Society.Cultures.Length,religion=h.Religions.Length;var habitat=World.Ecology.Habitat[cell];
+            var h=s.History;var a=h.Aggregates;bool inherited=inheritedFaith>=0&&inheritedFaith<h.Religions.Length;int id=s.Society.Cultures.Length,religion=inherited?inheritedFaith:h.Religions.Length;var habitat=World.Ecology.Habitat[cell];
             var c=new CultureIdentity{Id=id,Name=HistoricalName("people",unchecked(cell+id*7919)),OriginCell=cell,FoundedYear=s.Years,StageYear=s.Years,Stage=SocietyStage.AdvancedCulture,Fishing=Patches[patch].Lifestyle==ForagerLifestyle.Coastal?400:HistoricalRiverAccess(cell)>.03?300:50,Hunting=300,Gathering=400,Resources="Native plants, seasonal game and local exchange",Subsistence="Seasonal foraging with persistent storage and exchange"};
             c.Gathering=1000-c.Fishing-c.Hunting;InitializeMarineForagerCulture(s,c,cell);s.Society.Cultures=s.Society.Cultures.Concat(new[]{c}).ToArray();
             int capabilities=HistoricalTechnologies.Count(h.Version);
             var hc=new HistoricalCulture{Id=id,ReligionId=religion,LanguageId=id,Sedentism=150,Technology=new int[capabilities],Research=new int[capabilities]};hc.Technology[0]=s.Years+1;h.Cultures=h.Cultures.Concat(new[]{hc}).ToArray();
             if(TechnicalHistory(s))InitializeTechnicalPractice(hc,s.Years);
-            h.Religions=h.Religions.Concat(new[]{new HistoricalReligion{Id=religion,CultureId=id,HolyCell=cell,FoundedYear=s.Years,Name="Tradition of "+c.Name,Tradition="Ancestral and place-based tradition",Ethos="Reciprocity and stewardship",Ritual="Seasonal gatherings and shared feasts"}}).ToArray();
+            if(!inherited)h.Religions=h.Religions.Concat(new[]{new HistoricalReligion{Id=religion,CultureId=id,HolyCell=cell,FoundedYear=s.Years,Name="Tradition of "+c.Name,Tradition="Ancestral and place-based tradition",Ethos="Reciprocity and stewardship",Ritual="Seasonal gatherings and shared feasts"}}).ToArray();
             var crops=new HistoricalAgriculture{CultureId=id,NativeMask=nativeCrops[cell],PracticeCell=Enumerable.Repeat(cell,6).ToArray(),WildOriginCell=Enumerable.Range(0,6).Select(k=>(nativeCrops[cell]&(1<<k))!=0?cell:-1).ToArray(),Cultivars=new HistoricalCultivar[6],HusbandryYears=new int[6]};h.Agriculture=h.Agriculture.Concat(new[]{crops}).ToArray();
             if(CommunityHistory(s)){crops.NativeMask=CommunityNativeCropMask(s,cell);for(int k=0;k<6;k++)crops.WildOriginCell[k]=(crops.NativeMask&(1<<k))!=0?cell:-1;}
             a.Cultures=a.Cultures.Concat(new[]{new HistoricalCultureAggregate{Id=id,LastYear=s.Years,Region=patch}}).ToArray();a.Regions[patch].Culture=id;a.Regions[patch].LastCultureYear=s.Years;
@@ -90,7 +92,7 @@ namespace WorldGen.Core
             }
             if(LanguageHistory(s)&&languageParent>=0){hc.LanguageId=h.Cultures[languageParent].LanguageId;hc.ParentCultureId=languageParent;}
             AppendLanguage(s,id);
-            if(ReligiousInstitutionHistory(s))InitializeReligiousProfile(s,religion);
+            if(ReligiousInstitutionHistory(s)&&!inherited)InitializeReligiousProfile(s,religion);
             if(LanguageHistory(s)&&hc.ParentCultureId>=0)HistoryEvent(s,"cultural-exchange",c.Name+" develops a distinct local tradition through exchange with "+s.Society.Cultures[hc.ParentCultureId].Name+"; crops and institutions still need local support.",cell,id,category:ChronicleCategory.Society);
             SetAggregateLayer(s,cell,0,id);SetAggregateLayer(s,cell,2,religion);SetAggregateLayer(s,cell,4,1);
             c.Population=RegionalTraditions(s)?s.Population[patch]:Math.Min(s.Population[patch],RuralCellPopulation(s,cell));ScheduleAggregate(s,CultureProcess,id);

@@ -96,8 +96,7 @@ namespace WorldGen.Core
                             // Descendant households do not forget their crops,
                             // language and technical knowledge merely because
                             // they crossed a demographic-region boundary.
-                            FoundAggregateCulture(s,other,site,source);int child=s.Society.Cultures.Length-1;
-                            InheritDevelopmentCommunityFrom(s,child,source,site,sourceCell,-1);
+                            int child=FoundMigrantAggregateCulture(s,other,site,source,sourceCell,-1,before);
                             HistoryEvent(s,"migrant-community",s.Society.Cultures[source].Name+" households establish "+s.Society.Cultures[child].Name+" as a local descendant community, bringing crops and skills suited to the new landscape.",site,child,category:ChronicleCategory.Society);
                         }
                     }

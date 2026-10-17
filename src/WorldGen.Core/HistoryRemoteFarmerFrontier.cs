@@ -83,8 +83,7 @@ namespace WorldGen.Core
             AccumulateInstitutionalDelivery(s,to,court,example,transmission,Math.Min(200,(int)migrants),"remote-farmer-institution-"+trial);
             if(s.Population[to]>=400)
             {
-                FoundAggregateCulture(s,to,target,culture);int child=s.Society.Cultures.Length-1;
-                InheritDevelopmentCommunityFrom(s,child,culture,target,fromCell,-1);
+                FoundMigrantAggregateCulture(s,to,target,culture,fromCell,-1,before);
             }
             HistoryEvent(s,"migrant-frontier",migrants+" people from farming households leave "+people.Name+" for neighboring farmland, carrying viable crops and provisions from "+granary.Name+". A local farming community is not a new town or sovereign state.",target,a.Regions[to].Culture,category:ChronicleCategory.Society);
             return true;

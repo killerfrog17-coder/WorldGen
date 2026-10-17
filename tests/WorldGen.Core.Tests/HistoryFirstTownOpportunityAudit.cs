@@ -24,7 +24,7 @@ public static class HistoryFirstTownOpportunityAudit
         double Lon(int cell)=>Math.Atan2(world.Surface.Cells[cell].Position.Y,world.Surface.Cells[cell].Position.X)*180/Math.PI;
         object Place(int cell)=>new{Cell=cell,Latitude=Lat(cell),Longitude=Lon(cell),Region=engine.CellPatch[cell],Biome=world.Ecology.Habitat[cell].Biome.ToString(),Climate=world.Climate.Classification[cell].ToString()};
         var anchors=new List<(string Name,int Cell,int Region,int Local,int Regional)>();
-        foreach(var target in new[]{("Levant",32.0,35.0),("Iraq",33.0,44.0),("Iran",33.0,52.0),("Indus",29.0,70.0),("Gujarat",23.0,72.0),("Ganges",26.0,82.0),("Deccan",18.0,77.0),("Bengal",23.0,90.0)})
+        foreach(var target in new[]{("Levant",32.0,35.0),("Iraq",33.0,44.0),("Iran",33.0,52.0),("Indus",29.0,70.0),("Gujarat",23.0,72.0),("Ganges",26.0,82.0),("Deccan",18.0,77.0),("Bengal",23.0,90.0),("North China",35.0,114.0),("Yangtze",30.0,114.0),("South China",23.0,113.0)})
         {
             double lat=target.Item2*Math.PI/180,lon=target.Item3*Math.PI/180;var point=new V(Math.Cos(lat)*Math.Cos(lon),Math.Cos(lat)*Math.Sin(lon),Math.Sin(lat));
             int cell=Enumerable.Range(0,world.Surface.Cells.Length).Where(c=>engine.CellPatch[c]>=0&&!world.Hydrology.OceanConnected[c]).OrderByDescending(c=>V.Dot(point,world.Surface.Cells[c].Position)).ThenBy(c=>c).First();

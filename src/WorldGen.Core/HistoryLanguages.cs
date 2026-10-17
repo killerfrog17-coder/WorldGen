@@ -30,7 +30,8 @@ namespace WorldGen.Core
             var profile=LanguageGenerator.Create(World.Recipe.Seed,culture,s.Years,parent);
             Array.Resize(ref h.Languages.Profiles,culture+1);h.Languages.Profiles[culture]=profile;
             s.Society.Cultures[culture].Name=LanguageGenerator.Capitalize(LanguageGenerator.Name(profile,LanguageNameKind.People,culture).Text);
-            h.Religions[h.Cultures[culture].ReligionId].Name="Tradition of "+s.Society.Cultures[culture].Name;
+            var religion=h.Religions[h.Cultures[culture].ReligionId];
+            if(!MigrantReligiousHistory(s)||religion.CultureId==culture)religion.Name="Tradition of "+s.Society.Cultures[culture].Name;
         }
         void InheritLanguage(PrehistoryState s,int child,int parent)
         {

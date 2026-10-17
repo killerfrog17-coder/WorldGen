@@ -50,6 +50,7 @@ namespace WorldGen.Core
             a.Empires.Connections.Governments[polity].LastExpeditionYear=s.Years;
             RecordCoastChart(s,p.CultureId,destination,p.CultureId);
             var route=chosenRoute??new Route{A=region,B=destination,CellA=source,CellB=shore,Sea=true,DistanceM=(int)Math.Round(D.Angle(World.Surface.Cells[source].Position,World.Surface.Cells[shore].Position)*World.Recipe.RadiusKm*1000)};
+            long previousReligiousResidents=MigrantReligiousHistory(s)?AggregateRuralCellPopulation(s,shore):0;
             TryTerritorialSeaCharter(s,route,p.CultureId,elapsed);
             // A successful state charter is a dependent venture, not a new
             // pristine civilization waiting to reinvent its sponsor's society.
@@ -61,8 +62,7 @@ namespace WorldGen.Core
                 bool settlers=!LivingWorldHistory(s)||foundedPost>=0&&a.Empires.Territories.Posts[foundedPost].Founders>0;
                 if(settlers&&a.Regions[destination].Culture<0&&HistoricalCells.Culture(s,shore)<0)
                 {
-                    FoundAggregateCulture(s,destination,shore,p.CultureId);int child=s.Society.Cultures.Length-1;
-                    InheritDevelopmentCommunityFrom(s,child,p.CultureId,shore,route.CellA,-1);var continuity=a.Empires.Connections.Cultures[child];
+                    int child=FoundMigrantAggregateCulture(s,destination,shore,p.CultureId,route.CellA,-1,previousReligiousResidents);var continuity=a.Empires.Connections.Cultures[child];
                     continuity.ColonialSponsor=polity;continuity.CivilizationRoot=HistoricalRecognizedClaims.Civilization(s,p.CultureId);
                     HistoryEvent(s,"colonial-community",s.Society.Cultures[child].Name+" develops as an overseas branch sponsored by "+p.Name+", retaining its political connection and inherited practices.",shore,child,polity,category:ChronicleCategory.Society);
                 }

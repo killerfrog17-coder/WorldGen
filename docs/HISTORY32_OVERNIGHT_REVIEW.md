@@ -3,6 +3,13 @@
 Source experiments, not an assertion of historical/scientific validation. The
 existing selected player is the rollback build until native review is complete.
 
+Current source is optional realm29. [Actual migrant faith continuity](HISTORY32_MIGRANT_FAITH_CONTINUITY.md)
+removes automatic new religions at migrant-culture foundation, carries the actual
+departing public/remembered identities separately, and protects resident rites,
+existing faith metadata and funding provenance. It passes24 focused,14 actual
+identity and11 genuine cold-upgrade assertions. Complete fresh29/native review
+is ongoing; the older milestone results below are controls, not its acceptance.
+
 ## Latest review: revisions20–28 (17 October,12:53UTC)
 
 The older entries below are a chronological audit trail, **not the current

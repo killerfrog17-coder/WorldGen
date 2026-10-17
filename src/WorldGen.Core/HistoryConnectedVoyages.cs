@@ -108,8 +108,7 @@ namespace WorldGen.Core
                 for(int g=0;g<8;g++)s.Ancestry[to*8+g]=(int)((s.Ancestry[to*8+g]*before+s.Ancestry[region*8+g]*migrants)/(before+migrants));
                 if(a.Regions[to].Culture<0&&HistoricalCells.Culture(s,route.CellB)<0&&s.Population[to]>=400)
                 {
-                    FoundAggregateCulture(s,to,route.CellB,culture);int child=s.Society.Cultures.Length-1;
-                    InheritDevelopmentCommunityFrom(s,child,culture,route.CellB,route.CellA,-1);
+                    int child=FoundMigrantAggregateCulture(s,to,route.CellB,culture,route.CellA,-1,destinationPopulation);
                     HistoryEvent(s,"overseas-community",s.Society.Cultures[culture].Name+" voyagers establish a community on another shore, carrying crops and practical knowledge across approximately "+route.DistanceM/1000+" km of sea.",route.CellB,child,category:ChronicleCategory.Society);
                 }
                 break;
@@ -118,10 +117,12 @@ namespace WorldGen.Core
         void InheritDevelopmentCommunity(PrehistoryState s,int child,int parent,int site)
             =>InheritDevelopmentCommunityFrom(s,child,parent,site,-1,-1);
         void InheritDevelopmentCommunityFrom(PrehistoryState s,int child,int parent,int site,int sourceCell,int sourceTown)
+            =>InheritDevelopmentCommunityWithReligiousProfile(s,child,parent,site,sourceCell,sourceTown,true);
+        void InheritDevelopmentCommunityWithReligiousProfile(PrehistoryState s,int child,int parent,int site,int sourceCell,int sourceTown,bool religiousProfile)
         {
             var h=s.History;var hc=h.Cultures[child];hc.ParentCultureId=parent;hc.LanguageId=h.Cultures[parent].LanguageId;
             InheritLanguage(s,child,parent);
-            if(ReligiousInstitutionHistory(s))InheritReligiousProfile(s,child,parent);
+            if(ReligiousInstitutionHistory(s)&&religiousProfile)InheritReligiousProfile(s,child,parent);
             provincialKnowledgeMasks.Remove(child);
             for(int k=0;k<hc.Technology.Length;k++)if(h.Cultures[parent].Technology[k]>0&&(!ProvincialHistory(s)||k<15))hc.Technology[k]=s.Years+1;
             if(TechnicalHistory(s))

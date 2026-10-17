@@ -576,3 +576,25 @@ The activated27 build containing the memo also passes the separate genuine
 earlier-frame full-world12 versus5+save/load+7 cold control documented in
 [civil maritime continuity](HISTORY32_CIVIL_MARITIME_CONTINUITY.md). Neither
 these exactness checks nor the pure tests establish a strict native speed gain.
+
+## Native28 control replay (17 October,13:09UTC)
+
+`player-history-32-overnight-ad28-review` is a nondevelopment IL2CPP build.
+Its staged Core exactly matches frozen28 SHA256
+`20213669a322a6ba2dbe830a2191b59b1b9004df4bf9da370da95205060b2495`;
+the build manifest hash is
+`322bdae45d2134fc085aca52231918f592ce00ec701095b0d774aa1c96cedc38`.
+Temporary Standalone/stripping overrides were removed with the project settings
+returning to a clean diff; the preloaded-asset setting was restored by the builder.
+
+The actual current28 Earth final world is freshly replayed through all nine
+observer eras in the native player, ending157700 at exactly
+`db43d25fa111a430f5fbead5491738f3467091c83a84d6b4188c1fea98a34cff`.
+The input world file remains byte-identical. Valid offscreen camera-map images
+and `verified.txt` are in `native-ad28-earth-eras`. Hidden-window HUD images are
+black under the known host capture limitation: they are NOT HUD validation.
+
+This is a native determinism/rendering control, not isolated speed acceptance.
+Native28 CP and strict benchmarks were deliberately deferred while the separately
+versioned29 candidate was prepared. The two current26 strict failures above
+remain the latest completed dense acceptance measurements at this checkpoint.

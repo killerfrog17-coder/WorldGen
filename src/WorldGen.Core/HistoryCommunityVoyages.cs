@@ -101,7 +101,7 @@ namespace WorldGen.Core
                 else for(int g=0;g<8;g++)s.Ancestry[to*8+g]=(int)((s.Ancestry[to*8+g]*destination+s.Ancestry[region*8+g]*migrants)/Math.Max(1,destination+migrants));
                 if(a.Regions[to].Culture<0&&HistoricalCells.Culture(s,route.CellB)<0&&s.Population[to]>=400)
                 {
-                    FoundAggregateCulture(s,to,route.CellB,culture);int child=s.Society.Cultures.Length-1;InheritDevelopmentCommunityFrom(s,child,culture,route.CellB,route.CellA,sourceTown);
+                    int child=FoundMigrantAggregateCulture(s,to,route.CellB,culture,route.CellA,sourceTown,destination);
                     if(ColonialHistory(s)&&sourceState>=0){var continuity=a.Empires.Connections.Cultures[child];continuity.ColonialSponsor=sourceState;continuity.CivilizationRoot=HistoricalRecognizedClaims.Civilization(s,culture);}
                     HistoryEvent(s,"overseas-community",s.Society.Cultures[culture].Name+" voyagers establish a community along a sea route of approximately "+route.DistanceM/1000+" km, bringing crops and practical knowledge that must work in their new environment.",route.CellB,child,category:ChronicleCategory.Society);
                 }

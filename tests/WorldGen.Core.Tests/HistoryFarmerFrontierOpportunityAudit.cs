@@ -26,7 +26,7 @@ public static class HistoryFarmerFrontierOpportunityAudit
         object Finite(double value)=>double.IsNaN(value)||double.IsInfinity(value)?(object)value.ToString(System.Globalization.CultureInfo.InvariantCulture):value;
         double Q(object quote,string field)=>quote==null?0:Convert.ToDouble(quote.GetType().GetField(field)!.GetValue(quote));
         object Quote(object quote)=>quote==null?null:quote.GetType().GetFields().ToDictionary(f=>f.Name,f=>f.GetValue(quote));
-        var anchors=prior.RootElement.GetProperty("Places").EnumerateArray().Take(8).Select(p=>(Name:p.GetProperty("Name").GetString(),Cell:p.GetProperty("ActualFineField").GetProperty("Cell").GetInt32())).ToArray();
+        var anchors=prior.RootElement.GetProperty("Places").EnumerateArray().Take(12).Select(p=>(Name:p.GetProperty("Name").GetString(),Cell:p.GetProperty("ActualFineField").GetProperty("Cell").GetInt32())).ToArray();
         var regions=anchors.Select(p=>engine.CellPatch[p.Cell]).Distinct().ToArray();
         object RecognitionAt(int region,int cell,double actualBestProbability)
         {

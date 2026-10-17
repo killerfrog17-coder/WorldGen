@@ -132,6 +132,7 @@ namespace WorldGen.Core
         }
         void InheritReligiousHouseholds(PrehistoryState s,int target,int source,int previousFaith,long previousResidents)
         {
+            if(MigrantReligiousHistory(s)){InheritMigrantTownReligiousHouseholds(s,target,source,previousFaith,previousResidents);return;}
             var r=s.History.Aggregates.Empires.Connections.Religion;int carried=HistoricalCells.Religion(s,source);if(carried<0)return;
             if(ReligiousInstitutionHistory(s)&&s.History.Religions[carried].Reach==ReligiousReach.Local&&ReligiousInstitutionVocation(s,carried)!=ReligiousVocation.SacredPlaces)s.History.Religions[carried].Reach=ReligiousReach.Portable;
             bool indigenous=previousResidents>0&&previousFaith>=0;

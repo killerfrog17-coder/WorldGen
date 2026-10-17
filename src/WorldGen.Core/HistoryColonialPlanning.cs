@@ -62,6 +62,7 @@ namespace WorldGen.Core
             }
             if(best==null||HistoryRoll("colonial-expedition-departure",polity,s.Years)>1-Math.Exp(-elapsed/12.0))return;
             p.Treasury-=100;a.Empires.Connections.Governments[polity].LastExpeditionYear=s.Years;
+            long previousReligiousResidents=MigrantReligiousHistory(s)?AggregateRuralCellPopulation(s,best.CellB):0;
             RecordCoastChart(s,p.CultureId,best.B,p.CultureId);TryTerritorialSeaCharter(s,best,p.CultureId,elapsed);
             int shore=best.CellB,destinationRegion=CellPatch[shore];
             if(HistoricalCells.Polity(s,shore)!=polity)return;
@@ -70,7 +71,7 @@ namespace WorldGen.Core
             a.Provinces.RegionalKnowledge[destinationRegion]|=ProvincialKnowledge(hc);
             int post=a.Empires.Territories.PostAt[shore];
             if(post<0||a.Empires.Territories.Posts[post].Founders<=0||a.Regions[destinationRegion].Culture>=0||HistoricalCells.Culture(s,shore)>=0)return;
-            FoundAggregateCulture(s,destinationRegion,shore,p.CultureId);int child=s.Society.Cultures.Length-1;InheritDevelopmentCommunityFrom(s,child,p.CultureId,shore,best.CellA,-1);
+            int child=FoundMigrantAggregateCulture(s,destinationRegion,shore,p.CultureId,best.CellA,-1,previousReligiousResidents);
             var continuity=a.Empires.Connections.Cultures[child];continuity.ColonialSponsor=polity;continuity.CivilizationRoot=HistoricalRecognizedClaims.Civilization(s,p.CultureId);
             HistoryEvent(s,"colonial-community",s.Society.Cultures[child].Name+" develops as an overseas branch sponsored by "+p.Name+", retaining its political connection and inherited practices.",shore,child,polity,category:ChronicleCategory.Society);
         }
