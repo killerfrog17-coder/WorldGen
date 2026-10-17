@@ -10,7 +10,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalRealmLifecycles
     {
-        public int Version=4,SinceYear;
+        public int Version=5,SinceYear;
         [System.Runtime.Serialization.OptionalField] public HistoricalRealmClaimRoutes ClaimRoutes;
         public HistoricalRealmAccount[] Governments=Array.Empty<HistoricalRealmAccount>();
         public HistoricalRealmLifecycles Copy()=>new HistoricalRealmLifecycles{Version=Version,SinceYear=SinceYear,ClaimRoutes=ClaimRoutes?.Copy(),Governments=Governments.Select(g=>g.Copy()).ToArray()};
@@ -43,8 +43,8 @@ namespace WorldGen.Core
         public PrehistoryState UpgradeRealmLifecycles(PrehistoryState source)
         {
             Validate(source);if(!LivingWorldHistory(source))throw new ArgumentException("Realm lifecycles require history32.");
-            if(RevisedRealmHistory(source)&&source.History.Aggregates.Empires.Connections.Realms.Version>=4&&source.History.Aggregates.Empires.Connections.Realms.ClaimRoutes?.SourceHeads!=null&&source.History.Aggregates.Empires.Connections.Religion?.Version>=2&&source.History.Aggregates.Empires.Connections.Military!=null&&source.History.Aggregates.Empires.Connections.ServiceRecovery?.Version>=2)return source;
-            var s=source.Copy();InitializeRealmLifecycles(s);InitializeRealmClaimRoutes(s);s.History.Aggregates.Empires.Connections.Realms.Version=4;UpgradeReligiousNetworkRules(s);InitializeMilitaryOperations(s);UpgradeTerritorialServiceRecovery(s);s.Seal();return s;
+            if(RevisedRealmHistory(source)&&source.History.Aggregates.Empires.Connections.Realms.Version>=5&&source.History.Aggregates.Empires.Connections.Realms.ClaimRoutes?.SourceHeads!=null&&source.History.Aggregates.Empires.Connections.Religion?.Version>=2&&source.History.Aggregates.Empires.Connections.Military!=null&&source.History.Aggregates.Empires.Connections.ServiceRecovery?.Version>=2)return source;
+            var s=source.Copy();InitializeRealmLifecycles(s);InitializeRealmClaimRoutes(s);s.History.Aggregates.Empires.Connections.Realms.Version=5;UpgradeReligiousNetworkRules(s);InitializeMilitaryOperations(s);UpgradeTerritorialServiceRecovery(s);s.Seal();return s;
         }
         void InitializeRealmLifecycles(PrehistoryState s)
         {
@@ -160,7 +160,7 @@ namespace WorldGen.Core
         void ValidateRealmLifecycles(PrehistoryState s)
         {
             var r=s.History.Aggregates.Empires.Connections.Realms;if(r==null)return;
-            if(!LivingWorldHistory(s)||r.Version<1||r.Version>4||r.SinceYear<0||r.SinceYear>s.Years||r.Governments?.Length!=s.History.Polities.Length)throw new ArgumentException("Invalid realm lifecycle extension.");
+            if(!LivingWorldHistory(s)||r.Version<1||r.Version>5||r.SinceYear<0||r.SinceYear>s.Years||r.Governments?.Length!=s.History.Polities.Length)throw new ArgumentException("Invalid realm lifecycle extension.");
             if(r.Version>=2&&s.History.Aggregates.Empires.Connections.Religion==null)throw new ArgumentException("Revised realm institutions require their saved religious communities.");
             ValidateReligiousNetworks(s);
             if(r.Version>=3&&s.History.Aggregates.Empires.Connections.Military==null)throw new ArgumentException("Revised field operations require their saved manpower accounts.");

@@ -56,6 +56,7 @@ namespace WorldGen.Core
         void AdvanceLivingTownRegionalExchange(PrehistoryState s,int city)
         {
             if(!LivingWorldHistory(s))return;int region=CellPatch[s.Society.Settlements[city].Cell];if(region<0)return;
+            AdvanceRevisedLocalTownRelays(s,city);
             TryLivingTownRegionalDelivery(s,city,region);
             var routes=s.History.Aggregates.Regions[region].Routes;
             int offset=routes.Length==0?0:(int)(HistoryRoll("living-town-rural-route",city,s.Years)*routes.Length),previous=-1;

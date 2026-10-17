@@ -8,6 +8,15 @@ namespace WorldGen.Core
         public static double ReachFactor(double landTransport,int publicWorks,bool funded)
             =>funded?D.Q(1+(Math.Max(1,Math.Min(4.5,landTransport))-1)*(.25+.75*D.Clamp(publicWorks/1000.0)),1000000):1;
         public static double ProbeScale(double reach,int trial)=>D.Q(1+(Math.Max(1,Math.Min(4.5,reach))-1)*Math.Max(0,Math.Min(2,trial))/2,1000000);
+        public static double LocalProposalKm(int trial,double reach,double serviceRadius=-1)
+        {
+            int at=Math.Max(0,Math.Min(2,trial));double proposal=(110+55*at)*ProbeScale(reach,at);
+            // Previously two of three early flatland probes (180/240km)
+            // exceeded a new court's135km service envelope by construction.
+            // Proposals do not grant service: the target still pays/test it.
+            if(serviceRadius>=0)proposal=Math.Min(proposal,Math.Max(105,serviceRadius*1.45*(.82+.08*at)));
+            return D.Q(proposal,1000000);
+        }
         // Effective family/carriage travel, including terrain and staging;
         // these are authored logistics priors, not measured train schedules.
         public static double TravelDays(double effortKm,double landTransport)

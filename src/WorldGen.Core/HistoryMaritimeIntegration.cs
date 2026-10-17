@@ -75,7 +75,10 @@ namespace WorldGen.Core
                     // The depot-to-departure voyage is a real additional leg;
                     // no short outward hop launders an unsupported distant base.
                     double openSupply=InstitutionalUnsupportedWaterKm(town.Cell,route.CellA,out _);
-                    bool supplied=ReturningFleetHistory(s)?supplyKm<=StateMaritimeLegKm(s,polity)&&supplyKm+route.DistanceM/1000.0<=StateMaritimeNetworkKm(s,polity):HistoricalMaritimeControlEffects.Reach(supplyKm,route.DistanceM/1000.0,
+                    // Revision4's recorded continuations used the older depot
+                    // leg check. Apply the returning-fleet correction only with
+                    // the explicitly upgraded revision5 rules.
+                    bool supplied=a.Empires.Connections.Realms.Version>=5?supplyKm<=StateMaritimeLegKm(s,polity)&&supplyKm+route.DistanceM/1000.0<=StateMaritimeNetworkKm(s,polity):HistoricalMaritimeControlEffects.Reach(supplyKm,route.DistanceM/1000.0,
                         HistoricalModernEffects.Adoption(hc,HistoricalTechnology.OceanNavigation,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.SteamPower,s.Years),HistoricalModernEffects.Adoption(hc,HistoricalTechnology.CombustionEngines,s.Years));
                     if(openSupply>35&&!supplied)return false;
                 }

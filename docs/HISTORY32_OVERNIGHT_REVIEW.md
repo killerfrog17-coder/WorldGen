@@ -125,3 +125,86 @@ checks. Expectations have **not** been regenerated. This is a pre-existing
 corpus mismatch, not evidence that the overnight changes alter terrain. Focused history,
 presentation and new causal-model tests are reported separately; a partial
 suite is not described as a complete pass.
+
+## Candidates C/D and the city/inland correction (revision 5)
+
+C/D add returning-fleet institutions, locally carried household/public religious
+traditions, and bounded withdrawal/reassignment of unsupported service areas.
+Recognized titles remain separate from actual control. D's service-recovery
+revision 2 also drains retired-government sources through the existing queue;
+there is no recurring empire-cell census. The matching dense review found
+stale service around4–5%, compared with38–40% in A (different final years, not
+a controlled percentage-point causal estimate).
+
+The independent critic identified another substantial failure: hundreds of
+active town IDs disappeared over300-year intervals, including supplied large
+cities. Exact frozen replays located warehouse destruction after capacity
+changes, an unbounded negative population term, and retirement solely from
+being below an old peak or having weak local productivity despite imports.
+[The causal audit](HISTORY32_CITY_LIFECYCLE_AUDIT.md) records actual contemporary
+stocks and populations, not backdated final technical deployment.
+
+Fresh revision5 preserves stored food through capacity shocks, measures actual
+consumption, bounds scarcity/crowding responses and retires centers from actual
+household/provisioning distress. It does not make villages or cities immortal.
+The same city actor calendar performs this work. E also corrects inland proposal
+distances that exceeded a new court's service radius, adds paid local physical
+relay of practices, and reduces the specifically observed repeated-iron-cost
+bottleneck without dropping graph prerequisites or conserved research budgets.
+These changes require a fresh simulation or explicit upgrade; revision4 retains
+its original depot-supply test and numerical arithmetic.
+
+Focused evidence:18 urban-survival assertions,8 actual Earth and8 actual
+Continents Plus checks;624 inland assertions and9 loaded-world checks. Old
+frozen C and both frozen D20-year continuations were verified against named
+hash files after restoring exact legacy arithmetic and guarding the depot-leg
+correction with revision5. Parallel tool output order is not result identity.
+
+The first completed E Earth200k replay has first state185301, final194200,
+hash `2a1aa6c6554d1f81c1c5b3a39199d66dd8ee649e1011957aa71204c2ce6191fc`.
+It is an experiment, not a passed realism verdict: screenshot/actor continuity
+review and the corresponding Continents Plus tail remain in progress.
+
+## Native performance and exact-byte optimization
+
+Native D200k continued1028.60years beyond maximum technology at5.36yr/s,
+minimum rolling4.72yr/s. It **failed** the strict worst-year gate:1041ms.
+All60 years over500ms coincided with checkpoint hashing; non-hash years
+averaged152ms and peaked455ms. Correlation does not isolate individual GC
+pauses. Unity's Boehm collector does not have independent generational
+collections merely because all three .NET collection counters increment.
+
+Exact typed canonical writers reduce warm diagnostic allocations6.10→3.32MB;
+per-depth radix digest buffers reduce a1024-dirty-edit fingerprint5.49→0.29MB.
+The SHA byte format and all old-save hashes remain unchanged.208 pure and7
+loaded-world assertions compare independent literal serialization, signed
+radix boundaries, public mutation detection, concurrent verification and cold
+continuation. .NET timings are not a substitute for remeasuring native Unity.
+
+To bound disk usage,9.06GB of redundant baseline/A/B/C compressed map exports
+were removed after their review images were rendered. Final test worlds,
+metadata, selected images, reference frames and frozen executables remain.
+New reviews retain all four views at era milestones and only States between
+milestones. Short political episodes also compare States and Territories at
+25-year intervals. The opt-in native overnight reviewer watches ordinary Auto
+playback and captures actual map/HUD frames roughly every15seconds; none of
+these diagnostic traversals is a simulation turn. Native offscreen map captures
+are usable; hidden-player HUD screenshots are black on this host and are not
+treated as inspected UI evidence.
+
+The E Continents Plus simulation completed its1000-year maximum-tech tail at
+190800, but its final save exceeded the old256MB cap with Fastest compression.
+An actual Earth snapshot experiment measured147.4MB Fastest versus105.6MB
+Optimal, with identical loaded history hashes; preserving object references
+was slower and larger, so that experiment was rejected. The shared writer now
+uses Optimal within the SAME format,256MB compressed/4GB decoded limits and
+integrity/cancellation checks. The complete CP replay must still be rerun to
+confirm its final file fits; no lost data or successful save is implied yet.
+
+A separate25-year checkpoint review caught a validation-only mismatch:
+service-recovery edge bags are intentionally lazy-grown, but validation
+required an empty trailing bag for every newly created unowned town. At187775
+the actual lengths were395/396, with valid control. Validation now accepts
+absent trailing empty bags and still rejects every actual service-source
+reference without its bag. All13 fixed Iron episode checkpoints validate;
+the seven overlapping frozen checkpoints retain their exact hashes.

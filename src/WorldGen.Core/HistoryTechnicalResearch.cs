@@ -105,7 +105,7 @@ namespace WorldGen.Core
                 long learn=TechnicalAllocation(learningBudget,learningWeights[k],learningTotal);
                 t.Allocation[k]=researchTotal>0?(int)(10000*researchWeights[k]/researchTotal):0;
                 t.LastResearchSpent+=work;t.LastLearningSpent+=learn;t.Progress[k]+=work;t.Learning[k]+=learn;
-                long cost=HistoricalTechnicalGraph.Cost(k,t.Levels[k]+1,h.Version);
+                long cost=HistoricalTechnicalGraph.Cost(s,k,t.Levels[k]+1);
                 // Knowing a recipe is much cheaper than independently solving
                 // the problem. Material deployment is handled separately below.
                 bool adopted=learn>0&&t.Learning[k]>=Math.Max(1000000,cost/8);

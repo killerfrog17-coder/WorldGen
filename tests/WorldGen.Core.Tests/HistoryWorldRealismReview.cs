@@ -60,7 +60,12 @@ public static partial class HistoryWorldRealismReview
             if(observe)
             {
                 string directory=Path.Combine(output,"year-"+s.Years);Directory.CreateDirectory(directory);
-                HistoryAudit.Snapshot(world,engine,s,directory,new[]{HistoryOverlay.States,HistoryOverlay.Technology,HistoryOverlay.Cultures,HistoryOverlay.Religions},compressed:true,backgroundOpacity:1,overlayOpacity:.58,includeLabels:false);
+                // Keep all four views for era comparisons; intermediate political
+                // frames need only States. Metadata remains complete at every
+                // observation, without accumulating four near-identical geometry
+                // exports throughout a long late-world tail.
+                var views=milestone?new[]{HistoryOverlay.States,HistoryOverlay.Technology,HistoryOverlay.Cultures,HistoryOverlay.Religions}:new[]{HistoryOverlay.States};
+                HistoryAudit.Snapshot(world,engine,s,directory,views,compressed:true,backgroundOpacity:1,overlayOpacity:.58,includeLabels:false);
                 var towns=s.Society.Settlements.Where(t=>t.Population>0).ToArray();
                 var row=new{Year=s.Years,Era=era,EraName=WorldEraView.Name(era),FirstState=first,Population=s.History.Aggregates.TotalPopulation,Cultures=s.Society.Cultures.Length,
                     ActiveTowns=towns.Length,AbandonedTowns=s.History.Aggregates.Living.Cities.Count(c=>c.AbandonedYear>=0),

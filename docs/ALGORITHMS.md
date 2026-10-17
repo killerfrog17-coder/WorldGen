@@ -196,7 +196,7 @@ Sea-contact queries index shipping records by their actual endpoint cells. An im
 
 Unity computes palettes/legends off-thread, reuses buffers and uploads at most64 rows per frame before atomic publication. Old views remain usable. World replacement cancels the old playback session; a worker can never install or advance a new world's session through a shared field. Ecological palette refinements are presentation-only, dominated by biome with small moisture/fertility/identity shading.
 
-Compact world files retain the WGWRLD01 binary XML/gzip format and existing integrity checks. A64KiB buffer coalesces serializer/reader calls around the guarded compression stream; cancellation and the decoded-size/file-size limits remain. This is transport buffering, not a new save schema or bypass of validation. Optional native and browser phase timings are diagnostics, never simulation inputs.
+Compact world files retain the WGWRLD01 binary XML/gzip format and existing integrity checks. A64KiB buffer coalesces serializer/reader calls around the guarded compression stream; cancellation and the decoded-size/file-size limits remain. Writes use ordinary Optimal lossless gzip compression: the previous Fastest mode exceeded the compressed-file cap on a long200k-cell history despite the same complete data fitting with Optimal. Old Fastest files remain readable. This is transport encoding/buffering, not a new save schema, simulation change or bypass of validation. Optional native and browser phase timings are diagnostics, never simulation inputs.
 
 ## History12 institutional handovers — 14 October 2026
 

@@ -165,7 +165,11 @@ namespace WorldGen.Core
         void ValidateTerritorialServiceRecovery(PrehistoryState s)
         {
             if(!ServiceRecoveryHistory(s))return;var a=s.History.Aggregates;var r=a.Empires.Connections.ServiceRecovery;
-            if(r.Version<1||r.Version>2||r.CityEdges?.Length!=a.Cities.Length||r.PendingSources==null||r.PendingCursor<0||r.ReassignedCells<0||r.WithdrawnCells<0||r.WithdrawnKm2<0)throw new ArgumentException("Invalid territorial service recovery.");
+            // New independent towns have no territorial source yet. Their
+            // trailing empty bags are allocated lazily by the next service
+            // event/source assignment, not by taking a checkpoint. Accept that
+            // existing representation without changing saved bytes or timing.
+            if(r.Version<1||r.Version>2||r.CityEdges==null||r.CityEdges.Length>a.Cities.Length||r.PendingSources==null||r.PendingCursor<0||r.ReassignedCells<0||r.WithdrawnCells<0||r.WithdrawnKm2<0)throw new ArgumentException("Invalid territorial service recovery.");
             foreach(var tree in new[]{r.Cursor,r.Reviewed,r.CreditKm2,r.LastReviewYear})if(tree?.Length!=33554432)throw new ArgumentException("Service recovery tree alignment.");
             if(r.Version>=2)
             {
@@ -184,7 +188,8 @@ namespace WorldGen.Core
             }
             for(int cell=0;cell<CellPatch.Length;cell++)
             {
-                int source=a.Empires.Territories.Sources[cell];if(source>=0&&ServiceDistrictBoundary(s,cell,source)&&r.CityEdges[source].Positions[cell]<0)throw new ArgumentException("Missing city service boundary.");
+                int source=a.Empires.Territories.Sources[cell];
+                if(source>=0&&(source>=r.CityEdges.Length||ServiceDistrictBoundary(s,cell,source)&&r.CityEdges[source].Positions[cell]<0))throw new ArgumentException("Missing city service boundary.");
             }
         }
     }

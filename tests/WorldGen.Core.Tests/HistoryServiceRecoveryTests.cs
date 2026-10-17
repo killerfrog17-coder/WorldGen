@@ -70,4 +70,34 @@ public static class HistoryServiceRecoveryTests
         check(whole.Hash==pieces.Hash,"Recovery and territory ledgers replay identically from cold restore across twelve versus five-plus-seven years.");
         Console.WriteLine("Recovery experiment cells repaired="+(r.ReassignedCells+r.WithdrawnCells-changed)+" old-source km2="+area+" -> "+after+"; normal12 pending="+whole.History.Aggregates.Empires.Connections.ServiceRecovery.PendingSources.Count);
     }
+    public static void Checkpoints(string path,Action<bool,string> check)
+    {
+        var w=WorldFile.Read(File.ReadAllBytes(path));var original=w.Prehistory;var e=new Prehistory(w);e.Validate(original);string originalHash=original.ComputeHash();
+        object Call(PrehistoryState state)=>typeof(Prehistory).GetMethod("ValidateTerritorialServiceRecovery",BindingFlags.Instance|BindingFlags.NonPublic)!.Invoke(e,new object[]{state})!;
+        bool Rejected(PrehistoryState state){try{Call(state);return false;}catch(TargetInvocationException ex)when(ex.InnerException is ArgumentException){return true;}}
+        var trailing=original.Copy();var a=trailing.History.Aggregates;var recovery=a.Empires.Connections.ServiceRecovery;
+        // Isolate the service validator's actual town-append invariant: a new
+        // independent town adds a city but no territorial source or edge bag.
+        a.Cities=a.Cities.Concat(new[]{new HistoricalCityAggregate{Id=a.Cities.Length}}).ToArray();
+        string before=trailing.ComputeHash();Call(trailing);
+        check(recovery.CityEdges.Length<a.Cities.Length,"A checkpoint accepts lazy empty service bags after an independent town append.");
+        check(trailing.ComputeHash()==before,"Validating a lazy checkpoint does not allocate bags or change its canonical bytes.");
+        var copy=trailing.Copy();Call(copy);check(copy.ComputeHash()==before,"Copy preserves the same valid lazy checkpoint representation and bytes.");
+        var legacy=trailing.Copy();var legacyRecovery=legacy.History.Aggregates.Empires.Connections.ServiceRecovery;legacyRecovery.Version=1;legacyRecovery.RetiredGovernments=null;legacyRecovery.GovernmentCursor=null;string legacyHash=legacy.ComputeHash();Call(legacy);
+        check(legacy.ComputeHash()==legacyHash,"The same lazy-index validation preserves revision1 recovery bytes and absent optional retired-government fields.");
+        var oversized=original.Copy();Array.Resize(ref oversized.History.Aggregates.Empires.Connections.ServiceRecovery.CityEdges,oversized.History.Aggregates.Cities.Length+1);
+        check(Rejected(oversized),"A service bag for a nonexistent city remains invalid.");
+        var assigned=original.Copy();var aa=assigned.History.Aggregates;int source=Enumerable.Range(0,w.Surface.Cells.Length).Select(c=>aa.Empires.Territories.Sources[c]).Where(c=>c>=0).DefaultIfEmpty(-1).Max();
+        if(source<0)throw new Exception("Checkpoint fixture requires an actual city service source.");
+        Array.Resize(ref aa.Empires.Connections.ServiceRecovery.CityEdges,source);
+        check(Rejected(assigned),"A missing bag for any real assigned service source remains invalid, not silently treated as an empty district.");
+        var broken=original.Copy();broken.History.Aggregates.Empires.Connections.ServiceRecovery.CityEdges=null;
+        check(Rejected(broken),"A null boundary index remains invalid.");
+        check(original.ComputeHash()==originalHash,"Checkpoint regressions leave the loaded real world unchanged.");
+        var restoredWorld=WorldFile.Read(WorldFile.Write(w));var restored=restoredWorld.Prehistory;e.Validate(restored);
+        check(restored.ComputeHash()==originalHash,"A cold compact save retains the exact existing service-ledger checkpoint bytes.");
+        var whole=e.AdvanceYears(original,12);var cold=new Prehistory(restoredWorld);var parts=cold.AdvanceYears(cold.AdvanceYears(restored,5),7);e.Validate(whole);cold.Validate(parts);
+        check(whole.Hash==parts.Hash,"Twelve years replay identically to cold five-plus-seven with validation-only lazy service indices.");
+        check(original.ComputeHash()==originalHash,"Saved continuation checks leave their source checkpoint unchanged.");
+    }
 }

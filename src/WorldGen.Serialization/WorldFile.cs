@@ -20,13 +20,17 @@ namespace WorldGen.Serialization
             using (var memory = new MemoryStream())
             {
                 memory.Write(Magic, 0, Magic.Length);
-                using (var gzip = new GZipStream(memory, CompressionLevel.Fastest, true))
+                // Keep the existing format and safety limits. Long dense
+                // histories exceeded the file cap with Fastest despite fitting
+                // comfortably with ordinary lossless compression. No history
+                // records, terrain or integrity checks are discarded.
+                using (var gzip = new GZipStream(memory, CompressionLevel.Optimal, true))
                 using (var guarded = new GuardedStream(gzip, cancellation))
                 using (var buffered = new BufferedStream(guarded, 65536))
                 using (var writer = XmlDictionaryWriter.CreateBinaryWriter(buffered, null, null, false))
                     Serializer().WriteObject(writer, world);
                 cancellation.ThrowIfCancellationRequested();
-                if (memory.Length > MaximumFileBytes) throw new ArgumentException("This snapshot exceeds the 256 MB compact world-file limit. Use a lower terrain detail.");
+                if (memory.Length > MaximumFileBytes) throw new ArgumentException("This snapshot exceeds the 256 MB compressed world-file limit.");
                 return memory.ToArray();
             }
         }

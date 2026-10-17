@@ -71,6 +71,15 @@ namespace WorldGen.Core
                 technology==(int)HistoricalTechnology.SteamPower||technology==(int)HistoricalTechnology.IndustrialMetallurgy?110:100;
             return checked((result*numerator+50)/100);
         }
+        public static long Cost(PrehistoryState state,int technology,int nextLevel)
+        {
+            if((state?.History?.Aggregates?.Empires?.Connections?.Realms?.Version??0)<5||technology!=(int)HistoricalTechnology.Iron)return Cost(technology,nextLevel,state?.History?.Version);
+            // Only the repeated iron-experiment bottleneck is recalibrated.
+            // Preserve every graph/practice requirement and the conserved shared
+            // research budget; transmitted learning uses this same cost basis.
+            long result=costs[technology]*1000000L;for(int level=1;level<nextLevel;level++)result=checked((result*33+10)/20);
+            int numerator=nextLevel==1?270:nextLevel==2?125:100;return checked((result*numerator+50)/100);
+        }
         public static bool Prerequisites(int technology,int[] levels)
         {foreach(var r in requirements[technology])if(r.Technology>=levels.Length||levels[r.Technology]<r.Level)return false;return true;}
         public static bool Military(int k)=>k==7||k==9||k==12||k==16||k==29||k==(int)HistoricalTechnology.NuclearWeapons;

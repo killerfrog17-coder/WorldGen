@@ -23,6 +23,12 @@ namespace WorldGen.Core
         }
         public static V TransportProbe(V from,double radiusKm,double bearingTurns,int trial,double reachFactor)
             =>LocalProbe(from,radiusKm/HistoricalInlandSettlement.ProbeScale(reachFactor,trial),bearingTurns,trial);
+        public static V LocalProbeKm(V from,double radiusKm,double bearingTurns,double km)
+        {
+            var east=V.Tangent(from,new V(0,0,1));if(east.Length<.5)east=V.Tangent(from,new V(1,0,0));var north=V.Cross(from,east).Unit;
+            double angle=bearingTurns*2*D.Pi,distance=Math.Max(0,km)/Math.Max(1,radiusKm);var tangent=east*D.Sin(angle+D.Pi/2)+north*D.Sin(angle);
+            return (from*D.Sin(distance+D.Pi/2)+tangent*D.Sin(distance)).Unit;
+        }
     }
     public sealed partial class Prehistory
     {
@@ -73,6 +79,7 @@ namespace WorldGen.Core
             double bearing=HistoryRoll("living-local-town-bearing",parent,s.Years);
             var point=LivingWorldHistory(s)?HistoricalSettlementNetworks.TransportProbe(World.Surface.Cells[from].Position,World.Recipe.RadiusKm,bearing,trial,LivingSettlementProbeReach(s,parent)):
                 HistoricalSettlementNetworks.LocalProbe(World.Surface.Cells[from].Position,World.Recipe.RadiusKm,bearing,trial);
+            if(RevisedInlandHistory(s))point=RevisedInlandProposal(s,parent,trial,bearing);
             int site=aggregateTerrainRaster[InstitutionalRasterNode(point)];
             // The existing immutable routing raster supplies a constant-size
             // seed. At most four nearest-neighbor refinements recover detail

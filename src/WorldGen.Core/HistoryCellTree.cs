@@ -90,20 +90,39 @@ namespace WorldGen.Core
             // The tree and its length are immutable. Trusted publication can
             // reuse their digest; explicit integrity verification still walks
             // every actual node and recomputes the result, including old saves.
-            using(var sha=CanonicalSha256.Create())using(var stream=new MemoryStream())using(var writer=new BinaryWriter(stream))
-            {writer.Write(length);writer.Write(Digest(root,sha,verify));return fingerprint=Hex(sha.ComputeHash(stream.ToArray()));}
+            using(var sha=CanonicalSha256.Create())
+            {
+                // One scratch buffer per radix depth, allocated only when that
+                // depth has an uncached node. Child recursion never overwrites
+                // its parent's partially assembled canonical bytes.
+                var scratch=new byte[5][];var bytes=new byte[36];PutTreeInteger(bytes,0,length);
+                Buffer.BlockCopy(Digest(root,sha,verify,scratch,0),0,bytes,4,32);
+                return fingerprint=Hex(sha.ComputeHash(bytes));
+            }
         }
         static readonly byte[] Absent=new byte[32];
-        static byte[] Digest(Node node,SHA256 sha,bool verify)
+        static void PutTreeInteger(byte[] bytes,int offset,int value)
+        {bytes[offset]=(byte)value;bytes[offset+1]=(byte)(value>>8);bytes[offset+2]=(byte)(value>>16);bytes[offset+3]=(byte)(value>>24);}
+        static byte[] Digest(Node node,SHA256 sha,bool verify,byte[][] scratch,int depth)
         {
             if(node==null)return Absent;if(!verify&&node.Digest!=null)return node.Digest;
-            using(var stream=new MemoryStream())using(var writer=new BinaryWriter(stream))
+            if(depth>=scratch.Length)throw new SerializationException("Invalid spatial radix depth.");
+            bool leaf=node.Values!=null;int count=leaf?129:1025;var bytes=scratch[depth]??(scratch[depth]=new byte[count]);
+            // Valid trees have branches at depths0–3 and leaves at4. Retain a
+            // deterministic rejection rather than aliasing scratch on bad data.
+            if(bytes.Length<count)throw new SerializationException("Invalid spatial radix shape.");
+            bytes[0]=(byte)(leaf?1:0);
+            if(leaf)
             {
-                writer.Write(node.Values!=null);
-                if(node.Values!=null){if(node.Values.Length!=32||node.Children!=null)throw new SerializationException("Invalid spatial leaf.");foreach(int value in node.Values)writer.Write(value);}
-                else {if(node.Children?.Length!=32)throw new SerializationException("Invalid spatial branch.");foreach(var child in node.Children)writer.Write(Digest(child,sha,verify));}
-                return node.Digest=sha.ComputeHash(stream.ToArray());
+                if(node.Values.Length!=32||node.Children!=null)throw new SerializationException("Invalid spatial leaf.");
+                for(int k=0;k<32;k++)PutTreeInteger(bytes,1+k*4,node.Values[k]);
             }
+            else
+            {
+                if(node.Children?.Length!=32)throw new SerializationException("Invalid spatial branch.");
+                for(int k=0;k<32;k++)Buffer.BlockCopy(Digest(node.Children[k],sha,verify,scratch,depth+1),0,bytes,1+k*32,32);
+            }
+            return node.Digest=sha.ComputeHash(bytes,0,count);
         }
         static string Hex(byte[] bytes)=>BitConverter.ToString(bytes).Replace("-","").ToLowerInvariant();
     }

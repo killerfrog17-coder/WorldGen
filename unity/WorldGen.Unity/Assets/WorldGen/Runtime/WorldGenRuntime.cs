@@ -86,6 +86,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         if(Environment.GetCommandLineArgs().Contains("--worldgen-prehistory-check"))StartCoroutine(CheckPrehistory());
         if(Environment.GetCommandLineArgs().Contains("--worldgen-history-view")){screen="Setup";BeginWork(false,Argument("--worldgen-history-view",""));StartCoroutine(CheckHistoricalView());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-era-review")){screen="Setup";BeginWork(false,Argument("--worldgen-era-review",""));StartCoroutine(CheckHistoricalEras());}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-overnight-review")){screen="Setup";BeginWork(false,Argument("--worldgen-overnight-review",""));StartCoroutine(CheckOvernightHistory());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-history-playback")){screen="Setup";BeginWork(false,Argument("--worldgen-history-playback",""));StartCoroutine(CheckHistoricalPlayback());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-dock-check")){screen="Setup";BeginWork(false,Argument("--worldgen-dock-check",""));StartCoroutine(CheckHistoryDock());}
     }

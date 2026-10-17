@@ -77,8 +77,10 @@ public sealed partial class WorldGenRuntime
             new[]{"stage,count,totalMilliseconds,maximumMilliseconds,maximumYear,maximumItems,allocatedBytes,maximumAllocatedBytes"}.Concat(stageRows));
         System.IO.File.WriteAllLines(System.IO.Path.Combine(output,"work-spikes.csv"),new[]{"year,stage,items,milliseconds,gc0,gc1,gc2"}.Concat(spikes));
         System.IO.File.WriteAllText(System.IO.Path.Combine(output,"playback.json"),JsonUtility.ToJson(evidence,true));
-        CaptureHumanMap(System.IO.Path.Combine(output,"playback-map.png"));
-        ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(output,"playback-hud.png"));for(int i=0;i<8;i++)yield return null;
+        // The offscreen map render must not replace the frame buffer while
+        // Unity's asynchronous HUD screenshot is still being read.
+        ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(output,"playback-hud.png"));for(int i=0;i<3;i++)yield return new WaitForEndOfFrame();
+        CaptureHumanMap(System.IO.Path.Combine(output,"playback-map.png"));for(int i=0;i<8;i++)yield return null;
         Debug.Log("PLAYBACK CHECK "+JsonUtility.ToJson(evidence));Application.Quit(evidence.AcceptancePassed?0:1);
     }
 }

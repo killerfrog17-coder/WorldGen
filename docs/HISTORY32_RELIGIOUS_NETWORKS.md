@@ -216,3 +216,43 @@ had 3,647 versus 452. These observations motivated institutional inertia and
 live-carrier checks, not a target global religion count. Their optional detailed
 diagnostic exports now include actor forms, parent traditions and religious
 event counts alongside local-town observations.
+
+### C longitudinal observations, 17 October 2026
+
+The matched `candidate-c-integration-bin` reader inspected the two completed
+200k-cell worlds without upgrading or resealing them. Earth at simulation year
+205,500 had 551 active towns, 309 institutions with support at least 400 and
+373 towns retaining household traditions distinct from public predominance.
+Its 369 recorded religious actors comprised 262 local, 79 portable and 28
+missionary forms; 105 had public predominance in an observed active town.
+Continents Plus at year 186,700 had 529 active towns, 282 supported institutions
+and 359 distinct household inheritances. Its 212 actors comprised 147 local,
+54 portable and 11 missionary forms; 77 had observed public town predominance.
+These are town/actor observations, not a census of believers or countryside.
+
+Continents Plus included 89 supported public institutions whose religion still
+had local form. All six new ethos profiles occurred. Earth recorded 39 court
+religious-policy changes, four schisms and eleven syntheses; Continents Plus
+recorded sixteen policy changes and seven syntheses. Neither recorded an
+ethical-renewal event. The latter mechanism is therefore a causal possibility,
+not a demonstrated common outcome in these samples. Differences from A are
+not controlled estimates of religious effects: C also changes political and
+maritime rules and produces different settlement and state histories.
+
+Independent opaque-map inspection found contiguous regional clusters and some
+coastal/island satellites. Extensive unrecorded countryside remains. A few
+Antarctic patches inherit the wider simulation's settlement geography; religion
+does not independently establish their people or validate their plausibility.
+Colors alone cannot establish a particular route's causal history. Detailed
+diagnostics live under `D:/WorldGenBuildArtifacts/overnight-20261017/` in
+`religion-rich-c-*` and `religion-opaque-c-*`, outside source control.
+
+The final focused suite passed 35 checks, plus 27 actual-world checks on each
+of the saved Earth20 and Continents Plus20 fixtures. These cover explicit
+upgrade, full save/load, 20 versus 7+13-year continuation, inherited profiles,
+actual endpoint disruption, sustained local adoption, household continuity and
+real provision/treasury debits. Current C source also reproduced frozen B's
+Earth200 20-year continuation exactly:
+`7e2ae002323539cd3c9aa3cc0c99fd647f56261d2554bacfa6f911d37988ec4e`.
+This compatibility comparison retains religion revision 1 rather than
+silently applying the new institution rules.
