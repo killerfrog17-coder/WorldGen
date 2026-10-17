@@ -68,7 +68,7 @@ namespace WorldGen.Core
             bool domestic=owner>=0&&other>=0&&(owner==other||HistoricalImperialHierarchy.Sovereign(s,owner)==HistoricalImperialHierarchy.Sovereign(s,other));
             if(owner>=0&&other>=0&&!domestic)
             {
-                if(!aggregateRelations.TryGetValue((Math.Min(owner,other),Math.Max(owner,other)),out int relation)||!h.Relations[relation].Trade||h.Relations[relation].WarSince>=0)return 0;
+                if(!aggregateRelations.TryGetValue((Math.Min(owner,other),Math.Max(owner,other)),out int relation)||!h.Relations.Peek(relation).Trade||h.Relations.Peek(relation).WarSince>=0)return 0;
             }
             double km=D.Angle(World.Surface.Cells[from].Position,World.Surface.Cells[to].Position)*World.Recipe.RadiusKm;
             var hc=h.Cultures[culture];double range=200*HistoricalModernEffects.LandTransport(hc,s.Years);
@@ -96,7 +96,7 @@ namespace WorldGen.Core
                     int peer=peers[p];var other=s.Society.Settlements[peer];int foreign=a.Resolve(other.PolityId,h);
                     if(owner<0||foreign<0||!a.Cities[peer].Supported||a.Living.Cities[peer].AbandonedYear>=0)continue;
                     bool domestic=owner==foreign||HistoricalImperialHierarchy.Sovereign(s,owner)==HistoricalImperialHierarchy.Sovereign(s,foreign);
-                    bool trade=aggregateRelations.TryGetValue((Math.Min(owner,foreign),Math.Max(owner,foreign)),out int relation)&&h.Relations[relation].Trade&&h.Relations[relation].WarSince<0;
+                    bool trade=aggregateRelations.TryGetValue((Math.Min(owner,foreign),Math.Max(owner,foreign)),out int relation)&&h.Relations.Peek(relation).Trade&&h.Relations.Peek(relation).WarSince<0;
                     if(!domestic&&!trade||!InstitutionalRouteAllowed(s,town.Cell,other.Cell,culture))continue;
                     double km=D.Angle(World.Surface.Cells[town.Cell].Position,World.Surface.Cells[other.Cell].Position)*World.Recipe.RadiusKm;
                     bool sea=DiffusionShore(town.Cell)&&DiffusionShore(other.Cell)&&AggregateSeaLane(town.Cell,other.Cell);

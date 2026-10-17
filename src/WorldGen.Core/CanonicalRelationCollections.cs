@@ -27,7 +27,7 @@ namespace WorldGen.Core
             }
             writer.Write((byte)0);
         }
-        static byte[] FreezeRelation(HistoricalRelation record,byte[][] scratch)=>FreezeHistoricalRecord("WorldGen.Core.HistoricalRelation",w=>WideHistoricalRelationBody(w,record,scratch));
+        static byte[] FreezeRelation(HistoricalRelation record,byte[][] scratch)=>FreezeHistoricalRecord("WorldGen.Core.HistoricalRelation",w=>WideHistoricalRelationBody(w,record,scratch),record);
         static void RelationCampaignCollectionBody(BinaryWriter writer,HistoricalRelationCampaigns records)
         {
             if(literalAggregateRecords){foreach(int value in records){writer.Write((byte)1);Integer(writer,value);}writer.Write((byte)0);return;}

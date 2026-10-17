@@ -195,15 +195,17 @@ namespace WorldGen.Core
             // The tree and its length are immutable. Trusted publication can
             // reuse their digest; explicit integrity verification still walks
             // every actual node and recomputes the result, including old saves.
-            using(var sha=CanonicalSha256.Create())
+            var context=CanonicalTreeScratch.Acquire(out bool owned);
+            try
             {
                 // One scratch buffer per radix depth, allocated only when that
                 // depth has an uncached node. Child recursion never overwrites
                 // its parent's partially assembled canonical bytes.
-                var scratch=new byte[5][];var bytes=new byte[36];PutTreeInteger(bytes,0,length);
-                Buffer.BlockCopy(Digest(root,sha,verify,scratch,0),0,bytes,4,32);
-                return fingerprint=Hex(sha.ComputeHash(bytes));
+                var scratch=context.Buffers;var bytes=context.Root;PutTreeInteger(bytes,0,length);
+                Buffer.BlockCopy(Digest(root,context.Sha,verify,scratch,0),0,bytes,4,32);
+                return fingerprint=Hex(context.Sha.ComputeHash(bytes));
             }
+            finally{if(owned)context.Dispose();}
         }
         static readonly byte[] Absent=new byte[32];
         static void PutTreeInteger(byte[] bytes,int offset,int value)

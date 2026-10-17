@@ -7,6 +7,7 @@ public static class HistoryCanonicalCostTests
 {
     static readonly Type Costs=typeof(StateHash).Assembly.GetType("WorldGen.Core.CanonicalHashCosts")!;
     static readonly MethodInfo BeginMethod=Costs.GetMethod("Begin",BindingFlags.NonPublic|BindingFlags.Static)!;
+    static readonly MethodInfo BeginReadsMethod=Costs.GetMethod("BeginRelationReads",BindingFlags.NonPublic|BindingFlags.Static)!;
     static readonly MethodInfo OwnedMethod=typeof(StateHash).GetMethod("ComputeOwnedHistorical",BindingFlags.NonPublic|BindingFlags.Static)!;
     static readonly MethodInfo FreezeMethod=typeof(StateHash).GetMethod("FreezeHistoricalRecord",BindingFlags.NonPublic|BindingFlags.Static,null,new[]{typeof(object)},null)!;
     static IDisposable Begin(Action<CanonicalHashMetric> observer,int year)=>(IDisposable)BeginMethod.Invoke(null,new object[]{observer,year})!;
@@ -26,6 +27,8 @@ public static class HistoryCanonicalCostTests
         var metric=rows.Single();check(metric.Completed&&metric.Year==7,"One completed seal produces one dated metric.");
         check(metric.UncachedTreeNodes==5&&metric.TreeFingerprints==1&&metric.TreePayloadBytes==4*1025+129+36,"Counters report exactly five new radix nodes plus one tree-root payload, not cached reads.");
         check(metric.NewFrozenRecords==1&&metric.NewFrozenBytes>0&&metric.SealMilliseconds>=metric.RootMilliseconds&&metric.RootMilliseconds>=0,"New frozen bytes and non-authoritative root/total timing are counted once.");
+        check(metric.FrozenRecordsByType.Count==1&&metric.FrozenRecordsByType[0].Type==typeof(HistoricalCoalitionEntry).FullName&&metric.FrozenRecordsByType[0].Count==1&&metric.FrozenRecordsByType[0].Bytes==metric.NewFrozenBytes,"Read-only type summaries exactly partition frozen-record counts and bytes.");
+        bool immutable=false;try{((IList<CanonicalFrozenRecordCost>)metric.FrozenRecordsByType).Clear();}catch(NotSupportedException){immutable=true;}check(immutable,"Published type summaries cannot be changed through their collection interface.");
         rows.Clear();
         using(var outer=Begin(rows.Add,11))
         {
@@ -53,18 +56,34 @@ public static class HistoryCanonicalCostTests
         });
         for(int i=0;i<32;i++)check(results[i]&&concurrent[i].Year==i&&concurrent[i].TreeFingerprints==2&&concurrent[i].UncachedTreeNodes==10,"Concurrent scopes never share counters, tree digests or outcomes.");
         check(Begin(null,37)==null,"Nested, cancelled and failed observers leave ordinary diagnostics inactive.");
+        var relations=new HistoricalRelationCollection(new[]{new HistoricalRelation{A=1,B=2},new HistoricalRelation{A=3,B=4},new HistoricalRelation{A=5,B=6}}).Copy();Owned(relations);
+        // Expose rows, refill their memo, then fork while retaining the old refs.
+        var retained0=relations[0];var retained1=relations[1];Owned(relations);rows.Clear();
+        using((IDisposable)BeginReadsMethod.Invoke(null,new object[]{true})!)
+        {
+            var fork=relations.Copy();var readOnly=fork[0];var edited=fork[1];edited.Trust=17;var again=fork[0];
+            using(var scope=Begin(rows.Add,41)){check(Owned(fork)==StateHash.ComputeHistoricalReference(fork),"Controlled read tracing leaves actual changed and unchanged relation bytes exact.");Complete(scope);}
+            retained0.Trust=29;retained1.Trust=31;check(StateHash.Compute(fork)!=StateHash.Compute(relations),"Tracing retained immutable memo bytes does not weaken fork/source mutation isolation.");
+        }
+        metric=rows.Single();check(metric.RelationForkInvalidations==2&&metric.RelationReadCalls==3&&metric.RelationCapturedOriginals==2,"Controlled counters include fork invalidations and repeated reads without storing metadata on relations.");
+        check(metric.UnchangedRelationFreezes==1&&metric.ChangedRelationFreezes==1&&metric.UncomparedRelationFreezes==0,"Byte comparison distinguishes read-only refreezes from genuine changes.");
+        check(metric.FrozenRecordsByType.Single().Type==typeof(HistoricalRelation).FullName&&metric.FrozenRecordsByType.Single().Count==2,"Relation type counters count actual new byte construction, not cached rows.");
+        check(BeginReadsMethod.Invoke(null,new object[]{false})==null,"Relation-read tracking is independently inactive by default.");
     }
     public static void World(string source,string output,int steps=20)
     {
         if(File.Exists(output)||File.Exists(output+".json"))throw new IOException("Do not overwrite cost evidence.");
         var world=WorldFile.Read(File.ReadAllBytes(source));var initial=world.Prehistory;string original=initial.Hash;var engine=new Prehistory(world);var session=new SimulationSession(engine,initial);
-        var costs=new List<CanonicalHashMetric>();var work=new List<SimulationWorkMetric>();engine.CanonicalHashObserver=costs.Add;engine.WorkObserver=work.Add;
+        var costs=new List<CanonicalHashMetric>();var work=new List<SimulationWorkMetric>();engine.CanonicalHashObserver=costs.Add;engine.TraceCanonicalRelationReads=true;engine.WorkObserver=work.Add;
         for(int step=0;step<steps;step++)
-        {var next=session.AdvanceSeconds(5*SimulationTime.Year,int.MaxValue);Console.WriteLine(JsonSerializer.Serialize(new{Step=step+1,Year=next.Years,Hash=next.Hash,Cost=costs.Last()}));}
+        {var next=session.AdvanceSeconds(5*SimulationTime.Year,int.MaxValue);Console.WriteLine(JsonSerializer.Serialize(new{Step=step+1,Year=next.Years,Hash=next.Hash,Cost=costs.Last()},new JsonSerializerOptions{IncludeFields=true}));}
+        engine.Validate(session.LastSnapshot);
         if(initial.ComputeHash()!=original||initial.Hash!=original)throw new Exception("Scoped diagnostic playback mutated its public input.");
         var lines=new List<string>{"year,completed,sealMilliseconds,rootMilliseconds,uncachedTreeNodes,treePayloadBytes,treeFingerprints,newFrozenRecords,newFrozenBytes"};
         lines.AddRange(costs.Select(m=>FormattableString.Invariant($"{m.Year},{m.Completed},{m.SealMilliseconds:F6},{m.RootMilliseconds:F6},{m.UncachedTreeNodes},{m.TreePayloadBytes},{m.TreeFingerprints},{m.NewFrozenRecords},{m.NewFrozenBytes}")));
         File.WriteAllLines(output,lines);File.WriteAllText(output+".json",JsonSerializer.Serialize(new{InitialHash=original,FinalHash=session.Hash,Years=steps*5,Costs=costs,Work=work.GroupBy(m=>m.Stage).Select(g=>new{Stage=g.Key,Count=g.Count(),Milliseconds=g.Sum(m=>m.Milliseconds),AllocatedBytes=g.Sum(m=>m.AllocatedBytes)})},new JsonSerializerOptions{WriteIndented=true,IncludeFields=true}));
+        File.WriteAllLines(output+".types.csv",new[]{"year,type,count,bytes"}.Concat(costs.SelectMany(m=>m.FrozenRecordsByType.Select(r=>FormattableString.Invariant($"{m.Year},{r.Type},{r.Count},{r.Bytes}")))));
+        File.WriteAllLines(output+".relations.csv",new[]{"year,readCalls,readsWithMemo,forkInvalidations,capturedOriginals,unchangedFreezes,changedFreezes,uncomparedFreezes"}.Concat(costs.Select(m=>FormattableString.Invariant($"{m.Year},{m.RelationReadCalls},{m.RelationReadsWithMemo},{m.RelationForkInvalidations},{m.RelationCapturedOriginals},{m.UnchangedRelationFreezes},{m.ChangedRelationFreezes},{m.UncomparedRelationFreezes}"))));
         Console.WriteLine("HASH "+session.Hash);
     }
 }

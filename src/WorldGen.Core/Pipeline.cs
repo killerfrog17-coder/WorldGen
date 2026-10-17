@@ -54,6 +54,7 @@ namespace WorldGen.Core
         public static string Compute(object value, CancellationToken cancellation = default)
         {
             if(!literalAggregateRecords&&SmallHistoricalValue(value))return ComputeSmallHistorical(value,cancellation);
+            using var treeScratch=CanonicalTreeScratch.Begin();
             using (var sha = CanonicalSha256.Create())
             using (var crypto = new CryptoStream(Stream.Null, sha, CryptoStreamMode.Write))
             using (var buffer = new BufferedStream(new CancellationStream(crypto, cancellation), 65536))
@@ -188,6 +189,7 @@ namespace WorldGen.Core
                 if(o is HistoricalColonialConnections oldSeaService && f.Name==nameof(HistoricalColonialConnections.SeaService) && oldSeaService.SeaService==null)continue;
                 if(o is HistoricalColonialConnections oldSeeds && f.Name==nameof(HistoricalColonialConnections.LocalSeeds) && oldSeeds.LocalSeeds==null)continue;
                 if(o is HistoricalColonialConnections oldPlots && f.Name==nameof(HistoricalColonialConnections.PreparedPlots) && oldPlots.PreparedPlots==null)continue;
+                if(o is HistoricalReligiousNetworks oldLay && f.Name==nameof(HistoricalReligiousNetworks.LayAssociations) && oldLay.LayAssociations==null)continue;
                 if(o is HistoricalTerritorialServiceRecovery oldRetired && f.Name==nameof(HistoricalTerritorialServiceRecovery.RetiredGovernments) && oldRetired.RetiredGovernments==null)continue;
                 if(o is HistoricalTerritorialServiceRecovery oldGovernmentCursor && f.Name==nameof(HistoricalTerritorialServiceRecovery.GovernmentCursor) && oldGovernmentCursor.GovernmentCursor==null)continue;
                 if(o is HistoricalGeographicMap oldSharing && f.Name==nameof(HistoricalGeographicMap.Sharing) && oldSharing.Sharing==null)continue;

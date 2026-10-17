@@ -51,7 +51,7 @@ namespace WorldGen.Core
         {
             int group=PassageHistory(s)&&cultivar.CropId==10?6:PassageHistory(s)&&cultivar.CropId==12?7:HistoricalCropCatalog.Crops[cultivar.CropId].Group;
             var habitat=CommunityHistory(s)?CommunityAgronomicHabitat(s,cell,group):CropHabitat(s,cell);
-            double fit=HistoricalCropCatalog.TransferFit(habitat,cultivar,CropLatitude(cell),riverSites[cell],managed);
+            double fit=SpeciesCropNicheHistory(s)?HistoricalCropSpeciesNiches.TransferFit(habitat,cultivar,CropLatitude(cell),riverSites[cell],managed):HistoricalCropCatalog.TransferFit(habitat,cultivar,CropLatitude(cell),riverSites[cell],managed);
             return PassageHistory(s)?D.Q(fit*HistoricalCropEcology.ReproductiveFit(habitat,cultivar)*(EnvironmentalHistory(s)?EnvironmentalCropTransfer(s,cell,cultivar):1),1000000):fit;
         }
         double CommunityWildCropFit(PrehistoryState s,int cell,int group)

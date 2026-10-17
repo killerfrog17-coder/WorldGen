@@ -416,3 +416,66 @@ All named artifacts are under
 The claimant archive's displaced-before-own-successor wording remains queued
 for a separately scoped transition-context fix; this clock change does not
 silently alter old political narratives or physics.
+
+## Q17/R17 final Earth observation
+
+The read-only evidence runner inspected both actual saved Earth worlds at179800
+without upgrading either: Q17 retains prepared-field ledger1; R17 has its
+explicit ledger2 repair. Religion rules remain2 in both. These are complete
+long-world observations, not two controlled estimates of a religious rule change.
+Before/after hashes are unchanged:
+
+- Q17 `30b1bca54ca8f374b1ff0b044fcec53d6ab5d572f9fe957ec7a4102fff4f5210`.
+- R17 `19964b5effc07859fdee622d09c99c3ce75f817f4989f109f84a85e2e4804970`.
+
+| Actual saved observation | Q17 | R17 |
+| --- | ---: | ---: |
+| Living observed towns | 3073 | 3220 |
+| Public traditions observed in towns | 326 | 332 |
+| Institutions with support >=400 | 554 | 512 |
+| Towns with different recorded household/public identities | 1590 | 1734 |
+| Maximum living-town review age, years | 11 | 11 |
+| Currently permitted directed town carriers | 6435 | 6059 |
+| Of those, cross-faith carriers | 2569 | 2265 |
+| Sacred-place public towns | 1122 | 1106 |
+| Household-tradition public towns | 1111 | 1366 |
+| Traveling-teaching public towns | 840 | 748 |
+
+All six inherited ethos profiles occur among actual public-town traditions.
+R17's largest public identity is still sacred-place Kranasila:150 towns across
+nine cultures and67 courts,46 supported institutions,5,765,440 urban residents
+under its public predominance. Portable Pufipsy has121 towns and3,344,173 urban
+residents but currently no institution above400. Continuing household tradition
+therefore does not require a permanently endowed central organization.
+Q17's missionary Suxuzufu reaches101 towns/five cultures/42 courts. These
+observations demonstrate sizable traditions of different forms, not a required
+global distribution or a census of adherents.
+
+Independent opaque public/household maps have been rendered and actually viewed.
+They show regional cores, fragmented local household observations and maritime
+satellites, not a single worldwide church. A shared identity need not imply
+common centralized authority. **Palette colors can alias different IDs**
+(Q17 IDs51 and572 share blue), so distant same-colored areas must be identified
+from the exported IDs rather than visually presumed to be one religion.
+Rural public fallback is also substantial: Q17 has18,755 fallback versus7,074
+explicit public cells; R17 has17,947 versus7,057. Broad colored countryside is
+therefore not evidence of a measured rural religious census. Grey household
+cells remain unobserved, not secular or uniformly converted.
+
+A substantive limitation persists: neither world archives a schism or ethical
+renewal, although Q17/R17 record36/35 syntheses and155 restrictive-policy changes
+occur in R17. Source review identifies a plausible causal bottleneck, not a
+proven counterfactual fix: renewal only updates dissent while institutional
+support is already >=600; exclusion/elite capture adds one point per year toward
+600, and calm removes roughly half a point per year. A short provisioned crisis
+therefore contributes only a small amount before recovery or institutional
+decline. The renewal actor also represents the current public tradition, not an
+independently organized retained household minority. In actual R17,50 towns
+have dissent>=600,224 have support>=600, but only one has both. These constraints
+need controlled causal review before changing thresholds or adding a mechanism;
+no quota, timer, automatic sect or new Core behavior is introduced by this audit.
+
+Artifacts under the external overnight directory:
+`religion-q17-earth-final` and `religion-r17-earth-final`, each containing
+`public.png`, `household.png`, `comparison.png`, `evidence.json`,
+`institution-review.json` and the full `religious-events.json`.

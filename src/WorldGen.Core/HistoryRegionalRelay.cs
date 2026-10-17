@@ -35,7 +35,7 @@ namespace WorldGen.Core
             var lesson=h.Towns[source];int teacher=owner>=0?owner:lesson.CivicTeacherPolityId;double exposure=owner>=0?1000:lesson.CivicExampleExposure;
             if(from.CultureId==to.CultureId&&(teacher<0||exposure<=h.Towns[target].CivicExampleExposure))return false;
             if(owner>=0&&host>=0&&owner!=host)
-            {if(!aggregateRelations.TryGetValue((Math.Min(owner,host),Math.Max(owner,host)),out int relation)||h.Relations[relation].WarSince>=0||!h.Relations[relation].Trade)return false;}
+            {if(!aggregateRelations.TryGetValue((Math.Min(owner,host),Math.Max(owner,host)),out int relation)||h.Relations.Peek(relation).WarSince>=0||!h.Relations.Peek(relation).Trade)return false;}
             double transport=HistoricalModernEffects.LandTransport(h.Cultures[from.CultureId],s.Years),effort=LivingTravelKm(s,from.Cell,to.Cell,from.CultureId);
             int staff=HistoricalRegionalTownExchange.Staff(from.Population);long food=HistoricalRegionalTownExchange.Food(staff,effort,transport),investment=HistoricalRegionalTownExchange.Investment(staff,effort,transport);
             if(from.FoodReserve<food+from.Population/2||owner>=0&&(h.Polities[owner].Treasury<investment*2||a.Polities[owner].Receipts<=a.Polities[owner].ServiceCost))return false;

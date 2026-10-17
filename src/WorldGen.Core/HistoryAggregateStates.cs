@@ -13,7 +13,7 @@ namespace WorldGen.Core
         HistoricalRelation AggregateRelation(PrehistoryState s,int first,int second)
         {
             int low=Math.Min(first,second),high=Math.Max(first,second);var key=(low,high);var h=s.History;
-            if(aggregateRelations.TryGetValue(key,out int at)&&at<h.Relations.Length&&h.Relations[at].A==low&&h.Relations[at].B==high)return h.Relations[at];
+            if(aggregateRelations.TryGetValue(key,out int at)&&at<h.Relations.Length&&h.Relations.Peek(at).A==low&&h.Relations.Peek(at).B==high)return h.Relations[at];
             var r=new HistoricalRelation{A=low,B=high};int relation=h.Relations.Length;aggregateRelations[key]=relation;h.Relations.Add(r);RememberInternationalRelation(s,relation);return r;
         }
         void FoundAggregateState(PrehistoryState s,int city,int parent)=>FoundAggregateStateKind(s,city,parent,null);

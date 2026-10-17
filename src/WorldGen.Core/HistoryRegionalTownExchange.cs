@@ -17,13 +17,15 @@ namespace WorldGen.Core
             if(!LivingWorldHistory(s)||city<0||region<0||region>=Patches.Length)return false;
             var h=s.History;var a=h.Aggregates;var town=s.Society.Settlements[city];var account=a.Cities[city];var life=a.Living.Cities[city];
             int staff=HistoricalRegionalTownExchange.Staff(town.Population),target=a.Regions[region].BestCell,culture=town.CultureId;
-            if(staff==0||!account.Supported||life.AbandonedYear>=0||life.DeclineYears>0||ProvincialContactResidents(s,region)<100)return false;
+            if(staff==0||!account.Supported||life.AbandonedYear>=0||life.DeclineYears>0)return false;
+            long recipients=ProvincialContactResidents(s,region);
+            if(recipients<(SparseExchangeHistory(s)?1:100))return false;
             int receiver=HistoricalCells.Culture(s,target);if(receiver<0)receiver=a.Regions[region].Culture;
             if(receiver==culture)return false;
             int owner=a.Resolve(town.PolityId,h),host=HistoricalCells.Polity(s,target);
             if(host>=0&&owner!=host)
             {
-                if(owner<0||!aggregateRelations.TryGetValue((Math.Min(owner,host),Math.Max(owner,host)),out int relation)||!h.Relations[relation].Trade||h.Relations[relation].WarSince>=0)return false;
+                if(owner<0||!aggregateRelations.TryGetValue((Math.Min(owner,host),Math.Max(owner,host)),out int relation)||!h.Relations.Peek(relation).Trade||h.Relations.Peek(relation).WarSince>=0)return false;
             }
             if(!InstitutionalRouteAllowed(s,town.Cell,target,culture))return false;
             // This is an overland/hinterland service. Actual overseas delivery
@@ -36,7 +38,7 @@ namespace WorldGen.Core
             bool sponsored=owner>=0;
             if(sponsored&&(h.Polities[owner].EndedYear>=0||h.Polities[owner].Treasury<investment*2||a.Polities[owner].Receipts<=a.Polities[owner].ServiceCost))return false;
             double transmission=EnvironmentalTransmission(s,town.Cell,target,culture);
-            if(HistoryRoll("living-town-regional-delivery-"+region,city,s.Years)>=transmission)return false;
+            if(HistoryRoll("living-town-regional-delivery-"+region,city,s.Years)>=transmission*(SparseExchangeHistory(s)?HistoricalSparseExchange.Encounter(recipients):1))return false;
             long package=ProvincialKnowledge(h.Cultures[culture]);if(package==0)return false;
             town.FoodReserve-=food;if(sponsored)h.Polities[owner].Treasury-=investment;
             var local=a.Living.Regions[region];

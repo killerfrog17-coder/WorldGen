@@ -30,6 +30,7 @@ namespace WorldGen.Core
     {
         [DataMember] int townId,fieldCell;
         [DataMember] HistoricalLocalSeedlot[] lots;
+        [IgnoreDataMember] byte[] canonicalDigest;
         public int TownId=>townId;
         public int FieldCell=>fieldCell;
         public HistoricalLocalSeedlot this[int group]=>lots[group];
@@ -38,10 +39,11 @@ namespace WorldGen.Core
         internal HistoricalTownSeeds With(int group,HistoricalLocalSeedlot seed)
         {var next=(HistoricalLocalSeedlot[])lots.Clone();next[group]=seed;return new HistoricalTownSeeds(townId,fieldCell,next);}
         internal bool ValidShape=>lots?.Length==6;
-        internal byte[] Digest(SHA256 sha)
+        internal byte[] Digest(SHA256 sha,bool verify)
         {
+            if(!verify&&canonicalDigest!=null)return canonicalDigest;
             using(var stream=new MemoryStream())using(var writer=new BinaryWriter(stream))
-            {writer.Write(townId);writer.Write(fieldCell);for(int k=0;k<6;k++){writer.Write(lots[k]!=null);lots[k]?.Write(writer);}return sha.ComputeHash(stream.ToArray());}
+            {writer.Write(townId);writer.Write(fieldCell);for(int k=0;k<6;k++){writer.Write(lots[k]!=null);lots[k]?.Write(writer);}return canonicalDigest=sha.ComputeHash(stream.ToArray());}
         }
     }
     // Immutable record-valued radix storage. Seven levels cover every positive
@@ -78,14 +80,17 @@ namespace WorldGen.Core
         }
         internal void WriteCanonicalFingerprint(BinaryWriter writer){writer.Write("WorldGen.Core.HistoricalTownSeedTree");writer.Write(Fingerprint());}
         public string Fingerprint(bool verify=false)
-        {if(!verify&&fingerprint!=null)return fingerprint;using(var sha=CanonicalSha256.Create())return fingerprint=BitConverter.ToString(Digest(root,sha,verify,0)).Replace("-","").ToLowerInvariant();}
+        {if(!verify&&fingerprint!=null)return fingerprint;using(var sha=CanonicalSha256.Create())return fingerprint=BitConverter.ToString(Digest(root,sha,verify,new byte[7][],0)).Replace("-","").ToLowerInvariant();}
         static readonly byte[] Absent=new byte[32];
-        static byte[] Digest(Node node,SHA256 sha,bool verify,int depth)
+        static byte[] Digest(Node node,SHA256 sha,bool verify,byte[][] scratch,int depth)
         {
             if(node==null)return Absent;if(!verify&&node.Digest!=null)return node.Digest;
             if(depth>6||depth==6&&(node.Values?.Length!=32||node.Children!=null)||depth<6&&(node.Children?.Length!=32||node.Values!=null))throw new SerializationException("Invalid town-seed radix shape.");
-            var bytes=new byte[1025];bytes[0]=(byte)(depth==6?1:0);
-            for(int k=0;k<32;k++){var hash=depth==6?(node.Values[k]?.Digest(sha)??Absent):Digest(node.Children[k],sha,verify,depth+1);Buffer.BlockCopy(hash,0,bytes,1+32*k,32);}
+            // Child recursion uses its own depth buffer. A modified leaf must
+            // not rebuild/re-hash the31 unchanged immutable seed inventories
+            // beside it; explicit integrity verification still reads all lots.
+            var bytes=scratch[depth]??(scratch[depth]=new byte[1025]);bytes[0]=(byte)(depth==6?1:0);
+            for(int k=0;k<32;k++){var hash=depth==6?(node.Values[k]?.Digest(sha,verify)??Absent):Digest(node.Children[k],sha,verify,scratch,depth+1);Buffer.BlockCopy(hash,0,bytes,1+32*k,32);}
             return node.Digest=sha.ComputeHash(bytes);
         }
     }

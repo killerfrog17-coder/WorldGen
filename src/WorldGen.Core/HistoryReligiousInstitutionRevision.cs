@@ -34,7 +34,7 @@ namespace WorldGen.Core
         {
             var h=s.History;var a=h.Aggregates;var from=s.Society.Settlements[source];var to=s.Society.Settlements[target];
             int first=a.Resolve(from.PolityId,h),second=a.Resolve(to.PolityId,h);bool foreign=first>=0&&second>=0&&first!=second;
-            bool war=foreign&&aggregateRelations.TryGetValue((Math.Min(first,second),Math.Max(first,second)),out int relation)&&h.Relations[relation].WarSince>=0;
+            bool war=foreign&&aggregateRelations.TryGetValue((Math.Min(first,second),Math.Max(first,second)),out int relation)&&h.Relations.Peek(relation).WarSince>=0;
             bool disrupted=a.Living.Cities[source].DisruptedUntil>s.Years||a.Living.Cities[target].DisruptedUntil>s.Years;
             if(!HistoricalReligiousInstitutionEffects.OrdinaryCarrier(war,disrupted,from.Stability,to.Stability,foreign,from.FoodReserve/Math.Max(1.0,from.Population)))return false;
             var hc=h.Cultures[from.CultureId];double km=D.Angle(World.Surface.Cells[from.Cell].Position,World.Surface.Cells[to.Cell].Position)*World.Recipe.RadiusKm;

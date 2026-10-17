@@ -85,7 +85,7 @@ namespace WorldGen.Core
         {
             var system=s.History.International;if(!LivingWorldHistory(s)||system==null)return;
             if(system.RelationCampaigns.Length<s.History.Relations.Length)system.RelationCampaigns.Grow(s.History.Relations.Length,-1);
-            var r=s.History.Relations[relation];system.Accounts[r.A].Relations.Add(relation);system.Accounts[r.B].Relations.Add(relation);
+            var r=s.History.Relations.Peek(relation);system.Accounts[r.A].Relations.Add(relation);system.Accounts[r.B].Relations.Add(relation);
         }
         void AppendInternationalState(PrehistoryState s,int parent=-1,bool successor=false)
         {
@@ -122,7 +122,7 @@ namespace WorldGen.Core
             war.LeaderId=h.Dynamics.States[attacker].LeaderId;war.OwnedCanonicalRecord=null;
             bool existed=aggregateRelations.TryGetValue((war.A,war.B),out int index);var relation=AggregateRelation(s,war.A,war.B);index=aggregateRelations[(war.A,war.B)];
             if(!existed&&aggregateRelations.TryGetValue((Math.Min(oldA,oldB),Math.Max(oldA,oldB)),out int former))
-            {var prior=h.Relations[former];relation.Trust=prior.Trust;relation.LastBattle=prior.LastBattle;}
+            {var prior=h.Relations.Peek(former);relation.Trust=prior.Trust;relation.LastBattle=prior.LastBattle;}
             int other=system.RelationCampaigns[index];
             if(other>=0&&other!=campaign&&h.Dynamics.Campaigns[other].EndedYear<0)
             {war.EndedYear=s.Years;war.Outcome="The continuing government's front joins its already active conflict with the same opponent.";return false;}
@@ -139,12 +139,12 @@ namespace WorldGen.Core
         }
         int InternationalPeer(PrehistoryState s,int polity,int relation)
         {
-            var r=s.History.Relations[relation];var a=s.History.Aggregates;int first=a.Resolve(r.A,s.History),second=a.Resolve(r.B,s.History);
+            var r=s.History.Relations.Peek(relation);var a=s.History.Aggregates;int first=a.Resolve(r.A,s.History),second=a.Resolve(r.B,s.History);
             return first==polity&&second!=polity?second:second==polity&&first!=polity?first:-1;
         }
         int CurrentInternationalRelation(PrehistoryState s,int polity,int peer,int previous)
         {
-            var h=s.History;var prior=h.Relations[previous];int a=Math.Min(polity,peer),b=Math.Max(polity,peer);
+            var h=s.History;var prior=h.Relations.Peek(previous);int a=Math.Min(polity,peer),b=Math.Max(polity,peer);
             if(prior.A==a&&prior.B==b)return previous;
             // Historical relation records retain their original parties. A
             // successor inherits their diplomatic habits without editing them.
@@ -267,7 +267,7 @@ namespace WorldGen.Core
             int offset=(int)(HistoryRoll("international-ally-theater",polity,s.Years)*account.Relations.Count);
             for(int k=0;k<Math.Min(3,account.Relations.Count);k++)
             {
-                int relation=account.Relations.At((offset+k)%account.Relations.Count);var warRelation=h.Relations[relation];if(warRelation.WarSince<0)continue;
+                int relation=account.Relations.At((offset+k)%account.Relations.Count);var warRelation=h.Relations.Peek(relation);if(warRelation.WarSince<0)continue;
                 int enemy=InternationalPeer(s,ally,relation),origin=system.RelationCampaigns[relation];if(enemy<0||enemy==polity||origin<0||h.Dynamics.Campaigns[origin].EndedYear>=0)continue;
                 if(HistoricalImperialHierarchy.Sovereign(s,polity)==HistoricalImperialHierarchy.Sovereign(s,enemy))continue;
                 var target=AggregateRelation(s,polity,enemy);if(target.WarSince>=0||target.Alliance||target.TruceUntil>=s.Years)continue;
@@ -300,7 +300,7 @@ namespace WorldGen.Core
             {
                 int index=contacts[k],peer=InternationalPeer(s,polity,index);if(peer<0){account.Relations.Remove(index);continue;}
                 bool duplicate=false;for(int n=0;n<used;n++)if(considered[n]==peer)duplicate=true;if(duplicate)continue;considered[used++]=peer;
-                index=CurrentInternationalRelation(s,polity,peer,index);var r=h.Relations[index];
+                index=CurrentInternationalRelation(s,polity,peer,index);var r=h.Relations.Peek(index);
                 if(r.WarSince>=0){TryInternationalMediation(s,polity,peer,index,elapsed);continue;}
                 ConsiderInternationalOrganization(s,polity,peer,r,elapsed,HistoricalOrganizationKind.TradeLeague);
                 ConsiderInternationalOrganization(s,polity,peer,r,elapsed,HistoricalOrganizationKind.PeaceCongress);

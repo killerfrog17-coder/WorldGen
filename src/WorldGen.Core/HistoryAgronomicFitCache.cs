@@ -21,16 +21,16 @@ namespace WorldGen.Core
         readonly Queue<AgronomicFitKey> agronomicFitOrder=new Queue<AgronomicFitKey>();
         readonly struct AgronomicFitKey:IEquatable<AgronomicFitKey>
         {
-            readonly int cell,crop,maturity,latitude,water,warmth,selection,managed;
-            public AgronomicFitKey(int cell,HistoricalCultivar c,bool managed)
-            {this.cell=cell;crop=c.CropId;maturity=c.MaturityDays;latitude=c.DaylengthLatitudeTenths;water=c.WaterRequirementPermille;warmth=c.MinimumWarmTenthsC;selection=c.SelectedYears;this.managed=managed?1:0;}
-            public bool Equals(AgronomicFitKey b)=>cell==b.cell&&crop==b.crop&&maturity==b.maturity&&latitude==b.latitude&&water==b.water&&warmth==b.warmth&&selection==b.selection&&managed==b.managed;
+            readonly int cell,crop,maturity,latitude,water,warmth,selection,managed,speciesNiche;
+            public AgronomicFitKey(int cell,HistoricalCultivar c,bool managed,bool speciesNiche)
+            {this.cell=cell;crop=c.CropId;maturity=c.MaturityDays;latitude=c.DaylengthLatitudeTenths;water=c.WaterRequirementPermille;warmth=c.MinimumWarmTenthsC;selection=c.SelectedYears;this.managed=managed?1:0;this.speciesNiche=speciesNiche?1:0;}
+            public bool Equals(AgronomicFitKey b)=>cell==b.cell&&crop==b.crop&&maturity==b.maturity&&latitude==b.latitude&&water==b.water&&warmth==b.warmth&&selection==b.selection&&managed==b.managed&&speciesNiche==b.speciesNiche;
             public override bool Equals(object other)=>other is AgronomicFitKey b&&Equals(b);
-            public override int GetHashCode(){unchecked{int h=cell;h=h*31+crop;h=h*31+maturity;h=h*31+latitude;h=h*31+water;h=h*31+warmth;h=h*31+selection;return h*31+managed;}}
+            public override int GetHashCode(){unchecked{int h=cell;h=h*31+crop;h=h*31+maturity;h=h*31+latitude;h=h*31+water;h=h*31+warmth;h=h*31+selection;h=h*31+managed;return h*31+speciesNiche;}}
         }
         double CachedCommunityTransferFit(PrehistoryState s,int cell,HistoricalCultivar cultivar,bool managed)
         {
-            var key=new AgronomicFitKey(cell,cultivar,managed);
+            var key=new AgronomicFitKey(cell,cultivar,managed,SpeciesCropNicheHistory(s));
             if(agronomicFits.TryGetValue(key,out double fit)){agronomicFitHits++;return fit;}
             agronomicFitMisses++;
             fit=LiteralCommunityTransferFit(s,cell,cultivar,managed);

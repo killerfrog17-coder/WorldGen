@@ -57,7 +57,7 @@ namespace WorldGen.Core
             int host=HistoricalCells.Polity(s,target),nativeCulture=HistoricalCells.Culture(s,target);
             if(host>=0&&host!=owner)
             {
-                if(owner<0||!aggregateRelations.TryGetValue((Math.Min(owner,host),Math.Max(owner,host)),out int relation)||!h.Relations[relation].Trade||h.Relations[relation].WarSince>=0)return false;
+                if(owner<0||!aggregateRelations.TryGetValue((Math.Min(owner,host),Math.Max(owner,host)),out int relation)||!h.Relations.Peek(relation).Trade||h.Relations.Peek(relation).WarSince>=0)return false;
             }
             if(owner>=0&&(RespectRecognizedClaim(s,owner,target)||LivingTravelKm(s,source,target,culture)>TerritorialServiceRadius(s,owner,target)*1.5))return false;
             // These are actual migrating households, not a spontaneous native

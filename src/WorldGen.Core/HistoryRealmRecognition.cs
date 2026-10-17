@@ -13,7 +13,7 @@ namespace WorldGen.Core
             int offset=(int)(HistoryRoll("realm-known-recognizer-1",polity,s.Years)*relations.Count);
             for(int k=0;k<Math.Min(6,relations.Count);k++)
             {
-                var relation=h.Relations[relations.At((offset+k)%relations.Count)];int peer=InternationalContinuingParty(s,relation.A==polity?relation.B:relation.A);
+                var relation=h.Relations.Peek(relations.At((offset+k)%relations.Count));int peer=InternationalContinuingParty(s,relation.A==polity?relation.B:relation.A);
                 if(peer<0||peer==polity||h.Polities[peer].EndedYear>=0)continue;
                 // A sovereign can grant a locally administered colonial charter
                 // to an existing constituent court. Sibling/self assertions do

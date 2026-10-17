@@ -77,7 +77,7 @@ namespace WorldGen.Core
             if(a.Living.Regions[region].CommittedAreaKm2+area>a.Regions[region].AreaKm2*.65)return false;
             if(!InstitutionalRouteAllowed(s,source.Cell,cell,culture)||RespectRecognizedClaim(s,owner,cell)||LivingTravelKm(s,source.Cell,cell,culture)>TerritorialServiceRadius(s,owner,cell)*1.5)return false;
             int host=HistoricalCells.Polity(s,cell);
-            if(host>=0&&host!=owner&&(!aggregateRelations.TryGetValue((Math.Min(owner,host),Math.Max(owner,host)),out int relation)||!h.Relations[relation].Trade||h.Relations[relation].WarSince>=0))return false;
+            if(host>=0&&host!=owner&&(!aggregateRelations.TryGetValue((Math.Min(owner,host),Math.Max(owner,host)),out int relation)||!h.Relations.Peek(relation).Trade||h.Relations.Peek(relation).WarSince>=0))return false;
             LivingInlandSettlementCosts(s,parent,cell,people,out long provisions,out long carriage);
             long investment=carriage+Math.Max(500,(long)Math.Ceiling(area*1.5+people/3.0));
             if(source.FoodReserve<people+provisions+(fields?.Food??0)+source.Population/4||h.Polities[owner].Treasury<(investment+(fields?.Investment??0))*2||a.Polities[owner].Receipts<=a.Polities[owner].ServiceCost)return false;

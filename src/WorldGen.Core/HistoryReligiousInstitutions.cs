@@ -87,6 +87,10 @@ namespace WorldGen.Core
             if(town.Population<1200||!h.Aggregates.Cities[city].Supported)return;
             int owner=h.Aggregates.Resolve(town.PolityId,h);
             bool mixed=r.Read(cell,FaithBlend)>=400&&r.Read(cell,FaithVisitor)>=0&&r.Read(cell,FaithVisitor)!=faith;
+            // In the explicit lay revision, external repression preserves the
+            // existing faith; genuine internal renewal is separately organized.
+            // Keep the preceding contact-synthesis path and all <=19 arithmetic.
+            if(LayReligiousHistory(s)&&!mixed)return;
             bool ethical=ReligiousInstitutionHistory(s)&&CapturedReligiousEndowment(s,owner,faith,town.Stability);
             int dissent=Math.Max(0,r.Read(cell,FaithDissent));
             // Material patronage, competing rites and exclusion provide actual

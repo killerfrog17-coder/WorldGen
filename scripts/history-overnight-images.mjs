@@ -8,6 +8,7 @@ import {pathToFileURL} from 'node:url';
 import {gunzipSync} from 'node:zlib';
 const timeline=process.argv.includes('--timeline');
 const requestedStatesOnly=process.argv.includes('--states-only');
+const noCities=process.argv.includes('--no-cities');
 const yearsArg=process.argv.find(arg=>arg.startsWith('--years='));
 const focusYears=yearsArg?yearsArg.slice(8).split(',').map(Number):[];
 const setArg=process.argv.find(arg=>arg.startsWith('--set='));
@@ -15,7 +16,7 @@ const setName=setArg?setArg.slice(6):'';
 if(setName&&!/^[a-z0-9-]+$/.test(setName))throw Error('Set name must contain lowercase letters, digits or hyphens.');
 if(focusYears.some(year=>!Number.isInteger(year)||year<0))throw Error('Focused years must be nonnegative integers.');
 const sequence=timeline||focusYears.length>0;
-const folders=process.argv.slice(2).filter(arg=>!['--timeline','--states-only'].includes(arg)&&!arg.startsWith('--years=')&&!arg.startsWith('--set=')).map(folder=>path.resolve(folder));
+const folders=process.argv.slice(2).filter(arg=>!['--timeline','--states-only','--no-cities'].includes(arg)&&!arg.startsWith('--years=')&&!arg.startsWith('--set=')).map(folder=>path.resolve(folder));
 const browser=await chromium.launch({headless:true,channel:'msedge'});
 const escape=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;');
 try{
@@ -24,7 +25,7 @@ try{
   const report=JSON.parse(await fs.readFile(path.join(folder,reportFile),'utf8'));
   const status=await fs.readFile(path.join(folder,'review-status.json'),'utf8').then(JSON.parse,error=>{if(error.code==='ENOENT')return null;throw error;});
   const isEpisode=reportFile==='episode.json',statesOnly=requestedStatesOnly||isEpisode;
-  const presentation=isEpisode?'opaque overlay 1, neutral background 0':'climate background 1, overlay opacity .58';
+  const presentation=(isEpisode?'opaque overlay 1, neutral background 0':'climate background 1, overlay opacity .58')+(noCities?'; settlement marker overlay hidden for border review':'');
   const eraNames={4:'Bronze Age',5:'Iron Age',6:'Medieval',7:'Early Modern',8:'Industrial',9:'Modern',10:'Postmodern'};
   const rows=isEpisode?report.Rows.map(row=>({...row,EraName:eraNames[row.Era]??`Era ${row.Era}`,FirstState:-1,States:row.Courts.length,ActiveTowns:null,OldestStateAge:Math.max(0,...row.Courts.map(court=>row.Year-court.FoundedYear)),SponsoredPorts:null})):report.Rows;
   let selection=[];
@@ -36,7 +37,7 @@ try{
   if(!selection.some(value=>value.row.Year===last.Year))selection.push({row:last,label:`${last.EraName} / final`});
   if(sequence)selection=rows.filter(row=>!focusYears.length||focusYears.includes(row.Year)).map(row=>({row,label:row.FirstState>=0&&row.Year>=row.FirstState&&row.Era<4?'Bronze Age / first states':row.EraName}));
   if(focusYears.some(year=>!selection.some(value=>value.row.Year===year)))throw Error('A focused year is absent from review.json.');
-  const out=path.join(folder,(focusYears.length?'focused':timeline?'timeline':'screenshots')+(setName?`-${setName}`:''));await fs.mkdir(out,{recursive:true});
+  const out=path.join(folder,(focusYears.length?'focused':timeline?'timeline':'screenshots')+(setName?`-${setName}`:'')+(noCities?'-no-cities':''));await fs.mkdir(out,{recursive:true});
   const rendered=[];
   for(const {row,label} of selection){
    for(const mode of sequence||statesOnly?['States']:['States','Technology','Cultures','Religions']){
@@ -44,7 +45,7 @@ try{
     const file=`${mode.toLowerCase()}-${row.Year}.png`;
     const sourceStat=await fs.stat(source).catch(error=>{if(error.code==='ENOENT')return null;throw error;});
     let cached=null;
-    for(const candidate of [...new Set([path.join(out,file),...['screenshots','focused','focused-late','reference-comparison'].map(dir=>path.join(folder,dir,file))])]){
+    for(const candidate of [...new Set([path.join(out,file),...(noCities?[]:['screenshots','focused','focused-late','reference-comparison'].map(dir=>path.join(folder,dir,file)))])]){
      const stat=await fs.stat(candidate).catch(error=>{if(error.code==='ENOENT')return null;throw error;});
      if(stat&&(!sourceStat||stat.mtimeMs>=sourceStat.mtimeMs)){cached=candidate;break;}
     }
@@ -60,6 +61,7 @@ try{
     const svg=gunzipSync(await fs.readFile(source)).toString('utf8');
     const page=await browser.newPage({viewport:{width:1800,height:960}});
     await page.setContent('<style>body{margin:0}svg{display:block}</style>'+svg,{timeout:120000,waitUntil:'load'});
+    if(noCities)await page.addStyleTag({content:'circle{display:none}'});
     await page.evaluate(()=>{
      const occupied=[];
      for(const label of document.querySelectorAll('text[text-anchor="middle"]')){
@@ -80,7 +82,7 @@ try{
    const page=await browser.newPage({viewport:{width:3608,height:1200}});await page.goto(pathToFileURL(file).href,{waitUntil:'load'});await page.screenshot({path:file.replace('.html','.png'),fullPage:true});await page.close();
    }
   }
-  await fs.writeFile(path.join(out,'screenshots.json'),JSON.stringify({source:path.join(folder,reportFile),selection:rendered},null,2));
+  await fs.writeFile(path.join(out,'screenshots.json'),JSON.stringify({source:path.join(folder,reportFile),settlementMarkers:!noCities,selection:rendered},null,2));
   console.log(`${path.basename(folder)}: ${rendered.length} images, ${sequence?'six-frame chronological sheets':statesOnly?'States overview':'4 mode sheets'}`);
  }
 }finally{await browser.close();}

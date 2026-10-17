@@ -293,3 +293,107 @@ native playback diagnostic writes `canonical-costs.csv`. Tiny fixtures cover
 nested/concurrent scopes, cancellation, observer exceptions and identical hashes.
 This separates advancing dirty/cold work from the warm serialization profiles;
 it is not permission to hide checkpoint work outside the timed simulation.
+
+The actual F6 fixture advances20 consecutive5-year SimulationSession checkpoints
+with the observer active, including the nuclear scalar writer. Its100-year final
+hash is exactly `93add43f84c56e5241d9c474a9e7d56538b654b069b898c6bc55e10ccf3801b4`,
+and the public source remains unchanged. The first cold seal takes636.18ms on
+CoreCLR and constructs142,955 frozen records totaling47,017,320 bytes. Subsequent
+19 seals take146.9–190.4ms and construct9,553–10,567 frozen records totaling
+2.34–2.58MB each. Those warm advancing seals still digest21,745–30,395 previously
+uncached radix nodes,14.28–19.61MB of tree-hash payload, and2,737–3,731 tree-root
+fingerprints per5-year checkpoint. The20 hash stages allocate796.74MB in total
+(39.84MB mean per5-year seal, including the initial cold one);
+the preceding292MB single100-year cold checkpoint must not be treated as a
+recurring5-year cost. Native R must quantify the reusable-CNG and typed-writer
+effects before attributing a performance win. Scope fixtures pass43 assertions.
+
+### Isolated native R result — still fails
+
+The R IL2CPP player includes reusable CNG contexts, the typed international,
+calendar, service and nuclear writers, and the opt-in canonical cost observer.
+The130,748,595-byte F6 input is unchanged; native provider13 and tree-transport12
+smoke vectors pass. Other agents' world loads, builds and rendering were held
+until the player exited. Temporary Standalone/stripping build overrides were
+restored after the build, before this test.
+
+R advances1,007.6129 years in369.487s:2.72706years/s, minimum rolling2.03946years/s,
+worst summed computed year1,694.6509ms at180794, and395 Boehm collections.
+It **fails** the3years/s and every-year<1second requirements. The final year181207,
+3,676 recorded towns,761 active governments and hash
+`eb1a49f19de71711533357288c2db276363f7188e5d57d067504e4c07a002de6`
+exactly match the preceding F6 controls. Overall throughput improves6.35% over
+P, worst-year time falls22.2%, and hash-stage CPU falls18.85%; no acceptance claim
+follows from those improvements.
+
+The191 hash stages total117,265.1ms (maximum1,131.12ms). Other totals remain
+similar:city85,948.8ms, state53,443.0ms, region41,350.1ms, sea22,070.8ms,
+campaign13,611.1ms and culture6,179.2ms. Private/publication copies total
+9,883.9/9,486.3ms. The190 noninitial seals average611.94ms, median598.75ms;
+their counters average30,118 newly digested nodes,20.13MB of tree-hash payload,
+3,928 root fingerprints,12,777 newly frozen records and3.11MB of frozen bytes.
+The first seal constructs143,130 records/47.07MB and takes996.10ms.
+
+The worst computed year is not the maximum-hash year:180794 contains a558.72ms
+hash together with several state/campaign spikes and two observed collection
+increments. Initial canonical-cache warming alone therefore cannot establish
+the strict year bound. Native allocation counters are unavailable, and GC
+after-counts do not attribute an individual collection's full cost. Evidence is
+under `native-r-reusable-f6-isolated/{playback.json,work-stages.csv,work-spikes.csv,
+year-work.csv,canonical-costs.csv}` in the external overnight artifacts.
+
+### Measured post-R exact allocation corrections
+
+The observer now publishes read-only per-record-type count/byte summaries. An
+additional relation-read trace is independently opt-in and off in ordinary
+playback/native diagnostics unless `--worldgen-canonical-relations 1` is supplied.
+It retains prior immutable memo bytes only inside one transaction and compares
+fresh bytes; no metadata is added to historical relation records. It counts
+fork invalidation as well as mutable getters, then drops its dictionary. The
+scope/trace fixture passes51 assertions.
+
+Actual19 warm F6 checkpoints construct192,706 frozen records/47.08MB; relations
+account for182,922/42.44MB (94.9% of count,90.1% of bytes). Of those relation
+refreezes,148,663 are byte-identical,25,416 differ and8,843 lack a prior memo.
+That is85.4% unchanged among compared rows, or81.3% of all refreezes—not proof
+that every unchanged row can safely skip invalidation. The mean checkpoint
+performs50,513 mutable relation reads and clears6,986 memo-bearing rows during
+forks. This is actual advancing evidence, not an inference from average row size.
+
+The correction has a deliberately narrow trust boundary. `ForkOwned` clones
+mutable relation values but may retain their immutable memo bytes only from the
+simulation's already sealed private input. Ordinary/public `Copy` still discards
+memo bytes for exposed rows, and mutable `Get` still invalidates them. Bounded
+read-only diplomacy, trade/war gates and economic queries use `Peek`; mutating
+relation helpers still request mutable records. No actor cadence or historical
+content changes.47 assertions cover edits through retained references before and
+after public/private forks, copy isolation, getters, read-only peeks, cancellation,
+cold binary reads and concurrent public/private hashing. A5000-exposed-row fixture
+allocates68,400 bytes for a trusted hash versus3,748,400 after an untrusted fork.
+
+Actual20x5-year F6 playback remains exactly `93add43f...`, including every
+intermediate control hash. Mean warm mutable reads fall50,513 to9,442; frozen
+rows10,142 to3,869 and frozen bytes2.478 to1.022MB. Hash-stage allocation falls
+796.78 to709.36MB across20 checkpoints (11.0%). A separate actual cold world
+roundtrip/12 versus5+7/cancellation fixture passes6 assertions with unchanged
+`2b8cc0c4818537d94437d80ede5bff3021d1a79355070de75045ad8cf4a53b0f`.
+
+The next correction reuses a secondary tree SHA and five depth buffers only
+inside a canonical root computation. The root CryptoStream SHA remains entirely
+independent. Entry uses an allocation-free value scope; its secondary context is
+lazy, nested hashes get their own context, and success/failure/cancellation restores
+the caller's context and disposes the new one. Standalone tree fingerprints still
+own/dispose their context. No tree/node/value is retained by the scope, and the
+immutable logical Node remains its original three fields. No tree verification
+is skipped; node counts/payloads are unchanged.60 assertions cover independent
+literal bytes, nested/reentrant success and failure, concurrent contexts, disposal
+and cancellation; provider147 and transport279 also pass.1000 standalone tree
+fingerprints allocate5,904,960 bytes versus1,906,544 for a scoped full root hash.
+
+The final actual20x5-year F6 fixture also fully validates the final public
+publication, independently of trusted memo bytes, and preserves its source.
+It retains the exact100-year control hash. Hash allocation falls further from
+709.36 to431.36MB across20 checkpoints (39.2%, about13.9MB saved per checkpoint).
+Combined savings against the pre-correction type-traced fixture are365.43MB/45.9%.
+CoreCLR hash times3.913 to3.716 to3.566s are contention-qualified; they are not
+native acceptance. A new isolated native run must measure these post-R changes.

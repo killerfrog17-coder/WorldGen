@@ -191,7 +191,7 @@ namespace WorldGen.Core
                     if(a.Resolve(a.Empires.Connections.Governments[polity].Sponsor,h)==parent&&World.Landmass[s.Society.Settlements[p.CapitalId].Cell]!=World.Landmass[s.Society.Settlements[patron.CapitalId].Cell])
                     {
                         bool externalWar=false;var links=h.International.Accounts[polity].Relations;
-                        for(int k=0;k<Math.Min(3,links.Count);k++)if(h.Relations[links.At(k)].WarSince>=0){externalWar=true;break;}
+                        for(int k=0;k<Math.Min(3,links.Count);k++)if(h.Relations.Peek(links.At(k)).WarSince>=0){externalWar=true;break;}
                         risk+=HistoricalRealmPoliticalEffects.SettlerSelfGovernment(s.Years-p.FoundedYear,km,g.AutonomyMilli,HistoricalModernEffects.Adoption(pc,HistoricalTechnology.Printing,s.Years),
                             g.AnnualTribute/(double)Math.Max(1,account.Receipts),a.Communities.Governments[polity].RepresentationMilli,a.Communities.Governments[parent].RepresentationMilli,externalWar);
                     }

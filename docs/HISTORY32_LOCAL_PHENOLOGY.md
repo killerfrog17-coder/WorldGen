@@ -86,6 +86,12 @@ does not calibrate the simulation's specific movement prior.
   formula. Original17/Version1 actual Earth continuation is now exact against
   frozen Q17, and its explicitly upgraded Version2 world passes22 field
   assertions including full save/read and actual12 versus cold5+7. See the
-  prepared-field ledger for exact hashes and the still-pending longitudinal
-  replay/actual-first-failure trace; short cold assertions are not acceptance
-  of the repaired long-run model.
+  prepared-field ledger for exact hashes, the observed P16 stale184-person
+  rural-credit failure at175700, and the separate longitudinal replay check;
+  short cold assertions are not acceptance of the repaired long-run model.
+- Corrected R17/ledger2 Earth subsequently completes its full saved179800
+  continuation, including over1,000 years past maximum technology, with every
+  export-checkpoint prepared-field audit passing. Its exact saved hash and
+  still-pending CP control are recorded in the prepared-field ledger. This is
+  correctness evidence, not a claim that Eurasian diffusion is geographically
+  satisfactory.

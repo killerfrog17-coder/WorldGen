@@ -1,6 +1,12 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--tree-scratch-only")){int count=0;HistoryTreeScratchTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" scoped tree-scratch assertions");return;}
+if(args.Contains("--crop-species-recorded")){int count=0;HistoryCropSpeciesNicheTests.Recorded(args[Array.IndexOf(args,"--crop-species-recorded")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" recorded crop-species assertions");return;}
+if(args.Contains("--trusted-relation-memo-only")){int count=0;HistoryTrustedRelationMemoTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" trusted-relation memo assertions");return;}
+if(args.Contains("--crop-species-niche-only")){int count=0;HistoryCropSpeciesNicheTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" crop-species niche assertions");return;}
+if(args.Contains("--seed-tree-digest-only")){int count=0;HistorySeedTreeDigestTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" seed-tree digest assertions");return;}
+if(args.Contains("--sparse-exchange-only")){int count=0;HistorySparseExchangeTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" sparse-exchange assertions");return;}
 if(args.Contains("--canonical-cost-only")){int count=0;HistoryCanonicalCostTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" canonical-cost diagnostic assertions");return;}
 if(args.Contains("--canonical-cost-world")){int at=Array.IndexOf(args,"--canonical-cost-world");HistoryCanonicalCostTests.World(args[at+1],args[at+2],args.Length>at+3?int.Parse(args[at+3]):20);return;}
 if(args.Contains("--nuclear-canonical-only")){int count=0;HistoryNuclearCanonicalTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" nuclear canonical assertions");return;}
@@ -79,6 +85,9 @@ if(args.Contains("--world-realism-final-maps")){int at=Array.IndexOf(args,"--wor
 if(args.Contains("--military-operations-only")){int count=0;HistoryMilitaryOperationTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" military-operation assertions");return;}
 if(args.Contains("--military-operations-world")){int count=0;HistoryMilitaryOperationTests.World(args[Array.IndexOf(args,"--military-operations-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world military-operation assertions");return;}
 if(args.Contains("--religion-networks-review")){int at=Array.IndexOf(args,"--religion-networks-review");HistoryReligiousNetworkTests.Review(args[at+1],args[at+2]);return;}
+if(args.Contains("--lay-associations-only")){int count=0;HistoryReligiousLayAssociationTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" local lay-association assertions");return;}
+if(args.Contains("--lay-associations-world")){int at=Array.IndexOf(args,"--lay-associations-world"),count=0;HistoryReligiousLayAssociationTests.World(args[at+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);},!args.Contains("--skip-cold"));Console.WriteLine("PASS "+count+" actual-world lay-association assertions");return;}
+if(args.Contains("--religion-renewal-audit-only")){int count=0;HistoryReligiousRenewalAuditTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" literal religious-renewal diagnostic assertions");return;}
 if(args.Contains("--religion-networks-only")){int count=0;HistoryReligiousNetworkTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" religious-network assertions");return;}
 if(args.Contains("--religion-networks-world")){int count=0;HistoryReligiousNetworkTests.World(args[Array.IndexOf(args,"--religion-networks-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world religious-network assertions");return;}
 if(args.Contains("--maritime-control-only")){int count=0;HistoryMaritimeControlTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" maritime-control assertions");return;}

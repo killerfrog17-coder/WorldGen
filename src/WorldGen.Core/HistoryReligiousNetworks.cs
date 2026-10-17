@@ -10,7 +10,8 @@ namespace WorldGen.Core
         public const int Fields=13;
         public int Version=2,SinceYear;
         public HistoricalCellTree Communities,Policies=new HistoricalCellTree(33554432);
-        public HistoricalReligiousNetworks Copy()=>(HistoricalReligiousNetworks)MemberwiseClone();
+        [System.Runtime.Serialization.OptionalField] public HistoricalLayAssociations LayAssociations;
+        public HistoricalReligiousNetworks Copy(){var c=(HistoricalReligiousNetworks)MemberwiseClone();c.LayAssociations=LayAssociations?.Copy();return c;}
         public int Read(int cell,int field)=>Communities[cell*Fields+field];
         public void Write(int cell,int field,int value)=>Communities=Communities.With(cell*Fields+field,value);
     }
@@ -66,17 +67,27 @@ namespace WorldGen.Core
             if(!ReligiousNetworkHistory(s)||firstCell<0||secondCell<0||firstCell==secondCell)return;
             if(firstCell>=CellPatch.Length||secondCell>=CellPatch.Length||first<0||second<0||first>=s.History.Cultures.Length||second>=s.History.Cultures.Length||!InstitutionalRouteAllowed(s,firstCell,secondCell,first))return;
             int a=HistoricalCells.Religion(s,firstCell),b=HistoricalCells.Religion(s,secondCell);
+            if(LayReligiousHistory(s))
+            {
+                int carriedA=LayReligiousCarrier(s,firstCell,secondCell,out int supportA),carriedB=LayReligiousCarrier(s,secondCell,firstCell,out int supportB);
+                SeedLayFromDeliveredContact(s,secondCell,carriedA,supportA);SeedLayFromDeliveredContact(s,firstCell,carriedB,supportB);
+                if(carriedB!=a)RecordReligiousVisitorWithSupport(s,firstCell,secondCell,carriedB,supportB);
+                if(carriedA!=b)RecordReligiousVisitorWithSupport(s,secondCell,firstCell,carriedA,supportA);
+                return;
+            }
             if(a==b)return;
             RecordReligiousVisitor(s,firstCell,secondCell,b);RecordReligiousVisitor(s,secondCell,firstCell,a);
         }
         void RecordReligiousVisitor(PrehistoryState s,int cell,int source,int religion)
+            =>RecordReligiousVisitorWithSupport(s,cell,source,religion,-1);
+        void RecordReligiousVisitorWithSupport(PrehistoryState s,int cell,int source,int religion,int suppliedSupport)
         {
             if(religion<0||CellPatch[cell]<0||HistoricalCells.Culture(s,cell)<0)return;
             TouchReligiousCommunity(s,cell);var r=s.History.Aggregates.Empires.Connections.Religion;
             // Rural endpoints have no settlement clock. Revisit just this
             // contacted actor so sustained country exchange can reach them.
             AdvanceReligiousCommunity(s,HistoricalCells.Culture(s,cell),cell,s.History.Aggregates.TownAt[cell]);
-            int supported=Math.Max(0,r.Read(source,FaithInstitution));
+            int supported=suppliedSupport<0?Math.Max(0,r.Read(source,FaithInstitution)):suppliedSupport;
             int former=r.Read(cell,FaithVisitor);
             if(former>=0&&former!=religion&&s.Years-r.Read(cell,FaithContactYear)<=80)
             {
@@ -130,6 +141,7 @@ namespace WorldGen.Core
             r.Write(target,FaithInstitution,0);r.Write(target,FaithPressure,0);r.Write(target,FaithDissent,0);
             r.Write(target,FaithCandidate,-1);r.Write(target,FaithVisitor,-1);r.Write(target,FaithContactYear,-1);r.Write(target,FaithContactSince,-1);r.Write(target,FaithCarrier,0);r.Write(target,FaithBlend,0);r.Write(target,FaithReformed,-1);
             r.Write(target,FaithReviewed,s.Years);r.Write(target,FaithChanged,s.Years);
+            SeedLayReligiousCommunity(s,target,carried);
             if(indigenous&&previousFaith!=carried)
             {
                 r.Write(target,FaithVisitor,carried);r.Write(target,FaithContactYear,s.Years);r.Write(target,FaithContactSince,s.Years);r.Write(target,FaithCarrier,0);
@@ -197,6 +209,7 @@ namespace WorldGen.Core
                 int residence=s.Years-Math.Max(r.SinceYear,h.Religions[candidate].FoundedYear),age=s.Years-r.Read(cell,FaithChanged);
                 if(HistoricalReligiousNetworkEffects.Adopt(pressure,age,residence))
                 {
+                    SeedLayReligiousCommunity(s,cell,incumbent);
                     SetAggregateLayer(s,cell,2,candidate);r.Write(cell,FaithChanged,s.Years);pressure=150;
                     // The previous public tradition remains a household memory.
                     r.Write(cell,FaithHousehold,incumbent);
@@ -214,6 +227,7 @@ namespace WorldGen.Core
                 }
                 AdvanceReligiousCourt(s,owner,city,incumbent,elapsed);
             }
+            AdvanceLayReligiousCommunity(s,cell,city,owner,incumbent,institution,policy,court);
             TryReligiousRenewal(s,culture,cell,city,incumbent,institution,elapsed,owner>=0&&policy==2&&court&&h.Polities[owner].ReligionId!=incumbent);
         }
         string ReligiousPlace(PrehistoryState s,int cell,int city)=>city>=0?s.Society.Settlements[city].Name:"the home communities of "+s.Society.Cultures[HistoricalCells.Culture(s,cell)].Name;

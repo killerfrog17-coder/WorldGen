@@ -36,7 +36,7 @@ namespace WorldGen.Core
                 if(!aggregateRelations.TryGetValue((Math.Min(owner,rival),Math.Max(owner,rival)),out int at)
                     &&!aggregateRelations.TryGetValue((Math.Min(sovereign,otherSovereign),Math.Max(sovereign,otherSovereign)),out at))continue;
                 if(at>=h.Relations.Length)continue;
-                var relation=h.Relations[at];
+                var relation=h.Relations.Peek(at);
                 if(relation.WarSince>=0){war=1;threat=1;}
                 else if(!relation.Alliance&&relation.Trust<=-25)threat=Math.Max(threat,D.Clamp((-relation.Trust-15)/85.0));
             }

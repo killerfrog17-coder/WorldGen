@@ -130,7 +130,7 @@ namespace WorldGen.Core
             bool war=false;var contacts=h.International?.Accounts[polity].Relations;
             int offset=contacts==null||contacts.Count==0?0:(int)(HistoryRoll("living-political-war-sample",polity,s.Years)*contacts.Count);
             for(int k=0;k<Math.Min(4,contacts?.Count??0);k++)
-            {var relation=h.Relations[contacts.At((offset+k)%contacts.Count)];int other=relation.A==polity?relation.B:relation.A;if(relation.WarSince>=0&&h.Polities[other].EndedYear<0){war=true;break;}}
+            {var relation=h.Relations.Peek(contacts.At((offset+k)%contacts.Count));int other=relation.A==polity?relation.B:relation.A;if(relation.WarSince>=0&&h.Polities[other].EndedYear<0){war=true;break;}}
             double literacy=HistoricalModernEffects.Adoption(h.Cultures[p.CultureId],HistoricalTechnology.Printing,s.Years);
             double chance=HistoricalPoliticalPrograms.ConcessionChance(profile,policy.RepresentationMilli,leader.Diplomacy,leader.Administration,leader.Military,leader.Ambition,ds.Cycle?.EliteCapture??0,p.Exhaustion,literacy,war);
             bool bargain=HistoryRoll("living-political-coalition",polity,s.Years)<chance;

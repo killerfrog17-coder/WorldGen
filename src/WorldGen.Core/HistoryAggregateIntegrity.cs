@@ -29,6 +29,7 @@ namespace WorldGen.Core
                 a.Empires?.Connections?.CoastalFarming?.Families.Fingerprint(true);
                 a.Empires?.Connections?.Religion?.Communities.Fingerprint(true);
                 a.Empires?.Connections?.Religion?.Policies.Fingerprint(true);
+                a.Empires?.Connections?.Religion?.LayAssociations?.Records.Fingerprint(true);
                 a.Empires?.Connections?.Realms?.Claimants?.At.Fingerprint(true);
                 a.Empires?.Connections?.SeaService?.BySource.Fingerprint(true);
                 a.Empires?.Connections?.LocalSeeds?.Towns.Fingerprint(true);

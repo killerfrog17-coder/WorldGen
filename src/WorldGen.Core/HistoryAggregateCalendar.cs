@@ -55,7 +55,7 @@ namespace WorldGen.Core
         {
             if(validate)Validate(source);if(!source.Started)throw new InvalidOperationException("Start the world first.");
             long now=SimulationTime.Seconds(source);if(seconds<1||seconds>SimulationTime.Maximum-now||maximumEvents<1||workBudget<1)throw new ArgumentOutOfRangeException(nameof(seconds));
-            token.ThrowIfCancellationRequested();var overhead=Stopwatch.StartNew();PrehistoryState s;using(ProfileWork("aggregate checkpoint copy"))s=validate?source.Copy():source.CopyAggregateOwned();var a=s.History.Aggregates;long target=now+seconds;int count=0;
+            token.ThrowIfCancellationRequested();using var relationReads=CanonicalHashCosts.BeginRelationReads(CanonicalHashObserver!=null&&TraceCanonicalRelationReads);var overhead=Stopwatch.StartNew();PrehistoryState s;using(ProfileWork("aggregate checkpoint copy"))s=validate?source.Copy():source.CopyAggregateOwned();var a=s.History.Aggregates;long target=now+seconds;int count=0;
             var queue=new SimulationEventQueue(s.Timeline.Events);aggregateQueue=queue;PrepareAggregateRelations(source);double eventMilliseconds=0;bool completed=false;
             try
             {

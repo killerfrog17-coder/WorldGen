@@ -73,7 +73,7 @@ namespace WorldGen.Core
             {
                 int peer=city.Neighbors[(int)(HistoryRoll("aggregate-trade-partner",id,s.Years)*city.Neighbors.Length)];var other=s.Society.Settlements[peer];double km=D.Angle(World.Surface.Cells[t.Cell].Position,World.Surface.Cells[other.Cell].Position)*World.Recipe.RadiusKm;
                 bool compatible=(!LivingHistory(s)||a.Living.Cities[peer].AbandonedYear<0)&&(owner<0||other.PolityId<0||owner==a.Resolve(other.PolityId,h)||t.Stability>400&&other.Stability>400);
-                int peerOwner=a.Resolve(other.PolityId,h);if(owner>=0&&peerOwner>=0&&owner!=peerOwner&&aggregateRelations.TryGetValue((Math.Min(owner,peerOwner),Math.Max(owner,peerOwner)),out int relation))compatible&=h.Relations[relation].WarSince<0;
+                int peerOwner=a.Resolve(other.PolityId,h);if(owner>=0&&peerOwner>=0&&owner!=peerOwner&&aggregateRelations.TryGetValue((Math.Min(owner,peerOwner),Math.Max(owner,peerOwner)),out int relation))compatible&=h.Relations.Peek(relation).WarSince<0;
                 bool sea=km>200*HistoricalModernEffects.LandTransport(hc,s.Years)&&HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation)&&km*1000<=HistoricalModernVoyageEffects.RangeM(hc,s.Years,ColonialHistory(s))&&AggregateSeaLane(t.Cell,other.Cell);
                 if(compatible&&(km<200*HistoricalModernEffects.LandTransport(hc,s.Years)||sea))
                 {

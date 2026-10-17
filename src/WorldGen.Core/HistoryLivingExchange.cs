@@ -41,13 +41,23 @@ namespace WorldGen.Core
         void TryLivingRegionalExchange(PrehistoryState s,int id,int elapsed,int trial)
         {
             var a=s.History.Aggregates;var region=a.Regions[id];var local=a.Living.Regions[id];
-            if(region.Routes.Length==0||(ProvincialHistory(s)?ProvincialContactResidents(s,id):s.Population[id]+local.SettledPopulation)<100)return;
+            if(region.Routes.Length==0)return;
+            long recipients=ProvincialHistory(s)?ProvincialContactResidents(s,id):s.Population[id]+local.SettledPopulation;
+            if(recipients<(SparseExchangeHistory(s)?1:100))return;
             int routeId=region.Routes[(int)(HistoryRoll("living-knowledge-route-"+trial,id,s.Years)*region.Routes.Length)];var route=Routes[routeId];int other=route.A==id?route.B:route.A;
             int donor=ConnectedHistory(s)?DevelopmentRegionalTeacher(s,other):a.Regions[other].Culture;
             // Itinerant exchange can cross inhabited, decentralized communities;
             // a missing colored culture must not be an impermeable knowledge wall.
             if(donor<0&&s.Population[other]+a.Living.Regions[other].SettledPopulation>=100&&a.Living.Regions[other].Exposure>=100)donor=a.Living.Regions[other].Teacher;
             if(donor<0)return;var hc=s.History.Cultures[donor];
+            double encounters=1;
+            if(SparseExchangeHistory(s))
+            {
+                // Only people actually staged in the neighboring district can
+                // carry a lesson. Retaining a distant teacher ID is not presence.
+                encounters=HistoricalSparseExchange.Contact(recipients,ProvincialContactResidents(s,other));
+                if(encounters<=0)return;
+            }
             int fromCell=route.A==other?route.CellA:route.CellB,toCell=route.A==id?route.CellA:route.CellB;
             if(fromCell<0)fromCell=route.Sea&&developmentCoast[other]>=0?developmentCoast[other]:a.Regions[other].BestCell;
             if(toCell<0)toCell=route.Sea&&developmentCoast[id]>=0?developmentCoast[id]:region.BestCell;
@@ -64,7 +74,7 @@ namespace WorldGen.Core
             double transport=HistoricalModernEffects.LandTransport(hc,s.Years)*(ConnectedHistory(s)?Math.Sqrt(HistoricalModernEffects.Communication(hc,s.Years)):1);
             double transit=(.15+.85*continuity)*elapsed*transport/Math.Max(80,60+distance*barrier*.3);
             double transmission=EnvironmentalHistory(s)?EnvironmentalTransmission(s,BorderContactHistory(s)?fromCell:a.Regions[other].BestCell,BorderContactHistory(s)?toCell:region.BestCell,donor,route.Sea):1;
-            transit*=transmission;
+            transit*=transmission*encounters;
             if(HistoryRoll("living-knowledge-exchange-"+trial,id,s.Years)>1-Math.Exp(-transit))return;
             RecordDeliveredRegionalReligion(s,fromCell,toCell);
             if(LocalSeedlotHistory(s))RecordDeliveredLocalSeeds(s,fromCell,toCell);

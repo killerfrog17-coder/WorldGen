@@ -1,4 +1,4 @@
-# History32 paid prepared fields (revision16 review)
+# History32 paid prepared fields (revisions16/17 review)
 
 Status: guarded implementation and causal tests in progress; not a released
 player or an accepted longitudinal result. Revision15 and earlier retain their
@@ -33,7 +33,8 @@ warmth, seed maturation, moisture, photoperiod and reproductive fit remain.
 immutable sparse `HistoricalCellTree` roots. Six integers per physically used
 cell store prepared capacity, establishment/review/vacancy dates, local town
 holder, and rural-account epoch. Two sparse regional roots hold additive rural
-plot capacity and empty-account reset dates. Six times the maximum terrain
+plot capacity and empty-account reset tokens (Version1 dates, Version2 strict
+generations). Six times the maximum terrain
 count is15,360,000, below the existing33,554,432-key tree limit.
 
 Capacity units are **prepared farming-person equivalents**, not hectares or
@@ -104,7 +105,28 @@ only303 from the regional counter, leaving recorded550 against actual raw353.
 This exact197 residual is reproduced without a world load. A second fixture
 proves that two empty/refill cycles in one year can reuse a year-valued epoch,
 leaving a stale50-person row valid against an empty counter. These mechanisms
-are proven; the first actual P16 failing region still needs the replay trace.
+are proven independently. The subsequent actual replay identifies residual
+credit, not integer overflow or epoch reuse, as the observed P16 failure.
+
+The forced16/Version1 audit reproduces all27 original P16 exported demographic
+and technology milestones through175400 without differences, then first
+observes failure at175700 in region441. Population is24, recorded rural credit
+184, but the exact current raw rural sum is0. Its only allocated plot row is
+cell61191: raw2005, currently usable366, holder/current town3733 (Nuxixi),
+prepared-record year175559, review175630, vacancy175632, plot epoch0. The town is alive
+and is not an import-dependent port. Regional epoch remains the original
+missing-value -1, ruling out an account-reset/epoch collision in this actual case;
+the184 credit is also nowhere near integer saturation. A now town-held row with
+leftover rural credit is consistent with the independently reproduced
+effective-versus-raw debit defect. The precise predecessor row was not retained,
+so its original capacity and debit are not invented from the final residual.
+
+Evidence:
+`prepared-forced16-firstdrift/year-175700/prepared-failure.json`, saved diagnostic
+hash `1e5e2f83a2ed6bdc2ac977a378348ad3de134c412bc2d64f42293fdcdb5a8e31`,
+and `prepared-forced16-firstdrift.log`, under the external overnight directory.
+The last explicitly passed observation is175400;175700 is the first observed
+failure, not a claim that the exact bad mutation occurred in that year.
 
 Version2 distinguishes raw ledger contributions from currently usable field
 capacity, debits the complete former contribution on replacement, and permits
@@ -143,8 +165,8 @@ actual12-year and genuine cold5+7 continuations both produce
 `41b3a16335098e0d9c7c494a432ebcb3ec8ea35b1ee3479a776db24dfd38f9de`.
 The actual occupied quote is town232/cell152305,186 farmers; original source,
 global cultivars, adoption and practice remain unchanged. Evidence log:
-`prepared-ledger-v2-q17-upgrade-cold.log`. Macro V2 replay and the first actual
-P16 failure trace remain pending; the short cold proof is not their substitute.
+`prepared-ledger-v2-q17-upgrade-cold.log`. Macro V2 replay remains a separate
+acceptance check; the short cold proof is not its substitute.
 
 An additional23-assertion actual upgrade-only run from
 `prepared-ledger-r17-explicit-tests-bin` explicitly verifies that the public
@@ -153,6 +175,18 @@ plot's raw paid capacity, holder and physical dates, and leaves every actual
 warehouse reserve, court treasury and world population unchanged. Evidence:
 `prepared-ledger-v2-q17-explicit-assertions.log`; no second compression was needed
 for these additional state-migration checks.
+
+The corrected fresh R17/ledger2 Earth replay completes its strict final
+validation and full save at179800, over1,000 years after maximum technology
+178754. Final hash:
+`19964b5effc07859fdee622d09c99c3ce75f817f4989f109f84a85e2e4804970`;
+`candidate-r17-earth200/final.world`,155,274,330 bytes,421.1 seconds wall time.
+Every explicit export-checkpoint prepared-field audit passes. First state171106
+and Early Modern178000 match the preceding Q17 trajectory; the ledger repair
+does not masquerade as a cure for deficient western Eurasian settlement.
+This accepts the demonstrated Earth ledger correctness, not geographical
+realism or isolated performance. The corresponding CP longitudinal review is
+still pending; its bounded postmodern tail has not reached a final saved result.
 
 For offline first-failure diagnosis, use `--world-realism-replay SOURCE NEWDIR
 200000 --prepared-audit --prepared-rules 16`. This checks the private validator
@@ -228,6 +262,9 @@ no drainage project, altered hydrology, fertility manufacture or climate waiver.
   The corresponding evidence filenames are `prepared-fields-old16-cp.world`,
   `prepared-fields-frozen16-cp12.hash` and
   `prepared-fields-current16-cp12.hash` in the same external directory.
+  The later ledger2 implementation repeats this exact frozen16 continuation
+  from `prepared-ledger-r17-explicit-tests-bin`, with matching output in
+  `prepared-ledger-v2-current16-cp12.hash`.
 - Twenty-two original CP17/ledger-Version1 assertions pass from
   `prepared-fields-q17-tests-bin`,
   including explicit upgrade with every global cultivar/adoption/practice

@@ -29,7 +29,7 @@ namespace WorldGen.Core
             // omniscient list of all states. No territorial-size-dependent work.
             for(int k=0;k<Math.Min(2,contacts.Count);k++)
             {
-                var relation=h.Relations[contacts.At((offset+k)%contacts.Count)];int peer=relation.A==polity?relation.B:relation.A;
+                var relation=h.Relations.Peek(contacts.At((offset+k)%contacts.Count));int peer=relation.A==polity?relation.B:relation.A;
                 peer=InternationalContinuingParty(s,peer);if(peer<0||peer==polity||h.Polities[peer].EndedYear>=0)continue;
                 ConsiderDevelopmentDiplomacy(s,polity,peer,leader,elapsed);
             }

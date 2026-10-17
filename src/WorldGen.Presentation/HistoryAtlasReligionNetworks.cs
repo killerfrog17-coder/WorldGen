@@ -22,6 +22,14 @@ namespace WorldGen.Presentation
             if(local.Blending>0)facts.Add(F("Shared ritual familiarity",local.Blending+" / 1,000"));
             if(local.LastContact>=0)facts.Add(F("Last religious contact","Year "+Y(s,local.LastContact)));
             facts.Add(F("Court policy",local.Policy));
+            var lay=Prehistory.LayAssociationAt(s,cell);
+            if(lay!=null&&lay.Active)
+            {
+                Identity(lay.Support>=100?"Provisioned household association":"Potential household association",lay.Faith);
+                facts.Add(F("Association support",lay.Support+" / 1,000"));
+                if(lay.Dispute!=ReligiousAssociationDispute.None)facts.Add(F("Association circumstance",lay.Dispute==ReligiousAssociationDispute.SuppressedWorship?"Restricted local meetings":lay.Dispute==ReligiousAssociationDispute.CapturedPatronage?"Disputed court patronage":"Disputed inherited ritual authority"));
+                if(lay.LastGiftYear>=0)facts.Add(F("Last actual local gift","Year "+Y(s,lay.LastGiftYear)));
+            }
             return new AtlasSection{Title="Public worship and household practice",Facts=facts.ToArray(),Links=links.ToArray(),Text="Public predominance can change through sustained local adoption while household rites continue. Institutions need continuing provisions. Influence, support and familiarity are indices, not percentages of believers."};
         }
         public static AtlasSection[] ReligiousNetworkSections(PrehistoryState s,int religion)
@@ -51,7 +59,8 @@ namespace WorldGen.Presentation
                 var link=TownLink(s,item.Town);link.Detail=role+"; institutional support "+item.Local.Institution+" / 1,000";links.Add(link);
             }
             var communitySection=new AtlasSection{Title="Recorded communities",Facts=new[]{F("Public predominance",N(predominant)+" towns"),F("Household continuity elsewhere",N(inherited)+" towns"),F("Encountered teaching elsewhere",N(visiting)+" towns"),F("Supported public institutions",N(supported)+" towns")},Links=links.ToArray(),Text="These observations describe existing towns, with up to twelve larger examples shown. They are neither adherent counts nor a complete inventory of countryside worship. A contacted teaching may be accepted, adapted, contested or forgotten."};
-            return new[]{formSection,communitySection};
+            var associationSection=ReligiousLaySection(s,religion);
+            return associationSection!=null?new[]{formSection,communitySection,associationSection}:new[]{formSection,communitySection};
         }
     }
 }
