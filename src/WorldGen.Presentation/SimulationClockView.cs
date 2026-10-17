@@ -32,7 +32,23 @@ namespace WorldGen.Presentation
         static readonly string[] Months={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
         static readonly int[] MonthDays={31,28,31,30,31,30,31,31,30,31,30,31};
         public static double DefaultRate(int stepYears)=>5*stepYears*(double)SimulationTime.Year;
-        public static double EraRate(int era)=>(era<=2?1000:era==3?100:era==4?20:era==5?10:era==6?2:1)*(double)SimulationTime.Year;
+        public static double EraRate(int era)=>(era<=2?2000:era==3?100:era==4?5:era<8?2:1)*(double)SimulationTime.Year;
+        // Playback milestones are deliberately separate from observer era names/music.
+        // Current histories retain culture/state records and the first proto date,
+        // so a collapse does not send Auto back to prehistoric speeds.
+        public static double AutoRate(PrehistoryState? state,int era)
+        {
+            if(era>=4)return EraRate(era);
+            if(state?.History?.Polities.Length>0)return 10d*SimulationTime.Year;
+            var regional=state?.History?.RegionalTraditions;
+            if(regional!=null)
+            {
+                if(regional.FirstProtoYear>=0)return 100d*SimulationTime.Year;
+            }
+            else if(era==3||state?.Society?.Phase>=SocietyStage.EmbryonicCivilization)
+                return 100d*SimulationTime.Year;
+            return (state?.Society?.Cultures.Length>0||state?.History?.Cultures.Length>0?500d:2000d)*SimulationTime.Year;
+        }
         // First recorded state institutions are the model's civilization trigger.
         // Retired states remain recorded, so collapse cannot reset the epoch.
         public static int EpochYear(PrehistoryState? state)
@@ -72,6 +88,8 @@ namespace WorldGen.Presentation
         {if(double.IsNaN(rate)||double.IsInfinity(rate)||rate<.0001||rate>10000d*SimulationTime.Year)throw new ArgumentOutOfRangeException(nameof(rate));Rate=rate;Manual=manual;credit=0;}
         public void AutoEra(int era)=>SetRate(SimulationClockView.EraRate(era),false);
         public void Era(int era){if(!Manual&&Rate!=SimulationClockView.EraRate(era))AutoEra(era);}
+        public void AutoWorld(PrehistoryState? state,int era)=>SetRate(SimulationClockView.AutoRate(state,era),false);
+        public void World(PrehistoryState? state,int era){if(!Manual&&Rate!=SimulationClockView.AutoRate(state,era))AutoWorld(state,era);}
         public void HoldRate()=>SetRate(Rate,true);
         public void Auto(int stepYears){SetRate(SimulationClockView.DefaultRate(stepYears),false);}
         public void Phase(int stepYears){if(!Manual&&Rate!=SimulationClockView.DefaultRate(stepYears))Auto(stepYears);}

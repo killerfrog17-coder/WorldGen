@@ -96,8 +96,8 @@ public sealed partial class WorldGenRuntime
         if(GUILayout.Button(humanPlaying?"Ⅱ":"▶",GUILayout.Width(40))){humanPlaying=!humanPlaying;humanPlayback.Reset();}
         if(GUILayout.Button("‹",GUILayout.Width(28)))ChangeHumanSpeed(-1);GUILayout.Label(SimulationClockView.Rate(humanPlayback.Rate),GUILayout.Width(130));if(GUILayout.Button("›",GUILayout.Width(28)))ChangeHumanSpeed(1);
         bool automatic=!humanPlayback.Manual;
-        bool nextAutomatic=GUILayout.Toggle(automatic,new GUIContent("Auto","Adjust playback speed to the current technological age"),GUILayout.Width(68));
-        if(nextAutomatic!=automatic){if(nextAutomatic)humanPlayback.AutoEra(CurrentMusicEra());else humanPlayback.HoldRate();}
+        bool nextAutomatic=GUILayout.Toggle(automatic,new GUIContent("Auto","Adjust playback speed to cultures, first states and technological ages"),GUILayout.Width(68));
+        if(nextAutomatic!=automatic){if(nextAutomatic)humanPlayback.AutoWorld(state,CurrentMusicEra());else humanPlayback.HoldRate();}
         GUI.enabled=!atlasOpen;GUILayout.EndHorizontal();GUILayout.EndArea();
         GUI.Box(new Rect(0,Screen.height-DockHeight,Screen.width,DockHeight),"");
         if(GUI.Button(new Rect(5,Screen.height-32,Screen.width*.26f-10,28),(peoplesOpen?"▾  ":"▴  ")+historyOverlay.ToString()))peoplesOpen=!peoplesOpen;

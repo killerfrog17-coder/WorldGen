@@ -39,10 +39,27 @@ public static class WorldInterfaceTests
         var available=EraMusic.Candidates(tracks,5,recent);
         check(available.Length==1&&available[0].Path==tracks[3].Path,"Four eligible songs avoid all three recent tracks");
         check(tracks[2].Supports(5)&&tracks[2].Supports(7)&&!tracks[2].Supports(8)&&!tracks[2].Supports(0),"Tracks survive compatible age changes and reject silence or incompatible ages");
-        var pace=new SimulationPlayback();pace.AutoEra(2);check(pace.Rate==1000d*SimulationTime.Year&&!pace.Manual,"Prehistory defaults to1000 years/s");
+        var pace=new SimulationPlayback();pace.AutoEra(2);check(pace.Rate==2000d*SimulationTime.Year&&!pace.Manual,"Prehistory defaults to2000 years/s");
         foreach(int era in Enumerable.Range(3,8)){pace.Era(era);check(pace.Rate==SimulationClockView.EraRate(era),"Automatic playback follows "+WorldEraView.Name(era));}
         pace.Change(1);double manual=pace.Rate;pace.Era(2);check(pace.Manual&&pace.Rate==manual,"A speed change disables automatic pacing until re-enabled");
-        pace.AutoEra(4);pace.HoldRate();pace.Era(10);check(pace.Manual&&pace.Rate==20d*SimulationTime.Year,"Unchecking Auto holds the existing rate");
+        pace.AutoEra(4);pace.HoldRate();pace.Era(10);check(pace.Manual&&pace.Rate==5d*SimulationTime.Year,"Unchecking Auto holds the existing rate");
+        var autoState=new PrehistoryState{History=new HistoryState{RegionalTraditions=new HistoricalRegionalTraditions()},Society=new SocietyState()};
+        void AutoSpeed(double years,string label){string before=WorldJson.Write(autoState);pace.AutoWorld(autoState,WorldEraView.Of(autoState));check(pace.Rate==years*SimulationTime.Year&&!pace.Manual,label);check(WorldJson.Write(autoState)==before,"Auto does not mutate history: "+label);}
+        AutoSpeed(2000,"No cultures starts at2000 years/s");
+        autoState.Society.Cultures=new[]{new CultureIdentity()};
+        AutoSpeed(500,"Advanced cultures slow Auto to500 independently of the era name");
+        check(WorldEraView.Of(autoState)==2&&WorldEraView.Name(2)=="Prehistory","Advanced cultures do not change the observer/music era");
+        autoState.History.RegionalTraditions.FirstProtoYear=120000;
+        AutoSpeed(100,"First embryonic civilization slows Auto to100");
+        autoState.History.Polities=new[]{new HistoricalPolity{EndedYear=130000}};
+        AutoSpeed(10,"First recorded state slows Auto to10 even after its collapse");
+        double[] eraSpeeds={5,2,2,2,1,1,1};
+        for(int era=4;era<=10;era++)check(SimulationClockView.AutoRate(autoState,era)==eraSpeeds[era-4]*SimulationTime.Year,"Exact Auto rate for "+WorldEraView.Name(era));
+        pace.SetRate(50d*SimulationTime.Year);pace.World(autoState,10);
+        check(pace.Manual&&pace.Rate==50d*SimulationTime.Year,"World milestone updates preserve manual speed");
+        pace.AutoWorld(autoState,10);check(!pace.Manual&&pace.Rate==SimulationTime.Year,"Rechecking Auto restores the current milestone speed");
+        var legacyAuto=new PrehistoryState{Society=new SocietyState{Cultures=new[]{new CultureIdentity{Stage=SocietyStage.EmbryonicCivilization}}}};
+        check(SimulationClockView.AutoRate(legacyAuto,2)==100d*SimulationTime.Year,"Legacy embryonic cultures retain their milestone");
         double[] annual={1,2,5,10,20,50,100,200,500,1000,2000,5000,10000};
         check(SimulationClockView.Rates.Where(rate=>rate>=SimulationTime.Year).SequenceEqual(annual.Select(rate=>rate*SimulationTime.Year)),"Annual speed ladder uses1,2,5 decades up to10000");
         pace.SetRate(10000d*SimulationTime.Year);pace.Change(1);check(pace.Rate==10000d*SimulationTime.Year,"Speed controls clamp at the final supported preset");

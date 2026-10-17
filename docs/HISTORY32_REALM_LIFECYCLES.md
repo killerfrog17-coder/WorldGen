@@ -174,11 +174,16 @@ document entries; ordinary simulation does not run those full integrity checks.
 
 ## Selected review build: final native evidence
 
-The project shortcut selects `artifacts/player-history-32-realms-review/WorldGen.exe`,
+The empire-review evidence below used `artifacts/player-history-32-realms-review/WorldGen.exe`,
 built2026-10-17T02:39:11Z from source checkpoint
 `8db1198119ef29f074d316fa14814c4c7e65d471`. Staged, compiled and player Core
 SHA256 agree: `5803f047135018cd3c1579ef1c2e1a2ad17f3fe1b519a716b86c6d6fa44cd804`.
 The preceding geographic player and verified31 are retained, not overwritten.
+
+The subsequent Auto-speed-only refresh selects
+`artifacts/player-history-32-realms-autowarp/WorldGen.exe`. It changes requested
+playback rates, not historical rules, observer era names or soundtrack behavior.
+The running review player is not closed or overwritten by this refresh.
 
 The ordinary O Continents Plus final world was loaded in Unity and advanced
 another1,019.14 years, ending2,039 years after its actual maximum capability.

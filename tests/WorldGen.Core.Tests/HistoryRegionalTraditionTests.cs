@@ -38,7 +38,7 @@ public static class HistoryRegionalTraditionTests
         check(s.Population[0]==10000,"Removing a cultural classification creates no demographic collapse.");
         s=Fixture();s.History.Cultures[0].Technology[(int)HistoricalTechnology.Cultivation]=301;
         check(WorldEraView.Of(s)==2&&WorldEraView.FirstYears(s)[3]==-1,"A farming technique alone no longer triggers the Neolithic or slower playback.");
-        check(SimulationClockView.EraRate(WorldEraView.Of(s))==1000d*SimulationTime.Year,"Auto speed remains 1000 years per second before a qualified proto-center.");
+        check(SimulationClockView.AutoRate(s,WorldEraView.Of(s))==500d*SimulationTime.Year,"Advanced cultures select500 years per second without changing the observer era.");
         s.History.RegionalTraditions.FirstProtoYear=500;
         check(WorldEraView.Of(s)==3&&WorldEraView.FirstYears(s)[3]==500,"The first sustained proto-center supplies the observer's Neolithic milestone.");
         check(SimulationClockView.EraRate(WorldEraView.Of(s))==100d*SimulationTime.Year,"The qualified Neolithic transition selects 100 years per second.");
