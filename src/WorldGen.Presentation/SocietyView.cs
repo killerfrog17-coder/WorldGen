@@ -68,6 +68,7 @@ namespace WorldGen.Presentation
             if(p>=0&&s.History.Polities[p].EndedYear>=0)p=-1;
             if(overlay==HistoryOverlay.Provinces)return HistoricalProvinceIdentity.Of(s,cell);
             if(overlay==HistoryOverlay.Religions)return HistoricalCells.Religion(s,cell);
+            if(overlay==HistoryOverlay.ReligiousInstitutions)return HistoricalMapSnapshot.ReligiousInstitutionIdentity(s,cell);
             if(overlay==HistoryOverlay.States||overlay==HistoryOverlay.Civilizations)
             {
                 int holder=p>=0?p:HistoricalRecognizedClaims.Holder(s,cell);

@@ -18,6 +18,7 @@ namespace WorldGen.Core
         void InitializeReligiousProfile(PrehistoryState s,int religion)
         {
             if(!ReligiousInstitutionHistory(s))return;var faith=s.History.Religions[religion];
+            AppendReligiousDoctrine(s,religion,ReligiousIssue.None,-1);
             var vocation=ReligiousInstitutionVocation(s,religion);bool oath=HistoryRoll("religion-observance-root-2",religion,0)<.5;
             faith.Ethos=HistoricalReligiousProfiles.Ethos(vocation,oath);faith.Ritual=HistoricalReligiousProfiles.Ritual(vocation,oath);
             faith.Tradition="A locally established household and ritual community rooted among "+s.Society.Cultures[faith.CultureId].Name+"; its obligations and observances are transmitted orally";
@@ -29,6 +30,13 @@ namespace WorldGen.Core
             // Actual migrant-community inheritance, not the unrelated regional
             // culture that happens to be credited with a technical lesson.
             target.ParentId=source.Id;target.Ethos=source.Ethos;target.Ritual=source.Ritual;
+            if(StructuredReligion(s))
+            {
+                var doctrines=h.Aggregates.Empires.Connections.Religion.Traditions;
+                if(source.Id>=target.Id)throw new ArgumentException("Religious inheritance must precede its child.");
+                var inherited=doctrines.Doctrines[source.Id].Copy();inherited.Id=target.Id;inherited.Generation++;inherited.Branch=ReligiousBranch.Denomination;inherited.Issue=ReligiousIssue.None;inherited.SecondaryParent=-1;
+                doctrines.Doctrines[target.Id]=inherited;
+            }
             target.Tradition="Household rites and obligations brought by migrants from "+source.Name+", re-established at the new community without a transported priesthood or endowed temple";
             if(source.Reach!=ReligiousReach.Local&&ReligiousInstitutionVocation(s,target.Id)!=ReligiousVocation.SacredPlaces)target.Reach=ReligiousReach.Portable;
         }

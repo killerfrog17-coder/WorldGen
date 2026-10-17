@@ -60,6 +60,7 @@ namespace WorldGen.Presentation
                 case HistoryOverlay.Civilizations:case HistoryOverlay.Cultures:return CultureLink(s.Society.Cultures[id]);
                 case HistoryOverlay.Provinces:return ProvinceLink(s,id);
                 case HistoryOverlay.Religions:return FaithLink(s.History.Religions[id]);
+                case HistoryOverlay.ReligiousInstitutions:return ReligiousBodyLink(s,id/2,id%2);
                 case HistoryOverlay.Technology:return TechnologyLink(s,id,cell);
                 default:return null;
             }
@@ -116,6 +117,7 @@ namespace WorldGen.Presentation
                 case "city":entries=s.Society.Settlements.Where(t=>past||t.Population>0).OrderByDescending(t=>t.Population).ThenBy(t=>t.Id).Select(t=>TownLink(s,t));break;
                 case "people":entries=s.Society.Cultures.OrderByDescending(c=>c.Population).ThenBy(c=>c.Id).Select(CultureLink);break;
                 case "religion":entries=h.Religions.Select(FaithLink);break;
+                case "religious-body":entries=s.Society.Settlements.SelectMany(t=>new[]{0,1}.Select(slot=>Prehistory.ReligiousInstitutionAt(s,t.Cell,slot))).Where(b=>b!=null&&b.Support>=100).OrderBy(b=>b.Town).ThenBy(b=>b.Slot).Select(b=>ReligiousBodyLink(s,b.Town,b.Slot));break;
                 case "ruler":entries=(h.Dynamics?.Leaders??Array.Empty<HistoricalLeader>()).Where(l=>past||l.EndedYear<0&&h.Polities[l.PolityId].EndedYear<0).OrderByDescending(l=>l.Renown).ThenBy(l=>l.Id).Select(l=>LeaderLink(s,l));break;
                 default:return Array.Empty<AtlasLink>();
             }
@@ -137,6 +139,7 @@ namespace WorldGen.Presentation
                 case "city" when id>=0&&id<s.Society.Settlements.Length:City(s,s.Society.Settlements[id],d,sections);break;
                 case "people" when id>=0&&id<s.Society.Cultures.Length:People(s,s.Society.Cultures[id],d,sections,world);break;
                 case "religion" when id>=0&&id<h.Religions.Length:Religion(s,h.Religions[id],d,sections);break;
+                case "religious-body" when id>=0&&id<s.Society.Settlements.Length*2:ReligiousBody(s,id,d,sections);break;
                 case "ruler" when id>=0&&id<(h.Dynamics?.Leaders.Length??0):Ruler(s,h.Dynamics!.Leaders[id],d,sections);break;
                 default:d.Title="Record unavailable";d.Introduction="This record is not present in the current world.";break;
             }
@@ -398,9 +401,10 @@ namespace WorldGen.Presentation
             var h=s.History;d.Title=r.Name;d.Cell=r.HolyCell;d.Subtitle="Religious tradition";
             d.Introduction=r.Name+" first appears in the records in year "+Y(s,r.FoundedYear)+", among the "+s.Society.Cultures[r.CultureId].Name+" people. "+r.Tradition+". "+(r.ParentId>=0?"It branches from "+h.Religions[r.ParentId].Name+".":"No parent tradition is recorded.");
             d.Facts=new[]{F("Founded","Year "+Y(s,r.FoundedYear)),F("Dominant-local-tradition cells",N(Enumerable.Range(0,HistoricalCells.Count(s)).Count(i=>HistoricalCells.Religion(s,i)==r.Id)))};
-            a.Add(Text("Beliefs and observance","Ethos: "+r.Ethos+". Practices: "+r.Ritual+"."));
+            if(Prehistory.ReligiousDoctrineAt(s,r.Id)==null)a.Add(Text("Beliefs and observance","Ethos: "+r.Ethos+". Practices: "+r.Ritual+"."));
             a.Add(Text("Reading the religious map","A cell's color represents its dominant recorded tradition, not unanimous belief or a census of adherents. Political conquest does not by itself establish how many people hold a belief."));
             a.AddRange(ReligiousNetworkSections(s,r.Id));
+            a.AddRange(ReligiousDoctrineSections(s,r.Id));
             a.Add(Links("Related traditions",(r.ParentId>=0?new[]{FaithLink(h.Religions[r.ParentId])}:Array.Empty<AtlasLink>()).Concat(h.Religions.Where(x=>x.ParentId==r.Id).Select(FaithLink))));
             a.Add(Links("Originating people",new[]{CultureLink(s.Society.Cultures[r.CultureId])}));
             a.Add(Links("Affiliated courts",h.Polities.Where(p=>p.EndedYear<0&&p.ReligionId==r.Id).OrderByDescending(p=>p.Population).ThenBy(p=>p.Id).Select(p=>StateLink(s,p,p.Government)),"Court affiliation is not the population's religious census."));

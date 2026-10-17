@@ -53,6 +53,7 @@ namespace WorldGen.Presentation
         public int Boundary(int cell)=>boundaries[cell];
         public int Boundary(int cell,HistoryOverlay overlay)
         {
+            if(overlay==HistoryOverlay.ReligiousInstitutions)return ReligiousInstitutionIdentity(source,cell);
             if(overlay==HistoryOverlay.Cultures)return Culture(cell);
             if(overlay==HistoryOverlay.Religions)return Religion(cell);
             if(overlay==HistoryOverlay.Technology)return OverlayId(cell,overlay);
@@ -66,6 +67,7 @@ namespace WorldGen.Presentation
             if(cell<0||cell>=Count||source.Society==null)return -1;int culture=Culture(cell),p=Polity(cell);var h=source.History;
             if(h==null)return culture>=0&&source.Society.Cultures[culture].Stage==SocietyStage.Civilization?culture:-1;
             if(overlay==HistoryOverlay.Provinces)return HistoricalProvinceIdentity.Of(source,cell);
+            if(overlay==HistoryOverlay.ReligiousInstitutions)return ReligiousInstitutionIdentity(source,cell);
             if(overlay==HistoryOverlay.Territories)return p;
             if(overlay==HistoryOverlay.Civilizations||overlay==HistoryOverlay.States)p=PoliticalSovereign(cell);
             if(overlay==HistoryOverlay.States)return p;if(overlay==HistoryOverlay.Religions)return Religion(cell);
@@ -75,6 +77,17 @@ namespace WorldGen.Presentation
         }
         public int ColorId(int cell,HistoryOverlay overlay)
         {return OverlayId(cell,overlay);}
+        public static int ReligiousInstitutionIdentity(PrehistoryState state,int cell)
+        {
+            var a=state.History?.Aggregates;if(a==null||cell<0||cell>=HistoricalCells.Count(state))return -1;
+            var local=Prehistory.ReligiousInstitutionAt(state,cell);
+            if(local==null)
+            {
+                int market=HistoricalCells.Market(state,cell);
+                if(market>=0&&market<state.Society.Settlements.Length)local=Prehistory.ReligiousInstitutionAt(state,state.Society.Settlements[market].Cell);
+            }
+            return local!=null&&local.Support>=100&&local.Faith==HistoricalCells.Religion(state,cell)?local.Seat*2:-1;
+        }
         public int SelectionId(int cell,HistoryOverlay overlay)
         {
             if(cell<0||cell>=Count||source.History==null)return -1;

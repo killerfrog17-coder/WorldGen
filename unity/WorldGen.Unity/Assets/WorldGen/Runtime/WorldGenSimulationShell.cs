@@ -141,7 +141,7 @@ public sealed partial class WorldGenRuntime
     {
         AtlasParagraph(MapShortcuts.Help,11);
         if(GUILayout.Button("City markers: "+SettlementMarkers.Name(settlementMarkerMode)+" [C]"))settlementMarkerMode=SettlementMarkers.Next(settlementMarkerMode);
-        GUILayout.Label("HISTORICAL OVERLAY");foreach(HistoryOverlay mode in Enum.GetValues(typeof(HistoryOverlay)))if(GUILayout.Toggle(historyOverlay==mode,mode.ToString(),GUI.skin.button)&&historyOverlay!=mode){historyOverlay=mode;UpdateHumanPalette();}
+        GUILayout.Label("HISTORICAL OVERLAY");foreach(HistoryOverlay mode in Enum.GetValues(typeof(HistoryOverlay)))if(GUILayout.Toggle(historyOverlay==mode,mode==HistoryOverlay.ReligiousInstitutions?"Religious institutions":mode.ToString(),GUI.skin.button)&&historyOverlay!=mode){historyOverlay=mode;UpdateHumanPalette();}
         DrawTechnologyCeiling();
         if(world?.Prehistory?.History!=null){bool enabled=GUI.enabled;GUI.enabled=enabled&&exportJob==null;if(GUILayout.Button(exportJob==null?"Export campaign chronicle":"Export in progress…"))ExportCampaignChronicle();GUI.enabled=enabled;}
         GUILayout.Label("BASE MAP");foreach(var mode in new[]{Layer.Satellite,Layer.Terrain,Layer.Climate,Layer.Heightmap,Layer.Ecoregions,Layer.Microplates})if(GUILayout.Toggle(layer==mode,GlobeView.LayerName(mode),GUI.skin.button)&&layer!=mode){layer=preferredLayer=mode;Refresh();}

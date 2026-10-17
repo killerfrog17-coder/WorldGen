@@ -85,6 +85,7 @@ namespace WorldGen.Core
             int visitor=r.Read(cell,FaithVisitor);
             bool related=visitor>=0&&visitor!=faith&&(h.Religions[visitor].ParentId==faith||h.Religions[faith].ParentId==visitor);
             bool ritual=related&&r.Read(cell,FaithContactYear)>=0&&s.Years-r.Read(cell,FaithContactYear)<=80&&r.Read(cell,FaithBlend)>=300&&h.Religions[visitor].Ritual!=h.Religions[faith].Ritual;
+            if(StructuredReligion(s))ritual=visitor>=0&&visitor!=faith&&r.Read(cell,FaithContactYear)>=0&&s.Years-r.Read(cell,FaithContactYear)<=80&&r.Read(cell,FaithBlend)>=300&&ReligiousDoctrines.Compare(r.Traditions.Doctrines[faith],r.Traditions.Doctrines[visitor]).Tension>=350;
             bool disputed=captured||ritual;long gift=HistoricalLayAssociationEffects.Gift(t.Population,elapsed),assembly=disputed?HistoricalLayAssociationEffects.Assembly(t.Population):0;
             bool paid=t.Population>=100&&t.FoodReserve-t.Population/2>=gift+assembly;
             int former=Math.Max(0,lay.Records[key+LaySupport]),priorReason=Math.Max(0,lay.Records[key+LayDispute]);
@@ -105,6 +106,7 @@ namespace WorldGen.Core
         }
         void TryLayReligiousRenewal(PrehistoryState s,int cell,int town,int owner,int faith,int institution,int elapsed,bool disputed,bool paid,bool ritual,int visitor)
         {
+            if(StructuredReligion(s)){TryStructuredReligiousBranch(s,cell,town,owner,faith,institution,elapsed,disputed,paid,ritual,visitor);return;}
             var h=s.History;var r=h.Aggregates.Empires.Connections.Religion;var lay=r.LayAssociations;int key=cell*HistoricalLayAssociations.Fields;
             if(!disputed||!paid||lay.Records[key+LayCommitment]<600||HistoricalLayAssociationEffects.OrganizingCapacity(lay.Records[key+LaySupport],institution,HistoricalCells.Religion(s,cell)==faith)<600)return;
             int recent=Math.Max(h.Religions[faith].FoundedYear,r.Read(cell,FaithReformed));

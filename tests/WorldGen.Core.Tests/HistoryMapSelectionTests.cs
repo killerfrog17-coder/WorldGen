@@ -71,7 +71,7 @@ public static class HistoryMapSelectionTests
             var codes=PrehistoryView.Codes(world,engine,s,sites[1],mode,optimized:optimized);
             int selected=SocietyView.SelectionId(s,sites[1],mode);
             foreach(int cell in sites)
-                check((codes[cell]==245||codes[cell]==255)==(SocietyView.SelectionId(s,cell,mode)==selected),"Highlight follows selected "+mode+" rather than tint/local title: "+cell+" / cache="+optimized);
+                check((codes[cell]==245||codes[cell]==255)==(selected!=-1&&SocietyView.SelectionId(s,cell,mode)==selected),"Highlight follows selected "+mode+" rather than tint/local title: "+cell+" / cache="+optimized);
         }
         var missing=PrehistoryView.Codes(world,engine,s,sites[7],HistoryOverlay.Religions);
         check(sites.All(cell=>missing[cell]!=245&&missing[cell]!=255),"A missing faith record highlights no unrelated culture");

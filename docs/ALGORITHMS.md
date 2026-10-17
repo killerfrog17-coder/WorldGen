@@ -1,5 +1,19 @@
 # Implementation contracts - version 3
 
+## Structured religious traditions - history32 optional realm31
+
+Fresh histories enable nullable `Religion.Traditions`; old null continuations
+and canonical bytes remain literal until explicit upgrade. Saved inherited
+doctrines, particular branch issues, graded affinities/conflicts and separate
+public/lay institutional bodies replace equality-only religious effects in the
+new revision. Real provisions/contact/policy condition adoption, centralization,
+grievance and local political consequences. Religion never directly transfers
+territory, grants battle strength, instantly converts conquered people or starts
+war without the existing campaign gates. Two actor-local body slots and fixed
+pair comparisons reuse existing clocks; no recurring territorial census or daily
+ritual schedule is added. Integrity/copy/persistence cover the optional records.
+See [scope, causal rules and limits](HISTORY32_RELIGIOUS_TRADITIONS.md).
+
 ## Continuing countries and contested realms - history32 optional review
 
 Owner revision30 adds bounded actual-court connectivity, local early direct-administration envelopes and loss of isolated office support.96 route expansions cannot become a territorial census; exhausted searches mean unknown, not disconnected. Supported sea lanes and later delegated ocean/rail transport remain distinct from ancient direct administration. Existing29 and earlier histories retain exact continuation until explicit upgrade. State colors now identify sovereign state IDs; claims are not pale. [Scope, mechanisms and evidence](HISTORY32_COURT_CONNECTIVITY.md).

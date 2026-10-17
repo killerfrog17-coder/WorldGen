@@ -217,6 +217,30 @@ namespace WorldGen.Core
         internal HistoricalCellTree Grow(int capacity){if(capacity<length||capacity>33554432)throw new ArgumentOutOfRangeException(nameof(capacity));return new HistoricalCellTree(capacity,root);}
         public HistoricalCellTree With(int index,int value)
         {if((uint)index>=(uint)length)throw new ArgumentOutOfRangeException(nameof(index));if(this[index]==value)return this;return new HistoricalCellTree(length,Set(root,index,20,value));}
+        // One bounded actor record, sharing untouched nodes. In particular a
+        // religious body must not copy the same radix path fifteen times.
+        // Existing With/canonical/transport behavior is unchanged.
+        public HistoricalCellTree WithBlock(int start,ReadOnlySpan<int> values)
+        {
+            if(values.Length>32||start<0||start>length-values.Length)throw new ArgumentOutOfRangeException(nameof(start));
+            bool changed=false;for(int i=0;i<values.Length;i++)if(this[start+i]!=values[i]){changed=true;break;}
+            return changed?new HistoricalCellTree(length,SetBlock(root,0,20,start,values)):this;
+        }
+        static Node SetBlock(Node old,int first,int shift,int start,ReadOnlySpan<int> values)
+        {
+            if(shift==0)
+            {
+                var leaf=old?.Values==null?EmptyValues():(int[])old.Values.Clone();values.CopyTo(leaf.AsSpan(start-first,values.Length));
+                for(int i=0;i<32;i++)if(leaf[i]!=-1)return new Node{Values=leaf};return null;
+            }
+            var children=old==null?new Node[32]:(Node[])old.Children.Clone();int end=start+values.Length;
+            for(int child=(start-first)>>shift;child<=((end-1-first)>>shift);child++)
+            {
+                int childFirst=first+(child<<shift),lo=Math.Max(start,childFirst),hi=Math.Min(end,childFirst+(1<<shift));
+                children[child]=SetBlock(children[child],childFirst,shift-5,lo,values.Slice(lo-start,hi-lo));
+            }
+            for(int i=0;i<32;i++)if(children[i]!=null)return new Node{Children=children};return null;
+        }
         static Node Set(Node old,int index,int shift,int value)
         {
             if(shift==0){var values=old?.Values==null?EmptyValues():(int[])old.Values.Clone();values[index&31]=value;if(value!=-1)return new Node{Values=values};for(int i=0;i<32;i++)if(values[i]!=-1)return new Node{Values=values};return null;}

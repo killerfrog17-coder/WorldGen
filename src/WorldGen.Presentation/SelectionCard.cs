@@ -49,6 +49,8 @@ namespace WorldGen.Presentation
                     card.Bars=new[]{new AtlasLink{Name="Health",Value=t.Health},new AtlasLink{Name="Stability",Value=t.Stability}};break;
                 case "religion":
                     var r=h.Religions[link.Id];card.Subtitle=r.Tradition;
+                    var doctrine=Prehistory.ReligiousDoctrineAt(s,link.Id);
+                    if(doctrine!=null){card.Subtitle=ReligiousDoctrines.Name(doctrine.Cosmology)+" · "+ReligiousDoctrines.Name(doctrine.Branch);facts.Add(F("Religious family",h.Religions[doctrine.RootId].Name));facts.Add(F("Authority",ReligiousDoctrines.Name(doctrine.Revelation)));}
                     var worship=Prehistory.ReligiousCommunityAt(s,cell);
                     if(worship!=null)
                     {
@@ -57,7 +59,10 @@ namespace WorldGen.Presentation
                         card.Note="Public tradition at this location; household practice can differ. Support is not a percentage of believers.";
                     }
                     else{facts.Add(F("Origin",s.Society.Cultures[r.CultureId].Name));facts.Add(F("Founded",Y(s,r.FoundedYear)));}
-                    facts.Add(F("Ethos",r.Ethos));break;
+                    facts.Add(F("Ethos",doctrine!=null?"Mutual aid "+doctrine.Charity+" · ritual discipline "+doctrine.Asceticism:r.Ethos));break;
+                case "religious-body":
+                    var body=Prehistory.ReligiousInstitutionAt(s,s.Society.Settlements[link.Id/2].Cell,link.Id%2);
+                    if(body!=null){card.Subtitle=ReligiousDoctrines.Name(body.Form);facts.Add(F("Tradition",h.Religions[body.Faith].Name));facts.Add(F("Institutional support",body.Support+" / 1,000"));facts.Add(F("Local autonomy",body.Independence+" / 1,000"));card.Note="Institutional jurisdiction, not a state border or an adherent census.";}break;
                 case "province":facts.Add(F("District area",N(HistoricalProvinceIdentity.Area(s,link.Id))+" km²"));card.Note="Administrative service district · not a culture boundary";break;
                 default:card.Subtitle=link.Detail;break;
             }

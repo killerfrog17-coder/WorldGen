@@ -1,6 +1,9 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--religion-doctrine-only")){int count=0;HistoryReligiousDoctrineTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" structured religious doctrine assertions");return;}
+if(args.Contains("--religion-doctrine-world")){int at=Array.IndexOf(args,"--religion-doctrine-world"),count=0;HistoryReligiousDoctrineTests.World(args[at+1],args[at+2],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world structured religion assertions");return;}
+if(args.Contains("--religion-large-world")){int at=Array.IndexOf(args,"--religion-large-world"),count=0;HistoryReligiousDoctrineTests.Large(args[at+1],args[at+2],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" large-world religious continuation assertions");return;}
 if(args.Contains("--map-marks-only")){int count=0;MapMarksTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" river and settlement marker assertions");return;}
 if(args.Contains("--court-connectivity-only")){int count=0;HistoryCourtConnectivityTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" court connectivity and state-map assertions");return;}
 if(args.Contains("--court-connectivity-world")){int at=Array.IndexOf(args,"--court-connectivity-world"),count=0;HistoryCourtConnectivityTests.World(args[at+1],args[at+2],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world court connectivity assertions");return;}

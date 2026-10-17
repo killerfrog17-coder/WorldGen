@@ -7,6 +7,8 @@ namespace WorldGen.Presentation
         public static string Group(string title)
         {
             if(title=="Overview")return "Overview";
+            if(title=="Social teachings"||title=="Observance and sacred obligations"||title=="Beliefs and sources of authority"||title=="Branches and doctrinal relationships")return "People & place";
+            if(title=="Affiliated ritual bodies"||title=="Public worship and household practice"||title=="Ritual community and institutions")return "Power & relations";
             if(title.IndexOf("history",StringComparison.OrdinalIgnoreCase)>=0||title.Contains("timeline")||title.Contains("succession")||title.Contains("lineage")||title=="Campaigns"||title.Contains("Rulers"))return "History";
             if(title.Contains("Crop")||title.Contains("crop")||title.Contains("food")||title.Contains("Food")||title.Contains("knowledge")||title.Contains("Research")||title.Contains("Livelihood")||title.Contains("living"))return "Economy & knowledge";
             if(title.StartsWith("People,",StringComparison.Ordinal)||title.Contains("Origins")||title=="Language and names"||title=="Names for the homeland")return "People & place";

@@ -11,7 +11,8 @@ namespace WorldGen.Core
         public int Version=2,SinceYear;
         public HistoricalCellTree Communities,Policies=new HistoricalCellTree(33554432);
         [System.Runtime.Serialization.OptionalField] public HistoricalLayAssociations LayAssociations;
-        public HistoricalReligiousNetworks Copy(){var c=(HistoricalReligiousNetworks)MemberwiseClone();c.LayAssociations=LayAssociations?.Copy();return c;}
+        [System.Runtime.Serialization.OptionalField] public HistoricalReligiousTraditions Traditions;
+        public HistoricalReligiousNetworks Copy(){var c=(HistoricalReligiousNetworks)MemberwiseClone();c.LayAssociations=LayAssociations?.Copy();c.Traditions=Traditions?.Copy();return c;}
         public int Read(int cell,int field)=>Communities[cell*Fields+field];
         public void Write(int cell,int field,int value)=>Communities=Communities.With(cell*Fields+field,value);
     }
@@ -109,6 +110,7 @@ namespace WorldGen.Core
                 }
             }
             r.Write(cell,FaithCarrier,supported);
+            RecordStructuredReligiousContact(s,cell,source,religion);
         }
         public HistoricalReligiousCommunity ReligiousCommunity(PrehistoryState s,int cell)=>ReligiousCommunityAt(s,cell);
         public static HistoricalReligiousCommunity ReligiousCommunityAt(PrehistoryState s,int cell)
@@ -200,7 +202,14 @@ namespace WorldGen.Core
                 if(r.Read(cell,FaithCandidate)!=candidate){pressure=0;r.Write(cell,FaithCandidate,candidate);}
                 int carrier=Math.Max(0,r.Read(cell,FaithCarrier));var reach=h.Religions[candidate].Reach;
                 if(reach==ReligiousReach.Missionary&&carrier<650)reach=ReligiousReach.Portable;
+                int previousPressure=pressure;
                 pressure=HistoricalReligiousNetworkEffects.Pressure(pressure,elapsed,contactYears,reach,carrier,tolerance,favored);
+                if(StructuredReligion(s)&&pressure>previousPressure)
+                {
+                    var profiles=r.Traditions.Doctrines;var comparison=ReligiousDoctrines.Compare(profiles[incumbent],profiles[candidate]);
+                    double multiplier=ReligiousDoctrines.ConversionMultiplier(comparison,profiles[candidate],Math.Max(0,r.Read(cell,FaithBlend)));
+                    pressure=Math.Min(1000,previousPressure+(int)Math.Round((pressure-previousPressure)*multiplier));
+                }
                 int blend=Math.Max(0,r.Read(cell,FaithBlend));
                 if(contactYears>0)blend=Math.Min(1000,blend+(int)Math.Round(contactYears*(policy==2?.25:.9)));
                 else blend=Math.Max(0,blend-elapsed/2);
@@ -222,7 +231,7 @@ namespace WorldGen.Core
             r.Write(cell,FaithPressure,pressure);
             if(owner>=0&&city>=0)
             {
-                if(policy==2&&court&&h.Polities[owner].ReligionId!=incumbent)
+                if(!StructuredReligion(s)&&policy==2&&court&&h.Polities[owner].ReligionId!=incumbent)
                 {
                     var town=s.Society.Settlements[city];town.Stability=Math.Max(0,town.Stability-Math.Min(30,elapsed/3));
                 }
@@ -230,6 +239,7 @@ namespace WorldGen.Core
             }
             AdvanceLayReligiousCommunity(s,cell,city,owner,incumbent,institution,policy,court);
             TryReligiousRenewal(s,culture,cell,city,incumbent,institution,elapsed,owner>=0&&policy==2&&court&&h.Polities[owner].ReligionId!=incumbent);
+            AdvanceStructuredReligiousInstitutions(s,cell,city,owner,policy,court);
         }
         string ReligiousPlace(PrehistoryState s,int cell,int city)=>city>=0?s.Society.Settlements[city].Name:"the home communities of "+s.Society.Cultures[HistoricalCells.Culture(s,cell)].Name;
         void ValidateReligiousNetworks(PrehistoryState s)

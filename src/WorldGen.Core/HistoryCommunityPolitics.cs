@@ -37,6 +37,7 @@ namespace WorldGen.Core
                 +.22*printing*(1-policy.RepresentationMilli/1000.0)+.35*deficit+.22*p.Exhaustion/1000.0+.40*conquest
                 -.22*p.Legitimacy/1000.0-.12*ds.PublicWorks/1000.0);
             if(RealmHistory(s))pressure=D.Clamp(pressure+.4*D.Clamp((distance-1)/4)*policy.CentralizationMilli/1000.0*(1-.85*RealmBureaucracy(s,owner)));
+            pressure=D.Clamp(pressure+ReligiousLocalPoliticalGrievance(s,t.Cell,owner));
             if(recent&&foreign&&succession)pressure=D.Clamp(pressure+.25*(1-local.InclusionMilli/1000.0)*conquest);
             double previous=record.AutonomyPressure/1000.0,tau=recent?12:80;
             pressure=previous+(pressure-previous)*(1-Math.Exp(-elapsed/tau));record.AutonomyPressure=(int)Math.Round(pressure*1000);

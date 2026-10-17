@@ -15,8 +15,13 @@ namespace WorldGen.Core
             var relation=AggregateRelation(s,id,other);if(relation.WarSince>=0)return;
             var hc=h.Cultures[p.CultureId];var pc=h.Cultures[peer.CultureId];
             double shared=p.CultureId==peer.CultureId?1:p.ReligionId==peer.ReligionId?.4:0;
+            if(StructuredReligion(s)&&p.CultureId!=peer.CultureId&&p.ReligionId>=0&&peer.ReligionId>=0)
+            {
+                var doctrines=h.Aggregates.Empires.Connections.Religion.Traditions.Doctrines;
+                shared=.4*ReligiousDoctrines.Affinity(ReligiousDoctrines.Compare(doctrines[p.ReligionId],doctrines[peer.ReligionId]))/1000.0;
+            }
             double exchange=relation.Trade?2:0;
-            relation.Trust=Math.Max(-100,Math.Min(100,relation.Trust+(int)(HistoryRoll("development-trust-"+other,id,s.Years)*9)-4+(int)shared+(int)exchange));
+            relation.Trust=Math.Max(-100,Math.Min(100,relation.Trust+(int)(HistoryRoll("development-trust-"+other,id,s.Years)*9)-4+(StructuredReligion(s)?(int)Math.Round(shared*2):(int)shared)+(int)exchange));
             double power=Math.Max(1,p.Army)*HistoricalModernEffects.Military(hc,s.Years)/Math.Max(1,peer.Army*HistoricalModernEffects.Military(pc,s.Years));
             double opportunity=D.Clamp((power-.9)/2.0),rivalry=D.Clamp(-relation.Trust/100.0);
             double ambition=leader.Ambition/1000.0,provisioned=D.Clamp(p.Treasury/Math.Max(100.0,p.Army*4.0));
@@ -29,6 +34,7 @@ namespace WorldGen.Core
                 relation.Trust=Math.Max(-100,relation.Trust-(int)Math.Round(ideology*3));
             }
             risk*=TerritorialWarMotivation(s,id,s.Society.Settlements[peer.CapitalId].Cell);
+            ApplyReligiousDiplomaticDifference(s,id,other,elapsed,ref risk);
             if(LivingWorldHistory(s))risk*=InternationalWarRestraint(s,id,other);
             // Superior transport/weapons permit larger campaigns, not a forced
             // global conquest clock. Costly peer wars and negotiated trade remain.

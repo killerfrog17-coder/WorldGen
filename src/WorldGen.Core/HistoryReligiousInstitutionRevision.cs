@@ -29,7 +29,14 @@ namespace WorldGen.Core
         void UpgradeReligiousNetworkRules(PrehistoryState s)
         {InitializeReligiousNetworks(s);s.History.Aggregates.Empires.Connections.Religion.Version=2;}
         ReligiousVocation ReligiousInstitutionVocation(PrehistoryState s,int religion)
-            =>HistoricalReligiousInstitutionEffects.Vocation(HistoryRoll("religion-institution-vocation-2",religion,0),s.History.Religions[religion].Reach);
+        {
+            if(StructuredReligion(s))
+            {
+                var p=s.History.Aggregates.Empires.Connections.Religion.Traditions.Doctrines[religion];
+                return p.Outreach>=650?ReligiousVocation.TravelingTeaching:p.Ancestors>=700&&p.Universalism<400?ReligiousVocation.SacredPlaces:ReligiousVocation.HouseholdTradition;
+            }
+            return HistoricalReligiousInstitutionEffects.Vocation(HistoryRoll("religion-institution-vocation-2",religion,0),s.History.Religions[religion].Reach);
+        }
         bool ReligiousTownCarrierAllowed(PrehistoryState s,int source,int target)
         {
             var h=s.History;var a=h.Aggregates;var from=s.Society.Settlements[source];var to=s.Society.Settlements[target];
@@ -49,6 +56,11 @@ namespace WorldGen.Core
             var person=leader>=0?h.Dynamics.Leaders[leader]:null;var p=h.Polities[polity];var constitution=h.Aggregates.Communities.Governments[polity];
             double disposition=HistoryRoll("religion-institutional-policy-2",polity,0);
             double openness=.20+.45*constitution.RepresentationMilli/1000.0+.15*(person?.Diplomacy??500)/1000.0;
+            if(StructuredReligion(s)&&p.ReligionId>=0)
+            {
+                var doctrine=r.Traditions.Doctrines[p.ReligionId];
+                openness+=.15*doctrine.Intermarriage/1000.0-.15*doctrine.Exclusivity/1000.0-.10*doctrine.RulerSanctity/1000.0;
+            }
             int proposed=disposition<openness?0:disposition>.88&&constitution.RepresentationMilli<550&&(person?.Ambition??500)>550?2:1;
             r.Policies=r.Policies.With(key,leader);
             if(former==proposed)return;

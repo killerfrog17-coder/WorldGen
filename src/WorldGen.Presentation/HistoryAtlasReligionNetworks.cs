@@ -22,6 +22,15 @@ namespace WorldGen.Presentation
             if(local.Blending>0)facts.Add(F("Shared ritual familiarity",local.Blending+" / 1,000"));
             if(local.LastContact>=0)facts.Add(F("Last religious contact","Year "+Y(s,local.LastContact)));
             facts.Add(F("Court policy",local.Policy));
+            for(int slot=0;slot<2;slot++)
+            {
+                var body=Prehistory.ReligiousInstitutionAt(s,cell,slot);if(body==null)continue;
+                string label=slot==0?"Public ritual body":"Lay ritual body";
+                facts.Add(F(label,ReligiousDoctrines.Name(body.Form)+" · authority at "+s.Society.Settlements[body.Seat].Name));
+                facts.Add(F(label+" autonomy",body.Independence+" / 1,000"));
+                if(body.Tension>0)facts.Add(F("Enforced religious grievance",body.Tension+" / 1,000"));
+                links.Add(ReligiousBodyLink(s,body.Seat,slot));
+            }
             var lay=Prehistory.LayAssociationAt(s,cell);
             if(lay!=null&&lay.Active)
             {
@@ -38,6 +47,7 @@ namespace WorldGen.Presentation
             var faith=s.History.Religions[religion];
             string form=faith.Reach==ReligiousReach.Missionary?"Traveling teachers and supported outreach":faith.Reach==ReligiousReach.Portable?"Portable household and teaching traditions":"Local civic and household rites";
             var formSection=new AtlasSection{Title="Ritual community and institutions",Facts=new[]{F("Network form",form),F("Ethos",faith.Ethos),F("Observance",faith.Ritual)},Text="Ritual form, institutional support and political patronage are distinct. A portable teaching can survive a change of government, and a favored court does not establish the beliefs of all its subjects."};
+            if(Prehistory.ReligiousDoctrineAt(s,religion)!=null)formSection.Facts=new[]{F("Actual transmission network",form)};
             // Explicit on-demand atlas inspection of existing settlement actors.
             // Retain at most twelve examples; never enumerate terrain holdings.
             int predominant=0,inherited=0,visiting=0,supported=0;var sample=new List<(Settlement Town,HistoricalReligiousCommunity Local)>();

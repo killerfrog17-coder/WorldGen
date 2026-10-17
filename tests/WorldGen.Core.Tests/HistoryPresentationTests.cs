@@ -6,6 +6,7 @@ public static class HistoryPresentationTests
     public static void Run(Action<bool,string> check)
     {
         MapMarksTests.Run(check);
+        HistoryReligiousDoctrineTests.Run(check);
         HistoryAtlasTests.Run(check);
         var metric=new HistoryLegendEntry{Population=1234567,AreaKm2=234567};
         check(SocietyView.SortValue(metric,"Population")=="1,234,567"&&SocietyView.SortValue(metric,"Land area")=="234,567 km²","Ranked rows expose population or land area with units");

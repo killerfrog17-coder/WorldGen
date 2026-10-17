@@ -29,9 +29,24 @@ namespace WorldGen.Core
             {
                 var town=s.Society.Settlements[city];supported=h.Aggregates.Cities[city].Supported&&town.Population>=600&&town.FoodReserve>=town.Population/3;
                 long cost=HistoricalReligiousNetworkEffects.FoodCost(town.Population,elapsed);
+                if(StructuredReligion(s))
+                {
+                    int localFaith=HistoricalCells.Religion(s,cell);var teaching=r.Traditions.Doctrines[localFaith];
+                    cost=Math.Max(1,(long)Math.Ceiling(cost*(.7+.45*teaching.Charity/1000.0+.25*teaching.Hospitality/1000.0)));
+                }
                 // Gifts and provisions support an institution's workers. These
                 // are debits from the existing town reserve, never free output.
-                if(supported&&town.FoodReserve-town.Population/2>=cost){town.FoodReserve-=cost;funded=true;}
+                if(supported&&town.FoodReserve-town.Population/2>=cost)
+                {
+                    town.FoodReserve-=cost;funded=true;
+                    if(StructuredReligion(s))
+                    {
+                        var teaching=r.Traditions.Doctrines[HistoricalCells.Religion(s,cell)];
+                        // Small local services are paid from the real donated
+                        // provisions above, not a faith-wide production bonus.
+                        town.Stability=Math.Min(1000,town.Stability+(int)Math.Round(Math.Min(5,elapsed*teaching.Charity/20000.0)));
+                    }
+                }
             }
             int institution=HistoricalReligiousNetworkEffects.Institution(previous,elapsed,funded,supported);
             r.Write(cell,FaithInstitution,institution);
@@ -82,6 +97,7 @@ namespace WorldGen.Core
         }
         void TryReligiousRenewal(PrehistoryState s,int culture,int cell,int city,int faith,int institution,int elapsed,bool excluded)
         {
+            if(StructuredReligion(s))return; // New branches require a real provisioned association below.
             if(city<0||institution<600)return;
             var h=s.History;var r=h.Aggregates.Empires.Connections.Religion;var town=s.Society.Settlements[city];
             if(town.Population<1200||!h.Aggregates.Cities[city].Supported)return;
@@ -110,7 +126,9 @@ namespace WorldGen.Core
                 if(excluded&&!mixed){renewal.Tradition="An autonomous local renewal of "+parent.Name+" rejecting court control of its ritual houses";if(ReligiousInstitutionVocation(s,faith)==ReligiousVocation.SacredPlaces)renewal.Reach=ReligiousReach.Local;}
                 if(ethical&&!mixed&&!excluded){renewal.Ethos="Ethical restraint, mutual aid and independence from captured court patronage";renewal.Ritual="Inherited household observances, communal recitation and instruction supported by local gifts";renewal.Tradition="An ethical renewal of "+parent.Name+" amid elite capture and recorded local instability";}
             }
-            h.Religions=h.Religions.Concat(new[]{renewal}).ToArray();SetAggregateLayer(s,cell,2,id);
+            h.Religions=h.Religions.Concat(new[]{renewal}).ToArray();
+            AppendReligiousDoctrine(s,id,mixed?ReligiousIssue.AncestorRites:ethical?ReligiousIssue.MutualAid:ReligiousIssue.CourtAuthority,mixed?visitor:-1);
+            SetAggregateLayer(s,cell,2,id);
             r.Write(cell,FaithHousehold,faith);r.Write(cell,FaithChanged,s.Years);r.Write(cell,FaithReformed,s.Years);r.Write(cell,FaithDissent,0);r.Write(cell,FaithPressure,0);r.Write(cell,FaithBlend,0);
             bool ethicalRenewal=ethical&&!mixed&&!excluded;
             HistoryEvent(s,mixed?"religious-synthesis":ethicalRenewal?"religious-renewal":"religious-schism",renewal.Name+" establishes an autonomous provisioned community at "+town.Name+(mixed?", reinterpreting inherited rites after sustained exchange.":ethicalRenewal?", renewing ethical restraint and mutual aid amid elite capture and local instability.":", disputing court religious authority while retaining its inherited ritual lineage."),cell,culture,owner,town:city,religion:id);
