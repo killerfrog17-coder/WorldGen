@@ -42,10 +42,12 @@ namespace WorldGen.Core
                 int source=departures[(map.Voyages+slot)%departures.Length],region=CellPatch[source];var potential=communityVoyages[region];
                 for(int k=0;k<8;k++)
                 {
+                    int bearingShore=-1;
+                    if(RealmHistory(s)&&k>=4)bearingShore=RealmBearingShore(source,(int)(HistoryRoll("realm-ocean-bearing-"+slot+"-"+k,polity,unchecked(s.Years+map.Voyages*7919))*64));
                     int to=k<4&&map.Places.Count>0?map.Places.At((int)(HistoryRoll("sea-known-"+slot+"-"+k,polity,unchecked(s.Years+map.Voyages*7919))*map.Places.Count)):
-                        potential.Length>0?potential[(int)(HistoryRoll("sea-bearing-"+slot+"-"+k,polity,unchecked(s.Years+map.Voyages*7919))*potential.Length)].B:-1;
+                        bearingShore>=0?CellPatch[bearingShore]:potential.Length>0?potential[(int)(HistoryRoll("sea-bearing-"+slot+"-"+k,polity,unchecked(s.Years+map.Voyages*7919))*potential.Length)].B:-1;
                     if(to<0||to==region||map.ReviewAfter[to]>s.Years||map.Missions.Any(m=>m.Region==to&&m.Kind!=HistoricalSeaMission.Report))continue;
-                    int grade=map.Grade[to],cell=grade>=2?map.Shore[to]:developmentCoast[to];if(cell<0)continue;
+                    int grade=map.Grade[to],cell=bearingShore>=0?bearingShore:grade>=2?map.Shore[to]:developmentCoast[to];if(cell<0)continue;
                     if(grade>=2&&map.Host[to]==polity&&a.TownAt[cell]>=0)continue;
                     double km=D.Angle(World.Surface.Cells[source].Position,World.Surface.Cells[cell].Position)*World.Recipe.RadiusKm;
                     if(km*1000>HistoricalTechnicalMigration.SeaRangeM(hc,s.Years,true)||ocean<.2&&km>700)continue;
@@ -135,7 +137,7 @@ namespace WorldGen.Core
                     // On-site reconnaissance may find a usable shore within a
                     // bounded local neighborhood. This is not a pre-departure
                     // oracle selecting ideal resources on an undiscovered coast.
-                    var landing=ColonialTargetRoute(s,mission.Source,mission.Region,polity);
+                    var landing=RealmHistory(s)?ColonialLandingRoute(s,mission.Source,mission.Region,polity,mission.Target):ColonialTargetRoute(s,mission.Source,mission.Region,polity);
                     if(landing!=null){mission.Region=landing.B;mission.Target=landing.CellB;}
                     RegisterPaidSeaContact(s,polity,mission.Source,mission.Target);
                     int previous=map.Grade[mission.Region];ObserveGeographicCoast(s,map,mission.Target,3,polity);

@@ -58,6 +58,7 @@ namespace WorldGen.Presentation
                     if(Major(e.PolityId)||Major(e.OtherPolityId))text=Sentence(e.Text);break;
                 case "great-conquest":if(Major(e.PolityId)||Major(e.OtherPolityId))text=e.SettlementId>=0&&e.SettlementId<state.Society.Settlements.Length?Court(e.PolityId)+" captured "+state.Society.Settlements[e.SettlementId].Name+".":Sentence(e.Text);break;
                 case "succession-crisis":if(Major(e.PolityId))text="A succession crisis shook "+Court(e.PolityId)+".";break;
+                case "realm-succession-crisis":if(Major(e.PolityId))text="Regional courts contested the imperial succession of "+Court(e.PolityId)+".";break;
                 case "regime-change":if(Major(e.PolityId)||Major(e.OtherPolityId))text=e.OtherPolityId>=0?Court(e.PolityId)+" succeeded "+Court(e.OtherPolityId)+".":Sentence(e.Text);break;
                 case "dynasty-change":if(Major(e.PolityId))text=Court(e.PolityId)+" came under a new ruling household.";break;
                 case "religion":case "religion-founded":case "schism":case "religious-reform":text=e.ReligionId>=0&&e.ReligionId<state.History.Religions.Length?state.History.Religions[e.ReligionId].Name+" emerged as a religious tradition.":Sentence(e.Text);break;

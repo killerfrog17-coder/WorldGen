@@ -91,9 +91,9 @@ namespace WorldGen.Core
         {
             if(!ColonialHistory(s))return;var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var hc=h.Cultures[p.CultureId];
             if(!HistoricalTechnologies.Has(hc,HistoricalTechnology.Writing)||!RegionalAmbitionHistory(s)&&!HistoricalTechnologies.Has(hc,HistoricalTechnology.Navigation))return;
-            var connections=a.Empires.Connections;var contacts=s.Society.Cultures[p.CultureId].Contacts;if(contacts.Length==0)return;
-            int offset=(int)(HistoryRoll("colonial-recognition-partner",polity,s.Years)*contacts.Length),partner=-1;
-            for(int k=0;k<Math.Min(4,contacts.Length);k++)
+            var connections=a.Empires.Connections;var contacts=s.Society.Cultures[p.CultureId].Contacts;if(contacts.Length==0&&!RealmHistory(s))return;
+            int offset=contacts.Length==0?0:(int)(HistoryRoll("colonial-recognition-partner",polity,s.Years)*contacts.Length),partner=RealmHistory(s)?RealmRecognitionPartner(s,polity):-1;
+            for(int k=0;partner<0&&k<Math.Min(4,contacts.Length);k++)
             {
                 int other=contacts[(offset+k)%contacts.Length],court=a.Resolve(a.Living.CivicOrigins[other],h);
                 if(court<0){var sites=a.Cultures[other].Cities;for(int site=0;site<Math.Min(3,sites.Count);site++){court=a.Resolve(s.Society.Settlements[sites.At(site)].PolityId,h);if(court>=0)break;}}
@@ -126,6 +126,7 @@ namespace WorldGen.Core
             var h=s.History;var a=h.Aggregates;var c=a.Empires.Connections;var title=c.Titles[titleId];int seller=a.Resolve(title.Holder,h);
             if(seller<0||seller==buyer||buyer<0||buyer>=h.Polities.Length||h.Polities[buyer].EndedYear>=0||price<0||h.Polities[buyer].Treasury<price||price>1000000000-h.Polities[seller].Treasury)return;
             h.Polities[buyer].Treasury-=price;h.Polities[seller].Treasury+=price;
+            ChangeRealmTitleAccount(s,seller,title.AreaKm2,-1);ChangeRealmTitleAccount(s,buyer,title.AreaKm2,1);
             c.Governments[seller].Titles.Remove(titleId);c.Governments[buyer].Titles.Add(titleId);title.PreviousHolder=seller;title.Holder=buyer;title.Recognizer=seller;title.LastTransferYear=s.Years;title.LastPrice=price;
             HistoryEvent(s,"territorial-purchase",h.Polities[buyer].Name+" purchases the recognized territorial title of "+h.Polities[seller].Name+" for "+price+" account units. Existing communities, cultures and their actual administration are not transferred by this legal title alone.",Patches[title.Region].Cell,h.Polities[buyer].CultureId,buyer,seller,category:ChronicleCategory.Politics);
         }

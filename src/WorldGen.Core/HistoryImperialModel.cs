@@ -179,7 +179,19 @@ namespace WorldGen.Core
                         if(HistoryRoll("colonial-imperial-succession",polity,s.Years)<crisis*(1-.75*representation))risk+=.25/Math.Max(1,elapsed);
                     }
                 }
-                if(s.Years-g.SinceYear>35&&HistoryRoll("imperial-separation",polity,s.Years)<1-Math.Exp(-risk*elapsed))SetImperialPatron(s,polity,-1,false,neglect>.5?"Protection and regular communication have broken down.":succession?"A disputed succession gives local institutions room to assert sovereignty.":"Local elites reject obligations as the imperial balance weakens.");
+                double realmCrisis=RealmCrisis(s,parent);
+                if(RealmHistory(s))
+                {
+                    var pc=h.Cultures[patron.CultureId];double communication=Math.Max(HistoricalModernEffects.Adoption(pc,HistoricalTechnology.Radio,s.Years),HistoricalModernEffects.Adoption(pc,HistoricalTechnology.Telecommunications,s.Years));
+                    // Metropolitan representation is not colonial enfranchisement.
+                    // Mass politics can delegitimize a foreign imposed empire
+                    // even when modern communications improve its military reach.
+                    bool excluded=p.CultureId!=patron.CultureId||s.Society.Settlements[p.CapitalId].CultureId!=patron.CultureId;
+                    risk+=HistoricalRealmPoliticalEffects.SelfDetermination(HistoricalModernEffects.Adoption(pc,HistoricalTechnology.Printing,s.Years),communication,excluded,g.Imposed,a.Communities.Governments[parent].RepresentationMilli/1000.0,patron.Exhaustion/1000.0);
+                }
+                if(realmCrisis>0)risk+=.20*realmCrisis*(g.Imposed?1:.5)*(1-.7*a.Communities.Governments[parent].RepresentationMilli/1000.0);
+                int minimumTenure=realmCrisis>.3?3:35;
+                if(s.Years-g.SinceYear>minimumTenure&&HistoryRoll("imperial-separation",polity,s.Years)<1-Math.Exp(-risk*elapsed))SetImperialPatron(s,polity,-1,false,realmCrisis>0?"Provincial rulers reject the contested imperial succession and retain their regional courts.":neglect>.5?"Protection and regular communication have broken down.":succession?"A disputed succession gives local institutions room to assert sovereignty.":"Local elites reject obligations as the imperial balance weakens.");
                 else if(p.CultureId!=patron.CultureId)LivingCultureContact(s,p.CultureId,patron.CultureId);
             }
             ReportImperialGovernment(s,polity);

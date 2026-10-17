@@ -6,6 +6,9 @@ namespace WorldGen.Core
     {
         bool TryLivingRegimeChange(PrehistoryState s,int polity)
         {
+            // Current realm rules resolve succession within the continuing
+            // state. Actual territorial separation belongs to local actors.
+            if(RealmHistory(s))return false;
             var h=s.History;var a=h.Aggregates;var p=h.Polities[polity];var ds=h.Dynamics.States[polity];var old=h.Dynamics.Leaders[ds.LeaderId];var cycle=ds.Cycle??new HistoricalPoliticalCycle();var hc=h.Cultures[p.CultureId];
             double accountability=1-.35*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Writing,s.Years)-.30*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Printing,s.Years)-.20*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Telecommunications,s.Years);
             double disputed=.015+.16*cycle.EliteCapture/1000.0+.22*cycle.ConquestDebt/1000.0+.20*(1-p.Cohesion/1000.0)*(1-old.Administration/1000.0)+.15*p.Exhaustion/1000.0;

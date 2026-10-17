@@ -6,6 +6,7 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         Route[][] communityVoyages;
+        int[] communityRasterShore;
         void PrepareCommunityShores()
         {
             if(communityVoyages!=null)return;
@@ -66,6 +67,7 @@ namespace WorldGen.Core
             foreach(var route in links.Values)
             {lists[route.A].Add(route);lists[route.B].Add(new Route{A=route.B,B=route.A,CellA=route.CellB,CellB=route.CellA,DistanceM=route.DistanceM,Sea=true,Coastal=route.Coastal});}
             communityVoyages=lists.Select(list=>list.OrderBy(r=>r.DistanceM).ThenBy(r=>r.B).ThenBy(r=>r.CellA).ToArray()).ToArray();
+            communityRasterShore=shores;
         }
     }
 }

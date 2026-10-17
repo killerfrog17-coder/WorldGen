@@ -20,6 +20,9 @@ namespace WorldGen.Core
         void FoundAggregateStateKind(PrehistoryState s,int city,int parent,string foundationKind)
         {
             var h=s.History;var a=h.Aggregates;var town=s.Society.Settlements[city];int id=h.Polities.Length;
+            bool inheritedFunds=RealmHistory(s)&&parent>=0&&a.Resolve(town.PolityId,h)==parent;
+            long inheritedTreasury=inheritedFunds?h.Polities[parent].Treasury:0,inheritedPeople=inheritedFunds?h.Polities[parent].Population:0;
+            int inheritedArmy=inheritedFunds?h.Polities[parent].Army:0;
             var polity=new HistoricalPolity{Id=id,CultureId=town.CultureId,CapitalId=city,ParentId=parent,FoundedYear=s.Years,RulerSince=s.Years,Name=town.Name+" State",ReligionId=HistoricalCells.Religion(s,town.Cell),Treasury=town.Population/2,Government="Local council and agrarian court"};
             if(LanguageHistory(s))polity.Name=LanguageStateName(s,town);
             h.Polities=h.Polities.Concat(new[]{polity}).ToArray();a.Polities=a.Polities.Concat(new[]{new HistoricalPolityAggregate{Id=id,LastYear=s.Years,LastSuccession=s.Years,ReachKm=100}}).ToArray();
@@ -34,6 +37,12 @@ namespace WorldGen.Core
             if(a.Cultures[town.CultureId].CivilizationSince<0)a.Cultures[town.CultureId].CivilizationSince=s.Years;
             if(RegionalTraditions(s)&&h.RegionalTraditions.FirstProtoYear<0)h.RegionalTraditions.FirstProtoYear=s.Years;
             EstablishCivilizationalLineage(s,town.CultureId,city);
+            if(inheritedFunds)
+            {
+                decimal share=Math.Min(1m,polity.Population/(decimal)Math.Max(1,inheritedPeople));
+                polity.Treasury=(long)(inheritedTreasury*share);h.Polities[parent].Treasury=inheritedTreasury-polity.Treasury;
+                polity.Army=(int)(inheritedArmy*share);h.Polities[parent].Army=inheritedArmy-polity.Army;
+            }
             if(LivingHistory(s)&&a.Living.CivicOrigins[town.CultureId]<0)a.Living.CivicOrigins=a.Living.CivicOrigins.With(town.CultureId,id);
             HistoryEvent(s,foundationKind??(parent<0?"state":"secession"),polity.Name+(foundationKind!=null?" establishes a locally administered overseas council at ":parent<0?" establishes independent institutions at ":" emerges as an independent successor court at ")+town.Name+".",town.Cell,town.CultureId,id,other:parent,town:city,category:ChronicleCategory.Politics);
         }
@@ -51,6 +60,7 @@ namespace WorldGen.Core
             h.Dynamics.Leaders=h.Dynamics.Leaders.Concat(new[]{leader}).ToArray();ds.LeaderId=id;ds.LastSuccession=s.Years;p.Ruler=leader.Name;p.RulerSince=s.Years;s.History.Aggregates.Polities[polity].SuccessionDue=leader.ExpectedEndYear;SealAggregateLeader(s,id);
             RefreshTerritorialAmbition(s,polity);
             if(previous>=0){if(!elected){p.Legitimacy=Math.Max(100,p.Legitimacy-75);p.Cohesion=Math.Max(100,p.Cohesion-(h.Dynamics.Leaders[previous].Renown>=250?150:45));}HistoryEvent(s,elected?"election":"succession",leader.Name+(elected?" takes office under the representative institutions of ":" succeeds to the government of ")+p.Name+".",s.Society.Settlements[p.CapitalId].Cell,p.CultureId,p.Id,category:ChronicleCategory.Politics);}
+            RealmSuccession(s,polity,previous>=0?h.Dynamics.Leaders[previous]:null,leader);
         }
         void AdvanceAggregateState(PrehistoryState s,int id)
         {
@@ -66,12 +76,15 @@ namespace WorldGen.Core
             double served=D.Clamp(1/(1+geography*geography));long receipts=(long)(account.Urban*.065+(account.Rural+account.Suburban)*.025+account.Remote*.012*served);
             long service=(long)((account.Urban+account.Rural+account.Remote)*.003*(.5+geography*geography)+p.AreaKm2*.0001);
             if(TechnicalHistory(s))service+=a.Empires.Governments[id].AdministrativePostCost;
+            if(RealmHistory(s))service+=a.Empires.Connections.Realms.Governments[id].RecognitionUpkeep;
             if(LivingWorldHistory(s))receipts+=LivingExtractiveReceipts(s,id);
             if(LivingWorldHistory(s)){var policy=a.Communities.Governments[id];receipts=(long)(receipts*HistoricalPoliticalPrograms.TaxMultiplier(policy.RepresentationMilli,policy.CentralizationMilli));}
             account.Receipts=receipts;account.ServiceCost=service;p.Treasury=Math.Max(0,Math.Min(1000000000,p.Treasury+(receipts-service)*elapsed));
             if(LivingWorldHistory(s))AdvanceNuclearState(s,id,elapsed);
             long remoteCapacity=ProvincialHistory(s)?ProvincialRemoteCapacity(s,id):Math.Max(1,(long)(account.RemoteCapacity*HistoricalModernEffects.FoodMultiplier(hc,s.Years)));if(LivingWorldHistory(s))remoteCapacity=(long)(remoteCapacity*LivingClimateFood(s,s.Society.Settlements[p.CapitalId].Cell,p.CultureId));long remote=AggregateLogisticPopulation(account.Remote,remoteCapacity,CommunityHistory(s)?CommunityRuralGrowth(s,p.CultureId):.004,elapsed);long delta=remote-account.Remote;account.Remote=remote;p.Population=Math.Max(0,p.Population+delta);a.TotalPopulation+=delta;s.Society.Cultures[p.CultureId].Population=Math.Max(0,s.Society.Cultures[p.CultureId].Population+delta);
             var cycle=ds.Cycle??(ds.Cycle=new HistoricalPoliticalCycle());
+            int realmPreviousLegitimacy=p.Legitimacy;
+            int realmPreviousCohesion=p.Cohesion;
             if(LivingHistory(s))
             {
                 double deficit=D.Clamp((service-receipts)/(double)Math.Max(1,service));
@@ -79,13 +92,19 @@ namespace WorldGen.Core
                 cycle.EliteCapture=Math.Max(0,Math.Min(1000,cycle.EliteCapture+(int)((targetCapture-cycle.EliteCapture)*Math.Min(.3,elapsed/80.0))));
             }
             else cycle.EliteCapture=Math.Max(0,Math.Min(1000,cycle.EliteCapture+(leader.Administration>750?-2:1)*elapsed));
+            int realmPreviousDebt=cycle.ConquestDebt;
             cycle.ConquestDebt=Math.Max(0,cycle.ConquestDebt-(HistoricalTechnologies.Has(hc,HistoricalTechnology.Writing)?2:1)*elapsed);
+            if(RealmHistory(s)&&(RealmCrisis(s,id)>0||receipts<service))cycle.ConquestDebt=realmPreviousDebt;
             ds.Strain=(int)Math.Min(1000,geography*150+cycle.ConquestDebt*.4+cycle.EliteCapture*.2);p.Exhaustion=Math.Max(0,p.Exhaustion-elapsed*2);p.Legitimacy=Math.Min(900,p.Legitimacy+elapsed*(p.Treasury>0?2:-3));p.Cohesion=Math.Max(50,Math.Min(950,p.Cohesion+(int)((650-ds.Strain*.6-p.Exhaustion*.2-p.Cohesion)*Math.Min(.5,elapsed/50.0))));
             p.Army=(int)Math.Min(int.MaxValue,Math.Max(0,(account.Urban+account.Rural*.1+account.Remote*.02)*.03*p.Cohesion/1000));
+            AdvanceRealmLegitimacy(s,id,elapsed,realmPreviousLegitimacy);
+            AdvanceRealmCohesion(s,id,elapsed,realmPreviousCohesion);
             if(LivingWorldHistory(s))FundPoliticalProgram(s,id,elapsed);
             else if(p.Treasury>account.Urban&&leader.Administration>550){long spend=Math.Min(p.Treasury/20,Math.Max(1,account.Urban/40));p.Treasury-=spend;ds.PublicWorks=Math.Min(1000,ds.PublicWorks+(int)Math.Min(elapsed*3,spend/100+1));}else ds.PublicWorks=Math.Max(0,ds.PublicWorks-elapsed);
             if(LivingWorldHistory(s))AdvanceInternational(s,id,elapsed);
+            ConsiderRealmNeighbors(s,id,leader,elapsed);
             ds.PeakPopulation=Math.Max(ds.PeakPopulation,p.Population);ds.PeakAreaKm2=Math.Max(ds.PeakAreaKm2,p.AreaKm2);p.LastEstimateYear=s.Years;
+            if(RealmHistory(s)){ds.PeakPopulation=Math.Max(ds.PeakPopulation,HistoricalImperialHierarchy.Population(s,id));ds.PeakAreaKm2=Math.Max(ds.PeakAreaKm2,HistoricalImperialHierarchy.AreaKm2(s,id));}
             AdvanceImperialGovernment(s,id,elapsed);
             AdvanceTerritorialAdministration(s,id,elapsed);
             AdvanceColonialExpedition(s,id,elapsed);

@@ -18,19 +18,21 @@ namespace WorldGen.Core
             var local=a.Communities.Cities[city];if(local.RulerId!=owner)TransferCommunityGovernment(s,city,owner);
             var p=h.Polities[owner];var ds=h.Dynamics.States[owner];var policy=a.Communities.Governments[owner];var record=h.Towns[city];
             bool recent=s.Years-local.SinceYear<75, succession=s.Years-ds.LastSuccession<15;
-            int interval=recent&&succession?3:recent?7:20,elapsed=s.Years-record.LastAutonomyActionYear;if(elapsed<interval)return;
+            int interval=RealmCrisis(s,owner)>0?1:recent&&succession?3:recent?7:20,elapsed=s.Years-record.LastAutonomyActionYear;if(elapsed<interval)return;
             record.LastAutonomyActionYear=s.Years;record.UnrestPolityId=owner;
             var leader=h.Dynamics.Leaders[ds.LeaderId];bool foreign=t.CultureId!=p.CultureId;
             double inclusionTarget=D.Clamp(.10+.30*p.Legitimacy/1000.0+.25*ds.PublicWorks/1000.0+.25*leader.Diplomacy/1000.0+.25*policy.RepresentationMilli/1000.0+.15*(1-policy.CentralizationMilli/1000.0)-.25*p.Exhaustion/1000.0);
             local.InclusionMilli=(int)Math.Round(local.InclusionMilli+(1000*inclusionTarget-local.InclusionMilli)*(1-Math.Exp(-elapsed/180.0)));
-            if(city==p.CapitalId||t.Population<1800||a.Living.Cities[city].DeclineYears>0)return;
+            if(city==p.CapitalId||t.Population<(RealmHistory(s)&&RealmCrisis(s,owner)>0?600:1800)||a.Living.Cities[city].DeclineYears>0)return;
             var hc=h.Cultures[t.CultureId];var account=a.Polities[owner];double distance=LivingTravelKm(s,s.Society.Settlements[p.CapitalId].Cell,t.Cell,t.CultureId)/Math.Max(50,HistoricalProvincialEffects.LocalServiceKm(h.Cultures[p.CultureId],s.Years,ds.PublicWorks));
+            if(TryRealmRegionalSeparation(s,owner,city,elapsed,distance))return;
             double organization=D.Clamp(hc.Institution/650.0)*D.Clamp(Math.Sqrt(t.Population/6000.0)),printing=HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Printing,s.Years);
             double deficit=D.Clamp((account.ServiceCost-account.Receipts)/(double)Math.Max(1,account.ServiceCost));
             double conquest=(ds.Cycle?.ConquestDebt??0)/1000.0;
             double pressure=D.Clamp(.18+.18*D.Clamp(distance/4)+(foreign?.25+.25*printing:.05)*organization*(1-local.InclusionMilli/1000.0)
                 +.22*printing*(1-policy.RepresentationMilli/1000.0)+.35*deficit+.22*p.Exhaustion/1000.0+.40*conquest
                 -.22*p.Legitimacy/1000.0-.12*ds.PublicWorks/1000.0);
+            if(RealmHistory(s))pressure=D.Clamp(pressure+.4*D.Clamp((distance-1)/4)*policy.CentralizationMilli/1000.0*(1-.85*RealmBureaucracy(s,owner)));
             if(recent&&foreign&&succession)pressure=D.Clamp(pressure+.25*(1-local.InclusionMilli/1000.0)*conquest);
             double previous=record.AutonomyPressure/1000.0,tau=recent?12:80;
             pressure=previous+(pressure-previous)*(1-Math.Exp(-elapsed/tau));record.AutonomyPressure=(int)Math.Round(pressure*1000);

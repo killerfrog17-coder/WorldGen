@@ -24,7 +24,7 @@ namespace WorldGen.Core
         {
             Validate(source);if(LivingWorldHistory(source))return source;
             source=UpgradeToEnvironmentalHistory(source);var s=source.Copy();
-            s.History.Version=LivingWorldHistoryVersion;ExpandNuclearCapabilities(s);InitializeFreshHumanVariation(s);InitializeInternational(s);InitializeColonialPortRetries(s);InitializeProvisionedPorts(s);InitializeCoastalFarming(s);InitializeReceiverFrontierLearning(s);InitializeRegionalTraditions(s);InitializeGeographicKnowledge(s);s.Seal();return s;
+            s.History.Version=LivingWorldHistoryVersion;ExpandNuclearCapabilities(s);InitializeFreshHumanVariation(s);InitializeInternational(s);InitializeColonialPortRetries(s);InitializeProvisionedPorts(s);InitializeCoastalFarming(s);InitializeReceiverFrontierLearning(s);InitializeRegionalTraditions(s);InitializeGeographicKnowledge(s);InitializeRealmLifecycles(s);s.Seal();return s;
         }
     }
 }

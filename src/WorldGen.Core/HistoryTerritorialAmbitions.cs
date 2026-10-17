@@ -70,6 +70,7 @@ namespace WorldGen.Core
         }
         void TryRecognizeRegionalTitle(PrehistoryState s,int polity,int partner)
         {
+            if(RealmHistory(s)){TryRecognizeRealmDistrict(s,polity,partner);return;}
             var h=s.History;var a=h.Aggregates;var c=a.Empires.Connections;var p=h.Polities[polity];var posts=a.Empires.Governments[polity].AdministrativePosts;
             int cell=s.Society.Settlements[p.CapitalId].Cell;bool established=s.Years-p.FoundedYear>=25;
             if(posts.Count>0&&HistoryRoll("regional-title-office-or-capital",polity,s.Years)<.75)

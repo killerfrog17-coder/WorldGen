@@ -21,6 +21,13 @@ namespace WorldGen.Core
             double opportunity=D.Clamp((power-.9)/2.0),rivalry=D.Clamp(-relation.Trust/100.0);
             double ambition=leader.Ambition/1000.0,provisioned=D.Clamp(p.Treasury/Math.Max(100.0,p.Army*4.0));
             double risk=.004*(.3+ambition)*(.1+1.8*opportunity+.5*rivalry)*(1-.65*shared)*provisioned;
+            if(RealmHistory(s))
+            {
+                double personal=D.Clamp((leader.Military-700)/250.0)*D.Clamp((leader.Ambition-700)/250.0);
+                double ideology=RealmIdeologicalDistance(s,id,other);
+                risk=HistoricalRealmPoliticalEffects.WarHazard(ambition,opportunity,rivalry,p.CultureId==peer.CultureId,relation.Alliance&&relation.Trust>65,TerritorialAmbitionContains(s,id,s.Society.Settlements[peer.CapitalId].Cell),personal,provisioned)*(1+.5*ideology);
+                relation.Trust=Math.Max(-100,relation.Trust-(int)Math.Round(ideology*3));
+            }
             risk*=TerritorialWarMotivation(s,id,s.Society.Settlements[peer.CapitalId].Cell);
             if(LivingWorldHistory(s))risk*=InternationalWarRestraint(s,id,other);
             // Superior transport/weapons permit larger campaigns, not a forced

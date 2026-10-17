@@ -1,5 +1,9 @@
 # Historical simulation: history-31 / prehistory-6
 
+## Continuing countries and contested realms - 16 October review
+
+The next32 optional `Connections.Realms` extension separates country foundation from government replacement, adds actual regional/constituent succession contests, updates known-court competition, and distinguishes modern administrative continuity from colonial self-determination. Adjacent recognized sovereignty has real upkeep, and extinct holders can be replaced. Actual-port sea bearings and actual-landfall reconnaissance address representative-beach routing failures. Existing saves retain their preceding rules until the explicit update-rules action; generation is unchanged. This is still a longitudinal experiment, not a claim that the late-world sovereignty target has passed. [Mechanisms, references and limitations](HISTORY32_REALM_LIFECYCLES.md).
+
 ## Geographic knowledge and organized overseas ventures - 16 October 2026
 
 The next32 review adds optional persistent state-specific geography and dated funded survey/convoy events. Actual trade can transmit hearsay or copied directions with delay; it does not grant personal first-hand charts or political control. Organized voyages keep real supplier/settler/crop/food/finances and resistance constraints, but remove independent decades-long dispatch and founding lotteries after a paid arrival. Long state-sponsored movement no longer materializes as unrelated primitive coastal communities. Claims/offices and real populated colonies remain separate. Existing saves retain their old rules unless explicitly upgraded. [Mechanisms, historical comparisons, test commands and limitations](HISTORY32_GEOGRAPHIC_VENTURES.md).

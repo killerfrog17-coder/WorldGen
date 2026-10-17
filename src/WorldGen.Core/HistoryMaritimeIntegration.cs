@@ -98,8 +98,10 @@ namespace WorldGen.Core
             return true;
         }
         Route ColonialTargetRoute(PrehistoryState s,int source,int region,int polity)
+            =>ColonialLandingRoute(s,source,region,polity,-1);
+        Route ColonialLandingRoute(PrehistoryState s,int source,int region,int polity,int actualShore)
         {
-            int representative=developmentCoast[region];if(representative<0)return null;
+            int representative=actualShore>=0?actualShore:developmentCoast[region];if(representative<0)return null;
             int best=-1;double bestScore=double.NegativeInfinity;
             void Consider(int cell)
             {
