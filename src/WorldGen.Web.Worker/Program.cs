@@ -69,8 +69,8 @@ public static partial class WorkerApi
     }
     public sealed class HumanSummary{public SelectionCard Card=new SelectionCard();public string Overlay=historyOverlay.ToString();public int Era=WorldEraView.Of(world.Prehistory);public int TechnologyCeiling=world.Prehistory.History?.Modern==null?-1:(int)world.Prehistory.History.Modern.TechnologyCeiling;public bool CanUpgradeHistory=Prehistory.CanUpgradeHistory(world.Prehistory);public int EpochYear=SimulationClockView.EpochYear(world.Prehistory);public long Seconds=SimulationTime.Seconds(world.Prehistory);public int PhaseStepYears=SocietyState.DefaultStep(world.Prehistory.Society?.Phase??SocietyStage.Foragers);public bool ClockOnly;public float[] Borders=Array.Empty<float>();public HistoryLegendEntry[] Legend;public string Status="",Inspection="",SelectionSummary="";public bool Started,CanMove,ManualStep;public int Years,StepYears;public double OriginLon,OriginLat;public long Population;public CultureIdentity Culture;public CultureIdentity[] Cultures;public ChronicleEvent[] Events;public SocietyMark[] Marks;public AtlasLink Subject;public AtlasLink[] Profiles=Array.Empty<AtlasLink>();}
     public sealed class CalendarSummary{public long Seconds,NextEventSeconds;public string RulesVersion="";}
-    public sealed class SocietyMark{public string Name="";public double X,Y,Z;public bool City;}
-    static SocietyMark[] SocietyMarks(PrehistoryState s){var marks=new List<SocietyMark>();if(s.Society!=null){foreach(var c in SocietyView.MapLabels(world,s,historyOverlay,humans)){var p=SocietyView.Location(world,c.LabelCell>=0?c.LabelCell:c.Cell);marks.Add(new SocietyMark{Name=c.LabelName.Length>0?c.LabelName:c.Name,X=p.X,Y=p.Y,Z=p.Z,City=false});}foreach(var t in s.Society.Settlements){if(t.Population<100)continue;var p=SocietyView.Location(world,t.Cell);marks.Add(new SocietyMark{Name=t.Name,X=p.X,Y=p.Y,Z=p.Z,City=true});}}return marks.ToArray();}
+    public sealed class SocietyMark{public string Name="";public double X,Y,Z;public bool City,Capital,Urban,Large;public long Population;}
+    static SocietyMark[] SocietyMarks(PrehistoryState s){var marks=new List<SocietyMark>();if(s.Society!=null){foreach(var c in SocietyView.MapLabels(world,s,historyOverlay,humans)){var p=SocietyView.Location(world,c.LabelCell>=0?c.LabelCell:c.Cell);marks.Add(new SocietyMark{Name=c.LabelName.Length>0?c.LabelName:c.Name,X=p.X,Y=p.Y,Z=p.Z,City=false});}foreach(var t in SettlementMarkers.Build(s)[(int)SettlementMarkerMode.All]){var p=SocietyView.Location(world,t.Cell);marks.Add(new SocietyMark{Name=t.Name,X=p.X,Y=p.Y,Z=p.Z,City=true,Capital=t.Capital,Urban=t.City,Large=t.Large,Population=t.Population});}}return marks.ToArray();}
     static IEnumerator<ViewData> view;
     static Layer selectedLayer;
     static IEnumerator<DisplayCache.Piece> cachedView;
@@ -96,9 +96,9 @@ public static partial class WorkerApi
         if(cachedView==null || !cachedView.MoveNext())return Array.Empty<byte>();
         var piece=cachedView.Current;var data=piece.Data;int p=data.Positions.Length,t=data.Triangles.Length,l=data.Lines.Length;
         int kind=piece.Kind=="surface"?0:piece.Kind=="rivers"?1:piece.Kind=="wire"?2:piece.Kind=="plates"?3:piece.Kind=="ecology"?4:piece.Kind=="natural"?5:piece.Kind=="smallfeatures"?6:int.Parse(piece.Kind.Substring(4))+10;
-        var packed=new byte[36+4*(p*2+t+l*2+data.CellIds.Length+data.NaturalHeight.Length+data.BlendCellIds.Length)];int offset=0;
+        var packed=new byte[40+4*(p*2+t+l*2+data.CellIds.Length+data.NaturalHeight.Length+data.BlendCellIds.Length+data.Stroke.Length)];int offset=0;
         void Copy(Array a){int n=Buffer.ByteLength(a);Buffer.BlockCopy(a,0,packed,offset,n);offset+=n;}
-        Copy(new[]{p,t,l,data.IsMap?1:0,data.Unlit?1:0,kind,data.CellIds.Length,data.NaturalHeight.Length,data.BlendCellIds.Length});Copy(data.Positions);Copy(data.Colors);Copy(data.Triangles);Copy(data.Lines);Copy(data.LineColors);Copy(data.CellIds);Copy(data.NaturalHeight);Copy(data.BlendCellIds);
+        Copy(new[]{p,t,l,data.IsMap?1:0,data.Unlit?1:0,kind,data.CellIds.Length,data.NaturalHeight.Length,data.BlendCellIds.Length,data.Stroke.Length});Copy(data.Positions);Copy(data.Colors);Copy(data.Triangles);Copy(data.Lines);Copy(data.LineColors);Copy(data.CellIds);Copy(data.NaturalHeight);Copy(data.BlendCellIds);Copy(data.Stroke);
         return packed;
     }
     public static void Main() { }

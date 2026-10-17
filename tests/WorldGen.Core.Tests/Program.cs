@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--map-marks-only")){int count=0;MapMarksTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" river and settlement marker assertions");return;}
 if(args.Contains("--court-connectivity-only")){int count=0;HistoryCourtConnectivityTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" court connectivity and state-map assertions");return;}
 if(args.Contains("--court-connectivity-world")){int at=Array.IndexOf(args,"--court-connectivity-world"),count=0;HistoryCourtConnectivityTests.World(args[at+1],args[at+2],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual-world court connectivity assertions");return;}
 if(args.Contains("--claim-style-only")){int count=0;HistoryClaimStyleTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" political claim display assertions");return;}

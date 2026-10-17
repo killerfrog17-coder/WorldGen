@@ -57,6 +57,7 @@ public sealed partial class WorldGenRuntime
             if(palettes.TryGetValue(Layer.Simulation,out var mask))material.SetTexture("_HumanMask",mask);
         }
         surfaceMaterial.SetFloat("_MapMode",VisibleProjection==Projection.Map?1:0);lineMaterial.SetFloat("_MapMode",VisibleProjection==Projection.Map?1:0);
+        riverMaterial.SetFloat("_MapMode",VisibleProjection==Projection.Map?1:0);riverMaterial.SetFloat("_Linear",QualitySettings.activeColorSpace==ColorSpace.Linear?1:0);riverMaterial.SetFloat("_WorldRadiusM",(float)(world.Recipe.RadiusKm*1000));
         surfaceMaterial.SetFloat("_Unlit",VisibleProjection==Projection.Map || layer==Layer.Climate || layer==Layer.Heightmap || EcologyView.IsLayer(layer)?1:0);
         bool natural=naturalTerrain && (layer==Layer.Terrain || layer==Layer.Satellite) && palettes.TryGetValue((Layer)(1000+(int)layer),out _);
         bool crispHistory=natural&&screen=="Simulation";

@@ -26,7 +26,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     Vector2 inspectionScroll;
     bool expandedInspection;
     int percent, seaLevel; Layer layer; Projection projection; float centerLongitude;
-    GameObject globe, pendingRoot; Material surfaceMaterial, lineMaterial, naturalMaterial, smallFeatureMaterial; Camera cameraView;
+    GameObject globe, pendingRoot; Material surfaceMaterial, lineMaterial, naturalMaterial, smallFeatureMaterial, riverMaterial; Camera cameraView;
     UnityEngine.Rendering.Universal.UniversalAdditionalCameraData presentationCamera;bool originalPostProcessing;
     bool naturalTerrain=true;
     BlockingCollection<UploadPiece> pieces; ViewOptions viewOptions = new ViewOptions();
@@ -39,7 +39,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     [Serializable] sealed class UiEvidence { public int Detail, BusyFrames, MeshChunks; public double MaxBusyFrameMs, CancelMilliseconds, LongitudeMilliseconds, CachedSwitchMilliseconds, ProjectionSwitchMilliseconds; public bool Completed, CancelledPresentation, Resized, NorthUp, InstantDisplay, StableProjection; }
     sealed class UploadPiece
     {
-        public string Kind = "surface"; public Vector2[] UV, NaturalHeight, BlendCells; public Vector3[] MapVertices, MapLines, Vertices, Lines; public Color32[] Colors, LineColors; public int[] Triangles, LineIndices;
+        public string Kind = "surface"; public Vector2[] UV, NaturalHeight, BlendCells; public Vector4[] Stroke; public Vector3[] MapVertices, MapLines, Vertices, Lines; public Color32[] Colors, LineColors; public int[] Triangles, LineIndices;
     }
     Vector2 scroll, layerScroll; bool layerMenu, dirty, dragging, screenshotPending;
     string[] groups = Recipe.Settings.Select(f => f.GetCustomAttribute<SettingAttribute>().Group).Distinct().ToArray();
@@ -71,6 +71,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         cameraView.clearFlags = CameraClearFlags.SolidColor; cameraView.nearClipPlane = .005f; cameraView.backgroundColor = new Color(.035f, .065f, .09f); cameraView.fieldOfView = 45;
         surfaceMaterial = new Material(Resources.Load<Shader>("WorldGenVertex"));
         lineMaterial = new Material(surfaceMaterial); lineMaterial.SetFloat("_Unlit", 1);
+        riverMaterial=new Material(Resources.Load<Shader>("WorldGenRiver"));
         smallFeatureMaterial=new Material(lineMaterial);smallFeatureMaterial.SetFloat("_SmallFeatures",1);
         naturalMaterial=new Material(surfaceMaterial);naturalMaterial.SetFloat("_Natural",1);naturalMaterial.SetFloat("_Linear",QualitySettings.activeColorSpace==ColorSpace.Linear?1:0);
         wireframe = Environment.GetCommandLineArgs().Contains("--worldgen-wireframe"); showPlates = Environment.GetCommandLineArgs().Contains("--worldgen-plates"); showRivers = Environment.GetCommandLineArgs().Contains("--worldgen-rivers");
@@ -85,6 +86,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         if(Environment.GetCommandLineArgs().Contains("--worldgen-screen-check"))StartCoroutine(CheckScreens());
         if(Environment.GetCommandLineArgs().Contains("--worldgen-prehistory-check"))StartCoroutine(CheckPrehistory());
         if(Environment.GetCommandLineArgs().Contains("--worldgen-history-view")){screen="Setup";BeginWork(false,Argument("--worldgen-history-view",""));StartCoroutine(CheckHistoricalView());}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-map-marks-check")){screen="Setup";BeginWork(false,Argument("--worldgen-map-marks-check",""));StartCoroutine(CheckMapMarks());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-era-review")){screen="Setup";BeginWork(false,Argument("--worldgen-era-review",""));StartCoroutine(CheckHistoricalEras());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-overnight-review")){screen="Setup";BeginWork(false,Argument("--worldgen-overnight-review",""));StartCoroutine(CheckOvernightHistory());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-history-playback")){screen="Setup";BeginWork(false,Argument("--worldgen-history-playback",""));StartCoroutine(CheckHistoricalPlayback());}
@@ -204,6 +206,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         piece.MapVertices=new Vector3[piece.Vertices.Length];piece.MapLines=new Vector3[piece.Lines.Length];
         if(data.BlendCellIds.Length>0){piece.BlendCells=new Vector2[data.BlendCellIds.Length/2];for(int i=0;i<piece.BlendCells.Length;i++)piece.BlendCells[i]=new Vector2(data.BlendCellIds[i*2],data.BlendCellIds[i*2+1]);}
         if(data.NaturalHeight.Length>0){piece.NaturalHeight=new Vector2[data.NaturalHeight.Length];for(int i=0;i<piece.NaturalHeight.Length;i++)piece.NaturalHeight[i]=new Vector2(data.NaturalHeight[i],0);}
+        if(data.Stroke.Length>0){piece.Stroke=new Vector4[data.Stroke.Length/4];for(int i=0;i<piece.Stroke.Length;i++)piece.Stroke[i]=new Vector4(data.Stroke[i*4],data.Stroke[i*4+1],data.Stroke[i*4+2],data.Stroke[i*4+3]);}
         byte Channel(float value) { double v = Math.Max(0, Math.Min(1, value)); if (linear) v = v <= .04045 ? v / 12.92 : Math.Pow((v + .055) / 1.055, 2.4); return (byte)Math.Round(v * 255); }
         // Shared geometry uses the browser's right-handed camera convention.
         // Unity looks from negative Z: reflect globe depth, including overlays,
@@ -241,6 +244,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
             mesh.SetUVs(1,lines?piece.MapLines:piece.MapVertices);
             if(!lines && piece.NaturalHeight!=null)mesh.SetUVs(2,piece.NaturalHeight);
             if(!lines && piece.BlendCells!=null)mesh.SetUVs(3,piece.BlendCells);
+            if(!lines && piece.Stroke!=null)mesh.SetUVs(4,piece.Stroke);
             mesh.bounds=new Bounds(Vector3.zero,new Vector3(4.2f,3,3));
             mesh.UploadMeshData(true);
             int copies = 3;
@@ -251,7 +255,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
                 string copyName="copy"+(copy-1);var copyRoot=parent.Find(copyName);
                 if(copyRoot==null){var container=new GameObject(copyName);container.transform.SetParent(parent,false);container.transform.localPosition=new Vector3((copy-1)*4,0,0);copyRoot=container.transform;}
                 part.transform.SetParent(copyRoot, false);
-                part.GetComponent<MeshFilter>().sharedMesh = mesh; part.GetComponent<MeshRenderer>().sharedMaterial = piece.Kind=="natural"?naturalMaterial:piece.Kind=="smallfeatures"?smallFeatureMaterial:piece.Kind == "surface" ? surfaceMaterial : lineMaterial;
+                part.GetComponent<MeshFilter>().sharedMesh = mesh; part.GetComponent<MeshRenderer>().sharedMaterial = piece.Kind=="rivers"?riverMaterial:piece.Kind=="natural"?naturalMaterial:piece.Kind=="smallfeatures"?smallFeatureMaterial:piece.Kind == "surface" ? surfaceMaterial : lineMaterial;
             }
         }
         Part(piece.Vertices, piece.Colors, piece.Triangles, false); Part(piece.Lines, piece.LineColors, piece.LineIndices, true);
@@ -269,6 +273,11 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     void Update()
     {
         UpdateMusic();
+        if((screen=="Setup"||screen=="Simulation")&&!saveDialog&&!atlasOpen&&!simulationPaused&&GUIUtility.keyboardControl==0&&Keyboard.current!=null&&!Keyboard.current.ctrlKey.isPressed&&!Keyboard.current.altKey.isPressed)
+        {
+            if(Keyboard.current.rKey.wasPressedThisFrame){showRivers=!showRivers;ApplyCachedDisplay();}
+            if(screen=="Simulation"&&Keyboard.current.cKey.wasPressedThisFrame)settlementMarkerMode=SettlementMarkers.Next(settlementMarkerMode);
+        }
         if(screen=="Simulation"&&!saveDialog&&Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame){if(atlasOpen){atlasOpen=false;atlasSearchFocused=false;}else ToggleSimulationPause();}
         PollHumans();
         if(screen=="Simulation"&&!atlasOpen&&!simulationPaused&&!saveDialog&&Keyboard.current!=null&&!atlasSearchFocused)
@@ -492,5 +501,5 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         RenderTexture.active = prior; cameraView.targetTexture = null; Destroy(texture); target.Release(); Destroy(target); yield return null; Application.Quit(error.Length == 0 ? 0 : 1);
     }
     static string Argument(string flag, string fallback) { var args = Environment.GetCommandLineArgs(); int i = Array.IndexOf(args, flag); return i >= 0 && i + 1 < args.Length ? args[i + 1] : fallback; }
-        void OnDestroy() { DisposeMusic(); DisposeHabitatPortraits(); generationCancel?.Cancel(); cancel?.Cancel(); humanCancellation?.Cancel(); if (surfaceMaterial != null) Destroy(surfaceMaterial); if (lineMaterial != null) Destroy(lineMaterial);if(naturalMaterial!=null)Destroy(naturalMaterial);if(smallFeatureMaterial!=null)Destroy(smallFeatureMaterial);if(borderMaterial!=null)Destroy(borderMaterial);if(borderMesh!=null)Destroy(borderMesh); }
+        void OnDestroy() { if(riverMaterial!=null)Destroy(riverMaterial);if(settlementDot!=null)Destroy(settlementDot);DisposeMusic(); DisposeHabitatPortraits(); generationCancel?.Cancel(); cancel?.Cancel(); humanCancellation?.Cancel(); if (surfaceMaterial != null) Destroy(surfaceMaterial); if (lineMaterial != null) Destroy(lineMaterial);if(naturalMaterial!=null)Destroy(naturalMaterial);if(smallFeatureMaterial!=null)Destroy(smallFeatureMaterial);if(borderMaterial!=null)Destroy(borderMaterial);if(borderMesh!=null)Destroy(borderMesh); }
 }

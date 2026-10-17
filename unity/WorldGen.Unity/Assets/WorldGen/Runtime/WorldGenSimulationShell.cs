@@ -140,6 +140,7 @@ public sealed partial class WorldGenRuntime
     void DrawSocietyMapSettings()
     {
         AtlasParagraph(MapShortcuts.Help,11);
+        if(GUILayout.Button("City markers: "+SettlementMarkers.Name(settlementMarkerMode)+" [C]"))settlementMarkerMode=SettlementMarkers.Next(settlementMarkerMode);
         GUILayout.Label("HISTORICAL OVERLAY");foreach(HistoryOverlay mode in Enum.GetValues(typeof(HistoryOverlay)))if(GUILayout.Toggle(historyOverlay==mode,mode.ToString(),GUI.skin.button)&&historyOverlay!=mode){historyOverlay=mode;UpdateHumanPalette();}
         DrawTechnologyCeiling();
         if(world?.Prehistory?.History!=null){bool enabled=GUI.enabled;GUI.enabled=enabled&&exportJob==null;if(GUILayout.Button(exportJob==null?"Export campaign chronicle":"Export in progress…"))ExportCampaignChronicle();GUI.enabled=enabled;}
@@ -173,7 +174,20 @@ public sealed partial class WorldGenRuntime
         var s=world?.Prehistory?.Society;if(s==null||humanOverlayOpacity<=0||simulationPaused)return;var style=new GUIStyle(GUI.skin.label){alignment=TextAnchor.MiddleCenter,fontSize=12,fontStyle=FontStyle.Normal};style.normal.textColor=new Color(.07f,.09f,.11f);GUI.color=new Color(1,1,1,humanOverlayOpacity);
         var labelRects=new System.Collections.Generic.List<Rect>();
         foreach(var c in cachedMapLabels.Take(80))if(SocietyPosition(c.LabelCell>=0?c.LabelCell:c.Cell,out var p)){string name=c.LabelName.Length>0?c.LabelName:c.Name;float width=style.CalcSize(new GUIContent(name)).x+8;var r=new Rect(p.x-width/2,p.y-11,width,22);if(labelRects.Any(previous=>previous.Overlaps(r)))continue;labelRects.Add(r);var shadow=new Rect(r.x+1,r.y+1,r.width,r.height);style.normal.textColor=Color.white;GUI.Label(shadow,name,style);style.normal.textColor=new Color(.07f,.09f,.11f);GUI.Label(r,name,style);}
-        if(VisibleProjection==Projection.Map?mapZoom<.55f:globeDistance<2.5f)foreach(var t in s.Settlements.Where(t=>t.Population>=100))if(SocietyPosition(t.Cell,out var p)){GUI.DrawTexture(new Rect(p.x-3,p.y-3,6,6),Texture2D.whiteTexture);if(VisibleProjection==Projection.Map?mapZoom<.2f:globeDistance<1.6f)GUI.Label(new Rect(p.x-65,p.y+3,130,20),t.Name,style);}
+        if(cachedSettlementMarkers.Length==5&&settlementMarkerMode!=SettlementMarkerMode.Off)
+        {
+            if(settlementDot==null){settlementDot=new Texture2D(16,16,TextureFormat.RGBA32,false);var pixels=new Color[256];for(int y=0;y<16;y++)for(int x=0;x<16;x++){float distance=Vector2.Distance(new Vector2(x+.5f,y+.5f),new Vector2(8,8));pixels[y*16+x]=new Color(1,1,1,Mathf.Clamp01(7.5f-distance));}settlementDot.SetPixels(pixels);settlementDot.Apply(false,true);}
+            foreach(var t in cachedSettlementMarkers[(int)settlementMarkerMode])
+            {
+                bool visible=VisibleProjection==Projection.Map?mapZoom<(t.Capital?.9f:t.City?.5f:.18f):globeDistance<(t.Capital?4f:t.City?2.5f:1.7f);
+                if(!visible||!SocietyPosition(t.Cell,out var p))continue;
+                float radius=t.Capital?4:t.City?3:2;GUI.color=new Color(.07f,.12f,.16f,humanOverlayOpacity);GUI.DrawTexture(new Rect(p.x-radius-1,p.y-radius-1,2*radius+2,2*radius+2),settlementDot);
+                GUI.color=t.Capital?new Color(1,.84f,.39f,humanOverlayOpacity):new Color(.95f,.95f,.91f,humanOverlayOpacity);GUI.DrawTexture(new Rect(p.x-radius,p.y-radius,2*radius,2*radius),settlementDot);
+                bool names=VisibleProjection==Projection.Map?mapZoom<(t.Capital?.32f:.16f):globeDistance<(t.Capital?1.9f:1.55f);if(!names)continue;
+                float width=style.CalcSize(new GUIContent(t.Name)).x+8;var label=new Rect(p.x-width/2,p.y+radius+2,width,18);if(labelRects.Any(r=>r.Overlaps(label)))continue;labelRects.Add(label);
+                GUI.color=new Color(1,1,1,humanOverlayOpacity);style.normal.textColor=Color.white;GUI.Label(new Rect(label.x+1,label.y+1,label.width,label.height),t.Name,style);style.normal.textColor=new Color(.07f,.09f,.11f);GUI.Label(label,t.Name,style);
+            }
+        }
         GUI.color=Color.white;
     }
 }

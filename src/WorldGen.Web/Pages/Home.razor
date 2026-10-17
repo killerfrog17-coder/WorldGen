@@ -98,7 +98,8 @@ var meta=field.GetCustomAttribute<SettingAttribute>();
 <label>Base map<select aria-label="Base map" value="@layer" @onchange="ChangeLayer">@foreach(var mode in GlobeView.VisibleLayers.Where(l=>l!=Layer.Simulation)){<option value="@mode" disabled="@(!Available(mode))">@LayerName(mode)</option>}</select></label>
 <label>Map opacity<input aria-label="Map opacity" type="range" min="0" max="1" step=".01" @bind="humanOpacity" @bind:event="oninput"/></label>
 <label>Societies opacity<input aria-label="Population opacity" type="range" min="0" max="1" step=".01" @bind="humanOverlayOpacity" @bind:event="oninput"/></label>
-<label><input type="checkbox" @bind="wireframe" @bind:after="RefreshView"/> Cell boundaries</label><label><input type="checkbox" @bind="showRivers" @bind:after="RefreshView"/> Rivers</label>
+<label><input type="checkbox" @bind="wireframe" @bind:after="RefreshView"/> Cell boundaries</label><label><input type="checkbox" @bind="showRivers" @bind:after="RefreshView"/> Rivers [R]</label>
+<button @onclick='()=>RenderKey("c")'>City markers: @SettlementMarkers.Name(cityMode) [C]</button>
 <label>Grid<select @bind="gridSpacing" @bind:after="RefreshView">@foreach(int n in new[]{0,5,10,15,30}){<option value="@n">@(n==0?"Off":n+"°")</option>}</select></label><button @onclick="ToggleProjection">@(projection==Projection.Globe?"Switch to map":"Switch to globe")</button>
 }else{
 @if(humanOverlayOpacity>0&&society.Subject!=null){<button @onclick="()=>OpenAtlas(society.Subject)">Read @society.Subject.Name</button>}
@@ -122,6 +123,7 @@ var meta=field.GetCustomAttribute<SettingAttribute>();
 
 @code {
     string screen="Menu",worldType="Continents plus"; bool generating,expandedInspection; string details="",foodWeb=""; HabitatPortrait ecologyPortrait; readonly WorldSetup setup=new WorldSetup();
+    SettlementMarkerMode cityMode=SettlementMarkerMode.CapitalsOnly;
     Recipe recipe=new Recipe(),importRollbackRecipe;WorldSummary world;Layer layer=Layer.Terrain;Projection projection;int centerLongitude;bool naturalTerrain=true;int seaLevel,percent,viewRevision;bool busy,dirty,wireframe,showPlates,showRivers;int gridSpacing=30;string error="",progressStage="",inspection="Select a location";
     IJSObjectReference module,interfaceModule;DotNetObjectReference<Home> callback;
     readonly List<string> recentMusic=new();readonly HashSet<string> brokenMusic=new(StringComparer.OrdinalIgnoreCase);
@@ -176,6 +178,7 @@ var meta=field.GetCustomAttribute<SettingAttribute>();
     async Task SelectHistoryEntry(int cell){int ticket=++selectionTicket;selectingHistory=true;detailsOpen=true;mapSettings=false;try{while((humanBusy||changingOverlay)&&!humanDisposed)await Task.Delay(25);if(!humanDisposed&&ticket==selectionTicket)await HumanCommand("select",cell);}finally{if(ticket==selectionTicket)selectingHistory=false;}}
     [JSInvokable] public Task OpacityKey(int direction,bool background){if(screen=="Simulation"&&!atlasOpen&&!simulationPaused){if(background)humanOpacity=Math.Clamp(humanOpacity+direction*.25,0,1);else humanOverlayOpacity=Math.Clamp(humanOverlayOpacity+direction*.25,0,1);StateHasChanged();}return Task.CompletedTask;}
     [JSInvokable] public async Task MapKey(int number,bool background){if(screen!="Simulation"||atlasOpen||simulationPaused||number<1||number>7)return;if(background){var mode=MapShortcuts.Backgrounds[number-1];if(Available(mode))await SelectLayer(mode);}else await SelectHistoricalOverlay(MapShortcuts.Overlays[number-1]);StateHasChanged();}
+    [JSInvokable] public async Task RenderKey(string key){if((screen!="Simulation"&&screen!="Setup")||atlasOpen||simulationPaused)return;if(key=="r"){showRivers=!showRivers;await RefreshView();}else if(key=="c"&&screen=="Simulation"){cityMode=SettlementMarkers.Next(cityMode);await module.InvokeVoidAsync("cityMarkerMode",(int)cityMode);}StateHasChanged();}
     void ChangeSpeed(int delta)=>playback.Change(delta);
     void SetAutomaticRate(ChangeEventArgs e){if(e.Value is true)playback.AutoEra(society.Era);else playback.HoldRate();}
     [JSInvokable] public async Task SimulationKey(string key){if(screen!="Simulation"||atlasOpen||simulationPaused)return;if(key==" ")await TogglePeople();else ChangeSpeed(key=="<"?-1:1);StateHasChanged();}

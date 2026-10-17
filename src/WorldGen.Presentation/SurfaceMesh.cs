@@ -19,7 +19,7 @@ namespace WorldGen.Presentation
         // Bounded pieces let adapters upload a few milliseconds of geometry per
         // frame while the next piece is prepared on a worker. No resampling.
         public const int EdgesPerChunk = 8192;
-        public const int RiverReachesPerChunk = 8192;
+        public const int RiverReachesPerChunk = RiverMesh.ReachesPerChunk;
         public static int ExpectedChunkCount(World world, ViewOptions options)
         {
             int surfaces = (world.Surface.Edges.Length + EdgesPerChunk - 1) / EdgesPerChunk;
@@ -98,42 +98,8 @@ namespace WorldGen.Presentation
                 yield return options.Projection == Projection.Map ? MapView.Project(data, options.CenterLongitude) : data;
             }
             if (options.ShowRivers)
-                for (int first = 0; first < world.Hydrology.Rivers.Length; first += RiverReachesPerChunk)
-                {
-                    token.ThrowIfCancellationRequested(); int end = Math.Min(first + RiverReachesPerChunk, world.Hydrology.Rivers.Length);
-                    var positions = new List<float>((end - first) * 18); var colors = new List<float>((end - first) * 18);
-                    var ids = new List<int>((end - first) * 6); var triangles = new List<int>((end - first) * 6);
-                    void EmitRiver(V p, int cell, V color)
-                    {
-                        Add(positions, p); Add(colors, color); ids.Add(cell); triangles.Add(ids.Count - 1);
-                    }
-                    for (int r = first; r < end; r++)
-                    {
-                        if ((r & 1023) == 0) token.ThrowIfCancellationRequested(); var river = world.Hydrology.Rivers[r];
-                        if (river.From < 0 || river.To < 0 || river.From >= s.Cells.Length || river.To >= s.Cells.Length) continue;
-                        V a = s.Cells[river.From].Position, b = s.Cells[river.To].Position;
-                        V alongA = V.Tangent(a, b - a), alongB = V.Tangent(b, b - a);
-                        if (alongA.Length < 1e-12 || alongB.Length < 1e-12) continue;
-                        V sideA = V.Cross(a, alongA).Unit, sideB = V.Cross(b, alongB).Unit;
-                        // A whole-globe readability base is added to exaggerated physical bank
-                        // width. The additive curve keeps tributaries visible while preserving a
-                        // continuous, substantially wider hierarchy for major trunks.
-                        double physicalWidthM = Math.Max(0, river.WidthM);
-                        double displayWidthM = 12000 + physicalWidthM * 28;
-                        double halfAngle = Math.Min(.004, displayWidthM / (2 * 6371000.0));
-                        double emphasis = D.Clamp(Math.Log(Math.Max(3, physicalWidthM) / 3) / Math.Log(1200.0 / 3));
-                        V riverColor = new V(.07, .32, .56) * (1 - emphasis) + new V(.025, .42, .82) * emphasis;
-                        V aLeft = (a + sideA * halfAngle).Unit, aRight = (a - sideA * halfAngle).Unit;
-                        V bLeft = (b + sideB * halfAngle).Unit, bRight = (b - sideB * halfAngle).Unit;
-                        double ha = renderHeight[river.From], hb = renderHeight[river.To];
-                        V al = At(aLeft, ha, .001), ar = At(aRight, ha, .001), bl = At(bLeft, hb, .001), br = At(bRight, hb, .001);
-                        EmitRiver(al, river.From, riverColor); EmitRiver(ar, river.From, riverColor); EmitRiver(br, river.To, riverColor);
-                        EmitRiver(al, river.From, riverColor); EmitRiver(br, river.To, riverColor); EmitRiver(bl, river.To, riverColor);
-                    }
-                    if (ids.Count == 0) continue;
-                    var data = new ViewData { Positions = positions.ToArray(), Colors = colors.ToArray(), CellIds = ids.ToArray(), Triangles = triangles.ToArray(), Unlit = true };
-                    yield return options.Projection == Projection.Map ? MapView.Project(data, options.CenterLongitude, -.003) : data;
-                }
+                foreach(var river in RiverMesh.Chunks(world,token))
+                    yield return options.Projection==Projection.Map?MapView.Project(river,options.CenterLongitude,-.003):river;
             if (options.GridSpacing != 0)
             {
                 var grid = Grid(options.GridSpacing, world);

@@ -12,7 +12,7 @@ namespace WorldGen.Presentation
             public double X, Y;
             public V Color;
             public V Sphere;
-            public double Height;
+            public double Height, StrokeX, StrokeY, StrokeWidth, StrokeOrder;
             public int Cell, BlendA, BlendB;
             public Vertex(double x, double y, V color, int cell) { X = x; Y = y; Color = color; Cell = cell;BlendA=BlendB=cell; }
         }
@@ -25,6 +25,7 @@ namespace WorldGen.Presentation
         {
             var positions = new List<float>(); var colors = new List<float>(); var ids = new List<int>(); var triangles = new List<int>(); var lines = new List<float>();
             var spherePositions = new List<float>(); var sphereLines = new List<float>();
+            var strokes=new List<float>();bool stroke=globe.Stroke.Length>0;
             var heights=new List<float>();bool natural=globe.NaturalHeight.Length>0;var blends=new List<int>();bool blend=globe.BlendCellIds.Length>0;
             void AddSphere(List<float> list, V p) { list.Add((float)p.X); list.Add((float)p.Y); list.Add((float)p.Z); }
             Vertex Project(int cell)
@@ -34,13 +35,14 @@ namespace WorldGen.Presentation
                 x -= 4 * Math.Floor((x + 2) / 4);
                 return new Vertex(x, Math.Asin(Math.Max(-1, Math.Min(1, p.Z))) * 2 / Math.PI,
                     new V(globe.Colors[cell * 3], globe.Colors[cell * 3 + 1], globe.Colors[cell * 3 + 2]), globe.CellIds[cell])
-                    { Sphere = new V(globe.Positions[cell*3], globe.Positions[cell*3+1], globe.Positions[cell*3+2]),Height=natural?globe.NaturalHeight[cell]:0,BlendA=blend?globe.BlendCellIds[cell*2]:0,BlendB=blend?globe.BlendCellIds[cell*2+1]:0 };
+                    { Sphere = new V(globe.Positions[cell*3], globe.Positions[cell*3+1], globe.Positions[cell*3+2]),Height=natural?globe.NaturalHeight[cell]:0,BlendA=blend?globe.BlendCellIds[cell*2]:0,BlendB=blend?globe.BlendCellIds[cell*2+1]:0,StrokeX=stroke?globe.Stroke[cell*4]:0,StrokeY=stroke?globe.Stroke[cell*4+1]:0,StrokeWidth=stroke?globe.Stroke[cell*4+2]:0,StrokeOrder=stroke?globe.Stroke[cell*4+3]:0 };
             }
             void Emit(Vertex v)
             {
                 positions.Add((float)v.X); positions.Add((float)v.Y); positions.Add((float)depth);
                 colors.Add((float)v.Color.X); colors.Add((float)v.Color.Y); colors.Add((float)v.Color.Z); ids.Add(v.Cell);
                 if (dual) AddSphere(spherePositions, v.Sphere);
+                if(stroke){strokes.Add((float)v.StrokeX);strokes.Add((float)v.StrokeY);strokes.Add((float)v.StrokeWidth);strokes.Add((float)v.StrokeOrder);}
                 if(natural)heights.Add((float)v.Height);if(blend){blends.Add(v.BlendA);blends.Add(v.BlendB);}
             }
             void Face(Vertex[] vertices)
@@ -57,7 +59,7 @@ namespace WorldGen.Presentation
                 for (int j = 0; j < 3; j++) if (Math.Abs(vertices[j].Y) > .999999)
                 {
                     var pole = vertices[j]; var a = vertices[(j + 1) % 3]; var b = vertices[(j + 2) % 3];
-                    vertices = new[] { a, b, new Vertex(b.X, pole.Y, pole.Color, pole.Cell) { Sphere=pole.Sphere,Height=pole.Height,BlendA=pole.BlendA,BlendB=pole.BlendB }, new Vertex(a.X, pole.Y, pole.Color, pole.Cell) { Sphere=pole.Sphere,Height=pole.Height,BlendA=pole.BlendA,BlendB=pole.BlendB } };
+                    vertices = new[] { a, b, new Vertex(b.X, pole.Y, pole.Color, pole.Cell) { Sphere=pole.Sphere,Height=pole.Height,BlendA=pole.BlendA,BlendB=pole.BlendB,StrokeX=pole.StrokeX,StrokeY=pole.StrokeY,StrokeWidth=pole.StrokeWidth,StrokeOrder=pole.StrokeOrder }, new Vertex(a.X, pole.Y, pole.Color, pole.Cell) { Sphere=pole.Sphere,Height=pole.Height,BlendA=pole.BlendA,BlendB=pole.BlendB,StrokeX=pole.StrokeX,StrokeY=pole.StrokeY,StrokeWidth=pole.StrokeWidth,StrokeOrder=pole.StrokeOrder } };
                     break;
                 }
                 if (vertices.Length == 3 && vertices[0].X >= -2 && vertices[0].X <= 2 && vertices[1].X >= -2 && vertices[1].X <= 2 && vertices[2].X >= -2 && vertices[2].X <= 2)
@@ -68,7 +70,7 @@ namespace WorldGen.Presentation
                 for (int shift = -1; shift <= 1; shift++)
                 {
                     var polygon = new List<Vertex>(3);
-                    foreach (var v in vertices) polygon.Add(new Vertex(v.X + shift * 4, v.Y, v.Color, v.Cell) { Sphere=v.Sphere,Height=v.Height,BlendA=v.BlendA,BlendB=v.BlendB });
+                    foreach (var v in vertices) polygon.Add(new Vertex(v.X + shift * 4, v.Y, v.Color, v.Cell) { Sphere=v.Sphere,Height=v.Height,BlendA=v.BlendA,BlendB=v.BlendB,StrokeX=v.StrokeX,StrokeY=v.StrokeY,StrokeWidth=v.StrokeWidth,StrokeOrder=v.StrokeOrder });
                     polygon = Clip(Clip(polygon, -2, true), 2, false);
                     for (int j = 1; j + 1 < polygon.Count; j++)
                     {
@@ -132,13 +134,13 @@ namespace WorldGen.Presentation
                     for (int k = 0; k < 6; k++) lineColors.Add(globe.LineColors.Length > i + k ? globe.LineColors[i + k] : .2f);
                 }
             }
-            return new ViewData { Positions = positions.ToArray(), SpherePositions=spherePositions.ToArray(), SphereLines=sphereLines.ToArray(), NaturalHeight=heights.ToArray(),BlendCellIds=blends.ToArray(), Colors = colors.ToArray(), Triangles = triangles.ToArray(), CellIds = ids.ToArray(), Lines = lines.ToArray(), LineColors = lineColors.ToArray(), IsMap = true, Unlit = true };
+            return new ViewData { Positions = positions.ToArray(), SpherePositions=spherePositions.ToArray(), SphereLines=sphereLines.ToArray(), Stroke=strokes.ToArray(),NaturalHeight=heights.ToArray(),BlendCellIds=blends.ToArray(), Colors = colors.ToArray(), Triangles = triangles.ToArray(), CellIds = ids.ToArray(), Lines = lines.ToArray(), LineColors = lineColors.ToArray(), IsMap = true, Unlit = true };
         }
         static Vertex Intersect(Vertex a, Vertex b, double x)
         {
             double t = (x - a.X) / (b.X - a.X);
             return new Vertex(x, a.Y + (b.Y - a.Y) * t, a.Color * (1 - t) + b.Color * t, t < .5 ? a.Cell : b.Cell)
-                { Sphere=a.Sphere*(1-t)+b.Sphere*t,Height=a.Height*(1-t)+b.Height*t,BlendA=t<.5?a.BlendA:b.BlendA,BlendB=t<.5?a.BlendB:b.BlendB };
+                { Sphere=a.Sphere*(1-t)+b.Sphere*t,Height=a.Height*(1-t)+b.Height*t,BlendA=t<.5?a.BlendA:b.BlendA,BlendB=t<.5?a.BlendB:b.BlendB,StrokeX=a.StrokeX*(1-t)+b.StrokeX*t,StrokeY=a.StrokeY*(1-t)+b.StrokeY*t,StrokeWidth=a.StrokeWidth*(1-t)+b.StrokeWidth*t,StrokeOrder=a.StrokeOrder*(1-t)+b.StrokeOrder*t };
         }
         static List<Vertex> Clip(List<Vertex> polygon, double edge, bool keepGreater)
         {

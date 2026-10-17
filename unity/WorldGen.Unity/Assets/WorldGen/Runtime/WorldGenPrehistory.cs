@@ -8,6 +8,8 @@ using WorldGen.Presentation;
 public sealed partial class WorldGenRuntime
 {
     HistoryOverlay historyOverlay=HistoryOverlay.States;
+    SettlementMarkerMode settlementMarkerMode=SettlementMarkerMode.CapitalsOnly;
+    SettlementMarker[][] cachedSettlementMarkers=Array.Empty<SettlementMarker[]>();Texture2D settlementDot;
     Prehistory humans;World humanWorld;Task<Prehistory> humanPreparation;
     SimulationSession humanSession;
     sealed class HumanPlaybackWork { public Task<PrehistoryState> Task;public SimulationSession Session; }
@@ -17,7 +19,7 @@ public sealed partial class WorldGenRuntime
     Task<HumanPaletteResult> humanPaletteJob;bool humanPalettePending;int humanPaletteUpload;
     HumanPaletteResult humanPaletteReady;
     Color32[] humanSpareColors,humanUploadBlock,humanUploadTail;byte[] humanCodesScratch;
-    sealed class HumanPaletteResult { public World World;public PrehistoryState State;public HistoryOverlay Overlay;public int Selection;public string Sort;public Color32[] Colors;public HistoryLegendEntry[] Legend,MapLabels;public ChronicleEvent[] Headlines; }
+    sealed class HumanPaletteResult { public World World;public PrehistoryState State;public HistoryOverlay Overlay;public int Selection;public string Sort;public Color32[] Colors;public HistoryLegendEntry[] Legend,MapLabels;public SettlementMarker[][] Markers;public ChronicleEvent[] Headlines; }
     readonly SimulationPlayback humanPlayback=new SimulationPlayback();double humanClockSample,calendarWorkStarted;
     bool simulationPaused,resumeHumanPlayback;string simulationTab="";
     bool technologyCeilingOpen;
@@ -33,7 +35,7 @@ public sealed partial class WorldGenRuntime
             humanPlaying=false;humans=null;humanWorld=world;humanStep=null;lastHumanSelection=-2;atlasOpen=false;atlasSearchFocused=false;musicSimulationStarted=false;humanPlayback.AutoEra(2);
             humanCancellation?.Cancel();humanCancellation?.Dispose();humanCancellation=new System.Threading.CancellationTokenSource();
             humanSession=null;humanPlaybackWork=null;
-            cachedHistoryLegend=Array.Empty<HistoryLegendEntry>();cachedMapLabels=Array.Empty<HistoryLegendEntry>();cachedHeadlines=Array.Empty<ChronicleEvent>();legendState=null;legendEngine=null;
+            cachedHistoryLegend=Array.Empty<HistoryLegendEntry>();cachedMapLabels=Array.Empty<HistoryLegendEntry>();cachedSettlementMarkers=Array.Empty<SettlementMarker[]>();cachedHeadlines=Array.Empty<ChronicleEvent>();legendState=null;legendEngine=null;
             var captured=world;humanPreparation=Task.Run(()=>new Prehistory(captured));
         }
         if(humanPreparation!=null&&humanPreparation.IsCompleted)
@@ -96,7 +98,7 @@ public sealed partial class WorldGenRuntime
                 if(rows!=64&&(humanUploadTail==null||humanUploadTail.Length!=rows*2048))humanUploadTail=new Color32[rows*2048];
                 var block=rows==64?humanUploadBlock:humanUploadTail;Array.Copy(ready.Colors,humanPaletteUpload*2048,block,0,block.Length);
                 texture.SetPixels32(0,humanPaletteUpload,2048,rows,block);humanPaletteUpload+=rows;
-                if(humanPaletteUpload==texture.height){texture.Apply(false,false);humanSpareColors=humanColors;humanColors=ready.Colors;legendState=ready.State;legendEngine=humans;legendOverlay=ready.Overlay;legendSort=ready.Sort;cachedHistoryLegend=ready.Legend;cachedMapLabels=ready.MapLabels;cachedHeadlines=ready.Headlines;humanPaletteReady=null;}
+                if(humanPaletteUpload==texture.height){texture.Apply(false,false);humanSpareColors=humanColors;humanColors=ready.Colors;legendState=ready.State;legendEngine=humans;legendOverlay=ready.Overlay;legendSort=ready.Sort;cachedHistoryLegend=ready.Legend;cachedMapLabels=ready.MapLabels;cachedSettlementMarkers=ready.Markers;cachedHeadlines=ready.Headlines;humanPaletteReady=null;}
             }
         }
         if(!humanPalettePending||humanPaletteJob!=null||humanPaletteReady!=null||humans==null||humanColors==null||displayedWorld!=world)return;
@@ -114,7 +116,7 @@ public sealed partial class WorldGenRuntime
                 if(!tint.TryGetValue(tintKey,out var rgb)){var v=SocietyView.OverlayColor(state,owner,overlay);rgb=new Color32((byte)Math.Round(v.X*255),(byte)Math.Round(v.Y*255),(byte)Math.Round(v.Z*255),0);tint.Add(tintKey,rgb);}
                 colors[i].r=rgb.r;colors[i].g=rgb.g;colors[i].b=rgb.b;
             }
-            return new HumanPaletteResult{World=captured,State=state,Selection=selection,Overlay=overlay,Sort=sort,Colors=colors,Headlines=SocietyView.Headlines(state,engine),Legend=SocietyView.Legend(state,overlay,sort,engine),MapLabels=SocietyView.MapLabels(captured,state,overlay,engine)};
+            return new HumanPaletteResult{World=captured,State=state,Selection=selection,Overlay=overlay,Sort=sort,Colors=colors,Headlines=SocietyView.Headlines(state,engine),Legend=SocietyView.Legend(state,overlay,sort,engine),MapLabels=SocietyView.MapLabels(captured,state,overlay,engine),Markers=SettlementMarkers.Build(state)};
         });
     }
     void StepHumans(int steps)
@@ -207,11 +209,12 @@ public sealed partial class WorldGenRuntime
         }
         Debug.Log("PREHISTORY CHECK PASS "+PrehistoryView.Status(humans,checkpoint));Application.Quit(checkpoint.Years==200000?0:1);
     }
-    void CaptureHumanMap(string path)
+    void CaptureHumanMap(string path,bool currentCamera=false)
     {
         var target=new RenderTexture(1600,1000,24);var priorRect=cameraView.rect;var priorPosition=cameraView.transform.position;float priorSize=cameraView.orthographicSize;
         bool priorOrthographic=cameraView.orthographic;var priorRotation=globe.transform.rotation;var priorTarget=cameraView.targetTexture;
-        cameraView.targetTexture=target;cameraView.rect=new Rect(0,0,1,1);cameraView.orthographic=true;cameraView.orthographicSize=1.3f;cameraView.transform.position=new Vector3(0,0,-3.2f);globe.transform.rotation=Quaternion.identity;
+        cameraView.targetTexture=target;cameraView.rect=new Rect(0,0,1,1);
+        if(!currentCamera){cameraView.orthographic=true;cameraView.orthographicSize=1.3f;cameraView.transform.position=new Vector3(0,0,-3.2f);globe.transform.rotation=Quaternion.identity;}
         cameraView.Render();var active=RenderTexture.active;RenderTexture.active=target;var texture=new Texture2D(1600,1000,TextureFormat.RGB24,false);texture.ReadPixels(new Rect(0,0,1600,1000),0,0);texture.Apply();
         System.IO.File.WriteAllBytes(path,texture.EncodeToPNG());RenderTexture.active=active;cameraView.targetTexture=priorTarget;cameraView.rect=priorRect;cameraView.transform.position=priorPosition;cameraView.orthographicSize=priorSize;cameraView.orthographic=priorOrthographic;globe.transform.rotation=priorRotation;
         Destroy(texture);target.Release();Destroy(target);
