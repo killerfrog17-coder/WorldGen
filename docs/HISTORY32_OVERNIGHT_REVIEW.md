@@ -1,9 +1,42 @@
 # Overnight historical review — 17 October 2026
 
-Source experiments, not an assertion of historical/scientific validation. The
-existing selected player is the rollback build until native review is complete.
+Reviewed source experiments, not an assertion of historical/scientific validation.
+The project shortcut now selects the AF29 review player; preceding players remain
+available for rollback. Historical realism and strict speed acceptance are NOT met.
 
-## Latest candidate: realm29 (17 October,13:23UTC)
+## What changed during this overnight pass
+
+- The first actual state now establishes the Bronze observer-era minimum;
+  this does not grant metallurgy or other free technologies.
+- Military campaigns use paid manpower, concurrent-front reservations, real
+  casualties and differentiated settlement objectives. Actual conquest and
+  funded integration replace a uniform penalty for every captured small town.
+- Added bounded unsupported-administration retirement/recovery, real paid local
+  service relays, and supported local succession claimants rather than treating
+  every political change as the same automatic fragmentation event.
+- Maritime ventures use actual route intelligence, provisions, crews, maintained
+  organization and commitments. An inconsistent civilian cohesion gate is fixed;
+  hostile conquest and refused-consent protections remain separate.
+- Local seed inventories, cohort-sized prepared fields, actual cultivar maturity
+  seasons and continued selection replace several measured agricultural deadlocks.
+  Qualified proto-centers retain institutional continuity, not village immunity
+  to genuine food distress.
+- Technical progress and physically received lessons survive completion of a
+  research level. Repeated scholarly costs are recalibrated without calendar
+  deadlines, free deployment or world-wide instant knowledge.
+- Religion distinguishes household memory, public predominance and funded lay
+  associations. Migration preserves actual faith identities instead of creating
+  another religion for every daughter culture. The state map separately marks
+  recognized claims without recorded administration.
+- Exact paged storage, binary transport, hashing and immutable-input memo work
+  preserves old outcomes. Measured dense native speed nevertheless still fails.
+
+The documentary comparison was actually sampled and independently inspected;
+the remaining failures below are findings, not an assertion that this is a
+finished alternate-history simulator. Accepted generation/climate/terrain and
+the owner's generation settings remain unchanged throughout this pass.
+
+## Final overnight checkpoint: realm29 (17 October,14:12UTC)
 
 Current source is optional realm29. [Actual migrant faith continuity](HISTORY32_MIGRANT_FAITH_CONTINUITY.md)
 removes automatic new religions at migrant-culture foundation, carries the actual
@@ -59,6 +92,18 @@ population share2.75% of controlled people, largest land share3.94%, median age
 206.5 years. These are actual current sovereigns, not color groups or recognition
 claims. Court identity age is not the duration of present borders or one regime.
 
+This final fragmentation cannot be dismissed as just one technologically advanced
+court among primitive peers. Actual final records have569/578 Earth courts and
+554/556 CP courts whose ruling cultures have Telecommunications deployment at
+least0.3; these contain
+1.07565B/1.07776B and1.99533B/1.99761B exclusive court residents respectively.
+Radio deployment is similarly broad. These are current ruling-culture capability
+values, not a household usage or communications-network coverage census.
+This does not establish sufficient funded
+service, inclusion or legitimacy, and final deployment must not be backdated to
+earlier eras. It does falsify that particular explanation of the final microcourt
+mosaic and strengthens the need for a separate integration/coalition audit.
+
 A dated China example narrows the remaining cause. Town465, founded152062,
 adopts its culture's crop package early but qualifies as proto-urban only156966.
 Actual saved observations at152700,153700,154700,155700 and156100 have2,141,
@@ -107,18 +152,54 @@ There is no simulation error, but this is not the requested3yr/s/sub-second-year
 result. Earth also fails:1,004.9310 years in781.4728 seconds,1.285945yr/s, minimum
 rolling0.996464yr/s and worst2659.6676ms. Both complete with unchanged input
 files and no simulation error. The team-work isolation was released14:03UTC.
-No shortcut switch or speed acceptance is implied yet; the full measured breakdown is in
+The selected AF29 review build does not turn either result into a pass. The full measured breakdown is in
 the [performance review](HISTORY32_PERFORMANCE_REVIEW.md).
 
 A separate [claim-display correction](HISTORY32_CLAIM_DISPLAY.md) passes85
 focused assertions in both the actual source test project and a separate driver
 against the exact frozen native Core/Serialization. Full solution compilation
-succeeds with zero warnings/errors. Its rebuilt native player remains under
-review. It makes recognized
+succeeds with zero warnings/errors. The rebuilt native AF29 player passes the
+separate final-world checks described below. It makes recognized
 title-only land pale rather than presenting it as fully administered. Selection
 identities, titles, ownership, borders and simulation hashes remain unchanged.
 The selection-card query is bounded and does not build a world-sized snapshot.
 The existing29 native images above use the earlier renderer, not this new style.
+
+### Selected player and final actual images
+
+At14:11UTC the project shortcut was changed from
+`artifacts/player-history-32-realms-autowarp/WorldGen.exe` to
+`artifacts/player-history-32-overnight-af29-review/WorldGen.exe` and read back
+successfully. Its existing project working directory and empty arguments are
+preserved. Old players remain available. A fresh simulation uses the new rules;
+old saves do not silently upgrade. This changes the project shortcut, not an
+independently pinned taskbar shortcut.
+
+AF29 manifest SHA256 is
+`98e3add6554f393399ad9cb799ef5a6513c54cd5f0cdd30ab180afe2d548dd9d`;
+GameAssembly is `0fd9bde6d7f5637244e712f1dd66a85da329c445067bc0c1b46ce862da4174e0`.
+It retains the exact frozen29 Core/Serialization above, with new Presentation
+`337627a87c60a97d56d6b76f2ddfc326f98a09ef2a9b68c6279dd6d083211ed6`.
+Temporary Unity project-setting changes were restored, and the editor exited.
+
+Both actual final29 worlds pass the native six-overlay static view/hash check.
+Earth remains `aadce44b...`, CP `c69af098...`; both input save files remain
+byte-identical. These are no-advance rendering checks, not additional cold-save
+or speed tests. Evidence is under the external overnight root:
+`native-af29-{earth,cp}-final-views-verified`.
+Main actually inspected Earth States/Territories/Religions and CP States camera
+images: recognized-only extents are visibly paler; recorded actual control keeps
+its ruling-culture tint. The religious map retains coherent shared traditions.
+This does not repair the visible microcourt mosaic or geographical timing.
+The native capture host still cannot validate HUD layout from its black HUD
+images. An unattributed startup Curl23 warning occurred in Earth, but the local
+file load, all camera renders and final history check passed; its exact request
+was not identified or claimed to be telemetry.
+
+The full build/adapters/browser-worker staging was refreshed with `-SkipUnity`
+after the native editor exited, without replacing the frozen player plugins.
+Both the final solution and browser build complete with zero warnings/errors;
+the current all-stage CLI reconstruction again preserves `0475b169...`.
 
 The all-stage CLI reconstruction check passes with final world hash
 `0475b16902e04155747f406b5c789f7144773eedcd0e44861de6879120176584`.

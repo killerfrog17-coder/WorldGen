@@ -665,3 +665,47 @@ contention explains away this strict failure. Both owned player processes
 have exited and the isolation hold was released14:03:18UTC. These complete
 current-world failures supersede any earlier near-target small/old-world
 measurement as evidence of the remaining native performance gap.
+
+## Display-only AF29 native handoff
+
+The subsequent `player-history-32-overnight-af29-review` changes recognized-
+claim styling, not historical rules. It is a nondevelopment Release IL2CPP
+build completed14:07:43UTC. It embeds the **same byte-identical** frozen29b
+Core `4eca1ddd14068acff1c2fa71a30ea069970a28c1ee06fab60c47a954e1e28428`
+and Serialization
+`cb1605e92ac892eb97c3d6e636d3dc6b21ac41fcda5982d68691b81ef6932499`.
+Only the reviewed Presentation DLL changes, to
+`337627a87c60a97d56d6b76f2ddfc326f98a09ef2a9b68c6279dd6d083211ed6`;
+its isolated external tests pass85 assertions against those exact frozen
+references. The AF input-manifest hash is
+`98e3add6554f393399ad9cb799ef5a6513c54cd5f0cdd30ab180afe2d548dd9d`,
+and GameAssembly hash is
+`0fd9bde6d7f5637244e712f1dd66a85da329c445067bc0c1b46ce862da4174e0`.
+The editor exits successfully, automatic Standalone/stripping entries are
+removed, and project settings return to a clean diff.
+
+Both current final worlds pass the bounded native `--worldgen-history-view`
+check without advancing history. Six offscreen camera overlays per world are
+written in `native-af29-{earth,cp}-final-views-verified`, with exact unchanged
+Earth `aadce44b...` and CP `c69af098...` simulation hashes. Both States maps
+were actually viewed: pale recognized-only claims are distinct from saturated
+control, and the map remains complete and legible. This is a display check,
+not evidence that the remaining geographic or political realism gaps are fixed.
+Input save-file SHA256 remains
+`3305575a1ea099b4da6bdc03d66d31f35b20a16b8cbd66d166f997c1cc82bbfb`
+for Earth and
+`3e75784ac3da8666d2ffadbdb92d9e44f7d387e8841d96708f5ff24f3f50f985`
+for CP. No new save is written by this static check: it proves preservation
+of the existing saved input and live simulation hash, not another cold-save
+roundtrip. Hidden-window HUD captures are still not a visual pass.
+
+One Earth startup log contains an unattributed native `Curl error 23` warning.
+World loading uses local file reads, not curl; the exact background request
+cannot be identified from that line alone. Both processes subsequently render
+all six overlays, pass their unchanged-hash checks and exit0. Thus the warning
+is nonfatal for this check, not an ignored world-load/render failure. The two
+earlier empty output directories without the `-verified` suffix came from an
+incorrectly escaped custom launcher before player startup, and are not proof
+artifacts. All owned native jobs are released by14:11:06UTC. AE remains the
+untouched strict-benchmark artifact, and neither AF nor the styling fix changes
+the two recorded performance failures.
