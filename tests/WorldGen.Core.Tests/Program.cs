@@ -1,6 +1,10 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--scholarly-cost-only")){int count=0;HistoryScholarlyCostTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" scholarly rank-cost assertions");return;}
+if(args.Contains("--scholarly-cost-recorded")){int count=0;HistoryScholarlyCostTests.Recorded(args[Array.IndexOf(args,"--scholarly-cost-recorded")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" recorded scholarly rank-cost assertions");return;}
+if(args.Contains("--conquest-integration-only")){int count=0;HistoryConquestIntegrationTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" conquest integration assertions");return;}
+if(args.Contains("--conquest-integration-world")){int count=0;HistoryConquestIntegrationTests.World(args[Array.IndexOf(args,"--conquest-integration-world")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" actual conquest transfer assertions");return;}
 if(args.Contains("--farmstead-establishment-only")){int count=0;HistoryFarmsteadEstablishmentTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" farmstead establishment assertions");return;}
 if(args.Contains("--technical-credit-only")){int count=0;HistoryTechnicalCreditTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" partial technical-learning credit assertions");return;}
 if(args.Contains("--technical-credit-recorded")){int count=0;HistoryTechnicalCreditTests.Recorded(args[Array.IndexOf(args,"--technical-credit-recorded")+1],(ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" recorded technical-learning credit assertions");return;}

@@ -97,8 +97,12 @@ namespace WorldGen.Core
             }
             else cycle.EliteCapture=Math.Max(0,Math.Min(1000,cycle.EliteCapture+(leader.Administration>750?-2:1)*elapsed));
             int realmPreviousDebt=cycle.ConquestDebt;
+            if(ConquestIntegrationHistory(s)){service+=AdvanceConquestIntegration(s,id,elapsed);account.ServiceCost=service;}
+            else
+            {
             cycle.ConquestDebt=Math.Max(0,cycle.ConquestDebt-(HistoricalTechnologies.Has(hc,HistoricalTechnology.Writing)?2:1)*elapsed);
             if(RealmHistory(s)&&(RealmCrisis(s,id)>0||receipts<service))cycle.ConquestDebt=realmPreviousDebt;
+            }
             ds.Strain=(int)Math.Min(1000,geography*150+cycle.ConquestDebt*.4+cycle.EliteCapture*.2);p.Exhaustion=Math.Max(0,p.Exhaustion-elapsed*2);p.Legitimacy=Math.Min(900,p.Legitimacy+elapsed*(p.Treasury>0?2:-3));p.Cohesion=Math.Max(50,Math.Min(950,p.Cohesion+(int)((650-ds.Strain*.6-p.Exhaustion*.2-p.Cohesion)*Math.Min(.5,elapsed/50.0))));
             int idealArmy=(int)Math.Min(int.MaxValue,Math.Max(0,(account.Urban+account.Rural*.1+account.Remote*.02)*.03*p.Cohesion/1000));
             if(RevisedMilitaryHistory(s))AdvanceRevisedMilitaryReadiness(s,id,elapsed,idealArmy);else p.Army=idealArmy;

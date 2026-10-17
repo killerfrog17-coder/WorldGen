@@ -28,3 +28,14 @@ negatives. This targets regional catch-up, not a prescribed era date. It cannot
 directly accelerate the world's first rank4 using a nonexistent rank4 offer;
 more prepared recipients may nevertheless later make independent advances.
 Full-world technology spread and era pacing still need longitudinal review.
+
+The combined activated23 build also passes48 actual-world controls, documented
+in `HISTORY32_TERRITORIAL_CONTINUITY.md`. On the genuine W22 Earth checkpoint,
+current source and frozen22 both continue12 years to
+`dc558fd2554a8e32a5edf68d25b64e0e8a593ca71fad93c209600daab8afe489`.
+An explicit23 upgrade preserves all existing technical banks/ranks, people,
+town food and court treasuries. Twelve23 years equal5 years plus a full-world
+intermediate cold save/load and7 more years at
+`9c045470adfa3d2be1a67c8febebb421119af8fe15cb37ece228d272e1db019d`.
+These combined-rule compatibility and conservation checks are not an isolated
+measurement of the credit branch's effect on global era timing.

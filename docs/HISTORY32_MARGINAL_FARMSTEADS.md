@@ -46,7 +46,24 @@ particular Indian community inevitably found a civilization.
 The implementation is guarded at24 and activated for a separate fresh Earth
 replay.19,550 pure threshold/monotonicity and old-rule assertions pass.
 The initial Bronze/Iron checkpoints retain the same first-state date and
-counts as23; this is not a general early-state boost. Genuine cold continuation
-and later geography review remain in progress. A recorded contemporary gate
-and a plausible curve are not a completed fresh-history or jungle-origin
-realism result.
+counts as23; this is not a general early-state boost.
+
+Eleven actual cold-upgrade controls pass using the coherent activated
+`candidate-y24-freeze` and the actual X23 Earth final, year159300/hash
+`b4bbe7da99b2f043499ade0ae398824bc08947bf37dfeca85826525678e42a07`.
+Frozen23 and guarded24 source both continue that saved23 world12 years to
+`305b189b300f0b656571fca8c7c8b1e0c6dff8f90c2993868e3ea41fb5a07d6d`.
+The explicit24 upgrade conserves every regional raw cohort, every town's
+residents and food stock, every court treasury and all technical states.
+A full initial world save/reload and12 years versus5 years, a full
+intermediate save/reload, and7 years agree exactly at
+`553ea56edba9a4dee590b4fb88bf8ddb45d3fdaeb7da4654ab85befbefb36a9d`.
+Both final states validate their ordinary material accounts; the original23
+checkpoint remains unchanged and ordinary fresh setup selects24.
+Evidence files are `realm24-frozen23-earth12.hash`,
+`realm24-current23-earth12.hash` and the latter's `.cold.hash`, under
+`D:/WorldGenBuildArtifacts/overnight-20261017/`.
+
+Later geographical/era review remains separate. A recorded contemporary gate,
+plausible curve and cold determinism are not completed fresh-history or
+jungle-origin realism acceptance.

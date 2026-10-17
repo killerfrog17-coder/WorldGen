@@ -126,9 +126,9 @@ namespace WorldGen.Core
                 int liveSource=source;if(ProvincialFieldPower(s,winner,target,ref liveSource,winningMen)<=0)break;
                 long cost=Math.Max(1,(long)Math.Round(TerritorialPoliticalArea(target)*(1+World.Ecology.Habitat[target].ReliefM/1200.0)));
                 if(area<cost||!SpendMilitaryMarchAndSiege(s,id,winner,target,source,winningPower/Math.Max(1,losingPower)))break;
-                area-=cost;int town=a.TownAt[target];ClaimAggregatePolity(s,target,winner);theater.Cell=target;c.Conquests++;
+                area-=cost;int town=a.TownAt[target];double integrationLoad=ConquestIntegrationHistory(s)?ConquestCaptureLoad(s,winner,loser,target,source):0;ClaimAggregatePolity(s,target,winner);theater.Cell=target;c.Conquests++;
                 var cycle=h.Dynamics.States[winner].Cycle??(h.Dynamics.States[winner].Cycle=new HistoricalPoliticalCycle());
-                double debt=town>=0?90:8*inhabitableArea[target]/25000;int whole=(int)debt;
+                double debt=ConquestIntegrationHistory(s)?integrationLoad:town>=0?90:8*inhabitableArea[target]/25000;int whole=(int)debt;
                 if(ReturningFleetHistory(s)){if(HistoryRoll("military-conquest-debt-"+target,id,s.Years)<debt-whole)whole++;}
                 else whole=town>=0?90:Math.Max(1,(int)Math.Round(debt));
                 cycle.ConquestDebt=Math.Min(1000,cycle.ConquestDebt+whole);cycle.LastConquestYear=s.Years;

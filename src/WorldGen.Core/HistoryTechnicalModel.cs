@@ -73,6 +73,16 @@ namespace WorldGen.Core
         }
         public static long Cost(PrehistoryState state,int technology,int nextLevel)
         {
+            if((state?.History?.Aggregates?.Empires?.Connections?.Realms?.Version??0)>=26&&technology==(int)HistoricalTechnology.Scholasticism)
+            {
+                // Authored calibration of repeated abstract scholarly ranks,
+                // not a new funded institution or an additional urban bonus.
+                // Foundational work, the shared effort budget and every
+                // prerequisite/deployment rule remain unchanged.
+                long scholarly=costs[technology]*1000000L;for(int level=1;level<nextLevel;level++)scholarly=checked((scholarly*33+10)/20);
+                int factor=nextLevel<=1?120:nextLevel==2?85:nextLevel==3?70:60;
+                return checked((scholarly*factor+50)/100);
+            }
             if((state?.History?.Aggregates?.Empires?.Connections?.Realms?.Version??0)<5||technology!=(int)HistoricalTechnology.Iron)return Cost(technology,nextLevel,state?.History?.Version);
             // Only the repeated iron-experiment bottleneck is recalibrated.
             // Preserve every graph/practice requirement and the conserved shared

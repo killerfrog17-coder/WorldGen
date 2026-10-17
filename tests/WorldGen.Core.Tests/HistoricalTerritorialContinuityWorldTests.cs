@@ -8,6 +8,30 @@ using WorldGen.Serialization;
 public static class HistoricalTerritorialContinuityWorldTests
 {
     static object Call(Prehistory engine,string method,params object[] args)=>typeof(Prehistory).GetMethod(method,BindingFlags.Instance|BindingFlags.NonPublic)!.Invoke(engine,args)!;
+    public static void ColdUpgrade(string file,int previous,int revision,string expectedLegacy,string legacyOutput,Action<bool,string> check)
+    {
+        var world=WorldFile.Read(File.ReadAllBytes(file));var source=world.Prehistory;var engine=new Prehistory(world);engine.Validate(source);string original=source.ComputeHash();
+        check(source.History.Aggregates.Empires.Connections.Realms.Version==previous,"The cold-upgrade input retains its genuine preceding saved rule marker.");
+        check(new HistoricalRealmLifecycles().Version==revision,"The driver uses the coherent activated target assembly, not a manually forced future marker.");
+        if(File.Exists(legacyOutput)||File.Exists(legacyOutput+".cold.hash"))throw new IOException("Do not overwrite literal or cold continuation evidence.");
+        var old=engine.AdvanceYears(source,12);engine.Validate(old);File.WriteAllText(legacyOutput,old.Hash);
+        check(old.Hash==expectedLegacy,"The activated source exactly preserves the frozen preceding-rule twelve-year continuation on the identical actual checkpoint.");
+        Console.WriteLine("Literal"+previous+" +12 "+old.Hash);
+        var next=engine.UpgradeRealmLifecycles(source);engine.Validate(next);
+        check(next.History.Aggregates.Empires.Connections.Realms.Version==revision,"The public explicit upgrade opts into the target revision without changing the source marker.");
+        check(next.History.Aggregates.TotalPopulation==source.History.Aggregates.TotalPopulation&&next.Population.SequenceEqual(source.Population)&&next.Society.Settlements.Select(t=>t.Population).SequenceEqual(source.Society.Settlements.Select(t=>t.Population)),"The prospective upgrade conserves world population, every unallocated regional cohort and every town's existing residents.");
+        check(next.Society.Settlements.Select(t=>t.FoodReserve).SequenceEqual(source.Society.Settlements.Select(t=>t.FoodReserve))&&next.History.Polities.Select(p=>p.Treasury).SequenceEqual(source.History.Polities.Select(p=>p.Treasury)),"The prospective upgrade grants no food or money: every existing town stock and court treasury is unchanged.");
+        check(next.History.Cultures.Select(c=>StateHash.Compute(c.Technical)).SequenceEqual(source.History.Cultures.Select(c=>StateHash.Compute(c.Technical))),"The rule upgrade does not grant a technical rank, lesson, research credit, deployment or altered technical bank.");
+        Console.WriteLine("Upgrade conservation passed "+previous+"->"+revision);
+        world.Prehistory=next;var restored=WorldFile.Read(WorldFile.Write(world));var coldEngine=new Prehistory(restored);coldEngine.Validate(restored.Prehistory);
+        check(restored.Prehistory.Hash==next.Hash,"A genuine full-world initial cold load retains the exact upgraded checkpoint.");
+        var full=engine.AdvanceYears(next,12);var five=coldEngine.AdvanceYears(restored.Prehistory,5);restored.Prehistory=five;
+        var middle=WorldFile.Read(WorldFile.Write(restored));var other=new Prehistory(middle);var split=other.AdvanceYears(middle.Prehistory,7);engine.Validate(full);other.Validate(split);
+        check(middle.Prehistory.Hash==five.Hash&&split.Hash==full.Hash,"Twelve target-rule years exactly equal five years, a full intermediate cold world save/load, and seven further years; both final material accounts validate.");
+        check(source.ComputeHash()==original&&source.History.Aggregates.Empires.Connections.Realms.Version==previous,"Every new-rule continuation and cold save preserves the original preceding-rule checkpoint and marker.");
+        var fresh=engine.Start(engine.Prepare(source.Origin));check(fresh.History.Aggregates.Empires.Connections.Realms.Version==revision,"Fresh ordinary setup uses the activated target revision.");
+        File.WriteAllText(legacyOutput+".cold.hash",full.Hash);Console.WriteLine("Genuine"+revision+" cold12==5+save/load+7 "+full.Hash);
+    }
     public static void World(string file,string evidence,string legacyOutput,Action<bool,string> check,bool cold=true)
     {
         var world=WorldFile.Read(File.ReadAllBytes(file));var source=world.Prehistory;var engine=new Prehistory(world);engine.Validate(source);
