@@ -4,6 +4,13 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         static bool BorderContactHistory(PrehistoryState s)=>s?.History?.Aggregates?.Empires?.Connections?.Realms?.Version>=6;
+        static bool MigrantBorderHistory(PrehistoryState s)=>s?.History?.Aggregates?.Empires?.Connections?.Realms?.Version>=7;
+        int MigrantContactCell(PrehistoryState s,Route route,int region)
+        {
+            if(MigrantBorderHistory(s)&&!route.Sea)return RegionalContactCell(s,route,region);
+            int cell=route.A==region?route.CellA:route.CellB;
+            return cell>=0?cell:route.Sea&&developmentCoast[region]>=0?developmentCoast[region]:s.History.Aggregates.Regions[region].BestCell;
+        }
         int RegionalContactCell(PrehistoryState s,Route route,int region)
         {
             bool first=route.A==region;

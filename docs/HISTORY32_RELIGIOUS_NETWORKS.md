@@ -256,3 +256,163 @@ Earth200 20-year continuation exactly:
 `7e2ae002323539cd3c9aa3cc0c99fd647f56261d2554bacfa6f911d37988ec4e`.
 This compatibility comparison retains religion revision 1 rather than
 silently applying the new institution rules.
+
+## F saved-world visual and carrier audit
+
+Read-only `--religion-evidence-audit WORLD NEWFOLDER` exports actual public
+predominance beside **recorded** household traditions. Grey household cells
+mean unobserved, not unbelieving or uniform. Geometry/actor enumerations belong
+only to this explicit diagnostic, never ordinary simulation events. Run
+`node scripts/history-religion-images.mjs NEWFOLDER` to render its SVGs using
+the installed Edge browser. Screenshots and saved worlds remain external.
+
+| Saved F observation | Earth final | Continents Plus Medieval episode |
+| --- | ---: | ---: |
+| Simulation year | 180200 | 168775 |
+| Active towns | 2004 | 618 |
+| Public traditions observed in towns | 96 | 51 |
+| Supported institutions, index >=400 | 405 | 333 |
+| Towns retaining a distinct household tradition | 1176 | 254 |
+| Recorded household cells | 4075 | 1931 |
+| Currently permitted directed town-carrier links | 4440 | 1787 |
+| Of those, cross-faith links | 1590 | 525 |
+
+The CP episode is a fresh F history on accepted saved terrain, continued
+168675–168775, not an old civilization upgraded at the Medieval milestone.
+Its full native 200k run had not yet saved a final world when inspected. Source
+hashes were preserved before and after all exports:
+
+- Earth `74a2223de5ac874550624ccfdfb4ab3ff69568563bfd97d1002e2894e0fddc65`.
+- CP episode `b8082622da551e4fef8ad1736b95e0f887600ad38c244256d972daa58f8320d9`.
+
+The paired maps show coherent regional cores, unlike public/household local
+identities, and dispersed maritime satellites. They do not show wholesale
+global public convergence. CP's portable Kungnangngat has 79 towns across five
+cultures and 31 courts; 57 towns form its largest presently permitted same-faith
+town-contact component. Missionary Halhimepap has 50 towns, 45 in its largest
+such component. Sacred-place/local Gunila also has 50 towns, including 20
+supported institutions. A widely supported regional tradition therefore need
+not become missionary, and provisioned portable traditions can become large.
+
+Earth's most extensive identity, local/sacred-place Remlungsim, predominates
+in 458 towns with 21.04M urban residents, 421 towns of its founding culture,
+across 34 landmasses (including small islands). Its public layer is explicit
+in 1099 of 1101 cells; only two use culture-default fallback. The archive records
+90 diaspora events and 14 local-adoption events for it. 436 of its towns have
+an actual saved parent city whose **current** public identity is also 46;
+that is evidence of a settlement genealogy, not proof of the parent's faith
+at departure. Missionary Mone sal reaches 160 towns and 7.74M urban residents
+across ten landmasses. These population figures describe residents under a
+public predominance, never counted believers. Contemporary disconnected
+same-faith graph components cannot disprove historical migration or travel
+through communities of other traditions.
+
+A real limitation remains: one ID identifies a transmitted tradition, not a
+single centrally governed church. Remlungsim's shared color must not imply
+that hundreds of independent ritual houses obey one global priesthood.
+No such common religious government is modeled. Later local institutional
+affiliations or reforms should arise from recorded patronage, contact and
+dispute, not mandatory geographical splits or a global religion quota.
+F records 13 Earth/eight CP syntheses, but neither sample records a schism or
+ethical-renewal event. Their causal branches are not demonstrated by these
+longitudinal samples and should not be described as common observed outcomes.
+
+External paired images: `religion-evidence-f-earth200/comparison.png` and
+`religion-evidence-f-cp-medieval/comparison.png`, under
+`D:/WorldGenBuildArtifacts/overnight-20261017/`. Richer parent/review-date/event
+exports use the corresponding `religion-evidence2-f-*` directories.
+
+## Diagnosed city clock and prospective revision8
+
+The independent audit found a concrete actor-clock defect, not simply poor
+modern funding. `AdvanceReligiousNetworks` selected one town per culture event.
+A culture with hundreds of towns could leave particular ritual houses
+unreviewed for millennia. Same-faith contact returns without reviewing either
+community, so coherent same-faith regions cannot rely on rival visitors to
+incidentally maintain their institutions.
+
+| Saved review age, years | Earth | CP Medieval |
+| --- | ---: | ---: |
+| Median | 358 | 441 |
+| 90th percentile | 1155 | 1853 |
+| Maximum | 5216 | 4229 |
+| Towns more than 100 years since review | 1469 | 477 |
+| Towns more than 500 years since review | 822 | 294 |
+| Currently affordable next-ten-year institutions below 400 support | 397 | 181 |
+
+Current affordability is not a historical payment ledger, so it cannot prove
+all those towns were continuously able to fund institutions. The dates and
+active call path nevertheless establish that local upkeep was culture-sample
+starved. It also delayed or lumped local public-adoption/renewal decisions.
+
+Authorized revision8 places one guarded local review on the existing city
+event, using the same saved review date as contact/culture callers and a
+minimum ten-year interval. It does not add a queue, per-state/culture census,
+automatic visitor, free food, unconditional missionary institution, or global
+religion target. Rural actual-contact reviews continue separately. All
+existing religious costs and local reception tests remain in force.
+Explicit pre-8 upgrade rebases live-town clocks once without retroactive
+century invoices; names, households, current support and contacts survive.
+Realm7 and earlier retain their exact preceding event behavior.
+
+### Revision8 checks and actual twelve-year maps
+
+`--religion-city-clocks-world WORLD [NEWOUTPUT]` passed 21 actual-world checks
+on each of the saved F Earth final and F CP Medieval fixtures. The existing
+35 focused religion checks also passed. The actual multi-city controlled
+fixtures address 12 already existing towns of the same culture: a nine-year
+negative guard, exact real ten-year food debits, no double charge from a second
+city/contact/culture call, a second due invoice, no created inhabitants or
+treasury, unchanged abandoned towns, and unaffected one-year rural reviews.
+Explicit migration preserves identities/support and charges nothing; a second
+upgrade is idempotent. Full validated save/load and cold 5+7-year continuation
+equal the complete twelve-year run, and every surviving pre-existing town
+actually completes a new review. Source hashes remain unchanged.
+
+Actual post-upgrade exports, not fabricated expected maps:
+
+| Twelve-year observation | Earth 180200–180212 | CP 168775–168787 |
+| --- | ---: | ---: |
+| Surviving original towns | 2000 | 618 |
+| All living towns at end | 2020 | 621 |
+| Median review age, surviving original towns | 2 | 2 |
+| Maximum review age, all living towns | 9 | 8 |
+| Original institutions with increased support | 578 | 324 |
+| Original institutions with decreased support | 496 | 120 |
+| Support >=400, surviving original cohort, before→after | 403→389 | 333→334 |
+| Zero support, surviving original cohort, before→after | 1197→827 | 198→62 |
+
+Thus timely review is not an unconditional institution upgrade: actual
+unfunded institutions decline. Paired opaque maps retain regional cores,
+household/public differences and diaspora satellites. They show no sudden
+global convergence over twelve years. This is a saved-world upgraded
+continuation, not a fresh long-world calibration or an isolated intervention;
+other explicitly selected realm8 rules also apply.
+
+External folders `religion-clock8-earth200-12` and
+`religion-clock8-cp-medieval-12` contain `review-ages.json`, `public.svg`,
+`household.svg` and rendered `comparison.png`. Endpoint hashes:
+
+- Earth `935795f9849ec20376095088c41b668db6f520965fb628ae7e33062a3510c7f6`.
+- CP `5884a115a1ba0e04aa971722295b4d01c5bd1440da05e31c6c78eff1b6e63429`.
+
+Literal old-rule continuations were compared against named frozen native
+executables, not merely two runs of current source:
+
+- Realm7 CP twelve years: frozen `candidate-g7-freeze` and current source both
+  `4a5a9e69e26819ef5aa248864384a495294eaca9494541309e6b0d0691270673`.
+  Input `religion-clock-old7-cp-medieval.world` was created by that frozen G7
+  executable's explicit upgrade of the F CP episode. Named outputs are
+  `religion-clock-frozen-old7-cp12.hash` and
+  `religion-clock-current-old7-cp12.hash`.
+- Realm5 Earth twenty years: frozen `candidate-e-final-bin` and current source
+  both `5d9abdbe27ba63a32b0f9e24f71177ac35c0e73081c89de16d77594b39ba2882`.
+  Input `candidate-e-earth200/final.world`; named outputs are
+  `religion-clock-frozen-old5-earth20.hash` and
+  `religion-clock-current-old5-earth20.hash`.
+
+All named artifacts are under
+`D:/WorldGenBuildArtifacts/overnight-20261017/`, outside source control.
+The claimant archive's displaced-before-own-successor wording remains queued
+for a separately scoped transition-context fix; this clock change does not
+silently alter old political narratives or physics.

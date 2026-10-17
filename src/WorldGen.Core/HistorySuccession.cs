@@ -63,7 +63,7 @@ namespace WorldGen.Core
             // The separation uses an existing populated city and disjoint hinterland;
             // no new inhabitants, food reserves, treasury or army are conjured.
             int a=Math.Min(p.Id,newId),b=Math.Max(p.Id,newId);var relation=new HistoricalRelation{A=a,B=b,Trust=-70,WarSince=s.Years};
-            h.Relations=h.Relations.Concat(new[]{relation}).ToArray();
+            h.Relations.Add(relation);
             BeginCivicCampaign(s,relation,p.Id,HistoricalWarAim.Reunification);
         }
         void RefreshSplitPolityTotals(PrehistoryState s,int parent,int child,System.Threading.CancellationToken token=default)

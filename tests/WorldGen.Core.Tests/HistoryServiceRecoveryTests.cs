@@ -6,6 +6,7 @@ public static class HistoryServiceRecoveryTests
 {
     public static void Run(Action<bool,string> check)
     {
+        HistoryServiceCursorBufferTests.Run(check);
         foreach(int source in new[]{0,1,1000000,-2,-3,-1000002})check(HistoricalServiceRecoveryEffects.Source(HistoricalServiceRecoveryEffects.Key(source))==source,"City and retired post source keys round-trip without collision.");
         check(HistoricalServiceRecoveryEffects.Key(-1)==-1,"Absent service has no queued source identity.");
         check(HistoricalServiceRecoveryEffects.Credit(0,0,1000000)==0,"Repeated same-year events cannot accelerate physical retreat.");

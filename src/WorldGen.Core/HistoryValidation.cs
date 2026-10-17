@@ -93,13 +93,13 @@ namespace WorldGen.Core
                 Require(d.Campaigns.All(c=>Enum.IsDefined(typeof(HistoricalWarAim),c.Aim)&&c.Repulses>=0&&c.Spoils>=0&&c.TributePaid>=0&&(c.TributePaid==0?c.TributeRecipientId==-1:c.EndedYear>=0&&(c.TributeRecipientId==c.A||c.TributeRecipientId==c.B))),"campaign settlement");
                 Require(d.Campaigns.All(c=>string.IsNullOrEmpty(c.Context)||DelegatedHistory(s)&&c.Context.Length<=2000),"campaign context version");
                 Require(d.Leaders.Where(l=>l.EndedYear<0).All(l=>h.Polities[l.PolityId].EndedYear<0&&d.States[l.PolityId].LeaderId==l.Id&&l.ExpectedEndYear>s.Years),"orphaned active leader");
-                Require(d.Campaigns.Where(c=>c.EndedYear<0).All(c=>h.Polities[c.A].EndedYear<0&&h.Polities[c.B].EndedYear<0&&h.Relations.Any(r=>r.A==c.A&&r.B==c.B&&r.WarSince>=0)),"orphaned campaign");
+                Require(d.Campaigns.Where(c=>c.EndedYear<0).All(c=>h.Polities[c.A].EndedYear<0&&h.Polities[c.B].EndedYear<0&&h.Relations.ReadOnlyValues().Any(r=>r.A==c.A&&r.B==c.B&&r.WarSince>=0)),"orphaned campaign");
                 Require(d.Dependencies!=null&&(ExperimentalHistory(s)||d.Dependencies.Length==0),"dependency version");
                 for(int i=0;i<d.Dependencies.Length;i++)
                 {
                     var dependency=d.Dependencies[i];
                     Require(dependency!=null&&dependency.Id==i&&dependency.PatronId>=0&&dependency.PatronId<h.Polities.Length&&dependency.ClientId>=0&&dependency.ClientId<h.Polities.Length&&dependency.PatronId!=dependency.ClientId&&dependency.StartedYear<=s.Years&&(dependency.EndedYear<0||dependency.EndedYear>=dependency.StartedYear&&dependency.EndedYear<=s.Years)&&dependency.LastReachableYear>=dependency.StartedYear&&dependency.LastReachableYear<=s.Years&&dependency.AnnualQuota>=25&&dependency.AnnualQuota<=5000&&dependency.TotalPaid>=0&&dependency.ArrearsYears>=0&&dependency.ArrearsYears<=100,"dependency record");
-                    if(dependency.EndedYear<0)Require(h.Polities[dependency.PatronId].EndedYear<0&&h.Polities[dependency.ClientId].EndedYear<0&&!HistoricalClientEffects.WouldCycle(d.Dependencies,dependency.PatronId,dependency.ClientId)&&h.Relations.Any(r=>r.A==Math.Min(dependency.PatronId,dependency.ClientId)&&r.B==Math.Max(dependency.PatronId,dependency.ClientId)&&r.WarSince<0),"orphaned or cyclic dependency");
+                    if(dependency.EndedYear<0)Require(h.Polities[dependency.PatronId].EndedYear<0&&h.Polities[dependency.ClientId].EndedYear<0&&!HistoricalClientEffects.WouldCycle(d.Dependencies,dependency.PatronId,dependency.ClientId)&&h.Relations.ReadOnlyValues().Any(r=>r.A==Math.Min(dependency.PatronId,dependency.ClientId)&&r.B==Math.Max(dependency.PatronId,dependency.ClientId)&&r.WarSince<0),"orphaned or cyclic dependency");
                 }
                 Require(d.Dependencies.Where(x=>x.EndedYear<0).Select(x=>x.ClientId).Distinct().Count()==d.Dependencies.Count(x=>x.EndedYear<0),"multiple overlords");
                 foreach(var leader in d.Leaders)
@@ -182,8 +182,8 @@ var c=h.Cultures[i];Require(c.Id==i&&c.ReligionId>=0&&c.ReligionId<h.Religions.L
                 if(town.DiseaseWaveId>0)Require(h.Archive[town.DiseaseWaveId-1].Kind=="epidemic"||h.Archive[town.DiseaseWaveId-1].Kind=="major-epidemic","disease wave origin");
                 if(!ExperimentalHistory(s))Require(town.LastHarvestHazard==HarvestHazard.None&&town.LastHarvestHazardYear==0&&town.ShortageYears==0&&town.ImportedFood==0&&town.ExportedFood==0&&town.FoodTransportLoss==0&&town.DiseaseDeaths==0&&town.DiseaseKind==HistoricalDiseaseKind.None&&town.DiseaseMortalityPermille==0&&town.DiseaseWaveId==0&&town.KindImmunity==null,"resilience version");
             }
-            Require(h.Relations.Select(r=>(r.A,r.B)).Distinct().Count()==h.Relations.Length,"duplicate relations");
-            foreach(var r in h.Relations)Require(r.A>=0&&r.A<r.B&&r.B<h.Polities.Length&&r.Trust>=-100&&r.Trust<=100&&r.WarSince<=s.Years&&!(r.WarSince>=0&&(r.Trade||r.Alliance)),"diplomatic relation");
+            Require(h.Relations.ReadOnlyValues().Select(r=>(r.A,r.B)).Distinct().Count()==h.Relations.Length,"duplicate relations");
+            foreach(var r in h.Relations.ReadOnlyValues())Require(r.A>=0&&r.A<r.B&&r.B<h.Polities.Length&&r.Trust>=-100&&r.Trust<=100&&r.WarSince<=s.Years&&!(r.WarSince>=0&&(r.Trade||r.Alliance)),"diplomatic relation");
             for(int i=0;i<h.Archive.Count;i++){var e=h.Archive[i];Require(e.Id==i&&e.Year<=s.Years&&(i==0||e.Year>=h.Archive[i-1].Year)&&e.Cell>=-1&&e.Cell<n&&e.CultureId>=-1&&e.CultureId<h.Cultures.Length&&e.PolityId>=-1&&e.PolityId<h.Polities.Length&&e.OtherPolityId>=-1&&e.OtherPolityId<h.Polities.Length&&e.SettlementId>=-1&&e.SettlementId<h.Towns.Length&&e.ReligionId>=-1&&e.ReligionId<h.Religions.Length,"archive linkage");}
         }
     }

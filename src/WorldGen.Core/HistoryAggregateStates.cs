@@ -9,12 +9,12 @@ namespace WorldGen.Core
         readonly HashSet<(int,int)> aggregateShipping=new HashSet<(int,int)>();
         string aggregateRelationCheckpoint;
         void PrepareAggregateRelations(PrehistoryState source)
-        {if(aggregateRelationCheckpoint==source.Hash)return;aggregateRelations.Clear();aggregateShipping.Clear();foreach(var link in source.History.Modern.Shipping)aggregateShipping.Add((link.PortA,link.PortB));for(int i=0;i<source.History.Relations.Length;i++)aggregateRelations[(source.History.Relations[i].A,source.History.Relations[i].B)]=i;aggregateRelationCheckpoint=source.Hash;}
+        {if(aggregateRelationCheckpoint==source.Hash)return;aggregateRelations.Clear();aggregateShipping.Clear();foreach(var link in source.History.Modern.Shipping)aggregateShipping.Add((link.PortA,link.PortB));for(int i=0;i<source.History.Relations.Length;i++){var record=source.History.Relations.Peek(i);aggregateRelations[(record.A,record.B)]=i;}aggregateRelationCheckpoint=source.Hash;}
         HistoricalRelation AggregateRelation(PrehistoryState s,int first,int second)
         {
             int low=Math.Min(first,second),high=Math.Max(first,second);var key=(low,high);var h=s.History;
             if(aggregateRelations.TryGetValue(key,out int at)&&at<h.Relations.Length&&h.Relations[at].A==low&&h.Relations[at].B==high)return h.Relations[at];
-            var r=new HistoricalRelation{A=low,B=high};int relation=h.Relations.Length;aggregateRelations[key]=relation;h.Relations=h.Relations.Concat(new[]{r}).ToArray();RememberInternationalRelation(s,relation);return r;
+            var r=new HistoricalRelation{A=low,B=high};int relation=h.Relations.Length;aggregateRelations[key]=relation;h.Relations.Add(r);RememberInternationalRelation(s,relation);return r;
         }
         void FoundAggregateState(PrehistoryState s,int city,int parent)=>FoundAggregateStateKind(s,city,parent,null);
         void FoundAggregateStateKind(PrehistoryState s,int city,int parent,string foundationKind)

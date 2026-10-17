@@ -165,9 +165,9 @@ namespace WorldGen.Core
             if(CellPatch[cell]<0||HistoricalCells.Culture(s,cell)<0)return;
             culture=HistoricalCells.Culture(s,cell);
             TouchReligiousCommunity(s,cell);var h=s.History;var r=h.Aggregates.Empires.Connections.Religion;
-            int reviewed=r.Read(cell,FaithReviewed),elapsed=s.Years-reviewed;if(elapsed<=0)return;
-            r.Write(cell,FaithReviewed,s.Years);
             if(city<0)city=h.Aggregates.TownAt[cell];
+            int reviewed=r.Read(cell,FaithReviewed),elapsed=s.Years-reviewed;if(elapsed<=0||LocalReligiousCityHistory(s)&&city>=0&&elapsed<10)return;
+            r.Write(cell,FaithReviewed,s.Years);
             int incumbent=HistoricalCells.Religion(s,cell);if(incumbent<0)return;
             int owner=HistoricalCells.Polity(s,cell),tolerance=700,policy=0;
             if(owner>=0){EnsureReligiousPolicy(s,owner);policy=r.Policies[owner*4+1];tolerance=policy==2?180:policy==1?650:950;}

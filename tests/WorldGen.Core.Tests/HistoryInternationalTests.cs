@@ -36,7 +36,7 @@ public static class HistoryInternationalTests
             if(town<0)throw new InvalidOperationException("International fixture needs two states or an existing unruled town.");
             Call(engine,"FoundAggregateState",s,town,-1);active=h.Polities.Where(p=>p.EndedYear<0&&h.Aggregates.Polities[p.Id].Cities.Count>0).Take(2).ToArray();
         }
-        int a=active[0].Id,b=active[1].Id;var relation=(HistoricalRelation)Call(engine,"AggregateRelation",s,a,b)!;int ri=Array.IndexOf(h.Relations,relation);
+        int a=active[0].Id,b=active[1].Id;var relation=(HistoricalRelation)Call(engine,"AggregateRelation",s,a,b)!;int ri=h.Relations.IndexOf(relation);
         check(system.Accounts[a].Relations.Positions[ri]>=0&&system.Accounts[b].Relations.Positions[ri]>=0,"A real created contact is indexed for both actors without a world search");
         relation.Trade=true;relation.Trust=80;
         foreach(int state in new[]{a,b})
@@ -88,7 +88,7 @@ public static class HistoryInternationalTests
         if(ruler<0)throw new InvalidOperationException("Continuity fixture needs a live polity with a suitable deterministic contested-succession roll.");
         int opponent=continuity.History.Polities.First(p=>p.EndedYear<0&&p.Id!=ruler&&continuity.History.Aggregates.Polities[p.Id].Cities.Count>0).Id;
         var ch=continuity.History;var cq=new SimulationEventQueue(continuity.Timeline.Events);queueField.SetValue(continuityEngine,cq);var cr=(HistoricalRelation)Call(continuityEngine,"AggregateRelation",continuity,ruler,opponent)!;
-        int warIndex=ch.International!.RelationCampaigns[Array.IndexOf(ch.Relations,cr)];
+        int warIndex=ch.International!.RelationCampaigns[ch.Relations.IndexOf(cr)];
         if(warIndex<0||ch.Dynamics.Campaigns[warIndex].EndedYear>=0)
         {warIndex=ch.Dynamics.Campaigns.Length;Call(continuityEngine,"BeginAggregateCampaign",continuity,ruler,opponent,cr,continuity.Society.Settlements[ch.Polities[opponent].CapitalId].Cell);}
         var ongoing=ch.Dynamics.Campaigns[warIndex];int started=ongoing.StartedYear;var theater=ch.Aggregates.Provinces.Theaters[warIndex];

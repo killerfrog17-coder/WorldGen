@@ -18,10 +18,10 @@ namespace WorldGen.Core
             =>WorkObserver==null?null:new WorkMeasurement(WorkObserver,stage,items);
         sealed class WorkMeasurement:IDisposable
         {
-            readonly Action<SimulationWorkMetric> observer;readonly string stage;readonly int items;readonly long started;
+            readonly Action<SimulationWorkMetric> observer;readonly string stage;readonly int items;readonly long started,allocated;
             public WorkMeasurement(Action<SimulationWorkMetric> observer,string stage,int items)
-            {this.observer=observer;this.stage=stage;this.items=items;started=Stopwatch.GetTimestamp();}
-            public void Dispose()=>observer(new SimulationWorkMetric{Stage=stage,Items=items,Milliseconds=(Stopwatch.GetTimestamp()-started)*1000.0/Stopwatch.Frequency});
+            {this.observer=observer;this.stage=stage;this.items=items;started=Stopwatch.GetTimestamp();allocated=GC.GetAllocatedBytesForCurrentThread();}
+            public void Dispose()=>observer(new SimulationWorkMetric{Stage=stage,Items=items,Milliseconds=(Stopwatch.GetTimestamp()-started)*1000.0/Stopwatch.Frequency,AllocatedBytes=GC.GetAllocatedBytesForCurrentThread()-allocated});
         }
     }
 }

@@ -53,7 +53,7 @@ namespace WorldGen.Core
                 newCourt.Army=(int)HistoricalSuccessionEffects.DivideFunds(oldArmy,newCourt.Population,court.Population+newCourt.Population);court.Army=oldArmy-newCourt.Army;
                 record.AutonomyPressure=0;record.UnrestPolityId=child;
                 HistoryEvent(s,"provincial-revolt",s.Society.Cultures[town.CultureId].Name+" councils at "+town.Name+" establish an autonomous court against "+court.Name+"; their existing residents and institutions form its base.",town.Cell,town.CultureId,child,owner,town.Id,category:ChronicleCategory.Politics);
-                int a=Math.Min(owner,child),b=Math.Max(owner,child);var relation=new HistoricalRelation{A=a,B=b,Trust=-65,WarSince=s.Years};h.Relations=h.Relations.Concat(new[]{relation}).ToArray();
+                int a=Math.Min(owner,child),b=Math.Max(owner,child);var relation=new HistoricalRelation{A=a,B=b,Trust=-65,WarSince=s.Years};h.Relations.Add(relation);
                 BeginCivicCampaign(s,relation,owner,HistoricalWarAim.Reunification);
             }
         }

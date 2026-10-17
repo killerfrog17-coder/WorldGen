@@ -31,6 +31,9 @@ public static class HistoryLandContactTests
         var sample=land.OrderByDescending(r=>D.Angle(world.Surface.Cells[current.History.Aggregates.Regions[r.A].BestCell].Position,world.Surface.Cells[current.History.Aggregates.Regions[r.B].BestCell].Position)).First();
         check(Endpoint(legacy,sample,sample.A)==legacy.History.Aggregates.Regions[sample.A].BestCell,"Revision5 continues using its recorded center-based rules");
         check(Endpoint(current,sample,sample.A)==sample.LandCellA&&Endpoint(current,sample,sample.B)==sample.LandCellB,"Revision6 explicitly uses the actual meeting border");
+        var preceding=current.Copy();preceding.History.Aggregates.Empires.Connections.Realms.Version=6;
+        check((int)Invoke("MigrantContactCell",preceding,sample,sample.B)==preceding.History.Aggregates.Regions[sample.B].BestCell,"Revision6 retains its old land-migrant center fallback");
+        check((int)Invoke("MigrantContactCell",current,sample,sample.B)==sample.LandCellB,"Revision7 migrants retain the actual destination cell needed to carry their local crop tradition");
         int culture=source.History.Polities[0].CultureId;
         double effort=(double)Invoke("RegionalLandRelayDistance",current,sample,culture,sample.A,sample.B,sample.LandCellA,sample.LandCellB);
         double direct=D.Angle(world.Surface.Cells[current.History.Aggregates.Regions[sample.A].BestCell].Position,world.Surface.Cells[current.History.Aggregates.Regions[sample.B].BestCell].Position)*world.Recipe.RadiusKm;

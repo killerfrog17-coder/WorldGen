@@ -78,7 +78,7 @@ namespace WorldGen.Core
         public HistoricalCulture[] Cultures=Array.Empty<HistoricalCulture>();
         public HistoricalReligion[] Religions=Array.Empty<HistoricalReligion>();
         public HistoricalPolity[] Polities=Array.Empty<HistoricalPolity>();
-        public HistoricalRelation[] Relations=Array.Empty<HistoricalRelation>();
+        public HistoricalRelationCollection Relations=new HistoricalRelationCollection();
         public HistoricalTown[] Towns=Array.Empty<HistoricalTown>();
         [System.Runtime.Serialization.OptionalField] public HistoricalAgriculture[] Agriculture=Array.Empty<HistoricalAgriculture>();
         [System.Runtime.Serialization.OptionalField] public HistoricalDynamics Dynamics=new HistoricalDynamics();
@@ -98,7 +98,7 @@ namespace WorldGen.Core
         public HistoricalEventArchive Archive=new HistoricalEventArchive();
         public HistoryState Copy()=>CopyRecords(false);
         internal HistoryState CopyOwned()=>CopyRecords(true);
-        HistoryState CopyRecords(bool owned)=>new HistoryState{Version=Version,CellPolity=(int[])CellPolity.Clone(),CellReligion=(int[])CellReligion.Clone(),CellStage=(int[])CellStage.Clone(),CellMarket=(int[])CellMarket.Clone(),Cultures=Cultures.Select(c=>c.Copy()).ToArray(),Religions=Religions.Select(r=>r.Copy()).ToArray(),Towns=Towns.Select(t=>owned&&Aggregates?.Living?.Cities[t.Id].AbandonedYear>=0?t:t.Copy()).ToArray(),Polities=Polities.Select(p=>owned&&p.EndedYear>=0?p:p.Copy()).ToArray(),Relations=Relations.Select(r=>r.Copy()).ToArray(),Agriculture=Agriculture?.Select(a=>a.Copy()).ToArray(),Dynamics=owned?Dynamics?.CopyOwned(Polities):Dynamics?.Copy(),Faith=Faith?.Copy(),RegionalLearning=RegionalLearning?.Copy(),Administration=Administration?.Copy(),OceanSettlements=OceanSettlements?.Select(v=>v.Copy()).ToArray(),Modern=Modern?.Copy(),Aggregates=Aggregates?.Copy(),Languages=Languages?.Copy(),OriginReach=OriginReach?.Copy(),Nuclear=Nuclear?.Copy(),International=International?.Copy(),ReceiverFrontier=ReceiverFrontier?.Copy(),RegionalTraditions=RegionalTraditions?.Copy(),Archive=Archive.Fork(!owned)};
+        HistoryState CopyRecords(bool owned)=>new HistoryState{Version=Version,CellPolity=(int[])CellPolity.Clone(),CellReligion=(int[])CellReligion.Clone(),CellStage=(int[])CellStage.Clone(),CellMarket=(int[])CellMarket.Clone(),Cultures=Cultures.Select(c=>c.Copy()).ToArray(),Religions=Religions.Select(r=>r.Copy()).ToArray(),Towns=Towns.Select(t=>owned&&Aggregates?.Living?.Cities[t.Id].AbandonedYear>=0?t:t.Copy()).ToArray(),Polities=Polities.Select(p=>owned&&p.EndedYear>=0?p:p.Copy()).ToArray(),Relations=Relations.Fork(),Agriculture=Agriculture?.Select(a=>a.Copy()).ToArray(),Dynamics=owned?Dynamics?.CopyOwned(Polities):Dynamics?.Copy(),Faith=Faith?.Copy(),RegionalLearning=RegionalLearning?.Copy(),Administration=Administration?.Copy(),OceanSettlements=OceanSettlements?.Select(v=>v.Copy()).ToArray(),Modern=Modern?.Copy(),Aggregates=Aggregates?.Copy(),Languages=Languages?.Copy(),OriginReach=OriginReach?.Copy(),Nuclear=Nuclear?.Copy(),International=International?.Copy(),ReceiverFrontier=ReceiverFrontier?.Copy(),RegionalTraditions=RegionalTraditions?.Copy(),Archive=Archive.Fork(!owned)};
     }
     public static class HistoricalTechnologies
     {

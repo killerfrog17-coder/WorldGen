@@ -93,9 +93,9 @@ namespace WorldGen.Core
                 if(sourceTown>=0)
                 {var town=s.Society.Settlements[sourceTown];var farms=a.Cities[sourceTown];ChangeAggregateCityPopulation(s,sourceTown,town.Population,farms.Suburban,farms.Rural-migrants);a.TotalPopulation+=migrants;}
                 else if(sourceState>=0){a.Polities[sourceState].Remote-=migrants;h.Polities[sourceState].Population-=migrants;s.Society.Cultures[h.Polities[sourceState].CultureId].Population=Math.Max(0,s.Society.Cultures[h.Polities[sourceState].CultureId].Population-migrants);}
-                else s.Population[region]-=migrants;
+                else {s.Population[region]-=migrants;if(MigrantDemographyHistory(s))ChangeRegionalCultureCount(s,region,-migrants);}
                 if(destinationState>=0){a.Polities[destinationState].Remote+=migrants;h.Polities[destinationState].Population+=migrants;s.Society.Cultures[h.Polities[destinationState].CultureId].Population+=migrants;}
-                else s.Population[to]+=migrants;
+                else {s.Population[to]+=migrants;if(MigrantDemographyHistory(s))ChangeRegionalCultureCount(s,to,migrants);}
                 if(s.ArrivalYear[to]<0)s.ArrivalYear[to]=s.Years;
                 if(LivingWorldHistory(s))MixHumanVariation(s,sourceTown>=0?CellPatch[s.Society.Settlements[sourceTown].Cell]:region,to,migrants,destination);
                 else for(int g=0;g<8;g++)s.Ancestry[to*8+g]=(int)((s.Ancestry[to*8+g]*destination+s.Ancestry[region*8+g]*migrants)/Math.Max(1,destination+migrants));

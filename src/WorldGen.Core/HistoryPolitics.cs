@@ -239,7 +239,7 @@ namespace WorldGen.Core
                 var pa=active[a];var pb=active[b];int ca=towns[pa.CapitalId].Cell,cb=towns[pb.CapitalId].Cell;
                 if(D.Angle(World.Surface.Cells[ca].Position,World.Surface.Cells[cb].Position)*World.Recipe.RadiusKm<500&&ReachableHistoricalContact(s,ca,cb,pa.CultureId,token))pairs.Add((pa.Id,pb.Id));
             }
-            foreach(var pair in pairs)if(!h.Relations.Any(r=>r.A==pair.Item1&&r.B==pair.Item2))h.Relations=h.Relations.Concat(new[]{new HistoricalRelation{A=pair.Item1,B=pair.Item2}}).ToArray();
+            foreach(var pair in pairs)if(!h.Relations.Any(r=>r.A==pair.Item1&&r.B==pair.Item2))h.Relations.Add(new HistoricalRelation{A=pair.Item1,B=pair.Item2});
             foreach(var r in h.Relations.OrderBy(r=>r.A).ThenBy(r=>r.B))
             {
                 var a=h.Polities[r.A];var b=h.Polities[r.B];if(a.EndedYear>=0||b.EndedYear>=0)continue;

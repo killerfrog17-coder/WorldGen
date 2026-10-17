@@ -122,7 +122,7 @@ public static class HistoryModernTests
         check(ReferenceEquals(Lookup(),relation),"Relation indexing preserves unordered pair lookup and exact first-record identity");
         relation.WarSince=relationProbe.Years;relation.LastBattle=relationProbe.Years;
         check(Lookup().WarSince==relationProbe.Years&&Lookup().LastBattle==relationProbe.Years,"Live war and battle changes are not cached as stale diplomatic verdicts");
-        var replaced=relation.Copy();replaced.WarSince=-1;relationProbe.History.Relations=(HistoricalRelation[])relationProbe.History.Relations.Clone();relationProbe.History.Relations[Array.IndexOf(relationProbe.History.Relations,relation)]=replaced;
+        var replaced=relation.Copy();replaced.WarSince=-1;int replacementIndex=relationProbe.History.Relations.IndexOf(relation);relationProbe.History.Relations=relationProbe.History.Relations.Copy();relationProbe.History.Relations[replacementIndex]=replaced;
         check(ReferenceEquals(Lookup(),replaced),"Replacing a relationship array invalidates its derived lookup immediately");
         var pairRoll=typeof(Prehistory).GetMethod("HistoryPairRoll",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!;
         double Pair(int a,int b)=>(double)pairRoll.Invoke(engine,new object[]{high,"decision-probe",a,b})!;

@@ -134,30 +134,40 @@ namespace WorldGen.Core
                 r.LastReviewYear=r.LastReviewYear.With(key,s.Years);r.CreditKm2=r.CreditKm2.With(key,credit);
                 if(bag.Count==0&&area>0){int anchor=TerritorialNodeCell(s,source);if(a.Empires.Territories.Sources[anchor]==source)bag.Add(anchor);}
                 int visits=Math.Min(background?2:8,bag.Count);
-                for(int k=0;k<visits&&bag.Count>0;k++)
+                // No nested service operation reads this cursor: queuing an
+                // already-pending source only resets Reviewed. Keep each
+                // modulo/removal decision identical, but publish the final
+                // value once instead of cloning a radix path for every cell.
+                // Finally also preserves the old completed prefix on failure.
+                int cursorValue=r.Cursor[key];bool cursorTouched=false;
+                try
                 {
-                    int cursor=Math.Max(0,r.Cursor[key])%bag.Count,cell=bag.At(cursor);r.Cursor=r.Cursor.With(key,cursor+1);
-                    if(a.Empires.Territories.Sources[cell]!=source){bag.Remove(cell);r.Reviewed=r.Reviewed.With(key,0);continue;}
-                    int owner=HistoricalCells.Polity(s,cell);
-                    if(ServiceSourceStructurallyLive(s,owner,source)){r.Reviewed=r.Reviewed.With(key,Math.Max(0,r.Reviewed[key])+1);continue;}
-                    r.Reviewed=r.Reviewed.With(key,0);int cost=(int)Math.Min(int.MaxValue,Math.Max(1,Math.Round(TerritorialPoliticalArea(cell))));
-                    if(credit<cost)continue;
-                    int replacement=-1,town=a.TownAt[cell];
-                    if(owner>=0)
+                    for(int k=0;k<visits&&bag.Count>0;k++)
                     {
-                        if(town>=0&&a.Living.Cities[town].AbandonedYear<0&&a.Resolve(s.Society.Settlements[town].PolityId,s.History)==owner)replacement=town;
-                        else replacement=TerritorialServiceSource(s,owner,cell);
-                    }
-                    credit-=cost;r.CreditKm2=r.CreditKm2.With(key,credit);
-                    if(replacement!= -1){AssignTerritorialSource(s,cell,replacement);r.ReassignedCells++;}
-                    else
-                    {
-                        // Claims and cultures are independent ledgers. Releasing
-                        // control only transfers the real rural cohort locally.
-                        if(owner>=0)ClaimAggregatePolity(s,cell,-1);else AssignTerritorialSource(s,cell,-1);
-                        r.WithdrawnCells++;r.WithdrawnKm2+=cost;
+                        int cursor=Math.Max(0,cursorValue)%bag.Count,cell=bag.At(cursor);cursorValue=cursor+1;cursorTouched=true;
+                        if(a.Empires.Territories.Sources[cell]!=source){bag.Remove(cell);r.Reviewed=r.Reviewed.With(key,0);continue;}
+                        int owner=HistoricalCells.Polity(s,cell);
+                        if(ServiceSourceStructurallyLive(s,owner,source)){r.Reviewed=r.Reviewed.With(key,Math.Max(0,r.Reviewed[key])+1);continue;}
+                        r.Reviewed=r.Reviewed.With(key,0);int cost=(int)Math.Min(int.MaxValue,Math.Max(1,Math.Round(TerritorialPoliticalArea(cell))));
+                        if(credit<cost)continue;
+                        int replacement=-1,town=a.TownAt[cell];
+                        if(owner>=0)
+                        {
+                            if(town>=0&&a.Living.Cities[town].AbandonedYear<0&&a.Resolve(s.Society.Settlements[town].PolityId,s.History)==owner)replacement=town;
+                            else replacement=TerritorialServiceSource(s,owner,cell);
+                        }
+                        credit-=cost;r.CreditKm2=r.CreditKm2.With(key,credit);
+                        if(replacement!= -1){AssignTerritorialSource(s,cell,replacement);r.ReassignedCells++;}
+                        else
+                        {
+                            // Claims and cultures are independent ledgers. Releasing
+                            // control only transfers the real rural cohort locally.
+                            if(owner>=0)ClaimAggregatePolity(s,cell,-1);else AssignTerritorialSource(s,cell,-1);
+                            r.WithdrawnCells++;r.WithdrawnKm2+=cost;
+                        }
                     }
                 }
+                finally {if(cursorTouched)r.Cursor=r.Cursor.With(key,cursorValue);}
                 if(bag.Count==0||r.Reviewed[key]>=bag.Count){r.PendingSources.Remove(key);r.Reviewed=r.Reviewed.With(key,0);}
                 else r.PendingCursor++;
             }

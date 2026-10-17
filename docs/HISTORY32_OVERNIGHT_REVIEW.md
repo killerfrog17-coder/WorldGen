@@ -53,6 +53,59 @@ minimum rolling1.77yr/s, worst2042.54ms. State/region/sea actor work and
 checkpoint/publication allocation are measured follow-up targets; do not
 regain speed by undoing conserved large-city survival.
 
+## Source revisions7–8 / candidates G–H
+
+Revision7 fixes a second, independently confirmed missing-land-endpoint path:
+actual migrating farmers previously moved people but could never enter the
+ordinary land descendant-inheritance branch (`site` remained−1). New arrivals
+use their real border site, retain viable carried crops and local ancestry,
+and do not automatically obtain a town or country. A small anonymous district
+already at its foraging limit can admit at most500 additional migrants using
+actually viable free border fields, not imaginary whole-region farms.
+Frozen G Earth completed176100, including1057years after first maximum
+technology175043. Its archive contains218 actual migrant-community births
+versus F's1, but none were in Europe/West-Central-SouthAsia. This remains an
+explicit geographic failure requiring further causal work, not acceptance.
+
+A controlled production-method migration fixture demonstrated a second
+accounting bug: world/region persons were conserved, but the departing
+culture retained its migrants in its population counter. Revision8 now debits
+and credits the actual regional cultures, including unallocated sea migrants;
+already-accounted city/state sea transfers are not charged twice. Nine actual
+fixture assertions pass, including200 real people transferred, crops/ancestry,
+no free town/state, old7 arithmetic preservation and unchanged input world.
+
+Religion8 updates actual city institutions on their existing actor calendar
+instead of one random city per culture, with a shared ten-year guard against
+double upkeep. The old Earth median review age358years/max5216 becomes2/max9
+after twelve ordinary years; supported/unsupported institutions still change
+according to actual resources. Explicit upgrades rebase clocks prospectively,
+not invoice centuries of missed upkeep.35 regression and21 actual-world
+checks each on Earth/CP pass. See `HISTORY32_RELIGIOUS_NETWORKS.md`.
+
+Two exact-outcome performance changes target measured costs. Service-recovery
+Cursor publication is deferred within each existing source visit, preserving
+all visit/removal/credit/queue decisions and completed prefixes on failure.
+6,495 differential checks and old4/5/6 continuations pass. The diplomatic
+relation records and aligned campaign IDs now use paged copy-on-access
+collections, retaining the old array DataContract and canonical bytes.
+Appending does not copy lifetime relationships; a transaction/publication
+fork cannot expose mutable records from another branch.50 focused checks,
+18 actual old-world cold/save/isolation/cancellation checks and literal hashes
+pass. Dense F6+100 remains exactly
+`93add43f84c56e5241d9c474a9e7d56538b654b069b898c6bc55e10ccf3801b4`.
+Its measured .NET allocations fall10.318→2.105GB in state events and
+1.556→0.247GB in sea events per100years. These are allocation/CPU diagnostic
+results under concurrent workload, NOT native acceptance measurements.
+
+The unbounded old F CP harness was stopped after all civilian eras at173200
+(807courts/3025towns/2.691Bpeople), without claiming a completed final save.
+Its optional nuclear milestone had not arrived. New harnesses explicitly
+bound a no-optional-max case at3000years after civilian Postmodern; that exit
+is clearly reported and cannot pass the all-technology performance gate.
+The older Pangea E review was similarly stopped with frames/metadata retained.
+No simulation technology or player time limit was added.
+
 ## Reference and review method
 
 The owner's [Ollie Bye reference](https://www.youtube.com/watch?v=-6Wu0Q7x5D0)

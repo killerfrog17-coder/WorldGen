@@ -31,9 +31,9 @@ namespace WorldGen.Core
         public HistoricalDiplomaticAccount[] Accounts=Array.Empty<HistoricalDiplomaticAccount>();
         public HistoricalInternationalOrganization[] Organizations=Array.Empty<HistoricalInternationalOrganization>();
         public HistoricalCoalitionEntry[] CoalitionEntries=Array.Empty<HistoricalCoalitionEntry>();
-        public int[] RelationCampaigns=Array.Empty<int>();
+        public HistoricalRelationCampaigns RelationCampaigns=new HistoricalRelationCampaigns();
         [System.Runtime.Serialization.OptionalField] public HistoricalInternationalFinances Finances;
-        public HistoricalInternationalSystem Copy()=>new HistoricalInternationalSystem{Version=Version,Accounts=Accounts.Select(x=>x.Copy()).ToArray(),Organizations=Organizations.Select(x=>x.Copy()).ToArray(),CoalitionEntries=CoalitionEntries.Select(x=>x.Copy()).ToArray(),RelationCampaigns=(int[])RelationCampaigns.Clone(),Finances=Finances?.Copy()};
+        public HistoricalInternationalSystem Copy()=>new HistoricalInternationalSystem{Version=Version,Accounts=Accounts.Select(x=>x.Copy()).ToArray(),Organizations=Organizations.Select(x=>x.Copy()).ToArray(),CoalitionEntries=CoalitionEntries.Select(x=>x.Copy()).ToArray(),RelationCampaigns=RelationCampaigns.Fork(),Finances=Finances?.Copy()};
     }
     public sealed class HistoricalOrganizationView
     {
@@ -84,7 +84,7 @@ namespace WorldGen.Core
         void RememberInternationalRelation(PrehistoryState s,int relation)
         {
             var system=s.History.International;if(!LivingWorldHistory(s)||system==null)return;
-            if(system.RelationCampaigns.Length<s.History.Relations.Length){int previous=system.RelationCampaigns.Length;Array.Resize(ref system.RelationCampaigns,s.History.Relations.Length);for(int k=previous;k<system.RelationCampaigns.Length;k++)system.RelationCampaigns[k]=-1;}
+            if(system.RelationCampaigns.Length<s.History.Relations.Length)system.RelationCampaigns.Grow(s.History.Relations.Length,-1);
             var r=s.History.Relations[relation];system.Accounts[r.A].Relations.Add(relation);system.Accounts[r.B].Relations.Add(relation);
         }
         void AppendInternationalState(PrehistoryState s,int parent=-1,bool successor=false)
@@ -318,7 +318,7 @@ namespace WorldGen.Core
                 Require(account.ContinuitySuccessor==-1||account.ContinuitySuccessor>k&&account.ContinuitySuccessor<system.Accounts.Length&&h.Polities[k].EndedYear>=0,"continuity successor");
                 Require(account.Relations!=null&&account.Relations.Count>=0&&account.Relations.Count<=h.Relations.Length,"contact count");
                 account.Relations.Items.Fingerprint(true);account.Relations.Positions.Fingerprint(true);
-                for(int n=0;n<account.Relations.Count;n++){int relation=account.Relations.At(n);Require(relation>=0&&relation<h.Relations.Length&&account.Relations.Positions[relation]==n,"contact index");if(h.Polities[k].EndedYear<0)Require(h.Aggregates.Resolve(h.Relations[relation].A,h)==k||h.Aggregates.Resolve(h.Relations[relation].B,h)==k,"contact party");}
+                for(int n=0;n<account.Relations.Count;n++){int relation=account.Relations.At(n);Require(relation>=0&&relation<h.Relations.Length&&account.Relations.Positions[relation]==n,"contact index");if(h.Polities[k].EndedYear<0){var record=h.Relations.Peek(relation);Require(h.Aggregates.Resolve(record.A,h)==k||h.Aggregates.Resolve(record.B,h)==k,"contact party");}}
                 foreach(int organization in new[]{account.TradeOrganization,account.PeaceOrganization})Require(organization>=-1&&organization<system.Organizations.Length,"organization reference");
                 if(account.TradeOrganization>=0)Require(system.Organizations[account.TradeOrganization].Kind==HistoricalOrganizationKind.TradeLeague,"trade membership type");
                 if(account.PeaceOrganization>=0)Require(system.Organizations[account.PeaceOrganization].Kind==HistoricalOrganizationKind.PeaceCongress,"congress membership type");
