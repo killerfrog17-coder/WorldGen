@@ -22,6 +22,10 @@ namespace WorldGen.Core
         {
             CheckWideHistoricalRecords();
             CheckOptionalHistoricalRecords();
+            CheckGeographicRecords();
+            CheckServiceRecords();
+            CheckNuclearRecords();
+            CheckInternationalRecords();
             CheckRecord(typeof(HistoricalCoastChart),"Region:System.Int32","SourceCulture:System.Int32","Year:System.Int32");
             CheckRecord(typeof(HistoricalCityAggregate),"AreaKm2:System.Int64","BaseCropFactor:System.Double","BaseFarming:System.Int32","BaseFoodMultiplier:System.Double","BaseUrbanCapacity:System.Int64","ExchangeMilli:System.Int32","FloodMilli:System.Int32","FoodYieldMilli:System.Int32","Id:System.Int32","LastHarvestYear:System.Int32","LastPoliticalYear:System.Int32","LastVoyageYear:System.Int32","LastYear:System.Int32","Neighbors:System.Int32[]","ParentCity:System.Int32","Rural:System.Int64","RuralCapacity:System.Int64","SoilMilli:System.Int32","StoredYieldMilli:System.Int32","Suburban:System.Int64","Supported:System.Boolean");
             CheckRecord(typeof(HistoricalRegionAggregate),"AreaKm2:System.Int64","AridityMilli:System.Int32","BestCell:System.Int32","Capacity:System.Int64","Culture:System.Int32","Id:System.Int32","LastCultureYear:System.Int32","LastYear:System.Int32","MeanTenthsC:System.Int32","NativeMask:System.Int32","OpportunityMilli:System.Int32","ReliefM:System.Int32","Routes:System.Int32[]","SoilMilli:System.Int32","StoredMilli:System.Int32","YieldMilli:System.Int32");
@@ -98,6 +102,10 @@ namespace WorldGen.Core
             if(o is HistoricalCampaignTheaterCollection theaters){CampaignTheaterCollectionBody(w,theaters);return;}
             if(o is HistoricalCampaignAdvanceCollection advances){CampaignAdvanceCollectionBody(w,advances);return;}
             if(o is HistoricalMilitaryOperationCollection operations){MilitaryOperationCollectionBody(w,operations);return;}
+            if(!literalAggregateRecords&&TryWriteNuclearRecord(w,o,t))return;
+            if(!literalAggregateRecords&&TryWriteServiceRecord(w,o,t))return;
+            if(!literalAggregateRecords&&TryWriteGeographicRecord(w,o,t))return;
+            if(!literalAggregateRecords&&TryWriteInternationalRecord(w,o,t))return;
             if(!literalAggregateRecords&&(o is Array?TryWriteWideHistoricalArray(w,o,t):TryWriteWideHistoricalRecord(w,o,t)))return;
             if(!literalAggregateRecords&&(o is Array?TryWriteOptionalHistoricalArray(w,o,t):TryWriteOptionalHistoricalRecord(w,o,t)))return;
             if(!literalAggregateRecords&&o is HistoricalLocalBag bag){w.Write("Count");Integer(w,bag.Count);w.Write("Items");Write(w,bag.Items);w.Write("Positions");Write(w,bag.Positions);return;}
@@ -179,6 +187,7 @@ namespace WorldGen.Core
                 if(o is HistoricalColonialConnections oldService && f.Name==nameof(HistoricalColonialConnections.ServiceRecovery) && oldService.ServiceRecovery==null)continue;
                 if(o is HistoricalColonialConnections oldSeaService && f.Name==nameof(HistoricalColonialConnections.SeaService) && oldSeaService.SeaService==null)continue;
                 if(o is HistoricalColonialConnections oldSeeds && f.Name==nameof(HistoricalColonialConnections.LocalSeeds) && oldSeeds.LocalSeeds==null)continue;
+                if(o is HistoricalColonialConnections oldPlots && f.Name==nameof(HistoricalColonialConnections.PreparedPlots) && oldPlots.PreparedPlots==null)continue;
                 if(o is HistoricalTerritorialServiceRecovery oldRetired && f.Name==nameof(HistoricalTerritorialServiceRecovery.RetiredGovernments) && oldRetired.RetiredGovernments==null)continue;
                 if(o is HistoricalTerritorialServiceRecovery oldGovernmentCursor && f.Name==nameof(HistoricalTerritorialServiceRecovery.GovernmentCursor) && oldGovernmentCursor.GovernmentCursor==null)continue;
                 if(o is HistoricalGeographicMap oldSharing && f.Name==nameof(HistoricalGeographicMap.Sharing) && oldSharing.Sharing==null)continue;

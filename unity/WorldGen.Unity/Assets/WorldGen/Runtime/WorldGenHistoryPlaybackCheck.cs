@@ -26,6 +26,7 @@ public sealed partial class WorldGenRuntime
         // Verify the actual native provider before collecting performance data.
         // This checks bytes and context isolation, not only DLL availability.
         Debug.Log(CanonicalHashProviderDiagnostics.Verify());
+        Debug.Log(HistoricalTreeTransportDiagnostics.Verify());
         screen="Simulation";simulationPaused=false;atlasOpen=false;detailsOpen=false;peoplesOpen=false;chronicleOpen=false;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;
         SetProjection(Projection.Map);Refresh();UpdateHumanPalette();while(Busy||humanPaletteJob!=null||humanPaletteReady!=null||humanPalettePending)yield return null;
         for(int i=0;i<30;i++)yield return null;
@@ -33,9 +34,10 @@ public sealed partial class WorldGenRuntime
         // simulated year. Playback below still includes every publication copy.
         var prepare=System.Threading.Tasks.Task.Run(()=>new SimulationSession(humans,world.Prehistory));while(!prepare.IsCompleted)yield return null;
         if(prepare.IsFaulted){Debug.LogException(prepare.Exception);Application.Quit(1);yield break;}humanSession=prepare.Result;
-        var yearCosts=new Dictionary<int,double>();int observedYear=world.Prehistory.Years;var stageCosts=new Dictionary<string,PlaybackStageCost>();var spikes=new List<string>();
+        var yearCosts=new Dictionary<int,double>();int observedYear=world.Prehistory.Years;var stageCosts=new Dictionary<string,PlaybackStageCost>();var spikes=new List<string>();var canonicalCosts=new List<CanonicalHashMetric>();
         int gc0=GC.CollectionCount(0),gc1=GC.CollectionCount(1),gc2=GC.CollectionCount(2);
         humans.YearWorkObserver=(year,ms)=>{observedYear=year;lock(yearCosts)yearCosts[year]=(yearCosts.TryGetValue(year,out double previous)?previous:0)+ms;};
+        humans.CanonicalHashObserver=canonicalCosts.Add;
         humans.WorkObserver=metric=>
         {
             if(!stageCosts.TryGetValue(metric.Stage,out var cost))stageCosts[metric.Stage]=cost=new PlaybackStageCost();
@@ -79,6 +81,7 @@ public sealed partial class WorldGenRuntime
         System.IO.File.WriteAllLines(System.IO.Path.Combine(output,"work-stages.csv"),
             new[]{"stage,count,totalMilliseconds,maximumMilliseconds,maximumYear,maximumItems,allocatedBytes,maximumAllocatedBytes"}.Concat(stageRows));
         System.IO.File.WriteAllLines(System.IO.Path.Combine(output,"work-spikes.csv"),new[]{"year,stage,items,milliseconds,gc0,gc1,gc2"}.Concat(spikes));
+        System.IO.File.WriteAllLines(System.IO.Path.Combine(output,"canonical-costs.csv"),new[]{"year,completed,sealMilliseconds,rootMilliseconds,uncachedTreeNodes,treePayloadBytes,treeFingerprints,newFrozenRecords,newFrozenBytes"}.Concat(canonicalCosts.Select(m=>FormattableString.Invariant($"{m.Year},{m.Completed},{m.SealMilliseconds:F6},{m.RootMilliseconds:F6},{m.UncachedTreeNodes},{m.TreePayloadBytes},{m.TreeFingerprints},{m.NewFrozenRecords},{m.NewFrozenBytes}"))));
         System.IO.File.WriteAllText(System.IO.Path.Combine(output,"playback.json"),JsonUtility.ToJson(evidence,true));
         // The offscreen map render must not replace the frame buffer while
         // Unity's asynchronous HUD screenshot is still being read.

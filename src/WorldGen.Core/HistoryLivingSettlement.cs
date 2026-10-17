@@ -57,7 +57,7 @@ namespace WorldGen.Core
         bool CanFoundLivingTown(PrehistoryState s,int culture,int cell,int parent)
         {
             var a=s.History.Aggregates;int region=cell>=0&&cell<CellPatch.Length?CellPatch[cell]:-1;if(region<0||a.TownAt[cell]>=0||World.Hydrology.LakeCoverageFraction[cell]>=.9)return false;
-            double localYield=CarriedCropLandscape(s,culture,cell,false,parent);int practiced=LocalSeedlotHistory(s)?CarriedCropPractice(s,culture,cell,parent):s.History.Agriculture[culture].HusbandryYears?.Max()??0;
+            double localYield=FoundingFieldLandscape(s,culture,cell,parent);int practiced=LocalSeedlotHistory(s)?CarriedCropPractice(s,culture,cell,parent):s.History.Agriculture[culture].HusbandryYears?.Max()??0;
             int host=HistoricalCells.Polity(s,cell);bool remoteHouseholds=ProvincialHistory(s)&&host>=0&&a.Polities[host].Remote>=1600;
             if(parent<0&&s.Population[region]<800&&!remoteHouseholds||s.Society.Cultures[culture].Farming<180||localYield<.10&&(localYield<.02||practiced<10000))return false;
             if(LivingWorldHistory(s))
@@ -96,10 +96,16 @@ namespace WorldGen.Core
             long founders=Math.Min(250,available/12),rural=Math.Min(available/3,Math.Max(800,founders*8));
             if(provisioned!=null){founders=provisioned.Founders;rural=0;}
             if(coastal!=null){founders=coastal.Urban;rural=coastal.People-founders;}
+            if(PreparedFieldHistory(s)&&transport!=null&&provisioned==null&&coastal==null)
+            {
+                double virgin=CarriedCropLandscape(s,culture,cell,false,parent);int practice=CarriedCropPractice(s,culture,cell,parent);
+                if(virgin<.10&&(virgin<.02||practice<10000))return;
+            }
+            var prepared=provisioned==null&&transport==null?(coastal?.Fields??QuoteFoundingFields(s,culture,cell,parent)):null;
             // Reserve a genuine share of the region's land and forager capacity.
             // Later centers must compete for that land, rather than each gaining
             // an independent 1,500-person food source for free.
-            double localYield=CarriedCropLandscape(s,culture,cell,false,parent);
+            double localYield=prepared?.Landscape??CarriedCropLandscape(s,culture,cell,false,parent);
             long area=Math.Min(Math.Max(500,(long)(Math.PI*55*55*Math.Min(4,Math.Max(1,.25/Math.Max(.02,localYield))))),Math.Max(0,a.Regions[patch].AreaKm2-a.Living.Regions[patch].CommittedAreaKm2));
             if(provisioned!=null)area=10;
             if(coastal!=null)area=coastal.Area;
@@ -123,6 +129,7 @@ namespace WorldGen.Core
                 int sourceCulture=h.Polities[ruralSource].CultureId;s.Society.Cultures[sourceCulture].Population=Math.Max(0,s.Society.Cultures[sourceCulture].Population-founders-rural);c.Population+=founders+rural;
             }
             else s.Population[patch]-=founders+rural;
+            if(prepared!=null)CommitPreparedFields(s,prepared,id);
             a.Regions[patch].Capacity-=baseRural;a.Living.Regions[patch].CommittedAreaKm2+=area;
             if(ProvincialHistory(s))
             {
@@ -144,6 +151,7 @@ namespace WorldGen.Core
             TrackPendingColonialPort(s,cell);
             if(CommunityHistory(s))a.Communities.Cities=a.Communities.Cities.Concat(new[]{new HistoricalLocalCommunity{SinceYear=s.Years}}).ToArray();
             if(LocalSeedlotHistory(s))RegisterLocalTownSeeds(s,id,parent);
+            if(prepared==null&&provisioned==null)AdoptExistingPreparedTownFields(s,id);
             city.Neighbors=NearbyLivingTowns(s,cell,280).Where(n=>n!=id&&LivingTownConnection(s,id,n)).Take(12).ToArray();
             foreach(int neighbor in city.Neighbors)LinkLivingTowns(s,id,neighbor);
             var ca=a.Cultures[culture];ca.Cities.Add(id);ca.CityCount=ca.Cities.Count;ca.Urban+=founders;ca.Rural+=rural;ca.SupportedUrban+=founders;ca.SupportedCities++;ca.FoodCapacity+=urbanCapacity;ca.LargestCity=Math.Max(ca.LargestCity,founders);a.TotalUrban+=founders;
@@ -165,6 +173,7 @@ namespace WorldGen.Core
             AssignAggregateTown(s,id,-1);QueueTerritorialServiceRecovery(s,id);ChangeAggregateCityPopulation(s,id,0,0,0);s.Population[patch]+=refugees;a.TotalPopulation+=refugees;s.Society.Cultures[t.CultureId].Population+=refugees;
             var ca=a.Cultures[t.CultureId];if(city.Supported){ca.SupportedCities--;city.Supported=false;}ca.FoodCapacity-=t.FoodCapacity;ca.Cities.Remove(id);ca.CityCount=ca.Cities.Count;
             life.AbandonedYear=s.Years;t.FoodCapacity=t.FoodReserve=0;UnregisterLivingTown(s,id);if(a.TownAt[t.Cell]==id)a.TownAt=a.TownAt.With(t.Cell,-1);
+            VacatePreparedTownFields(s,id);
             if(RegionalTraditions(s))s.History.RegionalTraditions.Qualified=s.History.RegionalTraditions.Qualified.With(id,0);
             TrackPendingColonialPort(s,t.Cell,true);
             a.Living.Regions[patch].CommittedAreaKm2=Math.Max(0,a.Living.Regions[patch].CommittedAreaKm2-city.AreaKm2);

@@ -19,7 +19,7 @@ namespace WorldGen.Core
                 if(record!=null&&ownedHistoryContext!=null)
                 {
                     if(record.OwnedCanonicalRecord==null)
-                        record.OwnedCanonicalRecord=FreezeHistoricalRecord("WorldGen.Core.HistoricalRelation",w=>WideHistoricalRelationBody(w,record,scratch));
+                        record.OwnedCanonicalRecord=FreezeRelation(record,scratch);
                     writer.Write(record.OwnedCanonicalRecord);continue;
                 }
                 writer.Write((byte)(record==null?0:1));if(record==null)continue;
@@ -27,6 +27,7 @@ namespace WorldGen.Core
             }
             writer.Write((byte)0);
         }
+        static byte[] FreezeRelation(HistoricalRelation record,byte[][] scratch)=>FreezeHistoricalRecord("WorldGen.Core.HistoricalRelation",w=>WideHistoricalRelationBody(w,record,scratch));
         static void RelationCampaignCollectionBody(BinaryWriter writer,HistoricalRelationCampaigns records)
         {
             if(literalAggregateRecords){foreach(int value in records){writer.Write((byte)1);Integer(writer,value);}writer.Write((byte)0);return;}

@@ -28,6 +28,7 @@ namespace WorldGen.Core
             // climate calculations for every city actor. The rural production
             // context is unchanged until this actor's population commit.
             var provisioned=ProvisionedPort(s,id);
+            if(PreparedFieldHistory(s)&&provisioned==null)AdvancePreparedTownFields(s,id,elapsed);
             bool community=CommunityHistory(s);long communityRural=community&&provisioned==null?CommunityRuralCapacity(s,id):0;
             double farm=0,modern=0,yield=0;
             if(!community)

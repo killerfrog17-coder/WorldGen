@@ -4,7 +4,8 @@ using System.Text.Json;
 using WorldGen.Core;
 using WorldGen.Serialization;
 
-// Deliberate offline regional/edge census, not an authoritative simulation path.
+// Deliberate offline realm6-13 regional/edge census, not a simulation path.
+// Source14+ needs actual source-aware seedlot inventory, not these older probes.
 public static class HistoryEurasianDispersalAudit
 {
     public static void Run(string source,string output,int replayYear=-1)
@@ -23,6 +24,7 @@ public static class HistoryEurasianDispersalAudit
             world.Prehistory=session.Snapshot();replay.Validate(world.Prehistory);
         }
         var original=world.Prehistory;string before=original.ComputeHash();var s=original.Copy();var h=s.History;var a=h.Aggregates;var engine=new Prehistory(world);
+        if(a.Empires.Connections.Realms.Version>=14)throw new NotSupportedException("Realm14+ requires a source-aware seedlot dispersal audit; older culture-level probes must not be presented as actual carried crops.");
         object Call(string name,params object[] values)=>typeof(Prehistory).GetMethod(name,BindingFlags.NonPublic|BindingFlags.Instance)!.Invoke(engine,values)!;
         Call("PrepareAggregateEnvironment",s);Call("PrepareAggregateRelations",s);
         var first=h.Polities.OrderBy(p=>p.FoundedYear).ThenBy(p=>p.Id).First();int landmass=world.Landmass[s.Society.Settlements[first.CapitalId].Cell];

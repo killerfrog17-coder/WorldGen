@@ -85,7 +85,8 @@ namespace WorldGen.Core
     public sealed class HistoricalCampaignTheaterCollection:ICollection<HistoricalCampaignTheater>,IReadOnlyList<HistoricalCampaignTheater>
     {
         readonly HistoricalPagedRecords<HistoricalCampaignTheater> rows;
-        public HistoricalCampaignTheaterCollection(){rows=new HistoricalPagedRecords<HistoricalCampaignTheater>(row=>row.Copy());}
+        static void Expose(HistoricalCampaignTheater row){if(row!=null)row.OwnedCanonicalRecord=null;}
+        public HistoricalCampaignTheaterCollection(){rows=new HistoricalPagedRecords<HistoricalCampaignTheater>(row=>row.Copy(),Expose);}
         public HistoricalCampaignTheaterCollection(IEnumerable<HistoricalCampaignTheater> records):this(){foreach(var record in records)Add(record);}
         HistoricalCampaignTheaterCollection(HistoricalPagedRecords<HistoricalCampaignTheater> rows){this.rows=rows;}
         public int Count=>rows.Count;public int Length=>rows.Count;public bool IsReadOnly=>false;
@@ -103,7 +104,8 @@ namespace WorldGen.Core
     public sealed class HistoricalCampaignAdvanceCollection:ICollection<HistoricalCampaignAdvance>,IReadOnlyList<HistoricalCampaignAdvance>
     {
         readonly HistoricalPagedRecords<HistoricalCampaignAdvance> rows;
-        public HistoricalCampaignAdvanceCollection(){rows=new HistoricalPagedRecords<HistoricalCampaignAdvance>(row=>row.Copy());}
+        static void Expose(HistoricalCampaignAdvance row){if(row!=null)row.OwnedCanonicalRecord=null;}
+        public HistoricalCampaignAdvanceCollection(){rows=new HistoricalPagedRecords<HistoricalCampaignAdvance>(row=>row.Copy(),Expose);}
         public HistoricalCampaignAdvanceCollection(IEnumerable<HistoricalCampaignAdvance> records):this(){foreach(var record in records)Add(record);}
         HistoricalCampaignAdvanceCollection(HistoricalPagedRecords<HistoricalCampaignAdvance> rows){this.rows=rows;}
         public int Count=>rows.Count;public int Length=>rows.Count;public bool IsReadOnly=>false;
@@ -121,7 +123,8 @@ namespace WorldGen.Core
     public sealed class HistoricalMilitaryOperationCollection:ICollection<HistoricalMilitaryOperation>,IReadOnlyList<HistoricalMilitaryOperation>
     {
         readonly HistoricalPagedRecords<HistoricalMilitaryOperation> rows;
-        public HistoricalMilitaryOperationCollection(){rows=new HistoricalPagedRecords<HistoricalMilitaryOperation>(row=>row.Copy());}
+        static void Expose(HistoricalMilitaryOperation row){if(row!=null)row.OwnedCanonicalRecord=null;}
+        public HistoricalMilitaryOperationCollection(){rows=new HistoricalPagedRecords<HistoricalMilitaryOperation>(row=>row.Copy(),Expose);}
         public HistoricalMilitaryOperationCollection(IEnumerable<HistoricalMilitaryOperation> records):this(){foreach(var record in records)Add(record);}
         HistoricalMilitaryOperationCollection(HistoricalPagedRecords<HistoricalMilitaryOperation> rows){this.rows=rows;}
         public int Count=>rows.Count;public int Length=>rows.Count;public bool IsReadOnly=>false;

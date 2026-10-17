@@ -147,3 +147,149 @@ This is useful cross-backend determinism evidence, not performance acceptance.
 The normal Mono backend remains the candidate; no compiler-only speed claim is
 made. Metrics survive cleanup under `unity-v-il2cpp-cp-performance1500`; the
 large experimental player was removed.
+
+## Exact storage and canonical hot paths — 17 October overnight
+
+These changes preserve canonical bytes and historical rules; they do not reduce
+cadence or cull actors. See [compact tree transport](HISTORY32_COMPACT_TREE_TRANSPORT.md)
+for the save-size and binary/JSON compatibility evidence.
+
+The four aligned campaign histories now use256-record copy-on-write pages with
+the preceding array contracts.137 pure assertions cover old binary and JSON
+wire, typed/literal hashes, retained references, nested captured-town arrays,
+concurrency and bounded append/fork allocation. Actual F6 Earth100-year replay
+remains `93add43f84c56e5241d9c474a9e7d56538b654b069b898c6bc55e10ccf3801b4`
+with the tree transport and closed-sidecar byte caches.
+
+Theater/progress/military-operation memoization reuses exact bytes only for owned
+private hashing with a matching closed parent campaign. Public hashing reads
+actual fields; mutable access and exposed-record forks invalidate memo bytes.
+89 focused assertions cover retained edits, replacement, active-parent exclusion,
+concurrent public hashing and warm allocation guards. Existing relation56,
+leader35, campaign137, small-canonical123 and tree-transport279 pure fixtures pass.
+Actual P native passes the12-vector tree transport and13-vector SHA probes;
+throughput acceptance is separate.
+
+Captured loop variables still allocated on every campaign/relation iteration,
+even when record bytes were cached. Cold lambdas now live in helpers called only
+on cache misses. Warm12000-row serialization allocation drops from450,558 to
+66,534 bytes for campaigns, and450,020 to65,996 for relations:384,024 bytes removed
+per loop, without another cache or byte-format change. This is later than frozen
+P16 and must not be credited to that player's results.
+
+### Reusable Windows hash contexts
+
+The immutable Windows CNG algorithm provider remains shared, with independent
+hash contexts. Dirty radix fingerprints call ComputeHash repeatedly on one SHA256
+object, but Initialize formerly destroyed/recreated the native hash handle after
+every node. Microsoft's [BCRYPT_HASH_REUSABLE_FLAG documentation](https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptcreatehash)
+permits another message immediately after FinishHash. It changes neither the
+canonical input nor SHA-256 output.
+
+The implementation retains a reusable context only after completed FinishHash.
+Explicit Initialize during an unfinished message still discards/recreates it.
+STATUS_NOT_SUPPORTED / STATUS_INVALID_PARAMETER retain the preceding native path
+and memoize missing capability, including Windows7/Vista-era providers. Other
+platforms and unavailable CNG retain the managed fallback. No global mutable
+hash context, simulation observer, saved field or clock input was added.
+
+A test-local prototype runs60 actual persistent-tree fingerprints, each after64
+deterministic `.With` updates, using the unchanged129-byte leaf and1025-byte branch
+payloads. Both modes match the authoritative Merkle fingerprint:7,804 hash-data
+calls over4,499,120 bytes. Native hash creations fall from7,864 to60. One comparison
+is18.40ms versus15.66ms; another40.06ms versus17.08ms is GC/contention-sensitive.
+These are small CoreCLR diagnostics, not native acceptance. Production provider147
+assertions cover known vectors, offsets/chunk boundaries, repeated messages,
+unfinished resets,128 concurrent contexts, disposal isolation and forced legacy
+native fallback. Tree transport279 assertions also pass with the new provider.
+
+A separate isolated-assembly comparison calls the actual preceding and revised
+production tree implementations (240 fingerprints,64 real updates each). Every
+result equals `40a7c0476e756783119514371b5373d3a8ec1f43f6033e7f516fe633ec62a879`.
+Allocation, including tree writes, falls from29,445,672 to28,197,032 bytes
+(4.24%). Warm comparisons38.61/41.84ms versus37.16/36.75ms indicate a modest
+roughly8% mean gain on this CoreCLR fixture, not a native throughput claim.
+
+### Limits of exact incremental hashing
+
+Owned aggregate sealing already commits event archives and leaders through
+ArchiveHash and the LeaderDigests tree. It does not stream their full archives on
+every private checkpoint. Public ComputeHash also verifies them, so the broad
+SimulationHashProfile.Capture is not a faithful private-sealing profile.
+
+Other lifetime arrays and government sidecars still stream canonical bytes.
+`Years` changes near the message start, before those arrays. SHA-256 processes
+blocks in order using the preceding chaining state
+([FIPS180-4 section6.2.2](https://csrc.nist.gov/files/pubs/fips/180-4/final/docs/fips180-4.pdf)).
+Independent record/page digests therefore cannot replace unchanged middle
+segments while retaining the existing digest. CNG [DuplicateHash](https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptduplicatehash)
+only reuses identical prefixes; the current layout's common prefix is tiny.
+Merkle substitution or moving the clock requires an explicit new integrity
+contract, not an exact optimization.
+
+Test-only `--private-hash-synthetic` and `--private-hash-cost <world> <json>` separate
+canonical byte count, serialization-only cost, full owned hashing and raw CNG over
+equal byte volume. The world diagnostic asserts that its reconstructed root
+produces the saved aggregate hash. Warm component profiles do not measure dirty
+Merkle work. These first component profiles used test-only reflection.
+
+At12000 rows, synthetic canonical byte counts are7,944,927 for campaigns,
+1,404,044 theaters,1,416,044 progress,7,128,046 military operations and2,796,037
+relations. Reusing exact256-row canonical byte blocks could reduce encoding/lock
+calls, but cannot remove SHA byte volume. This remains an unimplemented proposal
+requiring actual private-profile evidence.
+
+The isolated pre-P N15 control still **fails**:2.4666years/s, minimum rolling
+1.8544years/s, worst summed year2,223.44ms and301 Boehm collections. Its final
+`eb1a49f19de71711533357288c2db276363f7188e5d57d067504e4c07a002de6`
+matches prior controls. These optimizations do not themselves establish
+>=3years/s and every computed year<1second.
+
+The subsequent isolated P16 IL2CPP run also **fails**:1,007.6129 simulated years
+in392.946s,2.56425years/s, minimum rolling1.90668years/s and worst summed year
+2,177.436ms at181158, with412 Boehm collections. The final history hash remains
+the same `eb1a49...` control. Compared with N15 this is only about4% overall.
+P includes compact tree transport, sidecar byte caches and typed geographical
+writers, but not the later closure removal or reusable CNG contexts. Its191
+private hashes total144,502.6ms (maximum1,419.8ms); city events84,815.7ms,
+state events52,632.2ms, region events39,949.3ms and sea events21,858.6ms.
+Private/publication copies add11,315.4/9,739.3ms. These are measured native
+costs, not an acceptance claim or a reason to reduce actor/event cadence.
+
+The actual F6 private-root diagnostic matches its saved hash
+`74a2223de5ac874550624ccfdfb4ab3ff69568563bfd97d1002e2894e0fddc65`.
+It streams103,433,181 canonical bytes per checkpoint. Warm CoreCLR serialization
+alone takes76.73ms with9.03MB allocated; complete owned hashing110.87ms with
+8.89MB allocated; raw CNG over equal byte volume45.76ms. Inclusive component
+measurements must not be summed twice. International records encode8.29ms with
+1.86MB allocated, and connections21.94ms with2.02MB; timeline3.15ms/.90MB,
+connections' ambitions2.40ms/.71MB and sea service2.29ms/.61MB remain generic
+reflection paths. Cached campaigns encode11.86MB in0.67ms, relations19.85MB in
+3.47ms. All46 complete256-row campaign pages are closed, with no mixed complete
+page. Exact page-byte aggregation could reduce calls, but these warm figures
+prioritize the remaining generic record encoding over another campaign cache.
+CoreCLR timing is not a substitute for an isolated native profile, and this warm
+diagnostic excludes dirty-tree fingerprint work at a real advancing checkpoint.
+
+The measured generic paths now have exact schema-checked scalar writers:
+international accounts/organizations/finances and simulation-calendar records
+pass234 independent-literal-byte, field mutation, null/optional, concurrency and
+cancellation assertions. Service/ambition/colonial-government writers pass403
+assertions. The combined F6 replay100 remains the same `93add43f...` control.
+Warm international encoding falls8.291 to2.371ms and1,858,493 to67,397 allocated
+bytes; timeline3.152 to0.309ms and900,477 to66,045 bytes. Connections inclusive
+encoding falls21.94 to13.52ms and2,023,157 to623,965 bytes. Overall warm root
+encoding falls76.73 to67.66ms and9,028,253 to5,003,533 bytes; complete owned
+hashing110.87 to100.27ms. These CoreCLR measurements are qualified, not native
+acceptance. The expanded profile identifies nuclear accounts as a further generic
+hotspot:2.61MB canonical bytes,6.26ms encoding and1.99MB allocation.
+
+An explicitly opt-in `Prehistory.CanonicalHashObserver` now reports once around
+the existing private checkpoint seal. Its thread-local, nested/restored scope
+counts newly digested radix nodes/payload bytes, tree fingerprints, newly frozen
+record bytes and root/total elapsed time. It changes no saved fields, canonical
+bytes, dates or cadence; ordinary playback leaves the observer null. The explicit
+native playback diagnostic writes `canonical-costs.csv`. Tiny fixtures cover
+nested/concurrent scopes, cancellation, observer exceptions and identical hashes.
+This separates advancing dirty/cold work from the warm serialization profiles;
+it is not permission to hide checkpoint work outside the timed simulation.

@@ -25,6 +25,7 @@ namespace WorldGen.Core
         {
             public int Parent,Cell,Culture,Polity,People,Urban;
             public long Area,Provisions,Investment;
+            public PreparedFieldQuote Fields;
         }
         bool CoastalFarmingEnabled(PrehistoryState s)=>LivingWorldHistory(s)&&s.History.Aggregates.Empires.Connections.CoastalFarming!=null;
         bool CoastalFarmDescendant(PrehistoryState s,int town)=>CoastalFarmingEnabled(s)&&s.History.Aggregates.Empires.Connections.CoastalFarming.Families[town]>=0;
@@ -57,6 +58,14 @@ namespace WorldGen.Core
             if(people<200||owner<0||h.Polities[owner].EndedYear>=0||a.Living.Cities[parent].AbandonedYear>=0||a.Living.Cities[parent].DeclineYears>0||!a.Cities[parent].Supported||h.Dynamics.States[owner].PublicWorks<200)return false;
             if(region<0||a.TownAt[cell]>=0||World.Hydrology.LakeCoverageFraction[cell]>=.9||World.Landmass[cell]!=World.Landmass[source.Cell])return false;
             double yield=CarriedCropLandscape(s,culture,cell,false,parent);int practiced=LocalSeedlotHistory(s)?CarriedCropPractice(s,culture,cell,parent):h.Agriculture[culture].HusbandryYears==null?0:MaxCoastalPractice(h.Agriculture[culture].HusbandryYears);
+            PreparedFieldQuote fields=null;
+            if(PreparedFieldHistory(s))
+            {
+                fields=QuotePreparedFields(s,culture,cell,parent,people-urban);
+                LivingInlandSettlementCosts(s,parent,cell,people,out long fieldProvisions,out long fieldCarriage);
+                long virginInvestment=fieldCarriage+Math.Max(500,(long)Math.Ceiling(HistoricalCoastalFarmEffects.AreaKm2(people,yield)*1.5+people/3.0));
+                if(fields!=null&&PreparedQuoteAffordable(s,fields,people+fieldProvisions,virginInvestment))yield=fields.Landscape;else fields=null;
+            }
             if(s.Society.Cultures[culture].Farming<180||yield<.10&&(yield<.02||practiced<10000))return false;
             var habitat=CropHabitat(s,cell);bool modern=HistoricalModernEffects.Adoption(h.Cultures[culture],HistoricalTechnology.CombustionEngines,s.Years)>.3;
             if((habitat.GrowingDays<90||habitat.WarmTenthsC<80||habitat.PermafrostPermille>700)&&!modern)return false;
@@ -71,12 +80,12 @@ namespace WorldGen.Core
             if(host>=0&&host!=owner&&(!aggregateRelations.TryGetValue((Math.Min(owner,host),Math.Max(owner,host)),out int relation)||!h.Relations[relation].Trade||h.Relations[relation].WarSince>=0))return false;
             LivingInlandSettlementCosts(s,parent,cell,people,out long provisions,out long carriage);
             long investment=carriage+Math.Max(500,(long)Math.Ceiling(area*1.5+people/3.0));
-            if(source.FoodReserve<people+provisions+source.Population/4||h.Polities[owner].Treasury<investment*2||a.Polities[owner].Receipts<=a.Polities[owner].ServiceCost)return false;
-            plan=new CoastalFarmPlan{Parent=parent,Cell=cell,Culture=culture,Polity=owner,People=people,Urban=urban,Area=area,Provisions=provisions,Investment=investment};return true;
+            if(source.FoodReserve<people+provisions+(fields?.Food??0)+source.Population/4||h.Polities[owner].Treasury<(investment+(fields?.Investment??0))*2||a.Polities[owner].Receipts<=a.Polities[owner].ServiceCost)return false;
+            plan=new CoastalFarmPlan{Parent=parent,Cell=cell,Culture=culture,Polity=owner,People=people,Urban=urban,Area=area,Provisions=provisions,Investment=investment,Fields=fields};return true;
         }
         static int MaxCoastalPractice(int[] years){int best=0;for(int i=0;i<years.Length;i++)best=Math.Max(best,years[i]);return best;}
         bool ValidCoastalFarmPlan(PrehistoryState s,int culture,int cell,int parent,CoastalFarmPlan plan)
-            =>plan!=null&&plan.Culture==culture&&plan.Parent==parent&&plan.Cell==cell&&PrepareCoastalFarm(s,parent,cell,out var current)&&current.People==plan.People&&current.Area==plan.Area&&current.Provisions==plan.Provisions&&current.Investment==plan.Investment&&current.Polity==plan.Polity;
+            =>plan!=null&&plan.Culture==culture&&plan.Parent==parent&&plan.Cell==cell&&PrepareCoastalFarm(s,parent,cell,out var current)&&current.People==plan.People&&current.Area==plan.Area&&current.Provisions==plan.Provisions&&current.Investment==plan.Investment&&current.Polity==plan.Polity&&(current.Fields?.Food??0)==(plan.Fields?.Food??0)&&(current.Fields?.Investment??0)==(plan.Fields?.Investment??0);
         bool TryFoundCoastalFarm(PrehistoryState s,int parent,int cell)
         {
             if(!PrepareCoastalFarm(s,parent,cell,out var plan))return false;

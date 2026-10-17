@@ -46,7 +46,8 @@ namespace WorldGen.Core
             var a=s.History.Aggregates;var town=s.Society.Settlements[city];var c=a.Cities[city];var hc=s.History.Cultures[town.CultureId];
             double farm=(100.0+s.Society.Cultures[town.CultureId].Farming)/(100+c.BaseFarming);
             double crop=(.4+.6*AggregateCropSupport(s,town.CultureId,town.Cell,false))/c.BaseCropFactor;
-            return Math.Max(1,(long)(c.RuralCapacity*farm*crop*EffectiveFoodMultiplier(s,hc)*a.Living.Cities[city].Productivity*AnimalFoodMultiplier(s,town.CultureId,town.Cell)*(1-HistoricalProvincialEffects.UrbanShare(hc,s.Years))*(LivingWorldHistory(s)?LivingClimateFood(s,town.Cell,town.CultureId):1)));
+            long capacity=Math.Max(1,(long)(c.RuralCapacity*farm*crop*EffectiveFoodMultiplier(s,hc)*a.Living.Cities[city].Productivity*AnimalFoodMultiplier(s,town.CultureId,town.Cell)*(1-HistoricalProvincialEffects.UrbanShare(hc,s.Years))*(LivingWorldHistory(s)?LivingClimateFood(s,town.Cell,town.CultureId):1)));
+            return PreparedTownRuralCapacity(s,city,capacity);
         }
         long CommunityUrbanCapacity(PrehistoryState s,int city)
             =>CommunityUrbanCapacity(s,city,CommunityRuralCapacity(s,city));
@@ -54,7 +55,7 @@ namespace WorldGen.Core
         {
             var h=s.History;var a=h.Aggregates;var t=s.Society.Settlements[city];var c=a.Cities[city];var hc=h.Cultures[t.CultureId];
             double share=HistoricalProvincialEffects.UrbanShare(hc,s.Years);
-            double storage=LivingCropLandscape(s,t.CultureId,t.Cell,true);
+            double storage=PreparedFieldHistory(s)?PreparedTownLandscape(s,city,true):LivingCropLandscape(s,t.CultureId,t.Cell,true);
             double produce=(.65+1.35*D.Clamp(storage/.35))*a.Living.Cities[city].Productivity*AnimalFoodMultiplier(s,t.CultureId,t.Cell);
             // Potential acreage alone never feeds a town. Actual farm workers,
             // storable local produce and transported surplus must support it.

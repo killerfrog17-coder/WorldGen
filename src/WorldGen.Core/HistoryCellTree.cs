@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Security.Cryptography;
+using System.Threading;
 
 namespace WorldGen.Core
 {
@@ -16,6 +19,107 @@ namespace WorldGen.Core
             [DataMember] internal Node[] Children;
             [DataMember] internal int[] Values;
             [IgnoreDataMember] internal byte[] Digest;
+        }
+        [ThreadStatic] static ReadInterningScope readScope;
+        // Transport-only scope. Old files expanded persistent DAG nodes by
+        // value; recover equal immutable nodes before publishing the world.
+        // No authoritative fields, fingerprints or simulation work change.
+        public static IDisposable BeginReadInterning(CancellationToken cancellation=default)=>new ReadInterningScope(cancellation);
+        sealed class NodeContentComparer:IEqualityComparer<Node>
+        {
+            public int GetHashCode(Node node)
+            {
+                unchecked
+                {
+                    int hash=node.Values!=null?1231:1237;
+                    for(int i=0;i<32;i++)hash=hash*31+(node.Values!=null?node.Values[i]:node.Children[i]==null?0:RuntimeHelpers.GetHashCode(node.Children[i]));
+                    return hash;
+                }
+            }
+            public bool Equals(Node a,Node b)
+            {
+                if(ReferenceEquals(a,b))return true;if(a==null||b==null||(a.Values==null)!=(b.Values==null))return false;
+                if(a.Values!=null){for(int i=0;i<32;i++)if(a.Values[i]!=b.Values[i])return false;}
+                else for(int i=0;i<32;i++)if(!ReferenceEquals(a.Children[i],b.Children[i]))return false;
+                return true;
+            }
+        }
+        sealed class ReadInterningScope:IDisposable
+        {
+            readonly ReadInterningScope previous;readonly CancellationToken token;
+            readonly HashSet<Node> pool=new HashSet<Node>(new NodeContentComparer());bool disposed;
+            internal ReadInterningScope(CancellationToken token){token.ThrowIfCancellationRequested();this.token=token;previous=readScope;readScope=this;}
+            internal Node Intern(Node node)
+            {
+                token.ThrowIfCancellationRequested();if(node==null)return null;
+                // Children have already been canonicalized by the wire DTO.
+                // Hashes only choose buckets; every collision compares all32
+                // actual integers or canonical-child identities.
+                if(pool.TryGetValue(node,out var canonical))return canonical;
+                pool.Add(node);return node;
+            }
+            public void Dispose()
+            {
+                if(disposed)return;
+                if(!ReferenceEquals(readScope,this))throw new InvalidOperationException("Spatial read scopes must close in reverse order.");
+                readScope=previous;disposed=true;
+                // Only unique nodes are retained. Duplicate input nodes can be
+                // collected while reading; neither worlds nor dictionaries live
+                // in a process-wide cache after the synchronous read completes.
+                pool.Clear();
+            }
+        }
+        // XML binary transport alone uses reference-enabled nodes. Keeping the
+        // logical Node contract by-value preserves the existing JSON adapter.
+        [DataContract(Name="HistoricalCellTree.Node",Namespace="http://schemas.datacontract.org/2004/07/WorldGen.Core",IsReference=true)]
+        sealed class BinaryNode
+        {
+            [DataMember] internal BinaryNode[] Children;
+            [DataMember] internal int[] Values;
+            [IgnoreDataMember] internal Node Logical;
+            [IgnoreDataMember] internal bool Visiting;
+            [IgnoreDataMember] internal byte Height;
+        }
+        public static BinaryTransportScope CreateBinaryTransport(CancellationToken cancellation=default)=>new BinaryTransportScope(cancellation);
+        public sealed class BinaryTransportScope:ISerializationSurrogateProvider,IDisposable
+        {
+            readonly CancellationToken token;readonly Dictionary<Node,BinaryNode> written=new Dictionary<Node,BinaryNode>();bool disposed;
+            internal BinaryTransportScope(CancellationToken cancellation){token=cancellation;cancellation.ThrowIfCancellationRequested();}
+            public Type GetSurrogateType(Type type)=>type==typeof(Node)?typeof(BinaryNode):type;
+            public object GetObjectToSerialize(object value,Type targetType)
+            {Check();return value is Node node?WriteNode(node):value;}
+            public object GetDeserializedObject(object value,Type targetType)
+            {Check();return value is BinaryNode node&&targetType==typeof(Node)?ReadNode(node):value;}
+            void Check(){if(disposed)throw new ObjectDisposedException(nameof(BinaryTransportScope));token.ThrowIfCancellationRequested();}
+            BinaryNode WriteNode(Node node)
+            {
+                Check();if(node==null)return null;if(written.TryGetValue(node,out var prior))return prior;
+                var result=new BinaryNode{Values=node.Values};written.Add(node,result);
+                if(node.Children!=null){result.Children=new BinaryNode[node.Children.Length];for(int i=0;i<result.Children.Length;i++)result.Children[i]=WriteNode(node.Children[i]);}
+                return result;
+            }
+            Node ReadNode(BinaryNode node,int depth=0)
+            {
+                Check();if(node==null)return null;
+                if(node.Logical!=null){if(depth+node.Height>5)throw new SerializationException("Invalid spatial radix depth.");return node.Logical;}
+                if(depth>=5||node.Visiting)throw new SerializationException("Invalid spatial radix depth or cycle.");
+                node.Visiting=true;
+                try
+                {
+                    var result=new Node{Values=node.Values};int height=1;
+                    if(node.Values!=null){if(node.Values.Length!=32||node.Children!=null)throw new SerializationException("Invalid spatial leaf.");}
+                    else
+                    {
+                        if(node.Children?.Length!=32)throw new SerializationException("Invalid spatial branch.");
+                        result.Children=new Node[32];
+                        for(int i=0;i<32;i++){result.Children[i]=ReadNode(node.Children[i],depth+1);height=Math.Max(height,1+(node.Children[i]?.Height??0));}
+                    }
+                    if(depth+height>5)throw new SerializationException("Invalid spatial radix depth.");node.Height=(byte)height;
+                    return node.Logical=readScope?.Intern(result)??result;
+                }
+                finally{node.Visiting=false;}
+            }
+            public void Dispose(){if(disposed)return;disposed=true;written.Clear();}
         }
         [DataMember] Node root;
         [DataMember] int length;
@@ -87,6 +191,7 @@ namespace WorldGen.Core
         public string Fingerprint(bool verify=false)
         {
             if(!verify&&fingerprint!=null)return fingerprint;
+            CanonicalHashCosts.TreeFingerprint();
             // The tree and its length are immutable. Trusted publication can
             // reuse their digest; explicit integrity verification still walks
             // every actual node and recomputes the result, including old saves.
@@ -108,6 +213,7 @@ namespace WorldGen.Core
             if(node==null)return Absent;if(!verify&&node.Digest!=null)return node.Digest;
             if(depth>=scratch.Length)throw new SerializationException("Invalid spatial radix depth.");
             bool leaf=node.Values!=null;int count=leaf?129:1025;var bytes=scratch[depth]??(scratch[depth]=new byte[count]);
+            CanonicalHashCosts.TreeNode(count);
             // Valid trees have branches at depths0–3 and leaves at4. Retain a
             // deterministic rejection rather than aliasing scratch on bad data.
             if(bytes.Length<count)throw new SerializationException("Invalid spatial radix shape.");

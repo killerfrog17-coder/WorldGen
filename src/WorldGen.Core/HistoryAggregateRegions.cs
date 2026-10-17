@@ -22,6 +22,7 @@ namespace WorldGen.Core
                 if(LivingWorldHistory(s))capacity=(long)(capacity*LivingClimateFood(s,r.BestCell,r.Culture));
             }
             double rate=.12;
+            if(PreparedFieldHistory(s))capacity=PreparedRegionalCapacity(s,id,capacity);
             if(PassageHistory(s))
             {
                 double room=D.Clamp(1-before/(double)Math.Max(1,capacity));

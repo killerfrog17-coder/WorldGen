@@ -16,9 +16,9 @@ namespace WorldGen.Core
         // handle, never a writable hash context. Lazy also memoizes an absent
         // platform provider instead of repeatedly probing an unavailable DLL.
         static readonly Lazy<AlgorithmHandle> Provider=new Lazy<AlgorithmHandle>(OpenProvider,LazyThreadSafetyMode.ExecutionAndPublication);
-        static int providerOpenAttempts,nativeHashUnavailable;
+        static int providerOpenAttempts,nativeHashUnavailable,reusableHashUnavailable;
         internal static int ProviderOpenAttempts=>Volatile.Read(ref providerOpenAttempts);
-        internal static string Backend(SHA256 hash)=>hash is WindowsHash?"Windows CNG (cached provider)":hash.GetType().FullName+" (fallback)";
+        internal static string Backend(SHA256 hash)=>hash is WindowsHash native?"Windows CNG (cached provider; "+(native.Reusable?"reusable hash":"legacy hash")+")":hash.GetType().FullName+" (fallback)";
         static AlgorithmHandle OpenProvider()
         {
             Interlocked.Increment(ref providerOpenAttempts);
@@ -61,7 +61,8 @@ namespace WorldGen.Core
         }
         sealed class WindowsHash:SHA256
         {
-            readonly AlgorithmHandle algorithm;HashHandle hash;bool disposed;
+            readonly AlgorithmHandle algorithm;HashHandle hash;bool disposed,reusable,finished;
+            internal bool Reusable=>reusable;
             public WindowsHash(AlgorithmHandle provider)
             {
                 HashSizeValue=256;algorithm=provider;Initialize();
@@ -69,15 +70,32 @@ namespace WorldGen.Core
             public override void Initialize()
             {
                 if(disposed)throw new ObjectDisposedException(nameof(WindowsHash));
-                hash?.Dispose();Check(BCryptCreateHash(algorithm,out var handle,IntPtr.Zero,0,IntPtr.Zero,0,0));hash=new HashHandle(handle,algorithm);
+                // A reusable CNG hash is already empty after FinishHash. Keep
+                // its independent handle across ComputeHash resets, including
+                // thousands of dirty Merkle nodes on one SHA256 instance.
+                if(reusable&&finished&&hash!=null&&!hash.IsClosed){finished=false;return;}
+                // Explicit Initialize during an unfinished message must still
+                // discard that message, rather than accidentally retaining it.
+                hash?.Dispose();hash=null;int flags=Volatile.Read(ref reusableHashUnavailable)==0?0x20:0;
+                int status=BCryptCreateHash(algorithm,out var handle,IntPtr.Zero,0,IntPtr.Zero,0,flags);
+                if(flags!=0&&(status==unchecked((int)0xC00000BB)||status==unchecked((int)0xC000000D)))
+                {
+                    // Vista/Windows7 and providers without reusable hashes keep
+                    // the preceding exact native implementation, not a failure
+                    // probe on every digest or an unnecessary managed fallback.
+                    Interlocked.Exchange(ref reusableHashUnavailable,1);flags=0;
+                    status=BCryptCreateHash(algorithm,out handle,IntPtr.Zero,0,IntPtr.Zero,0,0);
+                }
+                Check(status);hash=new HashHandle(handle,algorithm);reusable=flags!=0;finished=false;
             }
             protected override void HashCore(byte[] array,int offset,int count)
             {
                 if(count==0)return;
+                finished=false;
                 var pinned=GCHandle.Alloc(array,GCHandleType.Pinned);
                 try{Check(BCryptHashData(hash,IntPtr.Add(pinned.AddrOfPinnedObject(),offset),count,0));}finally{pinned.Free();}
             }
-            protected override byte[] HashFinal(){var bytes=new byte[32];Check(BCryptFinishHash(hash,bytes,bytes.Length,0));return bytes;}
+            protected override byte[] HashFinal(){var bytes=new byte[32];Check(BCryptFinishHash(hash,bytes,bytes.Length,0));finished=true;return bytes;}
             protected override void Dispose(bool disposing){disposed=true;if(disposing)hash?.Dispose();base.Dispose(disposing);}
         }
         static void Check(int status){if(status<0)throw new CryptographicException("Windows SHA-256 failed: 0x"+status.ToString("X8"));}

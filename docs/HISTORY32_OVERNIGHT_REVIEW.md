@@ -3,6 +3,55 @@
 Source experiments, not an assertion of historical/scientific validation. The
 existing selected player is the rollback build until native review is complete.
 
+## Latest checkpoint: prepared fields16 / local phenology17
+
+Independent screenshot review of N15 still finds a severe agrarian geography
+failure: Early Modern Europe has no active towns, while Australia already has
+210. Actual local seed/field audits isolate poor imported phenology, unchanged
+woodland cultivation factors, and real financing limits; blanket fertility or
+latitude bonuses would hide rather than solve these causes.
+
+Revision16 adds locally funded, cohort-sized field preparation. Pure14 and
+actual G32/CP19 assertions pass, including real existing-stock Remote migration
+and inland founding, exact material/person accounting and full-world cold
+12-year versus5+7-year continuation. The original underfunded French crossing
+remains blocked; its positive financed/seed-retuned fixture is explicitly
+conditional, not an observed historical success. Revision17 addresses actual
+planted-crop phenology separately and bounds maintained credit after partial
+rural decline. Its fresh/explicit-upgrade/full-saved CP22 assertions pass;
+actual12 and cold5+7 both produce
+`e7d5766b62e82fec5010007b5a9b59720f9c8b20452b20aedfc038e177823ac7`.
+The earlier frozen16 continuation remains exactly
+`60666bc87b7dbdfc50ab9fde16f6d371a2a7fbc9f83b130ae651eba570e68773`.
+Fresh longitudinal16/17 Earth review is running; no successful geographical
+or era-pacing outcome is claimed from actor tests alone.
+
+Follow-up: the complete P16 Earth run reaches its post-maximum tail but fails
+final prepared-capacity validation; it is **not** a valid saved-world result.
+The exact synthetic reconstruction finds raw500/usable303 replacement leaving
+a197-credit residual, a same-year epoch ambiguity and old integer saturation.
+The explicit plot-ledger2 upgrade preserves raw paid plots and uses exact
+two-word regional credits and generation tokens; it does not waive validation.
+The original Q17/ledger1 Earth run successfully saves at179800, hash
+`30b1bca54ca8f374b1ff0b044fcec53d6ab5d572f9fe957ec7a4102fff4f5210`.
+Its frozen and repaired readers both continue12 years to
+`c8361a45c11b6001b15eb393f0d26c882059c0037989acc361ee8d69af5c7a0d`.
+Explicit ledger2 migration and full saved cold continuation pass; the new
+fresh Earth/Continents Plus runs validate at every exported checkpoint.
+Their geographical success remains unestablished: Q17's Early Modern Europe
+still has only one active town, while Australia has148.
+
+The isolated N15 native200k tail remains a performance **failure**:1007.61
+years at2.4666yr/s, minimum rolling1.8544, worst computed year2223.44ms.
+The final historical hash matches preceding native controls exactly. Later
+exact-byte geographic writers, closed campaign sidecar reuse and binary tree
+sharing are separate optimizations awaiting native remeasurement. Actual M14
+CP compact transport shrinks221,665,532→151,805,883 bytes; decoded XML shrinks
+2,744,928,958→1,604,120,362 bytes. Current and actual old readers retain the
+same12-year continuation. No actors, archived events or format safety guards
+were dropped. See the specific transport and field documents for reproducible
+evidence and limitations.
+
 ## Source revision6 / candidate F
 
 Land links retained no legacy CellA/B endpoints, so regional contact used

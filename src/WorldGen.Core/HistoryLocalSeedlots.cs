@@ -112,7 +112,12 @@ namespace WorldGen.Core
                 // Review records time even in a failed field: no later arrears
                 // are credited as if crops grew during abandonment or famine.
                 double fit=cultivated?CommunityTransferFit(s,t.Cell,lot.Profile,managed):0;int years=fit<.08?0:HistoricalCropSelectionEffects.FractionalYears(D.Q(elapsed*Math.Min(1,s.Society.Cultures[t.CultureId].Farming/400.0)*fit,1000000000),HistoryRoll("town-seed-practice-14-"+k,town,s.Years));
-                var profile=lot.Profile.Copy();if(years>0){int target=(int)Math.Round(CropLatitude(t.Cell)*10),move=HistoricalLocalSeedSelectionEffects.LatitudeMovement(profile.DaylengthLatitudeTenths,target,years,HistoryRoll("town-seed-latitude-14-"+k,town,s.Years));HistoricalLocalSeedSelectionEffects.Apply(profile,years,target,move);}
+                bool seasonalPhenology=s.History.Aggregates.Empires.Connections.Realms.Version>=17;
+                double generations=seasonalPhenology&&cultivated?LocalSeedGenerations(s,town,k,lot,fit,elapsed):0;
+                if(seasonalPhenology&&generations==0)years=0;
+                var profile=lot.Profile.Copy();if(years>0){int target=(int)Math.Round(CropLatitude(t.Cell)*10),move=seasonalPhenology?0:HistoricalLocalSeedSelectionEffects.LatitudeMovement(profile.DaylengthLatitudeTenths,target,years,HistoryRoll("town-seed-latitude-14-"+k,town,s.Years));HistoricalLocalSeedSelectionEffects.Apply(profile,years,target,move);}
+                if(seasonalPhenology&&cultivated)
+                {int target=(int)Math.Round(CropLatitude(t.Cell)*10),move=HistoricalLocalSeedPhenology.Movement(lot.Profile.DaylengthLatitudeTenths,target,generations,HistoryRoll("local-seed-phenology-17-"+k,town,s.Years));profile.DaylengthLatitudeTenths+=Math.Sign(target-profile.DaylengthLatitudeTenths)*move;}
                 record=record.With(k,new HistoricalLocalSeedlot(profile,lot.AcquiredYear,lot.SourceTown,lot.SourceCell,Math.Min(20000,lot.PracticeYears+years),s.Years));changed=true;
             }
             if(changed)extension.Towns=extension.Towns.With(town,record);

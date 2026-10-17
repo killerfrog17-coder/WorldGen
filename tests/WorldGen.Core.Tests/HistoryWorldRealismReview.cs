@@ -33,19 +33,22 @@ public static partial class HistoryWorldRealismReview
         var setup=new WorldSetup();var recipe=setup.Resolve(setup.Preset(preset,new Recipe{Seed=seed,Detail=detail,EcologyProfile=profile}));recipe.EcologyProfile=profile;
         RunWorld(new WorldPipeline().Generate(recipe),preset,seed,output,safetyYear);
     }
-    public static void Replay(string source,string output,int safetyYear)
+    public static void Replay(string source,string output,int safetyYear,bool preparedAudit=false,int preparedRules=0)
     {
         if(Path.GetFullPath(source).Equals(Path.GetFullPath(Path.Combine(output,"final.world")),StringComparison.OrdinalIgnoreCase))throw new ArgumentException("A replay must not overwrite its source world.");
         // A controlled history experiment, not another generation route. Keep
         // every accepted terrain/climate/ecology value and reset only the loaded
         // copy's history through the ordinary public preparation/start API.
         var world=WorldFile.Read(File.ReadAllBytes(source));world.Prehistory=null;
-        RunWorld(world,"Saved-world history replay",world.Recipe.Seed,output,safetyYear,Path.GetFullPath(source));
+        RunWorld(world,"Saved-world history replay",world.Recipe.Seed,output,safetyYear,Path.GetFullPath(source),preparedAudit,preparedRules);
     }
-    static void RunWorld(World world,string preset,int seed,string output,int safetyYear,string source=null)
+    static void RunWorld(World world,string preset,int seed,string output,int safetyYear,string source=null,bool preparedAudit=false,int preparedRules=0)
     {
         if(File.Exists(Path.Combine(output,"final.world")))throw new IOException("Refusing to overwrite a completed review world.");
-        Directory.CreateDirectory(output);var recipe=world.Recipe;var engine=new Prehistory(world);var session=new SimulationSession(engine,engine.Start(engine.Prepare()));
+        Directory.CreateDirectory(output);var recipe=world.Recipe;var engine=new Prehistory(world);var initial=engine.Start(engine.Prepare());
+        if(preparedRules!=0)
+        {if(!preparedAudit||preparedRules<16||preparedRules>new HistoricalRealmLifecycles().Version)throw new ArgumentException("Explicit prepared audit supports available revision16 or later only.");initial=initial.Copy();initial.History.Aggregates.Empires.Connections.Realms.Version=preparedRules;if(preparedRules==16){initial.History.Aggregates.Empires.Connections.PreparedPlots=null;typeof(Prehistory).GetMethod("InitializePreparedPlots",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.Invoke(engine,new object[]{initial});}initial.Seal();}
+        var session=new SimulationSession(engine,initial);
         var watch=Stopwatch.StartNew();var rows=new List<object>();var seen=new HashSet<int>();int first=-1,tail=-1,lastMap=-1,workYear=-1,civilianTail=-1;double worst=0,yearWork=0;
         engine.YearWorkObserver=(year,ms)=>{if(year!=workYear){workYear=year;yearWork=0;}yearWork+=ms;worst=Math.Max(worst,yearWork);};
         while(session.LastSnapshot.Years<safetyYear)
@@ -61,6 +64,7 @@ public static partial class HistoryWorldRealismReview
             if(observe)
             {
                 string directory=Path.Combine(output,"year-"+s.Years);Directory.CreateDirectory(directory);
+                if(preparedAudit)HistoryPreparedPlotAudit.Check(engine,s,directory);
                 // Keep all four views for era comparisons; intermediate political
                 // frames need only States. Metadata remains complete at every
                 // observation, without accumulating four near-identical geometry
@@ -93,7 +97,7 @@ public static partial class HistoryWorldRealismReview
             {Console.WriteLine("Requested diagnostic stop at an intact checkpoint.");break;}
             if(first>=0&&s.Years>first+30000&&era<8){Console.WriteLine("STALLED:30,000 years after first state without industry; preserve evidence for correction.");break;}
         }
-        var final=session.Snapshot();engine.Validate(final);world.Prehistory=final;
+        var final=session.Snapshot();if(preparedAudit)HistoryPreparedPlotAudit.Check(engine,final,output);engine.Validate(final);world.Prehistory=final;
         File.WriteAllBytes(Path.Combine(output,"final.world"),WorldFile.Write(world));
         FinalPoliticalChronology(world,output);
         Console.WriteLine("FINAL "+final.Hash+" at "+final.Years+" after "+watch.Elapsed.TotalSeconds.ToString("F1")+"s");

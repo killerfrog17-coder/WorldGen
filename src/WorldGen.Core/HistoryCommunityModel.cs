@@ -23,6 +23,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalCampaignAdvance
     {
+        [NonSerialized] internal byte[] OwnedCanonicalRecord;
         public long AttackerAreaKm2,DefenderAreaKm2;
         public HistoricalCampaignAdvance Copy()=>(HistoricalCampaignAdvance)MemberwiseClone();
     }

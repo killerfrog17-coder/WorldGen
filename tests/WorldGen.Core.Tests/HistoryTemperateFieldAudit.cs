@@ -56,7 +56,9 @@ public static class HistoryTemperateFieldAudit
                     Check(Yield(relabeled)==Yield(agronomic),"Peat/organic-label-only control leaves continuous field inputs and crop functions unchanged.");
                     var cleared=Copy(agronomic);cleared.Habitat=(cleared.Habitat&~Habitat.Forest)|Habitat.Open;
                     reconstructed=Math.Max(reconstructed,Yield(agronomic));
+                    var lot=holder?[k];
                     groups.Add(new{Group=k,Name=HistoricalCropCatalog.Crops[seed.CropId].Name,Seed=seed,HolderTown=holder?.TownId?? -1,
+                        AcquiredYear=lot?.AcquiredYear,SourceTown=lot?.SourceTown,SourceCell=lot?.SourceCell,LocalPracticeYears=lot?.PracticeYears,LastPracticeYear=lot?.LastPracticeYear,
                         WindowWarmth=agronomic.WarmTenthsC,PeakWarmth=h.WarmTenthsC,Area=Area(agronomic),Quality=D.Clamp(Area(agronomic)/fraction),ActualFit=actualFit,
                         ActualGroupYield=Yield(agronomic),WaterRecordOnlyYield=Yield(drained),PeatLabelOnlyYield=Yield(relabeled),ClearedForestSensitivity=Yield(cleared)});
                 }
@@ -65,7 +67,9 @@ public static class HistoryTemperateFieldAudit
                 var technology=Enum.GetValues<HistoricalTechnology>().Where(t=>new[]{"Irrigation","Roads","CropRotation","SteamPower","Sanitation","MechanizedAgriculture"}.Contains(t.ToString()))
                     .Select(t=>new{Name=t.ToString(),Learned=HistoricalTechnologies.Has(hc,t),Level=hc.Technical?.Levels[(int)t]??0,Adoption=HistoricalModernEffects.Adoption(hc,t,s.Years)}).ToArray();
                 inventories.Add(new{context.Kind,Culture=culture,Name=s.Society.Cultures[culture].Name,Farming=s.Society.Cultures[culture].Farming,
-                    SeedHolderTown=holder?.TownId?? -1,SeedHolderField=holder?.FieldCell?? -1,GlobalFallback=holder==null,ActualCarriedYield=actual,Technology=technology,Groups=groups});
+                    SeedHolderTown=holder?.TownId?? -1,SeedHolderField=holder?.FieldCell?? -1,
+                    SeedHolderLatitude=holder!=null?(double?)Lat(holder.FieldCell):null,SeedHolderLongitude=holder!=null?(double?)Lon(holder.FieldCell):null,
+                    HolderAge=holder!=null?s.Years-s.Society.Settlements[holder.TownId].FoundedYear:(int?)null,GlobalFallback=holder==null,ActualCarriedYield=actual,Technology=technology,Groups=groups});
             }
             rows.Add(new{site.Name,DepartureCell=site.From,TargetCell=site.Cell,Latitude=Lat(site.Cell),Longitude=Lon(site.Cell),SourceOwner=owner,SourceRegionCulture=regional,SourceTeacher=teacher,
                 ActualHabitat=h,ActualBiome=h.Biome.ToString(),ActualSoil=h.Soil.ToString(),ActualCover=h.Habitat.ToString(),CultivableFraction=fraction,RiverAreaAccess=access[site.Cell],RiverCropSites=rivers[site.Cell],Inventories=inventories});

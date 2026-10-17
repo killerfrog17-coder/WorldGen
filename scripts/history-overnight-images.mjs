@@ -22,6 +22,7 @@ try{
  for(const folder of folders){
   const reportFile=await fs.access(path.join(folder,'review.json')).then(()=> 'review.json',()=> 'episode.json');
   const report=JSON.parse(await fs.readFile(path.join(folder,reportFile),'utf8'));
+  const status=await fs.readFile(path.join(folder,'review-status.json'),'utf8').then(JSON.parse,error=>{if(error.code==='ENOENT')return null;throw error;});
   const isEpisode=reportFile==='episode.json',statesOnly=requestedStatesOnly||isEpisode;
   const presentation=isEpisode?'opaque overlay 1, neutral background 0':'climate background 1, overlay opacity .58';
   const eraNames={4:'Bronze Age',5:'Iron Age',6:'Medieval',7:'Early Modern',8:'Industrial',9:'Modern',10:'Postmodern'};
@@ -74,7 +75,7 @@ try{
    const modeFrames=rendered.filter(value=>value.mode===mode);
    for(let start=0;start<modeFrames.length;start+=sequence?6:modeFrames.length){
    const cards=modeFrames.slice(start,start+(sequence?6:modeFrames.length)).map(value=>`<article><h2>${escape(value.label)} · elapsed ${value.year}</h2><p>${value.states} states · ${value.towns===null?'town census not exported':`${value.towns} active towns`} · ${(value.population/1e6).toFixed(1)}M people · oldest state ${value.oldestStateAge}y${value.ports===null?'':` · ${value.ports} sponsored ports`}</p><a href="${value.file}"><img src="${value.file}"></a></article>`).join('');
-   const html=`<!doctype html><meta charset="utf-8"><style>body{margin:0;background:#10202b;color:#fff;font:16px sans-serif}h1{font-size:22px;margin:8px}main{display:grid;grid-template-columns:repeat(2,1800px);gap:8px}h2{font-size:22px;margin:6px}p{margin:6px}img{display:block;width:1800px}</style><h1>${escape(path.basename(folder))}: ${mode}. Frozen diagnostic export; ${presentation}. First-state rows classified Bronze minimum.</h1><main>${cards}</main>`;
+   const html=`<!doctype html><meta charset="utf-8"><style>body{margin:0;background:#10202b;color:#fff;font:16px sans-serif}h1{font-size:22px;margin:8px}.warning{background:#6b210a;color:#fff1b5;padding:12px;font-size:26px;font-weight:bold}main{display:grid;grid-template-columns:repeat(2,1800px);gap:8px}h2{font-size:22px;margin:6px}p{margin:6px}img{display:block;width:1800px}</style><h1>${escape(path.basename(folder))}: ${mode}. Frozen diagnostic export; ${presentation}. First-state rows classified Bronze minimum.</h1>${status?.Warning?`<div class="warning">${escape(status.Warning)}</div>`:''}<main>${cards}</main>`;
    const file=path.join(out,`${mode.toLowerCase()}-${sequence?String(start).padStart(3,'0'):'overview'}.html`);await fs.writeFile(file,html);
    const page=await browser.newPage({viewport:{width:3608,height:1200}});await page.goto(pathToFileURL(file).href,{waitUntil:'load'});await page.screenshot({path:file.replace('.html','.png'),fullPage:true});await page.close();
    }

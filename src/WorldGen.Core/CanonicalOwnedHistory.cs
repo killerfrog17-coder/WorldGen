@@ -8,8 +8,8 @@ namespace WorldGen.Core
         [ThreadStatic] static HistoryState ownedHistoryContext;
         internal static string ComputeOwnedHistorical(object value,HistoryState history,CancellationToken token=default)
         {
-            var previous=ownedHistoryContext;ownedHistoryContext=history;
-            try{return Compute(value,token);}finally{ownedHistoryContext=previous;}
+            var previous=ownedHistoryContext;ownedHistoryContext=history;long started=CanonicalHashCosts.StartRoot();
+            try{return Compute(value,token);}finally{ownedHistoryContext=previous;CanonicalHashCosts.EndRoot(started);}
         }
         // Only private, already validated aggregate transactions may reuse these
         // bytes. Public hashing/integrity verification always reads actual fields.
@@ -17,9 +17,9 @@ namespace WorldGen.Core
         static byte[] FreezeHistoricalRecord(string type,Action<BinaryWriter> body)
         {
             using(var stream=new MemoryStream())using(var writer=new BinaryWriter(stream))
-            {writer.Write((byte)1);writer.Write(type);body(writer);return stream.ToArray();}
+            {writer.Write((byte)1);writer.Write(type);body(writer);var bytes=stream.ToArray();CanonicalHashCosts.FrozenRecord(bytes.Length);return bytes;}
         }
         static byte[] FreezeHistoricalRecord(object record)
-        {using(var stream=new MemoryStream())using(var writer=new BinaryWriter(stream)){Write(writer,record);return stream.ToArray();}}
+        {using(var stream=new MemoryStream())using(var writer=new BinaryWriter(stream)){Write(writer,record);var bytes=stream.ToArray();CanonicalHashCosts.FrozenRecord(bytes.Length);return bytes;}}
     }
 }

@@ -32,6 +32,9 @@ namespace WorldGen.Core
                 a.Empires?.Connections?.Realms?.Claimants?.At.Fingerprint(true);
                 a.Empires?.Connections?.SeaService?.BySource.Fingerprint(true);
                 a.Empires?.Connections?.LocalSeeds?.Towns.Fingerprint(true);
+                a.Empires?.Connections?.PreparedPlots?.Cells.Fingerprint(true);
+                a.Empires?.Connections?.PreparedPlots?.RegionalCapacity.Fingerprint(true);
+                a.Empires?.Connections?.PreparedPlots?.RegionalEpoch.Fingerprint(true);
                 if(a.Empires?.Connections?.ServiceRecovery!=null)
                 {
                     var service=a.Empires.Connections.ServiceRecovery;

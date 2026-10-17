@@ -39,6 +39,14 @@ public static class HistoryCanonicalProviderTests
         check(rejected,"A disposed hash cannot resurrect a native context through Initialize while the shared provider remains alive.");
         int attempts=(int)Provider.GetProperty("ProviderOpenAttempts",BindingFlags.Static|BindingFlags.NonPublic)!.GetValue(null)!;
         check(attempts<=1,"The process opens/probes its immutable Windows algorithm provider at most once.");
+        var unavailable=Provider.GetField("reusableHashUnavailable",BindingFlags.Static|BindingFlags.NonPublic)!;int preceding=(int)unavailable.GetValue(null)!;
+        try
+        {
+            unavailable.SetValue(null,1);using var legacy=Create();
+            for(int i=0;i<32;i++)check(Hex(legacy.ComputeHash(i%2==0?abc:Array.Empty<byte>()))==(i%2==0?abcHash:empty),"A provider without native reusable-hash support retains the exact preceding fallback behavior.");
+            legacy.TransformBlock(abc,0,1,null,0);legacy.Initialize();check(Hex(legacy.ComputeHash(abc))==abcHash,"Legacy native fallback still discards explicit unfinished-message resets.");
+        }
+        finally{unavailable.SetValue(null,preceding);}
         Console.WriteLine(CanonicalHashProviderDiagnostics.Verify());
     }
     public static void Benchmark(string baselineCore)

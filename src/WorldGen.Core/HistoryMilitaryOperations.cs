@@ -10,6 +10,7 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalMilitaryOperation
     {
+        [NonSerialized] internal byte[] OwnedCanonicalRecord;
         public int PartyA,PartyB,EpochA,EpochB,CommittedA,CommittedB,OriginalCapitalA,OriginalCapitalB;
         public int VictoriesA,VictoriesB,CorePressureA,CorePressureB,IdleYears;
         public int MarchDaysA,MarchDaysB,SiegeTarget=-1,SiegeDays,SiegeBesieger=-1;

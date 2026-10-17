@@ -13,11 +13,16 @@ namespace WorldGen.Serialization
     {
         static readonly byte[] Magic = { 87, 71, 87, 82, 76, 68, 48, 49 }; // WGWRLD01
         public const int MaximumFileBytes = 256000000;
-        static DataContractSerializer Serializer() => new DataContractSerializer(typeof(World), new DataContractSerializerSettings { MaxItemsInObjectGraph = int.MaxValue });
+        static DataContractSerializer Serializer(ISerializationSurrogateProvider transport)
+        {
+            var serializer=new DataContractSerializer(typeof(World),new DataContractSerializerSettings{MaxItemsInObjectGraph=int.MaxValue});
+            serializer.SetSerializationSurrogateProvider(transport);return serializer;
+        }
         public static byte[] Write(World world, CancellationToken cancellation = default)
         {
             cancellation.ThrowIfCancellationRequested();
             using (var memory = new MemoryStream())
+            using (var transport=HistoricalCellTree.CreateBinaryTransport(cancellation))
             {
                 memory.Write(Magic, 0, Magic.Length);
                 // Keep the existing format and safety limits. Long dense
@@ -28,7 +33,7 @@ namespace WorldGen.Serialization
                 using (var guarded = new GuardedStream(gzip, cancellation))
                 using (var buffered = new BufferedStream(guarded, 65536))
                 using (var writer = XmlDictionaryWriter.CreateBinaryWriter(buffered, null, null, false))
-                    Serializer().WriteObject(writer, world);
+                    Serializer(transport).WriteObject(writer, world);
                 cancellation.ThrowIfCancellationRequested();
                 if (memory.Length > MaximumFileBytes) throw new ArgumentException("This snapshot exceeds the 256 MB compressed world-file limit.");
                 return memory.ToArray();
@@ -51,7 +56,9 @@ namespace WorldGen.Serialization
             { MaxArrayLength = 80000000, MaxDepth = 64, MaxStringContentLength = 1000000, MaxBytesPerRead = 640000000, MaxNameTableCharCount = 1048576 }))
             {
                 status?.Invoke("Reading terrain and saved history");
-                var world=(World)Serializer().ReadObject(reader);
+                World world;
+                using(var transport=HistoricalCellTree.CreateBinaryTransport(cancellation))
+                using(HistoricalCellTree.BeginReadInterning(cancellation))world=(World)Serializer(transport).ReadObject(reader);
                 status?.Invoke("Checking world and history integrity");
                 return WorldJson.ValidateWorld(world, cancellation, status);
             }

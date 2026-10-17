@@ -83,7 +83,8 @@ namespace WorldGen.Core
                     double elapsed=(Stopwatch.GetTimestamp()-started)*1000.0/Stopwatch.Frequency;eventMilliseconds+=elapsed;YearWorkObserver?.Invoke(s.Years,elapsed);WorkObserver?.Invoke(new SimulationWorkMetric{Stage=AggregateProcessLabel(e.Process),Items=(int)(a.CellReads-reads),Milliseconds=elapsed,AllocatedBytes=GC.GetAllocatedBytesForCurrentThread()-allocated});a.ProcessedLocalEvents++;count++;s.Timeline.ProcessedEvents++;
                 }
                 if(queue.Count==0||queue.Peek.Due>target)s.Timeline.Seconds=target;
-                s.Years=(int)(s.Timeline.Seconds/SimulationTime.Year);s.Timeline.Events=queue.Ordered();s.DomainToken=new object();using(ProfileWork("aggregate checkpoint hash"))s.SealAggregateOwned(token);
+                s.Years=(int)(s.Timeline.Seconds/SimulationTime.Year);s.Timeline.Events=queue.Ordered();s.DomainToken=new object();
+                using(ProfileWork("aggregate checkpoint hash"))using(var hashCosts=CanonicalHashCosts.Begin(CanonicalHashObserver,s.Years)){s.SealAggregateOwned(token);hashCosts?.Complete();}
                 YearWorkObserver?.Invoke(s.Years,Math.Max(0,overhead.Elapsed.TotalMilliseconds-eventMilliseconds));aggregateRelationCheckpoint=s.Hash;completed=true;return s;
             }
             finally {aggregateQueue=null;if(!completed)aggregateRelationCheckpoint=null;}

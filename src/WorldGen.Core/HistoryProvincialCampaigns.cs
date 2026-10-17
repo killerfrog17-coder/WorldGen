@@ -5,6 +5,7 @@ namespace WorldGen.Core
 {
     [Serializable] public sealed class HistoricalCampaignTheater
     {
+        [NonSerialized] internal byte[] OwnedCanonicalRecord;
         public int Cell=-1,SupplyA=-1,SupplyB=-1;
         public HistoricalCampaignTheater Copy()=>(HistoricalCampaignTheater)MemberwiseClone();
     }
