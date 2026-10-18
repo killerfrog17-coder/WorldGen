@@ -1,5 +1,17 @@
 # Version 3 validation evidence
 
+## Unified World panel - 18 October 2026
+
+Presentation-only: one World/W entry, category tables even before recorded
+history, combined map settings, selected-subject/overview W navigation and Esc
+closure.852 presentation assertions and actual browser interactions on populated
+and fresh Earth pass. Empty-city/settings screenshots were inspected; native
+IL2CPP keyboard/category/settings checks preserve the full historical hash.
+Release staging and CLI reconstruction pass. Selected player:
+`player-history-32-world-panel`, built2026-10-18T19:05:25Z, with notables35 retained.
+No history version/upgrade or new realism/performance acceptance is involved.
+See [the navigation review](WORLD_PANEL_NAVIGATION.md).
+
 ## High-profile lives and dynastic households - 18 October 2026
 
 Optional history32 realm35 is documented in

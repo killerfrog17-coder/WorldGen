@@ -19,7 +19,7 @@ try{
  assert.equal((await page.locator('.error').allTextContents()).length,0);
  await page.getByRole('button',{name:'Start world',exact:true}).click();
  await page.waitForFunction(()=>window.__wg.viewInfo().map&&!window.__wg.viewInfo().loading,{},{timeout:180000});const before=await status();
- await page.getByRole('button',{name:'Atlas',exact:true}).click();const atlas=page.getByRole('dialog',{name:'World atlas'});
+ await page.getByRole('button',{name:'World [W]',exact:true}).click();const atlas=page.getByRole('dialog',{name:'World atlas'});
  await atlas.getByRole('button',{name:'Notable people',exact:true}).click();
  await atlas.getByRole('checkbox',{name:'Include historical records'}).check();
  async function open(person){await atlas.getByRole('textbox',{name:'Search atlas names'}).fill(person.Name);await atlas.locator(`.atlas-directory-list button[data-kind="notable"][data-id="${person.Id}"]`).click();await atlas.locator(`.atlas-article[data-kind="notable"][data-id="${person.Id}"]`).waitFor();}

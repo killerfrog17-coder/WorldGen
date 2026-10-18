@@ -131,6 +131,8 @@ namespace WorldGen.Presentation
         public static AtlasDocument Read(PrehistoryState? s,string kind="world",int id=-1,World? world=null,Prehistory? engine=null)
         {
             var d=new AtlasDocument{Kind=kind,Id=id,Year=s?.Years??0,EpochYear=SimulationClockView.EpochYear(s),Subtitle=SimulationClockView.Year(s,s?.Years??0),Note="Generated history. Indicators are model estimates; populations use aggregate accounts, not an individual census."};
+            if(AtlasNavigation.IsDirectory(kind)){d.Title=AtlasNavigation.CategoryName(kind);d.Note="";return d;}
+            if(kind=="view"){d.Title="Map settings";d.Note="";return d;}
             if(s?.Society==null||s.History==null){d.Introduction=(s==null?"":N(SocietyView.Population(s))+" people are currently present. ")+"Human history has not yet produced recorded cultures, cities, or states. Run the simulation to begin building this world's atlas.";if(s!=null)d.Facts=new[]{F("People",N(SocietyView.Population(s)))};return d;}
             var h=s.History;var sections=new List<AtlasSection>();
             switch(kind)

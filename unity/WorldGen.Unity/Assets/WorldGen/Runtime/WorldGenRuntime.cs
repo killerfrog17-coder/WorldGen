@@ -92,6 +92,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         if(Environment.GetCommandLineArgs().Contains("--worldgen-overnight-review")){screen="Setup";BeginWork(false,Argument("--worldgen-overnight-review",""));StartCoroutine(CheckOvernightHistory());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-history-playback")){screen="Setup";BeginWork(false,Argument("--worldgen-history-playback",""));StartCoroutine(CheckHistoricalPlayback());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-dock-check")){screen="Setup";BeginWork(false,Argument("--worldgen-dock-check",""));StartCoroutine(CheckHistoryDock());}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-atlas-check")){screen="Setup";BeginWork(false,Argument("--worldgen-atlas-check",""));StartCoroutine(CheckAtlasNavigation());}
     }
     void Generate() => StartGeneration();
     async void InitializeLibrary()
@@ -279,7 +280,11 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
             if(Keyboard.current.rKey.wasPressedThisFrame){showRivers=!showRivers;ApplyCachedDisplay();}
             if(screen=="Simulation"&&Keyboard.current.cKey.wasPressedThisFrame)settlementMarkerMode=SettlementMarkers.Next(settlementMarkerMode);
         }
-        if(screen=="Simulation"&&!saveDialog&&Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame){if(atlasOpen){atlasOpen=false;atlasSearchFocused=false;}else ToggleSimulationPause();}
+        if(screen=="Simulation"&&!saveDialog&&Keyboard.current!=null)
+        {
+            if(Keyboard.current.escapeKey.wasPressedThisFrame){if(atlasOpen)CloseWorldAtlas();else ToggleSimulationPause();}
+            else if(!simulationPaused&&!Keyboard.current.ctrlKey.isPressed&&!Keyboard.current.altKey.isPressed&&Keyboard.current.wKey.wasPressedThisFrame&&!atlasSearchFocused&&(atlasOpen||GUIUtility.keyboardControl==0))WorldAtlasKey();
+        }
         PollHumans();
         if(screen=="Simulation"&&!atlasOpen&&!simulationPaused&&!saveDialog&&Keyboard.current!=null&&!atlasSearchFocused)
         {

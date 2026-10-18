@@ -18,7 +18,7 @@ try{
  await page.getByRole('button',{name:'Start world',exact:true}).click();
  await page.waitForFunction(()=>window.__wg.viewInfo().map&&!window.__wg.viewInfo().loading,{},{timeout:180000});
  const initial=await status();
- await page.getByRole('button',{name:'Atlas',exact:true}).click();
+ await page.getByRole('button',{name:'World [W]',exact:true}).click();
  const atlas=page.getByRole('dialog',{name:'World atlas'});
  await atlas.getByRole('button',{name:'Languages',exact:true}).click();
  await atlas.locator('.atlas-directory-list button[data-kind="language"]').first().click();

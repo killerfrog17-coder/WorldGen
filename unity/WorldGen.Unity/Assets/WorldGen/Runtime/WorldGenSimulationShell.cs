@@ -87,9 +87,7 @@ public sealed partial class WorldGenRuntime
         for(int i=0;i<3;i++)societyResizeControls[i]=GUIUtility.GetControlID(18490+i,FocusType.Passive);
         DrawSocietyMarks();var state=world?.Prehistory;GUI.enabled=!atlasOpen;
         GUI.Box(new Rect(0,0,Screen.width,52),"");
-        if(GUI.Button(new Rect(8,7,68,36),"World"))OpenAtlas();
-        if(GUI.Button(new Rect(82,7,68,36),"Atlas")){var subject=humanOverlayOpacity>0?HistoryAtlas.Selection(state,selectedCell,historyOverlay):null;atlasKind="state";OpenAtlas(subject?.Kind??"world",subject?.Id??-1);}
-        if(GUI.Button(new Rect(156,7,68,36),"View")){detailsOpen=!detailsOpen||!mapSettings;mapSettings=true;}
+        if(GUI.Button(new Rect(8,7,100,36),"World [W]"))WorldAtlasKey();
         GUILayout.BeginArea(new Rect(Mathf.Max(232,Screen.width-600),7,Mathf.Min(594,Screen.width-238),40));GUILayout.BeginHorizontal();
         GUILayout.Label(state==null?"Preparing…":SimulationClockView.Date(state,humanPlayback.Rate),new GUIStyle(GUI.skin.label){fontStyle=FontStyle.Bold},GUILayout.Width(195));
         GUI.enabled=!atlasOpen&&humans!=null&&!simulationPaused;

@@ -3,6 +3,18 @@ namespace WorldGen.Presentation
 {
     public static class AtlasNavigation
     {
+        public static readonly (string Kind,string Name)[] Categories={
+            ("state","States"),("province","Provinces"),("city","Cities"),("people","Peoples"),
+            ("ethnicity","Ethnicities"),("language","Languages"),("religion","Religions"),
+            ("religious-body","Ritual bodies"),("technology","Technology"),("ruler","Rulers"),
+            ("notable","Notable people"),("organization","Organizations")};
+        public static bool IsDirectory(string kind)=>kind.StartsWith("directory:",StringComparison.Ordinal);
+        public static string DirectoryKind(string kind)=>IsDirectory(kind)?kind.Substring(10):kind;
+        public static string CategoryName(string kind)
+        {foreach(var category in Categories)if(category.Kind==DirectoryKind(kind))return category.Name;return "Records";}
+        public static AtlasDocument Location(SelectionCard card,int cell,int year,int epoch)
+            =>new AtlasDocument{Kind="location",Id=cell,Year=year,EpochYear=epoch,
+                Title=card.Title,Subtitle=card.Subtitle,Facts=card.Facts,Note=card.Note};
         public static readonly string[] Groups={"Overview","People & place","Power & relations","Economy & knowledge","History"};
         public static string Group(string title)
         {

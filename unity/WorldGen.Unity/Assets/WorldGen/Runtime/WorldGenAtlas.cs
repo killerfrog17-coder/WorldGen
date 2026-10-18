@@ -8,7 +8,7 @@ using WorldGen.Presentation;
 public sealed partial class WorldGenRuntime
 {
     bool atlasOpen,atlasPast,atlasSearchFocused;
-    string atlasKind="state",atlasSearch="",atlasSection="Overview";
+    string atlasKind="world",atlasSearch="",atlasSection="Overview";
     Vector2 atlasDirectoryScroll,atlasArticleScroll;
     AtlasDocument atlasDocument;
     AtlasTimeline atlasTimeline;
@@ -23,12 +23,20 @@ public sealed partial class WorldGenRuntime
         else atlasBack.Clear();
         atlasOpen=true;atlasSnapshot=world?.Prehistory;LoadAtlasArticle(kind,id);RefreshAtlasDirectory();EndAtlasUiChange();
     }
+    void WorldAtlasKey()
+    {
+        if(atlasOpen){OpenAtlas();return;}
+        var subject=humanOverlayOpacity>0?HistoryAtlas.Selection(world?.Prehistory,selectedCell,historyOverlay):null;
+        OpenAtlas(subject?.Kind??(selectedCell>=0?"location":"world"),subject?.Id??selectedCell);
+    }
+    void CloseWorldAtlas(){atlasOpen=false;atlasSearchFocused=false;GUIUtility.keyboardControl=0;}
     void LoadAtlasArticle(string kind,int id)
     {
-        atlasDocument=HistoryAtlas.Read(atlasSnapshot,kind,id,world,humans);atlasSection="Overview";atlasArticleScroll=Vector2.zero;atlasTimeline=null;
+        atlasDocument=kind=="location"?AtlasNavigation.Location(humanOverlayOpacity>0?CurrentSelectionCard():CurrentBaseCard(),id,atlasSnapshot?.Years??0,SimulationClockView.EpochYear(atlasSnapshot)):HistoryAtlas.Read(atlasSnapshot,kind,id,world,humans);
+        atlasKind=AtlasNavigation.DirectoryKind(kind);atlasSection="Overview";atlasArticleScroll=Vector2.zero;atlasTimeline=null;
     }
     void RefreshAtlasDirectory(){atlasDirectory=HistoryAtlas.Directory(atlasSnapshot,atlasKind,atlasSearch,atlasPast);atlasRepeatedNames=new HashSet<string>(atlasDirectory.GroupBy(x=>x.Name).Where(g=>g.Count()>1).Select(g=>g.Key));atlasDirectoryScroll=Vector2.zero;atlasDirectoryPage=0;}
-    void AtlasNavigate(AtlasLink link){if(string.IsNullOrEmpty(link.Kind))return;atlasBack.Push(Tuple.Create(atlasDocument.Kind,atlasDocument.Id));LoadAtlasArticle(link.Kind,link.Id);EndAtlasUiChange();}
+    void AtlasNavigate(AtlasLink link){if(string.IsNullOrEmpty(link.Kind))return;atlasBack.Push(Tuple.Create(atlasDocument.Kind,atlasDocument.Id));LoadAtlasArticle(link.Kind,link.Id);RefreshAtlasDirectory();EndAtlasUiChange();}
     void EndAtlasUiChange(){if(Event.current!=null&&Event.current.type!=EventType.Layout&&Event.current.type!=EventType.Repaint)GUIUtility.ExitGUI();}
     void DrawAtlas()
     {
@@ -38,12 +46,13 @@ public sealed partial class WorldGenRuntime
         GUILayout.BeginHorizontal();GUILayout.Label("WORLD ATLAS",new GUIStyle(GUI.skin.label){fontSize=18,fontStyle=FontStyle.Bold});
         GUILayout.Label("Playback paused · "+SimulationClockView.Year(atlasSnapshot,atlasSnapshot?.Years??0),GUILayout.Width(200));
         if(GUILayout.Button("Refresh",GUILayout.Width(80))){atlasSnapshot=world?.Prehistory;LoadAtlasArticle(atlasDocument.Kind,atlasDocument.Id);RefreshAtlasDirectory();EndAtlasUiChange();}
-        if(GUILayout.Button("Close",GUILayout.Width(65))){atlasOpen=false;atlasSearchFocused=false;EndAtlasUiChange();}GUILayout.EndHorizontal();
+        if(GUILayout.Button("Close",GUILayout.Width(65))){CloseWorldAtlas();EndAtlasUiChange();}GUILayout.EndHorizontal();
         GUILayout.Space(8);GUILayout.BeginHorizontal();
         GUILayout.BeginVertical(GUILayout.Width(205));
-        if(GUILayout.Button("World overview")){atlasBack.Push(Tuple.Create(atlasDocument.Kind,atlasDocument.Id));LoadAtlasArticle("world",-1);EndAtlasUiChange();}
-        foreach(var category in new[]{("state","States"),("province","Provinces"),("city","Cities"),("people","Peoples"),("ethnicity","Ethnicities"),("language","Languages"),("religion","Religions"),("religious-body","Ritual bodies"),("technology","Technology"),("ruler","Rulers"),("notable","Notable people"),("organization","Organizations")})
-            if(GUILayout.Toggle(atlasKind==category.Item1,category.Item2,GUI.skin.button)&&atlasKind!=category.Item1){atlasKind=category.Item1;RefreshAtlasDirectory();EndAtlasUiChange();}
+        if(GUILayout.Toggle(atlasKind=="world","World overview",GUI.skin.button)&&atlasKind!="world")OpenAtlas();
+        if(GUILayout.Toggle(atlasKind=="view","Map settings",GUI.skin.button)&&atlasKind!="view")OpenAtlas("view");
+        foreach(var category in AtlasNavigation.Categories)
+            if(GUILayout.Button(category.Name,new GUIStyle(GUI.skin.button){normal=atlasKind==category.Kind?GUI.skin.button.active:GUI.skin.button.normal})){atlasSearch="";OpenAtlas("directory:"+category.Kind);}
         GUI.SetNextControlName("AtlasSearch");string search=GUILayout.TextField(atlasSearch);atlasSearchFocused=GUI.GetNameOfFocusedControl()=="AtlasSearch";
         if(search!=atlasSearch){atlasSearch=search;RefreshAtlasDirectory();EndAtlasUiChange();}GUILayout.Label("Search names",new GUIStyle(GUI.skin.label){fontSize=11});
         bool past=GUILayout.Toggle(atlasPast,"Include historical records");if(past!=atlasPast){atlasPast=past;RefreshAtlasDirectory();EndAtlasUiChange();}
@@ -53,7 +62,7 @@ public sealed partial class WorldGenRuntime
         foreach(var item in atlasDirectory.Skip(atlasDirectoryPage*200).Take(200)){string name=item.Name+(atlasRepeatedNames.Contains(item.Name)&&item.Context.Length>0?"\n"+item.Context:"");if(GUILayout.Button(new GUIContent(name,item.Context+" · "+item.Detail),new GUIStyle(GUI.skin.button){fontSize=13,alignment=TextAnchor.MiddleLeft,wordWrap=true,padding=new RectOffset(8,8,5,5)}))AtlasNavigate(item);}
         if(atlasDirectory.Length==0)GUILayout.Label("No matching records.");GUILayout.EndScrollView();GUILayout.EndVertical();
         GUILayout.Space(20);GUILayout.BeginVertical();GUILayout.BeginHorizontal();GUI.enabled=atlasBack.Count>0;
-        if(GUILayout.Button("Back",GUILayout.Width(60))){var prior=atlasBack.Pop();LoadAtlasArticle(prior.Item1,prior.Item2);EndAtlasUiChange();}GUI.enabled=true;
+        if(GUILayout.Button("Back",GUILayout.Width(60))){var prior=atlasBack.Pop();LoadAtlasArticle(prior.Item1,prior.Item2);RefreshAtlasDirectory();EndAtlasUiChange();}GUI.enabled=true;
         if(GUILayout.Button("Copy article",GUILayout.Width(105)))GUIUtility.systemCopyBuffer=HistoryAtlas.PlainText(atlasDocument,atlasTimeline);
         GUILayout.FlexibleSpace();GUI.enabled=atlasDocument.Cell>=0;
         if(GUILayout.Button("Show on map",GUILayout.Width(116)))
@@ -65,6 +74,19 @@ public sealed partial class WorldGenRuntime
         }
         GUI.enabled=true;GUILayout.EndHorizontal();
         GUILayout.Label(atlasDocument.Title,new GUIStyle(GUI.skin.label){fontSize=26,fontStyle=FontStyle.Bold});GUILayout.Label(atlasDocument.Subtitle,new GUIStyle(GUI.skin.label){fontSize=12});
+        if(atlasKind=="view"||AtlasNavigation.IsDirectory(atlasDocument.Kind))
+        {
+            atlasArticleScroll=GUILayout.BeginScrollView(atlasArticleScroll);
+            if(atlasKind=="view")DrawSocietyMapSettings();
+            else
+            {
+                GUILayout.BeginHorizontal();GUILayout.Label("Name",GUILayout.Width(210));GUILayout.Label("Details");GUILayout.EndHorizontal();
+                foreach(var entry in atlasDirectory.Skip(atlasDirectoryPage*200).Take(200))
+                {GUILayout.BeginHorizontal();if(GUILayout.Button(entry.Name,GUILayout.Width(210)))AtlasNavigate(entry);GUILayout.Label(entry.Detail+(entry.Context.Length>0?" · "+entry.Context:""),new GUIStyle(GUI.skin.label){wordWrap=true});GUILayout.EndHorizontal();}
+                if(atlasDirectory.Length==0)AtlasParagraph("No matching records.",14);
+            }
+            GUILayout.EndScrollView();GUILayout.EndVertical();GUILayout.EndHorizontal();GUILayout.EndArea();return;
+        }
         // A narrow table of contents keeps each deep section one click away.
         var allContents=new[]{"Overview"}.Concat(atlasDocument.Sections.Select(s=>s.Title)).ToArray();
         var groups=AtlasNavigation.Groups.Where(g=>allContents.Any(t=>AtlasNavigation.Group(t)==g)).ToArray();

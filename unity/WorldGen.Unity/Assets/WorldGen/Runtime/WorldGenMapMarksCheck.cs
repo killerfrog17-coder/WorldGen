@@ -9,6 +9,40 @@ using WorldGen.Presentation;
 
 public sealed partial class WorldGenRuntime
 {
+    IEnumerator CheckAtlasNavigation()
+    {
+        string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);AudioListener.volume=0;
+        double deadline=Time.realtimeSinceStartupAsDouble+180;
+        while((Busy||humans==null||!worldReady||humanPaletteJob!=null||humanPaletteReady!=null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+        if(Busy||humans==null||!worldReady)throw new Exception("Atlas check load failed: "+error);
+        string hash=world.Prehistory.ComputeHash();screen="Simulation";humanPlaying=false;simulationPaused=false;atlasOpen=false;saveDialog=false;
+        var errors=new System.Collections.Generic.List<string>();Application.LogCallback record=(m,t,k)=>{if(k==LogType.Error||k==LogType.Exception)errors.Add(m);};Application.logMessageReceived+=record;
+        historyOverlay=HistoryOverlay.States;humanOverlayOpacity=1;
+        var states=HistoryAtlas.Directory(world.Prehistory,"state");selectedCell=states.Length>0?states[0].Cell:-1;
+        var expected=HistoryAtlas.Selection(world.Prehistory,selectedCell,historyOverlay);
+        InputSystem.settings.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
+        var keyboard=InputSystem.AddDevice<Keyboard>();keyboard.MakeCurrent();GUIUtility.keyboardControl=0;
+        InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.W));yield return null;yield return null;
+        InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
+        if(!atlasOpen||atlasDocument.Kind!=(expected?.Kind??"world")||expected!=null&&atlasDocument.Id!=expected.Id)throw new Exception("W did not open selected subject");
+        InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.W));yield return null;yield return null;
+        InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
+        if(!atlasOpen||atlasDocument.Kind!="world")throw new Exception("W did not return to world overview");
+        foreach(var category in AtlasNavigation.Categories)
+        {
+            OpenAtlas("directory:"+category.Kind);yield return null;yield return new WaitForEndOfFrame();
+            if(atlasDocument.Title!=category.Name||atlasKind!=category.Kind)throw new Exception("Wrong category page: "+category.Name);
+        }
+        atlasSearch="no-such-atlas-record-989898";OpenAtlas("directory:city");yield return new WaitForEndOfFrame();
+        if(atlasDirectory.Length!=0||atlasDocument.Title!="Cities")throw new Exception("Empty Cities page failed");
+        OpenAtlas("view");yield return null;yield return new WaitForEndOfFrame();
+        if(atlasDocument.Title!="Map settings")throw new Exception("Missing combined map settings page");
+        atlasSearchFocused=true;GUIUtility.keyboardControl=12345;InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.Escape));yield return null;yield return null;
+        InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
+        Application.logMessageReceived-=record;InputSystem.RemoveDevice(keyboard);
+        if(atlasOpen||simulationPaused||world.Prehistory.ComputeHash()!=hash||errors.Count>0)throw new Exception("Atlas close/history/GUI failure: "+string.Join(";",errors));
+        File.WriteAllText(Path.Combine(output,"result.txt"),"PASS native W selected subject/world; every category; empty Cities; combined settings; Esc with focused search; unchanged history "+hash);Application.Quit(0);
+    }
     IEnumerator CheckMapMarks()
     {
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);AudioListener.volume=0;

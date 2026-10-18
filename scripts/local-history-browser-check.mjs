@@ -22,7 +22,7 @@ try{
  if(upgraded.CanUpgradeHistory||upgraded.Seconds!==before.Seconds||upgraded.EpochYear!==before.EpochYear)throw Error('Upgrade changed historical dates or failed to change rules');
  await page.screenshot({path:output+'/upgraded-pause-menu.png'});
  await page.getByRole('button',{name:'Resume',exact:true}).click();
- await page.getByRole('button',{name:'Atlas',exact:true}).click();
+ await page.getByRole('button',{name:'World [W]',exact:true}).click();
  await page.waitForSelector('.atlas-reader',{timeout:120000});
  await page.screenshot({path:output+'/atlas.png'});
  await page.getByRole('button',{name:'Close',exact:true}).click();

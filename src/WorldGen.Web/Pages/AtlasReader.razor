@@ -7,7 +7,8 @@
 <div class="atlas-layout">
 <nav class="atlas-directory" aria-label="Atlas directory">
 <button disabled="@Busy" @onclick='()=>Navigate.InvokeAsync(new AtlasLink{Kind="world",Id=-1})'>World overview</button>
-@foreach(var kind in new[]{("state","States"),("province","Provinces"),("city","Cities"),("people","Peoples"),("ethnicity","Ethnicities"),("language","Languages"),("religion","Religions"),("religious-body","Ritual bodies"),("technology","Technology"),("ruler","Rulers"),("notable","Notable people"),("organization","Organizations")}){<button disabled="@Busy" class="@(DirectoryKind==kind.Item1?"selected":"")" @onclick="()=>Category.InvokeAsync(kind.Item1)">@kind.Item2</button>}
+<button disabled="@Busy" class="@(Document.Kind=="view"?"selected":"")" @onclick='()=>Navigate.InvokeAsync(new AtlasLink{Kind="view",Id=-1})'>Map settings</button>
+@foreach(var kind in AtlasNavigation.Categories){<button disabled="@Busy" class="@(DirectoryKind==kind.Kind?"selected":"")" @onclick="()=>SelectCategory(kind.Kind)">@kind.Name</button>}
 <input aria-label="Search atlas names" placeholder="Search names" @bind="search" @bind:event="oninput"/>
 <label><input type="checkbox" @bind="past"/> Include historical records</label>
 @{var matching=Directory.Where(l=>(past||!l.Historical)&&l.Name.Contains(search,StringComparison.OrdinalIgnoreCase)).ToArray();string filter=search+"|"+past+"|"+DirectoryKind;if(filter!=directoryFilter){directoryFilter=filter;directoryPage=0;}int pages=Math.Max(1,(matching.Length+199)/200);directoryPage=Math.Min(directoryPage,pages-1);}
@@ -19,7 +20,15 @@
 @if(copyNotice.Length>0){<p role="status" class="atlas-copy-notice">@copyNotice</p>}
 @if(Busy){<p role="status" class="atlas-loading">Opening record…</p>}
 <h1>@Document.Title</h1><p class="atlas-subtitle">@Document.Subtitle</p>
-@{var chapters=new[]{"Overview"}.Concat(Document.Sections.Select(s=>s.Title)).ToArray();var group=AtlasNavigation.Group(section);}
+@if(Document.Kind=="view"){
+<div class="atlas-reading atlas-map-settings">@ViewSettings</div>
+}else if(AtlasNavigation.IsDirectory(Document.Kind)){
+<div class="atlas-reading"><table class="atlas-record-table"><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody>
+@foreach(var link in matching.Skip(directoryPage*200).Take(200)){<tr><td><button disabled="@Busy" data-kind="@link.Kind" data-id="@link.Id" @onclick="()=>Navigate.InvokeAsync(link)">@link.Name</button></td><td>@link.Detail@if(link.Context.Length>0){<small>@link.Context</small>}</td></tr>}
+@if(matching.Length==0){<tr><td colspan="2">No matching records.</td></tr>}
+</tbody></table></div>
+}else{
+var chapters=new[]{"Overview"}.Concat(Document.Sections.Select(s=>s.Title)).ToArray();var group=AtlasNavigation.Group(section);
 <div class="atlas-chapters" role="navigation" aria-label="Article chapters">@foreach(var chapter in AtlasNavigation.Groups.Where(g=>chapters.Any(t=>AtlasNavigation.Group(t)==g))){<button class="@(chapter==group?"selected":"")" @onclick="()=>SelectSection(chapters.First(t=>AtlasNavigation.Group(t)==chapter))">@chapter</button>}</div>
 <div class="atlas-contents" role="navigation" aria-label="Article sections">@foreach(var title in chapters.Where(t=>t!="Overview"&&AtlasNavigation.Group(t)==group)){<button disabled="@Busy" class="@(section==title?"selected":"")" aria-current="@(section==title?"page":null)" @onclick="()=>SelectSection(title)">@title</button>}</div>
 <div class="atlas-reading" @key="section">
@@ -50,6 +59,7 @@ records=TimelinePage.Records;
 }}
 <p class="atlas-note">@Document.Note</p>
 </div>
+}
 </article></div></section></div>
 @code {
     [Parameter] public AtlasDocument Document{get;set;}=new();
@@ -66,10 +76,12 @@ records=TimelinePage.Records;
     [Parameter] public EventCallback Back{get;set;}
     [Parameter] public EventCallback Close{get;set;}
     [Parameter] public EventCallback Refresh{get;set;}
+    [Parameter] public RenderFragment ViewSettings{get;set;}
     string section="Overview",search="",copyNotice="",directoryFilter="";bool past;int directoryPage;AtlasDocument previous;AtlasLink[] priorDirectory;HashSet<string> repeatedNames=new();
     ElementReference reader;IJSObjectReference focusModule;bool disposed;
     string ChartColor(AtlasLink link)=>link.Kind=="state"||link.Kind=="people"||link.Kind=="religion"?SocietyView.ColorHex(link.Id):"#baa475";
     async Task SelectSection(string name){section=name;if(name=="Recorded history")await Page.InvokeAsync(0);}
+    async Task SelectCategory(string kind){search="";directoryPage=0;await Category.InvokeAsync(kind);}
     async Task CopyArticle(){try{await JS.InvokeVoidAsync("navigator.clipboard.writeText",HistoryAtlas.PlainText(Document,TimelinePage));copyNotice="Article copied.";}catch(JSException){copyNotice="The browser blocked clipboard access. You can still select and copy the text.";}}
     protected override void OnParametersSet(){if(!ReferenceEquals(previous,Document)){previous=Document;section="Overview";copyNotice="";}if(!ReferenceEquals(priorDirectory,Directory)){priorDirectory=Directory;directoryPage=0;repeatedNames=Directory.GroupBy(x=>x.Name).Where(g=>g.Count()>1).Select(g=>g.Key).ToHashSet();}}
     protected override async Task OnAfterRenderAsync(bool first){if(first){var loaded=await JS.InvokeAsync<IJSObjectReference>("import","./atlas-focus.js");if(disposed){await loaded.DisposeAsync();return;}focusModule=loaded;await focusModule.InvokeVoidAsync("activate",reader);}}
