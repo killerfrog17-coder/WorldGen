@@ -1,5 +1,20 @@
 # Version 3 validation evidence
 
+## Contested local sovereignty - 17 October 2026
+
+Optional history32 realm34 is described in
+[the local-sovereignty review](HISTORY32_CONTESTED_SOVEREIGNTY.md).
+Implementation checkpoint1bc6896 is pushed.511 focused assertions,32 actual
+Earth/31 actual forest checks and826 presentation assertions pass, including
+real-account secession/restoration and refused/paid protection counterfactuals.
+Both natural80-year continuations retain split-run and cold-save determinism.
+Old33 remains literal. Release build, generation reconstruction, actual browser
+political article, native map/stripped-article and exact native/CLR12-year replay
+pass. The native States and browser city dossier screenshots were opened.
+The reviewed IL2CPP player is `player-history-32-sovereignty34`; identity33
+remains the rollback. This is causal-mechanism/persistence/adapter evidence,
+not all-era historical calibration or a new200k late-world performance acceptance.
+
 ## Peoples and local historical memory - 17 October 2026
 
 Optional history32 realm33 is described in

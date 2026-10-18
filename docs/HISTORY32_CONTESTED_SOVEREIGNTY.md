@@ -112,3 +112,46 @@ town-level process. Bounded route probes are approximations. Mechanism and
 persistence tests are not proof that all eras or all world's borders are now
 historically calibrated. The outstanding dense late-world performance target
 remains separate.
+
+## Validation and review checkpoint
+
+Implementation checkpoint `1bc6896` is pushed to `origin/main`. Focused checks
+pass511 sovereignty assertions,208 identity/memory,377 structured-religion,
+306 spoken-language and826 historical-presentation assertions. Actual saved
+Earth passes32 checks; the contrasting dense forest world passes31. Controlled
+counterfactuals test refusal without routes/funds, real paid accepted protection,
+refugee conservation/cancellation on abandonment, unsupported versus organized
+secession, treasury/levy conservation, a real restoration campaign and no
+neighbor-town sweep. They are mechanism tests, not natural historical outcomes.
+
+Natural80-year continuations match31+49 publication and binary cold reload plus
+another12years; sparse records also roundtrip JSON. The Earth continuation
+records28 cases and6 latest town transfers (1 actual conquest and5 sponsored
+settlements), hash `2954249de6fe7d9f18fe99235a308ae2bc35c6650c2c60c0b7f851474e84a711`.
+The dense forest replay records524 latest cases and997 latest transfers,
+including19 negotiated protections,39 administrative withdrawals,28 secessions
+and868 actual campaign captures, hash
+`af5d4d9430eeae5ae0ff56ee49b71da3aab87f507448754d08f4e548bf540f80`.
+Those are observations in existing mature histories, not target rates or proof
+that the forest world's high conflict frequency is calibrated.
+
+The Release solution/staged-worker build has zero warnings/errors. Preview CLI
+repeat/reapply/recipe/cached reconstruction preserves every generation-stage
+hash. Browser Edge/.NET-worker testing opens a real participating town's atlas
+article under Power & relations, checks its dated causal record, States hotkey,
+paused time and no JavaScript errors. Its actual screenshot was opened: Ne silun's
+year1311 independence petition is superseded by the recorded1319 capture in
+the Ba mesu–Ba gisulel War. This is a natural replay record, not the controlled
+test fixture. The native States camera image was also opened; hidden HUD capture
+is not native UI-layout proof.
+
+Release IL2CPP `player-history-32-sovereignty34` was built
+2026-10-18T00:10:12Z. Native faith/institution/language/identity maps and city
+sovereignty article pass without changing history. Native and CLR12-year
+continuation match `6a10244e023964c1e3d3674c347d5b4bc822ca118a942ea68414c5b3f51e25f3`.
+The unupgraded33 CLR continuation retains the prior verified native result
+`6c260f869ca569907ce647d188a644a5728952060ef24bc9592dbc88ac01b5e8`.
+`build-inputs.json` retains exact staged assembly hashes. Review evidence lives
+under `D:/WorldGenBuildArtifacts/sovereignty34-review`, outside source control.
+No new200k maximum-tech+1000-year performance or independent all-era screenshot
+acceptance is claimed; the preceding dense-performance limitation remains open.
