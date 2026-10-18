@@ -1,5 +1,18 @@
 # Version 3 validation evidence
 
+## Persistent domestic institutions - 18 October 2026
+
+[Optional realm37](HISTORY32_DOMESTIC_POLITICS.md) adds saved power groups,
+coalitions, funded bargaining and resource-conditioned office contests.14 focused,
+985 presentation and25 checks on each actual Earth/forest history pass, including
+60-year partition/cold persistence. Old36 remains exact; new37 native and CLR
+12-year continuations match. Actual browser power/bargaining screenshots are
+reviewed; native representative Atlas sections pass on both inputs without
+changing history. The shortcut selects `player-history-32-domestic37` (IL2CPP,
+2026-10-18T23:42:03Z), retaining atlas36. This is mechanism/adapter verification,
+not all-era historical calibration, a dense browser-import fix or satisfaction
+of the outstanding dense200k/max-tech+1000 speed criterion.
+
 ## Visual Atlas and pre-cultural heritage - 18 October 2026
 
 The [tab-by-tab review](ATLAS_OVERHAUL_REVIEW.md) and

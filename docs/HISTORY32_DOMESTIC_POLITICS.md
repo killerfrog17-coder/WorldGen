@@ -91,3 +91,51 @@ all-era political outcomes. It builds on, rather than replaces, actual city food
 treasury, army, religion, identity, claimant and sovereignty mechanisms. Full
 late-world realism and the outstanding200k/max-tech+1000 speed criterion remain
 separate acceptance questions.
+
+## Executed review - 18 October 2026
+
+Implementation checkpoint `4064338` is backed up on origin/main. Release staging
+has zero warnings/errors.14 focused domestic and985 combined presentation
+assertions pass, along with208 identity,511 sovereignty,19 realm and4 notable
+checks. Preview repeat/reapply/recipe/cache reconstruction preserves every
+generation-stage hash.
+
+Actual Earth and dense generated forest histories each pass25 checks: prospective
+upgrade/no free population or resources, detached queries, unfunded and paid
+bargaining, refused unsupported officer contests, a real funded office replacement,
+country continuity, actual person provenance and nonlethal deposition. The
+deliberately extreme causal fixture is separate from natural outcomes. Natural
+60-year continuations match23+37 publication and binary cold replay; actual
+political trees also roundtrip JSON. Earth retains8 governments/40 groups;
+forest retains241/1,205,221 with a recorded decision. Neither natural60-year
+window records an armed office transfer: this is not a fitted coup frequency.
+
+Earth60-year hash:
+`858f9cf64f9998a97f35d1016a1bd3a7c4556679a142aba754014e6a20e643a8`.
+Forest60-year hash:
+`4698b42a6c733d477fb516ba621e7ac4ec71ec49aab6932f78e63b6e5e2c1ab9`.
+An unupgraded36 Earth12-year continuation remains exactly
+`52aeab6ab791edebeeeecd4bc935d9c8c7abe9d3dd7de473b3d75554652d5fcd`
+in both native and CLR. New37 Earth next12-year native/CLR continuation matches
+`88d093657d492a7e7621aff9d5fa9c426510a0a62afbc72085baaf1e15243c05`.
+A separate old36 Earth60-year comparison also retains8 governments, rather
+than indicating that the new domestic system suddenly fragments this input.
+That short comparison is not all-era political calibration.
+
+Actual Edge/.NET-worker checks pass all Atlas categories, numeric sorting,
+relationship navigation and unchanged paused time. Focused politics checks
+open the actual **Domestic power groups** and **Institutional bargaining**
+sections and display paid/rejected decisions. Their screenshots were opened
+and inspected. Review removed a duplicate old chart, classified influence as
+reconciled shares rather than independent indices, and made coalition status
+visible even on the compact card. Native IL2CPP traverses all representative
+article sections on Earth and forest without GUI errors or changing history.
+Hidden-window native HUD captures are not claimed as visual-layout evidence.
+
+The selected IL2CPP player was built2026-10-18T23:42:03Z; `build-inputs.json`
+matches the staged assemblies. The project shortcut selects
+`artifacts/player-history-32-domestic37/WorldGen.exe`; atlas36 is retained as
+rollback. Start fresh, or choose **Esc → Update simulation rules**. Temporary
+evidence lives under `D:/WorldGenBuildArtifacts/domestic37-review`, not Git.
+No dense browser-import fix, all-era realism acceptance or new dense-world
+speed acceptance is implied.

@@ -16,6 +16,7 @@ try{
  const before=await request('status');await page.keyboard.press('w');const atlas=page.getByRole('dialog',{name:'World atlas'});await atlas.waitFor();
  await page.screenshot({path:output+'/world.png'});
  for(const [kind,name] of categories){
+  if(process.argv.includes('--domestic-only')&&kind!=='state')continue;
   console.log('Reviewing '+name);
   await atlas.locator('.atlas-directory').getByRole('button',{name,exact:true}).click();await atlas.getByRole('heading',{name,exact:true}).waitFor();
   const headers=await atlas.locator('.atlas-record-table thead button').allTextContents();assert.ok(headers.length>=4,name+' substantive columns');
@@ -32,6 +33,9 @@ try{
    await card.locator('.exhibit-title').click();await atlas.getByRole('heading',{name:'Domestic power groups',exact:true}).waitFor();
    assert.match(await atlas.textContent(),/organization/);await page.screenshot({path:output+'/domestic-power.png'});
    await atlas.getByRole('button',{name:'Power & relations',exact:true}).click();assert.match(await atlas.textContent(),/Institutional bargaining/);
+   await atlas.getByRole('button',{name:'Institutional bargaining',exact:true}).click();
+   await atlas.getByRole('heading',{name:'Institutional bargaining',exact:true}).scrollIntoViewIfNeeded();
+   assert.match(await atlas.textContent(),/Latest negotiation cost/);
    await page.screenshot({path:output+'/domestic-bargaining.png'});await atlas.getByRole('button',{name:'Overview',exact:true}).click();
   }
   if(kind==='ethnicity'&&await atlas.locator('.atlas-portraits').count()){
