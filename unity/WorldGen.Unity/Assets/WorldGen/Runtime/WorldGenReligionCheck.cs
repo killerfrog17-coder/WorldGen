@@ -46,6 +46,14 @@ public sealed partial class WorldGenRuntime
             for(int frame=0;frame<5;frame++)yield return new WaitForEndOfFrame();
             CaptureHumanMap(Path.Combine(output,"States.png"),true);
         }
+        if(world.Prehistory.History.Notables!=null)
+        {
+            var person=world.Prehistory.History.Notables.People.OrderByDescending(p=>p.Deeds.Length).ThenBy(p=>p.Id).FirstOrDefault();
+            if(person==null){Debug.LogError("RELIGION CHECK requires an actual notable person.");Application.Quit(1);yield break;}
+            var document=HistoryAtlas.Read(world.Prehistory,"notable",person.Id,world,humans);
+            if(!document.Sections.Any(x=>x.Title=="Recorded achievements")){Debug.LogError("RELIGION CHECK missing stripped notable biography.");Application.Quit(1);yield break;}
+            File.WriteAllText(Path.Combine(output,"Notable.json"),WorldJson.Write(document));
+        }
         if(world.Prehistory.ComputeHash()!=hash){Debug.LogError("RELIGION CHECK presentation mutated history.");Application.Quit(1);yield break;}
         File.WriteAllText(Path.Combine(output,"result.txt"),"PASS native doctrinal/institutional overlays, actual selection/atlas and unchanged history "+hash);Debug.Log("RELIGION CHECK PASS "+hash);Application.Quit(0);
     }

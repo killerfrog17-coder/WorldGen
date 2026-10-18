@@ -93,6 +93,7 @@ namespace WorldGen.Core
             // and reflection on the millions of scalar values hashed in WASM.
             if (o is string text) { w.Write("System.String"); w.Write(text); return; }
             if(o is HistoricalCellTree spatial){spatial.WriteCanonicalFingerprint(w);return;}
+            if(o is HistoricalNotableHistory notable){w.Write("WorldGen.Core.HistoricalNotableHistory");Write(w,new object[]{notable.Version,notable.SinceYear,notable.People.Count,notable.Digests,notable.Leaders,notable.Courts,notable.Towns,notable.Review,notable.FaithFounders,notable.Commands});return;}
             if(o is HistoricalTownSeedTree seeds){seeds.WriteCanonicalFingerprint(w);return;}
             if(o is HistoricalFrozenAdministration frozen){w.Write("WorldGen.Core.HistoricalFrozenAdministration");w.Write(frozen.Fingerprint());return;}
             if (o is int i) { w.Write("System.Int32"); w.Write(i); return; }
@@ -184,6 +185,7 @@ namespace WorldGen.Core
                 if(o is HistoryState receiverHistory && f.Name==nameof(HistoryState.ReceiverFrontier) && receiverHistory.ReceiverFrontier==null)continue;
                 if(o is HistoryState traditionHistory && f.Name==nameof(HistoryState.RegionalTraditions) && traditionHistory.RegionalTraditions==null)continue;
                 if(o is HistoryState identityHistory && f.Name==nameof(HistoryState.Identities) && identityHistory.Identities==null)continue;
+                if(o is HistoryState oldNotables && f.Name==nameof(HistoryState.Notables) && oldNotables.Notables==null)continue;
                 if(o is HistoricalInternationalSystem internationalSystem && f.Name==nameof(HistoricalInternationalSystem.Finances) && internationalSystem.Finances==null)continue;
                 if(o is HistoricalAggregateState oldAggregate && f.Name==nameof(HistoricalAggregateState.Living) && oldAggregate.Living==null)continue;
                 if(o is HistoricalAggregateState oldProvince && f.Name==nameof(HistoricalAggregateState.Provinces) && oldProvince.Provinces==null)continue;

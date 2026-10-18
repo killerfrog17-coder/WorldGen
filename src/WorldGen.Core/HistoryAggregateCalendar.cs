@@ -78,6 +78,7 @@ namespace WorldGen.Core
                         case CampaignProcess:if(s.History.Dynamics.Campaigns[e.Entity].EndedYear<0){AdvanceAggregateCampaign(s,e.Entity);if(s.History.Dynamics.Campaigns[e.Entity].EndedYear<0)ScheduleAggregate(s,e.Process,e.Entity);}break;
                         case RemoteProcess:if(a.Polities[e.Entity].Remote>0){AdvanceAggregateRemote(s,e.Entity);if(a.Polities[e.Entity].Remote>0)ScheduleAggregate(s,e.Process,e.Entity);}break;
                         case SeaMissionProcess:AdvanceSeaMissions(s,e.Entity);break;
+                        case PersonProcess:AdvanceNotableDeath(s,e.Entity);break;
                         default:throw new ArgumentException("Unknown aggregate process.");
                     }
                     double elapsed=(Stopwatch.GetTimestamp()-started)*1000.0/Stopwatch.Frequency;eventMilliseconds+=elapsed;YearWorkObserver?.Invoke(s.Years,elapsed);WorkObserver?.Invoke(new SimulationWorkMetric{Stage=AggregateProcessLabel(e.Process),Items=(int)(a.CellReads-reads),Milliseconds=elapsed,AllocatedBytes=GC.GetAllocatedBytesForCurrentThread()-allocated});a.ProcessedLocalEvents++;count++;s.Timeline.ProcessedEvents++;
@@ -97,10 +98,12 @@ namespace WorldGen.Core
             var identities=new HashSet<(int,int)>();var tickets=new HashSet<long>();
             for(int i=0;i<t.Events.Length;i++)
             {
-                var e=t.Events[i];int length=e.Process==RegionProcess?a.Regions.Length:e.Process==CityProcess?a.Cities.Length:e.Process==CultureProcess?a.Cultures.Length:e.Process==StateProcess||e.Process==RemoteProcess?a.Polities.Length:e.Process==CampaignProcess?s.History.Dynamics.Campaigns.Length:e.Process==SeaMissionProcess&&GeographicHistory(s)?a.Polities.Length:0;
+                var e=t.Events[i];int length=e.Process==RegionProcess?a.Regions.Length:e.Process==CityProcess?a.Cities.Length:e.Process==CultureProcess?a.Cultures.Length:e.Process==StateProcess||e.Process==RemoteProcess?a.Polities.Length:e.Process==CampaignProcess?s.History.Dynamics.Campaigns.Length:e.Process==SeaMissionProcess&&GeographicHistory(s)?a.Polities.Length:e.Process==PersonProcess&&NotableHistory(s)?s.History.Notables.People.Count:0;
+                if(e.Process==PersonProcess&&e.Entity>=0&&e.Entity<length&&e.Due!=s.History.Notables.People.Peek(e.Entity).DeathSeconds)throw new ArgumentException("Outdated notable mortality date.");
                 if(e.Entity<0||e.Entity>=length||e.Due<=t.Seconds||e.Ticket<0||e.Ticket>=t.NextTicket||!identities.Add((e.Process,e.Entity))||!tickets.Add(e.Ticket)||i>0&&SimulationEventQueue.Compare(t.Events[i-1],e)>=0)throw new ArgumentException("Invalid aggregate actor schedule.");
             }
             if(!a.Regions.All(r=>identities.Contains((RegionProcess,r.Id)))||!a.Cities.Where(c=>!LivingHistory(s)||a.Living.Cities[c.Id].AbandonedYear<0).All(c=>identities.Contains((CityProcess,c.Id)))||!a.Cultures.All(c=>identities.Contains((CultureProcess,c.Id)))||!s.History.Polities.Where(p=>p.EndedYear<0).All(p=>identities.Contains((StateProcess,p.Id))))throw new ArgumentException("Missing aggregate actor schedule.");
+            if(NotableHistory(s))for(int id=0;id<s.History.Notables.People.Count;id++)if(s.History.Notables.People.Peek(id).DeathYear<0&&!identities.Contains((PersonProcess,id)))throw new ArgumentException("Missing notable lifespan event.");
         }
     }
 }

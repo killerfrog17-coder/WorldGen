@@ -92,6 +92,7 @@ namespace WorldGen.Core
             if(HistoricalImperialHierarchy.Sovereign(s,attacker)==HistoricalImperialHierarchy.Sovereign(s,defender))
             {EndRevisedMilitaryCampaign(s,id,"The belligerents enter the same imperial settlement");return;}
             double powerA=PrepareMilitaryField(s,id,attacker,theater.Cell,elapsed,ref theater.SupplyA,out int menA),powerB=PrepareMilitaryField(s,id,defender,theater.Cell,elapsed,ref theater.SupplyB,out int menB);
+            powerA=NotableCommandPower(s,attacker,id,powerA);powerB=NotableCommandPower(s,defender,id,powerB);
             if(powerA<=0&&powerB<=0)
             {
                 o.IdleYears+=elapsed;c.Repulses++;if(o.IdleYears>=4)EndRevisedMilitaryCampaign(s,id,"Neither side can sustain a supplied field force; the offensive is abandoned",8);return;
@@ -107,6 +108,7 @@ namespace WorldGen.Core
                 var la=h.Dynamics.Leaders[h.Dynamics.States[attacker].LeaderId];var lb=h.Dynamics.Leaders[h.Dynamics.States[defender].LeaderId];
                 if(won){la.Victories++;lb.Defeats++;la.Renown+=8;}else{lb.Victories++;la.Defeats++;lb.Renown+=8;}
                 if(winner==o.PartyA)o.VictoriesA++;else o.VictoriesB++;
+                NotableBattle(s,attacker,id,theater.Cell,won);NotableBattle(s,defender,id,theater.Cell,!won);
                 SealAggregateLeader(s,la.Id);SealAggregateLeader(s,lb.Id);AggregateRelation(s,attacker,defender).LastBattle=s.Years;
                 if(o.VictoriesA+o.VictoriesB<=2||lossA+lossB>=5000)
                     HistoryEvent(s,"field-battle",h.Polities[winner].Name+" wins a supplied field engagement in "+c.Name+". The belligerents lose "+lossA+" and "+lossB+" actual soldiers; surviving forces and reserves must support the next operation.",theater.Cell,h.Polities[winner].CultureId,winner,loser,category:ChronicleCategory.Politics);

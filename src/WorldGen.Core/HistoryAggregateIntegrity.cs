@@ -10,6 +10,7 @@ namespace WorldGen.Core
             var h=History;var a=h.Aggregates;
             if(verify)
             {
+                h.Notables?.Verify();
                 // Public models may be edited and explicitly resealed. Never
                 // carry trusted closed-record bytes through that boundary.
                 foreach(var p in h.Polities)p.OwnedCanonicalRecord=null;
@@ -72,6 +73,7 @@ namespace WorldGen.Core
             if(h.ReceiverFrontier!=null)values=values.Concat(new object[]{h.ReceiverFrontier}).ToArray();
             if(h.RegionalTraditions!=null)values=values.Concat(new object[]{h.RegionalTraditions}).ToArray();
             if(h.Identities!=null)values=values.Concat(new object[]{h.Identities}).ToArray();
+            if(h.Notables!=null)values=values.Concat(new object[]{h.Notables}).ToArray();
             return verify?StateHash.Compute(values,token):StateHash.ComputeOwnedHistorical(values,h,token);
         }
         internal void SealAggregateOwned(CancellationToken token=default){Hash=AggregateHash(false,token);}
@@ -79,6 +81,6 @@ namespace WorldGen.Core
     public sealed partial class Prehistory
     {
         void SealAggregateLeader(PrehistoryState s,int id)
-        {var a=s.History.Aggregates;string digest=StateHash.Compute(s.History.Dynamics.Leaders[id]);for(int k=0;k<8;k++)a.LeaderDigests=a.LeaderDigests.With(id*8+k,unchecked((int)Convert.ToUInt32(digest.Substring(k*8,8),16)));}
+        {SyncNotableRulerName(s,id);var a=s.History.Aggregates;string digest=StateHash.Compute(s.History.Dynamics.Leaders[id]);for(int k=0;k<8;k++)a.LeaderDigests=a.LeaderDigests.With(id*8+k,unchecked((int)Convert.ToUInt32(digest.Substring(k*8,8),16)));}
     }
 }

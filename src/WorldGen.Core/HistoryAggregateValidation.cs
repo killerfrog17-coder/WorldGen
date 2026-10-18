@@ -12,6 +12,7 @@ namespace WorldGen.Core
             var h=s.History;var a=h.Aggregates;
             ValidateLanguages(s);
             ValidateIdentityHistory(s);
+            ValidateNotablePeople(s);
             ValidateOriginReach(s);
             ValidateNuclearHistory(s);
             ValidateInternational(s);

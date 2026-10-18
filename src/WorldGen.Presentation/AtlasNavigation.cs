@@ -7,6 +7,9 @@ namespace WorldGen.Presentation
         public static string Group(string title)
         {
             if(title=="Overview")return "Overview";
+            if(title=="Family and household"||title=="Abilities and interests"||title=="Person and family")return "People & place";
+            if(title=="Court household and notable people"||title=="Recorded public office"||title=="Career and affiliations")return "Power & relations";
+            if(title=="Recorded achievements")return "History";
             if(title=="Identity and belonging"||title=="Inherited traditions"||title=="Inherited and emerging identities"||title=="Recorded communities")return "People & place";
             if(title=="Local historical memory")return "History";
             if(title=="Allegiance and sovereignty")return "Power & relations";

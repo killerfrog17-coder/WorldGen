@@ -109,6 +109,7 @@ namespace WorldGen.Core
                 // Knowing a recipe is much cheaper than independently solving
                 // the problem. Material deployment is handled separately below.
                 bool adopted=learn>0&&t.Learning[k]>=Math.Max(1000000,cost/8);
+                NotableResearch(s,id,site,k,work,false,t.Levels[k]);
                 bool invented=work>0&&t.Progress[k]>=cost;
                 if(!adopted&&!invented)
                 {
@@ -123,6 +124,7 @@ namespace WorldGen.Core
                     if(adopted)t.Learning[k]-=Math.Max(1000000,cost/8);else t.Progress[k]-=cost;
                 }
                 t.Levels[k]++;t.LevelYear[k]=s.Years;
+                NotableResearch(s,id,site,k,0,invented&&!adopted,t.Levels[k]);
                 if(hc.Technology[k]==0)
                 {hc.Technology[k]=s.Years+1;HistoryEvent(s,"technology",c.Name+(adopted?" learns ":" develops ")+HistoricalTechnologies.Names[k]+(adopted&&t.Sources[k]>=0?" through exchange with "+s.Society.Cultures[t.Sources[k]].Name:"")+". Local use still requires skills, resources and investment.",site,id,category:ChronicleCategory.Discoveries);}
             }

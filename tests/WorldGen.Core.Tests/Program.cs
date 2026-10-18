@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--notables-only")){int n=0;NotablePeopleTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" notable-person assertions");return;}
+if(args.Contains("--notables-world")){int at=Array.IndexOf(args,"--notables-world"),n=0;NotablePeopleTests.World(args[at+1],args[at+2],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" actual-world notable-person assertions");return;}
 if(args.Contains("--sovereignty-only")){int n=0;HistorySovereigntyTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" local sovereignty assertions");return;}
 if(args.Contains("--sovereignty-world")){int at=Array.IndexOf(args,"--sovereignty-world"),n=0;HistorySovereigntyTests.World(args[at+1],args[at+2],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" actual-world sovereignty assertions");return;}
 if(args.Contains("--identity-only")){int n=0;HistoryIdentityTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" ethnic identity/memory assertions");return;}

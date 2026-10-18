@@ -150,6 +150,7 @@ namespace WorldGen.Core
             h.Religions=h.Religions.Concat(new[]{renewal}).ToArray();AppendReligiousDoctrine(s,id,issue,ritual?visitor:-1);
             lay.Records=lay.Records.With(key,id).With(key+LaySince,s.Years).With(key+LayCommitment,0).With(key+LayDispute,0);network.Write(cell,FaithReformed,s.Years);
             HistoryEvent(s,"religious-schism",renewal.Name+" establishes a distinct teaching on "+ReligiousDoctrines.Name(issue).ToLowerInvariant()+" at "+t.Name+". It retains the inherited cosmology and other unrevised practices of "+parent.Name+". The local public tradition and political allegiance do not automatically change.",cell,t.CultureId,owner,town:town,religion:id);
+            NotableReligiousFigure(s,town,id,h.Archive.Count-1);
         }
         void ApplyReligiousDiplomaticDifference(PrehistoryState s,int first,int second,int elapsed,ref double risk)
         {

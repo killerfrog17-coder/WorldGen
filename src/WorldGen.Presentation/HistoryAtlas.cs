@@ -105,7 +105,7 @@ namespace WorldGen.Presentation
             var culture=SocietyView.Culture(s,cell);if(culture==null&&state>=0)culture=s.Society.Cultures[s.History.Polities[state].CultureId];
             if(culture!=null)links.Add(CultureLink(culture));if(faith>=0)links.Add(FaithLink(s.History.Religions[faith]));int voice=Prehistory.PrimarySpokenLanguageAt(s,cell);if(voice>=0)links.Add(SpokenLanguageLink(s,voice,cell));int identity=Prehistory.PrimaryEthnicityAt(s,cell);if(identity>=0)links.Add(EthnicLink(s,identity,cell));return links.ToArray();
         }
-        public static string ProfileLabel(AtlasLink link)=>link.Kind=="ethnicity"?"Ethnic identity":link.Kind=="language"?"Language":link.Kind=="organization"?"Organization":link.Kind=="technology"?"Technology":link.Kind=="claim"?"Title":link.Kind=="province"?"Province":link.Kind=="religion"?"Belief":link.Kind=="people"?"People":link.Kind=="city"?"City":link.Kind=="ruler"?"Ruler":link.Detail=="Imperial government"?"Realm":link.Detail=="Local government"?"Local state":"State";
+        public static string ProfileLabel(AtlasLink link)=>link.Kind=="notable"?"Notable person":link.Kind=="ethnicity"?"Ethnic identity":link.Kind=="language"?"Language":link.Kind=="organization"?"Organization":link.Kind=="technology"?"Technology":link.Kind=="claim"?"Title":link.Kind=="province"?"Province":link.Kind=="religion"?"Belief":link.Kind=="people"?"People":link.Kind=="city"?"City":link.Kind=="ruler"?"Ruler":link.Detail=="Imperial government"?"Realm":link.Detail=="Local government"?"Local state":"State";
         public static AtlasLink[] Directory(PrehistoryState? s,string kind,string search="",bool past=false)
         {
             if(s?.Society==null||s.History==null)return Array.Empty<AtlasLink>();
@@ -123,6 +123,7 @@ namespace WorldGen.Presentation
                 case "ethnicity":entries=(h.Identities?.Peoples??Array.Empty<HistoricalPeopleIdentity>()).Select(v=>EthnicLink(s,v.Id,v.HomeCell));break;
                 case "religious-body":entries=s.Society.Settlements.SelectMany(t=>new[]{0,1}.Select(slot=>Prehistory.ReligiousInstitutionAt(s,t.Cell,slot))).Where(b=>b!=null&&b.Support>=100).OrderBy(b=>b.Town).ThenBy(b=>b.Slot).Select(b=>ReligiousBodyLink(s,b.Town,b.Slot));break;
                 case "ruler":entries=(h.Dynamics?.Leaders??Array.Empty<HistoricalLeader>()).Where(l=>past||l.EndedYear<0&&h.Polities[l.PolityId].EndedYear<0).OrderByDescending(l=>l.Renown).ThenBy(l=>l.Id).Select(l=>LeaderLink(s,l));break;
+                case "notable":entries=h.Notables==null?Array.Empty<AtlasLink>():h.Notables.People.Where(p=>past||p.DeathYear<0).OrderByDescending(p=>p.Renown).ThenBy(p=>p.Id).Select(p=>NotableLink(s,p.Id));break;
                 default:return Array.Empty<AtlasLink>();
             }
             return entries.Where(e=>e.Name.IndexOf(search??"",StringComparison.OrdinalIgnoreCase)>=0).ToArray();
@@ -147,6 +148,7 @@ namespace WorldGen.Presentation
                 case "language" when id>=0&&id<(h.Languages?.Spoken?.Varieties.Length??0):SpokenLanguage(s,id,d,sections);break;
                 case "ethnicity" when id>=0&&id<(h.Identities?.Peoples.Length??0):EthnicPeople(s,id,d,sections);break;
                 case "ruler" when id>=0&&id<(h.Dynamics?.Leaders.Length??0):Ruler(s,h.Dynamics!.Leaders[id],d,sections);break;
+                case "notable" when id>=0&&id<(h.Notables?.People.Count??0):NotableBiography(s,id,d,sections);break;
                 default:d.Title="Record unavailable";d.Introduction="This record is not present in the current world.";break;
             }
             if(world!=null&&d.Cell>=0&&d.Cell<world.Surface.Cells.Length)
@@ -221,6 +223,7 @@ namespace WorldGen.Presentation
             var capitalWorship=ReligiousLocalSection(s,capital.Cell);if(capitalWorship!=null)a.Add(capitalWorship);
             var capitalSpeech=SpokenLocalSection(s,capital.Cell);if(capitalSpeech!=null)a.Add(capitalSpeech);
             AddIdentityLocalSections(s,capital.Cell,a);
+            NotableCourtSection(s,p.Id,a);
             var fieldForces=MilitaryOperationsSection(s,p.Id);if(fieldForces!=null)a.Add(fieldForces);
             var claimants=RealmClaimantsSection(s,p.Id);if(claimants!=null)a.Add(claimants);
             var lineage=(p.ParentId>=0?new[]{StateLink(s,h.Polities[p.ParentId],"Recorded predecessor realm")}:Array.Empty<AtlasLink>()).Concat(h.Polities.Where(x=>x.ParentId==p.Id).OrderBy(x=>x.FoundedYear).ThenBy(x=>x.Id).Select(x=>StateLink(s,x,"Descendant court founded in year "+Y(s,x.FoundedYear)))).ToArray();
@@ -429,6 +432,7 @@ namespace WorldGen.Presentation
             d.Introduction=l.Name+" took office in "+p.Name+" in year "+Y(s,l.StartedYear)+". "+(l.EndedYear<0?"This reign is still recorded as active.":"The reign ended in year "+Y(s,l.EndedYear)+".")+(!string.IsNullOrEmpty(l.Legacy)?" "+l.Legacy:"");
             d.Facts=new[]{F("Accession","Year "+Y(s,l.StartedYear)),F("Appointment",string.IsNullOrEmpty(l.Selection)?"Not recorded":l.Selection),F("Victories or captures",N(l.Victories)),F("Defeats",N(l.Defeats)),F("Public-work reforms",N(l.Reforms))};
             a.Add(Links("Court and succession",new[]{StateLink(s,p)}.Concat(l.PredecessorId>=0?new[]{LeaderLink(s,s.History.Dynamics.Leaders[l.PredecessorId])}:Array.Empty<AtlasLink>())));
+            int person=Prehistory.RulerPersonId(s,l.Id);if(person>=0)a.Add(Links("Person and family",new[]{NotableLink(s,person)},"This reign is one office in a person's life. Follow the biography for lifespan, family and other work."));
             a.Add(new AtlasSection{Title="Leadership profile",Text="Modeled leadership traits, not objective personal merit or an ethnic ranking.",Bars=true,Unit="/ 1,000",Links=new[]{("Military",l.Military),("Administration",l.Administration),("Diplomacy",l.Diplomacy),("Ambition",l.Ambition),("Renown",l.Renown)}.Select(x=>new AtlasLink{Name=x.Item1,Value=x.Item2,Detail=N(x.Item2)+" / 1,000"}).ToArray()});
             a.Add(Events(s,e=>(e.PolityId==p.Id||e.OtherPolityId==p.Id)&&e.Year>=l.StartedYear&&(l.EndedYear<0||e.Year<=l.EndedYear)));
         }

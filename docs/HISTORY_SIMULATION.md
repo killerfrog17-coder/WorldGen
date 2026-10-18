@@ -1,5 +1,15 @@
 # Historical simulation: history-31 / prehistory-6
 
+## Named lives and ruling households - 18 October 2026
+
+Optional realm35 adds a shared high-profile person system: rulers, selected
+dynastic families, commanders, researchers, artists, philosophers and religious
+figures. Lifespan is distinct from office; actual prospective heirs can succeed.
+Funded activity and real events produce work/achievement provenance instead of
+great-person bonus tokens. Biographies, family links and charts appear under
+Atlas → Notable people. Old saves require explicit upgrade and receive no
+fabricated past genealogy. See [cost, scope and limits](HISTORY32_NOTABLE_PEOPLE.md).
+
 ## Contested local sovereignty - 17 October 2026
 
 Optional realm34 replaces instant town protection/separation shortcuts with

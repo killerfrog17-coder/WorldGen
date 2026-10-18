@@ -21,6 +21,7 @@ namespace WorldGen.Core
             var h=s.History;var e=new HistoricalEvent{Id=h.Archive.Count,Year=s.Years,Kind=kind,Text=text,Cell=cell,CultureId=culture,PolityId=polity,OtherPolityId=other,SettlementId=town,ReligionId=religion,Category=category};
             h.Archive.Add(e);
             if(h.Aggregates!=null)h.Aggregates.ArchiveHash=StateHash.Compute(new object[]{h.Aggregates.ArchiveHash,e});
+            NotablePoliticalAct(s,e);
             s.Society.Events=s.Society.Events.Concat(new[]{new ChronicleEvent{Year=e.Year,CultureId=culture,Cell=cell,Category=category,Text=text}}).Skip(Math.Max(0,s.Society.Events.Length+1-256)).ToArray();
         }
         void InitializeHistoricalCulture(PrehistoryState s,CultureIdentity c)

@@ -1,5 +1,18 @@
 # Implementation contracts - version 3
 
+## High-profile people and households - history32 optional realm35
+
+Nullable `HistoryState.Notables` is absent from old canonical bytes. Real named
+people are separate from offices; prospective family links, patronage, work and
+achievement provenance share stable IDs. Fresh/explicitly upgraded35 enables
+bounded household succession, actual funded research/commissions/command and
+dated death events. No population, technology or troop budget is created.
+Immutable128-row pages plus per-row digest Merkle roots avoid recurring lifetime
+biography hashes/copies. Process28 is one future mortality event, not a recurring
+population turn. All normal work uses bounded actor/contact seats, never terrain
+or membership censuses. Public/load validation can enumerate archived actors.
+See [mechanisms and limitations](HISTORY32_NOTABLE_PEOPLE.md).
+
 ## Contested town sovereignty - history32 optional realm34
 
 `Realms.Sovereignty` is saved/hashed only when present. Old null records and
