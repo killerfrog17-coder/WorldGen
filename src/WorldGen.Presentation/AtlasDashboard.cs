@@ -11,6 +11,8 @@ namespace WorldGen.Presentation
             string[] keys=d.Kind=="state"?new[]{"Population","Land area","Government","Army levy","Treasury","Country founded"}:d.Kind=="city"?new[]{"Population","Residents","Founded","State","Culture","Food reserves"}:Array.Empty<string>();
             return keys.Select(k=>d.Facts.FirstOrDefault(f=>f.Label==k)).Where(f=>f!=null).Concat(d.Facts).Distinct().Take(6).ToArray();
         }
+        public static string FactValue(AtlasFact f){int at=f.Value.IndexOf(" (",StringComparison.Ordinal);return at>=0&&f.Value.EndsWith(")",StringComparison.Ordinal)?f.Value.Substring(0,at):f.Value;}
+        public static string FactContext(AtlasFact f){string value=FactValue(f);return value.Length<f.Value.Length?f.Value.Substring(value.Length+2).TrimEnd(')'):"";}
         public static string Lead(AtlasDocument d)
         {
             if(string.IsNullOrWhiteSpace(d.Introduction))return "";
@@ -25,13 +27,13 @@ namespace WorldGen.Presentation
                 case "state":return new[]{"Empire and constituent","Diplomatic neighborhood","Field forces","Military","Public priorities","Political interests","Cities","Research","Financ","Stability","Crisis","Political lineage","Recorded history"};
                 case "province":return new[]{"Institutions and allegiance","Identity and belonging","Spoken languages","Public worship","Local historical memory","Allegiance and sovereignty","Recorded history"};
                 case "city":return new[]{"Food and everyday","Population and movement","Crops and cultivated","Settlement history and hinterland","Local political","Identity and belonging","Spoken languages","Community and connections","Allegiance and sovereignty","Recorded history"};
-                case "people":return new[]{"Way of life","Subsistence","Livelihood","People and appearance","Spoken languages","Identity and belonging","Research","Crops","Contacts","Origins","Recorded history"};
-                case "ethnicity":return new[]{"Inherited and emerging","Inherited traditions","People and appearance","Identity and belonging","Recorded communities","Before advanced cultures","Founding context"};
+                case "people":return new[]{"Ways of making a living","People and appearance","Regional tradition and local centers","Continuity and changing traditions","Origins, language, and belief","Language and names","Identity and belonging","Research","Crop traditions","Cultural contacts","Settlements","Recorded history"};
+                case "ethnicity":return new[]{"People and appearance","Inherited and emerging","Inherited traditions","Identity and belonging","Recorded communities","Before advanced cultures","Founding context"};
                 case "language":return new[]{"Sounds and reusable roots","Related speech communities","Spoken languages","Recorded speech communities","Language and names"};
                 case "religion":return new[]{"Beliefs and sources","Branches and doctrinal","Social teachings","Observance and sacred","Affiliated ritual","Public worship","Recorded history"};
                 case "religious-body":return new[]{"Ritual community","Affiliat","Institution","Funding","Observance","Public worship","Recorded history"};
                 case "technology":return new[]{"Research","Practical","Knowledge","Technical","Capabilities","Contacts","Sources"};
-                case "ruler":return new[]{"Person and family","Public office","Abilities","Rulers","Succession","Recorded history"};
+                case "ruler":return new[]{"Leadership profile","Person and family","Court and succession","Public office","Recorded history"};
                 case "notable":return new[]{"Recorded achievements","Family and household","Abilities and interests","Recorded public office","Career and affiliations"};
                 case "organization":return new[]{"Member governments","Mandate and limits","Founding initiative","Institutions","Recorded history"};
                 default:return new[]{"Local setting","People and appearance","Recorded history"};
@@ -42,7 +44,7 @@ namespace WorldGen.Presentation
             var priorities=Priorities(d.Kind);
             int Rank(AtlasSection section)
             {for(int i=0;i<priorities.Length;i++)if(section.Title.IndexOf(priorities[i],StringComparison.OrdinalIgnoreCase)>=0)return i;return 100;}
-            bool Useful(AtlasSection s)=>s.Facts.Length>0||s.Technical.Length>0||s.Timeline.Length>0||s.Links.Any(l=>!s.Bars||l.Value>0);
+            bool Useful(AtlasSection s)=>!(s.Title=="Empire and constituent governments"&&s.Links.Length==0)&&(s.Facts.Length>0||s.Technical.Length>0||s.Timeline.Length>0||s.Links.Any(l=>!s.Bars||l.Value>0));
             return d.Sections.Where(Useful).OrderBy(Rank).ThenBy(s=>Array.IndexOf(d.Sections,s)).Take(8).ToArray();
         }
         public static AtlasVisual Visual(AtlasSection s)

@@ -1,5 +1,17 @@
 # Historical simulation: history-31 / prehistory-6
 
+## Regional heritage and visual Atlas - 18 October 2026
+
+Optional realm36 / identity Version2 records regional identities before named
+advanced cultures, carrying actual migrant heritage and permitting slow local
+divergence. Existing regional appearance continues independently; fixed-cost
+seeded individual samples expose parameters for future NPC models. Old35 saves
+stay literal until explicit upgrade. The Atlas now has tab-specific visual
+dashboards, typed sortable tables, linked relationship diagrams, phonetic cards,
+research/deployment panels and dated biographies; full context remains expandable.
+See [heritage/NPC scope](HISTORY32_FORAGER_HERITAGE.md) and
+[UI review and actual acceptance limits](ATLAS_OVERHAUL_REVIEW.md).
+
 ## Named lives and ruling households - 18 October 2026
 
 Optional realm35 adds a shared high-profile person system: rulers, selected

@@ -44,9 +44,46 @@ Appearance still consists of overlapping regional distributions, not one face
 assigned to a social identity. Old saves receive the UI immediately but need an
 explicit rules upgrade to start recording the new pre-cultural identities.
 
-Focused checks:114 overhaul assertions,966 combined presentation assertions,
-208 identity/memory assertions,314 Earth and337 forest actual-world mechanism/
-read-only/replay checks (before the additional population-account assertion).
-Release solution/staging builds are clean. Native packaging and visual browser
-review are separate acceptance steps; screenshots and temporary worlds are kept
-under `D:/WorldGenBuildArtifacts/atlas-overhaul-review`, outside source control.
+Focused checks:119 overhaul assertions,971 combined presentation assertions,
+208 identity/memory assertions,511 sovereignty and4 notable-person assertions,
+315 Earth and338 forest actual-world mechanism/read-only/replay checks pass.
+Release solution/staging and CLI repeat/reapply/recipe/cached reconstruction pass.
+Source implementation checkpoint `cfdb1f7` is backed up on origin/main.
+
+Actual browser Earth traverses all12 categories, tests numeric sorting, opens
+visible records after sorting/paging, follows SVG relationship nodes, and checks
+appearance/phonetic/research visual data without advancing time or script errors.
+The prehistory browser check also passes all categories, including21 ethnic
+identities but no advanced cultures. World, state, province, city, people,
+language, religion, ritual body, technology, ruler, notable and appearance
+screenshots were opened and reviewed. Review led to a corrected live category
+binding, more compact estimate notes, removal of empty imperial diagrams,
+actual-title subsistence/leadership priorities and dated achievement timelines.
+No named organization exists in the small Earth input; its table is correctly
+empty. The forest native review includes actual organization documents/sections.
+
+Native IL2CPP traverses every category and every section of representative
+articles on both populated worlds, plus pre-cultural heritage on fresh Earth,
+without GUI errors or historical hash changes. Its new36 Earth12-year replay
+matches CLR exactly:
+`52aeab6ab791edebeeeecd4bc935d9c8c7abe9d3dd7de473b3d75554652d5fcd`.
+Old35 Earth replay remains exactly
+`3527d1cf661fbf1dbd7157ce4750560beb26725756f8eb9e9e8fd31aa7885c94`.
+These native checks are rendered-section/adapter evidence, not a claim that a
+hidden-window HUD capture is visual-layout proof.
+
+The dense forest browser import times out before opening the Atlas, even with
+a600-second allowance. It is NOT a passing browser large-save acceptance; native
+forest import/sections and CLR cold persistence pass. No all-era historical
+calibration or new200k/max-tech+1000-year performance acceptance is claimed.
+Screenshots, diagnostic documents and temporary worlds are kept under
+`D:/WorldGenBuildArtifacts/atlas-overhaul-review`, outside source control.
+
+The final reviewed IL2CPP player was built2026-10-18T19:58:33Z; staged assembly
+hashes are in its `build-inputs.json`. The project shortcut selects
+`artifacts/player-history-32-atlas36/WorldGen.exe`; the preceding world-panel
+player remains the rollback. Final browser evidence is `browser-reviewed`;
+native `native-release-earth`, `native-release-forest` and
+`native-release-prehistory` contain every traversed article's diagnostic JSON.
+The final achievements timeline, Peoples subsistence priority and ruler ability
+overview were also opened as screenshots after refinement.

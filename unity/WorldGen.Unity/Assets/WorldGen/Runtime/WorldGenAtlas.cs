@@ -33,6 +33,7 @@ public sealed partial class WorldGenRuntime
     void CloseWorldAtlas(){atlasOpen=false;atlasSearchFocused=false;GUIUtility.keyboardControl=0;}
     void LoadAtlasArticle(string kind,int id)
     {
+        atlasSearchFocused=false;GUIUtility.keyboardControl=0;
         atlasDocument=kind=="location"?AtlasNavigation.Location(humanOverlayOpacity>0?CurrentSelectionCard():CurrentBaseCard(),id,atlasSnapshot?.Years??0,SimulationClockView.EpochYear(atlasSnapshot)):HistoryAtlas.Read(atlasSnapshot,kind,id,world,humans);
         atlasKind=AtlasNavigation.DirectoryKind(kind);atlasSection="Overview";atlasArticleScroll=Vector2.zero;atlasTimeline=null;
     }
@@ -54,6 +55,8 @@ public sealed partial class WorldGenRuntime
         if(GUILayout.Toggle(atlasKind=="view","Map settings",GUI.skin.button)&&atlasKind!="view")OpenAtlas("view");
         foreach(var category in AtlasNavigation.Categories)
             if(GUILayout.Button(category.Name,new GUIStyle(GUI.skin.button){normal=atlasKind==category.Kind?GUI.skin.button.active:GUI.skin.button.normal})){atlasSearch="";OpenAtlas("directory:"+category.Kind);}
+        if(AtlasNavigation.Categories.Any(c=>c.Kind==atlasKind))
+        {
         GUI.SetNextControlName("AtlasSearch");string search=GUILayout.TextField(atlasSearch);atlasSearchFocused=GUI.GetNameOfFocusedControl()=="AtlasSearch";
         if(search!=atlasSearch){atlasSearch=search;RefreshAtlasDirectory();EndAtlasUiChange();}GUILayout.Label("Search names",new GUIStyle(GUI.skin.label){fontSize=11});
         bool past=GUILayout.Toggle(atlasPast,"Include historical records");if(past!=atlasPast){atlasPast=past;RefreshAtlasDirectory();EndAtlasUiChange();}
@@ -61,7 +64,10 @@ public sealed partial class WorldGenRuntime
         if(directoryPages>1){GUILayout.BeginHorizontal();GUI.enabled=atlasDirectoryPage>0;if(GUILayout.Button("‹",GUILayout.Width(32))){atlasDirectoryPage--;atlasDirectoryScroll=Vector2.zero;EndAtlasUiChange();}GUI.enabled=true;GUILayout.Label((atlasDirectoryPage+1)+" / "+directoryPages,new GUIStyle(GUI.skin.label){alignment=TextAnchor.MiddleCenter});GUI.enabled=atlasDirectoryPage<directoryPages-1;if(GUILayout.Button("›",GUILayout.Width(32))){atlasDirectoryPage++;atlasDirectoryScroll=Vector2.zero;EndAtlasUiChange();}GUI.enabled=true;GUILayout.EndHorizontal();}
         atlasDirectoryScroll=GUILayout.BeginScrollView(atlasDirectoryScroll);
         foreach(var item in atlasDirectory.Skip(atlasDirectoryPage*200).Take(200)){string name=item.Name+(atlasRepeatedNames.Contains(item.Name)&&item.Context.Length>0?"\n"+item.Context:"");if(GUILayout.Button(new GUIContent(name,item.Context+" · "+item.Detail),new GUIStyle(GUI.skin.button){fontSize=13,alignment=TextAnchor.MiddleLeft,wordWrap=true,padding=new RectOffset(8,8,5,5)}))AtlasNavigate(item);}
-        if(atlasDirectory.Length==0)GUILayout.Label("No matching records.");GUILayout.EndScrollView();GUILayout.EndVertical();
+        if(atlasDirectory.Length==0)GUILayout.Label("No matching records.");GUILayout.EndScrollView();
+        }
+        else{atlasSearchFocused=false;GUILayout.FlexibleSpace();}
+        GUILayout.EndVertical();
         GUILayout.Space(20);GUILayout.BeginVertical();GUILayout.BeginHorizontal();GUI.enabled=atlasBack.Count>0;
         if(GUILayout.Button("Back",GUILayout.Width(60))){var prior=atlasBack.Pop();LoadAtlasArticle(prior.Item1,prior.Item2);RefreshAtlasDirectory();EndAtlasUiChange();}GUI.enabled=true;
         if(GUILayout.Button("Copy article",GUILayout.Width(105)))GUIUtility.systemCopyBuffer=HistoryAtlas.PlainText(atlasDocument,atlasTimeline);
@@ -161,7 +167,7 @@ public sealed partial class WorldGenRuntime
     }
     void AtlasFactTiles(AtlasFact[] facts,int columns)
     {
-        for(int i=0;i<facts.Length;i+=columns){GUILayout.BeginHorizontal();for(int j=i;j<Math.Min(facts.Length,i+columns);j++){GUILayout.BeginVertical(GUI.skin.box,GUILayout.ExpandWidth(true));GUILayout.Label(facts[j].Label,new GUIStyle(GUI.skin.label){fontSize=10,wordWrap=true});GUILayout.Label(facts[j].Value,new GUIStyle(GUI.skin.label){fontSize=16,wordWrap=true,fontStyle=FontStyle.Bold});GUILayout.EndVertical();}GUILayout.EndHorizontal();}
+        for(int i=0;i<facts.Length;i+=columns){GUILayout.BeginHorizontal();for(int j=i;j<Math.Min(facts.Length,i+columns);j++){GUILayout.BeginVertical(GUI.skin.box,GUILayout.ExpandWidth(true));GUILayout.Label(facts[j].Label,new GUIStyle(GUI.skin.label){fontSize=10,wordWrap=true});GUILayout.Label(AtlasDashboard.FactValue(facts[j]),new GUIStyle(GUI.skin.label){fontSize=AtlasDashboard.FactValue(facts[j]).Length>24?13:16,wordWrap=true,fontStyle=FontStyle.Bold});if(AtlasDashboard.FactContext(facts[j]).Length>0)AtlasParagraph(AtlasDashboard.FactContext(facts[j]),10);GUILayout.EndVertical();}GUILayout.EndHorizontal();}
     }
     void DrawAtlasDiplomacy(AtlasSection section,float width)
     {

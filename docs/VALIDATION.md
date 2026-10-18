@@ -1,5 +1,29 @@
 # Version 3 validation evidence
 
+## Visual Atlas and pre-cultural heritage - 18 October 2026
+
+The [tab-by-tab review](ATLAS_OVERHAUL_REVIEW.md) and
+[realm36 heritage/NPC contract](HISTORY32_FORAGER_HERITAGE.md) distinguish the
+presentation overhaul from the new identity Version2 rules.119 focused/971
+combined presentation,208 identity,511 sovereignty and4 notable assertions pass;
+315 Earth/338 forest actual-world checks cover read-only queries, persistence,
+partitioned/cold replay and forager inheritance/divergence. Fresh16k-year Earth
+and forest histories have21/8 identities with zero advanced cultures.
+Old35 replay remains exact until explicit upgrade.
+
+Actual browser Earth passes all12 category tables, numeric sorting, visible-row
+navigation, SVG links and appearance/phonetic/research data; prehistory passes
+with21 identities but no advanced cultures. Screenshots were opened and refined.
+Native IL2CPP traverses all categories and their representative articles' full
+sections on both mature inputs and prehistory, with no GUI errors or changed
+historical hashes. Native new36 Earth12-year replay equals CLR exactly. Release
+staging and CLI repeat/reapply/recipe/cached reconstruction pass.
+
+Selected player: `player-history-32-atlas36`, IL2CPP, built2026-10-18T19:58:33Z;
+world-panel remains rollback. Desktop checks pass, but the dense forest browser
+import times out before Atlas entry and is NOT accepted. No all-era ethnic/
+political calibration or new200k/max-tech+1000-year performance pass is claimed.
+
 ## Unified World panel - 18 October 2026
 
 Presentation-only: one World/W entry, category tables even before recorded

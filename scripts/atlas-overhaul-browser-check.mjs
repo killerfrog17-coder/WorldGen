@@ -25,7 +25,7 @@ try{
    const column=headers.findIndex(x=>x.trim().startsWith(numeric.Key));const cells=await atlas.locator(`.atlas-record-table tbody td:nth-child(${column+1})`).allTextContents();
    const numbers=cells.map(v=>Number(v.replace(/,/g,'').replace(/%$/,''))).filter(Number.isFinite);if(!/Founded|Recorded|Accession/.test(numeric.Key))assert.ok(numbers.every((n,i)=>i===0||numbers[i-1]>=n),name+' descending numeric sort');}
   if(!dir.length){assert.match(await atlas.locator('.atlas-record-table').innerText(),/No matching records/);report.push({kind,records:0});continue;}
-  const entry=dir[0];await atlas.locator(`.atlas-record-table button[data-kind="${kind}"][data-id="${entry.Id}"]`).click();await atlas.locator(`.atlas-article[data-kind="${kind}"][data-id="${entry.Id}"]`).waitFor();
+  const visible=atlas.locator(`.atlas-record-table button[data-kind="${kind}"]`).first();const id=Number(await visible.getAttribute('data-id'));const entry=dir.find(row=>row.Id===id);assert.ok(entry,'Visible row belongs to the actual directory');await visible.click();await atlas.locator(`.atlas-article[data-kind="${kind}"][data-id="${entry.Id}"]`).waitFor();
   const exhibits=await atlas.locator('[data-exhibit]').count();await page.screenshot({path:output+'/'+kind+'.png'});
   if(kind==='ethnicity'&&await atlas.locator('.atlas-portraits').count()){
    assert.equal(await atlas.locator('.atlas-portraits g').count(),6);await atlas.locator('[data-exhibit="People and appearance"] .exhibit-title').click();
@@ -34,7 +34,7 @@ try{
   if(kind==='language'&&await atlas.locator('.lexicon').count()){assert.ok(await atlas.locator('.lexicon article').count()>=6);}
   if(kind==='technology'&&await atlas.locator('.exhibit-tech').count()){assert.ok(await atlas.locator('.exhibit-tech progress').count()>=3);}
   if(await atlas.locator('.network-node').count()){
-   const target=await atlas.locator('.network-node').first().innerText();await atlas.locator('.network-node').first().click();await page.waitForTimeout(100);assert.ok(await atlas.locator('h1').count(),target+' graph navigates');await atlas.getByRole('button',{name:'Back',exact:true}).click();
+   const target=await atlas.locator('.network-node').first().textContent();await atlas.locator('.network-node').first().click();await page.waitForTimeout(100);assert.ok(await atlas.locator('h1').count(),target+' graph navigates');await atlas.getByRole('button',{name:'Back',exact:true}).click();
   }
   report.push({kind,records:dir.length,exhibits});
  }

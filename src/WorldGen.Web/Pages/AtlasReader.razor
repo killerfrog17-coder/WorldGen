@@ -9,11 +9,11 @@
 <button disabled="@Busy" @onclick='()=>Navigate.InvokeAsync(new AtlasLink{Kind="world",Id=-1})'>World overview</button>
 <button disabled="@Busy" class="@(Document.Kind=="view"?"selected":"")" @onclick='()=>Navigate.InvokeAsync(new AtlasLink{Kind="view",Id=-1})'>Map settings</button>
 @foreach(var kind in AtlasNavigation.Categories){<button disabled="@Busy" class="@(DirectoryKind==kind.Kind?"selected":"")" @onclick="()=>SelectCategory(kind.Kind)">@kind.Name</button>}
-<input aria-label="Search atlas names" placeholder="Search names" @bind="search" @bind:event="oninput"/>
-<label><input type="checkbox" @bind="past"/> Include historical records</label>
+@if(AtlasNavigation.Categories.Any(c=>c.Kind==DirectoryKind)){<input aria-label="Search atlas names" placeholder="Search names" @bind="search" @bind:event="oninput"/>
+<label><input type="checkbox" @bind="past"/> Include historical records</label>}
 @{var matching=AtlasTables.Sort(Directory.Where(l=>(past||!l.Historical)&&l.Name.Contains(search,StringComparison.OrdinalIgnoreCase)).ToArray(),sortColumn,sortDescending);string filter=search+"|"+past+"|"+DirectoryKind;if(filter!=directoryFilter){directoryFilter=filter;directoryPage=0;}int pages=Math.Max(1,(matching.Length+199)/200);directoryPage=Math.Min(directoryPage,pages-1);}
 @if(pages>1){<div class="atlas-directory-paging"><button disabled="@(directoryPage==0)" aria-label="Previous directory page" @onclick="()=>directoryPage--">‹</button><span>@(directoryPage+1) / @pages</span><button disabled="@(directoryPage==pages-1)" aria-label="Next directory page" @onclick="()=>directoryPage++">›</button></div>}
-<div class="atlas-directory-list">@foreach(var link in matching.Skip(directoryPage*200).Take(200)){<button data-kind="@link.Kind" data-id="@link.Id" disabled="@Busy" title="@(link.Context.Length>0?link.Context+" · "+link.Detail:link.Detail)" @onclick="()=>Navigate.InvokeAsync(link)">@link.Name@if(repeatedNames.Contains(link.Name)&&link.Context.Length>0){<small>@link.Context</small>}</button>}@if(matching.Length==0){<p>No matching records.</p>}</div>
+<div class="atlas-directory-list">@foreach(var link in matching.Skip(directoryPage*200).Take(200)){<button data-kind="@link.Kind" data-id="@link.Id" disabled="@Busy" title="@(link.Context.Length>0?link.Context+" · "+link.Detail:link.Detail)" @onclick="()=>Navigate.InvokeAsync(link)">@link.Name@if(repeatedNames.Contains(link.Name)&&link.Context.Length>0){<small>@link.Context</small>}</button>}@if(matching.Length==0&&AtlasNavigation.Categories.Any(c=>c.Kind==DirectoryKind)){<p>No matching records.</p>}</div>
 </nav>
 <article class="atlas-article" data-kind="@Document.Kind" data-id="@Document.Id" @key="Document">
 <div class="atlas-actions"><button disabled="@(Busy||!CanBack)" @onclick="Back">Back</button><button @onclick="CopyArticle">Copy article</button><button disabled="@(Busy||Document.Cell<0)" @onclick="()=>Map.InvokeAsync(Document.Cell)">Show on map</button></div>
@@ -34,7 +34,7 @@ var chapters=new[]{"Overview"}.Concat(Document.Sections.Select(s=>s.Title)).ToAr
 <div class="atlas-reading" @key="section">
 @if(section=="Overview"){
 <p class="atlas-lead">@AtlasDashboard.Lead(Document)</p>
-<div class="atlas-fact-tiles">@foreach(var fact in AtlasDashboard.HeadlineFacts(Document)){<div><small>@fact.Label</small><strong>@fact.Value</strong></div>}</div>
+<div class="atlas-fact-tiles">@foreach(var fact in AtlasDashboard.HeadlineFacts(Document)){<div><small>@fact.Label</small><strong class="@(AtlasDashboard.FactValue(fact).Length>24?"long-fact":"")">@AtlasDashboard.FactValue(fact)</strong>@if(AtlasDashboard.FactContext(fact).Length>0){<small>@AtlasDashboard.FactContext(fact)</small>}</div>}</div>
 @if(Document.Appearance?.Available==true&&!Document.Sections.Any(s=>s.Title=="People and appearance")){@((MarkupString)AtlasPortrait.Svg(Document.Appearance))}
 <div class="atlas-dashboard">@foreach(var panel in AtlasDashboard.Panels(Document)){<AtlasExhibit Document="Document" Item="panel" Compact="true" Navigate="Navigate" OpenSection="SelectSection"/>}</div>
 @if(Document.Habitat!=null){<details class="habitat-drawer"><summary>Local landscape</summary><HabitatPortraitCard Portrait="@Document.Habitat"/></details>}
