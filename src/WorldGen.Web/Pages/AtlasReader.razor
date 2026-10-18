@@ -11,7 +11,7 @@
 @foreach(var kind in AtlasNavigation.Categories){<button disabled="@Busy" class="@(DirectoryKind==kind.Kind?"selected":"")" @onclick="()=>SelectCategory(kind.Kind)">@kind.Name</button>}
 <input aria-label="Search atlas names" placeholder="Search names" @bind="search" @bind:event="oninput"/>
 <label><input type="checkbox" @bind="past"/> Include historical records</label>
-@{var matching=Directory.Where(l=>(past||!l.Historical)&&l.Name.Contains(search,StringComparison.OrdinalIgnoreCase)).ToArray();string filter=search+"|"+past+"|"+DirectoryKind;if(filter!=directoryFilter){directoryFilter=filter;directoryPage=0;}int pages=Math.Max(1,(matching.Length+199)/200);directoryPage=Math.Min(directoryPage,pages-1);}
+@{var matching=AtlasTables.Sort(Directory.Where(l=>(past||!l.Historical)&&l.Name.Contains(search,StringComparison.OrdinalIgnoreCase)).ToArray(),sortColumn,sortDescending);string filter=search+"|"+past+"|"+DirectoryKind;if(filter!=directoryFilter){directoryFilter=filter;directoryPage=0;}int pages=Math.Max(1,(matching.Length+199)/200);directoryPage=Math.Min(directoryPage,pages-1);}
 @if(pages>1){<div class="atlas-directory-paging"><button disabled="@(directoryPage==0)" aria-label="Previous directory page" @onclick="()=>directoryPage--">‹</button><span>@(directoryPage+1) / @pages</span><button disabled="@(directoryPage==pages-1)" aria-label="Next directory page" @onclick="()=>directoryPage++">›</button></div>}
 <div class="atlas-directory-list">@foreach(var link in matching.Skip(directoryPage*200).Take(200)){<button data-kind="@link.Kind" data-id="@link.Id" disabled="@Busy" title="@(link.Context.Length>0?link.Context+" · "+link.Detail:link.Detail)" @onclick="()=>Navigate.InvokeAsync(link)">@link.Name@if(repeatedNames.Contains(link.Name)&&link.Context.Length>0){<small>@link.Context</small>}</button>}@if(matching.Length==0){<p>No matching records.</p>}</div>
 </nav>
@@ -23,9 +23,9 @@
 @if(Document.Kind=="view"){
 <div class="atlas-reading atlas-map-settings">@ViewSettings</div>
 }else if(AtlasNavigation.IsDirectory(Document.Kind)){
-<div class="atlas-reading"><table class="atlas-record-table"><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody>
-@foreach(var link in matching.Skip(directoryPage*200).Take(200)){<tr><td><button disabled="@Busy" data-kind="@link.Kind" data-id="@link.Id" @onclick="()=>Navigate.InvokeAsync(link)">@link.Name</button></td><td>@link.Detail@if(link.Context.Length>0){<small>@link.Context</small>}</td></tr>}
-@if(matching.Length==0){<tr><td colspan="2">No matching records.</td></tr>}
+<div class="atlas-reading atlas-table-scroll"><p class="table-caption">@matching.Length.ToString("N0") records · click a column to sort · click a name to explore</p><table class="atlas-record-table"><thead><tr>@foreach(var column in AtlasTables.Columns(DirectoryKind)){<th aria-sort="@(sortColumn==column?(sortDescending?"descending":"ascending"):"none")"><button data-sort="@column" @onclick="()=>SortTable(column)">@column @(sortColumn==column?(sortDescending?"▾":"▴"):"↕")</button></th>}</tr></thead><tbody>
+@foreach(var link in matching.Skip(directoryPage*200).Take(200)){<tr>@foreach(var column in AtlasTables.Columns(DirectoryKind)){<td>@if(column=="Name"){<button disabled="@Busy" data-kind="@link.Kind" data-id="@link.Id" @onclick="()=>Navigate.InvokeAsync(link)">@link.Name</button>}else{@AtlasTables.Cell(link,column).Text}</td>}</tr>}
+@if(matching.Length==0){<tr><td colspan="@AtlasTables.Columns(DirectoryKind).Length">No matching records.</td></tr>}
 </tbody></table></div>
 }else{
 var chapters=new[]{"Overview"}.Concat(Document.Sections.Select(s=>s.Title)).ToArray();var group=AtlasNavigation.Group(section);
@@ -33,31 +33,21 @@ var chapters=new[]{"Overview"}.Concat(Document.Sections.Select(s=>s.Title)).ToAr
 <div class="atlas-contents" role="navigation" aria-label="Article sections">@foreach(var title in chapters.Where(t=>t!="Overview"&&AtlasNavigation.Group(t)==group)){<button disabled="@Busy" class="@(section==title?"selected":"")" aria-current="@(section==title?"page":null)" @onclick="()=>SelectSection(title)">@title</button>}</div>
 <div class="atlas-reading" @key="section">
 @if(section=="Overview"){
-<p class="atlas-lead">@Document.Introduction</p>
-<div class="atlas-fact-tiles">@foreach(var fact in Document.Facts){<div><small>@fact.Label</small><strong>@fact.Value</strong></div>}</div>
-var visual=HistoryAtlas.OverviewVisual(Document);
-@if(visual!=null){<section class="atlas-overview-chart"><h2>@visual.Title</h2>@if(visual.Diagram){@((MarkupString)AtlasDiagram.DiplomaticSvg(Document,visual))}else if(visual.Technical.Length>0){@foreach(var project in visual.Technical){<label class="overview-project">@project.Name · level @project.Level → @(project.Level+1)<progress value="@project.ResearchPermille" max="1000"></progress><small>@project.Source · @((project.AllocationBasisPoints/100.0).ToString("0.#"))% of research effort</small></label>}}else{var maximum=visual.Unit=="/ 1,000"?1000:Math.Max(1,visual.Links.Max(l=>l.Value));@foreach(var link in visual.Links){<div class="atlas-link-row">@if(link.Kind.Length>0){<button @onclick="()=>Navigate.InvokeAsync(link)">@link.Name</button>}else{<strong>@link.Name</strong>}<span>@link.Detail</span><progress aria-label="@link.Name" value="@link.Value" max="@maximum"></progress></div>}}</section>}
-<HabitatPortraitCard Portrait="@Document.Habitat"/>
-<p>Explore the sections above for connections, livelihoods, institutions, and recorded events. Names in the article open related entries.</p>
+<p class="atlas-lead">@AtlasDashboard.Lead(Document)</p>
+<div class="atlas-fact-tiles">@foreach(var fact in AtlasDashboard.HeadlineFacts(Document)){<div><small>@fact.Label</small><strong>@fact.Value</strong></div>}</div>
+@if(Document.Appearance?.Available==true&&!Document.Sections.Any(s=>s.Title=="People and appearance")){@((MarkupString)AtlasPortrait.Svg(Document.Appearance))}
+<div class="atlas-dashboard">@foreach(var panel in AtlasDashboard.Panels(Document)){<AtlasExhibit Document="Document" Item="panel" Compact="true" Navigate="Navigate" OpenSection="SelectSection"/>}</div>
+@if(Document.Habitat!=null){<details class="habitat-drawer"><summary>Local landscape</summary><HabitatPortraitCard Portrait="@Document.Habitat"/></details>}
+<details class="atlas-context"><summary>Overview context & definitions</summary><p>@Document.Introduction</p><p>@Document.Note</p></details>
 }else{
 var item=Document.Sections.FirstOrDefault(s=>s.Title==section);
 @if(item!=null){
-<h2>@item.Title</h2>@if(item.Text.Length>0){<p>@item.Text</p>}
-@if(item.Facts.Length>0){<dl>@foreach(var fact in item.Facts){<dt>@fact.Label</dt><dd>@if(fact.Swatch.Length>0){<span class="appearance-swatch" style="background-color:@fact.Swatch" aria-hidden="true"></span>}@fact.Value</dd>}</dl>}
-@if(item.Technical.Length>0){<div class="technical-grid">@foreach(var project in item.Technical){<section class="technical-card"><h3>@project.Name <small>Level @project.Level</small></h3><p>@project.Source</p>@if(project.AllocationBasisPoints>0){<label>Research share @((project.AllocationBasisPoints/100.0).ToString("0.0"))%<progress value="@project.AllocationBasisPoints" max="10000"></progress></label>}@if(project.AtCeiling){<p>At current model ceiling</p>}else{<label>Next level @((project.ResearchPermille/10.0).ToString("0.0"))%<progress value="@project.ResearchPermille" max="1000"></progress></label>}<label>Practical deployment @((project.DeploymentPermille/10.0).ToString("0.0"))%<progress value="@project.DeploymentPermille" max="1000"></progress></label>@if(project.Prerequisites.Length>0){<details><summary>Research prerequisites</summary><p>@project.Prerequisites</p></details>}</section>}</div>}
-@if(item.Diagram){@((MarkupString)AtlasDiagram.DiplomaticSvg(Document,item))}
-var maximum=item.Unit=="/ 1,000"?1000:Math.Max(1,item.Links.Select(l=>l.Value).DefaultIfEmpty(1).Max());
-<div class="@(item.CompactGrid?"atlas-resource-grid":"atlas-links")">@foreach(var link in item.Links){<div class="atlas-link-row">@if(link.Kind.Length>0){<button disabled="@Busy" title="@link.Context" @onclick="()=>Navigate.InvokeAsync(link)">@link.Name</button>}else{<strong>@link.Name</strong>}<span>@link.Detail</span>@if(item.Bars){<progress aria-label="@link.Name" style="accent-color:@ChartColor(link)" value="@link.Value" max="@maximum"></progress>}</div>}</div>
-var records=item.Timeline;
 @if(item.Title=="Recorded history"&&TimelinePage!=null){
-records=TimelinePage.Records;
 <div class="atlas-history-controls"><label><input type="checkbox" disabled="@Busy" checked="@TimelinePage.IncludeRoutine" @onchange="e=>Routine.InvokeAsync((bool)e.Value)"/> Include routine records</label><button disabled="@(Busy||TimelinePage.Offset==0)" @onclick="()=>Page.InvokeAsync(TimelinePage.Offset-40)">Newer</button><button disabled="@(Busy||TimelinePage.Offset+TimelinePage.Records.Length>=TimelinePage.Total)" @onclick="()=>Page.InvokeAsync(TimelinePage.Offset+40)">Older</button></div>
 <p class="atlas-record-count">@(TimelinePage.Total==0?"No matching records.":$"Records {TimelinePage.Offset+1:N0}–{TimelinePage.Offset+TimelinePage.Records.Length:N0} of {TimelinePage.Total:N0}")</p>
 }
-<div class="atlas-timeline">@foreach(var point in records){<div><small>@point.Label</small><p>@point.Value</p><div class="atlas-event-links">@foreach(var related in point.Related.Where(l=>l.Kind!=Document.Kind||l.Id!=Document.Id)){<button title="@related.Context" disabled="@Busy" @onclick="()=>Navigate.InvokeAsync(related)">@related.Name</button>}</div></div>}</div>
-@if(item.Links.Length==0&&item.Facts.Length==0&&item.Timeline.Length==0&&item.Text.Length==0&&item.Technical.Length==0){<p>No records yet.</p>}
+<AtlasExhibit Document="Document" Item="DisplaySection(item)" Navigate="Navigate"/>
 }}
-<p class="atlas-note">@Document.Note</p>
 </div>
 }
 </article></div></section></div>
@@ -77,13 +67,15 @@ records=TimelinePage.Records;
     [Parameter] public EventCallback Close{get;set;}
     [Parameter] public EventCallback Refresh{get;set;}
     [Parameter] public RenderFragment ViewSettings{get;set;}
-    string section="Overview",search="",copyNotice="",directoryFilter="";bool past;int directoryPage;AtlasDocument previous;AtlasLink[] priorDirectory;HashSet<string> repeatedNames=new();
+    string section="Overview",search="",copyNotice="",directoryFilter="",sortColumn="Name";bool past,sortDescending;int directoryPage;AtlasDocument previous;AtlasLink[] priorDirectory;HashSet<string> repeatedNames=new();
     ElementReference reader;IJSObjectReference focusModule;bool disposed;
     string ChartColor(AtlasLink link)=>link.Kind=="state"||link.Kind=="people"||link.Kind=="religion"?SocietyView.ColorHex(link.Id):"#baa475";
     async Task SelectSection(string name){section=name;if(name=="Recorded history")await Page.InvokeAsync(0);}
     async Task SelectCategory(string kind){search="";directoryPage=0;await Category.InvokeAsync(kind);}
+    void SortTable(string column){if(sortColumn==column)sortDescending=!sortDescending;else{sortColumn=column;sortDescending=column!="Name";}directoryPage=0;}
+    AtlasSection DisplaySection(AtlasSection item)=>item.Title=="Recorded history"&&TimelinePage!=null?new AtlasSection{Title=item.Title,Text=item.Text,Timeline=TimelinePage.Records}:item;
     async Task CopyArticle(){try{await JS.InvokeVoidAsync("navigator.clipboard.writeText",HistoryAtlas.PlainText(Document,TimelinePage));copyNotice="Article copied.";}catch(JSException){copyNotice="The browser blocked clipboard access. You can still select and copy the text.";}}
-    protected override void OnParametersSet(){if(!ReferenceEquals(previous,Document)){previous=Document;section="Overview";copyNotice="";}if(!ReferenceEquals(priorDirectory,Directory)){priorDirectory=Directory;directoryPage=0;repeatedNames=Directory.GroupBy(x=>x.Name).Where(g=>g.Count()>1).Select(g=>g.Key).ToHashSet();}}
+    protected override void OnParametersSet(){if(!AtlasTables.Columns(DirectoryKind).Contains(sortColumn)){sortColumn="Name";sortDescending=false;}if(!ReferenceEquals(previous,Document)){previous=Document;section="Overview";copyNotice="";}if(!ReferenceEquals(priorDirectory,Directory)){priorDirectory=Directory;directoryPage=0;repeatedNames=Directory.GroupBy(x=>x.Name).Where(g=>g.Count()>1).Select(g=>g.Key).ToHashSet();}}
     protected override async Task OnAfterRenderAsync(bool first){if(first){var loaded=await JS.InvokeAsync<IJSObjectReference>("import","./atlas-focus.js");if(disposed){await loaded.DisposeAsync();return;}focusModule=loaded;await focusModule.InvokeVoidAsync("activate",reader);}}
     public async ValueTask DisposeAsync(){disposed=true;if(focusModule!=null){try{await focusModule.InvokeVoidAsync("deactivate");await focusModule.DisposeAsync();}catch(JSDisconnectedException){}}}
 }

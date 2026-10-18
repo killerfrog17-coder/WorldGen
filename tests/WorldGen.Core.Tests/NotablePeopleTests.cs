@@ -25,7 +25,7 @@ public static class NotablePeopleTests
     {
         Directory.CreateDirectory(output);var world=WorldFile.Read(File.ReadAllBytes(input));var e=new Prehistory(world);var old=world.Prehistory;string hash=old.ComputeHash();
         var s=e.UpgradeRealmLifecycles(old);e.Validate(s);var r=s.History.Notables;
-        check(r!=null&&s.History.Aggregates.Empires.Connections.Realms.Version==35,"Explicit upgrade activates the shared notable-person foundation.");
+        check(r!=null&&s.History.Aggregates.Empires.Connections.Realms.Version>=35,"Explicit upgrade activates the shared notable-person foundation.");
         check(old.ComputeHash()==hash&&old.History.Notables==null,"Old rules and old checkpoint remain literal.");
         check(r.People.Count==s.History.Polities.Count(p=>p.EndedYear<0)&&r.People.All(p=>p.Parent1<0&&p.Children.Length==0&&p.Deeds.Length==0),"Upgrade records existing office-holders, not invented past relatives or accomplishments.");
         check(s.History.Aggregates.TotalPopulation==old.History.Aggregates.TotalPopulation&&s.History.Aggregates.Cells.Fingerprint()==old.History.Aggregates.Cells.Fingerprint(),"Prospective people create no residents, territory or demographic accounts.");

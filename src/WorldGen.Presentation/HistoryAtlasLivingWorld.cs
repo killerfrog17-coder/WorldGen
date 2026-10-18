@@ -9,7 +9,7 @@ namespace WorldGen.Presentation
     public static partial class HistoryAtlas
     {
         static string SwatchHex(V color)=>"#"+((int)Math.Round(color.X*255)).ToString("X2",CultureInfo.InvariantCulture)+((int)Math.Round(color.Y*255)).ToString("X2",CultureInfo.InvariantCulture)+((int)Math.Round(color.Z*255)).ToString("X2",CultureInfo.InvariantCulture);
-        static void LivingWorldSections(PrehistoryState s,string kind,int id,int cell,World? world,Prehistory? engine,List<AtlasSection> sections)
+        static void LivingWorldSections(PrehistoryState s,string kind,int id,int cell,World? world,Prehistory? engine,List<AtlasSection> sections,AtlasDocument d)
         {
             if(world?.Ecology==null||s.History.Version!=Prehistory.LivingWorldHistoryVersion||cell<0||cell>=world.Surface.Cells.Length||cell>=world.Hydrology.OceanConnected.Length||cell>=world.Ecology.Habitat.Length||cell>=world.Ecology.Province.Length)return;
             if(!world.Hydrology.OceanConnected[cell])
@@ -57,6 +57,7 @@ namespace WorldGen.Presentation
             HumanAppearance? appearance=null;
             if(kind=="people")appearance=engine.CultureAppearance(s,id);
             else if(kind=="city"||kind=="province")appearance=engine.RegionalAppearance(s,engine.CellPatch[cell]);
+            else if(kind=="ethnicity")appearance=engine.RegionalAppearance(s,s.History.Identities.Peoples[id].HomeRegion);
             if(appearance?.Available!=true)return;
             string pigment(int value)=>value<2500?"Light pigmentation":value<6000?"Intermediate pigmentation":"Dark pigmentation";
             sections.Add(new AtlasSection{Title="People and appearance",Text=appearance.Basis+" Pigmentation responds slowly to UV exposure, while inheritance, migration and drift preserve variation. Appearance has no effect on intelligence, political capacity or technology.",Facts=new[]{
@@ -65,6 +66,7 @@ namespace WorldGen.Presentation
                 new AtlasFact{Label="Iris",Value=pigment(appearance.IrisPigmentation),Swatch=SwatchHex(appearance.IrisColor)},
                 F("Hair form",appearance.HairCurl<3000?"Mostly straighter forms":appearance.HairCurl>7000?"Mostly tighter curls":"Mixed wavy and curly forms"),
                 F("Body-form tendency",appearance.BodyCompactness<3500?"Relatively slender":appearance.BodyCompactness>6500?"Relatively compact":"Intermediate build")}});
+            d.Appearance=appearance;
         }
     }
 }

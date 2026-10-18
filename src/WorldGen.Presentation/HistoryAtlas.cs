@@ -10,6 +10,7 @@ namespace WorldGen.Presentation
     [Serializable] public sealed class AtlasLink
     {
         public string Kind="",Name="",Detail="",Context=""; public int Id,Cell=-1; public long Value; public bool Historical;
+        public AtlasMeasure[] Measures=Array.Empty<AtlasMeasure>();
     }
     [Serializable] public sealed class AtlasFact { public string Label="",Value="",Swatch=""; public AtlasLink[] Related=Array.Empty<AtlasLink>(); }
     [Serializable] public sealed class AtlasSection
@@ -29,6 +30,7 @@ namespace WorldGen.Presentation
         public AtlasFact[] Facts=Array.Empty<AtlasFact>();
         public AtlasSection[] Sections=Array.Empty<AtlasSection>();
         public HabitatPortrait? Habitat;
+        public HumanAppearance? Appearance;
     }
     public static partial class HistoryAtlas
     {
@@ -126,7 +128,7 @@ namespace WorldGen.Presentation
                 case "notable":entries=h.Notables==null?Array.Empty<AtlasLink>():h.Notables.People.Where(p=>past||p.DeathYear<0).OrderByDescending(p=>p.Renown).ThenBy(p=>p.Id).Select(p=>NotableLink(s,p.Id));break;
                 default:return Array.Empty<AtlasLink>();
             }
-            return entries.Where(e=>e.Name.IndexOf(search??"",StringComparison.OrdinalIgnoreCase)>=0).ToArray();
+            return entries.Where(e=>e.Name.IndexOf(search??"",StringComparison.OrdinalIgnoreCase)>=0).Select(e=>{e.Measures=AtlasTables.Measures(s,e);return e;}).ToArray();
         }
         public static AtlasDocument Read(PrehistoryState? s,string kind="world",int id=-1,World? world=null,Prehistory? engine=null)
         {
@@ -137,7 +139,7 @@ namespace WorldGen.Presentation
             var h=s.History;var sections=new List<AtlasSection>();
             switch(kind)
             {
-                case "world":Overview(s,d,sections);break;
+                case "world":Overview(s,d,sections);WorldExhibits(s,engine,sections);break;
                 case "organization":Organization(s,id,d,sections);break;
                 case "technology" when id>=0&&id<h.Cultures.Length:Technology(s,id,d,sections);break;
                 case "province":Province(s,id,d,sections);break;
@@ -163,7 +165,7 @@ namespace WorldGen.Presentation
                     if(setting!=null)sections.Insert(Math.Min(1,sections.Count),setting);
                 }
             }
-            ColonialSections(s,kind,id,sections);LivingWorldSections(s,kind,id,d.Cell,world,engine,sections);d.Sections=sections.ToArray();return d;
+            ColonialSections(s,kind,id,sections);LivingWorldSections(s,kind,id,d.Cell,world,engine,sections,d);d.Sections=sections.ToArray();return d;
         }
         static AtlasSection? Setting(World world,int cell,string title)
         {

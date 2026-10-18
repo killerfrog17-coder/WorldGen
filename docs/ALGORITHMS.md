@@ -1,5 +1,17 @@
 # Implementation contracts - version 3
 
+## Regional forager heritage - history32 optional realm36
+
+Identity-extension Version2 permits Culture=-1 and prospective regional identities
+before any advanced culture. Actual migrants carry regional household identities;
+existing regional clocks allow geographically separated local branches without
+requiring a recorded language/culture actor. Existing8-trait regional appearance
+continues independently; fixed-cost seeded individual sampling supplies future
+NPC model parameters, not ethnic templates. Old35/Version1 continuations remain
+literal until explicit upgrade. No new demographic budget, fine-cell membership
+census, state/technology grant or per-person recurring turn is introduced. See
+[scope and tested limits](HISTORY32_FORAGER_HERITAGE.md).
+
 ## High-profile people and households - history32 optional realm35
 
 Nullable `HistoryState.Notables` is absent from old canonical bytes. Real named

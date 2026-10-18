@@ -1,0 +1,43 @@
+@using WorldGen.Core
+@using WorldGen.Presentation
+<section class="atlas-exhibit" data-exhibit="@Item.Title">
+<header>@if(Compact){<button class="exhibit-title" @onclick="()=>OpenSection.InvokeAsync(Item.Title)">@Item.Title <span>↗</span></button>}else{<h2>@Item.Title</h2>}<small>@AtlasDashboard.Caption(Item)</small></header>
+@{var visual=AtlasDashboard.Visual(Item);int limit=Compact?6:int.MaxValue;var links=Item.Links.Take(limit).ToArray();long max=AtlasDashboard.Maximum(Item);}
+@if(visual==AtlasVisual.Appearance&&Document.Appearance?.Available==true){
+@((MarkupString)AtlasPortrait.Svg(Document.Appearance))
+<div class="appearance-palette">@foreach(var person in AtlasPortrait.Samples(Document.Appearance)){<span title="Individual skin, hair and iris samples"><i style="background:@AtlasPortrait.Hex(person.SkinColor)"></i><i style="background:@AtlasPortrait.Hex(person.HairColor)"></i><i style="background:@AtlasPortrait.Hex(person.IrisColor)"></i></span>}</div>
+@if(!Compact){<div class="appearance-parameters">@foreach(HumanAppearanceTrait trait in Enum.GetValues(typeof(HumanAppearanceTrait))){<label>@HistoryHumanVariation.TraitName(trait)<progress value="@Document.Appearance.Value(trait)" max="10000"></progress><small>@Document.Appearance.Value(trait) / 10,000 · regional mean</small></label>}</div>}
+}
+@if(Item.Facts.Length>0){<div class="exhibit-facts">@foreach(var fact in Item.Facts.Take(Compact?4:int.MaxValue)){<div><small>@fact.Label</small><strong>@if(fact.Swatch.Length>0){<i class="fact-swatch" style="background:@fact.Swatch"></i>}@fact.Value</strong>@foreach(var link in fact.Related){<button @onclick="()=>Navigate.InvokeAsync(link)">@link.Name</button>}</div>}</div>}
+@if(visual==AtlasVisual.Network&&Item.Links.Any(l=>l.Kind.Length>0)){<AtlasNetwork Document="Document" Section="Item" Navigate="Navigate"/>}
+@if(visual==AtlasVisual.Composition&&Item.Links.Sum(l=>Math.Max(0,l.Value))>0){
+<div class="composition-strip" role="img" aria-label="@Item.Title">@for(int i=0;i<Item.Links.Length;i++){var link=Item.Links[i];<span title="@link.Name · @AtlasDashboard.BarLabel(Item,link)" style="flex:@Math.Max(0,link.Value);background:@AtlasDashboard.Color(i)"></span>}</div>
+}
+@if(visual!=AtlasVisual.Network||!Compact){<div class="exhibit-rows">@for(int i=0;i<links.Length;i++){
+var link=links[i];<div class="exhibit-row"><div>@if(link.Kind.Length>0){<button title="@link.Context" @onclick="()=>Navigate.InvokeAsync(link)">@link.Name</button>}else{<strong>@link.Name</strong>}@if(Item.Bars){<b>@AtlasDashboard.BarLabel(Item,link)</b>}</div>
+@if(Item.Bars&&visual!=AtlasVisual.Composition){<progress title="@link.Detail" value="@Math.Max(0,link.Value)" max="@max" style="accent-color:@AtlasDashboard.Color(i)"></progress>}
+@if(!Compact&&link.Detail.Length>0){<small>@link.Detail</small>}</div>
+}</div>}
+@if(Item.Technical.Length>0){
+@if(!Compact){<label class="project-filter">Projects <select aria-label="Filter technical projects" @bind="projects"><option>All</option><option>Active research</option><option>Deployment pending</option><option>Established</option></select></label>}
+<div class="exhibit-tech">@foreach(var p in Item.Technical.Where(ProjectMatches).Take(Compact?3:int.MaxValue)){
+<article><h3>@p.Name <b>Lv @p.Level</b></h3><small>@p.Source</small><div><label>Research effort <b>@((p.AllocationBasisPoints/100.0).ToString("0.#"))%</b><progress value="@p.AllocationBasisPoints" max="10000"></progress></label><label>@(p.AtCeiling?"Model ceiling":"Next level") <b>@(p.AtCeiling?"—":(p.ResearchPermille/10.0).ToString("0.#")+"%")</b><progress value="@(p.AtCeiling?1000:p.ResearchPermille)" max="1000"></progress></label><label>Deployment <b>@((p.DeploymentPermille/10.0).ToString("0.#"))%</b><progress value="@p.DeploymentPermille" max="1000"></progress></label></div>
+@if(p.Prerequisites.Length>0){<details><summary>Prerequisites & connections</summary><p>@p.Prerequisites</p></details>}</article>
+}</div>}
+@if(Item.Timeline.Length>0){
+@if(visual==AtlasVisual.Phonetics){<div class="lexicon">@foreach(var word in Item.Timeline){<article><small>@word.Label</small><strong>@word.Value</strong></article>}</div>}
+else{<ol class="exhibit-timeline">@foreach(var point in Item.Timeline.Take(Compact?3:int.MaxValue)){<li><time>@point.Label</time><p>@point.Value</p>@foreach(var link in point.Related){<button @onclick="()=>Navigate.InvokeAsync(link)">@link.Name</button>}</li>}</ol>}
+}
+@if(Compact){<button class="open-exhibit" @onclick="()=>OpenSection.InvokeAsync(Item.Title)">Explore @Item.Title.ToLowerInvariant() →</button>}
+else if(Item.Text.Length>0){<details class="exhibit-context"><summary>Context & definitions</summary><p>@Item.Text</p></details>}
+@if(!Compact&&Item.Facts.Length==0&&Item.Links.Length==0&&Item.Timeline.Length==0&&Item.Technical.Length==0){<p>@Item.Text</p>}
+</section>
+@code{
+ [Parameter] public AtlasDocument Document{get;set;}
+ [Parameter] public AtlasSection Item{get;set;}
+ [Parameter] public bool Compact{get;set;}
+ [Parameter] public EventCallback<AtlasLink> Navigate{get;set;}
+ [Parameter] public EventCallback<string> OpenSection{get;set;}
+ string projects="All";
+ bool ProjectMatches(TechnicalProgress p)=>projects=="Active research"?p.AllocationBasisPoints>0:projects=="Deployment pending"?p.Level>0&&p.DeploymentPermille<950:projects=="Established"?p.Level>0: true;
+}

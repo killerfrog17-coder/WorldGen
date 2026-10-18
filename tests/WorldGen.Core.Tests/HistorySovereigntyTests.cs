@@ -73,12 +73,12 @@ public static class HistorySovereigntyTests
     {
         Directory.CreateDirectory(output);var world=WorldFile.Read(File.ReadAllBytes(path));var old=world.Prehistory;var e=new Prehistory(world);string before=old.ComputeHash();
         var s=e.UpgradeRealmLifecycles(old);e.Validate(s);
-        check(s.History.Aggregates.Empires.Connections.Realms.Version==34&&s.History.Aggregates.Empires.Connections.Realms.Sovereignty!=null,"Explicit upgrade initializes prospective sovereignty records.");
+        check(s.History.Aggregates.Empires.Connections.Realms.Version>=34&&s.History.Aggregates.Empires.Connections.Realms.Sovereignty!=null,"Explicit upgrade initializes prospective sovereignty records.");
         check(old.ComputeHash()==before&&old.History.Aggregates.Empires.Connections.Realms.Sovereignty==null,"The unupgraded input remains byte-for-byte literal.");
         check(s.History.Aggregates.Cells.Fingerprint()==old.History.Aggregates.Cells.Fingerprint()&&s.History.Aggregates.TotalPopulation==old.History.Aggregates.TotalPopulation,"Upgrade grants no borders, people, towns or alleged historical transfers.");
         check(ReferenceEquals(s,e.UpgradeRealmLifecycles(s)),"A complete upgrade is idempotent.");
         var fresh=e.Start(e.Prepare());e.Validate(fresh);
-        check(fresh.History.Aggregates.Empires.Connections.Realms.Version==34&&fresh.History.Aggregates.Empires.Connections.Realms.Sovereignty!=null,"Fresh histories initialize the same prospective sovereignty rules without an alternate simulation route.");
+        check(fresh.History.Aggregates.Empires.Connections.Realms.Version>=34&&fresh.History.Aggregates.Empires.Connections.Realms.Sovereignty!=null,"Fresh histories initialize the same prospective sovereignty rules without an alternate simulation route.");
         var proposal=s.Copy();var a=proposal.History.Aggregates;int target=-1,receiver=-1;
         foreach(var state in proposal.History.Polities.Where(p=>p.EndedYear<0).Take(16))
         {

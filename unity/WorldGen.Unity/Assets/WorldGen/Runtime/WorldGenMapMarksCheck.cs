@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
@@ -32,6 +33,15 @@ public sealed partial class WorldGenRuntime
         {
             OpenAtlas("directory:"+category.Kind);yield return null;yield return new WaitForEndOfFrame();
             if(atlasDocument.Title!=category.Name||atlasKind!=category.Kind)throw new Exception("Wrong category page: "+category.Name);
+            var columns=AtlasTables.Columns(category.Kind);
+            foreach(var column in columns){var sorted=AtlasTables.Sort(atlasDirectory,column,true);if(sorted.Length!=atlasDirectory.Length)throw new Exception("Native table sorting lost records");}
+            if(Environment.GetCommandLineArgs().Contains("--atlas-exhibits")&&atlasDirectory.Length>0)
+            {
+                var entry=atlasDirectory[0];OpenAtlas(entry.Kind,entry.Id);yield return null;yield return new WaitForEndOfFrame();
+                File.WriteAllText(Path.Combine(output,category.Kind+".json"),WorldGen.Serialization.WorldJson.Write(atlasDocument));
+                foreach(var part in atlasDocument.Sections){atlasSection=part.Title;atlasArticleScroll=Vector2.zero;yield return null;yield return new WaitForEndOfFrame();}
+                atlasSection="Overview";yield return null;yield return new WaitForEndOfFrame();
+            }
         }
         atlasSearch="no-such-atlas-record-989898";OpenAtlas("directory:city");yield return new WaitForEndOfFrame();
         if(atlasDirectory.Length!=0||atlasDocument.Title!="Cities")throw new Exception("Empty Cities page failed");

@@ -1,0 +1,20 @@
+@using WorldGen.Presentation
+@{var links=Section.Links.Where(l=>l.Kind.Length>0).Take(8).ToArray();int height=Math.Max(150,links.Length*46+30);double center=height/2.0;}
+<svg class="record-network" viewBox="0 0 760 @height" role="img" aria-label="@Section.Title">
+<text x="12" y="@(center-18)" fill="#edf1ed" font-size="15">@SocietyView.Short(Document.Title,22)</text>
+<circle cx="175" cy="@center" r="7" fill="#d1b77c"/>
+@for(int i=0;i<links.Length;i++){
+var link=links[i];int y=28+i*46;string color=Section.Diagram?AtlasDiagram.RelationColor(link.Detail):AtlasDashboard.Color(i);
+<path d="@($"M175 {center} Q310 {y} 418 {y}")" fill="none" stroke="@color" stroke-width="2"/>
+<g class="network-node" role="button" tabindex="0" @onclick="()=>Navigate.InvokeAsync(link)" @onkeydown="e=>Key(e,link)">
+<title>@link.Name · @link.Detail</title><rect x="422" y="@(y-22)" width="326" height="42" rx="4" fill="#1b3541"/>
+<circle cx="418" cy="@y" r="5" fill="@color"/><text x="434" y="@(y-3)" fill="#f1f3ee" font-size="14">@SocietyView.Short(link.Name,37)</text>
+<text x="434" y="@(y+13)" fill="@color" font-size="11">@SocietyView.Short(link.Detail,47)</text></g>
+}
+</svg>
+@code{
+ [Parameter] public AtlasDocument Document{get;set;}
+ [Parameter] public AtlasSection Section{get;set;}
+ [Parameter] public EventCallback<AtlasLink> Navigate{get;set;}
+ Task Key(KeyboardEventArgs e,AtlasLink link)=>e.Key=="Enter"||e.Key==" "?Navigate.InvokeAsync(link):Task.CompletedTask;
+}

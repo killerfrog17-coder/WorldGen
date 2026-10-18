@@ -8,6 +8,7 @@ public static class HistoryPresentationTests
         MapMarksTests.Run(check);
         HistoryReligiousDoctrineTests.Run(check);
         HistoryAtlasTests.Run(check);
+        AtlasOverhaulTests.Run(check);
         var metric=new HistoryLegendEntry{Population=1234567,AreaKm2=234567};
         check(SocietyView.SortValue(metric,"Population")=="1,234,567"&&SocietyView.SortValue(metric,"Land area")=="234,567 km²","Ranked rows expose population or land area with units");
         check(SocietyView.SortValue(metric,"Default")=="","Abstract dominance score is not exposed as a metric");

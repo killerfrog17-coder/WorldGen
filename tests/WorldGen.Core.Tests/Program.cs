@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--atlas-overhaul-only")){int n=0;AtlasOverhaulTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" atlas overhaul assertions");return;}
+if(args.Contains("--atlas-overhaul-world")){int at=Array.IndexOf(args,"--atlas-overhaul-world"),n=0;AtlasOverhaulTests.World(args[at+1],args[at+2],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" actual-world atlas/heritage assertions");return;}
 if(args.Contains("--notables-resume")){int at=Array.IndexOf(args,"--notables-resume");var w=WorldFile.Read(File.ReadAllBytes(args[at+1]));var e=new Prehistory(w);var s=e.AdvanceYears(w.Prehistory,12);e.Validate(s);File.WriteAllText(args[at+2],s.Hash);Console.WriteLine("PASS notable cold resume "+s.Hash);return;}
 if(args.Contains("--notables-only")){int n=0;NotablePeopleTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" notable-person assertions");return;}
 if(args.Contains("--notables-world")){int at=Array.IndexOf(args,"--notables-world"),n=0;NotablePeopleTests.World(args[at+1],args[at+2],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" actual-world notable-person assertions");return;}

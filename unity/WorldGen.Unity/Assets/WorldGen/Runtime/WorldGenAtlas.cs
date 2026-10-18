@@ -15,6 +15,7 @@ public sealed partial class WorldGenRuntime
     AtlasLink[] atlasDirectory=Array.Empty<AtlasLink>();
     HashSet<string> atlasRepeatedNames=new HashSet<string>();
     int atlasDirectoryPage;
+    string atlasSort="Name";bool atlasSortDescending;
     PrehistoryState atlasSnapshot;
     readonly Stack<Tuple<string,int>> atlasBack=new Stack<Tuple<string,int>>();
     void OpenAtlas(string kind="world",int id=-1)
@@ -35,7 +36,7 @@ public sealed partial class WorldGenRuntime
         atlasDocument=kind=="location"?AtlasNavigation.Location(humanOverlayOpacity>0?CurrentSelectionCard():CurrentBaseCard(),id,atlasSnapshot?.Years??0,SimulationClockView.EpochYear(atlasSnapshot)):HistoryAtlas.Read(atlasSnapshot,kind,id,world,humans);
         atlasKind=AtlasNavigation.DirectoryKind(kind);atlasSection="Overview";atlasArticleScroll=Vector2.zero;atlasTimeline=null;
     }
-    void RefreshAtlasDirectory(){atlasDirectory=HistoryAtlas.Directory(atlasSnapshot,atlasKind,atlasSearch,atlasPast);atlasRepeatedNames=new HashSet<string>(atlasDirectory.GroupBy(x=>x.Name).Where(g=>g.Count()>1).Select(g=>g.Key));atlasDirectoryScroll=Vector2.zero;atlasDirectoryPage=0;}
+    void RefreshAtlasDirectory(){if(!AtlasTables.Columns(atlasKind).Contains(atlasSort)){atlasSort="Name";atlasSortDescending=false;}atlasDirectory=AtlasTables.Sort(HistoryAtlas.Directory(atlasSnapshot,atlasKind,atlasSearch,atlasPast),atlasSort,atlasSortDescending);atlasRepeatedNames=new HashSet<string>(atlasDirectory.GroupBy(x=>x.Name).Where(g=>g.Count()>1).Select(g=>g.Key));atlasDirectoryScroll=Vector2.zero;atlasDirectoryPage=0;}
     void AtlasNavigate(AtlasLink link){if(string.IsNullOrEmpty(link.Kind))return;atlasBack.Push(Tuple.Create(atlasDocument.Kind,atlasDocument.Id));LoadAtlasArticle(link.Kind,link.Id);RefreshAtlasDirectory();EndAtlasUiChange();}
     void EndAtlasUiChange(){if(Event.current!=null&&Event.current.type!=EventType.Layout&&Event.current.type!=EventType.Repaint)GUIUtility.ExitGUI();}
     void DrawAtlas()
@@ -80,9 +81,11 @@ public sealed partial class WorldGenRuntime
             if(atlasKind=="view")DrawSocietyMapSettings();
             else
             {
-                GUILayout.BeginHorizontal();GUILayout.Label("Name",GUILayout.Width(210));GUILayout.Label("Details");GUILayout.EndHorizontal();
+                var columns=AtlasTables.Columns(atlasKind);AtlasParagraph(atlasDirectory.Length.ToString("N0")+" records · click a heading to sort",11);
+                float ColumnWidth(string column)=>column=="Name"?170:column=="Government"||column=="Way of life"||column=="Role"||column=="Cultural context"||column=="Parent heritage"?170:115;
+                GUILayout.BeginHorizontal();foreach(string column in columns)if(GUILayout.Button(column+(atlasSort==column?(atlasSortDescending?" ▾":" ▴"):" ↕"),GUILayout.Width(ColumnWidth(column)))){if(atlasSort==column)atlasSortDescending=!atlasSortDescending;else{atlasSort=column;atlasSortDescending=column!="Name";}atlasDirectory=AtlasTables.Sort(atlasDirectory,atlasSort,atlasSortDescending);atlasDirectoryPage=0;EndAtlasUiChange();}GUILayout.EndHorizontal();
                 foreach(var entry in atlasDirectory.Skip(atlasDirectoryPage*200).Take(200))
-                {GUILayout.BeginHorizontal();if(GUILayout.Button(entry.Name,GUILayout.Width(210)))AtlasNavigate(entry);GUILayout.Label(entry.Detail+(entry.Context.Length>0?" · "+entry.Context:""),new GUIStyle(GUI.skin.label){wordWrap=true});GUILayout.EndHorizontal();}
+                {GUILayout.BeginHorizontal();foreach(string column in columns){if(column=="Name"){if(GUILayout.Button(entry.Name,GUILayout.Width(ColumnWidth(column))))AtlasNavigate(entry);}else GUILayout.Label(AtlasTables.Cell(entry,column).Text,new GUIStyle(GUI.skin.label){wordWrap=true,fontSize=12},GUILayout.Width(ColumnWidth(column)));}GUILayout.EndHorizontal();}
                 if(atlasDirectory.Length==0)AtlasParagraph("No matching records.",14);
             }
             GUILayout.EndScrollView();GUILayout.EndVertical();GUILayout.EndHorizontal();GUILayout.EndArea();return;
@@ -100,55 +103,29 @@ public sealed partial class WorldGenRuntime
         GUILayout.Space(8);atlasArticleScroll=GUILayout.BeginScrollView(atlasArticleScroll);
         if(atlasSection=="Overview")
         {
-            AtlasParagraph(atlasDocument.Introduction,16);GUILayout.Space(12);
-            AtlasFactTiles(atlasDocument.Facts,3);
-            var visual=HistoryAtlas.OverviewVisual(atlasDocument);
-            if(visual!=null){GUILayout.Space(14);GUILayout.Label(visual.Title,new GUIStyle(GUI.skin.label){fontSize=16,fontStyle=FontStyle.Bold});if(visual.Diagram)DrawAtlasDiplomacy(visual,width-300);else if(visual.Technical.Length>0){foreach(var project in visual.Technical){AtlasParagraph(project.Name+" · level "+project.Level+" → "+(project.Level+1),13);DrawTechnicalBar("Next level",project.ResearchPermille/10f);}}else{long max=visual.Unit=="/ 1,000"?1000:Math.Max(1,visual.Links.Max(l=>l.Value));foreach(var item in visual.Links){AtlasParagraph(item.Name+" · "+item.Detail,12);DrawTechnicalBar("Relative scale",100f*item.Value/max);}}}
-            DrawHabitatPortrait(atlasDocument.Habitat);
-            GUILayout.Space(14);AtlasParagraph("Explore the sections above for connections, livelihoods, institutions, and recorded events. Names in the article open related entries.",13);
+            AtlasParagraph(AtlasDashboard.Lead(atlasDocument),15);AtlasFactTiles(AtlasDashboard.HeadlineFacts(atlasDocument),3);
+            var panels=AtlasDashboard.Panels(atlasDocument);
+            for(int i=0;i<panels.Length;i++)
+            {
+                var visual=AtlasDashboard.Visual(panels[i]);bool wide=visual==AtlasVisual.Network||visual==AtlasVisual.Appearance||visual==AtlasVisual.Technology;
+                if(wide){GUILayout.BeginVertical(GUI.skin.box);DrawAtlasExhibit(panels[i],true,width-300);GUILayout.EndVertical();}
+                else
+                {
+                    GUILayout.BeginHorizontal();GUILayout.BeginVertical(GUI.skin.box,GUILayout.Width((width-312)/2));DrawAtlasExhibit(panels[i],true,(width-328)/2);GUILayout.EndVertical();
+                    if(i+1<panels.Length){var next=AtlasDashboard.Visual(panels[i+1]);if(next!=AtlasVisual.Network&&next!=AtlasVisual.Appearance&&next!=AtlasVisual.Technology){i++;GUILayout.BeginVertical(GUI.skin.box,GUILayout.Width((width-312)/2));DrawAtlasExhibit(panels[i],true,(width-328)/2);GUILayout.EndVertical();}}
+                    GUILayout.EndHorizontal();
+                }
+                GUILayout.Space(10);
+            }
+            DrawAtlasContext("overview","Overview context & definitions",atlasDocument.Introduction+"\n"+atlasDocument.Note);
+            if(atlasDocument.Habitat!=null&&GUILayout.Button("Local landscape"))atlasLandscape=!atlasLandscape;
+            if(atlasLandscape)DrawHabitatPortrait(atlasDocument.Habitat);
         }
         else
         {
-            var section=atlasDocument.Sections.First(s=>s.Title==atlasSection);GUILayout.Label(section.Title,new GUIStyle(GUI.skin.label){fontSize=18,fontStyle=FontStyle.Bold});AtlasParagraph(section.Text,14);AtlasFacts(section.Facts);
-            foreach(var project in section.Technical)
-            {
-                GUILayout.Space(12);GUILayout.Label(project.Name+" — Level "+project.Level,new GUIStyle(GUI.skin.label){fontSize=16,fontStyle=FontStyle.Bold});AtlasParagraph(project.Source,12);
-                if(project.AllocationBasisPoints>0)DrawTechnicalBar("Research share",project.AllocationBasisPoints/100f);
-                if(project.AtCeiling)AtlasParagraph("At current model ceiling",12);else DrawTechnicalBar("Next level",project.ResearchPermille/10f);DrawTechnicalBar("Practical deployment",project.DeploymentPermille/10f);AtlasParagraph(project.Prerequisites.Length>0?"Research prerequisites: "+project.Prerequisites:"",12);
-            }
-            if(section.Diagram)DrawAtlasDiplomacy(section,width-300);
-            long maximum=section.Unit=="/ 1,000"?1000:Math.Max(1,section.Links.Select(x=>x.Value).DefaultIfEmpty(1).Max());
-            if(section.CompactGrid)DrawCompactAtlasResources(section);
-            foreach(var link in section.CompactGrid?Array.Empty<AtlasLink>():section.Links)
-            {
-                GUILayout.Space(5);if(!string.IsNullOrEmpty(link.Kind)){if(GUILayout.Button(link.Name,new GUIStyle(GUI.skin.button){alignment=TextAnchor.MiddleLeft,padding=new RectOffset(8,8,5,5)}))AtlasNavigate(link);}else GUILayout.Label(link.Name);
-                if(!string.IsNullOrEmpty(link.Detail))AtlasParagraph(link.Detail,13);
-                if(section.Bars)
-                {
-                    var bar=GUILayoutUtility.GetRect(10,6,GUILayout.ExpandWidth(true));GUI.color=new Color(.18f,.25f,.29f);GUI.DrawTexture(bar,Texture2D.whiteTexture);bar.width*=Mathf.Clamp01((float)link.Value/maximum);var rgb=SocietyView.CivilizationColor(link.Id);GUI.color=link.Kind=="state"||link.Kind=="people"||link.Kind=="religion"?new Color((float)rgb.X,(float)rgb.Y,(float)rgb.Z):new Color(.77f,.69f,.46f);GUI.DrawTexture(bar,Texture2D.whiteTexture);GUI.color=Color.white;
-                }
-            }
-            var points=section.Timeline;
-            if(section.Title=="Recorded history")
-            {
-                if(atlasTimeline==null)atlasTimeline=HistoryAtlas.Timeline(atlasSnapshot,atlasDocument.Kind,atlasDocument.Id);
-                GUILayout.BeginHorizontal();bool routine=GUILayout.Toggle(atlasTimeline.IncludeRoutine,"Include routine records");
-                if(routine!=atlasTimeline.IncludeRoutine){atlasTimeline=HistoryAtlas.Timeline(atlasSnapshot,atlasDocument.Kind,atlasDocument.Id,0,routine);EndAtlasUiChange();}
-                GUI.enabled=atlasTimeline.Offset>0;
-                if(GUILayout.Button("Newer",GUILayout.Width(70))){atlasTimeline=HistoryAtlas.Timeline(atlasSnapshot,atlasDocument.Kind,atlasDocument.Id,atlasTimeline.Offset-40,atlasTimeline.IncludeRoutine);EndAtlasUiChange();}
-                GUI.enabled=atlasTimeline.Offset+atlasTimeline.Records.Length<atlasTimeline.Total;
-                if(GUILayout.Button("Older",GUILayout.Width(70))){atlasTimeline=HistoryAtlas.Timeline(atlasSnapshot,atlasDocument.Kind,atlasDocument.Id,atlasTimeline.Offset+40,atlasTimeline.IncludeRoutine);EndAtlasUiChange();}
-                GUI.enabled=true;GUILayout.EndHorizontal();
-                AtlasParagraph(atlasTimeline.Total==0?"No matching records.":$"Records {atlasTimeline.Offset+1:N0}–{atlasTimeline.Offset+atlasTimeline.Records.Length:N0} of {atlasTimeline.Total:N0}",12);points=atlasTimeline.Records;
-            }
-            foreach(var point in points)
-            {
-                GUILayout.Space(10);GUILayout.Label(point.Label,new GUIStyle(GUI.skin.label){fontSize=12,fontStyle=FontStyle.Bold});AtlasParagraph(point.Value,15);
-                foreach(var related in point.Related.Where(x=>x.Kind!=atlasDocument.Kind||x.Id!=atlasDocument.Id))if(GUILayout.Button(new GUIContent(related.Name,related.Context),new GUIStyle(GUI.skin.button){fontSize=12,alignment=TextAnchor.MiddleLeft,padding=new RectOffset(5,5,3,3)}))AtlasNavigate(related);
-            }
-            if(section.Links.Length==0&&section.Timeline.Length==0&&section.Facts.Length==0&&section.Text.Length==0&&section.Technical.Length==0)AtlasParagraph("No records yet.",14);
+            var section=atlasDocument.Sections.First(s=>s.Title==atlasSection);DrawAtlasExhibit(section,false,width-300);
         }
-        GUILayout.Space(20);AtlasParagraph(atlasDocument.Note,11);GUILayout.EndScrollView();GUILayout.EndVertical();GUILayout.EndHorizontal();GUILayout.EndArea();
+        GUILayout.Space(20);GUILayout.EndScrollView();GUILayout.EndVertical();GUILayout.EndHorizontal();GUILayout.EndArea();
     }
     void AtlasParagraph(string text,int size){if(!string.IsNullOrEmpty(text))GUILayout.Label(text,new GUIStyle(GUI.skin.label){fontSize=size,wordWrap=true,padding=new RectOffset(0,8,3,3)});}
     void DrawCompactAtlasResources(AtlasSection section)
@@ -193,11 +170,11 @@ public sealed partial class WorldGenRuntime
         GUI.Label(new Rect(r.x,center-32,160,25),SocietyView.Short(atlasDocument.Title,22));
         for(int i=0;i<links.Length;i++)
         {
-            float y=r.y+25+i*43;ColorUtility.TryParseHtmlString(AtlasDiagram.RelationColor(links[i].Detail),out var color);DrawAtlasLine(new Vector2(startX,center),new Vector2(endX,y),color);
+            float y=r.y+25+i*43;ColorUtility.TryParseHtmlString(section.Diagram?AtlasDiagram.RelationColor(links[i].Detail):AtlasDashboard.Color(i),out var color);DrawAtlasLine(new Vector2(startX,center),new Vector2(endX,y),color);
             GUI.color=color;GUI.DrawTexture(new Rect(endX-3,y-3,6,6),Texture2D.whiteTexture);GUI.color=Color.white;
-            if(GUI.Button(new Rect(endX+10,y-15,Mathf.Max(80,r.xMax-endX-10),30),links[i].Name,new GUIStyle(GUI.skin.button){fontSize=12,alignment=TextAnchor.MiddleLeft,padding=new RectOffset(4,4,3,3)}))AtlasNavigate(links[i]);
+            if(GUI.Button(new Rect(endX+10,y-15,Mathf.Max(80,r.xMax-endX-10),35),new GUIContent(links[i].Name+"\n"+SocietyView.Short(links[i].Detail,60),links[i].Detail),new GUIStyle(GUI.skin.button){fontSize=11,alignment=TextAnchor.MiddleLeft,wordWrap=true,padding=new RectOffset(4,4,3,3)}))AtlasNavigate(links[i]);
         }
-        AtlasParagraph(section.Title.StartsWith("Empire",StringComparison.Ordinal)?"Lines connect overarching and constituent governments, not geographic positions.":"Red: war · Blue: alliance · Gold: trade · Gray: contact",12);
+        AtlasParagraph(!section.Diagram?"Recorded family, heritage or institutional connections.":section.Title.StartsWith("Empire",StringComparison.Ordinal)?"Lines connect overarching and constituent governments, not geographic positions.":"Red: war · Blue: alliance · Gold: trade · Gray: contact",11);
     }
     void DrawAtlasLine(Vector2 start,Vector2 end,Color color)
     {

@@ -58,7 +58,7 @@ namespace WorldGen.Core
         int AddPeopleIdentity(PrehistoryState s,int culture,int cell,int parent=-1,int other=-1)
         {
             var r=s.History.Identities;int id=r.Peoples.Length;
-            var language=SpokenCommunityAt(s,cell);var profile=language!=null?s.History.Languages.Spoken.Varieties[language.Primary].Sounds:s.History.Languages.Profiles[culture];
+            var language=SpokenCommunityAt(s,cell);var profile=language!=null?s.History.Languages.Spoken.Varieties[language.Primary].Sounds:culture>=0?s.History.Languages.Profiles[culture]:LanguageGenerator.Create(World.Recipe.Seed,unchecked(-1-CellPatch[cell]),s.Years);
             int faith=HistoricalCells.Religion(s,cell),family=faith>=0?ReligiousDoctrineAt(s,faith)?.RootId??faith:-1;
             var p=new HistoricalPeopleIdentity{Id=id,Culture=culture,HomeCell=cell,HomeRegion=CellPatch[cell],Parent=parent,OtherParent=other,FoundedYear=s.Years,Language=language?.Primary??-1,ReligiousFamily=family,
                 Name=LanguageGenerator.Capitalize(LanguageGenerator.Name(profile,LanguageNameKind.People,unchecked(cell+id*7919+173)).Text),Origin=other>=0?PeopleIdentityOrigin.MixedCommunity:parent>=0?PeopleIdentityOrigin.LocalBranch:PeopleIdentityOrigin.RecordedCommunity};
@@ -131,11 +131,16 @@ namespace WorldGen.Core
         }
         void AdvanceEthnicCommunity(PrehistoryState s,int cell,bool regional)
         {
-            if(!IdentityHistory(s))return;var p=EthnicCommunityAt(s,cell);if(p==null)return;var r=s.History.Identities;
+            if(!IdentityHistory(s))return;
+            if(s.History.Identities.Version>=2&&regional)EnsureForagerHeritage(s,CellPatch[cell]);
+            var p=EthnicCommunityAt(s,cell);if(p==null)return;var r=s.History.Identities;
             if(regional&&r.Regions[CellPatch[cell]*12]>=0)p=ReadEthnic(r.Regions,CellPatch[cell]*12,true);
             int elapsed=s.Years-p.ReviewedYear;if(elapsed<40)return;var a=s.History.Aggregates;int town=a.TownAt[cell],owner=HistoricalCells.Polity(s,cell);
             if(regional){town=-1;owner=-1;}
             int active=p.ContactYear<0?0:Math.Max(0,Math.Min(s.Years,p.ContactYear+80)-Math.Max(p.ReviewedYear,p.ContactYear));
+            // Local traffic among a widely dispersed founding identity does
+            // not indefinitely prevent peripheral communities differentiating.
+            if(r.Version>=2&&regional&&p.ContactGroup==p.Primary)active=0;
             int inclusion=town>=0&&owner>=0?a.Communities.Cities[town].InclusionMilli:700;
             p.Cohesion=HistoricalIdentityEffects.Approach(p.Cohesion,600+(inclusion<300?150:0),elapsed,250);
             p.HomeAttachment=HistoricalIdentityEffects.Approach(p.HomeAttachment,800,elapsed,400);
@@ -150,6 +155,9 @@ namespace WorldGen.Core
             if(p.MixedYears>=300&&HistoryRoll("identity-local-synthesis-33",cell,s.Years)<1-Math.Exp(-elapsed/2000.0))identity=AddPeopleIdentity(s,r.Peoples[p.Primary].Culture,cell,p.Primary,p.Minority);
             else if(p.SeparatedYears>=1500&&p.HomeAttachment>=650&&speech!=null&&r.Peoples[p.Primary].Language>=0&&speech.Primary!=r.Peoples[p.Primary].Language&&s.Years-r.Peoples[p.Primary].FoundedYear>=1500
                 &&HistoryRoll("identity-local-branch-33",cell,s.Years)<1-Math.Exp(-elapsed/12000.0))identity=AddPeopleIdentity(s,r.Peoples[p.Primary].Culture,cell,p.Primary);
+            else if(r.Version>=2&&regional&&p.SeparatedYears>=6000&&p.HomeAttachment>=650&&s.Years-r.Peoples[p.Primary].FoundedYear>=6000
+                &&D.Angle(World.Surface.Cells[cell].Position,World.Surface.Cells[r.Peoples[p.Primary].HomeCell].Position)*World.Recipe.RadiusKm>350
+                &&HistoryRoll("forager-heritage-branch-36",cell,s.Years)<1-Math.Exp(-elapsed/18000.0))identity=AddPeopleIdentity(s,r.Peoples[p.Primary].Culture,cell,p.Primary);
             if(identity>=0)
             {
                 int former=p.Primary;p.Primary=identity;
@@ -177,10 +185,10 @@ namespace WorldGen.Core
         void ValidateIdentityHistory(PrehistoryState s)
         {
             var r=s.History.Identities;if(r==null){if(s.History.Aggregates?.Empires?.Connections?.Realms?.Version>=33)throw new ArgumentException("Missing identity history.");return;}
-            if(r.Version!=1||r.SinceYear<0||r.SinceYear>s.Years||r.Peoples==null||r.Places?.Length!=HistoricalCells.Count(s)*12||r.Regions?.Length!=s.History.Aggregates.Regions.Length*12||r.CultureDefaults?.Length!=33554432||r.Memories?.Length!=33554432||r.RulingIdentities?.Length!=33554432)throw new ArgumentException("Invalid identity history extension.");
+            if((r.Version!=1&&r.Version!=2)||r.SinceYear<0||r.SinceYear>s.Years||r.Peoples==null||r.Places?.Length!=HistoricalCells.Count(s)*12||r.Regions?.Length!=s.History.Aggregates.Regions.Length*12||r.CultureDefaults?.Length!=33554432||r.Memories?.Length!=33554432||r.RulingIdentities?.Length!=33554432)throw new ArgumentException("Invalid identity history extension.");
             for(int i=0;i<r.Peoples.Length;i++)
             {
-                var p=r.Peoples[i];if(p==null||p.Id!=i||p.Parent< -1||p.Parent>=i||p.OtherParent< -1||p.OtherParent>=i||p.OtherParent==p.Parent&&p.Parent>=0||p.Parent<0&&p.OtherParent>=0||p.Culture<0||p.Culture>=s.History.Cultures.Length||p.HomeCell<0||p.HomeCell>=HistoricalCells.Count(s)||p.HomeRegion<0||p.HomeRegion>=s.Population.Length||p.FoundedYear<r.SinceYear||p.FoundedYear>s.Years||p.Language< -1||p.Language>=(s.History.Languages?.Spoken?.Varieties.Length??0)||p.ReligiousFamily< -1||p.ReligiousFamily>=s.History.Religions.Length||string.IsNullOrWhiteSpace(p.Name)||p.Name.Length>300||!Enum.IsDefined(typeof(PeopleIdentityOrigin),p.Origin)||p.Lineages==null||p.Weights?.Length!=p.Lineages.Length||p.Lineages.Length<1||p.Lineages.Length>4||p.Weights.Any(x=>x<1||x>1000)||p.Weights.Sum()!=1000||p.Lineages.Any(x=>x<0||x>i)||p.Lineages.Distinct().Count()!=p.Lineages.Length)throw new ArgumentException("Invalid people identity.");
+                var p=r.Peoples[i];if(p==null||p.Id!=i||p.Parent< -1||p.Parent>=i||p.OtherParent< -1||p.OtherParent>=i||p.OtherParent==p.Parent&&p.Parent>=0||p.Parent<0&&p.OtherParent>=0||p.Culture<(r.Version>=2?-1:0)||p.Culture>=s.History.Cultures.Length||p.HomeCell<0||p.HomeCell>=HistoricalCells.Count(s)||p.HomeRegion<0||p.HomeRegion>=s.Population.Length||p.FoundedYear<r.SinceYear||p.FoundedYear>s.Years||p.Language< -1||p.Language>=(s.History.Languages?.Spoken?.Varieties.Length??0)||p.ReligiousFamily< -1||p.ReligiousFamily>=s.History.Religions.Length||string.IsNullOrWhiteSpace(p.Name)||p.Name.Length>300||!Enum.IsDefined(typeof(PeopleIdentityOrigin),p.Origin)||p.Lineages==null||p.Weights?.Length!=p.Lineages.Length||p.Lineages.Length<1||p.Lineages.Length>4||p.Weights.Any(x=>x<1||x>1000)||p.Weights.Sum()!=1000||p.Lineages.Any(x=>x<0||x>i)||p.Lineages.Distinct().Count()!=p.Lineages.Length)throw new ArgumentException("Invalid people identity.");
             }
             foreach(var tree in new[]{r.Places,r.Regions})if(!tree.AllPresentValues((k,v)=>
             {

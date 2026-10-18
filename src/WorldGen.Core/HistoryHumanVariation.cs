@@ -41,6 +41,23 @@ namespace WorldGen.Core
     }
     public static class HistoryHumanVariation
     {
+        // Bounded procedural model parameters, not a facial reconstruction or
+        // a diagnostic of ethnicity. Future NPCs can persist the sampled result.
+        public static HumanAppearance Sample(HumanAppearance mean,int seed,int individual)
+        {
+            if(mean==null||!mean.Available)return new HumanAppearance{Basis="No resident appearance estimate."};
+            int SampleTrait(HumanAppearanceTrait trait)
+            {
+                int key=unchecked(individual*397+mean.Region*104729);
+                double noise=0;for(int k=0;k<4;k++)noise+=Rng.Value(seed,"npc-appearance-36-"+(int)trait+"-"+k,key)-.5;
+                int spread=trait==HumanAppearanceTrait.SkinPigmentation?1200:trait==HumanAppearanceTrait.HairPigmentation||trait==HumanAppearanceTrait.IrisPigmentation?1800:2400;
+                return Math.Max(0,Math.Min(10000,mean.Value(trait)+(int)Math.Round(noise*spread)));
+            }
+            var p=new HumanAppearance{Available=true,Region=mean.Region,SampleCell=mean.SampleCell,Species=mean.Species,Basis="Seeded individual from a regional distribution, not an ethnic template.",
+                SkinPigmentation=SampleTrait(HumanAppearanceTrait.SkinPigmentation),HairPigmentation=SampleTrait(HumanAppearanceTrait.HairPigmentation),IrisPigmentation=SampleTrait(HumanAppearanceTrait.IrisPigmentation),
+                HairCurl=SampleTrait(HumanAppearanceTrait.HairCurl),BodyCompactness=SampleTrait(HumanAppearanceTrait.BodyCompactness),FacialVariation=SampleTrait(HumanAppearanceTrait.FacialVariation),NasalVariation=SampleTrait(HumanAppearanceTrait.NasalVariation),StaturePotential=SampleTrait(HumanAppearanceTrait.StaturePotential)};
+            p.SkinColor=SkinSwatch(p.SkinPigmentation);p.HairColor=HairSwatch(p.HairPigmentation);p.IrisColor=IrisSwatch(p.IrisPigmentation);return p;
+        }
         static readonly SapientAppearanceProfile Human=new SapientAppearanceProfile("Homo sapiens",28,18000,65000);
         public static SapientAppearanceProfile Profile(string species)
         {if(species!="Homo sapiens")throw new ArgumentException("No appearance profile is implemented for this sapient species.",nameof(species));return Human;}
@@ -152,6 +169,7 @@ namespace WorldGen.Core
         }
         void MixHumanVariation(PrehistoryState s,int from,int to,long migrants,long previousRemoteResidents)
         {
+            CarryRegionalHeritage(s,from,to,migrants,previousRemoteResidents);
             long settled=s.History.Aggregates.Living.Regions[to].SettledPopulation;
             long residents=Math.Max(0,previousRemoteResidents)+Math.Max(0,settled);
             for(int k=0;k<8;k++)s.Ancestry[to*8+k]=HistoryHumanVariation.MixValue(s.Ancestry[to*8+k],residents,s.Ancestry[from*8+k],migrants);
@@ -162,6 +180,11 @@ namespace WorldGen.Core
             long residents=LivingWorldHistory(s)?ProvincialContactResidents(s,region,false):s.Population[region]+(s.History?.Aggregates?.Living?.Regions[region].SettledPopulation??0);
             if(residents<=0)return new HumanAppearance{Region=region,Basis="No resident regional population is recorded."};
             return HistoryHumanVariation.Read(s,region,Patches[region].Cell,"Regional inherited appearance averages; individuals vary. Not a racial category or a household census.");
+        }
+        public HumanAppearance SampleNpcAppearance(PrehistoryState s,int cell,int individualSeed)
+        {
+            if(cell<0||cell>=CellPatch.Length)return new HumanAppearance{Basis="No valid birthplace."};
+            return HistoryHumanVariation.Sample(RegionalAppearance(s,CellPatch[cell]),World.Recipe.Seed,individualSeed);
         }
         public HumanAppearance CultureAppearance(PrehistoryState s,int culture)
         {
