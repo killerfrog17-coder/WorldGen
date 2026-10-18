@@ -1,5 +1,16 @@
 # Historical simulation: history-31 / prehistory-6
 
+## Contested local sovereignty - 17 October 2026
+
+Optional realm34 replaces instant town protection/separation shortcuts with
+dated local disputes and actual decisions. Physical routes, solvent receivers,
+local terms and memories, organized claimants and the incumbent's ability to
+govern determine negotiated protection, reconciliation, secession or withdrawal.
+Actual conquest retains its campaign; minor unadministered settlements do not
+automatically become states. City/capital/province articles show the recorded
+causes under Power & relations. Old saves require explicit upgrade. See
+[scope and limits](HISTORY32_CONTESTED_SOVEREIGNTY.md).
+
 ## Peoples and local memory - 17 October 2026
 
 Optional realm33 adds distinct ethnic identities and local historical memory.

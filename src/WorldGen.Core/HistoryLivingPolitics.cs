@@ -70,7 +70,7 @@ namespace WorldGen.Core
             double familiarity=town.CultureId==p.CultureId?1:.25;
             double benefit=(.3+.7*p.Legitimacy/1000.0)*familiarity;
             if(HistoryRoll("living-incorporation",polity,s.Years)<1-Math.Exp(-.003*benefit*elapsed))
-            {ClaimAggregatePolity(s,town.Cell,polity);p.Treasury-=100;HistoryEvent(s,"incorporation",town.Name+" joins the administration of "+p.Name+" through local protection and provisioning agreements.",town.Cell,town.CultureId,polity,town:other,category:ChronicleCategory.Politics);}
+            {if(SovereigntyHistory(s)){BeginSovereigntyCase(s,other,-1,polity,HistoricalSovereigntyRequest.Protection);return;}ClaimAggregatePolity(s,town.Cell,polity);p.Treasury-=100;HistoryEvent(s,"incorporation",town.Name+" joins the administration of "+p.Name+" through local protection and provisioning agreements.",town.Cell,town.CultureId,polity,town:other,category:ChronicleCategory.Politics);}
         }
     }
 }

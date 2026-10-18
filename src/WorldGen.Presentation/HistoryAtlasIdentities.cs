@@ -19,6 +19,7 @@ namespace WorldGen.Presentation
         {
             var ethnic=EthnicLocalSection(s,cell);if(ethnic!=null)sections.Add(ethnic);
             int town=s.History.Aggregates?.TownAt[cell]??-1;var memory=LocalMemorySection(s,town);if(memory!=null)sections.Add(memory);
+            var sovereignty=SovereigntySection(s,town);if(sovereignty!=null)sections.Add(sovereignty);
         }
         public static AtlasSection? LocalMemorySection(PrehistoryState s,int town)
         {

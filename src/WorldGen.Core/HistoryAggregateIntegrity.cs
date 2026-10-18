@@ -34,6 +34,8 @@ namespace WorldGen.Core
                 if(h.Languages?.Spoken!=null){h.Languages.Spoken.Places.Fingerprint(true);h.Languages.Spoken.Regions.Fingerprint(true);h.Languages.Spoken.CultureVarieties.Fingerprint(true);}
                 if(h.Identities!=null)foreach(var tree in new[]{h.Identities.Places,h.Identities.Regions,h.Identities.CultureDefaults,h.Identities.Memories,h.Identities.RulingIdentities})tree.Fingerprint(true);
                 a.Empires?.Connections?.Realms?.Claimants?.At.Fingerprint(true);
+                a.Empires?.Connections?.Realms?.Sovereignty?.Cases.Fingerprint(true);
+                a.Empires?.Connections?.Realms?.Sovereignty?.Transfers.Fingerprint(true);
                 a.Empires?.Connections?.SeaService?.BySource.Fingerprint(true);
                 a.Empires?.Connections?.LocalSeeds?.Towns.Fingerprint(true);
                 a.Empires?.Connections?.PreparedPlots?.Cells.Fingerprint(true);

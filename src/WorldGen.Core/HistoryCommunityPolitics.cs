@@ -16,17 +16,19 @@ namespace WorldGen.Core
         void AdvanceCommunityPolitics(PrehistoryState s,int city)
         {
             ReviewRealmCenterTitles(s,city);
-            var h=s.History;var a=h.Aggregates;var t=s.Society.Settlements[city];int owner=a.Resolve(t.PolityId,h);if(owner<0)return;
+            var h=s.History;var a=h.Aggregates;var t=s.Society.Settlements[city];int owner=a.Resolve(t.PolityId,h);if(owner<0){AdvanceSovereigntyCase(s,city);return;}
             var local=a.Communities.Cities[city];if(local.RulerId!=owner)TransferCommunityGovernment(s,city,owner);
             var p=h.Polities[owner];var ds=h.Dynamics.States[owner];var policy=a.Communities.Governments[owner];var record=h.Towns[city];
             bool recent=s.Years-local.SinceYear<75, succession=s.Years-ds.LastSuccession<15;
-            int interval=RealmCrisis(s,owner)>0||RealmClaimantShock(s,owner,city)>0?1:recent&&succession?3:recent?7:20,elapsed=s.Years-record.LastAutonomyActionYear;if(elapsed<interval)return;
+            bool pending=SovereigntyCaseAt(s,city)?.Outcome==HistoricalSovereigntyOutcome.Pending;
+            int interval=pending||RealmCrisis(s,owner)>0||RealmClaimantShock(s,owner,city)>0?1:recent&&succession?3:recent?7:20,elapsed=s.Years-record.LastAutonomyActionYear;if(elapsed<interval)return;
             record.LastAutonomyActionYear=s.Years;record.UnrestPolityId=owner;
             var leader=h.Dynamics.Leaders[ds.LeaderId];bool foreign=t.CultureId!=p.CultureId;
             double identityDifference=LocalIdentityDifference(s,city,owner);if(IdentityHistory(s))foreign=identityDifference>=.5;
             double inclusionTarget=D.Clamp(.10+.30*p.Legitimacy/1000.0+.25*ds.PublicWorks/1000.0+.25*leader.Diplomacy/1000.0+.25*policy.RepresentationMilli/1000.0+.15*(1-policy.CentralizationMilli/1000.0)-.25*p.Exhaustion/1000.0);
             local.InclusionMilli=(int)Math.Round(local.InclusionMilli+(1000*inclusionTarget-local.InclusionMilli)*(1-Math.Exp(-elapsed/180.0)));
             AdvanceRealmClaimant(s,owner,city,elapsed);
+            if(AdvanceSovereigntyCase(s,city))return;
             if(ReviewDisconnectedCourt(s,owner,city,elapsed))return;
             if(city==p.CapitalId||t.Population<(RealmHistory(s)&&(RealmCrisis(s,owner)>0||RealmClaimantShock(s,owner,city)>0)?600:1800)||a.Living.Cities[city].DeclineYears>0)return;
             var hc=h.Cultures[t.CultureId];var account=a.Polities[owner];bool continuityRules=(a.Empires?.Connections?.Realms?.Version??0)>=23;int serviceCulture=continuityRules?p.CultureId:t.CultureId;
@@ -49,7 +51,7 @@ namespace WorldGen.Core
             double risk=.08*Math.Pow(Math.Max(0,secessionPressure-.35),2)*(.3+.7*(1-p.Cohesion/1000.0));
             if(succession)risk*=3;
             if(s.Years-t.FoundedYear>=120&&HistoryRoll("community-independence",city,s.Years)<1-Math.Exp(-risk*elapsed))
-            {if(!continuityRules||!JoinRecentCommunitySuccessor(s,owner,city))FoundAggregateState(s,city,owner);ClaimDevelopmentProvince(s,city,owner);record.UnrestPolityId=t.PolityId;record.AutonomyPressure=100;}
+            {if(SovereigntyHistory(s)){BeginSovereigntyCase(s,city,owner,-1,HistoricalSovereigntyRequest.Independence);return;}if(!continuityRules||!JoinRecentCommunitySuccessor(s,owner,city))FoundAggregateState(s,city,owner);ClaimDevelopmentProvince(s,city,owner);record.UnrestPolityId=t.PolityId;record.AutonomyPressure=100;}
         }
         void AdvanceCommunityPolicy(PrehistoryState s,int polity,int elapsed)
         {

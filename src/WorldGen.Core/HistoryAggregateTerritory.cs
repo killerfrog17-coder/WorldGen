@@ -82,6 +82,7 @@ namespace WorldGen.Core
             if(old>=0){var p=a.Polities[old];p.Cities.Remove(id);p.CityCount=p.Cities.Count;p.Urban-=town.Population;p.Rural-=city.Rural;p.Suburban-=city.Suburban;h.Polities[old].Population=Math.Max(0,h.Polities[old].Population-residents);}
             if(polity>=0){var p=a.Polities[polity];p.Cities.Add(id);p.CityCount=p.Cities.Count;p.Urban+=town.Population;p.Rural+=city.Rural;p.Suburban+=city.Suburban;h.Polities[polity].Population+=residents;town.Government=h.Polities[polity].Government;}
             town.PolityId=polity;
+            RecordSovereigntyGovernmentTransfer(s,id,old,polity);
             QueueTerritorialServiceRecovery(s,id);
             if(CommunityHistory(s))TransferCommunityGovernment(s,id,polity);
             TransferRealmClaimantCity(s,id,old,polity);

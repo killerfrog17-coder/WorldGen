@@ -137,6 +137,7 @@ namespace WorldGen.Core
                     CreditRealmTownCapture(s,winner,town);
                     var captured=s.Society.Settlements[town];captured.Stability=Math.Max(100,captured.Stability-150);captured.FoodReserve=captured.FoodReserve*2/3;
                     RecordIdentityViolence(s,town,winner,350);
+                    RecordSovereigntyConquest(s,town,winner,id);
                     c.CapturedSettlements=c.CapturedSettlements.Concat(new[]{town}).Distinct().ToArray();if(won)theater.SupplyA=town;else theater.SupplyB=town;
                     if(winner==o.PartyA)o.CorePressureA=Math.Min(1000,o.CorePressureA+200);else o.CorePressureB=Math.Min(1000,o.CorePressureB+200);
                     HistoryEvent(s,"conquest",h.Polities[winner].Name+" takes "+captured.Name+" after a supplied march and siege during "+c.Name+".",target,h.Polities[winner].CultureId,winner,loser,town,category:ChronicleCategory.Politics);

@@ -160,6 +160,8 @@ namespace WorldGen.Core
                 if(ProvincialHistory(s)&&(TechnicalHistory(s)?center== -1:center<0))continue;
                 if(TechnicalHistory(s)?!TerritorialIncorporationWorthwhile(s,polity,target,center):ProvincialHistory(s)&&!ProvincialIncorporationWorthwhile(s,polity,target,center))continue;
                 if(HistoryRoll("development-incorporation-"+trial,polity,s.Years)>1-Math.Exp(-chance*elapsed/5.0))continue;
+                int residentTown=a.TownAt[target];
+                if(SovereigntyHistory(s)&&residentTown>=0&&s.Society.Settlements[residentTown].Population>=300&&a.Living.Cities[residentTown].AbandonedYear<0){BeginSovereigntyCase(s,residentTown,-1,polity,HistoricalSovereigntyRequest.Protection);continue;}
                 ClaimAggregatePolity(s,target,polity);p.Treasury-=cost;
                 if(ProvincialHistory(s))a.Provinces.Centers=a.Provinces.Centers.With(target,center>=0?center:p.CapitalId);
                 if(TechnicalHistory(s))AssignTerritorialSource(s,target,center);

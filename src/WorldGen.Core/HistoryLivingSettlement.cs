@@ -185,6 +185,7 @@ namespace WorldGen.Core
             AssignAggregateTown(s,id,-1);QueueTerritorialServiceRecovery(s,id);ChangeAggregateCityPopulation(s,id,0,0,0);s.Population[patch]+=refugees;a.TotalPopulation+=refugees;s.Society.Cultures[t.CultureId].Population+=refugees;
             var ca=a.Cultures[t.CultureId];if(city.Supported){ca.SupportedCities--;city.Supported=false;}ca.FoodCapacity-=t.FoodCapacity;ca.Cities.Remove(id);ca.CityCount=ca.Cities.Count;
             life.AbandonedYear=s.Years;t.FoodCapacity=t.FoodReserve=0;UnregisterLivingTown(s,id);if(a.TownAt[t.Cell]==id)a.TownAt=a.TownAt.With(t.Cell,-1);
+            RecordSovereigntyAbandonment(s,id,oldOwner);
             VacatePreparedTownFields(s,id);
             if(RegionalTraditions(s))s.History.RegionalTraditions.Qualified=s.History.RegionalTraditions.Qualified.With(id,0);
             TrackPendingColonialPort(s,t.Cell,true);

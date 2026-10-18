@@ -1,5 +1,19 @@
 # Implementation contracts - version 3
 
+## Contested town sovereignty - history32 optional realm34
+
+`Realms.Sovereignty` is saved/hashed only when present. Old null records and
+33-and-earlier decisions remain literal until explicit upgrade. New local
+incorporation/disconnection/secession hazards open dated petitions rather than
+granting borders. Actual physical contacts, bounded court reach, real financing,
+local acceptance, claimant support and incumbent governability condition
+protection, reconciliation, withdrawal and independence. Existing city updates
+continue inclusion/claimant changes while petitions are pending. Actual captures
+retain campaign provenance; no new army, demographic account or automatic
+province-town sweep is created. Fixed sparse town records and existing bounded
+actor/contact clocks add no recurring territory or membership census. See
+[mechanisms and limitations](HISTORY32_CONTESTED_SOVEREIGNTY.md).
+
 ## Ethnic identity and local memory - history32 optional realm33
 
 Nullable `HistoryState.Identities` is saved/hashed and absent from old canonical

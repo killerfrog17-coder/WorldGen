@@ -10,12 +10,13 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HistoricalRealmLifecycles
     {
-        internal const int CurrentRevision=33;
+        internal const int CurrentRevision=34;
         public int Version=CurrentRevision,SinceYear;
         [System.Runtime.Serialization.OptionalField] public HistoricalRealmClaimRoutes ClaimRoutes;
         [System.Runtime.Serialization.OptionalField] public HistoricalRealmClaimants Claimants;
+        [System.Runtime.Serialization.OptionalField] public HistoricalSovereigntyHistory Sovereignty;
         public HistoricalRealmAccount[] Governments=Array.Empty<HistoricalRealmAccount>();
-        public HistoricalRealmLifecycles Copy()=>new HistoricalRealmLifecycles{Version=Version,SinceYear=SinceYear,ClaimRoutes=ClaimRoutes?.Copy(),Claimants=Claimants?.Copy(),Governments=Governments.Select(g=>g.Copy()).ToArray()};
+        public HistoricalRealmLifecycles Copy()=>new HistoricalRealmLifecycles{Version=Version,SinceYear=SinceYear,ClaimRoutes=ClaimRoutes?.Copy(),Claimants=Claimants?.Copy(),Sovereignty=Sovereignty?.Copy(),Governments=Governments.Select(g=>g.Copy()).ToArray()};
         public static int Founded(PrehistoryState s,int polity)=>s.History.Aggregates?.Empires?.Connections?.Realms?.Governments[polity].FoundedYear??s.History.Polities[polity].FoundedYear;
     }
     public static class HistoricalRealmEffects
@@ -47,7 +48,7 @@ namespace WorldGen.Core
             Validate(source);if(!LivingWorldHistory(source))throw new ArgumentException("Realm lifecycles require history32.");
             if(RevisedRealmHistory(source)&&source.History.Aggregates.Empires.Connections.Realms.Version>=HistoricalRealmLifecycles.CurrentRevision&&source.History.Aggregates.Empires.Connections.Realms.ClaimRoutes?.SourceHeads!=null&&source.History.Aggregates.Empires.Connections.Realms.Claimants!=null&&source.History.Aggregates.Empires.Connections.SeaService!=null&&source.History.Aggregates.Empires.Connections.Religion?.Version>=2&&source.History.Aggregates.Empires.Connections.Military!=null&&source.History.Aggregates.Empires.Connections.ServiceRecovery?.Version>=2&&source.History.Aggregates.Empires.Connections.LocalSeeds!=null&&source.History.Aggregates.Empires.Connections.PreparedPlots?.Version>=2&&source.History.Aggregates.Empires.Connections.Religion.LayAssociations!=null&&source.History.Aggregates.Empires.Connections.Religion.Traditions!=null&&source.History.Languages?.Spoken!=null&&source.History.Identities!=null)return source;
             int preceding=source.History.Aggregates.Empires.Connections.Realms?.Version??0;
-            var s=source.Copy();InitializeRealmLifecycles(s);InitializeRealmClaimRoutes(s);s.History.Aggregates.Empires.Connections.Realms.Version=HistoricalRealmLifecycles.CurrentRevision;UpgradeReligiousNetworkRules(s);InitializeMilitaryOperations(s);UpgradeTerritorialServiceRecovery(s);InitializeRealmClaimants(s);InitializeSeaService(s);if(preceding<8)InitializeLocalReligiousCityClocks(s);InitializeLocalSeedlots(s);InitializePreparedPlots(s);InitializeLayReligiousAssociations(s);InitializeStructuredReligions(s);InitializeSpokenLanguages(s);InitializeIdentityHistory(s);s.Seal();return s;
+            var s=source.Copy();InitializeRealmLifecycles(s);InitializeRealmClaimRoutes(s);s.History.Aggregates.Empires.Connections.Realms.Version=HistoricalRealmLifecycles.CurrentRevision;UpgradeReligiousNetworkRules(s);InitializeMilitaryOperations(s);UpgradeTerritorialServiceRecovery(s);InitializeRealmClaimants(s);InitializeSeaService(s);if(preceding<8)InitializeLocalReligiousCityClocks(s);InitializeLocalSeedlots(s);InitializePreparedPlots(s);InitializeLayReligiousAssociations(s);InitializeStructuredReligions(s);InitializeSpokenLanguages(s);InitializeIdentityHistory(s);InitializeSovereigntyHistory(s);s.Seal();return s;
         }
         void InitializeRealmLifecycles(PrehistoryState s)
         {
@@ -72,6 +73,7 @@ namespace WorldGen.Core
             InitializeStructuredReligions(s);
             InitializeSpokenLanguages(s);
             InitializeIdentityHistory(s);
+            InitializeSovereigntyHistory(s);
         }
         void AppendRealmGovernment(PrehistoryState s,int predecessor)
         {
@@ -156,6 +158,7 @@ namespace WorldGen.Core
             if(city==p.CapitalId||town.Population<600||!a.Cities[city].Supported||s.Years-town.FoundedYear<50)return false;
             double hazard=HistoricalRealmEffects.ProvincialRupture(shock,distance,local.InclusionMilli/1000.0,LocalIdentityDifference(s,city,owner)>=.5,a.Communities.Governments[owner].RepresentationMilli/1000.0);
             if(HistoryRoll("realm-provincial-contest-1",city,s.Years)>=1-Math.Exp(-hazard*elapsed))return false;
+            if(SovereigntyHistory(s))return BeginSovereigntyCase(s,city,owner,-1,HistoricalSovereigntyRequest.Independence);
             int rival=-1;double best=double.MaxValue;
             // Existing physical city contacts only. Nearby compatible courts
             // coalesce, rather than minting one independent flag per city.
@@ -183,6 +186,7 @@ namespace WorldGen.Core
             ValidateTerritorialServiceRecovery(s);
             if(r.Version>=6&&(r.Claimants==null||s.History.Aggregates.Empires.Connections.SeaService==null))throw new ArgumentException("Revised local claimants and maritime service require their saved ledgers.");
             ValidateRealmClaimants(s);ValidateSeaService(s);
+            ValidateSovereigntyHistory(s);
             if(r.Version>=14&&s.History.Aggregates.Empires.Connections.LocalSeeds==null)throw new ArgumentException("Local cultivation requires saved physical seedlots.");
             ValidateLocalSeedlots(s);
             if(r.Version>=16&&s.History.Aggregates.Empires.Connections.PreparedPlots==null)throw new ArgumentException("Prepared cultivation requires saved local plot accounts.");

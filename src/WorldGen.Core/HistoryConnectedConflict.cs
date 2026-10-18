@@ -56,6 +56,7 @@ namespace WorldGen.Core
                 {
                     if(CellPatch[next]<0||seen.Count>=128||!seen.Add(next)||HistoricalCells.Polity(s,next)!=parent)continue;
                     if(TechnicalHistory(s)&&a.TownAt[next]==h.Polities[parent].CapitalId)continue;
+                    if(SovereigntyHistory(s)&&a.TownAt[next]>=0)continue;
                     if(LivingTravelKm(s,town.Cell,next,town.CultureId)>reach)continue;
                     ClaimAggregatePolity(s,next,owner);pending.Enqueue(next);
                 }

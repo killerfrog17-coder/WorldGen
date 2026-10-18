@@ -34,6 +34,18 @@ public sealed partial class WorldGenRuntime
             if(mode==HistoryOverlay.Languages&&(subject.Kind!="language"||!document.Sections.Any(x=>x.Title=="Sounds and reusable roots"))){Debug.LogError("RELIGION CHECK stripped/missing spoken-language profile or wrong selection.");Application.Quit(1);yield break;}
             if(mode==HistoryOverlay.Ethnicities&&(subject.Kind!="ethnicity"||!document.Sections.Any(x=>x.Title=="Inherited traditions"))){Debug.LogError("RELIGION CHECK stripped/missing ethnic profile or wrong selection.");Application.Quit(1);yield break;}
         }
+        if(world.Prehistory.History.Aggregates.Empires.Connections.Realms.Sovereignty!=null)
+        {
+            var town=world.Prehistory.Society.Settlements.FirstOrDefault(t=>Prehistory.SovereigntyCaseAt(world.Prehistory,t.Id)!=null||Prehistory.SovereigntyTransferAt(world.Prehistory,t.Id)!=null);
+            if(town==null){Debug.LogError("RELIGION CHECK requires a participating sovereignty town.");Application.Quit(1);yield break;}
+            var document=HistoryAtlas.Read(world.Prehistory,"city",town.Id,world,humans);
+            if(!document.Sections.Any(x=>x.Title=="Allegiance and sovereignty")){Debug.LogError("RELIGION CHECK stripped/missing local sovereignty dossier.");Application.Quit(1);yield break;}
+            File.WriteAllText(Path.Combine(output,"Sovereignty.json"),WorldJson.Write(document));
+            historyOverlay=HistoryOverlay.States;selectedCell=town.Cell;UpdateHumanPalette();ApplyCachedDisplay();
+            while((Busy||humanPaletteJob!=null||humanPaletteReady!=null||humanPalettePending)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+            for(int frame=0;frame<5;frame++)yield return new WaitForEndOfFrame();
+            CaptureHumanMap(Path.Combine(output,"States.png"),true);
+        }
         if(world.Prehistory.ComputeHash()!=hash){Debug.LogError("RELIGION CHECK presentation mutated history.");Application.Quit(1);yield break;}
         File.WriteAllText(Path.Combine(output,"result.txt"),"PASS native doctrinal/institutional overlays, actual selection/atlas and unchanged history "+hash);Debug.Log("RELIGION CHECK PASS "+hash);Application.Quit(0);
     }

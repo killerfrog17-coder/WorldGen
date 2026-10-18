@@ -114,13 +114,15 @@ namespace WorldGen.Core
             }
             if(rival>=0)
             {
+                if(SovereigntyHistory(s))return BeginSovereigntyCase(s,city,owner,rival,HistoricalSovereigntyRequest.Protection);
                 ClaimAggregatePolity(s,town.Cell,rival);ClaimDevelopmentProvince(s,city,owner);
                 HistoryEvent(s,"regional-realignment",town.Name+" turns to nearby "+h.Polities[rival].Name+" for protection after losing effective connection to "+p.Name+".",town.Cell,town.CultureId,rival,owner,city,category:ChronicleCategory.Politics);
             }
             else if(town.Population>=1200&&h.Cultures[town.CultureId].Institution>=350&&a.Cities[city].Supported)
-            {FoundAggregateState(s,city,owner);ClaimDevelopmentProvince(s,city,owner);}
+            {if(SovereigntyHistory(s))return BeginSovereigntyCase(s,city,owner,-1,HistoricalSovereigntyRequest.Independence);FoundAggregateState(s,city,owner);ClaimDevelopmentProvince(s,city,owner);}
             else
             {
+                if(SovereigntyHistory(s))return BeginSovereigntyCase(s,city,owner,-1,HistoricalSovereigntyRequest.Withdrawal);
                 ClaimAggregatePolity(s,town.Cell,-1);QueueTerritorialServiceRecovery(s,city);
                 HistoryEvent(s,"local-autonomy",town.Name+" ceases to answer to the inaccessible court of "+p.Name+"; its inhabitants remain a local settlement, not a new state.",town.Cell,town.CultureId,town:city,category:ChronicleCategory.Politics);
             }
