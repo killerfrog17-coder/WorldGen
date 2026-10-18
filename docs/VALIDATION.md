@@ -1,5 +1,19 @@
 # Version 3 validation evidence
 
+## High-profile lives and dynastic households - 18 October 2026
+
+Optional history32 realm35 is documented in
+[the notable-person review](HISTORY32_NOTABLE_PEOPLE.md). Implementation9326a1f
+and exact-output batching95801a7 are backed up on origin/main. Four focused,
+22 actual Earth/22 forest and826 presentation assertions pass, with prospective
+kinship, actual-work achievements, mortality, binary/JSON persistence, split-run
+and cold replay. Browser household/achievement/ability screens were inspected.
+Final native IL2CPP Earth replay matches CLR exactly; old34 replay stays literal.
+Native maps/selection/stripped biographies preserve the paused history hash.
+Selected review player: `player-history-32-notables35`, built2026-10-18T05:50:49Z;
+sovereignty34 remains the rollback. No new all-era realism or dense-world
+maximum-technology-plus1000-year performance acceptance is claimed.
+
 ## Contested local sovereignty - 17 October 2026
 
 Optional history32 realm34 is described in

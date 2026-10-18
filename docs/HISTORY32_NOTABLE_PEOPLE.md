@@ -128,3 +128,40 @@ No reference code is copied. Full factional politics, detailed artistic styles,
 lifelong movement, contested regencies, exact civil calendars and individual
 disease/combat mortality remain future work. This feature does not establish
 all-era historical realism or satisfy the outstanding dense-world speed target.
+
+## Review evidence - 18 October 2026
+
+Implementation checkpoint `9326a1f` and exact-output research-write batching
+`95801a7` are backed up on origin/main. Four focused notable assertions and826
+historical-presentation assertions pass. Actual Earth and generated forest-world
+checks each pass22 assertions covering prospective families, real research and
+campaign attribution, mortality, immutable input, binary/JSON persistence,
+partitioned continuation and cold replay. Old realm34 remains literal.
+
+Natural80-year continuations recorded115 people/14 descendants/53 recent deeds
+on Earth and2817 people/265 descendants/774 deeds on the forest world. These are
+selected records inside the existing aggregate population, not extra residents.
+Earth's full continuation hash is
+`884ee73f5933f534ae26ffb00f745b33cd78a19ce75af4cbfed701f1ec506e12`.
+Batching preserves that entire continuation exactly; its next12-year replay is
+`3527d1cf661fbf1dbd7157ce4750560beb26725756f8eb9e9e8fd31aa7885c94`,
+also reproduced by the frozen pre-batching native build. Forest cold12-year
+replay remains exactly
+`048b5a8d871078c54f9a0a307c1e59691d06fd708a13a3a1cb89aaa99928f4eb`.
+
+The real browser/.NET worker passed biography-directory, achievement, ability
+chart and family-link checks without script errors or changing paused time.
+Household and campaign-achievement screenshots were opened and inspected.
+Release staging, generation reconstruction, identities, languages, sovereignty
+and religious-doctrine focused regressions pass. Evidence is under
+`D:/WorldGenBuildArtifacts/notables35-review`, excluded from source control.
+The final IL2CPP player was built2026-10-18T05:50:49Z; its manifest records staged
+assembly hashes. Native Earth12-year replay matches the CLR hash above, and
+literal old34 replay remains
+`6a10244e023964c1e3d3674c347d5b4bc822ca118a942ea68414c5b3f51e25f3`.
+Native map/selection and stripped biography/household article checks pass without
+changing the paused historical hash. The selected review player is
+`artifacts/player-history-32-notables35/WorldGen.exe`; sovereignty34 is retained
+as the previous rollback. Start fresh or explicitly update simulation rules.
+These are mechanism/persistence/adapter checks, not a new all-era realism or
+200k-cell maximum-technology-plus1000-year performance acceptance.
