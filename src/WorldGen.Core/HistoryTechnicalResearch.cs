@@ -12,6 +12,11 @@ namespace WorldGen.Core
         }
         void AdvanceTechnicalResearch(PrehistoryState s,int id,int elapsed,int contact,int site)
         {
+            var people=s.History.Notables;people?.BeginResearch();
+            try{AdvanceTechnicalResearchAccounted(s,id,elapsed,contact,site);}finally{people?.EndResearch();}
+        }
+        void AdvanceTechnicalResearchAccounted(PrehistoryState s,int id,int elapsed,int contact,int site)
+        {
             var h=s.History;var a=h.Aggregates;var c=s.Society.Cultures[id];var hc=h.Cultures[id];var ca=a.Cultures[id];
             InitializeTechnicalPractice(hc,s.Years);var t=hc.Technical;int n=t.Levels.Length;t.LastYear=s.Years;
             // Domestication and genuinely carried portable practices are also

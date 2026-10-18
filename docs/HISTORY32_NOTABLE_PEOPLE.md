@@ -87,13 +87,20 @@ person/relationship/deed representation, not incompatible separate registries.
 Only high-profile actors are represented. Fixed town specialist seats, court
 household slots and campaign appointments use persistent sparse indices.
 There is one future mortality event per living named person (process28), not
-daily person turns or repeated scans of every living/dead person. Court work uses
+daily person turns or repeated scans of every living/dead person.
+Individual mortality dates are deterministically distributed inside their year,
+with distinct offsets for distinct person IDs in one mortality year; they do not
+pile up at January1. Lifelong offices wait for the actual event, not the year's
+first state update. Court work uses
 existing state events and bounded5-year household/20–60-year commission reviews.
 All participation, relationship and profession checks are bounded actor-local work.
 
 Biographies use immutable copy-on-write128-row pages. A changed biography updates
 eight digest words in an immutable Merkle tree. Normal history checkpoint hashing
-uses its roots and count, not the lifetime biography collection. Explicit upgrade,
+uses its roots and count, not the lifetime biography collection.
+Research turns coalesce repeated project/deed edits into one final biography
+write, without changing outcomes; no temporary accounting enters a save/hash.
+Explicit upgrade,
 public integrity/load validation, serialization and on-demand atlas directories
 may enumerate actors, as with existing historical records. Public reads detach
 arrays and deeds; copying a publication does not copy every old biography.

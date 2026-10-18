@@ -26,11 +26,21 @@ public int Id,BirthYear,RecordedYear,DeathYear=-1,ExpectedDeathYear,OriginCell,C
         public int Version=1,SinceYear;
         public HistoricalPersonCollection People=new HistoricalPersonCollection();
         public HistoricalCellTree Digests=new HistoricalCellTree(33554432),Leaders=new HistoricalCellTree(33554432),Courts=new HistoricalCellTree(33554432),Towns=new HistoricalCellTree(33554432),Review=new HistoricalCellTree(33554432),FaithFounders=new HistoricalCellTree(33554432),Commands=new HistoricalCellTree(33554432);
+        [NonSerialized] bool researchBatch;
+        [NonSerialized] HistoricalNotablePerson pendingResearch;
+        internal HistoricalNotablePerson Read(int id)=>pendingResearch!=null&&pendingResearch.Id==id?pendingResearch.Copy():People[id];
+        internal void BeginResearch(){if(researchBatch)throw new InvalidOperationException("Nested personal research accounting.");researchBatch=true;}
+        internal void EndResearch(){researchBatch=false;var row=pendingResearch;pendingResearch=null;if(row!=null)WriteRow(row,false);}
         public HistoricalNotableHistory Copy()=>new HistoricalNotableHistory{Version=Version,SinceYear=SinceYear,People=People.Copy(),Digests=Digests,Leaders=Leaders,Courts=Courts,Towns=Towns,Review=Review,FaithFounders=FaithFounders,Commands=Commands};
         // Year-1 is odd: the power-of-two stride is coprime and IDs below
         // the tree capacity have distinct offsets within a mortality year.
         public static long DeathOffset(int id,long yearSalt)=>1+((id*1048576L+yearSalt)%(SimulationTime.Year-1));
         internal void Save(HistoricalNotablePerson p,bool append=false)
+        {
+            if(researchBatch&&!append){if(pendingResearch!=null&&pendingResearch.Id!=p.Id)WriteRow(pendingResearch,false);pendingResearch=p.Copy();return;}
+            WriteRow(p,append);
+        }
+        void WriteRow(HistoricalNotablePerson p,bool append)
         {
             if(append)People.Add(p);else People.Replace(p.Id,p);
             string digest=StateHash.Compute(p);var values=new int[8];for(int k=0;k<8;k++)values[k]=unchecked((int)Convert.ToUInt32(digest.Substring(k*8,8),16));Digests=Digests.WithBlock(p.Id*8,values);
@@ -126,17 +136,17 @@ public int Id,BirthYear,RecordedYear,DeathYear=-1,ExpectedDeathYear,OriginCell,C
             var r=s.History.Notables;int key=city*8+slot,id=r.Towns[key];
             if(NotableAlive(s,id))
             {
-                int patron=state>=0?r.Courts[state*8]:-1;var present=r.People.Peek(id);
-                if(present.State!=state||present.Patron!=patron||(present.Roles&role)!=role){var update=r.People[id];update.State=state;update.Patron=patron;update.Roles|=role;r.Save(update);}return id;
+                int patron=state>=0?r.Courts[state*8]:-1;var present=r.Read(id);
+                if(present.State!=state||present.Patron!=patron||(present.Roles&role)!=role){present.State=state;present.Patron=patron;present.Roles|=role;r.Save(present);}return id;
             }
             var town=s.Society.Settlements[city];int mentor=-1;
             for(int k=0;k<6;k++){int teacher=r.Towns[city*8+k];if(NotableAlive(s,teacher)&&r.People.Peek(teacher).Skills[1]>=600){mentor=teacher;break;}}
-            id=CreateNotable(s,town.CultureId,town.Cell,state,role);var p=r.People[id];p.Mentor=mentor;
+            id=CreateNotable(s,town.CultureId,town.Cell,state,role);var p=r.Read(id);p.Mentor=mentor;
             p.Patron=state>=0?r.Courts[state*8]:-1;r.Save(p);r.Towns=r.Towns.With(key,id);return id;
         }
         void NotableDeed(PrehistoryState s,int id,HistoricalPersonDeed deed,int renown)
         {
-            var r=s.History.Notables;var p=r.People[id];p.Renown=Math.Min(1000,p.Renown+renown);p.LastDeedYear=s.Years;
+            var r=s.History.Notables;var p=r.Read(id);p.Renown=Math.Min(1000,p.Renown+renown);p.LastDeedYear=s.Years;
             p.Deeds=p.Deeds.Concat(new[]{deed}).Skip(Math.Max(0,p.Deeds.Length+1-8)).ToArray();r.Save(p);
         }
         void ReviewNotableCourt(PrehistoryState s,int state)
@@ -185,7 +195,7 @@ public int Id,BirthYear,RecordedYear,DeathYear=-1,ExpectedDeathYear,OriginCell,C
             if(!NotableHistory(s)||work<=0&&!completed)return;int city=s.History.Aggregates.TownAt[cell];if(city<0||!s.History.Aggregates.Cities[city].Supported)return;
             var practice=s.History.Cultures[culture].Technical;if(completed&&(practice.Levels[technology]!=level||practice.LevelYear[technology]!=s.Years))return;
             int state=HistoricalCells.Polity(s,cell);var role=technology>=(int)HistoricalTechnology.ScientificMethod?HistoricalPersonRoles.Scientist:HistoricalPersonRoles.Inventor;
-            int id=NotableSeat(s,state,city,0,role);var r=s.History.Notables;var p=r.People[id];p.Roles|=role;p.Project=technology;p.ResearchWork=Math.Min(long.MaxValue-work,p.ResearchWork)+work;p.Skills[1]=Math.Min(1000,p.Skills[1]+1);r.Save(p);
+            int id=NotableSeat(s,state,city,0,role);var r=s.History.Notables;var p=r.Read(id);p.Roles|=role;p.Project=technology;p.ResearchWork=Math.Min(long.MaxValue-work,p.ResearchWork)+work;p.Skills[1]=Math.Min(1000,p.Skills[1]+1);r.Save(p);
             if(completed&&(level<=3||level%5==0))
             {
                 string text=p.Name+" contributes to the locally researched "+HistoricalTechnologies.Names[technology]+" (level "+level+"). This credits a participant in collective work, not a sole inventor or a free breakthrough.";
