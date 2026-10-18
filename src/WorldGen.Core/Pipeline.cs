@@ -214,6 +214,7 @@ namespace WorldGen.Core
                 if(o is HistoricalGeographicMap oldSharing && f.Name==nameof(HistoricalGeographicMap.Sharing) && oldSharing.Sharing==null)continue;
                 if(o is HistoricalRealmLifecycles oldClaimRoutes && f.Name==nameof(HistoricalRealmLifecycles.ClaimRoutes) && oldClaimRoutes.ClaimRoutes==null)continue;
                 if(o is HistoricalRealmLifecycles oldClaimants && f.Name==nameof(HistoricalRealmLifecycles.Claimants) && oldClaimants.Claimants==null)continue;
+                if(o is HistoricalRealmLifecycles oldDomestic && f.Name==nameof(HistoricalRealmLifecycles.Domestic) && oldDomestic.Domestic==null)continue;
                 if(o is HistoricalRealmLifecycles oldSovereignty && f.Name==nameof(HistoricalRealmLifecycles.Sovereignty) && oldSovereignty.Sovereignty==null)continue;
                 if(o is HistoricalRealmClaimRoutes oldTitleIndex && oldTitleIndex.SourceHeads==null && f.Name!=nameof(HistoricalRealmClaimRoutes.Sources) && f.Name!=nameof(HistoricalRealmClaimRoutes.EffortM))continue;
                 if(o is HistoricalProvisionedPorts oldSupplierRouting && f.Name==nameof(HistoricalProvisionedPorts.SupplierRouting) && oldSupplierRouting.SupplierRouting==null)continue;

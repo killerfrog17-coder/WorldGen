@@ -44,6 +44,7 @@ namespace WorldGen.Core
                 polity.Treasury=(long)(inheritedTreasury*share);h.Polities[parent].Treasury=inheritedTreasury-polity.Treasury;
                 polity.Army=(int)(inheritedArmy*share);h.Polities[parent].Army=inheritedArmy-polity.Army;
             }
+            EnsureDomesticGovernment(s,id);
             InheritRealmClaimantGovernment(s,parent,city,id);
             if(LivingHistory(s)&&a.Living.CivicOrigins[town.CultureId]<0)a.Living.CivicOrigins=a.Living.CivicOrigins.With(town.CultureId,id);
             HistoryEvent(s,foundationKind??(parent<0?"state":"secession"),polity.Name+(foundationKind!=null?" establishes a locally administered overseas council at ":parent<0?" establishes independent institutions at ":" emerges as an independent successor court at ")+town.Name+".",town.Cell,town.CultureId,id,other:parent,town:city,category:ChronicleCategory.Politics);
@@ -61,6 +62,7 @@ namespace WorldGen.Core
             if(elected){leader.ExpectedEndYear=s.Years+4+(int)(6*Roll("elected-term"));leader.Selection="Selection through representative institutions and local councils";}
             if(LivingWorldHistory(s)){var profile=PoliticalProfile(s,polity);leader.Selection=profile.Succession;RefreshPoliticalDescription(s,polity);}
             PrepareNotableSuccession(s,polity,leader);
+            PrepareDomesticSuccession(s,polity,leader);
             h.Dynamics.Leaders.Add(leader);ds.LeaderId=id;ds.LastSuccession=s.Years;p.Ruler=leader.Name;p.RulerSince=s.Years;s.History.Aggregates.Polities[polity].SuccessionDue=leader.ExpectedEndYear;RegisterNotableRuler(s,polity,leader);SealAggregateLeader(s,id);
             RefreshTerritorialAmbition(s,polity);
             if(previous>=0){if(!elected){p.Legitimacy=Math.Max(100,p.Legitimacy-75);p.Cohesion=Math.Max(100,p.Cohesion-(h.Dynamics.Leaders[previous].Renown>=250?150:45));}HistoryEvent(s,elected?"election":"succession",leader.Name+(elected?" takes office under the representative institutions of ":" succeeds to the government of ")+p.Name+".",s.Society.Settlements[p.CapitalId].Cell,p.CultureId,p.Id,category:ChronicleCategory.Politics);}
@@ -74,6 +76,7 @@ namespace WorldGen.Core
             var hc=h.Cultures[p.CultureId];var ds=h.Dynamics.States[id];if(ds.LeaderId<0)AppointAggregateLeader(s,id);var leader=h.Dynamics.Leaders[ds.LeaderId];
             ReviewNotableCourt(s,id);
             if(CommunityHistory(s))AdvanceCommunityPolicy(s,id,elapsed);
+            if(DomesticHistory(s))leader=h.Dynamics.Leaders[ds.LeaderId];
             if(s.Years>=leader.ExpectedEndYear&&!NotableLifeOfficeStillActive(s,ds.LeaderId)){if(LivingHistory(s)&&TryLivingRegimeChange(s,id))return;AppointAggregateLeader(s,id);leader=h.Dynamics.Leaders[ds.LeaderId];}
             account.ReachKm=(int)(HistoricalLocalEffects.AdministrativeReachKm(account.Urban,leader.Administration,ds.PublicWorks,HistoricalTechnologies.Has(hc,HistoricalTechnology.Writing),HistoricalTechnologies.Has(hc,HistoricalTechnology.Roads))*HistoricalModernEffects.AdministrativeCapacity(hc,s.Years)*HistoricalModernEffects.LandTransport(hc,s.Years));
             if(ConnectedHistory(s))account.ReachKm=(int)(account.ReachKm*(1+.8*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Writing,s.Years)+1.2*HistoricalModernEffects.Adoption(hc,HistoricalTechnology.Roads,s.Years)));
@@ -85,6 +88,7 @@ namespace WorldGen.Core
             if(RealmHistory(s))service+=a.Empires.Connections.Realms.Governments[id].RecognitionUpkeep;
             if(LivingWorldHistory(s))receipts+=LivingExtractiveReceipts(s,id);
             if(LivingWorldHistory(s)){var policy=a.Communities.Governments[id];receipts=(long)(receipts*HistoricalPoliticalPrograms.TaxMultiplier(policy.RepresentationMilli,policy.CentralizationMilli));}
+            if(DomesticHistory(s))receipts=(long)(receipts*(1-.15*DomesticOpposition(s,id)));
             account.Receipts=receipts;account.ServiceCost=service;p.Treasury=Math.Max(0,Math.Min(1000000000,p.Treasury+(receipts-service)*elapsed));
             if(LivingWorldHistory(s))AdvanceNuclearState(s,id,elapsed);
             long remoteCapacity=ProvincialHistory(s)?ProvincialRemoteCapacity(s,id):Math.Max(1,(long)(account.RemoteCapacity*HistoricalModernEffects.FoodMultiplier(hc,s.Years)));if(LivingWorldHistory(s))remoteCapacity=(long)(remoteCapacity*LivingClimateFood(s,s.Society.Settlements[p.CapitalId].Cell,p.CultureId));long remote=AggregateLogisticPopulation(account.Remote,remoteCapacity,CommunityHistory(s)?CommunityRuralGrowth(s,p.CultureId):.004,elapsed);long delta=remote-account.Remote;account.Remote=remote;p.Population=Math.Max(0,p.Population+delta);a.TotalPopulation+=delta;s.Society.Cultures[p.CultureId].Population=Math.Max(0,s.Society.Cultures[p.CultureId].Population+delta);

@@ -93,7 +93,7 @@ namespace WorldGen.Core
             // Institutional patronage is a saved-identity-derived prior, not a
             // religion census or a rule that all literate states become secular.
             double patronage=p.ReligionId<0?.1:.35+.65*HistoryRoll("living-ritual-patronage",p.CultureId,0);
-            return HistoricalPoliticalPrograms.At(policy.RepresentationMilli,policy.CentralizationMilli,urban,commerce,p.Exhaustion/500.0,patronage,literacy,(cycle?.EliteCapture??0)/1000.0);
+            return DomesticPoliticalProfile(s,polity,HistoricalPoliticalPrograms.At(policy.RepresentationMilli,policy.CentralizationMilli,urban,commerce,p.Exhaustion/500.0,patronage,literacy,(cycle?.EliteCapture??0)/1000.0));
         }
         // No cultural census: callers use their existing bounded sampled owners.
         double LivingPoliticalLearning(PrehistoryState s,int polity)
@@ -122,6 +122,7 @@ namespace WorldGen.Core
         {var p=s.History.Polities[polity];p.Government=PoliticalProfile(s,polity).Form;}
         void AdvancePoliticalProgram(PrehistoryState s,int polity,int elapsed)
         {
+            if(DomesticHistory(s)){AdvanceDomesticPolitics(s,polity,elapsed);return;}
             var h=s.History;var p=h.Polities[polity];var ds=h.Dynamics.States[polity];var policy=h.Aggregates.Communities.Governments[polity];var leader=h.Dynamics.Leaders[ds.LeaderId];var profile=PoliticalProfile(s,polity);
             double pressure=.12+.32*p.Exhaustion/1000.0+.28*(ds.Cycle?.EliteCapture??0)/1000.0+.28*profile.InfluencePermille[4]/1000.0;
             pressure+=.35*HistoricalModernEffects.Adoption(h.Cultures[p.CultureId],HistoricalTechnology.Printing,s.Years)+.25*HistoricalModernEffects.Adoption(h.Cultures[p.CultureId],HistoricalTechnology.Telecommunications,s.Years);

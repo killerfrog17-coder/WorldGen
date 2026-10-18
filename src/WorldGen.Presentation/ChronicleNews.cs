@@ -49,7 +49,7 @@ namespace WorldGen.Presentation
                 case "overseas-charter":if(Major(e.PolityId))text=Court(e.PolityId)+(state.History.Version==Prehistory.LivingWorldHistoryVersion?" established an overseas office.":" established an overseas colony.");break;
                 case "sponsored-port":if(Major(e.PolityId))text=e.SettlementId>=0&&e.SettlementId<state.Society.Settlements.Length?Court(e.PolityId)+" settled a new overseas port at "+state.Society.Settlements[e.SettlementId].Name+".":Sentence(e.Text);break;
                 case "international-foundation":case "international-mediation":case "treaty-breach":case "coalition-war":
-                case "colonial-council":case "colonial-protectorate":case "political-repression":
+                case "colonial-council":case "colonial-protectorate":case "political-repression":case "domestic-office-contest":
                     if(Major(e.PolityId)||Major(e.OtherPolityId))text=Sentence(e.Text);break;
                 case "nuclear-strike":text=Sentence(e.Text);break;
                 case "nuclear-arsenal":if(Major(e.PolityId))text=Court(e.PolityId)+" commissioned its first nuclear arsenal.";break;

@@ -24,7 +24,7 @@ namespace WorldGen.Presentation
             switch(kind)
             {
                 case "world":return new[]{"Population accounts","Human presence","Regional livelihoods","largest","Population","Reach of practices","Knowledge","Belief","Recorded history"};
-                case "state":return new[]{"Empire and constituent","Diplomatic neighborhood","Field forces","Military","Public priorities","Political interests","Cities","Research","Financ","Stability","Crisis","Political lineage","Recorded history"};
+                case "state":return new[]{"Empire and constituent","Diplomatic neighborhood","Domestic power groups","Institutional bargaining","Field forces","Military","Public priorities","Political interests","Cities","Research","Financ","Stability","Crisis","Political lineage","Recorded history"};
                 case "province":return new[]{"Institutions and allegiance","Identity and belonging","Spoken languages","Public worship","Local historical memory","Allegiance and sovereignty","Recorded history"};
                 case "city":return new[]{"Food and everyday","Population and movement","Crops and cultivated","Settlement history and hinterland","Local political","Identity and belonging","Spoken languages","Community and connections","Allegiance and sovereignty","Recorded history"};
                 case "people":return new[]{"Ways of making a living","People and appearance","Regional tradition and local centers","Continuity and changing traditions","Origins, language, and belief","Language and names","Identity and belonging","Research","Crop traditions","Cultural contacts","Settlements","Recorded history"};
@@ -55,7 +55,7 @@ namespace WorldGen.Presentation
             if(s.Technical.Length>0)return AtlasVisual.Technology;
             if(s.Timeline.Length>0||title=="Recorded history"||title=="Recorded achievements")return AtlasVisual.Timeline;
             if(s.Diagram||title.Contains("Family")||title.Contains("lineage")||title.Contains("emerging identities")||title.Contains("Related speech")||title.Contains("Branches and doctrinal")||title=="Member governments")return AtlasVisual.Network;
-            if(s.Bars&&(title=="Way of life"||title=="Public priorities"||title=="Political interests"||title=="Identity and belonging"||title=="Home languages"))return AtlasVisual.Composition;
+            if(s.Bars&&(title=="Way of life"||title=="Public priorities"||title=="Political interests"||title=="Domestic power groups"||title=="Identity and belonging"||title=="Home languages"))return AtlasVisual.Composition;
             if(s.Bars)return AtlasVisual.Bars;
             return s.Links.Length>0?AtlasVisual.Links:AtlasVisual.Metrics;
         }

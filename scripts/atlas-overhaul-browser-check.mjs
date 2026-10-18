@@ -27,6 +27,13 @@ try{
   if(!dir.length){assert.match(await atlas.locator('.atlas-record-table').innerText(),/No matching records/);report.push({kind,records:0});continue;}
   const visible=atlas.locator(`.atlas-record-table button[data-kind="${kind}"]`).first();const id=Number(await visible.getAttribute('data-id'));const entry=dir.find(row=>row.Id===id);assert.ok(entry,'Visible row belongs to the actual directory');await visible.click();await atlas.locator(`.atlas-article[data-kind="${kind}"][data-id="${entry.Id}"]`).waitFor();
   const exhibits=await atlas.locator('[data-exhibit]').count();await page.screenshot({path:output+'/'+kind+'.png'});
+  if(kind==='state'&&process.argv.includes('--domestic')){
+   const card=atlas.locator('[data-exhibit="Domestic power groups"]');await card.waitFor();assert.match(await card.textContent(),/governing/);
+   await card.locator('.exhibit-title').click();await atlas.getByRole('heading',{name:'Domestic power groups',exact:true}).waitFor();
+   assert.match(await atlas.textContent(),/organization/);await page.screenshot({path:output+'/domestic-power.png'});
+   await atlas.getByRole('button',{name:'Power & relations',exact:true}).click();assert.match(await atlas.textContent(),/Institutional bargaining/);
+   await page.screenshot({path:output+'/domestic-bargaining.png'});await atlas.getByRole('button',{name:'Overview',exact:true}).click();
+  }
   if(kind==='ethnicity'&&await atlas.locator('.atlas-portraits').count()){
    assert.equal(await atlas.locator('.atlas-portraits g').count(),6);await atlas.locator('[data-exhibit="People and appearance"] .exhibit-title').click();
    await atlas.locator('.appearance-parameters progress').first().waitFor();assert.equal(await atlas.locator('.appearance-parameters progress').count(),8);await page.screenshot({path:output+'/ethnicity-appearance.png'});

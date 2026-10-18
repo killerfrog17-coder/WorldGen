@@ -1,5 +1,20 @@
 # Implementation contracts - version 3
 
+## Domestic institutions - history32 optional realm37
+
+Nullable `Realms.Domestic` is omitted from preceding canonical bytes. Five saved
+institutional power seats and a governing coalition per state replace freshly
+derived political descriptions. Actual aggregate livelihoods, practiced trade,
+troops, religious institutions and public participation condition organization;
+funded bargaining reallocates conserved budgets and changes constitutional
+practice. Organized excluded grievance conditions fiscal cooperation, succession
+and existing local sovereignty mechanisms. An armed office contest requires an
+actual available commander, troops, funding and severe political failure; it
+does not refound the country or kill the previous person. Work is fixed-size
+actor-local, backed by two immutable sparse trees, without territorial censuses.
+Old36 remains literal until explicit upgrade. See
+[mechanisms and limitations](HISTORY32_DOMESTIC_POLITICS.md).
+
 ## Regional forager heritage - history32 optional realm36
 
 Identity-extension Version2 permits Culture=-1 and prospective regional identities

@@ -78,6 +78,7 @@ namespace WorldGen.Core
             var h=s.History;var a=h.Aggregates;var town=s.Society.Settlements[city];var realm=a.Empires.Connections.Realms;var r=realm.Claimants;var c=HistoricalRealmClaimantHistory.At(s,city);
             if(c!=null&&c.ResolvedYear<0&&c.Owner!=owner)ResolveRealmClaimant(s,c,"loses control of its center to another government","realm-claimant-displaced");
             var p=h.Polities[owner];var local=a.Communities.Cities[city];double crisis=RealmCrisis(s,owner);
+            if(DomesticHistory(s))crisis=Math.Max(crisis,DomesticOpposition(s,owner)*D.Clamp((500-h.Polities[owner].Legitimacy)/300.0));
             bool viable=a.Cities[city].Supported&&town.Population>=600&&a.Living.Cities[city].AbandonedYear<0&&a.Living.Cities[city].DeclineYears==0&&town.Stability>=200;
             bool capital=city==p.CapitalId;int cause=realm.Governments[owner].RegimeSince;
             double debt=(h.Dynamics.States[owner].Cycle?.ConquestDebt??0)/1000.0*(s.Years-local.SinceYear<75?1:.35);

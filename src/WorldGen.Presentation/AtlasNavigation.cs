@@ -19,6 +19,7 @@ namespace WorldGen.Presentation
         public static string Group(string title)
         {
             if(title=="Overview")return "Overview";
+            if(title=="Domestic power groups"||title=="Institutional bargaining")return "Power & relations";
             if(title=="Family and household"||title=="Abilities and interests"||title=="Person and family")return "People & place";
             if(title=="Court household and notable people"||title=="Recorded public office"||title=="Career and affiliations")return "Power & relations";
             if(title=="Recorded achievements")return "History";

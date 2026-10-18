@@ -1,5 +1,15 @@
 # Historical simulation: history-31 / prehistory-6
 
+## Domestic power and institutional bargaining - 18 October 2026
+
+Optional realm37 records persistent organized interests, constitutional and
+spending priorities, grievances, representatives and governing coalitions.
+Financed bargaining, real-budget priorities, fiscal cooperation, succession and
+resource-conditioned office contests connect domestic institutions to the
+existing simulation. State Atlas dossiers expose the actual local record, not
+just a recalculated political label. Old36 saves remain literal until explicit
+upgrade. See [scope and limits](HISTORY32_DOMESTIC_POLITICS.md).
+
 ## Regional heritage and visual Atlas - 18 October 2026
 
 Optional realm36 / identity Version2 records regional identities before named

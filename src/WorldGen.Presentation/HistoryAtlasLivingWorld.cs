@@ -28,10 +28,11 @@ namespace WorldGen.Presentation
             if(engine?.World!=world)return;
             if(kind=="state")
             {
+                DomesticPoliticsSections(s,id,engine,sections);
                 var politics=engine.PoliticalProfile(s,id);
                 if(politics!=null)
                 {
-                    sections.Add(new AtlasSection{Title="Political interests",Bars=true,Unit="/ 1,000",Text=politics.Form+". "+politics.Participation+" These are modeled sources of political influence, not measured party memberships or votes.",
+                    if(engine.DomesticProfile(s,id)==null)sections.Add(new AtlasSection{Title="Political interests",Bars=true,Unit="/ 1,000",Text=politics.Form+". "+politics.Participation+" These are modeled sources of political influence, not measured party memberships or votes.",
                         Facts=new[]{F("Transfer of power",politics.Succession)},Links=politics.Blocs.Select((name,k)=>new AtlasLink{Name=name,Value=politics.InfluencePermille[k],Detail=(politics.InfluencePermille[k]/10.0).ToString("0.#",CultureInfo.InvariantCulture)+"% of the modeled influence mix"}).ToArray()});
                     int[] shares={politics.DefensePermille,politics.WorksPermille,politics.ReliefPermille,politics.LearningPermille};string[] priorities={"Defense","Civil works","Relief","Learning"};int leading=Array.IndexOf(shares,shares.Max());
                     sections.Add(new AtlasSection{Title="Public priorities",Bars=true,Unit="/ 1,000",Text=priorities[leading]+" receives the largest share of the government's funded program. Other priorities compete for the same treasury; these are program shares, not percentages of the whole economy.",Links=new[]{
