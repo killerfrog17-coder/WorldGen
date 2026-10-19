@@ -19,6 +19,26 @@ Start a new game to configure its sky and give future cultures its calendars.
 The explicit Core `ConfigureCelestialHistory` attachment API is tested, but
 there is no automatic historical retrofit or player-facing bulk upgrade here.
 
+### Visual exaggeration and display settings
+
+Sky & atmosphere → **Sky display** has separate **Moon visual exaggeration**
+and **Sun visual exaggeration** multipliers.1× preserves physical apparent size;
+5× draws a disk five times as wide without changing emitted/reflected light,
+ambient illumination, stellar washout, orbital periods, phases, or cultural
+calendars. Use these controls instead of changing physical radius/distance just
+to make the sky easier to read on screen. They remain editable after history
+starts (Esc → World settings), with no reload. They are optional play-session
+fields outside the authoritative sky context; preceding saves default to1×.
+Controls accept0.01–20×, with an extreme-disk angular-radius safety cap of60°
+for moons/10° for the sun. These are rendering choices, not new celestial bodies.
+
+Both main-menu Settings and Esc → Game settings expose fullscreen, VSync and
+maximum FPS. VSync follows display refresh and overrides the independent desktop
+frame-rate cap; disable it to use that cap.0 selects Unlimited. FPS edits apply
+on Apply/Enter, not every typed digit. VSync/FPS preferences persist per machine
+through Unity PlayerPrefs, not per world. Tests change process-local settings
+without overwriting the owner's preferences.
+
 F3 remains unboxed/nonblocking. Alongside local/reference solar time, it reports
 the northern season and percentage between named solstices/equinoxes, total
 celestial night illuminance, and each moon's phase/illuminated fraction/horizon

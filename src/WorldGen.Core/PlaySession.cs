@@ -8,13 +8,15 @@ namespace WorldGen.Core
     {
         public double HorizontalScale=.1,RealMinutesPerDay=60,CalendarDaysPerDay=1,StructureDensity=1;
         [System.Runtime.Serialization.OptionalField] public CelestialSettings Sky=new CelestialSettings();
-        [System.Runtime.Serialization.OnDeserializing] void InitializeOptionalSky(System.Runtime.Serialization.StreamingContext context){Sky=null;}
+        [System.Runtime.Serialization.OptionalField] public double MoonVisualExaggeration=1,SunVisualExaggeration=1;
+        [System.Runtime.Serialization.OnDeserializing] void InitializeOptionalSky(System.Runtime.Serialization.StreamingContext context){Sky=null;MoonVisualExaggeration=SunVisualExaggeration=1;}
         public PlaySettings Copy(){var s=(PlaySettings)MemberwiseClone();s.Sky=Sky?.Copy();return s;}
         public void Validate()
         {
             void Range(double v,double low,double high,string name){if(double.IsNaN(v)||double.IsInfinity(v)||v<low||v>high)throw new ArgumentException("Invalid "+name+".");}
             Range(HorizontalScale,.01,2,"horizontal scale");Range(RealMinutesPerDay,1,10080,"day length");
             Range(CalendarDaysPerDay,1,365,"calendar compression");Range(StructureDensity,0,100,"structure density");
+            Range(MoonVisualExaggeration,.01,20,"moon visual exaggeration");Range(SunVisualExaggeration,.01,20,"sun visual exaggeration");
             Sky?.Validate();
         }
     }

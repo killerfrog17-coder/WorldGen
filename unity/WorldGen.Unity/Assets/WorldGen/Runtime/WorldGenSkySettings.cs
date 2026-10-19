@@ -40,6 +40,10 @@ public sealed partial class WorldGenRuntime
         if(sky.Moons.Length<4&&GUILayout.Button("Add moon"))sky.Moons=sky.Moons.Concat(new[]{new MoonSettings{Name="Moon "+(sky.Moons.Length+1),RadiusKm=700,OrbitRadiusKm=100000+sky.Moons.Length*150000}}).ToArray();
         skyAdvanced=GUILayout.Toggle(skyAdvanced,"Orbital and color details");if(skyAdvanced)sky.Seed=(int)Number("seed","Stellar seed",sky.Seed,0,16777215);
         GUI.enabled=enabled;if(locked)GUILayout.Label("Moons and stars are fixed once history starts. Choose another sky in a new game.",MutedStyle());
+        GUILayout.Space(12);GUILayout.Label("SKY DISPLAY",SectionStyle());
+        play.Settings.MoonVisualExaggeration=Number("moon-display","Moon visual exaggeration · ×",play.Settings.MoonVisualExaggeration,.01,20);
+        play.Settings.SunVisualExaggeration=Number("sun-display","Sun visual exaggeration · ×",play.Settings.SunVisualExaggeration,.01,20);
+        GUILayout.Label("Visual size changes only the disk, not its orbit or night brightness.",MutedStyle());
         GUILayout.Space(12);GUILayout.Label("Aerosol haze  "+sky.Haze.ToString("F2")+"×");sky.Haze=GUILayout.HorizontalSlider((float)sky.Haze,0,5);
         try{sky.Validate();}catch(ArgumentException e){GUILayout.Label(e.Message,MutedStyle());}
     }

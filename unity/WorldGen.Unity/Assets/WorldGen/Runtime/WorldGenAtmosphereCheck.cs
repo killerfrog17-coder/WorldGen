@@ -15,6 +15,9 @@ public sealed partial class WorldGenRuntime
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);AudioListener.volume=0;var report=new List<string>();var errors=new List<string>();
         Application.LogCallback listener=(message,trace,kind)=>{if(kind==LogType.Error||kind==LogType.Exception)errors.Add(message);};Application.logMessageReceived+=listener;
         void Check(bool ok,string message){if(!ok)throw new InvalidOperationException("ATMOSPHERE CHECK: "+message);report.Add("PASS "+message);Debug.Log("ATMOSPHERE PASS "+message);}
+        bool initialSync=displayVSync;int initialFps=displayMaxFps;
+        try{SetDisplayOptions(false,120,false);Check(QualitySettings.vSyncCount==0&&Application.targetFrameRate==120,"FPS cap applies independently with VSync disabled");SetDisplayOptions(true,144,false);Check(QualitySettings.vSyncCount==1&&Application.targetFrameRate==144,"VSync can be enabled while retaining the requested unsynchronized FPS cap");SetDisplayOptions(false,0,false);Check(Application.targetFrameRate== -1&&QualitySettings.vSyncCount==0,"zero FPS cap selects Unlimited");}
+        finally{SetDisplayOptions(initialSync,initialFps,false);}
         IEnumerator Until(Func<bool> ready,string label){double end=Time.realtimeSinceStartupAsDouble+180;while(!ready()&&Time.realtimeSinceStartupAsDouble<end)yield return null;Check(ready(),label);}
         recipe=Recipe.Preset("Earth");recipe.Detail=20000;setup.From(recipe);Generate();yield return Until(()=>worldReady&&!Busy&&humans!=null,"Earth world ready");StartHumanWorld();
         Check(world.Prehistory.History.Sky!=null&&world.Prehistory.History.Sky.Settings.Moons.Length==1,"fresh game saves the actual Earthlike celestial context for future cultures");
@@ -35,10 +38,18 @@ public sealed partial class WorldGenRuntime
         Check(fullBody.IlluminatedFraction>.97&&fullBody.Direction.Y>0&&terrainExplorer.SkyFrame.NightIlluminanceLux>.1,"visible full moon actually supplies night illumination");
         string debug=terrainExplorer.TestDebugText();Check(debug.Contains("Northern ")&&(debug.Contains("solstice")||debug.Contains("equinox")),"F3 reports seasonal turning points rather than requiring Earth month names");File.WriteAllText(Path.Combine(output,"debug.txt"),debug);
         var moonCenter=terrainExplorer.LastCapturePixels[400*1280+640];Check(moonCenter.r>80,"the full moon disk actually renders, not only its metadata");
+        int MoonPixels(Color32[] pixels){int n=0;for(int y=300;y<500;y++)for(int x=540;x<740;x++)if(pixels[y*1280+x].r>80)n++;return n;}
+        int originalMoonPixels=MoonPixels(terrainExplorer.LastCapturePixels);double originalLux=terrainExplorer.SkyFrame.NightIlluminanceLux;
+        play.Settings.MoonVisualExaggeration=5;yield return new WaitForSecondsRealtime(.3f);Capture("earth-display-large");
+        Check(MoonPixels(terrainExplorer.LastCapturePixels)>originalMoonPixels*12,"5x visual exaggeration actually enlarges the rendered moon disk");
+        Check(Math.Abs(terrainExplorer.SkyFrame.NightIlluminanceLux-originalLux)<1e-5,"visually enlarged moon retains the same native night illumination");play.Settings.MoonVisualExaggeration=1;yield return new WaitForSecondsRealtime(.3f);
         var charcoal=earth.Copy();charcoal.Moons[0].Albedo=.03;yield return Configure(charcoal,full,0);Aim(fullBody.Direction);yield return new WaitForEndOfFrame();Capture("dark-albedo-moon");Check(terrainExplorer.LastCapturePixels[400*1280+640].r<moonCenter.r*.75,"lower reflectivity darkens the actual lunar surface as well as terrain illumination");yield return Configure(earth,full,0);
         terrainExplorer.TestFieldOfView(68);terrainExplorer.TestView(40,180,12);yield return new WaitForEndOfFrame();Capture("full-moon-landscape");var lit=terrainExplorer.LastCapturePixels;
-        yield return Configure(earth,newMoon,0);terrainExplorer.TestView(40,180,12);yield return new WaitForEndOfFrame();Capture("new-moon-landscape");var dark=terrainExplorer.LastCapturePixels;
         double Mean(Color32[] pixels)=>pixels.Take(1280*200).Average(p=>(p.r+p.g+p.b)/3d);
+        play.Settings.MoonVisualExaggeration=5;yield return new WaitForSecondsRealtime(.3f);Capture("large-moon-landscape");
+        Check(Math.Abs(Mean(terrainExplorer.LastCapturePixels)-Mean(lit))<.1,"enlarging the native moon disk does not brighten the actual terrain");
+        play.Settings.MoonVisualExaggeration=1;
+        yield return Configure(earth,newMoon,0);terrainExplorer.TestView(40,180,12);yield return new WaitForEndOfFrame();Capture("new-moon-landscape");var dark=terrainExplorer.LastCapturePixels;
         Check(Mean(lit)>Mean(dark)*1.3+.1,"real terrain capture becomes brighter under a visible full moon than a new moon");report.Add("Lower terrain full/new "+Mean(lit).ToString("F3")+" / "+Mean(dark).ToString("F3"));
         double quarter=CelestialMechanics.NextPhase(earth.Moons[0],0,.25);yield return Configure(earth,quarter,18);var half=terrainExplorer.SkyFrame.Bodies.Single(b=>b.MoonIndex==0);Aim(half.Direction,12);yield return new WaitForEndOfFrame();Capture("earth-quarter-detail");Check(half.IlluminatedFraction>.43&&half.IlluminatedFraction<.57,"quarter-moon phase agrees with the actual sun direction");
         foreach(string preset in new[]{"Rust moon","Ice moon"})
@@ -61,7 +72,9 @@ public sealed partial class WorldGenRuntime
         air.Haze=3;yield return new WaitForSecondsRealtime(.4f);yield return new WaitForEndOfFrame();Capture("air-hazy");var hazy=terrainExplorer.LastCapturePixels;
         double difference=clear.Zip(hazy,(a,b)=>(Math.Abs(a.r-b.r)+Math.Abs(a.g-b.g)+Math.Abs(a.b-b.b))/3d).Average();Check(difference>.1,"height-dependent atmospheric scattering actually changes distant terrain pixels");report.Add("Clear/haze mean absolute pixel difference "+difference.ToString("F3"));
         play.Settings.Sky=originalSky;yield return new WaitForSecondsRealtime(.3f);world.Prehistory.History.Sky.Validate(world.Prehistory.History,world.Prehistory.Years);
+        play.Settings.MoonVisualExaggeration=5;play.Settings.SunVisualExaggeration=3;
         var saved=WorldJson.Read<PlaySession>(WorldJson.Write(play));saved.Validate();Check(saved.Settings.Sky.Moons.Length==1&&saved.Settings.Sky.Moons[0].OrbitRadiusKm==384400,"configured moon physics cold-roundtrips in game saves");
+        Check(saved.Settings.MoonVisualExaggeration==5&&saved.Settings.SunVisualExaggeration==3,"native saves retain independent sun and moon visual exaggeration");
         Check(world.Prehistory.Hash==history&&StateHash.Compute(world)==geography,"visual sky/phase tests do not rewrite recorded history or terrain");Check(errors.Count==0,"no Unity atmosphere shader/runtime errors");
         Application.logMessageReceived-=listener;File.WriteAllLines(Path.Combine(output,"result.txt"),report);Debug.Log("ATMOSPHERE CHECK PASS "+report.Count(x=>x.StartsWith("PASS ",StringComparison.Ordinal)));Application.Quit(0);
     }

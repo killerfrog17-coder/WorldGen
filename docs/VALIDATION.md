@@ -1,5 +1,25 @@
 # Version 3 validation evidence
 
+## Visual sky exaggeration and display preferences — 19 October 2026
+
+The IL2CPP `player-celestial-display` build2026-10-19T08:49:04Z passes28 hidden
+native atmosphere/display assertions. Actual1×/5× moon captures are inspected:
+the enlarged disk occupies over12times the bright pixels while night illumination
+and actual lower-terrain brightness remain unchanged. Sun size/light independence,
+saved multipliers and preceding-save1× defaults pass focused checks.2,606 focused
+atmosphere,6 actual-world celestial,892 sky/chat,113 meridian,182 music,334
+interface,42 saved-play and33 exact native/CLR profile assertions pass. The
+Release solution/browser build and shared-asset staging pass without errors.
+
+Native process-local tests verify120FPS/VSync-off, VSync-on, and Unlimited
+application settings, restoring the preceding settings without writing the
+owner's preferences. This is configuration verification, not a measured frame-rate
+benchmark or new interactive UI-layout acceptance. Preference persistence uses
+PlayerPrefs; no new cross-launch preference acceptance is claimed. Evidence is
+ignored under `artifacts/celestial-display-review`. No generation, climate,
+historical calendars or historical algorithms change. Existing saves need no
+rules upgrade; celestial-atmosphere is rollback. See CELESTIAL_ATMOSPHERE.md.
+
 ## Celestial atmosphere — 19 October 2026
 
 See `CELESTIAL_ATMOSPHERE.md`.2,600 focused orbital/phase/lighting/stellar/haze/

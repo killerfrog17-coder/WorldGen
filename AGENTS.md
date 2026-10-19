@@ -1,6 +1,19 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-celestial-display/WorldGen.exe` (IL2CPP,2026-10-19T08:49:04Z).
+Optional saved play settings expose independent sun/moon visual exaggeration,
+editable after history starts; defaults1× preserve old displays.5× enlarges only
+the disk, not lighting, phase, orbit or cultural astronomy. Main-menu and both
+pause settings share persistent VSync/maximum FPS controls (0=Unlimited;
+VSync overrides the independent desktop cap).2606 focused/6 actual-world and
+33 exact native/CLR celestial assertions,28 hidden native display/atmosphere
+checks pass; actual1×/5× moon and unchanged-terrain captures are inspected.
+FPS controls are tested at the engine-setting level, not as throughput benchmarks
+or new UI-layout proof. No generation/history rules change. The celestial-atmosphere
+player is rollback; see `docs/CELESTIAL_ATMOSPHERE.md` and VALIDATION.md.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-celestial-atmosphere/WorldGen.exe` (IL2CPP,2026-10-19T08:25:45Z).
 New-game Sky & atmosphere configures0–4 moons, six arrangements, physical circular
 orbital periods/sun-relative phases, colored moonlight, three seeded stellar

@@ -53,7 +53,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     static void Boot() { if (FindAnyObjectByType<WorldGenRuntime>() == null) new GameObject("WorldGen Runtime").AddComponent<WorldGenRuntime>(); }
     void Start()
     {
-        Application.runInBackground = true; Application.targetFrameRate = 60;
+        Application.runInBackground = true; InitializeDisplayOptions();
         uiCheck = Environment.GetCommandLineArgs().Contains("--worldgen-ui-check");
         panels = groups.Select(g => false).ToArray();
         filePath = Path.Combine(Application.persistentDataPath, "worldgen.recipe.json");
