@@ -26,6 +26,7 @@ static class WeatherTests
         check(map.Rgba.SequenceEqual(WeatherMapImage.Build(world,terrain,view,120,width:64,height:32).Rgba),"Cloud map repeat queries are exact");
         using var cancel=new CancellationTokenSource();cancel.Cancel();bool cancelled=false;try{WeatherMapImage.Build(world,terrain,view,120,token:cancel.Token);}catch(OperationCanceledException){cancelled=true;}
         check(cancelled&&StateHash.Compute(world)==original,"Cloud overlay cancels without altering any world stage");
+        SpatialWeatherTests.Run(world,terrain,check);
     }
     public static void Native(string path,Action<bool,string> check)
     {

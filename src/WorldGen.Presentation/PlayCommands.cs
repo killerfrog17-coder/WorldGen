@@ -28,7 +28,7 @@ namespace WorldGen.Presentation
     }
     public static class PlayCommands
     {
-        public static readonly string[] Help={"/date [get | set YYYY-MM-DD | add days] — playable seasonal date (365-day years)","/help — list commands","/time [get | set day/night/noon/midnight/sunrise/sunset/HH:mm | add hours]","/weather [get | auto | clear | cloudy | overcast | rain | storm | snow | blizzard] — temporary weather test"};
+        public static readonly string[] Help={"/date [get | set YYYY-MM-DD | add days] — playable seasonal date (365-day years)","/help — list commands","/time [get | set day/night/noon/midnight/sunrise/sunset/HH:mm | add hours]","/weather [get | auto | clear | cloudy | overcast | rain | downpour | storm | snow | blizzard | fog] — temporary weather test"};
         public static string[] Complete(string input)
         {
             string[] options=input.StartsWith("/weather ",StringComparison.OrdinalIgnoreCase)?WeatherControl.Modes.Select(m=>"/weather "+m).ToArray():input.StartsWith("/time set ",StringComparison.OrdinalIgnoreCase)?new[]{"/time set day","/time set midnight","/time set night","/time set noon","/time set sunrise","/time set sunset"}:new[]{"/date","/help","/time","/weather"};

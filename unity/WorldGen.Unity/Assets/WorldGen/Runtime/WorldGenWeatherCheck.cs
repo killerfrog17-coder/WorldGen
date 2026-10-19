@@ -42,14 +42,22 @@ public sealed partial class WorldGenRuntime
         PlayCommands.Execute(play,0,"/weather rain",weather:terrainExplorer.WeatherControl);terrainExplorer.TestAnimateWeather=true;
         yield return new WaitForSecondsRealtime(4);Capture("command-rain");
         Check(terrainExplorer.CurrentWeather.RainMmPerHour==4&&terrainExplorer.WeatherParticleCount>500,"command rain produces a dense bounded near-observer shower");
+        PlayCommands.Execute(play,0,"/weather downpour",weather:terrainExplorer.WeatherControl);yield return new WaitForSecondsRealtime(4);Capture("command-downpour");
+        Check(terrainExplorer.CurrentWeather.VisibilityM<1000&&terrainExplorer.WeatherParticleCount>3000,"heavy downpour scales particle density and reduces visibility below1km");
+        PlayCommands.Execute(play,0,"/weather fog",weather:terrainExplorer.WeatherControl);yield return new WaitForSecondsRealtime(2);Capture("command-fog");
+        Check(terrainExplorer.CurrentWeather.Fog==1&&terrainExplorer.CurrentWeather.VisibilityM<300&&Difference(clear,terrainExplorer.LastCapturePixels)>3,"ground fog actually obscures the view, not just a reported value");
         PlayCommands.Execute(play,0,"/weather storm",weather:terrainExplorer.WeatherControl);yield return new WaitForSecondsRealtime(.3f);Capture("command-storm");
         Check(terrainExplorer.CurrentWeather.Thunderstorm==1,"storm command activates storm weather");
         PlayCommands.Execute(play,0,"/weather auto",weather:terrainExplorer.WeatherControl);yield return new WaitForSecondsRealtime(.6f);
-        Check(terrainExplorer.WeatherControl.Mode=="auto"&&terrainExplorer.CurrentWeather.RainMmPerHour!=12,"auto command restores the natural provider");
+        Check(terrainExplorer.WeatherControl.Mode=="auto"&&terrainExplorer.CurrentWeather.RainMmPerHour!=25,"auto command restores the natural provider");
         double rainDate=0,best=0;for(int k=0;k<2920;k++){double d=k*.125,rate=terrainExplorer.TestNaturalWeather(d).RainMmPerHour;if(rate>best){rainDate=d;best=rate;}if(rate>=1&&rate<4){rainDate=d;break;}}
         play.CalendarOffsetSeconds=rainDate*SimulationTime.Day-SimulationTime.Seconds(world.Prehistory)-play.PendingHistorySeconds;
         yield return new WaitForSecondsRealtime(4);Capture("natural-rain");
         Check(terrainExplorer.CurrentWeather.RainMmPerHour>.1&&terrainExplorer.WeatherParticleCount>100,"a naturally dated real-world profile produces visible rain without a test override");
+        yield return Until(()=>terrainExplorer.WeatherFieldReady,"spatial cloud field ready");
+        Check(terrainExplorer.WeatherScreen.UseField&&terrainExplorer.CurrentWeather.CloudCover>.9,"natural rain and visible clouds share the spatial field");
+        var beforeStep=terrainExplorer.CurrentWeather;terrainExplorer.TestWeatherMove(2);yield return new WaitForSecondsRealtime(.2f);Capture("natural-two-metre-step");
+        Check(Math.Abs(beforeStep.CloudCover-terrainExplorer.CurrentWeather.CloudCover)<.01&&Math.Abs(beforeStep.PrecipitationMmPerHour-terrainExplorer.CurrentWeather.PrecipitationMmPerHour)<.03,"two-metre movement cannot flip the weather regime");terrainExplorer.TestWeatherMove(-2);
         terrainExplorer.TestCloudMap(true);yield return Until(()=>terrainExplorer.CloudMapReady&&terrainExplorer.MapReady,"natural cloud overlay and cached base map ready");terrainExplorer.CaptureCloudMap(Path.Combine(output,"map-clouds-natural.png"),true);terrainExplorer.CaptureMap(Path.Combine(output,"map-base.png"));int mapBuilds=terrainExplorer.MapBuildCount;
         PlayCommands.Execute(play,0,"/weather clear",weather:terrainExplorer.WeatherControl);yield return new WaitForSecondsRealtime(.3f);yield return Until(()=>terrainExplorer.CloudMapReady,"clear command refreshes optional map overlay");terrainExplorer.CaptureCloudMap(Path.Combine(output,"map-clouds-clear.png"));
         PlayCommands.Execute(play,0,"/weather storm",weather:terrainExplorer.WeatherControl);yield return new WaitForSecondsRealtime(.3f);yield return Until(()=>terrainExplorer.CloudMapReady,"storm command refreshes optional map overlay");terrainExplorer.CaptureCloudMap(Path.Combine(output,"map-clouds-storm.png"));
@@ -83,6 +91,10 @@ public sealed partial class WorldGenRuntime
             for(int i=0;i<120;i++){yield return null;terrainExplorer.WeatherCheckGpuBarrier();double now=Time.realtimeSinceStartupAsDouble;frames.Add((now-previous)*1000);previous=now;}
             frames.Sort();report.Add("GPU-synchronized frame ms clouds "+quality+": median "+frames[60].ToString("F2")+", p95 "+frames[114].ToString("F2"));
         }
+        o.Clouds=1;terrainExplorer.TestWeatherOverride=null;yield return Until(()=>terrainExplorer.WeatherFieldReady,"spatial benchmark field ready");yield return new WaitForSecondsRealtime(.4f);Capture("spatial-distant-clouds");
+        var spatialFrames=new List<double>();double previousSpatial=Time.realtimeSinceStartupAsDouble;
+        for(int i=0;i<120;i++){yield return null;terrainExplorer.WeatherCheckGpuBarrier();double now=Time.realtimeSinceStartupAsDouble;spatialFrames.Add((now-previousSpatial)*1000);previousSpatial=now;}
+        spatialFrames.Sort();report.Add("GPU-synchronized spatial-weather Low frame ms: median "+spatialFrames[60].ToString("F2")+", p95 "+spatialFrames[114].ToString("F2"));
         SetDisplayOptions(oldVSync,oldFps,false);o.Clouds=1;o.SunGlare=.35f;o.SunRays=.12f;o.Adaptation=.5f;
         terrainExplorer.TestWeatherOverride=null;yield return new WaitForSecondsRealtime(.6f);Capture("natural-weather");
         double actualBase=terrainExplorer.CurrentWeather.CloudBaseM;terrainExplorer.TestView(1500,170,-18);yield return new WaitForSecondsRealtime(.4f);

@@ -101,6 +101,7 @@ namespace WorldGen.Core
         public LocalTerrainProfile Profile(int cell)
         { if (cell < 0 || cell >= profiles.Length) throw new ArgumentOutOfRangeException(nameof(cell)); return profiles[cell]; }
         public int NearestCell(V point)=>locator.Nearest(point);
+        internal CellLocator WeatherLocator=>locator;
 
         /// <summary>Shared continuous function restricted to a bounded patch. Candidate lookup happens once,
         /// not at each vertex. Independent neighbouring patches return identical overlapping point samples.</summary>

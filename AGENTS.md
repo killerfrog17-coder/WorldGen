@@ -1,6 +1,21 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-weather-spatial-final/WorldGen.exe`
+(IL2CPP,2026-10-19T15:54:08Z). Derived weather-preview-3 uses fixed, interpolated
+global nodes for local weather, distant clouds and optional M-map cloud darkness.
+Regional windows prefetch before their edges and crossfade; chart reanchoring
+does not replace the whole sky. Rain enforces cloud cover, shared phase cascades
+preserve storm water/location, and local dawn fog, rain/snow curtains, downpours
+and continuous rain audio have separate visibility/volume controls. No ground
+water/snow visuals, climate-generation changes or historical-rule upgrades.
+81 primitive/5890 actual-world/24 native-CLR weather assertions and37 final native
+checks pass; see docs/PROCEDURAL_WEATHER.md and docs/VALIDATION.md for diagnostic
+counts, inspected captures, approximation limits and host-dependent timings.
+Weather-controls-final is rollback. This is not all-era realism or dense-world
+simulation performance acceptance.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-weather-controls-final/WorldGen.exe`
 (IL2CPP,2026-10-19T10:55:09Z). Derived weather-preview-2 adds wider regional
 cloud systems and dry overcast periods without changing precipitation, temperature

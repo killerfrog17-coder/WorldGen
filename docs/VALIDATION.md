@@ -1,5 +1,64 @@
 # Version 3 validation evidence
 
+## Spatial weather, fog and downpours — 19 October 2026
+
+Derived weather-preview-3 replaces viewer-uniform weather rendering with a lazy,
+fixed one-degree planetary lattice and bounded regional GPU windows. Source
+climate profiles use compact C2 spatial weights; rain, clouds, distant curtains
+and the map share interpolation. Decks darken with coverage/water/storm strength.
+Background updates crossfade; chart reanchoring preserves the field. Morning
+height fog, precipitation visibility, stronger rain particles, seamless rain
+audio and independent rain/visibility options are added. `/weather downpour`
+and `/weather fog` are new temporary testing modes. Map clouds remain optional.
+
+81 primitive assertions and5890 actual-world assertions pass, including source
+cell/grid/meridian/pole continuity, rate-versus-interval water, altitude-invariant
+storm water/location, fixed layer heights, renderer-field interpolation agreement,
+bounded/polar windows, dawn fog/dry-world rejection, visibility and rain audio.
+Of these,5840 are individual rain-column/cloud-cover checks, not5840 independent
+worlds.892 sky/chat,2608 celestial and42 saved-play assertions also pass.
+Actual representative BWh/Af climate interiors yielded176/2775mm over the sampled
+year,2.4%/26.1% rainy samples and3.5%/56.0% overcast samples. These demonstrate
+climate-conditioned contrast, not observed-Earth weather validation or universal
+frequency targets. Midlatitude cached windows of73×35 nodes measured32–60ms
+on this host; a first64×32 global overlay with lazy profile construction took
+roughly150–210ms. Queries occur off the frame thread, not as world-cell ticks.
+
+An initial Mono player passes37 native checks and its fog, ordinary/downpour,
+natural-rain, two-metre movement and distant-cloud captures are inspected. These
+were used to refine haze darkness, field coherence and temporal blending before
+the final IL2CPP review. Signal checks establish continuous/unclipped audio,
+not subjective acceptance of synthesized rain sounds. No ground accumulation, puddles or dynamic
+hydrological terrain changes are introduced.
+
+The final IL2CPP player `player-weather-spatial-final`, built2026-10-19T15:54:08Z,
+passes37 native checks and24 native/CLR numerical comparisons within1e-7. Its
+fog, downpour, natural-rain, two-metre movement, map-darkness and distant-weather
+captures are inspected. Final evidence is ignored under
+`artifacts/weather-spatial-final-review`; prior exploratory evidence is separate.
+It checks command restoration, unchanged base-map cache, actual volume/depth
+occlusion, adaptation/sun effects, fixed cloud heights, natural snow data and
+unchanged terrain/history hashes. Shared DLL input hashes match the reviewed build.
+
+Two IL2CPP runs on RTX4060 at1280×800 with a one-pixel blocking GPU readback
+give spatial Low total median/p95 of3.86/5.54ms and5.54/6.34ms. The final run's
+Off/Low/High medians are all near5.5ms, so external frame pacing/scheduling
+limits meaningful isolated overhead comparisons. These are available-host total
+frame times, not low-end/fullscreen guarantees or claims of zero weather cost.
+The bounded background windows do not establish overall dense-history performance.
+
+Preview3 intentionally changes derived-weather samples: the precipitation field
+has broader spatial coherence, fixed-node climate interpolation replaces the old
+visitor-dependent bag, and rain/snow share conservative splits. Primitive32-day
+water budgets remain conserved; this is not literal preview2 weather replay.
+Accepted worldgen/climate/hydrology/ecology and historical records/rules remain
+unchanged. Existing playable snapshots are not upgraded to a new historical rule.
+Radiation fog and optical visibility are empirical approximations, not a full
+dew-point/advection/microphysics solver. See `PROCEDURAL_WEATHER.md` for sources
+and limits. The GPU window is temporally cached (five weather minutes plus its
+short update/crossfade); this is explicitly visual approximation, not simulated
+ground-water history. Climate-input errors still propagate into derived weather.
+
 ## Weather testing, optional cloud map and gusts — 19 October 2026
 
 Derived `weather-preview-2` adds extended non-raining cloud decks and regional

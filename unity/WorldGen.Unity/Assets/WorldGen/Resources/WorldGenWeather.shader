@@ -11,10 +11,16 @@ Shader "WorldGen/Weather"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
         TEXTURE3D(_WeatherNoise);SAMPLER(sampler_WeatherNoise);
         TEXTURE2D(_WeatherCloudTexture);SAMPLER(sampler_WeatherCloudTexture);
+        TEXTURE2D(_WeatherConditions);SAMPLER(sampler_WeatherConditions);
+        TEXTURE2D(_WeatherLayerField);SAMPLER(sampler_WeatherLayerField);
+        TEXTURE2D(_PreviousWeatherConditions);SAMPLER(sampler_PreviousWeatherConditions);
+        TEXTURE2D(_PreviousWeatherLayers);SAMPLER(sampler_PreviousWeatherLayers);
         TEXTURE2D_X_FLOAT(_WeatherDepthTexture);
         float4x4 _WeatherInvVP;
         float3 _WeatherCamera,_WeatherCenter,_WeatherEast,_WeatherNorth,_WeatherUp,_WeatherAnchor,_WeatherSun;
-        float4 _WeatherLayers,_WeatherCover,_WeatherWind,_WeatherSunScreen,_WeatherEffects;
+        float4 _WeatherLayers,_WeatherCover,_WeatherWind,_WeatherSunScreen,_WeatherEffects,_WeatherFieldRect,_WeatherShell,_WeatherWet,_WeatherFog;
+        int _WeatherUseField,_WeatherCloudsEnabled;
+        float4 _PreviousWeatherRect;float _WeatherFieldBlend;
         float3 _WeatherSunColor,_WeatherAmbient;float _WeatherRadius;int _WeatherDebugDepth;
         float DepthDistance(float2 uv)
         {
@@ -44,45 +50,83 @@ Shader "WorldGen/Weather"
         }
         float3 NoisePosition(float3 p)
         {return _WeatherAnchor+_WeatherEast*(p.x-_WeatherWind.x)+_WeatherUp*p.y+_WeatherNorth*(p.z-_WeatherWind.y);}
-        float Density(float3 p,float height)
+        void WeatherAt(float3 p,out float4 weather,out float4 layers)
         {
-            float h=saturate((height-_WeatherLayers.x)/_WeatherLayers.y);float3 q=NoisePosition(p);
+            weather=float4(_WeatherCover.xy,_WeatherWet.xy);layers=float4(_WeatherLayers.xyz,_WeatherWet.w);
+            if(_WeatherUseField>0)
+            {
+                float3 o=p-_WeatherCenter,geo=normalize(_WeatherEast*o.x+_WeatherUp*o.y+_WeatherNorth*o.z);
+                float lon=atan2(geo.y,geo.x)*57.2957795,lat=asin(clamp(geo.z,-1,1))*57.2957795;
+                float2 uv=(float2(fmod(lon-_WeatherFieldRect.x+720,360),lat-_WeatherFieldRect.y)+.5)/_WeatherFieldRect.zw;
+                weather=SAMPLE_TEXTURE2D_LOD(_WeatherConditions,sampler_WeatherConditions,uv,0);
+                layers=SAMPLE_TEXTURE2D_LOD(_WeatherLayerField,sampler_WeatherLayerField,uv,0);
+                if(_WeatherFieldBlend<1)
+                {
+                    float2 oldUV=(float2(fmod(lon-_PreviousWeatherRect.x+720,360),lat-_PreviousWeatherRect.y)+.5)/_PreviousWeatherRect.zw;
+                    weather=lerp(SAMPLE_TEXTURE2D_LOD(_PreviousWeatherConditions,sampler_PreviousWeatherConditions,oldUV,0),weather,_WeatherFieldBlend);
+                    layers=lerp(SAMPLE_TEXTURE2D_LOD(_PreviousWeatherLayers,sampler_PreviousWeatherLayers,oldUV,0),layers,_WeatherFieldBlend);
+                }
+            }
+            weather.x=max(weather.x,1-exp(-weather.z/.035));
+            if(_WeatherCloudsEnabled==0)weather.xy=0;
+        }
+        float Density(float3 p,float height,out float4 weather,out float4 layers)
+        {
+            WeatherAt(p,weather,layers);
+            float h=(height-layers.x)/max(1,layers.y);if(h<=0||h>=1)return 0;
+            float3 q=NoisePosition(p);
             float2 shapeNoise=SAMPLE_TEXTURE3D_LOD(_WeatherNoise,sampler_WeatherNoise,q/8192,0).rg;
             float broad=shapeNoise.r;
             float detail=SAMPLE_TEXTURE3D_LOD(_WeatherNoise,sampler_WeatherNoise,q/2048,0).r;
-            float n=saturate((broad-.5)*1.8+.5+(shapeNoise.g-.45)*.45),threshold=lerp(.83,.22,_WeatherCover.x);
+            float n=saturate((broad-.5)*1.8+.5+(shapeNoise.g-.45)*.45),threshold=lerp(.83,.22,weather.x);
             // Full synoptic cover must actually close the deck, not merely lower a noise threshold.
-            float deck=smoothstep(.72,.96,_WeatherCover.x);
+            float deck=smoothstep(.72,.96,weather.x);
             float body=lerp(smoothstep(threshold,threshold+.2,n),.8+.2*n,deck),profile=smoothstep(0,.12,h)*(1-smoothstep(.38,.95,h));
-            return max(0,body*profile-(1-detail)*lerp(.18,.02,deck))*saturate(_WeatherCover.x*2.8);
+            return max(0,body*profile-(1-detail)*lerp(.18,.02,deck))*saturate(weather.x*2.8);
         }
         half4 CloudFrag(Varyings input):SV_Target
         {
-            if(max(_WeatherCover.x,_WeatherCover.y)<.01)return 0;
             float2 uv=input.texcoord;float3 ray=Ray(uv),o=_WeatherCamera-_WeatherCenter;float limit=min(120000,DepthDistance(uv));
-            float2 interval=Shell(o,ray,_WeatherLayers.x,_WeatherLayers.x+_WeatherLayers.y);interval.y=min(interval.y,limit);
+            float bottom=_WeatherUseField>0?_WeatherShell.x:_WeatherLayers.x,top=_WeatherUseField>0?_WeatherShell.y:_WeatherLayers.x+_WeatherLayers.y;
+            float2 interval=Shell(o,ray,bottom,top);interval.y=min(interval.y,limit);
             float3 color=0;float transmission=1;int steps=(int)_WeatherCover.z;
-            if(interval.y>interval.x&&_WeatherCover.x>.01)
+            if(interval.y>interval.x&&_WeatherCloudsEnabled>0&&(_WeatherUseField>0||_WeatherCover.x>.01))
             {
-                float stepM=(interval.y-interval.x)/steps;float jitter=frac(sin(dot(floor(uv*_ScreenParams.xy),float2(12.9898,78.233)))*43758.5453);
-                for(int k=0;k<64;k++)
+                float stepM=(interval.y-interval.x)/steps;float jitter=.375+.25*frac(sin(dot(floor(uv*_ScreenParams.xy),float2(12.9898,78.233)))*43758.5453);
+                for(int k=0;k<96;k++)
                 {
                     if(k>=steps||transmission<.025)break;float t=interval.x+(k+jitter)*stepM;float3 p=_WeatherCamera+ray*t;float h=length(p-_WeatherCenter)-_WeatherRadius;
-                    float density=Density(p,h);if(density<.005)continue;
-                    float sunDensity=Density(p+_WeatherSun*220,h+_WeatherSun.y*220),shade=exp(-sunDensity*2.2);
-                    float forward=pow(saturate(dot(ray,_WeatherSun)),12);float3 light=_WeatherAmbient*.65+_WeatherSunColor*_WeatherCover.w*(.22+.72*shade)*(1+forward*.45);
+                    float4 weather,layers;float density=Density(p,h,weather,layers);if(density<.005)continue;
+                    float dark=saturate(weather.x*weather.x*.2+(1-exp(-weather.z/3))*.65+weather.w*.15),heightFraction=saturate((h-layers.x)/layers.y);
+                    float shade=exp(-density*layers.y*(1-heightFraction)*.0015/max(.2,abs(dot(_WeatherSun,normalize(p-_WeatherCenter)))));
+                    float forward=pow(saturate(dot(ray,_WeatherSun)),12);
+                    float3 light=_WeatherAmbient*lerp(.65,.27,dark)+_WeatherSunColor*_WeatherCover.w*(.12+.82*shade)*lerp(1,.35,dark)*(1+forward*.45);
                     float alpha=1-exp(-density*stepM*.0032);color+=transmission*alpha*light;transmission*=1-alpha;
                 }
             }
-            float2 high=Shell(o,ray,_WeatherLayers.z,_WeatherLayers.z+_WeatherLayers.w);high.y=min(high.y,limit);
-            if(high.y>high.x&&_WeatherCover.y>.01)
+            float highBase=_WeatherUseField>0?9500:_WeatherLayers.z;
+            float2 high=Shell(o,ray,highBase,highBase+450);high.y=min(high.y,limit);
+            if(high.y>high.x&&_WeatherCloudsEnabled>0)
             {
-                float3 p=_WeatherCamera+ray*(high.x+high.y)*.5,q=NoisePosition(p);q.xz=float2(q.x*.25+q.z*.25,q.z*2);
+                float3 p=_WeatherCamera+ray*(high.x+high.y)*.5;float4 weather,layers;WeatherAt(p,weather,layers);
+                float3 q=NoisePosition(p);q.xz=float2(q.x*.25+q.z*.25,q.z*2);
                 float n=SAMPLE_TEXTURE3D_LOD(_WeatherNoise,sampler_WeatherNoise,q/16384,0).r;
                 float detail=SAMPLE_TEXTURE3D_LOD(_WeatherNoise,sampler_WeatherNoise,(q+float3(800,1800,2100))/8192,0).r;
-                float alpha=smoothstep(.58-_WeatherCover.y*.15,.8,n*.75+detail*.25)*_WeatherCover.y*.5;
+                float alpha=smoothstep(.58-weather.y*.15,.8,n*.75+detail*.25)*weather.y*.5;
                 color+=transmission*alpha*(_WeatherAmbient+_WeatherSunColor*.6*_WeatherCover.w);transmission*=1-alpha;
             }
+            // Spatial rain/snow curtains below their actual cloud columns, including distant storms.
+            float optical=0,span=max(0,limit-300),curtainDark=0;
+            if(_WeatherFog.z>0&&span>0)for(int j=0;j<6;j++)
+            {
+                float3 p=_WeatherCamera+ray*(300+span*(j+.5)/6);float4 weather,layers;WeatherAt(p,weather,layers);
+                float altitude=length(p-_WeatherCenter)-_WeatherRadius;
+                float below=1-smoothstep(layers.x,layers.x+200,altitude),snow=min(weather.z,layers.w);
+                curtainDark=max(curtainDark,saturate((1-exp(-weather.z/3))*.8+weather.w*.2)*below);
+                optical+=(.00022*pow(max(0,weather.z-snow),.85)+.0012*pow(max(0,snow),.8))*below*span/6*_WeatherFog.z;
+            }
+            float rainTransmission=exp(-min(30,optical));float3 mist=_WeatherAmbient*.55+_WeatherSunColor*_WeatherCover.w*.28*lerp(1,.45,curtainDark);
+            color=color*rainTransmission+mist*(1-rainTransmission);transmission*=rainTransmission;
             // Premultiplied scatter plus transmittance, composited before particles.
             return half4(color,1-transmission);
         }
@@ -102,6 +146,17 @@ Shader "WorldGen/Weather"
             float4 cloud=SAMPLE_TEXTURE2D(_WeatherCloudTexture,sampler_WeatherCloudTexture,uv)*.4;
             cloud+=(SAMPLE_TEXTURE2D(_WeatherCloudTexture,sampler_WeatherCloudTexture,uv+float2(pixel.x,0))+SAMPLE_TEXTURE2D(_WeatherCloudTexture,sampler_WeatherCloudTexture,uv-float2(pixel.x,0))+SAMPLE_TEXTURE2D(_WeatherCloudTexture,sampler_WeatherCloudTexture,uv+float2(0,pixel.y))+SAMPLE_TEXTURE2D(_WeatherCloudTexture,sampler_WeatherCloudTexture,uv-float2(0,pixel.y)))*.15;
             if(DepthDistance(uv)<300)cloud=0;scene=scene*(1-cloud.a)+cloud.rgb;
+            // Full-resolution near rain and shallow ground fog avoid low-resolution foreground halos.
+            if(_WeatherFog.z>0)
+            {
+                float3 ray=Ray(uv),o=_WeatherCamera-_WeatherCenter;float distance=min(120000,DepthDistance(uv));
+                float h0=max(0,length(o)-_WeatherRadius-_WeatherFog.y),h1=max(0,length(o+ray*distance)-_WeatherRadius-_WeatherFog.y);
+                float dh=h1-h0,integral=abs(dh)<.01?exp(-h0/80):80*(exp(-h0/80)-exp(-h1/80))/dh;
+                float nearRain=(.00022*pow(max(0,_WeatherWet.z),.85)+.0012*pow(max(0,_WeatherWet.w),.8))*min(distance,300)*(1-smoothstep(_WeatherLayers.x,_WeatherLayers.x+200,length(o)-_WeatherRadius));
+                float optical=(_WeatherFog.x*.018*max(0,integral)*distance+nearRain)*_WeatherFog.z;
+                float dark=saturate((1-exp(-_WeatherWet.x/3))*.8+_WeatherWet.y*.2);
+                float3 mist=_WeatherAmbient*.55+_WeatherSunColor*_WeatherCover.w*.28*lerp(1,.45,dark);scene=lerp(mist,scene,exp(-min(30,optical)));
+            }
             float2 sun=_WeatherSunScreen.xy,delta=(uv-sun)*float2(_ScreenParams.x/_ScreenParams.y,1);
             float sourceOpen=OpenSky(sun)*(1-SAMPLE_TEXTURE2D(_WeatherCloudTexture,sampler_WeatherCloudTexture,saturate(sun)).a)*_WeatherSunScreen.z*_WeatherSunScreen.w;
             if(sourceOpen>.001&&max(_WeatherEffects.x,_WeatherEffects.y)>.001)

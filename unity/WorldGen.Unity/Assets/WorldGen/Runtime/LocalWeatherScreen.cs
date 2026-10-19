@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using WorldGen.Core;
+using WorldGen.Presentation;
 
 /// <summary>Camera-local visual state only. Weather decisions are shared Core queries.</summary>
 public sealed class LocalWeatherScreen:MonoBehaviour
@@ -9,6 +10,8 @@ public sealed class LocalWeatherScreen:MonoBehaviour
     public Color SunColor=Color.white,Ambient=new Color(.12f,.15f,.2f);public float RadiusM,Daylight,LightLevel,Flash,Exposure=1;public double Days;
     public Vector2 WindDisplacement;public int DebugDepth;public bool Ready;public Material Material {get;private set;}
     public int DrawCount {get;set;}
+    public Texture2D FieldConditions,FieldLayers;public WeatherFieldTile Field;public bool UseField;public double GroundM;
+    public Texture2D PreviousConditions,PreviousLayers;public WeatherFieldTile PreviousField;public float FieldBlend=1;
     Texture3D noise;double eye=-1;
     void Awake()
     {
@@ -45,7 +48,19 @@ public sealed class LocalWeatherScreen:MonoBehaviour
         Material.SetVector("_WeatherCamera",camera.transform.position);Material.SetVector("_WeatherCenter",PlanetCenter);Material.SetFloat("_WeatherRadius",RadiusM);
         Material.SetVector("_WeatherEast",PlanetEast);Material.SetVector("_WeatherNorth",PlanetNorth);Material.SetVector("_WeatherUp",PlanetUp);Material.SetVector("_WeatherAnchor",Anchor);
         Material.SetVector("_WeatherLayers",new Vector4((float)Weather.CloudBaseM,(float)Weather.CloudThicknessM,(float)Weather.CirrusBaseM,450));
-        Material.SetVector("_WeatherCover",new Vector4(o.Clouds==0?0:(float)Weather.CloudCover,o.Clouds==0?0:(float)Weather.CirrusCover,o.Clouds==1?24:o.Clouds==2?40:64,Daylight));
+        Material.SetVector("_WeatherCover",new Vector4(o.Clouds==0?0:(float)Weather.CloudCover,o.Clouds==0?0:(float)Weather.CirrusCover,o.Clouds==1?48:o.Clouds==2?64:96,Daylight));
+        Material.SetInt("_WeatherUseField",UseField?1:0);Material.SetInt("_WeatherCloudsEnabled",o.Clouds>0?1:0);
+        if(UseField)
+        {
+            Material.SetTexture("_WeatherConditions",FieldConditions);Material.SetTexture("_WeatherLayerField",FieldLayers);
+            Material.SetVector("_WeatherFieldRect",new Vector4(Field.Longitude,Field.Latitude,Field.Width,Field.Height));
+            bool blend=PreviousField!=null&&FieldBlend<1;
+            Material.SetFloat("_WeatherFieldBlend",blend?FieldBlend:1);
+            if(blend){Material.SetTexture("_PreviousWeatherConditions",PreviousConditions);Material.SetTexture("_PreviousWeatherLayers",PreviousLayers);Material.SetVector("_PreviousWeatherRect",new Vector4(PreviousField.Longitude,PreviousField.Latitude,PreviousField.Width,PreviousField.Height));}
+            Material.SetVector("_WeatherShell",new Vector4((float)(blend?Math.Min(Field.MinBase,PreviousField.MinBase):Field.MinBase),(float)(blend?Math.Max(Field.MaxTop,PreviousField.MaxTop):Field.MaxTop),0,0));
+        }
+        Material.SetVector("_WeatherWet",new Vector4((float)Weather.PrecipitationMmPerHour,(float)Weather.Thunderstorm,(float)Weather.RainMmPerHour,(float)Weather.SnowWaterMmPerHour));
+        Material.SetVector("_WeatherFog",new Vector4((float)Weather.Fog,(float)GroundM,o.Visibility,0));
         Material.SetVector("_WeatherWind",new Vector4(WindDisplacement.x,WindDisplacement.y,0,0));
         Material.SetVector("_WeatherSun",SunDirection);Material.SetColor("_WeatherSunColor",SunColor);Material.SetColor("_WeatherAmbient",Ambient);
         var sun=camera.WorldToViewportPoint(camera.transform.position+SunDirection*10000);Material.SetVector("_WeatherSunScreen",new Vector4(sun.x,sun.y,sun.z>0?1:0,Daylight));

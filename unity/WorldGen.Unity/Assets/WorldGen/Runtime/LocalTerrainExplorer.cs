@@ -84,6 +84,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         frame=new LocalTerrainFrame(point,terrain.RadiusM,terrain.Patch(point).Sample(0,0).ElevationM,HorizontalScale);
         motion.Place(0,0,Ground(0,0),motion.Flying);landMaterial.SetVector("_LocalOrigin",Vector4.zero);
         foreach(var tile in tiles.Values)DestroyTile(tile);tiles.Clear();plannedX=double.NaN;RefreshWanted();UpdateCamera();ResetScatterFrame();ResetWeatherFrame();
+        if(SkyFrame!=null)SetDaylight(LocalSolarHour,skyYear); // No blank-sky frame during automatic tangent-chart reanchoring.
     }
     void Update()
     {

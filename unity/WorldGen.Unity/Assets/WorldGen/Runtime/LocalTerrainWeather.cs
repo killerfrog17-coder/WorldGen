@@ -5,20 +5,21 @@ using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
-    LocalWeatherScreen weatherScreen;ProceduralWeather weatherProvider;V weatherPosition;
+    LocalWeatherScreen weatherScreen;WorldWeather.Sample weatherProvider;WorldWeather worldWeather;V weatherPosition;
     double weatherDays,nextWeatherAt,profileElevation;float nextFlashAt,thunderAt=-1,flashEnd;
-    long lastLightningSlot=long.MinValue;ParticleSystem rainParticles,snowParticles;AudioSource windAudio,thunderAudio;
-    AudioClip windClip,thunderClip;Material rainMaterial,snowMaterial,boltMaterial;LineRenderer lightningBolt;
+    long lastLightningSlot=long.MinValue;ParticleSystem rainParticles,snowParticles;AudioSource windAudio,thunderAudio,rainAudio;
+    AudioClip windClip,thunderClip,rainClip;Material rainMaterial,snowMaterial,boltMaterial;LineRenderer lightningBolt;
     public WeatherFrame CurrentWeather {get;private set;}
     public WeatherControl WeatherControl {get;}=new WeatherControl();
-    WindSynth windSynth;int appliedWeatherRevision=-1;
+    WindSynth windSynth;RainSynth rainSynth;int appliedWeatherRevision=-1;
     public WeatherFrame? TestWeatherOverride {get;set;}
     public bool TestAnimateWeather {get;set;}
     public LocalWeatherScreen WeatherScreen=>weatherScreen;
     public int WeatherParticleCount=>(rainParticles?.particleCount??0)+(snowParticles?.particleCount??0);
     public WeatherSurfaceEstimate WeatherSurface=>weatherProvider==null?default:weatherProvider.SurfaceAt(weatherDays);
     public WeatherWater WeatherRecent(double days)=>weatherProvider==null?default:weatherProvider.Between(weatherDays-days,weatherDays);
-    public WeatherFrame TestNaturalWeather(double days)=>weatherProvider.At(days);
+    public WeatherFrame TestNaturalWeather(double days)=>weatherProvider.At(days,includeFog:false);
+    public void TestWeatherMove(double eastM){motion.X+=eastM;UpdateCamera();nextDaylightAt=0;SetDaylight(LocalSolarHour,skyYear);}
     bool LegacySkyDiagnostic=>passiveSkyCheck&&!Array.Exists(Environment.GetCommandLineArgs(),s=>s=="--worldgen-weather-check");
     void ResetWeatherFrame()
     {
@@ -37,6 +38,8 @@ public sealed partial class LocalTerrainExplorer
         thunderAudio=view.gameObject.AddComponent<AudioSource>();thunderAudio.playOnAwake=false;thunderAudio.spatialBlend=0;
         windSynth=new WindSynth();windClip=AudioClip.Create("Continuous wind gusts",22050*60,2,22050,true,windSynth.Read);
         thunderClip=MakeThunderSound();windAudio.clip=windClip;windAudio.Play();
+        rainSynth=new RainSynth();rainAudio=view.gameObject.AddComponent<AudioSource>();rainAudio.loop=true;rainAudio.playOnAwake=false;rainAudio.spatialBlend=0;rainAudio.volume=0;
+        rainClip=AudioClip.Create("Continuous rainfall",22050*60,2,22050,true,rainSynth.Read);rainAudio.clip=rainClip;rainAudio.Play();
         var bolt=new GameObject("Local lightning",typeof(LineRenderer));bolt.layer=30;bolt.transform.SetParent(transform,false);lightningBolt=bolt.GetComponent<LineRenderer>();
         boltMaterial=new Material(shader);boltMaterial.SetFloat("_Bolt",1);lightningBolt.sharedMaterial=boltMaterial;lightningBolt.useWorldSpace=true;lightningBolt.widthMultiplier=3;lightningBolt.enabled=false;
         lightningBolt.startColor=new Color(.8f,.85f,1);lightningBolt.endColor=new Color(.8f,.85f,1);lightningBolt.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
@@ -45,7 +48,7 @@ public sealed partial class LocalTerrainExplorer
     {
         var root=new GameObject(name,typeof(ParticleSystem));root.layer=30;root.transform.SetParent(transform,false);var ps=root.GetComponent<ParticleSystem>();ps.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
         ps.useAutoRandomSeed=false;ps.randomSeed=snow?719u:413u;
-        var main=ps.main;main.playOnAwake=false;main.loop=true;main.startLifetime=snow?9:1.6f;main.startSpeed=0;main.maxParticles=4000;main.simulationSpace=ParticleSystemSimulationSpace.World;main.startSize=snow?.06f:.025f;main.startColor=snow?new Color(.9f,.94f,1,.75f):new Color(.7f,.8f,.9f,.5f);
+        var main=ps.main;main.playOnAwake=false;main.loop=true;main.startLifetime=snow?9:1.1f;main.startSpeed=0;main.maxParticles=12000;main.simulationSpace=ParticleSystemSimulationSpace.World;main.startSize=snow?.06f:.025f;main.startColor=snow?new Color(.9f,.94f,1,.75f):new Color(.74f,.78f,.8f,.4f);
         var shape=ps.shape;shape.enabled=true;shape.shapeType=ParticleSystemShapeType.Box;shape.scale=new Vector3(18,5,18);
         var velocity=ps.velocityOverLifetime;velocity.enabled=true;velocity.space=ParticleSystemSimulationSpace.World;
         var emission=ps.emission;emission.rateOverTime=0;
@@ -68,17 +71,16 @@ public sealed partial class LocalTerrainExplorer
     {
         if(weatherScreen==null)return;weatherDays=days;
         var at=Position;
-        if(weatherProvider==null||(at-weatherPosition).Length*frame.RadiusM>100)
+        worldWeather=worldWeather??new WorldWeather(sourceWorld,terrain);UpdateWeatherField(days);
+        if(weatherProvider==null||(at-weatherPosition).Length*frame.RadiusM>.05)
         {
             weatherPosition=at;profileElevation=walkingPatch.Sample(at).ElevationM;
-            // Reuses the terrain's spatial index. Nearest cell plus immediate neighbors only.
-            var climate=WeatherClimate.FromWorld(sourceWorld,terrain.NearestCell(at),at,profileElevation);
-            weatherProvider=new ProceduralWeather(sourceWorld.Recipe.Seed,at,climate);nextWeatherAt=0;
+            weatherProvider=worldWeather.AtPosition(at,profileElevation);nextWeatherAt=0;
         }
         if(Time.realtimeSinceStartupAsDouble>=nextWeatherAt||TestWeatherOverride.HasValue||appliedWeatherRevision!=WeatherControl.Revision)
-        {CurrentWeather=TestWeatherOverride??WeatherControl.Apply(weatherProvider.At(days),profileElevation);appliedWeatherRevision=WeatherControl.Revision;nextWeatherAt=Time.realtimeSinceStartupAsDouble+.5;}
-        weatherScreen.Weather=CurrentWeather;weatherScreen.Days=days;
-        var drift=weatherProvider.WindDisplacement(days);
+        {double sampledDays=weatherScreen.UseField?(previousWeatherTile==null?weatherTile.Days:previousWeatherTile.Days+(weatherTile.Days-previousWeatherTile.Days)*weatherScreen.FieldBlend):days;CurrentWeather=TestWeatherOverride??WeatherControl.Apply(weatherProvider.At(sampledDays,LocalSolarHour),profileElevation);appliedWeatherRevision=WeatherControl.Revision;nextWeatherAt=Time.realtimeSinceStartupAsDouble+.1;}
+        weatherScreen.Weather=CurrentWeather;weatherScreen.Days=days;weatherScreen.GroundM=profileElevation;
+        var drift=worldWeather.WindDisplacement(days);
         weatherScreen.WindDisplacement=new Vector2((float)(drift.X*HorizontalScale%65536),(float)(drift.Y*HorizontalScale%65536));
     }
     void ConfigureWeatherScreen(PlayableSkyFrame sky,Vector3 sun,Color color)
@@ -101,22 +103,26 @@ public sealed partial class LocalTerrainExplorer
             var at=Position;var east=V.Cross(Math.Abs(at.Z)>.999999?new V(0,1,0):new V(0,0,1),at).Unit;var north=V.Cross(at,east).Unit;
             var p=east*CurrentWeather.WindEastMps+north*CurrentWeather.WindNorthMps;return new Vector3((float)V.Dot(p,frame.East),(float)V.Dot(p,frame.Origin),(float)V.Dot(p,frame.North));
         }
-        var wind=Wind();int cap=options.Particles==2?4000:1200;
+        var wind=Wind();int cap=options.Particles==2?12000:6000;
         float altitude=(view.transform.position-weatherScreen.PlanetCenter).magnitude-weatherScreen.RadiusM;
         bool aboveCloud=altitude>CurrentWeather.CloudBaseM+CurrentWeather.CloudThicknessM;
         void Particles(ParticleSystem ps,bool snow)
         {
             // Concentrate the same bounded budget around the observer, not over a45m-wide box.
-            ps.transform.position=view.transform.position+Vector3.up*(snow?7:10)-wind*(snow?1.3f:.35f);
+            ps.transform.position=view.transform.position+Vector3.up*7-wind*(snow?1.3f:.25f);
             var main=ps.main;main.maxParticles=cap;main.simulationSpeed=paused&&!TestAnimateWeather?0:1;
             var velocity=ps.velocityOverLifetime;velocity.x=wind.x*.65f;velocity.z=wind.z*.65f;velocity.y=wind.y*.65f-(snow?1.6f:22);
-            var emission=ps.emission;double rate=snow?CurrentWeather.SnowWaterMmPerHour:CurrentWeather.RainMmPerHour;emission.rateOverTime=options.Particles==0||aboveCloud?0:(float)Math.Min(cap/(snow?9d:1.6),Math.Pow(rate,.65)*(snow?240:1100));
+            var emission=ps.emission;double rate=snow?CurrentWeather.SnowWaterMmPerHour:CurrentWeather.RainMmPerHour;
+            main.startSize=snow?.06f:Mathf.Lerp(.018f,.032f,1-Mathf.Exp(-(float)rate/10));
+            emission.rateOverTime=options.Particles==0||aboveCloud?0:(float)Math.Min(cap/(snow?9d:1.1),snow?Math.Pow(rate,.65)*240:Math.Pow(rate,.7)*300+rate*100);
             if(options.Particles==0&&ps.particleCount>0)ps.Clear();
         }
         Particles(rainParticles,false);Particles(snowParticles,true);
         windSynth.Strength=Mathf.Clamp01(((float)CurrentWeather.GustMps-3)/25);
         windSynth.Storm=Mathf.Max((float)CurrentWeather.Thunderstorm,Mathf.Clamp01(((float)CurrentWeather.GustMps-17)/14));
         float target=paused?0:options.WindVolume;windAudio.volume=Mathf.Lerp(windAudio.volume,target,1-Mathf.Exp(-Time.unscaledDeltaTime*2));
+        rainSynth.MillimetresPerHour=aboveCloud?0:(float)CurrentWeather.RainMmPerHour;
+        rainAudio.volume=Mathf.Lerp(rainAudio.volume,paused?0:options.RainVolume,1-Mathf.Exp(-Time.unscaledDeltaTime*2));
         long slot=(long)Math.Floor(weatherDays*8640); // Ten-second dated opportunity; no global storm list.
         if(!paused&&slot!=lastLightningSlot&&now>nextFlashAt)
         {
@@ -135,8 +141,9 @@ public sealed partial class LocalTerrainExplorer
     }
     void DisposeWeather()
     {
+        DisposeWeatherField();
         if(weatherCheckTarget!=null){view.targetTexture=null;weatherCheckTarget.Release();Destroy(weatherCheckTarget);}
         if(weatherCheckPixel!=null)Destroy(weatherCheckPixel);
-        if(windClip!=null)Destroy(windClip);if(thunderClip!=null)Destroy(thunderClip);if(rainMaterial!=null)Destroy(rainMaterial);if(snowMaterial!=null)Destroy(snowMaterial);if(boltMaterial!=null)Destroy(boltMaterial);
+        if(windClip!=null)Destroy(windClip);if(thunderClip!=null)Destroy(thunderClip);if(rainClip!=null)Destroy(rainClip);if(rainMaterial!=null)Destroy(rainMaterial);if(snowMaterial!=null)Destroy(snowMaterial);if(boltMaterial!=null)Destroy(boltMaterial);
     }
 }

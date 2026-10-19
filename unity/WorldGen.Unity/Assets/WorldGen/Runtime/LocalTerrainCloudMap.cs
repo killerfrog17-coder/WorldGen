@@ -35,9 +35,9 @@ public sealed partial class LocalTerrainExplorer
         {cloudMapHour=hour;cloudMapRevision++;}
         if(cloudMapJob!=null||cloudMapJobRevision==cloudMapRevision||Time.realtimeSinceStartupAsDouble<cloudMapDue)return;
         cloudMapCancellation?.Dispose();cloudMapCancellation=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=cloudMapCancellation.Token;
-        var viewport=mapViewport.Clone();var source=sourceWorld;var local=terrain;double days=weatherDays;string mode=WeatherControl.Mode;cloudMapJobRevision=cloudMapRevision;
+        var viewport=mapViewport.Clone();var source=sourceWorld;var local=terrain;var weather=worldWeather;double days=weatherDays;string mode=WeatherControl.Mode;cloudMapJobRevision=cloudMapRevision;
         cloudMapDue=Time.realtimeSinceStartupAsDouble+3;
-        cloudMapJob=Task.Run(()=>WeatherMapImage.Build(source,local,viewport,days,mode,token:token),token);
+        cloudMapJob=Task.Run(()=>WeatherMapImage.Build(source,local,viewport,days,mode,token:token,weather:weather),token);
     }
     void DrawCloudMap()
     {
