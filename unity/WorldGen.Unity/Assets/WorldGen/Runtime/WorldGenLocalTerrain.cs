@@ -66,6 +66,7 @@ public sealed partial class WorldGenRuntime
         double deadline = Time.realtimeSinceStartupAsDouble + 240;
         while ((Busy || !worldReady || humanStep != null || humans == null || humanPaletteJob != null || humanPaletteReady != null) && Time.realtimeSinceStartupAsDouble < deadline) yield return null;
         if (!CanExploreTerrain) { Debug.LogError("TERRAIN CHECK world unavailable: " + error); Application.Quit(1); yield break; }
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-streaming-review"))play.Settings.HorizontalScale=.1;
         humanPlaying = false; string hash = StateHash.Compute(world);
         var cells = Enumerable.Range(0, world.Surface.Cells.Length).Where(i => Math.Abs(world.Surface.Cells[i].Position.Z) < .75).ToArray();
         int[] sites = {

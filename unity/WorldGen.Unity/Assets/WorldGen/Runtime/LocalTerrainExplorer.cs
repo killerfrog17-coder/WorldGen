@@ -214,7 +214,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public string[] Probes()
     {
         var patch=terrain.Patch(frame.Origin,6000);var result=new List<string>();var culture=System.Globalization.CultureInfo.InvariantCulture;
-        foreach(double offset in new[]{-2000.0,0,1234.0,4000.0})result.Add(string.Join(",",new[]{frame.Origin.X,frame.Origin.Y,frame.Origin.Z,offset,333.0,patch.Sample(offset,333).ElevationM}.Select(v=>v.ToString("R",culture)).ToArray()));return result.ToArray();
+        foreach(double offset in new[]{-2000.0,0,1234.0,4000.0})result.Add(string.Join(",",new[]{frame.Origin.X,frame.Origin.Y,frame.Origin.Z,offset,333.0,patch.Sample(offset,333).ElevationM,HorizontalScale}.Select(v=>v.ToString("R",culture)).ToArray()));return result.ToArray();
     }
     public void Capture(string path)
     {

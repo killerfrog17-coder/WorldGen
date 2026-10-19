@@ -192,10 +192,12 @@ static class LocalTerrainTests
 
     public static void Native(string worldPath, string probesPath, Action<bool,string> check)
     {
-        var world = WorldFile.Read(File.ReadAllBytes(worldPath)); var terrain = new LocalTerrain(world);
+        var world = WorldFile.Read(File.ReadAllBytes(worldPath));var terrains=new Dictionary<double,LocalTerrain>();
         foreach(string line in File.ReadAllLines(probesPath))
         {
             var values = line.Split(',').Select(s=>double.Parse(s,System.Globalization.CultureInfo.InvariantCulture)).ToArray();
+            double scale=values.Length>6?values[6]:1;
+            if(!terrains.TryGetValue(scale,out var terrain)){terrain=new LocalTerrain(world,horizontalScale:scale);terrains.Add(scale,terrain);}
             var patch = terrain.Patch(new V(values[0],values[1],values[2]),6000);
             check(patch.Sample(values[3],values[4]).ElevationM == values[5], "IL2CPP and CLR local terrain samples match exactly");
         }

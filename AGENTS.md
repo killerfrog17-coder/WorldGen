@@ -1,6 +1,24 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-ground-lod-corrected/WorldGen.exe` (IL2CPP23:00:12Z).
+This supersedes the OWNER-REJECTED geology-streaming renderer below: coarse-root
+blocking and render/player height disagreement were real regressions, not
+accepted by the earlier tile-count tests. Fine meshes now display immediately,
+near-player morphing is disabled, grounded movement follows resident near-mesh
+triangles, recent detail and three prior charts are cached, and fog recognizes
+complete finer coverage. Default pre-geology LOD sampling is restored; High
+increases detail. Squared rock geometry is replaced with asymmetric rounded
+forms/welded seam normals. 1879 terrain/coverage and3131 ground checks pass.
+Both200k Earth/Continents Plus native reviews pass at1x and default0.1x: rendered
+foot clearance1.6500m, High/2x gait within15mm, cached revisit zero builds,
+70km reanchor retaining coverage, unchanged source hashes and48 exact CLR probes.
+Screens are inspected; preferences/audio/history/generation remain unchanged.
+Bounded cache eviction can still require regeneration; this is not universal
+seamless-planet/fast-flight/FPS acceptance. See LOCAL_GEOLOGY_STREAMING.md and
+VALIDATION.md under docs. Centered-footsteps remains the pre-geology rollback.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-geology-streaming/WorldGen.exe` (IL2CPP21:26:37Z).
 Local-geology1 / scatter-preview3 adds six blended lithologies, burial/noise-
 conditioned loose rocks and rare outcrops, retaining existing quiet centered

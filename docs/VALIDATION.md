@@ -1,5 +1,47 @@
 # Version 3 validation evidence
 
+## Owner-reported grounding/LOD regression correction -19 October2026
+
+The preceding geology-streaming checkpoint was rejected by the owner: coarse
+roots suppressed resident near detail, rendered geomorphing disagreed with
+grounding, and loaded detail could disappear/rebuild. Prior tile-count and pure
+height checks did not establish correct player-to-rendered-ground alignment.
+Their pass records below must not be read as acceptance of those behaviours.
+
+1879 terrain/LOD/coverage assertions and3131 ground/controller assertions pass.
+New cases pin the pre-geology default sampling and increased High sampling,
+recognize fully covered finer descendants without hiding them in protective fog,
+and distinguish actual missing quarters. No golden expectations were rewritten.
+
+Accepted native records: `artifacts/ground-lod-fix/{earth-corrected,
+continents-plus-corrected}` use scale1; `{earth-tenth,continents-plus-tenth}` use
+default0.1 with the final IL2CPP23:00:12Z build. Each uses a200k source world.
+Both scales/worlds retain loaded coverage during a70km automatic reanchor and
+return to the cached chart with ZERO additional terrain builds. Actual rendered
+triangle clearance is1.6500m and stays within15mm of the1.65m eye height during
+C walk/default jog/Shift sprint, including active High/2x detail loading.
+Grounding assertions compare resident rendered vertices, not another call to
+the analytic height function. Near vertices use final geometry (no morph).
+World hashes remain8293430e…(Earth) and cb819eba…(generated). Render error
+collectors are empty; map/input/return/mono-footfall guards also pass.
+
+All48 native/CoreCLR height probes match exactly across both scales/worlds.
+Probe records now include scale; old six-column records remain supported.
+The scale1 renderer checks preceded only the test-scale/probe-column additions.
+The final review explicitly sets0.1 instead of inheriting Legacy(scale1).
+Review quality/range overrides are process-local, never saved over the owner's
+High/2x preferences. Interrupted intermediate diagnostics are NOT accepted runs.
+
+Final scaled walking/granite/sandstone/basalt and flight captures were inspected.
+They show the restored ground view and irregular rocks rather than squared
+superellipsoids. These remain placeholder assets without prop collision.
+Recent products are bounded to512 per active chart (active coverage is protected)
+plus three prior chart caches; revisits after eviction can regenerate detail.
+No claim of universally invisible LOD seams, exact long-distance tangent-chart
+reprojection, arbitrary-speed coverage or low-end FPS follows. Scaled background
+tile maxima293/306ms are NOT main-thread frame times. No simulation, climate,
+terrain height algorithm, music or weather-audio changes are part of this fix.
+
 ## Local geology1 / streaming checkpoint -19 October2026
 
 4037 scatter/geology,1874 terrain/LOD and3131 ground/cadence/agronomy assertions
