@@ -93,8 +93,10 @@ See current status.json rather than inferring completion from a started batch.
 
 ## Sound-effects direction (reviewed19 October2026)
 
-Footsteps remain deferred until the soil/surface work. This is a production
-plan, not an installed new model or completed sound library.
+Footsteps remain deferred until the soil/surface work. The weather portion
+now uses the existing SA3 Medium installation: see [recorded weather effects](WEATHER_AUDIO.md)
+for the17-effect library and native playback. The broader SFX/footstep/animal
+workflow below remains a direction, not completed features or a new installation.
 
 The existing CUDA SA3 Medium setup can generate sound effects; Stability's
 [prompt guide](https://kb.stability.ai/knowledge-base/stable-audio-3-prompt-guide)

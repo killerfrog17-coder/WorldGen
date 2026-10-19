@@ -1,5 +1,36 @@
 # Version 3 validation evidence
 
+## AI-generated non-music effects - 19 October 2026
+
+The IL2CPP `player-weather-sa3`, built17:51:25Z, replaces the previous wind,
+rain and thunder synthesizers with17 offline SA3 Medium CUDA recordings.
+Music, generation, weather-water budgets and historical rules are unchanged.
+Wind is prompted as unobstructed air; vegetation, wildlife, voices, structures,
+surf and other environment-dependent sources are excluded from the briefs.
+This is a source-isolation intent, not an automated acoustic guarantee.
+
+Completed checks:17/17 generated-file provenance/PCM/hash/duration/layout/
+energy/boundary checks;581 shared primitive assertions;5891 actual-world weather
+assertions;24 native/CLR numerical comparisons;54 final native assertions;
+and Preview fresh/reapply/recipe/cached all-stage hash reconstruction. Native
+checks load all17 actual WAVs, read their finite nonclipping PCM, play real
+recorded rain sources, traverse overlapping variant banks, pause/resume beds,
+avoid immediate thunder repeats and preserve bounded delayed spatial arrivals.
+The native listener is muted. These checks do not establish convincing timbre,
+perfect audible joins or the absence of every unwanted generated source;
+listening/owner feedback remains necessary. No new visual acceptance is claimed.
+Evidence is ignored under `artifacts/weather-sounds` and
+`artifacts/weather-sa3-verified`. See `WEATHER_AUDIO.md`.
+
+The first two native packaging attempts exhausted transient C: capacity while
+copying debug symbols; two incomplete audio exports were not published. The
+new build output was moved, not duplicated, to E:/WorldGenBuilds/player-weather-sa3
+and is reached through the existing artifacts path via a junction. The final
+build and all17 atomic exports succeed. Model weights remain on D:, the
+preceding sound-final player is retained, and the user's running game was not
+closed. Generated recordings, raw masters, model caches and players stay out
+of Git. No footsteps/soil, animal calls or other contextual ambience is added.
+
 ## Weather sound refinement and future SFX direction - 19 October 2026
 
 Weather audio retains the existing wind/rain streams and adds three procedural

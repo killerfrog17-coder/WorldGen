@@ -1,6 +1,19 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-weather-sa3/WorldGen.exe` (IL2CPP,17:51:25Z; output junction
+to E:/WorldGenBuilds/player-weather-sa3). All existing non-music sources now use
+17 offline SA3 Medium CUDA recordings: isolated wind/rain/thunder, six smoothly
+crossfading intensity banks and four delayed spatial thunder voices. Runtime
+synthesizers and PCM generation are removed; missing recordings stay silent.
+No foliage, wildlife, footsteps or context-specific ambience is added.17 media
+checks/581 primitive/5891 actual-world/24 native-CLR/54 native assertions and
+Preview all-stage reconstruction pass. Muted checks are not listening/timbre
+acceptance. Source/prompt scripts are backed up; recordings/models are not in
+Git. See docs/WEATHER_AUDIO.md and VALIDATION.md. Sound-final remains rollback;
+music/generation/history/weather-water rules are unchanged.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-weather-sound-final/WorldGen.exe` (IL2CPP,17:21:16Z).
 Weather audio keeps wind/rain and adds three procedural thunder variants,
 four pooled spatial voices, distance-based delay/filtering and pause-aware

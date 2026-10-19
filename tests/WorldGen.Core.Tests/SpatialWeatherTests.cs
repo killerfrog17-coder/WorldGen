@@ -40,11 +40,11 @@ static class SpatialWeatherTests
         controls.Set("rain");var moderate=controls.Apply(expected);controls.Set("blizzard");var blizzard=controls.Apply(expected);
         check(moderate.VisibilityM<900&&downpour.VisibilityM<110&&blizzard.VisibilityM<300,"Moderate rain already strongly reduces visibility; downpour and blizzard obscure distant terrain");
         check(fog.VisibilityM<300&&fog.Fog==1&&clear.VisibilityM>50000,"Fog and clear modes have genuinely distinct visibility, not just labels");
-        var calm=new RainSynth();var sound=new float[22050*2];calm.Read(sound);check(sound.All(x=>x==0),"No rain means no looping rain audio");
-        var light=new RainSynth(){MillimetresPerHour=.3f};var heavy=new RainSynth(){MillimetresPerHour=40};var quiet=new float[22050*2*4];var loud=new float[quiet.Length];light.Read(quiet);heavy.Read(loud);
-        check(loud.Sum(x=>(double)x*x)>quiet.Sum(x=>(double)x*x)*50&&loud.All(x=>float.IsFinite(x)&&Math.Abs(x)<.9),"Downpour sound is substantially stronger than drizzle without clipping");
-        var stream=new RainSynth(){MillimetresPerHour=40};bool exact=true;for(int k=0;k<4;k++){stream.Read(sound);for(int i=0;i<sound.Length;i++)exact&=sound[i]==loud[k*sound.Length+i];}
-        check(exact,"Rain audio has no buffer or recording-loop seams");
+        var drySound=new WeatherAudioMix(0,0,0,false);var aboveSound=new WeatherAudioMix(0,0,40,true);
+        var quietSound=new WeatherAudioMix(0,0,.3,false);var loudSound=new WeatherAudioMix(0,0,40,false);
+        check(drySound.RainLight+drySound.RainMedium+drySound.RainHeavy==0&&aboveSound.RainHeavy==0,"No rain, or being above its cloud, plays no rain recordings");
+        check(loudSound.RainHeavy>quietSound.RainLight*10&&loudSound.RainMedium==0,"Downpour uses a stronger distinct recorded texture rather than louder drizzle");
+        check(new WeatherAudioMix(0,0,4,false).RainMedium>0&&new WeatherAudioMix(0,0,4,false).RainHeavy==0,"Ordinary rainfall does not use the torrential rain bank");
         var drought=new ProceduralWeather(8,point,new WeatherClimate(new[]{35d,35,35,35},new double[4],new double[4]));
         check(Enumerable.Range(0,100).All(i=>{var f=drought.At(i*3.65);return f.CloudCover==0&&f.CirrusCover==0&&f.PrecipitationMmPerHour==0&&f.Fog==0;}),"A moisture-free world cannot generate decorative wet clouds, fog or rain");
         var sites=new List<(Koppen Kind,double Annual,double Rainy,double Clouds)>();

@@ -56,15 +56,15 @@ static class WeatherTests
         controls.Set("rain");check(controls.Apply(natural,6000).CloudBaseM>6000,"Test rain remains overhead even on high mountains");
         check(PlayCommands.Execute(play,0,"/weather auto",weather:controls).Success&&controls.Apply(natural).RainMmPerHour==natural.RainMmPerHour&&WorldJson.Write(play)==saved,"Auto restores exact natural weather without modifying the saved calendar");
         check(PlayCommands.Complete("/weather s").SequenceEqual(new[]{"/weather snow","/weather storm"}),"Weather autocomplete lists the implemented modes");
-        // Stream boundaries cannot restart the noise, filters or gust envelope.
-        var synth=new WindSynth(){Strength=.35f};var audio=new float[22050*2*90];synth.Read(audio);
-        var chunked=new WindSynth(){Strength=.35f};var chunk=new float[22050*2];bool same=true;int quiet=0;double calmPower=0;
-        for(int k=0;k<90;k++){chunked.Read(chunk);double power=0;for(int i=0;i<chunk.Length;i++){same&=audio[k*chunk.Length+i]==chunk[i];power+=chunk[i]*chunk[i];}calmPower+=power;if(power/chunk.Length<1e-7)quiet++;}
-        check(same,"Wind synthesis is continuous across arbitrary audio callback boundaries");
-        check(quiet>35&&calmPower>0,"Calm wind has real silent gaps as well as audible gusts");
-        var gale=new WindSynth(){Strength=1,Storm=1};gale.Read(audio);double stormPower=audio.Sum(v=>(double)v*v);
-        check(stormPower>calmPower*10&&audio.All(v=>float.IsFinite(v)&&Math.Abs(v)<.9),"Storm wind is stronger, resonant and unclipped");
-        check(!audio.Take(22050*2).SequenceEqual(audio.Skip(8*22050*2).Take(22050*2)),"Wind does not repeat the previous eight-second noise loop");
+        var calmAudio=new WeatherAudioMix(0,0,0,false);var breezeAudio=new WeatherAudioMix(4,6,0,false);var galeAudio=new WeatherAudioMix(35,40,0,false);
+        check(calmAudio.WindLight+calmAudio.WindStrong+calmAudio.WindGale==0,"Still air plays no recorded wind");
+        check(breezeAudio.WindLight>0&&breezeAudio.WindGale==0,"Light breeze does not play a gale recording");
+        check(galeAudio.WindGale>.9&&galeAudio.WindLight==0,"Gales use the strong-wind bank without a calm-air layer");
+        foreach(double speed in Enumerable.Range(0,501).Select(i=>i*.1))
+        {
+            var a=new WeatherAudioMix(speed,speed,4,false);var b=new WeatherAudioMix(speed+.0001,speed+.0001,4,false);
+            check(Math.Abs(a.WindLight-b.WindLight)+Math.Abs(a.WindStrong-b.WindStrong)+Math.Abs(a.WindGale-b.WindGale)<.01,"Wind bank weights change continuously, including transition boundaries");
+        }
         foreach(double date in new[]{0d,.001,31.999,32,120.125,200000*365d+.2})
         {
             var now=weather.At(date);check(now.RainMmPerHour>=0&&now.SnowWaterMmPerHour==0&&now.CloudCover>=0&&now.CloudCover<=1&&now.CloudBaseM>0,"Warm weather has nonnegative rain, no snow and valid clouds");
