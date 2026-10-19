@@ -1,5 +1,41 @@
 # Version 3 validation evidence
 
+## Textured cloud surfaces and bounded lighting - 19 October 2026
+
+The cloud-lighting revision separates connected broad masses from fine3D
+erosion, applies erosion to the actual height-shaped volume boundary, and
+shades its density-derived surface slopes. Lighting uses bounded sunward
+probes and is reused through view-ray sections, with at most two evaluations
+on Low and four on Medium/High. Main ray counts, resolution caps, the existing
+small noise volume and all authoritative weather/history queries are unchanged.
+Distance mip selection and quality-correct upsampling limit distant aliasing
+without blurring High as if it were quarter resolution.
+
+The first smoother-looking lighting experiment was rejected by screenshot
+review despite passing its original broad-contrast test. The revised native
+harness separately measures local underside detail, compares actual lighting
+against a flat-lighting control, and verifies overhead opacity with rain haze
+and particles disabled. These are targeted rendered-image diagnostics, not
+scientific validation or a claim of photorealism. The added midday scattered
+cloud and evening captures exercise more than one coverage/sun angle.
+
+The final IL2CPP `player-weather-textured-final`, built16:55:34Z, passes41 native
+checks,81 shared primitive weather assertions and24 native/CLR weather
+comparisons. Terrain/history hashes remain unchanged and no shader/runtime
+errors are reported. Final captures under ignored `artifacts/weather-textured-final-review`
+are inspected at Low/High, scattered cover, evening light and above-cloud height,
+including storm underside with haze/particles disabled. That roof's luminance
+standard deviation is8.35 and local detail contrast1.55 on the0-255 image scale;
+the flat-lighting control changes no geometry. These numbers guard against
+featureless interiors in this fixture, not general perceptual quality.
+
+At1280x800 on this RTX4060, GPU-synchronized whole-frame medians/p95 were:
+clouds Off4.81/5.50ms, Low5.34/6.12ms, High5.55/6.31ms, spatial Low5.35/6.03ms.
+The differences include ordinary CPU/driver variation and are not isolated
+GPU shader timings or guarantees for lesser hardware. No new dynamic fluid
+solver, precomputed full-world cloud atlas, streaming volume or ground effects
+are introduced. The preceding `player-weather-clouds-final` remains rollback.
+
 ## Rounded cloud volumes and stronger precipitation visibility - 19 October 2026
 
 The IL2CPP `player-weather-clouds-final` built16:31:04Z replaces the dense-cover

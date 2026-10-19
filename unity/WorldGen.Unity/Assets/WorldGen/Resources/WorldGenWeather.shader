@@ -70,37 +70,76 @@ Shader "WorldGen/Weather"
             weather.x=max(weather.x,1-exp(-weather.z/.035));
             if(_WeatherCloudsEnabled==0)weather.xy=0;
         }
-        float Density(float3 p,float height,out float4 weather,out float4 layers)
+        float CloudDensity(float3 p,float height,float4 weather,float4 layers,bool fine)
         {
-            WeatherAt(p,weather,layers);
             float3 q=NoisePosition(p);
-            // Shape in all three dimensions: a height-independent footprint would
-            // extrude even rounded noise into flat-sided pillars.
-            float2 macro=SAMPLE_TEXTURE3D_LOD(_WeatherNoise,sampler_WeatherNoise,q/8192,0).rg;
+            // Large connected masses, nested billows, then edge erosion. Detail
+            // changes the surface, not the spacing/number of whole cloud bodies.
+            float2 macro=SAMPLE_TEXTURE3D_LOD(_WeatherNoise,sampler_WeatherNoise,q/24576,0).rg;
             float wet=(1-exp(-max(0,weather.z)/.08))*smoothstep(.1,.5,weather.x);
-            float underside=layers.x+layers.y*(macro.r-.5)*.12;
-            float thickness=layers.y*lerp(.70,1,macro.g);
+            float underside=layers.x+layers.y*(macro.r-.5)*.16;
+            float thickness=layers.y*lerp(.78,1,macro.g);
             float h=(height-underside)/max(1,thickness);if(h<=0||h>=1)return 0;
-            float2 shape=SAMPLE_TEXTURE3D_LOD(_WeatherNoise,sampler_WeatherNoise,q/4096+float3(.17,.31,.47),0).rg;
-            float detail=SAMPLE_TEXTURE3D_LOD(_WeatherNoise,sampler_WeatherNoise,q/1024,0).g;
-            float n=saturate(shape.g*1.25+shape.r*.20);
-            float threshold=lerp(1,.50,weather.x);
-            float body=smoothstep(threshold,threshold+.24,n)*smoothstep(.20,.65,macro.g);
-            // Rain-bearing nimbus is part of this very volume, not a separate storm
-            // billboard. Every wet column has an opaque interior above its rain shaft.
-            body=max(body,wet*(.38+.62*shape.g));
-            float profile=smoothstep(0,.10,h)*(1-smoothstep(.62,1,h));
-            return max(0,body*profile-(1-detail)*.055*(1-wet))*saturate(weather.x*3.2);
+            float2 billow=SAMPLE_TEXTURE3D_LOD(_WeatherNoise,sampler_WeatherNoise,q/6144+float3(macro.r,macro.g,macro.r-macro.g)*.22,0).rg;
+            float signal=macro.r*.78+billow.g*.32+billow.r*.10;
+            float body=pow(saturate((signal-lerp(.86,.34,weather.x))/.22),.65);
+            // A rain-bearing interior belongs to this same volume. It keeps a
+            // storm connected without painting a uniform flat gray underside.
+            body=max(body,wet*(.48+.24*macro.r));
+            float erosion=.105;
+            if(fine)
+            {
+                float mip=max(0,log2(max(1,distance(p,_WeatherCamera)/1800)));
+                float2 detail=SAMPLE_TEXTURE3D_LOD(_WeatherNoise,sampler_WeatherNoise,q/768,mip).rg;
+                float small=SAMPLE_TEXTURE3D_LOD(_WeatherNoise,sampler_WeatherNoise,q/288+float3(.3,.7,.1),mip).g;
+                erosion=(1-saturate(detail.g*.65+detail.r*.15+small*.20))*.24;
+            }
+            float profile=smoothstep(0,.12,h)*(1-smoothstep(.58,1,h));
+            return max(0,body*profile-erosion*(1-wet*.4))*saturate(weather.x*3.2);
+        }
+        float Density(float3 p,float height,out float4 weather,out float4 layers)
+        {WeatherAt(p,weather,layers);return CloudDensity(p,height,weather,layers,true);}
+        float3 CloudLight(float3 p,float height,float density,float4 weather,float4 layers,float3 ray)
+        {
+            // Surface slope from the actual eroded3D density, not a painted screen
+            // texture. Lighting is reused along the ray (at most2/4 evaluations).
+            float3 radial=normalize(p-_WeatherCenter);
+            float epsilon=_WeatherCover.z<=48?90:45;
+            float3 gradient=float3(
+                CloudDensity(p+float3(epsilon,0,0),height+radial.x*epsilon,weather,layers,true)-density,
+                CloudDensity(p+float3(0,epsilon,0),height+radial.y*epsilon,weather,layers,true)-density,
+                CloudDensity(p+float3(0,0,epsilon),height+radial.z*epsilon,weather,layers,true)-density);
+            float3 normal=-gradient*rsqrt(max(.000001,dot(gradient,gradient)));
+            float sunUp=dot(_WeatherSun,radial);
+            float nearD=CloudDensity(p+_WeatherSun*140,height+sunUp*140,weather,layers,false);
+            float optical=nearD*660;
+            if(_WeatherCover.z>48)
+                optical=nearD*140+CloudDensity(p+_WeatherSun*520,height+sunUp*520,weather,layers,false)*520;
+            optical*=.007;
+            float direct=exp(-optical),multiple=exp(-optical*.24)*.28;
+            float powder=1-exp(-density*7);
+            float phase=.55+.45*pow(saturate(dot(ray,_WeatherSun)*.5+.5),8);
+            float dark=saturate(weather.x*weather.x*.15+(1-exp(-weather.z/3))*.55+weather.w*.15);
+            float skyFacing=saturate(dot(normal,normalize(radial+_WeatherSun*.5))*.5+.5);
+            float sideFacing=saturate(dot(normal,normalize(_WeatherSun-radial*sunUp+radial*.15))*.5+.5);
+            float3 ambient=_WeatherAmbient*lerp(1,.78,dark)*(.32+.35*skyFacing+.65*sideFacing);
+            float relief=.25+.75*sideFacing;
+            float3 sunlight=_WeatherSunColor*_WeatherCover.w*(direct*phase+multiple)*relief*lerp(1,.72,dark)*lerp(.35,1,powder);
+            return ambient+sunlight;
         }
         half4 CloudFrag(Varyings input):SV_Target
         {
             float2 uv=input.texcoord;float3 ray=Ray(uv),o=_WeatherCamera-_WeatherCenter;float limit=min(120000,DepthDistance(uv));
             float bottom=_WeatherUseField>0?_WeatherShell.x:_WeatherLayers.x,top=_WeatherUseField>0?_WeatherShell.y:_WeatherLayers.x+_WeatherLayers.y;
+            // Include the perturbed underside/top instead of clipping it into a plane.
+            float padding=(top-bottom)*.09;bottom-=padding;top+=padding;
             float2 interval=Shell(o,ray,bottom,top);interval.y=min(interval.y,limit);
             float3 color=0;float transmission=1;int steps=(int)_WeatherCover.z;
             if(interval.y>interval.x&&_WeatherCloudsEnabled>0&&(_WeatherUseField>0||_WeatherCover.x>.01))
             {
                 float span=interval.y-interval.x;float jitter=.375+.25*frac(sin(dot(floor(uv*_ScreenParams.xy),float2(12.9898,78.233)))*43758.5453);
+                float3 cachedLight=_WeatherAmbient;float lastLight=-1000000;int lightCount=0;
+                int lightBudget=steps<=48?2:4;
                 for(int k=0;k<96;k++)
                 {
                     if(k>=steps||transmission<.025)break;
@@ -110,10 +149,9 @@ Shader "WorldGen/Weather"
                     float start=span*a*a,stepM=span*(b*b-a*a);
                     float t=interval.x+start+jitter*stepM;float3 p=_WeatherCamera+ray*t;float h=length(p-_WeatherCenter)-_WeatherRadius;
                     float4 weather,layers;float density=Density(p,h,weather,layers);if(density<.005)continue;
-                    float dark=saturate(weather.x*weather.x*.2+(1-exp(-weather.z/3))*.65+weather.w*.15),heightFraction=saturate((h-layers.x)/layers.y);
-                    float shade=exp(-density*layers.y*(1-heightFraction)*.0015/max(.2,abs(dot(_WeatherSun,normalize(p-_WeatherCenter)))));
-                    float forward=pow(saturate(dot(ray,_WeatherSun)),12);
-                    float3 light=_WeatherAmbient*lerp(.65,.27,dark)+_WeatherSunColor*_WeatherCover.w*(.12+.82*shade)*lerp(1,.35,dark)*(1+forward*.45);
+                    if(lightCount==0||(lightCount<lightBudget&&t-lastLight>350&&transmission>.2))
+                    {cachedLight=CloudLight(p,h,density,weather,layers,ray);lastLight=t;lightCount++;}
+                    float3 light=_WeatherDebugDepth==3?_WeatherAmbient*.55+_WeatherSunColor*_WeatherCover.w*.4:cachedLight;
                     float alpha=1-exp(-density*stepM*.0032);color+=transmission*alpha*light;transmission*=1-alpha;
                 }
             }
@@ -155,9 +193,11 @@ Shader "WorldGen/Weather"
         {
             float2 uv=input.texcoord;float3 scene=SAMPLE_TEXTURE2D_X(_BlitTexture,sampler_LinearClamp,uv).rgb;
             if(_WeatherDebugDepth==1)return half4(saturate(DepthDistance(uv)/20000).xxx,1);
-            float2 pixel=1.0/float2(_ScreenParams.x/4,_ScreenParams.y/4);
-            float4 cloud=SAMPLE_TEXTURE2D(_WeatherCloudTexture,sampler_WeatherCloudTexture,uv)*.4;
-            cloud+=(SAMPLE_TEXTURE2D(_WeatherCloudTexture,sampler_WeatherCloudTexture,uv+float2(pixel.x,0))+SAMPLE_TEXTURE2D(_WeatherCloudTexture,sampler_WeatherCloudTexture,uv-float2(pixel.x,0))+SAMPLE_TEXTURE2D(_WeatherCloudTexture,sampler_WeatherCloudTexture,uv+float2(0,pixel.y))+SAMPLE_TEXTURE2D(_WeatherCloudTexture,sampler_WeatherCloudTexture,uv-float2(0,pixel.y)))*.15;
+            float divisor=_WeatherCover.z<=48?4:_WeatherCover.z<=64?3:2;
+            float2 pixel=divisor/_ScreenParams.xy;
+            float neighborWeight=_WeatherCover.z<=48?.13:.07;
+            float4 cloud=SAMPLE_TEXTURE2D(_WeatherCloudTexture,sampler_WeatherCloudTexture,uv)*(1-4*neighborWeight);
+            cloud+=(SAMPLE_TEXTURE2D(_WeatherCloudTexture,sampler_WeatherCloudTexture,uv+float2(pixel.x,0))+SAMPLE_TEXTURE2D(_WeatherCloudTexture,sampler_WeatherCloudTexture,uv-float2(pixel.x,0))+SAMPLE_TEXTURE2D(_WeatherCloudTexture,sampler_WeatherCloudTexture,uv+float2(0,pixel.y))+SAMPLE_TEXTURE2D(_WeatherCloudTexture,sampler_WeatherCloudTexture,uv-float2(0,pixel.y)))*neighborWeight;
             if(_WeatherDebugDepth==2)return half4(cloud.aaa,1);
             if(DepthDistance(uv)<300)cloud=0;scene=scene*(1-cloud.a)+cloud.rgb;
             // Full-resolution near rain and shallow ground fog avoid low-resolution foreground halos.

@@ -1,6 +1,17 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-weather-textured-final/WorldGen.exe` (IL2CPP,16:55:34Z).
+Presentation-only cloud revision: connected masses, actual3D boundary erosion,
+density-slope surface shading, bounded/reused directional lighting and
+quality-correct upsampling. Main ray/resolution budgets and weather/water/history
+queries are unchanged.81 primitive/24 native-CLR and41 final native checks pass;
+midday/low-sun/scattered/under/above-cloud captures are inspected. Whole-frame
+RTX4060 diagnostic medians: Off4.81ms, Low5.34ms, High5.55ms. These are host/scene
+measurements, not low-end guarantees or photorealistic/cloud-science acceptance.
+Clouds-final remains rollback; see docs/PROCEDURAL_WEATHER.md and VALIDATION.md.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-weather-clouds-final/WorldGen.exe` (IL2CPP,16:31:04Z).
 Cloud shapes use three-dimensional rounded billows, deeper density profiles
 and near-weighted ray steps; rain-bearing nimbus belongs to the same volume,

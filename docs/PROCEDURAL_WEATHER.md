@@ -91,6 +91,24 @@ overhead layer. Local precipitation also requires cloud cover and stops above
 the nominal cloud top. These are broad cumulus/nimbus/overcast forms, not a
 complete cloud taxonomy or simulated drop trajectories.
 
+The textured-lighting pass separates broad connected cloud masses, nested
+billows and fine3D erosion. Erosion is applied after the height envelope: it
+roughens the actual volume boundary rather than only varying transparency.
+Surface slopes come from three local forward density differences. Low permits
+two lighting evaluations per view ray; Medium/High permit four. Each uses
+one/two coarse sunward density probes with the current local weather, without
+another geographic weather lookup or a long shadow march. Lighting is reused
+through short ray sections. Analytic transmission/powder/multiple-scattering
+terms are visual approximations, not a full radiative-transfer solver.
+
+The existing32-cubed noise texture and48/64/96 view-ray budgets are unchanged.
+Fine erosion uses distance mip selection; upsampling respects the actual
+quality's resolution instead of blurring High as though it were Low. No cloud
+fluid simulation, extra streaming volume, CPU cloud mesh or per-frame noise
+generation is added. General real-time volumetric-cloud background is available
+in [Guerrilla's Nubis presentations](https://www.guerrilla-games.com/read/nubis-realtime-volumetric-cloudscapes-in-a-nutshell);
+this small independent implementation is not a port of that system.
+
 The field refreshes after five weather minutes or a window move, at most once
 per1.5real seconds after an upload. Two buffers crossfade for1.25seconds; overlapping windows refer
 to identical global nodes. Tangent-chart reanchoring preserves the field and

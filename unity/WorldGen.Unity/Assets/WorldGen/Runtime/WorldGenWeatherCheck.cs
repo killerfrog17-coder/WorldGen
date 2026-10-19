@@ -35,6 +35,7 @@ public sealed partial class WorldGenRuntime
         terrainExplorer.TestWeatherOverride=Fixture(.65);yield return new WaitForSecondsRealtime(.3f);Capture("cumulus-low");var cumulus=terrainExplorer.LastCapturePixels;
         Check(Difference(clear,cumulus)>.2,"low-quality volume visibly adds cloud bodies, not just metadata");
         o.Clouds=3;yield return new WaitForSecondsRealtime(.2f);Capture("cumulus-high");
+        terrainExplorer.TestWeatherOverride=Fixture(.35);yield return new WaitForSecondsRealtime(.2f);Capture("scattered-cumulus");
         terrainExplorer.TestWeatherOverride=null;
         Check(PlayCommands.Execute(play,0,"/weather overcast",weather:terrainExplorer.WeatherControl).Success,"user weather command accepts overcast");
         yield return new WaitForSecondsRealtime(.3f);Capture("command-overcast");
@@ -52,9 +53,22 @@ public sealed partial class WorldGenRuntime
         float oldVisibility=o.Visibility;o.Visibility=0;o.Particles=0;
         yield return new WaitForSecondsRealtime(2);Capture("storm-volume-no-mist");
         terrainExplorer.TestView(80,170,-85);yield return new WaitForSecondsRealtime(.3f);Capture("storm-overhead-no-mist");
+        var texturedRoof=terrainExplorer.LastCapturePixels;double roofMean=texturedRoof.Average(p=>(p.r+p.g+p.b)/3d);
+        double roofContrast=Math.Sqrt(texturedRoof.Average(p=>Math.Pow((p.r+p.g+p.b)/3d-roofMean,2)));
+        report.Add("Overhead cloud luminance standard deviation "+roofContrast.ToString("F2"));
+        Check(roofContrast>1.5,"storm underside retains visible internal shading with haze and particles disabled");
+        double textureContrast=0;int textureSamples=0;
+        double Luma(int x,int y){var p=texturedRoof[y*1280+x];return(p.r+p.g+p.b)/3d;}
+        for(int y=16;y<784;y+=4)for(int x=16;x<1264;x+=4){textureContrast+=Math.Abs(Luma(x,y)-(Luma(x-12,y)+Luma(x+12,y)+Luma(x,y-12)+Luma(x,y+12))*.25);textureSamples++;}
+        textureContrast/=textureSamples;report.Add("Overhead cloud local detail contrast "+textureContrast.ToString("F2"));
+        Check(textureContrast>.4,"cloud underside has local surface detail, not only a broad smooth gray gradient");
+        terrainExplorer.WeatherScreen.DebugDepth=3;Capture("storm-overhead-flat-lighting");
+        Check(Difference(texturedRoof,terrainExplorer.LastCapturePixels)>1,"bounded cloud lighting changes the actual cloud interior, not just its silhouette");
         terrainExplorer.WeatherScreen.DebugDepth=2;Capture("storm-overhead-opacity");
         Check(terrainExplorer.LastCapturePixels.Average(p=>(double)p.r)>225,"rain-bearing volume actually closes the overhead sky without rain haze or particles");
-        terrainExplorer.WeatherScreen.DebugDepth=0;terrainExplorer.TestView(80,170,-18);o.Visibility=oldVisibility;o.Particles=1;
+        terrainExplorer.WeatherScreen.DebugDepth=0;terrainExplorer.TestView(80,170,-18);
+        terrainExplorer.TestWeatherOverride=Fixture(.65);play.SetLocalSolarHour(17.5,-4);yield return new WaitForSecondsRealtime(.3f);Capture("cumulus-evening");
+        terrainExplorer.TestWeatherOverride=null;play.SetLocalSolarHour(10,-4);o.Visibility=oldVisibility;o.Particles=1;
         PlayCommands.Execute(play,0,"/weather auto",weather:terrainExplorer.WeatherControl);yield return new WaitForSecondsRealtime(.6f);
         Check(terrainExplorer.WeatherControl.Mode=="auto"&&terrainExplorer.CurrentWeather.RainMmPerHour!=25,"auto command restores the natural provider");
         double rainDate=0,best=0;for(int k=0;k<2920;k++){double d=k*.125,rate=terrainExplorer.TestNaturalWeather(d).RainMmPerHour;if(rate>best){rainDate=d;best=rate;}if(rate>=1&&rate<4){rainDate=d;break;}}
