@@ -67,6 +67,8 @@ public sealed partial class WorldGenRuntime
         while ((Busy || !worldReady || humanStep != null || humans == null || humanPaletteJob != null || humanPaletteReady != null) && Time.realtimeSinceStartupAsDouble < deadline) yield return null;
         if (!CanExploreTerrain) { Debug.LogError("TERRAIN CHECK world unavailable: " + error); Application.Quit(1); yield break; }
         humanPlaying = false; string hash = StateHash.Compute(world);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-reanchor-review"))
+        {yield return CheckTerrainHandoffs(output,hash);yield break;}
         var cells = Enumerable.Range(0, world.Surface.Cells.Length).Where(i => Math.Abs(world.Surface.Cells[i].Position.Z) < .75).ToArray();
         int[] sites = {
             cells.FirstOrDefault(i => world.ElevationM[i] > 150 && world.ElevationM[i] < 500),

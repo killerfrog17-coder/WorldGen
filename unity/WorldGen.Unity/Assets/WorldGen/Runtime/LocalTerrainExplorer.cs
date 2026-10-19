@@ -13,11 +13,12 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer : MonoBehaviour
 {
     sealed class Tile { public int Segments; public double[] Edges; public float[] Heights; public GameObject Root; }
-    sealed class Work { public TerrainTileKey Key; public double[] Edges; public int Segments,Generation; public Task<LocalTerrainMesh> Task; }
+    sealed class Work { public TerrainTileKey Key; public double[] Edges; public int Segments,Generation; public Task<LocalTerrainMesh> Task; public PreparedFrame Prepared; }
     Task<LocalTerrain> building;
     LocalTerrain terrain; LocalTerrainFrame frame; LocalTerrain.LocalTerrainPatch walkingPatch;
     readonly TerrainMotion motion=new TerrainMotion();
-    readonly Dictionary<TerrainTileKey,Tile> tiles=new Dictionary<TerrainTileKey,Tile>();
+    Dictionary<TerrainTileKey,Tile> tiles=new Dictionary<TerrainTileKey,Tile>();
+    GameObject terrainRoot;
     Dictionary<TerrainTileKey,int> wanted=new Dictionary<TerrainTileKey,int>();
     readonly Dictionary<TerrainTileKey,double[]> wantedEdges=new Dictionary<TerrainTileKey,double[]>();
     readonly List<TerrainTileKey> priority=new List<TerrainTileKey>(); readonly List<Work> jobs=new List<Work>();
@@ -28,6 +29,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public double LocalSolarHour=>playState==null?9:Ready?playState.LocalSolarHour(Math.Atan2(Position.Y,Position.X)*180/Math.PI):playState.SolarHour;
     public GUISkin MenuSkin { get; set; }
     readonly bool passiveSkyCheck=Environment.GetCommandLineArgs().Contains("--worldgen-sky-chat-check")||Environment.GetCommandLineArgs().Contains("--worldgen-atmosphere-check")||Environment.GetCommandLineArgs().Contains("--worldgen-weather-check");
+    readonly bool passiveReanchorCheck=Environment.GetCommandLineArgs().Contains("--worldgen-reanchor-review");
     Keyboard testKeyboard;
     Keyboard ActiveKeyboard=>testKeyboard??Keyboard.current;
     public void TestKeyboard(Keyboard value){testKeyboard=value;}
@@ -81,10 +83,12 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public void Teleport(V point)
     {
         if(terrain==null)return;
+        CancelPreparedFrame();
         generation++;startingPoint=point;walkingPatch=null;originX=originZ=0;
         frame=new LocalTerrainFrame(point,terrain.RadiusM,terrain.Patch(point).Sample(0,0).ElevationM,HorizontalScale);
         motion.Place(0,0,Ground(0,0),motion.Flying);ResetFootsteps();landMaterial.SetVector("_LocalOrigin",Vector4.zero);
-        foreach(var tile in tiles.Values)DestroyTile(tile);tiles.Clear();plannedX=double.NaN;RefreshWanted();UpdateCamera();ResetScatterFrame();ResetWeatherFrame();
+        foreach(var tile in tiles.Values)DestroyTile(tile);tiles.Clear();if(terrainRoot!=null)Destroy(terrainRoot);terrainRoot=NewTerrainRoot(true);
+        plannedX=double.NaN;RefreshWanted();UpdateCamera();ResetScatterFrame();ResetWeatherFrame();
         if(SkyFrame!=null)SetDaylight(LocalSolarHour,skyYear); // No blank-sky frame during automatic tangent-chart reanchoring.
     }
     void Update()
@@ -102,7 +106,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         var keyboard=ActiveKeyboard;var mouse=Mouse.current;
         if(!mapOpen&&!paused&&!chatInput)
         {
-            if(mouse!=null&&!passiveSkyCheck){var d=mouse.delta.ReadValue();heading+=d.x*.1f;pitch=Mathf.Clamp(pitch-d.y*.1f,-85,85);
+            if(mouse!=null&&!passiveSkyCheck&&!passiveReanchorCheck){var d=mouse.delta.ReadValue();heading+=d.x*.1f;pitch=Mathf.Clamp(pitch-d.y*.1f,-85,85);
                 if(motion.Flying){float scroll=mouse.scroll.ReadValue().y;if(scroll!=0)motion.FlySpeed=Math.Max(5,Math.Min(20000,motion.FlySpeed*Math.Exp(Math.Sign(scroll)*.25)));}}
             if(keyboard!=null)
             {
@@ -120,20 +124,18 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             foreach(var entry in tiles)entry.Value.Root.transform.localPosition=new Vector3((float)(entry.Key.X*entry.Key.SizeM-originX),0,(float)(entry.Key.Z*entry.Key.SizeM-originZ));
             foreach(var chunk in scatterChunks.Values)ProjectScatter(chunk);scatterDirty=true;
         }
-        if(Math.Abs(motion.X)>Math.Min(65536,frame.RadiusM*.01)||Math.Abs(motion.Z)>Math.Min(65536,frame.RadiusM*.01))
-        {
-            // Re-anchor the tangent chart on long journeys, retaining height above terrain and geographic heading.
-            double above=HeightAboveGround;bool flying=motion.Flying;double yaw=heading*Math.PI/180;
-            V direction=frame.East*Math.Sin(yaw)+frame.North*Math.Cos(yaw);var point=Position;
-            Teleport(point);heading=(float)(Math.Atan2(V.Dot(direction,frame.East),V.Dot(direction,frame.North))*180/Math.PI);
-            motion.Flying=flying;motion.Y=Ground(0,0)+above;
-        }
         UpdateCamera();UpdateFootsteps();double altitude=HeightAboveGround;
         if(double.IsNaN(plannedX)||Math.Abs(motion.X-plannedX)>1024||Math.Abs(motion.Z-plannedZ)>1024||Math.Abs(altitude-plannedAltitude)>Math.Max(150,plannedAltitude*.3))RefreshWanted();
         for(int i=jobs.Count-1;i>=0;i--)
         {
             var job=jobs[i];if(!job.Task.IsCompleted)continue;jobs.RemoveAt(i);
             if(job.Task.IsFaulted){error=job.Task.Exception.GetBaseException().Message;debugOpen=true;CaptureMouse();continue;}
+            if(job.Prepared!=null)
+            {
+                if(!job.Task.IsCanceled&&job.Generation==generation&&ReferenceEquals(job.Prepared,preparedFrame))
+                    Upload(job.Key,job.Task.Result,job.Edges,job.Prepared);
+                break;
+            }
             if(job.Task.IsCanceled||job.Generation!=generation||!wanted.TryGetValue(job.Key,out int detail)||detail!=job.Segments||!job.Edges.SequenceEqual(wantedEdges[job.Key]))continue;
             Upload(job.Key,job.Task.Result,job.Edges);break;
         }
@@ -142,13 +144,17 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             if(wanted.Where(w=>Overlaps(key,w.Key)).All(w=>tiles.TryGetValue(w.Key,out var replacement)&&replacement.Segments==w.Value))
             {DestroyTile(tiles[key]);tiles.Remove(key);}
         UpdateScatter();UpdateWeatherPresentation();
+        UpdatePreparedFrame();
+        SchedulePreparedWork(true);
         foreach(var key in priority)
         {
             if(jobs.Count+scatterJobs.Count>=2)break;int detail=wanted[key];
-            if(tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&tile.Edges.SequenceEqual(wantedEdges[key])||jobs.Any(j=>j.Generation==generation&&j.Key.Equals(key)))continue;
+            if(tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&tile.Edges.SequenceEqual(wantedEdges[key])||jobs.Any(j=>j.Prepared==null&&j.Generation==generation&&j.Key.Equals(key)))continue;
             var buildFrame=frame;var buildTerrain=terrain;var token=cancellation.Token;int stamp=generation;var edges=wantedEdges[key];
             jobs.Add(new Work{Key=key,Edges=edges,Segments=detail,Generation=stamp,Task=Task.Run(()=>LocalTerrainMesh.Build(buildTerrain,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token)});
         }
+        SchedulePreparedWork(false);
+        RetireTerrainGradually();
     }
     void UpdateCamera(){view.transform.localPosition=new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ));view.transform.localRotation=Quaternion.Euler(pitch,heading,0);}
     void RefreshWanted()
@@ -161,10 +167,10 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         priority.Sort((a,b)=>{int d=Distance(a).CompareTo(Distance(b));return d!=0?d:a.Level!=b.Level?a.Level.CompareTo(b.Level):a.X!=b.X?a.X.CompareTo(b.X):a.Z.CompareTo(b.Z);});
     }
     static bool Overlaps(TerrainTileKey a,TerrainTileKey b)=>Math.Max(a.X*a.SizeM,b.X*b.SizeM)<Math.Min((a.X+1)*a.SizeM,(b.X+1)*b.SizeM)&&Math.Max(a.Z*a.SizeM,b.Z*b.SizeM)<Math.Min((a.Z+1)*a.SizeM,(b.Z+1)*b.SizeM);
-    void Upload(TerrainTileKey key,LocalTerrainMesh data,double[] edges)
+    void Upload(TerrainTileKey key,LocalTerrainMesh data,double[] edges,PreparedFrame prepared=null)
     {
-        var timer=System.Diagnostics.Stopwatch.StartNew();var root=new GameObject("Terrain "+key.X+","+key.Z+" L"+key.Level);root.transform.SetParent(transform,false);
-        root.transform.localPosition=new Vector3((float)(data.EastM-originX),0,(float)(data.NorthM-originZ));
+        var timer=System.Diagnostics.Stopwatch.StartNew();var root=new GameObject("Terrain "+key.X+","+key.Z+" L"+key.Level);root.transform.SetParent(prepared==null?terrainRoot.transform:prepared.Root.transform,false);
+        root.transform.localPosition=new Vector3((float)(data.EastM-(prepared==null?originX:0)),0,(float)(data.NorthM-(prepared==null?originZ:0)));
         Mesh Make(float[] positions,float[] colors,bool water)
         {
             var vertices=new Vector3[positions.Length/3];var normals=new Vector3[vertices.Length];var rgb=new Color[vertices.Length];var uv=new Vector2[vertices.Length];var weights=new List<Vector4>(vertices.Length);var groundB=new List<Vector4>(vertices.Length);
@@ -182,7 +188,10 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         Part("Land and seabed",Make(data.Positions,data.Colors,false),landMaterial);
         if(data.WaterColors.Where((_,i)=>i%4==3).Any(a=>a>.01))Part("Ocean surface",Make(data.WaterPositions,data.WaterColors,true),waterMaterial);
         var heights=new float[data.GroundVertices];for(int i=0;i<heights.Length;i++)heights[i]=data.Positions[i*3+1];
-        if(tiles.TryGetValue(key,out var old))DestroyTile(old);tiles[key]=new Tile{Root=root,Segments=data.Segments,Edges=edges,Heights=heights};if(key.Level==0)nearGroundRevision++;lastBuildMs=data.BuildMilliseconds;largestBuildMs=Math.Max(largestBuildMs,lastBuildMs);
+        var target=prepared==null?tiles:prepared.Tiles;
+        if(target.TryGetValue(key,out var old))DestroyTile(old);target[key]=new Tile{Root=root,Segments=data.Segments,Edges=edges,Heights=heights};
+        if(prepared==null&&key.Level==0)nearGroundRevision++;lastBuildMs=data.BuildMilliseconds;largestBuildMs=Math.Max(largestBuildMs,lastBuildMs);
+        LargestUploadMs=Math.Max(LargestUploadMs,timer.Elapsed.TotalMilliseconds);
         if(timer.ElapsedMilliseconds>20)Debug.Log("Local terrain upload "+timer.ElapsedMilliseconds+"ms");
     }
     void DestroyTile(Tile tile){if(tile.Root==null)return;tile.Root.SetActive(false);foreach(var filter in tile.Root.GetComponentsInChildren<MeshFilter>())Destroy(filter.sharedMesh);Destroy(tile.Root);}
@@ -234,5 +243,5 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     }
     public void TestView(double height,float yaw=20,float tilt=12){motion.Flying=true;motion.Y=Ground(motion.X,motion.Z)+height;heading=yaw;pitch=tilt;RefreshWanted();UpdateCamera();}
     public void Close(){if(closed)return;closed=true;if(view!=null)view.enabled=false;cancellation.Cancel();if(!passiveSkyCheck){Cursor.lockState=CursorLockMode.None;Cursor.visible=true;}close?.Invoke();}
-    void OnDestroy(){cancellation.Cancel();mapCancellation?.Cancel();cancellation.Dispose();mapCancellation?.Dispose();DisposeFootsteps();DisposeCloudMap();DisposeChat();DisposeWeather();DisposeSky();DisposeScatter();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
+    void OnDestroy(){cancellation.Cancel();mapCancellation?.Cancel();cancellation.Dispose();mapCancellation?.Dispose();CancelPreparedFrame();DisposeRetiringTerrain();DisposeFootsteps();DisposeCloudMap();DisposeChat();DisposeWeather();DisposeSky();DisposeScatter();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
 }

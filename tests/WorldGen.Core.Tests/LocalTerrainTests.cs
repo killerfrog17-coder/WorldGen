@@ -5,9 +5,41 @@ using WorldGen.Serialization;
 
 static class LocalTerrainTests
 {
+    static void Handoffs(Action<bool,string> check)
+    {
+        foreach(double scale in new[]{.01,.1,1.0,2})
+        foreach(var point in new[]{new V(1,0,0),new V(0,0,1),new V(0,0,-1),new V(1,2,3).Unit})
+        {
+            var frame=new LocalTerrainFrame(point,6371000,800,scale);
+            foreach(double fraction in new[]{-.03,-.01,0,.01,.03})
+            {
+                double x=frame.RadiusM*fraction,z=frame.RadiusM*.004;
+                TerrainHandoff.Coordinates(frame,frame.Position(x,z),out double actualX,out double actualZ);
+                check(Math.Abs(actualX-x)<.03&&Math.Abs(actualZ-z)<.03,"Hidden-frame coordinates preserve position within the existing quantized planetary-vector precision (3cm at up to 2x Earth)");
+            }
+            check(TerrainHandoff.Limit(frame)==Math.Min(65536,6371000*scale*.01),"Preparation does not change the existing reanchor distance");
+        }
+        var parent=new TerrainTileKey(-1,-1,1,.1);
+        var wanted=new Dictionary<TerrainTileKey,int>{{parent,64}};
+        var resident=new Dictionary<TerrainTileKey,int>();
+        foreach(int z in new[]{-2,-1})foreach(int x in new[]{-2,-1})resident.Add(new TerrainTileKey(x,z,0,.1),128);
+        check(TerrainHandoff.Ready(wanted,resident,10000,10000,0),"A complete finer quartet provides distant replacement coverage");
+        resident.Remove(new TerrainTileKey(-1,-1,0,.1));
+        check(!TerrainHandoff.Ready(wanted,resident,10000,10000,0),"A missing quarter prevents handoff rather than revealing a hole");
+        wanted=new Dictionary<TerrainTileKey,int>{{new TerrainTileKey(-1,-1,0,.1),128}};
+        resident=new Dictionary<TerrainTileKey,int>{{parent,64}};
+        check(TerrainHandoff.Ready(wanted,resident,10000,10000,0),"Resident coarse distance coverage may remain while ordinary LOD detail loads");
+        check(!TerrainHandoff.Ready(wanted,resident,-100,-100,0),"Coarse coverage cannot authorize a handoff beneath the player");
+        resident.Add(new TerrainTileKey(-1,-1,0,.1),64);
+        check(!TerrainHandoff.Ready(wanted,resident,-100,-100,0),"Insufficient near resolution cannot authorize a handoff");
+        resident[new TerrainTileKey(-1,-1,0,.1)]=128;
+        check(TerrainHandoff.Ready(wanted,resident,-100,-100,0),"Full original near quality and distance coverage authorize a handoff");
+        check(!TerrainHandoff.Ready(new Dictionary<TerrainTileKey,int>(),resident,0,0,0),"An empty preparation cannot replace visible terrain");
+    }
     public static void Run(Action<bool, string> check)
     {
         Navigation(check);
+        Handoffs(check);
         var recipe = Recipe.Preset("Preview"); recipe.Detail = 5000;
         var surface = SphericalMesh.Build(recipe, default); int n = surface.Cells.Length;
         World Fixture(int height, int fold, int plateau) => new World
