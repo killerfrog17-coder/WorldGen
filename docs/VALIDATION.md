@@ -1,5 +1,35 @@
 # Version 3 validation evidence
 
+## Human-scale grounded movement — 18 October 2026
+
+Controller-only revision:1.65m eye baseline,1.5m/s walk,5m/s run,0.45m jump and
+9.81m/s² gravity. The old0.35m allowance was applied every frame, permitting
+continuous very steep climbing. Uphill moves now test grade, not that allowance.
+Normal descents follow terrain at steady eye height instead of repeatedly falling
+and landing. Surface-distance budgets avoid an uphill speed boost; actual ledges
+start falls. Analytic ballistic integration and bounded20ms substeps cover10–120FPS
+and prevent the old50ms time clamp from slowing ordinary movement at lower FPS.
+Sideways flight also no longer slows just because the camera points downward.
+
+Solution build has zero warnings/errors.579 focused local terrain/controller
+assertions and1,008 historical presentation assertions pass, including walk/run
+distance and jump/landing across frame rates, both slope directions, steep-ramp
+blocking and real drops. Native IL2CPP build2026-10-19T03:33:07Z passes the existing
+three-scene80k Earth input/streaming/debug-map/teleport/return harness, including
+actual mouse-without-drag and Space jump assertions. Initialized-world hash
+`f8c11ace…` is unchanged, all12 height probes match CLR exactly and no render
+errors are recorded. Evidence is in ignored
+`artifacts/local-grounded-check`. The current source changes only Presentation's
+controller and its tests/documentation, not Core/Serialization or local heights.
+DLL informational versions include the source Git revision, so binary checksums
+across source checkpoints alone are not a semantic generation-regression test.
+
+The preceding controls4 player is retained and the user's running process was
+not closed. No silhouette, body mesh, head bob, new HUD or vegetation was added.
+This is still a height-field controller, not finished capsule, obstacle, stairs,
+swimming or steep-slope sliding physics. It does not assert completion of the
+outstanding historical performance/realism targets or the old golden mismatch.
+
 ## HUD-free terrain controls and distance LOD — 18 October 2026
 
 Local terrain preview2 remains separate from worldgen3.32/history32. Solution

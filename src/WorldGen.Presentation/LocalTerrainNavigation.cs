@@ -7,24 +7,49 @@ namespace WorldGen.Presentation
 {
     public sealed class TerrainMotion
     {
-        public const double EyeHeightM=1.75, Gravity=9.81;
+        public const double EyeHeightM=1.65, Gravity=9.81,WalkSpeedMps=1.5,RunSpeedMps=5,JumpHeightM=.45;
         public double X,Y,Z,VerticalSpeed,FlySpeed=200;
         public bool Flying,Grounded;
         public void Place(double x,double z,double ground,bool fly=false,double aboveGround=40)
         {X=x;Z=z;Flying=fly;Y=ground+(fly?aboveGround:EyeHeightM);VerticalSpeed=0;Grounded=!fly;}
         public void Move(double dt,double forward,double right,double up,double heading,double pitch,bool sprint,bool jump,Func<double,double,double> ground)
         {
-            dt=Math.Max(0,Math.Min(.05,dt));double yaw=heading*Math.PI/180,tilt=pitch*Math.PI/180;
+            dt=Math.Max(0,Math.Min(.25,dt));if(dt<=0)return;
+            int steps=(int)Math.Ceiling(dt/.02);double step=dt/steps;
+            for(int i=0;i<steps;i++)MoveStep(step,forward,right,up,heading,pitch,sprint,jump&&i==0,ground);
+        }
+        void MoveStep(double dt,double forward,double right,double up,double heading,double pitch,bool sprint,bool jump,Func<double,double,double> ground)
+        {
+            double yaw=heading*Math.PI/180,tilt=pitch*Math.PI/180;
             double dx=Math.Sin(yaw)*forward+Math.Cos(yaw)*right,dz=Math.Cos(yaw)*forward-Math.Sin(yaw)*right;
             double length=Math.Sqrt(dx*dx+dz*dz);if(length>1){dx/=length;dz/=length;}
-            double rate=(Flying?FlySpeed:4.5)*(sprint?3:1)*dt;
-            if(Flying){double cp=Math.Cos(tilt);X+=dx*cp*rate;Z+=dz*cp*rate;Y+=(-Math.Sin(tilt)*forward+up)*rate;Grounded=false;VerticalSpeed=0;Y=Math.Max(Y,ground(X,Z)+EyeHeightM);return;}
-            double oldGround=ground(X,Z),tx=X+dx*rate,tz=Z+dz*rate;
-            // Walkable grades and a small step; no climbing arbitrary cliffs by snapping to their tops.
-            bool Step(double a,double b)=>ground(a,b)<=Math.Max(oldGround,Y-EyeHeightM)+.35+Math.Sqrt((a-X)*(a-X)+(b-Z)*(b-Z))*.95;
+            double rate=(Flying?FlySpeed*(sprint?3:1):sprint?RunSpeedMps:WalkSpeedMps)*dt;
+            if(Flying)
+            {
+                double cp=Math.Cos(tilt),fx=Math.Sin(yaw)*forward*cp+Math.Cos(yaw)*right,fz=Math.Cos(yaw)*forward*cp-Math.Sin(yaw)*right,fy=-Math.Sin(tilt)*forward+up;
+                double magnitude=Math.Sqrt(fx*fx+fy*fy+fz*fz);if(magnitude>1){fx/=magnitude;fy/=magnitude;fz/=magnitude;}
+                X+=fx*rate;Z+=fz*rate;Y+=fy*rate;Grounded=false;VerticalSpeed=0;Y=Math.Max(Y,ground(X,Z)+EyeHeightM);return;
+            }
+            double oldGround=ground(X,Z),oldX=X,oldZ=Z,tx=X+dx*rate,tz=Z+dz*rate;
+            // The terrain is a continuous height field, not stairs. A per-frame step allowance
+            // must not be reused as permission to climb an arbitrary steep continuous grade.
+            bool Step(double a,double b)
+            {
+                double distance=Math.Sqrt((a-X)*(a-X)+(b-Z)*(b-Z)),target=ground(a,b);
+                return Grounded?target-oldGround<=distance+1e-6:target<=Y-EyeHeightM+1e-6;
+            }
+            if(Grounded)
+            {
+                double rise=ground(tx,tz)-oldGround,horizontal=rate*Math.Min(1,length);
+                if(horizontal>1e-9&&Math.Abs(rise)<=horizontal+1e-6)
+                {double surface=Math.Sqrt(horizontal*horizontal+rise*rise);tx=X+(tx-X)*horizontal/surface;tz=Z+(tz-Z)*horizontal/surface;}
+            }
             if(Step(tx,tz)){X=tx;Z=tz;}else if(Step(tx,Z))X=tx;else if(Step(X,tz))Z=tz;
-            if(jump&&Grounded){VerticalSpeed=Math.Sqrt(2*Gravity*1.2);Grounded=false;}
-            VerticalSpeed-=Gravity*dt;Y+=VerticalSpeed*dt;double floor=ground(X,Z)+EyeHeightM;
+            double floor=ground(X,Z)+EyeHeightM,travel=Math.Sqrt((X-oldX)*(X-oldX)+(Z-oldZ)*(Z-oldZ));
+            if(Grounded&&!jump&&oldGround-(floor-EyeHeightM)<=travel+1e-6)
+            {Y=floor;VerticalSpeed=0;return;}
+            if(jump&&Grounded){VerticalSpeed=Math.Sqrt(2*Gravity*JumpHeightM);Grounded=false;}
+            Y+=VerticalSpeed*dt-.5*Gravity*dt*dt;VerticalSpeed-=Gravity*dt;
             if(Y<=floor){Y=floor;VerticalSpeed=0;Grounded=true;}else Grounded=false;
         }
     }

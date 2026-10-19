@@ -96,11 +96,33 @@ static class LocalTerrainTests
         player.Move(.02,0,0,0,0,0,false,true,Ground);
         check(player.Y>TerrainMotion.EyeHeightM&&!player.Grounded,"Space initiates a physical jump rather than fly movement");
         double maximum=player.Y;for(int i=0;i<100;i++){player.Move(.02,0,0,0,0,0,false,false,Ground);maximum=Math.Max(maximum,player.Y);}
-        check(player.Grounded&&player.Y==TerrainMotion.EyeHeightM&&maximum>2.8,"Jump follows gravity and lands on the analytic terrain");
+        check(player.Grounded&&player.Y==TerrainMotion.EyeHeightM&&Math.Abs(maximum-TerrainMotion.EyeHeightM-TerrainMotion.JumpHeightM)<.002,"Human-scale jump follows gravity and lands on the analytic terrain");
         for(int i=0;i<50;i++)player.Move(.02,1,0,0,0,0,false,false,Ground);
-        check(Math.Abs(player.Z-4.5)<1e-8,"Walking speed is in metres per second independent of frame rate");
-        player.Place(0,0,0);player.Move(.05,1,0,0,0,0,false,false,(x,z)=>z>.1?100:0);
+        check(Math.Abs(player.Z-TerrainMotion.WalkSpeedMps)<1e-8,"Walking speed is in metres per second independent of frame rate");
+        player.Place(0,0,0);player.Move(.05,1,0,0,0,0,false,false,(x,z)=>z>.01?100:0);
         check(player.Z==0,"Walking cannot snap up a sheer cliff");
+        foreach(double dt in new[]{1.0/120,1.0/60,1.0/30,.1})
+        {
+            var p=new TerrainMotion();p.Place(0,0,0);for(int i=0;i<(int)Math.Round(1/dt);i++)p.Move(dt,1,0,0,0,0,false,false,Ground);
+            check(Math.Abs(p.Z-TerrainMotion.WalkSpeedMps)<1e-8,"Walk distance stays consistent at high/low frame rates");
+            p.Place(0,0,0);for(int i=0;i<(int)Math.Round(1/dt);i++)p.Move(dt,1,0,0,0,0,true,false,Ground);
+            check(Math.Abs(p.Z-TerrainMotion.RunSpeedMps)<1e-8,"Run speed is bounded independently of frame rate");
+            p.Place(0,0,0);p.Move(dt,1,0,0,0,0,false,false,(x,z)=>z*3);
+            check(p.Z==0,"A steep continuous slope cannot be climbed through repeated step allowances");
+            p.Place(0,0,0);double apex=p.Y;
+            for(int i=0;i<(int)Math.Round(1/dt);i++){p.Move(dt,0,0,0,0,0,false,i==0,Ground);apex=Math.Max(apex,p.Y);}
+            check(p.Grounded&&Math.Abs(apex-TerrainMotion.EyeHeightM-TerrainMotion.JumpHeightM)<.006,"Jump height and landing remain consistent across frame rates");
+        }
+        foreach(double grade in new[]{-.5,.5})
+        {
+            var p=new TerrainMotion();p.Place(0,0,0);for(int i=0;i<120;i++)
+            {p.Move(1.0/60,1,0,0,0,0,false,false,(x,z)=>grade*z);check(p.Grounded&&Math.Abs(p.Y-grade*p.Z-TerrainMotion.EyeHeightM)<1e-8,"Walking up/down a normal grade retains steady eye height without hopping");}
+            check(Math.Abs(p.Z*Math.Sqrt(1+grade*grade)-TerrainMotion.WalkSpeedMps*2)<1e-8,"Slope movement uses surface distance, not an uphill speed boost");
+        }
+        var drop=new TerrainMotion();drop.Place(0,0,0);drop.Move(.02,1,0,0,0,0,false,false,(x,z)=>z>.01?-10:0);
+        check(!drop.Grounded&&drop.Y>TerrainMotion.EyeHeightM-.01,"Walking over a drop starts a fall rather than snapping down");
+        var flight=new TerrainMotion();flight.Place(0,0,0,true);flight.Move(.02,0,1,0,0,85,false,false,Ground);
+        check(Math.Abs(flight.X-flight.FlySpeed*.02)<1e-8,"Looking down does not slow sideways free flight");
         player.Flying=true;player.Move(.05,1,0,0,0,-45,false,false,Ground);
         check(player.Z>0&&player.Y>TerrainMotion.EyeHeightM,"Flying follows the mouse-look pitch");
         var viewport=new TerrainMapViewport();var anchor=viewport.Position(.7,.4);viewport.Zoom(.1,.7,.4);

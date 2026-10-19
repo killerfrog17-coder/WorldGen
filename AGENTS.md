@@ -1,6 +1,17 @@
 # WorldGen repository instructions
 
 Current review launch,18 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-local-grounded/WorldGen.exe` (IL2CPP,2026-10-19T03:33:07Z).
+Controller-only correction uses1.65m eye height,1.5m/s walk,5m/s run and0.45m
+jump; true continuous-grade ascent limits replace the per-frame step loophole,
+ordinary downhill motion stays grounded and bounded substeps retain real-time
+movement through slower frames. No silhouette/body/HUD/vegetation, local-height
+algorithm, generation or history change.579 focused/1,008 presentation assertions,
+three native Earth scenes with mouse/jump/debug/streaming/return and unchanged
+world hash pass. Full capsule/prop/stair collision and steep-slope sliding remain
+deferred. The controls4 player is rollback; see LOCAL_TERRAIN_PREVIEW.md/VALIDATION.
+
+Current review launch,18 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-local-terrain-controls4/WorldGen.exe` (IL2CPP,
 2026-10-19T03:11:25Z). Local terrain preview2 adds captured mouse-look, default
 walking/Space jump, F fly, HUD-free exploration, F3 diagnostics and F3+M zoom/pan/

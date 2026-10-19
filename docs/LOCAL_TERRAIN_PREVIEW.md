@@ -13,10 +13,22 @@ without a rules upgrade or regeneration.
 
 Exploration starts walking, with captured mouse-look (no drag), WASD, Space to
 jump and Shift to run. F switches fly/walk; Space/Ctrl flies up/down and wheel
-adjusts flight speed. Walking queries ground height, including underwater ground,
-rather than colliding with a water plane. Gravity and a bounded step/grade rule
-prevent walking straight up cliffs. Swimming, stamina and full character physics
-remain deferred.
+adjusts flight speed. The baseline avatar uses1.65m eye height,1.5m/s walking,
+5m/s running, a0.45m jump and9.81m/s² gravity. These are chosen adult/gameplay
+defaults, not a claim that every person's dimensions or abilities are identical.
+Walking queries ground height, including underwater ground, rather than colliding
+with a water plane. Uphill walking has a45° continuous-grade limit: a per-frame
+step allowance cannot be reused to climb a cliff. Ordinary uphill/downhill motion
+follows surface distance at steady eye height; real drops initiate a fall. Small
+bounded substeps and analytic ballistic integration preserve speed/jump behaviour
+across frame rates. This remains a height-field controller: stair/prop/capsule
+collision, steep-slope sliding, swimming, stamina and full character physics
+remain deferred. No silhouette, body mesh, extra HUD or camera bob was added.
+
+The correction distinguishes walking from running and step height from slope,
+consistent with the [Unity controller documentation](https://docs.unity.com/en-us/engine/6000.0/manual/physics-section/physics-overview/character-control-section/class-character-controller).
+Walking-scale sanity reference: [experimental self-selected walking speed study](https://pmc.ncbi.nlm.nih.gov/articles/PMC7268460/).
+No reference controller implementation was copied.
 
 There is no normal exploration HUD. F3 opens diagnostics and releases the cursor.
 F3+M toggles the interactive debug map. Wheel zooms about the cursor, dragging pans
