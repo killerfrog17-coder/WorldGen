@@ -9,6 +9,8 @@ Shader "WorldGen/LocalTerrain"
         _GroundNormals("Linear RGB tangent normals",2DArray)=""{}
         _GroundMasks("R AO, G roughness, B height, A metallic",2DArray)=""{}
         _TextureMetres("Repeat metres",Float)=2
+        _RockLayers("Six lithology layers",Float)=0
+        _LodBlend("Terrain refinement",Float)=1
     }
     SubShader
     {
@@ -29,10 +31,10 @@ Shader "WorldGen/LocalTerrain"
             #include "WorldGenAir.hlsl"
             TEXTURE2D_ARRAY(_GroundAlbedo);SAMPLER(sampler_GroundAlbedo);
             TEXTURE2D_ARRAY(_GroundNormals);TEXTURE2D_ARRAY(_GroundMasks);
-            float _Water,_FogDistance,_TextureMetres,_Daylight;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint;
-            struct A { float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 color:COLOR;float4 weights:TEXCOORD1;float4 groundB:TEXCOORD2; };
-            struct O { float4 positionCS:SV_POSITION;float3 normal:TEXCOORD0;float3 position:TEXCOORD1;float4 color:COLOR;float4 weights:TEXCOORD2;float4 groundB:TEXCOORD3; };
-            O vert(A a){O o;o.position=TransformObjectToWorld(a.positionOS.xyz);o.positionCS=TransformWorldToHClip(o.position);o.normal=TransformObjectToWorldNormal(a.normalOS);o.color=a.color;o.weights=a.weights;o.groundB=a.groundB;return o;}
+            float _Water,_FogDistance,_TextureMetres,_Daylight,_RockLayers,_LodBlend;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint;
+            struct A { float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 color:COLOR;float4 weights:TEXCOORD1;float4 groundB:TEXCOORD2;float2 morph:TEXCOORD3;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5; };
+            struct O { float4 positionCS:SV_POSITION;float3 normal:TEXCOORD0;float3 position:TEXCOORD1;float4 color:COLOR;float4 weights:TEXCOORD2;float4 groundB:TEXCOORD3;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5; };
+            O vert(A a){O o;float3 p=a.positionOS.xyz;p.y=lerp(a.morph.x,p.y,_LodBlend);o.position=TransformObjectToWorld(p);o.positionCS=TransformWorldToHClip(o.position);o.normal=TransformObjectToWorldNormal(a.normalOS);o.color=a.color;o.weights=a.weights;o.groundB=a.groundB;o.rocks=a.rocks;o.rocksB=a.rocksB;return o;}
             float3 TriplanarAlbedo(float3 p,float3 w,int layer)
             {
                 return SAMPLE_TEXTURE2D_ARRAY(_GroundAlbedo,sampler_GroundAlbedo,p.yz,layer).rgb*w.x+
@@ -56,9 +58,11 @@ Shader "WorldGen/LocalTerrain"
                 float3 p=worldTexture/max(.05,_TextureMetres);
                 float3 albedo=0,bump=0;float ao=0,rough=0,metal=0;
                 float4 weights=max(i.weights,0),groundB=max(i.groundB,0);float sum=max(.001,dot(weights,1)+dot(groundB,1));weights/=sum;groundB/=sum;
-                [unroll]for(int layer=0;layer<8;layer++)
+                [loop]for(int layer=0;layer<14;layer++)
                 {
-                    float contribution=layer<4?weights[layer&3]:groundB[layer&3];if(contribution<.005)continue;
+                    float contribution=layer<4?weights[layer&3]:layer<8?groundB[layer&3]:groundB.x*(layer<12?i.rocks[(layer-8)&3]:i.rocksB[(layer-12)&1])*_RockLayers;
+                    if(layer==4&&_RockLayers>.5)contribution=0;
+                    if(contribution<.005)continue;
                     albedo+=TriplanarAlbedo(p,w,layer)*contribution;
                     float3 nx=SAMPLE_TEXTURE2D_ARRAY(_GroundNormals,sampler_GroundAlbedo,p.yz,layer).xyz*2-1;
                     float3 ny=SAMPLE_TEXTURE2D_ARRAY(_GroundNormals,sampler_GroundAlbedo,p.xz,layer).xyz*2-1;

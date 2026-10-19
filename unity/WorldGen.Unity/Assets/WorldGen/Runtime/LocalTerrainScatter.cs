@@ -41,6 +41,7 @@ public sealed partial class LocalTerrainExplorer
         landMaterial.SetTexture("_GroundNormals",groundArt?artSet.Normals:generatedGround[1]);
         landMaterial.SetTexture("_GroundMasks",groundArt?artSet.Masks:generatedGround[2]);
         landMaterial.SetFloat("_TextureMetres",artSet==null?2:Math.Max(.05f,artSet.TextureRepeatMetres));
+        landMaterial.SetFloat("_RockLayers",groundArt&&artSet.Albedo.depth<14?0:1);
         precedingSun=RenderSettings.sun;precedingAmbient=RenderSettings.ambientMode;precedingSky=RenderSettings.ambientSkyColor;precedingEquator=RenderSettings.ambientEquatorColor;precedingGround=RenderSettings.ambientGroundColor;lightingSaved=true;
         var lightRoot=new GameObject("Local sunlight",typeof(Light));lightRoot.transform.SetParent(transform,false);lightRoot.transform.rotation=Quaternion.Euler(48,-35,0);
         var sun=localSun=lightRoot.GetComponent<Light>();sun.type=LightType.Directional;sun.color=new Color(1,.95f,.85f);sun.intensity=2.3f;sun.shadows=LightShadows.Soft;sun.shadowBias=.035f;sun.shadowNormalBias=.2f;sun.cullingMask=1<<30;
@@ -95,9 +96,11 @@ public sealed partial class LocalTerrainExplorer
         for(int level=0;level<=16;level++)
         {
             double size=2048*HorizontalScale*(1<<level);var key=new WorldGen.Presentation.TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),level,HorizontalScale);
-            if(!tiles.TryGetValue(key,out var tile)||tile.Heights==null)continue;int n=tile.Segments,side=n+1;
+            if(!tiles.TryGetValue(key,out var tile)||!tile.Root.activeSelf||tile.Heights==null)continue;int n=tile.Segments,side=n+1;
             double gx=(x/size-key.X)*n,gz=(z/size-key.Z)*n;int a=Math.Min(n-1,Math.Max(0,(int)gx)),b=Math.Min(n-1,Math.Max(0,(int)gz));double u=gx-a,v=gz-b;
-            double h00=tile.Heights[b*side+a],h10=tile.Heights[b*side+a+1],h01=tile.Heights[(b+1)*side+a],h11=tile.Heights[(b+1)*side+a+1];
+            float blend=(float)Math.Max(0,Math.Min(1,(Time.realtimeSinceStartupAsDouble-tile.FadeAt)/TerrainVideoOptions.Current.TransitionSeconds));blend=blend*blend*(3-2*blend);
+            double Height(int i)=>tile.BaseHeights==null?tile.Heights[i]:Mathf.Lerp(tile.BaseHeights[i],tile.Heights[i],blend);
+            double h00=Height(b*side+a),h10=Height(b*side+a+1),h01=Height((b+1)*side+a),h11=Height((b+1)*side+a+1);
             return u+v<=1?h00+(h10-h00)*u+(h01-h00)*v:h11+(h01-h11)*(1-u)+(h10-h11)*(1-v);
         }
         return fallback;
@@ -111,14 +114,16 @@ public sealed partial class LocalTerrainExplorer
             double y=VisibleGround(x,z,frame.SurfaceY(p.Position,p.GroundM));
             bool vertical=p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
             V up=vertical?p.Position:p.Normal;var normal=new Vector3((float)V.Dot(up,frame.East),(float)V.Dot(up,frame.Origin),(float)V.Dot(up,frame.North)).normalized;
-            var position=new Vector3((float)(x-originX),(float)y-(vertical?.045f:p.Kind==ScatterKind.Boulder?(float)p.HeightM*.12f:.015f),(float)(z-originZ));chunk.Roots[i]=position;
+            // An ellipsoidal mesh touching at its bottom point looks levitating.
+            // Embed its broad lower body; outcrops are bedrock, not balanced eggs.
+            var position=new Vector3((float)(x-originX),(float)y-(vertical?.045f:p.Kind==ScatterKind.Outcrop?(float)p.HeightM*.55f:p.Kind==ScatterKind.Boulder?(float)p.HeightM*.35f:.015f),(float)(z-originZ));chunk.Roots[i]=position;
             var rotation=Quaternion.FromToRotation(Vector3.up,normal)*Quaternion.Euler(0,(float)p.YawDegrees,0);
             chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,new Vector3((float)p.WidthM,(float)p.HeightM,(float)p.WidthM));
         }
     }
     ArtModel Art(ScatterKind kind,int variant,int lod)
     {
-        int key=(int)kind*9+variant*3+lod;if(scatterArt.TryGetValue(key,out var found))return found;
+        int key=(int)kind*128+variant*4+lod;if(scatterArt.TryGetValue(key,out var found))return found;
         var binding=artSet==null||artSet.Scatter==null?null:Array.Find(artSet.Scatter,b=>b!=null&&b.Kind==kind);
         GameObject prefab=binding==null?null:lod==0?binding.Near:lod==1?(binding.Middle!=null?binding.Middle:binding.Near):(binding.Far!=null?binding.Far:binding.Middle!=null?binding.Middle:binding.Near);
         var parts=new List<ArtPart>();var bounds=new Bounds();bool first=true;
@@ -140,7 +145,13 @@ public sealed partial class LocalTerrainExplorer
             var shader=Resources.Load<Shader>("WorldGenLocalScatter");if(shader==null||!shader.isSupported)throw new InvalidOperationException("Scatter shader missing or unsupported.");
             // A Resources material advertises runtime instancing to the player shader stripper.
             var template=Resources.Load<Material>("LocalScatterMaterial");if(template==null)throw new InvalidOperationException("Scatter instancing material missing.");
-            var material=new Material(template){enableInstancing=true};material.SetFloat("_Wind",kind==ScatterKind.Grass?.045f:kind==ScatterKind.Boulder||kind==ScatterKind.Stone?0:.018f);material.SetFloat("_FogDistance",(float)viewDistance);
+            bool rock=kind==ScatterKind.Boulder||kind==ScatterKind.Stone||kind==ScatterKind.Outcrop;
+            var material=new Material(template){enableInstancing=true};material.SetFloat("_Wind",kind==ScatterKind.Grass?.045f:rock?0:.018f);material.SetFloat("_FogDistance",(float)viewDistance);
+            if(rock)
+            {
+                material.SetFloat("_RockLayer",8+variant/3);material.SetTexture("_RockAlbedo",landMaterial.GetTexture("_GroundAlbedo"));
+                material.SetTexture("_RockNormals",landMaterial.GetTexture("_GroundNormals"));material.SetFloat("_RockLayers",landMaterial.GetFloat("_RockLayers"));
+            }
             ownedScatterMaterials.Add(material);parts.Add(new ArtPart{Mesh=mesh,Material=material,Submesh=0,Local=Matrix4x4.identity});
         }
         float height=binding!=null&&binding.ReferenceHeightM>0?binding.ReferenceHeightM:Math.Max(.001f,bounds.size.y),width=binding!=null&&binding.ReferenceWidthM>0?binding.ReferenceWidthM:Math.Max(.001f,Math.Max(bounds.size.x,bounds.size.z));
@@ -158,9 +169,9 @@ public sealed partial class LocalTerrainExplorer
             {
                 var p=chunk.Source.Instances[i];double distance=(chunk.Roots[i]-eye).magnitude;
                 bool tree=p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
-                double range=tree?1800:p.Kind==ScatterKind.Grass?95:p.Kind==ScatterKind.Shrub?220:p.Kind==ScatterKind.Stone?70:450;
-                if(distance>range)continue;int lod=tree?(distance<85?0:distance<350?1:2):distance<30?0:1;
-                int key=(int)p.Kind*9+p.Variant*3+lod;
+                double range=tree?1800:p.Kind==ScatterKind.Grass?95:p.Kind==ScatterKind.Shrub?220:p.Kind==ScatterKind.Stone?70:p.Kind==ScatterKind.Outcrop?1800:650;
+                if(distance>range)continue;int lod=tree?(distance<85?0:distance<350?1:2):distance<Math.Max(30,p.Kind==ScatterKind.Outcrop?p.WidthM*8:30)?0:1;
+                int key=(int)p.Kind*128+p.Variant*4+lod;
                 if(!active.TryGetValue(key,out var batch)||batch.Count==batch.Matrices.Length)
                 {
                     if(batchPool.Count>0){int last=batchPool.Count-1;batch=batchPool[last];batchPool.RemoveAt(last);}else batch=new DrawBatch();

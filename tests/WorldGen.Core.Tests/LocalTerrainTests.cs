@@ -73,6 +73,8 @@ static class LocalTerrainTests
         check(high.Positions.All(float.IsFinite) && high.Normals.All(float.IsFinite), "Terrain vertices and normals are finite");
         check(high.SurfaceWeights.Length==high.Colors.Length&&high.SurfaceWeights.All(v=>float.IsFinite(v)&&v>=0&&v<=1),"PBR surface weights cover ground and skirts with finite normalized channels");
         check(high.GroundWeightsB.Length==high.Colors.Length&&Enumerable.Range(0,high.SurfaceWeights.Length/4).All(i=>Math.Abs(high.SurfaceWeights.Skip(i*4).Take(4).Sum()+high.GroundWeightsB.Skip(i*4).Take(4).Sum()-1)<1e-5),"Eight physical ground weights sum to one without modifying height samples");
+        check(high.Lithology.Length==high.Positions.Length*2&&high.Lithology.All(v=>float.IsFinite(v)&&v>=0&&v<=1),"Six lithology channels cover ground and skirts");
+        check(Enumerable.Range(0,high.GroundVertices).All(i=>Math.Abs(high.Lithology.Skip(i*6).Take(6).Sum()-1)<1e-5),"Continuous lithology mixture remains normalized");
         for (int i = 0; i < high.GroundVertices; i++)
             if (i % 47 == 0) check(Math.Abs(high.Normals[i * 3] * high.Normals[i * 3] + high.Normals[i * 3 + 1] * high.Normals[i * 3 + 1] + high.Normals[i * 3 + 2] * high.Normals[i * 3 + 2] - 1) < 1e-5, "Normals are normalized");
         var cancel = new CancellationTokenSource(); cancel.Cancel(); bool cancelled = false;
@@ -135,6 +137,16 @@ static class LocalTerrainTests
         check(viewport.Longitude>=-180&&viewport.Longitude<180,"Map panning wraps the antimeridian");
         viewport.Zoom(1e-8);check(viewport.LongitudeSpan<1e-5,"Map is not limited to a fixed cell-level zoom");
         var far=TerrainLod.Plan(333,-777,2);var high=TerrainLod.Plan(333,-777,60000);
+        foreach(double scale in new[]{.01,.1,1.0,2.0})
+        {
+            var plan=TerrainLod.Plan(-12345,6789,100,100000,scale);
+            var roots=TerrainLod.CoverageRoots(plan,scale);
+            check(roots.Count<25&&roots.Values.All(n=>n==16),"First coverage uses bounded coarse meshes, not high-detail products");
+            foreach(var leaf in plan.Keys)check(roots.Keys.Any(root=>leaf.X*leaf.SizeM>=root.X*root.SizeM&&leaf.Z*leaf.SizeM>=root.Z*root.SizeM&&(leaf.X+1)*leaf.SizeM<=(root.X+1)*root.SizeM&&(leaf.Z+1)*leaf.SizeM<=(root.Z+1)*root.SizeM),"Coarse loading coverage includes every leaf, including negative chart addresses");
+        }
+        var lowQuality=TerrainLod.Plan(333,-777,2,200000,1,.5,0);
+        var moreDetail=TerrainLod.Plan(333,-777,2,200000,1,1.5,2);
+        check(lowQuality.Sum(p=>p.Value*p.Value)<far.Sum(p=>p.Value*p.Value)&&moreDetail.Sum(p=>p.Value*p.Value)>far.Sum(p=>p.Value*p.Value),"LOD quality/distance controls change actual mesh work without changing terrain definition");
         check(far.Count<800&&high.Count<far.Count,"Distance LOD is bounded and reduces detail at altitude");
         check(far.Keys.Max(k=>k.SizeM)>=32768&&far.Keys.Min(k=>k.SizeM)==2048,"LOD mixes near and far tile sizes");
         double area=0;foreach(var k in far.Keys)area+=k.SizeM*k.SizeM;

@@ -51,6 +51,29 @@ static class LocalScatterMeshes
                 for(int j=0;j<segments;j++){int p=first+j*2;Triangle(p,p+2,p+1);Triangle(p+1,p+2,p+3);}
             }
         }
+        public void Rock(int detail,int variant,bool outcrop)
+        {
+            int family=variant/3,shape=variant%3;
+            bool rounded=family==0||family==3,layered=family==2||family==4||family==5;
+            int sides=detail==0?16:detail==1?10:6,rings=detail==0?10:detail==1?6:4;
+            int first=V.Count;
+            for(int y=0;y<=rings;y++)for(int x=0;x<=sides;x++)
+            {
+                float lat=y*Mathf.PI/rings,angle=x*Mathf.PI*2/sides;
+                float Power(float value,float p)=>Mathf.Sign(value)*Mathf.Pow(Mathf.Abs(value),p);
+                float power=rounded?1:family==1?.52f:.35f;
+                float a=Power(Mathf.Sin(lat)*Mathf.Cos(angle),power),b=Power(Mathf.Cos(lat),rounded?1:.45f),c=Power(Mathf.Sin(lat)*Mathf.Sin(angle),power);
+                float joint=layered?1-.065f*Mathf.Sin((b+1)*Mathf.PI*(3+shape)):.97f+.035f*Mathf.Sin(angle*3+shape)*Mathf.Sin(lat);
+                // Shared angular coordinates keep all LODs on the same rock silhouette.
+                float warp=1+.07f*Mathf.Sin(angle*3+shape)*Mathf.Sin(lat*2);
+                Vector3 p=new Vector3(a*.5f*joint*warp,(b+1)*.5f,c*.43f*joint*warp);
+                if(outcrop&&rounded)p.y=Mathf.Pow(p.y,.7f);
+                if(family==5)p.x+=p.y*.16f;
+                float band=layered?.82f+.15f*Mathf.Sin(b*24+shape):.9f+.07f*Mathf.Sin(angle*4+lat*5);
+                Add(p,new Color(band,band,band,1),new Vector2(x/(float)sides,y/(float)rings));
+            }
+            for(int y=0;y<rings;y++)for(int x=0;x<sides;x++){int a=first+y*(sides+1)+x;Triangle(a,a+1,a+sides+1);Triangle(a+1,a+sides+2,a+sides+1);}
+        }
         public Mesh Finish(){var mesh=new Mesh();mesh.SetVertices(V);mesh.SetColors(c);mesh.SetUVs(0,uv);mesh.SetTriangles(t,0);mesh.RecalculateNormals();mesh.RecalculateTangents();mesh.RecalculateBounds();return mesh;}
     }
     public static Mesh Build(ScatterKind kind,int detail,int variant)
@@ -58,7 +81,7 @@ static class LocalScatterMeshes
         var b=new Builder();Color leaf=kind==ScatterKind.Conifer?new Color(.19f,.32f,.16f):new Color(.29f,.43f,.15f);leaf*=new Color(1+variant*.035f,1-variant*.025f,1,1);
         if(kind==ScatterKind.Grass)b.Grass(detail,variant);
         else if(kind==ScatterKind.Conifer)b.Conifer(detail,variant,leaf);
-        else if(kind==ScatterKind.Boulder||kind==ScatterKind.Stone)b.Crown(Vector3.up*.38f,new Vector3(.65f,.55f,.5f),detail==0?10:6,detail==0?6:3,new Color(.5f,.48f,.43f),variant+55,.22f);
+        else if(kind==ScatterKind.Boulder||kind==ScatterKind.Stone||kind==ScatterKind.Outcrop)b.Rock(detail,variant,kind==ScatterKind.Outcrop);
         else if(kind==ScatterKind.Shrub)
         {
             int n=detail==0?5:2;for(int i=0;i<n;i++){float a=i*2.39996f;b.Crown(new Vector3(Mathf.Sin(a)*.28f,.48f+Mathf.Sin(i+variant)*.12f,Mathf.Cos(a)*.28f),new Vector3(.4f,.43f,.4f),detail==0?8:5,detail==0?4:3,leaf,variant*101+i,.17f);}

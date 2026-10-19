@@ -9,6 +9,22 @@ static class LocalScatterTests
         World Fixture(Biome biome,int warmth=240)=>new World{Recipe=recipe.Clone(),Surface=surface,ElevationM=Enumerable.Repeat(250,n).ToArray(),Hydrology=new HydrologyResult{OceanConnected=new bool[n]},
             Ecology=new EcologyResult{Habitat=Enumerable.Range(0,n).Select(_=>new HabitatCell{Biome=biome,Soil=SoilKind.Loam,SoilFertilityPermille=650,AridityMilli=1000,WarmTenthsC=warmth,GrowingDays=200}).ToArray()}};
         var forestWorld=Fixture(Biome.TemperateForest);string before=StateHash.Compute(forestWorld);var forest=new LocalScatter(new LocalTerrain(forestWorld));V point=TerrainMapViewport.FromDegrees(40,-80);
+        var buried=new GroundProfile{DepthM=2,Gravel=.02,Sand=.9,Bedrock=RockFamily.Sandstone,RockMixA=new V(0,0,1)};
+        var exposed=new GroundProfile{DepthM=.08,Gravel=.5,Sand=.4,Bedrock=RockFamily.Granite,RockMixA=new V(1,0,0)};
+        var rockDensities=new List<double>();int exceptional=0;
+        for(int i=0;i<800;i++)
+        {
+            var p=TerrainMapViewport.FromDegrees(-70+i%140,-180+i*.45);
+            var bare=LocalGeology.Describe(exposed,p,recipe.Seed,recipe.RadiusKm*1000);
+            var cover=LocalGeology.Describe(buried,p,recipe.Seed,recipe.RadiusKm*1000);
+            check(cover.LooseRock==0&&cover.Outcrop==0,"Deep stone-free deposits can remain genuinely free of boulders/outcrops");
+            check(bare.LooseRock>=0&&bare.LooseRock<=1&&bare.Exposure>=0&&bare.Exposure<=1,"Geology values are bounded physical cover fractions");
+            rockDensities.Add(bare.LooseRock);if(bare.Outcrop>.01)exceptional++;
+            var s=LocalGeology.Surface(exposed,p,recipe.Seed,250,.8,0,0,recipe.RadiusKm*1000);
+            check(Math.Abs(Enumerable.Range(0,8).Sum(s.Weight)-1)<1e-10,"Exposed lithology preserves normalized soil/material weights");
+        }
+        check(rockDensities.Max()-rockDensities.Min()>.1,"Local noise creates rock-poor and rock-rich areas in the same parent geology");
+        check(exceptional>0&&exceptional<200,"Exceptional outcrops are possible but regional, not ubiquitous");
         var key=forest.Address(point);var a=forest.Build(key);var b=forest.Build(key);var cold=new LocalScatter(new LocalTerrain(forestWorld)).Build(key);
         string Describe(ScatterInstance p)=>string.Join("|",p.Id,p.Kind,p.Variant,p.Position.X,p.Position.Y,p.Position.Z,p.GroundM,p.HeightM,p.WidthM,p.YawDegrees);
         check(a.Instances.Length>30,"A forest fixture contains enough physical objects to provide scale");
@@ -27,6 +43,7 @@ static class LocalScatterTests
         var salty=new LocalScatter(new LocalTerrain(saltyWorld));check(Trees(salty.Build(salty.Address(point)))==0,"Saline soils exclude ordinary forest trees");
         foreach(var p in a.Instances)
         {
+            check(p.Variant>=0&&p.Variant<(p.Kind==ScatterKind.Boulder||p.Kind==ScatterKind.Stone||p.Kind==ScatterKind.Outcrop?18:3),"Rock variants carry lithology without colliding with plant variant keys");
             check(double.IsFinite(p.GroundM)&&p.HeightM>0&&p.WidthM>0,"Scatter dimensions and roots are finite physical metres");
             check(p.Normal.Length>.999&&p.Normal.Length<1.001,"Ground orientation is normalized");
         }

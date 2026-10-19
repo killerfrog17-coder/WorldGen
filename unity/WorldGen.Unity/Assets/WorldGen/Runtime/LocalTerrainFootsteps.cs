@@ -96,7 +96,7 @@ public sealed partial class LocalTerrainExplorer
     public GroundSurface GroundContact()
     {
         var s=walkingPatch.Sample(Position);double gx=Ground(motion.X+.5,motion.Z)-Ground(motion.X-.5,motion.Z),gz=Ground(motion.X,motion.Z+.5)-Ground(motion.X,motion.Z-.5),up=1/Math.Sqrt(1+gx*gx+gz*gz);
-        return GroundEnvironment.Surface(s.Ground,Position,sourceWorld.Recipe.Seed,s.ElevationM,up,s.OceanInfluence,s.Biome==Biome.Ice?Math.Max(0,Math.Min(1,(up-.55)/.4)):0,terrain.RadiusM*HorizontalScale);
+        return LocalGeology.Surface(s.Ground,Position,sourceWorld.Recipe.Seed,s.ElevationM,up,s.OceanInfluence,s.Biome==Biome.Ice?Math.Max(0,Math.Min(1,(up-.55)/.4)):0,terrain.RadiusM*HorizontalScale);
     }
     public string GroundDebugText {get{var s=GroundContact();var g=s.Profile;return "Ground "+s.Material+" · "+g.TextureName+" · "+g.Bedrock+" · pH "+g.PH.ToString("F1")+" · root depth "+g.DepthM.ToString("F2")+"m · available water "+g.WaterCapacityMm.ToString("F0")+"mm";}}
     void DisposeFootsteps(){if(stepLoading!=null)StopCoroutine(stepLoading);if(stepRequest!=null){stepRequest.Abort();stepRequest.Dispose();}if(stepVoices!=null)foreach(var voice in stepVoices)voice.Stop();foreach(var clip in stepClips)if(clip!=null)Destroy(clip);stepClips.Clear();}

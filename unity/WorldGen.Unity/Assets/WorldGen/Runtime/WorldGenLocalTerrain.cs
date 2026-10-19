@@ -74,6 +74,9 @@ public sealed partial class WorldGenRuntime
             cells.Where(i => world.ElevationM[i] < -100 && world.ElevationM[i] > -1000).DefaultIfEmpty(-1).First() };
         bool earthSites=Environment.GetCommandLineArgs().Contains("--worldgen-local-earth-sites");
         bool groundReview=Environment.GetCommandLineArgs().Contains("--worldgen-ground-review");
+        bool geologyReview=Environment.GetCommandLineArgs().Contains("--worldgen-geology-review");
+        bool streamingReview=Environment.GetCommandLineArgs().Contains("--worldgen-streaming-review");
+        groundReview|=geologyReview;
         bool scatterReview=Environment.GetCommandLineArgs().Contains("--worldgen-local-scatter-review");
         if(scatterReview)
         {
@@ -90,6 +93,17 @@ public sealed partial class WorldGenRuntime
             else
             {var selected=new List<V>();foreach(var rock in new[]{RockFamily.Sandstone,RockFamily.Granite,RockFamily.Limestone}){int cell=cells.Where(i=>world.ElevationM[i]>10&&world.ElevationM[i]<1200&&GroundEnvironment.For(world).Cell(i).Bedrock==rock).OrderBy(i=>world.Ecology.Habitat[i].ReliefM).DefaultIfEmpty(-1).First();if(cell>=0)selected.Add(world.Surface.Cells[cell].Position);}locations=selected.ToArray();names=Enumerable.Range(0,locations.Length).Select(i=>"generated-ground-"+i).ToArray();}
         }
+        if(geologyReview)
+        {
+            var selected=new List<V>();
+            foreach(var rock in new[]{RockFamily.Granite,RockFamily.Sandstone,RockFamily.Basalt})
+            {
+                int cell=cells.Where(i=>world.ElevationM[i]>20&&world.ElevationM[i]<1800&&GroundEnvironment.For(world).Cell(i).Bedrock==rock)
+                    .OrderByDescending(i=>{var g=GroundEnvironment.For(world).Cell(i);var r=LocalGeology.Describe(g,world.Surface.Cells[i].Position,world.Recipe.Seed,world.Recipe.RadiusKm*1000*play.Settings.HorizontalScale);return r.Outcrop*3+r.LooseRock-g.DepthM*.1;}).DefaultIfEmpty(-1).First();
+                if(cell>=0)selected.Add(world.Surface.Cells[cell].Position);
+            }
+            locations=selected.ToArray();names=Enumerable.Range(0,locations.Length).Select(i=>"rock-site-"+i).ToArray();
+        }
         var report = new List<string>();
         var probes = new List<string>();
         for (int s = 0; s < (earthSites?locations.Length:sites.Length); s++)
@@ -100,16 +114,25 @@ public sealed partial class WorldGenRuntime
             while(terrainExplorer!=null&&!terrainExplorer.Ready&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
             if(terrainExplorer!=null&&terrainExplorer.Ready)
             {
-                if(earthSites&&world.Recipe.TerrainSource=="Earth"&&s==2)terrainExplorer.TestNearbyShore();
+                if(earthSites&&!geologyReview&&world.Recipe.TerrainSource=="Earth"&&s==2)terrainExplorer.TestNearbyShore();
                 terrainExplorer.TestView(earthSites?(s==2?25:s==1?2000:900):600,earthSites?(s==0?0:s==1?90:s==2?340:45):20,earthSites&&s==2?6:12);
                 if(scatterReview){terrainExplorer.TestWalking();terrainExplorer.TestView(1.65,20,-3);}
                 if(groundReview){terrainExplorer.TestView(1.65,20,18);PlayCommands.Execute(play,0,"/weather clear",weather:terrainExplorer.WeatherControl);TerrainMapViewport.Degrees(terrainExplorer.Position,out double lat,out double lon);play.SetLocalSolarHour(12,lon);}
             }
             deadline = Time.realtimeSinceStartupAsDouble + 180;
-            while (terrainExplorer != null && (!terrainExplorer.Ready || !terrainExplorer.AllReady || (scatterReview&&!terrainExplorer.ScatterReady)) && terrainExplorer.Error == "" && Time.realtimeSinceStartupAsDouble < deadline) yield return null;
-            if (terrainExplorer == null || !terrainExplorer.Ready || !terrainExplorer.AllReady || (scatterReview&&!terrainExplorer.ScatterReady) || terrainExplorer.Error != "")
+            while (terrainExplorer != null && (!terrainExplorer.Ready || !terrainExplorer.AllReady || ((scatterReview||geologyReview)&&!terrainExplorer.ScatterReady)) && terrainExplorer.Error == "" && Time.realtimeSinceStartupAsDouble < deadline) yield return null;
+            if (terrainExplorer == null || !terrainExplorer.Ready || !terrainExplorer.AllReady || ((scatterReview||geologyReview)&&!terrainExplorer.ScatterReady) || terrainExplorer.Error != "")
             { Debug.LogError("TERRAIN CHECK failed: " + terrainExplorer?.Error); Application.Quit(1); yield break; }
             yield return new WaitForEndOfFrame(); terrainExplorer.Capture(Path.Combine(output,earthSites?names[s]+".png":"terrain-" + s + ".png"));
+            if(geologyReview)
+            {
+                report.Add("GEOLOGY "+terrainExplorer.GroundDebugText+"; "+terrainExplorer.RockSceneSummary);
+                if(terrainExplorer.TestRockFocus())
+                {
+                    deadline=Time.realtimeSinceStartupAsDouble+90;while((!terrainExplorer.AllReady||!terrainExplorer.ScatterReady)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+                    yield return new WaitForEndOfFrame();terrainExplorer.Capture(Path.Combine(output,names[s]+"-rock-focus.png"));
+                }
+            }
             TerrainMapViewport.Degrees(terrainExplorer.Position,out double siteLat,out double siteLon);
             report.Add((earthSites?names[s]:"site "+sites[s])+" at "+siteLat.ToString("F6")+","+siteLon.ToString("F6")+": " + terrainExplorer.Diagnostics);
             if(groundReview)
@@ -131,6 +154,22 @@ public sealed partial class WorldGenRuntime
                 terrainExplorer.TestView(65,20,55);yield return null;yield return new WaitForEndOfFrame();terrainExplorer.Capture(Path.Combine(output,"scatter-overhead-"+s+".png"));
             }
             probes.AddRange(terrainExplorer.Probes());
+            if(streamingReview&&s==0)
+            {
+                terrainExplorer.TestView(800,70,25);int count=terrainExplorer.ReanchorCount;
+                terrainExplorer.TestMove(70000,0);yield return null;
+                if(terrainExplorer.ReanchorCount!=count+1||terrainExplorer.RetainedTileCount==0||terrainExplorer.VisibleTerrainTiles==0)
+                {Debug.LogError("STREAMING CHECK reanchor destroyed coverage");Application.Quit(1);yield break;}
+                yield return new WaitForEndOfFrame();terrainExplorer.Capture(Path.Combine(output,"flight-reanchor-loading.png"));
+                report.Add("PASS fast-flight reanchor retained "+terrainExplorer.RetainedTileCount+" terrain tiles while replacement work loads");
+                deadline=Time.realtimeSinceStartupAsDouble+150;int minimum=terrainExplorer.VisibleTerrainTiles;
+                while(!terrainExplorer.AllReady&&Time.realtimeSinceStartupAsDouble<deadline)
+                {minimum=Math.Min(minimum,terrainExplorer.VisibleTerrainTiles);yield return null;}
+                if(!terrainExplorer.AllReady||minimum==0||terrainExplorer.RetainedTileCount!=0||terrainExplorer.Error!="")
+                {Debug.LogError("STREAMING CHECK replacement coverage did not settle: "+terrainExplorer.Diagnostics+" "+terrainExplorer.Error);Application.Quit(1);yield break;}
+                yield return new WaitForEndOfFrame();terrainExplorer.Capture(Path.Combine(output,"flight-reanchor-ready.png"));
+                report.Add("PASS replacement coverage/morph settled without an empty terrain frame; retired meshes released; protective fog "+terrainExplorer.ProtectiveFogM.ToString("F0")+"m");
+            }
             terrainExplorer.TestMove(4300, 2800); yield return null;
             deadline = Time.realtimeSinceStartupAsDouble + 60;
             while ((!terrainExplorer.CenterReady || terrainExplorer.TileCount < 169) && Time.realtimeSinceStartupAsDouble < deadline) yield return null;

@@ -14,6 +14,9 @@ namespace WorldGen.Core
     {
         public double Sand,Silt,Clay,Gravel,DepthM,Organic,PH,Fertility,Drainage,WaterCapacityMm,Iron,Salinity,Weathering;
         public V SoilColor,RockColor,SandColor;
+        // Derived lithology mixture: continuous material blending, not a saved survey.
+        public V RockMixA,RockMixB;
+        public double RockWeight(int i)=>i<3?(i==0?RockMixA.X:i==1?RockMixA.Y:RockMixA.Z):(i==3?RockMixB.X:i==4?RockMixB.Y:RockMixB.Z);
         public RockFamily Bedrock;public ParentDeposit Deposit;
         public double RootSupport=>RootingSupport();
         public double RootingSupport(bool saltTolerant=false,bool waterloggedTolerant=false)=>D.Clamp(DepthM/.6)*D.Clamp(WaterCapacityMm/80)*(.3+.7*Fertility)*(saltTolerant?1:1-Salinity)*(waterloggedTolerant?1:.4+.6*D.Clamp(Drainage/.45));
@@ -33,11 +36,13 @@ namespace WorldGen.Core
             PH+=p.PH*w;Fertility+=p.Fertility*w;Drainage+=p.Drainage*w;WaterCapacityMm+=p.WaterCapacityMm*w;
             Iron+=p.Iron*w;Salinity+=p.Salinity*w;Weathering+=p.Weathering*w;
             SoilColor+=p.SoilColor*w;RockColor+=p.RockColor*w;SandColor+=p.SandColor*w;
+            RockMixA+=p.RockMixA*w;RockMixB+=p.RockMixB*w;
         }
         internal void Divide(double w)
         {
             Sand/=w;Silt/=w;Clay/=w;Gravel/=w;DepthM/=w;Organic/=w;PH/=w;Fertility/=w;Drainage/=w;WaterCapacityMm/=w;
             Iron/=w;Salinity/=w;Weathering/=w;SoilColor=SoilColor/w;RockColor=RockColor/w;SandColor=SandColor/w;
+            RockMixA=RockMixA/w;RockMixB=RockMixB/w;
         }
     }
     public struct GroundSurface
@@ -117,7 +122,7 @@ namespace WorldGen.Core
             V rockColor=rock==RockFamily.Basalt?new V(.21,.22,.22):rock==RockFamily.Granite?new V(.51,.50,.47):rock==RockFamily.Limestone?new V(.65,.62,.53):rock==RockFamily.Sandstone?new V(.62,.40,.26):rock==RockFamily.Mudstone?new V(.40,.37,.32):new V(.36,.39,.40);
             V soil=new V(.44+.16*iron,.35-.07*iron,.25-.08*iron)*(1-.85*Math.Min(.7,organic*4));
             V sandColor=rock==RockFamily.Basalt?new V(.29,.28,.25):new V(.65+.06*iron,.58-.19*iron,.43-.20*iron);
-            return new GroundProfile{Bedrock=rock,Deposit=deposit,Sand=D.Q(sand,10000),Clay=D.Q(clay,10000),Silt=D.Q(1-sand-clay,10000),Gravel=D.Q(gravel,10000),DepthM=D.Q(depth,1000),Organic=D.Q(organic,10000),PH=D.Q(ph,100),Fertility=D.Q(fertile,10000),Drainage=D.Q(drainage,10000),WaterCapacityMm=D.Q(awc,100),Iron=D.Q(iron,10000),Salinity=D.Q(salt,10000),Weathering=D.Q(weathering,10000),RockColor=rockColor,SoilColor=soil,SandColor=sandColor};
+            return new GroundProfile{Bedrock=rock,RockMixA=new V(rock==RockFamily.Granite?1:0,rock==RockFamily.Basalt?1:0,rock==RockFamily.Sandstone?1:0),RockMixB=new V(rock==RockFamily.Limestone?1:0,rock==RockFamily.Mudstone?1:0,rock==RockFamily.Metamorphic?1:0),Deposit=deposit,Sand=D.Q(sand,10000),Clay=D.Q(clay,10000),Silt=D.Q(1-sand-clay,10000),Gravel=D.Q(gravel,10000),DepthM=D.Q(depth,1000),Organic=D.Q(organic,10000),PH=D.Q(ph,100),Fertility=D.Q(fertile,10000),Drainage=D.Q(drainage,10000),WaterCapacityMm=D.Q(awc,100),Iron=D.Q(iron,10000),Salinity=D.Q(salt,10000),Weathering=D.Q(weathering,10000),RockColor=rockColor,SoilColor=soil,SandColor=sandColor};
         }
         public static GroundSurface Surface(GroundProfile p,V position,int seed,double elevation,double up,double ocean,double ice,double horizontalRadiusM)
         {

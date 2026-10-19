@@ -4,10 +4,17 @@ Owner-authorized on18 October2026: ground materials and natural cover add physic
 scale to the local terrain explorer. This is a visual prototype, not final art,
 an ecological population simulation, or a promise of Skyrim-level graphics.
 
+19 October geology revision: `local-scatter-preview-3` adds continuous rock
+exposure, buried/rock-free deposits, lithology-conditioned stones/boulders and
+rare larger outcrops. Six blended rock textures extend the default substrate
+arrays without invalidating custom eight-layer sets. See LOCAL_GEOLOGY_STREAMING.md
+for model, art, collision limitations and streaming changes. Vegetation taxonomy
+and placement have not been overhauled in this geology pass.
+
 ## Placement and streaming
 
-`WorldGen.Core.LocalScatter`, version `local-scatter-preview-1`, derives stable
-planet-addressed instances from the existing `local-terrain-preview-2` surface.
+`WorldGen.Core.LocalScatter`, version `local-scatter-preview-3`, derives stable
+planet-addressed instances from the existing `local-terrain-preview-3` surface.
 Macro512m and detail64m cube-sphere addresses are independent of Unity chunks,
 floating origins and the order of background work. Named project PRNG streams,
 fixed candidate strata, ordered keys and explicit size/yaw quantization preserve

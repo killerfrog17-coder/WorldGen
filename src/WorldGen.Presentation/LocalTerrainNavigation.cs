@@ -84,7 +84,14 @@ namespace WorldGen.Presentation
             }
             return steps;
         }
-        public static Dictionary<TerrainTileKey,int> Plan(double x,double z,double aboveGround,double distanceM=200000,double scale=1)
+        public static Dictionary<TerrainTileKey,int> CoverageRoots(IReadOnlyDictionary<TerrainTileKey,int> leaves,double scale=1)
+        {
+            int level=Math.Max(0,(int)Math.Floor(Math.Log(64/scale,2)));double size=2048*scale*(1<<level);
+            var result=new Dictionary<TerrainTileKey,int>();foreach(var key in leaves.Keys)
+                result[new TerrainTileKey((int)Math.Floor(key.X*key.SizeM/size),(int)Math.Floor(key.Z*key.SizeM/size),level,scale)]=16;
+            return result;
+        }
+        public static Dictionary<TerrainTileKey,int> Plan(double x,double z,double aboveGround,double distanceM=200000,double scale=1,double detailRange=1,int quality=1)
         {
             if(scale<.01||scale>2||double.IsNaN(scale))throw new ArgumentOutOfRangeException(nameof(scale));
             var result=new Dictionary<TerrainTileKey,int>();int root=Math.Max(0,(int)Math.Floor(Math.Log(64/scale,2)));double size=2048*scale*(1<<root);
@@ -92,9 +99,9 @@ namespace WorldGen.Presentation
             void Visit(TerrainTileKey k)
             {
                 double d=Distance(k);if(d>distanceM)return;
-                if(k.Level>0&&Math.Max(d,aboveGround*.8)<k.SizeM*1.6)
+                if(k.Level>0&&Math.Max(d,aboveGround*.8)<k.SizeM*1.6*Math.Max(.5,Math.Min(2,detailRange)))
                     for(int j=0;j<2;j++)for(int i=0;i<2;i++)Visit(new TerrainTileKey(k.X*2+i,k.Z*2+j,k.Level-1,scale));
-                else result.Add(k,k.Level==0?(d<3000*scale?128:64):k.Level==1?64:k.Level==2?32:k.Level<5?16:8);
+                else {int n=k.Level==0?(d<3000*scale?128:64):k.Level==1?64:k.Level==2?32:k.Level<5?16:8;result.Add(k,quality<=0?Math.Max(8,n/2):quality>=2?Math.Min(128,n*2):n);}
             }
             for(int b=(int)Math.Floor((z-distanceM)/size);b<=(int)Math.Floor((z+distanceM)/size);b++)
                 for(int a=(int)Math.Floor((x-distanceM)/size);a<=(int)Math.Floor((x+distanceM)/size);a++)Visit(new TerrainTileKey(a,b,root,scale));

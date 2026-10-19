@@ -6,6 +6,8 @@ Shader "WorldGen/LocalScatter"
         _NormalMap("RGB tangent normal",2D)="bump"{} _MaskMap("R AO, G roughness, B height, A metallic",2D)="white"{}
         _Roughness("Roughness",Range(0,1))=.85 _Metallic("Metallic",Range(0,1))=0
         _NormalStrength("Normal strength",Range(0,2))=1 _Cutoff("Alpha cutoff",Range(0,1))=.4
+        _RockAlbedo("Rock detail",2DArray)=""{} _RockNormals("Rock normals",2DArray)=""{}
+        _RockLayer("Lithology",Float)=8 _RockLayers("Use rock textures",Float)=0
         [Toggle(_ALPHATEST_ON)] _AlphaClip("Alpha clip",Float)=0
         _Wind("Wind displacement (m)",Float)=0 _FogDistance("Fog distance",Float)=200000
         _FogColor("Sky colour",Color)=(.57,.69,.76,1) _AmbientTint("Ambient light",Color)=(.12,.14,.17,1)
@@ -32,6 +34,8 @@ Shader "WorldGen/LocalScatter"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
             #include "WorldGenAir.hlsl"
             TEXTURE2D(_BaseMap);SAMPLER(sampler_BaseMap);TEXTURE2D(_NormalMap);TEXTURE2D(_MaskMap);
+            TEXTURE2D_ARRAY(_RockAlbedo);SAMPLER(sampler_RockAlbedo);TEXTURE2D_ARRAY(_RockNormals);
+            float _RockLayer,_RockLayers;
             float4 _BaseMap_ST,_BaseColor,_FogColor,_AmbientTint;float _Roughness,_Metallic,_NormalStrength,_Cutoff,_Wind,_FogDistance;
             UNITY_INSTANCING_BUFFER_START(Props)
                 UNITY_DEFINE_INSTANCED_PROP(float4,_Tint)
@@ -59,6 +63,14 @@ Shader "WorldGen/LocalScatter"
                 float3 n=normalize(i.normal)*IS_FRONT_VFACE(face,1,-1),t=normalize(i.tangent.xyz);
                 float3 bump=SAMPLE_TEXTURE2D(_NormalMap,sampler_BaseMap,i.uv).xyz*2-1;
                 n=normalize(n+(t*bump.x+cross(n,t)*i.tangent.w*bump.y)*_NormalStrength);
+                if(_RockLayers>.5)
+                {
+                    float3 w=pow(abs(n),4);w/=max(.001,w.x+w.y+w.z);float3 p=i.position*.65;
+                    float3 grain=SAMPLE_TEXTURE2D_ARRAY(_RockAlbedo,sampler_RockAlbedo,p.yz,_RockLayer).rgb*w.x+SAMPLE_TEXTURE2D_ARRAY(_RockAlbedo,sampler_RockAlbedo,p.xz,_RockLayer).rgb*w.y+SAMPLE_TEXTURE2D_ARRAY(_RockAlbedo,sampler_RockAlbedo,p.xy,_RockLayer).rgb*w.z;
+                    float3 a=SAMPLE_TEXTURE2D_ARRAY(_RockNormals,sampler_RockAlbedo,p.yz,_RockLayer).xyz*2-1,b=SAMPLE_TEXTURE2D_ARRAY(_RockNormals,sampler_RockAlbedo,p.xz,_RockLayer).xyz*2-1,c=SAMPLE_TEXTURE2D_ARRAY(_RockNormals,sampler_RockAlbedo,p.xy,_RockLayer).xyz*2-1;
+                    n=normalize(n+float3(0,a.x,a.y)*w.x+float3(b.x,0,b.y)*w.y+float3(c.x,c.y,0)*w.z);
+                    tex.rgb*=grain*2;
+                }
                 float4 mask=SAMPLE_TEXTURE2D(_MaskMap,sampler_BaseMap,i.uv);
                 InputData input=(InputData)0;input.positionWS=i.position;input.normalWS=n;input.viewDirectionWS=GetWorldSpaceNormalizeViewDir(i.position);
                 input.shadowCoord=TransformWorldToShadowCoord(i.position);input.bakedGI=_AmbientTint.rgb;input.shadowMask=half4(1,1,1,1);

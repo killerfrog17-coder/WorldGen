@@ -28,6 +28,8 @@ namespace WorldGen.Presentation
         // UV1: soil/sand/gravel/clay; UV2: rock/organic/salt/ice. Independent from geometry.
         public float[] SurfaceWeights = Array.Empty<float>();
         public float[] GroundWeightsB = Array.Empty<float>();
+        // Six continuous lithology weights, independent of soil and render LOD.
+        public float[] Lithology = Array.Empty<float>();
         public int[] Triangles = Array.Empty<int>();
         public double EastM, NorthM, SizeM, MinHeightM, MaxHeightM, BuildMilliseconds;
         public int Segments, GroundVertices;
@@ -82,6 +84,7 @@ namespace WorldGen.Presentation
             mesh.Positions = new float[(ground + perimeter) * 3]; mesh.Normals = new float[mesh.Positions.Length]; mesh.Colors = new float[(ground + perimeter) * 4];
             mesh.SurfaceWeights=new float[mesh.Colors.Length];
             mesh.GroundWeightsB=new float[mesh.Colors.Length];
+            mesh.Lithology=new float[(ground+perimeter)*6];
             mesh.WaterPositions = new float[ground * 3]; mesh.WaterColors = new float[ground * 4];
             for (int z = 0; z < side; z++) for (int x = 0; x < side; x++)
             {
@@ -94,9 +97,10 @@ namespace WorldGen.Presentation
                 double length = Math.Sqrt(nx * nx + 1 + nz * nz); double up = 1 / length;
                 mesh.Normals[i * 3] = (float)(nx / length); mesh.Normals[i * 3 + 1] = (float)up; mesh.Normals[i * 3 + 2] = (float)(nz / length);
                 double snow=sample.Biome==Biome.Ice?D.Clamp((up-.55)/.4):0;
-                var groundSurface=GroundEnvironment.Surface(sample.Ground,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,
+                var groundSurface=LocalGeology.Surface(sample.Ground,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,
                     sample.ElevationM,up,sample.OceanInfluence,snow,terrain.RadiusM*frame.HorizontalScale);
                 for(int layer=0;layer<4;layer++){mesh.SurfaceWeights[i*4+layer]=(float)groundSurface.Weight(layer);mesh.GroundWeightsB[i*4+layer]=(float)groundSurface.Weight(layer+4);}
+                for(int layer=0;layer<6;layer++)mesh.Lithology[i*6+layer]=(float)sample.Ground.RockWeight(layer);
                 V color = groundSurface.Color;
                 mesh.Colors[i * 4] = (float)color.X; mesh.Colors[i * 4 + 1] = (float)color.Y; mesh.Colors[i * 4 + 2] = (float)color.Z; mesh.Colors[i * 4 + 3] = 1;
             }
@@ -118,6 +122,7 @@ namespace WorldGen.Presentation
                 Array.Copy(mesh.Normals, src * 3, mesh.Normals, dst * 3, 3); Array.Copy(mesh.Colors, src * 4, mesh.Colors, dst * 4, 4);
                 Array.Copy(mesh.SurfaceWeights,src*4,mesh.SurfaceWeights,dst*4,4);
                 Array.Copy(mesh.GroundWeightsB,src*4,mesh.GroundWeightsB,dst*4,4);
+                Array.Copy(mesh.Lithology,src*6,mesh.Lithology,dst*6,6);
                 int next = (i + 1) % perimeter; Triangle(src, dst, edge[next]); Triangle(edge[next], dst, ground + next);
             }
             mesh.BuildMilliseconds = watch.Elapsed.TotalMilliseconds; return mesh;

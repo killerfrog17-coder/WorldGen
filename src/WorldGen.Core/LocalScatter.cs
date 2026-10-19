@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace WorldGen.Core
 {
-    public enum ScatterKind { Broadleaf,Conifer,SavannaTree,Shrub,Boulder,Grass,Stone }
+    public enum ScatterKind { Broadleaf,Conifer,SavannaTree,Shrub,Boulder,Grass,Stone,Outcrop }
     /// <summary>Global cube-sphere address, never an exploration chart/chunk-relative seed.</summary>
     public struct ScatterKey : IEquatable<ScatterKey>,IComparable<ScatterKey>
     {
@@ -29,7 +29,7 @@ namespace WorldGen.Core
     /// <summary>Replaceable static natural cover over accepted terrain, not a population or forestry simulation.</summary>
     public sealed class LocalScatter
     {
-        public const string Version="local-scatter-preview-2";
+        public const string Version="local-scatter-preview-3";
         readonly LocalTerrain terrain;readonly World world;readonly int seed;readonly double scale;
         static readonly V[] Normals={new V(1,0,0),new V(-1,0,0),new V(0,1,0),new V(0,-1,0),new V(0,0,1),new V(0,0,-1)};
         public LocalScatter(LocalTerrain terrain,double horizontalScale=1){this.terrain=terrain??throw new ArgumentNullException(nameof(terrain));if(horizontalScale<.01||horizontalScale>2||double.IsNaN(horizontalScale))throw new ArgumentOutOfRangeException(nameof(horizontalScale));scale=horizontalScale;world=terrain.SourceWorld;seed=world.Recipe.Seed;}
@@ -68,9 +68,9 @@ namespace WorldGen.Core
             V center=Position(key);var patch=terrain.Patch(center,(key.Detail?110:840)/scale);var result=new List<ScatterInstance>();
             double nominal=2*terrain.RadiusM*scale/Divisions(key.Detail),area=nominal*nominal;
             int grid=key.Detail?32:64;
-            for(int channel=0;channel<(key.Detail?2:3);channel++)
+            for(int channel=0;channel<(key.Detail?2:4);channel++)
             {
-                int side=channel==0?grid:key.Detail?8:16;
+                int side=channel==0?grid:key.Detail?8:channel==3?4:16;
                 for(int y=0;y<side;y++)
                 {
                     token.ThrowIfCancellationRequested();
@@ -111,9 +111,13 @@ namespace WorldGen.Core
                         double cu=(key.X+u)*2/Divisions(key.Detail)-1,cv=(key.Y+v)*2/Divisions(key.Detail)-1;
                         double jacobian=1/Math.Pow(1+cu*cu+cv*cv,1.5);
                         double chance;ScatterKind kind;
-                        if(key.Detail){kind=channel==0?ScatterKind.Grass:ScatterKind.Stone;chance=channel==0?cover*(.35+.65*cluster)*D.Clamp(wet/.35)*area*jacobian/(side*side)*.2:.3*jacobian;}
+                        var geology=default(LocalRockProfile);
+                        bool rockChannel=key.Detail?channel==1:channel==1||channel==3;
+                        if(rockChannel)geology=LocalGeology.Describe(sample.Ground,p,seed,terrain.RadiusM*scale);
+                        if(key.Detail){kind=channel==0?ScatterKind.Grass:ScatterKind.Stone;chance=channel==0?cover*(.35+.65*cluster)*D.Clamp(wet/.35)*area*jacobian/(side*side)*.2:geology.LooseRock*1.2*jacobian;}
                         else if(channel==0){kind=biome==Biome.BorealForest||warm<17?ScatterKind.Conifer:biome==Biome.Savanna?ScatterKind.SavannaTree:ScatterKind.Broadleaf;chance=trees*area*jacobian/(side*side)*.009;}
-                        else if(channel==1){kind=ScatterKind.Boulder;chance=(env?.Soil==SoilKind.Rock?.35:.13)*jacobian;}
+                        else if(channel==1){kind=ScatterKind.Boulder;chance=geology.LooseRock*.9*jacobian;}
+                        else if(channel==3){kind=ScatterKind.Outcrop;chance=biome==Biome.Ice?0:geology.Outcrop*.28*jacobian;}
                         else{kind=ScatterKind.Shrub;chance=cover*.8*jacobian*D.Clamp((warm-2)/10);}
                         if(random.Unit()>D.Clamp(chance))continue;
                         // Local slope, not absolute altitude, determines whether a plant can root here.
@@ -126,13 +130,13 @@ namespace WorldGen.Core
                         if((tree&&slope>.65)||(kind==ScatterKind.Grass&&slope>.9)||(kind==ScatterKind.Shrub&&slope>.8)||(!tree&&kind!=ScatterKind.Grass&&kind!=ScatterKind.Shrub&&slope>1.6))continue;
                         double size=random.Unit(),width=random.Unit(),height;
                         if(tree){double adult=kind==ScatterKind.SavannaTree?13:kind==ScatterKind.Conifer?25:biome==Biome.TropicalRainforest?35:28;height=(.4+.6*size)*adult*D.Clamp((warm-5)/12,.3,1);}
-                        else height=kind==ScatterKind.Shrub?.35+1.3*size:kind==ScatterKind.Boulder?.4+2.0*size:kind==ScatterKind.Stone?.035+.12*size:.22+.48*size;
-                        bool stone=kind==ScatterKind.Boulder||kind==ScatterKind.Stone;
+                        else height=kind==ScatterKind.Shrub?.35+1.3*size:kind==ScatterKind.Outcrop?4+22*size*size*D.Clamp(geology.JointSpacingM/7,.6,1.4):kind==ScatterKind.Boulder?.35+3.8*size*size*D.Clamp(geology.JointSpacingM/6,.6,1.3):kind==ScatterKind.Stone?.035+.16*size:.22+.48*size;
+                        bool stone=kind==ScatterKind.Boulder||kind==ScatterKind.Stone||kind==ScatterKind.Outcrop;
                         V color=stone?sample.Ground.RockColor:new V(.73+.2*width,.78+.15*size,.65+.16*width);
                         if(!stone&&(biome==Biome.Savanna||biome==Biome.Desert))color=new V(.98,.85,.54);
                         if(!stone&&(biome==Biome.Tundra||biome==Biome.Alpine))color=new V(.68,.67,.48);
-                        double spread=kind==ScatterKind.Conifer?.32:kind==ScatterKind.Broadleaf?.6:kind==ScatterKind.SavannaTree?1.05:kind==ScatterKind.Shrub?1.5:kind==ScatterKind.Grass?.85:1.4;
-                        result.Add(new ScatterInstance{Id=id,Kind=kind,Variant=(int)(random.Unit()*3),Position=p,Normal=(p-east*sx-north*sz).Unit,
+                        double spread=kind==ScatterKind.Conifer?.32:kind==ScatterKind.Broadleaf?.6:kind==ScatterKind.SavannaTree?1.05:kind==ScatterKind.Shrub?1.5:kind==ScatterKind.Grass?.85:kind==ScatterKind.Outcrop?2+.8*geology.Roundness:1.1+.8*geology.Roundness;
+                        result.Add(new ScatterInstance{Id=id,Kind=kind,Variant=(stone?(int)sample.Ground.Bedrock*3:0)+(int)(random.Unit()*3),Position=p,Normal=(p-east*sx-north*sz).Unit,
                             GroundM=sample.ElevationM,HeightM=D.Q(height,1000),WidthM=D.Q(height*spread*(.8+.4*width),1000),YawDegrees=D.Q(random.Unit()*360,1000),Color=color});
                     }
                 }
