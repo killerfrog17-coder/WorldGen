@@ -1,5 +1,27 @@
 # Version 3 validation evidence
 
+## Owner-requested complete LOD rollback -19 October2026
+
+The owner rejected the follow-up renderer as well as the first geology renderer.
+The previous "correction" entry below is historical test output, NOT acceptance.
+This pass restores all terrain LOD behaviour to20810b6, retaining the latest rocks,
+their regional placement, lithology materials and centered footfalls.
+
+Exact source comparison passes for LocalTerrainNavigation, LocalTerrainDebug,
+WorldGenDisplaySettings, WorldGenLocalTerrain and the restored LocalTerrainTests.
+Scatter VisibleGround matches20810b6 exactly. The explorer's only baseline
+differences are rock UV4/UV5 upload; the terrain shader's only differences are
+rock material attributes/blending, not vertex position or visibility. The added
+streaming and Video-options classes/metas are deleted. Searches find no remaining
+TerrainCoverage, TerrainVideoOptions, morph/base-height, retained-frame or coverage-
+mask machinery in active source. Original analytic grounding, job/lifetime logic,
+reanchor reset, fog and debug distance slider are back, including their original
+limitations; this is not a new seamless-flight/LOD-quality claim.
+
+582 local-terrain,4037 local-scatter,3131 ground/environment and14 actual200k
+Continents Plus terrain assertions pass. No golden expectations were regenerated.
+The accepted height function and simulation/generation rules are unchanged.
+
 ## Owner-reported grounding/LOD regression correction -19 October2026
 
 The preceding geology-streaming checkpoint was rejected by the owner: coarse

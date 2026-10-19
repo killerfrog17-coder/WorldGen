@@ -138,11 +138,11 @@ replaceable natural-cover meshes and layered PBR materials without changing heig
 
 ## Bounded rendering and cost
 
-19 October streaming revision retains terrain during automatic chart reanchors,
-loads coarse coverage before detail, morphs replacement geometry and applies
-coverage-aware protective haze. Persistent Video controls set view/detail distance,
-mesh quality and transition duration. See LOCAL_GEOLOGY_STREAMING.md; this
-supersedes the older single view-distance control and destructive chart reset.
+19 October owner-requested rollback restores all pre-geology LOD behaviour from
+commit20810b6, including grounding, reanchoring, original distance fog and the
+single debug view-distance control. The new rock placement/geometry/materials
+remain; experimental caches, coverage masks, morphs and Video LOD options do not.
+See LOCAL_GEOLOGY_STREAMING.md.
 
 The 200k world is not resampled or rescanned per chunk or historical event.
 Descriptor/index construction is once per active World in RAM. Heights are
@@ -150,8 +150,7 @@ queried from the local candidate set and a fixed number of noise bands.
 No fine terrain is saved to disk. Chunks are disposable products of that query.
 
 The viewer uses a view/altitude-dependent quadtree with2,048–131,072m tiles and
-128/64/32/16/8 segments. Default requested range is200km (Video adjustable20–500km,
-with a physical planet-size cap);
+128/64/32/16/8 segments. Default requested range is200km (debug adjustable30–250km);
 planet curvature and terrain occlusion still limit what is actually visible.
 Ground-level planning uses281 leaves at the tested origin, falling to140 at60km
 altitude. At most two CPU mesh jobs run concurrently; one completed tile pair

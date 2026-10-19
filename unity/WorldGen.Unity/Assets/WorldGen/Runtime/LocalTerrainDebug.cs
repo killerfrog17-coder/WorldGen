@@ -20,7 +20,7 @@ public sealed partial class LocalTerrainExplorer
     public bool Paused=>paused;
     public bool MapReady=>mapTexture!=null&&!mapDirty&&mapJob==null;
     public int MapBuildCount {get;private set;}
-    double MaximumViewDistance=>terrain==null?500000:Math.Min(500000,terrain.RadiusM*HorizontalScale*.3);
+    double MaximumViewDistance=>terrain==null?250000:Math.Min(250000,terrain.RadiusM*HorizontalScale*.3);
     void CaptureMouse(){if(passiveSkyCheck)return;Cursor.lockState=mapOpen||paused||chatOpen?CursorLockMode.None:CursorLockMode.Locked;Cursor.visible=mapOpen||paused||chatOpen;}
     void OnApplicationFocus(bool focus){if(focus&&!closed)CaptureMouse();}
     void HandleDebugKeys()
@@ -52,6 +52,9 @@ public sealed partial class LocalTerrainExplorer
     }
     public void DrawViewSettings()
     {
+        GUILayout.Label("View distance  "+(viewDistance/1000).ToString("F0")+" km");
+        double distance=GUILayout.HorizontalSlider((float)viewDistance,(float)Math.Min(30000,MaximumViewDistance*.1),(float)MaximumViewDistance);
+        if(Math.Abs(distance-viewDistance)>100){viewDistance=distance;SetFog();RefreshWanted();}
         GUILayout.Label("Flight speed  "+motion.FlySpeed.ToString("F0")+" m/s");motion.FlySpeed=Math.Exp(GUILayout.HorizontalSlider((float)Math.Log(motion.FlySpeed),(float)Math.Log(5),(float)Math.Log(20000)));
     }
     void OnGUI()

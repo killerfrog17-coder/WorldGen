@@ -73,8 +73,6 @@ static class LocalTerrainTests
         check(high.Positions.All(float.IsFinite) && high.Normals.All(float.IsFinite), "Terrain vertices and normals are finite");
         check(high.SurfaceWeights.Length==high.Colors.Length&&high.SurfaceWeights.All(v=>float.IsFinite(v)&&v>=0&&v<=1),"PBR surface weights cover ground and skirts with finite normalized channels");
         check(high.GroundWeightsB.Length==high.Colors.Length&&Enumerable.Range(0,high.SurfaceWeights.Length/4).All(i=>Math.Abs(high.SurfaceWeights.Skip(i*4).Take(4).Sum()+high.GroundWeightsB.Skip(i*4).Take(4).Sum()-1)<1e-5),"Eight physical ground weights sum to one without modifying height samples");
-        check(high.Lithology.Length==high.Positions.Length*2&&high.Lithology.All(v=>float.IsFinite(v)&&v>=0&&v<=1),"Six lithology channels cover ground and skirts");
-        check(Enumerable.Range(0,high.GroundVertices).All(i=>Math.Abs(high.Lithology.Skip(i*6).Take(6).Sum()-1)<1e-5),"Continuous lithology mixture remains normalized");
         for (int i = 0; i < high.GroundVertices; i++)
             if (i % 47 == 0) check(Math.Abs(high.Normals[i * 3] * high.Normals[i * 3] + high.Normals[i * 3 + 1] * high.Normals[i * 3 + 1] + high.Normals[i * 3 + 2] * high.Normals[i * 3 + 2] - 1) < 1e-5, "Normals are normalized");
         var cancel = new CancellationTokenSource(); cancel.Cancel(); bool cancelled = false;
@@ -137,22 +135,6 @@ static class LocalTerrainTests
         check(viewport.Longitude>=-180&&viewport.Longitude<180,"Map panning wraps the antimeridian");
         viewport.Zoom(1e-8);check(viewport.LongitudeSpan<1e-5,"Map is not limited to a fixed cell-level zoom");
         var far=TerrainLod.Plan(333,-777,2);var high=TerrainLod.Plan(333,-777,60000);
-        var parent=new TerrainTileKey(-1,0,1,.1);var children=new[]{new TerrainTileKey(-2,0,0,.1),new TerrainTileKey(-1,0,0,.1),new TerrainTileKey(-2,1,0,.1),new TerrainTileKey(-1,1,0,.1)};
-        check(new TerrainCoverage(children).Covers(parent),"Already-rendered finer children count as loaded coverage; changing LOD cannot spuriously collapse the fog distance");
-        check(!new TerrainCoverage(children.Take(3)).Covers(parent),"A genuinely missing quarter is not mistaken for complete coverage");
-        check(new TerrainCoverage(new[]{parent}).Covers(children[0]),"A resident coarse parent protects a pending fine region");
-        check(far.Where(p=>p.Key.Level>=5).All(p=>p.Value==8)&&far.Where(p=>p.Key.Level==1).All(p=>p.Value==64),"Default LOD restores the accepted pre-geology sampling rather than forcing expensive coarse-root replacement");
-        check(TerrainLod.Plan(333,-777,2,quality:2).Where(p=>p.Key.Level>=5).All(p=>p.Value==32),"High quality provides four times the far mesh sampling without degrading the baseline");
-        foreach(double scale in new[]{.01,.1,1.0,2.0})
-        {
-            var plan=TerrainLod.Plan(-12345,6789,100,100000,scale);
-            var roots=TerrainLod.CoverageRoots(plan,scale);
-            check(roots.Count<25&&roots.Values.All(n=>n==16),"First coverage uses bounded coarse meshes, not high-detail products");
-            foreach(var leaf in plan.Keys)check(roots.Keys.Any(root=>leaf.X*leaf.SizeM>=root.X*root.SizeM&&leaf.Z*leaf.SizeM>=root.Z*root.SizeM&&(leaf.X+1)*leaf.SizeM<=(root.X+1)*root.SizeM&&(leaf.Z+1)*leaf.SizeM<=(root.Z+1)*root.SizeM),"Coarse loading coverage includes every leaf, including negative chart addresses");
-        }
-        var lowQuality=TerrainLod.Plan(333,-777,2,200000,1,.5,0);
-        var moreDetail=TerrainLod.Plan(333,-777,2,200000,1,1.5,2);
-        check(lowQuality.Sum(p=>p.Value*p.Value)<far.Sum(p=>p.Value*p.Value)&&moreDetail.Sum(p=>p.Value*p.Value)>far.Sum(p=>p.Value*p.Value),"LOD quality/distance controls change actual mesh work without changing terrain definition");
         check(far.Count<800&&high.Count<far.Count,"Distance LOD is bounded and reduces detail at altitude");
         check(far.Keys.Max(k=>k.SizeM)>=32768&&far.Keys.Min(k=>k.SizeM)==2048,"LOD mixes near and far tile sizes");
         double area=0;foreach(var k in far.Keys)area+=k.SizeM*k.SizeM;
@@ -192,12 +174,10 @@ static class LocalTerrainTests
 
     public static void Native(string worldPath, string probesPath, Action<bool,string> check)
     {
-        var world = WorldFile.Read(File.ReadAllBytes(worldPath));var terrains=new Dictionary<double,LocalTerrain>();
+        var world = WorldFile.Read(File.ReadAllBytes(worldPath)); var terrain = new LocalTerrain(world);
         foreach(string line in File.ReadAllLines(probesPath))
         {
             var values = line.Split(',').Select(s=>double.Parse(s,System.Globalization.CultureInfo.InvariantCulture)).ToArray();
-            double scale=values.Length>6?values[6]:1;
-            if(!terrains.TryGetValue(scale,out var terrain)){terrain=new LocalTerrain(world,horizontalScale:scale);terrains.Add(scale,terrain);}
             var patch = terrain.Patch(new V(values[0],values[1],values[2]),6000);
             check(patch.Sample(values[3],values[4]).ElevationM == values[5], "IL2CPP and CLR local terrain samples match exactly");
         }

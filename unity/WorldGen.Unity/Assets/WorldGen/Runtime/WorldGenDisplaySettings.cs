@@ -9,7 +9,6 @@ public sealed partial class WorldGenRuntime
     {
         SetDisplayOptions(PlayerPrefs.GetInt("display-vsync",QualitySettings.vSyncCount>0?1:0)!=0,Math.Max(0,Math.Min(1000,PlayerPrefs.GetInt("display-max-fps",60))),false);
         WeatherVideoOptions.Current.Load();
-        TerrainVideoOptions.Current.Load();
     }
     void SetDisplayOptions(bool sync,int maximumFps,bool persist=true)
     {
@@ -29,6 +28,6 @@ public sealed partial class WorldGenRuntime
         var e=Event.current;if(previous&&valid&&GUI.GetNameOfFocusedControl()=="display-max-fps"&&e.type==EventType.KeyDown&&(e.keyCode==KeyCode.Return||e.keyCode==KeyCode.KeypadEnter)){apply=true;e.Use();}
         if(apply)SetDisplayOptions(displayVSync,fps);
         GUILayout.Label(displayVSync?"VSync follows the display refresh rate. Turn it off to use the FPS limit.":"0 = Unlimited · 1–1,000 FPS · Apply or press Enter",MutedStyle());
-        DrawTerrainVideoOptions();DrawWeatherVideoOptions();
+        DrawWeatherVideoOptions();
     }
 }

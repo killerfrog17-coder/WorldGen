@@ -8,7 +8,8 @@ an ecological population simulation, or a promise of Skyrim-level graphics.
 exposure, buried/rock-free deposits, lithology-conditioned stones/boulders and
 rare larger outcrops. Six blended rock textures extend the default substrate
 arrays without invalidating custom eight-layer sets. See LOCAL_GEOLOGY_STREAMING.md
-for model, art, collision limitations and streaming changes. Vegetation taxonomy
+for model, art and collision limitations. All terrain LOD behaviour was subsequently
+restored to the pre-geology20810b6 implementation at the owner's request. Vegetation taxonomy
 and placement have not been overhauled in this geology pass.
 
 ## Placement and streaming
