@@ -48,7 +48,7 @@ namespace WorldGen.Core
     {
         public readonly double TemperatureC,Humidity,RainMmPerHour,SnowWaterMmPerHour,CloudCover,CirrusCover,CloudBaseM,CloudThicknessM,CirrusBaseM,WindEastMps,WindNorthMps,GustMps,Thunderstorm,Fog;
         public double CloudDarkness=>D.Clamp(CloudCover*CloudCover*.2+(1-Math.Exp(-PrecipitationMmPerHour/3))*.65+Thunderstorm*.15);
-        public double VisibilityM=>3.912/(.00003912+.00022*Math.Pow(RainMmPerHour,.85)+.0012*Math.Pow(SnowWaterMmPerHour,.8)+Fog*.018);
+        public double VisibilityM=>3.912/(.00003912+.0014*Math.Pow(RainMmPerHour,.85)+.0045*Math.Pow(SnowWaterMmPerHour,.8)+Fog*.018);
         public double PrecipitationMmPerHour=>RainMmPerHour+SnowWaterMmPerHour;
         public WeatherFrame(double temperature,double humidity,double rain,double snow,double clouds,double cirrus,double cloudBase,double thickness,double cirrusBase,double east,double north,double gust,double storm,double fog=0)
         {TemperatureC=temperature;Humidity=humidity;RainMmPerHour=rain;SnowWaterMmPerHour=snow;CloudCover=clouds;CirrusCover=cirrus;CloudBaseM=cloudBase;CloudThicknessM=thickness;CirrusBaseM=cirrusBase;WindEastMps=east;WindNorthMps=north;GustMps=gust;Thunderstorm=storm;Fog=fog;}

@@ -1,6 +1,18 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-weather-clouds-final/WorldGen.exe` (IL2CPP,16:31:04Z).
+Cloud shapes use three-dimensional rounded billows, deeper density profiles
+and near-weighted ray steps; rain-bearing nimbus belongs to the same volume,
+not a separate storm shape. Rain/snow visibility is intentionally stronger.
+81 primitive/5891 actual-world/24 native-CLR assertions and38 native checks
+pass, including rendered overhead opacity with haze/particles disabled.
+Scattered-cloud, above-cloud, storm, natural-rain and snow captures are inspected.
+Weather-spatial-final remains rollback. No climate/history/water-budget changes
+or complete cloud taxonomy/scientific calibration are implied. See
+docs/PROCEDURAL_WEATHER.md and docs/VALIDATION.md.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-weather-spatial-final/WorldGen.exe`
 (IL2CPP,2026-10-19T15:54:08Z). Derived weather-preview-3 uses fixed, interpolated
 global nodes for local weather, distant clouds and optional M-map cloud darkness.

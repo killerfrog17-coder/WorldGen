@@ -48,6 +48,13 @@ public sealed partial class WorldGenRuntime
         Check(terrainExplorer.CurrentWeather.Fog==1&&terrainExplorer.CurrentWeather.VisibilityM<300&&Difference(clear,terrainExplorer.LastCapturePixels)>3,"ground fog actually obscures the view, not just a reported value");
         PlayCommands.Execute(play,0,"/weather storm",weather:terrainExplorer.WeatherControl);yield return new WaitForSecondsRealtime(.3f);Capture("command-storm");
         Check(terrainExplorer.CurrentWeather.Thunderstorm==1,"storm command activates storm weather");
+        // Isolate the actual cloud volume: rain haze must not make this test pass.
+        float oldVisibility=o.Visibility;o.Visibility=0;o.Particles=0;
+        yield return new WaitForSecondsRealtime(2);Capture("storm-volume-no-mist");
+        terrainExplorer.TestView(80,170,-85);yield return new WaitForSecondsRealtime(.3f);Capture("storm-overhead-no-mist");
+        terrainExplorer.WeatherScreen.DebugDepth=2;Capture("storm-overhead-opacity");
+        Check(terrainExplorer.LastCapturePixels.Average(p=>(double)p.r)>225,"rain-bearing volume actually closes the overhead sky without rain haze or particles");
+        terrainExplorer.WeatherScreen.DebugDepth=0;terrainExplorer.TestView(80,170,-18);o.Visibility=oldVisibility;o.Particles=1;
         PlayCommands.Execute(play,0,"/weather auto",weather:terrainExplorer.WeatherControl);yield return new WaitForSecondsRealtime(.6f);
         Check(terrainExplorer.WeatherControl.Mode=="auto"&&terrainExplorer.CurrentWeather.RainMmPerHour!=25,"auto command restores the natural provider");
         double rainDate=0,best=0;for(int k=0;k<2920;k++){double d=k*.125,rate=terrainExplorer.TestNaturalWeather(d).RainMmPerHour;if(rate>best){rainDate=d;best=rate;}if(rate>=1&&rate<4){rainDate=d;break;}}

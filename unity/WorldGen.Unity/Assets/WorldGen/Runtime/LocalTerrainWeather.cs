@@ -105,7 +105,7 @@ public sealed partial class LocalTerrainExplorer
         }
         var wind=Wind();int cap=options.Particles==2?12000:6000;
         float altitude=(view.transform.position-weatherScreen.PlanetCenter).magnitude-weatherScreen.RadiusM;
-        bool aboveCloud=altitude>CurrentWeather.CloudBaseM+CurrentWeather.CloudThicknessM;
+        bool aboveCloud=altitude>CurrentWeather.CloudBaseM+CurrentWeather.CloudThicknessM||CurrentWeather.CloudCover<.1;
         void Particles(ParticleSystem ps,bool snow)
         {
             // Concentrate the same bounded budget around the observer, not over a45m-wide box.

@@ -1,5 +1,30 @@
 # Version 3 validation evidence
 
+## Rounded cloud volumes and stronger precipitation visibility - 19 October 2026
+
+The IL2CPP `player-weather-clouds-final` built16:31:04Z replaces the dense-cover
+slab with three-dimensional Worley billows and a deeper vertical profile.
+Near-weighted ray steps reduce missed local cloud volumes on long sightlines.
+The actual wet column supplies a nimbus interior in the same cloud volume;
+local particles require cover and stop above the nominal cloud top. Rain/snow
+visibility coefficients are shared numerically between the reported visibility
+and shader: moderate4mm/h rain is about850m, storms about180m and blizzards
+about285m. This is intentionally strong game presentation, not measured optics.
+
+81 primitive,5891 actual-world and24 native/CLR assertions pass. The final
+player passes38 native checks with unchanged geography/history hashes and no
+shader/runtime errors. The new overhead-opacity capture disables rain haze
+and particles, so mist cannot conceal a missing cloud. Rounded scattered
+clouds, above-cloud tops, storm volume without mist, ordinary/natural rain
+and snow captures are inspected under ignored `artifacts/weather-clouds-verified`.
+Screenshot iteration rejected a flat-sided footprint extrusion before release.
+Final GPU-synchronized1280x800 measurements on this RTX4060 host: Low5.25ms
+median/5.89ms p95, High5.56/6.26ms, spatial Low5.45/6.03ms. These are whole-frame
+diagnostic timings, not isolated shader costs or low-end hardware guarantees.
+Generation, climate, dated precipitation totals and history rules are unchanged.
+Cloud families remain rudimentary; this is not a complete meteorological model.
+The previous weather-spatial-final player remains rollback.
+
 ## Spatial weather, fog and downpours — 19 October 2026
 
 Derived weather-preview-3 replaces viewer-uniform weather rendering with a lazy,

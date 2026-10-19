@@ -37,6 +37,8 @@ static class SpatialWeatherTests
         check(maxFog>.05&&dayFog==0,"Natural moist calm dawns can form fog that dissipates after morning");
         var controls=new WeatherControl();controls.Set("clear");var clear=controls.Apply(expected);controls.Set("downpour");var downpour=controls.Apply(expected);controls.Set("fog");var fog=controls.Apply(expected);
         check(downpour.RainMmPerHour>=30&&downpour.VisibilityM<1500&&downpour.CloudCover>.99&&downpour.CloudDarkness>.79,"Heavy rain has dense dark cloud and substantially reduced visibility");
+        controls.Set("rain");var moderate=controls.Apply(expected);controls.Set("blizzard");var blizzard=controls.Apply(expected);
+        check(moderate.VisibilityM<900&&downpour.VisibilityM<110&&blizzard.VisibilityM<300,"Moderate rain already strongly reduces visibility; downpour and blizzard obscure distant terrain");
         check(fog.VisibilityM<300&&fog.Fog==1&&clear.VisibilityM>50000,"Fog and clear modes have genuinely distinct visibility, not just labels");
         var calm=new RainSynth();var sound=new float[22050*2];calm.Read(sound);check(sound.All(x=>x==0),"No rain means no looping rain audio");
         var light=new RainSynth(){MillimetresPerHour=.3f};var heavy=new RainSynth(){MillimetresPerHour=40};var quiet=new float[22050*2*4];var loud=new float[quiet.Length];light.Read(quiet);heavy.Read(loud);

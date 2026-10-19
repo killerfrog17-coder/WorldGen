@@ -82,6 +82,15 @@ Precipitation fields have regional coherence instead of high-frequency speckling
 Cloud darkness increases with deck coverage, water and storm depth, in both
 the sky and the optional map overlay; this is not calibrated radiometry.
 
+The cloud-shape follow-up removes the uniform dense-cover slab. Rounded Worley
+billows shape cloud bodies, with noisy curved undersides and variable tops.
+Rain-bearing nimbus is an interior density floor in that same volume, driven
+by the same wet column as precipitation, rather than a separate storm mesh.
+Ray steps concentrate near the observer so long sightlines do not skip the
+overhead layer. Local precipitation also requires cloud cover and stops above
+the nominal cloud top. These are broad cumulus/nimbus/overcast forms, not a
+complete cloud taxonomy or simulated drop trajectories.
+
 The field refreshes after five weather minutes or a window move, at most once
 per1.5real seconds after an upload. Two buffers crossfade for1.25seconds; overlapping windows refer
 to identical global nodes. Tangent-chart reanchoring preserves the field and
@@ -137,8 +146,10 @@ tint. This is an empirical proxy, not a dew-point/valley-flow solver. See
 Scene-depth-limited shallow height fog attenuates distant objects while allowing
 the viewer to climb above it. Rain/snow curtains integrate six distant field
 samples below their cloud columns, plus a full-resolution near contribution.
-Visibility decreases with precipitation and fog density. A50mm/h downpour has
-nominal near-ground visibility around600m; the fog test mode is around220m.
+Visibility decreases with precipitation and fog density. The deliberately
+stronger game presentation gives4mm/h rain about850m nominal visibility,
+25mm/h storms about180m,50mm/h downpours about100m and4mm/h snow-water blizzards
+about285m; the fog test mode is around220m.
 These are game coefficients, not an observationally fitted visibility formula.
 [WMO precipitation hazards](https://community.wmo.int/site/knowledge-hub/programmes-and-initiatives/aviation/aviation-hazards-precipitation)
 informs the heavy-precipitation/low-cloud/visibility relationship. A settings
