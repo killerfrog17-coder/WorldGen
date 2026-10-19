@@ -1,5 +1,28 @@
 # Version 3 validation evidence
 
+## War-ending headlines - 18 October 2026
+
+Presentation-only peace summaries distinguish recorded government defeat/fall,
+imperial submission with retained local government, tribute, frontier settlements,
+trade-route agreements, supply failure and ceasefires. Dated current records may
+identify the parties to a defeat/submission; a later fall, patron or conquest is
+not projected backward into an earlier peace. Unknown archived terms remain
+explicitly unknown. No history events, simulation rules, news windows or saved
+hashes are rewritten; no rule upgrade is needed for the wording change.
+
+18 focused cases are included in1,003 passing presentation assertions. Actual
+Earth (1,696 archived events) and forest (276,068 events) news audits finish with
+unchanged historical hashes. Their latest political summaries correctly report
+named defeats ending independent governments rather than generic equal peace.
+This is presentation evidence, not new historical-realism/performance acceptance.
+
+IL2CPP `player-history-32-peace-news` was built2026-10-19T00:06:08Z and its
+manifest matches staged assemblies. Native representative Atlas sections pass
+without changing paused history; its12-year Earth continuation remains exactly
+`88d093657d492a7e7621aff9d5fa9c426510a0a62afbc72085baaf1e15243c05`.
+The project shortcut selects this presentation refresh, retaining domestic37 as
+rollback. Implementation checkpoint `adf0a5d` is backed up on origin/main.
+
 ## Persistent domestic institutions - 18 October 2026
 
 [Optional realm37](HISTORY32_DOMESTIC_POLITICS.md) adds saved power groups,
