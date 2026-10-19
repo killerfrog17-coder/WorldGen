@@ -20,11 +20,11 @@ public sealed partial class LocalTerrainExplorer
     public bool Paused=>paused;
     public bool MapReady=>mapTexture!=null&&!mapDirty&&mapJob==null;
     double MaximumViewDistance=>terrain==null?250000:Math.Min(250000,terrain.RadiusM*HorizontalScale*.3);
-    void CaptureMouse(){Cursor.lockState=mapOpen||paused?CursorLockMode.None:CursorLockMode.Locked;Cursor.visible=mapOpen||paused;}
+    void CaptureMouse(){if(passiveSkyCheck)return;Cursor.lockState=mapOpen||paused||chatOpen?CursorLockMode.None:CursorLockMode.Locked;Cursor.visible=mapOpen||paused||chatOpen;}
     void OnApplicationFocus(bool focus){if(focus&&!closed)CaptureMouse();}
     void HandleDebugKeys()
     {
-        var k=Keyboard.current;if(k==null)return;
+        var k=ActiveKeyboard;if(k==null)return;
         if(k.f3Key.wasPressedThisFrame)debugOpen=!debugOpen;
         if(k.mKey.wasPressedThisFrame&&!paused){mapOpen=!mapOpen;if(mapOpen)InvalidateMap();CaptureMouse();}
         if(k.escapeKey.wasPressedThisFrame){if(mapOpen){mapOpen=false;mapLayerMenu=false;}else paused=!paused;CaptureMouse();}
@@ -59,6 +59,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(MenuSkin!=null)GUI.skin=MenuSkin;
         GUI.color=GUI.contentColor=GUI.backgroundColor=Color.white;
+        DrawChat();
         if(debugOpen)
         {
             string text=terrain==null?"Preparing terrain…":DebugText();var style=new GUIStyle(GUI.skin.label){fontSize=14,wordWrap=false,richText=false};style.normal.textColor=Color.black;

@@ -44,17 +44,7 @@ public sealed partial class LocalTerrainExplorer
         var lightRoot=new GameObject("Local sunlight",typeof(Light));lightRoot.transform.SetParent(transform,false);lightRoot.transform.rotation=Quaternion.Euler(48,-35,0);
         var sun=localSun=lightRoot.GetComponent<Light>();sun.type=LightType.Directional;sun.color=new Color(1,.95f,.85f);sun.intensity=2.3f;sun.shadows=LightShadows.Soft;sun.shadowBias=.035f;sun.shadowNormalBias=.2f;sun.cullingMask=1<<30;
         RenderSettings.sun=sun;RenderSettings.ambientMode=AmbientMode.Trilight;RenderSettings.ambientSkyColor=new Color(.43f,.52f,.64f);RenderSettings.ambientEquatorColor=new Color(.3f,.32f,.28f);RenderSettings.ambientGroundColor=new Color(.16f,.17f,.13f);
-    }
-    public void SetDaylight(double solarHour,double seasonalYear)
-    {
-        if(localSun==null||Time.realtimeSinceStartupAsDouble<nextDaylightAt)return;nextDaylightAt=Time.realtimeSinceStartupAsDouble+.1;
-        double lat=Math.Asin(Position.Z),declination=23.44*Math.PI/180*Math.Sin(2*Math.PI*(seasonalYear-.218)),hour=(solarHour-12)*Math.PI/12;
-        var direction=new Vector3((float)(-Math.Cos(declination)*Math.Sin(hour)),(float)(Math.Sin(lat)*Math.Sin(declination)+Math.Cos(lat)*Math.Cos(declination)*Math.Cos(hour)),(float)(Math.Cos(lat)*Math.Sin(declination)-Math.Sin(lat)*Math.Cos(declination)*Math.Cos(hour))).normalized;
-        localSun.transform.rotation=Quaternion.LookRotation(-direction,Math.Abs(direction.y)>.99?Vector3.forward:Vector3.up);localSun.intensity=2.3f*Mathf.Clamp01(direction.y*2);
-        float day=Mathf.SmoothStep(0,1,Mathf.InverseLerp(-.15f,.18f,direction.y));var sky=Color.Lerp(new Color(.018f,.025f,.055f),new Color(.57f,.69f,.76f),day);view.backgroundColor=sky;
-        var ambient=Color.Lerp(new Color(.005f,.008f,.015f),new Color(.12f,.14f,.17f),day);
-        void MaterialLight(Material m){if(m.HasProperty("_FogColor"))m.SetVector("_FogColor",sky);if(m.HasProperty("_AmbientTint"))m.SetVector("_AmbientTint",ambient);}
-        MaterialLight(landMaterial);MaterialLight(waterMaterial);foreach(var material in ownedScatterMaterials)MaterialLight(material);
+        InitializeSky();
     }
     void ResetScatterFrame()
     {

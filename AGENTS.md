@@ -1,6 +1,19 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-sky-chat/WorldGen.exe` (IL2CPP,2026-10-19T06:43:59Z).
+Adds a camera-local one-sun sky, twilight/rotating stars, shared sky/music solar
+altitude, optional saved playable-calendar offset and Minecraft-style local chat
+(Enter, slash, alphabetical help, time/date commands). No moons/weather or
+generation/history rules change.892 focused/182music/42play/1008presentation/
+334interface assertions and28 hidden native input/sky/audio checks pass. Actual
+noon/twilight/night camera images are reviewed; hidden GUI capture is black, so
+chat layout is not claimed visually verified. Original multi-biome music names
+now decode correctly; all30 exploration tracks completed with zero failures.
+The exploration-music player remains rollback. See `docs/SKY_CHAT.md` and
+`docs/VALIDATION.md`; no new all-era/performance acceptance is implied.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-exploration-music/WorldGen.exe` (IL2CPP,2026-10-19T06:04:37Z).
 Music-only atmosphere pass adds streamed `music/exploration` with biome/time
 filename tags, weighted eligibility, recent-three avoidance and real-time gaps.

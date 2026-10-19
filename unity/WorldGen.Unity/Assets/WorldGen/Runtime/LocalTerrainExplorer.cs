@@ -26,6 +26,10 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     Action drawPause;World sourceWorld;PlaySession playState;PlaySettings explorationSettings=new PlaySettings{HorizontalScale=1};
     public double HorizontalScale=>explorationSettings.HorizontalScale;
     public GUISkin MenuSkin { get; set; }
+    readonly bool passiveSkyCheck=Environment.GetCommandLineArgs().Contains("--worldgen-sky-chat-check");
+    Keyboard testKeyboard;
+    Keyboard ActiveKeyboard=>testKeyboard??Keyboard.current;
+    public void TestKeyboard(Keyboard value){testKeyboard=value;}
     public string MusicDebugText { get; set; }="";
     public ExplorationMusicContext MusicContext(double hour,double year)
     {
@@ -77,7 +81,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     void Update()
     {
         if(closed)return;
-        HandleDebugKeys();if(closed)return;
+        bool chatInput=HandleChatKeys();if(!chatInput)HandleDebugKeys();if(closed)return;
         if(terrain==null)
         {
             if(!building.IsCompleted)return;
@@ -86,10 +90,10 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             if(playState!=null&&playState.HasPlayer){heading=(float)playState.Heading;pitch=(float)playState.Pitch;motion.Flying=playState.Flying;motion.Y=Ground(0,0)+Math.Max(TerrainMotion.EyeHeightM,playState.HeightAboveGround);UpdateCamera();}
         }
         UpdateMapWork();
-        var keyboard=Keyboard.current;var mouse=Mouse.current;
-        if(!mapOpen&&!paused)
+        var keyboard=ActiveKeyboard;var mouse=Mouse.current;
+        if(!mapOpen&&!paused&&!chatInput)
         {
-            if(mouse!=null){var d=mouse.delta.ReadValue();heading+=d.x*.1f;pitch=Mathf.Clamp(pitch-d.y*.1f,-85,85);
+            if(mouse!=null&&!passiveSkyCheck){var d=mouse.delta.ReadValue();heading+=d.x*.1f;pitch=Mathf.Clamp(pitch-d.y*.1f,-85,85);
                 if(motion.Flying){float scroll=mouse.scroll.ReadValue().y;if(scroll!=0)motion.FlySpeed=Math.Max(5,Math.Min(20000,motion.FlySpeed*Math.Exp(Math.Sign(scroll)*.25)));}}
             if(keyboard!=null)
             {
@@ -197,6 +201,6 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         throw new InvalidOperationException("No resolved western shore near the nominated coastal review site.");
     }
     public void TestView(double height,float yaw=20,float tilt=12){motion.Flying=true;motion.Y=Ground(motion.X,motion.Z)+height;heading=yaw;pitch=tilt;RefreshWanted();UpdateCamera();}
-    public void Close(){if(closed)return;closed=true;if(view!=null)view.enabled=false;cancellation.Cancel();Cursor.lockState=CursorLockMode.None;Cursor.visible=true;close?.Invoke();}
-    void OnDestroy(){cancellation.Cancel();mapCancellation?.Cancel();cancellation.Dispose();mapCancellation?.Dispose();DisposeScatter();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
+    public void Close(){if(closed)return;closed=true;if(view!=null)view.enabled=false;cancellation.Cancel();if(!passiveSkyCheck){Cursor.lockState=CursorLockMode.None;Cursor.visible=true;}close?.Invoke();}
+    void OnDestroy(){cancellation.Cancel();mapCancellation?.Cancel();cancellation.Dispose();mapCancellation?.Dispose();DisposeChat();DisposeSky();DisposeScatter();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
 }

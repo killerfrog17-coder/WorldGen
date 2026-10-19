@@ -63,7 +63,7 @@ public sealed partial class WorldGenRuntime
         musicBusy=true;StartCoroutine(PlayNextMusic());
     }
     int DesiredMusicEra()=>terrainExplorer!=null||screen=="Simulation"&&!musicSimulationStarted?0:CurrentMusicEra();
-    ExplorationMusicContext CurrentExplorationMusicContext()=>terrainExplorer.MusicContext(play.SolarHour,(SimulationTime.Seconds(world.Prehistory)+play.PendingHistorySeconds)/(double)SimulationTime.Year);
+    ExplorationMusicContext CurrentExplorationMusicContext()=>terrainExplorer.MusicContext(play.SolarHour,PlayCalendar.Seconds(play,SimulationTime.Seconds(world.Prehistory))/(double)SimulationTime.Year);
     void DrawAudioOptions()
     {
         GUILayout.Label("AUDIO",new GUIStyle(GUI.skin.label){fontStyle=FontStyle.Bold});
@@ -101,7 +101,9 @@ public sealed partial class WorldGenRuntime
         // Soundtrack-only entropy: never touches a world, recipe or simulation stream.
         AudioType type=Path.GetExtension(path).Equals(".ogg",StringComparison.OrdinalIgnoreCase)?AudioType.OGGVORBIS:
             Path.GetExtension(path).Equals(".wav",StringComparison.OrdinalIgnoreCase)?AudioType.WAV:AudioType.MPEG;
-        using(var request=UnityWebRequestMultimedia.GetAudioClip(new Uri(path).AbsoluteUri,type))
+        // Escape the basename as data: Unity's file transport otherwise treats
+        // '+' in multi-biome tags as a space on some Windows players.
+        using(var request=UnityWebRequestMultimedia.GetAudioClip(MusicFileUri(path),type))
         {
             ((DownloadHandlerAudioClip)request.downloadHandler).streamAudio=true;
             yield return request.SendWebRequest();
@@ -121,5 +123,6 @@ public sealed partial class WorldGenRuntime
         }
         nextMusicCheck=Time.unscaledTime+.5f;musicBusy=false;
     }
+    static string MusicFileUri(string path)=>new Uri(Path.GetDirectoryName(path)+Path.DirectorySeparatorChar).AbsoluteUri+Uri.EscapeDataString(Path.GetFileName(path));
     void DisposeMusic(){if(musicSource!=null){musicSource.Stop();if(musicSource.clip!=null)Destroy(musicSource.clip);}}
 }

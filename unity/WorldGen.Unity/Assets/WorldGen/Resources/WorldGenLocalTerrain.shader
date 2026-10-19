@@ -3,6 +3,7 @@ Shader "WorldGen/LocalTerrain"
     Properties
     {
         _Water("Water",Float)=0 _FogDistance("Fog distance",Float)=200000
+        _Daylight("Daylight",Float)=1
         _FogColor("Sky colour",Color)=(.57,.69,.76,1) _AmbientTint("Ambient light",Color)=(.12,.14,.17,1)
         _GroundAlbedo("Herb, soil, rock, snow albedo",2DArray)=""{}
         _GroundNormals("Linear RGB tangent normals",2DArray)=""{}
@@ -27,7 +28,7 @@ Shader "WorldGen/LocalTerrain"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
             TEXTURE2D_ARRAY(_GroundAlbedo);SAMPLER(sampler_GroundAlbedo);
             TEXTURE2D_ARRAY(_GroundNormals);TEXTURE2D_ARRAY(_GroundMasks);
-            float _Water,_FogDistance,_TextureMetres;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint;
+            float _Water,_FogDistance,_TextureMetres,_Daylight;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint;
             struct A { float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 color:COLOR;float4 weights:TEXCOORD1; };
             struct O { float4 positionCS:SV_POSITION;float3 normal:TEXCOORD0;float3 position:TEXCOORD1;float4 color:COLOR;float4 weights:TEXCOORD2; };
             O vert(A a){O o;o.position=TransformObjectToWorld(a.positionOS.xyz);o.positionCS=TransformWorldToHClip(o.position);o.normal=TransformObjectToWorldNormal(a.normalOS);o.color=a.color;o.weights=a.weights;return o;}
@@ -44,7 +45,7 @@ Shader "WorldGen/LocalTerrain"
                 farColor=SRGBToLinear(farColor);fogColor=SRGBToLinear(fogColor);
                 #endif
                 float distance=length(i.position-_WorldSpaceCameraPos);
-                if(_Water>.5){clip(i.color.a-.01);return half4(lerp(farColor*.92,fogColor,smoothstep(_FogDistance*.25,_FogDistance,distance)),1);}
+                if(_Water>.5){clip(i.color.a-.01);return half4(lerp(farColor*.92*lerp(.035,1,_Daylight),fogColor,smoothstep(_FogDistance*.25,_FogDistance,distance)),1);}
                 float3 n=normalize(i.normal);
                 float3 np=n.x*_PlanetEast.xyz+n.y*_PlanetUp.xyz+n.z*_PlanetNorth.xyz;
                 float3 w=pow(abs(np),4);w/=max(.0001,w.x+w.y+w.z);

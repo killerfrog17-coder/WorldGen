@@ -1,5 +1,35 @@
 # Version 3 validation evidence
 
+## Playable sky and local chat — 19 October 2026
+
+See `SKY_CHAT.md`. The Release solution builds with zero warnings/errors;
+892 focused sky/calendar/command assertions,182 music assertions,42 saved-play
+assertions,1,008 historical presentation assertions and334 interface assertions
+pass. The IL2CPP build2026-10-19T06:43:59Z passes28 native assertions in ignored
+`artifacts/sky-chat-final-review/result.txt`. Actual injected keyboard/text events
+verify Enter, prefilled slash, help, command execution, history, Tab completion,
+chat-first Escape and movement blocking. Calendar/solar offsets cold-roundtrip;
+commands do not rewrite recorded historical state. An original multi-biome
+generated OGG, with `+` and other filename tags intact, decodes successfully.
+
+Camera render-target images at35°N,4°W were inspected at noon, sunrise, sunset
+and midnight. The final night image has179 bright stellar pixels rather than
+the first candidate's oversized soft stars; unrelated directional lights no
+longer illuminate night terrain. Lower-half daylight/night means are136.40/5.45.
+The first coastal test was below the local water surface and was rejected, not
+treated as a sky validation. Noon shows one solar disk; no moon is implemented.
+Tests ran hidden without taking input/cursor focus from the owner's game.
+
+Hidden-window GUI screenshots are black, and an off-screen/no-activate attempt
+encountered DX11 presentation/resolution failures and was discarded. Therefore
+the native chat controls are verified but its visual layout is **not** accepted
+on the basis of these screenshots. This is not an all-site sky, physical
+atmosphere, weather or all-era/performance acceptance claim. Generation/history
+rules and goldens remain unchanged; the preceding archived Earth full-suite
+golden mismatch remains unresolved. The preceding exploration-music player is
+retained as rollback. All30 planned exploration tracks are now complete with
+zero generation failures; recordings remain outside Git.
+
 ## Exploration music — 19 October 2026
 
 The music-only atmosphere milestone adds a separate streamed gameplay library,

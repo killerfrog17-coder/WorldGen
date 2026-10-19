@@ -58,7 +58,7 @@ public sealed partial class WorldGenRuntime
         humanPlayback.Accumulate(elapsed,run);
         bool playingLocal=screen=="Simulation"&&!Environment.GetCommandLineArgs().Contains("--worldgen-local-terrain-check")&&terrainExplorer!=null&&terrainExplorer.Ready&&!terrainExplorer.Paused&&!terrainExplorer.MapVisible&&!saveDialog;
         if(playingLocal)play.Accumulate(Math.Max(0,elapsed));
-        if(playingLocal)terrainExplorer.SetDaylight(play.SolarHour,(SimulationTime.Seconds(world.Prehistory)+play.PendingHistorySeconds)/(double)SimulationTime.Year);
+        if(terrainExplorer!=null&&terrainExplorer.Ready)terrainExplorer.SetDaylight(play.SolarHour,PlayCalendar.Seconds(play,SimulationTime.Seconds(world.Prehistory))/(double)SimulationTime.Year);
         long pending=playingLocal?(long)Math.Floor(play.PendingHistorySeconds):humanPlayback.Pending;
         bool localDue=playingLocal&&(pending>=60||clockNow-playPublicationAt>=2);
         if((run||localDue)&&humanStep==null&&pending>0)

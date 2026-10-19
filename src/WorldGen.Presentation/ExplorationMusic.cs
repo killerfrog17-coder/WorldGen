@@ -13,8 +13,7 @@ namespace WorldGen.Presentation
         public ExplorationMusicContext(Biome biome,MusicTime time){Biome=biome;Time=time;}
         public static double SolarAltitude(double latitude,double solarHour,double seasonalYear)
         {
-            double lat=latitude*Math.PI/180,declination=23.44*Math.PI/180*Math.Sin(2*Math.PI*(seasonalYear-.218)),hour=(solarHour-12)*Math.PI/12;
-            return Math.Asin(Math.Max(-1,Math.Min(1,Math.Sin(lat)*Math.Sin(declination)+Math.Cos(lat)*Math.Cos(declination)*Math.Cos(hour))))*180/Math.PI;
+            return Math.Asin(PlayableSky.SunDirection(latitude,solarHour,seasonalYear).Y)*180/Math.PI;
         }
         public static MusicTime TimeAt(double solarHour,double altitude)
         {

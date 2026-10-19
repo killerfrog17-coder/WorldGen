@@ -56,6 +56,7 @@ public sealed partial class WorldGenRuntime
             if (globe != null) globe.SetActive(true); terrainUnloading=SceneManager.UnloadSceneAsync(scene);
         },world,play,DrawPlayPause);
         terrainExplorer.MenuSkin=gameSkin;
+        terrainExplorer.SetCommandHandler(text=>PlayCommands.Execute(play,SimulationTime.Seconds(world.Prehistory),text));
     }
     IEnumerator CheckLocalTerrain()
     {

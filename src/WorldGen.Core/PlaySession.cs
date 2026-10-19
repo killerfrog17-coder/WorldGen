@@ -21,6 +21,7 @@ namespace WorldGen.Core
         public string Version="play-session-1";
         public PlaySettings Settings=new PlaySettings();
         public double SolarDays,PendingHistorySeconds;
+        [System.Runtime.Serialization.OptionalField] public double CalendarOffsetSeconds;
         public bool HasPlayer,Flying;
         public V PlayerPosition;
         public double Heading,Pitch,HeightAboveGround=1.65;
@@ -30,7 +31,7 @@ namespace WorldGen.Core
         {
             if(Version!="play-session-1"||Settings==null)throw new ArgumentException("Unsupported play session.");Settings.Validate();
             bool Finite(double v)=>!double.IsNaN(v)&&!double.IsInfinity(v);
-            if(!Finite(SolarDays)||SolarDays<0||!Finite(PendingHistorySeconds)||PendingHistorySeconds<0||PendingHistorySeconds>1e12||
+            if(!Finite(SolarDays)||SolarDays<0||!Finite(CalendarOffsetSeconds)||Math.Abs(CalendarOffsetSeconds)>1e15||!Finite(PendingHistorySeconds)||PendingHistorySeconds<0||PendingHistorySeconds>1e12||
                 !Finite(Heading)||!Finite(Pitch)||Math.Abs(Pitch)>85||!Finite(HeightAboveGround)||HeightAboveGround<0||HeightAboveGround>1e7||
                 HasPlayer&&(!Finite(PlayerPosition.X)||!Finite(PlayerPosition.Y)||!Finite(PlayerPosition.Z)||Math.Abs(PlayerPosition.Length-1)>1e-5))throw new ArgumentException("Invalid play session state.");
         }
