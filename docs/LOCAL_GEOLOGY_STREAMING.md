@@ -39,33 +39,50 @@ References informing the distinction:
 - [Texas Parks: Enchanted Rock guide](https://tpwd.texas.gov/publications/pwdpubs/media/pwd_br_p4507_0119r.pdf): granite domes and exfoliation.
 - [NPS: granite weathering](https://www.nps.gov/places/geological-trail-station-1.htm): joints, exfoliation and weathered debris.
 
-## Streaming: restored original implementation
+## Streaming: rollback baseline plus prepared frame handoff
 
-The owner rejected both geology-era streaming attempts. All LOD behaviour is
-restored to commit20810b6 (the centered-footsteps checkpoint), not redesigned:
-original planning/sampling, tile lifetime, job admission/completion, reanchoring,
-analytic player grounding, view-distance control and distance fog. This deliberately
-includes the original reanchor reload behaviour. No claim that those old limitations
-have been solved is made.
+The owner rejected both geology-era streaming attempts. Commit6a89867 restored
+the20810b6 baseline while retaining rocks. The subsequent owner-authorized fix
+targets only the destructive automatic chart reset, not a new LOD-quality scheme.
+TerrainLod planning/sampling, mesh geometry, height queries, analytic grounding,
+ordinary visible-tile replacement, view-distance control and distance fog remain
+the rollback baseline.
 
-The new terrain streaming partial class and Video LOD options are deleted.
-No retained-chart/product cache, coverage root/mask, geometric morph,
-rendered-triangle grounding or protective streaming fog remains. The only changes
-to the baseline explorer/shader are the six rock-material attribute channels
-and material blending. Scatter's ground-height lookup also matches20810b6.
+At half the existing reanchor distance, one hidden replacement frame prepares
+the normal requested tiles. It shares the existing two terrain/scatter worker
+slots and single terrain upload per frame. Current terrain stays active until
+the replacement covers the requested area and supplies required near detail and
+edge stitching. Missing distance leaves are prepared ahead of repeated detail
+refinements; overdue work prioritizes the replacement rather than refining the
+chart about to retire. If preparation is late, the active chart is not cleared.
+
+The handoff transfers the prepared plan and switches both frame roots in one
+Update. Geographic position, height above ground, viewing direction, motion
+state and footstep cadence are retained. Scatter batches update before that
+frame renders. Retired terrain is disabled together and its meshes destroyed
+two tiles per frame; the next preparation waits for retirement to finish.
+This is bounded overlap memory, not a permanent fine-terrain cache.
+Manual map teleports still perform an explicit reset.
+
+No coverage roots/masks, geometric morphs, rendered-mesh grounding, protective
+streaming fog or new Video LOD controls are introduced. Ordinary LOD transitions
+and detail lag at extreme speed are not claimed solved; their masking is deferred.
 
 ## Checks
 
 Focused tests: `--ground-only`, `--local-scatter-only`,
-`--local-terrain-only`. Source comparisons against20810b6 verify the complete
-navigation, debug controls, display settings and runtime review harness match;
-explorer differences are restricted to lithology upload, and shader differences
-to rock material attributes/shading.
+`--local-terrain-only`. TerrainLod/LocalTerrainNavigation, mesh geometry, terrain
+shader and scatter VisibleGround stay at the rollback baseline. New tests cover
+chart coordinates at poles/scales, complete versus missing coverage and required
+near resolution. The normal ground/input review remains available.
 
 The restored native review uses `--worldgen-ground-review` with
 `--worldgen-local-terrain-check <snapshot.world> --worldgen-output <directory>`.
 The removed geology/streaming-review flags no longer apply. Prior passing
 cache/morph tests are historical evidence only, not owner acceptance.
+The new --worldgen-reanchor-review exercises repeated flight and actual walking
+crossings at0.1x, measures handoff/upload/frame timings, tests rendered eye
+clearance and captures the same standing position before/after handoff.
 
 Rock art remains the latest irregular asymmetric weathered ellipsoids with
 welded seam normals, not the first deliberately squared placeholder. Lithology

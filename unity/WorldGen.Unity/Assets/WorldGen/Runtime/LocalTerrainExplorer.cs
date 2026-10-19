@@ -124,6 +124,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             foreach(var entry in tiles)entry.Value.Root.transform.localPosition=new Vector3((float)(entry.Key.X*entry.Key.SizeM-originX),0,(float)(entry.Key.Z*entry.Key.SizeM-originZ));
             foreach(var chunk in scatterChunks.Values)ProjectScatter(chunk);scatterDirty=true;
         }
+        UpdatePreparedFrame();
         UpdateCamera();UpdateFootsteps();double altitude=HeightAboveGround;
         if(double.IsNaN(plannedX)||Math.Abs(motion.X-plannedX)>1024||Math.Abs(motion.Z-plannedZ)>1024||Math.Abs(altitude-plannedAltitude)>Math.Max(150,plannedAltitude*.3))RefreshWanted();
         for(int i=jobs.Count-1;i>=0;i--)
@@ -144,8 +145,11 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             if(wanted.Where(w=>Overlaps(key,w.Key)).All(w=>tiles.TryGetValue(w.Key,out var replacement)&&replacement.Segments==w.Value))
             {DestroyTile(tiles[key]);tiles.Remove(key);}
         UpdateScatter();UpdateWeatherPresentation();
-        UpdatePreparedFrame();
         SchedulePreparedWork(true);
+        // Once a handoff is due, spend terrain work on its replacement rather
+        // than repeatedly refining the chart that is about to be retired.
+        if(preparedFrame!=null&&ReanchorDistance>=ReanchorLimit)
+        {SchedulePreparedWork(false);RetireTerrainGradually();return;}
         foreach(var key in priority)
         {
             if(jobs.Count+scatterJobs.Count>=2)break;int detail=wanted[key];
@@ -242,6 +246,6 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         throw new InvalidOperationException("No resolved western shore near the nominated coastal review site.");
     }
     public void TestView(double height,float yaw=20,float tilt=12){motion.Flying=true;motion.Y=Ground(motion.X,motion.Z)+height;heading=yaw;pitch=tilt;RefreshWanted();UpdateCamera();}
-    public void Close(){if(closed)return;closed=true;if(view!=null)view.enabled=false;cancellation.Cancel();if(!passiveSkyCheck){Cursor.lockState=CursorLockMode.None;Cursor.visible=true;}close?.Invoke();}
+    public void Close(){if(closed)return;closed=true;if(view!=null)view.enabled=false;cancellation.Cancel();if(!passiveSkyCheck&&!passiveReanchorCheck){Cursor.lockState=CursorLockMode.None;Cursor.visible=true;}close?.Invoke();}
     void OnDestroy(){cancellation.Cancel();mapCancellation?.Cancel();cancellation.Dispose();mapCancellation?.Dispose();CancelPreparedFrame();DisposeRetiringTerrain();DisposeFootsteps();DisposeCloudMap();DisposeChat();DisposeWeather();DisposeSky();DisposeScatter();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
 }

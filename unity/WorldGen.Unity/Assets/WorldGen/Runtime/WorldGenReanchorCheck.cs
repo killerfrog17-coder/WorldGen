@@ -32,7 +32,7 @@ public sealed partial class WorldGenRuntime
         while(!explorer.AllReady&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         explorer.Capture(Path.Combine(output,"flight-start.png"));
         int seen=explorer.ReanchorCount,checks=0;double started=Time.realtimeSinceStartupAsDouble;
-        deadline=started+100;
+        deadline=started+100;double nextProgress=started;
         while(explorer.ReanchorCount<3&&Time.realtimeSinceStartupAsDouble<deadline)
         {
             double before=Time.realtimeSinceStartupAsDouble;
@@ -41,6 +41,8 @@ public sealed partial class WorldGenRuntime
             frames.Add(Time.realtimeSinceStartupAsDouble-before);
             if(!explorer.TerrainVisible||!explorer.CenterReady)throw new Exception("Visible terrain coverage disappeared during flight.");
             if(explorer.Error!="")throw new Exception(explorer.Error);
+            if(Time.realtimeSinceStartupAsDouble>=nextProgress)
+            {nextProgress=Time.realtimeSinceStartupAsDouble+2;File.WriteAllText(Path.Combine(output,"progress.txt"),"crossings "+explorer.ReanchorCount+"; distance "+explorer.ReanchorDistance+"; "+explorer.TestHandoffDiagnostics());}
             if(explorer.ReanchorCount!=seen)
             {
                 seen=explorer.ReanchorCount;checks++;
@@ -53,14 +55,14 @@ public sealed partial class WorldGenRuntime
         explorer.Teleport(location);explorer.TestBoundaryGround();explorer.TestView(1.65,90,0);explorer.TestWalking();
         deadline=Time.realtimeSinceStartupAsDouble+120;
         while((!explorer.AllReady||explorer.PreparedTileCount<100)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
-        yield return new WaitForEndOfFrame();explorer.Capture(Path.Combine(output,"walk-before.png"));
+        explorer.TestHoldHandoff=true;
         int walkedAt=explorer.ReanchorCount;
         InputSystem.settings.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
         var keyboard=InputSystem.AddDevice<Keyboard>();keyboard.MakeCurrent();explorer.TestKeyboard(keyboard);
         InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(Key.W));
         deadline=Time.realtimeSinceStartupAsDouble+30;
         double worstClearance=0;
-        while(explorer.ReanchorCount==walkedAt&&Time.realtimeSinceStartupAsDouble<deadline)
+        while(!explorer.TestHandoffWaiting&&Time.realtimeSinceStartupAsDouble<deadline)
         {
             yield return null;
             if(!explorer.TerrainVisible||!explorer.CenterReady)throw new Exception("Visible terrain disappeared during walking.");
@@ -68,12 +70,19 @@ public sealed partial class WorldGenRuntime
         }
         InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());yield return null;
         InputSystem.RemoveDevice(keyboard);explorer.TestKeyboard(null);
+        if(!explorer.TestHandoffWaiting)throw new Exception("Walking replacement did not become ready.");
+        yield return new WaitForEndOfFrame();explorer.Capture(Path.Combine(output,"walk-before.png"));
+        var beforePosition=explorer.Position;
+        explorer.TestHoldHandoff=false;deadline=Time.realtimeSinceStartupAsDouble+5;
+        while(explorer.ReanchorCount==walkedAt&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(explorer.ReanchorCount==walkedAt)throw new Exception("Actual walking did not cross the prepared boundary.");
+        if(D.Angle(beforePosition,explorer.Position)*637100>.03)throw new Exception("Prepared handoff moved the player geographically.");
         yield return new WaitForEndOfFrame();explorer.Capture(Path.Combine(output,"walk-after.png"));
         double afterClearance=explorer.RenderedFootClearance;
         report.Add("Walking across boundary: worst rendered eye-clearance error "+worstClearance.ToString("F4")+"m; after "+afterClearance.ToString("F4")+"m; analytic "+explorer.HeightAboveGround.ToString("F4")+"m");
         if(worstClearance>.12||Math.Abs(afterClearance-1.65)>.12)throw new Exception("Player/rendered-ground alignment changed across handoff: "+worstClearance+" / "+afterClearance);
-        report.Add("Largest atomic handoff "+explorer.LargestHandoffMs.ToString("F3")+"ms; largest mesh upload "+explorer.LargestUploadMs.ToString("F3")+"ms");
+        report.Add("Largest atomic handoff "+explorer.LargestHandoffMs.ToString("F3")+"ms; largest mesh upload "+explorer.LargestUploadMs.ToString("F3")+"ms; "+explorer.LargestHandoffProfile);
+        File.WriteAllLines(Path.Combine(output,"handoffs.txt"),report);
         if(explorer.LargestHandoffMs>40)throw new Exception("Main-thread handoff exceeded40ms: "+explorer.LargestHandoffMs);
         if(StateHash.Compute(world)!=sourceHash)throw new Exception("Terrain handoff changed source world.");
         report.Add("PASS three700m/s flight crossings and actual walking crossing at0.1x; no empty terrain; unchanged source "+sourceHash);

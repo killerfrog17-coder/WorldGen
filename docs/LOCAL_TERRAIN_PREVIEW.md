@@ -138,11 +138,12 @@ replaceable natural-cover meshes and layered PBR materials without changing heig
 
 ## Bounded rendering and cost
 
-19 October owner-requested rollback restores all pre-geology LOD behaviour from
-commit20810b6, including grounding, reanchoring, original distance fog and the
-single debug view-distance control. The new rock placement/geometry/materials
-remain; experimental caches, coverage masks, morphs and Video LOD options do not.
-See LOCAL_GEOLOGY_STREAMING.md.
+19 October rollback restored the20810b6 LOD baseline with new rocks retained.
+The subsequent focused reanchor fix prepares a hidden replacement before
+switching frames, rather than clearing visible terrain. Planning/sampling,
+grounding, ordinary tile replacement, distance fog and the debug view-distance
+control remain the rollback baseline. No coverage masks, morphs, permanent
+terrain cache or Video LOD options return. See LOCAL_GEOLOGY_STREAMING.md.
 
 The 200k world is not resampled or rescanned per chunk or historical event.
 Descriptor/index construction is once per active World in RAM. Heights are

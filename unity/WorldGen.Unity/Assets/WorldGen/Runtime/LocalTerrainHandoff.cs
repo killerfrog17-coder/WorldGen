@@ -16,7 +16,8 @@ public sealed partial class LocalTerrainExplorer
         public Dictionary<TerrainTileKey,int> Wanted;
         public readonly Dictionary<TerrainTileKey,double[]> Edges=new Dictionary<TerrainTileKey,double[]>();
         public readonly List<TerrainTileKey> Priority=new List<TerrainTileKey>();
-        public double X=double.NaN,Z,Altitude;
+        public readonly List<TerrainTileKey> CoveragePriority=new List<TerrainTileKey>();
+        public double X=double.NaN,Z,Altitude,SortAt;
     }
     sealed class RetiringFrame {public GameObject Root;public Queue<Tile> Tiles;}
     PreparedFrame preparedFrame;
@@ -25,12 +26,23 @@ public sealed partial class LocalTerrainExplorer
     public int ReanchorCount {get;private set;}
     public double LargestHandoffMs {get;private set;}
     public double LargestUploadMs {get;private set;}
+    public string LargestHandoffProfile {get;private set;}="";
     public int PreparedTileCount=>preparedFrame?.Tiles.Count??0;
     public double ReanchorDistance=>Math.Max(Math.Abs(motion.X),Math.Abs(motion.Z));
     public double ReanchorLimit=>frame==null?0:TerrainHandoff.Limit(frame);
     public double RenderedFootClearance=>motion.Y-VisibleGround(motion.X,motion.Z,Ground(motion.X,motion.Z));
     public bool TerrainVisible=>terrainRoot!=null&&terrainRoot.activeInHierarchy&&tiles.Count>0;
-    public void TestAdvanceEast(double metres){motion.X+=metres;}
+    public bool TestHoldHandoff,TestHandoffWaiting;
+    public string TestHandoffDiagnostics()
+    {
+        var p=preparedFrame;if(p?.Wanted==null)return "no preparation; active jobs "+jobs.Count;
+        TerrainHandoff.Coordinates(p.Frame,Position,out double x,out double z);
+        var resident=p.Tiles.ToDictionary(pair=>pair.Key,pair=>pair.Value.Segments);
+        return "tiles "+p.Tiles.Count+"/"+p.Wanted.Count+"; pending jobs "+jobs.Count(j=>j.Prepared!=null)+
+            "; coverage "+TerrainHandoff.Ready(p.Wanted,resident,1e20,1e20,0)+
+            "; near ready "+TerrainHandoff.Ready(p.Wanted,resident,x,z,motion.Flying?0:2048*HorizontalScale);
+    }
+    public void TestAdvanceEast(double metres){motion.X+=metres;motion.Y=Math.Max(motion.Y,Ground(motion.X,motion.Z)+450);}
     public void TestBoundaryGround()
     {
         double x=ReanchorLimit-6;
@@ -79,6 +91,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdatePreparedFrame()
     {
+        TestHandoffWaiting=false;
         if(terrain==null)return;
         double limit=TerrainHandoff.Limit(frame),distance=ReanchorDistance;
         if(preparedFrame==null)
@@ -86,7 +99,8 @@ public sealed partial class LocalTerrainExplorer
             if(distance<limit*.5||retiringFrames.Count>0)return;
             // Aim the next chart toward the approaching boundary, not behind
             // the traveller. No change to the current frame or loaded products.
-            var point=frame.Position(motion.X*2,motion.Z*2);
+            double lead=distance<limit?limit/distance:1;
+            var point=frame.Position(motion.X*lead,motion.Z*lead);
             var next=new LocalTerrainFrame(point,terrain.RadiusM,terrain.Patch(point).Sample(0,0).ElevationM,HorizontalScale);
             preparedFrame=new PreparedFrame{Frame=next,Root=NewTerrainRoot(false)};
         }
@@ -102,10 +116,21 @@ public sealed partial class LocalTerrainExplorer
             pending.Wanted=TerrainLod.Plan(x,z,altitude,viewDistance,HorizontalScale);
             pending.Priority.Clear();pending.Priority.AddRange(pending.Wanted.Keys);pending.Edges.Clear();
             foreach(var key in pending.Priority)pending.Edges[key]=TerrainLod.EdgeSteps(key,pending.Wanted);
-            double Distance(TerrainTileKey k){double dx=(k.X+.5)*k.SizeM-x,dz=(k.Z+.5)*k.SizeM-z;return dx*dx+dz*dz;}
-            pending.Priority.Sort((a,b)=>Distance(a).CompareTo(Distance(b)));
+            pending.CoveragePriority.Clear();pending.CoveragePriority.AddRange(pending.Priority);
+            pending.CoveragePriority.Sort((a,b)=>b.Level.CompareTo(a.Level));pending.SortAt=0;
             foreach(var key in pending.Tiles.Keys.Where(k=>!pending.Wanted.ContainsKey(k)&&!pending.Wanted.Keys.Any(w=>Overlaps(k,w))).ToArray())
             {DestroyTile(pending.Tiles[key]);pending.Tiles.Remove(key);}
+            // Same replacement rule as the active renderer: do not accumulate
+            // a trail of obsolete fine products in the hidden frame.
+            foreach(var key in pending.Tiles.Keys.Where(k=>!pending.Wanted.ContainsKey(k)).ToArray())
+                if(pending.Wanted.Where(w=>Overlaps(key,w.Key)).All(w=>pending.Tiles.TryGetValue(w.Key,out var replacement)&&replacement.Segments==w.Value))
+                {DestroyTile(pending.Tiles[key]);pending.Tiles.Remove(key);}
+        }
+        if(Time.realtimeSinceStartupAsDouble>=pending.SortAt)
+        {
+            pending.SortAt=Time.realtimeSinceStartupAsDouble+.1;
+            double Distance(TerrainTileKey k){double dx=(k.X+.5)*k.SizeM-x,dz=(k.Z+.5)*k.SizeM-z;return dx*dx+dz*dz;}
+            pending.Priority.Sort((a,b)=>Distance(a).CompareTo(Distance(b)));
         }
         if(distance<limit||Time.realtimeSinceStartupAsDouble<nextHandoffCheck)return;
         nextHandoffCheck=Time.realtimeSinceStartupAsDouble+.1;
@@ -124,13 +149,17 @@ public sealed partial class LocalTerrainExplorer
                 (!pending.Tiles.TryGetValue(key,out var tile)||!tile.Edges.SequenceEqual(pending.Edges[key])))return;
         }
         if(!TerrainHandoff.Ready(pending.Wanted,resident,x,z,near))return;
+        if(TestHoldHandoff){TestHandoffWaiting=true;return;}
         CommitPreparedFrame(pending,x,z);
     }
     void SchedulePreparedWork(bool reserveCurrentSlot)
     {
         var pending=preparedFrame;if(pending?.Wanted==null)return;
         if(reserveCurrentSlot&&jobs.Any(j=>j.Prepared!=null))return;
-        foreach(var key in pending.Priority)
+        // First fill the actual requested coarse distance leaves (not extra
+        // roots). Refinement churn near a fast traveller must not starve them.
+        var order=pending.CoveragePriority.Where(k=>!pending.Tiles.ContainsKey(k)&&k.Level>=3).Concat(pending.Priority);
+        foreach(var key in order)
         {
             if(jobs.Count+scatterJobs.Count>=2)return;
             int detail=pending.Wanted[key];var edges=pending.Edges[key];
@@ -145,6 +174,8 @@ public sealed partial class LocalTerrainExplorer
     void CommitPreparedFrame(PreparedFrame pending,double x,double z)
     {
         var timer=System.Diagnostics.Stopwatch.StartNew();
+        double stamp=0;var profile=new System.Text.StringBuilder();
+        void Mark(string name){double now=timer.Elapsed.TotalMilliseconds;profile.Append(name+" "+(now-stamp).ToString("F2")+"ms; ");stamp=now;}
         double above=HeightAboveGround;var oldFrame=frame;double yaw=heading*Math.PI/180,tilt=pitch*Math.PI/180;
         V direction=(oldFrame.East*Math.Sin(yaw)+oldFrame.North*Math.Cos(yaw))*Math.Cos(tilt)-oldFrame.Origin*Math.Sin(tilt);
         var oldRoot=terrainRoot;var oldTiles=tiles;
@@ -157,10 +188,16 @@ public sealed partial class LocalTerrainExplorer
         foreach(var pair in tiles)
             pair.Value.Root.transform.localPosition=new Vector3((float)(pair.Key.X*pair.Key.SizeM-originX),0,(float)(pair.Key.Z*pair.Key.SizeM-originZ));
         landMaterial.SetVector("_LocalOrigin",new Vector4((float)originX,(float)originZ,0,0));
-        plannedX=double.NaN;RefreshWanted();UpdateCamera();ResetScatterFrame();ResetWeatherFrame();
-        SetDaylight(LocalSolarHour,skyYear);
+        // The replacement was already planned. Do not repeat its quadratic edge
+        // stitching/LOD planning on the handoff frame.
+        wanted=pending.Wanted;wantedEdges.Clear();foreach(var pair in pending.Edges)wantedEdges.Add(pair.Key,pair.Value);
+        priority.Clear();priority.AddRange(pending.Priority);plannedX=pending.X;plannedZ=pending.Z;plannedAltitude=pending.Altitude;
+        UpdateCamera();Mark("frame/plan");
+        ResetScatterFrame();Mark("scatter");
+        ResetWeatherFrame();SetDaylight(LocalSolarHour,skyYear);Mark("sky/weather");
         // Both roots switch in the same Update. Never render an empty frame.
         terrainRoot.SetActive(true);RetireFrame(oldRoot,oldTiles);ReanchorCount++;
-        LargestHandoffMs=Math.Max(LargestHandoffMs,timer.Elapsed.TotalMilliseconds);
+        Mark("activate");
+        if(timer.Elapsed.TotalMilliseconds>LargestHandoffMs){LargestHandoffMs=timer.Elapsed.TotalMilliseconds;LargestHandoffProfile=profile.ToString();}
     }
 }
