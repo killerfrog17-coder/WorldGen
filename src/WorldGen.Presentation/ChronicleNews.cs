@@ -42,7 +42,7 @@ namespace WorldGen.Presentation
             else switch(e.Kind)
             {
                 case "war":if(Major(e.PolityId)||Major(e.OtherPolityId))text=Court(e.PolityId)+" went to war with "+Court(e.OtherPolityId)+".";break;
-                case "peace":if(Major(e.PolityId)||Major(e.OtherPolityId))text=Court(e.PolityId)+" and "+Court(e.OtherPolityId)+" made peace.";break;
+                case "peace":if(Major(e.PolityId)||Major(e.OtherPolityId))text=PeaceOutcome(e);break;
                 case "collapse":if(Major(e.PolityId))text=Court(e.PolityId)+" fell apart.";break;
                 case "state":case "independent-institutions":case "state-founded":case "state-foundation":case "empire-founded":if(e.PolityId==0||Major(e.PolityId))text=Court(e.PolityId)+" was founded.";break;
                 case "settlement":if(e.SettlementId==0&&state.Society.Settlements.Length>0)text=state.Society.Settlements[0].Name+" became the first recorded settlement.";break;
@@ -79,6 +79,44 @@ namespace WorldGen.Presentation
         // the same editorial window. This never removes its archival record.
         public static int Priority(string kind)=>kind=="nuclear-strike"?100:kind=="coalition-war"||kind=="treaty-breach"?60:kind=="collapse"||kind=="great-conquest"?40:kind=="international-foundation"||kind=="international-mediation"||kind=="nuclear-arsenal"?20:kind=="religious-schism"||kind=="religious-synthesis"||kind=="religious-renewal"?10:0;
         bool MajorPeople(int id)=>id>=0&&id<state.Society.Cultures.Length&&state.Society.Cultures[id].Population>=Math.Max(5000,significant/10);
+        string PeaceOutcome(HistoricalEvent e)
+        {
+            int a=e.PolityId,b=e.OtherPolityId;string pair=Court(a)+" and "+Court(b),war="The war between "+Court(a)+" and "+Court(b);
+            bool Valid(int id)=>id>=0&&id<state.History.Polities.Length;
+            // Dated facts only. A country's later fall or later imperial patron
+            // must not rewrite the meaning of an earlier peace announcement.
+            bool fellA=Valid(a)&&state.History.Polities[a].EndedYear==e.Year,fellB=Valid(b)&&state.History.Polities[b].EndedYear==e.Year;
+            if(fellA&&fellB)return war+" ended with both governments falling.";
+            if(fellA||fellB)
+            {
+                int fallen=fellA?a:b,other=fellA?b:a;var p=state.History.Polities[fallen];
+                var capture=Prehistory.SovereigntyTransferAt(state,p.CapitalId);
+                if(capture!=null&&capture.Cause==HistoricalSovereigntyCause.Conquest&&capture.From==fallen&&capture.To==other&&capture.Year<=e.Year&&capture.Year>=e.Year-1)
+                    return Court(other)+" defeated "+Court(fallen)+", ending its independent government.";
+                return Court(fallen)+"'s government fell, ending its war with "+Court(other)+".";
+            }
+            string outcome=e.Text??"";int end=outcome.IndexOf(" ends. ",StringComparison.Ordinal);
+            if(end>=0)outcome=outcome.Substring(end+7).Trim();
+            bool Has(string words)=>outcome.IndexOf(words,StringComparison.OrdinalIgnoreCase)>=0;
+            if(Has("constituent")||Has("tributary settlement"))
+            {
+                var governments=state.History.Aggregates?.Empires?.Governments;
+                if(governments!=null)foreach(int client in new[]{a,b})if(Valid(client)&&client<governments.Length)
+                {var g=governments[client];int patron=client==a?b:a;if(g.Patron==patron&&g.SinceYear==e.Year)return Court(client)+" submitted to "+Court(patron)+", retaining its local government.";}
+                return war+" ended in imperial submission, with the defeated court retained rather than annexed.";
+            }
+            if(Has("same imperial settlement"))return pair+" stopped fighting after entering the same imperial settlement.";
+            if(Has("tribute"))return pair+" ended their war with a tribute settlement.";
+            if(Has("trade route"))return pair+" settled their war by reopening the contested trade route.";
+            if(Has("limited frontier"))return pair+" ended their war with a limited frontier settlement.";
+            if(Has("Neither side can sustain"))return pair+" abandoned their war after neither side could keep its army supplied.";
+            if(Has("ceasefire"))return pair+" agreed to a ceasefire after losses and stalled offensives.";
+            if(Has("exhaustion")||Has("costly"))return pair+" negotiated peace after a costly war.";
+            // Retain unusual recorded terms rather than erase them. Old events
+            // without terms remain honest about what the archive actually knows.
+            if(end>=0&&outcome.Length>0)return war+" ended. "+outcome.TrimEnd('.')+".";
+            return pair+" agreed to end hostilities; no detailed terms were recorded.";
+        }
         static string Sentence(string text){int end=text.IndexOf(". ",StringComparison.Ordinal);return end>=0?text.Substring(0,end+1):text;}
         static string Between(string text,string start,string end){int first=text.IndexOf(start,StringComparison.Ordinal);if(first<0)return "";first+=start.Length;int last=text.IndexOf(end,first,StringComparison.Ordinal);return last<0?"":text.Substring(first,last-first);}
     }
