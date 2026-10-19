@@ -98,7 +98,7 @@ public sealed partial class LocalTerrainExplorer
         return "WORLDGEN  ·  "+(1/Math.Max(.001,Time.smoothDeltaTime)).ToString("F0")+" FPS\n"+lat.ToString("F6")+"°, "+lon.ToString("F6")+"°  ·  scale "+HorizontalScale.ToString("G3")+"\n"+
             "Elevation "+(walkingPatch.Sample(Position).ElevationM+HeightAboveGround).ToString("F1")+" m  ·  ground clearance "+HeightAboveGround.ToString("F2")+" m\n"+
             (motion.Flying?"Flying":"Walking")+"  ·  "+Diagnostics+"\nScatter "+ScatterObjects.ToString("N0")+" instances  ·  "+ScatterDrawCalls+" draws"+
-            (playState==null?"":"\nSolar time "+playState.SolarHour.ToString("F2")+" h  ·  calendar ×"+playState.Settings.CalendarDaysPerDay.ToString("G4"))+(error.Length>0?"\n"+error:"");
+            (playState==null?"":"\nSolar time "+playState.SolarHour.ToString("F2")+" h  ·  calendar ×"+playState.Settings.CalendarDaysPerDay.ToString("G4"))+(MusicDebugText.Length>0?"\n"+MusicDebugText:"")+(error.Length>0?"\n"+error:"");
     }
     void MapInput(Event e)
     {

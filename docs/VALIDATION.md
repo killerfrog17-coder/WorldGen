@@ -1,5 +1,34 @@
 # Version 3 validation evidence
 
+## Exploration music — 19 October 2026
+
+The music-only atmosphere milestone adds a separate streamed gameplay library,
+biome/day-period filename requirements, weighted selection, recent-three
+avoidance,10–35real-second gaps and collection-switch fades. It consumes the
+existing saved solar/seasonal clock, including latitude-dependent night, rather
+than introducing weather or changing the historical calendar. See
+`EXPLORATION_MUSIC.md` for names, production and explicit limitations.
+
+182 focused selection/catalog assertions,1,008 earlier presentation assertions
+and42 saved-play/scale assertions pass; the Release solution builds with zero
+warnings/errors. IL2CPP build2026-10-19T06:04:37Z passes18 native assertions
+(19 report lines including the sample measurement). It decodes an actual
+130.50s generated OGG and measures nonzero AudioSource output RMS0.000312395.
+The native check verifies daylight/night eligibility, allowing a playing song
+to finish across a context change, silence intervals, volume muting, no era
+leakage, return to the original era collection, unchanged coarse geography and
+no Unity audio/runtime exceptions. Diagnostic fixtures live under ignored
+`artifacts/exploration-player-review`; they do not change the owner's music.
+
+The30-track SA3 Medium CUDA batch is separate from native-player validation.
+At checkpoint publication it is still running; use ignored
+`artifacts/exploration-music/status.json` for actual completion/failures, not the
+planned30 count. Every published OGG passes stereo/finite/duration/energy/
+nonclipping/duplicate checks. No claim of listening-based artistic acceptance,
+certified loudness mastering or absence of every vocal-like artifact is made.
+No generation/history goldens were changed; the preceding full-suite archived
+Earth golden mismatch is not resolved or hidden by these focused passes.
+
 ## Game-first shell, saved play rules and scale — 19 October 2026
 
 See `GAME_SHELL.md`. Release solution build passes with zero warnings/errors.

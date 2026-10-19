@@ -1,6 +1,19 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-exploration-music/WorldGen.exe` (IL2CPP,2026-10-19T06:04:37Z).
+Music-only atmosphere pass adds streamed `music/exploration` with biome/time
+filename tags, weighted eligibility, recent-three avoidance and real-time gaps.
+It uses the existing solar/daylight clock; no sky/weather/ambience/footsteps,
+generation or history mechanics change.182 focused/1008presentation/42play checks
+and18 native audio assertions pass, including nonzero actual generated-OGG output,
+night/day switching, no era leakage, mute and clean simulation return.30-track
+local SA3 Medium CUDA production is running at publication; consult
+`artifacts/exploration-music/status.json` for real completion, not the plan count.
+Tracks/masters stay out of Git; prompts and resumable producer are source-backed.
+Game-shell-final remains rollback. Read `docs/EXPLORATION_MUSIC.md` and VALIDATION.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-game-shell-final/WorldGen.exe` (IL2CPP,2026-10-19T05:20:04Z).
 Game-first menus use separate setup categories; World generation defaults to
 type/seed/200000cells with advanced controls closed. Versioned play-session1

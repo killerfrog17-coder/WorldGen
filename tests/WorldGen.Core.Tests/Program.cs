@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--exploration-music-only")){int n=0;ExplorationMusicTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" exploration music assertions");return;}
 if(args.Contains("--play-session-only")){int n=0;PlaySessionTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" gameplay/save/scale assertions");return;}
 if(args.Contains("--local-scatter-only")){int n=0;LocalScatterTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" local scatter assertions");return;}
 if(args.Contains("--local-terrain-native")){int n=0,at=Array.IndexOf(args,"--local-terrain-native");LocalTerrainTests.Native(args[at+1],args[at+2],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" exact IL2CPP/CLR terrain probes");return;}
@@ -409,6 +410,7 @@ void Check(bool condition, string message) { assertions++; if (!condition) throw
 LanguageTests.Run(Check);
 HistoryEnvironmentalTests.Run(Check);
 WorldInterfaceTests.Run(Check);
+ExplorationMusicTests.Run(Check);
 void Connected(int[] members, Func<int, int[]> neighbors, string name)
 { var set = members.ToHashSet(); var visited = new HashSet<int> { members[0] }; var queue = new Queue<int>(); queue.Enqueue(members[0]); while (queue.Count > 0) foreach (int n in neighbors(queue.Dequeue())) if (set.Contains(n) && visited.Add(n)) queue.Enqueue(n); Check(visited.Count == members.Length, name + " disconnected"); }
 void Validate(World w)

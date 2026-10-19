@@ -26,6 +26,13 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     Action drawPause;World sourceWorld;PlaySession playState;PlaySettings explorationSettings=new PlaySettings{HorizontalScale=1};
     public double HorizontalScale=>explorationSettings.HorizontalScale;
     public GUISkin MenuSkin { get; set; }
+    public string MusicDebugText { get; set; }="";
+    public ExplorationMusicContext MusicContext(double hour,double year)
+    {
+        var position=Position;var biome=walkingPatch.Sample(position).Biome;
+        double altitude=ExplorationMusicContext.SolarAltitude(Math.Asin(position.Z)*180/Math.PI,hour,year);
+        return new ExplorationMusicContext(biome,ExplorationMusicContext.TimeAt(hour,altitude));
+    }
     V startingPoint; double originX,originZ,plannedX=double.NaN,plannedZ,plannedAltitude;
     float heading=20,pitch=0; bool closed; int generation;
     double lastBuildMs,largestBuildMs; string error="";

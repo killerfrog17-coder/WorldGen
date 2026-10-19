@@ -14,6 +14,11 @@ music/*.ogg
 music/*.wav
 music/*.pending
 music/*.flac
+music/exploration/*.ogg
+music/exploration/*.wav
+music/exploration/*.mp3
+music/exploration/*.pending
+scripts/__pycache__/
 src/WorldGen.Web/wwwroot/music/
 src/WorldGen.Web/wwwroot/atlas/
 unity/WorldGen.Unity/Assets/StreamingAssets/atlas/
