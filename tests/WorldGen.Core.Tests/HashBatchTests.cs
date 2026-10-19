@@ -58,8 +58,10 @@ public static class HashBatchTests
         string originalLeaderHash=StateHash.Compute(leaders);leaders[2].Military++;check(StateHash.Compute(leaders)!=originalLeaderHash,"Changing an old leader remains detectable: no trusted historical-value cache");
         if(OperatingSystem.IsWindows())
         {
-            var native=typeof(StateHash).Assembly.GetType("WorldGen.Core.CanonicalSha256+WindowsHash")!;
-            using var sha=(SHA256)Activator.CreateInstance(native,true)!;
+            // The native provider now requires the shared provider handle. Exercise
+            // the production factory (including its documented fallback), not a removed ctor.
+            var provider=typeof(StateHash).Assembly.GetType("WorldGen.Core.CanonicalSha256")!;
+            using var sha=(SHA256)provider.GetMethod("Create",System.Reflection.BindingFlags.Public|System.Reflection.BindingFlags.Static)!.Invoke(null,null)!;
             foreach(int count in new[]{0,3,55,56,63,64,65,65537,1048576})
             {
                 byte[] data=Enumerable.Range(0,count).Select(i=>(byte)(i*17)).ToArray();byte[] expected=SHA256.HashData(data);

@@ -1,6 +1,9 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--local-terrain-native")){int n=0,at=Array.IndexOf(args,"--local-terrain-native");LocalTerrainTests.Native(args[at+1],args[at+2],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" exact IL2CPP/CLR terrain probes");return;}
+if(args.Contains("--local-terrain-only")){int n=0;LocalTerrainTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" local terrain assertions");return;}
+if(args.Contains("--local-terrain-world")){int n=0;LocalTerrainTests.World(args[Array.IndexOf(args,"--local-terrain-world")+1],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" actual-world local terrain assertions");return;}
 if(args.Contains("--domestic-only")){int n=0;HistoryDomesticPoliticsTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" domestic politics assertions");return;}
 if(args.Contains("--domestic-world")){int at=Array.IndexOf(args,"--domestic-world"),n=0;HistoryDomesticPoliticsTests.World(args[at+1],args[at+2],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" actual domestic politics assertions");return;}
 if(args.Contains("--atlas-overhaul-only")){int n=0;AtlasOverhaulTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" atlas overhaul assertions");return;}
@@ -505,6 +508,7 @@ try
     if (args.Contains("--plates-only")) { Console.WriteLine("PASS " + assertions + " plate growth assertions."); return; }
     TectonicTests.Run(Check);
     TerrainScaleTests.Run(Check);
+    LocalTerrainTests.Run(Check);
     DrainageIncisionTests.Run(Check);
     if (args.Contains("--tectonics-only")) { Console.WriteLine("PASS " + assertions + " tectonic mechanism assertions."); return; }
     ClimateTests.Run(Check);

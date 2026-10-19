@@ -58,7 +58,7 @@ public static class LakePresentationTests
         description = GlobeView.Describe(w, 0);
         check(description.Contains("Inferred subgrid outlet") && description.Contains("coarse-grid approximation") && description.Contains("catchment transmission loss"), "Inspection discloses hydrology approximations");
         var pieces = SurfaceMesh.Chunks(w, options).ToArray();
-        check(pieces.Length == SurfaceMesh.ExpectedChunkCount(w, options) && pieces[^1].Triangles.Length == 6, "River ribbon remains visible over a sub-cell lake");
+        check(pieces.Length == SurfaceMesh.ExpectedChunkCount(w, options) && pieces[^1].Triangles.Length == 60 && pieces[^1].Stroke.Length > 0, "Curved river stroke remains visible over a sub-cell lake");
     }
 
     static World Fixture()
