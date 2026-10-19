@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--weather-only")){int n=0;WeatherTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" weather assertions");return;}
 if(args.Contains("--atmosphere-native")){int n=0;AtmosphereTests.Native(args[Array.IndexOf(args,"--atmosphere-native")+1],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" exact native/CLR celestial assertions");return;}
 if(args.Contains("--atmosphere-world-only")){int n=0;AtmosphereTests.World((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" actual-world celestial assertions");return;}
 if(args.Contains("--atmosphere-only")){int n=0;AtmosphereTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" atmosphere assertions");return;}
@@ -419,6 +420,7 @@ ExplorationMusicTests.Run(Check);
 SkyChatTests.Run(Check);
 WorldMeridianTests.Run(Check);
 AtmosphereTests.Run(Check);
+WeatherTests.Run(Check);
 void Connected(int[] members, Func<int, int[]> neighbors, string name)
 { var set = members.ToHashSet(); var visited = new HashSet<int> { members[0] }; var queue = new Queue<int>(); queue.Enqueue(members[0]); while (queue.Count > 0) foreach (int n in neighbors(queue.Dequeue())) if (set.Contains(n) && visited.Add(n)) queue.Enqueue(n); Check(visited.Count == members.Length, name + " disconnected"); }
 void Validate(World w)
