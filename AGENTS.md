@@ -1,5 +1,21 @@
 # WorldGen repository instructions
 
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-game-shell-final/WorldGen.exe` (IL2CPP,2026-10-19T05:20:04Z).
+Game-first menus use separate setup categories; World generation defaults to
+type/seed/200000cells with advanced controls closed. Versioned play-session1
+sidecars save scale/time/player pose atomically; old absent sidecars retain scale1.
+Default0.1horizontal scale preserves vertical metres; local-terrain-preview3
+preserves physical detail wavelengths to avoid compressed spires and retains
+preview2 heights exactly at scale1. F3 is nonblocking text; M opens a themed
+teleport/layer map. Escape reopens simulation without restoring fast-forward.
+42 focused/581terrain/2880scatter/1008presentation checks, all-stage Preview
+reconstruction and23 native flow checks with13 visible5-second-held screens pass.
+Structure density remains reserved; no villages/NPCs/fine hydrology were added.
+Polar snow is overbright, distant LOD is visible and terrain realism is not
+accepted as complete. Scatter player remains rollback. See `docs/GAME_SHELL.md`
+and VALIDATION.md; no new historical performance/realism acceptance is implied.
+
 Current review launch,18 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-local-scatter/WorldGen.exe` (IL2CPP,2026-10-19T04:12:36Z).
 Owner-authorized `local-scatter-preview-1` adds stable Core-derived biome/slope

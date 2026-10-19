@@ -1,5 +1,42 @@
 # Version 3 validation evidence
 
+## Game-first shell, saved play rules and scale — 19 October 2026
+
+See `GAME_SHELL.md`. Release solution build passes with zero warnings/errors.
+42 focused game/save/scale assertions,581 local-terrain/controller assertions,
+2,880 scatter assertions and1,008 historical presentation assertions pass.
+Preview's repeated/reapply/recipe/cached reconstruction retains every stage hash.
+No generation goldens were changed. The pre-existing full Unity Validate failure
+(`CLI/Unity stage hash mismatch: earth`, archived stage-count mismatch) remains;
+this is not a full-suite-green claim.
+
+The first visible native walkthrough held each screen for5seconds and captured
+11 actual1920×1017 UI frames, including menus, setup, simulation, play, F3,
+satellite/climate maps and pause/settings.20 native flow checks passed. It exposed
+needle-like compressed local terrain and an unthemed map window; owner feedback
+also requested distinct setup category tabs rather than nested game-rule groups.
+The subsequent revision addresses these; it preserves macro heights exactly and
+uses physical local wavelengths. A fixed mountain transect's residual-gradient
+RMS ratio is0.099 versus the earlier compressed detail. This narrow metric is not
+an all-landform realism acceptance. Final native evidence is recorded below.
+
+Final IL2CPP build2026-10-19T05:20:04Z passes23 native checks and13 visible
+screens, each held for5seconds. The owner resized the window during review;
+captures include1280×800 and1920×1017. Actual images confirm the default three
+world inputs, distinct settings tabs, advanced foldout, themed M map, F3 text,
+pause/settings and restored game. At the same polar spawn, broad snowy slopes
+replace the earlier needles; snow remains overbright and coarse distant LOD
+silhouettes remain visible. This is shell acceptance, not photoreal terrain.
+Cold world loading, exact position/scale restoration, preserved saved history
+before clock publication, both pause clocks and no return-to-fast-forward pass.
+No Unity rendering errors/exceptions were recorded. Evidence is ignored under
+`artifacts/game-shell-final-review`; player is `player-game-shell-final`.
+
+New saves carry a versioned sidecar; absent old sidecars remain scale1. Structure
+density is reserved metadata, not implemented village generation. Daylight is
+visual, not a new seasonal climate/weather model. None of this establishes dense
+historical3yr/s performance or resolves the earlier simulation-realism findings.
+
 ## Natural cover and replaceable local art — 18 October 2026
 
 `local-scatter-preview-1` is a separate, disposable Core-derived placement layer

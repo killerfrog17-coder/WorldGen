@@ -18,7 +18,9 @@ public sealed partial class WorldGenRuntime
     LocalTerrainExplorer terrainExplorer;
     Task<LocalTerrain> localTerrainTask;
     bool enteringTerrain;
+    AsyncOperation terrainUnloading;
     World localTerrainWorld;
+    double localTerrainScale;
     CancellationTokenSource localTerrainCancellation;
     V terrainPickedPosition; int terrainPickedCell = -1, terrainReturnFrame = -1; World terrainPickedWorld;
     bool CanExploreTerrain => worldReady && !Busy && world != null && humanStep == null;
@@ -27,32 +29,33 @@ public sealed partial class WorldGenRuntime
     { if(CanRequestTerrain)StartCoroutine(WaitForTerrainEntry()); }
     IEnumerator WaitForTerrainEntry()
     {
-        enteringTerrain=true;bool resume=humanPlaying;humanPlaying=false;
-        while(humanStep!=null)yield return null;
-        enteringTerrain=false;ExploreTerrain(resumePlayback:resume);
+        enteringTerrain=true;humanPlaying=false;
+        while(humanStep!=null||terrainUnloading!=null&&!terrainUnloading.isDone)yield return null;
+        enteringTerrain=false;ExploreTerrain();
     }
-    void ExploreTerrain(V? exactPosition = null,bool? resumePlayback=null)
+    void ExploreTerrain(V? exactPosition = null)
     {
         if (!CanExploreTerrain || terrainExplorer != null) return;
-        if (!ReferenceEquals(localTerrainWorld, world) || localTerrainTask == null || localTerrainTask.IsCanceled || localTerrainTask.IsFaulted)
+        if (!ReferenceEquals(localTerrainWorld, world) || localTerrainScale!=play.Settings.HorizontalScale || localTerrainTask == null || localTerrainTask.IsCanceled || localTerrainTask.IsFaulted)
         {
             localTerrainCancellation?.Cancel(); localTerrainCancellation?.Dispose(); localTerrainCancellation = new CancellationTokenSource();
-            var source = world; var token = localTerrainCancellation.Token; localTerrainWorld = source;
-            localTerrainTask = Task.Run(() => new LocalTerrain(source, token), token);
+            var source = world; var token = localTerrainCancellation.Token; localTerrainWorld = source;var scale=localTerrainScale=play.Settings.HorizontalScale;
+            localTerrainTask = Task.Run(() => new LocalTerrain(source, token,scale), token);
         }
         int cell = selectedCell;
         if (cell < 0) cell = Array.FindIndex(world.ElevationM, h => h > 100 && h < 900);
         if (cell < 0) cell = 0;
-        bool playing = resumePlayback ?? humanPlaying; humanPlaying = false; cameraView.enabled = false; dragging = false; GUIUtility.keyboardControl = 0;
+        humanPlaying = false; cameraView.enabled = false; dragging = false; GUIUtility.keyboardControl = 0;
         if (globe != null) globe.SetActive(false);
         var scene = SceneManager.CreateScene("Local terrain preview");
         var root = new GameObject("Terrain explorer"); SceneManager.MoveGameObjectToScene(root, scene);
         terrainExplorer = root.AddComponent<LocalTerrainExplorer>();
         terrainExplorer.Initialize(localTerrainTask, exactPosition ?? (terrainPickedCell == cell && ReferenceEquals(terrainPickedWorld,world) ? terrainPickedPosition : world.Surface.Cells[cell].Position), () =>
         {
-            terrainExplorer = null; terrainReturnFrame = Time.frameCount; cameraView.enabled = true; humanClockSample=Time.realtimeSinceStartupAsDouble;humanPlayback.Reset();humanPlaying = playing;
-            if (globe != null) globe.SetActive(true); SceneManager.UnloadSceneAsync(scene);
-        });
+            terrainExplorer = null; terrainReturnFrame = Time.frameCount; cameraView.enabled = true; humanClockSample=Time.realtimeSinceStartupAsDouble;humanPlayback.Reset();humanPlaying = false;
+            if (globe != null) globe.SetActive(true); terrainUnloading=SceneManager.UnloadSceneAsync(scene);
+        },world,play,DrawPlayPause);
+        terrainExplorer.MenuSkin=gameSkin;
     }
     IEnumerator CheckLocalTerrain()
     {
@@ -124,14 +127,16 @@ public sealed partial class WorldGenRuntime
                 InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(Key.F3));yield return null;yield return null;
                 if(!terrainExplorer.DebugVisible){Debug.LogError("TERRAIN CHECK F3 failed");Application.Quit(1);yield break;}
                 InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());yield return null;
-                InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(Key.F3,Key.M));yield return null;yield return null;
-                if(!terrainExplorer.MapVisible){Debug.LogError("TERRAIN CHECK F3+M failed");Application.Quit(1);yield break;}
+                InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(Key.M));yield return null;yield return null;
+                if(!terrainExplorer.MapVisible){Debug.LogError("TERRAIN CHECK M failed");Application.Quit(1);yield break;}
                 deadline=Time.realtimeSinceStartupAsDouble+60;
                 while(!terrainExplorer.MapReady&&terrainExplorer.Error==""&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
                 if(!terrainExplorer.MapReady){Debug.LogError("TERRAIN CHECK debug map image failed: "+terrainExplorer.Error);Application.Quit(1);yield break;}
                 terrainExplorer.CaptureMap(Path.Combine(output,"debug-map.png"));
                 terrainExplorer.TestMapZoom(.05);var beforeTeleport=terrainExplorer.Position;terrainExplorer.TestMapClick(.73,.44);
                 if(D.Angle(beforeTeleport,terrainExplorer.Position)<.01){Debug.LogError("TERRAIN CHECK map teleport failed");Application.Quit(1);yield break;}
+                InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());yield return null;
+                InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(Key.M));yield return null;yield return null;
                 InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());yield return null;
                 InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(Key.F3));yield return null;yield return null;
                 InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());yield return null;

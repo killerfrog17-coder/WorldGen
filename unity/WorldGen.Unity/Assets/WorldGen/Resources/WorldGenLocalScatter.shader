@@ -8,6 +8,7 @@ Shader "WorldGen/LocalScatter"
         _NormalStrength("Normal strength",Range(0,2))=1 _Cutoff("Alpha cutoff",Range(0,1))=.4
         [Toggle(_ALPHATEST_ON)] _AlphaClip("Alpha clip",Float)=0
         _Wind("Wind displacement (m)",Float)=0 _FogDistance("Fog distance",Float)=200000
+        _FogColor("Sky colour",Color)=(.57,.69,.76,1) _AmbientTint("Ambient light",Color)=(.12,.14,.17,1)
         [PerRendererData] _Tint("Instance tint",Color)=(1,1,1,1)
         [Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull",Float)=0
     }
@@ -30,7 +31,7 @@ Shader "WorldGen/LocalScatter"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
             TEXTURE2D(_BaseMap);SAMPLER(sampler_BaseMap);TEXTURE2D(_NormalMap);TEXTURE2D(_MaskMap);
-            float4 _BaseMap_ST,_BaseColor;float _Roughness,_Metallic,_NormalStrength,_Cutoff,_Wind,_FogDistance;
+            float4 _BaseMap_ST,_BaseColor,_FogColor,_AmbientTint;float _Roughness,_Metallic,_NormalStrength,_Cutoff,_Wind,_FogDistance;
             UNITY_INSTANCING_BUFFER_START(Props)
                 UNITY_DEFINE_INSTANCED_PROP(float4,_Tint)
             UNITY_INSTANCING_BUFFER_END(Props)
@@ -59,12 +60,12 @@ Shader "WorldGen/LocalScatter"
                 n=normalize(n+(t*bump.x+cross(n,t)*i.tangent.w*bump.y)*_NormalStrength);
                 float4 mask=SAMPLE_TEXTURE2D(_MaskMap,sampler_BaseMap,i.uv);
                 InputData input=(InputData)0;input.positionWS=i.position;input.normalWS=n;input.viewDirectionWS=GetWorldSpaceNormalizeViewDir(i.position);
-                input.shadowCoord=TransformWorldToShadowCoord(i.position);input.bakedGI=max(SampleSH(n),half3(.12,.14,.17));input.shadowMask=half4(1,1,1,1);
+                input.shadowCoord=TransformWorldToShadowCoord(i.position);input.bakedGI=_AmbientTint.rgb;input.shadowMask=half4(1,1,1,1);
                 input.normalizedScreenSpaceUV=GetNormalizedScreenSpaceUV(i.positionCS);
                 SurfaceData s=(SurfaceData)0;s.albedo=tex.rgb*tint;s.alpha=1;s.occlusion=mask.r;s.metallic=_Metallic*mask.a;
                 s.smoothness=1-saturate(mask.g*_Roughness);s.normalTS=half3(0,0,1);
                 half3 color=UniversalFragmentPBR(input,s).rgb;
-                float3 fog=half3(.57,.69,.76);
+                float3 fog=_FogColor.rgb;
                 #ifndef UNITY_COLORSPACE_GAMMA
                 fog=SRGBToLinear(fog);
                 #endif

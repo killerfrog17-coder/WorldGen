@@ -25,7 +25,7 @@ public sealed partial class LocalTerrainExplorer
     readonly Dictionary<int,ArtModel> scatterArt=new Dictionary<int,ArtModel>();readonly List<Mesh> ownedScatterMeshes=new List<Mesh>();readonly List<Material> ownedScatterMaterials=new List<Material>();
     readonly List<DrawBatch> drawBatches=new List<DrawBatch>();readonly List<DrawBatch> batchPool=new List<DrawBatch>();
     double scatterX=double.NaN,scatterZ,scatterAltitude,lastBatchTime,lastGroundProject;bool scatterDirty=true;int nearGroundRevision,projectedGroundRevision;
-    Light precedingSun;AmbientMode precedingAmbient;Color precedingSky,precedingEquator,precedingGround;bool lightingSaved;
+    Light precedingSun,localSun;AmbientMode precedingAmbient;Color precedingSky,precedingEquator,precedingGround;bool lightingSaved;double nextDaylightAt;
     public int ScatterObjects { get;private set; }
     public int ScatterDrawCalls { get;private set; }
     public int ScatterChunks=>scatterChunks.Count;
@@ -33,7 +33,7 @@ public sealed partial class LocalTerrainExplorer
     public bool ScatterEnabled=true;
     void InitializeScatter()
     {
-        scatter=new LocalScatter(terrain);artSet=Resources.Load<LocalTerrainArtSet>("LocalTerrainArtSet");
+        scatter=new LocalScatter(terrain,HorizontalScale);artSet=Resources.Load<LocalTerrainArtSet>("LocalTerrainArtSet");
         if(artSet!=null&&artSet.GroundMaterial!=null){var replacement=new Material(artSet.GroundMaterial);Destroy(landMaterial);landMaterial=replacement;SetFog();}
         if(artSet==null||artSet.Albedo==null||artSet.Normals==null||artSet.Masks==null)generatedGround=LocalGroundTextures.Create();
         landMaterial.SetTexture("_GroundAlbedo",artSet!=null&&artSet.Albedo!=null?artSet.Albedo:generatedGround[0]);
@@ -42,14 +42,25 @@ public sealed partial class LocalTerrainExplorer
         landMaterial.SetFloat("_TextureMetres",artSet==null?2:Math.Max(.05f,artSet.TextureRepeatMetres));
         precedingSun=RenderSettings.sun;precedingAmbient=RenderSettings.ambientMode;precedingSky=RenderSettings.ambientSkyColor;precedingEquator=RenderSettings.ambientEquatorColor;precedingGround=RenderSettings.ambientGroundColor;lightingSaved=true;
         var lightRoot=new GameObject("Local sunlight",typeof(Light));lightRoot.transform.SetParent(transform,false);lightRoot.transform.rotation=Quaternion.Euler(48,-35,0);
-        var sun=lightRoot.GetComponent<Light>();sun.type=LightType.Directional;sun.color=new Color(1,.95f,.85f);sun.intensity=2.3f;sun.shadows=LightShadows.Soft;sun.shadowBias=.035f;sun.shadowNormalBias=.2f;sun.cullingMask=1<<30;
+        var sun=localSun=lightRoot.GetComponent<Light>();sun.type=LightType.Directional;sun.color=new Color(1,.95f,.85f);sun.intensity=2.3f;sun.shadows=LightShadows.Soft;sun.shadowBias=.035f;sun.shadowNormalBias=.2f;sun.cullingMask=1<<30;
         RenderSettings.sun=sun;RenderSettings.ambientMode=AmbientMode.Trilight;RenderSettings.ambientSkyColor=new Color(.43f,.52f,.64f);RenderSettings.ambientEquatorColor=new Color(.3f,.32f,.28f);RenderSettings.ambientGroundColor=new Color(.16f,.17f,.13f);
+    }
+    public void SetDaylight(double solarHour,double seasonalYear)
+    {
+        if(localSun==null||Time.realtimeSinceStartupAsDouble<nextDaylightAt)return;nextDaylightAt=Time.realtimeSinceStartupAsDouble+.1;
+        double lat=Math.Asin(Position.Z),declination=23.44*Math.PI/180*Math.Sin(2*Math.PI*(seasonalYear-.218)),hour=(solarHour-12)*Math.PI/12;
+        var direction=new Vector3((float)(-Math.Cos(declination)*Math.Sin(hour)),(float)(Math.Sin(lat)*Math.Sin(declination)+Math.Cos(lat)*Math.Cos(declination)*Math.Cos(hour)),(float)(Math.Cos(lat)*Math.Sin(declination)-Math.Sin(lat)*Math.Cos(declination)*Math.Cos(hour))).normalized;
+        localSun.transform.rotation=Quaternion.LookRotation(-direction,Math.Abs(direction.y)>.99?Vector3.forward:Vector3.up);localSun.intensity=2.3f*Mathf.Clamp01(direction.y*2);
+        float day=Mathf.SmoothStep(0,1,Mathf.InverseLerp(-.15f,.18f,direction.y));var sky=Color.Lerp(new Color(.018f,.025f,.055f),new Color(.57f,.69f,.76f),day);view.backgroundColor=sky;
+        var ambient=Color.Lerp(new Color(.005f,.008f,.015f),new Color(.12f,.14f,.17f),day);
+        void MaterialLight(Material m){if(m.HasProperty("_FogColor"))m.SetVector("_FogColor",sky);if(m.HasProperty("_AmbientTint"))m.SetVector("_AmbientTint",ambient);}
+        MaterialLight(landMaterial);MaterialLight(waterMaterial);foreach(var material in ownedScatterMaterials)MaterialLight(material);
     }
     void ResetScatterFrame()
     {
         if(scatter==null)return;scatterX=double.NaN;
         // Texture phase remains planet-addressed across floating origins and chart changes.
-        double modulus=1024;V p=frame.Origin*(terrain.RadiusM+frame.AltitudeM);
+        double modulus=1024;V p=frame.Origin*(frame.RadiusM+frame.AltitudeM);
         landMaterial.SetVector("_TextureAnchor",new Vector4((float)(p.X%modulus),(float)(p.Y%modulus),(float)(p.Z%modulus),0));
         landMaterial.SetVector("_PlanetEast",new Vector4((float)frame.East.X,(float)frame.East.Y,(float)frame.East.Z,0));
         landMaterial.SetVector("_PlanetNorth",new Vector4((float)frame.North.X,(float)frame.North.Y,(float)frame.North.Z,0));
@@ -90,9 +101,9 @@ public sealed partial class LocalTerrainExplorer
     }
     double VisibleGround(double x,double z,double fallback)
     {
-        for(int level=0;level<=6;level++)
+        for(int level=0;level<=16;level++)
         {
-            double size=2048*(1<<level);var key=new WorldGen.Presentation.TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),level);
+            double size=2048*HorizontalScale*(1<<level);var key=new WorldGen.Presentation.TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),level,HorizontalScale);
             if(!tiles.TryGetValue(key,out var tile)||tile.Heights==null)continue;int n=tile.Segments,side=n+1;
             double gx=(x/size-key.X)*n,gz=(z/size-key.Z)*n;int a=Math.Min(n-1,Math.Max(0,(int)gx)),b=Math.Min(n-1,Math.Max(0,(int)gz));double u=gx-a,v=gz-b;
             double h00=tile.Heights[b*side+a],h10=tile.Heights[b*side+a+1],h01=tile.Heights[(b+1)*side+a],h11=tile.Heights[(b+1)*side+a+1];
@@ -105,7 +116,7 @@ public sealed partial class LocalTerrainExplorer
         var source=chunk.Source.Instances;chunk.Matrices=new Matrix4x4[source.Length];chunk.Roots=new Vector3[source.Length];
         for(int i=0;i<source.Length;i++)
         {
-            var p=source[i];double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));double x=V.Dot(p.Position,frame.East)*terrain.RadiusM/dot,z=V.Dot(p.Position,frame.North)*terrain.RadiusM/dot;
+            var p=source[i];double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));double x=V.Dot(p.Position,frame.East)*frame.RadiusM/dot,z=V.Dot(p.Position,frame.North)*frame.RadiusM/dot;
             double y=VisibleGround(x,z,frame.SurfaceY(p.Position,p.GroundM));
             bool vertical=p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
             V up=vertical?p.Position:p.Normal;var normal=new Vector3((float)V.Dot(up,frame.East),(float)V.Dot(up,frame.Origin),(float)V.Dot(up,frame.North)).normalized;

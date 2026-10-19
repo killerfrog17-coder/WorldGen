@@ -56,12 +56,12 @@ namespace WorldGen.Presentation
 
     public struct TerrainTileKey : IEquatable<TerrainTileKey>
     {
-        public int X,Z,Level;
-        public TerrainTileKey(int x,int z,int level){X=x;Z=z;Level=level;}
-        public double SizeM=>2048.0*(1<<Level);
-        public bool Equals(TerrainTileKey b)=>X==b.X&&Z==b.Z&&Level==b.Level;
+        public int X,Z,Level;public double Scale;
+        public TerrainTileKey(int x,int z,int level,double scale=1){X=x;Z=z;Level=level;Scale=scale;}
+        public double SizeM=>2048.0*Scale*(1<<Level);
+        public bool Equals(TerrainTileKey b)=>X==b.X&&Z==b.Z&&Level==b.Level&&Scale==b.Scale;
         public override bool Equals(object o)=>o is TerrainTileKey k&&Equals(k);
-        public override int GetHashCode()=>unchecked(X*73856093^Z*19349663^Level*83492791);
+        public override int GetHashCode()=>unchecked(X*73856093^Z*19349663^Level*83492791^Scale.GetHashCode());
     }
     public static class TerrainLod
     {
@@ -78,19 +78,20 @@ namespace WorldGen.Presentation
             }
             return steps;
         }
-        public static Dictionary<TerrainTileKey,int> Plan(double x,double z,double aboveGround,double distanceM=200000)
+        public static Dictionary<TerrainTileKey,int> Plan(double x,double z,double aboveGround,double distanceM=200000,double scale=1)
         {
-            var result=new Dictionary<TerrainTileKey,int>();const int root=6;double size=2048*(1<<root);
+            if(scale<.01||scale>2||double.IsNaN(scale))throw new ArgumentOutOfRangeException(nameof(scale));
+            var result=new Dictionary<TerrainTileKey,int>();int root=Math.Max(0,(int)Math.Floor(Math.Log(64/scale,2)));double size=2048*scale*(1<<root);
             double Distance(TerrainTileKey k){double a=k.X*k.SizeM,b=k.Z*k.SizeM,dx=Math.Max(Math.Max(a-x,0),x-a-k.SizeM),dz=Math.Max(Math.Max(b-z,0),z-b-k.SizeM);return Math.Sqrt(dx*dx+dz*dz);}
             void Visit(TerrainTileKey k)
             {
                 double d=Distance(k);if(d>distanceM)return;
                 if(k.Level>0&&Math.Max(d,aboveGround*.8)<k.SizeM*1.6)
-                    for(int j=0;j<2;j++)for(int i=0;i<2;i++)Visit(new TerrainTileKey(k.X*2+i,k.Z*2+j,k.Level-1));
-                else result.Add(k,k.Level==0?(d<3000?128:64):k.Level==1?64:k.Level==2?32:k.Level<5?16:8);
+                    for(int j=0;j<2;j++)for(int i=0;i<2;i++)Visit(new TerrainTileKey(k.X*2+i,k.Z*2+j,k.Level-1,scale));
+                else result.Add(k,k.Level==0?(d<3000*scale?128:64):k.Level==1?64:k.Level==2?32:k.Level<5?16:8);
             }
             for(int b=(int)Math.Floor((z-distanceM)/size);b<=(int)Math.Floor((z+distanceM)/size);b++)
-                for(int a=(int)Math.Floor((x-distanceM)/size);a<=(int)Math.Floor((x+distanceM)/size);a++)Visit(new TerrainTileKey(a,b,root));
+                for(int a=(int)Math.Floor((x-distanceM)/size);a<=(int)Math.Floor((x+distanceM)/size);a++)Visit(new TerrainTileKey(a,b,root,scale));
             return result;
         }
     }
@@ -120,7 +121,7 @@ namespace WorldGen.Presentation
     public sealed class TerrainMapImage
     {
         public byte[] Rgba=Array.Empty<byte>();public int Width,Height;public TerrainMapViewport View=new TerrainMapViewport();
-        public static TerrainMapImage Build(LocalTerrain terrain,TerrainMapViewport view,int width=384,int height=192,CancellationToken token=default)
+        public static TerrainMapImage Build(LocalTerrain terrain,TerrainMapViewport view,int width=384,int height=192,CancellationToken token=default,Layer layer=Layer.Terrain,float[]? cellColors=null)
         {
             var image=new TerrainMapImage{Width=width,Height=height,View=view.Clone(),Rgba=new byte[width*height*4]};
             var center=view.Position(.5,.5);double extent=D.Angle(center,view.Position(0,0))*terrain.RadiusM*1.12+20;
@@ -132,6 +133,8 @@ namespace WorldGen.Presentation
                 {
                     V p=view.Position((x+.5)/width,1-(y+.5)/height);double h=patch==null?terrain.Profile(terrain.NearestCell(p)).ElevationM:patch.Sample(p).ElevationM;
                     V color=GlobeView.Elevation((int)h);int i=(y*width+x)*4;
+                    if(cellColors!=null){int cell=terrain.NearestCell(p);color=new V(cellColors[cell*3],cellColors[cell*3+1],cellColors[cell*3+2]);
+                        if(patch!=null&&(layer==Layer.Terrain||layer==Layer.Satellite)){var sample=patch.Sample(p);color=sample.Underwater?GlobeView.Elevation((int)Math.Min(-1,h)):layer==Layer.Satellite?sample.CoverColor:GlobeView.Elevation((int)h);}}
                     image.Rgba[i]=(byte)(255*D.Clamp(color.X));image.Rgba[i+1]=(byte)(255*D.Clamp(color.Y));image.Rgba[i+2]=(byte)(255*D.Clamp(color.Z));image.Rgba[i+3]=255;
                 }
             }

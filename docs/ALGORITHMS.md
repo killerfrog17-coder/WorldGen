@@ -1,5 +1,19 @@
 # Implementation contracts - version 3
 
+## Game envelope — play-session-1
+
+Save/game settings are separate from the authoritative Recipe/World. Atomic
+library saves may include a validated play-session.json sidecar; old absent
+sidecars preserve horizontal scale1. New games use scale0.1,60real minutes per
+solar day and one calendar day per solar day. Physical horizontal frame/LOD and
+scatter dimensions honor scale without scaling elevations or prop dimensions.
+Local-terrain-preview3 preserves physical local-noise and directional-ridge
+wavelengths under horizontal compression; scale1 retains preview2 exactly.
+Fractional historical seconds accumulate separately from visual daylight and
+are consumed only after existing SimulationSession publication. No second
+history solver or generation route exists. See `GAME_SHELL.md` for bounds,
+render-only derivations, future density semantics and known terrain limitations.
+
 ## Local natural cover - local-scatter-preview-1
 
 Derived Core scatter has stable global cube-sphere addresses, named PRNG streams,

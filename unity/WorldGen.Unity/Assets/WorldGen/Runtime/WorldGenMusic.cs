@@ -45,7 +45,7 @@ public sealed partial class WorldGenRuntime
     {
         if(musicSource==null)return;
         if(screen!=musicScreen){if(screen=="Simulation")musicSimulationStarted=false;musicScreen=screen;nextMusicCheck=0;}
-        if(screen=="Simulation"&&humanPlaying)musicSimulationStarted=true;
+        if(screen=="Simulation"&&(humanPlaying||terrainExplorer!=null))musicSimulationStarted=true;
         int desired=DesiredMusicEra();bool compatible=currentMusicTrack!=null&&currentMusicTrack.Supports(desired);
         float target=musicSource.isPlaying&&compatible?1:0;
         musicGain=Mathf.MoveTowards(musicGain,target,Time.unscaledDeltaTime/(target==0?1.1f:.8f));musicSource.volume=musicVolume*musicGain;

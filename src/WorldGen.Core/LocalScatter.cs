@@ -11,7 +11,7 @@ namespace WorldGen.Core
         public int Face,X,Y;public bool Detail;
         public ScatterKey(int face,int x,int y,bool detail=false){Face=face;X=x;Y=y;Detail=detail;}
         public bool Equals(ScatterKey b)=>Face==b.Face&&X==b.X&&Y==b.Y&&Detail==b.Detail;
-        public override bool Equals(object? o)=>o is ScatterKey k&&Equals(k);
+        public override bool Equals(object o)=>o is ScatterKey k&&Equals(k);
         public override int GetHashCode()=>unchecked(Face*83492791^X*73856093^Y*19349663^(Detail?int.MinValue:0));
         public int CompareTo(ScatterKey b){int c=Detail.CompareTo(b.Detail);if(c==0)c=Face.CompareTo(b.Face);if(c==0)c=X.CompareTo(b.X);return c==0?Y.CompareTo(b.Y):c;}
         public ulong Id(int channel,int slot)=>((ulong)Face<<61)|((Detail?1UL:0UL)<<60)|((ulong)X<<40)|((ulong)Y<<20)|((ulong)channel<<16)|(uint)slot;
@@ -30,10 +30,10 @@ namespace WorldGen.Core
     public sealed class LocalScatter
     {
         public const string Version="local-scatter-preview-1";
-        readonly LocalTerrain terrain;readonly World world;readonly int seed;
+        readonly LocalTerrain terrain;readonly World world;readonly int seed;readonly double scale;
         static readonly V[] Normals={new V(1,0,0),new V(-1,0,0),new V(0,1,0),new V(0,-1,0),new V(0,0,1),new V(0,0,-1)};
-        public LocalScatter(LocalTerrain terrain){this.terrain=terrain??throw new ArgumentNullException(nameof(terrain));world=terrain.SourceWorld;seed=world.Recipe.Seed;}
-        public int Divisions(bool detail)=>(int)Math.Ceiling(2*terrain.RadiusM/(detail?64:512));
+        public LocalScatter(LocalTerrain terrain,double horizontalScale=1){this.terrain=terrain??throw new ArgumentNullException(nameof(terrain));if(horizontalScale<.01||horizontalScale>2||double.IsNaN(horizontalScale))throw new ArgumentOutOfRangeException(nameof(horizontalScale));scale=horizontalScale;world=terrain.SourceWorld;seed=world.Recipe.Seed;}
+        public int Divisions(bool detail)=>(int)Math.Ceiling(2*terrain.RadiusM*scale/(detail?64:512));
         static void Basis(int face,out V n,out V u,out V v)
         {if(face<0||face>5)throw new ArgumentOutOfRangeException(nameof(face));n=Normals[face];u=face<4?V.Cross(new V(0,0,1),n).Unit:new V(1,0,0);v=V.Cross(n,u).Unit;}
         public V Position(ScatterKey key,double u=.5,double v=.5)
@@ -50,7 +50,7 @@ namespace WorldGen.Core
         public ScatterKey[] Around(V position,double radiusM,bool detail=false)
         {
             if(radiusM<0||radiusM>5000||double.IsNaN(radiusM))throw new ArgumentOutOfRangeException(nameof(radiusM));
-            var result=new List<ScatterKey>();double tile=detail?64:512,delta=(radiusM+tile*2)/terrain.RadiusM;int count=Divisions(detail);
+            var result=new List<ScatterKey>();double tile=detail?64:512,delta=(radiusM+tile*2)/(terrain.RadiusM*scale);int count=Divisions(detail);
             for(int face=0;face<6;face++)
             {
                 Basis(face,out V n,out V u,out V v);double d=V.Dot(position,n);if(d+delta<.5773)continue;
@@ -58,15 +58,15 @@ namespace WorldGen.Core
                 void Bounds(double x,out int low,out int high)
                 {double lo=double.MaxValue,hi=double.MinValue;foreach(double q in new[]{x-delta,x+delta})foreach(double t in new[]{d-delta,d+delta}){lo=Math.Min(lo,q/t);hi=Math.Max(hi,q/t);}low=Math.Max(0,(int)Math.Floor((lo+1)*.5*count));high=Math.Min(count-1,(int)Math.Floor((hi+1)*.5*count));}
                 Bounds(a,out int x0,out int x1);Bounds(b,out int y0,out int y1);
-                double limit=(radiusM+tile*1.5)/terrain.RadiusM;limit*=limit;
+                double limit=(radiusM+tile*1.5)/(terrain.RadiusM*scale);limit*=limit;
                 for(int y=y0;y<=y1;y++)for(int x=x0;x<=x1;x++){var key=new ScatterKey(face,x,y,detail);V p=Position(key),diff=p-position;if(diff.X*diff.X+diff.Y*diff.Y+diff.Z*diff.Z<=limit)result.Add(key);}
             }
             result.Sort();return result.ToArray();
         }
         public ScatterPatch Build(ScatterKey key,CancellationToken token=default)
         {
-            V center=Position(key);var patch=terrain.Patch(center,key.Detail?110:840);var result=new List<ScatterInstance>();
-            double nominal=2*terrain.RadiusM/Divisions(key.Detail),area=nominal*nominal;
+            V center=Position(key);var patch=terrain.Patch(center,(key.Detail?110:840)/scale);var result=new List<ScatterInstance>();
+            double nominal=2*terrain.RadiusM*scale/Divisions(key.Detail),area=nominal*nominal;
             int grid=key.Detail?32:64;
             for(int channel=0;channel<(key.Detail?2:3);channel++)
             {
@@ -117,7 +117,7 @@ namespace WorldGen.Core
                         if(random.Unit()>D.Clamp(chance))continue;
                         // Local slope, not absolute altitude, determines whether a plant can root here.
                         V east=V.Cross(Math.Abs(p.Z)<.99?new V(0,0,1):new V(0,1,0),p).Unit,north=V.Cross(p,east).Unit;
-                        double e=1.5/terrain.RadiusM;
+                        double e=1.5/(terrain.RadiusM*scale);
                         double sx=(patch.Sample((p+east*e).Unit).ElevationM-patch.Sample((p-east*e).Unit).ElevationM)/3;
                         double sz=(patch.Sample((p+north*e).Unit).ElevationM-patch.Sample((p-north*e).Unit).ElevationM)/3;
                         double slope=Math.Sqrt(sx*sx+sz*sz);

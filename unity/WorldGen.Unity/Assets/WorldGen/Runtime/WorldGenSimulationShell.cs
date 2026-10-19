@@ -88,7 +88,7 @@ public sealed partial class WorldGenRuntime
         DrawSocietyMarks();var state=world?.Prehistory;GUI.enabled=!atlasOpen;
         GUI.Box(new Rect(0,0,Screen.width,52),"");
         if(GUI.Button(new Rect(8,7,100,36),"World [W]"))WorldAtlasKey();
-        GUI.enabled=!atlasOpen&&CanRequestTerrain;if(GUI.Button(new Rect(114,7,105,36),new GUIContent("Explore terrain","Explore the selected map location; simulation pauses until you return")))RequestTerrain();
+        GUI.enabled=!atlasOpen&&CanRequestTerrain;if(GUI.Button(new Rect(114,7,105,36),new GUIContent(play.HasPlayer?"Resume game":"Enter world","Play in the generated world")))RequestTerrain();
         GUILayout.BeginArea(new Rect(Mathf.Max(232,Screen.width-600),7,Mathf.Min(594,Screen.width-238),40));GUILayout.BeginHorizontal();
         GUILayout.Label(state==null?"Preparing…":SimulationClockView.Date(state,humanPlayback.Rate),new GUIStyle(GUI.skin.label){fontStyle=FontStyle.Bold},GUILayout.Width(195));
         GUI.enabled=!atlasOpen&&humans!=null&&!simulationPaused;
@@ -119,7 +119,7 @@ public sealed partial class WorldGenRuntime
             if(error.Length>0)GUILayout.Label(error);GUILayout.EndScrollView();GUILayout.EndArea();}
         if(selectedEvent!=null){float width=Mathf.Min(580,Screen.width-40),height=Mathf.Min(350,Screen.height-80);var r=new Rect((Screen.width-width)/2,(Screen.height-height)/2,width,height);GUI.Box(r,"");GUILayout.BeginArea(new Rect(r.x+20,r.y+20,r.width-40,r.height-40));GUILayout.Label(SimulationClockView.Year(world?.Prehistory,selectedEvent.Year));eventScroll=GUILayout.BeginScrollView(eventScroll);GUILayout.Label(selectedNews?.Value??selectedEvent.Text,new GUIStyle(GUI.skin.label){wordWrap=true,fontSize=18});foreach(var link in selectedNews?.Related??Array.Empty<AtlasLink>())if(GUILayout.Button(link.Name)){selectedEvent=null;OpenAtlas(link.Kind,link.Id);}GUILayout.EndScrollView();if(GUILayout.Button("Close",GUILayout.Height(32)))selectedEvent=null;GUILayout.EndArea();}
         GUI.enabled=true;if(expandedInspection&&layer==Layer.Ecoregions&&selectedCell>=0&&displayedWorld?.Ecology!=null)DrawEcologyDetails(0);DrawAtlas();
-        if(simulationPaused){var r=new Rect(Screen.width/2-170,Screen.height/2-205,340,410);GUI.Box(r,"");GUILayout.BeginArea(new Rect(r.x+24,r.y+20,r.width-48,r.height-40));GUILayout.Label("SETTINGS · PAUSED",new GUIStyle(GUI.skin.label){fontSize=23,fontStyle=FontStyle.Bold});GUILayout.Space(16);DrawAudioOptions();if(GUILayout.Button("Resume",GUILayout.Height(42)))ToggleSimulationPause();if(GUILayout.Button("Save world",GUILayout.Height(42))){libraryNotice="";saveDialog=true;}if(Prehistory.CanUpgradeHistory(world?.Prehistory)&&humanStep==null&&GUILayout.Button(new GUIContent("Update simulation rules","Preserve recorded history; use new formation and administration rules for future events"),GUILayout.Height(42))){var engine=humans;var source=world.Prehistory;calendarWorkStarted=SimulationTime.Seconds(source);humanStep=System.Threading.Tasks.Task.Run(()=>engine.UpgradeToCurrentHistory(source));}if(GUILayout.Button("Main menu",GUILayout.Height(42))){humanPlaying=false;simulationPaused=false;screen="Menu";}GUILayout.EndArea();}
+        if(simulationPaused)DrawSimulationPause();
     }
     PrehistoryState cardState;int cardCell=-2;HistoryOverlay cardOverlay;SelectionCard selectionCard=new SelectionCard();
     World baseCardWorld;int baseCardCell=-2;Layer baseCardLayer;SelectionCard baseSelectionCard=new SelectionCard();

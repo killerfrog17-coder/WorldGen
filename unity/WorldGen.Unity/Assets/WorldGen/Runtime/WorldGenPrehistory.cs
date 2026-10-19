@@ -25,10 +25,10 @@ public sealed partial class WorldGenRuntime
     bool technologyCeilingOpen;
     HistoricalTechnologyCeiling preferredTechnologyCeiling=HistoricalTechnologyCeiling.Modern;
     float SimulationSidebar=>0;
-    void ToggleSimulationPause(){if(!simulationPaused){resumeHumanPlayback=humanPlaying;humanPlaying=false;simulationPaused=true;}else{simulationPaused=false;humanPlaying=resumeHumanPlayback;}}
+    void ToggleSimulationPause(){playPauseTab="";if(!simulationPaused){resumeHumanPlayback=humanPlaying;humanPlaying=false;simulationPaused=true;}else{simulationPaused=false;humanPlaying=resumeHumanPlayback;}}
     void PollHumans()
     {
-        PollHumanPalette();
+        if(terrainExplorer==null)PollHumanPalette();
         if(!worldReady||world==null||world.Ecology==null)return;
         if(humanWorld!=world)
         {
@@ -47,19 +47,25 @@ public sealed partial class WorldGenRuntime
         if(humanStep!=null&&humanStep.IsCompleted)
         {
             var task=humanStep;var playbackWork=humanPlaybackWork;humanStep=null;humanPlaybackWork=null;
-            try{var prior=world.Prehistory;world.Prehistory=task.GetAwaiter().GetResult();if(playbackWork?.Task==task)humanSession=playbackWork.Session;humanPlayback.Consume(Math.Max(0,SimulationTime.Seconds(world.Prehistory)-(long)calendarWorkStarted));if(!SameHumanDomain(prior,world.Prehistory))UpdateHumanPalette();}catch(Exception ex){error=ex.Message;humanPlaying=false;}
+            try{var prior=world.Prehistory;world.Prehistory=task.GetAwaiter().GetResult();if(playbackWork?.Task==task)humanSession=playbackWork.Session;long consumed=Math.Max(0,SimulationTime.Seconds(world.Prehistory)-(long)calendarWorkStarted);if(calendarWorkIsPlay)play.Consume(consumed);else humanPlayback.Consume(consumed);calendarWorkIsPlay=false;if(!SameHumanDomain(prior,world.Prehistory))UpdateHumanPalette();}catch(Exception ex){error=ex.Message;humanPlaying=false;terrainExplorer?.Pause();}
         }
         if(humans==null)return;
-        if(displayedWorld==world)RequestHistoryBorders();
-        if((screen=="Simulation"||layer==Layer.Simulation)&&lastHumanSelection!=selectedCell)UpdateHumanPalette();
+        if(terrainExplorer==null&&displayedWorld==world)RequestHistoryBorders();
+        if(terrainExplorer==null&&(screen=="Simulation"||layer==Layer.Simulation)&&lastHumanSelection!=selectedCell)UpdateHumanPalette();
         double clockNow=Time.realtimeSinceStartupAsDouble,elapsed=humanClockSample==0?0:clockNow-humanClockSample;humanClockSample=clockNow;
         humanPlayback.World(world.Prehistory,CurrentMusicEra());
         bool run=screen=="Simulation"&&!atlasOpen&&selectedEvent==null&&!simulationPaused&&humanPlaying&&!Busy&&!saveDialog&&exportJob==null;
         humanPlayback.Accumulate(elapsed,run);
-        if(run&&humanStep==null&&humanPlayback.Pending>0)
+        bool playingLocal=screen=="Simulation"&&!Environment.GetCommandLineArgs().Contains("--worldgen-local-terrain-check")&&terrainExplorer!=null&&terrainExplorer.Ready&&!terrainExplorer.Paused&&!terrainExplorer.MapVisible&&!saveDialog;
+        if(playingLocal)play.Accumulate(Math.Max(0,elapsed));
+        if(playingLocal)terrainExplorer.SetDaylight(play.SolarHour,(SimulationTime.Seconds(world.Prehistory)+play.PendingHistorySeconds)/(double)SimulationTime.Year);
+        long pending=playingLocal?(long)Math.Floor(play.PendingHistorySeconds):humanPlayback.Pending;
+        bool localDue=playingLocal&&(pending>=60||clockNow-playPublicationAt>=2);
+        if((run||localDue)&&humanStep==null&&pending>0)
         {
             var engine=humans;var state=engine.UpgradeScheduling(world.Prehistory);if(!state.Started){state=engine.Start(state);world.Prehistory=state;UpdateHumanPalette();}
-            calendarWorkStarted=SimulationTime.Seconds(state);var slice=SimulationClockView.Publication((long)calendarWorkStarted,humanPlayback.Pending,humanPlayback.Rate);long seconds=slice.Seconds;int maximumEvents=slice.MaximumEvents;
+            calendarWorkStarted=SimulationTime.Seconds(state);calendarWorkIsPlay=playingLocal;if(playingLocal)playPublicationAt=clockNow;
+            var slice=playingLocal?new SimulationClockView.PlaybackSlice(Math.Min(pending,SimulationTime.Day),1024,256):SimulationClockView.Publication((long)calendarWorkStarted,pending,humanPlayback.Rate);long seconds=slice.Seconds;int maximumEvents=slice.MaximumEvents;
             // Session validation/copies are background work too. Fine clocks
             // also use the private input: public validation is not a cheap tick.
             var reusable=humanSession;var work=new HumanPlaybackWork();humanPlaybackWork=work;var token=humanCancellation.Token;

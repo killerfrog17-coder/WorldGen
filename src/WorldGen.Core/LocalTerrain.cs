@@ -8,8 +8,9 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed class LocalTerrain
     {
-        public const string Version = "local-terrain-preview-2";
+        public const string Version = "local-terrain-preview-3";
         public readonly double RadiusM;
+        public readonly double HorizontalScale;
         readonly World world;
         readonly CellLocator locator;
         readonly LocalTerrainProfile[] profiles;
@@ -18,8 +19,10 @@ namespace WorldGen.Core
         readonly int seed;
         internal World SourceWorld=>world;
 
-        public LocalTerrain(World world, CancellationToken token = default)
+        public LocalTerrain(World world, CancellationToken token = default,double horizontalScale=1)
         {
+            if(double.IsNaN(horizontalScale)||horizontalScale<.01||horizontalScale>2)throw new ArgumentOutOfRangeException(nameof(horizontalScale));
+            HorizontalScale=horizontalScale;
             if (world == null || world.Surface.Cells.Length == 0 || world.ElevationM.Length != world.Surface.Cells.Length)
                 throw new ArgumentException("A completed world heightmap is required.", nameof(world));
             this.world = world; RadiusM = world.Recipe.RadiusKm * 1000; seed = world.Recipe.Seed;
@@ -186,7 +189,9 @@ namespace WorldGen.Core
                 if ((dx * dx + dy * dy + dz * dz) * owner.RadiusM * owner.RadiusM > HalfExtentM * HalfExtentM * 2.01 + 1)
                     throw new ArgumentOutOfRangeException(nameof(point), "Point outside indexed terrain patch.");
                 double px = point.X * owner.RadiusM, py = point.Y * owner.RadiusM, pz = point.Z * owner.RadiusM;
-                V km = new V(px / 1000, py / 1000, pz / 1000);
+                // Compress macro geography, not metre-sized local landforms. The same physical
+                // ridge/noise wavelengths survive on a smaller playable planet; base anchors stay exact.
+                V km = new V(px / 1000, py / 1000, pz / 1000)*owner.HorizontalScale;
                 double broad = SphereNoise.Sample(km, seed ^ 0x1837, .16);
                 double medium = SphereNoise.Sample(km, seed ^ 0x7917, .63);
                 double fine = SphereNoise.Sample(km, seed ^ 0x2573, 2.1);
@@ -206,8 +211,8 @@ namespace WorldGen.Core
                     sediment += weight * f.Sediment; glacier += weight * f.Glacial;
                     var color = CoverColor(f.Biome); red += weight * color.X; green += weight * color.Y; blue += weight * color.Z;
                     double fx=px-f.FabricOrigin.X*owner.RadiusM,fy=py-f.FabricOrigin.Y*owner.RadiusM,fz=pz-f.FabricOrigin.Z*owner.RadiusM;
-                    double along = fx * f.Axis.X + fy * f.Axis.Y + fz * f.Axis.Z;
-                    double across = fx * f.Across.X + fy * f.Across.Y + fz * f.Across.Z;
+                    double along = (fx * f.Axis.X + fy * f.Axis.Y + fz * f.Axis.Z)*owner.HorizontalScale;
+                    double across = (fx * f.Across.X + fy * f.Across.Y + fz * f.Across.Z)*owner.HorizontalScale;
                     // Fixed source-local frames, smoothly blended in world space. Orientation changes do not
                     // rotate a planet-sized noise domain or reseed chunks. Nested waviness breaks parallel bands.
                     double phase = across * (2 * D.Pi / f.RidgeSpacingM) + .9 * medium + .8 * D.Sin(along / 5200 + f.Phase);

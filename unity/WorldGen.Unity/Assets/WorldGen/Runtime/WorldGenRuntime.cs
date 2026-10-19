@@ -48,14 +48,14 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     Vector2 previousMouse; float dragDistance, mapZoom = 1f; Quaternion globeRotation = Quaternion.Euler(-12, 150, 0);
     Vector3 mapPan; bool autoRotate;
     readonly Dictionary<string, string> inputText = new Dictionary<string, string>();
-    float PanelWidth => Mathf.Clamp(panelWidth, 240, Math.Max(240, Screen.width - 360));
+    float PanelWidth => Mathf.Clamp(panelWidth, 320, Math.Max(320, Screen.width - 360));
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Boot() { if (FindAnyObjectByType<WorldGenRuntime>() == null) new GameObject("WorldGen Runtime").AddComponent<WorldGenRuntime>(); }
     void Start()
     {
         Application.runInBackground = true; Application.targetFrameRate = 60;
         uiCheck = Environment.GetCommandLineArgs().Contains("--worldgen-ui-check");
-        panels = groups.Select(g => g == "World").ToArray();
+        panels = groups.Select(g => false).ToArray();
         filePath = Path.Combine(Application.persistentDataPath, "worldgen.recipe.json");
         if (Environment.GetCommandLineArgs().Contains("--worldgen-check")) { RunPlayerChecks(); return; }
         if(Environment.GetCommandLineArgs().Contains("--worldgen-history-resume")){CheckHistoricalResume();return;}
@@ -79,6 +79,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         InitializeLibrary();
         InitializeMusic();
         if (WorldPresets.Names.Contains(preset)) recipe=setup.Preset(preset,recipe); else setup.From(recipe);
+        if(!Environment.GetCommandLineArgs().Any(a=>a.StartsWith("--worldgen-",StringComparison.Ordinal)))RollSeed();
         if (!Environment.GetCommandLineArgs().Contains("--worldgen-library-earth") &&
             (requestedPreset.Length > 0 || uiCheck || Environment.GetCommandLineArgs().Contains("--worldgen-screenshot"))) Generate();
         else screen = "Menu";
@@ -94,6 +95,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         if(Environment.GetCommandLineArgs().Contains("--worldgen-dock-check")){screen="Setup";BeginWork(false,Argument("--worldgen-dock-check",""));StartCoroutine(CheckHistoryDock());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-atlas-check")){screen="Setup";BeginWork(false,Argument("--worldgen-atlas-check",""));StartCoroutine(CheckAtlasNavigation());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-local-terrain-check")){screen="Setup";BeginWork(false,Argument("--worldgen-local-terrain-check",""));StartCoroutine(CheckLocalTerrain());}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-game-review"))StartCoroutine(CheckGameShell());
     }
     void Generate() => StartGeneration();
     async void InitializeLibrary()
@@ -135,19 +137,19 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     }
     async void SaveToLibrary()
     {
-        if (library == null || world == null || Busy || exportJob != null) return;
+        if (library == null || world == null || Busy || exportJob != null||humanStep!=null) return;
         // Geography is immutable; retain this exact immutable demographic checkpoint while saving.
-        var snapshot=new World();foreach(var field in typeof(World).GetFields())field.SetValue(snapshot,field.GetValue(world));string name=saveName;
+        CapturePlayer();var session=play.Copy();var snapshot=new World();foreach(var field in typeof(World).GetFields())field.SetValue(snapshot,field.GetValue(world));string name=saveName;
         try
         {
             libraryNotice = "Saving complete world...";
-            var saving = Task.Run(() => activeWorldId == null ? library.SaveNew(name, snapshot) : library.SaveAdditional(activeWorldId, snapshot)); exportJob = saving; var saved = await saving; activeWorldId = saved.GroupId; saveDialog = false;
+            var saving = Task.Run(() => activeWorldId == null ? library.SaveNew(name, snapshot,play:session) : library.SaveAdditional(activeWorldId, snapshot,play:session)); exportJob = saving; var saved = await saving; activeWorldId = saved.GroupId; saveDialog = false;
             saves = library.Entries(); libraryNotice = "Saved. Existing worlds were not overwritten.";
         }
         catch (Exception e) { libraryNotice = "Save failed: " + e.Message; }
         finally { exportJob = null; }
     }
-    void RollSeed() { recipe.Seed = UnityEngine.Random.Range(0, 1 << 24); inputText.Remove(nameof(Recipe.Seed)); dirty = true; }
+    void RollSeed() { using(var entropy=System.Security.Cryptography.RandomNumberGenerator.Create()){var bytes=new byte[4];entropy.GetBytes(bytes);recipe.Seed=BitConverter.ToInt32(bytes,0)&0xFFFFFF;}inputText.Remove(nameof(Recipe.Seed)); dirty = true; }
     void Refresh() { if (world != null && !ApplyCachedDisplay()) BeginWork(false); }
     void LoadWorldSnapshot()
     {
@@ -276,7 +278,8 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     void Update()
     {
         UpdateMusic();
-        if(terrainExplorer!=null||terrainReturnFrame==Time.frameCount)return;
+        if(terrainExplorer!=null){PollHumans();return;}if(terrainReturnFrame==Time.frameCount)return;
+        if(continueLoadedGame&&humans!=null&&!Busy&&humanStep==null){continueLoadedGame=false;RequestTerrain();}
         if((screen=="Setup"||screen=="Simulation")&&!saveDialog&&!atlasOpen&&!simulationPaused&&GUIUtility.keyboardControl==0&&Keyboard.current!=null&&!Keyboard.current.ctrlKey.isPressed&&!Keyboard.current.altKey.isPressed)
         {
             if(Keyboard.current.rKey.wasPressedThisFrame){showRivers=!showRivers;ApplyCachedDisplay();}
@@ -334,6 +337,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
                     viewOptions.Layer=GenerationPreview.Available(world,layer)?layer:viewOptions.Layer;layer=viewOptions.Layer;
                     viewOptions.Projection=projection;committedOptions = viewOptions.Clone();
                     InstallPalettes(); displayedWorld=world;
+                    if(loadingSnapshot){play=pendingPlay??PlaySession.Legacy();pendingPlay=null;continueLoadedGame=play.HasPlayer;}
                     if(loadingSnapshot){activeWorldId=pendingWorldId;saveName=pendingWorldName??"My world";worldReady=true;screen="Simulation";simulationTab="";simulationPaused=false;projection=viewOptions.Projection=committedOptions.Projection=Projection.Map;mapPan=Vector3.zero;mapZoom=1;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;setup.From(recipe);dirty=false;}
                     if(!reusePendingGeometry){StartCoroutine(Release(globe)); globe = pendingRoot;}
                     globe.name = "World surface"; globe.SetActive(!libraryOpen && screen!="Menu" && screen!="Options"); ApplyCachedDisplay();
@@ -510,5 +514,5 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         RenderTexture.active = prior; cameraView.targetTexture = null; Destroy(texture); target.Release(); Destroy(target); yield return null; Application.Quit(error.Length == 0 ? 0 : 1);
     }
     static string Argument(string flag, string fallback) { var args = Environment.GetCommandLineArgs(); int i = Array.IndexOf(args, flag); return i >= 0 && i + 1 < args.Length ? args[i + 1] : fallback; }
-        void OnDestroy() { localTerrainCancellation?.Cancel(); if(riverMaterial!=null)Destroy(riverMaterial);if(settlementDot!=null)Destroy(settlementDot);DisposeMusic(); DisposeHabitatPortraits(); generationCancel?.Cancel(); cancel?.Cancel(); humanCancellation?.Cancel(); if (surfaceMaterial != null) Destroy(surfaceMaterial); if (lineMaterial != null) Destroy(lineMaterial);if(naturalMaterial!=null)Destroy(naturalMaterial);if(smallFeatureMaterial!=null)Destroy(smallFeatureMaterial);if(borderMaterial!=null)Destroy(borderMaterial);if(borderMesh!=null)Destroy(borderMesh); }
+        void OnDestroy() { DisposeGameTheme();localTerrainCancellation?.Cancel(); if(riverMaterial!=null)Destroy(riverMaterial);if(settlementDot!=null)Destroy(settlementDot);DisposeMusic(); DisposeHabitatPortraits(); generationCancel?.Cancel(); cancel?.Cancel(); humanCancellation?.Cancel(); if (surfaceMaterial != null) Destroy(surfaceMaterial); if (lineMaterial != null) Destroy(lineMaterial);if(naturalMaterial!=null)Destroy(naturalMaterial);if(smallFeatureMaterial!=null)Destroy(smallFeatureMaterial);if(borderMaterial!=null)Destroy(borderMaterial);if(borderMesh!=null)Destroy(borderMesh); }
 }

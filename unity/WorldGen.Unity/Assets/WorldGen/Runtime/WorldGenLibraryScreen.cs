@@ -10,7 +10,7 @@ public sealed partial class WorldGenRuntime
     readonly HashSet<string> expandedWorlds=new HashSet<string>();
     void OpenSave(WorldLibraryEntry entry)
     {
-        pendingWorldId=entry.GroupId;pendingWorldName=entry.Name;libraryOpen=false;BeginWork(false,entry.SnapshotPath);
+        Try(()=>{pendingPlay=WorldLibrary.ReadPlaySession(entry.SnapshotPath);pendingWorldId=entry.GroupId;pendingWorldName=entry.Name;libraryOpen=false;BeginWork(false,entry.SnapshotPath);});
     }
     void DrawWorldLibrary()
     {
@@ -74,7 +74,7 @@ public sealed partial class WorldGenRuntime
         GUILayout.Label(activeWorldId==null?"SAVE WORLD":"SAVE PROGRESS",new GUIStyle(GUI.skin.label){fontSize=24});
         if(activeWorldId==null)saveName=GUILayout.TextField(saveName,80);else GUILayout.Label(saveName);
         if(libraryNotice.Length>0)GUILayout.Label(libraryNotice);
-        GUI.enabled=exportJob==null;GUILayout.BeginHorizontal();
+        GUI.enabled=exportJob==null&&humanStep==null;GUILayout.BeginHorizontal();
         if(GUILayout.Button("Cancel"))saveDialog=false;
         if(GUILayout.Button("Save"))SaveToLibrary();
         GUILayout.EndHorizontal();GUI.enabled=true;GUILayout.EndArea();

@@ -3,6 +3,7 @@ Shader "WorldGen/LocalTerrain"
     Properties
     {
         _Water("Water",Float)=0 _FogDistance("Fog distance",Float)=200000
+        _FogColor("Sky colour",Color)=(.57,.69,.76,1) _AmbientTint("Ambient light",Color)=(.12,.14,.17,1)
         _GroundAlbedo("Herb, soil, rock, snow albedo",2DArray)=""{}
         _GroundNormals("Linear RGB tangent normals",2DArray)=""{}
         _GroundMasks("R AO, G roughness, B height, A metallic",2DArray)=""{}
@@ -26,7 +27,7 @@ Shader "WorldGen/LocalTerrain"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
             TEXTURE2D_ARRAY(_GroundAlbedo);SAMPLER(sampler_GroundAlbedo);
             TEXTURE2D_ARRAY(_GroundNormals);TEXTURE2D_ARRAY(_GroundMasks);
-            float _Water,_FogDistance,_TextureMetres;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp;
+            float _Water,_FogDistance,_TextureMetres;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint;
             struct A { float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 color:COLOR;float4 weights:TEXCOORD1; };
             struct O { float4 positionCS:SV_POSITION;float3 normal:TEXCOORD0;float3 position:TEXCOORD1;float4 color:COLOR;float4 weights:TEXCOORD2; };
             O vert(A a){O o;o.position=TransformObjectToWorld(a.positionOS.xyz);o.positionCS=TransformWorldToHClip(o.position);o.normal=TransformObjectToWorldNormal(a.normalOS);o.color=a.color;o.weights=a.weights;return o;}
@@ -38,7 +39,7 @@ Shader "WorldGen/LocalTerrain"
             }
             half4 frag(O i):SV_Target
             {
-                float3 fogColor=float3(.57,.69,.76),farColor=i.color.rgb;
+                float3 fogColor=_FogColor.rgb,farColor=i.color.rgb;
                 #ifndef UNITY_COLORSPACE_GAMMA
                 farColor=SRGBToLinear(farColor);fogColor=SRGBToLinear(fogColor);
                 #endif
@@ -72,7 +73,7 @@ Shader "WorldGen/LocalTerrain"
                 // Preserve large-scale biome colour while close materials supply actual metre-scale surface structure.
                 albedo=lerp(farColor,albedo,saturate(near*.88));
                 InputData input=(InputData)0;input.positionWS=i.position;input.normalWS=n;input.viewDirectionWS=GetWorldSpaceNormalizeViewDir(i.position);
-                input.shadowCoord=TransformWorldToShadowCoord(i.position);input.bakedGI=max(SampleSH(n),half3(.12,.14,.17));input.shadowMask=half4(1,1,1,1);
+                input.shadowCoord=TransformWorldToShadowCoord(i.position);input.bakedGI=_AmbientTint.rgb;input.shadowMask=half4(1,1,1,1);
                 input.normalizedScreenSpaceUV=GetNormalizedScreenSpaceUV(i.positionCS);
                 SurfaceData s=(SurfaceData)0;s.albedo=albedo;s.alpha=1;s.occlusion=ao;s.smoothness=1-rough;s.metallic=metal;s.normalTS=half3(0,0,1);
                 half3 color=UniversalFragmentPBR(input,s).rgb;

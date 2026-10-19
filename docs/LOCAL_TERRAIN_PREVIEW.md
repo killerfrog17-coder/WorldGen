@@ -6,11 +6,12 @@ authorized; see `LOCAL_SCATTER_PREVIEW.md`. Fauna, structures and NPCs remain de
 
 ## Boundary and use
 
-Unity's **Explore terrain** button, in world setup and the simulation top bar,
-opens a separate additive exploration scene at the selected map location. The
-historical player pauses and its map camera is retained. Escape opens a small
-pause menu; Return to world restores that same world. Existing worlds work
-without a rules upgrade or regeneration.
+The game-first shell now uses **Enter world / Resume game** in the simulation
+top bar and pause menu. It opens a separate additive scene at the selected map
+location or saved player position. Gameplay advances the existing historical
+calendar at its saved game-time rate; Escape pauses and can reopen the simulation.
+See `GAME_SHELL.md` for the save envelope, horizontal scale and clock ownership.
+Existing worlds work without a historical rules upgrade or regeneration.
 
 Exploration starts walking, with captured mouse-look (no drag), WASD, Space to
 jump and Shift to run. F switches fly/walk; Space/Ctrl flies up/down and wheel
@@ -31,19 +32,22 @@ consistent with the [Unity controller documentation](https://docs.unity.com/en-u
 Walking-scale sanity reference: [experimental self-selected walking speed study](https://pmc.ncbi.nlm.nih.gov/articles/PMC7268460/).
 No reference controller implementation was copied.
 
-There is no normal exploration HUD. F3 opens diagnostics and releases the cursor.
-F3+M toggles the interactive debug map. Wheel zooms about the cursor, dragging pans
+There is no normal exploration HUD. F3 opens plain diagnostics without releasing
+the cursor or interrupting movement. M toggles the interactive world map
+independently of F3 and releases the cursor. Wheel zooms about the cursor, dragging pans
 with longitude wrap, and clicking teleports to the exact planetary position, not
 the nearest cell center. Map imagery updates asynchronously; the cached image
 transforms while new pixels are prepared. Deep zoom samples the same local terrain
 function. Logical zoom extends below terrain numerical precision; this does not
-invent measured detail at that scale. Escape first dismisses debug, then opens
-the pause menu. Diagnostics also expose flight speed and view distance.
+invent measured detail at that scale. Escape first dismisses the map, then opens
+the pause menu. Flight speed and view distance are in pause → Game settings.
 
 `LocalTerrain` in WorldGen.Core is the sole local terrain definition, separate
 from and downstream of WorldPipeline's accepted world. Neither sampler nor
 viewer mutates geography/history, appends stages or changes existing hashes.
-Its explicit version is `local-terrain-preview-2`. No permanent structure sites
+Its explicit version is `local-terrain-preview-3`: scale1 retains preview2's
+heights, while scaled worlds preserve physical local-noise wavelengths rather
+than compressing these with the macro map. No permanent structure sites
 are promised across future local terrain revisions. A future persisted local
 recipe must pin this version before city footprints / edits become authoritative.
 

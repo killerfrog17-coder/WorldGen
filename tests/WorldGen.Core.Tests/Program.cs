@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--play-session-only")){int n=0;PlaySessionTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" gameplay/save/scale assertions");return;}
 if(args.Contains("--local-scatter-only")){int n=0;LocalScatterTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" local scatter assertions");return;}
 if(args.Contains("--local-terrain-native")){int n=0,at=Array.IndexOf(args,"--local-terrain-native");LocalTerrainTests.Native(args[at+1],args[at+2],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" exact IL2CPP/CLR terrain probes");return;}
 if(args.Contains("--local-terrain-only")){int n=0;LocalTerrainTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" local terrain assertions");return;}
@@ -511,6 +512,7 @@ try
     TerrainScaleTests.Run(Check);
     LocalTerrainTests.Run(Check);
     LocalScatterTests.Run(Check);
+    PlaySessionTests.Run(Check);
     DrainageIncisionTests.Run(Check);
     if (args.Contains("--tectonics-only")) { Console.WriteLine("PASS " + assertions + " tectonic mechanism assertions."); return; }
     ClimateTests.Run(Check);

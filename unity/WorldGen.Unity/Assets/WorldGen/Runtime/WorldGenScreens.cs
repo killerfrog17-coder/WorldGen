@@ -21,16 +21,7 @@ public sealed partial class WorldGenRuntime
     GUISkin gameSkin;
     GUISkin Theme()
     {
-        if(gameSkin!=null)return gameSkin;
-        gameSkin=Instantiate(GUI.skin);
-        Texture2D Fill(Color c){var t=new Texture2D(1,1);t.SetPixel(0,0,c);t.Apply();return t;}
-        var panel=Fill(new Color(.045f,.09f,.125f,1));var button=Fill(new Color(.115f,.19f,.23f));var hover=Fill(new Color(.22f,.29f,.29f));var active=Fill(new Color(.34f,.31f,.21f));
-        gameSkin.box.normal.background=panel;gameSkin.box.border=new RectOffset();
-        gameSkin.button.normal.background=button;gameSkin.button.hover.background=hover;gameSkin.button.active.background=active;gameSkin.button.onNormal.background=active;gameSkin.button.onHover.background=hover;
-        gameSkin.button.normal.textColor=new Color(.91f,.88f,.78f);gameSkin.button.onNormal.textColor=new Color(1,.86f,.57f);gameSkin.button.padding=new RectOffset(10,10,9,9);gameSkin.button.margin=new RectOffset(2,2,3,3);
-        gameSkin.label.normal.textColor=new Color(.85f,.88f,.85f);gameSkin.label.fontSize=14;
-        gameSkin.textField.normal.background=panel;gameSkin.textField.focused.background=button;gameSkin.textField.padding=new RectOffset(7,7,5,5);gameSkin.textField.fontSize=14;
-        return gameSkin;
+        return BuildGameTheme();
     }
     Task<World> generationJob;
     CancellationTokenSource generationCancel;
@@ -62,7 +53,7 @@ public sealed partial class WorldGenRuntime
                 world=previousComplete;worldReady=world!=null;dirty=true;
                 if(world==null){StartCoroutine(Release(globe));globe=null;}
             }
-            else {world=generationJob.Result;worldReady=true;dirty=false;activeWorldId=null;saveName="My world";}
+            else {world=generationJob.Result;worldReady=true;dirty=false;activeWorldId=null;if(string.IsNullOrWhiteSpace(saveName))saveName="New world";}
             generationJob=null;selectedCell=-1;
             if(world!=null){layer=GenerationPreview.Available(world,preferredLayer)?preferredLayer:Layer.Terrain;Refresh();}
             return;
@@ -72,65 +63,27 @@ public sealed partial class WorldGenRuntime
     }
     void OnGUI()
     {
-        if(terrainExplorer!=null)return;
+        if(terrainExplorer!=null){if(saveDialog){GUI.skin=Theme();DrawSaveDialog();}return;}
         if(cameraView==null)return;
-        GUI.skin=Theme();GUI.skin.label.wordWrap=true;GUI.backgroundColor=Color.white;
+        GUI.skin=Theme();GUI.skin.label.wordWrap=true;GUI.color=GUI.contentColor=GUI.backgroundColor=Color.white;
         GUI.skin.button.fontSize=14;GUI.skin.label.fontSize=14;
         if(libraryOpen){DrawWorldLibrary();return;}
         if(saveDialog){DrawSaveDialog();return;}
         if(screen=="Menu" || screen=="Options")
         {
-            GUI.Box(new Rect(0,0,Screen.width,Screen.height),"");
-            GUILayout.BeginArea(new Rect(Screen.width/2-180,Screen.height/2-220,360,440));
-            GUILayout.Label("WORLDGEN",new GUIStyle(GUI.skin.label){fontSize=40,fontStyle=FontStyle.Bold,alignment=TextAnchor.MiddleCenter});GUILayout.Space(32);
-            if(screen=="Menu")
-            {
-                if(GUILayout.Button("Set Up World",GUILayout.Height(48)))screen="Setup";
-                if(GUILayout.Button("Load World",GUILayout.Height(48))){libraryOpen=true;if(library!=null)saves=library.Entries();}
-                if(GUILayout.Button("Options",GUILayout.Height(48)))screen="Options";
-                if(GUILayout.Button("Exit",GUILayout.Height(48)))Application.Quit();
-                GUILayout.Space(12);GUILayout.Label(Recipe.CurrentAlgorithm+" · "+Prehistory.CurrentHistoryVersion,new GUIStyle(GUI.skin.label){fontSize=11,alignment=TextAnchor.MiddleCenter});
-            }
-            else
-            {
-                DrawAudioOptions();
-                GUILayout.Label("DISPLAY");bool full=GUILayout.Toggle(Screen.fullScreen,"Fullscreen");if(full!=Screen.fullScreen)Screen.fullScreenMode=full?FullScreenMode.FullScreenWindow:FullScreenMode.Windowed;
-                bool sync=GUILayout.Toggle(QualitySettings.vSyncCount>0,"VSync");QualitySettings.vSyncCount=sync?1:0;
-                bool smooth=GUILayout.Toggle(naturalTerrain,"Smooth terrain and small water / island features");if(smooth!=naturalTerrain){naturalTerrain=smooth;ApplyCachedDisplay();}
-                if(GUILayout.Button("Back",GUILayout.Height(42)))screen="Menu";
-            }
-            GUILayout.EndArea();return;
+            DrawFrontEnd();return;
         }
         if(screen=="Simulation"){DrawSimulationShell();return;}
         float width=screen=="Setup"?PanelWidth:0;
         if(screen=="Setup")
         {
-            GUI.Box(new Rect(0,0,width,Screen.height),"");GUILayout.BeginArea(new Rect(16,16,width-32,Screen.height-32));
-            GUILayout.Label("SET UP WORLD",new GUIStyle(GUI.skin.label){fontSize=23,fontStyle=FontStyle.Bold});
-            GUI.enabled=!Busy;GUILayout.Label("Map type");
-            if(GUILayout.Button(preset+"  ▾"))mapTypeMenu=!mapTypeMenu;
-            if(mapTypeMenu){mapPresetScroll=GUILayout.BeginScrollView(mapPresetScroll,GUILayout.Height(240));foreach(string choice in WorldPresets.Names)if(GUILayout.Button(choice)){recipe=setup.Preset(choice,recipe);preset=choice;inputText.Clear();dirty=true;mapTypeMenu=false;}if(GUILayout.Button("Custom")){preset="Custom";recipe.TerrainSource="Procedural";recipe.LandShape=null;dirty=true;mapTypeMenu=false;}GUILayout.EndScrollView();}
-            DrawSetting(typeof(Recipe).GetField(nameof(Recipe.Detail)),"Map detail");DrawSetting(typeof(Recipe).GetField(nameof(Recipe.Seed)),"Seed");
-            scroll=GUILayout.BeginScrollView(scroll);
-            for(int g=0;g<groups.Length;g++)
-            {
-                GUI.enabled=true;if(GUILayout.Button((panels[g]?"−  ":"+  ")+(groups[g]=="Terrain sculpting"?"Terrain warp":groups[g])))panels[g]=!panels[g];
-                if(!panels[g])continue;GUI.enabled=!Busy;
-                if(groups[g]=="World")
-                {
-                    GUI.enabled=!Busy && recipe.TerrainSource!="Earth";
-                    if(recipe.LandShape!=null)GUILayout.Label("Shape-constrained layout");
-
-                }
-                foreach(var f in WorldSetup.Fields(groups[g]))DrawSetting(f);
-            }
-            DrawHumanSetup();GUILayout.EndScrollView();GUI.enabled=true;
-            if(Busy)GUILayout.Label((Generating?generationStage:progress)+" · "+Math.Max(0,Math.Min(100,Generating?generationPercent:percent))+"%");if(error.Length>0)GUILayout.Label(error);if(dirty && world!=null)GUILayout.Label("Settings changed");
-            GUI.enabled=!Busy;if(GUILayout.Button(world==null?"Generate world":"Regenerate world",GUILayout.Height(38)))Generate();
-            GUI.enabled=!Busy && worldReady && !dirty && humans!=null;if(GUILayout.Button("Start world",GUILayout.Height(42)))StartHumanWorld();
-            GUI.enabled=CanRequestTerrain;if(GUILayout.Button(new GUIContent("Explore terrain", "Select a location on the map, then enter the terrain preview"),GUILayout.Height(32)))RequestTerrain();
-            GUI.enabled=true;if(Busy){if(GUILayout.Button("Cancel"))CancelGeneration();}else if(GUILayout.Button("Main menu"))screen="Menu";
-            GUILayout.EndArea();
+            DrawNewGameSetup(width);
+        }
+        if(world==null&&displayedWorld==null)
+        {
+            var r=new Rect(width+40,Screen.height*.38f,Math.Max(180,Screen.width-width-80),150);
+            GUI.Label(r,"YOUR WORLD BEGINS HERE",new GUIStyle(TitleStyle(26)){alignment=TextAnchor.MiddleCenter});
+            GUI.Label(new Rect(r.x,r.y+95,r.width,45),"Choose your game rules, then generate a world.",new GUIStyle(MutedStyle()){alignment=TextAnchor.MiddleCenter});return;
         }
         if(screen=="Simulation")GUI.Box(new Rect(8,8,Screen.width-16,116),"");
         GUILayout.BeginArea(new Rect(width+16,16,Math.Max(220,Screen.width-width-32),124));GUILayout.BeginHorizontal();

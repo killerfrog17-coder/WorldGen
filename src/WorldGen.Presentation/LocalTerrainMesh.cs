@@ -8,10 +8,11 @@ namespace WorldGen.Presentation
     public sealed class LocalTerrainFrame
     {
         public readonly V Origin, East, North;
-        public readonly double RadiusM, AltitudeM;
-        public LocalTerrainFrame(V origin, double radiusM, double altitudeM)
+        public readonly double RadiusM, AltitudeM,HorizontalScale;
+        public LocalTerrainFrame(V origin, double radiusM, double altitudeM,double horizontalScale=1)
         {
-            Origin = origin.Unit; RadiusM = radiusM; AltitudeM = altitudeM;
+            if(horizontalScale<.01||horizontalScale>2||double.IsNaN(horizontalScale))throw new ArgumentOutOfRangeException(nameof(horizontalScale));
+            Origin = origin.Unit; RadiusM = radiusM*horizontalScale; AltitudeM = altitudeM;HorizontalScale=horizontalScale;
             East = V.Cross(Math.Abs(Origin.Z) < .99 ? new V(0, 0, 1) : new V(0, 1, 0), Origin).Unit;
             North = V.Cross(Origin, East).Unit;
         }
@@ -36,7 +37,17 @@ namespace WorldGen.Presentation
             if (segments < 4 || segments > 128 || sizeM <= 0 || sizeM > 131072 || double.IsNaN(sizeM)) throw new ArgumentOutOfRangeException(nameof(segments));
             var mesh = new LocalTerrainMesh { EastM = eastM, NorthM = northM, SizeM = sizeM, Segments = segments, MinHeightM = double.MaxValue, MaxHeightM = double.MinValue };
             double step = sizeM / segments;
-            var patch = terrain.Patch(frame.Position(eastM + sizeM / 2, northM + sizeM / 2), sizeM * 1.1 + step * 2);
+            double extent=(sizeM*1.1+step*2)/frame.HorizontalScale;
+            var patch = extent<=250000?terrain.Patch(frame.Position(eastM + sizeM / 2, northM + sizeM / 2),extent):null;
+            var patchCache=new System.Collections.Generic.Dictionary<(int,int),LocalTerrain.LocalTerrainPatch>();
+            LocalTerrainSample Sample(double x,double z,V p)
+            {
+                if(patch!=null)return patch.Sample(p);
+                // A far tile on a shrunken planet spans a large geographical area.
+                // Query bounded subpatches instead of constructing a planet-sized candidate bag.
+                double box=100000*frame.HorizontalScale;int a=(int)Math.Floor(x/box),b=(int)Math.Floor(z/box);
+                if(!patchCache.TryGetValue((a,b),out var local)){local=terrain.Patch(frame.Position((a+.5)*box,(b+.5)*box),150000);patchCache.Add((a,b),local);}return local.Sample(p);
+            }
             int side = segments + 1, halo = side + 2, ground = side * side, perimeter = segments * 4;
             mesh.GroundVertices = ground;
             var heights = new double[halo * halo]; var samples = new LocalTerrainSample[ground];
@@ -45,7 +56,7 @@ namespace WorldGen.Presentation
                 token.ThrowIfCancellationRequested();
                 for (int x = -1; x <= side; x++)
                 {
-                    var position = frame.Position(eastM + x * step, northM + z * step); var sample = patch.Sample(position);
+                    var position = frame.Position(eastM + x * step, northM + z * step); var sample = Sample(eastM+x*step,northM+z*step,position);
                     double height = frame.SurfaceY(position, sample.ElevationM); heights[(z + 1) * halo + x + 1] = height;
                     if (x >= 0 && x < side && z >= 0 && z < side) samples[z * side + x] = sample;
                 }
@@ -62,7 +73,7 @@ namespace WorldGen.Presentation
                     {
                         int x=boundary==0?0:boundary==1?segments:i,z=boundary==2?0:boundary==3?segments:i;
                         double along=(boundary<2?northM:eastM)+i*step,lo=Math.Floor(along/coarse)*coarse,t=(along-lo)/coarse;
-                        double Height(double a){var p=frame.Position(boundary<2?eastM+x*step:a,boundary<2?a:northM+z*step);return frame.SurfaceY(p,patch.Sample(p).ElevationM);}
+                        double Height(double a){double xx=boundary<2?eastM+x*step:a,zz=boundary<2?a:northM+z*step;var p=frame.Position(xx,zz);return frame.SurfaceY(p,Sample(xx,zz,p).ElevationM);}
                         heights[(z+1)*halo+x+1]=Height(lo)*(1-t)+Height(lo+coarse)*t;
                     }
                 }

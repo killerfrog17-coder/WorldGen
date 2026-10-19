@@ -23,6 +23,9 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     readonly List<TerrainTileKey> priority=new List<TerrainTileKey>(); readonly List<Work> jobs=new List<Work>();
     readonly CancellationTokenSource cancellation=new CancellationTokenSource();
     Action close; Camera view; Material landMaterial,waterMaterial;
+    Action drawPause;World sourceWorld;PlaySession playState;PlaySettings explorationSettings=new PlaySettings{HorizontalScale=1};
+    public double HorizontalScale=>explorationSettings.HorizontalScale;
+    public GUISkin MenuSkin { get; set; }
     V startingPoint; double originX,originZ,plannedX=double.NaN,plannedZ,plannedAltitude;
     float heading=20,pitch=0; bool closed; int generation;
     double lastBuildMs,largestBuildMs; string error="";
@@ -39,9 +42,9 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public V Position=>frame.Position(motion.X,motion.Z);
     public double HeightAboveGround=>motion.Y-Ground(motion.X,motion.Z);
     public string Diagnostics=>tiles.Count+" / "+wanted.Count+" tiles · last "+lastBuildMs.ToString("F1")+" ms · max "+largestBuildMs.ToString("F1")+" ms/tile";
-    public void Initialize(Task<LocalTerrain> source,V position,Action onClose)
+    public void Initialize(Task<LocalTerrain> source,V position,Action onClose,World sourceWorld=null,PlaySession session=null,Action pauseMenu=null)
     {
-        building=source;startingPoint=position;close=onClose;
+        building=source;startingPoint=session!=null&&session.HasPlayer?session.PlayerPosition:position;close=onClose;this.sourceWorld=sourceWorld;playState=session;drawPause=pauseMenu;explorationSettings=session?.Settings.Copy()??new PlaySettings{HorizontalScale=1};
         var cameraRoot=new GameObject("Exploration camera",typeof(Camera),typeof(UnityEngine.Rendering.Universal.UniversalAdditionalCameraData));
         cameraRoot.transform.SetParent(transform,false);cameraRoot.layer=30;view=cameraRoot.GetComponent<Camera>();
         view.cullingMask=1<<30;view.nearClipPlane=.1f;view.farClipPlane=300000;view.fieldOfView=68;
@@ -53,14 +56,14 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     double Ground(double x,double z)
     {
         var at=frame.Position(x,z);
-        if(walkingPatch==null||(at-walkingPatch.Center).Length*terrain.RadiusM>500)walkingPatch=terrain.Patch(at,2048);
+        if(walkingPatch==null||(at-walkingPatch.Center).Length*terrain.RadiusM>500/HorizontalScale)walkingPatch=terrain.Patch(at,2048/HorizontalScale);
         return frame.SurfaceY(at,walkingPatch.Sample(at).ElevationM);
     }
     public void Teleport(V point)
     {
         if(terrain==null)return;
         generation++;startingPoint=point;walkingPatch=null;originX=originZ=0;
-        frame=new LocalTerrainFrame(point,terrain.RadiusM,terrain.Patch(point).Sample(0,0).ElevationM);
+        frame=new LocalTerrainFrame(point,terrain.RadiusM,terrain.Patch(point).Sample(0,0).ElevationM,HorizontalScale);
         motion.Place(0,0,Ground(0,0),motion.Flying);landMaterial.SetVector("_LocalOrigin",Vector4.zero);
         foreach(var tile in tiles.Values)DestroyTile(tile);tiles.Clear();plannedX=double.NaN;RefreshWanted();UpdateCamera();ResetScatterFrame();
     }
@@ -72,11 +75,12 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         {
             if(!building.IsCompleted)return;
             if(building.IsFaulted||building.IsCanceled){error=building.Exception?.GetBaseException().Message??"Cancelled";debugOpen=true;CaptureMouse();return;}
-            terrain=building.Result;InitializeScatter();Teleport(startingPoint);
+            terrain=building.Result;viewDistance=Math.Min(viewDistance,MaximumViewDistance);InitializeScatter();Teleport(startingPoint);
+            if(playState!=null&&playState.HasPlayer){heading=(float)playState.Heading;pitch=(float)playState.Pitch;motion.Flying=playState.Flying;motion.Y=Ground(0,0)+Math.Max(TerrainMotion.EyeHeightM,playState.HeightAboveGround);UpdateCamera();}
         }
         UpdateMapWork();
         var keyboard=Keyboard.current;var mouse=Mouse.current;
-        if(!debugOpen&&!paused)
+        if(!mapOpen&&!paused)
         {
             if(mouse!=null){var d=mouse.delta.ReadValue();heading+=d.x*.1f;pitch=Mathf.Clamp(pitch-d.y*.1f,-85,85);
                 if(motion.Flying){float scroll=mouse.scroll.ReadValue().y;if(scroll!=0)motion.FlySpeed=Math.Max(5,Math.Min(20000,motion.FlySpeed*Math.Exp(Math.Sign(scroll)*.25)));}}
@@ -95,7 +99,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             foreach(var entry in tiles)entry.Value.Root.transform.localPosition=new Vector3((float)(entry.Key.X*entry.Key.SizeM-originX),0,(float)(entry.Key.Z*entry.Key.SizeM-originZ));
             foreach(var chunk in scatterChunks.Values)ProjectScatter(chunk);scatterDirty=true;
         }
-        if(Math.Abs(motion.X)>65536||Math.Abs(motion.Z)>65536)
+        if(Math.Abs(motion.X)>Math.Min(65536,frame.RadiusM*.01)||Math.Abs(motion.Z)>Math.Min(65536,frame.RadiusM*.01))
         {
             // Re-anchor the tangent chart on long journeys, retaining height above terrain and geographic heading.
             double above=HeightAboveGround;bool flying=motion.Flying;double yaw=heading*Math.PI/180;
@@ -129,7 +133,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     void RefreshWanted()
     {
         plannedX=motion.X;plannedZ=motion.Z;plannedAltitude=HeightAboveGround;
-        wanted=TerrainLod.Plan(motion.X,motion.Z,plannedAltitude,viewDistance);priority.Clear();priority.AddRange(wanted.Keys);
+        wanted=TerrainLod.Plan(motion.X,motion.Z,plannedAltitude,viewDistance,HorizontalScale);priority.Clear();priority.AddRange(wanted.Keys);
         wantedEdges.Clear();foreach(var key in priority)wantedEdges[key]=TerrainLod.EdgeSteps(key,wanted);
         foreach(var key in tiles.Keys.Where(k=>!wanted.ContainsKey(k)&&!wanted.Keys.Any(w=>Overlaps(k,w))).ToArray()){DestroyTile(tiles[key]);tiles.Remove(key);}
         double Distance(TerrainTileKey k){double dx=k.X*k.SizeM+k.SizeM*.5-motion.X,dz=k.Z*k.SizeM+k.SizeM*.5-motion.Z;return dx*dx+dz*dz;}
@@ -166,6 +170,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         finally{view.targetTexture=null;RenderTexture.active=previous;target.Release();Destroy(target);Destroy(texture);}
     }
     public void TestMove(double east,double north){motion.X=east;motion.Z=north;}
+    public void StorePlayer(PlaySession session){session.HasPlayer=true;session.PlayerPosition=Position;session.Flying=motion.Flying;session.Heading=heading;session.Pitch=pitch;session.HeightAboveGround=Math.Max(0,HeightAboveGround);}
+    public void Resume(){paused=false;CaptureMouse();}
     public void TestWalking(){motion.Place(motion.X,motion.Z,Ground(motion.X,motion.Z));pitch=0;}
     public void TestNearbyShore()
     {

@@ -52,14 +52,21 @@ namespace WorldGen.Serialization
             if (new FileInfo(path).Length > WorldFile.MaximumFileBytes) throw new InvalidDataException("World snapshot is too large.");
             return WorldFile.Read(File.ReadAllBytes(path), cancellation);
         }
-        public WorldLibraryEntry SaveNew(string name, World world, CancellationToken cancellation = default)
-            => Save(Guid.NewGuid().ToString("N"), name, world, cancellation);
-        public WorldLibraryEntry SaveAdditional(string groupId, World world, CancellationToken cancellation = default)
+        public WorldLibraryEntry SaveNew(string name, World world, CancellationToken cancellation = default,PlaySession play=null)
+            => Save(Guid.NewGuid().ToString("N"), name, world, cancellation,play:play);
+        public WorldLibraryEntry SaveAdditional(string groupId, World world, CancellationToken cancellation = default,PlaySession play=null)
         {
             Folder(groupId);
             var previous = Entries().FirstOrDefault(e => e.GroupId == groupId && e.Error.Length == 0)
                 ?? throw new ArgumentException("The world no longer exists.");
-            return Save(Guid.NewGuid().ToString("N"), previous.Name, world, cancellation, groupId);
+            return Save(Guid.NewGuid().ToString("N"), previous.Name, world, cancellation, groupId,play);
+        }
+        public static PlaySession ReadPlaySession(string snapshotPath)
+        {
+            string path=Path.Combine(Path.GetDirectoryName(Path.GetFullPath(snapshotPath)),"play-session.json");
+            if(!File.Exists(path))return PlaySession.Legacy();
+            if(new FileInfo(path).Length>65536)throw new InvalidDataException("Play session is too large.");
+            var session=WorldJson.Read<PlaySession>(File.ReadAllText(path))??throw new InvalidDataException("Missing play session.");session.Validate();return session;
         }
         // Recoverable deletion. Never follow a user-created directory junction outside the library.
         public void DeleteSave(string id)
@@ -84,12 +91,13 @@ namespace WorldGen.Serialization
             if (Directory.Exists(Folder("earth"))) return; // Never overwrite a user's existing library entry.
             Save("earth", "Earth", WorldFile.Read(File.ReadAllBytes(bundledSnapshot), cancellation), cancellation);
         }
-        WorldLibraryEntry Save(string id, string name, World world, CancellationToken cancellation, string groupId = null)
+        WorldLibraryEntry Save(string id, string name, World world, CancellationToken cancellation, string groupId = null,PlaySession play=null)
         {
             name = (name ?? "").Trim();
             if (name.Length == 0 || name.Length > 80 || name.Any(char.IsControl)) throw new ArgumentException("Use a world name of 1–80 characters.");
             cancellation.ThrowIfCancellationRequested();
             WorldJson.ValidateWorld(world, cancellation);
+            play?.Validate();
             string pending = Path.Combine(Root, ".pending-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(pending);
             // Publish by directory rename only after every file is complete. On failure
@@ -101,6 +109,7 @@ namespace WorldGen.Serialization
             File.WriteAllText(Path.Combine(pending, "recipe.json"), WorldJson.Write(world.Recipe));
             File.WriteAllBytes(Path.Combine(pending, "heightmap.pgm"), WorldJson.Heightmap(world));
             File.WriteAllText(Path.Combine(pending, "metadata.json"), WorldJson.Write(entry));
+            if(play!=null)File.WriteAllText(Path.Combine(pending,"play-session.json"),WorldJson.Write(play));
             cancellation.ThrowIfCancellationRequested();
             Directory.Move(pending, Folder(id));
             entry.SnapshotPath = Path.Combine(Folder(id), "snapshot.world");
