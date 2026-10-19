@@ -1,6 +1,22 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-weather-isolated/WorldGen.exe` (IL2CPP,18:37:26Z; output
+junction to E:/WorldGenBuilds/player-weather-isolated). This supersedes the
+owner-rejected SA3 pack below: diagnostic scans corroborated baked-in weather
+and unwanted scene sources. Eight curated AI recordings now include the exact
+owner-auditioned/approved Small SFX wind gust and seven Medium rain/thunder clips.
+Wind has one nonlooping voice and quiet gaps, no boosted/layered noise beds.
+Rain/thunder have explicit local-weather guards and cancel in dry conditions;
+SHA256-screened admission prevents accidental replacement.8 media/585 primitive/
+5891 actual-world/24 native-CLR/64 native checks and Preview reconstruction pass.
+Only wind has owner listening approval; classifier/muted tests are not timbre
+certification. Rejected clips are recoverably quarantined in review artifacts.
+Music, weather-water, generation and history are unchanged. No contextual
+ambience or runtime synthesis/inference. See docs/WEATHER_AUDIO.md/VALIDATION.md.
+Git backs up source, prompts and admission hashes, not recordings/model files.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-weather-sa3/WorldGen.exe` (IL2CPP,17:51:25Z; output junction
 to E:/WorldGenBuilds/player-weather-sa3). All existing non-music sources now use
 17 offline SA3 Medium CUDA recordings: isolated wind/rain/thunder, six smoothly

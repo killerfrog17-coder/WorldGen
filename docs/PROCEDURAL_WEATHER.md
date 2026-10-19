@@ -133,8 +133,8 @@ not just a few isolated drops. This is visual sampling, not a changed water budg
 Rain supports up to6000 Low/12000 High particles, scaling from drizzle to
 downpours rather than exhausting its budget in moderate rain. A continuous
 recorded SA3 rainfall bed scales with rainfall, with independent volume.
-Recorded wind banks transition from sparse gentle gusts to strong air/gales.
-All17 existing non-music effects are now offline AI-generated recordings;
+One recorded wind voice changes gain and quiet intervals with wind strength.
+All existing non-music effects now use eight curated offline AI recordings;
 runtime PCM synthesis and synthetic fallback are removed. No foliage, animal,
 surf or other environment-specific ambience is added. See
 [recorded weather effects](WEATHER_AUDIO.md) for production/playback contracts.
@@ -142,12 +142,13 @@ Thunderstorm flashes have
 dated deterministic opportunities and a real-time flash cadence limiter.
 These are visual/audio effects, not authoritative history events.
 
-Thunder now uses four offline SA3 mono recordings and four
+Thunder now uses two screened offline SA3 mono recordings and four
 pooled spatial voices. Arrival delay is the visual bolt proxy's distance
 divided by an approximate343m/s, with distance rolloff, progressively reduced
 high frequencies and restrained pitch variation. Nearby arrivals can overlap;
 the pool remains bounded. Pausing stops its audio clock/voices, and teleporting
-clears old queued sounds. Wind/rain use crossfading recorded banks. These are
+clears old queued sounds. Rain uses crossfading banks; wind never layers gusts.
+Dry conditions stop rain and cancel thunder. These are
 AI-generated effects, not verified field recordings or a full acoustic
 propagation/terrain-occlusion model. No footsteps or animal calls are added.
 See [sound-effects direction](EXPLORATION_MUSIC.md#sound-effects-direction-reviewed19-october2026)

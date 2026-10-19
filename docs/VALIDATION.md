@@ -1,5 +1,44 @@
 # Version 3 validation evidence
 
+## Isolated weather sources and dry-weather audio guards - 19 October 2026
+
+This supersedes the immediately preceding SA3 audio checkpoint: the owner
+rejected its sound content. Valid PCM and source-exclusion prompts did not
+prevent audible rain/thunder, foliage and wildlife contamination. The offline
+windowed AudioSet audit corroborates several reported contaminants; it is a
+diagnostic, not listening certification. The exact replacement Small SFX wind
+preview was heard by the owner and approved ("Yes, suitable").
+
+The new curated pack contains8 distinct recordings: that single approved gust,
+five Medium rain clips and two Medium thunder clips. No failed wind variants
+were added for variety. The sole wind voice never loops/layers; wind strength
+changes volume and real quiet intervals. Rain requires local liquid rain,
+sufficient cloud and an observer below cloud top; thunder additionally needs
+storm potential. Dry transitions stop rain and cancel pending/playing thunder.
+Only SHA256-matching screened files can load. Wind export never boosts a quiet
+noise floor. F3 exposes current audio sources. No runtime synthesis or model
+inference, cell scans, music changes or authoritative rule changes are added.
+
+Media/provenance/hash/PCM/content-screen checks pass for8/8 recordings;
+585 primitive and5891 actual-world assertions pass, as does Preview's repeat/
+reapply/recipe/cached all-stage reconstruction. Selected prompts/models/seeds/
+hashes are tracked in `scripts/weather-selected.csv`. Diagnostic reports and
+release provenance are ignored under `artifacts/weather-sound-review` and
+`artifacts/weather-isolated`. Rejected original/candidate files were moved
+recoverably into the review artifacts, not deleted. Music/saves/models were
+not removed. The new Small SFX model and offline classifier cache are on D:.
+The native test waits for a fixture to reach the actual throttled weather
+update before requesting lightning, and for a full rain recording to reach
+its actual crossfade boundary (not a removed perpetual wind-bed transition).
+Final IL2CPP `player-weather-isolated` built18:37:26Z passes64 native assertions
+and24 native/CLR numerical comparisons. Actual eight-file decoding/PCM access,
+single-voice wind bound, rain playback/crossfades, delayed/repeated thunder,
+pause/resume, six dry modes and storm-to-clear cancellation pass. Terrain and
+history integrity remain unchanged. The native listener was muted: these are
+playback/routing/regression checks, not further subjective sound acceptance.
+The project shortcut selects this reviewed build; evidence is ignored under
+`artifacts/weather-isolated-verified`. No new visual acceptance is claimed.
+
 ## AI-generated non-music effects - 19 October 2026
 
 The IL2CPP `player-weather-sa3`, built17:51:25Z, replaces the previous wind,

@@ -57,14 +57,18 @@ static class WeatherTests
         check(PlayCommands.Execute(play,0,"/weather auto",weather:controls).Success&&controls.Apply(natural).RainMmPerHour==natural.RainMmPerHour&&WorldJson.Write(play)==saved,"Auto restores exact natural weather without modifying the saved calendar");
         check(PlayCommands.Complete("/weather s").SequenceEqual(new[]{"/weather snow","/weather storm"}),"Weather autocomplete lists the implemented modes");
         var calmAudio=new WeatherAudioMix(0,0,0,false);var breezeAudio=new WeatherAudioMix(4,6,0,false);var galeAudio=new WeatherAudioMix(35,40,0,false);
-        check(calmAudio.WindLight+calmAudio.WindStrong+calmAudio.WindGale==0,"Still air plays no recorded wind");
-        check(breezeAudio.WindLight>0&&breezeAudio.WindGale==0,"Light breeze does not play a gale recording");
-        check(galeAudio.WindGale>.9&&galeAudio.WindLight==0,"Gales use the strong-wind bank without a calm-air layer");
+        check(calmAudio.WindStrength==0,"Still air plays no recorded wind");
+        check(breezeAudio.WindStrength>0&&breezeAudio.WindBand==0,"Light breeze selects a gentle gust, not simultaneous wind layers");
+        check(galeAudio.WindStrength>.9&&galeAudio.WindBand==2,"Gales select one gale variant");
+        check(breezeAudio.WindGapMinSeconds>15&&breezeAudio.WindGapMaxSeconds>30,"Gentle gusts leave substantial genuinely quiet intervals");
         foreach(double speed in Enumerable.Range(0,501).Select(i=>i*.1))
         {
             var a=new WeatherAudioMix(speed,speed,4,false);var b=new WeatherAudioMix(speed+.0001,speed+.0001,4,false);
-            check(Math.Abs(a.WindLight-b.WindLight)+Math.Abs(a.WindStrong-b.WindStrong)+Math.Abs(a.WindGale-b.WindGale)<.01,"Wind bank weights change continuously, including transition boundaries");
+            check(Math.Abs(a.WindStrength-b.WindStrength)<.01,"Gust intensity changes continuously with wind strength");
         }
+        check(!new WeatherAudioMix(8,15,10,false,.2,1).RainAllowed&&!new WeatherAudioMix(8,15,10,false,.2,1).ThunderAllowed,"Clear local sky cannot play rain or thunder even if supplied contradictory rain data");
+        check(!new WeatherAudioMix(8,15,.01,false,1,1).RainAllowed,"Negligible precipitation cannot produce an audible continuous rain bed");
+        check(new WeatherAudioMix(8,15,25,false,1,1).ThunderAllowed&&!new WeatherAudioMix(8,15,25,true,1,1).ThunderAllowed,"Thunder requires local storm rain below its cloud layer");
         foreach(double date in new[]{0d,.001,31.999,32,120.125,200000*365d+.2})
         {
             var now=weather.At(date);check(now.RainMmPerHour>=0&&now.SnowWaterMmPerHour==0&&now.CloudCover>=0&&now.CloudCover<=1&&now.CloudBaseM>0,"Warm weather has nonnegative rain, no snow and valid clouds");

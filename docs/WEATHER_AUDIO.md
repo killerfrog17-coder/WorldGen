@@ -1,81 +1,86 @@
 # Recorded weather effects
 
-The19October2026 audio revision replaces all existing non-music sound sources:
-wind, rain and thunder. It does not add footsteps, animals, vegetation, surf,
-settlement noise or other environment-dependent ambience. Snow itself remains
-silent; blizzards use wind. Music is unchanged.
+The19October2026 isolation revision supersedes the rejected17-recording pack.
+The owner heard leaves/birds and wet-weather sounds in wind, plus excessive
+layering. Offline AudioSet diagnostics corroborated rain/thunder/wildlife in
+several old recordings. Prompts and valid PCM did not establish clean content.
+Music, weather generation, water budgets, terrain and history are unchanged.
+Footsteps, foliage, animals, surf and other contextual ambience remain deferred.
 
-## Offline production
+## Curated sources
 
-`scripts/weather-sounds.csv` contains17 isolated-source briefs: three gentle
-wind recordings, two strong-wind, two gale, two light-rain, two moderate-rain,
-two downpour and four thunder variants. Wind prompts explicitly exclude rain,
-thunder, sand/debris, foliage, animals, voices, waves and structures. Rain is
-generic open-air rain without roofs, gutters, leaf impacts or identifiable
-ground materials; thunder is isolated without a baked rain/wind background.
-Prompt exclusions guide the model, not an acoustic guarantee. These clips
-still need listening/owner feedback for timbre and unwanted audible artifacts.
+The active `sounds/weather-isolated` library contains eight distinct recordings:
+one wind gust, two light-rain, two moderate-rain, one downpour and two thunder.
+The exact wind preview was heard and approved by the owner ("Yes, suitable").
+It is SA3 Small SFX, seed533197, prompt `TrackType: SFX. Wind blowing.` and hash
+`e1eea27b3784c806f347f56e037b1c5e4a93e5487139c350ae73850ddd2e881f`.
+The other seven selected recordings use SA3 Medium. Failed candidates are not
+included just to supply variety. Small SFX was selected for this specific gust,
+not claimed to be the stronger general music model.
 
-`generate-weather-sounds.py` uses the existing local SA3 Medium CUDA ComfyUI
-installation, not a new model, API or CPU inference fallback. The graph uses
-FP16 diffusion, FP32 SAME-L decoding,8steps/CFG1. Decoder tiles64/overlap16 avoid
-the severe observed memory pressure with larger tiles while the game is open.
-Effects are generated at32seconds, thunder14seconds. Export removes thunder
-leading silence, downmixes thunder to mono, applies boundary fades and
-conservative RMS/peak gain, and writes44100Hz PCM16 WAV. It adds no synthetic
-source sound. Ambient variants are stereo; thunder is mono for spatial playback.
+Both models run offline on the existing CUDA ComfyUI installation. Weights stay
+on D:. Generation uses8steps/CFG1, FP16 diffusion, FP32 tiled decoding and short
+positive source descriptions. At CFG1, putting forbidden sources in a negative
+conditioning input is not an effective exclusion guarantee; listing them in
+the positive prompt can itself contaminate a scene. Wind is attenuated toward
+-32dBFS and never boosted; rain/thunder retain conservative export gain and a
+0.70 peak ceiling. Boundary fades do not synthesize a source. WAVs are44100Hz
+PCM16; wind/rain stereo, thunder mono. No gameplay model inference occurs.
 
-Run with the existing Python environment:
+`scripts/generate-weather-sounds.py` generates candidates, not approved assets.
+It supports explicit catalogs, checkpoint, seed base and sampler; its resumable
+results record actual prompts/seeds/master paths/hashes. The short wind trial
+catalog is `scripts/weather-wind-trials.csv`. `scripts/publish-weather-sounds.py`
+curates the selected records and moves owned rejects into ignored review
+artifacts, recoverably. Release provenance is in
+`artifacts/weather-isolated/release.json`; raw masters remain outside the repo.
+
+`scripts/audit-weather-audio.py` uses overlapping five-second AudioSet windows
+to flag animals, foliage, speech/music, machinery, unrelated water and baked-in
+rain/thunder. It writes hash-bound `screened.tsv`; runtime admits only files
+matching that list. This catches obvious contaminants, not every audible
+artifact. Only the wind has explicit owner listening approval. The classifier
+is an offline QA tool, not a listening certificate or runtime dependency.
 
 ```powershell
-E:\AI\StableAudio3\optimized\tflite\.venv\Scripts\python.exe -u scripts/generate-weather-sounds.py
+E:\AI\ComfyUI\.venv\Scripts\python.exe scripts/audit-weather-audio.py sounds/weather-isolated --output artifacts/weather-sound-review/final-audit.json --screen
 E:\AI\StableAudio3\optimized\tflite\.venv\Scripts\python.exe scripts/check-weather-sounds.py
 ```
 
-Source briefs/exporter are Git-backed. Generated `sounds/weather/*.wav`, raw
-masters under the external ComfyUI output directory, and ignored
-`artifacts/weather-sounds` job catalog/results/verification records are not.
-The catalog records the model/checkpoint/encoder, full prompts, seeds, CUDA
-device, steps/precision and source/license references; each result retains its
-raw master path, actual seed, prompt job ID and exported file/PCM hashes.
-The installed model weights stay on D:. No model or user recording is deleted.
+Source scripts, selected metadata and the hash admission manifest are backed
+up by Git (`scripts/weather-selected.csv` records the exact chosen prompts,
+models, seeds and hashes). Floating-point GPU regeneration is not guaranteed
+to reproduce an identical media hash; a regenerated file needs review again.
+WAVs, raw masters, players, model weights and diagnostic artifacts
+are not. A fresh checkout needs the matching recordings; absent/changed files
+stay silent with a warning rather than synthesize replacement sounds.
 
-The producer is resumable, skips verified completed files, rejects changed or
-unmanaged destinations and uses a single-job lock. A timeout deliberately
-does not submit duplicate GPU work. `PAUSE` in the evidence folder stops
-between recordings. See status.json for completion rather than plan count.
+## Playback
 
-## Runtime
+One nonlooping wind voice plays the auditioned gust. Strength controls gain
+and quiet intervals (roughly20-45seconds in light wind,0.8-3seconds at the
+strong end), not overlapping recordings or pitch manipulation. Strong/gale
+banks deliberately alias the same clip. There is no continuous white-noise bed
+or second wind layer. Existing wind/rain volume controls still apply.
 
-`LocalTerrainWeatherAudio.cs` asynchronously decodes the small WAV library
-once when entering exploration. It searches the checkout's `sounds` folder,
-or `sounds` beside a standalone player. `--worldgen-sounds-root` explicitly
-selects a folder containing `weather`. A missing/broken clip is skipped with
-a log warning; there is no procedural sound fallback or gameplay inference.
+Rain banks alone use two bounded voices with three-second equal-power joins.
+Rain requires actual liquid precipitation>=0.1mm/h, cloud cover>=0.85 and an
+observer below the cloud top. Dry weather, fog, snow and blizzards immediately
+stop rain voices rather than leave a fading wet bed. Thunder additionally
+requires active storm potential>0.2; leaving those conditions cancels pending
+arrivals and stops old thunder. Four pooled spatial voices retain physical
+distance/343m/s delay, attenuation/filtering and nonrepeating variant selection.
+Teleport resets sounds; pause freezes playback and arrival clocks.
 
-Six intensity banks use two bounded nonlooping voices apiece. Successive clips
-have3second equal-power overlaps and avoid immediate identical variants.
-Wind/rain bank weights change continuously with actual wind/gust speed and
-rainfall; volume controls remain independent. The gentle-wind recordings have
-their own irregular swells/quiet gaps. No cell biome chooses vegetation or
-wildlife noises. Rain fades out above its cloud column and during dry weather.
-Teleporting stops old ambient voices and queued thunder; pause preserves bed
-playheads and freezes sound-arrival clocks. These are playback controls and
-filters, not waveform synthesis.
+Loading is asynchronous, fixed-size and independent of world-cell counts.
+`--worldgen-sounds-root` selects a folder containing `weather-isolated`.
+F3 reports the active wind recording, rain voices and active/queued thunder.
+No ordinary text HUD is added. There are no runtime synthesizers or PCM callbacks.
 
-Four pooled thunder voices retain bolt-proxy distance/343m/s arrival delay,
-distance rolloff and high-frequency loss. Variant selection avoids consecutive
-identical thunder even for repeated strike seeds. The former WindSynth,
-RainSynth, runtime generated clips and audio PCM callbacks are removed.
-Work remains fixed-size and independent of world-cell counts. No generation,
-weather-water budget, historical rule, save format or terrain changes occur.
+## Verification limits
 
-## Review limits
-
-The offline check verifies provenance, distinct finite nonclipping44100Hz
-recordings, mono/stereo layout, duration/energy and silent file boundaries.
-Native checks exercise actual WAV decoding, PCM access, recorded source
-playback, bank overlap, pause/resume and delayed overlapping thunder. Muted
-automated audio checks do not establish subjective sound quality, perfect
-loop perception or the absence of unwanted source sounds. Consult the latest
-entry in VALIDATION.md for completed build/test evidence.
+Media checks validate provenance, screen hashes, finite unclipped PCM, layout,
+duration, energy and boundaries. Native checks exercise actual decoding,
+playback, pause/resume, transitions, delayed thunder and negative dry-weather
+tests. Automated native checks are muted and do not establish subjective
+timbre or inaudible joins. See VALIDATION.md for the completed test record.

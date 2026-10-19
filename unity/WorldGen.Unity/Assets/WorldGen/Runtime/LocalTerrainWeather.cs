@@ -17,6 +17,8 @@ public sealed partial class LocalTerrainExplorer
     public float LastThunderDistanceM {get;private set;}
     public float LastThunderDelaySeconds {get;private set;}
     public float LastThunderLowPassHz {get;private set;}
+    bool LocalThunderAllowed=>weatherScreen!=null&&CurrentWeather.CloudCover>=.85&&CurrentWeather.RainMmPerHour>=.1&&CurrentWeather.Thunderstorm>.2&&
+        (view.transform.position-weatherScreen.PlanetCenter).magnitude-weatherScreen.RadiusM<=CurrentWeather.CloudBaseM+CurrentWeather.CloudThicknessM;
     public WeatherFrame CurrentWeather {get;private set;}
     public WeatherControl WeatherControl {get;}=new WeatherControl();
     int appliedWeatherRevision=-1;
@@ -110,6 +112,8 @@ public sealed partial class LocalTerrainExplorer
         {foreach(var voice in thunderVoices)if(voice!=null){if(audioPaused)voice.Source.Pause();else voice.Source.UnPause();}weatherAudioPaused=audioPaused;}
         foreach(var voice in thunderVoices)if(voice!=null)
         {
+            // No stale arrivals after a command, relocation or transition to dry weather.
+            if(!LocalThunderAllowed){voice.Due=-1;voice.Source.Stop();continue;}
             voice.Source.volume=options.ThunderVolume*.8f;
             if(!audioPaused&&voice.Due>=0&&weatherAudioClock>=voice.Due){voice.Source.Play();voice.Due=-1;}
         }
@@ -133,7 +137,7 @@ public sealed partial class LocalTerrainExplorer
         if(!paused&&slot!=lastLightningSlot&&now>nextFlashAt)
         {
             lastLightningSlot=slot;uint hash=Rng.Mix(unchecked((uint)slot^(uint)(slot>>32)^(uint)sourceWorld.Recipe.Seed));
-            if(CurrentWeather.Thunderstorm>.2&&hash/4294967295d<CurrentWeather.Thunderstorm*.4)TriggerLightning(hash);
+            if(LocalThunderAllowed&&hash/4294967295d<CurrentWeather.Thunderstorm*.4)TriggerLightning(hash);
         }
         weatherScreen.Flash=now<flashEnd?Mathf.Clamp01((flashEnd-now)/.2f):0;lightningBolt.enabled=now<flashEnd&&options.Lightning>0;
     }
@@ -142,7 +146,7 @@ public sealed partial class LocalTerrainExplorer
     {
         get
         {
-            if(thunderClips==null||thunderClips.Length!=4)return false;
+            if(thunderClips==null||thunderClips.Length<2)return false;
             double lastSignature=double.NaN;
             foreach(var clip in thunderClips)
             {
@@ -155,6 +159,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void TriggerLightning(uint hash)
     {
+        if(!LocalThunderAllowed)return;
         nextFlashAt=Time.unscaledTime+8;flashEnd=Time.unscaledTime+.2f;weatherScreen.Flash=1;uint soundSeed=hash;
         var start=view.transform.position+view.transform.forward*2200+Vector3.up*(float)CurrentWeather.CloudBaseM;start.x+=(int)(hash%1000)-500;
         lightningBolt.positionCount=9;for(int i=0;i<9;i++){hash=Rng.Mix(hash+1);var p=start+Vector3.down*(i*(float)CurrentWeather.CloudBaseM/8);if(i>0&&i<8)p+=view.transform.right*((int)(hash%180)-90);lightningBolt.SetPosition(i,p);}

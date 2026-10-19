@@ -1,4 +1,4 @@
-"""Offline SA3 Medium/CUDA SFX authoring; no procedural audio or music exporter.
+"""Offline SA3/CUDA SFX candidates; no procedural audio or music exporter.
 
 Immutable source briefs are tracked; media, raw masters and job evidence are not.
 Processing only trims/fades/normalizes recorded output. It synthesizes no sounds.
@@ -29,10 +29,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--comfy', type=Path, default=Path('E:/AI/ComfyUI'))
     ap.add_argument('--url', default='http://127.0.0.1:8188')
-    ap.add_argument('--output', type=Path, default=root/'sounds/weather')
-    ap.add_argument('--evidence', type=Path, default=root/'artifacts/weather-sounds')
+    ap.add_argument('--output', type=Path, default=root/'artifacts/weather-sound-candidates')
+    ap.add_argument('--evidence', type=Path, default=root/'artifacts/weather-sound-candidate-jobs')
     ap.add_argument('--limit', type=int, default=100)
+    ap.add_argument('--catalog', type=Path, default=Path(__file__).with_name('weather-sounds.csv'))
+    ap.add_argument('--seed-base', type=int, default=192077)
+    ap.add_argument('--sampler', default='lcm', choices=['lcm','euler'])
+    ap.add_argument('--checkpoint', default='stable_audio_3_medium.safetensors')
     args = ap.parse_args()
+    model_id='stabilityai/'+Path(args.checkpoint).stem.replace('_','-')
     args.output.mkdir(parents=True, exist_ok=True)
     args.evidence.mkdir(parents=True, exist_ok=True)
 
@@ -45,23 +50,20 @@ def main():
     devices = api('/system_stats')['devices']
     if not any(d.get('type') == 'cuda' for d in devices):
         raise RuntimeError('CUDA required; refusing CPU fallback')
-    tracks = list(csv.DictReader(Path(__file__).with_name('weather-sounds.csv').open(encoding='utf-8')))
-    exclusion = (' Isolated field-recording-style sound effect, not music. '
-                 'No speech, voices, melody, instruments, animals, birds, insects, footsteps, '
-                 'trees, leaves, foliage, rustling vegetation, flapping fabric, buildings, traffic, '
-                 'ocean waves, streams or other environmental sources. No microphone buffeting or clipping.')
+    tracks = list(csv.DictReader(args.catalog.open(encoding='utf-8')))
     for i, track in enumerate(tracks):
         track['seconds'] = int(track['seconds'])
-        track['seed'] = 191041 + i*7919
-        track['prompt'] = 'TrackType: SFX. '+track['brief']+exclusion
-        if track['group'].startswith('wind'):
-            track['prompt'] += ' No rain or thunder. No sand, debris or object movement; only air.'
-        if track['group'].startswith('rain'):
-            track['prompt'] += ' No wind or thunder, roof drumming, gutters, puddle splashes or leaf impacts.'
-    write_json(args.evidence/'catalog.json', dict(model='stabilityai/stable-audio-3-medium',
-        checkpoint='stable_audio_3_medium.safetensors', encoder='t5gemma_b_b_ul2.safetensors',
-        decoder='SAME-L tiled CUDA FP32', diffusion='FP16', steps=8, cfg=1,
-        sources=['https://huggingface.co/stabilityai/stable-audio-3-medium',
+        track['seed'] = args.seed_base + i*7919
+        track['sampler'] = args.sampler
+        track['checkpoint'] = args.checkpoint
+        track['model'] = model_id
+        # Post-trained CFG1 is not an exclusion mechanism. Describe the desired
+        # source, not a field scene or a list of unwanted things. Audit the audio.
+        track['prompt'] = 'TrackType: SFX. '+track['brief']
+    write_json(args.evidence/'catalog.json', dict(model=model_id,
+        checkpoint=args.checkpoint, encoder='t5gemma_b_b_ul2.safetensors',
+        decoder=('SAME-S' if 'small' in args.checkpoint else 'SAME-L')+' tiled CUDA FP32', diffusion='FP16', steps=8, cfg=1,
+        library_version=2, sources=['https://huggingface.co/'+model_id,
                  'https://kb.stability.ai/knowledge-base/stable-audio-3-prompt-guide',
                  'https://stability.ai/license'], devices=devices, tracks=tracks))
     results_path = args.evidence/'results.json'
@@ -71,7 +73,7 @@ def main():
 
     def status():
         write_json(args.evidence/'status.json', dict(completed=len(results), planned=len(tracks),
-            failures=failures, elapsed_seconds=time.time()-started, backend='SA3 Medium CUDA'))
+            failures=failures, elapsed_seconds=time.time()-started, backend=args.checkpoint+' CUDA'))
 
     with FileLock(str(args.evidence/'render.lock'), timeout=0):
         status()
@@ -80,7 +82,7 @@ def main():
             key = track['id']
             destination = args.output/(key+'.wav')
             if destination.exists():
-                if key not in results or hashlib.sha256(destination.read_bytes()).hexdigest() != results[key]['file_sha256']:
+                if key not in results or track['prompt'] != results[key]['prompt'] or args.sampler != results[key].get('sampler','lcm') or args.checkpoint != results[key].get('checkpoint','stable_audio_3_medium.safetensors') or track['seed'] != results[key]['seed'] or hashlib.sha256(destination.read_bytes()).hexdigest() != results[key]['file_sha256']:
                     raise ValueError('Refusing changed/unmanaged output: '+str(destination))
                 continue
             if count >= args.limit or (args.evidence/'PAUSE').exists():
@@ -91,16 +93,16 @@ def main():
                 seed = track['seed']+104729*attempt
                 print(json.dumps(dict(event='start', id=key, attempt=attempt+1)), flush=True)
                 graph = {
-                    '1': {'class_type':'CheckpointLoaderSimple','inputs':{'ckpt_name':'stable_audio_3_medium.safetensors'}},
+                    '1': {'class_type':'CheckpointLoaderSimple','inputs':{'ckpt_name':args.checkpoint}},
                     '2': {'class_type':'CLIPLoader','inputs':{'clip_name':'t5gemma_b_b_ul2.safetensors','type':'stable_audio','device':'default'}},
                     '3': {'class_type':'CLIPTextEncode','inputs':{'clip':['2',0],'text':track['prompt']}},
                     '4': {'class_type':'CLIPTextEncode','inputs':{'clip':['2',0],'text':''}},
                     '5': {'class_type':'EmptyLatentAudio','inputs':{'seconds':track['seconds'],'batch_size':1}},
                     '6': {'class_type':'ConditioningStableAudio','inputs':{'positive':['3',0],'negative':['4',0],'seconds_start':0,'seconds_total':track['seconds']}},
                     '7': {'class_type':'KSampler','inputs':{'model':['1',0],'positive':['6',0],'negative':['6',1],'latent_image':['5',0],
-                        'seed':seed,'steps':8,'cfg':1.,'sampler_name':'lcm','scheduler':'simple','denoise':1.}},
+                        'seed':seed,'steps':8,'cfg':1.,'sampler_name':args.sampler,'scheduler':'simple','denoise':1.}},
                     '8': {'class_type':'VAEDecodeAudioTiled','inputs':{'samples':['7',0],'vae':['1',2],'tile_size':64,'overlap':16}},
-                    '9': {'class_type':'SaveAudio','inputs':{'audio':['8',0],'filename_prefix':'worldgen-weather/'+key}}}
+                    '9': {'class_type':'SaveAudio','inputs':{'audio':['8',0],'filename_prefix':'worldgen-weather-isolated/'+key}}}
                 submission = api('/prompt', dict(prompt=graph, client_id='worldgen-weather'))
                 if submission.get('node_errors'):
                     raise RuntimeError(str(submission['node_errors']))
@@ -136,10 +138,12 @@ def main():
                             raise ValueError('Silent thunder')
                         audio = audio[max(0, int(active[0])*441-441):].copy()
                     rms = float(np.sqrt(np.mean(audio.astype('float64')**2)))
-                    if rms < .002 or len(audio)/sr < (6 if thunder else 25):
+                    wind = track['group'].startswith('wind')
+                    if rms < .001 or len(audio)/sr < (4 if thunder or wind else 18):
                         raise ValueError('Silent or short effect')
-                    target = -19 if thunder else -23
+                    target = -19 if thunder else -32 if wind else -23
                     gain = min(10**(target/20)/rms, .70/max(float(np.max(np.abs(audio))), 1e-8))
+                    if wind:gain = min(1.,gain)  # Never inflate a quiet wind/noise floor.
                     audio *= gain
                     fade_in = 220 if thunder else 4410
                     fade_out = 22050 if thunder else 4410

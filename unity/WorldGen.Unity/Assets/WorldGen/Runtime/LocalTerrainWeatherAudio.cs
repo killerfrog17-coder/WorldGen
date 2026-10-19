@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Networking;
 using WorldGen.Core;
@@ -12,19 +13,26 @@ public sealed partial class LocalTerrainExplorer
     AudioClip[] thunderClips=Array.Empty<AudioClip>();
     readonly List<AudioClip> weatherRecordings=new List<AudioClip>();
     RecordedWeatherBed[] weatherBeds;
+    readonly AudioClip[][] weatherBanks=new AudioClip[6][];
+    AudioSource windGust;float windGustAge,nextWindGust=3;int lastWindIndex=-1,lastWindBank=-1;
+    uint windChoice=739213u;bool windGustPaused;
     Coroutine weatherSoundLoading;UnityWebRequest weatherSoundRequest;
     bool weatherSoundDisposed;
     public bool WeatherSoundsReady {get;private set;}
     public int WeatherRecordingCount=>weatherRecordings.Count;
-    public int ActiveWeatherBedVoices {get{int n=0;if(weatherBeds!=null)foreach(var bed in weatherBeds)n+=bed.Playing;return n;}}
-    public int WeatherBedTransitions {get{int n=0;if(weatherBeds!=null)foreach(var bed in weatherBeds)n+=bed.Transitions;return n;}}
+    public bool WeatherSoundBanksReady {get{foreach(var bank in weatherBanks)if(bank==null||bank.Length==0)return false;return thunderClips.Length>=2;}}
+    public int WindRecordingVoices=>windGust!=null&&windGust.isPlaying?1:0;
+    public int RainRecordingVoices {get{int n=0;if(weatherBeds!=null)foreach(var bed in weatherBeds)if(bed!=null)n+=bed.Playing;return n;}}
+    public int ActiveWeatherBedVoices=>WindRecordingVoices+RainRecordingVoices;
+    public int WeatherBedTransitions {get{int n=0;if(weatherBeds!=null)foreach(var bed in weatherBeds)if(bed!=null)n+=bed.Transitions;return n;}}
     public float RainRecordingGain=>weatherBeds==null?0:weatherBeds[3].Gain+weatherBeds[4].Gain+weatherBeds[5].Gain;
     public int LastThunderVariant {get;private set;}=-1;
+    public string WeatherSoundDebug=>"Audio · wind "+(WindRecordingVoices>0?windGust.clip.name:"quiet")+" · rain voices "+RainRecordingVoices+" · thunder "+ActiveThunderCount+" / queued "+PendingThunderCount;
     public bool WeatherRecordingSignalsValid
     {
         get
         {
-            if(weatherRecordings.Count!=17)return false;
+            if(!WeatherSoundBanksReady)return false;
             foreach(var clip in weatherRecordings)
             {
                 var samples=new float[clip.samples*clip.channels];
@@ -49,21 +57,29 @@ public sealed partial class LocalTerrainExplorer
     void InitializeWeatherAudio()
     {
         weatherBeds=new RecordedWeatherBed[6];
-        for(int i=0;i<weatherBeds.Length;i++)weatherBeds[i]=new RecordedWeatherBed(view.transform,"Weather recorded bed "+i,(uint)(413+i*7919));
+        for(int i=3;i<weatherBeds.Length;i++)weatherBeds[i]=new RecordedWeatherBed(view.transform,"Recorded rain "+i,(uint)(413+i*7919));
+        windGust=view.gameObject.AddComponent<AudioSource>();windGust.playOnAwake=false;windGust.loop=false;windGust.spatialBlend=0;windGust.volume=0;
         weatherSoundLoading=StartCoroutine(LoadWeatherRecordings());
     }
     IEnumerator LoadWeatherRecordings()
     {
         string[] groups={"wind-light","wind-strong","wind-gale","rain-light","rain-medium","rain-heavy","thunder"};
         int[] counts={3,2,2,2,2,2,4};var missing=new List<string>();
-        string root=Path.Combine(WeatherSoundsRoot(),"weather");
+        string root=Path.Combine(WeatherSoundsRoot(),"weather-isolated");
+        var screened=new Dictionary<string,string>(StringComparer.Ordinal);
+        string screenFile=Path.Combine(root,"screened.tsv");
+        if(File.Exists(screenFile))foreach(string line in File.ReadAllLines(screenFile))
+        {var fields=line.Split('\t');if(fields.Length==2)screened[fields[0]]=fields[1];}
         for(int group=0;group<groups.Length;group++)
         {
             var clips=new List<AudioClip>();
             for(int index=1;index<=counts[group];index++)
             {
                 string filename=groups[group]+"-"+index.ToString("D2")+".wav",path=Path.Combine(root,filename);
+                if(!screened.TryGetValue(filename,out string expectedHash))continue;
                 if(!File.Exists(path)){missing.Add(filename);continue;}
+                string actualHash;using(var stream=File.OpenRead(path))using(var sha=SHA256.Create())actualHash=BitConverter.ToString(sha.ComputeHash(stream)).Replace("-","").ToLowerInvariant();
+                if(actualHash!=expectedHash){missing.Add(filename+" (changed after screening)");continue;}
                 var request=UnityWebRequestMultimedia.GetAudioClip(new Uri(path).AbsoluteUri,AudioType.WAV);weatherSoundRequest=request;
                 ((DownloadHandlerAudioClip)request.downloadHandler).streamAudio=false;
                 yield return request.SendWebRequest();
@@ -77,7 +93,11 @@ public sealed partial class LocalTerrainExplorer
                 }
                 request.Dispose();weatherSoundRequest=null;
             }
-            if(group==6)thunderClips=clips.ToArray();else weatherBeds[group].Clips=clips.ToArray();
+            // The curated wind pack deliberately reuses the single auditioned gust.
+            // Strength changes gain and quiet intervals, never layers more voices.
+            if(clips.Count==0&&(group==1||group==2)&&weatherBanks[0]!=null)clips.AddRange(weatherBanks[0]);
+            if(clips.Count==0)missing.Add(groups[group]+" (no screened recordings)");
+            if(group==6)thunderClips=clips.ToArray();else {weatherBanks[group]=clips.ToArray();if(weatherBeds[group]!=null)weatherBeds[group].Clips=weatherBanks[group];}
         }
         if(missing.Count>0)Debug.LogWarning("Weather recordings unavailable (silence, no synthetic fallback): "+string.Join(", ",missing));
         WeatherSoundsReady=true;weatherSoundLoading=null;
@@ -86,17 +106,35 @@ public sealed partial class LocalTerrainExplorer
     {
         if(weatherBeds==null)return;
         double speed=Math.Sqrt(CurrentWeather.WindEastMps*CurrentWeather.WindEastMps+CurrentWeather.WindNorthMps*CurrentWeather.WindNorthMps);
-        var mix=new WeatherAudioMix(speed,CurrentWeather.GustMps,CurrentWeather.RainMmPerHour,aboveCloud);var o=WeatherVideoOptions.Current;
+        var mix=new WeatherAudioMix(speed,CurrentWeather.GustMps,CurrentWeather.RainMmPerHour,aboveCloud,CurrentWeather.CloudCover,CurrentWeather.Thunderstorm);var o=WeatherVideoOptions.Current;
         // Only gains/selection are dynamic. All audible samples come from the SA3 recordings.
         float delta=Time.unscaledDeltaTime;
-        weatherBeds[0].Update((float)mix.WindLight*o.WindVolume,audioPaused,delta);
-        weatherBeds[1].Update((float)mix.WindStrong*o.WindVolume,audioPaused,delta);
-        weatherBeds[2].Update((float)mix.WindGale*o.WindVolume,audioPaused,delta);
+        UpdateWindGust(mix,o.WindVolume,audioPaused,delta);
+        if(!mix.RainAllowed){for(int i=3;i<6;i++)weatherBeds[i].Reset();return;}
         weatherBeds[3].Update((float)mix.RainLight*o.RainVolume,audioPaused,delta);
         weatherBeds[4].Update((float)mix.RainMedium*o.RainVolume,audioPaused,delta);
         weatherBeds[5].Update((float)mix.RainHeavy*o.RainVolume,audioPaused,delta);
     }
-    void ResetRecordedWeather(){if(weatherBeds!=null)foreach(var bed in weatherBeds)bed.Reset();}
+    void UpdateWindGust(WeatherAudioMix mix,float volume,bool pause,float delta)
+    {
+        if(pause!=windGustPaused){if(pause)windGust.Pause();else windGust.UnPause();windGustPaused=pause;}
+        if(pause)return;
+        if(volume<=0||mix.WindStrength<=0){windGust.Stop();nextWindGust=Math.Max(nextWindGust,3);return;}
+        if(windGust.isPlaying)
+        {
+            windGustAge+=delta;
+            float envelope=Mathf.Clamp01(windGustAge/.35f)*Mathf.Clamp01((windGust.clip.length-windGustAge)/.8f);
+            windGust.volume=volume*(float)(.4+.6*mix.WindStrength)*envelope;return;
+        }
+        nextWindGust-=delta;if(nextWindGust>0)return;
+        var clips=weatherBanks[mix.WindBand];if(clips==null||clips.Length==0)return;
+        windChoice=Rng.Mix(windChoice+0x9e3779b9u);int index=(int)(windChoice%(uint)clips.Length);
+        if(clips.Length>1&&lastWindBank==mix.WindBand&&lastWindIndex==index)index=(index+1)%clips.Length;
+        lastWindIndex=index;lastWindBank=mix.WindBand;windGust.clip=clips[index];windGust.volume=0;windGustAge=0;windGust.Play();
+        windChoice=Rng.Mix(windChoice+0x9e3779b9u);
+        nextWindGust=(float)(mix.WindGapMinSeconds+(mix.WindGapMaxSeconds-mix.WindGapMinSeconds)*windChoice/4294967295d);
+    }
+    void ResetRecordedWeather(){if(weatherBeds!=null)foreach(var bed in weatherBeds)if(bed!=null)bed.Reset();if(windGust!=null)windGust.Stop();nextWindGust=3;}
     void DisposeWeatherAudio()
     {
         weatherSoundDisposed=true;
