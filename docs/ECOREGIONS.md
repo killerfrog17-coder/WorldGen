@@ -105,7 +105,70 @@ The displayed web describes **plausible feeding opportunities**, not observed di
 
 The Earth starter pack version is persisted with its complete trait records. Changes to default traits or ecological algorithms require versioning. New packs are a future recipe/content-version extension, not a renderer-only replacement. Tests cover fresh/reapply/recipe/cached reconstruction, binary/JSON persistence, native/browser parity, resident suitability, trophic co-occurrence, and bridge barriers. No old golden expectations are automatically regenerated.
 
-## References and provenance
+## Ground foundation,19 October2026
+
+`GroundEnvironment.Version = ground-environment-1` is a derived Core service,
+not a replacement WorldPipeline or a silent change to accepted ecology hashes.
+An ecoregion remains a geographic biological assemblage, not a soil label. The
+reviewed [ecoregions map](https://ecoregions.appspot.com/) illustrates why one
+climate/biome cannot specify all regional ground and vegetation traits.
+
+The contracts separate five things:
+
+1. Bedrock family: granite, basalt, sandstone, limestone, mudstone, metamorphic.
+2. Parent deposit: residual, alluvium, glacial sediment, windblown sand or loess.
+3. Soil: sand/silt/clay fine-earth fractions, coarse fragments, rootable depth(m),
+   organic fraction, inferred pH, accessible fertility, drainage, root-zone
+   available water(mm), iron tint, salinity and weathering. These are explicit
+   authored proxies, not formal soil orders or a calibrated pedological survey.
+4. Exposed local mixture: soil, sand, gravel, clay, rock, organic ground, salt and
+   existing permanent ice. Smooth supporting-cell interpolation plus absolute
+   physical-metre noise makes patches without tile/cell reseeding. Slope exposes
+   parent rock; coastal sediment admits both sandy and gravel shores.
+5. Future surface cover: living grass, litter, roads, accumulated snow, transient
+   wetness and puddles must modify these substrates rather than overwrite them.
+
+Low-relief high ground and exposed mountain faces remain separate landforms.
+This revision supplies a loose-sand mask but does NOT generate dune relief or
+mesa geometry, move water, cut new channels or alter accepted heights. Earth
+uses measured relief but SYNTHETIC geology; a later measured geology adapter can
+replace parent-material inference without changing the surface/crop/audio APIs.
+
+Fresh/explicitly upgraded optional historical realm38 uses this same soil for
+actual cultivar establishment/yield/food fits: depth, stones, nutrient supply,
+acidity, available water and drainage have distinct effects. Wetland grain and
+deeper-rooted orchard groups differ. Existing climate, seed, labour and physical
+contact constraints remain; this grants no crops, people, water or towns.
+Realm37 and earlier continuations remain literal. Cache keys distinguish these
+rules, including the cultivar/calendar caches. No daily all-cell soil tick or
+recurring empire/ecoregion census is added. Point and actor queries are bounded;
+the local terrain's existing one-time per-cell preparation stores ground profiles.
+
+Long-term order: replace provisional geology where justified; improve sediment
+source/transport and persistent soil horizons; then richer ground-cover/plant
+traits, succession and disturbance; then sparse land-use depletion/amendment and
+random-access weather moisture/snow modifiers. Preserve intrinsic ground apart
+from these time-dependent overlays. Detailed regional vegetation and ecoregion
+taxonomy are intentionally NOT claimed by this ground-only pass.
+
+Research basis, independently implemented:
+
+- [NRCS soil formation](https://www.nrcs.usda.gov/resources/education-and-teaching-materials/soil-facts):
+  parent material, organisms, climate, relief and time, including transported material.
+- [USGS desert features](https://pubs.usgs.gov/gip/deserts/features/): most desert
+  surfaces are not dune sand; rock, pavement, alluvium and playas matter.
+- [USGS beaches](https://www.usgs.gov/publications/beaches): sediment sources and
+  coastal processes produce sand/gravel mixtures rather than universally sandy shores.
+- [NRCS available water capacity](https://www.nrcs.usda.gov/sites/default/files/2022-10/nrcs142p2_051590.pdf):
+  texture, coarse fragments, organic matter and salt affect plant-available water;
+  more clay does not monotonically mean more available water.
+- [NRCS pH](https://www.nrcs.usda.gov/state-offices/illinois/soil-tech-note-24a-ph),
+  [Oxisols](https://www.nrcs.usda.gov/conservation-basics/soil/oxisols) and
+  [Aridisols](https://www.nrcs.usda.gov/conservation-basics/soil/aridisols)
+  inform weathering/leaching and dryland salt priors. Coefficients remain ours,
+  not downloaded survey observations or proof of scientific calibration.
+
+## Earlier ecological references
 
 Concepts were independently implemented; no reference-project source or external species table was copied. Numerical trait thresholds and proxy coefficients are initial authored priors, **not** an imported/calibrated trait database.
 

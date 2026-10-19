@@ -7,23 +7,23 @@ namespace WorldGen.Presentation
 {
     public sealed class TerrainMotion
     {
-        public const double EyeHeightM=1.65, Gravity=9.81,WalkSpeedMps=1.5,RunSpeedMps=5,JumpHeightM=.45;
+        public const double EyeHeightM=1.65, Gravity=9.81,WalkSpeedMps=1.5,JogSpeedMps=3.4,RunSpeedMps=6,JumpHeightM=.45;
         public double X,Y,Z,VerticalSpeed,FlySpeed=200;
         public bool Flying,Grounded;
         public void Place(double x,double z,double ground,bool fly=false,double aboveGround=40)
         {X=x;Z=z;Flying=fly;Y=ground+(fly?aboveGround:EyeHeightM);VerticalSpeed=0;Grounded=!fly;}
-        public void Move(double dt,double forward,double right,double up,double heading,double pitch,bool sprint,bool jump,Func<double,double,double> ground)
+        public void Move(double dt,double forward,double right,double up,double heading,double pitch,bool sprint,bool jump,Func<double,double,double> ground,bool walk=false)
         {
             dt=Math.Max(0,Math.Min(.25,dt));if(dt<=0)return;
             int steps=(int)Math.Ceiling(dt/.02);double step=dt/steps;
-            for(int i=0;i<steps;i++)MoveStep(step,forward,right,up,heading,pitch,sprint,jump&&i==0,ground);
+            for(int i=0;i<steps;i++)MoveStep(step,forward,right,up,heading,pitch,sprint,jump&&i==0,ground,walk);
         }
-        void MoveStep(double dt,double forward,double right,double up,double heading,double pitch,bool sprint,bool jump,Func<double,double,double> ground)
+        void MoveStep(double dt,double forward,double right,double up,double heading,double pitch,bool sprint,bool jump,Func<double,double,double> ground,bool walk)
         {
             double yaw=heading*Math.PI/180,tilt=pitch*Math.PI/180;
             double dx=Math.Sin(yaw)*forward+Math.Cos(yaw)*right,dz=Math.Cos(yaw)*forward-Math.Sin(yaw)*right;
             double length=Math.Sqrt(dx*dx+dz*dz);if(length>1){dx/=length;dz/=length;}
-            double rate=(Flying?FlySpeed*(sprint?3:1):sprint?RunSpeedMps:WalkSpeedMps)*dt;
+            double rate=(Flying?FlySpeed*(sprint?3:1):walk?WalkSpeedMps:sprint?RunSpeedMps:JogSpeedMps)*dt;
             if(Flying)
             {
                 double cp=Math.Cos(tilt),fx=Math.Sin(yaw)*forward*cp+Math.Cos(yaw)*right,fz=Math.Cos(yaw)*forward*cp-Math.Sin(yaw)*right,fy=-Math.Sin(tilt)*forward+up;
@@ -31,22 +31,28 @@ namespace WorldGen.Presentation
                 X+=fx*rate;Z+=fz*rate;Y+=fy*rate;Grounded=false;VerticalSpeed=0;Y=Math.Max(Y,ground(X,Z)+EyeHeightM);return;
             }
             double oldGround=ground(X,Z),oldX=X,oldZ=Z,tx=X+dx*rate,tz=Z+dz*rate;
+            // Height queries are millimetre quantized. At very high FPS a real
+            // movement is shorter than that quantum: probe a fixed minimum span
+            // for grade, rather than treating each rounding edge as a cliff.
+            const double contactQuantum=.00101,contactSkin=.005,gradeProbe=.1;
+            double Grade(double a,double b,double distance)
+            {if(distance<=1e-12)return 0;double span=Math.Max(gradeProbe,distance);return (ground(X+(a-X)*span/distance,Z+(b-Z)*span/distance)-oldGround)/span;}
             // The terrain is a continuous height field, not stairs. A per-frame step allowance
             // must not be reused as permission to climb an arbitrary steep continuous grade.
             bool Step(double a,double b)
             {
                 double distance=Math.Sqrt((a-X)*(a-X)+(b-Z)*(b-Z)),target=ground(a,b);
-                return Grounded?target-oldGround<=distance+1e-6:target<=Y-EyeHeightM+1e-6;
+                return Grounded?target-oldGround<=distance+contactSkin&&Grade(a,b,distance)<=1+contactQuantum/gradeProbe:target<=Y-EyeHeightM+1e-6;
             }
             if(Grounded)
             {
-                double rise=ground(tx,tz)-oldGround,horizontal=rate*Math.Min(1,length);
-                if(horizontal>1e-9&&Math.Abs(rise)<=horizontal+1e-6)
-                {double surface=Math.Sqrt(horizontal*horizontal+rise*rise);tx=X+(tx-X)*horizontal/surface;tz=Z+(tz-Z)*horizontal/surface;}
+                double horizontal=rate*Math.Min(1,length),grade=Grade(tx,tz,horizontal);
+                if(horizontal>1e-9&&Math.Abs(grade)<=1+contactQuantum/gradeProbe)
+                {double factor=1/Math.Sqrt(1+grade*grade);tx=X+(tx-X)*factor;tz=Z+(tz-Z)*factor;}
             }
             if(Step(tx,tz)){X=tx;Z=tz;}else if(Step(tx,Z))X=tx;else if(Step(X,tz))Z=tz;
             double floor=ground(X,Z)+EyeHeightM,travel=Math.Sqrt((X-oldX)*(X-oldX)+(Z-oldZ)*(Z-oldZ));
-            if(Grounded&&!jump&&oldGround-(floor-EyeHeightM)<=travel+1e-6)
+            if(Grounded&&!jump&&oldGround-(floor-EyeHeightM)<=travel+contactSkin)
             {Y=floor;VerticalSpeed=0;return;}
             if(jump&&Grounded){VerticalSpeed=Math.Sqrt(2*Gravity*JumpHeightM);Grounded=false;}
             Y+=VerticalSpeed*dt-.5*Gravity*dt*dt;VerticalSpeed-=Gravity*dt;

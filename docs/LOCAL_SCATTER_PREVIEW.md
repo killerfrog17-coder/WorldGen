@@ -59,16 +59,24 @@ runtime clone: otherwise Unity may strip the required instancing variants. The
 bundled `LocalScatterMaterial` explicitly retains these variants. Both default
 shaders compile the installed URP Forward+ cluster-light-loop variant.
 
-Terrain exposes four blend channels in UV1: herb, soil/litter, rock and snow.
+Terrain exposes eight substrate blend channels in UV1/UV2, separate from future grass/litter cover.
 The default triplanar URP PBR shader accepts replaceable Texture2DArrays:
 
 | Array | Interpretation |
 | --- | --- |
-| Albedo | sRGB colour; four layers of matching dimensions |
+| Albedo | sRGB neutral detail; eight layers of matching dimensions, multiplied by regional mineral/organic color |
 | Normals | linear raw RGB tangent normals, not Unity-compressed normal-map packing |
 | Masks | linear R ambient occlusion, G roughness, B reserved height, A metallic |
 
 `TextureRepeatMetres` sets the physical repeat scale. A GroundMaterial override
+uses UV1(soil,sand,gravel,clay) and UV2(rock,organic,salt,permanent ice); all eight
+weights sum to one. Old four-layer custom arrays safely use the new defaults
+instead of indexing missing layers. The preceding four-material layout is
+superseded by this ground foundation. Scatter preview2 uses the same blended
+root depth/water/nutrition/drainage and parent rock tint; it does not add the
+planned richer vegetation taxonomy or change accepted macro ecology.
+
+A GroundMaterial override
 can replace this simple shader altogether while retaining surface weights.
 Planet-oriented phase and modulo anchors keep the material continuous across
 floating-origin changes. The default generated128px tileable textures, procedural

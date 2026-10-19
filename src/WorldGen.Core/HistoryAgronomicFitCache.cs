@@ -21,16 +21,16 @@ namespace WorldGen.Core
         readonly Queue<AgronomicFitKey> agronomicFitOrder=new Queue<AgronomicFitKey>();
         readonly struct AgronomicFitKey:IEquatable<AgronomicFitKey>
         {
-            readonly int cell,crop,maturity,latitude,water,warmth,selection,managed,speciesNiche,maturityCalendar;
-            public AgronomicFitKey(int cell,HistoricalCultivar c,bool managed,bool speciesNiche,bool maturityCalendar)
-            {this.cell=cell;crop=c.CropId;maturity=c.MaturityDays;latitude=c.DaylengthLatitudeTenths;water=c.WaterRequirementPermille;warmth=c.MinimumWarmTenthsC;selection=c.SelectedYears;this.managed=managed?1:0;this.speciesNiche=speciesNiche?1:0;this.maturityCalendar=maturityCalendar?1:0;}
-            public bool Equals(AgronomicFitKey b)=>cell==b.cell&&crop==b.crop&&maturity==b.maturity&&latitude==b.latitude&&water==b.water&&warmth==b.warmth&&selection==b.selection&&managed==b.managed&&speciesNiche==b.speciesNiche&&maturityCalendar==b.maturityCalendar;
+            readonly int cell,crop,maturity,latitude,water,warmth,selection,managed,speciesNiche,maturityCalendar,ground;
+            public AgronomicFitKey(int cell,HistoricalCultivar c,bool managed,bool speciesNiche,bool maturityCalendar,bool ground)
+            {this.cell=cell;crop=c.CropId;maturity=c.MaturityDays;latitude=c.DaylengthLatitudeTenths;water=c.WaterRequirementPermille;warmth=c.MinimumWarmTenthsC;selection=c.SelectedYears;this.managed=managed?1:0;this.speciesNiche=speciesNiche?1:0;this.maturityCalendar=maturityCalendar?1:0;this.ground=ground?1:0;}
+            public bool Equals(AgronomicFitKey b)=>cell==b.cell&&crop==b.crop&&maturity==b.maturity&&latitude==b.latitude&&water==b.water&&warmth==b.warmth&&selection==b.selection&&managed==b.managed&&speciesNiche==b.speciesNiche&&maturityCalendar==b.maturityCalendar&&ground==b.ground;
             public override bool Equals(object other)=>other is AgronomicFitKey b&&Equals(b);
-            public override int GetHashCode(){unchecked{int h=cell;h=h*31+crop;h=h*31+maturity;h=h*31+latitude;h=h*31+water;h=h*31+warmth;h=h*31+selection;h=h*31+managed;h=h*31+speciesNiche;return h*31+maturityCalendar;}}
+            public override int GetHashCode(){unchecked{int h=cell;h=h*31+crop;h=h*31+maturity;h=h*31+latitude;h=h*31+water;h=h*31+warmth;h=h*31+selection;h=h*31+managed;h=h*31+speciesNiche;h=h*31+maturityCalendar;return h*31+ground;}}
         }
         double CachedCommunityTransferFit(PrehistoryState s,int cell,HistoricalCultivar cultivar,bool managed)
         {
-            var key=new AgronomicFitKey(cell,cultivar,managed,SpeciesCropNicheHistory(s),s?.History?.Aggregates?.Empires?.Connections?.Realms?.Version>=22);
+            var key=new AgronomicFitKey(cell,cultivar,managed,SpeciesCropNicheHistory(s),s?.History?.Aggregates?.Empires?.Connections?.Realms?.Version>=22,GroundHistory(s));
             if(agronomicFits.TryGetValue(key,out double fit)){agronomicFitHits++;return fit;}
             agronomicFitMisses++;
             fit=LiteralCommunityTransferFit(s,cell,cultivar,managed);
@@ -41,7 +41,7 @@ namespace WorldGen.Core
         readonly Queue<int> agronomicAreaOrder=new Queue<int>();
         double CommunityAreaYield(PrehistoryState s,int cell,int group,HabitatCell habitat,double rainfallSeason)
         {
-            bool cached=UseAgronomicFitCache&&LivingWorldHistory(s);int key=cell*8+group;
+            bool cached=UseAgronomicFitCache&&LivingWorldHistory(s);int key=cell*8+group+(GroundHistory(s)?1<<29:0);
             if(cached&&agronomicAreaYields.TryGetValue(key,out double fit)){agronomicAreaHits++;return fit;}
             if(cached)agronomicAreaMisses++;
             fit=HistoricalLandscapeEffects.CropAreaYield(habitat,riverAccess[cell],rainfallSeason)*HistoricalDevelopmentEffects.GrowingSeason(habitat);

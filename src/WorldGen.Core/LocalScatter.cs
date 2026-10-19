@@ -29,7 +29,7 @@ namespace WorldGen.Core
     /// <summary>Replaceable static natural cover over accepted terrain, not a population or forestry simulation.</summary>
     public sealed class LocalScatter
     {
-        public const string Version="local-scatter-preview-1";
+        public const string Version="local-scatter-preview-2";
         readonly LocalTerrain terrain;readonly World world;readonly int seed;readonly double scale;
         static readonly V[] Normals={new V(1,0,0),new V(-1,0,0),new V(0,1,0),new V(0,-1,0),new V(0,0,1),new V(0,0,-1)};
         public LocalScatter(LocalTerrain terrain,double horizontalScale=1){this.terrain=terrain??throw new ArgumentNullException(nameof(terrain));if(horizontalScale<.01||horizontalScale>2||double.IsNaN(horizontalScale))throw new ArgumentOutOfRangeException(nameof(horizontalScale));scale=horizontalScale;world=terrain.SourceWorld;seed=world.Recipe.Seed;}
@@ -105,7 +105,8 @@ namespace WorldGen.Core
                         }
                         double cluster=D.Clamp(.55+.6*SphereNoise.Sample(km,seed^0x3921,3)+.18*SphereNoise.Sample(km,seed^0x7231,13));
                         trees*=cluster*D.Clamp((warm-6)/6)*D.Clamp(wet/.55);
-                        if(env!=null){trees*=1-.75*env.PermafrostPermille/1000.0;if(env.Soil==SoilKind.Rock)trees*=.2;if(env.SalinityMilliPpt>5000&&biome!=Biome.Mangrove)trees=0;}
+                        trees*=.15+.85*sample.Ground.RootingSupport(biome==Biome.Mangrove,biome==Biome.Mangrove);
+                        if(env!=null){trees*=1-.75*env.PermafrostPermille/1000.0;if(env.SalinityMilliPpt>5000&&biome!=Biome.Mangrove)trees=0;}
                         // Cube projection's area Jacobian keeps density comparable at face centres, edges and corners.
                         double cu=(key.X+u)*2/Divisions(key.Detail)-1,cv=(key.Y+v)*2/Divisions(key.Detail)-1;
                         double jacobian=1/Math.Pow(1+cu*cu+cv*cv,1.5);
@@ -126,9 +127,10 @@ namespace WorldGen.Core
                         double size=random.Unit(),width=random.Unit(),height;
                         if(tree){double adult=kind==ScatterKind.SavannaTree?13:kind==ScatterKind.Conifer?25:biome==Biome.TropicalRainforest?35:28;height=(.4+.6*size)*adult*D.Clamp((warm-5)/12,.3,1);}
                         else height=kind==ScatterKind.Shrub?.35+1.3*size:kind==ScatterKind.Boulder?.4+2.0*size:kind==ScatterKind.Stone?.035+.12*size:.22+.48*size;
-                        V color=kind==ScatterKind.Boulder||kind==ScatterKind.Stone?new V(.52,.49,.43):new V(.73+.2*width,.78+.15*size,.65+.16*width);
-                        if(biome==Biome.Savanna||biome==Biome.Desert)color=new V(.98,.85,.54);
-                        if(biome==Biome.Tundra||biome==Biome.Alpine)color=new V(.68,.67,.48);
+                        bool stone=kind==ScatterKind.Boulder||kind==ScatterKind.Stone;
+                        V color=stone?sample.Ground.RockColor:new V(.73+.2*width,.78+.15*size,.65+.16*width);
+                        if(!stone&&(biome==Biome.Savanna||biome==Biome.Desert))color=new V(.98,.85,.54);
+                        if(!stone&&(biome==Biome.Tundra||biome==Biome.Alpine))color=new V(.68,.67,.48);
                         double spread=kind==ScatterKind.Conifer?.32:kind==ScatterKind.Broadleaf?.6:kind==ScatterKind.SavannaTree?1.05:kind==ScatterKind.Shrub?1.5:kind==ScatterKind.Grass?.85:1.4;
                         result.Add(new ScatterInstance{Id=id,Kind=kind,Variant=(int)(random.Unit()*3),Position=p,Normal=(p-east*sx-north*sz).Unit,
                             GroundM=sample.ElevationM,HeightM=D.Q(height,1000),WidthM=D.Q(height*spread*(.8+.4*width),1000),YawDegrees=D.Q(random.Unit()*360,1000),Color=color});

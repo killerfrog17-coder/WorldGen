@@ -72,7 +72,7 @@ static class LocalTerrainTests
         check(high.Triangles.All(i => i >= 0 && i < high.Positions.Length / 3), "All ground/skirt indices are valid");
         check(high.Positions.All(float.IsFinite) && high.Normals.All(float.IsFinite), "Terrain vertices and normals are finite");
         check(high.SurfaceWeights.Length==high.Colors.Length&&high.SurfaceWeights.All(v=>float.IsFinite(v)&&v>=0&&v<=1),"PBR surface weights cover ground and skirts with finite normalized channels");
-        check(Enumerable.Range(0,high.SurfaceWeights.Length/4).All(i=>Math.Abs(high.SurfaceWeights.Skip(i*4).Take(4).Sum()-1)<1e-5),"Herb, soil, rock and snow weights sum to one without modifying height samples");
+        check(high.GroundWeightsB.Length==high.Colors.Length&&Enumerable.Range(0,high.SurfaceWeights.Length/4).All(i=>Math.Abs(high.SurfaceWeights.Skip(i*4).Take(4).Sum()+high.GroundWeightsB.Skip(i*4).Take(4).Sum()-1)<1e-5),"Eight physical ground weights sum to one without modifying height samples");
         for (int i = 0; i < high.GroundVertices; i++)
             if (i % 47 == 0) check(Math.Abs(high.Normals[i * 3] * high.Normals[i * 3] + high.Normals[i * 3 + 1] * high.Normals[i * 3 + 1] + high.Normals[i * 3 + 2] * high.Normals[i * 3 + 2] - 1) < 1e-5, "Normals are normalized");
         var cancel = new CancellationTokenSource(); cancel.Cancel(); bool cancelled = false;
@@ -100,13 +100,15 @@ static class LocalTerrainTests
         double maximum=player.Y;for(int i=0;i<100;i++){player.Move(.02,0,0,0,0,0,false,false,Ground);maximum=Math.Max(maximum,player.Y);}
         check(player.Grounded&&player.Y==TerrainMotion.EyeHeightM&&Math.Abs(maximum-TerrainMotion.EyeHeightM-TerrainMotion.JumpHeightM)<.002,"Human-scale jump follows gravity and lands on the analytic terrain");
         for(int i=0;i<50;i++)player.Move(.02,1,0,0,0,0,false,false,Ground);
-        check(Math.Abs(player.Z-TerrainMotion.WalkSpeedMps)<1e-8,"Walking speed is in metres per second independent of frame rate");
+        check(Math.Abs(player.Z-TerrainMotion.JogSpeedMps)<1e-8,"Default movement is jogging in physical metres per second");
+        player.Place(0,0,0);for(int i=0;i<50;i++)player.Move(.02,1,0,0,0,0,false,false,Ground,walk:true);
+        check(Math.Abs(player.Z-TerrainMotion.WalkSpeedMps)<1e-8,"Held walk modifier uses a slower walking gait");
         player.Place(0,0,0);player.Move(.05,1,0,0,0,0,false,false,(x,z)=>z>.01?100:0);
         check(player.Z==0,"Walking cannot snap up a sheer cliff");
         foreach(double dt in new[]{1.0/120,1.0/60,1.0/30,.1})
         {
             var p=new TerrainMotion();p.Place(0,0,0);for(int i=0;i<(int)Math.Round(1/dt);i++)p.Move(dt,1,0,0,0,0,false,false,Ground);
-            check(Math.Abs(p.Z-TerrainMotion.WalkSpeedMps)<1e-8,"Walk distance stays consistent at high/low frame rates");
+            check(Math.Abs(p.Z-TerrainMotion.JogSpeedMps)<1e-8,"Jog distance stays consistent at high/low frame rates");
             p.Place(0,0,0);for(int i=0;i<(int)Math.Round(1/dt);i++)p.Move(dt,1,0,0,0,0,true,false,Ground);
             check(Math.Abs(p.Z-TerrainMotion.RunSpeedMps)<1e-8,"Run speed is bounded independently of frame rate");
             p.Place(0,0,0);p.Move(dt,1,0,0,0,0,false,false,(x,z)=>z*3);
@@ -119,7 +121,7 @@ static class LocalTerrainTests
         {
             var p=new TerrainMotion();p.Place(0,0,0);for(int i=0;i<120;i++)
             {p.Move(1.0/60,1,0,0,0,0,false,false,(x,z)=>grade*z);check(p.Grounded&&Math.Abs(p.Y-grade*p.Z-TerrainMotion.EyeHeightM)<1e-8,"Walking up/down a normal grade retains steady eye height without hopping");}
-            check(Math.Abs(p.Z*Math.Sqrt(1+grade*grade)-TerrainMotion.WalkSpeedMps*2)<1e-8,"Slope movement uses surface distance, not an uphill speed boost");
+            check(Math.Abs(p.Z*Math.Sqrt(1+grade*grade)-TerrainMotion.JogSpeedMps*2)<1e-8,"Slope movement uses surface distance, not an uphill speed boost");
         }
         var drop=new TerrainMotion();drop.Place(0,0,0);drop.Move(.02,1,0,0,0,0,false,false,(x,z)=>z>.01?-10:0);
         check(!drop.Grounded&&drop.Y>TerrainMotion.EyeHeightM-.01,"Walking over a drop starts a fall rather than snapping down");

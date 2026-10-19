@@ -139,7 +139,8 @@ def main():
                         audio = audio[max(0, int(active[0])*441-441):].copy()
                     rms = float(np.sqrt(np.mean(audio.astype('float64')**2)))
                     wind = track['group'].startswith('wind')
-                    if rms < .001 or len(audio)/sr < (4 if thunder or wind else 18):
+                    transient = track['group'].startswith('footstep')
+                    if rms < .001 or len(audio)/sr < (4 if thunder or wind or transient else 18):
                         raise ValueError('Silent or short effect')
                     target = -19 if thunder else -32 if wind else -23
                     gain = min(10**(target/20)/rms, .70/max(float(np.max(np.abs(audio))), 1e-8))

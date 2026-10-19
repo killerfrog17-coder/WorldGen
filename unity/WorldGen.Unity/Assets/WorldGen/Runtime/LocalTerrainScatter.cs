@@ -35,10 +35,11 @@ public sealed partial class LocalTerrainExplorer
     {
         scatter=new LocalScatter(terrain,HorizontalScale);artSet=Resources.Load<LocalTerrainArtSet>("LocalTerrainArtSet");
         if(artSet!=null&&artSet.GroundMaterial!=null){var replacement=new Material(artSet.GroundMaterial);Destroy(landMaterial);landMaterial=replacement;SetFog();}
-        if(artSet==null||artSet.Albedo==null||artSet.Normals==null||artSet.Masks==null)generatedGround=LocalGroundTextures.Create();
-        landMaterial.SetTexture("_GroundAlbedo",artSet!=null&&artSet.Albedo!=null?artSet.Albedo:generatedGround[0]);
-        landMaterial.SetTexture("_GroundNormals",artSet!=null&&artSet.Normals!=null?artSet.Normals:generatedGround[1]);
-        landMaterial.SetTexture("_GroundMasks",artSet!=null&&artSet.Masks!=null?artSet.Masks:generatedGround[2]);
+        bool groundArt=artSet!=null&&artSet.Albedo!=null&&artSet.Normals!=null&&artSet.Masks!=null&&artSet.Albedo.depth>=8&&artSet.Normals.depth>=8&&artSet.Masks.depth>=8;
+        if(!groundArt)generatedGround=LocalGroundTextures.Create();
+        landMaterial.SetTexture("_GroundAlbedo",groundArt?artSet.Albedo:generatedGround[0]);
+        landMaterial.SetTexture("_GroundNormals",groundArt?artSet.Normals:generatedGround[1]);
+        landMaterial.SetTexture("_GroundMasks",groundArt?artSet.Masks:generatedGround[2]);
         landMaterial.SetFloat("_TextureMetres",artSet==null?2:Math.Max(.05f,artSet.TextureRepeatMetres));
         precedingSun=RenderSettings.sun;precedingAmbient=RenderSettings.ambientMode;precedingSky=RenderSettings.ambientSkyColor;precedingEquator=RenderSettings.ambientEquatorColor;precedingGround=RenderSettings.ambientGroundColor;lightingSaved=true;
         var lightRoot=new GameObject("Local sunlight",typeof(Light));lightRoot.transform.SetParent(transform,false);lightRoot.transform.rotation=Quaternion.Euler(48,-35,0);

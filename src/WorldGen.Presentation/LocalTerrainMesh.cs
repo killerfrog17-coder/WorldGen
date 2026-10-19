@@ -25,8 +25,9 @@ namespace WorldGen.Presentation
     {
         public float[] Positions = Array.Empty<float>(), Normals = Array.Empty<float>(), Colors = Array.Empty<float>();
         public float[] WaterPositions = Array.Empty<float>(), WaterColors = Array.Empty<float>();
-        // UV1: herb/forest-floor-soil/rock/snow, independent from albedo and geometry.
+        // UV1: soil/sand/gravel/clay; UV2: rock/organic/salt/ice. Independent from geometry.
         public float[] SurfaceWeights = Array.Empty<float>();
+        public float[] GroundWeightsB = Array.Empty<float>();
         public int[] Triangles = Array.Empty<int>();
         public double EastM, NorthM, SizeM, MinHeightM, MaxHeightM, BuildMilliseconds;
         public int Segments, GroundVertices;
@@ -80,6 +81,7 @@ namespace WorldGen.Presentation
             }
             mesh.Positions = new float[(ground + perimeter) * 3]; mesh.Normals = new float[mesh.Positions.Length]; mesh.Colors = new float[(ground + perimeter) * 4];
             mesh.SurfaceWeights=new float[mesh.Colors.Length];
+            mesh.GroundWeightsB=new float[mesh.Colors.Length];
             mesh.WaterPositions = new float[ground * 3]; mesh.WaterColors = new float[ground * 4];
             for (int z = 0; z < side; z++) for (int x = 0; x < side; x++)
             {
@@ -91,14 +93,11 @@ namespace WorldGen.Presentation
                 double nx = (heights[at - 1] - heights[at + 1]) / (2 * step), nz = (heights[at - halo] - heights[at + halo]) / (2 * step);
                 double length = Math.Sqrt(nx * nx + 1 + nz * nz); double up = 1 / length;
                 mesh.Normals[i * 3] = (float)(nx / length); mesh.Normals[i * 3 + 1] = (float)up; mesh.Normals[i * 3 + 2] = (float)(nz / length);
-                double rock = D.Clamp((1 - up - .08) / .37), snow = sample.Biome == Biome.Ice ? D.Clamp((up-.55)/.4) : 0;
-                double soil=sample.Biome==Biome.Grassland||sample.Biome==Biome.Savanna?.12:sample.Biome==Biome.Desert?1:sample.Biome==Biome.Tundra||sample.Biome==Biome.Alpine?.6:.85;
-                mesh.SurfaceWeights[i*4]=(float)((1-soil)*(1-rock)*(1-snow));mesh.SurfaceWeights[i*4+1]=(float)(soil*(1-rock)*(1-snow));
-                mesh.SurfaceWeights[i*4+2]=(float)(rock*(1-snow));mesh.SurfaceWeights[i*4+3]=(float)snow;
-                V color = sample.CoverColor;
-                if (sample.ElevationM < 8) color = color * .4 + new V(.48, .43, .32) * .6;
-                color = color * (1 - rock) + new V(.39, .37, .34) * rock;
-                color = color * (1 - snow) + new V(.89, .92, .94) * snow;
+                double snow=sample.Biome==Biome.Ice?D.Clamp((up-.55)/.4):0;
+                var groundSurface=GroundEnvironment.Surface(sample.Ground,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,
+                    sample.ElevationM,up,sample.OceanInfluence,snow,terrain.RadiusM*frame.HorizontalScale);
+                for(int layer=0;layer<4;layer++){mesh.SurfaceWeights[i*4+layer]=(float)groundSurface.Weight(layer);mesh.GroundWeightsB[i*4+layer]=(float)groundSurface.Weight(layer+4);}
+                V color = groundSurface.Color;
                 mesh.Colors[i * 4] = (float)color.X; mesh.Colors[i * 4 + 1] = (float)color.Y; mesh.Colors[i * 4 + 2] = (float)color.Z; mesh.Colors[i * 4 + 3] = 1;
             }
             mesh.Triangles = new int[segments * segments * 6 + perimeter * 6]; int cursor = 0;
@@ -118,6 +117,7 @@ namespace WorldGen.Presentation
                 Array.Copy(mesh.Positions, src * 3, mesh.Positions, dst * 3, 3); mesh.Positions[dst * 3 + 1] -= (float)skirt;
                 Array.Copy(mesh.Normals, src * 3, mesh.Normals, dst * 3, 3); Array.Copy(mesh.Colors, src * 4, mesh.Colors, dst * 4, 4);
                 Array.Copy(mesh.SurfaceWeights,src*4,mesh.SurfaceWeights,dst*4,4);
+                Array.Copy(mesh.GroundWeightsB,src*4,mesh.GroundWeightsB,dst*4,4);
                 int next = (i + 1) % perimeter; Triangle(src, dst, edge[next]); Triangle(edge[next], dst, ground + next);
             }
             mesh.BuildMilliseconds = watch.Elapsed.TotalMilliseconds; return mesh;

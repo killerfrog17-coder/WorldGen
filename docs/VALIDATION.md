@@ -1,5 +1,51 @@
 # Version 3 validation evidence
 
+## Ground foundation1 checkpoint -19 October2026
+
+GroundEnvironment1 / local-scatter-preview2 / optional historical realm38:
+3131 focused ground/cadence/agronomy assertions,582 terrain and1397 scatter
+assertions pass. The ground-contact tests include millimetre-rounded surfaces at
+60 and10000 FPS, a5mm contact skin, a fixed grade probe, blocked steep climbing,
+silent air intervals and retained grounded stride distance across contact gaps.
+An actual populated archived world passes24680 agronomic cache/cold replay
+assertions under separate37/38 branches. Previous37 continuation matches the
+frozen rain-restored IL2CPP executable exactly;38 matches actual IL2CPP/CoreCLR
+continuation exactly. No new saved soil arrays or recurring territorial census.
+
+The shared build has zero warnings/errors. Actual200k Earth/Continents Plus
+terrain tests pass14 assertions each: one-time descriptor/index setup1078/1032ms,
+36/34 supporting candidates, mean mixed-resolution tile33.7/32.6ms, worst
+131.7/131.4ms (background jobs; not main-frame times). Synthetic height/ground
+queries average about0.01ms on this host. This is not a low-end FPS guarantee or
+acceptance of the outstanding late-history speed criterion.
+
+All15 generation stage hashes match the preceding frozen native build for
+Earth, Preview, Ocean World and Continental. Repeat/reapply/recipe/cached-result
+reconstruction passes. The broad suite stops at a PRE-EXISTING Earth golden
+mismatch: the checked-in expectation has11 stages while the preceding executable
+also produces the current15-stage result. No goldens were regenerated. The longer
+eleven-case frozen diagnostic was stopped after these four cases; no complete
+golden-suite pass is claimed.
+
+Twenty-eight distinct local AI footfalls pass admission hashes, PCM format,
+duration, boundary fades and restrained peak/RMS checks. Source prompts, models,
+seeds and selected crop frames/hashes are retained; classifier screening is not
+subjective sound acceptance. Footsteps use actual distance and material mixtures,
+not loops, and keep a separate volume control. Rain remains exact pre-AI RainSynth,
+current AI thunder stays, and no wind audio is reintroduced.587 weather assertions
+pass. Actual native final ground/weather review and launch selection are pending
+at this source checkpoint; the rain-restored shortcut remains selected.
+
+The actual Mono ground review already passes all five200k Earth sites and a
+three-site5000-cell generated world, including keyboard gaits, real footfall
+counts, stationary/flying silence, map/teleport, streaming, no render errors and
+unchanged world hashes. Their screenshots were inspected: distinct warm dry,
+darker temperate and mineral-tinted surfaces render, without a nearest-cell
+palette seam. Art/vegetation remain placeholders. The coastal view faces inland;
+it is not proof of realistic beach geometry. Soil is inferred, NOT measured Earth
+geology or a calibrated soil survey. Dunes/mesas, full vegetation/ecoregion
+diversity, litter/grass cover and accumulated ground weather remain later work.
+
 ## Original rain restoration - 19 October 2026
 
 The owner requested the exact pre-AI rain, retaining current AI thunder and no

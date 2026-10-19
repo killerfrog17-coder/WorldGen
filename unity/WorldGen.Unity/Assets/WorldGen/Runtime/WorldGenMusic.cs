@@ -70,6 +70,8 @@ public sealed partial class WorldGenRuntime
         GUILayout.Label("Music  "+Mathf.RoundToInt(musicVolume*100)+"%");
         float next=GUILayout.HorizontalSlider(musicVolume,0,1);
         if(next!=musicVolume){musicVolume=next;PlayerPrefs.SetFloat("music-volume",musicVolume);}
+        GUILayout.Label("Footsteps  "+Mathf.RoundToInt(LocalTerrainExplorer.FootstepVolume*100)+"%");
+        float steps=GUILayout.HorizontalSlider(LocalTerrainExplorer.FootstepVolume,0,1);if(steps!=LocalTerrainExplorer.FootstepVolume)LocalTerrainExplorer.FootstepVolume=steps;
         GUILayout.Space(12);
     }
     IEnumerator PlayNextMusic()

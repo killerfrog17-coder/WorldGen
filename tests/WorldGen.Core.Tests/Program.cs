@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--ground-only")){int n=0;GroundEnvironmentTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" ground/environment assertions");return;}
+if(args.Contains("--ground-world")){int n=0,at=Array.IndexOf(args,"--ground-world");GroundEnvironmentTests.World(args[at+1],args[at+2],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" actual ground agronomy/replay assertions");return;}
 if(args.Contains("--weather-world-only")){int n=0;WeatherTests.World((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" actual-world weather assertions");return;}
 if(args.Contains("--weather-native")){int n=0;WeatherTests.Native(args[Array.IndexOf(args,"--weather-native")+1],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" native/CLR weather assertions");return;}
 if(args.Contains("--weather-only")){int n=0;WeatherTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" weather assertions");return;}
@@ -525,6 +527,7 @@ try
     TectonicTests.Run(Check);
     TerrainScaleTests.Run(Check);
     LocalTerrainTests.Run(Check);
+    GroundEnvironmentTests.Run(Check);
     LocalScatterTests.Run(Check);
     PlaySessionTests.Run(Check);
     DrainageIncisionTests.Run(Check);

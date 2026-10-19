@@ -14,9 +14,9 @@ public sealed class LocalTerrainArtSet : ScriptableObject
         public float ReferenceHeightM,ReferenceWidthM;
     }
     public Binding[] Scatter=Array.Empty<Binding>();
-    [Tooltip("Optional replacement URP terrain material. The default accepts UV1 herb/soil/rock/snow weights.")]
+    [Tooltip("Optional replacement URP terrain material. UV1 soil/sand/gravel/clay; UV2 rock/organic/salt/ice.")]
     public Material GroundMaterial;
-    [Tooltip("Four equally sized layers: herb, soil/litter, rock, snow. Albedo is sRGB; normals and masks are linear.")]
+    [Tooltip("Eight layers: soil,sand,gravel,clay,rock,organic,salt,ice. Albedo sRGB; normals/masks linear. Old four-layer arrays use fallback textures.")]
     public Texture2DArray Albedo,Normals,Masks;
     [Tooltip("Mask channels: R occlusion, G roughness, B height (reserved), A metallic.")]
     public float TextureRepeatMetres=2;

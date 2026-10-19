@@ -29,7 +29,7 @@ public static class HistoryDomesticPoliticsTests
     public static void World(string input,string output,Action<bool,string> check)
     {
         Directory.CreateDirectory(output);var w=WorldFile.Read(File.ReadAllBytes(input));var e=new Prehistory(w);var old=w.Prehistory;string oldHash=old.ComputeHash();
-        var s=e.UpgradeRealmLifecycles(old);e.Validate(s);check(s.History.Aggregates.Empires.Connections.Realms.Version==37,"Upgrade activates domestic institutions");
+        var s=e.UpgradeRealmLifecycles(old);e.Validate(s);check(s.History.Aggregates.Empires.Connections.Realms.Version>=37,"Current upgrade includes domestic institutions introduced in37");
         check(old.ComputeHash()==oldHash&&old.History.Aggregates.Empires.Connections.Realms.Domestic==null,"Old36 source and canonical bytes stay literal");
         check(ReferenceEquals(s,e.UpgradeRealmLifecycles(s)),"Upgrade is idempotent");
         check(SocietyView.Population(s)==SocietyView.Population(old)&&s.History.Polities.Zip(old.History.Polities).All(p=>p.First.Treasury==p.Second.Treasury&&p.First.Army==p.Second.Army&&p.First.Population==p.Second.Population),"Registration creates no money, armies or people");

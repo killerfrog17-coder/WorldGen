@@ -18,6 +18,7 @@ namespace WorldGen.Core
         readonly double maximumSupport;
         readonly int seed;
         internal World SourceWorld=>world;
+        public int SourceSeed=>seed;
 
         public LocalTerrain(World world, CancellationToken token = default,double horizontalScale=1)
         {
@@ -26,6 +27,7 @@ namespace WorldGen.Core
             if (world == null || world.Surface.Cells.Length == 0 || world.ElevationM.Length != world.Surface.Cells.Length)
                 throw new ArgumentException("A completed world heightmap is required.", nameof(world));
             this.world = world; RadiusM = world.Recipe.RadiusKm * 1000; seed = world.Recipe.Seed;
+            var groundEnvironment=GroundEnvironment.For(world);
             profiles = new LocalTerrainProfile[world.Surface.Cells.Length];
             var axes = new V[profiles.Length]; var ages = new int[profiles.Length];
             var fabricOrigins=new V[profiles.Length];var fabricKeys=new int[profiles.Length];
@@ -79,7 +81,7 @@ namespace WorldGen.Core
                 maximumSupport = Math.Max(maximumSupport, support);
                 profiles[i] = new LocalTerrainProfile
                 {
-                    Cell = i, ElevationM = world.ElevationM[i], CoarseReliefM = relief, HillHeightM = hill, MountainHeightM = ridge,
+                    Cell = i, Ground=groundEnvironment.TerrainCell(i), ElevationM = world.ElevationM[i], CoarseReliefM = relief, HillHeightM = hill, MountainHeightM = ridge,
                     RidgeSpacingM = 4000 + 9000 * Rng.Value(seed, "local-terrain-spacing-2", sharedFabric?fabricKeys[i]:i),
                     Sharpness = 1.25 + .7 * (1 - D.Clamp(ages[i] / 300.0)), Plateau = plateau, Sediment = sediment,
                     Glacial = world.Glaciated.Length > i && world.Glaciated[i] ? 1 : 0,
@@ -198,7 +200,7 @@ namespace WorldGen.Core
                 double fine = SphereNoise.Sample(km, seed ^ 0x2573, 2.1);
                 double micro = SphereNoise.Sample(km, seed ^ 0x6819, 10);
                 double sum = 0, hills = 0, mountains = 0, plateau = 0, sediment = 0, glacier = 0, detail = 0, bestWeight = -1, red = 0, green = 0, blue = 0, ocean = 0;
-                int cell = -1; Biome biome = Biome.Grassland;
+                int cell = -1; Biome biome = Biome.Grassland;var ground=new GroundProfile();
                 foreach (var f in sources)
                 {
                     double x = px - f.Center.X * owner.RadiusM, y = py - f.Center.Y * owner.RadiusM, z = pz - f.Center.Z * owner.RadiusM;
@@ -207,6 +209,7 @@ namespace WorldGen.Core
                     // Compact C2 kernel: derivatives vanish at support edges; no closest-N switching seams.
                     double r = Math.Sqrt(dist2), t = 1 - r, weight = t * t * t * t * (1 + 4 * r);
                     sum += weight; hills += weight * f.HillHeightM;
+                    ground.Add(f.Ground,weight);
                     if (f.Cell < owner.world.Hydrology.OceanConnected.Length && owner.world.Hydrology.OceanConnected[f.Cell]) ocean += weight;
                     mountains += weight * f.MountainHeightM; plateau += weight * f.Plateau;
                     sediment += weight * f.Sediment; glacier += weight * f.Glacial;
@@ -224,7 +227,7 @@ namespace WorldGen.Core
                     crest = crest*crest*sharp+crest*(1-sharp);
                     double ridges = (crest - .24) * (1 + .38 * broad) + .045 * medium * (.2 + .8 * crest);
                     detail += weight * f.MountainHeightM * ridges;
-                    if (weight > bestWeight) { bestWeight = weight; cell = f.Cell; biome = f.Biome; }
+                    if (weight > bestWeight) { bestWeight = weight; cell = f.Cell; biome = f.Biome;ground.Bedrock=f.Ground.Bedrock;ground.Deposit=f.Ground.Deposit; }
                 }
                 if (sum <= 0) throw new InvalidOperationException("Terrain patch has no supporting world cells.");
                 double baseM = double.NaN;
@@ -241,9 +244,10 @@ namespace WorldGen.Core
                 if (baseM < 0) residual = (12 * broad + 4 * medium + fine) * coast;
                 else residual = Math.Max(-.9 * baseM, residual * coast);
                 double elevation = D.Q(baseM + residual, 1000);
+                ground.Divide(sum);
                 return new LocalTerrainSample { ElevationM = elevation, BaseElevationM = D.Q(baseM, 1000),
                     MountainHeightM = m, HillHeightM = h, Plateau = plateau / sum, Sediment = s,
-                    GlacialInfluence = glacier / sum, Cell = cell, Biome = biome,
+                    GlacialInfluence = glacier / sum, Cell = cell, Biome = biome,Ground=ground,
                     CoverColor = new V(red / sum, green / sum, blue / sum), OceanInfluence = ocean / sum,
                     WaterSurfaceM = elevation < 0 && ocean / sum > .01 ? 0 : double.NaN };
             }
@@ -273,6 +277,7 @@ namespace WorldGen.Core
         public int Cell;
         public double ElevationM, CoarseReliefM, HillHeightM, MountainHeightM, RidgeSpacingM, Sharpness, Plateau, Sediment, Glacial;
         public Biome Biome;
+        public GroundProfile Ground;
         internal V Center, FabricOrigin, Axis, Across, Gradient;
         internal double SupportM, Phase;
     }
@@ -282,6 +287,7 @@ namespace WorldGen.Core
         public int Cell;
         public V CoverColor;
         public Biome Biome;
+        public GroundProfile Ground;
         public bool Underwater => !double.IsNaN(WaterSurfaceM) && ElevationM < WaterSurfaceM;
     }
 }

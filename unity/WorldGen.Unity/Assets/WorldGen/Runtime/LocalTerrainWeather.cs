@@ -77,7 +77,9 @@ public sealed partial class LocalTerrainExplorer
         worldWeather=worldWeather??new WorldWeather(sourceWorld,terrain);UpdateWeatherField(days);
         if(weatherProvider==null||(at-weatherPosition).Length*frame.RadiusM>.05)
         {
-            weatherPosition=at;profileElevation=walkingPatch.Sample(at).ElevationM;
+            // A teleport/test move can precede this component's Update. Refresh
+            // its bounded walking patch before any dependent ground sample.
+            Ground(motion.X,motion.Z);weatherPosition=at;profileElevation=walkingPatch.Sample(at).ElevationM;
             weatherProvider=worldWeather.AtPosition(at,profileElevation);nextWeatherAt=0;
         }
         if(Time.realtimeSinceStartupAsDouble>=nextWeatherAt||TestWeatherOverride.HasValue||appliedWeatherRevision!=WeatherControl.Revision)

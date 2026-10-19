@@ -73,6 +73,7 @@ public sealed partial class WorldGenRuntime
             cells.Where(i => world.ElevationM[i] > 2000).OrderByDescending(i => world.Surface.Cells[i].Neighbors.Max(j => Math.Abs(world.ElevationM[i] - world.ElevationM[j]))).DefaultIfEmpty(-1).First(),
             cells.Where(i => world.ElevationM[i] < -100 && world.ElevationM[i] > -1000).DefaultIfEmpty(-1).First() };
         bool earthSites=Environment.GetCommandLineArgs().Contains("--worldgen-local-earth-sites");
+        bool groundReview=Environment.GetCommandLineArgs().Contains("--worldgen-ground-review");
         bool scatterReview=Environment.GetCommandLineArgs().Contains("--worldgen-local-scatter-review");
         if(scatterReview)
         {
@@ -81,6 +82,14 @@ public sealed partial class WorldGenRuntime
         }
         var locations=new[]{TerrainMapViewport.FromDegrees(27.98,86.92),TerrainMapViewport.FromDegrees(-32.65,-70.01),TerrainMapViewport.FromDegrees(38.07,-122.96),TerrainMapViewport.FromDegrees(32,88)};
         var names=new[]{"himalayas","andes","point-reyes","tibetan-plateau"};
+        if(groundReview)
+        {
+            earthSites=true;
+            if(world.Recipe.TerrainSource=="Earth")
+            {locations=new[]{TerrainMapViewport.FromDegrees(38.6,-109.5),TerrainMapViewport.FromDegrees(-25,133),TerrainMapViewport.FromDegrees(38.07,-122.96),TerrainMapViewport.FromDegrees(50,10),TerrainMapViewport.FromDegrees(1,15)};names=new[]{"utah-ground","outback-ground","coastal-ground","temperate-ground","tropical-ground"};}
+            else
+            {var selected=new List<V>();foreach(var rock in new[]{RockFamily.Sandstone,RockFamily.Granite,RockFamily.Limestone}){int cell=cells.Where(i=>world.ElevationM[i]>10&&world.ElevationM[i]<1200&&GroundEnvironment.For(world).Cell(i).Bedrock==rock).OrderBy(i=>world.Ecology.Habitat[i].ReliefM).DefaultIfEmpty(-1).First();if(cell>=0)selected.Add(world.Surface.Cells[cell].Position);}locations=selected.ToArray();names=Enumerable.Range(0,locations.Length).Select(i=>"generated-ground-"+i).ToArray();}
+        }
         var report = new List<string>();
         var probes = new List<string>();
         for (int s = 0; s < (earthSites?locations.Length:sites.Length); s++)
@@ -91,9 +100,10 @@ public sealed partial class WorldGenRuntime
             while(terrainExplorer!=null&&!terrainExplorer.Ready&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
             if(terrainExplorer!=null&&terrainExplorer.Ready)
             {
-                if(earthSites&&s==2)terrainExplorer.TestNearbyShore();
+                if(earthSites&&world.Recipe.TerrainSource=="Earth"&&s==2)terrainExplorer.TestNearbyShore();
                 terrainExplorer.TestView(earthSites?(s==2?25:s==1?2000:900):600,earthSites?(s==0?0:s==1?90:s==2?340:45):20,earthSites&&s==2?6:12);
                 if(scatterReview){terrainExplorer.TestWalking();terrainExplorer.TestView(1.65,20,-3);}
+                if(groundReview){terrainExplorer.TestView(1.65,20,18);PlayCommands.Execute(play,0,"/weather clear",weather:terrainExplorer.WeatherControl);TerrainMapViewport.Degrees(terrainExplorer.Position,out double lat,out double lon);play.SetLocalSolarHour(12,lon);}
             }
             deadline = Time.realtimeSinceStartupAsDouble + 180;
             while (terrainExplorer != null && (!terrainExplorer.Ready || !terrainExplorer.AllReady || (scatterReview&&!terrainExplorer.ScatterReady)) && terrainExplorer.Error == "" && Time.realtimeSinceStartupAsDouble < deadline) yield return null;
@@ -102,6 +112,11 @@ public sealed partial class WorldGenRuntime
             yield return new WaitForEndOfFrame(); terrainExplorer.Capture(Path.Combine(output,earthSites?names[s]+".png":"terrain-" + s + ".png"));
             TerrainMapViewport.Degrees(terrainExplorer.Position,out double siteLat,out double siteLon);
             report.Add((earthSites?names[s]:"site "+sites[s])+" at "+siteLat.ToString("F6")+","+siteLon.ToString("F6")+": " + terrainExplorer.Diagnostics);
+            if(groundReview)
+            {
+                report.Add(terrainExplorer.GroundDebugText);terrainExplorer.TestView(14,20,65);yield return new WaitForSecondsRealtime(.2f);terrainExplorer.Capture(Path.Combine(output,names[s]+"-overhead.png"));
+                if(!terrainExplorer.GroundDebugText.Contains("pH")){Debug.LogError("GROUND CHECK missing physical ground inspection");Application.Quit(1);yield break;}
+            }
             if(scatterReview)
             {
                 var covered=terrainExplorer.LastCapturePixels;terrainExplorer.ScatterEnabled=false;
@@ -125,7 +140,7 @@ public sealed partial class WorldGenRuntime
             if(s==0)
             {
                 InputSystem.settings.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
-                var keyboard=InputSystem.AddDevice<Keyboard>();keyboard.MakeCurrent();
+                var keyboard=InputSystem.AddDevice<Keyboard>();keyboard.MakeCurrent();terrainExplorer.TestKeyboard(keyboard);
                 InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(Key.F3));yield return null;yield return null;
                 if(!terrainExplorer.DebugVisible){Debug.LogError("TERRAIN CHECK F3 failed");Application.Quit(1);yield break;}
                 InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());yield return null;
@@ -148,6 +163,29 @@ public sealed partial class WorldGenRuntime
                 InputSystem.QueueDeltaStateEvent(mouse.delta,new Vector2(40,0));yield return null;yield return null;
                 if(terrainExplorer.Heading==beforeLook){Debug.LogError("TERRAIN CHECK mouse-look without drag failed");Application.Quit(1);yield break;}
                 InputSystem.RemoveDevice(mouse);
+                if(groundReview)
+                {
+                    terrainExplorer.TestNearbyFlatGround();yield return null;
+                    double waitEnd=Time.realtimeSinceStartupAsDouble+30;while(!terrainExplorer.FootstepsReady&&Time.realtimeSinceStartupAsDouble<waitEnd)yield return null;
+                    if(!terrainExplorer.FootstepsReady||terrainExplorer.FootstepClipCount!=28){Debug.LogError("GROUND CHECK generated footfall banks unavailable");Application.Quit(1);yield break;}
+                    var distances=new double[3];int mode=0;
+                    foreach(var keys in new[]{new[]{Key.W,Key.C},new[]{Key.W},new[]{Key.W,Key.LeftShift}})
+                    {
+                        terrainExplorer.TestWalking();double beforeGait=terrainExplorer.TravelM,beforeSeconds=terrainExplorer.MovementSeconds;int beforeSteps=terrainExplorer.FootstepPlaybackCount;
+                        Debug.Log("GROUND GAIT before "+mode+" "+terrainExplorer.FootstepDebug);
+                        InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(keys));
+                        double gaitDeadline=Time.realtimeSinceStartupAsDouble+45;
+                        while(terrainExplorer.MovementSeconds-beforeSeconds<2&&Time.realtimeSinceStartupAsDouble<gaitDeadline)yield return null;
+                        InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());yield return null;
+                        distances[mode++]=Math.Abs(terrainExplorer.TravelM-beforeGait)/Math.Max(.001,terrainExplorer.MovementSeconds-beforeSeconds);
+                        if(terrainExplorer.FootstepPlaybackCount<=beforeSteps){Debug.LogError("GROUND CHECK gait "+mode+" movement produced no footfalls; travel="+(terrainExplorer.TravelM-beforeGait)+" time="+(terrainExplorer.MovementSeconds-beforeSeconds)+" "+terrainExplorer.FootstepDebug+" ground="+terrainExplorer.GroundDebugText+" map="+terrainExplorer.MapVisible+" paused="+terrainExplorer.Paused);Application.Quit(1);yield break;}
+                        Debug.Log("GROUND GAIT "+mode+" speed "+distances[mode-1]+" "+terrainExplorer.FootstepDebug);
+                    }
+                    if(!(distances[0]<distances[1]&&distances[1]<distances[2])){Debug.LogError("GROUND CHECK C/default/Shift gait order failed");Application.Quit(1);yield break;}
+                    int stationary=terrainExplorer.FootstepPlaybackCount;yield return new WaitForSecondsRealtime(.4f);
+                    if(terrainExplorer.FootstepPlaybackCount!=stationary){Debug.LogError("GROUND CHECK stationary timer footsteps");Application.Quit(1);yield break;}
+                    report.Add("PASS actual C walk / default jog / Shift sprint and distance-driven footsteps; stationary silence;28 loaded AI variants");
+                }
                 InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(Key.Space));yield return null;yield return null;
                 if(terrainExplorer.HeightAboveGround<=TerrainMotion.EyeHeightM){Debug.LogError("TERRAIN CHECK jump failed");Application.Quit(1);yield break;}
                 InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());yield return null;
@@ -155,9 +193,11 @@ public sealed partial class WorldGenRuntime
                 InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());yield return null;
                 if(terrainExplorer.IsWalking){Debug.LogError("TERRAIN CHECK F control failed");Application.Quit(1);yield break;}
                 double before=terrainExplorer.TravelM;
+                int beforeFlyingSteps=terrainExplorer.FootstepPlaybackCount;
                 InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(Key.W));yield return null;yield return null;
                 InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());yield return null;
                 if(terrainExplorer.TravelM==before){Debug.LogError("TERRAIN CHECK movement control failed");Application.Quit(1);yield break;}
+                if(groundReview&&terrainExplorer.FootstepPlaybackCount!=beforeFlyingSteps){Debug.LogError("GROUND CHECK flying created footsteps");Application.Quit(1);yield break;}
                 InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(Key.Escape));yield return null;yield return null;
                 if(!terrainExplorer.Paused){Debug.LogError("TERRAIN CHECK Escape pause failed");Application.Quit(1);yield break;}
                 InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());InputSystem.RemoveDevice(keyboard);
@@ -169,7 +209,7 @@ public sealed partial class WorldGenRuntime
         }
         Application.logMessageReceived-=record;
         if(renderErrors.Count>0){Debug.LogError("TERRAIN CHECK rendering errors: "+string.Join(";",renderErrors));Application.Quit(1);yield break;}
-        report.Add("PASS independent scene; Earth/seeded sites; movement/streaming; walking; F3/F3+M map/teleport/F/W/Esc input; return; no render errors; unchanged world " + hash);
+        report.Add("PASS independent scene; Earth/seeded sites; movement/streaming; walking; F3/M map/teleport/F/W/Esc input; return; no render errors; unchanged world " + hash);
         File.WriteAllLines(Path.Combine(output, "result.txt"), report); File.WriteAllLines(Path.Combine(output, "probes.csv"), probes); Application.Quit(0);
     }
 }

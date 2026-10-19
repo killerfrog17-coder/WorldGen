@@ -18,7 +18,8 @@ namespace WorldGen.Presentation
             b.Append(r.Name).Append("\n").Append(h.Biome).Append(" · ").Append(F(r.AreaM2/1e6)).Append(" km² across ").Append(r.PatchCount).Append(" connected habitat patches.\n\n");
             b.Append("At this location, the growing season lasts about ").Append(h.GrowingDays).Append(" days. Seasonal temperature estimates range from ").Append(F(h.ColdTenthsC/10.0)).Append(" to ").Append(F(h.WarmTenthsC/10.0)).Append(" °C. ");
             b.Append(h.AridityMilli<500?"Water is scarce relative to evaporative demand. ":h.AridityMilli>1200?"Rainfall generally exceeds evaporative demand. ":"Rainfall and evaporative demand are broadly balanced, with seasonal differences. ");
-            b.Append("\n\nThe soil proxy is ").Append(h.Soil.ToString().ToLowerInvariant()).Append(", with a relative fertility index of ").Append(F(h.SoilFertilityPermille/10.0)).Append("%. ");
+            var ground=GroundEnvironment.For(w).Cell(cell);
+            b.Append("\n\nGround: ").Append(ground.TextureName).Append(" over ").Append(ground.Bedrock.ToString().ToLowerInvariant()).Append("; ").Append(ground.Deposit.ToString().ToLowerInvariant()).Append(" parent material. Rootable depth ").Append(F(ground.DepthM)).Append(" m; pH ").Append(F(ground.PH)).Append("; available water ").Append(F(ground.WaterCapacityMm)).Append(" mm. These are inferred regional properties, not a measured soil survey. ");
             if(h.FloodDaysPerYear>0)b.Append("Potential flooding affects ").Append(F(h.FloodFractionPermille/10.0)).Append("% of the cell for about ").Append(h.FloodDaysPerYear).Append(" days a year. ");
             if(h.PermafrostPermille>=100)b.Append("Permafrost potential is ").Append(F(h.PermafrostPermille/10.0)).Append("%. ");
             if(h.SalinityMilliPpt>1000)b.Append("Estimated water salinity is ").Append(F(h.SalinityMilliPpt/1000.0)).Append(" ppt. ");
@@ -40,7 +41,7 @@ namespace WorldGen.Presentation
                 case Layer.Permafrost:return Mix(new V(.27,.36,.22),new V(.72,.84,.96),a.PermafrostPermille/1000.0);
                 case Layer.Salinity:return Mix(new V(.14,.47,.64),new V(.91,.77,.84),a.SalinityMilliPpt/35000.0);
                 case Layer.FirePotential:return Mix(new V(.22,.33,.22),new V(.93,.31,.1),a.FirePotentialPermille/1000.0);
-                case Layer.Soils:uint soil=Rng.Mix((uint)a.Soil+879); return new V(.25+(soil&255)/510.0,.2+((soil>>8)&255)/650.0,.12+((soil>>16)&255)/800.0);
+                case Layer.Soils:var g=GroundEnvironment.For(w).Cell(i);var soil=g.SoilColor*(1-g.Sand*.5)+g.SandColor*(g.Sand*.5);return soil*(1-g.Gravel)+g.RockColor*g.Gravel;
             }
             V color;
             switch(a.Biome)

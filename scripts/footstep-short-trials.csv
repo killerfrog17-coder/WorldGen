@@ -1,0 +1,8 @@
+id,group,seconds,brief
+footstep-soil-clean,footstep-soil,12,Footsteps walking on dry dirt.
+footstep-sand-clean,footstep-sand,12,Footsteps walking on sand.
+footstep-gravel-clean,footstep-gravel,12,Footsteps walking on gravel.
+footstep-stone-clean,footstep-stone,12,Footsteps walking on stone.
+footstep-mud-clean,footstep-mud,12,Footsteps walking on muddy ground.
+footstep-organic-clean,footstep-organic,12,Footsteps walking on soft soil.
+footstep-snow-clean,footstep-snow,12,Footsteps walking on snow.

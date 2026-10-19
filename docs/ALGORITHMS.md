@@ -1,5 +1,23 @@
 # Implementation contracts - version 3
 
+## Ground foundation1 / optional historical realm38
+
+GroundEnvironment derives independent lithology/deposit, soil and local surface
+mixtures from accepted world data. It is not a generation route, serialized fine
+map or measured Earth soil survey. Existing LocalTerrain C2 support interpolation
+blends intrinsic descriptors; absolute metre noise and local slope determine the
+eight exposed material weights. Height/climate/hydrology/ecology stage hashes
+remain unchanged. LocalScatter preview2 uses the blended rooting constraints and
+rock tint. Rendering consumes UV1/UV2 weights; grass/litter/weather accumulation
+remain separate future cover. See ECOREGIONS.md and LOCAL_TERRAIN_PREVIEW.md.
+
+Only fresh/explicitly upgraded realm38 histories use derived soil in real crop
+habitat and cultivar fits. Older rules remain literal, with version-distinguished
+agronomic/calendar memo keys and existing island-host proxies. No whole-world,
+ecoregion, empire or culture census is introduced by soil processing. Pure cell
+memo storage is bounded; local terrain preparation remains its existing single
+world setup pass, not a recurring simulation event.
+
 ## Game envelope — play-session-1
 
 Save/game settings are separate from the authoritative Recipe/World. Atomic

@@ -39,6 +39,7 @@ public sealed partial class LocalTerrainExplorer
         rainSynth=new RainSynth();rainAudio=view.gameObject.AddComponent<AudioSource>();
         rainAudio.loop=true;rainAudio.playOnAwake=false;rainAudio.spatialBlend=0;rainAudio.volume=0;
         rainClip=AudioClip.Create("Original continuous rainfall",22050*60,2,22050,true,rainSynth.Read);rainAudio.clip=rainClip;
+        InitializeFootsteps();
         weatherSoundLoading=StartCoroutine(LoadWeatherRecordings());
     }
     IEnumerator LoadWeatherRecordings()

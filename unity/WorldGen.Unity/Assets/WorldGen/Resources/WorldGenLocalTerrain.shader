@@ -5,7 +5,7 @@ Shader "WorldGen/LocalTerrain"
         _Water("Water",Float)=0 _FogDistance("Fog distance",Float)=200000
         _Daylight("Daylight",Float)=1
         _FogColor("Sky colour",Color)=(.57,.69,.76,1) _AmbientTint("Ambient light",Color)=(.12,.14,.17,1)
-        _GroundAlbedo("Herb, soil, rock, snow albedo",2DArray)=""{}
+        _GroundAlbedo("Soil sand gravel clay rock organic salt ice",2DArray)=""{}
         _GroundNormals("Linear RGB tangent normals",2DArray)=""{}
         _GroundMasks("R AO, G roughness, B height, A metallic",2DArray)=""{}
         _TextureMetres("Repeat metres",Float)=2
@@ -30,9 +30,9 @@ Shader "WorldGen/LocalTerrain"
             TEXTURE2D_ARRAY(_GroundAlbedo);SAMPLER(sampler_GroundAlbedo);
             TEXTURE2D_ARRAY(_GroundNormals);TEXTURE2D_ARRAY(_GroundMasks);
             float _Water,_FogDistance,_TextureMetres,_Daylight;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint;
-            struct A { float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 color:COLOR;float4 weights:TEXCOORD1; };
-            struct O { float4 positionCS:SV_POSITION;float3 normal:TEXCOORD0;float3 position:TEXCOORD1;float4 color:COLOR;float4 weights:TEXCOORD2; };
-            O vert(A a){O o;o.position=TransformObjectToWorld(a.positionOS.xyz);o.positionCS=TransformWorldToHClip(o.position);o.normal=TransformObjectToWorldNormal(a.normalOS);o.color=a.color;o.weights=a.weights;return o;}
+            struct A { float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 color:COLOR;float4 weights:TEXCOORD1;float4 groundB:TEXCOORD2; };
+            struct O { float4 positionCS:SV_POSITION;float3 normal:TEXCOORD0;float3 position:TEXCOORD1;float4 color:COLOR;float4 weights:TEXCOORD2;float4 groundB:TEXCOORD3; };
+            O vert(A a){O o;o.position=TransformObjectToWorld(a.positionOS.xyz);o.positionCS=TransformWorldToHClip(o.position);o.normal=TransformObjectToWorldNormal(a.normalOS);o.color=a.color;o.weights=a.weights;o.groundB=a.groundB;return o;}
             float3 TriplanarAlbedo(float3 p,float3 w,int layer)
             {
                 return SAMPLE_TEXTURE2D_ARRAY(_GroundAlbedo,sampler_GroundAlbedo,p.yz,layer).rgb*w.x+
@@ -55,10 +55,10 @@ Shader "WorldGen/LocalTerrain"
                     _PlanetNorth.xyz*(i.position.z+_LocalOrigin.y)+_PlanetUp.xyz*i.position.y;
                 float3 p=worldTexture/max(.05,_TextureMetres);
                 float3 albedo=0,bump=0;float ao=0,rough=0,metal=0;
-                float4 weights=max(i.weights,0);weights/=max(.001,dot(weights,1));
-                [unroll]for(int layer=0;layer<4;layer++)
+                float4 weights=max(i.weights,0),groundB=max(i.groundB,0);float sum=max(.001,dot(weights,1)+dot(groundB,1));weights/=sum;groundB/=sum;
+                [unroll]for(int layer=0;layer<8;layer++)
                 {
-                    float contribution=weights[layer];if(contribution<.005)continue;
+                    float contribution=layer<4?weights[layer&3]:groundB[layer&3];if(contribution<.005)continue;
                     albedo+=TriplanarAlbedo(p,w,layer)*contribution;
                     float3 nx=SAMPLE_TEXTURE2D_ARRAY(_GroundNormals,sampler_GroundAlbedo,p.yz,layer).xyz*2-1;
                     float3 ny=SAMPLE_TEXTURE2D_ARRAY(_GroundNormals,sampler_GroundAlbedo,p.xz,layer).xyz*2-1;
@@ -72,8 +72,13 @@ Shader "WorldGen/LocalTerrain"
                 float near=1-smoothstep(120,850,distance);bump-=np*dot(np,bump);
                 float3 perturbed=normalize(np+bump*near);
                 n=normalize(float3(dot(perturbed,_PlanetEast.xyz),dot(perturbed,_PlanetUp.xyz),dot(perturbed,_PlanetNorth.xyz)));
-                // Preserve large-scale biome colour while close materials supply actual metre-scale surface structure.
-                albedo=lerp(farColor,albedo,saturate(near*.88));
+                // Mineral/organic palette remains authoritative at every distance.
+                // Neutral detail textures add grain without turning all soils the same brown.
+                float detailScale=2;
+                #ifndef UNITY_COLORSPACE_GAMMA
+                detailScale=4.672;
+                #endif
+                albedo=farColor*lerp(1,albedo*detailScale,saturate(near*.88));
                 InputData input=(InputData)0;input.positionWS=i.position;input.normalWS=n;input.viewDirectionWS=GetWorldSpaceNormalizeViewDir(i.position);
                 input.shadowCoord=TransformWorldToShadowCoord(i.position);input.bakedGI=_AmbientTint.rgb;input.shadowMask=half4(1,1,1,1);
                 input.normalizedScreenSpaceUV=GetNormalizedScreenSpaceUV(i.positionCS);

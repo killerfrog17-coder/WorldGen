@@ -6,6 +6,39 @@ authorized; see `LOCAL_SCATTER_PREVIEW.md`. Fauna, structures and NPCs remain de
 
 ## Boundary and use
 
+Ground foundation1 adds shared geology/soil profiles and eight blended exposed
+materials; see ECOREGIONS.md. The accepted height function remains preview3.
+Grounded movement is now C-held walk(1.5m/s), default jog(3.4m/s), Shift-held
+sprint(6m/s); no stamina system. Flying controls remain unchanged.
+The ground controller resolves grade over a minimum10cm probe with a5mm contact
+skin. This accommodates quantized ground instead of creating false airborne
+frames and lost footfalls at extreme FPS without permitting repeated-step climbs
+up genuinely steep continuous slopes. Tests cover60 versus10000 FPS.
+Brief airborne intervals pause, rather than erase, accumulated stride distance;
+only actual supported movement can emit a footfall. Pause/map/chat/flight reset it.
+
+Footsteps are actual travelled-distance contacts, never an ambient loop. Seven
+material banks have four isolated local StableAudio3 SFX variants each. No
+procedural footfall fallback, animal calls, leaf-rustle beds or wind is added.
+Only hash-admitted files in sounds/footsteps/screened.tsv load asynchronously;
+missing audio stays silent. Teleports, flight, airborne/standing/paused/map/chat
+states do not produce steps. Quiet gain varies by surface and gait, with a user
+Audio slider. Later footwear, litter, grass and transient wetness can modify the
+contact without changing underlying soil. Existing rain remains the restored
+pre-AI RainSynth; thunder retains its AI recordings and wind remains absent.
+
+Prompts and reproducible extraction live in scripts/footstep-sounds.csv,
+footstep-short-trials.csv and publish-footsteps.py. Source model/seed/prompt/crop
+provenance is saved in artifacts/footsteps/selected.json; generated masters and
+WAVs are local content, NOT GitHub backup. check-footsteps.py checks PCM format,
+28 distinct admissions, hashes, restrained levels and boundary fades. Automated
+source classification is diagnostic, not human listening approval.
+
+Native ground review adds --worldgen-ground-review to the usual local-terrain
+check. It captures Earth desert/coast/temperate/tropical sites or generated
+geological sites, exercises real C/W/Shift input and footfall cadence, checks
+stationary/flying silence and preserves the saved source world hash.
+
 The game-first shell now uses **Enter world / Resume game** in the simulation
 top bar and pause menu. It opens a separate additive scene at the selected map
 location or saved player position. Gameplay advances the existing historical
@@ -14,9 +47,9 @@ See `GAME_SHELL.md` for the save envelope, horizontal scale and clock ownership.
 Existing worlds work without a historical rules upgrade or regeneration.
 
 Exploration starts walking, with captured mouse-look (no drag), WASD, Space to
-jump and Shift to run. F switches fly/walk; Space/Ctrl flies up/down and wheel
+jump, C-held walk and Shift sprint(default jog). F switches fly/ground; Space/Ctrl flies up/down and wheel
 adjusts flight speed. The baseline avatar uses1.65m eye height,1.5m/s walking,
-5m/s running, a0.45m jump and9.81m/s² gravity. These are chosen adult/gameplay
+3.4m/s jogging,6m/s sprinting, a0.45m jump and9.81m/s² gravity. These are chosen adult/gameplay
 defaults, not a claim that every person's dimensions or abilities are identical.
 Walking queries ground height, including underwater ground, rather than colliding
 with a water plane. Uphill walking has a45° continuous-grade limit: a per-frame

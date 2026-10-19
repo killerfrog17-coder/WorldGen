@@ -44,7 +44,7 @@ namespace WorldGen.Core
         HabitatCell CommunityAgronomicHabitat(PrehistoryState s,int cell,int group)=>CommunityCalendarHabitat(s,cell,group,0);
         HabitatCell CommunityCalendarHabitat(PrehistoryState s,int cell,int group,int maturityDays)
         {
-            long key=(long)cell*4096+group*512+maturityDays;if(communityAgronomicHabitats.TryGetValue(key,out var cached)){agronomicHabitatHits++;return cached;}
+            long key=(long)cell*4096+group*512+maturityDays+(GroundHistory(s)?1L<<62:0);if(communityAgronomicHabitats.TryGetValue(key,out var cached)){agronomicHabitatHits++;return cached;}
             agronomicHabitatMisses++;
             var h=CropHabitat(s,cell);var climate=World.Climate;
             int spring=climate.NorthernSpring.TemperatureTenthsC[cell],summer=climate.NorthernSummer.TemperatureTenthsC[cell],autumn=climate.NorthernAutumn.TemperatureTenthsC[cell],winter=climate.NorthernWinter.TemperatureTenthsC[cell];
@@ -75,10 +75,11 @@ namespace WorldGen.Core
             int duration=s?.History?.Aggregates?.Empires?.Connections?.Realms?.Version>=22&&HistoricalCropCatalog.Crops[cultivar.CropId].Group!=4?Math.Min(365,cultivar.MaturityDays):0;
             var habitat=CommunityHistory(s)?CommunityCalendarHabitat(s,cell,group,duration):CropHabitat(s,cell);
             double fit=SpeciesCropNicheHistory(s)?HistoricalCropSpeciesNiches.TransferFit(habitat,cultivar,CropLatitude(cell),riverSites[cell],managed):HistoricalCropCatalog.TransferFit(habitat,cultivar,CropLatitude(cell),riverSites[cell],managed);
-            return PassageHistory(s)?D.Q(fit*HistoricalCropEcology.ReproductiveFit(habitat,cultivar)*(EnvironmentalHistory(s)?EnvironmentalCropTransfer(s,cell,cultivar):1),1000000):fit;
+            double result=PassageHistory(s)?D.Q(fit*HistoricalCropEcology.ReproductiveFit(habitat,cultivar)*(EnvironmentalHistory(s)?EnvironmentalCropTransfer(s,cell,cultivar):1),1000000):fit;
+            return GroundHistory(s)?D.Q(result*GroundCropConstraint(s,cell,HistoricalCropCatalog.Crops[cultivar.CropId].Group),1000000):result;
         }
         double CommunityWildCropFit(PrehistoryState s,int cell,int group)
-            =>HistoricalCrops.Suitability(CommunityAgronomicHabitat(s,cell,group),group,riverSites[cell]);
+            =>GroundHistory(s)?D.Q(HistoricalCrops.Suitability(CommunityAgronomicHabitat(s,cell,group),group,riverSites[cell])*GroundCropConstraint(s,cell,group),1000000):HistoricalCrops.Suitability(CommunityAgronomicHabitat(s,cell,group),group,riverSites[cell]);
         int ActiveCommunityCropYears(PrehistoryState s,int culture,int group,int elapsed,int urbanSite)
         {
             var crops=s.History.Agriculture[culture];var cultivar=crops.Cultivars[group];

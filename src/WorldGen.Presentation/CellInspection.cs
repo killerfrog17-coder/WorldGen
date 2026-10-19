@@ -23,7 +23,7 @@ namespace WorldGen.Presentation
             if(EcologyView.IsLayer(layer))
             {
                 if(w.Ecology==null)return "Unavailable in this saved world";var a=w.Ecology.Habitat[i];
-                switch(layer){case Layer.Biomes:return a.Biome.ToString();case Layer.Soils:return a.Soil.ToString();case Layer.Aridity:return Number(a.AridityMilli/1000.0," P/PET");case Layer.Floodplains:return Number(a.FloodFractionPermille/10.0,"% floodplain");case Layer.WaterTable:return Number(a.WaterTableCm/100.0," m water-table depth");case Layer.Permafrost:return Number(a.PermafrostPermille/10.0,"% permafrost potential");case Layer.Salinity:return Number(a.SalinityMilliPpt/1000.0," ppt");case Layer.FirePotential:return Number(a.FirePotentialPermille/10.0,"% fire potential");}
+                switch(layer){case Layer.Biomes:return a.Biome.ToString();case Layer.Soils:return GroundEnvironment.For(w).Cell(i).TextureName;case Layer.Aridity:return Number(a.AridityMilli/1000.0," P/PET");case Layer.Floodplains:return Number(a.FloodFractionPermille/10.0,"% floodplain");case Layer.WaterTable:return Number(a.WaterTableCm/100.0," m water-table depth");case Layer.Permafrost:return Number(a.PermafrostPermille/10.0,"% permafrost potential");case Layer.Salinity:return Number(a.SalinityMilliPpt/1000.0," ppt");case Layer.FirePotential:return Number(a.FirePotentialPermille/10.0,"% fire potential");}
             }
             var season=layer.ToString().EndsWith("Spring")?w.Climate.NorthernSpring:layer.ToString().EndsWith("Autumn")?w.Climate.NorthernAutumn:layer.ToString().EndsWith("Winter")?w.Climate.NorthernWinter:w.Climate.NorthernSummer;
             if(layer.ToString().StartsWith("Temperature"))return Number(season.TemperatureTenthsC[i]/10.0," °C");
