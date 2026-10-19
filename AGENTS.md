@@ -1,6 +1,21 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-weather-rain-grounded/WorldGen.exe` (IL2CPP,19:06:03Z; output
+junction to E:/WorldGenBuilds/player-weather-rain-grounded). Owner requested
+complete wind-audio removal and rejected rain playback in midair. Wind has no
+runtime source/bank/UI slider or active WAV. Do not restore it without request.
+Seven unchanged rain/thunder recordings remain; rain uses one quieter filtered
+bed with surface-distance attenuation (full below5m, silent above35m), not
+stacked intensity beds.65 native/24 native-CLR/7 media assertions pass, including
+actual near-ground playback and airborne silence. Automated checks are muted,
+not subjective rain-timbre acceptance. Existing weather/history/music unchanged.
+The previous isolated output encountered mapped-file packaging failure while
+the owner's game was open; do not use it as a reliable rollback build. The new
+output is separate; the owner's game was not closed. Source recovery remains
+available in Git. See docs/WEATHER_AUDIO.md and VALIDATION.md.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-weather-isolated/WorldGen.exe` (IL2CPP,18:37:26Z; output
 junction to E:/WorldGenBuilds/player-weather-isolated). This supersedes the
 owner-rejected SA3 pack below: diagnostic scans corroborated baked-in weather

@@ -13,10 +13,10 @@ release = json.loads((root/'artifacts/weather-isolated/release.json').read_text(
 selected = {r['id']:r for r in csv.DictReader((root/'scripts/weather-selected.csv').open(encoding='utf-8'))}
 audit = json.loads((root/'artifacts/weather-sound-review/final-audit.json').read_text())
 screened = dict(line.split('\t') for line in (folder/'screened.tsv').read_text().splitlines() if not line.startswith('#'))
-assert len(release) == len(screened) == 8
+release = {k:v for k,v in release.items() if not k.startswith('wind')}
+assert len(release) == len(screened) == 7
 assert set(p.name for p in folder.glob('*.wav')) == set(screened)
-assert release['wind-light-01']['human_approval'].endswith('Yes, suitable')
-assert screened['wind-light-01.wav'] == 'e1eea27b3784c806f347f56e037b1c5e4a93e5487139c350ae73850ddd2e881f'
+assert not any(name.startswith('wind') for name in screened)
 fingerprints = set()
 report = []
 for name, record in release.items():
@@ -46,5 +46,5 @@ assert not any('AudioClip.Create(' in p.read_text(encoding='utf-8-sig') for p in
 assert not (root/'src/WorldGen.Presentation/WindSynth.cs').exists()
 assert not (root/'src/WorldGen.Presentation/RainSynth.cs').exists()
 (root/'artifacts/weather-isolated/verification.json').write_text(json.dumps(report, indent=2))
-print('PASS: 8 distinct AI effects, hash admission, provenance, content screen, PCM and no runtime synthesis.')
+print('PASS: 7 rain/thunder effects, no wind assets, provenance, PCM and no runtime synthesis.')
 print('These checks do not certify timbre, biological accuracy or absence of unwanted audible sources; audition remains necessary.')

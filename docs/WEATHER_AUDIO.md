@@ -1,5 +1,26 @@
 # Recorded weather effects
 
+## Current: wind removed; rain is a nearby surface sound
+
+The owner rejected the preceding playback application. Wind playback, its UI
+slider and the active wind WAV/admission entry are removed. No replacement
+wind is generated. Wind still physically affects weather/clouds/particles.
+
+The seven rain/thunder recordings are retained. Rain uses one two-voice
+crossfading bed, never stacked intensity banks. Its gain is reduced to55% of
+the previous intensity gain and a3200Hz low-pass softens close sharp ticks.
+Intensity selects the bank for the next recording; existing playback continues
+smoothly. Surface-impact gain is full below5m, smoothly fades to zero at35m
+above terrain, and remains silent aloft. Rain is not sound attached to every
+drop passing a flying camera. These are quick presentation approximations,
+not a full acoustic propagation/material model or newly approved timbre.
+Existing cloud/rain eligibility, pause and thunder behavior remain intact.
+The deleted active wind clip can still be recovered from the audition master
+in ignored review artifacts. Music/models/saves are untouched.
+
+The following sections document the superseded isolation review, not current
+wind playback or current media counts.
+
 The19October2026 isolation revision supersedes the rejected17-recording pack.
 The owner heard leaves/birds and wet-weather sounds in wind, plus excessive
 layering. Offline AudioSet diagnostics corroborated rain/thunder/wildlife in

@@ -1,5 +1,4 @@
 id,checkpoint,seed,seconds,brief,file_sha256
-wind-light-01,stable_audio_3_small_sfx.safetensors,533197,12,Wind blowing.,e1eea27b3784c806f347f56e037b1c5e4a93e5487139c350ae73850ddd2e881f
 rain-light-01,stable_audio_3_medium.safetensors,247510,24,Light rainfall. Delicate irregular tiny water drops form a soft continuous rain patter. Isolated rainfall sound effect.,cec998accbc8b2b53cd8a2e3a33b5132cb2d65d0632e764e6a3fed4f2495d35f
 rain-light-02,stable_audio_3_medium.safetensors,255429,24,"Gentle rainfall, a quiet fine watery patter with softly overlapping small droplets. Isolated continuous rain sound effect.",8d94dc5ede198aae266036aeee8172b1b00cb3ae7911b933f69bbe90ab76e301
 rain-medium-01,stable_audio_3_medium.safetensors,263348,24,Steady rainfall. Dense overlapping water droplets create an even natural rain patter with a soft low water wash. Isolated continuous rainfall sound effect.,9401f149d4a7102f55051a594afeb95f6e640f32930319a6905079d360b9470b

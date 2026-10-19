@@ -133,8 +133,9 @@ not just a few isolated drops. This is visual sampling, not a changed water budg
 Rain supports up to6000 Low/12000 High particles, scaling from drizzle to
 downpours rather than exhausting its budget in moderate rain. A continuous
 recorded SA3 rainfall bed scales with rainfall, with independent volume.
-One recorded wind voice changes gain and quiet intervals with wind strength.
-All existing non-music effects now use eight curated offline AI recordings;
+Wind audio is removed. Rain is a single quieter, low-pass-filtered impact bed
+whose gain fades with height above the surface (silent at35m and higher).
+All existing non-music effects now use seven curated offline AI recordings;
 runtime PCM synthesis and synthetic fallback are removed. No foliage, animal,
 surf or other environment-specific ambience is added. See
 [recorded weather effects](WEATHER_AUDIO.md) for production/playback contracts.
@@ -147,7 +148,7 @@ pooled spatial voices. Arrival delay is the visual bolt proxy's distance
 divided by an approximate343m/s, with distance rolloff, progressively reduced
 high frequencies and restrained pitch variation. Nearby arrivals can overlap;
 the pool remains bounded. Pausing stops its audio clock/voices, and teleporting
-clears old queued sounds. Rain uses crossfading banks; wind never layers gusts.
+clears old queued sounds. Rain crossfades clips within one bed, not stacked banks.
 Dry conditions stop rain and cancel thunder. These are
 AI-generated effects, not verified field recordings or a full acoustic
 propagation/terrain-occlusion model. No footsteps or animal calls are added.

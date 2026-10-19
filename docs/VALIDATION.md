@@ -1,5 +1,32 @@
 # Version 3 validation evidence
 
+## Wind removal and surface-aware rain playback - 19 October 2026
+
+Owner feedback rejected the preceding application of the sounds, not merely
+their source timbre. Wind playback and its active WAV/admission/UI control are
+removed. The seven existing rain/thunder recordings remain unchanged. One
+quieter rain bed replaces simultaneous intensity beds, with a3200Hz low-pass
+to soften sharp ticks. Its surface-impact gain fades smoothly from full below
+5m to silence at35m above terrain. Thunder remains separately eligible/spatial.
+This is a bounded presentation approximation, not full material/propagation
+acoustics. No new generation batch, music, authoritative weather or history
+changes. The removed wind WAV remains recoverable from its audition master.
+
+Seven media/provenance/hash/PCM checks pass. The first package attempt found
+the existing player still open and could not replace mapped player data; the
+review build instead uses a separate `player-weather-rain-grounded` output on
+E:, without closing the owner's game. The partially replaced old isolated
+output is not a verified rollback package.
+
+Final IL2CPP build19:06:03Z passes65 native assertions and24 native/CLR weather
+comparisons. Actual seven-file decode/PCM checks, near-ground rain playback,
+airborne silence, bounded two-voice transitions, dry-weather gates, thunder
+and pause/resume pass. No Unity runtime/shader errors and no terrain/history
+mutation are recorded. Evidence: ignored `artifacts/weather-rain-grounded-verified`.
+The project shortcut selects the new build. Native playback checks are muted;
+new mixing/filter timbre still needs owner listening feedback. No FPS claim is
+made with the owner's separate game also running.
+
 ## Isolated weather sources and dry-weather audio guards - 19 October 2026
 
 This supersedes the immediately preceding SA3 audio checkpoint: the owner
