@@ -20,7 +20,7 @@ public sealed partial class LocalTerrainExplorer
             if(light!=localSun&&light.enabled&&light.type==LightType.Directional){suspendedSkyLights.Add(light);light.enabled=false;}
         var shader=Resources.Load<Shader>("WorldGenSky");if(shader==null||!shader.isSupported)throw new InvalidOperationException("Playable sky shader unavailable.");
         skyConfig=playState?.Settings.Sky??CelestialSettings.Preset("No moons");skyMaterial=new Material(shader);RefreshStarAtlas();
-        view.gameObject.AddComponent<Skybox>().material=skyMaterial;view.clearFlags=CameraClearFlags.Skybox;
+        view.gameObject.AddComponent<Skybox>().material=skyMaterial;view.clearFlags=CameraClearFlags.Skybox;InitializeWeather();
     }
     void RefreshStarAtlas()
     {
@@ -56,14 +56,17 @@ public sealed partial class LocalTerrainExplorer
         skyYear=seasonalYear;skyConfig=playState?.Settings.Sky??skyConfig;RefreshStarAtlas();
         double actualRadius=frame.RadiusM+frame.AltitudeM+motion.Y,altitude=Math.Sqrt(actualRadius*actualRadius+motion.X*motion.X+motion.Z*motion.Z)-frame.RadiusM;
         var appearance=playState?.Settings;
-        SkyFrame=PlayableSky.Sample(Math.Asin(Position.Z)*180/Math.PI,solarHour,seasonalYear,skyConfig,seasonalYear*365,altitude,appearance?.MoonVisualExaggeration??1,appearance?.SunVisualExaggeration??1);var sampled=SkyFrame;
+        UpdateLocalWeather(seasonalYear*365,altitude);
+        double dip=Math.Acos(frame.RadiusM/(frame.RadiusM+Math.Max(0,altitude)))*180/Math.PI;
+        SkyFrame=PlayableSky.Sample(Math.Asin(Position.Z)*180/Math.PI,solarHour,seasonalYear,skyConfig,seasonalYear*365,altitude,appearance?.MoonVisualExaggeration??1,appearance?.SunVisualExaggeration??1,dip);var sampled=SkyFrame;
         int primary=0;for(int i=1;i<sampled.Bodies.Length;i++)if(sampled.Bodies[i].Illuminance>sampled.Bodies[primary].Illuminance)primary=i;
         var body=sampled.Bodies[primary];
         var at=Position;V east=V.Cross(Math.Abs(at.Z)>.999999?new V(0,1,0):new V(0,0,1),at).Unit,north=V.Cross(at,east).Unit;
         Vector3 Vector(V value){var planet=east*value.X+at*value.Y+north*value.Z;return new Vector3((float)V.Dot(planet,frame.East),(float)V.Dot(planet,frame.Origin),(float)V.Dot(planet,frame.North));}
         Color ColorOf(V value)=>new Color((float)value.X,(float)value.Y,(float)value.Z);
         var direction=Vector(body.Direction);localSun.transform.rotation=Quaternion.LookRotation(-direction,Math.Abs(direction.y)>.99?Vector3.forward:Vector3.up);
-        localSun.color=ColorOf(body.Color);localSun.intensity=(float)body.Illuminance;
+        float cloudLight=weatherScreen==null?1:Mathf.Lerp(1,.3f,(float)CurrentWeather.CloudCover);localSun.color=ColorOf(body.Color);localSun.intensity=(float)body.Illuminance*cloudLight;
+        ConfigureWeatherScreen(sampled,Vector(sampled.Bodies[0].Direction),ColorOf(sampled.Bodies[0].Color));
         skyMaterial.SetVector("_Zenith",ColorOf(sampled.Zenith));skyMaterial.SetVector("_Horizon",ColorOf(sampled.Horizon));
         skyMaterial.SetVector("_LocalUp",Vector(new V(0,1,0)));
         skyMaterial.SetVector("_NightAirGlow",ColorOf(sampled.NightAirGlow));skyMaterial.SetFloat("_AirDensity",(float)Math.Exp(-Math.Max(0,altitude)/8000));skyMaterial.SetFloat("_AerosolHaze",(float)skyConfig.Haze);

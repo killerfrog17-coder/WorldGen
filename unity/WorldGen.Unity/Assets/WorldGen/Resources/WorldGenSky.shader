@@ -47,7 +47,7 @@ Shader "WorldGen/PlayableSky"
                 #endif
                 float localHeight=dot(d,_LocalUp.xyz),up=saturate(localHeight),vertical=pow(up,.42);
                 float3 color=lerp(horizon,zenith,vertical);
-                if(localHeight<0)color=lerp(horizon*.72,zenith*.15,saturate(-localHeight*3));
+                if(localHeight<0)color=lerp(horizon,zenith*.15,saturate(-localHeight*3));
                 color=lerp(zenith*.05,color,_AirDensity)+_NightAirGlow.rgb*_AirDensity*(1.4-up*.4);
                 float3 equatorial=float3(dot(d,_StarRight.xyz),dot(d,_StarUp.xyz),dot(d,_StarForward.xyz));
                 float2 uv=float2(atan2(equatorial.x,equatorial.z)*.159154943+.5,asin(clamp(equatorial.y,-1,1))*.318309886+.5);
@@ -58,14 +58,14 @@ Shader "WorldGen/PlayableSky"
                 float core=pow(saturate(dot(equatorial,normalize(cross(_GalaxyPole.xyz,float3(1,0,0))))),12);
                 float twinkle=1+.05*sin(_Time.y*1.4+dot(equatorial,float3(431,1703,997)));
                 float stellarTransmission=exp(-_AirDensity*(.025+.035*_AerosolHaze)/max(.06,up));
-                color+=(stars*1.5*twinkle+lerp(float3(.0018,.0026,.0045),float3(.009,.0065,.0035),core)*band*(.3+clouds)*dust*_GalacticGlow+float3(.3,.38,.55)*_StellarGlow*.12)*_StarVisibility*stellarTransmission*smoothstep(0,.08,localHeight);
+                color+=(stars*1.5*twinkle+lerp(float3(.0018,.0026,.0045),float3(.009,.0065,.0035),core)*band*(.3+clouds)*dust*_GalacticGlow+float3(.3,.38,.55)*_StellarGlow*.12)*_StarVisibility*stellarTransmission;
                 // Body order is sun, then far-to-near moons. Dark limbs hide the
                 // background stars/sun instead of being additive glowing circles.
                 for(int body=0;body<8;body++)
                 {
                     if(body>=_BodyCount)break;
                     float3 direction=_BodyDirections[body].xyz;float mu=dot(d,direction),radius=_BodyParameters[body].x;
-                    float edge=max(fwidth(mu),.00000003),disk=smoothstep(cos(radius)-edge,cos(radius)+edge,mu),horizon=smoothstep(-.002,.003,localHeight);
+                    float edge=max(fwidth(mu),.00000003),disk=smoothstep(cos(radius)-edge,cos(radius)+edge,mu),horizon=1;
                     if(_BodyParameters[body].y<.5)
                     {float halo=(pow(saturate(mu),80)*.12+pow(saturate(mu),12)*pow(1-up,3)*_Twilight*.42)*_AirDensity;color+=_BodyColors[body].rgb*(disk*3+halo)*horizon;continue;}
                     if(disk<=0)continue;

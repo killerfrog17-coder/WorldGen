@@ -8,6 +8,9 @@ static class AtmosphereTests
     public static void Run(Action<bool,string> check)
     {
         var earth=CelestialSettings.Preset("Earth-like");var moon=earth.Moons[0];
+        var tangentSun=PlayableSky.Sample(0,18.1,.218,earth);var curvedSun=PlayableSky.Sample(0,18.1,.218,earth,horizonDipDegrees:4);
+        check(curvedSun.Bodies[0].Direction.Equals(tangentSun.Bodies[0].Direction)&&curvedSun.SunAltitudeDegrees==tangentSun.SunAltitudeDegrees,"Curved horizon lighting never moves the astronomical sun");
+        check(curvedSun.Bodies[0].Illuminance>tangentSun.Bodies[0].Illuminance&&curvedSun.Daylight>tangentSun.Daylight,"An elevated curved horizon retains light after the sun crosses the local tangent");
         check(moon.OrbitalPeriodDays>27&&moon.OrbitalPeriodDays<28&&moon.SynodicPeriodDays>29&&moon.SynodicPeriodDays<30,"Earth-size/distance moon has Keplerian sidereal and synodic periods, not an arbitrary phase timer");
         var farther=moon.Copy();farther.OrbitRadiusKm*=1.5;check(Math.Abs(farther.OrbitalPeriodDays/moon.OrbitalPeriodDays-Math.Pow(1.5,1.5))<1e-9,"Orbital periods obey Kepler's third law within explicit nanoday quantization");
         foreach(string preset in CelestialSettings.Presets)

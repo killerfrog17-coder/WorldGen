@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--weather-world-only")){int n=0;WeatherTests.World((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" actual-world weather assertions");return;}
+if(args.Contains("--weather-native")){int n=0;WeatherTests.Native(args[Array.IndexOf(args,"--weather-native")+1],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" native/CLR weather assertions");return;}
 if(args.Contains("--weather-only")){int n=0;WeatherTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" weather assertions");return;}
 if(args.Contains("--atmosphere-native")){int n=0;AtmosphereTests.Native(args[Array.IndexOf(args,"--atmosphere-native")+1],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" exact native/CLR celestial assertions");return;}
 if(args.Contains("--atmosphere-world-only")){int n=0;AtmosphereTests.World((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" actual-world celestial assertions");return;}

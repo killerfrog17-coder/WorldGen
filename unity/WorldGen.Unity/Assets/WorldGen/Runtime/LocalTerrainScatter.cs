@@ -176,7 +176,7 @@ public sealed partial class LocalTerrainExplorer
             {if(batch.PartMatrices[j]==null)batch.PartMatrices[j]=new Matrix4x4[batch.Matrices.Length];for(int i=0;i<batch.Count;i++)batch.PartMatrices[j][i]=batch.Matrices[i]*batch.Model.Parts[j].Local;}
         }
     }
-    void LateUpdate(){if(!closed)DrawScatter();}
+    void LateUpdate(){if(!closed){DrawScatter();if(weatherCheckTarget!=null&&view!=null)view.Render();}}
     void DrawScatter()
     {
         ScatterDrawCalls=0;if(!ScatterEnabled||view==null)return;

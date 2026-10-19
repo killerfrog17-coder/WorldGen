@@ -1,5 +1,50 @@
 # Version 3 validation evidence
 
+## Random-access local weather — 19 October 2026
+
+The IL2CPP `player-weather-atmosphere-final` build2026-10-19T10:12:47Z passes
+21 hidden native checks: actual low/high volumetric cloud bodies and high thin
+clouds, opaque-terrain occlusion, rain/snow particles, controlled lightning,
+recovering night-to-day adaptation, glare/ray toggles, above-cloud travel,
+fixed physical layer heights during flight, natural polar snowfall/retained
+snow-water data, and unchanged terrain/history hashes. Final clear, cloudy,
+cirrus, precipitation and polar captures were inspected. This is a soft,
+budget procedural visual treatment, not photorealistic cloud acceptance.
+Evidence is ignored under `artifacts/weather-release-review`.
+
+47 focused weather assertions pass, including continuous-rate versus interval
+water agreement, negative/root-boundary/ancient dates, nearby-point continuity,
+wind integration and arbitrary-date retained-water estimates.5 actual-world
+profile/hash assertions and24 native/CLR numerical comparisons (tolerance1e-7)
+pass.2,608 celestial,892 sky/chat,113 meridian,182 exploration music,334 world
+interface,42 saved-play and6 actual-world celestial assertions pass. Release
+solution/browser/shared-asset builds pass; native packaging checks staged DLL
+hashes before/after building. No goldens are changed.
+The final player also passes28 preceding native atmosphere/display regressions
+and33 exact native/CLR celestial-tradition checks, with weather disabled only
+inside those isolated legacy visual fixtures. Their evidence is ignored under
+`artifacts/weather-sky-regression`; the weather-specific fixtures use the new
+feature and actual opaque-depth checks.
+
+Core current queries measured roughly0.016–0.023ms; bounded surface estimates
+roughly0.11–0.21ms on this host. The final hidden1280×800 RTX4060 check uses a
+one-pixel blocking readback each frame to synchronize prior GPU work. Total
+median/p95 frame times: Off2.89/4.76ms, Low3.18/5.10ms, High3.52/5.48ms.
+These include readback overhead and are not isolated interactive/full-screen,
+high-DPI or low-end-PC guarantees; unrelated desktop GPU activity remained.
+Low is the default, with Off/Medium/High and independent stylistic controls.
+The earlier unsynchronized off-screen timings are not FPS acceptance evidence.
+
+Weather follows the **stored simulated climate**, not observed Earth weather.
+An initial Finland/day350 snow-dominance assumption was rejected: that stored
+profile has mild seasonal inputs and yielded mostly rain, correctly. The
+snow-dominance renderer/data check uses genuinely cold stored polar conditions
+instead; no climate weights were changed to force a latitude-based expectation.
+Surface snow/wetness/runoff are bounded estimates from matching precipitation,
+not an exact snowpack/catchment solver. No ground accumulation, puddles, dynamic
+water, hurricane tracks or historical weather events are implemented. Generation
+and historical versions/rules remain unchanged. See PROCEDURAL_WEATHER.md.
+
 ## Visual sky exaggeration and display preferences — 19 October 2026
 
 The IL2CPP `player-celestial-display` build2026-10-19T08:49:04Z passes28 hidden

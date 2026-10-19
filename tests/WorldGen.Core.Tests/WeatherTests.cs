@@ -3,6 +3,27 @@ using WorldGen.Core;
 
 static class WeatherTests
 {
+    public static void World(Action<bool,string> check)
+    {
+        var recipe=Recipe.Preset("Earth");recipe.Detail=20000;var world=new WorldPipeline().Generate(recipe);string original=StateHash.Compute(world);var locator=new CellLocator(world.Surface.Cells);
+        foreach(var site in new[]{(65d,25d),(75d,40d),(-70d,50d),(30d,15d)})
+        {
+            var point=WorldGen.Presentation.TerrainMapViewport.FromDegrees(site.Item1,site.Item2);int id=locator.Nearest(point);var climate=WeatherClimate.FromWorld(world,id,point,Math.Max(0,world.ElevationM[id]));var weather=new ProceduralWeather(world.Recipe.Seed,point,climate);var month=weather.Between(320,350);var surface=weather.SurfaceAt(350);
+            Console.WriteLine("Weather site "+site+" seasonal T "+string.Join(",",climate.TemperatureC.Select(x=>x.ToString("F1")))+" seasonal monthly P "+string.Join(",",climate.MonthlyPrecipitationMm.Select(x=>x.ToString("F1")))+" day350 T "+weather.At(350).TemperatureC+" rain/snow "+month.RainMm+"/"+month.SnowWaterMm+" SWE "+surface.SnowWaterMm);
+            check(month.TotalMm>=0&&double.IsFinite(surface.SnowWaterMm),"Real-world climate profiles yield finite bounded water estimates");
+        }
+        check(StateHash.Compute(world)==original,"Actual-world weather queries leave all authoritative stage hashes unchanged");
+    }
+    public static void Native(string path,Action<bool,string> check)
+    {
+        var climate=new WeatherClimate(new[]{-12d,-8,-15,-20},new[]{80d,110,90,60},new[]{.6,.7,.6,.5});var weather=new ProceduralWeather(817,new V(.7,.4,.5).Unit,climate);
+        foreach(var line in File.ReadAllLines(Path.Combine(path,"weather-numeric.csv")))
+        {
+            var values=line.Split(',').Select(v=>double.Parse(v,System.Globalization.CultureInfo.InvariantCulture)).ToArray();double date=values[0];var f=weather.At(date);var surface=weather.SurfaceAt(date);
+            var expected=new[]{f.TemperatureC,f.RainMmPerHour,f.SnowWaterMmPerHour,weather.Between(date-1,date).TotalMm,weather.Between(date-30,date).TotalMm,surface.SnowWaterMm};
+            for(int i=0;i<expected.Length;i++)check(Math.Abs(expected[i]-values[i+1])<1e-7,"Native and CLR weather agree at arbitrary dates, including ancient histories");
+        }
+    }
     public static void Run(Action<bool,string> check)
     {
         var wet=new WeatherClimate(new[]{25d,27,24,22},new[]{200d,350,180,120},new[]{.8,.9,.7,.7});

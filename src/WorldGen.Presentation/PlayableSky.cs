@@ -27,14 +27,15 @@ namespace WorldGen.Presentation
         {double lat=latitude*Math.PI/180,c=Math.Cos(angle),s=Math.Sin(angle);return new V(-s*p.X+c*p.Y,Math.Cos(lat)*(c*p.X+s*p.Y)+Math.Sin(lat)*p.Z,-Math.Sin(lat)*(c*p.X+s*p.Y)+Math.Cos(lat)*p.Z);}
         static double Smooth(double a,double b,double value){double t=Math.Max(0,Math.Min(1,(value-a)/(b-a)));return t*t*(3-2*t);}
         static V Mix(V a,V b,double t)=>a*(1-t)+b*t;
-        public static PlayableSkyFrame Sample(double latitude,double hour,double year,CelestialSettings? settings=null,double? calendarDays=null,double observerAltitudeM=0,double moonDiskScale=1,double sunDiskScale=1)
+        public static PlayableSkyFrame Sample(double latitude,double hour,double year,CelestialSettings? settings=null,double? calendarDays=null,double observerAltitudeM=0,double moonDiskScale=1,double sunDiskScale=1,double horizonDipDegrees=0)
         {
             V sunEq=CelestialMechanics.SunEquatorial(year*365);double angle=SiderealAngle(sunEq,hour),lat=latitude*Math.PI/180;V sun=Local(sunEq,latitude,angle).Unit;
             double altitude=Math.Asin(sun.Y)*180/Math.PI;
-            double daylight=Smooth(-10,12,altitude),twilight=(1-Smooth(3,18,Math.Abs(altitude)))*Smooth(-18,-3,altitude);
+            double effectiveAltitude=altitude+Math.Max(0,horizonDipDegrees);
+            double daylight=Smooth(-10,12,effectiveAltitude),twilight=(1-Smooth(3,18,Math.Abs(effectiveAltitude)))*Smooth(-18,-3,effectiveAltitude);
             V right=Local(new V(1,0,0),latitude,angle),pole=Local(new V(0,0,1),latitude,angle),forward=Local(new V(0,1,0),latitude,angle);
             V sunColor=Mix(new V(1,.35,.12),new V(1,.96,.87),Smooth(0,25,altitude));
-            int moons=settings?.Moons.Length??0;var bodies=new SkyBody[moons+1];bodies[0]=new SkyBody(sun,sunColor,Math.Min(10,.2666*sunDiskScale),1.45*Smooth(-1,12,altitude));
+            int moons=settings?.Moons.Length??0;var bodies=new SkyBody[moons+1];bodies[0]=new SkyBody(sun,sunColor,Math.Min(10,.2666*sunDiskScale),1.45*Smooth(-1,12,effectiveAltitude));
             V observer=new V(Math.Cos(lat)*Math.Cos(angle),Math.Cos(lat)*Math.Sin(angle),Math.Sin(lat))*(6371+Math.Max(0,observerAltitudeM)/1000),moonGlow=default;
             double lux=0;
             for(int i=0;i<moons;i++)
@@ -44,14 +45,14 @@ namespace WorldGen.Presentation
                 double cosine=Math.Max(-1,Math.Min(1,V.Dot(direction*(-1),light))),alpha=Math.Acos(cosine),phase=(1+cosine)*.5;
                 double lambert=(Math.Sin(alpha)+(Math.PI-alpha)*cosine)/Math.PI;
                 // Display magnification never changes the orbit, phase or light.
-                double irradiance=.25*Math.Pow(m.RadiusKm/1737.4,2)*Math.Pow(384400/distance,2)*(m.Albedo/.12)*lambert*Smooth(0,.12,direction.Y);
+                double irradiance=.25*Math.Pow(m.RadiusKm/1737.4,2)*Math.Pow(384400/distance,2)*(m.Albedo/.12)*lambert*Smooth(0,.12,direction.Y+Math.Sin(horizonDipDegrees*Math.PI/180));
                 lux+=irradiance*(.2126*m.Tint.X+.7152*m.Tint.Y+.0722*m.Tint.Z);
                 double renderLight=Math.Min(1.45,irradiance*.08)*(1-.98*daylight);moonGlow+=m.Tint*renderLight;
                 bodies[i+1]=new SkyBody(direction,m.Tint,Math.Min(60,Math.Asin(m.RadiusKm/distance)*180/Math.PI*moonDiskScale),renderLight,light,1+(int)m.Surface,m.Name,phase,CelestialMechanics.PhaseCycle(m,days),distance,i);
             }
             Array.Sort(bodies,1,moons,System.Collections.Generic.Comparer<SkyBody>.Create((a,b)=>b.DistanceKm.CompareTo(a.DistanceKm)));
             double stellar=settings?.Stars==StellarEnvironment.DenseGalacticField?.012:settings?.Stars==StellarEnvironment.StarCluster?.022:.001;
-            double night=1-daylight,starVisibility=(1-Smooth(-16,-3,altitude))/(1+lux*.9);
+            double night=1-daylight,starVisibility=(1-Smooth(-16,-3,effectiveAltitude))/(1+lux*.9);
             return new PlayableSkyFrame{
                 Bodies=bodies,SunAltitudeDegrees=altitude,Daylight=daylight,Twilight=twilight,NightIlluminanceLux=lux+stellar,StellarGlow=stellar,GalacticGlow=settings?.Stars==StellarEnvironment.DenseGalacticField?7:settings?.Stars==StellarEnvironment.StarCluster?2:1,ObserverAltitudeM=observerAltitudeM,NightAirGlow=(new V(moonGlow.X*.35,moonGlow.Y*.55,moonGlow.Z)*.025+new V(.3,.38,.55)*stellar*.02)*night,
                 StarVisibility=starVisibility,

@@ -27,7 +27,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public double HorizontalScale=>explorationSettings.HorizontalScale;
     public double LocalSolarHour=>playState==null?9:Ready?playState.LocalSolarHour(Math.Atan2(Position.Y,Position.X)*180/Math.PI):playState.SolarHour;
     public GUISkin MenuSkin { get; set; }
-    readonly bool passiveSkyCheck=Environment.GetCommandLineArgs().Contains("--worldgen-sky-chat-check")||Environment.GetCommandLineArgs().Contains("--worldgen-atmosphere-check");
+    readonly bool passiveSkyCheck=Environment.GetCommandLineArgs().Contains("--worldgen-sky-chat-check")||Environment.GetCommandLineArgs().Contains("--worldgen-atmosphere-check")||Environment.GetCommandLineArgs().Contains("--worldgen-weather-check");
     Keyboard testKeyboard;
     Keyboard ActiveKeyboard=>testKeyboard??Keyboard.current;
     public void TestKeyboard(Keyboard value){testKeyboard=value;}
@@ -48,6 +48,10 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public float Heading=>heading;
     public string Error=>error;
     public Color32[] LastCapturePixels { get; private set; }
+    RenderTexture weatherCheckTarget;
+    Texture2D weatherCheckPixel;
+    public void BeginWeatherRenderCheck(){weatherCheckTarget=new RenderTexture(1280,800,24);weatherCheckTarget.Create();view.targetTexture=weatherCheckTarget;}
+    public void WeatherCheckGpuBarrier(){if(weatherCheckPixel==null)weatherCheckPixel=new Texture2D(1,1,TextureFormat.RGB24,false);var prior=RenderTexture.active;RenderTexture.active=weatherCheckTarget;try{weatherCheckPixel.ReadPixels(new Rect(0,0,1,1),0,0,false);}finally{RenderTexture.active=prior;}}
     public int TileCount=>tiles.Count;
     public int WantedCount=>wanted.Count;
     public bool CenterReady=>tiles.Keys.Any(k=>motion.X>=k.X*k.SizeM&&motion.X<(k.X+1)*k.SizeM&&motion.Z>=k.Z*k.SizeM&&motion.Z<(k.Z+1)*k.SizeM);
@@ -79,7 +83,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         generation++;startingPoint=point;walkingPatch=null;originX=originZ=0;
         frame=new LocalTerrainFrame(point,terrain.RadiusM,terrain.Patch(point).Sample(0,0).ElevationM,HorizontalScale);
         motion.Place(0,0,Ground(0,0),motion.Flying);landMaterial.SetVector("_LocalOrigin",Vector4.zero);
-        foreach(var tile in tiles.Values)DestroyTile(tile);tiles.Clear();plannedX=double.NaN;RefreshWanted();UpdateCamera();ResetScatterFrame();
+        foreach(var tile in tiles.Values)DestroyTile(tile);tiles.Clear();plannedX=double.NaN;RefreshWanted();UpdateCamera();ResetScatterFrame();ResetWeatherFrame();
     }
     void Update()
     {
@@ -134,7 +138,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         foreach(var key in tiles.Keys.Where(k=>!wanted.ContainsKey(k)).ToArray())
             if(wanted.Where(w=>Overlaps(key,w.Key)).All(w=>tiles.TryGetValue(w.Key,out var replacement)&&replacement.Segments==w.Value))
             {DestroyTile(tiles[key]);tiles.Remove(key);}
-        UpdateScatter();
+        UpdateScatter();UpdateWeatherPresentation();
         foreach(var key in priority)
         {
             if(jobs.Count+scatterJobs.Count>=2)break;int detail=wanted[key];
@@ -179,9 +183,9 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     }
     public void Capture(string path)
     {
-        var target=new RenderTexture(1280,800,24);var previous=RenderTexture.active;var texture=new Texture2D(1280,800,TextureFormat.RGB24,false);view.targetTexture=target;
+        var target=new RenderTexture(1280,800,24);var previous=RenderTexture.active;var priorTarget=view.targetTexture;var texture=new Texture2D(1280,800,TextureFormat.RGB24,false);view.targetTexture=target;
         try{DrawScatter();view.Render();RenderTexture.active=target;texture.ReadPixels(new Rect(0,0,1280,800),0,0);texture.Apply();var pixels=texture.GetPixels32();LastCapturePixels=pixels;var first=pixels[0];if(!pixels.Any(p=>p.r!=first.r||p.g!=first.g||p.b!=first.b))throw new InvalidOperationException("Terrain capture is blank.");if(path!=null)File.WriteAllBytes(path,texture.EncodeToPNG());}
-        finally{view.targetTexture=null;RenderTexture.active=previous;target.Release();Destroy(target);Destroy(texture);}
+        finally{view.targetTexture=priorTarget;RenderTexture.active=previous;target.Release();Destroy(target);Destroy(texture);}
     }
     public void TestMove(double east,double north){motion.X=east;motion.Z=north;}
     public void StorePlayer(PlaySession session){session.HasPlayer=true;session.PlayerPosition=Position;session.Flying=motion.Flying;session.Heading=heading;session.Pitch=pitch;session.HeightAboveGround=Math.Max(0,HeightAboveGround);}
@@ -205,5 +209,5 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     }
     public void TestView(double height,float yaw=20,float tilt=12){motion.Flying=true;motion.Y=Ground(motion.X,motion.Z)+height;heading=yaw;pitch=tilt;RefreshWanted();UpdateCamera();}
     public void Close(){if(closed)return;closed=true;if(view!=null)view.enabled=false;cancellation.Cancel();if(!passiveSkyCheck){Cursor.lockState=CursorLockMode.None;Cursor.visible=true;}close?.Invoke();}
-    void OnDestroy(){cancellation.Cancel();mapCancellation?.Cancel();cancellation.Dispose();mapCancellation?.Dispose();DisposeChat();DisposeSky();DisposeScatter();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
+    void OnDestroy(){cancellation.Cancel();mapCancellation?.Cancel();cancellation.Dispose();mapCancellation?.Dispose();DisposeChat();DisposeWeather();DisposeSky();DisposeScatter();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
 }

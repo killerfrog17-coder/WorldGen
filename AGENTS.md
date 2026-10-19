@@ -1,6 +1,21 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-weather-atmosphere-final/WorldGen.exe`
+(IL2CPP,2026-10-19T10:12:47Z). Derived `weather-preview-1` supplies coherent
+random-access current/interval precipitation and bounded snow/wetness estimates,
+without global cell ticks or changes to terrain/climate/history. Local curved
+volumetric clouds, thin high clouds, rain/snow, wind/thunder, controlled lightning,
+sun effects and transient adaptation have machine-local quality/effect controls.
+No ground accumulation/puddles/dynamic water are added.21 native weather and28
+prior sky/display assertions,47 focused/5 actual-world/24 native-CLR weather
+checks and2608 celestial assertions pass. Final GPU-synchronized1280x800 total
+median frame times: Off2.89ms, Low3.18ms, High3.52ms on RTX4060; not a low-end
+or interactive full-screen guarantee. See `docs/PROCEDURAL_WEATHER.md` and
+VALIDATION.md for limits, climate-input caveats and depth/alpha contracts.
+Celestial-display remains the rollback; no historical rules upgrade is needed.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-celestial-display/WorldGen.exe` (IL2CPP,2026-10-19T08:49:04Z).
 Optional saved play settings expose independent sun/moon visual exaggeration,
 editable after history starts; defaults1× preserve old displays.5× enlarges only
