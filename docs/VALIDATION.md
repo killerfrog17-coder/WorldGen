@@ -33,8 +33,17 @@ seeds and selected crop frames/hashes are retained; classifier screening is not
 subjective sound acceptance. Footsteps use actual distance and material mixtures,
 not loops, and keep a separate volume control. Rain remains exact pre-AI RainSynth,
 current AI thunder stays, and no wind audio is reintroduced.587 weather assertions
-pass. Actual native final ground/weather review and launch selection are pending
-at this source checkpoint; the rain-restored shortcut remains selected.
+pass. Final IL2CPP player-ground-environment (20:40:15Z) passes the five-site200k
+Earth and three-site200k Continents Plus reviews: actual keyboard gaits and
+footfalls, stationary/flying silence, map/teleport, streaming, unchanged world
+hashes and no runtime/shader errors. All32 native/CLR height probes match.
+Its71 native weather assertions and24 native/CLR weather comparisons pass;
+original procedural rain plays through its actual source, only unchanged AI
+thunder recordings load, dry/above-cloud/pause gates work, and no rejected
+surface/filter processing or wind returns. Final native38 actor continuation
+also matches CLR exactly. The project shortcut now selects this build; the
+rain-restored build is retained as rollback. Evidence/screenshots are under
+ignored artifacts/ground-review, with final native images inspected.
 
 The actual Mono ground review already passes all five200k Earth sites and a
 three-site5000-cell generated world, including keyboard gaits, real footfall

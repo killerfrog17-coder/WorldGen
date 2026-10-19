@@ -1,6 +1,24 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-ground-environment/WorldGen.exe` (IL2CPP20:40:15Z).
+Ground-environment1 adds derived parent geology/deposits, soil properties,
+smooth eight-material local ground and optional historical realm38 agronomy.
+Old histories remain literal until explicit upgrade; accepted generation hashes
+are unchanged. C-held walk/default jog/Shift sprint, quiet local AI material
+footfalls, fixed high-FPS ground contact and a footsteps Audio slider are verified.
+Original pre-AI rain is restored, current AI thunder stays, wind remains absent.
+3131 ground/582 terrain/1397 scatter/24680 actor/cache/replay assertions pass;
+actual200k Earth/Continents Plus native screenshots/input/unchanged-world checks,
+32 native/CLR height probes and71 native weather/24 numerical checks pass.
+Earth geology is synthetic, art remains placeholder; detailed vegetation,
+landform geometry and ground weather accumulation are NOT completed by this.
+The broad suite's existing11-versus15-stage Earth golden mismatch is recorded,
+not regenerated. No new all-era realism or historical performance acceptance is
+implied. See ECOREGIONS.md, LOCAL_TERRAIN_PREVIEW.md and VALIDATION.md under docs.
+`player-rain-restored` remains the preceding review/rollback build.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-rain-restored/WorldGen.exe` (IL2CPP,19:29:00Z; E: build junction).
 Owner-requested rain rollback restores the exact RainSynth source from29d82da
 and its original22050Hz streaming/volume behavior. AI rain beds, recent low-pass
