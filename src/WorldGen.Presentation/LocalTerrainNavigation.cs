@@ -101,11 +101,37 @@ namespace WorldGen.Presentation
                 double d=Distance(k);if(d>distanceM)return;
                 if(k.Level>0&&Math.Max(d,aboveGround*.8)<k.SizeM*1.6*Math.Max(.5,Math.Min(2,detailRange)))
                     for(int j=0;j<2;j++)for(int i=0;i<2;i++)Visit(new TerrainTileKey(k.X*2+i,k.Z*2+j,k.Level-1,scale));
-                else {int n=k.Level==0?(d<3000*scale?128:64):k.Level==1?64:k.Level==2?32:k.Level<5?16:8;result.Add(k,quality<=0?Math.Max(8,n/2):quality>=2?Math.Min(128,n*2):n);}
+                else {int n=k.Level==0?(d<3000*scale?128:64):k.Level==1?64:k.Level==2?32:k.Level<5?16:8;result.Add(k,quality<=0?Math.Max(k.Level==0?64:8,n/2):quality>=2?Math.Min(128,n*4):n);}
             }
             for(int b=(int)Math.Floor((z-distanceM)/size);b<=(int)Math.Floor((z+distanceM)/size);b++)
                 for(int a=(int)Math.Floor((x-distanceM)/size);a<=(int)Math.Floor((x+distanceM)/size);a++)Visit(new TerrainTileKey(a,b,root,scale));
             return result;
+        }
+    }
+
+    /// <summary>Visible coverage, including a complete set of finer descendants.
+    /// Memoized only over resident tile ancestry, never the world's cells.</summary>
+    public sealed class TerrainCoverage
+    {
+        readonly HashSet<TerrainTileKey> active,ancestors=new HashSet<TerrainTileKey>();
+        readonly Dictionary<TerrainTileKey,bool> memo=new Dictionary<TerrainTileKey,bool>();
+        public TerrainCoverage(IEnumerable<TerrainTileKey> keys)
+        {
+            active=new HashSet<TerrainTileKey>(keys);
+            foreach(var key in active){var p=key;while(p.Level<16){p=new TerrainTileKey((int)Math.Floor(p.X/2.0),(int)Math.Floor(p.Z/2.0),p.Level+1,p.Scale);ancestors.Add(p);}}
+        }
+        public bool Covers(TerrainTileKey key)
+        {
+            if(active.Contains(key))return true;
+            var p=key;while(p.Level<16){p=new TerrainTileKey((int)Math.Floor(p.X/2.0),(int)Math.Floor(p.Z/2.0),p.Level+1,p.Scale);if(active.Contains(p))return true;}
+            return Descendants(key);
+        }
+        bool Descendants(TerrainTileKey key)
+        {
+            if(active.Contains(key))return true;if(!ancestors.Contains(key)||key.Level==0)return false;
+            if(memo.TryGetValue(key,out bool cached))return cached;
+            for(int z=0;z<2;z++)for(int x=0;x<2;x++)if(!Descendants(new TerrainTileKey(key.X*2+x,key.Z*2+z,key.Level-1,key.Scale))){memo[key]=false;return false;}
+            memo[key]=true;return true;
         }
     }
 

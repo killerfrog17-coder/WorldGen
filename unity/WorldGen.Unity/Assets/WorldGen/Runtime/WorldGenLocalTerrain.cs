@@ -76,6 +76,12 @@ public sealed partial class WorldGenRuntime
         bool groundReview=Environment.GetCommandLineArgs().Contains("--worldgen-ground-review");
         bool geologyReview=Environment.GetCommandLineArgs().Contains("--worldgen-geology-review");
         bool streamingReview=Environment.GetCommandLineArgs().Contains("--worldgen-streaming-review");
+        if(streamingReview)
+        {
+            // Test the default explicitly, regardless of the owner's saved settings.
+            // Only this test process changes these fields; never Save preferences.
+            TerrainVideoOptions.Current.Quality=1;TerrainVideoOptions.Current.DetailRange=1;TerrainVideoOptions.Current.DistanceKm=200;
+        }
         groundReview|=geologyReview;
         bool scatterReview=Environment.GetCommandLineArgs().Contains("--worldgen-local-scatter-review");
         if(scatterReview)
@@ -156,7 +162,9 @@ public sealed partial class WorldGenRuntime
             probes.AddRange(terrainExplorer.Probes());
             if(streamingReview&&s==0)
             {
-                terrainExplorer.TestView(800,70,25);int count=terrainExplorer.ReanchorCount;
+                terrainExplorer.TestView(800,70,25);
+                deadline=Time.realtimeSinceStartupAsDouble+90;while(!terrainExplorer.AllReady&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+                var revisitPoint=terrainExplorer.Position;int count=terrainExplorer.ReanchorCount;
                 terrainExplorer.TestMove(70000,0);yield return null;
                 if(terrainExplorer.ReanchorCount!=count+1||terrainExplorer.RetainedTileCount==0||terrainExplorer.VisibleTerrainTiles==0)
                 {Debug.LogError("STREAMING CHECK reanchor destroyed coverage");Application.Quit(1);yield break;}
@@ -168,7 +176,12 @@ public sealed partial class WorldGenRuntime
                 if(!terrainExplorer.AllReady||minimum==0||terrainExplorer.RetainedTileCount!=0||terrainExplorer.Error!="")
                 {Debug.LogError("STREAMING CHECK replacement coverage did not settle: "+terrainExplorer.Diagnostics+" "+terrainExplorer.Error);Application.Quit(1);yield break;}
                 yield return new WaitForEndOfFrame();terrainExplorer.Capture(Path.Combine(output,"flight-reanchor-ready.png"));
-                report.Add("PASS replacement coverage/morph settled without an empty terrain frame; retired meshes released; protective fog "+terrainExplorer.ProtectiveFogM.ToString("F0")+"m");
+                report.Add("PASS replacement coverage/morph settled without an empty terrain frame; old frame cached/inactive; protective fog "+terrainExplorer.ProtectiveFogM.ToString("F0")+"m");
+                int beforeRevisit=terrainExplorer.TerrainBuildCount;
+                terrainExplorer.TestRevisit(revisitPoint,800);yield return null;yield return null;
+                if(!terrainExplorer.AllReady||terrainExplorer.TerrainBuildCount!=beforeRevisit)
+                {Debug.LogError("STREAMING CHECK cached frame revisit rebuilt terrain: "+(terrainExplorer.TerrainBuildCount-beforeRevisit)+" builds, "+terrainExplorer.Diagnostics);Application.Quit(1);yield break;}
+                report.Add("PASS return to previous chart restores resident LODs with zero terrain builds");
             }
             terrainExplorer.TestMove(4300, 2800); yield return null;
             deadline = Time.realtimeSinceStartupAsDouble + 60;
@@ -205,6 +218,12 @@ public sealed partial class WorldGenRuntime
                 if(groundReview)
                 {
                     terrainExplorer.TestNearbyFlatGround();yield return null;
+                    deadline=Time.realtimeSinceStartupAsDouble+30;while(!terrainExplorer.NearGroundReady&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+                    terrainExplorer.TestWalking();yield return null;yield return null;
+                    if(!terrainExplorer.NearGroundReady||Math.Abs(terrainExplorer.RenderedFootClearance-TerrainMotion.EyeHeightM)>.015)
+                    {Debug.LogError("GROUND CHECK player does not stand on rendered triangles: "+terrainExplorer.RenderedFootClearance);Application.Quit(1);yield break;}
+                    report.Add("PASS actual rendered-mesh foot clearance "+terrainExplorer.RenderedFootClearance.ToString("F4")+"m at scale "+terrainExplorer.HorizontalScale);
+                    if(streamingReview){TerrainVideoOptions.Current.Quality=2;TerrainVideoOptions.Current.DetailRange=2;yield return null;}
                     double waitEnd=Time.realtimeSinceStartupAsDouble+30;while(!terrainExplorer.FootstepsReady&&Time.realtimeSinceStartupAsDouble<waitEnd)yield return null;
                     if(!terrainExplorer.FootstepsReady||terrainExplorer.FootstepClipCount!=28){Debug.LogError("GROUND CHECK generated footfall banks unavailable");Application.Quit(1);yield break;}
                     if(!terrainExplorer.FootstepsCentered){Debug.LogError("GROUND CHECK own-footstep stereo route is not centered mono");Application.Quit(1);yield break;}
@@ -216,7 +235,12 @@ public sealed partial class WorldGenRuntime
                         Debug.Log("GROUND GAIT before "+mode+" "+terrainExplorer.FootstepDebug);
                         InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(keys));
                         double gaitDeadline=Time.realtimeSinceStartupAsDouble+45;
-                        while(terrainExplorer.MovementSeconds-beforeSeconds<2&&Time.realtimeSinceStartupAsDouble<gaitDeadline)yield return null;
+                        while(terrainExplorer.MovementSeconds-beforeSeconds<2&&Time.realtimeSinceStartupAsDouble<gaitDeadline)
+                        {
+                            yield return null;
+                            if(!double.IsNaN(terrainExplorer.RenderedFootClearance)&&Math.Abs(terrainExplorer.RenderedFootClearance-TerrainMotion.EyeHeightM)>.015)
+                            {Debug.LogError("GROUND CHECK gait separates from rendered surface: "+terrainExplorer.RenderedFootClearance);Application.Quit(1);yield break;}
+                        }
                         InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());yield return null;
                         distances[mode++]=Math.Abs(terrainExplorer.TravelM-beforeGait)/Math.Max(.001,terrainExplorer.MovementSeconds-beforeSeconds);
                         if(terrainExplorer.FootstepPlaybackCount<=beforeSteps){Debug.LogError("GROUND CHECK gait "+mode+" movement produced no footfalls; travel="+(terrainExplorer.TravelM-beforeGait)+" time="+(terrainExplorer.MovementSeconds-beforeSeconds)+" "+terrainExplorer.FootstepDebug+" ground="+terrainExplorer.GroundDebugText+" map="+terrainExplorer.MapVisible+" paused="+terrainExplorer.Paused);Application.Quit(1);yield break;}
@@ -226,6 +250,7 @@ public sealed partial class WorldGenRuntime
                     int stationary=terrainExplorer.FootstepPlaybackCount;yield return new WaitForSecondsRealtime(.4f);
                     if(terrainExplorer.FootstepPlaybackCount!=stationary){Debug.LogError("GROUND CHECK stationary timer footsteps");Application.Quit(1);yield break;}
                     report.Add("PASS actual C walk / default jog / Shift sprint and distance-driven footsteps; stationary silence;28 loaded AI variants");
+                    if(streamingReview){TerrainVideoOptions.Current.Quality=1;TerrainVideoOptions.Current.DetailRange=1;report.Add("PASS grounded gait clearance remains within15mm during High/2x detail streaming; test settings are not persisted");}
                 }
                 InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(Key.Space));yield return null;yield return null;
                 if(terrainExplorer.HeightAboveGround<=TerrainMotion.EyeHeightM){Debug.LogError("TERRAIN CHECK jump failed");Application.Quit(1);yield break;}

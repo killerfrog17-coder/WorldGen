@@ -55,21 +55,20 @@ static class LocalScatterMeshes
         {
             int family=variant/3,shape=variant%3;
             bool rounded=family==0||family==3,layered=family==2||family==4||family==5;
-            int sides=detail==0?16:detail==1?10:6,rings=detail==0?10:detail==1?6:4;
+            int sides=detail==0?24:detail==1?16:8,rings=detail==0?16:detail==1?10:6;
             int first=V.Count;
             for(int y=0;y<=rings;y++)for(int x=0;x<=sides;x++)
             {
                 float lat=y*Mathf.PI/rings,angle=x*Mathf.PI*2/sides;
-                float Power(float value,float p)=>Mathf.Sign(value)*Mathf.Pow(Mathf.Abs(value),p);
-                float power=rounded?1:family==1?.52f:.35f;
-                float a=Power(Mathf.Sin(lat)*Mathf.Cos(angle),power),b=Power(Mathf.Cos(lat),rounded?1:.45f),c=Power(Mathf.Sin(lat)*Mathf.Sin(angle),power);
-                float joint=layered?1-.065f*Mathf.Sin((b+1)*Mathf.PI*(3+shape)):.97f+.035f*Mathf.Sin(angle*3+shape)*Mathf.Sin(lat);
-                // Shared angular coordinates keep all LODs on the same rock silhouette.
-                float warp=1+.07f*Mathf.Sin(angle*3+shape)*Mathf.Sin(lat*2);
-                Vector3 p=new Vector3(a*.5f*joint*warp,(b+1)*.5f,c*.43f*joint*warp);
-                if(outcrop&&rounded)p.y=Mathf.Pow(p.y,.7f);
-                if(family==5)p.x+=p.y*.16f;
-                float band=layered?.82f+.15f*Mathf.Sin(b*24+shape):.9f+.07f*Mathf.Sin(angle*4+lat*5);
+                float a=Mathf.Sin(lat)*Mathf.Cos(angle),b=Mathf.Cos(lat),c=Mathf.Sin(lat)*Mathf.Sin(angle);
+                // An asymmetric weathered ellipsoid, not a superellipsoid/cube.
+                // Continuous directional harmonics retain the same form at every LOD.
+                float warp=1+.13f*Mathf.Sin(a*3.7f+b*2.1f+c*2.9f+shape*1.7f)+.08f*Mathf.Sin(a*7.1f-b*4.3f+c*3.1f+variant);
+                float joint=layered?1-.025f*Mathf.Sin(b*13+shape):1;
+                Vector3 p=new Vector3(a*.5f*warp*joint+.06f*b*b,(b*warp+1)*.5f,c*.43f*warp*joint+.04f*a*b);
+                if(outcrop&&rounded)p.y=Mathf.Pow(Mathf.Max(0,p.y),.8f);
+                if(family==5)p.x+=p.y*.10f;
+                float band=layered?.91f+.045f*Mathf.Sin(b*19+a*2+shape):.94f+.04f*Mathf.Sin(angle*4+lat*5);
                 Add(p,new Color(band,band,band,1),new Vector2(x/(float)sides,y/(float)rings));
             }
             for(int y=0;y<rings;y++)for(int x=0;x<sides;x++){int a=first+y*(sides+1)+x;Triangle(a,a+1,a+sides+1);Triangle(a+1,a+sides+2,a+sides+1);}
@@ -97,6 +96,15 @@ static class LocalScatterMeshes
                 b.Crown(end+Vector3.up*.12f,new Vector3(umbrella?.34f:.25f,umbrella?.13f:.26f,umbrella?.34f:.25f),detail==0?9:detail==1?6:4,detail==0?5:3,leaf,variant*101+i,.16f);
             }
         }
-        var result=b.Finish();result.name=kind+" placeholder L"+detail+" V"+variant;return result;
+        var result=b.Finish();
+        if(kind==ScatterKind.Boulder||kind==ScatterKind.Stone||kind==ScatterKind.Outcrop)
+        {
+            var vertices=result.vertices;var normals=result.normals;var groups=new Dictionary<Vector3Int,List<int>>();
+            for(int i=0;i<vertices.Length;i++)
+            {var p=vertices[i];var key=new Vector3Int(Mathf.RoundToInt(p.x*100000),Mathf.RoundToInt(p.y*100000),Mathf.RoundToInt(p.z*100000));if(!groups.TryGetValue(key,out var indices)){indices=new List<int>();groups.Add(key,indices);}indices.Add(i);}
+            foreach(var indices in groups.Values){var n=Vector3.zero;foreach(int i in indices)n+=normals[i];n.Normalize();foreach(int i in indices)normals[i]=n;}
+            result.normals=normals;result.RecalculateTangents();
+        }
+        result.name=kind+" placeholder L"+detail+" V"+variant;return result;
     }
 }

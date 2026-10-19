@@ -41,23 +41,38 @@ References informing the distinction:
 
 ## Streaming
 
-Automatic tangent-chart reanchoring no longer calls destructive teleport cleanup.
-Resident coverage is retained and rigidly reprojected while replacement jobs run;
-at most three transitional chart groups are kept, then disposed. Explicit map
-teleports remain distinct. Loading first requests16-segment coarse coverage roots
-before expensive near-detail products. At most two terrain/scatter jobs run and
-one terrain mesh uploads per frame.
+Owner feedback rejected the first streaming checkpoint: its coarse roots blocked
+fine geometry, interpolated rendering did not match the player's grounding, and
+recently seen detail could be discarded/rebuilt. The earlier tile-count/height-
+query checks did not test those failures. That checkpoint is not visual acceptance.
 
-Replacement parent/child groups only switch when their required coverage is
-resident. Vertex heights morph from the old visible triangle surface to the new
-mesh using UV3 and a renderer property block. This is a geometric transition, not
-transparent terrain rendering. Source/walking heights are unchanged. Once a
-transition completes, no per-renderer property update is needed until replacement.
-Skirts and coarse-edge stitching remain. There can still be a coarse landscape
-when flight outruns mesh generation; this is preferable to clearing the world.
+The correction removes the coarse-root queue and blocking activation gate.
+Fine products display as soon as resident, nearest first; old coarse coverage
+masks only rectangles actually filled by finer meshes. Default sampling restores
+the pre-geology128/64/32/16/8 scheme. High increases sampling4x(up to128), rather
+than requiring users to increase quality to recover the former baseline.
+
+Terrain within64m of the player never geomorphs; the transition ramps in to256m.
+Grounded movement uses the resident local level0 triangle surface, matching what
+is drawn, with the shared analytic sampler as the unloaded fallback. Walking no
+longer stands on an invisible height while the displayed ground interpolates.
+This is a controller/render correction, not a change to accepted terrain heights.
+UV3 still supplies distant geometric transitions. Skirts/stitching remain; no
+claim of universally invisible seams or a seamless spherical renderer is made.
+
+At most two terrain/scatter jobs run and one terrain mesh uploads per frame.
+Recent products retain their higher resolution even if a new request needs less;
+neighbour-plan changes do not discard completed meshes. A bounded512-product
+active-chart cache evicts only inactive products. Automatic chart reanchors keep
+three prior frame caches; a nearby return restores the same mesh objects rather
+than rebuilding the whole view. Old frames become hidden when replacements settle,
+not destroyed immediately. Explicit map teleports still reset the local cache.
+Revisits outside the bounded cache can legitimately regenerate fine detail.
 
 Protective distance haze contracts before missing coverage and reveals newly
 loaded distance gradually. Atmospheric/weather haze still operate independently.
+Coverage tests include a complete set of finer descendants: a pending coarse LOD
+does not justify hiding a region that is already fully rendered at higher detail.
 Video settings persist distant landscape range20–500km, detail distance0.5–2x,
 Low/Balanced/High mesh quality and transition duration0.2–2s. Physical planet size
 caps the usable range; curvature and terrain still occlude distant ground.
@@ -73,5 +88,14 @@ Actual-world mesh checks: `--local-terrain-world <snapshot.world>`.
 Native: add `--worldgen-geology-review --worldgen-streaming-review` to
 `--worldgen-local-terrain-check <snapshot.world> --worldgen-output <directory>`.
 This exercises rock scenes, actual gait/mono contacts, a70km fast-flight reanchor,
-retained terrain during replacement, settled cleanup and unchanged source hashes.
+retained terrain during replacement, a zero-build cached return and unchanged
+source hashes. It measures foot clearance against actual resident triangles while
+walking/jogging/sprinting, including streaming at High/2x detail. Test-process
+settings are explicit and never written to the owner's saved preferences.
 Screenshots and timing evidence are kept locally, never committed as source.
+
+Rock art correction removes the deliberately squared superellipsoid shape. All
+families now use irregular asymmetric weathered ellipsoids, quieter bedding
+contrast, higher silhouette detail and welded seam normals. Lithology still
+affects palette, grain, proportions and regional occurrence; this remains
+replaceable placeholder art with no prop collision.

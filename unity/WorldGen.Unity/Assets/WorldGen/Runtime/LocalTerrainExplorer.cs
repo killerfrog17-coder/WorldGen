@@ -12,8 +12,8 @@ using WorldGen.Presentation;
 /// <summary>Input and bounded rendering only; all height queries use the shared terrain sampler.</summary>
 public sealed partial class LocalTerrainExplorer : MonoBehaviour
 {
-    sealed class Tile { public int Segments; public double[] Edges; public float[] Heights,BaseHeights; public GameObject Root;public Renderer[] Renderers;public double FadeAt;public bool FadeFinished; }
-    sealed class Work { public TerrainTileKey Key; public double[] Edges; public int Segments,Generation;public bool Coverage; public Task<LocalTerrainMesh> Task; }
+    sealed class Tile { public int Segments; public double[] Edges; public float[] Heights,BaseHeights; public GameObject Root;public Renderer[] Renderers;public double FadeAt,UsedAt;public bool FadeFinished;public Texture2D Cover;public int CoverRevision=-1; }
+    sealed class Work { public TerrainTileKey Key; public double[] Edges; public int Segments,Generation; public Task<LocalTerrainMesh> Task; }
     Task<LocalTerrain> building;
     LocalTerrain terrain; LocalTerrainFrame frame; LocalTerrain.LocalTerrainPatch walkingPatch;
     readonly TerrainMotion motion=new TerrainMotion();
@@ -55,8 +55,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public void WeatherCheckGpuBarrier(){if(weatherCheckPixel==null)weatherCheckPixel=new Texture2D(1,1,TextureFormat.RGB24,false);var prior=RenderTexture.active;RenderTexture.active=weatherCheckTarget;try{weatherCheckPixel.ReadPixels(new Rect(0,0,1,1),0,0,false);}finally{RenderTexture.active=prior;}}
     public int TileCount=>tiles.Count;
     public int WantedCount=>wanted.Count;
-    public bool CenterReady=>tiles.Keys.Any(k=>motion.X>=k.X*k.SizeM&&motion.X<(k.X+1)*k.SizeM&&motion.Z>=k.Z*k.SizeM&&motion.Z<(k.Z+1)*k.SizeM);
-    public bool AllReady=>wanted.All(p=>tiles.TryGetValue(p.Key,out var t)&&t.Root.activeSelf&&t.Segments==p.Value&&t.Edges.SequenceEqual(wantedEdges[p.Key]))&&retiredTerrain.Count==0;
+    public bool CenterReady=>tiles.Any(p=>p.Value.Root.activeSelf&&motion.X>=p.Key.X*p.Key.SizeM&&motion.X<(p.Key.X+1)*p.Key.SizeM&&motion.Z>=p.Key.Z*p.Key.SizeM&&motion.Z<(p.Key.Z+1)*p.Key.SizeM);
+    public bool AllReady=>wanted.All(p=>tiles.TryGetValue(p.Key,out var t)&&t.Root.activeSelf&&t.Segments>=p.Value)&&retiredTerrain.All(t=>!t.Root.activeSelf);
     public V Position=>frame.Position(motion.X,motion.Z);
     public double HeightAboveGround=>motion.Y-Ground(motion.X,motion.Z);
     public string Diagnostics=>tiles.Count+" / "+wanted.Count+" tiles · last "+lastBuildMs.ToString("F1")+" ms · max "+largestBuildMs.ToString("F1")+" ms/tile";
@@ -76,18 +76,27 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     {
         var at=frame.Position(x,z);
         if(walkingPatch==null||(at-walkingPatch.Center).Length*terrain.RadiusM>500/HorizontalScale)walkingPatch=terrain.Patch(at,2048/HorizontalScale);
-        return frame.SurfaceY(at,walkingPatch.Sample(at).ElevationM);
+        double sampled=frame.SurfaceY(at,walkingPatch.Sample(at).ElevationM);
+        // Grounded movement must use the local rendered triangles, not a second
+        // invisible floor. Near-player terrain never geomorphs.
+        return !motion.Flying&&TryVisibleGround(x,z,out double visible,0)?visible:sampled;
     }
     public void Teleport(V point)=>PlaceFrame(point,false);
     void PlaceFrame(V point,bool retain)
     {
         if(terrain==null)return;
         var oldFrame=frame;double oldX=originX,oldZ=originZ;
+        var cached=retain?FindTerrainFrame(point):null;
+        if(cached!=null)retiredTerrain.Remove(cached);
         generation++;startingPoint=point;walkingPatch=null;originX=originZ=0;
-        frame=new LocalTerrainFrame(point,terrain.RadiusM,terrain.Patch(point).Sample(0,0).ElevationM,HorizontalScale);
+        frame=cached?.Frame??new LocalTerrainFrame(point,terrain.RadiusM,terrain.Patch(point).Sample(0,0).ElevationM,HorizontalScale);
         if(retain)RetainTerrain(oldFrame,oldX,oldZ);else ClearRetiredTerrain();
-        motion.Place(0,0,Ground(0,0),motion.Flying);ResetFootsteps();landMaterial.SetVector("_LocalOrigin",Vector4.zero);
-        if(!retain)foreach(var tile in tiles.Values)DestroyTile(tile);tiles.Clear();plannedX=double.NaN;RefreshWanted();UpdateCamera();ResetScatterFrame();ResetWeatherFrame();
+        if(!retain)foreach(var tile in tiles.Values)DestroyTile(tile);tiles.Clear();
+        if(cached!=null)RestoreTerrainFrame(cached);
+        double dot=V.Dot(point,frame.Origin),xx=V.Dot(point,frame.East)*frame.RadiusM/dot,zz=V.Dot(point,frame.North)*frame.RadiusM/dot;
+        motion.X=xx;motion.Z=zz;
+        motion.Place(xx,zz,Ground(xx,zz),motion.Flying);ResetFootsteps();landMaterial.SetVector("_LocalOrigin",Vector4.zero);
+        plannedX=double.NaN;RefreshWanted();UpdateCamera();ResetScatterFrame();ResetWeatherFrame();
         if(SkyFrame!=null)SetDaylight(LocalSolarHour,skyYear); // No blank-sky frame during automatic tangent-chart reanchoring.
     }
     void Update()
@@ -134,36 +143,36 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             motion.Flying=flying;motion.Y=Ground(0,0)+above;
         }
         UpdateCamera();UpdateFootsteps();double altitude=HeightAboveGround;
-        if(double.IsNaN(plannedX)||Math.Abs(motion.X-plannedX)>1024||Math.Abs(motion.Z-plannedZ)>1024||Math.Abs(altitude-plannedAltitude)>Math.Max(150,plannedAltitude*.3))RefreshWanted();
+        double planStep=Math.Max(16,128*HorizontalScale);
+        if(double.IsNaN(plannedX)||Math.Abs(motion.X-plannedX)>planStep||Math.Abs(motion.Z-plannedZ)>planStep||Math.Abs(altitude-plannedAltitude)>Math.Max(150,plannedAltitude*.3))RefreshWanted();
         for(int i=jobs.Count-1;i>=0;i--)
         {
             var job=jobs[i];if(!job.Task.IsCompleted)continue;jobs.RemoveAt(i);
             if(job.Task.IsFaulted){error=job.Task.Exception.GetBaseException().Message;debugOpen=true;CaptureMouse();continue;}
             if(job.Task.IsCanceled||job.Generation!=generation)continue;
-            if(job.Coverage){if(!coverageWanted.ContainsKey(job.Key)||tiles.Keys.Any(k=>Overlaps(k,job.Key)&&tiles[k].Root.activeSelf))continue;}
-            else if(!wanted.TryGetValue(job.Key,out int detail)||detail!=job.Segments||!job.Edges.SequenceEqual(wantedEdges[job.Key]))continue;
+            // A completed product is still useful if the plan moved. Cache it;
+            // changing a neighbour must not throw away an entire finished mesh.
+            if(tiles.TryGetValue(job.Key,out var existing)&&existing.Segments>=job.Segments)continue;
             Upload(job.Key,job.Task.Result,job.Edges);break;
         }
         // Old LOD coverage remains visible until every replacement leaf is resident; no clearing the horizon on each replan.
         ReconcileTerrain();
         UpdateScatter();UpdateWeatherPresentation();
-        var pending=coverageWanted.Keys.Where(k=>!tiles.Keys.Any(t=>Overlaps(k,t))).Concat(priority).ToArray();
-        foreach(var key in pending)
+        foreach(var key in priority)
         {
-            if(jobs.Count+scatterJobs.Count>=2)break;bool coverage=!wanted.ContainsKey(key);int detail=coverage?16:wanted[key];
-            var edges=coverage?new double[4]:wantedEdges[key];
-            if(tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&tile.Edges.SequenceEqual(edges)||jobs.Any(j=>j.Generation==generation&&j.Key.Equals(key)))continue;
+            if(jobs.Count+scatterJobs.Count>=2)break;int detail=wanted[key];
+            var edges=wantedEdges[key];
+            if(tiles.TryGetValue(key,out var tile)&&tile.Segments>=detail||jobs.Any(j=>j.Generation==generation&&j.Key.Equals(key)))continue;
             var buildFrame=frame;var buildTerrain=terrain;var token=cancellation.Token;int stamp=generation;
-            jobs.Add(new Work{Key=key,Edges=edges,Segments=detail,Generation=stamp,Coverage=coverage,Task=Task.Run(()=>LocalTerrainMesh.Build(buildTerrain,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token)});
+            TerrainBuildCount++;jobs.Add(new Work{Key=key,Edges=edges,Segments=detail,Generation=stamp,Task=Task.Run(()=>LocalTerrainMesh.Build(buildTerrain,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token)});
         }
     }
     void UpdateCamera(){view.transform.localPosition=new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ));view.transform.localRotation=Quaternion.Euler(pitch,heading,0);}
     void RefreshWanted()
     {
         plannedX=motion.X;plannedZ=motion.Z;plannedAltitude=HeightAboveGround;
-        wanted=TerrainLod.Plan(motion.X,motion.Z,plannedAltitude,viewDistance,HorizontalScale,terrainDetailRange,terrainQuality);coverageWanted=TerrainLod.CoverageRoots(wanted,HorizontalScale);priority.Clear();priority.AddRange(wanted.Keys);
+        wanted=TerrainLod.Plan(motion.X,motion.Z,plannedAltitude,viewDistance,HorizontalScale,terrainDetailRange,terrainQuality);priority.Clear();priority.AddRange(wanted.Keys);
         wantedEdges.Clear();foreach(var key in priority)wantedEdges[key]=TerrainLod.EdgeSteps(key,wanted);
-        foreach(var key in tiles.Keys.Where(k=>!wanted.ContainsKey(k)&&!wanted.Keys.Any(w=>Overlaps(k,w))).ToArray()){DestroyTile(tiles[key]);tiles.Remove(key);}
         double Distance(TerrainTileKey k){double dx=k.X*k.SizeM+k.SizeM*.5-motion.X,dz=k.Z*k.SizeM+k.SizeM*.5-motion.Z;return dx*dx+dz*dz;}
         priority.Sort((a,b)=>{int d=Distance(a).CompareTo(Distance(b));return d!=0?d:a.Level!=b.Level?a.Level.CompareTo(b.Level):a.X!=b.X?a.X.CompareTo(b.X):a.Z.CompareTo(b.Z);});
     }
@@ -197,11 +206,11 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(data.WaterColors.Where((_,i)=>i%4==3).Any(a=>a>.01))Part("Ocean surface",Make(data.WaterPositions,data.WaterColors,true),waterMaterial);
         var heights=new float[data.GroundVertices];for(int i=0;i<heights.Length;i++)heights[i]=data.Positions[i*3+1];
         if(tiles.TryGetValue(key,out var old))DestroyTile(old);
-        bool blocked=tiles.Any(p=>!p.Key.Equals(key)&&p.Value.Root.activeSelf&&Overlaps(key,p.Key));root.SetActive(!blocked);
-        tiles[key]=new Tile{Root=root,Segments=data.Segments,Edges=edges,Heights=heights,BaseHeights=morphHeights,Renderers=root.GetComponentsInChildren<Renderer>(true),FadeAt=blocked?double.PositiveInfinity:Time.realtimeSinceStartupAsDouble};if(key.Level==0)nearGroundRevision++;lastBuildMs=data.BuildMilliseconds;largestBuildMs=Math.Max(largestBuildMs,lastBuildMs);
+        root.SetActive(true);coverageRevision++;
+        tiles[key]=new Tile{Root=root,Segments=data.Segments,Edges=edges,Heights=heights,BaseHeights=morphHeights,Renderers=root.GetComponentsInChildren<Renderer>(true),FadeAt=Time.realtimeSinceStartupAsDouble,UsedAt=Time.realtimeSinceStartupAsDouble};if(key.Level==0)nearGroundRevision++;lastBuildMs=data.BuildMilliseconds;largestBuildMs=Math.Max(largestBuildMs,lastBuildMs);
         if(timer.ElapsedMilliseconds>20)Debug.Log("Local terrain upload "+timer.ElapsedMilliseconds+"ms");
     }
-    void DestroyTile(Tile tile){if(tile.Root==null)return;tile.Root.SetActive(false);foreach(var filter in tile.Root.GetComponentsInChildren<MeshFilter>())Destroy(filter.sharedMesh);Destroy(tile.Root);}
+    void DestroyTile(Tile tile){if(tile.Root==null)return;tile.Root.SetActive(false);if(tile.Cover!=null)Destroy(tile.Cover);foreach(var filter in tile.Root.GetComponentsInChildren<MeshFilter>(true))Destroy(filter.sharedMesh);Destroy(tile.Root);}
     public string[] Probes()
     {
         var patch=terrain.Patch(frame.Origin,6000);var result=new List<string>();var culture=System.Globalization.CultureInfo.InvariantCulture;

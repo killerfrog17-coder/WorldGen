@@ -92,18 +92,22 @@ public sealed partial class LocalTerrainExplorer
         if(scatterDirty||Time.realtimeSinceStartupAsDouble-lastBatchTime>.35)BuildScatterBatches();
     }
     double VisibleGround(double x,double z,double fallback)
+    {return TryVisibleGround(x,z,out double height)?height:fallback;}
+    bool TryVisibleGround(double x,double z,out double height,int maxLevel=16)
     {
-        for(int level=0;level<=16;level++)
+        for(int level=0;level<=maxLevel;level++)
         {
             double size=2048*HorizontalScale*(1<<level);var key=new WorldGen.Presentation.TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),level,HorizontalScale);
             if(!tiles.TryGetValue(key,out var tile)||!tile.Root.activeSelf||tile.Heights==null)continue;int n=tile.Segments,side=n+1;
             double gx=(x/size-key.X)*n,gz=(z/size-key.Z)*n;int a=Math.Min(n-1,Math.Max(0,(int)gx)),b=Math.Min(n-1,Math.Max(0,(int)gz));double u=gx-a,v=gz-b;
             float blend=(float)Math.Max(0,Math.Min(1,(Time.realtimeSinceStartupAsDouble-tile.FadeAt)/TerrainVideoOptions.Current.TransitionSeconds));blend=blend*blend*(3-2*blend);
+            double distance=Math.Sqrt((x-motion.X)*(x-motion.X)+(z-motion.Z)*(z-motion.Z));
+            float far=Mathf.SmoothStep(0,1,(float)((distance-64)/192));blend=Mathf.Lerp(1,blend,far);
             double Height(int i)=>tile.BaseHeights==null?tile.Heights[i]:Mathf.Lerp(tile.BaseHeights[i],tile.Heights[i],blend);
             double h00=Height(b*side+a),h10=Height(b*side+a+1),h01=Height((b+1)*side+a),h11=Height((b+1)*side+a+1);
-            return u+v<=1?h00+(h10-h00)*u+(h01-h00)*v:h11+(h01-h11)*(1-u)+(h10-h11)*(1-v);
+            height=u+v<=1?h00+(h10-h00)*u+(h01-h00)*v:h11+(h01-h11)*(1-u)+(h10-h11)*(1-v);return true;
         }
-        return fallback;
+        height=0;return false;
     }
     void ProjectScatter(ScatterChunk chunk)
     {

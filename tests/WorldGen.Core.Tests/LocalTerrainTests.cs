@@ -137,6 +137,12 @@ static class LocalTerrainTests
         check(viewport.Longitude>=-180&&viewport.Longitude<180,"Map panning wraps the antimeridian");
         viewport.Zoom(1e-8);check(viewport.LongitudeSpan<1e-5,"Map is not limited to a fixed cell-level zoom");
         var far=TerrainLod.Plan(333,-777,2);var high=TerrainLod.Plan(333,-777,60000);
+        var parent=new TerrainTileKey(-1,0,1,.1);var children=new[]{new TerrainTileKey(-2,0,0,.1),new TerrainTileKey(-1,0,0,.1),new TerrainTileKey(-2,1,0,.1),new TerrainTileKey(-1,1,0,.1)};
+        check(new TerrainCoverage(children).Covers(parent),"Already-rendered finer children count as loaded coverage; changing LOD cannot spuriously collapse the fog distance");
+        check(!new TerrainCoverage(children.Take(3)).Covers(parent),"A genuinely missing quarter is not mistaken for complete coverage");
+        check(new TerrainCoverage(new[]{parent}).Covers(children[0]),"A resident coarse parent protects a pending fine region");
+        check(far.Where(p=>p.Key.Level>=5).All(p=>p.Value==8)&&far.Where(p=>p.Key.Level==1).All(p=>p.Value==64),"Default LOD restores the accepted pre-geology sampling rather than forcing expensive coarse-root replacement");
+        check(TerrainLod.Plan(333,-777,2,quality:2).Where(p=>p.Key.Level>=5).All(p=>p.Value==32),"High quality provides four times the far mesh sampling without degrading the baseline");
         foreach(double scale in new[]{.01,.1,1.0,2.0})
         {
             var plan=TerrainLod.Plan(-12345,6789,100,100000,scale);

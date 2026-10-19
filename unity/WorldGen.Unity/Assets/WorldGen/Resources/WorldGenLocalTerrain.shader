@@ -11,6 +11,7 @@ Shader "WorldGen/LocalTerrain"
         _TextureMetres("Repeat metres",Float)=2
         _RockLayers("Six lithology layers",Float)=0
         _LodBlend("Terrain refinement",Float)=1
+        _TerrainCover("Resident fine coverage",2D)="black"{}
     }
     SubShader
     {
@@ -31,10 +32,11 @@ Shader "WorldGen/LocalTerrain"
             #include "WorldGenAir.hlsl"
             TEXTURE2D_ARRAY(_GroundAlbedo);SAMPLER(sampler_GroundAlbedo);
             TEXTURE2D_ARRAY(_GroundNormals);TEXTURE2D_ARRAY(_GroundMasks);
-            float _Water,_FogDistance,_TextureMetres,_Daylight,_RockLayers,_LodBlend;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint;
+            TEXTURE2D(_TerrainCover);SAMPLER(sampler_TerrainCover);
+            float _Water,_FogDistance,_TextureMetres,_Daylight,_RockLayers,_LodBlend,_CoverEnabled,_TileSize,_RetiredTerrain;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint,_TerrainFootingRect;
             struct A { float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 color:COLOR;float4 weights:TEXCOORD1;float4 groundB:TEXCOORD2;float2 morph:TEXCOORD3;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5; };
-            struct O { float4 positionCS:SV_POSITION;float3 normal:TEXCOORD0;float3 position:TEXCOORD1;float4 color:COLOR;float4 weights:TEXCOORD2;float4 groundB:TEXCOORD3;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5; };
-            O vert(A a){O o;float3 p=a.positionOS.xyz;p.y=lerp(a.morph.x,p.y,_LodBlend);o.position=TransformObjectToWorld(p);o.positionCS=TransformWorldToHClip(o.position);o.normal=TransformObjectToWorldNormal(a.normalOS);o.color=a.color;o.weights=a.weights;o.groundB=a.groundB;o.rocks=a.rocks;o.rocksB=a.rocksB;return o;}
+            struct O { float4 positionCS:SV_POSITION;float3 normal:TEXCOORD0;float3 position:TEXCOORD1;float4 color:COLOR;float4 weights:TEXCOORD2;float4 groundB:TEXCOORD3;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5;float2 cover:TEXCOORD6; };
+            O vert(A a){O o;float3 p=a.positionOS.xyz;float3 world=TransformObjectToWorld(p);float far=smoothstep(64,256,length(world.xz-_WorldSpaceCameraPos.xz));p.y=lerp(a.morph.x,p.y,lerp(1,_LodBlend,far));o.position=TransformObjectToWorld(p);o.positionCS=TransformWorldToHClip(o.position);o.normal=TransformObjectToWorldNormal(a.normalOS);o.color=a.color;o.weights=a.weights;o.groundB=a.groundB;o.rocks=a.rocks;o.rocksB=a.rocksB;o.cover=a.positionOS.xz/max(.001,_TileSize);return o;}
             float3 TriplanarAlbedo(float3 p,float3 w,int layer)
             {
                 return SAMPLE_TEXTURE2D_ARRAY(_GroundAlbedo,sampler_GroundAlbedo,p.yz,layer).rgb*w.x+
@@ -43,6 +45,8 @@ Shader "WorldGen/LocalTerrain"
             }
             half4 frag(O i):SV_Target
             {
+                if(_CoverEnabled>.5)clip(.5-SAMPLE_TEXTURE2D_LOD(_TerrainCover,sampler_TerrainCover,i.cover,0).r);
+                if(_RetiredTerrain>.5&&all(i.position.xz>_TerrainFootingRect.xy)&&all(i.position.xz<_TerrainFootingRect.zw))discard;
                 float3 fogColor=_FogColor.rgb,farColor=i.color.rgb;
                 #ifndef UNITY_COLORSPACE_GAMMA
                 farColor=SRGBToLinear(farColor);fogColor=SRGBToLinear(fogColor);
