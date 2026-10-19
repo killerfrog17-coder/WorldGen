@@ -93,6 +93,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         if(Environment.GetCommandLineArgs().Contains("--worldgen-history-playback")){screen="Setup";BeginWork(false,Argument("--worldgen-history-playback",""));StartCoroutine(CheckHistoricalPlayback());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-dock-check")){screen="Setup";BeginWork(false,Argument("--worldgen-dock-check",""));StartCoroutine(CheckHistoryDock());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-atlas-check")){screen="Setup";BeginWork(false,Argument("--worldgen-atlas-check",""));StartCoroutine(CheckAtlasNavigation());}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-local-terrain-check")){screen="Setup";BeginWork(false,Argument("--worldgen-local-terrain-check",""));StartCoroutine(CheckLocalTerrain());}
     }
     void Generate() => StartGeneration();
     async void InitializeLibrary()
@@ -275,6 +276,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     void Update()
     {
         UpdateMusic();
+        if(terrainExplorer!=null||terrainReturnFrame==Time.frameCount)return;
         if((screen=="Setup"||screen=="Simulation")&&!saveDialog&&!atlasOpen&&!simulationPaused&&GUIUtility.keyboardControl==0&&Keyboard.current!=null&&!Keyboard.current.ctrlKey.isPressed&&!Keyboard.current.altKey.isPressed)
         {
             if(Keyboard.current.rKey.wasPressedThisFrame){showRivers=!showRivers;ApplyCachedDisplay();}
@@ -403,6 +405,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
             var p = globe.transform.InverseTransformPoint(ray.GetPoint(-b - Mathf.Sqrt(d))).normalized; point = new V(p.x, -p.z, p.y);
         }
         selectedCell = Erosion.Nearest(world.Surface, point);
+        terrainPickedPosition=point;terrainPickedCell=selectedCell;terrainPickedWorld=world;
         inspectionScroll=Vector2.zero;
     }
     void SetProjection(Projection next)
@@ -507,5 +510,5 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         RenderTexture.active = prior; cameraView.targetTexture = null; Destroy(texture); target.Release(); Destroy(target); yield return null; Application.Quit(error.Length == 0 ? 0 : 1);
     }
     static string Argument(string flag, string fallback) { var args = Environment.GetCommandLineArgs(); int i = Array.IndexOf(args, flag); return i >= 0 && i + 1 < args.Length ? args[i + 1] : fallback; }
-        void OnDestroy() { if(riverMaterial!=null)Destroy(riverMaterial);if(settlementDot!=null)Destroy(settlementDot);DisposeMusic(); DisposeHabitatPortraits(); generationCancel?.Cancel(); cancel?.Cancel(); humanCancellation?.Cancel(); if (surfaceMaterial != null) Destroy(surfaceMaterial); if (lineMaterial != null) Destroy(lineMaterial);if(naturalMaterial!=null)Destroy(naturalMaterial);if(smallFeatureMaterial!=null)Destroy(smallFeatureMaterial);if(borderMaterial!=null)Destroy(borderMaterial);if(borderMesh!=null)Destroy(borderMesh); }
+        void OnDestroy() { localTerrainCancellation?.Cancel(); if(riverMaterial!=null)Destroy(riverMaterial);if(settlementDot!=null)Destroy(settlementDot);DisposeMusic(); DisposeHabitatPortraits(); generationCancel?.Cancel(); cancel?.Cancel(); humanCancellation?.Cancel(); if (surfaceMaterial != null) Destroy(surfaceMaterial); if (lineMaterial != null) Destroy(lineMaterial);if(naturalMaterial!=null)Destroy(naturalMaterial);if(smallFeatureMaterial!=null)Destroy(smallFeatureMaterial);if(borderMaterial!=null)Destroy(borderMaterial);if(borderMesh!=null)Destroy(borderMesh); }
 }

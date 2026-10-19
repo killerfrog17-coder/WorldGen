@@ -41,6 +41,7 @@ if($BuildPlayer){foreach($name in @('WorldGen.Core','WorldGen.Serialization','Wo
 $run=Start-Process -FilePath $Unity -ArgumentList $arguments -WindowStyle Hidden -PassThru
 $run.WaitForExit()
 if($run.ExitCode -ne 0){throw "Unity failed. Inspect $log"}
+if(Select-String -LiteralPath $log -Pattern 'Shader error in ' -Quiet){throw "Unity reported a shader compilation error despite a successful exit. Inspect $log"}
 if($BuildPlayer){
     foreach($inputAssembly in $assemblyInputs){if((Get-FileHash -LiteralPath $inputAssembly.Path).Hash.ToLowerInvariant() -ne $inputAssembly.Sha256){throw 'A staged authoritative assembly changed during the player build; do not accept this output.'}}
     Copy-Item -LiteralPath (Join-Path $repoRoot 'src/WorldGen.Core/Data/earth-etopo2022-10min.source.json') -Destination (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'EARTH-DATA.json') -Force

@@ -72,6 +72,7 @@ public sealed partial class WorldGenRuntime
     }
     void OnGUI()
     {
+        if(terrainExplorer!=null)return;
         if(cameraView==null)return;
         GUI.skin=Theme();GUI.skin.label.wordWrap=true;GUI.backgroundColor=Color.white;
         GUI.skin.button.fontSize=14;GUI.skin.label.fontSize=14;
@@ -127,6 +128,7 @@ public sealed partial class WorldGenRuntime
             if(Busy)GUILayout.Label((Generating?generationStage:progress)+" · "+Math.Max(0,Math.Min(100,Generating?generationPercent:percent))+"%");if(error.Length>0)GUILayout.Label(error);if(dirty && world!=null)GUILayout.Label("Settings changed");
             GUI.enabled=!Busy;if(GUILayout.Button(world==null?"Generate world":"Regenerate world",GUILayout.Height(38)))Generate();
             GUI.enabled=!Busy && worldReady && !dirty && humans!=null;if(GUILayout.Button("Start world",GUILayout.Height(42)))StartHumanWorld();
+            GUI.enabled=CanRequestTerrain;if(GUILayout.Button(new GUIContent("Explore terrain", "Select a location on the map, then enter the terrain preview"),GUILayout.Height(32)))RequestTerrain();
             GUI.enabled=true;if(Busy){if(GUILayout.Button("Cancel"))CancelGeneration();}else if(GUILayout.Button("Main menu"))screen="Menu";
             GUILayout.EndArea();
         }

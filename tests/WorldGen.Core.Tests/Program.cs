@@ -587,16 +587,20 @@ try
     int surfaceChunkCount = (world.Surface.Edges.Length + SurfaceMesh.EdgesPerChunk - 1) / SurfaceMesh.EdgesPerChunk;
     var ribbonChunks = riverChunks.Skip(surfaceChunkCount).ToArray();
     Check(riverChunks.Length == SurfaceMesh.ExpectedChunkCount(world, riverOptions), "River overlay reports its bounded presentation chunk count");
-    Check(ribbonChunks.All(p => p.CellIds.Length <= SurfaceMesh.RiverReachesPerChunk * 6 && p.Triangles.Length == p.CellIds.Length), "River ribbons stay bounded and use triangle geometry");
-    Check(ribbonChunks.Sum(p => p.CellIds.Length) == world.Hydrology.Rivers.Length * 6, "Every river reach produces one two-triangle ribbon");
+    int riverVertices=2*(RiverMesh.SegmentsPerReach+1)+8,riverIndices=6*(RiverMesh.SegmentsPerReach+2);
+    bool RiverWater(int cell)=>world.Hydrology.OceanConnected[cell]||world.Hydrology.LakeCoverageFraction[cell]>=.9;
+    var renderedReaches=world.Hydrology.Rivers.Where(r=>r.From!=r.To&&!(RiverWater(r.From)&&RiverWater(r.To))).ToArray();
+    Check(ribbonChunks.All(p => p.CellIds.Length <= SurfaceMesh.RiverReachesPerChunk * riverVertices && p.Triangles.Length == p.CellIds.Length/riverVertices*riverIndices && p.Stroke.Length==p.CellIds.Length*4), "Curved river strokes stay bounded with bank/cap/width/order metadata");
+    Check(ribbonChunks.Sum(p => p.CellIds.Length) == renderedReaches.Length * riverVertices, "Every visible river reach produces a curved stroke and two capsule caps");
     var ribbonPositions = ribbonChunks.SelectMany(p => p.Positions).ToArray();
-    var scalable = world.Hydrology.Rivers.Select((r, i) => new { Reach = r, Index = i }).Where(x => x.Reach.WidthM > 100).OrderBy(x => x.Reach.WidthM).ToArray();
+    var ribbonStroke=ribbonChunks.SelectMany(p=>p.Stroke).ToArray();
+    var scalable = renderedReaches.Select((r, i) => new { Width = ribbonStroke[i*riverVertices*4+2], Index = i }).Where(x => x.Width > 100).OrderBy(x => x.Width).ToArray();
     double RenderedWidth(int reach)
     {
-        int p = reach * 18; double x = ribbonPositions[p] - ribbonPositions[p + 3], y = ribbonPositions[p + 1] - ribbonPositions[p + 4], z = ribbonPositions[p + 2] - ribbonPositions[p + 5];
+        int p = reach * riverVertices*3; double x = ribbonPositions[p] - ribbonPositions[p + 3], y = ribbonPositions[p + 1] - ribbonPositions[p + 4], z = ribbonPositions[p + 2] - ribbonPositions[p + 5];
         return Math.Sqrt(x * x + y * y + z * z);
     }
-    Check(scalable.Length < 2 || scalable[0].Reach.WidthM == scalable[^1].Reach.WidthM || RenderedWidth(scalable[^1].Index) > RenderedWidth(scalable[0].Index), "Major rivers render wider than smaller above-floor rivers");
+    Check(scalable.Length < 2 || scalable[0].Width == scalable[^1].Width || RenderedWidth(scalable[^1].Index) > RenderedWidth(scalable[0].Index), "Major river stroke envelopes retain more width than smaller above-floor rivers");
     using (var cancelView = new CancellationTokenSource())
     {
         var enumerator = SurfaceMesh.Chunks(world, overlayOptions, cancelView.Token).GetEnumerator();

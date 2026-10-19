@@ -1,5 +1,24 @@
 # WorldGen repository instructions
 
+Current review launch,18 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-local-terrain-preview/WorldGen.exe` (IL2CPP,
+2026-10-19T01:58:43Z). Owner-authorized `local-terrain-preview-1` adds a separate
+additive terrain exploration scene via **Explore terrain** in setup/simulation.
+Core-derived, versioned local terrain preserves coarse height anchors and blends
+landform descriptors; disposable bounded CPU-generated LOD tiles, biome/rock
+placeholder materials and ocean beds/surface stream without saving fine maps.
+WASD/right-drag/F/Shift/Space/Ctrl/wheel; Esc returns and resets playback elapsed
+time so exploring causes no catch-up jump.199 focused/42 actual-world terrain,
+1,008 presentation/51 lake assertions, six native Earth/200k Continents Plus
+sites, F/W/Esc input, unchanged world hashes and24 exact native/CLR probes pass.
+Direct camera images are inspected; hidden-window black captures are rejected.
+One22ms tile upload was observed; this is not a universal frame-budget claim.
+The full runner still fails an archived11-stage Earth golden; expectations were
+not regenerated. Existing generation/history rules are unchanged; no save upgrade
+is needed. Peace-news is rollback. Inland hydrology, fractional islands, specialist
+landforms, vegetation, NPCs and permanent structure placement remain deferred.
+Read `docs/LOCAL_TERRAIN_PREVIEW.md` and the local-terrain entry in VALIDATION.md.
+
 Current review launch,18 October2026: `WorldGen.exe - Shortcut.lnk` selects `artifacts/player-history-32-peace-news/WorldGen.exe`. Presentation-only war-ending headlines now distinguish actual defeat/government fall, imperial submission retaining local government, tribute, frontier/trade settlements, supply failure and ceasefires. Dated evidence identifies parties without projecting later conquests or patrons backward.18 focused/1,003 presentation assertions, actual Earth/forest unchanged-hash news audits, native reader/unchanged-history and unchanged12-year replay pass. No simulation-rules upgrade is needed for this wording change; history32 optional realm37 and generation rules are unchanged. Domestic37 is rollback. See the war-ending headlines entry in `docs/VALIDATION.md`.
 
 Current review launch,18 October2026: `WorldGen.exe - Shortcut.lnk` selects `artifacts/player-history-32-domestic37/WorldGen.exe`. Optional history32 realm37 adds persistent institutional power groups and governing coalitions, actual financed bargaining, conserved spending priorities, organized opposition, representative public-figure selection and resource-conditioned nonlethal office contests. State Atlas articles expose power and dated bargaining under Power & relations. Two sparse immutable ledgers add fixed five-group actor work, no recurring territorial/member census. Old36 remains literal until explicit rules upgrade; atlas36 is rollback.14 focused/985 presentation/25 Earth/25 forest assertions, actual browser politics screenshots, native all-section/unchanged-history and exact native/CLR continuation pass. This is mechanism/persistence/UI review, not all-era realism, dense browser import or new dense-world speed acceptance. See `docs/HISTORY32_DOMESTIC_POLITICS.md`.

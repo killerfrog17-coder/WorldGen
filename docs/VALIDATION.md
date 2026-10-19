@@ -1,5 +1,56 @@
 # Version 3 validation evidence
 
+## First local terrain exploration — 18 October 2026
+
+`local-terrain-preview-1` is a downstream, replaceable local surface and Unity
+explorer, not a new WorldPipeline route or historical-rules revision. Base height
+uses bounded cubic triangular patches with exact source anchors/shared curves;
+compact kernels blend terrain character separately. Visual review caught and
+removed an earlier averaging bug that submerged a coastal mountain. The focused
+regression now tests a3,000m island surrounded by−1,000m seabed. See
+[scope, controls and limitations](LOCAL_TERRAIN_PREVIEW.md).
+
+The solution builds without warnings/errors.199 focused terrain assertions pass:
+equal-altitude plateau versus mountain relief, overlapping/cold/concurrent
+queries, both poles, finite geometry/normals, identical shared LOD samples,
+submerged beds, source anchors, bounds and cancellation.14 actual-world checks
+each pass on80k Earth and200k Earth/Continents Plus, retaining complete world
+hashes. Final200k CPU checks took612ms once for descriptors/index and32.3/32.4ms
+average per mixed-detail chunk (worst147.5/140.4ms). Those jobs run off the UI
+thread; these are local mesh measurements, NOT historical throughput claims.
+
+1,008 historical presentation/summary and51 lake-presentation assertions pass.
+Preview repeat/reapply/serialized-recipe/cached reconstruction retains identical
+all-stage hashes. The full test runner exposed obsolete reflection-constructor
+and six-vertex river assumptions; tests now exercise the production SHA factory
+and the existing curved/capped river representation. No production hash/river
+rules changed. The full runner subsequently reaches an archived Earth golden
+mismatch (that fixture lists11 stages, before the current ecology/subcell
+stages); it is NOT reported green and no golden was regenerated or approved.
+
+Native review uses direct camera render-texture captures. Hidden-window screen
+captures were black and were rejected, not counted as visual proof. Final native
+IL2CPP build2026-10-19T01:58:43Z passes three sites each on Earth and200k
+Continents Plus:169-tile windows, movement/re-streaming, walking, F/W/Esc input,
+return and unchanged complete initialized-world hashes (`f8c11ace…`/`f2c733d3…`).
+All24 captured height probes match CLR exactly. Inspected images show gentle
+plains, exposed Earth mountains and snow-covered generated ranges; missing-tile
+capture gaps and a colour-space fog seam were corrected. Ground remains bare,
+and small ridge patterns are provisional, not resolved drainage. Native maximum
+background tile build times were145.4/134.1ms; one22ms main-thread upload was
+logged. No error/exception was recorded. Evidence is in ignored
+`artifacts/local-terrain-preview` and `artifacts/local-terrain-generated`;
+images are camera/geometry evidence, not hidden-window HUD layout proof.
+The selected launcher is recorded in AGENTS. An explicit shader-error log guard now prevents Unity's
+otherwise-successful exit code from accepting a player with a broken shader.
+
+This first pass has placeholder ground materials, ocean surface/bathymetry,
+bounded streaming and a ground-following walker/flyer. Inland hydrology,
+fractional islands, vegetation, full erosion and persistent placement remain
+deferred. Render skirts conceal mixed-LOD joins; finite-difference shading and
+ridge profiles remain visibly provisional. No scientific/all-landform realism
+or arbitrary-resolution gameplay acceptance is implied.
+
 ## War-ending headlines - 18 October 2026
 
 Presentation-only peace summaries distinguish recorded government defeat/fall,
