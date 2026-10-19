@@ -1,6 +1,20 @@
 # WorldGen repository instructions
 
 Current review launch,18 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-local-scatter/WorldGen.exe` (IL2CPP,2026-10-19T04:12:36Z).
+Owner-authorized `local-scatter-preview-1` adds stable Core-derived biome/slope
+conditioned trees, shrubs, grass and rocks; bounded instanced streaming, separate
+prefab/LOD bindings and replaceable layered URP PBR textures. Heights remain
+local-terrain-preview2; worldgen/history/saves are unchanged.2,880 scatter/581
+terrain/1,008 presentation checks, Preview all-stage reconstruction, six actual
+native Earth/generated scenes with visible-on/off pixel checks, controls/streaming/
+return/world-hash preservation and24 exact native/CLR terrain probes pass.
+Warm stationary scenes target60FPS on RTX4060; this is not a broad travel/GPU or
+historical-speed acceptance. Art remains low-poly placeholders, without prop
+collision, plant simulation or land-use clearing. Grounded player is rollback.
+Read `docs/LOCAL_SCATTER_PREVIEW.md` and VALIDATION.md before extending this work.
+
+Current review launch,18 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-local-grounded/WorldGen.exe` (IL2CPP,2026-10-19T03:33:07Z).
 Controller-only correction uses1.65m eye height,1.5m/s walk,5m/s run and0.45m
 jump; true continuous-grade ascent limits replace the per-frame step loophole,

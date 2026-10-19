@@ -16,6 +16,7 @@ namespace WorldGen.Core
         readonly int[] faceOffsets, faces;
         readonly double maximumSupport;
         readonly int seed;
+        internal World SourceWorld=>world;
 
         public LocalTerrain(World world, CancellationToken token = default)
         {

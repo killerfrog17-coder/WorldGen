@@ -1,5 +1,15 @@
 # Implementation contracts - version 3
 
+## Local natural cover - local-scatter-preview-1
+
+Derived Core scatter has stable global cube-sphere addresses, named PRNG streams,
+area-corrected candidate density and deterministic local habitat/slope conditioning.
+It changes no world/history/terrain heights. Unity streams nearby patches, uses
+cached instanced matrices and separate art/LOD bindings, and seats render-only roots
+on resident terrain triangles. Terrain UV1 provides herb/soil/rock/snow weights to
+replaceable PBR materials. See `LOCAL_SCATTER_PREVIEW.md`; fine hydrology, plant
+populations, land-use clearing, collisions and persistent editing are not supplied.
+
 ## Local exploration - local-terrain-preview-2
 
 Owner-authorized derived local terrain is separate from worldgen3.32 and history32.

@@ -1,5 +1,69 @@
 # Version 3 validation evidence
 
+## Natural cover and replaceable local art — 18 October 2026
+
+`local-scatter-preview-1` is a separate, disposable Core-derived placement layer
+over unchanged local-terrain-preview2/worldgen3.32/history32. It uses stable global
+addresses and habitat/slope conditioning, with near grass/stones and longer-range
+trees/shrubs/boulders. Rendering has separate prefab/LOD bindings, physical instance
+dimensions, UVs/normals/tangents, a source instancing material and replaceable
+herb/soil/rock/snow texture arrays with PBR channels. No external art/model download,
+new licensing dependency, normal HUD or silhouette was added.
+
+Solution Release build: zero warnings/errors.2,880 focused scatter assertions pass,
+including repeated/cold/parallel reconstruction, poles/cube seams, unique IDs,
+biome/cold/saline exclusions, metre dimensions, cancellation, bounded planning and
+complete source-hash preservation.581 local terrain/controller assertions include
+normalized ground/skirts surface channels.1,008 historical presentation assertions
+pass. Preview CLI repeat/reapply/recipe/cached reconstruction matches all15 stages.
+No goldens were regenerated; the preceding unrelated full-suite Earth golden
+stage-count mismatch remains unresolved and this is not a full-suite green claim.
+
+Final native IL2CPP build2026-10-19T04:12:36Z passes six sites:80k Earth savanna,
+temperate forest and boreal forest, then200k generated grassland, temperate forest
+and boreal forest. Each ground-level view is compared with exactly the same
+camera after disabling scatter for two frames;24,542–806,606 pixels differ above
+the colour threshold. This is an actual rendered-cover check, not merely a count
+of objects submitted to the GPU. Ground and overhead images were inspected:
+distinct umbrella/broadleaf/conifer forms, sparse versus dense cover, clumps,
+clearings, physical scale and seated roots are visible. They are clearly low-poly
+placeholders, not photoreal foliage. Six scene input/streaming/teleport/return
+checks pass without rendering errors. All24 native terrain-height probes match
+independent CLR queries exactly. World hashes remain `f8c11ace…` Earth and
+`f2c733d3…` generated; no save or historical rule upgrade is involved.
+
+Brief90-frame warm, stationary1280×800 samples on this RTX4060/Direct3D11 host:
+
+| Scene | Submitted local instances | Instanced draws | FPS | Worst sampled frame |
+| --- | ---: | ---: | ---: | ---: |
+| Earth savanna | 7,390 | 50 | 59.6 | 20.2ms |
+| Earth temperate forest | 51,546 | 225 | 59.8 | 20.8ms |
+| Earth boreal forest | 19,087 | 94 | 59.7 | 19.7ms |
+| Generated grassland | 4,994 | 41 | 59.7 | 17.8ms |
+| Generated temperate forest | 49,138 | 215 | 59.7 | 21.5ms |
+| Generated boreal forest | 43,033 | 191 | 59.7 | 20.3ms |
+
+Counts are range-submitted instances, including offscreen objects, not visible
+pixel counts. FPS is capped near60; these short stationary samples do not establish
+uncapped performance, every streaming-frame bound, arbitrary hardware/high-end art
+performance, or the outstanding dense historical-simulation speed acceptance.
+Ignored evidence is `artifacts/local-scatter-review` and
+`artifacts/local-scatter-generated`, with only this small final capture set.
+
+An initial native review was rejected: objects were generated but absent from
+captures, and ground lighting was dark. A Resources material now preserves the
+runtime GPU-instancing variants that Unity otherwise stripped; both shaders
+compile the installed URP Forward+ cluster-light-loop variant. New visible-on/off
+image assertions catch this regression. Captures use explicit Camera.Render and
+nonuniform RenderTexture pixels, not black hidden-window ScreenCapture results;
+they do not establish OnGUI layout correctness.
+
+The grounded rollback remains available and no running user app was closed.
+Prop collisions, plant growth/edit persistence, history-driven land-use clearing,
+local reconciled water and species-specific/final art remain future work. Art can
+be replaced independently; persistent structures still require a pinned local
+surface contract and further terrain/hydrology work.
+
 ## Human-scale grounded movement — 18 October 2026
 
 Controller-only revision:1.65m eye baseline,1.5m/s walk,5m/s run,0.45m jump and

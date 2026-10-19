@@ -71,6 +71,8 @@ static class LocalTerrainTests
             check(high.Positions[(z * 4 * 65 + 64) * 3 + 1] == low.Positions[z * 17 * 3 + 1], "Different LODs preserve shared samples");
         check(high.Triangles.All(i => i >= 0 && i < high.Positions.Length / 3), "All ground/skirt indices are valid");
         check(high.Positions.All(float.IsFinite) && high.Normals.All(float.IsFinite), "Terrain vertices and normals are finite");
+        check(high.SurfaceWeights.Length==high.Colors.Length&&high.SurfaceWeights.All(v=>float.IsFinite(v)&&v>=0&&v<=1),"PBR surface weights cover ground and skirts with finite normalized channels");
+        check(Enumerable.Range(0,high.SurfaceWeights.Length/4).All(i=>Math.Abs(high.SurfaceWeights.Skip(i*4).Take(4).Sum()-1)<1e-5),"Herb, soil, rock and snow weights sum to one without modifying height samples");
         for (int i = 0; i < high.GroundVertices; i++)
             if (i % 47 == 0) check(Math.Abs(high.Normals[i * 3] * high.Normals[i * 3] + high.Normals[i * 3 + 1] * high.Normals[i * 3 + 1] + high.Normals[i * 3 + 2] * high.Normals[i * 3 + 2] - 1) < 1e-5, "Normals are normalized");
         var cancel = new CancellationTokenSource(); cancel.Cancel(); bool cancelled = false;

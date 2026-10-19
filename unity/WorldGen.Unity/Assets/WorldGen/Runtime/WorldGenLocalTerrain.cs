@@ -68,6 +68,12 @@ public sealed partial class WorldGenRuntime
             cells.Where(i => world.ElevationM[i] > 2000).OrderByDescending(i => world.Surface.Cells[i].Neighbors.Max(j => Math.Abs(world.ElevationM[i] - world.ElevationM[j]))).DefaultIfEmpty(-1).First(),
             cells.Where(i => world.ElevationM[i] < -100 && world.ElevationM[i] > -1000).DefaultIfEmpty(-1).First() };
         bool earthSites=Environment.GetCommandLineArgs().Contains("--worldgen-local-earth-sites");
+        bool scatterReview=Environment.GetCommandLineArgs().Contains("--worldgen-local-scatter-review");
+        if(scatterReview)
+        {
+            int Pick(Func<HabitatCell,bool> predicate)=>Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>world.ElevationM[i]>10&&world.ElevationM[i]<1800&&world.Ecology?.Habitat!=null&&predicate(world.Ecology.Habitat[i])).OrderBy(i=>world.Surface.Cells[i].Neighbors.Max(j=>Math.Abs(world.ElevationM[i]-world.ElevationM[j]))).DefaultIfEmpty(-1).First();
+            sites=new[]{Pick(h=>h.Biome==Biome.Grassland||h.Biome==Biome.Savanna),Pick(h=>h.Biome==Biome.TemperateForest&&h.WarmTenthsC>140),Pick(h=>h.Biome==Biome.BorealForest&&h.WarmTenthsC>120)};
+        }
         var locations=new[]{TerrainMapViewport.FromDegrees(27.98,86.92),TerrainMapViewport.FromDegrees(-32.65,-70.01),TerrainMapViewport.FromDegrees(38.07,-122.96),TerrainMapViewport.FromDegrees(32,88)};
         var names=new[]{"himalayas","andes","point-reyes","tibetan-plateau"};
         var report = new List<string>();
@@ -82,14 +88,28 @@ public sealed partial class WorldGenRuntime
             {
                 if(earthSites&&s==2)terrainExplorer.TestNearbyShore();
                 terrainExplorer.TestView(earthSites?(s==2?25:s==1?2000:900):600,earthSites?(s==0?0:s==1?90:s==2?340:45):20,earthSites&&s==2?6:12);
+                if(scatterReview){terrainExplorer.TestWalking();terrainExplorer.TestView(1.65,20,-3);}
             }
             deadline = Time.realtimeSinceStartupAsDouble + 180;
-            while (terrainExplorer != null && (!terrainExplorer.Ready || !terrainExplorer.AllReady) && terrainExplorer.Error == "" && Time.realtimeSinceStartupAsDouble < deadline) yield return null;
-            if (terrainExplorer == null || !terrainExplorer.Ready || !terrainExplorer.AllReady || terrainExplorer.Error != "")
+            while (terrainExplorer != null && (!terrainExplorer.Ready || !terrainExplorer.AllReady || (scatterReview&&!terrainExplorer.ScatterReady)) && terrainExplorer.Error == "" && Time.realtimeSinceStartupAsDouble < deadline) yield return null;
+            if (terrainExplorer == null || !terrainExplorer.Ready || !terrainExplorer.AllReady || (scatterReview&&!terrainExplorer.ScatterReady) || terrainExplorer.Error != "")
             { Debug.LogError("TERRAIN CHECK failed: " + terrainExplorer?.Error); Application.Quit(1); yield break; }
             yield return new WaitForEndOfFrame(); terrainExplorer.Capture(Path.Combine(output,earthSites?names[s]+".png":"terrain-" + s + ".png"));
             TerrainMapViewport.Degrees(terrainExplorer.Position,out double siteLat,out double siteLon);
             report.Add((earthSites?names[s]:"site "+sites[s])+" at "+siteLat.ToString("F6")+","+siteLon.ToString("F6")+": " + terrainExplorer.Diagnostics);
+            if(scatterReview)
+            {
+                var covered=terrainExplorer.LastCapturePixels;terrainExplorer.ScatterEnabled=false;
+                yield return null;yield return null;yield return new WaitForEndOfFrame();terrainExplorer.Capture(null);
+                var bare=terrainExplorer.LastCapturePixels;int changed=0;for(int i=0;i<bare.Length;i++)if(Math.Abs(bare[i].r-covered[i].r)+Math.Abs(bare[i].g-covered[i].g)+Math.Abs(bare[i].b-covered[i].b)>15)changed++;
+                if(changed<1000){Debug.LogError("SCATTER CHECK vegetation is not visibly rendered: "+changed+" changed pixels");Application.Quit(1);yield break;}
+                report.Add("Actual cover visibility: "+changed+" changed pixels versus the same camera with scatter disabled.");
+                terrainExplorer.ScatterEnabled=true;yield return null;yield return null;
+                double started=Time.realtimeSinceStartupAsDouble,worst=0;for(int f=0;f<90;f++){double at=Time.realtimeSinceStartupAsDouble;yield return null;worst=Math.Max(worst,Time.realtimeSinceStartupAsDouble-at);}
+                report.Add("SCATTER "+world.Ecology.Habitat[sites[s]].Biome+": "+terrainExplorer.ScatterObjects+" submitted objects, "+terrainExplorer.ScatterChunks+" patches, "+terrainExplorer.ScatterDrawCalls+" draw calls; "+(90/(Time.realtimeSinceStartupAsDouble-started)).ToString("F1")+" FPS, worst frame "+worst.ToString("F4")+"s");
+                if(terrainExplorer.ScatterObjects<10){Debug.LogError("SCATTER CHECK missing visible scale objects");Application.Quit(1);yield break;}
+                terrainExplorer.TestView(65,20,55);yield return null;yield return new WaitForEndOfFrame();terrainExplorer.Capture(Path.Combine(output,"scatter-overhead-"+s+".png"));
+            }
             probes.AddRange(terrainExplorer.Probes());
             terrainExplorer.TestMove(4300, 2800); yield return null;
             deadline = Time.realtimeSinceStartupAsDouble + 60;

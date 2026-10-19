@@ -1,7 +1,8 @@
 # Local terrain preview — first exploration milestone
 
 Owner authorization: 18 October 2026. This supersedes the local-playable-terrain
-deferral for this limited prototype, not for vegetation, fauna, structures or NPCs.
+deferral for this limited prototype. Natural-cover placeholders were subsequently
+authorized; see `LOCAL_SCATTER_PREVIEW.md`. Fauna, structures and NPCs remain deferred.
 
 ## Boundary and use
 
@@ -93,7 +94,8 @@ terrain implementation.
 Glacial influence is exposed but specialist glacial forms are deferred; so are
 rock strata, talus simulation, dunes, oases, fjords, caves and overhangs. Biome
 surface colours blend continuously; slope adds exposed rock. These are
-placeholders, not photoreal textures or vegetation.
+placeholders, not photoreal textures. The separate local-scatter milestone adds
+replaceable natural-cover meshes and layered PBR materials without changing heights.
 
 ## Bounded rendering and cost
 
