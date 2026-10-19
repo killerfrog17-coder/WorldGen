@@ -20,6 +20,8 @@ only actual supported movement can emit a footfall. Pause/map/chat/flight reset 
 Footsteps are actual travelled-distance contacts, never an ambient loop. Seven
 material banks have four isolated local StableAudio3 SFX variants each. No
 procedural footfall fallback, animal calls, leaf-rustle beds or wind is added.
+Player-owned footsteps use centered mono 2D playback (zero stereo pan and no
+spatializer), so camera heading and movement cannot shift impact tails to one ear.
 Only hash-admitted files in sounds/footsteps/screened.tsv load asynchronously;
 missing audio stays silent. Teleports, flight, airborne/standing/paused/map/chat
 states do not produce steps. Quiet gain varies by surface and gait, with a user

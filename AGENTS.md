@@ -1,6 +1,15 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-footsteps-centered/WorldGen.exe`. Player footfalls now use
+centered mono 2D playback rather than spatial world impacts; heading/movement
+cannot pan their tails into one ear. All28 admitted mono assets and a native
+5000-cell ground/input check pass, including actual walk/jog/sprint contacts,
+centered source configuration and unchanged source-world hash. Rain/thunder,
+generation/history rules and assets are unchanged. The preceding ground player
+remains a rollback; this is not new all-era/performance acceptance.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-ground-environment/WorldGen.exe` (IL2CPP20:40:15Z).
 Ground-environment1 adds derived parent geology/deposits, soil properties,
 smooth eight-material local ground and optional historical realm38 agronomy.

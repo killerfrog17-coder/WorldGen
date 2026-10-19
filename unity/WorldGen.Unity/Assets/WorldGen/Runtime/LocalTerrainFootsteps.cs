@@ -20,13 +20,29 @@ public sealed partial class LocalTerrainExplorer
     public string FootstepDebug=>"Footfalls "+FootstepPlaybackCount+" · airborne frames "+airFrames+" · supported "+supportedFrames+" / "+supportedMetres+"m · cadence "+cadenceContacts+" · largest delta "+largestStep+" · underwater contacts "+wetContacts+" · grounded "+motion.Grounded+" · flying "+motion.Flying+" · volume "+FootstepVolume;
     public bool FootstepsReady {get;private set;}
     public int FootstepClipCount=>stepClips.Count;
+    public bool FootstepsCentered
+    {
+        get
+        {
+            if(stepVoices==null)return false;
+            foreach(var voice in stepVoices)if(voice.spatialBlend!=0||voice.panStereo!=0||voice.spatialize)return false;
+            foreach(var clip in stepClips)if(clip.channels!=1)return false;
+            return true;
+        }
+    }
     public int FootstepVoices=>stepVoices==null?0:(stepVoices[0].isPlaying?1:0)+(stepVoices[1].isPlaying?1:0);
     static float stepVolume=-1;
     public static float FootstepVolume {get{if(stepVolume<0)stepVolume=PlayerPrefs.GetFloat("footstep-volume",.65f);return stepVolume;}set{stepVolume=Mathf.Clamp01(value);PlayerPrefs.SetFloat("footstep-volume",stepVolume);}}
     void InitializeFootsteps()
     {
         stepVoices=new AudioSource[2];for(int i=0;i<2;i++)
-        {var root=new GameObject("Player footfall "+i);root.transform.SetParent(transform,false);var voice=root.AddComponent<AudioSource>();voice.playOnAwake=false;voice.loop=false;voice.dopplerLevel=0;voice.spatialBlend=.65f;voice.minDistance=1;voice.maxDistance=12;stepVoices[i]=voice;}
+        {
+            // Own-footstep Foley must remain centered as the listener moves/turns.
+            // World-positioned impact tails otherwise drift to one ear.
+            var root=new GameObject("Player footfall "+i);root.transform.SetParent(transform,false);
+            var voice=root.AddComponent<AudioSource>();voice.playOnAwake=false;voice.loop=false;voice.dopplerLevel=0;
+            voice.spatialBlend=0;voice.panStereo=0;voice.spatialize=false;stepVoices[i]=voice;
+        }
         stepLoading=StartCoroutine(LoadFootsteps());ResetFootsteps();
     }
     IEnumerator LoadFootsteps()
@@ -73,7 +89,7 @@ public sealed partial class LocalTerrainExplorer
         var clips=stepBanks[bank];if(clips==null||clips.Length==0)return;
         stepChoice=Rng.Mix(stepChoice+0x9e3779b9u);int index=(int)(stepChoice%(uint)clips.Length);if(index==lastStep&&clips.Length>1)index=(index+1)%clips.Length;lastStep=index;
         float materialGain=bank==2?.50f:bank==3||bank==6?.36f:bank==5?.22f:.30f;
-        var voice=stepVoices[stepVoice];stepVoice=1-stepVoice;voice.Stop();voice.transform.position=view.transform.position-Vector3.up*(float)TerrainMotion.EyeHeightM;voice.clip=clips[index];
+        var voice=stepVoices[stepVoice];stepVoice=1-stepVoice;voice.Stop();voice.clip=clips[index];
         voice.volume=materialGain*FootstepVolume*(float)FootstepCadence.Gain(gait)*(.94f+(stepChoice%100)*.0012f);voice.pitch=.98f+(stepChoice%100)*.0004f;voice.Play();FootstepPlaybackCount++;
     }
     public void TestFootstep(int material,TravelGait gait){if(FootstepsReady)PlayFootstep(Math.Max(0,Math.Min(6,material)),gait);}

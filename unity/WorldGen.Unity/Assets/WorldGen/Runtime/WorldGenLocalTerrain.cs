@@ -168,6 +168,8 @@ public sealed partial class WorldGenRuntime
                     terrainExplorer.TestNearbyFlatGround();yield return null;
                     double waitEnd=Time.realtimeSinceStartupAsDouble+30;while(!terrainExplorer.FootstepsReady&&Time.realtimeSinceStartupAsDouble<waitEnd)yield return null;
                     if(!terrainExplorer.FootstepsReady||terrainExplorer.FootstepClipCount!=28){Debug.LogError("GROUND CHECK generated footfall banks unavailable");Application.Quit(1);yield break;}
+                    if(!terrainExplorer.FootstepsCentered){Debug.LogError("GROUND CHECK own-footstep stereo route is not centered mono");Application.Quit(1);yield break;}
+                    report.Add("PASS own-footstep sources centered 2D, zero stereo pan, spatializer disabled, 28 mono clips");
                     var distances=new double[3];int mode=0;
                     foreach(var keys in new[]{new[]{Key.W,Key.C},new[]{Key.W},new[]{Key.W,Key.LeftShift}})
                     {

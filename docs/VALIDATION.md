@@ -1,5 +1,15 @@
 # Version 3 validation evidence
 
+## Centered player footsteps -19 October2026
+
+The IL2CPP footsteps-centered player passes the native5000-cell ground review:
+both own-footstep voices use2D playback, zero stereo pan and no spatializer;
+all28 loaded recordings are mono. Actual C/W/Shift movement emits contacts,
+standing/flying remains silent, and the source-world hash is unchanged.
+`python scripts/check-footsteps.py` passes28 unique mono asset/hash/level checks.
+This removes heading/position-dependent panning, not a subjective listening
+approval. Rain/thunder assets and simulation/generation rules are unchanged.
+
 ## Ground foundation1 checkpoint -19 October2026
 
 GroundEnvironment1 / local-scatter-preview2 / optional historical realm38:
