@@ -7,18 +7,30 @@ deferral for this limited prototype, not for vegetation, fauna, structures or NP
 
 Unity's **Explore terrain** button, in world setup and the simulation top bar,
 opens a separate additive exploration scene at the selected map location. The
-historical player pauses and its map camera is retained. Escape / World returns
-to that same world. Existing worlds work without a rules upgrade or regeneration.
+historical player pauses and its map camera is retained. Escape opens a small
+pause menu; Return to world restores that same world. Existing worlds work
+without a rules upgrade or regeneration.
 
-WASD moves; right-drag looks; F switches fly/walk; Shift accelerates;
-Space/Ctrl flies up/down; wheel adjusts flight speed. Walking queries ground
-height, including underwater ground, rather than colliding with a water plane.
-This is an exploration controller, not a finished physics/character controller.
+Exploration starts walking, with captured mouse-look (no drag), WASD, Space to
+jump and Shift to run. F switches fly/walk; Space/Ctrl flies up/down and wheel
+adjusts flight speed. Walking queries ground height, including underwater ground,
+rather than colliding with a water plane. Gravity and a bounded step/grade rule
+prevent walking straight up cliffs. Swimming, stamina and full character physics
+remain deferred.
+
+There is no normal exploration HUD. F3 opens diagnostics and releases the cursor.
+F3+M toggles the interactive debug map. Wheel zooms about the cursor, dragging pans
+with longitude wrap, and clicking teleports to the exact planetary position, not
+the nearest cell center. Map imagery updates asynchronously; the cached image
+transforms while new pixels are prepared. Deep zoom samples the same local terrain
+function. Logical zoom extends below terrain numerical precision; this does not
+invent measured detail at that scale. Escape first dismisses debug, then opens
+the pause menu. Diagnostics also expose flight speed and view distance.
 
 `LocalTerrain` in WorldGen.Core is the sole local terrain definition, separate
 from and downstream of WorldPipeline's accepted world. Neither sampler nor
 viewer mutates geography/history, appends stages or changes existing hashes.
-Its explicit version is `local-terrain-preview-1`. No permanent structure sites
+Its explicit version is `local-terrain-preview-2`. No permanent structure sites
 are promised across future local terrain revisions. A future persisted local
 recipe must pin this version before city footprints / edits become authoritative.
 
@@ -39,10 +51,16 @@ height range, not a measured subcell hillslope or arbitrary-resolution DEM.
 An immutable spatial index selects supporting cells once per small patch.
 Bounded cubic triangular patches retain the source height anchors and shared
 edge curves without height overshoot. Separately, compact C2 kernels blend
-descriptors; there is no closest-three switching or per-cell constant height. Fixed source-local ridge
-frames preserve geological orientation without rotating a planet-sized noise
-domain at every query. Wavy ridge profiles, rounded troughs and shared global
-simplex bands supply subordinate relief. Low-relief plateau interiors and
+descriptors; there is no closest-three switching or per-cell constant height.
+Where source geological belts exist, their cells now share a fabric origin,
+axis, phase and spacing. Earth falls back to source-local coarse-relief frames.
+Broad irregular mountain masses, subordinate directional soft-absolute crests,
+and smaller summit/spur bands replace the v1 repeated sinusoidal domes. An
+intermediate experiment with dominant sharp crests was rejected after native
+screens showed curved kilometre-high walls. The100m band is reduced substantially, rather
+than covering every hillslope in artificial lumps. Mountain amplitude and4–13km
+ridge spacing support larger local valley/crest relief. These are cheap analytic
+patterns, not a reconstructed drainage tree. Low-relief plateau interiors and
 sediment-rich plains suppress mountain/hill amplitude. This is a phenomenological
 terrain surface, NOT a hydraulic erosion or tectonic-history simulation.
 
@@ -72,18 +90,24 @@ Descriptor/index construction is once per active World in RAM. Heights are
 queried from the local candidate set and a fixed number of noise bands.
 No fine terrain is saved to disk. Chunks are disposable products of that query.
 
-The viewer retains at most a13×13 tile window (2,048m tiles), with128/32/16
-segments by distance. At most two CPU mesh jobs run concurrently; one completed
-tile pair uploads per frame. Departed tiles and meshes are destroyed. Existing
-tiles remain visible during LOD replacement. Cancellation prevents late uploads
-after exit. A floating Unity origin preserves local transform precision while
-the exploration chart and planet anchor remain double precision.
+The viewer uses a view/altitude-dependent quadtree with2,048–131,072m tiles and
+128/64/32/16/8 segments. Default requested range is200km (debug adjustable30–250km);
+planet curvature and terrain occlusion still limit what is actually visible.
+Ground-level planning uses281 leaves at the tested origin, falling to140 at60km
+altitude. At most two CPU mesh jobs run concurrently; one completed tile pair
+uploads per frame. Departed tiles and meshes are destroyed. Old LOD coverage stays
+visible while replacement leaves load. Teleports invalidate old-frame uploads;
+exit cancels work. A floating Unity origin preserves local transform precision
+while the exploration chart and planet anchor remain double precision. Long travel
+reanchors the tangent chart, preserving geographic heading and height above terrain.
 
-Shared-edge heights are identical at shared sample coordinates. Render-only
-skirts conceal mixed-resolution T-junctions; this is not a claim of finished
-stitched LOD topology. Finite-difference normals can differ between resolutions.
-The tangent exploration chart is a local viewer, not yet seamless planetary
-circumnavigation or a persistent floating-origin structure/world system.
+Shared-coordinate unmodified height samples are identical. Render-only edge
+collapse makes a finer tile boundary follow the adjacent coarse edge segment;
+skirt geometry remains a fallback. This changes disposable render vertices,
+never height queries, walking ground or saved geography. Coarser sampling can
+still lose small relief and finite-difference shading can differ between levels.
+The tangent exploration chart is still a prototype, not a validated seamless
+planetary circumnavigation or persistent structure/world system.
 
 ## Research basis (independent implementation)
 
@@ -112,6 +136,20 @@ Native review entry point (normal graphics, not `-nographics`):
 ```
 WorldGen.exe --worldgen-local-terrain-check <snapshot.world> --worldgen-output <evidence-directory>
 ```
+
+Add `--worldgen-local-earth-sites` for fixed Himalaya(27.98,86.92), Andes
+(-32.65,-70.01), Point Reyes(38.07,-122.96) and Tibetan plateau(32,88) review sites.
+These are regional approximations: the bundled10-arcminute relief and coarse
+world samples cannot reproduce actual individual peaks, narrow valleys or beaches.
+The coastal review searches for a nearby resolved sea-level crossing; the nominal
+real-world beach can be under water at this resolution. Its actual review
+coordinate is recorded, rather than passing an all-ocean image as a beach test.
+
+Real-image comparisons used NASA's [Himalayan topography](https://science.nasa.gov/earth/earth-observatory/himalayan-topography-39160/)
+and [Cerro Aconcagua](https://science.nasa.gov/earth/earth-observatory/cerro-aconcagua-3542/),
+plus NPS's [McClures Beach](https://home.nps.gov/places/point-reyes-mcclures-beach.htm).
+These motivate connected sharper crests, broad valleys and a resolved coastal
+transition; they are not calibration data or a claim of matching actual local DEMs.
 
 Tests cover equal-altitude landform distinction, exact overlapping patches,
 concurrent/cold deterministic queries, submerged beds, finite geometry/normals,

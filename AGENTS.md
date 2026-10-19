@@ -1,6 +1,23 @@
 # WorldGen repository instructions
 
 Current review launch,18 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-local-terrain-controls4/WorldGen.exe` (IL2CPP,
+2026-10-19T03:11:25Z). Local terrain preview2 adds captured mouse-look, default
+walking/Space jump, F fly, HUD-free exploration, F3 diagnostics and F3+M zoom/pan/
+precise teleport map. View/altitude-dependent quadtree LOD requests200km by default,
+with bounded background work, coarse-edge collapse and chart reanchoring.
+Native Earth Himalaya/Andes/nearby coastal/plateau images rejected the initial
+lumpy relief and an over-sharp curved-wall experiment; final broad irregular
+mountain masses retain smooth plateau interiors.319 focused/28 actual-world,
+1,008 presentation/51 lake assertions, seven native200k scenes, F3/chord/map/
+teleport/mouse-without-drag/Space/F/W/Esc controls, unchanged initialized-world
+hashes and28 exact CLR/native probes pass. Existing world/history algorithms are
+unchanged. This is a replaceable bare-terrain prototype, not a measured local
+Earth reconstruction, full erosion, finished materials or dense-history speed
+acceptance. The preceding local-terrain-preview player remains rollback.
+See `docs/LOCAL_TERRAIN_PREVIEW.md` and the latest VALIDATION entry.
+
+Current review launch,18 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-local-terrain-preview/WorldGen.exe` (IL2CPP,
 2026-10-19T01:58:43Z). Owner-authorized `local-terrain-preview-1` adds a separate
 additive terrain exploration scene via **Explore terrain** in setup/simulation.

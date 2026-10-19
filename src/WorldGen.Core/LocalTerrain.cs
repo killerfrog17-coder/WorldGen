@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed class LocalTerrain
     {
-        public const string Version = "local-terrain-preview-1";
+        public const string Version = "local-terrain-preview-2";
         public readonly double RadiusM;
         readonly World world;
         readonly CellLocator locator;
@@ -24,13 +24,15 @@ namespace WorldGen.Core
             this.world = world; RadiusM = world.Recipe.RadiusKm * 1000; seed = world.Recipe.Seed;
             profiles = new LocalTerrainProfile[world.Surface.Cells.Length];
             var axes = new V[profiles.Length]; var ages = new int[profiles.Length];
+            var fabricOrigins=new V[profiles.Length];var fabricKeys=new int[profiles.Length];
             // One optional generation-time index, never a recurring cell census.
             foreach (var feature in world.Features)
             {
                 token.ThrowIfCancellationRequested();
                 if (feature.Kind != FeatureKind.CollisionBelt && feature.Kind != FeatureKind.Cordillera && feature.Kind != FeatureKind.AncientOrogen && feature.Kind != FeatureKind.ObliqueOrogen) continue;
                 foreach (int cell in feature.Cells)
-                    if (cell >= 0 && cell < axes.Length && axes[cell].Length < .1) { axes[cell] = feature.Axis; ages[cell] = feature.AgeMyr; }
+                    if (cell >= 0 && cell < axes.Length && axes[cell].Length < .1)
+                    { axes[cell] = feature.Axis; ages[cell] = feature.AgeMyr;fabricOrigins[cell]=feature.Center.Length>.1?feature.Center.Unit:world.Surface.Cells[cell].Position;fabricKeys[cell]=feature.Id; }
             }
             for (int i = 0; i < profiles.Length; i++)
             {
@@ -57,7 +59,7 @@ namespace WorldGen.Core
                 double sediment = habitat == null ? At(world.BasinPermille, i) / 1500.0
                     : Math.Max(habitat.FloodFractionPermille / 1000.0, habitat.Soil == SoilKind.Alluvial ? .85 : 0);
                 double hill = (8 + 75 * D.Clamp(relief / 1000.0)) * (1 - .85 * plateau) * (1 - .94 * sediment);
-                double ridge = (90 + Math.Min(1300, relief * .46)) * mountains * (1 - .9 * sediment);
+                double ridge = (180 + Math.Min(3200, relief * 1.1)) * mountains * (1 - .9 * sediment);
                 V axis = axes[i];
                 if (axis.Length < .1)
                 {
@@ -65,21 +67,22 @@ namespace WorldGen.Core
                     axis = gradient.Length > .00001 ? V.Cross(center, gradient).Unit
                         : V.Tangent(center, new Rng(seed, "local-terrain-fabric-1", i).Vector());
                 }
-                axis = (axis - center * V.Dot(axis, center)).Unit;
+                bool sharedFabric=fabricOrigins[i].Length>.1;V fabricOrigin=sharedFabric?fabricOrigins[i]:center;
+                axis = (axis - fabricOrigin * V.Dot(axis, fabricOrigin)).Unit;
                 if (axis.Length < .1) axis = V.Tangent(center, Math.Abs(center.Z) < .8 ? new V(0, 0, 1) : new V(1, 0, 0));
-                V across = V.Cross(center, axis).Unit;
-                double support = longest * 2.15;
+                V across = V.Cross(fabricOrigin, axis).Unit;
+                double support = longest * 1.6;
                 maximumSupport = Math.Max(maximumSupport, support);
                 profiles[i] = new LocalTerrainProfile
                 {
                     Cell = i, ElevationM = world.ElevationM[i], CoarseReliefM = relief, HillHeightM = hill, MountainHeightM = ridge,
-                    RidgeSpacingM = 1600 + 5800 * Rng.Value(seed, "local-terrain-spacing-1", i),
+                    RidgeSpacingM = 4000 + 9000 * Rng.Value(seed, "local-terrain-spacing-2", sharedFabric?fabricKeys[i]:i),
                     Sharpness = 1.25 + .7 * (1 - D.Clamp(ages[i] / 300.0)), Plateau = plateau, Sediment = sediment,
                     Glacial = world.Glaciated.Length > i && world.Glaciated[i] ? 1 : 0,
                     Biome = habitat?.Biome ?? Biome.Grassland, SupportM = support,
-                    Center = center, Axis = axis, Across = across,
+                    Center = center, FabricOrigin=fabricOrigin, Axis = axis, Across = across,
                     Gradient = new V(gx, gy, gz) * (2.0 / Math.Max(1, cell.Neighbors.Length)),
-                    Phase = Rng.Value(seed, "local-terrain-phase-1", i) * 2 * D.Pi
+                    Phase = Rng.Value(seed, "local-terrain-phase-2", sharedFabric?fabricKeys[i]:i) * 2 * D.Pi
                 };
             }
             token.ThrowIfCancellationRequested(); locator = new CellLocator(world.Surface.Cells); token.ThrowIfCancellationRequested();
@@ -93,12 +96,13 @@ namespace WorldGen.Core
         static int At(int[] values, int i) => i < values.Length ? values[i] : 0;
         public LocalTerrainProfile Profile(int cell)
         { if (cell < 0 || cell >= profiles.Length) throw new ArgumentOutOfRangeException(nameof(cell)); return profiles[cell]; }
+        public int NearestCell(V point)=>locator.Nearest(point);
 
         /// <summary>Shared continuous function restricted to a bounded patch. Candidate lookup happens once,
         /// not at each vertex. Independent neighbouring patches return identical overlapping point samples.</summary>
         public LocalTerrainPatch Patch(V center, double halfExtentM = 2048)
         {
-            if (double.IsNaN(halfExtentM) || double.IsInfinity(halfExtentM) || halfExtentM <= 0 || halfExtentM > 100000)
+            if (double.IsNaN(halfExtentM) || double.IsInfinity(halfExtentM) || halfExtentM <= 0 || halfExtentM > 250000)
                 throw new ArgumentOutOfRangeException(nameof(halfExtentM));
             double norm = center.X * center.X + center.Y * center.Y + center.Z * center.Z;
             if (double.IsNaN(norm) || double.IsInfinity(norm) || norm < .25) throw new ArgumentOutOfRangeException(nameof(center));
@@ -200,16 +204,18 @@ namespace WorldGen.Core
                     mountains += weight * f.MountainHeightM; plateau += weight * f.Plateau;
                     sediment += weight * f.Sediment; glacier += weight * f.Glacial;
                     var color = CoverColor(f.Biome); red += weight * color.X; green += weight * color.Y; blue += weight * color.Z;
-                    double along = x * f.Axis.X + y * f.Axis.Y + z * f.Axis.Z;
-                    double across = x * f.Across.X + y * f.Across.Y + z * f.Across.Z;
+                    double fx=px-f.FabricOrigin.X*owner.RadiusM,fy=py-f.FabricOrigin.Y*owner.RadiusM,fz=pz-f.FabricOrigin.Z*owner.RadiusM;
+                    double along = fx * f.Axis.X + fy * f.Axis.Y + fz * f.Axis.Z;
+                    double across = fx * f.Across.X + fy * f.Across.Y + fz * f.Across.Z;
                     // Fixed source-local frames, smoothly blended in world space. Orientation changes do not
                     // rotate a planet-sized noise domain or reseed chunks. Nested waviness breaks parallel bands.
                     double phase = across * (2 * D.Pi / f.RidgeSpacingM) + .9 * medium + .8 * D.Sin(along / 5200 + f.Phase);
-                    double wave = .5 + .5 * D.Sin(phase + f.Phase);
-                    double crest = wave * wave; // continuous rounded valley, narrower crest
+                    double wave = D.Sin(phase + f.Phase);
+                    // Soft absolute ridges: narrower connected crests rather than repeated round sinusoidal domes.
+                    double crest = 1-Math.Sqrt(wave*wave+.012);
                     double sharp = f.Sharpness / 2;
-                    crest = crest * sharp + wave * (1 - sharp);
-                    double ridges = (crest - .375) * (1 + .38 * broad) + .17 * medium * (.2 + .8 * crest);
+                    crest = crest*crest*sharp+crest*(1-sharp);
+                    double ridges = (crest - .24) * (1 + .38 * broad) + .045 * medium * (.2 + .8 * crest);
                     detail += weight * f.MountainHeightM * ridges;
                     if (weight > bestWeight) { bestWeight = weight; cell = f.Cell; biome = f.Biome; }
                 }
@@ -218,7 +224,11 @@ namespace WorldGen.Core
                 foreach(var triangle in triangles)if(triangle.Height(point,out double value)){baseM=value;break;}
                 if(double.IsNaN(baseM))throw new InvalidOperationException("Terrain patch did not resolve a containing world triangle.");
                 double h = hills / sum, m = mountains / sum, s = sediment / sum;
-                double residual = detail / sum + h * (broad + .35 * medium + .10 * fine) + (.3 + 2.4 * (1 - s) + m * .008) * micro;
+                // Broad mass first, subordinate irregular spurs second. Strong periodic crests alone make
+                // kilometre-high curved walls; absolute noise alone makes a maze of equally high ridges.
+                double summit=D.Clamp(.5+.6*broad);
+                double branching=.5*broad+(.06+.06*summit)*medium+.03*summit*(.45-Math.Sqrt(fine*fine+.02));
+                double residual = .2*detail / sum + m*branching + h * (broad + .25 * medium + .04 * fine) + (.12 + .18 * (1 - s)) * micro;
                 // Sea level is a hard continuity anchor: do not manufacture new islands/coasts from high-frequency noise.
                 double coast = Smooth(Math.Abs(baseM) / 100);
                 if (baseM < 0) residual = (12 * broad + 4 * medium + fine) * coast;
@@ -256,7 +266,7 @@ namespace WorldGen.Core
         public int Cell;
         public double ElevationM, CoarseReliefM, HillHeightM, MountainHeightM, RidgeSpacingM, Sharpness, Plateau, Sediment, Glacial;
         public Biome Biome;
-        internal V Center, Axis, Across, Gradient;
+        internal V Center, FabricOrigin, Axis, Across, Gradient;
         internal double SupportM, Phase;
     }
     public struct LocalTerrainSample

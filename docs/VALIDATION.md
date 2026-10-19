@@ -1,5 +1,51 @@
 # Version 3 validation evidence
 
+## HUD-free terrain controls and distance LOD — 18 October 2026
+
+Local terrain preview2 remains separate from worldgen3.32/history32. Solution
+build: zero warnings/errors.319 focused checks cover deterministic local samples,
+landform separation, walk/jump/landing/cliff blocking, mouse-pitch flight, deep
+debug-map sampling/cancellation, cursor-anchor zoom, antimeridian wrapping,
+bounded altitude-dependent LOD, horizon coverage/nonoverlap and coarse-edge
+collapse.1,008 historical presentation/51 lake assertions pass. Preview CLI
+repeat/reapply/recipe/cached reconstruction retains identical all-stage hashes.
+The archived Earth golden mismatch documented below is not claimed fixed.
+
+Both200k Earth and Continents Plus pass14 actual-world checks, retaining complete
+saved world hashes. Final CPU preparation took588/554ms once; mixed-detail mesh
+means26.5/25.6ms, worst96.6/97.1ms. Fixed Earth16km neighbourhood relief spans
+3,695m Himalaya,3,653m Andes and421m Tibetan plateau. These are synthetic local
+relief over measured coarse inputs, not actual mountain/valley reconstructions.
+
+Final IL2CPP player build2026-10-19T03:11:25Z passes four Earth and three generated
+scenes, each with284/284 resident LOD leaves and a200km requested range. At most
+two mesh jobs run and one tile pair uploads per frame. Native maximum background
+tile times104.8ms Earth/92.0ms generated. This is bounded streaming evidence,
+not a universal60FPS guarantee. Native synthetic input asserts F3, F3+M, map
+render/zoom/precise teleport, mouse-look with no drag, Space jumping, F/W and
+Escape pause. Return restores the map and complete initialized-world hashes
+`20f226fb…`/`f2c733d3…`. All28 sampled elevations match CLR exactly. No render
+error/exception is recorded. Diagnostic code also exercises movement/re-streaming.
+
+Native images in ignored `artifacts/local-terrain-controls/accepted-earth` and
+`accepted-generated` were actually inspected, alongside NASA/NPS reference images
+linked in LOCAL_TERRAIN_PREVIEW.md. Earlier views exposed small rounded lumps,
+then over-sharp curved ridge walls; those experiments were revised, not passed
+as final realism. The final fields use broader irregular mountain masses and
+smaller subordinate ridge/spur relief. Cliff faces shed more of the placeholder
+snow cover. Coarse/fine edges collapse onto shared coarse segments rather than
+relying only on visible vertical skirts. Fine shading/joins remain provisional.
+
+The nominal Point Reyes location resolves below sea level; the review therefore
+finds a nearby actual sampler shore at38.069879N,122.790720W instead of accepting
+an all-ocean capture. Its coast remains simple and bare: waves, beach sediments,
+local erosion/headlands and fine real-world DEM fidelity are not implemented.
+The plateau remains comparatively smooth. Camera render-texture captures prove
+geometry, not hidden-window GUI layout; keyboard/visibility checks exercise the
+HUD-free/debug branches separately. No black screenshots are used as evidence.
+The prior player remains rollback. No permanent terrain placement, vegetation,
+fauna, inland hydrology integration or historical-rule change is implied.
+
 ## First local terrain exploration — 18 October 2026
 
 `local-terrain-preview-1` is a downstream, replaceable local surface and Unity

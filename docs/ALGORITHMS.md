@@ -1,5 +1,19 @@
 # Implementation contracts - version 3
 
+## Local exploration - local-terrain-preview-2
+
+Owner-authorized derived local terrain is separate from worldgen3.32 and history32.
+It never changes saved geography/history or their hashes. The shared Core sampler
+retains bounded coarse triangular height anchors, compactly blends landform
+descriptors, and supplies deterministic physical-scale ridge/noise detail.
+Version2 reduces high-frequency lumpiness, shares synthetic belt fabric, and
+distinguishes stronger mountain relief from smooth plateau interiors. Version
+pinning and reconciled local hydrology are required before persistent structures.
+Unity only controls the walker/flyer, debug-map navigation and bounded disposable
+quadtree rendering. Edge collapse, palette/snow and skirts are presentation only;
+no saved height mutation or alternate generator is introduced. See
+`LOCAL_TERRAIN_PREVIEW.md` for controls, costs, tests and explicit limitations.
+
 ## Domestic institutions - history32 optional realm37
 
 Nullable `Realms.Domestic` is omitted from preceding canonical bytes. Five saved

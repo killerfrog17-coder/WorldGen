@@ -28,10 +28,10 @@ namespace WorldGen.Presentation
         public double EastM, NorthM, SizeM, MinHeightM, MaxHeightM, BuildMilliseconds;
         public int Segments, GroundVertices;
         public static LocalTerrainMesh Build(LocalTerrain terrain, LocalTerrainFrame frame, double eastM, double northM,
-            double sizeM = 2048, int segments = 64, CancellationToken token = default)
+            double sizeM = 2048, int segments = 64, CancellationToken token = default,double[]? edgeSteps=null)
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            if (segments < 4 || segments > 128 || sizeM <= 0 || sizeM > 10000 || double.IsNaN(sizeM)) throw new ArgumentOutOfRangeException(nameof(segments));
+            if (segments < 4 || segments > 128 || sizeM <= 0 || sizeM > 131072 || double.IsNaN(sizeM)) throw new ArgumentOutOfRangeException(nameof(segments));
             var mesh = new LocalTerrainMesh { EastM = eastM, NorthM = northM, SizeM = sizeM, Segments = segments, MinHeightM = double.MaxValue, MaxHeightM = double.MinValue };
             double step = sizeM / segments;
             var patch = terrain.Patch(frame.Position(eastM + sizeM / 2, northM + sizeM / 2), sizeM * 1.1 + step * 2);
@@ -48,6 +48,23 @@ namespace WorldGen.Presentation
                     if (x >= 0 && x < side && z >= 0 && z < side) samples[z * side + x] = sample;
                 }
             }
+            // Presentation-only edge collapse: the finer boundary follows the adjacent coarse triangle edge.
+            // This prevents exposed vertical skirts/sawteeth; the authoritative height function is unchanged.
+            if(edgeSteps!=null)
+            {
+                if(edgeSteps.Length!=4)throw new ArgumentException("Four edge sample spacings required.",nameof(edgeSteps));
+                for(int boundary=0;boundary<4;boundary++)
+                {
+                    double coarse=edgeSteps[boundary];if(coarse<=step*1.001)continue;
+                    for(int i=0;i<side;i++)
+                    {
+                        int x=boundary==0?0:boundary==1?segments:i,z=boundary==2?0:boundary==3?segments:i;
+                        double along=(boundary<2?northM:eastM)+i*step,lo=Math.Floor(along/coarse)*coarse,t=(along-lo)/coarse;
+                        double Height(double a){var p=frame.Position(boundary<2?eastM+x*step:a,boundary<2?a:northM+z*step);return frame.SurfaceY(p,patch.Sample(p).ElevationM);}
+                        heights[(z+1)*halo+x+1]=Height(lo)*(1-t)+Height(lo+coarse)*t;
+                    }
+                }
+            }
             mesh.Positions = new float[(ground + perimeter) * 3]; mesh.Normals = new float[mesh.Positions.Length]; mesh.Colors = new float[(ground + perimeter) * 4];
             mesh.WaterPositions = new float[ground * 3]; mesh.WaterColors = new float[ground * 4];
             for (int z = 0; z < side; z++) for (int x = 0; x < side; x++)
@@ -60,7 +77,7 @@ namespace WorldGen.Presentation
                 double nx = (heights[at - 1] - heights[at + 1]) / (2 * step), nz = (heights[at - halo] - heights[at + halo]) / (2 * step);
                 double length = Math.Sqrt(nx * nx + 1 + nz * nz); double up = 1 / length;
                 mesh.Normals[i * 3] = (float)(nx / length); mesh.Normals[i * 3 + 1] = (float)up; mesh.Normals[i * 3 + 2] = (float)(nz / length);
-                double rock = D.Clamp((1 - up - .08) / .37), snow = sample.Biome == Biome.Ice ? D.Clamp(up * 2 - .4) : 0;
+                double rock = D.Clamp((1 - up - .08) / .37), snow = sample.Biome == Biome.Ice ? D.Clamp((up-.55)/.4) : 0;
                 V color = sample.CoverColor;
                 if (sample.ElevationM < 8) color = color * .4 + new V(.48, .43, .32) * .6;
                 color = color * (1 - rock) + new V(.39, .37, .34) * rock;
