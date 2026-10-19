@@ -144,6 +144,17 @@ Thunderstorm flashes have
 dated deterministic opportunities and a real-time flash cadence limiter.
 These are visual/audio effects, not authoritative history events.
 
+Thunder now uses three generated-once mono crack/rumble variations and four
+pooled spatial voices. Arrival delay is the visual bolt proxy's distance
+divided by an approximate343m/s, with distance rolloff, progressively reduced
+high frequencies and restrained pitch variation. Nearby arrivals can overlap;
+the pool remains bounded. Pausing stops its audio clock/voices, and teleporting
+clears old queued sounds. Current wind/rain synthesis is retained. This remains
+procedural placeholder thunder, not a verified field recording or full acoustic
+propagation/terrain-occlusion model. No footsteps or animal calls are added.
+See [sound-effects direction](EXPLORATION_MUSIC.md#sound-effects-direction-reviewed19-october2026)
+for the offline asset-generation and future event/material pipeline.
+
 Cloud formation permits extended overcast intervals without active
 rain, conditioned on monthly precipitation and the stored moisture proxy.
 Its synoptic coverage uses a broad planetary field (frequency5 rather than24),

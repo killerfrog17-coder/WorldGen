@@ -6,9 +6,17 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     LocalWeatherScreen weatherScreen;WorldWeather.Sample weatherProvider;WorldWeather worldWeather;V weatherPosition;
-    double weatherDays,nextWeatherAt,profileElevation;float nextFlashAt,thunderAt=-1,flashEnd;
-    long lastLightningSlot=long.MinValue;ParticleSystem rainParticles,snowParticles;AudioSource windAudio,thunderAudio,rainAudio;
-    AudioClip windClip,thunderClip,rainClip;Material rainMaterial,snowMaterial,boltMaterial;LineRenderer lightningBolt;
+    double weatherDays,nextWeatherAt,profileElevation;float nextFlashAt,flashEnd,weatherAudioClock;bool weatherAudioPaused;
+    long lastLightningSlot=long.MinValue;ParticleSystem rainParticles,snowParticles;AudioSource windAudio,rainAudio;
+    AudioClip windClip,rainClip;AudioClip[] thunderClips;Material rainMaterial,snowMaterial,boltMaterial;LineRenderer lightningBolt;
+    sealed class ThunderVoice {public AudioSource Source;public AudioLowPassFilter Filter;public float Due=-1;}
+    readonly ThunderVoice[] thunderVoices=new ThunderVoice[4];int nextThunderVoice;
+    public int ThunderVariantCount=>thunderClips?.Length??0;
+    public int PendingThunderCount {get{int count=0;foreach(var voice in thunderVoices)if(voice!=null&&voice.Due>=0)count++;return count;}}
+    public int ActiveThunderCount {get{int count=0;foreach(var voice in thunderVoices)if(voice!=null&&voice.Source.isPlaying)count++;return count;}}
+    public float LastThunderDistanceM {get;private set;}
+    public float LastThunderDelaySeconds {get;private set;}
+    public float LastThunderLowPassHz {get;private set;}
     public WeatherFrame CurrentWeather {get;private set;}
     public WeatherControl WeatherControl {get;}=new WeatherControl();
     WindSynth windSynth;RainSynth rainSynth;int appliedWeatherRevision=-1;
@@ -25,7 +33,8 @@ public sealed partial class LocalTerrainExplorer
     {
         weatherProvider=null;nextWeatherAt=0;nextDaylightAt=0;
         if(rainParticles!=null)rainParticles.Clear();if(snowParticles!=null)snowParticles.Clear();
-        if(weatherScreen!=null){weatherScreen.Ready=false;weatherScreen.Flash=0;}flashEnd=0;thunderAt=-1;
+        if(weatherScreen!=null){weatherScreen.Ready=false;weatherScreen.Flash=0;}flashEnd=0;
+        foreach(var voice in thunderVoices)if(voice!=null){voice.Due=-1;voice.Source.Stop();}
     }
     void InitializeWeather()
     {
@@ -35,9 +44,16 @@ public sealed partial class LocalTerrainExplorer
         rainMaterial=new Material(shader);snowMaterial=new Material(shader);snowMaterial.SetFloat("_Snow",1);
         rainParticles=CreatePrecipitation("Local rain",rainMaterial,false);snowParticles=CreatePrecipitation("Local snow",snowMaterial,true);
         windAudio=view.gameObject.AddComponent<AudioSource>();windAudio.loop=true;windAudio.playOnAwake=false;windAudio.spatialBlend=0;windAudio.volume=0;
-        thunderAudio=view.gameObject.AddComponent<AudioSource>();thunderAudio.playOnAwake=false;thunderAudio.spatialBlend=0;
+        thunderClips=new[]{MakeThunderSound(198u),MakeThunderSound(913u),MakeThunderSound(4817u)};
+        for(int i=0;i<thunderVoices.Length;i++)
+        {
+            var emitter=new GameObject("Weather thunder "+i);emitter.transform.SetParent(transform,false);
+            var audio=emitter.AddComponent<AudioSource>();audio.playOnAwake=false;audio.spatialBlend=1;audio.dopplerLevel=0;
+            audio.rolloffMode=AudioRolloffMode.Linear;audio.minDistance=100;audio.maxDistance=12000;
+            thunderVoices[i]=new ThunderVoice{Source=audio,Filter=emitter.AddComponent<AudioLowPassFilter>()};
+        }
         windSynth=new WindSynth();windClip=AudioClip.Create("Continuous wind gusts",22050*60,2,22050,true,windSynth.Read);
-        thunderClip=MakeThunderSound();windAudio.clip=windClip;windAudio.Play();
+        windAudio.clip=windClip;windAudio.Play();
         rainSynth=new RainSynth();rainAudio=view.gameObject.AddComponent<AudioSource>();rainAudio.loop=true;rainAudio.playOnAwake=false;rainAudio.spatialBlend=0;rainAudio.volume=0;
         rainClip=AudioClip.Create("Continuous rainfall",22050*60,2,22050,true,rainSynth.Read);rainAudio.clip=rainClip;rainAudio.Play();
         var bolt=new GameObject("Local lightning",typeof(LineRenderer));bolt.layer=30;bolt.transform.SetParent(transform,false);lightningBolt=bolt.GetComponent<LineRenderer>();
@@ -56,16 +72,22 @@ public sealed partial class LocalTerrainExplorer
         renderer.renderMode=snow?ParticleSystemRenderMode.Billboard:ParticleSystemRenderMode.Stretch;renderer.velocityScale=.025f;renderer.lengthScale=3;renderer.maxParticleSize=.04f;
         ps.Play();return ps;
     }
-    static AudioClip MakeThunderSound()
+    static AudioClip MakeThunderSound(uint seed)
     {
-        const int rate=22050;int length=rate*6;var samples=new float[length];uint state=198u;float low=0,deep=0;
+        const int rate=22050;int length=rate*8;var samples=new float[length];uint state=seed;float low=0,deep=0,peak=0;
+        double secondClap=.25+(seed%997)/997d*.9;
+        double Clap(double t,double start){double dt=t-start;return dt<0?0:(1-Math.Exp(-dt*200))*Math.Exp(-dt*6);}
         for(int i=0;i<length;i++)
         {
             state=Rng.Mix(state+0x9e3779b9u);float white=state/2147483648f-1;low+=(white-low)*.07f;deep+=(low-deep)*.015f;
-            float seconds=i/(float)rate,envelope=Mathf.Min(1,seconds*30)*Mathf.Exp(-seconds*.8f);
-            samples[i]=(low*.6f+deep*2)*envelope;
+            double t=i/(double)rate;
+            double crack=Clap(t,.015)+Clap(t,secondClap)*.6;
+            double rumble=(1-Math.Exp(-t*3))*Math.Exp(-t*(.65+(seed%137)/500d));
+            double tail=Math.Min(1,8-t);tail*=tail;
+            samples[i]=(float)(((white-low)*crack*.24+low*rumble*.65+deep*rumble*2.4)*tail);peak=Math.Max(peak,Math.Abs(samples[i]));
         }
-        var clip=AudioClip.Create("Distant thunder",length,1,rate,false);clip.SetData(samples,0);return clip;
+        if(peak>0)for(int i=0;i<length;i++)samples[i]*=.72f/peak;
+        var clip=AudioClip.Create("Thunder variation "+seed,length,1,rate,false);clip.SetData(samples,0);return clip;
     }
     void UpdateLocalWeather(double days,double altitude)
     {
@@ -103,6 +125,15 @@ public sealed partial class LocalTerrainExplorer
             var at=Position;var east=V.Cross(Math.Abs(at.Z)>.999999?new V(0,1,0):new V(0,0,1),at).Unit;var north=V.Cross(at,east).Unit;
             var p=east*CurrentWeather.WindEastMps+north*CurrentWeather.WindNorthMps;return new Vector3((float)V.Dot(p,frame.East),(float)V.Dot(p,frame.Origin),(float)V.Dot(p,frame.North));
         }
+        bool audioPaused=paused&&!TestAnimateWeather;
+        if(!audioPaused)weatherAudioClock+=Time.unscaledDeltaTime;
+        if(audioPaused!=weatherAudioPaused)
+        {foreach(var voice in thunderVoices)if(voice!=null){if(audioPaused)voice.Source.Pause();else voice.Source.UnPause();}weatherAudioPaused=audioPaused;}
+        foreach(var voice in thunderVoices)if(voice!=null)
+        {
+            voice.Source.volume=options.ThunderVolume*.8f;
+            if(!audioPaused&&voice.Due>=0&&weatherAudioClock>=voice.Due){voice.Source.Play();voice.Due=-1;}
+        }
         var wind=Wind();int cap=options.Particles==2?12000:6000;
         float altitude=(view.transform.position-weatherScreen.PlanetCenter).magnitude-weatherScreen.RadiusM;
         bool aboveCloud=altitude>CurrentWeather.CloudBaseM+CurrentWeather.CloudThicknessM||CurrentWeather.CloudCover<.1;
@@ -130,20 +161,46 @@ public sealed partial class LocalTerrainExplorer
             if(CurrentWeather.Thunderstorm>.2&&hash/4294967295d<CurrentWeather.Thunderstorm*.4)TriggerLightning(hash);
         }
         weatherScreen.Flash=now<flashEnd?Mathf.Clamp01((flashEnd-now)/.2f):0;lightningBolt.enabled=now<flashEnd&&options.Lightning>0;
-        if(thunderAt>=0&&now>=thunderAt){thunderAudio.PlayOneShot(thunderClip,options.ThunderVolume*.8f);thunderAt=-1;}
     }
-    public void TestLightning()=>TriggerLightning(443u);
+    public void TestLightning(uint seed=443u)=>TriggerLightning(seed);
+    public bool ThunderSignalsValid
+    {
+        get
+        {
+            if(thunderClips==null||thunderClips.Length!=3)return false;
+            double lastSignature=double.NaN;
+            foreach(var clip in thunderClips)
+            {
+                var samples=new float[clip.samples];clip.GetData(samples,0);double signature=0,power=0;
+                for(int i=0;i<samples.Length;i++){float v=samples[i];if(float.IsNaN(v)||float.IsInfinity(v)||Math.Abs(v)>.73)return false;power+=v*v;signature+=v*((i%127)+1);}
+                if(power<1||signature==lastSignature||Math.Abs(samples[0])>.0001||Math.Abs(samples[samples.Length-1])>.0001)return false;lastSignature=signature;
+            }
+            return true;
+        }
+    }
     void TriggerLightning(uint hash)
     {
-        nextFlashAt=Time.unscaledTime+8;flashEnd=Time.unscaledTime+.2f;thunderAt=Time.unscaledTime+2+(hash%600)/100f;weatherScreen.Flash=1;
+        nextFlashAt=Time.unscaledTime+8;flashEnd=Time.unscaledTime+.2f;weatherScreen.Flash=1;uint soundSeed=hash;
         var start=view.transform.position+view.transform.forward*2200+Vector3.up*(float)CurrentWeather.CloudBaseM;start.x+=(int)(hash%1000)-500;
         lightningBolt.positionCount=9;for(int i=0;i<9;i++){hash=Rng.Mix(hash+1);var p=start+Vector3.down*(i*(float)CurrentWeather.CloudBaseM/8);if(i>0&&i<8)p+=view.transform.right*((int)(hash%180)-90);lightningBolt.SetPosition(i,p);}
+        var soundPoint=start-Vector3.up*(float)CurrentWeather.CloudBaseM*.75f;
+        LastThunderDistanceM=Vector3.Distance(view.transform.position,soundPoint);LastThunderDelaySeconds=LastThunderDistanceM/343f;
+        LastThunderLowPassHz=650+3850*Mathf.Exp(-LastThunderDistanceM/1400);
+        // Fixed-size pool: nearby strikes may overlap rather than replacing the
+        // only pending rumble. Reuse a rotating slot only if all four are busy.
+        ThunderVoice voice=null;
+        for(int i=0;i<thunderVoices.Length;i++){int index=(nextThunderVoice+i)%thunderVoices.Length;var candidate=thunderVoices[index];if(candidate.Due<0&&!candidate.Source.isPlaying){voice=candidate;nextThunderVoice=(index+1)%thunderVoices.Length;break;}}
+        if(voice==null){voice=thunderVoices[nextThunderVoice];nextThunderVoice=(nextThunderVoice+1)%thunderVoices.Length;}
+        voice.Source.Stop();voice.Source.transform.position=soundPoint;voice.Source.clip=thunderClips[soundSeed%(uint)thunderClips.Length];
+        voice.Source.pitch=.93f+(soundSeed%1000)/1000f*.14f;voice.Filter.cutoffFrequency=LastThunderLowPassHz;
+        voice.Due=weatherAudioClock+LastThunderDelaySeconds;
     }
     void DisposeWeather()
     {
         DisposeWeatherField();
         if(weatherCheckTarget!=null){view.targetTexture=null;weatherCheckTarget.Release();Destroy(weatherCheckTarget);}
         if(weatherCheckPixel!=null)Destroy(weatherCheckPixel);
-        if(windClip!=null)Destroy(windClip);if(thunderClip!=null)Destroy(thunderClip);if(rainClip!=null)Destroy(rainClip);if(rainMaterial!=null)Destroy(rainMaterial);if(snowMaterial!=null)Destroy(snowMaterial);if(boltMaterial!=null)Destroy(boltMaterial);
+        foreach(var voice in thunderVoices)if(voice!=null)voice.Source.Stop();
+        if(windClip!=null)Destroy(windClip);if(thunderClips!=null)foreach(var clip in thunderClips)if(clip!=null)Destroy(clip);if(rainClip!=null)Destroy(rainClip);if(rainMaterial!=null)Destroy(rainMaterial);if(snowMaterial!=null)Destroy(snowMaterial);if(boltMaterial!=null)Destroy(boltMaterial);
     }
 }

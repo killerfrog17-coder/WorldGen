@@ -90,3 +90,45 @@ Completed managed tracks are skipped on resume; changed/unmanaged files are not
 overwritten. Creating `artifacts/exploration-music/PAUSE` stops between tracks.
 There is one job lock; timed-out running jobs are not automatically resubmitted.
 See current status.json rather than inferring completion from a started batch.
+
+## Sound-effects direction (reviewed19 October2026)
+
+Footsteps remain deferred until the soil/surface work. This is a production
+plan, not an installed new model or completed sound library.
+
+The existing CUDA SA3 Medium setup can generate sound effects; Stability's
+[prompt guide](https://kb.stability.ai/knowledge-base/stable-audio-3-prompt-guide)
+documents `TrackType: SFX` and source/action/recording descriptions. It is the
+lowest-friction first candidate on this host, not a demonstrated universal
+SFX-quality winner. Its [Community license](https://stability.ai/license)
+has a commercial annual-revenue threshold; review applicable terms before
+production distribution or expanded commercial use.
+
+[MOSS-SoundEffect v2](https://huggingface.co/OpenMOSS-Team/MOSS-SoundEffect-v2.0)
+is a dedicated environmental/creature/human-action candidate, with48kHz audio,
+durations up to30seconds and a declared Apache2.0 model license. It has not
+been installed, auditioned or benchmarked on this host's8GB RTX4060. Compare
+a small matched prompt/seed set before choosing it over SA3. Do not infer
+hardware fit or sound quality from parameter counts alone. Other candidates
+need license screening: the published [TangoFlux checkpoints](https://huggingface.co/declare-lab/TangoFlux),
+[AudioX](https://huggingface.co/HKUSTAudio/AudioX) and [Woosh weights](https://github.com/SonyResearch/Woosh)
+state non-commercial restrictions, unlike their sometimes permissive code.
+
+Generate and curate assets offline; do not put model inference in the game.
+Reuse the GPU setup, but use a separate SFX catalog/exporter: this music
+batch's90-180second duration and quiet-music mastering gates do not fit one-shots.
+Keep masters/models outside the repository. Save source prompts, model revision,
+seeds, source/license notes and export metadata, with media excluded from Git.
+Audition for artifacts, unwanted music/animals, recognizable source identity,
+loop joins and mono compatibility, in addition to signal/peak/silence checks.
+Generated animal sounds are not evidence of biological accuracy; use verified
+references or appropriately licensed recordings for recognizable real calls.
+
+Runtime direction: semantic sound events resolve small variant banks, without
+immediate repetition. Point effects are dry mono spatial emitters; ambient
+beds are layered stereo with crossfades. Foot contacts use actual surface,
+moisture, footwear/gait and contact timing after soil work. Animal calls come
+from actual present animals and behavior, not biome-level random recordings.
+Distance/obstruction/interior context controls attenuation/filtering/reverb.
+Use pooled nearby voices and separate music/ambience/effects/voice buses;
+neither every world cell nor every remote entity needs an active audio source.

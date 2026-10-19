@@ -96,6 +96,14 @@ public sealed partial class WorldGenRuntime
         terrainExplorer.TestAnimateWeather=true;terrainExplorer.TestWeatherOverride=Fixture(1,0,8);yield return new WaitForSecondsRealtime(4);Capture("rain");Check(terrainExplorer.WeatherParticleCount>50,"rain emits real bounded particles");
         terrainExplorer.TestWeatherOverride=Fixture(1,0,0,3);yield return new WaitForSecondsRealtime(5);Capture("snow");Check(terrainExplorer.WeatherParticleCount>50,"snow emits real bounded particles");
         terrainExplorer.TestWeatherOverride=Fixture(1,0,8,0,1);o.Lightning=.25f;terrainExplorer.TestLightning();yield return new WaitForEndOfFrame();Capture("lightning");Check(terrainExplorer.WeatherScreen.Flash>0,"lightning produces a controlled native flash");
+        Check(terrainExplorer.ThunderVariantCount==3&&terrainExplorer.ThunderSignalsValid,"thunder has three distinct finite unclipped one-shot signals with silent boundaries");
+        Check(terrainExplorer.LastThunderDistanceM>1000&&Math.Abs(terrainExplorer.LastThunderDelaySeconds-terrainExplorer.LastThunderDistanceM/343)<.001&&terrainExplorer.LastThunderLowPassHz<3000,"actual bolt distance controls thunder delay and high-frequency loss");
+        terrainExplorer.TestLightning(901u);terrainExplorer.TestLightning(1703u);
+        Check(terrainExplorer.PendingThunderCount>=3&&terrainExplorer.PendingThunderCount<=4,"nearby lightning retains bounded overlapping thunder arrivals");
+        terrainExplorer.TestAnimateWeather=false;yield return new WaitForSecondsRealtime(terrainExplorer.LastThunderDelaySeconds+1);
+        Check(terrainExplorer.PendingThunderCount>=3,"paused exploration does not consume queued thunder arrivals");
+        terrainExplorer.TestAnimateWeather=true;yield return new WaitForSecondsRealtime(terrainExplorer.LastThunderDelaySeconds+1);
+        Check(terrainExplorer.PendingThunderCount==0&&terrainExplorer.ActiveThunderCount>0,"queued thunder arrivals actually play after their physical delays");
         terrainExplorer.TestWeatherOverride=Fixture(0);o.Adaptation=.8f;play.SetLocalSolarHour(0,-4);yield return new WaitForSecondsRealtime(4);
         play.SetLocalSolarHour(12,-4);yield return new WaitForSecondsRealtime(.15f);Capture("day-dazzle");float dazzle=terrainExplorer.WeatherScreen.Exposure;
         yield return new WaitForSecondsRealtime(3);Capture("day-adapted");Check(dazzle>terrainExplorer.WeatherScreen.Exposure+.1f,"night-to-day teleport produces transient, recovering eye adaptation");o.Adaptation=0;

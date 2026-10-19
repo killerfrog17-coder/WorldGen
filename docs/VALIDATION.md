@@ -1,5 +1,28 @@
 # Version 3 validation evidence
 
+## Weather sound refinement and future SFX direction - 19 October 2026
+
+Weather audio retains the existing wind/rain streams and adds three procedural
+mono thunder variants, four pooled spatial voices, bolt-distance arrival times,
+distance filtering/rolloff and pause-aware scheduling. No footsteps, soil,
+animal calls, new generative model, audio downloads or inference during gameplay
+are added. The prospective offline SFX workflow and primary model/license
+references are documented in EXPLORATION_MUSIC.md. It does not assert that a
+new model has been installed, auditioned or demonstrated superior quality.
+
+The IL2CPP `player-weather-sound-final`, built17:21:16Z, passes46 native checks,
+81 shared primitive assertions and24 native/CLR weather comparisons. Three
+distinct mono signals have finite samples, peaks normalized to about0.72 and silent
+boundaries; source settings follow measured bolt-proxy distance. Three nearby
+arrivals remain queued during a pause longer than their sound-travel delay,
+then consume their queue slots and have an actually playing AudioSource after
+resume. The pool is bounded at four. Terrain/history hashes remain unchanged,
+and no shader/runtime errors are reported. Evidence is ignored under
+`artifacts/weather-sound-verified`. Native tests mute their AudioListener:
+these signal/scheduling/playback checks are not a subjective listening review,
+certified mastering, proof of convincing thunder timbre or a full acoustic model.
+The preceding textured-final build is retained as rollback.
+
 ## Textured cloud surfaces and bounded lighting - 19 October 2026
 
 The cloud-lighting revision separates connected broad masses from fine3D

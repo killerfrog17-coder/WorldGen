@@ -1,6 +1,17 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-weather-sound-final/WorldGen.exe` (IL2CPP,17:21:16Z).
+Weather audio keeps wind/rain and adds three procedural thunder variants,
+four pooled spatial voices, distance-based delay/filtering and pause-aware
+scheduling.81 primitive/24 native-CLR and46 final native checks pass, including
+queued sounds held beyond their arrival times while paused and actual playback
+after resume. No footsteps, soil, animal calls, new model installation or new
+AI-generated sound assets. Subjective listening quality is not established by
+signal tests. Textured-final remains rollback. See docs/PROCEDURAL_WEATHER.md,
+docs/EXPLORATION_MUSIC.md and docs/VALIDATION.md for the future SFX direction.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-weather-textured-final/WorldGen.exe` (IL2CPP,16:55:34Z).
 Presentation-only cloud revision: connected masses, actual3D boundary erosion,
 density-slope surface shading, bounded/reused directional lighting and
