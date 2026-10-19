@@ -34,6 +34,7 @@ namespace WorldGen.Core
             var hc=new HistoricalCulture{Id=c.Id,ReligionId=religion,LanguageId=c.Id,Sedentism=150};hc.Technology[0]=s.Years+1;
             if(ModernHistory(s)){Array.Resize(ref hc.Technology,HistoricalTechnologies.Count(s.History.Version));Array.Resize(ref hc.Research,HistoricalTechnologies.Count(s.History.Version));}
             h.Cultures=h.Cultures.Concat(new[]{hc}).ToArray();
+            AppendCelestialFaith(s,religion);AppendCelestialCulture(s,c.Id);
             if(EraHistory(s))InitializeHistoricalAgriculture(s,c);
             if(h.CellPolity.Length==0){int n=World.Surface.Cells.Length;h.CellPolity=Enumerable.Repeat(-1,n).ToArray();h.CellReligion=Enumerable.Repeat(-1,n).ToArray();h.CellStage=new int[n];}
             h.CellReligion[c.OriginCell]=religion;h.CellStage[c.OriginCell]=1;

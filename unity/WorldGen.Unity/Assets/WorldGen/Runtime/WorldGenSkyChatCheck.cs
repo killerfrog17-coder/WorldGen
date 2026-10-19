@@ -19,7 +19,7 @@ public sealed partial class WorldGenRuntime
         Application.LogCallback listener=(message,trace,kind)=>{if(kind==LogType.Exception||kind==LogType.Error)errors.Add(message);};Application.logMessageReceived+=listener;
         void Check(bool ok,string message){if(!ok)throw new InvalidOperationException("SKY CHAT CHECK: "+message);report.Add("PASS "+message);Debug.Log("SKY CHAT PASS "+message);}
         IEnumerator Until(Func<bool> condition,string label,double timeout=180){double end=Time.realtimeSinceStartupAsDouble+timeout;while(!condition()&&Time.realtimeSinceStartupAsDouble<end)yield return null;Check(condition(),label);}
-        recipe=Recipe.Preset("Earth");recipe.Detail=20000;setup.From(recipe);Generate();yield return Until(()=>worldReady&&!Busy&&humans!=null,"Earth world ready");StartHumanWorld();
+        play.Settings.Sky=CelestialSettings.Preset("No moons");recipe=Recipe.Preset("Earth");recipe.Detail=20000;setup.From(recipe);Generate();yield return Until(()=>worldReady&&!Busy&&humans!=null,"Earth world ready");StartHumanWorld();
         var meridian=WorldMeridian.For(world);Check(play.MeridianVersion==1&&Math.Abs(centerLongitude-play.PrimeMeridianLongitude)<.0001,"official map centers on the saved prime meridian");
         report.Add("Prime longitude "+meridian.PrimeLongitude+"; seam "+meridian.SeamLongitude+"; approximate land crossing "+meridian.LandCrossingDegrees+" degrees");
         PlayCommands.Execute(play,SimulationTime.Seconds(world.Prehistory),"/date set 0042-03-21");PlayCommands.Execute(play,0,"/time set noon");

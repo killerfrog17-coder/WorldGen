@@ -98,6 +98,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         if(Environment.GetCommandLineArgs().Contains("--worldgen-game-review"))StartCoroutine(CheckGameShell());
         if(Environment.GetCommandLineArgs().Contains("--worldgen-exploration-music-check"))StartCoroutine(CheckExplorationMusic());
         if(Environment.GetCommandLineArgs().Contains("--worldgen-sky-chat-check"))StartCoroutine(CheckSkyChat());
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-atmosphere-check"))StartCoroutine(CheckAtmosphere());
     }
     void Generate() => StartGeneration();
     async void InitializeLibrary()

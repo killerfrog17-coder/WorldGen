@@ -34,7 +34,7 @@ namespace WorldGen.Presentation
             string[] options=input.StartsWith("/time set ",StringComparison.OrdinalIgnoreCase)?new[]{"/time set day","/time set midnight","/time set night","/time set noon","/time set sunrise","/time set sunset"}:new[]{"/date","/help","/time"};
             return options.Where(s=>s.StartsWith(input,StringComparison.OrdinalIgnoreCase)).OrderBy(s=>s,StringComparer.Ordinal).ToArray();
         }
-        public static PlayCommandResult Execute(PlaySession play,long historySeconds,string input,double? longitude=null)
+        public static PlayCommandResult Execute(PlaySession play,long historySeconds,string input,double? longitude=null,double latitude=0)
         {
             double localLongitude=longitude??play.PrimeMeridianLongitude,localHour=play.LocalSolarHour(localLongitude);
             var words=(input??"").Trim().Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);if(words.Length==0)return new PlayCommandResult(false,"Empty command. Try /help.");
@@ -47,6 +47,12 @@ namespace WorldGen.Presentation
                 if(words.Length==3&&words[1].Equals("set",StringComparison.OrdinalIgnoreCase))
                 {
                     string value=words[2].ToLowerInvariant();hour=value=="day"?7:value=="night"?19:value=="noon"?12:value=="midnight"?0:value=="sunrise"?6:value=="sunset"?18:-1;
+                    if(value=="sunrise"||value=="sunset")
+                    {
+                        double days=PlayCalendar.Seconds(play,historySeconds)/SimulationTime.Day,declination=Math.Asin(CelestialMechanics.SunEquatorial(days).Z),cosine=-Math.Tan(latitude*Math.PI/180)*Math.Tan(declination);
+                        if(cosine< -1||cosine>1)return new PlayCommandResult(false,"No "+value+" occurs at this latitude on the current seasonal date.");
+                        double halfDay=Math.Acos(cosine)*12/Math.PI;hour=12+(value=="sunrise"?-halfDay:halfDay);
+                    }
                     if(hour<0){var hm=value.Split(':');if(hm.Length!=2||!int.TryParse(hm[0],out int h)||!int.TryParse(hm[1],out int m)||h<0||h>23||m<0||m>59)return new PlayCommandResult(false,"Use day, night, noon, midnight, sunrise, sunset or HH:mm.");hour=h+m/60d;}
                 }
                 else if(words.Length==3&&words[1].Equals("add",StringComparison.OrdinalIgnoreCase)&&double.TryParse(words[2],NumberStyles.Float,CultureInfo.InvariantCulture,out double hours)&&!double.IsNaN(hours)&&!double.IsInfinity(hours)&&Math.Abs(hours)<=1000000)hour=((localHour+hours)%24+24)%24;

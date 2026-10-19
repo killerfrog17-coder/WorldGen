@@ -34,6 +34,7 @@ namespace WorldGen.Core
             }
             else profile=ReligiousDoctrines.Root(id,k=>HistoryRoll("religion-doctrine-31-"+k,id,0));
             r.Doctrines=r.Doctrines.Concat(new[]{profile}).ToArray();
+            AppendCelestialFaith(s,id);
         }
         public static ReligiousInstitutionView ReligiousInstitutionAt(PrehistoryState s,int cell,int slot=0)
         {

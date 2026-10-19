@@ -94,6 +94,7 @@ namespace WorldGen.Core
             }
             if(LanguageHistory(s)&&languageParent>=0){hc.LanguageId=h.Cultures[languageParent].LanguageId;hc.ParentCultureId=languageParent;}
             AppendLanguage(s,id);
+            AppendCelestialCulture(s,id);
             if(ReligiousInstitutionHistory(s)&&!inherited)InitializeReligiousProfile(s,religion);
             if(LanguageHistory(s)&&hc.ParentCultureId>=0)HistoryEvent(s,"cultural-exchange",c.Name+" develops a distinct local tradition through exchange with "+s.Society.Cultures[hc.ParentCultureId].Name+"; crops and institutions still need local support.",cell,id,category:ChronicleCategory.Society);
             SetAggregateLayer(s,cell,0,id);SetAggregateLayer(s,cell,2,religion);SetAggregateLayer(s,cell,4,1);

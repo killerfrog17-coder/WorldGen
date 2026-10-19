@@ -6,8 +6,11 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     Material skyMaterial;Texture2D starAtlas;
+    CelestialSettings skyConfig;int starSeed=-1;StellarEnvironment starEnvironment;
     readonly System.Collections.Generic.List<Light> suspendedSkyLights=new System.Collections.Generic.List<Light>();
     readonly Vector4[] skyDirections=new Vector4[8],skyColors=new Vector4[8],skyParameters=new Vector4[8];
+    readonly Vector4[] skyLightDirections=new Vector4[8],secondaryDirections=new Vector4[4],secondaryColors=new Vector4[4];
+    double skyYear;
     public PlayableSkyFrame SkyFrame {get;private set;}
     void InitializeSky()
     {
@@ -16,15 +19,22 @@ public sealed partial class LocalTerrainExplorer
         foreach(var light in FindObjectsByType<Light>(FindObjectsSortMode.None))
             if(light!=localSun&&light.enabled&&light.type==LightType.Directional){suspendedSkyLights.Add(light);light.enabled=false;}
         var shader=Resources.Load<Shader>("WorldGenSky");if(shader==null||!shader.isSupported)throw new InvalidOperationException("Playable sky shader unavailable.");
-        skyMaterial=new Material(shader);starAtlas=CreateStarAtlas();skyMaterial.SetTexture("_Stars",starAtlas);
+        skyConfig=playState?.Settings.Sky??CelestialSettings.Preset("No moons");skyMaterial=new Material(shader);RefreshStarAtlas();
         view.gameObject.AddComponent<Skybox>().material=skyMaterial;view.clearFlags=CameraClearFlags.Skybox;
     }
-    static Texture2D CreateStarAtlas()
+    void RefreshStarAtlas()
+    {
+        int seed=StellarField.Seed(sourceWorld?.Recipe.Seed??0,skyConfig.Seed);
+        if(starAtlas!=null&&seed==starSeed&&starEnvironment==skyConfig.Stars)return;
+        if(starAtlas!=null)Destroy(starAtlas);starSeed=seed;starEnvironment=skyConfig.Stars;starAtlas=CreateStarAtlas(seed,skyConfig.Stars);skyMaterial.SetTexture("_Stars",starAtlas);
+        var pole=StellarField.Pole(seed);skyMaterial.SetVector("_GalaxyPole",new Vector4((float)pole.X,(float)pole.Y,(float)pole.Z,0));skyMaterial.SetFloat("_FieldSeed",seed%4096);
+    }
+    static Texture2D CreateStarAtlas(int seed,StellarEnvironment environment)
     {
         const int width=4096,height=2048;var pixels=new Color32[width*height];
-        for(int i=0;i<5800;i++)
+        for(int i=0;i<StellarField.Count(environment);i++)
         {
-            var rng=new Rng(481071,"playable-sky-stars-1",i);double u=rng.Unit(),v=Math.Asin(rng.Unit()*2-1)/Math.PI+.5;
+            var rng=new Rng(seed,"stellar-light-1",i);var direction=StellarField.Direction(seed,i,environment);double u=Math.Atan2(direction.X,direction.Z)/(2*Math.PI)+.5,v=Math.Asin(direction.Y)/Math.PI+.5;
             double brightness=.015+.985*Math.Pow(rng.Unit(),8),size=.3+brightness*.35,tint=rng.Unit();
             var color=Color.Lerp(new Color(.66f,.78f,1),new Color(1,.77f,.56f),(float)tint);color=Color.Lerp(color,Color.white,.45f);
             double x=u*width,y=v*height,stretch=1/Math.Max(.17,Math.Sin(v*Math.PI));
@@ -43,17 +53,27 @@ public sealed partial class LocalTerrainExplorer
     public void SetDaylight(double solarHour,double seasonalYear)
     {
         if(localSun==null||Time.realtimeSinceStartupAsDouble<nextDaylightAt)return;nextDaylightAt=Time.realtimeSinceStartupAsDouble+.1;
-        SkyFrame=PlayableSky.Sample(Math.Asin(Position.Z)*180/Math.PI,solarHour,seasonalYear);var frame=SkyFrame;var body=frame.Bodies[0];
-        Vector3 Vector(V value)=>new Vector3((float)value.X,(float)value.Y,(float)value.Z);
+        skyYear=seasonalYear;skyConfig=playState?.Settings.Sky??skyConfig;RefreshStarAtlas();
+        double actualRadius=frame.RadiusM+frame.AltitudeM+motion.Y,altitude=Math.Sqrt(actualRadius*actualRadius+motion.X*motion.X+motion.Z*motion.Z)-frame.RadiusM;
+        SkyFrame=PlayableSky.Sample(Math.Asin(Position.Z)*180/Math.PI,solarHour,seasonalYear,skyConfig,seasonalYear*365,altitude);var sampled=SkyFrame;
+        int primary=0;for(int i=1;i<sampled.Bodies.Length;i++)if(sampled.Bodies[i].Illuminance>sampled.Bodies[primary].Illuminance)primary=i;
+        var body=sampled.Bodies[primary];
+        var at=Position;V east=V.Cross(Math.Abs(at.Z)>.999999?new V(0,1,0):new V(0,0,1),at).Unit,north=V.Cross(at,east).Unit;
+        Vector3 Vector(V value){var planet=east*value.X+at*value.Y+north*value.Z;return new Vector3((float)V.Dot(planet,frame.East),(float)V.Dot(planet,frame.Origin),(float)V.Dot(planet,frame.North));}
         Color ColorOf(V value)=>new Color((float)value.X,(float)value.Y,(float)value.Z);
         var direction=Vector(body.Direction);localSun.transform.rotation=Quaternion.LookRotation(-direction,Math.Abs(direction.y)>.99?Vector3.forward:Vector3.up);
         localSun.color=ColorOf(body.Color);localSun.intensity=(float)body.Illuminance;
-        skyMaterial.SetVector("_Zenith",ColorOf(frame.Zenith));skyMaterial.SetVector("_Horizon",ColorOf(frame.Horizon));
-        skyMaterial.SetVector("_StarRight",Vector(frame.StarRight));skyMaterial.SetVector("_StarUp",Vector(frame.StarUp));skyMaterial.SetVector("_StarForward",Vector(frame.StarForward));
-        skyMaterial.SetFloat("_StarVisibility",(float)frame.StarVisibility);skyMaterial.SetFloat("_Daylight",(float)frame.Daylight);skyMaterial.SetFloat("_Twilight",(float)frame.Twilight);
-        int count=Math.Min(8,frame.Bodies.Length);for(int i=0;i<count;i++){var b=frame.Bodies[i];skyDirections[i]=Vector(b.Direction);skyColors[i]=ColorOf(b.Color);skyParameters[i]=new Vector4((float)(b.AngularRadiusDegrees*Math.PI/180),1,0,0);}
+        skyMaterial.SetVector("_Zenith",ColorOf(sampled.Zenith));skyMaterial.SetVector("_Horizon",ColorOf(sampled.Horizon));
+        skyMaterial.SetVector("_LocalUp",Vector(new V(0,1,0)));
+        skyMaterial.SetVector("_NightAirGlow",ColorOf(sampled.NightAirGlow));skyMaterial.SetFloat("_AirDensity",(float)Math.Exp(-Math.Max(0,altitude)/8000));skyMaterial.SetFloat("_AerosolHaze",(float)skyConfig.Haze);
+        skyMaterial.SetVector("_StarRight",Vector(sampled.StarRight));skyMaterial.SetVector("_StarUp",Vector(sampled.StarUp));skyMaterial.SetVector("_StarForward",Vector(sampled.StarForward));
+        skyMaterial.SetFloat("_StarVisibility",(float)sampled.StarVisibility);skyMaterial.SetFloat("_Daylight",(float)sampled.Daylight);skyMaterial.SetFloat("_Twilight",(float)sampled.Twilight);skyMaterial.SetFloat("_GalacticGlow",(float)sampled.GalacticGlow);skyMaterial.SetFloat("_StellarGlow",(float)sampled.StellarGlow);
+        int count=Math.Min(8,sampled.Bodies.Length),secondary=0;for(int i=0;i<count;i++){var b=sampled.Bodies[i];skyDirections[i]=Vector(b.Direction);skyColors[i]=ColorOf(b.Color)*(b.MoonIndex<0?1:(float)(skyConfig.Moons[b.MoonIndex].Albedo/.12));skyLightDirections[i]=Vector(b.LightDirection);skyParameters[i]=new Vector4((float)(b.AngularRadiusDegrees*Math.PI/180),b.Surface,(b.MoonIndex+1)*79+starSeed%4096,(float)b.IlluminatedFraction);
+            if(i!=primary&&secondary<4){secondaryDirections[secondary]=Vector(b.Direction);secondaryColors[secondary++]=ColorOf(b.Color)*(float)b.Illuminance;}}
         skyMaterial.SetInt("_BodyCount",count);skyMaterial.SetVectorArray("_BodyDirections",skyDirections);skyMaterial.SetVectorArray("_BodyColors",skyColors);skyMaterial.SetVectorArray("_BodyParameters",skyParameters);
-        void MaterialLight(Material material){if(material.HasProperty("_FogColor"))material.SetVector("_FogColor",ColorOf(frame.Horizon));if(material.HasProperty("_AmbientTint"))material.SetVector("_AmbientTint",ColorOf(frame.Ambient));if(material.HasProperty("_Daylight"))material.SetFloat("_Daylight",(float)frame.Daylight);}
+        skyMaterial.SetVectorArray("_BodyLightDirections",skyLightDirections);
+        void MaterialLight(Material material){if(material.HasProperty("_FogColor"))material.SetVector("_FogColor",ColorOf(sampled.Horizon));if(material.HasProperty("_AmbientTint"))material.SetVector("_AmbientTint",ColorOf(sampled.Ambient));if(material.HasProperty("_Daylight"))material.SetFloat("_Daylight",(float)sampled.Daylight);
+            material.SetVector("_AirGeometry",new Vector4((float)frame.RadiusM,(float)frame.AltitudeM,(float)originX,(float)originZ));material.SetFloat("_AirObserverM",(float)altitude);material.SetFloat("_AirHaze",(float)skyConfig.Haze);material.SetInt("_SecondaryLightCount",secondary);material.SetVectorArray("_SecondaryDirections",secondaryDirections);material.SetVectorArray("_SecondaryColors",secondaryColors);}
         MaterialLight(landMaterial);MaterialLight(waterMaterial);foreach(var material in ownedScatterMaterials)MaterialLight(material);
     }
     void DisposeSky(){foreach(var light in suspendedSkyLights)if(light!=null)light.enabled=true;suspendedSkyLights.Clear();if(skyMaterial!=null)Destroy(skyMaterial);if(starAtlas!=null)Destroy(starAtlas);}

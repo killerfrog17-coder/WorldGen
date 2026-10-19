@@ -1,5 +1,9 @@
 # Playable sky, calendar commands and local chat — 19 October 2026
 
+Current extension: see `CELESTIAL_ATMOSPHERE.md` for configurable moons, seeded
+stellar environments, height-dependent haze and seasonal F3. The one-sun/no-moon
+scope below records the preceding sky-chat checkpoint, not the current renderer.
+
 ## Controls
 
 In gameplay, Enter opens an empty chat input; `/` opens it with `/` prefilled.
@@ -27,7 +31,7 @@ agent is implemented. Normal play remains HUD-free once messages fade.
 | `/date add 30` | Add30 calendar days; negative values work |
 | `/help` | Alphabetical command help |
 | `/time` or `/time get` | Read local solar time |
-| `/time set noon` | Presets: day07:00, night19:00, noon12:00, midnight00:00, sunrise06:00, sunset18:00 |
+| `/time set noon` | Presets: day07:00, night19:00, noon12:00, midnight00:00; sunrise/sunset follow local latitude and seasonal date |
 | `/time set 21:30` | Set a precise24-hour time |
 | `/time add 2.5` | Add solar hours; negative values wrap safely |
 

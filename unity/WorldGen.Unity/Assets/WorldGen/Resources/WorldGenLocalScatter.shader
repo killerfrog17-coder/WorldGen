@@ -30,6 +30,7 @@ Shader "WorldGen/LocalScatter"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
+            #include "WorldGenAir.hlsl"
             TEXTURE2D(_BaseMap);SAMPLER(sampler_BaseMap);TEXTURE2D(_NormalMap);TEXTURE2D(_MaskMap);
             float4 _BaseMap_ST,_BaseColor,_FogColor,_AmbientTint;float _Roughness,_Metallic,_NormalStrength,_Cutoff,_Wind,_FogDistance;
             UNITY_INSTANCING_BUFFER_START(Props)
@@ -65,11 +66,12 @@ Shader "WorldGen/LocalScatter"
                 SurfaceData s=(SurfaceData)0;s.albedo=tex.rgb*tint;s.alpha=1;s.occlusion=mask.r;s.metallic=_Metallic*mask.a;
                 s.smoothness=1-saturate(mask.g*_Roughness);s.normalTS=half3(0,0,1);
                 half3 color=UniversalFragmentPBR(input,s).rgb;
+                color+=SecondaryCelestialLight(n,s.albedo);
                 float3 fog=_FogColor.rgb;
                 #ifndef UNITY_COLORSPACE_GAMMA
                 fog=SRGBToLinear(fog);
                 #endif
-                return half4(lerp(color,fog,smoothstep(_FogDistance*.25,_FogDistance,length(i.position-_WorldSpaceCameraPos))),1);
+                return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,fog,_FogDistance),1);
             }
             ENDHLSL
         }

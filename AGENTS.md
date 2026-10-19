@@ -1,6 +1,23 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-celestial-atmosphere/WorldGen.exe` (IL2CPP,2026-10-19T08:25:45Z).
+New-game Sky & atmosphere configures0–4 moons, six arrangements, physical circular
+orbital periods/sun-relative phases, colored moonlight, three seeded stellar
+environments and analytic altitude-dependent aerial perspective. F3 reports
+northern solstice/equinox progress; sunrise/sunset commands use local latitude/date.
+Fresh Unity histories opt into independent `HistoricalSkyContext.Version=1`,
+with inherited actual-sky calendar/faith/festival profiles and Atlas inspection.
+Missing sky contexts remain null/literal; old sidecars missing sky settings remain
+moonless. No generation change, recurring territorial census or daily festival
+queue.2600 focused/6 actual-world/33 exact native-CLR profile assertions,21 native
+atmosphere and32 native sky/chat checks pass; screenshots are inspected. Hidden
+captures do not prove setup/chat UI layout. Weather, eclipse lighting, tides,
+long-term N-body stability, dynamic calendar reform and new all-era/performance
+acceptance are not claimed. World-meridian is rollback. Read
+`docs/CELESTIAL_ATMOSPHERE.md` and `docs/VALIDATION.md` for scope/evidence.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-world-meridian/WorldGen.exe` (IL2CPP,2026-10-19T07:17:13Z).
 Presentation-only official chart seam/prime meridian is chosen once per world
 and saved in optional play-session fields. Default maps/graticules use this

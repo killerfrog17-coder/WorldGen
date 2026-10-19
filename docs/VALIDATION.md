@@ -1,5 +1,43 @@
 # Version 3 validation evidence
 
+## Celestial atmosphere — 19 October 2026
+
+See `CELESTIAL_ATMOSPHERE.md`.2,600 focused orbital/phase/lighting/stellar/haze/
+calendar assertions and6 actual-world creation/Atlas/persistence/continuation
+checks pass. The latter use a controlled culture-creation hook, not a claim of
+calibrated natural cultural emergence.892 sky/chat,113 meridian,182 music,
+42 saved-play,1,008 historical presentation and334 interface assertions pass.
+Release solution/browser builds pass without warnings/errors. The normal build
+script stages current shared worker assets and Unity DLLs. Preview repeated,
+reapply, recipe and cached reconstruction retain all stage hashes. No generation
+recipe/version, terrain, climate, old goldens or existing historical rules changed.
+
+IL2CPP build2026-10-19T08:25:45Z passes21 hidden native atmosphere checks and
+32 existing local sky/chat/meridian checks. Emitted32 authoritative calendar/
+tradition profiles additionally pass33 exact native/CLR canonical assertions,
+including the explicit deterministic/quantized orbital periods. Ignored evidence
+is in `artifacts/atmosphere-review` and `artifacts/atmosphere-chat-review`.
+Actual final camera images show the Earth-size full/quarter moon, dark albedo,
+rust/ice surfaces, independently orbiting large twins, three seeded stellar
+environments, and clear/hazy long-distance terrain. The initial hard cluster cap
+and clipping-induced flat ice disk were rejected and refined before this pass.
+Full/new moon lower-terrain means are4.768/0.000; clear/haze mean absolute pixel
+difference is1.928 on the longer coastal view. These are fixture diagnostics,
+not calibrated human visual exposure or scientific atmospheric validation.
+
+F3 text explicitly reports northern seasonal turning-point progress. Actual
+native input still verifies chat keys/local time, opposite-longitude night,
+date edits, unchanged recorded history, saved settings and absence of shader/
+runtime errors. Tests are hidden and do not take cursor/focus or close the
+owner's game. Camera render targets are not IMGUI-layout proof; hidden chat UI
+captures remain black. No new interactive browser or setup-layout acceptance is
+claimed. Authored stellar brightness, multi-moon long-term stability, eclipse
+lighting/tides, dynamic calendar reform and clouds/weather remain outside this
+pass. The optional saved sky context supplies inherited conventions/observances,
+not daily festival economics or a world-wide event queue. Existing saves without
+it remain literal. No new all-era historical or dense-world performance acceptance
+is implied; the archived Earth golden mismatch remains. World-meridian is rollback.
+
 ## Official meridian and local solar time — 19 October 2026
 
 See `WORLD_MERIDIAN.md`.113 focused meridian/solar/persistence/grid assertions,

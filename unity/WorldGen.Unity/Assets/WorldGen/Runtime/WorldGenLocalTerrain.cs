@@ -57,7 +57,7 @@ public sealed partial class WorldGenRuntime
             if (globe != null) globe.SetActive(true); terrainUnloading=SceneManager.UnloadSceneAsync(scene);
         },world,play,DrawPlayPause);
         terrainExplorer.MenuSkin=gameSkin;
-        terrainExplorer.SetCommandHandler(text=>PlayCommands.Execute(play,SimulationTime.Seconds(world.Prehistory),text,terrainExplorer.Ready?Math.Atan2(terrainExplorer.Position.Y,terrainExplorer.Position.X)*180/Math.PI:play.PrimeMeridianLongitude));
+        terrainExplorer.SetCommandHandler(text=>PlayCommands.Execute(play,SimulationTime.Seconds(world.Prehistory),text,terrainExplorer.Ready?Math.Atan2(terrainExplorer.Position.Y,terrainExplorer.Position.X)*180/Math.PI:play.PrimeMeridianLongitude,terrainExplorer.Ready?Math.Asin(Math.Max(-1,Math.Min(1,terrainExplorer.Position.Z)))*180/Math.PI:0));
     }
     IEnumerator CheckLocalTerrain()
     {

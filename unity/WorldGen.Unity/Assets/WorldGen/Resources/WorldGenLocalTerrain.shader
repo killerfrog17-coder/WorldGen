@@ -26,6 +26,7 @@ Shader "WorldGen/LocalTerrain"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
+            #include "WorldGenAir.hlsl"
             TEXTURE2D_ARRAY(_GroundAlbedo);SAMPLER(sampler_GroundAlbedo);
             TEXTURE2D_ARRAY(_GroundNormals);TEXTURE2D_ARRAY(_GroundMasks);
             float _Water,_FogDistance,_TextureMetres,_Daylight;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint;
@@ -45,7 +46,7 @@ Shader "WorldGen/LocalTerrain"
                 farColor=SRGBToLinear(farColor);fogColor=SRGBToLinear(fogColor);
                 #endif
                 float distance=length(i.position-_WorldSpaceCameraPos);
-                if(_Water>.5){clip(i.color.a-.01);return half4(lerp(farColor*.92*lerp(.035,1,_Daylight),fogColor,smoothstep(_FogDistance*.25,_FogDistance,distance)),1);}
+                if(_Water>.5){clip(i.color.a-.01);return half4(ApplyPlanetAir(farColor*.92*lerp(.035,1,_Daylight)+_AmbientTint.rgb*.12,i.position,_WorldSpaceCameraPos,fogColor,_FogDistance),1);}
                 float3 n=normalize(i.normal);
                 float3 np=n.x*_PlanetEast.xyz+n.y*_PlanetUp.xyz+n.z*_PlanetNorth.xyz;
                 float3 w=pow(abs(np),4);w/=max(.0001,w.x+w.y+w.z);
@@ -78,7 +79,8 @@ Shader "WorldGen/LocalTerrain"
                 input.normalizedScreenSpaceUV=GetNormalizedScreenSpaceUV(i.positionCS);
                 SurfaceData s=(SurfaceData)0;s.albedo=albedo;s.alpha=1;s.occlusion=ao;s.smoothness=1-rough;s.metallic=metal;s.normalTS=half3(0,0,1);
                 half3 color=UniversalFragmentPBR(input,s).rgb;
-                return half4(lerp(color,fogColor,smoothstep(_FogDistance*.25,_FogDistance,distance)),1);
+                color+=SecondaryCelestialLight(n,s.albedo);
+                return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,fogColor,_FogDistance),1);
             }
             ENDHLSL
         }

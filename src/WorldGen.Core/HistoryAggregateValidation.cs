@@ -10,6 +10,7 @@ namespace WorldGen.Core
             // are permitted to appear inside a subsequent actor event.
             PrepareAggregateEnvironment(s);
             var h=s.History;var a=h.Aggregates;
+            h.Sky?.Validate(h,s.Years);
             ValidateLanguages(s);
             ValidateIdentityHistory(s);
             ValidateNotablePeople(s);

@@ -177,6 +177,7 @@ namespace WorldGen.Core
                 if(o is HistoricalAgriculture animalRecord && f.Name==nameof(HistoricalAgriculture.Animals) && animalRecord.Animals==null)continue;
                 if(o is HistoricalCultivar thermalCultivar && f.Name==nameof(HistoricalCultivar.MinimumWarmTenthsC) && thermalCultivar.MinimumWarmTenthsC==0)continue;
                 if(o is HistoryState modernHistory && f.Name==nameof(HistoryState.Modern) && modernHistory.Modern==null)continue;
+                if(o is HistoryState celestialHistory && f.Name==nameof(HistoryState.Sky) && celestialHistory.Sky==null)continue;
                 if(o is HistoryState aggregateHistory && f.Name==nameof(HistoryState.Aggregates) && aggregateHistory.Aggregates==null)continue;
                 if(o is HistoryState languageHistory && f.Name==nameof(HistoryState.Languages) && languageHistory.Languages==null)continue;
                 if(o is HistoryState originHistory && f.Name==nameof(HistoryState.OriginReach) && originHistory.OriginReach==null)continue;

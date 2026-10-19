@@ -364,6 +364,7 @@ namespace WorldGen.Presentation
         }
         static void People(PrehistoryState s,CultureIdentity c,AtlasDocument d,List<AtlasSection> a,World? world)
         {
+            a.AddRange(CelestialSections(s,c.Id,false));
             var h=s.History;var hc=h.Cultures[c.Id];d.Title=c.Name;d.Cell=c.OriginCell;d.Subtitle="People and cultural tradition";
             d.Introduction="The "+c.Name+" are a recorded cultural community dating to year "+Y(s,c.FoundedYear)+". Their modeled way of life centers on "+c.Subsistence.ToLowerInvariant()+". They number "+N(c.Population)+" people in the current checkpoint. Shared culture does not mean that all members answer to a single court.";
             var homeSpeech=SpokenLocalSection(s,c.OriginCell);if(homeSpeech!=null)a.Add(homeSpeech);

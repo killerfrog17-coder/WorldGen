@@ -136,7 +136,7 @@ public sealed partial class WorldGenRuntime
     void StartHumanWorld()
     {
         if(humans==null)return;
-        try{WorldMeridian.Apply(play,world);world.Prehistory=humans.Start(world.Prehistory);screen="Simulation";simulationTab="";simulationPaused=false;expandedInspection=false;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;humanPlaying=false;SetProjection(Projection.Map);mapPan=Vector3.zero;mapZoom=1;centerLongitude=(float)play.PrimeMeridianLongitude;UpdateHumanPalette();Refresh();}catch(Exception ex){error=ex.Message;}
+        try{WorldMeridian.Apply(play,world);if(!world.Prehistory.Started&&world.Prehistory.History?.Sky==null)world.Prehistory=humans.ConfigureCelestialHistory(world.Prehistory,play.Settings.Sky??CelestialSettings.Preset("No moons"));world.Prehistory=humans.Start(world.Prehistory);screen="Simulation";simulationTab="";simulationPaused=false;expandedInspection=false;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;humanPlaying=false;SetProjection(Projection.Map);mapPan=Vector3.zero;mapZoom=1;centerLongitude=(float)play.PrimeMeridianLongitude;UpdateHumanPalette();Refresh();}catch(Exception ex){error=ex.Message;}
     }
     void FocusHumanOrigin()
     {

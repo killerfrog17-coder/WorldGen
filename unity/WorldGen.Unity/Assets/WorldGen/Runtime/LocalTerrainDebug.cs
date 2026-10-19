@@ -63,7 +63,7 @@ public sealed partial class LocalTerrainExplorer
         if(debugOpen)
         {
             string text=terrain==null?"Preparing terrain…":DebugText();var style=new GUIStyle(GUI.skin.label){fontSize=14,wordWrap=false,richText=false};style.normal.textColor=Color.black;
-            GUI.Label(new Rect(14,14,Screen.width-28,170),text,style);style.normal.textColor=Color.white;GUI.Label(new Rect(12,12,Screen.width-28,170),text,style);
+            GUI.Label(new Rect(14,14,Screen.width-28,Screen.height-28),text,style);style.normal.textColor=Color.white;GUI.Label(new Rect(12,12,Screen.width-28,Screen.height-28),text,style);
         }
         if(paused){if(drawPause!=null)drawPause();else{GUILayout.BeginArea(new Rect(Screen.width/2f-130,Screen.height/2f-70,260,140),GUI.skin.box);if(GUILayout.Button("Resume"))Resume();if(GUILayout.Button("World simulation"))Close();GUILayout.EndArea();}return;}
         if(!mapOpen||terrain==null)return;
@@ -93,6 +93,7 @@ public sealed partial class LocalTerrainExplorer
         if(!mapLayerMenu)MapInput(Event.current);
     }
     public void Pause(){paused=true;mapOpen=false;CaptureMouse();}
+    public string TestDebugText()=>DebugText();
     string DebugText()
     {
         TerrainMapViewport.Degrees(Position,out double lat,out double lon);
@@ -100,7 +101,8 @@ public sealed partial class LocalTerrainExplorer
         return "WORLDGEN  ·  "+(1/Math.Max(.001,Time.smoothDeltaTime)).ToString("F0")+" FPS\n"+lat.ToString("F6")+"°, "+lon.ToString("F6")+"°  ·  scale "+HorizontalScale.ToString("G3")+"\n"+
             "Elevation "+(walkingPatch.Sample(Position).ElevationM+HeightAboveGround).ToString("F1")+" m  ·  ground clearance "+HeightAboveGround.ToString("F2")+" m\n"+
             (motion.Flying?"Flying":"Walking")+"  ·  "+Diagnostics+"\nScatter "+ScatterObjects.ToString("N0")+" instances  ·  "+ScatterDrawCalls+" draws"+
-            (playState==null?"":"\nLocal solar time "+LocalSolarHour.ToString("F2")+" h  ·  prime "+playState.SolarHour.ToString("F2")+" h  ·  calendar ×"+playState.Settings.CalendarDaysPerDay.ToString("G4"))+(MusicDebugText.Length>0?"\n"+MusicDebugText:"")+(error.Length>0?"\n"+error:"");
+            (playState==null?"":"\nLocal solar time "+PlayCommands.TimeText(LocalSolarHour)+"  ·  prime "+PlayCommands.TimeText(playState.SolarHour)+"  ·  calendar ×"+playState.Settings.CalendarDaysPerDay.ToString("G4"))+"\n"+PlayableSky.Season(skyYear)+
+            (SkyFrame==null?"":"\nCelestial night light "+SkyFrame.NightIlluminanceLux.ToString("G3")+" lux · "+(skyConfig?.Stars.ToString()??"SolarNeighborhood")+string.Concat(SkyFrame.Bodies.Where(b=>b.Surface>0).Select(b=>"\n"+b.Name+" · "+PlayableSky.PhaseName(b.PhaseCycle)+" · "+(100*b.IlluminatedFraction).ToString("F0")+"% lit · "+(b.Direction.Y>0?"above":"below")+" horizon")))+(MusicDebugText.Length>0?"\n"+MusicDebugText:"")+(error.Length>0?"\n"+error:"");
     }
     void MapInput(Event e)
     {

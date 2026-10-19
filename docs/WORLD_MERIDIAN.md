@@ -1,5 +1,10 @@
 # Official map and longitude-aware solar time — 19 October 2026
 
+The subsequent `CELESTIAL_ATMOSPHERE.md` extension adds configurable lunar
+orbits/calendars and seeded stellar environments while retaining this saved
+prime and local/reference clock. The limits below concern this earlier meridian
+checkpoint and the still-fixed planetary orbit, not the new lunar controls.
+
 A completed world gets one default chart seam; its antipode is the official
 prime meridian and the default map center. Panning the map never changes this
 reference. Internal mesh coordinates, measured Earth relief, climate, history,

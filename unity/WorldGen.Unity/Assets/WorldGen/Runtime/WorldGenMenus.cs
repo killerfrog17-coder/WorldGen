@@ -75,9 +75,11 @@ public sealed partial class WorldGenRuntime
         GUILayout.Label("NEW GAME",TitleStyle(27));GUILayout.Space(8);saveName=GUILayout.TextField(saveName,80);GUILayout.Space(12);
         GUILayout.BeginHorizontal();if(GUILayout.Toggle(setupCategory=="World","World generation",GUI.skin.button))setupCategory="World";if(GUILayout.Toggle(setupCategory=="Time","Time & calendar",GUI.skin.button))setupCategory="Time";GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();if(GUILayout.Toggle(setupCategory=="Scale","Scale & density",GUI.skin.button))setupCategory="Scale";if(GUILayout.Toggle(setupCategory=="Sapients","Sapients",GUI.skin.button))setupCategory="Sapients";GUILayout.EndHorizontal();GUILayout.Space(16);
+        if(GUILayout.Toggle(setupCategory=="Sky","Sky & atmosphere",GUI.skin.button))setupCategory="Sky";
         scroll=GUILayout.BeginScrollView(scroll);
         if(setupCategory=="Time"||setupCategory=="Scale")DrawPlaySettings(section:setupCategory);
         if(setupCategory=="Sapients")DrawHumanSetup();
+        if(setupCategory=="Sky")DrawSkySettings();
         if(setupCategory=="World")
         {
             GUI.enabled=!Busy;GUILayout.Label("Map type",SectionStyle());if(GUILayout.Button(preset+"  ▾"))mapTypeMenu=!mapTypeMenu;

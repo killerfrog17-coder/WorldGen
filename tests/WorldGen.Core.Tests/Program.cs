@@ -1,6 +1,9 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--atmosphere-native")){int n=0;AtmosphereTests.Native(args[Array.IndexOf(args,"--atmosphere-native")+1],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" exact native/CLR celestial assertions");return;}
+if(args.Contains("--atmosphere-world-only")){int n=0;AtmosphereTests.World((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" actual-world celestial assertions");return;}
+if(args.Contains("--atmosphere-only")){int n=0;AtmosphereTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" atmosphere assertions");return;}
 if(args.Contains("--meridian-only")){int n=0;WorldMeridianTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" meridian/local-time assertions");return;}
 if(args.Contains("--sky-chat-only")){int n=0;SkyChatTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" sky/calendar/command assertions");return;}
 if(args.Contains("--exploration-music-only")){int n=0;ExplorationMusicTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" exploration music assertions");return;}
@@ -415,6 +418,7 @@ WorldInterfaceTests.Run(Check);
 ExplorationMusicTests.Run(Check);
 SkyChatTests.Run(Check);
 WorldMeridianTests.Run(Check);
+AtmosphereTests.Run(Check);
 void Connected(int[] members, Func<int, int[]> neighbors, string name)
 { var set = members.ToHashSet(); var visited = new HashSet<int> { members[0] }; var queue = new Queue<int>(); queue.Enqueue(members[0]); while (queue.Count > 0) foreach (int n in neighbors(queue.Dequeue())) if (set.Contains(n) && visited.Add(n)) queue.Enqueue(n); Check(visited.Count == members.Length, name + " disconnected"); }
 void Validate(World w)

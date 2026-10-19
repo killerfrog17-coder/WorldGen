@@ -27,10 +27,11 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public double HorizontalScale=>explorationSettings.HorizontalScale;
     public double LocalSolarHour=>playState==null?9:Ready?playState.LocalSolarHour(Math.Atan2(Position.Y,Position.X)*180/Math.PI):playState.SolarHour;
     public GUISkin MenuSkin { get; set; }
-    readonly bool passiveSkyCheck=Environment.GetCommandLineArgs().Contains("--worldgen-sky-chat-check");
+    readonly bool passiveSkyCheck=Environment.GetCommandLineArgs().Contains("--worldgen-sky-chat-check")||Environment.GetCommandLineArgs().Contains("--worldgen-atmosphere-check");
     Keyboard testKeyboard;
     Keyboard ActiveKeyboard=>testKeyboard??Keyboard.current;
     public void TestKeyboard(Keyboard value){testKeyboard=value;}
+    public void TestFieldOfView(float value){view.fieldOfView=value;}
     public string MusicDebugText { get; set; }="";
     public ExplorationMusicContext MusicContext(double hour,double year)
     {

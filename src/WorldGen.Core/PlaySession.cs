@@ -7,12 +7,15 @@ namespace WorldGen.Core
     public sealed class PlaySettings
     {
         public double HorizontalScale=.1,RealMinutesPerDay=60,CalendarDaysPerDay=1,StructureDensity=1;
-        public PlaySettings Copy()=>(PlaySettings)MemberwiseClone();
+        [System.Runtime.Serialization.OptionalField] public CelestialSettings Sky=new CelestialSettings();
+        [System.Runtime.Serialization.OnDeserializing] void InitializeOptionalSky(System.Runtime.Serialization.StreamingContext context){Sky=null;}
+        public PlaySettings Copy(){var s=(PlaySettings)MemberwiseClone();s.Sky=Sky?.Copy();return s;}
         public void Validate()
         {
             void Range(double v,double low,double high,string name){if(double.IsNaN(v)||double.IsInfinity(v)||v<low||v>high)throw new ArgumentException("Invalid "+name+".");}
             Range(HorizontalScale,.01,2,"horizontal scale");Range(RealMinutesPerDay,1,10080,"day length");
             Range(CalendarDaysPerDay,1,365,"calendar compression");Range(StructureDensity,0,100,"structure density");
+            Sky?.Validate();
         }
     }
     [Serializable]
@@ -28,7 +31,7 @@ namespace WorldGen.Core
         public V PlayerPosition;
         public double Heading,Pitch,HeightAboveGround=1.65;
         public PlaySession Copy(){var s=(PlaySession)MemberwiseClone();s.Settings=Settings.Copy();return s;}
-        public static PlaySession Legacy()=>new PlaySession{Settings=new PlaySettings{HorizontalScale=1}};
+        public static PlaySession Legacy()=>new PlaySession{Settings=new PlaySettings{HorizontalScale=1,Sky=CelestialSettings.Preset("No moons")}};
         public void Validate()
         {
             if(Version!="play-session-1"||Settings==null)throw new ArgumentException("Unsupported play session.");Settings.Validate();
