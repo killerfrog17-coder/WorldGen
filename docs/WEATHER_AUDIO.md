@@ -1,5 +1,17 @@
 # Recorded weather effects
 
+## Current: owner-requested original rain restoration
+
+Rain now uses the exact `RainSynth.cs` from29d82da, with its original22050Hz
+stereo stream and original rain-volume smoothing. No AI rain recordings,
+3200Hz filter,55% multiplier, height-above-ground mask or intensity beds are
+used. The existing clear/above-cloud/pause gates remain. Wind stays removed.
+The same two hash-screened AI thunder recordings, pooled voices, physical
+delays and storm eligibility remain unchanged. This is an explicit exception
+to the earlier all-recorded sound direction, requested by the owner.
+
+Older sections below record superseded approaches, not current rain playback.
+
 ## Current: wind removed; rain is a nearby surface sound
 
 The owner rejected the preceding playback application. Wind playback, its UI

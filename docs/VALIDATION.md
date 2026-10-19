@@ -1,5 +1,22 @@
 # Version 3 validation evidence
 
+## Original rain restoration - 19 October 2026
+
+The owner requested the exact pre-AI rain, retaining current AI thunder and no
+wind. RainSynth source matches29d82da exactly (normalized text comparison);
+original22050Hz streaming and volume behavior replace all recorded rain,
+low-pass filtering and surface-height attenuation. Existing dry/above-cloud/
+pause gates remain. Shared build passes with zero warnings/errors;587 primitive
+weather assertions include restored rain determinism/bounds/wet/dry checks.
+Retained media hashes are unchanged; only the two thunder WAVs are loaded.
+IL2CPP player-rain-restored (19:29:00Z) passes65 native assertions and24
+native/CLR comparisons. Only two unchanged thunder recordings load; the original
+continuous rain plays, pauses/resumes, survives below-cloud flight without the
+rejected processing, and stops during dry modes. Terrain/history remain intact.
+No Unity runtime/shader errors are recorded. Evidence is ignored under
+`artifacts/rain-restored-verified`. The project shortcut selects this build.
+Muted native checks are not new subjective sound acceptance.
+
 ## Wind removal and surface-aware rain playback - 19 October 2026
 
 Owner feedback rejected the preceding application of the sounds, not merely

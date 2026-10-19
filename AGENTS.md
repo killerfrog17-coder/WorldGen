@@ -1,6 +1,15 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-rain-restored/WorldGen.exe` (IL2CPP,19:29:00Z; E: build junction).
+Owner-requested rain rollback restores the exact RainSynth source from29d82da
+and its original22050Hz streaming/volume behavior. AI rain beds, recent low-pass
+and height attenuation are not used. Current AI thunder and removed wind are
+unchanged.587 primitive/65 native/24 native-CLR checks and media hashes pass;
+native checks are muted, not new timbre acceptance. No generation/history change.
+This is the rain-only checkpoint before the separately requested soil/ground work.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-weather-rain-grounded/WorldGen.exe` (IL2CPP,19:06:03Z; output
 junction to E:/WorldGenBuilds/player-weather-rain-grounded). Owner requested
 complete wind-audio removal and rejected rain playback in midair. Wind has no

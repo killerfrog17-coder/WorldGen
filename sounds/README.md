@@ -1,5 +1,9 @@
 # Sound effects
 
+Current playback uses only the two thunder WAVs. The owner requested restoration
+of the original procedural rain; retained AI rain WAVs are not loaded. Wind
+remains removed. See the current section of `docs/WEATHER_AUDIO.md`.
+
 `weather-isolated/*.wav` contains seven local SA3 Medium rain/thunder effects.
 Wind playback and its active recording have been removed at the owner's request.
 `weather-isolated/screened.tsv` binds runtime admission to their SHA256 hashes.

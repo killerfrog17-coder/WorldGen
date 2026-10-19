@@ -21,7 +21,7 @@ public sealed partial class WorldGenRuntime
         recipe=Recipe.Preset("Earth");recipe.Detail=20000;setup.From(recipe);Generate();yield return Until(()=>worldReady&&!Busy&&humans!=null,"Earth ready");StartHumanWorld();
         ExploreTerrain(TerrainMapViewport.FromDegrees(35,-4));yield return Until(()=>terrainExplorer!=null&&terrainExplorer.Ready&&terrainExplorer.AllReady,"terrain ready");terrainExplorer.Pause();while(humanStep!=null)yield return null;
         yield return Until(()=>terrainExplorer.WeatherSoundsReady,"SA3 sound library loaded asynchronously");
-        Check(terrainExplorer.WeatherSoundBanksReady&&terrainExplorer.WeatherRecordingCount==7,"only seven rain/thunder recordings decode; wind has no playback bank");
+        Check(terrainExplorer.WeatherSoundBanksReady&&terrainExplorer.WeatherRecordingCount==2,"only existing AI thunder recordings load; original rain synth restored, no wind bank");
         Check(terrainExplorer.WeatherRecordingSignalsValid,"native PCM readback of every generated recording is finite nonempty and unclipped");
         string history=world.Prehistory.Hash,geography=StateHash.Compute(world);var o=WeatherVideoOptions.Current;o.Clouds=1;terrainExplorer.BeginWeatherRenderCheck();
         play.CalendarOffsetSeconds=100*SimulationTime.Day-SimulationTime.Seconds(world.Prehistory)-play.PendingHistorySeconds;play.SetLocalSolarHour(10,-4);
@@ -54,10 +54,10 @@ public sealed partial class WorldGenRuntime
         PlayCommands.Execute(play,0,"/weather rain",weather:terrainExplorer.WeatherControl);terrainExplorer.TestAnimateWeather=true;
         yield return new WaitForSecondsRealtime(4);Capture("command-rain");
         Check(terrainExplorer.CurrentWeather.RainMmPerHour==4&&terrainExplorer.WeatherParticleCount>500,"command rain produces a dense bounded near-observer shower");
-        Check(terrainExplorer.RainRecordingGain>.1f&&terrainExplorer.ActiveWeatherBedVoices>0,"rain actually plays recorded audio sources, not a synthesizer");
+        Check(terrainExplorer.RainRecordingGain>.1f&&terrainExplorer.ActiveWeatherBedVoices>0,"original procedural rain plays through an actual audio source");
         Check(terrainExplorer.RainRecordingVoices<=2,"one rain bed uses at most two voices for clip transitions, not stacked intensity beds");
         terrainExplorer.TestView(80,170,-18);yield return new WaitForSecondsRealtime(.2f);
-        Check(terrainExplorer.RainRecordingVoices==0&&terrainExplorer.RainRecordingGain==0,"airborne listener hears no close surface rain impacts");
+        Check(terrainExplorer.RainRecordingVoices==1&&terrainExplorer.RainRecordingGain>.1f,"restored original rain has no rejected surface-distance/filter processing");
         terrainExplorer.TestView(2,170,-18);yield return new WaitForSecondsRealtime(.2f);
         PlayCommands.Execute(play,0,"/weather downpour",weather:terrainExplorer.WeatherControl);yield return new WaitForSecondsRealtime(4);Capture("command-downpour");
         Check(terrainExplorer.CurrentWeather.VisibilityM<1000&&terrainExplorer.WeatherParticleCount>3000,"heavy downpour scales particle density and reduces visibility below1km");
@@ -130,9 +130,7 @@ public sealed partial class WorldGenRuntime
         terrainExplorer.TestAnimateWeather=true;yield return new WaitForSecondsRealtime(terrainExplorer.LastThunderDelaySeconds+1);
         Check(terrainExplorer.PendingThunderCount==0&&terrainExplorer.ActiveThunderCount>0,"queued thunder arrivals actually play after their physical delays");
         Check(terrainExplorer.ActiveWeatherBedVoices>0,"recorded ambience resumes with the explorer");
-        // Wind is no longer a perpetual bed. Keep actual rain running until its
-        // first full-length recording reaches the real crossfade boundary.
-        yield return Until(()=>terrainExplorer.WeatherBedTransitions>0,"recorded rain transitions across overlapping variants rather than hard-looping");
+        Check(terrainExplorer.RainRecordingVoices==1,"restored rain is one continuous stream, not prerecorded overlapping beds");
         terrainExplorer.TestWeatherOverride=Fixture(0);o.Adaptation=.8f;play.SetLocalSolarHour(0,-4);yield return new WaitForSecondsRealtime(4);
         play.SetLocalSolarHour(12,-4);yield return new WaitForSecondsRealtime(.15f);Capture("day-dazzle");float dazzle=terrainExplorer.WeatherScreen.Exposure;
         yield return new WaitForSecondsRealtime(3);Capture("day-adapted");Check(dazzle>terrainExplorer.WeatherScreen.Exposure+.1f,"night-to-day teleport produces transient, recovering eye adaptation");o.Adaptation=0;

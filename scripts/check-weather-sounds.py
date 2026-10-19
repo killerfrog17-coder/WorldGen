@@ -42,9 +42,9 @@ for name, record in release.items():
     fingerprints.add(signature)
     report.append(dict(id=name, seconds=len(pcm)/rate, channels=pcm.shape[1], rms=rms, peak=peak))
 sources = list((root/'unity/WorldGen.Unity/Assets/WorldGen/Runtime').glob('*.cs'))
-assert not any('AudioClip.Create(' in p.read_text(encoding='utf-8-sig') for p in sources)
+assert all(p.name=='LocalTerrainWeatherAudio.cs' for p in sources if 'AudioClip.Create(' in p.read_text(encoding='utf-8-sig'))
 assert not (root/'src/WorldGen.Presentation/WindSynth.cs').exists()
-assert not (root/'src/WorldGen.Presentation/RainSynth.cs').exists()
+assert (root/'src/WorldGen.Presentation/RainSynth.cs').exists()  # Owner-requested pre-SA3 rain restoration.
 (root/'artifacts/weather-isolated/verification.json').write_text(json.dumps(report, indent=2))
-print('PASS: 7 rain/thunder effects, no wind assets, provenance, PCM and no runtime synthesis.')
+print('PASS: unchanged AI thunder/retained rain media, no wind assets; original procedural rain restored.')
 print('These checks do not certify timbre, biological accuracy or absence of unwanted audible sources; audition remains necessary.')

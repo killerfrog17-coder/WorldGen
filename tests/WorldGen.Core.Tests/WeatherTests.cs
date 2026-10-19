@@ -40,6 +40,11 @@ static class WeatherTests
     }
     public static void Run(Action<bool,string> check)
     {
+        var originalRain=new RainSynth{MillimetresPerHour=12};var rainSamples=new float[44100];originalRain.Read(rainSamples);
+        var rainRepeat=new float[44100];new RainSynth{MillimetresPerHour=12}.Read(rainRepeat);
+        check(rainSamples.SequenceEqual(rainRepeat)&&rainSamples.All(x=>float.IsFinite(x)&&Math.Abs(x)<=.9f),"Restored original rain is deterministic finite and bounded");
+        var silentRain=new float[44100];new RainSynth().Read(silentRain);
+        check(silentRain.All(x=>x==0)&&rainSamples.Any(x=>Math.Abs(x)>.01),"Original rain is silent when dry and produces real wet samples");
         var wet=new WeatherClimate(new[]{25d,27,24,22},new[]{200d,350,180,120},new[]{.8,.9,.7,.7});
         var cold=new WeatherClimate(new[]{-12d,-8,-15,-20},new[]{80d,110,90,60},new[]{.6,.7,.6,.5});
         var desert=new WeatherClimate(new[]{25d,35,28,18},new[]{1d,0,1,2},new[]{.08,.05,.1,.1});
