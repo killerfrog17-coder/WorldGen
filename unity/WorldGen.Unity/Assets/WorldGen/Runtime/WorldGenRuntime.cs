@@ -187,6 +187,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
                         ? WorldFile.Read(File.ReadAllBytes(snapshotPath), token,stage=>progress=stage) : WorldJson.ReadWorld(File.ReadAllText(snapshotPath))
                         : generate ? new WorldPipeline().Generate(snapshot, p => { progress = p.Stage; percent = p.Percent * 80 / 100; if (uiCheck) Debug.Log("WORLDGEN UI STAGE " + p.Stage + " " + elapsed.ElapsedMilliseconds + "ms"); }, token) : existing;
                     token.ThrowIfCancellationRequested();
+                    if(snapshotPath!=null||generate)WorldMeridian.For(result,token);
                     int index = 0, total = DisplayCache.ExpectedChunkCount(result);
                     pendingPalettes = BuildPalettes(result, options.Layer, linear, token);
                     if(reusePendingGeometry)return result;
@@ -339,7 +340,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
                     viewOptions.Layer=GenerationPreview.Available(world,layer)?layer:viewOptions.Layer;layer=viewOptions.Layer;
                     viewOptions.Projection=projection;committedOptions = viewOptions.Clone();
                     InstallPalettes(); displayedWorld=world;
-                    if(loadingSnapshot){play=pendingPlay??PlaySession.Legacy();pendingPlay=null;continueLoadedGame=play.HasPlayer;}
+                    if(loadingSnapshot){play=pendingPlay??PlaySession.Legacy();pendingPlay=null;WorldMeridian.Apply(play,world);centerLongitude=(float)play.PrimeMeridianLongitude;continueLoadedGame=play.HasPlayer;}
                     if(loadingSnapshot){activeWorldId=pendingWorldId;saveName=pendingWorldName??"My world";worldReady=true;screen="Simulation";simulationTab="";simulationPaused=false;projection=viewOptions.Projection=committedOptions.Projection=Projection.Map;mapPan=Vector3.zero;mapZoom=1;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;setup.From(recipe);dirty=false;}
                     if(!reusePendingGeometry){StartCoroutine(Release(globe)); globe = pendingRoot;}
                     globe.name = "World surface"; globe.SetActive(!libraryOpen && screen!="Menu" && screen!="Options"); ApplyCachedDisplay();

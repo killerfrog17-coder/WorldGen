@@ -83,7 +83,7 @@ public sealed partial class LocalTerrainExplorer
         if(px>=0&&px<=1&&py>=0&&py<=1){float x=mapRect.x+(float)px*mapRect.width,y=mapRect.y+(float)py*mapRect.height;GUI.DrawTexture(new Rect(x-5,y-1,10,2),Texture2D.whiteTexture);GUI.DrawTexture(new Rect(x-1,y-5,2,10),Texture2D.whiteTexture);}
         GUI.Label(new Rect(mapRect.x,mapRect.yMax+8,mapRect.width-250,44),"Click to teleport · drag to pan · scroll to zoom"+(mapDirty||mapJob!=null?"  · Updating…":""));
         if(GUI.Button(new Rect(mapRect.xMax-240,mapRect.yMax+8,115,30),"Player")){mapViewport.Longitude=playerLon;mapViewport.Latitude=playerLat;InvalidateMap();}
-        if(GUI.Button(new Rect(mapRect.xMax-115,mapRect.yMax+8,115,30),"Whole world")){mapViewport=new TerrainMapViewport();InvalidateMap();}
+        if(GUI.Button(new Rect(mapRect.xMax-115,mapRect.yMax+8,115,30),"Whole world")){mapViewport=new TerrainMapViewport{Longitude=playState?.PrimeMeridianLongitude??0};InvalidateMap();}
         if(mapLayerMenu)
         {
             var menu=new Rect(mapRect.xMax-235,mapRect.y-6,235,Math.Min(320,mapRect.height));GUI.Box(menu,"");GUILayout.BeginArea(menu);mapLayerScroll=GUILayout.BeginScrollView(mapLayerScroll);
@@ -96,10 +96,11 @@ public sealed partial class LocalTerrainExplorer
     string DebugText()
     {
         TerrainMapViewport.Degrees(Position,out double lat,out double lon);
+        if(playState!=null)lon=playState.OfficialLongitude(lon);
         return "WORLDGEN  ·  "+(1/Math.Max(.001,Time.smoothDeltaTime)).ToString("F0")+" FPS\n"+lat.ToString("F6")+"°, "+lon.ToString("F6")+"°  ·  scale "+HorizontalScale.ToString("G3")+"\n"+
             "Elevation "+(walkingPatch.Sample(Position).ElevationM+HeightAboveGround).ToString("F1")+" m  ·  ground clearance "+HeightAboveGround.ToString("F2")+" m\n"+
             (motion.Flying?"Flying":"Walking")+"  ·  "+Diagnostics+"\nScatter "+ScatterObjects.ToString("N0")+" instances  ·  "+ScatterDrawCalls+" draws"+
-            (playState==null?"":"\nSolar time "+playState.SolarHour.ToString("F2")+" h  ·  calendar ×"+playState.Settings.CalendarDaysPerDay.ToString("G4"))+(MusicDebugText.Length>0?"\n"+MusicDebugText:"")+(error.Length>0?"\n"+error:"");
+            (playState==null?"":"\nLocal solar time "+LocalSolarHour.ToString("F2")+" h  ·  prime "+playState.SolarHour.ToString("F2")+" h  ·  calendar ×"+playState.Settings.CalendarDaysPerDay.ToString("G4"))+(MusicDebugText.Length>0?"\n"+MusicDebugText:"")+(error.Length>0?"\n"+error:"");
     }
     void MapInput(Event e)
     {

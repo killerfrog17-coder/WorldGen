@@ -107,13 +107,14 @@ namespace WorldGen.Presentation
             }
         }
         static void Add(List<float> list, V p) { list.Add((float)p.X); list.Add((float)p.Y); list.Add((float)p.Z); }
-        public static ViewData Grid(int spacing, World? world = null)
+        public static ViewData Grid(int spacing, World? world = null,double? primeLongitude=null)
         {
             if (spacing != 5 && spacing != 10 && spacing != 15 && spacing != 30) throw new ArgumentOutOfRangeException(nameof(spacing));
+            double prime=primeLongitude??(world!=null&&world.Surface.Cells.Length>0&&world.Hydrology.OceanConnected.Length==world.Surface.Cells.Length?WorldMeridian.For(world).PrimeLongitude:0);
             var lines = new List<float>(); int nearest = 0;
             V Point(double lon, double lat)
             {
-                double l = lon * Math.PI / 180, t = lat * Math.PI / 180; V point = new V(Math.Cos(l) * Math.Cos(t), Math.Sin(l) * Math.Cos(t), Math.Sin(t));
+                double l = (lon+prime) * Math.PI / 180, t = lat * Math.PI / 180; V point = new V(Math.Cos(l) * Math.Cos(t), Math.Sin(l) * Math.Cos(t), Math.Sin(t));
                 double radius = 1.0005;
                 if (world != null) { nearest = Erosion.Nearest(world.Surface, point, nearest); radius += Math.Max(0, world.ElevationM[nearest]) * (14.0 / 6371000); }
                 return new V(point.X, point.Z, -point.Y) * radius;

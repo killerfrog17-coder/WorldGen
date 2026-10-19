@@ -1,5 +1,33 @@
 # Version 3 validation evidence
 
+## Official meridian and local solar time — 19 October 2026
+
+See `WORLD_MERIDIAN.md`.113 focused meridian/solar/persistence/grid assertions,
+892 sky/chat assertions,182 music,42 saved-play,1,008 presentation and334
+interface assertions pass. Release solution/browser builds pass with zero
+warnings/errors; the normal build script stages matching worker/Unity DLLs.
+Preview repeated/reapply/recipe/cached reconstruction retains all stage hashes.
+No generation/history rules or expectations were changed.
+
+IL2CPP build2026-10-19T07:17:13Z passes32 hidden native assertions in ignored
+`artifacts/meridian-review/result.txt`. Earth20k selects the Pacific seam at
+177.75°W and opposite prime at2.25°E in stored coordinates, with16° approximate
+unavoidable meridional non-ocean crossing. The initial map centers on that prime.
+Actual sky images at35°N,4°W show local noon/twilight/night. Without advancing
+the shared solar phase, teleporting to35°N,176°E changes local noon to midnight;
+the actual explorer supplies nighttime solar altitude/stars and its captured
+sky is inspected. Returning to the original site, real chat input sets local
+noon correctly. Saved prime, solar phase and calendar roundtrip, recorded history
+is unchanged by commands, and no Unity shader/runtime errors occur.
+
+Tests do not change the owner's current app or take cursor focus. Hidden chat
+UI screenshots remain black and are not new layout proof. Browser default-center
+callbacks compile but have no new interactive browser acceptance. The seam is a
+cell-footprint/raster approximation, not a guarantee about tiny subcell islands
+or exact coastlines. No new physical atmosphere, orbital/calendar completeness,
+all-era history or dense-world performance acceptance is implied. The preceding
+sky-chat build is retained as rollback; the archived Earth golden mismatch remains.
+
 ## Playable sky and local chat — 19 October 2026
 
 See `SKY_CHAT.md`. The Release solution builds with zero warnings/errors;

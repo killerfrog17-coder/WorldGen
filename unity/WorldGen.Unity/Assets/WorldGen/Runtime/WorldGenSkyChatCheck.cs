@@ -20,13 +20,15 @@ public sealed partial class WorldGenRuntime
         void Check(bool ok,string message){if(!ok)throw new InvalidOperationException("SKY CHAT CHECK: "+message);report.Add("PASS "+message);Debug.Log("SKY CHAT PASS "+message);}
         IEnumerator Until(Func<bool> condition,string label,double timeout=180){double end=Time.realtimeSinceStartupAsDouble+timeout;while(!condition()&&Time.realtimeSinceStartupAsDouble<end)yield return null;Check(condition(),label);}
         recipe=Recipe.Preset("Earth");recipe.Detail=20000;setup.From(recipe);Generate();yield return Until(()=>worldReady&&!Busy&&humans!=null,"Earth world ready");StartHumanWorld();
+        var meridian=WorldMeridian.For(world);Check(play.MeridianVersion==1&&Math.Abs(centerLongitude-play.PrimeMeridianLongitude)<.0001,"official map centers on the saved prime meridian");
+        report.Add("Prime longitude "+meridian.PrimeLongitude+"; seam "+meridian.SeamLongitude+"; approximate land crossing "+meridian.LandCrossingDegrees+" degrees");
         PlayCommands.Execute(play,SimulationTime.Seconds(world.Prehistory),"/date set 0042-03-21");PlayCommands.Execute(play,0,"/time set noon");
         ExploreTerrain(TerrainMapViewport.FromDegrees(35,-4));yield return Until(()=>terrainExplorer!=null&&terrainExplorer.Ready&&terrainExplorer.AllReady,"scaled terrain and sky resident");
         terrainExplorer.Pause();while(humanStep!=null)yield return null;
         report.AddRange(terrainExplorer.Probes());
         IEnumerator Image(string name,string time,float yaw,float pitch)
         {
-            Check(PlayCommands.Execute(play,SimulationTime.Seconds(world.Prehistory),"/time set "+time).Success,"time command "+time);
+            Check(PlayCommands.Execute(play,SimulationTime.Seconds(world.Prehistory),"/time set "+time,-4).Success,"time command "+time);
             terrainExplorer.TestView(40,yaw,pitch);yield return new WaitForSecondsRealtime(.4f);yield return new WaitForEndOfFrame();terrainExplorer.Capture(Path.Combine(output,name+".png"));
             Check(terrainExplorer.SkyFrame!=null&&terrainExplorer.SkyFrame.Bodies.Length==1,"one sun and no moon: "+name);
         }
@@ -37,6 +39,11 @@ public sealed partial class WorldGenRuntime
         Check(Mean(dayPixels)>Mean(nightPixels)*3,"day/night renders visibly differ");
         int bright=nightPixels.Skip(nightPixels.Length/2).Count(p=>Math.Max(p.r,Math.Max(p.g,p.b))>90);Check(bright>30,"star points actually render at night: "+bright);
         report.Add("Sky mean daylight "+Mean(dayPixels).ToString("F2")+", night "+Mean(nightPixels).ToString("F2"));
+        PlayCommands.Execute(play,SimulationTime.Seconds(world.Prehistory),"/time set noon",-4);double unchangedSolar=play.SolarDays;
+        terrainExplorer.Teleport(TerrainMapViewport.FromDegrees(35,176));terrainExplorer.TestView(12000,180,-35);yield return new WaitForSecondsRealtime(.4f);
+        Check(play.SolarDays==unchangedSolar&&Math.Abs(terrainExplorer.LocalSolarHour)<1e-6,"crossing the planet changes local time by twelve hours without changing the world clock");
+        Check(terrainExplorer.SkyFrame.SunAltitudeDegrees< -40&&terrainExplorer.SkyFrame.StarVisibility>.99,"the actual opposite-side explorer receives nighttime sky and stars");
+        terrainExplorer.Capture(Path.Combine(output,"opposite-longitude.png"));terrainExplorer.Teleport(TerrainMapViewport.FromDegrees(35,-4));terrainExplorer.TestView(40,180,-35);yield return Until(()=>terrainExplorer.AllReady,"return-site terrain resident");
         string tagged=Directory.GetFiles(Path.Combine(musicFolder,"exploration")).First(p=>Path.GetFileName(p).Contains("+"));
         using(var audio=UnityWebRequestMultimedia.GetAudioClip(MusicFileUri(tagged),AudioType.OGGVORBIS))
         {
@@ -53,7 +60,7 @@ public sealed partial class WorldGenRuntime
         yield return KeyPress(Key.Enter);Check(!terrainExplorer.ChatOpen,"Enter submits ordinary local chat");
         yield return KeyPress(Key.Slash);Check(terrainExplorer.ChatOpen&&terrainExplorer.ChatText=="/","slash opens chat already prefixed without duplication");
         yield return Type("help");yield return KeyPress(Key.Enter);Check(!terrainExplorer.ChatOpen,"slash help executes through the real chat input");
-        yield return KeyPress(Key.Slash);yield return Type("time set noon");yield return KeyPress(Key.Enter);Check(Math.Abs(play.SolarHour-12)<.05,"chat time command changes the live clock");
+        yield return KeyPress(Key.Slash);yield return Type("time set noon");yield return KeyPress(Key.Enter);Check(Math.Abs(terrainExplorer.LocalSolarHour-12)<.05,"chat time command changes the live local clock");
         yield return KeyPress(Key.Slash);yield return Type("date set 0042-12-21");yield return KeyPress(Key.Enter);Check(PlayCalendar.Date(PlayCalendar.Seconds(play,SimulationTime.Seconds(world.Prehistory)))=="0042-12-21","chat date command changes the seasonal calendar");
         yield return KeyPress(Key.Enter);yield return KeyPress(Key.UpArrow);Check(terrainExplorer.ChatText=="/date set 0042-12-21","up arrow recalls the command history");
         yield return KeyPress(Key.Escape);Check(!terrainExplorer.ChatOpen&&!terrainExplorer.Paused,"Escape closes chat without opening pause");
@@ -63,7 +70,7 @@ public sealed partial class WorldGenRuntime
         // Commands themselves never enqueue simulation work. Normal unpaused gameplay above may legitimately advance it.
         string before=world.Prehistory.Hash;PlayCommands.Execute(play,SimulationTime.Seconds(world.Prehistory),"/date set 0042-06-21");PlayCommands.Execute(play,SimulationTime.Seconds(world.Prehistory),"/time set midnight");
         Check(world.Prehistory.Hash==before,"date/time edits do not rewrite recorded historical state");
-        var saved=WorldJson.Read<PlaySession>(WorldJson.Write(play));saved.Validate();Check(saved.CalendarOffsetSeconds==play.CalendarOffsetSeconds&&saved.SolarDays==play.SolarDays,"calendar and solar phase cold roundtrip");
+        var saved=WorldJson.Read<PlaySession>(WorldJson.Write(play));saved.Validate();Check(saved.CalendarOffsetSeconds==play.CalendarOffsetSeconds&&saved.SolarDays==play.SolarDays&&saved.MeridianVersion==1&&saved.PrimeMeridianLongitude==play.PrimeMeridianLongitude,"calendar, prime meridian and solar phase cold roundtrip");
         Check(errors.Count==0,"no Unity shader/runtime errors");InputSystem.RemoveDevice(keyboard);Application.logMessageReceived-=listener;
         File.WriteAllLines(Path.Combine(output,"result.txt"),report);Debug.Log("SKY CHAT CHECK PASS "+report.Count(s=>s.StartsWith("PASS ",StringComparison.Ordinal)));Application.Quit(0);
     }

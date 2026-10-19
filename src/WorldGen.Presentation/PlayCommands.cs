@@ -34,24 +34,25 @@ namespace WorldGen.Presentation
             string[] options=input.StartsWith("/time set ",StringComparison.OrdinalIgnoreCase)?new[]{"/time set day","/time set midnight","/time set night","/time set noon","/time set sunrise","/time set sunset"}:new[]{"/date","/help","/time"};
             return options.Where(s=>s.StartsWith(input,StringComparison.OrdinalIgnoreCase)).OrderBy(s=>s,StringComparer.Ordinal).ToArray();
         }
-        public static PlayCommandResult Execute(PlaySession play,long historySeconds,string input)
+        public static PlayCommandResult Execute(PlaySession play,long historySeconds,string input,double? longitude=null)
         {
+            double localLongitude=longitude??play.PrimeMeridianLongitude,localHour=play.LocalSolarHour(localLongitude);
             var words=(input??"").Trim().Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);if(words.Length==0)return new PlayCommandResult(false,"Empty command. Try /help.");
             string command=words[0].ToLowerInvariant();
             if(command=="/help")return words.Length==1?new PlayCommandResult(true,Help):new PlayCommandResult(false,"Usage: /help");
             if(command=="/time")
             {
-                if(words.Length==1||words.Length==2&&words[1].Equals("get",StringComparison.OrdinalIgnoreCase))return new PlayCommandResult(true,"Time: "+TimeText(play.SolarHour));
+                if(words.Length==1||words.Length==2&&words[1].Equals("get",StringComparison.OrdinalIgnoreCase))return new PlayCommandResult(true,"Local solar time: "+TimeText(localHour));
                 double hour;
                 if(words.Length==3&&words[1].Equals("set",StringComparison.OrdinalIgnoreCase))
                 {
                     string value=words[2].ToLowerInvariant();hour=value=="day"?7:value=="night"?19:value=="noon"?12:value=="midnight"?0:value=="sunrise"?6:value=="sunset"?18:-1;
                     if(hour<0){var hm=value.Split(':');if(hm.Length!=2||!int.TryParse(hm[0],out int h)||!int.TryParse(hm[1],out int m)||h<0||h>23||m<0||m>59)return new PlayCommandResult(false,"Use day, night, noon, midnight, sunrise, sunset or HH:mm.");hour=h+m/60d;}
                 }
-                else if(words.Length==3&&words[1].Equals("add",StringComparison.OrdinalIgnoreCase)&&double.TryParse(words[2],NumberStyles.Float,CultureInfo.InvariantCulture,out double hours)&&!double.IsNaN(hours)&&!double.IsInfinity(hours)&&Math.Abs(hours)<=1000000)hour=((play.SolarHour+hours)%24+24)%24;
+                else if(words.Length==3&&words[1].Equals("add",StringComparison.OrdinalIgnoreCase)&&double.TryParse(words[2],NumberStyles.Float,CultureInfo.InvariantCulture,out double hours)&&!double.IsNaN(hours)&&!double.IsInfinity(hours)&&Math.Abs(hours)<=1000000)hour=((localHour+hours)%24+24)%24;
                 else return new PlayCommandResult(false,Help[2]);
-                play.SolarDays=Math.Floor(play.SolarDays)+((hour/24-.375+1)%1);
-                return new PlayCommandResult(true,"Time set to "+TimeText(hour)+".");
+                play.SetLocalSolarHour(hour,localLongitude);
+                return new PlayCommandResult(true,"Local solar time set to "+TimeText(hour)+".");
             }
             if(command=="/date")
             {

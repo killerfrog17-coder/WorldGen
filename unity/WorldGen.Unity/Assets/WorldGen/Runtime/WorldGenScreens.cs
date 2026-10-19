@@ -35,8 +35,8 @@ public sealed partial class WorldGenRuntime
             ValidateInputs();var source=recipe.Clone();ClimateCalibration.Upgrade(source);var resolved=setup.Resolve(source);
             previousComplete=worldReady?world:null;worldReady=false;dirty=false;screen="Setup";selectedCell=-1;error="";preferredLayer=layer;
             generationCancel?.Dispose();generationCancel=new CancellationTokenSource();var token=generationCancel.Token;
-            generationJob=Task.Run(()=>new WorldPipeline().Generate(resolved,p=>{generationStage=p.Stage;generationPercent=p.Percent;progress=p.Stage;percent=p.Percent;if(uiCheck)Debug.Log("WORLDGEN GENERATION "+p.Stage+" "+p.Percent+"%");},token,
-                (stage,w)=>{if(stage!="biogeography")Interlocked.Exchange(ref nextPreview,GenerationPreview.Capture(stage,w));}),token);
+            generationJob=Task.Run(()=>{var result=new WorldPipeline().Generate(resolved,p=>{generationStage=p.Stage;generationPercent=p.Percent;progress=p.Stage;percent=p.Percent;if(uiCheck)Debug.Log("WORLDGEN GENERATION "+p.Stage+" "+p.Percent+"%");},token,
+                (stage,w)=>{if(stage!="biogeography")Interlocked.Exchange(ref nextPreview,GenerationPreview.Capture(stage,w));});WorldMeridian.For(result,token);return result;},token);
         }
         catch(Exception e){error=e.Message;}
     }
@@ -53,7 +53,7 @@ public sealed partial class WorldGenRuntime
                 world=previousComplete;worldReady=world!=null;dirty=true;
                 if(world==null){StartCoroutine(Release(globe));globe=null;}
             }
-            else {world=generationJob.Result;worldReady=true;dirty=false;activeWorldId=null;if(string.IsNullOrWhiteSpace(saveName))saveName="New world";}
+            else {world=generationJob.Result;worldReady=true;dirty=false;activeWorldId=null;play.HasPlayer=false;play.MeridianVersion=0;WorldMeridian.Apply(play,world);centerLongitude=(float)play.PrimeMeridianLongitude;if(string.IsNullOrWhiteSpace(saveName))saveName="New world";}
             generationJob=null;selectedCell=-1;
             if(world!=null){layer=GenerationPreview.Available(world,preferredLayer)?preferredLayer:Layer.Terrain;Refresh();}
             return;

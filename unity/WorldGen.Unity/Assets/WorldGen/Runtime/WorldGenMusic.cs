@@ -63,7 +63,7 @@ public sealed partial class WorldGenRuntime
         musicBusy=true;StartCoroutine(PlayNextMusic());
     }
     int DesiredMusicEra()=>terrainExplorer!=null||screen=="Simulation"&&!musicSimulationStarted?0:CurrentMusicEra();
-    ExplorationMusicContext CurrentExplorationMusicContext()=>terrainExplorer.MusicContext(play.SolarHour,PlayCalendar.Seconds(play,SimulationTime.Seconds(world.Prehistory))/(double)SimulationTime.Year);
+    ExplorationMusicContext CurrentExplorationMusicContext()=>terrainExplorer.MusicContext(terrainExplorer.LocalSolarHour,PlayCalendar.Seconds(play,SimulationTime.Seconds(world.Prehistory))/(double)SimulationTime.Year);
     void DrawAudioOptions()
     {
         GUILayout.Label("AUDIO",new GUIStyle(GUI.skin.label){fontStyle=FontStyle.Bold});

@@ -1,6 +1,20 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-world-meridian/WorldGen.exe` (IL2CPP,2026-10-19T07:17:13Z).
+Presentation-only official chart seam/prime meridian is chosen once per world
+and saved in optional play-session fields. Default maps/graticules use this
+reference; local sun, stars, music, F3 and time commands are longitude-aware.
+The23.44° tilt remains fixed.113 focused meridian/892sky/182music/42play/
+1008presentation/334interface assertions and32 hidden native checks pass,
+including actual noon-to-opposite-longitude night, live local chat setters and
+saved-prime continuation. Preview all-stage reconstruction hashes match.
+Earth20k chooses seam177.75°W/prime2.25°E; native sky images are inspected.
+Browser changes compile but have not had a new interactive acceptance pass.
+Generation/history rules are unchanged; sky-chat is rollback. See
+`docs/WORLD_MERIDIAN.md` and `docs/VALIDATION.md` for approximation/validation limits.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-sky-chat/WorldGen.exe` (IL2CPP,2026-10-19T06:43:59Z).
 Adds a camera-local one-sun sky, twilight/rotating stars, shared sky/music solar
 altitude, optional saved playable-calendar offset and Minecraft-style local chat

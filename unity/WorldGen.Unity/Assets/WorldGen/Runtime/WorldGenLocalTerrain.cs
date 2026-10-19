@@ -36,6 +36,7 @@ public sealed partial class WorldGenRuntime
     void ExploreTerrain(V? exactPosition = null)
     {
         if (!CanExploreTerrain || terrainExplorer != null) return;
+        WorldMeridian.Apply(play,world);
         if (!ReferenceEquals(localTerrainWorld, world) || localTerrainScale!=play.Settings.HorizontalScale || localTerrainTask == null || localTerrainTask.IsCanceled || localTerrainTask.IsFaulted)
         {
             localTerrainCancellation?.Cancel(); localTerrainCancellation?.Dispose(); localTerrainCancellation = new CancellationTokenSource();
@@ -56,7 +57,7 @@ public sealed partial class WorldGenRuntime
             if (globe != null) globe.SetActive(true); terrainUnloading=SceneManager.UnloadSceneAsync(scene);
         },world,play,DrawPlayPause);
         terrainExplorer.MenuSkin=gameSkin;
-        terrainExplorer.SetCommandHandler(text=>PlayCommands.Execute(play,SimulationTime.Seconds(world.Prehistory),text));
+        terrainExplorer.SetCommandHandler(text=>PlayCommands.Execute(play,SimulationTime.Seconds(world.Prehistory),text,terrainExplorer.Ready?Math.Atan2(terrainExplorer.Position.Y,terrainExplorer.Position.X)*180/Math.PI:play.PrimeMeridianLongitude));
     }
     IEnumerator CheckLocalTerrain()
     {

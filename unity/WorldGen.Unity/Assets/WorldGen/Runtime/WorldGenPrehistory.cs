@@ -58,7 +58,7 @@ public sealed partial class WorldGenRuntime
         humanPlayback.Accumulate(elapsed,run);
         bool playingLocal=screen=="Simulation"&&!Environment.GetCommandLineArgs().Contains("--worldgen-local-terrain-check")&&terrainExplorer!=null&&terrainExplorer.Ready&&!terrainExplorer.Paused&&!terrainExplorer.MapVisible&&!saveDialog;
         if(playingLocal)play.Accumulate(Math.Max(0,elapsed));
-        if(terrainExplorer!=null&&terrainExplorer.Ready)terrainExplorer.SetDaylight(play.SolarHour,PlayCalendar.Seconds(play,SimulationTime.Seconds(world.Prehistory))/(double)SimulationTime.Year);
+        if(terrainExplorer!=null&&terrainExplorer.Ready)terrainExplorer.SetDaylight(terrainExplorer.LocalSolarHour,PlayCalendar.Seconds(play,SimulationTime.Seconds(world.Prehistory))/(double)SimulationTime.Year);
         long pending=playingLocal?(long)Math.Floor(play.PendingHistorySeconds):humanPlayback.Pending;
         bool localDue=playingLocal&&(pending>=60||clockNow-playPublicationAt>=2);
         if((run||localDue)&&humanStep==null&&pending>0)
@@ -136,7 +136,7 @@ public sealed partial class WorldGenRuntime
     void StartHumanWorld()
     {
         if(humans==null)return;
-        try{world.Prehistory=humans.Start(world.Prehistory);screen="Simulation";simulationTab="";simulationPaused=false;expandedInspection=false;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;humanPlaying=false;SetProjection(Projection.Map);mapPan=Vector3.zero;mapZoom=1;FocusHumanOrigin();UpdateHumanPalette();Refresh();}catch(Exception ex){error=ex.Message;}
+        try{WorldMeridian.Apply(play,world);world.Prehistory=humans.Start(world.Prehistory);screen="Simulation";simulationTab="";simulationPaused=false;expandedInspection=false;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;humanPlaying=false;SetProjection(Projection.Map);mapPan=Vector3.zero;mapZoom=1;centerLongitude=(float)play.PrimeMeridianLongitude;UpdateHumanPalette();Refresh();}catch(Exception ex){error=ex.Message;}
     }
     void FocusHumanOrigin()
     {

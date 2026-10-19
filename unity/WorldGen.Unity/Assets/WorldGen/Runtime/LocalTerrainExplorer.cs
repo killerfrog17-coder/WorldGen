@@ -25,6 +25,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     Action close; Camera view; Material landMaterial,waterMaterial;
     Action drawPause;World sourceWorld;PlaySession playState;PlaySettings explorationSettings=new PlaySettings{HorizontalScale=1};
     public double HorizontalScale=>explorationSettings.HorizontalScale;
+    public double LocalSolarHour=>playState==null?9:Ready?playState.LocalSolarHour(Math.Atan2(Position.Y,Position.X)*180/Math.PI):playState.SolarHour;
     public GUISkin MenuSkin { get; set; }
     readonly bool passiveSkyCheck=Environment.GetCommandLineArgs().Contains("--worldgen-sky-chat-check");
     Keyboard testKeyboard;
@@ -56,6 +57,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public void Initialize(Task<LocalTerrain> source,V position,Action onClose,World sourceWorld=null,PlaySession session=null,Action pauseMenu=null)
     {
         building=source;startingPoint=session!=null&&session.HasPlayer?session.PlayerPosition:position;close=onClose;this.sourceWorld=sourceWorld;playState=session;drawPause=pauseMenu;explorationSettings=session?.Settings.Copy()??new PlaySettings{HorizontalScale=1};
+        mapViewport.Longitude=session?.PrimeMeridianLongitude??0;
         var cameraRoot=new GameObject("Exploration camera",typeof(Camera),typeof(UnityEngine.Rendering.Universal.UniversalAdditionalCameraData));
         cameraRoot.transform.SetParent(transform,false);cameraRoot.layer=30;view=cameraRoot.GetComponent<Camera>();
         view.cullingMask=1<<30;view.nearClipPlane=.1f;view.farClipPlane=300000;view.fieldOfView=68;

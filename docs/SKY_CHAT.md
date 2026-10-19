@@ -34,7 +34,9 @@ agent is implemented. Normal play remains HUD-free once messages fade.
 The playable calendar uses the simulator's existing365-day, non-leap year,
 ordinary month lengths and a1-based year. Invalid commands return a red message
 without mutating the clock. Date edits preserve solar time; time edits preserve
-the historical event queue and pending credit. These are testing/presentation
+the historical event queue and pending credit. Time queries/setters use the
+player's current longitude and update the shared prime-meridian clock, not an
+independent clock for each location. These are testing/presentation
 commands, **not** a way to replay, rewind or skip civilizations' historical events.
 
 `PlaySession.CalendarOffsetSeconds` is an optional saved offset from committed
@@ -47,9 +49,11 @@ or existing events. The same adjusted seasonal phase feeds sky and music.
 A shared engine-independent `PlayableSky` samples one sun's local east/up/north
 direction from latitude, saved solar time and seasonal phase. Lighting and music
 use this same solar altitude. Day length and calendar compression remain the
-existing independently configurable game settings. The model is still a basic
-local solar-time model: longitude-specific time zones, orbital ephemerides and
-custom calendars are not implemented.
+existing independently configurable game settings. The official prime meridian
+is chosen opposite an ocean-friendly map seam and saved with the game; local
+mean solar time shifts by one hour per15° east. See `WORLD_MERIDIAN.md`.
+Civil time zones, precise orbital ephemerides and custom calendars are not
+implemented; the current23.44° tilt remains fixed.
 
 Unity uses a camera-specific URP skybox, graded zenith/horizon colors, directional
 warm twilight haze, an antialiased approximately0.53° solar disk, a fixed seeded
