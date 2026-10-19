@@ -1,6 +1,22 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-rocks-original-lod/WorldGen.exe` (IL2CPP23:18:31Z).
+OWNER-REQUESTED COMPLETE LOD ROLLBACK to20810b6: original planning/sampling,
+tile lifetime/jobs, analytic grounding, chart resets, fog and debug distance
+control are restored. Both preceding geology-era streaming attempts are rejected,
+regardless of their recorded test passes. Do NOT reintroduce their caching,
+coverage roots/masks, geomorphing, rendered-mesh grounding or Video LOD options.
+Latest irregular rocks, regional placement, lithology materials and centered
+footfalls remain.582 terrain/4037 scatter/3131 ground and14 actual200k terrain
+assertions pass; native200k Continents Plus ground/input/centered-footfall review
+passes across three sites with unchanged world hash and no render errors.
+This restores the old behaviour INCLUDING its original reanchor reload limits,
+not a new seamless-flight/performance acceptance. Source comparisons pin the
+rollback; explorer/shader baseline differences only carry rock materials.
+See docs/LOCAL_GEOLOGY_STREAMING.md and VALIDATION.md. No history/generation change.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-ground-lod-corrected/WorldGen.exe` (IL2CPP23:00:12Z).
 This supersedes the OWNER-REJECTED geology-streaming renderer below: coarse-root
 blocking and render/player height disagreement were real regressions, not

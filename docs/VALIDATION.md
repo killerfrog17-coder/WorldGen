@@ -22,6 +22,16 @@ limitations; this is not a new seamless-flight/LOD-quality claim.
 Continents Plus terrain assertions pass. No golden expectations were regenerated.
 The accepted height function and simulation/generation rules are unchanged.
 
+IL2CPP build23:18:31Z passes the restored native ground/input review using the
+200k Continents Plus snapshot at three sites. The review checks original
+streaming, walking/jogging/sprinting, centered28-clip footfalls, stationary/flight
+silence, map/teleport/F3/mouse/F/Escape controls and unchanged source hash
+cb819eba6ade049b3d222a839929a3566d55a4de2e88443d7c4d7f81b211a974.
+No rendering errors were collected. Ground/overhead captures are retained under
+artifacts/original-lod-review; the granite-site overhead was inspected. This
+checks the restored implementation, not the discarded cache/morph contracts.
+All12 native/CoreCLR terrain-height probes match exactly.
+
 ## Owner-reported grounding/LOD regression correction -19 October2026
 
 The preceding geology-streaming checkpoint was rejected by the owner: coarse
