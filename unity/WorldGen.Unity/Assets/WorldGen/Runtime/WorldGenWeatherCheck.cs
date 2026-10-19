@@ -35,6 +35,30 @@ public sealed partial class WorldGenRuntime
         terrainExplorer.TestWeatherOverride=Fixture(.65);yield return new WaitForSecondsRealtime(.3f);Capture("cumulus-low");var cumulus=terrainExplorer.LastCapturePixels;
         Check(Difference(clear,cumulus)>.2,"low-quality volume visibly adds cloud bodies, not just metadata");
         o.Clouds=3;yield return new WaitForSecondsRealtime(.2f);Capture("cumulus-high");
+        terrainExplorer.TestWeatherOverride=null;
+        Check(PlayCommands.Execute(play,0,"/weather overcast",weather:terrainExplorer.WeatherControl).Success,"user weather command accepts overcast");
+        yield return new WaitForSecondsRealtime(.3f);Capture("command-overcast");
+        Check(terrainExplorer.CurrentWeather.CloudCover==1,"weather command drives the actual explorer, not just a chat acknowledgement");
+        PlayCommands.Execute(play,0,"/weather rain",weather:terrainExplorer.WeatherControl);terrainExplorer.TestAnimateWeather=true;
+        yield return new WaitForSecondsRealtime(4);Capture("command-rain");
+        Check(terrainExplorer.CurrentWeather.RainMmPerHour==4&&terrainExplorer.WeatherParticleCount>500,"command rain produces a dense bounded near-observer shower");
+        PlayCommands.Execute(play,0,"/weather storm",weather:terrainExplorer.WeatherControl);yield return new WaitForSecondsRealtime(.3f);Capture("command-storm");
+        Check(terrainExplorer.CurrentWeather.Thunderstorm==1,"storm command activates storm weather");
+        PlayCommands.Execute(play,0,"/weather auto",weather:terrainExplorer.WeatherControl);yield return new WaitForSecondsRealtime(.6f);
+        Check(terrainExplorer.WeatherControl.Mode=="auto"&&terrainExplorer.CurrentWeather.RainMmPerHour!=12,"auto command restores the natural provider");
+        double rainDate=0,best=0;for(int k=0;k<2920;k++){double d=k*.125,rate=terrainExplorer.TestNaturalWeather(d).RainMmPerHour;if(rate>best){rainDate=d;best=rate;}if(rate>=1&&rate<4){rainDate=d;break;}}
+        play.CalendarOffsetSeconds=rainDate*SimulationTime.Day-SimulationTime.Seconds(world.Prehistory)-play.PendingHistorySeconds;
+        yield return new WaitForSecondsRealtime(4);Capture("natural-rain");
+        Check(terrainExplorer.CurrentWeather.RainMmPerHour>.1&&terrainExplorer.WeatherParticleCount>100,"a naturally dated real-world profile produces visible rain without a test override");
+        terrainExplorer.TestCloudMap(true);yield return Until(()=>terrainExplorer.CloudMapReady&&terrainExplorer.MapReady,"natural cloud overlay and cached base map ready");terrainExplorer.CaptureCloudMap(Path.Combine(output,"map-clouds-natural.png"),true);terrainExplorer.CaptureMap(Path.Combine(output,"map-base.png"));int mapBuilds=terrainExplorer.MapBuildCount;
+        PlayCommands.Execute(play,0,"/weather clear",weather:terrainExplorer.WeatherControl);yield return new WaitForSecondsRealtime(.3f);yield return Until(()=>terrainExplorer.CloudMapReady,"clear command refreshes optional map overlay");terrainExplorer.CaptureCloudMap(Path.Combine(output,"map-clouds-clear.png"));
+        PlayCommands.Execute(play,0,"/weather storm",weather:terrainExplorer.WeatherControl);yield return new WaitForSecondsRealtime(.3f);yield return Until(()=>terrainExplorer.CloudMapReady,"storm command refreshes optional map overlay");terrainExplorer.CaptureCloudMap(Path.Combine(output,"map-clouds-storm.png"));
+        Check(terrainExplorer.MapBuildCount==mapBuilds,"cloud options and weather overrides do not rebuild the cached base map");
+        terrainExplorer.TestCloudMap(false);terrainExplorer.Pause();PlayCommands.Execute(play,0,"/weather auto",weather:terrainExplorer.WeatherControl);
+        // Restore the original solar date and let earlier command-test drops leave the volume
+        // before the independent foreground-occlusion comparison below.
+        play.CalendarOffsetSeconds=100*SimulationTime.Day-SimulationTime.Seconds(world.Prehistory)-play.PendingHistorySeconds;
+        terrainExplorer.TestWeatherOverride=Fixture(0);yield return new WaitForSecondsRealtime(2);
         terrainExplorer.TestWeatherOverride=Fixture(1);yield return new WaitForSecondsRealtime(.2f);Capture("overcast");Check(Difference(clear,terrainExplorer.LastCapturePixels)>1,"overcast changes the actual rendered sky");
         terrainExplorer.TestWeatherOverride=Fixture(0,.9);yield return new WaitForSecondsRealtime(.2f);Capture("cirrus");Check(Difference(clear,terrainExplorer.LastCapturePixels)>.1,"independent high thin layer renders");
         var cirrusPixels=terrainExplorer.LastCapturePixels;double groundChange=0;int groundCount=0;

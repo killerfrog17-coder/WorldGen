@@ -28,18 +28,26 @@ namespace WorldGen.Presentation
     }
     public static class PlayCommands
     {
-        public static readonly string[] Help={"/date [get | set YYYY-MM-DD | add days] — playable seasonal date (365-day years)","/help — list commands","/time [get | set day/night/noon/midnight/sunrise/sunset/HH:mm | add hours]"};
+        public static readonly string[] Help={"/date [get | set YYYY-MM-DD | add days] — playable seasonal date (365-day years)","/help — list commands","/time [get | set day/night/noon/midnight/sunrise/sunset/HH:mm | add hours]","/weather [get | auto | clear | cloudy | overcast | rain | storm | snow | blizzard] — temporary weather test"};
         public static string[] Complete(string input)
         {
-            string[] options=input.StartsWith("/time set ",StringComparison.OrdinalIgnoreCase)?new[]{"/time set day","/time set midnight","/time set night","/time set noon","/time set sunrise","/time set sunset"}:new[]{"/date","/help","/time"};
+            string[] options=input.StartsWith("/weather ",StringComparison.OrdinalIgnoreCase)?WeatherControl.Modes.Select(m=>"/weather "+m).ToArray():input.StartsWith("/time set ",StringComparison.OrdinalIgnoreCase)?new[]{"/time set day","/time set midnight","/time set night","/time set noon","/time set sunrise","/time set sunset"}:new[]{"/date","/help","/time","/weather"};
             return options.Where(s=>s.StartsWith(input,StringComparison.OrdinalIgnoreCase)).OrderBy(s=>s,StringComparer.Ordinal).ToArray();
         }
-        public static PlayCommandResult Execute(PlaySession play,long historySeconds,string input,double? longitude=null,double latitude=0)
+        public static PlayCommandResult Execute(PlaySession play,long historySeconds,string input,double? longitude=null,double latitude=0,WeatherControl? weather=null)
         {
             double localLongitude=longitude??play.PrimeMeridianLongitude,localHour=play.LocalSolarHour(localLongitude);
             var words=(input??"").Trim().Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);if(words.Length==0)return new PlayCommandResult(false,"Empty command. Try /help.");
             string command=words[0].ToLowerInvariant();
             if(command=="/help")return words.Length==1?new PlayCommandResult(true,Help):new PlayCommandResult(false,"Usage: /help");
+            if(command=="/weather")
+            {
+                if(weather==null)return new PlayCommandResult(false,"Weather commands are available while exploring the world.");
+                if(words.Length==1||words.Length==2&&words[1].Equals("get",StringComparison.OrdinalIgnoreCase))return new PlayCommandResult(true,"Weather: "+weather.Mode+(weather.Mode=="auto"?" (natural weather).":" (temporary test override)."));
+                string mode=words.Length==2?words[1]:words.Length==3&&words[1].Equals("set",StringComparison.OrdinalIgnoreCase)?words[2]:"";
+                if(!weather.Set(mode))return new PlayCommandResult(false,Help[3]);
+                return new PlayCommandResult(true,weather.Mode=="auto"?"Natural weather restored.":"Testing "+weather.Mode+" weather. /weather auto restores natural weather; climate and water history are unchanged.");
+            }
             if(command=="/time")
             {
                 if(words.Length==1||words.Length==2&&words[1].Equals("get",StringComparison.OrdinalIgnoreCase))return new PlayCommandResult(true,"Local solar time: "+TimeText(localHour));

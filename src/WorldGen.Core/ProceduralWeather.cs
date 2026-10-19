@@ -56,19 +56,19 @@ namespace WorldGen.Core
         public readonly double SnowWaterMm,RecentLiquidMm,SoilWetness,RunoffPotentialMm;
         public WeatherSurfaceEstimate(double snow,double liquid,double wetness,double runoff){SnowWaterMm=snow;RecentLiquidMm=liquid;SoilWetness=wetness;RunoffPotentialMm=runoff;}
     }
-    /// <summary>Random-access weather-preview-1. No actor/cell ticks, stateful RNG or visitation history.
+    /// <summary>Random-access weather-preview-2. No actor/cell ticks, stateful RNG or visitation history.
     /// 32-day conservative binary cascades, 3-hour packets convolved with a cubic B-spline.
     /// Rate and interval water use the same packets. Surface retention is an explicit bounded estimate.</summary>
     public sealed class ProceduralWeather
     {
-        public const string Version="weather-preview-1";
+        public const string Version="weather-preview-2";
         public const double PacketDays=.125,BlockDays=32,MaximumWindowDays=366;
         readonly int seed;readonly V position;readonly WeatherClimate climate;
         public ProceduralWeather(int seed,V position,WeatherClimate climate)
         {if(climate==null||double.IsNaN(position.Length)||Math.Abs(position.Length-1)>.00001)throw new ArgumentException("Weather needs a unit position and climate.");this.seed=seed;this.position=position;this.climate=climate;}
         static int Key(long value,int stream)=>unchecked((int)Rng.Mix((uint)value^Rng.Mix((uint)(value>>32))^(uint)stream*0x9e3779b9u));
         double Field(long id,int level,int stream)
-        {return D.Clamp(.5+SphereNoise.Sample(position,seed^Key(id,stream),6+level*9)*.8);}
+        {return D.Clamp(.5+SphereNoise.Sample(position,seed^Key(id,stream),stream==4?5:6+level*9)*.8);}
         double Synoptic(double days,int stream)
         {long k=(long)Math.Floor(days/6);double f=days/6-k;f=f*f*(3-2*f);return Field(k,2,stream)*(1-f)+Field(k+1,2,stream)*f;}
         double Temperature(double days)=>climate.At(climate.TemperatureC,days)+(Synoptic(days,18)-.5)*10;
@@ -142,7 +142,12 @@ namespace WorldGen.Core
             // Mixed precipitation is generated from conserved cloud-water phases;
             // evaporative cooling keeps a snow-dominated shower near freezing.
             if(wet>.02&&rate.SnowWaterMm/wet>.5)t=Math.Min(t,1);if(wet>.02&&rate.RainMm/wet>.8)t=Math.Max(t,-1);
-            double cloud=D.Clamp(h*.45+Synoptic(days,4)*.65-.15+Math.Min(.55,wet*.7));if(wet>.1)cloud=Math.Max(.86,cloud);
+            // Cloud decks often last much longer than the rain underneath them.
+            // A regime threshold permits truly overcast dry hours in maritime/wet climates,
+            // instead of a sum of mid-range noise terms that almost never reaches full cover.
+            // The precipitation cascade and its conserved interval water remain unchanged.
+            double monthly=climate.At(climate.MonthlyPrecipitationMm,days),potential=.7*monthly/(monthly+55)+h*.3;
+            double cloud=D.Clamp((Synoptic(days,4)-(.8-.75*potential))*5+Math.Min(.55,wet*.7));if(wet>.1)cloud=Math.Max(.86,cloud);
             double cirrus=D.Clamp((Synoptic(days,41)-.35)*1.3),storm=D.Clamp((wet-.8)/5)*D.Clamp((t+2)/20);
             double angle=WindAngle(days),wind=4+Synoptic(days,30)*4+Math.Max(storm,D.Clamp(wet/4))*12;
             double east=3+MeanWind(climate.EastWind)+4*D.Sin(angle),north=1+MeanWind(climate.NorthWind)+4*D.Sin(angle+D.Pi/2);

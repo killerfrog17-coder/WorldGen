@@ -51,8 +51,10 @@ Shader "WorldGen/Weather"
             float broad=shapeNoise.r;
             float detail=SAMPLE_TEXTURE3D_LOD(_WeatherNoise,sampler_WeatherNoise,q/2048,0).r;
             float n=saturate((broad-.5)*1.8+.5+(shapeNoise.g-.45)*.45),threshold=lerp(.83,.22,_WeatherCover.x);
-            float body=smoothstep(threshold,threshold+.2,n),profile=smoothstep(0,.12,h)*(1-smoothstep(.38,.95,h));
-            return max(0,body*profile-(1-detail)*.18)*saturate(_WeatherCover.x*2.8);
+            // Full synoptic cover must actually close the deck, not merely lower a noise threshold.
+            float deck=smoothstep(.72,.96,_WeatherCover.x);
+            float body=lerp(smoothstep(threshold,threshold+.2,n),.8+.2*n,deck),profile=smoothstep(0,.12,h)*(1-smoothstep(.38,.95,h));
+            return max(0,body*profile-(1-detail)*lerp(.18,.02,deck))*saturate(_WeatherCover.x*2.8);
         }
         half4 CloudFrag(Varyings input):SV_Target
         {

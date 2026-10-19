@@ -1,6 +1,6 @@
 # Random-access weather preview
 
-`ProceduralWeather.Version = weather-preview-1` is a derived, local query
+`ProceduralWeather.Version = weather-preview-2` is a derived, local query
 provider. It does not change the generation recipe, accepted climate, terrain,
 hydrology, historical rules or saved historical records. The Unity explorer
 uses it; the strategic map's climate remains the existing long-term climate.
@@ -74,10 +74,47 @@ reduced-resolution silhouettes can still have a small soft fringe.
 
 Rain and snow are bounded camera-local particle volumes with wind velocities,
 no particle collision jobs or globally spawned emitters. Precipitation stops
-above its cloud layer. Procedural wind and delayed thunder use small generated
-audio clips, not downloaded assets or animal calls. Thunderstorm flashes have
+above its cloud layer. An18m-wide near-observer box concentrates the capped
+particle budget; visibility uses a sublinear rate mapping so light showers are
+not just a few isolated drops. This is visual sampling, not a changed water budget.
+Delayed thunder uses a small generated clip. Wind uses continuous stereo
+band-limited turbulence and resonant noise, with smooth4–13second gusts and
+10–35second quiet gaps in calm conditions. Strong gales shorten the gaps and
+introduce a sustained low bed/howl. No eight-second recording, loop fade seam,
+animal call or downloaded sound is used. The PCM callback owns its filters and
+PRNG and makes no Unity API calls or per-buffer allocations; main-thread controls
+are volatile floats. See [Unity PCM streaming](https://docs.unity.com/en-us/engine/6000.3/script-reference/unityengine/audioclip/pcmreadercallback).
+Thunderstorm flashes have
 dated deterministic opportunities and a real-time flash cadence limiter.
 These are visual/audio effects, not authoritative history events.
+
+Cloud formation in preview2 permits extended overcast intervals without active
+rain, conditioned on monthly precipitation and the stored moisture proxy.
+Its synoptic coverage uses a broad planetary field (frequency5 rather than24),
+so systems span regional distances instead of aliasing into world-map speckles.
+The shader forms a closed deck as cover approaches full, rather than leaving
+procedural holes at100% cover. Preview1's entire precipitation cascade, water
+integrals, temperature and retention remain unchanged. This is a derived-weather
+revision, not a change to worldgen/climate or historical rules.
+
+## Testing commands and optional map clouds
+
+In exploration chat use `/weather clear`, `cloudy`, `overcast`, `rain`, `storm`,
+`snow` or `blizzard`. `/weather get` reports the mode; `/weather auto` restores
+the natural provider. `/weather set rain` is also accepted. Help is alphabetical
+and Tab completion includes these modes. Overrides are explicitly session-only
+visual tests, shared by the sky, particles and cloud map; they never add water
+to the recorded past, modify the climate or get saved as a world rule. Forced
+rain/snow clouds remain above local ground even on high mountains.
+
+The **M map** has an optional **Clouds checkbox**, off by default, independent
+of its selected base layer. White represents cloud cover, with a blue tint for
+precipitation. It shows meteorological coverage, not exact individual ray-marched
+billows. A cancellable128×64 worker texture samples the same Core weather provider
+and date. It refreshes on pan/zoom, a command change or a new weather hour, at
+most once every3real seconds for time changes. The base map is not recolored or
+rebuilt when toggling clouds. Nothing is queried while the map/checkbox is closed;
+there is no recurring scan of the200k-cell world or full-resolution weather atlas.
 
 Video settings expose cloud/particle quality, sun glare, sun rays, transient
 eye adaptation, lightning strength (zero disables flashes), wind and thunder

@@ -209,5 +209,5 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     }
     public void TestView(double height,float yaw=20,float tilt=12){motion.Flying=true;motion.Y=Ground(motion.X,motion.Z)+height;heading=yaw;pitch=tilt;RefreshWanted();UpdateCamera();}
     public void Close(){if(closed)return;closed=true;if(view!=null)view.enabled=false;cancellation.Cancel();if(!passiveSkyCheck){Cursor.lockState=CursorLockMode.None;Cursor.visible=true;}close?.Invoke();}
-    void OnDestroy(){cancellation.Cancel();mapCancellation?.Cancel();cancellation.Dispose();mapCancellation?.Dispose();DisposeChat();DisposeWeather();DisposeSky();DisposeScatter();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
+    void OnDestroy(){cancellation.Cancel();mapCancellation?.Cancel();cancellation.Dispose();mapCancellation?.Dispose();DisposeCloudMap();DisposeChat();DisposeWeather();DisposeSky();DisposeScatter();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
 }

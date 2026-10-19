@@ -1,6 +1,22 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-weather-controls-final/WorldGen.exe`
+(IL2CPP,2026-10-19T10:55:09Z). Derived weather-preview-2 adds wider regional
+cloud systems and dry overcast periods without changing precipitation, temperature
+or retained-water values. Explorer chat has session-only `/weather` test modes
+and `auto` restoration. The M map has an optional Clouds checkbox, off by default,
+with its own bounded/cancellable background texture, leaving the base map cached.
+Continuous stereo wind gusts replace the old repeating noise clip; storm howls
+and quiet ordinary-weather gaps are signal-tested, not subjective audio acceptance.
+77 focused/11 actual-world/24 native-CLR weather checks and31 hidden native checks
+pass; natural rain, closed overcast and the cloud-map diagnostic composite are
+inspected. Final synchronized1280x800 frame median: Off2.73ms/Low2.91ms/High3.17ms
+on RTX4060, not a low-end/fullscreen guarantee. Terrain/history remain unchanged;
+no ground effects or global weather-cell ticks are added. Weather-atmosphere-final
+is rollback. See docs/PROCEDURAL_WEATHER.md and docs/VALIDATION.md.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-weather-atmosphere-final/WorldGen.exe`
 (IL2CPP,2026-10-19T10:12:47Z). Derived `weather-preview-1` supplies coherent
 random-access current/interval precipitation and bounded snow/wetness estimates,

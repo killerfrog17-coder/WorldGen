@@ -19,6 +19,7 @@ public sealed partial class LocalTerrainExplorer
     public bool MapVisible=>mapOpen;
     public bool Paused=>paused;
     public bool MapReady=>mapTexture!=null&&!mapDirty&&mapJob==null;
+    public int MapBuildCount {get;private set;}
     double MaximumViewDistance=>terrain==null?250000:Math.Min(250000,terrain.RadiusM*HorizontalScale*.3);
     void CaptureMouse(){if(passiveSkyCheck)return;Cursor.lockState=mapOpen||paused||chatOpen?CursorLockMode.None:CursorLockMode.Locked;Cursor.visible=mapOpen||paused||chatOpen;}
     void OnApplicationFocus(bool focus){if(focus&&!closed)CaptureMouse();}
@@ -29,9 +30,10 @@ public sealed partial class LocalTerrainExplorer
         if(k.mKey.wasPressedThisFrame&&!paused){mapOpen=!mapOpen;if(mapOpen)InvalidateMap();CaptureMouse();}
         if(k.escapeKey.wasPressedThisFrame){if(mapOpen){mapOpen=false;mapLayerMenu=false;}else paused=!paused;CaptureMouse();}
     }
-    void InvalidateMap(){mapRevision++;mapDirty=true;mapDue=Time.realtimeSinceStartupAsDouble+.12;mapCancellation?.Cancel();}
+    void InvalidateMap(){mapRevision++;mapDirty=true;mapDue=Time.realtimeSinceStartupAsDouble+.12;mapCancellation?.Cancel();InvalidateCloudMap();}
     void UpdateMapWork()
     {
+        UpdateCloudMapWork();
         if(mapJob!=null&&mapJob.IsCompleted)
         {
             if(mapJob.IsFaulted){error=mapJob.Exception.GetBaseException().Message;debugOpen=true;}
@@ -44,7 +46,7 @@ public sealed partial class LocalTerrainExplorer
             mapJob=null;
         }
         if(!mapOpen||!mapDirty||mapJob!=null||terrain==null||Time.realtimeSinceStartupAsDouble<mapDue)return;
-        mapDirty=false;mapCancellation?.Dispose();mapCancellation=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=mapCancellation.Token;var viewport=mapViewport.Clone();mapJobRevision=mapRevision;
+        mapDirty=false;MapBuildCount++;mapCancellation?.Dispose();mapCancellation=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=mapCancellation.Token;var viewport=mapViewport.Clone();mapJobRevision=mapRevision;
         var selected=mapLayer;mapPalettes.TryGetValue(selected,out var cached);var source=sourceWorld;
         mapJob=Task.Run(()=>{var palette=cached??(source==null?null:GlobeView.CellValues(source,selected,token:token).Colors);return new MapResult{Layer=selected,Palette=palette,Image=TerrainMapImage.Build(terrain,viewport,768,384,token,selected,palette)};},token);
     }
@@ -69,6 +71,7 @@ public sealed partial class LocalTerrainExplorer
         if(!mapOpen||terrain==null)return;
         float width=Math.Min(Screen.width-64,Math.Min(1150,(Screen.height-150)*2));mapRect=new Rect((Screen.width-width)/2,72,width,width*.5f);
         GUI.Box(new Rect(mapRect.x-12,mapRect.y-48,mapRect.width+24,mapRect.height+108),"");GUI.Label(new Rect(mapRect.x,mapRect.y-38,mapRect.width-250,30),"WORLD MAP");
+        SetMapClouds(GUI.Toggle(new Rect(mapRect.x+145,mapRect.y-38,100,30),mapClouds,"Clouds"));
         if(GUI.Button(new Rect(mapRect.xMax-235,mapRect.y-40,190,30),GlobeView.LayerName(mapLayer)+"  ▾"))mapLayerMenu=!mapLayerMenu;
         if(GUI.Button(new Rect(mapRect.xMax-37,mapRect.y-40,37,30),"×")){mapOpen=false;CaptureMouse();}
         if(mapTexture!=null)
@@ -79,9 +82,10 @@ public sealed partial class LocalTerrainExplorer
             for(int wrap=-1;wrap<=1;wrap++)GUI.DrawTexture(new Rect((float)(x+wrap*360/mapViewport.LongitudeSpan*mapRect.width),(float)y,(float)w,(float)h),mapTexture,ScaleMode.StretchToFill,false);GUI.EndGroup();
         }
         else GUI.Box(mapRect,"Preparing map…");
+        DrawCloudMap();
         TerrainMapViewport.Degrees(Position,out double playerLat,out double playerLon);double px=.5+TerrainMapViewport.Wrap(playerLon-mapViewport.Longitude)/mapViewport.LongitudeSpan,py=.5-(playerLat-mapViewport.Latitude)/mapViewport.LatitudeSpan;
         if(px>=0&&px<=1&&py>=0&&py<=1){float x=mapRect.x+(float)px*mapRect.width,y=mapRect.y+(float)py*mapRect.height;GUI.DrawTexture(new Rect(x-5,y-1,10,2),Texture2D.whiteTexture);GUI.DrawTexture(new Rect(x-1,y-5,2,10),Texture2D.whiteTexture);}
-        GUI.Label(new Rect(mapRect.x,mapRect.yMax+8,mapRect.width-250,44),"Click to teleport · drag to pan · scroll to zoom"+(mapDirty||mapJob!=null?"  · Updating…":""));
+        GUI.Label(new Rect(mapRect.x,mapRect.yMax+8,mapRect.width-250,44),"Click to teleport · drag to pan · scroll to zoom"+(mapClouds?"\nCloud cover · blue tint: precipitation"+(WeatherControl.Mode=="auto"?"":" · test: "+WeatherControl.Mode):"")+(mapDirty||mapJob!=null||mapClouds&&!CloudMapReady?"  · Updating…":""));
         if(GUI.Button(new Rect(mapRect.xMax-240,mapRect.yMax+8,115,30),"Player")){mapViewport.Longitude=playerLon;mapViewport.Latitude=playerLat;InvalidateMap();}
         if(GUI.Button(new Rect(mapRect.xMax-115,mapRect.yMax+8,115,30),"Whole world")){mapViewport=new TerrainMapViewport{Longitude=playState?.PrimeMeridianLongitude??0};InvalidateMap();}
         if(mapLayerMenu)
@@ -101,7 +105,7 @@ public sealed partial class LocalTerrainExplorer
         return "WORLDGEN  ·  "+(1/Math.Max(.001,Time.smoothDeltaTime)).ToString("F0")+" FPS\n"+lat.ToString("F6")+"°, "+lon.ToString("F6")+"°  ·  scale "+HorizontalScale.ToString("G3")+"\n"+
             "Elevation "+(walkingPatch.Sample(Position).ElevationM+HeightAboveGround).ToString("F1")+" m  ·  ground clearance "+HeightAboveGround.ToString("F2")+" m\n"+
             (motion.Flying?"Flying":"Walking")+"  ·  "+Diagnostics+"\nScatter "+ScatterObjects.ToString("N0")+" instances  ·  "+ScatterDrawCalls+" draws"+
-            (weatherScreen==null?"":"\nWeather "+CurrentWeather.TemperatureC.ToString("F1")+" °C · rain "+CurrentWeather.RainMmPerHour.ToString("F2")+" / snow water "+CurrentWeather.SnowWaterMmPerHour.ToString("F2")+" mm/h · cloud "+(CurrentWeather.CloudCover*100).ToString("F0")+"% · gust "+CurrentWeather.GustMps.ToString("F1")+" m/s")+
+            (weatherScreen==null?"":"\nWeather "+CurrentWeather.TemperatureC.ToString("F1")+" °C · rain "+CurrentWeather.RainMmPerHour.ToString("F2")+" / snow water "+CurrentWeather.SnowWaterMmPerHour.ToString("F2")+" mm/h · cloud "+(CurrentWeather.CloudCover*100).ToString("F0")+"% · gust "+CurrentWeather.GustMps.ToString("F1")+" m/s"+(WeatherControl.Mode=="auto"?"":" · TEST: "+WeatherControl.Mode))+
             (playState==null?"":"\nLocal solar time "+PlayCommands.TimeText(LocalSolarHour)+"  ·  prime "+PlayCommands.TimeText(playState.SolarHour)+"  ·  calendar ×"+playState.Settings.CalendarDaysPerDay.ToString("G4"))+"\n"+PlayableSky.Season(skyYear)+
             (SkyFrame==null?"":"\nCelestial night light "+SkyFrame.NightIlluminanceLux.ToString("G3")+" lux · "+(skyConfig?.Stars.ToString()??"SolarNeighborhood")+string.Concat(SkyFrame.Bodies.Where(b=>b.Surface>0).Select(b=>"\n"+b.Name+" · "+PlayableSky.PhaseName(b.PhaseCycle)+" · "+(100*b.IlluminatedFraction).ToString("F0")+"% lit · "+(b.Direction.Y>0?"above":"below")+" horizon")))+(MusicDebugText.Length>0?"\n"+MusicDebugText:"")+(error.Length>0?"\n"+error:"");
     }

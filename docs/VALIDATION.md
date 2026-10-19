@@ -1,5 +1,47 @@
 # Version 3 validation evidence
 
+## Weather testing, optional cloud map and gusts — 19 October 2026
+
+Derived `weather-preview-2` adds extended non-raining cloud decks and regional
+coverage fields; the precipitation cascade and all numerical rain/snow/temperature
+and retention values remain unchanged.77 focused and11 actual-Earth weather
+assertions pass;24 comparisons against the preceding preview1 native fixtures
+remain exact within1e-7.892 sky/chat,2608 atmosphere,334 interface,1008 historical
+presentation/summary and42 play-session assertions pass. No generation or
+historical rules upgrade and no golden updates occur.
+
+Annual3-hour samples of the stored45N/4W maritime profile give5.8% rainy samples
+(unchanged), with36.4% overcast versus5.8% previously. The synthetic wet/dry
+profiles give73.6%/1.4% overcast and13.3%/0.6% rainy samples. These are regression
+diagnostics, not observed-Earth calibration. The cloud map intentionally exposed
+the initial overly fine synoptic field; its frequency was reduced from24 to5
+in the actual shared provider, not just blurred on the map.
+
+`/weather` overrides are session-only and tested for valid/invalid input,
+auto restoration, cold snowfall, high-ground cloud clearance and unchanged play
+state. Wind checks cover quiet gaps, greater storm energy, bounded samples,
+absence of the old8-second repetition and exact continuity across audio buffers.
+These signal tests do not establish subjective recorded-wind sound quality.
+The optional128×64 cloud worker is cancellation-tested, spatially varied and
+repeatable, and shares natural/override sampling with the explorer. A64×32
+actual-world query measured22–26ms on this host; no per-frame world-cell scan.
+
+IL2CPP `player-weather-controls-final`, built2026-10-19T10:55:09Z, passes31 hidden
+native checks. These include the actual command-driven overcast/rain/storm and
+auto controls, a naturally dated rain event, optional cloud overlays updated by
+commands, unchanged cached-base-map build count, cloud/terrain occlusion, snow,
+lightning, sun effects/adaptation and unchanged terrain/history hashes. Natural
+rain, closed overcast and the broader cloud-map diagnostic composite are inspected.
+The composite is a diagnostic texture preview, not proof of native checkbox layout.
+The earlier exploratory foreground comparison used different solar dates; the
+harness now restores the original date and clears residual drops before that test.
+Final evidence is ignored under `artifacts/weather-controls-release`.
+
+Final GPU-synchronized1280×800 total frame median/p95 on RTX4060: clouds Off
+2.73/3.69ms, Low2.91/3.90ms, High3.17/4.14ms. These include blocking readback and
+are not low-end/fullscreen or dense-world simulation acceptance. The project
+shortcut selects this player; weather-atmosphere-final remains rollback.
+
 ## Random-access local weather — 19 October 2026
 
 The IL2CPP `player-weather-atmosphere-final` build2026-10-19T10:12:47Z passes
