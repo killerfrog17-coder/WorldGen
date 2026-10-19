@@ -1,6 +1,20 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-geology-streaming/WorldGen.exe` (IL2CPP21:26:37Z).
+Local-geology1 / scatter-preview3 adds six blended lithologies, burial/noise-
+conditioned loose rocks and rare outcrops, retaining existing quiet centered
+stone contacts. Automatic chart reanchors retain/reproject terrain, coarse roots
+load before detail, replacement groups geomorph, protective fog hides missing
+coverage, and Video exposes distance/quality/transition controls. See
+`docs/LOCAL_GEOLOGY_STREAMING.md`. 9042 focused assertions, both200k native
+Earth/Continents Plus geology/input/70km reanchor reviews,24 exact native/CLR
+height probes and CLI all-stage reconstruction pass. Screens were inspected;
+rock art remains placeholder, with no prop collision or actual cliff shaping.
+Accepted heights/history rules are unchanged; no all-era/performance claim.
+The centered-footsteps player remains a rollback.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-footsteps-centered/WorldGen.exe`. Player footfalls now use
 centered mono 2D playback rather than spatial world impacts; heading/movement
 cannot pan their tails into one ear. All28 admitted mono assets and a native

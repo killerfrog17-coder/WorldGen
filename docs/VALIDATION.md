@@ -1,5 +1,40 @@
 # Version 3 validation evidence
 
+## Local geology1 / streaming checkpoint -19 October2026
+
+4037 scatter/geology,1874 terrain/LOD and3131 ground/cadence/agronomy assertions
+pass (9042 total). These include truly buried stone-free deposits, continuous
+normalized lithology/surface mixtures, regional exposure/outcrop variation,
+deterministic reconstruction, bounds/cancellation and coverage roots across
+four world scales/negative addresses. Quality/detail controls change render work,
+not height definitions. CLI Preview repeat/reapply/recipe/cache reconstruction
+matches every stage hash. No golden files were changed.
+
+Final release IL2CPP21:26:37Z passes native200k Earth and Continents Plus reviews
+in `artifacts/geology-review/{earth-native,continents-plus-native}`. Both retain
+284 tiles during an automatic70km flight reanchor, never report zero visible
+terrain while replacement work runs, settle all desired coverage/morphs and
+release retired groups. They pass actual C/W/Shift movement,28 mono centered
+AI-contact admission/playback, stationary/flight silence, debug-map controls,
+return-to-map and unchanged source-world hashes. All24 native/CoreCLR height
+probes match exactly. Native graphics/render error collectors are empty. The
+earlier5000-cell Mono review also passes; it preceded the outcrop seating fix.
+
+Actual screenshots of final granite/sandstone/basalt scenes and loading/settled
+flight views were inspected. They show seated rounded/blocky/layered placeholder
+rocks and retained coarse coverage, not a proof of photorealism, universal absence
+of LOD artifacts, seamless planetary circumnavigation or prop collision. No
+measured Earth lithology/cliff reconstruction is claimed. Persistent graphics
+controls are wired into existing scrollable Display settings; their full
+interactive layout has not received a separate visual acceptance pass.
+
+CoreCLR200k Earth/Continents Plus setup912/850ms; mean mixed tile34.5/34.3ms,
+worst149.8/149.6ms (background generation, not FPS/main-thread timings). Native
+parallel review jobs see background tile maxima292/279ms and occasional logged
+uploads above20ms; this is NOT a low-end FPS or arbitrary-flight-speed guarantee.
+Terrain/scatter work remains bounded to two jobs and one terrain upload/frame.
+No historical rules change or new dense-history performance acceptance follows.
+
 ## Centered player footsteps -19 October2026
 
 The IL2CPP footsteps-centered player passes the native5000-cell ground review:
