@@ -83,6 +83,11 @@ shader and scatter VisibleGround stay at the rollback baseline. New tests cover
 chart coordinates at poles/scales, complete versus missing coverage and required
 near resolution. The normal ground/input review remains available.
 
+An overlapping coarse ancestor near the player requires its full exact
+replacement set before handoff, so the ordinary renderer can retire it without
+occluding the finer surface. The native eye-clearance check takes the highest
+of ALL overlapping active land meshes, not just the finest cached mesh.
+
 The restored native review uses `--worldgen-ground-review` with
 `--worldgen-local-terrain-check <snapshot.world> --worldgen-output <directory>`.
 The removed geology/streaming-review flags no longer apply. Prior passing

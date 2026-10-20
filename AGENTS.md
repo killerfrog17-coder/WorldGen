@@ -1,6 +1,25 @@
 # WorldGen repository instructions
 
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-terrain-handoff/WorldGen.exe` (IL2CPP20Oct00:25:24Z).
+Owner-authorized focused automatic-reanchor fix: one hidden frame prepares while
+the original terrain remains visible; handoff adopts prepared coverage/plans,
+retains geographic scatter planning, and retires meshes two tiles per frame.
+Grounded scatter matrices prepare in1ms batches and match ordinary placement
+exactly. No new masks, morphs, terrain cache, fog, quality settings, grounding or
+height changes. Original TerrainLod/mesh/shaders/rock art/footsteps remain literal.
+687 terrain/4037 scatter/3131 ground and12 exact rollback-height probes pass.
+Final200k Earth/Continents Plus native0.1x reviews each pass three700m/s flight
+crossings and an actual W-grounded crossing; all overlapping rendered land
+surfaces retain eye clearance within1.6mm, scatter matrix differences are ZERO,
+and runtime/input-file hashes stay unchanged. Same-position before/after and
+flight captures are inspected. Largest atomic handoffs9.063/19.631ms; hidden
+diagnostic intervals are NOT fullscreen/GPU-FPS or low-end guarantees. Ordinary
+LOD pop-in, extreme-speed detail lag and manual-teleport resets remain separate.
+Source/worldgen/history/audio are otherwise unchanged. Original-LOD player stays
+the rollback. See docs/LOCAL_GEOLOGY_STREAMING.md and VALIDATION.md.
+
+Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-rocks-original-lod/WorldGen.exe` (IL2CPP23:18:31Z).
 OWNER-REQUESTED COMPLETE LOD ROLLBACK to20810b6: original planning/sampling,
 tile lifetime/jobs, analytic grounding, chart resets, fog and debug distance

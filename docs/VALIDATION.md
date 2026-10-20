@@ -1,5 +1,45 @@
 # Version 3 validation evidence
 
+## Prepared terrain-frame handoff -19 October2026
+
+The owner authorized a focused fix after the complete LOD rollback: remove the
+destructive automatic chart reset while retaining terrain quality and distance.
+The selected IL2CPP build is20Oct00:25:24Z. Original TerrainLod/navigation,
+terrain mesh geometry, both terrain/scatter shaders, rock art, ordinary scatter
+projection/placement and footsteps compare unchanged against6a89867. No masks,
+morphs, streaming fog, permanent chart cache or historical-rule change returns.
+
+687 terrain/readiness,4037 scatter and3131 ground assertions pass; twelve native
+rollback height probes still match the current CoreCLR sampler EXACTLY.
+New readiness tests prevent near coarse ancestors from occluding fine children.
+Native eye-clearance checks evaluate the highest of every overlapping active
+land mesh, not merely the finest cached one.
+
+Final records are artifacts/reanchor-review/{earth-release,continents-plus-release}.
+Both use200k snapshots at default0.1x, three crossings during700m/s flight with
+minimum450m ground clearance, and actual W-grounded input across the original
+boundary. Every observed frame
+keeps active terrain/center coverage. Same-position before/after and flight
+captures were inspected. Worst rendered eye-height errors are1.4/1.6mm;
+prepared matrices match ordinary projection with maximum difference ZERO.
+Geographic position is preserved within existing quantized-vector precision.
+Runtime world hashes stay8293430e...(Earth) and cb819eba...(generated);
+external SHA256 checks also confirm the input snapshot files are unchanged.
+
+Largest atomic handoffs are9.063/19.631ms; mesh uploads peak18.913/15.898ms.
+Hidden1280x720 diagnostic loop intervals: medians1.12/1.37ms, p953.26/2.71ms,
+worst32.09/22.17ms. These are host/process diagnostics, NOT GPU-synchronized
+fullscreen FPS, low-end guarantees, or claims that every streaming hitch is
+eliminated. Background tile-build maxima277/292ms are not main-thread frames.
+Both reviews use quiet test audio and clear weather, not new audio acceptance.
+
+Initial prototypes failed moving-frame readiness or exposed a57.9ms Mono
+handoff. Intermediate passing11-27ms checkpoints are not the selected build.
+Preparation prioritization, reuse of already built plans, staged ground scatter,
+retained geographic scatter planning and the near-parent guard were corrected
+before this final review. Ordinary LOD transition masking, extremely fast travel,
+and seamless manual teleports remain separate; the original-LOD build is kept.
+
 ## Owner-requested complete LOD rollback -19 October2026
 
 The owner rejected the follow-up renderer as well as the first geology renderer.
