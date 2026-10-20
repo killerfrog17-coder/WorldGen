@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed class LocalTerrain
     {
-        public const string Version = "local-terrain-hyper-7";
+        public const string Version = "local-terrain-hyper-8";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -205,7 +205,7 @@ namespace WorldGen.Core
             public readonly V Center, East, North;
             public readonly double HalfExtentM;
             public int CandidateCount => sources.Length;
-            public LocalHydrology.Piece[] ChannelPieces()=>water?.Pieces()??Array.Empty<LocalHydrology.Piece>();
+            public LocalHydrology.Piece[] ChannelPieces(double spacingM=16)=>amplified?.ChannelPieces(Center,HalfExtentM*owner.HorizontalScale,spacingM)??water?.Pieces()??Array.Empty<LocalHydrology.Piece>();
             internal LocalTerrainPatch(LocalTerrain owner, V center, double extent, LocalTerrainProfile[] sources, HeightTriangle[] triangles, int seed,HeightTriangle[] geography,bool dry,HyperAmplification.Patch amplified)
             {
                 this.owner = owner; Center = center; HalfExtentM = extent; this.sources = sources; this.triangles=triangles;this.seed = seed;
@@ -275,6 +275,7 @@ namespace WorldGen.Core
                         CoverColor=new V(red/sum,green/sum,blue/sum),OceanInfluence=ocean/sum,
                         WaterSurfaceM=surface.Water,WaterMaskM=surface.Mask,RiverInfluence=surface.RiverInfluence,
                         WaterKind=surface.Kind,WaterBodyKey=surface.BodyKey,WaterGradient=surface.Gradient,WaterFootprintM=surface.Footprint,
+                        WaterFlow=surface.Flow,WaterSpeedMPerS=surface.Speed,WaterTurbulence=surface.Turbulence,ContinuousWaterSurface=surface.Kind==LocalWaterKind.River,
                         WaterMinimumM=surface.Minimum,WaterMaximumM=surface.Maximum};
                 }
                 double baseM = double.NaN;
@@ -370,6 +371,8 @@ namespace WorldGen.Core
         public LocalWaterKind WaterKind;
         public ulong WaterBodyKey;
         public V WaterGradient;
+        public V WaterFlow;
+        public double WaterSpeedMPerS,WaterTurbulence;
         public double WaterFootprintM,WaterMinimumM,WaterMaximumM;
         public bool ContinuousWaterSurface;
         public bool Underwater => !double.IsNaN(WaterSurfaceM) && WaterMaskM>=0 && ElevationM < WaterSurfaceM;

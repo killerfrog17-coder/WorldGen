@@ -47,7 +47,39 @@ Shader "WorldGen/LocalTerrain"
                 farColor=SRGBToLinear(farColor);fogColor=SRGBToLinear(fogColor);
                 #endif
                 float distance=length(i.position-_WorldSpaceCameraPos);
-                if(_Water>.5){clip(i.color.a-.01);return half4(ApplyPlanetAir(farColor*.92*lerp(.035,1,_Daylight)+_AmbientTint.rgb*.12,i.position,_WorldSpaceCameraPos,fogColor,_FogDistance),1);}
+                if(_Water>.5)
+                {
+                    clip(i.color.a-.01);
+                    if(i.color.a>1.5)
+                    {
+                        // River attributes occupy the existing colour channel:
+                        // xy flow in m/s, z turbulence, alpha2 marks river water.
+                        // No screen-space reflection, scene copy or extra pass.
+                        float2 flow=i.color.xy;float speed=length(flow),turbulence=saturate(i.color.z);
+                        float2 direction=flow/max(.05,speed),across=float2(-direction.y,direction.x);
+                        float2 p=i.position.xz+_LocalOrigin.xy;
+                        float along=dot(p,direction)-_Time.y*speed;
+                        float crossStream=dot(p,across);
+                        float phase=along*2.4+sin(crossStream*1.7)*.4;
+                        float ripples=sin(phase)+.35*sin(along*5.7+crossStream*3.1);
+                        float3 geometric=normalize(cross(ddy(i.position),ddx(i.position)));
+                        if(geometric.y<0)geometric=-geometric;
+                        float amplitude=lerp(.025,.12,turbulence);
+                        float3 waterNormal=normalize(geometric+float3(direction.x*cos(phase),0,direction.y*cos(phase))*amplitude+
+                            float3(across.x,0,across.y)*sin(crossStream*2.8+along)*amplitude*.5);
+                        float3 eye=GetWorldSpaceNormalizeViewDir(i.position);
+                        float fresnel=.035+.965*pow(1-saturate(abs(dot(eye,waterNormal))),5);
+                        Light sun=GetMainLight();
+                        float glint=pow(saturate(dot(waterNormal,normalize(eye+sun.direction))),180)*.85;
+                        float3 deep=float3(.025,.11,.13)*lerp(.05,1,_Daylight)+_AmbientTint.rgb*.12;
+                        float3 reflected=lerp(fogColor*.65,fogColor*1.12,saturate(reflect(-eye,waterNormal).y*.5+.5))*lerp(.03,1,_Daylight);
+                        float foam=turbulence*smoothstep(1.12,1.32,ripples)*.45;
+                        float3 result=lerp(deep,reflected,fresnel)+sun.color*glint*_Daylight;
+                        result=lerp(result,float3(.7,.77,.75)*lerp(.04,1,_Daylight),foam);
+                        return half4(ApplyPlanetAir(result,i.position,_WorldSpaceCameraPos,fogColor,_FogDistance),1);
+                    }
+                    return half4(ApplyPlanetAir(farColor*.92*lerp(.035,1,_Daylight)+_AmbientTint.rgb*.12,i.position,_WorldSpaceCameraPos,fogColor,_FogDistance),1);
+                }
                 float3 n=normalize(i.normal);
                 float3 np=n.x*_PlanetEast.xyz+n.y*_PlanetUp.xyz+n.z*_PlanetNorth.xyz;
                 float3 w=pow(abs(np),4);w/=max(.0001,w.x+w.y+w.z);

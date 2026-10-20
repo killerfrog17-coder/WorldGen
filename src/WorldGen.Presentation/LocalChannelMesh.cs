@@ -15,7 +15,7 @@ namespace WorldGen.Presentation
         public static LocalTerrainSample[] Refine(LocalTerrainMesh mesh,LocalTerrain terrain,LocalTerrainFrame frame,LocalTerrain.LocalTerrainPatch? patch,LocalTerrainSample[] original,System.Threading.CancellationToken token=default)
         {
             double step=mesh.SizeM/mesh.Segments;if(step>32||patch==null)return original;
-            var source=patch.ChannelPieces();if(source.Length==0)return original;
+            var source=patch.ChannelPieces(Math.Max(16,step*2));if(source.Length==0)return original;
             int side=mesh.Segments+1;var cuts=new List<Cut>();var buckets=new Dictionary<int,List<int>>();
             foreach(var p in source)
             {
@@ -109,6 +109,50 @@ namespace WorldGen.Presentation
                 buckets.TryGetValue(z*mesh.Segments+x,out var relevant);int a=z*side+x;
                 Triangle(a,a+side,a+1,relevant);Triangle(a+1,a+side,a+side+1,relevant);
             }
+            // Adjacent cells can see different finite channel pieces. Their
+            // infinite cutting lines may leave T-junctions on the ORIGINAL
+            // grid edges/diagonals. Share every such boundary point and fan
+            // the affected triangle so land AND water use the same edge.
+            var lines=new Dictionary<(int,int),List<int>>();
+            int before=samples.Count;
+            for(int id=0;id<before;id++)
+            {
+                if(id>=original.Length&&id<mesh.Positions.Length/3)continue; // skirts
+                double x=positions[id*3],z=positions[id*3+2];
+                for(int axis=0;axis<3;axis++)
+                {
+                    double value=(axis==0?x:axis==1?z:x+z)/step;int line=(int)Math.Round(value);
+                    if(Math.Abs(value-line)>1e-6)continue;
+                    var key=(axis,line);if(!lines.TryGetValue(key,out var list)){list=new List<int>();lines.Add(key,list);}list.Add(id);
+                }
+            }
+            var stitched=new List<int>(indices.Count);
+            for(int tri=0;tri<indices.Count;tri+=3)
+            {
+                var polygon=new List<int>();
+                for(int k=0;k<3;k++)
+                {
+                    int a=indices[tri+k],b=indices[tri+(k+1)%3];polygon.Add(a);
+                    double ax=positions[a*3],az=positions[a*3+2],bx=positions[b*3],bz=positions[b*3+2];
+                    int axis=Math.Abs(ax-bx)<1e-5?0:Math.Abs(az-bz)<1e-5?1:Math.Abs(ax+az-bx-bz)<1e-5?2:-1;
+                    if(axis<0)continue;double val=(axis==0?ax:axis==1?az:ax+az)/step;int line=(int)Math.Round(val);
+                    if(Math.Abs(val-line)>1e-6||!lines.TryGetValue((axis,line),out var list))continue;
+                    double dx=bx-ax,dz=bz-az,len=dx*dx+dz*dz;if(len<1e-12)continue;
+                    var inside=new List<(double,int)>();
+                    foreach(int id in list)
+                    {
+                        if(id==a||id==b)continue;
+                        double x=positions[id*3]-ax,z=positions[id*3+2]-az,t=(x*dx+z*dz)/len;
+                        if(t>1e-6&&t<1-1e-6&&Math.Abs(x*dz-z*dx)<1e-4*Math.Sqrt(len))inside.Add((t,id));
+                    }
+                    inside.Sort((p,q)=>p.Item1.CompareTo(q.Item1));foreach(var p in inside)polygon.Add(p.Item2);
+                }
+                if(polygon.Count==3){stitched.AddRange(polygon);continue;}
+                double cx=0,cz=0;for(int k=0;k<3;k++){cx+=positions[indices[tri+k]*3]/3d;cz+=positions[indices[tri+k]*3+2]/3d;}
+                int centre=Vertex(new Point(cx,cz));
+                for(int k=0;k<polygon.Count;k++){stitched.Add(centre);stitched.Add(polygon[k]);stitched.Add(polygon[(k+1)%polygon.Count]);}
+            }
+            indices=stitched;
             mesh.WaterClipTriangles=indices.ToArray();indices.AddRange(mesh.Triangles.Skip(mesh.Segments*mesh.Segments*6));
             mesh.Triangles=indices.ToArray();mesh.Positions=positions.ToArray();mesh.Normals=normals.ToArray();mesh.Colors=colors.ToArray();
             mesh.SurfaceWeights=weights.ToArray();mesh.GroundWeightsB=groundB.ToArray();mesh.Lithology=rocks.ToArray();return samples.ToArray();

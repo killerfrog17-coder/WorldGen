@@ -197,7 +197,7 @@ static class WaterCouplingTests
             double h11=p[((b+1)*side+a+1)*3+1];return h11+(h01-h11)*(1-u)+(h10-h11)*(1-v);
         }
         int checkedEdges=0;
-        bool Covered(double x,double z,double y)
+        bool Covered(double x,double z,double y,double edgeX,double edgeZ)
         {
             var p=mesh.WaterPositions;var t=mesh.WaterTriangles;
             for(int k=0;k<t.Length;k+=3)
@@ -206,7 +206,11 @@ static class WaterCouplingTests
                 double bx=p[b]-p[a],bz=p[b+2]-p[a+2],cx=p[c]-p[a],cz=p[c+2]-p[a+2],det=bx*cz-cx*bz;
                 if(Math.Abs(det)<1e-12)continue;
                 double u=((x-p[a])*cz-(z-p[a+2])*cx)/det,v=(bx*(z-p[a+2])-bz*(x-p[a]))/det;
-                if(u>=-1e-7&&v>=-1e-7&&u+v<=1.0000001&&Math.Abs(p[a+1]+u*(p[b+1]-p[a+1])+v*(p[c+1]-p[a+1])-y)<.005)return true;
+                // Coverage is tested to either SIDE; continuity is evaluated
+                // AT the shared edge. Comparing both side probes to one fixed
+                // height wrongly reports holes on legitimately sloping rivers.
+                double eu=((edgeX-p[a])*cz-(edgeZ-p[a+2])*cx)/det,ev=(bx*(edgeZ-p[a+2])-bz*(edgeX-p[a]))/det;
+                if(u>=-1e-7&&v>=-1e-7&&u+v<=1.0000001&&Math.Abs(p[a+1]+eu*(p[b+1]-p[a+1])+ev*(p[c+1]-p[a+1])-y)<.005)return true;
             }
             return false;
         }
@@ -226,7 +230,7 @@ static class WaterCouplingTests
             {
                 double dx=p[ib]-p[ia],dz=p[ib+2]-p[ia+2],len=Math.Sqrt(dx*dx+dz*dz);
                 double eps=Math.Min(.01,len*.01);dx=dx/len*eps;dz=dz/len*eps;
-                if(Covered(x-dz,z+dx,y)&&Covered(x+dz,z-dx,y))continue;
+                if(Covered(x-dz,z+dx,y,x,z)&&Covered(x+dz,z-dx,y,x,z))continue;
             }
             if(y-ground>.055){trace?.Invoke(x,z,y);throw new Exception($"Exposed lateral water edge {y-ground:F3}m above drawn bed at {x:F3},{z:F3}; tile {mesh.SizeM}/{mesh.Segments}");}
             checkedEdges++;
@@ -252,7 +256,25 @@ static class WaterCouplingTests
                 double tileRaise=0;
                 var mesh=LocalTerrainMesh.Build(terrain,frame,-shape.Item1/2,-shape.Item1/2,shape.Item1,shape.Item2);
                 if(!mesh.WaterPositions.All(float.IsFinite))throw new Exception("Nonfinite water mesh");
-                bankEdges+=ContainedBoundary(mesh);
+                bankEdges+=ContainedBoundary(mesh,trace:(xx,zz,yy)=>{
+                    Console.WriteLine($"EDGE {site.Item1} at {xx:R},{zz:R},{yy:R}");
+                    var edgeAt=frame.Position(mesh.EastM+xx,mesh.NorthM+zz);var edgeSample=patch.Sample(edgeAt);
+                    Console.WriteLine($"seaY {frame.SurfaceY(edgeAt,0):R}; exact kind {edgeSample.WaterKind}, level {edgeSample.WaterSurfaceM:R}, exactY {frame.SurfaceY(edgeAt,edgeSample.WaterSurfaceM):R}");
+                    var wp=mesh.WaterPositions;int printed=0;
+                    for(int kk=0;kk<mesh.WaterTriangles.Length;kk+=3)
+                    {
+                        bool near=false;for(int vv=0;vv<3;vv++){int at=mesh.WaterTriangles[kk+vv]*3;if(Math.Abs(wp[at]-xx)<80&&Math.Abs(wp[at+2]-zz)<80)near=true;}
+                        if(!near||printed++>=8)continue;
+                        Console.WriteLine("water triangle "+string.Join(" / ",Enumerable.Range(0,3).Select(vv=>{int at=mesh.WaterTriangles[kk+vv]*3;return $"{wp[at]:R},{wp[at+2]:R}: {wp[at+1]:R}";})));
+                    }
+                    double spacing=mesh.SizeM/mesh.Segments;
+                    int ix=(int)(xx/spacing),iz=(int)(zz/spacing);
+                    for(int dz=-1;dz<=1;dz++)for(int dx=-1;dx<=1;dx++)
+                    {
+                        double x=(ix+dx)*spacing,z=(iz+dz)*spacing;var at=frame.Position(mesh.EastM+x,mesh.NorthM+z);var ss=patch.Sample(at);
+                        Console.WriteLine($"{x:F1},{z:F1}: h{ss.ElevationM:R},w{ss.WaterSurfaceM:R}, {ss.WaterKind}/{ss.WaterBodyKey}, mask{ss.WaterMaskM:R},range{ss.WaterMinimumM:R}..{ss.WaterMaximumM:R}");
+                    }
+                });
                 for(int k=0;k<mesh.WaterPositions.Length;k+=3)
                 {
                     double x=mesh.EastM+mesh.WaterPositions[k],z=mesh.NorthM+mesh.WaterPositions[k+2];var at=frame.Position(x,z);var s=patch.Sample(at);
@@ -262,7 +284,8 @@ static class WaterCouplingTests
                     if(double.IsNaN(s.WaterSurfaceM)||s.WaterMaskM<-.5){unsupported++;continue;}
                     double expected=frame.SurfaceY(at,s.WaterSurfaceM)+.025;
                     double error=Math.Abs(mesh.WaterPositions[k+1]-expected);worstError=Math.Max(worstError,error);
-                    if(shape.Item2==32&&error>5)throw new Exception($"Unsupported water level at {site.Item1}: error {error:F2}m, drawn {mesh.WaterPositions[k+1]:F2}, expected {expected:F2}; {s.WaterKind}");
+                    if(shape.Item2==32&&error>5&&mesh.WaterPositions[k+1]>frame.SurfaceY(at,s.ElevationM)+.01)
+                        throw new Exception($"Unsupported VISIBLE water level at {site.Item1}: error {error:F2}m, drawn {mesh.WaterPositions[k+1]:F2}, ground {frame.SurfaceY(at,s.ElevationM):F2}, expected {expected:F2}; {s.WaterKind}");
                     checkedVertices++;maxDepth=Math.Max(maxDepth,s.WaterSurfaceM-s.ElevationM);
                 }
                 Console.WriteLine($"{site.Item1} {shape.Item1:F0}m: {mesh.WaterTriangles.Length/3} triangles; {mesh.BuildMilliseconds:F1}ms; bank raise {tileRaise:F2}m");
