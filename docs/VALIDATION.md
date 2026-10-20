@@ -1,5 +1,96 @@
 # Version 3 validation evidence
 
+## Drainage-aware hyper-amplification / loading revision —20October2026
+
+Source e9d6623; local-terrain-hyper-2 / hyper-amplification-2. This is a shared
+CPU adaptation of Cortial et al./Arches-Team, not their GPU renderer or an exact
+port. See HYPER_AMPLIFICATION.md and the MIT notice. Completed worlds use the
+typed drainage/land subdivision mesh; incomplete synthetic fixtures retain the
+legacy fallback. No authoritative generation/history rules or hashes change.
+
+-Actual 200k Earth and Continents Plus: 13,110 checks each for finite surfaces,
+ overlapping-patch equality, shared coarse/refined edges, mixed render-LOD
+ boundaries, concurrent cold-cache reconstruction, cut-only valleys, constant
+ lake levels, downhill curved major channels, source hashes and cache bounds.
+ 24 major reaches/world each had15/15 wet samples along their actual displaced
+ routes. Latest Earth repeat includes the last-terminal-face lookup shortcut;
+ the Continents Plus run precedes that geometry-preserving lookup shortcut.
+-Preparation on the host CLR: Earth1.59–1.86s, Continents Plus1.70–1.90s,
+ about347–351MiB incremental retained managed state. Earlier fresh200k runs
+ measured12.61s Earth and14.16s Continents Plus generation, plus1.67s and1.93s
+ terrain preparation respectively. No planet-wide fine raster is saved. These
+ are host CLR timings, not native end-to-end or low-end guarantees.
+-745 terrain/controller/handoff and334 world-interface assertions pass. Earlier
+ foundation revision passed4037 scatter/3227 legacy-water assertions and492
+ all-distance two-worker LOD tile builds. The global uniform terminal depth and
+ continuous valley-field revisions specifically replace the earlier visible
+ height-step failures; earlier screenshots are not acceptance for this revision.
+-Owner Player.log from the published hyper1 build recorded terrain uploads of
+ 210,325,181,343ms. These are observed stalls, not assumed background contention.
+ Revision2 prepares native MeshData and bounds on workers and removes forced
+ synchronous UploadMeshData/main-thread conversion arrays. It also suppresses
+ repeated fine-scale full-slope randomization without lowering source mountains.
+ Relief is a separately selectable cached layer immediately below Terrain;
+ palette/inspection and terrain share the same cheap landform descriptors.
+-The eager revision2 native run passed actual worker MeshData content/cancel
+ checks and unchanged-world checks at river/lake/mountain/lowland sites. Apply/
+ bind fell below0.6ms, but35/31/31/28 >100ms frames coincided with35/31/31/28
+ collections; worst368–533ms. Removing permanent weak handles alone still had
+ 245–323ms worst frames. Explicit incremental-collection experiments were then
+ rejected: a threshold run produced538 collections/89s at the river, versus
+ 35/39s before. No explicit GC scheduling or disabled collector is shipped.
+-Source a4dbf7d replaces the eager root object graph with compact numeric
+ triangle/edge controls and lazily realized, weak-addressed root objects.
+ Parent leases preserve active ancestry; expired weak wrappers are gradually
+ cleaned. Both200k worlds again pass13,110 checks and all492 Earth LOD tiles.
+ Full saved probe CSV SHA256s are identical to the eager representation:
+ Earth d149401c0fa1f8d8d98ff3ce28532cc57ed16e0efd9d9d4c78656a1fce9145c6;
+ Continents Plus c450789e604caa8da05fc1564671002ce86e858fd12c033056be1e98d6323c0d.
+ Initial retained terrain state is now211.3/215.4MiB, preparation1.183/1.182s;
+ sampled retained total555.4/559.4MiB. These are CLR measurements, not RSS caps.
+-Numeric controls alone still measured174–247ms worst native frames. Bulk
+ mesh generation then moved to a local CoreCLR process; exact mesh comparisons
+ passed, but scatter still produced138–172ms worst frames. Final source
+ f263643 also routes scatter through the same worker, preserving algorithms,
+ precision, source generation/history, two request lanes and near-first/handoff.
+ The helper is hidden, below-normal priority, token-authenticated loopback only,
+ self-contained and cleaned up via an owned process handle/parent watchdog.
+-Final native player: artifacts/player-hyper-continuous, IL2CPP09:57:28.8217179Z.
+ 200k Continents Plus at0.1 scale; fresh-recipe worker warming is forced rather
+ than bypassed with a pre-warmed/source-file shortcut. All three sites complete
+ full requested distance coverage, actual camera captures are inspected, source
+ hash e03f62240e5402c7a77883c87f30d81ce2c7f3217408229ac9109f723473fc1b
+ is unchanged. Twelve native/CoreCLR height probes are exact. Worker-buffer
+ vertex/normal/color/lithology/index/bounds/water/cancel checks also pass.
+
+|Native loading site|Near-ready|Full distance coverage|Frames|p99|Worst|>100ms|
+|---|---:|---:|---:|---:|---:|---:|
+|River, including cold worker recipe warming|13.273s|35.179s|34901|1.09ms|8.01ms|0|
+|Mountains, warm worker|0.109s|22.318s|22207|1.03ms|8.60ms|0|
+|Lowlands, warm worker|0.145s|25.081s|24816|1.17ms|12.91ms|0|
+
+ These are81924 unthrottled diagnostic frames on this host at1280x800, clear
+ weather and fixed review cameras while terrain streams, not a guarantee of
+ fullscreen GPU throughput, low-end performance or sustained flight/reanchor
+ acceptance. Automatic incremental GC remains enabled; six collections per
+ scene no longer cause long stalls. Maximum mesh apply/bind0.27ms; maximum
+ controller query2.48ms. Hierarchical preparation221–262ms is only the root
+ control step, not the13s worker warmup or whole world creation time.
+-Exact worker transport: Earth87792 mesh floats plus554 coarse/detail scatter
+ instances (88346 combined), terrain/water indices and bounds agree with local
+ generation. Continents Plus recipe reconstruction also passed105103 exact mesh
+ floats before scatter routing. Cancellation submission is tested; this is not
+ a new sustained-travel/cancellation-latency benchmark. No test processes or
+ worker children remained after final exit. Extra helper RAM and once-per-fresh-
+ world generation work are tradeoffs; no fine planet data is serialized.
+-Relief is selectable immediately below Terrain in setup/simulation/M-map.
+ Palette/order/descriptor/inspection checks pass; new native menu interaction
+ has not been separately visually exercised. Mountains, flat lowlands and the
+ embedded river are inspected, but placeholder art, distant horizon/ocean
+ presentation and final geomorphological realism remain unfinished. No new
+ history/performance/all-era acceptance is implied by this terrain work.
+
+
 ## Cut-only rivers / terrain-conformed profiles —20October2026
 
 Source checkpoint ea8bb5f; local terrain7 /hydrology4. RIVER_INCISION.md

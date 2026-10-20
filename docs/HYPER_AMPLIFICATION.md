@@ -130,6 +130,40 @@ the retained change. Native results determine the remaining stall limits.
 -[Unity incremental collection modes](https://docs.unity.com/en-us/engine/6000.7/manual/analysis/performance-memory/managed-memory/incremental-garbage-collection)
 -[CollectIncremental API](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Scripting.GarbageCollector.CollectIncremental.html)
 
+## Unity execution backend
+
+The Windows player now bundles a self-contained local CoreCLR worker (about
+80MB) for mesh **and scatter** generation. The exact same Core/Presentation
+assemblies run there. Unity retains precise ground queries, rendering, native
+MeshData preparation, the existing two work lanes/near-first policy and hidden
+reanchor handoff. There is no alternate terrain formula or reduced detail.
+Moving meshes alone was insufficient: scatter samples thousands of terrain
+points per patch and continued to cause Unity GC fallback pauses.
+
+The worker communicates only over authenticated loopback TCP. Requests carry
+the exact frame basis (no second normalization), tile/stitching parameters or
+global scatter address. Float arrays/instances retain their exact values.
+Disconnected/cancelled requests cancel Core work. Windows launches it hidden
+at below-normal priority using an owned process handle; world replacement/game
+exit terminates that handle, with a parent-process watchdog as a second guard.
+An absent packaged worker retains the in-process fallback; no such fallback is
+used to establish the Windows measurements below.
+
+Fresh worlds warm the worker by replaying their small, deterministic recipe and
+verifying the generation-stage fingerprint. This costs about13s once in the
+measured200k Continents Plus run, while setup/simulation can already be used.
+Loaded binary worlds instead use their literal existing file, not regeneration.
+Legacy JSON imports without a binary snapshot use the verified recipe path;
+if it cannot reproduce the source fingerprint, exploration fails explicitly
+rather than substituting different geography. Saving/reloading a binary world
+provides the literal snapshot route. There is extra worker RAM, not a fine
+world raster on disk. Full-world serialization inside Unity was rejected after
+it exceeded the native near-ready test's30s startup allowance.
+
+The build script publishes/packages the standalone runtime and stages matching
+authoritative assemblies before IL2CPP compilation. No separate .NET install
+is required to play. See VALIDATION for exact transport/native measurements.
+
 The historical world and existing generation hashes are unchanged. Old histories
 are not upgraded. Local preview geometry intentionally changes; permanent
 structures must not rely on an unversioned preview surface.

@@ -1,6 +1,45 @@
 # WorldGen repository instructions
 
 Current review launch,20October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-hyper-continuous/WorldGen.exe` (IL2CPP09:57:28Z).
+Source f263643 / local-terrain-hyper-2 implements drainage-aware CPU planetary
+amplification with canonical conforming heights, continuous cut-only valley
+fields, restrained fine relief and a Relief layer immediately below Terrain.
+Numeric coarse controls replace the eager planet object graph; matching mesh
+AND scatter calculations run in a bundled, hidden local CoreCLR worker to avoid
+Unity GC pauses. Existing near-first planner/controller/reanchor behavior and
+authoritative world/history hashes remain unchanged. Fresh worlds warm the worker
+from a verified recipe (~13s measured once); loaded binary saves use their actual
+snapshot. Main-process precise ground queries remain; no fine raster is saved.
+Both200k worlds pass13110 focused checks, all492 LOD tiles pass, eager/lazy probe
+files are identical, worker mesh/scatter comparisons pass, and12 exact native/CLR
+probes pass. Final200k0.1-scale Continents Plus native river/mountain/lowland
+reviews record81924 loading frames: worst8.01/8.60/12.91ms, no >100ms frames;
+warm near rings0.109–0.145s, full coverage22–25s. Actual screenshots are inspected;
+the river cold start includes13.273s worker warming. These hidden1280x800 fixed-
+camera measurements are NOT fullscreen/low-end/sustained-travel acceptance.
+No test/worker processes remain. Art/horizon presentation and finished terrain
+realism remain open; no all-era/history performance acceptance is added. The
+hyper-final and cut-only-fast players remain rollbacks. See
+docs/HYPER_AMPLIFICATION.md / docs/VALIDATION.md for adaptations, limits, rejected
+GC experiments, licensing, worker tradeoffs and reproduction.
+
+Current review launch,20October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-hyper-final/WorldGen.exe` (IL2CPP08:03:18Z).
+Source920035c replaces the local scaffold with shared CPU drainage-aware
+hyper-amplification (adapted from Cortial et al./Arches-Team, NOT their GPU
+pipeline). Terrain/drainage subdivide together; render LOD samples canonical
+heights, avoiding exposed tile seams. Existing loading/reanchor/controller,
+generation/history and source-world hashes remain unchanged.12518 Earth/12485
+Continents Plus focused200k checks,492 full-range two-worker LOD tiles,
+745terrain/4037scatter/3227legacy-water checks pass. Earlier native curved-river
+and mountain renders plus24 exact CLR/native probes were reviewed; that earlier
+build exposed LOD seams and is NOT the current acceptance. Current final native
+Earth/generated review is IN PROGRESS: do not claim final screenshot/performance
+acceptance until docs/VALIDATION.md is updated. Prior cut-only-fast is rollback.
+See docs/HYPER_AMPLIFICATION.md for source/license, adaptations and limits.
+
+Current review launch,20October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-rivers-cut-only-fast/WorldGen.exe` (IL2CPP05:58:57Z).
 Local terrain7/hydrology4 corrects raised river beds/banks: cut-only envelopes,
 actual uncarved path/bank samples, midpoint-dip checks and shared downstream
