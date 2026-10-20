@@ -18,7 +18,7 @@ this is not independent per-cell height/noise generation. Above that limit the
 base mesh supplies controls rather than multiplying an already large world.
 
 Source heights, ocean connectivity, major lake levels, broad relief,
-lithology/sediment proxies and positive local runoff initialize the controls.
+geological-age/sediment proxies and positive local runoff initialize the controls.
 Runoff is reconstructed from saved seasonal discharge and redistributed among
 the original and new vertices. Negative coarse residuals are clamped: this is
 not a new calibrated evaporation/discharge budget. Saved receiver corridors

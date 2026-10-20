@@ -1,5 +1,48 @@
 # Version 3 validation evidence
 
+## Shared geographic drainage scaffold —20October2026
+
+Review player: artifacts/player-geographic-scaffold, IL2CPP05:11:15.6276030Z.
+Source implementation checkpoint791a0e0; design/limits: GEOGRAPHIC_SCAFFOLD.md.
+Previous drainage-fractal player is retained. Local terrain6 /hydrology3 only;
+no coarse generation/history rules or saved source-world changes.
+
+-Actual200k Earth and Continents Plus:799994 controls /1599984 triangles.
+ Each passes3200213 focused graph/query checks (mostly per-node invariants):
+ complete acyclic route order, downhill controls, finite positive discharge,
+ nondecreasing downstream accumulation, overlapping patch agreement including
+ displaced shared edges, independent intermediate-node channels, headwater
+ taper and unchanged source hash. These are not3200213 visual realism cases.
+-Full fresh CLR pipeline including all existing geography/ecology stages plus
+ complete local terrain preparation: Earth17.767+3.284=21.051s; Continents Plus
+ 14.337+2.873=17.210s. Host measurements, not a guarantee for all presets/PCs or
+ a native fresh-menu wall-clock benchmark. Pipeline stage hashes are still
+ calculated. No detailed scaffold/raster was serialized.
+-Scaffold retained arrays83.2MiB. Earth total additional managed terrain retention
+ after diagnostic GC243.9MiB, including profiles/channels/indices and other
+ derived data, not just scaffold arrays. This is not peak process/GPU memory.
+-221 existing landform/water,745 terrain/controller/handoff and4037scatter
+ assertions pass. Legacy incomplete-world fixtures deliberately retain their
+ interpolation fallback; the real-world graph tests above exercise the new path.
+-200k CLR near loading diagnostic:16 full-detail tiles,20.6ms mean,42.6ms worst,
+ 329.4ms serial sum. No universal FPS claim. Loading scheduler/retained chart
+ coverage remain unchanged. Distant native tile jobs reached657.2ms; these
+ background-job durations are not measured main-thread stalls.
+-One short native Earth review,3 actual camera captures inspected: Himalaya,
+ Andes,river. Native scaffold preparation3441ms; near coverage ready at each
+ capture.12 native/CLR height probes match exactly. Source unchanged:
+ 8293430ef7f88567f0fe71f246c1525fbeb78972c6165ce91708b1e37b440324.
+ Captures/report/probes: artifacts/scaffold-review. No native generated-world
+ screenshot or full1x-scale visual acceptance was added by this brief pass.
+
+Visual assessment: sampled needle-like noise peaks are removed, but some broad
+slopes remain too smooth, snow/materials overbright and water shading primitive.
+This is the first shared watershed-control milestone ready for owner testing,
+not completion of realistic terrain. Existing lake/island/coastal primitives
+remain approximations; fine branching catchments, specialist shores, sediment
+transport and basin reconstruction are not completed. Existing archived Earth
+golden mismatch remains untouched; no expectations were regenerated.
+
 ## Gradient-warped local terrain and river sections —19 October2026
 
 Player: artifacts/player-terrain-drainage-fractal, IL2CPP20Oct04:07:51.3842674Z.

@@ -1,5 +1,26 @@
 # WorldGen repository instructions
 
+Current review launch,20October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-geographic-scaffold/WorldGen.exe` (IL2CPP05:11:15Z).
+Local terrain6/geography-scaffold1 adds a shared drainage-conditioned mesh:
+200k cells ->799994 controls/1599984 triangles, two bounded incision/hillslope
+sweeps, shared ridge/valley interpolation and intermediate-graph river curves
+with tapered headwaters. Large independent mountain noise is removed; small
+physical-scale roughness remains. Preparation warms after generation/loading;
+no scaffold/fine raster is saved and coarse worlds/history hashes are unchanged.
+Actual200k Earth/Continents Plus DAG/downhill/patch/source-hash checks,221water/
+745terrain/4037scatter assertions and12 exact native/CLR probes pass. Native
+Himalaya/Andes/river images inspected; source unchanged. CLR full generation+
+terrain prep: Earth21.05s /Continents Plus17.21s; native scaffold3.44s. Arrays
+83.2MiB; total derived-terrain managed retention243.9MiB on Earth. These are host
+diagnostics, not universal/native fresh-generation or all-LOD guarantees. Near
+CLR tiles20.6ms mean/42.6ms worst; native distant jobs reached657ms. Some slopes
+remain too smooth; standing-water/coast prototypes and placeholder art remain.
+No fine watershed hierarchy, complete erosion, new ponds/oases/fjords or universal
+landscape-realism acceptance. Recent near-first loading is unchanged. Previous
+drainage-fractal player remains rollback. See docs/GEOGRAPHIC_SCAFFOLD.md and
+VALIDATION.md. Existing coarse saves need no regeneration.
+
 Current review launch,19October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-terrain-drainage-fractal/WorldGen.exe` (IL2CPP20Oct04:07:51Z).
 Local terrain5 replaces periodic/source-local ridge trains and phasor ravines

@@ -1,5 +1,9 @@
 # Local terrain preview — first exploration milestone
 
+20October2026: completed worlds now use local terrain6 / geographic scaffold1.
+See GEOGRAPHIC_SCAFFOLD.md for the intermediate drainage mesh, preparation costs
+and limitations. Earlier preview descriptions below are historical milestones.
+
 20October2026 update: the current derived surface is **local-terrain-preview-4**,
 with version3.33 procedural macro relief and the initial local hydrology layer.
 See LOCAL_LANDFORMS_HYDROLOGY.md. This supersedes the preview3 height/no-inland-
