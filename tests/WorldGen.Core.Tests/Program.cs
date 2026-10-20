@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--hyper-lod")){HyperAmplificationTests.Lod(args[Array.IndexOf(args,"--hyper-lod")+1]);return;}
+if(args.Contains("--hyper-review")){int at=Array.IndexOf(args,"--hyper-review");HyperAmplificationTests.Review(args[at+1],args[at+2],args.Contains("--fresh-generation"));return;}
 if(args.Contains("--geographic-scaffold")){GeographicScaffoldTests.Review(args[Array.IndexOf(args,"--geographic-scaffold")+1],args.Contains("--fresh-generation"));return;}
 if(args.Contains("--local-loading-world")){LocalTerrainTests.Loading(args[Array.IndexOf(args,"--local-loading-world")+1]);return;}
 if(args.Contains("--landforms-native")){int n=0,at=Array.IndexOf(args,"--landforms-native");LandformTests.Native(args[at+1],args[at+2],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" exact scaled native/CLR landform probes");return;}

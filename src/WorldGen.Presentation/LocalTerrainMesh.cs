@@ -47,11 +47,11 @@ namespace WorldGen.Presentation
             var patchCache=new System.Collections.Generic.Dictionary<(int,int),LocalTerrain.LocalTerrainPatch>();
             LocalTerrainSample Sample(double x,double z,V p)
             {
-                if(patch!=null)return patch.Sample(p);
+                if(patch!=null)return patch.SampleLod(p,Math.Max(HyperAmplification.FinestSpacingM,sizeM/segments*.5));
                 // A far tile on a shrunken planet spans a large geographical area.
                 // Query bounded subpatches instead of constructing a planet-sized candidate bag.
                 double box=100000*frame.HorizontalScale;int a=(int)Math.Floor(x/box),b=(int)Math.Floor(z/box);
-                if(!patchCache.TryGetValue((a,b),out var local)){local=terrain.Patch(frame.Position((a+.5)*box,(b+.5)*box),150000);patchCache.Add((a,b),local);}return local.Sample(p);
+                if(!patchCache.TryGetValue((a,b),out var local)){local=terrain.Patch(frame.Position((a+.5)*box,(b+.5)*box),150000);patchCache.Add((a,b),local);}return local.SampleLod(p,Math.Max(HyperAmplification.FinestSpacingM,sizeM/segments*.5));
             }
             int side = segments + 1, halo = side + 2, ground = side * side, perimeter = segments * 4;
             mesh.GroundVertices = ground;

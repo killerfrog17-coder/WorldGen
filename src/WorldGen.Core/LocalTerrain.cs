@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed class LocalTerrain
     {
-        public const string Version = "local-terrain-preview-7";
+        public const string Version = "local-terrain-hyper-1";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -19,6 +19,7 @@ namespace WorldGen.Core
         readonly int seed;
         public readonly LocalHydrology Hydrology;
         public readonly GeographicScaffold Scaffold;
+        public readonly HyperAmplification Amplification;
         internal World SourceWorld=>world;
         public int SourceSeed=>seed;
 
@@ -107,9 +108,10 @@ namespace WorldGen.Core
             // preview/test fixtures with no complete drainage retain the small
             // interpolation-only fallback; no fine map is serialized into World.
             if(world.Hydrology.Receiver.Length==profiles.Length&&world.Hydrology.VisitOrder.Length==profiles.Length&&world.Surface.Edges.Length>0)
-                Scaffold=new GeographicScaffold(world,profiles,horizontalScale,token);
-            Hydrology=new LocalHydrology(world,horizontalScale,token,Scaffold);
-            Hydrology.Conform(this,world,Scaffold,token);
+                Amplification=new HyperAmplification(world,profiles,horizontalScale,token);
+            // Kept as coarse diagnostic/source reach metadata. Amplified terrain
+            // and water are generated together; do not fit legacy strips over it.
+            Hydrology=new LocalHydrology(world,horizontalScale,token);
         }
 
         static int At(int[] values, int i) => i < values.Length ? values[i] : 0;
@@ -160,7 +162,9 @@ namespace WorldGen.Core
                     }
                 }
             }
-            return new LocalTerrainPatch(this, center, halfExtentM, sources, triangles.ToArray(), seed,geography.ToArray(),dry);
+            var rootIds=new int[triangleIds.Count];triangleIds.CopyTo(rootIds);
+            return new LocalTerrainPatch(this, center, halfExtentM, sources, triangles.ToArray(), seed,geography.ToArray(),dry,
+                Amplification?.Region(rootIds));
         }
 
         // Cubic triangular surface: exact source heights and shared edge curves. Bounded
@@ -203,17 +207,20 @@ namespace WorldGen.Core
             readonly HeightTriangle[] triangles;
             readonly HeightTriangle[] geography;
             readonly LocalHydrology.Patch water;
+            readonly HyperAmplification.Patch amplified;
+            readonly bool dry;
             public readonly V Center, East, North;
             public readonly double HalfExtentM;
             public int CandidateCount => sources.Length;
-            public LocalHydrology.Piece[] ChannelPieces()=>water.Pieces();
-            internal LocalTerrainPatch(LocalTerrain owner, V center, double extent, LocalTerrainProfile[] sources, HeightTriangle[] triangles, int seed,HeightTriangle[] geography,bool dry)
+            public LocalHydrology.Piece[] ChannelPieces()=>water?.Pieces()??Array.Empty<LocalHydrology.Piece>();
+            internal LocalTerrainPatch(LocalTerrain owner, V center, double extent, LocalTerrainProfile[] sources, HeightTriangle[] triangles, int seed,HeightTriangle[] geography,bool dry,HyperAmplification.Patch amplified)
             {
                 this.owner = owner; Center = center; HalfExtentM = extent; this.sources = sources; this.triangles=triangles;this.seed = seed;
                 this.geography=geography;
+                this.amplified=amplified;this.dry=dry;
                 East = V.Cross(Math.Abs(center.Z) < .99 ? new V(0, 0, 1) : new V(0, 1, 0), center).Unit;
                 North = V.Cross(center, East).Unit;
-                water=dry?null:owner.Hydrology.Region(center,extent);
+                water=dry||amplified!=null?null:owner.Hydrology.Region(center,extent);
             }
             public V Position(double eastM, double northM)
             {
@@ -221,7 +228,10 @@ namespace WorldGen.Core
                 return (Center + East * (eastM / owner.RadiusM) + North * (northM / owner.RadiusM)).Unit;
             }
             public LocalTerrainSample Sample(double eastM, double northM) => Sample(Position(eastM, northM));
-            public LocalTerrainSample Sample(V point)
+            public LocalTerrainSample Sample(V point)=>SampleLod(point,HyperAmplification.FinestSpacingM);
+            /// <summary>Same hierarchy, approximated at a distant render spacing.
+            /// Canonical walking/scatter queries always retain FinestSpacingM.</summary>
+            public LocalTerrainSample SampleLod(V point,double spacingM)
             {
                 double norm = point.X * point.X + point.Y * point.Y + point.Z * point.Z;
                 if (double.IsNaN(norm) || Math.Abs(norm - 1) > .000001) throw new ArgumentOutOfRangeException(nameof(point), "A unit planetary position is required.");
@@ -232,12 +242,12 @@ namespace WorldGen.Core
                 // Compress macro geography, not metre-sized local landforms. The same physical
                 // ridge/noise wavelengths survive on a smaller playable planet; base anchors stay exact.
                 V km = new V(px / 1000, py / 1000, pz / 1000)*owner.HorizontalScale;
-                double broad = SphereNoise.Sample(km, seed ^ 0x1837, .16);
-                double medium = SphereNoise.Sample(km, seed ^ 0x7917, .63);
-                double fine = SphereNoise.Sample(km, seed ^ 0x2573, 2.1);
-                double micro = SphereNoise.Sample(km, seed ^ 0x6819, 10);
+                double broad = amplified==null?SphereNoise.Sample(km, seed ^ 0x1837, .16):0;
+                double medium = amplified==null?SphereNoise.Sample(km, seed ^ 0x7917, .63):0;
+                double fine = amplified==null?SphereNoise.Sample(km, seed ^ 0x2573, 2.1):0;
+                double micro = amplified==null?SphereNoise.Sample(km, seed ^ 0x6819, 10):0;
                 double sum = 0, hills = 0, mountains = 0, plateau = 0, sediment = 0, glacier = 0, sharpness = 0, bestWeight = -1, red = 0, green = 0, blue = 0, ocean = 0;
-                bool heightOnly=water==null;double rockA=0,rockB=0;
+                bool heightOnly=dry;double rockA=0,rockB=0;
                 int cell = -1; Biome biome = Biome.Grassland;var ground=new GroundProfile();
                 for(int sourceIndex=0;sourceIndex<sources.Length;sourceIndex++)
                 {
@@ -265,6 +275,16 @@ namespace WorldGen.Core
                     if (weight > bestWeight) { bestWeight = weight; cell = f.Cell; biome = f.Biome;ground.Bedrock=f.Ground.Bedrock;ground.Deposit=f.Ground.Deposit; }
                 }
                 if (sum <= 0) throw new InvalidOperationException("Terrain patch has no supporting world cells.");
+                if(amplified!=null)
+                {
+                    var surface=amplified.Sample(point,spacingM);
+                    if(!heightOnly)ground.Divide(sum);
+                    return new LocalTerrainSample{ElevationM=D.Q(surface.Height,1000),PreWaterElevationM=D.Q(surface.UnshapedHeight,1000),
+                        BaseElevationM=D.Q(surface.UnshapedHeight,1000),MountainHeightM=mountains/sum,HillHeightM=hills/sum,
+                        Plateau=plateau/sum,Sediment=sediment/sum,GlacialInfluence=glacier/sum,Cell=cell,Biome=biome,Ground=ground,
+                        CoverColor=new V(red/sum,green/sum,blue/sum),OceanInfluence=ocean/sum,
+                        WaterSurfaceM=surface.Water,WaterMaskM=surface.Mask,RiverInfluence=surface.RiverInfluence};
+                }
                 double baseM = double.NaN;
                 for(int i=0;i<triangles.Length;i++)if(triangles[i].Height(point,out double value)){baseM=value;break;}
                 if(double.IsNaN(baseM))throw new InvalidOperationException("Terrain patch did not resolve a containing world triangle.");

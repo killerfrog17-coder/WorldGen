@@ -38,6 +38,8 @@ public sealed partial class WorldGenRuntime
         while((terrainExplorer==null||!terrainExplorer.Ready)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(terrainExplorer==null||!terrainExplorer.Ready)throw new Exception("Landform sampler did not load.");
         var explorer=terrainExplorer;var terrain=localTerrainTask.Result;
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-hyper-review"))
+        {yield return CheckHyperAmplification(output,sourceHash,explorer,terrain);yield break;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-incision-timing-only"))
         {
             File.WriteAllLines(Path.Combine(output,"preparation.txt"),new[]{"Native scaffold "+terrain.Scaffold.PreparationMilliseconds.ToString("F0")+"ms; river conditioning "+terrain.Hydrology.ConditioningMilliseconds.ToString("F0")+"ms","PASS source unchanged "+StateHash.Compute(world)});
@@ -108,5 +110,62 @@ public sealed partial class WorldGenRuntime
         if(StateHash.Compute(world)!=sourceHash)throw new Exception("Local landforms changed the source world.");
         report.Add("PASS source unchanged "+sourceHash);File.WriteAllLines(Path.Combine(output,"landforms.txt"),report);
         File.WriteAllLines(Path.Combine(output,"probes.csv"),probes);explorer.Close();Application.Quit(0);
+    }
+
+    IEnumerator CheckHyperAmplification(string output,string sourceHash,LocalTerrainExplorer explorer,LocalTerrain terrain)
+    {
+        var sites=new List<Tuple<string,V,double,float,float>>();
+        if(world.Recipe.TerrainSource=="Earth")
+        {
+            sites.Add(Tuple.Create("himalayas",TerrainMapViewport.FromDegrees(27.98,86.92),600d,20f,18f));
+            sites.Add(Tuple.Create("appalachians",TerrainMapViewport.FromDegrees(35.6,-83.5),100d,20f,12f));
+            sites.Add(Tuple.Create("hill-country",TerrainMapViewport.FromDegrees(30.2,-99),50d,20f,8f));
+            sites.Add(Tuple.Create("plateau",TerrainMapViewport.FromDegrees(32,88),150d,20f,12f));
+        }
+        else
+        {
+            int high=Enumerable.Range(0,world.ElevationM.Length).OrderByDescending(i=>world.ElevationM[i]).First();
+            int flat=Enumerable.Range(0,world.ElevationM.Length).Where(i=>world.ElevationM[i]>80&&world.ElevationM[i]<800).OrderBy(i=>world.Ecology.Habitat[i].ReliefM).First();
+            sites.Add(Tuple.Create("generated-mountains",world.Surface.Cells[high].Position,500d,20f,18f));
+            sites.Add(Tuple.Create("generated-lowlands",world.Surface.Cells[flat].Position,100d,20f,12f));
+        }
+        var target=world.Recipe.TerrainSource=="Earth"?TerrainMapViewport.FromDegrees(30.5,31.2):sites[sites.Count-1].Item2;
+        var river=terrain.Hydrology.Channels.Where(c=>c.WidthM>10&&c.StartM>10&&c.StartM<1500).OrderBy(c=>(c.A-target).Length).First();
+        V riverAt=terrain.Amplification.RiverPoint(river.From,.5);
+        sites.Insert(0,Tuple.Create("lowland-river",riverAt,350d,20f,50f));
+        sites.Insert(1,Tuple.Create("river-ground",riverAt,6d,20f,8f));
+        int lake=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>world.Hydrology.LakeCoverageFraction[i]>.7&&world.ElevationM[i]>0).OrderBy(i=>world.ElevationM[i]).DefaultIfEmpty(-1).First();
+        if(lake>=0)sites.Insert(2,Tuple.Create("lake",world.Surface.Cells[lake].Position,900d,20f,55f));
+        var report=new List<string>{"Surface "+LocalTerrain.Version+" / "+HyperAmplification.Version,
+            "Core hierarchical preparation "+terrain.Amplification.PreparationMilliseconds.ToString("F1")+"ms"};
+        var probes=new List<string>{"originX,originY,originZ,eastM,northM,elevationM"};
+        foreach(var site in sites)
+        {
+            Debug.Log("HYPER REVIEW starting "+site.Item1+" at "+Time.realtimeSinceStartupAsDouble.ToString("F2")+"s");
+            explorer.Teleport(site.Item2);explorer.TestView(site.Item3,site.Item4,site.Item5);
+            PlayCommands.Execute(play,0,"/weather clear",weather:explorer.WeatherControl);
+            TerrainMapViewport.Degrees(site.Item2,out double lat,out double lon);play.SetLocalSolarHour(12,lon);
+            double started=Time.realtimeSinceStartupAsDouble,deadline=started+30;
+            yield return null;
+            while(!explorer.NearReady&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+            if(!explorer.NearReady||explorer.Error!="")throw new Exception("Hyper terrain near coverage: "+site.Item1+" "+explorer.Error);
+            report.Add(site.Item1+": near "+(Time.realtimeSinceStartupAsDouble-started).ToString("F3")+"s; "+explorer.Diagnostics);
+            // Near-ready proves input readiness, not that an elevated review
+            // camera has any distant land in view. Capture only real coverage.
+            deadline=Time.realtimeSinceStartupAsDouble+90;
+            while(!explorer.AllReady&&explorer.Error==""&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+            if(!explorer.AllReady||explorer.Error!="")throw new Exception("Hyper terrain distant coverage: "+site.Item1+" "+explorer.Error);
+            report.Add(site.Item1+": full coverage "+(Time.realtimeSinceStartupAsDouble-started).ToString("F3")+"s; "+explorer.Diagnostics);
+            double hold=Time.realtimeSinceStartupAsDouble+3;while(Time.realtimeSinceStartupAsDouble<hold)yield return null;
+            yield return new WaitForEndOfFrame();explorer.Capture(Path.Combine(output,site.Item1+".png"));
+            probes.AddRange(explorer.Probes());
+            if(site.Item1=="river-ground"&&!terrain.Patch(site.Item2).Sample(0,0).Underwater)throw new Exception("Actual amplified river point has no water.");
+            if(site.Item1=="river-ground")
+            {var sample=terrain.Patch(site.Item2).Sample(0,0);report.Add("River "+river.From+": level "+sample.WaterSurfaceM.ToString("F3")+"m, bed "+sample.ElevationM.ToString("F3")+"m");}
+            File.WriteAllLines(Path.Combine(output,"hyper-review.txt"),report);File.WriteAllLines(Path.Combine(output,"probes.csv"),probes);
+        }
+        if(StateHash.Compute(world)!=sourceHash)throw new Exception("Amplification changed source geography/history.");
+        report.Add("PASS unchanged source "+sourceHash);File.WriteAllLines(Path.Combine(output,"hyper-review.txt"),report);
+        explorer.Close();Application.Quit(0);
     }
 }
