@@ -1,6 +1,21 @@
 # WorldGen repository instructions
 
 Current review launch,19October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-terrain-drainage-fractal/WorldGen.exe` (IL2CPP20Oct04:07:51Z).
+Local terrain5 replaces periodic/source-local ridge trains and phasor ravines
+with fixed-budget analytic-gradient multifractal relief. Hydrology2 defines
+bed/banks/valley as one continuous ground section; water clips against drawn
+land heights. Coarse world/history rules and recent near-first loading remain
+unchanged.221 local-water/745 terrain/4037 scatter assertions pass; actual200k
+Earth Himalaya/Andes/river captures inspected, source hash unchanged,12 exact
+native/CLR probes match. CLR near-tile diagnostic25.4ms mean/46.0ms worst,
+not native wall-time acceptance. Materials/water shading remain placeholder;
+some large valleys remain sharp. No full hydraulic erosion, fine watershed
+synthesis, universal realism or all-LOD acceptance. See LOCAL_TERRAIN_DRAINAGE_
+FRACTAL.md and VALIDATION.md in docs. Near-first player is rollback. Owner will
+review appearance; existing saved coarse worlds need no regeneration.
+
+Current review launch,19October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-terrain-near-first/WorldGen.exe` (IL2CPP20Oct03:46:38Z).
 Focused loading correction follows geometry-clipmap/CDLOD/Cesium streaming
 research, not a new renderer. Replans scale with fine tile width; smaller near

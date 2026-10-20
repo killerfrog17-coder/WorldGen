@@ -1,5 +1,36 @@
 # Version 3 validation evidence
 
+## Gradient-warped local terrain and river sections —19 October2026
+
+Player: artifacts/player-terrain-drainage-fractal, IL2CPP20Oct04:07:51.3842674Z.
+Design/references: LOCAL_TERRAIN_DRAINAGE_FRACTAL.md. New local terrain5 and
+hydrology2 intentionally change derived fine heights, not saved coarse worlds
+or history. Prior near-first loading architecture is retained.
+
+-221 focused landform/water assertions: analytic derivatives versus independent
+ finite differences, submerged beds, dry banks even above low noisy ground,
+ continuous outer valley support, clipping against drawn geometry, unchanged
+ narrow-stream area/perimeter and independent-patch checks.
+-745 terrain/navigation/handoff and4037 scatter assertions pass.
+-Presentation Release builds with zero warnings/errors. Unity IL2CPP completes
+ with staged authoritative input hashes guarded by unity-check.
+-Actual200k Earth short native review captures Himalaya, Andes and a river.
+ All three images inspected; they are not black captures. Full immediate detail
+ is ready, but the review intentionally does NOT wait for all distant tiles:
+ 351/456,177/456 and164/492 leaves resident respectively at capture. Some large
+ valleys remain sharply incised and distant geometry remains angular; this is
+ not finished landscape realism or all-LOD acceptance. Ground/water shading and
+ props remain placeholders.
+-All12 native/CoreCLR height probes match exactly; complete source hash remains
+ 8293430ef7f88567f0fe71f246c1525fbeb78972c6165ce91708b1e37b440324.
+-Actual200k Earth,0.1-scale CLR near-ring diagnostic:16 tiles,25.4ms mean,
+ 46.0ms worst,406.1ms serial sum. These are generator timings, NOT native
+ end-to-end load latency, a statistical benchmark or a universal FPS guarantee.
+
+Evidence: artifacts/terrain-fractal-review/{himalaya,andes,river}.png,
+landforms.txt, probes.csv and player.log. Owner's running near-first player
+remained open. No repeated all-world screenshot/history campaign was run.
+
 ## Focused near-terrain loading —19 October2026
 
 Player: artifacts/player-terrain-near-first, IL2CPP20Oct03:46:38.6808519Z.
