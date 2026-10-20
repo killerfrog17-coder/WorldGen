@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed class HyperAmplification
     {
-        public const string Version = "hyper-amplification-3";
+        public const string Version = "hyper-amplification-4";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -740,7 +740,12 @@ namespace WorldGen.Core
                     flow=Lerp(hit.Edge.A.Flow,hit.Edge.B.Flow,hit.Along);
                 }
                 double width = Width(flow)*Math.Sqrt(D.Clamp((water-bed)/Math.Max(.001,Depth(flow))));
-                bool ocean = found.A.Type == Kind.Ocean || found.B.Type == Kind.Ocean || found.C.Type == Kind.Ocean;
+                // profiles.comp classifies the sea by submerged elevation, not
+                // by the temporary subdivision node type. Keep the source sea
+                // domain so closed below-sea inland basins are not all oceans;
+                // refined ordinary terrain on a submarine shelf remains sea.
+                var root=owner.roots[found.Root];
+                bool ocean=owner.rootNodes[root.A].Type==Kind.Ocean||owner.rootNodes[root.B].Type==Kind.Ocean||owner.rootNodes[root.C].Type==Kind.Ocean;
                 Vertex lakeSource=null;double lakeWeight=0;
                 void ConsiderLake(Vertex v)
                 {

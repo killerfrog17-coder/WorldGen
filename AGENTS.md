@@ -1,5 +1,20 @@
 # WorldGen repository instructions
 
+Current CHECKPOINT launch,20October2026: shortcut selects
+`artifacts/player-ocean-containment/WorldGen.exe` (IL2CPP16:31:14Z).
+Hyper4 repairs source-connected ocean coverage across subdivided submarine
+island slopes; node Kind is no longer the sea boundary.106 focused checks
+include the reproduced old -67m dry-shelf failure;459 generated/341 Earth
+actual coastal submerged points retain sea level, with unchanged source hashes.
+Two native shore/shelf captures are inspected; native controls313ms, near5.039s
+(first)/0.180s (warm), full29.043/24.404s; worst16.69/14.63ms in hidden1280x800
+fixed-camera diagnostics, not broad performance acceptance. Inland water geometry
+is UNCHANGED and still owner-rejected for uncontained edges. This is ocean-only,
+not finished hydrology. R.A.M manual reviewed: runtime/collider APIs exist, custom
+mesh carving/planet compatibility not established; owner chose open-source
+reference instead of purchasing. See docs/WATER_CONTAINMENT.md. Prior water-
+coupled remains rollback; existing generation/history/LOD/controller unchanged.
+
 Current review launch,20October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-water-coupled/WorldGen.exe` (IL2CPP15:56:44Z).
 Local-terrain-hyper-3 / amplification3 adds body-aware wet footprints, connected

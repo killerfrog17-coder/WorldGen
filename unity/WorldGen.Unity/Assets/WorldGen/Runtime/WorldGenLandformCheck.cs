@@ -138,6 +138,24 @@ public sealed partial class WorldGenRuntime
             .Where(i=>world.Hydrology.Waters[world.Hydrology.WaterBody[i]].AreaM2>1e8&&world.Hydrology.Waters[world.Hydrology.WaterBody[i]].AreaM2<5e10)
             .OrderBy(i=>Math.Abs(Math.Log(world.Hydrology.Waters[world.Hydrology.WaterBody[i]].AreaM2/3e9))).DefaultIfEmpty(-1).First();
         if(lake>=0)sites.Insert(2,Tuple.Create("lake",world.Surface.Cells[lake].Position,350d,20f,55f));
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-ocean-review"))
+        {
+            int coast=Enumerable.Range(0,world.ElevationM.Length).Where(i=>world.ElevationM[i]>20&&!world.Hydrology.OceanConnected[i]
+                &&world.Surface.Cells[i].Neighbors.Any(j=>world.Hydrology.OceanConnected[j])).OrderBy(i=>world.ElevationM[i]).First();
+            int sea=world.Surface.Cells[coast].Neighbors.Where(i=>world.Hydrology.OceanConnected[i]).OrderBy(i=>world.ElevationM[i]).First();
+            V landAt=world.Surface.Cells[coast].Position,seaAt=world.Surface.Cells[sea].Position;
+            V wet=seaAt,dry=landAt;
+            for(int j=0;j<24;j++)
+            {
+                V mid=(wet+dry).Unit;
+                if(terrain.Patch(mid,2000).Sample(mid).ElevationM<0)wet=mid;else dry=mid;
+            }
+            var shoreFrame=new LocalTerrainFrame(dry,terrain.RadiusM,0,.1);
+            TerrainHandoff.Coordinates(shoreFrame,seaAt,out double dx,out double dz);
+            float towardSea=(float)(Math.Atan2(dx,dz)*180/Math.PI);
+            sites.Clear();sites.Add(Tuple.Create("ocean-shore",dry,6d,towardSea,5f));
+            sites.Add(Tuple.Create("ocean-shelf",seaAt,250d,towardSea+180,12f));
+        }
         if(Environment.GetCommandLineArgs().Contains("--worldgen-hyper-loading-review"))
             sites=sites.Where(s=>s.Item1=="river-ground"||s.Item1=="generated-mountains"||s.Item1=="generated-lowlands"||s.Item1=="himalayas"||s.Item1=="hill-country"||s.Item1=="lake").ToList();
         string chosenSites=Argument("--worldgen-hyper-sites","");

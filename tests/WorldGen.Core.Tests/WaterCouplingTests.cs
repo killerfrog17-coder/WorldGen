@@ -43,6 +43,26 @@ static class WaterCouplingTests
             var ys=Enumerable.Range(0,3).Select(k=>mesh.WaterPositions[mesh.WaterTriangles[triangle*3+k]*3+1]).ToArray();
             Check(ys.Max()-ys.Min()<.002,"A render triangle never joins different standing-water levels");
         }
+        // A large island's submerged flank remains ocean even after subdivision
+        // replaces the original sea/land vertices with ordinary terrain nodes.
+        var recipe=Recipe.Preset("Preview");recipe.Detail=5000;
+        var surface=SphericalMesh.Build(recipe,default);int n=surface.Cells.Length,island=221;
+        var h=new HydrologyResult{Receiver=Enumerable.Repeat(-1,n).ToArray(),VisitOrder=Enumerable.Range(0,n).ToArray(),
+            OceanConnected=Enumerable.Repeat(true,n).ToArray(),WaterBody=Enumerable.Repeat(-1,n).ToArray(),LakeCoverageFraction=new double[n],
+            NorthernSpringDischargeM3PerS=new double[n],NorthernSummerDischargeM3PerS=new double[n],NorthernAutumnDischargeM3PerS=new double[n],NorthernWinterDischargeM3PerS=new double[n]};
+        var world=new World{Recipe=recipe,Surface=surface,ElevationM=Enumerable.Repeat(-2000,n).ToArray(),Hydrology=h};
+        world.ElevationM[island]=3000;h.OceanConnected[island]=false;
+        var terrain=new LocalTerrain(world,horizontalScale:.1);var at=surface.Cells[island].Position;
+        int submerged=0;
+        foreach(int sea in surface.Cells[island].Neighbors)
+        for(int j=1;j<32;j++)
+        {
+            double t=j/32d;var point=(at*(1-t)+surface.Cells[sea].Position*t).Unit;var s=terrain.Patch(point,2000).Sample(point);
+            if(s.ElevationM>=-.1)continue;
+            submerged++;Check(s.Underwater&&s.WaterSurfaceM==0&&s.WaterKind==LocalWaterKind.Ocean,
+                $"Submarine island flank cannot lose ocean at {s.ElevationM:F1}m: fraction {t:F3}");
+        }
+        Check(submerged>40,"Ocean regression actually visits deep submarine island slopes, not just shoreline points");
         Console.WriteLine("PASS "+checks+" water coupling checks");
     }
 
@@ -77,5 +97,26 @@ static class WaterCouplingTests
         }
         if(StateHash.Compute(world)!=hash)throw new Exception("Water coupling changed authoritative world/history");
         Console.WriteLine($"PASS {checkedVertices} actual-world water vertices; {unsupported} outside exact footprint (linear LOD approximation); worst level error {worstError:F3}m; max sampled depth {maxDepth:F2}m; total {watch.Elapsed.TotalSeconds:F2}s; unchanged {hash}");
+    }
+
+    public static void OceanWorld(string path)
+    {
+        var world=WorldFile.Read(File.ReadAllBytes(path));string hash=StateHash.Compute(world);
+        var terrain=new LocalTerrain(world,horizontalScale:.1);int count=0;
+        var coast=Enumerable.Range(0,world.ElevationM.Length).Where(i=>!world.Hydrology.OceanConnected[i]&&world.ElevationM[i]>0&&world.Surface.Cells[i].Neighbors.Any(j=>world.Hydrology.OceanConnected[j])).ToArray();
+        foreach(int i in coast.Where((_,k)=>k%Math.Max(1,coast.Length/32)==0).Take(32))
+        {
+            int sea=world.Surface.Cells[i].Neighbors.First(j=>world.Hydrology.OceanConnected[j]);
+            for(int j=0;j<=32;j++)
+            {
+                double t=j/32d;var at=(world.Surface.Cells[i].Position*(1-t)+world.Surface.Cells[sea].Position*t).Unit;
+                var sample=terrain.Patch(at,2000).Sample(at);
+                if(sample.ElevationM>=-.1)continue;
+                count++;if(!sample.Underwater||sample.WaterKind!=LocalWaterKind.Ocean||sample.WaterSurfaceM!=0)
+                    throw new Exception($"Ocean ends over submerged shelf at cell {i}, fraction {t:F3}, bed {sample.ElevationM:F1}m");
+            }
+        }
+        if(count<32||StateHash.Compute(world)!=hash)throw new Exception("Ocean audit lacked submerged slopes or changed world state");
+        Console.WriteLine($"PASS {count} actual-world submerged coastal slope points; world unchanged {hash}");
     }
 }
