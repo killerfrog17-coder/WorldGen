@@ -28,8 +28,10 @@ namespace WorldGen.Presentation
                 for(int k=0;k<3;k++)
                 {
                     int i=k==0?a:k==1?b:c;var sample=samples[i];bool valid=!double.IsNaN(sample.WaterSurfaceM);
-                    input[k]=new Vertex{X=mesh.Positions[i*3],Z=mesh.Positions[i*3+2],Level=valid?sample.WaterSurfaceM:fallback,
-                        Distance=valid?Math.Min(sample.WaterMaskM,sample.WaterSurfaceM-sample.ElevationM):-Math.Max(1,step),Key=((ulong)(uint)i<<32)|(uint)i};
+                    double x=mesh.Positions[i*3],z=mesh.Positions[i*3+2];
+                    double drawnDepth=valid?frame.SurfaceY(frame.Position(mesh.EastM+x,mesh.NorthM+z),sample.WaterSurfaceM)-mesh.Positions[i*3+1]:-Math.Max(1,step);
+                    input[k]=new Vertex{X=x,Z=z,Level=valid?sample.WaterSurfaceM:fallback,
+                        Distance=valid?Math.Min(sample.WaterMaskM,drawnDepth):-Math.Max(1,step),Key=((ulong)(uint)i<<32)|(uint)i};
                 }
                 int count=0;
                 for(int k=0;k<3;k++)

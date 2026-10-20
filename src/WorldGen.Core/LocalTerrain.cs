@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed class LocalTerrain
     {
-        public const string Version = "local-terrain-preview-4";
+        public const string Version = "local-terrain-preview-5";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -208,9 +208,8 @@ namespace WorldGen.Core
                 double medium = SphereNoise.Sample(km, seed ^ 0x7917, .63);
                 double fine = SphereNoise.Sample(km, seed ^ 0x2573, 2.1);
                 double micro = SphereNoise.Sample(km, seed ^ 0x6819, 10);
-                double sum = 0, hills = 0, mountains = 0, plateau = 0, sediment = 0, glacier = 0, detail = 0, bestWeight = -1, red = 0, green = 0, blue = 0, ocean = 0;
+                double sum = 0, hills = 0, mountains = 0, plateau = 0, sediment = 0, glacier = 0, sharpness = 0, bestWeight = -1, red = 0, green = 0, blue = 0, ocean = 0;
                 int cell = -1; Biome biome = Biome.Grassland;var ground=new GroundProfile();
-                double gradientX=0,gradientY=0,gradientZ=0;
                 foreach (var f in sources)
                 {
                     double x = px - f.Center.X * owner.RadiusM, y = py - f.Center.Y * owner.RadiusM, z = pz - f.Center.Z * owner.RadiusM;
@@ -219,25 +218,12 @@ namespace WorldGen.Core
                     // Compact C2 kernel: derivatives vanish at support edges; no closest-N switching seams.
                     double r = Math.Sqrt(dist2), t = 1 - r, weight = t * t * t * t * (1 + 4 * r);
                     sum += weight; hills += weight * f.HillHeightM;
-                    gradientX+=weight*f.Gradient.X;gradientY+=weight*f.Gradient.Y;gradientZ+=weight*f.Gradient.Z;
+                    sharpness+=weight*f.Sharpness;
                     ground.Add(f.Ground,weight);
                     if (f.Cell < owner.world.Hydrology.OceanConnected.Length && owner.world.Hydrology.OceanConnected[f.Cell]) ocean += weight;
                     mountains += weight * f.MountainHeightM; plateau += weight * f.Plateau;
                     sediment += weight * f.Sediment; glacier += weight * f.Glacial;
                     var color = CoverColor(f.Biome); red += weight * color.X; green += weight * color.Y; blue += weight * color.Z;
-                    double fx=px-f.FabricOrigin.X*owner.RadiusM,fy=py-f.FabricOrigin.Y*owner.RadiusM,fz=pz-f.FabricOrigin.Z*owner.RadiusM;
-                    double along = (fx * f.Axis.X + fy * f.Axis.Y + fz * f.Axis.Z)*owner.HorizontalScale;
-                    double across = (fx * f.Across.X + fy * f.Across.Y + fz * f.Across.Z)*owner.HorizontalScale;
-                    // Fixed source-local frames, smoothly blended in world space. Orientation changes do not
-                    // rotate a planet-sized noise domain or reseed chunks. Nested waviness breaks parallel bands.
-                    double phase = across * (2 * D.Pi / f.RidgeSpacingM) + .9 * medium + .8 * D.Sin(along / 5200 + f.Phase);
-                    double wave = D.Sin(phase + f.Phase);
-                    // Soft absolute ridges: narrower connected crests rather than repeated round sinusoidal domes.
-                    double crest = 1-Math.Sqrt(wave*wave+.012);
-                    double sharp = f.Sharpness / 2;
-                    crest = crest*crest*sharp+crest*(1-sharp);
-                    double ridges = (crest - .24) * (1 + .38 * broad) + .045 * medium * (.2 + .8 * crest);
-                    detail += weight * f.MountainHeightM * ridges;
                     if (weight > bestWeight) { bestWeight = weight; cell = f.Cell; biome = f.Biome;ground.Bedrock=f.Ground.Bedrock;ground.Deposit=f.Ground.Deposit; }
                 }
                 if (sum <= 0) throw new InvalidOperationException("Terrain patch has no supporting world cells.");
@@ -245,35 +231,15 @@ namespace WorldGen.Core
                 foreach(var triangle in triangles)if(triangle.Height(point,out double value)){baseM=value;break;}
                 if(double.IsNaN(baseM))throw new InvalidOperationException("Terrain patch did not resolve a containing world triangle.");
                 double h = hills / sum, m = mountains / sum, s = sediment / sum;
-                // Broad mass first, subordinate irregular spurs second. Strong periodic crests alone make
-                // kilometre-high curved walls; absolute noise alone makes a maze of equally high ridges.
-                double summit=D.Clamp(.5+.6*broad);
-                // Source-local ridge phases can cancel when many measured cells
-                // overlap. Planet-addressed nested ridges survive that blending;
-                // broad mass modulates them so they do not become equal-height walls.
-                V warped=km+new V(broad,medium,fine)*.32;
-                double ridgeNoise=SphereNoise.Sample(warped,seed^0x7135,.42);
-                double massCrest=1-Math.Sqrt(ridgeNoise*ridgeNoise+.004);
-                double branching=.15*broad+.95*massCrest*massCrest*(.45+.55*summit)-.35+
-                    .18*(.5-Math.Sqrt(medium*medium+.025))+.075*summit*(.4-Math.Sqrt(fine*fine+.045));
-                double ravines=0;
-                double ravineGate=OrogenMorphology.Smooth(60,200,m)*OrogenMorphology.Smooth(30,180,baseM);
-                double gradientLength=Math.Sqrt(gradientX*gradientX+gradientY*gradientY+gradientZ*gradientZ)/sum;
-                ravineGate*=OrogenMorphology.Smooth(.0001,.003,gradientLength);
-                if(ravineGate>0)
-                {
-                    V gradient=new V(gradientX,gradientY,gradientZ),across=V.Cross(point,gradient).Unit;
-                    if(across.Length<.5)across=V.Cross(point,Math.Abs(point.Z)<.99?new V(0,0,1):new V(0,1,0)).Unit;
-                    V metres=km*1000;
-                    ravines=(.25-TerrainRavineNoise.Sample(metres,across,seed^0x7b13,1800))*.28;
-                    ravines+=(.25-TerrainRavineNoise.Sample(metres,across,seed^0x9e17,650))*.095;
-                    ravines*=ravineGate;
-                }
+                // Six fixed octaves: coherent masses and subordinate spurs,
+                // rather than periodic bands/phasor waves. Drainage subsequently
+                // supplies the actual valley floor, banks and water as one field.
+                double mountainShape=m>0?TerrainFractal.Mountains(km*1000,seed^0x7135,sharpness/sum,broad):0;
                 // Separate hill-scale relief from mountain masses. A restrained,
                 // lithology-weighted cut adds ledges, not global stair terraces.
                 double rounded=SphereNoise.Sample(km,seed^0x4b13,1.25);
                 double hillShape=.55*medium+.38*rounded+.09*fine;
-                double residual = .25*detail / sum + m*(branching+ravines) + h * hillShape + (.12 + .18 * (1 - s)+m*.0025) * micro;
+                double residual = m*mountainShape + h * hillShape + (.12 + .18 * (1 - s)+m*.0012) * micro;
                 // Sea level is a hard continuity anchor: do not manufacture new islands/coasts from high-frequency noise.
                 double coast = Smooth(Math.Abs(baseM) / 100);
                 if (baseM < 0) residual = (12 * broad + 4 * medium + fine) * coast;

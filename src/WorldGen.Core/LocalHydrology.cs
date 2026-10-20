@@ -9,7 +9,22 @@ namespace WorldGen.Core
     /// Random-access patches discretize only nearby curves; no runtime erosion or upstream walks.</summary>
     public sealed class LocalHydrology
     {
-        public const string Version = "local-hydrology-1";
+        public const string Version = "local-hydrology-2";
+        /// <summary>One continuous ground cross-section: channel bed, dry banks,
+        /// valley sides and the unmodified upland at compact support's edge.</summary>
+        public static double CrossSection(double upland,double level,double distance,double half,double depth,double valley,double glacial)
+        {
+            if(distance>=valley)return upland;
+            if(distance<=half)return level-depth*(1-distance*distance/(half*half));
+            double bankOuter=Math.Min(valley*.6,half+Math.Max(2,Math.Min(25,half*.35)));
+            double bankRise=.4+Math.Min(3,half*.025);
+            double bank=level+bankRise*OrogenMorphology.Smooth(half,bankOuter,distance);
+            double t=OrogenMorphology.Smooth(bankOuter,valley,distance);
+            t=t*(1-glacial)+t*t*glacial;
+            // Crucially, this is the ground, not an extra water ribbon. It
+            // replaces the noisy surface completely beside the wet channel.
+            return bank*(1-t)+upland*t;
+        }
         public struct Piece { public V A, B; public double HalfWidthM; }
         public sealed class Channel
         {
@@ -232,7 +247,8 @@ namespace WorldGen.Core
                 // coarse receiver must never draw an elevated ribbon above it.
                 if (!double.IsNaN(water) && waterMask >= 0 && terrain < water) return;
                 if (!bins.TryGetValue(address, out var candidates)) return;
-                double best = double.PositiveInfinity, riverWater = double.NaN, riverBed = double.PositiveInfinity;
+                double best = double.PositiveInfinity, riverWater = double.NaN, riverBed = double.PositiveInfinity,wetBed=0;
+                bool wetChannel=false;
                 double px = point.X * radius, py = point.Y * radius, pz = point.Z * radius, nearest2 = double.PositiveInfinity, nearestT = 0;
                 int activeChannel = -1, nearest = -1;
                 // Each spatial bucket is grouped by coarse channel. Fine curve
@@ -254,16 +270,10 @@ namespace WorldGen.Core
                                     double join = 1 - OrogenMorphology.Smooth(0, 100, -waterMask);
                                     level -= Math.Max(0, level - water) * join;
                                 }
-                                double cross = OrogenMorphology.Smooth(s.Half, s.Valley, d);
-                                if (s.Glacial > 0) cross *= cross;
-                                double cut = d < s.Half ? level - s.Depth * (1 - d * d / (s.Half * s.Half)) :
-                                    level + Math.Max(1, terrain - level) * cross;
-                                // Erosion cuts high ground; alluvial fill also removes
-                                // incidental noise hollows below the prescribed channel.
-                                // Without this, thin water can visibly float above its banks.
+                                double cut = CrossSection(terrain,level,d,s.Half,s.Depth,s.Valley,s.Glacial);
                                 riverBed = Math.Min(riverBed, cut);
                                 double distance = d - s.Half;
-                                if (distance < best) { best = distance; riverWater = level; }
+                                if (distance < best) { best = distance; riverWater = level;wetBed=cut;wetChannel=distance<=0; }
                                 riverInfluence = Math.Max(riverInfluence, 1 - OrogenMorphology.Smooth(s.Half, s.Valley, d));
                             }
                         }
@@ -277,7 +287,7 @@ namespace WorldGen.Core
                     double d2 = dx * dx + dy * dy + dz * dz;
                     if (d2 < nearest2) { nearest2 = d2; nearest = candidates[k]; nearestT = along; }
                 }
-                if (!double.IsPositiveInfinity(riverBed)) terrain = riverBed < terrain ? riverBed : terrain + (riverBed - terrain) * riverInfluence;
+                if (!double.IsPositiveInfinity(riverBed)) terrain=wetChannel?wetBed:riverBed;
                 if ((!double.IsNaN(riverWater)) && (double.IsNaN(water) || waterMask < 0 || best < 0 && riverWater > water))
                 { water = riverWater; waterMask = -best; }
             }

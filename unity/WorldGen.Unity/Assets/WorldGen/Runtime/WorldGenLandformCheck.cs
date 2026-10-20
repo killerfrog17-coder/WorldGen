@@ -60,19 +60,23 @@ public sealed partial class WorldGenRuntime
         sites.Add(Tuple.Create("river",river.Position(.5)));
         var lake=terrain.Hydrology.Shores.Where(f=>f.Kind==ShoreKind.Lake&&f.ScaleM*.1>500&&f.ScaleM*.1<10000).OrderByDescending(f=>f.AreaM2).FirstOrDefault();
         if(lake!=null)sites.Add(Tuple.Create("lake",lake.Boundary(0,terrain.RadiusM)));
+        bool quickShape=Environment.GetCommandLineArgs().Contains("--worldgen-shape-review");
+        if(quickShape)sites.RemoveAll(s=>s.Item1!="himalaya"&&s.Item1!="andes"&&s.Item1!="river");
         if(Environment.GetCommandLineArgs().Contains("--worldgen-water-review"))sites.RemoveAll(s=>s.Item1!="river"&&s.Item1!="lake");
         var report=new List<string>();var probes=new List<string>{"originX,originY,originZ,eastM,northM,elevationM"};
         foreach(var site in sites)
         {
-            explorer.Teleport(site.Item2);explorer.TestView(80,site.Item1=="coast"?270:20,8);
+            explorer.Teleport(site.Item2);explorer.TestView(quickShape?(site.Item1=="river"?12:600):80,site.Item1=="coast"?270:20,quickShape?20:8);
             if(site.Item1=="coast")explorer.TestNearbyShore();
             PlayCommands.Execute(play,0,"/weather clear",weather:explorer.WeatherControl);
             TerrainMapViewport.Degrees(explorer.Position,out double lat,out double lon);play.SetLocalSolarHour(12,lon);
-            deadline=Time.realtimeSinceStartupAsDouble+180;
+            double reviewStarted=Time.realtimeSinceStartupAsDouble;
+            deadline=reviewStarted+(quickShape?12:180);
             while(!explorer.AllReady&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
-            if(!explorer.AllReady||explorer.Error!="")throw new Exception("Landform tiles failed: "+site.Item1+" "+explorer.Error);
+            if((quickShape?!explorer.NearReady:!explorer.AllReady)||explorer.Error!="")throw new Exception("Landform tiles failed: "+site.Item1+" "+explorer.Error);
             yield return new WaitForEndOfFrame();explorer.Capture(Path.Combine(output,site.Item1+".png"));
             report.Add(site.Item1+" "+lat.ToString("F6")+","+lon.ToString("F6")+": "+explorer.Diagnostics);probes.AddRange(explorer.Probes());
+            if(quickShape){File.WriteAllLines(Path.Combine(output,"landforms.txt"),report);continue;}
             explorer.TestView(site.Item1=="lake"?1500:700,20,65);
             deadline=Time.realtimeSinceStartupAsDouble+90;while(!explorer.AllReady&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
             yield return new WaitForEndOfFrame();explorer.Capture(Path.Combine(output,site.Item1+"-above.png"));

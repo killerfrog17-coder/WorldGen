@@ -42,6 +42,27 @@ static class LandformTests
     }
     public static void Run(Action<bool,string> check)
     {
+        foreach(var p in new[]{new V(.37,.81,-.45),new V(-1.2,7.4,11.9),new V(67.41,-98.33,.75)})
+        {
+            double value=TerrainFractal.Noise(p,91,out V gradient),delta=.00001;
+            check(double.IsFinite(value)&&gradient.Length<15,"Finite analytic erosion-noise value/gradient");
+            foreach(var axis in new[]{new V(1,0,0),new V(0,1,0),new V(0,0,1)})
+            {
+                double numeric=(TerrainFractal.Noise(p+axis*delta,91,out _)-TerrainFractal.Noise(p-axis*delta,91,out _))/(2*delta);
+                check(Math.Abs(numeric-V.Dot(gradient,axis))<.00002,"Analytic noise derivatives match independent finite differences");
+            }
+        }
+        foreach(double upland in new[]{-400d,70d,1000d})
+        {
+            check(LocalHydrology.CrossSection(upland,100,0,10,3,500,0)==97,"River centre is an actual bed below its water");
+            check(LocalHydrology.CrossSection(upland,100,11,10,3,500,0)>100,"Dry banks remain above river water even when unrelated noise put upland below it");
+            check(LocalHydrology.CrossSection(upland,100,500,10,3,500,0)==upland,"Valley rejoins unmodified terrain exactly at its compact support");
+            check(Math.Abs(LocalHydrology.CrossSection(upland,100,499.999,10,3,500,0)-upland)<.00001,"No cliff or raised ring at the valley support boundary");
+        }
+        var occluded=new LocalTerrainMesh{Segments=1,SizeM=16,Positions=new float[]{0,10,0,16,10,0,0,10,16,16,10,16}};
+        var wetSamples=Enumerable.Range(0,4).Select(_=>new LocalTerrainSample{ElevationM=-5,WaterSurfaceM=0,WaterMaskM=5}).ToArray();
+        LocalWaterMesh.Build(occluded,new LocalTerrainFrame(new V(1,0,0),6371000,0),wetSamples);
+        check(occluded.WaterTriangles.Length==0,"Water clipping respects drawn ground geometry rather than contradictory idealized samples");
         foreach(double boundary in new[]{0.0,650,1800,117000})
         {
             var axis=new V(.3,.9,.1).Unit;
