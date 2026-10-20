@@ -8,7 +8,7 @@ static class LocalTerrainTests
     public static void Loading(string path)
     {
         var world=WorldFile.Read(File.ReadAllBytes(path));var watch=Stopwatch.StartNew();var terrain=new LocalTerrain(world,horizontalScale:.1);
-        Console.WriteLine($"Terrain preparation {watch.Elapsed.TotalSeconds:F3}s; scaffold {terrain.Scaffold?.Positions.Length} nodes, {terrain.Scaffold?.PreparationMilliseconds:F0}ms, array storage {terrain.Scaffold?.RetainedBytes/1048576.0:F1} MiB; {terrain.Hydrology.Channels.Length} channels");
+        Console.WriteLine($"Terrain preparation {watch.Elapsed.TotalSeconds:F3}s; scaffold {terrain.Scaffold?.Positions.Length} nodes, {terrain.Scaffold?.PreparationMilliseconds:F0}ms, river conditioning {terrain.Hydrology.ConditioningMilliseconds:F0}ms, array storage {terrain.Scaffold?.RetainedBytes/1048576.0:F1} MiB; {terrain.Hydrology.Channels.Length} channels");
         var position=TerrainMapViewport.FromDegrees(27.98,86.92);var frame=new LocalTerrainFrame(position,terrain.RadiusM,terrain.Patch(position).Sample(0,0).ElevationM,.1);
         var plan=TerrainLod.Plan(0,0,2,200000,.1);var times=new List<double>();
         foreach(var key in plan.Keys.Where(k=>TerrainLod.Immediate(k,0,0)).OrderBy(k=>TerrainLod.DistanceSquared(k,0,0)))

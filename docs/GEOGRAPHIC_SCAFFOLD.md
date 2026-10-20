@@ -1,5 +1,13 @@
 # Geographic scaffold1 / local terrain6
 
+20October correction: local terrain7 /hydrology4 replaces the original
+river-profile/bank behavior below. The prior cross-section could RAISE low
+ground to the prescribed river level, producing causeways. Its old regression
+test explicitly allowed that mistake. Rivers now use cut-only envelopes and
+sampled, downstream-conditioned longitudinal profiles; see RIVER_INCISION.md.
+The scaffold itself remains version1. Timing below predates this extra pass;
+consult the latest validation entry for the increased preparation cost.
+
 ## Scope
 
 This is the first drainage-conditioned geographic control-mesh milestone,

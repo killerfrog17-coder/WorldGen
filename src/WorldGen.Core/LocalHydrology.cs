@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace WorldGen.Core
 {
@@ -9,27 +11,29 @@ namespace WorldGen.Core
     /// Random-access patches discretize only nearby curves; no runtime erosion or upstream walks.</summary>
     public sealed class LocalHydrology
     {
-        public const string Version = "local-hydrology-3";
+        public const string Version = "local-hydrology-4";
+        public double ConditioningMilliseconds {get;private set;}
         /// <summary>One continuous ground cross-section: channel bed, dry banks,
         /// valley sides and the unmodified upland at compact support's edge.</summary>
         public static double CrossSection(double upland,double level,double distance,double half,double depth,double valley,double glacial)
         {
             if(distance>=valley)return upland;
-            if(distance<=half)return level-depth*(1-distance*distance/(half*half));
+            if(distance<=half)return Math.Min(upland,level-depth*(1-distance*distance/(half*half)));
             double bankOuter=Math.Min(valley*.6,half+Math.Max(2,Math.Min(25,half*.35)));
             double bankRise=.4+Math.Min(3,half*.025);
             double bank=level+bankRise*OrogenMorphology.Smooth(half,bankOuter,distance);
             double t=OrogenMorphology.Smooth(bankOuter,valley,distance);
             t=t*(1-glacial)+t*t*glacial;
-            // Crucially, this is the ground, not an extra water ribbon. It
-            // replaces the noisy surface completely beside the wet channel.
-            return bank*(1-t)+upland*t;
+            // A river may incise a valley, never build a causeway across it.
+            return Math.Min(upland,bank*(1-t)+upland*t);
         }
         public struct Piece { public V A, B; public double HalfWidthM; }
         public sealed class Channel
         {
             public int From, To; public V A, B, Side, TangentA, TangentB;
             public bool Headwater;
+            internal double[] Profile;
+            public double MaximumLoweringM;
             public double StartM, EndM, WidthM, DepthM, LengthM, ValleyM, Bend, Phase, Glacial;
             public V Position(double t)
             {
@@ -41,7 +45,12 @@ namespace WorldGen.Core
                 V curve = A * (2 * t3 - 3 * t2 + 1) + B * (-2 * t3 + 3 * t2) + TangentA * (t3 - 2 * t2 + t) + TangentB * (t3 - t2);
                 return (curve + Side * offset).Unit;
             }
-            public double Level(double t) => StartM + (EndM - StartM) * t;
+            public double Level(double t)
+            {
+                if(Profile==null)return StartM+(EndM-StartM)*t;
+                double at=D.Clamp(t)*(Profile.Length-1);int k=Math.Min(Profile.Length-2,(int)at);
+                return Profile[k]+(Profile[k+1]-Profile[k])*(at-k);
+            }
             public double Width(double t)=>WidthM*(Headwater?OrogenMorphology.Smooth(0,.3,t):1);
         }
         readonly double radius, scale, maxChannelRadius, maxShoreRadius;
@@ -49,6 +58,74 @@ namespace WorldGen.Core
         readonly CellLocator channelIndex, shoreIndex;
         public readonly Channel[] Channels;
         public readonly ShoreTerrainSampler.Feature[] Shores;
+        // One preparation pass over the sparse drainage graph, not a point-query
+        // upstream walk. Sample the actual uncarved field and lower longitudinal
+        // water profiles, then reconcile confluences in source-first DAG order.
+        internal void Conform(LocalTerrain terrain,World world,GeographicScaffold graph,CancellationToken token)
+        {
+            if(Channels.Length==0)return;
+            var watch=Stopwatch.StartNew();int count=graph?.Positions.Length??world.Surface.Cells.Length;
+            var heads=Enumerable.Repeat(-1,world.Surface.Cells.Length).ToArray();var next=new int[Channels.Length];
+            for(int i=0;i<Channels.Length;i++){int parent=graph==null?Channels[i].From:graph.Parents[Channels[i].From];next[i]=heads[parent];heads[parent]=i;}
+            Parallel.For(0,heads.Length,new ParallelOptions{CancellationToken=token,MaxDegreeOfParallelism=Math.Min(4,Environment.ProcessorCount)},parent=>
+            {
+                if(heads[parent]<0)return;
+                V center=world.Surface.Cells[parent].Position;double extent=1000;
+                for(int id=heads[parent];id>=0;id=next[id])
+                {var c=Channels[id];extent=Math.Max(extent,Math.Max((c.A-center).Length,(c.B-center).Length)*radius*1.3+c.WidthM/(radius*scale)*radius+1000);}
+                LocalTerrain.LocalTerrainPatch patch=extent<=250000?terrain.DryPatch(center,extent):null;
+                for(int id=heads[parent];id>=0;id=next[id])
+                {
+                    token.ThrowIfCancellationRequested();var c=Channels[id];
+                    var local=patch??terrain.DryPatch((c.A+c.B).Unit,Math.Min(250000,c.LengthM/scale*.8+1000));
+                    int steps=Math.Max(4,Math.Min(32,(int)Math.Ceiling(c.LengthM/512)));var values=new double[steps+1];
+                    for(int k=0;k<=steps;k++)
+                    {
+                        double t=k/(double)steps;V p=c.Position(t);double h=local.Sample(p).ElevationM;
+                        double width=c.Width(t)*.55+2;V offset=c.Side*(width/(radius*scale));
+                        h=Math.Min(h,Math.Min(local.Sample((p+offset).Unit).ElevationM,local.Sample((p-offset).Unit).ElevationM));
+                        // Small interpolation allowance, not an arbitrary deep
+                        // canyon offset. Sea-level reaches belong to the ocean.
+                        values[k]=Math.Max(0,Math.Min(c.Level(t),h-.3-Math.Min(2,c.LengthM/steps*.002)));
+                    }
+                    // Curved terrain can dip below the straight interpolation
+                    // between stations. Check interval midpoints and lower both
+                    // adjacent controls by the measured interpolation deficit.
+                    var correction=new double[values.Length];
+                    for(int k=1;k<=steps;k++)
+                    {
+                        V p=c.Position((k-.5)/steps);double cap=local.Sample(p).ElevationM-1;
+                        double deficit=Math.Max(0,(values[k-1]+values[k])*.5-Math.Max(0,cap));
+                        correction[k-1]=Math.Max(correction[k-1],deficit);correction[k]=Math.Max(correction[k],deficit);
+                    }
+                    for(int k=0;k<=steps;k++)values[k]=Math.Max(0,values[k]-correction[k]);
+                    c.Profile=values;
+                }
+            });
+            var ceiling=Enumerable.Repeat(double.PositiveInfinity,count).ToArray();var outgoing=Enumerable.Repeat(-1,count).ToArray();
+            for(int id=0;id<Channels.Length;id++)
+            {
+                var c=Channels[id];outgoing[c.From]=id;
+                ceiling[c.From]=Math.Min(ceiling[c.From],c.Profile[0]);ceiling[c.To]=Math.Min(ceiling[c.To],c.Profile[c.Profile.Length-1]);
+            }
+            var order=graph?.Order??world.Hydrology.VisitOrder;
+            for(int k=order.Length-1;k>=0;k--)
+            {
+                int id=outgoing[order[k]];if(id<0)continue;var c=Channels[id];double level=ceiling[c.From];
+                for(int j=0;j<c.Profile.Length;j++){level=Math.Min(level,c.Profile[j]);c.Profile[j]=level;}
+                ceiling[c.To]=Math.Min(ceiling[c.To],level);
+            }
+            foreach(var c in Channels)
+            {
+                double originalStart=c.StartM,originalEnd=c.EndM;c.StartM=ceiling[c.From];c.EndM=ceiling[c.To];
+                for(int j=0;j<c.Profile.Length;j++)
+                {
+                    double t=j/(c.Profile.Length-1.0);c.Profile[j]=Math.Min(c.Profile[j],c.StartM+(c.EndM-c.StartM)*t);
+                    c.MaximumLoweringM=Math.Max(c.MaximumLoweringM,originalStart+(originalEnd-originalStart)*t-c.Profile[j]);
+                }
+            }
+            ConditioningMilliseconds=watch.Elapsed.TotalMilliseconds;
+        }
         public LocalHydrology(World world, double horizontalScale, CancellationToken token = default,GeographicScaffold scaffold=null)
         {
             radius = world.Recipe.RadiusKm * 1000.0; scale = horizontalScale; seed = world.Recipe.Seed;
@@ -220,6 +297,7 @@ namespace WorldGen.Core
                 foreach (int id in channels)
                 {
                     var c = owner.Channels[id]; int count = Math.Max(4, Math.Min(1024, (int)Math.Ceiling(c.LengthM / 96)));
+                    if(c.Profile!=null){int steps=c.Profile.Length-1;count=Math.Min(1024/steps,(count+steps-1)/steps)*steps;}
                     V a = c.Position(0);
                     for (int k = 1; k <= count; k++)
                     {

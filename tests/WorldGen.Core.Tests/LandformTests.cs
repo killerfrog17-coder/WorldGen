@@ -54,11 +54,14 @@ static class LandformTests
         }
         foreach(double upland in new[]{-400d,70d,1000d})
         {
-            check(LocalHydrology.CrossSection(upland,100,0,10,3,500,0)==97,"River centre is an actual bed below its water");
-            check(LocalHydrology.CrossSection(upland,100,11,10,3,500,0)>100,"Dry banks remain above river water even when unrelated noise put upland below it");
+            check(LocalHydrology.CrossSection(upland,100,0,10,3,500,0)==Math.Min(upland,97),"River bed incision can never raise existing ground");
+            check(LocalHydrology.CrossSection(upland,100,11,10,3,500,0)<=upland,"Banks cannot build a causeway to support an incorrectly elevated profile");
             check(LocalHydrology.CrossSection(upland,100,500,10,3,500,0)==upland,"Valley rejoins unmodified terrain exactly at its compact support");
             check(Math.Abs(LocalHydrology.CrossSection(upland,100,499.999,10,3,500,0)-upland)<.00001,"No cliff or raised ring at the valley support boundary");
         }
+        foreach(double ground in new[]{-400d,70d,99d,100d,101d,1000d})
+        for(int distance=0;distance<=500;distance++)
+            check(LocalHydrology.CrossSection(ground,100,distance,10,3,500,.5)<=ground,"Cut-only river and valley envelope at every distance");
         var occluded=new LocalTerrainMesh{Segments=1,SizeM=16,Positions=new float[]{0,10,0,16,10,0,0,10,16,16,10,16}};
         var wetSamples=Enumerable.Range(0,4).Select(_=>new LocalTerrainSample{ElevationM=-5,WaterSurfaceM=0,WaterMaskM=5}).ToArray();
         LocalWaterMesh.Build(occluded,new LocalTerrainFrame(new V(1,0,0),6371000,0),wetSamples);

@@ -55,6 +55,24 @@ static class GeographicScaffoldTests
             }
         }
         Check(terrain.Hydrology.Channels.All(c=>c.EndM<=c.StartM),"All channel surface profiles descend");
+        var channelEnds=new Dictionary<int,double>();
+        foreach(var c in terrain.Hydrology.Channels)
+        {
+            foreach(var end in new[]{(c.From,c.StartM),(c.To,c.EndM)})
+            {if(channelEnds.TryGetValue(end.Item1,out double h))Check(h==end.Item2,"Tributaries and downstream reaches meet at exactly one water level");else channelEnds.Add(end.Item1,end.Item2);}
+            double previous=c.Level(0);for(int k=1;k<=32;k++){double level=c.Level(k/32.0);Check(level<=previous+.000001,"Sampled channel profile never flows uphill");previous=level;}
+        }
+        foreach(var c in terrain.Hydrology.Channels.OrderByDescending(c=>c.MaximumLoweringM).Take(24))
+        {
+            V p=c.Position(.5);var patch=terrain.Patch(p,20000);
+            if(terrain.Hydrology.Region(p,20000).ShoreCount>0)continue;
+            var sample=patch.Sample(p);
+            Check(sample.ElevationM<=sample.PreWaterElevationM+.001,"Actual strongly lowered river cannot raise the uncarved field");
+            // An ocean surface is correctly above its submerged original bed.
+            if(sample.PreWaterElevationM>=0||sample.OceanInfluence<.001)
+                Check(sample.WaterSurfaceM<=sample.PreWaterElevationM+1,$"No elevated runway above the original centerline terrain: channel {c.From}->{c.To}, profile {c.Level(.5):F2}, water {sample.WaterSurfaceM:F2}, raw {sample.PreWaterElevationM:F2}, ocean {sample.OceanInfluence:F4}");
+        }
+        Console.WriteLine($"River conditioning {terrain.Hydrology.ConditioningMilliseconds:F0}ms; largest profile lowering {terrain.Hydrology.Channels.Max(c=>c.MaximumLoweringM):F1}m");
         Check(terrain.Hydrology.Channels.Any(c=>c.From>=world.Surface.Cells.Length),"Channels actually use independent intermediate vertices");
         foreach(var c in terrain.Hydrology.Channels.Where(c=>c.Headwater).Take(32))
             Check(c.Width(0)==0&&c.Width(.5)>0,"Headwaters taper rather than beginning as full-width runway caps");

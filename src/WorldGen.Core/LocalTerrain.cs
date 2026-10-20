@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed class LocalTerrain
     {
-        public const string Version = "local-terrain-preview-6";
+        public const string Version = "local-terrain-preview-7";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -109,6 +109,7 @@ namespace WorldGen.Core
             if(world.Hydrology.Receiver.Length==profiles.Length&&world.Hydrology.VisitOrder.Length==profiles.Length&&world.Surface.Edges.Length>0)
                 Scaffold=new GeographicScaffold(world,profiles,horizontalScale,token);
             Hydrology=new LocalHydrology(world,horizontalScale,token,Scaffold);
+            Hydrology.Conform(this,world,Scaffold,token);
         }
 
         static int At(int[] values, int i) => i < values.Length ? values[i] : 0;
@@ -119,7 +120,9 @@ namespace WorldGen.Core
 
         /// <summary>Shared continuous function restricted to a bounded patch. Candidate lookup happens once,
         /// not at each vertex. Independent neighbouring patches return identical overlapping point samples.</summary>
-        public LocalTerrainPatch Patch(V center, double halfExtentM = 2048)
+        public LocalTerrainPatch Patch(V center, double halfExtentM = 2048)=>BuildPatch(center,halfExtentM,false);
+        internal LocalTerrainPatch DryPatch(V center,double halfExtentM)=>BuildPatch(center,halfExtentM,true);
+        LocalTerrainPatch BuildPatch(V center,double halfExtentM,bool dry)
         {
             if (double.IsNaN(halfExtentM) || double.IsInfinity(halfExtentM) || halfExtentM <= 0 || halfExtentM > 250000)
                 throw new ArgumentOutOfRangeException(nameof(halfExtentM));
@@ -157,7 +160,7 @@ namespace WorldGen.Core
                     }
                 }
             }
-            return new LocalTerrainPatch(this, center, halfExtentM, sources, triangles.ToArray(), seed,geography.ToArray());
+            return new LocalTerrainPatch(this, center, halfExtentM, sources, triangles.ToArray(), seed,geography.ToArray(),dry);
         }
 
         // Cubic triangular surface: exact source heights and shared edge curves. Bounded
@@ -204,13 +207,13 @@ namespace WorldGen.Core
             public readonly double HalfExtentM;
             public int CandidateCount => sources.Length;
             public LocalHydrology.Piece[] ChannelPieces()=>water.Pieces();
-            internal LocalTerrainPatch(LocalTerrain owner, V center, double extent, LocalTerrainProfile[] sources, HeightTriangle[] triangles, int seed,HeightTriangle[] geography)
+            internal LocalTerrainPatch(LocalTerrain owner, V center, double extent, LocalTerrainProfile[] sources, HeightTriangle[] triangles, int seed,HeightTriangle[] geography,bool dry)
             {
                 this.owner = owner; Center = center; HalfExtentM = extent; this.sources = sources; this.triangles=triangles;this.seed = seed;
                 this.geography=geography;
                 East = V.Cross(Math.Abs(center.Z) < .99 ? new V(0, 0, 1) : new V(0, 1, 0), center).Unit;
                 North = V.Cross(center, East).Unit;
-                water=owner.Hydrology.Region(center,extent);
+                water=dry?null:owner.Hydrology.Region(center,extent);
             }
             public V Position(double eastM, double northM)
             {
@@ -291,9 +294,10 @@ namespace WorldGen.Core
                 double ledge=strata*Math.Min(9,m*.012+h*.06)*(1-s)*Math.Sin((baseM+residual)/24+medium*.4);
                 double elevation=geographicM+residual+ledge;
                 double level=oceanFraction>.001?0:double.NaN,mask=oceanFraction>.001?-elevation:-1000000;
-                water.Apply(point,ref elevation,ref level,ref mask,out double river);
+                double preWater=elevation,river=0;
+                water?.Apply(point,ref elevation,ref level,ref mask,out river);
                 elevation=D.Q(elevation,1000);
-                return new LocalTerrainSample { ElevationM = elevation, BaseElevationM = D.Q(baseM, 1000),
+                return new LocalTerrainSample { ElevationM = elevation, PreWaterElevationM=preWater, BaseElevationM = D.Q(baseM, 1000),
                     MountainHeightM = m, HillHeightM = h, Plateau = plateau / sum, Sediment = s,
                     GlacialInfluence = glacier / sum, Cell = cell, Biome = biome,Ground=ground,
                     CoverColor = new V(red / sum, green / sum, blue / sum), OceanInfluence = oceanFraction,
@@ -331,7 +335,7 @@ namespace WorldGen.Core
     }
     public struct LocalTerrainSample
     {
-        public double ElevationM, BaseElevationM, WaterSurfaceM, WaterMaskM, RiverInfluence, MountainHeightM, HillHeightM, Plateau, Sediment, GlacialInfluence, OceanInfluence;
+        public double ElevationM, PreWaterElevationM, BaseElevationM, WaterSurfaceM, WaterMaskM, RiverInfluence, MountainHeightM, HillHeightM, Plateau, Sediment, GlacialInfluence, OceanInfluence;
         public int Cell;
         public V CoverColor;
         public Biome Biome;

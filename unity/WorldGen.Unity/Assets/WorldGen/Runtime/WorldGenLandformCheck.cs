@@ -62,12 +62,20 @@ public sealed partial class WorldGenRuntime
         if(lake!=null)sites.Add(Tuple.Create("lake",lake.Boundary(0,terrain.RadiusM)));
         bool quickShape=Environment.GetCommandLineArgs().Contains("--worldgen-shape-review");
         if(quickShape)sites.RemoveAll(s=>s.Item1!="himalaya"&&s.Item1!="andes"&&s.Item1!="river");
+        bool incisionReview=Environment.GetCommandLineArgs().Contains("--worldgen-incision-review");
+        if(incisionReview)
+        {
+            var worst=terrain.Hydrology.Channels.Where(c=>c.WidthM>5&&c.WidthM<300&&c.Level(.5)>100&&c.StartM<5000)
+                .OrderByDescending(c=>c.MaximumLoweringM).First();
+            sites.Clear();sites.Add(Tuple.Create("lowered-mountain-river",worst.Position(.5)));sites.Add(Tuple.Create("river",river.Position(.5)));quickShape=true;
+        }
         if(Environment.GetCommandLineArgs().Contains("--worldgen-water-review"))sites.RemoveAll(s=>s.Item1!="river"&&s.Item1!="lake");
         var report=new List<string>();var probes=new List<string>{"originX,originY,originZ,eastM,northM,elevationM"};
         if(terrain.Scaffold!=null)report.Add("Geographic scaffold: "+terrain.Scaffold.Positions.Length+" controls; "+terrain.Scaffold.PreparationMilliseconds.ToString("F0")+"ms preparation; "+(terrain.Scaffold.RetainedBytes/1048576.0).ToString("F1")+"MiB retained arrays");
+        report.Add("River conditioning: "+terrain.Hydrology.ConditioningMilliseconds.ToString("F0")+"ms; largest old-profile lowering "+terrain.Hydrology.Channels.Max(c=>c.MaximumLoweringM).ToString("F1")+"m");
         foreach(var site in sites)
         {
-            explorer.Teleport(site.Item2);explorer.TestView(quickShape?(site.Item1=="river"?12:600):80,site.Item1=="coast"?270:20,quickShape?20:8);
+            explorer.Teleport(site.Item2);explorer.TestView(quickShape?(site.Item1=="river"?12:600):80,site.Item1=="coast"?270:20,incisionReview&&site.Item1!="river"?45:quickShape?20:8);
             if(site.Item1=="coast")explorer.TestNearbyShore();
             PlayCommands.Execute(play,0,"/weather clear",weather:explorer.WeatherControl);
             TerrainMapViewport.Degrees(explorer.Position,out double lat,out double lon);play.SetLocalSolarHour(12,lon);
