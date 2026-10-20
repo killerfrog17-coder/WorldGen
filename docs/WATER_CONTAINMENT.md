@@ -1,5 +1,23 @@
 # Water containment: source review and checkpoints
 
+## Ocean shoreline underlap (presentation only)
+
+After owner approval of hyper6's ocean level/coverage, the owner requested a
+less exact mesh edge to hide small shoreline gaps. Ocean-adjacent triangles now
+extend their water polygon two horizontal metres beneath the dry land instead
+of ending exactly at the land/sea intersection. The allowance is calculated
+from the triangle's depth gradient, not a fixed vertical flood tolerance that
+would extend far across shallow coasts. Ocean footprint tags do not cut this
+small overlap before the terrain intersection. Entirely dry triangles still
+create no water; no global underground ocean layer is introduced.
+
+Ocean-only presentation lift is zero, replacing the previous2.5cm lifted edge.
+The sea stays at its original curved zero-elevation surface. Inland meshing,
+lake/river levels, terrain, source/history data and streaming are unchanged.
+125 focused checks cover shallow/steep two-metre overlap, unchanged sea height,
+dry-triangle rejection and existing no-warp/separate-body cases. No new broad
+visual/performance acceptance or inland-hydrology fix is implied.
+
 ## Owner-requested unwarped experiment (hyper6)
 
 The owner rejected hyper5 after finding steeply warped water on lakes AND

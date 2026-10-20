@@ -1,5 +1,19 @@
 # WorldGen repository instructions
 
+Current review launch,20October2026: shortcut selects
+`artifacts/player-ocean-underlap/WorldGen.exe` (IL2CPP20:08:39Z).
+Owner approved hyper6 oceans but requested hiding tiny shoreline gaps. Ocean-
+adjacent mesh polygons now overlap two horizontal metres underneath shore land;
+gradient-based allowance avoids excessive spread on shallow beaches. Ocean-only
+2.5cm display lift is removed; the sea remains at zero level without warping.
+Wholly dry triangles do not start underground water.125 focused assertions pass,
+including shallow/steep underlap distance, constant height, dry rejection and
+existing no-warp tests. This is presentation-only: Core hyper6, terrain, inland
+water, world/history, LOD and controller are unchanged. Owner visual review is
+pending; no new native screenshot/performance acceptance. Unwarped remains the
+rollback. Lakes still have owner-reported uncontained edges and rivers remain
+unfinished. See docs/WATER_CONTAINMENT.md / VALIDATION.md.
+
 Current EXPERIMENT launch,20October2026: shortcut selects
 `artifacts/player-water-unwarped/WorldGen.exe` (IL2CPP17:26:08Z).
 Owner explicitly requested removing water-to-terrain adjustment and examining

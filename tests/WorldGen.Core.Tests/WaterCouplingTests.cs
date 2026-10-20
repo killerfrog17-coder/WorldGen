@@ -54,8 +54,15 @@ static class WaterCouplingTests
             Check(mesh.WaterTriangles.Length>0&&mesh.WaterPositions.Where((_,i)=>i%3==1).All(y=>y<.03),"Standing water retains one level even beside conflicting dry potential: "+kind);
             // Every emitted point lies at/above its ACTUAL supporting triangle,
             // and no point crosses onto the high dry side (ground=-2+.75*x).
-            for(int i=0;i<mesh.WaterPositions.Length;i+=3)
-                Check(mesh.WaterPositions[i+1]-( -2+.75*mesh.WaterPositions[i])>=-.001,"Water polygon is clipped against displayed land, not just sampled ideal heights");
+            if(kind==LocalWaterKind.Lake)
+                for(int i=0;i<mesh.WaterPositions.Length;i+=3)
+                    Check(mesh.WaterPositions[i+1]-( -2+.75*mesh.WaterPositions[i])>=-.001,"Lake polygon is clipped against displayed land, not just sampled ideal heights");
+            else
+            {
+                double edge=mesh.WaterPositions.Where((_,i)=>i%3==0).Max();
+                Check(Math.Abs(edge-(2/.75+LocalWaterMesh.OceanShoreOverlapM))<.002,"Ocean extends two horizontal metres under shore, not a slope-dependent vertical pad");
+                Check(mesh.WaterPositions.Where((_,i)=>i%3==1).All(y=>Math.Abs(y)<.001),"Ocean underlap stays at sea level without a lifted rim");
+            }
         }
         // Two disconnected lakes at different levels must not become a slope.
         samples[0]=new LocalTerrainSample{ElevationM=-2,WaterSurfaceM=0,WaterMaskM=2,WaterKind=LocalWaterKind.Lake,WaterBodyKey=1,WaterFootprintM=1};
@@ -66,6 +73,29 @@ static class WaterCouplingTests
             var ys=Enumerable.Range(0,3).Select(k=>mesh.WaterPositions[mesh.WaterTriangles[triangle*3+k]*3+1]).ToArray();
             Check(ys.Max()-ys.Min()<.002,"A render triangle never joins different standing-water levels");
         }
+        foreach(double slope in new[]{.001,.1,4d})
+        {
+            mesh=Triangle();
+            double[] ground={-6*slope,10*slope,-6*slope};
+            for(int i=0;i<3;i++)mesh.Positions[i*3+1]=(float)ground[i];
+            samples=ground.Select(h=>new LocalTerrainSample{ElevationM=h,WaterSurfaceM=0,WaterMaskM=-h,
+                WaterKind=LocalWaterKind.Ocean,WaterBodyKey=1,WaterFootprintM=double.PositiveInfinity}).ToArray();
+            double ya=frame.SurfaceY(frame.Position(0,0),0),yb=frame.SurfaceY(frame.Position(16,0),0),yc=frame.SurfaceY(frame.Position(0,16),0);
+            double da=ya-mesh.Positions[1],gx=(yb-mesh.Positions[4]-da)/16,gz=(yc-mesh.Positions[7]-da)/16;
+            double norm=Math.Sqrt(gx*gx+gz*gz),furthest=0;
+            LocalWaterMesh.Build(mesh,frame,samples);
+            for(int i=0;i<mesh.WaterPositions.Length;i+=3)
+            {
+                double x=mesh.WaterPositions[i],z=mesh.WaterPositions[i+2];
+                furthest=Math.Max(furthest,-(da+gx*x+gz*z)/norm);
+                Check(Math.Abs(mesh.WaterPositions[i+1]-(ya+(yb-ya)*x/16+(yc-ya)*z/16))<.001,"Ocean buffer never changes the sea surface elevation");
+            }
+            Check(furthest>1.99&&furthest<2.01,"Shallow and steep shores use a bounded horizontal underlap, not a large vertical flood tolerance");
+        }
+        samples=Enumerable.Range(0,3).Select(_=>new LocalTerrainSample{ElevationM=10,WaterSurfaceM=0,WaterMaskM=-10,WaterKind=LocalWaterKind.Ocean}).ToArray();
+        mesh=Triangle();for(int i=0;i<3;i++)mesh.Positions[i*3+1]=10;
+        LocalWaterMesh.Build(mesh,frame,samples);
+        Check(mesh.WaterTriangles.Length==0,"Ocean overlap does not start water beneath wholly dry inland triangles");
         // A large island's submerged flank remains ocean even after subdivision
         // replaces the original sea/land vertices with ordinary terrain nodes.
         var recipe=Recipe.Preset("Preview");recipe.Detail=5000;

@@ -9,6 +9,7 @@ namespace WorldGen.Presentation
     /// geometry, and unrelated water bodies never share an interpolation plane.</summary>
     public static class LocalWaterMesh
     {
+        public const double OceanShoreOverlapM=2;
         struct Vertex
         {
             public double X,Z,Y,Ground,Footprint;
@@ -25,36 +26,38 @@ namespace WorldGen.Presentation
             var shared=new Dictionary<(long,long,long),int>();
             var input=new Vertex[12];var clipped=new Vertex[12];
             var corners=new int[3];var points=new V[3];
-            int Clip(Vertex[] source,int count,Vertex[] target,bool depth)
+            int Clip(Vertex[] source,int count,Vertex[] target,bool depth,double allowance=0)
             {
                 int n=0;
                 for(int k=0;k<count;k++)
                 {
                     var p=source[k];var q=source[(k+1)%count];
-                    double pd=depth?p.Y-p.Ground:p.Footprint,qd=depth?q.Y-q.Ground:q.Footprint;
+                    double pd=depth?p.Y-p.Ground+allowance:p.Footprint,qd=depth?q.Y-q.Ground+allowance:q.Footprint;
                     bool pWet=pd>=0,qWet=qd>=0;
                     if(pWet)target[n++]=p;
                     if(pWet!=qWet)target[n++]=Vertex.Between(p,q,pd/(pd-qd));
                 }
                 return n;
             }
-            int Index(Vertex v)
+            int Index(Vertex v,double lift)
             {
-                var key=((long)Math.Round(v.X*10000),(long)Math.Round(v.Z*10000),(long)Math.Round(v.Y*10000));
+                double renderedY=v.Y+lift;
+                var key=((long)Math.Round(v.X*10000),(long)Math.Round(v.Z*10000),(long)Math.Round(renderedY*10000));
                 if(shared.TryGetValue(key,out int index))return index;
                 index=vertices.Count/3;shared.Add(key,index);
-                vertices.Add((float)v.X);vertices.Add((float)(v.Y+.025));vertices.Add((float)v.Z);
+                vertices.Add((float)v.X);vertices.Add((float)renderedY);vertices.Add((float)v.Z);
                 colors.Add(.13f);colors.Add(.37f);colors.Add(.46f);colors.Add(1);return index;
             }
-            void Polygon(Vertex[] polygon,int count)
+            void Polygon(Vertex[] polygon,int count,bool ocean)
             {
                 if(count<3)return;
-                int first=Index(polygon[0]),previous=Index(polygon[1]);
+                double lift=ocean?0:.025;
+                int first=Index(polygon[0],lift),previous=Index(polygon[1],lift);
                 for(int k=2;k<count;k++)
                 {
                     var p=polygon[0];var q=polygon[k-1];var r=polygon[k];
                     double area=(q.X-p.X)*(r.Z-p.Z)-(q.Z-p.Z)*(r.X-p.X);
-                    int current=Index(r);
+                    int current=Index(r,lift);
                     if(Math.Abs(area)>1e-10&&first!=previous&&previous!=current&&first!=current)
                     {indices.Add(first);indices.Add(previous);indices.Add(current);}previous=current;
                 }
@@ -90,18 +93,36 @@ namespace WorldGen.Presentation
                         level/=contributors;
                         if(same&&sample.Underwater)level=sample.WaterSurfaceM;
                         if(water.WaterKind==LocalWaterKind.Lake||water.WaterKind==LocalWaterKind.Ocean)level=water.WaterSurfaceM;
-                        double footprint=same?(sample.WaterKind==LocalWaterKind.None?sample.WaterMaskM:sample.WaterFootprintM):-Math.Max(1,step);
+                        double footprint=water.WaterKind==LocalWaterKind.Ocean?1:same?(sample.WaterKind==LocalWaterKind.None?sample.WaterMaskM:sample.WaterFootprintM):-Math.Max(1,step);
                         // Infinity is useful in Core for unrestricted ocean
                         // interiors, not in polygon intersection arithmetic.
                         footprint=Math.Max(-1e9,Math.Min(1e9,footprint));
                         input[k]=new Vertex{X=mesh.Positions[i*3],Z=mesh.Positions[i*3+2],
                             Y=frame.SurfaceY(points[k],level),Ground=mesh.Positions[i*3+1],Footprint=footprint};
                     }
+                    bool ocean=water.WaterKind==LocalWaterKind.Ocean;
+                    double allowance=0;
+                    if(ocean)
+                    {
+                        // Expand the zero-depth contour horizontally by two
+                        // metres, UNDER the land. Keep the actual sea elevation
+                        // unchanged; a vertical tolerance would spread too far
+                        // across shallow shores. Only ocean-adjacent triangles
+                        // reach here, not arbitrary underground inland tiles.
+                        var p=input[0];var q=input[1];var r=input[2];
+                        double bx=q.X-p.X,bz=q.Z-p.Z,cx=r.X-p.X,cz=r.Z-p.Z,det=bx*cz-cx*bz;
+                        if(Math.Abs(det)>1e-12)
+                        {
+                            double db=(q.Y-q.Ground)-(p.Y-p.Ground),dc=(r.Y-r.Ground)-(p.Y-p.Ground);
+                            double gx=(db*cz-dc*bz)/det,gz=(bx*dc-cx*db)/det;
+                            allowance=OceanShoreOverlapM*Math.Sqrt(gx*gx+gz*gz);
+                        }
+                    }
                     int count=Clip(input,3,clipped,false);
                     if(count<3)continue;
-                    count=Clip(clipped,count,input,true);
+                    count=Clip(clipped,count,input,true,allowance);
                     if(count<3)continue;
-                    Polygon(input,count);
+                    Polygon(input,count,ocean);
                 }
             }
             if(mesh.WaterClipTriangles.Length>0)

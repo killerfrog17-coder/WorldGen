@@ -1,5 +1,24 @@
 # Version 3 validation evidence
 
+## Ocean shoreline overlap /20October2026
+
+Owner approved hyper6 ocean levels but reported small shoreline gaps and asked
+for a conservative overlap rather than exact trimming. Presentation-only change:
+ocean-adjacent triangles clip against a two-horizontal-metre expanded depth
+contour and ignore artificial body-tag cuts within that overlap. Actual water
+elevation remains zero; the ocean's2.5cm presentation lift is removed, keeping
+the extended edge under the terrain. Entirely dry triangles do not emit water.
+There is no global below-ground ocean layer and no terrain/LOD/history change;
+inland water geometry and levels are untouched.
+
+125 focused checks pass, including .001/.1/4-slope shores with1.99-2.01m measured
+normal underlap, unchanged sea height, wholly dry rejection, fixed standing
+levels and previous no-warp regressions. Native visual acceptance is left to the
+owner for this small change; no screenshot campaign or new performance claim.
+The IL2CPP20:08:39Z review is player-ocean-underlap with a matching staged worker.
+See WATER_CONTAINMENT.md. The unwarped player remains the preceding rollback;
+its lake/river gaps and unfinished inland hydraulics are not solved by this.
+
 ## Owner-requested removal of water warping /20October2026
 
 The owner rejected hyper5 with additional screenshots of steeply sloping lake
