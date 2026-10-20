@@ -1,5 +1,26 @@
 # WorldGen repository instructions
 
+Current review launch,19October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-landforms-reviewed/WorldGen.exe` (IL2CPP20Oct03:17:17Z).
+New procedural recipes use3.33 natural continental uplift without the legacy
+sixfold boost, narrower fronts and separately broad high plateaus. Old3.32 and
+earlier generation remains literal; measured Earth heights are unchanged.
+Local terrain4 adds nested continuous ridges/ravines, initial indexed mean-flow
+channels, fractional lake/island beds and clipped inland water. Near triangles
+gain bank/thalweg vertices, including2m streams; TerrainLod/navigation, prepared
+reanchor/scatter handoff, shaders, rock art, footsteps and controls are unchanged.
+196 local-water/687 terrain/4037 scatter/3131 ground,5087 control and2504 preset
+assertions pass; actual old-assembly Preview/Earth/Terra match all15 stages each,
+and current CLI all-stage reconstruction passes.200k Earth and two generated
+worlds receive numerical review. Full native Earth/generated landform captures
+are inspected; final native water-only reviews preserve both worlds and match
+16 exact0.1x CoreCLR probes. See docs/LOCAL_LANDFORMS_HYDROLOGY.md and VALIDATION.md
+for separate build evidence, timings and limits. Art/water shading and some
+render seams remain rough; basin outlines/tributaries are approximate. No full
+erosion, fjords, weather accumulation, vegetation overhaul, permanent city-site
+contract or new all-era/history-performance acceptance. Terrain-handoff remains
+the preceding rollback. Generate anew to see changed macro relief.
+
 Current review launch,19 October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-terrain-handoff/WorldGen.exe` (IL2CPP20Oct00:25:24Z).
 Owner-authorized focused automatic-reanchor fix: one hidden frame prepares while

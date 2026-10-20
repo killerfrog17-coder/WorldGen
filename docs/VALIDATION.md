@@ -1,5 +1,74 @@
 # Version 3 validation evidence
 
+## Natural relief and initial local water —19 October2026
+
+Selected player: artifacts/player-landforms-reviewed, IL2CPP built
+2026-10-20T03:17:17.1231524Z, with staged assembly hashes guarded by unity-check.
+Generation3.33 intentionally changes new procedural relief; measured Earth
+and saved world heights stay literal. Derived local terrain is preview4.
+See LOCAL_LANDFORMS_HYDROLOGY.md for research, mechanisms and unresolved scope.
+
+Focused checks:196 landform/water,687 existing terrain/navigation/handoff,
+4037 scatter,3131 ground,5087 terrain-control and2504 preset assertions pass.
+The2m stream test produces4262m² clipped water through a2048m tile with the
+unchanged16m base grid, adding1301 land vertices rather than inflating its width
+or subdividing the whole tile. Independent refined tile perimeters agree within
+2mm, including added banks. Tests also cover shared standing-water precedence,
+exact independent patch samples and smooth outer shoreline/noise supports.
+
+Actual pre-change Core from player-reanchor-review is loaded in an isolated
+AssemblyLoadContext. Old3.32 Preview, Earth and Terra each reproduce all15
+original stage hashes. Current Preview CLI repeat/reapply/recipe/cached-result
+reconstruction also matches all15 stages. No golden expectations were rewritten;
+the previously recorded broad11-versus15-stage Earth golden mismatch remains
+separate and is not claimed fixed by these focused checks.
+
+Numerical snapshots:200k Earth and fresh3.33 Continents Plus seeds73421/42.
+Representative final macro peaks are5917/6385m, with medians270/236m;
+these are example worlds, not an Earth-hypsometry fit. Earth source median412m,
+p994604m/max7526m is retained exactly at its bundled/sampled resolution.
+At0.1scale, nominal Himalayan/Andean local2km windows span about1789/1692m
+versus236m for the Tibetan interior and roughly127m in Texas Hill Country.
+These are generated local details, NOT measured local DEM comparisons.
+
+Preparation takes approximately1.1–1.5s on this host.128-segment river tiles in
+diagnostic CLR runs average roughly0.35–0.51s, with observed maxima around1.1s.
+Native whole-review maxima reach2.3s in background tile work while multiple
+review applications/builds contend. These numbers are NOT main-thread frame
+times, synchronized fullscreen FPS, low-end guarantees or evidence of no added
+generation cost. Two existing background workers and bounded uploads remain;
+no fine planet raster or recurring world/culture/territory census is added.
+
+Visual iterations deliberately rejected the first too-rounded alpine result.
+Full captures in artifacts/landform-review/{earth-ready-native,
+continents-ready-native} cover Himalaya, Tibetan plateau, Andes, Appalachians,
+Texas hills, coast, generated collision/subduction/old ranges/plains and water.
+Those full runs use the preceding same-model player before the final vanishing
+shore-support/flat-gradient guards. All regions are inspected, not just logs;
+the alpine screenshots motivate the stronger bounded crests/ravine revision.
+Earth's nominal coastal camera searches a nearby resolved shore and records its
+actual coordinate rather than pretending the source resolves a named beach.
+
+Final selected-build water evidence is artifacts/landform-review/
+{earth-reviewed-native,continents-reviewed-native}. Both200k/0.1x runs pass river
+near/above and lake-shore/above captures, keep input file SHA256 and full runtime
+world hashes unchanged, and supply8 exact native/CoreCLR point probes each.
+River examples are48.19m and154.94m wide, with water above actual carved beds.
+The earlier generated full-view24 probes also match current Core. A cross-build
+Earth/Tibet probe differed by1mm after the intentional flat-gradient guard;
+it is not used as final-build equivalence evidence. The final16 probes match
+exactly. Native review is muted and does not establish new sound acceptance.
+
+TerrainLod/LocalTerrainNavigation, prepared terrain/scatter handoff, ordinary
+scatter projection, footsteps, rock meshes and terrain shader compare unchanged
+against74ecb6a. Terrain and water mesh topology necessarily change near water;
+this is not a new LOD scheme. Some rendering/material seams and coarse aliasing
+remain visible; overbright high-altitude cover, placeholder water shading and
+bare soil/props are not called photorealistic. Lake basins still use approximate
+irregular component footprints; complete fine tributary watersheds, sediment
+transport, braided rivers, fjords, snow/wet-ground and vegetation remain future
+work. No new all-era realism or dense-history speed acceptance is implied.
+
 ## Prepared terrain-frame handoff -19 October2026
 
 The owner authorized a focused fix after the complete LOD rollback: remove the

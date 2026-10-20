@@ -258,6 +258,8 @@ namespace WorldGen.Core
                     .18*(.5-Math.Sqrt(medium*medium+.025))+.075*summit*(.4-Math.Sqrt(fine*fine+.045));
                 double ravines=0;
                 double ravineGate=OrogenMorphology.Smooth(60,200,m)*OrogenMorphology.Smooth(30,180,baseM);
+                double gradientLength=Math.Sqrt(gradientX*gradientX+gradientY*gradientY+gradientZ*gradientZ)/sum;
+                ravineGate*=OrogenMorphology.Smooth(.0001,.003,gradientLength);
                 if(ravineGate>0)
                 {
                     V gradient=new V(gradientX,gradientY,gradientZ),across=V.Cross(point,gradient).Unit;

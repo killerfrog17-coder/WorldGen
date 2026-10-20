@@ -217,7 +217,7 @@ namespace WorldGen.Core
                     if (r > .7)
                     {
                         double shore = SphereNoise.Sample(point * (owner.radius * owner.scale), owner.seed ^ 0x6b37, .0017);
-                        r += shore * Math.Min(45, f.ScaleM * owner.scale * .025) / (f.ScaleM * owner.scale) * OrogenMorphology.Smooth(.7, .9, r);
+                        r += shore * Math.Min(45, f.ScaleM * owner.scale * .025) / (f.ScaleM * owner.scale) * OrogenMorphology.Smooth(.7, .9, r) * (1-OrogenMorphology.Smooth(1.15,1.35,r));
                     }
                     double blend = 1 - OrogenMorphology.Smooth(1, 1.35, r);
                     double target = f.LevelM + (f.Kind == ShoreKind.Island ? f.ReliefM : -f.ReliefM) * (1 - r * r);

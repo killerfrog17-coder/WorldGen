@@ -42,6 +42,7 @@ public sealed partial class WorldGenRuntime
         sites.Add(Tuple.Create("river",river.Position(.5)));
         var lake=terrain.Hydrology.Shores.Where(f=>f.Kind==ShoreKind.Lake&&f.ScaleM*.1>500&&f.ScaleM*.1<10000).OrderByDescending(f=>f.AreaM2).FirstOrDefault();
         if(lake!=null)sites.Add(Tuple.Create("lake",lake.Boundary(0,terrain.RadiusM)));
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-water-review"))sites.RemoveAll(s=>s.Item1!="river"&&s.Item1!="lake");
         var report=new List<string>();var probes=new List<string>{"originX,originY,originZ,eastM,northM,elevationM"};
         foreach(var site in sites)
         {

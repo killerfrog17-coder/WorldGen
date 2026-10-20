@@ -12,7 +12,8 @@ static class LandformTests
         {
             var v=line.Split(',').Select(s=>double.Parse(s,System.Globalization.CultureInfo.InvariantCulture)).ToArray();
             var patch=terrain.Patch(new V(v[0],v[1],v[2]),6000);
-            check(patch.Sample(v[3],v[4]).ElevationM==v[5],"Exact scaled native/CoreCLR terrain and water query");
+            double actual=patch.Sample(v[3],v[4]).ElevationM;
+            check(actual==v[5],$"Exact scaled native/CoreCLR query: expected {v[5]:R}, actual {actual:R}; origin {v[0]:R},{v[1]:R},{v[2]:R}; offset {v[3]},{v[4]}");
         }
     }
     public static void Legacy(string assemblyPath,Action<bool,string> check)
@@ -91,6 +92,20 @@ static class LandformTests
         {int i=thinMesh.WaterTriangles[k]*3,j=thinMesh.WaterTriangles[k+1]*3,l=thinMesh.WaterTriangles[k+2]*3;var p=thinMesh.WaterPositions;waterArea+=Math.Abs((p[j]-p[i])*(p[l+2]-p[i+2])-(p[j+2]-p[i+2])*(p[l]-p[i]))*.5;}
         check(thin.WidthM<3&&thinMesh.WaterTriangles.Length>0&&waterArea>1000&&waterArea<20000,"A two-metre stream remains visible without becoming a sixteen-metre grid channel");
         Console.WriteLine($"Thin stream {thin.WidthM:F2}m, clipped water {waterArea:F0}m2, added land vertices {thinMesh.Positions.Length/3-thinMesh.GroundVertices-512}");
+        var leftMesh=LocalTerrainMesh.Build(thinTerrain,thinFrame,-2048,0,2048,128);
+        var rightMesh=LocalTerrainMesh.Build(thinTerrain,thinFrame,0,0,2048,128);
+        List<(double Z,double Y)> Edge(LocalTerrainMesh m,double x)
+        {
+            var result=new List<(double,double)>();for(int i=0;i<m.Positions.Length/3;i++)
+                if((i<m.GroundVertices||i>=m.GroundVertices+512)&&Math.Abs(m.Positions[i*3]-x)<.00001)result.Add((m.Positions[i*3+2],m.Positions[i*3+1]));
+            return result.OrderBy(p=>p.Item1).ToList();
+        }
+        var le=Edge(leftMesh,2048);var re=Edge(rightMesh,0);
+        double EdgeError(List<(double Z,double Y)> a,List<(double Z,double Y)> b)
+        {
+            double error=0;foreach(var p in a){int k=0;while(k<b.Count-2&&b[k+1].Z<p.Z)k++;double span=b[k+1].Z-b[k].Z,t=span>0?(p.Z-b[k].Z)/span:0;error=Math.Max(error,Math.Abs(p.Y-(b[k].Y+(b[k+1].Y-b[k].Y)*t)));}return error;
+        }
+        check(Math.Max(EdgeError(le,re),EdgeError(re,le))<.002,"Independently refined river tiles share their complete perimeter, including extra bank vertices");
         int lake=1200;double area=mesh.Cells[lake].AreaM2*.2;
         h.WaterBody[lake]=0;h.LakeCoverageFraction[lake]=.2;h.LakeWaterVolumeM3[lake]=area*8;
         h.Waters=new[]{new WaterBody{Id=0,Kind=WaterKind.Lake,Cells=new[]{lake},AreaM2=(long)area,VolumeM3=area*8,SurfaceElevationM=120}};
@@ -102,6 +117,9 @@ static class LandformTests
             V edge=feature.Boundary(angle,terrain.RadiusM);
             var inside=(feature.Center+(edge-feature.Center)*.98).Unit;var outside=(feature.Center+(edge-feature.Center)*1.02).Unit;
             check(lakePatch.Sample(inside).Underwater&&!lakePatch.Sample(outside).Underwater,"Continuous irregular shores independent of cell edges");
+            V tangent=edge/V.Dot(edge,feature.Center)-feature.Center;
+            V outerA=(feature.Center+tangent*(1.35-.0000001)).Unit,outerB=(feature.Center+tangent*(1.35+.0000001)).Unit;
+            check(Math.Abs(lakePatch.Sample(outerA).ElevationM-lakePatch.Sample(outerB).ElevationM)<.2,"Shore detail fades at the outer support, without a raised ring or hard seam");
         }
         var lakeFrame=new LocalTerrainFrame(feature.Center,terrain.RadiusM,120,.1);
         var lakeMesh=LocalTerrainMesh.Build(lakeTerrain,lakeFrame,-1024,-1024,2048,64);
