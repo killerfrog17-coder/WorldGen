@@ -39,7 +39,7 @@ public sealed partial class WorldGenRuntime
         if(terrainExplorer==null||!terrainExplorer.Ready)throw new Exception("Landform sampler did not load.");
         var explorer=terrainExplorer;var terrain=localTerrainTask.Result;
         if(Environment.GetCommandLineArgs().Contains("--worldgen-hyper-review"))
-        {yield return CheckHyperAmplification(output,sourceHash,explorer,terrain);yield break;}
+        {yield return LocalTerrainExplorer.CheckUploadBuffers(output);yield return CheckHyperAmplification(output,sourceHash,explorer,terrain);yield break;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-incision-timing-only"))
         {
             File.WriteAllLines(Path.Combine(output,"preparation.txt"),new[]{"Native scaffold "+terrain.Scaffold.PreparationMilliseconds.ToString("F0")+"ms; river conditioning "+terrain.Hydrology.ConditioningMilliseconds.ToString("F0")+"ms","PASS source unchanged "+StateHash.Compute(world)});
@@ -138,6 +138,8 @@ public sealed partial class WorldGenRuntime
             .Where(i=>world.Hydrology.Waters[world.Hydrology.WaterBody[i]].AreaM2>1e8&&world.Hydrology.Waters[world.Hydrology.WaterBody[i]].AreaM2<5e10)
             .OrderBy(i=>Math.Abs(Math.Log(world.Hydrology.Waters[world.Hydrology.WaterBody[i]].AreaM2/3e9))).DefaultIfEmpty(-1).First();
         if(lake>=0)sites.Insert(2,Tuple.Create("lake",world.Surface.Cells[lake].Position,350d,20f,55f));
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-hyper-loading-review"))
+            sites=sites.Where(s=>s.Item1=="river-ground"||s.Item1=="generated-mountains"||s.Item1=="generated-lowlands"||s.Item1=="himalayas"||s.Item1=="hill-country"||s.Item1=="lake").ToList();
         var report=new List<string>{"Surface "+LocalTerrain.Version+" / "+HyperAmplification.Version,
             "Core hierarchical preparation "+terrain.Amplification.PreparationMilliseconds.ToString("F1")+"ms"};
         var probes=new List<string>{"originX,originY,originZ,eastM,northM,elevationM"};
@@ -146,20 +148,23 @@ public sealed partial class WorldGenRuntime
             Debug.Log("HYPER REVIEW starting "+site.Item1+" at "+Time.realtimeSinceStartupAsDouble.ToString("F2")+"s");
             var surface=terrain.Patch(site.Item2).Sample(0,0);
             double aboveGround=site.Item3+(surface.Underwater?Math.Max(0,surface.WaterSurfaceM-surface.ElevationM):0);
-            explorer.Teleport(site.Item2);explorer.TestView(aboveGround,site.Item4,site.Item5);
+            if((explorer.Position-site.Item2).Length*terrain.RadiusM>.1)explorer.Teleport(site.Item2);
+            explorer.TestView(aboveGround,site.Item4,site.Item5);
             PlayCommands.Execute(play,0,"/weather clear",weather:explorer.WeatherControl);
             TerrainMapViewport.Degrees(site.Item2,out double lat,out double lon);play.SetLocalSolarHour(12,lon);
             double started=Time.realtimeSinceStartupAsDouble,deadline=started+30;
+            explorer.BeginLoadingProfile();
             yield return null;
             while(!explorer.NearReady&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
             if(!explorer.NearReady||explorer.Error!="")throw new Exception("Hyper terrain near coverage: "+site.Item1+" "+explorer.Error);
             report.Add(site.Item1+": near "+(Time.realtimeSinceStartupAsDouble-started).ToString("F3")+"s; "+explorer.Diagnostics);
             // Near-ready proves input readiness, not that an elevated review
             // camera has any distant land in view. Capture only real coverage.
-            deadline=Time.realtimeSinceStartupAsDouble+90;
+            deadline=Time.realtimeSinceStartupAsDouble+180;
             while(!explorer.AllReady&&explorer.Error==""&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
             if(!explorer.AllReady||explorer.Error!="")throw new Exception("Hyper terrain distant coverage: "+site.Item1+" "+explorer.Error);
             report.Add(site.Item1+": full coverage "+(Time.realtimeSinceStartupAsDouble-started).ToString("F3")+"s; "+explorer.Diagnostics);
+            report.Add(site.Item1+": "+explorer.EndLoadingProfile());
             double hold=Time.realtimeSinceStartupAsDouble+3;while(Time.realtimeSinceStartupAsDouble<hold)yield return null;
             yield return new WaitForEndOfFrame();explorer.Capture(Path.Combine(output,site.Item1+".png"));
             probes.AddRange(explorer.Probes());

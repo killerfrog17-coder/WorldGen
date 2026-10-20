@@ -4,7 +4,7 @@ using WorldGen.Core;
 
 namespace WorldGen.Presentation
 {
-    public enum Layer { Terrain, Satellite, Climate, Heightmap, Microplates, ParentPlates, Continents, Landmasses, Crust, OceanConnectivity, BoundaryType, Stress, CollisionContext, TectonicElevation, PreErosionElevation, FinalElevation, Bathymetry, LandBridges, ErosionDelta, WaterBodies, LakesAndInlandSeas, Watersheds, Rivers, ContributingArea, TemperatureSummer, TemperatureWinter, PrecipitationSummer, PrecipitationWinter, Continentality, WindSummer, WindWinter, OceanCurrentsSummer, OceanCurrentsWinter, Mantle, TemperatureSpring, TemperatureAutumn, PrecipitationSpring, PrecipitationAutumn, Ecoregions, Biomes, Floodplains, Soils, WaterTable, Permafrost, Aridity, Salinity, FirePotential, Simulation = 100 }
+    public enum Layer { Terrain, Satellite, Climate, Heightmap, Microplates, ParentPlates, Continents, Landmasses, Crust, OceanConnectivity, BoundaryType, Stress, CollisionContext, TectonicElevation, PreErosionElevation, FinalElevation, Bathymetry, LandBridges, ErosionDelta, WaterBodies, LakesAndInlandSeas, Watersheds, Rivers, ContributingArea, TemperatureSummer, TemperatureWinter, PrecipitationSummer, PrecipitationWinter, Continentality, WindSummer, WindWinter, OceanCurrentsSummer, OceanCurrentsWinter, Mantle, TemperatureSpring, TemperatureAutumn, PrecipitationSpring, PrecipitationAutumn, Ecoregions, Biomes, Floodplains, Soils, WaterTable, Permafrost, Aridity, Salinity, FirePotential, Relief, Simulation = 100 }
     public enum Projection { Globe, Map }
     public sealed class ViewData { public float[] Positions = Array.Empty<float>(), Colors = Array.Empty<float>(), LineColors = Array.Empty<float>(), Lines = Array.Empty<float>(); public float[] SpherePositions = Array.Empty<float>(), SphereLines = Array.Empty<float>(), NaturalHeight = Array.Empty<float>(), Stroke = Array.Empty<float>(); public int[] Triangles = Array.Empty<int>(), CellIds = Array.Empty<int>(), BlendCellIds = Array.Empty<int>(); public bool IsMap, Unlit; }
     public static class GlobeView
@@ -50,7 +50,7 @@ namespace WorldGen.Presentation
                 || (cell < w.Hydrology.LakeCoverageFraction.Length && w.Hydrology.LakeCoverageFraction[cell] >= WholeCellLakeCoverage));
         public static ViewData CellValues(World w, Layer layer = Layer.Terrain, int seaLevel = 0, int detail = 0, double irregularity = .75, System.Threading.CancellationToken token = default)
         {
-            int n = w.Surface.Cells.Length; var view = new ViewData { Positions = new float[n * 3], Colors = new float[n * 3], Triangles = w.Surface.Triangles, CellIds = Enumerable.Range(0, n).ToArray(), Unlit = layer == Layer.Heightmap || layer == Layer.Climate || EcologyView.IsLayer(layer) };
+            int n = w.Surface.Cells.Length; var view = new ViewData { Positions = new float[n * 3], Colors = new float[n * 3], Triangles = w.Surface.Triangles, CellIds = Enumerable.Range(0, n).ToArray(), Unlit = layer == Layer.Heightmap || layer == Layer.Climate || layer == Layer.Relief || EcologyView.IsLayer(layer) };
             var boundary = new Boundary[n]; foreach (var b in w.Boundaries) { var e = w.Surface.Edges[b.EdgeId]; foreach (int c in new[] { e.A, e.B }) if (boundary[c] == null || b.Stress > boundary[c].Stress) boundary[c] = b; }
             var land = layer == Layer.LandBridges ? Graph.Components(w.Surface, i => w.ElevationM[i] >= seaLevel) : w.Landmass;
             var displayedRiverOrder = layer == Layer.Rivers ? new int[n] : null;
@@ -64,6 +64,12 @@ namespace WorldGen.Presentation
                 V color = TerrainColor(w, i, h, seaLevel); var b = boundary[i];
                 switch (layer)
                 {
+                    case Layer.Relief:
+                        double relief=TerrainRelief.For(w,i).DetailM;
+                        color=TryVisibleWater(w,i,out _)||h<0?new V(.055,.25,.43):relief<120
+                            ?Blend(new V(.24,.49,.35),new V(.76,.73,.40),relief/120)
+                            :Blend(new V(.76,.73,.40),new V(.75,.34,.22),(Math.Log(1+relief/120)-Math.Log(2))/2);
+                        break;
                     case Layer.Ecoregions: case Layer.Biomes: case Layer.Floodplains: case Layer.Soils: case Layer.WaterTable: case Layer.Permafrost: case Layer.Aridity: case Layer.Salinity: case Layer.FirePotential: color=EcologyView.Color(w,i,layer); break;
                     case Layer.Simulation: case Layer.Satellite: color = ClimateColors.Satellite(w, i); if (TryVisibleWater(w, i, out var satelliteWater) && satelliteWater.Kind != WaterKind.Ocean) color = new V(.055, .34, .68); break;
                     case Layer.Climate: color = TryVisibleWater(w, i, out var climateWater) && climateWater.Kind != WaterKind.Ocean
@@ -118,7 +124,7 @@ namespace WorldGen.Presentation
             }
             return view;
         }
-        public static readonly Layer[] VisibleLayers = { Layer.Terrain, Layer.Satellite, Layer.Simulation, Layer.Climate, Layer.Heightmap, Layer.Ecoregions, Layer.Biomes, Layer.Floodplains, Layer.Soils, Layer.WaterTable, Layer.Permafrost, Layer.Aridity, Layer.Salinity, Layer.FirePotential, Layer.Microplates, Layer.ParentPlates, Layer.Continents, Layer.Crust, Layer.OceanConnectivity, Layer.BoundaryType, Layer.Stress, Layer.TectonicElevation, Layer.PreErosionElevation, Layer.FinalElevation, Layer.ErosionDelta, Layer.WaterBodies, Layer.LakesAndInlandSeas, Layer.Watersheds, Layer.Rivers, Layer.ContributingArea, Layer.TemperatureSpring, Layer.TemperatureSummer, Layer.TemperatureAutumn, Layer.TemperatureWinter, Layer.PrecipitationSpring, Layer.PrecipitationSummer, Layer.PrecipitationAutumn, Layer.PrecipitationWinter, Layer.Continentality, Layer.WindSummer, Layer.WindWinter, Layer.OceanCurrentsSummer, Layer.OceanCurrentsWinter, Layer.Mantle };
+        public static readonly Layer[] VisibleLayers = { Layer.Terrain, Layer.Relief, Layer.Satellite, Layer.Simulation, Layer.Climate, Layer.Heightmap, Layer.Ecoregions, Layer.Biomes, Layer.Floodplains, Layer.Soils, Layer.WaterTable, Layer.Permafrost, Layer.Aridity, Layer.Salinity, Layer.FirePotential, Layer.Microplates, Layer.ParentPlates, Layer.Continents, Layer.Crust, Layer.OceanConnectivity, Layer.BoundaryType, Layer.Stress, Layer.TectonicElevation, Layer.PreErosionElevation, Layer.FinalElevation, Layer.ErosionDelta, Layer.WaterBodies, Layer.LakesAndInlandSeas, Layer.Watersheds, Layer.Rivers, Layer.ContributingArea, Layer.TemperatureSpring, Layer.TemperatureSummer, Layer.TemperatureAutumn, Layer.TemperatureWinter, Layer.PrecipitationSpring, Layer.PrecipitationSummer, Layer.PrecipitationAutumn, Layer.PrecipitationWinter, Layer.Continentality, Layer.WindSummer, Layer.WindWinter, Layer.OceanCurrentsSummer, Layer.OceanCurrentsWinter, Layer.Mantle };
         public static ViewData Build(World w, Layer layer = Layer.Terrain, int seaLevel = 0, int detail = 0, double irregularity = .75)
             => SurfaceMesh.Combine(SurfaceMesh.Chunks(w, new ViewOptions { Layer = layer, SeaLevel = seaLevel, GridSpacing = 0 }));
         public static string Describe(World w, int cell)

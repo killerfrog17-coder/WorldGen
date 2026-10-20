@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed class LocalTerrain
     {
-        public const string Version = "local-terrain-hyper-1";
+        public const string Version = "local-terrain-hyper-2";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -59,20 +59,13 @@ namespace WorldGen.Core
                     gx += delta.X * scale; gy += delta.Y * scale; gz += delta.Z * scale;
                 }
                 var habitat = world.Ecology != null && world.Ecology.Habitat.Length > i ? world.Ecology.Habitat[i] : null;
-                double plateau = At(world.PlateauPermille, i) / 1000.0;
-                double fold = At(world.FoldPermille, i) / 1000.0;
                 double relief = high - low;
                 // High, low-relief interiors are plateaus, not Himalayan peaks.
                 // On measured Earth this is an inference, not a named-region override.
-                double inferredPlateau=OrogenMorphology.Smooth(1800,4200,world.ElevationM[i])*(1-OrogenMorphology.Smooth(350,1500,relief))*.85;
-                plateau=Math.Max(plateau,inferredPlateau);
-                // Measured broad relief supplements provenance, especially Earth (which has no synthetic belts).
-                // Altitude alone NEVER enables mountain detail. Neighbour relief is explicitly a coarse-scale proxy.
-                double mountains = D.Clamp(Math.Max(fold, (relief - 180) / 1900)) * (1 - .94 * plateau);
                 double sediment = habitat == null ? At(world.BasinPermille, i) / 1500.0
                     : Math.Max(habitat.FloodFractionPermille / 1000.0, habitat.Soil == SoilKind.Alluvial ? .85 : 0);
-                double hill = (8 + Math.Min(100, relief * .16)) * (1 - .92 * plateau) * (1 - .94 * sediment);
-                double ridge = (240 + Math.Min(2300, relief * .55)) * mountains * (1 - .9 * sediment);
+                var landform=new TerrainRelief(world.ElevationM[i],relief,At(world.FoldPermille,i)/1000.0,At(world.PlateauPermille,i)/1000.0,sediment);
+                double plateau=landform.Plateau,hill=landform.HillsM,ridge=landform.MountainsM;
                 V axis = axes[i];
                 if (axis.Length < .1)
                 {

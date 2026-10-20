@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed class HyperAmplification
     {
-        public const string Version = "hyper-amplification-1";
+        public const string Version = "hyper-amplification-2";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -24,9 +24,11 @@ namespace WorldGen.Core
         readonly Edge[] channelEdges;
         readonly double radius, scale;
         readonly int seed;
+        readonly int terminalDepth;
         long subdivisions;
         public double PreparationMilliseconds { get; private set; }
         public int RootFaces => roots.Length;
+        public int SubdivisionDepth => terminalDepth;
         public int CachedGroups { get { lock (gate) return retained.Count; } }
         public long SubdivisionGroups => Interlocked.Read(ref subdivisions);
 
@@ -209,6 +211,13 @@ namespace WorldGen.Core
                 edges.Add(key, e); return e;
             }
             roots = new Face[world.Surface.Triangles.Length / 3];
+            // One topological terminal depth across adjacent faces. Stopping
+            // independently by triangle size produces a nonconforming HEIGHT
+            // field, even if streamed render tiles sample canonical coordinates.
+            double nominalArea=4*Math.PI*radius*radius*scale*scale/roots.Length;
+            int targetDepth=0;
+            while(nominalArea>FinestSpacingM*FinestSpacingM&&targetDepth<20){nominalArea*=.25;targetDepth++;}
+            terminalDepth=targetDepth;
             for (int t = 0; t < roots.Length; t++)
             {
                 if ((t & 4095) == 0) token.ThrowIfCancellationRequested();
@@ -465,6 +474,44 @@ namespace WorldGen.Core
                 node.Height = h;
                 if (a.Type == Kind.Ocean || b.Type == Kind.Ocean) { node.Water = 0; node.Distance = Math.Abs(h); }
             }
+            if(node.Type==Kind.Terrain||node.Type==Kind.Drainage)
+            {
+                // Detail must refine the parent surface, not repeatedly redraw
+                // its entire elevation interval. In particular R3's random
+                // river-bank interpolation otherwise makes jagged slopes at
+                // every subdivision, even on floodplains and plateau interiors.
+                Face parent=null;double best=double.NegativeInfinity,plane=node.Height;
+                void ParentPlane(Face face)
+                {
+                    if(face==null)return;
+                    face.Coordinates(node.Position,out double x,out double y,out double z);
+                    double inside=Math.Min(x,Math.Min(y,z));
+                    if(inside>best){best=inside;parent=face;plane=x*face.A.Height+y*face.B.Height+z*face.C.Height;}
+                }
+                ParentPlane(leftFace);ParentPlane(rightFace);
+                if(parent!=null)
+                {
+                    double activity=OrogenMorphology.Smooth(12,100,node.Hill+node.Mountain*.25);
+                    double gain=(.12+.68*activity)*(1-.8*node.Plateau)*(1-.6*node.Sediment)
+                        *Lerp(1,.28,OrogenMorphology.Smooth(2,7,edge.Depth));
+                    // A long edge of a sliver triangle is not permission for a
+                    // cliff: bound new detail by the incident face's altitude.
+                    double altitude=double.MaxValue;
+                    void LimitSlope(Face face)
+                    {
+                        if(face==null)return;var oppositeNode=face.Opposite(edge);
+                        double nx=a.Position.Y*b.Position.Z-a.Position.Z*b.Position.Y;
+                        double ny=a.Position.Z*b.Position.X-a.Position.X*b.Position.Z;
+                        double nz=a.Position.X*b.Position.Y-a.Position.Y*b.Position.X;
+                        double norm2=nx*nx+ny*ny+nz*nz;
+                        if(norm2>1e-30)altitude=Math.Min(altitude,Math.Abs(oppositeNode.Position.X*nx+oppositeNode.Position.Y*ny+oppositeNode.Position.Z*nz)/Math.Sqrt(norm2)*radius*scale);
+                    }
+                    LimitSlope(leftFace);LimitSlope(rightFace);
+                    double limit=Math.Min(length*.35,altitude*.45);
+                    node.Height=plane+Math.Max(-limit,Math.Min(limit,(node.Height-plane)*gain));
+                    if(node.Type==Kind.Drainage)node.RiverBed=node.Height;
+                }
+            }
             if(a.Height>=0&&b.Height>=0&&node.Type!=Kind.Lake)node.Height=Math.Max(.001,node.Height);
             return node;
         }
@@ -510,7 +557,7 @@ namespace WorldGen.Core
             double length=(edge.A.Position-edge.B.Position).Length;
             // Safe lower bound includes all future lateral midpoint offsets.
             if(Math.Sqrt(square)-length*.3>Math.Min(maximumDistance,Math.Sqrt(best.Square)))return;
-            if(length*radius*scale<=FinestSpacingM||depth>=20)
+            if(edge.Depth>=terminalDepth||depth>=20)
             {if(square<best.Square){best.Square=square;best.Edge=edge;best.Along=along;}return;}
             var split=Split(edge);
             if(along<.5){NearestRiver(point,split.First,maximumDistance,ref best,depth+1);NearestRiver(point,split.Last,maximumDistance,ref best,depth+1);}
@@ -519,14 +566,14 @@ namespace WorldGen.Core
 
         /// <summary>Position on the actual recursively displaced major channel,
         /// for inspection/site selection. Does not trace or solve a catchment.</summary>
-        public V RiverPoint(int from,double fraction,double spacingM=FinestSpacingM)
+        public V RiverPoint(int from,double fraction)
         {
             if(from<0||from>=channelEdges.Length||channelEdges[from]==null)throw new ArgumentOutOfRangeException(nameof(from));
             var edge=channelEdges[from];
             // Root vertex keys are sufficient to determine source orientation.
             ulong sourceKey=Mix((ulong)(uint)seed<<32|(uint)from);
             double t=ReferenceEquals(edge.A,edge.B)||edge.A.Key==sourceKey?D.Clamp(fraction):1-D.Clamp(fraction);
-            for(int depth=0;depth<20&&(edge.A.Position-edge.B.Position).Length*radius*scale>Math.Max(FinestSpacingM,spacingM);depth++)
+            for(int depth=0;depth<20&&edge.Depth<terminalDepth;depth++)
             {
                 var parts=Split(edge);
                 if(t<=.5){edge=parts.First;t*=2;}else{edge=parts.Last;t=t*2-1;}
@@ -551,8 +598,7 @@ namespace WorldGen.Core
                 if (found == null) foreach (var f in faces) if (f.Coordinates(point, out a, out b, out c) >= -1e-7) { found = f; break; }
                 if (found == null) throw new InvalidOperationException("Hyper-amplification patch has no containing base face.");
                 last = found;
-                double resolution = FinestSpacingM;
-                while (found.Size > resolution && found.Depth < 20)
+                while (found.Depth < owner.terminalDepth)
                 {
                     var split = owner.Split(found); Face next = null; double best = -1e10;
                     double ba = 0, bb = 0, bc = 0;
@@ -586,12 +632,18 @@ namespace WorldGen.Core
                     if(best< -1e-4)throw new InvalidOperationException("Amplified point location did not converge: depth "+found.Depth+", size "+found.Size+", best "+best+", abc "+ba+","+bb+","+bc+", point "+point.X+","+point.Y+","+point.Z+", next depth "+next.Depth+", next size "+next.Size);
                     found = next; a = ba; b = bb; c = bc;
                 }
+                // Neighbouring fine-mesh samples, standing still and repeated
+                // controller/sky queries commonly remain in this same terminal
+                // face. Keep it (and its leases), not just its coarse ancestor:
+                // no repeated root-to-leaf walk or locking of background splits.
+                last=found;
                 a = Math.Max(0, a); b = Math.Max(0, b); c = Math.Max(0, c); double sum = a + b + c; a /= sum; b /= sum; c /= sum;
                 double height = a * found.A.Height + b * found.B.Height + c * found.C.Height;
                 double bed = a * found.A.RiverBed + b * found.B.RiverBed + c * found.C.RiverBed;
                 double water = a * found.A.Water + b * found.B.Water + c * found.C.Water;
                 double distanceToWater = a * found.A.Distance + b * found.B.Distance + c * found.C.Distance;
                 double flow = a * found.A.Flow + b * found.B.Flow + c * found.C.Flow;
+                double shapingBed=bed,shapingWater=water,shapingDistance=distanceToWater,shapingFlow=flow;
                 double mountain = a * found.A.Mountain + b * found.B.Mountain + c * found.C.Mountain;
                 double sediment = a * found.A.Sediment + b * found.B.Sediment + c * found.C.Sediment;
                 double CandidateFlow(Vertex vertex)=>vertex.River==null?0:Math.Max(vertex.River.A.Flow,vertex.River.B.Flow);
@@ -623,24 +675,31 @@ namespace WorldGen.Core
                 double valley = Math.Max(width * 5, Math.Min(3000, 80 + mountain * .9 + sediment * 400));
                 bool river = hit.Edge!=null&&flow>=.01&&width>.001&&distanceToWater<valley;
                 double pre = height, influence = 0, mask = -1e6;
-                if (lake)
+                // Broad valleys use interpolated vertex fields, which agree on
+                // every shared terminal edge. Using whichever nearby river was
+                // closest could jump between two different water levels and cut
+                // a vertical Voronoi wall through otherwise continuous ground.
+                double shapingWidth=Width(shapingFlow)*Math.Sqrt(D.Clamp((shapingWater-shapingBed)/Math.Max(.001,Depth(shapingFlow))));
+                double shapingValley=Math.Max(shapingWidth*5,Math.Min(3000,80+mountain*.9+sediment*400));
+                if(shapingDistance<shapingValley)
                 {
-                    // A lake's surface is a single inherited constant, never an
-                    // average tilted towards a neighbouring river/sea level.
-                    water = lakeSource.LakeLevel;
-                    mask = Math.Min(water-height,(lakeWeight-.05)*Math.Max(1,valley));
+                    double t=OrogenMorphology.Smooth(shapingWidth,shapingValley,shapingDistance);
+                    double bank=shapingWater+Math.Max(0,shapingDistance-shapingWidth)*Lerp(.02,.2,D.Clamp(mountain/2000));
+                    double channel=shapingBed+Depth(shapingFlow)*D.Clamp(shapingDistance/Math.Max(.01,shapingWidth));
+                    double profile=shapingDistance<shapingWidth?channel:bank;
+                    influence=(1-t)*OrogenMorphology.Smooth(0,.04,shapingFlow);
+                    height=Math.Min(height,Lerp(height,profile,influence));
                 }
-                else if (river)
-                {
-                    double t = OrogenMorphology.Smooth(width, valley, distanceToWater);
-                    double bank = water + Math.Max(0, distanceToWater - width) * Lerp(.02, .2, D.Clamp(mountain / 2000));
-                    double channel = bed + Depth(flow) * D.Clamp(distanceToWater / Math.Max(.01, width));
-                    double profile = distanceToWater < width ? channel : bank;
-                    height = Math.Min(height, Lerp(profile, height, t));
-                    mask = Math.Min(width - distanceToWater, water - height);
-                    influence = 1 - t;
-                }
+                if(river)mask=Math.Min(width-distanceToWater,water-height);
                 else if (!ocean) water = double.NaN;
+                // A dry periphery carrying a little lake provenance must NOT
+                // disable river valley shaping. That made a vertical terrain
+                // step at the arbitrary lake-weight threshold.
+                if(lake&&height<lakeSource.LakeLevel&&(double.IsNaN(water)||lakeSource.LakeLevel>=water))
+                {
+                    water=lakeSource.LakeLevel;
+                    mask=Math.Max(mask,Math.Min(water-height,(lakeWeight-.05)*Math.Max(1,valley)));
+                }
                 if (ocean && height < 0) { water = 0; mask = -height; }
                 return new Surface { Height = height, UnshapedHeight = pre, Water = water, Mask = mask, RiverInfluence = influence };
             }

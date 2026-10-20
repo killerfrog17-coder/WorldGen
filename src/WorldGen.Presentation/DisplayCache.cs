@@ -9,7 +9,7 @@ namespace WorldGen.Presentation
     /// <summary>One surface, reusable cell palettes, and independently switchable overlays.</summary>
     public static class DisplayCache
     {
-        public static readonly Layer[] MainLayers = { Layer.Microplates, Layer.Terrain, Layer.Satellite, Layer.Simulation, Layer.Climate, Layer.Heightmap, Layer.Ecoregions };
+        public static readonly Layer[] MainLayers = { Layer.Microplates, Layer.Terrain, Layer.Relief, Layer.Satellite, Layer.Simulation, Layer.Climate, Layer.Heightmap, Layer.Ecoregions };
         public sealed class Piece { public string Kind = "surface"; public ViewData Data = new ViewData(); }
         public static int ExpectedChunkCount(World world) =>
             4 * ((world.Surface.Edges.Length + SurfaceMesh.EdgesPerChunk - 1) / SurfaceMesh.EdgesPerChunk)

@@ -32,6 +32,7 @@ namespace WorldGen.Presentation
             if(layer.ToString().StartsWith("OceanCurrents"))return Number(season.OceanWarmthMilli[i]/1000.0," current warmth index");
             switch(layer)
             {
+                case Layer.Relief:var relief=TerrainRelief.For(w,i);return Number(relief.DetailM," m local relief potential")+" · "+(relief.DetailM<20?"Mostly flat":relief.DetailM<120?"Rolling hills":relief.DetailM<500?"Rugged hills":"Mountains")+" · not elevation";
                 case Layer.Satellite:return w.Climate.Classification[i].ToString();
                 case Layer.ParentPlates:return "Superplate "+(w.Microplates[w.CellMicroplate[i]].ParentAffinityId+1);
                 case Layer.Crust:return w.Continent[i]<0?"Oceanic crust":"Continental crust";

@@ -72,7 +72,7 @@ var meta=field.GetCustomAttribute<SettingAttribute>();
 <section class="observatory @(screen=="Simulation"?"sim-observatory":"")" style="--sim-sidebar:@(simulationTab.Length>0?"330px":"0px")">
 @if(screen!="Simulation"){
 <div class="map-controls">
-<div class="map-tabs">@foreach(var main in new[]{Layer.Microplates,Layer.Terrain,Layer.Satellite,Layer.Simulation,Layer.Climate,Layer.Heightmap,Layer.Ecoregions}){<button disabled="@(!Available(main))" class="@(layer==main?"selected":"")" @onclick="()=>SelectLayer(main)">@LayerName(main)</button>}</div>
+<div class="map-tabs">@foreach(var main in new[]{Layer.Microplates,Layer.Terrain,Layer.Relief,Layer.Satellite,Layer.Simulation,Layer.Climate,Layer.Heightmap,Layer.Ecoregions}){<button disabled="@(!Available(main))" class="@(layer==main?"selected":"")" @onclick="()=>SelectLayer(main)">@LayerName(main)</button>}</div>
 <label class="inspect-picker">Inspect<select aria-label="Diagnostic layer" value="@layer" @onchange="ChangeLayer">@foreach(var l in GlobeView.VisibleLayers){<option value="@l" disabled="@(!Available(l))">@LayerName(l)</option>}</select></label>
 <button aria-label="Toggle globe or map" title="Toggle globe or map" @onclick="ToggleProjection">@(projection==Projection.Globe?"▧":"◉")</button>
 </div>

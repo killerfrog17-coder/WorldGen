@@ -33,6 +33,14 @@ static class HyperAmplificationTests
         if (terrain.Amplification == null) throw new Exception("Full world did not activate hyper-amplification.");
         int count = 0;
         void Check(bool ok, string message) { count++; if (!ok) throw new Exception(message); }
+        Check((int)Layer.Terrain==0&&(int)Layer.Climate==2&&(int)Layer.FirePotential==46&&(int)Layer.Simulation==100,"Adding Relief preserves saved layer IDs");
+        Check(GlobeView.VisibleLayers[0]==Layer.Terrain&&GlobeView.VisibleLayers[1]==Layer.Relief,"Relief appears immediately below Terrain");
+        var flatControl=new TerrainRelief(100,20,0,0,.8);
+        var plateauControl=new TerrainRelief(4500,120,0,0,0);
+        var mountainControl=new TerrainRelief(1200,2400,.9,0,0);
+        Check(flatControl.DetailM<20&&plateauControl.DetailM<mountainControl.DetailM*.1,"High flat plateaus do not masquerade as rugged mountains");
+        var reliefView=GlobeView.CellValues(world,Layer.Relief);
+        Check(reliefView.Unlit&&reliefView.Colors.All(float.IsFinite),"Relief palette is finite and independent of elevation lighting");
         var sites = world.Recipe.TerrainSource == "Earth" ? new[] {
             ("himalayas",TerrainMapViewport.FromDegrees(27.98,86.92)),
             ("andes",TerrainMapViewport.FromDegrees(-32.65,-70.01)),
@@ -60,9 +68,43 @@ static class HyperAmplificationTests
                 rows.Add($"{name},{x*60},{z*60},{s.ElevationM:R},{s.WaterSurfaceM:R},{s.WaterMaskM:R}");
             }
             Console.WriteLine($"{name}: {low:F1}..{high:F1}m, range {high-low:F1}m, samples {watch.Elapsed.TotalMilliseconds:F1}ms, groups {terrain.Amplification.SubdivisionGroups}");
+            var control=terrain.Profile(terrain.NearestCell(at));
+            Check(Math.Abs(control.HillHeightM+control.MountainHeightM-TerrainRelief.For(world,control.Cell).DetailM)<1e-8,"Relief map and terrain use identical landform descriptors");
+            double residual=0;const int localCount=64;
+            for(int k=0;k<localCount;k++)
+            {
+                double x=(k%8)*8,z=(k/8)*8;
+                double h0=p.Sample(frame.Position(x,z)).ElevationM,ha=p.Sample(frame.Position(x-2,z)).ElevationM,hb=p.Sample(frame.Position(x+2,z)).ElevationM;
+                residual+=Math.Pow(h0-(ha+hb)*.5,2);
+            }
+            Console.WriteLine($"  2m curvature RMS: {Math.Sqrt(residual/localCount):F4}m; {CellInspection.Describe(world,control.Cell,Layer.Relief)}");
             watch.Restart();
             var mesh=LocalTerrainMesh.Build(terrain,frame,0,0,204.8,128);
             Console.WriteLine($"  near tile: {watch.Elapsed.TotalMilliseconds:F1}ms, {mesh.Positions.Length/3} vertices, {mesh.WaterTriangles.Length/3} water triangles");
+            var cached=((System.Collections.IEnumerable)typeof(HyperAmplification).GetField("retained",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.GetValue(terrain.Amplification)!).Cast<object>().ToArray();
+            int tested=0;
+            foreach(var group in cached.Reverse().Where(g=>g.GetType().Name=="FaceSplit"))
+            {
+                foreach(var face in (Array)group.GetType().GetField("Faces")!.GetValue(group)!)
+                {
+                    if((int)face!.GetType().GetField("Depth")!.GetValue(face)!=terrain.Amplification.SubdivisionDepth)continue;
+                    var edge=face.GetType().GetField("AB")!.GetValue(face)!;
+                    V Position(string endpoint){var v=edge.GetType().GetField(endpoint)!.GetValue(edge)!;return (V)v.GetType().GetField("Position")!.GetValue(v)!;}
+                    V ea=Position("A"),eb=Position("B"),mid=(ea+eb).Unit,normal=V.Cross(ea,eb).Unit;
+                    var probe=terrain.Patch(mid,2000);
+                    double delta=.02/(terrain.RadiusM*.1);
+                    var left=probe.Sample((mid+normal*delta).Unit);var right=probe.Sample((mid-normal*delta).Unit);
+                    if(Math.Abs(left.ElevationM-right.ElevationM)>=1)
+                    {
+                        var nearA=probe.Sample((mid+normal*(delta*.1)).Unit);var nearB=probe.Sample((mid-normal*(delta*.1)).Unit);
+                        throw new Exception($"Refined-edge step at {name}: {left.ElevationM:R}/{right.ElevationM:R} over 4cm; RAW {left.PreWaterElevationM:R}/{right.PreWaterElevationM:R}; water {left.WaterSurfaceM}/{right.WaterSurfaceM}; 4mm {nearA.ElevationM}/{nearB.ElevationM}, raw {nearA.PreWaterElevationM}/{nearB.PreWaterElevationM}; depth {terrain.Amplification.SubdivisionDepth}, midpoint {mid.X:R},{mid.Y:R},{mid.Z:R}, normal {normal.X:R},{normal.Y:R},{normal.Z:R}");
+                    }
+                    Check(true,"Refined terrain edge is continuous over a four-centimetre crossing");
+                    tested++;if(tested>=96)break;
+                }
+                if(tested>=96)break;
+            }
+            Check(tested>0,"Continuity checks actually visited terminal terrain edges");
         }
         File.WriteAllLines(Path.Combine(output,"probes.csv"),rows);
         {

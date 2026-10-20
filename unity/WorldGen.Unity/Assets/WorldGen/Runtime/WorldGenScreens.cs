@@ -88,7 +88,7 @@ public sealed partial class WorldGenRuntime
         }
         if(screen=="Simulation")GUI.Box(new Rect(8,8,Screen.width-16,116),"");
         GUILayout.BeginArea(new Rect(width+16,16,Math.Max(220,Screen.width-width-32),124));GUILayout.BeginHorizontal();
-        foreach(var candidate in new[]{Layer.Microplates,Layer.Terrain,Layer.Satellite,Layer.Simulation,Layer.Climate,Layer.Heightmap,Layer.Ecoregions})
+        foreach(var candidate in new[]{Layer.Microplates,Layer.Terrain,Layer.Relief,Layer.Satellite,Layer.Simulation,Layer.Climate,Layer.Heightmap,Layer.Ecoregions})
         {
             GUI.enabled=GenerationPreview.Available(displayedWorld,candidate);
             if(GUILayout.Toggle(layer==candidate,GlobeView.LayerName(candidate),GUI.skin.button,GUILayout.Width(Mathf.Clamp((Screen.width-width-200)/7,58,90))) && layer!=candidate){layer=preferredLayer=candidate;expandedInspection=false;Refresh();}

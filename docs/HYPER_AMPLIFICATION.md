@@ -1,6 +1,6 @@
 # Drainage-aware planetary amplification
 
-`local-terrain-hyper-1` replaces the geographic-scaffold surface for completed
+`local-terrain-hyper-2` replaces the geographic-scaffold surface for completed
 worlds. It is a **shared CPU adaptation**, not the original application's GPU
 compute-shader pipeline or a claim of identical output/performance.
 
@@ -47,11 +47,29 @@ raise a river embankment through low terrain. Root confluences share water level
 The saved hydrology order is source-first; cutting propagates forward, whereas
 downstream water constraints propagate backward. Headwaters taper to zero depth.
 
-All queries use the canonical hierarchy at an 8 m physical terminal spacing
-with continuous interpolation inside its triangles. Distant render LOD reduces
+The broad valley height field interpolates shared terminal-vertex attributes.
+It must not switch its cut level to whichever river happens to be nearest:
+that produced discontinuous walls between reaches with different water levels.
+Nearest displaced channels still determine the actual wet footprint and level.
+Dry lake provenance no longer disables a river's valley profile.
+
+All queries use one global topological terminal depth, selected for a nominal
+8 m physical spacing from the sphere area/base-face count. Actual edge spacing
+varies with the irregular input triangles. This makes the terminal height mesh
+conforming; stopping adjacent triangles independently by their longest edge did
+not. Continuous interpolation applies inside these shared triangles. Distant render LOD reduces
 mesh tessellation, not the height returned at a shared point. The existing tile planner,
 near-first scheduling and hidden reanchor handoff are retained. Fine terminal
 spacing is an implementation budget, not a promise of centimetre geomorphology.
+
+Refinement now perturbs the parent face at the displaced midpoint, with separate
+broad/fine gains conditioned on hill/mountain activity, sediment and plateaus.
+This suppresses repeated random full-slope interpolation and fine spikes, not
+the source mountain elevation. New perturbations are bounded by the incident
+triangle altitude as well as edge length, including thin input triangles.
+The map's **Relief** layer sits below Terrain and shares these landform controls.
+Its metres describe a local detail envelope, not absolute elevation, measured
+DEM roughness or the exact peak-to-valley range of a particular nearby view.
 
 ## Determinism and disposal
 
@@ -71,6 +89,18 @@ lose a neighboring face. They do not strongly retain the whole connected trail
 of visited terrain. Concurrent overlapping/cold-cache queries are regression
 tested. This is a bound on retained cache entries, not a byte-perfect total
 memory bound including active workers/meshes and their leases.
+
+Fine queries keep their last terminal face for repeated controller queries and
+nearby fine vertices instead of always descending again from the root. Unity
+terrain workers also fill writable native MeshData vertex/index buffers and
+bounds; the main thread applies them and binds render objects. This removes the
+old per-tile main-thread managed conversion arrays and forced UploadMeshData
+call. The existing two worker lanes, near-first planner and handoff are retained.
+Applied meshes keep a bounded native CPU copy; this is not zero-memory upload.
+Cancelled/obsolete work disposes un-applied native buffers. Native review tests
+check the actual vertex/normal/color/lithology/index/bounds/water data and record
+loading-frame percentiles, collections, mesh apply/bind and controller timings.
+These changes require native measurements, not an assumption of hitch-free play.
 
 The historical world and existing generation hashes are unchanged. Old histories
 are not upgraded. Local preview geometry intentionally changes; permanent
