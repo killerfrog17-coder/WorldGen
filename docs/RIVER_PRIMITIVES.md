@@ -1,5 +1,11 @@
 # River primitives: first playable review
 
+OWNER-REJECTED GEOMETRY. The owner found extensive water walls and flooding in
+this Hyper8 checkpoint. Its edge checks did not establish realistic rivers.
+Hyper9 replaces its river surface generation; see RIVERSCAPES.md. The water
+shader and channel-refinement stitching remain useful, not the unlimited river
+potential or cross-reach meshing behavior described below.
+
 Derived local terrain8 builds on the owner-approved lake7/ocean checkpoints.
 This is a first integration of terrain/water primitives, NOT a complete port of
 Peytavie et al.'s Procedural Riverscapes or a finished hydraulic simulation.

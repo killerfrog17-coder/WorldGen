@@ -132,6 +132,11 @@ public sealed partial class WorldGenRuntime
         var target=world.Recipe.TerrainSource=="Earth"?TerrainMapViewport.FromDegrees(30.5,31.2):sites[sites.Count-1].Item2;
         var river=terrain.Hydrology.Channels.Where(c=>c.WidthM>10&&c.StartM>10&&c.StartM<1500).OrderBy(c=>(c.A-target).Length).First();
         V riverAt=terrain.Amplification.RiverPoint(river.From,.5);
+        // The finite riverscape trajectory is the channel authority now; the
+        // old hyper edge may wander outside a small resampled creek's banks.
+        var riverPieces=terrain.Patch(riverAt,3000).RiverSpans().Where(s=>s.Reach==river.From)
+            .OrderBy(s=>((s.A+s.B).Unit-riverAt).Length).ToArray();
+        if(riverPieces.Length>0)riverAt=(riverPieces[0].A+riverPieces[0].B).Unit;
         sites.Insert(0,Tuple.Create("lowland-river",riverAt,350d,20f,50f));
         sites.Insert(1,Tuple.Create("river-ground",riverAt,6d,20f,8f));
         int lake=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>world.Hydrology.LakeCoverageFraction[i]>.7&&world.ElevationM[i]>0&&world.Hydrology.WaterBody[i]>=0)
@@ -147,7 +152,7 @@ public sealed partial class WorldGenRuntime
             // Inspect genuine land/water intersections, not only lake centres
             // or an elevated river view that can conceal an exposed underside.
             var bankSites=new List<Tuple<string,V,double,float,float>>();
-            bankSites.Add(Tuple.Create("river-overview",riverAt,350d,20f,55f));
+            bankSites.Add(Tuple.Create("river-overview",riverAt,100d,20f,55f));
             void Bank(string name,V centre)
             {
                 var scanFrame=new LocalTerrainFrame(centre,terrain.RadiusM,0,.1);
@@ -222,11 +227,12 @@ public sealed partial class WorldGenRuntime
             report.Add(site.Item1+": near "+(Time.realtimeSinceStartupAsDouble-started).ToString("F3")+"s; "+explorer.Diagnostics);
             // Near-ready proves input readiness, not that an elevated review
             // camera has any distant land in view. Capture only real coverage.
-            deadline=Time.realtimeSinceStartupAsDouble+180;double nextProgress=Time.realtimeSinceStartupAsDouble+10;
+            bool quickReview=Environment.GetCommandLineArgs().Contains("--worldgen-quick-review");
+            deadline=Time.realtimeSinceStartupAsDouble+(quickReview?12:180);double nextProgress=Time.realtimeSinceStartupAsDouble+10;
             while(!explorer.AllReady&&explorer.Error==""&&Time.realtimeSinceStartupAsDouble<deadline)
             {if(Time.realtimeSinceStartupAsDouble>nextProgress){nextProgress+=10;Debug.Log("HYPER streaming "+site.Item1+": "+explorer.Diagnostics);}yield return null;}
-            if(!explorer.AllReady||explorer.Error!="")throw new Exception("Hyper terrain distant coverage: "+site.Item1+" "+explorer.Error);
-            report.Add(site.Item1+": full coverage "+(Time.realtimeSinceStartupAsDouble-started).ToString("F3")+"s; "+explorer.Diagnostics);
+            if((!explorer.AllReady&&!quickReview)||explorer.Error!="")throw new Exception("Hyper terrain distant coverage: "+site.Item1+" "+explorer.Error);
+            report.Add(site.Item1+(explorer.AllReady?": full coverage ":": QUICK REVIEW / partial distant coverage ")+(Time.realtimeSinceStartupAsDouble-started).ToString("F3")+"s; "+explorer.Diagnostics);
             report.Add(site.Item1+": "+explorer.EndLoadingProfile());
             double hold=Time.realtimeSinceStartupAsDouble+3;while(Time.realtimeSinceStartupAsDouble<hold)yield return null;
             yield return new WaitForEndOfFrame();explorer.Capture(Path.Combine(output,site.Item1+".png"));

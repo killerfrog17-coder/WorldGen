@@ -22,7 +22,7 @@ namespace WorldGen.Presentation
         }
         static bool SameBody(LocalTerrainSample a,LocalTerrainSample b)=>a.WaterKind==b.WaterKind&&
             (a.WaterBodyKey==b.WaterBodyKey||a.WaterKind==LocalWaterKind.River&&a.ContinuousWaterSurface&&b.ContinuousWaterSurface);
-        public static void Build(LocalTerrainMesh mesh,LocalTerrainFrame frame,LocalTerrainSample[] samples)
+        public static void Build(LocalTerrainMesh mesh,LocalTerrainFrame frame,LocalTerrainSample[] samples,bool standingOnly=false)
         {
             int side=mesh.Segments+1;double step=mesh.SizeM/mesh.Segments;
             var vertices=new List<float>();var colors=new List<float>();var indices=new List<int>();
@@ -75,6 +75,7 @@ namespace WorldGen.Presentation
                 for(int seed=0;seed<3;seed++)
                 {
                     var water=samples[corners[seed]];
+                    if(standingOnly&&water.WaterKind==LocalWaterKind.River)continue;
                     bool jointRiver=water.WaterKind==LocalWaterKind.River&&water.ContinuousWaterSurface;
                     if((!water.Underwater&&!jointRiver)||double.IsNaN(water.WaterSurfaceM)||double.IsInfinity(water.WaterSurfaceM))continue;
                     bool duplicate=false;

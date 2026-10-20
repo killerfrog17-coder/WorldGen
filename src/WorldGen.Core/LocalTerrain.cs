@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed class LocalTerrain
     {
-        public const string Version = "local-terrain-hyper-8";
+        public const string Version = "local-terrain-hyper-9";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -205,12 +205,14 @@ namespace WorldGen.Core
             public readonly V Center, East, North;
             public readonly double HalfExtentM;
             public int CandidateCount => sources.Length;
-            public LocalHydrology.Piece[] ChannelPieces(double spacingM=16)=>amplified?.ChannelPieces(Center,HalfExtentM*owner.HorizontalScale,spacingM)??water?.Pieces()??Array.Empty<LocalHydrology.Piece>();
+            public LocalHydrology.Piece[] ChannelPieces(double spacingM=16)=>amplified?.RiverscapePieces(Center,HalfExtentM*owner.HorizontalScale)??water?.Pieces()??Array.Empty<LocalHydrology.Piece>();
+            public RiverscapeSpan[] RiverSpans(double minimumWidthM=0)=>amplified?.RiverscapeSpans(Center,HalfExtentM*owner.HorizontalScale,minimumWidthM)??Array.Empty<RiverscapeSpan>();
             internal LocalTerrainPatch(LocalTerrain owner, V center, double extent, LocalTerrainProfile[] sources, HeightTriangle[] triangles, int seed,HeightTriangle[] geography,bool dry,HyperAmplification.Patch amplified)
             {
                 this.owner = owner; Center = center; HalfExtentM = extent; this.sources = sources; this.triangles=triangles;this.seed = seed;
                 this.geography=geography;
                 this.amplified=amplified;this.dry=dry;
+                amplified?.SetRiverRegion(center,extent*owner.HorizontalScale);
                 East = V.Cross(Math.Abs(center.Z) < .99 ? new V(0, 0, 1) : new V(0, 1, 0), center).Unit;
                 North = V.Cross(center, East).Unit;
                 water=dry||amplified!=null?null:owner.Hydrology.Region(center,extent);
@@ -267,7 +269,7 @@ namespace WorldGen.Core
                 if (sum <= 0) throw new InvalidOperationException("Terrain patch has no supporting world cells.");
                 if(amplified!=null)
                 {
-                    var surface=amplified.Sample(point);
+                    var surface=amplified.Sample(point,dry);
                     if(!heightOnly)ground.Divide(sum);
                     return new LocalTerrainSample{ElevationM=D.Q(surface.Height,1000),PreWaterElevationM=D.Q(surface.UnshapedHeight,1000),
                         BaseElevationM=D.Q(surface.UnshapedHeight,1000),MountainHeightM=mountains/sum,HillHeightM=hills/sum,

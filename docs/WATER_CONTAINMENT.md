@@ -1,6 +1,17 @@
 # Water containment: source review and checkpoints
 
+## Bounded paired river checkpoint (Hyper9)
+
+See RIVERSCAPES.md: explicit finite channel/junction meshes replace Hyper8's
+unbounded, nearest-reach potential meshing. Shared profiles shape both bed and
+water, with horizontal-scale-aware widths. Accepted lake7/ocean hierarchy rules
+are restored. Lake dry collars exclude independent river overlays. This is a
+playable checkpoint, not completed waterfalls or full hydraulic integration.
+
 ## River primitive review (Hyper8)
+
+OWNER-REJECTED for blue walls and excessive flooding. Historical evidence below
+must not be treated as realism acceptance.
 
 The current derived river integration is documented in RIVER_PRIMITIVES.md.
 Near channel tessellation uses the amplified network; bed envelopes are cut-only,

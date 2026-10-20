@@ -1,6 +1,74 @@
 # Version 3 validation evidence
 
+## Bounded paired riverscapes /20October2026
+
+Hyper9 replaces OWNER-REJECTED Hyper8 river geometry. See RIVERSCAPES.md for
+the actual adaptation of the paper and omissions, not a claim of a complete
+author implementation. No world/history, LOD scheduler or controller rule changes.
+
+Rejected intermediate experiments in this turn:
+
+- Eager preparation of all fine reaches within far terrain patches made native
+  distant jobs reach7.3s and the review did not complete within its normal budget.
+  That build was NOT published. Point queries now hierarchically reject distant
+  routes before preparing profiles, and distant water tessellation excludes
+  features below one tenth of its ground sample spacing. Canonical ground point
+  values are not changed by that water-render threshold.
+- Centre-line/parallel-bank approximations disagreed at steep joins. Bed sampling
+  now uses the same paired triangle sections, the near refiner constrains actual
+  ribbon banks/cross-sections, and finite miter domains replace round caps at
+  every internal station. Real graph junctions retain bounded shared pools.
+- Cascade replacement could lift a shelf above a small bank hollow. Replacements
+  now only lower the existing grade and a final bank/centre/midpoint conditioning
+  pass lowers shared station levels after refinement.
+- Independent river overlays through lake dry collars failed a standing-water
+  edge check. Standing owners now exclude those overlays. Zero-level mouths and
+  their submerged cut collars use the sea datum/mesher, not a truncated ribbon.
+
+Current generated200k0.1-scale focused test:75226 checks across816 local spans
+and8 near tiles, including steep source reaches, exact graph-node datums,
+downhill profiles, finite indices, scale-correct widths and unchanged source
+hash. River boundaries are evaluated against ACTUAL refined drawn triangles,
+not the original unrefined grid. Coverage on both sides excludes internal
+clipping T-junctions; sub-millimetre slivers/tile-perimeter edges are excluded.
+Maximum checked exposed clearance0m in the generated cases and0.0466m in the
+Earth cases (threshold0.08m); this is a geometric
+regression bound, not perfect bank art. Several coarse source reaches are within
+standing-body ownership or unresolved by this tile and emit no river triangles;
+the checks do not pretend those are visible river cases.
+
+Earth adds177063 focused checks across851 spans/8 near tiles. Timings collected
+while the native compiler was running are contention-affected, not baselines.
+Standing-water regression checks:
+six generated lake shores/1873 interior edges and six Earth lake shores/1238
+edges pass; final460 generated/343 Earth submerged coastal points retain zero
+datum (earlier intermediate462 generated/345 Earth also passed).
+Both source hashes remain unchanged. An intermediate frozen worker matched
+103342 mesh/scatter/index/bounds/cancellation values exactly; final packaged
+worker matches103382 values. CLR near-tile timing
+is background-work cost, not a main-thread frame-time/FPS guarantee.
+
+Final IL2CPP player built23:26:33Z. `artifacts/riverscapes-final/quick-native`
+contains inspected overview/near-bank screenshots of generated stream86256,
+upload-buffer checks and unchanged source hash. Its115.353m water level covers a
+114.834m bed. No giant blue retaining walls in these selected views; angular
+banks and gaps in thin distant water remain visible. Quick review deliberately
+captures PARTIAL distant coverage:278/492 then433/492 tiles, NOT full readiness.
+Near readiness5.909s cold/.011s warm; hidden1280x800 fixed-camera intervals worst
+16.15/14.60ms, no >100ms; controller query max3.30/.43ms. Background jobs reached
+429.1ms; their duration is not a render frame duration. These measurements are
+not sustained travel/fullscreen/low-end performance acceptance. Full-distance
+completion was not timed in the final abbreviated review.
+
+The root shortcut now selects `player-riverscapes-final`; owned test players and
+workers are stopped, the owner's prior game was untouched, and owner review is
+under way. No owner acceptance, full waterfalls, every mouth/basin or all-scale
+realism is claimed. Existing coarse saves need no regeneration.
+
 ## River primitive first review /20October2026
+
+OWNER-REJECTED geometry. The following historical checks did not establish
+acceptable rivers; screenshots from the owner exposed extensive water walls.
 
 Source1ea9470 / local-terrain-hyper-8 introduces compact minimum-envelope beds,
 monotone grade templates, runoff-bounded short tributaries and amplified channel

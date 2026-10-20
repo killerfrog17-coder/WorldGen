@@ -1,6 +1,32 @@
 # WorldGen repository instructions
 
-Current river-primitives REVIEW launch,20October2026: shortcut selects
+Current OWNER REVIEW launch,20October2026: shortcut selects
+`artifacts/player-riverscapes-final/WorldGen.exe` (IL2CPP23:26:33Z).
+Hyper9 replaces OWNER-REJECTED Hyper8 unlimited river potentials/terrain-triangle
+water interpolation with bounded paired channel/bed sections and explicit graph
+junctions. Actual mitered sections constrain near terrain; profiles are monotone,
+bank-conditioned after local cascade replacement, and cut-only. Water never bends
+to ground. Visual widths/discharge account for horizontal scale; extra subdivision
+tributaries do not independently render as full-sized rivers. Accepted lake7/ocean
+hierarchy rules are restored. Standing dry collars exclude independent overlays;
+zero-level mouths use sea ownership. Demand-driven route rejection and a far-water
+size threshold replace a rejected eager-preparation experiment (7.3s distant jobs).
+LOD scheduler/controller/world/history are unchanged. No global fine raster saved.
+75226 generated/177063 Earth focused checks,12 lake shores/3111 interior edges,
+460/343 submerged coastal points and103382 exact final bundled-worker comparisons
+pass. One generated stream's final native overview/near-bank images are inspected:
+no giant blue walls in these views, but thin distant water has gaps. Native quick
+review is PARTIAL distant coverage (278/433 of492 tiles), not full-distance or
+travel/performance acceptance. Near5.909s cold/.011s warm; worst16.15/14.60ms in
+these hidden1280x800 fixed-camera intervals, not universal FPS. Own players/workers
+are stopped; owner's previous player is untouched and owner is testing now.
+This is a CPU paired-profile adaptation of PG2019, NOT the full authoring/Rosgen/
+animated blend-flow implementation. True3D waterfall sheets, braiding, all-mouth
+integration, fine tributary catchments and finished art remain open. See
+docs/RIVERSCAPES.md and VALIDATION.md. Lake-basins is the accepted rollback;
+river-primitives is owner-rejected, NOT a safe river realism baseline.
+
+Historical OWNER-REJECTED river-primitives launch,20October2026: shortcut selected
 `artifacts/player-river-primitives/WorldGen.exe` (IL2CPP22:20:47Z).
 Hyper8 adds cut-only compact riverbed envelopes, monotone reach-scale profiles,
 bounded short-tributary discharge, amplified-channel near tessellation with

@@ -31,6 +31,8 @@ static class WaterCouplingTests
                 void Trace(double x,double z,double y)
                 {
                     Console.WriteLine($"Boundary level {s.WaterSurfaceM:R}, drawn {y:R} at {x:R},{z:R}");
+                    foreach(int v in Enumerable.Range(0,mesh.WaterPositions.Length/3).OrderBy(v=>Math.Pow(mesh.WaterPositions[v*3]-x,2)+Math.Pow(mesh.WaterPositions[v*3+2]-z,2)).Take(4))
+                        Console.WriteLine($" edge vertex {v}: {mesh.WaterPositions[v*3]:R},{mesh.WaterPositions[v*3+1]:R},{mesh.WaterPositions[v*3+2]:R}; alpha {mesh.WaterColors[v*4+3]}");
                     double step=mesh.SizeM/mesh.Segments;int ix=(int)(x/step),iz=(int)(z/step);
                     for(int dz=-1;dz<=1;dz++)for(int dx=-1;dx<=1;dx++)
                     {double px=(ix+dx)*step,pz=(iz+dz)*step;V at=frame.Position(mesh.EastM+px,mesh.NorthM+pz);var v=terrain.Patch(at,2000).Sample(at);Console.WriteLine($"  {px:F2},{pz:F2}: h {v.ElevationM:R}, w {v.WaterSurfaceM:R}, {v.WaterKind}/{v.WaterBodyKey}, wet {v.Underwater}");}
@@ -309,7 +311,7 @@ static class WaterCouplingTests
                 var sample=terrain.Patch(at,2000).Sample(at);
                 if(sample.ElevationM>=-.1)continue;
                 count++;if(!sample.Underwater||sample.WaterKind!=LocalWaterKind.Ocean||sample.WaterSurfaceM!=0)
-                    throw new Exception($"Ocean ends over submerged shelf at cell {i}, fraction {t:F3}, bed {sample.ElevationM:F1}m");
+                    throw new Exception($"Ocean ends over submerged shelf at cell {i}, fraction {t:F3}, bed {sample.ElevationM:F1}m: {sample.WaterKind}, {sample.WaterSurfaceM}, footprint {sample.WaterFootprintM}, mask {sample.WaterMaskM}");
             }
         }
         if(count<32||StateHash.Compute(world)!=hash)throw new Exception("Ocean audit lacked submerged slopes or changed world state");

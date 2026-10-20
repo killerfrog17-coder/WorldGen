@@ -139,7 +139,8 @@ namespace WorldGen.Presentation
                 int next = (i + 1) % perimeter; Triangle(src, dst, edge[next]); Triangle(edge[next], dst, ground + next);
             }
             var waterSamples=LocalChannelMesh.Refine(mesh,terrain,frame,patch,samples,token);
-            LocalWaterMesh.Build(mesh,frame,waterSamples);
+            LocalWaterMesh.Build(mesh,frame,waterSamples,terrain.Amplification!=null);
+            if(terrain.Amplification!=null)RiverscapeMesh.Append(mesh,frame,patch,waterSamples,token);
             mesh.BuildMilliseconds = watch.Elapsed.TotalMilliseconds; return mesh;
         }
     }

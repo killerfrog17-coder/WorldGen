@@ -15,14 +15,34 @@ namespace WorldGen.Presentation
         public static LocalTerrainSample[] Refine(LocalTerrainMesh mesh,LocalTerrain terrain,LocalTerrainFrame frame,LocalTerrain.LocalTerrainPatch? patch,LocalTerrainSample[] original,System.Threading.CancellationToken token=default)
         {
             double step=mesh.SizeM/mesh.Segments;if(step>32||patch==null)return original;
-            var source=patch.ChannelPieces(Math.Max(16,step*2));if(source.Length==0)return original;
+            var source=patch.ChannelPieces(Math.Max(16,step*2));
+            if(terrain.Amplification!=null)
+            {
+                // Constrain the ACTUAL paired water polygon, not a parallel-
+                // bank approximation of its centre line. Those disagree at
+                // bends, tapered widths and cascade cross-sections.
+                var exact=new List<LocalHydrology.Piece>();
+                foreach(var s in patch.RiverSpans())
+                {
+                    V al=(s.A+s.SideA*(s.WidthA/frame.RadiusM)).Unit,ar=(s.A-s.SideA*(s.WidthA/frame.RadiusM)).Unit;
+                    V bl=(s.B+s.SideB*(s.WidthB/frame.RadiusM)).Unit,br=(s.B-s.SideB*(s.WidthB/frame.RadiusM)).Unit;
+                    void Edge(V a,V b){exact.Add(new LocalHydrology.Piece{A=a,B=b,HalfWidthM=0});}
+                    Edge(s.A,s.B);Edge(al,bl);Edge(ar,br);Edge(al,ar);Edge(bl,br);
+                }
+                source=exact.ToArray();
+            }
+            if(source.Length==0)return original;
             int side=mesh.Segments+1;var cuts=new List<Cut>();var buckets=new Dictionary<int,List<int>>();
+            var seenCuts=new HashSet<(long,long,long,long)>();
             foreach(var p in source)
             {
                 token.ThrowIfCancellationRequested();
                 TerrainHandoff.Coordinates(frame,p.A,out double ax,out double az);TerrainHandoff.Coordinates(frame,p.B,out double bx,out double bz);
                 ax-=mesh.EastM;bx-=mesh.EastM;az-=mesh.NorthM;bz-=mesh.NorthM;
                 double dx=bx-ax,dz=bz-az,length=Math.Sqrt(dx*dx+dz*dz);if(length<.001)continue;
+                long kax=(long)Math.Round(ax*10000),kaz=(long)Math.Round(az*10000),kbx=(long)Math.Round(bx*10000),kbz=(long)Math.Round(bz*10000);
+                var cutKey=kax<kbx||kax==kbx&&kaz<kbz?(kax,kaz,kbx,kbz):(kbx,kbz,kax,kaz);
+                if(!seenCuts.Add(cutKey))continue;
                 double pad=p.HalfWidthM+1;
                 int minX=Math.Max(0,(int)Math.Floor((Math.Min(ax,bx)-pad)/step)),maxX=Math.Min(mesh.Segments-1,(int)Math.Floor((Math.Max(ax,bx)+pad)/step));
                 int minZ=Math.Max(0,(int)Math.Floor((Math.Min(az,bz)-pad)/step)),maxZ=Math.Min(mesh.Segments-1,(int)Math.Floor((Math.Max(az,bz)+pad)/step));
@@ -76,7 +96,7 @@ namespace WorldGen.Presentation
                 foreach(int id in relevant)
                 {
                     var cut=cuts[id];
-                    foreach(double offset in new[]{-cut.Half,0,cut.Half})
+                    foreach(double offset in cut.Half<.0001?new[]{0d}:new[]{-cut.Half,0,cut.Half})
                     {
                         var next=new List<List<Point>>();
                         foreach(var polygon in polygons)

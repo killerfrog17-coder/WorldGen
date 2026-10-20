@@ -1,12 +1,23 @@
 # Drainage-aware planetary amplification
 
-`local-terrain-hyper-8` replaces the geographic-scaffold surface for completed
+`local-terrain-hyper-9` replaces the geographic-scaffold surface for completed
 worlds. It is a **shared CPU adaptation**, not the original application's GPU
 compute-shader pipeline or a claim of identical output/performance.
 
 ## Source and integration
 
+### Bounded paired river checkpoint (revision9)
+
+See RIVERSCAPES.md. Explicit finite ribbons and graph junctions replace the
+owner-rejected Hyper8 unlimited river potential. Bed and water share local
+profiles; visual widths/discharge account for horizontal scale. Accepted
+standing-water hierarchy rules are restored, with no LOD/controller changes.
+This is a CPU adaptation of the coordinated Riverscapes approach, not a full
+implementation of the paper's authoring catalogue or animated blend-flow tree.
+
 ### River primitive review (revision 8)
+
+Historical, OWNER-REJECTED river geometry; not current acceptance.
 
 See RIVER_PRIMITIVES.md: amplified channels now supply near tessellation;
 compact minimum bed envelopes and shared render-edge datums replace independent
