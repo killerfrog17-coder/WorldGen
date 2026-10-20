@@ -166,7 +166,7 @@ static class HyperAmplificationTests
                 var at=terrain.Amplification.RiverPoint(reach.From,k/16.0);
                 var s=terrain.Patch(at,2000).Sample(0,0);
                 Check(double.IsFinite(s.ElevationM),"Finite actual river samples");
-                Check(s.ElevationM<=s.PreWaterElevationM+.002,"Valley profile cannot raise a causeway");
+                Check(s.ElevationM<=s.PreWaterElevationM+.002,$"Valley profile cannot raise a causeway: {s.ElevationM:F3} vs {s.PreWaterElevationM:F3} at reach {reach.From}/{k}, water {s.WaterSurfaceM:F3}");
                 if(s.Underwater)wet++;
                 Check(double.IsNaN(s.WaterSurfaceM)||s.WaterSurfaceM<=previous+.1,$"Actual river flows uphill at {reach.From}/{k}: {s.WaterSurfaceM} after {previous}");
                 if(!double.IsNaN(s.WaterSurfaceM))previous=s.WaterSurfaceM;

@@ -4,10 +4,30 @@ using WorldGen.Serialization;
 
 static class WaterCouplingTests
 {
+    public static void Shore(string path,string probes)
+    {
+        var world=WorldFile.Read(File.ReadAllBytes(path));var terrain=new LocalTerrain(world,horizontalScale:.1);
+        var row=File.ReadAllLines(probes).Last().Split(',');var at=new V(double.Parse(row[0]),double.Parse(row[1]),double.Parse(row[2]));
+        var frame=new LocalTerrainFrame(at,terrain.RadiusM,0,.1);
+        for(int direction=0;direction<8;direction++)foreach(double distance in new[]{0d,20,100,500,2000,5000})
+        {
+            double angle=direction*Math.PI/4;var p=frame.Position(Math.Sin(angle)*distance,Math.Cos(angle)*distance);var s=terrain.Patch(p,2000).Sample(p);
+            Console.WriteLine($"{direction}/{distance}: ground {s.ElevationM:F3}, raw {s.PreWaterElevationM:F3}, water {s.WaterSurfaceM:F3}, kind {s.WaterKind}, wet {s.Underwater}");
+        }
+    }
     public static void Run()
     {
         int checks=0;
         void Check(bool value,string message){checks++;if(!value)throw new Exception(message);}
+        // The first native bank review caught a closed but steeply tilted lake:
+        // do not blend a standing basin's datum down toward its submerged bed.
+        var vertexType=typeof(HyperAmplification).GetNestedType("Vertex",System.Reflection.BindingFlags.NonPublic)!;
+        var lakeVertex=Activator.CreateInstance(vertexType,true)!;
+        void Set(string name,object value)=>vertexType.GetField(name)!.SetValue(lakeVertex,value);
+        Set("Height",200d);Set("Water",210d);Set("LakeKey",1UL);Set("LakeLevel",250d);Set("LakeWeight",.01);Set("Distance",2000d);
+        var profile=typeof(HyperAmplification).GetMethod("Profile",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Static)!.Invoke(null,new[]{lakeVertex})!;
+        Check((double)profile.GetType().GetField("Water")!.GetValue(profile)! == 250d,"A submerged lake periphery retains its standing level, not a tilted dry potential");
+        Check((double)profile.GetType().GetField("Height")!.GetValue(profile)! == 200d,"Lake closure cannot manufacture a raised bank");
         var frame=new LocalTerrainFrame(new V(1,0,0),6371000,0,.1);
         LocalTerrainMesh Triangle()=>new LocalTerrainMesh{Segments=1,SizeM=16,
             Positions=new float[]{0,-2,0,16,10,0,0,-2,16},WaterClipTriangles=new[]{0,2,1}};
@@ -63,7 +83,43 @@ static class WaterCouplingTests
                 $"Submarine island flank cannot lose ocean at {s.ElevationM:F1}m: fraction {t:F3}");
         }
         Check(submerged>40,"Ocean regression actually visits deep submarine island slopes, not just shoreline points");
+        samples=new[]{
+            new LocalTerrainSample{ElevationM=-2,WaterSurfaceM=0,WaterMaskM=2,WaterKind=LocalWaterKind.Lake,ContinuousWaterSurface=true,WaterFootprintM=1},
+            new LocalTerrainSample{ElevationM=10,WaterSurfaceM=0,WaterMaskM=-10,ContinuousWaterSurface=true,WaterFootprintM=-100},
+            new LocalTerrainSample{ElevationM=-2,WaterSurfaceM=0,WaterMaskM=2,WaterKind=LocalWaterKind.River,ContinuousWaterSurface=true,WaterFootprintM=1}};
+        mesh=Triangle();LocalWaterMesh.Build(mesh,frame,samples);
+        Check(ContainedBoundary(mesh)>0,"Paired profiles end at actual banks, not at radius/body-ID limits");
         Console.WriteLine("PASS "+checks+" water coupling checks");
+    }
+
+    static int ContainedBoundary(LocalTerrainMesh mesh)
+    {
+        var incidence=new Dictionary<(int,int),int>();
+        void Edge(int a,int b){var pair=(Math.Min(a,b),Math.Max(a,b));incidence.TryGetValue(pair,out int count);incidence[pair]=count+1;}
+        for(int k=0;k<mesh.WaterTriangles.Length;k+=3)
+        {int a=mesh.WaterTriangles[k],b=mesh.WaterTriangles[k+1],c=mesh.WaterTriangles[k+2];Edge(a,b);Edge(b,c);Edge(c,a);}
+        double Ground(double x,double z)
+        {
+            int n=mesh.Segments,side=n+1;double gx=x/mesh.SizeM*n,gz=z/mesh.SizeM*n;
+            int a=Math.Max(0,Math.Min(n-1,(int)Math.Floor(gx))),b=Math.Max(0,Math.Min(n-1,(int)Math.Floor(gz)));
+            double u=gx-a,v=gz-b;
+            var p=mesh.Positions;double h00=p[(b*side+a)*3+1],h10=p[(b*side+a+1)*3+1],h01=p[((b+1)*side+a)*3+1];
+            if(u+v<=1)return h00+(h10-h00)*u+(h01-h00)*v;
+            double h11=p[((b+1)*side+a+1)*3+1];return h11+(h01-h11)*(1-u)+(h10-h11)*(1-v);
+        }
+        int checkedEdges=0;
+        foreach(var pair in incidence.Where(p=>p.Value==1))
+        {
+            var p=mesh.WaterPositions;int ia=pair.Key.Item1*3,ib=pair.Key.Item2*3;
+            double x=(p[ia]+p[ib])*.5,z=(p[ia+2]+p[ib+2])*.5,y=(p[ia+1]+p[ib+1])*.5;
+            double margin=Math.Max(.0001,mesh.SizeM*.000001);
+            if(x<=margin||z<=margin||x>=mesh.SizeM-margin||z>=mesh.SizeM-margin)continue;
+            if(mesh.Positions.Length==9&&Math.Abs(x+z-mesh.SizeM)<margin)continue;
+            double ground=mesh.Positions.Length==9?-2+.75*x:Ground(x,z);
+            if(Math.Abs(y-ground)>.055)throw new Exception($"Exposed lateral water edge {y-ground:F3}m above drawn bed at {x:F3},{z:F3}; tile {mesh.SizeM}/{mesh.Segments}");
+            checkedEdges++;
+        }
+        return checkedEdges;
     }
 
     public static void World(string path)
@@ -74,29 +130,34 @@ static class WaterCouplingTests
         var sites=reaches.Select(r=>("river-"+r.From,terrain.Amplification.RiverPoint(r.From,.5))).ToList();
         foreach(int i in Enumerable.Range(0,world.ElevationM.Length).Where(i=>world.Hydrology.OceanConnected[i]&&world.Surface.Cells[i].Neighbors.Any(n=>!world.Hydrology.OceanConnected[n])).Take(2))sites.Add(("coast-"+i,world.Surface.Cells[i].Position));
         foreach(int i in Enumerable.Range(0,world.ElevationM.Length).Where(i=>world.Hydrology.LakeCoverageFraction[i]>.7&&world.Hydrology.WaterBody[i]>=0).Take(2))sites.Add(("lake-"+i,world.Surface.Cells[i].Position));
-        int checkedVertices=0,unsupported=0;double worstError=0,maxDepth=0;
+        int checkedVertices=0,unsupported=0,bankEdges=0;double worstError=0,maxDepth=0,maxRaise=0;
         foreach(var site in sites)
         {
             var patch=terrain.Patch(site.Item2,24000);var center=patch.Sample(0,0);
             var frame=new LocalTerrainFrame(site.Item2,terrain.RadiusM,center.ElevationM,.1);
             foreach(var shape in new[]{(204.8,32),(3276.8,16)})
             {
+                double tileRaise=0;
                 var mesh=LocalTerrainMesh.Build(terrain,frame,-shape.Item1/2,-shape.Item1/2,shape.Item1,shape.Item2);
                 if(!mesh.WaterPositions.All(float.IsFinite))throw new Exception("Nonfinite water mesh");
+                bankEdges+=ContainedBoundary(mesh);
                 for(int k=0;k<mesh.WaterPositions.Length;k+=3)
                 {
                     double x=mesh.EastM+mesh.WaterPositions[k],z=mesh.NorthM+mesh.WaterPositions[k+2];var at=frame.Position(x,z);var s=patch.Sample(at);
+                    if(s.ElevationM>s.PreWaterElevationM+.002)throw new Exception("Water shaping raised terrain instead of cutting its bed: "+site.Item1);
+                    maxRaise=Math.Max(maxRaise,s.ElevationM-s.PreWaterElevationM);
+                    tileRaise=Math.Max(tileRaise,s.ElevationM-s.PreWaterElevationM);
                     if(double.IsNaN(s.WaterSurfaceM)||s.WaterMaskM<-.5){unsupported++;continue;}
                     double expected=frame.SurfaceY(at,s.WaterSurfaceM)+.025;
                     double error=Math.Abs(mesh.WaterPositions[k+1]-expected);worstError=Math.Max(worstError,error);
                     if(shape.Item2==32&&error>5)throw new Exception($"Unsupported water level at {site.Item1}: error {error:F2}m, drawn {mesh.WaterPositions[k+1]:F2}, expected {expected:F2}; {s.WaterKind}");
                     checkedVertices++;maxDepth=Math.Max(maxDepth,s.WaterSurfaceM-s.ElevationM);
                 }
-                Console.WriteLine($"{site.Item1} {shape.Item1:F0}m: {mesh.WaterTriangles.Length/3} triangles; {mesh.BuildMilliseconds:F1}ms");
+                Console.WriteLine($"{site.Item1} {shape.Item1:F0}m: {mesh.WaterTriangles.Length/3} triangles; {mesh.BuildMilliseconds:F1}ms; bank raise {tileRaise:F2}m");
             }
         }
         if(StateHash.Compute(world)!=hash)throw new Exception("Water coupling changed authoritative world/history");
-        Console.WriteLine($"PASS {checkedVertices} actual-world water vertices; {unsupported} outside exact footprint (linear LOD approximation); worst level error {worstError:F3}m; max sampled depth {maxDepth:F2}m; total {watch.Elapsed.TotalSeconds:F2}s; unchanged {hash}");
+        Console.WriteLine($"PASS {checkedVertices} actual-world water vertices; {bankEdges} contained lateral bank edges; {unsupported} outside exact footprint (linear LOD approximation); worst level error {worstError:F3}m; max sampled depth {maxDepth:F2}m; maximum bank raise {maxRaise:F2}m; total {watch.Elapsed.TotalSeconds:F2}s; unchanged {hash}");
     }
 
     public static void OceanWorld(string path)

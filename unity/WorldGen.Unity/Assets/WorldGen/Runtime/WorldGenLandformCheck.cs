@@ -138,6 +138,38 @@ public sealed partial class WorldGenRuntime
             .Where(i=>world.Hydrology.Waters[world.Hydrology.WaterBody[i]].AreaM2>1e8&&world.Hydrology.Waters[world.Hydrology.WaterBody[i]].AreaM2<5e10)
             .OrderBy(i=>Math.Abs(Math.Log(world.Hydrology.Waters[world.Hydrology.WaterBody[i]].AreaM2/3e9))).DefaultIfEmpty(-1).First();
         if(lake>=0)sites.Insert(2,Tuple.Create("lake",world.Surface.Cells[lake].Position,350d,20f,55f));
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-inland-review"))
+        {
+            // Inspect genuine land/water intersections, not only lake centres
+            // or an elevated river view that can conceal an exposed underside.
+            var bankSites=new List<Tuple<string,V,double,float,float>>();
+            bankSites.Add(Tuple.Create("river-overview",riverAt,350d,20f,55f));
+            void Bank(string name,V centre)
+            {
+                var scanFrame=new LocalTerrainFrame(centre,terrain.RadiusM,0,.1);
+                V best=default;double bestDistance=double.PositiveInfinity;
+                for(int bearing=0;bearing<8;bearing++)
+                {
+                    double angle=bearing*Math.PI/4;V wet=centre;
+                    for(int step=1;step<=100;step++)
+                    {
+                        double distance=step*200;if(distance>=bestDistance)break;
+                        V dry=scanFrame.Position(Math.Sin(angle)*distance,Math.Cos(angle)*distance);
+                        if(terrain.Patch(dry,2000).Sample(dry).Underwater){wet=dry;continue;}
+                        for(int j=0;j<24;j++){V mid=(wet+dry).Unit;if(terrain.Patch(mid,2000).Sample(mid).Underwater)wet=mid;else dry=mid;}
+                        best=dry;bestDistance=distance;break;
+                    }
+                }
+                if(double.IsInfinity(bestDistance))throw new Exception("No containing bank within inland review search: "+name);
+                var bankFrame=new LocalTerrainFrame(best,terrain.RadiusM,0,.1);
+                TerrainHandoff.Coordinates(bankFrame,centre,out double dx,out double dz);
+                float towardWater=(float)(Math.Atan2(dx,dz)*180/Math.PI);
+                bankSites.Add(Tuple.Create(name,best,2d,towardWater,3f));
+            }
+            Bank("river-bank",riverAt);
+            if(lake>=0)Bank("lake-bank",world.Surface.Cells[lake].Position);
+            sites=bankSites;
+        }
         if(Environment.GetCommandLineArgs().Contains("--worldgen-ocean-review"))
         {
             int coast=Enumerable.Range(0,world.ElevationM.Length).Where(i=>world.ElevationM[i]>20&&!world.Hydrology.OceanConnected[i]

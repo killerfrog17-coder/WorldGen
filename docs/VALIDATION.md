@@ -1,5 +1,41 @@
 # Version 3 validation evidence
 
+## Paired inland water containment /20October2026
+
+Local/amplification5 follows the MIT reference's shared-vertex paired bed/water
+contract instead of an independent wet-radius cutoff. Water intersects the
+actual drawn ground; completed-world paired potentials are not mixed with the
+legacy independent-potential clipping scheme. River profiles are cut-only.
+Lake datums remain constant through their submerged peripheries. An initial
+max-bank experiment raised terrain by149m and was rejected; an initial collar
+also produced an uphill lake ramp in a ground-level native screenshot and was
+corrected before publication, with a reproduced numerical regression.
+
+-109 focused water checks; actual200k generated/Earth meshes inspect12232/13848
+ water vertices and1546/796 exposed interior shoreline edges. Those edges meet
+ the displayed terrain within5.5cm including the2.5cm presentation lift. No
+ sampled water vertex raises terrain. Both worlds pass13110 hierarchy, shared
+ edge, overlapping patch, cache/replay, source/lake and24-reach downhill checks.
+ Existing745 controller/LOD checks pass.459 generated/340 Earth submerged ocean
+ points retain sea level; authoritative source/history hashes remain unchanged.
+-The bundled worker matches110460 mesh/scatter/index/bounds/cancellation values.
+ Final IL2CPP17:04:40Z bank captures (river/lake) are inspected, not just aerial
+ views. They show embedded water without an exposed sheet or uphill lake ramp
+ in these selected scenes.8 exact final native/CLR height probes pass.
+-Native controls358.5ms; near5.715s first/0.215s warm; full29.593/24.995s.
+ Hidden1280x800 fixed-camera loading frames have worst21.03/17.60ms, zero>100ms;
+ largest apply/bind0.92ms. These host/scene checks are NOT a general fullscreen,
+ travel or low-end guarantee. Source hashes are unchanged. Own players/workers
+ are stopped before handoff; the owner's open ocean player is not closed.
+-Distant3277m-tile water differs from the canonical field by up to27m generated/
+ 110m Earth;16/152 sampled intersections lie outside the exact canonical wet
+ region. Containment against displayed ground does not establish fine hydraulic
+ or coarse-LOD accuracy. Different-basin transitions, all scales, tiny tributaries,
+ dynamic flooding and water art remain open. No new saved raster or generation,
+ history, controller or LOD-scheduler rules are added. Shortcut selects
+ player-inland-containment for owner review; owner-approved ocean4 is rollback.
+ See WATER_CONTAINMENT.md for research, failed experiments and remaining limits.
+
 ## Body-aware water clipping /20October2026
 
 Local terrain/amplification revision3 addresses the owner's actual floating

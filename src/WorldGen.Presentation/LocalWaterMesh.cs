@@ -46,12 +46,41 @@ namespace WorldGen.Presentation
                 vertices.Add((float)v.X);vertices.Add((float)(v.Y+.025));vertices.Add((float)v.Z);
                 colors.Add(.13f);colors.Add(.37f);colors.Add(.46f);colors.Add(1);return index;
             }
+            void Polygon(Vertex[] polygon,int count)
+            {
+                if(count<3)return;
+                int first=Index(polygon[0]),previous=Index(polygon[1]);
+                for(int k=2;k<count;k++)
+                {
+                    var p=polygon[0];var q=polygon[k-1];var r=polygon[k];
+                    double area=(q.X-p.X)*(r.Z-p.Z)-(q.Z-p.Z)*(r.X-p.X);
+                    int current=Index(r);
+                    if(Math.Abs(area)>1e-10&&first!=previous&&previous!=current&&first!=current)
+                    {indices.Add(first);indices.Add(previous);indices.Add(current);}previous=current;
+                }
+            }
             void Triangle(int a,int b,int c)
             {
                 if(!samples[a].Underwater&&!samples[b].Underwater&&!samples[c].Underwater)return;
                 corners[0]=a;corners[1]=b;corners[2]=c;
                 for(int k=0;k<3;k++)
                 {int i=corners[k];points[k]=frame.Position(mesh.EastM+mesh.Positions[i*3],mesh.NorthM+mesh.Positions[i*3+2]);}
+                bool continuous=false;
+                for(int k=0;k<3;k++)if(samples[corners[k]].ContinuousWaterSurface)continuous=true;
+                if(continuous)
+                {
+                    // Reference-style paired profiles define a legitimate dry
+                    // potential as well as the terrain that contains it. Their
+                    // only lateral boundary is depth=0, NEVER a radius/body tag.
+                    // Do not enable this for legacy independent potentials.
+                    for(int k=0;k<3;k++)
+                    {
+                        int i=corners[k];var sample=samples[i];
+                        input[k]=new Vertex{X=mesh.Positions[i*3],Z=mesh.Positions[i*3+2],
+                            Y=frame.SurfaceY(points[k],sample.WaterSurfaceM),Ground=mesh.Positions[i*3+1],Footprint=1};
+                    }
+                    Polygon(clipped,Clip(input,3,clipped,true));return;
+                }
                 for(int seed=0;seed<3;seed++)
                 {
                     var water=samples[corners[seed]];
@@ -88,15 +117,7 @@ namespace WorldGen.Presentation
                     if(count<3)continue;
                     count=Clip(clipped,count,input,true);
                     if(count<3)continue;
-                    int first=Index(input[0]),previous=Index(input[1]);
-                    for(int k=2;k<count;k++)
-                    {
-                        var p=input[0];var q=input[k-1];var r=input[k];
-                        double area=(q.X-p.X)*(r.Z-p.Z)-(q.Z-p.Z)*(r.X-p.X);
-                        int current=Index(r);
-                        if(Math.Abs(area)>1e-10&&first!=previous&&previous!=current&&first!=current)
-                        {indices.Add(first);indices.Add(previous);indices.Add(current);}previous=current;
-                    }
+                    Polygon(input,count);
                 }
             }
             if(mesh.WaterClipTriangles.Length>0)

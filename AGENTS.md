@@ -1,6 +1,26 @@
 # WorldGen repository instructions
 
 Current CHECKPOINT launch,20October2026: shortcut selects
+`artifacts/player-inland-containment/WorldGen.exe` (IL2CPP17:04:40Z).
+Hyper5 uses the open reference's paired shared-vertex terrain/water profiles;
+actual drawn-land intersections replace independently truncated inland masks.
+Cut-only river collars retire both fields; standing lake datums remain constant
+through submerged peripheries. Initial raised-bank and sloping-lake experiments
+were rejected before publication.109 focused checks,200k generated/Earth audits
+of12232/13848 water vertices and1546/796 contained shoreline edges pass with zero
+sampled terrain raising. Both worlds pass13110 hierarchy/drainage checks;745
+controller/LOD checks,110460 exact worker comparisons and8 exact final native/CLR
+height probes pass. Final native river/lake BANK images are inspected; no sheets
+or uphill lake ramp in these selected views. Controls359ms, near5.715/0.215s,
+full29.593/24.995s, worst21.03/17.60ms with no >100ms frames in hidden1280x800
+fixed-camera diagnostics, NOT broad performance/shoreline realism acceptance.
+Owner-approved ocean4 remains rollback;459 generated/340 Earth submerged sea
+points still pass. Distant linear water can substantially deviate from the fine
+surface; scale/tributary tuning, every-basin hydraulics and water art remain open.
+No generation/history, LOD scheduler or controller changes. Own tests are stopped;
+owner inland review is pending. See docs/WATER_CONTAINMENT.md and VALIDATION.md.
+
+Current CHECKPOINT launch,20October2026: shortcut selects
 `artifacts/player-ocean-containment/WorldGen.exe` (IL2CPP16:31:14Z).
 Hyper4 repairs source-connected ocean coverage across subdivided submarine
 island slopes; node Kind is no longer the sea boundary.106 focused checks

@@ -1,10 +1,26 @@
 # Drainage-aware planetary amplification
 
-`local-terrain-hyper-3` replaces the geographic-scaffold surface for completed
+`local-terrain-hyper-5` replaces the geographic-scaffold surface for completed
 worlds. It is a **shared CPU adaptation**, not the original application's GPU
 compute-shader pipeline or a claim of identical output/performance.
 
 ## Source and integration
+
+### Current water containment (revision 5)
+
+See WATER_CONTAINMENT.md for the library assessment, source comparison and
+checkpoint evidence. Revision4's owner-approved sea coverage is retained.
+Revision5 replaces independent final water radii with paired bed/water profiles
+interpolated on shared hierarchy vertices; the renderer's only paired-field
+shoreline is its intersection with the actual displayed terrain. River collars
+retire the potential together with unraised dry ground. Standing basins retain
+their source level through their submerged periphery instead of applying that
+river fade, which would make an uphill lake ramp. Original independent-potential
+fixtures keep the earlier conservative body-aware clipping path.
+
+This is containment integration, not new wave/reflection art, a fluid solver,
+recalibrated world scale or finished coarse-LOD shoreline accuracy. The revision3
+description below records the superseded intermediate implementation.
 
 ### Coupled water geometry (revision 3)
 
