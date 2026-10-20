@@ -20,8 +20,13 @@ namespace WorldGen.Core
         const int WorkingSet = 32768;
         readonly object gate = new object();
         readonly Queue<object> retained = new Queue<object>();
-        readonly Face[] roots;
-        readonly Edge[] channelEdges;
+        readonly CoarseFace[] roots;
+        readonly CoarseEdge[] coarseEdges;
+        readonly Vertex[] rootNodes;
+        readonly int[] nodeChannels,nodeRivers;
+        readonly WeakReference<Face>[] rootCache;
+        readonly WeakReference<Edge>[] edgeCache;
+        int rootSweep,edgeSweep;
         readonly double radius, scale;
         readonly int seed;
         readonly int terminalDepth;
@@ -37,18 +42,16 @@ namespace WorldGen.Core
         {
             readonly int root,depth;
             readonly ulong path;
-            readonly Face permanentRoot;
             WeakReference<Face> target;
-            public FaceRef(Face face){root=face.Root;depth=face.Depth;path=face.Path;if(depth==0)permanentRoot=face;else target=new WeakReference<Face>(face);}
+            public FaceRef(Face face){root=face.Root;depth=face.Depth;path=face.Path;if(depth>0)target=new WeakReference<Face>(face);}
+            public FaceRef(int root){this.root=root;depth=0;path=0;}
             public bool Matches(Face face)=>root==face.Root&&depth==face.Depth&&path==face.Path;
             public void Refresh(Face face){if(target!=null)target.SetTarget(face);}
             public Face Resolve(HyperAmplification owner)
             {
-                // Base faces already live for the sampler's entire lifetime.
-                // They need no GC weak handles (1.2 million on a 200k world).
-                if(permanentRoot!=null)return permanentRoot;
+                if(depth==0)return owner.RootFace(root);
                 if(target.TryGetTarget(out var face))return face;
-                face=owner.roots[root];
+                face=owner.RootFace(root);
                 for(int level=1;level<=depth;level++)face=owner.Split(face).Faces[(int)((path>>((depth-level)*2))&3)];
                 target.SetTarget(face);return face;
             }
@@ -91,7 +94,26 @@ namespace WorldGen.Core
             public Edge First, Last;
             public Edge At(Vertex endpoint) => ReferenceEquals(First.A, endpoint) || ReferenceEquals(First.B, endpoint) ? First : Last;
         }
-        internal sealed class FaceSplit { public Face[] Faces; }
+        internal sealed class FaceSplit { public Face Parent;public Face[] Faces; }
+        // Primitive control arrays are not millions of separately traced heap
+        // objects. Actual faces/edges are realized only around queried points.
+        struct CoarseEdge { public int A,B,Left,Right;public Kind Type;public ulong Key; }
+        struct CoarseFace
+        {
+            public int A,B,C,AB,BC,CA;
+            public double Ax,Ay,Az,Bx,By,Bz,Cx,Cy,Cz;
+            public void Initialize(V p,V q,V r)
+            {
+                double ux=q.X-p.X,uy=q.Y-p.Y,uz=q.Z-p.Z,vx=r.X-p.X,vy=r.Y-p.Y,vz=r.Z-p.Z;
+                double d=p.X*(uy*vz-uz*vy)+p.Y*(uz*vx-ux*vz)+p.Z*(ux*vy-uy*vx);
+                if(Math.Abs(d)<1e-24)throw new InvalidOperationException("Degenerate coarse amplification triangle.");
+                Ax=(q.Y*r.Z-q.Z*r.Y)/d;Ay=(q.Z*r.X-q.X*r.Z)/d;Az=(q.X*r.Y-q.Y*r.X)/d;
+                Bx=(r.Y*p.Z-r.Z*p.Y)/d;By=(r.Z*p.X-r.X*p.Z)/d;Bz=(r.X*p.Y-r.Y*p.X)/d;
+                Cx=(p.Y*q.Z-p.Z*q.Y)/d;Cy=(p.Z*q.X-p.X*q.Z)/d;Cz=(p.X*q.Y-p.Y*q.X)/d;
+            }
+            public double Coordinates(V p,out double a,out double b,out double c)
+            {a=p.X*Ax+p.Y*Ay+p.Z*Az;b=p.X*Bx+p.Y*By+p.Z*Bz;c=p.X*Cx+p.Y*Cy+p.Z*Cz;double sum=a+b+c;a/=sum;b/=sum;c/=sum;return Math.Min(a,Math.Min(b,c));}
+        }
         internal sealed class Face
         {
             public Vertex A, B, C;
@@ -149,7 +171,7 @@ namespace WorldGen.Core
         internal HyperAmplification(World world, LocalTerrainProfile[] profiles, double horizontalScale, CancellationToken token)
         {
             var watch = Stopwatch.StartNew(); radius = world.Recipe.RadiusKm * 1000; scale = horizontalScale; seed = world.Recipe.Seed;
-            int count = profiles.Length; var nodes = new Vertex[count]; var hydro = world.Hydrology;
+            int count = profiles.Length; var nodes = rootNodes = new Vertex[count]; var hydro = world.Hydrology;
             var heights = new double[count]; var flows = new double[count];
             for (int i = 0; i < count; i++)
             {
@@ -202,19 +224,24 @@ namespace WorldGen.Core
                 if(nodes[r].LakeKey!=0&&floor>nodes[i].Crust)
                 {nodes[i].Type=Kind.Lake;nodes[i].LakeKey=nodes[r].LakeKey;nodes[i].LakeLevel=floor;nodes[i].LakeWeight=1;}
             }
-            channelEdges=new Edge[count];
-            var edges = new Dictionary<ulong, Edge>(world.Surface.Edges.Length, new EdgeKeyComparer());
-            Edge MakeEdge(int a, int b)
+            nodeChannels=new int[count];nodeRivers=new int[count];
+            for(int i=0;i<count;i++)nodeChannels[i]=nodeRivers[i]=-1;
+            var edges = new Dictionary<ulong,int>(world.Surface.Edges.Length,new EdgeKeyComparer());
+            var controls=new List<CoarseEdge>(world.Surface.Edges.Length);
+            int MakeEdge(int a,int b,int face)
             {
-                ulong key = Pair(a, b); if (edges.TryGetValue(key, out var found)) return found;
+                ulong key=Pair(a,b);
+                if(edges.TryGetValue(key,out int found)){var previous=controls[found];previous.Right=face;controls[found]=previous;return found;}
                 bool drain = a < hydro.Receiver.Length && hydro.Receiver[a] == b && !hydro.OceanConnected[a] && flows[a]>=.04 ||
                     b < hydro.Receiver.Length && hydro.Receiver[b] == a && !hydro.OceanConnected[b] && flows[b]>=.04;
                 bool sameLake=nodes[a].Type==Kind.Lake&&nodes[b].Type==Kind.Lake&&nodes[a].LakeKey==nodes[b].LakeKey;
-                var e = NewEdge(nodes[a], nodes[b], drain&&!sameLake ? Kind.River : Kind.Terrain, 0, Mix(key ^ ((ulong)(uint)seed << 32)));
-                if(drain){if(hydro.Receiver[a]==b)channelEdges[a]=e;if(hydro.Receiver[b]==a)channelEdges[b]=e;}
-                edges.Add(key, e); return e;
+                int id=controls.Count;
+                controls.Add(new CoarseEdge{A=a,B=b,Left=face,Right=-1,Type=drain&&!sameLake?Kind.River:Kind.Terrain,Key=Mix(key^((ulong)(uint)seed<<32))});
+                if(drain){if(hydro.Receiver[a]==b)nodeChannels[a]=id;if(hydro.Receiver[b]==a)nodeChannels[b]=id;}
+                edges.Add(key,id);return id;
             }
-            roots = new Face[world.Surface.Triangles.Length / 3];
+            roots=new CoarseFace[world.Surface.Triangles.Length/3];
+            rootCache=new WeakReference<Face>[roots.Length];
             // One topological terminal depth across adjacent faces. Stopping
             // independently by triangle size produces a nonconforming HEIGHT
             // field, even if streamed render tiles sample canonical coordinates.
@@ -226,12 +253,14 @@ namespace WorldGen.Core
             {
                 if ((t & 4095) == 0) token.ThrowIfCancellationRequested();
                 int a = world.Surface.Triangles[t * 3], b = world.Surface.Triangles[t * 3 + 1], c = world.Surface.Triangles[t * 3 + 2];
-                roots[t] = NewFace(nodes[a], nodes[b], nodes[c], MakeEdge(a, b), MakeEdge(b, c), MakeEdge(c, a), Mix((ulong)(uint)t + 0x9e3779b97f4a7c15UL), 0, null,t,0);
+                roots[t]=new CoarseFace{A=a,B=b,C=c,AB=MakeEdge(a,b,t),BC=MakeEdge(b,c,t),CA=MakeEdge(c,a,t)};
+                roots[t].Initialize(nodes[a].Position,nodes[b].Position,nodes[c].Position);
             }
+            coarseEdges=controls.ToArray();edgeCache=new WeakReference<Edge>[coarseEdges.Length];
             var incoming=new bool[count];
-            for(int i=0;i<count;i++)if(channelEdges[i]!=null)
+            for(int i=0;i<count;i++)if(nodeChannels[i]>=0)
             {
-                nodes[i].River=channelEdges[i];int r=hydro.Receiver[i];if(r>=0){incoming[r]=true;if(nodes[r].River==null)nodes[r].River=channelEdges[i];}
+                nodeRivers[i]=nodeChannels[i];int r=hydro.Receiver[i];if(r>=0){incoming[r]=true;if(nodeRivers[r]<0)nodeRivers[r]=nodeChannels[i];}
             }
             for(int i=0;i<count;i++)if(nodes[i].Type==Kind.River&&!incoming[i])
             {
@@ -240,6 +269,39 @@ namespace WorldGen.Core
                 nodes[i].Water=nodes[i].Height=nodes[i].RiverBed=level;
             }
             PreparationMilliseconds = watch.Elapsed.TotalMilliseconds;
+        }
+
+        Edge RootEdge(int id)
+        {
+            var lookup=edgeCache[id];if(lookup!=null&&lookup.TryGetTarget(out var cached))return cached;
+            lock(gate)
+            {
+                if(edgeCache[id]!=null&&edgeCache[id].TryGetTarget(out cached))return cached;
+                var source=coarseEdges[id];var edge=NewEdge(rootNodes[source.A],rootNodes[source.B],source.Type,0,source.Key);
+                edge.Left=new FaceRef(source.Left);if(source.Right>=0)edge.Right=new FaceRef(source.Right);
+                if(edgeCache[id]==null)edgeCache[id]=new WeakReference<Edge>(edge);else edgeCache[id].SetTarget(edge);
+                Retain(edge);
+                // Drop expired weak wrappers gradually too, rather than leaving
+                // one live GC handle for every place ever visited on the planet.
+                for(int k=0;k<8;k++){int old=edgeSweep++;if(edgeSweep==edgeCache.Length)edgeSweep=0;var weak=edgeCache[old];if(weak!=null&&!weak.TryGetTarget(out _))edgeCache[old]=null;}
+                return edge;
+            }
+        }
+        Face RootFace(int id)
+        {
+            var lookup=rootCache[id];if(lookup!=null&&lookup.TryGetTarget(out var cached))return cached;
+            lock(gate)
+            {
+                if(rootCache[id]!=null&&rootCache[id].TryGetTarget(out cached))return cached;
+                var s=roots[id];
+                void BindRiver(int node){if(rootNodes[node].River==null&&nodeRivers[node]>=0)rootNodes[node].River=RootEdge(nodeRivers[node]);}
+                BindRiver(s.A);BindRiver(s.B);BindRiver(s.C);
+                var face=NewFace(rootNodes[s.A],rootNodes[s.B],rootNodes[s.C],RootEdge(s.AB),RootEdge(s.BC),RootEdge(s.CA),Mix((ulong)(uint)id+0x9e3779b97f4a7c15UL),0,null,id,0);
+                if(rootCache[id]==null)rootCache[id]=new WeakReference<Face>(face);else rootCache[id].SetTarget(face);
+                Retain(face);
+                for(int k=0;k<8;k++){int old=rootSweep++;if(rootSweep==rootCache.Length)rootSweep=0;var weak=rootCache[old];if(weak!=null&&!weak.TryGetTarget(out _))rootCache[old]=null;}
+                return face;
+            }
         }
 
         Edge NewEdge(Vertex a, Vertex b, Kind type, int depth, ulong key) => new Edge { A = a, B = b, Type = type, Depth = depth, Key = key };
@@ -283,7 +345,7 @@ namespace WorldGen.Core
                     double chance = (.25 + .45 * (1 - wet.Dryness)) * (1 - OrogenMorphology.Smooth(4, 8, depth));
                     candidate.Type = Random(candidate.Key, 0x6719) < chance && wet.Flow > .02 ? Kind.River : Kind.Drainage;
                 }
-                var group = new FaceSplit();
+                var group = new FaceSplit{Parent=face};
                 e0.Lease = e1.Lease = e2.Lease = group;
                 group.Faces = new[] {
                     NewFace(face.A,a,c,ab.At(face.A),e2,ca.At(face.A),Mix(face.Key^1),depth,group,face.Root,face.Path<<2),
@@ -574,8 +636,8 @@ namespace WorldGen.Core
         /// for inspection/site selection. Does not trace or solve a catchment.</summary>
         public V RiverPoint(int from,double fraction)
         {
-            if(from<0||from>=channelEdges.Length||channelEdges[from]==null)throw new ArgumentOutOfRangeException(nameof(from));
-            var edge=channelEdges[from];
+            if(from<0||from>=nodeChannels.Length||nodeChannels[from]<0)throw new ArgumentOutOfRangeException(nameof(from));
+            var edge=RootEdge(nodeChannels[from]);
             // Root vertex keys are sufficient to determine source orientation.
             ulong sourceKey=Mix((ulong)(uint)seed<<32|(uint)from);
             double t=ReferenceEquals(edge.A,edge.B)||edge.A.Key==sourceKey?D.Clamp(fraction):1-D.Clamp(fraction);
@@ -590,18 +652,18 @@ namespace WorldGen.Core
         internal sealed class Patch
         {
             readonly HyperAmplification owner;
-            readonly Face[] faces;
+            readonly int[] faces;
             Face last;
             public Patch(HyperAmplification owner, int[] triangleOffsets)
             {
-                this.owner = owner; faces = new Face[triangleOffsets.Length];
-                for (int i = 0; i < faces.Length; i++) faces[i] = owner.roots[triangleOffsets[i] / 3];
+                this.owner=owner;faces=new int[triangleOffsets.Length];
+                for(int i=0;i<faces.Length;i++)faces[i]=triangleOffsets[i]/3;
             }
             public Surface Sample(V point)
             {
                 Face found = null; double a = 0, b = 0, c = 0;
                 if (last != null && last.Coordinates(point, out a, out b, out c) >= -1e-7) found = last;
-                if (found == null) foreach (var f in faces) if (f.Coordinates(point, out a, out b, out c) >= -1e-7) { found = f; break; }
+                if(found==null)foreach(int id in faces)if(owner.roots[id].Coordinates(point,out a,out b,out c)>=-1e-7){found=owner.RootFace(id);break;}
                 if (found == null) throw new InvalidOperationException("Hyper-amplification patch has no containing base face.");
                 last = found;
                 while (found.Depth < owner.terminalDepth)

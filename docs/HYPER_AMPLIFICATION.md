@@ -26,6 +26,19 @@ standing-water levels, moisture, geological age proxies, plateau/hill/mountain
 and sediment descriptors seed this graph. No extra planet-wide fine raster is
 stored, serialized, or added to historical simulation ticks.
 
+The root topology and inverse triangle matrices are stored in primitive struct
+arrays, not an eagerly allocated graph of400k faces,600k edges and1.2million
+incident-face reference objects. Root face/edge objects are realized only for
+queries, with weak address caches and gradual expired-wrapper cleanup. Root
+addresses must not hold strong face references that would reconnect the whole
+planet. Live subdivision bundles retain their parent faces, so cached detail
+cannot lose its ancestry when an unused coarse object expires. Root river
+provenance is precomputed numerically and bound lazily, preserving the same
+incoming/outgoing choice regardless of query order. Earth/Continents Plus probe
+files are byte-identical to the eager representation; all492 LOD tiles and
+concurrent/cold-cache checks pass. This is a representation change, not less
+terrain detail or changed water/height rules.
+
 On demand, edges split and faces produce four children. Both incident faces
 share the same midpoint. River edges remain connected and descend; terrain
 between rivers becomes a divide, river-to-upland edges produce valley slopes,
