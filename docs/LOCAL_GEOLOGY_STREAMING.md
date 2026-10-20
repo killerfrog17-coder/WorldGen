@@ -1,5 +1,11 @@
 # Local geology and continuous terrain streaming
 
+20October update: the subsequent landform/water pass intentionally changes the
+local height function to preview4; see LOCAL_LANDFORMS_HYDROLOGY.md. Geology,
+rock art and the accepted LOD/reanchor mechanisms below are retained. Statements
+about preview3 heights describe the geology-only milestone, not a current height
+equivalence claim.
+
 Owner-authorized19 October2026. This is the geology stage, not the subsequent
 landform, local hydrology, seasonal ground or vegetation overhaul.
 

@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--landforms-native")){int n=0,at=Array.IndexOf(args,"--landforms-native");LandformTests.Native(args[at+1],args[at+2],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" exact scaled native/CLR landform probes");return;}
+if(args.Contains("--landforms-legacy")){int n=0;LandformTests.Legacy(args[Array.IndexOf(args,"--landforms-legacy")+1],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" original-assembly legacy reconstruction comparisons");return;}
 if(args.Contains("--landforms-only")){int n=0;LandformTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" landform/hydrology assertions");return;}
 if(args.Contains("--landforms-review")){int n=0,at=Array.IndexOf(args,"--landforms-review");LandformTests.Review(args[at+1],args[at+2],(ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" actual-world landform/hydrology assertions");return;}
 if(args.Contains("--ground-only")){int n=0;GroundEnvironmentTests.Run((ok,message)=>{n++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+n+" ground/environment assertions");return;}

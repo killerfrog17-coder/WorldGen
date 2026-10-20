@@ -5,8 +5,48 @@ using WorldGen.Serialization;
 
 static class LandformTests
 {
+    public static void Native(string path,string probes,Action<bool,string> check)
+    {
+        var world=WorldFile.Read(File.ReadAllBytes(path));var terrain=new LocalTerrain(world,horizontalScale:.1);
+        foreach(string line in File.ReadAllLines(probes).Skip(1))
+        {
+            var v=line.Split(',').Select(s=>double.Parse(s,System.Globalization.CultureInfo.InvariantCulture)).ToArray();
+            var patch=terrain.Patch(new V(v[0],v[1],v[2]),6000);
+            check(patch.Sample(v[3],v[4]).ElevationM==v[5],"Exact scaled native/CoreCLR terrain and water query");
+        }
+    }
+    public static void Legacy(string assemblyPath,Action<bool,string> check)
+    {
+        var context=new System.Runtime.Loader.AssemblyLoadContext("pre-landform-generator",true);
+        string folder=Path.GetDirectoryName(Path.GetFullPath(assemblyPath))!;
+        context.Resolving+=(load,name)=>File.Exists(Path.Combine(folder,name.Name+".dll"))?load.LoadFromAssemblyPath(Path.Combine(folder,name.Name+".dll")):null;
+        var assembly=context.LoadFromAssemblyPath(Path.GetFullPath(assemblyPath));
+        var recipeType=assembly.GetType("WorldGen.Core.Recipe")!;var pipelineType=assembly.GetType("WorldGen.Core.WorldPipeline")!;
+        var generate=pipelineType.GetMethods().Single(m=>m.Name=="Generate");
+        foreach(string preset in new[]{"Preview","Earth","Terra"})
+        {
+            object oldRecipe=recipeType.GetMethod("Preset")!.Invoke(null,new object[]{preset})!;
+            recipeType.GetField("Detail")!.SetValue(oldRecipe,5000);
+            var parameters=generate.GetParameters();var input=new object[parameters.Length];input[0]=oldRecipe;
+            for(int i=1;i<input.Length;i++)input[i]=parameters[i].ParameterType==typeof(CancellationToken)?default(CancellationToken):null;
+            object oldWorld=generate.Invoke(Activator.CreateInstance(pipelineType),input)!;
+            var oldStages=(System.Collections.IEnumerable)oldWorld.GetType().GetField("Stages")!.GetValue(oldWorld)!;
+            var hashes=new List<string>();foreach(object stage in oldStages)hashes.Add((string)stage.GetType().GetField("Hash")!.GetValue(stage)!);
+            var current=Recipe.Preset(preset);current.Detail=5000;current.AlgorithmVersion=Recipe.PresetAlgorithm;
+            var fresh=new WorldPipeline().Generate(current);
+            check(hashes.SequenceEqual(fresh.Stages.Select(s=>s.Hash)),"Actual pre-change Core assembly matches all legacy3.32 stages: "+preset);
+            Console.WriteLine("Legacy "+preset+": "+hashes.Count+" exact stages");
+        }
+        context.Unload();
+    }
     public static void Run(Action<bool,string> check)
     {
+        foreach(double boundary in new[]{0.0,650,1800,117000})
+        {
+            var axis=new V(.3,.9,.1).Unit;
+            double left=TerrainRavineNoise.Sample(new V(boundary-.001,2123,940),axis,47,650),right=TerrainRavineNoise.Sample(new V(boundary+.001,2123,940),axis,47,650);
+            check(double.IsFinite(left)&&Math.Abs(left-right)<.0001,"Oriented ravines remain continuous across global noise lattice boundaries");
+        }
         check(OrogenMorphology.Retention(.5,.5)<1,"No legacy sixfold uplift");
         check(OrogenMorphology.Uplift(20000,6500,1)<6500&&Math.Abs(OrogenMorphology.Uplift(80000,6500,4)-OrogenMorphology.Uplift(20000,6500,1)*4)<1e-6,"Physical baseline saturates, but the owner's mountain percentage is still linear");
         check(OrogenMorphology.Retention(.95,.6)>OrogenMorphology.Retention(.15,.6)*3,"Strong variation between belts");
@@ -66,6 +106,14 @@ static class LandformTests
         var lakeFrame=new LocalTerrainFrame(feature.Center,terrain.RadiusM,120,.1);
         var lakeMesh=LocalTerrainMesh.Build(lakeTerrain,lakeFrame,-1024,-1024,2048,64);
         check(lakeMesh.WaterTriangles.Length>0&&lakeMesh.WaterPositions.Where((_,i)=>i%3==1).All(y=>y<.1&&y>-20),"Lake water shares one curved physical surface");
+        // Force a foreign coarse channel above an existing standing lake:
+        // the local water-body precedence, not a coincidental initial level,
+        // must prevent an elevated blue stripe.
+        h.WaterBody[a]=0;h.LakeCoverageFraction[a]=.2;h.LakeWaterVolumeM3[a]=area*8;h.Waters[0].Cells=new[]{a};
+        var overlap=new LocalTerrain(world,horizontalScale:.1);
+        foreach(var channel in overlap.Hydrology.Channels){channel.StartM=400;channel.EndM=350;}
+        var overlapping=overlap.Patch(mesh.Cells[a].Position,10000).Sample(0,0);
+        check(overlapping.Underwater&&overlapping.WaterSurfaceM==120,"A crossing channel cannot raise any part of a standing lake");
     }
 
     public static void Review(string path,string folder,Action<bool,string> check)
@@ -78,7 +126,9 @@ static class LandformTests
         lines.Add($"  Land heights: median {land[land.Length/2]}, p90 {land[(int)(land.Length*.9)]}, p99 {land[(int)(land.Length*.99)]}, max {land.Last()}; above4000m {100.0*land.Count(v=>v>4000)/land.Length:F3}%");
         check(before==StateHash.Compute(world),"Local landforms/water preserve the source world and history");
         check(terrain.Hydrology.Channels.All(c=>c.StartM>=c.EndM),"All actual-world channel profiles are non-increasing");
-        var sites=new[]{(27.98,86.92),(32.0,88.0),(-32.65,-70.01),(38.5,-79.4),(30.1,-98.4),(38.07,-122.96)};
+        var sites=world.Recipe.TerrainSource=="Earth"?new[]{(27.98,86.92),(32.0,88.0),(-32.65,-70.01),(38.5,-79.4),(30.1,-98.4),(38.07,-122.96)}:
+            new[]{FeatureKind.CollisionBelt,FeatureKind.Cordillera,FeatureKind.AncientOrogen}.Select(kind=>world.Features.Where(f=>f.Kind==kind&&f.Cells.Length>0).OrderByDescending(f=>f.AmplitudeM).FirstOrDefault()).Where(f=>f!=null).Select(f=>
+            {int i=f.Cells.OrderByDescending(c=>terrain.Profile(c).MountainHeightM).First();TerrainMapViewport.Degrees(world.Surface.Cells[i].Position,out double la,out double lo);return(la,lo);}).ToArray();
         foreach(var site in sites)
         {
             var patch=terrain.Patch(TerrainMapViewport.FromDegrees(site.Item1,site.Item2),40000);var values=new List<double>();var center=patch.Sample(0,0);

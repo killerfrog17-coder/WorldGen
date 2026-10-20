@@ -46,7 +46,8 @@ namespace WorldGen.Presentation
                 var key=Key(p.X,p.Z);if(shared.TryGetValue(key,out int found))return found;
                 V at=frame.Position(mesh.EastM+p.X,mesh.NorthM+p.Z);var s=patch.Sample(at);
                 double Height(double x,double z){var v=frame.Position(mesh.EastM+x,mesh.NorthM+z);return frame.SurfaceY(v,patch.Sample(v).ElevationM);}
-                double nx=(Height(p.X-2,p.Z)-Height(p.X+2,p.Z))*.25,nz=(Height(p.X,p.Z-2)-Height(p.X,p.Z+2))*.25;
+                double here=frame.SurfaceY(at,s.ElevationM);
+                double nx=(here-Height(p.X+1,p.Z)),nz=(here-Height(p.X,p.Z+1));
                 double length=Math.Sqrt(nx*nx+1+nz*nz),up=1/length;
                 var surface=LocalGeology.Surface(s.Ground,at,terrain.SourceSeed,s.ElevationM,up,s.OceanInfluence,s.Biome==Biome.Ice?D.Clamp((up-.55)/.4):0,terrain.RadiusM*frame.HorizontalScale);
                 int id=samples.Count;samples.Add(s);shared.Add(key,id);

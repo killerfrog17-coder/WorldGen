@@ -1,5 +1,11 @@
 # Local terrain preview — first exploration milestone
 
+20October2026 update: the current derived surface is **local-terrain-preview-4**,
+with version3.33 procedural macro relief and the initial local hydrology layer.
+See LOCAL_LANDFORMS_HYDROLOGY.md. This supersedes the preview3 height/no-inland-
+water descriptions below; the earlier preview milestones remain historical
+design/evidence. LOD and prepared reanchoring remain at their accepted baseline.
+
 Owner authorization: 18 October 2026. This supersedes the local-playable-terrain
 deferral for this limited prototype. Natural-cover placeholders were subsequently
 authorized; see `LOCAL_SCATTER_PREVIEW.md`. Fauna, structures and NPCs remain deferred.

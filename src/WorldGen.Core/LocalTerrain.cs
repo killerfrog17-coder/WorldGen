@@ -70,7 +70,7 @@ namespace WorldGen.Core
                 double sediment = habitat == null ? At(world.BasinPermille, i) / 1500.0
                     : Math.Max(habitat.FloodFractionPermille / 1000.0, habitat.Soil == SoilKind.Alluvial ? .85 : 0);
                 double hill = (8 + Math.Min(100, relief * .16)) * (1 - .92 * plateau) * (1 - .94 * sediment);
-                double ridge = (240 + Math.Min(1500, relief * .48)) * mountains * (1 - .9 * sediment);
+                double ridge = (240 + Math.Min(2300, relief * .55)) * mountains * (1 - .9 * sediment);
                 V axis = axes[i];
                 if (axis.Length < .1)
                 {
@@ -210,6 +210,7 @@ namespace WorldGen.Core
                 double micro = SphereNoise.Sample(km, seed ^ 0x6819, 10);
                 double sum = 0, hills = 0, mountains = 0, plateau = 0, sediment = 0, glacier = 0, detail = 0, bestWeight = -1, red = 0, green = 0, blue = 0, ocean = 0;
                 int cell = -1; Biome biome = Biome.Grassland;var ground=new GroundProfile();
+                double gradientX=0,gradientY=0,gradientZ=0;
                 foreach (var f in sources)
                 {
                     double x = px - f.Center.X * owner.RadiusM, y = py - f.Center.Y * owner.RadiusM, z = pz - f.Center.Z * owner.RadiusM;
@@ -218,6 +219,7 @@ namespace WorldGen.Core
                     // Compact C2 kernel: derivatives vanish at support edges; no closest-N switching seams.
                     double r = Math.Sqrt(dist2), t = 1 - r, weight = t * t * t * t * (1 + 4 * r);
                     sum += weight; hills += weight * f.HillHeightM;
+                    gradientX+=weight*f.Gradient.X;gradientY+=weight*f.Gradient.Y;gradientZ+=weight*f.Gradient.Z;
                     ground.Add(f.Ground,weight);
                     if (f.Cell < owner.world.Hydrology.OceanConnected.Length && owner.world.Hydrology.OceanConnected[f.Cell]) ocean += weight;
                     mountains += weight * f.MountainHeightM; plateau += weight * f.Plateau;
@@ -251,14 +253,25 @@ namespace WorldGen.Core
                 // broad mass modulates them so they do not become equal-height walls.
                 V warped=km+new V(broad,medium,fine)*.32;
                 double ridgeNoise=SphereNoise.Sample(warped,seed^0x7135,.42);
-                double branching=.44*broad+(.26+.30*summit)*(.55-Math.Sqrt(ridgeNoise*ridgeNoise+.035))+
-                    (.11+.08*summit)*(.5-Math.Sqrt(medium*medium+.025))+
-                    .075*summit*(.45-Math.Sqrt(fine*fine+.045));
+                double massCrest=1-Math.Sqrt(ridgeNoise*ridgeNoise+.004);
+                double branching=.15*broad+.95*massCrest*massCrest*(.45+.55*summit)-.35+
+                    .18*(.5-Math.Sqrt(medium*medium+.025))+.075*summit*(.4-Math.Sqrt(fine*fine+.045));
+                double ravines=0;
+                double ravineGate=OrogenMorphology.Smooth(60,200,m)*OrogenMorphology.Smooth(30,180,baseM);
+                if(ravineGate>0)
+                {
+                    V gradient=new V(gradientX,gradientY,gradientZ),across=V.Cross(point,gradient).Unit;
+                    if(across.Length<.5)across=V.Cross(point,Math.Abs(point.Z)<.99?new V(0,0,1):new V(0,1,0)).Unit;
+                    V metres=km*1000;
+                    ravines=(.25-TerrainRavineNoise.Sample(metres,across,seed^0x7b13,1800))*.28;
+                    ravines+=(.25-TerrainRavineNoise.Sample(metres,across,seed^0x9e17,650))*.095;
+                    ravines*=ravineGate;
+                }
                 // Separate hill-scale relief from mountain masses. A restrained,
                 // lithology-weighted cut adds ledges, not global stair terraces.
                 double rounded=SphereNoise.Sample(km,seed^0x4b13,1.25);
                 double hillShape=.55*medium+.38*rounded+.09*fine;
-                double residual = .25*detail / sum + m*branching + h * hillShape + (.12 + .18 * (1 - s)+m*.0025) * micro;
+                double residual = .25*detail / sum + m*(branching+ravines) + h * hillShape + (.12 + .18 * (1 - s)+m*.0025) * micro;
                 // Sea level is a hard continuity anchor: do not manufacture new islands/coasts from high-frequency noise.
                 double coast = Smooth(Math.Abs(baseM) / 100);
                 if (baseM < 0) residual = (12 * broad + 4 * medium + fine) * coast;

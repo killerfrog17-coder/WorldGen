@@ -62,7 +62,9 @@ non-increasing channel levels. Shared main-stem tangents and endpoint-flat
 meanders keep connected junctions; steep reaches have less meander freedom.
 Widths/depths scale sublinearly with flow, bounded to physical sizes. Valleys
 are cut into the same height sampler that walking, ground materials and scatter
-query. Glacial provenance permits wider-bottomed cross sections without
+query. Local alluvial fill also removes incidental noise hollows beneath a
+prescribed channel; standing lake/ocean water takes precedence over crossing
+channels. Glacial provenance permits wider-bottomed cross sections without
 claiming a reconstruction of glacial history. Short gaps from retained lake
 footprints to their actual outlets can receive a connector; arbitrary long
 canals between unrelated bodies are not generated.
@@ -100,7 +102,7 @@ Independent implementation; no reference source or assets copied.
 - [USGS Appalachian geology](https://www.usgs.gov/geology-and-ecology-of-national-parks/geology-shenandoah-national-park): older eroded ranges and resistant bedrock.
 - [NPS Texas geology](https://home.nps.gov/articles/nps-geodiversity-atlas-lyndon-b-johnson-national-historical-park-texas.htm): dissected limestone uplands, not small copies of alpine ranges.
 - [Génevaux et al.2013](https://cs.purdue.edu/homes/bbenes/papers/Genevaux13ToG.pdf): terrain/river primitives and blended carving; inspiration, not a reproduction of the paper's complete watershed synthesis.
-- [Grenier et al.2024](https://onlinelibrary.wiley.com/doi/10.1111/cgf.14992): directed multiscale patterns constrained by low-resolution relief. This implementation does not claim their Gaussian/phasor algorithm.
+- [Grenier et al.2024](https://onlinelibrary.wiley.com/doi/10.1111/cgf.14992): directed multiscale patterns constrained by low-resolution relief. An independently implemented compact27-kernel oriented phasor field supplies nested ravines; it does not reproduce their Gaussian-field construction or complete method.
 - [USGS hydraulic geometry](https://pubs.usgs.gov/sir/2004/5042/): sublinear width/depth relationships; local coefficients here are illustrative, not calibrated regional regressions.
 - [NPS rocky coasts](https://www.nps.gov/articles/rocky-coast-landforms.htm) and [glacial valleys](https://www.nps.gov/articles/ushapedvalleysfjordshangingvalleys.htm): cliff coasts and fjords need structural/glacial valley provenance, not just extra beach noise.
 

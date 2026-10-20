@@ -1,5 +1,18 @@
 # Implementation contracts - version 3
 
+## Landforms and local water —3.33 / local terrain4
+
+New procedural recipes remove the legacy sixfold continental uplift and separate
+narrow rugged fronts from broad high plateaus. Mechanism saturation retains
+independent per-belt variation and linear user percentage scaling.3.32 and older
+recipes keep literal relief; measured Earth heights remain unchanged. Local
+terrain4 adds continuous planet-addressed nested ridges/ravines and geology-
+conditioned ledges, plus indexed saved-drainage constraints, local lake/island
+beds and clipped water surfaces. Near triangles intersecting channels gain
+bank/thalweg vertices without changing TerrainLod/streaming requests. No global
+fine raster, recurring cell census, weather accumulation or new history rule.
+See LOCAL_LANDFORMS_HYDROLOGY.md for the process, approximation limits and tests.
+
 ## Ground foundation1 / optional historical realm38
 
 GroundEnvironment derives independent lithology/deposit, soil and local surface
