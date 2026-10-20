@@ -134,15 +134,19 @@ public sealed partial class WorldGenRuntime
         V riverAt=terrain.Amplification.RiverPoint(river.From,.5);
         sites.Insert(0,Tuple.Create("lowland-river",riverAt,350d,20f,50f));
         sites.Insert(1,Tuple.Create("river-ground",riverAt,6d,20f,8f));
-        int lake=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>world.Hydrology.LakeCoverageFraction[i]>.7&&world.ElevationM[i]>0).OrderBy(i=>world.ElevationM[i]).DefaultIfEmpty(-1).First();
-        if(lake>=0)sites.Insert(2,Tuple.Create("lake",world.Surface.Cells[lake].Position,900d,20f,55f));
+        int lake=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>world.Hydrology.LakeCoverageFraction[i]>.7&&world.ElevationM[i]>0&&world.Hydrology.WaterBody[i]>=0)
+            .Where(i=>world.Hydrology.Waters[world.Hydrology.WaterBody[i]].AreaM2>1e8&&world.Hydrology.Waters[world.Hydrology.WaterBody[i]].AreaM2<5e10)
+            .OrderBy(i=>Math.Abs(Math.Log(world.Hydrology.Waters[world.Hydrology.WaterBody[i]].AreaM2/3e9))).DefaultIfEmpty(-1).First();
+        if(lake>=0)sites.Insert(2,Tuple.Create("lake",world.Surface.Cells[lake].Position,350d,20f,55f));
         var report=new List<string>{"Surface "+LocalTerrain.Version+" / "+HyperAmplification.Version,
             "Core hierarchical preparation "+terrain.Amplification.PreparationMilliseconds.ToString("F1")+"ms"};
         var probes=new List<string>{"originX,originY,originZ,eastM,northM,elevationM"};
         foreach(var site in sites)
         {
             Debug.Log("HYPER REVIEW starting "+site.Item1+" at "+Time.realtimeSinceStartupAsDouble.ToString("F2")+"s");
-            explorer.Teleport(site.Item2);explorer.TestView(site.Item3,site.Item4,site.Item5);
+            var surface=terrain.Patch(site.Item2).Sample(0,0);
+            double aboveGround=site.Item3+(surface.Underwater?Math.Max(0,surface.WaterSurfaceM-surface.ElevationM):0);
+            explorer.Teleport(site.Item2);explorer.TestView(aboveGround,site.Item4,site.Item5);
             PlayCommands.Execute(play,0,"/weather clear",weather:explorer.WeatherControl);
             TerrainMapViewport.Degrees(site.Item2,out double lat,out double lon);play.SetLocalSolarHour(12,lon);
             double started=Time.realtimeSinceStartupAsDouble,deadline=started+30;

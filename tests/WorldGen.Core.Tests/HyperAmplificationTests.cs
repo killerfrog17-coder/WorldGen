@@ -65,6 +65,18 @@ static class HyperAmplificationTests
             Console.WriteLine($"  near tile: {watch.Elapsed.TotalMilliseconds:F1}ms, {mesh.Positions.Length/3} vertices, {mesh.WaterTriangles.Length/3} water triangles");
         }
         File.WriteAllLines(Path.Combine(output,"probes.csv"),rows);
+        {
+            var at=sites[0].Item2;var frame=new LocalTerrainFrame(at,terrain.RadiusM,0,.1);
+            const double size=1638.4;const int fineN=32,coarseN=16;
+            var fine=LocalTerrainMesh.Build(terrain,frame,0,0,size,fineN,default,new[]{size/fineN,size/coarseN,size/fineN,size/fineN});
+            var coarse=LocalTerrainMesh.Build(terrain,frame,size,0,size,coarseN);
+            for(int i=0;i<=fineN;i++)
+            {
+                int lo=Math.Min(coarseN-1,i/2);double t=i*.5-lo;
+                double expected=coarse.Positions[(lo*(coarseN+1))*3+1]*(1-t)+coarse.Positions[((lo+1)*(coarseN+1))*3+1]*t;
+                Check(Math.Abs(fine.Positions[(i*(fineN+1)+fineN)*3+1]-expected)<.02,"Mixed-LOD edges share canonical height endpoints and collapse without a visible cliff");
+            }
+        }
         // Query-order/cache lifetime must not become part of the world seed.
         var stable=new List<(V At,double Height,double Water)>();
         foreach(var site in sites.Take(3))

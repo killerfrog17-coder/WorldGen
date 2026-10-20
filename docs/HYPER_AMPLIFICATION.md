@@ -47,9 +47,9 @@ raise a river embankment through low terrain. Root confluences share water level
 The saved hydrology order is source-first; cutting propagates forward, whereas
 downstream water constraints propagate backward. Headwaters taper to zero depth.
 
-Walking/scatter queries use the canonical hierarchy at an 8 m physical terminal
-spacing with continuous interpolation inside its triangles. Distant render
-queries may stop earlier in the same hierarchy. The existing tile planner,
+All queries use the canonical hierarchy at an 8 m physical terminal spacing
+with continuous interpolation inside its triangles. Distant render LOD reduces
+mesh tessellation, not the height returned at a shared point. The existing tile planner,
 near-first scheduling and hidden reanchor handoff are retained. Fine terminal
 spacing is an implementation budget, not a promise of centimetre geomorphology.
 
@@ -57,7 +57,10 @@ spacing is an implementation budget, not a promise of centimetre geomorphology.
 
 Vertex choices are keyed by stable edge/face identifiers. Shared edges, not tile
 origins, own their choices. Lateral displacement is limited by **both** incident
-triangle altitudes to prevent inverted slivers. Point location walks refined
+triangles' barycentric safe regions (including their endpoint constraints) to
+prevent inverted slivers. Scalar construction intermediates avoid quantized
+vector projection errors; final midpoint directions are quantized at 1e-12.
+Point location walks refined
 neighbors, since a displaced child edge need not coincide with its old parent
 boundary.
 

@@ -503,18 +503,18 @@ namespace WorldGen.Core
             px-=along*x;py-=along*y;pz-=along*z;return px*px+py*py+pz*pz;
         }
         struct RiverHit {public double Square,Along;public Edge Edge;}
-        void NearestRiver(V point,Edge edge,ref RiverHit best,int depth=0)
+        void NearestRiver(V point,Edge edge,double maximumDistance,ref RiverHit best,int depth=0)
         {
             if(edge==null||edge.Type!=Kind.River)return;
             double square=SegmentDistance2(point,edge,out double along);
             double length=(edge.A.Position-edge.B.Position).Length;
             // Safe lower bound includes all future lateral midpoint offsets.
-            if(best.Edge!=null&&Math.Sqrt(square)-length*.3>Math.Sqrt(best.Square))return;
+            if(Math.Sqrt(square)-length*.3>Math.Min(maximumDistance,Math.Sqrt(best.Square)))return;
             if(length*radius*scale<=FinestSpacingM||depth>=20)
             {if(square<best.Square){best.Square=square;best.Edge=edge;best.Along=along;}return;}
             var split=Split(edge);
-            if(along<.5){NearestRiver(point,split.First,ref best,depth+1);NearestRiver(point,split.Last,ref best,depth+1);}
-            else{NearestRiver(point,split.Last,ref best,depth+1);NearestRiver(point,split.First,ref best,depth+1);}
+            if(along<.5){NearestRiver(point,split.First,maximumDistance,ref best,depth+1);NearestRiver(point,split.Last,maximumDistance,ref best,depth+1);}
+            else{NearestRiver(point,split.Last,maximumDistance,ref best,depth+1);NearestRiver(point,split.First,maximumDistance,ref best,depth+1);}
         }
 
         /// <summary>Position on the actual recursively displaced major channel,
@@ -544,14 +544,14 @@ namespace WorldGen.Core
                 this.owner = owner; faces = new Face[triangleOffsets.Length];
                 for (int i = 0; i < faces.Length; i++) faces[i] = owner.roots[triangleOffsets[i] / 3];
             }
-            public Surface Sample(V point, double spacingM)
+            public Surface Sample(V point)
             {
                 Face found = null; double a = 0, b = 0, c = 0;
                 if (last != null && last.Coordinates(point, out a, out b, out c) >= -1e-7) found = last;
                 if (found == null) foreach (var f in faces) if (f.Coordinates(point, out a, out b, out c) >= -1e-7) { found = f; break; }
                 if (found == null) throw new InvalidOperationException("Hyper-amplification patch has no containing base face.");
                 last = found;
-                double resolution = Math.Max(FinestSpacingM, spacingM);
+                double resolution = FinestSpacingM;
                 while (found.Size > resolution && found.Depth < 20)
                 {
                     var split = owner.Split(found); Face next = null; double best = -1e10;
@@ -592,10 +592,16 @@ namespace WorldGen.Core
                 double water = a * found.A.Water + b * found.B.Water + c * found.C.Water;
                 double distanceToWater = a * found.A.Distance + b * found.B.Distance + c * found.C.Distance;
                 double flow = a * found.A.Flow + b * found.B.Flow + c * found.C.Flow;
+                double mountain = a * found.A.Mountain + b * found.B.Mountain + c * found.C.Mountain;
+                double sediment = a * found.A.Sediment + b * found.B.Sediment + c * found.C.Sediment;
+                double CandidateFlow(Vertex vertex)=>vertex.River==null?0:Math.Max(vertex.River.A.Flow,vertex.River.B.Flow);
+                double maximumFlow=Math.Max(flow,Math.Max(CandidateFlow(found.A),Math.Max(CandidateFlow(found.B),CandidateFlow(found.C))));
+                double maximumValley=Math.Max(Width(maximumFlow)*5,Math.Min(3000,80+mountain*.9+sediment*400));
+                double searchRadius=maximumValley/(owner.radius*owner.scale);
                 var hit=new RiverHit{Square=double.PositiveInfinity};
-                owner.NearestRiver(point,found.A.River,ref hit);
-                if(!ReferenceEquals(found.B.River,found.A.River))owner.NearestRiver(point,found.B.River,ref hit);
-                if(!ReferenceEquals(found.C.River,found.A.River)&&!ReferenceEquals(found.C.River,found.B.River))owner.NearestRiver(point,found.C.River,ref hit);
+                owner.NearestRiver(point,found.A.River,searchRadius,ref hit);
+                if(!ReferenceEquals(found.B.River,found.A.River))owner.NearestRiver(point,found.B.River,searchRadius,ref hit);
+                if(!ReferenceEquals(found.C.River,found.A.River)&&!ReferenceEquals(found.C.River,found.B.River))owner.NearestRiver(point,found.C.River,searchRadius,ref hit);
                 if(hit.Edge!=null)
                 {
                     distanceToWater=Math.Sqrt(hit.Square)*owner.radius*owner.scale;
@@ -603,15 +609,16 @@ namespace WorldGen.Core
                     water=Lerp(hit.Edge.A.Water,hit.Edge.B.Water,hit.Along);
                     flow=Lerp(hit.Edge.A.Flow,hit.Edge.B.Flow,hit.Along);
                 }
-                double width = Width(flow)*Math.Sqrt(D.Clamp((water-bed)/Math.Max(.001,Depth(flow)))), mountain = a * found.A.Mountain + b * found.B.Mountain + c * found.C.Mountain;
-                double sediment = a * found.A.Sediment + b * found.B.Sediment + c * found.C.Sediment;
+                double width = Width(flow)*Math.Sqrt(D.Clamp((water-bed)/Math.Max(.001,Depth(flow))));
                 bool ocean = found.A.Type == Kind.Ocean || found.B.Type == Kind.Ocean || found.C.Type == Kind.Ocean;
                 Vertex lakeSource=null;double lakeWeight=0;
-                foreach(var v in new[]{found.A,found.B,found.C})if(v.LakeKey!=0)
+                void ConsiderLake(Vertex v)
                 {
+                    if(v.LakeKey==0)return;
                     double weight=(v.LakeKey==found.A.LakeKey?a*found.A.LakeWeight:0)+(v.LakeKey==found.B.LakeKey?b*found.B.LakeWeight:0)+(v.LakeKey==found.C.LakeKey?c*found.C.LakeWeight:0);
                     if(weight>lakeWeight){lakeWeight=weight;lakeSource=v;}
                 }
+                ConsiderLake(found.A);ConsiderLake(found.B);ConsiderLake(found.C);
                 bool lake=lakeSource!=null&&lakeWeight>.05;
                 double valley = Math.Max(width * 5, Math.Min(3000, 80 + mountain * .9 + sediment * 400));
                 bool river = hit.Edge!=null&&flow>=.01&&width>.001&&distanceToWater<valley;

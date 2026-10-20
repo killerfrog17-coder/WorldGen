@@ -228,10 +228,7 @@ namespace WorldGen.Core
                 return (Center + East * (eastM / owner.RadiusM) + North * (northM / owner.RadiusM)).Unit;
             }
             public LocalTerrainSample Sample(double eastM, double northM) => Sample(Position(eastM, northM));
-            public LocalTerrainSample Sample(V point)=>SampleLod(point,HyperAmplification.FinestSpacingM);
-            /// <summary>Same hierarchy, approximated at a distant render spacing.
-            /// Canonical walking/scatter queries always retain FinestSpacingM.</summary>
-            public LocalTerrainSample SampleLod(V point,double spacingM)
+            public LocalTerrainSample Sample(V point)
             {
                 double norm = point.X * point.X + point.Y * point.Y + point.Z * point.Z;
                 if (double.IsNaN(norm) || Math.Abs(norm - 1) > .000001) throw new ArgumentOutOfRangeException(nameof(point), "A unit planetary position is required.");
@@ -277,7 +274,7 @@ namespace WorldGen.Core
                 if (sum <= 0) throw new InvalidOperationException("Terrain patch has no supporting world cells.");
                 if(amplified!=null)
                 {
-                    var surface=amplified.Sample(point,spacingM);
+                    var surface=amplified.Sample(point);
                     if(!heightOnly)ground.Divide(sum);
                     return new LocalTerrainSample{ElevationM=D.Q(surface.Height,1000),PreWaterElevationM=D.Q(surface.UnshapedHeight,1000),
                         BaseElevationM=D.Q(surface.UnshapedHeight,1000),MountainHeightM=mountains/sum,HillHeightM=hills/sum,
