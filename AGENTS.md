@@ -1,6 +1,20 @@
 # WorldGen repository instructions
 
 Current review launch,19October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-terrain-near-first/WorldGen.exe` (IL2CPP20Oct03:46:38Z).
+Focused loading correction follows geometry-clipmap/CDLOD/Cesium streaming
+research, not a new renderer. Replans scale with fine tile width; smaller near
+jobs preserve full-detail sample spacing. Nearby terrain precedes scatter and
+hidden reanchor work; obsolete jobs have cooperative cancellation. Active
+coverage stays resident during replacement.745 terrain/navigation assertions
+pass.200k Earth native Himalaya near-ring readiness is0.721s after sampler
+initialization; three180m crossings take0.355/0.367/0.281s, preserving source hash.
+No screenshot campaign, broad high-speed/reanchor acceptance, river visual fix,
+height/rule/scatter definition change or universal latency claim. Owner tests
+the visual result. See docs/TERRAIN_STREAMING_RESEARCH.md and VALIDATION.md.
+Landforms-reviewed remains rollback; root shortcut was changed, not running games.
+
+Current review launch,19October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-landforms-reviewed/WorldGen.exe` (IL2CPP20Oct03:17:17Z).
 New procedural recipes use3.33 natural continental uplift without the legacy
 sixfold boost, narrower fronts and separately broad high plateaus. Old3.32 and

@@ -1,5 +1,27 @@
 # Version 3 validation evidence
 
+## Focused near-terrain loading —19 October2026
+
+Player: artifacts/player-terrain-near-first, IL2CPP20Oct03:46:38.6808519Z.
+Research/design: TERRAIN_STREAMING_RESEARCH.md. Source terrain/hydrology heights
+and generation/history rules are unchanged; river appearance is NOT fixed here.
+745 focused terrain/navigation/handoff assertions pass; Presentation Release
+build has zero warnings/errors. Unity build succeeds with guarded staged inputs.
+
+Short native check on actual200k Earth, default0.1 scale, Himalaya origin:
+16 full-detail immediate tiles ready0.721s after sampler readiness; successive
+180m eastward moves ready0.355/0.367/0.281s. Per-move wall times include planner,
+worker generation and Unity upload; they do not include saved-world import or
+one-time sampler construction. Existing owner player stayed open. Source hash
+remains8293430ef7f88567f0fe71f246c1525fbeb78972c6165ce91708b1e37b440324.
+Evidence: artifacts/terrain-loading-review/loading.txt and player.log.
+
+Separate CLR timing of that near ring:16 tiles,31.1ms mean/64.0ms worst,
+497.3ms serial total. This is not native end-to-end timing. No screenshots or
+all-world/all-speed campaign was run, as requested. Existing river appearance,
+LOD art/transition quality and high-speed chart handoff need owner review;
+these measurements do not establish universal subsecond readiness.
+
 ## Natural relief and initial local water —19 October2026
 
 Selected player: artifacts/player-landforms-reviewed, IL2CPP built
