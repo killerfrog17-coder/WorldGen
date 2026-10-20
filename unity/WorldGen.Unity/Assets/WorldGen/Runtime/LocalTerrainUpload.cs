@@ -99,12 +99,23 @@ public sealed partial class LocalTerrainExplorer
     bool loadingProfile;
     int loadingSkip,loadingCollections;
     double largestGroundMs;
+    bool incrementalPending;
+    void AdvanceStreamingCollector()
+    {
+        // Unlimited FPS has no VSync/frame-cap idle interval in which Unity can
+        // advance its collector. Give allocation-heavy terrain streaming a
+        // small explicit slice instead of letting it reach a full collection.
+        // Automatic GC remains enabled, and no unbounded heap is permitted.
+        if(closed||!UnityEngine.Scripting.GarbageCollector.isIncremental)return;
+        if(incrementalPending||jobs.Count>0||scatterJobs.Count>0)
+            incrementalPending=UnityEngine.Scripting.GarbageCollector.CollectIncremental(1500000);
+    }
     public void BeginLoadingProfile(){loadingFrames.Clear();loadingProfile=true;loadingSkip=2;loadingCollections=GC.CollectionCount(0);largestGroundMs=0;}
     public string EndLoadingProfile()
     {
         loadingProfile=false;loadingFrames.Sort();if(loadingFrames.Count==0)return "No frame samples";
         double Percent(double p)=>loadingFrames[Math.Min(loadingFrames.Count-1,(int)((loadingFrames.Count-1)*p))];
-        return loadingFrames.Count+" frames; median "+Percent(.5).ToString("F2")+"ms; p99 "+Percent(.99).ToString("F2")+"ms; worst "+Percent(1).ToString("F2")+"ms; over100ms "+loadingFrames.FindAll(t=>t>100).Count+"; collections "+(GC.CollectionCount(0)-loadingCollections)+"; largest mesh apply/bind "+LargestUploadMs.ToString("F2")+"ms; largest controller query "+largestGroundMs.ToString("F2")+"ms";
+        return loadingFrames.Count+" frames; median "+Percent(.5).ToString("F2")+"ms; p99 "+Percent(.99).ToString("F2")+"ms; worst "+Percent(1).ToString("F2")+"ms; over100ms "+loadingFrames.FindAll(t=>t>100).Count+"; collections "+(GC.CollectionCount(0)-loadingCollections)+"; largest mesh apply/bind "+LargestUploadMs.ToString("F2")+"ms; largest controller query "+largestGroundMs.ToString("F2")+"ms; incremental "+UnityEngine.Scripting.GarbageCollector.isIncremental+" / "+UnityEngine.Scripting.GarbageCollector.GCMode;
     }
     void RecordLoadingFrame(){if(!loadingProfile)return;if(loadingSkip-->0)return;loadingFrames.Add(Time.unscaledDeltaTime*1000);}
 

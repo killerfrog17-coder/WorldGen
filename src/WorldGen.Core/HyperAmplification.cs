@@ -37,12 +37,16 @@ namespace WorldGen.Core
         {
             readonly int root,depth;
             readonly ulong path;
+            readonly Face permanentRoot;
             WeakReference<Face> target;
-            public FaceRef(Face face){root=face.Root;depth=face.Depth;path=face.Path;target=new WeakReference<Face>(face);}
+            public FaceRef(Face face){root=face.Root;depth=face.Depth;path=face.Path;if(depth==0)permanentRoot=face;else target=new WeakReference<Face>(face);}
             public bool Matches(Face face)=>root==face.Root&&depth==face.Depth&&path==face.Path;
-            public void Refresh(Face face){target.SetTarget(face);}
+            public void Refresh(Face face){if(target!=null)target.SetTarget(face);}
             public Face Resolve(HyperAmplification owner)
             {
+                // Base faces already live for the sampler's entire lifetime.
+                // They need no GC weak handles (1.2 million on a 200k world).
+                if(permanentRoot!=null)return permanentRoot;
                 if(target.TryGetTarget(out var face))return face;
                 face=owner.roots[root];
                 for(int level=1;level<=depth;level++)face=owner.Split(face).Faces[(int)((path>>((depth-level)*2))&3)];
@@ -291,7 +295,8 @@ namespace WorldGen.Core
                     string Point(Vertex x)=>x.Position.X.ToString("R")+","+x.Position.Y.ToString("R")+","+x.Position.Z.ToString("R");
                     throw new InvalidOperationException("Inverted child triangle at depth "+depth+", root "+face.Root+", path "+face.Path+", parent size "+face.Size+", parent determinant "+face.Orientation+", child "+child.Orientation+", child path "+child.Path+", A "+Point(face.A)+", B "+Point(face.B)+", C "+Point(face.C)+", ab "+Point(a)+", bc "+Point(b)+", ca "+Point(c));
                 }
-                face.Children = new WeakReference<FaceSplit>(group); Retain(group); return group;
+                if(face.Children==null)face.Children=new WeakReference<FaceSplit>(group);else face.Children.SetTarget(group);
+                Retain(group); return group;
             }
         }
         EdgeSplit Split(Edge edge)
@@ -322,7 +327,8 @@ namespace WorldGen.Core
                     Last = NewEdge(middle, edge.B, last, edge.Depth + 1, Mix(edge.Key ^ 0x3812UL)) };
                 group.First.Parent = group.Last.Parent = edge;
                 group.First.Lease = group.Last.Lease = group;
-                edge.Children = new WeakReference<EdgeSplit>(group); Retain(group); return group;
+                if(edge.Children==null)edge.Children=new WeakReference<EdgeSplit>(group);else edge.Children.SetTarget(group);
+                Retain(group); return group;
             }
         }
         Vertex Midpoint(Edge edge)
