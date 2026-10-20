@@ -13,9 +13,9 @@ namespace WorldGen.Core
     /// water topology, randomness, or the accepted simulation world. Disposable
     /// subdivision caches have a fixed working-set budget, not a fine planet map.
     /// </summary>
-    public sealed class HyperAmplification
+    public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-6";
+        public const string Version = "hyper-amplification-7";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -64,6 +64,7 @@ namespace WorldGen.Core
             public double Height, Water, RiverBed, Distance, Flow, Crust, Mountain, Hill, Plateau, Sediment, Age, Dryness;
             public ulong LakeKey, ChannelKey;
             public double LakeLevel,LakeWeight,SeaWeight;
+            public double BasinFloor=double.NegativeInfinity;
             public Edge River;
             public bool Wet => Type == Kind.River || Type == Kind.Lake || Type == Kind.Ocean;
         }
@@ -74,6 +75,7 @@ namespace WorldGen.Core
             public ulong Key;
             public int Depth;
             public Edge Parent;
+            public double BasinLevel=double.NaN;
             public object Lease;
             // Retain addresses, not the whole connected visited mesh. A missing
             // neighbour is reproducibly reconstructed through its dyadic path.
@@ -285,6 +287,7 @@ namespace WorldGen.Core
                 int i=hydro.VisitOrder[k],r=hydro.Receiver[i];
                 if(r>=0&&nodes[r].Type!=Kind.Ocean&&nodes[r].Type!=Kind.Lake)nodes[i].ChannelKey=nodes[r].ChannelKey;
             }
+            BuildLakeBasins(world,token);
             PreparationMilliseconds = watch.Elapsed.TotalMilliseconds;
         }
 
@@ -295,6 +298,7 @@ namespace WorldGen.Core
             {
                 if(edgeCache[id]!=null&&edgeCache[id].TryGetTarget(out cached))return cached;
                 var source=coarseEdges[id];var edge=NewEdge(rootNodes[source.A],rootNodes[source.B],source.Type,0,source.Key);
+                edge.BasinLevel=LakeDivideLevel(source);
                 edge.Left=new FaceRef(source.Left);if(source.Right>=0)edge.Right=new FaceRef(source.Right);
                 if(edgeCache[id]==null)edgeCache[id]=new WeakReference<Edge>(edge);else edgeCache[id].SetTarget(edge);
                 Retain(edge);
@@ -405,6 +409,7 @@ namespace WorldGen.Core
                     First = NewEdge(edge.A, middle, first, edge.Depth + 1, Mix(edge.Key ^ 0x3811UL)),
                     Last = NewEdge(middle, edge.B, last, edge.Depth + 1, Mix(edge.Key ^ 0x3812UL)) };
                 group.First.Parent = group.Last.Parent = edge;
+                group.First.BasinLevel=group.Last.BasinLevel=edge.BasinLevel;
                 group.First.Lease = group.Last.Lease = group;
                 if(edge.Children==null)edge.Children=new WeakReference<EdgeSplit>(group);else edge.Children.SetTarget(group);
                 Retain(group); return group;
@@ -544,12 +549,9 @@ namespace WorldGen.Core
                 node.Height = Lerp(wet.Height, Math.Max(wet.Water + .2, land.Height), .1 + .9 * t);
                 node.Water = wet.Water; node.RiverBed = wet.RiverBed;
                 node.Distance = (node.Position - wet.Position).Length * radius * scale + wet.Distance;
-                // Connected small lakes are an R3 shore expansion, as in the
-                // reference. Flat water is inherited from the feeding reach.
-                double lakeChance = .035 * (1 - node.Dryness) * OrogenMorphology.Smooth(30, 300, wet.Water) * (1 - node.Sediment * .5);
-                if (edge.Depth < 5 && length > 150 && length < 8000 && Math.Abs(wet.Water - wet.Height) > .1 && v < lakeChance)
-                { node.Type = Kind.Lake; node.Water = wet.Water; node.Height = wet.Height - Math.Min(20, length * .02); node.RiverBed = node.Height; node.Distance = 0;
-                  node.LakeKey=node.Key;node.LakeLevel=wet.Water;node.LakeWeight=1; }
+                // A random lowered shore point is not an enclosed pond. Only
+                // validated basins supply standing water; do not spawn an
+                // independent hillside lake merely from an R3 random roll.
             }
             else
             {
@@ -599,6 +601,15 @@ namespace WorldGen.Core
                 }
             }
             if(a.Height>=0&&b.Height>=0&&node.Type!=Kind.Lake)node.Height=Math.Max(.001,node.Height);
+            PreserveLakeRim(node,leftFace,rightFace);
+            if(!double.IsNaN(edge.BasinLevel))
+            {
+                // The shared divide itself must stay dry even when lateral
+                // edge displacement moves it outside the original root face.
+                double baseline=fraction*a.Height+(1-fraction)*b.Height;
+                node.BasinFloor=Math.Max(node.BasinFloor,edge.BasinLevel+.2*Math.Max(0,baseline-edge.BasinLevel));
+                node.Height=Math.Max(node.Height,node.BasinFloor);
+            }
             return node;
         }
 
@@ -664,6 +675,7 @@ namespace WorldGen.Core
                 double blend=OrogenMorphology.Smooth(Math.Max(half,extent*.25),extent,distance);
                 height=Lerp(Math.Min(raw,profile),raw,blend);
             }
+            height=Math.Max(height,vertex.BasinFloor);
             return new WaterProfile{Height=height,Water=water,Kind=lake?LocalWaterKind.Lake:LocalWaterKind.River};
         }
 
@@ -799,18 +811,11 @@ namespace WorldGen.Core
                         minimum=Math.Min(edge.A.Water,edge.B.Water);maximum=Math.Max(edge.A.Water,edge.B.Water);
                     }
                 }
-                // Each standing basin has ONE supplied datum, even where a
-                // refined triangle also contains river/dry/different-lake nodes.
-                Vertex lake=null;double lakeScore=0;
-                void ConsiderLake(Vertex v)
-                {
-                    if(v.LakeKey==0)return;
-                    double candidate=(v.LakeKey==found.A.LakeKey?a*found.A.LakeWeight:0)+(v.LakeKey==found.B.LakeKey?b*found.B.LakeWeight:0)+(v.LakeKey==found.C.LakeKey?c*found.C.LakeWeight:0);
-                    if(candidate>lakeScore){lakeScore=candidate;lake=v;}
-                }
-                ConsiderLake(found.A);ConsiderLake(found.B);ConsiderLake(found.C);
-                if(lake!=null&&height<lake.LakeLevel&&(double.IsNaN(water)||lake.LakeLevel>=water))
-                {water=lake.LakeLevel;kind=LocalWaterKind.Lake;bodyKey=lake.LakeKey;gradient=default;minimum=maximum=water;footprint=double.PositiveInfinity;mask=water-height;}
+                // Connected basin ownership includes its dry bank collar; do
+                // not terminate the surface where inherited vertex IDs vanish.
+                int basin=owner.lakeFaces[found.Root];
+                if(basin>=0&&(height<owner.lakeLevels[basin]||double.IsNaN(water)||mask<0))
+                {water=owner.lakeLevels[basin];kind=LocalWaterKind.Lake;bodyKey=(ulong)(uint)(basin+1);gradient=default;minimum=maximum=water;footprint=double.PositiveInfinity;mask=water-height;}
                 // Preserve the ocean checkpoint: source-connected submerged
                 // shelves are sea even when refined nodes are ordinary terrain.
                 var root=owner.roots[found.Root];

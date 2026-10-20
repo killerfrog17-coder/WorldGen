@@ -48,10 +48,10 @@ namespace WorldGen.Presentation
                 vertices.Add((float)v.X);vertices.Add((float)renderedY);vertices.Add((float)v.Z);
                 colors.Add(.13f);colors.Add(.37f);colors.Add(.46f);colors.Add(1);return index;
             }
-            void Polygon(Vertex[] polygon,int count,bool ocean)
+            void Polygon(Vertex[] polygon,int count,bool standing)
             {
                 if(count<3)return;
-                double lift=ocean?0:.025;
+                double lift=standing?0:.025;
                 int first=Index(polygon[0],lift),previous=Index(polygon[1],lift);
                 for(int k=2;k<count;k++)
                 {
@@ -93,21 +93,21 @@ namespace WorldGen.Presentation
                         level/=contributors;
                         if(same&&sample.Underwater)level=sample.WaterSurfaceM;
                         if(water.WaterKind==LocalWaterKind.Lake||water.WaterKind==LocalWaterKind.Ocean)level=water.WaterSurfaceM;
-                        double footprint=water.WaterKind==LocalWaterKind.Ocean?1:same?(sample.WaterKind==LocalWaterKind.None?sample.WaterMaskM:sample.WaterFootprintM):-Math.Max(1,step);
+                        double footprint=water.WaterKind==LocalWaterKind.Ocean||water.WaterKind==LocalWaterKind.Lake?1:same?(sample.WaterKind==LocalWaterKind.None?sample.WaterMaskM:sample.WaterFootprintM):-Math.Max(1,step);
                         // Infinity is useful in Core for unrestricted ocean
                         // interiors, not in polygon intersection arithmetic.
                         footprint=Math.Max(-1e9,Math.Min(1e9,footprint));
                         input[k]=new Vertex{X=mesh.Positions[i*3],Z=mesh.Positions[i*3+2],
                             Y=frame.SurfaceY(points[k],level),Ground=mesh.Positions[i*3+1],Footprint=footprint};
                     }
-                    bool ocean=water.WaterKind==LocalWaterKind.Ocean;
+                    bool standing=water.WaterKind==LocalWaterKind.Ocean||water.WaterKind==LocalWaterKind.Lake;
                     double allowance=0;
-                    if(ocean)
+                    if(standing)
                     {
                         // Expand the zero-depth contour horizontally by two
                         // metres, UNDER the land. Keep the actual sea elevation
                         // unchanged; a vertical tolerance would spread too far
-                        // across shallow shores. Only ocean-adjacent triangles
+                        // across shallow shores. Only water-adjacent triangles
                         // reach here, not arbitrary underground inland tiles.
                         var p=input[0];var q=input[1];var r=input[2];
                         double bx=q.X-p.X,bz=q.Z-p.Z,cx=r.X-p.X,cz=r.Z-p.Z,det=bx*cz-cx*bz;
@@ -122,7 +122,7 @@ namespace WorldGen.Presentation
                     if(count<3)continue;
                     count=Clip(clipped,count,input,true,allowance);
                     if(count<3)continue;
-                    Polygon(input,count,ocean);
+                    Polygon(input,count,standing);
                 }
             }
             if(mesh.WaterClipTriangles.Length>0)

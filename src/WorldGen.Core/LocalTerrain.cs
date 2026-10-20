@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed class LocalTerrain
     {
-        public const string Version = "local-terrain-hyper-6";
+        public const string Version = "local-terrain-hyper-7";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;

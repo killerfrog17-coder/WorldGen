@@ -1,5 +1,39 @@
 # Version 3 validation evidence
 
+## Connected lake basin checkpoint /20October2026
+
+Hyper7 uses connected coarse sublevel components and protects their dry divides
+through refinement; lake surfaces remain at one exact body datum. Meshes intersect
+displayed terrain with two horizontal metres of hidden shore overlap. Water never
+warps to land. Ocean presentation, LOD/controller and authoritative source/history
+are unchanged. This is not a full fine-grid flood: rejected open lake candidates
+are omitted, random unvalidated R3 ponds are removed, and river/outlet transitions
+remain unfinished. See LAKE_BASINS.md for algorithm, references and limitations.
+
+243 focused assertions pass. Actual200k generated/Earth fixtures retain24/27
+basins, reject4/9 candidates and own2040/3546 root faces. Six shores per world
+pass near/distant rendered-mesh checks:1873/1020 genuinely exposed target-lake
+edges have no floating clearance; river levels are excluded. Geometric coverage
+checks distinguish hidden overlapping-water T-junctions from exposed edges.
+459/341 actual submerged ocean probes retain zero level; both source hashes are
+unchanged. Matching bundled-worker comparisons pass105924 exact mesh/scatter/
+index/bounds/cancellation checks. Eight final native/CLR heights match exactly.
+
+New global basin arrays cost4.58MiB; coarse lake preparation measured35-80ms,
+full CLR terrain preparation1.4-2.9s under varying concurrent compilation load.
+These are not native fresh-world startup guarantees. Final IL2CPP21:15:29Z
+player-lake-basins has the matching worker. Its generated highland lake review
+records348.3ms core preparation,5.504/0.178s near rings and28.486/26.004s full
+coverage. Hidden1280x800 fixed-camera worst frames17.58/16.33ms, zero >100ms.
+This is not fullscreen, sustained-travel or low-end performance acceptance.
+
+Actual lake-overview.png and lake-bank.png were inspected: flat water, with a
+small bank/island visible in the bank image, but most pixels are lake interior.
+These images do NOT establish broad shoreline realism or every-basin containment;
+owner testing remains essential. Evidence is in artifacts/lake-basins/native.
+Owned tests are stopped; owner's ocean-underlap player/worker were left running.
+The shortcut selects this review; ocean-underlap remains rollback.
+
 ## Ocean shoreline overlap /20October2026
 
 Owner approved hyper6 ocean levels but reported small shoreline gaps and asked

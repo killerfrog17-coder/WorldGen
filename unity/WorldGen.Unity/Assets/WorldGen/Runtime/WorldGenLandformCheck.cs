@@ -136,7 +136,11 @@ public sealed partial class WorldGenRuntime
         sites.Insert(1,Tuple.Create("river-ground",riverAt,6d,20f,8f));
         int lake=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>world.Hydrology.LakeCoverageFraction[i]>.7&&world.ElevationM[i]>0&&world.Hydrology.WaterBody[i]>=0)
             .Where(i=>world.Hydrology.Waters[world.Hydrology.WaterBody[i]].AreaM2>1e8&&world.Hydrology.Waters[world.Hydrology.WaterBody[i]].AreaM2<5e10)
-            .OrderBy(i=>Math.Abs(Math.Log(world.Hydrology.Waters[world.Hydrology.WaterBody[i]].AreaM2/3e9))).DefaultIfEmpty(-1).First();
+            .OrderBy(i=>Math.Abs(Math.Log(world.Hydrology.Waters[world.Hydrology.WaterBody[i]].AreaM2/3e9)))
+            .Where(i=>{var s=terrain.Patch(world.Surface.Cells[i].Position,2000).Sample(0,0);return s.Underwater&&s.WaterKind==LocalWaterKind.Lake;}).DefaultIfEmpty(-1).First();
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-lake-review"))
+            lake=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>world.Hydrology.LakeCoverageFraction[i]>.7&&world.Hydrology.WaterBody[i]>=0&&!world.Hydrology.OceanConnected[i])
+                .OrderByDescending(i=>world.ElevationM[i]).Where(i=>{var s=terrain.Patch(world.Surface.Cells[i].Position,2000).Sample(0,0);return s.Underwater&&s.WaterKind==LocalWaterKind.Lake;}).DefaultIfEmpty(-1).First();
         if(lake>=0)sites.Insert(2,Tuple.Create("lake",world.Surface.Cells[lake].Position,350d,20f,55f));
         if(Environment.GetCommandLineArgs().Contains("--worldgen-inland-review"))
         {
@@ -168,6 +172,12 @@ public sealed partial class WorldGenRuntime
             }
             Bank("river-bank",riverAt);
             if(lake>=0)Bank("lake-bank",world.Surface.Cells[lake].Position);
+            if(Environment.GetCommandLineArgs().Contains("--worldgen-lake-review"))
+            {
+                if(lake<0)throw new Exception("No accepted lake available for native review");
+                bankSites.RemoveAll(s=>s.Item1.StartsWith("river"));
+                bankSites.Insert(0,Tuple.Create("lake-overview",world.Surface.Cells[lake].Position,350d,20f,55f));
+            }
             sites=bankSites;
         }
         if(Environment.GetCommandLineArgs().Contains("--worldgen-ocean-review"))

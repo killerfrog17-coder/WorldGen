@@ -4,6 +4,46 @@ using WorldGen.Serialization;
 
 static class WaterCouplingTests
 {
+    public static void LakesWorld(string path)
+    {
+        var world=WorldFile.Read(File.ReadAllBytes(path));string hash=StateHash.Compute(world);
+        var watch=System.Diagnostics.Stopwatch.StartNew();var terrain=new LocalTerrain(world,horizontalScale:.1);var amp=terrain.Amplification;
+        Console.WriteLine($"Preparation {watch.Elapsed.TotalSeconds:F3}s; lake graph {amp.LakeBasinPreparationMilliseconds:F1}ms, {amp.LakeBasinCount} basins / {amp.LakeBasinFaces} faces, {amp.RejectedLakeBasins} rejected; {GC.GetTotalMemory(false)/1048576d:F1}MiB managed");
+        int tested=0,edges=0,skipped=0;
+        foreach(var body in world.Hydrology.Waters.Where(w=>w.Kind!=WaterKind.Ocean&&w.Cells.Length>0).OrderByDescending(w=>w.AreaM2))
+        {
+            int cell=body.Cells.OrderByDescending(i=>world.Hydrology.LakeCoverageFraction[i]).First();var centre=world.Surface.Cells[cell].Position;
+            var s=terrain.Patch(centre,2000).Sample(centre);
+            if(!s.Underwater||s.WaterKind!=LocalWaterKind.Lake){skipped++;continue;}
+            var scan=new LocalTerrainFrame(centre,terrain.RadiusM,0,.1);V wet=centre,dry=default;bool found=false;
+            for(int k=1;k<=100;k++)
+            {
+                V p=scan.Position(k*200,0);var t=terrain.Patch(p,2000).Sample(p);
+                if(!t.Underwater){dry=p;found=true;break;}wet=p;
+            }
+            if(!found){skipped++;continue;}
+            for(int k=0;k<22;k++){V p=(wet+dry).Unit;if(terrain.Patch(p,2000).Sample(p).Underwater)wet=p;else dry=p;}
+            var frame=new LocalTerrainFrame(dry,terrain.RadiusM,terrain.Patch(dry,2000).Sample(dry).ElevationM,.1);
+            foreach(var shape in new[]{(204.8,32),(3276.8,16)})
+            {
+                var mesh=LocalTerrainMesh.Build(terrain,frame,-shape.Item1/2,-shape.Item1/2,shape.Item1,shape.Item2);
+                bool LakeEdge(double x,double z,double y)=>Math.Abs(y-frame.SurfaceY(frame.Position(mesh.EastM+x,mesh.NorthM+z),s.WaterSurfaceM))<.05;
+                void Trace(double x,double z,double y)
+                {
+                    Console.WriteLine($"Boundary level {s.WaterSurfaceM:R}, drawn {y:R} at {x:R},{z:R}");
+                    double step=mesh.SizeM/mesh.Segments;int ix=(int)(x/step),iz=(int)(z/step);
+                    for(int dz=-1;dz<=1;dz++)for(int dx=-1;dx<=1;dx++)
+                    {double px=(ix+dx)*step,pz=(iz+dz)*step;V at=frame.Position(mesh.EastM+px,mesh.NorthM+pz);var v=terrain.Patch(at,2000).Sample(at);Console.WriteLine($"  {px:F2},{pz:F2}: h {v.ElevationM:R}, w {v.WaterSurfaceM:R}, {v.WaterKind}/{v.WaterBodyKey}, wet {v.Underwater}");}
+                }
+                try{edges+=ContainedBoundary(mesh,LakeEdge,Trace);}catch(Exception error){throw new Exception($"Lake {body.Id}, size {shape.Item1}: "+error.Message,error);}
+                if(!mesh.WaterPositions.All(float.IsFinite))throw new Exception("Non-finite lake surface");
+                Console.WriteLine($"Lake {body.Id}, {body.AreaM2}m2: {shape.Item1:F0}m/{shape.Item2}, {mesh.WaterTriangles.Length/3} triangles, {mesh.BuildMilliseconds:F1}ms");
+            }
+            if(++tested==6)break;
+        }
+        if(tested==0||StateHash.Compute(world)!=hash)throw new Exception("No surviving source lakes or changed world");
+        Console.WriteLine($"PASS {tested} lake shores / {edges} non-floating interior edges; skipped {skipped}; {watch.Elapsed.TotalSeconds:F2}s; unchanged {hash}");
+    }
     public static void Shore(string path,string probes)
     {
         var world=WorldFile.Read(File.ReadAllBytes(path));var terrain=new LocalTerrain(world,horizontalScale:.1);
@@ -54,10 +94,6 @@ static class WaterCouplingTests
             Check(mesh.WaterTriangles.Length>0&&mesh.WaterPositions.Where((_,i)=>i%3==1).All(y=>y<.03),"Standing water retains one level even beside conflicting dry potential: "+kind);
             // Every emitted point lies at/above its ACTUAL supporting triangle,
             // and no point crosses onto the high dry side (ground=-2+.75*x).
-            if(kind==LocalWaterKind.Lake)
-                for(int i=0;i<mesh.WaterPositions.Length;i+=3)
-                    Check(mesh.WaterPositions[i+1]-( -2+.75*mesh.WaterPositions[i])>=-.001,"Lake polygon is clipped against displayed land, not just sampled ideal heights");
-            else
             {
                 double edge=mesh.WaterPositions.Where((_,i)=>i%3==0).Max();
                 Check(Math.Abs(edge-(2/.75+LocalWaterMesh.OceanShoreOverlapM))<.002,"Ocean extends two horizontal metres under shore, not a slope-dependent vertical pad");
@@ -123,10 +159,29 @@ static class WaterCouplingTests
         mesh=Triangle();LocalWaterMesh.Build(mesh,frame,samples);
         Check(ContainedBoundary(mesh)>0,"A stale paired-field flag cannot bypass constant standing-water clipping");
         Check(mesh.WaterPositions.Where((_,i)=>i%3==1).All(y=>y<.03),"A mountain-side dry potential cannot warp a lake even with the old paired-field flag set");
+        samples[1].WaterKind=LocalWaterKind.None;samples[1].WaterBodyKey=99;samples[1].WaterFootprintM=-100;
+        mesh=Triangle();LocalWaterMesh.Build(mesh,frame,samples);
+        Check(ContainedBoundary(mesh)>0,"Losing an inherited lake ID on the dry bank cannot truncate water above its bed");
+        Check(mesh.WaterPositions.Where((_,i)=>i%3==0).Max()>2/.75,"Lake coverage continues through the true shore into its hidden underlap, not an ID midpoint");
+        // A closed basin owns its connected faces and retains its dry divide
+        // under local refinement, without a fine raster of the whole planet.
+        h.OceanConnected=new bool[n];h.Waters=new[]{new WaterBody{Id=0,Kind=WaterKind.Lake,Endorheic=true,SurfaceElevationM=100,Cells=new[]{island}}};
+        h.WaterBody=Enumerable.Repeat(-1,n).ToArray();h.WaterBody[island]=0;h.LakeCoverageFraction=new double[n];h.LakeCoverageFraction[island]=1;
+        world.ElevationM=Enumerable.Repeat(101,n).ToArray();world.ElevationM[island]=90;
+        terrain=new LocalTerrain(world,horizontalScale:.1);
+        Check(terrain.Amplification.LakeBasinCount==1&&terrain.Amplification.RejectedLakeBasins==0,"Synthetic closed lake is accepted as a connected basin");
+        int wetLake=0;
+        foreach(int neighbour in surface.Cells[island].Neighbors)for(int j=0;j<=24;j++)
+        {
+            double t=j/24d;var p=(surface.Cells[island].Position*(1-t)+surface.Cells[neighbour].Position*t).Unit;var v=terrain.Patch(p,2000).Sample(p);
+            if(v.ElevationM>=100)continue;
+            Check(v.Underwater&&v.WaterKind==LocalWaterKind.Lake&&v.WaterSurfaceM==100,"Connected submerged shore retains the same fixed lake datum");wetLake++;
+        }
+        Check(wetLake>20,"Lake basin regression actually samples submerged banks");
         Console.WriteLine("PASS "+checks+" water coupling checks");
     }
 
-    static int ContainedBoundary(LocalTerrainMesh mesh)
+    static int ContainedBoundary(LocalTerrainMesh mesh,Func<double,double,double,bool> include=null,Action<double,double,double> trace=null)
     {
         var incidence=new Dictionary<(int,int),int>();
         void Edge(int a,int b){var pair=(Math.Min(a,b),Math.Max(a,b));incidence.TryGetValue(pair,out int count);incidence[pair]=count+1;}
@@ -142,15 +197,38 @@ static class WaterCouplingTests
             double h11=p[((b+1)*side+a+1)*3+1];return h11+(h01-h11)*(1-u)+(h10-h11)*(1-v);
         }
         int checkedEdges=0;
+        bool Covered(double x,double z,double y)
+        {
+            var p=mesh.WaterPositions;var t=mesh.WaterTriangles;
+            for(int k=0;k<t.Length;k+=3)
+            {
+                int a=t[k]*3,b=t[k+1]*3,c=t[k+2]*3;
+                double bx=p[b]-p[a],bz=p[b+2]-p[a+2],cx=p[c]-p[a],cz=p[c+2]-p[a+2],det=bx*cz-cx*bz;
+                if(Math.Abs(det)<1e-12)continue;
+                double u=((x-p[a])*cz-(z-p[a+2])*cx)/det,v=(bx*(z-p[a+2])-bz*(x-p[a]))/det;
+                if(u>=-1e-7&&v>=-1e-7&&u+v<=1.0000001&&Math.Abs(p[a+1]+u*(p[b+1]-p[a+1])+v*(p[c+1]-p[a+1])-y)<.005)return true;
+            }
+            return false;
+        }
         foreach(var pair in incidence.Where(p=>p.Value==1))
         {
             var p=mesh.WaterPositions;int ia=pair.Key.Item1*3,ib=pair.Key.Item2*3;
             double x=(p[ia]+p[ib])*.5,z=(p[ia+2]+p[ib+2])*.5,y=(p[ia+1]+p[ib+1])*.5;
+            if(include!=null&&!include(x,z,y))continue;
             double margin=Math.Max(.0001,mesh.SizeM*.000001);
             if(x<=margin||z<=margin||x>=mesh.SizeM-margin||z>=mesh.SizeM-margin)continue;
             if(mesh.Positions.Length==9&&Math.Abs(x+z-mesh.SizeM)<margin)continue;
             double ground=mesh.Positions.Length==9?-2+.75*x:Ground(x,z);
-            if(Math.Abs(y-ground)>.055)throw new Exception($"Exposed lateral water edge {y-ground:F3}m above drawn bed at {x:F3},{z:F3}; tile {mesh.SizeM}/{mesh.Segments}");
+            // Conservative underlap gives adjacent triangles unequal hidden
+            // edge lengths. A one-incidence index edge is not an exposed edge
+            // if water actually covers BOTH sides of its midpoint.
+            if(y-ground>.055)
+            {
+                double dx=p[ib]-p[ia],dz=p[ib+2]-p[ia+2],len=Math.Sqrt(dx*dx+dz*dz);
+                double eps=Math.Min(.01,len*.01);dx=dx/len*eps;dz=dz/len*eps;
+                if(Covered(x-dz,z+dx,y)&&Covered(x+dz,z-dx,y))continue;
+            }
+            if(y-ground>.055){trace?.Invoke(x,z,y);throw new Exception($"Exposed lateral water edge {y-ground:F3}m above drawn bed at {x:F3},{z:F3}; tile {mesh.SizeM}/{mesh.Segments}");}
             checkedEdges++;
         }
         return checkedEdges;

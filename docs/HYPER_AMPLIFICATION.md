@@ -1,10 +1,20 @@
 # Drainage-aware planetary amplification
 
-`local-terrain-hyper-6` replaces the geographic-scaffold surface for completed
+`local-terrain-hyper-7` replaces the geographic-scaffold surface for completed
 worlds. It is a **shared CPU adaptation**, not the original application's GPU
 compute-shader pipeline or a claim of identical output/performance.
 
 ## Source and integration
+
+### Connected standing basins (revision 7)
+
+Lake coverage uses connected root-face basins with dry divides maintained by
+shared terrain refinement, not decaying inherited lake weights. Constant-level
+bank collars and conservative standing-water underlap remove arbitrary ID cuts.
+Uncontained candidates are rejected; unverified random R3 lake spawning is
+removed. Only derived local terrain/water changes, not source world/history or
+streaming rules. Detailed rivers/outlets and a complete tiny-pond generator
+remain open. See LAKE_BASINS.md for implementation, tests and limitations.
 
 ### Current isolation experiment (revision 6)
 

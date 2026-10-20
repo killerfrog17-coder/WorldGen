@@ -1,5 +1,22 @@
 # Water containment: source review and checkpoints
 
+## Connected basin integration (hyper7)
+
+See LAKE_BASINS.md for the implemented coarse connectivity/shared-refinement
+contract, measurements and explicit limits. Lake coverage no longer follows
+vanishing inherited IDs. Shared dry divides constrain finer terrain; each basin
+retains its own constant datum through its dry shore collar. Lake meshing uses
+actual land intersections and the accepted two-metre standing-water underlap.
+Uncontained source candidates are rejected, and unverified random hillside
+lake spawning is removed. Oceans retain their approved coverage/underlap rules.
+Rivers and detailed outlet transitions remain separate and unfinished.
+
+This is NOT the full fine-grid adaptive flood discussed during research. It
+uses the existing canonical terrain hierarchy to preserve connected coarse
+basins without a large new heightmap. Small fractional-cell lakes, validated
+tiny ponds, fine internal subbasin connectivity and complete volume/level
+reconciliation are not completed by this checkpoint.
+
 ## Ocean shoreline underlap (presentation only)
 
 After owner approval of hyper6's ocean level/coverage, the owner requested a

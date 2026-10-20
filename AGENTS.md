@@ -1,5 +1,21 @@
 # WorldGen repository instructions
 
+Current lake-basin REVIEW launch,20October2026: shortcut selects
+`artifacts/player-lake-basins/WorldGen.exe` (IL2CPP21:15:29Z).
+Hyper7 adds connected coarse sublevel lake components with fixed body datums,
+dry-divide refinement constraints and terrain-clipped two-metre hidden underlap.
+NO terrain-following water returns; ocean rules, LOD/controller and source/history
+remain unchanged. Random unvalidated R3 ponds are removed; open lake candidates
+are omitted, not solved. Generated/Earth retain24/27 basins with4/9 rejected;
+derived arrays add4.58MiB and graph preparation measured35-80ms.243 focused,
+1873/1020 exposed target-lake shore edges,459/341 submerged ocean probes,
+105924 exact worker comparisons and8 native/CLR heights pass. Native highland
+lake captures are inspected but largely flat-water views with limited shoreline
+coverage, NOT broad visual acceptance. Hidden fixed-camera worst17.58/16.33ms;
+no fullscreen/travel/low-end performance acceptance. Rivers/outlets and a complete
+small-pond catalog remain unfinished. Owner review is next; ocean-underlap remains
+rollback. See docs/LAKE_BASINS.md / VALIDATION.md. Do not close the owner's game.
+
 Current review launch,20October2026: shortcut selects
 `artifacts/player-ocean-underlap/WorldGen.exe` (IL2CPP20:08:39Z).
 Owner approved hyper6 oceans but requested hiding tiny shoreline gaps. Ocean-
