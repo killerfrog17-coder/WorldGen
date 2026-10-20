@@ -127,7 +127,7 @@ namespace WorldGen.Presentation
                 Array.Copy(mesh.Lithology,src*6,mesh.Lithology,dst*6,6);
                 int next = (i + 1) % perimeter; Triangle(src, dst, edge[next]); Triangle(edge[next], dst, ground + next);
             }
-            var waterSamples=LocalChannelMesh.Refine(mesh,terrain,frame,patch,samples);
+            var waterSamples=LocalChannelMesh.Refine(mesh,terrain,frame,patch,samples,token);
             LocalWaterMesh.Build(mesh,frame,waterSamples);
             mesh.BuildMilliseconds = watch.Elapsed.TotalMilliseconds; return mesh;
         }

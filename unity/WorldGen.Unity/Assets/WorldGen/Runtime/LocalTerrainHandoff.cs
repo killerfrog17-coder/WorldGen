@@ -129,7 +129,7 @@ public sealed partial class LocalTerrainExplorer
         if(V.Dot(Position,pending.Frame.Origin)<=0){CancelPreparedFrame();return;}
         TerrainHandoff.Coordinates(pending.Frame,Position,out double x,out double z);
         double altitude=HeightAboveGround;
-        double preparationStep=motion.Flying?1024:Math.Min(1024,512*HorizontalScale);
+        double preparationStep=TerrainLod.ReplanDistance(HorizontalScale);
         if(double.IsNaN(pending.X)||pending.Range!=viewDistance||Math.Abs(x-pending.X)>preparationStep||Math.Abs(z-pending.Z)>preparationStep||
             Math.Abs(altitude-pending.Altitude)>Math.Max(150,pending.Altitude*.3))
         {
@@ -150,7 +150,7 @@ public sealed partial class LocalTerrainExplorer
         if(Time.realtimeSinceStartupAsDouble>=pending.SortAt)
         {
             pending.SortAt=Time.realtimeSinceStartupAsDouble+.1;
-            double Distance(TerrainTileKey k){double dx=(k.X+.5)*k.SizeM-x,dz=(k.Z+.5)*k.SizeM-z;return dx*dx+dz*dz;}
+            double Distance(TerrainTileKey k)=>TerrainLod.DistanceSquared(k,x,z);
             pending.Priority.Sort((a,b)=>Distance(a).CompareTo(Distance(b)));
         }
         if(distance<limit||Time.realtimeSinceStartupAsDouble<nextHandoffCheck)return;
@@ -176,19 +176,19 @@ public sealed partial class LocalTerrainExplorer
     }
     void SchedulePreparedWork(bool reserveCurrentSlot)
     {
-        var pending=preparedFrame;if(pending?.Wanted==null)return;
+        var pending=preparedFrame;if(pending?.Wanted==null||NearTerrainPending())return;
         if(reserveCurrentSlot&&jobs.Any(j=>j.Prepared!=null))return;
         // First fill the actual requested coarse distance leaves (not extra
         // roots). Refinement churn near a fast traveller must not starve them.
-        var order=pending.CoveragePriority.Where(k=>!pending.Tiles.ContainsKey(k)&&k.Level>=3).Concat(pending.Priority);
+        var order=pending.CoveragePriority.Where(k=>!pending.Tiles.ContainsKey(k)&&k.Level>=4).Concat(pending.Priority);
         foreach(var key in order)
         {
             if(jobs.Count+scatterJobs.Count>=2)return;
             int detail=pending.Wanted[key];var edges=pending.Edges[key];
             if(pending.Tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&tile.Edges.SequenceEqual(edges)||
                 jobs.Any(j=>ReferenceEquals(j.Prepared,pending)&&j.Key.Equals(key)))continue;
-            var source=terrain;var buildFrame=pending.Frame;var token=cancellation.Token;
-            jobs.Add(new Work{Key=key,Edges=edges,Segments=detail,Generation=generation,Prepared=pending,
+            var source=terrain;var buildFrame=pending.Frame;var jobCancellation=System.Threading.CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=jobCancellation.Token;
+            jobs.Add(new Work{Key=key,Edges=edges,Segments=detail,Generation=generation,Prepared=pending,Cancellation=jobCancellation,
                 Task=Task.Run(()=>LocalTerrainMesh.Build(source,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token)});
             if(reserveCurrentSlot)return;
         }

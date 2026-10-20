@@ -12,13 +12,14 @@ namespace WorldGen.Presentation
     {
         struct Point {public double X,Z;public Point(double x,double z){X=x;Z=z;}}
         struct Cut {public double X,Z,DX,DZ,Length,Half;}
-        public static LocalTerrainSample[] Refine(LocalTerrainMesh mesh,LocalTerrain terrain,LocalTerrainFrame frame,LocalTerrain.LocalTerrainPatch? patch,LocalTerrainSample[] original)
+        public static LocalTerrainSample[] Refine(LocalTerrainMesh mesh,LocalTerrain terrain,LocalTerrainFrame frame,LocalTerrain.LocalTerrainPatch? patch,LocalTerrainSample[] original,System.Threading.CancellationToken token=default)
         {
             double step=mesh.SizeM/mesh.Segments;if(step>32||patch==null)return original;
             var source=patch.ChannelPieces();if(source.Length==0)return original;
             int side=mesh.Segments+1;var cuts=new List<Cut>();var buckets=new Dictionary<int,List<int>>();
             foreach(var p in source)
             {
+                token.ThrowIfCancellationRequested();
                 TerrainHandoff.Coordinates(frame,p.A,out double ax,out double az);TerrainHandoff.Coordinates(frame,p.B,out double bx,out double bz);
                 ax-=mesh.EastM;bx-=mesh.EastM;az-=mesh.NorthM;bz-=mesh.NorthM;
                 double dx=bx-ax,dz=bz-az,length=Math.Sqrt(dx*dx+dz*dz);if(length<.001)continue;
@@ -43,6 +44,7 @@ namespace WorldGen.Presentation
             for(int i=0;i<original.Length;i++)shared[Key(positions[i*3],positions[i*3+2])]=i;
             int Vertex(Point p)
             {
+                token.ThrowIfCancellationRequested();
                 var key=Key(p.X,p.Z);if(shared.TryGetValue(key,out int found))return found;
                 V at=frame.Position(mesh.EastM+p.X,mesh.NorthM+p.Z);var s=patch.Sample(at);
                 double Height(double x,double z){var v=frame.Position(mesh.EastM+x,mesh.NorthM+z);return frame.SurfaceY(v,patch.Sample(v).ElevationM);}
@@ -103,6 +105,7 @@ namespace WorldGen.Presentation
             }
             for(int z=0;z<mesh.Segments;z++)for(int x=0;x<mesh.Segments;x++)
             {
+                token.ThrowIfCancellationRequested();
                 buckets.TryGetValue(z*mesh.Segments+x,out var relevant);int a=z*side+x;
                 Triangle(a,a+side,a+1,relevant);Triangle(a+1,a+side,a+side+1,relevant);
             }

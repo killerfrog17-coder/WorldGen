@@ -38,6 +38,24 @@ public sealed partial class WorldGenRuntime
         while((terrainExplorer==null||!terrainExplorer.Ready)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(terrainExplorer==null||!terrainExplorer.Ready)throw new Exception("Landform sampler did not load.");
         var explorer=terrainExplorer;var terrain=localTerrainTask.Result;
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-loading-check"))
+        {
+            var loading=new List<string>();explorer.TestView(2,20,8);
+            // No all-horizon wait: measure the actual full-detail neighbourhood,
+            // then cross multiple fine-tile boundaries in the running player.
+            foreach(double move in new[]{0d,180d,180d,180d})
+            {
+                if(move>0){explorer.TestAdvanceEast(move);explorer.TestView(2,20,8);}
+                double started=Time.realtimeSinceStartupAsDouble;
+                yield return null;deadline=started+30;
+                while(!explorer.NearReady&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+                if(!explorer.NearReady||explorer.Error!="")throw new Exception("Near terrain loading failed: "+explorer.Error);
+                loading.Add("Full-detail near ring after "+move+"m: "+(Time.realtimeSinceStartupAsDouble-started).ToString("F3")+"s; "+explorer.Diagnostics);
+            }
+            if(StateHash.Compute(world)!=sourceHash)throw new Exception("Loading changed the source world.");
+            loading.Add("PASS unchanged source "+sourceHash);File.WriteAllLines(Path.Combine(output,"loading.txt"),loading);
+            explorer.Close();Application.Quit(0);yield break;
+        }
         var river=terrain.Hydrology.Channels.Where(c=>c.WidthM>40&&c.WidthM<300&&c.StartM>30&&c.StartM<1500).OrderByDescending(c=>c.LengthM).First();
         sites.Add(Tuple.Create("river",river.Position(.5)));
         var lake=terrain.Hydrology.Shores.Where(f=>f.Kind==ShoreKind.Lake&&f.ScaleM*.1>500&&f.ScaleM*.1<10000).OrderByDescending(f=>f.AreaM2).FirstOrDefault();

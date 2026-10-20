@@ -64,13 +64,24 @@ namespace WorldGen.Presentation
     {
         public int X,Z,Level;public double Scale;
         public TerrainTileKey(int x,int z,int level,double scale=1){X=x;Z=z;Level=level;Scale=scale;}
-        public double SizeM=>2048.0*Scale*(1<<Level);
+        public double SizeM=>TerrainLod.BaseSizeM*Scale*(1<<Level);
         public bool Equals(TerrainTileKey b)=>X==b.X&&Z==b.Z&&Level==b.Level&&Scale==b.Scale;
         public override bool Equals(object o)=>o is TerrainTileKey k&&Equals(k);
         public override int GetHashCode()=>unchecked(X*73856093^Z*19349663^Level*83492791^Scale.GetHashCode());
     }
     public static class TerrainLod
     {
+        // Smaller work units, not lower detail: 1024/64 retains the old
+        // 2048/128 vertex spacing while completing a nearby tile in 1/4 the work.
+        public const double BaseSizeM=1024;
+        public static double ReplanDistance(double scale)=>BaseSizeM*scale*.25;
+        public static double DistanceSquared(TerrainTileKey k,double x,double z)
+        {
+            double a=k.X*k.SizeM,b=k.Z*k.SizeM;
+            double dx=Math.Max(Math.Max(a-x,0),x-a-k.SizeM),dz=Math.Max(Math.Max(b-z,0),z-b-k.SizeM);
+            return dx*dx+dz*dz;
+        }
+        public static bool Immediate(TerrainTileKey k,double x,double z)=>DistanceSquared(k,x,z)<=2.25*BaseSizeM*BaseSizeM*k.Scale*k.Scale;
         public static double[] EdgeSteps(TerrainTileKey tile,IReadOnlyDictionary<TerrainTileKey,int> leaves)
         {
             var steps=new double[4];double x=tile.X*tile.SizeM,z=tile.Z*tile.SizeM;
@@ -87,14 +98,13 @@ namespace WorldGen.Presentation
         public static Dictionary<TerrainTileKey,int> Plan(double x,double z,double aboveGround,double distanceM=200000,double scale=1)
         {
             if(scale<.01||scale>2||double.IsNaN(scale))throw new ArgumentOutOfRangeException(nameof(scale));
-            var result=new Dictionary<TerrainTileKey,int>();int root=Math.Max(0,(int)Math.Floor(Math.Log(64/scale,2)));double size=2048*scale*(1<<root);
-            double Distance(TerrainTileKey k){double a=k.X*k.SizeM,b=k.Z*k.SizeM,dx=Math.Max(Math.Max(a-x,0),x-a-k.SizeM),dz=Math.Max(Math.Max(b-z,0),z-b-k.SizeM);return Math.Sqrt(dx*dx+dz*dz);}
+            var result=new Dictionary<TerrainTileKey,int>();int root=Math.Max(0,(int)Math.Floor(Math.Log(128/scale,2)));double size=BaseSizeM*scale*(1<<root);
             void Visit(TerrainTileKey k)
             {
-                double d=Distance(k);if(d>distanceM)return;
-                if(k.Level>0&&Math.Max(d,aboveGround*.8)<k.SizeM*1.6)
+                double d=Math.Sqrt(DistanceSquared(k,x,z));if(d>distanceM)return;
+                if(k.Level>0&&(Immediate(k,x,z)||Math.Max(d,aboveGround*.8)<k.SizeM*1.6))
                     for(int j=0;j<2;j++)for(int i=0;i<2;i++)Visit(new TerrainTileKey(k.X*2+i,k.Z*2+j,k.Level-1,scale));
-                else result.Add(k,k.Level==0?(d<3000*scale?128:64):k.Level==1?64:k.Level==2?32:k.Level<5?16:8);
+                else result.Add(k,k.Level==0?64:k.Level==1?(d<3000*scale?128:64):k.Level==2?64:k.Level==3?32:k.Level<6?16:8);
             }
             for(int b=(int)Math.Floor((z-distanceM)/size);b<=(int)Math.Floor((z+distanceM)/size);b++)
                 for(int a=(int)Math.Floor((x-distanceM)/size);a<=(int)Math.Floor((x+distanceM)/size);a++)Visit(new TerrainTileKey(a,b,root,scale));

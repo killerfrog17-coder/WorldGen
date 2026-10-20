@@ -5,6 +5,17 @@ using WorldGen.Serialization;
 
 static class LocalTerrainTests
 {
+    public static void Loading(string path)
+    {
+        var world=WorldFile.Read(File.ReadAllBytes(path));var terrain=new LocalTerrain(world,horizontalScale:.1);
+        var position=TerrainMapViewport.FromDegrees(27.98,86.92);var frame=new LocalTerrainFrame(position,terrain.RadiusM,terrain.Patch(position).Sample(0,0).ElevationM,.1);
+        var plan=TerrainLod.Plan(0,0,2,200000,.1);var times=new List<double>();
+        foreach(var key in plan.Keys.Where(k=>TerrainLod.Immediate(k,0,0)).OrderBy(k=>TerrainLod.DistanceSquared(k,0,0)))
+        {
+            var mesh=LocalTerrainMesh.Build(terrain,frame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,plan[key]);times.Add(mesh.BuildMilliseconds);
+        }
+        Console.WriteLine($"{world.Surface.Cells.Length} cells, {times.Count} full-detail near tiles: mean {times.Average():F1}ms, worst {times.Max():F1}ms, serial total {times.Sum():F1}ms");
+    }
     static void Handoffs(Action<bool,string> check)
     {
         foreach(double scale in new[]{.01,.1,1.0,2})
@@ -174,7 +185,15 @@ static class LocalTerrainTests
         viewport.Zoom(1e-8);check(viewport.LongitudeSpan<1e-5,"Map is not limited to a fixed cell-level zoom");
         var far=TerrainLod.Plan(333,-777,2);var high=TerrainLod.Plan(333,-777,60000);
         check(far.Count<800&&high.Count<far.Count,"Distance LOD is bounded and reduces detail at altitude");
-        check(far.Keys.Max(k=>k.SizeM)>=32768&&far.Keys.Min(k=>k.SizeM)==2048,"LOD mixes near and far tile sizes");
+        check(far.Keys.Max(k=>k.SizeM)>=32768&&far.Keys.Min(k=>k.SizeM)==1024,"LOD mixes smaller near work units with unchanged distant tile sizes");
+        foreach(double scale in new[]{.1,1.0})
+        {
+            double x=333*scale,z=-777*scale;
+            var nearby=TerrainLod.Plan(x,z,60000,200000,scale);
+            check(TerrainLod.ReplanDistance(scale)<TerrainLod.BaseSizeM*scale,"Replan occurs before crossing one near tile even at compressed scale");
+            foreach(var pair in nearby.Where(p=>TerrainLod.Immediate(p.Key,x,z)))
+            {check(pair.Key.Level==0&&pair.Value==64,"Immediate terrain stays full detail even while flying high");check(Math.Abs(pair.Key.SizeM/pair.Value-16*scale)<1e-8,"Smaller jobs retain the original full-detail vertex spacing");}
+        }
         double area=0;foreach(var k in far.Keys)area+=k.SizeM*k.SizeM;
         check(area>Math.PI*200000*200000,"LOD covers the requested 200 km horizon including boundary tiles");
         var keys=far.Keys.ToArray();bool overlaps=false;

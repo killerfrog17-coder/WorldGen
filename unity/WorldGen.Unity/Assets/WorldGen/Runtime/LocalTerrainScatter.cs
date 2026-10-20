@@ -84,7 +84,7 @@ public sealed partial class LocalTerrainExplorer
             if(work.Task.IsFaulted){error=work.Task.Exception.GetBaseException().Message;debugOpen=true;CaptureMouse();continue;}
             if(!work.Task.IsCanceled&&scatterWanted.Contains(work.Key)){var chunk=new ScatterChunk{Source=work.Task.Result};ProjectScatter(chunk);scatterChunks[work.Key]=chunk;scatterDirty=true;}break;
         }
-        if(CenterReady&&jobs.Count+scatterJobs.Count<2&&scatterJobs.Count<1)
+        if(CenterReady&&!NearTerrainPending()&&jobs.Count+scatterJobs.Count<2&&scatterJobs.Count<1)
         {
             foreach(var key in scatterPriority)
             {if(scatterChunks.ContainsKey(key)||scatterJobs.Any(j=>j.Key.Equals(key)))continue;var source=scatter;var token=cancellation.Token;scatterJobs.Add(new ScatterWork{Key=key,Task=Task.Run(()=>source.Build(key,token),token)});break;}
@@ -95,7 +95,7 @@ public sealed partial class LocalTerrainExplorer
     {
         for(int level=0;level<=16;level++)
         {
-            double size=2048*HorizontalScale*(1<<level);var key=new WorldGen.Presentation.TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),level,HorizontalScale);
+            double size=WorldGen.Presentation.TerrainLod.BaseSizeM*HorizontalScale*(1<<level);var key=new WorldGen.Presentation.TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),level,HorizontalScale);
             if(!tiles.TryGetValue(key,out var tile)||tile.Heights==null)continue;int n=tile.Segments,side=n+1;
             double gx=(x/size-key.X)*n,gz=(z/size-key.Z)*n;int a=Math.Min(n-1,Math.Max(0,(int)gx)),b=Math.Min(n-1,Math.Max(0,(int)gz));double u=gx-a,v=gz-b;
             double h00=tile.Heights[b*side+a],h10=tile.Heights[b*side+a+1],h01=tile.Heights[(b+1)*side+a],h11=tile.Heights[(b+1)*side+a+1];

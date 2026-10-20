@@ -31,7 +31,7 @@ public sealed partial class LocalTerrainExplorer
         {
             for(int level=0;level<=16;level++)
             {
-                double size=2048*HorizontalScale*(1<<level);
+                double size=TerrainLod.BaseSizeM*HorizontalScale*(1<<level);
                 var key=new TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),level,HorizontalScale);
                 if(!pending.Tiles.TryGetValue(key,out var tile)||tile.Heights==null)continue;
                 int n=tile.Segments,side=n+1;

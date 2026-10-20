@@ -13,7 +13,7 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer : MonoBehaviour
 {
     sealed class Tile { public int Segments; public double[] Edges; public float[] Heights; public GameObject Root; }
-    sealed class Work { public TerrainTileKey Key; public double[] Edges; public int Segments,Generation; public Task<LocalTerrainMesh> Task; public PreparedFrame Prepared; }
+    sealed class Work { public TerrainTileKey Key; public double[] Edges; public int Segments,Generation; public Task<LocalTerrainMesh> Task; public PreparedFrame Prepared; public CancellationTokenSource Cancellation; }
     Task<LocalTerrain> building;
     LocalTerrain terrain; LocalTerrainFrame frame; LocalTerrain.LocalTerrainPatch walkingPatch;
     readonly TerrainMotion motion=new TerrainMotion();
@@ -58,6 +58,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public int TileCount=>tiles.Count;
     public int WantedCount=>wanted.Count;
     public bool CenterReady=>tiles.Keys.Any(k=>motion.X>=k.X*k.SizeM&&motion.X<(k.X+1)*k.SizeM&&motion.Z>=k.Z*k.SizeM&&motion.Z<(k.Z+1)*k.SizeM);
+    public bool NearReady=>wanted.Count>0&&!NearTerrainPending();
     public bool AllReady=>wanted.All(p=>tiles.TryGetValue(p.Key,out var t)&&t.Segments==p.Value&&t.Edges.SequenceEqual(wantedEdges[p.Key]));
     public V Position=>frame.Position(motion.X,motion.Z);
     public double HeightAboveGround=>motion.Y-Ground(motion.X,motion.Z);
@@ -126,10 +127,11 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         }
         UpdatePreparedFrame();
         UpdateCamera();UpdateFootsteps();double altitude=HeightAboveGround;
-        if(double.IsNaN(plannedX)||Math.Abs(motion.X-plannedX)>1024||Math.Abs(motion.Z-plannedZ)>1024||Math.Abs(altitude-plannedAltitude)>Math.Max(150,plannedAltitude*.3))RefreshWanted();
+        double replanDistance=TerrainLod.ReplanDistance(HorizontalScale);
+        if(double.IsNaN(plannedX)||Math.Abs(motion.X-plannedX)>replanDistance||Math.Abs(motion.Z-plannedZ)>replanDistance||Math.Abs(altitude-plannedAltitude)>Math.Max(150,plannedAltitude*.3))RefreshWanted();
         for(int i=jobs.Count-1;i>=0;i--)
         {
-            var job=jobs[i];if(!job.Task.IsCompleted)continue;jobs.RemoveAt(i);
+            var job=jobs[i];if(!job.Task.IsCompleted)continue;jobs.RemoveAt(i);job.Cancellation?.Dispose();
             if(job.Task.IsFaulted){error=job.Task.Exception.GetBaseException().Message;debugOpen=true;CaptureMouse();continue;}
             if(job.Prepared!=null)
             {
@@ -145,29 +147,37 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             if(wanted.Where(w=>Overlaps(key,w.Key)).All(w=>tiles.TryGetValue(w.Key,out var replacement)&&replacement.Segments==w.Value))
             {DestroyTile(tiles[key]);tiles.Remove(key);}
         UpdateScatter();UpdateWeatherPresentation();
-        SchedulePreparedWork(true);
-        // Once a handoff is due, spend terrain work on its replacement rather
-        // than repeatedly refining the chart that is about to be retired.
-        if(preparedFrame!=null&&ReanchorDistance>=ReanchorLimit)
-        {SchedulePreparedWork(false);RetireTerrainGradually();return;}
+        // Nearby ground always goes first, including when a hidden replacement
+        // chart is overdue. Do not let scatter or far work monopolize both slots.
+        bool nearPending=NearTerrainPending();
+        // Free ONE occupied lane only if neither lane is serving near ground.
+        // Continually cancelling all background work would itself cause churn.
+        if(nearPending&&jobs.Count+scatterJobs.Count>=2&&!jobs.Any(j=>j.Prepared==null&&TerrainLod.Immediate(j.Key,motion.X,motion.Z)))
+            jobs.LastOrDefault(j=>j.Prepared!=null||!TerrainLod.Immediate(j.Key,motion.X,motion.Z))?.Cancellation?.Cancel();
+        bool handoffDue=preparedFrame!=null&&ReanchorDistance>=ReanchorLimit;
         foreach(var key in priority)
         {
             if(jobs.Count+scatterJobs.Count>=2)break;int detail=wanted[key];
+            if(handoffDue&&!TerrainLod.Immediate(key,motion.X,motion.Z))continue;
             if(tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&tile.Edges.SequenceEqual(wantedEdges[key])||jobs.Any(j=>j.Prepared==null&&j.Generation==generation&&j.Key.Equals(key)))continue;
-            var buildFrame=frame;var buildTerrain=terrain;var token=cancellation.Token;int stamp=generation;var edges=wantedEdges[key];
-            jobs.Add(new Work{Key=key,Edges=edges,Segments=detail,Generation=stamp,Task=Task.Run(()=>LocalTerrainMesh.Build(buildTerrain,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token)});
+            var buildFrame=frame;var buildTerrain=terrain;var jobCancellation=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=jobCancellation.Token;int stamp=generation;var edges=wantedEdges[key];
+            jobs.Add(new Work{Key=key,Edges=edges,Segments=detail,Generation=stamp,Cancellation=jobCancellation,Task=Task.Run(()=>LocalTerrainMesh.Build(buildTerrain,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token)});
         }
         SchedulePreparedWork(false);
         RetireTerrainGradually();
     }
     void UpdateCamera(){view.transform.localPosition=new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ));view.transform.localRotation=Quaternion.Euler(pitch,heading,0);}
+    bool NearTerrainPending()=>wanted.Any(p=>TerrainLod.Immediate(p.Key,motion.X,motion.Z)&&
+        (!tiles.TryGetValue(p.Key,out var tile)||tile.Segments!=p.Value||!tile.Edges.SequenceEqual(wantedEdges[p.Key])));
     void RefreshWanted()
     {
         plannedX=motion.X;plannedZ=motion.Z;plannedAltitude=HeightAboveGround;
         wanted=TerrainLod.Plan(motion.X,motion.Z,plannedAltitude,viewDistance,HorizontalScale);priority.Clear();priority.AddRange(wanted.Keys);
         wantedEdges.Clear();foreach(var key in priority)wantedEdges[key]=TerrainLod.EdgeSteps(key,wanted);
         foreach(var key in tiles.Keys.Where(k=>!wanted.ContainsKey(k)&&!wanted.Keys.Any(w=>Overlaps(k,w))).ToArray()){DestroyTile(tiles[key]);tiles.Remove(key);}
-        double Distance(TerrainTileKey k){double dx=k.X*k.SizeM+k.SizeM*.5-motion.X,dz=k.Z*k.SizeM+k.SizeM*.5-motion.Z;return dx*dx+dz*dz;}
+        foreach(var job in jobs)
+            if(job.Prepared==null&&(!wanted.TryGetValue(job.Key,out int detail)||detail!=job.Segments))job.Cancellation?.Cancel();
+        double Distance(TerrainTileKey k)=>TerrainLod.DistanceSquared(k,motion.X,motion.Z);
         priority.Sort((a,b)=>{int d=Distance(a).CompareTo(Distance(b));return d!=0?d:a.Level!=b.Level?a.Level.CompareTo(b.Level):a.X!=b.X?a.X.CompareTo(b.X):a.Z.CompareTo(b.Z);});
     }
     static bool Overlaps(TerrainTileKey a,TerrainTileKey b)=>Math.Max(a.X*a.SizeM,b.X*b.SizeM)<Math.Min((a.X+1)*a.SizeM,(b.X+1)*b.SizeM)&&Math.Max(a.Z*a.SizeM,b.Z*b.SizeM)<Math.Min((a.Z+1)*a.SizeM,(b.Z+1)*b.SizeM);
