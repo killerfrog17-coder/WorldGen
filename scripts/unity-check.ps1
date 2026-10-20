@@ -29,6 +29,13 @@ if($Isolated){
 }
 $artifacts=Join-Path $validationRoot 'artifacts'
 New-Item -ItemType Directory -Force $artifacts | Out-Null
+$workerOutput=Join-Path $repoRoot 'artifacts/terrain-worker'
+if($BuildPlayer){
+    dotnet publish (Join-Path $repoRoot 'src/WorldGen.Cli') -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o $workerOutput --nologo
+    if($LASTEXITCODE -ne 0){throw 'Terrain worker publish failed'}
+    # Freeze the same authoritative assembly inputs for worker and IL2CPP.
+    foreach($name in @('Core','Serialization','Presentation')){Copy-Item -LiteralPath (Join-Path $repoRoot "src/WorldGen.$name/bin/Release/netstandard2.1/WorldGen.$name.dll") -Destination (Join-Path $project 'Assets/Plugins/WorldGen') -Force}
+}
 $method=if($BuildPlayer){'WorldGenBatch.BuildPlayer'}else{'WorldGenBatch.Validate'}
 $log=Join-Path $artifacts $(if($BuildPlayer){'unity-build.log'}else{'unity-validation.log'})
 $playerOutput=[IO.Path]::GetFullPath((Join-Path $artifacts ($PlayerFolder+'/WorldGen.exe')))
@@ -44,6 +51,9 @@ if($run.ExitCode -ne 0){throw "Unity failed. Inspect $log"}
 if(Select-String -LiteralPath $log -Pattern 'Shader error in ' -Quiet){throw "Unity reported a shader compilation error despite a successful exit. Inspect $log"}
 if($BuildPlayer){
     foreach($inputAssembly in $assemblyInputs){if((Get-FileHash -LiteralPath $inputAssembly.Path).Hash.ToLowerInvariant() -ne $inputAssembly.Sha256){throw 'A staged authoritative assembly changed during the player build; do not accept this output.'}}
+    $packagedWorker=Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'TerrainWorker'
+    New-Item -ItemType Directory -Path $packagedWorker -Force | Out-Null
+    Copy-Item -LiteralPath (Join-Path $workerOutput 'WorldGen.Cli.exe') -Destination $packagedWorker -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'src/WorldGen.Core/Data/earth-etopo2022-10min.source.json') -Destination (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'EARTH-DATA.json') -Force
     [ordered]@{BuiltUtc=[DateTime]::UtcNow.ToString('o');Backend=$(if($Il2Cpp){'IL2CPP'}else{'Project default'});Development=[bool]$DevelopmentPlayer;Inputs=$assemblyInputs}|ConvertTo-Json -Depth 4|Set-Content -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($playerOutput)) 'build-inputs.json') -Encoding UTF8
 }

@@ -5,6 +5,7 @@ using WorldGen.Presentation;
 try
 {
     string Arg(string name, string fallback = "") { int i = Array.IndexOf(args, name); return i >= 0 && i + 1 < args.Length ? args[i + 1] : fallback; }
+    if(args.Contains("--terrain-worker")){await TerrainWorker.Run(int.Parse(Arg("--terrain-worker")),int.Parse(Arg("--parent")),Arg("--terrain-token"));return;}
     if(args.Contains("--list-presets")){foreach(string name in WorldPresets.Names)Console.WriteLine(name);return;}
     if (args.Contains("--help")) { Console.WriteLine("WorldGen --preset Earth|Preview|\"Orogen defaults\"|\"Ocean world\"|Continental|Glacial|\"500 plates\" --seed N --recipe file.json --output directory --verify --corpus directory\nWorld snapshots: --save-world file.world; --world file.world (or legacy result JSON)\nTerrain controls: --lake-amount 0..100000; --mountain-strength 0..100000 (percent, default100; fractional values supported)\nPlate selection: --continents 6 --interconnectedness 1..50\nVisual review: --map-preview file.svg --layer Continents|Terrain --rivers --summary\nOutputs recipe, complete result, cells.csv, heightmap.pgm, stage hashes. Ctrl+C cancels."); return; }
     using var cancel = new CancellationTokenSource(); Console.CancelKeyPress += (_, e) => { e.Cancel = true; cancel.Cancel(); };

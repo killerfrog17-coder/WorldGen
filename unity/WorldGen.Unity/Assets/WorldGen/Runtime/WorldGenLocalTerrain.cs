@@ -17,6 +17,9 @@ public sealed partial class WorldGenRuntime
 {
     LocalTerrainExplorer terrainExplorer;
     Task<LocalTerrain> localTerrainTask;
+    TerrainMeshProcess terrainMeshProcess;
+    World terrainSnapshotWorld;
+    string terrainSnapshotPath;
     bool enteringTerrain;
     AsyncOperation terrainUnloading;
     World localTerrainWorld;
@@ -41,6 +44,14 @@ public sealed partial class WorldGenRuntime
             localTerrainCancellation?.Cancel(); localTerrainCancellation?.Dispose(); localTerrainCancellation = new CancellationTokenSource();
             var source = world; var token = localTerrainCancellation.Token; localTerrainWorld = source;var scale=localTerrainScale=play.Settings.HorizontalScale;
             localTerrainTask = Task.Run(() => new LocalTerrain(source, token,scale), token);
+            terrainMeshProcess?.Dispose();terrainMeshProcess=null;
+            string worker=Path.GetFullPath(Path.Combine(Application.dataPath,"../TerrainWorker/WorldGen.Cli.exe"));
+            if(Application.platform==RuntimePlatform.WindowsPlayer&&File.Exists(worker))
+            {
+                string input=ReferenceEquals(terrainSnapshotWorld,source)?terrainSnapshotPath:null;
+                if(Environment.GetCommandLineArgs().Contains("--worldgen-terrain-regenerate"))input=null;
+                terrainMeshProcess=new TerrainMeshProcess(worker,source,scale,input);
+            }
         }
     }
     void ExploreTerrain(V? exactPosition = null)
@@ -60,7 +71,7 @@ public sealed partial class WorldGenRuntime
         {
             terrainExplorer = null; terrainReturnFrame = Time.frameCount; cameraView.enabled = true; humanClockSample=Time.realtimeSinceStartupAsDouble;humanPlayback.Reset();humanPlaying = false;
             if (globe != null) globe.SetActive(true); terrainUnloading=SceneManager.UnloadSceneAsync(scene);
-        },world,play,DrawPlayPause);
+        },world,play,DrawPlayPause,terrainMeshProcess);
         terrainExplorer.MenuSkin=gameSkin;
         terrainExplorer.SetCommandHandler(text=>PlayCommands.Execute(play,SimulationTime.Seconds(world.Prehistory),text,terrainExplorer.Ready?Math.Atan2(terrainExplorer.Position.Y,terrainExplorer.Position.X)*180/Math.PI:play.PrimeMeridianLongitude,terrainExplorer.Ready?Math.Asin(Math.Max(-1,Math.Min(1,terrainExplorer.Position.Z)))*180/Math.PI:0,terrainExplorer.WeatherControl));
     }

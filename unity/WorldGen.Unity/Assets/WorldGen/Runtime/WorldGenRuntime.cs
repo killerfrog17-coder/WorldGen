@@ -190,6 +190,8 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
                         : generate ? new WorldPipeline().Generate(snapshot, p => { progress = p.Stage; percent = p.Percent * 80 / 100; if (uiCheck) Debug.Log("WORLDGEN UI STAGE " + p.Stage + " " + elapsed.ElapsedMilliseconds + "ms"); }, token) : existing;
                     token.ThrowIfCancellationRequested();
                     if(snapshotPath!=null||generate)WorldMeridian.For(result,token);
+                    if(snapshotPath!=null&&Path.GetExtension(snapshotPath).Equals(".world",StringComparison.OrdinalIgnoreCase)){terrainSnapshotWorld=result;terrainSnapshotPath=Path.GetFullPath(snapshotPath);}
+                    else if(!ReferenceEquals(result,terrainSnapshotWorld)){terrainSnapshotWorld=null;terrainSnapshotPath=null;}
                     int index = 0, total = DisplayCache.ExpectedChunkCount(result);
                     pendingPalettes = BuildPalettes(result, options.Layer, linear, token);
                     if(reusePendingGeometry)return result;
@@ -519,5 +521,5 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         RenderTexture.active = prior; cameraView.targetTexture = null; Destroy(texture); target.Release(); Destroy(target); yield return null; Application.Quit(error.Length == 0 ? 0 : 1);
     }
     static string Argument(string flag, string fallback) { var args = Environment.GetCommandLineArgs(); int i = Array.IndexOf(args, flag); return i >= 0 && i + 1 < args.Length ? args[i + 1] : fallback; }
-        void OnDestroy() { DisposeGameTheme();localTerrainCancellation?.Cancel(); if(riverMaterial!=null)Destroy(riverMaterial);if(settlementDot!=null)Destroy(settlementDot);DisposeMusic(); DisposeHabitatPortraits(); generationCancel?.Cancel(); cancel?.Cancel(); humanCancellation?.Cancel(); if (surfaceMaterial != null) Destroy(surfaceMaterial); if (lineMaterial != null) Destroy(lineMaterial);if(naturalMaterial!=null)Destroy(naturalMaterial);if(smallFeatureMaterial!=null)Destroy(smallFeatureMaterial);if(borderMaterial!=null)Destroy(borderMaterial);if(borderMesh!=null)Destroy(borderMesh); }
+        void OnDestroy() { DisposeGameTheme();terrainMeshProcess?.Dispose();localTerrainCancellation?.Cancel(); if(riverMaterial!=null)Destroy(riverMaterial);if(settlementDot!=null)Destroy(settlementDot);DisposeMusic(); DisposeHabitatPortraits(); generationCancel?.Cancel(); cancel?.Cancel(); humanCancellation?.Cancel(); if (surfaceMaterial != null) Destroy(surfaceMaterial); if (lineMaterial != null) Destroy(lineMaterial);if(naturalMaterial!=null)Destroy(naturalMaterial);if(smallFeatureMaterial!=null)Destroy(smallFeatureMaterial);if(borderMaterial!=null)Destroy(borderMaterial);if(borderMesh!=null)Destroy(borderMesh); }
 }

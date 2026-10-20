@@ -16,6 +16,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     sealed class Work { public TerrainTileKey Key; public double[] Edges; public int Segments,Generation; public Task<TerrainUpload> Task; public PreparedFrame Prepared; public CancellationTokenSource Cancellation; }
     Task<LocalTerrain> building;
     LocalTerrain terrain; LocalTerrainFrame frame; LocalTerrain.LocalTerrainPatch walkingPatch;
+    TerrainMeshProcess meshProcess;
     readonly TerrainMotion motion=new TerrainMotion();
     Dictionary<TerrainTileKey,Tile> tiles=new Dictionary<TerrainTileKey,Tile>();
     GameObject terrainRoot;
@@ -63,9 +64,9 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public V Position=>frame.Position(motion.X,motion.Z);
     public double HeightAboveGround=>motion.Y-Ground(motion.X,motion.Z);
     public string Diagnostics=>tiles.Count+" / "+wanted.Count+" tiles · last "+lastBuildMs.ToString("F1")+" ms · max "+largestBuildMs.ToString("F1")+" ms/tile";
-    public void Initialize(Task<LocalTerrain> source,V position,Action onClose,World sourceWorld=null,PlaySession session=null,Action pauseMenu=null)
+    public void Initialize(Task<LocalTerrain> source,V position,Action onClose,World sourceWorld=null,PlaySession session=null,Action pauseMenu=null,TerrainMeshProcess worker=null)
     {
-        building=source;startingPoint=session!=null&&session.HasPlayer?session.PlayerPosition:position;close=onClose;this.sourceWorld=sourceWorld;playState=session;drawPause=pauseMenu;explorationSettings=session?.Settings.Copy()??new PlaySettings{HorizontalScale=1};
+        building=source;meshProcess=worker;startingPoint=session!=null&&session.HasPlayer?session.PlayerPosition:position;close=onClose;this.sourceWorld=sourceWorld;playState=session;drawPause=pauseMenu;explorationSettings=session?.Settings.Copy()??new PlaySettings{HorizontalScale=1};
         mapViewport.Longitude=session?.PrimeMeridianLongitude??0;
         var cameraRoot=new GameObject("Exploration camera",typeof(Camera),typeof(UnityEngine.Rendering.Universal.UniversalAdditionalCameraData));
         cameraRoot.transform.SetParent(transform,false);cameraRoot.layer=30;view=cameraRoot.GetComponent<Camera>();
@@ -169,7 +170,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             if(handoffDue&&!TerrainLod.Immediate(key,motion.X,motion.Z))continue;
             if(tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&tile.Edges.SequenceEqual(wantedEdges[key])||jobs.Any(j=>j.Prepared==null&&j.Generation==generation&&j.Key.Equals(key)))continue;
             var buildFrame=frame;var buildTerrain=terrain;var jobCancellation=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=jobCancellation.Token;int stamp=generation;var edges=wantedEdges[key];
-            jobs.Add(new Work{Key=key,Edges=edges,Segments=detail,Generation=stamp,Cancellation=jobCancellation,Task=Task.Run(()=>TerrainUpload.Prepare(LocalTerrainMesh.Build(buildTerrain,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token),token)});
+            var producer=meshProcess;
+            jobs.Add(new Work{Key=key,Edges=edges,Segments=detail,Generation=stamp,Cancellation=jobCancellation,Task=Task.Run(()=>TerrainUpload.Prepare(producer==null?LocalTerrainMesh.Build(buildTerrain,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges):producer.Build(buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token),token)});
         }
         SchedulePreparedWork(false);
         RetireTerrainGradually();

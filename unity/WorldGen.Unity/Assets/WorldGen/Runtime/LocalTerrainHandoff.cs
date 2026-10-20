@@ -188,8 +188,9 @@ public sealed partial class LocalTerrainExplorer
             if(pending.Tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&tile.Edges.SequenceEqual(edges)||
                 jobs.Any(j=>ReferenceEquals(j.Prepared,pending)&&j.Key.Equals(key)))continue;
             var source=terrain;var buildFrame=pending.Frame;var jobCancellation=System.Threading.CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=jobCancellation.Token;
+            var producer=meshProcess;
             jobs.Add(new Work{Key=key,Edges=edges,Segments=detail,Generation=generation,Prepared=pending,Cancellation=jobCancellation,
-                Task=Task.Run(()=>TerrainUpload.Prepare(LocalTerrainMesh.Build(source,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token),token)});
+                Task=Task.Run(()=>TerrainUpload.Prepare(producer==null?LocalTerrainMesh.Build(source,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges):producer.Build(buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token),token)});
             if(reserveCurrentSlot)return;
         }
     }

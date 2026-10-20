@@ -16,6 +16,14 @@ namespace WorldGen.Presentation
             East = V.Cross(Math.Abs(Origin.Z) < .99 ? new V(0, 0, 1) : new V(0, 1, 0), Origin).Unit;
             North = V.Cross(Origin, East).Unit;
         }
+        LocalTerrainFrame(V origin,V east,V north,double radius,double altitude,double scale)
+        {Origin=origin;East=east;North=north;RadiusM=radius;AltitudeM=altitude;HorizontalScale=scale;}
+        public static LocalTerrainFrame FromExactBasis(V origin,V east,V north,double radius,double altitude,double scale)
+        {
+            if(double.IsNaN(radius)||double.IsInfinity(radius)||radius<=0||scale<.01||scale>2||double.IsNaN(scale)||double.IsNaN(altitude)||double.IsInfinity(altitude)
+                ||Math.Abs(origin.Length-1)>.00001||Math.Abs(east.Length-1)>.00001||Math.Abs(north.Length-1)>.00001)throw new ArgumentException("Invalid terrain frame basis.");
+            return new LocalTerrainFrame(origin,east,north,radius,altitude,scale);
+        }
         public V Position(double x, double z) => (Origin + East * (x / RadiusM) + North * (z / RadiusM)).Unit;
         public double SurfaceY(V position, double heightM) => (RadiusM + heightM) *
             (position.X * Origin.X + position.Y * Origin.Y + position.Z * Origin.Z) - RadiusM - AltitudeM;
