@@ -99,17 +99,6 @@ public sealed partial class LocalTerrainExplorer
     bool loadingProfile;
     int loadingSkip,loadingCollections;
     double largestGroundMs;
-    bool incrementalPending;
-    void AdvanceStreamingCollector()
-    {
-        // Unlimited FPS has no VSync/frame-cap idle interval in which Unity can
-        // advance its collector. Give allocation-heavy terrain streaming a
-        // small explicit slice instead of letting it reach a full collection.
-        // Automatic GC remains enabled, and no unbounded heap is permitted.
-        if(closed||!UnityEngine.Scripting.GarbageCollector.isIncremental)return;
-        if(incrementalPending||jobs.Count>0||scatterJobs.Count>0)
-            incrementalPending=UnityEngine.Scripting.GarbageCollector.CollectIncremental(1500000);
-    }
     public void BeginLoadingProfile(){loadingFrames.Clear();loadingProfile=true;loadingSkip=2;loadingCollections=GC.CollectionCount(0);largestGroundMs=0;}
     public string EndLoadingProfile()
     {

@@ -140,6 +140,8 @@ public sealed partial class WorldGenRuntime
         if(lake>=0)sites.Insert(2,Tuple.Create("lake",world.Surface.Cells[lake].Position,350d,20f,55f));
         if(Environment.GetCommandLineArgs().Contains("--worldgen-hyper-loading-review"))
             sites=sites.Where(s=>s.Item1=="river-ground"||s.Item1=="generated-mountains"||s.Item1=="generated-lowlands"||s.Item1=="himalayas"||s.Item1=="hill-country"||s.Item1=="lake").ToList();
+        string chosenSites=Argument("--worldgen-hyper-sites","");
+        if(chosenSites!="")sites=sites.Where(s=>chosenSites.Split(',').Contains(s.Item1)).ToList();
         var report=new List<string>{"Surface "+LocalTerrain.Version+" / "+HyperAmplification.Version,
             "Core hierarchical preparation "+terrain.Amplification.PreparationMilliseconds.ToString("F1")+"ms"};
         var probes=new List<string>{"originX,originY,originZ,eastM,northM,elevationM"};
@@ -160,8 +162,9 @@ public sealed partial class WorldGenRuntime
             report.Add(site.Item1+": near "+(Time.realtimeSinceStartupAsDouble-started).ToString("F3")+"s; "+explorer.Diagnostics);
             // Near-ready proves input readiness, not that an elevated review
             // camera has any distant land in view. Capture only real coverage.
-            deadline=Time.realtimeSinceStartupAsDouble+180;
-            while(!explorer.AllReady&&explorer.Error==""&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+            deadline=Time.realtimeSinceStartupAsDouble+180;double nextProgress=Time.realtimeSinceStartupAsDouble+10;
+            while(!explorer.AllReady&&explorer.Error==""&&Time.realtimeSinceStartupAsDouble<deadline)
+            {if(Time.realtimeSinceStartupAsDouble>nextProgress){nextProgress+=10;Debug.Log("HYPER streaming "+site.Item1+": "+explorer.Diagnostics);}yield return null;}
             if(!explorer.AllReady||explorer.Error!="")throw new Exception("Hyper terrain distant coverage: "+site.Item1+" "+explorer.Error);
             report.Add(site.Item1+": full coverage "+(Time.realtimeSinceStartupAsDouble-started).ToString("F3")+"s; "+explorer.Diagnostics);
             report.Add(site.Item1+": "+explorer.EndLoadingProfile());

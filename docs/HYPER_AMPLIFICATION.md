@@ -106,11 +106,13 @@ The first native upload revision brought apply/bind below0.6ms but still had
 28–35 collections and matching >100ms frame stalls per scene. Those stalls
 cannot be called fixed by moving uploads. Permanent base faces now avoid about
 1.2million unnecessary weak handles, and expired child-link wrappers are reused.
-While streaming, an explicit1.5ms incremental-collection slice also makes
-progress when uncapped playback offers Unity no VSync/frame-cap idle interval.
-Automatic GC stays enabled; there is no disabled-collector/unbounded-heap mode.
-This follows Unity's documented incremental API; measured native results, not
-the requested slice alone, determine whether it actually fixes the stalls.
+An explicit1.5ms incremental-collection experiment was **rejected**: even with
+allocation-based triggering it produced538 collections/89s in the river scene,
+versus35/39s before, and individual calls exceeded their requested slice during
+unsliced work. Neither continuous nor threshold-triggered explicit collection
+is shipped. Automatic incremental GC remains enabled; there is no disabled-
+collector/unbounded-heap mode. Allocation reduction, not forced collection, is
+the retained change. Native results determine the remaining stall limits.
 
 -[Unity incremental collection modes](https://docs.unity.com/en-us/engine/6000.7/manual/analysis/performance-memory/managed-memory/incremental-garbage-collection)
 -[CollectIncremental API](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Scripting.GarbageCollector.CollectIncremental.html)
