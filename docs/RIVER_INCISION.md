@@ -35,6 +35,14 @@ reported. No extra per-cell history work, save-format/history rule changes or
 new saved raster. Around20MiB of additional managed profile data is retained
 in the actual200k Earth diagnostic (total derived terrain263.9MiB).
 
+The internal height-only pass omits soil/colour blending. It retains exactly
+the quantized sandstone/limestone contributions needed for ledge height.
+Large profile/triangle structs are read in place rather than copied per probe.
+The first native candidate's48.75s conditioning cost was not accepted as a
+performance result; these changes target that overhead without lowering the
+station count or terrain/river detail. Focused old-native/new-CLR height probes
+remain exact. See the final native timing recorded in VALIDATION.md.
+
 ## Cost / remaining limits
 
 The preceding build's scaffold was1.4–1.7s CLR, with all terrain preparation

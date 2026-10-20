@@ -165,7 +165,7 @@ namespace WorldGen.Core
 
         // Cubic triangular surface: exact source heights and shared edge curves. Bounded
         // Bezier controls prevent overshooting the triangle's source elevation range.
-        internal struct HeightTriangle
+        internal readonly struct HeightTriangle
         {
             readonly double ax,ay,az,bx,by,bz,cx,cy,cz,ha,hb,hc,ab,ac,ba,bc,ca,cb,mid;
             readonly double ridgeAB,ridgeBC,ridgeCA;
@@ -237,9 +237,11 @@ namespace WorldGen.Core
                 double fine = SphereNoise.Sample(km, seed ^ 0x2573, 2.1);
                 double micro = SphereNoise.Sample(km, seed ^ 0x6819, 10);
                 double sum = 0, hills = 0, mountains = 0, plateau = 0, sediment = 0, glacier = 0, sharpness = 0, bestWeight = -1, red = 0, green = 0, blue = 0, ocean = 0;
+                bool heightOnly=water==null;double rockA=0,rockB=0;
                 int cell = -1; Biome biome = Biome.Grassland;var ground=new GroundProfile();
-                foreach (var f in sources)
+                for(int sourceIndex=0;sourceIndex<sources.Length;sourceIndex++)
                 {
+                    ref readonly var f=ref sources[sourceIndex];
                     double x = px - f.Center.X * owner.RadiusM, y = py - f.Center.Y * owner.RadiusM, z = pz - f.Center.Z * owner.RadiusM;
                     double dist2 = (x * x + y * y + z * z) / (f.SupportM * f.SupportM);
                     if (dist2 >= 1) continue;
@@ -247,21 +249,29 @@ namespace WorldGen.Core
                     double r = Math.Sqrt(dist2), t = 1 - r, weight = t * t * t * t * (1 + 4 * r);
                     sum += weight; hills += weight * f.HillHeightM;
                     sharpness+=weight*f.Sharpness;
-                    ground.Add(f.Ground,weight);
+                    if(!heightOnly)ground.Add(f.Ground,weight);
+                    else
+                    {
+                        // Match the quantized two lithology components used by
+                        // ledge height, without blending thirteen soil fields,
+                        // three colours and four unused rock components.
+                        rockA=D.Q(rockA+D.Q(f.Ground.RockMixA.Z*weight));
+                        rockB=D.Q(rockB+D.Q(f.Ground.RockMixB.X*weight));
+                    }
                     if (f.Cell < owner.world.Hydrology.OceanConnected.Length && owner.world.Hydrology.OceanConnected[f.Cell]) ocean += weight;
                     mountains += weight * f.MountainHeightM; plateau += weight * f.Plateau;
                     sediment += weight * f.Sediment; glacier += weight * f.Glacial;
-                    var color = CoverColor(f.Biome); red += weight * color.X; green += weight * color.Y; blue += weight * color.Z;
+                    if(!heightOnly){var color = CoverColor(f.Biome); red += weight * color.X; green += weight * color.Y; blue += weight * color.Z;}
                     if (weight > bestWeight) { bestWeight = weight; cell = f.Cell; biome = f.Biome;ground.Bedrock=f.Ground.Bedrock;ground.Deposit=f.Ground.Deposit; }
                 }
                 if (sum <= 0) throw new InvalidOperationException("Terrain patch has no supporting world cells.");
                 double baseM = double.NaN;
-                foreach(var triangle in triangles)if(triangle.Height(point,out double value)){baseM=value;break;}
+                for(int i=0;i<triangles.Length;i++)if(triangles[i].Height(point,out double value)){baseM=value;break;}
                 if(double.IsNaN(baseM))throw new InvalidOperationException("Terrain patch did not resolve a containing world triangle.");
                 double geographicM=baseM;
                 if(geography.Length>0)
                 {
-                    bool found=false;foreach(var triangle in geography)if(triangle.Height(point,out double value)){geographicM=value;found=true;break;}
+                    bool found=false;for(int i=0;i<geography.Length;i++)if(geography[i].Height(point,out double value)){geographicM=value;found=true;break;}
                     if(!found)throw new InvalidOperationException("Terrain patch did not resolve its geographic scaffold triangle.");
                 }
                 double h = hills / sum, m = mountains / sum, s = sediment / sum;
@@ -283,14 +293,14 @@ namespace WorldGen.Core
                 double coast = Smooth(Math.Abs(baseM) / 100);
                 if (baseM < 0) residual = (12 * broad + 4 * medium + fine) * coast;
                 else residual = Math.Max(-.9 * baseM, residual * coast);
-                ground.Divide(sum);
+                if(!heightOnly)ground.Divide(sum);
                 // Zero-height noise used to lock every coast to the coarse
                 // triangle contour. A bounded continuous shoreline band permits
                 // inlets/headlands on flat cells without ocean-cell borders.
                 double oceanFraction=ocean/sum;
                 double shoreBand=(1-Smooth(Math.Abs(baseM)/65))*OrogenMorphology.Smooth(.001,.08,oceanFraction);
                 residual+=shoreBand*(3.5*medium+1.2*fine);
-                double strata=ground.RockWeight((int)RockFamily.Sandstone)+ground.RockWeight((int)RockFamily.Limestone);
+                double strata=heightOnly?D.Q(rockA*(1/sum))+D.Q(rockB*(1/sum)):ground.RockWeight((int)RockFamily.Sandstone)+ground.RockWeight((int)RockFamily.Limestone);
                 double ledge=strata*Math.Min(9,m*.012+h*.06)*(1-s)*Math.Sin((baseM+residual)/24+medium*.4);
                 double elevation=geographicM+residual+ledge;
                 double level=oceanFraction>.001?0:double.NaN,mask=oceanFraction>.001?-elevation:-1000000;

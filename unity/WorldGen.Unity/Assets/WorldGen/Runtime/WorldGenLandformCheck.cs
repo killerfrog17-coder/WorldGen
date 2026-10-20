@@ -38,6 +38,13 @@ public sealed partial class WorldGenRuntime
         while((terrainExplorer==null||!terrainExplorer.Ready)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(terrainExplorer==null||!terrainExplorer.Ready)throw new Exception("Landform sampler did not load.");
         var explorer=terrainExplorer;var terrain=localTerrainTask.Result;
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-incision-timing-only"))
+        {
+            File.WriteAllLines(Path.Combine(output,"preparation.txt"),new[]{"Native scaffold "+terrain.Scaffold.PreparationMilliseconds.ToString("F0")+"ms; river conditioning "+terrain.Hydrology.ConditioningMilliseconds.ToString("F0")+"ms","PASS source unchanged "+StateHash.Compute(world)});
+            var timingProbes=new List<string>{"originX,originY,originZ,eastM,northM,elevationM"};timingProbes.AddRange(explorer.Probes());File.WriteAllLines(Path.Combine(output,"probes.csv"),timingProbes);
+            if(StateHash.Compute(world)!=sourceHash)throw new Exception("River preparation changed the source world.");
+            explorer.Close();Application.Quit(0);yield break;
+        }
         if(Environment.GetCommandLineArgs().Contains("--worldgen-loading-check"))
         {
             var loading=new List<string>();explorer.TestView(2,20,8);
