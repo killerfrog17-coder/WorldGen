@@ -25,6 +25,9 @@ namespace WorldGen.Presentation
             foreach(var key in resident.Keys)
                 for(var p=Parent(key);p.Level<=20;p=Parent(p))ancestors.Add(p);
             var memo=new Dictionary<TerrainTileKey,bool>();
+            bool Overlaps(TerrainTileKey a,TerrainTileKey b)=>
+                Math.Max(a.X*a.SizeM,b.X*b.SizeM)<Math.Min((a.X+1)*a.SizeM,(b.X+1)*b.SizeM)&&
+                Math.Max(a.Z*a.SizeM,b.Z*b.SizeM)<Math.Min((a.Z+1)*a.SizeM,(b.Z+1)*b.SizeM);
             bool Covered(TerrainTileKey key)
             {
                 if(resident.ContainsKey(key))return true;
@@ -46,6 +49,17 @@ namespace WorldGen.Presentation
                 bool covered=Covered(key);
                 for(var p=Parent(key);!covered&&p.Level<=20;p=Parent(p))covered=resident.ContainsKey(p);
                 if(!covered)return false;
+                if(dx*dx+dz*dz<=nearRadius*nearRadius)
+                    foreach(var old in resident.Keys)
+                    {
+                        if(wanted.ContainsKey(old)||!Overlaps(old,key))continue;
+                        // A stale coarse ancestor can draw above its new fine
+                        // children. Require the exact replacement set that the
+                        // ordinary renderer needs before retiring that ancestor.
+                        foreach(var replacement in wanted)
+                            if(Overlaps(old,replacement.Key)&&
+                                (!resident.TryGetValue(replacement.Key,out int detail)||detail!=replacement.Value))return false;
+                    }
             }
             return true;
         }

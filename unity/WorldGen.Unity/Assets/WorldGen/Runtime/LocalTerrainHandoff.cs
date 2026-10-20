@@ -17,7 +17,10 @@ public sealed partial class LocalTerrainExplorer
         public readonly Dictionary<TerrainTileKey,double[]> Edges=new Dictionary<TerrainTileKey,double[]>();
         public readonly List<TerrainTileKey> Priority=new List<TerrainTileKey>();
         public readonly List<TerrainTileKey> CoveragePriority=new List<TerrainTileKey>();
-        public double X=double.NaN,Z,Altitude,SortAt;
+        public double X=double.NaN,Z,Altitude,SortAt,Range;
+        public int Revision,ScatterRevision=-1;
+        public double ScatterOriginX,ScatterOriginZ;
+        public readonly Dictionary<ScatterKey,ScatterChunk> Scatter=new Dictionary<ScatterKey,ScatterChunk>();
     }
     sealed class RetiringFrame {public GameObject Root;public Queue<Tile> Tiles;}
     PreparedFrame preparedFrame;
@@ -30,7 +33,25 @@ public sealed partial class LocalTerrainExplorer
     public int PreparedTileCount=>preparedFrame?.Tiles.Count??0;
     public double ReanchorDistance=>Math.Max(Math.Abs(motion.X),Math.Abs(motion.Z));
     public double ReanchorLimit=>frame==null?0:TerrainHandoff.Limit(frame);
-    public double RenderedFootClearance=>motion.Y-VisibleGround(motion.X,motion.Z,Ground(motion.X,motion.Z));
+    public double RenderedFootClearance
+    {
+        get
+        {
+            double highest=double.NegativeInfinity,x=motion.X,z=motion.Z;
+            // Inspect every overlapping rendered land surface, not merely the
+            // finest cached mesh: an erroneously retained parent could hide it.
+            foreach(var pair in tiles)
+            {
+                var key=pair.Key;var tile=pair.Value;double size=key.SizeM;
+                if(!tile.Root.activeInHierarchy||x<key.X*size||x>(key.X+1)*size||z<key.Z*size||z>(key.Z+1)*size)continue;
+                int n=tile.Segments,side=n+1;double gx=(x/size-key.X)*n,gz=(z/size-key.Z)*n;
+                int a=Math.Min(n-1,Math.Max(0,(int)gx)),b=Math.Min(n-1,Math.Max(0,(int)gz));double u=gx-a,v=gz-b;
+                double h00=tile.Heights[b*side+a],h10=tile.Heights[b*side+a+1],h01=tile.Heights[(b+1)*side+a],h11=tile.Heights[(b+1)*side+a+1];
+                highest=Math.Max(highest,u+v<=1?h00+(h10-h00)*u+(h01-h00)*v:h11+(h01-h11)*(1-u)+(h10-h11)*(1-v));
+            }
+            return motion.Y-(double.IsNegativeInfinity(highest)?Ground(x,z):highest);
+        }
+    }
     public bool TerrainVisible=>terrainRoot!=null&&terrainRoot.activeInHierarchy&&tiles.Count>0;
     public bool TestHoldHandoff,TestHandoffWaiting;
     public string TestHandoffDiagnostics()
@@ -109,22 +130,22 @@ public sealed partial class LocalTerrainExplorer
         TerrainHandoff.Coordinates(pending.Frame,Position,out double x,out double z);
         double altitude=HeightAboveGround;
         double preparationStep=motion.Flying?1024:Math.Min(1024,512*HorizontalScale);
-        if(double.IsNaN(pending.X)||Math.Abs(x-pending.X)>preparationStep||Math.Abs(z-pending.Z)>preparationStep||
+        if(double.IsNaN(pending.X)||pending.Range!=viewDistance||Math.Abs(x-pending.X)>preparationStep||Math.Abs(z-pending.Z)>preparationStep||
             Math.Abs(altitude-pending.Altitude)>Math.Max(150,pending.Altitude*.3))
         {
-            pending.X=x;pending.Z=z;pending.Altitude=altitude;
+            pending.X=x;pending.Z=z;pending.Altitude=altitude;pending.Range=viewDistance;
             pending.Wanted=TerrainLod.Plan(x,z,altitude,viewDistance,HorizontalScale);
             pending.Priority.Clear();pending.Priority.AddRange(pending.Wanted.Keys);pending.Edges.Clear();
             foreach(var key in pending.Priority)pending.Edges[key]=TerrainLod.EdgeSteps(key,pending.Wanted);
             pending.CoveragePriority.Clear();pending.CoveragePriority.AddRange(pending.Priority);
             pending.CoveragePriority.Sort((a,b)=>b.Level.CompareTo(a.Level));pending.SortAt=0;
             foreach(var key in pending.Tiles.Keys.Where(k=>!pending.Wanted.ContainsKey(k)&&!pending.Wanted.Keys.Any(w=>Overlaps(k,w))).ToArray())
-            {DestroyTile(pending.Tiles[key]);pending.Tiles.Remove(key);}
+            {DestroyTile(pending.Tiles[key]);pending.Tiles.Remove(key);pending.Revision++;}
             // Same replacement rule as the active renderer: do not accumulate
             // a trail of obsolete fine products in the hidden frame.
             foreach(var key in pending.Tiles.Keys.Where(k=>!pending.Wanted.ContainsKey(k)).ToArray())
                 if(pending.Wanted.Where(w=>Overlaps(key,w.Key)).All(w=>pending.Tiles.TryGetValue(w.Key,out var replacement)&&replacement.Segments==w.Value))
-                {DestroyTile(pending.Tiles[key]);pending.Tiles.Remove(key);}
+                {DestroyTile(pending.Tiles[key]);pending.Tiles.Remove(key);pending.Revision++;}
         }
         if(Time.realtimeSinceStartupAsDouble>=pending.SortAt)
         {
@@ -149,6 +170,7 @@ public sealed partial class LocalTerrainExplorer
                 (!pending.Tiles.TryGetValue(key,out var tile)||!tile.Edges.SequenceEqual(pending.Edges[key])))return;
         }
         if(!TerrainHandoff.Ready(pending.Wanted,resident,x,z,near))return;
+        if(!motion.Flying&&!PrepareGroundScatter(pending,x,z))return;
         if(TestHoldHandoff){TestHandoffWaiting=true;return;}
         CommitPreparedFrame(pending,x,z);
     }
@@ -178,6 +200,7 @@ public sealed partial class LocalTerrainExplorer
         void Mark(string name){double now=timer.Elapsed.TotalMilliseconds;profile.Append(name+" "+(now-stamp).ToString("F2")+"ms; ");stamp=now;}
         double above=HeightAboveGround;var oldFrame=frame;double yaw=heading*Math.PI/180,tilt=pitch*Math.PI/180;
         V direction=(oldFrame.East*Math.Sin(yaw)+oldFrame.North*Math.Cos(yaw))*Math.Cos(tilt)-oldFrame.Origin*Math.Sin(tilt);
+        V? scatterPlan=double.IsNaN(scatterX)?(V?)null:oldFrame.Position(scatterX,scatterZ);
         var oldRoot=terrainRoot;var oldTiles=tiles;
         frame=pending.Frame;tiles=pending.Tiles;terrainRoot=pending.Root;preparedFrame=null;
         generation++;walkingPatch=null;originX=Math.Floor(x/2048)*2048;originZ=Math.Floor(z/2048)*2048;
@@ -185,6 +208,10 @@ public sealed partial class LocalTerrainExplorer
         stepX=motion.X;stepY=motion.Y;stepZ=motion.Z; // Coordinate change is not a travelled footstep.
         heading=(float)(Math.Atan2(V.Dot(direction,frame.East),V.Dot(direction,frame.North))*180/Math.PI);
         pitch=(float)(-Math.Asin(Math.Max(-1,Math.Min(1,V.Dot(direction,frame.Origin))))*180/Math.PI);
+        // The geographic scatter region did not move. Retain its plan and
+        // express its last refresh position in the new chart, rather than
+        // querying/sorting the same region again at the boundary.
+        if(scatterPlan.HasValue)TerrainHandoff.Coordinates(frame,scatterPlan.Value,out scatterX,out scatterZ);
         foreach(var pair in tiles)
             pair.Value.Root.transform.localPosition=new Vector3((float)(pair.Key.X*pair.Key.SizeM-originX),0,(float)(pair.Key.Z*pair.Key.SizeM-originZ));
         landMaterial.SetVector("_LocalOrigin",new Vector4((float)originX,(float)originZ,0,0));
@@ -193,7 +220,8 @@ public sealed partial class LocalTerrainExplorer
         wanted=pending.Wanted;wantedEdges.Clear();foreach(var pair in pending.Edges)wantedEdges.Add(pair.Key,pair.Value);
         priority.Clear();priority.AddRange(pending.Priority);plannedX=pending.X;plannedZ=pending.Z;plannedAltitude=pending.Altitude;
         UpdateCamera();Mark("frame/plan");
-        ResetScatterFrame();Mark("scatter");
+        AdoptScatterFrame(pending,!motion.Flying);
+        Mark("scatter");
         ResetWeatherFrame();SetDaylight(LocalSolarHour,skyYear);Mark("sky/weather");
         // Both roots switch in the same Update. Never render an empty frame.
         terrainRoot.SetActive(true);RetireFrame(oldRoot,oldTiles);ReanchorCount++;

@@ -64,6 +64,13 @@ two tiles per frame; the next preparation waits for retirement to finish.
 This is bounded overlap memory, not a permanent fine-terrain cache.
 Manual map teleports still perform an explicit reset.
 
+For grounded travel, hidden scatter matrices are also prepared in approximately
+1ms batches rather than reprojecting the whole forest at the switch. A terrain
+revision or origin change invalidates that preparation. Adoption swaps arrays,
+retains the ordinary geographic scatter plan and updates instanced batches
+before rendering. Native review compares every prepared matrix to the unchanged
+ordinary projection, rather than accepting a cheaper placement approximation.
+
 No coverage roots/masks, geometric morphs, rendered-mesh grounding, protective
 streaming fog or new Video LOD controls are introduced. Ordinary LOD transitions
 and detail lag at extreme speed are not claimed solved; their masking is deferred.

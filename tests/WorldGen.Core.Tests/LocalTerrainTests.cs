@@ -35,6 +35,12 @@ static class LocalTerrainTests
         resident[new TerrainTileKey(-1,-1,0,.1)]=128;
         check(TerrainHandoff.Ready(wanted,resident,-100,-100,0),"Full original near quality and distance coverage authorize a handoff");
         check(!TerrainHandoff.Ready(new Dictionary<TerrainTileKey,int>(),resident,0,0,0),"An empty preparation cannot replace visible terrain");
+        wanted.Clear();resident.Clear();resident.Add(parent,64);
+        foreach(int z in new[]{-2,-1})foreach(int x in new[]{-2,-1})wanted.Add(new TerrainTileKey(x,z,0,.1),128);
+        resident.Add(new TerrainTileKey(-1,-1,0,.1),128);
+        check(!TerrainHandoff.Ready(wanted,resident,-100,-100,0),"An overlapping coarse ancestor cannot occlude a ready near tile while its other replacements are missing");
+        foreach(var pair in wanted)resident[pair.Key]=pair.Value;
+        check(TerrainHandoff.Ready(wanted,resident,-100,-100,0),"A coarse ancestor may retire only once its full exact replacement set is ready");
     }
     public static void Run(Action<bool, string> check)
     {

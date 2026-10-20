@@ -193,6 +193,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(data.WaterColors.Where((_,i)=>i%4==3).Any(a=>a>.01))Part("Ocean surface",Make(data.WaterPositions,data.WaterColors,true),waterMaterial);
         var heights=new float[data.GroundVertices];for(int i=0;i<heights.Length;i++)heights[i]=data.Positions[i*3+1];
         var target=prepared==null?tiles:prepared.Tiles;
+        if(prepared!=null)prepared.Revision++;
         if(target.TryGetValue(key,out var old))DestroyTile(old);target[key]=new Tile{Root=root,Segments=data.Segments,Edges=edges,Heights=heights};
         if(prepared==null&&key.Level==0)nearGroundRevision++;lastBuildMs=data.BuildMilliseconds;largestBuildMs=Math.Max(largestBuildMs,lastBuildMs);
         LargestUploadMs=Math.Max(LargestUploadMs,timer.Elapsed.TotalMilliseconds);

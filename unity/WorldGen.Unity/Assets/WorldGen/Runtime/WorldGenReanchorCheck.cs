@@ -52,6 +52,7 @@ public sealed partial class WorldGenRuntime
         }
         if(checks<3)throw new Exception("Three flying reanchors did not complete; distance "+explorer.ReanchorDistance+"; pending "+explorer.PreparedTileCount);
         frames.Sort();report.Add("Flight frames "+frames.Count+"; median "+(frames[frames.Count/2]*1000).ToString("F2")+"ms; p95 "+(frames[(int)(frames.Count*.95)]*1000).ToString("F2")+"ms; worst "+(frames.Last()*1000).ToString("F2")+"ms");
+        File.WriteAllLines(Path.Combine(output,"handoffs.txt"),report);
         explorer.Teleport(location);explorer.TestBoundaryGround();explorer.TestView(1.65,90,0);explorer.TestWalking();
         deadline=Time.realtimeSinceStartupAsDouble+120;
         while((!explorer.AllReady||explorer.PreparedTileCount<100)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
@@ -67,10 +68,14 @@ public sealed partial class WorldGenRuntime
             yield return null;
             if(!explorer.TerrainVisible||!explorer.CenterReady)throw new Exception("Visible terrain disappeared during walking.");
             worstClearance=Math.Max(worstClearance,Math.Abs(explorer.RenderedFootClearance-1.65));
+            if(Time.realtimeSinceStartupAsDouble>=nextProgress)
+            {nextProgress=Time.realtimeSinceStartupAsDouble+2;File.WriteAllText(Path.Combine(output,"progress.txt"),"walking; distance "+explorer.ReanchorDistance+"/"+explorer.ReanchorLimit+"; "+explorer.TestHandoffDiagnostics());}
         }
+        // Read the readiness result before yielding: the explorer refreshes
+        // this diagnostic flag on its next Update, independently of this coroutine.
+        if(!explorer.TestHandoffWaiting)throw new Exception("Walking replacement did not become ready: "+explorer.TestHandoffDiagnostics());
         InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());yield return null;
         InputSystem.RemoveDevice(keyboard);explorer.TestKeyboard(null);
-        if(!explorer.TestHandoffWaiting)throw new Exception("Walking replacement did not become ready.");
         yield return new WaitForEndOfFrame();explorer.Capture(Path.Combine(output,"walk-before.png"));
         var beforePosition=explorer.Position;
         explorer.TestHoldHandoff=false;deadline=Time.realtimeSinceStartupAsDouble+5;
@@ -79,6 +84,8 @@ public sealed partial class WorldGenRuntime
         if(D.Angle(beforePosition,explorer.Position)*637100>.03)throw new Exception("Prepared handoff moved the player geographically.");
         yield return new WaitForEndOfFrame();explorer.Capture(Path.Combine(output,"walk-after.png"));
         double afterClearance=explorer.RenderedFootClearance;
+        double scatterError=explorer.TestPreparedScatterError();report.Add("Prepared scatter matches ordinary placement: maximum matrix difference "+scatterError.ToString("G5"));
+        if(scatterError>1e-5)throw new Exception("Prepared scatter changed ordinary placement: "+scatterError);
         report.Add("Walking across boundary: worst rendered eye-clearance error "+worstClearance.ToString("F4")+"m; after "+afterClearance.ToString("F4")+"m; analytic "+explorer.HeightAboveGround.ToString("F4")+"m");
         if(worstClearance>.12||Math.Abs(afterClearance-1.65)>.12)throw new Exception("Player/rendered-ground alignment changed across handoff: "+worstClearance+" / "+afterClearance);
         report.Add("Largest atomic handoff "+explorer.LargestHandoffMs.ToString("F3")+"ms; largest mesh upload "+explorer.LargestUploadMs.ToString("F3")+"ms; "+explorer.LargestHandoffProfile);
