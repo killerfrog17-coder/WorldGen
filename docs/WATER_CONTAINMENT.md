@@ -1,5 +1,14 @@
 # Water containment: source review and checkpoints
 
+## River primitive review (Hyper8)
+
+The current derived river integration is documented in RIVER_PRIMITIVES.md.
+Near channel tessellation uses the amplified network; bed envelopes are cut-only,
+river datums persist through dry collars and shared render edges, and receiving
+standing corners retain their fixed lake/sea level. Terrain-driven water warping
+does not return. Existing lake7 and ocean rules remain. This is a first playable
+review, not complete waterfalls, hydraulics, scale or all-LOD morphology acceptance.
+
 ## Connected basin integration (hyper7)
 
 See LAKE_BASINS.md for the implemented coarse connectivity/shared-refinement

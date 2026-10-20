@@ -1,7 +1,26 @@
 using WorldGen.Core;
+using WorldGen.Serialization;
 
 static class RiverSectionTests
 {
+    public static void Routes(string path)
+    {
+        var world=WorldFile.Read(File.ReadAllBytes(path));var terrain=new LocalTerrain(world,horizontalScale:.1);
+        int samples=0,wet=0;double worstRise=0;
+        foreach(var reach in terrain.Hydrology.Channels.Where(c=>c.StartM>20&&c.StartM<3000&&c.WidthM>10).Take(24))
+        {
+            double previous=double.PositiveInfinity;
+            for(int k=1;k<16;k++)
+            {
+                var at=terrain.Amplification.RiverPoint(reach.From,k/16d);var s=terrain.Patch(at,2000).Sample(at);
+                if(!double.IsFinite(s.ElevationM)||s.ElevationM>s.PreWaterElevationM+.002)throw new Exception("Invalid or raised river bed");
+                if(s.Underwater)wet++;samples++;
+                if(double.IsFinite(s.WaterSurfaceM)){worstRise=Math.Max(worstRise,s.WaterSurfaceM-previous);previous=s.WaterSurfaceM;}
+            }
+        }
+        Console.WriteLine($"Actual routes: {wet}/{samples} wet, largest downstream rise {worstRise:F4}m");
+        if(worstRise>.1)throw new Exception("Actual amplified river route reverses downhill profile");
+    }
     public static void Run()
     {
         int count=0;

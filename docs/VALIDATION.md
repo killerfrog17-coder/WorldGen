@@ -1,5 +1,51 @@
 # Version 3 validation evidence
 
+## River primitive first review /20October2026
+
+Source1ea9470 / local-terrain-hyper-8 introduces compact minimum-envelope beds,
+monotone grade templates, runoff-bounded short tributaries and amplified channel
+near tessellation. Stitched original grid edges/diagonals remove refiner
+T-junction cracks. The first nearest-only compact bed prototype failed actual
+shared-edge continuity and was replaced with minimum envelopes and smooth
+provenance retirement before publication. Standing lake/ocean rules, authoritative
+world/history, controller and LOD scheduler remain unchanged. See RIVER_PRIMITIVES.md.
+
+9463 primitive assertions and243 previous no-warp/water checks pass. Actual200k
+generated/Earth audits inspect6 river sites plus2 coasts/2 lake controls at205m/32
+and3277m/16 meshes:25496/29982 checked vertices and2715/1877 contained lateral
+edges pass, maximum sampled raising zero. The coverage validator now compares
+adjacent planes AT the edge: testing off-edge points against a fixed height
+incorrectly classified sloping water as a seam. Buried shore-underlap vertices
+are not required to equal the unrelated fine water potential under the land.
+977/1334 mesh vertices fall outside the exact canonical footprint; worst coarse/
+hidden vertex level differences36.967/317.673m remain, not a fine-surface accuracy
+claim.24 actual routes per world each have360/360 wet samples, zero downstream
+rise and no sampled bed raising. Six current accepted Earth lake shores/869
+edges and340 submerged ocean points pass with unchanged source hash. Generated
+ocean459 and a six-shore lake check also passed during implementation.
+
+The generated full Hyper review passes its sampled shared-edge continuity,
+overlap, mixed-edge and cache-order stages but stops at its OLD assertion that
+every source lake is retained. Lake7 intentionally rejects open source candidates;
+we have NOT relabeled that full suite as passing or removed its failing assertion.
+The separate accepted-basin checks are the relevant current lake regression.
+
+Final IL2CPP22:20:47Z player-river-primitives uses a matching bundled worker:
+151691 exact mesh/scatter/index/bounds/cancellation comparisons pass. Eight final
+native/CLR terrain probes match exactly. Actual generated river-overview.png and
+river-bank.png inspected: contained broad lowland water with moving-water detail;
+fine/distant flow/detail seams remain visible, and bank image looks across water
+with limited dry-bank coverage. No mountain waterfall/rapids visual acceptance.
+
+Native core preparation338.1ms, near rings5.694s first/.463s warm, full coverage
+44.464/37.170s. Hidden1280x800 fixed-camera worst27.20/16.53ms, no >100ms frames;
+largest upload .65ms, controller7.93ms first/.67ms warm. Full coverage is heavier
+than the lake7 review (~25-29s), not a claim of unchanged loading performance.
+Cold run overlaps a separate exact-worker check and numerical checks, so these
+are diagnostic scene measurements, NOT fullscreen/travel/low-end guarantees.
+Own native29116 and test workers exited; owner lake7 player40616/worker untouched.
+Evidence: artifacts/river-primitives/native. Shortcut selects review; lake7 rollback.
+
 ## Connected lake basin checkpoint /20October2026
 
 Hyper7 uses connected coarse sublevel components and protects their dry divides

@@ -1,10 +1,20 @@
 # Drainage-aware planetary amplification
 
-`local-terrain-hyper-7` replaces the geographic-scaffold surface for completed
+`local-terrain-hyper-8` replaces the geographic-scaffold surface for completed
 worlds. It is a **shared CPU adaptation**, not the original application's GPU
 compute-shader pipeline or a claim of identical output/performance.
 
 ## Source and integration
+
+### River primitive review (revision 8)
+
+See RIVER_PRIMITIVES.md: amplified channels now supply near tessellation;
+compact minimum bed envelopes and shared render-edge datums replace independent
+radius cuts. Monotone reach-scale grade templates and bounded short-tributary
+discharge add local variety; river rendering adds inexpensive moving water.
+This is an initial adaptation, not a full Riverscapes port or complete waterfalls.
+Standing lake7/ocean rules and source/history are retained; local detail costs
+more and its visual/streaming result awaits owner review.
 
 ### Connected standing basins (revision 7)
 

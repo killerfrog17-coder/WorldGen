@@ -1,5 +1,25 @@
 # WorldGen repository instructions
 
+Current river-primitives REVIEW launch,20October2026: shortcut selects
+`artifacts/player-river-primitives/WorldGen.exe` (IL2CPP22:20:47Z).
+Hyper8 adds cut-only compact riverbed envelopes, monotone reach-scale profiles,
+bounded short-tributary discharge, amplified-channel near tessellation with
+stitched grid edges, shared dry reach datums and explicit receiving-body joins.
+River-only single-pass moving ripples/glints/turbulent highlights replace flat
+colour; standing-water geometry rules/appearance, source/history and LOD scheduler
+remain unchanged. This is an initial Riverscapes-inspired integration, NOT the
+complete paper implementation or detached waterfall sheets/spray. 9463 primitive,
+243 water regressions,720 wet/downhill actual route samples,2715/1877 generated/
+Earth contained bank edges and151691 exact worker comparisons pass;8 native/CLR
+probes match. Actual native overview/bank images inspected: broad lowland water,
+visible flow/detail seams, limited bank coverage; owner visual review is next.
+Near5.694s cold/.463s warm; full44.464/37.170s, slower than lake7. Hidden fixed-
+camera worst27.20/16.53ms, no >100ms; NOT broad travel/fullscreen performance
+acceptance. Sampled accepted Earth lakes/oceans pass; omitted lake7 candidates
+remain omitted. Coarse water/fine potential deviations, widths, close-reach
+transitions and full morphology remain open. Own tests stopped; owner's game
+untouched. Lake-basins remains rollback. See docs/RIVER_PRIMITIVES.md / VALIDATION.md.
+
 Current lake-basin REVIEW launch,20October2026: shortcut selects
 `artifacts/player-lake-basins/WorldGen.exe` (IL2CPP21:15:29Z).
 Hyper7 adds connected coarse sublevel lake components with fixed body datums,

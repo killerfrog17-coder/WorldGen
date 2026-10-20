@@ -2,6 +2,7 @@ using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
 if(args.Contains("--river-sections")){RiverSectionTests.Run();return;}
+if(args.Contains("--river-routes-world")){RiverSectionTests.Routes(args[1]);return;}
 if(args.Contains("--lake-basins-world")){WaterCouplingTests.LakesWorld(args[1]);return;}
 if(args.Contains("--water-shore")){WaterCouplingTests.Shore(args[1],args[2]);return;}
 if(args.Contains("--water-coupling")){WaterCouplingTests.Run();return;}
