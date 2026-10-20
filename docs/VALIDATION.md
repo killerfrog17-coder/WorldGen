@@ -1,5 +1,57 @@
 # Version 3 validation evidence
 
+## Cut-only rivers / terrain-conformed profiles —20October2026
+
+Source checkpoint ea8bb5f; local terrain7 /hydrology4. RIVER_INCISION.md
+describes the raising-bank error and its correction. The old assertion that
+banks must be lifted above low original ground was wrong and is replaced.
+Scaffold1 itself, coarse generation/history, saves and loading priorities stay
+unchanged. New profile arrays are derived once, not serialized or ticked.
+
+Published review player: artifacts/player-rivers-cut-only-fast, IL2CPP
+05:58:57.1548629Z; height-only/in-place optimization checkpoint d88b612.
+The intermediate cut-only player is not the published launch.
+
+-3227 water/landform assertions: includes3006 cut-only cross-section checks,
+ continuous outer support, inherited narrow-stream geometry/mesh boundaries,
+ lake precedence and water clipping.745 terrain/controller/handoff assertions
+ pass. Existing incomplete test fixtures exercise the legacy graph fallback;
+ actual-world checks below exercise the refined graph and new conditioning.
+-Actual200k Earth:10306374 checks, mostly repeated per-node/profile invariants;
+ not that many visual cases. DAG/downhill/discharge, exact shared confluence
+ ceilings, monotone sampled profiles, overlapping patches, source hash and
+ strongly lowered actual-river samples pass. Preparation15.861s, conditioning
+ 11.837s, largest old-profile lowering578.1m; managed retention263.9MiB total.
+-Actual fresh200k Continents Plus:11511218 corresponding checks pass. Full
+ generation21.584s +terrain preparation26.642s =48.225s, while Unity native
+ compilation was also running. Conditioning19.846s, largest lowering453.2m;
+ derived retention277.1MiB. These are CLR host measurements, not a native
+ fresh-menu wall-clock/low-end guarantee. Previous Earth near-tile diagnostic
+ after initial correction:15.4ms mean /26.5ms worst; no all-LOD/FPS claim.
+-The previous build's all-terrain preparation was roughly16–17% of measured
+ generation+preparation, NOT half a second. Scaffold alone was1.4–1.7s CLR or
+ 3.44s in the separate native diagnostic. The new conditioning intentionally
+ spends additional preparation time and retains around20MiB extra profiles.
+-Native intermediate candidate: scaffold4.253s /conditioning48.753s. Two actual
+ camera images inspected, including the reach with strongest eligible profile
+ lowering;8 exact native/CLR height probes pass. No raised supporting wall is
+ apparent in these captures, but straight channel/terraced valley artifacts
+ remain. artifacts/river-incision-review contains the evidence. This was NOT
+ accepted as meeting a full native60s generation budget.
+-Final candidate removes unnecessary soil/colour blending during height-only
+ probes and reads large controls in place;8 old-native/new-CLR height probes
+ remain exact. Native timing-only run: scaffold4.342s /conditioning28.861s,
+ source hash unchanged. artifacts/river-incision-fast-review. This isolates
+ preparation components, not total native generation or snapshot-import time;
+ there is no claim that their sum proves native full generation below60s.
+
+Bounded profile sampling is not an analytic guarantee of clearance at every
+infinitesimal position. Ground itself has an unconditional cut-only river
+envelope; standing lakes/islands retain their separate prototype behavior.
+Specialist basin/routing/coast work, natural canyon shapes, linear-looking
+reaches and final materials remain unresolved. Archived coarse Earth golden
+expectations and historical performance/realism claims remain untouched.
+
 ## Shared geographic drainage scaffold —20October2026
 
 Review player: artifacts/player-geographic-scaffold, IL2CPP05:11:15.6276030Z.

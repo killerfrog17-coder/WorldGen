@@ -1,6 +1,24 @@
 # WorldGen repository instructions
 
 Current review launch,20October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-rivers-cut-only-fast/WorldGen.exe` (IL2CPP05:58:57Z).
+Local terrain7/hydrology4 corrects raised river beds/banks: cut-only envelopes,
+actual uncarved path/bank samples, midpoint-dip checks and shared downstream
+profile conditioning. Existing source worlds/history and loading scheduler are
+unchanged. Height-only probes preserve quantized ledge inputs and avoid large
+struct copies; no new raster/profile serialization or recurring history census.
+3227 water/745terrain assertions; actual200k Earth/Continents Plus graph/profile/
+confluence/source checks pass. Two native river captures inspected and8 exact
+native/CLR probes match; mountain water is lowered, but straight reaches and
+terracing remain visible. NOT finished realistic routing/canyons or all-LOD
+acceptance. Final native scaffold4.34s /conditioning28.86s (down from48.75s);
+fresh CLR Continents Plus full pipeline+prep48.23s during compilation. These
+are separate diagnostics, NOT proof of native full-world completion under60s.
+Derived managed retention264–277MiB; ~20MiB extra profile data. See docs/
+RIVER_INCISION.md and VALIDATION.md. Previous scaffold player remains rollback;
+existing worlds need no regeneration. Do not restore raising-bank assertions.
+
+Current review launch,20October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-geographic-scaffold/WorldGen.exe` (IL2CPP05:11:15Z).
 Local terrain6/geography-scaffold1 adds a shared drainage-conditioned mesh:
 200k cells ->799994 controls/1599984 triangles, two bounded incision/hillslope
