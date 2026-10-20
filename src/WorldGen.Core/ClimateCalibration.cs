@@ -27,7 +27,7 @@ namespace WorldGen.Core
                 if (recipe.AlgorithmVersion == Algorithm || recipe.AlgorithmVersion == AggressiveAlgorithm) throw new ArgumentException("Calibration recipe is missing its weights.");
                 return;
             }
-            bool aggressive = recipe.AlgorithmVersion == AggressiveAlgorithm || ((recipe.AlgorithmVersion == Recipe.CurrentAlgorithm || recipe.AlgorithmVersion == Recipe.SubcellAlgorithm) || recipe.AlgorithmVersion == Recipe.FeatureBlendAlgorithm || recipe.AlgorithmVersion == Recipe.RangeControlsAlgorithm || recipe.AlgorithmVersion == Recipe.EcologyAlgorithm) || recipe.AlgorithmVersion == Recipe.TerrainControlsAlgorithm;
+            bool aggressive = recipe.AlgorithmVersion == AggressiveAlgorithm || (((recipe.AlgorithmVersion == Recipe.CurrentAlgorithm || recipe.AlgorithmVersion == Recipe.PresetAlgorithm) || recipe.AlgorithmVersion == Recipe.SubcellAlgorithm) || recipe.AlgorithmVersion == Recipe.FeatureBlendAlgorithm || recipe.AlgorithmVersion == Recipe.RangeControlsAlgorithm || recipe.AlgorithmVersion == Recipe.EcologyAlgorithm) || recipe.AlgorithmVersion == Recipe.TerrainControlsAlgorithm;
             if ((!aggressive && recipe.AlgorithmVersion != Algorithm) || values.Length != Names.Length) throw new ArgumentException("Unsupported climate calibration contract.");
             var minimum = aggressive ? AggressiveMinimum : Minimum; var maximum = aggressive ? AggressiveMaximum : Maximum;
             for (int i = 0; i < values.Length; i++)
@@ -40,7 +40,7 @@ namespace WorldGen.Core
         public static void Reset(Recipe recipe) { recipe.ClimateWeights = null; recipe.AlgorithmVersion = Recipe.CurrentAlgorithm; }
         public static void Upgrade(Recipe recipe)
         {
-            if(recipe.AlgorithmVersion != Recipe.CurrentAlgorithm && recipe.AlgorithmVersion != Recipe.SubcellAlgorithm && recipe.AlgorithmVersion!=Recipe.FeatureBlendAlgorithm && recipe.AlgorithmVersion!=Recipe.RangeControlsAlgorithm){recipe.MountainStrengthPercent=D.Q(recipe.MountainStrengthPercent/6,1000000);recipe.LakeAmountPercent=Math.Min(100000,recipe.LakeAmountPercent*5);}
+            if(recipe.AlgorithmVersion != Recipe.CurrentAlgorithm && recipe.AlgorithmVersion != Recipe.PresetAlgorithm && recipe.AlgorithmVersion != Recipe.SubcellAlgorithm && recipe.AlgorithmVersion!=Recipe.FeatureBlendAlgorithm && recipe.AlgorithmVersion!=Recipe.RangeControlsAlgorithm){recipe.MountainStrengthPercent=D.Q(recipe.MountainStrengthPercent/6,1000000);recipe.LakeAmountPercent=Math.Min(100000,recipe.LakeAmountPercent*5);}
             recipe.AlgorithmVersion=Recipe.CurrentAlgorithm;
         }
     }

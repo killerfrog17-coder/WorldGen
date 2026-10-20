@@ -29,7 +29,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public double LocalSolarHour=>playState==null?9:Ready?playState.LocalSolarHour(Math.Atan2(Position.Y,Position.X)*180/Math.PI):playState.SolarHour;
     public GUISkin MenuSkin { get; set; }
     readonly bool passiveSkyCheck=Environment.GetCommandLineArgs().Contains("--worldgen-sky-chat-check")||Environment.GetCommandLineArgs().Contains("--worldgen-atmosphere-check")||Environment.GetCommandLineArgs().Contains("--worldgen-weather-check");
-    readonly bool passiveReanchorCheck=Environment.GetCommandLineArgs().Contains("--worldgen-reanchor-review");
+    readonly bool passiveReanchorCheck=Environment.GetCommandLineArgs().Contains("--worldgen-reanchor-review")||Environment.GetCommandLineArgs().Contains("--worldgen-landform-review");
     Keyboard testKeyboard;
     Keyboard ActiveKeyboard=>testKeyboard??Keyboard.current;
     public void TestKeyboard(Keyboard value){testKeyboard=value;}
@@ -186,11 +186,11 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
                 rocks.Add(water?Vector4.zero:new Vector4(data.Lithology[i*6],data.Lithology[i*6+1],data.Lithology[i*6+2],data.Lithology[i*6+3]));
                 rocksB.Add(water?Vector2.zero:new Vector2(data.Lithology[i*6+4],data.Lithology[i*6+5]));
             }
-            var mesh=new Mesh{indexFormat=UnityEngine.Rendering.IndexFormat.UInt32,vertices=vertices,normals=normals,colors=rgb,uv=uv};mesh.SetUVs(1,weights);mesh.SetUVs(2,groundB);mesh.SetUVs(4,rocks);mesh.SetUVs(5,rocksB);mesh.triangles=water?data.Triangles.Take(data.Segments*data.Segments*6).ToArray():data.Triangles;mesh.RecalculateBounds();mesh.UploadMeshData(true);return mesh;
+            var mesh=new Mesh{indexFormat=UnityEngine.Rendering.IndexFormat.UInt32,vertices=vertices,normals=normals,colors=rgb,uv=uv};mesh.SetUVs(1,weights);mesh.SetUVs(2,groundB);mesh.SetUVs(4,rocks);mesh.SetUVs(5,rocksB);mesh.triangles=water?data.WaterTriangles:data.Triangles;mesh.RecalculateBounds();mesh.UploadMeshData(true);return mesh;
         }
         void Part(string name,Mesh mesh,Material material){var part=new GameObject(name,typeof(MeshFilter),typeof(MeshRenderer));part.layer=30;part.transform.SetParent(root.transform,false);part.GetComponent<MeshFilter>().sharedMesh=mesh;part.GetComponent<MeshRenderer>().sharedMaterial=material;}
         Part("Land and seabed",Make(data.Positions,data.Colors,false),landMaterial);
-        if(data.WaterColors.Where((_,i)=>i%4==3).Any(a=>a>.01))Part("Ocean surface",Make(data.WaterPositions,data.WaterColors,true),waterMaterial);
+        if(data.WaterTriangles.Length>0)Part("Water surface",Make(data.WaterPositions,data.WaterColors,true),waterMaterial);
         var heights=new float[data.GroundVertices];for(int i=0;i<heights.Length;i++)heights[i]=data.Positions[i*3+1];
         var target=prepared==null?tiles:prepared.Tiles;
         if(prepared!=null)prepared.Revision++;

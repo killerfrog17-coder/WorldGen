@@ -9,7 +9,7 @@ public static class PresetTests
         check(WorldPresets.Names.Length==21&&WorldPresets.Names.Distinct().Count()==21,"Twenty-one unique presets");
         check(WorldPresets.Names[0]=="Continents plus"&&WorldPresets.Names[2]=="Earthlike","Default and Earthlike preset order");
         var legacy=Recipe.Preset("Preview");legacy.Detail=5000;legacy.AlgorithmVersion=Recipe.SubcellAlgorithm;
-        var current=legacy.Clone();current.AlgorithmVersion=Recipe.CurrentAlgorithm;
+        var current=legacy.Clone();current.AlgorithmVersion=Recipe.PresetAlgorithm;
         var oldWorld=new WorldPipeline().Generate(legacy);var newWorld=new WorldPipeline().Generate(current);
         check(StateHash.Compute(oldWorld.ElevationM)==StateHash.Compute(newWorld.ElevationM),"Default relief unchanged from 3.31");
         check(StateHash.Compute(oldWorld.Climate)==StateHash.Compute(newWorld.Climate),"Default climate unchanged from 3.31");

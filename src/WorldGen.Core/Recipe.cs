@@ -20,7 +20,8 @@ namespace WorldGen.Core
         public const string RangeControlsAlgorithm = "worldgen-3.29.0";
         public const string FeatureBlendAlgorithm = "worldgen-3.30.0";
         public const string SubcellAlgorithm = "worldgen-3.31.0";
-        public const string CurrentAlgorithm = "worldgen-3.32.0";
+        public const string PresetAlgorithm = "worldgen-3.32.0";
+        public const string CurrentAlgorithm = "worldgen-3.33.0";
         public int SchemaVersion = 3;
         public string AlgorithmVersion = CurrentAlgorithm;
         public string TerrainSource = "Procedural";
@@ -62,10 +63,10 @@ namespace WorldGen.Core
             if (TerrainSource != "Procedural" && TerrainSource != "Earth") throw new ArgumentException("Unknown terrain source.");
             if(LandShape!=null && !MapShapes.Names.Contains(LandShape))throw new ArgumentException("Unknown land shape.");
             if(TerrainSource=="Earth" && LandShape!=null)throw new ArgumentException("Earth relief cannot also use a procedural shape.");
-            if(AlgorithmVersion!=CurrentAlgorithm && (LandShape!=null||InteriorRainMm!=0||ContinentCount>20))throw new ArgumentException("Shape presets, inland moisture and over 20 continents require the current generator.");
-            if (SchemaVersion != 3 || (AlgorithmVersion != CurrentAlgorithm && AlgorithmVersion != SubcellAlgorithm && AlgorithmVersion != FeatureBlendAlgorithm && AlgorithmVersion != RangeControlsAlgorithm && AlgorithmVersion != EcologyAlgorithm && AlgorithmVersion != TerrainControlsAlgorithm && AlgorithmVersion != ClimateCalibration.UntrainedAlgorithm && AlgorithmVersion != ClimateCalibration.Algorithm && AlgorithmVersion != ClimateCalibration.AggressiveAlgorithm)) throw new ArgumentException("This recipe uses an older or unsupported generator. Version 3 uses a fixed plate base and detail-dependent terrain; save a new recipe from the current settings.");
+            if(AlgorithmVersion != CurrentAlgorithm && AlgorithmVersion != PresetAlgorithm && (LandShape!=null||InteriorRainMm!=0||ContinentCount>20))throw new ArgumentException("Shape presets, inland moisture and over 20 continents require the current generator.");
+            if (SchemaVersion != 3 || (AlgorithmVersion != CurrentAlgorithm && AlgorithmVersion != PresetAlgorithm && AlgorithmVersion != SubcellAlgorithm && AlgorithmVersion != FeatureBlendAlgorithm && AlgorithmVersion != RangeControlsAlgorithm && AlgorithmVersion != EcologyAlgorithm && AlgorithmVersion != TerrainControlsAlgorithm && AlgorithmVersion != ClimateCalibration.UntrainedAlgorithm && AlgorithmVersion != ClimateCalibration.Algorithm && AlgorithmVersion != ClimateCalibration.AggressiveAlgorithm)) throw new ArgumentException("This recipe uses an older or unsupported generator. Version 3 uses a fixed plate base and detail-dependent terrain; save a new recipe from the current settings.");
             ClimateCalibration.Validate(this);
-            if (AlgorithmVersion != CurrentAlgorithm && AlgorithmVersion != SubcellAlgorithm && AlgorithmVersion != FeatureBlendAlgorithm && AlgorithmVersion != RangeControlsAlgorithm && AlgorithmVersion != EcologyAlgorithm && AlgorithmVersion != TerrainControlsAlgorithm && MountainStrengthPercent != 100) throw new ArgumentException("Mountain control requires the current generator version. Regenerate with current settings.");
+            if (AlgorithmVersion != CurrentAlgorithm && AlgorithmVersion != PresetAlgorithm && AlgorithmVersion != SubcellAlgorithm && AlgorithmVersion != FeatureBlendAlgorithm && AlgorithmVersion != RangeControlsAlgorithm && AlgorithmVersion != EcologyAlgorithm && AlgorithmVersion != TerrainControlsAlgorithm && MountainStrengthPercent != 100) throw new ArgumentException("Mountain control requires the current generator version. Regenerate with current settings.");
             foreach (var f in Settings)
             {
                 var s = f.GetCustomAttribute<SettingAttribute>(); double v = Convert.ToDouble(f.GetValue(this));

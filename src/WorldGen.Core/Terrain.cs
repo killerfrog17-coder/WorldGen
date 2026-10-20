@@ -71,7 +71,7 @@ namespace WorldGen.Core
             if(Environment.ProcessorCount>1 && n>=20000)Parallel.Invoke(new ParallelOptions{CancellationToken=token,MaxDegreeOfParallelism=Math.Min(3,Environment.ProcessorCount)},fields);
             else foreach(var build in fields)build();
             w.FoldPermille = new int[n]; w.CratonPermille = new int[n]; w.BasinPermille = new int[n]; w.PlateauPermille = new int[n];
-            var heights = new double[n]; var background = ((r.AlgorithmVersion == Recipe.CurrentAlgorithm || r.AlgorithmVersion == Recipe.SubcellAlgorithm) || r.AlgorithmVersion==Recipe.FeatureBlendAlgorithm) ? new double[n] : null; var features = new List<Feature>();
+            var heights = new double[n]; var background = (((r.AlgorithmVersion == Recipe.CurrentAlgorithm || r.AlgorithmVersion == Recipe.PresetAlgorithm) || r.AlgorithmVersion == Recipe.SubcellAlgorithm) || r.AlgorithmVersion==Recipe.FeatureBlendAlgorithm) ? new double[n] : null; var features = new List<Feature>();
             var records = new SortedDictionary<long, Feature>(); var members = new SortedDictionary<long, List<int>>();
             void Add(FeatureKind kind, Boundary b, int i, double relief, int width, int age = 0)
             {
@@ -89,13 +89,15 @@ namespace WorldGen.Core
                 members[key].Add(i);
             }
             double Strength(Boundary b) => D.Clamp(Math.Max(0, b.NormalMotion) / 1100.0, 0, 1.35);
-            bool variedBelts=((r.AlgorithmVersion == Recipe.CurrentAlgorithm || r.AlgorithmVersion == Recipe.SubcellAlgorithm) || r.AlgorithmVersion==Recipe.FeatureBlendAlgorithm) || r.AlgorithmVersion==Recipe.RangeControlsAlgorithm;
+            bool variedBelts=(((r.AlgorithmVersion == Recipe.CurrentAlgorithm || r.AlgorithmVersion == Recipe.PresetAlgorithm) || r.AlgorithmVersion == Recipe.SubcellAlgorithm) || r.AlgorithmVersion==Recipe.FeatureBlendAlgorithm) || r.AlgorithmVersion==Recipe.RangeControlsAlgorithm;
             double MountainScale(Boundary b,V p)
             {
                 double scale=r.MountainStrengthPercent/100;
                 if(!variedBelts)return scale;
                 int belt=b.BeltId>=0?b.BeltId:b.Id;
                 double history=Rng.Value(r.Seed,"orogen-lifetime-329",belt);
+                if(r.AlgorithmVersion==Recipe.CurrentAlgorithm)
+                    return scale*D.Q(OrogenMorphology.Retention(history,.5+.85*Noise(p,r.Seed^37291,11)),1000000);
                 double retention=.08+1.60*history*history;
                 double segment=.35+1.05*D.Clamp(.5+.85*Noise(p,r.Seed^37291,11));
                 return scale*6*D.Q(retention*segment,1000000);
@@ -109,7 +111,7 @@ namespace WorldGen.Core
                 if ((i & 255) == 0) token.ThrowIfCancellationRequested();
                 V p = s.Cells[i].Position; bool land = w.Continent[i] >= 0;
                 double shore = w.CoastDistanceM[i], broad = Noise(p, r.Seed, 3), province = Noise(p, r.Seed ^ 7613, 7), detail = Noise(p, r.Seed ^ 19277, 28);
-                double fold = Math.Max(D.Kernel(collision.Distance[i], 700000), D.Kernel(upper.Distance[i], 650000)) * D.Clamp(w.Stress[i] / 700.0);
+                double fold = Math.Max(D.Kernel(collision.Distance[i],r.AlgorithmVersion==Recipe.CurrentAlgorithm?400000:700000), D.Kernel(upper.Distance[i],r.AlgorithmVersion==Recipe.CurrentAlgorithm?450000:650000)) * D.Clamp(w.Stress[i] / 700.0);
                 double craton = (1 - fold) * (1 - D.Kernel(w.BoundaryDistanceM[i], 1200000));
                 double basin = (1 - fold) * D.Clamp(-province * 1.7), plateauProvince = 0;
                 double coastMask = D.Kernel(shore, 450000), h;
@@ -147,13 +149,19 @@ namespace WorldGen.Core
                     double power = D.Clamp(D.Sqrt(Math.Max(0, b.NormalMotion - 60) / 300.0) * maturity * (.45 + .55 * orthogonal), 0, 1.4);
                     double grain = .5 + .5 * D.Sin(d / 260000 * 2 * D.Pi + province * 1.4);
                     double passes = .32 + .68 * StrikeTexture(p, 1933, 18);
-                    double frontWidth=520000*BeltWidth(b);
-                    double front = 5200 * power * D.Kernel(d, frontWidth) * (.62 + .38 * grain * passes) * MountainScale(b,p);
+                    bool natural=r.AlgorithmVersion==Recipe.CurrentAlgorithm;
+                    double frontWidth=natural?OrogenMorphology.CollisionWidth(BeltWidth(b)):520000*BeltWidth(b);
+                    double frontAmplitude=5200*power*MountainScale(b,p);
+                    if(natural)frontAmplitude=OrogenMorphology.Uplift(frontAmplitude,6500,r.MountainStrengthPercent/100);
+                    double front = natural?frontAmplitude * D.Kernel(d, frontWidth) * (.62 + .38 * grain * passes):5200 * power * D.Kernel(d, frontWidth) * (.62 + .38 * grain * passes) * MountainScale(b,p);
                     h += front; Add(FeatureKind.CollisionBelt, b, i, front, D.M(frontWidth));
                     if (Owner(i) == hinterland)
                     {
                         double plateauWidth = (550000 + 500000 * history)*BeltWidth(b);
-                        double platform = D.Kernel(Math.Abs(d - 430000), plateauWidth), relief = 3500 * power * platform * (.90 + .10 * province) * MountainScale(b,p);
+                        double platform = natural?OrogenMorphology.PlateauEnvelope(d,plateauWidth):D.Kernel(Math.Abs(d - 430000), plateauWidth);
+                        double plateauAmplitude=3500*power*MountainScale(b,p);
+                        if(natural)plateauAmplitude=OrogenMorphology.Uplift(plateauAmplitude,4500,r.MountainStrengthPercent/100);
+                        double relief = natural?plateauAmplitude * platform * (.90 + .10 * province):3500 * power * platform * (.90 + .10 * province) * MountainScale(b,p);
                         h += relief; plateauProvince = platform * D.Clamp(power); Add(FeatureKind.Plateau, b, i, relief, D.M(plateauWidth));
                     }
                     else
@@ -189,9 +197,11 @@ namespace WorldGen.Core
                         double shortening = D.Clamp(D.Sqrt(Math.Max(0, b.NormalMotion - 80) / 950.0), 0, 1.3) * coupling * (.4 + .6 * orthogonal);
                         bool flatSlab = history > .65 && Rng.Value(r.Seed, "flat-slab", pair) < .27;
                         double grain = .5 + .5 * D.Sin(d / 230000 * 2 * D.Pi + province);
-                        double rangeWidth = (270000 + 230000 * history)*BeltWidth(b);
+                        double rangeWidth = (r.AlgorithmVersion==Recipe.CurrentAlgorithm?150000+160000*history:270000+230000*history)*BeltWidth(b);
                         double passes = .32 + .68 * StrikeTexture(p, 69239, 14);
-                        double range = 4800 * shortening * D.Kernel(Math.Abs(d - 190000), rangeWidth) * (.5 + .5 * grain) * passes * MountainScale(b,p);
+                        double rangeAmplitude=4800*shortening*MountainScale(b,p);
+                        if(r.AlgorithmVersion==Recipe.CurrentAlgorithm)rangeAmplitude=OrogenMorphology.Uplift(rangeAmplitude,5800,r.MountainStrengthPercent/100);
+                        double range = r.AlgorithmVersion==Recipe.CurrentAlgorithm?rangeAmplitude * D.Kernel(Math.Abs(d - 190000), rangeWidth) * (.5 + .5 * grain) * passes:4800 * shortening * D.Kernel(Math.Abs(d - 190000), rangeWidth) * (.5 + .5 * grain) * passes * MountainScale(b,p);
                         h += range; Add(FeatureKind.Cordillera, b, i, range, D.M(rangeWidth));
                         double volcanic = (flatSlab ? 180 : 1100) * power * envelope * peak;
                         h += volcanic; Add(FeatureKind.VolcanicArc, b, i, volcanic, D.M(arcWidth));
@@ -262,7 +272,7 @@ namespace WorldGen.Core
             }
             AncientOrogens(w, heights, features, token);
             Hotspots(w, heights, spreading.Distance, features, token);
-            w.TectonicM = heights.Select(h => D.M(h > 8500 ? 8500 + (h - 8500) * .25 : h)).ToArray(); w.Features = features.ToArray();
+            w.TectonicM = heights.Select(h => D.M(r.AlgorithmVersion==Recipe.CurrentAlgorithm?OrogenMorphology.ContinentalHeight(h):h > 8500 ? 8500 + (h - 8500) * .25 : h)).ToArray(); w.Features = features.ToArray();
             w.ProtectedInlandSea = new bool[n]; w.PreErosionM = (int[])w.TectonicM.Clone(); w.ElevationM = (int[])w.TectonicM.Clone();
             foreach (FeatureKind kind in Enum.GetValues(typeof(FeatureKind))) w.Metric("tectonic_" + kind.ToString().ToLowerInvariant() + "_features", features.Count(f => f.Kind == kind));
             w.Metric("tectonic_ocean_emergent_cells", Enumerable.Range(0, n).Count(i => w.Continent[i] < 0 && w.TectonicM[i] > 0));
@@ -330,7 +340,7 @@ namespace WorldGen.Core
                     double texture = .58 + .42 * (.5 + .5 * Noise(p, r.Seed ^ (candidate * 7919 + 173), 18));
                     double endpoint = D.Clamp(Math.Min(nearestNode + 1, centers.Length - nearestNode) / 3.0);
                     double relief = amplitude * D.Kernel(nearest, width) * texture * endpoint;
-                    if(((r.AlgorithmVersion == Recipe.CurrentAlgorithm || r.AlgorithmVersion == Recipe.SubcellAlgorithm) || r.AlgorithmVersion==Recipe.FeatureBlendAlgorithm))relief*=1-D.Kernel(w.BoundaryDistanceM[i]-420000,230000);
+                    if((((r.AlgorithmVersion == Recipe.CurrentAlgorithm || r.AlgorithmVersion == Recipe.PresetAlgorithm) || r.AlgorithmVersion == Recipe.SubcellAlgorithm) || r.AlgorithmVersion==Recipe.FeatureBlendAlgorithm))relief*=1-D.Kernel(w.BoundaryDistanceM[i]-420000,230000);
                     if (relief < 35) continue;
                     heights[i] += relief; cells.Add(i);
                 }
@@ -347,7 +357,7 @@ namespace WorldGen.Core
 
         static void Hotspots(World w, double[] heights, int[] ridgeDistance, List<Feature> features, CancellationToken token)
         {
-            if(((w.Recipe.AlgorithmVersion == Recipe.CurrentAlgorithm || w.Recipe.AlgorithmVersion == Recipe.SubcellAlgorithm) || w.Recipe.AlgorithmVersion==Recipe.FeatureBlendAlgorithm)){Hotspots330(w,heights,ridgeDistance,features,token);return;}
+            if((((w.Recipe.AlgorithmVersion == Recipe.CurrentAlgorithm || w.Recipe.AlgorithmVersion == Recipe.PresetAlgorithm) || w.Recipe.AlgorithmVersion == Recipe.SubcellAlgorithm) || w.Recipe.AlgorithmVersion==Recipe.FeatureBlendAlgorithm)){Hotspots330(w,heights,ridgeDistance,features,token);return;}
             var s = w.Surface; var r = w.Recipe;
             for (int k = 0; k < 10; k++)
             {

@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed class LocalTerrain
     {
-        public const string Version = "local-terrain-preview-3";
+        public const string Version = "local-terrain-preview-4";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -17,6 +17,7 @@ namespace WorldGen.Core
         readonly int[] faceOffsets, faces;
         readonly double maximumSupport;
         readonly int seed;
+        public readonly LocalHydrology Hydrology;
         internal World SourceWorld=>world;
         public int SourceSeed=>seed;
 
@@ -59,13 +60,17 @@ namespace WorldGen.Core
                 double plateau = At(world.PlateauPermille, i) / 1000.0;
                 double fold = At(world.FoldPermille, i) / 1000.0;
                 double relief = high - low;
+                // High, low-relief interiors are plateaus, not Himalayan peaks.
+                // On measured Earth this is an inference, not a named-region override.
+                double inferredPlateau=OrogenMorphology.Smooth(1800,4200,world.ElevationM[i])*(1-OrogenMorphology.Smooth(350,1500,relief))*.85;
+                plateau=Math.Max(plateau,inferredPlateau);
                 // Measured broad relief supplements provenance, especially Earth (which has no synthetic belts).
                 // Altitude alone NEVER enables mountain detail. Neighbour relief is explicitly a coarse-scale proxy.
-                double mountains = D.Clamp(Math.Max(fold * 1.35, (relief - 220) / 2300)) * (1 - .82 * plateau);
+                double mountains = D.Clamp(Math.Max(fold, (relief - 180) / 1900)) * (1 - .94 * plateau);
                 double sediment = habitat == null ? At(world.BasinPermille, i) / 1500.0
                     : Math.Max(habitat.FloodFractionPermille / 1000.0, habitat.Soil == SoilKind.Alluvial ? .85 : 0);
-                double hill = (8 + 75 * D.Clamp(relief / 1000.0)) * (1 - .85 * plateau) * (1 - .94 * sediment);
-                double ridge = (180 + Math.Min(3200, relief * 1.1)) * mountains * (1 - .9 * sediment);
+                double hill = (8 + Math.Min(100, relief * .16)) * (1 - .92 * plateau) * (1 - .94 * sediment);
+                double ridge = (240 + Math.Min(1500, relief * .48)) * mountains * (1 - .9 * sediment);
                 V axis = axes[i];
                 if (axis.Length < .1)
                 {
@@ -83,7 +88,7 @@ namespace WorldGen.Core
                 {
                     Cell = i, Ground=groundEnvironment.TerrainCell(i), ElevationM = world.ElevationM[i], CoarseReliefM = relief, HillHeightM = hill, MountainHeightM = ridge,
                     RidgeSpacingM = 4000 + 9000 * Rng.Value(seed, "local-terrain-spacing-2", sharedFabric?fabricKeys[i]:i),
-                    Sharpness = 1.25 + .7 * (1 - D.Clamp(ages[i] / 300.0)), Plateau = plateau, Sediment = sediment,
+                    Sharpness = 1.05 + .9 * (1 - D.Clamp(ages[i] / 300.0)), Plateau = plateau, Sediment = sediment,
                     Glacial = world.Glaciated.Length > i && world.Glaciated[i] ? 1 : 0,
                     Biome = habitat?.Biome ?? Biome.Grassland, SupportM = support,
                     Center = center, FabricOrigin=fabricOrigin, Axis = axis, Across = across,
@@ -97,6 +102,7 @@ namespace WorldGen.Core
             faces = new int[world.Surface.Triangles.Length]; var cursor=(int[])faceOffsets.Clone();
             for(int t=0;t<faces.Length;t+=3)
             { if((t&8191)==0)token.ThrowIfCancellationRequested();for(int j=0;j<3;j++)faces[cursor[world.Surface.Triangles[t+j]]++]=t; }
+            Hydrology=new LocalHydrology(world,horizontalScale,token);
         }
 
         static int At(int[] values, int i) => i < values.Length ? values[i] : 0;
@@ -169,14 +175,17 @@ namespace WorldGen.Core
         {
             readonly LocalTerrain owner; readonly LocalTerrainProfile[] sources; readonly int seed;
             readonly HeightTriangle[] triangles;
+            readonly LocalHydrology.Patch water;
             public readonly V Center, East, North;
             public readonly double HalfExtentM;
             public int CandidateCount => sources.Length;
+            public LocalHydrology.Piece[] ChannelPieces()=>water.Pieces();
             internal LocalTerrainPatch(LocalTerrain owner, V center, double extent, LocalTerrainProfile[] sources, HeightTriangle[] triangles, int seed)
             {
                 this.owner = owner; Center = center; HalfExtentM = extent; this.sources = sources; this.triangles=triangles;this.seed = seed;
                 East = V.Cross(Math.Abs(center.Z) < .99 ? new V(0, 0, 1) : new V(0, 1, 0), center).Unit;
                 North = V.Cross(center, East).Unit;
+                water=owner.Hydrology.Region(center,extent);
             }
             public V Position(double eastM, double northM)
             {
@@ -237,19 +246,41 @@ namespace WorldGen.Core
                 // Broad mass first, subordinate irregular spurs second. Strong periodic crests alone make
                 // kilometre-high curved walls; absolute noise alone makes a maze of equally high ridges.
                 double summit=D.Clamp(.5+.6*broad);
-                double branching=.5*broad+(.06+.06*summit)*medium+.03*summit*(.45-Math.Sqrt(fine*fine+.02));
-                double residual = .2*detail / sum + m*branching + h * (broad + .25 * medium + .04 * fine) + (.12 + .18 * (1 - s)) * micro;
+                // Source-local ridge phases can cancel when many measured cells
+                // overlap. Planet-addressed nested ridges survive that blending;
+                // broad mass modulates them so they do not become equal-height walls.
+                V warped=km+new V(broad,medium,fine)*.32;
+                double ridgeNoise=SphereNoise.Sample(warped,seed^0x7135,.42);
+                double branching=.44*broad+(.26+.30*summit)*(.55-Math.Sqrt(ridgeNoise*ridgeNoise+.035))+
+                    (.11+.08*summit)*(.5-Math.Sqrt(medium*medium+.025))+
+                    .075*summit*(.45-Math.Sqrt(fine*fine+.045));
+                // Separate hill-scale relief from mountain masses. A restrained,
+                // lithology-weighted cut adds ledges, not global stair terraces.
+                double rounded=SphereNoise.Sample(km,seed^0x4b13,1.25);
+                double hillShape=.55*medium+.38*rounded+.09*fine;
+                double residual = .25*detail / sum + m*branching + h * hillShape + (.12 + .18 * (1 - s)+m*.0025) * micro;
                 // Sea level is a hard continuity anchor: do not manufacture new islands/coasts from high-frequency noise.
                 double coast = Smooth(Math.Abs(baseM) / 100);
                 if (baseM < 0) residual = (12 * broad + 4 * medium + fine) * coast;
                 else residual = Math.Max(-.9 * baseM, residual * coast);
-                double elevation = D.Q(baseM + residual, 1000);
                 ground.Divide(sum);
+                // Zero-height noise used to lock every coast to the coarse
+                // triangle contour. A bounded continuous shoreline band permits
+                // inlets/headlands on flat cells without ocean-cell borders.
+                double oceanFraction=ocean/sum;
+                double shoreBand=(1-Smooth(Math.Abs(baseM)/65))*OrogenMorphology.Smooth(.001,.08,oceanFraction);
+                residual+=shoreBand*(3.5*medium+1.2*fine);
+                double strata=ground.RockWeight((int)RockFamily.Sandstone)+ground.RockWeight((int)RockFamily.Limestone);
+                double ledge=strata*Math.Min(9,m*.012+h*.06)*(1-s)*Math.Sin((baseM+residual)/24+medium*.4);
+                double elevation=baseM+residual+ledge;
+                double level=oceanFraction>.001?0:double.NaN,mask=oceanFraction>.001?-elevation:-1000000;
+                water.Apply(point,ref elevation,ref level,ref mask,out double river);
+                elevation=D.Q(elevation,1000);
                 return new LocalTerrainSample { ElevationM = elevation, BaseElevationM = D.Q(baseM, 1000),
                     MountainHeightM = m, HillHeightM = h, Plateau = plateau / sum, Sediment = s,
                     GlacialInfluence = glacier / sum, Cell = cell, Biome = biome,Ground=ground,
-                    CoverColor = new V(red / sum, green / sum, blue / sum), OceanInfluence = ocean / sum,
-                    WaterSurfaceM = elevation < 0 && ocean / sum > .01 ? 0 : double.NaN };
+                    CoverColor = new V(red / sum, green / sum, blue / sum), OceanInfluence = oceanFraction,
+                    WaterSurfaceM = level,WaterMaskM=mask,RiverInfluence=river };
             }
             static double Smooth(double v) { v = D.Clamp(v); return v * v * (3 - 2 * v); }
         }
@@ -283,11 +314,11 @@ namespace WorldGen.Core
     }
     public struct LocalTerrainSample
     {
-        public double ElevationM, BaseElevationM, WaterSurfaceM, MountainHeightM, HillHeightM, Plateau, Sediment, GlacialInfluence, OceanInfluence;
+        public double ElevationM, BaseElevationM, WaterSurfaceM, WaterMaskM, RiverInfluence, MountainHeightM, HillHeightM, Plateau, Sediment, GlacialInfluence, OceanInfluence;
         public int Cell;
         public V CoverColor;
         public Biome Biome;
         public GroundProfile Ground;
-        public bool Underwater => !double.IsNaN(WaterSurfaceM) && ElevationM < WaterSurfaceM;
+        public bool Underwater => !double.IsNaN(WaterSurfaceM) && WaterMaskM>=0 && ElevationM < WaterSurfaceM;
     }
 }

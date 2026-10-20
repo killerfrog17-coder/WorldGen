@@ -31,6 +31,8 @@ namespace WorldGen.Presentation
         // Six continuous lithology weights, independent of soil and render LOD.
         public float[] Lithology = Array.Empty<float>();
         public int[] Triangles = Array.Empty<int>();
+        public int[] WaterTriangles = Array.Empty<int>();
+        public int[] WaterClipTriangles = Array.Empty<int>();
         public double EastM, NorthM, SizeM, MinHeightM, MaxHeightM, BuildMilliseconds;
         public int Segments, GroundVertices;
         public static LocalTerrainMesh Build(LocalTerrain terrain, LocalTerrainFrame frame, double eastM, double northM,
@@ -125,6 +127,8 @@ namespace WorldGen.Presentation
                 Array.Copy(mesh.Lithology,src*6,mesh.Lithology,dst*6,6);
                 int next = (i + 1) % perimeter; Triangle(src, dst, edge[next]); Triangle(edge[next], dst, ground + next);
             }
+            var waterSamples=LocalChannelMesh.Refine(mesh,terrain,frame,patch,samples);
+            LocalWaterMesh.Build(mesh,frame,waterSamples);
             mesh.BuildMilliseconds = watch.Elapsed.TotalMilliseconds; return mesh;
         }
     }
