@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--water-coupling")){WaterCouplingTests.Run();return;}
+if(args.Contains("--water-coupling-world")){WaterCouplingTests.World(args[Array.IndexOf(args,"--water-coupling-world")+1]);return;}
 if(args.Contains("--terrain-worker-wire")){int at=Array.IndexOf(args,"--terrain-worker-wire");TerrainWorkerTests.Run(args[at+1],args[at+2],args.Contains("--terrain-worker-recipe"));return;}
 if(args.Contains("--hyper-lod")){HyperAmplificationTests.Lod(args[Array.IndexOf(args,"--hyper-lod")+1]);return;}
 if(args.Contains("--hyper-review")){int at=Array.IndexOf(args,"--hyper-review");HyperAmplificationTests.Review(args[at+1],args[at+2],args.Contains("--fresh-generation"));return;}

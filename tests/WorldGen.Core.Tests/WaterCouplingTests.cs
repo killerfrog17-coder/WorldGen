@@ -1,0 +1,81 @@
+using WorldGen.Core;
+using WorldGen.Presentation;
+using WorldGen.Serialization;
+
+static class WaterCouplingTests
+{
+    public static void Run()
+    {
+        int checks=0;
+        void Check(bool value,string message){checks++;if(!value)throw new Exception(message);}
+        var frame=new LocalTerrainFrame(new V(1,0,0),6371000,0,.1);
+        LocalTerrainMesh Triangle()=>new LocalTerrainMesh{Segments=1,SizeM=16,
+            Positions=new float[]{0,-2,0,16,10,0,0,-2,16},WaterClipTriangles=new[]{0,2,1}};
+        var samples=new[]{
+            new LocalTerrainSample{ElevationM=-2,WaterSurfaceM=0,WaterMaskM=2},
+            // A dry corner may carry a completely different river's potential
+            // level. It must NEVER tilt an adjacent ocean/lake shoreline.
+            new LocalTerrainSample{ElevationM=10,WaterSurfaceM=2000,WaterMaskM=-.1},
+            new LocalTerrainSample{ElevationM=-2,WaterSurfaceM=0,WaterMaskM=2}};
+        var mesh=Triangle();LocalWaterMesh.Build(mesh,frame,samples);
+        Check(mesh.WaterTriangles.Length>0,"A legitimate shallow shore must retain water");
+        Check(mesh.WaterPositions.Where((_,i)=>i%3==1).All(y=>y<.03),"Dry-corner water potentials cannot pull a shoreline upward into a floating sheet");
+        var baseline=mesh.WaterPositions.ToArray();samples[1].WaterSurfaceM=-3000;
+        mesh=Triangle();LocalWaterMesh.Build(mesh,frame,samples);
+        Check(baseline.SequenceEqual(mesh.WaterPositions),"Changing an unrelated dry potential cannot change the water mesh at all");
+        foreach(var kind in new[]{LocalWaterKind.Ocean,LocalWaterKind.Lake})
+        {
+            for(int i=0;i<3;i++){samples[i].WaterKind=kind;samples[i].WaterBodyKey=17;samples[i].WaterFootprintM=100;}
+            samples[1].WaterSurfaceM=2000;
+            mesh=Triangle();LocalWaterMesh.Build(mesh,frame,samples);
+            Check(mesh.WaterTriangles.Length>0&&mesh.WaterPositions.Where((_,i)=>i%3==1).All(y=>y<.03),"Standing water retains one level even beside conflicting dry potential: "+kind);
+            // Every emitted point lies at/above its ACTUAL supporting triangle,
+            // and no point crosses onto the high dry side (ground=-2+.75*x).
+            for(int i=0;i<mesh.WaterPositions.Length;i+=3)
+                Check(mesh.WaterPositions[i+1]-( -2+.75*mesh.WaterPositions[i])>=-.001,"Water polygon is clipped against displayed land, not just sampled ideal heights");
+        }
+        // Two disconnected lakes at different levels must not become a slope.
+        samples[0]=new LocalTerrainSample{ElevationM=-2,WaterSurfaceM=0,WaterMaskM=2,WaterKind=LocalWaterKind.Lake,WaterBodyKey=1,WaterFootprintM=1};
+        samples[2]=new LocalTerrainSample{ElevationM=-2,WaterSurfaceM=100,WaterMaskM=102,WaterKind=LocalWaterKind.Lake,WaterBodyKey=2,WaterFootprintM=1};
+        mesh=Triangle();LocalWaterMesh.Build(mesh,frame,samples);
+        foreach(int triangle in Enumerable.Range(0,mesh.WaterTriangles.Length/3))
+        {
+            var ys=Enumerable.Range(0,3).Select(k=>mesh.WaterPositions[mesh.WaterTriangles[triangle*3+k]*3+1]).ToArray();
+            Check(ys.Max()-ys.Min()<.002,"A render triangle never joins different standing-water levels");
+        }
+        Console.WriteLine("PASS "+checks+" water coupling checks");
+    }
+
+    public static void World(string path)
+    {
+        var world=WorldFile.Read(File.ReadAllBytes(path));string hash=StateHash.Compute(world);
+        var watch=System.Diagnostics.Stopwatch.StartNew();var terrain=new LocalTerrain(world,horizontalScale:.1);
+        var reaches=terrain.Hydrology.Channels.Where(c=>c.StartM>20&&c.StartM<2500&&c.WidthM>10).Take(6).ToArray();
+        var sites=reaches.Select(r=>("river-"+r.From,terrain.Amplification.RiverPoint(r.From,.5))).ToList();
+        foreach(int i in Enumerable.Range(0,world.ElevationM.Length).Where(i=>world.Hydrology.OceanConnected[i]&&world.Surface.Cells[i].Neighbors.Any(n=>!world.Hydrology.OceanConnected[n])).Take(2))sites.Add(("coast-"+i,world.Surface.Cells[i].Position));
+        foreach(int i in Enumerable.Range(0,world.ElevationM.Length).Where(i=>world.Hydrology.LakeCoverageFraction[i]>.7&&world.Hydrology.WaterBody[i]>=0).Take(2))sites.Add(("lake-"+i,world.Surface.Cells[i].Position));
+        int checkedVertices=0,unsupported=0;double worstError=0,maxDepth=0;
+        foreach(var site in sites)
+        {
+            var patch=terrain.Patch(site.Item2,24000);var center=patch.Sample(0,0);
+            var frame=new LocalTerrainFrame(site.Item2,terrain.RadiusM,center.ElevationM,.1);
+            foreach(var shape in new[]{(204.8,32),(3276.8,16)})
+            {
+                var mesh=LocalTerrainMesh.Build(terrain,frame,-shape.Item1/2,-shape.Item1/2,shape.Item1,shape.Item2);
+                if(!mesh.WaterPositions.All(float.IsFinite))throw new Exception("Nonfinite water mesh");
+                for(int k=0;k<mesh.WaterPositions.Length;k+=3)
+                {
+                    double x=mesh.EastM+mesh.WaterPositions[k],z=mesh.NorthM+mesh.WaterPositions[k+2];var at=frame.Position(x,z);var s=patch.Sample(at);
+                    if(double.IsNaN(s.WaterSurfaceM)||s.WaterMaskM<-.5){unsupported++;continue;}
+                    double expected=frame.SurfaceY(at,s.WaterSurfaceM)+.025;
+                    double error=Math.Abs(mesh.WaterPositions[k+1]-expected);worstError=Math.Max(worstError,error);
+                    if(shape.Item2==32&&error>5)throw new Exception($"Unsupported water level at {site.Item1}: error {error:F2}m, drawn {mesh.WaterPositions[k+1]:F2}, expected {expected:F2}; {s.WaterKind}");
+                    checkedVertices++;maxDepth=Math.Max(maxDepth,s.WaterSurfaceM-s.ElevationM);
+                }
+                Console.WriteLine($"{site.Item1} {shape.Item1:F0}m: {mesh.WaterTriangles.Length/3} triangles; {mesh.BuildMilliseconds:F1}ms");
+            }
+        }
+        if(StateHash.Compute(world)!=hash)throw new Exception("Water coupling changed authoritative world/history");
+        Console.WriteLine($"PASS {checkedVertices} actual-world water vertices; {unsupported} outside exact footprint (linear LOD approximation); worst level error {worstError:F3}m; max sampled depth {maxDepth:F2}m; total {watch.Elapsed.TotalSeconds:F2}s; unchanged {hash}");
+    }
+}

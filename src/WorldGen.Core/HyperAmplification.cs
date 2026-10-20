@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed class HyperAmplification
     {
-        public const string Version = "hyper-amplification-2";
+        public const string Version = "hyper-amplification-3";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -62,7 +62,7 @@ namespace WorldGen.Core
             public V Position;
             public Kind Type;
             public double Height, Water, RiverBed, Distance, Flow, Crust, Mountain, Hill, Plateau, Sediment, Age, Dryness;
-            public ulong LakeKey;
+            public ulong LakeKey, ChannelKey;
             public double LakeLevel,LakeWeight;
             public Edge River;
             public bool Wet => Type == Kind.River || Type == Kind.Lake || Type == Kind.Ocean;
@@ -206,6 +206,7 @@ namespace WorldGen.Core
                     RiverBed = bed, Distance = ocean || lake || river ? 0 : Math.Sqrt(world.Surface.Cells[i].AreaM2) * scale,
                     Flow = flows[i], Crust = p.ElevationM, Mountain = p.MountainHeightM, Hill = p.HillHeightM,
                     LakeKey=lake?(ulong)(uint)(body+1):0,LakeLevel=lake?hydro.Waters[body].SurfaceElevationM:0,LakeWeight=lake?1:0,
+                    ChannelKey=Mix(((ulong)(uint)seed<<32)^(uint)i^0x72546e43UL),
                     Plateau = p.Plateau, Sediment = p.Sediment,
                     Age = world.Recipe.TerrainSource=="Earth"?Lerp(350,20,OrogenMorphology.Smooth(450,1800,p.CoarseReliefM)):D.Clamp((1.95-p.Sharpness)*333,0,600),
                     Dryness = p.Biome == Biome.Desert ? 1 : p.Biome == Biome.Savanna ? .55 : p.Biome == Biome.Grassland ? .35 : .1 };
@@ -267,6 +268,14 @@ namespace WorldGen.Core
                 int r=hydro.Receiver[i];
                 double level=Math.Max(nodes[i].Height,r>=0&&nodes[r].Wet?nodes[r].Water:nodes[i].Height);
                 nodes[i].Water=nodes[i].Height=nodes[i].RiverBed=level;
+            }
+            // Connected tributaries share a basin identity, not an arbitrary
+            // nearest segment's ID. Separate coastal mouths/lake inlets cannot
+            // be blended into the same sheet by a coarse render triangle.
+            for(int k=hydro.VisitOrder.Length-1;k>=0;k--)
+            {
+                int i=hydro.VisitOrder[k],r=hydro.Receiver[i];
+                if(r>=0&&nodes[r].Type!=Kind.Ocean&&nodes[r].Type!=Kind.Lake)nodes[i].ChannelKey=nodes[r].ChannelKey;
             }
             PreparationMilliseconds = watch.Elapsed.TotalMilliseconds;
         }
@@ -478,6 +487,7 @@ namespace WorldGen.Core
             double length = (a.Position - b.Position).Length * radius * scale;
             node.Distance = (a.Distance + b.Distance) * .5;
             bool aRiver = a.Type == Kind.River || a.Type == Kind.Lake, bRiver = b.Type == Kind.River || b.Type == Kind.Lake;
+            node.ChannelKey=aRiver&&!bRiver?a.ChannelKey:bRiver&&!aRiver?b.ChannelKey:a.Flow>=b.Flow?a.ChannelKey:b.ChannelKey;
             double rough = (node.Hill + node.Mountain * .65) * (1 - .88 * node.Plateau) * (1 - .8 * node.Sediment);
             if (a.Type == Kind.Ocean && b.Type == Kind.Ocean)
             {
@@ -757,22 +767,53 @@ namespace WorldGen.Core
                     double profile=shapingDistance<shapingWidth?channel:bank;
                     influence=(1-t)*OrogenMorphology.Smooth(0,.04,shapingFlow);
                     height=Math.Min(height,Lerp(height,profile,influence));
+                    // The compact bed must be evaluated from shared vertex
+                    // profiles as well. A nearest-reach switch can have equal
+                    // distance but a different level (e.g. two switchback arms);
+                    // cutting to that winner makes a vertical Voronoi wall.
+                    if(shapingWidth>.001)
+                    {
+                        double channelDepth=Math.Min(Math.Max(0,shapingWater-shapingBed),Depth(shapingFlow)*1.5);
+                        double cut=LocalHydrology.CrossSection(height,shapingWater,shapingDistance,shapingWidth,channelDepth,
+                            Math.Max(shapingWidth*3,Math.Min(shapingValley,shapingWidth*6+20)),0);
+                        height=Lerp(height,cut,OrogenMorphology.Smooth(0,.04,shapingFlow));
+                    }
                 }
-                if(river)mask=Math.Min(width-distanceToWater,water-height);
-                else if (!ocean) water = double.NaN;
+                var kind=LocalWaterKind.None;ulong bodyKey=0;V gradient=default;double footprint=-1e6;
+                if(river)
+                {
+                    // Reach water follows paired bed/surface controls, while
+                    // continuous shared profiles above own the terrain cut.
+                    footprint=width-distanceToWater;mask=Math.Min(footprint,water-height);
+                    kind=LocalWaterKind.River;
+                    var edge=hit.Edge;bodyKey=edge.A.Type==Kind.River||edge.A.Type==Kind.Lake?edge.A.ChannelKey:edge.B.ChannelKey;
+                    double dx=edge.B.Position.X-edge.A.Position.X,dy=edge.B.Position.Y-edge.A.Position.Y,dz=edge.B.Position.Z-edge.A.Position.Z;
+                    double slope=(edge.B.Water-edge.A.Water)/Math.Max(1e-30,dx*dx+dy*dy+dz*dz);
+                    gradient=new V{X=dx*slope,Y=dy*slope,Z=dz*slope};
+                }
+                else water=double.NaN;
                 // A dry periphery carrying a little lake provenance must NOT
                 // disable river valley shaping. That made a vertical terrain
                 // step at the arbitrary lake-weight threshold.
                 if(lake&&height<lakeSource.LakeLevel&&(double.IsNaN(water)||lakeSource.LakeLevel>=water))
                 {
                     water=lakeSource.LakeLevel;
-                    mask=Math.Max(mask,Math.Min(water-height,(lakeWeight-.05)*Math.Max(1,valley)));
+                    footprint=(lakeWeight-.05)*Math.Max(1,valley);mask=Math.Min(water-height,footprint);
+                    kind=LocalWaterKind.Lake;bodyKey=lakeSource.LakeKey;gradient=default;
                 }
-                if (ocean && height < 0) { water = 0; mask = -height; }
-                return new Surface { Height = height, UnshapedHeight = pre, Water = water, Mask = mask, RiverInfluence = influence };
+                if (ocean && (height < 0||kind==LocalWaterKind.None))
+                {water=0;footprint=double.PositiveInfinity;mask=-height;kind=LocalWaterKind.Ocean;bodyKey=1;gradient=default;}
+                return new Surface { Height = height, UnshapedHeight = pre, Water = water, Mask = mask, RiverInfluence = influence,
+                    Kind=kind,BodyKey=bodyKey,Gradient=gradient,Footprint=footprint,
+                    Minimum=kind==LocalWaterKind.River?Math.Min(hit.Edge.A.Water,hit.Edge.B.Water):water,
+                    Maximum=kind==LocalWaterKind.River?Math.Max(hit.Edge.A.Water,hit.Edge.B.Water):water };
             }
         }
-        internal struct Surface { public double Height, UnshapedHeight, Water, Mask, RiverInfluence; }
+        internal struct Surface
+        {
+            public double Height, UnshapedHeight, Water, Mask, RiverInfluence,Footprint,Minimum,Maximum;
+            public LocalWaterKind Kind;public ulong BodyKey;public V Gradient;
+        }
         internal Patch Region(int[] triangleOffsets) => new Patch(this, triangleOffsets);
     }
 }

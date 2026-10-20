@@ -1,6 +1,25 @@
 # WorldGen repository instructions
 
 Current review launch,20October2026: `WorldGen.exe - Shortcut.lnk` selects
+`artifacts/player-water-coupled/WorldGen.exe` (IL2CPP15:56:44Z).
+Local-terrain-hyper-3 / amplification3 adds body-aware wet footprints, connected
+river identities, bounded local river surface gradients, independent footprint/
+drawn-ground clipping and continuous cut-only compact beds. The old mesher's
+dry-corner2000m-potential floating-sheet failure is reproduced and regression-
+tested; unrelated standing levels no longer interpolate together. An attempted
+nearest-reach bed cut failed continuity and was corrected before publication.
+Both200k worlds pass13110 hyper checks;15 new water/745 terrain/3227 legacy
+hydrology checks,105924 exact worker comparisons and8 native/CLR probes pass.
+Native generated river/lake captures are inspected; loading worst9.66/44.32ms,
+no >100ms frames in these two hidden fixed-camera scenes, NOT a broad FPS claim.
+All owned tests/workers stopped; old hyper-continuous remains rollback. Existing
+world/history hashes, mountain controls and LOD/controller behavior are unchanged.
+Owner visual testing is pending. Coarse jagged shorelines, distant narrow-water
+loss, scale-dependent water widths and short tributaries remain open; no dynamic
+floods, underwater art or complete hydrology acceptance is implied. See
+docs/HYPER_AMPLIFICATION.md and docs/VALIDATION.md.
+
+Current review launch,20October2026: `WorldGen.exe - Shortcut.lnk` selects
 `artifacts/player-hyper-continuous/WorldGen.exe` (IL2CPP09:57:28Z).
 Source f263643 / local-terrain-hyper-2 implements drainage-aware CPU planetary
 amplification with canonical conforming heights, continuous cut-only valley

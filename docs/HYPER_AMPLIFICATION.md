@@ -1,10 +1,33 @@
 # Drainage-aware planetary amplification
 
-`local-terrain-hyper-2` replaces the geographic-scaffold surface for completed
+`local-terrain-hyper-3` replaces the geographic-scaffold surface for completed
 worlds. It is a **shared CPU adaptation**, not the original application's GPU
 compute-shader pipeline or a claim of identical output/performance.
 
 ## Source and integration
+
+### Coupled water geometry (revision 3)
+
+Water queries now retain their type, connected drainage/lake identity, wet
+footprint, local river gradient and reach endpoint levels. The existing broad
+valley remains; a compact cut-only channel cross-section uses its continuous
+shared bed/level/distance controls, not a discontinuous nearest-reach winner.
+The wet footprint follows the displaced channel hierarchy. No raised banks, fluid
+solver, world-scale retuning, new saved raster or historical changes are added.
+
+The previous water clipper interpolated potential levels even at DRY corners.
+A reproduced case pulled a zero-level shore toward a dry 2000m potential,
+creating an unsupported sheet. Revision 3 uses wet evidence only, independently
+clips footprint and depth against the actual drawn land triangle, and does not
+join unrelated bodies. River extrapolation cannot exceed its sampled reach's
+endpoint levels; lakes/oceans retain their constant planetary elevations.
+Intersection vertices interpolate the same rendered ground/water planes, not
+a curved height reevaluation after clipping that invalidates the intersection.
+
+This is still a linear tessellated surface, not finished shoreline art: narrow
+channels can be missed at distant LOD, and coarse shoreline intersections do
+not exactly reproduce the canonical footprint. Dynamic floods, underwater
+rendering, scale-dependent widths and short tributary tuning remain separate.
 
 The basis is Cortial, Peytavie, Galin and Guérin, *Real-Time Hyper-Amplification
 of Planets* (2020), and the MIT-licensed Arches-Team reference implementation:

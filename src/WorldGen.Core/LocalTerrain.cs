@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed class LocalTerrain
     {
-        public const string Version = "local-terrain-hyper-2";
+        public const string Version = "local-terrain-hyper-3";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -273,7 +273,9 @@ namespace WorldGen.Core
                         BaseElevationM=D.Q(surface.UnshapedHeight,1000),MountainHeightM=mountains/sum,HillHeightM=hills/sum,
                         Plateau=plateau/sum,Sediment=sediment/sum,GlacialInfluence=glacier/sum,Cell=cell,Biome=biome,Ground=ground,
                         CoverColor=new V(red/sum,green/sum,blue/sum),OceanInfluence=ocean/sum,
-                        WaterSurfaceM=surface.Water,WaterMaskM=surface.Mask,RiverInfluence=surface.RiverInfluence};
+                        WaterSurfaceM=surface.Water,WaterMaskM=surface.Mask,RiverInfluence=surface.RiverInfluence,
+                        WaterKind=surface.Kind,WaterBodyKey=surface.BodyKey,WaterGradient=surface.Gradient,WaterFootprintM=surface.Footprint,
+                        WaterMinimumM=surface.Minimum,WaterMaximumM=surface.Maximum};
                 }
                 double baseM = double.NaN;
                 for(int i=0;i<triangles.Length;i++)if(triangles[i].Height(point,out double value)){baseM=value;break;}
@@ -353,6 +355,7 @@ namespace WorldGen.Core
         internal V Center, FabricOrigin, Axis, Across, Gradient;
         internal double SupportM, Phase;
     }
+    public enum LocalWaterKind : byte { None, River, Lake, Ocean }
     public struct LocalTerrainSample
     {
         public double ElevationM, PreWaterElevationM, BaseElevationM, WaterSurfaceM, WaterMaskM, RiverInfluence, MountainHeightM, HillHeightM, Plateau, Sediment, GlacialInfluence, OceanInfluence;
@@ -360,6 +363,14 @@ namespace WorldGen.Core
         public V CoverColor;
         public Biome Biome;
         public GroundProfile Ground;
+        // Derived local geometry, not simulation ownership or saved world data.
+        // Gradient is metres of surface elevation per unit planetary direction.
+        // Footprint excludes depth: the renderer clips against its actual land
+        // triangles separately rather than mixing two different zero crossings.
+        public LocalWaterKind WaterKind;
+        public ulong WaterBodyKey;
+        public V WaterGradient;
+        public double WaterFootprintM,WaterMinimumM,WaterMaximumM;
         public bool Underwater => !double.IsNaN(WaterSurfaceM) && WaterMaskM>=0 && ElevationM < WaterSurfaceM;
     }
 }

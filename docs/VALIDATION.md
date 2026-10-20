@@ -1,5 +1,46 @@
 # Version 3 validation evidence
 
+## Body-aware water clipping /20October2026
+
+Local terrain/amplification revision3 addresses the owner's actual floating
+water-sheet screenshots. Prior successful height/replay checks did not establish
+water-mesh correctness. This pass does not retune world scale, tributary density,
+mountain relief, historical simulation, LOD planning or the controller.
+
+-A new regression reproduces the old mesher pulling a zero-level shoreline
+ toward a DRY corner's2000m potential. It fails before the fix;15 focused checks
+ now verify dry-potential invariance, standing-water levels, separate bodies and
+ clipping against actual drawn land. Footprint/depth intersections are separate.
+-Completed-world samples carry water type/body, river gradient and bounded reach
+ levels. Constant lake/ocean levels cannot interpolate into unrelated rivers.
+ Compact channel incision is cut-only and uses continuous shared control fields.
+ An experimental nearest-reach incision failed a four-centimetre continuity
+ check in Continents Plus and was corrected before publication.
+-Final200k Earth and Continents Plus each pass13110 hyper-amplification checks,
+ including edge/patch/cache/concurrent consistency, source hashes, lake levels
+ and24 curved major reaches with15/15 wet/downhill samples.745 controller/
+ streaming checks and3227 legacy hydrology checks pass.
+-Additional actual-world river/coast/lake mesh audits examined7183 generated/
+ 6989 Earth water vertices, with worst level errors0.899m/3.805m across near and
+ coarse LOD samples.203/358 intersection vertices were outside the exact
+ canonical footprint: linear LOD shorelines remain an approximation, not a
+ finished shore-resolution claim. These audits precede the final continuous-
+ incision correction; their clipping algorithm is unchanged.
+-The separate IL2CPP build is15:56:44Z in player-water-coupled, with a matching
+ bundled worker.105924 exact worker mesh/scatter comparisons and8 exact native/
+ CLR height probes pass. Two actual native generated-world river/lake captures
+ are inspected: embedded plain-color river/standing water, no overhead sheets
+ in these selected scenes; the owner's exact failing location is not reproduced.
+ River/lake loading recorded27620/24152 hidden1280x800 fixed-camera frames;
+ worst9.66/44.32ms, no >100ms frames, largest mesh apply0.17/0.23ms. These are
+ host/scene diagnostics, not fullscreen/travel/low-end performance guarantees.
+ Initial native hierarchical controls235.2ms; first near ring5.311s includes
+ worker warming, next near0.175s. Full coverage27.944/24.339s. Runtime tests and
+ owned workers are stopped before owner handoff. Shortcut selects this build;
+ hyper-continuous remains rollback. Owner testing is pending.
+ No new generation/history, world-scale, dynamic flooding, water-art or broad
+ frame-rate acceptance is implied. See HYPER_AMPLIFICATION.md.
+
 ## Drainage-aware hyper-amplification / loading revision —20October2026
 
 Source e9d6623; local-terrain-hyper-2 / hyper-amplification-2. This is a shared
