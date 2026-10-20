@@ -64,6 +64,7 @@ public sealed partial class WorldGenRuntime
         if(quickShape)sites.RemoveAll(s=>s.Item1!="himalaya"&&s.Item1!="andes"&&s.Item1!="river");
         if(Environment.GetCommandLineArgs().Contains("--worldgen-water-review"))sites.RemoveAll(s=>s.Item1!="river"&&s.Item1!="lake");
         var report=new List<string>();var probes=new List<string>{"originX,originY,originZ,eastM,northM,elevationM"};
+        if(terrain.Scaffold!=null)report.Add("Geographic scaffold: "+terrain.Scaffold.Positions.Length+" controls; "+terrain.Scaffold.PreparationMilliseconds.ToString("F0")+"ms preparation; "+(terrain.Scaffold.RetainedBytes/1048576.0).ToString("F1")+"MiB retained arrays");
         foreach(var site in sites)
         {
             explorer.Teleport(site.Item2);explorer.TestView(quickShape?(site.Item1=="river"?12:600):80,site.Item1=="coast"?270:20,quickShape?20:8);

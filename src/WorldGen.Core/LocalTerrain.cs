@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed class LocalTerrain
     {
-        public const string Version = "local-terrain-preview-5";
+        public const string Version = "local-terrain-preview-6";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -18,6 +18,7 @@ namespace WorldGen.Core
         readonly double maximumSupport;
         readonly int seed;
         public readonly LocalHydrology Hydrology;
+        public readonly GeographicScaffold Scaffold;
         internal World SourceWorld=>world;
         public int SourceSeed=>seed;
 
@@ -102,7 +103,12 @@ namespace WorldGen.Core
             faces = new int[world.Surface.Triangles.Length]; var cursor=(int[])faceOffsets.Clone();
             for(int t=0;t<faces.Length;t+=3)
             { if((t&8191)==0)token.ThrowIfCancellationRequested();for(int j=0;j<3;j++)faces[cursor[world.Surface.Triangles[t+j]]++]=t; }
-            Hydrology=new LocalHydrology(world,horizontalScale,token);
+            // Completed worlds get one shared geographic control mesh. Partial
+            // preview/test fixtures with no complete drainage retain the small
+            // interpolation-only fallback; no fine map is serialized into World.
+            if(world.Hydrology.Receiver.Length==profiles.Length&&world.Hydrology.VisitOrder.Length==profiles.Length&&world.Surface.Edges.Length>0)
+                Scaffold=new GeographicScaffold(world,profiles,horizontalScale,token);
+            Hydrology=new LocalHydrology(world,horizontalScale,token,Scaffold);
         }
 
         static int At(int[] values, int i) => i < values.Length ? values[i] : 0;
@@ -127,6 +133,7 @@ namespace WorldGen.Core
             foreach(int id in ids) for(int k=faceOffsets[id];k<faceOffsets[id+1];k++) triangleIds.Add(faces[k]);
             V east = V.Cross(Math.Abs(center.Z)<.99?new V(0,0,1):new V(0,1,0),center).Unit, north = V.Cross(center,east).Unit;
             var triangles = new List<HeightTriangle>();
+            var geography=new List<HeightTriangle>();
             foreach(int t in triangleIds)
             {
                 int a=world.Surface.Triangles[t],b=world.Surface.Triangles[t+1],c=world.Surface.Triangles[t+2];
@@ -136,11 +143,21 @@ namespace WorldGen.Core
                     V delta=profiles[id].Center-center;double x=V.Dot(delta,east)*RadiusM,y=V.Dot(delta,north)*RadiusM;
                     minX=Math.Min(minX,x);maxX=Math.Max(maxX,x);minY=Math.Min(minY,y);maxY=Math.Max(maxY,y);
                 }
-                double bound=halfExtentM*1.6+20;
+                double bound=halfExtentM*1.6+20+maximumSupport*.15;
                 if(minX>bound||maxX< -bound||minY>bound||maxY< -bound)continue;
                 triangles.Add(new HeightTriangle(profiles[a],profiles[b],profiles[c],RadiusM));
+                if(Scaffold!=null)
+                {
+                    int start=Scaffold.Refined?t*4:t,count=Scaffold.Refined?4:1;
+                    for(int k=0;k<count;k++)
+                    {
+                        int at=start+k*3,aa=Scaffold.Triangles[at],bb=Scaffold.Triangles[at+1],cc=Scaffold.Triangles[at+2];
+                        geography.Add(new HeightTriangle(Scaffold.Vertex(aa),Scaffold.Vertex(bb),Scaffold.Vertex(cc),RadiusM,
+                            Scaffold.Ridge(aa,bb),Scaffold.Ridge(bb,cc),Scaffold.Ridge(cc,aa)));
+                    }
+                }
             }
-            return new LocalTerrainPatch(this, center, halfExtentM, sources, triangles.ToArray(), seed);
+            return new LocalTerrainPatch(this, center, halfExtentM, sources, triangles.ToArray(), seed,geography.ToArray());
         }
 
         // Cubic triangular surface: exact source heights and shared edge curves. Bounded
@@ -148,8 +165,10 @@ namespace WorldGen.Core
         internal struct HeightTriangle
         {
             readonly double ax,ay,az,bx,by,bz,cx,cy,cz,ha,hb,hc,ab,ac,ba,bc,ca,cb,mid;
-            public HeightTriangle(LocalTerrainProfile a,LocalTerrainProfile b,LocalTerrainProfile c,double radius)
+            readonly double ridgeAB,ridgeBC,ridgeCA;
+            public HeightTriangle(LocalTerrainProfile a,LocalTerrainProfile b,LocalTerrainProfile c,double radius,double ridgeAB=0,double ridgeBC=0,double ridgeCA=0)
             {
+                this.ridgeAB=ridgeAB;this.ridgeBC=ridgeBC;this.ridgeCA=ridgeCA;
                 V p=a.Center,q=b.Center,r=c.Center;
                 double det=p.X*(q.Y*r.Z-q.Z*r.Y)+p.Y*(q.Z*r.X-q.X*r.Z)+p.Z*(q.X*r.Y-q.Y*r.X);
                 ax=(q.Y*r.Z-q.Z*r.Y)/det;ay=(q.Z*r.X-q.X*r.Z)/det;az=(q.X*r.Y-q.Y*r.X)/det;
@@ -167,6 +186,10 @@ namespace WorldGen.Core
                 if(Math.Min(x,Math.Min(y,z))< -.00000001){height=0;return false;}
                 x=Math.Max(0,x);y=Math.Max(0,y);z=Math.Max(0,z);double sum=x+y+z;x/=sum;y/=sum;z/=sum;
                 height=x*x*x*ha+y*y*y*hb+z*z*z*hc+3*(x*x*y*ab+x*x*z*ac+y*y*x*ba+y*y*z*bc+z*z*x*ca+z*z*y*cb)+6*x*y*z*mid;
+                // Shared, non-river edges carry divides. Ridges are connected
+                // to the drainage graph, not arbitrary periodic noise contours.
+                double xy=4*x*y,yz=4*y*z,zx=4*z*x;
+                height+=xy*xy*ridgeAB+yz*yz*ridgeBC+zx*zx*ridgeCA;
                 return true;
             }
         }
@@ -175,14 +198,16 @@ namespace WorldGen.Core
         {
             readonly LocalTerrain owner; readonly LocalTerrainProfile[] sources; readonly int seed;
             readonly HeightTriangle[] triangles;
+            readonly HeightTriangle[] geography;
             readonly LocalHydrology.Patch water;
             public readonly V Center, East, North;
             public readonly double HalfExtentM;
             public int CandidateCount => sources.Length;
             public LocalHydrology.Piece[] ChannelPieces()=>water.Pieces();
-            internal LocalTerrainPatch(LocalTerrain owner, V center, double extent, LocalTerrainProfile[] sources, HeightTriangle[] triangles, int seed)
+            internal LocalTerrainPatch(LocalTerrain owner, V center, double extent, LocalTerrainProfile[] sources, HeightTriangle[] triangles, int seed,HeightTriangle[] geography)
             {
                 this.owner = owner; Center = center; HalfExtentM = extent; this.sources = sources; this.triangles=triangles;this.seed = seed;
+                this.geography=geography;
                 East = V.Cross(Math.Abs(center.Z) < .99 ? new V(0, 0, 1) : new V(0, 1, 0), center).Unit;
                 North = V.Cross(center, East).Unit;
                 water=owner.Hydrology.Region(center,extent);
@@ -230,16 +255,27 @@ namespace WorldGen.Core
                 double baseM = double.NaN;
                 foreach(var triangle in triangles)if(triangle.Height(point,out double value)){baseM=value;break;}
                 if(double.IsNaN(baseM))throw new InvalidOperationException("Terrain patch did not resolve a containing world triangle.");
+                double geographicM=baseM;
+                if(geography.Length>0)
+                {
+                    bool found=false;foreach(var triangle in geography)if(triangle.Height(point,out double value)){geographicM=value;found=true;break;}
+                    if(!found)throw new InvalidOperationException("Terrain patch did not resolve its geographic scaffold triangle.");
+                }
                 double h = hills / sum, m = mountains / sum, s = sediment / sum;
                 // Six fixed octaves: coherent masses and subordinate spurs,
                 // rather than periodic bands/phasor waves. Drainage subsequently
                 // supplies the actual valley floor, banks and water as one field.
-                double mountainShape=m>0?TerrainFractal.Mountains(km*1000,seed^0x7135,sharpness/sum,broad):0;
+                double mountainShape=geography.Length==0&&m>0?TerrainFractal.Mountains(km*1000,seed^0x7135,sharpness/sum,broad):0;
                 // Separate hill-scale relief from mountain masses. A restrained,
                 // lithology-weighted cut adds ledges, not global stair terraces.
                 double rounded=SphereNoise.Sample(km,seed^0x4b13,1.25);
                 double hillShape=.55*medium+.38*rounded+.09*fine;
-                double residual = m*mountainShape + h * hillShape + (.12 + .18 * (1 - s)+m*.0012) * micro;
+                // Sub-grid roughness is subordinate to geographic divides and
+                // broad eroded slopes, never kilometre-tall independent spikes.
+                // Keep its physical wavelength when horizontal scale changes.
+                double detailScale=geography.Length>0?Math.Min(280,m*.18)*(1-.8*s):0;
+                double rough=geography.Length>0?SphereNoise.Sample(km,seed^0x1a53,.42):0;
+                double residual = m*mountainShape + (geography.Length>0?Math.Min(h,35):h) * hillShape + detailScale*(.7*rough+.18*fine+.025*micro)+(.12+.18*(1-s))*micro;
                 // Sea level is a hard continuity anchor: do not manufacture new islands/coasts from high-frequency noise.
                 double coast = Smooth(Math.Abs(baseM) / 100);
                 if (baseM < 0) residual = (12 * broad + 4 * medium + fine) * coast;
@@ -253,7 +289,7 @@ namespace WorldGen.Core
                 residual+=shoreBand*(3.5*medium+1.2*fine);
                 double strata=ground.RockWeight((int)RockFamily.Sandstone)+ground.RockWeight((int)RockFamily.Limestone);
                 double ledge=strata*Math.Min(9,m*.012+h*.06)*(1-s)*Math.Sin((baseM+residual)/24+medium*.4);
-                double elevation=baseM+residual+ledge;
+                double elevation=geographicM+residual+ledge;
                 double level=oceanFraction>.001?0:double.NaN,mask=oceanFraction>.001?-elevation:-1000000;
                 water.Apply(point,ref elevation,ref level,ref mask,out double river);
                 elevation=D.Q(elevation,1000);

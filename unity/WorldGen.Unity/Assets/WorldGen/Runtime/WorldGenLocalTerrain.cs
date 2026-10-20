@@ -33,16 +33,21 @@ public sealed partial class WorldGenRuntime
         while(humanStep!=null||terrainUnloading!=null&&!terrainUnloading.isDone)yield return null;
         enteringTerrain=false;ExploreTerrain();
     }
-    void ExploreTerrain(V? exactPosition = null)
+    void PrepareLocalTerrain()
     {
-        if (!CanExploreTerrain || terrainExplorer != null) return;
-        WorldMeridian.Apply(play,world);
+        if(world==null||!worldReady)return;
         if (!ReferenceEquals(localTerrainWorld, world) || localTerrainScale!=play.Settings.HorizontalScale || localTerrainTask == null || localTerrainTask.IsCanceled || localTerrainTask.IsFaulted)
         {
             localTerrainCancellation?.Cancel(); localTerrainCancellation?.Dispose(); localTerrainCancellation = new CancellationTokenSource();
             var source = world; var token = localTerrainCancellation.Token; localTerrainWorld = source;var scale=localTerrainScale=play.Settings.HorizontalScale;
             localTerrainTask = Task.Run(() => new LocalTerrain(source, token,scale), token);
         }
+    }
+    void ExploreTerrain(V? exactPosition = null)
+    {
+        if (!CanExploreTerrain || terrainExplorer != null) return;
+        WorldMeridian.Apply(play,world);
+        PrepareLocalTerrain();
         int cell = selectedCell;
         if (cell < 0) cell = Array.FindIndex(world.ElevationM, h => h > 100 && h < 900);
         if (cell < 0) cell = 0;

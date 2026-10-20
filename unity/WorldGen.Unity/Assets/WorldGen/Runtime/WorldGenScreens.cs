@@ -55,6 +55,7 @@ public sealed partial class WorldGenRuntime
             }
             else {world=generationJob.Result;worldReady=true;dirty=false;activeWorldId=null;play.HasPlayer=false;play.MeridianVersion=0;WorldMeridian.Apply(play,world);centerLongitude=(float)play.PrimeMeridianLongitude;if(string.IsNullOrWhiteSpace(saveName))saveName="New world";}
             generationJob=null;selectedCell=-1;
+            if(worldReady)PrepareLocalTerrain();
             if(world!=null){layer=GenerationPreview.Available(world,preferredLayer)?preferredLayer:Layer.Terrain;Refresh();}
             return;
         }

@@ -9,7 +9,7 @@ namespace WorldGen.Core
     /// Random-access patches discretize only nearby curves; no runtime erosion or upstream walks.</summary>
     public sealed class LocalHydrology
     {
-        public const string Version = "local-hydrology-2";
+        public const string Version = "local-hydrology-3";
         /// <summary>One continuous ground cross-section: channel bed, dry banks,
         /// valley sides and the unmodified upland at compact support's edge.</summary>
         public static double CrossSection(double upland,double level,double distance,double half,double depth,double valley,double glacial)
@@ -29,6 +29,7 @@ namespace WorldGen.Core
         public sealed class Channel
         {
             public int From, To; public V A, B, Side, TangentA, TangentB;
+            public bool Headwater;
             public double StartM, EndM, WidthM, DepthM, LengthM, ValleyM, Bend, Phase, Glacial;
             public V Position(double t)
             {
@@ -41,15 +42,26 @@ namespace WorldGen.Core
                 return (curve + Side * offset).Unit;
             }
             public double Level(double t) => StartM + (EndM - StartM) * t;
+            public double Width(double t)=>WidthM*(Headwater?OrogenMorphology.Smooth(0,.3,t):1);
         }
         readonly double radius, scale, maxChannelRadius, maxShoreRadius;
         readonly int seed;
         readonly CellLocator channelIndex, shoreIndex;
         public readonly Channel[] Channels;
         public readonly ShoreTerrainSampler.Feature[] Shores;
-        public LocalHydrology(World world, double horizontalScale, CancellationToken token = default)
+        public LocalHydrology(World world, double horizontalScale, CancellationToken token = default,GeographicScaffold scaffold=null)
         {
             radius = world.Recipe.RadiusKm * 1000.0; scale = horizontalScale; seed = world.Recipe.Seed;
+            if(scaffold!=null)
+            {
+                Channels=ScaffoldChannels(scaffold,world,token);
+                Shores=new ShoreTerrainSampler(world,token).Features;
+                foreach(var c in Channels)maxChannelRadius=Math.Max(maxChannelRadius,(c.LengthM*.8+c.ValleyM+c.Bend*radius*scale)/(radius*scale));
+                if(Channels.Length>0)channelIndex=new CellLocator(Channels.Select((c,i)=>new Cell{Id=i,Position=(c.A+c.B).Unit}).ToArray());
+                foreach(var f in Shores)maxShoreRadius=Math.Max(maxShoreRadius,f.RadiusM*1.35/radius);
+                if(Shores.Length>0)shoreIndex=new CellLocator(Shores.Select((f,i)=>new Cell{Id=i,Position=f.Center}).ToArray());
+                return;
+            }
             var h = world.Hydrology; int n = world.Surface.Cells.Length;
             var levels = new double[n]; var flows = new double[n];
             for (int i = 0; i < n; i++)
@@ -152,6 +164,29 @@ namespace WorldGen.Core
             foreach (var f in Shores) maxShoreRadius = Math.Max(maxShoreRadius, f.RadiusM * 1.35 / radius);
             if (Shores.Length > 0) shoreIndex = new CellLocator(Shores.Select((f, i) => new Cell { Id = i, Position = f.Center }).ToArray());
         }
+        Channel[] ScaffoldChannels(GeographicScaffold g,World world,CancellationToken token)
+        {
+            int n=g.Positions.Length;var upstream=Enumerable.Repeat(-1,n).ToArray();
+            foreach(int i in g.Order){int r=g.Receiver[i];if(r>=0&&!g.Ocean[i]&&g.Discharge[i]>=.04&&(upstream[r]<0||g.Discharge[i]>g.Discharge[upstream[r]]))upstream[r]=i;}
+            var list=new List<Channel>();
+            V Tangent(int i,V fallback)
+            {int a=upstream[i],b=g.Receiver[i];V v=a>=0&&b>=0?g.Positions[b]-g.Positions[a]:fallback;v=(v-g.Positions[i]*V.Dot(v,g.Positions[i])).Unit;return V.Dot(v,fallback.Unit)>.3?v:fallback.Unit;}
+            for(int i=0;i<n;i++)
+            {
+                if((i&4095)==0)token.ThrowIfCancellationRequested();int r=g.Receiver[i];double q=g.Discharge[i];
+                if(r<0||g.Ocean[i]||q<.04)continue;
+                V a=g.Positions[i],b=g.Positions[r],difference=b-a;double chord=difference.Length,length=chord*radius*scale;
+                if(length<1)continue;
+                double width=Math.Min(Math.Max(1,4.8*Math.Sqrt(q)),Math.Min(1200,length*.12));
+                double level=Math.Max(0,g.Heights[i]),end=Math.Max(0,Math.Min(level,g.Heights[r]));
+                double valley=Math.Min(1800,Math.Max(width*5,length*.25));
+                list.Add(new Channel{From=i,To=r,A=a,B=b,Side=V.Cross(a,b).Unit,TangentA=Tangent(i,difference)*chord,TangentB=Tangent(r,difference)*chord,
+                    StartM=level,EndM=end,WidthM=width,DepthM=Math.Min(18,.35+Math.Pow(q,.3)*.55),LengthM=length,ValleyM=valley,
+                    Bend=Math.Min(length*.012,width*2)/(radius*scale),Phase=Rng.Value(seed,"scaffold-channel-bend-1",i)*Math.PI*2,
+                    Glacial=world.Glaciated.Length>g.Parents[i]&&world.Glaciated[g.Parents[i]]?1:0,Headwater=upstream[i]<0});
+            }
+            return list.ToArray();
+        }
         public Patch Region(V center, double extent)
         {
             double cr = Math.Min(2, maxChannelRadius + extent * 1.5 / radius + 20 / radius);
@@ -165,7 +200,7 @@ namespace WorldGen.Core
             struct Segment
             {
                 public int Channel;
-                public double X, Y, DX, DY, Length2, Start, End, Half, Depth, Valley, Glacial;
+                public double X, Y, DX, DY, Length2, Start, End, Half, HalfEnd, Depth, Valley, Glacial;
                 public V A, Delta;
             }
             readonly LocalHydrology owner; readonly V center, east, north;
@@ -175,7 +210,7 @@ namespace WorldGen.Core
             const double Box = 1024;
             public int ChannelSegments => segments.Length;
             public int ShoreCount => shores.Length;
-            public Piece[] Pieces() => segments.Select(s => new Piece { A = (s.A / (owner.radius * owner.scale)).Unit, B = ((s.A + s.Delta) / (owner.radius * owner.scale)).Unit, HalfWidthM = s.Half }).ToArray();
+            public Piece[] Pieces() => segments.Select(s => new Piece { A = (s.A / (owner.radius * owner.scale)).Unit, B = ((s.A + s.Delta) / (owner.radius * owner.scale)).Unit, HalfWidthM = Math.Max(s.Half,s.HalfEnd) }).ToArray();
             static long Key(int x, int y) => ((long)x << 32) | (uint)y;
             internal Patch(LocalHydrology owner, V center, double extent, int[] channels, int[] shores)
             {
@@ -194,7 +229,7 @@ namespace WorldGen.Core
                         if (Math.Min(x, xx) - pad <= bound && Math.Max(x, xx) + pad >= -bound && Math.Min(y, yy) - pad <= bound && Math.Max(y, yy) + pad >= -bound)
                         {
                             V start = a * radius, difference = (b - a) * radius;
-                            int index = list.Count; list.Add(new Segment { Channel = id, X = x, Y = y, DX = xx - x, DY = yy - y, A = start, Delta = difference, Length2 = V.Dot(difference, difference), Start = c.Level((k - 1) / (double)count), End = c.Level(t), Half = c.WidthM * .5, Depth = c.DepthM, Valley = c.ValleyM, Glacial = c.Glacial });
+                            int index = list.Count; list.Add(new Segment { Channel = id, X = x, Y = y, DX = xx - x, DY = yy - y, A = start, Delta = difference, Length2 = V.Dot(difference, difference), Start = c.Level((k - 1) / (double)count), End = c.Level(t), Half = c.Width((k-1)/(double)count)*.5, HalfEnd=c.Width(t)*.5, Depth = c.DepthM, Valley = c.ValleyM, Glacial = c.Glacial });
                             for (int by = (int)Math.Floor((Math.Min(y, yy) - pad) / Box); by <= (int)Math.Floor((Math.Max(y, yy) + pad) / Box); by++)
                                 for (int bx = (int)Math.Floor((Math.Min(x, xx) - pad) / Box); bx <= (int)Math.Floor((Math.Max(x, xx) + pad) / Box); bx++)
                                 {
@@ -270,11 +305,12 @@ namespace WorldGen.Core
                                     double join = 1 - OrogenMorphology.Smooth(0, 100, -waterMask);
                                     level -= Math.Max(0, level - water) * join;
                                 }
-                                double cut = CrossSection(terrain,level,d,s.Half,s.Depth,s.Valley,s.Glacial);
+                                double half=Math.Max(.001,s.Half+(s.HalfEnd-s.Half)*t);
+                                double cut = CrossSection(terrain,level,d,half,s.Depth,s.Valley,s.Glacial);
                                 riverBed = Math.Min(riverBed, cut);
-                                double distance = d - s.Half;
+                                double distance = d - half;
                                 if (distance < best) { best = distance; riverWater = level;wetBed=cut;wetChannel=distance<=0; }
-                                riverInfluence = Math.Max(riverInfluence, 1 - OrogenMorphology.Smooth(s.Half, s.Valley, d));
+                                riverInfluence = Math.Max(riverInfluence, 1 - OrogenMorphology.Smooth(half, s.Valley, d));
                             }
                         }
                         activeChannel = nextChannel; nearest = -1; nearest2 = double.PositiveInfinity;
