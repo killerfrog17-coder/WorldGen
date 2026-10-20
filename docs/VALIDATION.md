@@ -1,5 +1,29 @@
 # Version 3 validation evidence
 
+## Owner-requested removal of water warping /20October2026
+
+The owner rejected hyper5 with additional screenshots of steeply sloping lake
+AND ocean surfaces. Earlier geometric edge checks/selected images did not prove
+physically valid water. Hyper6 is an explicit isolation experiment: remove
+terrain-following water instead of attempting further river correction here.
+
+The water-height-to-ground blend and shared-potential meshing bypass are removed.
+Oceans restore sea level and body-specific constant-level rendering; lakes retain
+one exact basin datum even on mixed refinement faces. Rivers use the existing
+actual-reach longitudinal elevation/gradient path. Terrain's cut-only profiles,
+controller, LOD scheduler and authoritative world/history rules are unchanged.
+
+111 focused checks pass, including a dry2000m mountain potential with the old
+paired flag set, separate standing levels, lake datum and no ground-driven
+potential retirement.459 generated/340 Earth submerged ocean points retain sea
+level with unchanged world hashes.105924 exact bundled-worker mesh/scatter/index/
+bounds/cancellation comparisons pass. The separate IL2CPP17:26:08Z build is
+player-water-unwarped; owner inspection is pending. There is no new native
+screenshot/performance claim. River masks can again end over submerged terrain;
+basin boundaries and correct river beds remain unresolved. Hyper5's general
+bank-closure audit is NOT used as acceptance for this experiment. No finished
+lake/ocean coverage or hydraulic realism claim is inferred from removing warping.
+
 ## Paired inland water containment /20October2026
 
 Local/amplification5 follows the MIT reference's shared-vertex paired bed/water

@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed class LocalTerrain
     {
-        public const string Version = "local-terrain-hyper-5";
+        public const string Version = "local-terrain-hyper-6";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -275,7 +275,7 @@ namespace WorldGen.Core
                         CoverColor=new V(red/sum,green/sum,blue/sum),OceanInfluence=ocean/sum,
                         WaterSurfaceM=surface.Water,WaterMaskM=surface.Mask,RiverInfluence=surface.RiverInfluence,
                         WaterKind=surface.Kind,WaterBodyKey=surface.BodyKey,WaterGradient=surface.Gradient,WaterFootprintM=surface.Footprint,
-                        WaterMinimumM=surface.Minimum,WaterMaximumM=surface.Maximum,ContinuousWaterSurface=true};
+                        WaterMinimumM=surface.Minimum,WaterMaximumM=surface.Maximum};
                 }
                 double baseM = double.NaN;
                 for(int i=0;i<triangles.Length;i++)if(triangles[i].Height(point,out double value)){baseM=value;break;}

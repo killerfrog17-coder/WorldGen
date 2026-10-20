@@ -28,6 +28,9 @@ static class WaterCouplingTests
         var profile=typeof(HyperAmplification).GetMethod("Profile",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Static)!.Invoke(null,new[]{lakeVertex})!;
         Check((double)profile.GetType().GetField("Water")!.GetValue(profile)! == 250d,"A submerged lake periphery retains its standing level, not a tilted dry potential");
         Check((double)profile.GetType().GetField("Height")!.GetValue(profile)! == 200d,"Lake closure cannot manufacture a raised bank");
+        Set("LakeKey",0UL);Set("Water",75d);
+        profile=typeof(HyperAmplification).GetMethod("Profile",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Static)!.Invoke(null,new[]{lakeVertex})!;
+        Check((double)profile.GetType().GetField("Water")!.GetValue(profile)! == 75d,"Dry terrain cannot retire the supplied water height toward its ground");
         var frame=new LocalTerrainFrame(new V(1,0,0),6371000,0,.1);
         LocalTerrainMesh Triangle()=>new LocalTerrainMesh{Segments=1,SizeM=16,
             Positions=new float[]{0,-2,0,16,10,0,0,-2,16},WaterClipTriangles=new[]{0,2,1}};
@@ -84,11 +87,12 @@ static class WaterCouplingTests
         }
         Check(submerged>40,"Ocean regression actually visits deep submarine island slopes, not just shoreline points");
         samples=new[]{
-            new LocalTerrainSample{ElevationM=-2,WaterSurfaceM=0,WaterMaskM=2,WaterKind=LocalWaterKind.Lake,ContinuousWaterSurface=true,WaterFootprintM=1},
-            new LocalTerrainSample{ElevationM=10,WaterSurfaceM=0,WaterMaskM=-10,ContinuousWaterSurface=true,WaterFootprintM=-100},
-            new LocalTerrainSample{ElevationM=-2,WaterSurfaceM=0,WaterMaskM=2,WaterKind=LocalWaterKind.River,ContinuousWaterSurface=true,WaterFootprintM=1}};
+            new LocalTerrainSample{ElevationM=-2,WaterSurfaceM=0,WaterMaskM=2,WaterKind=LocalWaterKind.Lake,ContinuousWaterSurface=true,WaterFootprintM=double.PositiveInfinity},
+            new LocalTerrainSample{ElevationM=10,WaterSurfaceM=2000,WaterMaskM=-10,WaterKind=LocalWaterKind.Lake,ContinuousWaterSurface=true,WaterFootprintM=double.PositiveInfinity},
+            new LocalTerrainSample{ElevationM=-2,WaterSurfaceM=0,WaterMaskM=2,WaterKind=LocalWaterKind.Lake,ContinuousWaterSurface=true,WaterFootprintM=double.PositiveInfinity}};
         mesh=Triangle();LocalWaterMesh.Build(mesh,frame,samples);
-        Check(ContainedBoundary(mesh)>0,"Paired profiles end at actual banks, not at radius/body-ID limits");
+        Check(ContainedBoundary(mesh)>0,"A stale paired-field flag cannot bypass constant standing-water clipping");
+        Check(mesh.WaterPositions.Where((_,i)=>i%3==1).All(y=>y<.03),"A mountain-side dry potential cannot warp a lake even with the old paired-field flag set");
         Console.WriteLine("PASS "+checks+" water coupling checks");
     }
 

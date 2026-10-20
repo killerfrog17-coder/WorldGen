@@ -1,5 +1,23 @@
 # WorldGen repository instructions
 
+Current EXPERIMENT launch,20October2026: shortcut selects
+`artifacts/player-water-unwarped/WorldGen.exe` (IL2CPP17:26:08Z).
+Owner explicitly requested removing water-to-terrain adjustment and examining
+remaining river defects separately. Hyper6 removes the ground-driven water
+blend and shared-potential mesher bypass. Standing lakes use exact basin levels;
+oceans use the hyper4 sea-level/body-specific rendering path. Rivers again use
+actual channel-reach levels/gradients, not interpolated dry-ground potentials.
+Terrain-only cut profiles, LOD/controller and source/history rules are unchanged.
+111 focused checks include stale-flag/dry2000m-potential standing-water regression;
+459 generated/340 Earth submerged ocean points retain zero level and source hashes;
+105924 exact bundled-worker mesh/scatter/index/bounds/cancellation comparisons pass.
+This is an isolation experiment, not completed hydrology: independent river masks
+and basin interfaces can expose gaps/floating edges. No new native visual or
+broad performance acceptance is claimed; owner review is the next step.
+The owner REJECTED hyper5 below after finding warped lakes AND oceans; its
+previous successful edge checks/selected screenshots are not realism acceptance.
+See docs/WATER_CONTAINMENT.md and VALIDATION.md. Do not close the owner's game.
+
 Current CHECKPOINT launch,20October2026: shortcut selects
 `artifacts/player-inland-containment/WorldGen.exe` (IL2CPP17:04:40Z).
 Hyper5 uses the open reference's paired shared-vertex terrain/water profiles;

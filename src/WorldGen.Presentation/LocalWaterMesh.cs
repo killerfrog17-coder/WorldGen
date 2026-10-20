@@ -65,22 +65,6 @@ namespace WorldGen.Presentation
                 corners[0]=a;corners[1]=b;corners[2]=c;
                 for(int k=0;k<3;k++)
                 {int i=corners[k];points[k]=frame.Position(mesh.EastM+mesh.Positions[i*3],mesh.NorthM+mesh.Positions[i*3+2]);}
-                bool continuous=false;
-                for(int k=0;k<3;k++)if(samples[corners[k]].ContinuousWaterSurface)continuous=true;
-                if(continuous)
-                {
-                    // Reference-style paired profiles define a legitimate dry
-                    // potential as well as the terrain that contains it. Their
-                    // only lateral boundary is depth=0, NEVER a radius/body tag.
-                    // Do not enable this for legacy independent potentials.
-                    for(int k=0;k<3;k++)
-                    {
-                        int i=corners[k];var sample=samples[i];
-                        input[k]=new Vertex{X=mesh.Positions[i*3],Z=mesh.Positions[i*3+2],
-                            Y=frame.SurfaceY(points[k],sample.WaterSurfaceM),Ground=mesh.Positions[i*3+1],Footprint=1};
-                    }
-                    Polygon(clipped,Clip(input,3,clipped,true));return;
-                }
                 for(int seed=0;seed<3;seed++)
                 {
                     var water=samples[corners[seed]];

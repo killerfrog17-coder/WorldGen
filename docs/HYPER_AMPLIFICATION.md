@@ -1,10 +1,19 @@
 # Drainage-aware planetary amplification
 
-`local-terrain-hyper-5` replaces the geographic-scaffold surface for completed
+`local-terrain-hyper-6` replaces the geographic-scaffold surface for completed
 worlds. It is a **shared CPU adaptation**, not the original application's GPU
 compute-shader pipeline or a claim of identical output/performance.
 
 ## Source and integration
+
+### Current isolation experiment (revision 6)
+
+The owner rejected revision5's warped lake/ocean surfaces and requested removal
+of water-to-ground adjustment before further river work. The height blend and
+shared-potential meshing bypass are removed. Terrain-only profiles remain;
+standing bodies have fixed per-body levels and rivers use existing actual-reach
+levels. The following revision5 containment discussion is historical, not current
+acceptance. See WATER_CONTAINMENT.md for experiment scope and unresolved gaps.
 
 ### Current water containment (revision 5)
 

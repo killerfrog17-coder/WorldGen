@@ -1,5 +1,28 @@
 # Water containment: source review and checkpoints
 
+## Owner-requested unwarped experiment (hyper6)
+
+The owner rejected hyper5 after finding steeply warped water on lakes AND
+oceans. Its successful edge-containment checks and selected captures did NOT
+establish physically valid water surfaces; that review is superseded.
+
+Hyper6 removes terrain-driven water-height retirement altogether. Existing
+cut-only terrain profiles are retained, but they no longer move water. River
+levels again come from positions along actual amplified channel reaches, not
+blended dry-terrain potentials. Standing lakes take one exact basin datum,
+including mixed refinement faces. Source-connected oceans use the hyper4
+sea-level rule. The shared-potential rendering bypass is removed: standing
+bodies are always rendered independently at their own level and clipped against
+drawn terrain; different lake levels never form an interpolated ramp.
+
+This is the owner's isolation experiment, NOT completed river generation or a
+new promise that every basin closes. Independent river footprints can again end
+above the bed, and disconnected/different-level interfaces may expose seams.
+Those must be fixed by appropriate terrain/drainage geometry later, not by
+bending water toward the terrain. Scale, tributaries, LOD scheduling, historical
+rules and source-world data are not retuned here. Hyper5's broad closure audit
+is not used as acceptance for this experiment.
+
 ## Library assessment
 
 Owner chose the available open-source reference on20October2026. No commercial

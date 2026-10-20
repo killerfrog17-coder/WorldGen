@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed class HyperAmplification
     {
-        public const string Version = "hyper-amplification-5";
+        public const string Version = "hyper-amplification-6";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -633,10 +633,9 @@ namespace WorldGen.Core
             public double Height,Water;
             public LocalWaterKind Kind;
         }
-        // Adapted profiles.comp: water and the bank/bed are ONE paired field.
-        // Evaluate at shared hierarchy vertices, then interpolate both fields
-        // on the SAME triangles. There is no separate wet-radius truncation.
-        // A dry potential is valid only together with its containing terrain.
+        // Terrain-only bed/bank profiles at shared hierarchy vertices.
+        // Water surfaces are selected independently below from basin/reach
+        // data. Never blend their elevation toward the dry ground field.
         static WaterProfile Profile(Vertex vertex)
         {
             double height=vertex.Height,water=vertex.Water;
@@ -649,15 +648,12 @@ namespace WorldGen.Core
             // the unraised terrain, not a distance collar, finds the bank.
             if(lake)return new WaterProfile{Height=height,Water=vertex.LakeLevel,Kind=LocalWaterKind.Lake};
             bool supplied=vertex.River!=null||lake||vertex.Type==Kind.River;
-            if(!supplied)return new WaterProfile{Height=height,Water=height-.25,Kind=LocalWaterKind.None};
+            if(!supplied)return new WaterProfile{Height=height,Water=water,Kind=LocalWaterKind.None};
             double depth=Math.Max(0,water-vertex.RiverBed);
             double half=Width(vertex.Flow)*Math.Sqrt(D.Clamp(depth/Math.Max(.001,Depth(vertex.Flow))));
             double extent=Math.Max(half*5,Math.Min(3000,80+vertex.Mountain*.9+vertex.Sediment*400));
-            // The reference raises dry terrain to its water potential. Our
-            // supplied planetary controls can differ by hundreds of metres;
-            // that makes artificial levees. Instead retire BOTH fields into
-            // the unmodified dry terrain outside the shaping collar. A dry
-            // potential sits below its ground, never above a severed mask.
+            // Only TERRAIN blends at the shaping collar. Never move water
+            // toward terrain to force a bank intersection.
             double raw=height;
             double distance=vertex.Distance;
             if(half>.001&&distance<extent)
@@ -667,9 +663,7 @@ namespace WorldGen.Core
                 else profile=water+.25+(distance-half)*Lerp(.061,.25,D.Clamp(vertex.Mountain/2000));
                 double blend=OrogenMorphology.Smooth(Math.Max(half,extent*.25),extent,distance);
                 height=Lerp(Math.Min(raw,profile),raw,blend);
-                water=Lerp(water,raw-.25,blend);
             }
-            else water=raw-.25;
             return new WaterProfile{Height=height,Water=water,Kind=lake?LocalWaterKind.Lake:LocalWaterKind.River};
         }
 
@@ -772,41 +766,60 @@ namespace WorldGen.Core
                 var pa=Profile(found.A);var pb=Profile(found.B);var pc=Profile(found.C);
                 double pre=a*found.A.Height+b*found.B.Height+c*found.C.Height;
                 double height=a*pa.Height+b*pb.Height+c*pc.Height;
-                double water=a*pa.Water+b*pb.Water+c*pc.Water;
-                V gradient=found.FieldGradient(point,pa.Water,pb.Water,pc.Water);
-                double minimum=Math.Min(pa.Water,Math.Min(pb.Water,pc.Water)),maximum=Math.Max(pa.Water,Math.Max(pb.Water,pc.Water));
-                Vertex source=found.A;WaterProfile sourceProfile=pa;double score=double.NegativeInfinity;
-                void Consider(Vertex v,WaterProfile p,double weight)
+                // Restore reach-defined water: only the position ALONG an
+                // actual channel changes its level. No lateral terrain field
+                // (including dry corners) participates in water elevation.
+                double flow=a*found.A.Flow+b*found.B.Flow+c*found.C.Flow;
+                double mountain=a*found.A.Mountain+b*found.B.Mountain+c*found.C.Mountain;
+                double sediment=a*found.A.Sediment+b*found.B.Sediment+c*found.C.Sediment;
+                double CandidateFlow(Vertex v)=>v.River==null?0:Math.Max(v.River.A.Flow,v.River.B.Flow);
+                double maximumFlow=Math.Max(flow,Math.Max(CandidateFlow(found.A),Math.Max(CandidateFlow(found.B),CandidateFlow(found.C))));
+                double search=Math.Max(Width(maximumFlow)*5,Math.Min(3000,80+mountain*.9+sediment*400))/(owner.radius*owner.scale);
+                var hit=new RiverHit{Square=double.PositiveInfinity};
+                owner.NearestRiver(point,found.A.River,search,ref hit);
+                if(!ReferenceEquals(found.B.River,found.A.River))owner.NearestRiver(point,found.B.River,search,ref hit);
+                if(!ReferenceEquals(found.C.River,found.A.River)&&!ReferenceEquals(found.C.River,found.B.River))owner.NearestRiver(point,found.C.River,search,ref hit);
+                double water=double.NaN,minimum=double.NaN,maximum=double.NaN,footprint=-1e6,mask=-1e6;
+                V gradient=default;var kind=LocalWaterKind.None;ulong bodyKey=0;
+                if(hit.Edge!=null)
                 {
-                    double candidate=p.Water>p.Height?weight:-1;
-                    if(candidate>score){score=candidate;source=v;sourceProfile=p;}
+                    var edge=hit.Edge;
+                    double bed=Lerp(edge.A.Height,edge.B.Height,hit.Along);
+                    flow=Lerp(edge.A.Flow,edge.B.Flow,hit.Along);
+                    double level=Lerp(edge.A.Water,edge.B.Water,hit.Along);
+                    double width=Width(flow)*Math.Sqrt(D.Clamp((level-bed)/Math.Max(.001,Depth(flow))));
+                    double distance=Math.Sqrt(hit.Square)*owner.radius*owner.scale;
+                    if(flow>=.01&&width>.001&&distance<Math.Max(width*5,Math.Min(3000,80+mountain*.9+sediment*400)))
+                    {
+                        water=level;footprint=width-distance;mask=Math.Min(footprint,water-height);kind=LocalWaterKind.River;
+                        bodyKey=edge.A.Type==Kind.River||edge.A.Type==Kind.Lake?edge.A.ChannelKey:edge.B.ChannelKey;
+                        V delta=edge.B.Position-edge.A.Position;
+                        double slope=(edge.B.Water-edge.A.Water)/Math.Max(1e-30,delta.X*delta.X+delta.Y*delta.Y+delta.Z*delta.Z);
+                        gradient=new V{X=delta.X*slope,Y=delta.Y*slope,Z=delta.Z*slope};
+                        minimum=Math.Min(edge.A.Water,edge.B.Water);maximum=Math.Max(edge.A.Water,edge.B.Water);
+                    }
                 }
-                Consider(found.A,pa,a);Consider(found.B,pb,b);Consider(found.C,pc,c);
-                var kind=sourceProfile.Kind;ulong bodyKey=source.ChannelKey;
-                // A shared profile collar keeps lake potentials constant through
-                // their banks. Preserve the exact supplied standing level where
-                // interpolation differs only by numerical roundoff.
+                // Each standing basin has ONE supplied datum, even where a
+                // refined triangle also contains river/dry/different-lake nodes.
                 Vertex lake=null;double lakeScore=0;
-                void ConsiderLake(Vertex v,WaterProfile p,double weight)
+                void ConsiderLake(Vertex v)
                 {
-                    if(p.Kind!=LocalWaterKind.Lake||v.LakeKey==0)return;
-                    double candidate=weight*v.LakeWeight;
+                    if(v.LakeKey==0)return;
+                    double candidate=(v.LakeKey==found.A.LakeKey?a*found.A.LakeWeight:0)+(v.LakeKey==found.B.LakeKey?b*found.B.LakeWeight:0)+(v.LakeKey==found.C.LakeKey?c*found.C.LakeWeight:0);
                     if(candidate>lakeScore){lakeScore=candidate;lake=v;}
                 }
-                ConsiderLake(found.A,pa,a);ConsiderLake(found.B,pb,b);ConsiderLake(found.C,pc,c);
-                if(lake!=null&&Math.Abs(water-lake.LakeLevel)<.001)
-                {water=lake.LakeLevel;kind=LocalWaterKind.Lake;bodyKey=lake.LakeKey;gradient=default;minimum=maximum=water;}
-                else if(kind==LocalWaterKind.Lake)kind=LocalWaterKind.River;
+                ConsiderLake(found.A);ConsiderLake(found.B);ConsiderLake(found.C);
+                if(lake!=null&&height<lake.LakeLevel&&(double.IsNaN(water)||lake.LakeLevel>=water))
+                {water=lake.LakeLevel;kind=LocalWaterKind.Lake;bodyKey=lake.LakeKey;gradient=default;minimum=maximum=water;footprint=double.PositiveInfinity;mask=water-height;}
                 // Preserve the ocean checkpoint: source-connected submerged
                 // shelves are sea even when refined nodes are ordinary terrain.
                 var root=owner.roots[found.Root];
                 bool ocean=owner.rootNodes[root.A].Type==Kind.Ocean||owner.rootNodes[root.B].Type==Kind.Ocean||owner.rootNodes[root.C].Type==Kind.Ocean;
-                if(ocean&&height<0)
-                {water=0;kind=LocalWaterKind.Ocean;bodyKey=1;gradient=default;minimum=maximum=0;}
-                if(kind==LocalWaterKind.None&&water>height)kind=LocalWaterKind.River;
+                if(ocean&&(height<0||kind==LocalWaterKind.None))
+                {water=0;kind=LocalWaterKind.Ocean;bodyKey=1;gradient=default;minimum=maximum=0;footprint=double.PositiveInfinity;mask=-height;}
                 double influence=OrogenMorphology.Smooth(0,.04,a*found.A.Flow+b*found.B.Flow+c*found.C.Flow);
-                return new Surface{Height=height,UnshapedHeight=pre,Water=water,Mask=water-height,RiverInfluence=influence,
-                    Kind=kind,BodyKey=bodyKey,Gradient=gradient,Footprint=double.PositiveInfinity,Minimum=minimum,Maximum=maximum};
+                return new Surface{Height=height,UnshapedHeight=pre,Water=water,Mask=mask,RiverInfluence=influence,
+                    Kind=kind,BodyKey=bodyKey,Gradient=gradient,Footprint=footprint,Minimum=minimum,Maximum=maximum};
             }
         }
         internal struct Surface
