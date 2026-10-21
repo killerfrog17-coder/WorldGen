@@ -1,5 +1,23 @@
 # Version 3 validation evidence
 
+## Continuous waves / slow wind envelopes: owner-test-only /21October2026
+
+Owner REJECTS preceding plant-spring-wind: reports essentially unchanged and
+jagged shaking, not fluid waves. Its compilation/history buffer did not prove
+dominant5–10s response or owner acceptance. `player-wind-wave-envelope` switches
+plant-motion2 to continuous original-character two-sine waves, modulated by
+positive5/7/8/10s Hann wind envelopes.40 history bins carry mean vector/speed/
+energy. Fixed world-time carrier bands blend with slow wind energy; no phase
+restart or direct instantaneous wind-to-position target. Sustained wind supplies
+a leaning bias, and quiet history fades the animation. Plant trait/height,
+placement/density/LOD, weather forcing/rain, source world and saves unchanged.
+GPU envelope pair now1/4MiB before overhead. Sources/approximation limits are
+in PROCEDURAL_WEATHER.md. Compile/package ONLY per owner instruction: no suite,
+numeric campaign, native launch, screenshots or profiling. Fluidity and FPS
+remain owner-review criteria, not established by source inspection/build.
+IL2CPP compile/package exited0 at21Oct15:38:54Z, real C:, worker/manifest
+packaged; shortcut updated. Owner's game and saves untouched.
+
 ## Plant spring response / owner-test-only /21October2026
 
 `player-plant-spring-wind` adds derived plant-motion1 metadata/mechanics and a

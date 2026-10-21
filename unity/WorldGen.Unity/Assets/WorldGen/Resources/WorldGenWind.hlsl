@@ -48,22 +48,43 @@ float2 WorldGenWindTarget(float3 velocity)
     return speed>.0001?velocity.xz/speed*(1.20*speed*speed/(speed*speed+64)):float2(0,0);
 }
 #ifndef WORLDGEN_WIND_COMPUTE
-Texture2DArray<float2> _PlantWindPrevious,_PlantWindNext;
+Texture2DArray<float4> _PlantWindPrevious,_PlantWindNext;
 SamplerState sampler_PlantWindPrevious,sampler_PlantWindNext;
 float4 _PlantWindMap;
 float _PlantWindBlend,_PlantWindReady;
-float2 WorldGenPlantMotion(float3 root,float response,float damping)
+float4 _PlantWaveA0,_PlantWaveA1,_PlantWaveA2,_PlantWaveB0,_PlantWaveB1,_PlantWaveB2;
+float4 WorldGenPlantEnvelope(float3 root,float response,float damping)
 {
-    if(_PlantWindReady<.5)return WorldGenWindTarget(WorldGenWindVelocity(root));
+    if(_PlantWindReady<.5){float speed=length(_WorldWindMean.xz);return float4(_WorldWindMean.xz,speed,speed*speed);}
     float2 uv=(root.xz-_PlantWindMap.xy)*_PlantWindMap.z;
-    float2 modes[4];
+    float4 modes[4];
     [unroll]for(int mode=0;mode<4;mode++)
     {
-        float2 a=_PlantWindPrevious.SampleLevel(sampler_PlantWindPrevious,float3(uv,mode),0);
-        float2 b=_PlantWindNext.SampleLevel(sampler_PlantWindNext,float3(uv,mode),0);
+        float4 a=_PlantWindPrevious.SampleLevel(sampler_PlantWindPrevious,float3(uv,mode),0);
+        float4 b=_PlantWindNext.SampleLevel(sampler_PlantWindNext,float3(uv,mode),0);
         modes[mode]=lerp(a,b,_PlantWindBlend);
     }
     return lerp(lerp(modes[0],modes[1],response),lerp(modes[2],modes[3],response),damping);
+}
+float PlantWave(float3 d,float4 a,float4 b)
+{
+    return (sin(dot(d,a.xyz)+a.w)+.4*sin(dot(d,b.xyz)+b.w))/1.4;
+}
+float2 WorldGenPlantMotion(float3 root,float response,float damping)
+{
+    float4 envelope=WorldGenPlantEnvelope(root,response,damping);
+    float speed=max(0,envelope.z),energy=sqrt(max(0,envelope.w)),directionLength=length(envelope.xy);
+    float2 dir=directionLength>.001?envelope.xy/directionLength:float2(1,0);
+    float3 d=WorldWindOffset(root);
+    // Restore the old continuous two-sine wave character. Wind blends between
+    // fixed, world-timed carrier speeds; never multiply time by changing wind.
+    float rate=clamp(energy/6+(response-.5)*.12,0,2),wave;
+    if(rate<1)wave=lerp(PlantWave(d,_PlantWaveA0,_PlantWaveB0),PlantWave(d,_PlantWaveA1,_PlantWaveB1),smoothstep(0,1,rate));
+    else wave=lerp(PlantWave(d,_PlantWaveA1,_PlantWaveB1),PlantWave(d,_PlantWaveA2,_PlantWaveB2),smoothstep(0,1,rate-1));
+    float strength=energy/(energy+3),gustiness=sqrt(max(0,envelope.w-speed*speed))/(energy+1);
+    float amplitude=(.34*strength+.10*gustiness)*lerp(1,.70,damping);
+    float bias=1.05*speed*speed/(speed*speed+64)*saturate(directionLength/max(.001,speed));
+    return dir*(bias+amplitude*wave);
 }
 float3 WorldGenGrassTraits(int form,float height,float width,float3 color)
 {

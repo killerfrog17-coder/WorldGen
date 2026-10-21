@@ -1,24 +1,25 @@
 #pragma kernel Respond
 #define WORLDGEN_WIND_COMPUTE
 #include "WorldGenWind.hlsl"
-RWTexture2DArray<float2> _ResponseOutput;
+RWTexture2DArray<float4> _ResponseOutput;
 float4 _ResponseMap;
 float _ResponseAge;
-float4 _ResponseWeights[32],_ResponseMeans[10],_ResponseStats[10];
+float4 _ResponseWeights[40],_ResponseMeans[12],_ResponseStats[12];
 [numthreads(8,8,1)]
 void Respond(uint3 id:SV_DispatchThreadID)
 {
     if(id.x>=(uint)_ResponseMap.w||id.y>=(uint)_ResponseMap.w)return;
     float3 root=float3(_ResponseMap.x+(id.x+.5)*_ResponseMap.z,0,_ResponseMap.y+(id.y+.5)*_ResponseMap.z);
-    float3 d=WorldWindOffset(root);float2 sum0=0,sum1=0,sum2=0,sum3=0;
-    // Exact integrated impulse weights for piecewise-constant forcing.
-    // Negative lobes are intentional: they supply overshoot and recovery.
-    [loop]for(int i=0;i<32;i++)
+    float3 d=WorldWindOffset(root);float4 sum0=0,sum1=0,sum2=0,sum3=0;
+    // Slow positive envelopes, NOT an oscillatory force-to-angle response.
+    // Store direction, mean speed and energy for the continuous wave shader.
+    [loop]for(int i=0;i<40;i++)
     {
         float age=(i+.5)*.25;int second=(int)floor(age);float f=frac(age);
         float4 mean=lerp(_ResponseMeans[second],_ResponseMeans[second+1],f);
         float4 stats=lerp(_ResponseStats[second],_ResponseStats[second+1],f);
-        float2 target=WorldGenWindTarget(WorldGenWindAtOffset(d,age+_ResponseAge,mean,stats));
+        float2 velocity=WorldGenWindAtOffset(d,age+_ResponseAge,mean,stats).xz;
+        float speed=length(velocity);float4 target=float4(velocity,speed,speed*speed);
         float4 w=_ResponseWeights[i];sum0+=target*w.x;sum1+=target*w.y;sum2+=target*w.z;sum3+=target*w.w;
     }
     _ResponseOutput[uint3(id.xy,0)]=sum0;_ResponseOutput[uint3(id.xy,1)]=sum1;

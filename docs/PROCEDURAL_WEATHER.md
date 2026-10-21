@@ -7,6 +7,43 @@ uses it; the strategic map's climate remains the existing long-term climate.
 
 ## Shared weather wind /21October2026 / owner-test-only
 
+### Continuous waves with slow weather envelopes / owner-test-only
+
+`player-wind-wave-envelope` / plant-motion2 supersedes the owner-REJECTED
+spring-response1 vegetation below. Owner reports essentially unchanged, jagged/
+vibrating rather than waving movement. The old32-bin spring impulse had an8s
+tail, but its strongest weights were recent: history length was not the same as
+dominant response time. Do not describe the rejected pass as owner-accepted
+fluid motion based on compilation or the existence of a long history buffer.
+
+Visible movement again uses the earlier two-sine waving character (nominal
+1.6/2.7 rad/s). A slow weather envelope controls wind direction, sway amplitude,
+frequency-band blend and leaning bias; raw speed is NOT the vertex position.
+Positive Hann history windows5/7/8/10s replace signed short-response impulse
+weights.40x0.25s bins accumulate vector wind, mean speed and energy. Their broad
+middle-of-window support rejects second-scale chatter instead of reproducing
+it as shaking. Stiffer/shorter and more damped traits still affect amplitude
+and envelope response. Sustained strong wind adds a leaning bias with waving
+around it; quiet history reduces amplitude/bias toward zero. There is no claim
+of exact per-stem spring integration in this new artistic animation model.
+
+Slow/nominal/fast carrier bands use fixed world-time phases at0.65/1/1.45x the
+original rates. Wind smoothly mixes adjacent bands, rather than multiplying an
+ancient clock by a changing speed (which would jump phase). Geographic phase
+anchors preserve near/far agreement; carrier waves are continuous every render
+frame, independent of the10Hz envelope field. Direction comes from averaged
+wind, not a fixed old animation axis. The seeded spatial carrier axes are not a
+solver for wind-driven wavefront propagation. Field interpolation, bandwidth
+mixing and numerical rounding remain cosmetic approximations.
+
+Envelope textures now use RGBAHalf for vector/speed/energy,0.5/2MiB each for
+128/256 with four layers,1/4MiB per pair before driver overhead. They reuse the
+existing bounded shared GPU field; no CPU blade updates, density, placement,
+LOD, world/history or weather-forcing changes. On hardware without compute,
+herbs retain continuous waves driven by the broad mean rather than history.
+Fungi/moss/rocks remain still. Build/package only, no agent playtests/profiling;
+owner review must establish fluidity, resemblance to earlier waves and FPS.
+
 ### Plant spring-response revision / owner-test-only
 
 `player-plant-spring-wind` adds `PlantMotion.Version=plant-motion-1` without

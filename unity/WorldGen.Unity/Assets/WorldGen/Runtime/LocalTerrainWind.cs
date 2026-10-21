@@ -6,6 +6,8 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     static readonly int[] WindWaveIds={Shader.PropertyToID("_WorldWindWave0"),Shader.PropertyToID("_WorldWindWave1"),Shader.PropertyToID("_WorldWindWave2"),Shader.PropertyToID("_WorldWindWave3")};
+    static readonly int[] PlantWaveAIds={Shader.PropertyToID("_PlantWaveA0"),Shader.PropertyToID("_PlantWaveA1"),Shader.PropertyToID("_PlantWaveA2")},
+        PlantWaveBIds={Shader.PropertyToID("_PlantWaveB0"),Shader.PropertyToID("_PlantWaveB1"),Shader.PropertyToID("_PlantWaveB2")};
     public V CurrentWindMps {get;private set;}
     Vector3 WindToChart(V value)
     {
@@ -38,6 +40,17 @@ public sealed partial class LocalTerrainExplorer
             boundWindWaves[lane]=new Vector4((float)V.Dot(axis,frame.East),(float)V.Dot(axis,frame.Origin),(float)V.Dot(axis,frame.North),(float)(phase-cell));
             Shader.SetGlobalVector(WindWaveIds[lane],boundWindWaves[lane]);
             if(lane<2){boundWindSlots[lane]=unchecked((int)(long)cell);Shader.SetGlobalInteger(lane==0?"_WorldWindSlot0":"_WorldWindSlot1",boundWindSlots[lane]);}
+        }
+        // Phase-continuous loop bands retain the pre-weather 1.6/2.7rad/s
+        // character. Slow envelopes mix speeds without restarting an oscillator.
+        for(int band=0;band<3;band++)for(int lane=0;lane<2;lane++)
+        {
+            double rate=band==0?.65:band==1?1:1.45,frequency=(lane==0?1.6:2.7)*rate;
+            V axis=WeatherWind.Axis(seed,lane+2)*(2*Math.PI/(lane==0?45:29));
+            double phase=V.Dot(at,axis)*frame.RadiusM+seconds*frequency;
+            phase-=Math.Floor(phase/(2*Math.PI))*(2*Math.PI);
+            Shader.SetGlobalVector(lane==0?PlantWaveAIds[band]:PlantWaveBIds[band],
+                new Vector4((float)V.Dot(axis,frame.East),(float)V.Dot(axis,frame.Origin),(float)V.Dot(axis,frame.North),(float)phase));
         }
         UpdatePlantWind(seconds);
     }

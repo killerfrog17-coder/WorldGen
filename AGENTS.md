@@ -1,6 +1,24 @@
 # WorldGen repository instructions
 
 Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
+`artifacts/player-wind-wave-envelope/WorldGen.exe` (IL2CPP15:38:54Z), real C:.
+Owner REJECTED preceding spring pass: essentially unchanged jagged/vibrating
+motion. Do not infer owner fluidity acceptance from its long buffer/build.
+Plant-motion2 restores earlier1.6/2.7rad/s continuous sine-wave character, wind
+controls envelope/direction/speed mix/bias rather than instantaneous position.
+Positive Hann5/7/8/10s history windows replace short dominant spring impulse;
+40x0.25s wind bins supply vector/mean-speed/energy. Slow/nominal/fast fixed
+world-clock carrier bands blend without phase restarts. Broad trend smooths
+chatter and maintains waves while gusts settle. Strong wind supplies biased
+lean with waves, not symmetric strong-wind flapping. Traits/height still vary
+response; fungi/mats/rocks still. Existing near/far placement/density/LOD,
+weather-forcing/precipitation/history/saves unchanged. Field RGBAHalf pair1/4MiB
+before overhead; cost unprofiled. No new spring-physics or bitwise MP claim.
+Compile/package ONLY; no suite, numeric campaign, launch/captures/profiling.
+See PROCEDURAL_WEATHER/GROUND_FLORA/VALIDATION; leave owner's game/saves untouched.
+Compile/package exit0; no agent player/test launch or profiling. Owner review pending.
+
+Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
 `artifacts/player-plant-spring-wind/WorldGen.exe` (IL2CPP15:14:40Z), real C:.
 Plant-motion1 replaces quasi-static grass/herb targeting with bounded8s wind
 history /32x0.25s analytic impulse-weight response. Four underdamped modes blend

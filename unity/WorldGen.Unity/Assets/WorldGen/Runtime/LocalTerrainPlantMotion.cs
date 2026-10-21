@@ -7,7 +7,7 @@ using WorldGen.Core;
 public sealed partial class LocalTerrainExplorer
 {
     ComputeShader plantWindResponse;RenderTexture plantWindPrevious,plantWindNext;
-    readonly Vector4[] plantWindWeights=new Vector4[PlantMotion.Taps],plantWindMeans=new Vector4[10],plantWindStats=new Vector4[10];
+    readonly Vector4[] plantWindWeights=new Vector4[PlantMotion.Taps],plantWindMeans=new Vector4[12],plantWindStats=new Vector4[12];
     readonly Vector4[] boundWindWaves=new Vector4[4];readonly int[] boundWindSlots=new int[2];
     Vector4 boundWindMean,boundWindStats,boundWindAnchor,boundWindSphere;
     long plantWindTick=long.MinValue;double plantWindX=double.NaN,plantWindZ,lastPlantWindSeconds=double.NaN;int plantWindSize,plantWindCell;
@@ -40,10 +40,10 @@ public sealed partial class LocalTerrainExplorer
             if(plantWindPrevious!=null){plantWindPrevious.Release();Destroy(plantWindPrevious);plantWindNext.Release();Destroy(plantWindNext);}
             RenderTexture Create(string label)
             {
-                var texture=new RenderTexture(size,size,0,RenderTextureFormat.RGHalf){name=label,dimension=TextureDimension.Tex2DArray,volumeDepth=4,enableRandomWrite=true,
+                var texture=new RenderTexture(size,size,0,RenderTextureFormat.ARGBHalf){name=label,dimension=TextureDimension.Tex2DArray,volumeDepth=4,enableRandomWrite=true,
                     filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp,useMipMap=false};texture.Create();return texture;
             }
-            plantWindPrevious=Create("Plant spring response: previous");plantWindNext=Create("Plant spring response: next");plantWindSize=size;plantWindTick=long.MinValue;
+            plantWindPrevious=Create("Plant wind envelope: previous");plantWindNext=Create("Plant wind envelope: next");plantWindSize=size;plantWindTick=long.MinValue;
         }
         long tick=(long)Math.Floor(seconds*10);
         bool moved=x!=plantWindX||z!=plantWindZ||cell!=plantWindCell;

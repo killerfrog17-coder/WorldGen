@@ -11,20 +11,19 @@ namespace WorldGen.Core
     }
     public static class PlantMotion
     {
-        public const string Version="plant-motion-1";
-        public const int Taps=32;
+        public const string Version="plant-motion-2";
+        public const int Taps=40;
         public const double HistoryStep=.25,HistorySeconds=Taps*HistoryStep;
-        // Four underdamped modal responses: slow/fast x light/heavy damping.
-        // Blend the resulting responses, not time steps or frame-dependent state.
-        public static double Frequency(int mode)=>(mode&1)==0?3.0:7.0;
-        public static double DampingRatio(int mode)=>mode<2?.40:.72;
-        static double Step(double seconds,int mode)
+        // Wind controls an animation envelope, not the instantaneous vertex
+        // position. Positive, broad history windows reject rapid wind chatter.
+        public static double Window(int mode)=>mode==0?7:mode==1?5:mode==2?10:8;
+        static double Integral(double seconds,int mode)
         {
-            double w=Frequency(mode),z=DampingRatio(mode),d=w*Math.Sqrt(1-z*z);
-            return 1-Math.Exp(-z*w*seconds)*(Math.Cos(d*seconds)+z*w/d*Math.Sin(d*seconds));
+            double window=Window(mode),t=D.Clamp(seconds,0,window);
+            return t*.5-window/(4*Math.PI)*Math.Sin(2*Math.PI*t/window);
         }
         public static double Weight(int tap,int mode)
-            =>(Step((tap+1)*HistoryStep,mode)-Step(tap*HistoryStep,mode))/Step(HistorySeconds,mode);
+            =>(Integral((tap+1)*HistoryStep,mode)-Integral(tap*HistoryStep,mode))/(Window(mode)*.5);
         public static PlantMotionTraits Herb(int code)
         {
             var r=new Rng(code&~15,"herb-mechanics-1");var form=(SpecialistForm)((code>>24)&7);

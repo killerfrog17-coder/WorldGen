@@ -1,5 +1,16 @@
 # Ground layer / ground-flora-5
 
+## Continuous waving / slow wind-envelope correction /21October2026
+
+Owner rejected the prior spring pass as jagged/vibrating and essentially no
+improvement. `player-wind-wave-envelope` / plant-motion2 restores the earlier
+two-sine animation character. Wind's5–10s positive-window trend controls its
+direction, amplitude, speed-band mix and strong-wind leaning bias, not immediate
+blade positions. Shorter/stiffer plant differences remain; mushrooms and mats
+stay still. The old spring history length did not imply a5–10s dominant
+response. See PROCEDURAL_WEATHER.md for the correction, fixed world-time carrier
+bands and field costs. Built only; appearance/performance await owner review.
+
 ## Inertial species/height-conditioned sway /21October2026
 
 `player-plant-spring-wind` replaces direct wind-to-angle grass/herb movement
