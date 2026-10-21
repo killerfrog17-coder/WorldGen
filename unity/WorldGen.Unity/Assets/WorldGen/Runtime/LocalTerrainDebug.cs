@@ -52,9 +52,6 @@ public sealed partial class LocalTerrainExplorer
     }
     public void DrawViewSettings()
     {
-        GUILayout.Label("View distance  "+(viewDistance/1000).ToString("F0")+" km");
-        double distance=GUILayout.HorizontalSlider((float)viewDistance,(float)Math.Min(30000,MaximumViewDistance*.1),(float)MaximumViewDistance);
-        if(Math.Abs(distance-viewDistance)>100){viewDistance=distance;SetFog();RefreshWanted();}
         GUILayout.Label("Flight speed  "+motion.FlySpeed.ToString("F0")+" m/s");motion.FlySpeed=Math.Exp(GUILayout.HorizontalSlider((float)Math.Log(motion.FlySpeed),(float)Math.Log(5),(float)Math.Log(20000)));
     }
     void OnGUI()
@@ -109,6 +106,7 @@ public sealed partial class LocalTerrainExplorer
             "Elevation "+(walkingPatch.Sample(Position).ElevationM+HeightAboveGround).ToString("F1")+" m  ·  ground clearance "+HeightAboveGround.ToString("F2")+" m\n"+GroundDebugText+"\n"+
             (motion.Flying?"Flying":ActiveKeyboard!=null&&ActiveKeyboard.cKey.isPressed?"Walking":ActiveKeyboard!=null&&ActiveKeyboard.shiftKey.isPressed?"Sprinting":"Jogging")+"  ·  "+Diagnostics+"\nScatter "+ScatterObjects.ToString("N0")+" instances  ·  "+ScatterDrawCalls+" draws"+
             "\nTerrain reuse "+CachedTerrainTiles+" cached · "+(CachedTerrainBytes/1048576d).ToString("F1")+" MiB buffers · "+TerrainCacheHits+" hits · "+TerrainBuildRequests+" requests ("+TerrainPrefetchRequests+" ahead)"+
+            "\nAdaptive terrain · "+new[]{"Low","Medium","High","Ultra","Extreme"}[detailOptions.Quality]+" · "+new[]{"Low","Balanced","High","Maximum"}[detailOptions.Effort]+" loading ("+WorkerLimit+" lanes) · reveal "+(streamedFog/1000).ToString("F1")+" km"+(DetailPlanning?" · planning":"")+
             (weatherScreen==null?"":"\nWeather "+CurrentWeather.TemperatureC.ToString("F1")+" °C · rain "+CurrentWeather.RainMmPerHour.ToString("F2")+" / snow water "+CurrentWeather.SnowWaterMmPerHour.ToString("F2")+" mm/h · cloud "+(CurrentWeather.CloudCover*100).ToString("F0")+"% · gust "+CurrentWeather.GustMps.ToString("F1")+" m/s"+(WeatherControl.Mode=="auto"?"":" · TEST: "+WeatherControl.Mode)+"\n"+WeatherSoundDebug)+
             (weatherScreen==null?"":"\nWeather visibility "+(CurrentWeather.VisibilityM/1000).ToString("F2")+" km · ground fog "+(CurrentWeather.Fog*100).ToString("F0")+"% · "+(weatherScreen.UseField?"spatial cloud field":"uniform test / preparing field"))+
             (playState==null?"":"\nLocal solar time "+PlayCommands.TimeText(LocalSolarHour)+"  ·  prime "+PlayCommands.TimeText(playState.SolarHour)+"  ·  calendar ×"+playState.Settings.CalendarDaysPerDay.ToString("G4"))+"\n"+PlayableSky.Season(skyYear)+

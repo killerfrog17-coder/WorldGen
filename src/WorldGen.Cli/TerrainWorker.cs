@@ -25,7 +25,9 @@ static class TerrainWorker
         var scatter=new LocalScatter(terrain,scale);
         var listener=new TcpListener(IPAddress.Loopback,0);listener.Start();
         writer.Write(TerrainMeshWire.Version);writer.Write(typeof(LocalTerrain).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion??"");writer.Write(LocalTerrain.Version);writer.Write(((IPEndPoint)listener.LocalEndpoint).Port);writer.Flush();
-        using var slots=new SemaphoreSlim(2);
+        // The player reserves capacity according to its loading-effort setting.
+        // Four is a hard ceiling, not an unbounded request-driven thread count.
+        using var slots=new SemaphoreSlim(4);
         while(!exit.IsCancellationRequested)
         {
             var client=await listener.AcceptTcpClientAsync();client.NoDelay=true;

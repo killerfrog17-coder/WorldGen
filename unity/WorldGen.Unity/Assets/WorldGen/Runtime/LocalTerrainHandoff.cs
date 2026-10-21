@@ -136,7 +136,7 @@ public sealed partial class LocalTerrainExplorer
             Math.Abs(altitude-pending.Altitude)>Math.Max(150,pending.Altitude*.3))
         {
             pending.X=x;pending.Z=z;pending.Altitude=altitude;pending.Range=viewDistance;
-            pending.Wanted=TerrainLod.Plan(x,z,altitude,viewDistance,HorizontalScale);
+            pending.Wanted=InitialDetailPlan(x,z,altitude);
             pending.Priority.Clear();pending.Priority.AddRange(pending.Wanted.Keys);pending.Edges.Clear();
             foreach(var pair in TerrainEdges.Build(pending.Wanted))pending.Edges.Add(pair.Key,pair.Value);
             pending.CoveragePriority.Clear();pending.CoveragePriority.AddRange(pending.Priority);
@@ -185,13 +185,13 @@ public sealed partial class LocalTerrainExplorer
         var order=pending.CoveragePriority.Where(k=>!pending.Tiles.ContainsKey(k)&&k.Level>=4).Concat(pending.Priority);
         foreach(var key in order)
         {
-            if(jobs.Count+scatterJobs.Count>=2)return;
+            if(!CanRequest||jobs.Count+scatterJobs.Count>=WorkerLimit)return;
             int detail=pending.Wanted[key];var edges=pending.Edges[key];
             if(pending.Tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&tile.Edges.SequenceEqual(edges)||
                 jobs.Any(j=>ReferenceEquals(j.Prepared,pending)&&j.Key.Equals(key)))continue;
             var source=terrain;var buildFrame=pending.Frame;var jobCancellation=System.Threading.CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=jobCancellation.Token;
             var producer=meshProcess;
-            TerrainBuildRequests++;
+            TerrainBuildRequests++;nextRequestAt=Time.realtimeSinceStartupAsDouble+detailOptions.RequestInterval;
             jobs.Add(new Work{Key=key,Edges=edges,Segments=detail,Generation=generation,Prepared=pending,Cancellation=jobCancellation,
                 Task=Task.Run(()=>TerrainUpload.Prepare(producer==null?LocalTerrainMesh.Build(source,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges):producer.Build(buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token),token)});
             if(reserveCurrentSlot)return;
@@ -208,6 +208,7 @@ public sealed partial class LocalTerrainExplorer
         var oldRoot=terrainRoot;var oldTiles=tiles;
         ResetStreamingReuse(false);
         frame=pending.Frame;tiles=pending.Tiles;terrainRoot=pending.Root;preparedFrame=null;
+        double previousFog=streamedFog;ResetDetailFrame();streamedFog=previousFog;fogSafeRadius=previousFog;
         generation++;walkingPatch=null;originX=Math.Floor(x/2048)*2048;originZ=Math.Floor(z/2048)*2048;
         // The remaining prepared jobs already use the adopted chart: keep them,
         // rather than discarding valid work because the generation stamp changed.

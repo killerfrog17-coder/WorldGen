@@ -28,8 +28,7 @@ public sealed partial class WorldGenRuntime
         GUILayout.Label("Rain / snow particles");o.Particles=GUILayout.SelectionGrid(o.Particles,new[]{"Off","Low","High"},3);
         float Slider(string name,float value){GUILayout.Label(name+"  "+Mathf.RoundToInt(value*100)+"%");return GUILayout.HorizontalSlider(value,0,1);}
         o.SunGlare=Slider("Sun glare",o.SunGlare);o.SunRays=Slider("Sun rays",o.SunRays);o.Adaptation=Slider("Eye adaptation",o.Adaptation);o.Lightning=Slider("Lightning flashes · 0 = off",o.Lightning);
-        o.ThunderVolume=Slider("Thunder",o.ThunderVolume);
-        o.RainVolume=Slider("Rain volume",o.RainVolume);o.Visibility=Slider("Weather fog / rain visibility",o.Visibility);
+        o.Visibility=Slider("Weather fog / rain visibility",o.Visibility);
         if(GUI.changed)o.Save();GUI.changed|=changed;
     }
 }

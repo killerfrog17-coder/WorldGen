@@ -1,5 +1,43 @@
 # Version 3 validation evidence
 
+## Adaptive terrain, loading controls and settings /20October2026
+
+`player-adaptive-terrain`, IL2CPP21Oct03:42:45Z. See ADAPTIVE_TERRAIN.md for
+estimated-error policy, full-radius protection, sparse backdrop loading, haze,
+effort budgets and machine-local shared settings/fullscreen behavior.
+Hyper11 terrain/water and source/history are unchanged.
+
+-1298 focused adaptive,6241 exact reuse and13059 coverage/navigation checks pass.
+  Actual mountain60km metadata plans: Low323 tiles/5.7ms, High689/5.6ms,
+  Extreme1904/18.1ms CLR, not native FPS. Exact source hash is preserved.
+-127639 exact final bundled-worker float/index/bounds/cancellation comparisons
+  pass. Selected scatter probes contain zero instances, not new vegetation
+  placement coverage. Final production-shader check passes fine-only loaded
+  quadrant, retained/restored missing-area fallback, exact mesh cache restore
+  and frame invalidation; red/green output inspected. All owned tests/workers
+  are stopped. The owner's preceding terrain-reuse player remains untouched.
+- Native owner snapshot0.1x1280x80060km High/Balanced: near11.610s including
+  worker startup, covered-horizon reveal15.016s, full requested320 tiles46.395s.
+  38856 fixed-camera loading frames: median1.03ms, p992.10ms, worst35.01ms,
+  zero >100ms;26 collections, largest mesh apply/bind0.18ms. Four exact final
+  native/CLR probes match. Source91a5470156e4aeeecb11fd22ac7b64987960701d5ff602e304784da6b2ca43e1.
+- Same binary with diagnostic fixed-planner/fixed-fog baseline: near10.907s,
+  full416 tiles36.376s, worst29.44ms. New High loads MORE slowly in this scene.
+  Baseline2.191s "horizon reveal" is old fixed fog already at distance with ZERO
+  tiles: not covered horizon and not a valid comparison to15.016s. The owner
+  kept a separate game open; these are not isolated or universal benchmarks.
+- All five pause settings categories run without GUI exceptions; live Low/Low
+  reports one lane and low quality. Their hidden ScreenCapture images are black:
+  no settings-layout acceptance. Actual terrain RenderTexture image inspected,
+  but rain/fog obscure distance quality. Monitor API reports1920x1080; actual
+  fullscreen resolution switching remains owner review, not certified by that
+  desired-dimension read. No all-distance/mountain/travel/art acceptance added.
+- C: build pressure: historical generated controls4 moved intact to
+  E:/WorldGenBuilds/relocated-player-local-terrain-controls4 with original-path
+  junction and verified exe hash. No save/source/rollback content deleted.
+
+Artifacts: `artifacts/adaptive-terrain/native`, `baseline` and `coverage`.
+
 ## Terrain loading/reuse step2 /20October2026
 
 `player-terrain-reuse`, final IL2CPP21Oct02:46:20Z. See TERRAIN_REUSE.md for

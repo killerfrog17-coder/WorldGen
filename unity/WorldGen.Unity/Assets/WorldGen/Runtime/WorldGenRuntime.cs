@@ -285,6 +285,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     }
     void Update()
     {
+        if(Keyboard.current!=null&&Keyboard.current.f11Key.wasPressedThisFrame)SetFullscreen(!Screen.fullScreen);
         UpdateMusic();
         if(terrainExplorer!=null){PollHumans();return;}if(terrainReturnFrame==Time.frameCount)return;
         if(continueLoadedGame&&humans!=null&&!Busy&&humanStep==null){continueLoadedGame=false;RequestTerrain();}
@@ -315,8 +316,6 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         long tick = Stopwatch.GetTimestamp();
         if (Busy && lastFrameTick != 0) { maxBusyFrameMs = Math.Max(maxBusyFrameMs, (tick - lastFrameTick) * 1000.0 / Stopwatch.Frequency); busyFrames++; }
         lastFrameTick = tick;
-        if (Keyboard.current != null && Keyboard.current.f11Key.wasPressedThisFrame)
-            Screen.fullScreenMode = Screen.fullScreen ? FullScreenMode.Windowed : FullScreenMode.FullScreenWindow;
         float sidebar=screen=="Setup"?PanelWidth:screen=="Simulation"?SimulationSidebar:0;
         cameraView.rect = new Rect(sidebar / Screen.width, screen=="Simulation"?DockHeight/Screen.height:0, 1 - sidebar / Screen.width, screen=="Simulation"?1-(52f+DockHeight)/Screen.height:1);
         PollGeneration();

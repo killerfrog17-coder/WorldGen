@@ -36,7 +36,7 @@ public sealed partial class LocalTerrainExplorer
     }
     bool RestoreTerrain(TerrainTileKey key,int segments,double[] edges)
     {
-        if(installationsThisFrame>=1||!TerrainProducts.Take(new TerrainProductKey(key,segments,edges),out var tile))return false;
+        if(!CanInstall||!TerrainProducts.Take(new TerrainProductKey(key,segments,edges),out var tile))return false;
         if(tiles.TryGetValue(key,out var old))CacheTerrain(key,old);
         tile.Root.transform.SetParent(terrainRoot.transform,false);
         tile.Root.transform.localPosition=new Vector3((float)(key.X*key.SizeM-originX),0,(float)(key.Z*key.SizeM-originZ));
@@ -56,7 +56,8 @@ public sealed partial class LocalTerrainExplorer
     }
     double StreamingPriority(TerrainTileKey key)
     {
-        if(TerrainLod.Immediate(key,motion.X,motion.Z))return TerrainLod.DistanceSquared(key,motion.X,motion.Z);
+        if(ImmediateTerrain(key))return TerrainLod.DistanceSquared(key,motion.X,motion.Z);
+        if(backdrops.ContainsKey(key)&&!tiles.ContainsKey(key))return 1e10+TerrainLod.DistanceSquared(key,motion.X,motion.Z)*.001;
         double baseSize=TerrainLod.BaseSizeM*HorizontalScale;
         double d=TerrainLod.DistanceSquared(key,motion.X,motion.Z),future=double.IsNaN(predictedX)?d:TerrainLod.DistanceSquared(key,predictedX,predictedZ);
         return baseSize*baseSize*100+Math.Min(d,future*1.2);
@@ -85,18 +86,19 @@ public sealed partial class LocalTerrainExplorer
         }
         priority.Sort((a,b)=>{int d=StreamingPriority(a).CompareTo(StreamingPriority(b));return d!=0?d:a.Level!=b.Level?a.Level.CompareTo(b.Level):a.X!=b.X?a.X.CompareTo(b.X):a.Z.CompareTo(b.Z);});
     }
-    bool WorkMatchesCurrent(Work job)=>job.Prepared==null&&job.Generation==generation&&wanted.TryGetValue(job.Key,out int detail)&&detail==job.Segments&&job.Edges.SequenceEqual(wantedEdges[job.Key]);
-    void RequestTerrain(TerrainTileKey key,int detail,double[] edges,bool prefetch=false)
+    bool WorkMatchesCurrent(Work job)=>job.Prepared==null&&job.Generation==generation&&
+        (job.Backdrop?backdrops.ContainsKey(job.Key)&&!tiles.ContainsKey(job.Key)&&BackdropNeeded(job.Key):wanted.TryGetValue(job.Key,out int detail)&&detail==job.Segments&&job.Edges.SequenceEqual(wantedEdges[job.Key]));
+    void RequestTerrain(TerrainTileKey key,int detail,double[] edges,bool prefetch=false,bool backdrop=false)
     {
         var buildFrame=frame;var buildTerrain=terrain;var producer=meshProcess;
         var stop=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=stop.Token;
-        TerrainBuildRequests++;if(prefetch)TerrainPrefetchRequests++;
-        jobs.Add(new Work{Key=key,Edges=edges,Segments=detail,Generation=generation,Prefetch=prefetch,Cancellation=stop,
+        TerrainBuildRequests++;if(prefetch)TerrainPrefetchRequests++;nextRequestAt=Time.realtimeSinceStartupAsDouble+detailOptions.RequestInterval;
+        jobs.Add(new Work{Key=key,Edges=edges,Segments=detail,Generation=generation,Prefetch=prefetch,Backdrop=backdrop,Cancellation=stop,
             Task=Task.Run(()=>TerrainUpload.Prepare(producer==null?LocalTerrainMesh.Build(buildTerrain,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges,localSampleCache):producer.Build(buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token),token)});
     }
     void SchedulePredictiveTerrain()
     {
-        if(NearTerrainPending()||jobs.Count+scatterJobs.Count>=2||jobs.Any(j=>j.Prefetch))return;
+        if(!CanRequest||NearTerrainPending()||jobs.Count+scatterJobs.Count>=WorkerLimit||jobs.Any(j=>j.Prefetch))return;
         foreach(var key in prefetchPriority)
         {
             int detail=prefetchWanted[key];var edges=prefetchEdges[key];

@@ -1,6 +1,31 @@
 # WorldGen repository instructions
 
 Current OWNER REVIEW launch,20October2026: shortcut selects
+`artifacts/player-adaptive-terrain/WorldGen.exe` (IL2CPP21Oct03:42:45Z).
+Owner-authorized steps4/5 add estimated screen-error terrain selection with a
+protected fine radius, sparse coarse backdrops and coverage-driven haze reveal.
+Five quality levels, four bounded loading efforts, view/fine distances and
+Overview/Display/Terrain/Audio/Atmosphere tabs are machine-local. Master volume
+is shared across tabs; footsteps/rain/thunder stay in Audio. Startup/checkbox/F11
+fullscreen requests the current monitor dimensions; F11 also runs in exploration.
+Hyper11 terrain/water, controller, world/history and vegetation are unchanged.
+1298 adaptive/6241 reuse/13059 coverage-navigation checks pass;4 native/CLR probes
+match;127639 final packaged-worker values and native production-shader/cache
+checks pass. Owned tests/workers stopped; owner game untouched.
+Native owner0.1x60km High/Balanced: near11.610s incl worker, horizon reveal
+15.016s, full320 tiles46.395s; fixed-camera worst35.01ms/no >100ms. Same-view fixed
+planner baseline: near10.907s/full416 tiles36.376s. New High is slower in this
+scene, not a loading-speed win. Baseline's2.191s fog-distance report with zero
+tiles is NOT horizon readiness. Existing owner game stayed open; not isolated
+benchmark/full200km/travel/FPS acceptance. Actual terrain capture is inspected
+but weather-obscured. Hidden settings captures are black, NOT UI-layout evidence;
+actual fullscreen switching and visible quality/tab layout await owner review.
+Estimates are not certified geometric bounds; all seam/popping elimination is
+not claimed. Historical controls4 player relocated intact to E: with original
+path junction/hash verification for build space; no saves/source deleted.
+See docs/ADAPTIVE_TERRAIN.md and VALIDATION.md. Prior terrain-reuse is rollback.
+
+Current OWNER REVIEW launch,20October2026: shortcut selects
 `artifacts/player-terrain-reuse/WorldGen.exe` (IL2CPP21Oct02:46:20Z).
 Owner-authorized LOD step2 adds chart-local inactive mesh LRU (128 products /
 96MiB accounted buffers), worker-owned32768 exact-point sample reuse, indexed

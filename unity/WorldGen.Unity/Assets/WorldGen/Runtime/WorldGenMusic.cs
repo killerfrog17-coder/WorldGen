@@ -67,12 +67,23 @@ public sealed partial class WorldGenRuntime
     void DrawAudioOptions()
     {
         GUILayout.Label("AUDIO",new GUIStyle(GUI.skin.label){fontStyle=FontStyle.Bold});
+        DrawMasterVolume();
         GUILayout.Label("Music  "+Mathf.RoundToInt(musicVolume*100)+"%");
         float next=GUILayout.HorizontalSlider(musicVolume,0,1);
         if(next!=musicVolume){musicVolume=next;PlayerPrefs.SetFloat("music-volume",musicVolume);}
         GUILayout.Label("Footsteps  "+Mathf.RoundToInt(LocalTerrainExplorer.FootstepVolume*100)+"%");
         float steps=GUILayout.HorizontalSlider(LocalTerrainExplorer.FootstepVolume,0,1);if(steps!=LocalTerrainExplorer.FootstepVolume)LocalTerrainExplorer.FootstepVolume=steps;
+        var weather=WeatherVideoOptions.Current;
+        GUILayout.Label("Rain  "+Mathf.RoundToInt(weather.RainVolume*100)+"%");float rain=GUILayout.HorizontalSlider(weather.RainVolume,0,1);
+        GUILayout.Label("Thunder  "+Mathf.RoundToInt(weather.ThunderVolume*100)+"%");float thunder=GUILayout.HorizontalSlider(weather.ThunderVolume,0,1);
+        if(rain!=weather.RainVolume||thunder!=weather.ThunderVolume){weather.RainVolume=rain;weather.ThunderVolume=thunder;weather.Save();}
         GUILayout.Space(12);
+    }
+    void DrawMasterVolume()
+    {
+        GUILayout.Label("Master volume  "+Mathf.RoundToInt(AudioListener.volume*100)+"%");
+        float volume=GUILayout.HorizontalSlider(AudioListener.volume,0,1);
+        if(volume!=AudioListener.volume){AudioListener.volume=volume;PlayerPrefs.SetFloat("master-volume",volume);}
     }
     IEnumerator PlayNextMusic()
     {
