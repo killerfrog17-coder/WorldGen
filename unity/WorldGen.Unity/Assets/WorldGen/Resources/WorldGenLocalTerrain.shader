@@ -10,6 +10,9 @@ Shader "WorldGen/LocalTerrain"
         _GroundMasks("R AO, G roughness, B height, A metallic",2DArray)=""{}
         _TextureMetres("Repeat metres",Float)=2
         _RockLayers("Six lithology layers",Float)=0
+        _TerrainCoverage("Resident coverage tree",2D)="black"{}
+        _CoverageEnabled("Partial fallback",Float)=0
+        _CoverageTileSize("Tile size",Float)=1
     }
     SubShader
     {
@@ -30,10 +33,11 @@ Shader "WorldGen/LocalTerrain"
             #include "WorldGenAir.hlsl"
             TEXTURE2D_ARRAY(_GroundAlbedo);SAMPLER(sampler_GroundAlbedo);
             TEXTURE2D_ARRAY(_GroundNormals);TEXTURE2D_ARRAY(_GroundMasks);
+            Texture2D<float4> _TerrainCoverage;float _CoverageEnabled,_CoverageTileSize;
             float _Water,_FogDistance,_TextureMetres,_Daylight,_RockLayers;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint;
             struct A { float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 color:COLOR;float4 weights:TEXCOORD1;float4 groundB:TEXCOORD2;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5; };
-            struct O { float4 positionCS:SV_POSITION;float3 normal:TEXCOORD0;float3 position:TEXCOORD1;float4 color:COLOR;float4 weights:TEXCOORD2;float4 groundB:TEXCOORD3;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5; };
-            O vert(A a){O o;o.position=TransformObjectToWorld(a.positionOS.xyz);o.positionCS=TransformWorldToHClip(o.position);o.normal=TransformObjectToWorldNormal(a.normalOS);o.color=a.color;o.weights=a.weights;o.groundB=a.groundB;o.rocks=a.rocks;o.rocksB=a.rocksB;return o;}
+            struct O { float4 positionCS:SV_POSITION;float3 normal:TEXCOORD0;float3 position:TEXCOORD1;float4 color:COLOR;float4 weights:TEXCOORD2;float4 groundB:TEXCOORD3;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5;float2 coverageUV:TEXCOORD6; };
+            O vert(A a){O o;o.position=TransformObjectToWorld(a.positionOS.xyz);o.positionCS=TransformWorldToHClip(o.position);o.normal=TransformObjectToWorldNormal(a.normalOS);o.color=a.color;o.weights=a.weights;o.groundB=a.groundB;o.rocks=a.rocks;o.rocksB=a.rocksB;o.coverageUV=a.positionOS.xz/max(.001,_CoverageTileSize);return o;}
             float3 TriplanarAlbedo(float3 p,float3 w,int layer)
             {
                 return SAMPLE_TEXTURE2D_ARRAY(_GroundAlbedo,sampler_GroundAlbedo,p.yz,layer).rgb*w.x+
@@ -42,6 +46,19 @@ Shader "WorldGen/LocalTerrain"
             }
             half4 frag(O i):SV_Target
             {
+                if(_CoverageEnabled>.5)
+                {
+                    float2 uv=clamp(i.coverageUV,0,.99999994);int node=0;
+                    [loop] for(int depth=0;depth<24;depth++)
+                    {
+                        uv*=2;int2 quadrant=(int2)uv;
+                        float4 children=_TerrainCoverage.Load(int3(node%256,node/256,0));
+                        float next=children[quadrant.x+2*quadrant.y];
+                        if(next<0)clip(-1);
+                        if(next<=0)break;
+                        node=(int)next-1;uv-=quadrant;
+                    }
+                }
                 float3 fogColor=_FogColor.rgb,farColor=i.color.rgb;
                 #ifndef UNITY_COLORSPACE_GAMMA
                 farColor=SRGBToLinear(farColor);fogColor=SRGBToLinear(fogColor);

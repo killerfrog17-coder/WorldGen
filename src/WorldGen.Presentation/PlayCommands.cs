@@ -28,10 +28,10 @@ namespace WorldGen.Presentation
     }
     public static class PlayCommands
     {
-        public static readonly string[] Help={"/date [get | set YYYY-MM-DD | add days] — playable seasonal date (365-day years)","/help — list commands","/time [get | set day/night/noon/midnight/sunrise/sunset/HH:mm | add hours]","/weather [get | auto | clear | cloudy | overcast | rain | downpour | storm | snow | blizzard | fog] — temporary weather test"};
+        public static readonly string[] Help={"/date [get | set YYYY-MM-DD | add days] — playable seasonal date (365-day years)","/help — list commands","/time [get | set day/night/noon/midnight/sunrise/sunset/HH:mm | add hours]",ExplorerNavigation.TeleportHelp,"/weather [get | auto | clear | cloudy | overcast | rain | downpour | storm | snow | blizzard | fog] — temporary weather test"};
         public static string[] Complete(string input)
         {
-            string[] options=input.StartsWith("/weather ",StringComparison.OrdinalIgnoreCase)?WeatherControl.Modes.Select(m=>"/weather "+m).ToArray():input.StartsWith("/time set ",StringComparison.OrdinalIgnoreCase)?new[]{"/time set day","/time set midnight","/time set night","/time set noon","/time set sunrise","/time set sunset"}:new[]{"/date","/help","/time","/weather"};
+            string[] options=input.StartsWith("/tp ",StringComparison.OrdinalIgnoreCase)?new[]{"/tp random","/tp random land"}:input.StartsWith("/weather ",StringComparison.OrdinalIgnoreCase)?WeatherControl.Modes.Select(m=>"/weather "+m).ToArray():input.StartsWith("/time set ",StringComparison.OrdinalIgnoreCase)?new[]{"/time set day","/time set midnight","/time set night","/time set noon","/time set sunrise","/time set sunset"}:new[]{"/date","/help","/time","/tp","/weather"};
             return options.Where(s=>s.StartsWith(input,StringComparison.OrdinalIgnoreCase)).OrderBy(s=>s,StringComparer.Ordinal).ToArray();
         }
         public static PlayCommandResult Execute(PlaySession play,long historySeconds,string input,double? longitude=null,double latitude=0,WeatherControl? weather=null)
@@ -45,7 +45,7 @@ namespace WorldGen.Presentation
                 if(weather==null)return new PlayCommandResult(false,"Weather commands are available while exploring the world.");
                 if(words.Length==1||words.Length==2&&words[1].Equals("get",StringComparison.OrdinalIgnoreCase))return new PlayCommandResult(true,"Weather: "+weather.Mode+(weather.Mode=="auto"?" (natural weather).":" (temporary test override)."));
                 string mode=words.Length==2?words[1]:words.Length==3&&words[1].Equals("set",StringComparison.OrdinalIgnoreCase)?words[2]:"";
-                if(!weather.Set(mode))return new PlayCommandResult(false,Help[3]);
+                if(!weather.Set(mode))return new PlayCommandResult(false,Help[4]);
                 return new PlayCommandResult(true,weather.Mode=="auto"?"Natural weather restored.":"Testing "+weather.Mode+" weather. /weather auto restores natural weather; climate and water history are unchanged.");
             }
             if(command=="/time")

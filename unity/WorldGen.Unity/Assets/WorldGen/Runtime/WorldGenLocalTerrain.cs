@@ -83,6 +83,8 @@ public sealed partial class WorldGenRuntime
         while ((Busy || !worldReady || humanStep != null || humans == null || humanPaletteJob != null || humanPaletteReady != null) && Time.realtimeSinceStartupAsDouble < deadline) yield return null;
         if (!CanExploreTerrain) { Debug.LogError("TERRAIN CHECK world unavailable: " + error); Application.Quit(1); yield break; }
         humanPlaying = false; string hash = StateHash.Compute(world);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-navigation-debug-check"))
+        {yield return CheckNavigationDebug(output,hash);yield break;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-reanchor-review"))
         {yield return CheckTerrainHandoffs(output,hash);yield break;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-landform-review"))

@@ -1,5 +1,49 @@
 # Version 3 validation evidence
 
+## Partial resident LOD coverage and navigation /20October2026
+
+IL2CPP21Oct02:06:03Z `player-lod-coverage-debug` implements owner-requested step1
+only, plus F3 compass/bearing, optional zoom-aware waterways map and explorer
+coordinate/random/random-land commands. Terrain/hydrology definitions remain
+Hyper11; LOD planner, requested resolutions, scheduler/concurrency, reanchor
+preparation and walking heights are unchanged. See LOD_COVERAGE_DEBUG.md.
+
+13063 focused checks pass, including exact partial/missing-child coverage,
+deep sparse holes, negative tile indices, coordinate validation/meridian
+conversion, bearings, random spherical destinations, zoom admission, actual
+owner-world waterways output/cancellation and unchanged source hash.892 existing
+sky/calendar/chat checks pass; the help expectation intentionally adds `/tp`.
+The first Unity compilation caught a test-harness `var` multi-declaration;
+corrected before the successful native build, not published as a checkpoint.
+
+Final native `artifacts/lod-coverage-debug/shader` captures are inspected.
+Production shader/material-property bindings render a deliberately higher red
+coarse surface before load; a lower green fine surface then owns exactly its
+loaded quadrant while red fallback remains elsewhere. Removing the fine tile
+restores red coverage. Pixel checks pass in all three states. This is actual
+GPU visibility evidence, not a claim of mountainous travel/FPS acceptance.
+The mask also applies to the water part of a tile; river geometry is unchanged.
+
+The sparse per-tile quadtree avoids allocating a fine-resolution mask over a
+large fallback; loaded residency, not requested future tiles, defines holes.
+Shader coordinates are tile-local and masks refresh after a chart handoff.
+No new cache, smoothing, quality controls, fog masking or fine terrain noise
+is included.
+
+Native explorer checks in the02:01:28Z package pass actual coordinate/invalid/
+random/random-land teleports, geographic F3 text, asynchronous waterways texture
+creation, toggle independence from the base map, and unchanged owner-world hash
+91a5470156e4aeeecb11fd22ac7b64987960701d5ff602e304784da6b2ca43e1.
+The inspected whole-world overlay was too crowded, so the ONLY subsequent
+production change tightens the zoom-dependent symbol admission: final runtime-
+resolution output has209 occupied pixels of131072 and retains major river
+symbols. It is intentionally sparse at global zoom; smaller streams appear on
+zooming in. The final package repeats the native coverage shader check; native
+teleport execution was not redundantly repeated for this threshold-only change.
+Hidden captures are not proof of IMGUI checkbox/help layout or broad travel/FPS.
+Owner visual review is the next acceptance step; existing saved worlds need no
+regeneration and the owner game was not closed.
+
 ## Incoming river/lake handoff /20October2026
 
 Hyper11 / IL2CPP21Oct01:12:03Z, `player-lake-inlets`. The old lake-owned dry

@@ -1,6 +1,29 @@
 # WorldGen repository instructions
 
 Current OWNER REVIEW launch,20October2026: shortcut selects
+`artifacts/player-lod-coverage-debug/WorldGen.exe` (IL2CPP21Oct02:06:03Z).
+Owner-authorized LOD step1 only: sparse tile-local resident coverage masks stop
+coarse ground/water obscuring loaded finer tiles; missing fine areas retain
+fallback. Whole-tile retirement/planner/jobs/concurrency/reanchor preparation,
+Hyper11 terrain/water heights and authoritative worlds/history are unchanged.
+This new explicit coverage request supersedes the historical rejected-renderer
+ban ONLY for this focused mechanism, not its old cache/morph/grounding changes.
+F3 adds geographic compass/bearing; optional Rivers map estimates beside Clouds
+admit smaller waterways with zoom. `/tp lat lon [height]`, `/tp random`, `/tp
+random land` (`/teleport` alias) use the F3 official meridian and place the player
+above ground/water. Random-land selection is bounded, verifies a dry local
+sample, and does not promise uniform sampling of all marine islets.13063 shared
+checks and892 sky/chat checks pass. Final native production-shader pixel/capture
+checks show fine-only loaded quadrant, retained missing-area fallback and
+restored fallback after fine removal. Earlier02:01 package native commands/F3/
+async map/toggle checks preserve owner source hash; final map-only admission
+tuning is shared-tested (209/131072 occupied global pixels). No duplicate native
+command campaign for that threshold-only change. Map/GUI art, broad mountainous
+travel/FPS, all-LOD seams and future quality/detail improvements await owner
+review. Own tests stopped; owner testing now; no saves altered or owner game
+closed. Lake-inlets remains rollback. See docs/LOD_COVERAGE_DEBUG.md / VALIDATION.md.
+
+Current OWNER REVIEW launch,20October2026: shortcut selects
 `artifacts/player-lake-inlets/WorldGen.exe` (IL2CPP21Oct01:12:03Z).
 Hyper11 fixes dry lake-owned collars prematurely stopping paired channel cuts
 and suppressing river ribbons. Actual submerged lake water takes precedence;

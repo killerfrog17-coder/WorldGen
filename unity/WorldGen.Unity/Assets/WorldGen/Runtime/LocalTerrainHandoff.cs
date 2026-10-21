@@ -225,7 +225,7 @@ public sealed partial class LocalTerrainExplorer
         Mark("scatter");
         ResetWeatherFrame();SetDaylight(LocalSolarHour,skyYear);Mark("sky/weather");
         // Both roots switch in the same Update. Never render an empty frame.
-        terrainRoot.SetActive(true);RetireFrame(oldRoot,oldTiles);ReanchorCount++;
+        terrainRoot.SetActive(true);coverageDirty=true;RetireFrame(oldRoot,oldTiles);ReanchorCount++;
         Mark("activate");
         if(timer.Elapsed.TotalMilliseconds>LargestHandoffMs){LargestHandoffMs=timer.Elapsed.TotalMilliseconds;LargestHandoffProfile=profile.ToString();}
     }

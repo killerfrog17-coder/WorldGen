@@ -18,7 +18,7 @@ static class SkyChatTests
         check(noon.StarVisibility==0&&midnight.StarVisibility==1&&midnight.Bodies[0].Illuminance==0,"Stars only appear as sunlight fades, without a nighttime sun light");
         var play=new PlaySession{PendingHistorySeconds=.25};const long history=123456789;
         check(PlayCommands.Help.SequenceEqual(PlayCommands.Help.OrderBy(s=>s,StringComparer.Ordinal)),"Help is alphabetically sorted");
-        var help=PlayCommands.Execute(play,history,"/help");check(help.Success&&help.Lines.Length==4,"Help exposes only the implemented command families");
+        var help=PlayCommands.Execute(play,history,"/help");check(help.Success&&help.Lines.Length==5&&help.Lines.Any(s=>s.StartsWith("/tp ",StringComparison.Ordinal)),"Help includes the explorer teleport family alongside clock/weather commands");
         foreach(var pair in new[]{("day",7d),("night",19d),("noon",12d),("midnight",0d),("sunrise",6d),("sunset",18d),("23:59",23+59/60d)})
         {check(PlayCommands.Execute(play,history,"/time set "+pair.Item1).Success&&Math.Abs(play.SolarHour-pair.Item2)<1e-8,"Set time: "+pair.Item1);}
         PlayCommands.Execute(play,history,"/time set midnight");check(PlayCommands.Execute(play,history,"/time add -1").Success&&Math.Abs(play.SolarHour-23)<1e-8,"Time adjustment wraps backward safely");

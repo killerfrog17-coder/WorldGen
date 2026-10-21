@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--lod-debug")){LodDebugTests.Run(args.Length>1?args[1]:null);return;}
 if(args.Contains("--lake-inlets")){LakeInletTests.Run(args[1],args.Contains("--scan"));return;}
 if(args.Contains("--lake-outlet-inspect")){LakeOutletTests.Inspect(args[1]);return;}
 if(args.Contains("--riverscapes")){RiverscapeTests.Run(args[1],args.Contains("--sites-only"));return;}

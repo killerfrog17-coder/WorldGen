@@ -36,7 +36,7 @@ public sealed partial class LocalTerrainExplorer
         if(chatHistory.Count==0||chatHistory[chatHistory.Count-1]!=message)chatHistory.Add(message);if(chatHistory.Count>100)chatHistory.RemoveAt(0);
         if(message.StartsWith("/",StringComparison.Ordinal))
         {
-            var result=command?.Invoke(message)??new PlayCommandResult(false,"Commands are not ready yet.");
+            var result=ExecuteExplorerCommand(message)??command?.Invoke(message)??new PlayCommandResult(false,"Commands are not ready yet.");
             foreach(string line in result.Lines)chatLines.Add(new ChatLine{Text=line,At=Time.realtimeSinceStartupAsDouble,Error=!result.Success});
         }
         else chatLines.Add(new ChatLine{Text="<You> "+message,At=Time.realtimeSinceStartupAsDouble});
