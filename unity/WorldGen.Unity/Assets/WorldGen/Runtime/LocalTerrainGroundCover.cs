@@ -88,6 +88,8 @@ public sealed partial class LocalTerrainExplorer
         if(tile.FloraSurface!=null)properties.SetTexture("_FloraSurface",tile.FloraSurface);
         properties.SetFloat("_MidSurfaceEnabled",tile.MidSurface==null?0:1);
         if(tile.MidSurface!=null)properties.SetTexture("_MidSurface",tile.MidSurface);
+        properties.SetFloat("_ForestSurfaceEnabled",tile.ForestSurface==null?0:1);
+        if(tile.ForestSurface!=null)properties.SetTexture("_ForestSurface",tile.ForestSurface);
     }
     static Texture2D CreateGroundMatTexture(bool lichen)
     {

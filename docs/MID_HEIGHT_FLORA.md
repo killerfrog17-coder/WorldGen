@@ -3,6 +3,8 @@
 This is the owner's visual/performance prototype, not finished botanical art,
 seasonal ecology, a food-web rules upgrade or certified seamless vegetation LOD.
 Compilation/packaging only: no agent test suites, game launches or profiling.
+Subsequently the owner approved the first-pass result as being where they wanted
+it for now. That is appearance feedback, not a new measured FPS/LOD certification.
 
 ## Species and ecology
 

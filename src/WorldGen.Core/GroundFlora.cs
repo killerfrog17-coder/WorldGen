@@ -22,6 +22,8 @@ namespace WorldGen.Core
         public GroundSpecialist[] Specialists=>SpecialistFactory==null?Array.Empty<GroundSpecialist>():SpecialistFactory.Value;
         internal Lazy<MidPlantSpecies[]> MidFactory;
         public MidPlantSpecies[] MidPlants=>MidFactory==null?Array.Empty<MidPlantSpecies>():MidFactory.Value;
+        internal Lazy<TreeSpecies[]> TreeFactory;
+        public TreeSpecies[] Trees=>TreeFactory==null?Array.Empty<TreeSpecies>():TreeFactory.Value;
     }
     /// <summary>Compact potential natural ground flora. Rebuilt from saved abiotic/ecoregion
     /// data, not a mutation of old ecology, food webs or history. Ancestral province families
@@ -44,6 +46,7 @@ namespace WorldGen.Core
                 var result=new GroundFloraRegion{RegionId=key,ProvinceId=province,Species=new GroundPlantSpecies[9]};
                 result.SpecialistFactory=new Lazy<GroundSpecialist[]>(()=>GroundSpecialists.Create(world,key,province));
                 result.MidFactory=new Lazy<MidPlantSpecies[]>(()=>MidFlora.Create(world,key,province));
+                result.TreeFactory=new Lazy<TreeSpecies[]>(()=>TreeFlora.Create(world,key,province));
                 for(int f=0;f<9;f++)
                 {
                     var ancestor=new Rng(world.Recipe.Seed,"ground-flora-founder-1",unchecked(province*31+f));

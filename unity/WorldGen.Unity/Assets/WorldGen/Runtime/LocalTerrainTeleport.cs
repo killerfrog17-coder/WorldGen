@@ -10,6 +10,7 @@ public sealed partial class LocalTerrainExplorer
         var words=text.Trim().Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);
         if(words.Length>0&&words[0].Equals("/flora",StringComparison.OrdinalIgnoreCase))return DescribeSpecialistFlora(words);
         if(words.Length>0&&words[0].Equals("/midflora",StringComparison.OrdinalIgnoreCase))return DescribeMidFlora(words);
+        if(words.Length>0&&words[0].Equals("/trees",StringComparison.OrdinalIgnoreCase))return DescribeTreeFlora(words);
         if(words.Length==0||(!words[0].Equals("/tp",StringComparison.OrdinalIgnoreCase)&&!words[0].Equals("/teleport",StringComparison.OrdinalIgnoreCase)))return null;
         if(!Ready)return new PlayCommandResult(false,"Terrain is not ready yet.");
         V target=default;double? height=null;

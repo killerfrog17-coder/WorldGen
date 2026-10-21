@@ -1,6 +1,21 @@
 # WorldGen repository instructions
 
 Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
+`artifacts/player-generated-tree-lineages/WorldGen.exe` (IL2CPP20:54:43Z), real C:.
+TreeFlora1/LocalScatter7/wire5. Seeded world founders → province → regional
+anatomy; six shared variants/three LODs, folded procedural foliage sprigs, inherited
+bark/wood metadata and /trees N. Near proxies replaced, no duplicate old trees.
+Separate bounded distant forest crown triangles/colour preserve canopy mass,
+not altered ground heights; approximate grouping can shift with terrain LOD/chart.
+Ground/mid placement and approved wind remain. No dynamic seasons/growth/poison/
+food-web/understory light solve, vines/deadwood or actual multiplayer changes.
+Core/Presentation compile and final IL2CPP package exit0. No agent tests/player
+launches/captures/profiling/hash audits under owner directive. Leave game/saves
+untouched. Owner notified for tree art/LOD/FPS and kilometre-range forest review.
+See TREE_FLORA.md and VALIDATION.md; no new art/FPS acceptance. Prior mid-height
+checkpoint has owner first-pass appearance approval, not a benchmark certification.
+
+Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
 `artifacts/player-mid-flora-ready/WorldGen.exe` (IL2CPP17:05:32Z), real C:.
 Compile/package exit0; earlier player-mid-flora is an unpublished intermediate.
 Seven procedural structural families/14 regional taxa, four instanced variants,

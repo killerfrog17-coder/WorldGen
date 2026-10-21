@@ -1,5 +1,12 @@
 # Ground layer / ground-flora-5
 
+## Generated canopy lineages /21October2026
+
+See TREE_FLORA.md: world founders/province branches/regional trees, reusable
+anatomy variants, tissue/wood/reproductive metadata and a render-only distant
+forest volume/colour layer. Existing ground/mid-height placement and approved
+wind remain; no live seasons, growth, saved food-web upgrade or tree-light solve.
+
 ## Mid-height layer /21October2026
 
 See MID_HEIGHT_FLORA.md: derived regional bush/scrub/heath/cane/fern/reed/succulent

@@ -11,6 +11,9 @@ Shader "WorldGen/LocalScatter"
         [Toggle(_ALPHATEST_ON)] _AlphaClip("Alpha clip",Float)=0
         _Wind("Wind displacement (m)",Float)=0 _FogDistance("Fog distance",Float)=200000
         _HerbWind("Root-anchored herb bending",Float)=0
+        _TreeSurface("Generated tree material and motion",Float)=0
+        _TreeLeafShape("Generated leaf family",Float)=0
+        _TreeBarkPattern("Generated bark pattern",Float)=0
         _PlantTraits("Flexibility, response speed, damping, reference height",Vector)=(1,.5,.5,1)
         _FogColor("Sky colour",Color)=(.57,.69,.76,1) _AmbientTint("Ambient light",Color)=(.12,.14,.17,1)
         [PerRendererData] _Tint("Instance tint",Color)=(1,1,1,1)
@@ -38,27 +41,38 @@ Shader "WorldGen/LocalScatter"
             #include "WorldGenAir.hlsl"
             #include "WorldGenLodFade.hlsl"
             #include "WorldGenWind.hlsl"
+            #include "WorldGenTree.hlsl"
             TEXTURE2D(_BaseMap);SAMPLER(sampler_BaseMap);TEXTURE2D(_NormalMap);TEXTURE2D(_MaskMap);
             TEXTURE2D_ARRAY(_RockAlbedo);SAMPLER(sampler_RockAlbedo);TEXTURE2D_ARRAY(_RockNormals);
             float _RockLayer,_RockLayers;
             float4 _BaseMap_ST,_BaseColor,_FogColor,_AmbientTint,_PlantTraits;float _Roughness,_Metallic,_NormalStrength,_Cutoff,_Wind,_FogDistance,_HerbWind;
+            float _TreeSurface,_TreeLeafShape,_TreeBarkPattern;
             UNITY_INSTANCING_BUFFER_START(Props)
                 UNITY_DEFINE_INSTANCED_PROP(float4,_Tint)
                 UNITY_DEFINE_INSTANCED_PROP(float4,_LodTransition)
             UNITY_INSTANCING_BUFFER_END(Props)
             struct A{float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 tangentOS:TANGENT;float2 uv:TEXCOORD0;float2 bend:TEXCOORD1;float4 color:COLOR;UNITY_VERTEX_INPUT_INSTANCE_ID};
-            struct O{float4 positionCS:SV_POSITION;float3 position:TEXCOORD0;float3 normal:TEXCOORD1;float4 tangent:TEXCOORD2;float2 uv:TEXCOORD3;float4 color:COLOR;UNITY_VERTEX_INPUT_INSTANCE_ID};
+            struct O{float4 positionCS:SV_POSITION;float3 position:TEXCOORD0;float3 normal:TEXCOORD1;float4 tangent:TEXCOORD2;float2 uv:TEXCOORD3;float2 plant:TEXCOORD4;float4 color:COLOR;UNITY_VERTEX_INPUT_INSTANCE_ID};
             O vert(A a)
             {
                 O o;UNITY_SETUP_INSTANCE_ID(a);UNITY_TRANSFER_INSTANCE_ID(a,o);
                 float3 p=TransformObjectToWorld(a.positionOS.xyz),root=TransformObjectToWorld(float3(0,0,0));
-                p=WorldGenScatterWind(p,root,_HerbWind>.5?a.bend.x:a.uv.y,_Wind,_HerbWind,_PlantTraits);
+                p=_TreeSurface>.5?WorldGenTreeWind(p,root,a.bend,_Wind,_PlantTraits):WorldGenScatterWind(p,root,_HerbWind>.5?a.bend.x:a.uv.y,_Wind,_HerbWind,_PlantTraits);
                 o.position=p;o.positionCS=TransformWorldToHClip(p);o.normal=TransformObjectToWorldNormal(a.normalOS);
-                o.tangent=float4(TransformObjectToWorldDir(a.tangentOS.xyz),a.tangentOS.w);o.uv=TRANSFORM_TEX(a.uv,_BaseMap);o.color=a.color;return o;
+                o.tangent=float4(TransformObjectToWorldDir(a.tangentOS.xyz),a.tangentOS.w);o.uv=TRANSFORM_TEX(a.uv,_BaseMap);o.plant=a.bend;o.color=a.color;return o;
             }
             half4 frag(O i,FRONT_FACE_TYPE face:FRONT_FACE_SEMANTIC):SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(i);WorldGenScatterFade(i.positionCS.xy,UNITY_ACCESS_INSTANCED_PROP(Props,_LodTransition));float4 tex=SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap,i.uv)*_BaseColor;
+                if(_TreeSurface>.5)
+                {
+                    WorldGenTreeLeafClip(i.uv,i.plant.y,_TreeLeafShape);
+                    if(i.plant.y<.5)
+                    {
+                        float grain=sin(i.uv.x*(60+_TreeBarkPattern*13)+sin(i.uv.y*41)*(.6+_TreeBarkPattern*.35));
+                        tex.rgb*=.91+.09*grain;
+                    }
+                }
                 #ifdef _ALPHATEST_ON
                 clip(tex.a-_Cutoff);
                 #endif
@@ -84,6 +98,8 @@ Shader "WorldGen/LocalScatter"
                 SurfaceData s=(SurfaceData)0;s.albedo=tex.rgb*tint;s.alpha=1;s.occlusion=mask.r;s.metallic=_Metallic*mask.a;
                 s.smoothness=1-saturate(mask.g*_Roughness);s.normalTS=half3(0,0,1);
                 half3 color=UniversalFragmentPBR(input,s).rgb;
+                if(_TreeSurface>.5&&i.plant.y>.5&&i.plant.y<2.5)
+                {Light sun=GetMainLight(input.shadowCoord);color+=s.albedo*sun.color*(pow(saturate(dot(-n,sun.direction)),2)*.12)*sun.shadowAttenuation;}
                 color+=SecondaryCelestialLight(n,s.albedo);
                 float3 fog=_FogColor.rgb;
                 #ifndef UNITY_COLORSPACE_GAMMA

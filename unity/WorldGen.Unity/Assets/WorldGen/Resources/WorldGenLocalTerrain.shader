@@ -18,6 +18,9 @@ Shader "WorldGen/LocalTerrain"
         _FloraSurfaceEnabled("Local vegetation weights",Float)=0
         _MidSurface("Mid-height foliage colour/coverage",2D)="black"{}
         _MidSurfaceEnabled("Mid-height cover weights",Float)=0
+        _ForestSurface("Tree canopy colour/coverage",2D)="black"{}
+        _ForestSurfaceEnabled("Tree canopy weights",Float)=0
+        _ForestFarEnabled("Distant forest colour and volumes",Float)=1
         _TerrainCoverage("Resident coverage tree",2D)="black"{}
         _CoverageEnabled("Partial fallback",Float)=0
         _CoverageTileSize("Tile size",Float)=1
@@ -51,6 +54,7 @@ Shader "WorldGen/LocalTerrain"
             TEXTURE2D(_MossField);SAMPLER(sampler_MossField);TEXTURE2D(_LichenField);SAMPLER(sampler_LichenField);
             TEXTURE2D(_FloraSurface);SAMPLER(sampler_FloraSurface);float4 _FloraSurface_TexelSize;float _FloraSurfaceEnabled;
             TEXTURE2D(_MidSurface);SAMPLER(sampler_MidSurface);float4 _MidSurface_TexelSize;float _MidSurfaceEnabled;
+            TEXTURE2D(_ForestSurface);SAMPLER(sampler_ForestSurface);float4 _ForestSurface_TexelSize;float _ForestSurfaceEnabled,_ForestFarEnabled;
             Texture2D<float4> _TerrainCoverage;float _CoverageEnabled,_CoverageTileSize;
             Texture2D<float4> _CoverageFadeTimes;float _TransitionEnabled,_LodSafetyRadius;float4 _LodFade;
             float _Water,_FogDistance,_TextureMetres,_Daylight,_RockLayers,_GroundFlora;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint;
@@ -95,6 +99,13 @@ Shader "WorldGen/LocalTerrain"
                 farColor=SRGBToLinear(farColor);fogColor=SRGBToLinear(fogColor);
                 #endif
                 float distance=length(i.position-_WorldSpaceCameraPos);
+                if(_Water<.5&&i.color.a< -1.5)
+                {
+                    clip(_ForestFarEnabled-.5);
+                    float fade=smoothstep(950,1400,distance);clip(dither-(1-fade));
+                    float3 canopy=WorldGenGrassLight(farColor,normalize(i.normal),i.position,_AmbientTint.rgb,_Daylight);
+                    return half4(ApplyPlanetAir(canopy,i.position,_WorldSpaceCameraPos,fogColor,_FogDistance),1);
+                }
                 if(_Water>.5)
                 {
                     clip(i.color.a-.01);
@@ -224,6 +235,16 @@ Shader "WorldGen/LocalTerrain"
                     }
                 }
                 color=color*(1-grassMix-mossMix-lichenMix)+vegetation;
+                if(_ForestSurfaceEnabled>.5&&_ForestFarEnabled>.5)
+                {
+                    float4 forest=SAMPLE_TEXTURE2D(_ForestSurface,sampler_ForestSurface,i.coverageUV*(1-_ForestSurface_TexelSize.xy)+.5*_ForestSurface_TexelSize.xy);
+                    float3 leaves=forest.rgb;
+                    #ifndef UNITY_COLORSPACE_GAMMA
+                    leaves=SRGBToLinear(leaves);
+                    #endif
+                    float amount=saturate(forest.a)*smoothstep(700,1800,distance);
+                    color=lerp(color,WorldGenGrassLight(leaves,n,i.position,_AmbientTint.rgb,_Daylight),amount*.8);
+                }
                 if(_MidSurfaceEnabled>.5)
                 {
                     float4 mid=SAMPLE_TEXTURE2D(_MidSurface,sampler_MidSurface,i.coverageUV*(1-_MidSurface_TexelSize.xy)+.5*_MidSurface_TexelSize.xy);

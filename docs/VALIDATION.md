@@ -1,5 +1,20 @@
 # Version 3 validation evidence
 
+## Generated tree lineages / owner-test-only /21October2026
+
+TreeFlora1 / LocalScatter7 replaces old tree proxies with inherited regional
+anatomy, six structural variants, three local LODs and shader foliage sprigs.
+Forest grids/wire5 and bounded statistical crown overlays provide far colour/
+height without modifying ground/water. `/trees N`, ecoregion entries and debug
+toggles expose traits and cost controls. Ground/mid-height placement remains.
+Core/Presentation Release compile passes with zero warnings/errors. Final IL2CPP
+compile/package exit0 at21Oct20:54:43Z, including worker; shortcut updated and
+owner notified. No game/suite/fixture/capture/profiling/hash audit run.
+No source-world/history/save changes are intended; this is not hash validation.
+No botanical/art/FPS/seamlessness acceptance: owner reviews next. See TREE_FLORA.md
+for uncalibrated wood/reproduction traits, prototype cutouts, far proxy handoff/
+LOD/reanchor approximation, extra derived preparation and memory cost.
+
 ## Mid-height flora / owner-test-only /21October2026
 
 Generated seven structural families with fourteen regional potential taxa/four

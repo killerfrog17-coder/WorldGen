@@ -12,7 +12,7 @@ using WorldGen.Presentation;
 /// <summary>Input and bounded rendering only; all height queries use the shared terrain sampler.</summary>
 public sealed partial class LocalTerrainExplorer : MonoBehaviour
 {
-    sealed class Tile { public int Segments; public double[] Edges; public float[] Heights,Cover,MidCover; public GameObject Root; public Texture2D Coverage,CoverageTimes,FloraSurface,MidSurface; public float[] CoverageNodes,CoverageTimingNodes; public float FadeIn,FadeOut; public long BufferBytes; public CoverGpu Grass,GrassSprites; public GraphicsBuffer CoverGrid; public readonly Dictionary<CoverPageKey,CoverGpu> CoverPages=new Dictionary<CoverPageKey,CoverGpu>(); }
+    sealed class Tile { public int Segments; public double[] Edges; public float[] Heights,Cover,MidCover,ForestCover; public GameObject Root; public Texture2D Coverage,CoverageTimes,FloraSurface,MidSurface,ForestSurface; public float[] CoverageNodes,CoverageTimingNodes; public float FadeIn,FadeOut; public long BufferBytes; public CoverGpu Grass,GrassSprites; public GraphicsBuffer CoverGrid; public readonly Dictionary<CoverPageKey,CoverGpu> CoverPages=new Dictionary<CoverPageKey,CoverGpu>(); }
     sealed class Work { public TerrainTileKey Key; public double[] Edges; public int Segments,Generation; public bool Prefetch,Backdrop; public Task<TerrainUpload> Task; public PreparedFrame Prepared; public CancellationTokenSource Cancellation; }
     Task<LocalTerrain> building;
     LocalTerrain terrain; LocalTerrainFrame frame; LocalTerrain.LocalTerrainPatch walkingPatch;
@@ -224,9 +224,10 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(data.HasWater)Part("Water surface",meshes[1],waterMaterial);
         var target=prepared==null?tiles:prepared.Tiles;
         if(prepared!=null)prepared.Revision++;
-        var product=new Tile{Root=root,Segments=data.Segments,Edges=edges,Heights=data.Heights,Cover=data.Cover,MidCover=data.MidCover,BufferBytes=data.BufferBytes};
+        var product=new Tile{Root=root,Segments=data.Segments,Edges=edges,Heights=data.Heights,Cover=data.Cover,MidCover=data.MidCover,ForestCover=data.ForestCover,BufferBytes=data.BufferBytes};
         product.FloraSurface=CreateFloraSurface(product);if(product.FloraSurface!=null)product.BufferBytes+=(long)(product.Segments+1)*(product.Segments+1)*8;
         product.MidSurface=CreateMidSurface(product);if(product.MidSurface!=null)product.BufferBytes+=(long)(product.Segments+1)*(product.Segments+1)*8;
+        product.ForestSurface=CreateForestSurface(product);if(product.ForestSurface!=null)product.BufferBytes+=(long)(product.Segments+1)*(product.Segments+1)*8;
         var floraProperties=new MaterialPropertyBlock();floraProperties.SetFloat("_CoverageTileSize",(float)key.SizeM);BindFloraSurface(floraProperties,product);
         foreach(var renderer in root.GetComponentsInChildren<MeshRenderer>())renderer.SetPropertyBlock(floraProperties);
         if(cacheOnly){CacheTerrain(key,product);return;}
@@ -239,7 +240,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         frameUploadMs+=timer.Elapsed.TotalMilliseconds;
         if(timer.ElapsedMilliseconds>20)Debug.Log("Local terrain upload "+timer.ElapsedMilliseconds+"ms; apply "+applyMs.ToString("F2")+"ms; objects/retire "+(timer.Elapsed.TotalMilliseconds-beforeApply-applyMs).ToString("F2")+"ms; collections "+(GC.CollectionCount(0)-collections)+"; worker buffers "+data.BufferMilliseconds.ToString("F2")+"ms");
     }
-    void DestroyTile(Tile tile){ReleaseGroundCover(tile);if(tile.FloraSurface!=null)Destroy(tile.FloraSurface);if(tile.MidSurface!=null)Destroy(tile.MidSurface);if(tile.Coverage!=null)Destroy(tile.Coverage);if(tile.CoverageTimes!=null)Destroy(tile.CoverageTimes);if(tile.Root==null)return;tile.Root.SetActive(false);foreach(var filter in tile.Root.GetComponentsInChildren<MeshFilter>())Destroy(filter.sharedMesh);Destroy(tile.Root);}
+    void DestroyTile(Tile tile){ReleaseGroundCover(tile);if(tile.FloraSurface!=null)Destroy(tile.FloraSurface);if(tile.MidSurface!=null)Destroy(tile.MidSurface);if(tile.ForestSurface!=null)Destroy(tile.ForestSurface);if(tile.Coverage!=null)Destroy(tile.Coverage);if(tile.CoverageTimes!=null)Destroy(tile.CoverageTimes);if(tile.Root==null)return;tile.Root.SetActive(false);foreach(var filter in tile.Root.GetComponentsInChildren<MeshFilter>())Destroy(filter.sharedMesh);Destroy(tile.Root);}
     public string[] Probes()
     {
         var patch=terrain.Patch(frame.Origin,6000);var result=new List<string>();var culture=System.Globalization.CultureInfo.InvariantCulture;

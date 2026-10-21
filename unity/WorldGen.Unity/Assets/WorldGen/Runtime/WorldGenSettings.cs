@@ -19,6 +19,8 @@ public static class TerrainVideoOptions
     public static bool MidPlants=true;
     public static int MidPlantDetail=2;
     public static float MidPlantRange=1;
+    public static bool GeneratedTrees=true,FarForest=true;
+    public static int TreeDetail=2;
     public static void Load()
     {
         Current.Quality=Mathf.Clamp(PlayerPrefs.GetInt("terrain-quality",2),0,4);
@@ -84,6 +86,9 @@ public sealed partial class WorldGenRuntime
         TerrainVideoOptions.MidPlantDetail=GUILayout.SelectionGrid(TerrainVideoOptions.MidPlantDetail,new[]{"Low","Medium","High"},3);
         GUILayout.Label("Mid-height draw distance  "+TerrainVideoOptions.MidPlantRange.ToString("F2")+"× (size-dependent)");
         TerrainVideoOptions.MidPlantRange=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.MidPlantRange,.4f,1.25f)*20)/20;
+        TerrainVideoOptions.GeneratedTrees=GUILayout.Toggle(TerrainVideoOptions.GeneratedTrees,"Generated trees · nearby instanced models");
+        TerrainVideoOptions.FarForest=GUILayout.Toggle(TerrainVideoOptions.FarForest,"Distant forest canopy volumes and colour");
+        GUILayout.Label("Tree geometry quality");TerrainVideoOptions.TreeDetail=GUILayout.SelectionGrid(TerrainVideoOptions.TreeDetail,new[]{"Low","Medium","High"},3);
         if(GUILayout.Button("Reset grass prototype defaults"))
         {TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDistance=350;TerrainVideoOptions.GrassBladeDistance=45;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassWind=true;TerrainVideoOptions.WeatherDrivenVegetationWind=true;TerrainVideoOptions.VegetationWindResponse=6;}
         GUILayout.Space(10);

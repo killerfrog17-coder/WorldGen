@@ -33,6 +33,7 @@ public sealed partial class LocalTerrainExplorer
     public int ScatterChunks=>scatterChunks.Count;
     public int SpecialistObjects {get;private set;}
     public int MidPlantObjects {get;private set;}
+    public int GeneratedTreeObjects {get;private set;}
     static bool IsSpecialist(ScatterKind kind)=>kind==ScatterKind.Herb||kind==ScatterKind.Fungus;
     static long ScatterArtKey(ScatterKind kind,int variant,int lod)=>((long)(uint)variant<<8)|((long)(int)kind<<2)|(uint)lod;
     public bool ScatterReady=>scatter!=null&&scatterWanted.All(k=>scatterChunks.ContainsKey(k));
@@ -117,7 +118,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var p=source[i];double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));double x=V.Dot(p.Position,frame.East)*frame.RadiusM/dot,z=V.Dot(p.Position,frame.North)*frame.RadiusM/dot;
             double y=VisibleGround(x,z,frame.SurfaceY(p.Position,p.GroundM));
-            bool herb=IsSpecialist(p.Kind),vertical=herb||p.Kind==ScatterKind.MidPlant||p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
+            bool herb=IsSpecialist(p.Kind),vertical=herb||p.Kind==ScatterKind.GeneratedTree||p.Kind==ScatterKind.MidPlant||p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
             V up=vertical?p.Position:p.Normal;var normal=new Vector3((float)V.Dot(up,frame.East),(float)V.Dot(up,frame.Origin),(float)V.Dot(up,frame.North)).normalized;
             // An ellipsoidal mesh touching at its bottom point looks levitating.
             // Embed its broad lower body; outcrops are bedrock, not balanced eggs.
@@ -163,6 +164,13 @@ public sealed partial class LocalTerrainExplorer
                 if(lod==2)material.SetFloat("_Wind",0); // Sub-pixel motion is not worth far vertex work.
                 material.SetVector("_PlantTraits",new Vector4((float)morphology.Flexibility,.5f,.7f,1));
             }
+            if(kind==ScatterKind.GeneratedTree)
+            {
+                var morphology=new TreeMorphology(variant);material.SetFloat("_TreeSurface",1);
+                material.SetFloat("_TreeLeafShape",(int)morphology.LeafShape);material.SetFloat("_TreeBarkPattern",(int)morphology.BarkPattern);
+                material.SetFloat("_Wind",lod<2?(float)morphology.Flexibility:0);
+                material.SetVector("_PlantTraits",new Vector4((float)morphology.Flexibility,.5f,.7f,1));
+            }
             if(rock)
             {
                 material.SetFloat("_RockLayer",8+variant/3);material.SetTexture("_RockAlbedo",landMaterial.GetTexture("_GroundAlbedo"));
@@ -170,14 +178,14 @@ public sealed partial class LocalTerrainExplorer
             }
             ownedScatterMaterials.Add(material);parts.Add(new ArtPart{Mesh=mesh,Material=material,Submesh=0,Local=Matrix4x4.identity});
         }
-        float height=kind==ScatterKind.MidPlant?1:binding!=null&&binding.ReferenceHeightM>0?binding.ReferenceHeightM:Math.Max(.001f,bounds.size.y),width=kind==ScatterKind.MidPlant?1:binding!=null&&binding.ReferenceWidthM>0?binding.ReferenceWidthM:Math.Max(.001f,Math.Max(bounds.size.x,bounds.size.z));
+        float height=kind==ScatterKind.MidPlant||kind==ScatterKind.GeneratedTree?1:binding!=null&&binding.ReferenceHeightM>0?binding.ReferenceHeightM:Math.Max(.001f,bounds.size.y),width=kind==ScatterKind.MidPlant||kind==ScatterKind.GeneratedTree?1:binding!=null&&binding.ReferenceWidthM>0?binding.ReferenceWidthM:Math.Max(.001f,Math.Max(bounds.size.x,bounds.size.z));
         var model=new ArtModel{Parts=parts.ToArray(),Scale=Matrix4x4.Scale(new Vector3(1/width,1/height,1/width)),Fades=parts.All(part=>part.Material.HasProperty("_LodTransition")),Generated=prefab==null,LastUsed=Time.realtimeSinceStartupAsDouble};scatterArt[key]=model;return model;
     }
     void BuildScatterBatches()
     {
         lastBatchTime=Time.realtimeSinceStartupAsDouble;scatterDirty=false;
         foreach(var batch in drawBatches){batch.Count=0;batchPool.Add(batch);}drawBatches.Clear();var active=new Dictionary<long,DrawBatch>();
-        var eye=view.transform.localPosition;ScatterObjects=0;SpecialistObjects=0;MidPlantObjects=0;
+        var eye=view.transform.localPosition;ScatterObjects=0;SpecialistObjects=0;MidPlantObjects=0;GeneratedTreeObjects=0;
         foreach(var pair in scatterChunks)
         {
             var chunk=pair.Value;
@@ -186,11 +194,14 @@ public sealed partial class LocalTerrainExplorer
                 var p=chunk.Source.Instances[i];double distance=(chunk.Roots[i]-eye).magnitude;
                 if(IsSpecialist(p.Kind)&&!TerrainVideoOptions.SpecialistPlants)continue;
                 if(p.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlants)continue;
+                if(p.Kind==ScatterKind.GeneratedTree&&!TerrainVideoOptions.GeneratedTrees)continue;
                 var blend=ScatterLodBlend.At(p.Kind,p.WidthM,p.Kind==ScatterKind.MidPlant?distance/TerrainVideoOptions.MidPlantRange:distance);if(blend.Visibility<=0)continue;
+                int minimum=p.Kind==ScatterKind.MidPlant?2-TerrainVideoOptions.MidPlantDetail:p.Kind==ScatterKind.GeneratedTree?2-TerrainVideoOptions.TreeDetail:0;
+                int nearLod=Math.Max(minimum,blend.Near),farLod=Math.Max(minimum,blend.Far);
                 void Add(int lod,float low,float high)
                 {
                     if(high-low<.0001f)return;
-                    if(p.Kind==ScatterKind.MidPlant)lod=Math.Max(lod,2-TerrainVideoOptions.MidPlantDetail);
+                    lod=Math.Max(lod,minimum);
                     long key=ScatterArtKey(p.Kind,p.Variant,lod);
                     if(!active.TryGetValue(key,out var batch)||batch.Count==batch.Matrices.Length)
                     {
@@ -201,12 +212,14 @@ public sealed partial class LocalTerrainExplorer
                     batch.Colors[batch.Count]=new Vector4((float)p.Color.X,(float)p.Color.Y,(float)p.Color.Z,1);
                     batch.Fades[batch.Count]=new Vector4(low,high,0,0);batch.Count++;
                 }
-                bool compatible=Art(p.Kind,p.Variant,blend.Near).Fades&&Art(p.Kind,p.Variant,blend.Far).Fades;
-                if(!compatible)Add(blend.Blend<.5?blend.Near:blend.Far,0,1);
-                else {float split=(float)(blend.Visibility*(1-blend.Blend));Add(blend.Near,0,split);Add(blend.Far,split,(float)blend.Visibility);}
+                bool compatible=Art(p.Kind,p.Variant,nearLod).Fades&&Art(p.Kind,p.Variant,farLod).Fades;
+                if(nearLod==farLod)Add(nearLod,0,(float)blend.Visibility);
+                else if(!compatible)Add(blend.Blend<.5?nearLod:farLod,0,1);
+                else {float split=(float)(blend.Visibility*(1-blend.Blend));Add(nearLod,0,split);Add(farLod,split,(float)blend.Visibility);}
                 ScatterObjects++;
                 if(IsSpecialist(p.Kind))SpecialistObjects++;
                 if(p.Kind==ScatterKind.MidPlant)MidPlantObjects++;
+                if(p.Kind==ScatterKind.GeneratedTree)GeneratedTreeObjects++;
             }
         }
         foreach(var batch in drawBatches)
@@ -231,6 +244,7 @@ public sealed partial class LocalTerrainExplorer
     void LateUpdate(){if(!closed){DrawScatter();DrawGroundCover();if(weatherCheckTarget!=null&&view!=null)view.Render();}}
     void DrawScatter()
     {
+        if(landMaterial!=null)landMaterial.SetFloat("_ForestFarEnabled",TerrainVideoOptions.FarForest?1:0);
         ScatterDrawCalls=0;if(!ScatterEnabled||view==null)return;
         foreach(var batch in drawBatches)for(int j=0;j<batch.Model.Parts.Length;j++)
         {

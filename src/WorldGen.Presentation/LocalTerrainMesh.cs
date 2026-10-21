@@ -43,6 +43,7 @@ namespace WorldGen.Presentation
         public float[] GroundCover = Array.Empty<float>();
         // Distant mid-height cover: RGB,projected cover fraction,height,width.
         public float[] MidCover = Array.Empty<float>();
+        public float[] ForestCover = Array.Empty<float>();
         public int[] Triangles = Array.Empty<int>();
         public int[] WaterTriangles = Array.Empty<int>();
         public int[] WaterClipTriangles = Array.Empty<int>();
@@ -76,6 +77,7 @@ namespace WorldGen.Presentation
             // Only nearby tiles create geometry from this compact regular grid.
             mesh.GroundCover=new float[ground*16];
             mesh.MidCover=new float[ground*6];
+            mesh.ForestCover=new float[ground*8];
             var heights = new double[halo * halo]; var samples = new LocalTerrainSample[ground];
             for (int z = -1; z <= side; z++)
             {
@@ -132,6 +134,9 @@ namespace WorldGen.Presentation
                     mid.Coverage*MidFlora.StandDensity(frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,terrain.RadiusM*frame.HorizontalScale)*D.Clamp((up-.65)/.25);
                 int midAt=i*6;mesh.MidCover[midAt]=(float)mid.Color.X;mesh.MidCover[midAt+1]=(float)mid.Color.Y;mesh.MidCover[midAt+2]=(float)mid.Color.Z;
                 mesh.MidCover[midAt+3]=(float)midAmount;mesh.MidCover[midAt+4]=(float)mid.HeightM;mesh.MidCover[midAt+5]=(float)mid.WidthM;
+                var forest=TreeFlora.Surface(sample.Forest,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,terrain.RadiusM*frame.HorizontalScale,sample.ElevationM,up,sample.Underwater);
+                int forestAt=i*8;mesh.ForestCover[forestAt]=(float)forest.Color.X;mesh.ForestCover[forestAt+1]=(float)forest.Color.Y;mesh.ForestCover[forestAt+2]=(float)forest.Color.Z;
+                mesh.ForestCover[forestAt+3]=(float)forest.Coverage;mesh.ForestCover[forestAt+4]=(float)forest.HeightM;mesh.ForestCover[forestAt+5]=(float)forest.WidthM;mesh.ForestCover[forestAt+6]=(float)forest.Openness;
                 double visibleCover=D.Clamp(coverage/.45);
                 color=color*(1-visibleCover)+cover.Color*(.90*visibleCover);
                 if(mesh.GroundCover.Length>0)
@@ -168,6 +173,7 @@ namespace WorldGen.Presentation
             LocalWaterMesh.Build(mesh,frame,waterSamples,terrain.Amplification!=null);
             if(terrain.Amplification!=null)RiverscapeMesh.Append(mesh,frame,patch,waterSamples,token);
             GroundCoverGrid.ExcludeWater(mesh);
+            ForestCanopyMesh.Append(mesh,frame,terrain.SourceSeed,token);
             mesh.BuildMilliseconds = watch.Elapsed.TotalMilliseconds; return mesh;
         }
     }

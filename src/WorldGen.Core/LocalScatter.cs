@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace WorldGen.Core
 {
-    public enum ScatterKind { Broadleaf,Conifer,SavannaTree,Shrub,Boulder,Grass,Stone,Outcrop,Herb,Fungus,MidPlant }
+    public enum ScatterKind { Broadleaf,Conifer,SavannaTree,Shrub,Boulder,Grass,Stone,Outcrop,Herb,Fungus,MidPlant,GeneratedTree }
     /// <summary>Global cube-sphere address, never an exploration chart/chunk-relative seed.</summary>
     public struct ScatterKey : IEquatable<ScatterKey>,IComparable<ScatterKey>
     {
@@ -29,7 +29,7 @@ namespace WorldGen.Core
     /// <summary>Replaceable static natural cover over accepted terrain, not a population or forestry simulation.</summary>
     public sealed partial class LocalScatter
     {
-        public const string Version="local-scatter-mid-flora-6";
+        public const string Version="local-scatter-tree-flora-7";
         readonly LocalTerrain terrain;readonly World world;readonly int seed;readonly double scale;
         static readonly V[] Normals={new V(1,0,0),new V(-1,0,0),new V(0,1,0),new V(0,-1,0),new V(0,0,1),new V(0,0,-1)};
         public LocalScatter(LocalTerrain terrain,double horizontalScale=1){this.terrain=terrain??throw new ArgumentNullException(nameof(terrain));if(horizontalScale<.01||horizontalScale>2||double.IsNaN(horizontalScale))throw new ArgumentOutOfRangeException(nameof(horizontalScale));scale=horizontalScale;world=terrain.SourceWorld;seed=world.Recipe.Seed;}
@@ -74,6 +74,7 @@ namespace WorldGen.Core
                 // layer; preserve all tree/shrub/rock channels and their IDs.
                 if(key.Detail&&channel==0)continue;
                 if(!key.Detail&&channel==2)continue; // Replaced by regional generated mid-height flora.
+                if(!key.Detail&&channel==0)continue; // Replaced by inherited procedural tree lineages.
                 int side=channel==0?grid:key.Detail?8:channel==3?4:16;
                 for(int y=0;y<side;y++)
                 {
@@ -146,7 +147,7 @@ namespace WorldGen.Core
                 }
             }
             if(key.Detail)AddGroundSpecialists(key,patch,result,token);
-            else AddMidPlants(key,patch,result,token);
+            else {AddMidPlants(key,patch,result,token);AddGeneratedTrees(key,patch,result,token);}
             return new ScatterPatch{Key=key,Center=center,Instances=result.ToArray()};
         }
     }
