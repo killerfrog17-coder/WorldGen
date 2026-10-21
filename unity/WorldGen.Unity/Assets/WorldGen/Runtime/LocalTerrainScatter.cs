@@ -24,13 +24,16 @@ public sealed partial class LocalTerrainExplorer
     LocalScatter scatter;LocalTerrainArtSet artSet;Texture2DArray[] generatedGround;
     readonly Dictionary<ScatterKey,ScatterChunk> scatterChunks=new Dictionary<ScatterKey,ScatterChunk>();
     readonly List<ScatterWork> scatterJobs=new List<ScatterWork>();readonly HashSet<ScatterKey> scatterWanted=new HashSet<ScatterKey>();readonly List<ScatterKey> scatterPriority=new List<ScatterKey>();
-    readonly Dictionary<int,ArtModel> scatterArt=new Dictionary<int,ArtModel>();readonly List<Mesh> ownedScatterMeshes=new List<Mesh>();readonly List<Material> ownedScatterMaterials=new List<Material>();
+    readonly Dictionary<long,ArtModel> scatterArt=new Dictionary<long,ArtModel>();readonly List<Mesh> ownedScatterMeshes=new List<Mesh>();readonly List<Material> ownedScatterMaterials=new List<Material>();
     readonly List<DrawBatch> drawBatches=new List<DrawBatch>();readonly List<DrawBatch> batchPool=new List<DrawBatch>();
     double scatterX=double.NaN,scatterZ,scatterAltitude,lastBatchTime,lastGroundProject;bool scatterDirty=true;int nearGroundRevision,projectedGroundRevision;
     Light precedingSun,localSun;AmbientMode precedingAmbient;Color precedingSky,precedingEquator,precedingGround;bool lightingSaved;double nextDaylightAt;
     public int ScatterObjects { get;private set; }
     public int ScatterDrawCalls { get;private set; }
     public int ScatterChunks=>scatterChunks.Count;
+    public int SpecialistObjects {get;private set;}
+    static bool IsSpecialist(ScatterKind kind)=>kind==ScatterKind.Herb||kind==ScatterKind.Fungus;
+    static long ScatterArtKey(ScatterKind kind,int variant,int lod)=>((long)(uint)variant<<8)|((long)(int)kind<<2)|(uint)lod;
     public bool ScatterReady=>scatter!=null&&scatterWanted.All(k=>scatterChunks.ContainsKey(k));
     public bool ScatterEnabled=true;
     void InitializeScatter()
@@ -113,18 +116,18 @@ public sealed partial class LocalTerrainExplorer
         {
             var p=source[i];double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));double x=V.Dot(p.Position,frame.East)*frame.RadiusM/dot,z=V.Dot(p.Position,frame.North)*frame.RadiusM/dot;
             double y=VisibleGround(x,z,frame.SurfaceY(p.Position,p.GroundM));
-            bool vertical=p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
+            bool herb=IsSpecialist(p.Kind),vertical=herb||p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
             V up=vertical?p.Position:p.Normal;var normal=new Vector3((float)V.Dot(up,frame.East),(float)V.Dot(up,frame.Origin),(float)V.Dot(up,frame.North)).normalized;
             // An ellipsoidal mesh touching at its bottom point looks levitating.
             // Embed its broad lower body; outcrops are bedrock, not balanced eggs.
-            var position=new Vector3((float)(x-originX),(float)y-(vertical?.045f:p.Kind==ScatterKind.Outcrop?(float)p.HeightM*.55f:p.Kind==ScatterKind.Boulder?(float)p.HeightM*.35f:.015f),(float)(z-originZ));chunk.Roots[i]=position;
+            var position=new Vector3((float)(x-originX),(float)y-(herb?.003f:vertical?.045f:p.Kind==ScatterKind.Outcrop?(float)p.HeightM*.55f:p.Kind==ScatterKind.Boulder?(float)p.HeightM*.35f:.015f),(float)(z-originZ));chunk.Roots[i]=position;
             var rotation=Quaternion.FromToRotation(Vector3.up,normal)*Quaternion.Euler(0,(float)p.YawDegrees,0);
             chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,new Vector3((float)p.WidthM,(float)p.HeightM,(float)p.WidthM));
         }
     }
     ArtModel Art(ScatterKind kind,int variant,int lod)
     {
-        int key=(int)kind*128+variant*4+lod;if(scatterArt.TryGetValue(key,out var found))return found;
+        long key=ScatterArtKey(kind,variant,lod);if(scatterArt.TryGetValue(key,out var found))return found;
         var binding=artSet==null||artSet.Scatter==null?null:Array.Find(artSet.Scatter,b=>b!=null&&b.Kind==kind);
         GameObject prefab=binding==null?null:lod==0?binding.Near:lod==1?(binding.Middle!=null?binding.Middle:binding.Near):(binding.Far!=null?binding.Far:binding.Middle!=null?binding.Middle:binding.Near);
         var parts=new List<ArtPart>();var bounds=new Bounds();bool first=true;
@@ -147,7 +150,7 @@ public sealed partial class LocalTerrainExplorer
             // A Resources material advertises runtime instancing to the player shader stripper.
             var template=Resources.Load<Material>("LocalScatterMaterial");if(template==null)throw new InvalidOperationException("Scatter instancing material missing.");
             bool rock=kind==ScatterKind.Boulder||kind==ScatterKind.Stone||kind==ScatterKind.Outcrop;
-            var material=new Material(template){enableInstancing=true};material.SetFloat("_Wind",kind==ScatterKind.Grass?.045f:rock?0:.018f);material.SetFloat("_FogDistance",(float)viewDistance);
+            var material=new Material(template){enableInstancing=true};material.SetFloat("_Wind",kind==ScatterKind.Grass?.045f:rock||kind==ScatterKind.Fungus?0:kind==ScatterKind.Herb?.003f:.018f);material.SetFloat("_FogDistance",(float)viewDistance);
             if(rock)
             {
                 material.SetFloat("_RockLayer",8+variant/3);material.SetTexture("_RockAlbedo",landMaterial.GetTexture("_GroundAlbedo"));
@@ -161,23 +164,24 @@ public sealed partial class LocalTerrainExplorer
     void BuildScatterBatches()
     {
         lastBatchTime=Time.realtimeSinceStartupAsDouble;scatterDirty=false;
-        foreach(var batch in drawBatches){batch.Count=0;batchPool.Add(batch);}drawBatches.Clear();var active=new Dictionary<int,DrawBatch>();
-        var eye=view.transform.localPosition;ScatterObjects=0;
+        foreach(var batch in drawBatches){batch.Count=0;batchPool.Add(batch);}drawBatches.Clear();var active=new Dictionary<long,DrawBatch>();
+        var eye=view.transform.localPosition;ScatterObjects=0;SpecialistObjects=0;
         foreach(var pair in scatterChunks)
         {
             var chunk=pair.Value;
             for(int i=0;i<chunk.Source.Instances.Length;i++)
             {
                 var p=chunk.Source.Instances[i];double distance=(chunk.Roots[i]-eye).magnitude;
+                if(IsSpecialist(p.Kind)&&!TerrainVideoOptions.SpecialistPlants)continue;
                 var blend=ScatterLodBlend.At(p.Kind,p.WidthM,distance);if(blend.Visibility<=0)continue;
                 void Add(int lod,float low,float high)
                 {
                     if(high-low<.0001f)return;
-                    int key=(int)p.Kind*128+p.Variant*4+lod;
+                    long key=ScatterArtKey(p.Kind,p.Variant,lod);
                     if(!active.TryGetValue(key,out var batch)||batch.Count==batch.Matrices.Length)
                     {
                         if(batchPool.Count>0){int last=batchPool.Count-1;batch=batchPool[last];batchPool.RemoveAt(last);}else batch=new DrawBatch();
-                        batch.Model=Art(p.Kind,p.Variant,lod);batch.Shadows=p.Kind!=ScatterKind.Grass&&lod<2;active[key]=batch;drawBatches.Add(batch);
+                        batch.Model=Art(p.Kind,p.Variant,lod);batch.Shadows=p.Kind!=ScatterKind.Grass&&!IsSpecialist(p.Kind)&&lod<2;active[key]=batch;drawBatches.Add(batch);
                     }
                     batch.Matrices[batch.Count]=chunk.Matrices[i]*batch.Model.Scale;
                     batch.Colors[batch.Count]=new Vector4((float)p.Color.X,(float)p.Color.Y,(float)p.Color.Z,1);
@@ -187,6 +191,7 @@ public sealed partial class LocalTerrainExplorer
                 if(!compatible)Add(blend.Blend<.5?blend.Near:blend.Far,0,1);
                 else {float split=(float)(blend.Visibility*(1-blend.Blend));Add(blend.Near,0,split);Add(blend.Far,split,(float)blend.Visibility);}
                 ScatterObjects++;
+                if(IsSpecialist(p.Kind))SpecialistObjects++;
             }
         }
         foreach(var batch in drawBatches)

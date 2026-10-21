@@ -22,6 +22,8 @@ namespace WorldGen.Core
         public readonly HyperAmplification Amplification;
         internal World SourceWorld=>world;
         public int SourceSeed=>seed;
+        public GroundFloraRegion FloraRegion(int cell)
+        {var e=world.Ecology;int region=e!=null&&cell>=0&&cell<e.Region.Length?e.Region[cell]:0;return GroundFlora.For(world).Region(region);}
 
         public LocalTerrain(World world, CancellationToken token = default,double horizontalScale=1)
         {

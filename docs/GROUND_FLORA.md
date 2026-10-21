@@ -1,5 +1,70 @@
 # Ground layer / ground-flora-5
 
+## Generated specialist herb layer /21October2026
+
+`player-generated-herb-flora` adds derived `ground-specialists-1`, leaving
+ground-flora5, the owner-liked progressive grass renderer, stable pages and
+stationary mats unchanged. No hardcoded named flower/mushroom species or plant
+prefab catalogue. Functional anatomy is intentionally bounded: flowering stems,
+basal rosettes, flower/seed-like spikes, fern fronds and ground fungal fruiting
+bodies. Seeded province founders acquire bounded regional branches. The same
+lineage keeps basic petal/head/leaf/frond counts; branches vary proportions/tint,
+size and habitat niche. Pigment ranges are naturalistic rather than alien/glowing.
+
+`GroundFloraRegion.Specialists` lazily exposes ten candidate taxa per visited
+region: stable world-scoped ID, generated binomial/founder, morphology code,
+form, fungal role, size, moisture/shade/temperature/pH/salinity preferences and
+colony scale. This is inspectable Core ecological metadata, rebuilt from seed
+and saved ecoregions, NOT a mutation of saved EcologyResult.Taxa/food webs or a
+historical-rule upgrade. `/flora` lists regional candidates; `/flora N` shows
+traits. Candidates are a regional potential pool, not a promise of occurrence
+at every point. No permanent per-plant population or evolutionary simulation.
+
+Placement appends an independent channel2 on existing64m geographic detail
+patches (`local-scatter-specialists-5`). Existing tree/shrub/rock channels,
+seeds, geometry, and instance IDs are unchanged in source. A24x24 jittered
+candidate grid uses actual cube-sphere area Jacobian and physical-metre colony
+noise. Temperature/lapse, climatic aridity, soil water storage/drainage,
+shade-potential patches, pH, fertility, salinity, flooding and depth gate
+establishment. No water, Ice or Desert placement. Cold local biomes cap height
+at16cm. Ferns favour moist shade; decomposer fungi favour organic substrate,
+root-associated fungi require forest-root/canopy opportunity, not arbitrary
+open desert. Salt-marsh plant branches can tolerate salt; fungi retain low salt
+tolerance. Noise is a site proxy, not a new fine hydrologic solver or measured
+tree-root occupancy; actual partner-tree species/log hosts remain future work.
+
+Models are generated mesh anatomy with independently coloured leaves/stems/
+petals/caps, not billboards or a recolour of grass. Mushroom caps/stipes remain
+still; herbs have restrained sway. Instanced batches reuse two mesh LODs with
+distance-only transitions12-22m; herbs retire109-140m, fungi51-65m. Low LOD
+petals/florets simplify rather than adding time-based load fades; no specialist
+shadow-casting passes. Full morphology codes use collision-free64-bit art/batch
+keys instead of the old small-variant arithmetic. Roots follow resident ground
+in ordinary and prepared handoffs; no new plant collisions. Existing shared
+scatter transport fields carry codes/dimensions/tint; wire3 is unchanged.
+
+Grass debug adds a separate specialist-render toggle; F3 counts visible
+specialist objects. Disabling it skips their draws, not catalogue generation or
+resident placement data; this is a render-cost comparison, not a zero-CPU
+ecology-off mode. Shapes/materials cache with the explorer's existing art cache;
+long exploration can retain more models. Small rare plants do not tint distant
+terrain; no large flower-carpet aggregate LOD is claimed in this pass.
+
+References: NPS [prairie niches](https://www.nps.gov/tapr/learn/nature/a-complex-prairie-ecosystem.htm)
+and [wildflowers](https://www.nps.gov/tapr/learn/nature/wildflowers.htm) describe
+site variation and non-grass diversity; [alpine flora](https://www.nps.gov/grte/learn/nature/wildflowers.htm)
+describes low/small flowers; [fungi](https://www.nps.gov/pore/learn/nature/mushrooms.htm)
+distinguishes fruit bodies, underground networks/root relationships and weather-
+dependent fruiting. Current placement is STATIC POTENTIAL flowering/fruiting,
+not seasonal phenology, rain-triggered emergence, mycelial growth or an updated
+food web. Existing worlds need no regeneration and saves are not changed.
+
+Owner no-agent-testing instruction remains: compilation/packaging only; no
+suites, native fixtures, game launch, screenshots, profiling or hash audits.
+Art quality, abundance, loading cost and FPS remain for owner review. Catalogue
+and phenotype generation are deterministic; this revision has no measured
+speedup, botanical accuracy or all-LOD acceptance claim.
+
 ## Stable pages, distance-only scatter and habitat mosaics /21October2026
 
 Owner reports the progressive field looks good and is performance-friendly,

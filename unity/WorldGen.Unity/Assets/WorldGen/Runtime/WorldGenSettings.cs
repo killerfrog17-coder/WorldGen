@@ -13,6 +13,7 @@ public static class TerrainVideoOptions
     public static int GrassDetail=2;
     public static bool GrassWind=true;
     public static bool GrassCanopy=true;
+    public static bool SpecialistPlants=true;
     public static void Load()
     {
         Current.Quality=Mathf.Clamp(PlayerPrefs.GetInt("terrain-quality",2),0,4);
@@ -69,6 +70,7 @@ public sealed partial class WorldGenRuntime
         GUILayout.Label("Blade detail / local blade count");
         TerrainVideoOptions.GrassDetail=GUILayout.SelectionGrid(TerrainVideoOptions.GrassDetail,new[]{"Low","Medium","High","Ultra"},2);
         TerrainVideoOptions.GrassWind=GUILayout.Toggle(TerrainVideoOptions.GrassWind,"Wind animation");
+        TerrainVideoOptions.SpecialistPlants=GUILayout.Toggle(TerrainVideoOptions.SpecialistPlants,"Generated flowers, low herbs, ferns and fungi");
         if(GUILayout.Button("Reset grass prototype defaults"))
         {TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDistance=350;TerrainVideoOptions.GrassBladeDistance=45;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassWind=true;}
         GUILayout.Space(10);

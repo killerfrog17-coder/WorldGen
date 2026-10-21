@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace WorldGen.Core
 {
-    public enum ScatterKind { Broadleaf,Conifer,SavannaTree,Shrub,Boulder,Grass,Stone,Outcrop }
+    public enum ScatterKind { Broadleaf,Conifer,SavannaTree,Shrub,Boulder,Grass,Stone,Outcrop,Herb,Fungus }
     /// <summary>Global cube-sphere address, never an exploration chart/chunk-relative seed.</summary>
     public struct ScatterKey : IEquatable<ScatterKey>,IComparable<ScatterKey>
     {
@@ -27,9 +27,9 @@ namespace WorldGen.Core
         public ScatterKey Key;public V Center;public ScatterInstance[] Instances=Array.Empty<ScatterInstance>();
     }
     /// <summary>Replaceable static natural cover over accepted terrain, not a population or forestry simulation.</summary>
-    public sealed class LocalScatter
+    public sealed partial class LocalScatter
     {
-        public const string Version="local-scatter-ground-cover-4";
+        public const string Version="local-scatter-specialists-5";
         readonly LocalTerrain terrain;readonly World world;readonly int seed;readonly double scale;
         static readonly V[] Normals={new V(1,0,0),new V(-1,0,0),new V(0,1,0),new V(0,-1,0),new V(0,0,1),new V(0,0,-1)};
         public LocalScatter(LocalTerrain terrain,double horizontalScale=1){this.terrain=terrain??throw new ArgumentNullException(nameof(terrain));if(horizontalScale<.01||horizontalScale>2||double.IsNaN(horizontalScale))throw new ArgumentOutOfRangeException(nameof(horizontalScale));scale=horizontalScale;world=terrain.SourceWorld;seed=world.Recipe.Seed;}
@@ -144,6 +144,7 @@ namespace WorldGen.Core
                     }
                 }
             }
+            if(key.Detail)AddGroundSpecialists(key,patch,result,token);
             return new ScatterPatch{Key=key,Center=center,Instances=result.ToArray()};
         }
     }

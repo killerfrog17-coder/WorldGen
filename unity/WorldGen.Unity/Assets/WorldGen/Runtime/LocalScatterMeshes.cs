@@ -4,13 +4,13 @@ using UnityEngine;
 using WorldGen.Core;
 
 /// <summary>Disposable art placeholders, never placement logic. Meshes have UVs/normals and metre-scale reference bounds.</summary>
-static class LocalScatterMeshes
+static partial class LocalScatterMeshes
 {
     sealed class Builder
     {
         public readonly List<Vector3> V=new List<Vector3>();readonly List<Vector2> uv=new List<Vector2>();readonly List<Color> c=new List<Color>();readonly List<int> t=new List<int>();
-        int Add(Vector3 p,Color color,Vector2 tex){V.Add(p);c.Add(color);uv.Add(tex);return V.Count-1;}
-        void Triangle(int a,int b,int d){t.Add(a);t.Add(b);t.Add(d);}
+        public int Add(Vector3 p,Color color,Vector2 tex){V.Add(p);c.Add(color);uv.Add(tex);return V.Count-1;}
+        public void Triangle(int a,int b,int d){t.Add(a);t.Add(b);t.Add(d);}
         public void Tube(Vector3 a,Vector3 b,float radius,float tip,int sides,Color color)
         {
             Vector3 axis=(b-a).normalized,u=Vector3.Cross(axis,Math.Abs(axis.y)<.9?Vector3.up:Vector3.right).normalized,v=Vector3.Cross(axis,u);int first=V.Count;
@@ -77,6 +77,7 @@ static class LocalScatterMeshes
     }
     public static Mesh Build(ScatterKind kind,int detail,int variant)
     {
+        if(kind==ScatterKind.Herb||kind==ScatterKind.Fungus)return BuildSpecialist(variant,detail);
         var b=new Builder();Color leaf=kind==ScatterKind.Conifer?new Color(.19f,.32f,.16f):new Color(.29f,.43f,.15f);leaf*=new Color(1+variant*.035f,1-variant*.025f,1,1);
         if(kind==ScatterKind.Grass)b.Grass(detail,variant);
         else if(kind==ScatterKind.Conifer)b.Conifer(detail,variant,leaf);

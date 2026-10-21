@@ -17,6 +17,8 @@ namespace WorldGen.Core
     {
         public int RegionId,ProvinceId;
         public GroundPlantSpecies[] Species=Array.Empty<GroundPlantSpecies>();
+        internal Lazy<GroundSpecialist[]> SpecialistFactory;
+        public GroundSpecialist[] Specialists=>SpecialistFactory==null?Array.Empty<GroundSpecialist>():SpecialistFactory.Value;
     }
     /// <summary>Compact potential natural ground flora. Rebuilt from saved abiotic/ecoregion
     /// data, not a mutation of old ecology, food webs or history. Ancestral province families
@@ -37,6 +39,7 @@ namespace WorldGen.Core
             {
                 int province=world.Ecology!=null&&key>=0&&key<world.Ecology.Regions.Length?world.Ecology.Regions[key].ProvinceId:key;
                 var result=new GroundFloraRegion{RegionId=key,ProvinceId=province,Species=new GroundPlantSpecies[9]};
+                result.SpecialistFactory=new Lazy<GroundSpecialist[]>(()=>GroundSpecialists.Create(world,key,province));
                 for(int f=0;f<9;f++)
                 {
                     var ancestor=new Rng(world.Recipe.Seed,"ground-flora-founder-1",unchecked(province*31+f));

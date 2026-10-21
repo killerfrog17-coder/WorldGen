@@ -13,6 +13,12 @@ namespace WorldGen.Presentation
         public static ScatterBlend At(ScatterKind kind,double width,double distance)
         {
             bool tree=kind==ScatterKind.Broadleaf||kind==ScatterKind.Conifer||kind==ScatterKind.SavannaTree;
+            if(kind==ScatterKind.Herb||kind==ScatterKind.Fungus)
+            {
+                double end=kind==ScatterKind.Fungus?65:140;
+                double SmoothHerb(double lo,double hi,double x){double t=Math.Max(0,Math.Min(1,(x-lo)/(hi-lo)));return t*t*(3-2*t);}
+                return new ScatterBlend(0,1,SmoothHerb(12,22,distance),1-SmoothHerb(end*.78,end,distance));
+            }
             double range=tree?1800:kind==ScatterKind.Grass?95:kind==ScatterKind.Shrub?220:kind==ScatterKind.Stone?70:kind==ScatterKind.Outcrop?1800:650;
             double Smooth(double lo,double hi,double x){double t=Math.Max(0,Math.Min(1,(x-lo)/(hi-lo)));return t*t*(3-2*t);}
             double visibility=1-Smooth(range*.85,range,distance);

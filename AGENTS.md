@@ -1,6 +1,34 @@
 # WorldGen repository instructions
 
 Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
+`artifacts/player-generated-herb-flora/WorldGen.exe` (IL2CPP14:11:48Z), real C:.
+Owner likes stable-page/habitat pass. Preserve its grass renderer/moss/materials,
+distance-only scatter fades and existing trees/shrubs/rocks. New Core derived
+ground-specialists1 lazily generates10 regional potential taxa with seeded
+province founders/regional branches: names/IDs, bounded anatomical grammar,
+size, niche traits and fungal role. GroundFloraRegion.Specialists is metadata;
+it does NOT mutate saved EcologyResult taxa/foodwebs/history. /flora [N] inspects
+regional candidates/traits. No hardcoded named Earth flowers/mushrooms.
+Independent detail-scatter channel2 adds climate/soil/shade/salinity/flood/slope
+gated physical colonies. No Desert/Ice/water; cold local heights capped16cm.
+Ferns prefer damp shade; fungi organic/root opportunities. Root hosts are
+proxies, not actual tree-species associations. Geometry is procedurally generated
+flower/rosette/spike/fern/cap-and-stipe anatomy; fungi stay still, herbs sway.
+Instanced12-22m LOD blend, herbs retire109-140m/fungi51-65m, no timed load fade
+or specialist shadow casts.64-bit art/batch keys prevent morphology-code aliasing.
+Grass debug adds specialist DRAW toggle (does not stop catalogue/data jobs);
+F3 counts them. Existing art cache can retain visited species models. Small
+rare blossoms do not tint distant terrain; no flower-carpet LOD is claimed.
+Local-scatter-specialists5, ground-flora5, transport wire3. Static potential
+bloom/fruit, not dynamic seasons, rain fruiting, populations or real evolution.
+No source world/history, terrain/water or saved-world changes/regeneration.
+Owner no-agent-testing: compile/package ONLY, no suite, fixture, game launch,
+captures, profiling or hash audit. Owner checks art/abundance/loading/FPS.
+See GROUND_FLORA.md/VALIDATION.md; leave owner's game and saves untouched.
+Unity build exit0 and worker/manifest packaging completed. The outer PowerShell
+console-title pipe error occurred after packaging; it was not a Unity failure.
+
+Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
 `artifacts/player-ground-habitats-stable/WorldGen.exe` (IL2CPP12:54:21Z), real C:.
 Owner likes progressive field appearance/performance, including15m transition
 on flat ground. Keep that renderer; this is owner scene feedback, not benchmark.

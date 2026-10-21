@@ -48,10 +48,10 @@ public sealed partial class LocalTerrainExplorer
             var p=source[i];double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));
             double x=V.Dot(p.Position,frame.East)*frame.RadiusM/dot,z=V.Dot(p.Position,frame.North)*frame.RadiusM/dot;
             double y=Height(x,z,frame.SurfaceY(p.Position,p.GroundM));
-            bool vertical=p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
+            bool herb=IsSpecialist(p.Kind),vertical=herb||p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
             V up=vertical?p.Position:p.Normal;
             var normal=new Vector3((float)V.Dot(up,frame.East),(float)V.Dot(up,frame.Origin),(float)V.Dot(up,frame.North)).normalized;
-            var position=new Vector3((float)(x-ox),(float)y-(vertical?.045f:p.Kind==ScatterKind.Outcrop?(float)p.HeightM*.55f:p.Kind==ScatterKind.Boulder?(float)p.HeightM*.35f:.015f),(float)(z-oz));
+            var position=new Vector3((float)(x-ox),(float)y-(herb?.003f:vertical?.045f:p.Kind==ScatterKind.Outcrop?(float)p.HeightM*.55f:p.Kind==ScatterKind.Boulder?(float)p.HeightM*.35f:.015f),(float)(z-oz));
             chunk.Roots[i]=position;var rotation=Quaternion.FromToRotation(Vector3.up,normal)*Quaternion.Euler(0,(float)p.YawDegrees,0);
             chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,new Vector3((float)p.WidthM,(float)p.HeightM,(float)p.WidthM));
         }

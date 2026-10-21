@@ -1,5 +1,26 @@
 # Version 3 validation evidence
 
+## Generated specialist herbs / fungi: owner-test-only /21October2026
+
+`player-generated-herb-flora` adds lazy regional candidate catalogues with
+generated anatomy/names/ancestry/niches, habitat-gated colony placement on
+detail-scatter channel2, instanced flower/rosette/spike/fern/fungal meshes and
+distance-only LODs. `/flora [N]` exposes catalogue metadata; Grass debug adds
+a separate render toggle; F3 counts specialists. No named Earth flower/fungus
+prefab list. Existing grass/moss and tree/shrub/rock definitions remain literal.
+Wire3 unchanged; local-scatter version becomes specialist5. This is derived
+static ecological metadata/potential occurrence, NOT saved populations, seasonal
+bloom/fruit simulation or changes to authoritative ecology/history rules.
+
+Only compile/package, as directed: no tests, fixture, native launch, screenshots,
+profiling or old/new hash comparison. Owner judges art, abundance, loading and
+FPS. Existing numerical/native checks below do not certify these additions.
+See GROUND_FLORA.md for constraints, sources and model-cache/LOD limits.
+IL2CPP compile exited0; worker and manifest packaged21Oct14:11:48Z, real C:.
+Outer PowerShell reported a console-title pipe error after packaging; Unity's
+log exits0 and the final worker/manifest exist. Shortcut updated to this build.
+
+
 ## Stable grass pages / habitat ground mats: owner-test-only /21October2026
 
 Owner accepts the preceding progressive field's appearance/performance in

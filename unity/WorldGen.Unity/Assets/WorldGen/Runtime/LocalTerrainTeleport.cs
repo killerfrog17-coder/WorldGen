@@ -8,6 +8,7 @@ public sealed partial class LocalTerrainExplorer
     public PlayCommandResult ExecuteExplorerCommand(string text)
     {
         var words=text.Trim().Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);
+        if(words.Length>0&&words[0].Equals("/flora",StringComparison.OrdinalIgnoreCase))return DescribeSpecialistFlora(words);
         if(words.Length==0||(!words[0].Equals("/tp",StringComparison.OrdinalIgnoreCase)&&!words[0].Equals("/teleport",StringComparison.OrdinalIgnoreCase)))return null;
         if(!Ready)return new PlayCommandResult(false,"Terrain is not ready yet.");
         V target=default;double? height=null;
@@ -35,5 +36,22 @@ public sealed partial class LocalTerrainExplorer
         motion.VerticalSpeed=0;UpdateCamera();
         TerrainMapViewport.Degrees(target,out double lat,out double lon);lon=playState?.OfficialLongitude(lon)??lon;
         return new PlayCommandResult(true,"Teleported to "+lat.ToString("F6",System.Globalization.CultureInfo.InvariantCulture)+", "+lon.ToString("F6",System.Globalization.CultureInfo.InvariantCulture)+" (latitude, longitude).");
+    }
+    PlayCommandResult DescribeSpecialistFlora(string[] words)
+    {
+        if(!Ready)return new PlayCommandResult(false,"Terrain is not ready yet.");
+        var sample=terrain.Patch(Position,100).Sample(Position);var region=terrain.FloraRegion(sample.Cell);var species=region.Specialists;
+        if(words.Length==1)
+        {
+            var lines=new string[species.Length+2];lines[0]="Potential regional herb-layer catalogue · region "+region.RegionId+" · "+sample.Biome+" (not all species fit this exact spot).";
+            for(int i=0;i<species.Length;i++)lines[i+1]=(i+1)+". "+species[i].Name+" · "+species[i].Form+" · "+species[i].HeightM.ToString("F2")+"m";
+            lines[lines.Length-1]="/flora <1-"+species.Length+"> shows anatomy/niche. Fungi are not plants; these are derived potential taxa, not saved populations.";
+            return new PlayCommandResult(true,lines);
+        }
+        if(words.Length!=2||!int.TryParse(words[1],out int index)||index<1||index>species.Length)return new PlayCommandResult(false,"Usage: /flora [1-"+species.Length+"]");
+        var s=species[index-1];var m=s.Morphology;
+        return new PlayCommandResult(true,s.Name+" · "+s.Form+" · founder "+s.Founder,
+            "Height "+s.HeightM.ToString("F2")+"m; width "+s.WidthM.ToString("F2")+"m; "+(s.Form==SpecialistForm.Fungus?s.FungalRole.ToString():s.Form==SpecialistForm.Fern?m.Fronds+" fronds":m.Petals+" petals, "+m.Heads+" heads"),
+            "Warm-season niche "+s.MinWarmC.ToString("F0")+"–"+s.MaxWarmC.ToString("F0")+"°C; aridity-index preference "+s.Moisture.ToString("F2")+"; shade "+(s.Shade*100).ToString("F0")+"%; pH "+s.MinPH.ToString("F1")+"–"+s.MaxPH.ToString("F1")+"; colony scale "+s.ColonyM.ToString("F0")+"m.");
     }
 }
