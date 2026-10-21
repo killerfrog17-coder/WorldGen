@@ -1,6 +1,32 @@
 # WorldGen repository instructions
 
 Current OWNER REVIEW launch,20October2026: shortcut selects
+`artifacts/player-terrain-reuse/WorldGen.exe` (IL2CPP21Oct02:46:20Z).
+Owner-authorized LOD step2 adds chart-local inactive mesh LRU (128 products /
+96MiB accounted buffers), worker-owned32768 exact-point sample reuse, indexed
+literal stitch/ancestor coverage lookup and bounded movement-ahead preloading.
+Immediate terrain remains first; two worker lanes, one installation/activation
+per frame and two-tile deferred retirement remain bounded. Edge-obsolete work
+cancels; still-valid prepared jobs adopt their new chart stamp. Teleport/chart
+adoption clears projected mesh cache; no stale cross-chart geometry reuse.
+Hyper11 terrain/water, normal LOD detail/selection, controller and accepted
+partial-coverage shader are unchanged. F3 exposes cache/request counters.
+6241 shared reuse checks /13059 pure coverage/navigation checks and127639 exact
+packaged-worker comparisons pass; final3 native/CLR point probes pass. Native
+production-shader cache restore/invalidation checks pass. Actual owner200k0.1x
+near readiness:9.217s cold,0.542s after500m,0.004s return (resident reuse, zero
+inactive-cache takes in this route). An unvisited westward probe queues1
+predictive request. Source hash unchanged. Returned screenshot inspected but
+largely fog-obscured; only42/492 tiles resident, NOT far-quality, travel/FPS or
+full-distance acceptance. Native harness drafts wrongly required inactive hits
+while resident data remained, then aimed prediction at visited terrain; corrected
+to distinguish reuse and aim at unvisited terrain. Own tests stopped; owner's
+running preceding player is untouched and owner review is next. Two historical
+generated controls2/3 players relocated intact to E: with original-path junctions
+to relieve compiler disk pressure; no saves/source/rollback content deleted.
+Previous lod-coverage-debug remains rollback. See docs/TERRAIN_REUSE.md / VALIDATION.md.
+
+Current OWNER REVIEW launch,20October2026: shortcut selects
 `artifacts/player-lod-coverage-debug/WorldGen.exe` (IL2CPP21Oct02:06:03Z).
 Owner-authorized LOD step1 only: sparse tile-local resident coverage masks stop
 coarse ground/water obscuring loaded finer tiles; missing fine areas retain

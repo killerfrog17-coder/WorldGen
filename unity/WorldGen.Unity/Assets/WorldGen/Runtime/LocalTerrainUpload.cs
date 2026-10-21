@@ -37,6 +37,7 @@ public sealed partial class LocalTerrainExplorer
         Bounds[] bounds;
         public double EastM,NorthM,BuildMilliseconds,BufferMilliseconds;
         public int Segments;
+        public long BufferBytes;
         public float[] Heights;
         public bool HasWater=>bounds.Length==2;
 
@@ -56,6 +57,7 @@ public sealed partial class LocalTerrainExplorer
                     var colors=water?source.WaterColors:source.Colors;
                     var indices=water?source.WaterTriangles:source.Triangles;
                     var data=result.buffers[part];int count=positions.Length/3;
+                    result.BufferBytes+=(long)count*Marshal.SizeOf<TerrainVertex>()+(long)indices.Length*4;
                     data.SetVertexBufferParams(count,Layout);data.SetIndexBufferParams(indices.Length,IndexFormat.UInt32);
                     var vertices=data.GetVertexData<TerrainVertex>();
                     Vector3 low=new Vector3(float.MaxValue,float.MaxValue,float.MaxValue),high=new Vector3(float.MinValue,float.MinValue,float.MinValue);
@@ -80,7 +82,7 @@ public sealed partial class LocalTerrainExplorer
                     data.SetSubMesh(0,new SubMeshDescriptor(0,indices.Length,MeshTopology.Triangles){bounds=result.bounds[part],vertexCount=count},
                         MeshUpdateFlags.DontRecalculateBounds|MeshUpdateFlags.DontValidateIndices);
                 }
-                result.BufferMilliseconds=watch.Elapsed.TotalMilliseconds;return result;
+                result.BufferBytes+=(long)result.Heights.Length*4;result.BufferMilliseconds=watch.Elapsed.TotalMilliseconds;return result;
             }
             catch{result.Dispose();throw;}
         }

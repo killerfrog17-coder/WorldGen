@@ -11,6 +11,7 @@ public sealed partial class LocalTerrainExplorer
         Directory.CreateDirectory(output);
         Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Error||kind==LogType.Exception){File.WriteAllText(Path.Combine(output,"failure.txt"),message+"\n"+trace);Application.Quit(1);}};
         var host=new GameObject("Coverage shader check");var explorer=host.AddComponent<LocalTerrainExplorer>();explorer.enabled=false;
+        explorer.terrainRoot=host;
         var shader=Resources.Load<Shader>("WorldGenLocalTerrain");
         if(shader==null||!shader.isSupported)throw new Exception("Coverage shader unsupported");
         var material=new Material(shader);material.SetFloat("_Water",1);material.SetFloat("_Daylight",1);material.SetFloat("_FogDistance",1e9f);
@@ -35,14 +36,24 @@ public sealed partial class LocalTerrainExplorer
         }
         explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
         var before=Capture("fallback-before");if(before[32*128+32].r<=before[32*128+32].g)throw new Exception("Fallback absent before child loads");
-        explorer.tiles.Add(child,new Tile{Root=Quad("ready fine terrain",2,0,Color.green)});
+        explorer.tiles.Add(child,new Tile{Root=Quad("ready fine terrain",2,0,Color.green),Edges=new double[4]});
         explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
         var after=Capture("partial-replacement");
         if(after[32*128+32].g<=after[32*128+32].r)throw new Exception("Coarse mesh still covers ready fine terrain");
         if(after[96*128+96].r<=after[96*128+96].g)throw new Exception("Unloaded neighbouring area lost fallback coverage");
-        var tile=explorer.tiles[child];explorer.DestroyTile(tile);explorer.tiles.Remove(child);explorer.UpdateTerrainCoverage();yield return null;
+        var tile=explorer.tiles[child];explorer.CacheTerrain(child,tile);explorer.tiles.Remove(child);explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
         var restored=Capture("fallback-restored");if(restored[32*128+32].r<=restored[32*128+32].g)throw new Exception("Fallback not restored when fine coverage is removed");
-        File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: coarse before load, fine-only in loaded quadrant, fallback in missing quadrants, fallback restored after removal. No terrain height change.");
+        explorer.installationsThisFrame=0;
+        if(!explorer.RestoreTerrain(child,0,new double[4]))
+        {
+            // Synthetic tiles have zero segments and no stitching requirements.
+            throw new Exception("Native mesh product cache failed to restore");
+        }
+        explorer.UpdateTerrainCoverage();yield return null;var reused=Capture("cached-replacement");
+        if(reused[32*128+32].g<=reused[32*128+32].r||explorer.TerrainCacheHits!=1)throw new Exception("Cached mesh failed to render after restore");
+        explorer.tiles.Remove(child);explorer.CacheTerrain(child,tile);explorer.ResetStreamingReuse(false);
+        if(explorer.CachedTerrainTiles!=0)throw new Exception("Chart invalidation retained old products");
+        File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: coarse before load, fine-only loaded quadrant, fallback in missing quadrants/removal, exact cached mesh restore and frame-cache invalidation. No terrain height change.");
         Application.Quit(0);
     }
 }

@@ -44,7 +44,7 @@ namespace WorldGen.Presentation
         public double EastM, NorthM, SizeM, MinHeightM, MaxHeightM, BuildMilliseconds;
         public int Segments, GroundVertices;
         public static LocalTerrainMesh Build(LocalTerrain terrain, LocalTerrainFrame frame, double eastM, double northM,
-            double sizeM = 2048, int segments = 64, CancellationToken token = default,double[]? edgeSteps=null)
+            double sizeM = 2048, int segments = 64, CancellationToken token = default,double[]? edgeSteps=null,TerrainSampleCache? sampleCache=null)
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
             if (segments < 4 || segments > 128 || sizeM <= 0 || sizeM > 131072 || double.IsNaN(sizeM)) throw new ArgumentOutOfRangeException(nameof(segments));
@@ -55,14 +55,15 @@ namespace WorldGen.Presentation
             var patchCache=new System.Collections.Generic.Dictionary<(int,int),LocalTerrain.LocalTerrainPatch>();
             LocalTerrainSample Sample(double x,double z,V p)
             {
+                if(sampleCache!=null&&sampleCache.TryGet(p,out var cachedSample))return cachedSample;
                 // LOD changes tessellation, never the value of a shared point.
                 // Stopping the height hierarchy at a tile-dependent depth made
                 // adjacent detail levels disagree and exposed their skirts.
-                if(patch!=null)return patch.Sample(p);
+                if(patch!=null){var value=patch.Sample(p);sampleCache?.Store(p,value);return value;}
                 // A far tile on a shrunken planet spans a large geographical area.
                 // Query bounded subpatches instead of constructing a planet-sized candidate bag.
                 double box=100000*frame.HorizontalScale;int a=(int)Math.Floor(x/box),b=(int)Math.Floor(z/box);
-                if(!patchCache.TryGetValue((a,b),out var local)){local=terrain.Patch(frame.Position((a+.5)*box,(b+.5)*box),150000);patchCache.Add((a,b),local);}return local.Sample(p);
+                if(!patchCache.TryGetValue((a,b),out var local)){local=terrain.Patch(frame.Position((a+.5)*box,(b+.5)*box),150000);patchCache.Add((a,b),local);}var sampled=local.Sample(p);sampleCache?.Store(p,sampled);return sampled;
             }
             int side = segments + 1, halo = side + 2, ground = side * side, perimeter = segments * 4;
             mesh.GroundVertices = ground;

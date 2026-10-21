@@ -21,6 +21,7 @@ static class TerrainWorker
         else{int size=reader.ReadInt32();if(size<0||size>WorldFile.MaximumFileBytes)throw new InvalidDataException("Invalid terrain source size.");var bytes=reader.ReadBytes(size);if(bytes.Length!=size)throw new EndOfStreamException();world=WorldFile.Read(bytes);}
         if(world.Stages.Last().Hash!=expected)throw new InvalidDataException("Terrain worker received a different source world.");
         var terrain=new LocalTerrain(world,horizontalScale:scale);
+        var samples=new TerrainSampleCache();
         var scatter=new LocalScatter(terrain,scale);
         var listener=new TcpListener(IPAddress.Loopback,0);listener.Start();
         writer.Write(TerrainMeshWire.Version);writer.Write(typeof(LocalTerrain).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion??"");writer.Write(LocalTerrain.Version);writer.Write(((IPEndPoint)listener.LocalEndpoint).Port);writer.Flush();
@@ -46,7 +47,7 @@ static class TerrainWorker
                     await slots.WaitAsync(cancellation.Token);
                     try
                     {
-                        if(command==0){var mesh=LocalTerrainMesh.Build(terrain,frame,east,north,size,segments,cancellation.Token,edges);cancellation.Token.ThrowIfCancellationRequested();w.Write(true);TerrainMeshWire.WriteMesh(w,mesh);}
+                        if(command==0){var mesh=LocalTerrainMesh.Build(terrain,frame,east,north,size,segments,cancellation.Token,edges,samples);cancellation.Token.ThrowIfCancellationRequested();w.Write(true);TerrainMeshWire.WriteMesh(w,mesh);}
                         else{var patch=scatter.Build(key,cancellation.Token);cancellation.Token.ThrowIfCancellationRequested();w.Write(true);TerrainMeshWire.WriteScatter(w,patch);}
                     }
                     finally{slots.Release();}

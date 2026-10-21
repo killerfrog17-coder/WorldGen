@@ -1,5 +1,56 @@
 # Version 3 validation evidence
 
+## Terrain loading/reuse step2 /20October2026
+
+`player-terrain-reuse`, final IL2CPP21Oct02:46:20Z. See TERRAIN_REUSE.md for
+scope, cache budgets, prediction limits and exact-output contracts. Hyper11
+terrain/hydrology, normal requested LOD resolutions, controller heights, shader
+art and accepted partial resident coverage remain unchanged. No cache is saved.
+
+6241 shared checks pass across16 edge plans/scales0.01–2, LRU ownership/byte/
+count eviction, edge-signature keys, bounded exact point lookup and actual
+river mesh float/index equality with and without caching. Saved world hash
+91a5470156e4aeeecb11fd22ac7b64987960701d5ff602e304784da6b2ca43e1 is unchanged.
+13059 prior pure coverage/navigation checks pass. Packaged worker matches127639
+exact mesh/water/index/bounds/cancellation comparisons; selected scatter sites
+contain zero instances, not new scatter acceptance. Final Runtime-only retirement
+and route-harness changes do not alter those shared worker inputs.
+
+CLR sample-cache tile diagnostics47.9/30.9ms cold/warm and32.9/23.2ms for an edge
+variant are diagnostic CPU build times, NOT native frame/FPS claims. Indexed
+edge diagnostics after JIT were0.5–3.1ms. Rejected intermediate normalized-grid /
+two-pointer matching disagreed with literal old floating-point adjacency;
+the final matching-line/range implementation preserves all tested old results.
+
+Final `artifacts/terrain-reuse/shader-final` production-shader check passes
+loaded-quadrant ownership, missing-area fallback, removal fallback, exact cached
+GPU mesh restoration and chart-cache invalidation. Cached products are detached
+while disabled before deferred disposal, avoiding leaked meshes when a chart
+root is destroyed. Cache eviction/chart disposal shares a two-tile/frame budget;
+cache activation/new installation shares a one-product/frame budget. These are
+work-count bounds, not a hard millisecond guarantee or total VRAM limit.
+
+The first native out-and-back assertion wrongly demanded an inactive-cache take
+while fine fallback meshes could still be resident. That harness assertion was
+rejected; the revised route reports both kinds of reuse and the independent
+shader test explicitly exercises inactive cache restoration. No broad travel/
+fullscreen/low-end or every-chart-revisit acceptance follows from these checks.
+
+Final `artifacts/terrain-reuse/native-west` records actual200k0.1-scale near
+readiness9.217s cold (including worker warming),0.542s after moving500m and
+0.004s on return. The return still uses original resident products: zero
+inactive-cache takes in THIS route, not a claim of cold regeneration avoided by
+an inactive-cache hit. Source world hash is unchanged. After pointing toward
+unvisited western terrain,1 predictive request enters a spare lane. The previous
+eastward test pointed back at resident visited terrain and correctly skipped
+redundant work; its assertion was a harness mistake, not a production failure.
+Final3 exact native/CLR point probes pass. The returned-terrain capture is
+inspected but largely fog-obscured, with only42/492 tiles resident: not distant
+coverage/visual realism acceptance. No frame-time/FPS campaign was performed.
+Own tests/workers are stopped, the shortcut is updated, and the owner's running
+preceding game is untouched. See TERRAIN_REUSE.md for intact old-player relocation
+to E: during build-space pressure; no user snapshots were moved or modified.
+
 ## Partial resident LOD coverage and navigation /20October2026
 
 IL2CPP21Oct02:06:03Z `player-lod-coverage-debug` implements owner-requested step1

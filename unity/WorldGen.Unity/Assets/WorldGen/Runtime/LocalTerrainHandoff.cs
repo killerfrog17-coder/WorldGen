@@ -96,11 +96,13 @@ public sealed partial class LocalTerrainExplorer
     }
     void RetireTerrainGradually()
     {
-        if(retiringFrames.Count==0)return;
-        var old=retiringFrames.Peek();
         // Unity object destruction and driver resource release are spread out.
-        for(int i=0;i<2&&old.Tiles.Count>0;i++)DestroyTile(old.Tiles.Dequeue());
-        if(old.Tiles.Count==0){if(old.Root!=null)Destroy(old.Root);retiringFrames.Dequeue();}
+        // Cache eviction and chart retirement share the same two-tile budget.
+        for(int i=0;i<2&&retiringFrames.Count>0;i++)
+        {
+            var old=retiringFrames.Peek();if(old.Tiles.Count>0)DestroyTile(old.Tiles.Dequeue());
+            if(old.Tiles.Count==0){if(old.Root!=null)Destroy(old.Root);retiringFrames.Dequeue();}
+        }
     }
     void DisposeRetiringTerrain()
     {
@@ -136,7 +138,7 @@ public sealed partial class LocalTerrainExplorer
             pending.X=x;pending.Z=z;pending.Altitude=altitude;pending.Range=viewDistance;
             pending.Wanted=TerrainLod.Plan(x,z,altitude,viewDistance,HorizontalScale);
             pending.Priority.Clear();pending.Priority.AddRange(pending.Wanted.Keys);pending.Edges.Clear();
-            foreach(var key in pending.Priority)pending.Edges[key]=TerrainLod.EdgeSteps(key,pending.Wanted);
+            foreach(var pair in TerrainEdges.Build(pending.Wanted))pending.Edges.Add(pair.Key,pair.Value);
             pending.CoveragePriority.Clear();pending.CoveragePriority.AddRange(pending.Priority);
             pending.CoveragePriority.Sort((a,b)=>b.Level.CompareTo(a.Level));pending.SortAt=0;
             foreach(var key in pending.Tiles.Keys.Where(k=>!pending.Wanted.ContainsKey(k)&&!pending.Wanted.Keys.Any(w=>Overlaps(k,w))).ToArray())
@@ -189,6 +191,7 @@ public sealed partial class LocalTerrainExplorer
                 jobs.Any(j=>ReferenceEquals(j.Prepared,pending)&&j.Key.Equals(key)))continue;
             var source=terrain;var buildFrame=pending.Frame;var jobCancellation=System.Threading.CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=jobCancellation.Token;
             var producer=meshProcess;
+            TerrainBuildRequests++;
             jobs.Add(new Work{Key=key,Edges=edges,Segments=detail,Generation=generation,Prepared=pending,Cancellation=jobCancellation,
                 Task=Task.Run(()=>TerrainUpload.Prepare(producer==null?LocalTerrainMesh.Build(source,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges):producer.Build(buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token),token)});
             if(reserveCurrentSlot)return;
@@ -203,8 +206,13 @@ public sealed partial class LocalTerrainExplorer
         V direction=(oldFrame.East*Math.Sin(yaw)+oldFrame.North*Math.Cos(yaw))*Math.Cos(tilt)-oldFrame.Origin*Math.Sin(tilt);
         V? scatterPlan=double.IsNaN(scatterX)?(V?)null:oldFrame.Position(scatterX,scatterZ);
         var oldRoot=terrainRoot;var oldTiles=tiles;
+        ResetStreamingReuse(false);
         frame=pending.Frame;tiles=pending.Tiles;terrainRoot=pending.Root;preparedFrame=null;
         generation++;walkingPatch=null;originX=Math.Floor(x/2048)*2048;originZ=Math.Floor(z/2048)*2048;
+        // The remaining prepared jobs already use the adopted chart: keep them,
+        // rather than discarding valid work because the generation stamp changed.
+        foreach(var job in jobs)
+        {if(ReferenceEquals(job.Prepared,pending)){job.Prepared=null;job.Generation=generation;}else job.Cancellation?.Cancel();}
         motion.X=x;motion.Z=z;motion.Y=Ground(x,z)+above; // Preserve gait, jump velocity and fly state.
         stepX=motion.X;stepY=motion.Y;stepZ=motion.Z; // Coordinate change is not a travelled footstep.
         heading=(float)(Math.Atan2(V.Dot(direction,frame.East),V.Dot(direction,frame.North))*180/Math.PI);

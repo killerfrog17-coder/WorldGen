@@ -8,9 +8,19 @@ public sealed partial class LocalTerrainExplorer
     void UpdateTerrainCoverage()
     {
         if(!coverageDirty)return;coverageDirty=false;var keys=tiles.Keys.ToArray();
+        // Only actual resident ancestors can need holes. Avoid scanning all
+        // resident tiles for every tile whenever a single product arrives.
+        var children=new System.Collections.Generic.Dictionary<TerrainTileKey,System.Collections.Generic.List<TerrainTileKey>>();
+        int maximum=keys.Length==0?0:keys.Max(k=>k.Level);
+        foreach(var fine in keys)for(int depth=1;depth<=maximum-fine.Level;depth++)
+        {
+            var ancestor=new TerrainTileKey(fine.X>>depth,fine.Z>>depth,fine.Level+depth,fine.Scale);
+            if(!tiles.ContainsKey(ancestor))continue;
+            if(!children.TryGetValue(ancestor,out var list)){list=new System.Collections.Generic.List<TerrainTileKey>();children.Add(ancestor,list);}list.Add(fine);
+        }
         foreach(var pair in tiles)
         {
-            var tile=pair.Value;var nodes=TerrainCoverage.Build(pair.Key,keys);
+            var tile=pair.Value;var nodes=children.TryGetValue(pair.Key,out var finer)?TerrainCoverage.Build(pair.Key,finer):System.Array.Empty<float>();
             if(tile.CoverageNodes!=null&&tile.CoverageNodes.SequenceEqual(nodes))continue;
             tile.CoverageNodes=nodes;
             if(tile.Coverage!=null){Destroy(tile.Coverage);tile.Coverage=null;}
