@@ -1,5 +1,27 @@
 # Version 3 validation evidence
 
+## Individual grass blades: owner-test-only prototype /21October2026
+
+Owner explicitly requested a fast implementation and NO agent tests. New
+`player-grass-blades-prototype` replaces crossed texture banks with curved,
+individually rooted GPU leaves and per-frame compact visibility/LOD indices.
+Ground-flora2 ecology/tallgrass, world/history/terrain/water definitions and
+distant mean-cover colour are unchanged by this presentation-only work.
+Sixth settings tab, Grass debug, exposes live enable/disable, density0.25–2x,
+draw range40–160m, Low/Medium/High/Ultra, wind and reset; defaultsHigh/1x/120m.
+Controls are session-only and do not replan/rebuild terrain. Root-index culling,
+resource disposal and actual-triangle slope gradients are implementation changes,
+NOT validated by the preceding card renderer's historical checks.
+
+Only compilation and player packaging are performed. NO test suite, native
+fixture, game launch, screenshot review, profiling or saved-world comparison
+is run by the agent for this revision. The old fixture helper is adapted to
+the new index buffers but is NOT executed. Owner tests appearance/performance.
+No measured 1–3ms GPU cost, FPS expectation or invisible transition acceptance
+is claimed. See GROUND_FLORA.md for the approach, settings and approximation limits.
+IL2CPP packaging completed21Oct06:50:07Z; build process exits0. Shortcut now
+points to this separate C: build; owner's running game and save files untouched.
+
 ## Dense cutout ground cover and tallgrass /21October2026
 
 Owner found the preceding fans too sparse despite technically working. New

@@ -1,5 +1,25 @@
 # WorldGen repository instructions
 
+Current OWNER-TEST-ONLY PROTOTYPE launch,21October2026: shortcut selects
+`artifacts/player-grass-blades-prototype/WorldGen.exe` (IL2CPP06:50:07Z), real C:.
+Owner REJECTED crossed-card grass as visibly flat/star-shaped, and requested
+a quick AMD/Tsushima-inspired individual-blade prototype with NO AGENT TESTING.
+Only compilation/packaging performed: no test suites, native fixture, player
+launch, captures, profiling or saved-world audit. Old card test counts below
+do NOT validate this renderer. Await owner appearance/performance review.
+Ground-flora2 ecology/tallgrass and all source/history/water/height definitions
+remain unchanged. Existing0.60m root patches now seed independent curved leaves;
+GPU frustum/range culling compacts three root-index lists before indirect draws.
+No per-blade objects/readbacks, hardware mesh shaders or individual shadows.
+Pause > Game settings > Grass debug: session-only on/off,density0.25–2x,
+range40–160m,four detail levels,wind,reset. DefaultsHigh/1x/120m. Disabling
+releases local buffers/draws; distant terrain colour remains; re-enable fades2s.
+Existing full-detail coverage can bound range. Non-grass forms use provisional
+geometric leaves/mats, not finished fern/flower art. No 1–3ms/FPS or invisible
+LOD claim. Prior dense-foliage player is comparison/technical rollback only,
+NOT accepted grass art. See GROUND_FLORA.md and VALIDATION.md. Do not close
+the owner's game or silently revert to crossed cards.
+
 Current OWNER REVIEW launch,21October2026: shortcut selects
 `artifacts/player-ground-foliage-dense/WorldGen.exe` (IL2CPP06:22:38Z), real C:.
 Owner requested full textured ground cover instead of the preceding sparse fans,

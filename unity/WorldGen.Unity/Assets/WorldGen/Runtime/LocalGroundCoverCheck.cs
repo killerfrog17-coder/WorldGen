@@ -21,9 +21,8 @@ public sealed partial class LocalTerrainExplorer
         }
         var key=new TerrainTileKey(0,0,0,.1);var gpu=e.PrepareGroundCover(key,tile,0,0);tile.Grass=gpu;
         yield return new WaitForSecondsRealtime(2.2f);
-        var args=new GraphicsBuffer.IndirectDrawArgs[3];gpu.Args.GetData(args);
-        if(args[0].vertexCountPerInstance!=54||args[1].vertexCountPerInstance!=36||args[2].vertexCountPerInstance!=12)throw new Exception("Card LOD topology disagrees with shader");
-        if(args[0].instanceCount<1000||args[0].instanceCount!=args[1].instanceCount||args[1].instanceCount!=args[2].instanceCount)throw new Exception("No shared compact GPU clumps");
+        var counts=new uint[1];gpu.Count.GetData(counts);
+        if(counts[0]<1000)throw new Exception("No compact GPU roots");
         var cameraRoot=new GameObject("Cover check camera",typeof(Camera),typeof(UnityEngine.Rendering.Universal.UniversalAdditionalCameraData));
         var camera=cameraRoot.GetComponent<Camera>();camera.cullingMask=1<<30;camera.nearClipPlane=.08f;camera.farClipPlane=400;
         camera.transform.position=new Vector3(18,1.75f,5);camera.transform.LookAt(new Vector3(23,.7f,30));camera.backgroundColor=new Color(.5f,.65f,.8f);
@@ -37,8 +36,8 @@ public sealed partial class LocalTerrainExplorer
         {
             if(cover)
             {
-                gpu.Properties.SetVector("_CoverOrigin",new Vector4(0,0,0,gpu.Born));
-                for(int lod=0;lod<3;lod++){gpu.Properties.SetInt("_CoverLod",lod);var rp=new RenderParams(e.groundCoverMaterial){camera=camera,layer=30,worldBounds=new Bounds(new Vector3(51,1,51),new Vector3(106,6,106)),matProps=gpu.Properties,shadowCastingMode=ShadowCastingMode.Off};Graphics.RenderPrimitivesIndirect(in rp,MeshTopology.Triangles,gpu.Args,1,lod);}
+                e.CullGroundCover(gpu,new Vector4(0,0,0,gpu.Born),camera);
+                for(int lod=0;lod<3;lod++){gpu.Properties.SetInt("_CoverLod",lod);gpu.Properties.SetBuffer("_VisibleRoots",gpu.Visible[lod]);var rp=new RenderParams(e.groundCoverMaterial){camera=camera,layer=30,worldBounds=new Bounds(new Vector3(51,1,51),new Vector3(106,10,106)),matProps=gpu.Properties,shadowCastingMode=ShadowCastingMode.Off};Graphics.RenderPrimitivesIndirect(in rp,MeshTopology.Triangles,gpu.Args,1,lod);}
             }
             camera.Render();var old=RenderTexture.active;RenderTexture.active=target;var image=new Texture2D(1280,800,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1280,800),0,0);image.Apply();
             File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());var pixels=image.GetPixels32();Destroy(image);RenderTexture.active=old;return pixels;
@@ -48,7 +47,7 @@ public sealed partial class LocalTerrainExplorer
         if(changed<2000)throw new Exception("GPU grass not visible: "+changed);
         camera.transform.position=new Vector3(54,12,4);camera.transform.LookAt(new Vector3(54,0,48));yield return null;Capture(true,"overview");
         camera.transform.position=new Vector3(48,1.75f,20);camera.transform.LookAt(new Vector3(49,1.70f,60));yield return null;Capture(true,"tallgrass");
-        File.WriteAllText(Path.Combine(output,"ground-cover-check.txt"),"PASS native GPU generation/indirect rendering: "+args[0].instanceCount+" compact clumps; "+changed+" changed pixels; "+(gpu.Bytes/1048576d).ToString("F2")+"MiB fixture buffers. Not actual-world performance/art acceptance.");
+        File.WriteAllText(Path.Combine(output,"ground-cover-check.txt"),"PASS native GPU generation/indirect rendering: "+counts[0]+" compact roots; "+changed+" changed pixels; "+(gpu.Bytes/1048576d).ToString("F2")+"MiB fixture buffers. Not actual-world performance/art acceptance.");
         ReleaseGroundCover(tile);Application.Quit(0);
     }
 }

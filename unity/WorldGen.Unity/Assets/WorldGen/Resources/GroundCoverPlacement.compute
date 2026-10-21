@@ -1,8 +1,13 @@
 #pragma kernel Place
+#pragma kernel Cull
 StructuredBuffer<float> _Grid;
 struct Root { float4 positionForm;float4 colorHeight;float4 shape;float4 normal; };
 AppendStructuredBuffer<Root> _Roots;
 int4 _Candidate;float4 _Tile;uint _Seed;
+StructuredBuffer<Root> _PlacedRoots;
+ByteAddressBuffer _RootCount;
+AppendStructuredBuffer<uint> _NearRoots,_MiddleRoots,_FarRoots;
+float4 _CullOrigin,_CullCamera,_CullPlanes[6];float _GrassRange;
 uint Mix(uint x){x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);}
 float Rand(uint x){return (Mix(x)&0xffffffu)/16777216.;}
 float Attribute(int x,int z,int channel){return _Grid[((z*((int)_Tile.w+1)+x)*16)+channel];}
@@ -29,10 +34,26 @@ void Place(uint3 id:SV_DispatchThreadID)
     // hummocks/rosettes, rather than a forest of upright 'moss grass'.
     if((form==6||form==7)&&Rand(hash+8)>.28)return;
     float step=_Tile.z/_Tile.w;
-    float sx=(Attribute(a.x+1,a.y,15)-Attribute(a.x,a.y,15))/step;
-    float sz=(Attribute(a.x,a.y+1,15)-Attribute(a.x,a.y,15))/step;
+    float sx=f.x+f.y<=1?(Attribute(a.x+1,a.y,15)-Attribute(a.x,a.y,15))/step:(Attribute(a.x+1,a.y+1,15)-Attribute(a.x,a.y+1,15))/step;
+    float sz=f.x+f.y<=1?(Attribute(a.x,a.y+1,15)-Attribute(a.x,a.y,15))/step:(Attribute(a.x+1,a.y+1,15)-Attribute(a.x+1,a.y,15))/step;
     Root r;r.positionForm=float4(p.x-_Tile.x,values[15]-.016,p.y-_Tile.y,form);
     r.colorHeight=float4(values[0],values[1],values[2],min(3.2,heights[form]*max(.4,values[13])*(.80+.40*Rand(hash+4))));
     r.shape=float4(max(.4,values[14]),Rand(hash+5),Rand(hash+6),Rand(hash+7));
     r.normal=float4(normalize(float3(-sx,1,-sz)),0);_Roots.Append(r);
+}
+
+// Only compact root indices are updated per frame. Blade geometry is generated
+// at draw time, not stored as millions of CPU plants or submitted off screen.
+[numthreads(64,1,1)]
+void Cull(uint3 id:SV_DispatchThreadID)
+{
+    if(id.x>=_RootCount.Load(0))return;
+    Root r=_PlacedRoots[id.x];float3 p=r.positionForm.xyz+_CullOrigin.xyz;
+    float d=distance(p,_CullCamera.xyz);if(d>=_GrassRange)return;
+    float radius=max(1.2,r.colorHeight.w*1.4);
+    [unroll]for(int k=0;k<6;k++)if(dot(_CullPlanes[k].xyz,p)+_CullPlanes[k].w < -radius)return;
+    float s=_GrassRange/160.;
+    if(d<42*s)_NearRoots.Append(id.x);
+    if(d>25*s&&d<90*s)_MiddleRoots.Append(id.x);
+    if(d>65*s)_FarRoots.Append(id.x);
 }

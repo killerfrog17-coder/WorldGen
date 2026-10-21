@@ -7,6 +7,10 @@ public static class TerrainVideoOptions
     public static readonly TerrainDetailOptions Current=new TerrainDetailOptions();
     public static int Revision;
     public static bool GroundCover=true;
+    // Temporary, session-only prototype controls. Do not invalidate terrain jobs.
+    public static float GrassDensity=1,GrassDistance=120;
+    public static int GrassDetail=2;
+    public static bool GrassWind=true;
     public static void Load()
     {
         Current.Quality=Mathf.Clamp(PlayerPrefs.GetInt("terrain-quality",2),0,4);
@@ -28,7 +32,7 @@ public static class TerrainVideoOptions
 public sealed partial class WorldGenRuntime
 {
     int settingsCategory;Vector2 settingsScroll;
-    static readonly string[] SettingsTabs={"Overview","Display","Terrain","Audio","Atmosphere"};
+    static readonly string[] SettingsTabs={"Overview","Display","Terrain","Audio","Atmosphere","Grass debug"};
     void DrawSettingsPage()
     {
         int selected=GUILayout.SelectionGrid(settingsCategory,SettingsTabs,3);
@@ -45,8 +49,26 @@ public sealed partial class WorldGenRuntime
             case 2:DrawTerrainOptions();terrainExplorer?.DrawViewSettings();break;
             case 3:DrawAudioOptions();break;
             case 4:DrawWeatherVideoOptions();break;
+            case 5:DrawGrassDebugOptions();break;
         }
         GUILayout.EndScrollView();
+    }
+    void DrawGrassDebugOptions()
+    {
+        GUILayout.Label("GRASS PROTOTYPE · LIVE CONTROLS",SectionStyle());
+        TerrainVideoOptions.GroundCover=GUILayout.Toggle(TerrainVideoOptions.GroundCover,"Enable ground vegetation (off = no grass draws/buffers)");
+        GUILayout.Label("Blade density  "+TerrainVideoOptions.GrassDensity.ToString("F2")+"×");
+        TerrainVideoOptions.GrassDensity=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.GrassDensity,.25f,2)*20)/20;
+        GUILayout.Label("Grass draw distance  "+TerrainVideoOptions.GrassDistance.ToString("F0")+" m");
+        TerrainVideoOptions.GrassDistance=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.GrassDistance,40,160)/5)*5;
+        GUILayout.Label("Blade detail / local blade count");
+        TerrainVideoOptions.GrassDetail=GUILayout.SelectionGrid(TerrainVideoOptions.GrassDetail,new[]{"Low","Medium","High","Ultra"},2);
+        TerrainVideoOptions.GrassWind=GUILayout.Toggle(TerrainVideoOptions.GrassWind,"Wind animation");
+        if(GUILayout.Button("Reset grass prototype defaults"))
+        {TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDistance=120;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassWind=true;}
+        GUILayout.Space(10);
+        GUILayout.Label("Session-only controls. More density/detail increases geometry; more distance covers a much larger area. Existing full-detail terrain bounds can shorten the actual grass range.",MutedStyle());
+        GUILayout.Label("Off disables local ground vegetation entirely. Distant terrain's baked cover colour stays, so compare the same camera for rendering cost. F3 shows FPS and grass buffer/draw counts.",MutedStyle());
     }
     void DrawTerrainOptions(bool compact=false)
     {

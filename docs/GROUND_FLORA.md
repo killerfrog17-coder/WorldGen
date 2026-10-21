@@ -1,5 +1,55 @@
 # Ground layer / ground-flora-2
 
+## Individual-blade prototype /21October2026
+
+Owner rejected the dense atlas banks as conspicuously flat crossed cards and
+requested a quick geometric-blade prototype, explicitly WITHOUT agent tests.
+`player-grass-blades-prototype` replaces the ground renderer with individually
+rooted curved triangle leaves. The current ecology/tallgrass fields, terrain
+mean cover colour and all world/history/height/water definitions remain literal.
+The atlas/importer remain in source for rollback but are not sampled by this
+prototype. Historical card implementation/evidence below is not its acceptance.
+
+This adapts curved-blade, fractional retirement and bounded width-compensation
+principles from [AMD's primary reference](https://gpuopen.com/learn/mesh_shaders/mesh_shaders-procedural_grass_rendering/).
+It uses existing Unity compute + indirect vertex drawing, NOT AMD's mesh-shader
+pipeline or a complete reproduction of Ghost of Tsushima. There is no new
+hardware mesh-shader/DX12 requirement or per-leaf GameObject/physics simulation.
+
+Each existing0.60m lattice root seeds a small patch of independently scattered
+blade roots (0.34m radius), random orientations, width, lean, height and colour.
+Quadratic curved leaf strips move with root-anchored shader wind. Other growth
+forms use provisional broader geometric leaves/low mats; finished fern pinnae,
+seed heads and botanical materials are not part of this quick prototype.
+Slope gradients now use the actual root triangle on either side of the grid
+diagonal, improving local grounding without modifying the terrain.
+
+A GPU pass reads the root counter and compacts three visibility/distance lists
+before drawing. It rejects off-frustum/out-of-range roots so the whole160m
+area does not submit maximum-detail blade vertices. No normal-runtime readback.
+Existing0.1x full-detail coverage limits still apply. Three bands overlap and
+use existing opaque complementary dither fades, with fractional last-blade
+width and modest distance compensation. No imperceptible LOD claim is made.
+Grass receives light/shadows but casts no individual shadows; root darkening
+and simple transmission approximate leafy shading.
+
+Pause > Game settings > Grass debug exposes session-only density0.25–2x,
+range40–160m, four detail levels, wind, enable/disable and reset. Defaults are
+High,1x,120m,wind on. High uses up to24/8/2 blades per root,3/2/1 segments
+(432/96/12 triangle-list vertices), before fractional/form reduction; Ultra
+uses32 near blades/four segments. Density scales blade counts, not ecological
+cover or the terrain map. Near geometry is limited to the near distance band;
+the bands scale with selected range. GPU index capacity adds12bytes per root
+slot (now76bytes/root slot plus cover grid and small counters/arguments).
+
+Disabling releases local grass buffers and removes its draw/cull work; distant
+terrain colours remain so the same-view comparison does not rebuild terrain.
+Re-enable prepares a patch per frame and fades in over2s. Give it a few seconds
+before comparing, ideally with the same camera, cap/VSync and settled loading.
+Controls do not change terrain revision, saves, ecology or historical rules.
+No native visual, GPU-time/FPS, automated correctness or gameplay test was run
+for this owner-requested prototype; compilation/packaging is not such a test.
+
 This pass replaces the sparse placeholder grass, not trees, shrubs, rocks,
 terrain geometry or water. Ground cover is a separate layer over the accepted
 mineral/organic substrate. It is not a new biome classifier.
