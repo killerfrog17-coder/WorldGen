@@ -1,6 +1,28 @@
 # WorldGen repository instructions
 
 Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
+`artifacts/player-plant-spring-wind/WorldGen.exe` (IL2CPP15:14:40Z), real C:.
+Plant-motion1 replaces quasi-static grass/herb targeting with bounded8s wind
+history /32x0.25s analytic impulse-weight response. Four underdamped modes blend
+by generated species/height response and damping; negative lobes give recovery,
+not a perpetually oscillating wind-independent sine. Sustained wind keeps lean.
+GPU128/256 four-layer response fields at adjacent absolute10Hz ticks interpolate
+in shaders; reconstruct history on load/reanchor, never zero-start per plant.
+Field pair0.5/2MiB before driver overhead; extra compute/texture cost unprofiled.
+One-second regional parameter snapshots feed deterministic gust-detail history;
+session weather-mode transitions retained over window. No new per-plant CPU
+physics, wind save arrays, source/history/terrain/water/placement/density/LOD
+changes. Existing weather-preview4/wind1 forcing and precipitation unchanged.
+Herb traits from independent genotype stream (/flora N); grass uses phenotype,
+form/height and canonical individual variation. Fungi/moss/rocks still. Existing
+tree proxies NOT upgraded to spring branches. Forward/depth/shadow herb match.
+Compute fallback remains quasi-static; no bitwise GPU/network acceptance or
+botanical/obstacle-flow calibration. Owner no-agent-testing: compile/package
+ONLY, no suite, fixture, numerical impulse checks, launch, captures or profiling.
+See PROCEDURAL_WEATHER/GROUND_FLORA/VALIDATION. Leave owner's game/saves untouched.
+Compile/package exit0; no agent testing/launch/profiling; owner review pending.
+
+Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
 `artifacts/player-weather-shared-wind/WorldGen.exe` (IL2CPP14:43:12Z), real C:.
 Adds weather-preview4/wind1: independent sustained strength, gust admission,
 duration/envelope and turbulence respond to seasonal wind, smooth synoptic

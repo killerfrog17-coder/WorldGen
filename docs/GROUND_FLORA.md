@@ -1,5 +1,21 @@
 # Ground layer / ground-flora-5
 
+## Inertial species/height-conditioned sway /21October2026
+
+`player-plant-spring-wind` replaces direct wind-to-angle grass/herb movement
+with a shared GPU response to8s of recent wind. Sustained winds keep a biased
+lean; gust changes excite an underdamped response that can overshoot and settle.
+No permanent wind-independent swaying under completely calm forcing. Procedural
+herb lineages gain relative flexibility, response-speed and damping traits from
+an independent stream, inspectable via `/flora N`; existing anatomy is unchanged.
+Grass uses form/phenotype/height-conditioned mechanics and small stable per-leaf
+variation. Short/stiff cover generally bends less/faster than tall flexible cover.
+Near/far blades retain matching traits. Fungi/moss/lichen stay still. This does
+not overhaul tree branches/leaves, density, placement or LODs. See the plant
+spring-response section in PROCEDURAL_WEATHER.md for the sampled four-mode
+response bank, bounded GPU field, sources, compute fallback and cost limits.
+Only compilation/packaging; no agent tests, native launches or profiling.
+
 ## Shared weather wind /21October2026
 
 `player-weather-shared-wind` preserves accepted grass geometry, field density,

@@ -7,6 +7,71 @@ uses it; the strategic map's climate remains the existing long-term climate.
 
 ## Shared weather wind /21October2026 / owner-test-only
 
+### Plant spring-response revision / owner-test-only
+
+`player-plant-spring-wind` adds `PlantMotion.Version=plant-motion-1` without
+changing weather-preview4/wind1 forcing, gust statistics or precipitation drift.
+The previous vegetation path was a quasi-static wind-to-angle map, not a plant
+with inertia. Flexible herb/grass geometry now samples a causal eight-second
+response to the wind's recent history. Sustained forcing supplies a nonzero
+leaning equilibrium; changing gusts excite deflection and decaying recovery.
+Zero forcing throughout the bounded history yields zero animated displacement,
+not a perpetual independent sine. Naturally curved rest anatomy remains.
+
+Four underdamped response modes span angular frequency3/7 rad/s and damping
+ratio0.40/0.72. Exact step-response differences integrate each0.25s forcing
+bin; negative impulse lobes intentionally produce overshoot.32 bins cover8s,
+normalized for constant-input equilibrium. This is a finite-memory, sampled
+approximation to a driven second-order system, not arbitrary per-vertex physical
+integration. Species blend the four response modes continuously. Frequency and
+damping controls are dimensionless phenotype coordinates, not measured stem
+elastic constants; no botanical calibration is claimed.
+
+The GPU evaluates those shared responses in a128/256 square, four-layer field,
+not32 wind-history queries for every blade vertex. Two RGHalf texture arrays
+span adjacent absolute0.1s calendar ticks; vertex shaders interpolate in time
+and space. The pair costs0.5/2MiB before driver overhead. The field covers local
+vegetation range plus margin; absolute chart-grid cells stay fixed when walking.
+Missing/shifted fields are reconstructed from history, never warmed from zero.
+Underlying forcing is still geographic/seed/calendar based; frame rate or chunk
+birth does not integrate the spring state. Response-field interpolation and GPU
+rounding are cosmetic approximations, not bitwise multiplayer agreement.
+
+At most ten weather parameter snapshots per field reconstruction provide
+one-second interpolated mean/peak/gust-character history, while the gust/turbulent
+detail is evaluated at each0.25s forcing bin. Session weather-mode changes are
+retained for the history window, so switching a storm off does not erase the
+previous forcing. Reversed calendar time rebuilds the bounded response. No new
+wind arrays are serialized and no world ticks or per-plant CPU physics are added.
+The CPU samples a local regional weather profile for the field, not a distinct
+full weather forecast for each blade. Changing regional profiles/visual overrides
+is approximate; local airflow around obstacles remains unimplemented.
+
+Herb mechanical traits derive from an independent seeded founder/branch stream,
+leaving existing anatomy and placement literal. `/flora N` displays relative
+flexibility, response and damping. Actual rendered height further conditions
+leverage/response. Grass traits derive consistently from growth form, regional
+colour/width phenotype and actual leaf height, with subtle canonical per-leaf
+variation shared across geometry LODs. Stiff shoots bend less; shorter cover
+generally bends less and responds faster. Small plants are not globally forced
+to match tall-grass amplitude. Fungi, moss/lichen and rocks remain still; existing
+tree/shrub proxy sway is not upgraded to articulated spring-based branches.
+
+The same herb deformation is used for colour/depth/shadow passes. There is no
+new timed spawn fade, scatter reset, blade density change or saved-world upgrade.
+Grass debug's existing wind toggle still disables grass/herb motion outright.
+Compute-capable hardware uses the response field; if unavailable, herbs fall
+back to quasi-static wind targeting (GPU grass already requires compute).
+The bounded field adds compute work/texture fetches and removes repeated gust
+math from grass vertices. No measured speedup or negligible-cost claim: this
+revision is compile/package-only, with owner art/FPS/recovery review pending.
+
+Sources: [Ryan Juckett's damped-spring derivation](https://www.ryanjuckett.com/damped-springs/)
+explains inertia, underdamped response and frame-independent solutions;
+[NVIDIA GPU Gems tree wind](https://developer.nvidia.com/gpugems/gpugems3/part-i-geometry/chapter-6-gpu-generated-procedural-wind-animations-trees)
+describes spring-like responses to changing wind loads and GPU animation. The
+finite impulse bank and shared response-field adaptation above are ours.
+
 `player-weather-shared-wind` adds `WeatherWind.Version=weather-wind-1`.
 Seasonal climate wind supplies the broad direction; continuous seeded1.6-day
 pressure-strength and0.8-day intermittency proxies modulate the sustained wind

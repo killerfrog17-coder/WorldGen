@@ -15,6 +15,7 @@ namespace WorldGen.Core
         public GroundFungalRole FungalRole;
         public double HeightM,WidthM,Moisture,Shade,MinWarmC,MaxWarmC,MinPH,MaxPH,MaxSalinity,ColonyM;
         public HerbMorphology Morphology=>HerbMorphology.Decode(MorphologyCode);
+        public PlantMotionTraits Motion=>PlantMotion.Herb(MorphologyCode);
     }
     public struct HerbMorphology
     {

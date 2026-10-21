@@ -21,21 +21,25 @@ public sealed partial class LocalTerrainExplorer
         int seed=sourceWorld.Recipe.Seed;var at=Position;
         CurrentWindMps=WeatherWind.Sample(CurrentWeather,seed,at,frame.RadiusM,seconds);
         Vector3 mean=WindToChart(new V(CurrentWeather.WindEastMps,CurrentWeather.WindNorthMps,0));
-        Shader.SetGlobalVector("_WorldWindMean",new Vector4(mean.x,mean.y,mean.z,(float)CurrentWeather.GustMps));
-        Shader.SetGlobalVector("_WorldWindStats",new Vector4((float)CurrentWeather.WindGustChance,(float)CurrentWeather.WindGustDurationS,(float)CurrentWeather.WindTurbulence,0));
+        boundWindMean=new Vector4(mean.x,mean.y,mean.z,(float)CurrentWeather.GustMps);
+        boundWindStats=new Vector4((float)CurrentWeather.WindGustChance,(float)CurrentWeather.WindGustDurationS,(float)CurrentWeather.WindTurbulence,0);
+        Shader.SetGlobalVector("_WorldWindMean",boundWindMean);Shader.SetGlobalVector("_WorldWindStats",boundWindStats);
         var up=new Vector3((float)V.Dot(at,frame.East),(float)V.Dot(at,frame.Origin),(float)V.Dot(at,frame.North));
         double length=Math.Sqrt(frame.RadiusM*frame.RadiusM+motion.X*motion.X+motion.Z*motion.Z);
-        Shader.SetGlobalVector("_WorldWindAnchor",new Vector4((float)(motion.X-originX),0,(float)(motion.Z-originZ),(float)length));
-        Shader.SetGlobalVector("_WorldWindSphere",new Vector4(up.x,up.y,up.z,(float)frame.RadiusM));
+        boundWindAnchor=new Vector4((float)(motion.X-originX),0,(float)(motion.Z-originZ),(float)length);
+        boundWindSphere=new Vector4(up.x,up.y,up.z,(float)frame.RadiusM);
+        Shader.SetGlobalVector("_WorldWindAnchor",boundWindAnchor);Shader.SetGlobalVector("_WorldWindSphere",boundWindSphere);
         Shader.SetGlobalInteger("_WorldWindSeed",seed);
         Shader.SetGlobalFloat("_WorldWindPlantsEnabled",TerrainVideoOptions.GrassWind?1:0);
         for(int lane=0;lane<4;lane++)
         {
             V axis=WeatherWind.Axis(seed,lane)/WeatherWind.Wavelength(lane);
             double phase=WeatherWind.Phase(seed,lane,at,frame.RadiusM,seconds),cell=Math.Floor(phase);
-            Shader.SetGlobalVector(WindWaveIds[lane],new Vector4((float)V.Dot(axis,frame.East),(float)V.Dot(axis,frame.Origin),(float)V.Dot(axis,frame.North),(float)(phase-cell)));
-            if(lane<2)Shader.SetGlobalInteger(lane==0?"_WorldWindSlot0":"_WorldWindSlot1",unchecked((int)(long)cell));
+            boundWindWaves[lane]=new Vector4((float)V.Dot(axis,frame.East),(float)V.Dot(axis,frame.Origin),(float)V.Dot(axis,frame.North),(float)(phase-cell));
+            Shader.SetGlobalVector(WindWaveIds[lane],boundWindWaves[lane]);
+            if(lane<2){boundWindSlots[lane]=unchecked((int)(long)cell);Shader.SetGlobalInteger(lane==0?"_WorldWindSlot0":"_WorldWindSlot1",boundWindSlots[lane]);}
         }
+        UpdatePlantWind(seconds);
     }
     string WindDebugText
     {

@@ -151,6 +151,11 @@ public sealed partial class LocalTerrainExplorer
             var template=Resources.Load<Material>("LocalScatterMaterial");if(template==null)throw new InvalidOperationException("Scatter instancing material missing.");
             bool rock=kind==ScatterKind.Boulder||kind==ScatterKind.Stone||kind==ScatterKind.Outcrop;
             var material=new Material(template){enableInstancing=true};material.SetFloat("_Wind",kind==ScatterKind.Grass?.045f:rock||kind==ScatterKind.Fungus?0:kind==ScatterKind.Herb?.85f:.018f);material.SetFloat("_HerbWind",kind==ScatterKind.Herb?1:0);material.SetFloat("_FogDistance",(float)viewDistance);
+            if(kind==ScatterKind.Herb)
+            {
+                var motion=PlantMotion.Herb(variant);
+                material.SetVector("_PlantTraits",new Vector4((float)motion.Flexibility,(float)motion.Response,(float)motion.Damping,Math.Max(.001f,bounds.max.y)));
+            }
             if(rock)
             {
                 material.SetFloat("_RockLayer",8+variant/3);material.SetTexture("_RockAlbedo",landMaterial.GetTexture("_GroundAlbedo"));

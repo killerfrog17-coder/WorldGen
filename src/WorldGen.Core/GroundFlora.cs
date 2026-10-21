@@ -12,6 +12,7 @@ namespace WorldGen.Core
         public string Name="",Ancestor="";
         public V Color;
         public double Stature,LeafWidth;
+        public PlantMotionTraits Motion=>PlantMotion.Grass(Form,Stature,LeafWidth,Color);
     }
     public sealed class GroundFloraRegion
     {

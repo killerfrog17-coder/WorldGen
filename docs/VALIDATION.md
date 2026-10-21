@@ -1,5 +1,23 @@
 # Version 3 validation evidence
 
+## Plant spring response / owner-test-only /21October2026
+
+`player-plant-spring-wind` adds derived plant-motion1 metadata/mechanics and a
+shared GPU field for finite-memory second-order grass/herb response to recent
+wind, not instantaneous speed-to-angle placement.32x0.25s integrated impulse
+weights, four underdamped modes, continuous species/height-conditioned blending
+and adjacent absolute10Hz field interpolation. No per-plant CPU physics, shader
+_Time, birth-time spring resets, density/placement/world-history changes. Existing
+wind forcing and instantaneous precipitation drift remain unchanged. See
+PROCEDURAL_WEATHER.md/GROUND_FLORA.md for sources,1s weather-parameter history,
+bounded field costs/fallback, modal approximation and lack of obstacle airflow.
+Per owner direction: compile/package ONLY. No test suites, numerical impulse
+checks, native fixtures, game launches, images or profiling. Source derivation
+does not establish runtime smoothness, FPS or botanical calibration; owner
+checks gust recovery, steady-wind bias, different heights/species and LODs.
+IL2CPP compile/package exited0 at21Oct15:14:40Z; player, worker and manifest
+packaged on real C:. Shortcut updated; owner's game/saves untouched.
+
 ## Shared weather wind / owner-test-only /21October2026
 
 `player-weather-shared-wind` adds weather-preview4/wind1: separate sustained

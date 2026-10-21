@@ -3,7 +3,7 @@
 #include "WorldGenLodFade.hlsl"
 #include "WorldGenWind.hlsl"
 TEXTURE2D(_BaseMap);SAMPLER(sampler_BaseMap);
-float4 _BaseMap_ST,_BaseColor;float _Cutoff,_Wind,_HerbWind;
+float4 _BaseMap_ST,_BaseColor,_PlantTraits;float _Cutoff,_Wind,_HerbWind;
 float3 _LightDirection,_LightPosition;
 UNITY_INSTANCING_BUFFER_START(Props)
     UNITY_DEFINE_INSTANCED_PROP(float4,_Tint)
@@ -15,7 +15,7 @@ O vert(A a)
 {
     O o;UNITY_SETUP_INSTANCE_ID(a);UNITY_TRANSFER_INSTANCE_ID(a,o);
     float3 p=TransformObjectToWorld(a.positionOS.xyz),root=TransformObjectToWorld(float3(0,0,0));
-    p=WorldGenScatterWind(p,root,_HerbWind>.5?a.bend.x:a.uv.y,_Wind,_HerbWind);
+    p=WorldGenScatterWind(p,root,_HerbWind>.5?a.bend.x:a.uv.y,_Wind,_HerbWind,_PlantTraits);
     #ifdef WORLDGEN_SHADOW_PASS
     float3 lightDirection=_LightDirection;
     #if _CASTING_PUNCTUAL_LIGHT_SHADOW

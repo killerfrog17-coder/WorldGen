@@ -52,6 +52,7 @@ public sealed partial class LocalTerrainExplorer
         var s=species[index-1];var m=s.Morphology;
         return new PlayCommandResult(true,s.Name+" · "+s.Form+" · founder "+s.Founder,
             "Height "+s.HeightM.ToString("F2")+"m; width "+s.WidthM.ToString("F2")+"m; "+(s.Form==SpecialistForm.Fungus?s.FungalRole.ToString():s.Form==SpecialistForm.Fern?m.Fronds+" fronds":m.Petals+" petals, "+m.Heads+" heads"),
-            "Warm-season niche "+s.MinWarmC.ToString("F0")+"–"+s.MaxWarmC.ToString("F0")+"°C; aridity-index preference "+s.Moisture.ToString("F2")+"; shade "+(s.Shade*100).ToString("F0")+"%; pH "+s.MinPH.ToString("F1")+"–"+s.MaxPH.ToString("F1")+"; colony scale "+s.ColonyM.ToString("F0")+"m.");
+            "Warm-season niche "+s.MinWarmC.ToString("F0")+"–"+s.MaxWarmC.ToString("F0")+"°C; aridity-index preference "+s.Moisture.ToString("F2")+"; shade "+(s.Shade*100).ToString("F0")+"%; pH "+s.MinPH.ToString("F1")+"–"+s.MaxPH.ToString("F1")+"; colony scale "+s.ColonyM.ToString("F0")+"m.",
+            "Motion phenotype (relative): flexibility "+s.Motion.Flexibility.ToString("F2")+"; response speed "+s.Motion.Response.ToString("F2")+"; damping "+s.Motion.Damping.ToString("F2")+". Actual height also affects leverage/response.");
     }
 }
