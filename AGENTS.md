@@ -9,8 +9,11 @@ after one slow frame and zero elapsed time. Prior surface-refined is rollback.
 An independent PresentMon capture of the owner's preceding running player
 records895 presents/~89.79FPS, sync interval1, median11.1132ms/present and
 6.9882ms GPU busy. This confirms real half-refresh pacing for that VSync-on
-view, not a target value of90 or merely the F3 number; VSync-off200->100
-report is still unverified. No user preferences or running game changed.
+view, not a target value of90 or merely the F3 number. Subsequent VSync-off/
+target200 capture records1359 presents/~136.04FPS overall,113–156FPS per-second
+windows, sync interval0: no unconditional target-halving. Owner's specific
+angle-dependent100FPS lock is not yet reproduced. No preferences/game changed
+by our diagnostics.
 
 Current OWNER REVIEW launch,20October2026: shortcut selects
 `artifacts/player-surface-refined/WorldGen.exe` (IL2CPP21Oct04:51:06Z), a real C:

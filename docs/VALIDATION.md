@@ -22,6 +22,15 @@ for180Hz. Owner's separately reported VSync-off target200/actual100 has not
 yet been reproduced. Capture was non-admin, no overlay/driver install,
 no game interaction or preference changes; Unity compiler was already stopped.
 
+After owner changed preferences to VSync-off/target200, a second10s trace
+(`artifacts/fps-diagnostic/owner-off200.csv`) records1359 presents,136.0359FPS
+overall,113.1–156.6FPS per-second windows; sync interval0 throughout, hardware
+independent flip, median6.9633ms between presents and6.6175ms GPU busy. The
+view was not locked by the diagnostic, so this does not reproduce or refute
+the reported particular-angle100FPS lock. It rules out an unconditional
+target200->100 division in this running process. Owner was asked to hold
+the affected view for a separate capture; that reproduction remains pending.
+
 ## Fine surface and opaque transitions /20October2026
 
 `player-surface-refined`, final IL2CPP21Oct04:51:06Z, real C: output. See
