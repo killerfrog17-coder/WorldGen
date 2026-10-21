@@ -1,5 +1,19 @@
 # WorldGen repository instructions
 
+Owner-authorized artifact retention,20October2026: playable build folders now
+retain only the newest per local calendar date plus newest three overall.
+Current adaptive-terrain, terrain-reuse, lod-coverage-debug and daily drainage-
+fractal are restored as real C: folders (all copied file SHA256 hashes checked),
+alongside daily local-scatter, history32-sovereignty34 and realms-autowarp.
+Historical launch notes below do NOT imply those old build folders still exist.
+All deletions are confined to artifacts: obsolete real C: builds and nonrecursive
+junction removal only. E: original data and the separate music junction are not
+deleted or relocated. World saves, non-player evidence, source and audio remain.
+Use scripts/prune-player-checkpoints.ps1 dry run for inspection; an actual future
+cleanup needs owner authorization. Detailed operation manifest is ignored
+artifacts/checkpoint-retention.json. Do not recreate E: build junctions to work
+around space pressure; build on C: and review obsolete outputs with the owner.
+
 Current OWNER REVIEW launch,20October2026: shortcut selects
 `artifacts/player-adaptive-terrain/WorldGen.exe` (IL2CPP21Oct03:42:45Z).
 Owner-authorized steps4/5 add estimated screen-error terrain selection with a

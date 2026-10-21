@@ -1,5 +1,30 @@
 # Version 3 validation evidence
 
+## Owner-authorized playable-checkpoint cleanup /20October2026
+
+Only direct playable build folders under `artifacts` were pruned. Retention:
+newest checkpoint per local calendar date plus newest three overall, protecting
+the selected/running build.101 builds reduced to7: daily16Oct realms-autowarp,
+17Oct sovereignty34,18Oct local-scatter,19Oct terrain-drainage-fractal,20Oct
+adaptive-terrain; terrain-reuse and lod-coverage-debug complete the latest3.
+The owner closed the active game before installation migration; no game was
+forcibly closed.
+
+52 obsolete real C: build directories were permanently deleted and42 obsolete
+artifact junctions removed NONRECURSIVELY. No external target was deleted.
+Four retained E-backed builds were copied, every file SHA256 verified, and their
+artifact junctions replaced with real C: folders. External E: originals and the
+separate music junction remain untouched under the artifacts-only restriction.
+No world saves, source, audio or non-player artifact evidence were deleted.
+
+Net C: free-space increase44.92GiB; free50.77GiB at final audit. Exactly7 real
+player directories and zero artifact junctions remain. The selected shortcut
+target exists unchanged. Repeat dry run:7 found/7 kept/0 removed/0 copied.
+`scripts/prune-player-checkpoints.ps1` defaults to read-only preview; no recurring
+cleanup is scheduled. Full ignored inventory/operation manifest:
+`artifacts/checkpoint-retention.json`. Historical validation/launch references
+below may name player binaries that were intentionally removed by this policy.
+
 ## Adaptive terrain, loading controls and settings /20October2026
 
 `player-adaptive-terrain`, IL2CPP21Oct03:42:45Z. See ADAPTIVE_TERRAIN.md for
