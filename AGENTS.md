@@ -1,5 +1,17 @@
 # WorldGen repository instructions
 
+FPS HUD follow-up,21October2026: `artifacts/player-fps-average/WorldGen.exe`
+is the current shortcut checkpoint (IL2CPP21Oct05:14:09Z). F3 counts
+Update frames over realtime-clock half-second windows and holds the rounded average
+between updates; no frame limiter, VSync, terrain or world changes. Extracted
+production-method checks cover publication timing, averaged rates, held display
+after one slow frame and zero elapsed time. Prior surface-refined is rollback.
+An independent PresentMon capture of the owner's preceding running player
+records895 presents/~89.79FPS, sync interval1, median11.1132ms/present and
+6.9882ms GPU busy. This confirms real half-refresh pacing for that VSync-on
+view, not a target value of90 or merely the F3 number; VSync-off200->100
+report is still unverified. No user preferences or running game changed.
+
 Current OWNER REVIEW launch,20October2026: shortcut selects
 `artifacts/player-surface-refined/WorldGen.exe` (IL2CPP21Oct04:51:06Z), a real C:
 folder. Derived Hyper12 adds bounded cubic reconstruction of the existing8m

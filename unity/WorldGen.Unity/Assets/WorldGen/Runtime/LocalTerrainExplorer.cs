@@ -101,6 +101,9 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     }
     void Update()
     {
+        double fpsNow=Time.realtimeSinceStartupAsDouble;
+        if(fpsClock>0)UpdateDebugFps(fpsNow-fpsClock);
+        fpsClock=fpsNow;
         RecordLoadingFrame();
         if(closed)return;
         bool chatInput=HandleChatKeys();if(!chatInput)HandleDebugKeys();if(closed)return;

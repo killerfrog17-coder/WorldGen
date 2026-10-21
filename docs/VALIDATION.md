@@ -1,5 +1,27 @@
 # Version 3 validation evidence
 
+## FPS HUD averaging /21October2026
+
+F3 now displays counted Update frames divided by realtime-clock elapsed time over
+half-second windows, retaining the rounded result between windows. No frame
+limit or VSync behavior changes. Five extracted-production-method checks pass:
+no early publication,100 FPS window, unchanged display immediately after one
+slow frame,98 FPS elapsed-weighted next window and zero-time guard. Native
+IL2CPP player `player-fps-average` built21Oct05:14:09Z and shortcut updated.
+Counter uses realtimeSinceStartupAsDouble differences, not smoothDeltaTime,
+so the displayed average is independent of Unity's smoothed frame-duration
+estimate. No new performance claim or solved frame-pacing bug is implied.
+
+Independent portable PresentMon2.6.0 capture of owner-running prior player
+PID21932:895 DXGI presents/~10s,89.7905FPS, median11.1132ms between presents,
+6.9882ms GPU busy; all observed SyncInterval values1, hardware-composed
+independent flip. Raw evidence:artifacts/fps-diagnostic/owner-present.csv.
+This distinguishes real VSync-on half-refresh pacing from an F3-only display
+error or an explicit interval2 request. GPU busy exceeds the5.556ms budget
+for180Hz. Owner's separately reported VSync-off target200/actual100 has not
+yet been reproduced. Capture was non-admin, no overlay/driver install,
+no game interaction or preference changes; Unity compiler was already stopped.
+
 ## Fine surface and opaque transitions /20October2026
 
 `player-surface-refined`, final IL2CPP21Oct04:51:06Z, real C: output. See

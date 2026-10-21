@@ -9,6 +9,15 @@ using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
+    int fpsFrames;double fpsElapsed,fpsClock;string fpsDisplay="…";
+    void UpdateDebugFps(double elapsed)
+    {
+        if(elapsed<=0)return;
+        fpsFrames++;fpsElapsed+=elapsed;
+        if(fpsElapsed<.5)return;
+        fpsDisplay=(fpsFrames/fpsElapsed).ToString("F0");
+        fpsFrames=0;fpsElapsed=0;
+    }
     bool debugOpen,mapOpen,paused,mapDirty,mapDragging,mapLayerMenu; double viewDistance=200000,mapDue;
     Vector2 mapDown,mapPrevious,mapLayerScroll; Rect mapRect;
     TerrainMapViewport mapViewport=new TerrainMapViewport(),shownMapViewport;
@@ -101,7 +110,7 @@ public sealed partial class LocalTerrainExplorer
         TerrainMapViewport.Degrees(Position,out double lat,out double lon);
         if(playState!=null)lon=playState.OfficialLongitude(lon);
         double bearing=ExplorerNavigation.Bearing(frame,Position,heading);
-        return "WORLDGEN  ·  "+(1/Math.Max(.001,Time.smoothDeltaTime)).ToString("F0")+" FPS\n"+lat.ToString("F6")+"°, "+lon.ToString("F6")+"°  ·  scale "+HorizontalScale.ToString("G3")+"\n"+
+        return "WORLDGEN  ·  "+fpsDisplay+" FPS\n"+lat.ToString("F6")+"°, "+lon.ToString("F6")+"°  ·  scale "+HorizontalScale.ToString("G3")+"\n"+
             "Facing "+ExplorerNavigation.Compass(bearing)+" · "+bearing.ToString("F1")+"° (N 0°, E 90°, S 180°, W 270°)\n"+
             "Elevation "+(walkingPatch.Sample(Position).ElevationM+HeightAboveGround).ToString("F1")+" m  ·  ground clearance "+HeightAboveGround.ToString("F2")+" m\n"+GroundDebugText+"\n"+
             (motion.Flying?"Flying":ActiveKeyboard!=null&&ActiveKeyboard.cKey.isPressed?"Walking":ActiveKeyboard!=null&&ActiveKeyboard.shiftKey.isPressed?"Sprinting":"Jogging")+"  ·  "+Diagnostics+"\nScatter "+ScatterObjects.ToString("N0")+" instances  ·  "+ScatterDrawCalls+" draws"+
