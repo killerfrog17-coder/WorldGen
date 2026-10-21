@@ -1,5 +1,13 @@
 # Ground layer / ground-flora-5
 
+## Future ground-effects boundary /21October2026
+
+See GROUND_SURFACE_STATE.md and Core's `IGroundSurfaceStateProvider`: independent
+soil moisture/surface wetness, snow cover/depth, actual connected surface water
+and long-term inundation exposure. Interface only, no provider or consumer wired
+in, no changes to flora generation/placement/rendering. Shrubs/trees can adopt
+this boundary later without inventing separate wetness/snow interpretations.
+
 ## Documented layered wind /21October2026
 
 `player-layered-vegetation-wind` adapts the researched Crysis main-bend/detail

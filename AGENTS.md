@@ -1,5 +1,13 @@
 # WorldGen repository instructions
 
+Surface-effects foundation,21October2026: Core GroundSurfaceState.cs adds an
+UNWIRED query/provider contract (unknown != dry) for independent soil moisture,
+surface wetness, snow cover/depth/SWE, actual connected water levels and long-term
+inundation/waterlogging exposure. No provider, generation/placement/renderer call,
+save/worker schema or new water simulation. See docs/GROUND_SURFACE_STATE.md.
+Shortcut remains player-layered-vegetation-wind; owner has approved its wind.
+This interface-only checkpoint needs shared-project compilation, not a new player.
+
 Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
 `artifacts/player-layered-vegetation-wind/WorldGen.exe` (IL2CPP16:10:19Z), real C:.
 Owner approves following documented Crysis/Sucker Punch/SpeedTree architectures:

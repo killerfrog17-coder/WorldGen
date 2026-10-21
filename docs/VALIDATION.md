@@ -1,5 +1,16 @@
 # Version 3 validation evidence
 
+## Ground surface state / interface-only /21October2026
+
+Added Core query/state/provider contracts and integration documentation only.
+No runtime provider or consumer is installed; generation, ecology, weather,
+water/terrain meshes, wind, serialization and scatter remain unchanged. Nullable
+inputs distinguish unknown from zero; water coverage must precede a body datum.
+Core + Presentation Release compilation passes with zero warnings/errors;
+no suites/game launches, profiling, save/hash audits or new playable package.
+The shortcut stays on the
+existing layered-wind build, which the owner has now explicitly approved visually.
+
 ## Documented layered vegetation wind / owner-test-only /21October2026
 
 `player-layered-vegetation-wind` adapts the primary Crysis/Sucker Punch/SpeedTree
