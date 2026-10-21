@@ -41,6 +41,8 @@ namespace WorldGen.Presentation
         // Regular-grid ground flora: RGB/cover,9 growth-form weights,stature,
         // leaf width and rendered height. Local GPU cover reuses this surface.
         public float[] GroundCover = Array.Empty<float>();
+        // Distant mid-height cover: RGB,projected cover fraction,height,width.
+        public float[] MidCover = Array.Empty<float>();
         public int[] Triangles = Array.Empty<int>();
         public int[] WaterTriangles = Array.Empty<int>();
         public int[] WaterClipTriangles = Array.Empty<int>();
@@ -73,6 +75,7 @@ namespace WorldGen.Presentation
             // Every terrain LOD needs the grass/moss/lichen material mixture.
             // Only nearby tiles create geometry from this compact regular grid.
             mesh.GroundCover=new float[ground*16];
+            mesh.MidCover=new float[ground*6];
             var heights = new double[halo * halo]; var samples = new LocalTerrainSample[ground];
             for (int z = -1; z <= side; z++)
             {
@@ -125,6 +128,10 @@ namespace WorldGen.Presentation
                 var cover=GroundFlora.Surface(sample.Cover,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,
                     terrain.RadiusM*frame.HorizontalScale,sample.Ground,sample.ElevationM,sample.BaseElevationM,up,sample.Underwater,snow,sample.Biome);
                 double coverage=D.Clamp(cover.Coverage);
+                var mid=sample.MidCover;double midAmount=sample.Underwater||sample.ElevationM<2?0:
+                    mid.Coverage*MidFlora.StandDensity(frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,terrain.RadiusM*frame.HorizontalScale)*D.Clamp((up-.65)/.25);
+                int midAt=i*6;mesh.MidCover[midAt]=(float)mid.Color.X;mesh.MidCover[midAt+1]=(float)mid.Color.Y;mesh.MidCover[midAt+2]=(float)mid.Color.Z;
+                mesh.MidCover[midAt+3]=(float)midAmount;mesh.MidCover[midAt+4]=(float)mid.HeightM;mesh.MidCover[midAt+5]=(float)mid.WidthM;
                 double visibleCover=D.Clamp(coverage/.45);
                 color=color*(1-visibleCover)+cover.Color*(.90*visibleCover);
                 if(mesh.GroundCover.Length>0)

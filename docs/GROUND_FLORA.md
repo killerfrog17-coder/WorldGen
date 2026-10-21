@@ -1,5 +1,13 @@
 # Ground layer / ground-flora-5
 
+## Mid-height layer /21October2026
+
+See MID_HEIGHT_FLORA.md: derived regional bush/scrub/heath/cane/fern/reed/succulent
+species, four structural variants, three local LODs and far material summaries.
+Generated flower/fruit and tissue-hazard metadata are inspectable in ecoregion
+profiles and `/midflora N`, not new food-web/gameplay effects. Grass and existing
+trees are not overhauled. Distant merged-volume/impostor work remains explicit.
+
 ## Future ground-effects boundary /21October2026
 
 See GROUND_SURFACE_STATE.md and Core's `IGroundSurfaceStateProvider`: independent

@@ -94,6 +94,7 @@ namespace WorldGen.Core
                     Phase = Rng.Value(seed, "local-terrain-phase-2", sharedFabric?fabricKeys[i]:i) * 2 * D.Pi
                 };
                 profiles[i].Cover=flora.Cell(i,profiles[i].Ground);
+                profiles[i].MidCover=MidFlora.Describe(habitat,profiles[i].Ground,FloraRegion(i).MidPlants,profiles[i].Biome);
             }
             token.ThrowIfCancellationRequested(); locator = new CellLocator(world.Surface.Cells); token.ThrowIfCancellationRequested();
             faceOffsets = new int[profiles.Length + 1]; foreach(int id in world.Surface.Triangles) faceOffsets[id + 1]++;
@@ -244,7 +245,7 @@ namespace WorldGen.Core
                 double micro = amplified==null?SphereNoise.Sample(km, seed ^ 0x6819, 10):0;
                 double sum = 0, hills = 0, mountains = 0, plateau = 0, sediment = 0, glacier = 0, sharpness = 0, bestWeight = -1, red = 0, green = 0, blue = 0, ocean = 0;
                 bool heightOnly=dry;double rockA=0,rockB=0;
-                int cell = -1; Biome biome = Biome.Grassland;var ground=new GroundProfile();var cover=new GroundCoverProfile();
+                int cell = -1; Biome biome = Biome.Grassland;var ground=new GroundProfile();var cover=new GroundCoverProfile();var midCover=new MidCoverProfile();
                 for(int sourceIndex=0;sourceIndex<sources.Length;sourceIndex++)
                 {
                     ref readonly var f=ref sources[sourceIndex];
@@ -255,7 +256,7 @@ namespace WorldGen.Core
                     double r = Math.Sqrt(dist2), t = 1 - r, weight = t * t * t * t * (1 + 4 * r);
                     sum += weight; hills += weight * f.HillHeightM;
                     sharpness+=weight*f.Sharpness;
-                    if(!heightOnly){ground.Add(f.Ground,weight);cover.Add(f.Cover,weight);}
+                    if(!heightOnly){ground.Add(f.Ground,weight);cover.Add(f.Cover,weight);midCover.Add(f.MidCover,weight);}
                     else
                     {
                         // Match the quantized two lithology components used by
@@ -274,10 +275,10 @@ namespace WorldGen.Core
                 if(amplified!=null)
                 {
                     var surface=amplified.Sample(point,dry);
-                    if(!heightOnly){ground.Divide(sum);cover.Divide(sum);}
+                    if(!heightOnly){ground.Divide(sum);cover.Divide(sum);midCover.Divide(sum);}
                     return new LocalTerrainSample{ElevationM=D.Q(surface.Height,1000),PreWaterElevationM=D.Q(surface.UnshapedHeight,1000),
                         BaseElevationM=D.Q(surface.UnshapedHeight,1000),MountainHeightM=mountains/sum,HillHeightM=hills/sum,
-                        Plateau=plateau/sum,Sediment=sediment/sum,GlacialInfluence=glacier/sum,Cell=cell,Biome=biome,Ground=ground,Cover=cover,
+                        Plateau=plateau/sum,Sediment=sediment/sum,GlacialInfluence=glacier/sum,Cell=cell,Biome=biome,Ground=ground,Cover=cover,MidCover=midCover,
                         CoverColor=new V(red/sum,green/sum,blue/sum),OceanInfluence=ocean/sum,
                         WaterSurfaceM=surface.Water,WaterMaskM=surface.Mask,RiverInfluence=surface.RiverInfluence,
                         WaterKind=surface.Kind,WaterBodyKey=surface.BodyKey,WaterGradient=surface.Gradient,WaterFootprintM=surface.Footprint,
@@ -312,7 +313,7 @@ namespace WorldGen.Core
                 double coast = Smooth(Math.Abs(baseM) / 100);
                 if (baseM < 0) residual = (12 * broad + 4 * medium + fine) * coast;
                 else residual = Math.Max(-.9 * baseM, residual * coast);
-                if(!heightOnly){ground.Divide(sum);cover.Divide(sum);}
+                if(!heightOnly){ground.Divide(sum);cover.Divide(sum);midCover.Divide(sum);}
                 // Zero-height noise used to lock every coast to the coarse
                 // triangle contour. A bounded continuous shoreline band permits
                 // inlets/headlands on flat cells without ocean-cell borders.
@@ -328,7 +329,7 @@ namespace WorldGen.Core
                 elevation=D.Q(elevation,1000);
                 return new LocalTerrainSample { ElevationM = elevation, PreWaterElevationM=preWater, BaseElevationM = D.Q(baseM, 1000),
                     MountainHeightM = m, HillHeightM = h, Plateau = plateau / sum, Sediment = s,
-                    GlacialInfluence = glacier / sum, Cell = cell, Biome = biome,Ground=ground,Cover=cover,
+                    GlacialInfluence = glacier / sum, Cell = cell, Biome = biome,Ground=ground,Cover=cover,MidCover=midCover,
                     CoverColor = new V(red / sum, green / sum, blue / sum), OceanInfluence = oceanFraction,
                     WaterSurfaceM = level,WaterMaskM=mask,RiverInfluence=river };
             }
@@ -360,6 +361,7 @@ namespace WorldGen.Core
         public Biome Biome;
         public GroundProfile Ground;
         public GroundCoverProfile Cover;
+        public MidCoverProfile MidCover;
         internal V Center, FabricOrigin, Axis, Across, Gradient;
         internal double SupportM, Phase;
     }
@@ -372,6 +374,7 @@ namespace WorldGen.Core
         public Biome Biome;
         public GroundProfile Ground;
         public GroundCoverProfile Cover;
+        public MidCoverProfile MidCover;
         // Derived local geometry, not simulation ownership or saved world data.
         // Gradient is metres of surface elevation per unit planetary direction.
         // Footprint excludes depth: the renderer clips against its actual land

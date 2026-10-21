@@ -16,6 +16,8 @@ Shader "WorldGen/LocalTerrain"
         _LichenField("Stationary lichen crust",2D)="gray"{}
         _FloraSurface("Ground vegetation material weights",2D)="black"{}
         _FloraSurfaceEnabled("Local vegetation weights",Float)=0
+        _MidSurface("Mid-height foliage colour/coverage",2D)="black"{}
+        _MidSurfaceEnabled("Mid-height cover weights",Float)=0
         _TerrainCoverage("Resident coverage tree",2D)="black"{}
         _CoverageEnabled("Partial fallback",Float)=0
         _CoverageTileSize("Tile size",Float)=1
@@ -48,6 +50,7 @@ Shader "WorldGen/LocalTerrain"
             TEXTURE2D(_GrassField);SAMPLER(sampler_GrassField);
             TEXTURE2D(_MossField);SAMPLER(sampler_MossField);TEXTURE2D(_LichenField);SAMPLER(sampler_LichenField);
             TEXTURE2D(_FloraSurface);SAMPLER(sampler_FloraSurface);float4 _FloraSurface_TexelSize;float _FloraSurfaceEnabled;
+            TEXTURE2D(_MidSurface);SAMPLER(sampler_MidSurface);float4 _MidSurface_TexelSize;float _MidSurfaceEnabled;
             Texture2D<float4> _TerrainCoverage;float _CoverageEnabled,_CoverageTileSize;
             Texture2D<float4> _CoverageFadeTimes;float _TransitionEnabled,_LodSafetyRadius;float4 _LodFade;
             float _Water,_FogDistance,_TextureMetres,_Daylight,_RockLayers,_GroundFlora;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint;
@@ -221,6 +224,19 @@ Shader "WorldGen/LocalTerrain"
                     }
                 }
                 color=color*(1-grassMix-mossMix-lichenMix)+vegetation;
+                if(_MidSurfaceEnabled>.5)
+                {
+                    float4 mid=SAMPLE_TEXTURE2D(_MidSurface,sampler_MidSurface,i.coverageUV*(1-_MidSurface_TexelSize.xy)+.5*_MidSurface_TexelSize.xy);
+                    float3 midAlbedo=mid.rgb;
+                    #ifndef UNITY_COLORSPACE_GAMMA
+                    midAlbedo=SRGBToLinear(midAlbedo);
+                    #endif
+                    // Projected foliage cover, not painted solid shrub-coloured soil.
+                    // Fade in as fine instance coverage becomes unresolved.
+                    float amount=saturate(mid.a)*smoothstep(180,1000,distance);
+                    float3 midLight=WorldGenGrassLight(midAlbedo,n,i.position,_AmbientTint.rgb,_Daylight);
+                    color=lerp(color,midLight,amount);
+                }
                 color+=SecondaryCelestialLight(n,s.albedo);
                 return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,fogColor,_FogDistance),1);
             }

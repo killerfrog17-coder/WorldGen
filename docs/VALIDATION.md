@@ -1,5 +1,23 @@
 # Version 3 validation evidence
 
+## Mid-height flora / owner-test-only /21October2026
+
+Generated seven structural families with fourteen regional potential taxa/four
+model variants each, three local LODs, physical colony placement, shared approved
+wind, soft-bounded unused art cache, distant cover colour grids and debug controls.
+Reproductive and tissue-specific relative toxicity metadata are inspectable in
+`/midflora` and ecoregion profiles; no harvesting/poison/seasonal/food-web rules.
+LocalScatter6 and wire4 package together. Existing terrain heights, hydrology,
+world/history/save definitions and grass/tree definitions remain unchanged.
+No source-hash or behaviour regression audit is claimed: compile/package only,
+no suites/fixtures, native launch, screenshots or profiling under owner direction.
+The first packaging pass was followed by source corrections; only the final
+player-mid-flora-ready package is selected by the shortcut. Final IL2CPP compile/
+package exit0 at21Oct17:05:32Z, including bundled worker. Owner notification sent;
+their running game/saves are untouched. Art/abundance/LOD/FPS review is pending.
+See MID_HEIGHT_FLORA.md for colour-summary approximation, soft cache target,
+geometry cost and missing merged distant vegetation volumes/seasonal effects.
+
 ## Ground surface state / interface-only /21October2026
 
 Added Core query/state/provider contracts and integration documentation only.

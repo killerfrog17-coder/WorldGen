@@ -97,6 +97,16 @@ namespace WorldGen.Presentation
                 if(t.Traits!=null)b.Append(" | captive breeding ").Append(t.Traits.CaptiveBreeding/10).Append("% · docility ").Append(t.Traits.Docility/10).Append("% · panic resistance ").Append(t.Traits.PanicResistance/10).Append("% (authored trait indices)");
             }
             b.Append("\n* Suitable and accessible in this cell; other entries occur elsewhere in this ecoregion.");
+            b.Append("\n\nGENERATED MID-HEIGHT FLORA — derived regional potential, separate from recorded food-web taxa");
+            var midSpecies=GroundFlora.For(w).Region(id).MidPlants;
+            foreach(var plant in midSpecies)
+            {
+                var reproduction=plant.Reproduction;
+                b.Append("\n").Append(plant.Name).Append(" | ").Append(plant.Form).Append(" | ").Append(F(plant.HeightM)).Append(" m | ").Append(reproduction.Fruit);
+                b.Append(" | flowers ").Append(reproduction.HasFlowers?"yes":"no (spores)");
+                b.Append(" | relative ingestion hazard: flesh ").Append(F(reproduction.FleshToxicity)).Append(", seeds ").Append(F(reproduction.SeedToxicity)).Append(", leaves ").Append(F(reproduction.LeafToxicity));
+            }
+            b.Append("\nFictional 0–1 hazard indices, not calibrated doses or animal-specific tolerance. Potential candidates do not all occur in this cell; no harvesting or new food-web feeding links yet.");
             b.Append("\n\nFOOD WEB — resource -> consumer (potential feeding, not population simulation)");
             foreach(var link in r.FoodWeb)
                 b.Append("\n").Append(e.Taxa[link.ResourceId].Name).Append(" -> ").Append(e.Taxa[link.ConsumerId].Name).Append(" | ").Append(link.Resource).Append(" | co-occurs on ").Append(F(link.OverlapPermille/10.0)).Append("% of region");

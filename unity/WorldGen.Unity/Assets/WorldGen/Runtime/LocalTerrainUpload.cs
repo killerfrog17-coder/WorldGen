@@ -38,14 +38,14 @@ public sealed partial class LocalTerrainExplorer
         public double EastM,NorthM,BuildMilliseconds,BufferMilliseconds;
         public int Segments;
         public long BufferBytes;
-        public float[] Heights,Cover;
+        public float[] Heights,Cover,MidCover;
         public bool HasWater=>bounds.Length==2;
 
         public static TerrainUpload Prepare(LocalTerrainMesh source,CancellationToken token)
         {
             var watch=System.Diagnostics.Stopwatch.StartNew();
             var result=new TerrainUpload{EastM=source.EastM,NorthM=source.NorthM,Segments=source.Segments,BuildMilliseconds=source.BuildMilliseconds,
-                Heights=new float[source.GroundVertices],Cover=source.GroundCover,bounds=new Bounds[source.WaterTriangles.Length>0?2:1]};
+                Heights=new float[source.GroundVertices],Cover=source.GroundCover,MidCover=source.MidCover,bounds=new Bounds[source.WaterTriangles.Length>0?2:1]};
             result.buffers=Mesh.AllocateWritableMeshData(result.bounds.Length);result.live=1;
             try
             {
@@ -82,7 +82,7 @@ public sealed partial class LocalTerrainExplorer
                     data.SetSubMesh(0,new SubMeshDescriptor(0,indices.Length,MeshTopology.Triangles){bounds=result.bounds[part],vertexCount=count},
                         MeshUpdateFlags.DontRecalculateBounds|MeshUpdateFlags.DontValidateIndices);
                 }
-                result.BufferBytes+=(long)(result.Heights.Length+result.Cover.Length)*4;result.BufferMilliseconds=watch.Elapsed.TotalMilliseconds;return result;
+                result.BufferBytes+=(long)(result.Heights.Length+result.Cover.Length+result.MidCover.Length)*4;result.BufferMilliseconds=watch.Elapsed.TotalMilliseconds;return result;
             }
             catch{result.Dispose();throw;}
         }

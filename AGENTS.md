@@ -1,5 +1,19 @@
 # WorldGen repository instructions
 
+Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
+`artifacts/player-mid-flora-ready/WorldGen.exe` (IL2CPP17:05:32Z), real C:.
+Compile/package exit0; earlier player-mid-flora is an unpublished intermediate.
+Seven procedural structural families/14 regional taxa, four instanced variants,
+three geometry LODs, habitat colonies, owner-approved wind and distant material
+coverage summaries. `/midflora N` and ecoregion profiles expose reproduction and
+fictional relative flesh/seed/leaf hazards; no dose/poison/harvesting/seasonal or
+food-web rule upgrade. Existing grass/trees/water/heights/history unchanged.
+Wire4 transports six-float mid-cover grids; no save schema change. Far geometry
+uses individual cheapest instanced models, NOT merged thicket/canopy proxies or
+multi-view impostors. See MID_HEIGHT_FLORA.md for limits. Owner compile-only
+direction: no agent tests/player launches/profiling. Leave their game untouched.
+Owner notified for art/abundance/LOD/FPS review; no visual/performance acceptance.
+
 Surface-effects foundation,21October2026: Core GroundSurfaceState.cs adds an
 UNWIRED query/provider contract (unknown != dry) for independent soil moisture,
 surface wetness, snow cover/depth/SWE, actual connected water levels and long-term

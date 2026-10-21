@@ -16,6 +16,9 @@ public static class TerrainVideoOptions
     public static float VegetationWindResponse=6;
     public static bool GrassCanopy=true;
     public static bool SpecialistPlants=true;
+    public static bool MidPlants=true;
+    public static int MidPlantDetail=2;
+    public static float MidPlantRange=1;
     public static void Load()
     {
         Current.Quality=Mathf.Clamp(PlayerPrefs.GetInt("terrain-quality",2),0,4);
@@ -76,6 +79,11 @@ public sealed partial class WorldGenRuntime
         GUILayout.Label("Wind response: "+TerrainVideoOptions.VegetationWindResponse.ToString("F0")+" seconds");
         TerrainVideoOptions.VegetationWindResponse=GUILayout.HorizontalSlider(TerrainVideoOptions.VegetationWindResponse,2,12);
         TerrainVideoOptions.SpecialistPlants=GUILayout.Toggle(TerrainVideoOptions.SpecialistPlants,"Generated flowers, low herbs, ferns and fungi");
+        TerrainVideoOptions.MidPlants=GUILayout.Toggle(TerrainVideoOptions.MidPlants,"Generated mid-height plants · shrubs, reeds, ferns and succulents");
+        GUILayout.Label("Mid-height geometry quality");
+        TerrainVideoOptions.MidPlantDetail=GUILayout.SelectionGrid(TerrainVideoOptions.MidPlantDetail,new[]{"Low","Medium","High"},3);
+        GUILayout.Label("Mid-height draw distance  "+TerrainVideoOptions.MidPlantRange.ToString("F2")+"× (size-dependent)");
+        TerrainVideoOptions.MidPlantRange=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.MidPlantRange,.4f,1.25f)*20)/20;
         if(GUILayout.Button("Reset grass prototype defaults"))
         {TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDistance=350;TerrainVideoOptions.GrassBladeDistance=45;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassWind=true;TerrainVideoOptions.WeatherDrivenVegetationWind=true;TerrainVideoOptions.VegetationWindResponse=6;}
         GUILayout.Space(10);

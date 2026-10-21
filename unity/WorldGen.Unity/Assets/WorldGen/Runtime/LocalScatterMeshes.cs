@@ -78,6 +78,7 @@ static partial class LocalScatterMeshes
     public static Mesh Build(ScatterKind kind,int detail,int variant)
     {
         if(kind==ScatterKind.Herb||kind==ScatterKind.Fungus)return BuildSpecialist(variant,detail);
+        if(kind==ScatterKind.MidPlant)return BuildMidPlant(variant,detail);
         var b=new Builder();Color leaf=kind==ScatterKind.Conifer?new Color(.19f,.32f,.16f):new Color(.29f,.43f,.15f);leaf*=new Color(1+variant*.035f,1-variant*.025f,1,1);
         if(kind==ScatterKind.Grass)b.Grass(detail,variant);
         else if(kind==ScatterKind.Conifer)b.Conifer(detail,variant,leaf);
