@@ -30,17 +30,18 @@ public sealed partial class LocalTerrainExplorer
         var shader=Resources.Load<Shader>("WorldGenGroundCover");groundCoverPlacement=Resources.Load<ComputeShader>("GroundCoverPlacement");
         if(shader==null||!shader.isSupported||groundCoverPlacement==null)return;
         groundCoverMaterial=new Material(shader);
+        groundCoverMaterial.SetTexture("_FoliageAtlas",Resources.Load<Texture2D>("GroundFoliageAtlasV1"));
     }
     CoverGpu PrepareGroundCover(TerrainTileKey key,Tile tile,int wx,int wz)
     {
-        const double spacing=.85;
+        const double spacing=.60;
         // Clip large-scale1024m tiles to a bounded moving window. Small-scale
         // worlds still use physical-metre plant spacing, not scaled-up rivers/grass.
         double cx=wx*64+32,cz=wz*64+32;
-        int x0=(int)Math.Floor(Math.Max(key.X*key.SizeM,cx-224)/spacing),x1=(int)Math.Ceiling(Math.Min((key.X+1)*key.SizeM,cx+224)/spacing);
-        int z0=(int)Math.Floor(Math.Max(key.Z*key.SizeM,cz-224)/spacing),z1=(int)Math.Ceiling(Math.Min((key.Z+1)*key.SizeM,cz+224)/spacing);
+        int x0=(int)Math.Floor(Math.Max(key.X*key.SizeM,cx-192)/spacing),x1=(int)Math.Ceiling(Math.Min((key.X+1)*key.SizeM,cx+192)/spacing);
+        int z0=(int)Math.Floor(Math.Max(key.Z*key.SizeM,cz-192)/spacing),z1=(int)Math.Ceiling(Math.Min((key.Z+1)*key.SizeM,cz+192)/spacing);
         int width=Math.Max(0,x1-x0),height=Math.Max(0,z1-z0),count=width*height;
-        if(count==0||count>300000)return null;
+        if(count==0||count>450000)return null;
         var gpu=new CoverGpu{WindowX=wx,WindowZ=wz,Candidates=count,Born=Math.Max(.001f,Time.time),
             LocalBounds=tile.Root==null?new Bounds():tile.Root.GetComponentInChildren<MeshFilter>().sharedMesh.bounds};
         try
@@ -49,7 +50,7 @@ public sealed partial class LocalTerrainExplorer
             gpu.Roots=new GraphicsBuffer(GraphicsBuffer.Target.Append,count,64);gpu.Roots.SetCounterValue(0);
             gpu.Args=new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments,3,GraphicsBuffer.IndirectDrawArgs.size);
             var args=new GraphicsBuffer.IndirectDrawArgs[3];
-            args[0].vertexCountPerInstance=126;args[1].vertexCountPerInstance=48;args[2].vertexCountPerInstance=12;gpu.Args.SetData(args);
+            args[0].vertexCountPerInstance=54;args[1].vertexCountPerInstance=36;args[2].vertexCountPerInstance=12;gpu.Args.SetData(args);
             groundCoverPlacement.SetBuffer(0,"_Grid",gpu.Grid);groundCoverPlacement.SetBuffer(0,"_Roots",gpu.Roots);
             groundCoverPlacement.SetInts("_Candidate",x0,z0,width,height);
             groundCoverPlacement.SetVector("_Tile",new Vector4((float)(key.X*key.SizeM),(float)(key.Z*key.SizeM),(float)key.SizeM,tile.Segments));
@@ -84,7 +85,7 @@ public sealed partial class LocalTerrainExplorer
             {tile.Grass=PrepareGroundCover(key,tile,wx,wz);installed=true;}
             var gpu=tile.Grass;if(gpu==null)continue;
             GroundCoverBytes+=gpu.Bytes;GroundCoverCandidates+=gpu.Candidates;
-            var bounds=gpu.LocalBounds;bounds.center+=tile.Root.transform.position;bounds.Expand(4);
+            var bounds=gpu.LocalBounds;bounds.center+=tile.Root.transform.position;bounds.Expand(10);
             if(!GeometryUtility.TestPlanesAABB(coverFrustum,bounds))continue;
             gpu.Properties.SetVector("_CoverOrigin",new Vector4((float)(key.X*key.SizeM-originX),0,(float)(key.Z*key.SizeM-originZ),gpu.Born));
             for(int lod=0;lod<3;lod++)

@@ -1,6 +1,25 @@
 # WorldGen repository instructions
 
 Current OWNER REVIEW launch,21October2026: shortcut selects
+`artifacts/player-ground-foliage-dense/WorldGen.exe` (IL2CPP06:22:38Z), real C:.
+Owner requested full textured ground cover instead of the preceding sparse fans,
+and tallgrass in suitable prairie/savanna. Ground-flora2 adds site-dependent
+stature and continuous broad stands; dense RGBA banks replace skinny ribbons.
+Three crossed-card LODs54/36/12 vertices,0.60m candidate spacing, existing
+distance/load fades, bounded384m large-tile window and450k-root safety cap.
+Built-in imagegen atlas/provenance in docs/GROUND_FOLIAGE_ASSET.md; primary
+NVIDIA/NPS/Unity research in GROUND_FLORA.md. Texture coverage mips are enabled;
+global MSAA unchanged. Trees/shrubs, heights/water and world/history unchanged.
+5863 saved200k flora checks and177346 final packaged-worker comparisons pass;
+native GPU fixture exits0 with22907 roots/539206 changed pixels/1.85MiB.
+Near/overhead/eye-height tallgrass captures inspected on white fixture ground,
+NOT actual-world art/FPS, botanical realism or invisible-LOD acceptance.
+Denser alpha overdraw can cost more despite fewer near vertices per root.
+Own tests stopped; owner review pending. Prior ground-flora-reviewed is rollback.
+No seasonal growth, clearing/grazing, persistent per-blade IDs or dynamic
+evolution added. See docs/VALIDATION.md. Do not close the owner's game.
+
+Current OWNER REVIEW launch,21October2026: shortcut selects
 `artifacts/player-ground-flora-reviewed/WorldGen.exe` (IL2CPP05:58:13Z), real C:.
 Ground-flora1 derives nine ground-cover growth forms and seeded province-founder/
 regional-branch candidates from existing saved ecology/soil. Continuous support

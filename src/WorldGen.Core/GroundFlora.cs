@@ -23,7 +23,7 @@ namespace WorldGen.Core
     /// acquire bounded regional traits; this is static biogeography, not simulated evolution.</summary>
     public sealed class GroundFlora
     {
-        public const string Version="ground-flora-1";
+        public const string Version="ground-flora-2";
         static readonly ConditionalWeakTable<World,GroundFlora> contexts=new ConditionalWeakTable<World,GroundFlora>();
         readonly World world;
         readonly ConcurrentDictionary<int,GroundFloraRegion> regions=new ConcurrentDictionary<int,GroundFloraRegion>();
@@ -89,6 +89,11 @@ namespace WorldGen.Core
                 profile.Color+=species.Color*w;profile.Stature+=species.Stature*w;profile.LeafWidth+=species.LeafWidth*w;
             }
             if(sum>0){profile.Color/=sum;profile.Stature/=sum;profile.LeafWidth/=sum;}
+            // Potential mature leafy canopy, not the maximum height of flowering culms.
+            // Moist fertile open sites support tallgrass; dry/shallow sites stay short.
+            double tall=D.Clamp((wet-.38)/.7)*D.Clamp((warm-12)/15)*D.Clamp(soil.DepthM/.75)
+                *(.4+.6*soil.Fertility)*(1-shade)*(1-.65*salt);
+            profile.Stature*=.65+2.0*tall+.55*flood;
             if(sum>.95)profile.ScaleWeights(.95/sum);
             return profile;
         }
@@ -100,6 +105,8 @@ namespace WorldGen.Core
             double patch=.84+.28*SphereNoise.Sample(point*(radiusM/1000),seed^0x55a31,24);
             double slope=D.Clamp((up-.46)/.43),altitude=D.Clamp((2200-(elevationM-sourceElevationM))/1800);
             profile.ScaleWeights(D.Clamp(patch)*slope*altitude*(1-ice));
+            // Broad, coherent stands, rather than independently random tall/short blades.
+            profile.Stature*=.90+.20*SphereNoise.Sample(point*(radiusM/1000),seed^0x41b29,3);
             return profile;
         }
     }

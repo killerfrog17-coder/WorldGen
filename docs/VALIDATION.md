@@ -1,5 +1,39 @@
 # Version 3 validation evidence
 
+## Dense cutout ground cover and tallgrass /21October2026
+
+Owner found the preceding fans too sparse despite technically working. New
+`player-ground-foliage-dense` IL2CPP06:22:38Z builds successfully, real C:.
+Ground-flora2 adds productive-site stature and coherent stand variation;
+rendering replaces skinny ribbons with dense RGBA leaf banks on crossed cards.
+The built-in imagegen skill supplied the atlas; exact prompt/source/hash in
+GROUND_FOLIAGE_ASSET.md. Primary rendering/tallgrass references in GROUND_FLORA.md.
+No world/history/save, water, terrain-height, tree or shrub definition changes.
+
+-5863 ecology/determinism/transport checks pass on saved200k Continents Plus,
+  including tall moist prairie vs dry/shallow-soil and shaded understory cases.
+  Source stays91a5470156e4aeeecb11fd22ac7b64987960701d5ff602e304784da6b2ca43e1.
+  Terrain+flora prep1.46s/259.5MiB retained; isolated cold flora descriptions
+  44.2ms; cold fine tile1696.4ms, warmed195.5ms during build. Not a controlled
+  baseline, native loading or FPS comparison.
+-Native GPU fixture exits0:22907 compact roots, all three indirect counts
+  match,54/36/12 vertex commands match shader topology,539206 changed pixels
+  versus cover disabled,1.85MiB fixture buffers. Near/overview/tallgrass PNGs
+  inspected under artifacts/ground-flora/dense-gpu-check. They show continuous
+  leafy grass and a camera-height stand on the deliberately white substrate.
+  Not actual-world density, fullscreen FPS, botanical-art or invisible-LOD
+  acceptance. No render errors recorded. The test launcher shell's final
+  optional read of a nonexistent failure.txt returned1; the player itself
+  exited0 and wrote its PASS report, not a native test failure.
+-Final packaged worker matches177346 exact mesh values, terrain/water indices,
+  bounds and cancellation checks, including the fine flora sidecar. Selected
+  scatter probes are empty; the independent GPU fixture covers card rendering.
+
+Spacing changes0.85m to0.60m; near vertices/root fall126 to54. Alpha overdraw
+and denser roots can still cost more GPU time. Existing single-sample pipeline
+is unchanged; coverage-preserving texture mips are not MSAA antialiasing.
+Native fixture has stopped; owner art/performance review is the next checkpoint.
+
 ## First ground-layer flora /21October2026
 
 Current shortcut: `player-ground-flora-reviewed`, IL2CPP05:58:13Z, real C:.

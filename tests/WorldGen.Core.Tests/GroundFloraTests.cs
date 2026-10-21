@@ -28,6 +28,13 @@ static class GroundFloraTests
         Check(meadow.Coverage>desert.Coverage*3,"Meadow vs sparse arid ground");
         Check(forest.Herbs.Z>meadow.Herbs.Z&&forest.Mats.X>meadow.Mats.X,"Shade/wetness favors ferns and moss");
         Check(marsh.Herbs.X>meadow.Herbs.X,"Sedges/rushes favor wet ground");
+        var tallPrairie=GroundFlora.Describe(Env(Biome.Grassland,1.2,29),soil,a);
+        var dryPrairie=GroundFlora.Describe(Env(Biome.Grassland,.25,29),soil,a);
+        var shallow=soil;shallow.DepthM=.12;
+        Check(tallPrairie.Stature>dryPrairie.Stature*2,"Moist productive prairie supports tall stands, not all grass equally short");
+        Check(tallPrairie.Stature>GroundFlora.Describe(Env(Biome.Grassland,1.2,29),shallow,a).Stature*1.5,"Shallow rooting limits tallgrass");
+        Check(tallPrairie.Stature*.90>1.2&&dryPrairie.Stature*.90<1,"Ecological grass canopy spans tall and short, not just seedhead height");
+        Check(forest.Stature<tallPrairie.Stature,"Shaded understory not uniformly head-high");
         Check(GroundFlora.Describe(Env(Biome.Ocean,1),soil,a).Coverage==0,"No terrestrial ocean cover");
         Check(GroundFlora.Describe(Env(Biome.Ice,1),soil,a).Coverage==0,"No permanent ice cover");
         var p=TerrainMapViewport.FromDegrees(30,45);

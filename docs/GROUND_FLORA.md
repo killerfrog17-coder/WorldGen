@@ -1,4 +1,4 @@
-# Ground layer / ground-flora-1
+# Ground layer / ground-flora-2
 
 This pass replaces the sparse placeholder grass, not trees, shrubs, rocks,
 terrain geometry or water. Ground cover is a separate layer over the accepted
@@ -20,9 +20,11 @@ mineral/organic substrate. It is not a new biome classifier.
 
 These are functional growth forms, not a claim that lichens are plants, all
 sedges require wetlands, or all members of a group share one ecological niche.
-Fine botanical structures (fern pinnae, flowers/seed heads, cactus spines and
-individual moss shoots) remain art improvements; the first pass uses procedural
-blade/leaf fans with different proportions, bending and stature.
+The owner found the first procedural blade/leaf fans too sparse. The second
+pass uses dense transparent-cutout banks of grass, herbs and resolved fern
+fronds on crossed curved cards. Tiny mats remain mostly substrate cover;
+succulents still use provisional broadleaf art rather than finished rosettes.
+Flowering phenology, cactus spines and individual moss shoots remain future art.
 
 Research used to choose the distinctions:
 
@@ -45,6 +47,16 @@ Temperature, aridity, inferred canopy, wetness/flooding, salt, soil depth,
 fertility and stones affect cover. Joint cover is capped, rather than filling
 every square metre with nine independently dense layers. Actual local slope,
 water and ice exclude unsuitable roots. Sparse desert ground stays sparse.
+
+Stature now includes site productivity: warm, moist, deep, fertile open sites
+can support waist/head-high grass, while dry or shallow soils remain short.
+Wetland sedges can also be tall. Broad continuous stand variation supplements
+seeded regional stature, without abrupt biome edges. Individual rendered banks
+are capped at3.2m; this is potential mature vegetation, not seasonal growth.
+[USFS big bluestem](https://research.fs.usda.gov/feis/species-reviews/andger)
+and [NPS tallgrass prairie](https://www.nps.gov/tapr/faqs.htm) inform this
+distinction: tallgrass potential varies with site, and tall flowering culms
+must not be confused with an everywhere-equally-tall leafy canopy.
 
 ## Generated regional flora
 
@@ -77,9 +89,18 @@ Future tree/grass work can consume this layer without replacing substrate soils.
   masking and shader wind. We adapt these principles; this is **not** AMD's
   mesh-shader implementation and requires no DX12 mesh-shader hardware.
 - [NVIDIA GPU Gems grass](https://developer.nvidia.com/gpugems/gpugems/part-i-natural-effects/chapter-7-rendering-countless-blades-waving-grass):
-  clustered geometry, anchored roots and GPU wind. We use opaque procedural
-  ribbons instead of sorted transparent textures; its old hardware limits
-  should not be read as current performance limits.
+  dense grass textures on crossed cards, anchored roots and GPU wind. The
+  second pass follows this strategy instead of the original skinny ribbons.
+  Its old hardware limits should not be read as current performance limits.
+- [NVIDIA virtual botany](https://developer.nvidia.com/gpugems/gpugems2/part-i-geometric-complexity/chapter-1-toward-photorealism-virtual-botany):
+  bounded planting grids, instancing, opaque alpha testing rather than sorted
+  translucent grass, and distance dissolve. We do not claim to reproduce
+  Skyrim or Just Cause3's undocumented implementations.
+- [Unity mip alpha coverage](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/TextureImporter-mipMapsPreserveCoverage.html):
+  the isolated foliage importer preserves alpha coverage at the shader's.35
+  cutoff, with trilinear filtering, alpha-edge dilation and4x anisotropy.
+  Global MSAA remains unchanged; this pass does not promise alpha-to-coverage
+  antialiasing on the existing single-sample render pipeline.
 - [Unity RenderPrimitivesIndirect](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Graphics.RenderPrimitivesIndirect.html):
   supported GPU-driven primitive submission; tight patch bounds and explicit
   resource lifetime remain the application's responsibility.
@@ -92,25 +113,37 @@ snapshot stores a planet-sized blade map.
 
 On local activation, a compute pass interpolates the actual terrain triangles,
 chooses growth forms and compacts accepted clumps into a GPU buffer. The root
-lattice has0.85m candidate spacing with stable chart-addressed jitter. Large
+lattice has0.60m candidate spacing with stable chart-addressed jitter. Large
 world-scale tiles are restricted to a bounded moving window, not filled across
 their whole kilometre area. There are no individual plant GameObjects or
 CPU-updated blade transforms and no recurring GPU readback in normal rendering.
-One patch is installed per frame. Inactive patches release GPU resources;
+One patch is installed per frame. A large-tile moving window spans384m with a
+450k-candidate safety cap (64bytes per root, at most27.5MiB capacity per window,
+plus the tile grid/arguments; normal clipped windows are smaller). Inactive patches release GPU resources;
 the existing terrain cache still accounts retained CPU sidecars.
 
 Drawn-water triangle overlap conservatively clears root-grid corners, including
 sub-grid streams. This sacrifices some shore density to avoid water plants
 floating over channels; it does not change water levels or carve ground.
 
-Three procedural geometry levels use7/4/2 blades and3/2/1 segments per blade.
+Three geometry levels use3/3/2 crossed cards and3/2/1 segments per card
+(54/36/12 vertices per root, previously126/48/12). Each card contains dozens
+of overlapping blades/leaves rather than a single blade. More dense roots and
+alpha overdraw can still increase GPU cost; fewer vertices is not an FPS claim.
 They blend over25–42m and65–90m; final visibility falls over130–160m.
-Lower-poly distant blades widen modestly. Root-to-tip shading, shader wind,
+Card silhouettes stay the same across levels. Root-to-tip shading, shader wind,
 light transmission and received sunlight shadows supply depth. Grass does not
 cast individual shadows in this pass. Forward/depth passes share visibility.
 Loading fades over two seconds; transitions use opaque ordered dithering.
 Some transition grain, silhouette/detail changes and geometric simplification
 can remain visible; imperceptible LOD is a goal, not an acceptance claim.
+
+The2x2 RGBA atlas is generated with the built-in image-generation tool and
+committed as an ordinary Resources asset. Its source PNG is1254x1254, not the
+2048 requested in the prompt; Unity applies normal texture importing/mips.
+See GROUND_FOLIAGE_ASSET.md for the exact prompt and provenance. Form palettes
+and generated regional traits remain shader-controlled; this is not a separate
+hand-painted texture for every fabricated species.
 
 Supported default0.1x and1x scales retain physical plant sizes. Geometry follows
 resident level0 terrain; very small scales/short full-detail radii may end the
@@ -124,6 +157,14 @@ cover color. F3 reports submitted cover draws and allocated candidate/buffer
 capacity, **not** a synchronous GPU count of surviving clumps.
 
 ## Checkpoint evidence
+
+Dense/tall follow-up: `player-ground-foliage-dense`, IL2CPP21Oct06:22:38Z.
+5863 focused checks pass with the same saved200k authoritative hash. Native
+GPU fixture exits0 with22907 compact roots,539206 changed pixels versus bare
+and1.85MiB buffers. Near, overhead and eye-height tallgrass images are inspected:
+substantially fuller cover, but visible card silhouettes/repetition and no
+real-world or broad GPU-FPS acceptance. Details in VALIDATION.md. The following
+numbers describe the historical first pass, not the new renderer's performance.
 
 5859 focused ecological/determinism/transport checks and4037 existing scatter
 checks pass. The source hash of the saved200k Continents Plus world is unchanged.

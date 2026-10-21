@@ -17,11 +17,12 @@ public sealed partial class LocalTerrainExplorer
         for(int z=0;z<33;z++)for(int x=0;x<33;x++)
         {
             int at=(z*33+x)*16;tile.Cover[at]=.31f;tile.Cover[at+1]=.44f;tile.Cover[at+2]=.16f;tile.Cover[at+3]=.92f;
-            int form=x<13?0:x<20?4:x<26?5:6;tile.Cover[at+4+form]=.92f;tile.Cover[at+13]=1;tile.Cover[at+14]=1;tile.Cover[at+15]=x*.0125f;
+            int form=x<13?0:x<20?1:x<26?5:6;tile.Cover[at+4+form]=.92f;tile.Cover[at+13]=x<13?1:x<20?2.3f:1;tile.Cover[at+14]=1;tile.Cover[at+15]=x*.0125f;
         }
         var key=new TerrainTileKey(0,0,0,.1);var gpu=e.PrepareGroundCover(key,tile,0,0);tile.Grass=gpu;
         yield return new WaitForSecondsRealtime(2.2f);
         var args=new GraphicsBuffer.IndirectDrawArgs[3];gpu.Args.GetData(args);
+        if(args[0].vertexCountPerInstance!=54||args[1].vertexCountPerInstance!=36||args[2].vertexCountPerInstance!=12)throw new Exception("Card LOD topology disagrees with shader");
         if(args[0].instanceCount<1000||args[0].instanceCount!=args[1].instanceCount||args[1].instanceCount!=args[2].instanceCount)throw new Exception("No shared compact GPU clumps");
         var cameraRoot=new GameObject("Cover check camera",typeof(Camera),typeof(UnityEngine.Rendering.Universal.UniversalAdditionalCameraData));
         var camera=cameraRoot.GetComponent<Camera>();camera.cullingMask=1<<30;camera.nearClipPlane=.08f;camera.farClipPlane=400;
@@ -46,6 +47,7 @@ public sealed partial class LocalTerrainExplorer
         for(int i=0;i<bare.Length;i++)if(Math.Abs(bare[i].r-covered[i].r)+Math.Abs(bare[i].g-covered[i].g)+Math.Abs(bare[i].b-covered[i].b)>12)changed++;
         if(changed<2000)throw new Exception("GPU grass not visible: "+changed);
         camera.transform.position=new Vector3(54,12,4);camera.transform.LookAt(new Vector3(54,0,48));yield return null;Capture(true,"overview");
+        camera.transform.position=new Vector3(48,1.75f,20);camera.transform.LookAt(new Vector3(49,1.70f,60));yield return null;Capture(true,"tallgrass");
         File.WriteAllText(Path.Combine(output,"ground-cover-check.txt"),"PASS native GPU generation/indirect rendering: "+args[0].instanceCount+" compact clumps; "+changed+" changed pixels; "+(gpu.Bytes/1048576d).ToString("F2")+"MiB fixture buffers. Not actual-world performance/art acceptance.");
         ReleaseGroundCover(tile);Application.Quit(0);
     }
