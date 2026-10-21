@@ -228,13 +228,15 @@ public sealed partial class LocalTerrainExplorer
                 if(IsSpecialist(p.Kind)&&!TerrainVideoOptions.SpecialistPlants)continue;
                 if(p.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlants)continue;
                 if(p.Kind==ScatterKind.GeneratedTree&&!TerrainVideoOptions.GeneratedTrees)continue;
-                var blend=ScatterLodBlend.At(p.Kind,p.WidthM,p.Kind==ScatterKind.MidPlant?distance/TerrainVideoOptions.MidPlantRange:distance);if(blend.Visibility<=0)continue;
+                if(!TerrainVideoOptions.KeepVegetation(p.Kind,p.Id))continue;
+                var blend=TerrainVideoOptions.VegetationBlend(p.Kind,p.WidthM,distance);if(blend.Visibility<=0)continue;
                 var bounds=chunk.Bounds[i];bounds.Expand(6+(float)distance*.04f);
                 bool frustum=TerrainVideoOptions.ScatterFrustum&&!GeometryUtility.TestPlanesAABB(scatterFrustum,bounds);
                 bool occluded=!frustum&&TerrainOccluded(bounds,eye),shadowOnly=frustum||occluded;
                 if(frustum)ScatterFrustumRejected++;if(occluded)ScatterTerrainRejected++;
                 if(shadowOnly&&(p.Kind==ScatterKind.Grass||IsSpecialist(p.Kind)||!MayCastVisibleShadow(bounds,eye)))continue;
-                int minimum=p.Kind==ScatterKind.MidPlant?2-TerrainVideoOptions.MidPlantDetail:p.Kind==ScatterKind.GeneratedTree?2-TerrainVideoOptions.TreeDetail:0;
+                if(shadowOnly&&(p.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlantShadows||p.Kind==ScatterKind.GeneratedTree&&!TerrainVideoOptions.TreeShadows))continue;
+                int minimum=p.Kind==ScatterKind.MidPlant?2-TerrainVideoOptions.MidPlantDetail:p.Kind==ScatterKind.GeneratedTree?2-TerrainVideoOptions.TreeDetail:IsSpecialist(p.Kind)?1-TerrainVideoOptions.SpecialistDetail:0;
                 int nearLod=Math.Max(minimum,blend.Near),farLod=Math.Max(minimum,blend.Far);
                 if(shadowOnly&&p.Kind==ScatterKind.GeneratedTree){nearLod=Math.Max(1,nearLod);farLod=Math.Max(1,farLod);}
                 // Built-in generated art always supports distance intervals.
@@ -277,7 +279,8 @@ public sealed partial class LocalTerrainExplorer
     void AddScatterInstance(ScatterChunk chunk,int index,ScatterInstance p,int lod,float low,float high,bool shadowOnly)
     {
         if(high-low<.0001f)return;
-        bool casts=TerrainVideoOptions.VegetationShadows&&p.Kind!=ScatterKind.Grass&&!IsSpecialist(p.Kind)&&lod<(p.Kind==ScatterKind.MidPlant?1:2);
+        bool casts=TerrainVideoOptions.VegetationShadows&&p.Kind!=ScatterKind.Grass&&!IsSpecialist(p.Kind)&&lod<(p.Kind==ScatterKind.MidPlant?1:2)&&
+            (p.Kind!=ScatterKind.MidPlant||TerrainVideoOptions.MidPlantShadows)&&(p.Kind!=ScatterKind.GeneratedTree||TerrainVideoOptions.TreeShadows);
         if(shadowOnly&&!casts)return;
         long key=ScatterArtKey(p.Kind,p.Variant,lod)|(shadowOnly?1L<<60:0);
         if(!activeScatterBatches.TryGetValue(key,out var batch)||batch.Count==batch.Matrices.Length)

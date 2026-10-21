@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using WorldGen.Presentation;
 
-public static class TerrainVideoOptions
+public static partial class TerrainVideoOptions
 {
     public static readonly TerrainDetailOptions Current=new TerrainDetailOptions();
     public static int Revision;
@@ -18,7 +18,6 @@ public static class TerrainVideoOptions
     public static bool SpecialistPlants=true;
     public static bool MidPlants=true;
     public static int MidPlantDetail=2;
-    public static float MidPlantRange=1;
     public static bool GeneratedTrees=true,FarForest=true;
     public static int TreeDetail=2;
     public static bool ScatterFrustum=true,VegetationOcclusion=true,VegetationShadows=true;
@@ -29,6 +28,7 @@ public static class TerrainVideoOptions
         Current.ViewDistanceM=Mathf.Clamp(PlayerPrefs.GetFloat("terrain-distance",200000),1000,250000);
         Current.FullDetailTiles=Mathf.Clamp(PlayerPrefs.GetFloat("terrain-full-radius",1.5f),1.5f,8);
         GroundCover=PlayerPrefs.GetInt("terrain-ground-cover",1)!=0;
+        LoadVegetation();
         Revision++;
     }
     public static void Save()
@@ -43,7 +43,7 @@ public static class TerrainVideoOptions
 public sealed partial class WorldGenRuntime
 {
     int settingsCategory;Vector2 settingsScroll;
-    static readonly string[] SettingsTabs={"Overview","Display","Terrain","Audio","Atmosphere","Grass debug"};
+    static readonly string[] SettingsTabs={"Overview","Display","Terrain","Audio","Atmosphere","Grass debug","Vegetation"};
     void DrawSettingsPage()
     {
         int selected=GUILayout.SelectionGrid(settingsCategory,SettingsTabs,3);
@@ -52,7 +52,7 @@ public sealed partial class WorldGenRuntime
         switch(settingsCategory)
         {
             case 0:
-                DrawMasterVolume();DrawDisplayOptions(true);DrawTerrainOptions(true);
+                DrawMasterVolume();DrawMusicVolume();DrawDisplayOptions(true);DrawTerrainOptions(true);
                 GUILayout.Space(12);GUILayout.Label("Category tabs contain additional settings. Changes apply immediately.",MutedStyle());break;
             case 1:
                 DrawDisplayOptions();
@@ -61,6 +61,7 @@ public sealed partial class WorldGenRuntime
             case 3:DrawAudioOptions();break;
             case 4:DrawWeatherVideoOptions();break;
             case 5:DrawGrassDebugOptions();break;
+            case 6:DrawVegetationOptions();break;
         }
         GUILayout.EndScrollView();
     }
@@ -81,18 +82,8 @@ public sealed partial class WorldGenRuntime
         TerrainVideoOptions.WeatherDrivenVegetationWind=GUILayout.Toggle(TerrainVideoOptions.WeatherDrivenVegetationWind,"Weather-driven bend and travelling gusts (off = direction-only rollback)");
         GUILayout.Label("Wind response: "+TerrainVideoOptions.VegetationWindResponse.ToString("F0")+" seconds");
         TerrainVideoOptions.VegetationWindResponse=GUILayout.HorizontalSlider(TerrainVideoOptions.VegetationWindResponse,2,12);
-        TerrainVideoOptions.SpecialistPlants=GUILayout.Toggle(TerrainVideoOptions.SpecialistPlants,"Generated flowers, low herbs, ferns and fungi");
-        TerrainVideoOptions.MidPlants=GUILayout.Toggle(TerrainVideoOptions.MidPlants,"Generated mid-height plants · shrubs, reeds, ferns and succulents");
-        GUILayout.Label("Mid-height geometry quality");
-        TerrainVideoOptions.MidPlantDetail=GUILayout.SelectionGrid(TerrainVideoOptions.MidPlantDetail,new[]{"Low","Medium","High"},3);
-        GUILayout.Label("Mid-height draw distance  "+TerrainVideoOptions.MidPlantRange.ToString("F2")+"× (size-dependent)");
-        TerrainVideoOptions.MidPlantRange=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.MidPlantRange,.4f,1.25f)*20)/20;
-        TerrainVideoOptions.GeneratedTrees=GUILayout.Toggle(TerrainVideoOptions.GeneratedTrees,"Generated trees · nearby instanced models");
-        TerrainVideoOptions.FarForest=GUILayout.Toggle(TerrainVideoOptions.FarForest,"Distant forest canopy volumes and colour");
-        GUILayout.Label("Tree geometry quality");TerrainVideoOptions.TreeDetail=GUILayout.SelectionGrid(TerrainVideoOptions.TreeDetail,new[]{"Low","Medium","High"},3);
-        TerrainVideoOptions.ScatterFrustum=GUILayout.Toggle(TerrainVideoOptions.ScatterFrustum,"Individual scatter frustum culling");
-        TerrainVideoOptions.VegetationOcclusion=GUILayout.Toggle(TerrainVideoOptions.VegetationOcclusion,"Conservative hill occlusion (plants and grass pages)");
-        TerrainVideoOptions.VegetationShadows=GUILayout.Toggle(TerrainVideoOptions.VegetationShadows,"Vegetation shadow casting (grass and herbs never cast)");
+        DrawVegetationQuickToggles();
+        if(GUILayout.Button("More plant / tree quality controls → Vegetation tab")){settingsCategory=6;settingsScroll=Vector2.zero;}
         if(GUILayout.Button("Reset grass prototype defaults"))
         {TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDistance=350;TerrainVideoOptions.GrassBladeDistance=45;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassWind=true;TerrainVideoOptions.WeatherDrivenVegetationWind=true;TerrainVideoOptions.VegetationWindResponse=6;}
         GUILayout.Space(10);

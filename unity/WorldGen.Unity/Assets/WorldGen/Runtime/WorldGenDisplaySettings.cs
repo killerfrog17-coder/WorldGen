@@ -12,7 +12,8 @@ public sealed partial class WorldGenRuntime
         SetDisplayOptions(PlayerPrefs.GetInt("display-vsync",QualitySettings.vSyncCount>0?1:0)!=0,Math.Max(0,Math.Min(1000,PlayerPrefs.GetInt("display-max-fps",60))),false);
         WeatherVideoOptions.Current.Load();
         TerrainVideoOptions.Load();
-        AudioListener.volume=Mathf.Clamp01(PlayerPrefs.GetFloat("master-volume",1));
+        masterVolume=Mathf.Clamp01(PlayerPrefs.GetFloat("master-volume",1));masterMuted=PlayerPrefs.GetInt("master-muted",0)!=0;
+        AudioListener.volume=masterMuted?0:masterVolume;
         // Automated windowed captures must not change the owner's display preferences.
         if(!Environment.GetCommandLineArgs().Contains("-screen-fullscreen"))
             StartCoroutine(InitializeFullscreen());

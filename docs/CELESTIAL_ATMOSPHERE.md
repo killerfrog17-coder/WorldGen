@@ -21,6 +21,13 @@ there is no automatic historical retrofit or player-facing bulk upgrade here.
 
 ### Visual exaggeration and display settings
 
+21October2026: new `PlaySettings`/new-game defaults are3× for BOTH sun and moon.
+This only changes apparent disk size, not illumination/orbits. Explicit values
+in existing saves are preserved; optional-field deserialization and no-sidecar
+legacy fallback retain their preceding1× defaults. Runtime without a session
+uses the new3× visual fallback. Existing worlds can edit either value in paused
+World settings → Sky display; no automatic save rewrite is performed.
+
 Sky & atmosphere → **Sky display** has separate **Moon visual exaggeration**
 and **Sun visual exaggeration** multipliers.1× preserves physical apparent size;
 5× draws a disk five times as wide without changing emitted/reflected light,

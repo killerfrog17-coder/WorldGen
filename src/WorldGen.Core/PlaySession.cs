@@ -8,7 +8,7 @@ namespace WorldGen.Core
     {
         public double HorizontalScale=.1,RealMinutesPerDay=60,CalendarDaysPerDay=1,StructureDensity=1;
         [System.Runtime.Serialization.OptionalField] public CelestialSettings Sky=new CelestialSettings();
-        [System.Runtime.Serialization.OptionalField] public double MoonVisualExaggeration=1,SunVisualExaggeration=1;
+        [System.Runtime.Serialization.OptionalField] public double MoonVisualExaggeration=3,SunVisualExaggeration=3;
         [System.Runtime.Serialization.OnDeserializing] void InitializeOptionalSky(System.Runtime.Serialization.StreamingContext context){Sky=null;MoonVisualExaggeration=SunVisualExaggeration=1;}
         public PlaySettings Copy(){var s=(PlaySettings)MemberwiseClone();s.Sky=Sky?.Copy();return s;}
         public void Validate()
@@ -33,7 +33,7 @@ namespace WorldGen.Core
         public V PlayerPosition;
         public double Heading,Pitch,HeightAboveGround=1.65;
         public PlaySession Copy(){var s=(PlaySession)MemberwiseClone();s.Settings=Settings.Copy();return s;}
-        public static PlaySession Legacy()=>new PlaySession{Settings=new PlaySettings{HorizontalScale=1,Sky=CelestialSettings.Preset("No moons")}};
+        public static PlaySession Legacy()=>new PlaySession{Settings=new PlaySettings{HorizontalScale=1,Sky=CelestialSettings.Preset("No moons"),MoonVisualExaggeration=1,SunVisualExaggeration=1}};
         public void Validate()
         {
             if(Version!="play-session-1"||Settings==null)throw new ArgumentException("Unsupported play session.");Settings.Validate();

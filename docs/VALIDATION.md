@@ -1,5 +1,34 @@
 # Version 3 validation evidence
 
+## Vegetation quality controls / audio / sky defaults /21October2026
+
+Added a persistent machine-local Vegetation tab: stable visible-density thinning,
+model quality ceilings, independently adjustable handoff distances and maximum
+draw distances for specialists/mid plants/trees, separate fungus range, per-layer
+mid/tree shadow switches and shared culling/global-shadow/forest controls. Grass
+retains existing controls, with mirrored non-grass quick toggles. Default render
+values preserve the preceding checkpoint; draw caps cannot expand the existing
+streamed footprint, and far ecological cover summaries are deliberately not
+thinned/rebuilt. No new vegetation placement or authoritative ecological rules.
+See SETTINGS.md for ranges and distance/coverage limitations.
+
+Overview and Audio share Master/Music sliders with independent persistent mute
+flags preserving slider levels. Exploration/simulation pause menus hold/resume
+soundtrack playback/gain and planned quiet gaps, including async-load completion
+while paused. Existing music selection, external files and weather audio remain.
+New games use3× sun/moon display multipliers; explicit saved/legacy1× values
+remain literal. No world/history/height/water or save/worker schema change.
+
+Owner standing instruction: compile/package only. No suites/numeric campaigns,
+fixtures, game launches, captures, listening or profiling. Source inspection and
+build result are not UI/audio/FPS acceptance; owner checks these next.
+
+Final IL2CPP compile/package exit0 at21Oct21:46:55Z, packaged worker included.
+Shortcut selects real-C: `player-vegetation-quality-audio`; owner notification
+sent. No runtime/fixture checks were performed. Existing diagnostic music
+fixtures that intentionally pause exploration while expecting audible playback
+represent the old behaviour, not acceptance checks of this new pause policy.
+
 ## Tree leaf coverage / vegetation culling /21October2026
 
 Owner rejects the first tree art/LOD continuity and reports same-view FPS about

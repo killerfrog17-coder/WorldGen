@@ -1,5 +1,21 @@
 # Exploration music — 19 October 2026
 
+21October2026 menu/audio follow-up: Master and Music controls appear in both
+Overview (Music directly under Master) and Audio. Persistent independent Mute
+checkboxes preserve each slider value, using separate master/music mute flags
+rather than overwriting volume with zero. Music mute does not mute effects;
+master mute applies to the listener. Muting is not track cancellation.
+
+Exploration `Paused` and the simulation pause menu now call `AudioSource.Pause`
+on the soundtrack and return before ordinary `isPlaying=false` track-completion
+handling. Resume calls `UnPause`, retaining clip position/gain; planned quiet
+time between tracks is held too. A clip finishing async decoding while the
+menu is open starts at zero gain and is immediately held, not audibly played
+behind settings. Ordinary map browsing is not newly treated as a pause menu;
+front-end menu music still plays. Collection changes retain existing fades.
+No soundtrack files/selection rules, weather/effect volumes or world simulation
+are changed. Compile/package only, no agent listening/runtime testing.
+
 This is the music-only first atmosphere pass. It adds no footsteps, animal
 calls, ambience emitters, weather, clouds, cities or combat audio. Historical
 generation/simulation rules and accepted terrain remain unchanged.

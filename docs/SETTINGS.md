@@ -1,5 +1,61 @@
 # Shared settings - version 3
 
+## Local vegetation quality /21October2026
+
+Game settings → Vegetation exposes live, machine-local persistent rendering
+controls, separate from the world recipe/save/ecology. Defaults preserve the
+preceding tree-coverage-culling renderer. Grass retains its existing debug tab;
+the non-grass enable switches are also mirrored there for quick comparisons.
+
+| Layer | Quality ceiling | LOD handoff ends (defaults; adjustable range) | Draw cap (default; range) |
+|---|---|---|---|
+| Flowers/herbs/ferns/fungi | High / Low |22m;5–60m, blending from12/22 of the chosen end | Herbs140m;10–140m. Fungi65m;5–65m |
+| Mid-height plants | High / Medium / Low | High→middle55m;10–100m. Middle→low200m; twice first end through500m |1400m;50–1400m |
+| Trees | High / Medium / Low | High→middle120m;20–240m. Middle→low450m; twice first end through1000m |1400m;100–1400m |
+
+Handoffs retain distance-only complementary fades. Middle/far starts are shown
+in the UI (mid:28/55 and110/200 of respective ends; trees:1/2 and260/450).
+Lower quality caps skip the more expensive model(s), disabling inapplicable
+handoff controls. The original three-argument Presentation blend API retains
+its default behaviour; the renderer passes the explicit overrides.
+
+Each layer has stable0–100% visible population thinning, default100%, keyed
+from existing instance IDs. This does NOT add/remove authoritative plants,
+reseed ecology, force regeneration or thin grass. Decreasing then increasing
+density reuses the same deterministic subset, not newly randomized colonies.
+Trees/mid plants have independent shadow-casting switches; the global scatter
+shadow switch overrides both. Herbs/grass still do not cast shadows. Frustum,
+hill-occlusion and separate distant-forest switches remain available.
+Only mid LOD0 and tree LOD0/1 currently cast shadows, so reducing quality can
+already remove the shadow cost even when its layer checkbox remains enabled.
+
+Distances cap existing size-dependent retirement; a small plant may disappear
+earlier. These sliders intentionally cannot expand the streamed scatter extent
+beyond the preceding default maximum. Density/near draw caps do not alter the
+distant ecological canopy/cover summaries: sparse local settings can disagree
+with those summaries, and shorter tree ranges can expose a gap before the
+existing950–1400m aggregate canopy handoff. This is an explicit performance/
+appearance tradeoff, not a new matched far-proxy implementation.
+
+Changes save `vegetation-*` PlayerPrefs, invalidate only render batches and
+apply without terrain jobs/recipe changes. Data preparation/catalogue jobs and
+cached art remain: these are drawing-cost controls, not generation/memory caps.
+Reset non-grass vegetation restores the preceding defaults without changing
+grass, terrain, audio or world settings. F3 counts and same-camera settled FPS
+are owner diagnostics, not an agent benchmark or promised speedup.
+
+Overview now shows Master followed immediately by Music volume, both mirrored
+in Audio. Each has an independent persistent Mute checkbox which retains its
+slider value; unmuting restores that level. Music pauses in exploration and
+world-simulation pause menus (including their subpages) and resumes the held
+track, not a new song. See EXPLORATION_MUSIC.md. New games default sun/moon visual
+exaggeration to3×; explicit saved values and legacy fallback remain unchanged.
+
+Only compile/package verification is authorized for this checkpoint; no agent
+runtime/UI/audio/FPS tests or player launches. Owner reviews the controls.
+
+## World generation and map controls
+
 **Lake amount (%)** and **Mountain strength (%)** now share Terrain sculpting; there is no separate Hydrology section. Both default to100 and allow0–100,000%, including exact0.0001% numeric input. Their sliders use logarithmic travel to make this wide range useful. Zero disables lakes or the scaled major-range uplift contributions respectively; smaller background relief can remain. Mountain strength affects procedural continental ranges, not measured Earth. Lake amount changes retention/delivery/loss, not a literal percentage of lake area.100% preserves the accepted baseline. Regenerate to apply; settings persist and participate in hashes. Seasonal diagnostics use northern-calendar quarter temperatures and rainfall totals.
 
 Both faces enumerate `Recipe.Settings`. Detail and Irregularity control the actual terrain mesh and require regeneration. The separate plate/continent base remains exactly 20,000 cells.

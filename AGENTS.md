@@ -1,6 +1,27 @@
 # WorldGen repository instructions
 
 Current OWNER-TEST-ONLY launch,21October2026: shortcut selects real C:
+`artifacts/player-vegetation-quality-audio/WorldGen.exe` (IL2CPP21:46:55Z).
+Game settings adds persistent Vegetation tab: stable per-ID0–100% visible density,
+model quality, separate LOD handoff ends and physical draw caps for specialists/
+mid plants/trees, separate mushroom range, mid/tree shadow switches plus existing
+culling/global shadows/far-forest controls. Quick layer toggles remain in Grass
+debug; grass settings/wind/art/placement are unchanged. Render-only invalidation,
+not terrain planning/regeneration. Density/draw caps don't change far ecological
+cover summaries; shorter tree ranges may expose the existing canopy handoff gap.
+Preparation jobs/art caches remain, so controls are NOT generation/memory caps.
+Overview/Audio share Master/Music sliders and independent persistent Mute flags
+which preserve levels. Music Pause/UnPause holds track/gain/quiet gap throughout
+exploration/simulation pause menus, including clip decode completion while paused.
+Front-end menu/map behaviour and external soundtracks/effect audio stay literal.
+New PlaySettings sun/moon visual defaults3x; explicit saved and legacy fallback1x
+remain unchanged. No world/history/height/water, ecology or save/wire schema change.
+Final IL2CPP compile/package exit0 including worker. NO agent tests/player launches,
+captures/listening/profiling/hash audits. Shortcut updated; owner notified for
+settings/FPS/audio review. Leave game/saves untouched; no measured speedup/UI/audio
+acceptance. See SETTINGS/EXPLORATION_MUSIC/CELESTIAL_ATMOSPHERE/VALIDATION docs.
+
+Current OWNER-TEST-ONLY launch,21October2026: shortcut selects real C:
 `artifacts/player-tree-coverage-culling/WorldGen.exe` (IL2CPP21:28:32Z).
 Owner rejects initial tree art/early clumping and reports60–70FPS with trees vs
 190 grass-only; not an agent benchmark. Fixed endpoint-only leaf-strip collapse

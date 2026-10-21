@@ -15,6 +15,9 @@ public sealed partial class WorldGenRuntime
     string musicFolder;
     bool musicBusy;
     float musicVolume=.6f,musicGain;
+    float masterVolume=1,musicPauseRemaining;
+    bool masterMuted,musicMuted,musicMenuPaused,musicResumePending;
+    bool MusicPauseRequested=>terrainExplorer!=null?terrainExplorer.Paused:screen=="Simulation"&&simulationPaused;
     bool musicSimulationStarted;
     string musicScreen;
     EraMusicTrack currentMusicTrack;
@@ -41,19 +44,29 @@ public sealed partial class WorldGenRuntime
         if(Directory.Exists(Path.Combine(Environment.CurrentDirectory,"music")))root=Environment.CurrentDirectory;
         musicFolder=Argument("--worldgen-music-root",Path.Combine(root,"music"));
         musicVolume=Mathf.Clamp01(PlayerPrefs.GetFloat("music-volume",.6f));
+        musicMuted=PlayerPrefs.GetInt("music-muted",0)!=0;
         musicSource=gameObject.AddComponent<AudioSource>();musicSource.playOnAwake=false;musicSource.loop=false;musicSource.spatialBlend=0;musicSource.volume=0;
         if(FindAnyObjectByType<AudioListener>()==null)gameObject.AddComponent<AudioListener>();
     }
     void UpdateMusic()
     {
         if(musicSource==null)return;
+        if(MusicPauseRequested)
+        {
+            HoldMusicForMenu();ApplyMusicVolume();return;
+        }
+        if(musicMenuPaused)
+        {
+            if(musicResumePending)musicSource.UnPause();
+            musicResumePending=false;musicMenuPaused=false;nextMusicCheck=Time.unscaledTime+musicPauseRemaining;
+        }
         if(screen!=musicScreen){if(screen=="Simulation")musicSimulationStarted=false;musicScreen=screen;nextMusicCheck=0;}
         bool exploring=terrainExplorer!=null;
         if(exploring!=musicInExploration){musicInExploration=exploring;nextMusicCheck=0;}
         if(screen=="Simulation"&&humanPlaying)musicSimulationStarted=true;
         int desired=DesiredMusicEra();bool compatible=exploring?currentExplorationTrack!=null:currentExplorationTrack==null&&currentMusicTrack!=null&&currentMusicTrack.Supports(desired);
         float target=musicSource.isPlaying&&compatible?1:0;
-        musicGain=Mathf.MoveTowards(musicGain,target,Time.unscaledDeltaTime/(target==0?1.1f:.8f));musicSource.volume=musicVolume*musicGain;
+        musicGain=Mathf.MoveTowards(musicGain,target,Time.unscaledDeltaTime/(target==0?1.1f:.8f));ApplyMusicVolume();
         if(musicSource.isPlaying&&!compatible){if(musicGain>0)return;musicSource.Stop();currentMusicTrack=null;currentExplorationTrack=null;nextMusicCheck=0;}
         // Eligibility is checked when selecting a track, not at every biome edge.
         // Only switching between gameplay and the historical/menu soundtrack interrupts it.
@@ -68,9 +81,7 @@ public sealed partial class WorldGenRuntime
     {
         GUILayout.Label("AUDIO",new GUIStyle(GUI.skin.label){fontStyle=FontStyle.Bold});
         DrawMasterVolume();
-        GUILayout.Label("Music  "+Mathf.RoundToInt(musicVolume*100)+"%");
-        float next=GUILayout.HorizontalSlider(musicVolume,0,1);
-        if(next!=musicVolume){musicVolume=next;PlayerPrefs.SetFloat("music-volume",musicVolume);}
+        DrawMusicVolume();
         GUILayout.Label("Footsteps  "+Mathf.RoundToInt(LocalTerrainExplorer.FootstepVolume*100)+"%");
         float steps=GUILayout.HorizontalSlider(LocalTerrainExplorer.FootstepVolume,0,1);if(steps!=LocalTerrainExplorer.FootstepVolume)LocalTerrainExplorer.FootstepVolume=steps;
         var weather=WeatherVideoOptions.Current;
@@ -81,9 +92,34 @@ public sealed partial class WorldGenRuntime
     }
     void DrawMasterVolume()
     {
-        GUILayout.Label("Master volume  "+Mathf.RoundToInt(AudioListener.volume*100)+"%");
-        float volume=GUILayout.HorizontalSlider(AudioListener.volume,0,1);
-        if(volume!=AudioListener.volume){AudioListener.volume=volume;PlayerPrefs.SetFloat("master-volume",volume);}
+        GUILayout.BeginHorizontal();GUILayout.Label("Master volume  "+Mathf.RoundToInt(masterVolume*100)+"%");
+        bool muted=GUILayout.Toggle(masterMuted,"Mute",GUILayout.Width(75));GUILayout.EndHorizontal();
+        float volume=GUILayout.HorizontalSlider(masterVolume,0,1);
+        if(volume!=masterVolume||muted!=masterMuted)
+        {
+            masterVolume=volume;masterMuted=muted;AudioListener.volume=masterMuted?0:masterVolume;
+            PlayerPrefs.SetFloat("master-volume",masterVolume);PlayerPrefs.SetInt("master-muted",masterMuted?1:0);PlayerPrefs.Save();
+        }
+    }
+    void DrawMusicVolume()
+    {
+        GUILayout.BeginHorizontal();GUILayout.Label("Music  "+Mathf.RoundToInt(musicVolume*100)+"%");
+        bool muted=GUILayout.Toggle(musicMuted,"Mute",GUILayout.Width(75));GUILayout.EndHorizontal();
+        float volume=GUILayout.HorizontalSlider(musicVolume,0,1);
+        if(volume!=musicVolume||muted!=musicMuted)
+        {
+            musicVolume=volume;musicMuted=muted;ApplyMusicVolume();
+            PlayerPrefs.SetFloat("music-volume",musicVolume);PlayerPrefs.SetInt("music-muted",musicMuted?1:0);PlayerPrefs.Save();
+        }
+    }
+    void ApplyMusicVolume(){if(musicSource!=null)musicSource.volume=musicMuted?0:musicVolume*musicGain;}
+    void HoldMusicForMenu()
+    {
+        if(!musicMenuPaused)
+        {musicMenuPaused=true;musicPauseRemaining=Math.Max(0,nextMusicCheck-Time.unscaledTime);}
+        // Pause reports isPlaying=false, so return before the normal track-ended
+        // path. A clip which finishes asynchronous loading in a menu is held too.
+        if(musicSource.isPlaying){musicSource.Pause();musicResumePending=true;}
     }
     IEnumerator PlayNextMusic()
     {
@@ -130,7 +166,8 @@ public sealed partial class WorldGenRuntime
                 else
                 {
                     var previous=musicSource.clip;musicSource.clip=clip;if(previous!=null)Destroy(previous);
-                    currentMusicTrack=selected;currentExplorationTrack=selectedExploration;musicGain=0;musicSource.volume=0;musicSource.Play();EraMusic.Remember(exploring?recentExplorationMusic:recentMusic,path);
+                    currentMusicTrack=selected;currentExplorationTrack=selectedExploration;musicGain=0;musicSource.volume=0;musicSource.Play();
+                    if(MusicPauseRequested)HoldMusicForMenu();EraMusic.Remember(exploring?recentExplorationMusic:recentMusic,path);
                 }
             }
         }

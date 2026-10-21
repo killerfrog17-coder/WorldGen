@@ -2,6 +2,11 @@
 
 ## Tree coverage / vegetation visibility follow-up
 
+Subsequent quality-control checkpoint: Game settings → Vegetation now supplies
+persistent per-layer visible density, quality ceilings, independent LOD handoff
+distances and draw caps plus shadow/culling controls. See SETTINGS.md for defaults
+and limits. These adjust rendering only; far ecological summaries remain literal.
+
 Owner rejected the initial tree art/early clumping and reported approximately
 190FPS grass-only,160–170 with specialists,120–130 with mid plants and60–70 with
 trees. These are owner scene comparisons, not an isolated agent benchmark.

@@ -58,7 +58,7 @@ public sealed partial class LocalTerrainExplorer
         var appearance=playState?.Settings;
         UpdateLocalWeather(seasonalYear*365,altitude);
         double dip=Math.Acos(frame.RadiusM/(frame.RadiusM+Math.Max(0,altitude)))*180/Math.PI;
-        SkyFrame=PlayableSky.Sample(Math.Asin(Position.Z)*180/Math.PI,solarHour,seasonalYear,skyConfig,seasonalYear*365,altitude,appearance?.MoonVisualExaggeration??1,appearance?.SunVisualExaggeration??1,dip);var sampled=SkyFrame;
+        SkyFrame=PlayableSky.Sample(Math.Asin(Position.Z)*180/Math.PI,solarHour,seasonalYear,skyConfig,seasonalYear*365,altitude,appearance?.MoonVisualExaggeration??3,appearance?.SunVisualExaggeration??3,dip);var sampled=SkyFrame;
         int primary=0;for(int i=1;i<sampled.Bodies.Length;i++)if(sampled.Bodies[i].Illuminance>sampled.Bodies[primary].Illuminance)primary=i;
         var body=sampled.Bodies[primary];
         var at=Position;V east=V.Cross(Math.Abs(at.Z)>.999999?new V(0,1,0):new V(0,0,1),at).Unit,north=V.Cross(at,east).Unit;
