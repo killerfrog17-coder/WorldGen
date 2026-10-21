@@ -1,5 +1,34 @@
 # Lake–river spill connections / Hyper10
 
+## Incoming-channel follow-up / Hyper11
+
+The owner subsequently found river/stream confluences ending abruptly before
+their receiving lake. Two guards incorrectly treated the whole coarse lake
+ownership domain, including DRY bank collars, as existing standing-water cover:
+the Core skipped channel carving there and the mesher skipped the ribbon.
+
+Paired channels now carve through dry lake-owned ground using their existing
+finite cut-only profiles. Once the cut meets the fixed lake datum, the lake
+owns that submerged opening and its depth mask is refreshed. Already submerged
+lake terrain still takes precedence; lake levels never follow ground. Ribbon
+suppression now requires actual submerged standing-water samples rather than
+lake ownership alone. Ocean Core behavior, coarse drainage/history, LOD and
+controller are unchanged. There is no new route solver, global raster or prep
+pass in this follow-up; the existing local channel queries do the work.
+
+On the owner's same saved world, a baseline scan of12 incoming reaches found
+62 dry centre-line samples out of2526 (two on lake277's89788->89411 branch,
+60 on lake186's57954->57344 branch). All2526 are wet after the change. Two
+204.8m/32-segment meshes cover the actual reproduced cutoff points at the
+unchanged receiving lake levels. The original saved outlet regression still
+passes. These are concrete saved-world cases, not proof of every possible
+inlet/LOD; disconnected fine subbasins remain a separate limitation.
+
+Generated/Earth lake checks still pass6 shores each /1799 and1320 contained
+edges. The owner's world retains308 submerged ocean probes and its exact
+source hash. Native views, packaged-worker evidence and selected build are
+recorded in VALIDATION.md. Existing jag artifacts/material seams are not fixed.
+
 ## Reproduced owner case
 
 The owner's saved 200k-cell world, seed11610541 at horizontal scale0.1,

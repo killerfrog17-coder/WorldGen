@@ -1,10 +1,18 @@
 # Drainage-aware planetary amplification
 
-`local-terrain-hyper-10` replaces the geographic-scaffold surface for completed
+`local-terrain-hyper-11` replaces the geographic-scaffold surface for completed
 worlds. It is a **shared CPU adaptation**, not the original application's GPU
 compute-shader pipeline or a claim of identical output/performance.
 
 ## Source and integration
+
+### Incoming lake channel handoff (revision11)
+
+Dry lake-owned bank collars no longer stop paired channel cuts or suppress
+their ribbons. Actual submerged standing water takes over at its fixed datum;
+the same lake's depth mask is recomputed after local mouth cuts. Ocean Core
+rules, source/history and LOD/controller are unchanged. See
+LAKE_SPILL_CONNECTIONS.md for reproduced cutoff cases and remaining limits.
 
 ### Lake spill correction (revision10)
 

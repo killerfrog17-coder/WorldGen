@@ -1,6 +1,24 @@
 # WorldGen repository instructions
 
 Current OWNER REVIEW launch,20October2026: shortcut selects
+`artifacts/player-lake-inlets/WorldGen.exe` (IL2CPP21Oct01:12:03Z).
+Hyper11 fixes dry lake-owned collars prematurely stopping paired channel cuts
+and suppressing river ribbons. Actual submerged lake water takes precedence;
+dry collars now permit finite cut-only channels. At/below a receiving lake
+datum the cut retains its flat lake level/body and updates its depth mask.
+No source/history, ocean Core, LOD/controller or shading changes. Owner snapshot
+12 inlets/2526 points:62 dry samples before, zero after; two actual cutoff
+meshes cover their probes. Original outlet regression,12 fixture lake shores /
+3119 contained edges,308 owner submerged ocean points,127639 final worker values
+and8 exact native/CLR probes pass with unchanged source. Two native inlet images
+inspected: lake277 channel connects into flat standing water; lake186 view is
+largely water/shore with limited channel context. Art seams/jags remain visible.
+Native near7.971s cold/.696s warm, prep319.8ms; PARTIAL distant281/276 of492
+tiles. These hidden fixed-camera views are not all-inlet/LOD/travel/performance
+acceptance. Own tests stopped; owner is testing now. Previous lake-spill player
+remains rollback. See docs/LAKE_SPILL_CONNECTIONS.md and VALIDATION.md.
+
+Current OWNER REVIEW launch,20October2026: shortcut selects
 `artifacts/player-lake-spill/WorldGen.exe` (IL2CPP21Oct00:40:04Z).
 Hyper10 repairs the owner's saved lake277/outlet94291 in seed11610541,0.1scale:
 legacy initial incision had removed the spill beneath its fixed328.068m lake.

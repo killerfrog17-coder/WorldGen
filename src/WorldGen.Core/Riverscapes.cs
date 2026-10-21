@@ -264,8 +264,16 @@ namespace WorldGen.Core
             }
             void ApplyRiverscape(V point,ref Surface surface)
             {
-                // Standing water remains owned by the accepted basin/sea paths.
-                if(surface.Kind==LocalWaterKind.Lake){owner.CutLakeSpillMouth(point,ref surface);return;}
+                // Lake ownership includes a dry collar, not just actual water.
+                // Carve paired channels through that collar until they meet
+                // submerged lake terrain; the coarse owner is NOT a shoreline.
+                bool lake=surface.Kind==LocalWaterKind.Lake;
+                double lakeLevel=surface.Water;ulong lakeKey=surface.BodyKey;
+                if(lake)
+                {
+                    owner.CutLakeSpillMouth(point,ref surface);
+                    if(surface.Height<lakeLevel)return;
+                }
                 if(surface.Kind==LocalWaterKind.Ocean)return;
                 double physical=owner.radius*owner.scale,best=double.PositiveInfinity;
                 void Apply(RiverscapeSpan span,ref Surface current)
@@ -339,6 +347,19 @@ namespace WorldGen.Core
                         double width=Math.Max(owner.riverNodeWidths[id],owner.riverNodeWidths[owner.riverReceivers[id]]);
                         if(!owner.NearRiverscape(point,owner.RootEdge(owner.nodeChannels[id]),width*5+4))continue;
                         foreach(var span in owner.PrepareRiverscape(id))Apply(span,ref surface);
+                    }
+                }
+                if(lake)
+                {
+                    // A cut at/below the receiving datum is part of the flat
+                    // lake, not a separate submerged or uphill river sheet.
+                    // Dry collar cuts must also refresh their depth mask.
+                    if(surface.Kind!=LocalWaterKind.River||surface.Water<=lakeLevel+1e-6)
+                    {
+                        surface.Kind=LocalWaterKind.Lake;surface.BodyKey=lakeKey;surface.Water=lakeLevel;
+                        surface.Mask=lakeLevel-surface.Height;surface.Footprint=double.PositiveInfinity;
+                        surface.Minimum=surface.Maximum=lakeLevel;surface.Gradient=default;
+                        surface.Flow=default;surface.Speed=surface.Turbulence=0;
                     }
                 }
                 // A source-connected river mouth at the sea datum belongs to

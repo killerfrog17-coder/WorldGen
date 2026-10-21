@@ -1,5 +1,42 @@
 # Version 3 validation evidence
 
+## Incoming river/lake handoff /20October2026
+
+Hyper11 / IL2CPP21Oct01:12:03Z, `player-lake-inlets`. The old lake-owned dry
+collar blocked channel excavation and suppressed its ribbon as if it already
+contained lake water. Local paired cuts now cross that dry collar; actual wet
+standing water takes precedence. Cuts at/below the receiving lake datum retain
+its fixed level/body and refresh the depth mask. No source drainage/history,
+LOD/controller, ocean Core rule, shader or arbitrary terrain-following water
+change. See LAKE_SPILL_CONNECTIONS.md for mechanism and limits.
+
+Baseline owner snapshot seed11610541:12 incoming reaches /2526 sampled channel
+points contained62 dry samples, two on89788->89411 into lake277 and60 on
+57954->57344 into lake186. Final source has zero dry samples at those points.
+Two actual cutoff204.8m/32-segment meshes each have3 surface triangles covering
+the probe at its expected lake datum. The original saved lake outlet regression
+still passes with6 wet source controls, exact328.067836m spill datum and no
+overhead sheet. Generated/Earth lake shore checks pass6 shores each /1799 and
+1320 contained interior edges. Owner world308 submerged coastal points retain
+sea level. All preserve source hash; no fine raster or new preparation pass.
+
+Final packaged worker passes127639 exact mesh/water/index/bounds/cancellation
+comparisons (selected scatter sites have zero instances). These bounded checks
+are not proof of every inlet, connected fine subbasin or distant LOD. Native
+views and owner testing remain the visual acceptance step; material seams and
+triangular terrain artifacts are explicitly outside this correction.
+
+Final native `artifacts/lake-inlets/native` images are inspected: lake277's
+incoming channel visibly joins flat lake water across the former cutoff.
+Lake186's image is largely water and shoreline, with limited approach context;
+small terrain jags and angular banks remain. Native source hash is unchanged;
+8 exact native/CLR probes pass. Preparation319.8ms, near7.971s cold/.696s warm;
+PARTIAL distant281/276 of492 tiles. Hidden1280x800 fixed-camera worst20.76 /
+23.54ms with no >100ms frames during these intervals, not fullscreen/travel or
+universal FPS acceptance. The worker check overlapped some native startup, so
+these are not isolated loading comparisons. Own players/workers are stopped;
+the shortcut is updated and the owner has begun testing. Save bytes/pose unchanged.
+
 ## Saved lake spill connection /20October2026
 
 Hyper10 / IL2CPP21Oct00:40:04Z, selected `player-lake-spill`. See

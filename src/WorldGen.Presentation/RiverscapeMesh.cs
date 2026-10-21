@@ -90,10 +90,11 @@ namespace WorldGen.Presentation
                         if(ia<samples.Length&&ib<samples.Length&&ic<samples.Length)
                         {
                             var sa=samples[ia];var sb=samples[ib];var sc=samples[ic];
-                            // A standing body's dry bank collar is owned by
-                            // that body too. Do not lay an independent sloping
-                            // river over its fixed-datum meshing domain.
-                            bool Standing(LocalTerrainSample s)=>s.WaterKind==LocalWaterKind.Lake||s.WaterKind==LocalWaterKind.Ocean;
+                            // Only ACTUAL standing water replaces the channel.
+                            // A dry lake-owned triangle is not lake coverage;
+                            // suppressing its ribbon leaves an abrupt dead end.
+                            bool Standing(LocalTerrainSample s)=>s.Underwater&&
+                                (s.WaterKind==LocalWaterKind.Lake||s.WaterKind==LocalWaterKind.Ocean);
                             if(Standing(sa)&&Standing(sb)&&Standing(sc))continue;
                         }
                         int first=Vertex(input[0]);for(int k=2;k<n;k++)

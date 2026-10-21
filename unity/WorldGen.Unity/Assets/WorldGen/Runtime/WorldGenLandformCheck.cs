@@ -34,7 +34,7 @@ public sealed partial class WorldGenRuntime
             int flat=Enumerable.Range(0,world.ElevationM.Length).Where(i=>world.ElevationM[i]>50&&world.ElevationM[i]<1200).OrderBy(i=>world.Ecology.Habitat[i].ReliefM).First();
             sites.Add(Tuple.Create("plain",world.Surface.Cells[flat].Position));
         }
-        bool savedLakeReview=Environment.GetCommandLineArgs().Contains("--worldgen-saved-lake-review");
+        bool savedLakeReview=Environment.GetCommandLineArgs().Contains("--worldgen-saved-lake-review")||Environment.GetCommandLineArgs().Contains("--worldgen-lake-inlet-review");
         if(savedLakeReview)sites=new List<Tuple<string,V>>{Tuple.Create("saved-lake",WorldGen.Serialization.WorldLibrary.ReadPlaySession(Argument("--worldgen-local-terrain-check","")).PlayerPosition)};
         selectedCell=0;ExploreTerrain(sites[0].Item2);double deadline=Time.realtimeSinceStartupAsDouble+180;
         while((terrainExplorer==null||!terrainExplorer.Ready)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
@@ -130,6 +130,18 @@ public sealed partial class WorldGenRuntime
         for(int i=0;i<22;i++){V mid=(wet+dry).Unit;var s=terrain.Patch(mid,2000).Sample(mid);if(s.Underwater&&s.WaterKind==LocalWaterKind.Lake)wet=mid;else dry=mid;}
         var frame=new LocalTerrainFrame(dry,terrain.RadiusM,0,.1);TerrainHandoff.Coordinates(frame,centre,out double dx,out double dz);
         samples.Add(Tuple.Create("retained-lake-shore",dry,2d,(float)(Math.Atan2(dx,dz)*180/Math.PI),4f));
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-lake-inlet-review"))
+        {
+            samples.Clear();
+            foreach(var site in new[]{Tuple.Create("lake277-inlet",new V(.969225813,-.222932866,-.104413893),89788),
+                Tuple.Create("lake186-inlet",new V(-.87537332,.233957807,-.423066538),57954)})
+            {
+                var f=new LocalTerrainFrame(site.Item2,terrain.RadiusM,0,.1);
+                V downstream=terrain.Amplification.RiverPoint(site.Item3,.98);
+                TerrainHandoff.Coordinates(f,downstream,out double x,out double z);
+                samples.Add(Tuple.Create(site.Item1,site.Item2,100d,(float)(Math.Atan2(x,z)*180/Math.PI),65f));
+            }
+        }
         var report=new List<string>{"Surface "+LocalTerrain.Version+" / "+HyperAmplification.Version,
             "Preparation "+terrain.Amplification.PreparationMilliseconds.ToString("F1")+"ms; corrected spills "+terrain.Amplification.ConditionedLakeSpills,
             "Saved point ground "+near.ElevationM.ToString("F3")+"m; lake "+body.SurfaceElevationM.ToString("F3")+"m"};
