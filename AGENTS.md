@@ -1,5 +1,28 @@
 # WorldGen repository instructions
 
+Current OWNER-TEST-ONLY launch,21October2026: shortcut selects real C:
+`artifacts/player-tree-coverage-culling/WorldGen.exe` (IL2CPP21:28:32Z).
+Owner rejects initial tree art/early clumping and reports60–70FPS with trees vs
+190 grass-only; not an agent benchmark. Fixed endpoint-only leaf-strip collapse
+in tree middle/far and mid-plant far art. Filtered procedural leaf-cluster array
+with alpha-coverage mips replaces fragment ellipse/atan2 loops; persistent local
+foliage packets replace early broad/needle solid crown blobs. Species materials
+shared across variants. Kilometre forest aggregate volumes are unchanged.
+Scatter gets wind-inclusive per-instance/patch frustum checks; stable finest
+terrain lower bounds conservatively occlude scatter/grass pages behind hills.
+Unknown/coarse/fading terrain stays visible; flat scenes early-out. This is NOT
+full-scene GPU Hi-Z/Resident Drawer integration or multi-view tree impostors.
+Offscreen relevant shadow casters retained separately, including valley drop;
+near-horizontal sun can retain many. Batch closures/redundant lookups removed,
+buffers reused, stationary batches refresh1Hz/motion invalidates, ground updates
+only reproject affected patches. Grass debug adds frustum/occlusion/shadow toggles;
+F3 rejection counts are diagnostics, not GPU savings. No placement/density, world/
+history/saves, heights/water, wire5 or approved wind changes. Final compile/package
+exit0; first package superseded by tightened shadow/flat-scene bounds before
+publication. NO agent tests/player launches/captures/profiling/hash audits.
+Shortcut updated; owner notified. Leave game/saves untouched. Art/FPS/culling/
+shadow/LOD acceptance pending; see TREE_FLORA.md and VALIDATION.md.
+
 Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
 `artifacts/player-generated-tree-lineages/WorldGen.exe` (IL2CPP20:54:43Z), real C:.
 TreeFlora1/LocalScatter7/wire5. Seeded world founders → province → regional

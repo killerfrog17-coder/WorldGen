@@ -55,6 +55,7 @@ public sealed partial class LocalTerrainExplorer
             chunk.Roots[i]=position;var rotation=Quaternion.FromToRotation(Vector3.up,normal)*Quaternion.Euler(0,(float)p.YawDegrees,0);
             chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,new Vector3((float)p.WidthM,(float)p.HeightM,(float)p.WidthM));
         }
+        PrepareScatterBounds(chunk);
     }
     void AdoptScatterFrame(PreparedFrame pending,bool preparedGround)
     {
@@ -68,11 +69,11 @@ public sealed partial class LocalTerrainExplorer
             if(preparedGround)
             {
                 var prepared=pending.Scatter[pair.Key];
-                pair.Value.Matrices=prepared.Matrices;pair.Value.Roots=prepared.Roots;
+                pair.Value.Matrices=prepared.Matrices;pair.Value.Roots=prepared.Roots;pair.Value.Bounds=prepared.Bounds;pair.Value.AllBounds=prepared.AllBounds;
             }
             else ProjectScatter(pair.Value);
         }
-        projectedGroundRevision=nearGroundRevision;lastGroundProject=Time.realtimeSinceStartupAsDouble;scatterDirty=true;
+        scatterGroundChanges.Clear();projectedGroundRevision=nearGroundRevision;lastGroundProject=Time.realtimeSinceStartupAsDouble;scatterDirty=true;
     }
     public double TestPreparedScatterError()
     {

@@ -9,6 +9,7 @@ static partial class LocalScatterMeshes
     static Color HerbColour(V v)=>new Color((float)v.X,(float)v.Y,(float)v.Z,1);
     static void HerbLeaf(Builder b,Vector3 start,Vector3 end,float width,int segments,Color colour,float cup=0)
     {
+        segments=Math.Max(2,segments); // Endpoint-only strips lose all foliage at far mid-plant LOD.
         var direction=(end-start).normalized;var side=Vector3.Cross(direction,Vector3.up).normalized;
         if(side.sqrMagnitude<.01f)side=Vector3.right;
         int first=b.V.Count;

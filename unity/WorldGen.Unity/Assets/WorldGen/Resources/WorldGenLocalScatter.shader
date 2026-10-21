@@ -13,6 +13,7 @@ Shader "WorldGen/LocalScatter"
         _HerbWind("Root-anchored herb bending",Float)=0
         _TreeSurface("Generated tree material and motion",Float)=0
         _TreeLeafShape("Generated leaf family",Float)=0
+        _TreeLeaves("Generated leaf clusters",2DArray)=""{}
         _TreeBarkPattern("Generated bark pattern",Float)=0
         _PlantTraits("Flexibility, response speed, damping, reference height",Vector)=(1,.5,.5,1)
         _FogColor("Sky colour",Color)=(.57,.69,.76,1) _AmbientTint("Ambient light",Color)=(.12,.14,.17,1)
@@ -66,7 +67,7 @@ Shader "WorldGen/LocalScatter"
                 UNITY_SETUP_INSTANCE_ID(i);WorldGenScatterFade(i.positionCS.xy,UNITY_ACCESS_INSTANCED_PROP(Props,_LodTransition));float4 tex=SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap,i.uv)*_BaseColor;
                 if(_TreeSurface>.5)
                 {
-                    WorldGenTreeLeafClip(i.uv,i.plant.y,_TreeLeafShape);
+                    tex.rgb*=WorldGenTreeLeafClip(i.uv,i.plant.y,_TreeLeafShape);
                     if(i.plant.y<.5)
                     {
                         float grain=sin(i.uv.x*(60+_TreeBarkPattern*13)+sin(i.uv.y*41)*(.6+_TreeBarkPattern*.35));

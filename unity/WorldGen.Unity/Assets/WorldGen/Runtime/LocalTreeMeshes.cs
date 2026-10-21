@@ -34,18 +34,20 @@ static partial class LocalScatterMeshes
             {int at=first+j*(branchSides+1)+k;b.Triangle(at,at+1,at+branchSides+1);b.Triangle(at+1,at+branchSides+2,at+branchSides+1);}
             Mark(0);
         }
-        void Leaf(Vector3 root,Vector3 tip,float width,int parts,Color tint,bool packet=false)
+        void Leaf(Vector3 root,Vector3 tip,float width,int parts,Color tint,bool packet=false,int packetVariant=0)
         {
+            // Two endpoint-only rows collapse sin(pi*t) strips at coarse LOD.
+            parts=Math.Max(2,parts);
             Vector3 axis=(tip-root).normalized,side=Vector3.Cross(axis,Vector3.up).normalized;if(side.sqrMagnitude<.01f)side=Vector3.right;
             int first=b.V.Count;
             for(int j=0;j<=parts;j++)
             {
-                float t=j/(float)parts,w=Mathf.Sin(t*Mathf.PI)*width;
-                if(m.LeafShape==TreeLeafShape.Lobed)w*=.78f+.22f*Mathf.Cos(t*Mathf.PI*(float)m.LeafLobes*2);
+                float t=j/(float)parts,w=(packet?.82f+.18f*Mathf.Sin(t*Mathf.PI):Mathf.Sin(t*Mathf.PI))*width;
+                if(!packet&&m.LeafShape==TreeLeafShape.Lobed)w*=.78f+.22f*Mathf.Cos(t*Mathf.PI*(float)m.LeafLobes*2);
                 Vector3 p=Vector3.Lerp(root,tip,t)+Vector3.up*(width*.35f*Mathf.Sin(t*Mathf.PI));
                 b.Add(p-side*w,tint,new Vector2(0,t));b.Add(p+Vector3.up*w*.18f,tint,new Vector2(.5f,t));b.Add(p+side*w,tint,new Vector2(1,t));
             }
-            for(int j=0;j<parts;j++)for(int k=0;k<2;k++){int at=first+j*3+k;b.Triangle(at,at+3,at+1);b.Triangle(at+1,at+3,at+4);}Mark(packet?2:1);
+            for(int j=0;j<parts;j++)for(int k=0;k<2;k++){int at=first+j*3+k;b.Triangle(at,at+3,at+1);b.Triangle(at+1,at+3,at+4);}Mark(packet?2+packetVariant*.1f:1);
         }
         void Cluster(Vector3 at,Vector3 size,int seed)
         {
@@ -54,15 +56,15 @@ static partial class LocalScatterMeshes
         }
         void Spray(Vector3 at,Vector3 outwards,float radius,int seed)
         {
-            var r=new Rng(seed,"tree-leaf-spray-1");int count=lod==0?10:4;
-            float compensation=Mathf.Sqrt(10f/count);
+            var r=new Rng(seed,"tree-leaf-spray-1");int count=lod==0?6:lod==1?4:2;
+            float compensation=Mathf.Sqrt(6f/count);
             for(int j=0;j<count;j++)
             {
                 float azimuth=j*2.39996f+(float)r.Unit()*.65f;
                 var dir=Direction(azimuth);float height=((float)r.Unit()-.3f)*radius;
                 var root=at+dir*(radius*.35f*(float)r.Unit())+Vector3.up*height*.5f;
-                var tip=root+dir*radius*.85f+outwards*radius*.15f+Vector3.up*height;
-                Leaf(root,tip,radius*(float)m.LeafAspect*.8f*compensation,lod==0?3:1,leaf*new Color(.92f+(float)r.Unit()*.12f,1,.94f,1),true);
+                var tip=root+(dir*radius*.85f+outwards*radius*.15f+Vector3.up*height)*compensation;
+                Leaf(root,tip,radius*(float)m.LeafAspect*.95f*compensation,2,leaf*new Color(.92f+(float)r.Unit()*.12f,1,.94f,1),true,(seed+j)&3);
             }
         }
         void Ornament(Vector3 p,int seed)
@@ -86,14 +88,13 @@ static partial class LocalScatterMeshes
                 float outer=Mathf.Sin((t-(float)m.CrownBase)/Mathf.Max(.2f,1-(float)m.CrownBase)*Mathf.PI*.88f)*.26f+.10f;
                 if((code&0x10000)!=0)outer*=1.12f;
                 Vector3 root=Trunk(t),dir=Direction(a),tip=root+dir*outer+Vector3.up*(.08f+.09f*(float)m.BranchLift);
-                if(lod==2){Cluster(tip,new Vector3(outer*.48f,.11f,outer*.48f),code+j);continue;}
                 var control=root+dir*outer*.4f+Vector3.up*.08f;
                 Branch(root,control,tip,(float)m.TrunkRadius*.38f,lod==0?4:2);
                 for(int k=0;k<3;k++)
                 {
                     float q=.40f+k*.25f;var start=(1-q)*(1-q)*root+2*(1-q)*q*control+q*q*tip;var twig=Direction(a+(k-1)*.85f);
                     var end=start+twig*.10f+Vector3.up*.055f;
-                    Branch(start,Vector3.Lerp(start,end,.5f),end,.003f,lod==0?2:1);
+                    if(lod<2)Branch(start,Vector3.Lerp(start,end,.5f),end,.003f,lod==0?2:1);
                     Spray(end,twig,.055f+(float)r.Unit()*.018f,unchecked(code+j*31+k*101));Ornament(end,code+j*47+k);
                 }
             }
@@ -101,15 +102,14 @@ static partial class LocalScatterMeshes
         else if(form==TreeGrowthForm.NeedleCrown)
         {
             Branch(Vector3.zero,Trunk(.5f),Trunk(1),(float)m.TrunkRadius,lod==0?8:4);
-            int tiers=lod==2?5:8;
+            int tiers=8;
             for(int tier=0;tier<tiers;tier++)
             {
                 float t=.20f+tier*.72f/tiers,radius=.40f*(1-t)*(.8f+(float)m.CrownAspect*.3f);
-                int limbs=lod==2?4:6;
+                int limbs=6;
                 for(int j=0;j<limbs;j++)
                 {
                     float a=j*Mathf.PI*2/limbs+tier*.74f;var dir=Direction(a);Vector3 root=Trunk(t),tip=root+dir*radius+Vector3.up*.035f;
-                    if(lod==2){Cluster(root+dir*radius*.65f,new Vector3(radius*.53f,.055f,radius*.53f),code+tier*7+j);continue;}
                     Branch(root,root+dir*radius*.4f-Vector3.up*.025f,tip,.006f,lod==0?3:2);
                     // Needle sprays are tapered folded geometry, not thousands of needles.
                     int sprays=lod==0?4:2;

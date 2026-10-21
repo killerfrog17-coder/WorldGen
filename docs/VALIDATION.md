@@ -1,5 +1,39 @@
 # Version 3 validation evidence
 
+## Tree leaf coverage / vegetation culling /21October2026
+
+Owner rejects the first tree art/LOD continuity and reports same-view FPS about
+190 grass-only,160–170 with specialists,120–130 with mid plants,60–70 with trees;
+mountainous views worse. These are owner observations, not agent profiling.
+Source inspection found endpoint-only sin-width leaf strips collapse in tree
+middle/far and mid-plant far geometry. Interior rows now survive at every LOD.
+Local broad/needle crown blobs are replaced by persistent foliage layouts with
+reduced widened packets; a shared procedural alpha-coverage-mipped texture array
+replaces expensive unfiltered leaf-mask fragment loops in colour/depth/shadows.
+Materials are shared across structural tree variants. Current distant terrain
+forest volumes remain approximate, not new multi-view individual-tree impostors.
+
+Added conservative full-plant frustum selection before manual instance submission
+and terrain-only occlusion for scatter/grass pages. Terrain lower bounds include
+all vertices of intersected heightfield cells; unknown/transitioning/coarse data
+does not occlude. Extra margins cover wind, tree crowns and small camera motion.
+Nearby offscreen casters retain shadow-only submissions. Batch-building closures/
+redundant art lookups are removed, storage is reused, stationary refresh slows,
+and finest-tile arrivals only reproject affected scatter patches. Grass debug
+has separate frustum/occlusion/shadow switches; F3 reports rejection counts.
+No saved ecology, source/history/save schema, terrain heights, water, placement,
+density, worker-wire or accepted wind changes. This is intent/source review,
+NOT a regression hash audit. See TREE_FLORA.md for research, memory/cost and
+conservative occlusion limitations. Compilation/package result recorded below;
+no test suites, numeric campaigns, fixtures, player launches, captures or profiling.
+Art/LOD/FPS/shadow/camera-turn acceptance belongs to the owner review.
+
+Final IL2CPP compile/package exits0 at21Oct21:28:32Z, including packaged worker.
+The initial unpublished package was superseded after tightening the shadow
+receiver/drop bound and adding the flat-scene occlusion ceiling early-out.
+No agent runtime/test launch or profiling. Shortcut now selects real-C:
+`player-tree-coverage-culling`; owner notified for same-scene comparison.
+
 ## Generated tree lineages / owner-test-only /21October2026
 
 TreeFlora1 / LocalScatter7 replaces old tree proxies with inherited regional

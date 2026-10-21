@@ -21,6 +21,7 @@ public static class TerrainVideoOptions
     public static float MidPlantRange=1;
     public static bool GeneratedTrees=true,FarForest=true;
     public static int TreeDetail=2;
+    public static bool ScatterFrustum=true,VegetationOcclusion=true,VegetationShadows=true;
     public static void Load()
     {
         Current.Quality=Mathf.Clamp(PlayerPrefs.GetInt("terrain-quality",2),0,4);
@@ -89,6 +90,9 @@ public sealed partial class WorldGenRuntime
         TerrainVideoOptions.GeneratedTrees=GUILayout.Toggle(TerrainVideoOptions.GeneratedTrees,"Generated trees · nearby instanced models");
         TerrainVideoOptions.FarForest=GUILayout.Toggle(TerrainVideoOptions.FarForest,"Distant forest canopy volumes and colour");
         GUILayout.Label("Tree geometry quality");TerrainVideoOptions.TreeDetail=GUILayout.SelectionGrid(TerrainVideoOptions.TreeDetail,new[]{"Low","Medium","High"},3);
+        TerrainVideoOptions.ScatterFrustum=GUILayout.Toggle(TerrainVideoOptions.ScatterFrustum,"Individual scatter frustum culling");
+        TerrainVideoOptions.VegetationOcclusion=GUILayout.Toggle(TerrainVideoOptions.VegetationOcclusion,"Conservative hill occlusion (plants and grass pages)");
+        TerrainVideoOptions.VegetationShadows=GUILayout.Toggle(TerrainVideoOptions.VegetationShadows,"Vegetation shadow casting (grass and herbs never cast)");
         if(GUILayout.Button("Reset grass prototype defaults"))
         {TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDistance=350;TerrainVideoOptions.GrassBladeDistance=45;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassWind=true;TerrainVideoOptions.WeatherDrivenVegetationWind=true;TerrainVideoOptions.VegetationWindResponse=6;}
         GUILayout.Space(10);

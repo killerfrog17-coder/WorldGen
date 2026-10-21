@@ -1,5 +1,114 @@
 # Generated tree lineages / tree-flora-1 / 21 October 2026
 
+## Tree coverage / vegetation visibility follow-up
+
+Owner rejected the initial tree art/early clumping and reported approximately
+190FPS grass-only,160–170 with specialists,120–130 with mid plants and60–70 with
+trees. These are owner scene comparisons, not an isolated agent benchmark.
+Source inspection found a definite defect: the coarse tree `Leaf` strip used
+one segment with width `sin(pi*t)`, i.e. two zero-width endpoint rows and no
+interior width. The shared mid-plant `HerbLeaf` had the same far-LOD defect.
+Both now retain an interior row. This is a source-level diagnosis, not runtime
+certification of every reported leaf/LOD symptom.
+
+Current local broad crowns retain the branch/twig locations and folded leaf
+packets at all three LODs instead of switching to rough opaque balls at260–450m.
+Six/four/two packets per twig use stable prefixes and inverse-count area scaling;
+both length and width compensate. Near packets use two segments rather than three.
+Needle tiers/limbs retain their layout across LOD, with simplified sprays. Tiny
+ornaments remain near-only. Succulent solid anatomy and distant forest aggregate
+volumes are unchanged. No assertion of perfectly matching projected coverage
+from every angle: reduced packet counts, frond simplification and far forest
+statistics can still visibly differ and need owner review.
+
+The analytic twelve-ellipse/optional-lobed-atan2 fragment loop is replaced by one
+filtered procedural cluster texture-array lookup in colour, depth and shadow.
+32 shared128² RGBA8 slices = eight leaf-family slots/four twig layouts, about
+2.67MiB including mips before driver overhead. Shapes currently used by textured
+packets are the broadleaf/lanceolate families; needles/fronds retain geometric
+foliage. The array is generated once per explorer, not per tree or frame. Mips
+rescale alpha to preserve the fraction passing the same0.4 cutoff, with neutral
+transparent-edge colour. Species still provide inherited palette/leaf aspect,
+while the atlas is shared rather than a bespoke photograph per fictional taxon.
+Small mip levels necessarily quantize coverage; this is not temporal AA or a
+guarantee against all shimmer. Structural variants now share species materials
+(one for near/middle motion and one for still far foliage), with safe shared
+ownership during mesh-cache eviction.
+
+### Visibility and CPU work
+
+- Grass already had GPU root frustum/range compaction plus CPU page frustum checks.
+  Other scatter previously had distance filtering and Unity's whole-draw group
+  culling, NOT individual plant frustum/occlusion culling. Instancing alone does
+  not solve invisible instance submission.
+- Herbs, fungi, mid plants, trees and rocks now have cached wind-inclusive AABBs,
+  coarse patch rejection and individual camera frustum tests before art lookup/
+  batching. Bounds include crown extent, height, tilt and motion, not root points.
+  Explicit draw bounds also protect against Unity's tighter undeformed group bound.
+- Conservative terrain-only occlusion applies to scatter and grass pages. A
+  line-to-AABB cone is tested at seven slabs. A whole slab must lie in one stable,
+  resident finest tile and below a lower bound of ALL overlapping drawn terrain
+  triangles. Cached16x16 min blocks include all cell vertices. Unknown/coarse/
+  transitioning terrain stays visible; moving eye/bounds get safety margins.
+  A ceiling of the eligible lower bounds skips slab work where no hill can
+  occlude the plant (especially flat open terrain). Per-tile min grids add at
+  most1KiB and participate in terrain-cache byte accounting.
+  No baked occlusion, GPU readback or individual plant raycast. It intentionally
+  misses occluders between slabs, cross-tile slabs, coarse hills and foliage.
+  This is NOT a full-scene depth-pyramid/Hi-Z occlusion implementation. Terrain
+  renderers and embedded far forest volumes retain their previous visibility path.
+- Relevant offscreen/hidden nearby shadow casters are retained as shadow-only
+  instances using sun direction and a sphere enclosing the active shadow-distance
+  receiving frustum. Maximum caster-to-receiver drop includes valley elevation,
+  not just the tree's own height; near-horizontal sun retains all possible casters.
+  Hidden tree shadows use at least middle detail. This conservative reach can
+  retain many casters at low sun; shadow quality/performance needs owner review.
+- Batch arrays/dictionaries are reused; the per-candidate captured Add closure and
+  two unconditional art lookups are removed. Batches rebuild on meaningful motion
+  (>0.5m or1°), projection/options/data changes, plus a1s lighting refresh, rather
+  than10Hz while stationary. Frustum and occlusion safety margins cover that
+  small camera slack; no slow load fade is added.
+- Finest terrain installation/restoration marks affected ground tiles. Only
+  intersecting scatter patches reproject; transform/root arrays are reused.
+  Reanchor/teleport still fully project. Ecology, placement/density, world/history,
+  worker wire5, saves, terrain heights/water and approved wind are unchanged.
+
+Grass debug exposes separate extra-scatter-frustum, hill-occlusion and vegetation
+shadow switches (default on). Grass's existing GPU frustum stays enabled even
+with the extra scatter switch off. F3 shows rejection and shadow-only/page counts;
+patch-level counts can include out-of-range/disabled instances. Counts are
+submission diagnostics, not measured GPU savings. Disabling a vegetation draw
+layer still does not stop its ecological preparation jobs.
+
+### Research and scope
+
+- [GPU Gems2 / SpeedTreeRT tree and shrub layers](https://developer.nvidia.com/gpugems/gpugems2/part-i-geometric-complexity/chapter-1-toward-photorealism-virtual-botany):
+  3D trunks/primary branches, clustered textured foliage, fewer/larger clusters
+  with distance and view-dependent far representations. Adapted approach, not
+  licensed/imported SpeedTree code or a claim of matching a particular game.
+- [Unity alpha-coverage mipmaps](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/TextureImporter-mipMapsPreserveCoverage.html):
+  motivates coverage-aware filtering. Runtime-generated arrays use our explicit
+  mip construction, not an importer checkbox on an absent image asset.
+- [Unity RenderMeshInstanced](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Graphics.RenderMeshInstanced.html):
+  instances are culled/sorted as one group; our extra individual selection must
+  happen before submission.
+- [Unity GPU Resident Drawer](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/gpu-resident-drawer.html)
+  and [GPU occlusion](https://docs.unity.com/en-us/engine/6000.3/manual/analysis/graphics-performance-profiling/in-urp/gpu-culling):
+  built-in GPU occlusion works through the Resident Drawer/MeshRenderer route.
+  Our manual instanced scatter/indirect grass are not automatically enrolled by
+  checking the renderer option. No such checkbox-only migration is claimed.
+- [Epic multi-view tree impostors](https://dev.epicgames.com/documentation/en-us/unreal-engine/impostor-baker-plugin-in-unreal-engine):
+  a good next stage for matching far individual trees to their near models;
+  not included in this bounded fix. Full GPU-driven indirect/BRG culling and
+  scene-depth occlusion are also follow-ups if owner FPS remains inadequate.
+
+Only compilation/packaging is authorized/performed. No test campaign, launch,
+capture or profiling; owner reviews same-camera FPS, leaf continuity, art and
+hill/camera-turn/shadow popping. CPU culling itself has a cost; flat open scenes
+may get little benefit from hill occlusion. No numeric speedup promised.
+
+## Original tree-lineage checkpoint (superseded rendering details below)
+
 Owner-review prototype. Compilation/packaging only; no agent tests, player launch,
 screenshots, profiling or source-world hash audits. Do not infer art, realism,
 seamlessness or performance acceptance from compilation. Existing accepted ground/

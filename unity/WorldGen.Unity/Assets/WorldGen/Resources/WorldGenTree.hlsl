@@ -1,25 +1,13 @@
 #ifndef WORLDGEN_TREE_INCLUDED
 #define WORLDGEN_TREE_INCLUDED
-// Species-shaped foliage packets: twelve leaf silhouettes and a thin rachis
-// per fitted, folded surface, not twelve separate meshes or giant opaque leaves.
-void WorldGenTreeLeafClip(float2 uv,float material,float shape)
+TEXTURE2D_ARRAY(_TreeLeaves);SAMPLER(sampler_TreeLeaves);
+// One filtered lookup replaces the unfiltered procedural fragment loop.
+half3 WorldGenTreeLeafClip(float2 uv,float material,float shape)
 {
-    if(material<1.5||material>2.5)return;
-    float nearest=abs(uv.x-.5)-.012;
-    [unroll]for(int row=0;row<6;row++)
-    {
-        float y=(row+.5)/6.;float width=.35*sin(y*3.14159265);
-        [unroll]for(int side=-1;side<=1;side+=2)
-        {
-            float2 center=float2(.5+side*width*.58,y+(side>0?.026:-.026));
-            float2 p=(uv-center)/float2(max(.025,width*.66),.095);
-            p.y+=side*p.x*.28;
-            float ellipse=dot(p,p)-1;
-            if(shape>1.5&&shape<2.5)ellipse+=.16*cos(atan2(p.y,p.x)*6);
-            nearest=min(nearest,ellipse*.04);
-        }
-    }
-    clip(-nearest);
+    if(material<1.5||material>2.5)return 1;
+    float variant=round((material-2)*10);
+    half4 leaf=SAMPLE_TEXTURE2D_ARRAY(_TreeLeaves,sampler_TreeLeaves,uv,shape*4+variant);
+    clip(leaf.a-.4);return leaf.rgb*1.12;
 }
 float3 WorldGenTreeWind(float3 p,float3 root,float2 mask,float enabled,float4 traits)
 {

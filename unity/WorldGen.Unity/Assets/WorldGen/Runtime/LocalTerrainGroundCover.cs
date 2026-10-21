@@ -224,7 +224,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DrawGroundCover()
     {
-        GroundCoverDraws=0;GroundCoverBytes=0;GroundCoverCandidates=0;
+        GroundCoverDraws=0;GroundCoverBytes=0;GroundCoverCandidates=0;GrassPagesOccluded=0;
         if(!GroundCoverEnabled||!TerrainVideoOptions.GroundCover||!ScatterEnabled||view==null||terrain==null)
         {foreach(var entry in tiles)ReleaseGroundCover(entry.Value);return;}
         InitializeGroundCover();if(groundCoverMaterial==null)return;
@@ -288,6 +288,8 @@ public sealed partial class LocalTerrainExplorer
             float range=sprites?grassRange:bladeRange;if(distance2>range*range)continue;
             var bounds=gpu.LocalBounds;bounds.center+=tile.Root.transform.position;bounds.Expand(10);
             if(!GeometryUtility.TestPlanesAABB(coverFrustum,bounds))continue;
+            var localBounds=bounds;localBounds.center=transform.InverseTransformPoint(bounds.center);
+            if(TerrainOccluded(localBounds,view.transform.localPosition)){GrassPagesOccluded++;continue;}
             CullGroundCover(gpu,new Vector4((float)(key.X*key.SizeM-originX),0,(float)(key.Z*key.SizeM-originZ),0),view,tile,(float)key.SizeM,true);
             for(int lod=0;lod<5;lod++)
             {
