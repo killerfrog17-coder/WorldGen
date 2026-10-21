@@ -214,6 +214,7 @@ public sealed partial class LocalTerrainExplorer
     void DisposeScatter()
     {
         if(groundCoverMaterial!=null)Destroy(groundCoverMaterial);
+        if(groundCanopyMaterial!=null)Destroy(groundCanopyMaterial);
         if(generatedGround!=null)foreach(var texture in generatedGround)Destroy(texture);
         foreach(var mesh in ownedScatterMeshes)Destroy(mesh);foreach(var material in ownedScatterMaterials)Destroy(material);
         if(lightingSaved){RenderSettings.sun=precedingSun;RenderSettings.ambientMode=precedingAmbient;RenderSettings.ambientSkyColor=precedingSky;RenderSettings.ambientEquatorColor=precedingEquator;RenderSettings.ambientGroundColor=precedingGround;}

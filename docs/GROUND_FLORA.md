@@ -1,4 +1,57 @@
-# Ground layer / ground-flora-2
+# Ground layer / ground-flora-3
+
+## Hybrid near blades / canopy / far terrain and dry deserts /21October2026
+
+Owner requested replacing grainy distant blades with aggregate LOD objects,
+then matching distant ground. `player-grass-hybrid-canopy` retains continuous
+near fields but changes representation: default detailed/simplified geometric
+leaves end at45m;12-vertex canopy patches take over36–45m and continue to120m.
+The very-near blade detail blend is18–27m. Width compensation now accounts for
+the near/simplified count ratio, capped3.5x, rather than reducing many leaves
+with only slight widening. GPU compaction sends only near roots to blade draws.
+
+The distant proxy is one camera-facing alpha-textured fringe plus a shallow
+terrain-following canopy cap per field square, NOT six-way crossed cards near
+the player. It reuses the existing RGBA atlas solely at distance; no new image
+generation. It is an authored aggregate approximation, not a multiview bake of
+each world's actual individual leaves. It uses smooth opacity (no grass
+screen-door retirement) and settles height into the ground over the final
+canopy range. Near blades retain opaque LOD/load dithering. Transparent proxies
+do not write depth or cast individual shadows; overlapping proxies are not
+sorted individually, a prototype artifact/performance risk for owner review.
+
+All terrain LODs now mix mean foliage colour using the same cover/.45 visual
+occupancy as local fields, with.90 mean colour scaling. Shared leafy-volume
+sunlight/transmission is used for blades, canopy and grass-covered land, instead
+of fading grass onto unrelated substrate/PBR lighting. Broad grass shading
+detail is derivative-filtered; new grass shading is enabled only on the land
+material, not rocks or water. This changes display palettes/shading, not heights,
+terrain LOD topology or source worlds/history. Fine-cover wire layout remains3.
+Far terrain is a shaded statistical surface, not distant individual geometry
+or a new grass-volume horizon system. Very tall grass silhouettes eventually
+settle into terrain; exact all-angle agreement is not claimed.
+
+Grass debug adds individual blade range15–60m and a canopy toggle; existing
+range slider controls the aggregate extent40–160m. Effective blade range is
+capped at75% of aggregate range, leaving room for handoff. Defaults45/120m,
+High/1x/wind on. Existing finest-terrain coverage may shorten aggregate extent;
+far terrain shading still extends to the horizon. The old enable toggle removes
+all local geometry/culling/buffers, retaining the statistical terrain display.
+
+Ground-flora3 fixes a second owner observation: desert profiles previously
+retained small grass/forb probabilities which the continuous-field renderer
+spread everywhere. In explicit dry Desert habitats, only low lichen/crust
+remains unless existing groundwater/flood proxies indicate a wet refuge.
+Suppression for other forms scales with clamp((flood-.10)/.55). This is derived
+flora only; no saved biome, climate or historical ecology is rewritten. Oases
+are not newly generated; wet refuges use the existing habitat data. Desert-looking
+non-Desert cells and biome-edge blending are not independently reproduced or
+certified. Generic geometric non-grass leaves remain provisional.
+
+Owner-testing workflow continues: build/package only. No agent-run test suites,
+game launch, visual inspection, FPS profiling or saved-world hash audit for this
+revision. No measured performance win, invisible handoff or desert acceptance
+is claimed. Earlier renderer descriptions/evidence below are historical.
 
 ## Continuous field revision /21October2026
 

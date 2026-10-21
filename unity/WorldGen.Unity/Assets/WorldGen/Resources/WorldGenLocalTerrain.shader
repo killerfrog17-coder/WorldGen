@@ -10,6 +10,7 @@ Shader "WorldGen/LocalTerrain"
         _GroundMasks("R AO, G roughness, B height, A metallic",2DArray)=""{}
         _TextureMetres("Repeat metres",Float)=2
         _RockLayers("Six lithology layers",Float)=0
+        _GroundFlora("Ground canopy shading",Float)=0
         _TerrainCoverage("Resident coverage tree",2D)="black"{}
         _CoverageEnabled("Partial fallback",Float)=0
         _CoverageTileSize("Tile size",Float)=1
@@ -36,11 +37,12 @@ Shader "WorldGen/LocalTerrain"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
             #include "WorldGenAir.hlsl"
             #include "WorldGenLodFade.hlsl"
+            #include "WorldGenGrassLight.hlsl"
             TEXTURE2D_ARRAY(_GroundAlbedo);SAMPLER(sampler_GroundAlbedo);
             TEXTURE2D_ARRAY(_GroundNormals);TEXTURE2D_ARRAY(_GroundMasks);
             Texture2D<float4> _TerrainCoverage;float _CoverageEnabled,_CoverageTileSize;
             Texture2D<float4> _CoverageFadeTimes;float _TransitionEnabled,_LodSafetyRadius;float4 _LodFade;
-            float _Water,_FogDistance,_TextureMetres,_Daylight,_RockLayers;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint;
+            float _Water,_FogDistance,_TextureMetres,_Daylight,_RockLayers,_GroundFlora;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint;
             struct A { float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 color:COLOR;float4 weights:TEXCOORD1;float4 groundB:TEXCOORD2;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5; };
             struct O { float4 positionCS:SV_POSITION;float3 normal:TEXCOORD0;float3 position:TEXCOORD1;float4 color:COLOR;float4 weights:TEXCOORD2;float4 groundB:TEXCOORD3;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5;float2 coverageUV:TEXCOORD6; };
             O vert(A a){O o;o.position=TransformObjectToWorld(a.positionOS.xyz);o.positionCS=TransformWorldToHClip(o.position);o.normal=TransformObjectToWorldNormal(a.normalOS);o.color=a.color;o.weights=a.weights;o.groundB=a.groundB;o.rocks=a.rocks;o.rocksB=a.rocksB;o.coverageUV=a.positionOS.xz/max(.001,_CoverageTileSize);return o;}
@@ -162,6 +164,15 @@ Shader "WorldGen/LocalTerrain"
                 input.normalizedScreenSpaceUV=GetNormalizedScreenSpaceUV(i.positionCS);
                 SurfaceData s=(SurfaceData)0;s.albedo=albedo;s.alpha=1;s.occlusion=ao;s.smoothness=1-rough;s.metallic=metal;s.normalTS=half3(0,0,1);
                 half3 color=UniversalFragmentPBR(input,s).rgb;
+                // Continuous, filtered canopy shading survives the end of local
+                // objects. Share mean albedo/lighting rather than expose bare soil.
+                float grassMix=saturate(cover/.45)*_GroundFlora;
+                float3 q=worldTexture*.65;
+                float footprint=max(length(ddx(q)),length(ddy(q)));
+                float fieldDetail=(1-smoothstep(.25,1,footprint))*.04*sin(q.x+sin(q.z*.7));
+                float3 grassAlbedo=farColor*(1+fieldDetail);
+                float3 canopyNormal=normalize(float3(0,.8,0)+n*.25);
+                color=lerp(color,WorldGenGrassLight(grassAlbedo,canopyNormal,i.position,_AmbientTint.rgb,_Daylight),grassMix);
                 color+=SecondaryCelestialLight(n,s.albedo);
                 return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,fogColor,_FogDistance),1);
             }

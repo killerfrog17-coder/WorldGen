@@ -37,7 +37,7 @@ public sealed partial class LocalTerrainExplorer
             if(cover)
             {
                 e.CullGroundCover(gpu,new Vector4(0,0,0,gpu.Born),camera);
-                for(int lod=0;lod<3;lod++){gpu.Properties.SetInt("_CoverLod",lod);gpu.Properties.SetBuffer("_VisibleRoots",gpu.Visible[lod]);var rp=new RenderParams(e.groundCoverMaterial){camera=camera,layer=30,worldBounds=new Bounds(new Vector3(51,1,51),new Vector3(106,10,106)),matProps=gpu.Properties,shadowCastingMode=ShadowCastingMode.Off};Graphics.RenderPrimitivesIndirect(in rp,MeshTopology.Triangles,gpu.Args,1,lod);}
+                for(int lod=0;lod<3;lod++){var material=lod==2?e.groundCanopyMaterial:e.groundCoverMaterial;if(material==null)continue;gpu.Properties.SetInt("_CoverLod",lod);gpu.Properties.SetBuffer("_VisibleRoots",gpu.Visible[lod]);var rp=new RenderParams(material){camera=camera,layer=30,worldBounds=new Bounds(new Vector3(51,1,51),new Vector3(106,10,106)),matProps=gpu.Properties,shadowCastingMode=ShadowCastingMode.Off};Graphics.RenderPrimitivesIndirect(in rp,MeshTopology.Triangles,gpu.Args,1,lod);}
             }
             camera.Render();var old=RenderTexture.active;RenderTexture.active=target;var image=new Texture2D(1280,800,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1280,800),0,0);image.Apply();
             File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());var pixels=image.GetPixels32();Destroy(image);RenderTexture.active=old;return pixels;

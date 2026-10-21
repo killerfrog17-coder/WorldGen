@@ -23,7 +23,7 @@ namespace WorldGen.Core
     /// acquire bounded regional traits; this is static biogeography, not simulated evolution.</summary>
     public sealed class GroundFlora
     {
-        public const string Version="ground-flora-2";
+        public const string Version="ground-flora-3";
         static readonly ConditionalWeakTable<World,GroundFlora> contexts=new ConditionalWeakTable<World,GroundFlora>();
         readonly World world;
         readonly ConcurrentDictionary<int,GroundFloraRegion> regions=new ConcurrentDictionary<int,GroundFloraRegion>();
@@ -85,6 +85,9 @@ namespace WorldGen.Core
                     case GroundGrowthForm.Lichen:w=(.10+.32*(1-cold)+.12*soil.Gravel)*(1-shade*.7)*D.Clamp((1.1-wet)/.8)*(.5+.5*D.Clamp((warm+8)/12))*(1-flood);break;
                     default:w=.10*hot*D.Clamp((.8-wet)/.65)*(1-shade)*(1-flood)*roots;break;
                 }
+                // Residual desert moisture must not plant a continuous meadow.
+                // Actual groundwater/flood refuges are retained; crust stays low.
+                if(h!=null&&h.Biome==Biome.Desert&&f!=7)w*=D.Clamp((flood-.10)/.55);
                 var species=flora.Species[f];profile.SetWeight(f,w);sum+=w;
                 profile.Color+=species.Color*w;profile.Stature+=species.Stature*w;profile.LeafWidth+=species.LeafWidth*w;
             }

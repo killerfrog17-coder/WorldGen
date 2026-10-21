@@ -1,5 +1,25 @@
 # Version 3 validation evidence
 
+## Hybrid grass and desert suppression: owner-test-only /21October2026
+
+`player-grass-hybrid-canopy`: individual blades default45m, aggregate textured
+fringe/canopy caps to120m, terrain mean-cover shading at all terrain LODs.
+Shared foliage lighting and occupancy-correct mean terrain colour replace the
+old mismatch; aggregate retirement is smooth alpha, not screen-door speckling.
+Near blade dithering remains. Debug controls add blade range and canopy toggle.
+Ground-flora3 suppresses non-crust cover in explicit dry Desert cells except
+existing groundwater/flood refuges. Source saves/world/history/terrain/water
+rules remain unchanged; derived flora/display outputs intentionally change.
+
+Owner requested fast interactive trials without agent testing: ONLY compile/
+package work is performed. No suite, fixture, player launch, screenshots,
+profiling or source-hash audit. GPU cost, proxy overlap/order, all-angle matching,
+terrain/canopy handoff and actual desert reproduction remain owner-review work.
+Existing card/blade test results below do not validate these changes. Approach
+and approximation limits are documented in GROUND_FLORA.md.
+IL2CPP compile/package completed21Oct07:27:24Z, exit0. Shortcut updated to this
+separate C: build; existing game/saves untouched. No in-game acceptance implied.
+
 ## Continuous grass field: owner-test-only revision /21October2026
 
 Owner found visible clump footprints and empty gaps, while reporting acceptable

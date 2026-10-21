@@ -7,7 +7,7 @@ int4 _Candidate;float4 _Tile;uint _Seed;
 StructuredBuffer<Root> _PlacedRoots;
 ByteAddressBuffer _RootCount;
 AppendStructuredBuffer<uint> _NearRoots,_MiddleRoots,_FarRoots;
-float4 _CullOrigin,_CullCamera,_CullPlanes[6];float _GrassRange;
+float4 _CullOrigin,_CullCamera,_CullPlanes[6];float _GrassRange,_GrassNear;int _CanopyEnabled;
 uint Mix(uint x){x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);}
 float Rand(uint x){return (Mix(x)&0xffffffu)/16777216.;}
 float Attribute(int x,int z,int channel){return _Grid[((z*((int)_Tile.w+1)+x)*16)+channel];}
@@ -52,8 +52,7 @@ void Cull(uint3 id:SV_DispatchThreadID)
     float d=distance(p,_CullCamera.xyz);if(d>=_GrassRange)return;
     float radius=max(1.2,r.colorHeight.w*1.6);
     [unroll]for(int k=0;k<6;k++)if(dot(_CullPlanes[k].xyz,p)+_CullPlanes[k].w < -radius)return;
-    float s=_GrassRange/160.;
-    if(d<42*s)_NearRoots.Append(id.x);
-    if(d>25*s&&d<90*s)_MiddleRoots.Append(id.x);
-    if(d>65*s)_FarRoots.Append(id.x);
+    if(d<.60*_GrassNear)_NearRoots.Append(id.x);
+    if(d>.40*_GrassNear&&d<_GrassNear)_MiddleRoots.Append(id.x);
+    if(_CanopyEnabled!=0&&d>.80*_GrassNear)_FarRoots.Append(id.x);
 }

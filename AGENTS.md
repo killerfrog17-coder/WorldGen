@@ -1,6 +1,27 @@
 # WorldGen repository instructions
 
 Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
+`artifacts/player-grass-hybrid-canopy/WorldGen.exe` (IL2CPP07:27:24Z), real C:.
+Owner requested near blades (~40–50m), cheaper distant representations, matching
+far terrain, and no inappropriate desert grass. Default45m individual blades
+(detail blend18–27m) hand over36–45m to12-vertex fringe/canopy proxies through
+120m; new shared leafy lighting/occupancy-correct colour extends across all
+terrain LODs. Proxies use smooth alpha, not screen-door fades; near blades
+still dither. Existing atlas is reused DISTANT ONLY, no near crossed cards.
+Proxy transparency/order, height settling and exact all-angle agreement remain
+unverified. Near range/canopy toggle join existing live Grass debug controls.
+Finest terrain can shorten proxy range; far shading continues to horizon.
+Derived ground-flora3 suppresses non-crust forms in explicit dry Desert cells
+unless saved groundwater/flood proxies indicate a refuge; no new oasis system.
+Source world/history/climate/biomes, heights and water rules unchanged; derived
+display colours/flora intentionally change. Worker wire remains3.
+ONLY compilation/packaging performed, exit0. No suites, fixtures, native launch,
+screenshots, FPS profiling or hash audit, following owner no-testing direction.
+No measured speedup or accepted desert/realism/transition claim. Prior continuous
+field build remains technical rollback. See GROUND_FLORA.md and VALIDATION.md.
+Do not close owner game; retain continuous near fields rather than sparse tufts.
+
+Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
 `artifacts/player-grass-continuous-field/WorldGen.exe` (IL2CPP07:03:18Z), real C:.
 Owner found blade performance acceptable but REJECTED isolated tufts and the
 large bare gaps; increasing leaves per clump did not solve distribution.

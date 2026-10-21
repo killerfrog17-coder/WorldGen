@@ -73,7 +73,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         view.cullingMask=1<<30;view.nearClipPlane=.1f;view.farClipPlane=300000;view.fieldOfView=68;
         view.clearFlags=CameraClearFlags.SolidColor;view.backgroundColor=new Color(.57f,.69f,.76f);
         var shader=Resources.Load<Shader>("WorldGenLocalTerrain");if(shader==null||!shader.isSupported)throw new InvalidOperationException("Local terrain shader is missing or unsupported.");
-        landMaterial=new Material(shader);waterMaterial=new Material(landMaterial);waterMaterial.SetFloat("_Water",1);SetFog();CaptureMouse();
+        landMaterial=new Material(shader);landMaterial.SetFloat("_GroundFlora",1);waterMaterial=new Material(landMaterial);waterMaterial.SetFloat("_Water",1);SetFog();CaptureMouse();
     }
     void SetFog(){float distance=(float)Math.Min(viewDistance*.98,streamedFog);landMaterial.SetFloat("_FogDistance",distance);waterMaterial.SetFloat("_FogDistance",distance);foreach(var material in ownedScatterMaterials)if(material.HasProperty("_FogDistance"))material.SetFloat("_FogDistance",distance);}
     double Ground(double x,double z)

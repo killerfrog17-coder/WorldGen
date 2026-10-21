@@ -123,7 +123,8 @@ namespace WorldGen.Presentation
                 var cover=GroundFlora.Surface(sample.Cover,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,
                     terrain.RadiusM*frame.HorizontalScale,sample.Ground,sample.ElevationM,sample.BaseElevationM,up,sample.Underwater,snow);
                 double coverage=D.Clamp(cover.Coverage);
-                color=color*(1-coverage)+cover.Color*coverage;
+                double visibleCover=D.Clamp(coverage/.45);
+                color=color*(1-visibleCover)+cover.Color*(.90*visibleCover);
                 if(mesh.GroundCover.Length>0)
                 {
                     int coverAt=i*16;mesh.GroundCover[coverAt]=(float)cover.Color.X;mesh.GroundCover[coverAt+1]=(float)cover.Color.Y;

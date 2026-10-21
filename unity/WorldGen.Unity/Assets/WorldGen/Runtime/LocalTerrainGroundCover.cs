@@ -16,7 +16,7 @@ public sealed partial class LocalTerrainExplorer
         public long Bytes;
         public Bounds LocalBounds;
     }
-    Material groundCoverMaterial;ComputeShader groundCoverPlacement;
+    Material groundCoverMaterial,groundCanopyMaterial;ComputeShader groundCoverPlacement;
     readonly Plane[] coverFrustum=new Plane[6];
     readonly Vector4[] coverCullPlanes=new Vector4[6];
     public bool GroundCoverEnabled=true;
@@ -35,6 +35,8 @@ public sealed partial class LocalTerrainExplorer
         var shader=Resources.Load<Shader>("WorldGenGroundCover");groundCoverPlacement=Resources.Load<ComputeShader>("GroundCoverPlacement");
         if(shader==null||!shader.isSupported||groundCoverPlacement==null)return;
         groundCoverMaterial=new Material(shader);
+        var canopy=Resources.Load<Shader>("WorldGenGrassCanopy");
+        if(canopy!=null&&canopy.isSupported){groundCanopyMaterial=new Material(canopy);groundCanopyMaterial.SetTexture("_FoliageAtlas",Resources.Load<Texture2D>("GroundFoliageAtlasV1"));}
     }
     CoverGpu PrepareGroundCover(TerrainTileKey key,Tile tile,int wx,int wz)
     {
@@ -70,12 +72,12 @@ public sealed partial class LocalTerrainExplorer
     {
         int detail=Mathf.Clamp(TerrainVideoOptions.GrassDetail,0,3);
         int near=Mathf.Max(2,Mathf.RoundToInt((detail==0?16:detail==1?32:detail==2?64:96)*TerrainVideoOptions.GrassDensity));
-        int middle=Mathf.Max(2,Mathf.RoundToInt(near/3f)),far=Mathf.Max(1,Mathf.RoundToInt(near/12f));
-        int segments=detail==0?2:detail==3?4:3,topology=near|(middle<<10)|(far<<18)|(segments<<24);
+        int middle=Mathf.Max(2,Mathf.RoundToInt(near/3f));
+        int segments=detail==0?2:detail==3?4:3,topology=near|(middle<<10)|(segments<<24);
         if(gpu.Topology!=topology)
         {
             var args=new GraphicsBuffer.IndirectDrawArgs[3];
-            args[0].vertexCountPerInstance=(uint)(near*segments*6);args[1].vertexCountPerInstance=(uint)(middle*2*6);args[2].vertexCountPerInstance=(uint)(far*6);gpu.Args.SetData(args);gpu.Topology=topology;
+            args[0].vertexCountPerInstance=(uint)(near*segments*6);args[1].vertexCountPerInstance=(uint)(middle*2*6);args[2].vertexCountPerInstance=12;gpu.Args.SetData(args);gpu.Topology=topology;
         }
         GeometryUtility.CalculateFrustumPlanes(camera,coverFrustum);
         for(int k=0;k<6;k++)coverCullPlanes[k]=new Vector4(coverFrustum[k].normal.x,coverFrustum[k].normal.y,coverFrustum[k].normal.z,coverFrustum[k].distance);
@@ -84,9 +86,12 @@ public sealed partial class LocalTerrainExplorer
         groundCoverPlacement.SetBuffer(1,"_NearRoots",gpu.Visible[0]);groundCoverPlacement.SetBuffer(1,"_MiddleRoots",gpu.Visible[1]);groundCoverPlacement.SetBuffer(1,"_FarRoots",gpu.Visible[2]);
         groundCoverPlacement.SetVector("_CullOrigin",origin);groundCoverPlacement.SetVector("_CullCamera",camera.transform.position);
         groundCoverPlacement.SetVectorArray("_CullPlanes",coverCullPlanes);groundCoverPlacement.SetFloat("_GrassRange",TerrainVideoOptions.GrassDistance);
+        float bladeRange=Mathf.Min(TerrainVideoOptions.GrassBladeDistance,TerrainVideoOptions.GrassDistance*.75f);
+        groundCoverPlacement.SetFloat("_GrassNear",bladeRange);groundCoverPlacement.SetInt("_CanopyEnabled",TerrainVideoOptions.GrassCanopy&&groundCanopyMaterial!=null?1:0);
         groundCoverPlacement.Dispatch(1,(gpu.Candidates+63)/64,1,1);
         for(int lod=0;lod<3;lod++)GraphicsBuffer.CopyCount(gpu.Visible[lod],gpu.Args,lod*GraphicsBuffer.IndirectDrawArgs.size+4);
-        gpu.Properties.SetVector("_CoverOrigin",origin);gpu.Properties.SetVector("_BladeCounts",new Vector4(near,middle,far,segments));
+        gpu.Properties.SetVector("_CoverOrigin",origin);gpu.Properties.SetVector("_BladeCounts",new Vector4(near,middle,0,segments));
+        gpu.Properties.SetFloat("_GrassNear",bladeRange);gpu.Properties.SetFloat("_GrassRange",TerrainVideoOptions.GrassDistance);
     }
     void DrawGroundCover()
     {
@@ -102,7 +107,13 @@ public sealed partial class LocalTerrainExplorer
         groundCoverMaterial.SetFloat("_Daylight",landMaterial.GetFloat("_Daylight"));
         groundCoverMaterial.SetFloat("_GrassRange",TerrainVideoOptions.GrassDistance);
         groundCoverMaterial.SetFloat("_GrassWind",TerrainVideoOptions.GrassWind?1:0);
-        float grassRange=TerrainVideoOptions.GrassDistance,rangeScale=grassRange/160;
+        if(groundCanopyMaterial!=null)
+        {
+            groundCanopyMaterial.SetColor("_FogColor",landMaterial.GetColor("_FogColor"));groundCanopyMaterial.SetColor("_AmbientTint",landMaterial.GetColor("_AmbientTint"));
+            groundCanopyMaterial.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));groundCanopyMaterial.SetFloat("_Daylight",landMaterial.GetFloat("_Daylight"));
+            groundCanopyMaterial.SetFloat("_GrassWind",TerrainVideoOptions.GrassWind?1:0);
+        }
+        float grassRange=TerrainVideoOptions.GrassDistance,bladeRange=Mathf.Min(TerrainVideoOptions.GrassBladeDistance,grassRange*.75f);
         foreach(var pair in tiles)
         {
             var key=pair.Key;var tile=pair.Value;
@@ -119,10 +130,12 @@ public sealed partial class LocalTerrainExplorer
             CullGroundCover(gpu,new Vector4((float)(key.X*key.SizeM-originX),0,(float)(key.Z*key.SizeM-originZ),gpu.Born),view);
             for(int lod=0;lod<3;lod++)
             {
-                if(lod==0&&distance2>42*42*rangeScale*rangeScale||lod==1&&distance2>90*90*rangeScale*rangeScale)continue;
+                if(lod==0&&distance2>.36*bladeRange*bladeRange||lod==1&&distance2>bladeRange*bladeRange)continue;
+                var material=lod==2?groundCanopyMaterial:groundCoverMaterial;
+                if(material==null||lod==2&&!TerrainVideoOptions.GrassCanopy)continue;
                 gpu.Properties.SetInt("_CoverLod",lod);
                 gpu.Properties.SetBuffer("_VisibleRoots",gpu.Visible[lod]);
-                var rp=new RenderParams(groundCoverMaterial){camera=view,layer=30,worldBounds=bounds,matProps=gpu.Properties,shadowCastingMode=ShadowCastingMode.Off,receiveShadows=true};
+                var rp=new RenderParams(material){camera=view,layer=30,worldBounds=bounds,matProps=gpu.Properties,shadowCastingMode=ShadowCastingMode.Off,receiveShadows=true};
                 Graphics.RenderPrimitivesIndirect(in rp,MeshTopology.Triangles,gpu.Args,1,lod);GroundCoverDraws++;
             }
         }
