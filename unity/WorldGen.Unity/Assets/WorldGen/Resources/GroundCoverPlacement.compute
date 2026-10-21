@@ -6,7 +6,7 @@ AppendStructuredBuffer<Root> _Roots;
 int4 _Candidate;float4 _Tile;uint _Seed;float _Spacing;
 StructuredBuffer<Root> _PlacedRoots;
 ByteAddressBuffer _RootCount;
-AppendStructuredBuffer<uint> _NearRoots,_MiddleRoots,_FarRoots;
+AppendStructuredBuffer<uint> _NearRoots,_MiddleRoots,_FarRoots,_DistantRoots,_HorizonRoots;
 float4 _CullOrigin,_CullCamera,_CullPlanes[6];float _GrassRange,_GrassNear,_CoverageSize;int _CanopyEnabled,_SpritesOnly,_CoverageEnabled;
 Texture2D<float4> _TerrainCoverage;
 bool Covered(float2 uv)
@@ -70,5 +70,12 @@ void Cull(uint3 id:SV_DispatchThreadID)
     [unroll]for(int k=0;k<6;k++)if(dot(_CullPlanes[k].xyz,p)+_CullPlanes[k].w < -radius)return;
     if(_SpritesOnly==0&&d<.60*_GrassNear)_NearRoots.Append(id.x);
     if(_SpritesOnly==0&&d>.40*_GrassNear&&d<_GrassNear)_MiddleRoots.Append(id.x);
-    if(_SpritesOnly!=0&&_CanopyEnabled!=0&&d>.80*_GrassNear)_FarRoots.Append(id.x);
+    if(_SpritesOnly!=0&&_CanopyEnabled!=0&&d>.80*_GrassNear)
+    {
+        // Identical geometry/leaf prefixes at the boundaries: only the draw's
+        // capacity changes. Fractional count/width vary continuously in shader.
+        if(d<2*_GrassNear)_FarRoots.Append(id.x);
+        else if(d<4*_GrassNear)_DistantRoots.Append(id.x);
+        else _HorizonRoots.Append(id.x);
+    }
 }

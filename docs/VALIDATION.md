@@ -1,5 +1,26 @@
 # Version 3 validation evidence
 
+## Progressive grass field: owner-test-only /21October2026
+
+`player-grass-progressive-field` replaces owner-rejected distant sprite banks
+with the same procedural leaf shader, canonical microcell prefixes, continuous
+count/width scaling, three capacity-bounded distant geometry lists, edge-on
+coverage support, steadier distant normals and a generated mipped grass-mat
+terrain material with matched mean colour. Defaults45m CLOSE DETAIL /350m total
+geometry, not a45m geometry stop. Tundra/desert profiles and source world/history,
+terrain/water rules are unchanged. Ground-flora remains4; worker wire remains3.
+Research/limits and higher geometry/root capacity are in GROUND_FLORA.md.
+
+Owner instructed no agent testing: compilation/packaging only. No tests, player
+launches, screenshots, profiling or saved-world hash audit. No measured speedup,
+seamlessness, visual correctness or FPS acceptance is claimed. Earlier tests do
+not validate this revision; owner tries the actual field.
+Final IL2CPP build/package completes21Oct12:16:48Z, exit0. A compilation review
+also corrected the one-segment non-grass outline to avoid zero-width endpoints;
+the final shader was rebuilt before publication. Shortcut updated to the real
+C: build; existing game/saves untouched. No runtime testing was performed.
+
+
 ## Close grass / tundra / upright sprites: owner-test-only /21October2026
 
 `player-grass-sprites-tundra` replaces rejected horizontal/transparent canopy

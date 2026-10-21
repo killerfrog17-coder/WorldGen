@@ -1,6 +1,29 @@
 # WorldGen repository instructions
 
 Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
+`artifacts/player-grass-progressive-field/WorldGen.exe` (IL2CPP12:16:48Z), real C:.
+Owner REJECTED prior sprites for their obvious close-field cutoff. Billboard
+resource removed; same procedural leaf shader now covers the middle distance.
+Research: AMD demonstrates fractional counts/inverse-count widening, billboards
+are only proposed future work. Original Tsushima developer slides show geometry
+LODs, glancing-angle support, calmer distant normals and a far texture ON terrain;
+PDF read from mirror after original host403. Nintendo BOTW's exact far technique
+is NOT established; don't claim this is a Nintendo reproduction.
+Near0.60m fields hand over to1.20m fields interleaving canonical microcell leaf
+prefixes, progressively reducing counts and compensating width. Five GPU lists,
+capacity-only boundaries at2x/4x close distance; distant identity/geometry persists.
+Filtered neutral bent-ribbon grass mat and matched mean terrain albedo replace
+flat colour-only far ground. Defaults45m CLOSE DETAIL /350m total geometry;
+debug50-500m geometry plus enable/density/detail/wind/off. Previous tundra/desert
+rules stay; no saved-world/history, height, water or worker-wire change.
+More geometry/root capacity may cost more than rejected sprites:116bytes/slot,
+up to1million slots per clipped large distant tile. No FPS/memory gain claimed.
+Owner no-agent-testing directive remains: compile/package ONLY, no suites,
+fixtures, game launch, captures or profiling. No seamless/realistic acceptance.
+See docs/GROUND_FLORA.md and VALIDATION.md. Leave owner's game/saves untouched.
+Build/package completed exit0; shortcut updated. Owner visual/FPS review pending.
+
+Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
 `artifacts/player-grass-sprites-tundra/WorldGen.exe` (IL2CPP11:54:36Z), real C:.
 Owner reported green meadow-like tundra, gaps at feet and rejected the prior
 horizontal canopy's appearance/shadow flicker. Derived ground-flora4 adds

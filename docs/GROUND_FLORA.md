@@ -1,5 +1,56 @@
 # Ground layer / ground-flora-4
 
+## Progressive leaf geometry instead of rejected sprites /21October2026
+
+Owner rejected `player-grass-sprites-tundra`: the visible close-field cutoff
+remained. Do not treat the billboard experiment or its compilation as accepted
+appearance. `player-grass-progressive-field` removes that resource shader and
+uses the SAME procedural leaf shader for the middle distance. No new stock or
+AI bitmap art is introduced. This is an adapted pipeline, not Nintendo code.
+
+Research first: Nintendo's exact BOTW far-grass renderer was not established
+by accessible first-party material; recreations are not implementation evidence.
+AMD's [procedural grass article](https://gpuopen.com/learn/mesh_shaders/mesh_shaders-procedural_grass_rendering/)
+demonstrates fractional blade retirement plus inverse-count widening; sparse
+billboards are FUTURE WORK, not its demonstrated solution. Eric Wohllaib's
+[GDC2021 slides](https://media.gdcvault.com/GDC%2B2021/gdc_2021_procedural_grass_in_got.pdf),
+read from this [20MB mirror of the developer's PDF](https://archive.thedatadungeon.com/ghost_of_tsushima_2020/documents/gdc_2021/gdc_2021_procedural_grass_in_got.pdf),
+show geometry LODs (p24-27), glancing-angle adjustment (p34-35), calmer distant
+normals (p36-37), and a far texture ON TERRAIN (p42-43). Original host returned403;
+mirror PDF was downloaded/extracted locally, not inferred from AI summaries.
+
+Implementation: near0.60m fields stay. Middle-distance1.20m fields interleave
+four canonical0.60m cells' leaf prefixes with the same deterministic hashes,
+species choices and local root offsets. Terrain-grid interpolation/phenotypes
+can differ between resident mesh levels; exact cross-LOD heights are not claimed.
+Near curves straighten before handoff; near/middle geometry shares complementary
+36-45m coverage at defaults. Beyond45m, count falls continuously with inverse
+distance squared and fractional last-leaf width, compensated up to24x. Three
+GPU compact lists use smaller draw capacities at90/180m without restarting leaf
+identities or changing their geometry. No alpha-textured bank replaces the field.
+Thin/edge-on leaves get bounded view-space coverage support; normals and albedo
+converge to the statistical ground canopy instead of shimmering independently.
+
+Far terrain now has a one-time generated256x256 mipped neutral grass mat:
+6000 rasterised bent ribbons, mean-normalised brightness and packed surface
+slopes, repeat8m, anisotropic/trilinear sampling, planet-space triplanar mapping.
+Regional flora still supplies colour; this is not a species-specific 3D bake.
+Mean terrain albedo matches the distant leaves' target, and subtle broad field
+variation remains after fine texture detail minifies. The final geometry fade
+occupies the last35% of range rather than ending at45m. Default45m CLOSE DETAIL,
+350m geometry; debug50-500m geometry, enable/density/detail/wind/off remain live.
+
+Five visible lists grow capacity overhead to116bytes/root slot plus shared
+grid/args; distant lattice density increases4x from rejected2.4m banks. The
+bounded1152m window can use up to1million slots per clipped large tile, not an
+unlimited allocation. Near window192m and coarser sidecar limits remain. More
+geometry/memory can cost more than sprites; no FPS benefit is claimed. Texture
+creation adds one-time CPU work; the GPU still avoids per-frame readbacks and
+per-leaf objects. Prior tundra/desert rules, saves, history, heights and water
+stay unchanged. Owner no-agent-testing direction remains: build/package only,
+no fixtures, suites, player launches, captures or profiling. Seamlessness,
+far-field fullness, minification and performance require owner review.
+
 ## Close fill, tundra and upright middle-distance sprites /21October2026
 
 Owner rejected the previous horizontal canopy's appearance and reported tree

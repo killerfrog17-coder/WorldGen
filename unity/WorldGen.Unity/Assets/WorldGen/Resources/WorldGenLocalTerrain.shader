@@ -11,6 +11,7 @@ Shader "WorldGen/LocalTerrain"
         _TextureMetres("Repeat metres",Float)=2
         _RockLayers("Six lithology layers",Float)=0
         _GroundFlora("Ground canopy shading",Float)=0
+        _GrassField("Filtered grass mat: colour and slope",2D)="gray"{}
         _TerrainCoverage("Resident coverage tree",2D)="black"{}
         _CoverageEnabled("Partial fallback",Float)=0
         _CoverageTileSize("Tile size",Float)=1
@@ -40,6 +41,7 @@ Shader "WorldGen/LocalTerrain"
             #include "WorldGenGrassLight.hlsl"
             TEXTURE2D_ARRAY(_GroundAlbedo);SAMPLER(sampler_GroundAlbedo);
             TEXTURE2D_ARRAY(_GroundNormals);TEXTURE2D_ARRAY(_GroundMasks);
+            TEXTURE2D(_GrassField);SAMPLER(sampler_GrassField);
             Texture2D<float4> _TerrainCoverage;float _CoverageEnabled,_CoverageTileSize;
             Texture2D<float4> _CoverageFadeTimes;float _TransitionEnabled,_LodSafetyRadius;float4 _LodFade;
             float _Water,_FogDistance,_TextureMetres,_Daylight,_RockLayers,_GroundFlora;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint;
@@ -167,11 +169,20 @@ Shader "WorldGen/LocalTerrain"
                 // Continuous, filtered canopy shading survives the end of local
                 // objects. Share mean albedo/lighting rather than expose bare soil.
                 float grassMix=saturate(cover/.45)*_GroundFlora;
-                float3 q=worldTexture*.65;
-                float footprint=max(length(ddx(q)),length(ddy(q)));
-                float fieldDetail=(1-smoothstep(.25,1,footprint))*.04*sin(q.x+sin(q.z*.7));
-                float3 grassAlbedo=farColor*(1+fieldDetail);
-                float3 canopyNormal=normalize(float3(0,.8,0)+n*.25);
+                float3 q=worldTexture/8;
+                float3 axes=pow(abs(_PlanetUp.xyz),4);axes/=max(.001,dot(axes,1));
+                float3 mat=SAMPLE_TEXTURE2D(_GrassField,sampler_GrassField,q.yz).rgb*axes.x+
+                    SAMPLE_TEXTURE2D(_GrassField,sampler_GrassField,q.xz).rgb*axes.y+
+                    SAMPLE_TEXTURE2D(_GrassField,sampler_GrassField,q.xy).rgb*axes.z;
+                // Match the mean linear albedo of distant procedural leaves,
+                // not dark leaves fading onto a bright, flat green floor.
+                float meanTint=.9111;
+                #ifndef UNITY_COLORSPACE_GAMMA
+                meanTint=.815;
+                #endif
+                float fieldDetail=1+.045*sin(worldTexture.x*.17+sin(worldTexture.z*.13));
+                float3 grassAlbedo=farColor*(meanTint*mat.r*2*fieldDetail);
+                float3 canopyNormal=normalize(float3((mat.g-.5)*.35,.8,(mat.b-.5)*.35)+n*.25);
                 color=lerp(color,WorldGenGrassLight(grassAlbedo,canopyNormal,i.position,_AmbientTint.rgb,_Daylight),grassMix);
                 color+=SecondaryCelestialLight(n,s.albedo);
                 return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,fogColor,_FogDistance),1);
