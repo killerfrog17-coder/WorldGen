@@ -1,5 +1,27 @@
 # Version 3 validation evidence
 
+## Stable grass pages / habitat ground mats: owner-test-only /21October2026
+
+Owner accepts the preceding progressive field's appearance/performance in
+their tested views, including15m close detail on flat ground; no global/native
+benchmark is inferred. `player-ground-habitats-stable` replaces the identified
+64m moving-window destruction with retained48/192m pages, shared grids and
+near-first bounded page installs. Birth fades are removed from grass and scatter
+forward/depth/shadow rendering, retaining distance fades and terrain crossfades.
+Derived flora5 adds climate/soil-supported stand variation, explicit grass-free
+Desert/crust and varied tundra moss/lichen/sedge pockets. Moss/lichen are now
+stationary textured/normal-shaded terrain materials, never wind-driven leaves.
+All terrain LODs retain flora material grids; wire3 and saves remain unchanged.
+
+Only build/package work: no test suite, fixture, player launch, screenshots,
+profiling or source-world hash audit, following owner no-agent-testing direction.
+Source inspection establishes the64m reset path, not runtime acceptance of the
+fix. Actual boundary behaviour, page-load pop-in, material appearance, memory/
+draw overhead and FPS remain for owner review. See GROUND_FLORA.md for limits.
+IL2CPP compile/package completed21Oct12:54:21Z, exit0. Shortcut points to this
+separate real C: build. The owner's running game and saved worlds were untouched.
+
+
 ## Progressive grass field: owner-test-only /21October2026
 
 `player-grass-progressive-field` replaces owner-rejected distant sprite banks

@@ -35,6 +35,7 @@ public sealed partial class LocalTerrainExplorer
                 tile.Coverage=Texture(nodes);tile.CoverageTimes=Texture(tree.Timings);
             }
             var properties=new MaterialPropertyBlock();properties.SetFloat("_CoverageEnabled",nodes.Length>0?1:0);
+            BindFloraSurface(properties,tile);
             properties.SetFloat("_CoverageTileSize",(float)pair.Key.SizeM);
             if(tile.Coverage!=null)properties.SetTexture("_TerrainCoverage",tile.Coverage);
             if(tile.CoverageTimes!=null)properties.SetTexture("_CoverageFadeTimes",tile.CoverageTimes);

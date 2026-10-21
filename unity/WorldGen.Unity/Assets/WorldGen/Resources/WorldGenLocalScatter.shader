@@ -12,7 +12,7 @@ Shader "WorldGen/LocalScatter"
         _Wind("Wind displacement (m)",Float)=0 _FogDistance("Fog distance",Float)=200000
         _FogColor("Sky colour",Color)=(.57,.69,.76,1) _AmbientTint("Ambient light",Color)=(.12,.14,.17,1)
         [PerRendererData] _Tint("Instance tint",Color)=(1,1,1,1)
-        [PerRendererData] _LodTransition("Opaque LOD interval and appearance time",Vector)=(0,1,0,0)
+        [PerRendererData] _LodTransition("Distance-only opaque LOD interval",Vector)=(0,1,0,0)
         [Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull",Float)=0
     }
     SubShader

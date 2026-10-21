@@ -86,7 +86,7 @@ namespace WorldGen.Presentation
                 positions.Add((float)p.X);positions.Add((float)height);positions.Add((float)p.Z);
                 normals.Add((float)(nx/length));normals.Add((float)up);normals.Add((float)(nz/length));
                 var cover=GroundFlora.Surface(s.Cover,at,terrain.SourceSeed,terrain.RadiusM*frame.HorizontalScale,
-                    s.Ground,s.ElevationM,s.BaseElevationM,up,s.Underwater,s.Biome==Biome.Ice?1:0);
+                    s.Ground,s.ElevationM,s.BaseElevationM,up,s.Underwater,s.Biome==Biome.Ice?1:0,s.Biome);
                 double coverAmount=D.Clamp(cover.Coverage),visibleCover=D.Clamp(coverAmount/.45);
                 V groundColor=surface.Color*(1-visibleCover)+cover.Color*(.90*visibleCover);
                 colors.Add((float)groundColor.X);colors.Add((float)groundColor.Y);colors.Add((float)groundColor.Z);colors.Add((float)coverAmount);

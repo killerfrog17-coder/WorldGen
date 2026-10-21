@@ -17,8 +17,8 @@ float WorldGenFadeWeight(float2 timings)
 }
 void WorldGenScatterFade(float2 pixel,float4 fade)
 {
-    float born=fade.z<=0?1:smoothstep(0,3,_Time.y-fade.z);
     float d=WorldGenDither(pixel);
-    clip(d-fade.x*born);clip(fade.y*born-d);
+    // Vegetation/props respond only to distance. Loading is not another fade.
+    clip(d-fade.x);clip(fade.y-d);
 }
 #endif

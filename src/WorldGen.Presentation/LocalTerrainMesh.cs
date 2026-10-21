@@ -70,9 +70,9 @@ namespace WorldGen.Presentation
             }
             int side = segments + 1, halo = side + 2, ground = side * side, perimeter = segments * 4;
             mesh.GroundVertices = ground;
-            // Near blades and middle-distance sprites share the actual rendered
-            // grid. Retain the compact sidecar on local coarser tiles as well.
-            if(sizeM<=Math.Max(2048,TerrainLod.BaseSizeM*frame.HorizontalScale)*1.001)mesh.GroundCover=new float[ground*16];
+            // Every terrain LOD needs the grass/moss/lichen material mixture.
+            // Only nearby tiles create geometry from this compact regular grid.
+            mesh.GroundCover=new float[ground*16];
             var heights = new double[halo * halo]; var samples = new LocalTerrainSample[ground];
             for (int z = -1; z <= side; z++)
             {
@@ -123,7 +123,7 @@ namespace WorldGen.Presentation
                 for(int layer=0;layer<6;layer++)mesh.Lithology[i*6+layer]=(float)sample.Ground.RockWeight(layer);
                 V color = groundSurface.Color;
                 var cover=GroundFlora.Surface(sample.Cover,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,
-                    terrain.RadiusM*frame.HorizontalScale,sample.Ground,sample.ElevationM,sample.BaseElevationM,up,sample.Underwater,snow);
+                    terrain.RadiusM*frame.HorizontalScale,sample.Ground,sample.ElevationM,sample.BaseElevationM,up,sample.Underwater,snow,sample.Biome);
                 double coverage=D.Clamp(cover.Coverage);
                 double visibleCover=D.Clamp(coverage/.45);
                 color=color*(1-visibleCover)+cover.Color*(.90*visibleCover);

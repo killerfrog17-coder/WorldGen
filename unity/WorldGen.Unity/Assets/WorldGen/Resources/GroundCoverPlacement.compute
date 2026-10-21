@@ -43,7 +43,8 @@ void Place(uint3 id:SV_DispatchThreadID)
         float h00=Attribute(a.x,a.y,k),h10=Attribute(a.x+1,a.y,k),h01=Attribute(a.x,a.y+1,k),h11=Attribute(a.x+1,a.y+1,k);
         values[k]=f.x+f.y<=1?h00+(h10-h00)*f.x+(h01-h00)*f.y:h11+(h01-h11)*(1-f.x)+(h10-h11)*(1-f.y);
     }
-    float cover=saturate(values[3]);if(cover<.002)return;
+    // Moss and lichens are stationary ground materials, not waving leaves.
+    float cover=saturate(values[3]-values[10]-values[11]);if(cover<.002)return;
     float step=_Tile.z/_Tile.w;
     float sx=f.x+f.y<=1?(Attribute(a.x+1,a.y,15)-Attribute(a.x,a.y,15))/step:(Attribute(a.x+1,a.y+1,15)-Attribute(a.x,a.y+1,15))/step;
     float sz=f.x+f.y<=1?(Attribute(a.x,a.y+1,15)-Attribute(a.x,a.y,15))/step:(Attribute(a.x+1,a.y+1,15)-Attribute(a.x+1,a.y,15))/step;
@@ -53,7 +54,7 @@ void Place(uint3 id:SV_DispatchThreadID)
     r.shape=float4(max(.4,values[14]),Rand(hash+5),Rand(hash+6),Rand(hash+7));
     r.normal=float4(normalize(float3(-sx,1,-sz)),cover);
     r.grasses=float4(values[4],values[5],values[6],values[7])/max(.00001,cover);
-    r.herbs=float4(values[8],values[9],values[10],values[11])/max(.00001,cover);
+    r.herbs=float4(values[8],values[9],0,0)/max(.00001,cover);
     _Roots.Append(r);
 }
 

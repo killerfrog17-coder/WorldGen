@@ -12,6 +12,10 @@ Shader "WorldGen/LocalTerrain"
         _RockLayers("Six lithology layers",Float)=0
         _GroundFlora("Ground canopy shading",Float)=0
         _GrassField("Filtered grass mat: colour and slope",2D)="gray"{}
+        _MossField("Stationary moss cushions",2D)="gray"{}
+        _LichenField("Stationary lichen crust",2D)="gray"{}
+        _FloraSurface("Ground vegetation material weights",2D)="black"{}
+        _FloraSurfaceEnabled("Local vegetation weights",Float)=0
         _TerrainCoverage("Resident coverage tree",2D)="black"{}
         _CoverageEnabled("Partial fallback",Float)=0
         _CoverageTileSize("Tile size",Float)=1
@@ -42,6 +46,8 @@ Shader "WorldGen/LocalTerrain"
             TEXTURE2D_ARRAY(_GroundAlbedo);SAMPLER(sampler_GroundAlbedo);
             TEXTURE2D_ARRAY(_GroundNormals);TEXTURE2D_ARRAY(_GroundMasks);
             TEXTURE2D(_GrassField);SAMPLER(sampler_GrassField);
+            TEXTURE2D(_MossField);SAMPLER(sampler_MossField);TEXTURE2D(_LichenField);SAMPLER(sampler_LichenField);
+            TEXTURE2D(_FloraSurface);SAMPLER(sampler_FloraSurface);float4 _FloraSurface_TexelSize;float _FloraSurfaceEnabled;
             Texture2D<float4> _TerrainCoverage;float _CoverageEnabled,_CoverageTileSize;
             Texture2D<float4> _CoverageFadeTimes;float _TransitionEnabled,_LodSafetyRadius;float4 _LodFade;
             float _Water,_FogDistance,_TextureMetres,_Daylight,_RockLayers,_GroundFlora;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint;
@@ -168,7 +174,10 @@ Shader "WorldGen/LocalTerrain"
                 half3 color=UniversalFragmentPBR(input,s).rgb;
                 // Continuous, filtered canopy shading survives the end of local
                 // objects. Share mean albedo/lighting rather than expose bare soil.
-                float grassMix=saturate(cover/.45)*_GroundFlora;
+                float4 flora=float4(cover,0,0,cover);
+                if(_FloraSurfaceEnabled>.5)flora=SAMPLE_TEXTURE2D(_FloraSurface,sampler_FloraSurface,i.coverageUV*(1-_FloraSurface_TexelSize.xy)+.5*_FloraSurface_TexelSize.xy);
+                float3 mix=max(0,float3(flora.a,flora.g,flora.b))/.45*_GroundFlora;
+                mix/=max(1,dot(mix,1));float grassMix=mix.x,mossMix=mix.y,lichenMix=mix.z;
                 float3 q=worldTexture/8;
                 float3 axes=pow(abs(_PlanetUp.xyz),4);axes/=max(.001,dot(axes,1));
                 float3 mat=SAMPLE_TEXTURE2D(_GrassField,sampler_GrassField,q.yz).rgb*axes.x+
@@ -183,7 +192,35 @@ Shader "WorldGen/LocalTerrain"
                 float fieldDetail=1+.045*sin(worldTexture.x*.17+sin(worldTexture.z*.13));
                 float3 grassAlbedo=farColor*(meanTint*mat.r*2*fieldDetail);
                 float3 canopyNormal=normalize(float3((mat.g-.5)*.35,.8,(mat.b-.5)*.35)+n*.25);
-                color=lerp(color,WorldGenGrassLight(grassAlbedo,canopyNormal,i.position,_AmbientTint.rgb,_Daylight),grassMix);
+                float3 vegetation=WorldGenGrassLight(grassAlbedo,canopyNormal,i.position,_AmbientTint.rgb,_Daylight)*grassMix;
+                if(mossMix+lichenMix>.001)
+                {
+                    // These are stationary material/normal layers, never waving
+                    // geometry, with moist moss cushions and dry lichen flakes.
+                    float3 matQ=worldTexture/.8;
+                    float3 mossColour=float3(.27,.35,.16),lichenColour=float3(.51,.50,.40);
+                    #ifndef UNITY_COLORSPACE_GAMMA
+                    mossColour=SRGBToLinear(mossColour);lichenColour=SRGBToLinear(lichenColour);
+                    #endif
+                    Light sun=GetMainLight(TransformWorldToShadowCoord(i.position));
+                    if(mossMix>.001)
+                    {
+                        float3 matM=SAMPLE_TEXTURE2D(_MossField,sampler_MossField,matQ.yz).rgb*axes.x+
+                            SAMPLE_TEXTURE2D(_MossField,sampler_MossField,matQ.xz).rgb*axes.y+SAMPLE_TEXTURE2D(_MossField,sampler_MossField,matQ.xy).rgb*axes.z;
+                        float3 normalM=normalize(n+float3(matM.g-.5,0,matM.b-.5)*1.3);
+                        float3 lightM=_AmbientTint.rgb+sun.color*(.42+.58*saturate(dot(normalM,sun.direction)))*sun.shadowAttenuation*lerp(.025,1,_Daylight);
+                        vegetation+=lerp(farColor,mossColour,.4)*(matM.r*2)*lightM*mossMix;
+                    }
+                    if(lichenMix>.001)
+                    {
+                        float3 matL=SAMPLE_TEXTURE2D(_LichenField,sampler_LichenField,matQ.yz).rgb*axes.x+
+                            SAMPLE_TEXTURE2D(_LichenField,sampler_LichenField,matQ.xz).rgb*axes.y+SAMPLE_TEXTURE2D(_LichenField,sampler_LichenField,matQ.xy).rgb*axes.z;
+                        float3 normalL=normalize(n+float3(matL.g-.5,0,matL.b-.5));
+                        float3 lightL=_AmbientTint.rgb+sun.color*(.42+.58*saturate(dot(normalL,sun.direction)))*sun.shadowAttenuation*lerp(.025,1,_Daylight);
+                        vegetation+=lerp(farColor,lichenColour,.55)*(matL.r*2)*lightL*lichenMix;
+                    }
+                }
+                color=color*(1-grassMix-mossMix-lichenMix)+vegetation;
                 color+=SecondaryCelestialLight(n,s.albedo);
                 return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,fogColor,_FogDistance),1);
             }

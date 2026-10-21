@@ -44,6 +44,7 @@ public sealed partial class LocalTerrainExplorer
         landMaterial.SetTexture("_GroundMasks",groundArt?artSet.Masks:generatedGround[2]);
         landMaterial.SetFloat("_TextureMetres",artSet==null?2:Math.Max(.05f,artSet.TextureRepeatMetres));
         landMaterial.SetFloat("_RockLayers",groundArt&&artSet.Albedo.depth<14?0:1);
+        InitializeGroundFloraMaterials();
         precedingSun=RenderSettings.sun;precedingAmbient=RenderSettings.ambientMode;precedingSky=RenderSettings.ambientSkyColor;precedingEquator=RenderSettings.ambientEquatorColor;precedingGround=RenderSettings.ambientGroundColor;lightingSaved=true;
         var lightRoot=new GameObject("Local sunlight",typeof(Light));lightRoot.transform.SetParent(transform,false);lightRoot.transform.rotation=Quaternion.Euler(48,-35,0);
         var sun=localSun=lightRoot.GetComponent<Light>();sun.type=LightType.Directional;sun.color=new Color(1,.95f,.85f);sun.intensity=2.3f;sun.shadows=LightShadows.Soft;sun.shadowBias=.035f;sun.shadowNormalBias=.2f;sun.cullingMask=1<<30;
@@ -180,7 +181,7 @@ public sealed partial class LocalTerrainExplorer
                     }
                     batch.Matrices[batch.Count]=chunk.Matrices[i]*batch.Model.Scale;
                     batch.Colors[batch.Count]=new Vector4((float)p.Color.X,(float)p.Color.Y,(float)p.Color.Z,1);
-                    batch.Fades[batch.Count]=new Vector4(low,high,chunk.Born,0);batch.Count++;
+                    batch.Fades[batch.Count]=new Vector4(low,high,0,0);batch.Count++;
                 }
                 bool compatible=Art(p.Kind,p.Variant,blend.Near).Fades&&Art(p.Kind,p.Variant,blend.Far).Fades;
                 if(!compatible)Add(blend.Blend<.5?blend.Near:blend.Far,0,1);
@@ -216,6 +217,7 @@ public sealed partial class LocalTerrainExplorer
         if(groundCoverMaterial!=null)Destroy(groundCoverMaterial);
         if(groundCanopyMaterial!=null)Destroy(groundCanopyMaterial);
         if(grassFieldTexture!=null)Destroy(grassFieldTexture);
+        if(mossFieldTexture!=null)Destroy(mossFieldTexture);if(lichenFieldTexture!=null)Destroy(lichenFieldTexture);
         if(generatedGround!=null)foreach(var texture in generatedGround)Destroy(texture);
         foreach(var mesh in ownedScatterMeshes)Destroy(mesh);foreach(var material in ownedScatterMaterials)Destroy(material);
         if(lightingSaved){RenderSettings.sun=precedingSun;RenderSettings.ambientMode=precedingAmbient;RenderSettings.ambientSkyColor=precedingSky;RenderSettings.ambientEquatorColor=precedingEquator;RenderSettings.ambientGroundColor=precedingGround;}

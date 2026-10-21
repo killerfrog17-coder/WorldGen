@@ -1,6 +1,29 @@
 # WorldGen repository instructions
 
 Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
+`artifacts/player-ground-habitats-stable/WorldGen.exe` (IL2CPP12:54:21Z), real C:.
+Owner likes progressive field appearance/performance, including15m transition
+on flat ground. Keep that renderer; this is owner scene feedback, not benchmark.
+Identified64m reset: floor(player/64) change destroyed near buffers on >64m
+tiles, then2s birth fade restarted. Fixed48m near/192m distant pages retain
+overlap, prefetch half-page/evict one-page beyond range, share one grid/tile,
+and install2 pages/frame near-first. First-time loads/actual terrain replacement
+can still rebuild affected data. Grass/scatter birth fades removed; distance
+blends stay in colour/depth/shadows. Terrain temporal crossfades are unchanged.
+Derived flora5 adds soil-supported physical-space tall/short/sparse stand
+variation, explicit grass-free Desert with sparse crust (no groundwater
+exception), and tundra moss/lichen/sedge pockets. Moss/lichen no longer enter
+leaf geometry: separate stationary generated material/normal textures and
+per-tile RGBAHalf weights handle them. All terrain LODs retain16-float flora
+grids; local root-source size cap remains2048m/finest-tile. Wire3 unchanged;
+transient grid/mask/page costs increase, not save storage. No source world,
+climate/biome/history, height or water changes; no specialised flowers added.
+Owner no-agent-testing direction: compile/package ONLY, no suite, fixture,
+game launch, captures, profiling or source-hash audit. No new runtime/FPS or
+realism acceptance. See GROUND_FLORA.md/VALIDATION.md. Leave game/saves untouched.
+Compile/package exit0; shortcut updated. Owner boundary/habitat/FPS review pending.
+
+Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
 `artifacts/player-grass-progressive-field/WorldGen.exe` (IL2CPP12:16:48Z), real C:.
 Owner REJECTED prior sprites for their obvious close-field cutoff. Billboard
 resource removed; same procedural leaf shader now covers the middle distance.

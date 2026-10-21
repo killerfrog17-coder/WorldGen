@@ -73,7 +73,7 @@ public sealed partial class WorldGenRuntime
         {TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDistance=350;TerrainVideoOptions.GrassBladeDistance=45;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassWind=true;}
         GUILayout.Space(10);
         GUILayout.Label("Session-only controls. Extra blades fill the first 4-14m. Middle-distance grass keeps the same leaves, progressively reducing their count/segments and widening survivors. A filtered grass mat continues on the terrain. Longer ranges cost more.",MutedStyle());
-        GUILayout.Label("Off disables local ground vegetation entirely. Distant terrain's baked cover colour stays, so compare the same camera for rendering cost. F3 shows FPS and grass buffer/draw counts.",MutedStyle());
+        GUILayout.Label("Off removes local leaf geometry. Grass, stationary moss and lichen ground materials stay. Loading is instant once data is ready; vegetation fades only with distance. F3 shows FPS and grass buffer/draw counts.",MutedStyle());
     }
     void DrawTerrainOptions(bool compact=false)
     {

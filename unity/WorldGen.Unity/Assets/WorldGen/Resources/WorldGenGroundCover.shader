@@ -105,9 +105,8 @@ Shader "WorldGen/GroundCover"
             float3 curve=2*(1-t)*t*p1+t*t*p2;
             curve=lerp(curve,p2*t,smoothstep(.60*_GrassNear,.80*_GrassNear,d));
             float3 p=basePosition+curve+across*(width*side);
-            float birth=smoothstep(0,2,_Time.y-_CoverOrigin.w);
             float low=_CoverLod==0?0:distant?handoff:near;
-            o.fade=float2(low,low+weight)*visibility*birth;
+            o.fade=float2(low,low+weight)*visibility;
             o.position=p;o.positionCS=TransformWorldToHClip(p);
             o.normal=normalize(lerp(up*.8+cross(across,tangent)*.35,up,smoothstep(20,120,d)*.85));
             // Converge to the terrain's statistical canopy albedo as leaves

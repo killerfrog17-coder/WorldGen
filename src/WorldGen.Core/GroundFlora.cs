@@ -23,7 +23,7 @@ namespace WorldGen.Core
     /// acquire bounded regional traits; this is static biogeography, not simulated evolution.</summary>
     public sealed class GroundFlora
     {
-        public const string Version="ground-flora-4";
+        public const string Version="ground-flora-5";
         static readonly ConditionalWeakTable<World,GroundFlora> contexts=new ConditionalWeakTable<World,GroundFlora>();
         readonly World world;
         readonly ConcurrentDictionary<int,GroundFloraRegion> regions=new ConcurrentDictionary<int,GroundFloraRegion>();
@@ -86,9 +86,10 @@ namespace WorldGen.Core
                     case GroundGrowthForm.Lichen:w=(.10+.32*(1-cold)+.12*soil.Gravel)*(1-shade*.7)*D.Clamp((1.1-wet)/.8)*(.5+.5*D.Clamp((warm+8)/12))*(1-flood);break;
                     default:w=.10*hot*D.Clamp((.8-wet)/.65)*(1-shade)*(1-flood)*roots;break;
                 }
-                // Residual desert moisture must not plant a continuous meadow.
-                // Actual groundwater/flood refuges are retained; crust stays low.
-                if(h!=null&&h.Biome==Biome.Desert&&f!=7)w*=D.Clamp((flood-.10)/.55);
+                // Explicit project rule: Desert gets bare substrate/crust, never
+                // grass inferred from a coarse groundwater estimate. Genuine
+                // wetlands/grasslands retain their own habitat classifications.
+                if(h!=null&&h.Biome==Biome.Desert)w=f==7?Math.Min(w,.08):0;
                 // Open cold ground is not a temperate meadow. Wet tundra keeps
                 // sedges; moist sites support moss without needing forest shade,
                 // while exposed/drier ground favours lichens and short tufts.
@@ -122,14 +123,58 @@ namespace WorldGen.Core
         }
         /// <summary>Continuous physical-space patching and local exclusion. Never reshapes ground/water.</summary>
         public static GroundCoverProfile Surface(GroundCoverProfile profile,V point,int seed,double radiusM,
-            GroundProfile ground,double elevationM,double sourceElevationM,double up,bool underwater,double ice)
+            GroundProfile ground,double elevationM,double sourceElevationM,double up,bool underwater,double ice,Biome? biome=null)
         {
             if(underwater||elevationM<.3||ice>.5)return default;
-            double patch=.84+.28*SphereNoise.Sample(point*(radiusM/1000),seed^0x55a31,24);
+            V physical=point*(radiusM/1000);
+            double stand=.5+.5*SphereNoise.Sample(physical,seed^0x41b29,6);
+            double local=.5+.5*SphereNoise.Sample(physical,seed^0x55a31,38);
+            double site=D.Clamp(.72*stand+.28*local+.10*(D.Clamp(ground.WaterCapacityMm/120)-ground.Gravel));
+            double Smooth(double low,double high,double value){double t=D.Clamp((value-low)/(high-low));return t*t*(3-2*t);}
+            double patch=.84+.28*(local*2-1);
             double slope=D.Clamp((up-.46)/.43),altitude=D.Clamp((2200-(elevationM-sourceElevationM))/1800);
             profile.ScaleWeights(D.Clamp(patch)*slope*altitude*(1-ice));
-            // Broad, coherent stands, rather than independently random tall/short blades.
-            profile.Stature*=.90+.20*SphereNoise.Sample(point*(radiusM/1000),seed^0x41b29,3);
+            bool tundra=biome==Biome.Tundra||biome==Biome.Alpine;
+            if(biome==Biome.Desert)
+            {
+                // Presence changes, not a lawn progressively shrinking into sand.
+                for(int f=0;f<9;f++)if(f!=7)profile.SetWeight(f,0);
+                profile.SetWeight(7,Math.Min(.08,profile.Weight(7))*(1-Smooth(.43,.61,site)));
+                profile.Color=new V(.43,.40,.31);return profile;
+            }
+            // Mesic tall stands and drier short sward are coherent landscape
+            // patches, not missing random clumps or a uniform biome-wide height.
+            if(biome==Biome.Savanna||biome==Biome.Grassland)
+            {
+                double fertility=.65+.35*D.Clamp(ground.Fertility);
+                double tallStand=Smooth(.39,.64,site)*fertility;
+                profile.Stature*=.32+.90*tallStand;
+                double bare=biome==Biome.Savanna?Smooth(.25,.39,site):.75+.25*Smooth(.23,.42,site);
+                profile.ScaleWeights(bare);
+            }
+            else profile.Stature*=.78+.44*stand;
+            double matAmount=profile.Weight(6)+profile.Weight(7);
+            if(matAmount>0)
+            {
+                double moisture=.5+.5*SphereNoise.Sample(physical,seed^0x682fd,19);
+                double wetPatch=Smooth(.29,.65,.65*moisture+.35*stand+.12*(1-ground.Drainage)+.08*ground.Organic-.10*ground.Gravel);
+                profile.SetWeight(6,profile.Weight(6)*(.15+1.85*wetPatch));
+                profile.SetWeight(7,profile.Weight(7)*(1.9-1.65*wetPatch));
+                if(tundra)
+                {
+                    double graminoid=Smooth(.38,.68,site);
+                    for(int f=0;f<6;f++)profile.SetWeight(f,profile.Weight(f)*(.12+1.25*graminoid));
+                    // Wet sedge pockets remain possible among moss/lichen mats.
+                    profile.SetWeight(3,profile.Weight(3)*(.55+.75*wetPatch));
+                }
+                double cover=profile.Coverage;
+                if(cover>0)
+                {
+                    double moss=profile.Weight(6)/cover,lichen=profile.Weight(7)/cover;
+                    profile.Color=profile.Color*(1-.55*(moss+lichen))+new V(.29,.36,.18)*(.55*moss)+new V(.49,.48,.37)*(.55*lichen);
+                }
+            }
+            if(profile.Coverage>.95)profile.ScaleWeights(.95/profile.Coverage);
             return profile;
         }
     }

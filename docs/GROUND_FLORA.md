@@ -1,4 +1,61 @@
-# Ground layer / ground-flora-4
+# Ground layer / ground-flora-5
+
+## Stable pages, distance-only scatter and habitat mosaics /21October2026
+
+Owner reports the progressive field looks good and is performance-friendly,
+including a convincing15m detail handoff on flat ground. This is owner scene
+feedback, not a broad benchmark. New `player-ground-habitats-stable` preserves
+that renderer while addressing movement-triggered resets and ground habitats.
+
+Identified reset: floor(player/64) changed at every64m boundary and destroyed
+all near buffers on tiles wider than64m (including normal102.4m finest tiles).
+Their new birth times then imposed a2s fade. Fixed world-addressed48m near /
+192m distant pages replace the moving window. Pages share one source grid per
+resident terrain tile; each holds at most6400/25600 candidate slots. Adjacent
+pages prefetch half a page beyond range, remain cached one page beyond range,
+and are installed near-first, at most2 per frame. Crossing a boundary adds edge
+pages, never invalidates all retained pages. Terrain replacement, actual tile
+eviction, teleport/reanchor and explicit disabling may still rebuild affected
+pages. No zero-latency first-time generation claim. All vegetation/scatter birth
+fades are removed in forward/depth/shadow paths; distance LOD/draw-limit blends
+remain. Terrain's separately requested temporal replacement fades stay intact.
+
+Derived flora5 adds physical-space(~26/53/167m noise wavelengths) stand/site
+variation, conditioned by soil water capacity, gravel, fertility, drainage and
+organic content. Savanna/grassland mature height varies in coherent tall/short
+stands, with additional broad sparse/bare savanna patches, not missing random
+0.60m tufts. Existing mature-height potential still comes from climate/soil.
+Explicit Desert now has zero upright forms and only sparse low crust, without
+the previous coarse-groundwater exception. Density/occupancy, not height
+shrinking to zero, handles presence/absence. This deliberately conservative
+Desert classification rule is not a claim that real deserts never have grass.
+
+Tundra/alpine have varied moss/lichen and graminoid/sedge pockets. Moss and
+lichen are REMOVED from the leaf-placement/animation pipeline, and rendered as
+stationary material layers: separate neutral generated256px cushion/flake
+textures, mip/anisotropic filtering, palette tint and rough diffuse normals.
+No wind, objects or per-frame simulation for these mats; no true3D moss pillows,
+rock/log colonisation or botanical close-up accuracy is claimed. No specialised
+flower/shrub/tree model expansion in this pass.
+
+Existing16-float flora grids now accompany all terrain LODs. Runtime derives a
+small RGBAHalf material-weight texture from each (total,moss,lichen,upright),
+blended with the same terrain colours; these textures remain when local leaves
+are disabled. Root buffers still restrict eligible source tile sizes to local
+2048m/one-finest-tile limits, preventing grass allocation on planetary fallback
+tiles. Grid/material retention adds transient mesh/cache/transport cost, not
+save storage; cache accounting includes the new8bytes/vertex mask. Worker wire3
+is unchanged, no authoritative world/climate/biome/history/height/water changes.
+
+Ecological references: NPS [prairie variation](https://www.nps.gov/tapr/learn/nature/a-complex-prairie-ecosystem.htm)
+describes shortgrass in dry sites/tallgrass in wetter sites and variation with
+soil/depth/moisture/slope; [Arctic ecosystems](https://www.nps.gov/im/arcn/ecosystems.htm)
+distinguishes moss, lichen and wet sedge/tussock communities; [desert soil crust](https://www.nps.gov/cany/learn/photosmultimedia/inside_soilcrust.htm)
+describes stationary mixed cryptogamic surface communities. Noise is a derived
+site proxy, not a new fine water-table solver or seasonal growth/fire/grazing
+simulation. Owner no-agent-testing instruction remains: compile/package only,
+no suites, fixture, game launch, captures or profiling. Owner checks the same
+boundary, initial loading, FPS, grassland variation, desert and tundra mats.
 
 ## Progressive leaf geometry instead of rejected sprites /21October2026
 
