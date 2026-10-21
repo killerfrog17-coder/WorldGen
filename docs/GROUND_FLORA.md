@@ -1,5 +1,21 @@
 # Ground layer / ground-flora-5
 
+## Documented layered wind /21October2026
+
+`player-layered-vegetation-wind` adapts the researched Crysis main-bend/detail
+split, Sucker Punch's coarse/fine advected gust fields and SpeedTree's desired/
+effective response controls. Continuous waves remain the animation; smoothed
+controls and shared, moving noise patches set its strength/lean/pace. No revival
+of the rejected spring/FIR response textures. Wind-advected70m/14m value-noise
+layers are shared by grass, flowers and existing tree/shrub proxies; fungi/mats
+stay still. Flower flexibility/actual height condition displacement. New Grass
+debug checkbox switches live to exact direction-only rollback, plus2–12s response
+slider (default6s). F3 shows effective speed/mode. Ordinary grass wind checkbox
+still disables grass/herbs; densities/geometry/placement/LOD are unchanged.
+No player launch/profiling: owner judges fluidity and FPS. See
+PROCEDURAL_WEATHER.md for primary sources, animation/noise details, uncalibrated
+gust statistics and session controller/multiplayer synchronization limitations.
+
 ## Literal original movement / direction-only rollback /21October2026
 
 Owner rejects wave-envelope too and demands the original animation, not another

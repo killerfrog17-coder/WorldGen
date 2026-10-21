@@ -7,6 +7,73 @@ uses it; the strategic map's climate remains the existing long-term climate.
 
 ## Shared weather wind /21October2026 / owner-test-only
 
+### Documented layered-wind adaptation / owner-test-only
+
+`player-layered-vegetation-wind` follows the owner-approved research direction,
+not the rejected spring/history-field approximations. The procedural waving
+shader remains the visible animation; wind supplies its slowly changing
+controls. Three separately documented ideas are adapted:
+
+- [Crytek's Crysis chapter](https://developer.nvidia.com/gpugems/gpugems3/part-iii-rendering/chapter-16-vegetation-procedural-animation-and-shading-crysis):
+  main directional bending is separate from detail waves; stiffness and bounded
+  deformation govern plant response.
+- [Sucker Punch's developer article](https://blog.playstation.com/2021/01/12/how-stunning-visual-effects-bring-ghost-of-tsushima-to-life/):
+  a broad wind-advected noise layer plus smaller scrolling detail; coarse gusts
+  shared by grass/other foliage. Their damped character-displacement example is
+  NOT represented as documentation for ordinary spring-driven wind animation.
+- [SpeedTree's game API](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/FSpeedTreeWind):
+  desired/effective strength with response time and independent gust controls.
+
+This is our adaptation of these architectures, not imported SpeedTree middleware
+or an exact reproduction of any game's rendering code. No claim of matching
+their final visuals/performance is made from research/compilation alone.
+
+`VegetationWindController` in Presentation maintains one effective world-space
+wind vector, gust envelope/chance/duration, two oscillator phases and an
+integrated world-space scrolling displacement. Exponential convergence reaches
+about95% of a constant step over the default6s response (debug range2–12s).
+The phase rate changes modestly with effective strength; it is integrated,
+never time multiplied by a changing rate. Old1.6/2.7rad/s carrier proportions
+and old spatial carrier coefficients remain; waves do not become instantaneous
+wind-to-position queries. Sustained/local strength supplies a separate leaning
+bias; detail oscillates around it. Rigid fungi/moss/rocks stay still. Generated
+flower flexibility affects response; absolute displacement scales with height.
+
+Shaders evaluate two smoothly interpolated, periodically hashed value-noise
+layers, equivalent in role to scrolling noise textures: nominal70m coarse
+support and14m detail. Broad noise controls positive gust patches through a
+chance-dependent threshold; detail modulates the envelope mildly, not a rapid
+per-blade random displacement. Gust extra strength is peak-minus-mean, not a
+new compulsory minimum wind. Integrated translation follows effective heading;
+duration influences travel rate without rescaling coordinates. Actual temporal
+gust-frequency histograms are not calibrated/proven. Fixed geographic phases
+and bounded normalized-position differences handle floating origins/reanchors.
+Nearby grass/flowers and current tree/shrub proxy art share coarse gust input;
+articulated tree rigs/leaf flutter remain future work. Rain/snow retain their
+existing instantaneous weather-wind sampler, not this cosmetic gust field.
+
+All vertex movement stays GPU shader-driven. No per-blade CPU updates, extra
+geometry, simulation textures, FIR/spring histories, scatter resets or world
+generation/history/save changes. Visual controller advances in render elapsed
+time (capped0.25s/step), including while settings/map are open, like the old
+_Time shader. Weather's calendar can remain paused independently. State is
+session-local; leaving/re-entering an explorer initializes it anew. Wind
+conditions/noise remain seeded, but differing frame histories/join times do NOT
+promise identical plant phase/scroll state. Capture/Restore exposes the small
+controller state for a future authoritative multiplayer host; network transport,
+clock synchronization, observer-region partitioning and persistence are not
+implemented. No bitwise multiplayer/FPS/physical-airflow acceptance claim.
+
+Grass debug adds a weather-driven-bend/gust checkbox. OFF uses the exact
+direction-only rollback wave/strength/clock/curve in the same running build,
+including legacy tree-proxy motion; ON uses the documented split above. The
+ordinary wind-animation checkbox still disables grass/flowers. F3 reports
+effective vegetation speed/response or rollback mode. This permits live A/B;
+changing the A/B checkbox may change animation phase because the two clocks
+differ. Both modes retain old grass geometry/LOD and distance-only fades.
+Extra noise shader work and controller cost are unprofiled. Build/package only,
+no agent suites, native launch, screenshots or profiling; owner judges appearance.
+
 ### Literal pre-wind animation rollback / direction only
 
 Owner rejects wave-envelope too and explicitly requests the old shader's

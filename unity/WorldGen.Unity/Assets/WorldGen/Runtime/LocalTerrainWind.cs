@@ -22,6 +22,7 @@ public sealed partial class LocalTerrainExplorer
         direction=direction.sqrMagnitude>.000001f?direction.normalized*Mathf.Sqrt(.8f):new Vector3(.8f,0,.4f);
         Shader.SetGlobalVector("_GrassWindDirection",new Vector4(direction.x,0,direction.z,0));
         Shader.SetGlobalFloat("_WorldWindPlantsEnabled",TerrainVideoOptions.GrassWind?1:0);
+        UpdateVegetationWind(seconds);
     }
     string WindDebugText
     {
@@ -29,7 +30,7 @@ public sealed partial class LocalTerrainExplorer
         {
             double mean=Math.Sqrt(CurrentWeather.WindEastMps*CurrentWeather.WindEastMps+CurrentWeather.WindNorthMps*CurrentWeather.WindNorthMps);
             double from=(Math.Atan2(-CurrentWindMps.X,-CurrentWindMps.Y)*180/Math.PI+360)%360;
-            return "Wind "+CurrentWindMps.Length.ToString("F1")+" m/s now · mean "+mean.ToString("F1")+" · peak envelope "+CurrentWeather.GustMps.ToString("F1")+" · from "+from.ToString("F0")+"° · gust chance "+(CurrentWeather.WindGustChance*100).ToString("F0")+"% /64s · duration ~"+CurrentWeather.WindGustDurationS.ToString("F0")+"s";
+            return "Wind "+CurrentWindMps.Length.ToString("F1")+" m/s now · mean "+mean.ToString("F1")+" · peak envelope "+CurrentWeather.GustMps.ToString("F1")+" · from "+from.ToString("F0")+"° · gust chance "+(CurrentWeather.WindGustChance*100).ToString("F0")+"% /64s · duration ~"+CurrentWeather.WindGustDurationS.ToString("F0")+"s"+VegetationWindDebugText;
         }
     }
 }

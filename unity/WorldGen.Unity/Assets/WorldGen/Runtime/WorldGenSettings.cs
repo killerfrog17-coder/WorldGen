@@ -12,6 +12,8 @@ public static class TerrainVideoOptions
     public static float GrassBladeDistance=45;
     public static int GrassDetail=2;
     public static bool GrassWind=true;
+    public static bool WeatherDrivenVegetationWind=true;
+    public static float VegetationWindResponse=6;
     public static bool GrassCanopy=true;
     public static bool SpecialistPlants=true;
     public static void Load()
@@ -70,9 +72,12 @@ public sealed partial class WorldGenRuntime
         GUILayout.Label("Blade detail / local blade count");
         TerrainVideoOptions.GrassDetail=GUILayout.SelectionGrid(TerrainVideoOptions.GrassDetail,new[]{"Low","Medium","High","Ultra"},2);
         TerrainVideoOptions.GrassWind=GUILayout.Toggle(TerrainVideoOptions.GrassWind,"Weather wind animation (grass and low plants)");
+        TerrainVideoOptions.WeatherDrivenVegetationWind=GUILayout.Toggle(TerrainVideoOptions.WeatherDrivenVegetationWind,"Weather-driven bend and travelling gusts (off = direction-only rollback)");
+        GUILayout.Label("Wind response: "+TerrainVideoOptions.VegetationWindResponse.ToString("F0")+" seconds");
+        TerrainVideoOptions.VegetationWindResponse=GUILayout.HorizontalSlider(TerrainVideoOptions.VegetationWindResponse,2,12);
         TerrainVideoOptions.SpecialistPlants=GUILayout.Toggle(TerrainVideoOptions.SpecialistPlants,"Generated flowers, low herbs, ferns and fungi");
         if(GUILayout.Button("Reset grass prototype defaults"))
-        {TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDistance=350;TerrainVideoOptions.GrassBladeDistance=45;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassWind=true;}
+        {TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDistance=350;TerrainVideoOptions.GrassBladeDistance=45;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassWind=true;TerrainVideoOptions.WeatherDrivenVegetationWind=true;TerrainVideoOptions.VegetationWindResponse=6;}
         GUILayout.Space(10);
         GUILayout.Label("Session-only controls. Extra blades fill the first 4-14m. Middle-distance grass keeps the same leaves, progressively reducing their count/segments and widening survivors. A filtered grass mat continues on the terrain. Longer ranges cost more.",MutedStyle());
         GUILayout.Label("Off removes local leaf geometry. Grass, stationary moss and lichen ground materials stay. Loading is instant once data is ready; vegetation fades only with distance. F3 shows FPS and grass buffer/draw counts.",MutedStyle());

@@ -11,11 +11,11 @@ Shader "WorldGen/GroundCover"
         #include "WorldGenAir.hlsl"
         #include "WorldGenLodFade.hlsl"
         #include "WorldGenGrassLight.hlsl"
+        #include "WorldGenWind.hlsl"
         struct Root{float4 positionForm;float4 colorHeight;float4 shape;float4 normal;float4 grasses;float4 herbs;};
         StructuredBuffer<Root> _CoverRoots;
         StructuredBuffer<uint> _VisibleRoots;
         float4 _CoverOrigin,_CoverTileOrigin,_FogColor,_AmbientTint,_BladeCounts;float _FogDistance,_Daylight,_GrassRange,_GrassWind,_GrassNear;int _CoverLod;uint _CoverSeed;
-        float4 _GrassWindDirection;
         struct O{float4 positionCS:SV_POSITION;float3 position:TEXCOORD0;float3 normal:TEXCOORD1;float3 color:COLOR;float2 fade:TEXCOORD2;float2 leaf:TEXCOORD3;};
         float BladeRandom(float blade,float salt,float seed){return frac(sin(blade*127.1+salt*311.7+seed*74.7)*43758.5453);}
         uint LeafMix(uint x){x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);}
@@ -98,10 +98,10 @@ Shader "WorldGen/GroundCover"
             if(form==6||form==7)basePosition.y+=.015;
             float bend=.18+.35*c;
             float3 anchor=root+float3(microOffset.x,-dot(r.normal.xz,microOffset)/max(.3,r.normal.y),microOffset.y);
-            float wind=(sin(anchor.x*.13+anchor.z*.11+_Time.y*1.6)+.4*sin(anchor.x*.37-anchor.z*.18+_Time.y*2.7))*.14*_GrassWind;
+            float3 wind=WorldGenVegetationOffset(anchor,1)*_GrassWind;
             float3 up=normalize(lerp(float3(0,1,0),r.normal.xyz,form>=6?.85:.12));
             float3 p1=up*(height*.55);
-            float3 p2=normalize(up+float3(dir.x,0,dir.y)*bend+_GrassWindDirection.xyz*wind)*height;
+            float3 p2=normalize(up+float3(dir.x,0,dir.y)*bend+wind)*height;
             float3 tangent=normalize(2*(1-t)*p1+2*t*(p2-p1));
             float3 curve=2*(1-t)*t*p1+t*t*p2;
             curve=lerp(curve,p2*t,smoothstep(.60*_GrassNear,.80*_GrassNear,d));

@@ -1,6 +1,26 @@
 # WorldGen repository instructions
 
 Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
+`artifacts/player-layered-vegetation-wind/WorldGen.exe` (IL2CPP16:10:19Z), real C:.
+Owner approves following documented Crysis/Sucker Punch/SpeedTree architectures:
+separate main bend, continuous detail waves and desired/effective controls.
+Presentation controller smooths mean vector/gust controls (95% step~6s default),
+integrates phase at changing rate and scrolling displacement. Shader70m coarse/
+14m fine continuous value noise produces travelling gusts; same coarse input
+for grass/herbs/tree proxies. No old FIR/spring texture field or per-blade CPU
+physics. Rigid fungi/mats/rocks still. Grass debug A/B checkbox OFF restores
+exact direction-only rollback in same build; response slider2–12s, F3 mode/
+effective speed. Render-time motion continues in settings/map like old shader.
+Geometry/density/placement/LOD/world/history/saves unchanged. Rain retains old
+instantaneous sampler; tree rigs/leaf flutter remain future. Session controller
+Capture/Restore supports future server state replication, NOT implemented MP
+sync/bitwise determinism; join times/frame histories may differ. No imported
+SpeedTree code/middleware or claimed exact game reproduction. See primary
+sources/limits in PROCEDURAL_WEATHER/GROUND_FLORA/VALIDATION. Compile/package
+ONLY, no suite, fixture, launch/captures/profiling; leave owner's game untouched.
+Compile/package exit0; no agent player launches/profiling. Owner review pending.
+
+Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
 `artifacts/player-grass-direction-only/WorldGen.exe` (IL2CPP15:49:22Z), real C:.
 Owner REJECTS all three wind-motion attempts, including wave-envelope, as
 identical-looking/jagged and explicitly requests literal pre-wind animation

@@ -1,5 +1,23 @@
 # Version 3 validation evidence
 
+## Documented layered vegetation wind / owner-test-only /21October2026
+
+`player-layered-vegetation-wind` adapts the primary Crysis/Sucker Punch/SpeedTree
+references recorded in PROCEDURAL_WEATHER.md. It keeps continuous detail waves
+separate from main bending and effective wind controls; coarse/fine advected
+value-noise gusts are shared by grass/herbs/tree proxies. One Presentation
+controller smooths desired wind and integrates phase/scroll; no per-plant CPU
+state, spring/FIR fields, simulation textures, new density/geometry or LOD jobs.
+Grass debug adds live exact-direction-only A/B plus response2–12s/default6s;
+F3 shows effective wind/mode. A/B phase can differ. No world/history/save changes;
+rain retains existing sampler. Controller Capture/Restore is future network
+plumbing, not actual multiplayer synchronization or bitwise determinism.
+Compile/package only, no agent suites/fixtures/native launch/captures/profiling.
+Research architecture and compilation do not prove fluidity, coherent appearance,
+gust-duration statistics or frame cost. Owner art/FPS review is required.
+IL2CPP compile/package exited0 at21Oct16:10:19Z, real C:, worker/manifest
+packaged. Shortcut updated; owner's running game/saves untouched.
+
 ## Literal grass rollback / direction-only: owner-test-only /21October2026
 
 Owner REJECTED wave-envelope as still identical/unacceptable and requests exact
