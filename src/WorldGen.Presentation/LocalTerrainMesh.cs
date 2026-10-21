@@ -70,7 +70,9 @@ namespace WorldGen.Presentation
             }
             int side = segments + 1, halo = side + 2, ground = side * side, perimeter = segments * 4;
             mesh.GroundVertices = ground;
-            if(sizeM<=TerrainLod.BaseSizeM*frame.HorizontalScale*1.001)mesh.GroundCover=new float[ground*16];
+            // Near blades and middle-distance sprites share the actual rendered
+            // grid. Retain the compact sidecar on local coarser tiles as well.
+            if(sizeM<=Math.Max(2048,TerrainLod.BaseSizeM*frame.HorizontalScale)*1.001)mesh.GroundCover=new float[ground*16];
             var heights = new double[halo * halo]; var samples = new LocalTerrainSample[ground];
             for (int z = -1; z <= side; z++)
             {

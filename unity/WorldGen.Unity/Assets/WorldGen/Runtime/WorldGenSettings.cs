@@ -8,7 +8,7 @@ public static class TerrainVideoOptions
     public static int Revision;
     public static bool GroundCover=true;
     // Temporary, session-only prototype controls. Do not invalidate terrain jobs.
-    public static float GrassDensity=1,GrassDistance=120;
+    public static float GrassDensity=1,GrassDistance=350;
     public static float GrassBladeDistance=45;
     public static int GrassDetail=2;
     public static bool GrassWind=true;
@@ -63,16 +63,16 @@ public sealed partial class WorldGenRuntime
         TerrainVideoOptions.GrassDensity=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.GrassDensity,.25f,2)*20)/20;
         GUILayout.Label("Individual blade range  "+TerrainVideoOptions.GrassBladeDistance.ToString("F0")+" m");
         TerrainVideoOptions.GrassBladeDistance=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.GrassBladeDistance,15,60));
-        TerrainVideoOptions.GrassCanopy=GUILayout.Toggle(TerrainVideoOptions.GrassCanopy,"Distant canopy objects (smooth aggregate coverage)");
-        GUILayout.Label("Canopy draw distance  "+TerrainVideoOptions.GrassDistance.ToString("F0")+" m");
-        TerrainVideoOptions.GrassDistance=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.GrassDistance,40,160)/5)*5;
+        TerrainVideoOptions.GrassCanopy=GUILayout.Toggle(TerrainVideoOptions.GrassCanopy,"Distant grass sprites (camera-facing banks)");
+        GUILayout.Label("Sprite draw distance  "+TerrainVideoOptions.GrassDistance.ToString("F0")+" m");
+        TerrainVideoOptions.GrassDistance=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.GrassDistance,50,500)/10)*10;
         GUILayout.Label("Blade detail / local blade count");
         TerrainVideoOptions.GrassDetail=GUILayout.SelectionGrid(TerrainVideoOptions.GrassDetail,new[]{"Low","Medium","High","Ultra"},2);
         TerrainVideoOptions.GrassWind=GUILayout.Toggle(TerrainVideoOptions.GrassWind,"Wind animation");
         if(GUILayout.Button("Reset grass prototype defaults"))
-        {TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDistance=120;TerrainVideoOptions.GrassBladeDistance=45;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassWind=true;}
+        {TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDistance=350;TerrainVideoOptions.GrassBladeDistance=45;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassWind=true;}
         GUILayout.Space(10);
-        GUILayout.Label("Session-only controls. Blades blend into low-cost canopy objects, then into terrain shading. More blade range/density costs more. Fine-terrain bounds can shorten canopy range.",MutedStyle());
+        GUILayout.Label("Session-only controls. Extra blades fill the first 4-14m. Beyond the blade range, sparse camera-facing grass banks continue across coarser terrain, then give way to terrain colour. Longer ranges cost more.",MutedStyle());
         GUILayout.Label("Off disables local ground vegetation entirely. Distant terrain's baked cover colour stays, so compare the same camera for rendering cost. F3 shows FPS and grass buffer/draw counts.",MutedStyle());
     }
     void DrawTerrainOptions(bool compact=false)

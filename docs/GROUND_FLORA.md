@@ -1,4 +1,42 @@
-# Ground layer / ground-flora-3
+# Ground layer / ground-flora-4
+
+## Close fill, tundra and upright middle-distance sprites /21October2026
+
+Owner rejected the previous horizontal canopy's appearance and reported tree
+shadow flicker. This pass removes those caps, transparent overlay sorting and
+distance-based height flattening. Two staggered camera-facing alpha-cutout
+banks per 2.4m field square provide actual upright silhouettes, write depth,
+and sample tree shadows at their ground anchor. Banks narrow on arrival/exit
+instead of screen-door fading. Existing coverage-preserving atlas mips remain;
+this is not a bake of each generated species and close grass stays geometry.
+
+Default blade range45m, sprite range350m; debug sprite range50-500m. Sprite
+fields are separate from 0.60m blade fields, frustum/range compacted, and use
+coarser resident terrain grids too (sidecars retained up to2048m physical tile
+size, or one finest tile if larger). Parent fields are suppressed by the
+resident finer-coverage tree; fully covered parents allocate no grass buffers.
+Near fields use a bounded192m moving window, sprites1152m. Only one field is
+installed per frame. This adds transient sidecar/buffer cost, not save storage.
+The finest-terrain-only120m ceiling is removed for normal0.1/1 scale settings;
+missing terrain/sidecars can still delay or limit coverage at unusual scales.
+
+Within4m, near blade counts double, returning smoothly to baseline by14m;
+outer counts/widths stay the same. No random whole-square gaps are introduced.
+Ground-flora4 adds explicit Tundra/Alpine selection: reduced cool grass,
+no warm grass/fern/succulent, moist-site moss without forest-shade dependence,
+dry exposed lichens, wet-site sedges retained, shorter stature and muted
+olive/straw/grey palette. This is potential summer cover, not seasonal browning
+or finished moss/cushion art; real tundra may also be green and sedge-dominated.
+Source biome/climate/history, terrain heights and water rules stay unchanged.
+
+Reference: NVIDIA's [grass billboard chapter](https://developer.nvidia.com/gpugems/gpugems2/part-i-geometric-complexity/chapter-1-toward-photorealism-virtual-botany)
+describes camera-facing representations; NPS [Arctic ecosystems](https://www.nps.gov/im/arcn/ecosystems.htm)
+distinguishes sedge, tussock, moss/lichen and dwarf-shrub tundra. These motivate
+the approach; they do not validate this implementation. Owner requested a quick
+pass without agent testing: compilation/packaging only, no player launches,
+captures or profiling. All-angle sprite appearance, transitions, memory/GPU cost
+and whether the reported shadow flicker is resolved remain owner-review work.
+
 
 ## Hybrid near blades / canopy / far terrain and dry deserts /21October2026
 

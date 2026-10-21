@@ -39,7 +39,10 @@ Shader "WorldGen/GroundCover"
             // Coverage controls density through the field, not coin-flip gaps
             // that erase whole squares. Mesic ground reaches a continuous sward.
             float occupancy=saturate(r.normal.w/.45);
-            float bladesF=maximum*reduction*occupancy;
+            // Extra roots close to the feet, smoothly retired before the usual
+            // geometry LOD. Distant blade density and width stay unchanged.
+            float closeFill=_CoverLod==0?lerp(.5,1,1-smoothstep(4,14,d)):1;
+            float bladesF=maximum*reduction*occupancy*closeFill;
             if(blade>=ceil(bladesF)){o.positionCS=float4(0,0,0,1);return o;}
             float fractional=blade==(int)ceil(bladesF)-1?max(.001,bladesF-blade):1;
             int segment=(vid/6)%segments;
@@ -55,7 +58,7 @@ Shader "WorldGen/GroundCover"
             float profile=form<4?pow(saturate(1-t),.65):sin(t*3.14159265)*(.65+.35*sin(t*21));
             // Fractional blade retirement + bounded width compensation (AMD's
             // LOD principle). Each leaf has its own root, not a shared star fan.
-            width*=profile*fractional*min(3.5,_BladeCounts.x/maximum/reduction);
+            width*=profile*fractional*clamp(_BladeCounts.z/maximum/reduction,1,3.5);
             // Low-discrepancy square distribution tiles the ground continuously.
             // Prefixes stay spread across the whole square at every density/LOD.
             float2 spread=(frac(float2(.754877666,.569840296)*(blade+.5)+r.shape.yz)-.5)*.60;

@@ -23,7 +23,7 @@ namespace WorldGen.Core
     /// acquire bounded regional traits; this is static biogeography, not simulated evolution.</summary>
     public sealed class GroundFlora
     {
-        public const string Version="ground-flora-3";
+        public const string Version="ground-flora-4";
         static readonly ConditionalWeakTable<World,GroundFlora> contexts=new ConditionalWeakTable<World,GroundFlora>();
         readonly World world;
         readonly ConcurrentDictionary<int,GroundFloraRegion> regions=new ConcurrentDictionary<int,GroundFloraRegion>();
@@ -69,6 +69,7 @@ namespace WorldGen.Core
                 h.Biome==Biome.BorealForest?.78:h.Biome==Biome.TemperateForest?.75:h.Biome==Biome.TropicalSeasonalForest?.58:h.Biome==Biome.MediterraneanWoodland?.3:0;
             double salt=Math.Max(soil.Salinity,h==null?0:D.Clamp(h.SalinityMilliPpt/35000.0));
             double roots=D.Clamp(soil.DepthM/.25)*(.4+.6*soil.Fertility)*(1-.7*soil.Gravel);
+            bool tundra=h!=null&&(h.Biome==Biome.Tundra||h.Biome==Biome.Alpine);
             var profile=new GroundCoverProfile();double sum=0;
             for(int f=0;f<9;f++)
             {
@@ -88,8 +89,26 @@ namespace WorldGen.Core
                 // Residual desert moisture must not plant a continuous meadow.
                 // Actual groundwater/flood refuges are retained; crust stays low.
                 if(h!=null&&h.Biome==Biome.Desert&&f!=7)w*=D.Clamp((flood-.10)/.55);
+                // Open cold ground is not a temperate meadow. Wet tundra keeps
+                // sedges; moist sites support moss without needing forest shade,
+                // while exposed/drier ground favours lichens and short tufts.
+                if(tundra)
+                {
+                    if(f==0)w*=.30;
+                    if(f==1||f==5||f==8)w=0;
+                    if(f==2)w*=.65;
+                    if(f==4)w*=.55;
+                    if(f==6)w=Math.Max(w,.40*moist*(.45+.55*soil.Organic)*(1-salt));
+                    if(f==7)w=Math.Max(w,.22*(1-.6*moist)*(1-flood));
+                }
                 var species=flora.Species[f];profile.SetWeight(f,w);sum+=w;
-                profile.Color+=species.Color*w;profile.Stature+=species.Stature*w;profile.LeafWidth+=species.LeafWidth*w;
+                var tint=species.Color;
+                if(tundra)
+                {
+                    var coldTint=f==6?new V(.34,.36,.23):f==7?new V(.48,.47,.37):new V(.46,.44,.28);
+                    tint=tint*.35+coldTint*.65;
+                }
+                profile.Color+=tint*w;profile.Stature+=species.Stature*w;profile.LeafWidth+=species.LeafWidth*w;
             }
             if(sum>0){profile.Color/=sum;profile.Stature/=sum;profile.LeafWidth/=sum;}
             // Potential mature leafy canopy, not the maximum height of flowering culms.
@@ -97,6 +116,7 @@ namespace WorldGen.Core
             double tall=D.Clamp((wet-.38)/.7)*D.Clamp((warm-12)/15)*D.Clamp(soil.DepthM/.75)
                 *(.4+.6*soil.Fertility)*(1-shade)*(1-.65*salt);
             profile.Stature*=.65+2.0*tall+.55*flood;
+            if(tundra)profile.Stature*=.48+.22*flood;
             if(sum>.95)profile.ScaleWeights(.95/sum);
             return profile;
         }

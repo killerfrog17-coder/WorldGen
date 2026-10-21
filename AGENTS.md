@@ -1,6 +1,27 @@
 # WorldGen repository instructions
 
 Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
+`artifacts/player-grass-sprites-tundra/WorldGen.exe` (IL2CPP11:54:36Z), real C:.
+Owner reported green meadow-like tundra, gaps at feet and rejected the prior
+horizontal canopy's appearance/shadow flicker. Derived ground-flora4 adds
+shorter muted Tundra/Alpine mixes with moss/lichen, wet sedges and reduced grass.
+Close blade counts double within4m, taper to baseline by14m. Upright staggered
+camera-facing depth-writing alpha-cutout banks replace transparent caps and
+height settling; ground-anchored shadow samples avoid moving shadow overlays.
+Sparse2.4m sprite fields are separate from0.60m blades, support coarser resident
+grids and suppress covered parents. Default45m blades/350m sprites, debug50-500m.
+Sidecars retained on local tiles up to2048m physical size (or one finest tile
+if larger); bounded192m blade/1152m sprite windows, one field install/frame.
+Transient memory/load cost increases; no save raster, authoritative ecology,
+world/history, terrain-height or water changes. Existing atlas reused distant
+only; no return to near crossed cards, no finished moss art or seasonal colours.
+Owner no-testing instruction remains: compilation/packaging ONLY, no test
+suites, fixtures, game launch, captures, profiling or source-hash audit. No
+shadow-fix, seamless transition, realism or performance acceptance is claimed.
+See docs/GROUND_FLORA.md and VALIDATION.md; leave owner game/saves untouched.
+Build/package completed exit0; shortcut updated. Owner review is pending.
+
+Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
 `artifacts/player-grass-hybrid-canopy/WorldGen.exe` (IL2CPP07:27:24Z), real C:.
 Owner requested near blades (~40–50m), cheaper distant representations, matching
 far terrain, and no inappropriate desert grass. Default45m individual blades

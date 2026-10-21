@@ -3,11 +3,26 @@
 StructuredBuffer<float> _Grid;
 struct Root { float4 positionForm;float4 colorHeight;float4 shape;float4 normal;float4 grasses;float4 herbs; };
 AppendStructuredBuffer<Root> _Roots;
-int4 _Candidate;float4 _Tile;uint _Seed;
+int4 _Candidate;float4 _Tile;uint _Seed;float _Spacing;
 StructuredBuffer<Root> _PlacedRoots;
 ByteAddressBuffer _RootCount;
 AppendStructuredBuffer<uint> _NearRoots,_MiddleRoots,_FarRoots;
-float4 _CullOrigin,_CullCamera,_CullPlanes[6];float _GrassRange,_GrassNear;int _CanopyEnabled;
+float4 _CullOrigin,_CullCamera,_CullPlanes[6];float _GrassRange,_GrassNear,_CoverageSize;int _CanopyEnabled,_SpritesOnly,_CoverageEnabled;
+Texture2D<float4> _TerrainCoverage;
+bool Covered(float2 uv)
+{
+    if(_CoverageEnabled==0)return false;
+    int node=0;
+    [loop]for(int depth=0;depth<24;depth++)
+    {
+        uv*=2;int2 quadrant=min((int2)uv,1);
+        float4 children=_TerrainCoverage.Load(int3(node%256,node/256,0));
+        float next=children[quadrant.x+2*quadrant.y];
+        if(next<=0)return next<0;
+        node=(int)next-1;uv-=quadrant;
+    }
+    return false;
+}
 uint Mix(uint x){x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);}
 float Rand(uint x){return (Mix(x)&0xffffffu)/16777216.;}
 float Attribute(int x,int z,int channel){return _Grid[((z*((int)_Tile.w+1)+x)*16)+channel];}
@@ -19,7 +34,7 @@ void Place(uint3 id:SV_DispatchThreadID)
     uint hash=Mix(asuint(cell.x)*73856093u^asuint(cell.y)*19349663u^_Seed);
     // These are adjacent field cells, not independently jittered clump centres.
     // Leaves fill each entire square; ecological cover thins individual leaves.
-    float2 p=(float2(cell)+.5)*.60;
+    float2 p=(float2(cell)+.5)*_Spacing;
     float2 uv=(p-_Tile.xy)/_Tile.z;if(any(uv<0)||any(uv>=1))return;
     float2 q=uv*_Tile.w;int2 a=min((int2)floor(q),(int)_Tile.w-1);float2 f=q-a;
     float values[16];
@@ -32,9 +47,9 @@ void Place(uint3 id:SV_DispatchThreadID)
     float step=_Tile.z/_Tile.w;
     float sx=f.x+f.y<=1?(Attribute(a.x+1,a.y,15)-Attribute(a.x,a.y,15))/step:(Attribute(a.x+1,a.y+1,15)-Attribute(a.x,a.y+1,15))/step;
     float sz=f.x+f.y<=1?(Attribute(a.x,a.y+1,15)-Attribute(a.x,a.y,15))/step:(Attribute(a.x+1,a.y+1,15)-Attribute(a.x+1,a.y,15))/step;
-    Root r;r.positionForm=float4(p.x-_Tile.x,values[15]-.016,p.y-_Tile.y,0);
+    Root r;r.positionForm=float4(p.x-_Tile.x,values[15]-.016,p.y-_Tile.y,_Spacing);
     // Species, height and cover are selected per leaf, not once for a whole tuft.
-    r.colorHeight=float4(values[0],values[1],values[2],max(.4,values[13]));
+    r.colorHeight=float4(values[0],values[1],values[2],max(.1,values[13]));
     r.shape=float4(max(.4,values[14]),Rand(hash+5),Rand(hash+6),Rand(hash+7));
     r.normal=float4(normalize(float3(-sx,1,-sz)),cover);
     r.grasses=float4(values[4],values[5],values[6],values[7])/max(.00001,cover);
@@ -49,10 +64,11 @@ void Cull(uint3 id:SV_DispatchThreadID)
 {
     if(id.x>=_RootCount.Load(0))return;
     Root r=_PlacedRoots[id.x];float3 p=r.positionForm.xyz+_CullOrigin.xyz;
+    if(Covered(r.positionForm.xz/_CoverageSize))return;
     float d=distance(p,_CullCamera.xyz);if(d>=_GrassRange)return;
-    float radius=max(1.2,r.colorHeight.w*1.6);
+    float radius=max(_SpritesOnly!=0?5:1.2,r.colorHeight.w*1.6);
     [unroll]for(int k=0;k<6;k++)if(dot(_CullPlanes[k].xyz,p)+_CullPlanes[k].w < -radius)return;
-    if(d<.60*_GrassNear)_NearRoots.Append(id.x);
-    if(d>.40*_GrassNear&&d<_GrassNear)_MiddleRoots.Append(id.x);
-    if(_CanopyEnabled!=0&&d>.80*_GrassNear)_FarRoots.Append(id.x);
+    if(_SpritesOnly==0&&d<.60*_GrassNear)_NearRoots.Append(id.x);
+    if(_SpritesOnly==0&&d>.40*_GrassNear&&d<_GrassNear)_MiddleRoots.Append(id.x);
+    if(_SpritesOnly!=0&&_CanopyEnabled!=0&&d>.80*_GrassNear)_FarRoots.Append(id.x);
 }

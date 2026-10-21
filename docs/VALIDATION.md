@@ -1,5 +1,23 @@
 # Version 3 validation evidence
 
+## Close grass / tundra / upright sprites: owner-test-only /21October2026
+
+`player-grass-sprites-tundra` replaces rejected horizontal/transparent canopy
+caps with depth-writing upright camera-facing banks, ground-anchored shadows,
+separate sparse sprite fields and coarse-tile support. Defaults45m blades/350m
+sprites; debug sprite range50-500m. Near4m gets2x blade count, tapering to the
+old density by14m. Derived ground-flora4 changes Tundra/Alpine mixtures,
+stature and palette. No authoritative world/history, heights or water changes.
+
+Owner's no-agent-testing instruction remains: compile/package only. No tests,
+fixture, player launch, screenshot, profiling or saved-world hash audit.
+Prior passes do not certify this change. No shadow-fix, seamless-LOD, realism,
+memory or FPS acceptance is claimed before the owner tries it. See
+GROUND_FLORA.md for sidecar limits and rendering approximations.
+IL2CPP compile/package completed21Oct11:54:36Z, exit0; shortcut points to this
+separate real C: build. Existing game and saved worlds were not changed.
+
+
 ## Hybrid grass and desert suppression: owner-test-only /21October2026
 
 `player-grass-hybrid-canopy`: individual blades default45m, aggregate textured
