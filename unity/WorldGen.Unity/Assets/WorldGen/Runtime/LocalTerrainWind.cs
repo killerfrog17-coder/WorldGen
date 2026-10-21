@@ -5,9 +5,6 @@ using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
-    static readonly int[] WindWaveIds={Shader.PropertyToID("_WorldWindWave0"),Shader.PropertyToID("_WorldWindWave1"),Shader.PropertyToID("_WorldWindWave2"),Shader.PropertyToID("_WorldWindWave3")};
-    static readonly int[] PlantWaveAIds={Shader.PropertyToID("_PlantWaveA0"),Shader.PropertyToID("_PlantWaveA1"),Shader.PropertyToID("_PlantWaveA2")},
-        PlantWaveBIds={Shader.PropertyToID("_PlantWaveB0"),Shader.PropertyToID("_PlantWaveB1"),Shader.PropertyToID("_PlantWaveB2")};
     public V CurrentWindMps {get;private set;}
     Vector3 WindToChart(V value)
     {
@@ -17,42 +14,14 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateWindPresentation()
     {
-        // The saved/play calendar is the shared authority. Pauses freeze it;
-        // frame rate, process start time and chunk births never enter the field.
+        // Weather/rain keep their existing instantaneous sample. Vegetation
+        // reads ONLY the broad heading; its original shader owns all animation.
         double seconds=playState==null?weatherDays*86400:PlayCalendar.Seconds(playState,SimulationTime.Seconds(sourceWorld.Prehistory));
-        int seed=sourceWorld.Recipe.Seed;var at=Position;
-        CurrentWindMps=WeatherWind.Sample(CurrentWeather,seed,at,frame.RadiusM,seconds);
-        Vector3 mean=WindToChart(new V(CurrentWeather.WindEastMps,CurrentWeather.WindNorthMps,0));
-        boundWindMean=new Vector4(mean.x,mean.y,mean.z,(float)CurrentWeather.GustMps);
-        boundWindStats=new Vector4((float)CurrentWeather.WindGustChance,(float)CurrentWeather.WindGustDurationS,(float)CurrentWeather.WindTurbulence,0);
-        Shader.SetGlobalVector("_WorldWindMean",boundWindMean);Shader.SetGlobalVector("_WorldWindStats",boundWindStats);
-        var up=new Vector3((float)V.Dot(at,frame.East),(float)V.Dot(at,frame.Origin),(float)V.Dot(at,frame.North));
-        double length=Math.Sqrt(frame.RadiusM*frame.RadiusM+motion.X*motion.X+motion.Z*motion.Z);
-        boundWindAnchor=new Vector4((float)(motion.X-originX),0,(float)(motion.Z-originZ),(float)length);
-        boundWindSphere=new Vector4(up.x,up.y,up.z,(float)frame.RadiusM);
-        Shader.SetGlobalVector("_WorldWindAnchor",boundWindAnchor);Shader.SetGlobalVector("_WorldWindSphere",boundWindSphere);
-        Shader.SetGlobalInteger("_WorldWindSeed",seed);
+        CurrentWindMps=WeatherWind.Sample(CurrentWeather,sourceWorld.Recipe.Seed,Position,frame.RadiusM,seconds);
+        var direction=WindToChart(new V(CurrentWeather.WindEastMps,CurrentWeather.WindNorthMps,0));direction.y=0;
+        direction=direction.sqrMagnitude>.000001f?direction.normalized*Mathf.Sqrt(.8f):new Vector3(.8f,0,.4f);
+        Shader.SetGlobalVector("_GrassWindDirection",new Vector4(direction.x,0,direction.z,0));
         Shader.SetGlobalFloat("_WorldWindPlantsEnabled",TerrainVideoOptions.GrassWind?1:0);
-        for(int lane=0;lane<4;lane++)
-        {
-            V axis=WeatherWind.Axis(seed,lane)/WeatherWind.Wavelength(lane);
-            double phase=WeatherWind.Phase(seed,lane,at,frame.RadiusM,seconds),cell=Math.Floor(phase);
-            boundWindWaves[lane]=new Vector4((float)V.Dot(axis,frame.East),(float)V.Dot(axis,frame.Origin),(float)V.Dot(axis,frame.North),(float)(phase-cell));
-            Shader.SetGlobalVector(WindWaveIds[lane],boundWindWaves[lane]);
-            if(lane<2){boundWindSlots[lane]=unchecked((int)(long)cell);Shader.SetGlobalInteger(lane==0?"_WorldWindSlot0":"_WorldWindSlot1",boundWindSlots[lane]);}
-        }
-        // Phase-continuous loop bands retain the pre-weather 1.6/2.7rad/s
-        // character. Slow envelopes mix speeds without restarting an oscillator.
-        for(int band=0;band<3;band++)for(int lane=0;lane<2;lane++)
-        {
-            double rate=band==0?.65:band==1?1:1.45,frequency=(lane==0?1.6:2.7)*rate;
-            V axis=WeatherWind.Axis(seed,lane+2)*(2*Math.PI/(lane==0?45:29));
-            double phase=V.Dot(at,axis)*frame.RadiusM+seconds*frequency;
-            phase-=Math.Floor(phase/(2*Math.PI))*(2*Math.PI);
-            Shader.SetGlobalVector(lane==0?PlantWaveAIds[band]:PlantWaveBIds[band],
-                new Vector4((float)V.Dot(axis,frame.East),(float)V.Dot(axis,frame.Origin),(float)V.Dot(axis,frame.North),(float)phase));
-        }
-        UpdatePlantWind(seconds);
     }
     string WindDebugText
     {

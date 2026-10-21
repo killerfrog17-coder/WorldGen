@@ -33,7 +33,6 @@ public sealed partial class LocalTerrainExplorer
     bool LegacySkyDiagnostic=>passiveSkyCheck&&!Array.Exists(Environment.GetCommandLineArgs(),s=>s=="--worldgen-weather-check");
     void ResetWeatherFrame()
     {
-        ResetPlantWind();
         weatherProvider=null;nextWeatherAt=0;nextDaylightAt=0;
         if(rainParticles!=null)rainParticles.Clear();if(snowParticles!=null)snowParticles.Clear();
         if(weatherScreen!=null){weatherScreen.Ready=false;weatherScreen.Flash=0;}flashEnd=0;
@@ -188,7 +187,6 @@ public sealed partial class LocalTerrainExplorer
     }
     void DisposeWeather()
     {
-        DisposePlantWind();
         DisposeWeatherField();
         if(weatherCheckTarget!=null){view.targetTexture=null;weatherCheckTarget.Release();Destroy(weatherCheckTarget);}
         if(weatherCheckPixel!=null)Destroy(weatherCheckPixel);

@@ -7,6 +7,34 @@ uses it; the strategic map's climate remains the existing long-term climate.
 
 ## Shared weather wind /21October2026 / owner-test-only
 
+### Literal pre-wind animation rollback / direction only
+
+Owner rejects wave-envelope too and explicitly requests the old shader's
+movement with no difference except heading, extended to flowers. New
+`player-grass-direction-only` restores the exact dcf546c ground-cover shader
+except one direction uniform declaration and replacing fixed(.8,0,.4) in the
+tip expression with that uniform. The old spatial phase, Unity _Time.y,
+1.6/2.7 rad/s,0.14 amplitude, intrinsic bend, Bezier controls and LOD behaviour
+are literal again. CPU rotates the axis to the broad weather heading and keeps
+its magnitude sqrt(0.8), so speed does not accidentally scale animation strength.
+No normalization/amplitude/clock/bias/trait adjustments elsewhere in grass.
+
+Flexible herb/flower/fern shoots reuse the same original scalar wave at their
+root and corresponding Bezier tip displacement, weighted by squared normalized
+shoot height. Their existing precurved anatomy remains; roots stay anchored.
+Fungi, rocks and mats remain still; tree/shrub placeholders regain the pre-wind
+single-sine behaviour. Wind animation checkbox still disables local grass/herb
+movement. Calm weather deliberately does NOT stop this restored animation.
+
+The experimental response compute asset/runtime and metas are removed; there
+is no wind-envelope/spring texture, history reconstruction or compute dispatch
+in the runtime path. Retained Core motion traits are metadata only and do not
+influence the direction-only renderer. Actual weather wind/precipitation drift
+and F3 data are unchanged. Unity-time motion means this pass does not promise
+multiplayer phase agreement; only wind/weather retains world-time determinism.
+Compile/package only, no player launch/profiling. Source comparison establishes
+literal shader restoration, not the owner's acceptance of actual visuals.
+
 ### Continuous waves with slow weather envelopes / owner-test-only
 
 `player-wind-wave-envelope` / plant-motion2 supersedes the owner-REJECTED

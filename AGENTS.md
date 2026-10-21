@@ -1,6 +1,27 @@
 # WorldGen repository instructions
 
 Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
+`artifacts/player-grass-direction-only/WorldGen.exe` (IL2CPP15:49:22Z), real C:.
+Owner REJECTS all three wind-motion attempts, including wave-envelope, as
+identical-looking/jagged and explicitly requests literal pre-wind animation
+with ONLY heading changed, also applied to flowers. Ground-cover shader is
+source-compared to pre-wind dcf546c: only added direction uniform and replaced
+fixed(.8,0,.4) sway axis. Exact old _Time.y, spatial coefficients,1.6/2.7 rates,
+.14 strength, intrinsic curvature, Bezier and near/far behaviour are restored.
+CPU normalizes broad weather heading to the original axis magnitude sqrt(.8);
+wind speed/gust/history/species traits do NOT modify vegetation motion. Calm
+still animates, intentionally, like the old shader. Flower/fern shoots use same
+scalar and tip-delta curve with root-height mask; fungi/moss stay still. Existing
+tree/shrub original placeholder sine restored. Delete experimental response
+compute+runtime+metas: no GPU history field/update/texture allocation remains.
+Core plant-motion metadata is retained but inactive in rendering. Weather/rain
+and F3 remain unchanged; direction-only vegetation again uses Unity _Time, not
+a synchronized multiplayer phase. No new MP claim. Source comparison only,
+compile/package ONLY: no suite, fixture, game launch/captures/profiling. Leave
+owner game/saves untouched. See PROCEDURAL_WEATHER/GROUND_FLORA/VALIDATION.
+Compile/package exit0; no agent launches/profiling. Owner review pending.
+
+Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
 `artifacts/player-wind-wave-envelope/WorldGen.exe` (IL2CPP15:38:54Z), real C:.
 Owner REJECTED preceding spring pass: essentially unchanged jagged/vibrating
 motion. Do not infer owner fluidity acceptance from its long buffer/build.

@@ -1,5 +1,23 @@
 # Version 3 validation evidence
 
+## Literal grass rollback / direction-only: owner-test-only /21October2026
+
+Owner REJECTED wave-envelope as still identical/unacceptable and requests exact
+pre-wind movement with direction as the ONLY change (also flowers). Source
+diff against dcf546c ground-cover shader has just two hunks: added direction
+uniform, fixed(.8,0,.4) replaced by it. Original scalar formula, time, rates,
+strength, Bezier/curvature/near-far are literal. CPU preserves axis magnitude;
+no wind-speed/history/bias/traits. Flexible herbs share scalar/tip displacement;
+root mask keeps bases fixed; fungi/mats stay still. Experimental response
+compute/runtime/metas removed (Git-recoverable), no GPU field allocation or
+dispatch. Core metadata remains inactive; actual weather/rain unchanged.
+No synchronized vegetation-phase claim: exact old Unity _Time is restored.
+Compile/package ONLY, no suite, fixture, native launch, captures or profiling.
+Source equivalence does not establish owner visual acceptance. See
+PROCEDURAL_WEATHER.md and GROUND_FLORA.md.
+IL2CPP compile/package exited0 at21Oct15:49:22Z, real C:, worker/manifest
+packaged; shortcut updated. No agent player launches; owner's save untouched.
+
 ## Continuous waves / slow wind envelopes: owner-test-only /21October2026
 
 Owner REJECTS preceding plant-spring-wind: reports essentially unchanged and

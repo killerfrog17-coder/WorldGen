@@ -1,5 +1,18 @@
 # Ground layer / ground-flora-5
 
+## Literal original movement / direction-only rollback /21October2026
+
+Owner rejects wave-envelope too and demands the original animation, not another
+approximation. `player-grass-direction-only` restores literal pre-wind dcf546c
+grass shader, with ONLY a direction uniform and its use replacing(.8,0,.4).
+Old scalar waveform/clock/speed/strength/curvature/LOD are unchanged; CPU heading
+preserves the old vector magnitude. Flowers/ferns use the same scalar and
+root-pinned tip displacement; fungi/mats remain still. No weather speed, gust,
+history or species mechanics affect this movement. Generated mechanical traits
+remain metadata only. Experimental field compute/runtime removed, no associated
+texture or dispatch. Calm still waves intentionally. See PROCEDURAL_WEATHER.md;
+compile/package/source comparison only, no agent launches or profiling.
+
 ## Continuous waving / slow wind-envelope correction /21October2026
 
 Owner rejected the prior spring pass as jagged/vibrating and essentially no
