@@ -150,7 +150,7 @@ public sealed partial class LocalTerrainExplorer
             // A Resources material advertises runtime instancing to the player shader stripper.
             var template=Resources.Load<Material>("LocalScatterMaterial");if(template==null)throw new InvalidOperationException("Scatter instancing material missing.");
             bool rock=kind==ScatterKind.Boulder||kind==ScatterKind.Stone||kind==ScatterKind.Outcrop;
-            var material=new Material(template){enableInstancing=true};material.SetFloat("_Wind",kind==ScatterKind.Grass?.045f:rock||kind==ScatterKind.Fungus?0:kind==ScatterKind.Herb?.003f:.018f);material.SetFloat("_FogDistance",(float)viewDistance);
+            var material=new Material(template){enableInstancing=true};material.SetFloat("_Wind",kind==ScatterKind.Grass?.045f:rock||kind==ScatterKind.Fungus?0:kind==ScatterKind.Herb?.85f:.018f);material.SetFloat("_HerbWind",kind==ScatterKind.Herb?1:0);material.SetFloat("_FogDistance",(float)viewDistance);
             if(rock)
             {
                 material.SetFloat("_RockLayer",8+variant/3);material.SetTexture("_RockAlbedo",landMaterial.GetTexture("_GroundAlbedo"));

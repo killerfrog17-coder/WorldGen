@@ -10,6 +10,7 @@ Shader "WorldGen/LocalScatter"
         _RockLayer("Lithology",Float)=8 _RockLayers("Use rock textures",Float)=0
         [Toggle(_ALPHATEST_ON)] _AlphaClip("Alpha clip",Float)=0
         _Wind("Wind displacement (m)",Float)=0 _FogDistance("Fog distance",Float)=200000
+        _HerbWind("Root-anchored herb bending",Float)=0
         _FogColor("Sky colour",Color)=(.57,.69,.76,1) _AmbientTint("Ambient light",Color)=(.12,.14,.17,1)
         [PerRendererData] _Tint("Instance tint",Color)=(1,1,1,1)
         [PerRendererData] _LodTransition("Distance-only opaque LOD interval",Vector)=(0,1,0,0)
@@ -35,21 +36,22 @@ Shader "WorldGen/LocalScatter"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
             #include "WorldGenAir.hlsl"
             #include "WorldGenLodFade.hlsl"
+            #include "WorldGenWind.hlsl"
             TEXTURE2D(_BaseMap);SAMPLER(sampler_BaseMap);TEXTURE2D(_NormalMap);TEXTURE2D(_MaskMap);
             TEXTURE2D_ARRAY(_RockAlbedo);SAMPLER(sampler_RockAlbedo);TEXTURE2D_ARRAY(_RockNormals);
             float _RockLayer,_RockLayers;
-            float4 _BaseMap_ST,_BaseColor,_FogColor,_AmbientTint;float _Roughness,_Metallic,_NormalStrength,_Cutoff,_Wind,_FogDistance;
+            float4 _BaseMap_ST,_BaseColor,_FogColor,_AmbientTint;float _Roughness,_Metallic,_NormalStrength,_Cutoff,_Wind,_FogDistance,_HerbWind;
             UNITY_INSTANCING_BUFFER_START(Props)
                 UNITY_DEFINE_INSTANCED_PROP(float4,_Tint)
                 UNITY_DEFINE_INSTANCED_PROP(float4,_LodTransition)
             UNITY_INSTANCING_BUFFER_END(Props)
-            struct A{float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 tangentOS:TANGENT;float2 uv:TEXCOORD0;float4 color:COLOR;UNITY_VERTEX_INPUT_INSTANCE_ID};
+            struct A{float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 tangentOS:TANGENT;float2 uv:TEXCOORD0;float2 bend:TEXCOORD1;float4 color:COLOR;UNITY_VERTEX_INPUT_INSTANCE_ID};
             struct O{float4 positionCS:SV_POSITION;float3 position:TEXCOORD0;float3 normal:TEXCOORD1;float4 tangent:TEXCOORD2;float2 uv:TEXCOORD3;float4 color:COLOR;UNITY_VERTEX_INPUT_INSTANCE_ID};
             O vert(A a)
             {
                 O o;UNITY_SETUP_INSTANCE_ID(a);UNITY_TRANSFER_INSTANCE_ID(a,o);
-                float3 p=TransformObjectToWorld(a.positionOS.xyz);float wave=sin(_Time.y*1.4+p.x*.4+p.z*.27);
-                p.xz+=float2(wave,wave*.47)*_Wind*a.uv.y*a.uv.y;
+                float3 p=TransformObjectToWorld(a.positionOS.xyz),root=TransformObjectToWorld(float3(0,0,0));
+                p=WorldGenScatterWind(p,root,_HerbWind>.5?a.bend.x:a.uv.y,_Wind,_HerbWind);
                 o.position=p;o.positionCS=TransformWorldToHClip(p);o.normal=TransformObjectToWorldNormal(a.normalOS);
                 o.tangent=float4(TransformObjectToWorldDir(a.tangentOS.xyz),a.tangentOS.w);o.uv=TRANSFORM_TEX(a.uv,_BaseMap);o.color=a.color;return o;
             }

@@ -23,7 +23,7 @@ namespace WorldGen.Presentation
             double baseM=Math.Max(groundM+350,Math.Min(f.CloudBaseM,1200)),top=Math.Max(f.CloudBaseM+f.CloudThicknessM,baseM+1800);
             return new WeatherFrame(snow?Math.Min(-3,f.TemperatureC):water>0?Math.Max(5,f.TemperatureC):f.TemperatureC,
                 water>0?.95:f.Humidity,snow?0:water,snow?water:0,cover,Mode=="clear"?0:.2,
-                baseM,top-baseM+(water>10?2500:0),f.CirrusBaseM,storm?16:4,storm?7:1,storm?28:7,Mode=="storm"?1:0,Mode=="fog"?1:0);
+                baseM,top-baseM+(water>10?2500:0),f.CirrusBaseM,storm?16:Mode=="fog"?.1:4,storm?7:Mode=="fog"?.05:1,storm?28:Mode=="fog"?2:7,Mode=="storm"?1:0,Mode=="fog"?1:0,storm?.9:Mode=="fog"?.15:.4,storm?24:9,storm?.9:.25);
         }
     }
 }

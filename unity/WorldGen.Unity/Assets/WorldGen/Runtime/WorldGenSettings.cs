@@ -69,7 +69,7 @@ public sealed partial class WorldGenRuntime
         TerrainVideoOptions.GrassDistance=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.GrassDistance,50,500)/10)*10;
         GUILayout.Label("Blade detail / local blade count");
         TerrainVideoOptions.GrassDetail=GUILayout.SelectionGrid(TerrainVideoOptions.GrassDetail,new[]{"Low","Medium","High","Ultra"},2);
-        TerrainVideoOptions.GrassWind=GUILayout.Toggle(TerrainVideoOptions.GrassWind,"Wind animation");
+        TerrainVideoOptions.GrassWind=GUILayout.Toggle(TerrainVideoOptions.GrassWind,"Weather wind animation (grass and low plants)");
         TerrainVideoOptions.SpecialistPlants=GUILayout.Toggle(TerrainVideoOptions.SpecialistPlants,"Generated flowers, low herbs, ferns and fungi");
         if(GUILayout.Button("Reset grass prototype defaults"))
         {TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDistance=350;TerrainVideoOptions.GrassBladeDistance=45;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassWind=true;}

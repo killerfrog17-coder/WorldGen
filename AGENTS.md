@@ -1,6 +1,26 @@
 # WorldGen repository instructions
 
 Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
+`artifacts/player-weather-shared-wind/WorldGen.exe` (IL2CPP14:43:12Z), real C:.
+Adds weather-preview4/wind1: independent sustained strength, gust admission,
+duration/envelope and turbulence respond to seasonal wind, smooth synoptic
+proxies, heating/cloud and storm activity. Fixed geographic event fields use
+seed+position+calendar seconds, NOT process/chunk time. Double anchor phases
+and integer slots bind Core CPU and shared GPU formulas; no bitwise GPU or
+networking acceptance. Cloud-window timing does not select wind parameters.
+Grass and rooted whole-shoot herb deformation share it; fungi/rocks/moss still.
+Existing tree/shrub primitive sway and precipitation drift consume same vector.
+Forward/depth/shadow scatter match; Grass debug wind toggle covers herbs too,
+F3 shows current/mean/envelope, bearing-from and gust chance/duration. Ground
+placement/density/LOD/terrain/water/source history unchanged; fog responds to
+new mean wind. No atmospheric-pressure/terrain-shelter/leaf-branch simulation,
+wind-audio return or calibrated duration histogram. No regeneration/save change.
+Owner testing direction: compile/package ONLY; no suite, fixture, player launch,
+captures, profiling or hash audit. See PROCEDURAL_WEATHER/GROUND_FLORA/VALIDATION.
+Leave owner's game and saves untouched; previous specialist build is rollback.
+Compile/package exit0, no agent player/test launch; owner review pending.
+
+Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
 `artifacts/player-generated-herb-flora/WorldGen.exe` (IL2CPP14:11:48Z), real C:.
 Owner likes stable-page/habitat pass. Preserve its grass renderer/moss/materials,
 distance-only scatter fades and existing trees/shrubs/rocks. New Core derived

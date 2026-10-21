@@ -1,19 +1,21 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 #include "WorldGenLodFade.hlsl"
+#include "WorldGenWind.hlsl"
 TEXTURE2D(_BaseMap);SAMPLER(sampler_BaseMap);
-float4 _BaseMap_ST,_BaseColor;float _Cutoff,_Wind;
+float4 _BaseMap_ST,_BaseColor;float _Cutoff,_Wind,_HerbWind;
 float3 _LightDirection,_LightPosition;
 UNITY_INSTANCING_BUFFER_START(Props)
     UNITY_DEFINE_INSTANCED_PROP(float4,_Tint)
     UNITY_DEFINE_INSTANCED_PROP(float4,_LodTransition)
 UNITY_INSTANCING_BUFFER_END(Props)
-struct A{float4 positionOS:POSITION;float3 normalOS:NORMAL;float2 uv:TEXCOORD0;UNITY_VERTEX_INPUT_INSTANCE_ID};
+struct A{float4 positionOS:POSITION;float3 normalOS:NORMAL;float2 uv:TEXCOORD0;float2 bend:TEXCOORD1;UNITY_VERTEX_INPUT_INSTANCE_ID};
 struct O{float4 positionCS:SV_POSITION;float2 uv:TEXCOORD0;UNITY_VERTEX_INPUT_INSTANCE_ID};
 O vert(A a)
 {
     O o;UNITY_SETUP_INSTANCE_ID(a);UNITY_TRANSFER_INSTANCE_ID(a,o);
-    float3 p=TransformObjectToWorld(a.positionOS.xyz);float wave=sin(_Time.y*1.4+p.x*.4+p.z*.27);p.xz+=float2(wave,wave*.47)*_Wind*a.uv.y*a.uv.y;
+    float3 p=TransformObjectToWorld(a.positionOS.xyz),root=TransformObjectToWorld(float3(0,0,0));
+    p=WorldGenScatterWind(p,root,_HerbWind>.5?a.bend.x:a.uv.y,_Wind,_HerbWind);
     #ifdef WORLDGEN_SHADOW_PASS
     float3 lightDirection=_LightDirection;
     #if _CASTING_PUNCTUAL_LIGHT_SHADOW

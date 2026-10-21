@@ -118,6 +118,12 @@ static partial class LocalScatterMeshes
             }
         }
         var mesh=b.Finish();mesh.name="Generated "+m.Form+" "+code+" L"+detail;
+        // Anatomy UVs restart at every leaf/petal. A separate whole-shoot mask
+        // prevents detached/frozen flower heads and keeps roots pinned.
+        var bending=new System.Collections.Generic.List<Vector2>(mesh.vertexCount);
+        float top=Mathf.Max(.001f,mesh.bounds.max.y);
+        foreach(var vertex in mesh.vertices)bending.Add(new Vector2(Mathf.Clamp01(vertex.y/top),0));
+        mesh.SetUVs(1,bending);
         // Smooth cap poles/seams while keeping the cream underside separate.
         if(m.Form==SpecialistForm.Fungus)
         {

@@ -11,6 +11,7 @@ Shader "WorldGen/GroundCover"
         #include "WorldGenAir.hlsl"
         #include "WorldGenLodFade.hlsl"
         #include "WorldGenGrassLight.hlsl"
+        #include "WorldGenWind.hlsl"
         struct Root{float4 positionForm;float4 colorHeight;float4 shape;float4 normal;float4 grasses;float4 herbs;};
         StructuredBuffer<Root> _CoverRoots;
         StructuredBuffer<uint> _VisibleRoots;
@@ -97,10 +98,12 @@ Shader "WorldGen/GroundCover"
             if(form==6||form==7)basePosition.y+=.015;
             float bend=.18+.35*c;
             float3 anchor=root+float3(microOffset.x,-dot(r.normal.xz,microOffset)/max(.3,r.normal.y),microOffset.y);
-            float wind=(sin(anchor.x*.13+anchor.z*.11+_Time.y*1.6)+.4*sin(anchor.x*.37-anchor.z*.18+_Time.y*2.7))*.14*_GrassWind;
+            float3 velocity=_GrassWind>.5&&form!=6&&form!=7?WorldGenWindVelocity(anchor):float3(0,0,0);
+            float speed=length(velocity);
+            float3 wind=speed>.0001?velocity/speed*(.85*speed/(speed+7)):float3(0,0,0);
             float3 up=normalize(lerp(float3(0,1,0),r.normal.xyz,form>=6?.85:.12));
             float3 p1=up*(height*.55);
-            float3 p2=normalize(up+float3(dir.x,0,dir.y)*bend+float3(.8,0,.4)*wind)*height;
+            float3 p2=normalize(up+float3(dir.x,0,dir.y)*bend+wind)*height;
             float3 tangent=normalize(2*(1-t)*p1+2*t*(p2-p1));
             float3 curve=2*(1-t)*t*p1+t*t*p2;
             curve=lerp(curve,p2*t,smoothstep(.60*_GrassNear,.80*_GrassNear,d));

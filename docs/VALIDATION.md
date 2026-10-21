@@ -1,5 +1,22 @@
 # Version 3 validation evidence
 
+## Shared weather wind / owner-test-only /21October2026
+
+`player-weather-shared-wind` adds weather-preview4/wind1: separate sustained
+wind, gust admission/duration/strength and turbulence, shared geographic/
+calendar CPU/GPU event fields, rooted herb bending and matching grass movement.
+Fungi/rocks/moss stay still. Forward/depth/shadow scatter share deformation.
+Existing precipitation drift consumes instantaneous wind; F3 exposes it and
+Grass debug can disable grass/herb animation. No source-world/history upgrade,
+terrain/water/placement/density changes or networking. See PROCEDURAL_WEATHER.md
+and GROUND_FLORA.md for sources and limits. No atmospheric-pressure/obstacle-
+flow solve, calibrated wind histogram, actual multiplayer sync or GPU bitwise
+equality is claimed. Compile/package only, per standing owner instruction:
+no suites, fixtures, player launches, captures or profiling. Owner judges sway,
+gust character, grass/flower coherence, LOD continuity and FPS.
+IL2CPP compile/package exited0 at21Oct14:43:12Z; worker and input manifest
+are packaged on real C:. Shortcut updated; owner's game and saves untouched.
+
 ## Generated specialist herbs / fungi: owner-test-only /21October2026
 
 `player-generated-herb-flora` adds lazy regional candidate catalogues with

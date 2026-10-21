@@ -53,10 +53,10 @@ namespace WorldGen.Core
             }
             public WeatherFrame At(double days,double? localSolarHour=null,bool includeFog=true)
             {
-                double t=0,h=0,r=0,s=0,c=0,ci=0,b=0,th=0,cb=0,e=0,n=0,g=0,storm=0,fog=0;
-                for(int i=0;i<4;i++){var f=nodes[i].At(days,localSolarHour,includeFog);double w=weights[i];t+=f.TemperatureC*w;h+=f.Humidity*w;r+=f.RainMmPerHour*w;s+=f.SnowWaterMmPerHour*w;c+=f.CloudCover*w;ci+=f.CirrusCover*w;b+=f.CloudBaseM*w;th+=f.CloudThicknessM*w;cb+=f.CirrusBaseM*w;e+=f.WindEastMps*w;n+=f.WindNorthMps*w;g+=f.GustMps*w;storm+=f.Thunderstorm*w;fog+=f.Fog*w;}
+                double t=0,h=0,r=0,s=0,c=0,ci=0,b=0,th=0,cb=0,e=0,n=0,g=0,storm=0,fog=0,chance=0,duration=0,turbulence=0;
+                for(int i=0;i<4;i++){var f=nodes[i].At(days,localSolarHour,includeFog);double w=weights[i];t+=f.TemperatureC*w;h+=f.Humidity*w;r+=f.RainMmPerHour*w;s+=f.SnowWaterMmPerHour*w;c+=f.CloudCover*w;ci+=f.CirrusCover*w;b+=f.CloudBaseM*w;th+=f.CloudThicknessM*w;cb+=f.CirrusBaseM*w;e+=f.WindEastMps*w;n+=f.WindNorthMps*w;g+=f.GustMps*w;storm+=f.Thunderstorm*w;fog+=f.Fog*w;chance+=f.WindGustChance*w;duration+=f.WindGustDurationS*w;turbulence+=f.WindTurbulence*w;}
                 c=Math.Max(c,ProceduralWeather.RainCover(r+s));fog*=.35+.65*D.Clamp((regionalGround-ground+180)/360);
-                return new WeatherFrame(t,h,r,s,c,ci,b,th,cb,e,n,g,storm,fog);
+                return new WeatherFrame(t,h,r,s,c,ci,b,th,cb,e,n,g,storm,fog,chance,duration,turbulence);
             }
             public WeatherWater Between(double start,double end){WeatherWater value=default;for(int i=0;i<4;i++)value+=nodes[i].Between(start,end)*weights[i];return value;}
             public WeatherSurfaceEstimate SurfaceAt(double days)

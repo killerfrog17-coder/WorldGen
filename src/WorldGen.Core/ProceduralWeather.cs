@@ -47,11 +47,13 @@ namespace WorldGen.Core
     public readonly struct WeatherFrame
     {
         public readonly double TemperatureC,Humidity,RainMmPerHour,SnowWaterMmPerHour,CloudCover,CirrusCover,CloudBaseM,CloudThicknessM,CirrusBaseM,WindEastMps,WindNorthMps,GustMps,Thunderstorm,Fog;
+        public readonly double WindGustChance,WindGustDurationS,WindTurbulence;
         public double CloudDarkness=>D.Clamp(CloudCover*CloudCover*.2+(1-Math.Exp(-PrecipitationMmPerHour/3))*.65+Thunderstorm*.15);
         public double VisibilityM=>3.912/(.00003912+.0014*Math.Pow(RainMmPerHour,.85)+.0045*Math.Pow(SnowWaterMmPerHour,.8)+Fog*.018);
         public double PrecipitationMmPerHour=>RainMmPerHour+SnowWaterMmPerHour;
-        public WeatherFrame(double temperature,double humidity,double rain,double snow,double clouds,double cirrus,double cloudBase,double thickness,double cirrusBase,double east,double north,double gust,double storm,double fog=0)
-        {TemperatureC=temperature;Humidity=humidity;RainMmPerHour=rain;SnowWaterMmPerHour=snow;CloudCover=clouds;CirrusCover=cirrus;CloudBaseM=cloudBase;CloudThicknessM=thickness;CirrusBaseM=cirrusBase;WindEastMps=east;WindNorthMps=north;GustMps=gust;Thunderstorm=storm;Fog=fog;}
+        public WeatherFrame(double temperature,double humidity,double rain,double snow,double clouds,double cirrus,double cloudBase,double thickness,double cirrusBase,double east,double north,double gust,double storm,double fog=0,double gustChance=.35,double gustDuration=12,double turbulence=.25)
+        {TemperatureC=temperature;Humidity=humidity;RainMmPerHour=rain;SnowWaterMmPerHour=snow;CloudCover=clouds;CirrusCover=cirrus;CloudBaseM=cloudBase;CloudThicknessM=thickness;CirrusBaseM=cirrusBase;WindEastMps=east;WindNorthMps=north;GustMps=gust;Thunderstorm=storm;Fog=fog;WindGustChance=gustChance;WindGustDurationS=gustDuration;WindTurbulence=turbulence;}
+        public WeatherFrame WithWind(WeatherFrame f)=>new WeatherFrame(TemperatureC,Humidity,RainMmPerHour,SnowWaterMmPerHour,CloudCover,CirrusCover,CloudBaseM,CloudThicknessM,CirrusBaseM,f.WindEastMps,f.WindNorthMps,f.GustMps,Thunderstorm,Fog,f.WindGustChance,f.WindGustDurationS,f.WindTurbulence);
     }
     public readonly struct WeatherSurfaceEstimate
     {
@@ -63,7 +65,7 @@ namespace WorldGen.Core
     /// Rate and interval water use the same packets. Surface retention is an explicit bounded estimate.</summary>
     public sealed class ProceduralWeather
     {
-        public const string Version="weather-preview-3";
+        public const string Version="weather-preview-4";
         public const double PacketDays=.125,BlockDays=32,MaximumWindowDays=366;
         readonly int seed;readonly V position;readonly WeatherClimate climate;
         public ProceduralWeather(int seed,V position,WeatherClimate climate)
@@ -76,7 +78,6 @@ namespace WorldGen.Core
         double Temperature(double days)=>climate.At(climate.TemperatureC,days)+(Synoptic(days,18)-.5)*10;
         double WindPhase=>Rng.Mix(unchecked((uint)seed)^0x5216b5u)/4294967295d*2*D.Pi;
         double WindAngle(double days)=>((days/6)%1)*2*D.Pi+WindPhase;
-        double MeanWind(double[] values)=> (values[0]+values[1]+values[2]+values[3])*.75;
         /// <summary>Analytic bulk-cloud flow, in metres. Surface climate winds are separate.
         /// The drift must not depend on the visitor's local climate: integrating a changed
         /// local mean over an ancient absolute date would make clouds jump on walking.</summary>
@@ -152,19 +153,31 @@ namespace WorldGen.Core
             double monthly=climate.At(climate.MonthlyPrecipitationMm,days),potential=.7*monthly/(monthly+55)+h*.3;
             double cloud=D.Clamp((Synoptic(days,4)-(.8-.75*potential))*5)*D.Clamp(potential*4);cloud=Math.Max(cloud,RainCover(wet));
             double cirrus=D.Clamp((Synoptic(days,41)-.35)*1.3)*D.Clamp(potential*3),storm=D.Clamp((wet-.8)/5)*D.Clamp((t+2)/20);
-            double angle=WindAngle(days),wind=4+Synoptic(days,30)*4+Math.Max(storm,D.Clamp(wet/4))*12;
-            double east=3+MeanWind(climate.EastWind)+4*D.Sin(angle),north=1+MeanWind(climate.NorthWind)+4*D.Sin(angle+D.Pi/2);
+            // Separate pressure-driven mean, boundary-layer mixing and intermittent
+            // gust occupancy. Dry weather can be windy; rain need not be gusty.
+            double hour=localSolarHour??((days%1)*24+Math.Atan2(position.Y,position.X)*12/D.Pi+24)%24;
+            double heating=Math.Max(0,Math.Sin((hour-6)*D.Pi/12))*(1-cloud*.8)*D.Clamp((t+5)/25);
+            double Regime(int stream,double period)
+            {double q=days/period;long k=(long)Math.Floor(q);double f=q-k;f=f*f*(3-2*f);return Field(k,2,stream)*(1-f)+Field(k+1,2,stream)*f;}
+            double pressure=D.Clamp((Regime(71,1.6)-.20)/.65),intermittent=D.Clamp((Regime(73,.8)-.22)/.65);
+            double angle=WindAngle(days)+(Synoptic(days,75)-.5)*1.5;
+            double east=climate.At(climate.EastWind,days)+3*D.Sin(angle),north=climate.At(climate.NorthWind,days)+3*D.Sin(angle+D.Pi/2);
+            double length=Math.Sqrt(east*east+north*north);if(length<.01){east=1;north=0;length=1;}
+            double mean=(.06+Math.Pow(pressure,1.8)*(4+Math.Min(10,length)))*(.45+.55*heating)+storm*9;
+            double mixing=D.Clamp(.12+heating*.55+storm*.7+pressure*.18);
+            double chance=D.Clamp(.10+intermittent*.56+mixing*.20+storm*.2),duration=6+intermittent*13+storm*9;
+            double peak=mean+.6+intermittent*(2+mixing*5)+storm*9;
+            east=east/length*mean;north=north/length*mean;
             double rainCloud=1-Math.Exp(-wet/1.5),baseM=climate.ElevationM+600+(1-h)*1600;
             baseM-=rainCloud*450;double thickness=700+cloud*1300+rainCloud*1800+storm*2500;
             double fog=0;
             if(includeFog)
             {
-                double hour=localSolarHour??((days%1)*24+Math.Atan2(position.Y,position.X)*12/D.Pi+24)%24;
                 double dawn=Math.Pow(Math.Max(0,Math.Cos((hour-5)*D.Pi/12)),6),speed=Math.Sqrt(east*east+north*north);
                 double recent=Between(days-2,days).TotalMm,moist=D.Clamp(h*.5+monthly/(monthly+60)*.5+(1-Math.Exp(-recent/8))*.25);
                 fog=D.Clamp((moist-.35)/.5)*dawn*D.Clamp((6-speed)/5)*(1-.7*cloud);
             }
-            return new WeatherFrame(D.Q(t,100),h,rate.RainMm,rate.SnowWaterMm,cloud,cirrus,baseM,thickness,Math.Max(8000,climate.ElevationM+3500)+Math.Abs(position.Z)*-1800,east,north,wind*(1.1+.5*Field((long)Math.Floor(days*48),4,32)),storm,fog);
+            return new WeatherFrame(D.Q(t,100),h,rate.RainMm,rate.SnowWaterMm,cloud,cirrus,baseM,thickness,Math.Max(8000,climate.ElevationM+3500)+Math.Abs(position.Z)*-1800,east,north,peak,storm,fog,chance,duration,mixing);
         }
         public WeatherSurfaceEstimate SurfaceAt(double days)
         {

@@ -1,5 +1,18 @@
 # Ground layer / ground-flora-5
 
+## Shared weather wind /21October2026
+
+`player-weather-shared-wind` preserves accepted grass geometry, field density,
+placement and distance-only LOD, replacing independent fixed-direction shader
+sines with one seeded geographic/calendar wind field. Weather controls sustained
+speed/direction, gust probability/duration/envelope and turbulence. Flowers,
+ferns and flexible shoots bend visibly with grass, rooted by whole-shoot height
+weights rather than per-part UVs. Fungi/moss/lichen stay still. The Grass debug
+wind toggle now covers specialists too. Existing tree/shrub primitive sway also
+uses the weather vector; articulated leaf/branch motion remains future work.
+See PROCEDURAL_WEATHER.md for sources, time-occupancy model, multiplayer clock
+contract and limits. Only compiled/packaged, no agent playtests or profiling.
+
 ## Generated specialist herb layer /21October2026
 
 `player-generated-herb-flora` adds derived `ground-specialists-1`, leaving

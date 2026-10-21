@@ -1,9 +1,73 @@
 # Random-access weather preview
 
-`ProceduralWeather.Version = weather-preview-3` is a derived, local query
+`ProceduralWeather.Version = weather-preview-4` is a derived, local query
 provider. It does not change the generation recipe, accepted climate, terrain,
 hydrology, historical rules or saved historical records. The Unity explorer
 uses it; the strategic map's climate remains the existing long-term climate.
+
+## Shared weather wind /21October2026 / owner-test-only
+
+`player-weather-shared-wind` adds `WeatherWind.Version=weather-wind-1`.
+Seasonal climate wind supplies the broad direction; continuous seeded1.6-day
+pressure-strength and0.8-day intermittency proxies modulate the sustained wind
+and gust character separately. Daytime heating (attenuated by cloud/cold) and
+thunderstorm activity influence mixing. Dry windy weather and relatively steady
+wet weather remain possible; rain is not a compulsory gust switch. These are
+weather-conditioned statistical proxies, not computed atmospheric pressure.
+
+WeatherFrame carries sustained east/north velocity, peak envelope, event
+probability, typical event duration and turbulence. Interpolation retains all
+these fields across the fixed global weather nodes. Two deterministic event
+lanes (64/109 seconds) use independently hashed event admission, start, width
+and amplitude, with smooth rise/fall and overlapping support. The first lane
+uses the weather probability directly; the second uses75% probability/70%
+amplitude. Typical event duration varies6–28 calendar seconds, before bounded
+per-event variation. Thus time spent near the peak is controlled by probability
+AND duration, not merely a random speed between minimum/maximum every frame.
+Long quiet intervals, steady backgrounds with weak fluctuations, and more
+frequent storm gusts arise from separate controls. The peak is an envelope, not
+a promise that every interval attains it. Actual speed distributions have not
+been measured/calibrated in this owner-test-only pass.
+
+Core CPU sampling and the shared GPU include use world seed, canonical spherical
+ground location and absolute play-calendar seconds. Double-precision anchor
+phases plus integer event slots avoid passing ancient absolute dates or large
+planet positions as low-precision shader floats. A stable normalized-position
+difference handles chart/origin changes; altitude does not choose another gust
+for the flower head. Spatial event/support axes are seeded global turbulence
+patterns, not a fluid advection or mountain-flow solver. Cosmetic GPU floating-
+point differences remain possible. The saved calendar pauses/scales normally;
+neither Unity _Time, frame count, chunk birth nor process uptime drives wind.
+Cloud texture-cache installation time no longer chooses local wind parameters.
+Future multiplayer needs the same recipe/model version and synchronized world
+time/weather overrides; no networking or bitwise GPU determinism is added here.
+
+Grass near/far geometry and flexible specialist herbs share this field. Herbs
+have a separate whole-shoot height mask (not each leaf/petal's restarted UVs),
+root anchoring and substantial height-relative bending. Existing rigid fungi,
+rocks and moss/lichen mats remain still. Existing tree/shrub placeholder sway
+also samples the field, but articulated branches/leaf flutter are not added.
+The shared scatter deformation is used in forward, depth and shadow passes.
+Grass debug's wind toggle disables grass AND specialist animation; weather
+continues. F3 reports instantaneous speed, sustained level, peak envelope,
+meteorological bearing-from and gust admission/duration. Existing rain/snow
+velocity now consumes the same instantaneous CPU field, not just the mean.
+
+No per-plant CPU simulation, new geometry density, placement jobs or saved wind
+arrays. Extra vertex arithmetic and a few global shader bindings have not been
+profiled. Precipitation budgets/cloud drift/climate generation/history are
+unchanged in source; the existing fog query naturally responds to revised mean
+wind. No local obstacle shelter, canopy drag, terrain-resolved gusts, weather-
+audio changes, full wind physics or measured meteorological acceptance.
+
+References: [NWS prevailing winds and turbulence](https://www.weather.gov/source/zhu/ZHU_Training_Page/winds/Wx_Terms/Flight_Environment.htm)
+describes surface friction, thermal/mechanical gusts and stability;
+[NWS turbulence](https://www.weather.gov/source/zhu/ZHU_Training_Page/turbulence_stuff/turbulence/turbulence.htm?lv=true)
+discusses heating/instability and stronger eddies. The statistical adaptation
+above is ours, not an NWS forecasting algorithm.
+[NVIDIA's Crysis vegetation](https://developer.nvidia.com/gpugems/gpugems3/part-iii-rendering/chapter-16-vegetation-procedural-animation-and-shading-crysis)
+supports the shared GPU bending approach; this is not a copy of that renderer.
+Compile/package only per owner direction; no tests, launches or profiling.
 
 ## Current weather and retrospective water
 

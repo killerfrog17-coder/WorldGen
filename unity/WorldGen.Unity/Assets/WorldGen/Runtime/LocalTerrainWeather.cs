@@ -83,7 +83,15 @@ public sealed partial class LocalTerrainExplorer
             weatherProvider=worldWeather.AtPosition(at,profileElevation);nextWeatherAt=0;
         }
         if(Time.realtimeSinceStartupAsDouble>=nextWeatherAt||TestWeatherOverride.HasValue||appliedWeatherRevision!=WeatherControl.Revision)
-        {double sampledDays=weatherScreen.UseField?(previousWeatherTile==null?weatherTile.Days:previousWeatherTile.Days+(weatherTile.Days-previousWeatherTile.Days)*weatherScreen.FieldBlend):days;CurrentWeather=TestWeatherOverride??WeatherControl.Apply(weatherProvider.At(sampledDays,LocalSolarHour),profileElevation);appliedWeatherRevision=WeatherControl.Revision;nextWeatherAt=Time.realtimeSinceStartupAsDouble+.1;}
+        {
+            double sampledDays=weatherScreen.UseField?(previousWeatherTile==null?weatherTile.Days:previousWeatherTile.Days+(weatherTile.Days-previousWeatherTile.Days)*weatherScreen.FieldBlend):days;
+            CurrentWeather=TestWeatherOverride??WeatherControl.Apply(weatherProvider.At(sampledDays,LocalSolarHour),profileElevation);
+            // Cloud-window installation/crossfade timing must not choose a
+            // different wind regime for two visitors at the same date/place.
+            if(!TestWeatherOverride.HasValue&&WeatherControl.Mode=="auto"&&sampledDays!=days)
+                CurrentWeather=CurrentWeather.WithWind(weatherProvider.At(days,LocalSolarHour,includeFog:false));
+            appliedWeatherRevision=WeatherControl.Revision;nextWeatherAt=Time.realtimeSinceStartupAsDouble+.1;
+        }
         weatherScreen.Weather=CurrentWeather;weatherScreen.Days=days;weatherScreen.GroundM=profileElevation;
         var drift=worldWeather.WindDisplacement(days);
         weatherScreen.WindDisplacement=new Vector2((float)(drift.X*HorizontalScale%65536),(float)(drift.Y*HorizontalScale%65536));
@@ -103,11 +111,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdateWeatherPresentation()
     {
         if(weatherScreen==null||!weatherScreen.Ready)return;var options=WeatherVideoOptions.Current;float now=Time.unscaledTime;
-        Vector3 Wind()
-        {
-            var at=Position;var east=V.Cross(Math.Abs(at.Z)>.999999?new V(0,1,0):new V(0,0,1),at).Unit;var north=V.Cross(at,east).Unit;
-            var p=east*CurrentWeather.WindEastMps+north*CurrentWeather.WindNorthMps;return new Vector3((float)V.Dot(p,frame.East),(float)V.Dot(p,frame.Origin),(float)V.Dot(p,frame.North));
-        }
+        UpdateWindPresentation();
         bool audioPaused=paused&&!TestAnimateWeather;
         if(!audioPaused)weatherAudioClock+=Time.unscaledDeltaTime;
         if(audioPaused!=weatherAudioPaused)
@@ -119,7 +123,7 @@ public sealed partial class LocalTerrainExplorer
             voice.Source.volume=options.ThunderVolume*.8f;
             if(!audioPaused&&voice.Due>=0&&weatherAudioClock>=voice.Due){voice.Source.Play();voice.Due=-1;}
         }
-        var wind=Wind();int cap=options.Particles==2?12000:6000;
+        var wind=WindToChart(CurrentWindMps);int cap=options.Particles==2?12000:6000;
         float altitude=(view.transform.position-weatherScreen.PlanetCenter).magnitude-weatherScreen.RadiusM;
         bool aboveCloud=altitude>CurrentWeather.CloudBaseM+CurrentWeather.CloudThicknessM||CurrentWeather.CloudCover<.1;
         void Particles(ParticleSystem ps,bool snow)
