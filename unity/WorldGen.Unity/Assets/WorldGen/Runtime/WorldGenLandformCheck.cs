@@ -34,10 +34,13 @@ public sealed partial class WorldGenRuntime
             int flat=Enumerable.Range(0,world.ElevationM.Length).Where(i=>world.ElevationM[i]>50&&world.ElevationM[i]<1200).OrderBy(i=>world.Ecology.Habitat[i].ReliefM).First();
             sites.Add(Tuple.Create("plain",world.Surface.Cells[flat].Position));
         }
+        bool savedLakeReview=Environment.GetCommandLineArgs().Contains("--worldgen-saved-lake-review");
+        if(savedLakeReview)sites=new List<Tuple<string,V>>{Tuple.Create("saved-lake",WorldGen.Serialization.WorldLibrary.ReadPlaySession(Argument("--worldgen-local-terrain-check","")).PlayerPosition)};
         selectedCell=0;ExploreTerrain(sites[0].Item2);double deadline=Time.realtimeSinceStartupAsDouble+180;
         while((terrainExplorer==null||!terrainExplorer.Ready)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(terrainExplorer==null||!terrainExplorer.Ready)throw new Exception("Landform sampler did not load.");
         var explorer=terrainExplorer;var terrain=localTerrainTask.Result;
+        if(savedLakeReview){yield return CheckSavedLake(output,sourceHash,explorer,terrain);yield break;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-hyper-review"))
         {yield return LocalTerrainExplorer.CheckUploadBuffers(output);yield return CheckHyperAmplification(output,sourceHash,explorer,terrain);yield break;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-incision-timing-only"))
@@ -109,6 +112,45 @@ public sealed partial class WorldGenRuntime
         }
         if(StateHash.Compute(world)!=sourceHash)throw new Exception("Local landforms changed the source world.");
         report.Add("PASS source unchanged "+sourceHash);File.WriteAllLines(Path.Combine(output,"landforms.txt"),report);
+        File.WriteAllLines(Path.Combine(output,"probes.csv"),probes);explorer.Close();Application.Quit(0);
+    }
+
+    IEnumerator CheckSavedLake(string output,string sourceHash,LocalTerrainExplorer explorer,LocalTerrain terrain)
+    {
+        var session=WorldGen.Serialization.WorldLibrary.ReadPlaySession(Argument("--worldgen-local-terrain-check",""));
+        V p=session.PlayerPosition;var samples=new List<Tuple<string,V,double,float,float>>();
+        samples.Add(Tuple.Create("saved-interface",p,1.65, (float)session.Heading,(float)session.Pitch));
+        var near=terrain.Patch(p,2000).Sample(p);
+        int cell=near.Cell;
+        var body=world.Hydrology.Waters.Where(b=>b.OutletCell>=0&&b.Cells.Length>0)
+            .OrderBy(b=>(world.Surface.Cells[b.OutletCell].Position-p).Length).First();
+        V wet=body.Cells.OrderBy(i=>(world.Surface.Cells[i].Position-p).Length)
+            .Select(i=>world.Surface.Cells[i].Position).First(at=>{var s=terrain.Patch(at,2000).Sample(at);return s.Underwater&&s.WaterKind==LocalWaterKind.Lake;});
+        V centre=wet,dry=p;
+        for(int i=0;i<22;i++){V mid=(wet+dry).Unit;var s=terrain.Patch(mid,2000).Sample(mid);if(s.Underwater&&s.WaterKind==LocalWaterKind.Lake)wet=mid;else dry=mid;}
+        var frame=new LocalTerrainFrame(dry,terrain.RadiusM,0,.1);TerrainHandoff.Coordinates(frame,centre,out double dx,out double dz);
+        samples.Add(Tuple.Create("retained-lake-shore",dry,2d,(float)(Math.Atan2(dx,dz)*180/Math.PI),4f));
+        var report=new List<string>{"Surface "+LocalTerrain.Version+" / "+HyperAmplification.Version,
+            "Preparation "+terrain.Amplification.PreparationMilliseconds.ToString("F1")+"ms; corrected spills "+terrain.Amplification.ConditionedLakeSpills,
+            "Saved point ground "+near.ElevationM.ToString("F3")+"m; lake "+body.SurfaceElevationM.ToString("F3")+"m"};
+        var probes=new List<string>{"originX,originY,originZ,eastM,northM,elevationM"};
+        foreach(var site in samples)
+        {
+            explorer.Teleport(site.Item2);explorer.TestView(site.Item3,site.Item4,site.Item5);
+            PlayCommands.Execute(play,0,"/weather clear",weather:explorer.WeatherControl);
+            TerrainMapViewport.Degrees(site.Item2,out _,out double lon);play.SetLocalSolarHour(12,lon);
+            double started=Time.realtimeSinceStartupAsDouble,deadline=started+30;explorer.BeginLoadingProfile();
+            yield return null;while(!explorer.NearReady&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+            if(!explorer.NearReady||explorer.Error!="")throw new Exception("Saved lake near coverage: "+explorer.Error);
+            report.Add(site.Item1+": near "+(Time.realtimeSinceStartupAsDouble-started).ToString("F3")+"s");
+            deadline=Time.realtimeSinceStartupAsDouble+12;while(!explorer.AllReady&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+            report.Add(site.Item1+": "+(explorer.AllReady?"full":"PARTIAL distant")+" coverage; "+explorer.Diagnostics+"; "+explorer.EndLoadingProfile());
+            double hold=Time.realtimeSinceStartupAsDouble+3;while(Time.realtimeSinceStartupAsDouble<hold)yield return null;
+            yield return new WaitForEndOfFrame();explorer.Capture(Path.Combine(output,site.Item1+".png"));
+            probes.AddRange(explorer.Probes());File.WriteAllLines(Path.Combine(output,"saved-lake-review.txt"),report);
+        }
+        if(StateHash.Compute(world)!=sourceHash)throw new Exception("Lake correction mutated source world/history");
+        report.Add("PASS unchanged source "+sourceHash);File.WriteAllLines(Path.Combine(output,"saved-lake-review.txt"),report);
         File.WriteAllLines(Path.Combine(output,"probes.csv"),probes);explorer.Close();Application.Quit(0);
     }
 

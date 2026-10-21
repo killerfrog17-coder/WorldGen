@@ -1,5 +1,10 @@
 # Connected lake basins: first review
 
+Current follow-up: Hyper10 preserves accepted spill controls before local
+incision and connects paired river endpoints to the exact lake datum. See
+LAKE_SPILL_CONNECTIONS.md for the reproduced owner save and focused evidence.
+The original Hyper7 mechanism and limitations below remain historical context.
+
 ## Scope
 
 Hyper7 replaces inherited lake-weight cutoffs with connected basin ownership.

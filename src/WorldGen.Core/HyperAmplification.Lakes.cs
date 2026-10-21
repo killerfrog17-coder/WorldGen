@@ -10,6 +10,8 @@ namespace WorldGen.Core
         int[] lakeFaces;
         double[] lakeLevels,rimLevels;
         WaterBody[] lakeBodies;
+        int[] lakeOutletOwners;
+        public int ConditionedLakeSpills {get;private set;}
         public int LakeBasinCount {get;private set;}
         public int RejectedLakeBasins {get;private set;}
         public int LakeBasinFaces {get;private set;}
@@ -21,6 +23,7 @@ namespace WorldGen.Core
         // interfaces, not arbitrary cuts through the body of a lake.
         void BuildLakeBasins(World world,CancellationToken token)
         {
+            LakeBasinCount=RejectedLakeBasins=LakeBasinFaces=0;
             var watch=Stopwatch.StartNew();var waters=lakeBodies=world.Hydrology.Waters;
             lakeFaces=new int[roots.Length];rimLevels=new double[roots.Length];lakeLevels=new double[waters.Length];
             for(int i=0;i<roots.Length;i++){lakeFaces[i]=-1;rimLevels[i]=double.NaN;}
@@ -88,6 +91,68 @@ namespace WorldGen.Core
                 Rim(a);Rim(b);
             }
             LakeBasinPreparationMilliseconds=watch.Elapsed.TotalMilliseconds;
+        }
+
+        // Constrain the INITIAL incision substrate at an accepted lake's
+        // physical spill control. The old channel lowering pass could excavate
+        // it tens of metres below the saved lake while leaving its surface
+        // unchanged. Restore the spill bed BELOW the unincised source terrain,
+        // before any local terrain is amplified; never warp a water surface or
+        // erect banks around an already generated valley.
+        void ConditionLakeSpills(World world,CancellationToken token)
+        {
+            lakeOutletOwners=new int[rootNodes.Length];for(int i=0;i<lakeOutletOwners.Length;i++)lakeOutletOwners[i]=-1;
+            var accepted=new bool[lakeBodies.Length];foreach(int id in lakeFaces)if(id>=0)accepted[id]=true;
+            for(int id=0;id<lakeBodies.Length;id++)
+            {
+                if(!accepted[id])continue;var body=lakeBodies[id];int cell=body.OutletCell;
+                if(body.Endorheic||cell<0||cell>=rootNodes.Length||body.DownstreamCell<0)continue;
+                var node=rootNodes[cell];if(node.Type==Kind.Ocean)continue;
+                if(node.Type==Kind.Lake&&node.LakeKey!=(ulong)(uint)(id+1))continue;
+                if(lakeOutletOwners[cell]>=0&&Math.Abs(rootNodes[cell].Water-body.SurfaceElevationM)>.001)continue;
+                lakeOutletOwners[cell]=id;
+                node.Water=body.SurfaceElevationM;
+                // This is the pre-incision spill lip. The local paired river
+                // section excavates its actual scaled depth ONCE afterwards.
+                // Subtracting the old unscaled channel depth here leaves a
+                // broad submerged hole outside the much narrower new river.
+                node.Height=node.RiverBed=Math.Min(node.Crust,node.Water);
+                ConditionedLakeSpills++;
+            }
+            var order=world.Hydrology.VisitOrder;
+            // Correct only upstream controls over-excavated beneath these spill
+            // datums. This is a bounded graph pass, not a fine flood or tick.
+            for(int k=order.Length-1;k>=0;k--)
+            {
+                if((k&4095)==0)token.ThrowIfCancellationRequested();
+                int i=order[k],next=world.Hydrology.Receiver[i];if(next<0||rootNodes[i].Type!=Kind.River)continue;
+                int body=lakeOutletOwners[next];if(body<0||rootNodes[i].Water>=rootNodes[next].Water)continue;
+                var node=rootNodes[i];node.Water=rootNodes[next].Water;
+                node.Height=node.RiverBed=Math.Min(node.Crust,node.Water);
+                lakeOutletOwners[i]=body;
+                if(node.Crust<node.Water)
+                {node.Type=Kind.Lake;node.LakeKey=(ulong)(uint)(body+1);node.LakeLevel=node.Water;node.LakeWeight=1;}
+            }
+            // Keep accepted body ownership: an incision correction is not a
+            // second basin catalog generation. Re-seeding from newly inundated
+            // river controls can spuriously reject the original lake instead
+            // of repairing its outlet.
+        }
+
+        void CutLakeSpillMouth(V point,ref Surface surface)
+        {
+            int id=(int)surface.BodyKey-1;if(id<0||id>=lakeBodies.Length)return;
+            var body=lakeBodies[id];int cell=body.OutletCell;
+            if(body.Endorheic||cell<0||lakeOutletOwners[cell]!=id)return;
+            var node=rootNodes[cell];double physical=radius*scale;
+            double width=RiverscapeKernel.HalfWidth(node.Flow,scale);
+            double distance=(point-node.Position).Length*physical;if(distance>=width)return;
+            double depth=Math.Min(Math.Min(Depth(node.Flow),width*.65),.25+Math.Pow(node.Flow*scale*scale,.27)*.4);
+            double q=distance/width;
+            // Excavate the real, finite opening AFTER preserving the initial
+            // spill lip. Lake water retains its fixed datum through the mouth.
+            surface.Height=Math.Min(surface.Height,surface.Water-depth*(1-q*q));
+            surface.Mask=surface.Water-surface.Height;
         }
 
         static bool IsLakeOutlet(CoarseEdge edge,int id,WaterBody[] waters)

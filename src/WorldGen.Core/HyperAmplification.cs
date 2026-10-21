@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-9";
+        public const string Version = "hyper-amplification-10";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -289,6 +289,7 @@ namespace WorldGen.Core
                 if(r>=0&&nodes[r].Type!=Kind.Ocean&&nodes[r].Type!=Kind.Lake)nodes[i].ChannelKey=nodes[r].ChannelKey;
             }
             BuildLakeBasins(world,token);
+            ConditionLakeSpills(world,token);
             BuildRiverscapes(world,token);
             PreparationMilliseconds = watch.Elapsed.TotalMilliseconds;
         }

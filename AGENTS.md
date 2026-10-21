@@ -1,6 +1,26 @@
 # WorldGen repository instructions
 
 Current OWNER REVIEW launch,20October2026: shortcut selects
+`artifacts/player-lake-spill/WorldGen.exe` (IL2CPP21Oct00:40:04Z).
+Hyper10 repairs the owner's saved lake277/outlet94291 in seed11610541,0.1scale:
+legacy initial incision had removed the spill beneath its fixed328.068m lake.
+Preserve the pre-amplification spill lip below unincised source terrain, anchor
+the paired outgoing river at the exact lake datum, then cut a finite scaled
+mouth. No water-to-ground warping, lake deletion or source/history changes.
+Owner's approved snapshot/session are restored to the active library with exact
+bytes and pose preserved. Saved-point ground294.205->328.904m; near lake mesh
+is now0.84m below that ground, not roughly34m above. Six source controls remain
+wet. Final native saved-interface and retained-lake images inspected: overhead
+sheet gone in saved view; retained-lake view has limited shore coverage. Shading
+seam/thin terrain strip remain. Near8.178s cold/.387s warm; PARTIAL distant
+coverage274/288 of492 tiles, NOT full-distance/travel/FPS acceptance.322.5ms
+native terrain prep,8 exact native/CLR probes,127639 packaged-worker comparisons,
+12 fixture lake shores/3119 contained edges and460/343 ocean points pass.
+LOD/controller, jag artifacts, water art and confluence shading are unchanged.
+Own tests stopped; owner review is next. Previous riverscapes-final is rollback.
+See docs/LAKE_SPILL_CONNECTIONS.md and VALIDATION.md. Do not close owner's game.
+
+Current OWNER REVIEW launch,20October2026: shortcut selects
 `artifacts/player-riverscapes-final/WorldGen.exe` (IL2CPP23:26:33Z).
 Hyper9 replaces OWNER-REJECTED Hyper8 unlimited river potentials/terrain-triangle
 water interpolation with bounded paired channel/bed sections and explicit graph

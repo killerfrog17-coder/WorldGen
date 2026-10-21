@@ -51,6 +51,7 @@ namespace WorldGen.Core
                 if((i&4095)==0)token.ThrowIfCancellationRequested();
                 var node=rootNodes[i];int next=riverReceivers[i];
                 riverDatums[i]=node.Type==Kind.Ocean?0:node.Type==Kind.Lake?node.LakeLevel:node.Height-.15;
+                if(lakeOutletOwners[i]>=0)riverDatums[i]=lakeLevels[lakeOutletOwners[i]];
                 // Discharge represents a source catchment area. Shrinking both
                 // horizontal axes shrinks its visual discharge by scale².
                 riverActive[i]=next>=0&&nodeChannels[i]>=0&&coarseEdges[nodeChannels[i]].Type==Kind.River&&
@@ -264,7 +265,8 @@ namespace WorldGen.Core
             void ApplyRiverscape(V point,ref Surface surface)
             {
                 // Standing water remains owned by the accepted basin/sea paths.
-                if(surface.Kind==LocalWaterKind.Lake||surface.Kind==LocalWaterKind.Ocean)return;
+                if(surface.Kind==LocalWaterKind.Lake){owner.CutLakeSpillMouth(point,ref surface);return;}
+                if(surface.Kind==LocalWaterKind.Ocean)return;
                 double physical=owner.radius*owner.scale,best=double.PositiveInfinity;
                 void Apply(RiverscapeSpan span,ref Surface current)
                 {

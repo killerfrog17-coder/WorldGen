@@ -1,10 +1,18 @@
 # Drainage-aware planetary amplification
 
-`local-terrain-hyper-9` replaces the geographic-scaffold surface for completed
+`local-terrain-hyper-10` replaces the geographic-scaffold surface for completed
 worlds. It is a **shared CPU adaptation**, not the original application's GPU
 compute-shader pipeline or a claim of identical output/performance.
 
 ## Source and integration
+
+### Lake spill correction (revision10)
+
+See LAKE_SPILL_CONNECTIONS.md. Accepted lake datums constrain initial spill
+incision before amplification; a scale-correct paired channel cuts the actual
+submerged opening afterwards. This repairs the reproduced floating outlet
+without bending water or deleting its lake. Source worlds/history and the
+LOD/controller remain unchanged; unrelated river artifacts remain open.
 
 ### Bounded paired river checkpoint (revision9)
 

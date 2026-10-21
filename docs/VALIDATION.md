@@ -1,5 +1,40 @@
 # Version 3 validation evidence
 
+## Saved lake spill connection /20October2026
+
+Hyper10 / IL2CPP21Oct00:40:04Z, selected `player-lake-spill`. See
+LAKE_SPILL_CONNECTIONS.md for the actual root cause, rejected drafts and limits.
+Owner snapshot seed11610541/body277/outlet94291 reproduced a fixed328.067836m
+lake over an excessively incised292.92m spill. Initial spill constraints now
+precede local amplification; the paired channel starts at the same lake datum
+and cuts one scaled submerged mouth. No water warping or lake deletion.
+
+Final owner snapshot regression passes:14 corrected spills, saved-point ground
+328.904m, submerged outlet326.35m/328.067836m,6 wet source controls, exact river
+endpoint, near standing mesh0.84m below saved-point ground and unchanged source
+hash91a5470156e4aeeecb11fd22ac7b64987960701d5ff602e304784da6b2ca43e1.
+Final bundled worker passes127639 exact mesh/water/index/bounds/cancellation
+comparisons; selected scatter sites have zero instances.8 exact native/CLR
+height probes pass. Existing generated/Earth fixtures pass6 lake shores each,
+1799/1320 contained interior edges and460/343 submerged coastal points with
+unchanged sources. No new broad suite, generation or history acceptance.
+
+`artifacts/lake-spill/native` contains inspected saved-interface and retained-
+lake-shore images. Saved view has no overhead sheet; lake remains visible and
+flat in the second, largely open-water image with limited shoreline coverage.
+A water-material seam and thin terrain strip remain visible in the first.
+Native source hash is unchanged. Terrain prep322.5ms; near8.178s cold/.387s
+warm, partial distant coverage274/288 of492 tiles. Hidden1280x800 fixed-camera
+worst13.96/21.29ms with no >100ms frames during these intervals, NOT fullscreen,
+travel or universal performance acceptance. CLI/worker checks overlapped part
+of native startup, so cold time is not an isolated performance comparison.
+
+The approved snapshot and play session were moved from recoverable trash back
+to their original active-library id; both file hashes and saved pose remain
+exact. No user snapshot is in Git. Own test players/workers are stopped; owner
+review is pending. Existing jag artifacts, confluence shading, LOD/controller,
+waterfall sheets and dynamic hydrology remain outside this correction.
+
 ## Bounded paired riverscapes /20October2026
 
 Hyper9 replaces OWNER-REJECTED Hyper8 river geometry. See RIVERSCAPES.md for
