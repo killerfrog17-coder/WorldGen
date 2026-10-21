@@ -1,5 +1,23 @@
 # Version 3 validation evidence
 
+## Continuous grass field: owner-test-only revision /21October2026
+
+Owner found visible clump footprints and empty gaps, while reporting acceptable
+performance for the preceding blade prototype. `player-grass-continuous-field`
+changes root/leaf placement to adjacent field squares, continuous per-leaf
+occupancy, spatially distributed density/LOD prefixes and per-leaf growth-form
+mixtures. High default is64/21/5 blades rather than24/8/2; GPU root records grow
+from64 to96bytes. Settings still allow live density/range/detail/wind and off.
+This can cost more than the preceding prototype; no performance win is claimed.
+
+Following the owner's no-agent-testing direction, ONLY compile/package work
+is performed. No tests, player launches, screenshots, profiling or saved-world
+hash comparisons are run. Existing tests/card-era screenshots do NOT validate
+this change. Owner judges field fullness, appearance and performance. Source
+world/history/height/water/ecology algorithms are unchanged by this renderer work.
+IL2CPP compile/package completes21Oct07:03:18Z, exit0. Shortcut points to this
+separate real C: build; owner game/saves not touched. Runtime result untested.
+
 ## Individual grass blades: owner-test-only prototype /21October2026
 
 Owner explicitly requested a fast implementation and NO agent tests. New

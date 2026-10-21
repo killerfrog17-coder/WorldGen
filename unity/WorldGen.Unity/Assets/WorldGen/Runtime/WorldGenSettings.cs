@@ -57,7 +57,7 @@ public sealed partial class WorldGenRuntime
     {
         GUILayout.Label("GRASS PROTOTYPE · LIVE CONTROLS",SectionStyle());
         TerrainVideoOptions.GroundCover=GUILayout.Toggle(TerrainVideoOptions.GroundCover,"Enable ground vegetation (off = no grass draws/buffers)");
-        GUILayout.Label("Blade density  "+TerrainVideoOptions.GrassDensity.ToString("F2")+"×");
+        GUILayout.Label("Field density / blade spacing  "+TerrainVideoOptions.GrassDensity.ToString("F2")+"×");
         TerrainVideoOptions.GrassDensity=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.GrassDensity,.25f,2)*20)/20;
         GUILayout.Label("Grass draw distance  "+TerrainVideoOptions.GrassDistance.ToString("F0")+" m");
         TerrainVideoOptions.GrassDistance=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.GrassDistance,40,160)/5)*5;

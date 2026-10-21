@@ -1,5 +1,23 @@
 # WorldGen repository instructions
 
+Current OWNER-TEST-ONLY launch,21October2026: shortcut selects
+`artifacts/player-grass-continuous-field/WorldGen.exe` (IL2CPP07:03:18Z), real C:.
+Owner found blade performance acceptable but REJECTED isolated tufts and the
+large bare gaps; increasing leaves per clump did not solve distribution.
+This revision fills adjacent0.60m field squares with low-discrepancy leaf roots,
+removes random whole-tuft cover rejection, uses per-leaf species mixtures and
+occupancy, and retires shared per-tuft random stature. High now64/21/5 leaves,
+Low/Medium/Ultra near16/32/96; density scales the distributed field. Root records
+96bytes plus12bytes/index capacity (108bytes/slot) with previous GPU culling,
+fades, live debug controls, local disable and distant cover colour retained.
+Sparse habitats still thin leaves through actual cover; no grass over erased
+water/ice/cliff roots. No source ecology/world/history/terrain/water changes.
+ONLY compile/package work performed, as owner requested: no tests, game launch,
+captures, profiling or source-hash audit. Previous performance feedback does
+not validate this denser revision. Owner tests fullness, realism and FPS.
+See GROUND_FLORA.md and VALIDATION.md; prior blade player is technical rollback,
+not accepted field coverage. Do not close owner game or revert to crossed cards.
+
 Current OWNER-TEST-ONLY PROTOTYPE launch,21October2026: shortcut selects
 `artifacts/player-grass-blades-prototype/WorldGen.exe` (IL2CPP06:50:07Z), real C:.
 Owner REJECTED crossed-card grass as visibly flat/star-shaped, and requested

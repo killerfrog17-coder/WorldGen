@@ -51,7 +51,7 @@ public sealed partial class LocalTerrainExplorer
         try
         {
             gpu.Grid=new GraphicsBuffer(GraphicsBuffer.Target.Structured,tile.Cover.Length,4);gpu.Grid.SetData(tile.Cover);
-            gpu.Roots=new GraphicsBuffer(GraphicsBuffer.Target.Append,count,64);gpu.Roots.SetCounterValue(0);
+            gpu.Roots=new GraphicsBuffer(GraphicsBuffer.Target.Append,count,96);gpu.Roots.SetCounterValue(0);
             gpu.Args=new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments,3,GraphicsBuffer.IndirectDrawArgs.size);
             gpu.Count=new GraphicsBuffer(GraphicsBuffer.Target.Raw,1,4);
             for(int lod=0;lod<3;lod++)gpu.Visible[lod]=new GraphicsBuffer(GraphicsBuffer.Target.Append,count,4);
@@ -61,7 +61,7 @@ public sealed partial class LocalTerrainExplorer
             groundCoverPlacement.SetInt("_Seed",terrain==null?731:terrain.SourceSeed);groundCoverPlacement.Dispatch(0,(count+63)/64,1,1);
             GraphicsBuffer.CopyCount(gpu.Roots,gpu.Count,0);
             gpu.Properties.SetBuffer("_CoverRoots",gpu.Roots);
-            gpu.Bytes=(long)tile.Cover.Length*4+(long)count*76+4+3*GraphicsBuffer.IndirectDrawArgs.size;
+            gpu.Bytes=(long)tile.Cover.Length*4+(long)count*108+4+3*GraphicsBuffer.IndirectDrawArgs.size;
             return gpu;
         }
         catch{tile.Grass=gpu;ReleaseGroundCover(tile);throw;}
@@ -69,9 +69,9 @@ public sealed partial class LocalTerrainExplorer
     void CullGroundCover(CoverGpu gpu,Vector4 origin,Camera camera)
     {
         int detail=Mathf.Clamp(TerrainVideoOptions.GrassDetail,0,3);
-        int near=Mathf.Max(2,Mathf.RoundToInt((detail==0?8:detail==1?16:detail==2?24:32)*TerrainVideoOptions.GrassDensity));
+        int near=Mathf.Max(2,Mathf.RoundToInt((detail==0?16:detail==1?32:detail==2?64:96)*TerrainVideoOptions.GrassDensity));
         int middle=Mathf.Max(2,Mathf.RoundToInt(near/3f)),far=Mathf.Max(1,Mathf.RoundToInt(near/12f));
-        int segments=detail==0?2:detail==3?4:3,topology=near+middle*128+far*16384+segments*1048576;
+        int segments=detail==0?2:detail==3?4:3,topology=near|(middle<<10)|(far<<18)|(segments<<24);
         if(gpu.Topology!=topology)
         {
             var args=new GraphicsBuffer.IndirectDrawArgs[3];

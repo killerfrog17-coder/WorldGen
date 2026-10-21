@@ -1,5 +1,39 @@
 # Ground layer / ground-flora-2
 
+## Continuous field revision /21October2026
+
+Owner's blade-prototype review found isolated tufts and large bare gaps even
+with acceptable performance. The density slider increased leaves within each
+tuft but could not restore missing tufts. `player-grass-continuous-field`
+changes spatial placement, not only that multiplier. As with the preceding
+prototype, the owner handles testing: compilation/packaging only on agent side.
+
+The0.60m grid is now an abutting field partition. Every vegetated square is
+retained (only near-zero cover<.002 is rejected); the old whole-clump Bernoulli
+cover rejection and extra moss-patch rejection are removed. Low-discrepancy
+leaf coordinates fill the entire square rather than a disk around a jittered
+centre. Density/LOD prefixes remain spread across that square. These squares
+are GPU batching units, not intended visible botanical clumps.
+
+Each root record carries the continuous nine-form mixture; form choice and
+height variation occur independently per leaf. Entire squares no longer turn
+into one short forb/moss tuft and leave a hole in an otherwise grassy field.
+The shared per-tuft random height multiplier is retired; broad ecological
+stature remains. Blade occupancy scales with cover/.45, capped at1: productive
+sites fill continuously while arid/rocky margins stay thinner. These are authored
+visual priors, not a new ecological population simulation. Grass width grows
+modestly from.008 to.010m half-width before phenotype/LOD scaling.
+
+Default High now has up to64/21/5 leaves per field square (formerly24/8/2),
+still3/2/1 segments. Low/Medium/Ultra near counts16/32/96; density0.25–2x,
+120m default range, wind and complete local disable remain live. New GPU root
+stride96bytes plus12bytes/index capacity=108bytes/field slot, versus76 before,
+plus the existing terrain grid/counters/arguments. More actual occupied squares
+and higher blade counts can increase GPU cost; prior performance acceptance
+does not apply automatically. No frame-time or seamless-density claim made.
+Source world/history/ecology, terrain heights and water are unmodified.
+The old individual-blade description below is historical where superseded.
+
 ## Individual-blade prototype /21October2026
 
 Owner rejected the dense atlas banks as conspicuously flat crossed cards and
