@@ -5,17 +5,19 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Rendering;
 using WorldGen.Core;
+using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
     sealed class ScatterWork { public ScatterKey Key;public Task<ScatterPatch> Task; }
-    sealed class ScatterChunk { public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots; }
+    sealed class ScatterChunk { public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots; public float Born; }
     sealed class ArtPart { public Mesh Mesh;public Material Material;public int Submesh;public Matrix4x4 Local; }
-    sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; }
+    sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; public bool Fades; }
     sealed class DrawBatch
     {
         // Nonuniform scale needs both transform and inverse; stay below the platform's 511-instance limit.
         public readonly Matrix4x4[] Matrices=new Matrix4x4[256];public readonly Vector4[] Colors=new Vector4[256];
+        public readonly Vector4[] Fades=new Vector4[256];
         public readonly MaterialPropertyBlock Properties=new MaterialPropertyBlock();public int Count;public ArtModel Model;public bool Shadows;
         public Matrix4x4[][] PartMatrices;
     }
@@ -82,14 +84,14 @@ public sealed partial class LocalTerrainExplorer
         {
             var work=scatterJobs[i];if(!work.Task.IsCompleted)continue;scatterJobs.RemoveAt(i);
             if(work.Task.IsFaulted){error=work.Task.Exception.GetBaseException().Message;debugOpen=true;CaptureMouse();continue;}
-            if(!work.Task.IsCanceled&&scatterWanted.Contains(work.Key)){var chunk=new ScatterChunk{Source=work.Task.Result};ProjectScatter(chunk);scatterChunks[work.Key]=chunk;scatterDirty=true;}break;
+            if(!work.Task.IsCanceled&&scatterWanted.Contains(work.Key)){var chunk=new ScatterChunk{Source=work.Task.Result,Born=Math.Max(.001f,Time.time)};ProjectScatter(chunk);scatterChunks[work.Key]=chunk;scatterDirty=true;}break;
         }
         if(CenterReady&&!NearTerrainPending()&&jobs.Count+scatterJobs.Count<WorkerLimit&&scatterJobs.Count<1)
         {
             foreach(var key in scatterPriority)
             {if(scatterChunks.ContainsKey(key)||scatterJobs.Any(j=>j.Key.Equals(key)))continue;var source=scatter;var producer=meshProcess;var token=cancellation.Token;scatterJobs.Add(new ScatterWork{Key=key,Task=Task.Run(()=>producer==null?source.Build(key,token):producer.Scatter(key,token),token)});break;}
         }
-        if(scatterDirty||Time.realtimeSinceStartupAsDouble-lastBatchTime>.35)BuildScatterBatches();
+        if(scatterDirty||Time.realtimeSinceStartupAsDouble-lastBatchTime>.10)BuildScatterBatches();
     }
     double VisibleGround(double x,double z,double fallback)
     {
@@ -153,7 +155,7 @@ public sealed partial class LocalTerrainExplorer
             ownedScatterMaterials.Add(material);parts.Add(new ArtPart{Mesh=mesh,Material=material,Submesh=0,Local=Matrix4x4.identity});
         }
         float height=binding!=null&&binding.ReferenceHeightM>0?binding.ReferenceHeightM:Math.Max(.001f,bounds.size.y),width=binding!=null&&binding.ReferenceWidthM>0?binding.ReferenceWidthM:Math.Max(.001f,Math.Max(bounds.size.x,bounds.size.z));
-        var model=new ArtModel{Parts=parts.ToArray(),Scale=Matrix4x4.Scale(new Vector3(1/width,1/height,1/width))};scatterArt[key]=model;return model;
+        var model=new ArtModel{Parts=parts.ToArray(),Scale=Matrix4x4.Scale(new Vector3(1/width,1/height,1/width)),Fades=parts.All(part=>part.Material.HasProperty("_LodTransition"))};scatterArt[key]=model;return model;
     }
     void BuildScatterBatches()
     {
@@ -166,21 +168,30 @@ public sealed partial class LocalTerrainExplorer
             for(int i=0;i<chunk.Source.Instances.Length;i++)
             {
                 var p=chunk.Source.Instances[i];double distance=(chunk.Roots[i]-eye).magnitude;
-                bool tree=p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
-                double range=tree?1800:p.Kind==ScatterKind.Grass?95:p.Kind==ScatterKind.Shrub?220:p.Kind==ScatterKind.Stone?70:p.Kind==ScatterKind.Outcrop?1800:650;
-                if(distance>range)continue;int lod=tree?(distance<85?0:distance<350?1:2):distance<Math.Max(30,p.Kind==ScatterKind.Outcrop?p.WidthM*8:30)?0:1;
-                int key=(int)p.Kind*128+p.Variant*4+lod;
-                if(!active.TryGetValue(key,out var batch)||batch.Count==batch.Matrices.Length)
+                var blend=ScatterLodBlend.At(p.Kind,p.WidthM,distance);if(blend.Visibility<=0)continue;
+                void Add(int lod,float low,float high)
                 {
-                    if(batchPool.Count>0){int last=batchPool.Count-1;batch=batchPool[last];batchPool.RemoveAt(last);}else batch=new DrawBatch();
-                    batch.Model=Art(p.Kind,p.Variant,lod);batch.Shadows=p.Kind!=ScatterKind.Grass&&lod<2;active[key]=batch;drawBatches.Add(batch);
+                    if(high-low<.0001f)return;
+                    int key=(int)p.Kind*128+p.Variant*4+lod;
+                    if(!active.TryGetValue(key,out var batch)||batch.Count==batch.Matrices.Length)
+                    {
+                        if(batchPool.Count>0){int last=batchPool.Count-1;batch=batchPool[last];batchPool.RemoveAt(last);}else batch=new DrawBatch();
+                        batch.Model=Art(p.Kind,p.Variant,lod);batch.Shadows=p.Kind!=ScatterKind.Grass&&lod<2;active[key]=batch;drawBatches.Add(batch);
+                    }
+                    batch.Matrices[batch.Count]=chunk.Matrices[i]*batch.Model.Scale;
+                    batch.Colors[batch.Count]=new Vector4((float)p.Color.X,(float)p.Color.Y,(float)p.Color.Z,1);
+                    batch.Fades[batch.Count]=new Vector4(low,high,chunk.Born,0);batch.Count++;
                 }
-                batch.Matrices[batch.Count]=chunk.Matrices[i]*batch.Model.Scale;batch.Colors[batch.Count]=new Vector4((float)p.Color.X,(float)p.Color.Y,(float)p.Color.Z,1);batch.Count++;ScatterObjects++;
+                bool compatible=Art(p.Kind,p.Variant,blend.Near).Fades&&Art(p.Kind,p.Variant,blend.Far).Fades;
+                if(!compatible)Add(blend.Blend<.5?blend.Near:blend.Far,0,1);
+                else {float split=(float)(blend.Visibility*(1-blend.Blend));Add(blend.Near,0,split);Add(blend.Far,split,(float)blend.Visibility);}
+                ScatterObjects++;
             }
         }
         foreach(var batch in drawBatches)
         {
             batch.Properties.SetVectorArray("_Tint",batch.Colors);
+            batch.Properties.SetVectorArray("_LodTransition",batch.Fades);
             if(batch.PartMatrices==null||batch.PartMatrices.Length!=batch.Model.Parts.Length)batch.PartMatrices=new Matrix4x4[batch.Model.Parts.Length][];
             for(int j=0;j<batch.Model.Parts.Length;j++)if(batch.Model.Parts[j].Local!=Matrix4x4.identity)
             {if(batch.PartMatrices[j]==null)batch.PartMatrices[j]=new Matrix4x4[batch.Matrices.Length];for(int i=0;i<batch.Count;i++)batch.PartMatrices[j][i]=batch.Matrices[i]*batch.Model.Parts[j].Local;}

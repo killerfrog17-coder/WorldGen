@@ -20,21 +20,33 @@ public sealed partial class LocalTerrainExplorer
         }
         foreach(var pair in tiles)
         {
-            var tile=pair.Value;var nodes=children.TryGetValue(pair.Key,out var finer)?TerrainCoverage.Build(pair.Key,finer):System.Array.Empty<float>();
-            if(tile.CoverageNodes!=null&&tile.CoverageNodes.SequenceEqual(nodes))continue;
-            tile.CoverageNodes=nodes;
-            if(tile.Coverage!=null){Destroy(tile.Coverage);tile.Coverage=null;}
-            if(nodes.Length>0)
+            var tile=pair.Value;var tree=children.TryGetValue(pair.Key,out var finer)?TerrainCoverage.BuildFaded(pair.Key,finer.Select(k=>TerrainTiming(k,true))):new TerrainFadeTree();
+            var nodes=tree.Nodes;
+            if(tile.CoverageNodes==null||!tile.CoverageNodes.SequenceEqual(nodes)||tile.CoverageTimingNodes==null||!tile.CoverageTimingNodes.SequenceEqual(tree.Timings))
             {
-                int count=nodes.Length/4,height=(count+255)/256;var pixels=new Color[256*height];
-                for(int i=0;i<count;i++)pixels[i]=new Color(nodes[i*4],nodes[i*4+1],nodes[i*4+2],nodes[i*4+3]);
-                tile.Coverage=new Texture2D(256,height,TextureFormat.RGBAFloat,false,true){filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp};
-                tile.Coverage.SetPixels(pixels);tile.Coverage.Apply(false,true);
+                tile.CoverageNodes=nodes;tile.CoverageTimingNodes=tree.Timings;
+                if(tile.Coverage!=null)Destroy(tile.Coverage);if(tile.CoverageTimes!=null)Destroy(tile.CoverageTimes);
+                Texture2D Texture(float[] values)
+                {
+                    if(values.Length==0)return null;int count=values.Length/4,height=(count+255)/256;var pixels=new Color[256*height];
+                    for(int i=0;i<count;i++)pixels[i]=new Color(values[i*4],values[i*4+1],values[i*4+2],values[i*4+3]);
+                    var t=new Texture2D(256,height,TextureFormat.RGBAFloat,false,true){filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp};t.SetPixels(pixels);t.Apply(false,true);return t;
+                }
+                tile.Coverage=Texture(nodes);tile.CoverageTimes=Texture(tree.Timings);
             }
             var properties=new MaterialPropertyBlock();properties.SetFloat("_CoverageEnabled",nodes.Length>0?1:0);
             properties.SetFloat("_CoverageTileSize",(float)pair.Key.SizeM);
             if(tile.Coverage!=null)properties.SetTexture("_TerrainCoverage",tile.Coverage);
+            if(tile.CoverageTimes!=null)properties.SetTexture("_CoverageFadeTimes",tile.CoverageTimes);
+            var timing=TerrainTiming(pair.Key);properties.SetFloat("_TransitionEnabled",1);
+            properties.SetFloat("_LodSafetyRadius",view==null?0:(float)System.Math.Max(12,TerrainLod.BaseSizeM*HorizontalScale/64*3));
+            properties.SetVector("_LodFade",new Vector4(timing.In,timing.Out,0,0));
             foreach(var renderer in tile.Root.GetComponentsInChildren<MeshRenderer>())renderer.SetPropertyBlock(properties);
+            if(previousTerrain.TryGetValue(pair.Key,out var previous))
+            {
+                properties.SetVector("_LodFade",new Vector4(timing.In,timing.Out,1,0));
+                foreach(var renderer in previous.Root.GetComponentsInChildren<MeshRenderer>())renderer.SetPropertyBlock(properties);
+            }
         }
     }
 }

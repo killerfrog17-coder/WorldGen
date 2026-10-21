@@ -1,0 +1,41 @@
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+#include "WorldGenLodFade.hlsl"
+TEXTURE2D(_BaseMap);SAMPLER(sampler_BaseMap);
+float4 _BaseMap_ST,_BaseColor;float _Cutoff,_Wind;
+float3 _LightDirection,_LightPosition;
+UNITY_INSTANCING_BUFFER_START(Props)
+    UNITY_DEFINE_INSTANCED_PROP(float4,_Tint)
+    UNITY_DEFINE_INSTANCED_PROP(float4,_LodTransition)
+UNITY_INSTANCING_BUFFER_END(Props)
+struct A{float4 positionOS:POSITION;float3 normalOS:NORMAL;float2 uv:TEXCOORD0;UNITY_VERTEX_INPUT_INSTANCE_ID};
+struct O{float4 positionCS:SV_POSITION;float2 uv:TEXCOORD0;UNITY_VERTEX_INPUT_INSTANCE_ID};
+O vert(A a)
+{
+    O o;UNITY_SETUP_INSTANCE_ID(a);UNITY_TRANSFER_INSTANCE_ID(a,o);
+    float3 p=TransformObjectToWorld(a.positionOS.xyz);float wave=sin(_Time.y*1.4+p.x*.4+p.z*.27);p.xz+=float2(wave,wave*.47)*_Wind*a.uv.y*a.uv.y;
+    #ifdef WORLDGEN_SHADOW_PASS
+    float3 lightDirection=_LightDirection;
+    #if _CASTING_PUNCTUAL_LIGHT_SHADOW
+    lightDirection=normalize(_LightPosition-p);
+    #endif
+    p=ApplyShadowBias(p,TransformObjectToWorldNormal(a.normalOS),lightDirection);
+    #endif
+    o.positionCS=TransformWorldToHClip(p);
+    #ifdef WORLDGEN_SHADOW_PASS
+    #if UNITY_REVERSED_Z
+    o.positionCS.z=min(o.positionCS.z,UNITY_NEAR_CLIP_VALUE*o.positionCS.w);
+    #else
+    o.positionCS.z=max(o.positionCS.z,UNITY_NEAR_CLIP_VALUE*o.positionCS.w);
+    #endif
+    #endif
+    o.uv=TRANSFORM_TEX(a.uv,_BaseMap);return o;
+}
+half4 frag(O i):SV_Target
+{
+    UNITY_SETUP_INSTANCE_ID(i);WorldGenScatterFade(i.positionCS.xy,UNITY_ACCESS_INSTANCED_PROP(Props,_LodTransition));
+    #ifdef _ALPHATEST_ON
+    clip(SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap,i.uv).a*_BaseColor.a-_Cutoff);
+    #endif
+    return i.positionCS.z;
+}

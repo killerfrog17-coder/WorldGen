@@ -320,6 +320,7 @@ namespace WorldGen.Core
                     double bed=level-span.Depth*(1-Math.Min(1,relative*relative))*(1+span.Bend*signed);
                     if(!inside)bed=level-bankDistance*.35;
                     double weight=inside?1:RiverscapeKernel.Weight(-bankDistance/(support-width));
+                    current.DetailProtection=Math.Min(current.DetailProtection,1-weight);
                     current.Height=Math.Min(current.Height,current.Height+(Math.Min(current.Height,bed)-current.Height)*weight);
                     if(current.Height<0&&span.LevelA==0&&span.LevelB==0)
                     {

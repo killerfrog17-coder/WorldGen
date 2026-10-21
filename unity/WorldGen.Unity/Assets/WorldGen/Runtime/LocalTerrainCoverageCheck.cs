@@ -49,11 +49,28 @@ public sealed partial class LocalTerrainExplorer
             // Synthetic tiles have zero segments and no stitching requirements.
             throw new Exception("Native mesh product cache failed to restore");
         }
-        explorer.UpdateTerrainCoverage();yield return null;var reused=Capture("cached-replacement");
+        tile.FadeIn=0;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;var reused=Capture("cached-replacement");
         if(reused[32*128+32].g<=reused[32*128+32].r||explorer.TerrainCacheHits!=1)throw new Exception("Cached mesh failed to render after restore");
+        while(Time.time<1.6f)yield return null;
+        tile.FadeIn=Time.time-1.5f;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
+        var half=Capture("half-transition");int reds=0,greens=0,holes=0;
+        for(int y=8;y<56;y++)for(int x=8;x<56;x++){var p=half[y*128+x];if(p.r>p.g+.05)reds++;else if(p.g>p.r+.05)greens++;else holes++;}
+        if(reds<500||greens<500||holes>10)throw new Exception("Complementary half fade loses coverage or draws only one LOD: "+reds+"/"+greens+"/"+holes);
+        tile.FadeIn=0;tile.FadeOut=Time.time-1.5f;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
+        var outgoing=Capture("half-coarsening");reds=greens=holes=0;
+        for(int y=8;y<56;y++)for(int x=8;x<56;x++){var p=outgoing[y*128+x];if(p.r>p.g+.05)reds++;else if(p.g>p.r+.05)greens++;else holes++;}
+        if(reds<500||greens<500||holes>10)throw new Exception("Outgoing fine/coarse complement loses coverage");
+        tile.FadeOut=0;
+        var oldParent=explorer.tiles[parent];var newParent=new Tile{Root=Quad("same-key replacement",4,2,Color.red),Edges=new double[4]};
+        explorer.BeginTerrainReplacement(parent,newParent,oldParent);explorer.tiles[parent]=newParent;
+        if(explorer.TerrainTiming(child).In>0)throw new Exception("Replacing a parent suppressed already-resident children");
+        explorer.previousTerrain.Remove(parent);explorer.DestroyTile(oldParent);explorer.tiles.Remove(parent);
+        var grand=new TerrainTileKey(0,0,2,1d/512);explorer.tiles[grand]=new Tile{Root=Quad("grand fallback",8,3,Color.red)};
+        explorer.BeginTerrainReplacement(parent,newParent,null);explorer.tiles[parent]=newParent;
+        if(newParent.FadeIn!=0)throw new Exception("Coarsening unnecessarily faded through a grandparent");
         explorer.tiles.Remove(child);explorer.CacheTerrain(child,tile);explorer.ResetStreamingReuse(false);
         if(explorer.CachedTerrainTiles!=0)throw new Exception("Chart invalidation retained old products");
-        File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: coarse before load, fine-only loaded quadrant, fallback in missing quadrants/removal, exact cached mesh restore and frame-cache invalidation. No terrain height change.");
+        File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: solid/fallback coverage, exact cache restore/invalidation, complementary halfway incoming/outgoing frames without holes, retained finer children during same-key parent replacement and coarsening without grandparent regression.");
         Application.Quit(0);
     }
 }

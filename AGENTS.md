@@ -1,5 +1,29 @@
 # WorldGen repository instructions
 
+Current OWNER REVIEW launch,20October2026: shortcut selects
+`artifacts/player-surface-refined/WorldGen.exe` (IL2CPP21Oct04:51:06Z), a real C:
+folder. Derived Hyper12 adds bounded cubic reconstruction of the existing8m
+height substrate and restrained27m/8m physical-scale detail. Render/controller
+share the evaluator; bare river-profile inputs, water datums/gradients, actual
+beds and standing shore edges remain protected. Source/history/saves unchanged.
+Terrain uses three-second complementary opaque dither transitions, retained
+fallback, nested timing/coverage, same-key previous products (cap32), coarsening
+and a12m-minimum immediate-ground bubble. Scatter has spatial LOD/range blending
+and patch fade-in, with matching depth/shadow clipping. Existing art/density and
+LOD quality settings remain; no vegetation overhaul or new world erosion.
+8874 surface/transition,6241 exact reuse,13059 coverage-navigation,243 water
+checks pass;6 actual lake shores/1934 edges and308 submerged ocean points pass.
+127639 final packaged-worker values and8 native/CLR height probes match. Final
+GPU incoming/outgoing half-fades preserve coverage and nested/coarsening checks
+pass. Actual0.1x30km near reviews: mountain8.225s/plain1.160s after sampler init;
+worst21.95/23.31ms, no >100ms in these hidden fixed-camera intervals, NOT broad
+FPS/travel acceptance. Distant coverage is PARTIAL18/1819 and16/298. Captures
+inspected: mountain is a steep river-side view with visible dither; plain is
+mostly water and is NOT dry-flatland art acceptance. No realism certification.
+Owner test snapshot is read in its recoverable trash without restoring it.
+Own tests/workers stopped; owner's current game was not closed. Prior adaptive-
+terrain remains rollback. See docs/SURFACE_DETAIL_TRANSITIONS.md and VALIDATION.md.
+
 Owner-authorized artifact retention,20October2026: playable build folders now
 retain only the newest per local calendar date plus newest three overall.
 Current adaptive-terrain, terrain-reuse, lod-coverage-debug and daily drainage-

@@ -12,6 +12,7 @@ Shader "WorldGen/LocalScatter"
         _Wind("Wind displacement (m)",Float)=0 _FogDistance("Fog distance",Float)=200000
         _FogColor("Sky colour",Color)=(.57,.69,.76,1) _AmbientTint("Ambient light",Color)=(.12,.14,.17,1)
         [PerRendererData] _Tint("Instance tint",Color)=(1,1,1,1)
+        [PerRendererData] _LodTransition("Opaque LOD interval and appearance time",Vector)=(0,1,0,0)
         [Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull",Float)=0
     }
     SubShader
@@ -33,12 +34,14 @@ Shader "WorldGen/LocalScatter"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
             #include "WorldGenAir.hlsl"
+            #include "WorldGenLodFade.hlsl"
             TEXTURE2D(_BaseMap);SAMPLER(sampler_BaseMap);TEXTURE2D(_NormalMap);TEXTURE2D(_MaskMap);
             TEXTURE2D_ARRAY(_RockAlbedo);SAMPLER(sampler_RockAlbedo);TEXTURE2D_ARRAY(_RockNormals);
             float _RockLayer,_RockLayers;
             float4 _BaseMap_ST,_BaseColor,_FogColor,_AmbientTint;float _Roughness,_Metallic,_NormalStrength,_Cutoff,_Wind,_FogDistance;
             UNITY_INSTANCING_BUFFER_START(Props)
                 UNITY_DEFINE_INSTANCED_PROP(float4,_Tint)
+                UNITY_DEFINE_INSTANCED_PROP(float4,_LodTransition)
             UNITY_INSTANCING_BUFFER_END(Props)
             struct A{float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 tangentOS:TANGENT;float2 uv:TEXCOORD0;float4 color:COLOR;UNITY_VERTEX_INPUT_INSTANCE_ID};
             struct O{float4 positionCS:SV_POSITION;float3 position:TEXCOORD0;float3 normal:TEXCOORD1;float4 tangent:TEXCOORD2;float2 uv:TEXCOORD3;float4 color:COLOR;UNITY_VERTEX_INPUT_INSTANCE_ID};
@@ -52,7 +55,7 @@ Shader "WorldGen/LocalScatter"
             }
             half4 frag(O i,FRONT_FACE_TYPE face:FRONT_FACE_SEMANTIC):SV_Target
             {
-                UNITY_SETUP_INSTANCE_ID(i);float4 tex=SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap,i.uv)*_BaseColor;
+                UNITY_SETUP_INSTANCE_ID(i);WorldGenScatterFade(i.positionCS.xy,UNITY_ACCESS_INSTANCED_PROP(Props,_LodTransition));float4 tex=SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap,i.uv)*_BaseColor;
                 #ifdef _ALPHATEST_ON
                 clip(tex.a-_Cutoff);
                 #endif
@@ -87,7 +90,31 @@ Shader "WorldGen/LocalScatter"
             }
             ENDHLSL
         }
-        UsePass "Universal Render Pipeline/Lit/ShadowCaster"
-        UsePass "Universal Render Pipeline/Lit/DepthOnly"
+        Pass
+        {
+            Name "ShadowCaster" Tags {"LightMode"="ShadowCaster"} ZWrite On ColorMask 0 Cull [_Cull]
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_instancing
+            #pragma shader_feature_local _ALPHATEST_ON
+            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+            #define WORLDGEN_SHADOW_PASS
+            #include "WorldGenScatterDepth.hlsl"
+            ENDHLSL
+        }
+        Pass
+        {
+            Name "DepthOnly" Tags {"LightMode"="DepthOnly"} ZWrite On ColorMask R Cull [_Cull]
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_instancing
+            #pragma shader_feature_local _ALPHATEST_ON
+            #include "WorldGenScatterDepth.hlsl"
+            ENDHLSL
+        }
     }
 }

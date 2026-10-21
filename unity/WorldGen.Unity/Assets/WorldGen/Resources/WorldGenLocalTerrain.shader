@@ -13,6 +13,10 @@ Shader "WorldGen/LocalTerrain"
         _TerrainCoverage("Resident coverage tree",2D)="black"{}
         _CoverageEnabled("Partial fallback",Float)=0
         _CoverageTileSize("Tile size",Float)=1
+        _CoverageFadeTimes("Coverage transition times",2D)="black"{}
+        _TransitionEnabled("Smooth terrain transitions",Float)=0
+        _LodFade("Incoming/outgoing times, reverse",Vector)=(0,0,0,0)
+        _LodSafetyRadius("Immediate ground radius",Float)=0
     }
     SubShader
     {
@@ -31,9 +35,11 @@ Shader "WorldGen/LocalTerrain"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
             #include "WorldGenAir.hlsl"
+            #include "WorldGenLodFade.hlsl"
             TEXTURE2D_ARRAY(_GroundAlbedo);SAMPLER(sampler_GroundAlbedo);
             TEXTURE2D_ARRAY(_GroundNormals);TEXTURE2D_ARRAY(_GroundMasks);
             Texture2D<float4> _TerrainCoverage;float _CoverageEnabled,_CoverageTileSize;
+            Texture2D<float4> _CoverageFadeTimes;float _TransitionEnabled,_LodSafetyRadius;float4 _LodFade;
             float _Water,_FogDistance,_TextureMetres,_Daylight,_RockLayers;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint;
             struct A { float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 color:COLOR;float4 weights:TEXCOORD1;float4 groundB:TEXCOORD2;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5; };
             struct O { float4 positionCS:SV_POSITION;float3 normal:TEXCOORD0;float3 position:TEXCOORD1;float4 color:COLOR;float4 weights:TEXCOORD2;float4 groundB:TEXCOORD3;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5;float2 coverageUV:TEXCOORD6; };
@@ -46,6 +52,13 @@ Shader "WorldGen/LocalTerrain"
             }
             half4 frag(O i):SV_Target
             {
+                float safety=1-smoothstep(_LodSafetyRadius*.65,max(.001,_LodSafetyRadius),length(i.position.xz-_WorldSpaceCameraPos.xz));
+                float dither=WorldGenDither(i.positionCS.xy);
+                if(_TransitionEnabled>.5)
+                {
+                    float fade=max(WorldGenFadeWeight(_LodFade.xy),safety);
+                    if(_LodFade.z>.5)clip(dither-fade);else clip(fade-dither);
+                }
                 if(_CoverageEnabled>.5)
                 {
                     float2 uv=clamp(i.coverageUV,0,.99999994);int node=0;
@@ -54,7 +67,12 @@ Shader "WorldGen/LocalTerrain"
                         uv*=2;int2 quadrant=(int2)uv;
                         float4 children=_TerrainCoverage.Load(int3(node%256,node/256,0));
                         float next=children[quadrant.x+2*quadrant.y];
-                        if(next<0)clip(-1);
+                        if(next<0)
+                        {
+                            if(_TransitionEnabled<.5)clip(-1);
+                            int index=(int)(-next-1);float2 times=_CoverageFadeTimes.Load(int3(index%256,index/256,0)).xy;
+                            clip(dither-max(WorldGenFadeWeight(times),safety));break;
+                        }
                         if(next<=0)break;
                         node=(int)next-1;uv-=quadrant;
                     }

@@ -83,6 +83,8 @@ public sealed partial class WorldGenRuntime
         while ((Busy || !worldReady || humanStep != null || humans == null || humanPaletteJob != null || humanPaletteReady != null) && Time.realtimeSinceStartupAsDouble < deadline) yield return null;
         if (!CanExploreTerrain) { Debug.LogError("TERRAIN CHECK world unavailable: " + error); Application.Quit(1); yield break; }
         humanPlaying = false; string hash = StateHash.Compute(world);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-surface-review"))
+        {yield return CheckSurfaceReview(output,hash);yield break;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-terrain-detail-check"))
         {yield return CheckTerrainDetail(output,hash);yield break;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-streaming-reuse-check"))

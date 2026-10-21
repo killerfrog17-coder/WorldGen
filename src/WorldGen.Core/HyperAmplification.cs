@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-11";
+        public const string Version = "hyper-amplification-12";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -58,6 +58,8 @@ namespace WorldGen.Core
         }
         internal sealed class Vertex
         {
+            public V DetailGradient;
+            public volatile bool DetailGradientReady;
             public ulong Key;
             public V Position;
             public Kind Type;
@@ -739,9 +741,9 @@ namespace WorldGen.Core
                 this.owner=owner;faces=new int[triangleOffsets.Length];
                 for(int i=0;i<faces.Length;i++)faces[i]=triangleOffsets[i]/3;
             }
-            public Surface Sample(V point,bool bare=false)
+            Face Locate(V point,out double a,out double b,out double c)
             {
-                Face found = null; double a = 0, b = 0, c = 0;
+                Face found = null; a = b = c = 0;
                 if (last != null && last.Coordinates(point, out a, out b, out c) >= -1e-7) found = last;
                 if(found==null)foreach(int id in faces)if(owner.roots[id].Coordinates(point,out a,out b,out c)>=-1e-7){found=owner.RootFace(id);break;}
                 if (found == null) throw new InvalidOperationException("Hyper-amplification patch has no containing base face.");
@@ -786,6 +788,11 @@ namespace WorldGen.Core
                 // no repeated root-to-leaf walk or locking of background splits.
                 last=found;
                 a = Math.Max(0, a); b = Math.Max(0, b); c = Math.Max(0, c); double sum = a + b + c; a /= sum; b /= sum; c /= sum;
+                return found;
+            }
+            public Surface Sample(V point,bool bare=false)
+            {
+                var found=Locate(point,out double a,out double b,out double c);
                 var pa=Profile(found.A);var pb=Profile(found.B);var pc=Profile(found.C);
                 double pre=a*found.A.Height+b*found.B.Height+c*found.C.Height;
                 double height=a*pa.Height+b*pb.Height+c*pc.Height;
@@ -813,14 +820,14 @@ namespace WorldGen.Core
                 double influence=OrogenMorphology.Smooth(0,.04,a*found.A.Flow+b*found.B.Flow+c*found.C.Flow);
                 var result=new Surface{Height=height,UnshapedHeight=pre,Water=water,Mask=mask,RiverInfluence=influence,
                     Kind=kind,BodyKey=bodyKey,Gradient=gradient,Footprint=footprint,Minimum=minimum,Maximum=maximum,
-                    Flow=waterFlow,Speed=speed,Turbulence=turbulence};
-                if(!bare)ApplyRiverscape(point,ref result);
+                    Flow=waterFlow,Speed=speed,Turbulence=turbulence,DetailProtection=1};
+                if(!bare){ApplyRiverscape(point,ref result);ApplySurfaceDetail(point,found,a,b,c,ref result);}
                 return result;
             }
         }
         internal struct Surface
         {
-            public double Height, UnshapedHeight, Water, Mask, RiverInfluence,Footprint,Minimum,Maximum,Speed,Turbulence;
+            public double Height, UnshapedHeight, Water, Mask, RiverInfluence,Footprint,Minimum,Maximum,Speed,Turbulence,DetailProtection;
             public LocalWaterKind Kind;public ulong BodyKey;public V Gradient,Flow;
         }
         internal Patch Region(int[] triangleOffsets) => new Patch(this, triangleOffsets);

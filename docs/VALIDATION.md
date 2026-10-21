@@ -1,5 +1,53 @@
 # Version 3 validation evidence
 
+## Fine surface and opaque transitions /20October2026
+
+`player-surface-refined`, final IL2CPP21Oct04:51:06Z, real C: output. See
+SURFACE_DETAIL_TRANSITIONS.md for Hyper12 reconstruction, small physical-scale
+detail, water protection, shared grounding, complementary terrain timing trees
+and instanced spatial scatter/depth/shadow fades. No source/history/save change.
+
+-8874 focused surface/transition assertions: overlapping patches agree exactly;
+  actual mountain grid178 changed points, maximum0.629m fine correction. CLR
+  3362 samples1.49s during compilation, NOT native performance acceptance.
+-6241 exact cached/uncached mesh/stitch/reuse checks,13059 coverage/navigation
+  and243 water coupling checks pass. Actual saved-world6 lake shores/1934
+  non-floating interior edges (2 candidates skipped) and308 actual submerged
+  coastal slope points pass with unchanged source hash. The lake audit predates
+  the final smooth river-collar suppression-only refinement, which does not
+  modify its standing-water band. Final ocean/source checks use final Core.
+-127639 final packaged-worker floats, terrain/water indices, bounds and
+  cancellation values match. Scatter probes have zero instances: not new
+  scatter-placement coverage. Eight final native/CLR height probes match.
+- Final actual GPU production-shader tests pass solid/fallback coverage, cache
+  restore/invalidation, complementary halfway incoming AND outgoing coverage
+  without holes, retained finer children during same-key parent replacement,
+  and coarsening without regression through a grandparent. Half-fade Bayer
+  images inspected; no alpha-blend sorting. Initial striped threshold and
+  nested/coarsening drafts were corrected before publication.
+- Actual owner world0.1x1280x80030km High/Balanced: mountain near8.225s after
+  main sampler initialization (including remaining worker startup),18/1819
+  tiles; plain1.160s warm,16/298 tiles. These are PARTIAL distant views, not
+  full-distance loading completion. Mountain4836 loading frames: median2.18ms,
+  p993.99ms, worst21.95ms, no >100ms,14 collections; plain3792 frames:
+  median1.11ms,p991.92ms,worst23.31ms,no >100ms,3 collections. Largest mesh
+  apply/bind0.19ms; largest controller query4.89/0.76ms. Hidden fixed-camera
+  intervals are NOT fullscreen/sustained-flight/low-end/FPS guarantees, and
+  are not a matched before/after performance comparison.
+- Native near/above captures are inspected. Mountain is steep and river-side;
+  transient dither is visible on assets/terrain. The chosen plain site is mostly
+  standing water, so it is not validation of dry-flatland fine geometry. Existing
+  water/jag/placeholder art defects are not declared solved by these images.
+  Owner review remains terrain-art/transition acceptance; no universal realism,
+  all-scale metre resolution or all-LOD popping elimination is claimed.
+
+The owner moved the old test world to recoverable trash after the prior review.
+Tests read the same snapshot there without restoring, deleting or modifying it.
+Source hash91a5470156e4aeeecb11fd22ac7b64987960701d5ff602e304784da6b2ca43e1
+is unchanged. All owned tests/workers are stopped; the owner's preceding game
+was not closed. Artifacts: `artifacts/surface-transitions/coverage-final` and
+`native-final`. Earlier candidate/coverage-first is not final build evidence.
+
 ## Owner-authorized playable-checkpoint cleanup /20October2026
 
 Only direct playable build folders under `artifacts` were pruned. Retention:

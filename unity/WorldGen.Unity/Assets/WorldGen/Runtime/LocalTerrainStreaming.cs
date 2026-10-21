@@ -32,12 +32,13 @@ public sealed partial class LocalTerrainExplorer
     {
         tile.Root.SetActive(false);tile.CoverageNodes=null;
         if(tile.Coverage!=null){Destroy(tile.Coverage);tile.Coverage=null;}
+        if(tile.CoverageTimes!=null){Destroy(tile.CoverageTimes);tile.CoverageTimes=null;}tile.CoverageTimingNodes=null;tile.FadeIn=tile.FadeOut=0;
         TerrainProducts.Put(new TerrainProductKey(key,tile.Segments,tile.Edges),tile,tile.BufferBytes);coverageDirty=true;
     }
     bool RestoreTerrain(TerrainTileKey key,int segments,double[] edges)
     {
         if(!CanInstall||!TerrainProducts.Take(new TerrainProductKey(key,segments,edges),out var tile))return false;
-        if(tiles.TryGetValue(key,out var old))CacheTerrain(key,old);
+        tiles.TryGetValue(key,out var old);BeginTerrainReplacement(key,tile,old);
         tile.Root.transform.SetParent(terrainRoot.transform,false);
         tile.Root.transform.localPosition=new Vector3((float)(key.X*key.SizeM-originX),0,(float)(key.Z*key.SizeM-originZ));
         tiles[key]=tile;tile.Root.SetActive(true);coverageDirty=true;installationsThisFrame++;TerrainCacheHits++;
@@ -45,6 +46,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void ResetStreamingReuse(bool cancelJobs)
     {
+        ClearTerrainTransitions();
         terrainProducts?.Clear();streamingVX=streamingVZ=0;predictedX=double.NaN;
         prefetchWanted.Clear();prefetchEdges.Clear();prefetchPriority.Clear();
         if(cancelJobs)foreach(var job in jobs)job.Cancellation?.Cancel();
