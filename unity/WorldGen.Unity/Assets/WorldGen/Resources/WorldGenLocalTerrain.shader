@@ -149,6 +149,14 @@ Shader "WorldGen/LocalTerrain"
                 detailScale=4.672;
                 #endif
                 albedo=farColor*lerp(1,albedo*detailScale,saturate(near*.88));
+                // Fine organic/blade-scale grain without a distant lawn texture.
+                // Vertex cover colour already carries the same ecological mixture
+                // to every terrain LOD, well beyond individual plant draw distance.
+                float cover=saturate(i.color.a);
+                float plantGrain=sin(worldTexture.x*29+sin(worldTexture.z*17))*sin(worldTexture.z*43+worldTexture.x*7);
+                float detailVisible=1-smoothstep(3,16,distance);
+                albedo*=1+plantGrain*cover*.13*detailVisible;
+                rough=lerp(rough,.88,cover);ao=lerp(ao,.9,cover);
                 InputData input=(InputData)0;input.positionWS=i.position;input.normalWS=n;input.viewDirectionWS=GetWorldSpaceNormalizeViewDir(i.position);
                 input.shadowCoord=TransformWorldToShadowCoord(i.position);input.bakedGI=_AmbientTint.rgb;input.shadowMask=half4(1,1,1,1);
                 input.normalizedScreenSpaceUV=GetNormalizedScreenSpaceUV(i.positionCS);

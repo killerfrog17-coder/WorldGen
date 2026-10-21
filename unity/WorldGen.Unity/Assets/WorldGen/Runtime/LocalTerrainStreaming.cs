@@ -30,6 +30,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void CacheTerrain(TerrainTileKey key,Tile tile)
     {
+        ReleaseGroundCover(tile);
         tile.Root.SetActive(false);tile.CoverageNodes=null;
         if(tile.Coverage!=null){Destroy(tile.Coverage);tile.Coverage=null;}
         if(tile.CoverageTimes!=null){Destroy(tile.CoverageTimes);tile.CoverageTimes=null;}tile.CoverageTimingNodes=null;tile.FadeIn=tile.FadeOut=0;

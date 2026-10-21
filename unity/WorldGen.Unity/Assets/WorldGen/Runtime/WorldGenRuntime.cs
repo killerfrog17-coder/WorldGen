@@ -57,6 +57,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         uiCheck = Environment.GetCommandLineArgs().Contains("--worldgen-ui-check");
         panels = groups.Select(g => false).ToArray();
         filePath = Path.Combine(Application.persistentDataPath, "worldgen.recipe.json");
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-ground-cover-check")){StartCoroutine(LocalTerrainExplorer.CheckGroundCover(Argument("--worldgen-output","")));return;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-coverage-shader-check")){StartCoroutine(LocalTerrainExplorer.CheckCoverageShader(Argument("--worldgen-output","")));return;}
         if (Environment.GetCommandLineArgs().Contains("--worldgen-check")) { RunPlayerChecks(); return; }
         if(Environment.GetCommandLineArgs().Contains("--worldgen-history-resume")){CheckHistoricalResume();return;}

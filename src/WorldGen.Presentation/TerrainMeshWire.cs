@@ -8,7 +8,7 @@ namespace WorldGen.Presentation
     /// Core/Presentation assemblies, never an approximate second generator.</summary>
     public static class TerrainMeshWire
     {
-        public const int Version=2;
+        public const int Version=3;
         [ThreadStatic] static byte[]? scratch;
         static byte[] Scratch=>scratch??(scratch=new byte[65536]);
         static void ArrayOut(BinaryWriter writer,Array data)
@@ -42,14 +42,15 @@ namespace WorldGen.Presentation
         {
             w.Write(m.EastM);w.Write(m.NorthM);w.Write(m.SizeM);w.Write(m.MinHeightM);w.Write(m.MaxHeightM);w.Write(m.BuildMilliseconds);w.Write(m.Segments);w.Write(m.GroundVertices);
             foreach(var a in new[]{m.Positions,m.Normals,m.Colors,m.SurfaceWeights,m.GroundWeightsB,m.Lithology,m.WaterPositions,m.WaterColors})ArrayOut(w,a);
-            ArrayOut(w,m.Triangles);ArrayOut(w,m.WaterTriangles);w.Flush();
+            ArrayOut(w,m.Triangles);ArrayOut(w,m.WaterTriangles);ArrayOut(w,m.GroundCover);w.Flush();
         }
         public static LocalTerrainMesh ReadMesh(BinaryReader r)
         {
             var m=new LocalTerrainMesh{EastM=r.ReadDouble(),NorthM=r.ReadDouble(),SizeM=r.ReadDouble(),MinHeightM=r.ReadDouble(),MaxHeightM=r.ReadDouble(),BuildMilliseconds=r.ReadDouble(),Segments=r.ReadInt32(),GroundVertices=r.ReadInt32()};
             if(m.Segments<4||m.Segments>128||m.GroundVertices<0||m.GroundVertices>16641)throw new InvalidDataException("Invalid terrain mesh dimensions.");
             m.Positions=Floats(r);m.Normals=Floats(r);m.Colors=Floats(r);m.SurfaceWeights=Floats(r);m.GroundWeightsB=Floats(r);m.Lithology=Floats(r);m.WaterPositions=Floats(r);m.WaterColors=Floats(r);m.Triangles=Ints(r);m.WaterTriangles=Ints(r);
-            int vertices=m.Positions.Length/3;
+            m.GroundCover=Floats(r);int vertices=m.Positions.Length/3;
+            if(m.GroundCover.Length!=0&&m.GroundCover.Length!=m.GroundVertices*16)throw new InvalidDataException("Incomplete ground-cover grid.");
             if(m.Positions.Length%3!=0||m.Normals.Length!=m.Positions.Length||m.Colors.Length!=vertices*4||m.SurfaceWeights.Length!=vertices*4||m.GroundWeightsB.Length!=vertices*4||m.Lithology.Length!=vertices*6||m.WaterColors.Length!=m.WaterPositions.Length/3*4)
                 throw new InvalidDataException("Incomplete terrain mesh attributes.");
             return m;

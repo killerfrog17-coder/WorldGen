@@ -197,7 +197,7 @@ public sealed partial class LocalTerrainExplorer
             {if(batch.PartMatrices[j]==null)batch.PartMatrices[j]=new Matrix4x4[batch.Matrices.Length];for(int i=0;i<batch.Count;i++)batch.PartMatrices[j][i]=batch.Matrices[i]*batch.Model.Parts[j].Local;}
         }
     }
-    void LateUpdate(){if(!closed){DrawScatter();if(weatherCheckTarget!=null&&view!=null)view.Render();}}
+    void LateUpdate(){if(!closed){DrawScatter();DrawGroundCover();if(weatherCheckTarget!=null&&view!=null)view.Render();}}
     void DrawScatter()
     {
         ScatterDrawCalls=0;if(!ScatterEnabled||view==null)return;
@@ -213,6 +213,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DisposeScatter()
     {
+        if(groundCoverMaterial!=null)Destroy(groundCoverMaterial);
         if(generatedGround!=null)foreach(var texture in generatedGround)Destroy(texture);
         foreach(var mesh in ownedScatterMeshes)Destroy(mesh);foreach(var material in ownedScatterMaterials)Destroy(material);
         if(lightingSaved){RenderSettings.sun=precedingSun;RenderSettings.ambientMode=precedingAmbient;RenderSettings.ambientSkyColor=precedingSky;RenderSettings.ambientEquatorColor=precedingEquator;RenderSettings.ambientGroundColor=precedingGround;}

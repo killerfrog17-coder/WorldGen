@@ -6,18 +6,21 @@ public static class TerrainVideoOptions
 {
     public static readonly TerrainDetailOptions Current=new TerrainDetailOptions();
     public static int Revision;
+    public static bool GroundCover=true;
     public static void Load()
     {
         Current.Quality=Mathf.Clamp(PlayerPrefs.GetInt("terrain-quality",2),0,4);
         Current.Effort=Mathf.Clamp(PlayerPrefs.GetInt("terrain-effort",1),0,3);
         Current.ViewDistanceM=Mathf.Clamp(PlayerPrefs.GetFloat("terrain-distance",200000),1000,250000);
         Current.FullDetailTiles=Mathf.Clamp(PlayerPrefs.GetFloat("terrain-full-radius",1.5f),1.5f,8);
+        GroundCover=PlayerPrefs.GetInt("terrain-ground-cover",1)!=0;
         Revision++;
     }
     public static void Save()
     {
         PlayerPrefs.SetInt("terrain-quality",Current.Quality);PlayerPrefs.SetInt("terrain-effort",Current.Effort);
         PlayerPrefs.SetFloat("terrain-distance",(float)Current.ViewDistanceM);PlayerPrefs.SetFloat("terrain-full-radius",(float)Current.FullDetailTiles);
+        PlayerPrefs.SetInt("terrain-ground-cover",GroundCover?1:0);
         PlayerPrefs.Save();Revision++;
     }
 }
@@ -53,6 +56,7 @@ public sealed partial class WorldGenRuntime
         GUILayout.Label("Loading effort");o.Effort=GUILayout.SelectionGrid(o.Effort,new[]{"Low","Balanced","High","Maximum"},2);
         if(!compact)
         {
+            TerrainVideoOptions.GroundCover=GUILayout.Toggle(TerrainVideoOptions.GroundCover,"Ground vegetation · nearby plants (distant cover colour stays)");
             GUILayout.Label("View distance  "+(o.ViewDistanceM/1000).ToString("F0")+" km");
             o.ViewDistanceM=Math.Round(GUILayout.HorizontalSlider((float)o.ViewDistanceM,1000,250000)/1000)*1000;
             double scale=terrainExplorer?.HorizontalScale??play.Settings.HorizontalScale;

@@ -85,7 +85,10 @@ namespace WorldGen.Presentation
                 }
                 positions.Add((float)p.X);positions.Add((float)height);positions.Add((float)p.Z);
                 normals.Add((float)(nx/length));normals.Add((float)up);normals.Add((float)(nz/length));
-                colors.Add((float)surface.Color.X);colors.Add((float)surface.Color.Y);colors.Add((float)surface.Color.Z);colors.Add(1);
+                var cover=GroundFlora.Surface(s.Cover,at,terrain.SourceSeed,terrain.RadiusM*frame.HorizontalScale,
+                    s.Ground,s.ElevationM,s.BaseElevationM,up,s.Underwater,s.Biome==Biome.Ice?1:0);
+                double coverAmount=D.Clamp(cover.Coverage);V groundColor=surface.Color*(1-coverAmount)+cover.Color*coverAmount;
+                colors.Add((float)groundColor.X);colors.Add((float)groundColor.Y);colors.Add((float)groundColor.Z);colors.Add((float)coverAmount);
                 for(int k=0;k<4;k++){weights.Add((float)surface.Weight(k));groundB.Add((float)surface.Weight(k+4));}
                 for(int k=0;k<6;k++)rocks.Add((float)s.Ground.RockWeight(k));return id;
             }

@@ -1,0 +1,38 @@
+#pragma kernel Place
+StructuredBuffer<float> _Grid;
+struct Root { float4 positionForm;float4 colorHeight;float4 shape;float4 normal; };
+AppendStructuredBuffer<Root> _Roots;
+int4 _Candidate;float4 _Tile;uint _Seed;
+uint Mix(uint x){x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);}
+float Rand(uint x){return (Mix(x)&0xffffffu)/16777216.;}
+float Attribute(int x,int z,int channel){return _Grid[((z*((int)_Tile.w+1)+x)*16)+channel];}
+[numthreads(64,1,1)]
+void Place(uint3 id:SV_DispatchThreadID)
+{
+    uint count=_Candidate.z*_Candidate.w;if(id.x>=count)return;
+    int2 cell=int2(_Candidate.x+id.x%_Candidate.z,_Candidate.y+id.x/_Candidate.z);
+    uint hash=Mix(asuint(cell.x)*73856093u^asuint(cell.y)*19349663u^_Seed);
+    float2 p=(float2(cell)+float2(.12+.76*Rand(hash),.12+.76*Rand(hash+1)))*.85;
+    float2 uv=(p-_Tile.xy)/_Tile.z;if(any(uv<0)||any(uv>=1))return;
+    float2 q=uv*_Tile.w;int2 a=min((int2)floor(q),(int)_Tile.w-1);float2 f=q-a;
+    float values[16];
+    [unroll]for(int k=0;k<16;k++)
+    {
+        float h00=Attribute(a.x,a.y,k),h10=Attribute(a.x+1,a.y,k),h01=Attribute(a.x,a.y+1,k),h11=Attribute(a.x+1,a.y+1,k);
+        values[k]=f.x+f.y<=1?h00+(h10-h00)*f.x+(h01-h00)*f.y:h11+(h01-h11)*(1-f.x)+(h10-h11)*(1-f.y);
+    }
+    float cover=saturate(values[3]);if(Rand(hash+2)>cover)return;
+    float selection=Rand(hash+3)*max(.00001,cover),sum=0;int form=8;
+    [unroll]for(int t=0;t<9;t++){sum+=values[4+t];if(selection<=sum){form=t;break;}}
+    static const float heights[9]={.42,.70,.40,.65,.26,.46,.045,.018,.19};
+    // Low mats are represented mostly by the substrate, with occasional nearby
+    // hummocks/rosettes, rather than a forest of upright 'moss grass'.
+    if((form==6||form==7)&&Rand(hash+8)>.28)return;
+    float step=_Tile.z/_Tile.w;
+    float sx=(Attribute(a.x+1,a.y,15)-Attribute(a.x,a.y,15))/step;
+    float sz=(Attribute(a.x,a.y+1,15)-Attribute(a.x,a.y,15))/step;
+    Root r;r.positionForm=float4(p.x-_Tile.x,values[15]-.016,p.y-_Tile.y,form);
+    r.colorHeight=float4(values[0],values[1],values[2],heights[form]*max(.4,values[13])*(.70+.60*Rand(hash+4)));
+    r.shape=float4(max(.4,values[14]),Rand(hash+5),Rand(hash+6),Rand(hash+7));
+    r.normal=float4(normalize(float3(-sx,1,-sz)),0);_Roots.Append(r);
+}

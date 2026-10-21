@@ -24,15 +24,19 @@ static class TerrainWorkerTests
                 Console.WriteLine("Worker assembly "+r.ReadString()+"; "+r.ReadString());port=r.ReadInt32();
             }
             listener.Stop();int count=0;
-            foreach(var at in new[]{TerrainMapViewport.FromDegrees(27.98,86.92),TerrainMapViewport.FromDegrees(30.2,-99),terrain.Amplification.RiverPoint(terrain.Hydrology.Channels.First(c=>c.WidthM>10&&c.StartM>10).From,.5)})
+            int dryCell=Enumerable.Range(0,world.ElevationM.Length).First(i=>world.ElevationM[i]>30&&world.ElevationM[i]<1200&&world.Ecology.Habitat[i].Biome==Biome.Grassland);
+            V dryPoint=world.Surface.Cells[dryCell].Position;
+            foreach(var at in new[]{TerrainMapViewport.FromDegrees(27.98,86.92),TerrainMapViewport.FromDegrees(30.2,-99),terrain.Amplification.RiverPoint(terrain.Hydrology.Channels.First(c=>c.WidthM>10&&c.StartM>10).From,.5),dryPoint})
             {
+                double size=(at-dryPoint).Length<1e-12?102.4:204.8;
                 var frame=new LocalTerrainFrame(at,terrain.RadiusM,terrain.Patch(at).Sample(0,0).ElevationM,.1);
                 using var client=new TcpClient{NoDelay=true};client.Connect(IPAddress.Loopback,port);
                 using var stream=client.GetStream();using var r=new BinaryReader(stream);using var w=new BinaryWriter(stream);
-                w.Write(secret);w.Write((byte)0);TerrainMeshWire.WriteRequest(w,frame,0,0,204.8,32,null);
+                w.Write(secret);w.Write((byte)0);TerrainMeshWire.WriteRequest(w,frame,0,0,size,32,null);
                 if(!r.ReadBoolean())throw new Exception("Worker rejected valid request.");
-                var actual=TerrainMeshWire.ReadMesh(r);w.Write((byte)0);w.Flush();var expected=LocalTerrainMesh.Build(terrain,frame,0,0,204.8,32);
-                var pairs=new[]{(actual.Positions,expected.Positions),(actual.Normals,expected.Normals),(actual.Colors,expected.Colors),(actual.SurfaceWeights,expected.SurfaceWeights),(actual.GroundWeightsB,expected.GroundWeightsB),(actual.Lithology,expected.Lithology),(actual.WaterPositions,expected.WaterPositions),(actual.WaterColors,expected.WaterColors)};
+                var actual=TerrainMeshWire.ReadMesh(r);w.Write((byte)0);w.Flush();var expected=LocalTerrainMesh.Build(terrain,frame,0,0,size,32);
+                if(size<150&&expected.GroundCover.Length==0)throw new Exception("Fine worker flora sidecar missing.");
+                var pairs=new[]{(actual.Positions,expected.Positions),(actual.Normals,expected.Normals),(actual.Colors,expected.Colors),(actual.SurfaceWeights,expected.SurfaceWeights),(actual.GroundWeightsB,expected.GroundWeightsB),(actual.Lithology,expected.Lithology),(actual.WaterPositions,expected.WaterPositions),(actual.WaterColors,expected.WaterColors),(actual.GroundCover,expected.GroundCover)};
                 foreach(var pair in pairs){if(!pair.Item1.SequenceEqual(pair.Item2))throw new Exception("Worker changed mesh float data at "+at.X+","+at.Y+","+at.Z);count+=pair.Item1.Length;}
                 if(!actual.Triangles.SequenceEqual(expected.Triangles)||!actual.WaterTriangles.SequenceEqual(expected.WaterTriangles))throw new Exception("Worker changed terrain/water topology.");
                 if(actual.MinHeightM!=expected.MinHeightM||actual.MaxHeightM!=expected.MaxHeightM)throw new Exception("Worker changed mesh bounds.");

@@ -38,6 +38,9 @@ namespace WorldGen.Presentation
         public float[] GroundWeightsB = Array.Empty<float>();
         // Six continuous lithology weights, independent of soil and render LOD.
         public float[] Lithology = Array.Empty<float>();
+        // Regular-grid ground flora: RGB/cover,9 growth-form weights,stature,
+        // leaf width and rendered height. Local GPU cover reuses this surface.
+        public float[] GroundCover = Array.Empty<float>();
         public int[] Triangles = Array.Empty<int>();
         public int[] WaterTriangles = Array.Empty<int>();
         public int[] WaterClipTriangles = Array.Empty<int>();
@@ -67,6 +70,7 @@ namespace WorldGen.Presentation
             }
             int side = segments + 1, halo = side + 2, ground = side * side, perimeter = segments * 4;
             mesh.GroundVertices = ground;
+            if(sizeM<=TerrainLod.BaseSizeM*frame.HorizontalScale*1.001)mesh.GroundCover=new float[ground*16];
             var heights = new double[halo * halo]; var samples = new LocalTerrainSample[ground];
             for (int z = -1; z <= side; z++)
             {
@@ -116,7 +120,18 @@ namespace WorldGen.Presentation
                 for(int layer=0;layer<4;layer++){mesh.SurfaceWeights[i*4+layer]=(float)groundSurface.Weight(layer);mesh.GroundWeightsB[i*4+layer]=(float)groundSurface.Weight(layer+4);}
                 for(int layer=0;layer<6;layer++)mesh.Lithology[i*6+layer]=(float)sample.Ground.RockWeight(layer);
                 V color = groundSurface.Color;
-                mesh.Colors[i * 4] = (float)color.X; mesh.Colors[i * 4 + 1] = (float)color.Y; mesh.Colors[i * 4 + 2] = (float)color.Z; mesh.Colors[i * 4 + 3] = 1;
+                var cover=GroundFlora.Surface(sample.Cover,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,
+                    terrain.RadiusM*frame.HorizontalScale,sample.Ground,sample.ElevationM,sample.BaseElevationM,up,sample.Underwater,snow);
+                double coverage=D.Clamp(cover.Coverage);
+                color=color*(1-coverage)+cover.Color*coverage;
+                if(mesh.GroundCover.Length>0)
+                {
+                    int coverAt=i*16;mesh.GroundCover[coverAt]=(float)cover.Color.X;mesh.GroundCover[coverAt+1]=(float)cover.Color.Y;
+                    mesh.GroundCover[coverAt+2]=(float)cover.Color.Z;mesh.GroundCover[coverAt+3]=(float)coverage;
+                    for(int form=0;form<9;form++)mesh.GroundCover[coverAt+4+form]=(float)cover.Weight(form);
+                    mesh.GroundCover[coverAt+13]=(float)cover.Stature;mesh.GroundCover[coverAt+14]=(float)cover.LeafWidth;mesh.GroundCover[coverAt+15]=(float)y;
+                }
+                mesh.Colors[i * 4] = (float)color.X; mesh.Colors[i * 4 + 1] = (float)color.Y; mesh.Colors[i * 4 + 2] = (float)color.Z; mesh.Colors[i * 4 + 3] = (float)coverage;
             }
             mesh.Triangles = new int[segments * segments * 6 + perimeter * 6]; int cursor = 0;
             void Triangle(int a, int b, int c) { mesh.Triangles[cursor++] = a; mesh.Triangles[cursor++] = b; mesh.Triangles[cursor++] = c; }
@@ -142,6 +157,7 @@ namespace WorldGen.Presentation
             var waterSamples=LocalChannelMesh.Refine(mesh,terrain,frame,patch,samples,token);
             LocalWaterMesh.Build(mesh,frame,waterSamples,terrain.Amplification!=null);
             if(terrain.Amplification!=null)RiverscapeMesh.Append(mesh,frame,patch,waterSamples,token);
+            GroundCoverGrid.ExcludeWater(mesh);
             mesh.BuildMilliseconds = watch.Elapsed.TotalMilliseconds; return mesh;
         }
     }

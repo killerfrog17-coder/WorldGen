@@ -1,5 +1,28 @@
 # WorldGen repository instructions
 
+Current OWNER REVIEW launch,21October2026: shortcut selects
+`artifacts/player-ground-flora-reviewed/WorldGen.exe` (IL2CPP05:58:13Z), real C:.
+Ground-flora1 derives nine ground-cover growth forms and seeded province-founder/
+regional-branch candidates from existing saved ecology/soil. Continuous support
+and physical-space patches replace sparse placeholder grass; existing trees,
+shrubs, rocks, terrain heights, water and world/history hashes are unchanged.
+All terrain LODs carry mean cover color. Only finest tiles retain264KiB/64seg
+root grids; worker wire3 matches. GPU compact clumps reuse drawn-grid heights,
+exclude actual water triangles conservatively, use7/4/2 blades and3/2/1 segments,
+fade at25–42/65–90/130–160m and load over2s. No plant GameObjects/readbacks in
+normal rendering; no new fine saved raster. Terrain toggle disables nearby
+cover only, F3 reports draw/buffer capacity. Smallest world scales can run out
+of level0 coverage before160m; chart reanchors resample transient clumps.
+5859 flora/4037 scatter checks pass; saved200k source unchanged. Flora-only
+cold catalog+200k profiles41.8ms, total terrain+flora prep1.35s/259.5MiB retained
+on host, not a native full-load/FPS guarantee. Native GPU fixture11433 clumps/
+70812 changed pixels passes; white-plane captures inspected, NOT actual-world
+art/performance acceptance. Owner notification sent; own test players stopped.
+177346 final packaged-worker comparisons pass, including a fine flora sidecar.
+See GROUND_FLORA.md and VALIDATION.md. Prior fps-average is rollback. Dynamic
+evolution, seasonal phenology, fine botanical art, clearing/grazing/trampling,
+per-tree shade, and a shrub/tree overhaul are NOT implemented by this pass.
+
 FPS HUD follow-up,21October2026: `artifacts/player-fps-average/WorldGen.exe`
 is the current shortcut checkpoint (IL2CPP21Oct05:14:09Z). F3 counts
 Update frames over realtime-clock half-second windows and holds the rounded average

@@ -47,8 +47,8 @@ static class LocalScatterTests
             check(double.IsFinite(p.GroundM)&&p.HeightM>0&&p.WidthM>0,"Scatter dimensions and roots are finite physical metres");
             check(p.Normal.Length>.999&&p.Normal.Length<1.001,"Ground orientation is normalized");
         }
-        var detail=forest.Build(forest.Address(point,true));check(detail.Instances.Any(i=>i.Kind==ScatterKind.Grass),"Nearby detail includes individual grass clumps");
-        check(detail.Instances.All(i=>i.Kind==ScatterKind.Grass||i.Kind==ScatterKind.Stone),"Detail-tier LOD does not invent or reseed trees");
+        var detail=forest.Build(forest.Address(point,true));check(detail.Instances.All(i=>i.Kind!=ScatterKind.Grass),"GPU ground cover replaces rather than duplicates placeholder grass");
+        check(detail.Instances.All(i=>i.Kind==ScatterKind.Stone),"Detail-tier stones remain; ground cover does not reseed trees");
         foreach(var at in new[]{point,new V(1,1,0).Unit,new V(1,1,1).Unit,new V(0,0,1),new V(0,0,-1)})
         {
             var keys=forest.Around(at,100,true);check(keys.Distinct().Count()==keys.Length,"Planetary neighbourhoods have no duplicate tiles at poles/cube seams");

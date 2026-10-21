@@ -1,5 +1,37 @@
 # Version 3 validation evidence
 
+## First ground-layer flora /21October2026
+
+Current shortcut: `player-ground-flora-reviewed`, IL2CPP05:58:13Z, real C:.
+See GROUND_FLORA.md for primary ecology/rendering references, nine growth forms,
+derived regional ancestry, scope and limits. World/history/saves and terrain/
+water geometry unchanged; only the old sparse grass channel is retired.
+
+-5859 focused ecology, seed/ancestry, bounded niches, exact overlapping-patch,
+  source-hash and mesh-wire roundtrip checks;4037 existing scatter checks pass.
+  Tree/shrub/rock definitions remain literal; changed grass assertions now
+  explicitly require that GPU cover does not duplicate old CPU grass.
+-Saved200k0.1x Continents Plus: total derived terrain+flora prep1.35s,259.5MiB
+  retained. Cold flora catalog plus200k descriptions41.8ms, excluding already
+  existing soil/terrain construction. Cold102.4m64seg tile1.588s, warmed repeat
+  165.4ms during compilation. Not native or matched-baseline performance claims.
+-Native compute/indirect-render fixture:11433 compact clumps, same counts for
+  three indirect LOD commands,70812 changed pixels versus same view without
+  cover,0.96MiB fixture GPU buffers. Inspectable near/overview images under
+  artifacts/ground-flora/gpu-check show curved blade/leaf geometry against a
+  white test substrate; no actual-world flora art/FPS acceptance is implied.
+-Initial final packaged-worker test:127639 exact mesh floats, water/land
+  indices/bounds and cancellation pass. Selected scatter probes have zero
+  instances and do not independently validate dense scatter appearance.
+  An initial invocation had input/executable reversed; it failed before worker
+  startup and the corrected invocation passed. Adding a fine grassland probe
+  passes177346 exact values/topology/bounds/cancellation checks, explicitly
+  exercising the worker's fine-cover sidecar as well as coarse empty sidecars.
+
+My test players are stopped. Owner art/performance review is pending. No GPU
+mesh-shader requirement (ordinary compute+indirect draws), individual plant
+objects, planet fine-cover raster or recurring ecological census is added.
+
 ## FPS HUD averaging /21October2026
 
 F3 now displays counted Update frames divided by realtime-clock elapsed time over

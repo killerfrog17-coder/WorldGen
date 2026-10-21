@@ -29,7 +29,7 @@ namespace WorldGen.Core
     /// <summary>Replaceable static natural cover over accepted terrain, not a population or forestry simulation.</summary>
     public sealed class LocalScatter
     {
-        public const string Version="local-scatter-preview-3";
+        public const string Version="local-scatter-ground-cover-4";
         readonly LocalTerrain terrain;readonly World world;readonly int seed;readonly double scale;
         static readonly V[] Normals={new V(1,0,0),new V(-1,0,0),new V(0,1,0),new V(0,-1,0),new V(0,0,1),new V(0,0,-1)};
         public LocalScatter(LocalTerrain terrain,double horizontalScale=1){this.terrain=terrain??throw new ArgumentNullException(nameof(terrain));if(horizontalScale<.01||horizontalScale>2||double.IsNaN(horizontalScale))throw new ArgumentOutOfRangeException(nameof(horizontalScale));scale=horizontalScale;world=terrain.SourceWorld;seed=world.Recipe.Seed;}
@@ -70,6 +70,9 @@ namespace WorldGen.Core
             int grid=key.Detail?32:64;
             for(int channel=0;channel<(key.Detail?2:4);channel++)
             {
+                // Dense low vegetation now belongs to the shared GPU ground-cover
+                // layer; preserve all tree/shrub/rock channels and their IDs.
+                if(key.Detail&&channel==0)continue;
                 int side=channel==0?grid:key.Detail?8:channel==3?4:16;
                 for(int y=0;y<side;y++)
                 {
