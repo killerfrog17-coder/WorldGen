@@ -56,7 +56,7 @@ Shader "WorldGen/LocalTerrain"
             #pragma multi_compile_local_fragment _ _RECEIVE_SHADOWS_OFF
             #pragma multi_compile_local_fragment _ WORLDGEN_TERRAIN_LAB
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "WorldGenLighting.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
             #include "WorldGenTerrainMaterial.hlsl"
             #include "WorldGenAir.hlsl"

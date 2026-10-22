@@ -1,5 +1,32 @@
 # WorldGen repository instructions
 
+OWNER-TEST-ONLY cascade/canopy checkpoint,22October2026: shortcut selects real C:
+`artifacts/player-cascade-canopy-shadows/WorldGen.exe`, release IL2CPP
+BuiltUtc21:34:24Z, compile/package0. Owner identifies10Hz jitter and obvious
+shadow-range boundary; keep compile/package ONLY, no suites/fixtures/game/world
+launches/captures/profiling. Directional light and visible sun/moon discs now
+interpolate per-frame between10Hz poses; previous interval advances to NOW before
+retargeting. Expensive sky/weather stays10Hz; large/primary/chart changes snap.
+Four fixed cascade ends16/48/100/180m and30% last fade replace range-only quality.
+VeryLow/Low/Medium/High/Ultra atlas1024/1024/2048/4096/4096, foliage2/4/4/4/9 taps;
+defaultMedium. Off/exit restores owned pipeline range/resolution/count/split/fade.
+Separate broad canopy shade toggle/defaulton: actual resident tree-root crowns,
+256²/1536m height/coverage cache (1MiB GPU pair+1MiB CPU), incremental0.6ms target/
+1024 roots per frame, one refresh per>=1s completion,0.5s field blend,96m edges.
+90-160m shelter handoff, roughly600-800m coverage, NOT20km sunlight/mountain/
+building/low-sun lateral shadowing or full AO. Upper canopy height remains lit;
+openings retain light. No new worker/root/terrain queries, no idle rebuild;
+quality alone doesn't rebuild. Map-open pauses; floating origin translates valid
+rects, chart changes reject old cache. Shared shader main-light visibility hook
+retains bundled URP PBR/GI/additional lights; steady one lookup in valid coverage,
+none near/outside, two only during field blending. Existing SRP layout intact;
+no new runtime batching capture. Proxy winding/bias normals corrected. Placement,
+vegetation geometry/LOD/wind, terrain/water/world/history/saves unchanged. D3D11/12
+compile no C#/shader errors; proxy instancing variants retained; existing terrain
+div/mod/TerrainTestAir advisories remain. Source/build integration NOT visual,
+jitter-free, seam-free or measured-FPS acceptance. Owner testing now; previous
+foliage-shadow-proxies remains rollback. See FOLIAGE_SHADOWS.md/VALIDATION.md.
+
 OWNER-TEST-ONLY foliage shadow checkpoint,22October2026: shortcut selects real C:
 `artifacts/player-foliage-shadow-proxies/WorldGen.exe`, release IL2CPP
 BuiltUtc20:21:06Z, compile/package0. Vegetation adds independent near-foot grass

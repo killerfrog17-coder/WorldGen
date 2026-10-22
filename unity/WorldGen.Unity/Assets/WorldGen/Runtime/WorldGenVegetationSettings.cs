@@ -14,7 +14,10 @@ public static partial class TerrainVideoOptions
     public static bool SimplifiedForestShadows=true;
     public static int ForestShadowQuality=2;
     public static float ForestShadowSoftness=2;
-    public static float ForestShadowDistance=>ForestShadowQuality==0?60:ForestShadowQuality==1?90:ForestShadowQuality==2?140:ForestShadowQuality==3?180:220;
+    public static bool CanopyShade=true;
+    public static float ForestShadowDistance=>180;
+    public static int ForestShadowResolution=>ForestShadowQuality<2?1024:ForestShadowQuality==2?2048:4096;
+    public static int ForestShadowSamples=>ForestShadowQuality==0?2:ForestShadowQuality==4?9:4;
     public static int GrassQuality=2,SpecialistQuality=2,MidQuality=2,TreeQuality=2;
     public static float TreeIdentityRange= (float)VegetationQuality.TreeIdentityRange;
     public static void ApplyPlantQuality(int layer,int quality)
@@ -34,6 +37,7 @@ public static partial class TerrainVideoOptions
         SpecialistPlants=Flag("specialists");MidPlants=Flag("mid");GeneratedTrees=Flag("trees");FarForest=Flag("far-forest");
         GrassNearDensity=Value("grass-near-density",2,1,20);
         SimplifiedForestShadows=Flag("simple-forest-shadows");
+        CanopyShade=Flag("canopy-shade");
         ForestShadowQuality=Mathf.Clamp(PlayerPrefs.GetInt("vegetation-forest-shadow-quality",2),0,4);
         ForestShadowSoftness=Value("forest-shadow-softness",2,.75f,4);
         SpecialistDetail=Mathf.Clamp(PlayerPrefs.GetInt("vegetation-specialist-detail",1),0,1);
@@ -55,6 +59,7 @@ public static partial class TerrainVideoOptions
         void Value(string name,float value)=>PlayerPrefs.SetFloat("vegetation-"+name,value);
         Flag("specialists",SpecialistPlants);Flag("mid",MidPlants);Flag("trees",GeneratedTrees);Flag("far-forest",FarForest);
         Value("grass-near-density",GrassNearDensity);Flag("simple-forest-shadows",SimplifiedForestShadows);
+        Flag("canopy-shade",CanopyShade);
         PlayerPrefs.SetInt("vegetation-forest-shadow-quality",ForestShadowQuality);Value("forest-shadow-softness",ForestShadowSoftness);
         PlayerPrefs.SetInt("vegetation-specialist-detail",SpecialistDetail);PlayerPrefs.SetInt("vegetation-mid-detail",MidPlantDetail);PlayerPrefs.SetInt("vegetation-tree-detail",TreeDetail);
         Value("specialist-density",SpecialistDensity);Value("mid-density",MidPlantDensity);Value("tree-density",TreeDensity);
@@ -75,7 +80,7 @@ public static partial class TerrainVideoOptions
         MidNearLod=55;MidFarLod=200;MidMaxDistance=1400;TreeNearLod=120;TreeFarLod=450;TreeMaxDistance=1400;
         MidPlantShadows=TreeShadows=VegetationShadows=ScatterFrustum=VegetationOcclusion=true;
         GroundCover=GrassCanopy=GrassWind=true;TreeIdentityRange=(float)VegetationQuality.TreeIdentityRange;ApplyAllPlantQuality(2);
-        GrassNearDensity=2;SimplifiedForestShadows=true;ForestShadowQuality=2;ForestShadowSoftness=2;
+        GrassNearDensity=2;SimplifiedForestShadows=CanopyShade=true;ForestShadowQuality=2;ForestShadowSoftness=2;
     }
     public static bool KeepVegetation(ScatterKind kind,ulong id)
     {
@@ -144,12 +149,13 @@ public sealed partial class WorldGenRuntime
         GUILayout.Space(12);GUILayout.Label("FOREST SHADOWS",SectionStyle());
         TerrainVideoOptions.SimplifiedForestShadows=GUILayout.Toggle(TerrainVideoOptions.SimplifiedForestShadows,"Simplified forest shadows (off = previous rendering)");
         GUI.enabled=enabled&&TerrainVideoOptions.SimplifiedForestShadows;
-        GUILayout.Label("Forest shadow range / quality");
+        GUILayout.Label("Forest shadow quality");
         TerrainVideoOptions.ForestShadowQuality=GUILayout.SelectionGrid(TerrainVideoOptions.ForestShadowQuality,VegetationQuality.Names,5);
-        GUILayout.Label("Shadow coverage  "+TerrainVideoOptions.ForestShadowDistance.ToString("F0")+" m; independent of visible tree LOD");
+        GUILayout.Label("Fixed cascades: 16 / 48 / 100 / 180 m. Atlas "+TerrainVideoOptions.ForestShadowResolution+" px; ~"+(TerrainVideoOptions.ForestShadowResolution/2)+" px per cascade; "+TerrainVideoOptions.ForestShadowSamples+" foliage filter samples.");
         GUILayout.Label("Foliage shadow softness  "+TerrainVideoOptions.ForestShadowSoftness.ToString("F2"));
         TerrainVideoOptions.ForestShadowSoftness=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.ForestShadowSoftness,.75f,4)*20)/20;
-        GUILayout.Label("Hidden low-poly tree casters and four-sample foliage filtering. Ordinary objects keep the normal shadow path. Larger coverage costs more; softness changes filter footprint, not sample count.",MutedStyle());
+        TerrainVideoOptions.CanopyShade=GUILayout.Toggle(TerrainVideoOptions.CanopyShade,"Broad distant canopy shade (height-aware placed-tree coverage)");
+        GUILayout.Label("Quality changes resolution/filtering, not range. Broad shade blends in before detailed shadows end; it is approximate canopy shelter, not distant leaf silhouettes. Softness changes filter footprint.",MutedStyle());
         GUI.enabled=enabled;
         GUILayout.Space(10);
         vegetationDiagnostics=GUILayout.Toggle(vegetationDiagnostics,"Advanced diagnostics / A-B comparisons");

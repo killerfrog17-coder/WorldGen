@@ -1,5 +1,60 @@
 # Version 3 validation evidence
 
+## Smooth sunlight, resolution-based cascades and broad canopy shelter /22October2026
+
+Owner requests implementation after identifying10Hz sun stepping and an obvious
+forest-shadow range boundary. Source found SetDaylight assigning the light pose
+directly once per0.1s. Presentation now interpolates the directional light and
+visible sun/moon discs each frame; the previous interval advances to current time
+before the next target is captured. Sky/weather computation stays10Hz. No new
+shadow pass/cache or additional frame-rate sky/weather simulation. First/large
+direction/primary changes snap; chart reset requests a new initial pose.
+
+Four cascades now keep configured ends16/48/100/180m at every quality, with30%
+last-border fade. Atlas1024/1024/2048/4096/4096 and foliage filter2/4/4/4/9 for
+Very low throughUltra; defaultMedium. Original pipeline distance, resolution,
+cascade count/splits/border restore on off/exit if still owned. Proxy upper-face
+winding/bias normals corrected. Visible vegetation art, placement, geometry/LOD,
+terrain/water/world/history and saved data remain unchanged.
+
+Separately switchable canopy shelter summarizes actual resident tree roots and
+crown dimensions/heights, not ecoregion guesses or independently spawned trees.
+256²/1536m coverage, two RGBAHalf textures1MiB total plus1MiB CPU pixels;
+main-thread raster target0.6ms/1024 examined roots per frame, finalization2048
+pixels/frame, at least1s between completed refreshes. These are code budgets,
+not measured timings; a single crown/upload can exceed the target. Stable fields
+do no rebuild work. Source/projection/population/128m anchor changes invalidate;
+quality alone does not. Map-open pauses construction; floating origins shift
+valid rectangles, new tangent charts reject old fields. Complete fields blend
+0.5s at separate origins;96m feathered edges. First/current-chart load requires
+actual resident trees and field completion; F3 reports pending/building/ready.
+
+Height-aware shelter blends in90-160m, limits direct main-light visibility and
+does not double-multiply existing dark shadows or final colour. Terrain and
+scatter PBR retain bundled URP BRDF/GI/additional lighting through a scoped
+GetMainLight inclusion hook; all procedural grass/tree/forest receivers share
+the canopy helper. Ambient/secondary light and water shader remain unchanged.
+No per-tile material/MPB binding or SRP constant-buffer layout changes. Steady
+field shading needs one lookup in coverage, none outside/inside90m; only field
+replacement needs two. No per-pixel CPU queries or new worker jobs. Coverage is
+roughly600-800m, NOT20km directional shadows, low-sun lateral occlusion, building/
+mountain shadows or a full AO solution. Existing horizon canopy rendering stays.
+See [FOLIAGE_SHADOWS.md](FOLIAGE_SHADOWS.md) for sources and precise limits.
+
+Owner compile/package-only restriction remains: no suites, fixtures, game/world
+launches, screenshots, profiling or new SRP runtime capture. Source/build checks
+cannot certify smoothness, canopy art, cascade seams or FPS benefit. Initial
+compile caught/fixed a missing Presentation namespace import. Final release
+IL2CPP `player-cascade-canopy-shadows`, BuiltUtc21:34:24Z, compile/package exit0
+with bundled worker. D3D11/D3D12 terrain/scatter/grass/tree/forest shaders compile
+without errors; proxy ShadowCaster retains both instancing-off/on variants in
+vertex/fragment stages for both targets. Existing coverage div/mod and
+TerrainTestAir flow advisories remain; no new canopy/PBR-hook flow warnings.
+Shortcut verified selecting the real C: package; owner notified for testing.
+No settings/save writes or game launches by agent; prior foliage-shadow-proxies
+is rollback. Camera/global source review preserves UnityPerMaterial/scene layout;
+this is not a new Frame Debugger or runtime SRP compatibility result.
+
 ## Independent near-foot grass and foliage shadow proxies /22October2026
 
 Owner requests an independent near-foot density slider, plus research-led

@@ -16,7 +16,9 @@ public sealed partial class LocalTerrainExplorer
     readonly List<TreeShadowBatch> treeShadowBatches=new List<TreeShadowBatch>(),treeShadowPool=new List<TreeShadowBatch>();
     readonly Dictionary<int,TreeShadowBatch> treeShadowActive=new Dictionary<int,TreeShadowBatch>();
     Material treeShadowMaterial;UniversalRenderPipelineAsset foliageShadowPipeline;
-    float originalShadowDistance,publishedShadowDistance;int foliageShadowRevision=-1;
+    float originalShadowDistance,publishedShadowDistance,originalShadowBorder,publishedShadowBorder;
+    int originalShadowResolution,publishedShadowResolution,originalShadowCascades,publishedShadowCascades;
+    Vector3 originalShadowSplits,publishedShadowSplits;int foliageShadowRevision=-1;
     readonly Vector3[] shadowFrustumCorners=new Vector3[4];
     Vector3 shadowAxisX,shadowAxisY,shadowAxisZ,shadowReceiverMin,shadowReceiverMax;
     public int TreeShadowObjects {get;private set;}
@@ -36,11 +38,30 @@ public sealed partial class LocalTerrainExplorer
         if(pipeline!=foliageShadowPipeline)
         {
             RestoreFoliageShadowDistance();foliageShadowPipeline=pipeline;
-            if(pipeline!=null)originalShadowDistance=publishedShadowDistance=pipeline.shadowDistance;
+            if(pipeline!=null)
+            {
+                originalShadowDistance=publishedShadowDistance=pipeline.shadowDistance;
+                originalShadowResolution=publishedShadowResolution=pipeline.mainLightShadowmapResolution;
+                originalShadowCascades=publishedShadowCascades=pipeline.shadowCascadeCount;
+                originalShadowSplits=publishedShadowSplits=pipeline.cascade4Split;
+                originalShadowBorder=publishedShadowBorder=pipeline.cascadeBorder;
+            }
             foliageShadowRevision=-1;
         }
         float range=UseTreeShadowProxies?TerrainVideoOptions.ForestShadowDistance:originalShadowDistance;
         if(pipeline!=null&&pipeline.shadowDistance!=range){pipeline.shadowDistance=range;publishedShadowDistance=range;scatterDirty=true;}
+        if(pipeline!=null)
+        {
+            int resolution=UseTreeShadowProxies?TerrainVideoOptions.ForestShadowResolution:originalShadowResolution;
+            int cascades=UseTreeShadowProxies?4:originalShadowCascades;
+            var splits=UseTreeShadowProxies?new Vector3(16f/180,48f/180,100f/180):originalShadowSplits;
+            float border=UseTreeShadowProxies?.30f:originalShadowBorder;
+            if(pipeline.mainLightShadowmapResolution!=resolution)pipeline.mainLightShadowmapResolution=resolution;
+            if(pipeline.shadowCascadeCount!=cascades)pipeline.shadowCascadeCount=cascades;
+            if(pipeline.cascade4Split!=splits)pipeline.cascade4Split=splits;
+            if(pipeline.cascadeBorder!=border)pipeline.cascadeBorder=border;
+            publishedShadowResolution=resolution;publishedShadowCascades=cascades;publishedShadowSplits=splits;publishedShadowBorder=border;
+        }
         if(foliageShadowRevision!=TerrainVideoOptions.VegetationRevision)
         {foliageShadowRevision=TerrainVideoOptions.VegetationRevision;scatterDirty=true;}
     }
@@ -48,6 +69,11 @@ public sealed partial class LocalTerrainExplorer
     {
         if(foliageShadowPipeline!=null&&foliageShadowPipeline.shadowDistance==publishedShadowDistance)
             foliageShadowPipeline.shadowDistance=originalShadowDistance;
+        if(foliageShadowPipeline==null)return;
+        if(foliageShadowPipeline.mainLightShadowmapResolution==publishedShadowResolution)foliageShadowPipeline.mainLightShadowmapResolution=originalShadowResolution;
+        if(foliageShadowPipeline.shadowCascadeCount==publishedShadowCascades)foliageShadowPipeline.shadowCascadeCount=originalShadowCascades;
+        if(foliageShadowPipeline.cascade4Split==publishedShadowSplits)foliageShadowPipeline.cascade4Split=originalShadowSplits;
+        if(foliageShadowPipeline.cascadeBorder==publishedShadowBorder)foliageShadowPipeline.cascadeBorder=originalShadowBorder;
     }
     void BuildTreeShadowBatches()
     {
@@ -128,6 +154,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DisposeFoliageShadows()
     {
+        DisposeCanopyShade();
         RestoreFoliageShadowDistance();foliageShadowPipeline=null;
         foreach(var mesh in treeShadowMeshes.Values)Destroy(mesh);treeShadowMeshes.Clear();
         if(treeShadowMaterial!=null)Destroy(treeShadowMaterial);treeShadowMaterial=null;
@@ -160,7 +187,10 @@ static partial class LocalScatterMeshes
             builder.Add(c+Vector3.up*e.y,Color.white,Vector2.zero);builder.Add(c-Vector3.up*e.y,Color.white,Vector2.zero);
             builder.Add(c+Vector3.forward*e.z,Color.white,Vector2.zero);builder.Add(c-Vector3.forward*e.z,Color.white,Vector2.zero);
             for(int top=2;top<=3;top++)
-            {builder.Triangle(first+top,first,first+4);builder.Triangle(first+top,first+4,first+1);builder.Triangle(first+top,first+1,first+5);builder.Triangle(first+top,first+5,first);}
+            {
+                if(top==2){builder.Triangle(first+top,first+4,first);builder.Triangle(first+top,first+1,first+4);builder.Triangle(first+top,first+5,first+1);builder.Triangle(first+top,first,first+5);}
+                else{builder.Triangle(first+top,first,first+4);builder.Triangle(first+top,first+4,first+1);builder.Triangle(first+top,first+1,first+5);builder.Triangle(first+top,first+5,first);}
+            }
         }
         var morphology=new TreeMorphology(code);float trunk=(float)morphology.TrunkRadius;
         builder.Tube(Vector3.zero,Vector3.up*Mathf.Max(.2f,(float)morphology.CrownBase),trunk,trunk*.45f,4,Color.white);

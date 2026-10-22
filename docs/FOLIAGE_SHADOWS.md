@@ -20,12 +20,19 @@ remain unchanged while individual extra blades retire fractionally. One extra
 plus one indirect command); high density increases vertex and fill cost and is
 not free. The previous short-blade split and accepted wind remain active.
 
-**Simplified forest shadows** defaults on; switch it off for the previous
-casters/filter/range. Separate Very low/Low/Medium/High/Ultra coverage is
-60/90/140/180/220 m, default Medium. Softness 0.75–4 (default 2) scales the
-foliage filter footprint, not its sample count. F3 full view reports mode,
-coverage and submitted proxy casters/draws. Existing tree and vegetation shadow
-toggles, and Terrain lab's global sunlight-shadow switch still apply.
+**Simplified forest shadows** defaults on; switch it off for the original
+casters/filter/pipeline settings. All presets now share four configured cascade
+ends at16/48/100/180m, with a wider final fade. Very low/Low/Medium/High/Ultra
+use atlas sizes1024/1024/2048/4096/4096 and foliage filter counts2/4/4/4/9.
+Four cascades share the atlas: individual tiles are approximately half its width.
+Default is Medium. Quality no longer dilutes near resolution by expanding range.
+Softness0.75–4/default2 scales filter footprint; Ultra uses a nine-comparison tent
+filter. F3 reports atlas size/filter count, casters/draws and canopy-cache state.
+Existing tree/vegetation toggles and the lab sunlight-shadow switch still apply.
+
+**Broad distant canopy shade** is separately switchable, default on. It supplies
+approximate shelter past the detailed shadow range; see the bounded coverage
+and approximation limits below. Previous60/90/140/180/220m presets are historical.
 
 ## Research and choice
 
@@ -46,6 +53,13 @@ toggles, and Terrain lab's global sunlight-shadow switch still apply.
   explains resolving main shadows to a screen texture, with an extra depth
   prepass and memory cost. This might later reduce grass overdraw's repeated
   lookups, but is deliberately NOT enabled blindly on this procedural renderer.
+- [Unity: Cascade configuration](https://docs.unity.com/en-us/engine/6000.0/manual/lighting-overview/shadows/shadow-realtime/shadow-cascades/use)
+  and [resolution budgets](https://docs.unity.com/en-us/engine/6000.3/manual/lighting-overview/lighting/shadows-in-urp/shadow-resolution-urp)
+  support separating near/far coverage allocation from atlas resolution.
+- [CryEngine: Height-map-based outdoor occlusion](https://www.cryengine.com/docs/static/engines/cryengine-3/categories/1114113/pages/21890652)
+  documents a broad, approximate layer complementing detailed lighting. Our
+  crown-coverage field is an independent, simpler engineering approximation,
+  NOT CryEngine's algorithm, a directional shadow map or a full AO solution.
 
 Bundled URP 17.6 `Shadows.hlsl` was inspected directly: its low/medium/high soft
 filters use 4/9/16 comparison samples. The current pipeline selects high soft
@@ -70,20 +84,71 @@ crossfade/disappear when a visible tree changes to its baked view. Existing
 conservative caster bounds plus light-space receiving-frustum bounds retain
 offscreen trees that can shade the view and reject irrelevant groups first.
 
-The new camera-scoped `WorldGenFoliageShadows.hlsl` uses four comparisons for
-grass, tree/forest surfaces and terrain ground-cover overlays, with an early
-out beyond the shadow fade/frustum. Terrain's main PBR lighting and ordinary
-object/herb/bush shaders retain their stock lighting/filter path. Wider filtering
-and coarser casters approximate canopy shade, not accurate moving leaf outlines.
+Camera-scoped `WorldGenFoliageShadows.hlsl` uses the selected2/4/9 comparisons
+for grass, tree/forest surfaces and terrain ground-cover overlays, with an early
+out beyond the shadow fade/frustum. Terrain and ordinary object/herb/bush PBR
+retain the stock BRDF/GI/additional-light/filter path; a narrowly scoped main-light
+hook adds broad canopy visibility without duplicating their lighting evaluation.
+`WorldGenLighting.hlsl` includes bundled URP RealtimeLights before temporarily
+wrapping GetMainLight during Lighting.hlsl inclusion. This relies on reviewed
+URP17.6 include/call structure and needs review on package upgrades. No URP
+package source is edited. Wider filtering/coarse casters are not leaf silhouettes.
 
-The coverage setting changes the **existing pipeline's directional shadow
-distance**, not a second foliage-only atlas: other objects' shadow coverage also
-extends, while their shader/filter stays unchanged. The original distance is
-restored on mode-off/exit, without overwriting a different external writer's
-last change. Scene globals avoid per-tile material updates. Shadow distance,
-mode, density and softness are machine-local preferences saved only by the UI.
+The fixed180m coverage changes the **existing pipeline's directional atlas**,
+not a second foliage-only atlas: other objects' coverage also extends. Distance,
+resolution, four-cascade split/count and final-border settings are restored on
+mode-off/exit when they still match this controller's published values. Scene
+globals avoid per-tile material updates. Quality/mode/density/softness and canopy
+toggle are machine-local preferences saved only by the UI.
 
-This is not baked/cached sunlight, a new ambient occlusion system, contact
+## Smooth sunlight and broad canopy shelter revision
+
+Source review found that SetDaylight directly assigned the light rotation only
+every0.1s. New presentation interpolates the actual directional light and visible
+sun/moon-disc directions every frame between sampled poses, with0.1s latency,
+while retaining10Hz sky/weather calculations. First poses, large direction/time
+jumps and primary-body changes snap; chart reset forces a fresh pose. No shadow
+cache or extra shadow render pass is added. It addresses a matching code-level
+cause of owner-reported10Hz jitter; no runtime confirmation/all-shimmer fix is
+claimed. Regular shadow texel/cascade artifacts can still exist.
+
+`LocalCanopyShade.cs` summarizes existing resident GeneratedTree roots, dimensions
+and crown-base traits into a world-anchored256² field covering1536m. It is not
+biome-wide darkening or independently guessed tree placement. Optical coverage
+and premultiplied mean crown-top/base heights allow bilinear filtering without
+height leaks from empty texels. Narrow crowns receive fractional area weights.
+Each pixel's height attenuates shelter up through the crown: upper surfaces are
+not darkened as if they were the forest floor. Sparse openings retain light.
+
+One incremental main-thread build is bounded to1024 inspected instances and a
+target0.6ms raster work/frame, checked between small root batches; a single large
+crown/upload can exceed that target. Finalization advances2048 pixels/frame.
+No per-pixel CPU terrain queries, tasks/worker permits, new root generation or
+per-renderer property updates. Reusable CPU pixels take1MiB; two RGBAHalf GPU
+textures take1MiB total before overhead. Upload occurs only after a whole field
+finishes. Idle, unchanged fields do no rebuild work; resident root/projection,
+population/settings changes or128m anchor shifts refresh after completion with
+at least1s spacing. Map-open pauses construction. Old/new fields blend0.5s at
+their own origins; borders feather over96m. Floating origins translate valid
+field rectangles; full chart changes reject old fields rather than shade the
+wrong location. Fresh chart/load coverage requires a newly built field.
+
+Shading blends in90–160m before detailed shadows finish. It limits main-light
+visibility rather than multiplying the final image or stacking two black shadows;
+terrain, grass, trunks/lower tree foliage, herbs/bushes and rocks share it. It
+does not affect unlit diagnostics, shadow-disabled modes or unrelated bake
+cameras. Ambient/secondary light remains. Quality-independent broad coverage
+extends roughly600–800m around the player, depending on anchor position, from
+resident tree sources. This is NOT20km sunlight, directional ray tracing,
+building/mountain occlusion, a true AO hemisphere, or accurate lateral shadows
+at low sun. Existing horizon canopy colour/representation remains beyond it.
+These limits avoid turning a large last cascade into millions of tree draws.
+Steady shading makes one canopy texture lookup inside valid coverage, none outside the
+field/near90m. Only0.5s replacement blending reads both fields. Grass/shadow
+quality changes alone do not regenerate the canopy cache; population changes do.
+Proxy upper-face winding was also corrected so shadow-bias normals point outward.
+
+This is not baked/cached sunlight, a full ambient occlusion system, contact
 shadows, ray tracing, distance fields, physically computed penumbrae or per-leaf
 wind shadows. URP still draws the atlas each frame. Proxies are rigid and coarse;
 near self-shadow mismatch, canopy solidity, cascade softness/resolution and
@@ -97,6 +162,6 @@ Owner's compile/package-only restriction remains: no game/world launches,
 fixtures, automated suites, screenshots or profiling. Review shader/material
 GUID bindings, compiler results and retained instancing variants before
 publishing; these establish build integration, not runtime visual/performance
-acceptance. Compare the new shadow toggle at the same view and range, then
-adjust coverage separately; extending from the old 50 m pipeline distance can
-offset savings. Density 20x is explicitly an expensive experiment.
+acceptance. Compare shadow quality and the separate canopy toggle from the
+same view. Fixed180m coverage can cost more than the original50m pipeline or
+preceding Very-low60m range. Density20x is an expensive experiment.

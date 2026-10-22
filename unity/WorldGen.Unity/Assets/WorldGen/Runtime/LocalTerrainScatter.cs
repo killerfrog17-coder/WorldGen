@@ -70,6 +70,7 @@ public sealed partial class LocalTerrainExplorer
     void ResetScatterFrame()
     {
         if(scatter==null)return;scatterX=double.NaN;
+        sunDirectionReady=false;nextDaylightAt=0;
         // Texture phase remains planet-addressed across floating origins and chart changes.
         double modulus=1024;V p=frame.Origin*(frame.RadiusM+frame.AltitudeM);
         landMaterial.SetVector("_TextureAnchor",new Vector4((float)(p.X%modulus),(float)(p.Y%modulus),(float)(p.Z%modulus),0));
@@ -90,7 +91,7 @@ public sealed partial class LocalTerrainExplorer
         scatterPriority.AddRange(scatterWanted);var at=Position;
         double Distance(ScatterKey k){V p=scatter.Position(k)-at;return p.X*p.X+p.Y*p.Y+p.Z*p.Z;}
         scatterPriority.Sort((a,b)=>{int d=Distance(a).CompareTo(Distance(b));return d!=0?d:a.CompareTo(b);});
-        foreach(var key in scatterChunks.Keys.Where(k=>!scatterWanted.Contains(k)).ToArray())scatterChunks.Remove(key);scatterDirty=true;
+        foreach(var key in scatterChunks.Keys.Where(k=>!scatterWanted.Contains(k)).ToArray()){scatterChunks.Remove(key);canopySourceRevision++;}scatterDirty=true;
     }
     void UpdateScatter()
     {
@@ -163,6 +164,7 @@ public sealed partial class LocalTerrainExplorer
             chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,new Vector3((float)p.WidthM,(float)p.HeightM,(float)p.WidthM));
         }
         PrepareScatterBounds(chunk);
+        canopySourceRevision++;
     }
     ArtModel Art(ScatterKind kind,int variant,int lod)
     {
@@ -362,7 +364,7 @@ public sealed partial class LocalTerrainExplorer
         {var actual=TreePigment(p.Variant);var shared=TreePigment(variant);batch.Colors[batch.Count]=new Vector4((float)(p.Color.X*actual.X/Math.Max(.01,shared.X)),(float)(p.Color.Y*actual.Y/Math.Max(.01,shared.Y)),(float)(p.Color.Z*actual.Z/Math.Max(.01,shared.Z)),1);}
         batch.Fades[batch.Count]=new Vector4(low,high,0,0);batch.Count++;
     }
-    void LateUpdate(){if(!closed){long started=WorldGenPerformance.Begin();DrawScatter();WorldGenPerformance.End(1,started);started=WorldGenPerformance.Begin();DrawGroundCover();WorldGenPerformance.End(2,started);if(weatherCheckTarget!=null&&view!=null)view.Render();}}
+    void LateUpdate(){if(!closed){UpdateSunPresentation();UpdateCanopyShade();long started=WorldGenPerformance.Begin();DrawScatter();WorldGenPerformance.End(1,started);started=WorldGenPerformance.Begin();DrawGroundCover();WorldGenPerformance.End(2,started);if(weatherCheckTarget!=null&&view!=null)view.Render();}}
     void DrawScatter()
     {
         if(landMaterial!=null&&landMaterial.GetFloat("_ForestFarEnabled")!=(TerrainVideoOptions.FarForest?1:0)){landMaterial.SetFloat("_ForestFarEnabled",TerrainVideoOptions.FarForest?1:0);PublishTerrainScene();}

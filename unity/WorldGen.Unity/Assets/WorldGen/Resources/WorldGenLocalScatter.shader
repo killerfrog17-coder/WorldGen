@@ -37,7 +37,7 @@ Shader "WorldGen/LocalScatter"
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "WorldGenLighting.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
             #include "WorldGenVegetationScene.hlsl"
             #include "WorldGenLodFade.hlsl"
@@ -100,7 +100,7 @@ Shader "WorldGen/LocalScatter"
                 s.smoothness=1-saturate(mask.g*_Roughness);s.normalTS=half3(0,0,1);
                 half3 color=UniversalFragmentPBR(input,s).rgb;
                 if(_TreeSurface>.5&&i.plant.y>.5&&i.plant.y<2.5)
-                {Light sun=GetMainLight(input.shadowCoord);color+=s.albedo*sun.color*(pow(saturate(dot(-n,sun.direction)),2)*.12)*sun.shadowAttenuation;}
+                {Light sun=GetMainLight(input.shadowCoord);sun.shadowAttenuation=WorldGenCanopyShadow(sun.shadowAttenuation,i.position);color+=s.albedo*sun.color*(pow(saturate(dot(-n,sun.direction)),2)*.12)*sun.shadowAttenuation;}
                 color+=SecondaryCelestialLight(n,s.albedo);
                 float3 fog=VegetationFog(_FogColor).rgb;
                 #ifndef UNITY_COLORSPACE_GAMMA
