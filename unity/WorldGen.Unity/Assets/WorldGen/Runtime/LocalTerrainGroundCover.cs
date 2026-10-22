@@ -93,7 +93,7 @@ public sealed partial class LocalTerrainExplorer
         var texture=new Texture2D(side,side,TextureFormat.RGBAHalf,false,true){name="Ground flora material weights",filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};
         texture.SetPixels(pixels);texture.Apply(false,true);return texture;
     }
-    static void BindFloraSurface(MaterialPropertyBlock properties,Tile tile)
+    static void BindFloraSurface(Material properties,Tile tile)
     {
         properties.SetFloat("_FloraSurfaceEnabled",tile.FloraSurface==null?0:1);
         if(tile.FloraSurface!=null)properties.SetTexture("_FloraSurface",tile.FloraSurface);

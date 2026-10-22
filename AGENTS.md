@@ -1,5 +1,34 @@
 # WorldGen repository instructions
 
+Terrain SRP material work,22October2026 UTC: owner targets STEADY CPU draw setup,
+not loading/generation. WorldGenLocalTerrain now has UnityPerMaterial including
+hidden declarations for legacy uniform values; terrain renderer MPBs removed,
+persistent per-product land/water materials own tile textures/coverage/timings.
+Dirty binding stamps skip unchanged tiles; existing timestamp-driven fades and
+incoming-mask/outgoing-reverse semantics remain. One304-byte/19-vector shared
+scene buffer carries fog/daylight/ambient/coordinates/air/secondary lights, only
+uploads changed contents and binds once per exploration camera. No per-frame
+tile-material lighting loop. Shader Color linear-upload conversion reproduced;
+land/water origin states remain separate to preserve river animation. Materials
+retained in mesh cache and released by DestroyTile; scene buffer/event disposed.
+No terrain geometry/LOD/world/vegetation/water-rule changes. Air include's default
+function bodies source-compare exactly after macro expansion; grass/scatter MPBs
+stay (different instanced renderer path). Shipping custom GroundMaterial is null;
+arbitrary custom shaders are not certified under this new scene contract.
+Isolated Editor39924 check passes: Unity ShaderUtil compatibility0, pipeline
+enabled, four unique no-MPB renderers/independent tile textures, repeated20 binds
+zero extra writes, fog change1 global upload/0 tile writes, reverse/mask state
+correct. Pinned75a4d5c shader vs new path max RGB delta0 incl clipped coverage,
+ground/cover/ocean/static river. Batch-mode old/new SRP/hybrid/standard counters
+all0, so actual SRP submission count/FPS NOT measured. No world/native game or
+FPS suite. Release IL2CPP player-terrain-srp-batched compiled/packaged successfully
+(BuiltUtc04:21:50Z), no shader errors. Shortcut now selects that separate real C:
+build; includes the short-grass split, whose earlier checkpoint remains. No game
+launched or owner process/save/preferences changed. Assembly source is unchanged;
+binary stamps differ from grass because the Git informational version advanced.
+Packaged worker and staged IL2CPP inputs match this build's frozen manifest. See
+TERRAIN_SRP_BATCHING.md/VALIDATION.md for references/evidence/limits.
+
 Owner-authorized artifact cleanup,22October2026 UTC: after current native build
 hit disk-full output-copy failure, owner explicitly requests same newest-per-local-
 day plus newest3 builds retention AND obsolete test captures/log cleanup, ONLY

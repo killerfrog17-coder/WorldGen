@@ -64,6 +64,7 @@ public sealed partial class LocalTerrainExplorer
         landMaterial.SetVector("_PlanetEast",new Vector4((float)frame.East.X,(float)frame.East.Y,(float)frame.East.Z,0));
         landMaterial.SetVector("_PlanetNorth",new Vector4((float)frame.North.X,(float)frame.North.Y,(float)frame.North.Z,0));
         landMaterial.SetVector("_PlanetUp",new Vector4((float)frame.Origin.X,(float)frame.Origin.Y,(float)frame.Origin.Z,0));
+        PublishTerrainScene();
         foreach(var pair in scatterChunks)
         {
             if(preparedGround)

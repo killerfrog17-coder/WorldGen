@@ -74,6 +74,7 @@ public sealed partial class LocalTerrainExplorer
         landMaterial.SetVector("_PlanetEast",new Vector4((float)frame.East.X,(float)frame.East.Y,(float)frame.East.Z,0));
         landMaterial.SetVector("_PlanetNorth",new Vector4((float)frame.North.X,(float)frame.North.Y,(float)frame.North.Z,0));
         landMaterial.SetVector("_PlanetUp",new Vector4((float)frame.Origin.X,(float)frame.Origin.Y,(float)frame.Origin.Z,0));
+        PublishTerrainScene();
         RefreshScatterWanted();foreach(var chunk in scatterChunks.Values)ProjectScatter(chunk);scatterGroundChanges.Clear();scatterDirty=true;
     }
     void RefreshScatterWanted()
@@ -343,7 +344,7 @@ public sealed partial class LocalTerrainExplorer
     void LateUpdate(){if(!closed){long started=WorldGenPerformance.Begin();DrawScatter();WorldGenPerformance.End(1,started);started=WorldGenPerformance.Begin();DrawGroundCover();WorldGenPerformance.End(2,started);if(weatherCheckTarget!=null&&view!=null)view.Render();}}
     void DrawScatter()
     {
-        if(landMaterial!=null)landMaterial.SetFloat("_ForestFarEnabled",TerrainVideoOptions.FarForest?1:0);
+        if(landMaterial!=null&&landMaterial.GetFloat("_ForestFarEnabled")!=(TerrainVideoOptions.FarForest?1:0)){landMaterial.SetFloat("_ForestFarEnabled",TerrainVideoOptions.FarForest?1:0);PublishTerrainScene();}
         ScatterDrawCalls=0;if(!ScatterEnabled||view==null)return;
         foreach(var batch in drawBatches)for(int j=0;j<batch.Model.Parts.Length;j++)
         {

@@ -1,5 +1,35 @@
 # Version 3 validation evidence
 
+## Terrain SRP Batcher steady-state material path /22October2026 UTC
+
+Owner explicitly targets recurring CPU terrain draw setup, NOT load/generation
+speed. Both terrain renderer MPBs and shader layout are replaced; see
+TERRAIN_SRP_BATCHING.md. No mesh/LOD/source-world/vegetation/water-rule changes.
+All four synthetic tile material bindings use the real production helper; no
+property blocks remain, tile textures are independently preserved, reverse
+previous-product binding keeps incoming coverage/texture references. Same data
+20 times adds zero binding updates/scene uploads; fog change adds1 shared upload
+and0 tile-material updates. Scene buffer304 bytes, dirty-only plus per-camera bind.
+
+Final isolated Editor check exits0 (owned39924): ShaderUtil compatibility code0
+after actual compilation; active pipeline has SRP batching enabled; actual pinned
+75a4d5c shader/shared-MPB reference versus new material/scene path renders max RGB
+delta0 over65536 pixels, including clipped coverage, ground materials, ocean and
+static-flow river branch. Earlier fixture/vector errors, undeclared material
+fields and missing Linear color conversion were caught/fixed before packaging.
+Batch-mode UnityStats old/new counters ALL0 (SRP/hybrid/standard), even after
+separate Editor frames; NOT usable actual-submission or performance evidence.
+No FPS/world/profile suite/native game launch. Non-terrain air/secondary function
+source bodies compare exactly after default macro expansion; grass geometry and
+vegetation shaders/bindings remain unchanged. No actual-world FPS gain claimed.
+Evidence: artifacts/terrain-srp-review/PASS.txt, two PNGs and explicit review log.
+Release IL2CPP build exits0, no shader compilation errors; packaged worker and
+build-inputs.json complete (BuiltUtc2026-10-22T04:21:50.4959039Z). Shortcut selects
+player-terrain-srp-batched, a separate real C: build including the grass split.
+No native game launch. Shared assembly source is unchanged; binaries differ from
+the grass build because their Git informational revision stamp advanced. Frozen
+worker/player assembly inputs are checked by packaging, not a new world test.
+
 ## Short-grass split-blade fullness /22October2026 UTC
 
 Owner requests two short blades from the existing geometry budget, without

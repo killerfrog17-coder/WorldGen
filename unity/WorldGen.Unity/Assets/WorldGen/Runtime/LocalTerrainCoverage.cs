@@ -34,19 +34,11 @@ public sealed partial class LocalTerrainExplorer
                 }
                 tile.Coverage=Texture(nodes);tile.CoverageTimes=Texture(tree.Timings);
             }
-            var properties=new MaterialPropertyBlock();properties.SetFloat("_CoverageEnabled",nodes.Length>0?1:0);
-            BindFloraSurface(properties,tile);
-            properties.SetFloat("_CoverageTileSize",(float)pair.Key.SizeM);
-            if(tile.Coverage!=null)properties.SetTexture("_TerrainCoverage",tile.Coverage);
-            if(tile.CoverageTimes!=null)properties.SetTexture("_CoverageFadeTimes",tile.CoverageTimes);
-            var timing=TerrainTiming(pair.Key);properties.SetFloat("_TransitionEnabled",1);
-            properties.SetFloat("_LodSafetyRadius",view==null?0:(float)System.Math.Max(12,TerrainLod.BaseSizeM*HorizontalScale/64*3));
-            properties.SetVector("_LodFade",new Vector4(timing.In,timing.Out,0,0));
-            foreach(var renderer in tile.Root.GetComponentsInChildren<MeshRenderer>())renderer.SetPropertyBlock(properties);
+            var timing=TerrainTiming(pair.Key);
+            BindTerrainTile(tile,tile,pair.Key,new Vector4(timing.In,timing.Out,0,0));
             if(previousTerrain.TryGetValue(pair.Key,out var previous))
             {
-                properties.SetVector("_LodFade",new Vector4(timing.In,timing.Out,1,0));
-                foreach(var renderer in previous.Root.GetComponentsInChildren<MeshRenderer>())renderer.SetPropertyBlock(properties);
+                BindTerrainTile(previous,tile,pair.Key,new Vector4(timing.In,timing.Out,1,0));
             }
         }
     }

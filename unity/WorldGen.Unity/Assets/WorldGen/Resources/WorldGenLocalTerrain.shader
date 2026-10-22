@@ -28,6 +28,16 @@ Shader "WorldGen/LocalTerrain"
         _TransitionEnabled("Smooth terrain transitions",Float)=0
         _LodFade("Incoming/outgoing times, reverse",Vector)=(0,0,0,0)
         _LodSafetyRadius("Immediate ground radius",Float)=0
+        [HideInInspector] _TerrainSceneEnabled("Shared terrain scene state",Float)=0
+        [HideInInspector] _LocalOrigin("Local origin",Vector)=(0,0,0,0)
+        [HideInInspector] _TextureAnchor("Texture anchor",Vector)=(0,0,0,0)
+        [HideInInspector] _PlanetEast("Planet east",Vector)=(0,0,0,0)
+        [HideInInspector] _PlanetNorth("Planet north",Vector)=(0,0,0,0)
+        [HideInInspector] _PlanetUp("Planet up",Vector)=(0,0,0,0)
+        [HideInInspector] _AirGeometry("Air geometry",Vector)=(0,0,0,0)
+        [HideInInspector] _AirObserverM("Air observer",Float)=0
+        [HideInInspector] _AirHaze("Air haze",Float)=0
+        [HideInInspector] _SecondaryLightCount("Secondary count",Float)=0
     }
     SubShader
     {
@@ -45,6 +55,7 @@ Shader "WorldGen/LocalTerrain"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
+            #include "WorldGenTerrainMaterial.hlsl"
             #include "WorldGenAir.hlsl"
             #include "WorldGenLodFade.hlsl"
             #include "WorldGenGrassLight.hlsl"
@@ -52,12 +63,10 @@ Shader "WorldGen/LocalTerrain"
             TEXTURE2D_ARRAY(_GroundNormals);TEXTURE2D_ARRAY(_GroundMasks);
             TEXTURE2D(_GrassField);SAMPLER(sampler_GrassField);
             TEXTURE2D(_MossField);SAMPLER(sampler_MossField);TEXTURE2D(_LichenField);SAMPLER(sampler_LichenField);
-            TEXTURE2D(_FloraSurface);SAMPLER(sampler_FloraSurface);float4 _FloraSurface_TexelSize;float _FloraSurfaceEnabled;
-            TEXTURE2D(_MidSurface);SAMPLER(sampler_MidSurface);float4 _MidSurface_TexelSize;float _MidSurfaceEnabled;
-            TEXTURE2D(_ForestSurface);SAMPLER(sampler_ForestSurface);float4 _ForestSurface_TexelSize;float _ForestSurfaceEnabled,_ForestFarEnabled;
-            Texture2D<float4> _TerrainCoverage;float _CoverageEnabled,_CoverageTileSize;
-            Texture2D<float4> _CoverageFadeTimes;float _TransitionEnabled,_LodSafetyRadius;float4 _LodFade;
-            float _Water,_FogDistance,_TextureMetres,_Daylight,_RockLayers,_GroundFlora;float4 _LocalOrigin,_TextureAnchor,_PlanetEast,_PlanetNorth,_PlanetUp,_FogColor,_AmbientTint;
+            TEXTURE2D(_FloraSurface);SAMPLER(sampler_FloraSurface);
+            TEXTURE2D(_MidSurface);SAMPLER(sampler_MidSurface);
+            TEXTURE2D(_ForestSurface);SAMPLER(sampler_ForestSurface);
+            Texture2D<float4> _TerrainCoverage,_CoverageFadeTimes;
             struct A { float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 color:COLOR;float4 weights:TEXCOORD1;float4 groundB:TEXCOORD2;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5; };
             struct O { float4 positionCS:SV_POSITION;float3 normal:TEXCOORD0;float3 position:TEXCOORD1;float4 color:COLOR;float4 weights:TEXCOORD2;float4 groundB:TEXCOORD3;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5;float2 coverageUV:TEXCOORD6; };
             O vert(A a){O o;o.position=TransformObjectToWorld(a.positionOS.xyz);o.positionCS=TransformWorldToHClip(o.position);o.normal=TransformObjectToWorldNormal(a.normalOS);o.color=a.color;o.weights=a.weights;o.groundB=a.groundB;o.rocks=a.rocks;o.rocksB=a.rocksB;o.coverageUV=a.positionOS.xz/max(.001,_CoverageTileSize);return o;}
@@ -94,17 +103,17 @@ Shader "WorldGen/LocalTerrain"
                         node=(int)next-1;uv-=quadrant;
                     }
                 }
-                float3 fogColor=_FogColor.rgb,farColor=i.color.rgb;
+                float3 fogColor=TerrainFogColor().rgb,farColor=i.color.rgb;
                 #ifndef UNITY_COLORSPACE_GAMMA
                 farColor=SRGBToLinear(farColor);fogColor=SRGBToLinear(fogColor);
                 #endif
                 float distance=length(i.position-_WorldSpaceCameraPos);
                 if(_Water<.5&&i.color.a< -1.5)
                 {
-                    clip(_ForestFarEnabled-.5);
+                    clip(TerrainForestEnabled()-.5);
                     float fade=smoothstep(950,1400,distance);clip(dither-(1-fade));
-                    float3 canopy=WorldGenGrassLight(farColor,normalize(i.normal),i.position,_AmbientTint.rgb,_Daylight);
-                    return half4(ApplyPlanetAir(canopy,i.position,_WorldSpaceCameraPos,fogColor,_FogDistance),1);
+                    float3 canopy=WorldGenGrassLight(farColor,normalize(i.normal),i.position,TerrainAmbient().rgb,TerrainDaylight());
+                    return half4(ApplyPlanetAir(canopy,i.position,_WorldSpaceCameraPos,fogColor,TerrainFogDistance()),1);
                 }
                 if(_Water>.5)
                 {
@@ -116,7 +125,7 @@ Shader "WorldGen/LocalTerrain"
                         // No screen-space reflection, scene copy or extra pass.
                         float2 flow=i.color.xy;float speed=length(flow),turbulence=saturate(i.color.z);
                         float2 direction=flow/max(.05,speed),across=float2(-direction.y,direction.x);
-                        float2 p=i.position.xz+_LocalOrigin.xy;
+                        float2 p=i.position.xz+TerrainOrigin().xy;
                         float along=dot(p,direction)-_Time.y*speed;
                         float crossStream=dot(p,across);
                         float phase=along*2.4+sin(crossStream*1.7)*.4;
@@ -130,21 +139,21 @@ Shader "WorldGen/LocalTerrain"
                         float fresnel=.035+.965*pow(1-saturate(abs(dot(eye,waterNormal))),5);
                         Light sun=GetMainLight();
                         float glint=pow(saturate(dot(waterNormal,normalize(eye+sun.direction))),180)*.85;
-                        float3 deep=float3(.025,.11,.13)*lerp(.05,1,_Daylight)+_AmbientTint.rgb*.12;
-                        float3 reflected=lerp(fogColor*.65,fogColor*1.12,saturate(reflect(-eye,waterNormal).y*.5+.5))*lerp(.03,1,_Daylight);
+                        float3 deep=float3(.025,.11,.13)*lerp(.05,1,TerrainDaylight())+TerrainAmbient().rgb*.12;
+                        float3 reflected=lerp(fogColor*.65,fogColor*1.12,saturate(reflect(-eye,waterNormal).y*.5+.5))*lerp(.03,1,TerrainDaylight());
                         float foam=turbulence*smoothstep(1.12,1.32,ripples)*.45;
-                        float3 result=lerp(deep,reflected,fresnel)+sun.color*glint*_Daylight;
-                        result=lerp(result,float3(.7,.77,.75)*lerp(.04,1,_Daylight),foam);
-                        return half4(ApplyPlanetAir(result,i.position,_WorldSpaceCameraPos,fogColor,_FogDistance),1);
+                        float3 result=lerp(deep,reflected,fresnel)+sun.color*glint*TerrainDaylight();
+                        result=lerp(result,float3(.7,.77,.75)*lerp(.04,1,TerrainDaylight()),foam);
+                        return half4(ApplyPlanetAir(result,i.position,_WorldSpaceCameraPos,fogColor,TerrainFogDistance()),1);
                     }
-                    return half4(ApplyPlanetAir(farColor*.92*lerp(.035,1,_Daylight)+_AmbientTint.rgb*.12,i.position,_WorldSpaceCameraPos,fogColor,_FogDistance),1);
+                    return half4(ApplyPlanetAir(farColor*.92*lerp(.035,1,TerrainDaylight())+TerrainAmbient().rgb*.12,i.position,_WorldSpaceCameraPos,fogColor,TerrainFogDistance()),1);
                 }
                 float3 n=normalize(i.normal);
-                float3 np=n.x*_PlanetEast.xyz+n.y*_PlanetUp.xyz+n.z*_PlanetNorth.xyz;
+                float3 np=n.x*TerrainEast().xyz+n.y*TerrainUp().xyz+n.z*TerrainNorth().xyz;
                 float3 w=pow(abs(np),4);w/=max(.0001,w.x+w.y+w.z);
                 // Absolute planet-oriented phase with a small modulo anchor avoids giant world-space UVs.
-                float3 worldTexture=_TextureAnchor.xyz+_PlanetEast.xyz*(i.position.x+_LocalOrigin.x)+
-                    _PlanetNorth.xyz*(i.position.z+_LocalOrigin.y)+_PlanetUp.xyz*i.position.y;
+                float3 worldTexture=TerrainTextureAnchor().xyz+TerrainEast().xyz*(i.position.x+TerrainOrigin().x)+
+                    TerrainNorth().xyz*(i.position.z+TerrainOrigin().y)+TerrainUp().xyz*i.position.y;
                 float3 p=worldTexture/max(.05,_TextureMetres);
                 float3 albedo=0,bump=0;float ao=0,rough=0,metal=0;
                 float4 weights=max(i.weights,0),groundB=max(i.groundB,0);float sum=max(.001,dot(weights,1)+dot(groundB,1));weights/=sum;groundB/=sum;
@@ -165,7 +174,7 @@ Shader "WorldGen/LocalTerrain"
                 }
                 float near=1-smoothstep(120,850,distance);bump-=np*dot(np,bump);
                 float3 perturbed=normalize(np+bump*near);
-                n=normalize(float3(dot(perturbed,_PlanetEast.xyz),dot(perturbed,_PlanetUp.xyz),dot(perturbed,_PlanetNorth.xyz)));
+                n=normalize(float3(dot(perturbed,TerrainEast().xyz),dot(perturbed,TerrainUp().xyz),dot(perturbed,TerrainNorth().xyz)));
                 // Mineral/organic palette remains authoritative at every distance.
                 // Neutral detail textures add grain without turning all soils the same brown.
                 float detailScale=2;
@@ -182,7 +191,7 @@ Shader "WorldGen/LocalTerrain"
                 albedo*=1+plantGrain*cover*.13*detailVisible;
                 rough=lerp(rough,.88,cover);ao=lerp(ao,.9,cover);
                 InputData input=(InputData)0;input.positionWS=i.position;input.normalWS=n;input.viewDirectionWS=GetWorldSpaceNormalizeViewDir(i.position);
-                input.shadowCoord=TransformWorldToShadowCoord(i.position);input.bakedGI=_AmbientTint.rgb;input.shadowMask=half4(1,1,1,1);
+                input.shadowCoord=TransformWorldToShadowCoord(i.position);input.bakedGI=TerrainAmbient().rgb;input.shadowMask=half4(1,1,1,1);
                 input.normalizedScreenSpaceUV=GetNormalizedScreenSpaceUV(i.positionCS);
                 SurfaceData s=(SurfaceData)0;s.albedo=albedo;s.alpha=1;s.occlusion=ao;s.smoothness=1-rough;s.metallic=metal;s.normalTS=half3(0,0,1);
                 half3 color=UniversalFragmentPBR(input,s).rgb;
@@ -193,7 +202,7 @@ Shader "WorldGen/LocalTerrain"
                 float3 mix=max(0,float3(flora.a,flora.g,flora.b))/.45*_GroundFlora;
                 mix/=max(1,dot(mix,1));float grassMix=mix.x,mossMix=mix.y,lichenMix=mix.z;
                 float3 q=worldTexture/8;
-                float3 axes=pow(abs(_PlanetUp.xyz),4);axes/=max(.001,dot(axes,1));
+                float3 axes=pow(abs(TerrainUp().xyz),4);axes/=max(.001,dot(axes,1));
                 float3 mat=SAMPLE_TEXTURE2D(_GrassField,sampler_GrassField,q.yz).rgb*axes.x+
                     SAMPLE_TEXTURE2D(_GrassField,sampler_GrassField,q.xz).rgb*axes.y+
                     SAMPLE_TEXTURE2D(_GrassField,sampler_GrassField,q.xy).rgb*axes.z;
@@ -206,7 +215,7 @@ Shader "WorldGen/LocalTerrain"
                 float fieldDetail=1+.045*sin(worldTexture.x*.17+sin(worldTexture.z*.13));
                 float3 grassAlbedo=farColor*(meanTint*mat.r*2*fieldDetail);
                 float3 canopyNormal=normalize(float3((mat.g-.5)*.35,.8,(mat.b-.5)*.35)+n*.25);
-                float3 vegetation=WorldGenGrassLight(grassAlbedo,canopyNormal,i.position,_AmbientTint.rgb,_Daylight)*grassMix;
+                float3 vegetation=WorldGenGrassLight(grassAlbedo,canopyNormal,i.position,TerrainAmbient().rgb,TerrainDaylight())*grassMix;
                 if(mossMix+lichenMix>.001)
                 {
                     // These are stationary material/normal layers, never waving
@@ -222,7 +231,7 @@ Shader "WorldGen/LocalTerrain"
                         float3 matM=SAMPLE_TEXTURE2D(_MossField,sampler_MossField,matQ.yz).rgb*axes.x+
                             SAMPLE_TEXTURE2D(_MossField,sampler_MossField,matQ.xz).rgb*axes.y+SAMPLE_TEXTURE2D(_MossField,sampler_MossField,matQ.xy).rgb*axes.z;
                         float3 normalM=normalize(n+float3(matM.g-.5,0,matM.b-.5)*1.3);
-                        float3 lightM=_AmbientTint.rgb+sun.color*(.42+.58*saturate(dot(normalM,sun.direction)))*sun.shadowAttenuation*lerp(.025,1,_Daylight);
+                        float3 lightM=TerrainAmbient().rgb+sun.color*(.42+.58*saturate(dot(normalM,sun.direction)))*sun.shadowAttenuation*lerp(.025,1,TerrainDaylight());
                         vegetation+=lerp(farColor,mossColour,.4)*(matM.r*2)*lightM*mossMix;
                     }
                     if(lichenMix>.001)
@@ -230,12 +239,12 @@ Shader "WorldGen/LocalTerrain"
                         float3 matL=SAMPLE_TEXTURE2D(_LichenField,sampler_LichenField,matQ.yz).rgb*axes.x+
                             SAMPLE_TEXTURE2D(_LichenField,sampler_LichenField,matQ.xz).rgb*axes.y+SAMPLE_TEXTURE2D(_LichenField,sampler_LichenField,matQ.xy).rgb*axes.z;
                         float3 normalL=normalize(n+float3(matL.g-.5,0,matL.b-.5));
-                        float3 lightL=_AmbientTint.rgb+sun.color*(.42+.58*saturate(dot(normalL,sun.direction)))*sun.shadowAttenuation*lerp(.025,1,_Daylight);
+                        float3 lightL=TerrainAmbient().rgb+sun.color*(.42+.58*saturate(dot(normalL,sun.direction)))*sun.shadowAttenuation*lerp(.025,1,TerrainDaylight());
                         vegetation+=lerp(farColor,lichenColour,.55)*(matL.r*2)*lightL*lichenMix;
                     }
                 }
                 color=color*(1-grassMix-mossMix-lichenMix)+vegetation;
-                if(_ForestSurfaceEnabled>.5&&_ForestFarEnabled>.5)
+                if(_ForestSurfaceEnabled>.5&&TerrainForestEnabled()>.5)
                 {
                     float4 forest=SAMPLE_TEXTURE2D(_ForestSurface,sampler_ForestSurface,i.coverageUV*(1-_ForestSurface_TexelSize.xy)+.5*_ForestSurface_TexelSize.xy);
                     float3 leaves=forest.rgb;
@@ -243,7 +252,7 @@ Shader "WorldGen/LocalTerrain"
                     leaves=SRGBToLinear(leaves);
                     #endif
                     float amount=saturate(forest.a)*smoothstep(700,1800,distance);
-                    color=lerp(color,WorldGenGrassLight(leaves,n,i.position,_AmbientTint.rgb,_Daylight),amount*.8);
+                    color=lerp(color,WorldGenGrassLight(leaves,n,i.position,TerrainAmbient().rgb,TerrainDaylight()),amount*.8);
                 }
                 if(_MidSurfaceEnabled>.5)
                 {
@@ -255,11 +264,11 @@ Shader "WorldGen/LocalTerrain"
                     // Projected foliage cover, not painted solid shrub-coloured soil.
                     // Fade in as fine instance coverage becomes unresolved.
                     float amount=saturate(mid.a)*smoothstep(180,1000,distance);
-                    float3 midLight=WorldGenGrassLight(midAlbedo,n,i.position,_AmbientTint.rgb,_Daylight);
+                    float3 midLight=WorldGenGrassLight(midAlbedo,n,i.position,TerrainAmbient().rgb,TerrainDaylight());
                     color=lerp(color,midLight,amount);
                 }
                 color+=SecondaryCelestialLight(n,s.albedo);
-                return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,fogColor,_FogDistance),1);
+                return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,fogColor,TerrainFogDistance()),1);
             }
             ENDHLSL
         }
