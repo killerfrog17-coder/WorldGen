@@ -1,5 +1,39 @@
 # Version 3 validation evidence
 
+## Distance-budgeted terrain surface rewrite /22October2026
+
+Owner reports normal shaded terrain about94FPS versus180-200 with surface
+texture reads bypassed while lighting/shadows stay. These are OWNER observations,
+not newly measured agent results. Owner requests quick replacement and no
+deep/heavy testing. Implement a new bounded surface renderer, with machine-local
+five-level Very low throughUltra surface quality, defaultMedium, independently
+of geometry quality. A separate texture-off fallback remains lit/shadowed.
+See [TERRAIN_SURFACE_QUALITY.md](TERRAIN_SURFACE_QUALITY.md) for exact ranges,
+sample limits, retained appearance paths and compromises.
+
+The old850m sampling stack is replaced, not merely faded after evaluating it.
+Detailed reads end18/40/90/120/160m; extra layers/projections and normals retire
+earlier. Far ground has no ground-material layer loop or detail-mat sampling.
+Ecological weight/tint grids remain; coverage/fades, terrain geometry/LOD,
+water, vegetation, world/history/saves and original SRP material/shared scene
+layout stay unchanged. Surface settings publish two camera-global vectors;
+they do not advance mesh/vegetation revisions or update every tile material.
+Explicit gradients precede branch/layer/axis selection. Cover overlays reuse
+their main light/shadow input. Appearance intentionally changes; no old-shader
+pixel-equivalence claim. Previous lab validation is historical, not acceptance
+of this replacement shader.
+
+`player-terrain-surface-budget`, release IL2CPP BuiltUtc18:17:24Z, compiles and
+packages exit0 with bundled worker. D3D11/D3D12 shader compilation has no errors;
+compiler advisories include signed coverage div/mod and a TerrainTestAir flow
+warning, so warning-free compilation is not claimed. No test suite, native game,
+world load, capture or profiling launched. Source review retains UnityPerMaterial
+and existing no-MPB terrain bindings; no new runtime SRP capture is claimed.
+Only source/build validation, not verified FPS benefit, visual seams, night
+appearance or an imperceptible-Ultra guarantee. Owner compares presets, cliffs,
+grass/moss/lichen transitions, distance colour and night/shadows. No preference
+or save writes by agent; existing terrain-lab build is rollback.
+
 ## Session-only terrain performance lab /22October2026
 
 Owner requests menu switches to isolate unacceptable mountain rendering costs.

@@ -75,7 +75,16 @@ public sealed partial class LocalTerrainExplorer
         Shader.SetGlobalConstantBuffer(TerrainSceneId,terrainSceneBuffer,0,TerrainSceneVectors*16);
     }
     void BindTerrainSceneCamera(ScriptableRenderContext context,Camera camera)
-    {Shader.SetGlobalInteger("_TerrainDiagnosticFlags",camera==view?(int)TerrainDiagnostics.Flags:0);if(camera==view){Shader.SetGlobalFloat("_TerrainDiagnosticRadius",(float)TerrainVideoOptions.Current.FullRadius(HorizontalScale));if(terrainSceneBuffer!=null)Shader.SetGlobalConstantBuffer(TerrainSceneId,terrainSceneBuffer,0,TerrainSceneVectors*16);}}
+    {
+        Shader.SetGlobalInteger("_TerrainDiagnosticFlags",camera==view?(int)TerrainDiagnostics.Flags:0);
+        if(camera==view)
+        {
+            Shader.SetGlobalVector("_TerrainSurfaceRanges",TerrainVideoOptions.SurfaceRanges);
+            Shader.SetGlobalVector("_TerrainSurfaceControls",TerrainVideoOptions.SurfaceControls);
+            Shader.SetGlobalFloat("_TerrainDiagnosticRadius",(float)TerrainVideoOptions.Current.FullRadius(HorizontalScale));
+            if(terrainSceneBuffer!=null)Shader.SetGlobalConstantBuffer(TerrainSceneId,terrainSceneBuffer,0,TerrainSceneVectors*16);
+        }
+    }
     void DisposeTerrainScene()
     {if(terrainSceneSubscribed)RenderPipelineManager.beginCameraRendering-=BindTerrainSceneCamera;terrainSceneSubscribed=false;terrainSceneBuffer?.Dispose();terrainSceneBuffer=null;}
 }

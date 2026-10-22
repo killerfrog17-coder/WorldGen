@@ -1,5 +1,24 @@
 # WorldGen repository instructions
 
+OWNER-TEST-ONLY surface rewrite,22October2026: shortcut now selects real C:
+`artifacts/player-terrain-surface-budget/WorldGen.exe`, release IL2CPP
+BuiltUtc18:17:24Z, compile/package0. Owner Terrain lab shows large gains by
+skipping surface texture reads with lighting/shadows retained; requests quick
+replacement, not another deep/heavy test campaign. Terrain > Ground Surface
+adds independent Very low/Low/Medium/High/Ultra presets, defaultMedium, and a
+lit/shadowed texture-off option. Detailed texture ranges18/40/90/120/160m replace
+the850m stack. Dominant1-3 layers/axes simplify earlier, normals end0/12/25/35/
+50m; only High/Ultra sample fine material masks nearby. Distant ground has no
+ground-layer loop or detail-mat reads; ecological weight/tint grids remain.
+Main light reused across cover overlays. Camera-global settings avoid per-tile
+updates/mesh or vegetation invalidation;304-byte scene/SRP material bindings,
+coverage/fades, water, geometry/LOD, vegetation, world/history/saves stay intact.
+Terrain lab remains but operates on NEW shader, not the historical850m path.
+Compile/package ONLY; no suites, player/world launches, captures or profiling.
+Not pixel-identical art or measured-FPS/1080p-invisibility acceptance. Owner
+reviews near/cliff/ground-cover/night/far transitions and performance. See
+docs/TERRAIN_SURFACE_QUALITY.md and VALIDATION.md. terrain-lab is rollback.
+
 Terrain diagnostic menu,22October2026: shortcut selects real C:
 `artifacts/player-terrain-lab/WorldGen.exe`, IL2CPP BuiltUtc16:21:06Z, package0.
 Owner requests mountain-performance switches. Game settings → Terrain lab adds

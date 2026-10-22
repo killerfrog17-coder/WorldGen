@@ -128,7 +128,7 @@ public sealed partial class WorldGenRuntime
         Flag(TerrainDiagnosticFlags.OneAxis,"One texture projection instead of three");
         Flag(TerrainDiagnosticFlags.OneLayer,"One dominant soil/rock layer instead of blending layers");
         Flag(TerrainDiagnosticFlags.NoGrain,"Skip procedural ground grain / colour noise");
-        Flag(TerrainDiagnosticFlags.NearTexturesOnly,"Detailed textures only inside the protected radius (normally 850 m)");
+        Flag(TerrainDiagnosticFlags.NearTexturesOnly,"Limit surface textures to protected radius (when smaller than surface-quality range)");
         GUILayout.Space(12);GUILayout.Label("LIGHTING & SURFACE OVERLAYS",SectionStyle());
         Flag(TerrainDiagnosticFlags.SimpleLight,"Simple terrain lighting instead of PBR");
         Flag(TerrainDiagnosticFlags.Unlit,"Unlit terrain (overrides simple lighting; keeps material colours)");

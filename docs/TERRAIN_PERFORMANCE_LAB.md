@@ -1,5 +1,12 @@
 # Terrain performance lab — 22 October 2026
 
+Surface-shading follow-up: the production texture path has since been replaced
+by [distance-budgeted surface quality](TERRAIN_SURFACE_QUALITY.md). Lab controls
+now operate on that path; the protected-radius experiment caps its selected
+range instead of starting from850m. The pre-rewrite pixel comparisons below
+validate the historical lab introduction, not visual equivalence of the new
+surface renderer.
+
 Game settings → Terrain lab adds session-only comparisons for the mountain FPS
 investigation. These controls deliberately change rendering to isolate costs;
 they are not proposed final quality settings or claims of a diagnosed bottleneck.

@@ -6,6 +6,23 @@ public static partial class TerrainVideoOptions
 {
     public static readonly TerrainDetailOptions Current=new TerrainDetailOptions();
     public static int Revision;
+    public static int SurfaceQuality=2;
+    public static bool SurfaceTextures=true;
+    public static readonly string[] SurfaceQualityNames={"Very low","Low","Medium","High","Ultra"};
+    // Physical metres, independent of mesh/world scale. Full detail, texture
+    // retirement, normal/mask retirement, secondary-layer/axis retirement.
+    public static Vector4 SurfaceRanges=>SurfaceQuality==0?new Vector4(3,18,0,6):
+        SurfaceQuality==1?new Vector4(6,40,12,12):
+        SurfaceQuality==2?new Vector4(12,90,25,24):
+        SurfaceQuality==3?new Vector4(18,120,35,36):new Vector4(24,160,50,48);
+    public static Vector4 SurfaceControls=>new Vector4(SurfaceTextures?1:0,SurfaceQuality,
+        SurfaceQuality<2?1:SurfaceQuality<4?2:3,SurfaceQuality<2?1:SurfaceQuality<4?2:3);
+    public static void SaveSurface()
+    {
+        PlayerPrefs.SetInt("terrain-surface-quality",SurfaceQuality);
+        PlayerPrefs.SetInt("terrain-surface-textures",SurfaceTextures?1:0);
+        PlayerPrefs.Save(); // Does NOT invalidate mesh plans or vegetation.
+    }
     public static bool GroundCover=true;
     // Temporary, session-only prototype controls. Do not invalidate terrain jobs.
     public static float GrassDensity=1,GrassDistance=350;
@@ -29,6 +46,8 @@ public static partial class TerrainVideoOptions
         Current.ViewDistanceM=Mathf.Clamp(PlayerPrefs.GetFloat("terrain-distance",200000),1000,250000);
         Current.FullDetailTiles=Mathf.Clamp(PlayerPrefs.GetFloat("terrain-full-radius",1.5f),1.5f,8);
         GroundCover=PlayerPrefs.GetInt("terrain-ground-cover",1)!=0;
+        SurfaceQuality=Mathf.Clamp(PlayerPrefs.GetInt("terrain-surface-quality",2),0,4);
+        SurfaceTextures=PlayerPrefs.GetInt("terrain-surface-textures",1)!=0;
         LoadVegetation();
         Revision++;
     }
@@ -70,7 +89,7 @@ public sealed partial class WorldGenRuntime
     {
         var o=TerrainVideoOptions.Current;bool changed=GUI.changed;GUI.changed=false;
         GUILayout.Space(12);GUILayout.Label("TERRAIN",SectionStyle());
-        GUILayout.Label("Terrain quality");o.Quality=GUILayout.SelectionGrid(o.Quality,new[]{"Low","Medium","High","Ultra","Extreme"},compact?3:3);
+        GUILayout.Label("Terrain geometry quality");o.Quality=GUILayout.SelectionGrid(o.Quality,new[]{"Low","Medium","High","Ultra","Extreme"},compact?3:3);
         GUILayout.Label("Loading effort");o.Effort=GUILayout.SelectionGrid(o.Effort,new[]{"Low","Balanced","High","Maximum"},2);
         if(!compact)
         {
@@ -85,5 +104,19 @@ public sealed partial class WorldGenRuntime
             GUILayout.Label("Loading effort changes background CPU concurrency and per-frame upload allowance, not the final detail. Maximum can reduce FPS while loading.",MutedStyle());
         }
         if(GUI.changed)TerrainVideoOptions.Save();GUI.changed|=changed;
+        bool beforeSurfaceChanged=GUI.changed;GUI.changed=false;
+        GUILayout.Space(12);GUILayout.Label("GROUND SURFACE",SectionStyle());
+        bool textures=GUILayout.Toggle(TerrainVideoOptions.SurfaceTextures,"Ground textures (lighting and shadows stay on when disabled)");
+        GUILayout.Label("Surface quality");
+        int surface=GUILayout.SelectionGrid(TerrainVideoOptions.SurfaceQuality,TerrainVideoOptions.SurfaceQualityNames,3);
+        if(surface!=TerrainVideoOptions.SurfaceQuality||textures!=TerrainVideoOptions.SurfaceTextures)
+        {TerrainVideoOptions.SurfaceQuality=surface;TerrainVideoOptions.SurfaceTextures=textures;TerrainVideoOptions.SaveSurface();}
+        if(!compact)
+        {
+            var ranges=TerrainVideoOptions.SurfaceRanges;
+            GUILayout.Label("Full texture detail nearby; smoothly simplifies through "+ranges.y.ToString("F0")+" m. Distant ground keeps habitat colour, lighting and shadows.",MutedStyle());
+            GUILayout.Label("Very low: minimal sampling. Medium: balanced. Ultra: restrained close-range refinement for 1080p, not unlimited draw distance. Changes need no terrain reload.",MutedStyle());
+        }
+        GUI.changed=beforeSurfaceChanged;
     }
 }
