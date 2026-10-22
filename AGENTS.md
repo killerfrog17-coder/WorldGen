@@ -1,5 +1,27 @@
 # WorldGen repository instructions
 
+Exploration map/ecology work,22October2026: continuous M-map terrain/satellite/
+height/relief/final-height/depth use same hierarchy at pixel footprint; historical
+elevation fields interpolate their own stage. Climate/seasonal weather/ecology/
+plate/ownership/hydrology assignments remain cell-based. New TreeDensity uses
+shared actual tree-placement admissions/species weights/rate; expected trees/ha,
+NOT graphics density or exact drawn census. Normal Sample's zero footprint keeps
+old refinement/rivers/detail; only map query coarsens. No geometry/LOD/source-world/
+save schema or placement/random changes. Selected-point queries use full detail;
+white crosshair selects, gold square marks player; click inspects, arrows move,
+P/button explicitly teleports. Jobs cancellable/background, bounded32 map patches;
+128×64 to384×192 previews by zoom; unresolved subpixel channels/detail omitted.
+F3+E opens independent cached/async region wiki: all recorded regional taxa/traits,
+generated grass/herbs/fungi/mid/tree catalogues, full food links by consumer.
+Derived flora are NOT retrofitted into saved food webs; no dynamic populations/
+phenology/harvest/poison rules. Fictional hazard indices not calibrated doses.
+Existing IL2CPP link.xml preserves reflection fields. Compile/package-only: no
+tests/world loads/game launches/captures/profiling. Initial invalid new meta GUID
+fixed; shared projects compile. Real C: player-continuous-map-ecology release
+IL2CPP package exits0 (BuiltUtc05:06:28Z), final log has no C#/shader/GUID errors;
+shortcut selects it for next launch. Owner game/save/preferences untouched. See
+EXPLORATION_MAP_ECOLOGY.md/VALIDATION.md for units, layer classes and limitations.
+
 Far-ground/F3 work,22October2026 UTC: WorldGenLocalTerrain branches BEFORE fine
 ground sampling at850m, retaining vertex palette/geometric normal and one
 coarsest-mask mip fetch/active layer vs nine triplanar texture samples. Means

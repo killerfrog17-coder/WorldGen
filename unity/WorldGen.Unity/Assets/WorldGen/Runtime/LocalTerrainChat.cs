@@ -16,13 +16,13 @@ public sealed partial class LocalTerrainExplorer
     public void SetCommandHandler(Func<string,PlayCommandResult> handler){command=handler;}
     public void OpenChat(string prefix="")
     {
-        if(paused||mapOpen)return;chatOpen=true;chatText=prefix;chatCaret=prefix.Length;chatOpenedFrame=Time.frameCount;chatHistoryIndex=chatHistory.Count;chatDraft="";chatSelectAll=false;chatScroll=0;GUIUtility.keyboardControl=0;CaptureMouse();
+        if(paused||mapOpen||ecologyOpen)return;chatOpen=true;chatText=prefix;chatCaret=prefix.Length;chatOpenedFrame=Time.frameCount;chatHistoryIndex=chatHistory.Count;chatDraft="";chatSelectAll=false;chatScroll=0;GUIUtility.keyboardControl=0;CaptureMouse();
     }
     void CloseChat(){chatOpen=false;chatSelectAll=false;CaptureMouse();}
     void ChatCharacter(char character)
     {
         if(closed)return;
-        if(!chatOpen){if(character=='/'&&!paused&&!mapOpen)OpenChat("/");return;}
+        if(!chatOpen){if(character=='/'&&!paused&&!mapOpen&&!ecologyOpen)OpenChat("/");return;}
         if(Time.frameCount==chatOpenedFrame||char.IsControl(character))return;InsertChat(character.ToString());
     }
     void InsertChat(string text)
@@ -50,7 +50,7 @@ public sealed partial class LocalTerrainExplorer
         bool enter=keyboard.enterKey.wasPressedThisFrame||keyboard.numpadEnterKey.wasPressedThisFrame;
         if(!chatOpen)
         {
-            if(!paused&&!mapOpen&&(enter||keyboard.slashKey.wasPressedThisFrame)){OpenChat(keyboard.slashKey.wasPressedThisFrame?"/":"");return true;}return false;
+            if(!paused&&!mapOpen&&!ecologyOpen&&(enter||keyboard.slashKey.wasPressedThisFrame)){OpenChat(keyboard.slashKey.wasPressedThisFrame?"/":"");return true;}return false;
         }
         if(Time.frameCount==chatOpenedFrame)return true;
         if(keyboard.escapeKey.wasPressedThisFrame){CloseChat();return true;}if(enter){SubmitChat();return true;}
@@ -81,7 +81,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DrawChat()
     {
-        if(paused||mapOpen)return;
+        if(paused||mapOpen||ecologyOpen)return;
         if(chatFont==null)chatFont=Font.CreateDynamicFontFromOSFont(new[]{"Consolas","Liberation Mono","Courier New"},17);
         var style=new GUIStyle(GUI.skin.label){font=chatFont,fontSize=17,richText=false,wordWrap=true,padding=new RectOffset(0,0,0,0),alignment=TextAnchor.UpperLeft};style.normal.textColor=Color.white;
         float width=Math.Min(720,Screen.width-16),bottom=Screen.height-(chatOpen?43:10),top=Math.Max(8,Screen.height*.48f);var e=Event.current;

@@ -1,5 +1,34 @@
 # Version 3 validation evidence
 
+## Exploration continuous map and ecology reference /22October2026
+
+Read-only map queries use same terrain hierarchy at pixel footprint (128×64 to
+384×192 by zoom); full-detail point inspection is separate. Continuous terrain/
+height/relief/satellite, continuous stage-specific geological scalars and discrete
+recorded climate/ecology/plate/hydro layers are classified explicitly. TreeDensity
+uses actual .034/m² rate, stand/habitat/slope/species/colony admission helpers shared
+with generated-tree placement, preserving its random calls/ordering/thresholds.
+No placement output change or world/save/geometry/LOD rule change is intended;
+no new source-hash or runtime equivalence test was run under compile-only limits.
+Point clicks select/inspect; P/button teleports; player and selection are distinct.
+
+F3+E builds a region dossier asynchronously: all recorded presence/taxon/variant/
+lineage fields and generated ground/specialist/mid/tree metadata. ALL saved food
+links are grouped by consumer. No fabricated integration of new flora into food
+webs or implied edibility from fictional relative hazards. Existing link.xml
+preserves all relevant assemblies under IL2CPP. Article/list/readout data cached;
+GUI does not build worlds or query local terrain.
+
+Shared .NET Standard projects compile0 warnings/errors. First Unity import caught
+a33-character new meta GUID, causing missing partial-class references; corrected
+before publication. Existing map fixture sources now assert click-without-teleport
+then explicit teleport; NOT executed. No suites/player/world/capture/profile run.
+Final release IL2CPP build/package exits0, no C#/shader/GUID errors; manifest and
+worker complete (BuiltUtc2026-10-22T05:06:28.4743596Z). Shortcut selects real C:
+player-continuous-map-ecology. Owner game/save/preferences untouched; source map
+fixture assertions updated, NOT executed. Owner art/input/latency review next. See
+EXPLORATION_MAP_ECOLOGY.md for layer choices and overview approximation limits.
+
 ## Far-ground sampling and cached F3 /22October2026 UTC
 
 Source audit compares coverage/water shader prefix and distant forest/mid/air

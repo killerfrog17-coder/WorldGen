@@ -118,6 +118,21 @@ namespace WorldGen.Core
         public LocalTerrainProfile Profile(int cell)
         { if (cell < 0 || cell >= profiles.Length) throw new ArgumentOutOfRangeException(nameof(cell)); return profiles[cell]; }
         public int NearestCell(V point)=>locator.Nearest(point);
+        /// <summary>Read-only continuous display of a historical source scalar;
+        /// never applies today's terrain detail to an earlier geological stage.</summary>
+        public double SourceField(V point,int[] values)
+        {
+            int nearest=NearestCell(point);if(values.Length!=profiles.Length)throw new ArgumentException("Source field size mismatch.");
+            for(int k=faceOffsets[nearest];k<faceOffsets[nearest+1];k++)
+            {
+                int t=faces[k],ia=world.Surface.Triangles[t],ib=world.Surface.Triangles[t+1],ic=world.Surface.Triangles[t+2];
+                V a=profiles[ia].Center,b=profiles[ib].Center,c=profiles[ic].Center;double det=V.Dot(a,V.Cross(b,c));
+                double x=V.Dot(point,V.Cross(b,c))/det,y=V.Dot(point,V.Cross(c,a))/det,z=V.Dot(point,V.Cross(a,b))/det;
+                if(Math.Min(x,Math.Min(y,z))< -1e-7)continue;
+                x=Math.Max(0,x);y=Math.Max(0,y);z=Math.Max(0,z);return (values[ia]*x+values[ib]*y+values[ic]*z)/(x+y+z);
+            }
+            return values[nearest];
+        }
         internal CellLocator WeatherLocator=>locator;
 
         /// <summary>Shared continuous function restricted to a bounded patch. Candidate lookup happens once,
@@ -230,7 +245,12 @@ namespace WorldGen.Core
                 return (Center + East * (eastM / owner.RadiusM) + North * (northM / owner.RadiusM)).Unit;
             }
             public LocalTerrainSample Sample(double eastM, double northM) => Sample(Position(eastM, northM));
-            public LocalTerrainSample Sample(V point)
+            public LocalTerrainSample Sample(V point)=>SampleAt(point,0);
+            /// <summary>Display-only sampling of the SAME terrain hierarchy at a
+            /// pixel footprint. Zero retains the literal full-detail query.</summary>
+            public LocalTerrainSample SampleMap(V point,double spacingM)
+            {if(double.IsNaN(spacingM)||double.IsInfinity(spacingM)||spacingM<0)throw new ArgumentOutOfRangeException(nameof(spacingM));return SampleAt(point,spacingM);}
+            LocalTerrainSample SampleAt(V point,double mapSpacingM)
             {
                 double norm = point.X * point.X + point.Y * point.Y + point.Z * point.Z;
                 if (double.IsNaN(norm) || Math.Abs(norm - 1) > .000001) throw new ArgumentOutOfRangeException(nameof(point), "A unit planetary position is required.");
@@ -276,7 +296,7 @@ namespace WorldGen.Core
                 if (sum <= 0) throw new InvalidOperationException("Terrain patch has no supporting world cells.");
                 if(amplified!=null)
                 {
-                    var surface=amplified.Sample(point,dry);
+                    var surface=amplified.Sample(point,dry,mapSpacingM);
                     if(!heightOnly){ground.Divide(sum);cover.Divide(sum);midCover.Divide(sum);forest.Divide(sum);}
                     return new LocalTerrainSample{ElevationM=D.Q(surface.Height,1000),PreWaterElevationM=D.Q(surface.UnshapedHeight,1000),
                         BaseElevationM=D.Q(surface.UnshapedHeight,1000),MountainHeightM=mountains/sum,HillHeightM=hills/sum,

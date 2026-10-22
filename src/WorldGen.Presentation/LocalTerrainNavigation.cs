@@ -137,24 +137,7 @@ namespace WorldGen.Presentation
     public sealed class TerrainMapImage
     {
         public byte[] Rgba=Array.Empty<byte>();public int Width,Height;public TerrainMapViewport View=new TerrainMapViewport();
-        public static TerrainMapImage Build(LocalTerrain terrain,TerrainMapViewport view,int width=384,int height=192,CancellationToken token=default,Layer layer=Layer.Terrain,float[]? cellColors=null)
-        {
-            var image=new TerrainMapImage{Width=width,Height=height,View=view.Clone(),Rgba=new byte[width*height*4]};
-            var center=view.Position(.5,.5);double extent=D.Angle(center,view.Position(0,0))*terrain.RadiusM*1.12+20;
-            var patch=view.LongitudeSpan<1&&extent<100000?terrain.Patch(center,Math.Max(100,extent)):null;
-            for(int y=0;y<height;y++)
-            {
-                token.ThrowIfCancellationRequested();
-                for(int x=0;x<width;x++)
-                {
-                    V p=view.Position((x+.5)/width,1-(y+.5)/height);double h=patch==null?terrain.Profile(terrain.NearestCell(p)).ElevationM:patch.Sample(p).ElevationM;
-                    V color=GlobeView.Elevation((int)h);int i=(y*width+x)*4;
-                    if(cellColors!=null){int cell=terrain.NearestCell(p);color=new V(cellColors[cell*3],cellColors[cell*3+1],cellColors[cell*3+2]);
-                        if(patch!=null&&(layer==Layer.Terrain||layer==Layer.Satellite)){var sample=patch.Sample(p);color=sample.Underwater?GlobeView.Elevation((int)Math.Min(-1,h)):layer==Layer.Satellite?sample.CoverColor:GlobeView.Elevation((int)h);}}
-                    image.Rgba[i]=(byte)(255*D.Clamp(color.X));image.Rgba[i+1]=(byte)(255*D.Clamp(color.Y));image.Rgba[i+2]=(byte)(255*D.Clamp(color.Z));image.Rgba[i+3]=255;
-                }
-            }
-            return image;
-        }
+        public static TerrainMapImage Build(LocalTerrain terrain,TerrainMapViewport view,int width=384,int height=192,CancellationToken token=default,Layer layer=Layer.Terrain,float[]? cellColors=null,World? world=null)
+            =>TerrainMapSampling.Build(terrain,view,width,height,token,layer,cellColors,world);
     }
 }

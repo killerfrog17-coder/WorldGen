@@ -741,14 +741,14 @@ namespace WorldGen.Core
                 this.owner=owner;faces=new int[triangleOffsets.Length];
                 for(int i=0;i<faces.Length;i++)faces[i]=triangleOffsets[i]/3;
             }
-            Face Locate(V point,out double a,out double b,out double c)
+            Face Locate(V point,out double a,out double b,out double c,double mapSpacingM=0)
             {
                 Face found = null; a = b = c = 0;
                 if (last != null && last.Coordinates(point, out a, out b, out c) >= -1e-7) found = last;
                 if(found==null)foreach(int id in faces)if(owner.roots[id].Coordinates(point,out a,out b,out c)>=-1e-7){found=owner.RootFace(id);break;}
                 if (found == null) throw new InvalidOperationException("Hyper-amplification patch has no containing base face.");
                 last = found;
-                while (found.Depth < owner.terminalDepth)
+                while (found.Depth < owner.terminalDepth&&(mapSpacingM<=0||found.Size>mapSpacingM))
                 {
                     var split = owner.Split(found); Face next = null; double best = -1e10;
                     double ba = 0, bb = 0, bc = 0;
@@ -790,9 +790,9 @@ namespace WorldGen.Core
                 a = Math.Max(0, a); b = Math.Max(0, b); c = Math.Max(0, c); double sum = a + b + c; a /= sum; b /= sum; c /= sum;
                 return found;
             }
-            public Surface Sample(V point,bool bare=false)
+            public Surface Sample(V point,bool bare=false,double mapSpacingM=0)
             {
-                var found=Locate(point,out double a,out double b,out double c);
+                var found=Locate(point,out double a,out double b,out double c,mapSpacingM);
                 var pa=Profile(found.A);var pb=Profile(found.B);var pc=Profile(found.C);
                 double pre=a*found.A.Height+b*found.B.Height+c*found.C.Height;
                 double height=a*pa.Height+b*pb.Height+c*pc.Height;
@@ -821,7 +821,13 @@ namespace WorldGen.Core
                 var result=new Surface{Height=height,UnshapedHeight=pre,Water=water,Mask=mask,RiverInfluence=influence,
                     Kind=kind,BodyKey=bodyKey,Gradient=gradient,Footprint=footprint,Minimum=minimum,Maximum=maximum,
                     Flow=waterFlow,Speed=speed,Turbulence=turbulence,DetailProtection=1};
-                if(!bare){ApplyRiverscape(point,ref result);ApplySurfaceDetail(point,found,a,b,c,ref result);}
+                if(!bare)
+                {
+                    // Overview pixels need not build metre-scale channels or
+                    // the sub-metre beauty pass. Normal Sample's zero path is literal.
+                    if(mapSpacingM<=128)ApplyRiverscape(point,ref result);
+                    if(mapSpacingM<=FinestSpacingM)ApplySurfaceDetail(point,found,a,b,c,ref result);
+                }
                 return result;
             }
         }

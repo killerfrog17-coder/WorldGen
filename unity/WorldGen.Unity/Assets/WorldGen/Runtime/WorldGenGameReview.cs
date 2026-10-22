@@ -48,7 +48,7 @@ public sealed partial class WorldGenRuntime
         Check(terrainExplorer.MapVisible&&terrainExplorer.MapReady&&Cursor.lockState==CursorLockMode.None,"M independently opens the satellite world map");yield return Show("07-satellite-map");
         terrainExplorer.TestMapLayer(Layer.Climate);deadline=Time.realtimeSinceStartupAsDouble+60;while(!terrainExplorer.MapReady&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         Check(terrainExplorer.MapReady,"the in-game map switches to cached climate data");yield return Show("08-climate-map");
-        var previous=terrainExplorer.Position;terrainExplorer.TestMapZoom(.05);terrainExplorer.TestMapClick(.63,.43);Check(D.Angle(previous,terrainExplorer.Position)>.001,"the map teleports to exact planetary coordinates");
+        var previous=terrainExplorer.Position;terrainExplorer.TestMapZoom(.05);terrainExplorer.TestMapClick(.63,.43);Check(D.Angle(previous,terrainExplorer.Position)<1e-8,"map click selects without teleporting");terrainExplorer.TestMapTeleport();Check(D.Angle(previous,terrainExplorer.Position)>.001,"explicit map teleport uses selected planetary coordinates");
         InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.M));yield return null;yield return null;InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
         InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.Escape));yield return null;yield return null;InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
         Check(terrainExplorer.Paused,"Escape opens the game pause menu");

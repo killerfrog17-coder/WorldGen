@@ -100,6 +100,15 @@ namespace WorldGen.Core
     public static class TreeFlora
     {
         public const string Version="tree-flora-2";
+        public const double PlacementPerM2=.034;
+        public static double HabitatAdmission(LocalTerrainSample sample)=>D.Clamp(sample.Forest.Coverage);
+        public static double SlopeAdmission(double up)=>D.Clamp((up-.60)/.22);
+        public static double SpeciesWeight(TreeSpecies species,HabitatCell habitat,LocalTerrainSample sample,V at,int seed,double radius,double sourceElevation)
+        {
+            double fit=Suitability(species,habitat,sample.Ground,sample.Biome,sample.ElevationM-sourceElevation);
+            double colony=.5+.5*SphereNoise.Sample(at*(radius/1000),seed^(species.MorphologyCode&~255),2.4);
+            return fit*(.25+.75*D.Clamp((colony-.2)/.6));
+        }
         static readonly string[] syllables={"al","ber","cer","dor","el","fen","gal","hir","il","jun","kor","lin","mer","nor","or","pel","ran","sil","tor","val"};
         static string Word(ref Rng r)=>syllables[(int)(r.Unit()*syllables.Length)]+syllables[(int)(r.Unit()*syllables.Length)];
         public static TreeSpecies[] Create(World world,int region,int province)

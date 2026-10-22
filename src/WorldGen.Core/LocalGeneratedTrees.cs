@@ -18,29 +18,26 @@ namespace WorldGen.Core
                 double stand=TreeFlora.Stand(at,seed,terrain.RadiusM*scale);if(r.Unit()>stand)continue;
                 double cu=(key.X+u)*2/divisions-1,cv=(key.Y+v)*2/divisions-1,jacobian=1/Math.Pow(1+cu*cu+cv*cv,1.5);
                 // Cheap upper admission before expensive local surface queries.
-                double densityCap=D.Clamp(nominal*nominal*jacobian/(side*side)*.034);
+                double densityCap=D.Clamp(nominal*nominal*jacobian/(side*side)*TreeFlora.PlacementPerM2);
                 if(r.Unit()>densityCap)continue;
                 var sample=patch.Sample(at);if(sample.Underwater||sample.ElevationM<2)continue;
                 var e=world.Ecology;var h=e!=null&&sample.Cell<e.Habitat.Length?e.Habitat[sample.Cell]:null;
                 var species=terrain.FloraRegion(sample.Cell).Trees;double sum=0;
                 for(int i=0;i<species.Length;i++)
                 {
-                    double fit=TreeFlora.Suitability(species[i],h,sample.Ground,sample.Biome,sample.ElevationM-world.ElevationM[sample.Cell]);
-                    double colony=.5+.5*SphereNoise.Sample(at*(terrain.RadiusM*scale/1000),seed^(species[i].MorphologyCode&~255),2.4);
-                    weights[i]=fit*(.25+.75*D.Clamp((colony-.2)/.6));sum+=weights[i];
+                    weights[i]=TreeFlora.SpeciesWeight(species[i],h,sample,at,seed,terrain.RadiusM*scale,world.ElevationM[sample.Cell]);sum+=weights[i];
                 }
                 if(sum<.001)continue;
                 // The surface profile blends habitat potential across source
                 // cells. The old nearest-biome switch made abrupt forest edges.
-                double support=sample.Forest.Coverage;
-                if(r.Unit()>D.Clamp(support))continue;
+                if(r.Unit()>TreeFlora.HabitatAdmission(sample))continue;
                 double pick=r.Unit()*sum;int chosen=species.Length-1;for(int i=0;i<species.Length;i++){pick-=weights[i];if(pick<=0){chosen=i;break;}}
                 var s=species[chosen];V east=V.Cross(Math.Abs(at.Z)<.99?new V(0,0,1):new V(0,1,0),at).Unit,north=V.Cross(at,east).Unit;
                 double delta=1.5/(terrain.RadiusM*scale);
                 double sx=(patch.Sample((at+east*delta).Unit).ElevationM-patch.Sample((at-east*delta).Unit).ElevationM)/3;
                 double sz=(patch.Sample((at+north*delta).Unit).ElevationM-patch.Sample((at-north*delta).Unit).ElevationM)/3;
                 double up=1/Math.Sqrt(1+sx*sx+sz*sz);
-                if(r.Unit()>D.Clamp((up-.60)/.22))continue;
+                if(r.Unit()>TreeFlora.SlopeAdmission(up))continue;
                 // Static size cohorts, not simulated ages. Saplings keep their adult lineage.
                 double cohort=r.Unit(),size=cohort<.12?.18+.16*r.Unit():cohort<.30?.40+.25*r.Unit():.72+.36*r.Unit();
                 double tint=.93+.12*r.Unit();

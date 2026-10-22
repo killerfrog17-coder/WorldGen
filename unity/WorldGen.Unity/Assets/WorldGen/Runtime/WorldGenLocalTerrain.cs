@@ -179,6 +179,7 @@ public sealed partial class WorldGenRuntime
                 if(!terrainExplorer.MapReady){Debug.LogError("TERRAIN CHECK debug map image failed: "+terrainExplorer.Error);Application.Quit(1);yield break;}
                 terrainExplorer.CaptureMap(Path.Combine(output,"debug-map.png"));
                 terrainExplorer.TestMapZoom(.05);var beforeTeleport=terrainExplorer.Position;terrainExplorer.TestMapClick(.73,.44);
+                if(D.Angle(beforeTeleport,terrainExplorer.Position)>1e-8){Debug.LogError("TERRAIN CHECK click unexpectedly teleported");Application.Quit(1);yield break;}terrainExplorer.TestMapTeleport();
                 if(D.Angle(beforeTeleport,terrainExplorer.Position)<.01){Debug.LogError("TERRAIN CHECK map teleport failed");Application.Quit(1);yield break;}
                 InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());yield return null;
                 InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(Key.M));yield return null;yield return null;
