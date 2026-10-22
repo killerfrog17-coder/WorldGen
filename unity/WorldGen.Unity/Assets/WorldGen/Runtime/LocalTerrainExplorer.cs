@@ -12,7 +12,7 @@ using WorldGen.Presentation;
 /// <summary>Input and bounded rendering only; all height queries use the shared terrain sampler.</summary>
 public sealed partial class LocalTerrainExplorer : MonoBehaviour
 {
-    sealed class Tile { public int Segments; public double[] Edges; public float[] Heights,Cover,MidCover,ForestCover;public sbyte MovingCover=-1; public float[] OcclusionMin;public float OcclusionCeiling;public int OcclusionStride; public GameObject Root; public Texture2D Coverage,CoverageTimes,FloraSurface,MidSurface,ForestSurface; public float[] CoverageNodes,CoverageTimingNodes; public float FadeIn,FadeOut; public long BufferBytes; public Material[] Materials;public MeshRenderer[] Renderers;public TerrainMaterialBinding MaterialBinding;public CoverGpu Grass,GrassSprites; public GraphicsBuffer CoverGrid; public readonly Dictionary<CoverPageKey,CoverGpu> CoverPages=new Dictionary<CoverPageKey,CoverGpu>(); }
+    sealed class Tile { public int Segments; public double[] Edges; public float[] Heights,Cover,MidCover,ForestCover;public sbyte MovingCover=-1; public float[] OcclusionMin;public float OcclusionCeiling;public int OcclusionStride; public GameObject Root; public Texture2D Coverage,CoverageTimes,FloraSurface,MidSurface,ForestSurface; public float[] CoverageNodes,CoverageTimingNodes; public float FadeIn,FadeOut; public long BufferBytes,DiagnosticVertices,DiagnosticTriangles; public int DiagnosticRevision=-1; public Material[] Materials;public MeshRenderer[] Renderers;public TerrainMaterialBinding MaterialBinding;public CoverGpu Grass,GrassSprites; public GraphicsBuffer CoverGrid; public readonly Dictionary<CoverPageKey,CoverGpu> CoverPages=new Dictionary<CoverPageKey,CoverGpu>(); }
     sealed class Work { public TerrainTileKey Key; public double[] Edges; public int Segments,Generation; public bool Prefetch,Backdrop; public Task<TerrainUpload> Task; public PreparedFrame Prepared; public CancellationTokenSource Cancellation; }
     Task<LocalTerrain> building;
     LocalTerrain terrain; LocalTerrainFrame frame; LocalTerrain.LocalTerrainPatch walkingPatch;
@@ -140,7 +140,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             terrain=building.Result;viewDistance=Math.Min(viewDistance,MaximumViewDistance);InitializeScatter();Teleport(startingPoint);
             if(playState!=null&&playState.HasPlayer){heading=(float)playState.Heading;pitch=(float)playState.Pitch;motion.Flying=playState.Flying;motion.Y=Ground(0,0)+Math.Max(TerrainMotion.EyeHeightM,playState.HeightAboveGround);UpdateCamera();}
         }
-        installationsThisFrame=0;frameUploadMs=0;double movementStartX=motion.X,movementStartZ=motion.Z;
+        ApplyTerrainDiagnostics();installationsThisFrame=0;frameUploadMs=0;double movementStartX=motion.X,movementStartZ=motion.Z;
         long mapStarted=WorldGenPerformance.TraceBegin();UpdateMapWork();WorldGenPerformance.TraceEnd(1,mapStarted);
         var keyboard=ActiveKeyboard;var mouse=Mouse.current;
         if(!mapOpen&&!paused&&!chatInput&&!ecologyOpen)
@@ -166,9 +166,10 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             foreach(var entry in previousTerrain)entry.Value.Root.transform.localPosition=new Vector3((float)(entry.Key.X*entry.Key.SizeM-originX),0,(float)(entry.Key.Z*entry.Key.SizeM-originZ));
             foreach(var chunk in scatterChunks.Values)ProjectScatter(chunk);scatterDirty=true;
         }
-        UpdatePreparedFrame();
+        if(!TerrainDiagnostics.HoldTerrain)UpdatePreparedFrame();
         UpdateCamera();UpdateFootsteps();double altitude=HeightAboveGround;
         debugGroundClearance=altitude;debugElevation=groundMemoElevation+altitude;
+        if(TerrainDiagnostics.HoldTerrain){UpdateScatter();UpdateWeatherPresentation();UpdateDebugReadout();return;}
         double replanDistance=TerrainLod.ReplanDistance(HorizontalScale);
         if(double.IsNaN(plannedX)||Math.Abs(motion.X-plannedX)>replanDistance||Math.Abs(motion.Z-plannedZ)>replanDistance||Math.Abs(altitude-plannedAltitude)>Math.Max(150,plannedAltitude*.3))RefreshWanted();
         if(!mapOpen){PollTerrainDetail();RefreshStreamingPrediction();}
@@ -275,6 +276,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         var target=prepared==null?tiles:prepared.Tiles;
         if(prepared!=null)prepared.Revision++;
         var product=new Tile{Root=root,Segments=data.Segments,Edges=edges,Heights=data.Heights,Cover=data.Cover,MidCover=data.MidCover,ForestCover=data.ForestCover,BufferBytes=data.BufferBytes};
+        foreach(var mesh in meshes){product.DiagnosticVertices+=mesh.vertexCount;product.DiagnosticTriangles+=(long)mesh.GetIndexCount(0)/3;}
         product.FloraSurface=CreateFloraSurface(product);if(product.FloraSurface!=null)product.BufferBytes+=(long)(product.Segments+1)*(product.Segments+1)*8;
         product.MidSurface=CreateMidSurface(product);if(product.MidSurface!=null)product.BufferBytes+=(long)(product.Segments+1)*(product.Segments+1)*8;
         product.ForestSurface=CreateForestSurface(product);if(product.ForestSurface!=null)product.BufferBytes+=(long)(product.Segments+1)*(product.Segments+1)*8;
@@ -337,6 +339,6 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         throw new InvalidOperationException("No resolved western shore near the nominated coastal review site.");
     }
     public void TestView(double height,float yaw=20,float tilt=12){motion.Flying=true;motion.Y=Ground(motion.X,motion.Z)+height;heading=yaw;pitch=tilt;RefreshWanted();UpdateCamera();}
-    public void Close(){if(closed)return;closed=true;if(view!=null)view.enabled=false;detailCancellation?.Cancel();cancellation.Cancel();if(!passiveSkyCheck&&!passiveReanchorCheck){Cursor.lockState=CursorLockMode.None;Cursor.visible=true;}close?.Invoke();}
-    void OnDestroy(){closed=true;cancellation.Cancel();ClearTerrainTransitions();terrainProducts?.Clear();foreach(var work in jobs)work.Task.ContinueWith(t=>{if(t.Status==TaskStatus.RanToCompletion)t.Result.Dispose();},TaskScheduler.Default);DisposeProgressiveMap();DisposeMapInspection();DisposeEcologyDebug();cancellation.Dispose();CancelPreparedFrame();DisposeRetiringTerrain();DisposeFootsteps();DisposeCloudMap();DisposeRiverMap();DisposeChat();DisposeWeather();DisposeSky();DisposeScatter();DisposeTerrainScene();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
+    public void Close(){if(closed)return;RestoreTerrainDiagnostics();closed=true;if(view!=null)view.enabled=false;detailCancellation?.Cancel();cancellation.Cancel();if(!passiveSkyCheck&&!passiveReanchorCheck){Cursor.lockState=CursorLockMode.None;Cursor.visible=true;}close?.Invoke();}
+    void OnDestroy(){RestoreTerrainDiagnostics();closed=true;cancellation.Cancel();ClearTerrainTransitions();terrainProducts?.Clear();foreach(var work in jobs)work.Task.ContinueWith(t=>{if(t.Status==TaskStatus.RanToCompletion)t.Result.Dispose();},TaskScheduler.Default);DisposeProgressiveMap();DisposeMapInspection();DisposeEcologyDebug();cancellation.Dispose();CancelPreparedFrame();DisposeRetiringTerrain();DisposeFootsteps();DisposeCloudMap();DisposeRiverMap();DisposeChat();DisposeWeather();DisposeSky();DisposeScatter();DisposeTerrainScene();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
 }

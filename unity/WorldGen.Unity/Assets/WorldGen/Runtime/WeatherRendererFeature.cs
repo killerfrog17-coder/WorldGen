@@ -10,6 +10,7 @@ public sealed class WeatherRendererFeature:ScriptableRendererFeature
     public override void AddRenderPasses(ScriptableRenderer renderer,ref RenderingData renderingData)
     {
         var screen=renderingData.cameraData.camera.GetComponent<LocalWeatherScreen>();if(screen==null||!screen.Ready||screen.Material==null)return;
+        if(TerrainDiagnostics.NoWeather)return;
         var o=WeatherVideoOptions.Current;bool visibility=o.Visibility>0&&(screen.UseField||screen.Weather.PrecipitationMmPerHour>0||screen.Weather.Fog>0);
         if(o.Clouds==0&&o.Adaptation==0&&o.SunGlare==0&&o.SunRays==0&&screen.Flash==0&&!visibility)return;
         screen.Prepare(renderingData.cameraData.camera,(GL.GetGPUProjectionMatrix(renderingData.cameraData.GetProjectionMatrix(),true)*renderingData.cameraData.GetViewMatrix()).inverse);pass.Screen=screen;renderer.EnqueuePass(pass);

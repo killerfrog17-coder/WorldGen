@@ -95,6 +95,8 @@ public sealed partial class LocalTerrainExplorer
     void UpdateScatter()
     {
         if(scatter==null)return;
+        if(TerrainDiagnostics.HoldPlants)
+        {if(scatterDirty||ScatterViewChanged||Time.realtimeSinceStartupAsDouble-lastBatchTime>1)BuildScatterBatches();return;}
         if(nearGroundRevision!=projectedGroundRevision&&Time.realtimeSinceStartupAsDouble-lastGroundProject>.25)
         {
             foreach(var chunk in scatterChunks.Values)
@@ -362,9 +364,11 @@ public sealed partial class LocalTerrainExplorer
     void DrawScatter()
     {
         if(landMaterial!=null&&landMaterial.GetFloat("_ForestFarEnabled")!=(TerrainVideoOptions.FarForest?1:0)){landMaterial.SetFloat("_ForestFarEnabled",TerrainVideoOptions.FarForest?1:0);PublishTerrainScene();}
-        ScatterDrawCalls=0;if(!ScatterEnabled||view==null)return;
+        ScatterDrawCalls=ForestDrawCalls=0;if(!ScatterEnabled||view==null||TerrainDiagnostics.HidePlants)return;
         foreach(var batch in drawBatches)for(int j=0;j<batch.Model.Parts.Length;j++)
         {
+            var kind=(ScatterKind)((batch.Key>>2)&63);
+            if(TerrainDiagnostics.HideTrees&&(kind==ScatterKind.GeneratedTree||kind==ScatterKind.Broadleaf||kind==ScatterKind.Conifer||kind==ScatterKind.SavannaTree))continue;
             var part=batch.Model.Parts[j];
             // Prefab child transforms are art only; default placeholders have an identity part transform.
             Matrix4x4[] matrices=batch.Matrices;

@@ -10,6 +10,9 @@ namespace WorldGen.Presentation
     {
         public int Quality=2, Effort=1;
         public double ViewDistanceM=200000, FullDetailTiles=1.5;
+        // Presentation diagnostics only; defaults retain the ordinary plan.
+        public bool EstimateRelief=true,ProximityRefinement=true;
+        public int FinestSegments=64;
         static readonly double[] Errors={16,8,4,2,1},Budgets={1.5,3,5,8};
         static readonly int[] Lanes={1,2,3,4},Uploads={1,1,2,4};
         public double PixelError=>Errors[Math.Max(0,Math.Min(4,Quality))];
@@ -73,12 +76,12 @@ namespace WorldGen.Presentation
                 token.ThrowIfCancellationRequested();double d=Math.Sqrt(TerrainLod.DistanceSquared(k,x,z));if(d>range)return;
                 double threshold=options.PixelError*(ancestors.Contains(k)?.85:1.15);
                 // A distance floor prevents huge nearby patches, independent of the estimate.
-                bool split=k.Level>0&&(d<full||Math.Max(d,altitude*.8)<k.SizeM*1.15);
-                int segments=k.Level==0?64:16;
+                bool split=k.Level>0&&(d<full||options.ProximityRefinement&&Math.Max(d,altitude*.8)<k.SizeM*1.15);
+                int segments=k.Level==0?Math.Max(8,Math.Min(64,options.FinestSegments)):16;
                 if(!split&&k.Level>0)
                 {
                     if(previous!=null&&previous.TryGetValue(k,out int old))segments=Math.Max(16,Math.Min(64,old));
-                    double Pixels(int n)=>ProjectedError(error(k,n),d,altitude,height,fov);
+                    double Pixels(int n)=>ProjectedError(options.EstimateRelief?error(k,n):0,d,altitude,height,fov);
                     while(segments>16&&Pixels(segments/2)<options.PixelError*.75)segments/=2;
                     while(segments<64&&Pixels(segments)>threshold)segments*=2;
                     if(Pixels(segments)>threshold&&result.Count<1800)split=true;

@@ -1,5 +1,20 @@
 # WorldGen repository instructions
 
+Terrain diagnostic menu,22October2026: shortcut selects real C:
+`artifacts/player-terrain-lab/WorldGen.exe`, IL2CPP BuiltUtc16:21:06Z, package0.
+Owner requests mountain-performance switches. Game settings → Terrain lab adds
+session-only texture/layer/projection, lighting/shadow, cover/tint/air/weather,
+draw/cull, terrain LOD/grid and preparation-hold experiments, resident counts,
+reference FPS and reset. No PlayerPrefs/world writes; reset/exit restores modes.
+Lab shading branches compile out of normal rendering; SRP compatibility stays0.
+Default LOD/geometry/vegetation placement unchanged; explicit grid/refinement
+experiments change only requested presentation meshes, not canonical heights.
+1,382 synthetic planner and65 isolated Editor/D3D11 shader/state checks pass;
+normal RGB delta0 vs pinned05736c5 at100/700/2000m on synthetic ground. All16
+fragment variants retained per D3D target; no shader/C# errors. No native game/
+world launch or FPS profiling; owner menu/mountain diagnosis remains pending.
+Forest-audit-complete remains rollback. See TERRAIN_PERFORMANCE_LAB/VALIDATION.
+
 Forest/performance review,22October2026: shortcut now selects real C:
 `artifacts/player-forest-audit-complete/WorldGen.exe`, IL2CPP BuiltUtc14:25:32Z.
 Owner explicitly authorizes thorough testing/profiling for THIS overnight audit,

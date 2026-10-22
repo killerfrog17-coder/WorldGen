@@ -44,7 +44,7 @@ public static partial class TerrainVideoOptions
 public sealed partial class WorldGenRuntime
 {
     int settingsCategory;Vector2 settingsScroll;
-    static readonly string[] SettingsTabs={"Overview","Display","Terrain","Audio","Atmosphere","Vegetation"};
+    static readonly string[] SettingsTabs={"Overview","Display","Terrain","Audio","Atmosphere","Vegetation","Terrain lab"};
     void DrawSettingsPage()
     {
         int selected=GUILayout.SelectionGrid(settingsCategory,SettingsTabs,3);
@@ -62,6 +62,7 @@ public sealed partial class WorldGenRuntime
             case 3:DrawAudioOptions();break;
             case 4:DrawWeatherVideoOptions();break;
             case 5:DrawVegetationOptions();break;
+            case 6:DrawTerrainLab();break;
         }
         GUILayout.EndScrollView();
     }

@@ -222,7 +222,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DrawForestFields()
     {
-        ForestDrawCalls=0;if(WorldGenPerformance.SuppressFarForest||!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||forestCull==null||forestFlagBuffer==null||view==null||forestFields.Count==0)return;
+        ForestDrawCalls=0;if(TerrainDiagnostics.HidePlants||TerrainDiagnostics.HideTrees||WorldGenPerformance.SuppressFarForest||!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||forestCull==null||forestFlagBuffer==null||view==null||forestFields.Count==0)return;
         PrepareForestHash();var eye=view.transform.localPosition;
         if(Time.realtimeSinceStartupAsDouble>=nextForestVisibility&&(!eye.Equals(forestVisibilityEye)||float.IsNaN(forestVisibilityEye.x)||nextForestVisibility==0||forestGroundRevision!=residentRevision||forestCoverageRevision!=coverVisibilityRevision))
         {

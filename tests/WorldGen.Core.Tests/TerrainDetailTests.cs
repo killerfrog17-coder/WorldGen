@@ -34,6 +34,24 @@ static class TerrainDetailTests
         }
         var costs=new List<long>();for(int q=0;q<5;q++){o.Quality=q;costs.Add(Cost(TerrainAdaptiveLod.Plan(0,0,100,.1,o,(k,n)=>Math.Min(100,k.SizeM/n*.1))));}
         Check(costs.SequenceEqual(costs.Order()),"Quality increases detail, not loading effort");
+        var diagnostic=new TerrainDetailOptions{ViewDistanceM=60000,EstimateRelief=false};
+        var ordinaryFlat=TerrainAdaptiveLod.Plan(0,0,0,.1,new TerrainDetailOptions{ViewDistanceM=60000},(_,__)=>0);
+        var distanceOnly=TerrainAdaptiveLod.Plan(0,0,0,.1,diagnostic,(_,__)=>throw new Exception("Distance-only diagnostic still evaluated relief"));
+        Check(distanceOnly.Count==ordinaryFlat.Count&&distanceOnly.All(p=>ordinaryFlat.TryGetValue(p.Key,out int n)&&n==p.Value),"Distance-only diagnostic preserves the zero-error plan and avoids estimator work");
+        diagnostic.ProximityRefinement=false;
+        var protectedOnly=TerrainAdaptiveLod.Plan(0,0,0,.1,diagnostic,(_,__)=>throw new Exception("Unexpected estimator work"));
+        Check(Cost(protectedOnly)<Cost(distanceOnly),"Proximity diagnostic actually reduces refinement");
+        Check(protectedOnly.Where(p=>TerrainLod.DistanceSquared(p.Key,0,0)<Math.Pow(diagnostic.FullRadius(.1),2)).All(p=>p.Key.Level==0&&p.Value==64),"Proximity diagnostic preserves the protected radius");
+        foreach(int grid in new[]{32,16,8})
+        {
+            diagnostic.FinestSegments=grid;var coarser=TerrainAdaptiveLod.Plan(0,0,0,.1,diagnostic,(_,__)=>throw new Exception("Unexpected estimator work"));
+            Check(coarser.Count==protectedOnly.Count&&coarser.Keys.All(protectedOnly.ContainsKey),"Grid diagnostic retains terrain footprint");
+            Check(coarser.All(p=>p.Value==(p.Key.Level==0?grid:protectedOnly[p.Key])),"Grid diagnostic changes only finest tessellation");
+            Check(Cost(coarser)<Cost(protectedOnly),"Grid diagnostic reduces vertex workload");
+            var diagnosticEdges=TerrainEdges.Build(coarser);
+            foreach(var p in coarser.Take(25))Check(diagnosticEdges[p.Key].SequenceEqual(TerrainLod.EdgeSteps(p.Key,coarser)),"Coarser diagnostic mesh keeps matching edge rules");
+        }
+        Check(new TerrainDetailOptions().EstimateRelief&&new TerrainDetailOptions().ProximityRefinement&&new TerrainDetailOptions().FinestSegments==64,"New options retain normal rendering defaults");
         using(var stop=new CancellationTokenSource()){stop.Cancel();try{TerrainAdaptiveLod.Plan(0,0,0,.1,o,(_,__)=>0,token:stop.Token);throw new Exception("Missing cancellation");}catch(OperationCanceledException){checks++;}}
         if(path!=null)
         {

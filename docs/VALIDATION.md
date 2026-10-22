@@ -1,5 +1,37 @@
 # Version 3 validation evidence
 
+## Session-only terrain performance lab /22October2026
+
+Owner requests menu switches to isolate unacceptable mountain rendering costs.
+Game settings → Terrain lab adds material/texture/projection/layer, PBR/unlit,
+shadow, ground-cover/tint, atmosphere/weather, drawing/culling, LOD/grid and
+terrain/plant preparation comparisons. Controls do not write preferences or
+worlds. Reset/exit restores overrides; geometry experiments deliberately change
+presentation mesh detail until reset, never canonical heights or saved data.
+Resident counts are metadata totals, not visible GPU counts. See
+[TERRAIN_PERFORMANCE_LAB.md](TERRAIN_PERFORMANCE_LAB.md) for interpretation.
+
+Shared Presentation builds with0 warnings/errors. The focused synthetic
+`--terrain-detail` suite passes1,382 assertions, including estimator bypass,
+protected-radius preservation, reduced vertex workloads and all coarser-grid
+edge rules; no world argument/load. Isolated Editor/D3D11 shader/state review
+passes65 checks. Normal surfaces match pinned pre-lab05736c5 shader with max RGB
+delta0 at100/700/2000m. All18 shading flags are exercised, reset is checked,
+cached-tile visibility/receiving, land-only culling and sunlight-shadow
+restoration pass, and SRP shader compatibility remains0. Initial fixture
+contrast/ambient-reflection drift was corrected before accepting the review;
+async shader compilation and environmental reflections are disabled only inside
+that fixture process. This is not actual-world art/menu-layout or FPS acceptance.
+
+Release IL2CPP `artifacts/player-terrain-lab`, BuiltUtc16:21:06Z, compiles/packages
+exit0 with bundled terrain worker. All16 filtered fragment variants are retained
+for each D3D11/D3D12 target, including normal/lab and receiving/no-receiving
+combinations; no shader/C# errors. Normal rendering compiles lab branches out
+through a local keyword. Shader compiler derivative/integer advisory warnings
+are not claimed absent. No native game/world launch or FPS/profile run for this
+task. No saved world/settings writes, owner game stop, authoritative height or
+vegetation-placement change. Menu and mountain diagnosis await owner use.
+
 ## Critical performance audit and actual-root forests /22October2026
 
 Owner explicitly requests thorough research, testing and profiling for this

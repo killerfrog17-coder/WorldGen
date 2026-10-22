@@ -26,7 +26,7 @@ public sealed partial class LocalTerrainExplorer
     public long TerrainSceneUploads {get;private set;}
     void EnsureTerrainMaterials(Tile tile)
     {
-        if(tile.Materials!=null)return;
+        if(tile.Materials!=null){ApplyTerrainDiagnosticTile(tile);return;}
         tile.Renderers=tile.Root.GetComponentsInChildren<MeshRenderer>();tile.Materials=new Material[tile.Renderers.Length];
         for(int i=0;i<tile.Renderers.Length;i++)
         {
@@ -37,6 +37,7 @@ public sealed partial class LocalTerrainExplorer
             renderer.sharedMaterial=material;renderer.SetPropertyBlock(null);tile.Materials[i]=material;
         }
         tile.MaterialBinding=new TerrainMaterialBinding();
+        ApplyTerrainDiagnosticTile(tile);
     }
     void BindTerrainTile(Tile owner,Tile source,TerrainTileKey key,Vector4 fade)
     {
@@ -74,7 +75,7 @@ public sealed partial class LocalTerrainExplorer
         Shader.SetGlobalConstantBuffer(TerrainSceneId,terrainSceneBuffer,0,TerrainSceneVectors*16);
     }
     void BindTerrainSceneCamera(ScriptableRenderContext context,Camera camera)
-    {if(camera==view&&terrainSceneBuffer!=null)Shader.SetGlobalConstantBuffer(TerrainSceneId,terrainSceneBuffer,0,TerrainSceneVectors*16);}
+    {Shader.SetGlobalInteger("_TerrainDiagnosticFlags",camera==view?(int)TerrainDiagnostics.Flags:0);if(camera==view){Shader.SetGlobalFloat("_TerrainDiagnosticRadius",(float)TerrainVideoOptions.Current.FullRadius(HorizontalScale));if(terrainSceneBuffer!=null)Shader.SetGlobalConstantBuffer(TerrainSceneId,terrainSceneBuffer,0,TerrainSceneVectors*16);}}
     void DisposeTerrainScene()
     {if(terrainSceneSubscribed)RenderPipelineManager.beginCameraRendering-=BindTerrainSceneCamera;terrainSceneSubscribed=false;terrainSceneBuffer?.Dispose();terrainSceneBuffer=null;}
 }

@@ -247,6 +247,7 @@ public sealed partial class LocalTerrainExplorer
     void DrawGroundCover()
     {
         GroundCoverDraws=0;GroundCoverBytes=0;GroundCoverCandidates=0;GrassPagesOccluded=0;
+        if(TerrainDiagnostics.HidePlants||TerrainDiagnostics.HideGrass)return;
         if(!GroundCoverEnabled||!TerrainVideoOptions.GroundCover||!ScatterEnabled||view==null||terrain==null)
         {
             if(!coverCleanupComplete||coverCleanupRevision!=residentRevision){foreach(var entry in tiles)ReleaseGroundCover(entry.Value);coverCleanupComplete=true;coverCleanupRevision=residentRevision;}
@@ -266,7 +267,7 @@ public sealed partial class LocalTerrainExplorer
         float grassRange=TerrainVideoOptions.GrassDistance,bladeRange=Mathf.Min(TerrainVideoOptions.GrassBladeDistance,grassRange*.75f);
         // Discover missing pages first, then install near-first. Existing pages
         // keep drawing; only pages well outside the draw radius are evicted.
-        foreach(var pair in tiles)
+        if(!TerrainDiagnostics.HoldPlants){foreach(var pair in tiles)
         {
             var key=pair.Key;var tile=pair.Value;
             if(key.SizeM>Math.Max(2048,TerrainLod.BaseSizeM*HorizontalScale)*1.001||tile.Cover==null||tile.Cover.Length==0||CoverFullyHidden(tile.CoverageNodes)||!WorldGenPerformance.Original&&!HasMovingCover(tile)){ReleaseGroundCover(tile);continue;}
@@ -296,6 +297,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var request=coverRequests[i];var added=PrepareGroundCover(request.Key,request.Tile,request.Page.X,request.Page.Z,request.Page.Far);
             if(added!=null)request.Tile.CoverPages.Add(request.Page,added);
+        }
         }
         foreach(var pair in tiles)
         {

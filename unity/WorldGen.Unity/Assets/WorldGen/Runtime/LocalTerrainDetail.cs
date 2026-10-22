@@ -40,7 +40,7 @@ public sealed partial class LocalTerrainExplorer
     Dictionary<TerrainTileKey,int> InitialDetailPlan(double x,double z,double altitude)
     {
         if(detailBaseline)return TerrainLod.Plan(x,z,altitude,viewDistance,HorizontalScale);
-        var options=detailOptions.Copy();options.ViewDistanceM=viewDistance;
+        var options=detailOptions.Copy();options.ViewDistanceM=viewDistance;TerrainDiagnostics.Detail(options);
         return TerrainAdaptiveLod.Plan(x,z,altitude,HorizontalScale,options,(_,__)=>0,Screen.height,view.fieldOfView);
     }
     void PollTerrainDetail()
@@ -64,7 +64,7 @@ public sealed partial class LocalTerrainExplorer
         if(detailPlan!=null||!detailDirty)return;
         detailDirty=false;detailGeneration=generation;detailX=motion.X;detailZ=motion.Z;
         double x=motion.X,z=motion.Z,altitude=HeightAboveGround,scale=HorizontalScale;
-        var options=detailOptions.Copy();options.ViewDistanceM=viewDistance;
+        var options=detailOptions.Copy();options.ViewDistanceM=viewDistance;TerrainDiagnostics.Detail(options);
         var previous=new Dictionary<TerrainTileKey,int>(wanted);var estimator=detailEstimator;
         int pixels=Screen.height;double fov=view.fieldOfView;
         detailCancellation=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=detailCancellation.Token;
