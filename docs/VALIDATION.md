@@ -1,5 +1,44 @@
 # Version 3 validation evidence
 
+## Short-grass split-blade fullness /22October2026 UTC
+
+Owner requests two short blades from the existing geometry budget, without
+halving slot/density counts. Only narrow grass/sedge forms with unswayed generated
+height<=35cm are eligible; other forms/tall grass remain literal. Vertex mapping
+uses the same6N submitted vertices for two N-triangle strips; canonical secondary
+root offsets are consistent through the close/distant microcell handoff. No
+authoritative/world/save/terrain/water/tree/settings or wind-behaviour changes.
+Production shader and opt-in isolated packaged A-B fixture added; no world/FPS
+suite is run. Final build/fixture results follow when complete.
+
+Final IL2CPP build/package exit0 BuiltUtc03:40:43.3200296Z. Initial shader-only
+fixture caught unsupported shader/zero coverage before release; a reserved HLSL
+identifier was renamed and shader rebuilt. Final native production-shader A-B on
+RTX4060 passes: segments1 uses6 vertices,1170->2356 covered pixels; segments2 uses
+12,1360->2452; segments3 uses18,1402->2763; segments4 uses24,1426->2809. Tall narrow
+forms0-3 and every non-grass form4-8 remain pixel-identical with split on/off.
+Actual1/2-blade capture inspected. No runtime shader/script errors in final log.
+Own42064 exited; explicit short-grass-final-native outputs/log do not touch owner
+Player.log. This is shader geometry/invariance evidence, NOT field realism or FPS.
+Shortcut now selects separate player-short-grass-split; previous running player
+left alone. Current cleanup freed~47.23GiB (~46.48GiB builds + .75GiB captures).
+
+Initial native build failed at IL2CPP output COPY with explicit 'not enough space
+on the disk', not a shader/C# compile error. C: briefly reached0 available bytes;
+build exit failure is recorded, not treated as a usable checkpoint. Owner then
+explicitly reauthorized latest-per-local-day plus newest3 build retention and
+deletion of obsolete generated test images/logs. Existing checked containment/
+running-player protection in prune-player-checkpoints.ps1 removed33 real C:
+obsolete builds (~46.48GiB), retaining8 including current/in-progress and selected
+player. No links/external data/saves/source or owner game were removed.
+New prune-test-captures.ps1 dry run identifies1678 obsolete PNG/JPEG/BMP/log/ETL
+files (~0.75GiB), excludes all player files, terrain worker, research tools,
+current short-grass evidence and current build log, never follows links. Small
+CSV/JSON/TXT benchmark/source records, audio and world fixtures are retained.
+Owner-authorized cleanup uses permanent deletion (regenerable outputs, not trash).
+Historical log/image artifact paths below may therefore no longer exist; checked
+outcome summaries remain documentation, not newly rerun evidence.
+
 ## Unified vegetation quality and stable tree handoffs /22October2026 UTC
 
 Read-only owner preference inspection identifies saved tree20/50/300m, mid20/40/

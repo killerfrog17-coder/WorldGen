@@ -1,5 +1,42 @@
 # WorldGen repository instructions
 
+Owner-authorized artifact cleanup,22October2026 UTC: after current native build
+hit disk-full output-copy failure, owner explicitly requests same newest-per-local-
+day plus newest3 builds retention AND obsolete test captures/log cleanup, ONLY
+inside artifacts. Existing safe prune-player-checkpoints.ps1 removes33 obsolete
+real C: builds (~46.48GiB), retains8 (daily16-20Oct, latest refined/presets and
+in-progress short-grass build); running/selected players protected. New opt-in
+prune-test-captures.ps1 targets1678 old capture/log/ETL files (~.75GiB), skips
+links, every player folder, worker/research tools/current evidence/current build
+log; keeps audio, worlds and small CSV/JSON/TXT results. No source/save/current
+game deletion. Permanent regenerable-output removal, not Recycle Bin. Manifests
+are ignored artifacts/checkpoint-retention.json and test-capture-cleanup.json.
+Old log/image paths in historical evidence may now be absent. Future cleanup
+still needs authorization; never delete broad workspace/user data or E: originals.
+
+Current OWNER-REVIEW launch,22October2026 UTC: real C: shortcut selects
+`artifacts/player-short-grass-split/WorldGen.exe` (IL2CPP03:40:43Z). Final native
+RTX4060 split A-B passes: unchanged6/12/18/24 submitted vertices at1/2/3/4 segments,
+coverage1170->2356,1360->2452,1402->2763,1426->2809. Tall/non-grass0-8 controls pixel-
+identical. Initial disk-full native copy failure and reserved-HLSL-name shader
+failure fixed before publication; final shader fixture passes, own42064 exited.
+Owner field art/FPS review pending; no actual-world/FPS test. Next requested task:
+terrain SRP Batcher steady-state CPU draw setup, remove terrain MPBs AND add
+UnityPerMaterial layout; preserve tile data/appearance/geometry/LOD/vegetation.
+Short-grass split work: owner requests fuller short grass, NOT
+half-count optimisation. GroundCover shader redistributes the existing6N vertices
+per slot into two N-triangle blades, only form0-3 and unanimated height<=35cm.
+Tall grass/broad herbs/ferns/moss/lichen/succulents/specialists/shrubs/trees stay
+literal. Secondary roots spread in the same canonical0.60m cell, same child IDs
+through all geometry LODs; terrain-plane grounding and approved wind unchanged.
+No new buffers/instances/placement/ecology/history/save/worker changes. Private
+_SplitShortGrass default1 has fixture-only A-B0. More covered pixels can still
+increase fill cost; NO free-rendering or measured FPS gain claim. New isolated
+--worldgen-short-grass-check compares production shader1-4 segments at identical
+vertex counts and tall/non-grass invariance without opening settings/worlds.
+Compile/package exit0 in separate player-short-grass-split; owner current
+game/save/preferences untouched. See GROUND_FLORA.md/VALIDATION.md for evidence.
+
 Current OWNER-REVIEW launch,22October2026 UTC: real C: shortcut selects
 `artifacts/player-vegetation-presets/WorldGen.exe` (IL2CPP03:08:25Z).
 Compile/package exit0; focused19028 preset assertions plus final native RTX4060

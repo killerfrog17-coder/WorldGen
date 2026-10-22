@@ -1,5 +1,40 @@
 # Ground layer / ground-flora-5
 
+## Split short grass blades /22October2026 UTC
+
+Owner requests fuller short swards, not half-density grass at the old appearance.
+The production GroundCover vertex shader now redistributes each existing blade
+slot's2N triangles into two short blades of N triangles apiece. Draw/instance
+counts, GPU root/visible buffers and existing density budgets are unchanged:
+this doubles eligible blade silhouettes, not ecological cover or stored plants.
+Odd N uses a pointed strip; even N has a narrow4%-width tip to avoid degenerate
+end geometry. The1-segment far case becomes two actual triangles/blades.
+
+Eligibility is form0-3 (narrow grass/sedge forms) AND unanimated generated height
+<=0.35m. Height is evaluated before wind and does not shrink with camera distance,
+so tall grass cannot become split just because it is LODed. Broad herbs, ferns,
+moss/lichen, succulent leaves, specialist plants, bushes and trees are unchanged.
+Second roots use a fixed low-discrepancy offset within the same0.60m canonical
+microcell, filling gaps rather than sharing a tuft centre. All geometry LODs use
+the same child identity/offset; roots follow the existing terrain plane. Species,
+height/colour and approved travelling-wind inputs are retained; secondary facing
+varies slightly. No animation speed/strength/history or weather changes.
+
+The private material uniform _SplitShortGrass defaults1; its0 state is only for
+the packaged A-B regression, not another normal settings slider. Same geometry
+budget does NOT mean free rendering: extra visible surface and shader branching
+can cost fill/shading time. No FPS gain or guaranteed2x pixel coverage is claimed.
+This follows the short-blade budget-splitting concept in the previously reviewed
+[Eric Wohllaib GDC2021 presentation](https://www.gdcvault.com/play/1027033/Advanced-Graphics-Summit-Procedural-Grass),
+not identical topology or imported Sucker Punch code. Trees, generation/history,
+ecology/save/wire schemas, placement, terrain and water remain unchanged.
+
+Opt-in --worldgen-short-grass-check uses the real packaged shader at1/2/3/4
+segments: same submitted vertices with/without splitting, larger short-grass
+coverage, and pixel-identical tall/non-grass controls. It opens no world or user
+settings. See VALIDATION.md for actual results; in-world appearance/FPS remain
+owner review, not inferred from an isolated shader fixture.
+
 ## Generated canopy lineages /21October2026
 
 See TREE_FLORA.md: world founders/province branches/regional trees, reusable
