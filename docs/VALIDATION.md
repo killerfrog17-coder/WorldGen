@@ -1,5 +1,26 @@
 # Version 3 validation evidence
 
+## Far-ground sampling and cached F3 /22October2026 UTC
+
+Source audit compares coverage/water shader prefix and distant forest/mid/air
+tail exactly against f4bf967. No terrain geometry/LOD selection/source-world or
+vegetation-renderer edits. Material CB layout/SRP binding remains unchanged.
+Far ground >=850m takes a real branch avoiding all mineral albedo/normal samples,
+using one coarsest mask fetch/active layer vs nine triplanar texture reads. Fine
+cover mats blend to generated mean RGB450–850m then skip texture reads. Existing
+palette, cover summary textures, lighting/shadows/air retained. Extra mean-mask
+fetches in450–850m mean no all-distances speedup is asserted. See
+TERRAIN_SHADING_DEBUG.md for limits/custom-mip assumptions.
+
+F3 OnGUI is source-checked free of DebugText/GroundContact/GroundDebugText/clearance
+queries; only cached text is drawn. Snapshot refresh in Update is gated4Hz and
+open-only, reopens immediately. Explicit test helper and gameplay ground queries
+are deliberately independent. No tests/player/world/capture/profile launched.
+Release IL2CPP compile/package exits0, no shader errors; build-input manifest and
+worker complete (BuiltUtc2026-10-22T04:31:25.1128580Z). Shortcut selects separate
+real C: player-terrain-cheap-far. No save/preferences/owner process changed.
+Visual matching and FPS benefit await owner.
+
 ## Terrain SRP Batcher steady-state material path /22October2026 UTC
 
 Owner explicitly targets recurring CPU terrain draw setup, NOT load/generation

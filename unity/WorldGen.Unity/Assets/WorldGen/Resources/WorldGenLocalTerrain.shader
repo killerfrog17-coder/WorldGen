@@ -149,39 +149,57 @@ Shader "WorldGen/LocalTerrain"
                     return half4(ApplyPlanetAir(farColor*.92*lerp(.035,1,TerrainDaylight())+TerrainAmbient().rgb*.12,i.position,_WorldSpaceCameraPos,fogColor,TerrainFogDistance()),1);
                 }
                 float3 n=normalize(i.normal);
-                float3 np=n.x*TerrainEast().xyz+n.y*TerrainUp().xyz+n.z*TerrainNorth().xyz;
-                float3 w=pow(abs(np),4);w/=max(.0001,w.x+w.y+w.z);
                 // Absolute planet-oriented phase with a small modulo anchor avoids giant world-space UVs.
                 float3 worldTexture=TerrainTextureAnchor().xyz+TerrainEast().xyz*(i.position.x+TerrainOrigin().x)+
                     TerrainNorth().xyz*(i.position.z+TerrainOrigin().y)+TerrainUp().xyz*i.position.y;
-                float3 p=worldTexture/max(.05,_TextureMetres);
-                float3 albedo=0,bump=0;float ao=0,rough=0,metal=0;
+                float near=1-smoothstep(120,850,distance),meanBlend=smoothstep(450,850,distance);
+                float3 albedo=farColor;float ao=0,rough=0,metal=0;
                 float4 weights=max(i.weights,0),groundB=max(i.groundB,0);float sum=max(.001,dot(weights,1)+dot(groundB,1));weights/=sum;groundB/=sum;
-                [loop]for(int layer=0;layer<14;layer++)
+                // A real branch, not texture work multiplied by zero afterwards.
+                // Far ground keeps the existing vertex palette and per-layer mean
+                // AO/roughness/metal, with ONE coarsest-mip fetch per active layer
+                // instead of nine triplanar albedo/normal/mask texture samples.
+                [branch] if(distance<850)
                 {
-                    float contribution=layer<4?weights[layer&3]:layer<8?groundB[layer&3]:groundB.x*(layer<12?i.rocks[(layer-8)&3]:i.rocksB[(layer-12)&1])*_RockLayers;
-                    if(layer==4&&_RockLayers>.5)contribution=0;
-                    if(contribution<.005)continue;
-                    albedo+=TriplanarAlbedo(p,w,layer)*contribution;
-                    float3 nx=SAMPLE_TEXTURE2D_ARRAY(_GroundNormals,sampler_GroundAlbedo,p.yz,layer).xyz*2-1;
-                    float3 ny=SAMPLE_TEXTURE2D_ARRAY(_GroundNormals,sampler_GroundAlbedo,p.xz,layer).xyz*2-1;
-                    float3 nz=SAMPLE_TEXTURE2D_ARRAY(_GroundNormals,sampler_GroundAlbedo,p.xy,layer).xyz*2-1;
-                    bump+=(float3(0,nx.x,nx.y)*w.x+float3(ny.x,0,ny.y)*w.y+float3(nz.x,nz.y,0)*w.z)*contribution;
-                    float4 mask=SAMPLE_TEXTURE2D_ARRAY(_GroundMasks,sampler_GroundAlbedo,p.yz,layer)*w.x+
-                        SAMPLE_TEXTURE2D_ARRAY(_GroundMasks,sampler_GroundAlbedo,p.xz,layer)*w.y+
-                        SAMPLE_TEXTURE2D_ARRAY(_GroundMasks,sampler_GroundAlbedo,p.xy,layer)*w.z;
-                    ao+=mask.r*contribution;rough+=mask.g*contribution;metal+=mask.a*contribution;
+                    float3 np=n.x*TerrainEast().xyz+n.y*TerrainUp().xyz+n.z*TerrainNorth().xyz;
+                    float3 w=pow(abs(np),4);w/=max(.0001,w.x+w.y+w.z);
+                    float3 p=worldTexture/max(.05,_TextureMetres),detailAlbedo=0,bump=0;
+                    [loop]for(int layer=0;layer<14;layer++)
+                    {
+                        float contribution=layer<4?weights[layer&3]:layer<8?groundB[layer&3]:groundB.x*(layer<12?i.rocks[(layer-8)&3]:i.rocksB[(layer-12)&1])*_RockLayers;
+                        if(layer==4&&_RockLayers>.5)contribution=0;
+                        if(contribution<.005)continue;
+                        detailAlbedo+=TriplanarAlbedo(p,w,layer)*contribution;
+                        float3 nx=SAMPLE_TEXTURE2D_ARRAY(_GroundNormals,sampler_GroundAlbedo,p.yz,layer).xyz*2-1;
+                        float3 ny=SAMPLE_TEXTURE2D_ARRAY(_GroundNormals,sampler_GroundAlbedo,p.xz,layer).xyz*2-1;
+                        float3 nz=SAMPLE_TEXTURE2D_ARRAY(_GroundNormals,sampler_GroundAlbedo,p.xy,layer).xyz*2-1;
+                        bump+=(float3(0,nx.x,nx.y)*w.x+float3(ny.x,0,ny.y)*w.y+float3(nz.x,nz.y,0)*w.z)*contribution;
+                        float4 mask=SAMPLE_TEXTURE2D_ARRAY(_GroundMasks,sampler_GroundAlbedo,p.yz,layer)*w.x+
+                            SAMPLE_TEXTURE2D_ARRAY(_GroundMasks,sampler_GroundAlbedo,p.xz,layer)*w.y+
+                            SAMPLE_TEXTURE2D_ARRAY(_GroundMasks,sampler_GroundAlbedo,p.xy,layer)*w.z;
+                        [branch] if(distance>450)mask=lerp(mask,SAMPLE_TEXTURE2D_ARRAY_LOD(_GroundMasks,sampler_GroundAlbedo,float2(.5,.5),layer,16),meanBlend);
+                        ao+=mask.r*contribution;rough+=mask.g*contribution;metal+=mask.a*contribution;
+                    }
+                    bump-=np*dot(np,bump);float3 perturbed=normalize(np+bump*near);
+                    n=normalize(float3(dot(perturbed,TerrainEast().xyz),dot(perturbed,TerrainUp().xyz),dot(perturbed,TerrainNorth().xyz)));
+                    // Mineral/organic palette remains authoritative at every distance.
+                    float detailScale=2;
+                    #ifndef UNITY_COLORSPACE_GAMMA
+                    detailScale=4.672;
+                    #endif
+                    albedo=farColor*lerp(1,detailAlbedo*detailScale,saturate(near*.88));
                 }
-                float near=1-smoothstep(120,850,distance);bump-=np*dot(np,bump);
-                float3 perturbed=normalize(np+bump*near);
-                n=normalize(float3(dot(perturbed,TerrainEast().xyz),dot(perturbed,TerrainUp().xyz),dot(perturbed,TerrainNorth().xyz)));
-                // Mineral/organic palette remains authoritative at every distance.
-                // Neutral detail textures add grain without turning all soils the same brown.
-                float detailScale=2;
-                #ifndef UNITY_COLORSPACE_GAMMA
-                detailScale=4.672;
-                #endif
-                albedo=farColor*lerp(1,albedo*detailScale,saturate(near*.88));
+                else
+                {
+                    [loop]for(int layer=0;layer<14;layer++)
+                    {
+                        float contribution=layer<4?weights[layer&3]:layer<8?groundB[layer&3]:groundB.x*(layer<12?i.rocks[(layer-8)&3]:i.rocksB[(layer-12)&1])*_RockLayers;
+                        if(layer==4&&_RockLayers>.5)contribution=0;
+                        if(contribution<.005)continue;
+                        float4 mask=SAMPLE_TEXTURE2D_ARRAY_LOD(_GroundMasks,sampler_GroundAlbedo,float2(.5,.5),layer,16);
+                        ao+=mask.r*contribution;rough+=mask.g*contribution;metal+=mask.a*contribution;
+                    }
+                }
                 // Fine organic/blade-scale grain without a distant lawn texture.
                 // Vertex cover colour already carries the same ecological mixture
                 // to every terrain LOD, well beyond individual plant draw distance.
@@ -203,9 +221,16 @@ Shader "WorldGen/LocalTerrain"
                 mix/=max(1,dot(mix,1));float grassMix=mix.x,mossMix=mix.y,lichenMix=mix.z;
                 float3 q=worldTexture/8;
                 float3 axes=pow(abs(TerrainUp().xyz),4);axes/=max(.001,dot(axes,1));
-                float3 mat=SAMPLE_TEXTURE2D(_GrassField,sampler_GrassField,q.yz).rgb*axes.x+
-                    SAMPLE_TEXTURE2D(_GrassField,sampler_GrassField,q.xz).rgb*axes.y+
-                    SAMPLE_TEXTURE2D(_GrassField,sampler_GrassField,q.xy).rgb*axes.z;
+                // Generated mats are mean-neutral (.5 RGB); preserve the same
+                // canopy lighting/colour without unresolved texture work far away.
+                float3 mat=.5;
+                [branch] if(distance<850&&grassMix>.001)
+                {
+                    mat=SAMPLE_TEXTURE2D(_GrassField,sampler_GrassField,q.yz).rgb*axes.x+
+                        SAMPLE_TEXTURE2D(_GrassField,sampler_GrassField,q.xz).rgb*axes.y+
+                        SAMPLE_TEXTURE2D(_GrassField,sampler_GrassField,q.xy).rgb*axes.z;
+                    mat=lerp(mat,float3(.5,.5,.5),meanBlend);
+                }
                 // Match the mean linear albedo of distant procedural leaves,
                 // not dark leaves fading onto a bright, flat green floor.
                 float meanTint=.9111;
@@ -228,16 +253,26 @@ Shader "WorldGen/LocalTerrain"
                     Light sun=GetMainLight(TransformWorldToShadowCoord(i.position));
                     if(mossMix>.001)
                     {
-                        float3 matM=SAMPLE_TEXTURE2D(_MossField,sampler_MossField,matQ.yz).rgb*axes.x+
-                            SAMPLE_TEXTURE2D(_MossField,sampler_MossField,matQ.xz).rgb*axes.y+SAMPLE_TEXTURE2D(_MossField,sampler_MossField,matQ.xy).rgb*axes.z;
+                        float3 matM=.5;
+                        [branch] if(distance<850)
+                        {
+                            matM=SAMPLE_TEXTURE2D(_MossField,sampler_MossField,matQ.yz).rgb*axes.x+
+                                SAMPLE_TEXTURE2D(_MossField,sampler_MossField,matQ.xz).rgb*axes.y+SAMPLE_TEXTURE2D(_MossField,sampler_MossField,matQ.xy).rgb*axes.z;
+                            matM=lerp(matM,float3(.5,.5,.5),meanBlend);
+                        }
                         float3 normalM=normalize(n+float3(matM.g-.5,0,matM.b-.5)*1.3);
                         float3 lightM=TerrainAmbient().rgb+sun.color*(.42+.58*saturate(dot(normalM,sun.direction)))*sun.shadowAttenuation*lerp(.025,1,TerrainDaylight());
                         vegetation+=lerp(farColor,mossColour,.4)*(matM.r*2)*lightM*mossMix;
                     }
                     if(lichenMix>.001)
                     {
-                        float3 matL=SAMPLE_TEXTURE2D(_LichenField,sampler_LichenField,matQ.yz).rgb*axes.x+
-                            SAMPLE_TEXTURE2D(_LichenField,sampler_LichenField,matQ.xz).rgb*axes.y+SAMPLE_TEXTURE2D(_LichenField,sampler_LichenField,matQ.xy).rgb*axes.z;
+                        float3 matL=.5;
+                        [branch] if(distance<850)
+                        {
+                            matL=SAMPLE_TEXTURE2D(_LichenField,sampler_LichenField,matQ.yz).rgb*axes.x+
+                                SAMPLE_TEXTURE2D(_LichenField,sampler_LichenField,matQ.xz).rgb*axes.y+SAMPLE_TEXTURE2D(_LichenField,sampler_LichenField,matQ.xy).rgb*axes.z;
+                            matL=lerp(matL,float3(.5,.5,.5),meanBlend);
+                        }
                         float3 normalL=normalize(n+float3(matL.g-.5,0,matL.b-.5));
                         float3 lightL=TerrainAmbient().rgb+sun.color*(.42+.58*saturate(dot(normalL,sun.direction)))*sun.shadowAttenuation*lerp(.025,1,TerrainDaylight());
                         vegetation+=lerp(farColor,lichenColour,.55)*(matL.r*2)*lightL*lichenMix;

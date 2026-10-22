@@ -1,5 +1,23 @@
 # WorldGen repository instructions
 
+Far-ground/F3 work,22October2026 UTC: WorldGenLocalTerrain branches BEFORE fine
+ground sampling at850m, retaining vertex palette/geometric normal and one
+coarsest-mask mip fetch/active layer vs nine triplanar texture samples. Means
+blend450–850m; old120–850m albedo/normal fade remains. Grass/moss/lichen ground
+materials fade to mean-neutral RGB and skip mat reads beyond850m; actual plant
+renderers untouched. PBR/shadows/air/cover summaries stay. Transition band can
+add mean-mask fetches, not a universal GPU/FPS gain. Generated masks have full
+mips; no new texture/keyword/CB field/material churn. F3 builds a whole cached
+snapshot in Update at4Hz/open-only; OnGUI only draws it, no terrain diagnostics.
+Explicit TestDebugText helper stays on-demand; footstep/controller queries stay.
+Source audit: coverage/water prefix and forest/mid/air tail exact. No geometry,
+LOD/world/data/generation/vegetation change. Owner compile-only restrictions:
+no player launches, world/tests/captures/profiling. Separate real C: player-terrain-
+cheap-far release IL2CPP build/package exits0 (BuiltUtc04:31:25Z), no shader errors;
+shortcut selects it for next launch. Owner's running previous SRP player and
+save/preferences untouched. See TERRAIN_SHADING_DEBUG.md/VALIDATION.md; no measured
+FPS or verified world-view visual-match claim.
+
 Terrain SRP material work,22October2026 UTC: owner targets STEADY CPU draw setup,
 not loading/generation. WorldGenLocalTerrain now has UnityPerMaterial including
 hidden declarations for legacy uniform values; terrain renderer MPBs removed,

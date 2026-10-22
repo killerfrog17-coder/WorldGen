@@ -189,6 +189,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             {CacheTerrain(key,tiles[key]);tiles.Remove(key);}
         long scatterStarted=WorldGenPerformance.Begin();UpdateScatter();WorldGenPerformance.End(0,scatterStarted);
         long weatherStarted=WorldGenPerformance.Begin();UpdateWeatherPresentation();WorldGenPerformance.End(3,weatherStarted);
+        UpdateDebugReadout();
         // Nearby ground always goes first, including when a hidden replacement
         // chart is overdue. Do not let scatter or far work monopolize both slots.
         bool nearPending=NearTerrainPending();

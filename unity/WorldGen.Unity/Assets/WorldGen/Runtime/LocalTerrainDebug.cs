@@ -10,6 +10,14 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     int fpsFrames;double fpsElapsed,fpsClock;string fpsDisplay="…";
+    string debugDisplay="Preparing terrain…";double debugRefreshAt;
+    public int DebugReadoutUpdates {get;private set;}
+    void UpdateDebugReadout()
+    {
+        if(!debugOpen||terrain==null||walkingPatch==null)return;
+        double now=Time.realtimeSinceStartupAsDouble;if(now<debugRefreshAt)return;
+        debugRefreshAt=now+.25;debugDisplay=DebugText();DebugReadoutUpdates++;
+    }
     void UpdateDebugFps(double elapsed)
     {
         if(elapsed<=0)return;
@@ -35,7 +43,7 @@ public sealed partial class LocalTerrainExplorer
     void HandleDebugKeys()
     {
         var k=ActiveKeyboard;if(k==null)return;
-        if(k.f3Key.wasPressedThisFrame)debugOpen=!debugOpen;
+        if(k.f3Key.wasPressedThisFrame){debugOpen=!debugOpen;if(debugOpen)debugRefreshAt=0;}
         if(k.mKey.wasPressedThisFrame&&!paused){mapOpen=!mapOpen;if(mapOpen)InvalidateMap();CaptureMouse();}
         if(k.escapeKey.wasPressedThisFrame){if(mapOpen){mapOpen=false;mapLayerMenu=false;}else paused=!paused;CaptureMouse();}
     }
@@ -70,7 +78,7 @@ public sealed partial class LocalTerrainExplorer
         DrawChat();
         if(debugOpen)
         {
-            string text=terrain==null?"Preparing terrain…":DebugText();var style=new GUIStyle(GUI.skin.label){fontSize=14,wordWrap=false,richText=false};style.normal.textColor=Color.black;
+            string text=debugDisplay;var style=new GUIStyle(GUI.skin.label){fontSize=14,wordWrap=false,richText=false};style.normal.textColor=Color.black;
             GUI.Label(new Rect(14,14,Screen.width-28,Screen.height-28),text,style);style.normal.textColor=Color.white;GUI.Label(new Rect(12,12,Screen.width-28,Screen.height-28),text,style);
         }
         if(paused){if(drawPause!=null)drawPause();else{GUILayout.BeginArea(new Rect(Screen.width/2f-130,Screen.height/2f-70,260,140),GUI.skin.box);if(GUILayout.Button("Resume"))Resume();if(GUILayout.Button("World simulation"))Close();GUILayout.EndArea();}return;}
@@ -110,9 +118,10 @@ public sealed partial class LocalTerrainExplorer
         TerrainMapViewport.Degrees(Position,out double lat,out double lon);
         if(playState!=null)lon=playState.OfficialLongitude(lon);
         double bearing=ExplorerNavigation.Bearing(frame,Position,heading);
+        double clearance=HeightAboveGround;
         return "WORLDGEN  ·  "+fpsDisplay+" FPS\n"+lat.ToString("F6")+"°, "+lon.ToString("F6")+"°  ·  scale "+HorizontalScale.ToString("G3")+"\n"+
             "Facing "+ExplorerNavigation.Compass(bearing)+" · "+bearing.ToString("F1")+"° (N 0°, E 90°, S 180°, W 270°)\n"+
-            "Elevation "+(walkingPatch.Sample(Position).ElevationM+HeightAboveGround).ToString("F1")+" m  ·  ground clearance "+HeightAboveGround.ToString("F2")+" m\n"+GroundDebugText+"\n"+
+            "Elevation "+(walkingPatch.Sample(Position).ElevationM+clearance).ToString("F1")+" m  ·  ground clearance "+clearance.ToString("F2")+" m\n"+GroundDebugText+"\n"+
             (motion.Flying?"Flying":ActiveKeyboard!=null&&ActiveKeyboard.cKey.isPressed?"Walking":ActiveKeyboard!=null&&ActiveKeyboard.shiftKey.isPressed?"Sprinting":"Jogging")+"  ·  "+Diagnostics+"\nScatter "+ScatterObjects.ToString("N0")+" instances  ·  "+ScatterDrawCalls+" draws"+
             "\nLow vegetation · "+GroundCoverDraws+" draws · "+(GroundCoverBytes/1048576d).ToString("F1")+" MiB GPU buffers · "+GroundCoverCandidates.ToString("N0")+" candidate slots · "+SpecialistObjects+" herbs/fungi · "+MidPlantObjects+" mid plants · "+GeneratedTreeObjects+" trees"+
             "\nVegetation culling · "+ScatterFrustumRejected+" outside view · "+ScatterTerrainRejected+" behind hills · "+ScatterShadowOnly+" shadow-only · "+GrassPagesOccluded+" grass pages hidden"+
