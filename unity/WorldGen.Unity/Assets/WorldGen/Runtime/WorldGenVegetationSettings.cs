@@ -112,6 +112,10 @@ public sealed partial class WorldGenRuntime
         TerrainVideoOptions.MidPlantShadows=GUILayout.Toggle(TerrainVideoOptions.MidPlantShadows,"Mid-height shadow casting");GUI.enabled=enabled;
 
         GUILayout.Space(16);GUILayout.Label("TREES",SectionStyle());GUI.enabled=enabled&&TerrainVideoOptions.GeneratedTrees;
+        TerrainVideoOptions.TreeRebuild=GUILayout.Toggle(TerrainVideoOptions.TreeRebuild,"Rebuilt trees (session-only A/B; off = previous models)");
+        TerrainVideoOptions.TreeImpostors=GUILayout.Toggle(TerrainVideoOptions.TreeImpostors,"Bake multi-angle distant trees (off = mesh-only comparison)");
+        GUILayout.Label("Bakes run in the background; full middle meshes remain until ready. Atlas budget 48 models (~128 MiB).",MutedStyle());
+        if(GUILayout.Button("Try rebuilt-tree LOD handoffs: 60 / 200 m")){TerrainVideoOptions.TreeNearLod=60;TerrainVideoOptions.TreeFarLod=200;GUI.changed=true;}
         TerrainVideoOptions.TreeDensity=PlantDensity("Visible population",TerrainVideoOptions.TreeDensity);
         GUILayout.Label("Geometry quality");TerrainVideoOptions.TreeDetail=GUILayout.SelectionGrid(TerrainVideoOptions.TreeDetail,new[]{"Low","Medium","High"},3);
         GUI.enabled=enabled&&TerrainVideoOptions.GeneratedTrees&&TerrainVideoOptions.TreeDetail==2;

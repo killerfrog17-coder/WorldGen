@@ -1,5 +1,25 @@
 # WorldGen repository instructions
 
+Current OWNER-REVIEW launch,21October2026 local/22October UTC: shortcut selects
+real C: `artifacts/player-tree-baked-prototype/WorldGen.exe`, IL2CPP00:56:27Z.
+First replacement-tree ART checkpoint: broadleaf bounded space-colonisation and
+apical needle anatomy, shared textured shoot atlas, identical foliage locations
+across two mesh LODs,16-view relightable actual-model far impostors. One background
+CPU bake at a time with complete middle mesh fallback; no per-frame CPU drawing,
+GPU readbacks or disk bakes.48-model ~128MiB view cache, additional shared shoot
+textures/source pixels. F3 shows progress. Session A/B rebuilt/previous and baked/
+mesh-only toggles, explicit60/200m handoff button; existing distances unchanged
+unless clicked. Existing tree count/ecology/speciation, exotics' old anatomy,
+kilometre forest aggregates, mid plants/grass, terrain/water/history/saves unchanged.
+NO denser populations or claimed measured FPS recovery yet. Small isolated D3D11
+Editor asset checks pass for two archetypes/16 views/three yaws; initial shader
+identifier and duplicated-silhouette depth reprojection corrected before package.
+Sampled near/mid broad5250/2298tri, needle14064/3066; far2 after bake. No owner
+game/world launched or stopped and no lengthy performance suite. Owner34224 GPU
+verified NVIDIA RTX4060 by Player.log and nvidia-smi, not integrated. Compile/
+package exit0; actual-world art/LOD/dense-FPS acceptance awaits owner. Old player-
+vegetation-performance is rollback. See TREE_FLORA.md and VALIDATION.md.
+
 Current OWNER-REVIEW launch,21October2026: shortcut selects real C:
 `artifacts/player-vegetation-performance/WorldGen.exe` (IL2CPP23:46:59Z).
 Owner explicitly authorized native benchmarks/profiling for this performance pass,

@@ -19,6 +19,7 @@ public static partial class TerrainVideoOptions
     public static bool MidPlants=true;
     public static int MidPlantDetail=2;
     public static bool GeneratedTrees=true,FarForest=true;
+    public static bool TreeRebuild=true,TreeImpostors=true;
     public static int TreeDetail=2;
     public static bool ScatterFrustum=true,VegetationOcclusion=true,VegetationShadows=true;
     public static void Load()

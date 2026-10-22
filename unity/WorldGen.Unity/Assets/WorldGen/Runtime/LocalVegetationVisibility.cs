@@ -16,7 +16,7 @@ public sealed partial class LocalTerrainExplorer
     public int GrassPagesOccluded {get;private set;}
     int ScatterOptionsStamp=>HashCode.Combine(HashCode.Combine(TerrainVideoOptions.SpecialistPlants,TerrainVideoOptions.MidPlants,
         TerrainVideoOptions.GeneratedTrees,TerrainVideoOptions.MidPlantDetail,TerrainVideoOptions.TreeDetail,
-        TerrainVideoOptions.VegetationRevision,TerrainVideoOptions.ScatterFrustum,TerrainVideoOptions.VegetationOcclusion),TerrainVideoOptions.VegetationShadows);
+        TerrainVideoOptions.VegetationRevision,TerrainVideoOptions.ScatterFrustum,TerrainVideoOptions.VegetationOcclusion),HashCode.Combine(TerrainVideoOptions.VegetationShadows,TerrainVideoOptions.TreeRebuild,TerrainVideoOptions.TreeImpostors));
     bool ScatterViewChanged=>view!=null&&((view.transform.localPosition-scatterEye).sqrMagnitude>.25f||
         Quaternion.Angle(view.transform.localRotation,scatterRotation)>1||view.projectionMatrix!=scatterProjection||scatterOptions!=ScatterOptionsStamp);
     void PrepareScatterBounds(ScatterChunk chunk)

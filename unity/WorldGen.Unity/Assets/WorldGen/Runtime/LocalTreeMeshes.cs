@@ -6,7 +6,7 @@ using WorldGen.Core;
 static partial class LocalScatterMeshes
 {
     // Separate wood and foliage masks support cheap shading and rooted wind.
-    static Mesh BuildTree(int code,int lod)
+    static Mesh BuildLegacyTree(int code,int lod)
     {
         var b=new Builder();var m=new TreeMorphology(code);var foliage=new List<float>();
         Color leaf=HerbColour(m.Leaf),wood=HerbColour(m.Bark);int branchSides=lod==0?6:lod==1?4:3;

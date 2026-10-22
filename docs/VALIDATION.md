@@ -1,5 +1,33 @@
 # Version 3 validation evidence
 
+## Rebuilt tree / baked-view first art checkpoint /22October2026 UTC
+
+Presentation-only broad/needle architecture, shared shoot atlas and cached
+16-view relightable far impostors; see TREE_FLORA.md for scope, memory and limits.
+Existing ecology, placement/density, far forest aggregates, grass/mid plants,
+terrain/water, saves/history and worker schema are unchanged. Exotics retain old
+anatomy. No denser-forest or measured100/165FPS acceptance is claimed.
+
+Small isolated Editor asset check (D3D11) builds broad36984320 and needle305419776,
+checks mesh topology, finite/bounded vertices,16 populated CPU bake views each,
+and actual production-shader near/baked captures at0/45/115 degrees. Latest run
+exit0; broad near5250/middle2298 triangles, needle14064/3066, baked far2. Capture
+comparison found and corrected invalid empty-depth/plane reprojection causing
+multiple trunks. Current sampled views have a single trunk, but remain softer
+than detailed meshes; this is not owner visual approval or all-angle equivalence.
+First package attempt failed shader compilation (reserved HLSL identifier); fixed
+before final package. Raw evidence: artifacts/tree-baked-assets and tree-asset-
+review.log. No world benchmark, owner player launch/closure or saved settings change.
+
+GPU verification: owner's running player34224, player-vegetation-performance,
+Player.log reports Direct3D NVIDIA GeForce RTX4060,7957MB; nvidia-smi lists the
+same process. This is the discrete GPU, not integrated graphics. Verification
+does not prove a particular bottleneck or expected frame rate.
+
+Final release IL2CPP package exit0, BuiltUtc2026-10-22T00:56:27.4336261Z,
+player-tree-baked-prototype including worker; no shader errors in final build log.
+Shortcut updated; owner review requested. Previous performance player remains.
+
 ## Owner-authorized rendering performance pass /21October2026
 
 Native testing/profiling explicitly authorized for this task. Added opt-in release

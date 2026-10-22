@@ -1,5 +1,69 @@
 # Generated tree lineages / tree-flora-1 / 21 October 2026
 
+## Rebuilt tree / baked-view prototype
+
+Owner rejected the previous tree art and approved reusable generated models with
+actual-model distant representations. This is a FIRST ART CHECKPOINT, not a
+completed all-family/dense-forest overhaul or measured FPS improvement.
+
+Broad crowns now use bounded space-colonisation branching, supported-tip trunk
+taper and textured folded leafy shoots. Needle crowns use apical trunks with
+irregular side limbs/twigs. Both mesh LODs share their skeleton and foliage
+locations: middle detail simplifies the shoot surfaces without deleting whole
+foliage packets. Existing regional anatomy/palettes and six shared variants stay.
+Other structural families still use preceding anatomy; actual tree populations,
+kilometre-scale forest aggregates, shrubs, grass, world/history, heights/water,
+worker protocol and saved ecology are unchanged. Forest density is NOT increased.
+
+Local far trees use a two-triangle billboard with sixteen upper-hemisphere views
+of their own detailed model, albedo plus object normal/depth, three-view blending,
+depth-assisted reprojection and live light/shadow reception. Alpha-weighted mips
+preserve cutoff coverage. This is not a licensed SpeedTree/Simplygon integration,
+an exact Endnight reproduction or pixel-perfect mesh equivalence. Stored depth
+helps parallax but does not replace raster SV_Depth. Wind is retained on meshes;
+impostors are still. Coarse views can still soften/detail-shift silhouettes.
+
+Meshes are generated on first art lookup and reused in the existing RAM cache.
+One background CPU task rasterises one model's views at a time; the main thread
+snapshots meshes, uploads completed textures and swaps representations. There is
+no per-frame CPU tree rasterisation, GPU capture/readback or per-tree object.
+Until ready, a complete middle mesh is drawn, not an empty billboard. Bakes are
+session-local, not disk-persistent. At most48 baked models (~128MiB RGBA8 mipmapped
+view textures); excess active variants retain meshes, unused bakes can retire.
+Shared shoot textures add ~21MiB GPU and retained source pixels ~16MiB CPU, plus
+temporary bake/mesh memory. Cache numbers are not total VRAM measurements.
+Editor samples took ~1.5–2.4s per model including validation/capture; a diverse
+stand can therefore take tens of seconds to finish. Startup FPS may differ from
+settled baked FPS. F3 shows baked/pending models and accounted view bytes.
+
+Game settings → Vegetation offers session-only rebuilt/previous-model A/B and
+baked/mesh-only A/B. Existing LOD distances remain literal; an explicit button
+tries60/200m handoffs (these distances persist through existing settings). There
+is no new timed load fade; normal spatial LOD blends remain. No full GPU Hi-Z or
+new GPU-driven visibility system is claimed; existing conservative culling stays.
+
+Isolated Editor checks validate two archetypes' topology, finite/bounded vertices,
+sixteen nonempty bakes and real-D3D11 near/baked renders at three yaws. Near/middle
+triangles: broad5250/2298, needle14064/3066, far2 after baking. This checks plumbing,
+not dense-forest FPS, every species, no-popping, scientific growth or owner art
+acceptance. Initial shader compilation and duplicated-silhouette reprojection
+defects were corrected before final packaging. No owner player/world was opened
+or stopped. RTX4060 is confirmed in the owner's Player.log and NVIDIA process list.
+
+### Primary reference architecture
+
+- [Self-organizing tree models, SIGGRAPH2009](https://algorithmicbotany.org/papers/selforg.sig2009.html):
+  inspiration for spatial competition and branching, NOT a full implementation
+  of its light/bud model or a real biological growth simulation.
+- [Microsoft/Simplygon vegetation optimisation](https://developer.microsoft.com/en-us/games/articles/2026/01/how-to-optimize-vegetation-with-simplygon/):
+  retain structural geometry, simplify foliage representations appropriately,
+  use baked distant impostors rather than arbitrary crown decimation.
+- [Epic Impostor Baker](https://dev.epicgames.com/documentation/en-us/unreal-engine/impostor-baker-plugin-in-unreal-engine):
+  upper-hemisphere multiview captures, neighbouring-view blending and depth.
+- [Endnight The Forest v0.18](https://endnightgames.com/updates/v018-destructible-buildings-controller-support-more-world-opened-and-much-more):
+  multi-angle billboard blending and normal/translucency improvements. This does
+  not establish Sons of the Forest's precise tree asset/rendering implementation.
+
 ## Tree coverage / vegetation visibility follow-up
 
 Subsequent quality-control checkpoint: Game settings → Vegetation now supplies

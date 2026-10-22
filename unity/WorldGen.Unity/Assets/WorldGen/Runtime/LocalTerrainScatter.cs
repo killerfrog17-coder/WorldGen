@@ -13,7 +13,7 @@ public sealed partial class LocalTerrainExplorer
     sealed class ScatterGroup {public Bounds Bounds;public int[] Indices;}
     sealed class ScatterChunk { public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
     sealed class ArtPart { public Mesh Mesh;public Material Material;public int Submesh;public Matrix4x4 Local; }
-    sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; public bool IdentityScale,Fades;public double LastUsed;public bool Generated; }
+    sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; public bool IdentityScale,Fades;public double LastUsed;public bool Generated;public int TreeCode;public bool TreeBake,TreeQueued,TreeBaked;public Texture2DArray TreeColour,TreeNormal; }
     sealed class DrawBatch
     {
         // Nonuniform scale needs both transform and inverse; stay below the platform's 511-instance limit.
@@ -42,7 +42,7 @@ public sealed partial class LocalTerrainExplorer
     public int MidPlantObjects {get;private set;}
     public int GeneratedTreeObjects {get;private set;}
     static bool IsSpecialist(ScatterKind kind)=>kind==ScatterKind.Herb||kind==ScatterKind.Fungus;
-    static long ScatterArtKey(ScatterKind kind,int variant,int lod)=>((long)(uint)variant<<8)|((long)(int)kind<<2)|(uint)lod;
+    static long ScatterArtKey(ScatterKind kind,int variant,int lod)=>((long)(uint)variant<<8)|((long)(int)kind<<2)|(uint)lod|(kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild?1L<<48:0);
     public bool ScatterReady=>scatter!=null&&scatterWanted.All(k=>scatterChunks.ContainsKey(k));
     public bool ScatterEnabled=true;
     void InitializeScatter()
@@ -118,6 +118,7 @@ public sealed partial class LocalTerrainExplorer
             foreach(var key in scatterPriority)
             {if(scatterChunks.ContainsKey(key)||scatterJobs.Any(j=>j.Key.Equals(key)))continue;var source=scatter;var producer=meshProcess;var token=cancellation.Token;scatterJobs.Add(new ScatterWork{Key=key,Task=Task.Run(()=>producer==null?source.Build(key,token):producer.Scatter(key,token),token)});break;}
         }
+        UpdateTreeImpostors();
         if(scatterDirty||ScatterViewChanged||Time.realtimeSinceStartupAsDouble-lastBatchTime>1)BuildScatterBatches();
     }
     double VisibleGround(double x,double z,double fallback)
@@ -153,6 +154,7 @@ public sealed partial class LocalTerrainExplorer
     ArtModel Art(ScatterKind kind,int variant,int lod)
     {
         long key=ScatterArtKey(kind,variant,lod);if(scatterArt.TryGetValue(key,out var found)){found.LastUsed=Time.realtimeSinceStartupAsDouble;return found;}
+        if(kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)return CreateRebuiltTree(key,variant,lod);
         var binding=artSet==null||artSet.Scatter==null?null:Array.Find(artSet.Scatter,b=>b!=null&&b.Kind==kind);
         GameObject prefab=binding==null?null:lod==0?binding.Near:lod==1?(binding.Middle!=null?binding.Middle:binding.Near):(binding.Far!=null?binding.Far:binding.Middle!=null?binding.Middle:binding.Near);
         var parts=new List<ArtPart>();var bounds=new Bounds();bool first=true;
@@ -254,6 +256,7 @@ public sealed partial class LocalTerrainExplorer
                 if(shadowOnly&&(p.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlantShadows||p.Kind==ScatterKind.GeneratedTree&&!TerrainVideoOptions.TreeShadows))continue;
                 int minimum=p.Kind==ScatterKind.MidPlant?2-TerrainVideoOptions.MidPlantDetail:p.Kind==ScatterKind.GeneratedTree?2-TerrainVideoOptions.TreeDetail:IsSpecialist(p.Kind)?1-TerrainVideoOptions.SpecialistDetail:0;
                 int nearLod=Math.Max(minimum,blend.Near),farLod=Math.Max(minimum,blend.Far);
+                if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild&&!TerrainVideoOptions.TreeImpostors){nearLod=Math.Min(1,nearLod);farLod=Math.Min(1,farLod);}
                 if(shadowOnly&&p.Kind==ScatterKind.GeneratedTree){nearLod=Math.Max(1,nearLod);farLod=Math.Max(1,farLod);}
                 // Built-in generated art always supports distance intervals.
                 bool compatible=!prefabScatterKinds.Contains(p.Kind)||
@@ -290,8 +293,9 @@ public sealed partial class LocalTerrainExplorer
         if(scatterArt.Count>384)
         {
             var used=new HashSet<ArtModel>(drawBatches.Select(b=>b.Model));
-            foreach(var item in scatterArt.Where(p=>p.Value.Generated&&!used.Contains(p.Value)).OrderBy(p=>p.Value.LastUsed).Take(Math.Min(8,scatterArt.Count-384)).ToArray())
+            foreach(var item in scatterArt.Where(p=>p.Value.Generated&&!p.Value.TreeQueued&&!used.Contains(p.Value)).OrderBy(p=>p.Value.LastUsed).Take(Math.Min(8,scatterArt.Count-384)).ToArray())
             {
+                ReleaseTreeTextures(item.Value);
                 foreach(var part in item.Value.Parts)
                 {
                     ownedScatterMeshes.Remove(part.Mesh);Destroy(part.Mesh);
@@ -341,6 +345,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DisposeScatter()
     {
+        DisposeTreeImpostors();
         if(groundCoverMaterial!=null)Destroy(groundCoverMaterial);
         if(groundCanopyMaterial!=null)Destroy(groundCanopyMaterial);
         if(grassFieldTexture!=null)Destroy(grassFieldTexture);
