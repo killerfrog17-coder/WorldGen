@@ -28,6 +28,8 @@ static class TerrainWorker
         // The player reserves capacity according to its loading-effort setting.
         // Four is a hard ceiling, not an unbounded request-driven thread count.
         using var slots=new SemaphoreSlim(4);
+        using var mapGate=new SemaphoreSlim(1);
+        using var maps=new ProgressiveTerrainMap(terrain,world,exit.Token);
         while(!exit.IsCancellationRequested)
         {
             var client=await listener.AcceptTcpClientAsync();client.NoDelay=true;
@@ -38,14 +40,38 @@ static class TerrainWorker
                 {
                     using var stream=client.GetStream();using var r=new BinaryReader(stream);using var w=new BinaryWriter(stream);
                     if(r.ReadString()!=token)throw new InvalidDataException("Invalid terrain session token.");
-                    byte command=r.ReadByte();if(command>1)throw new InvalidDataException("Unknown terrain worker command.");
+                    byte command=r.ReadByte();if(command>2)throw new InvalidDataException("Unknown terrain worker command.");
                     double east=0,north=0,size=0;int segments=0;double[] edges=null;LocalTerrainFrame frame=null;ScatterKey key=default;
+                    int revision=0,mapWidth=0;Layer mapLayer=default;TerrainMapViewport mapView=null;
                     if(command==0)frame=TerrainMeshWire.ReadRequest(r,out east,out north,out size,out segments,out edges);
-                    else key=TerrainMeshWire.ReadScatterKey(r);
+                    else if(command==1)key=TerrainMeshWire.ReadScatterKey(r);
+                    else mapView=TerrainMapWire.ReadRequest(r,out revision,out mapLayer,out mapWidth);
                     // One connection per request. Closing/cancelling it also
                     // cancels queued or active Core work, preserving near-first
                     // scheduling rather than leaving abandoned CPU jobs running.
                     _=Task.Run(async()=>{try{var b=new byte[1];int n=await stream.ReadAsync(b);if(n==0||b[0]!=0)cancellation.Cancel();}catch{try{cancellation.Cancel();}catch(ObjectDisposedException){}}});
+                    if(command==2)
+                    {
+                        await mapGate.WaitAsync(cancellation.Token);int acquired=0;
+                        try
+                        {
+                            // Map-open scheduling yields new terrain work. Reserve
+                            // the same four lanes, not four additional CPU workers.
+                            for(;acquired<4;acquired++)await slots.WaitAsync(cancellation.Token);
+                            maps.Begin(revision,mapView,mapLayer,mapWidth);w.Write(true);w.Flush();
+                            while(true)
+                            {
+                                cancellation.Token.ThrowIfCancellationRequested();
+                                if(!maps.TryTake(out var update)){await Task.Delay(2,cancellation.Token);continue;}
+                                if(update.Revision!=revision)continue;
+                                update.TileHits=maps.TileHits;update.TilesBuilt=maps.TilesBuilt;
+                                TerrainMapWire.WriteUpdate(w,update);
+                                if(update.Complete||update.Error!="")break;
+                            }
+                        }
+                        finally{maps.Cancel();if(acquired>0)slots.Release(acquired);mapGate.Release();}
+                        return;
+                    }
                     await slots.WaitAsync(cancellation.Token);
                     try
                     {

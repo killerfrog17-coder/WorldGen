@@ -10,7 +10,7 @@ public sealed partial class LocalTerrainExplorer
     sealed class ChatLine {public string Text;public double At;public bool Error;}
     readonly List<ChatLine> chatLines=new List<ChatLine>();readonly List<string> chatHistory=new List<string>();
     Keyboard chatKeyboard;Font chatFont;string chatText="",chatDraft="";int chatCaret,chatOpenedFrame,chatHistoryIndex,chatScroll;bool chatOpen,chatSelectAll;
-    Func<string,PlayCommandResult> command;
+    Func<string,PlayCommandResult> command;GUIStyle chatStyle;
     public bool ChatOpen=>chatOpen;
     public string ChatText=>chatText;
     public void SetCommandHandler(Func<string,PlayCommandResult> handler){command=handler;}
@@ -82,8 +82,10 @@ public sealed partial class LocalTerrainExplorer
     void DrawChat()
     {
         if(paused||mapOpen||ecologyOpen)return;
+        if(!chatOpen&&(chatLines.Count==0||Time.realtimeSinceStartupAsDouble-chatLines[chatLines.Count-1].At>=11))return;
         if(chatFont==null)chatFont=Font.CreateDynamicFontFromOSFont(new[]{"Consolas","Liberation Mono","Courier New"},17);
-        var style=new GUIStyle(GUI.skin.label){font=chatFont,fontSize=17,richText=false,wordWrap=true,padding=new RectOffset(0,0,0,0),alignment=TextAnchor.UpperLeft};style.normal.textColor=Color.white;
+        if(chatStyle==null)chatStyle=new GUIStyle(GUI.skin.label){font=chatFont,fontSize=17,richText=false,padding=new RectOffset(0,0,0,0),alignment=TextAnchor.UpperLeft};
+        var style=chatStyle;style.wordWrap=true;style.normal.textColor=Color.white;
         float width=Math.Min(720,Screen.width-16),bottom=Screen.height-(chatOpen?43:10),top=Math.Max(8,Screen.height*.48f);var e=Event.current;
         if(chatOpen&&e.type==EventType.ScrollWheel){chatScroll=Math.Max(0,Math.Min(Math.Max(0,chatLines.Count-1),chatScroll+(e.delta.y>0?2:-2)));e.Use();}
         for(int i=chatLines.Count-1-chatScroll;i>=0;i--)

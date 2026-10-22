@@ -7,7 +7,7 @@ public sealed partial class LocalTerrainExplorer
     bool coverageDirty;
     void UpdateTerrainCoverage()
     {
-        if(!coverageDirty)return;coverageDirty=false;var keys=tiles.Keys.ToArray();
+        if(!coverageDirty)return;long started=WorldGenPerformance.TraceBegin();coverageDirty=false;var keys=tiles.Keys.ToArray();
         // Reuse this index through timestamp/material-only changes. Do not key
         // fog readiness to the requested detail plan or inactive mesh cache.
         if(fogFootprint==null||!fogFootprint.Matches(keys)){fogFootprint=new TerrainCoverageFootprint(keys);fogCheckAt=0;}
@@ -44,5 +44,6 @@ public sealed partial class LocalTerrainExplorer
                 BindTerrainTile(previous,tile,pair.Key,new Vector4(timing.In,timing.Out,1,0));
             }
         }
+        WorldGenPerformance.TraceEnd(6,started);
     }
 }

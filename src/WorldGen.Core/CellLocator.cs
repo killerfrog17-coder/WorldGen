@@ -38,6 +38,15 @@ namespace WorldGen.Core
                 Visit(0, order.Length, 0); return best;
             }
             // Immutable spatial index; ordered output makes local feature application deterministic.
+            internal void WithinTo(V point,double squaredChord,List<int> found)
+            {found.Clear();VisitWithin(point,squaredChord,found,0,order.Length,0);found.Sort();}
+            void VisitWithin(V point,double chord,List<int> found,int start,int count,int axis)
+            {
+                if(count==0)return;int half=count/2,middle=start+half,id=order[middle];V delta=cells[id].Position-point;
+                if(V.Dot(delta,delta)<=chord)found.Add(id);double d=Axis(point,axis)-Axis(cells[id].Position,axis);int next=(axis+1)%3;
+                if(d<=0||d*d<=chord)VisitWithin(point,chord,found,start,half,next);
+                if(d>=0||d*d<=chord)VisitWithin(point,chord,found,middle+1,count-half-1,next);
+            }
             public int[] Within(V point, double squaredChord)
             {
                 var found = new List<int>();

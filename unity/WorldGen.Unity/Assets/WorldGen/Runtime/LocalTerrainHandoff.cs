@@ -169,7 +169,7 @@ public sealed partial class LocalTerrainExplorer
             double dx=Math.Max(Math.Max(key.X*key.SizeM-x,0),x-(key.X+1)*key.SizeM);
             double dz=Math.Max(Math.Max(key.Z*key.SizeM-z,0),z-(key.Z+1)*key.SizeM);
             if(dx*dx+dz*dz<=near*near&&
-                (!pending.Tiles.TryGetValue(key,out var tile)||!tile.Edges.SequenceEqual(pending.Edges[key])))return;
+                (!pending.Tiles.TryGetValue(key,out var tile)||!TerrainEdges.Equal(tile.Edges,pending.Edges[key])))return;
         }
         if(!TerrainHandoff.Ready(pending.Wanted,resident,x,z,near))return;
         if(!motion.Flying&&!PrepareGroundScatter(pending,x,z))return;
@@ -187,7 +187,7 @@ public sealed partial class LocalTerrainExplorer
         {
             if(!CanRequest||jobs.Count+scatterJobs.Count>=WorkerLimit)return;
             int detail=pending.Wanted[key];var edges=pending.Edges[key];
-            if(pending.Tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&tile.Edges.SequenceEqual(edges)||
+            if(pending.Tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&TerrainEdges.Equal(tile.Edges,edges)||
                 jobs.Any(j=>ReferenceEquals(j.Prepared,pending)&&j.Key.Equals(key)))continue;
             var source=terrain;var buildFrame=pending.Frame;var jobCancellation=System.Threading.CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=jobCancellation.Token;
             var producer=meshProcess;

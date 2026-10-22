@@ -60,7 +60,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public int WantedCount=>wanted.Count;
     public bool CenterReady=>tiles.Keys.Any(k=>motion.X>=k.X*k.SizeM&&motion.X<(k.X+1)*k.SizeM&&motion.Z>=k.Z*k.SizeM&&motion.Z<(k.Z+1)*k.SizeM);
     public bool NearReady=>wanted.Count>0&&!NearTerrainPending();
-    public bool AllReady=>wanted.All(p=>tiles.TryGetValue(p.Key,out var t)&&t.Segments==p.Value&&t.Edges.SequenceEqual(wantedEdges[p.Key]));
+    public bool AllReady=>wanted.All(p=>tiles.TryGetValue(p.Key,out var t)&&t.Segments==p.Value&&TerrainEdges.Equal(t.Edges,wantedEdges[p.Key]));
     public V Position=>frame.Position(motion.X,motion.Z);
     public double HeightAboveGround=>motion.Y-Ground(motion.X,motion.Z);
     public string Diagnostics=>tiles.Count+" / "+wanted.Count+" tiles · last "+lastBuildMs.ToString("F1")+" ms · max "+largestBuildMs.ToString("F1")+" ms/tile";
@@ -97,6 +97,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         groundMemoElevation=sample.ElevationM;
         double elapsed=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000.0/System.Diagnostics.Stopwatch.Frequency;
         largestGroundMs=Math.Max(largestGroundMs,elapsed);
+        if(WorldGenPerformance.TraceEnabled)WorldGenPerformance.TraceMilliseconds[4]+=elapsed;
         if(elapsed>20)Debug.Log("Local ground query "+elapsed.ToString("F2")+"ms");
         groundMemoFrame=frame;groundMemoX=x;groundMemoZ=z;groundMemoY=height;
         return height;
@@ -115,6 +116,10 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     }
     void Update()
     {
+        long started=WorldGenPerformance.TraceBegin();try{UpdateBody();}finally{WorldGenPerformance.TraceEnd(0,started);}
+    }
+    void UpdateBody()
+    {
         double fpsNow=Time.realtimeSinceStartupAsDouble;
         if(fpsClock>0)UpdateDebugFps(fpsNow-fpsClock);
         fpsClock=fpsNow;
@@ -129,7 +134,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             if(playState!=null&&playState.HasPlayer){heading=(float)playState.Heading;pitch=(float)playState.Pitch;motion.Flying=playState.Flying;motion.Y=Ground(0,0)+Math.Max(TerrainMotion.EyeHeightM,playState.HeightAboveGround);UpdateCamera();}
         }
         installationsThisFrame=0;frameUploadMs=0;double movementStartX=motion.X,movementStartZ=motion.Z;
-        UpdateMapWork();
+        long mapStarted=WorldGenPerformance.TraceBegin();UpdateMapWork();WorldGenPerformance.TraceEnd(1,mapStarted);
         var keyboard=ActiveKeyboard;var mouse=Mouse.current;
         if(!mapOpen&&!paused&&!chatInput&&!ecologyOpen)
         {
@@ -178,7 +183,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             if(job.Generation!=generation)continue;
             if(job.Prefetch&&!WorkMatchesCurrent(job))
             {
-                if(prefetchWanted.TryGetValue(job.Key,out int predictedDetail)&&predictedDetail==job.Segments&&job.Edges.SequenceEqual(prefetchEdges[job.Key]))Upload(job.Key,upload,job.Edges,cacheOnly:true);
+                if(prefetchWanted.TryGetValue(job.Key,out int predictedDetail)&&predictedDetail==job.Segments&&TerrainEdges.Equal(job.Edges,prefetchEdges[job.Key]))Upload(job.Key,upload,job.Edges,cacheOnly:true);
                 continue;
             }
             if(!WorkMatchesCurrent(job))continue;
@@ -189,8 +194,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         foreach(var key in tiles.Keys.Where(k=>!wanted.ContainsKey(k)).ToArray())
             if(CanRetireTransition(key))
             {CacheTerrain(key,tiles[key]);tiles.Remove(key);}
-        long scatterStarted=WorldGenPerformance.Begin();UpdateScatter();WorldGenPerformance.End(0,scatterStarted);
-        long weatherStarted=WorldGenPerformance.Begin();UpdateWeatherPresentation();WorldGenPerformance.End(3,weatherStarted);
+        long scatterTrace=WorldGenPerformance.TraceBegin(),scatterStarted=WorldGenPerformance.Begin();UpdateScatter();WorldGenPerformance.End(0,scatterStarted);WorldGenPerformance.TraceEnd(2,scatterTrace);
+        long weatherTrace=WorldGenPerformance.TraceBegin(),weatherStarted=WorldGenPerformance.Begin();UpdateWeatherPresentation();WorldGenPerformance.End(3,weatherStarted);WorldGenPerformance.TraceEnd(3,weatherTrace);
         UpdateDebugReadout();
         if(mapOpen){UpdateTerrainCoverage();UpdateStreamingFog();RetireTerrainGradually();return;}
         // Nearby ground always goes first, including when a hidden replacement
@@ -206,9 +211,9 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         {
             int detail=wanted[key];
             if(handoffDue&&!ImmediateTerrain(key))continue;
-            if(tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&tile.Edges.SequenceEqual(wantedEdges[key]))continue;
+            if(tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&TerrainEdges.Equal(tile.Edges,wantedEdges[key]))continue;
             if(TerrainProducts.Contains(new TerrainProductKey(key,detail,wantedEdges[key]))){RestoreTerrain(key,detail,wantedEdges[key]);continue;}
-            if(!CanRequest||jobs.Count+scatterJobs.Count>=WorkerLimit||jobs.Any(j=>WorkMatchesCurrent(j)&&j.Key.Equals(key)))continue;
+            if(!CanRequest||jobs.Count+scatterJobs.Count>=WorkerLimit||HasMatchingTerrainJob(key))continue;
             RequestTerrain(key,detail,wantedEdges[key]);
         }
         SchedulePreparedWork(false);
@@ -216,11 +221,13 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         RetireTerrainGradually();
         if(WorldGenPerformance.Enabled&&!WorldGenPerformance.Measuring)PerformanceVerifyPending();
     }
+    bool HasMatchingTerrainJob(TerrainTileKey key)
+    {foreach(var job in jobs)if(WorkMatchesCurrent(job)&&job.Key.Equals(key))return true;return false;}
     void UpdateCamera(){view.transform.localPosition=new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ));view.transform.localRotation=Quaternion.Euler(pitch,heading,0);}
     int residentRevision,nearMemoFrame=-1,nearMemoRevision,nearMemoCount;double nearMemoX,nearMemoZ;bool nearMemoPending;
     Dictionary<TerrainTileKey,int> nearMemoWanted;
     bool NearTerrainPendingFresh()=>wanted.Any(p=>ImmediateTerrain(p.Key)&&
-        (!tiles.TryGetValue(p.Key,out var tile)||tile.Segments!=p.Value||!tile.Edges.SequenceEqual(wantedEdges[p.Key])));
+        (!tiles.TryGetValue(p.Key,out var tile)||tile.Segments!=p.Value||!TerrainEdges.Equal(tile.Edges,wantedEdges[p.Key])));
     bool NearTerrainPending()
     {
         if(WorldGenPerformance.Original)return NearTerrainPendingFresh();
@@ -238,7 +245,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         wantedEdges.Clear();foreach(var pair in TerrainEdges.Build(wanted))wantedEdges.Add(pair.Key,pair.Value);
         foreach(var key in tiles.Keys.Where(k=>!wanted.ContainsKey(k)&&!wanted.Keys.Any(w=>Overlaps(k,w))).ToArray()){CacheTerrain(key,tiles[key]);tiles.Remove(key);}
         foreach(var job in jobs)
-            if(job.Prepared==null&&!job.Prefetch&&!job.Backdrop&&(!wanted.TryGetValue(job.Key,out int detail)||detail!=job.Segments||!job.Edges.SequenceEqual(wantedEdges[job.Key])))job.Cancellation?.Cancel();
+            if(job.Prepared==null&&!job.Prefetch&&!job.Backdrop&&(!wanted.TryGetValue(job.Key,out int detail)||detail!=job.Segments||!TerrainEdges.Equal(job.Edges,wantedEdges[job.Key])))job.Cancellation?.Cancel();
         double Distance(TerrainTileKey k)=>TerrainLod.DistanceSquared(k,motion.X,motion.Z);
         priority.Sort((a,b)=>{int d=Distance(a).CompareTo(Distance(b));return d!=0?d:a.Level!=b.Level?a.Level.CompareTo(b.Level):a.X!=b.X?a.X.CompareTo(b.X):a.Z.CompareTo(b.Z);});
     }

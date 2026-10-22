@@ -15,30 +15,35 @@ namespace WorldGen.Presentation
         public sealed class Update
         {
             public int Revision,X,Y,CanvasWidth,CanvasHeight;public bool Preview,Complete;public string Error="";
-            public TerrainMapImage? Image;public Layer Layer;
+            public TerrainMapImage? Image;public Layer Layer;public long TileHits,TilesBuilt;
         }
         sealed class Worker
         {public readonly SemaphoreSlim Gate=new SemaphoreSlim(1);public readonly TerrainMapContext Context;public Worker(LocalTerrain t){Context=new TerrainMapContext(t);}}
         sealed class CachedTile {public (int,int,int,int,int,int) Key;public TerrainMapImage Image=null!;}
         sealed class CachedView {public int Id;public Layer Layer;public TerrainMapViewport View=null!;}
-        readonly LocalTerrain terrain;readonly World? world;readonly Worker[] workers;
+        public delegate void RemoteProducer(int revision,TerrainMapViewport view,Layer layer,int width,Action<Update> publish,CancellationToken token);
+        readonly LocalTerrain terrain;readonly World? world;readonly Worker[] workers;readonly RemoteProducer? remote;
         readonly CancellationToken lifetime;CancellationTokenSource? request;
         readonly ConcurrentQueue<Update> output=new ConcurrentQueue<Update>();readonly SemaphoreSlim outputSlots=new SemaphoreSlim(16);
         readonly object cacheGate=new object();readonly List<CachedView> views=new List<CachedView>();int nextView,cacheBytes;
         readonly LinkedList<CachedTile> lru=new LinkedList<CachedTile>();
         readonly Dictionary<(int,int,int,int,int,int),LinkedListNode<CachedTile>> tiles=new Dictionary<(int,int,int,int,int,int),LinkedListNode<CachedTile>>();
         Layer paletteLayer=(Layer)(-1);float[]? palette;long tileHits,tilesBuilt;int previewWidth=16,tileSide=8;
-        public int WorkerCount=>workers.Length;
+        public int WorkerCount=>remote!=null?4:workers.Length;
         public long TileHits=>Interlocked.Read(ref tileHits);public long TilesBuilt=>Interlocked.Read(ref tilesBuilt);
-        public ProgressiveTerrainMap(LocalTerrain terrain,World? world,CancellationToken lifetime)
-        {this.terrain=terrain;this.world=world;this.lifetime=lifetime;workers=new Worker[Math.Max(1,Math.Min(4,Environment.ProcessorCount-2))];for(int i=0;i<workers.Length;i++)workers[i]=new Worker(terrain);}
+        public ProgressiveTerrainMap(LocalTerrain terrain,World? world,CancellationToken lifetime,RemoteProducer? remote=null)
+        {this.terrain=terrain;this.world=world;this.lifetime=lifetime;this.remote=remote;workers=new Worker[remote!=null?0:Math.Max(1,Math.Min(4,Environment.ProcessorCount-2))];for(int i=0;i<workers.Length;i++)workers[i]=new Worker(terrain);}
         public void Begin(int revision,TerrainMapViewport view,Layer layer,int targetWidth)
         {
             Cancel();while(TryTake(out _)){};
             var source=CancellationTokenSource.CreateLinkedTokenSource(lifetime);request=source;
             _=Task.Run(async()=>
             {
-                try{await Produce(revision,view.Clone(),layer,targetWidth,source.Token).ConfigureAwait(false);}
+                try
+                {
+                    if(remote==null)await Produce(revision,view.Clone(),layer,targetWidth,source.Token).ConfigureAwait(false);
+                    else remote(revision,view.Clone(),layer,targetWidth,u=>{Interlocked.Exchange(ref tileHits,u.TileHits);Interlocked.Exchange(ref tilesBuilt,u.TilesBuilt);Publish(u,source.Token).GetAwaiter().GetResult();},source.Token);
+                }
                 catch(OperationCanceledException){}
                 catch(Exception e){if(!source.IsCancellationRequested)await Publish(new Update{Revision=revision,Error=e.Message,Layer=layer},source.Token).ConfigureAwait(false);}
                 finally{source.Dispose();}

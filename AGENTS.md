@@ -1,5 +1,25 @@
 # WorldGen repository instructions
 
+Stutter/seed checkpoint,22October2026: shortcut now selects real C:
+`artifacts/player-stutter-ready/WorldGen.exe`, release IL2CPP BuiltUtc07:46:15Z,
+compile/package0. Owner specifically authorized isolated timing tests for this
+bug and closed their game; do not generalize that into blanket future testing.
+Idle closures/edge-enumerator/backdrop-sort/chat allocation churn removed. Map
+scratch reused; same sorted material blend avoids profile-array clones. Windows
+progressive maps now stream from EXISTING external terrain worker, wire6, same
+four CPU permits/caches/bounded queues/revision rejection/cancel path; fallback
+without worker still uses Unity heap. `/seed` prints literal recipe seed; help/
+completion included. Geometry/LOD selection/vegetation/water/world/saves unchanged.
+Final fixed-camera desert320/320,High/60km/153.6m fine,1920x1080 offscreen:30s
+idle/world-map/local-map each one >16.667ms frame/one GC; max17.425/21.459/
+21.150ms. Before12s counts6/80/7,max24.955/119.435/160.358ms. Strong reduction,
+NOT zero-GC/desktop FPS/global map completion acceptance. World map still1024/
+2048 partial; local finishes2048. Native48 material probes/25 edge equivalences/
+seed validation/28485 readiness checks pass; actual worker12 tiles byte-identical
+across four maps,cache/cancel/resume pass. Snapshot hash unchanged. Own players/
+workers stopped,preferences/saves untouched. Owner live art/travel review remains.
+See docs/TERRAIN_MAP_STUTTER.md and VALIDATION.md; progressive-map-corners rollback.
+
 Progressive map/corner HUD revision,22October2026: owner rejects full-raster wait
 and solid F3 panel. New ProgressiveTerrainMap publishes adaptive source preview
 (16×8 first,4–32 width thereafter,150ms compute target), then actual centre-out

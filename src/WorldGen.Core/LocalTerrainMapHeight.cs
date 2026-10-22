@@ -38,5 +38,28 @@ namespace WorldGen.Core
             }
         }
         public MapHeightCursor CreateMapHeightCursor()=>new MapHeightCursor(this);
+        /// <summary>Same sorted compact-support material kernel as Sample, without
+        /// cloning whole profile arrays for thousands of distant map patches.</summary>
+        public void FillMapMaterials(V point,ref LocalTerrainSample sample,List<int> scratch)
+        {
+            locator.WithinTo(point,Math.Pow(Math.Min(2,(maximumSupport+20)/RadiusM),2),scratch);
+            double px=point.X*RadiusM,py=point.Y*RadiusM,pz=point.Z*RadiusM,sum=0,best=-1,hills=0,mountains=0,ocean=0,red=0,green=0,blue=0;
+            var ground=new GroundProfile();var cover=new GroundCoverProfile();var mid=new MidCoverProfile();var forest=new ForestCoverProfile();
+            foreach(int id in scratch)
+            {
+                ref readonly var f=ref profiles[id];double x=px-f.Center.X*RadiusM,y=py-f.Center.Y*RadiusM,z=pz-f.Center.Z*RadiusM;
+                double dist2=(x*x+y*y+z*z)/(f.SupportM*f.SupportM);if(dist2>=1)continue;
+                double r=Math.Sqrt(dist2),t=1-r,w=t*t*t*t*(1+4*r);sum+=w;
+                ground.Add(f.Ground,w);cover.Add(f.Cover,w);mid.Add(f.MidCover,w);forest.Add(f.Forest,w);
+                hills+=w*f.HillHeightM;mountains+=w*f.MountainHeightM;
+                var color=CoverColor(f.Biome);red+=w*color.X;green+=w*color.Y;blue+=w*color.Z;
+                if(f.Cell<world.Hydrology.OceanConnected.Length&&world.Hydrology.OceanConnected[f.Cell])ocean+=w;
+                if(w>best){best=w;sample.Cell=f.Cell;sample.Biome=f.Biome;ground.Bedrock=f.Ground.Bedrock;ground.Deposit=f.Ground.Deposit;}
+            }
+            if(sum<=0)throw new InvalidOperationException("Map material query has no supporting world cells.");
+            ground.Divide(sum);cover.Divide(sum);mid.Divide(sum);forest.Divide(sum);
+            sample.Ground=ground;sample.Cover=cover;sample.MidCover=mid;sample.Forest=forest;
+            sample.HillHeightM=hills/sum;sample.MountainHeightM=mountains/sum;sample.OceanInfluence=ocean/sum;sample.CoverColor=new V(red/sum,green/sum,blue/sum);
+        }
     }
 }

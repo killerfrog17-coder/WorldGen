@@ -85,12 +85,12 @@ public sealed partial class LocalTerrainExplorer
             var plan=TerrainLod.Plan(x,z,HeightAboveGround,size*4,HorizontalScale);prefetchEdges=TerrainEdges.Build(plan);
             prefetchWanted=plan.Where(p=>TerrainLod.Immediate(p.Key,x,z)).OrderBy(p=>TerrainLod.DistanceSquared(p.Key,x,z)).Take(12).ToDictionary(p=>p.Key,p=>p.Value);
             prefetchPriority.Clear();prefetchPriority.AddRange(prefetchWanted.Keys);
-            foreach(var j in jobs)if(j.Prefetch&&(!prefetchWanted.TryGetValue(j.Key,out int detail)||detail!=j.Segments||!j.Edges.SequenceEqual(prefetchEdges[j.Key])))j.Cancellation?.Cancel();
+            foreach(var j in jobs)if(j.Prefetch&&(!prefetchWanted.TryGetValue(j.Key,out int detail)||detail!=j.Segments||!TerrainEdges.Equal(j.Edges,prefetchEdges[j.Key])))j.Cancellation?.Cancel();
         }
         priority.Sort((a,b)=>{int d=StreamingPriority(a).CompareTo(StreamingPriority(b));return d!=0?d:a.Level!=b.Level?a.Level.CompareTo(b.Level):a.X!=b.X?a.X.CompareTo(b.X):a.Z.CompareTo(b.Z);});
     }
     bool WorkMatchesCurrent(Work job)=>job.Prepared==null&&job.Generation==generation&&
-        (job.Backdrop?backdrops.ContainsKey(job.Key)&&!tiles.ContainsKey(job.Key)&&BackdropNeeded(job.Key):wanted.TryGetValue(job.Key,out int detail)&&detail==job.Segments&&job.Edges.SequenceEqual(wantedEdges[job.Key]));
+        (job.Backdrop?backdrops.ContainsKey(job.Key)&&!tiles.ContainsKey(job.Key)&&BackdropNeeded(job.Key):wanted.TryGetValue(job.Key,out int detail)&&detail==job.Segments&&TerrainEdges.Equal(job.Edges,wantedEdges[job.Key]));
     void RequestTerrain(TerrainTileKey key,int detail,double[] edges,bool prefetch=false,bool backdrop=false)
     {
         var buildFrame=frame;var buildTerrain=terrain;var producer=meshProcess;

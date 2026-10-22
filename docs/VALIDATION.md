@@ -1,5 +1,33 @@
 # Version 3 validation evidence
 
+## Recurrent terrain/map stutter and seed command /22October2026
+
+Owner explicitly permits isolated frame-timing tests and closes their game;
+this task supersedes historical compile-only instructions narrowly. Native traces
+show idle GC about1.8 s apart and79 collections/80 >16.667 ms frames in12 s of
+whole-world map work; maximum119.435 ms. Remove resident-loop closures and edge
+array enumerator allocations, reuse backdrop ordering/chat styles/map scratch,
+and blend distant map materials without cloning patch profiles. Progressive maps
+stream exact pixels from the existing external terrain worker (wire6, same four
+CPU permits/cache/queue bounds/cancellation), separating their allocation heap
+from Unity. No geometry/LOD selection/vegetation/water/world/save rule changes.
+Non-Windows/missing-worker fallback remains in process. `/seed` returns recipe
+seed, completion/help included.
+
+Final player-stutter-ready release IL2CPP BuiltUtc07:46:15Z compiles/packages0;
+shortcut selects it on real C:. Same desert320/320 terrain, High/60 km view/
+153.6 m fine radius,1920×1080 offscreen clear noon,F3 closed: final30 s each
+idle/world-map/local-map have one >16.667 ms frame and one GC each; worst
+17.425/21.459/21.150 ms respectively. Before12 s counts6/80/7 and worst
+24.955/119.435/160.358 ms. Window lengths differ; not zero-GC or desktop FPS
+acceptance. World map remains1024/2048 partial after30 s; local finishes2048.
+48 native material/height/water probes,25 edge equivalences,seed/argument checks,
+28,485 readiness comparisons pass. Actual worker12 tiles across four layers are
+byte-identical, cache reuse/cancel/resume pass. Snapshot SHA unchanged; own
+players/workers stopped. No preferences/saves/owner processes changed, no full
+suite/art captures. See TERRAIN_MAP_STUTTER.md for intermediate failures, exact
+artifacts/configuration/reproduction and remaining occasional GC frames.
+
 ## Progressive map and transparent corner F3 /22October2026
 
 Owner rejected slow complete-raster maps and solid HUD panels. Runtime now uses

@@ -8,7 +8,7 @@ namespace WorldGen.Presentation
     /// Core/Presentation assemblies, never an approximate second generator.</summary>
     public static class TerrainMeshWire
     {
-        public const int Version=5;
+        public const int Version=6;
         [ThreadStatic] static byte[]? scratch;
         static byte[] Scratch=>scratch??(scratch=new byte[65536]);
         static void ArrayOut(BinaryWriter writer,Array data)

@@ -4,6 +4,14 @@ This updates the exploration map (M), not the simulation globe's renderer.
 Terrain geometry, selection rules, vegetation appearance/placement rules,
 saved ecology/food webs and world/save schemas remain unchanged.
 
+Stutter follow-up: the Windows player now streams progressive map tiles from its
+existing external terrain worker, keeping allocation-heavy sampling outside
+Unity's collector. The same four-worker/cache limits and exact tile pixels are
+retained; non-Windows/missing-worker fallback still runs in process. Map scratch
+buffers and distant material queries also avoid temporary clones. See
+[timing investigation and limits](TERRAIN_MAP_STUTTER.md). `/seed` prints the
+current source recipe seed without changing the world.
+
 ## Progressive map and transparent corner HUD revision
 
 The exploration runtime no longer calls the fixed whole-image raster path.

@@ -18,6 +18,9 @@ public sealed partial class LocalTerrainExplorer
     bool detailDirty;
     TerrainCoverageFootprint fogFootprint;
     readonly Dictionary<TerrainTileKey,double[]> backdrops=new Dictionary<TerrainTileKey,double[]>();
+    struct BackdropEntry{public TerrainTileKey Key;public double[] Value;public int Order;}
+    readonly List<BackdropEntry> backdropOrder=new List<BackdropEntry>();Comparison<BackdropEntry> backdropComparison;
+    int backdropRevision,sortedBackdropRevision=-1;double sortedBackdropX=double.NaN,sortedBackdropZ=double.NaN;
     public double StreamingFogDistance=>streamedFog;
     public bool DetailPlanning=>detailPlan!=null||detailDirty;
     bool ImmediateTerrain(TerrainTileKey key)=>detailBaseline?TerrainLod.Immediate(key,motion.X,motion.Z):TerrainLod.DistanceSquared(key,motion.X,motion.Z)<=Math.Pow(detailOptions.FullRadius(HorizontalScale),2);
@@ -27,7 +30,7 @@ public sealed partial class LocalTerrainExplorer
     void ResetDetailFrame()
     {
         detailCancellation?.Cancel();detailEstimator=new TerrainDetailEstimator(terrain,frame);
-        detailDirty=true;backdrops.Clear();streamedFog=300;fogSafeRadius=0;fogCheckAt=0;fogFootprint=null;
+        detailDirty=true;backdrops.Clear();backdropRevision++;streamedFog=300;fogSafeRadius=0;fogCheckAt=0;fogFootprint=null;
     }
     Dictionary<TerrainTileKey,int> InitialDetailPlan(double x,double z,double altitude)
     {
@@ -72,7 +75,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void PlanBackdrop()
     {
-        backdrops.Clear();int root=Math.Max(0,(int)Math.Floor(Math.Log(128/HorizontalScale,2)));
+        backdrops.Clear();backdropRevision++;int root=Math.Max(0,(int)Math.Floor(Math.Log(128/HorizontalScale,2)));
         double size=TerrainLod.BaseSizeM*HorizontalScale*(1<<root);
         for(int z=(int)Math.Floor((motion.Z-viewDistance)/size);z<=(int)Math.Floor((motion.Z+viewDistance)/size);z++)
             for(int x=(int)Math.Floor((motion.X-viewDistance)/size);x<=(int)Math.Floor((motion.X+viewDistance)/size);x++)
@@ -82,7 +85,7 @@ public sealed partial class LocalTerrainExplorer
                 double step=key.SizeM/8;backdrops[key]=new[]{step,step,step,step};
             }
     }
-    bool BackdropNeeded(TerrainTileKey key)=>wanted.Any(p=>Overlaps(key,p.Key)&&!HasResidentCoverage(p.Key));
+    bool BackdropNeeded(TerrainTileKey key){foreach(var p in wanted)if(Overlaps(key,p.Key)&&!HasResidentCoverage(p.Key))return true;return false;}
     bool HasResidentCoverage(TerrainTileKey key)
     {
         for(int depth=0;depth<24-key.Level;depth++)
@@ -93,14 +96,31 @@ public sealed partial class LocalTerrainExplorer
     {
         if(detailBaseline)return;
         if(NearTerrainPending()||!CanRequest)return;
-        foreach(var p in backdrops.OrderBy(p=>TerrainLod.DistanceSquared(p.Key,motion.X,motion.Z)))
+        if(sortedBackdropRevision!=backdropRevision)
+        {
+            backdropOrder.Clear();int order=0;foreach(var p in backdrops)backdropOrder.Add(new BackdropEntry{Key=p.Key,Value=p.Value,Order=order++});
+        }
+        if(sortedBackdropRevision!=backdropRevision||sortedBackdropX!=motion.X||sortedBackdropZ!=motion.Z)
+        {
+            if(backdropComparison==null)backdropComparison=CompareBackdrop;
+            backdropOrder.Sort(backdropComparison);sortedBackdropRevision=backdropRevision;sortedBackdropX=motion.X;sortedBackdropZ=motion.Z;
+        }
+        foreach(var p in backdropOrder)
         {
             if(jobs.Count+scatterJobs.Count>=WorkerLimit)return;
-            if(tiles.ContainsKey(p.Key)||jobs.Any(j=>j.Prepared==null&&j.Key.Equals(p.Key))||!BackdropNeeded(p.Key))continue;
+            if(tiles.ContainsKey(p.Key)||HasChartTerrainJob(p.Key)||!BackdropNeeded(p.Key))continue;
             RequestTerrain(p.Key,8,p.Value,backdrop:true);if(!CanRequest)return;
         }
     }
+    int CompareBackdrop(BackdropEntry a,BackdropEntry b)
+    {int byDistance=TerrainLod.DistanceSquared(a.Key,motion.X,motion.Z).CompareTo(TerrainLod.DistanceSquared(b.Key,motion.X,motion.Z));return byDistance!=0?byDistance:a.Order.CompareTo(b.Order);}
+    bool HasChartTerrainJob(TerrainTileKey key)
+    {foreach(var job in jobs)if(job.Prepared==null&&job.Key.Equals(key))return true;return false;}
     void UpdateStreamingFog()
+    {
+        long traceStarted=WorldGenPerformance.TraceBegin();try{UpdateStreamingFogBody();}finally{WorldGenPerformance.TraceEnd(5,traceStarted);}
+    }
+    void UpdateStreamingFogBody()
     {
         if(detailBaseline){streamedFog=viewDistance*.98;SetFog();return;}
         double now=Time.realtimeSinceStartupAsDouble;

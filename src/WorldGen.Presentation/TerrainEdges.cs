@@ -5,6 +5,11 @@ namespace WorldGen.Presentation
 {
     public static class TerrainEdges
     {
+        // Unity's LINQ SequenceEqual enumerates arrays through interfaces and
+        // allocates two enumerators on each resident-tile check. Keep precisely
+        // Double.Equals semantics (including NaN), without per-frame garbage.
+        public static bool Equal(double[] a,double[] b)
+        {if(a.Length!=b.Length)return false;for(int i=0;i<a.Length;i++)if(!a[i].Equals(b[i]))return false;return true;}
         struct Side{public double Start,End;public TerrainTileKey Tile;public int Index;public double Step;}
         sealed class Line{public readonly List<Side> Low=new List<Side>(),High=new List<Side>();}
         public static Dictionary<TerrainTileKey,double[]> Build(IReadOnlyDictionary<TerrainTileKey,int> leaves)

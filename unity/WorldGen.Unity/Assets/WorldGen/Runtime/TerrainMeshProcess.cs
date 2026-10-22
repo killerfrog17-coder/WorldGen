@@ -126,6 +126,28 @@ public sealed class TerrainMeshProcess : IDisposable
         }
         }catch{token.ThrowIfCancellationRequested();throw;}
     }
+    public void Map(int revision,TerrainMapViewport view,Layer layer,int width,Action<ProgressiveTerrainMap.Update> publish,CancellationToken token)
+    {
+        try
+        {
+            using(var linked=CancellationTokenSource.CreateLinkedTokenSource(token,lifetime.Token))
+            {
+                while(!ready.Wait(50,linked.Token)){}var connection=ready.GetAwaiter().GetResult();
+                using(var client=new TcpClient{NoDelay=true})using(linked.Token.Register(()=>client.Close()))
+                {
+                    client.Connect(IPAddress.Loopback,connection.Port);
+                    using(var stream=client.GetStream())using(var r=new BinaryReader(stream,Encoding.UTF8,true))using(var w=new BinaryWriter(stream,Encoding.UTF8,true))
+                    {
+                        w.Write(connection.Token);w.Write((byte)2);TerrainMapWire.WriteRequest(w,revision,view,layer,width);
+                        if(!r.ReadBoolean())throw new InvalidOperationException("Map worker: "+r.ReadString());
+                        while(true){var update=TerrainMapWire.ReadUpdate(r);linked.Token.ThrowIfCancellationRequested();publish(update);if(update.Complete||update.Error!="")break;}
+                        w.Write((byte)0);w.Flush();
+                    }
+                }
+            }
+        }
+        catch{token.ThrowIfCancellationRequested();lifetime.Token.ThrowIfCancellationRequested();throw;}
+    }
     void DisposeHost(){lock(gate){if(hostHandle!=IntPtr.Zero){if(GetExitCodeProcess(hostHandle,out uint code)&&code==259)TerminateProcess(hostHandle,0);CloseHandle(hostHandle);hostHandle=IntPtr.Zero;}}}
     public void Dispose(){lifetime.Cancel();bootstrap?.Stop();DisposeHost();}
 }

@@ -117,10 +117,18 @@ public sealed partial class LocalTerrainExplorer
         if(!mapOpen&&CenterReady&&!NearTerrainPending()&&jobs.Count+scatterJobs.Count<WorkerLimit&&scatterJobs.Count<1)
         {
             foreach(var key in scatterPriority)
-            {if(scatterChunks.ContainsKey(key)||scatterJobs.Any(j=>j.Key.Equals(key)))continue;var source=scatter;var producer=meshProcess;var token=cancellation.Token;scatterJobs.Add(new ScatterWork{Key=key,Task=Task.Run(()=>producer==null?source.Build(key,token):producer.Scatter(key,token),token)});break;}
+            {if(scatterChunks.ContainsKey(key)||HasScatterJob(key))continue;RequestScatter(key);break;}
         }
         if(!mapOpen){UpdateTreeImpostors();UpdateForestFields();}
-        if(scatterDirty||ScatterViewChanged||Time.realtimeSinceStartupAsDouble-lastBatchTime>1)BuildScatterBatches();
+        if(scatterDirty||ScatterViewChanged||!WorldGenPerformance.SuppressIdleScatter&&Time.realtimeSinceStartupAsDouble-lastBatchTime>1)BuildScatterBatches();
+    }
+    bool HasScatterJob(ScatterKey key){foreach(var job in scatterJobs)if(job.Key.Equals(key))return true;return false;}
+    void RequestScatter(ScatterKey key)
+    {
+        // Capture job inputs only for actual requests. An in-loop lambda used
+        // to allocate a closure even when the resident-chunk check continued.
+        var source=scatter;var producer=meshProcess;var token=cancellation.Token;
+        scatterJobs.Add(new ScatterWork{Key=key,Task=Task.Run(()=>producer==null?source.Build(key,token):producer.Scatter(key,token),token)});
     }
     double VisibleGround(double x,double z,double fallback)
     {

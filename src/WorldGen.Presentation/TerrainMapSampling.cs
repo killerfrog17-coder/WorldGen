@@ -18,6 +18,7 @@ namespace WorldGen.Presentation
         {
             readonly LocalTerrain terrain;
             readonly LocalTerrain.MapHeightCursor heights;
+            readonly List<int> materialSources=new List<int>(64);
             readonly Dictionary<(int,int,int),LocalTerrain.LocalTerrainPatch> patches=new Dictionary<(int,int,int),LocalTerrain.LocalTerrainPatch>();
             readonly Queue<(int,int,int)> order=new Queue<(int,int,int)>();
             readonly Dictionary<(int,int,int,int,bool),LocalTerrainSample> samples=new Dictionary<(int,int,int,int,bool),LocalTerrainSample>();
@@ -42,7 +43,12 @@ namespace WorldGen.Presentation
             }
             LocalTerrainSample Query(V p,double footprint,bool heightOnly,int band)
             {
-                if(heightOnly&&footprint>128)return heights.Sample(p,footprint);
+                if(footprint>128)
+                {
+                    var result=heights.Sample(p,footprint);
+                    if(!heightOnly)terrain.FillMapMaterials(p,ref result,materialSources);
+                    return result;
+                }
                 TerrainMapViewport.Degrees(p,out double lat,out double lon);
                 double sector=footprint<=0?2048/terrain.HorizontalScale:Math.Max(2048/terrain.HorizontalScale,Math.Min(90000,footprint/terrain.HorizontalScale*16));
                 sector=Math.Min(90000,sector);int rows=Math.Max(2,(int)Math.Ceiling(Math.PI*terrain.RadiusM/sector)),row=Math.Min(rows-1,(int)((lat+90)/180*rows));
@@ -75,7 +81,8 @@ namespace WorldGen.Presentation
             if(canvasWidth==0)canvasWidth=width;if(canvasHeight==0)canvasHeight=height;
             var image=new TerrainMapImage{Width=width,Height=height,View=view.Clone(),Rgba=new byte[width*height*4]};
             bool continuous=Continuous(layer);var sampler=context?.Sampler??new Sampler(terrain);double radius=terrain.RadiusM*terrain.HorizontalScale;
-            var points=new V[width*height];var samples=continuous&&!Historical(layer)?new LocalTerrainSample[width*height]:Array.Empty<LocalTerrainSample>();
+            var points=context?.PointScratch(width*height)??new V[width*height];
+            var samples=continuous&&!Historical(layer)?context?.SampleScratch(width*height)??new LocalTerrainSample[width*height]:Array.Empty<LocalTerrainSample>();
             double footprint=radius*view.LatitudeSpan*Math.PI/180/canvasHeight*.45;
             for(int y=0;y<height;y++)for(int x=0;x<width;x++)
             {

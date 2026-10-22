@@ -19,12 +19,40 @@ public static class WorldGenPerformance
     public static bool OriginalCase;
     public static bool Measuring;
     public static readonly double[] Milliseconds=new double[4];
+    public static readonly bool TraceEnabled=Enabled&&Environment.GetCommandLineArgs().Contains("--worldgen-stutter-trace");
+    public static readonly double[] TraceMilliseconds=new double[9];static int traceFrame=-1;
+    public static bool SuppressIdleScatter,SkipMapUploads;
+    public static long TraceBegin()
+    {
+        if(!TraceEnabled)return 0;
+        if(traceFrame!=Time.frameCount){traceFrame=Time.frameCount;Array.Clear(TraceMilliseconds,0,TraceMilliseconds.Length);}
+        return System.Diagnostics.Stopwatch.GetTimestamp();
+    }
+    public static void TraceEnd(int slot,long started){if(started!=0)TraceMilliseconds[slot]+=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency;}
     public static long Begin()=>Enabled?System.Diagnostics.Stopwatch.GetTimestamp():0;
     public static void End(int slot,long start){if(start!=0)Milliseconds[slot]=(System.Diagnostics.Stopwatch.GetTimestamp()-start)*1000.0/System.Diagnostics.Stopwatch.Frequency;}
 }
 
 public sealed partial class LocalTerrainExplorer
 {
+    public string PerformanceVerifyMapMaterials()
+    {
+        var seed=ExecuteExplorerCommand("/seed");
+        if(seed==null||!seed.Success||seed.Lines.Length!=1||seed.Lines[0]!="World seed: "+sourceWorld.Recipe.Seed.ToString(CultureInfo.InvariantCulture)||ExecuteExplorerCommand("/seed extra").Success)throw new InvalidOperationException("Seed command mismatch");
+        var edgeCases=new[]{Array.Empty<double>(),new[]{1d,2,3,4},new[]{1d,2,3,5},new[]{double.NaN,-0d,double.PositiveInfinity,4},new[]{double.NaN,0d,double.PositiveInfinity,4}};
+        foreach(var a in edgeCases)foreach(var b in edgeCases)if(TerrainEdges.Equal(a,b)!=a.SequenceEqual(b))throw new InvalidOperationException("Edge comparison mismatch");
+        var cursor=terrain.CreateMapHeightCursor();var scratch=new List<int>();int checkedPoints=0;
+        for(int i=0;i<48;i++)
+        {
+            int cell=(i*7919)%sourceWorld.Surface.Cells.Length;var p=sourceWorld.Surface.Cells[cell].Position;
+            p=(p+V.Cross(p,new V(.31,.57,.79))*.000013).Unit;
+            var expected=terrain.MapPatch(p,2048/HorizontalScale).SampleMap(p,512);var actual=cursor.Sample(p,512);terrain.FillMapMaterials(p,ref actual,scratch);
+            bool Same(double a,double b)=>a.Equals(b)||Math.Abs(a-b)<1e-9;
+            if(!expected.Ground.Equals(actual.Ground)||!expected.Cover.Equals(actual.Cover)||!expected.MidCover.Equals(actual.MidCover)||!expected.Forest.Equals(actual.Forest)||expected.Cell!=actual.Cell||expected.Biome!=actual.Biome||!Same(expected.ElevationM,actual.ElevationM)||!Same(expected.WaterSurfaceM,actual.WaterSurfaceM)||!Same(expected.WaterMaskM,actual.WaterMaskM)||!Same(expected.HillHeightM,actual.HillHeightM)||!Same(expected.MountainHeightM,actual.MountainHeightM)||!Same(expected.OceanInfluence,actual.OceanInfluence))throw new InvalidOperationException("Map kernel equivalence failed at cell "+cell);
+            checkedPoints++;
+        }
+        return checkedPoints+" global map probes: identical blended ground/cover/mid/forest profiles, source identities, and terrain/water values.";
+    }
     public bool PerformanceCoverPending=>coverRequests.Count>0;
     public int PerformanceVerifyEmptyCover()
     {
@@ -135,6 +163,11 @@ public sealed partial class WorldGenRuntime
         public PerfCase(string name,Action apply,bool terrain=false){Name=name;Apply=apply;Terrain=terrain;}
     }
     static string Perf(double value)=>value.ToString("F5",CultureInfo.InvariantCulture);
+    struct StutterRow
+    {
+        public double Time,Frame,Update,Map,Scatter,Weather,Ground,Fog,Coverage,Sky;public int Gc;public long Heap,MainAllocated;
+        public override string ToString()=>string.Join(",",Perf(Time),Perf(Frame),Gc,Heap,MainAllocated,Perf(Update),Perf(Map),Perf(Scatter),Perf(Weather),Perf(Ground),Perf(Fog),Perf(Coverage),Perf(Sky));
+    }
     IEnumerator CheckPerformance()
     {
         Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Exception||kind==LogType.Error)Application.Quit(1);};
@@ -151,6 +184,11 @@ public sealed partial class WorldGenRuntime
         string caseFilter=Argument("--worldgen-perf-cases","");
         double seconds=double.Parse(Argument("--worldgen-perf-seconds","6"),CultureInfo.InvariantCulture);
         var cases=new List<PerfCase>{
+            new PerfCase("stutter-idle",()=>{}),
+            new PerfCase("stutter-no-idle-scatter",()=>WorldGenPerformance.SuppressIdleScatter=true),
+            new PerfCase("stutter-map",()=>terrainExplorer.PerformanceMap(true,360)),
+            new PerfCase("stutter-map-local",()=>terrainExplorer.PerformanceMap(true,.05)),
+            new PerfCase("stutter-map-no-upload",()=>{WorldGenPerformance.SkipMapUploads=true;terrainExplorer.PerformanceMap(true,.05);}),
             new PerfCase("full",()=>{}),
             new PerfCase("original-cpu",()=>WorldGenPerformance.OriginalCase=true),
             new PerfCase("no-grass",()=>TerrainVideoOptions.GroundCover=false),
@@ -186,6 +224,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel",()=>{}),
             new PerfCase("weather-off",()=>{var w=WeatherVideoOptions.Current;w.Clouds=0;w.SunGlare=w.SunRays=w.Adaptation=w.Visibility=0;})
         };
+        if(!WorldGenPerformance.TraceEnabled)cases.RemoveAll(c=>c.Name.StartsWith("stutter-",StringComparison.Ordinal));
         File.WriteAllText(Path.Combine(output,"machine.txt"),$"{SystemInfo.processorType}\n{SystemInfo.graphicsDeviceName}\n{SystemInfo.graphicsDeviceVersion}\nRAM {SystemInfo.systemMemorySize} MB VRAM {SystemInfo.graphicsMemorySize} MB\n{Screen.width}x{Screen.height}, {QualitySettings.activeColorSpace}, VSync {QualitySettings.vSyncCount}, target {Application.targetFrameRate}\nUnity {Application.unityVersion}\nUTC {DateTime.UtcNow:o}\nSeed {world.Recipe.Seed}; scale .1; clear noon; High terrain; view 60km; fine radius153.6m; grass30/300m; default non-grass.\nCPU sections are submission/update times, NOT GPU times. PresentMon is the independent GPU/presentation measurement.\n");
         File.AppendAllText(Path.Combine(output,"machine.txt"),$"Forced single offscreen URP render {width}x{height}; automatic camera disabled. Frame timing stats enabled: {FrameTimingManager.IsFeatureEnabled()}. Original CPU paths: {WorldGenPerformance.Original}.\n");
         File.WriteAllText(Path.Combine(output,"summary.csv"),"site,cell,biome,relief,case,frames,seconds,fps,p50_ms,p95_ms,p99_ms,max_ms,over10ms,over16ms,scatter_update_ms,scatter_submit_ms,grass_submit_ms,weather_ms,tiles,wanted,objects,specialists,mid,trees,scatter_draws,grass_draws,grass_candidates,grass_bytes,frustum_rejected,terrain_rejected,settled,start_qpc,end_qpc,gpu_ms,cpu_ms,timing_samples,gpu_drain_ms\n");
@@ -200,10 +239,12 @@ public sealed partial class WorldGenRuntime
             TerrainMapViewport.Degrees(terrainExplorer.Position,out double lat,out double lon);play.SetLocalSolarHour(12,lon);
             PlayCommands.Execute(play,0,"/weather clear",weather:terrainExplorer.WeatherControl);
             File.AppendAllText(Path.Combine(output,"sites.txt"),$"{site.Item1} cell {site.Item2} {lat:R},{lon:R}; biome {world.Ecology.Habitat[site.Item2].Biome}; relief {world.Ecology.Habitat[site.Item2].ReliefM}\n");
+            if(WorldGenPerformance.TraceEnabled)File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyMapMaterials()+"\n");
             bool previousTerrain=false;
             foreach(var item in cases)
             {
                 if(caseFilter.Length>0&&!caseFilter.Split(',').Contains(item.Name))continue;
+                terrainExplorer.PerformanceMap(false);WorldGenPerformance.SuppressIdleScatter=WorldGenPerformance.SkipMapUploads=false;
                 Defaults();WorldGenPerformance.OriginalCase=false;terrainExplorer.PerformancePose();terrainExplorer.ScatterEnabled=true;terrainExplorer.PerformanceShadows(true);item.Apply();TerrainVideoOptions.VegetationRevision++;terrainExplorer.PerformanceInvalidate();
                 if(item.Terrain||previousTerrain)TerrainVideoOptions.Revision++;previousTerrain=item.Terrain;
                 // Readiness is explicit; partial scenes are labelled, never silently accepted.
@@ -227,6 +268,8 @@ public sealed partial class WorldGenRuntime
                 }
                 if(item.Name=="flying-60m"){terrainExplorer.PerformanceCapture(Path.Combine(output,site.Item1+"-flying.png"));yield return new WaitForSecondsRealtime(1);}
                 var frames=new List<double>(10000);var sections=new double[4];int gc=GC.CollectionCount(0);
+                var stutter=WorldGenPerformance.TraceEnabled?new List<StutterRow>(30000):null;
+                long heap=0;double heapAt=0;var endFrame=stutter==null?null:new WaitForEndOfFrame();
                 var timings=new FrameTiming[1];double gpu=0,cpu=0;int timingCount=0;ulong lastTiming=0;
                 terrainExplorer.WeatherCheckGpuBarrier(); // Drain pre-window work before counting renders.
                 WorldGenPerformance.Measuring=true;
@@ -234,7 +277,13 @@ public sealed partial class WorldGenRuntime
                 Debug.Log("PERF BEGIN "+site.Item1+" "+item.Name+" qpc="+qpcStart);
                 while(Time.realtimeSinceStartupAsDouble-start<seconds)
                 {
-                    yield return null;double now=Time.realtimeSinceStartupAsDouble;frames.Add((now-previous)*1000);previous=now;
+                    yield return endFrame;double now=Time.realtimeSinceStartupAsDouble;double frameMs=(now-previous)*1000;frames.Add(frameMs);previous=now;
+                    if(stutter!=null)
+                    {
+                        if(now>=heapAt){heap=GC.GetTotalMemory(false);heapAt=now+.25;}
+                        var t=WorldGenPerformance.TraceMilliseconds;
+                        stutter.Add(new StutterRow{Time=now-start,Frame=frameMs,Gc=GC.CollectionCount(0),Heap=heap,MainAllocated=GC.GetAllocatedBytesForCurrentThread(),Update=t[0],Map=t[1],Scatter=t[2],Weather=t[3],Ground=t[4],Fog=t[5],Coverage=t[6],Sky=t[7]});
+                    }
                     if(item.Name.StartsWith("turning",StringComparison.Ordinal))terrainExplorer.PerformanceTurn(20+(float)((now-start)*60));
                     if(item.Name=="travel")terrainExplorer.PerformanceTravel((now-start)*8);
                     for(int j=0;j<4;j++)sections[j]+=WorldGenPerformance.Milliseconds[j];
@@ -246,6 +295,8 @@ public sealed partial class WorldGenRuntime
                 terrainExplorer.WeatherCheckGpuBarrier(); // Include completion, not just CPU queueing, in mean FPS.
                 double gpuDrain=(Time.realtimeSinceStartupAsDouble-drainStart)*1000;
                 WorldGenPerformance.Measuring=false;
+                if(terrainExplorer.Error!="")throw new InvalidOperationException("Performance scene: "+terrainExplorer.Error);
+                if(WorldGenPerformance.TraceEnabled&&item.Name.StartsWith("stutter-map",StringComparison.Ordinal))File.AppendAllText(Path.Combine(output,"map-progress.txt"),item.Name+": "+terrainExplorer.PerformanceMapDiagnostics+"\n");
                 long qpcEnd=System.Diagnostics.Stopwatch.GetTimestamp();double elapsed=Time.realtimeSinceStartupAsDouble-start;var sorted=frames.OrderBy(v=>v).ToArray();
                 double P(double p)=>sorted[Math.Min(sorted.Length-1,(int)(sorted.Length*p))];
                 var h=world.Ecology.Habitat[site.Item2];
@@ -253,6 +304,7 @@ public sealed partial class WorldGenRuntime
                 row+=","+Perf(gpu/Math.Max(1,timingCount))+","+Perf(cpu/Math.Max(1,timingCount))+","+timingCount+","+Perf(gpuDrain);
                 File.AppendAllText(Path.Combine(output,"summary.csv"),row+"\n");
                 File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-frames.csv"),new[]{"ms"}.Concat(frames.Select(Perf)));
+                if(stutter!=null)File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-trace.csv"),new[]{"t_s,frame_ms,gc0,heap_bytes,allocated_main_total,explorer_ms,map_ms,scatter_ms,weather_ms,ground_ms,fog_ms,coverage_ms,sky_ms"}.Concat(stutter.Select(s=>s.ToString())));
                 Debug.Log("PERF END "+row+" gc0="+(GC.CollectionCount(0)-gc));
             }
             File.AppendAllText(Path.Combine(output,"equivalence.txt"),site.Item1+": "+terrainExplorer.PerformancePendingComparisons+" loading/idle readiness comparisons passed.\n");

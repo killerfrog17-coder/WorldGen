@@ -6,11 +6,17 @@ public sealed partial class LocalTerrainExplorer
 {
     ProgressiveTerrainMap mapStream;RenderTexture mapSurface;bool mapRefining;int shownMapRevision=-1,mapTargetWidth;
     string mapProgress="";
+    public string PerformanceMapDiagnostics=>mapProgress+"; canvas="+(mapSurface==null?"none":mapSurface.width+"x"+mapSurface.height)+"; tiles="+(mapStream?.TilesBuilt??0)+"; hits="+(mapStream?.TileHits??0);
+    public void PerformanceMap(bool enabled,double span=360)
+    {
+        if(!WorldGenPerformance.Enabled)return;mapOpen=enabled;
+        if(enabled){TerrainMapViewport.Degrees(Position,out mapViewport.Latitude,out mapViewport.Longitude);mapViewport.LongitudeSpan=span;mapLayer=Layer.Satellite;InvalidateMap();}
+    }
     void UpdateProgressiveMap()
     {
         if(!mapOpen){if(mapRefining){mapStream?.Cancel();mapRefining=false;}return;}
         if(terrain==null)return;
-        if(mapStream==null)mapStream=new ProgressiveTerrainMap(terrain,sourceWorld,cancellation.Token);
+        if(mapStream==null)mapStream=new ProgressiveTerrainMap(terrain,sourceWorld,cancellation.Token,meshProcess==null?null:new ProgressiveTerrainMap.RemoteProducer(meshProcess.Map));
         if(mapDirty&&Time.realtimeSinceStartupAsDouble>=mapDue)
         {
             mapDirty=false;mapRefining=true;MapBuildCount++;
@@ -26,6 +32,7 @@ public sealed partial class LocalTerrainExplorer
             if(update.Error.Length>0){error="Map: "+update.Error;mapProgress=error;mapRefining=false;continue;}
             if(update.Complete){mapRefining=false;mapProgress="Sharp · "+mapTargetWidth+" px";continue;}
             var image=update.Image;if(image==null)continue;
+            if(WorldGenPerformance.SkipMapUploads)continue;
             if(mapTexture==null||mapTexture.width!=image.Width||mapTexture.height!=image.Height)
             {if(mapTexture!=null)Destroy(mapTexture);mapTexture=new Texture2D(image.Width,image.Height,TextureFormat.RGBA32,false);}
             mapTexture.LoadRawTextureData(image.Rgba);mapTexture.Apply(false,false);

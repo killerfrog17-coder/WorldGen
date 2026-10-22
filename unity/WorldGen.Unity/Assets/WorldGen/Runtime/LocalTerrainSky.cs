@@ -53,6 +53,10 @@ public sealed partial class LocalTerrainExplorer
     public void SetDaylight(double solarHour,double seasonalYear)
     {
         if(localSun==null||Time.realtimeSinceStartupAsDouble<nextDaylightAt)return;nextDaylightAt=Time.realtimeSinceStartupAsDouble+.1;
+        long traceStarted=WorldGenPerformance.TraceBegin();try{SetDaylightBody(solarHour,seasonalYear);}finally{WorldGenPerformance.TraceEnd(7,traceStarted);}
+    }
+    void SetDaylightBody(double solarHour,double seasonalYear)
+    {
         skyYear=seasonalYear;skyConfig=playState?.Settings.Sky??skyConfig;RefreshStarAtlas();
         double actualRadius=frame.RadiusM+frame.AltitudeM+motion.Y,altitude=Math.Sqrt(actualRadius*actualRadius+motion.X*motion.X+motion.Z*motion.Z)-frame.RadiusM;
         var appearance=playState?.Settings;

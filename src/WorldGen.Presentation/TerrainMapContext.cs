@@ -13,6 +13,9 @@ namespace WorldGen.Presentation
         sealed class Entry {public TerrainMapImage Image=null!;}
         readonly LocalTerrain terrain;readonly List<Entry> images=new List<Entry>();
         internal readonly TerrainMapSampling.Sampler Sampler;
+        V[] points=Array.Empty<V>();LocalTerrainSample[] samples=Array.Empty<LocalTerrainSample>();
+        internal V[] PointScratch(int count){if(count>4096)return new V[count];if(points.Length<count)points=new V[count];return points;}
+        internal LocalTerrainSample[] SampleScratch(int count){if(count>4096)return new LocalTerrainSample[count];if(samples.Length<count)samples=new LocalTerrainSample[count];return samples;}
         Layer layer=(Layer)(-1);int bytes;
         public long RasterHits {get;private set;}
         public long SampleHits=>Sampler.Hits;
