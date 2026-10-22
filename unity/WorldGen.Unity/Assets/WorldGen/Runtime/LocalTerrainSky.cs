@@ -82,7 +82,7 @@ public sealed partial class LocalTerrainExplorer
         skyMaterial.SetVectorArray("_BodyLightDirections",skyLightDirections);
         void MaterialLight(Material material){if(material.HasProperty("_FogColor"))material.SetVector("_FogColor",ColorOf(sampled.Horizon));if(material.HasProperty("_AmbientTint"))material.SetVector("_AmbientTint",ColorOf(sampled.Ambient));if(material.HasProperty("_Daylight"))material.SetFloat("_Daylight",(float)sampled.Daylight);
             material.SetVector("_AirGeometry",new Vector4((float)frame.RadiusM,(float)frame.AltitudeM,(float)originX,(float)originZ));material.SetFloat("_AirObserverM",(float)altitude);material.SetFloat("_AirHaze",(float)skyConfig.Haze);material.SetInt("_SecondaryLightCount",secondary);material.SetVectorArray("_SecondaryDirections",secondaryDirections);material.SetVectorArray("_SecondaryColors",secondaryColors);}
-        MaterialLight(landMaterial);MaterialLight(waterMaterial);foreach(var material in ownedScatterMaterials)MaterialLight(material);
+        MaterialLight(landMaterial);MaterialLight(waterMaterial);foreach(var material in legacyVegetationScene)if(material!=null)MaterialLight(material);
         terrainSecondaryCount=secondary;PublishTerrainScene();
     }
     void DisposeSky(){foreach(var light in suspendedSkyLights)if(light!=null)light.enabled=true;suspendedSkyLights.Clear();if(skyMaterial!=null)Destroy(skyMaterial);if(starAtlas!=null)Destroy(starAtlas);}

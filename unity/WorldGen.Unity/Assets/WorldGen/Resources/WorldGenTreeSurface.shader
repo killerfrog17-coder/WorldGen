@@ -1,11 +1,12 @@
 Shader "WorldGen/TreeSurface2"
 {
-    Properties
-    {
+    Properties { [HideInInspector] _VegetationSceneEnabled("Shared camera scene",Float)=0
+
         _TreeLeaves("Baked shoots",2DArray)=""{} _TreeLeafNormals("Shoot normals",2DArray)=""{}
         _TreeColourViews("Tree albedo views",2DArray)=""{} _TreeNormalViews("Tree normal/depth views",2DArray)=""{}
         _TreeLeafShape("Leaf shape",Float)=0 _TreeBarkPattern("Bark",Float)=0
         _Impostor("Multi-view representation",Float)=0 _ImpostorBounds("Centre and radius",Vector)=(0,.5,0,.7)
+        [HideInInspector] _TreeEarlyAlpha("Conservative empty-ray rejection",Float)=1
         _Wind("Flexibility",Float)=.03 _PlantTraits("Plant traits",Vector)=(.03,.5,.7,1)
         _FogDistance("Fog distance",Float)=60000 _FogColor("Fog",Color)=(.57,.69,.76,1) _AmbientTint("Ambient",Color)=(.12,.14,.17,1)
         [PerRendererData] _Tint("Instance tint",Color)=(1,1,1,1)
@@ -18,7 +19,7 @@ Shader "WorldGen/TreeSurface2"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
         #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
-        #include "WorldGenAir.hlsl"
+        #include "WorldGenVegetationScene.hlsl"
         #include "WorldGenLodFade.hlsl"
         #include "WorldGenWind.hlsl"
         #include "WorldGenTree.hlsl"
@@ -26,7 +27,7 @@ Shader "WorldGen/TreeSurface2"
         TEXTURE2D_ARRAY(_TreeColourViews);SAMPLER(sampler_TreeColourViews);
         TEXTURE2D_ARRAY(_TreeNormalViews);SAMPLER(sampler_TreeNormalViews);
         float4 _PlantTraits,_ImpostorBounds,_AmbientTint,_FogColor;
-        float _TreeLeafShape,_TreeBarkPattern,_Impostor,_Wind,_FogDistance;
+        float _TreeLeafShape,_TreeBarkPattern,_Impostor,_Wind,_FogDistance,_TreeEarlyAlpha;
         float3 _LightDirection;
         UNITY_INSTANCING_BUFFER_START(Props)
             UNITY_DEFINE_INSTANCED_PROP(float4,_Tint)
@@ -53,7 +54,14 @@ Shader "WorldGen/TreeSurface2"
             o.position=world;o.positionCS=TransformWorldToHClip(world);o.normal=TransformObjectToWorldNormal(a.normalOS);
             o.tangent=float4(TransformObjectToWorldDir(a.tangentOS.xyz),a.tangentOS.w);o.uv=a.uv;o.mask=a.mask;o.color=a.color;return o;
         }
-        void ViewSample(int index,float3 localPoint,float3 direction,out half4 colour,out half3 normal)
+        half4 ViewCoverage(int index,float3 localPoint,float3 direction)
+        {
+            float3 d=ViewDirection(index),r,u;ViewBasis(d,r,u);float rayDot=max(.2,dot(direction,d));
+            float3 projected=localPoint-direction*dot(localPoint,d)/rayDot;
+            float2 uv=.5+float2(dot(projected,r),dot(projected,u))/(2*_ImpostorBounds.w);
+            return SAMPLE_TEXTURE2D_ARRAY(_TreeColourViews,sampler_TreeColourViews,uv,index);
+        }
+        void ViewSample(int index,float3 localPoint,float3 direction,half4 initial,bool prefetched,out half4 colour,out half3 normal)
         {
             float3 d=ViewDirection(index),r,u;ViewBasis(d,r,u);
             float rayDot=max(.2,dot(direction,d));
@@ -62,7 +70,7 @@ Shader "WorldGen/TreeSurface2"
             // Begin on this capture's centre plane, not the camera billboard's
             // plane. Empty pixels carry no valid depth: keep that initial ray
             // intersection rather than interpreting transparent black as -R.
-            half4 coverage=SAMPLE_TEXTURE2D_ARRAY(_TreeColourViews,sampler_TreeColourViews,uv,index);
+            half4 coverage;if(prefetched)coverage=initial;else coverage=SAMPLE_TEXTURE2D_ARRAY(_TreeColourViews,sampler_TreeColourViews,uv,index);
             half4 depth=SAMPLE_TEXTURE2D_ARRAY(_TreeNormalViews,sampler_TreeNormalViews,uv,index);
             float distance=(coverage.a>.2?(depth.a-.5)*2*_ImpostorBounds.w:0)/rayDot;
             uv+=float2(dot(direction,r),dot(direction,u))*distance/(2*_ImpostorBounds.w);
@@ -81,7 +89,18 @@ Shader "WorldGen/TreeSurface2"
                 if(f.x+f.y<1){b=a+1;c=a+4;weights=float3(1-f.x-f.y,f.x,f.y);}
                 else{a+=5;b=a-1;c=a-4;weights=float3(f.x+f.y-1,1-f.x,1-f.y);}
                 half4 ca,cb,cc;half3 na,nb,nc;float3 p=i.local-_ImpostorBounds.xyz;
-                ViewSample(a,p,i.direction,ca,na);ViewSample(b,p,i.direction,cb,nb);ViewSample(c,p,i.direction,cc,nc);
+                #if defined(WORLDGEN_TREE_QUAD_ALPHA) && SHADER_TARGET >= 45
+                if(_TreeEarlyAlpha>.5)
+                {
+                    half4 aa=ViewCoverage(a,p,i.direction),ab=ViewCoverage(b,p,i.direction),ac=ViewCoverage(c,p,i.direction);
+                    // All three rays have zero parallax below .2. Their final
+                    // weighted alpha therefore cannot reach the .4 cutoff.
+                    if(WorldGenQuadAll(max(aa.a,max(ab.a,ac.a))<=.2?1:0)>.5)clip(-1);
+                    ViewSample(a,p,i.direction,aa,true,ca,na);ViewSample(b,p,i.direction,ab,true,cb,nb);ViewSample(c,p,i.direction,ac,true,cc,nc);
+                }
+                else
+                #endif
+                {ViewSample(a,p,i.direction,0,false,ca,na);ViewSample(b,p,i.direction,0,false,cb,nb);ViewSample(c,p,i.direction,0,false,cc,nc);}
                 half3 w=weights*half3(ca.a,cb.a,cc.a);half alpha=w.x+w.y+w.z;clip(alpha-.4);
                 albedo=(ca.rgb*w.x+cb.rgb*w.y+cc.rgb*w.z)/max(.001,alpha);
                 normal=TransformObjectToWorldNormal(normalize(na*w.x+nb*w.y+nc*w.z));foliage=1;
@@ -111,8 +130,8 @@ Shader "WorldGen/TreeSurface2"
             Light sun=GetMainLight(TransformWorldToShadowCoord(i.position));
             half diffuse=saturate((dot(n,sun.direction)+foliage*.2)/(1+foliage*.2));
             half transmission=foliage*.14*pow(saturate(dot(-n,sun.direction)),2);
-            half3 color=albedo*(_AmbientTint.rgb*1.4+sun.color*(diffuse+transmission)*sun.shadowAttenuation)+SecondaryCelestialLight(n,albedo);
-            return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,SRGBToLinear(_FogColor.rgb),_FogDistance),1);
+            half3 color=albedo*(VegetationAmbient(_AmbientTint).rgb*1.4+sun.color*(diffuse+transmission)*sun.shadowAttenuation)+SecondaryCelestialLight(n,albedo);
+            return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,SRGBToLinear(VegetationFog(_FogColor).rgb),VegetationFogDistance(_FogDistance)),1);
         }
         half4 depthFrag(O i):SV_Target
         {UNITY_SETUP_INSTANCE_ID(i);WorldGenScatterFade(i.positionCS.xy,UNITY_ACCESS_INSTANCED_PROP(Props,_LodTransition));half3 c,n;half f;Surface(i,c,n,f);return 0;}
@@ -132,6 +151,8 @@ Shader "WorldGen/TreeSurface2"
             Tags {"LightMode"="UniversalForward"} Cull Off
             HLSLPROGRAM
             #pragma target 4.0
+            #pragma target 4.5 WORLDGEN_TREE_QUAD_ALPHA
+            #pragma multi_compile_local _ WORLDGEN_TREE_QUAD_ALPHA
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_instancing
@@ -144,6 +165,8 @@ Shader "WorldGen/TreeSurface2"
             Name "ShadowCaster" Tags {"LightMode"="ShadowCaster"} Cull Off ColorMask 0 ZWrite On
             HLSLPROGRAM
             #pragma target 4.0
+            #pragma target 4.5 WORLDGEN_TREE_QUAD_ALPHA
+            #pragma multi_compile_local _ WORLDGEN_TREE_QUAD_ALPHA
             #pragma vertex shadowVert
             #pragma fragment depthFrag
             #pragma multi_compile_instancing
@@ -154,6 +177,8 @@ Shader "WorldGen/TreeSurface2"
             Name "DepthOnly" Tags {"LightMode"="DepthOnly"} Cull Off ColorMask R ZWrite On
             HLSLPROGRAM
             #pragma target 4.0
+            #pragma target 4.5 WORLDGEN_TREE_QUAD_ALPHA
+            #pragma multi_compile_local _ WORLDGEN_TREE_QUAD_ALPHA
             #pragma vertex vert
             #pragma fragment depthFrag
             #pragma multi_compile_instancing

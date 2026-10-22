@@ -55,7 +55,7 @@ public sealed partial class LocalTerrainExplorer
             chunk.Roots[i]=position;var rotation=Quaternion.FromToRotation(Vector3.up,normal)*Quaternion.Euler(0,(float)p.YawDegrees,0);
             chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,new Vector3((float)p.WidthM,(float)p.HeightM,(float)p.WidthM));
         }
-        PrepareScatterBounds(chunk);
+        PrepareScatterBounds(chunk,frame);
     }
     void AdoptScatterFrame(PreparedFrame pending,bool preparedGround)
     {
@@ -71,6 +71,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 var prepared=pending.Scatter[pair.Key];
                 pair.Value.Matrices=prepared.Matrices;pair.Value.Roots=prepared.Roots;pair.Value.Bounds=prepared.Bounds;pair.Value.AllBounds=prepared.AllBounds;
+                pair.Value.Groups=prepared.Groups;pair.Value.GroupsFrame=prepared.GroupsFrame;
             }
             else ProjectScatter(pair.Value);
         }
@@ -83,6 +84,14 @@ public sealed partial class LocalTerrainExplorer
         {
             var reference=new ScatterChunk{Source=chunk.Source};ProjectScatter(reference);
             for(int i=0;i<chunk.Matrices.Length;i++)for(int j=0;j<16;j++)error=Math.Max(error,Math.Abs(chunk.Matrices[i][j]-reference.Matrices[i][j]));
+            if(!ReferenceEquals(chunk.GroupsFrame,frame)||chunk.Groups.Length!=reference.Groups.Length)throw new InvalidOperationException("Prepared scatter retained old-chart spatial bins");
+            for(int i=0;i<chunk.Groups.Length;i++)
+            {
+                var actual=chunk.Groups[i];var expected=reference.Groups[i];
+                if(actual.Trees!=expected.Trees||!actual.Indices.SequenceEqual(expected.Indices))throw new InvalidOperationException("Prepared scatter changed spatial-bin membership");
+                error=Math.Max(error,(actual.RootBounds.min-expected.RootBounds.min).magnitude);error=Math.Max(error,(actual.RootBounds.max-expected.RootBounds.max).magnitude);
+                error=Math.Max(error,(actual.Bounds.min-expected.Bounds.min).magnitude);error=Math.Max(error,(actual.Bounds.max-expected.Bounds.max).magnitude);
+            }
         }
         return error;
     }

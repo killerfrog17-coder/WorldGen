@@ -126,6 +126,21 @@ public sealed class TerrainMeshProcess : IDisposable
         }
         }catch{token.ThrowIfCancellationRequested();throw;}
     }
+    public ForestPage Forest(ForestPageKey key,CancellationToken token,Action requestSent=null)
+    {
+        try{
+        using(var linked=CancellationTokenSource.CreateLinkedTokenSource(token,lifetime.Token))
+        {
+            while(!ready.Wait(50,linked.Token)){}var connection=ready.GetAwaiter().GetResult();
+            using(var client=new TcpClient{NoDelay=true})using(linked.Token.Register(()=>client.Close()))
+            {
+                client.Connect(IPAddress.Loopback,connection.Port);
+                using(var stream=client.GetStream())using(var r=new BinaryReader(stream))using(var w=new BinaryWriter(stream))
+                {w.Write(connection.Token);w.Write((byte)3);TerrainMeshWire.WriteForestKey(w,key);w.Flush();requestSent?.Invoke();if(!r.ReadBoolean())throw new InvalidOperationException("Forest worker: "+r.ReadString());var page=TerrainMeshWire.ReadForest(r,key);linked.Token.ThrowIfCancellationRequested();w.Write((byte)0);w.Flush();return page;}
+            }
+        }
+        }catch{token.ThrowIfCancellationRequested();throw;}
+    }
     public void Map(int revision,TerrainMapViewport view,Layer layer,int width,Action<ProgressiveTerrainMap.Update> publish,CancellationToken token)
     {
         try

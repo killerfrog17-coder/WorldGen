@@ -27,12 +27,16 @@ public sealed partial class WorldGenRuntime
         var explorer=terrainExplorer;var report=new List<string>();var frames=new List<double>();
         PlayCommands.Execute(play,0,"/weather clear",weather:explorer.WeatherControl);
         TerrainMapViewport.Degrees(explorer.Position,out double lat,out double lon);play.SetLocalSolarHour(12,lon);
+        bool walkingOnly=Environment.GetCommandLineArgs().Contains("--worldgen-walking-handoff-only");
+        double nextProgress=Time.realtimeSinceStartupAsDouble;
+        if(!walkingOnly)
+        {
         explorer.TestView(450,90,8);
         deadline=Time.realtimeSinceStartupAsDouble+120;
         while(!explorer.AllReady&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         explorer.Capture(Path.Combine(output,"flight-start.png"));
         int seen=explorer.ReanchorCount,checks=0;double started=Time.realtimeSinceStartupAsDouble;
-        deadline=started+100;double nextProgress=started;
+        deadline=started+100;nextProgress=started;
         while(explorer.ReanchorCount<3&&Time.realtimeSinceStartupAsDouble<deadline)
         {
             double before=Time.realtimeSinceStartupAsDouble;
@@ -53,6 +57,7 @@ public sealed partial class WorldGenRuntime
         if(checks<3)throw new Exception("Three flying reanchors did not complete; distance "+explorer.ReanchorDistance+"; pending "+explorer.PreparedTileCount);
         frames.Sort();report.Add("Flight frames "+frames.Count+"; median "+(frames[frames.Count/2]*1000).ToString("F2")+"ms; p95 "+(frames[(int)(frames.Count*.95)]*1000).ToString("F2")+"ms; worst "+(frames.Last()*1000).ToString("F2")+"ms");
         File.WriteAllLines(Path.Combine(output,"handoffs.txt"),report);
+        }
         explorer.Teleport(location);explorer.TestBoundaryGround();explorer.TestView(1.65,90,0);explorer.TestWalking();
         deadline=Time.realtimeSinceStartupAsDouble+120;
         while((!explorer.AllReady||explorer.PreparedTileCount<100)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
@@ -92,7 +97,7 @@ public sealed partial class WorldGenRuntime
         File.WriteAllLines(Path.Combine(output,"handoffs.txt"),report);
         if(explorer.LargestHandoffMs>40)throw new Exception("Main-thread handoff exceeded40ms: "+explorer.LargestHandoffMs);
         if(StateHash.Compute(world)!=sourceHash)throw new Exception("Terrain handoff changed source world.");
-        report.Add("PASS three700m/s flight crossings and actual walking crossing at0.1x; no empty terrain; unchanged source "+sourceHash);
+        report.Add((walkingOnly?"PASS actual walking crossing at0.1x; ":"PASS three700m/s flight crossings and actual walking crossing at0.1x; ")+"no empty terrain; unchanged source "+sourceHash);
         File.WriteAllLines(Path.Combine(output,"handoffs.txt"),report);
         explorer.Close();yield return null;Application.Quit(0);
     }

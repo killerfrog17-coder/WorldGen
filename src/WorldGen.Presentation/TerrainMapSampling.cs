@@ -73,7 +73,10 @@ namespace WorldGen.Presentation
                     sum+=TreeFlora.SpeciesWeight(species,h,sample,point,terrain.SourceSeed,terrain.RadiusM*terrain.HorizontalScale,world.ElevationM[sample.Cell]);
                 if(sum<.001)return 0;
             }
-            return 10000*TreeFlora.PlacementPerM2*TreeFlora.Stand(point,terrain.SourceSeed,terrain.RadiusM*terrain.HorizontalScale)*TreeFlora.HabitatAdmission(sample)*TreeFlora.SlopeAdmission(up);
+            // Productive raw profiles can exceed one. Planting clamps the
+            // combined probability, not its potential before stand modulation.
+            double potential=sample.Forest.Coverage;
+            return 10000*TreeFlora.PlacementPerM2*D.Clamp(TreeFlora.Stand(point,terrain.SourceSeed,terrain.RadiusM*terrain.HorizontalScale,potential)*potential)*TreeFlora.SlopeAdmission(up);
         }
         public static TerrainMapImage Build(LocalTerrain terrain,TerrainMapViewport view,int width,int height,CancellationToken token,Layer layer,float[]? cellColors,World? world,TerrainMapContext? context=null,int canvasWidth=0,int canvasHeight=0,int offsetX=0,int offsetY=0)
         {

@@ -18,7 +18,7 @@ public sealed partial class LocalTerrainExplorer
         if(words.Length!=2||!int.TryParse(words[1],out int index)||index<1||index>species.Length)return new PlayCommandResult(false,"Usage: /trees [1-"+species.Length+"]");
         var s=species[index-1];var m=s.Morphology;var r=s.Reproduction;
         return new PlayCommandResult(true,s.Name+" · family "+s.FamilyName+" → province "+s.ProvinceId+" → region "+s.RegionId,
-            s.Form+" · "+m.LeafShape+" · "+s.LeafHabit+" · "+m.BarkPattern+" bark; adult "+s.HeightM.ToString("F1")+" × "+s.WidthM.ToString("F1")+"m; six structural variants and same-lineage saplings.",
+            s.Form+" · "+m.LeafShape+" · "+s.LeafHabit+" · "+m.BarkPattern+" bark; canopy potential "+s.HeightM.ToString("F1")+" × "+s.WidthM.ToString("F1")+"m; "+m.Strategy+" architecture, size cohorts and shared render archetypes.",
             "Wood density "+m.WoodDensityKgM3.ToString("F0")+" kg/m³; relative hardness "+m.HardnessIndex.ToString("F2")+"; decay resistance "+m.DecayResistance.ToString("F2")+". Physical proxies, not tested timber grades.",
             "Warm niche "+s.MinWarmC.ToString("F0")+"–"+s.MaxWarmC.ToString("F0")+"°C; cold limit "+s.MinColdC.ToString("F0")+"°C; moisture "+s.Moisture.ToString("F2")+"; shade tolerance "+s.ShadeTolerance.ToString("F2")+".",
             "Flowers "+(r.HasFlowers?"yes":"no")+"; reproductive form "+r.Fruit+"; relative tissue hazards: flesh "+r.FleshToxicity.ToString("F2")+", seeds "+r.SeedToxicity.ToString("F2")+", leaves "+r.LeafToxicity.ToString("F2")+".",

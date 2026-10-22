@@ -40,12 +40,14 @@ static class TerrainWorker
                 {
                     using var stream=client.GetStream();using var r=new BinaryReader(stream);using var w=new BinaryWriter(stream);
                     if(r.ReadString()!=token)throw new InvalidDataException("Invalid terrain session token.");
-                    byte command=r.ReadByte();if(command>2)throw new InvalidDataException("Unknown terrain worker command.");
+                    byte command=r.ReadByte();if(command>3)throw new InvalidDataException("Unknown terrain worker command.");
                     double east=0,north=0,size=0;int segments=0;double[] edges=null;LocalTerrainFrame frame=null;ScatterKey key=default;
                     int revision=0,mapWidth=0;Layer mapLayer=default;TerrainMapViewport mapView=null;
+                    ForestPageKey forest=default;
                     if(command==0)frame=TerrainMeshWire.ReadRequest(r,out east,out north,out size,out segments,out edges);
                     else if(command==1)key=TerrainMeshWire.ReadScatterKey(r);
-                    else mapView=TerrainMapWire.ReadRequest(r,out revision,out mapLayer,out mapWidth);
+                    else if(command==2)mapView=TerrainMapWire.ReadRequest(r,out revision,out mapLayer,out mapWidth);
+                    else forest=TerrainMeshWire.ReadForestKey(r);
                     // One connection per request. Closing/cancelling it also
                     // cancels queued or active Core work, preserving near-first
                     // scheduling rather than leaving abandoned CPU jobs running.
@@ -76,7 +78,8 @@ static class TerrainWorker
                     try
                     {
                         if(command==0){var mesh=LocalTerrainMesh.Build(terrain,frame,east,north,size,segments,cancellation.Token,edges,samples);cancellation.Token.ThrowIfCancellationRequested();w.Write(true);TerrainMeshWire.WriteMesh(w,mesh);}
-                        else{var patch=scatter.Build(key,cancellation.Token);cancellation.Token.ThrowIfCancellationRequested();w.Write(true);TerrainMeshWire.WriteScatter(w,patch);}
+                        else if(command==1){var patch=scatter.Build(key,cancellation.Token);cancellation.Token.ThrowIfCancellationRequested();w.Write(true);TerrainMeshWire.WriteScatter(w,patch);}
+                        else{var page=scatter.BuildForest(forest,cancellation.Token);cancellation.Token.ThrowIfCancellationRequested();w.Write(true);TerrainMeshWire.WriteForest(w,page);}
                     }
                     finally{slots.Release();}
                 }

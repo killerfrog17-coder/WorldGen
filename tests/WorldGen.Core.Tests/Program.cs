@@ -1,6 +1,9 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--forest-budget-world")){ForestBudgetTests.Run(args[1],args.Length>2?double.Parse(args[2],System.Globalization.CultureInfo.InvariantCulture):60000);return;}
+if(args.Contains("--forest-placement-only")){ForestPlacementTests.Run();return;}
+if(args.Contains("--terrain-audit")){TerrainAuditTests.Run(args[1]);return;}
 if(args.Contains("--vegetation-quality-only")){VegetationQualityTests.Run();return;}
 if(args.Contains("--tree-field-only")){TreeFieldTests.Run();return;}
 if(args.Contains("--ground-flora")){GroundFloraTests.Run(args.Length>1?args[1]:null);return;}

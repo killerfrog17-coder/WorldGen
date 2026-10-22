@@ -1,5 +1,90 @@
 # Version 3 validation evidence
 
+## Critical performance audit and actual-root forests /22October2026
+
+Owner explicitly requests thorough research, testing and profiling for this
+overnight task; older compile-only restrictions are superseded only within it.
+The desktop report is checked against active code and installed URP17.6 rather
+than implemented literally. Decisions, rejected alternatives, primary references
+and all timing caveats are in [PERFORMANCE_AUDIT_2026_10_22.md](PERFORMANCE_AUDIT_2026_10_22.md).
+Intentional tree placement/art changes and hierarchy limits are documented in
+[FOREST_PLACEMENT_2026_10_22.md](FOREST_PLACEMENT_2026_10_22.md).
+
+Release IL2CPP `player-forest-audit-complete`, BuiltUtc14:25:32Z, compiles and
+packages successfully. Terrain geometry/LOD selection, world/history/save
+schemas, water, grass/herbs/shrubs and approved wind remain unchanged. Derived
+tree-flora3/scatter9/worker-wire7 adds connected closed forest, sparse open
+biomes, tropical cohorts/clear-bole forms and spreading savannah architecture.
+Local and far trees share the same actual candidate predicate. Bounded distant
+aggregation selects actually admitted trees; it is not an exact global census
+or certified invisible group HLOD. Source tree IDs and individual handoffs are
+tested separately from aggregate coverage heuristics.
+
+Focused Core checks pass: placement165723, exact cold-first height/potential8044,
+tree-field220, vegetation-quality19028, ground-flora5758. Placement includes
+112 shared tree-density-map checks and worker cancellation. 60/200km hierarchy
+fixtures stay within bounded page/representative plans, without duplicate IDs.
+No historical golden expectations are regenerated and the entire historical
+suite is not claimed rerun. Final packaged worker repeats229618 exact float,
+index, bounds, water and cancellation assertions. Its selected scatter probe
+contains zero instances; separate native forest fixtures supply non-vacuous
+tree identity checks.
+
+Native RTX4060/D3D11 checks on the final executable pass:
+
+- Eight tree forms/strategies draw in local and baked form; tested original/
+  optimized shader images have max RGB delta0. Shared local variants have
+  identical geometry. Evidence: `forest-publication-native-tree`.
+- Forest GPU admission, disable, near-range, ready-finer ownership, cube-face
+  isolation and density-zero checks pass; shader comparison RGB0. Evidence:
+  `forest-publication-native-forest`.
+- Upload preserves tested positions/normals/colors/lithology/indices/bounds,
+  water/controller heights and cancelled-buffer disposal; final65535/65536/
+  70003-vertex cases select valid UInt16/UInt32 buffers. Evidence:
+  `forest-publication-native-upload`.
+- Full-world dense9776/hilly2096-tree fixtures compare three alternate-chart
+  prepared/ordinary matrices and spatial bins exactly. Each site compares128
+  worker/player tree identities and512 ownership answers. Empty ready pages
+  retain suppression. Physical roundtrip error0.0012742m is below the explicit
+  2cm limit; source identities remain bit-exact. Shared permit and sent-socket
+  cancellation checks pass. Four-heading bin/queue images and same-view alpha
+  optimization images remain RGB0. Evidence: `perf-forest-publication` and
+  `perf-forest-publication-paired`.
+
+Final paired15s windows at1920x1080, scale0.1, High terrain/60km/153.6m protected
+detail, Medium vegetation, grass30m close/300m field, clear noon/F3 closed:
+dense new/old/new/old opaque ordering69.99/49.29/69.60/51.02FPS; hilly
+72.00/63.26/70.35/64.66. Identical populations and tested pixels. Terrain/sky
+only418.26/214.64. Prior same-renderer layer-off results and cross-run variance
+are retained in the audit. These are OFFSCREEN render-throughput tests, not
+normal presented-game FPS/pacing certification. GPU timestamps return no valid
+samples. Benchmark holds calendar/history/music only in its test mode. The
+100-FPS floor/165-FPS general target is NOT met; no gain is invented from a
+shader checkbox, zero GPU sample or changed forest density.
+
+Ordinary walking handoff passes: largest clearance error0.0131m, post-handoff
+clearance1.6505m, atomic handoff1.531ms and mesh upload0.893ms. This fixture's
+captured habitat is sparse desert, not dense walking art acceptance. Production
+code of its14:11:13Z build matches final planting/shaders; final adds a broader
+benchmark-only dense projection fixture. The unchanged700m/s three-crossing
+flight test FAILS before/after the scheduler correction: zero completed crossings
+in100s,16-17 prepared products. Near terrain outruns prepared coverage under
+persisted Medium/Balanced/60km/153.6m settings. No test threshold or terrain
+planner is relaxed to hide that streaming limit. Evidence:
+`forest-final-handoff-walk`, `forest-final-handoff-flight`.
+
+Input seed11610541 snapshot byte SHA256 remains
+`6727F08B6F7B8AE62A04F6A65E9F8C4193413A77CF8D02B7947568862A1EDB89`;
+source StateHash remains
+`91a5470156e4aeeecb11fd22ac7b64987960701d5ff602e304784da6b2ca43e1`.
+No snapshot restoration/save mutation. Custom display/terrain/vegetation/
+weather/master/music/footstep registry values hash identically before/after
+final publication checks:
+`179025C807B694E941646D8745DDE3F3C96B6D12F62109A3898E4CAA525C552E`.
+This is NOT a whole-registry immutability claim: Unity updates session/window
+bookkeeping during launches. All agent players/workers have exited; owner
+art/density/transition and normal presented-game performance review remains.
+
 ## Recurrent terrain/map stutter and seed command /22October2026
 
 Owner explicitly permits isolated frame-timing tests and closes their game;

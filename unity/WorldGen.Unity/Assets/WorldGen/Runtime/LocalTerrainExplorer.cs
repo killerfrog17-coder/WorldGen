@@ -71,11 +71,18 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         var cameraRoot=new GameObject("Exploration camera",typeof(Camera),typeof(UnityEngine.Rendering.Universal.UniversalAdditionalCameraData));
         cameraRoot.transform.SetParent(transform,false);cameraRoot.layer=30;view=cameraRoot.GetComponent<Camera>();
         view.cullingMask=1<<30;view.nearClipPlane=.1f;view.farClipPlane=300000;view.fieldOfView=68;
+        ConfigureExplorationRenderer(false);
         view.clearFlags=CameraClearFlags.SolidColor;view.backgroundColor=new Color(.57f,.69f,.76f);
         var shader=Resources.Load<Shader>("WorldGenLocalTerrain");if(shader==null||!shader.isSupported)throw new InvalidOperationException("Local terrain shader is missing or unsupported.");
         landMaterial=new Material(shader);landMaterial.SetFloat("_GroundFlora",1);waterMaterial=new Material(landMaterial);waterMaterial.SetFloat("_Water",1);SetFog();CaptureMouse();
     }
     float publishedFog=float.NaN;int publishedFogMaterials=-1;Material publishedFogLand,publishedFogWater;
+    public void ConfigureExplorationRenderer(bool original)
+    {
+        var data=view.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+        data.SetRenderer(original?0:1);
+        data.requiresColorOption=original?UnityEngine.Rendering.Universal.CameraOverrideOption.On:UnityEngine.Rendering.Universal.CameraOverrideOption.Off;
+    }
     void SetFog()
     {
         float distance=(float)Math.Min(viewDistance*.98,streamedFog);
@@ -83,7 +90,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         // species material every frame. New art is initialized to this datum too.
         if(!WorldGenPerformance.Original&&distance==publishedFog&&publishedFogMaterials==ownedScatterMaterials.Count&&publishedFogLand==landMaterial&&publishedFogWater==waterMaterial)return;
         publishedFog=distance;publishedFogMaterials=ownedScatterMaterials.Count;publishedFogLand=landMaterial;publishedFogWater=waterMaterial;
-        landMaterial.SetFloat("_FogDistance",distance);waterMaterial.SetFloat("_FogDistance",distance);foreach(var material in ownedScatterMaterials)if(material.HasProperty("_FogDistance"))material.SetFloat("_FogDistance",distance);
+        landMaterial.SetFloat("_FogDistance",distance);waterMaterial.SetFloat("_FogDistance",distance);foreach(var material in legacyVegetationScene)if(material!=null&&material.HasProperty("_FogDistance"))material.SetFloat("_FogDistance",distance);
         PublishTerrainScene();
     }
     LocalTerrainFrame groundMemoFrame;double groundMemoX,groundMemoZ,groundMemoY,groundMemoElevation;
@@ -93,8 +100,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         long started=System.Diagnostics.Stopwatch.GetTimestamp();
         var at=frame.Position(x,z);
         if(walkingPatch==null||(at-walkingPatch.Center).Length*terrain.RadiusM>500/HorizontalScale)walkingPatch=terrain.Patch(at,2048/HorizontalScale);
-        var sample=walkingPatch.Sample(at);double height=frame.SurfaceY(at,sample.ElevationM);
-        groundMemoElevation=sample.ElevationM;
+        double elevation=WorldGenPerformance.Original?walkingPatch.Sample(at).ElevationM:walkingPatch.Elevation(at);double height=frame.SurfaceY(at,elevation);
+        groundMemoElevation=elevation;
         double elapsed=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000.0/System.Diagnostics.Stopwatch.Frequency;
         largestGroundMs=Math.Max(largestGroundMs,elapsed);
         if(WorldGenPerformance.TraceEnabled)WorldGenPerformance.TraceMilliseconds[4]+=elapsed;
@@ -203,8 +210,12 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         bool nearPending=NearTerrainPending();
         // Free ONE occupied lane only if neither lane is serving near ground.
         // Continually cancelling all background work would itself cause churn.
-        if(nearPending&&jobs.Count+scatterJobs.Count>=WorkerLimit&&!jobs.Any(j=>WorkMatchesCurrent(j)&&ImmediateTerrain(j.Key)))
-            jobs.LastOrDefault(j=>j.Prepared!=null||!ImmediateTerrain(j.Key))?.Cancellation?.Cancel();
+        if(nearPending&&ActiveWorkerCount>=WorkerLimit&&!jobs.Any(j=>WorkMatchesCurrent(j)&&ImmediateTerrain(j.Key)))
+        {
+            var forest=forestJobs.LastOrDefault(j=>!j.Task.IsCompleted&&!j.Cancellation.IsCancellationRequested);
+            if(forest!=null)forest.Cancellation.Cancel();
+            else jobs.LastOrDefault(j=>j.Prepared!=null||!ImmediateTerrain(j.Key))?.Cancellation?.Cancel();
+        }
         bool handoffDue=preparedFrame!=null&&ReanchorDistance>=ReanchorLimit;
         if(!handoffDue){ScheduleBackdrop();SchedulePredictiveTerrain();}
         foreach(var key in priority)
@@ -213,10 +224,11 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             if(handoffDue&&!ImmediateTerrain(key))continue;
             if(tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&TerrainEdges.Equal(tile.Edges,wantedEdges[key]))continue;
             if(TerrainProducts.Contains(new TerrainProductKey(key,detail,wantedEdges[key]))){RestoreTerrain(key,detail,wantedEdges[key]);continue;}
-            if(!CanRequest||jobs.Count+scatterJobs.Count>=WorkerLimit||HasMatchingTerrainJob(key))continue;
+            if(!CanRequest||ActiveWorkerCount>=WorkerLimit||HasMatchingTerrainJob(key))continue;
             RequestTerrain(key,detail,wantedEdges[key]);
         }
         SchedulePreparedWork(false);
+        ScheduleForestWork();
         UpdateTerrainCoverage();UpdateStreamingFog();
         RetireTerrainGradually();
         if(WorldGenPerformance.Enabled&&!WorldGenPerformance.Measuring)PerformanceVerifyPending();

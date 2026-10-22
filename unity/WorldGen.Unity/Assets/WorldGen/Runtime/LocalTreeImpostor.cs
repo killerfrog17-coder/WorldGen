@@ -15,7 +15,7 @@ static class LocalTreeImpostor
         public Source(Mesh mesh,int shape)
         {Vertices=mesh.vertices;Normals=mesh.normals;Tangents=mesh.tangents;Uv=mesh.uv;Mask=mesh.uv2;Colours=mesh.colors32;Indices=mesh.triangles;Center=mesh.bounds.center;Radius=mesh.bounds.extents.magnitude*1.025f;Shape=shape;}
     }
-    public sealed class Result {public Color32[][] Colours,Normals;public Vector3 Center;public float Radius;}
+    public sealed class Result {public Color32[][] Colours,Normals;public Vector3 Center;public float Radius;public LocalTreeTextures.Prepared Prepared;}
     public static Vector3 Direction(int index)
     {
         float x=(index%Grid)/(float)(Grid-1)*2-1,y=(index/Grid)/(float)(Grid-1)*2-1;

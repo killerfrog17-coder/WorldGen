@@ -18,7 +18,7 @@ public sealed class WeatherRendererFeature:ScriptableRendererFeature
     {
         public LocalWeatherScreen Screen;
         sealed class Data {public TextureHandle Source,Clouds,Depth;public Material Material;public int Pass;public bool Composite;}
-        public WeatherPass(){requiresIntermediateTexture=true;ConfigureInput(ScriptableRenderPassInput.Depth|ScriptableRenderPassInput.Color);}
+        public WeatherPass(){requiresIntermediateTexture=true;ConfigureInput(ScriptableRenderPassInput.Depth);}
         public override void RecordRenderGraph(RenderGraph graph,ContextContainer frameData)
         {
             var resources=frameData.Get<UniversalResourceData>();if(resources.isActiveTargetBackBuffer)return;Screen.DrawCount++;

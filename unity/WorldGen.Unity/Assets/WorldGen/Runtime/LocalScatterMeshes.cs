@@ -73,7 +73,7 @@ static partial class LocalScatterMeshes
             }
             for(int y=0;y<rings;y++)for(int x=0;x<sides;x++){int a=first+y*(sides+1)+x;Triangle(a,a+1,a+sides+1);Triangle(a+1,a+sides+2,a+sides+1);}
         }
-        public Mesh Finish(){var mesh=new Mesh();mesh.SetVertices(V);mesh.SetColors(c);mesh.SetUVs(0,uv);mesh.SetTriangles(t,0);mesh.RecalculateNormals();mesh.RecalculateTangents();mesh.RecalculateBounds();return mesh;}
+        public Mesh Finish(bool tangents=true){var mesh=new Mesh();mesh.SetVertices(V);mesh.SetColors(c);mesh.SetUVs(0,uv);mesh.SetTriangles(t,0);mesh.RecalculateNormals();if(tangents)mesh.RecalculateTangents();mesh.RecalculateBounds();return mesh;}
     }
     public static Mesh Build(ScatterKind kind,int detail,int variant)
     {

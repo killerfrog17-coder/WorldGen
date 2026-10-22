@@ -185,7 +185,7 @@ public sealed partial class LocalTerrainExplorer
         var order=pending.CoveragePriority.Where(k=>!pending.Tiles.ContainsKey(k)&&k.Level>=4).Concat(pending.Priority);
         foreach(var key in order)
         {
-            if(!CanRequest||jobs.Count+scatterJobs.Count>=WorkerLimit)return;
+            if(!CanRequest||ActiveWorkerCount>=WorkerLimit)return;
             int detail=pending.Wanted[key];var edges=pending.Edges[key];
             if(pending.Tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&TerrainEdges.Equal(tile.Edges,edges)||
                 jobs.Any(j=>ReferenceEquals(j.Prepared,pending)&&j.Key.Equals(key)))continue;

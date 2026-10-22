@@ -68,16 +68,19 @@ static class LocalTreeTextures
         }
     }
     public static void Upload(Color32[][] colours,Color32[][] normals,int size,string name,out Texture2DArray colour,out Texture2DArray normal)
+        =>Upload(Prepare(colours,normals,size),size,name,out colour,out normal);
+    public sealed class Prepared {public Color32[][][] Colours,Normals;}
+    public static Prepared Prepare(Color32[][] colours,Color32[][] normals,int size,System.Threading.CancellationToken token=default)
     {
-        colour=new Texture2DArray(size,size,colours.Length,TextureFormat.RGBA32,true,false){name=name+" albedo",wrapMode=TextureWrapMode.Clamp,filterMode=FilterMode.Trilinear,anisoLevel=2};
-        normal=new Texture2DArray(size,size,colours.Length,TextureFormat.RGBA32,true,true){name=name+" normal/depth",wrapMode=TextureWrapMode.Clamp,filterMode=FilterMode.Trilinear,anisoLevel=2};
+        var prepared=new Prepared{Colours=new Color32[colours.Length][][],Normals=new Color32[colours.Length][][]};
         for(int layer=0;layer<colours.Length;layer++)
         {
+            token.ThrowIfCancellationRequested();var cs=new System.Collections.Generic.List<Color32[]>();var nsLevels=new System.Collections.Generic.List<Color32[]>();
             var c=colours[layer];var n=normals[layer];int covered=0;foreach(var p in c)if(p.a>=102)covered++;
             float target=covered/(float)c.Length;
             for(int mip=0,width=size;;mip++,width/=2)
             {
-                colour.SetPixels32(c,layer,mip);normal.SetPixels32(n,layer,mip);if(width==1)break;
+                token.ThrowIfCancellationRequested();cs.Add(c);nsLevels.Add(n);if(width==1)break;
                 int nextWidth=width/2;var next=new Color32[nextWidth*nextWidth];var ns=new Color32[next.Length];
                 for(int y=0;y<nextWidth;y++)for(int x=0;x<nextWidth;x++)
                 {
@@ -93,7 +96,16 @@ static class LocalTreeTextures
                 float gain=(lo+hi)*.5f;for(int i=0;i<next.Length;i++){var p=next[i];p.a=(byte)Math.Min(255,p.a*gain);next[i]=p;}
                 c=next;n=ns;
             }
+            prepared.Colours[layer]=cs.ToArray();prepared.Normals[layer]=nsLevels.ToArray();
         }
+        return prepared;
+    }
+    public static void Upload(Prepared data,int size,string name,out Texture2DArray colour,out Texture2DArray normal)
+    {
+        colour=new Texture2DArray(size,size,data.Colours.Length,TextureFormat.RGBA32,true,false){name=name+" albedo",wrapMode=TextureWrapMode.Clamp,filterMode=FilterMode.Trilinear,anisoLevel=2};
+        normal=new Texture2DArray(size,size,data.Colours.Length,TextureFormat.RGBA32,true,true){name=name+" normal/depth",wrapMode=TextureWrapMode.Clamp,filterMode=FilterMode.Trilinear,anisoLevel=2};
+        for(int layer=0;layer<data.Colours.Length;layer++)for(int mip=0;mip<data.Colours[layer].Length;mip++)
+        {colour.SetPixels32(data.Colours[layer][mip],layer,mip);normal.SetPixels32(data.Normals[layer][mip],layer,mip);}
         colour.Apply(false,true);normal.Apply(false,true);
     }
 }

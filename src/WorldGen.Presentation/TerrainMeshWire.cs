@@ -8,7 +8,7 @@ namespace WorldGen.Presentation
     /// Core/Presentation assemblies, never an approximate second generator.</summary>
     public static class TerrainMeshWire
     {
-        public const int Version=6;
+        public const int Version=7;
         [ThreadStatic] static byte[]? scratch;
         static byte[] Scratch=>scratch??(scratch=new byte[65536]);
         static void ArrayOut(BinaryWriter writer,Array data)
@@ -72,9 +72,25 @@ namespace WorldGen.Presentation
         }
         public static ScatterPatch ReadScatter(BinaryReader r,ScatterKey key)
         {
-            V center=Vector(r);int count=r.ReadInt32();if(count<0||count>20000)throw new InvalidDataException("Invalid scatter count.");
+            V center=Vector(r);int count=r.ReadInt32();if(count<0||count>60000)throw new InvalidDataException("Invalid scatter count.");
             var instances=new ScatterInstance[count];for(int i=0;i<count;i++)instances[i]=new ScatterInstance{Id=r.ReadUInt64(),Kind=(ScatterKind)r.ReadInt32(),Variant=r.ReadInt32(),Position=Vector(r),Normal=Vector(r),Color=Vector(r),GroundM=r.ReadDouble(),HeightM=r.ReadDouble(),WidthM=r.ReadDouble(),YawDegrees=r.ReadDouble()};
             return new ScatterPatch{Key=key,Center=center,Instances=instances};
+        }
+        public static void WriteForestKey(BinaryWriter w,ForestPageKey k)
+        {w.Write(Version);w.Write(k.Face);w.Write(k.X);w.Write(k.Y);w.Write(k.Level);w.Flush();}
+        public static ForestPageKey ReadForestKey(BinaryReader r)
+        {if(r.ReadInt32()!=Version)throw new InvalidDataException("Forest wire version mismatch");var k=new ForestPageKey(r.ReadInt32(),r.ReadInt32(),r.ReadInt32(),r.ReadInt32());if(k.Face<0||k.Face>5||k.X<0||k.Y<0||k.Level<0||k.Level>15)throw new InvalidDataException("Invalid forest key");return k;}
+        public static void WriteForest(BinaryWriter w,ForestPage page)
+        {
+            var trees=new ScatterInstance[page.Roots.Length];for(int i=0;i<trees.Length;i++)trees[i]=page.Roots[i].Tree;
+            WriteScatter(w,new ScatterPatch{Instances=trees});w.Write(page.Probes);
+            foreach(var p in page.Roots){w.Write(p.CellX);w.Write(p.CellY);w.Write(p.CrownScale);w.Write(p.Population);}w.Flush();
+        }
+        public static ForestPage ReadForest(BinaryReader r,ForestPageKey key)
+        {
+            var trees=ReadScatter(r,default).Instances;if(trees.Length>LocalScatter.ForestPageSide*LocalScatter.ForestPageSide)throw new InvalidDataException("Oversized forest page");
+            var page=new ForestPage{Key=key,Probes=r.ReadInt32(),Roots=new ForestRepresentative[trees.Length]};
+            for(int i=0;i<trees.Length;i++)page.Roots[i]=new ForestRepresentative{Tree=trees[i],CellX=r.ReadInt32(),CellY=r.ReadInt32(),CrownScale=r.ReadDouble(),Population=r.ReadInt32()};return page;
         }
     }
 }

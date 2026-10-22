@@ -1,4 +1,9 @@
-# Generated tree lineages / tree-flora-2 / 21 October 2026
+# Generated tree lineages
+
+22 October placement/rendering overhaul: see [canonical forest placement](FOREST_PLACEMENT_2026_10_22.md)
+and [performance audit](PERFORMANCE_AUDIT_2026_10_22.md). The historical checkpoints
+below describe their own versions; tree-flora-3 / scatter9 supersede their
+population rules and independently seeded far packets.
 
 ## Forest anatomy, density and distant stands follow-up
 

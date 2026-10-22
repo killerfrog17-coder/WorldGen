@@ -1,7 +1,7 @@
 Shader "WorldGen/LocalScatter"
 {
-    Properties
-    {
+    Properties { [HideInInspector] _VegetationSceneEnabled("Shared camera scene",Float)=0
+
         _BaseMap("Albedo",2D)="white"{} _BaseColor("Tint",Color)=(1,1,1,1)
         _NormalMap("RGB tangent normal",2D)="bump"{} _MaskMap("R AO, G roughness, B height, A metallic",2D)="white"{}
         _Roughness("Roughness",Range(0,1))=.85 _Metallic("Metallic",Range(0,1))=0
@@ -39,7 +39,7 @@ Shader "WorldGen/LocalScatter"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
-            #include "WorldGenAir.hlsl"
+            #include "WorldGenVegetationScene.hlsl"
             #include "WorldGenLodFade.hlsl"
             #include "WorldGenWind.hlsl"
             #include "WorldGenTree.hlsl"
@@ -94,7 +94,7 @@ Shader "WorldGen/LocalScatter"
                 }
                 float4 mask=SAMPLE_TEXTURE2D(_MaskMap,sampler_BaseMap,i.uv);
                 InputData input=(InputData)0;input.positionWS=i.position;input.normalWS=n;input.viewDirectionWS=GetWorldSpaceNormalizeViewDir(i.position);
-                input.shadowCoord=TransformWorldToShadowCoord(i.position);input.bakedGI=_AmbientTint.rgb;input.shadowMask=half4(1,1,1,1);
+                input.shadowCoord=TransformWorldToShadowCoord(i.position);input.bakedGI=VegetationAmbient(_AmbientTint).rgb;input.shadowMask=half4(1,1,1,1);
                 input.normalizedScreenSpaceUV=GetNormalizedScreenSpaceUV(i.positionCS);
                 SurfaceData s=(SurfaceData)0;s.albedo=tex.rgb*tint;s.alpha=1;s.occlusion=mask.r;s.metallic=_Metallic*mask.a;
                 s.smoothness=1-saturate(mask.g*_Roughness);s.normalTS=half3(0,0,1);
@@ -102,11 +102,11 @@ Shader "WorldGen/LocalScatter"
                 if(_TreeSurface>.5&&i.plant.y>.5&&i.plant.y<2.5)
                 {Light sun=GetMainLight(input.shadowCoord);color+=s.albedo*sun.color*(pow(saturate(dot(-n,sun.direction)),2)*.12)*sun.shadowAttenuation;}
                 color+=SecondaryCelestialLight(n,s.albedo);
-                float3 fog=_FogColor.rgb;
+                float3 fog=VegetationFog(_FogColor).rgb;
                 #ifndef UNITY_COLORSPACE_GAMMA
                 fog=SRGBToLinear(fog);
                 #endif
-                return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,fog,_FogDistance),1);
+                return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,fog,VegetationFogDistance(_FogDistance)),1);
             }
             ENDHLSL
         }

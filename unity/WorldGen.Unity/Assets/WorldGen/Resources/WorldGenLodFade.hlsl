@@ -9,6 +9,17 @@ float WorldGenDither(float2 pixel)
     value=(value<<2)|((((p.x^p.y)>>2)&1)<<1)|((p.y>>2)&1);
     return (value+.5)/64;
 }
+#if SHADER_TARGET >= 45
+// Exact 2x2 all-lane reduction. A pixel-only alpha test is NOT conservative:
+// a neighbouring parallax offset can select a different coverage-preserving
+// mip even when this pixel's offset is zero. Require the entire quad to have
+// zero offsets, so initial and final texture gradients agree as well.
+float WorldGenQuadAll(float value)
+{
+    float row=value*(1-saturate(abs(ddx_fine(value))));
+    return row*(1-saturate(abs(ddy_fine(row))));
+}
+#endif
 float WorldGenFadeWeight(float2 timings)
 {
     float a=timings.x<=0?1:smoothstep(0,3,_Time.y-timings.x);

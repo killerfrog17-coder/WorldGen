@@ -8,6 +8,7 @@ namespace WorldGen.Core
     public enum TreeBarkPattern { Smooth, Fissured, Scaly, Fibrous, Peeling }
     public enum TreeLeafHabit { Evergreen, ColdDeciduous, DroughtDeciduous }
     public enum TreeFruitForm { Spores, Cone, FleshyFruit, Nut, DryCapsule, WingedSeed }
+    public enum TreeCrownStrategy { General, TropicalCanopy, OpenWoodland }
 
     /// <summary>Species-space anatomy: inherited founder traits, a small province
     /// branch and smaller regional variation. Low three code bits are individuals'
@@ -15,6 +16,7 @@ namespace WorldGen.Core
     public readonly struct TreeMorphology
     {
         public readonly TreeGrowthForm Form;
+        public readonly TreeCrownStrategy Strategy;
         public readonly TreeLeafShape LeafShape;
         public readonly TreeBarkPattern BarkPattern;
         public readonly double CrownBase, CrownAspect, TrunkRadius, BranchLift, Forking, LeafAspect, LeafLobes, Openness;
@@ -24,13 +26,17 @@ namespace WorldGen.Core
         public TreeMorphology(int code)
         {
             Form=(TreeGrowthForm)((code>>28)&7);
-            int founder=(code>>8)&65535;var r=new Rng(founder,"tree-founder-anatomy-1");
+            Strategy=Form==TreeGrowthForm.BroadCrown?(TreeCrownStrategy)((code>>22)&3):TreeCrownStrategy.General;
+            int founder=(code>>8)&16383;var r=new Rng(founder,"tree-founder-anatomy-1");
             var province=new Rng((code>>24)&15,"tree-province-anatomy-1",founder);
             var local=new Rng((code>>3)&31,"tree-regional-anatomy-1",founder);
             double branch=.94+.12*province.Unit(),mutation=.97+.06*local.Unit();
             CrownBase=(.28+.23*r.Unit())*branch;
             CrownAspect=(.55+.55*r.Unit())*branch;BranchLift=.15+.55*r.Unit();Forking=.35+.65*r.Unit();
+            if(Strategy==TreeCrownStrategy.TropicalCanopy){CrownBase=.58+.10*r.Unit();CrownAspect=.85+.20*r.Unit();BranchLift=.35+.25*r.Unit();}
+            if(Strategy==TreeCrownStrategy.OpenWoodland){CrownBase=.64+.10*r.Unit();CrownAspect=1.05+.25*r.Unit();BranchLift=.12+.16*r.Unit();}
             TrunkRadius=(.014+.015*r.Unit())*branch;Branches=8+(int)(r.Unit()*6);Leaflets=5+(int)(r.Unit()*4);
+            if(Strategy==TreeCrownStrategy.TropicalCanopy)TrunkRadius*=.55;
             LeafAspect=.22+.48*r.Unit();LeafLobes=3+(int)(r.Unit()*3);Openness=.08+.30*r.Unit();
             LeafShape=Form==TreeGrowthForm.NeedleCrown?TreeLeafShape.NeedleSpray:
                 Form==TreeGrowthForm.FrondCrown?(r.Unit()<.6?TreeLeafShape.PinnateFrond:TreeLeafShape.FanFrond):
@@ -99,13 +105,17 @@ namespace WorldGen.Core
     /// random combinations at every region or plant. Saved food webs stay literal.</summary>
     public static class TreeFlora
     {
-        public const string Version="tree-flora-2";
-        public const double PlacementPerM2=.034;
+        public const string Version="tree-flora-3";
+        public const double PlacementPerM2=.055;
+        public static int RenderCode(int code)=>code&0x70ffff00;
+        public static int ModelCode(int code,int lod)
+        {if(lod>=2)return RenderCode(code);var form=(TreeGrowthForm)((code>>28)&7);return form==TreeGrowthForm.BroadCrown||form==TreeGrowthForm.NeedleCrown?code&~7:code;}
         public static double HabitatAdmission(LocalTerrainSample sample)=>D.Clamp(sample.Forest.Coverage);
         public static double SlopeAdmission(double up)=>D.Clamp((up-.60)/.22);
         public static double SpeciesWeight(TreeSpecies species,HabitatCell habitat,LocalTerrainSample sample,V at,int seed,double radius,double sourceElevation)
         {
             double fit=Suitability(species,habitat,sample.Ground,sample.Biome,sample.ElevationM-sourceElevation);
+            if(fit<=0)return 0;
             double colony=.5+.5*SphereNoise.Sample(at*(radius/1000),seed^(species.MorphologyCode&~255),2.4);
             return fit*(.25+.75*D.Clamp((colony-.2)/.6));
         }
@@ -126,14 +136,21 @@ namespace WorldGen.Core
                 var founder=new Rng(world.Recipe.Seed,"tree-world-family-1",family);
                 var branch=new Rng(world.Recipe.Seed,"tree-province-branch-1",unchecked(province*31+family));
                 var local=new Rng(world.Recipe.Seed,"tree-region-branch-1",unchecked(region*31+family));
-                int code=((int)(founder.Next()&65535)<<8)|((int)(branch.Unit()*16)<<24)|((int)(local.Unit()*32)<<3)|((int)form<<28);
+                var strategy=form!=TreeGrowthForm.BroadCrown?TreeCrownStrategy.General:
+                    h!=null&&(h.Biome==Biome.TropicalRainforest||h.Biome==Biome.TropicalSeasonalForest)?TreeCrownStrategy.TropicalCanopy:
+                    h!=null&&(h.Biome==Biome.Savanna||h.Biome==Biome.MediterraneanWoodland)?TreeCrownStrategy.OpenWoodland:TreeCrownStrategy.General;
+                int code=((int)(founder.Next()&16383)<<8)|((int)strategy<<22)|((int)(branch.Unit()*16)<<24)|((int)(local.Unit()*32)<<3)|((int)form<<28);
                 string genus=Word(ref founder)+"a",epithet=Word(ref local)+"is";
                 var m=new TreeMorphology(code);double founderHeight=form==TreeGrowthForm.FrondCrown?16+12*founder.Unit():
                     form==TreeGrowthForm.TreeFern?5+7*founder.Unit():form==TreeGrowthForm.ArborescentSucculent?5+10*founder.Unit():
                     form==TreeGrowthForm.TallCane?7+13*founder.Unit():14+22*founder.Unit();
                 double height=founderHeight*(.90+.20*branch.Unit())*(.95+.10*local.Unit());
+                if(strategy==TreeCrownStrategy.TropicalCanopy)height=(29+10*founder.Unit())*(.94+.12*branch.Unit())*(.96+.08*local.Unit());
+                if(strategy==TreeCrownStrategy.OpenWoodland)height=(7+8*founder.Unit())*(.94+.12*local.Unit());
                 double width=height*(form==TreeGrowthForm.NeedleCrown?.32:form==TreeGrowthForm.FrondCrown?.55:form==TreeGrowthForm.TreeFern?.85:
                     form==TreeGrowthForm.ArborescentSucculent?.45:form==TreeGrowthForm.TallCane?.25:.45+.40*founder.Unit());
+                if(strategy==TreeCrownStrategy.OpenWoodland)width=height*(1.0+.5*founder.Unit());
+                if(strategy==TreeCrownStrategy.TropicalCanopy)width=height*(.55+.20*founder.Unit());
                 double ancestralMoisture=.35+1.3*founder.Unit(),moisture=ancestralMoisture*.65+D.Clamp(wet,.2,2)*.35;
                 if(form==TreeGrowthForm.TreeFern)moisture=Math.Max(1.1,moisture);
                 if(form==TreeGrowthForm.ArborescentSucculent)moisture=.12+.2*founder.Unit();
@@ -159,24 +176,27 @@ namespace WorldGen.Core
                 case Biome.TemperateForest:return .85;
                 case Biome.BorealForest:return .76;
                 case Biome.TropicalSeasonalForest:return .70;
-                case Biome.MediterraneanWoodland:return .30;
-                case Biome.Mangrove:return .65;
-                case Biome.Savanna:return .07;
+                case Biome.MediterraneanWoodland:return .12;
+                case Biome.Mangrove:return .85;
+                case Biome.Savanna:return .009;
                 case Biome.Floodplain:return .18;
-                case Biome.Grassland:return .014;
+                case Biome.Grassland:return .0012;
                 default:return 0;
             }
         }
         public static double Suitability(TreeSpecies s,HabitatCell h,GroundProfile soil,Biome biome,double elevationOffset=0)
         {
-            if(biome==Biome.Ice||biome==Biome.Ocean||biome==Biome.Tundra||biome==Biome.Alpine||biome==Biome.Freshwater||biome==Biome.SalineLake)return 0;
+            // Tundra/alpine have zero interior forest potential, but a blended
+            // ecotone must not be guillotined by the nearest biome label.
+            // Their actual warmth/permafrost/slope still limit surviving trees.
+            if(biome==Biome.Ice||biome==Biome.Ocean||biome==Biome.Freshwater||biome==Biome.SalineLake)return 0;
             double wet=h==null?.9:h.AridityMilli*.001,warm=(h==null?18:h.WarmTenthsC*.1)-elevationOffset*.006,cold=(h==null?5:h.ColdTenthsC*.1)-elevationOffset*.006;
             double fit=D.Clamp((warm-s.MinWarmC)/5)*D.Clamp((s.MaxWarmC-warm)/7)*D.Clamp((cold-s.MinColdC)/8);
             fit*=Math.Exp(-Math.Pow((wet-s.Moisture)/Math.Max(.3,s.Moisture*.75),2));
             fit*=D.Clamp(soil.DepthM/.4)*(.4+.6*soil.Fertility)*(1-.65*soil.Gravel)*(1-D.Clamp(soil.Salinity/s.MaxSalinity));
             double flood=h==null?0:h.FloodFractionPermille*.001;fit*=1-flood*(1-s.FloodTolerance);
             if(h!=null)fit*=1-.85*h.PermafrostPermille*.001;
-            if(s.Form==TreeGrowthForm.NeedleCrown)fit*=biome==Biome.BorealForest?1.8:biome==Biome.TropicalRainforest?.06:.6;
+            if(s.Form==TreeGrowthForm.NeedleCrown)fit*=biome==Biome.BorealForest?1.8:biome==Biome.TropicalRainforest||biome==Biome.Mangrove||biome==Biome.Savanna?0:.6;
             if(s.Form==TreeGrowthForm.BroadCrown)fit*=biome==Biome.BorealForest?.25:1;
             if(s.Form==TreeGrowthForm.TreeFern)fit*=D.Clamp((wet-.8)/.6)*GroundSpecialists.Canopy(biome);
             if(s.Form==TreeGrowthForm.FrondCrown)fit*=biome==Biome.Mangrove?.12:.65;
@@ -185,12 +205,17 @@ namespace WorldGen.Core
             if(biome==Biome.Desert)return s.Form==TreeGrowthForm.ArborescentSucculent?fit*.3:0;
             return Math.Max(0,fit);
         }
-        public static double Stand(V position,int seed,double physicalRadiusM)
+        public static double Stand(V position,int seed,double physicalRadiusM,double potential)
         {
             V km=position*(physicalRadiusM/1000);
             double n=.5+.5*SphereNoise.Sample(km,seed^0x6937af,3.3);
             double opening=.5+.5*SphereNoise.Sample(km,seed^0x41a8c3,19);
-            return (.10+.90*Smooth((n-.23)/.43))*(.18+.82*Smooth((opening-.19)/.36));
+            double open=(.08+.92*Smooth((n-.28)/.38))*(.14+.86*Smooth((opening-.22)/.32));
+            double closed=(.82+.18*Smooth((n-.23)/.43))*(.84+.16*Smooth((opening-.19)/.36));
+            // Closed forest has a connected canopy with occasional gaps, not
+            // the same strongly perforated field used by open woodland.
+            double gap=Smooth((.16-opening)/.10);
+            closed*=1-.92*gap;return open+(closed-open)*Smooth((potential-.15)/.45);
         }
         static double Smooth(double t){t=D.Clamp(t);return t*t*(3-2*t);}
         public static ForestCoverProfile Describe(HabitatCell h,GroundProfile soil,TreeSpecies[] species,Biome biome)
@@ -199,11 +224,16 @@ namespace WorldGen.Core
             foreach(var s in species){double w=Suitability(s,h,soil,biome);sum+=w;p.Color+=s.Morphology.Leaf*w;p.HeightM+=s.HeightM*w;p.WidthM+=s.WidthM*w;p.Openness+=s.Morphology.Openness*w;if(w>best){best=w;p.MorphologyCode=s.MorphologyCode;}}
             if(sum>1e-6){p.Color/=sum;p.HeightM/=sum;p.WidthM/=sum;p.Openness/=sum;}
             double potential=biome==Biome.Desert?.006:Potential(biome);
-            p.Coverage=potential*D.Clamp(sum*.7);return p;
+            if(biome==Biome.Savanna&&h!=null)
+            {double opportunity=D.Clamp((h.AridityMilli*.001-.45)/.65)*(1-.75*h.FirePotentialPermille*.001);potential=.004+.025*opportunity*opportunity;}
+            double productivity=h==null?1:D.Clamp(.65+h.ProductivityGCM2Year/1800.0,.65,1.15);
+            double fire=h==null?1:1-.42*h.FirePotentialPermille*.001;
+            double support=D.Clamp(sum*1.5);
+            p.Coverage=potential*support*productivity*fire;return p;
         }
         public static ForestCoverProfile Surface(ForestCoverProfile p,V point,int seed,double radius,double elevation,double up,bool underwater)
         {
-            p.Coverage*=underwater||elevation<2?0:Stand(point,seed,radius)*D.Clamp((up-.60)/.22)*D.Clamp((p.WarmC-(elevation-p.ReferenceElevationM)*.006-6)/5);
+            p.Coverage*=underwater||elevation<2?0:Stand(point,seed,radius,p.Coverage)*D.Clamp((up-.60)/.22)*D.Clamp((p.WarmC-(elevation-p.ReferenceElevationM)*.006-6)/5);
             return p;
         }
     }

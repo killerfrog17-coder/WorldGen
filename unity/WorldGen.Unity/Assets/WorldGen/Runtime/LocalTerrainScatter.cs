@@ -10,7 +10,7 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     sealed class ScatterWork { public ScatterKey Key;public Task<ScatterPatch> Task; }
-    sealed class ScatterGroup {public Bounds Bounds;public int[] Indices;}
+    sealed class ScatterGroup {public Bounds Bounds,RootBounds;public int[] Indices;public bool Trees,ForestOwned;public int ForestEpoch=-1;}
     sealed class ScatterChunk { public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
     sealed class ArtPart { public Mesh Mesh;public Material Material;public int Submesh;public Matrix4x4 Local; }
     sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; public bool IdentityScale,Fades;public double LastUsed;public bool Generated;public int TreeCode;public bool TreeBake,TreeQueued,TreeBaked,TreeStand;public Texture2DArray TreeColour,TreeNormal; }
@@ -26,6 +26,8 @@ public sealed partial class LocalTerrainExplorer
     LocalScatter scatter;LocalTerrainArtSet artSet;Texture2DArray[] generatedGround;
     Texture2DArray treeLeaves;
     readonly Dictionary<long,Material> treeMaterials=new Dictionary<long,Material>();
+    readonly Dictionary<int,V> treePigments=new Dictionary<int,V>();
+    V TreePigment(int code){code&=~7;if(!treePigments.TryGetValue(code,out var pigment)){pigment=new TreeMorphology(code).Leaf;treePigments.Add(code,pigment);}return pigment;}
     readonly HashSet<TerrainTileKey> scatterGroundChanges=new HashSet<TerrainTileKey>();
     readonly Dictionary<ScatterKey,ScatterChunk> scatterChunks=new Dictionary<ScatterKey,ScatterChunk>();
     readonly List<ScatterWork> scatterJobs=new List<ScatterWork>();readonly HashSet<ScatterKey> scatterWanted=new HashSet<ScatterKey>();readonly List<ScatterKey> scatterPriority=new List<ScatterKey>();
@@ -105,7 +107,7 @@ public sealed partial class LocalTerrainExplorer
                 }
                 if(affected)ProjectScatter(chunk);
             }
-            scatterGroundChanges.Clear();projectedGroundRevision=nearGroundRevision;lastGroundProject=Time.realtimeSinceStartupAsDouble;scatterDirty=true;
+            ProjectForestGround();scatterGroundChanges.Clear();projectedGroundRevision=nearGroundRevision;lastGroundProject=Time.realtimeSinceStartupAsDouble;scatterDirty=true;
         }
         if(double.IsNaN(scatterX)||Math.Abs(motion.X-scatterX)>32||Math.Abs(motion.Z-scatterZ)>32||Math.Abs(HeightAboveGround-scatterAltitude)>100)RefreshScatterWanted();
         for(int i=scatterJobs.Count-1;i>=0;i--)
@@ -114,7 +116,7 @@ public sealed partial class LocalTerrainExplorer
             if(work.Task.IsFaulted){error=work.Task.Exception.GetBaseException().Message;debugOpen=true;CaptureMouse();continue;}
             if(!work.Task.IsCanceled&&scatterWanted.Contains(work.Key)){var chunk=new ScatterChunk{Source=work.Task.Result,Born=Math.Max(.001f,Time.time)};ProjectScatter(chunk);scatterChunks[work.Key]=chunk;scatterDirty=true;}break;
         }
-        if(!mapOpen&&CenterReady&&!NearTerrainPending()&&jobs.Count+scatterJobs.Count<WorkerLimit&&scatterJobs.Count<1)
+        if(!mapOpen&&CenterReady&&!NearTerrainPending()&&ActiveWorkerCount<WorkerLimit&&scatterJobs.Count<1)
         {
             foreach(var key in scatterPriority)
             {if(scatterChunks.ContainsKey(key)||HasScatterJob(key))continue;RequestScatter(key);break;}
@@ -162,6 +164,7 @@ public sealed partial class LocalTerrainExplorer
     }
     ArtModel Art(ScatterKind kind,int variant,int lod)
     {
+        if(kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)variant=TreeFlora.ModelCode(variant,TerrainVideoOptions.TreeImpostors?lod:Math.Min(1,lod));
         long key=ScatterArtKey(kind,variant,lod);if(scatterArt.TryGetValue(key,out var found)){found.LastUsed=Time.realtimeSinceStartupAsDouble;return found;}
         if(kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)return CreateRebuiltTree(key,variant,lod);
         var binding=artSet==null||artSet.Scatter==null?null:Array.Find(artSet.Scatter,b=>b!=null&&b.Kind==kind);
@@ -176,7 +179,7 @@ public sealed partial class LocalTerrainExplorer
                 Matrix4x4 local=prefab.transform.worldToLocalMatrix*filter.transform.localToWorldMatrix;
                 Bounds b=filter.sharedMesh.bounds;for(int corner=0;corner<8;corner++){var p=local.MultiplyPoint3x4(b.center+Vector3.Scale(b.extents,new Vector3((corner&1)==0?-1:1,(corner&2)==0?-1:1,(corner&4)==0?-1:1)));if(first){bounds=new Bounds(p,Vector3.zero);first=false;}else bounds.Encapsulate(p);}
                 for(int sub=0;sub<filter.sharedMesh.subMeshCount&&sub<renderer.sharedMaterials.Length;sub++)
-                {var material=new Material(renderer.sharedMaterials[sub]){enableInstancing=true};if(material.HasProperty("_FogDistance"))material.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));ownedScatterMaterials.Add(material);parts.Add(new ArtPart{Mesh=filter.sharedMesh,Material=material,Submesh=sub,Local=local});}
+                {var material=new Material(renderer.sharedMaterials[sub]){enableInstancing=true};if(material.HasProperty("_FogDistance"))material.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));RegisterScatterMaterial(material);parts.Add(new ArtPart{Mesh=filter.sharedMesh,Material=material,Submesh=sub,Local=local});}
             }
         }
         if(parts.Count==0)
@@ -214,7 +217,7 @@ public sealed partial class LocalTerrainExplorer
                 material.SetFloat("_RockLayer",8+variant/3);material.SetTexture("_RockAlbedo",landMaterial.GetTexture("_GroundAlbedo"));
                 material.SetTexture("_RockNormals",landMaterial.GetTexture("_GroundNormals"));material.SetFloat("_RockLayers",landMaterial.GetFloat("_RockLayers"));
             }
-            if(!shared){ownedScatterMaterials.Add(material);if(kind==ScatterKind.GeneratedTree)treeMaterials[materialKey]=material;}
+            if(!shared){RegisterScatterMaterial(material);if(kind==ScatterKind.GeneratedTree)treeMaterials[materialKey]=material;}
             parts.Add(new ArtPart{Mesh=mesh,Material=material,Submesh=0,Local=Matrix4x4.identity});
         }
         float height=kind==ScatterKind.MidPlant||kind==ScatterKind.GeneratedTree?1:binding!=null&&binding.ReferenceHeightM>0?binding.ReferenceHeightM:Math.Max(.001f,bounds.size.y),width=kind==ScatterKind.MidPlant||kind==ScatterKind.GeneratedTree?1:binding!=null&&binding.ReferenceWidthM>0?binding.ReferenceWidthM:Math.Max(.001f,Math.Max(bounds.size.x,bounds.size.z));
@@ -239,6 +242,16 @@ public sealed partial class LocalTerrainExplorer
             for(int region=0;region<(grouped?chunk.Groups.Length:1);region++)
             {
             var group=grouped?chunk.Groups[region]:null;
+            if(grouped&&group.Trees&&!WorldGenPerformance.ForceIndividualTreeAdmission)
+            {
+                // Range and ready-field ownership depend on roots, not camera
+                // heading. Reject an entire tree-only bin only when EVERY root
+                // would fail the literal individual admission below. Crown and
+                // shadow bounds are deliberately not used for this range test.
+                double localLimit=TerrainVideoOptions.TreeIdentityRange+.1,fieldLimit=ForestHandoffReach+.1;
+                if(!TerrainVideoOptions.GeneratedTrees||WorldGenPerformance.NoLocalTrees||group.RootBounds.SqrDistance(eye)>=localLimit*localLimit)continue;
+                if(TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeImpostors&&TerrainVideoOptions.FarForest&&group.RootBounds.SqrDistance(eye)>=fieldLimit*fieldLimit&&ForestOwnsGroup(chunk,group))continue;
+            }
             if(grouped&&TerrainVideoOptions.ScatterFrustum)
             {
                 var groupBounds=group.Bounds;
@@ -254,9 +267,13 @@ public sealed partial class LocalTerrainExplorer
                 var p=chunk.Source.Instances[i];double distance=(chunk.Roots[i]-eye).magnitude;
                 if(IsSpecialist(p.Kind)&&!TerrainVideoOptions.SpecialistPlants)continue;
                 if(p.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlants)continue;
-                if(p.Kind==ScatterKind.GeneratedTree&&!TerrainVideoOptions.GeneratedTrees)continue;
+                if(p.Kind==ScatterKind.GeneratedTree&&(!TerrainVideoOptions.GeneratedTrees||WorldGenPerformance.NoLocalTrees))continue;
+                if(p.Kind==ScatterKind.GeneratedTree&&distance>=TerrainVideoOptions.TreeIdentityRange)continue;
                 if(!TerrainVideoOptions.KeepVegetation(p.Kind,p.Id))continue;
-                var blend=TerrainVideoOptions.VegetationBlend(p.Kind,p.WidthM,distance);if(blend.Visibility<=0)continue;
+                var blend=TerrainVideoOptions.VegetationBlend(p.Kind,p.WidthM,distance);
+                if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeImpostors&&TerrainVideoOptions.FarForest)
+                    blend=new ScatterBlend(blend.Near,blend.Far,blend.Blend,distance<VegetationQuality.ForestStart(ForestHandoffReach)?1:ForestOwnsTree(p)?1-VegetationQuality.ForestWeight(distance,ForestHandoffReach):1);
+                if(blend.Visibility<=0)continue;
                 var bounds=chunk.Bounds[i];bounds.Expand(6+(float)distance*.04f);
                 bool frustum=TerrainVideoOptions.ScatterFrustum&&!GeometryUtility.TestPlanesAABB(scatterFrustum,bounds);
                 bool occluded=!frustum&&TerrainOccluded(bounds,eye),shadowOnly=frustum||occluded;
@@ -270,18 +287,7 @@ public sealed partial class LocalTerrainExplorer
                 // Built-in generated art always supports distance intervals.
                 bool compatible=!prefabScatterKinds.Contains(p.Kind)||
                     Art(p.Kind,p.Variant,nearLod).Fades&&Art(p.Kind,p.Variant,farLod).Fades;
-                if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeImpostors&&nearLod==2&&farLod==2&&(p.Variant&7)!=0)
-                {
-                    // Beyond the exact-variant budget share one species view,
-                    // not a relocated/reseeded forest clump. Root, yaw, scale,
-                    // species and tint remain exact; only fine branch variation
-                    // simplifies, using complementary distance coverage.
-                    float shared=(float)VegetationQuality.VariantWeight(distance,TerrainVideoOptions.TreeMaxDistance);
-                    float split=(float)blend.Visibility*(1-shared);
-                    AddScatterInstance(chunk,i,p,2,0,split,shadowOnly);
-                    AddScatterInstance(chunk,i,p,2,split,(float)blend.Visibility,shadowOnly,p.Variant&~7);
-                }
-                else if(nearLod==farLod)AddScatterInstance(chunk,i,p,nearLod,0,(float)blend.Visibility,shadowOnly);
+                if(nearLod==farLod)AddScatterInstance(chunk,i,p,nearLod,0,(float)blend.Visibility,shadowOnly);
                 else if(!compatible)AddScatterInstance(chunk,i,p,blend.Blend<.5?nearLod:farLod,0,1,shadowOnly);
                 else {float split=(float)(blend.Visibility*(1-blend.Blend));AddScatterInstance(chunk,i,p,nearLod,0,split,shadowOnly);AddScatterInstance(chunk,i,p,farLod,split,(float)blend.Visibility,shadowOnly);}
                 if(shadowOnly){ScatterShadowOnly++;continue;}ScatterObjects++;
@@ -334,6 +340,7 @@ public sealed partial class LocalTerrainExplorer
             (p.Kind!=ScatterKind.MidPlant||TerrainVideoOptions.MidPlantShadows)&&(p.Kind!=ScatterKind.GeneratedTree||TerrainVideoOptions.TreeShadows);
         if(shadowOnly&&!casts)return;
         int variant=artVariant==int.MinValue?p.Variant:artVariant;
+        if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)variant=TreeFlora.ModelCode(variant,TerrainVideoOptions.TreeImpostors?lod:Math.Min(1,lod));
         long key=ScatterArtKey(p.Kind,variant,lod)|(shadowOnly?1L<<60:0);
         if(!activeScatterBatches.TryGetValue(key,out var batch)||batch.Count==batch.Matrices.Length)
         {
@@ -347,6 +354,8 @@ public sealed partial class LocalTerrainExplorer
         // of native matrix multiplications by identity whenever the view changes.
         batch.Matrices[batch.Count]=batch.Model.IdentityScale&&!WorldGenPerformance.Original?chunk.Matrices[index]:chunk.Matrices[index]*batch.Model.Scale;
         batch.Colors[batch.Count]=new Vector4((float)p.Color.X,(float)p.Color.Y,(float)p.Color.Z,1);
+        if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeImpostors&&lod==2)
+        {var actual=TreePigment(p.Variant);var shared=TreePigment(variant);batch.Colors[batch.Count]=new Vector4((float)(p.Color.X*actual.X/Math.Max(.01,shared.X)),(float)(p.Color.Y*actual.Y/Math.Max(.01,shared.Y)),(float)(p.Color.Z*actual.Z/Math.Max(.01,shared.Z)),1);}
         batch.Fades[batch.Count]=new Vector4(low,high,0,0);batch.Count++;
     }
     void LateUpdate(){if(!closed){long started=WorldGenPerformance.Begin();DrawScatter();WorldGenPerformance.End(1,started);started=WorldGenPerformance.Begin();DrawGroundCover();WorldGenPerformance.End(2,started);if(weatherCheckTarget!=null&&view!=null)view.Render();}}

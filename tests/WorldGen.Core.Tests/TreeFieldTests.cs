@@ -23,10 +23,10 @@ static class TreeFieldTests
         }
         for(int i=0;i<64;i++)
         {
-            var at=TerrainMapViewport.FromDegrees(-60+i*1.8,-140+i*4);double density=TreeFlora.Stand(at,recipe.Seed,terrain.RadiusM*.1);
+            var at=TerrainMapViewport.FromDegrees(-60+i*1.8,-140+i*4);double density=TreeFlora.Stand(at,recipe.Seed,terrain.RadiusM*.1,0);
             Check(density>=0&&density<=1,"Bounded stand density");
             var moved=(at+V.Tangent(at,new V(0,0,1))/(terrain.RadiusM*.1*100)).Unit;
-            Check(Math.Abs(density-TreeFlora.Stand(moved,recipe.Seed,terrain.RadiusM*.1))<.01,"Stand field has no hard jump over a centimetre");
+            Check(Math.Abs(density-TreeFlora.Stand(moved,recipe.Seed,terrain.RadiusM*.1,0))<.01,"Stand field has no hard jump over a centimetre");
         }
         var frame=new LocalTerrainFrame(point,terrain.RadiusM,250,.1);var mesh=LocalTerrainMesh.Build(terrain,frame,0,0,102.4,8);
         // Stitch/skirt vertices can exceed the grid count. The rejected forest

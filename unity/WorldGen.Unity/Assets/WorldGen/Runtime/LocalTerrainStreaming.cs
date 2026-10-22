@@ -101,7 +101,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void SchedulePredictiveTerrain()
     {
-        if(!CanRequest||NearTerrainPending()||jobs.Count+scatterJobs.Count>=WorkerLimit||jobs.Any(j=>j.Prefetch))return;
+        if(!CanRequest||NearTerrainPending()||ActiveWorkerCount>=WorkerLimit||jobs.Any(j=>j.Prefetch))return;
         foreach(var key in prefetchPriority)
         {
             int detail=prefetchWanted[key];var edges=prefetchEdges[key];

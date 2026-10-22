@@ -9,6 +9,11 @@ using WorldGen.Core;
 
 public sealed partial class WorldGenRuntime
 {
+    IEnumerator CheckTerrainUpload(string output)
+    {
+        Directory.CreateDirectory(output);Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Error||kind==LogType.Exception){File.WriteAllText(Path.Combine(output,"failure.txt"),message+"\n"+trace);Application.Quit(1);}};
+        yield return LocalTerrainExplorer.CheckUploadBuffers(output);Application.Quit(0);
+    }
     // Exercise the shipped Resources material and instanced variant, not the
     // Editor's unstripped shader. No world loads or user preference writes.
     IEnumerator CheckTreeShader(string output)
@@ -20,6 +25,7 @@ public sealed partial class WorldGenRuntime
         var template=Resources.Load<Material>("TreeSurfaceMaterial");
         if(template==null||!template.enableInstancing)throw new Exception("Tree instancing template unavailable");
         var material=new Material(template);LocalTreeTextures.Create(out var leaves,out var leafNormals);
+        if(SystemInfo.graphicsShaderLevel>=45)material.EnableKeyword("WORLDGEN_TREE_QUAD_ALPHA");
         material.SetTexture("_TreeLeaves",leaves);material.SetTexture("_TreeLeafNormals",leafNormals);material.SetFloat("_Wind",0);
         material.SetColor("_AmbientTint",new Color(.25f,.25f,.25f));material.SetFloat("_FogDistance",10000);
         var root=new GameObject("Packaged tree shader fixture");var camera=root.AddComponent<Camera>();camera.enabled=false;camera.clearFlags=CameraClearFlags.SolidColor;
@@ -32,7 +38,7 @@ public sealed partial class WorldGenRuntime
         var matrices=new[]{Matrix4x4.TRS(new Vector3(-.58f,0,0),Quaternion.identity,Vector3.one),Matrix4x4.TRS(new Vector3(.58f,0,0),Quaternion.Euler(0,45,0),Vector3.one)};
         Shader.SetGlobalVector("_AirGeometry",new Vector4(6371000,0,0,0));Shader.SetGlobalFloat("_AirObserverM",0);Shader.SetGlobalFloat("_AirHaze",0);
         var report="";
-        foreach(int code in new[]{0x02345600,0x12345600,0x22345600,0x32345600,0x52345600})
+        foreach(int code in new[]{0x02345600,0x12345600,0x22345600,0x32345600,0x42345600,0x52345600,0x02745600,0x02b45600})
         {
             var mesh=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,0,code);material.SetFloat("_TreeLeafShape",(int)new TreeMorphology(code).LeafShape);
             for(int stage=0;stage<2;stage++)
@@ -51,10 +57,22 @@ public sealed partial class WorldGenRuntime
                 var pixels=image.GetPixels32();var bg=pixels[0];int left=0,right=0;
                 for(int y=0;y<720;y++)for(int x=0;x<1280;x++){var p=pixels[y*1280+x];if(Math.Abs(p.r-bg.r)+Math.Abs(p.g-bg.g)+Math.Abs(p.b-bg.b)>20){if(x<640)left++;else right++;}}
                 File.WriteAllBytes(Path.Combine(output,code+"-"+stage+".png"),image.EncodeToPNG());
+                if(stage==1)
+                {
+                    drawMaterial.SetFloat("_TreeEarlyAlpha",0);drawMaterial.DisableKeyword("WORLDGEN_TREE_QUAD_ALPHA");Graphics.RenderMeshInstanced(in parameters,drawn,0,matrices,2);camera.Render();
+                    prior=RenderTexture.active;RenderTexture.active=target;image.ReadPixels(new Rect(0,0,1280,720),0,0);image.Apply();RenderTexture.active=prior;var literal=image.GetPixels32();int delta=0;
+                    for(int i=0;i<pixels.Length;i++)delta=Math.Max(delta,Math.Max(Math.Abs(pixels[i].r-literal[i].r),Math.Max(Math.Abs(pixels[i].g-literal[i].g),Math.Abs(pixels[i].b-literal[i].b))));
+                    if(delta>1)throw new Exception("Tree early alpha changed native pixels: "+delta);report+="early alpha max RGB delta "+delta+"\n";drawMaterial.SetFloat("_TreeEarlyAlpha",1);if(SystemInfo.graphicsShaderLevel>=45)drawMaterial.EnableKeyword("WORLDGEN_TREE_QUAD_ALPHA");
+                }
                 if(left<1000||right<1000)throw new Exception("Packaged trees missing: "+code+" stage="+stage+" left="+left+" right="+right);
                 report+=code+" stage="+stage+" left="+left+" right="+right+"\n";Destroy(image);
                 yield return null;
             }
+        }
+        foreach(int code in new[]{0x02345600,0x12345600,0x02745600,0x02b45600})for(int lod=0;lod<2;lod++)
+        {
+            var a=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,lod,code);var b=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,lod,code|5);
+            if(!System.Linq.Enumerable.SequenceEqual(a.vertices,b.vertices)||!System.Linq.Enumerable.SequenceEqual(a.normals,b.normals)||!System.Linq.Enumerable.SequenceEqual(a.triangles,b.triangles)||!System.Linq.Enumerable.SequenceEqual(a.colors32,b.colors32))throw new Exception("Shared local tree art has non-identical variant geometry");Destroy(a);Destroy(b);
         }
         File.WriteAllText(Path.Combine(output,"PASS.txt"),SystemInfo.graphicsDeviceName+"\n"+report);Debug.Log("PACKAGED TREE SHADER PASS "+report);Application.Quit(0);
     }

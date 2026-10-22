@@ -6,6 +6,7 @@ $rows=Import-Csv -LiteralPath (Join-Path $directory 'summary.csv')
 function Reference($siteRows){
     $reference=$siteRows | Where-Object {$_.case -eq 'full' -and $_.settled -eq 'True'} | Select-Object -First 1
     if(!$reference){$reference=$siteRows | Where-Object {$_.case -eq 'full-repeat' -and $_.settled -eq 'True'} | Select-Object -First 1}
+    if(!$reference){$reference=$siteRows | Where-Object {$_.case -eq 'forest-ready' -and $_.settled -eq 'True'} | Select-Object -First 1}
     return $reference
 }
 $report=[Collections.Generic.List[string]]::new()

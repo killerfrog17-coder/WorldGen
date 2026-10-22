@@ -7,7 +7,7 @@ public sealed partial class LocalTerrainExplorer
     bool coverageDirty;
     void UpdateTerrainCoverage()
     {
-        if(!coverageDirty)return;long started=WorldGenPerformance.TraceBegin();coverageDirty=false;var keys=tiles.Keys.ToArray();
+        if(!coverageDirty)return;coverVisibilityRevision++;long started=WorldGenPerformance.TraceBegin();coverageDirty=false;var keys=tiles.Keys.ToArray();
         // Reuse this index through timestamp/material-only changes. Do not key
         // fog readiness to the requested detail plan or inactive mesh cache.
         if(fogFootprint==null||!fogFootprint.Matches(keys)){fogFootprint=new TerrainCoverageFootprint(keys);fogCheckAt=0;}

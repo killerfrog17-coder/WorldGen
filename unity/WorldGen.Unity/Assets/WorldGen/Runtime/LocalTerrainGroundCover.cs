@@ -29,12 +29,16 @@ public sealed partial class LocalTerrainExplorer
         public long Bytes;
         public Bounds LocalBounds;
         public bool Sprites;
+        public bool CullValid;public Matrix4x4 CullMatrix;public Vector4 CullOrigin,CullRanges;public Vector3 CullEye;
+        public Texture CullCoverage;public int CullCoverageRevision;public float CullSize;
     }
     Material groundCoverMaterial,groundCanopyMaterial;ComputeShader groundCoverPlacement;
     Texture2D grassFieldTexture,mossFieldTexture,lichenFieldTexture;
     readonly Plane[] coverFrustum=new Plane[6];
     readonly Vector4[] coverCullPlanes=new Vector4[6];
     public bool GroundCoverEnabled=true;
+    bool coverCleanupComplete;int coverCleanupRevision;
+    int coverVisibilityRevision;public long GrassCullDispatches {get;private set;}public long GrassCullReuses {get;private set;}
     public int GroundCoverDraws {get;private set;}
     public long GroundCoverBytes {get;private set;}
     public int GroundCoverCandidates {get;private set;}
@@ -60,6 +64,7 @@ public sealed partial class LocalTerrainExplorer
         // The middle distance now uses the same procedural leaves, not an
         // unrelated texture-bank shader. Kept separate for per-draw properties.
         groundCanopyMaterial=new Material(shader);
+        groundCoverMaterial.SetFloat("_VegetationSceneEnabled",1);groundCanopyMaterial.SetFloat("_VegetationSceneEnabled",1);
         InitializeGroundFloraMaterials();
     }
     void InitializeGroundFloraMaterials()
@@ -209,8 +214,17 @@ public sealed partial class LocalTerrainExplorer
             var args=new GraphicsBuffer.IndirectDrawArgs[5];
             args[0].vertexCountPerInstance=(uint)(near*segments*6);args[1].vertexCountPerInstance=(uint)(middle*2*6);
             for(int lod=2;lod<5;lod++)args[lod].vertexCountPerInstance=(uint)(Mathf.CeilToInt(middle*3f/(1<<(2*(lod-2))))*6);
-            gpu.Args.SetData(args);gpu.Topology=topology;
+            gpu.Args.SetData(args);gpu.Topology=topology;gpu.CullValid=false;
         }
+        float bladeRange=Mathf.Min(TerrainVideoOptions.GrassBladeDistance,TerrainVideoOptions.GrassDistance*.75f);
+        bool canopy=TerrainVideoOptions.GrassCanopy&&groundCanopyMaterial!=null;
+        var ranges=new Vector4(TerrainVideoOptions.GrassDistance,bladeRange,canopy?1:0,gpu.Sprites?1:0);
+        var matrix=camera.projectionMatrix*camera.worldToCameraMatrix;var eye=camera.transform.position;var coverage=tile?.Coverage;
+        gpu.Properties.SetVector("_CoverOrigin",origin);gpu.Properties.SetVector("_BladeCounts",new Vector4(near,middle,baseNear,segments));
+        gpu.Properties.SetFloat("_GrassNear",bladeRange);gpu.Properties.SetFloat("_GrassRange",TerrainVideoOptions.GrassDistance);
+        if(!WorldGenPerformance.ForceFreshCoverCull&&gpu.CullValid&&gpu.CullMatrix.Equals(matrix)&&gpu.CullOrigin.Equals(origin)&&gpu.CullEye.Equals(eye)&&gpu.CullRanges.Equals(ranges)&&gpu.CullSize==tileSize&&gpu.CullCoverage==coverage&&gpu.CullCoverageRevision==coverVisibilityRevision)
+        {GrassCullReuses++;return;}
+        gpu.CullValid=true;gpu.CullMatrix=matrix;gpu.CullOrigin=origin;gpu.CullEye=eye;gpu.CullRanges=ranges;gpu.CullSize=tileSize;gpu.CullCoverage=coverage;gpu.CullCoverageRevision=coverVisibilityRevision;GrassCullDispatches++;
         if(!frustumReady)
         {
             GeometryUtility.CalculateFrustumPlanes(camera,coverFrustum);
@@ -226,32 +240,27 @@ public sealed partial class LocalTerrainExplorer
         groundCoverPlacement.SetInt("_CoverageEnabled",tile?.Coverage!=null?1:0);
         groundCoverPlacement.SetFloat("_CoverageSize",tileSize);
         groundCoverPlacement.SetTexture(1,"_TerrainCoverage",tile?.Coverage!=null?tile.Coverage:Texture2D.blackTexture);
-        float bladeRange=Mathf.Min(TerrainVideoOptions.GrassBladeDistance,TerrainVideoOptions.GrassDistance*.75f);
         groundCoverPlacement.SetFloat("_GrassNear",bladeRange);groundCoverPlacement.SetInt("_CanopyEnabled",TerrainVideoOptions.GrassCanopy&&groundCanopyMaterial!=null?1:0);
         groundCoverPlacement.Dispatch(1,(gpu.Candidates+63)/64,1,1);
         for(int lod=0;lod<5;lod++)GraphicsBuffer.CopyCount(gpu.Visible[lod],gpu.Args,lod*GraphicsBuffer.IndirectDrawArgs.size+4);
-        gpu.Properties.SetVector("_CoverOrigin",origin);gpu.Properties.SetVector("_BladeCounts",new Vector4(near,middle,baseNear,segments));
-        gpu.Properties.SetFloat("_GrassNear",bladeRange);gpu.Properties.SetFloat("_GrassRange",TerrainVideoOptions.GrassDistance);
     }
     void DrawGroundCover()
     {
         GroundCoverDraws=0;GroundCoverBytes=0;GroundCoverCandidates=0;GrassPagesOccluded=0;
         if(!GroundCoverEnabled||!TerrainVideoOptions.GroundCover||!ScatterEnabled||view==null||terrain==null)
-        {foreach(var entry in tiles)ReleaseGroundCover(entry.Value);return;}
+        {
+            if(!coverCleanupComplete||coverCleanupRevision!=residentRevision){foreach(var entry in tiles)ReleaseGroundCover(entry.Value);coverCleanupComplete=true;coverCleanupRevision=residentRevision;}
+            return;
+        }
+        coverCleanupComplete=false;
         InitializeGroundCover();if(groundCoverMaterial==null)return;
         coverRequests.Clear();
         GeometryUtility.CalculateFrustumPlanes(view,coverFrustum);
         for(int k=0;k<6;k++)coverCullPlanes[k]=new Vector4(coverFrustum[k].normal.x,coverFrustum[k].normal.y,coverFrustum[k].normal.z,coverFrustum[k].distance);
-        groundCoverMaterial.SetColor("_FogColor",landMaterial.GetColor("_FogColor"));
-        groundCoverMaterial.SetColor("_AmbientTint",landMaterial.GetColor("_AmbientTint"));
-        groundCoverMaterial.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));
-        groundCoverMaterial.SetFloat("_Daylight",landMaterial.GetFloat("_Daylight"));
         groundCoverMaterial.SetFloat("_GrassRange",TerrainVideoOptions.GrassDistance);
         groundCoverMaterial.SetFloat("_GrassWind",TerrainVideoOptions.GrassWind?1:0);
         if(groundCanopyMaterial!=null)
         {
-            groundCanopyMaterial.SetColor("_FogColor",landMaterial.GetColor("_FogColor"));groundCanopyMaterial.SetColor("_AmbientTint",landMaterial.GetColor("_AmbientTint"));
-            groundCanopyMaterial.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));groundCanopyMaterial.SetFloat("_Daylight",landMaterial.GetFloat("_Daylight"));
             groundCanopyMaterial.SetFloat("_GrassWind",TerrainVideoOptions.GrassWind?1:0);
         }
         float grassRange=TerrainVideoOptions.GrassDistance,bladeRange=Mathf.Min(TerrainVideoOptions.GrassBladeDistance,grassRange*.75f);

@@ -15,6 +15,7 @@ static partial class LocalScatterMeshes
     static Mesh BuildTree(int code,int lod)
     {
         if(!TerrainVideoOptions.TreeRebuild)return BuildLegacyTree(code,lod);
+        code=TreeFlora.ModelCode(code,lod);
         var m=new TreeMorphology(code);
         if(m.Form==TreeGrowthForm.FrondCrown||m.Form==TreeGrowthForm.TreeFern)return BuildFrondTree(code,lod,m);
         if(m.Form==TreeGrowthForm.TallCane)return BuildCaneTree(code,lod,m);
@@ -41,13 +42,27 @@ static partial class LocalScatterMeshes
             }
             for(int k=0;k<sides;k++){int a=start+k;b.Triangle(a,a+1,a+sides+1);b.Triangle(a+1,a+sides+2,a+sides+1);}Mark(0);
         }
+        if(m.Strategy==TreeCrownStrategy.TropicalCanopy)
+        {
+            // Tapered basal buttresses, not repeated spikes at every branch.
+            // The shared model scales with the real tree; tiny cohorts inherit
+            // smaller feet rather than an independent pile of rocks.
+            int feet=4+(code&1);float radius=(float)m.TrunkRadius;
+            for(int i=0;i<feet;i++)
+            {
+                float a=i*Mathf.PI*2/feet+(code&255)*.03f;var d=new Vector3(Mathf.Cos(a),0,Mathf.Sin(a));var across=Vector3.Cross(d,Vector3.up)*radius*.38f;
+                int start=b.V.Count;var top=nodes[0].P+Vector3.up*.12f+d*radius*.8f;var toe=nodes[0].P+d*radius*3.5f;
+                b.Add(top,wood,new Vector2(.5f,1));b.Add(toe-across,wood,Vector2.zero);b.Add(toe+across,wood,Vector2.right);b.Add(nodes[0].P-d*radius*.2f,wood,new Vector2(.5f,0));
+                b.Triangle(start,start+1,start+2);b.Triangle(start,start+3,start+1);b.Triangle(start,start+2,start+3);Mark(0);
+            }
+        }
         // Canonical foliage positions/orientations are identical in both mesh
         // LODs. The middle mesh simplifies the surface, not the crown occupancy.
         for(int i=1;i<nodes.Count;i++)
         {
             var n=nodes[i];if(!needle&&n.P.y<(float)m.CrownBase||n.Children>1)continue;
             if(n.Children==1&&nodes[i].Radius>.0045f)continue;
-            var r=new Rng(code,"tree-rebuild-shoot-1",i);
+            var r=new Rng(TreeFlora.RenderCode(code),"tree-rebuild-shoot-1",i);
             var axis=(n.P-nodes[n.Parent].P).normalized;
             int sprays=n.Children==0?(needle?2:3):1;
             for(int j=0;j<sprays;j++)
@@ -85,18 +100,18 @@ static partial class LocalScatterMeshes
                 Mark(material);
             }
         }
-        var mesh=b.Finish();mesh.name="Tree architecture 2 / "+m.Form+" / "+code+" / L"+lod;mesh.SetUVs(1,masks);
+        var mesh=b.Finish(false);mesh.name="Tree architecture 2 / "+m.Form+" / "+code+" / L"+lod;mesh.SetUVs(1,masks);
         // Give foliage a three-dimensional lighting envelope, retaining detailed
         // twig normals in the shader. Do not alter opaque branch normals.
         var normals=mesh.normals;var crown=new Vector3(0,((float)m.CrownBase+1)*.5f,0);
         for(int i=0;i<normals.Length;i++)if(masks[i].y>1.5f)
             normals[i]=Vector3.Slerp(normals[i],(b.V[i]-crown+Vector3.up*.12f).normalized,.65f).normalized;
-        mesh.normals=normals;mesh.RecalculateTangents();mesh.RecalculateBounds();return mesh;
+        mesh.normals=normals;mesh.RecalculateTangents();return mesh;
     }
     static float NeedleCrownBase(TreeMorphology m)=>Mathf.Clamp(.11f+(float)m.CrownBase*.20f,.14f,.23f);
     static List<TreeNode> TreeSkeleton(int code,TreeMorphology m)
     {
-        var r=new Rng(code,"tree-rebuild-skeleton-1");var nodes=new List<TreeNode>(240);
+        var r=new Rng(TreeFlora.RenderCode(code),"tree-rebuild-skeleton-1");var nodes=new List<TreeNode>(240);
         float leanX=((float)r.Unit()-.5f)*.11f,leanZ=((float)r.Unit()-.5f)*.11f;
         Vector3 Trunk(float y)=>new Vector3(leanX*y*y,y,leanZ*y*y);
         int trunk=m.Form==TreeGrowthForm.NeedleCrown?24:Mathf.CeilToInt((float)m.CrownBase/.035f);
@@ -125,12 +140,31 @@ static partial class LocalScatterMeshes
         }
         else
         {
-            var points=new List<Vector3>(280);float bottom=(float)m.CrownBase-.03f,aspect=.30f+.09f*(float)m.CrownAspect;
+            bool spreading=m.Strategy==TreeCrownStrategy.OpenWoodland;
+            if(spreading)
+            {
+                // Adult open-grown crowns have load-bearing spreading limbs,
+                // not a forest's narrow vertical crown stretched sideways.
+                // Seeded scaffold tips let colonisation occupy the outer crown
+                // without raising its bounded node/leaf budget.
+                int limbs=4+(int)(r.Unit()*3);float phase=(float)r.Unit()*Mathf.PI*2;
+                for(int limb=0;limb<limbs;limb++)
+                {
+                    float angle=phase+limb*Mathf.PI*2/limbs+((float)r.Unit()-.5f)*.35f,reach=.50f+.15f*(float)r.Unit();int parent=trunk;
+                    var axis=new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle));
+                    for(int step=1;step<=4;step++)
+                    {
+                        float t=step*.25f;var p=nodes[trunk].P+axis*(reach*t)+Vector3.up*(.13f*Mathf.Sin(t*Mathf.PI*.5f));
+                        nodes[parent].Children++;int next=nodes.Count;nodes.Add(new TreeNode(p,parent));parent=next;
+                    }
+                }
+            }
+            var points=new List<Vector3>(280);float bottom=(float)m.CrownBase-.03f,aspect=spreading?.53f+.10f*(float)m.CrownAspect:.30f+.09f*(float)m.CrownAspect;
             for(int i=0;i<280;i++)
             {
                 float y=bottom+(1-bottom)*(float)r.Unit(),q=(y-bottom)/(1-bottom);
                 float angle=(float)r.Unit()*Mathf.PI*2;
-                float envelope=Mathf.Pow(Mathf.Sin(q*Mathf.PI),.55f)*(1+.16f*Mathf.Sin(angle*3+code));
+                float envelope=Mathf.Pow(Mathf.Sin(q*Mathf.PI),m.Strategy==TreeCrownStrategy.OpenWoodland?.30f:.55f)*(1+.16f*Mathf.Sin(angle*3+TreeFlora.RenderCode(code)));
                 float radius=aspect*Mathf.Sqrt((float)r.Unit())*envelope;
                 points.Add(Trunk(y)+new Vector3(Mathf.Cos(angle)*radius,0,Mathf.Sin(angle)*radius));
             }

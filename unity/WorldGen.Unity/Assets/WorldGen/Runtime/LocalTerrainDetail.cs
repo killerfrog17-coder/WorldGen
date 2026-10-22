@@ -25,6 +25,11 @@ public sealed partial class LocalTerrainExplorer
     public bool DetailPlanning=>detailPlan!=null||detailDirty;
     bool ImmediateTerrain(TerrainTileKey key)=>detailBaseline?TerrainLod.Immediate(key,motion.X,motion.Z):TerrainLod.DistanceSquared(key,motion.X,motion.Z)<=Math.Pow(detailOptions.FullRadius(HorizontalScale),2);
     int WorkerLimit=>Math.Max(1,Math.Min(detailOptions.Workers,Math.Max(1,SystemInfo.processorCount-2)));
+    // Forest requests use the SAME worker permits. Completed forest payloads
+    // awaiting their bounded install are no longer consuming a CPU permit
+    // (including while the user has disabled their drawing).
+    int ActiveWorkerCount
+    {get{int count=jobs.Count+scatterJobs.Count;foreach(var work in forestJobs)if(!work.Task.IsCompleted)count++;return count;}}
     bool CanInstall=>installationsThisFrame<detailOptions.Installations&&(installationsThisFrame==0||frameUploadMs<detailOptions.UploadBudgetMs);
     bool CanRequest=>Time.realtimeSinceStartupAsDouble>=nextRequestAt;
     void ResetDetailFrame()
@@ -107,7 +112,7 @@ public sealed partial class LocalTerrainExplorer
         }
         foreach(var p in backdropOrder)
         {
-            if(jobs.Count+scatterJobs.Count>=WorkerLimit)return;
+            if(ActiveWorkerCount>=WorkerLimit)return;
             if(tiles.ContainsKey(p.Key)||HasChartTerrainJob(p.Key)||!BackdropNeeded(p.Key))continue;
             RequestTerrain(p.Key,8,p.Value,backdrop:true);if(!CanRequest)return;
         }

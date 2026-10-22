@@ -235,11 +235,13 @@ namespace WorldGen.Core
             public readonly V Center, East, North;
             public readonly double HalfExtentM;
             public int CandidateCount => sources.Length;
+            public double MaximumForestCoverage {get;private set;}
             public LocalHydrology.Piece[] ChannelPieces(double spacingM=16)=>amplified?.RiverscapePieces(Center,HalfExtentM*owner.HorizontalScale)??water?.Pieces()??Array.Empty<LocalHydrology.Piece>();
             public RiverscapeSpan[] RiverSpans(double minimumWidthM=0)=>amplified?.RiverscapeSpans(Center,HalfExtentM*owner.HorizontalScale,minimumWidthM)??Array.Empty<RiverscapeSpan>();
             internal LocalTerrainPatch(LocalTerrain owner, V center, double extent, LocalTerrainProfile[] sources, HeightTriangle[] triangles, int seed,HeightTriangle[] geography,bool dry,HyperAmplification.Patch amplified)
             {
                 this.owner = owner; Center = center; HalfExtentM = extent; this.sources = sources; this.triangles=triangles;this.seed = seed;
+                foreach(var source in sources)MaximumForestCoverage=Math.Max(MaximumForestCoverage,source.Forest.Coverage);
                 this.geography=geography;
                 this.amplified=amplified;this.dry=dry;
                 amplified?.SetRiverRegion(center,extent*owner.HorizontalScale);
@@ -254,6 +256,32 @@ namespace WorldGen.Core
             }
             public LocalTerrainSample Sample(double eastM, double northM) => Sample(Position(eastM, northM));
             public LocalTerrainSample Sample(V point)=>SampleAt(point,0);
+            /// <summary>Exact blended raw forest potential, without terrain or
+            /// unrelated ground-layer queries. A placement admission filter,
+            /// NOT final height/water/slope or a substitute for those checks.</summary>
+            public double ForestPotential(V point)
+            {
+                double px=point.X*owner.RadiusM,py=point.Y*owner.RadiusM,pz=point.Z*owner.RadiusM,sum=0,coverage=0;
+                foreach(var f in sources)
+                {
+                    double x=px-f.Center.X*owner.RadiusM,y=py-f.Center.Y*owner.RadiusM,z=pz-f.Center.Z*owner.RadiusM;
+                    double distance=(x*x+y*y+z*z)/(f.SupportM*f.SupportM);if(distance>=1)continue;
+                    double r=Math.Sqrt(distance),t=1-r,weight=t*t*t*t*(1+4*r);sum+=weight;coverage+=f.Forest.Coverage*weight;
+                }
+                if(sum<=0)throw new InvalidOperationException("Tree potential outside supporting patch");return coverage/sum;
+            }
+            /// <summary>Identical canonical final elevation, without unused
+            /// ecological/material blending. Not a dry/coarse/render-mesh query.
+            /// Legacy surfaces retain their literal complete evaluator.</summary>
+            public double Elevation(V point)
+            {
+                if(amplified==null)return SampleAt(point,0).ElevationM;
+                double norm=point.X*point.X+point.Y*point.Y+point.Z*point.Z;
+                if(double.IsNaN(norm)||Math.Abs(norm-1)>.000001)throw new ArgumentOutOfRangeException(nameof(point),"A unit planetary position is required.");
+                double dx=point.X-Center.X,dy=point.Y-Center.Y,dz=point.Z-Center.Z;
+                if((dx*dx+dy*dy+dz*dz)*owner.RadiusM*owner.RadiusM>HalfExtentM*HalfExtentM*2.01+1)throw new ArgumentOutOfRangeException(nameof(point),"Point outside indexed terrain patch.");
+                return D.Q(amplified.Sample(point,dry,0).Height,1000);
+            }
             /// <summary>Display-only sampling of the SAME terrain hierarchy at a
             /// pixel footprint. Zero retains the literal full-detail query.</summary>
             public LocalTerrainSample SampleMap(V point,double spacingM)

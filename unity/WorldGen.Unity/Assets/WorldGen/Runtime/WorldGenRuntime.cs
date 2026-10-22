@@ -57,6 +57,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         // Isolated packaged-shader regression: no display prefs, world or music.
         if(Environment.GetCommandLineArgs().Contains("--worldgen-short-grass-check")){StartCoroutine(LocalTerrainExplorer.CheckShortGrass(Argument("--worldgen-output","")));return;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-tree-shader-check")){StartCoroutine(CheckTreeShader(Argument("--worldgen-output","")));return;}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-upload-check")){StartCoroutine(CheckTerrainUpload(Argument("--worldgen-output","")));return;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-forest-shader-check")){StartCoroutine(LocalTerrainExplorer.CheckForestShader(Argument("--worldgen-output","")));return;}
         if(WorldGenPerformance.Enabled){QualitySettings.vSyncCount=0;Application.targetFrameRate=-1;AudioListener.volume=0;}
         else InitializeDisplayOptions();

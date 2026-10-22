@@ -35,6 +35,7 @@ public sealed partial class LocalTerrainExplorer
         Mesh.MeshDataArray buffers;
         int live;
         Bounds[] bounds;
+        IndexFormat[] formats;
         public double EastM,NorthM,BuildMilliseconds,BufferMilliseconds;
         public int Segments;
         public long BufferBytes;
@@ -46,7 +47,7 @@ public sealed partial class LocalTerrainExplorer
             var watch=System.Diagnostics.Stopwatch.StartNew();
             var result=new TerrainUpload{EastM=source.EastM,NorthM=source.NorthM,Segments=source.Segments,BuildMilliseconds=source.BuildMilliseconds,
                 Heights=new float[source.GroundVertices],Cover=source.GroundCover,MidCover=source.MidCover,ForestCover=source.ForestCover,bounds=new Bounds[source.WaterTriangles.Length>0?2:1]};
-            result.buffers=Mesh.AllocateWritableMeshData(result.bounds.Length);result.live=1;
+            result.formats=new IndexFormat[result.bounds.Length];result.buffers=Mesh.AllocateWritableMeshData(result.bounds.Length);result.live=1;
             try
             {
                 for(int i=0;i<result.Heights.Length;i++)result.Heights[i]=source.Positions[i*3+1];
@@ -57,8 +58,11 @@ public sealed partial class LocalTerrainExplorer
                     var colors=water?source.WaterColors:source.Colors;
                     var indices=water?source.WaterTriangles:source.Triangles;
                     var data=result.buffers[part];int count=positions.Length/3;
-                    result.BufferBytes+=(long)count*Marshal.SizeOf<TerrainVertex>()+(long)indices.Length*4;
-                    data.SetVertexBufferParams(count,Layout);data.SetIndexBufferParams(indices.Length,IndexFormat.UInt32);
+                    // Decide from FINAL appended geometry, not the regular grid.
+                    bool compact=count<=65535;foreach(int index in indices)if(index<0||index>=count)throw new InvalidOperationException("Terrain index outside final vertex buffer");
+                    var format=result.formats[part]=compact?IndexFormat.UInt16:IndexFormat.UInt32;
+                    result.BufferBytes+=(long)count*Marshal.SizeOf<TerrainVertex>()+(long)indices.Length*(compact?2:4);
+                    data.SetVertexBufferParams(count,Layout);data.SetIndexBufferParams(indices.Length,format);
                     var vertices=data.GetVertexData<TerrainVertex>();
                     Vector3 low=new Vector3(float.MaxValue,float.MaxValue,float.MaxValue),high=new Vector3(float.MinValue,float.MinValue,float.MinValue);
                     for(int i=0;i<count;i++)
@@ -76,7 +80,8 @@ public sealed partial class LocalTerrainExplorer
                         }
                         vertices[i]=v;
                     }
-                    data.GetIndexData<int>().CopyFrom(indices);
+                    if(compact){var target=data.GetIndexData<ushort>();for(int i=0;i<indices.Length;i++)target[i]=(ushort)indices[i];}
+                    else data.GetIndexData<int>().CopyFrom(indices);
                     result.bounds[part]=new Bounds((low+high)*.5f,high-low);
                     data.subMeshCount=1;
                     data.SetSubMesh(0,new SubMeshDescriptor(0,indices.Length,MeshTopology.Triangles){bounds=result.bounds[part],vertexCount=count},
@@ -89,7 +94,7 @@ public sealed partial class LocalTerrainExplorer
         public Mesh[] Apply()
         {
             if(live==0)throw new ObjectDisposedException(nameof(TerrainUpload));
-            var meshes=new Mesh[bounds.Length];for(int i=0;i<meshes.Length;i++)meshes[i]=new Mesh{indexFormat=IndexFormat.UInt32};
+            var meshes=new Mesh[bounds.Length];for(int i=0;i<meshes.Length;i++)meshes[i]=new Mesh{indexFormat=formats[i]};
             try{Mesh.ApplyAndDisposeWritableMeshData(buffers,meshes,MeshUpdateFlags.DontRecalculateBounds|MeshUpdateFlags.DontValidateIndices);}
             catch{foreach(var mesh in meshes)UnityEngine.Object.Destroy(mesh);throw;}
             live=0;for(int i=0;i<meshes.Length;i++)meshes[i].bounds=bounds[i];return meshes;
@@ -140,6 +145,12 @@ public sealed partial class LocalTerrainExplorer
         bool cancelled=false;
         try{using(var ignored=TerrainUpload.Prepare(source,new CancellationToken(true))){} }catch(OperationCanceledException){cancelled=true;}
         if(!cancelled)throw new InvalidOperationException("Cancelled native buffer preparation was not cancelled/disposed.");
+        foreach(int count in new[]{65535,65536,70003})
+        {
+            var large=new LocalTerrainMesh{GroundVertices=3,Segments=4,Positions=new float[count*3],Normals=new float[count*3],Colors=new float[count*4],SurfaceWeights=new float[count*4],GroundWeightsB=new float[count*4],Lithology=new float[count*6],Triangles=new[]{0,count-2,count-1}};
+            using(var upload=TerrainUpload.Prepare(large,CancellationToken.None))
+            {var meshes=upload.Apply();try{if(meshes[0].indexFormat!=(count<=65535?IndexFormat.UInt16:IndexFormat.UInt32)||meshes[0].triangles[2]!=count-1)throw new InvalidOperationException("Final terrain geometry exceeded compact index format");}finally{foreach(var mesh in meshes)UnityEngine.Object.Destroy(mesh);}}
+        }
         System.IO.File.WriteAllText(System.IO.Path.Combine(output,"upload-buffers.txt"),"PASS worker-prepared native positions, normals, colors, lithology, indices, bounds, water, controller heights and cancelled-buffer disposal.");
     }
 }

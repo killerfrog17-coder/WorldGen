@@ -18,7 +18,7 @@ public sealed partial class LocalTerrainExplorer
     ArtModel CreateRebuiltTree(long key,int code,int lod)
     {
         if(rebuiltLeaves==null)LocalTreeTextures.Create(out rebuiltLeaves,out rebuiltLeafNormals);
-        // Keep a complete middle mesh until its exact-tree bake is ready. Never
+        // Keep a complete middle mesh until its shared-tree bake is ready. Never
         // show a blank card, and never fade the incoming model in over time.
         var mesh=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,Math.Min(1,lod),code);ownedScatterMeshes.Add(mesh);
         long materialKey=ScatterArtKey(ScatterKind.GeneratedTree,code&~7,0);
@@ -30,11 +30,14 @@ public sealed partial class LocalTerrainExplorer
             var template=Resources.Load<Material>("TreeSurfaceMaterial");
             if(template==null||template.shader!=shader||!template.enableInstancing)throw new InvalidOperationException("Tree instancing template missing or invalid");
             material=new Material(template){enableInstancing=true};var m=new TreeMorphology(code);
+            // Keep the literal SM4 variant for older devices. Fine derivatives
+            // are required only by the conservative empty-quad optimization.
+            if(SystemInfo.graphicsShaderLevel>=45)material.EnableKeyword("WORLDGEN_TREE_QUAD_ALPHA");
             material.SetTexture("_TreeLeaves",rebuiltLeaves);material.SetTexture("_TreeLeafNormals",rebuiltLeafNormals);
             material.SetFloat("_TreeLeafShape",(int)m.LeafShape);material.SetFloat("_TreeBarkPattern",(int)m.BarkPattern);
             material.SetFloat("_Wind",(float)m.Flexibility);material.SetVector("_PlantTraits",new Vector4((float)m.Flexibility,.5f,.7f,1));
             material.SetColor("_AmbientTint",landMaterial.GetColor("_AmbientTint"));material.SetColor("_FogColor",landMaterial.GetColor("_FogColor"));
-            material.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));ownedScatterMaterials.Add(material);treeMaterials.Add(materialKey,material);
+            material.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));RegisterScatterMaterial(material);treeMaterials.Add(materialKey,material);
         }
         var model=new ArtModel{Parts=new[]{new ArtPart{Mesh=mesh,Material=material,Submesh=0,Local=Matrix4x4.identity}},Scale=Matrix4x4.identity,IdentityScale=true,Fades=true,Generated=true,LastUsed=Time.realtimeSinceStartupAsDouble,TreeCode=code,TreeBake=lod==2};
         scatterArt.Add(key,model);return model;
@@ -47,17 +50,22 @@ public sealed partial class LocalTerrainExplorer
             if(treeBakeTask.IsCompletedSuccessfully&&scatterArt.Values.Contains(owner))
             {
                 var data=treeBakeTask.Result;
-                LocalTreeTextures.Upload(data.Colours,data.Normals,LocalTreeImpostor.Size,"Tree "+owner.TreeCode+" views",out owner.TreeColour,out owner.TreeNormal);
+                LocalTreeTextures.Upload(data.Prepared,LocalTreeImpostor.Size,"Tree "+owner.TreeCode+" views",out owner.TreeColour,out owner.TreeNormal);
                 var old=owner.Parts[0];var quad=new Mesh{name="Multi-view tree quad"};
                 quad.vertices=new[]{new Vector3(-1,-1,0),new Vector3(1,-1,0),new Vector3(-1,1,0),new Vector3(1,1,0)};
                 quad.uv=new[]{Vector2.zero,Vector2.right,Vector2.up,Vector2.one};quad.triangles=new[]{0,1,2,1,3,2};
                 quad.bounds=new Bounds(data.Center,Vector3.one*data.Radius*2.1f);
                 var material=owner.TreeStand?new Material(Resources.Load<Shader>("WorldGenForest")):new Material(old.Material);
-                if(owner.TreeStand)material.CopyPropertiesFromMaterial(old.Material);
+                if(owner.TreeStand){material.CopyPropertiesFromMaterial(old.Material);material.DisableKeyword("WORLDGEN_TREE_QUAD_ALPHA");}
                 material.name="Multi-view tree "+owner.TreeCode;
                 material.SetFloat("_Impostor",1);material.SetFloat("_Wind",0);material.SetTexture("_TreeColourViews",owner.TreeColour);material.SetTexture("_TreeNormalViews",owner.TreeNormal);
                 material.SetVector("_ImpostorBounds",new Vector4(data.Center.x,data.Center.y,data.Center.z,data.Radius));
-                ownedScatterMeshes.Remove(old.Mesh);Destroy(old.Mesh);ownedScatterMeshes.Add(quad);ownedScatterMaterials.Add(material);
+                // Keep depth-writing cutouts opaque, but establish terrain and
+                // close structural depth before the expensive impostor pixels.
+                // Forest batches use camera-centred conservative sort bounds;
+                // without explicit tiers they can sort ahead of all terrain.
+                material.renderQueue=owner.TreeStand?2002:2001;
+                ownedScatterMeshes.Remove(old.Mesh);Destroy(old.Mesh);ownedScatterMeshes.Add(quad);RegisterScatterMaterial(material);
                 owner.Parts=new[]{new ArtPart{Mesh=quad,Material=material,Submesh=0,Local=Matrix4x4.identity}};owner.TreeBaked=true;scatterDirty=true;forestHashDirty=true;
             }
             else if(treeBakeTask.IsFaulted)
@@ -93,8 +101,7 @@ public sealed partial class LocalTerrainExplorer
         else{source=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,0,pending.TreeCode);temporary=true;}
         var snapshot=new LocalTreeImpostor.Source(source,(int)new TreeMorphology(pending.TreeCode).LeafShape);if(temporary)Destroy(source);
         var token=cancellation.Token;pending.TreeQueued=true;treeBakeOwner=pending;
-        bool stand=pending.TreeStand;
-        treeBakeTask=Task.Run(()=>{var result=LocalTreeImpostor.Bake(snapshot,token);return stand?LocalTreeImpostor.Cluster(result,pending.TreeCode,token):result;},token);
+        treeBakeTask=Task.Run(()=>{var result=LocalTreeImpostor.Bake(snapshot,token);result.Prepared=LocalTreeTextures.Prepare(result.Colours,result.Normals,LocalTreeImpostor.Size,token);return result;},token);
     }
     static void ReleaseTreeTextures(ArtModel model)
     {if(model.TreeColour!=null)UnityEngine.Object.Destroy(model.TreeColour);if(model.TreeNormal!=null)UnityEngine.Object.Destroy(model.TreeNormal);model.TreeColour=model.TreeNormal=null;model.TreeBaked=false;}

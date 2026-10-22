@@ -13,6 +13,13 @@ public sealed partial class LocalTerrainExplorer
     const int TerrainSceneVectors=19;
     readonly Vector4[] terrainSceneData=new Vector4[TerrainSceneVectors],terrainSceneLast=new Vector4[TerrainSceneVectors];
     GraphicsBuffer terrainSceneBuffer;bool terrainSceneSubscribed;
+    readonly System.Collections.Generic.List<Material> legacyVegetationScene=new System.Collections.Generic.List<Material>();
+    void RegisterScatterMaterial(Material material)
+    {
+        ownedScatterMaterials.Add(material);
+        if(material.HasProperty("_VegetationSceneEnabled"))material.SetFloat("_VegetationSceneEnabled",1);
+        else legacyVegetationScene.Add(material);
+    }
     int terrainSecondaryCount;
     static readonly int TerrainSceneId=Shader.PropertyToID("WorldGenTerrainScene");
     public long TerrainMaterialBindingUpdates {get;private set;}

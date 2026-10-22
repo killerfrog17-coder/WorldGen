@@ -1,5 +1,30 @@
 # WorldGen repository instructions
 
+Forest/performance review,22October2026: shortcut now selects real C:
+`artifacts/player-forest-audit-complete/WorldGen.exe`, IL2CPP BuiltUtc14:25:32Z.
+Owner explicitly authorizes thorough testing/profiling for THIS overnight audit,
+superseding earlier compile-only notes narrowly. Desktop review items were
+checked against active code/bundled URP17.6; justified cleanup, exact height
+queries, vegetation shared scene constants, cached visibility/admission and
+conservative alpha/opaque ordering changes are implemented. No speculative
+wind-precompute/GRD/occlusion rewrite. See PERFORMANCE_AUDIT_2026_10_22.md.
+Derived tree-flora3/scatter9/wire7 intentionally changes tree placement/art:
+closed connected forest, sparse open biomes, tropical cohorts/clear boles and
+spreading savannah crowns. Local/far share TryTree; hierarchical representatives
+are actually admitted roots, exact at the individual handoff, bounded-sampled
+farther out. No unrelated far-tree population or bare-terrain canopy guesses.
+No save/history/ecology-schema, terrain geometry/LOD selection/water/grass/herb/
+shrub changes. Full 60km rainforest throughput varies about68-85 FPS across
+offscreen runs; 100-FPS floor NOT met. Paired queue ordering/image equivalence
+is verified separately from changed density/art. Core placement165723/height8044/
+tree-field220/quality19028/ground5758 assertions pass; exact native source/bin/
+projection/ownership and walking checks pass. Unchanged700m/s three-crossing
+flight stress FAILS (prepared terrain not ready); do not claim universal smooth
+travel or relax it to publish. See FOREST_PLACEMENT_2026_10_22.md and VALIDATION.
+Saved snapshot unchanged; benchmark setting overrides are in-memory, while
+Unity's own session/window registry bookkeeping can change on launch. Owner
+art/density/pop/presented-FPS review remains; stutter-ready is rollback.
+
 Stutter/seed checkpoint,22October2026: shortcut now selects real C:
 `artifacts/player-stutter-ready/WorldGen.exe`, release IL2CPP BuiltUtc07:46:15Z,
 compile/package0. Owner specifically authorized isolated timing tests for this

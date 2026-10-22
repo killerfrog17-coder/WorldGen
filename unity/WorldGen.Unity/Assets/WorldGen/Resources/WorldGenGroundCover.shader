@@ -1,6 +1,7 @@
 Shader "WorldGen/GroundCover"
 {
-    Properties { _GrassNear("Blade range",Float)=45 _GrassRange("Grass range",Float)=120 _GrassWind("Wind",Float)=1 _SplitShortGrass("Split short grass blades",Float)=1 _FogDistance("Fog distance",Float)=200000 _Daylight("Daylight",Float)=1 _FogColor("Sky colour",Color)=(.57,.69,.76,1) _AmbientTint("Ambient",Color)=(.12,.14,.17,1) }
+    Properties { [HideInInspector] _VegetationSceneEnabled("Shared camera scene",Float)=0
+ _GrassNear("Blade range",Float)=45 _GrassRange("Grass range",Float)=120 _GrassWind("Wind",Float)=1 _SplitShortGrass("Split short grass blades",Float)=1 _FogDistance("Fog distance",Float)=200000 _Daylight("Daylight",Float)=1 _FogColor("Sky colour",Color)=(.57,.69,.76,1) _AmbientTint("Ambient",Color)=(.12,.14,.17,1) }
     SubShader
     {
         Tags { "RenderType"="Opaque" "RenderPipeline"="UniversalPipeline" } Cull Off ZWrite On
@@ -8,7 +9,7 @@ Shader "WorldGen/GroundCover"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
         #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
-        #include "WorldGenAir.hlsl"
+        #include "WorldGenVegetationScene.hlsl"
         #include "WorldGenLodFade.hlsl"
         #include "WorldGenGrassLight.hlsl"
         #include "WorldGenWind.hlsl"
@@ -146,9 +147,9 @@ Shader "WorldGen/GroundCover"
             albedo=SRGBToLinear(albedo);
             #endif
             albedo*=.86+.14*(1-abs(i.leaf.x));
-            float3 color=WorldGenGrassLight(albedo,i.normal,i.position,_AmbientTint.rgb,_Daylight);
+            float3 color=WorldGenGrassLight(albedo,i.normal,i.position,VegetationAmbient(_AmbientTint).rgb,VegetationDaylight(_Daylight));
             color+=SecondaryCelestialLight(i.normal,albedo);
-            return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,_FogColor.rgb,_FogDistance),1);
+            return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,VegetationFog(_FogColor).rgb,VegetationFogDistance(_FogDistance)),1);
         }
         float depth(O i):SV_Target{Fade(i);return i.positionCS.z;}
         ENDHLSL
