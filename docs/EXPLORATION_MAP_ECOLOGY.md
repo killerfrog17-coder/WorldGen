@@ -4,6 +4,51 @@ This updates the exploration map (M), not the simulation globe's renderer.
 Terrain geometry, selection/loading, vegetation appearance/placement rules,
 saved ecology/food webs and world/save schemas remain unchanged.
 
+## Map cache, ecology graph and debug HUD follow-up
+
+Map menus show layer names without implementation suffixes. A worker-owned
+TerrainMapContext keeps the selected layer's eight most recent views, capped
+at 6 MiB RGBA total. Reopening an identical pan/zoom reuses the raster. Switching
+layers drops rasters, but retains up to 4,096 footprint-banded, canonical
+subpixel terrain samples. Twelve coloured-material patch contexts and 128
+height-root contexts are bounded separately. These are transient RAM caches,
+not save files. Point inspection is still an unquantized full-detail query.
+
+Height-only layers bypass material/cover blending and patch scaffolding above
+128 m footprint, using the existing amplified terrain hierarchy directly.
+Coloured layers use map-only patches which skip unused cubic/scaffold arrays;
+their geographic patch size follows pixel footprint. Nearby map pixels share
+spatial setup. This is not strictly O(1): nearest-cell lookup uses a spatial
+index and refinement traverses the terrain hierarchy. A complete new image
+still costs work proportional to its pixel count, plus hierarchy preparation.
+No map-latency or FPS improvement has been measured under compile-only limits.
+
+Ecology Overview embeds the same FoodWebDiagram and shared FoodWebGui renderer
+as simulation World Information. Recorded links are not replaced by generated
+plant relationships. The separate full consumer articles remain available.
+
+F3 defaults to FPS, coordinates, facing, elevation/clearance, temperature and
+local time/playable calendar date. Shift+F3 switches simplified/full and opens
+the overlay if hidden. Movement fields publish at up to 30 Hz; FPS retains its
+half-second averaging. Elevation reuses the movement ground sample rather than
+querying terrain for the overlay. Full diagnostics publish at 4 Hz only when
+full F3 is visible; OnGUI draws cached strings. Wide windows use separated
+columns; narrow windows stack panels, with full information clipped/scrollable.
+
+Full F3 also identifies nearby aimed-at generated scatter by species/type.
+The 4 Hz broad phase gathers nearby candidates; 30 Hz aiming checks at most
+256 cached body envelopes within 80 m. This is approximate envelope selection,
+not pixel-perfect leaf picking. Resident terrain grids reject occluded targets;
+missing terrain is unknown. At most one new species catalogue resolution per
+quarter second is allowed, and 256 identity strings are cached. Species names
+resolve against the source-region catalogue/morphology used by placement.
+GPU grass blades do not have individual picked identities. A lightweight
+WorldGenSpeciesIdentity bridge supports future collider-backed entities; no
+entity simulation or mass collider creation was added.
+
+Only source inspection and compilation/package checks are authorized here.
+No tests, game/world launches, captures, profiling or visual acceptance.
+
 ## Map layers
 
 | Display | Layers | Meaning |

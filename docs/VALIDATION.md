@@ -1,5 +1,31 @@
 # Version 3 validation evidence
 
+## Map cache, shared food web and fast/simple F3 /22October2026
+
+Selected-layer raster LRU is bounded eight views/6MiB; shared canonical subpixel
+sample FIFO4096, coloured contexts12 and direct height-root contexts128. Height
+layers skip materials; coloured MapPatch skips unused cubic/scaffold construction.
+Exact selection queries remain full detail. Existing geometry/source-world/LOD/
+placement rules unchanged. Shared FoodWebDiagram/GUI now renders the actual
+simulation graph in ecology Overview; no fabricated derived-flora feeding links.
+
+F3 defaults to six requested readout categories; Shift+F3 changes full/simple.
+Fast values publish up to30Hz using movement's existing ground sample; FPS still
+averages half-second windows. Full diagnostics query at4Hz only in full view.
+Cached layout has bounded separated/stacked panels. Target broad phase4Hz,
+bounded256 body-envelope checks up to30Hz, identity resolution at most4Hz/cache256;
+resident-grid terrain occlusion, no per-plant colliders/GPU readbacks. Picking is
+approximate and only resident CPU scatter/future identity colliders are covered.
+
+Shared .NET projects compile. Initial Unity compilation found a missing
+Presentation namespace import in the new target-debug file; corrected before
+packaging. Owner compile/package-only restrictions: no tests/player/world launch,
+capture/profile or measured map latency/FPS benefit. Owner appearance/UI/target/
+cache/navigation review remains required. See EXPLORATION_MAP_ECOLOGY.md.
+Release IL2CPP player-map-cache-f3 compile/package exits0, no shader/C# errors,
+BuiltUtc2026-10-22T05:46:10.5360600Z; worker/manifest complete and shortcut updated.
+Unity's incidental source-asset/project-setting serialization changes restored.
+
 ## LOD fog visible-footprint fix /22October2026
 
 Source tracing identifies an ancestor-only fog check: pending coarsening ignored

@@ -6,7 +6,7 @@ namespace WorldGen.Core
 {
     /// <summary>Replaceable, derived local terrain. Never writes World or participates in its existing hashes.
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
-    public sealed class LocalTerrain
+    public sealed partial class LocalTerrain
     {
         public const string Version = "local-terrain-hyper-12";
         public readonly double RadiusM;
@@ -138,8 +138,9 @@ namespace WorldGen.Core
         /// <summary>Shared continuous function restricted to a bounded patch. Candidate lookup happens once,
         /// not at each vertex. Independent neighbouring patches return identical overlapping point samples.</summary>
         public LocalTerrainPatch Patch(V center, double halfExtentM = 2048)=>BuildPatch(center,halfExtentM,false);
+        public LocalTerrainPatch MapPatch(V center,double halfExtentM)=>BuildPatch(center,halfExtentM,false,true);
         internal LocalTerrainPatch DryPatch(V center,double halfExtentM)=>BuildPatch(center,halfExtentM,true);
-        LocalTerrainPatch BuildPatch(V center,double halfExtentM,bool dry)
+        LocalTerrainPatch BuildPatch(V center,double halfExtentM,bool dry,bool mapOnly=false)
         {
             if (double.IsNaN(halfExtentM) || double.IsInfinity(halfExtentM) || halfExtentM <= 0 || halfExtentM > 250000)
                 throw new ArgumentOutOfRangeException(nameof(halfExtentM));
@@ -151,6 +152,13 @@ namespace WorldGen.Core
             var sources = new LocalTerrainProfile[ids.Length]; for (int i = 0; i < ids.Length; i++) sources[i] = profiles[ids[i]];
             var triangleIds = new SortedSet<int>();
             foreach(int id in ids) for(int k=faceOffsets[id];k<faceOffsets[id+1];k++) triangleIds.Add(faces[k]);
+            if(mapOnly&&Amplification!=null)
+            {
+                // Amplified samples never use the fallback cubic triangles or
+                // scaffold. Do not construct them for every coloured-map patch.
+                var roots=new int[triangleIds.Count];triangleIds.CopyTo(roots);
+                return new LocalTerrainPatch(this,center,halfExtentM,sources,Array.Empty<HeightTriangle>(),seed,Array.Empty<HeightTriangle>(),false,Amplification.Region(roots));
+            }
             V east = V.Cross(Math.Abs(center.Z)<.99?new V(0,0,1):new V(0,1,0),center).Unit, north = V.Cross(center,east).Unit;
             var triangles = new List<HeightTriangle>();
             var geography=new List<HeightTriangle>();

@@ -1,5 +1,24 @@
 # WorldGen repository instructions
 
+Map cache/F3 follow-up,22October2026: menus drop cells/continuous suffixes.
+Selected-layer LRU8 views/6MiB; retained4096 canonical subpixel samples,12 colour
+patches/128 height-root contexts. Height-only map hierarchy bypasses materials;
+MapPatch skips unused fallback scaffold arrays. Point inspections remain full
+detail. This is indexed/hierarchical, NOT claimed strict O(1) or measured speedup.
+Ecology Overview shares actual FoodWebDiagram/FoodWebGui with simulation; derived
+plant metadata does not alter saved feeding links. F3 defaults to FPS/coords/
+facing/elevation-clearance/temp/time-date; Shift+F3 toggles full. Fast cached values
+up to30Hz reuse movement ground sample, FPS remains half-second average. Full
+diagnostics4Hz only when full visible; separated/clipped panels. Full target
+labels use nearby cached scatter envelopes (256/80m), catalogue identity cache,
+resident terrain occlusion; not pixel-perfect leaves or GPU grass picking.
+Future optional WorldGenSpeciesIdentity collider bridge is not an entity system.
+No source-world/save/geometry/LOD/vegetation placement change. Compile/package
+only, no test/game/world/capture/profile. See EXPLORATION_MAP_ECOLOGY/VALIDATION.
+Release IL2CPP player-map-cache-f3 compile/package exits0, no shader/C# errors;
+BuiltUtc2026-10-22T05:46:10Z, worker/assembly manifest complete. Shortcut selects
+this real C: folder. Owner game/save/preferences untouched; owner review pending.
+
 LOD fog footprint fix,22October2026: old UpdateStreamingFog counted only requested
 key/ancestors, ignoring visible finer tiles and measuring missing whole-parent
 bounds. New TerrainCoverageFootprint unions current visible keys, collapses four

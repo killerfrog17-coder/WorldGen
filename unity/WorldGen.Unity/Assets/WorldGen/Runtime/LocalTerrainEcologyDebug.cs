@@ -11,6 +11,7 @@ public sealed partial class LocalTerrainExplorer
     EcologyDossier ecologyDossier;EcologyArticle[] ecologyFiltered=Array.Empty<EcologyArticle>();
     string ecologyCategory="Overview",ecologySearch="",ecologyMessage="",ecologyText="";
     int ecologyArticle=-1;Vector2 ecologyListScroll,ecologyArticleScroll;float ecologyBodyWidth=-1,ecologyBodyHeight;
+    Vector2 ecologyFoodScroll;int ecologyFoodFocus=-1;
     static readonly string[] EcologyCategories={"Overview","Fauna","Recorded flora","Basal resources","Ground cover","Flowers & herbs","Fungi","Mid-height plants","Trees","Food web"};
     public bool EcologyVisible=>ecologyOpen;
     void ToggleEcologyDebug(){ecologyOpen=!ecologyOpen;if(ecologyOpen){mapOpen=false;BeginEcologyDebug();}CaptureMouse();}
@@ -26,7 +27,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(ecologyJob==null||!ecologyJob.IsCompleted)return;
         if(ecologyJob.IsFaulted)ecologyMessage="Ecology query failed: "+ecologyJob.Exception.GetBaseException().Message;
-        else if(!ecologyJob.IsCanceled){ecologyDossier=ecologyJob.Result;ecologyMessage="";ecologyCategory="Overview";ecologySearch="";FilterEcologyArticles();}
+        else if(!ecologyJob.IsCanceled){ecologyDossier=ecologyJob.Result;ecologyFoodScroll=Vector2.zero;ecologyFoodFocus=-1;ecologyMessage="";ecologyCategory="Overview";ecologySearch="";FilterEcologyArticles();}
         ecologyJob=null;
         if(ecologyRefreshQueued){ecologyRefreshQueued=false;BeginEcologyDebug();}
     }
@@ -55,6 +56,11 @@ public sealed partial class LocalTerrainExplorer
             GUI.EndScrollView();
         }
         var bodyRect=new Rect(panel.x+15+(left>0?left+10:0),panel.y+177,width-30-(left>0?left+10:0),height-192);var style=new GUIStyle(GUI.skin.label){wordWrap=true,richText=false,fontSize=15};
+        if(ecologyCategory=="Overview"&&ecologyDossier!=null)
+        {
+            float textWidth=bodyRect.width*.38f;var graphRect=new Rect(bodyRect.x+textWidth+10,bodyRect.y,bodyRect.width-textWidth-10,bodyRect.height);
+            bodyRect.width=textWidth;GUI.Box(graphRect,"");FoodWebGui.Draw(graphRect,ecologyDossier.Diagram,ref ecologyFoodScroll,ref ecologyFoodFocus);
+        }
         if(ecologyBodyWidth!=bodyRect.width){ecologyBodyWidth=bodyRect.width;ecologyBodyHeight=style.CalcHeight(new GUIContent(ecologyText),bodyRect.width-28)+15;}
         GUI.Box(bodyRect,"");ecologyArticleScroll=GUI.BeginScrollView(bodyRect,ecologyArticleScroll,new Rect(0,0,bodyRect.width-20,Math.Max(bodyRect.height-1,ecologyBodyHeight)));GUI.Label(new Rect(8,5,bodyRect.width-32,ecologyBodyHeight),ecologyText,style);GUI.EndScrollView();
     }

@@ -84,7 +84,7 @@ public sealed partial class LocalTerrainExplorer
             foreach(var candidate in GlobeView.VisibleLayers.Where(l=>l!=Layer.Simulation).Concat(new[]{Layer.TreeDensity}))
             {
                 GUI.enabled=sourceWorld==null||GenerationPreview.Available(sourceWorld,candidate);
-                if(GUILayout.Button(GlobeView.LayerName(candidate)+(TerrainMapSampling.Continuous(candidate)?" · continuous":" · cells"),GUILayout.Height(28))){mapLayer=candidate;mapLayerMenu=false;InvalidateMap();}
+                if(GUILayout.Button(GlobeView.LayerName(candidate),GUILayout.Height(28))){mapLayer=candidate;mapLayerMenu=false;InvalidateMap();}
             }
             GUI.enabled=true;GUILayout.EndScrollView();GUILayout.EndArea();
         }

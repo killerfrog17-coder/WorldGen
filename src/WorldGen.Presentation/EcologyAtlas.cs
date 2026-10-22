@@ -14,7 +14,7 @@ namespace WorldGen.Presentation
     public sealed class EcologyArticle
     {public string Title="",Category="",Body="";}
     public sealed class EcologyDossier
-    {public int Cell,Region=-1,FoodLinks;public string Title="",Overview="";public EcologyArticle[] Articles=Array.Empty<EcologyArticle>();}
+    {public int Cell,Region=-1,FoodLinks;public string Title="",Overview="";public EcologyArticle[] Articles=Array.Empty<EcologyArticle>();public FoodWebDiagram Diagram=new FoodWebDiagram();}
     /// <summary>Read-only wiki projection of existing generated metadata, not a
     /// new ecology rule, inferred species inventory or added feeding network.</summary>
     public static class EcologyAtlas
@@ -25,6 +25,7 @@ namespace WorldGen.Presentation
             var e=world.Ecology;if(e==null||cell<0||cell>=e.Region.Length)return d;
             int region=e.Region[cell];if(region<0||region>=e.Regions.Length){d.Overview=EcologyView.Summary(world,cell);return d;}
             var r=e.Regions[region];d.Region=region;d.Title=r.Name;d.FoodLinks=r.FoodWeb.Length;
+            d.Diagram=FoodWebDiagram.Build(world,cell);
             d.Overview=EcologyView.Summary(world,cell)+"\n\nREGION RECORD\nID "+r.Id+" · province "+r.ProvinceId+" · representative cell "+r.RepresentativeCell+"\nArea "+(r.AreaM2/1e6).ToString("N2",CultureInfo.InvariantCulture)+" km² · "+r.Cells.Length+" source cells · "+r.PatchCount+" patches\nNeighbor regions: "+string.Join(", ",r.Neighbors)+"\n\nLOCAL HABITAT RECORD\n"+Known(e.Habitat[cell],token)+
                 "\n\nRecorded taxa and feeding opportunities are distinct from derived procedural ground/shrub/tree candidates. Neither is a live population census. Potential feeding links are not measured diets or energy fluxes. Fictional plant hazards are relative indices, not doses, food safety or animal-specific tolerance. Unmodelled information is not fabricated.";
             var articles=new List<EcologyArticle>();

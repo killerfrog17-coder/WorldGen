@@ -14,23 +14,45 @@ namespace WorldGen.Presentation
         static bool Historical(Layer layer)=>layer==Layer.TectonicElevation||layer==Layer.PreErosionElevation||layer==Layer.ErosionDelta;
         public static int RasterWidth(TerrainMapViewport view)=>view.LongitudeSpan>60?128:view.LongitudeSpan>8?192:view.LongitudeSpan>1?256:384;
 
-        sealed class Sampler
+        internal sealed class Sampler
         {
             readonly LocalTerrain terrain;
-            readonly Dictionary<(int,int),LocalTerrain.LocalTerrainPatch> patches=new Dictionary<(int,int),LocalTerrain.LocalTerrainPatch>();
-            readonly Queue<(int,int)> order=new Queue<(int,int)>();
-            public Sampler(LocalTerrain terrain){this.terrain=terrain;}
-            public LocalTerrainSample Sample(V p,double footprint=0)
+            readonly LocalTerrain.MapHeightCursor heights;
+            readonly Dictionary<(int,int,int),LocalTerrain.LocalTerrainPatch> patches=new Dictionary<(int,int,int),LocalTerrain.LocalTerrainPatch>();
+            readonly Queue<(int,int,int)> order=new Queue<(int,int,int)>();
+            readonly Dictionary<(int,int,int,int,bool),LocalTerrainSample> samples=new Dictionary<(int,int,int,int,bool),LocalTerrainSample>();
+            readonly Queue<(int,int,int,int,bool)> sampleOrder=new Queue<(int,int,int,int,bool)>();
+            public long Hits {get;private set;}public long Misses {get;private set;}
+            public Sampler(LocalTerrain terrain){this.terrain=terrain;heights=terrain.CreateMapHeightCursor();}
+            public LocalTerrainSample Sample(V p,double footprint=0,bool heightOnly=false)
             {
+                if(footprint<=0)return Query(p,0,false,0);
+                int band=Math.Max(-8,Math.Min(24,(int)Math.Floor(Math.Log(footprint/8,2))));double spacing=8*Math.Pow(2,band);
+                int grid=Math.Max(1,Math.Min(30,(int)Math.Ceiling(Math.Log(2*terrain.RadiusM*terrain.HorizontalScale/Math.Max(.025,spacing*.25),2))));int count=1<<grid;
+                double ax=Math.Abs(p.X),ay=Math.Abs(p.Y),az=Math.Abs(p.Z);int face=ax>=ay&&ax>=az?(p.X>=0?0:1):ay>=az?(p.Y>=0?2:3):(p.Z>=0?4:5);
+                V normal=face==0?new V(1,0,0):face==1?new V(-1,0,0):face==2?new V(0,1,0):face==3?new V(0,-1,0):face==4?new V(0,0,1):new V(0,0,-1);
+                V east=face<4?V.Cross(new V(0,0,1),normal).Unit:new V(1,0,0),north=V.Cross(normal,east).Unit;double d=V.Dot(p,normal);
+                int x=Math.Max(0,Math.Min(count-1,(int)((V.Dot(p,east)/d+1)*.5*count))),y=Math.Max(0,Math.Min(count-1,(int)((V.Dot(p,north)/d+1)*.5*count)));
+                var key=(face,x,y,band,heightOnly);if(samples.TryGetValue(key,out var cached)){Hits++;return cached;}
+                // Canonical subpixel addresses allow nearby pans/zoom bands to
+                // reuse samples, not merely bit-identical screen coordinates.
+                V point=(normal+east*((x+.5)*2/count-1)+north*((y+.5)*2/count-1)).Unit;
+                var result=Query(point,spacing,heightOnly,band);Misses++;
+                if(sampleOrder.Count>=4096)samples.Remove(sampleOrder.Dequeue());samples.Add(key,result);sampleOrder.Enqueue(key);return result;
+            }
+            LocalTerrainSample Query(V p,double footprint,bool heightOnly,int band)
+            {
+                if(heightOnly&&footprint>128)return heights.Sample(p,footprint);
                 TerrainMapViewport.Degrees(p,out double lat,out double lon);
-                int rows=Math.Max(2,(int)Math.Ceiling(Math.PI*terrain.RadiusM/90000)),row=Math.Min(rows-1,(int)((lat+90)/180*rows));
+                double sector=footprint<=0?2048/terrain.HorizontalScale:Math.Max(2048/terrain.HorizontalScale,Math.Min(90000,footprint/terrain.HorizontalScale*16));
+                sector=Math.Min(90000,sector);int rows=Math.Max(2,(int)Math.Ceiling(Math.PI*terrain.RadiusM/sector)),row=Math.Min(rows-1,(int)((lat+90)/180*rows));
                 double centerLat=-90+(row+.5)*180/rows;
-                int columns=Math.Max(1,(int)Math.Ceiling(2*Math.PI*terrain.RadiusM*Math.Cos(centerLat*Math.PI/180)/90000));
-                int column=Math.Min(columns-1,(int)((TerrainMapViewport.Wrap(lon)+180)/360*columns));var key=(row,column);
+                int columns=Math.Max(1,(int)Math.Ceiling(2*Math.PI*terrain.RadiusM*Math.Cos(centerLat*Math.PI/180)/sector));
+                int column=Math.Min(columns-1,(int)((TerrainMapViewport.Wrap(lon)+180)/360*columns));var key=(row,column,footprint<=0?int.MinValue:band);
                 if(!patches.TryGetValue(key,out var patch))
                 {
-                    patch=terrain.Patch(TerrainMapViewport.FromDegrees(centerLat,-180+(column+.5)*360/columns),150000);
-                    if(order.Count>=32)patches.Remove(order.Dequeue());patches.Add(key,patch);order.Enqueue(key);
+                    patch=terrain.MapPatch(TerrainMapViewport.FromDegrees(centerLat,-180+(column+.5)*360/columns),Math.Min(150000,sector*1.67));
+                    if(order.Count>=12)patches.Remove(order.Dequeue());patches.Add(key,patch);order.Enqueue(key);
                 }
                 return footprint<=0?patch.Sample(p):patch.SampleMap(p,footprint);
             }
@@ -47,17 +69,17 @@ namespace WorldGen.Presentation
             }
             return 10000*TreeFlora.PlacementPerM2*TreeFlora.Stand(point,terrain.SourceSeed,terrain.RadiusM*terrain.HorizontalScale)*TreeFlora.HabitatAdmission(sample)*TreeFlora.SlopeAdmission(up);
         }
-        public static TerrainMapImage Build(LocalTerrain terrain,TerrainMapViewport view,int width,int height,CancellationToken token,Layer layer,float[]? cellColors,World? world)
+        public static TerrainMapImage Build(LocalTerrain terrain,TerrainMapViewport view,int width,int height,CancellationToken token,Layer layer,float[]? cellColors,World? world,TerrainMapContext? context=null)
         {
             if(width<2||height<2||width>2048||height>1024)throw new ArgumentOutOfRangeException(nameof(width));
             var image=new TerrainMapImage{Width=width,Height=height,View=view.Clone(),Rgba=new byte[width*height*4]};
-            bool continuous=Continuous(layer);var sampler=new Sampler(terrain);double radius=terrain.RadiusM*terrain.HorizontalScale;
+            bool continuous=Continuous(layer);var sampler=context?.Sampler??new Sampler(terrain);double radius=terrain.RadiusM*terrain.HorizontalScale;
             var points=new V[width*height];var samples=continuous&&!Historical(layer)?new LocalTerrainSample[width*height]:Array.Empty<LocalTerrainSample>();
             double footprint=radius*view.LatitudeSpan*Math.PI/180/height*.45;
             for(int y=0;y<height;y++)for(int x=0;x<width;x++)
             {
                 token.ThrowIfCancellationRequested();int at=y*width+x;V p=points[at]=view.Position((x+.5)/width,1-(y+.5)/height);
-                if(samples.Length>0)samples[at]=sampler.Sample(p,footprint);
+                if(samples.Length>0)samples[at]=sampler.Sample(p,footprint,layer!=Layer.Satellite&&layer!=Layer.TreeDensity);
             }
             for(int y=0;y<height;y++)for(int x=0;x<width;x++)
             {

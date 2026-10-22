@@ -86,14 +86,15 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         landMaterial.SetFloat("_FogDistance",distance);waterMaterial.SetFloat("_FogDistance",distance);foreach(var material in ownedScatterMaterials)if(material.HasProperty("_FogDistance"))material.SetFloat("_FogDistance",distance);
         PublishTerrainScene();
     }
-    LocalTerrainFrame groundMemoFrame;double groundMemoX,groundMemoZ,groundMemoY;
+    LocalTerrainFrame groundMemoFrame;double groundMemoX,groundMemoZ,groundMemoY,groundMemoElevation;
     double Ground(double x,double z)
     {
         if(!WorldGenPerformance.Original&&ReferenceEquals(frame,groundMemoFrame)&&x==groundMemoX&&z==groundMemoZ&&walkingPatch!=null)return groundMemoY;
         long started=System.Diagnostics.Stopwatch.GetTimestamp();
         var at=frame.Position(x,z);
         if(walkingPatch==null||(at-walkingPatch.Center).Length*terrain.RadiusM>500/HorizontalScale)walkingPatch=terrain.Patch(at,2048/HorizontalScale);
-        double height=frame.SurfaceY(at,walkingPatch.Sample(at).ElevationM);
+        var sample=walkingPatch.Sample(at);double height=frame.SurfaceY(at,sample.ElevationM);
+        groundMemoElevation=sample.ElevationM;
         double elapsed=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000.0/System.Diagnostics.Stopwatch.Frequency;
         largestGroundMs=Math.Max(largestGroundMs,elapsed);
         if(elapsed>20)Debug.Log("Local ground query "+elapsed.ToString("F2")+"ms");
@@ -155,6 +156,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         }
         UpdatePreparedFrame();
         UpdateCamera();UpdateFootsteps();double altitude=HeightAboveGround;
+        debugGroundClearance=altitude;debugElevation=groundMemoElevation+altitude;
         double replanDistance=TerrainLod.ReplanDistance(HorizontalScale);
         if(double.IsNaN(plannedX)||Math.Abs(motion.X-plannedX)>replanDistance||Math.Abs(motion.Z-plannedZ)>replanDistance||Math.Abs(altitude-plannedAltitude)>Math.Max(150,plannedAltitude*.3))RefreshWanted();
         PollTerrainDetail();RefreshStreamingPrediction();
