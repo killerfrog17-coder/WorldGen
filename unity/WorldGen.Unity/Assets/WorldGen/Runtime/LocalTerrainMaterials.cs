@@ -77,6 +77,7 @@ public sealed partial class LocalTerrainExplorer
     void BindTerrainSceneCamera(ScriptableRenderContext context,Camera camera)
     {
         Shader.SetGlobalInteger("_TerrainDiagnosticFlags",camera==view?(int)TerrainDiagnostics.Flags:0);
+        Shader.SetGlobalVector("_WorldGenFoliageShadowSettings",camera==view&&TerrainVideoOptions.SimplifiedForestShadows?new Vector4(1,TerrainVideoOptions.ForestShadowDistance,TerrainVideoOptions.ForestShadowSoftness,0):Vector4.zero);
         if(camera==view)
         {
             Shader.SetGlobalVector("_TerrainSurfaceRanges",TerrainVideoOptions.SurfaceRanges);

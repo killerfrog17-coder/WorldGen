@@ -1,5 +1,51 @@
 # Version 3 validation evidence
 
+## Independent near-foot grass and foliage shadow proxies /22October2026
+
+Owner requests an independent near-foot density slider, plus research-led
+simplified foliage shadows; current compile/package-only restriction remains.
+See [FOLIAGE_SHADOWS.md](FOLIAGE_SHADOWS.md) for primary research, implementation,
+settings, costs and deliberate approximations. No automated suite, fixture,
+native game/world, screenshot or profiler was launched for this task.
+
+Slider1-20x/default2x uses full boost through5m and smoothstep retirement by10m,
+independent of grass preset. Dedicated sixth GPU compact/draw list uses stable,
+disjoint blade IDs; ordinary/root fields, terrain geometry/LOD, water, species,
+placement, wind, world/history and save/worker schemas remain unchanged.
+New opaque shadow-only proxies reuse actual tree transforms/shared art foliage
+bounds, remain independent of visible LOD, and use pooled instanced batches.
+Four-tap foliage filters replace stock high16 taps on selected receiving paths;
+main terrain PBR and ordinary objects retain stock lighting. Range60-220m,
+defaultMedium140, changes existing directional shadow coverage, NOT a separate
+foliage atlas. Sunlight still updates normally; no cache/contact-shadow claim.
+
+Initial packaging failed with insufficient C: space, and source review caught
+an invalid new shader GUID. Corrected shader/meta/material references and an
+early-return shader compiler flow advisory; neither failed/intermediate build
+was published. Final release IL2CPP package `player-foliage-shadow-proxies`,
+BuiltUtc20:21:06Z, exits0 with bundled worker. Build log confirms import of
+TreeShadowProxyMaterial/shader and2 retained variants (instancing off/on) in
+both vertex/fragment stages for D3D11/D3D12. No C#/shader errors; existing
+coverage div/mod and TerrainTestAir advisories remain. Core/shared compilation
+is successful, not a runtime buffer/draw/image test or measured FPS result.
+Source review checks matching six-list compute bindings/args/disposal, density
+cache invalidation, exact instance matrix reuse, shadow-only render flags,
+offscreen caster admission and mode/exit restore. No runtime SRP capture added.
+
+Owner-authorized artifacts-only cleanup dry-run reviewed41 build folders,
+then removed32 obsolete builds, reclaiming46.03GiB and keeping9 daily/latest3/
+selected checkpoints (including the current in-progress build). Retention
+script validates real C: artifact scope/no nested links/tracked files and
+protects running/selected builds. No source/saves/E: deleted; generated builds
+can be recreated from source, but the removed artifacts themselves are not
+recoverable through the cleanup. Report: ignored artifacts/checkpoint-retention.json.
+
+Shortcut verified selecting the new real-C: player. Owner review should compare
+near-foot density, canopy/self-shadow solidity, cascade/filter softness, shadow
+continuity over visible tree LOD, and FPS with new mode on/off at the same view.
+Extending the old50m range can offset savings. No universal speedup, invisible
+transition, physically accurate penumbra or visual acceptance is claimed.
+
 ## Distance-budgeted terrain surface rewrite /22October2026
 
 Owner reports normal shaded terrain about94FPS versus180-200 with surface

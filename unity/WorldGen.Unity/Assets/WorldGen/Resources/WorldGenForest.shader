@@ -24,6 +24,7 @@ Shader "WorldGen/ForestPackets"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
             #include "WorldGenVegetationScene.hlsl"
             #include "WorldGenLodFade.hlsl"
+            #include "WorldGenFoliageShadows.hlsl"
             TEXTURE2D_ARRAY(_TreeColourViews);SAMPLER(sampler_TreeColourViews);
             TEXTURE2D_ARRAY(_TreeNormalViews);SAMPLER(sampler_TreeNormalViews);
             struct Root {float3 position;float width;float height;float yaw;float slopeX;float slopeZ;float3 tint;uint field;int cellX;int cellY;uint face;float padding;};
@@ -82,7 +83,7 @@ Shader "WorldGen/ForestPackets"
                 w*=float3(ca.a,cb.a,cc.a);float alpha=w.x+w.y+w.z;clip(alpha-.4);
                 half3 albedo=(ca.rgb*w.x+cb.rgb*w.y+cc.rgb*w.z)/max(.001,alpha)*SRGBToLinear(root.tint);
                 float3 normal=normalize(na*w.x+nb*w.y+nc*w.z);normal=Rotate(normal/float3(root.width,root.height,root.width),root.yaw);normal.x-=root.slopeX*normal.y;normal.z-=root.slopeZ*normal.y;normal=normalize(normal);
-                Light sun=GetMainLight(TransformWorldToShadowCoord(i.world));half diffuse=saturate((dot(normal,sun.direction)+.2)/1.2),transmission=.14*pow(saturate(dot(-normal,sun.direction)),2);
+                Light sun=WorldGenFoliageLight(i.world);half diffuse=saturate((dot(normal,sun.direction)+.2)/1.2),transmission=.14*pow(saturate(dot(-normal,sun.direction)),2);
                 half3 colour=albedo*(VegetationAmbient(_AmbientTint).rgb*1.4+sun.color*(diffuse+transmission)*sun.shadowAttenuation)+SecondaryCelestialLight(normal,albedo);
                 return half4(ApplyPlanetAir(colour,i.world,_WorldSpaceCameraPos,SRGBToLinear(VegetationFog(_FogColor).rgb),VegetationFogDistance(_FogDistance)),1);
             }

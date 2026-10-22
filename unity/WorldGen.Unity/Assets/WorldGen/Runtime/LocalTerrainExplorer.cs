@@ -140,7 +140,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             terrain=building.Result;viewDistance=Math.Min(viewDistance,MaximumViewDistance);InitializeScatter();Teleport(startingPoint);
             if(playState!=null&&playState.HasPlayer){heading=(float)playState.Heading;pitch=(float)playState.Pitch;motion.Flying=playState.Flying;motion.Y=Ground(0,0)+Math.Max(TerrainMotion.EyeHeightM,playState.HeightAboveGround);UpdateCamera();}
         }
-        ApplyTerrainDiagnostics();installationsThisFrame=0;frameUploadMs=0;double movementStartX=motion.X,movementStartZ=motion.Z;
+        ApplyTerrainDiagnostics();ApplyFoliageShadowOptions();installationsThisFrame=0;frameUploadMs=0;double movementStartX=motion.X,movementStartZ=motion.Z;
         long mapStarted=WorldGenPerformance.TraceBegin();UpdateMapWork();WorldGenPerformance.TraceEnd(1,mapStarted);
         var keyboard=ActiveKeyboard;var mouse=Mouse.current;
         if(!mapOpen&&!paused&&!chatInput&&!ecologyOpen)

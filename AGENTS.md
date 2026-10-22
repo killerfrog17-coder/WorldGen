@@ -1,5 +1,31 @@
 # WorldGen repository instructions
 
+OWNER-TEST-ONLY foliage shadow checkpoint,22October2026: shortcut selects real C:
+`artifacts/player-foliage-shadow-proxies/WorldGen.exe`, release IL2CPP
+BuiltUtc20:21:06Z, compile/package0. Vegetation adds independent near-foot grass
+density1-20x/default2x (old boost), full through5m/smoothly normal by10m. Sixth
+compact GPU list bounds extra draw work to nearby roots; no root/world changes.
+Research-led separate texture-free low-poly tree shadow proxies follow existing
+tree matrices, independent of visible mesh/view LOD. Shared96-type cache, at
+most one type built per batch update, instanced256/call; old caster until ready.
+Grass/tree/forest and ground-overlay shadow receiving uses4 comparisons vs
+stock high16; ordinary object/herb/bush and main terrain PBR paths stay stock.
+Separate shadow range60/90/140/180/220m defaultMedium140 and softness. Coverage
+extends the EXISTING directional atlas (other object ranges too), restored on
+off/exit; no new atlas/cache/contact shadow or animated proxy leaf silhouettes.
+Mode-off A/B restores original casters/filter/range. Cull includes offscreen
+casters via conservative bounds and light-space receiver frustum. Geometry,
+LOD selection, water, ecology/placement, wind, world/history/saves unchanged.
+Compile/package ONLY; no suites, fixtures, player/world launches/captures or
+profiling. Shader GUID/material import corrected; D3D11/12 proxy pass retains
+both instanced/non-instanced variants. No C#/shader errors; existing coverage
+div/mod and TerrainTestAir advisories remain. Source/build integration is NOT
+visual/FPS acceptance: coarse canopy/self-shadow/filter/cascade and greater
+range costs need owner comparison. See FOLIAGE_SHADOWS.md/VALIDATION.md.
+Owner authorized artifacts-only retention again:32 obsolete builds deleted,
+46.03GiB reclaimed; nine retained incl daily/latest-three/selected and current
+new build. No saves/source/E: touched. Prior surface-budget remains rollback.
+
 OWNER-TEST-ONLY surface rewrite,22October2026: shortcut now selects real C:
 `artifacts/player-terrain-surface-budget/WorldGen.exe`, release IL2CPP
 BuiltUtc18:17:24Z, compile/package0. Owner Terrain lab shows large gains by

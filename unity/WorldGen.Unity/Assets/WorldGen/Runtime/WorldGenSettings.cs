@@ -26,6 +26,7 @@ public static partial class TerrainVideoOptions
     public static bool GroundCover=true;
     // Temporary, session-only prototype controls. Do not invalidate terrain jobs.
     public static float GrassDensity=1,GrassDistance=350;
+    public static float GrassNearDensity=2;
     public static float GrassBladeDistance=45;
     public static int GrassDetail=2;
     public static bool GrassWind=true;

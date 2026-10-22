@@ -1,5 +1,17 @@
 # Ground layer / ground-flora-5
 
+## Independent near-foot density /22October2026
+
+Vegetation now separates Grass quality from Near-foot grass density1-20x,
+default2x (previous maximum). Full boost through5m fades smoothly to the
+ordinary field by10m. A dedicated sixth compact GPU list draws disjoint stable
+extra blade IDs only nearby, rather than expanding all near-list capacities.
+No grass ecology/root placement, short-blade split or wind changes. Extra
+geometry/fill and4bytes/candidate cost more;20x is an owner experiment, not a
+free density increase. Foliage shadow filtering also changes; see
+[FOLIAGE_SHADOWS.md](FOLIAGE_SHADOWS.md) for settings, research and limitations.
+Compile/package only; no agent game launches or FPS/visual acceptance.
+
 ## Split short grass blades /22October2026 UTC
 
 Owner requests fuller short swards, not half-density grass at the old appearance.

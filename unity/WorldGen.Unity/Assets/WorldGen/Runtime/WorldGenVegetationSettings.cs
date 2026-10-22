@@ -11,6 +11,10 @@ public static partial class TerrainVideoOptions
     public static float MidNearLod=55,MidFarLod=200,MidMaxDistance=1400;
     public static float TreeNearLod=120,TreeFarLod=450,TreeMaxDistance=1400;
     public static bool MidPlantShadows=true,TreeShadows=true;
+    public static bool SimplifiedForestShadows=true;
+    public static int ForestShadowQuality=2;
+    public static float ForestShadowSoftness=2;
+    public static float ForestShadowDistance=>ForestShadowQuality==0?60:ForestShadowQuality==1?90:ForestShadowQuality==2?140:ForestShadowQuality==3?180:220;
     public static int GrassQuality=2,SpecialistQuality=2,MidQuality=2,TreeQuality=2;
     public static float TreeIdentityRange= (float)VegetationQuality.TreeIdentityRange;
     public static void ApplyPlantQuality(int layer,int quality)
@@ -28,6 +32,10 @@ public static partial class TerrainVideoOptions
         float Value(string name,float fallback,float min,float max)
         {float v=PlayerPrefs.GetFloat("vegetation-"+name,fallback);return float.IsNaN(v)||float.IsInfinity(v)?fallback:Mathf.Clamp(v,min,max);}
         SpecialistPlants=Flag("specialists");MidPlants=Flag("mid");GeneratedTrees=Flag("trees");FarForest=Flag("far-forest");
+        GrassNearDensity=Value("grass-near-density",2,1,20);
+        SimplifiedForestShadows=Flag("simple-forest-shadows");
+        ForestShadowQuality=Mathf.Clamp(PlayerPrefs.GetInt("vegetation-forest-shadow-quality",2),0,4);
+        ForestShadowSoftness=Value("forest-shadow-softness",2,.75f,4);
         SpecialistDetail=Mathf.Clamp(PlayerPrefs.GetInt("vegetation-specialist-detail",1),0,1);
         MidPlantDetail=Mathf.Clamp(PlayerPrefs.GetInt("vegetation-mid-detail",2),0,2);TreeDetail=Mathf.Clamp(PlayerPrefs.GetInt("vegetation-tree-detail",2),0,2);
         SpecialistDensity=Value("specialist-density",1,0,1);MidPlantDensity=Value("mid-density",1,0,1);TreeDensity=Value("tree-density",1,0,1);
@@ -46,6 +54,8 @@ public static partial class TerrainVideoOptions
         void Flag(string name,bool value)=>PlayerPrefs.SetInt("vegetation-"+name,value?1:0);
         void Value(string name,float value)=>PlayerPrefs.SetFloat("vegetation-"+name,value);
         Flag("specialists",SpecialistPlants);Flag("mid",MidPlants);Flag("trees",GeneratedTrees);Flag("far-forest",FarForest);
+        Value("grass-near-density",GrassNearDensity);Flag("simple-forest-shadows",SimplifiedForestShadows);
+        PlayerPrefs.SetInt("vegetation-forest-shadow-quality",ForestShadowQuality);Value("forest-shadow-softness",ForestShadowSoftness);
         PlayerPrefs.SetInt("vegetation-specialist-detail",SpecialistDetail);PlayerPrefs.SetInt("vegetation-mid-detail",MidPlantDetail);PlayerPrefs.SetInt("vegetation-tree-detail",TreeDetail);
         Value("specialist-density",SpecialistDensity);Value("mid-density",MidPlantDensity);Value("tree-density",TreeDensity);
         Value("specialist-near",SpecialistNearLod);Value("specialist-range",SpecialistDistance);Value("fungus-range",FungusDistance);
@@ -65,6 +75,7 @@ public static partial class TerrainVideoOptions
         MidNearLod=55;MidFarLod=200;MidMaxDistance=1400;TreeNearLod=120;TreeFarLod=450;TreeMaxDistance=1400;
         MidPlantShadows=TreeShadows=VegetationShadows=ScatterFrustum=VegetationOcclusion=true;
         GroundCover=GrassCanopy=GrassWind=true;TreeIdentityRange=(float)VegetationQuality.TreeIdentityRange;ApplyAllPlantQuality(2);
+        GrassNearDensity=2;SimplifiedForestShadows=true;ForestShadowQuality=2;ForestShadowSoftness=2;
     }
     public static bool KeepVegetation(ScatterKind kind,ulong id)
     {
@@ -114,7 +125,11 @@ public sealed partial class WorldGenRuntime
         bool enabled=GUI.enabled;
         TerrainVideoOptions.GroundCover=GUILayout.Toggle(TerrainVideoOptions.GroundCover,"Grass and ground-cover geometry");
         GUI.enabled=enabled&&TerrainVideoOptions.GroundCover;
-        PlantQualityRow("Grass quality",TerrainVideoOptions.GrassQuality,0);GUI.enabled=enabled;
+        PlantQualityRow("Grass quality",TerrainVideoOptions.GrassQuality,0);
+        GUILayout.Label("Near-foot grass density  "+TerrainVideoOptions.GrassNearDensity.ToString("F1")+"x");
+        TerrainVideoOptions.GrassNearDensity=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.GrassNearDensity,1,20)*10)/10;
+        GUILayout.Label("1x: no extra. 2x: previous boost. Up to20x (10 times previous). Full boost within5m, smoothly returns to normal by10m. Independent of grass quality; high values can be costly.",MutedStyle());
+        GUI.enabled=enabled;
         TerrainVideoOptions.SpecialistPlants=GUILayout.Toggle(TerrainVideoOptions.SpecialistPlants,"Flowers, low herbs, ferns and fungi");
         GUI.enabled=enabled&&TerrainVideoOptions.SpecialistPlants;
         PlantQualityRow("Small-plant quality",TerrainVideoOptions.SpecialistQuality,1);GUI.enabled=enabled;
@@ -126,6 +141,16 @@ public sealed partial class WorldGenRuntime
         PlantQualityRow("Tree quality",TerrainVideoOptions.TreeQuality,3);GUI.enabled=enabled;
         TerrainVideoOptions.FarForest=GUILayout.Toggle(TerrainVideoOptions.FarForest,"Horizon forest coverage");
         TerrainVideoOptions.GrassWind=GUILayout.Toggle(TerrainVideoOptions.GrassWind,"Vegetation wind animation");
+        GUILayout.Space(12);GUILayout.Label("FOREST SHADOWS",SectionStyle());
+        TerrainVideoOptions.SimplifiedForestShadows=GUILayout.Toggle(TerrainVideoOptions.SimplifiedForestShadows,"Simplified forest shadows (off = previous rendering)");
+        GUI.enabled=enabled&&TerrainVideoOptions.SimplifiedForestShadows;
+        GUILayout.Label("Forest shadow range / quality");
+        TerrainVideoOptions.ForestShadowQuality=GUILayout.SelectionGrid(TerrainVideoOptions.ForestShadowQuality,VegetationQuality.Names,5);
+        GUILayout.Label("Shadow coverage  "+TerrainVideoOptions.ForestShadowDistance.ToString("F0")+" m; independent of visible tree LOD");
+        GUILayout.Label("Foliage shadow softness  "+TerrainVideoOptions.ForestShadowSoftness.ToString("F2"));
+        TerrainVideoOptions.ForestShadowSoftness=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.ForestShadowSoftness,.75f,4)*20)/20;
+        GUILayout.Label("Hidden low-poly tree casters and four-sample foliage filtering. Ordinary objects keep the normal shadow path. Larger coverage costs more; softness changes filter footprint, not sample count.",MutedStyle());
+        GUI.enabled=enabled;
         GUILayout.Space(10);
         vegetationDiagnostics=GUILayout.Toggle(vegetationDiagnostics,"Advanced diagnostics / A-B comparisons");
         if(vegetationDiagnostics)

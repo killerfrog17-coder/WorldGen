@@ -232,6 +232,7 @@ public sealed partial class LocalTerrainExplorer
         var eye=view.transform.localPosition;scatterEye=eye;scatterRotation=view.transform.localRotation;scatterProjection=view.projectionMatrix;scatterOptions=ScatterOptionsStamp;
         GeometryUtility.CalculateFrustumPlanes(view,scatterFrustum);
         PrepareVegetationShadowVisibility();
+        BuildTreeShadowBatches();
         ScatterObjects=0;SpecialistObjects=0;MidPlantObjects=0;GeneratedTreeObjects=0;ScatterFrustumRejected=ScatterTerrainRejected=ScatterShadowOnly=0;
         foreach(var pair in scatterChunks)
         {
@@ -340,6 +341,7 @@ public sealed partial class LocalTerrainExplorer
         if(high-low<.0001f)return;
         bool casts=TerrainVideoOptions.VegetationShadows&&p.Kind!=ScatterKind.Grass&&!IsSpecialist(p.Kind)&&lod<(p.Kind==ScatterKind.MidPlant?1:2)&&
             (p.Kind!=ScatterKind.MidPlant||TerrainVideoOptions.MidPlantShadows)&&(p.Kind!=ScatterKind.GeneratedTree||TerrainVideoOptions.TreeShadows);
+        if(ReplaceTreeShadow(p))casts=false;
         if(shadowOnly&&!casts)return;
         int variant=artVariant==int.MinValue?p.Variant:artVariant;
         if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)variant=TreeFlora.ModelCode(variant,TerrainVideoOptions.TreeImpostors?lod:Math.Min(1,lod));
@@ -364,7 +366,8 @@ public sealed partial class LocalTerrainExplorer
     void DrawScatter()
     {
         if(landMaterial!=null&&landMaterial.GetFloat("_ForestFarEnabled")!=(TerrainVideoOptions.FarForest?1:0)){landMaterial.SetFloat("_ForestFarEnabled",TerrainVideoOptions.FarForest?1:0);PublishTerrainScene();}
-        ScatterDrawCalls=ForestDrawCalls=0;if(!ScatterEnabled||view==null||TerrainDiagnostics.HidePlants)return;
+        ScatterDrawCalls=ForestDrawCalls=TreeShadowDraws=0;if(!ScatterEnabled||view==null||TerrainDiagnostics.HidePlants)return;
+        DrawTreeShadowProxies();
         foreach(var batch in drawBatches)for(int j=0;j<batch.Model.Parts.Length;j++)
         {
             var kind=(ScatterKind)((batch.Key>>2)&63);
@@ -380,6 +383,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DisposeScatter()
     {
+        DisposeFoliageShadows();
         DisposeTreeImpostors();
         ResetForestFields();
         if(groundCoverMaterial!=null)Destroy(groundCoverMaterial);

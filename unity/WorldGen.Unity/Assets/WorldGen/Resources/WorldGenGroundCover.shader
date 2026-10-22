@@ -1,7 +1,7 @@
 Shader "WorldGen/GroundCover"
 {
     Properties { [HideInInspector] _VegetationSceneEnabled("Shared camera scene",Float)=0
- _GrassNear("Blade range",Float)=45 _GrassRange("Grass range",Float)=120 _GrassWind("Wind",Float)=1 _SplitShortGrass("Split short grass blades",Float)=1 _FogDistance("Fog distance",Float)=200000 _Daylight("Daylight",Float)=1 _FogColor("Sky colour",Color)=(.57,.69,.76,1) _AmbientTint("Ambient",Color)=(.12,.14,.17,1) }
+ _GrassNear("Blade range",Float)=45 _GrassRange("Grass range",Float)=120 _GrassNearDensity("Near-foot density",Float)=2 _GrassWind("Wind",Float)=1 _SplitShortGrass("Split short grass blades",Float)=1 _FogDistance("Fog distance",Float)=200000 _Daylight("Daylight",Float)=1 _FogColor("Sky colour",Color)=(.57,.69,.76,1) _AmbientTint("Ambient",Color)=(.12,.14,.17,1) }
     SubShader
     {
         Tags { "RenderType"="Opaque" "RenderPipeline"="UniversalPipeline" } Cull Off ZWrite On
@@ -16,7 +16,7 @@ Shader "WorldGen/GroundCover"
         struct Root{float4 positionForm;float4 colorHeight;float4 shape;float4 normal;float4 grasses;float4 herbs;};
         StructuredBuffer<Root> _CoverRoots;
         StructuredBuffer<uint> _VisibleRoots;
-        float4 _CoverOrigin,_CoverTileOrigin,_FogColor,_AmbientTint,_BladeCounts;float _FogDistance,_Daylight,_GrassRange,_GrassWind,_GrassNear,_SplitShortGrass;int _CoverLod;uint _CoverSeed;
+        float4 _CoverOrigin,_CoverTileOrigin,_FogColor,_AmbientTint,_BladeCounts;float _FogDistance,_Daylight,_GrassRange,_GrassWind,_GrassNear,_SplitShortGrass,_GrassNearDensity;int _CoverLod;uint _CoverSeed;
         struct O{float4 positionCS:SV_POSITION;float3 position:TEXCOORD0;float3 normal:TEXCOORD1;float3 color:COLOR;float2 fade:TEXCOORD2;float2 leaf:TEXCOORD3;};
         float BladeRandom(float blade,float salt,float seed){return frac(sin(blade*127.1+salt*311.7+seed*74.7)*43758.5453);}
         uint LeafMix(uint x){x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);}
@@ -25,13 +25,13 @@ Shader "WorldGen/GroundCover"
         {
             O o=(O)0;Root r=_CoverRoots[_VisibleRoots[iid]];float3 root=r.positionForm.xyz+_CoverOrigin.xyz;
             float d=length(root-_WorldSpaceCameraPos);
-            bool distant=_CoverLod>=2;
+            bool foot=_CoverLod==5,distant=_CoverLod>=2&&!foot;
             float near=1-smoothstep(.40*_GrassNear,.60*_GrassNear,d);
             float handoff=1-smoothstep(.80*_GrassNear,_GrassNear,d);
-            float visibility=distant?1-smoothstep(max(_GrassNear,_GrassRange*.65),_GrassRange,d):handoff;
-            float weight=_CoverLod==0?near:distant?1-handoff:1-near;
+            float visibility=foot?1:distant?1-smoothstep(max(_GrassNear,_GrassRange*.65),_GrassRange,d):handoff;
+            float weight=foot?1:_CoverLod==0?near:distant?1-handoff:1-near;
             if(weight<.0001||visibility<.0001){o.positionCS=float4(0,0,0,1);return o;}
-            int segments=_CoverLod==0?(int)_BladeCounts.w:_CoverLod==1?2:1,slot=vid/(segments*6),blade=slot,v=vid%6;
+            int segments=(_CoverLod==0||foot)?(int)_BladeCounts.w:_CoverLod==1?2:1,slot=vid/(segments*6),blade=slot+(foot?(int)_BladeCounts.x:0),v=vid%6;
             float seed=r.shape.y*127+r.shape.z*31;
             float2 microOffset=0,jitter=r.shape.yz;
             if(distant)
@@ -53,15 +53,16 @@ Shader "WorldGen/GroundCover"
                 cumulative+=mixture[species];
                 if(target<cumulative){form=species+(herbGroup?4:0);break;}
             }
-            float maximum=_CoverLod==0?_BladeCounts.x:_BladeCounts.y;
-            float reduction=lerp(1,.75,saturate(d/(_CoverLod==0?.60*_GrassNear:_GrassNear)));
+            float maximum=(_CoverLod==0||foot)?_BladeCounts.x:_BladeCounts.y;
+            float reduction=lerp(1,.75,saturate(d/((_CoverLod==0||foot)?.60*_GrassNear:_GrassNear)));
             // Coverage controls density through the field, not coin-flip gaps
             // that erase whole squares. Mesic ground reaches a continuous sward.
             float occupancy=saturate(r.normal.w/.45);
-            // Extra roots close to the feet, smoothly retired before the usual
-            // geometry LOD. Distant blade density and width stay unchanged.
-            float closeFill=_CoverLod==0?lerp(.5,1,1-smoothstep(4,14,d)):1;
-            float countF=distant?_BladeCounts.y*3*pow(_GrassNear/max(_GrassNear,d),2):maximum*reduction*closeFill;
+            // A dedicated <=10m list avoids submitting the slider's maximum
+            // blade capacity across the entire close-detail circle. Stable,
+            // disjoint blade IDs augment the base field without moving it.
+            float boost=1-smoothstep(5,10,length(root.xz-_WorldSpaceCameraPos.xz));
+            float countF=foot?maximum*reduction*max(0,_GrassNearDensity-1)*boost:distant?_BladeCounts.y*3*pow(_GrassNear/max(_GrassNear,d),2):maximum*reduction;
             float bladesF=countF*occupancy;
             if(slot>=ceil(bladesF)){o.positionCS=float4(0,0,0,1);return o;}
             float fractional=slot==(int)ceil(bladesF)-1?max(.001,bladesF-slot):1;
@@ -103,7 +104,7 @@ Shader "WorldGen/GroundCover"
             // Fractional blade retirement + bounded width compensation (AMD's
             // LOD principle). Each leaf has its own root, not a shared star fan.
             float leavesPerCell=distant?countF*.25:countF;
-            width*=clamp(_BladeCounts.z/max(.1,leavesPerCell),1,24);
+            if(!foot)width*=clamp(_BladeCounts.z/max(.1,leavesPerCell),1,24);
             // Bounded projected coverage for thin/edge-on leaves, not a large
             // camera-facing bank. Fractional retirement still reaches zero.
             float3 view=GetWorldSpaceNormalizeViewDir(root);
@@ -129,7 +130,7 @@ Shader "WorldGen/GroundCover"
             float3 curve=2*(1-t)*t*p1+t*t*p2;
             curve=lerp(curve,p2*t,smoothstep(.60*_GrassNear,.80*_GrassNear,d));
             float3 p=basePosition+curve+across*(width*side);
-            float low=_CoverLod==0?0:distant?handoff:near;
+            float low=foot||_CoverLod==0?0:distant?handoff:near;
             o.fade=float2(low,low+weight)*visibility;
             o.position=p;o.positionCS=TransformWorldToHClip(p);
             o.normal=normalize(lerp(up*.8+cross(across,tangent)*.35,up,smoothstep(20,120,d)*.85));

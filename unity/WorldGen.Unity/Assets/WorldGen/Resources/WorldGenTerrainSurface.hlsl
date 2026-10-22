@@ -126,7 +126,7 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     input.shadowCoord=TransformWorldToShadowCoord(i.position);input.bakedGI=TerrainAmbient().rgb;input.shadowMask=1;input.normalizedScreenSpaceUV=GetNormalizedScreenSpaceUV(i.positionCS);
     SurfaceData s=(SurfaceData)0;s.albedo=albedo;s.alpha=1;s.occlusion=ao;s.smoothness=1-rough;s.metallic=metal;s.normalTS=half3(0,0,1);
     Light sun=(Light)0;float transmission=0;
-    if(!TerrainTest(TD_UNLIT)){sun=GetMainLight(input.shadowCoord);transmission=pow(saturate(dot(-sun.direction,input.viewDirectionWS)),3)*.22;}
+    if(!TerrainTest(TD_UNLIT)){sun=WorldGenFoliageLight(i.position);transmission=pow(saturate(dot(-sun.direction,input.viewDirectionWS)),3)*.22;}
     half3 color;
     if(TerrainTest(TD_UNLIT))color=albedo;
     else if(TerrainTest(TD_SIMPLE))color=SurfaceLeafLight(albedo,n,sun,transmission);
