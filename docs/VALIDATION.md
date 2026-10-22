@@ -1,5 +1,28 @@
 # Version 3 validation evidence
 
+## Packaged tree visibility regression /22October2026 UTC
+
+Owner sees no rebuilt trees, but old-model A/B restores trees immediately. Earlier
+Editor renders passed because Editor shaders were not player-stripped. Failed
+release TreeSurface2 lost INSTANCING_ON: forward VP4→2 / FP8→4, shadow/depth2→1.
+Dedicated instancing-enabled Resources material now preserves the shader's
+instanced variants and is the runtime template. Corrected build log retains
+forward VP4/4 / FP8/8 and shadow/depth2/2. No placement/ecology/quality changes.
+Added tiny packaged GPU visibility regression, not a world/FPS benchmark, checking
+both broad/needle families in mesh/baked modes with two instances and per-instance
+properties. Owner's running failed player remains untouched; corrected output
+uses a separate player-tree-baked-visible directory.
+
+Final release IL2CPP compile/package exit0, BuiltUtc2026-10-22T01:09:26.7705095Z.
+Packaged player GPU fixture exits0 on RTX4060: broad mesh left/right28955/28393,
+broad bake28426/28195, needle mesh32794/32958, needle bake31983/32684 changed
+pixels, all above1000 per half. Near capture visually inspected with both
+transformed instances present. Logs contain no error/exception. Artifact output:
+tree-player-visibility/PASS.txt, four PNGs and tree-player-visibility.log. This is
+actual packaged shader/instancing evidence, not world placement/FPS acceptance.
+Owned fixture13340 stopped; owner's existing game not closed. Shortcut now points
+to corrected package and owner asked to relaunch. No world/save edits.
+
 ## Rebuilt tree / baked-view first art checkpoint /22October2026 UTC
 
 Presentation-only broad/needle architecture, shared shoot atlas and cached

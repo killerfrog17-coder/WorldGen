@@ -1,6 +1,20 @@
 # WorldGen repository instructions
 
 Current OWNER-REVIEW launch,21October2026 local/22October UTC: shortcut selects
+real C: `artifacts/player-tree-baked-visible/WorldGen.exe`, IL2CPP01:09:26Z.
+Owner sees no rebuilt trees in preceding prototype; old-tree A/B restores them.
+Root cause: player strips new shader's INSTANCING_ON variants because no asset
+advertised runtime instancing. Resources TreeSurfaceMaterial with instancing1
+now retained and cloned, matching established scatter path; forward VP4/4 FP8/8,
+shadow/depth2/2 retained vs failed VP2/4 FP4/8 and1/2. Packaged GPU fixture exits0
+on RTX4060, two instances per draw, broad/needle mesh and baked views all visible
+(~28–33k changed pixels/half). Near native capture inspected. No world/FPS suite,
+world/save edits or owner game closure; fixture13340 stopped. Previous Editor
+checks were insufficient for this player-only issue. Compile/package exit0,
+shortcut updated; owner review pending. Prototype scope/limits below unchanged.
+See TREE_FLORA.md and VALIDATION.md.
+
+Current OWNER-REVIEW launch,21October2026 local/22October UTC: shortcut selects
 real C: `artifacts/player-tree-baked-prototype/WorldGen.exe`, IL2CPP00:56:27Z.
 First replacement-tree ART checkpoint: broadleaf bounded space-colonisation and
 apical needle anatomy, shared textured shoot atlas, identical foliage locations

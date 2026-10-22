@@ -2,6 +2,25 @@
 
 ## Rebuilt tree / baked-view prototype
 
+### Player-only invisibility correction
+
+Owner reports rebuilt trees absent; switching to old models restores them in the
+same world. The preceding Editor asset check did NOT catch player shader
+stripping. The failed package retained only non-instanced variants of TreeSurface2
+(forward vertex4 settings variants reduced to2; shadow/depth2 reduced to1).
+Runtime-created materials alone did not advertise instancing at build time.
+Added Resources/TreeSurfaceMaterial.mat with instancing enabled, and runtime now
+clones that template just like the established LocalScatterMaterial path.
+Corrected build retains4/4 forward vertex,8/8 fragment and2/2 shadow/depth variants.
+An opt-in --worldgen-tree-shader-check exercises the actual packaged material,
+two independently transformed instances per draw, both broad/needle families and
+mesh/baked representations. It bypasses display-settings/library/music startup
+and writes only its explicit artifact output; no world is loaded. Editor checks
+alone must not be cited as packaged-render acceptance.
+Unity documents automatic instancing-variant stripping when the build cannot
+see instancing usage; see [Unity's stripping explanation](https://unity.com/blog/engine-platform/stripping-scriptable-shader-variants).
+The fix is per-shader material retention, not globally keeping every shader variant.
+
 Owner rejected the previous tree art and approved reusable generated models with
 actual-model distant representations. This is a FIRST ART CHECKPOINT, not a
 completed all-family/dense-forest overhaul or measured FPS improvement.

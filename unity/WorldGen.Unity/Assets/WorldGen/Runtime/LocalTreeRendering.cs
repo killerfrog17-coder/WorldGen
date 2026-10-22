@@ -24,7 +24,11 @@ public sealed partial class LocalTerrainExplorer
         if(!treeMaterials.TryGetValue(materialKey,out var material))
         {
             var shader=Resources.Load<Shader>("WorldGenTreeSurface");if(shader==null||!shader.isSupported)throw new InvalidOperationException("Tree prototype shader unavailable");
-            material=new Material(shader){enableInstancing=true};var m=new TreeMorphology(code);
+            // Advertise runtime instancing to Unity's player-build stripper,
+            // exactly as the existing scatter renderer's Resources material does.
+            var template=Resources.Load<Material>("TreeSurfaceMaterial");
+            if(template==null||template.shader!=shader||!template.enableInstancing)throw new InvalidOperationException("Tree instancing template missing or invalid");
+            material=new Material(template){enableInstancing=true};var m=new TreeMorphology(code);
             material.SetTexture("_TreeLeaves",rebuiltLeaves);material.SetTexture("_TreeLeafNormals",rebuiltLeafNormals);
             material.SetFloat("_TreeLeafShape",(int)m.LeafShape);material.SetFloat("_TreeBarkPattern",(int)m.BarkPattern);
             material.SetFloat("_Wind",(float)m.Flexibility);material.SetVector("_PlantTraits",new Vector4((float)m.Flexibility,.5f,.7f,1));
