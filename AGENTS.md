@@ -1,5 +1,30 @@
 # WorldGen repository instructions
 
+Current OWNER-REVIEW launch,22October2026 UTC: real C: shortcut selects
+`artifacts/player-vegetation-presets/WorldGen.exe` (IL2CPP03:08:25Z).
+Compile/package exit0; focused19028 preset assertions plus final native RTX4060
+five-family tree and forest compute/indirect fixtures pass. Own35588/30728 exited.
+No owner game stopped or source world loaded; visual movement/FPS review pending.
+Vegetation quality/continuity work combines Grass debug and
+Vegetation into one tab; five bounded overall/per-layer presets, layer on/off,
+collapsed diagnostics. Read-only actual owner prefs20/50/300m trees,20/40/500m mid,
+5/100/20m herbs/fungi define Medium; unsaved grass uses prior30/300m report. Ultra
+trees32/90m before crown-size scaling, grass42/400m. New prefs quality-v2-* preserve
+layer/shadow/density flags. No authoritative data, anatomy, ecology or placement
+change. Tree former300m cap now distance-blends exact variation to species-shared
+views with identical root/yaw/size/tint, not a forest population reset. Cheap
+individual crowns retain950-1400m horizon overlap independent of detail quality.
+Forest fields retain valid snapshots on tile replacement; no camera-distance
+pitch reseeding; stale fields retire only with ready ancestor/four children or
+outside view+2048m. Chart reanchor/representative far stand differences remain.
+Tree art unused grace30s;96 local bake budget (~256MiB maximum views),13 stands
+(~35MiB), other/transient memory extra. Species-shared bakes prioritised; middle
+mesh fallback until ready.19028 focused preset/coverage assertions pass. This is
+not actual-world movement/visual/FPS acceptance. Owner mountain40-45 vs no-veg60
+is observational; broader mountain CPU/GPU attribution is NEXT, not completed.
+Current owner player/save/preferences untouched; shortcut updated for next launch.
+See SETTINGS.md/TREE_FLORA.md/VALIDATION.md. Earlier launch record remains below.
+
 Current OWNER-REVIEW launch,21October2026 local/22October UTC: shortcut selects
 real C: `artifacts/player-tree-forest-refined/WorldGen.exe` (IL2CPP02:25:31Z).
 Owner is testing separate `player-tree-forest-overhaul/WorldGen.exe` (02:13:27Z).

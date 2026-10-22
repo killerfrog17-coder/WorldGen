@@ -10,7 +10,7 @@ public sealed partial class LocalTerrainExplorer
     Texture2DArray rebuiltLeaves,rebuiltLeafNormals;
     Task<LocalTreeImpostor.Result> treeBakeTask;ArtModel treeBakeOwner;
     readonly HashSet<ArtModel> treeBakeFailures=new HashSet<ArtModel>();
-    const int TreeBakeLimit=48;
+    const int TreeBakeLimit=96;
     public int BakedTreeModels=>scatterArt.Values.Count(m=>m.TreeBaked&&!m.TreeStand);
     public int BakedForestModels=>scatterArt.Values.Count(m=>m.TreeBaked&&m.TreeStand);
     public int PendingTreeModels=>scatterArt.Values.Count(m=>m.TreeBake&&!m.TreeBaked);
@@ -66,14 +66,15 @@ public sealed partial class LocalTerrainExplorer
         }
         if(treeBakeTask!=null||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.GeneratedTrees&&!TerrainVideoOptions.FarForest||!CenterReady||NearTerrainPending())return;
         bool preferStand=BakedForestModels<3||(BakedTreeModels+BakedForestModels)%3==0;
-        var pending=scatterArt.Values.Where(m=>m.TreeBake&&!m.TreeBaked&&(m.TreeStand?TerrainVideoOptions.FarForest:TerrainVideoOptions.GeneratedTrees)&&!treeBakeFailures.Contains(m)&&Time.realtimeSinceStartupAsDouble-m.LastUsed<3).OrderBy(m=>m.TreeStand==preferStand?0:1).ThenByDescending(m=>m.LastUsed).FirstOrDefault();
+        var pending=scatterArt.Values.Where(m=>m.TreeBake&&!m.TreeBaked&&(m.TreeStand?TerrainVideoOptions.FarForest:TerrainVideoOptions.GeneratedTrees)&&!treeBakeFailures.Contains(m)&&Time.realtimeSinceStartupAsDouble-m.LastUsed<3).OrderBy(m=>m.TreeStand==preferStand?0:1).ThenBy(m=>(m.TreeCode&7)==0?0:1).ThenByDescending(m=>m.LastUsed).FirstOrDefault();
         if(pending==null)return;
         if(!pending.TreeStand&&BakedTreeModels>=TreeBakeLimit)
         {
             // Hard texture budget. Retire only models not referenced by current
             // draw batches; never destroy textures still used by a draw.
             var used=new HashSet<ArtModel>(drawBatches.Select(b=>b.Model));
-            var expired=scatterArt.Where(p=>p.Value.TreeBaked&&!p.Value.TreeStand&&!used.Contains(p.Value)).OrderBy(p=>p.Value.LastUsed).FirstOrDefault();
+            // A camera turn must not evict and re-bake the forest behind us.
+            var expired=scatterArt.Where(p=>p.Value.TreeBaked&&!p.Value.TreeStand&&!used.Contains(p.Value)&&Time.realtimeSinceStartupAsDouble-p.Value.LastUsed>30).OrderBy(p=>p.Value.LastUsed).FirstOrDefault();
             if(expired.Value==null)
             {
                 // A full visible local-tree cache must not starve all horizon

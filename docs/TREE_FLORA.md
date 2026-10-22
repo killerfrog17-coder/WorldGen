@@ -2,6 +2,44 @@
 
 ## Forest anatomy, density and distant stands follow-up
 
+### Quality/continuity follow-up,22October2026 UTC
+
+Owner reports40-45FPS in mountainous dense forests and about60FPS with all
+vegetation disabled. These are owner comparisons, not isolated benchmarks. The
+requested mountain CPU/GPU attribution pass is NEXT, not claimed completed here.
+This pass combines the settings tabs and replaces fine-grained sliders with five
+bounded presets (SETTINGS.md). Medium uses the actual saved20/50m tree handoffs,
+not the preceding120/450m defaults. Ultra is32/90m before existing size scaling.
+No ecology, forest population, tree anatomy, terrain, water or saved-world changes.
+
+The previous TreeMaxDistance300m retired local trees at240-300m and introduced
+unrelated stand groups at the same radius. It now controls fine structural-variant
+sharing: complementary fade into the same species' canonical view across210-300m,
+with original root/yaw/size/tint retained. Individual crowns continue to1400m and
+only overlap representative stands at950-1400m. Far shapes are still not an exact
+local census; this removes the nearby population reset, not every distant mismatch.
+All presets retain forest population; detail changes instead of randomly thinning.
+
+Two source-level blinking paths corrected: forest fields no longer get removed
+merely because a terrain tile object is replaced, and camera distance no longer
+changes/reseeds a resident field's packet pitch. An obsolete tile's forest remains
+until a ready resident ancestor/four children can replace it, or it leaves view
+range plus2048m. GPU ready-finer ownership still suppresses overlaps. Tile size
+still bounds giant fallback spacing; changing charts still resets chart-local
+fields. This is NOT a guarantee of no visual popping at every terrain/chart handoff.
+
+Tree art gets a30-second unused grace period, avoiding immediate camera-turn
+eviction/rebaking. Local view cache increases48 to96 models (~256MiB mipmapped
+RGBA8 view textures maximum), plus up to13 stands (~35MiB), meshes/shoot arrays and
+transient CPU bake pixels. More retained memory is a deliberate tradeoff, not a
+memory optimisation. Species-shared far views are prioritised in the bake queue;
+pending models still use complete middle meshes. No per-frame CPU rasterisation
+or timed vegetation load fade is added. Exact-view reach may increase submitted
+cheap crowns compared with an old300m cutoff; no FPS improvement is asserted.
+
+Focused preset/complementary-coverage tests pass19028 assertions. Actual moving
+world art, field retirement, blink reproduction and FPS require owner review.
+
 This section supersedes the first-prototype anatomy/density/far-aggregate limits
 below. Owner rejected bare lower conifers, detached-looking shoots, old exotic
 forms and statistical oval forest proxies. Current release is an OWNER ART/FPS

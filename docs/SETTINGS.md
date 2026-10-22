@@ -1,5 +1,46 @@
 # Shared settings - version 3
 
+## Unified vegetation presets /22October2026 UTC
+
+This supersedes the metre-slider UI documented below. Grass debug and Vegetation
+are now one Vegetation tab: overall five-level quality, optional separate grass /
+small-plant / mid-height / tree quality, individual layer switches, horizon forest
+and wind switches. Levels are Very low, Low, Medium, High, Ultra. Advanced A-B
+controls (density, rebuilt/mesh-only, culling, shadows, direction-only wind) remain
+collapsed by default. No raw LOD-distance sliders or separate grass tab remain.
+
+Medium is calibrated to the owner's saved20/50/300m trees,20/40/500m mid-height,
+5/100/20m herbs/fungi. Grass was session-only, so Medium uses the previously
+reported30m close /300m total, density1, detail2 rather than claiming to recover
+unsaved controls. New quality selections persist in vegetation-quality-v2-*;
+old layer/density/shadow preferences survive. No registry/preferences are modified
+by agent packaging; migration is read-only on load until the owner changes a setting.
+
+| Preset | Grass close/total (m) | Grass density/detail | Herbs near/range; fungi (m) | Mid near/far/range (m) | Trees near/far; variant sharing (m) |
+|---|---|---|---|---|---|
+| Very low |12/120|.60/0|3/45;12|10/22/240|8/24;144|
+| Low |18/210|.80/1|4/70;16|14/30/360|12/35;210|
+| Medium |30/300|1/2|5/100;20|20/40/500|20/50;300|
+| High |36/350|1.10/2|7/120;28|25/55/650|26/70;420|
+| Ultra |42/400|1.20/3|9/140;35|30/70/800|32/90;540|
+
+Tree mesh thresholds retain .72-1.35 crown-size variation and existing distance
+crossfades. Quality does not randomly remove trees. The former maximum model draw
+cap now controls a gradual transition (70-100% of budget) from exact structural
+variant views to a shared same-species view, preserving root/yaw/size/tint. Cheap
+individual views continue to1400m, with the shared950-1400m overlap into horizon
+stands. Thus300m is NOT a population cutoff or a claim that full meshes draw there.
+Mesh-only/legacy A-B modes retain a true local draw cap for diagnostic safety.
+
+Advanced density still hides only a stable local subset, not the ecological
+horizon summary. Quality controls drawing, not placement jobs, art-cache memory
+or authoritative ecology. Full near models remain available at every preset;
+lower presets switch earlier rather than removing near foliage. Preset values
+are restrained budgets, not certified imperceptibility at1080p or FPS guarantees.
+See TREE_FLORA.md for retention fixes, current bake budget and remaining limits.
+
+## Historical metre-slider controls
+
 ## Local vegetation quality /21October2026
 
 Game settings → Vegetation exposes live, machine-local persistent rendering

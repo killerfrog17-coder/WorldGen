@@ -261,7 +261,18 @@ public sealed partial class LocalTerrainExplorer
                 // Built-in generated art always supports distance intervals.
                 bool compatible=!prefabScatterKinds.Contains(p.Kind)||
                     Art(p.Kind,p.Variant,nearLod).Fades&&Art(p.Kind,p.Variant,farLod).Fades;
-                if(nearLod==farLod)AddScatterInstance(chunk,i,p,nearLod,0,(float)blend.Visibility,shadowOnly);
+                if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeImpostors&&nearLod==2&&farLod==2&&(p.Variant&7)!=0)
+                {
+                    // Beyond the exact-variant budget share one species view,
+                    // not a relocated/reseeded forest clump. Root, yaw, scale,
+                    // species and tint remain exact; only fine branch variation
+                    // simplifies, using complementary distance coverage.
+                    float shared=(float)VegetationQuality.VariantWeight(distance,TerrainVideoOptions.TreeMaxDistance);
+                    float split=(float)blend.Visibility*(1-shared);
+                    AddScatterInstance(chunk,i,p,2,0,split,shadowOnly);
+                    AddScatterInstance(chunk,i,p,2,split,(float)blend.Visibility,shadowOnly,p.Variant&~7);
+                }
+                else if(nearLod==farLod)AddScatterInstance(chunk,i,p,nearLod,0,(float)blend.Visibility,shadowOnly);
                 else if(!compatible)AddScatterInstance(chunk,i,p,blend.Blend<.5?nearLod:farLod,0,1,shadowOnly);
                 else {float split=(float)(blend.Visibility*(1-blend.Blend));AddScatterInstance(chunk,i,p,nearLod,0,split,shadowOnly);AddScatterInstance(chunk,i,p,farLod,split,(float)blend.Visibility,shadowOnly);}
                 if(shadowOnly){ScatterShadowOnly++;continue;}ScatterObjects++;
@@ -293,7 +304,7 @@ public sealed partial class LocalTerrainExplorer
         if(scatterArt.Count>384)
         {
             var used=new HashSet<ArtModel>(drawBatches.Select(b=>b.Model));
-            foreach(var item in scatterArt.Where(p=>p.Value.Generated&&!p.Value.TreeStand&&!p.Value.TreeQueued&&!used.Contains(p.Value)).OrderBy(p=>p.Value.LastUsed).Take(Math.Min(8,scatterArt.Count-384)).ToArray())
+            foreach(var item in scatterArt.Where(p=>p.Value.Generated&&!p.Value.TreeStand&&!p.Value.TreeQueued&&!used.Contains(p.Value)&&Time.realtimeSinceStartupAsDouble-p.Value.LastUsed>30).OrderBy(p=>p.Value.LastUsed).Take(Math.Min(8,scatterArt.Count-384)).ToArray())
             {
                 ReleaseTreeTextures(item.Value);
                 foreach(var part in item.Value.Parts)
@@ -307,17 +318,18 @@ public sealed partial class LocalTerrainExplorer
             }
         }
     }
-    void AddScatterInstance(ScatterChunk chunk,int index,ScatterInstance p,int lod,float low,float high,bool shadowOnly)
+    void AddScatterInstance(ScatterChunk chunk,int index,ScatterInstance p,int lod,float low,float high,bool shadowOnly,int artVariant=int.MinValue)
     {
         if(high-low<.0001f)return;
         bool casts=TerrainVideoOptions.VegetationShadows&&p.Kind!=ScatterKind.Grass&&!IsSpecialist(p.Kind)&&lod<(p.Kind==ScatterKind.MidPlant?1:2)&&
             (p.Kind!=ScatterKind.MidPlant||TerrainVideoOptions.MidPlantShadows)&&(p.Kind!=ScatterKind.GeneratedTree||TerrainVideoOptions.TreeShadows);
         if(shadowOnly&&!casts)return;
-        long key=ScatterArtKey(p.Kind,p.Variant,lod)|(shadowOnly?1L<<60:0);
+        int variant=artVariant==int.MinValue?p.Variant:artVariant;
+        long key=ScatterArtKey(p.Kind,variant,lod)|(shadowOnly?1L<<60:0);
         if(!activeScatterBatches.TryGetValue(key,out var batch)||batch.Count==batch.Matrices.Length)
         {
             if(batchPool.Count>0){int last=batchPool.Count-1;batch=batchPool[last];batchPool.RemoveAt(last);}else batch=new DrawBatch();
-            batch.Key=key;batch.Model=Art(p.Kind,p.Variant,lod);batch.Shadows=shadowOnly?ShadowCastingMode.ShadowsOnly:casts?ShadowCastingMode.On:ShadowCastingMode.Off;
+            batch.Key=key;batch.Model=Art(p.Kind,variant,lod);batch.Shadows=shadowOnly?ShadowCastingMode.ShadowsOnly:casts?ShadowCastingMode.On:ShadowCastingMode.Off;
             activeScatterBatches[key]=batch;drawBatches.Add(batch);
         }
         // Explicit wind-inclusive bounds also protect the engine's group culler.

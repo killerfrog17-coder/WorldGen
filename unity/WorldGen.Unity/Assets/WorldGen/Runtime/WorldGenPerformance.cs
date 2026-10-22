@@ -162,7 +162,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("no-vegetation-shadows",()=>TerrainVideoOptions.VegetationShadows=false),
             new PerfCase("no-shadows",()=>terrainExplorer.PerformanceShadows(false)),
             new PerfCase("trees-low",()=>TerrainVideoOptions.TreeDetail=0),
-            new PerfCase("trees-700m",()=>TerrainVideoOptions.TreeMaxDistance=700),
+            new PerfCase("trees-700m",()=>TerrainVideoOptions.TreeIdentityRange=700),
             new PerfCase("tuned-lods",()=>{TerrainVideoOptions.TreeNearLod=80;TerrainVideoOptions.TreeFarLod=300;TerrainVideoOptions.MidNearLod=35;TerrainVideoOptions.MidFarLod=140;TerrainVideoOptions.GrassBladeDistance=15;TerrainVideoOptions.GrassDistance=200;}),
             new PerfCase("tuned-lods-no-veg-shadows",()=>{TerrainVideoOptions.TreeNearLod=80;TerrainVideoOptions.TreeFarLod=300;TerrainVideoOptions.MidNearLod=35;TerrainVideoOptions.MidFarLod=140;TerrainVideoOptions.GrassBladeDistance=15;TerrainVideoOptions.GrassDistance=200;TerrainVideoOptions.VegetationShadows=false;}),
             new PerfCase("mid-350m",()=>TerrainVideoOptions.MidMaxDistance=350),

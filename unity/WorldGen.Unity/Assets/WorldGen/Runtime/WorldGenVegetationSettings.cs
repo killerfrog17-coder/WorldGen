@@ -11,6 +11,17 @@ public static partial class TerrainVideoOptions
     public static float MidNearLod=55,MidFarLod=200,MidMaxDistance=1400;
     public static float TreeNearLod=120,TreeFarLod=450,TreeMaxDistance=1400;
     public static bool MidPlantShadows=true,TreeShadows=true;
+    public static int GrassQuality=2,SpecialistQuality=2,MidQuality=2,TreeQuality=2;
+    public static float TreeIdentityRange= (float)VegetationQuality.TreeIdentityRange;
+    public static void ApplyPlantQuality(int layer,int quality)
+    {
+        int q=Mathf.Clamp(quality,0,4);var p=VegetationQuality.At(q);
+        if(layer==0){GrassQuality=q;GrassDensity=(float)p.GrassDensity;GrassBladeDistance=(float)p.GrassClose;GrassDistance=(float)p.GrassRange;GrassDetail=p.GrassDetail;}
+        if(layer==1){SpecialistQuality=q;SpecialistDetail=1;SpecialistNearLod=(float)p.HerbNear;SpecialistDistance=(float)p.HerbRange;FungusDistance=(float)p.FungusRange;}
+        if(layer==2){MidQuality=q;MidPlantDetail=2;MidNearLod=(float)p.MidNear;MidFarLod=(float)p.MidFar;MidMaxDistance=(float)p.MidRange;}
+        if(layer==3){TreeQuality=q;TreeDetail=2;TreeNearLod=(float)p.TreeNear;TreeFarLod=(float)p.TreeFar;TreeMaxDistance=(float)p.TreeVariantRange;}
+    }
+    public static void ApplyAllPlantQuality(int quality){for(int i=0;i<4;i++)ApplyPlantQuality(i,quality);}
     static void LoadVegetation()
     {
         bool Flag(string name,bool fallback=true)=>PlayerPrefs.GetInt("vegetation-"+name,fallback?1:0)!=0;
@@ -24,7 +35,11 @@ public static partial class TerrainVideoOptions
         MidNearLod=Value("mid-near",55,10,100);MidFarLod=Value("mid-far",200,MidNearLod*2,500);MidMaxDistance=Value("mid-range",1400,50,1400);
         TreeNearLod=Value("tree-near",120,20,240);TreeFarLod=Value("tree-far",450,TreeNearLod*2,1000);TreeMaxDistance=Value("tree-range",1400,100,1400);
         MidPlantShadows=Flag("mid-shadows");TreeShadows=Flag("tree-shadows");VegetationShadows=Flag("shadows");
-        ScatterFrustum=Flag("frustum");VegetationOcclusion=Flag("occlusion");VegetationRevision++;
+        ScatterFrustum=Flag("frustum");VegetationOcclusion=Flag("occlusion");
+        // One-time migration intentionally replaces the old metre sliders with
+        // the owner's current budget as Medium; never rewrite ecology/placement.
+        for(int i=0;i<4;i++)ApplyPlantQuality(i,PlayerPrefs.GetInt("vegetation-quality-v2-"+i,2));
+        GrassCanopy=Flag("grass-distance");GrassWind=Flag("wind");VegetationRevision++;
     }
     public static void SaveVegetation()
     {
@@ -38,6 +53,8 @@ public static partial class TerrainVideoOptions
         Value("tree-near",TreeNearLod);Value("tree-far",TreeFarLod);Value("tree-range",TreeMaxDistance);
         Flag("mid-shadows",MidPlantShadows);Flag("tree-shadows",TreeShadows);Flag("shadows",VegetationShadows);
         Flag("frustum",ScatterFrustum);Flag("occlusion",VegetationOcclusion);
+        int[] levels={GrassQuality,SpecialistQuality,MidQuality,TreeQuality};for(int i=0;i<4;i++)PlayerPrefs.SetInt("vegetation-quality-v2-"+i,levels[i]);
+        Flag("grass-distance",GrassCanopy);Flag("wind",GrassWind);PlayerPrefs.SetInt("terrain-ground-cover",GroundCover?1:0);
         // No terrain-plan revision or world regeneration for render-only changes.
         VegetationRevision++;PlayerPrefs.Save();
     }
@@ -47,6 +64,7 @@ public static partial class TerrainVideoOptions
         SpecialistDensity=MidPlantDensity=TreeDensity=1;SpecialistNearLod=22;SpecialistDistance=140;FungusDistance=65;
         MidNearLod=55;MidFarLod=200;MidMaxDistance=1400;TreeNearLod=120;TreeFarLod=450;TreeMaxDistance=1400;
         MidPlantShadows=TreeShadows=VegetationShadows=ScatterFrustum=VegetationOcclusion=true;
+        GroundCover=GrassCanopy=GrassWind=true;TreeIdentityRange=(float)VegetationQuality.TreeIdentityRange;ApplyAllPlantQuality(2);
     }
     public static bool KeepVegetation(ScatterKind kind,ulong id)
     {
@@ -62,9 +80,10 @@ public static partial class TerrainVideoOptions
         {
             // A common outer handoff avoids young/narrow trees disappearing
             // hundreds of metres before the same forest's distant layer.
-            double reachWidth=TreeRebuild?Math.Max(width,TreeMaxDistance/150):width;
+            double reach=TreeRebuild&&TreeImpostors?TreeIdentityRange:TreeMaxDistance;
+            double reachWidth=TreeRebuild?Math.Max(width,reach/150):width;
             double size=TreeRebuild?Math.Max(.72,Math.Min(1.35,width/10)):1;
-            return ScatterLodBlend.At(kind,reachWidth,distance,TreeNearLod*size,TreeFarLod*size,TreeMaxDistance);
+            return ScatterLodBlend.At(kind,reachWidth,distance,TreeNearLod*size,TreeFarLod*size,reach);
         }
         if(kind==ScatterKind.MidPlant)return ScatterLodBlend.At(kind,width,distance,MidNearLod,MidFarLod,MidMaxDistance);
         if(kind==ScatterKind.Herb||kind==ScatterKind.Fungus)return ScatterLodBlend.At(kind,width,distance,SpecialistNearLod,0,kind==ScatterKind.Fungus?FungusDistance:SpecialistDistance);
@@ -74,72 +93,61 @@ public static partial class TerrainVideoOptions
 
 public sealed partial class WorldGenRuntime
 {
-    static float PlantSlider(string label,float value,float min,float max,float step=1,string units="m")
+    bool vegetationDiagnostics;
+    void PlantQualityRow(string title,int level,int layer)
     {
-        GUILayout.Label(label+"  "+value.ToString("0.##")+" "+units);
-        return Mathf.Clamp(Mathf.Round(GUILayout.HorizontalSlider(value,min,max)/step)*step,min,max);
-    }
-    static float PlantDensity(string label,float value)=>PlantSlider(label,value*100,0,100,5,"%")/100;
-    void DrawVegetationQuickToggles()
-    {
-        bool before=GUI.changed;GUI.changed=false;
-        TerrainVideoOptions.SpecialistPlants=GUILayout.Toggle(TerrainVideoOptions.SpecialistPlants,"Generated flowers, low herbs, ferns and fungi");
-        TerrainVideoOptions.MidPlants=GUILayout.Toggle(TerrainVideoOptions.MidPlants,"Generated mid-height plants");
-        TerrainVideoOptions.GeneratedTrees=GUILayout.Toggle(TerrainVideoOptions.GeneratedTrees,"Generated trees · nearby instanced models");
-        TerrainVideoOptions.FarForest=GUILayout.Toggle(TerrainVideoOptions.FarForest,"Distant baked forest stands and colour");
-        if(GUI.changed)TerrainVideoOptions.SaveVegetation();GUI.changed|=before;
+        GUILayout.Label(title);
+        int next=GUILayout.SelectionGrid(level,VegetationQuality.Names,5);
+        if(next!=level)TerrainVideoOptions.ApplyPlantQuality(layer,next);
     }
     void DrawVegetationOptions()
     {
-        GUILayout.Label("GENERATED VEGETATION · LIVE QUALITY CONTROLS",SectionStyle());
-        GUILayout.Label("Saved on this PC. Changes affect rendering, not ecology or world generation. Smaller LOD distances switch to cheaper models sooner. F3 shows FPS and submitted counts.",MutedStyle());
-        DrawVegetationQuickToggles();bool before=GUI.changed;GUI.changed=false;bool enabled=GUI.enabled;
-        GUILayout.Space(12);GUILayout.Label("FLOWERS, LOW HERBS, FERNS & FUNGI",SectionStyle());
+        bool before=GUI.changed;GUI.changed=false;
+        GUILayout.Label("VEGETATION",SectionStyle());
+        GUILayout.Label("Quality changes detail, not generated populations. Medium uses your tested close-detail budgets. Ultra is bounded: it does not extend fine meshes to the horizon.",MutedStyle());
+        int common=TerrainVideoOptions.GrassQuality;
+        if(common!=TerrainVideoOptions.SpecialistQuality||common!=TerrainVideoOptions.MidQuality||common!=TerrainVideoOptions.TreeQuality)common=-1;
+        GUILayout.Label("Overall quality"+(common<0?" (mixed)":""));
+        int selected=GUILayout.SelectionGrid(common,VegetationQuality.Names,5);
+        if(selected>=0&&selected!=common)TerrainVideoOptions.ApplyAllPlantQuality(selected);
+        GUILayout.Space(12);
+        bool enabled=GUI.enabled;
+        TerrainVideoOptions.GroundCover=GUILayout.Toggle(TerrainVideoOptions.GroundCover,"Grass and ground-cover geometry");
+        GUI.enabled=enabled&&TerrainVideoOptions.GroundCover;
+        PlantQualityRow("Grass quality",TerrainVideoOptions.GrassQuality,0);GUI.enabled=enabled;
+        TerrainVideoOptions.SpecialistPlants=GUILayout.Toggle(TerrainVideoOptions.SpecialistPlants,"Flowers, low herbs, ferns and fungi");
         GUI.enabled=enabled&&TerrainVideoOptions.SpecialistPlants;
-        TerrainVideoOptions.SpecialistDensity=PlantDensity("Visible population",TerrainVideoOptions.SpecialistDensity);
-        GUILayout.Label("Geometry quality");TerrainVideoOptions.SpecialistDetail=GUILayout.SelectionGrid(TerrainVideoOptions.SpecialistDetail,new[]{"Low","High"},2);
-        GUI.enabled=enabled&&TerrainVideoOptions.SpecialistPlants&&TerrainVideoOptions.SpecialistDetail>0;
-        TerrainVideoOptions.SpecialistNearLod=PlantSlider("High → low handoff ends",TerrainVideoOptions.SpecialistNearLod,5,60);
-        GUILayout.Label("Handoff begins at "+(TerrainVideoOptions.SpecialistNearLod*12/22).ToString("F0")+" m. Low quality always uses the cheaper model.",MutedStyle());
-        GUI.enabled=enabled&&TerrainVideoOptions.SpecialistPlants;
-        TerrainVideoOptions.SpecialistDistance=PlantSlider("Herb / flower draw distance",TerrainVideoOptions.SpecialistDistance,10,140,5);
-        TerrainVideoOptions.FungusDistance=PlantSlider("Mushroom draw distance",TerrainVideoOptions.FungusDistance,5,65,5);
-        GUI.enabled=enabled;
-
-        GUILayout.Space(16);GUILayout.Label("MID-HEIGHT PLANTS",SectionStyle());GUI.enabled=enabled&&TerrainVideoOptions.MidPlants;
-        TerrainVideoOptions.MidPlantDensity=PlantDensity("Visible population",TerrainVideoOptions.MidPlantDensity);
-        GUILayout.Label("Geometry quality");TerrainVideoOptions.MidPlantDetail=GUILayout.SelectionGrid(TerrainVideoOptions.MidPlantDetail,new[]{"Low","Medium","High"},3);
-        GUI.enabled=enabled&&TerrainVideoOptions.MidPlants&&TerrainVideoOptions.MidPlantDetail==2;
-        TerrainVideoOptions.MidNearLod=PlantSlider("High → middle handoff ends",TerrainVideoOptions.MidNearLod,10,100,5);
-        GUI.enabled=enabled&&TerrainVideoOptions.MidPlants&&TerrainVideoOptions.MidPlantDetail>0;
-        TerrainVideoOptions.MidFarLod=PlantSlider("Middle → low handoff ends",Math.Max(TerrainVideoOptions.MidNearLod*2,TerrainVideoOptions.MidFarLod),TerrainVideoOptions.MidNearLod*2,500,10);
-        GUILayout.Label("Blends over "+(TerrainVideoOptions.MidNearLod*28/55).ToString("F0")+"–"+TerrainVideoOptions.MidNearLod.ToString("F0")+" m and "+(TerrainVideoOptions.MidFarLod*.55f).ToString("F0")+"–"+TerrainVideoOptions.MidFarLod.ToString("F0")+" m.",MutedStyle());
+        PlantQualityRow("Small-plant quality",TerrainVideoOptions.SpecialistQuality,1);GUI.enabled=enabled;
+        TerrainVideoOptions.MidPlants=GUILayout.Toggle(TerrainVideoOptions.MidPlants,"Bushes and mid-height plants");
         GUI.enabled=enabled&&TerrainVideoOptions.MidPlants;
-        TerrainVideoOptions.MidMaxDistance=PlantSlider("Maximum model draw distance",TerrainVideoOptions.MidMaxDistance,50,1400,25);
-        TerrainVideoOptions.MidPlantShadows=GUILayout.Toggle(TerrainVideoOptions.MidPlantShadows,"Mid-height shadow casting");GUI.enabled=enabled;
-
-        GUILayout.Space(16);GUILayout.Label("TREES",SectionStyle());GUI.enabled=enabled&&TerrainVideoOptions.GeneratedTrees;
-        TerrainVideoOptions.TreeRebuild=GUILayout.Toggle(TerrainVideoOptions.TreeRebuild,"Rebuilt trees (session-only A/B; off = previous models)");
-        TerrainVideoOptions.TreeImpostors=GUILayout.Toggle(TerrainVideoOptions.TreeImpostors,"Bake multi-angle distant trees (off = mesh-only comparison)");
-        GUILayout.Label("Background bakes: 48 local trees (~128 MiB) plus up to 13 world-family stands (~35 MiB). Local meshes remain until ready; F3 shows progress. Distant stands require both rebuild/bake switches.",MutedStyle());
-        if(GUILayout.Button("Try rebuilt-tree LOD handoffs: 60 / 200 m")){TerrainVideoOptions.TreeNearLod=60;TerrainVideoOptions.TreeFarLod=200;GUI.changed=true;}
-        TerrainVideoOptions.TreeDensity=PlantDensity("Visible population",TerrainVideoOptions.TreeDensity);
-        GUILayout.Label("Geometry quality");TerrainVideoOptions.TreeDetail=GUILayout.SelectionGrid(TerrainVideoOptions.TreeDetail,new[]{"Low","Medium","High"},3);
-        GUI.enabled=enabled&&TerrainVideoOptions.GeneratedTrees&&TerrainVideoOptions.TreeDetail==2;
-        TerrainVideoOptions.TreeNearLod=PlantSlider("High → middle handoff ends",TerrainVideoOptions.TreeNearLod,20,240,5);
-        GUI.enabled=enabled&&TerrainVideoOptions.GeneratedTrees&&TerrainVideoOptions.TreeDetail>0;
-        TerrainVideoOptions.TreeFarLod=PlantSlider("Middle → low handoff ends",Math.Max(TerrainVideoOptions.TreeNearLod*2,TerrainVideoOptions.TreeFarLod),TerrainVideoOptions.TreeNearLod*2,1000,10);
-        GUILayout.Label("Blends over "+(TerrainVideoOptions.TreeNearLod*.5f).ToString("F0")+"–"+TerrainVideoOptions.TreeNearLod.ToString("F0")+" m and "+(TerrainVideoOptions.TreeFarLod*260/450).ToString("F0")+"–"+TerrainVideoOptions.TreeFarLod.ToString("F0")+" m.",MutedStyle());
+        PlantQualityRow("Mid-height quality",TerrainVideoOptions.MidQuality,2);GUI.enabled=enabled;
+        TerrainVideoOptions.GeneratedTrees=GUILayout.Toggle(TerrainVideoOptions.GeneratedTrees,"Trees");
         GUI.enabled=enabled&&TerrainVideoOptions.GeneratedTrees;
-        TerrainVideoOptions.TreeMaxDistance=PlantSlider("Maximum model draw distance",TerrainVideoOptions.TreeMaxDistance,100,1400,25);
-        TerrainVideoOptions.TreeShadows=GUILayout.Toggle(TerrainVideoOptions.TreeShadows,"Tree shadow casting");GUI.enabled=enabled;
-
-        GUILayout.Space(16);GUILayout.Label("VISIBILITY & SHADOWS",SectionStyle());
-        TerrainVideoOptions.ScatterFrustum=GUILayout.Toggle(TerrainVideoOptions.ScatterFrustum,"Individual scatter frustum culling");
-        TerrainVideoOptions.VegetationOcclusion=GUILayout.Toggle(TerrainVideoOptions.VegetationOcclusion,"Conservative hill occlusion (plants and grass pages)");
-        TerrainVideoOptions.VegetationShadows=GUILayout.Toggle(TerrainVideoOptions.VegetationShadows,"Global scatter shadow casting (overrides layer switches)");
-        GUILayout.Label("Draw distance is a cap: smaller plants can retire earlier. Density hides a stable subset of local models; distant ecological cover summaries stay unchanged. Reducing tree range may expose the gap before the distant canopy begins. Data/placement jobs and cached models remain; these controls measure drawing cost, not generation cost. Grass has its own tab.",MutedStyle());
-        if(GUILayout.Button("Reset non-grass vegetation defaults")){TerrainVideoOptions.ResetVegetation();GUI.changed=true;}
+        PlantQualityRow("Tree quality",TerrainVideoOptions.TreeQuality,3);GUI.enabled=enabled;
+        TerrainVideoOptions.FarForest=GUILayout.Toggle(TerrainVideoOptions.FarForest,"Horizon forest coverage");
+        TerrainVideoOptions.GrassWind=GUILayout.Toggle(TerrainVideoOptions.GrassWind,"Vegetation wind animation");
+        GUILayout.Space(10);
+        vegetationDiagnostics=GUILayout.Toggle(vegetationDiagnostics,"Advanced diagnostics / A-B comparisons");
+        if(vegetationDiagnostics)
+        {
+            GUILayout.Label("Population controls hide a stable local subset; they do not regenerate ecology or thin the horizon summary.",MutedStyle());
+            float Density(string label,float value){GUILayout.Label(label+"  "+(value*100).ToString("F0")+"%");return Mathf.Round(GUILayout.HorizontalSlider(value,0,1)*20)/20;}
+            TerrainVideoOptions.SpecialistDensity=Density("Small-plant population",TerrainVideoOptions.SpecialistDensity);
+            TerrainVideoOptions.MidPlantDensity=Density("Mid-height population",TerrainVideoOptions.MidPlantDensity);
+            TerrainVideoOptions.TreeDensity=Density("Local tree population",TerrainVideoOptions.TreeDensity);
+            TerrainVideoOptions.GrassCanopy=GUILayout.Toggle(TerrainVideoOptions.GrassCanopy,"Middle-distance grass geometry");
+            TerrainVideoOptions.TreeRebuild=GUILayout.Toggle(TerrainVideoOptions.TreeRebuild,"Rebuilt trees (off = previous models)");
+            TerrainVideoOptions.TreeImpostors=GUILayout.Toggle(TerrainVideoOptions.TreeImpostors,"Baked tree views (off = mesh-only A-B)");
+            TerrainVideoOptions.MidPlantShadows=GUILayout.Toggle(TerrainVideoOptions.MidPlantShadows,"Mid-height shadows");
+            TerrainVideoOptions.TreeShadows=GUILayout.Toggle(TerrainVideoOptions.TreeShadows,"Tree shadows");
+            TerrainVideoOptions.VegetationShadows=GUILayout.Toggle(TerrainVideoOptions.VegetationShadows,"All vegetation shadow casting");
+            TerrainVideoOptions.ScatterFrustum=GUILayout.Toggle(TerrainVideoOptions.ScatterFrustum,"Frustum culling");
+            TerrainVideoOptions.VegetationOcclusion=GUILayout.Toggle(TerrainVideoOptions.VegetationOcclusion,"Conservative terrain occlusion");
+            TerrainVideoOptions.WeatherDrivenVegetationWind=GUILayout.Toggle(TerrainVideoOptions.WeatherDrivenVegetationWind,"Weather-driven wind (off = direction-only A-B)");
+            GUILayout.Label("Tree mesh handoffs: "+TerrainVideoOptions.TreeNearLod.ToString("F0")+" / "+TerrainVideoOptions.TreeFarLod.ToString("F0")+" m. Cheaper views retain individual roots to the distant forest overlap.",MutedStyle());
+            GUILayout.Label("F3 reports submitted plants, draws and pending bakes. A-B switches are diagnostic, not recommended quality presets.",MutedStyle());
+        }
+        if(GUILayout.Button("Reset vegetation to Medium")){TerrainVideoOptions.ResetVegetation();GUI.changed=true;}
         if(GUI.changed)TerrainVideoOptions.SaveVegetation();GUI.changed|=before;
     }
 }

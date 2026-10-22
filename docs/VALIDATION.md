@@ -1,5 +1,33 @@
 # Version 3 validation evidence
 
+## Unified vegetation quality and stable tree handoffs /22October2026 UTC
+
+Read-only owner preference inspection identifies saved tree20/50/300m, mid20/40/
+500m, specialist5/100m and fungi20m, full densities. Grass was session-only;
+Medium30/300m uses prior owner report rather than an invented saved grass value.
+No owner preference/world/save mutation, game stop or agent world launch.
+
+New shared Presentation VegetationQuality and focused --vegetation-quality-only
+tests pass19028 assertions: exact Medium budgets, monotone/bounded five presets,
+bounded variant blend, complementary local/horizon coverage sampled every metre
+through1500m at every preset; cheap root-preserving views persist past detail range.
+These tests prove radial coverage weights, NOT equal silhouettes, packet census,
+runtime retirement safety or imperceptible visual LOD. Remaining chart/group
+limitations and increased cache budget are explicit in TREE_FLORA.md/SETTINGS.md.
+Mountain baseline/CPU/GPU optimisation is deliberately not benchmarked in this pass.
+
+Normal final release IL2CPP build/package exits0, BuiltUtc03:08:25.2370861Z,
+separate real C: player-vegetation-presets output and matching packaged worker.
+Final native existing five-family mesh/bake fixture passes with the same pixels
+as preceding tree-anatomy results; production forest compute admission/disable/
+range/finer-field ownership plus indirect broad/needle draws pass. RTX4060 in
+both logs; no script/shader exceptions. Forest log again contains native Curl23
+write warning before successful fixture draws, cause not diagnosed. Evidence:
+vegetation-presets-tree-native and vegetation-presets-forest-native folders/logs.
+Own35588/30728 exited; no owner Player.log overwrite. This rechecks packaging,
+not movement, settings layout, canonical-variant silhouette agreement or FPS.
+Shortcut selects the new separate player; preceding owner installation untouched.
+
 ## Forest anatomy/population/stand follow-up /22October2026 UTC
 
 Owner rejects preceding conifer/exotic art and oval far proxies; requests denser,

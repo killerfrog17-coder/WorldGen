@@ -52,16 +52,22 @@ public sealed partial class LocalTerrainExplorer
         double now=Time.realtimeSinceStartupAsDouble;
         foreach(var batch in forestBatches.Values)batch.Model.LastUsed=now;
         if(now<nextForestBuild)return;nextForestBuild=now+.025;
-        foreach(var key in forestFields.Keys.Where(k=>!tiles.TryGetValue(k,out var tile)||!ReferenceEquals(tile,forestFields[k].Tile)).ToArray())RemoveForestField(key);
         var eye=view.transform.localPosition;
-        // Refine an already-resident field when approaching it; terrain LOD
-        // alone must not leave nearby forests stuck at horizon packet size.
-        foreach(var candidate in forestFields.Values)if(ForestPitch(candidate.Key,eye)<candidate.Pitch){RemoveForestField(candidate.Key);break;}
+        // Fields own an immutable height/cover snapshot. Replacing a terrain
+        // object is NOT a reason to delete its still-valid forest. Retain an
+        // obsolete fallback until a ready ancestor or four ready children can
+        // cover it; GPU ownership suppresses overlap. No remove/reseed cycle
+        // merely because the camera crossed a distance band.
+        foreach(var key in forestFields.Keys.Where(k=>!tiles.ContainsKey(k)).ToArray())
+        {
+            var bounds=forestFields[key].Bounds;bounds.center-=new Vector3((float)originX,0,(float)originZ);
+            if(bounds.SqrDistance(eye)>(viewDistance+2048)*(viewDistance+2048)||ForestReplacementReady(key))RemoveForestField(key);
+        }
         if(NearTerrainPending()||forestRootCount>=524288)return;
         // Install one bounded field per update, nearest missing first. Tile
         // resolution never caps nearby tree density or regenerates local trees.
         TerrainTileKey selected=default;Tile source=null;double best=double.MaxValue;
-        float near=Math.Max(1,TerrainVideoOptions.TreeMaxDistance*.68f);
+        float near=Math.Max(1,TerrainVideoOptions.TreeIdentityRange*.60f);
         foreach(var pair in tiles)
         {
             if(forestFields.ContainsKey(pair.Key)||pair.Value.ForestCover==null||pair.Value.ForestCover.Length==0)continue;
@@ -79,11 +85,25 @@ public sealed partial class LocalTerrainExplorer
     }
     int ForestPitch(TerrainTileKey key,Vector3 eye)
     {
-        double size=key.SizeM,x=key.X*size-originX,z=key.Z*size-originZ;
-        double dx=Math.Max(Math.Max(x-eye.x,eye.x-x-size),0),dz=Math.Max(Math.Max(z-eye.z,eye.z-z-size),0),distance=Math.Sqrt(dx*dx+dz*dz);
-        int pitch=32;while(pitch<Math.Min(256,distance/90))pitch*=2;
+        double size=key.SizeM;
+        int pitch=32;
         // Bound huge fallback products; normal nearby products use32m packets.
         while(size/pitch>64)pitch*=2;return pitch;
+    }
+    bool ForestReplacementReady(TerrainTileKey key)
+    {
+        for(int level=key.Level+1;level<=16;level++)
+        {
+            int shift=level-key.Level;var parent=new TerrainTileKey(key.X>>shift,key.Z>>shift,level,HorizontalScale);
+            if(forestFields.TryGetValue(parent,out var field)&&field.Ready&&tiles.ContainsKey(parent))return true;
+        }
+        if(key.Level==0)return false;
+        for(int z=0;z<2;z++)for(int x=0;x<2;x++)
+        {
+            var child=new TerrainTileKey(key.X*2+x,key.Z*2+z,key.Level-1,HorizontalScale);
+            if(!forestFields.TryGetValue(child,out var field)||!field.Ready)return false;
+        }
+        return true;
     }
     void BuildForestField(ForestField field)
     {
@@ -150,7 +170,7 @@ public sealed partial class LocalTerrainExplorer
             forestFlagBuffer.SetData(forestFlags);
         }
         GeometryUtility.CalculateFrustumPlanes(view,forestPlaneWork);for(int i=0;i<6;i++)forestPlanes[i]=new Vector4(forestPlaneWork[i].normal.x,forestPlaneWork[i].normal.y,forestPlaneWork[i].normal.z,forestPlaneWork[i].distance);
-        float reach=TerrainVideoOptions.TreeMaxDistance,start=Math.Min(950,reach*.8f);
+        float reach=TerrainVideoOptions.TreeIdentityRange,start=(float)VegetationQuality.ForestStart(reach);
         forestCull.SetVectorArray("_Planes",forestPlanes);forestCull.SetVector("_Eye",eye);forestCull.SetVector("_Chart",new Vector4((float)originX,0,(float)originZ,(float)(TerrainLod.BaseSizeM*HorizontalScale)));
         forestCull.SetVector("_Ranges",new Vector4(start,reach,(float)viewDistance,forestHashMask));forestCull.SetBuffer(0,"_Fields",forestFlagBuffer);forestCull.SetBuffer(0,"_Tiles",forestHashBuffer);
         foreach(var batch in forestBatches.Values)

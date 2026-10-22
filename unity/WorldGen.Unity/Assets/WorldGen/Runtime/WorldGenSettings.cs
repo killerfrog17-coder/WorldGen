@@ -44,7 +44,7 @@ public static partial class TerrainVideoOptions
 public sealed partial class WorldGenRuntime
 {
     int settingsCategory;Vector2 settingsScroll;
-    static readonly string[] SettingsTabs={"Overview","Display","Terrain","Audio","Atmosphere","Grass debug","Vegetation"};
+    static readonly string[] SettingsTabs={"Overview","Display","Terrain","Audio","Atmosphere","Vegetation"};
     void DrawSettingsPage()
     {
         int selected=GUILayout.SelectionGrid(settingsCategory,SettingsTabs,3);
@@ -61,35 +61,9 @@ public sealed partial class WorldGenRuntime
             case 2:DrawTerrainOptions();terrainExplorer?.DrawViewSettings();break;
             case 3:DrawAudioOptions();break;
             case 4:DrawWeatherVideoOptions();break;
-            case 5:DrawGrassDebugOptions();break;
-            case 6:DrawVegetationOptions();break;
+            case 5:DrawVegetationOptions();break;
         }
         GUILayout.EndScrollView();
-    }
-    void DrawGrassDebugOptions()
-    {
-        GUILayout.Label("GRASS PROTOTYPE · LIVE CONTROLS",SectionStyle());
-        TerrainVideoOptions.GroundCover=GUILayout.Toggle(TerrainVideoOptions.GroundCover,"Enable ground vegetation (off = no grass draws/buffers)");
-        GUILayout.Label("Field density / blade spacing  "+TerrainVideoOptions.GrassDensity.ToString("F2")+"×");
-        TerrainVideoOptions.GrassDensity=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.GrassDensity,.25f,2)*20)/20;
-        GUILayout.Label("Close-detail range  "+TerrainVideoOptions.GrassBladeDistance.ToString("F0")+" m");
-        TerrainVideoOptions.GrassBladeDistance=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.GrassBladeDistance,15,60));
-        TerrainVideoOptions.GrassCanopy=GUILayout.Toggle(TerrainVideoOptions.GrassCanopy,"Distant grass geometry (progressive leaf LOD)");
-        GUILayout.Label("Grass geometry distance  "+TerrainVideoOptions.GrassDistance.ToString("F0")+" m");
-        TerrainVideoOptions.GrassDistance=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.GrassDistance,50,500)/10)*10;
-        GUILayout.Label("Blade detail / local blade count");
-        TerrainVideoOptions.GrassDetail=GUILayout.SelectionGrid(TerrainVideoOptions.GrassDetail,new[]{"Low","Medium","High","Ultra"},2);
-        TerrainVideoOptions.GrassWind=GUILayout.Toggle(TerrainVideoOptions.GrassWind,"Weather wind animation (grass and low plants)");
-        TerrainVideoOptions.WeatherDrivenVegetationWind=GUILayout.Toggle(TerrainVideoOptions.WeatherDrivenVegetationWind,"Weather-driven bend and travelling gusts (off = direction-only rollback)");
-        GUILayout.Label("Wind response: "+TerrainVideoOptions.VegetationWindResponse.ToString("F0")+" seconds");
-        TerrainVideoOptions.VegetationWindResponse=GUILayout.HorizontalSlider(TerrainVideoOptions.VegetationWindResponse,2,12);
-        DrawVegetationQuickToggles();
-        if(GUILayout.Button("More plant / tree quality controls → Vegetation tab")){settingsCategory=6;settingsScroll=Vector2.zero;}
-        if(GUILayout.Button("Reset grass prototype defaults"))
-        {TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDistance=350;TerrainVideoOptions.GrassBladeDistance=45;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassWind=true;TerrainVideoOptions.WeatherDrivenVegetationWind=true;TerrainVideoOptions.VegetationWindResponse=6;}
-        GUILayout.Space(10);
-        GUILayout.Label("Session-only controls. Extra blades fill the first 4-14m. Middle-distance grass keeps the same leaves, progressively reducing their count/segments and widening survivors. A filtered grass mat continues on the terrain. Longer ranges cost more.",MutedStyle());
-        GUILayout.Label("Off removes local leaf geometry. Grass, stationary moss and lichen ground materials stay. Loading is instant once data is ready; vegetation fades only with distance. F3 shows FPS and grass buffer/draw counts.",MutedStyle());
     }
     void DrawTerrainOptions(bool compact=false)
     {
