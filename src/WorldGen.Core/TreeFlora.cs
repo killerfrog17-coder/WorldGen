@@ -89,7 +89,8 @@ namespace WorldGen.Core
     public struct ForestCoverProfile
     {
         public V Color;public double Coverage,HeightM,WidthM,Openness,WarmC,ReferenceElevationM;
-        internal void Add(ForestCoverProfile p,double w){Color+=p.Color*w;Coverage+=p.Coverage*w;HeightM+=p.HeightM*w;WidthM+=p.WidthM*w;Openness+=p.Openness*w;WarmC+=p.WarmC*w;ReferenceElevationM+=p.ReferenceElevationM*w;}
+        public int MorphologyCode;double dominantWeight;
+        internal void Add(ForestCoverProfile p,double w){Color+=p.Color*w;Coverage+=p.Coverage*w;HeightM+=p.HeightM*w;WidthM+=p.WidthM*w;Openness+=p.Openness*w;WarmC+=p.WarmC*w;ReferenceElevationM+=p.ReferenceElevationM*w;if(w*p.Coverage>dominantWeight){dominantWeight=w*p.Coverage;MorphologyCode=p.MorphologyCode;}}
         internal void Divide(double w){Color/=w;Coverage/=w;HeightM/=w;WidthM/=w;Openness/=w;WarmC/=w;ReferenceElevationM/=w;}
     }
 
@@ -98,7 +99,7 @@ namespace WorldGen.Core
     /// random combinations at every region or plant. Saved food webs stay literal.</summary>
     public static class TreeFlora
     {
-        public const string Version="tree-flora-1";
+        public const string Version="tree-flora-2";
         static readonly string[] syllables={"al","ber","cer","dor","el","fen","gal","hir","il","jun","kor","lin","mer","nor","or","pel","ran","sil","tor","val"};
         static string Word(ref Rng r)=>syllables[(int)(r.Unit()*syllables.Length)]+syllables[(int)(r.Unit()*syllables.Length)];
         public static TreeSpecies[] Create(World world,int region,int province)
@@ -179,20 +180,21 @@ namespace WorldGen.Core
         {
             V km=position*(physicalRadiusM/1000);
             double n=.5+.5*SphereNoise.Sample(km,seed^0x6937af,3.3);
-            return .15+.85*Smooth((n-.25)/.45);
+            double opening=.5+.5*SphereNoise.Sample(km,seed^0x41a8c3,19);
+            return (.10+.90*Smooth((n-.23)/.43))*(.18+.82*Smooth((opening-.19)/.36));
         }
         static double Smooth(double t){t=D.Clamp(t);return t*t*(3-2*t);}
         public static ForestCoverProfile Describe(HabitatCell h,GroundProfile soil,TreeSpecies[] species,Biome biome)
         {
-            var p=new ForestCoverProfile{WarmC=h==null?18:h.WarmTenthsC*.1};double sum=0;
-            foreach(var s in species){double w=Suitability(s,h,soil,biome);sum+=w;p.Color+=s.Morphology.Leaf*w;p.HeightM+=s.HeightM*w;p.WidthM+=s.WidthM*w;p.Openness+=s.Morphology.Openness*w;}
+            var p=new ForestCoverProfile{WarmC=h==null?18:h.WarmTenthsC*.1};double sum=0,best=0;
+            foreach(var s in species){double w=Suitability(s,h,soil,biome);sum+=w;p.Color+=s.Morphology.Leaf*w;p.HeightM+=s.HeightM*w;p.WidthM+=s.WidthM*w;p.Openness+=s.Morphology.Openness*w;if(w>best){best=w;p.MorphologyCode=s.MorphologyCode;}}
             if(sum>1e-6){p.Color/=sum;p.HeightM/=sum;p.WidthM/=sum;p.Openness/=sum;}
             double potential=biome==Biome.Desert?.006:Potential(biome);
             p.Coverage=potential*D.Clamp(sum*.7);return p;
         }
         public static ForestCoverProfile Surface(ForestCoverProfile p,V point,int seed,double radius,double elevation,double up,bool underwater)
         {
-            p.Coverage*=underwater||elevation<2?0:Stand(point,seed,radius)*D.Clamp((up-.70)/.22)*D.Clamp((p.WarmC-(elevation-p.ReferenceElevationM)*.006-6)/5);
+            p.Coverage*=underwater||elevation<2?0:Stand(point,seed,radius)*D.Clamp((up-.60)/.22)*D.Clamp((p.WarmC-(elevation-p.ReferenceElevationM)*.006-6)/5);
             return p;
         }
     }

@@ -60,9 +60,9 @@ static class LocalTreeImpostor
                         var tangent=(Vector3)(source.Tangents[ia]*u+source.Tangents[ib]*v+source.Tangents[ic]*w);tangent.Normalize();
                         n=(n+(tangent*detail.x+Vector3.Cross(n,tangent)*detail.y)*.45f).normalized;
                     }
-                    if(Vector3.Dot(n,direction)<0)n=-n;
+                    if(!foliage&&area<0)n=-n;
                     float height=source.Vertices[ia].y*u+source.Vertices[ib].y*v+source.Vertices[ic].y*w;
-                    float ao=.72f+.28f*Mathf.Clamp01(height*1.7f);tint*=ao;tint.a=1;
+                    float ao=.72f+.28f*Mathf.Clamp01(height*1.7f);tint*=Mathf.LinearToGammaSpace(ao);tint.a=1;
                     colour[at]=tint;normal[at]=new Color(n.x*.5f+.5f,n.y*.5f+.5f,n.z*.5f+.5f,.5f+z/(2*source.Radius));depth[at]=z;
                 }
             }
@@ -86,5 +86,36 @@ static class LocalTreeImpostor
         float x=Mathf.Clamp(uv.x*LocalTreeTextures.Size-.5f,0,LocalTreeTextures.Size-1),y=Mathf.Clamp(uv.y*LocalTreeTextures.Size-.5f,0,LocalTreeTextures.Size-1);
         int a=(int)x,b=(int)y,c=Math.Min(a+1,LocalTreeTextures.Size-1),d=Math.Min(b+1,LocalTreeTextures.Size-1);
         return Color.Lerp(Color.Lerp(pixels[b*LocalTreeTextures.Size+a],pixels[b*LocalTreeTextures.Size+c],x-a),Color.Lerp(pixels[d*LocalTreeTextures.Size+a],pixels[d*LocalTreeTextures.Size+c],x-a),y-b);
+    }
+    // Reproject a small actual-tree stand into one reusable distant packet.
+    // Colours/normals/depth come from the same tree bake, not opaque ovals.
+    public static Result Cluster(Result tree,int code,CancellationToken token)
+    {
+        int form=(code>>28)&7;float slender=form==1?.45f:form==5?.35f:form==2||form==3?.70f:.75f;
+        var result=new Result{Center=new Vector3(0,.48f,0),Radius=tree.Radius*.95f+1.05f,Colours=new Color32[Views][],Normals=new Color32[Views][]};
+        for(int view=0;view<Views;view++)
+        {
+            token.ThrowIfCancellationRequested();var d=Direction(view);Basis(d,out var right,out var up);
+            var colours=new Color32[Size*Size];var normals=new Color32[colours.Length];var zBuffer=new float[colours.Length];for(int i=0;i<zBuffer.Length;i++)zBuffer[i]=float.NegativeInfinity;
+            var rng=new WorldGen.Core.Rng(code,"forest-baked-stand-1");
+            for(int z=0;z<4;z++)for(int x=0;x<4;x++)
+            {
+                float height=.70f+(float)rng.Unit()*.27f,width=slender*(.82f+(float)rng.Unit()*.18f);
+                var scale=new Vector3(width,height,width);
+                var root=new Vector3((x-1.5f)*.48f+((float)rng.Unit()-.5f)*.14f,0,(z-1.5f)*.48f+((float)rng.Unit()-.5f)*.14f);
+                for(int sy=0;sy<Size;sy++)for(int sx=0;sx<Size;sx++)
+                {
+                    int source=sy*Size+sx;var c=tree.Colours[view][source];if(c.a<102)continue;var n=tree.Normals[view][source];
+                    var p=tree.Center+(right*((sx+.5f)/Size-.5f)+up*((sy+.5f)/Size-.5f)+d*(n.a/255f-.5f))*(2*tree.Radius);
+                    p=Vector3.Scale(p,scale)+root-result.Center;
+                    int xx=(int)((.5f+Vector3.Dot(p,right)/(2*result.Radius))*Size),yy=(int)((.5f+Vector3.Dot(p,up)/(2*result.Radius))*Size);
+                    if(xx<0||yy<0||xx>=Size||yy>=Size)continue;int at=yy*Size+xx;float depth=Vector3.Dot(p,d);if(depth<zBuffer[at])continue;
+                    var normal=new Vector3((n.r/255f*2-1)/width,(n.g/255f*2-1)/height,(n.b/255f*2-1)/width).normalized;
+                    zBuffer[at]=depth;c.a=255;colours[at]=c;normals[at]=new Color(normal.x*.5f+.5f,normal.y*.5f+.5f,normal.z*.5f+.5f,.5f+depth/(2*result.Radius));
+                }
+            }
+            result.Colours[view]=colours;result.Normals[view]=normals;
+        }
+        return result;
     }
 }

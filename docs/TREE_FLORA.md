@@ -1,4 +1,110 @@
-# Generated tree lineages / tree-flora-1 / 21 October 2026
+# Generated tree lineages / tree-flora-2 / 21 October 2026
+
+## Forest anatomy, density and distant stands follow-up
+
+This section supersedes the first-prototype anatomy/density/far-aggregate limits
+below. Owner rejected bare lower conifers, detached-looking shoots, old exotic
+forms and statistical oval forest proxies. Current release is an OWNER ART/FPS
+CHECKPOINT, not a realism, seamless-transition or performance acceptance.
+
+### Anatomy and reusable art
+
+- Conifer foliage starts lower and follows branch/twig axes rather than arbitrary
+  vertical cards. Eligible lower limbs keep their foliage. Lateral branch radii
+  no longer inherit the whole parent trunk radius: that produced wooden fins.
+- Broadleaf foliage uses clustered leaf textures without conspicuous green twig
+  lines; crown-envelope normals do not flip with arbitrary card facing. Both
+  local mesh levels preserve the same foliage locations. Folded near shoots now
+  use four rather than eight triangles. Sample broad near/mid:3852/2298 triangles;
+  needle:6592/2790, versus preceding needle14064/3066.
+- Palm/fan and tree-fern crowns now have curved attached rachises and leaflets.
+  Fan rachises end at the fan hub, rather than continuing as bare spokes. Cane
+  forms have five tapered stems and leafy nodes, not naked poles. Example near/mid
+  palm6240/3312, fern10692/5116, cane3400/1860 triangles. Succulents retain their
+  preceding anatomy. These are bounded procedural forms, not biological growth.
+- Individual distant trees still bake their own sixteen relightable views and
+  use three-view blending/depth-assisted reprojection. Camera-facing card normals
+  and sRGB ambient-occlusion storage now match mesh lighting more closely.
+
+### Habitat and population
+
+Tree candidate resolution doubles48 to96 per nominal512m cube tile; the physical
+population cap rises .009 to .034 candidates/m2. Cheap physical-area and stand
+rejections precede expensive sampling. Admission uses continuously blended forest
+coverage, site suitability, broad stand noise and finer openings, not a nearest-
+biome yes/no switch. Slope eligibility is now the same soft up-vector .60-.82
+factor for local and distant coverage. Species catalogues/genetics are unchanged;
+derived placements intentionally change (local-scatter-tree-flora-8).
+
+A uniform productive fixture yields2763 trees over approximately26.21ha (~105/ha),
+not a claim that every forest should have that density. Climate/soil/stand noise,
+age/size cohorts, slope and habitat still create gaps. Forest density and artistic
+scale need owner review in actual worlds. World/history/saved ecology, terrain,
+water, grass and mid-height flora are not modified.
+
+### Mesh to individual views to distant stands
+
+The old ForestCanopyMesh oval geometry is no longer appended to terrain. Instead,
+resident forest/height grids seed GPU-instanced stand packets; each packet is a
+baked4x4 group assembled from actual generated-tree colour/normal/depth views.
+World-family prototypes are shared across regions (at most13 stand atlases), with
+interpolated ecological height, width, tint and cover. Existing eight-float forest
+grids use their spare word7 for discrete morphology bits; bits are not interpolated.
+Transport wire5 and save schema are unchanged.
+
+These are representative stands, NOT an exact census of local tree identities or
+positions. Local trees keep their exact mesh/impostor roots; far packet roots use
+a stable chart-space grid, hash jitter and terrain-triangle heights. Packet bases
+shear to the terrain plane while trunks remain vertical. Roots regenerate on chart
+reanchor. Horizon packet pitch grows32-256m with distance; giant fallback tiles
+can be coarser. Thus all-angle silhouette and precise local/far matching are NOT
+guaranteed. Existing far terrain forest colour stays as underlying coverage.
+
+Individual draw reach is no longer shortened for narrow trees before the shared
+far stand handoff. Handoff overlaps from min(950m, .8*TreeMaxDistance) through the
+configured tree range; local detail thresholds also vary modestly with tree width
+to avoid one uniform ring. Distance-only opaque dither remains: no timed plant
+birth fade. Far packets cast no shadows; they receive dynamic lighting/fog.
+
+One background CPU bake runs at a time; no per-frame rasterisation or normal-play
+GPU readbacks. Pending local trees retain complete middle meshes. The first three
+stand bakes are prioritised, then stands get roughly one in three completed slots.
+The48-local-model budget cannot starve pending stand bakes; excess simultaneously
+active local variants can still retain full meshes. New materials immediately copy
+current ambient/fog settings. Approximate texture budgets:48 local view atlases
+~128MiB plus13 shared stand atlases ~35MiB, excluding shared shoots, CPU pixels,
+meshes and transient raster memory. Bakes are session RAM, not disk-persistent.
+
+Far fields use48-byte roots plus4-byte visible-index capacity, power-of-two buffer
+growth, one installation per .025s update,8192 field cap and a524288-root soft stop.
+GPU compute compacts frustum/range/ready-finer-field visibility; a hash ownership
+table prevents covered parent roots drawing. Parents persist until finer fields'
+required atlases are ready. Conservative CPU hill occlusion updates every .20s;
+this is NOT full-scene GPU Hi-Z. Existing near culling and instancing stay.
+F3 reports local/stand bakes, pending work, view bytes, field/packet/draw counts.
+
+Rebuilt-tree and baked-view A/B switches also control stand rendering. Local
+visible-density settings still do not thin the ecological far forest summary.
+Pending-bake startup cost, high-diversity mesh fallback, steep terrain and packet
+handoff appearance remain owner-test targets. No100/165/200FPS claim is made.
+
+### Research basis and limits
+
+[NVIDIA GPU Gems2: Toward Photorealism in Virtual Botany](https://developer.nvidia.com/gpugems/gpugems2/part-i-geometric-complexity/chapter-1-toward-photorealism-virtual-botany)
+describes structural geometry, foliage clusters, multiple-angle distant views and
+density-aware LOD. This supports the mixed representation, not arbitrary leaf
+deletion or statistical ovals as the only far tree shape.
+[Guerrilla: GPU-Based Procedural Placement in Horizon Zero Dawn](https://www.guerrilla-games.com/read/gpu-based-procedural-placement-in-horizon-zero-dawn)
+supports ecological/rule-based dense placement rather than uniform random scatter.
+[SpeedTree branch-generator documentation](https://docs8.speedtree.com/modeler/doku.php?id=branch_generator)
+documents branch-relative orientation/roll, relevant to coherent frond placement.
+No licensed SpeedTree/Simplygon code, exact Nintendo/Endnight/Guerrilla reproduction,
+or detailed Sons of the Forest pipeline is claimed.
+
+Small Core/Editor/packaged GPU checks are recorded in VALIDATION.md. They verify
+determinism, geometry, visibility and queue plumbing, NOT actual-world art or FPS.
+
+## Historical first-prototype notes
 
 ## Rebuilt tree / baked-view prototype
 

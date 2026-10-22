@@ -105,7 +105,9 @@ Shader "WorldGen/TreeSurface2"
         {
             UNITY_SETUP_INSTANCE_ID(i);WorldGenScatterFade(i.positionCS.xy,UNITY_ACCESS_INSTANCED_PROP(Props,_LodTransition));
             half3 albedo,n;half foliage;Surface(i,albedo,n,foliage);
-            if(_Impostor<.5)n*=IS_FRONT_VFACE(face,1,-1);
+            // Crown-envelope normals describe a volume, not the arbitrary side
+            // of a shoot card. Only actual blade/wood surfaces flip by face.
+            if(_Impostor<.5&&i.mask.y<1.5)n*=IS_FRONT_VFACE(face,1,-1);
             Light sun=GetMainLight(TransformWorldToShadowCoord(i.position));
             half diffuse=saturate((dot(n,sun.direction)+foliage*.2)/(1+foliage*.2));
             half transmission=foliage*.14*pow(saturate(dot(-n,sun.direction)),2);

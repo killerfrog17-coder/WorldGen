@@ -20,7 +20,7 @@ public static class WorldGenTreeAssetReview
             var generator=assembly.GetType("LocalScatterMeshes");var texture=assembly.GetType("LocalTreeTextures");var baker=assembly.GetType("LocalTreeImpostor");
             texture.GetMethod("Generate",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null);
             string folder=Path.GetFullPath(Path.Combine(Application.dataPath,"../../../artifacts/tree-baked-assets"));Directory.CreateDirectory(folder);
-            foreach(int code in new[]{0x02345600,0x12345600})
+            foreach(int code in new[]{0x02345600,0x12345600,0x22345600,0x32345600,0x52345600})
             {
                 var timer=System.Diagnostics.Stopwatch.StartNew();
                 var near=(Mesh)generator.GetMethod("Build").Invoke(null,new object[]{ScatterKind.GeneratedTree,0,code});

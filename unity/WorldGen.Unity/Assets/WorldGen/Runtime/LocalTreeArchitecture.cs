@@ -16,22 +16,26 @@ static partial class LocalScatterMeshes
     {
         if(!TerrainVideoOptions.TreeRebuild)return BuildLegacyTree(code,lod);
         var m=new TreeMorphology(code);
-        if(m.Form!=TreeGrowthForm.BroadCrown&&m.Form!=TreeGrowthForm.NeedleCrown)
-            return BuildLegacyTree(code,lod); // Exotic anatomy is a subsequent art checkpoint.
+        if(m.Form==TreeGrowthForm.FrondCrown||m.Form==TreeGrowthForm.TreeFern)return BuildFrondTree(code,lod,m);
+        if(m.Form==TreeGrowthForm.TallCane)return BuildCaneTree(code,lod,m);
+        if(m.Form==TreeGrowthForm.ArborescentSucculent)return BuildLegacyTree(code,lod);
         var nodes=TreeSkeleton(code,m);var b=new Builder();var masks=new List<Vector2>();
         var leaf=HerbColour(m.Leaf);var wood=HerbColour(m.Bark);
-        int sides=lod==0?7:4;
+        bool needle=m.Form==TreeGrowthForm.NeedleCrown;
         void Mark(float type){while(masks.Count<b.V.Count)masks.Add(new Vector2(Mathf.Clamp01(b.V[masks.Count].y),type));}
         for(int i=1;i<nodes.Count;i++)
         {
             var n=nodes[i];var parent=nodes[n.Parent];
             if(lod>0&&n.Radius<.0014f&&n.Children==0)continue;
+            int sides=lod==0?(needle?(i<=24?10:n.Children>0?4:3):n.Radius>.009f?12:6):4;
             var axis=(n.P-parent.P).normalized;var u=Vector3.Cross(axis,Mathf.Abs(axis.y)<.96f?Vector3.up:Vector3.right).normalized;var v=Vector3.Cross(axis,u);
             int start=b.V.Count;
             for(int ring=0;ring<2;ring++)for(int k=0;k<=sides;k++)
             {
                 float a=k*2*Mathf.PI/sides;float radius=ring==0?parent.Radius:n.Radius;
-                if(parent.Children>1)radius=Mathf.Lerp(n.Radius,parent.Radius,.58f);
+                // A lateral branch must not inherit its parent's full trunk
+                // radius on BOTH ends (the old repeated triangular buttresses).
+                if(ring==0&&parent.Children>1&&n.Radius<parent.Radius*.9f)radius=Mathf.Min(parent.Radius,n.Radius*1.35f);
                 var p=(ring==0?parent.P:n.P)+(u*Mathf.Cos(a)+v*Mathf.Sin(a))*radius;
                 b.Add(p,wood,new Vector2(k/(float)sides,(ring==0?parent.P.y:n.P.y)*5));
             }
@@ -41,32 +45,35 @@ static partial class LocalScatterMeshes
         // LODs. The middle mesh simplifies the surface, not the crown occupancy.
         for(int i=1;i<nodes.Count;i++)
         {
-            var n=nodes[i];if(n.P.y<(float)m.CrownBase||n.Children>1)continue;
+            var n=nodes[i];if(!needle&&n.P.y<(float)m.CrownBase||n.Children>1)continue;
             if(n.Children==1&&nodes[i].Radius>.0045f)continue;
             var r=new Rng(code,"tree-rebuild-shoot-1",i);
             var axis=(n.P-nodes[n.Parent].P).normalized;
-            int sprays=n.Children==0?3:1;
+            int sprays=n.Children==0?(needle?2:3):1;
             for(int j=0;j<sprays;j++)
             {
-                float angle=(float)r.Unit()*Mathf.PI*2;
-                var normal=new Vector3(Mathf.Cos(angle),.30f+(float)r.Unit()*.7f,Mathf.Sin(angle)).normalized;
-                var right=Vector3.Cross(normal,Vector3.up).normalized;
-                var up=Vector3.Cross(right,normal).normalized;
-                float span=(m.Form==TreeGrowthForm.NeedleCrown?.072f:.085f)*(.8f+(float)r.Unit()*.4f);
-                var center=n.P+axis*span*.25f+right*((float)r.Unit()-.5f)*span;
+                // Needles follow the twig, with a rolled horizontal spray.
+                // Broad leaves use overlapping crown clusters, not conspicuous
+                // green sticks pointing in an unrelated random direction.
+                var up=needle?axis:(axis*.55f+Vector3.up*.45f).normalized;
+                var right=Vector3.Cross(up,Mathf.Abs(up.y)<.94f?Vector3.up:Vector3.right).normalized;
+                float roll=needle?(j==0?-24:36):((float)r.Unit()-.5f)*150;
+                right=Quaternion.AngleAxis(roll,up)*right;var normal=Vector3.Cross(right,up).normalized;
+                float span=(needle?.095f:.080f)*(.8f+(float)r.Unit()*.4f);
+                var center=needle?n.P+up*span*.90f:n.P+up*span*.25f+right*((float)r.Unit()-.5f)*span*.45f;
                 int variant=(i+j)%4;float material=2+variant*.1f;
                 Color tint=leaf*new Color(.86f+(float)r.Unit()*.18f,.90f+(float)r.Unit()*.12f,.88f+(float)r.Unit()*.12f,1);
                 if(lod==0)
                 {
-                    // A folded, fitted octagon avoids the empty corners of a
-                    // large rectangular card. It is a shoot, not a whole crown.
-                    int first=b.Add(center+normal*span*.13f,tint,new Vector2(.5f,.5f));
-                    for(int k=0;k<8;k++)
+                    // Folded shoot: four triangles versus eight in the first
+                    // prototype. Root/tip and coverage match the middle card.
+                    int first=b.V.Count;
+                    for(int row=0;row<3;row++)
                     {
-                        float a=k*Mathf.PI*.25f;var q=new Vector2(Mathf.Cos(a),Mathf.Sin(a));
-                        b.Add(center+(right*q.x+up*q.y)*span,tint,q*.5f+Vector2.one*.5f);
+                        float t=row*.5f;var p=center+up*((t*2-1)*span)+normal*(row==1?span*.10f:0);
+                        b.Add(p-right*span,tint,new Vector2(0,t));b.Add(p+right*span,tint,new Vector2(1,t));
                     }
-                    for(int k=0;k<8;k++)b.Triangle(first,first+1+(k+1)%8,first+1+k);
+                    for(int row=0;row<2;row++){int a=first+row*2;b.Triangle(a,a+2,a+1);b.Triangle(a+1,a+2,a+3);}
                 }
                 else
                 {
@@ -86,6 +93,7 @@ static partial class LocalScatterMeshes
             normals[i]=Vector3.Slerp(normals[i],(b.V[i]-crown+Vector3.up*.12f).normalized,.65f).normalized;
         mesh.normals=normals;mesh.RecalculateTangents();mesh.RecalculateBounds();return mesh;
     }
+    static float NeedleCrownBase(TreeMorphology m)=>Mathf.Clamp(.11f+(float)m.CrownBase*.20f,.14f,.23f);
     static List<TreeNode> TreeSkeleton(int code,TreeMorphology m)
     {
         var r=new Rng(code,"tree-rebuild-skeleton-1");var nodes=new List<TreeNode>(240);
@@ -97,7 +105,7 @@ static partial class LocalScatterMeshes
         {
             // Family-specific apical architecture; side limbs compete for a
             // finite crown envelope rather than repeated flat cone tiers.
-            for(int tier=4;tier<trunk;tier+=2)
+            for(int tier=Mathf.Max(3,Mathf.FloorToInt(NeedleCrownBase(m)*trunk));tier<trunk;tier+=2)
             {
                 float y=nodes[tier].P.y,reach=(1-y)*.43f*(.8f+(float)m.CrownAspect*.25f);
                 int limbs=4+(tier%3);

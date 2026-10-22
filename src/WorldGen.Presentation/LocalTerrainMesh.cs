@@ -137,6 +137,9 @@ namespace WorldGen.Presentation
                 var forest=TreeFlora.Surface(sample.Forest,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,terrain.RadiusM*frame.HorizontalScale,sample.ElevationM,up,sample.Underwater);
                 int forestAt=i*8;mesh.ForestCover[forestAt]=(float)forest.Color.X;mesh.ForestCover[forestAt+1]=(float)forest.Color.Y;mesh.ForestCover[forestAt+2]=(float)forest.Color.Z;
                 mesh.ForestCover[forestAt+3]=(float)forest.Coverage;mesh.ForestCover[forestAt+4]=(float)forest.HeightM;mesh.ForestCover[forestAt+5]=(float)forest.WidthM;mesh.ForestCover[forestAt+6]=(float)forest.Openness;
+                // Discrete representative anatomy in the existing spare word;
+                // preserve bits, never interpolate this as a numeric float.
+                mesh.ForestCover[forestAt+7]=BitConverter.Int32BitsToSingle(forest.MorphologyCode);
                 double visibleCover=D.Clamp(coverage/.45);
                 color=color*(1-visibleCover)+cover.Color*(.90*visibleCover);
                 if(mesh.GroundCover.Length>0)
@@ -173,7 +176,8 @@ namespace WorldGen.Presentation
             LocalWaterMesh.Build(mesh,frame,waterSamples,terrain.Amplification!=null);
             if(terrain.Amplification!=null)RiverscapeMesh.Append(mesh,frame,patch,waterSamples,token);
             GroundCoverGrid.ExcludeWater(mesh);
-            ForestCanopyMesh.Append(mesh,frame,terrain.SourceSeed,token);
+            // Distant vegetation is now a separately culled baked-tree field.
+            // Do not bake unrelated statistical ovals into terrain products.
             mesh.BuildMilliseconds = watch.Elapsed.TotalMilliseconds; return mesh;
         }
     }

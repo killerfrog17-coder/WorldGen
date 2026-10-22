@@ -13,7 +13,7 @@ public sealed partial class LocalTerrainExplorer
     sealed class ScatterGroup {public Bounds Bounds;public int[] Indices;}
     sealed class ScatterChunk { public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
     sealed class ArtPart { public Mesh Mesh;public Material Material;public int Submesh;public Matrix4x4 Local; }
-    sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; public bool IdentityScale,Fades;public double LastUsed;public bool Generated;public int TreeCode;public bool TreeBake,TreeQueued,TreeBaked;public Texture2DArray TreeColour,TreeNormal; }
+    sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; public bool IdentityScale,Fades;public double LastUsed;public bool Generated;public int TreeCode;public bool TreeBake,TreeQueued,TreeBaked,TreeStand;public Texture2DArray TreeColour,TreeNormal; }
     sealed class DrawBatch
     {
         // Nonuniform scale needs both transform and inverse; stay below the platform's 511-instance limit.
@@ -118,7 +118,7 @@ public sealed partial class LocalTerrainExplorer
             foreach(var key in scatterPriority)
             {if(scatterChunks.ContainsKey(key)||scatterJobs.Any(j=>j.Key.Equals(key)))continue;var source=scatter;var producer=meshProcess;var token=cancellation.Token;scatterJobs.Add(new ScatterWork{Key=key,Task=Task.Run(()=>producer==null?source.Build(key,token):producer.Scatter(key,token),token)});break;}
         }
-        UpdateTreeImpostors();
+        UpdateTreeImpostors();UpdateForestFields();
         if(scatterDirty||ScatterViewChanged||Time.realtimeSinceStartupAsDouble-lastBatchTime>1)BuildScatterBatches();
     }
     double VisibleGround(double x,double z,double fallback)
@@ -293,7 +293,7 @@ public sealed partial class LocalTerrainExplorer
         if(scatterArt.Count>384)
         {
             var used=new HashSet<ArtModel>(drawBatches.Select(b=>b.Model));
-            foreach(var item in scatterArt.Where(p=>p.Value.Generated&&!p.Value.TreeQueued&&!used.Contains(p.Value)).OrderBy(p=>p.Value.LastUsed).Take(Math.Min(8,scatterArt.Count-384)).ToArray())
+            foreach(var item in scatterArt.Where(p=>p.Value.Generated&&!p.Value.TreeStand&&!p.Value.TreeQueued&&!used.Contains(p.Value)).OrderBy(p=>p.Value.LastUsed).Take(Math.Min(8,scatterArt.Count-384)).ToArray())
             {
                 ReleaseTreeTextures(item.Value);
                 foreach(var part in item.Value.Parts)
@@ -342,10 +342,12 @@ public sealed partial class LocalTerrainExplorer
             var parameters=new RenderParams(part.Material){camera=view,layer=30,worldBounds=batch.Bounds,matProps=batch.Properties,shadowCastingMode=batch.Shadows,receiveShadows=true};
             Graphics.RenderMeshInstanced(in parameters,part.Mesh,part.Submesh,matrices,batch.Count);ScatterDrawCalls++;
         }
+        DrawForestFields();
     }
     void DisposeScatter()
     {
         DisposeTreeImpostors();
+        ResetForestFields();
         if(groundCoverMaterial!=null)Destroy(groundCoverMaterial);
         if(groundCanopyMaterial!=null)Destroy(groundCanopyMaterial);
         if(grassFieldTexture!=null)Destroy(grassFieldTexture);

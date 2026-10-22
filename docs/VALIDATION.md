@@ -1,5 +1,57 @@
 # Version 3 validation evidence
 
+## Forest anatomy/population/stand follow-up /22October2026 UTC
+
+Owner rejects preceding conifer/exotic art and oval far proxies; requests denser,
+ecologically varied forests. See TREE_FLORA.md for exact representation, budgets
+and limits. Release checkpoints use separate real C: directories; owner's running
+game is not stopped or overwritten. No saved-world/history/height/water mutation.
+
+Core focused --tree-field-only:220 assertions pass, deterministic productive
+fixture2763 trees/~26.21ha, unique IDs/finite dimensions, no generated trees in
+ocean/ice/tundra fixtures, bounded/cm-continuous stand field, morphology bits and
+wire roundtrip, no old alpha-3 oval geometry, complete source-state hash unchanged.
+This is a uniform fixture density, not a calibrated actual-world density census.
+Two initially over-strict fixture assumptions (metre noise continuity and terrain
+vertex count ignoring stitch skirts) were corrected before final checks.
+
+Editor five-form art check exits0: finite/bounded broad, needle, palm, tree fern,
+cane meshes;16 nonempty views each; near/baked captures at0/45/115 degrees. An
+endpoint fractional-power NaN in new leaf blades was caught and fixed. Final
+sample near/mid counts:3852/2298,6592/2790,6240/3312,10692/5116,3400/1860 triangles.
+
+First checkpoint normal IL2CPP package exits0, BuiltUtc02:13:27.2133983Z. Actual
+packaged shader fixture on RTX4060 exits0 with two differently transformed trees
+per draw, five families, mesh and bake. Changed pixels per image half:
+broad mesh26314/24545,bake25207/23822; needle54780/55311,54942/56228;
+palm15542/15082,12628/12680; fern12495/12378,10718/11732;
+cane13731/13390,7181/8446. Native palm/fern captures inspected. These are isolated
+art visibility checks, NOT in-world art/LOD/performance acceptance.
+
+First packaged forest fixture exits0 on RTX4060: production compute admits two
+visible roots, rejects disabled fields/near roots/ready-finer ownership, restores
+both; actual indirect production-shader draws show broad33816/40001 and
+needle51753/60993 changed pixels/half. Captures inspected. Fixture has exaggerated
+narrow packet aspect, not actual-world stand appearance. Own fixture PIDs18668
+and20660 exited. Evidence artifacts:tree-anatomy-native and forest-packet-native.
+
+Follow-up package BuiltUtc02:25:31.4171344Z exits0: prioritised/guaranteed stand
+bake slots even when48 local models are active, initial ambient/fog copying,
+matching soft local/far slope rules. No additional art redesign. Owner already
+testing first checkpoint; final build remains separate. Focused Core check again
+passes220 assertions/2763 trees. Final packaged fixture results follow below.
+
+Final refined package repeats both tiny native fixtures successfully: identical
+five-family mesh/bake and broad/needle stand pixel counts listed above, production
+GPU culling admission/disable/range/ownership checks pass, RTX4060 confirmed.
+No shader/script exception is recorded. forest-refined-native.log includes one
+native Curl23 write warning before its successful draw checks; cause not diagnosed.
+PASS files and twelve PNGs are in the corresponding artifact folders, with explicit
+forest-refined-native.log and tree-refined-native.log (owner Player.log untouched).
+Own PIDs26768/17836 exited; owner continues running separate first checkpoint.
+Shortcut updated to player-tree-forest-refined for next relaunch. No actual-world
+performance gain or invisible handoff is inferred from these fixture results.
+
 ## Packaged tree visibility regression /22October2026 UTC
 
 Owner sees no rebuilt trees, but old-model A/B restores trees immediately. Earlier

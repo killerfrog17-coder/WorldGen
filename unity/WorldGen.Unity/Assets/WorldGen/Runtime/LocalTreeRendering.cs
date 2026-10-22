@@ -11,9 +11,10 @@ public sealed partial class LocalTerrainExplorer
     Task<LocalTreeImpostor.Result> treeBakeTask;ArtModel treeBakeOwner;
     readonly HashSet<ArtModel> treeBakeFailures=new HashSet<ArtModel>();
     const int TreeBakeLimit=48;
-    public int BakedTreeModels=>scatterArt.Values.Count(m=>m.TreeBaked);
+    public int BakedTreeModels=>scatterArt.Values.Count(m=>m.TreeBaked&&!m.TreeStand);
+    public int BakedForestModels=>scatterArt.Values.Count(m=>m.TreeBaked&&m.TreeStand);
     public int PendingTreeModels=>scatterArt.Values.Count(m=>m.TreeBake&&!m.TreeBaked);
-    public long TreeBakeBytes=>BakedTreeModels*(long)LocalTreeImpostor.Size*LocalTreeImpostor.Size*LocalTreeImpostor.Views*8*4/3;
+    public long TreeBakeBytes=>(BakedTreeModels+BakedForestModels)*(long)LocalTreeImpostor.Size*LocalTreeImpostor.Size*LocalTreeImpostor.Views*8*4/3;
     ArtModel CreateRebuiltTree(long key,int code,int lod)
     {
         if(rebuiltLeaves==null)LocalTreeTextures.Create(out rebuiltLeaves,out rebuiltLeafNormals);
@@ -32,6 +33,7 @@ public sealed partial class LocalTerrainExplorer
             material.SetTexture("_TreeLeaves",rebuiltLeaves);material.SetTexture("_TreeLeafNormals",rebuiltLeafNormals);
             material.SetFloat("_TreeLeafShape",(int)m.LeafShape);material.SetFloat("_TreeBarkPattern",(int)m.BarkPattern);
             material.SetFloat("_Wind",(float)m.Flexibility);material.SetVector("_PlantTraits",new Vector4((float)m.Flexibility,.5f,.7f,1));
+            material.SetColor("_AmbientTint",landMaterial.GetColor("_AmbientTint"));material.SetColor("_FogColor",landMaterial.GetColor("_FogColor"));
             material.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));ownedScatterMaterials.Add(material);treeMaterials.Add(materialKey,material);
         }
         var model=new ArtModel{Parts=new[]{new ArtPart{Mesh=mesh,Material=material,Submesh=0,Local=Matrix4x4.identity}},Scale=Matrix4x4.identity,IdentityScale=true,Fades=true,Generated=true,LastUsed=Time.realtimeSinceStartupAsDouble,TreeCode=code,TreeBake=lod==2};
@@ -50,35 +52,48 @@ public sealed partial class LocalTerrainExplorer
                 quad.vertices=new[]{new Vector3(-1,-1,0),new Vector3(1,-1,0),new Vector3(-1,1,0),new Vector3(1,1,0)};
                 quad.uv=new[]{Vector2.zero,Vector2.right,Vector2.up,Vector2.one};quad.triangles=new[]{0,1,2,1,3,2};
                 quad.bounds=new Bounds(data.Center,Vector3.one*data.Radius*2.1f);
-                var material=new Material(old.Material){name="Multi-view tree "+owner.TreeCode};
+                var material=owner.TreeStand?new Material(Resources.Load<Shader>("WorldGenForest")):new Material(old.Material);
+                if(owner.TreeStand)material.CopyPropertiesFromMaterial(old.Material);
+                material.name="Multi-view tree "+owner.TreeCode;
                 material.SetFloat("_Impostor",1);material.SetFloat("_Wind",0);material.SetTexture("_TreeColourViews",owner.TreeColour);material.SetTexture("_TreeNormalViews",owner.TreeNormal);
                 material.SetVector("_ImpostorBounds",new Vector4(data.Center.x,data.Center.y,data.Center.z,data.Radius));
                 ownedScatterMeshes.Remove(old.Mesh);Destroy(old.Mesh);ownedScatterMeshes.Add(quad);ownedScatterMaterials.Add(material);
-                owner.Parts=new[]{new ArtPart{Mesh=quad,Material=material,Submesh=0,Local=Matrix4x4.identity}};owner.TreeBaked=true;scatterDirty=true;
+                owner.Parts=new[]{new ArtPart{Mesh=quad,Material=material,Submesh=0,Local=Matrix4x4.identity}};owner.TreeBaked=true;scatterDirty=true;forestHashDirty=true;
             }
             else if(treeBakeTask.IsFaulted)
             {treeBakeFailures.Add(owner);Debug.LogWarning("Tree bake retained full-mesh fallback: "+treeBakeTask.Exception.GetBaseException().Message);}
             treeBakeTask=null;treeBakeOwner=null;
         }
-        if(treeBakeTask!=null||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.GeneratedTrees||!CenterReady||NearTerrainPending())return;
-        var pending=scatterArt.Values.Where(m=>m.TreeBake&&!m.TreeBaked&&!treeBakeFailures.Contains(m)&&Time.realtimeSinceStartupAsDouble-m.LastUsed<3).OrderByDescending(m=>m.LastUsed).FirstOrDefault();
+        if(treeBakeTask!=null||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.GeneratedTrees&&!TerrainVideoOptions.FarForest||!CenterReady||NearTerrainPending())return;
+        bool preferStand=BakedForestModels<3||(BakedTreeModels+BakedForestModels)%3==0;
+        var pending=scatterArt.Values.Where(m=>m.TreeBake&&!m.TreeBaked&&(m.TreeStand?TerrainVideoOptions.FarForest:TerrainVideoOptions.GeneratedTrees)&&!treeBakeFailures.Contains(m)&&Time.realtimeSinceStartupAsDouble-m.LastUsed<3).OrderBy(m=>m.TreeStand==preferStand?0:1).ThenByDescending(m=>m.LastUsed).FirstOrDefault();
         if(pending==null)return;
-        if(BakedTreeModels>=TreeBakeLimit)
+        if(!pending.TreeStand&&BakedTreeModels>=TreeBakeLimit)
         {
             // Hard texture budget. Retire only models not referenced by current
             // draw batches; never destroy textures still used by a draw.
             var used=new HashSet<ArtModel>(drawBatches.Select(b=>b.Model));
-            var expired=scatterArt.Where(p=>p.Value.TreeBaked&&!used.Contains(p.Value)).OrderBy(p=>p.Value.LastUsed).FirstOrDefault();
-            if(expired.Value==null)return;
-            foreach(var part in expired.Value.Parts){ownedScatterMeshes.Remove(part.Mesh);Destroy(part.Mesh);ownedScatterMaterials.Remove(part.Material);Destroy(part.Material);}
-            ReleaseTreeTextures(expired.Value);scatterArt.Remove(expired.Key);
+            var expired=scatterArt.Where(p=>p.Value.TreeBaked&&!p.Value.TreeStand&&!used.Contains(p.Value)).OrderBy(p=>p.Value.LastUsed).FirstOrDefault();
+            if(expired.Value==null)
+            {
+                // A full visible local-tree cache must not starve all horizon
+                // bakes indefinitely in a high-diversity forest.
+                pending=scatterArt.Values.FirstOrDefault(m=>m.TreeStand&&!m.TreeBaked&&!treeBakeFailures.Contains(m)&&Time.realtimeSinceStartupAsDouble-m.LastUsed<3);
+                if(pending==null)return;
+            }
+            else
+            {
+                foreach(var part in expired.Value.Parts){ownedScatterMeshes.Remove(part.Mesh);Destroy(part.Mesh);ownedScatterMaterials.Remove(part.Material);Destroy(part.Material);}
+                ReleaseTreeTextures(expired.Value);scatterArt.Remove(expired.Key);
+            }
         }
         long nearKey=ScatterArtKey(ScatterKind.GeneratedTree,pending.TreeCode,0);Mesh source;bool temporary=false;
         if(scatterArt.TryGetValue(nearKey,out var near))source=near.Parts[0].Mesh;
         else{source=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,0,pending.TreeCode);temporary=true;}
         var snapshot=new LocalTreeImpostor.Source(source,(int)new TreeMorphology(pending.TreeCode).LeafShape);if(temporary)Destroy(source);
         var token=cancellation.Token;pending.TreeQueued=true;treeBakeOwner=pending;
-        treeBakeTask=Task.Run(()=>LocalTreeImpostor.Bake(snapshot,token),token);
+        bool stand=pending.TreeStand;
+        treeBakeTask=Task.Run(()=>{var result=LocalTreeImpostor.Bake(snapshot,token);return stand?LocalTreeImpostor.Cluster(result,pending.TreeCode,token):result;},token);
     }
     static void ReleaseTreeTextures(ArtModel model)
     {if(model.TreeColour!=null)UnityEngine.Object.Destroy(model.TreeColour);if(model.TreeNormal!=null)UnityEngine.Object.Destroy(model.TreeNormal);model.TreeColour=model.TreeNormal=null;model.TreeBaked=false;}

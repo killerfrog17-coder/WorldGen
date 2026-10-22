@@ -32,13 +32,13 @@ static class LocalTreeTextures
                     {int at=(y+dy)*Size+x+dx;pixels[at]=new Color32(113,113,113,255);ns[at]=new Color32(128,128,255,128);}
                 }
             }
-            Stem(new Vector2(.48f,.04f),new Vector2(.54f,.94f),.003f);
+            if(family==4)Stem(new Vector2(.48f,.04f),new Vector2(.54f,.94f),.002f);
             int rows=family==4?12:7;
             for(int row=0;row<rows;row++)for(int sign=-1;sign<=1;sign+=2)
             {
                 float y=.12f+row*.72f/rows,reach=(.15f+.16f*Mathf.Sin(y*Mathf.PI))*(.88f+(float)rng.Unit()*.22f);
                 Vector2 a=new Vector2(.48f+.06f*y,y),tip=new Vector2(a.x+sign*reach,y+.11f);
-                Stem(a,tip,.002f);
+                if(family==4)Stem(a,tip,.001f);
                 int leaflets=family==4?7:family==3?3:2;
                 for(int leaflet=0;leaflet<leaflets;leaflet++)
                 {

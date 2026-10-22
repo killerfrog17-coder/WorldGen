@@ -58,7 +58,14 @@ public static partial class TerrainVideoOptions
     }
     public static ScatterBlend VegetationBlend(ScatterKind kind,double width,double distance)
     {
-        if(kind==ScatterKind.GeneratedTree)return ScatterLodBlend.At(kind,width,distance,TreeNearLod,TreeFarLod,TreeMaxDistance);
+        if(kind==ScatterKind.GeneratedTree)
+        {
+            // A common outer handoff avoids young/narrow trees disappearing
+            // hundreds of metres before the same forest's distant layer.
+            double reachWidth=TreeRebuild?Math.Max(width,TreeMaxDistance/150):width;
+            double size=TreeRebuild?Math.Max(.72,Math.Min(1.35,width/10)):1;
+            return ScatterLodBlend.At(kind,reachWidth,distance,TreeNearLod*size,TreeFarLod*size,TreeMaxDistance);
+        }
         if(kind==ScatterKind.MidPlant)return ScatterLodBlend.At(kind,width,distance,MidNearLod,MidFarLod,MidMaxDistance);
         if(kind==ScatterKind.Herb||kind==ScatterKind.Fungus)return ScatterLodBlend.At(kind,width,distance,SpecialistNearLod,0,kind==ScatterKind.Fungus?FungusDistance:SpecialistDistance);
         return ScatterLodBlend.At(kind,width,distance);
@@ -79,7 +86,7 @@ public sealed partial class WorldGenRuntime
         TerrainVideoOptions.SpecialistPlants=GUILayout.Toggle(TerrainVideoOptions.SpecialistPlants,"Generated flowers, low herbs, ferns and fungi");
         TerrainVideoOptions.MidPlants=GUILayout.Toggle(TerrainVideoOptions.MidPlants,"Generated mid-height plants");
         TerrainVideoOptions.GeneratedTrees=GUILayout.Toggle(TerrainVideoOptions.GeneratedTrees,"Generated trees · nearby instanced models");
-        TerrainVideoOptions.FarForest=GUILayout.Toggle(TerrainVideoOptions.FarForest,"Distant forest canopy volumes and colour");
+        TerrainVideoOptions.FarForest=GUILayout.Toggle(TerrainVideoOptions.FarForest,"Distant baked forest stands and colour");
         if(GUI.changed)TerrainVideoOptions.SaveVegetation();GUI.changed|=before;
     }
     void DrawVegetationOptions()
@@ -114,7 +121,7 @@ public sealed partial class WorldGenRuntime
         GUILayout.Space(16);GUILayout.Label("TREES",SectionStyle());GUI.enabled=enabled&&TerrainVideoOptions.GeneratedTrees;
         TerrainVideoOptions.TreeRebuild=GUILayout.Toggle(TerrainVideoOptions.TreeRebuild,"Rebuilt trees (session-only A/B; off = previous models)");
         TerrainVideoOptions.TreeImpostors=GUILayout.Toggle(TerrainVideoOptions.TreeImpostors,"Bake multi-angle distant trees (off = mesh-only comparison)");
-        GUILayout.Label("Bakes run in the background; full middle meshes remain until ready. Atlas budget 48 models (~128 MiB).",MutedStyle());
+        GUILayout.Label("Background bakes: 48 local trees (~128 MiB) plus up to 13 world-family stands (~35 MiB). Local meshes remain until ready; F3 shows progress. Distant stands require both rebuild/bake switches.",MutedStyle());
         if(GUILayout.Button("Try rebuilt-tree LOD handoffs: 60 / 200 m")){TerrainVideoOptions.TreeNearLod=60;TerrainVideoOptions.TreeFarLod=200;GUI.changed=true;}
         TerrainVideoOptions.TreeDensity=PlantDensity("Visible population",TerrainVideoOptions.TreeDensity);
         GUILayout.Label("Geometry quality");TerrainVideoOptions.TreeDetail=GUILayout.SelectionGrid(TerrainVideoOptions.TreeDetail,new[]{"Low","Medium","High"},3);

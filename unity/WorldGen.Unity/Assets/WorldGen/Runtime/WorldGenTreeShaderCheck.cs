@@ -32,7 +32,7 @@ public sealed partial class WorldGenRuntime
         var matrices=new[]{Matrix4x4.TRS(new Vector3(-.58f,0,0),Quaternion.identity,Vector3.one),Matrix4x4.TRS(new Vector3(.58f,0,0),Quaternion.Euler(0,45,0),Vector3.one)};
         Shader.SetGlobalVector("_AirGeometry",new Vector4(6371000,0,0,0));Shader.SetGlobalFloat("_AirObserverM",0);Shader.SetGlobalFloat("_AirHaze",0);
         var report="";
-        foreach(int code in new[]{0x02345600,0x12345600})
+        foreach(int code in new[]{0x02345600,0x12345600,0x22345600,0x32345600,0x52345600})
         {
             var mesh=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,0,code);material.SetFloat("_TreeLeafShape",(int)new TreeMorphology(code).LeafShape);
             for(int stage=0;stage<2;stage++)

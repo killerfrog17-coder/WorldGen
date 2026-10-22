@@ -1,6 +1,37 @@
 # WorldGen repository instructions
 
 Current OWNER-REVIEW launch,21October2026 local/22October UTC: shortcut selects
+real C: `artifacts/player-tree-forest-refined/WorldGen.exe` (IL2CPP02:25:31Z).
+Owner is testing separate `player-tree-forest-overhaul/WorldGen.exe` (02:13:27Z).
+Refined package adds queue/lighting/slope follow-up; do not overwrite/stop owner's
+running first checkpoint. Final native tree/forest fixtures both pass on RTX4060;
+own26768/17836 exited, no actual-world FPS/transition acceptance inferred.
+Tree-flora2/local-scatter-tree-flora8 change derived forest placement:96 vs48
+candidates, physical cap .034/m2, blended ecology/stand openings/soft slope.
+2763 trees/~26.21ha uniform fixture, not calibrated actual-world forest density.
+Lower branch-aligned conifers; fixed oversized lateral branch radii; clustered
+broad foliage without green twigs; attached curved palm/fern/cane anatomy. Near
+folded shoots4 vs8tri; sampled broad3852/2298,needle6592/2790 near/mid. Succulents
+retain prior anatomy. Same local mesh foliage roots,16-view actual-tree impostors.
+Old terrain oval canopy append removed. New terrain-rooted GPU stand fields use
+relightable16-view groups assembled from actual models, at most13 shared world-
+family stand atlases. Far positions are representative chart-grid groups, NOT
+exact local-tree identities/positions.32-256m root pitch (giant tiles coarser),
+terrain-plane base shear, interpolated habitat tint/height/coverage. Wire5 stride8
+unchanged; spare forest word7 discrete morphology bits, never interpolated.
+Local/far distance overlap, width-staggered detail thresholds, no timed vegetation
+fade. GPU frustum/range/finer-field compaction plus conservative CPU hill culling,
+NOT full Hi-Z.48 local view atlases ~128MiB plus13 stands ~35MiB excludes other
+memory. One background bake; initial3 stand priority then ~1/3 slots; full local
+budget cannot starve stands. High-diversity excess local variants retain meshes.
+F3 local/stand/pending/view bytes and fields/packets/draws. No saved-world/history,
+terrain/water/grass/mid-flora changes; source hash fixture unchanged. Core220 and
+five-form finite topology/bake checks pass; first packaged RTX4060 tree/forest
+indirect visibility/culling fixtures pass. No lengthy world/FPS suite and NO
+realism/seamless/100FPS acceptance. Owner actual art/density/LOD/FPS review pending.
+See TREE_FLORA.md/VALIDATION.md for sources, limits and final package evidence.
+
+Current OWNER-REVIEW launch,21October2026 local/22October UTC: shortcut selects
 real C: `artifacts/player-tree-baked-visible/WorldGen.exe`, IL2CPP01:09:26Z.
 Owner sees no rebuilt trees in preceding prototype; old-tree A/B restores them.
 Root cause: player strips new shader's INSTANCING_ON variants because no asset
