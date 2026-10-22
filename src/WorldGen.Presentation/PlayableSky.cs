@@ -22,6 +22,15 @@ namespace WorldGen.Presentation
         {
             V sun=CelestialMechanics.SunEquatorial(year*365);return Local(sun,latitude,SiderealAngle(sun,hour)).Unit;
         }
+        // Allocation-free pose query for per-frame presentation. Same orbit,
+        // sidereal rotation and observer parallax as the full 10Hz sky sample.
+        public static V MoonDirection(double latitude,double hour,double year,MoonSettings moon,double observerAltitudeM=0)
+        {
+            V sun=CelestialMechanics.SunEquatorial(year*365);double angle=SiderealAngle(sun,hour),lat=latitude*Math.PI/180;
+            V observer=new V(Math.Cos(lat)*Math.Cos(angle),Math.Cos(lat)*Math.Sin(angle),Math.Sin(lat))*(6371+Math.Max(0,observerAltitudeM)/1000);
+            V delta=CelestialMechanics.ToEquatorial(CelestialMechanics.MoonEcliptic(moon,year*365))-observer;
+            return Local(delta.Unit,latitude,angle).Unit;
+        }
         static double SiderealAngle(V sun,double hour)=>Math.Atan2(sun.Y,sun.X)+(hour-12)*Math.PI/12;
         static V Local(V p,double latitude,double angle)
         {double lat=latitude*Math.PI/180,c=Math.Cos(angle),s=Math.Sin(angle);return new V(-s*p.X+c*p.Y,Math.Cos(lat)*(c*p.X+s*p.Y)+Math.Sin(lat)*p.Z,-Math.Sin(lat)*(c*p.X+s*p.Y)+Math.Cos(lat)*p.Z);}

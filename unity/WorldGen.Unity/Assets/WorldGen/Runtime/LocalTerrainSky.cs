@@ -10,9 +10,8 @@ public sealed partial class LocalTerrainExplorer
     readonly System.Collections.Generic.List<Light> suspendedSkyLights=new System.Collections.Generic.List<Light>();
     readonly Vector4[] skyDirections=new Vector4[8],skyColors=new Vector4[8],skyParameters=new Vector4[8];
     readonly Vector4[] skyLightDirections=new Vector4[8],secondaryDirections=new Vector4[4],secondaryColors=new Vector4[4];
-    double skyYear;
-    Quaternion sunRotationFrom,sunRotationTarget;double sunBlendStarted;bool sunDirectionReady;int sunPrimary=-1;
-    readonly Vector4[] skyDirectionFrom=new Vector4[8],skyDirectionDisplayed=new Vector4[8];
+    double skyYear,skyHour=9;
+    bool skyPoseReady,sunPoseWritten;int sunPrimary=-1;
     int skyDirectionCount;
     public PlayableSkyFrame SkyFrame {get;private set;}
     void InitializeSky()
@@ -55,15 +54,14 @@ public sealed partial class LocalTerrainExplorer
     }
     public void SetDaylight(double solarHour,double seasonalYear)
     {
+        // Clock inputs advance every frame; only the expensive environment work
+        // below is throttled. No sampled-pose interpolation/history remains.
+        skyHour=solarHour;skyYear=seasonalYear;
         if(localSun==null||Time.realtimeSinceStartupAsDouble<nextDaylightAt)return;nextDaylightAt=Time.realtimeSinceStartupAsDouble+.1;
         long traceStarted=WorldGenPerformance.TraceBegin();try{SetDaylightBody(solarHour,seasonalYear);}finally{WorldGenPerformance.TraceEnd(7,traceStarted);}
     }
     void SetDaylightBody(double solarHour,double seasonalYear)
     {
-        // Finish the previous interval at NOW before publishing its successor;
-        // otherwise each 10Hz sample would hold the previous rendered pose for
-        // one frame and reintroduce a small periodic hitch.
-        UpdateSunPresentation();
         skyYear=seasonalYear;skyConfig=playState?.Settings.Sky??skyConfig;RefreshStarAtlas();
         double actualRadius=frame.RadiusM+frame.AltitudeM+motion.Y,altitude=Math.Sqrt(actualRadius*actualRadius+motion.X*motion.X+motion.Z*motion.Z)-frame.RadiusM;
         var appearance=playState?.Settings;
@@ -75,18 +73,16 @@ public sealed partial class LocalTerrainExplorer
         var at=Position;V east=V.Cross(Math.Abs(at.Z)>.999999?new V(0,1,0):new V(0,0,1),at).Unit,north=V.Cross(at,east).Unit;
         Vector3 Vector(V value){var planet=east*value.X+at*value.Y+north*value.Z;return new Vector3((float)V.Dot(planet,frame.East),(float)V.Dot(planet,frame.Origin),(float)V.Dot(planet,frame.North));}
         Color ColorOf(V value)=>new Color((float)value.X,(float)value.Y,(float)value.Z);
-        var direction=Vector(body.Direction);var rotation=Quaternion.LookRotation(-direction,Math.Abs(direction.y)>.99?Vector3.forward:Vector3.up);
-        bool snap=!sunDirectionReady||sunPrimary!=primary||Quaternion.Angle(localSun.transform.rotation,rotation)>20;
-        sunRotationFrom=snap?rotation:localSun.transform.rotation;sunRotationTarget=rotation;sunBlendStarted=Time.realtimeSinceStartupAsDouble;
-        sunDirectionReady=true;sunPrimary=primary;if(snap)localSun.transform.rotation=rotation;
-        float cloudLight=weatherScreen==null?1:Mathf.Lerp(1,.3f,(float)CurrentWeather.CloudCover);localSun.color=ColorOf(body.Color);localSun.intensity=(float)body.Illuminance*cloudLight;
+        sunPrimary=primary;
+        float cloudLight=weatherScreen==null?1:Mathf.Lerp(1,.3f,(float)CurrentWeather.CloudCover);
+        if(!TerrainDiagnostics.FreezeSun||!sunPoseWritten){localSun.color=ColorOf(body.Color);localSun.intensity=(float)body.Illuminance*cloudLight;}
         ConfigureWeatherScreen(sampled,Vector(sampled.Bodies[0].Direction),ColorOf(sampled.Bodies[0].Color));
         skyMaterial.SetVector("_Zenith",ColorOf(sampled.Zenith));skyMaterial.SetVector("_Horizon",ColorOf(sampled.Horizon));
         skyMaterial.SetVector("_LocalUp",Vector(new V(0,1,0)));
         skyMaterial.SetVector("_NightAirGlow",ColorOf(sampled.NightAirGlow));skyMaterial.SetFloat("_AirDensity",(float)Math.Exp(-Math.Max(0,altitude)/8000));skyMaterial.SetFloat("_AerosolHaze",(float)skyConfig.Haze);
         skyMaterial.SetVector("_StarRight",Vector(sampled.StarRight));skyMaterial.SetVector("_StarUp",Vector(sampled.StarUp));skyMaterial.SetVector("_StarForward",Vector(sampled.StarForward));
         skyMaterial.SetFloat("_StarVisibility",(float)sampled.StarVisibility);skyMaterial.SetFloat("_Daylight",(float)sampled.Daylight);skyMaterial.SetFloat("_Twilight",(float)sampled.Twilight);skyMaterial.SetFloat("_GalacticGlow",(float)sampled.GalacticGlow);skyMaterial.SetFloat("_StellarGlow",(float)sampled.StellarGlow);
-        int count=Math.Min(8,sampled.Bodies.Length),secondary=0;for(int i=0;i<count;i++){var b=sampled.Bodies[i];skyDirectionFrom[i]=snap||i>=skyDirectionCount?(Vector4)Vector(b.Direction):skyDirectionDisplayed[i];skyDirections[i]=Vector(b.Direction);skyColors[i]=ColorOf(b.Color)*(b.MoonIndex<0?1:(float)(skyConfig.Moons[b.MoonIndex].Albedo/.12));skyLightDirections[i]=Vector(b.LightDirection);skyParameters[i]=new Vector4((float)(b.AngularRadiusDegrees*Math.PI/180),b.Surface,(b.MoonIndex+1)*79+starSeed%4096,(float)b.IlluminatedFraction);
+        int count=Math.Min(8,sampled.Bodies.Length),secondary=0;for(int i=0;i<count;i++){var b=sampled.Bodies[i];skyDirections[i]=Vector(b.Direction);skyColors[i]=ColorOf(b.Color)*(b.MoonIndex<0?1:(float)(skyConfig.Moons[b.MoonIndex].Albedo/.12));skyLightDirections[i]=Vector(b.LightDirection);skyParameters[i]=new Vector4((float)(b.AngularRadiusDegrees*Math.PI/180),b.Surface,(b.MoonIndex+1)*79+starSeed%4096,(float)b.IlluminatedFraction);
             if(i!=primary&&secondary<4){secondaryDirections[secondary]=Vector(b.Direction);secondaryColors[secondary++]=ColorOf(b.Color)*(float)b.Illuminance;}}
         skyDirectionCount=count;skyMaterial.SetInt("_BodyCount",count);skyMaterial.SetVectorArray("_BodyColors",skyColors);skyMaterial.SetVectorArray("_BodyParameters",skyParameters);
         skyMaterial.SetVectorArray("_BodyLightDirections",skyLightDirections);
@@ -94,15 +90,36 @@ public sealed partial class LocalTerrainExplorer
             material.SetVector("_AirGeometry",new Vector4((float)frame.RadiusM,(float)frame.AltitudeM,(float)originX,(float)originZ));material.SetFloat("_AirObserverM",(float)altitude);material.SetFloat("_AirHaze",(float)skyConfig.Haze);material.SetInt("_SecondaryLightCount",secondary);material.SetVectorArray("_SecondaryDirections",secondaryDirections);material.SetVectorArray("_SecondaryColors",secondaryColors);}
         MaterialLight(landMaterial);MaterialLight(waterMaterial);foreach(var material in legacyVegetationScene)if(material!=null)MaterialLight(material);
         terrainSecondaryCount=secondary;PublishTerrainScene();
+        skyPoseReady=true;
         UpdateSunPresentation();
     }
     void UpdateSunPresentation()
     {
-        if(!sunDirectionReady||localSun==null||skyMaterial==null)return;
-        float t=Mathf.Clamp01((float)((Time.realtimeSinceStartupAsDouble-sunBlendStarted)/.1));
-        localSun.transform.rotation=Quaternion.Slerp(sunRotationFrom,sunRotationTarget,t);
-        for(int i=0;i<skyDirectionCount;i++)skyDirectionDisplayed[i]=Vector3.Slerp((Vector3)skyDirectionFrom[i],(Vector3)skyDirections[i],t);
-        skyMaterial.SetVectorArray("_BodyDirections",skyDirectionDisplayed);
+        if(!skyPoseReady||localSun==null||skyMaterial==null||SkyFrame==null)return;
+        var at=Position;double latitude=Math.Asin(at.Z)*180/Math.PI;
+        double radius=frame.RadiusM+frame.AltitudeM+motion.Y;
+        double altitude=Math.Sqrt(radius*radius+motion.X*motion.X+motion.Z*motion.Z)-frame.RadiusM;
+        V east=V.Cross(Math.Abs(at.Z)>.999999?new V(0,1,0):new V(0,0,1),at).Unit,north=V.Cross(at,east).Unit;
+        for(int i=0;i<skyDirectionCount;i++)
+        {
+            int moon=SkyFrame.Bodies[i].MoonIndex;
+            V direction=moon<0?PlayableSky.SunDirection(latitude,skyHour,skyYear):PlayableSky.MoonDirection(latitude,skyHour,skyYear,skyConfig.Moons[moon],altitude);
+            V planet=east*direction.X+at*direction.Y+north*direction.Z;
+            var local=new Vector3((float)V.Dot(planet,frame.East),(float)V.Dot(planet,frame.Origin),(float)V.Dot(planet,frame.North));
+            skyDirections[i]=local;
+            if(i==sunPrimary&&(!TerrainDiagnostics.FreezeSun||!sunPoseWritten))
+            {
+                // Exact current direction, not a Slerp between old poses. Carry
+                // roll continuously: switching LookRotation's up axis near the
+                // zenith can abruptly rotate the shadow-map texel grid.
+                Vector3 forward=-local.normalized;
+                Vector3 up=Vector3.ProjectOnPlane(localSun.transform.up,forward);
+                if(up.sqrMagnitude<1e-6f)up=Vector3.ProjectOnPlane(Math.Abs(forward.y)>.9f?Vector3.forward:Vector3.up,forward);
+                localSun.transform.rotation=Quaternion.LookRotation(forward,up);
+                sunPoseWritten=true;
+            }
+        }
+        skyMaterial.SetVectorArray("_BodyDirections",skyDirections);
     }
     void DisposeSky(){foreach(var light in suspendedSkyLights)if(light!=null)light.enabled=true;suspendedSkyLights.Clear();if(skyMaterial!=null)Destroy(skyMaterial);if(starAtlas!=null)Destroy(starAtlas);}
 }

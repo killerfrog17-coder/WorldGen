@@ -103,14 +103,28 @@ toggle are machine-local preferences saved only by the UI.
 
 ## Smooth sunlight and broad canopy shelter revision
 
-Source review found that SetDaylight directly assigned the light rotation only
-every0.1s. New presentation interpolates the actual directional light and visible
-sun/moon-disc directions every frame between sampled poses, with0.1s latency,
-while retaining10Hz sky/weather calculations. First poses, large direction/time
-jumps and primary-body changes snap; chart reset forces a fresh pose. No shadow
-cache or extra shadow render pass is added. It addresses a matching code-level
-cause of owner-reported10Hz jitter; no runtime confirmation/all-shimmer fix is
-claimed. Regular shadow texel/cascade artifacts can still exist.
+Source review found SetDaylight assigning the light rotation only every0.1s.
+The first revision interpolated those poses; owner reports worse flutter/flashing
+and requests direct position updates instead. CURRENT presentation evaluates the
+actual SunDirection/MoonDirection orbit/parallax queries every rendered frame,
+using current clock inputs and observer position. No previous/target poses,
+history, Slerp or0.1s presentation delay. Full sky/weather, colour and intensity
+calculation stays10Hz. MoonDirection is an allocation-free query using the same
+orbit/sidereal/observer formulas as the full sample; no extra full sky arrays or
+weather queries per frame. Visible sun/moon discs and primary light use the
+direct directions; light roll stays continuous instead of switching an up axis
+near the zenith. No shadow cache or extra shadow render pass is added.
+
+Terrain lab > Lighting adds session-only Freeze sun/light direction and
+brightness. It holds the directional light's rotation/colour/intensity while
+sky discs, clock, weather, wind and camera continue. Reset/exit clears it; chart
+changes reinitialize the pose in the new frame. It is a diagnostic, not another
+shadow technique or a persistent setting. Continued flashing while stationary
+with this enabled means moving sunlight alone does not explain the issue;
+ambient/weather/wind and shadow aliasing can still vary. No confirmed universal
+flutter cure or pixel-equivalence/performance claim. Cascades, shadow filters,
+caster meshes and canopy-cache replacement blending remain unchanged by this
+follow-up. No actual sunlight-map interpolation/caching is introduced.
 
 `LocalCanopyShade.cs` summarizes existing resident GeneratedTree roots, dimensions
 and crown-base traits into a world-anchored256² field covering1536m. It is not

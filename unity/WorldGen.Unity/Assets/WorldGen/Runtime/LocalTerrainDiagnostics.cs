@@ -16,15 +16,15 @@ public static class TerrainDiagnostics
 {
     public static TerrainDiagnosticFlags Flags;
     public static bool NoReceiveShadows, NoShadowMaps, HideLand, HideWater, HidePlants, HideTrees, HideGrass, NoWeather, CullBackFaces;
-    public static bool HoldTerrain, HoldPlants, DistanceOnly, NoProximity;
+    public static bool HoldTerrain, HoldPlants, DistanceOnly, NoProximity, FreezeSun;
     public static int Grid=64, Revision;
-    public static bool Active=>Flags!=0||NoReceiveShadows||NoShadowMaps||HideLand||HideWater||HidePlants||HideTrees||HideGrass||NoWeather||CullBackFaces||HoldTerrain||HoldPlants||DistanceOnly||NoProximity||Grid!=64;
+    public static bool Active=>Flags!=0||NoReceiveShadows||NoShadowMaps||HideLand||HideWater||HidePlants||HideTrees||HideGrass||NoWeather||CullBackFaces||HoldTerrain||HoldPlants||DistanceOnly||NoProximity||FreezeSun||Grid!=64;
     public static void Changed(bool geometry=false){Revision++;if(geometry)TerrainVideoOptions.Revision++;}
     public static void Reset()
     {
         bool geometry=DistanceOnly||NoProximity||Grid!=64;
         Flags=0;NoReceiveShadows=NoShadowMaps=HideLand=HideWater=HidePlants=HideTrees=HideGrass=NoWeather=CullBackFaces=false;
-        HoldTerrain=HoldPlants=DistanceOnly=NoProximity=false;Grid=64;Changed(geometry);
+        HoldTerrain=HoldPlants=DistanceOnly=NoProximity=FreezeSun=false;Grid=64;Changed(geometry);
     }
     public static void Detail(TerrainDetailOptions options)
     {options.EstimateRelief=!DistanceOnly;options.ProximityRefinement=!NoProximity;options.FinestSegments=Grid;}
@@ -134,6 +134,7 @@ public sealed partial class WorldGenRuntime
         Flag(TerrainDiagnosticFlags.Unlit,"Unlit terrain (overrides simple lighting; keeps material colours)");
         TerrainDiagnostics.NoReceiveShadows=Switch(TerrainDiagnostics.NoReceiveShadows,"Terrain stops receiving shadows (other objects unchanged)");
         TerrainDiagnostics.NoShadowMaps=Switch(TerrainDiagnostics.NoShadowMaps,"Disable sunlight shadow maps for the whole scene");
+        TerrainDiagnostics.FreezeSun=Switch(TerrainDiagnostics.FreezeSun,"Freeze sun/light direction and brightness (debug; sky/time keep running)");
         Flag(TerrainDiagnosticFlags.NoGrassMat,"Skip grass material overlay on terrain");
         Flag(TerrainDiagnosticFlags.NoMoss,"Skip moss material overlay on terrain");
         Flag(TerrainDiagnosticFlags.NoLichen,"Skip lichen material overlay on terrain");

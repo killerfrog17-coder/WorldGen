@@ -1,5 +1,37 @@
 # Version 3 validation evidence
 
+## Direct per-frame celestial poses /22October2026
+
+Owner reports interpolation still flutters/flashes and asks for direct updates.
+Remove all sampled-pose endpoints, Slerp and presentation delay. SetDaylight now
+records the latest hour/year every call before its10Hz environment-work throttle.
+LateUpdate queries actual SunDirection and new allocation-free MoonDirection at
+the current observer position/altitude for visible discs and primary-light aim.
+MoonDirection source uses the same orbit, sidereal rotation and observer parallax
+expressions as the existing full Sample; no world/ephemeris model change. Full
+sky/weather/radiance work remains10Hz, not full sky arrays/weather queries per
+rendered frame. Light roll is kept continuous rather than switching up axes near
+the zenith. SkyFrame remains the last full sample for existing consumers; visible
+directions are the per-frame presentation output.
+
+Terrain lab Lighting adds session-only Freeze sun/light direction and brightness,
+holding directional-light pose/colour/intensity while sky/time/weather/wind keep
+running. Reset/exit clears it; a new chart reinitializes its pose. This is intended
+to help owner isolate flashing, not evidence that sunlight was the only cause.
+Ambient/weather effects and moving receivers still vary. Existing shadow maps
+still render each frame: no cached sunlight-map blending/caching introduced.
+Cascades, filters, proxy art, canopy field/blending, geometry, vegetation/wind,
+world/history/water/saves remain unchanged. No new SRP material/binding changes.
+
+Owner compile/package-only restriction remains: no suites, numerical fixtures,
+game/world launches, screenshots or profiling. Source review is not a confirmed
+visual flutter cure, measured performance result or native direction equivalence
+test. Release IL2CPP compile/package exits0; manifest BuiltUtc22:00:53Z.
+D3D11/12 compilation has no C#/shader errors; existing shader div/mod,
+sky gradient-loop and TerrainTestAir advisories remain. Shortcut selects real C:
+artifacts/player-direct-sun-motion/WorldGen.exe; cascade-canopy-shadows remains
+rollback. Owner's running game, preferences and saves were not changed.
+
 ## Smooth sunlight, resolution-based cascades and broad canopy shelter /22October2026
 
 Owner requests implementation after identifying10Hz sun stepping and an obvious

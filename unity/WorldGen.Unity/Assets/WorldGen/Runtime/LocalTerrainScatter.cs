@@ -70,7 +70,7 @@ public sealed partial class LocalTerrainExplorer
     void ResetScatterFrame()
     {
         if(scatter==null)return;scatterX=double.NaN;
-        sunDirectionReady=false;nextDaylightAt=0;
+        skyPoseReady=sunPoseWritten=false;nextDaylightAt=0;
         // Texture phase remains planet-addressed across floating origins and chart changes.
         double modulus=1024;V p=frame.Origin*(frame.RadiusM+frame.AltitudeM);
         landMaterial.SetVector("_TextureAnchor",new Vector4((float)(p.X%modulus),(float)(p.Y%modulus),(float)(p.Z%modulus),0));

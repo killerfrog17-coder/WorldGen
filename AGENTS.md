@@ -1,5 +1,21 @@
 # WorldGen repository instructions
 
+OWNER-TEST-ONLY direct celestial pose checkpoint,22October2026: shortcut selects
+real C: `artifacts/player-direct-sun-motion/WorldGen.exe`, release IL2CPP
+BuiltUtc22:00:53Z, compile/package0. Owner reports flutter/flashing after sampled
+pose interpolation. Remove endpoints/Slerp/delay; direct allocation-free Sun/
+Moon direction queries every rendered frame use latest clock and observer.
+Full sky/weather/radiance remains10Hz; continuous light roll avoids old zenith
+up-axis switch. No cached/interpolated sunlight shadow maps. Terrain lab Lighting
+adds session-only Freeze sun/light direction and brightness; sky/time/weather/
+wind still run. Reset/exit clears; chart reset initializes new-frame pose.
+Cascades, filters, proxies, canopy cache/blending, vegetation/wind, geometry,
+terrain/water/world/history/saves unchanged. No C#/shader errors; existing
+div/mod, sky gradient-loop and TerrainTestAir advisories remain. Compile/package
+ONLY: no tests/fixtures/player/world launches/captures/profiling. Source/build
+integration is NOT confirmed flutter cure or measured-FPS acceptance. Owner
+review pending; cascade-canopy-shadows is rollback. See FOLIAGE_SHADOWS/VALIDATION.
+
 OWNER-TEST-ONLY cascade/canopy checkpoint,22October2026: shortcut selects real C:
 `artifacts/player-cascade-canopy-shadows/WorldGen.exe`, release IL2CPP
 BuiltUtc21:34:24Z, compile/package0. Owner identifies10Hz jitter and obvious
