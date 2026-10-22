@@ -16,6 +16,7 @@ public sealed partial class LocalTerrainExplorer
     int detailRevision=-1,detailGeneration,plannedPixels;float plannedFov;
     double detailX,detailZ,nextRequestAt,frameUploadMs,fogSafeRadius,streamedFog=300,fogCheckAt;
     bool detailDirty;
+    TerrainCoverageFootprint fogFootprint;
     readonly Dictionary<TerrainTileKey,double[]> backdrops=new Dictionary<TerrainTileKey,double[]>();
     public double StreamingFogDistance=>streamedFog;
     public bool DetailPlanning=>detailPlan!=null||detailDirty;
@@ -26,7 +27,7 @@ public sealed partial class LocalTerrainExplorer
     void ResetDetailFrame()
     {
         detailCancellation?.Cancel();detailEstimator=new TerrainDetailEstimator(terrain,frame);
-        detailDirty=true;backdrops.Clear();streamedFog=300;fogSafeRadius=0;fogCheckAt=0;
+        detailDirty=true;backdrops.Clear();streamedFog=300;fogSafeRadius=0;fogCheckAt=0;fogFootprint=null;
     }
     Dictionary<TerrainTileKey,int> InitialDetailPlan(double x,double z,double altitude)
     {
@@ -105,12 +106,14 @@ public sealed partial class LocalTerrainExplorer
         double now=Time.realtimeSinceStartupAsDouble;
         if(now>=fogCheckAt)
         {
-            fogCheckAt=now+.15;double safe=viewDistance*.98;
-            foreach(var key in wanted.Keys)if(!HasResidentCoverage(key))safe=Math.Min(safe,Math.Sqrt(TerrainLod.DistanceSquared(key,motion.X,motion.Z))*.94);
+            fogCheckAt=now+.15;double limit=viewDistance*.98;
+            if(fogFootprint==null)fogFootprint=new TerrainCoverageFootprint(tiles.Keys);
+            double gap=fogFootprint.NearestGap(wanted.Keys,motion.X,motion.Z,limit/.94);
+            double safe=Math.Min(limit,gap*.94);
             fogSafeRadius=Math.Max(100,safe);
         }
-        // Pull in immediately at truly missing coverage; reveal smoothly. Refinement
-        // does not pull haze inward when a coarse ancestor still covers the area.
+        // Only a real gap in the visible union can pull haze inward. A pending
+        // replacement/edge rebuild/coarsening does not erase existing coverage.
         streamedFog=Math.Min(fogSafeRadius,streamedFog+Math.Max(3000,streamedFog*2)*Time.unscaledDeltaTime);
         SetFog();
     }

@@ -8,6 +8,9 @@ public sealed partial class LocalTerrainExplorer
     void UpdateTerrainCoverage()
     {
         if(!coverageDirty)return;coverageDirty=false;var keys=tiles.Keys.ToArray();
+        // Reuse this index through timestamp/material-only changes. Do not key
+        // fog readiness to the requested detail plan or inactive mesh cache.
+        if(fogFootprint==null||!fogFootprint.Matches(keys)){fogFootprint=new TerrainCoverageFootprint(keys);fogCheckAt=0;}
         // Only actual resident ancestors can need holes. Avoid scanning all
         // resident tiles for every tile whenever a single product arrives.
         var children=new System.Collections.Generic.Dictionary<TerrainTileKey,System.Collections.Generic.List<TerrainTileKey>>();

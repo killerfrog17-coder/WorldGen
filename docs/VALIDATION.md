@@ -1,5 +1,24 @@
 # Version 3 validation evidence
 
+## LOD fog visible-footprint fix /22October2026
+
+Source tracing identifies an ancestor-only fog check: pending coarsening ignored
+still-rendered finer predecessors, and missing parent bounds could put the fog at
+the camera despite a distant actual gap. New pure TerrainCoverageFootprint unions
+resident keys; complete children collapse, partial nodes recurse to actual gap
+distance. Active-chart complementary products count; disabled/prepared/retired
+products do not. Timestamp-only changes reuse the index. Default150ms queries,
+94% gap margin, view limit/reveal/weather/startup/teleport behaviour preserved.
+No mesh/LOD planner/retirement/world/water/vegetation/material change.
+
+WorldGen.Presentation compiles with0 warnings/errors. Source inspection only:
+no new runtime/suite/fixture/game/world/capture/profile under compile-only owner
+direction. No measured FPS or observed movement-fog fix is claimed. Separate
+release IL2CPP package exits0, no shader/C# errors, manifest/worker complete
+(BuiltUtc2026-10-22T05:17:21.1377643Z). Shortcut selects real C: player-lod-fog-
+footprint; owner game/save/preferences untouched. Owner checks walking/flying/adaptive updates
+and initial loading/teleport. See LOD_FOG_FOOTPRINT.md for scope.
+
 ## Exploration continuous map and ecology reference /22October2026
 
 Read-only map queries use same terrain hierarchy at pixel footprint (128×64 to

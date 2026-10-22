@@ -1,5 +1,21 @@
 # WorldGen repository instructions
 
+LOD fog footprint fix,22October2026: old UpdateStreamingFog counted only requested
+key/ancestors, ignoring visible finer tiles and measuring missing whole-parent
+bounds. New TerrainCoverageFootprint unions current visible keys, collapses four
+complete children recursively and descends partial coverage to the actual gap.
+Replans/rerenders/edge jobs/segment counts do not erase existing coverage. Index
+rebuilt only for key-set changes, reused on fade/material updates; existing150ms
+query cadence,94% margin, smooth outward reveal, real-gap protection, startup/
+teleport resets and weather fog stay. Inactive caches/prepared/retired charts not
+counted. Current chart handoff preserves reveal and rebuilds index. Geometry,
+LOD planning/retirement, world/water/vegetation/SRP unchanged. Ancestor-only helper
+remains in backdrop scheduling, no longer used by fog. Shared compile0 warnings/
+errors; owner compile/package-only, NO tests/player/world/capture/profile runs.
+Real C: player-lod-fog-footprint release IL2CPP build/package exits0, no shader/C#
+errors (BuiltUtc05:17:21Z); shortcut selects it. Owner game/save/preferences untouched.
+See LOD_FOG_FOOTPRINT.md/VALIDATION.md; movement reproduction awaits owner.
+
 Exploration map/ecology work,22October2026: continuous M-map terrain/satellite/
 height/relief/final-height/depth use same hierarchy at pixel footprint; historical
 elevation fields interpolate their own stage. Climate/seasonal weather/ecology/
