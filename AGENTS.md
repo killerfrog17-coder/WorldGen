@@ -1,5 +1,22 @@
 # WorldGen repository instructions
 
+OWNER-TEST-ONLY night-reflection checkpoint,22October2026: shortcut selects real
+C: `artifacts/player-night-reflections/WorldGen.exe`, release IL2CPP
+BuiltUtc22:30:32Z, compile/package0. Owner reports grey-blue night cliff glow;
+source reveals camera sky vs default scene reflection-environment mismatch.
+WorldGenLighting uses bundled URP constant-environment specular with generated
+SkyFrame.Ambient mean illumination, replacing default skybox cubemap in terrain/
+LocalScatter PBR. One global at existing10Hz, clear on exit; unbound engine-colour
+fallback. Scoped macros, no Unity package/BRDF fork, reflection captures or tile
+material writes. Uniform rough-surface approximation, NOT directional/local/wet
+reflection implementation; daytime indirect specular intentionally changes too.
+Direct sun/moon lighting, shadows, textures/roughness, water, geometry/LOD,
+vegetation/wind/world/history/saves unchanged. D3D11/12 no C#/shader errors;
+existing advisories remain. Compile/package ONLY: no suites/fixtures/game/world
+launches/captures/profiling. No runtime-isolated screenshot cause, visual cure,
+new SRP runtime verification or FPS claim. Owner review pending; direct-sun-motion
+rollback. See FOLIAGE_SHADOWS.md/VALIDATION.md. Leave owner game/saves untouched.
+
 OWNER-TEST-ONLY direct celestial pose checkpoint,22October2026: shortcut selects
 real C: `artifacts/player-direct-sun-motion/WorldGen.exe`, release IL2CPP
 BuiltUtc22:00:53Z, compile/package0. Owner reports flutter/flashing after sampled

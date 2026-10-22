@@ -78,6 +78,9 @@ public sealed partial class LocalTerrainExplorer
         if(!TerrainDiagnostics.FreezeSun||!sunPoseWritten){localSun.color=ColorOf(body.Color);localSun.intensity=(float)body.Illuminance*cloudLight;}
         ConfigureWeatherScreen(sampled,Vector(sampled.Bodies[0].Direction),ColorOf(sampled.Bodies[0].Color));
         skyMaterial.SetVector("_Zenith",ColorOf(sampled.Zenith));skyMaterial.SetVector("_Horizon",ColorOf(sampled.Horizon));
+        // Already-linear illumination, matching terrain's bakedGI/grass ambient.
+        // One scene upload at 10Hz; never rewrite resident tile materials.
+        Shader.SetGlobalVector("_WorldGenSkyReflection",new Vector4((float)sampled.Ambient.X,(float)sampled.Ambient.Y,(float)sampled.Ambient.Z,1));
         skyMaterial.SetVector("_LocalUp",Vector(new V(0,1,0)));
         skyMaterial.SetVector("_NightAirGlow",ColorOf(sampled.NightAirGlow));skyMaterial.SetFloat("_AirDensity",(float)Math.Exp(-Math.Max(0,altitude)/8000));skyMaterial.SetFloat("_AerosolHaze",(float)skyConfig.Haze);
         skyMaterial.SetVector("_StarRight",Vector(sampled.StarRight));skyMaterial.SetVector("_StarUp",Vector(sampled.StarUp));skyMaterial.SetVector("_StarForward",Vector(sampled.StarForward));
@@ -121,5 +124,5 @@ public sealed partial class LocalTerrainExplorer
         }
         skyMaterial.SetVectorArray("_BodyDirections",skyDirections);
     }
-    void DisposeSky(){foreach(var light in suspendedSkyLights)if(light!=null)light.enabled=true;suspendedSkyLights.Clear();if(skyMaterial!=null)Destroy(skyMaterial);if(starAtlas!=null)Destroy(starAtlas);}
+    void DisposeSky(){Shader.SetGlobalVector("_WorldGenSkyReflection",Vector4.zero);foreach(var light in suspendedSkyLights)if(light!=null)light.enabled=true;suspendedSkyLights.Clear();if(skyMaterial!=null)Destroy(skyMaterial);if(starAtlas!=null)Destroy(starAtlas);}
 }

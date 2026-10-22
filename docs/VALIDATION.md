@@ -1,5 +1,30 @@
 # Version 3 validation evidence
 
+## Generated-sky rough-surface reflections /22October2026
+
+Owner authorizes fixing the source-identified default-environment mismatch after
+reporting grey-blue night cliff glow. Camera Skybox uses generated sky while
+scene default skybox/reflections remain separate; PBR terrain/LocalScatter used
+environment specular but grass/cover did not. No deliberate terrain emission.
+WorldGenLighting now uses URP's constant-environment path with generated
+SkyFrame.Ambient as the rough-surface mean environment. CPU publishes one global
+vector at existing10Hz, clears on exit; unbound materials use engine fallback.
+No reflection-camera/cubemap captures, per-tile updates, new material properties
+or package fork. Bundled BRDF/GI/direct-light/shadow logic is otherwise retained.
+Approximate uniform environment, not a full directional/local/wet reflection
+system. Daytime specular intentionally changes too. Geometry/textures/roughness,
+water, vegetation placement/LOD/wind, sky motion and world/history/saves unchanged.
+
+Compile/package only per owner restriction: no tests, fixtures, player/world
+launches, screenshots or profiling. Source evidence identifies a mismatch, not
+a runtime-isolated sole cause of the screenshot. Owner day/night art review is
+required. Release IL2CPP compile/package exits0, BuiltUtc22:30:32Z. D3D11/12
+terrain/scatter compilation has no C#/shader errors; existing div/mod,
+gradient-loop and TerrainTestAir advisories remain. Shortcut selects real C:
+artifacts/player-night-reflections/WorldGen.exe; direct-sun-motion remains
+rollback. Owner running game/preferences/saves untouched. No new runtime SRP
+capture or measured FPS result is claimed; material-buffer layouts unchanged.
+
 ## Direct per-frame celestial poses /22October2026
 
 Owner reports interpolation still flutters/flashes and asks for direct updates.

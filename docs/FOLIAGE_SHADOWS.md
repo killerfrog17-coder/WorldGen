@@ -101,6 +101,30 @@ mode-off/exit when they still match this controller's published values. Scene
 globals avoid per-tile material updates. Quality/mode/density/softness and canopy
 toggle are machine-local preferences saved only by the UI.
 
+## Night-time rough-surface reflections follow the generated sky
+
+The camera-only sky override did not replace the scene default skybox/reflection
+environment. Bare terrain and LocalScatter use URP PBR environment specular,
+whereas grass/cover use custom ambient lighting. That mismatch is a concrete
+source-level suspect for the owner's grey-blue glowing cliffs at night; its
+exact screenshot contribution has not been isolated in a running player.
+
+WorldGenLighting now selects URP's constant-environment reflection path and
+substitutes `_WorldGenSkyReflection`: the same already-linear generated
+SkyFrame.Ambient illumination used for terrain diffuse GI and vegetation. One
+global vector is published at the existing10Hz sky update; w enables it, and
+exit clears it. Standalone/editor materials fall back to engine environment
+colour when unbound. Macros are scoped around bundled Lighting/GI inclusion,
+without changing Unity packages, the BRDF, direct lighting or shadow visibility.
+This is a cheap spatially uniform approximation for rough terrain/scatter, NOT
+a directional sky cubemap, local reflection probe system, SSR or new wet-surface
+renderer. It intentionally changes indirect specular in daytime as well as at
+night, avoiding a mismatched static cubemap and any reflection-camera captures.
+Textures, roughness, geometry, SRP material layout, water's separate shader path,
+vegetation generation and all world/save data remain unchanged. No emission was
+found or added. Compile/package-only review; owner compares day/night cliffs
+and rocks, and retained moonlight. No visual or FPS acceptance follows from build.
+
 ## Smooth sunlight and broad canopy shelter revision
 
 Source review found SetDaylight assigning the light rotation only every0.1s.
