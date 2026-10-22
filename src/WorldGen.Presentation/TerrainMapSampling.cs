@@ -69,16 +69,17 @@ namespace WorldGen.Presentation
             }
             return 10000*TreeFlora.PlacementPerM2*TreeFlora.Stand(point,terrain.SourceSeed,terrain.RadiusM*terrain.HorizontalScale)*TreeFlora.HabitatAdmission(sample)*TreeFlora.SlopeAdmission(up);
         }
-        public static TerrainMapImage Build(LocalTerrain terrain,TerrainMapViewport view,int width,int height,CancellationToken token,Layer layer,float[]? cellColors,World? world,TerrainMapContext? context=null)
+        public static TerrainMapImage Build(LocalTerrain terrain,TerrainMapViewport view,int width,int height,CancellationToken token,Layer layer,float[]? cellColors,World? world,TerrainMapContext? context=null,int canvasWidth=0,int canvasHeight=0,int offsetX=0,int offsetY=0)
         {
             if(width<2||height<2||width>2048||height>1024)throw new ArgumentOutOfRangeException(nameof(width));
+            if(canvasWidth==0)canvasWidth=width;if(canvasHeight==0)canvasHeight=height;
             var image=new TerrainMapImage{Width=width,Height=height,View=view.Clone(),Rgba=new byte[width*height*4]};
             bool continuous=Continuous(layer);var sampler=context?.Sampler??new Sampler(terrain);double radius=terrain.RadiusM*terrain.HorizontalScale;
             var points=new V[width*height];var samples=continuous&&!Historical(layer)?new LocalTerrainSample[width*height]:Array.Empty<LocalTerrainSample>();
-            double footprint=radius*view.LatitudeSpan*Math.PI/180/height*.45;
+            double footprint=radius*view.LatitudeSpan*Math.PI/180/canvasHeight*.45;
             for(int y=0;y<height;y++)for(int x=0;x<width;x++)
             {
-                token.ThrowIfCancellationRequested();int at=y*width+x;V p=points[at]=view.Position((x+.5)/width,1-(y+.5)/height);
+                token.ThrowIfCancellationRequested();int at=y*width+x;V p=points[at]=view.Position((x+offsetX+.5)/canvasWidth,1-(y+offsetY+.5)/canvasHeight);
                 if(samples.Length>0)samples[at]=sampler.Sample(p,footprint,layer!=Layer.Satellite&&layer!=Layer.TreeDensity);
             }
             for(int y=0;y<height;y++)for(int x=0;x<width;x++)

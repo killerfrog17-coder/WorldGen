@@ -19,6 +19,14 @@ namespace WorldGen.Presentation
         public long SampleMisses=>Sampler.Misses;
         public TerrainMapContext(LocalTerrain terrain){this.terrain=terrain;Sampler=new TerrainMapSampling.Sampler(terrain);}
         public bool Matches(LocalTerrain value)=>ReferenceEquals(value,terrain);
+        public TerrainMapImage BuildTile(TerrainMapViewport view,int canvasWidth,int canvasHeight,int x,int y,int width,int height,CancellationToken token,Layer selected,float[]? palette,World? world)
+        {
+            // One-pixel halo makes slopes/shading identical across tile edges.
+            var padded=TerrainMapSampling.Build(terrain,view,width+2,height+2,token,selected,palette,world,this,canvasWidth,canvasHeight,x-1,y-1);
+            var image=new TerrainMapImage{Width=width,Height=height,View=view.Clone(),Rgba=new byte[width*height*4]};
+            for(int row=0;row<height;row++)Buffer.BlockCopy(padded.Rgba,((row+1)*(width+2)+1)*4,image.Rgba,row*width*4,width*4);
+            return image;
+        }
         public TerrainMapImage Build(TerrainMapViewport view,int width,int height,CancellationToken token,Layer selected,float[]? palette,World? world)
         {
             token.ThrowIfCancellationRequested();if(layer!=selected){images.Clear();bytes=0;layer=selected;}

@@ -1,5 +1,28 @@
 # WorldGen repository instructions
 
+Progressive map/corner HUD revision,22October2026: owner rejects full-raster wait
+and solid F3 panel. New ProgressiveTerrainMap publishes adaptive source preview
+(16×8 first,4–32 width thereafter,150ms compute target), then actual centre-out
+terrain tiles through doubled screen-driven resolutions, no old384px cap. Four
+independent worker contexts max; adaptive4–32px batches, queue16/upload12-frame
+bounds; halo gradients and GPU region copies over upscaled previous pass. No
+normal GPU readback; capture helpers explicitly read final surface. Cancel on
+pan/zoom/close, reject stale revisions. Tile LRU16MiB/4096/eight views plus one
+cell palette/per-worker bounded sampler caches. Selected-cell CellValues preview
+avoids full-world colour work; boundary lookup only for layers using it.
+Map-open scheduling yields new terrain/prediction/reanchor/scatter work and tree
+bake/forest updates; existing jobs finish/install, weather/coverage still update.
+F3 full: transparent top-left position/ground, top-right vegetation, bottom-left
+weather/sky, bottom-right terrain/system; thin rules, no boxes/scroll panels.
+14–10px adaptive text and disjoint clipped areas prevent normal-window overlaps.
+Simplified default, fast30Hz/full4Hz caches retained. Generation/geometry/LOD/
+placement/saves unchanged. Compile/package ONLY, no tests/player/world/captures/
+profiling. Half-second preview is TARGET, not measured acceptance. Owner checks
+latency/refinement/GPU copy/HUD. See EXPLORATION_MAP_ECOLOGY.md/VALIDATION.md.
+Release IL2CPP player-progressive-map-corners compile/package exits0, no shader/
+C# errors; BuiltUtc2026-10-22T06:17:14Z, worker/manifest complete. Shortcut selects
+this real C: checkpoint. Owner running game/saves/preferences remain untouched.
+
 Map cache/F3 follow-up,22October2026: menus drop cells/continuous suffixes.
 Selected-layer LRU8 views/6MiB; retained4096 canonical subpixel samples,12 colour
 patches/128 height-root contexts. Height-only map hierarchy bypasses materials;

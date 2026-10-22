@@ -1,5 +1,37 @@
 # Version 3 validation evidence
 
+## Progressive map and transparent corner F3 /22October2026
+
+Owner rejected slow complete-raster maps and solid HUD panels. Runtime now uses
+adaptive source preview (initial16×8,4–32px wide later,150ms compute target), then
+actual terrain tiles through doubled resolutions to screen-driven power-of-two
+width/GPU limit. Finished tiles publish immediately, centre-out; complete passes
+precede next resolution. Four independent worker contexts maximum, adaptive4–32px
+tile batches, bounded16 update queue/12 Unity uploads per frame. GPU region copies
+preserve the upscaled previous pass without full texture uploads or readbacks.
+Halo pixels provide neighbouring gradients across tiles. Old revisions reject;
+close cancels; old view reprojects while new source preview is prepared.
+
+Tile cache16MiB/4096 tiles/eight view keys; one cell palette plus bounded per-worker
+contexts. Selected-cell GlobeView.CellValues avoids full palette for first preview;
+unneeded boundary setup removed for non-boundary layers. Normal cell-colour rules
+unchanged. New terrain/predictive/reanchor/scatter work and tree bake/forest-field
+updates yield while map open; existing jobs install, visibility/weather continue.
+
+HUD backgrounds/central scroll panel removed: four transparent, disjoint corner
+groups with thin heading rules; most content top, right groups right aligned.
+Font adapts14–10px then group clipping prevents overlap on small windows. Cached
+30Hz fast/4Hz full diagnostics and simplified default remain. No new generation,
+geometry/LOD/placement/save/world rules. Shared release compile0 warnings/errors;
+Unity scripts compile. No tests/player/world/capture/profile runs under owner
+restrictions. Half-second target, GPU copy behaviour, latencies and art/UI are
+NOT runtime verified; owner review required. See EXPLORATION_MAP_ECOLOGY.md.
+Release IL2CPP player-progressive-map-corners package exits0; no shader/C# errors,
+BuiltUtc2026-10-22T06:17:14.9353730Z. Worker/assembly manifest complete, shortcut
+updated to real C: output. Unity incidental asset/project serialization restored.
+Owner game/save/preferences untouched. No runtime half-second, seamless-tile or
+GPU-copy correctness claim follows from a successful native compile.
+
 ## Map cache, shared food web and fast/simple F3 /22October2026
 
 Selected-layer raster LRU is bounded eight views/6MiB; shared canonical subpixel

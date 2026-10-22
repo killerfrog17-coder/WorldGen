@@ -48,20 +48,21 @@ namespace WorldGen.Presentation
         internal static bool TryVisibleWater(World w, int cell, out WaterBody water)
             => TryWater(w, cell, out water) && (water.Kind == WaterKind.Ocean
                 || (cell < w.Hydrology.LakeCoverageFraction.Length && w.Hydrology.LakeCoverageFraction[cell] >= WholeCellLakeCoverage));
-        public static ViewData CellValues(World w, Layer layer = Layer.Terrain, int seaLevel = 0, int detail = 0, double irregularity = .75, System.Threading.CancellationToken token = default)
+        public static ViewData CellValues(World w, Layer layer = Layer.Terrain, int seaLevel = 0, int detail = 0, double irregularity = .75, System.Threading.CancellationToken token = default, int[]? selectedCells = null)
         {
-            int n = w.Surface.Cells.Length; var view = new ViewData { Positions = new float[n * 3], Colors = new float[n * 3], Triangles = w.Surface.Triangles, CellIds = Enumerable.Range(0, n).ToArray(), Unlit = layer == Layer.Heightmap || layer == Layer.Climate || layer == Layer.Relief || EcologyView.IsLayer(layer) };
-            var boundary = new Boundary[n]; foreach (var b in w.Boundaries) { var e = w.Surface.Edges[b.EdgeId]; foreach (int c in new[] { e.A, e.B }) if (boundary[c] == null || b.Stress > boundary[c].Stress) boundary[c] = b; }
+            int total=w.Surface.Cells.Length,n=selectedCells?.Length??total; var view = new ViewData { Positions = new float[n * 3], Colors = new float[n * 3], Triangles = selectedCells==null?w.Surface.Triangles:Array.Empty<int>(), CellIds = selectedCells==null?Enumerable.Range(0,n).ToArray():(int[])selectedCells.Clone(), Unlit = layer == Layer.Heightmap || layer == Layer.Climate || layer == Layer.Relief || EcologyView.IsLayer(layer) };
+            bool needsBoundary=layer==Layer.BoundaryType||layer==Layer.CollisionContext;
+            var boundary = new Boundary[needsBoundary?total:0]; if(needsBoundary)foreach (var b in w.Boundaries) { var e = w.Surface.Edges[b.EdgeId]; foreach (int c in new[] { e.A, e.B }) if (boundary[c] == null || b.Stress > boundary[c].Stress) boundary[c] = b; }
             var land = layer == Layer.LandBridges ? Graph.Components(w.Surface, i => w.ElevationM[i] >= seaLevel) : w.Landmass;
-            var displayedRiverOrder = layer == Layer.Rivers ? new int[n] : null;
+            var displayedRiverOrder = layer == Layer.Rivers ? new int[total] : null;
             if (displayedRiverOrder != null) foreach (var river in w.Hydrology.Rivers)
-                if (river.From >= 0 && river.From < n) displayedRiverOrder[river.From] = Math.Max(displayedRiverOrder[river.From], river.Order);
-            for (int i = 0; i < n; i++)
+                if (river.From >= 0 && river.From < total) displayedRiverOrder[river.From] = Math.Max(displayedRiverOrder[river.From], river.Order);
+            for (int at = 0; at < n; at++)
             {
-                if ((i & 1023) == 0) token.ThrowIfCancellationRequested();
+                if ((at & 1023) == 0) token.ThrowIfCancellationRequested();int i=selectedCells==null?at:selectedCells[at];
                 int h = w.ElevationM[i], mp = w.CellMicroplate[i]; var p = w.Surface.Cells[i].Position; double radius = 1 + Math.Max(h - seaLevel, 0) / 6371000.0 * 14;
-                view.Positions[i * 3] = (float)(p.X * radius); view.Positions[i * 3 + 1] = (float)(p.Z * radius); view.Positions[i * 3 + 2] = (float)(-p.Y * radius);
-                V color = TerrainColor(w, i, h, seaLevel); var b = boundary[i];
+                view.Positions[at * 3] = (float)(p.X * radius); view.Positions[at * 3 + 1] = (float)(p.Z * radius); view.Positions[at * 3 + 2] = (float)(-p.Y * radius);
+                V color = TerrainColor(w, i, h, seaLevel); var b = needsBoundary?boundary[i]:null;
                 switch (layer)
                 {
                     case Layer.Relief:
@@ -120,7 +121,7 @@ namespace WorldGen.Presentation
                         color = !w.Hydrology.OceanConnected[i] ? new V(.19, .25, .2) : Blend(new V(.16, .3, .75), new V(.95, .3, .1), .5 + current.OceanWarmthMilli[i] / 1200.0); break;
                     case Layer.Mantle: color = Blend(new V(.2, .3, .8), new V(.95, .3, .15), .5 + w.MantlePermille[i] / 1200.0); break;
                 }
-                view.Colors[i * 3] = (float)color.X; view.Colors[i * 3 + 1] = (float)color.Y; view.Colors[i * 3 + 2] = (float)color.Z;
+                view.Colors[at * 3] = (float)color.X; view.Colors[at * 3 + 1] = (float)color.Y; view.Colors[at * 3 + 2] = (float)color.Z;
             }
             return view;
         }

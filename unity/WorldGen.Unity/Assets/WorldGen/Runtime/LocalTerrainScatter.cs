@@ -114,12 +114,12 @@ public sealed partial class LocalTerrainExplorer
             if(work.Task.IsFaulted){error=work.Task.Exception.GetBaseException().Message;debugOpen=true;CaptureMouse();continue;}
             if(!work.Task.IsCanceled&&scatterWanted.Contains(work.Key)){var chunk=new ScatterChunk{Source=work.Task.Result,Born=Math.Max(.001f,Time.time)};ProjectScatter(chunk);scatterChunks[work.Key]=chunk;scatterDirty=true;}break;
         }
-        if(CenterReady&&!NearTerrainPending()&&jobs.Count+scatterJobs.Count<WorkerLimit&&scatterJobs.Count<1)
+        if(!mapOpen&&CenterReady&&!NearTerrainPending()&&jobs.Count+scatterJobs.Count<WorkerLimit&&scatterJobs.Count<1)
         {
             foreach(var key in scatterPriority)
             {if(scatterChunks.ContainsKey(key)||scatterJobs.Any(j=>j.Key.Equals(key)))continue;var source=scatter;var producer=meshProcess;var token=cancellation.Token;scatterJobs.Add(new ScatterWork{Key=key,Task=Task.Run(()=>producer==null?source.Build(key,token):producer.Scatter(key,token),token)});break;}
         }
-        UpdateTreeImpostors();UpdateForestFields();
+        if(!mapOpen){UpdateTreeImpostors();UpdateForestFields();}
         if(scatterDirty||ScatterViewChanged||Time.realtimeSinceStartupAsDouble-lastBatchTime>1)BuildScatterBatches();
     }
     double VisibleGround(double x,double z,double fallback)

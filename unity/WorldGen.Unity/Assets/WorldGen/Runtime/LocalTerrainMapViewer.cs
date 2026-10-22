@@ -50,11 +50,11 @@ public sealed partial class LocalTerrainExplorer
         SetMapRivers(GUI.Toggle(new Rect(mapRect.x+235,mapRect.y-36,90,30),mapRivers,"Rivers"));
         if(GUI.Button(new Rect(mapRect.xMax-235,mapRect.y-38,190,30),GlobeView.LayerName(mapLayer)+"  ▾"))mapLayerMenu=!mapLayerMenu;
         if(GUI.Button(new Rect(mapRect.xMax-37,mapRect.y-38,37,30),"×")){mapOpen=false;CaptureMouse();}
-        if(mapTexture!=null)
+        if(mapSurface!=null)
         {
             GUI.BeginGroup(mapRect);double w=mapRect.width*shownMapViewport.LongitudeSpan/mapViewport.LongitudeSpan,h=mapRect.height*shownMapViewport.LatitudeSpan/mapViewport.LatitudeSpan;
             double x=mapRect.width*(.5+TerrainMapViewport.Wrap(shownMapViewport.Longitude-mapViewport.Longitude)/mapViewport.LongitudeSpan)-w*.5,y=mapRect.height*(.5-(shownMapViewport.Latitude-mapViewport.Latitude)/mapViewport.LatitudeSpan)-h*.5;
-            for(int wrap=-1;wrap<=1;wrap++)GUI.DrawTexture(new Rect((float)(x+wrap*360/mapViewport.LongitudeSpan*mapRect.width),(float)y,(float)w,(float)h),mapTexture,ScaleMode.StretchToFill,false);GUI.EndGroup();
+            for(int wrap=-1;wrap<=1;wrap++)GUI.DrawTexture(new Rect((float)(x+wrap*360/mapViewport.LongitudeSpan*mapRect.width),(float)y,(float)w,(float)h),mapSurface,ScaleMode.StretchToFill,false);GUI.EndGroup();
         }
         else GUI.Box(mapRect,"Sampling terrain…");
         DrawCloudMap();DrawRiverMap();
@@ -73,7 +73,7 @@ public sealed partial class LocalTerrainExplorer
             GUI.color=Color.white;GUI.DrawTexture(new Rect(selected.x-8,selected.y-1,16,2),Texture2D.whiteTexture);GUI.DrawTexture(new Rect(selected.x-1,selected.y-8,2,16),Texture2D.whiteTexture);
         }
         float row=mapRect.yMax+8;
-        GUI.Label(new Rect(mapRect.x,row,mapRect.width-375,44),"Click to select · arrows move selector · P to teleport\nDrag to pan · scroll to zoom · gold square = you"+(mapDirty||mapJob!=null?" · Sampling…":""));
+        GUI.Label(new Rect(mapRect.x,row,mapRect.width-375,44),"Click to select · arrows move selector · P to teleport\nDrag to pan · scroll to zoom · gold square = you · "+mapProgress);
         GUI.enabled=mapHasSelection;if(GUI.Button(new Rect(mapRect.xMax-365,row,120,30),"Teleport [P]"))TeleportMapSelection();GUI.enabled=true;
         if(GUI.Button(new Rect(mapRect.xMax-240,row,115,30),"Player")){TerrainMapViewport.Degrees(Position,out mapViewport.Latitude,out mapViewport.Longitude);InvalidateMap();}
         if(GUI.Button(new Rect(mapRect.xMax-120,row,120,30),"Whole world")){mapViewport=new TerrainMapViewport{Longitude=playState?.PrimeMeridianLongitude??0};InvalidateMap();}

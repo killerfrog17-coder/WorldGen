@@ -159,7 +159,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         debugGroundClearance=altitude;debugElevation=groundMemoElevation+altitude;
         double replanDistance=TerrainLod.ReplanDistance(HorizontalScale);
         if(double.IsNaN(plannedX)||Math.Abs(motion.X-plannedX)>replanDistance||Math.Abs(motion.Z-plannedZ)>replanDistance||Math.Abs(altitude-plannedAltitude)>Math.Max(150,plannedAltitude*.3))RefreshWanted();
-        PollTerrainDetail();RefreshStreamingPrediction();
+        if(!mapOpen){PollTerrainDetail();RefreshStreamingPrediction();}
         // Completed nearby products precede cache-only/hidden background work.
         jobs.Sort((a,b)=>{double Score(Work w)=>WorkMatchesCurrent(w)?StreamingPriority(w.Key):double.MaxValue;return Score(b).CompareTo(Score(a));});
         for(int i=jobs.Count-1;i>=0;i--)
@@ -192,6 +192,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         long scatterStarted=WorldGenPerformance.Begin();UpdateScatter();WorldGenPerformance.End(0,scatterStarted);
         long weatherStarted=WorldGenPerformance.Begin();UpdateWeatherPresentation();WorldGenPerformance.End(3,weatherStarted);
         UpdateDebugReadout();
+        if(mapOpen){UpdateTerrainCoverage();UpdateStreamingFog();RetireTerrainGradually();return;}
         // Nearby ground always goes first, including when a hidden replacement
         // chart is overdue. Do not let scatter or far work monopolize both slots.
         bool nearPending=NearTerrainPending();
@@ -318,5 +319,5 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     }
     public void TestView(double height,float yaw=20,float tilt=12){motion.Flying=true;motion.Y=Ground(motion.X,motion.Z)+height;heading=yaw;pitch=tilt;RefreshWanted();UpdateCamera();}
     public void Close(){if(closed)return;closed=true;if(view!=null)view.enabled=false;detailCancellation?.Cancel();cancellation.Cancel();if(!passiveSkyCheck&&!passiveReanchorCheck){Cursor.lockState=CursorLockMode.None;Cursor.visible=true;}close?.Invoke();}
-    void OnDestroy(){closed=true;cancellation.Cancel();ClearTerrainTransitions();terrainProducts?.Clear();foreach(var work in jobs)work.Task.ContinueWith(t=>{if(t.Status==TaskStatus.RanToCompletion)t.Result.Dispose();},TaskScheduler.Default);mapCancellation?.Cancel();DisposeMapInspection();DisposeEcologyDebug();cancellation.Dispose();mapCancellation?.Dispose();CancelPreparedFrame();DisposeRetiringTerrain();DisposeFootsteps();DisposeCloudMap();DisposeRiverMap();DisposeChat();DisposeWeather();DisposeSky();DisposeScatter();DisposeTerrainScene();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
+    void OnDestroy(){closed=true;cancellation.Cancel();ClearTerrainTransitions();terrainProducts?.Clear();foreach(var work in jobs)work.Task.ContinueWith(t=>{if(t.Status==TaskStatus.RanToCompletion)t.Result.Dispose();},TaskScheduler.Default);DisposeProgressiveMap();DisposeMapInspection();DisposeEcologyDebug();cancellation.Dispose();CancelPreparedFrame();DisposeRetiringTerrain();DisposeFootsteps();DisposeCloudMap();DisposeRiverMap();DisposeChat();DisposeWeather();DisposeSky();DisposeScatter();DisposeTerrainScene();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
 }

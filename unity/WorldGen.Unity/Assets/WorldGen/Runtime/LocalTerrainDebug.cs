@@ -12,15 +12,15 @@ public sealed partial class LocalTerrainExplorer
 {
     int fpsFrames;double fpsElapsed,fpsClock;string fpsDisplay="…";
     string debugDisplay="Preparing terrain…",debugFastDisplay="Preparing terrain…";double debugRefreshAt,debugFastAt,debugGroundClearance,debugElevation;
-    bool debugFull;Vector2 debugScroll;GUIStyle debugStyle;
+    bool debugFull;
     public int DebugReadoutUpdates {get;private set;}
     void UpdateDebugReadout()
     {
         if(!debugOpen||ecologyOpen||terrain==null||walkingPatch==null)return;
         double now=Time.realtimeSinceStartupAsDouble;
-        if(now>=debugFastAt){debugFastAt=now+1d/30;debugFastDisplay=FastDebugText();if(debugFull)UpdateTargetReadout(now);}
+        if(now>=debugFastAt){debugFastAt=now+1d/30;debugFastDisplay=FastDebugText();if(debugFull){UpdateTargetReadout(now);RefreshDebugPosition();}}
         if(!debugFull||now<debugRefreshAt)return;
-        debugRefreshAt=now+.25;debugDisplay=DebugText();DebugReadoutUpdates++;
+        debugRefreshAt=now+.25;debugDisplay=DebugText();CacheDebugSections();DebugReadoutUpdates++;
     }
     void UpdateDebugFps(double elapsed)
     {
@@ -33,14 +33,12 @@ public sealed partial class LocalTerrainExplorer
     bool debugOpen,mapOpen,paused,mapDirty,mapDragging,mapLayerMenu; double viewDistance=200000,mapDue;
     Vector2 mapDown,mapPrevious,mapLayerScroll; Rect mapRect;
     TerrainMapViewport mapViewport=new TerrainMapViewport(),shownMapViewport;
-    sealed class MapResult{public TerrainMapImage Image;public Layer Layer;public float[] Palette;}
-    readonly Dictionary<Layer,float[]> mapPalettes=new Dictionary<Layer,float[]>();Layer mapLayer=Layer.Satellite;
-    Texture2D mapTexture;Task<MapResult> mapJob;CancellationTokenSource mapCancellation;int mapRevision,mapJobRevision;
-    TerrainMapContext mapContext;
+    Layer mapLayer=Layer.Satellite;
+    Texture2D mapTexture;int mapRevision;
     public bool DebugVisible=>debugOpen;
     public bool MapVisible=>mapOpen;
     public bool Paused=>paused;
-    public bool MapReady=>mapTexture!=null&&!mapDirty&&mapJob==null;
+    public bool MapReady=>mapSurface!=null&&!mapDirty&&!mapRefining&&shownMapRevision==mapRevision;
     public int MapBuildCount {get;private set;}
     double MaximumViewDistance=>terrain==null?250000:Math.Min(250000,terrain.RadiusM*HorizontalScale*.3);
     void CaptureMouse(){if(passiveSkyCheck||passiveReanchorCheck)return;Cursor.lockState=mapOpen||paused||chatOpen||ecologyOpen?CursorLockMode.None:CursorLockMode.Locked;Cursor.visible=mapOpen||paused||chatOpen||ecologyOpen;}
@@ -55,27 +53,11 @@ public sealed partial class LocalTerrainExplorer
         if(mapOpen&&!paused)HandleMapSelectionKeys(k);
         if(k.escapeKey.wasPressedThisFrame){if(ecologyOpen)ecologyOpen=false;else if(mapOpen){mapOpen=false;mapLayerMenu=false;}else paused=!paused;CaptureMouse();}
     }
-    void InvalidateMap(){mapRevision++;mapDirty=true;mapDue=Time.realtimeSinceStartupAsDouble+.12;mapCancellation?.Cancel();InvalidateCloudMap();InvalidateRiverMap();}
+    void InvalidateMap(){mapRevision++;mapDirty=true;mapDue=Time.realtimeSinceStartupAsDouble+.025;mapStream?.Cancel();InvalidateCloudMap();InvalidateRiverMap();}
     void UpdateMapWork()
     {
         UpdateCloudMapWork();UpdateRiverMapWork();UpdateMapInspection();UpdateEcologyDebug();
-        if(mapJob!=null&&mapJob.IsCompleted)
-        {
-            if(mapJob.IsFaulted){error=mapJob.Exception.GetBaseException().Message;debugOpen=true;}
-            else if(!mapJob.IsCanceled&&mapJobRevision==mapRevision)
-            {
-                var result=mapJob.Result;var image=result.Image;if(result.Palette!=null)mapPalettes[result.Layer]=result.Palette;
-                var texture=new Texture2D(image.Width,image.Height,TextureFormat.RGBA32,false);texture.LoadRawTextureData(image.Rgba);texture.Apply();texture.filterMode=FilterMode.Bilinear;
-                texture.filterMode=TerrainMapSampling.Continuous(result.Layer)?FilterMode.Bilinear:FilterMode.Point;
-                if(mapTexture!=null)Destroy(mapTexture);mapTexture=texture;shownMapViewport=image.View;
-            }
-            mapJob=null;
-        }
-        if(!mapOpen||!mapDirty||mapJob!=null||terrain==null||Time.realtimeSinceStartupAsDouble<mapDue)return;
-        mapDirty=false;MapBuildCount++;mapCancellation?.Dispose();mapCancellation=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=mapCancellation.Token;var viewport=mapViewport.Clone();mapJobRevision=mapRevision;
-        var selected=mapLayer;mapPalettes.TryGetValue(selected,out var cached);var source=sourceWorld;
-        if(mapContext==null||!mapContext.Matches(terrain))mapContext=new TerrainMapContext(terrain);var context=mapContext;
-        mapJob=Task.Run(()=>{bool continuous=TerrainMapSampling.Continuous(selected);var palette=continuous?null:cached??(source==null?null:GlobeView.CellValues(source,selected,token:token).Colors);int width=continuous?TerrainMapSampling.RasterWidth(viewport):768;return new MapResult{Layer=selected,Palette=palette,Image=context.Build(viewport,width,width/2,token,selected,palette,source)};},token);
+        UpdateProgressiveMap();
     }
     public void DrawViewSettings()
     {
@@ -92,26 +74,6 @@ public sealed partial class LocalTerrainExplorer
         DrawWorldMap();
     }
     public void Pause(){paused=true;mapOpen=false;CaptureMouse();}
-    void DrawDebugOverlay()
-    {
-        if(debugStyle==null){debugStyle=new GUIStyle(GUI.skin.label){fontSize=14,wordWrap=true,richText=false};debugStyle.normal.textColor=Color.white;}
-        float width=Math.Max(1,Screen.width-24),height=Math.Max(1,Screen.height-24);
-        string fast=debugFastDisplay+(debugFull?"\n\n"+targetDisplay:"");
-        float left=debugFull&&width>=850?Math.Min(470,width*.43f):width;
-        float fastHeight=Math.Min(height,debugStyle.CalcHeight(new GUIContent(fast),Math.Max(1,left-12))+12);
-        DrawDebugText(new Rect(12,12,left,fastHeight),fast);
-        if(!debugFull)return;
-        Rect panel=width>=850?new Rect(24+left,12,width-left-12,height):new Rect(12,24+fastHeight,width,Math.Max(1,height-fastHeight-12));
-        GUI.Box(panel,GUIContent.none);GUI.BeginGroup(panel);
-        float contentWidth=Math.Max(1,panel.width-30),contentHeight=debugStyle.CalcHeight(new GUIContent(debugDisplay),contentWidth)+12;
-        debugScroll=GUI.BeginScrollView(new Rect(0,0,panel.width,panel.height),debugScroll,new Rect(0,0,contentWidth,contentHeight));
-        GUI.Label(new Rect(6,6,contentWidth,contentHeight),debugDisplay,debugStyle);GUI.EndScrollView();GUI.EndGroup();
-    }
-    void DrawDebugText(Rect area,string text)
-    {
-        GUI.BeginGroup(area);var textRect=new Rect(2,2,Math.Max(1,area.width-12),area.height);var old=debugStyle.normal.textColor;
-        debugStyle.normal.textColor=Color.black;GUI.Label(textRect,text,debugStyle);textRect.position-=Vector2.one*2;debugStyle.normal.textColor=Color.white;GUI.Label(textRect,text,debugStyle);debugStyle.normal.textColor=old;GUI.EndGroup();
-    }
     public string TestDebugText()=>FastDebugText()+"\n"+DebugText();
     string FastDebugText()
     {
@@ -137,7 +99,7 @@ public sealed partial class LocalTerrainExplorer
             "\nTree quality · "+VegetationQuality.Names[TerrainVideoOptions.TreeQuality]+" · meshes "+TerrainVideoOptions.TreeNearLod.ToString("F0")+" / "+TerrainVideoOptions.TreeFarLod.ToString("F0")+"m · same-root views to "+TerrainVideoOptions.TreeIdentityRange.ToString("F0")+"m"+
             "\nDistant forest · "+ForestFieldCount+" fields / "+ForestPacketCount+" packets / "+ForestDrawCalls+" draws"+
             "\n\nTERRAIN LOD\nAdaptive terrain · "+new[]{"Low","Medium","High","Ultra","Extreme"}[detailOptions.Quality]+" · "+new[]{"Low","Balanced","High","Maximum"}[detailOptions.Effort]+" loading ("+WorkerLimit+" lanes) · reveal "+(streamedFog/1000).ToString("F1")+" km"+(DetailPlanning?" · planning":"")+
-            (mapContext==null?"":"\nMap cache · "+mapContext.RasterHits+" image hits · "+mapContext.SampleHits+" sample hits / "+mapContext.SampleMisses+" misses")+
+            (mapStream==null?"":"\nMap cache · "+mapStream.TileHits+" tile hits · "+mapStream.TilesBuilt+" built · "+mapStream.WorkerCount+" workers")+
             (weatherScreen==null?"":"\n\nWEATHER & SKY\nWeather "+CurrentWeather.TemperatureC.ToString("F1")+" °C · rain "+CurrentWeather.RainMmPerHour.ToString("F2")+" / snow water "+CurrentWeather.SnowWaterMmPerHour.ToString("F2")+" mm/h · cloud "+(CurrentWeather.CloudCover*100).ToString("F0")+"% · gust "+CurrentWeather.GustMps.ToString("F1")+" m/s"+(WeatherControl.Mode=="auto"?"":" · TEST: "+WeatherControl.Mode)+"\n"+WeatherSoundDebug)+
             (weatherScreen==null?"":"\n"+WindDebugText)+
             (weatherScreen==null?"":"\nWeather visibility "+(CurrentWeather.VisibilityM/1000).ToString("F2")+" km · ground fog "+(CurrentWeather.Fog*100).ToString("F0")+"% · "+(weatherScreen.UseField?"spatial cloud field":"uniform test / preparing field"))+
@@ -155,5 +117,5 @@ public sealed partial class LocalTerrainExplorer
     public void TestMapClick(double u,double v){SelectMapPoint(mapViewport.Position(u,v));}
     public void TestMapTeleport()=>TeleportMapSelection();
     public void TestMapZoom(double factor){mapViewport.Zoom(factor);InvalidateMap();}
-    public void CaptureMap(string path){if(!MapReady)throw new InvalidOperationException("World map is not ready.");System.IO.File.WriteAllBytes(path,mapTexture.EncodeToPNG());}
+    public void CaptureMap(string path){if(!MapReady)throw new InvalidOperationException("World map is not ready.");var image=ReadMapTexture();try{System.IO.File.WriteAllBytes(path,image.EncodeToPNG());}finally{Destroy(image);}}
 }

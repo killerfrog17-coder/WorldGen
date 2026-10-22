@@ -1,10 +1,67 @@
 # Exploration map and ecology reference /22 October 2026
 
 This updates the exploration map (M), not the simulation globe's renderer.
-Terrain geometry, selection/loading, vegetation appearance/placement rules,
+Terrain geometry, selection rules, vegetation appearance/placement rules,
 saved ecology/food webs and world/save schemas remain unchanged.
 
+## Progressive map and transparent corner HUD revision
+
+The exploration runtime no longer calls the fixed whole-image raster path.
+Opening, panning or zooming starts a cancellable ProgressiveTerrainMap request:
+
+1. A cheap 16×8 source-scale preview is published first (adaptive 4–32 pixels
+   wide thereafter, targeting 150 ms computation). This is explicitly a preview,
+   not a claim that full-detail terrain has already been sampled. It uses saved
+   scalar interpolation/mean cover; cell layers use their exact source colours.
+2. Actual terrain tiles refine the view centre-out, through doubling resolutions
+   starting at 32 pixels wide. Each finished tile is published immediately; no
+   whole-image completion barrier before displaying its results. A complete pass
+   precedes the next resolution so the whole view gains coverage.
+3. Refinement reaches the next power of two covering the map's displayed width,
+   bounded only by the GPU's texture-size limit. No old 384-pixel/zoom-tier cap.
+   Pixel footprints still filter unresolved terrain detail. Zooming further
+   requests new, finer physical sampling; idle work does not increase resolution
+   indefinitely beyond the display's useful pixel density.
+
+Up to four background workers each own independent sampling contexts. Tile
+batches adapt between 4×4 and 32×32 from measured computation cost. Sixteen queued
+updates provide backpressure; Unity consumes at most twelve updates per frame.
+A one-pixel halo supplies matching cross-tile height gradients. Old complete
+coverage is upscaled on each new pass; partial tiles replace regions by GPU copy,
+not a full texture re-upload. The old view remains reprojected during navigation
+until the new source preview arrives. Stale revisions are rejected; closing the
+map cancels refinement. Diagnostic captures explicitly read the GPU surface;
+normal rendering has no GPU readback.
+
+The small tile LRU retains up to 16 MiB RGBA / 4,096 tiles across eight recent
+view keys. Only one full selected cell-colour palette is retained separately.
+Each worker retains the earlier bounded terrain sample/context caches. These
+are transient RAM, not saves/disk. GlobeView.CellValues can now colour selected
+cells without constructing a full-world palette for the first preview. Boundary
+lookup arrays are no longer constructed for layers that never use them.
+
+While the map is open, new terrain/prediction/reanchor/scatter requests and tree
+bake/forest-field updates wait. Existing jobs finish and can install, weather,
+coverage and the visible world continue. Closing the map resumes normal work.
+This changes scheduling priority only, not terrain/vegetation output or distances.
+
+Full F3 now uses transparent corner sections: position/ground top-left,
+vegetation top-right, weather/sky bottom-left, terrain/system bottom-right.
+Thin horizontal rules separate headings; right-hand text is right-aligned.
+No solid panels, central boxes or debug scroll views. Most content stays at the
+top. Text scales from 14 to 10 px if needed, then clips within disjoint corner
+rectangles on cramped windows rather than overlapping. Simplified F3 and the
+30 Hz / 4 Hz refresh split remain. No terrain queries occur in HUD drawing.
+
+The half-second first-image target is a scheduling/adaptation goal, NOT a
+measured host guarantee. Owner restrictions permit compilation/package only:
+no agent player launches, tests, captures, world loads or profiling. GPU region
+copy, actual loading latency, sharpness and HUD appearance await owner review.
+
 ## Map cache, ecology graph and debug HUD follow-up
+
+The following describes the preceding checkpoint. Progressive runtime maps and
+the transparent corner HUD above supersede its whole-raster/panel presentation.
 
 Map menus show layer names without implementation suffixes. A worker-owned
 TerrainMapContext keeps the selected layer's eight most recent views, capped
@@ -62,7 +119,7 @@ Bathymetry's sampler is supported; the exploration menu retains the existing
 visible-layer list plus Tree Density. Existing hidden diagnostic layers are not
 all newly exposed. No numerical layer IDs are shifted; TreeDensity is appended.
 
-Wide continuous maps use128×64 samples, increasing to192×96,256×128 and384×192
+The preceding fixed-raster checkpoint used128×64 samples, increasing to192×96,256×128 and384×192
 with zoom. Sampling is cancellable/background, never OnGUI. Up to32 bounded
 geographical patches are retained per map job. Display-only SampleMap stops
 refinement at its physical pixel footprint, suppresses unresolved channel work

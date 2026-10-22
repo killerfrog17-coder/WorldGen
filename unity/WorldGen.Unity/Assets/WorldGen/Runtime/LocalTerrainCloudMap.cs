@@ -54,7 +54,7 @@ public sealed partial class LocalTerrainExplorer
         if(!CloudMapReady)throw new InvalidOperationException("Cloud map not ready.");
         if(!previewOverBase){System.IO.File.WriteAllBytes(path,cloudMapTexture.EncodeToPNG());return;}
         // Diagnostic composite only, not part of the per-frame map path.
-        var pixels=mapTexture.GetPixels32();int width=mapTexture.width,height=mapTexture.height;
+        var baseImage=ReadMapTexture();var pixels=baseImage.GetPixels32();int width=baseImage.width,height=baseImage.height;Destroy(baseImage);
         for(int y=0;y<height;y++)for(int x=0;x<width;x++){Color cloud=cloudMapTexture.GetPixelBilinear((x+.5f)/width,(y+.5f)/height);pixels[y*width+x]=Color.Lerp(pixels[y*width+x],cloud,cloud.a);}
         var image=new Texture2D(width,height,TextureFormat.RGBA32,false);image.SetPixels32(pixels);image.Apply();System.IO.File.WriteAllBytes(path,image.EncodeToPNG());Destroy(image);
     }
