@@ -1,5 +1,30 @@
 # WorldGen repository instructions
 
+Current OWNER-REVIEW launch,21October2026: shortcut selects real C:
+`artifacts/player-vegetation-performance/WorldGen.exe` (IL2CPP23:46:59Z).
+Owner explicitly authorized native benchmarks/profiling for this performance pass,
+superseding compile-only for THIS task. Opt-in read-only offscreen1920x1080 suite
+holds history/calendar/music and never writes saved settings/worlds. Six sites,
+90 confirmation intervals plus81 exploratory/27 final-package/12 final-repeat/
+5 diagnostic-repeat intervals; partial exploratory terrain rows are not accepted
+steady baselines. Retained fixes: compact live instanced properties, conservative
+128m broad phase, identity-matrix skip, exact ground/readiness/occlusion/fog memos,
+bounded surface-pixel staging reuse and zero-moving-cover page pruning. Original
+per-plant culling/LOD/shadows/density, approved shader/wind and quality defaults
+remain. Shader early-rejection experiment was rejected/reverted. Native eight-
+heading model/transform/tint/fade/shadow and property-length checks pass; readiness
+memos compare to fresh predicates. Final desert108 legacy pages contain0 GPU
+roots; pruning removes~68MiB grass buffers, not grass. Read-only snapshot unchanged.
+Earlier plain161->202/steep104->123FPS CPU A/B is NOT a general200FPS recovery:
+later normal-package plain82->91; unchanged earlier binary now78->87 too. Cause
+of cross-run slowdown unproven; do not blame browser or claim build regression.
+Final rainforest~106FPS/~136 no grass/~194 no trees;100min/165general targets NOT
+achieved. No valid GPU timestamp samples; Update percentiles are not presents.
+Build/package exit0, owned tests stopped; owner on-screen review pending. Previous
+vegetation-quality-audio is rollback. World/history/saves/heights/water/placement
+unchanged; old GPU-reset/AppHang is NOT certified fixed. See
+docs/VEGETATION_PERFORMANCE.md and VALIDATION.md for evidence/limits.
+
 Current OWNER-TEST-ONLY launch,21October2026: shortcut selects real C:
 `artifacts/player-vegetation-quality-audio/WorldGen.exe` (IL2CPP21:46:55Z).
 Game settings adds persistent Vegetation tab: stable per-ID0–100% visible density,

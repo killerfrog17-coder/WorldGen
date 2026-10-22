@@ -57,9 +57,12 @@ public static class WorldGenBatch
         var namedTarget=UnityEditor.Build.NamedBuildTarget.Standalone;
         var priorBackend=PlayerSettings.GetScriptingBackend(namedTarget);
         var priorManagedStripping=PlayerSettings.GetManagedStrippingLevel(namedTarget);
+        bool priorTiming=PlayerSettings.enableFrameTimingStats;
+        string priorProduct=PlayerSettings.productName;
         try
         {
             if(stripping!=null)stripping.stripUnusedPostProcessingVariants=false;
+            if(arguments.Contains("--worldgen-performance-build")){PlayerSettings.enableFrameTimingStats=true;PlayerSettings.productName=priorProduct+".Performance";}
             // Optional native-code experiment. Restore project preferences even
             // on failure; ordinary development builds retain their old backend.
             if(arguments.Contains("--worldgen-il2cpp-player"))
@@ -73,6 +76,6 @@ public static class WorldGenBatch
             var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=EditorBuildSettings.scenes.Where(s=>s.enabled).Select(s=>s.path).ToArray(),locationPathName=output,target=BuildTarget.StandaloneWindows64,options=options});
             if(report.summary.result!=BuildResult.Succeeded)throw new Exception("Player build failed: "+report.summary.result);
         }
-        finally{if(stripping!=null)stripping.stripUnusedPostProcessingVariants=prior;PlayerSettings.SetScriptingBackend(namedTarget,priorBackend);PlayerSettings.SetManagedStrippingLevel(namedTarget,priorManagedStripping);}
+        finally{PlayerSettings.productName=priorProduct;PlayerSettings.enableFrameTimingStats=priorTiming;if(stripping!=null)stripping.stripUnusedPostProcessingVariants=prior;PlayerSettings.SetScriptingBackend(namedTarget,priorBackend);PlayerSettings.SetManagedStrippingLevel(namedTarget,priorManagedStripping);}
     }
 }

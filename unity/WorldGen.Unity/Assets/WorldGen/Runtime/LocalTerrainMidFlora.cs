@@ -28,7 +28,7 @@ public sealed partial class LocalTerrainExplorer
     static Texture2D CreateMidSurface(Tile tile)
     {
         if(tile.MidCover==null||tile.MidCover.Length==0)return null;
-        int side=tile.Segments+1;var pixels=new Color[side*side];
+        int side=tile.Segments+1;var pixels=SurfacePixelStaging(side*side);
         for(int i=0;i<pixels.Length;i++){int at=i*6;pixels[i]=new Color(tile.MidCover[at],tile.MidCover[at+1],tile.MidCover[at+2],tile.MidCover[at+3]);}
         var texture=new Texture2D(side,side,TextureFormat.RGBAHalf,false,true){name="Mid-height cover colour/coverage",filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};
         texture.SetPixels(pixels);texture.Apply(false,true);return texture;

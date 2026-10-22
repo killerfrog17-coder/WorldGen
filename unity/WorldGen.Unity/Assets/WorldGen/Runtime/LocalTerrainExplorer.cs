@@ -12,7 +12,7 @@ using WorldGen.Presentation;
 /// <summary>Input and bounded rendering only; all height queries use the shared terrain sampler.</summary>
 public sealed partial class LocalTerrainExplorer : MonoBehaviour
 {
-    sealed class Tile { public int Segments; public double[] Edges; public float[] Heights,Cover,MidCover,ForestCover; public float[] OcclusionMin;public int OcclusionStride; public GameObject Root; public Texture2D Coverage,CoverageTimes,FloraSurface,MidSurface,ForestSurface; public float[] CoverageNodes,CoverageTimingNodes; public float FadeIn,FadeOut; public long BufferBytes; public CoverGpu Grass,GrassSprites; public GraphicsBuffer CoverGrid; public readonly Dictionary<CoverPageKey,CoverGpu> CoverPages=new Dictionary<CoverPageKey,CoverGpu>(); }
+    sealed class Tile { public int Segments; public double[] Edges; public float[] Heights,Cover,MidCover,ForestCover;public sbyte MovingCover=-1; public float[] OcclusionMin;public float OcclusionCeiling;public int OcclusionStride; public GameObject Root; public Texture2D Coverage,CoverageTimes,FloraSurface,MidSurface,ForestSurface; public float[] CoverageNodes,CoverageTimingNodes; public float FadeIn,FadeOut; public long BufferBytes; public CoverGpu Grass,GrassSprites; public GraphicsBuffer CoverGrid; public readonly Dictionary<CoverPageKey,CoverGpu> CoverPages=new Dictionary<CoverPageKey,CoverGpu>(); }
     sealed class Work { public TerrainTileKey Key; public double[] Edges; public int Segments,Generation; public bool Prefetch,Backdrop; public Task<TerrainUpload> Task; public PreparedFrame Prepared; public CancellationTokenSource Cancellation; }
     Task<LocalTerrain> building;
     LocalTerrain terrain; LocalTerrainFrame frame; LocalTerrain.LocalTerrainPatch walkingPatch;
@@ -30,7 +30,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public double LocalSolarHour=>playState==null?9:Ready?playState.LocalSolarHour(Math.Atan2(Position.Y,Position.X)*180/Math.PI):playState.SolarHour;
     public GUISkin MenuSkin { get; set; }
     readonly bool passiveSkyCheck=Environment.GetCommandLineArgs().Contains("--worldgen-sky-chat-check")||Environment.GetCommandLineArgs().Contains("--worldgen-atmosphere-check")||Environment.GetCommandLineArgs().Contains("--worldgen-weather-check");
-    readonly bool passiveReanchorCheck=Environment.GetCommandLineArgs().Contains("--worldgen-reanchor-review")||Environment.GetCommandLineArgs().Contains("--worldgen-landform-review");
+    readonly bool passiveReanchorCheck=WorldGenPerformance.Enabled||Environment.GetCommandLineArgs().Contains("--worldgen-reanchor-review")||Environment.GetCommandLineArgs().Contains("--worldgen-landform-review");
     Keyboard testKeyboard;
     Keyboard ActiveKeyboard=>testKeyboard??Keyboard.current;
     public void TestKeyboard(Keyboard value){testKeyboard=value;}
@@ -75,9 +75,20 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         var shader=Resources.Load<Shader>("WorldGenLocalTerrain");if(shader==null||!shader.isSupported)throw new InvalidOperationException("Local terrain shader is missing or unsupported.");
         landMaterial=new Material(shader);landMaterial.SetFloat("_GroundFlora",1);waterMaterial=new Material(landMaterial);waterMaterial.SetFloat("_Water",1);SetFog();CaptureMouse();
     }
-    void SetFog(){float distance=(float)Math.Min(viewDistance*.98,streamedFog);landMaterial.SetFloat("_FogDistance",distance);waterMaterial.SetFloat("_FogDistance",distance);foreach(var material in ownedScatterMaterials)if(material.HasProperty("_FogDistance"))material.SetFloat("_FogDistance",distance);}
+    float publishedFog=float.NaN;int publishedFogMaterials=-1;Material publishedFogLand,publishedFogWater;
+    void SetFog()
+    {
+        float distance=(float)Math.Min(viewDistance*.98,streamedFog);
+        // A settled reveal used to resend the identical uniform to every cached
+        // species material every frame. New art is initialized to this datum too.
+        if(!WorldGenPerformance.Original&&distance==publishedFog&&publishedFogMaterials==ownedScatterMaterials.Count&&publishedFogLand==landMaterial&&publishedFogWater==waterMaterial)return;
+        publishedFog=distance;publishedFogMaterials=ownedScatterMaterials.Count;publishedFogLand=landMaterial;publishedFogWater=waterMaterial;
+        landMaterial.SetFloat("_FogDistance",distance);waterMaterial.SetFloat("_FogDistance",distance);foreach(var material in ownedScatterMaterials)if(material.HasProperty("_FogDistance"))material.SetFloat("_FogDistance",distance);
+    }
+    LocalTerrainFrame groundMemoFrame;double groundMemoX,groundMemoZ,groundMemoY;
     double Ground(double x,double z)
     {
+        if(!WorldGenPerformance.Original&&ReferenceEquals(frame,groundMemoFrame)&&x==groundMemoX&&z==groundMemoZ&&walkingPatch!=null)return groundMemoY;
         long started=System.Diagnostics.Stopwatch.GetTimestamp();
         var at=frame.Position(x,z);
         if(walkingPatch==null||(at-walkingPatch.Center).Length*terrain.RadiusM>500/HorizontalScale)walkingPatch=terrain.Patch(at,2048/HorizontalScale);
@@ -85,6 +96,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         double elapsed=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000.0/System.Diagnostics.Stopwatch.Frequency;
         largestGroundMs=Math.Max(largestGroundMs,elapsed);
         if(elapsed>20)Debug.Log("Local ground query "+elapsed.ToString("F2")+"ms");
+        groundMemoFrame=frame;groundMemoX=x;groundMemoZ=z;groundMemoY=height;
         return height;
     }
     public void Teleport(V point)
@@ -106,7 +118,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         fpsClock=fpsNow;
         RecordLoadingFrame();
         if(closed)return;
-        bool chatInput=HandleChatKeys();if(!chatInput)HandleDebugKeys();if(closed)return;
+        bool chatInput=!WorldGenPerformance.Enabled&&HandleChatKeys();if(!chatInput&&!WorldGenPerformance.Enabled)HandleDebugKeys();if(closed)return;
         if(terrain==null)
         {
             if(!building.IsCompleted)return;
@@ -121,7 +133,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         {
             if(mouse!=null&&!passiveSkyCheck&&!passiveReanchorCheck){var d=mouse.delta.ReadValue();heading+=d.x*.1f;pitch=Mathf.Clamp(pitch-d.y*.1f,-85,85);
                 if(motion.Flying){float scroll=mouse.scroll.ReadValue().y;if(scroll!=0)motion.FlySpeed=Math.Max(5,Math.Min(20000,motion.FlySpeed*Math.Exp(Math.Sign(scroll)*.25)));}}
-            if(keyboard!=null)
+            if(keyboard!=null&&!WorldGenPerformance.Enabled)
             {
                 MovementSeconds+=Math.Max(0,Math.Min(.25,Time.unscaledDeltaTime));
                 if(keyboard.fKey.wasPressedThisFrame){motion.Flying=!motion.Flying;motion.VerticalSpeed=0;}
@@ -173,7 +185,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         foreach(var key in tiles.Keys.Where(k=>!wanted.ContainsKey(k)).ToArray())
             if(CanRetireTransition(key))
             {CacheTerrain(key,tiles[key]);tiles.Remove(key);}
-        UpdateScatter();UpdateWeatherPresentation();
+        long scatterStarted=WorldGenPerformance.Begin();UpdateScatter();WorldGenPerformance.End(0,scatterStarted);
+        long weatherStarted=WorldGenPerformance.Begin();UpdateWeatherPresentation();WorldGenPerformance.End(3,weatherStarted);
         // Nearby ground always goes first, including when a hidden replacement
         // chart is overdue. Do not let scatter or far work monopolize both slots.
         bool nearPending=NearTerrainPending();
@@ -195,10 +208,22 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         SchedulePreparedWork(false);
         UpdateTerrainCoverage();UpdateStreamingFog();
         RetireTerrainGradually();
+        if(WorldGenPerformance.Enabled&&!WorldGenPerformance.Measuring)PerformanceVerifyPending();
     }
     void UpdateCamera(){view.transform.localPosition=new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ));view.transform.localRotation=Quaternion.Euler(pitch,heading,0);}
-    bool NearTerrainPending()=>wanted.Any(p=>ImmediateTerrain(p.Key)&&
+    int residentRevision,nearMemoFrame=-1,nearMemoRevision,nearMemoCount;double nearMemoX,nearMemoZ;bool nearMemoPending;
+    Dictionary<TerrainTileKey,int> nearMemoWanted;
+    bool NearTerrainPendingFresh()=>wanted.Any(p=>ImmediateTerrain(p.Key)&&
         (!tiles.TryGetValue(p.Key,out var tile)||tile.Segments!=p.Value||!tile.Edges.SequenceEqual(wantedEdges[p.Key])));
+    bool NearTerrainPending()
+    {
+        if(WorldGenPerformance.Original)return NearTerrainPendingFresh();
+        // This predicate is asked by several schedulers per frame. Uploads,
+        // restores, plan/chart replacement and movement invalidate immediately.
+        if(nearMemoFrame==Time.frameCount&&nearMemoRevision==residentRevision&&nearMemoCount==tiles.Count&&ReferenceEquals(nearMemoWanted,wanted)&&nearMemoX==motion.X&&nearMemoZ==motion.Z)return nearMemoPending;
+        nearMemoFrame=Time.frameCount;nearMemoRevision=residentRevision;nearMemoCount=tiles.Count;nearMemoWanted=wanted;nearMemoX=motion.X;nearMemoZ=motion.Z;
+        return nearMemoPending=NearTerrainPendingFresh();
+    }
     void RefreshWanted()
     {
         plannedX=motion.X;plannedZ=motion.Z;plannedAltitude=HeightAboveGround;
@@ -233,7 +258,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(cacheOnly){CacheTerrain(key,product);return;}
         if(target.TryGetValue(key,out var old)){if(prepared==null)BeginTerrainReplacement(key,product,old);else DestroyTile(old);}
         else if(prepared==null)BeginTerrainReplacement(key,product,null);
-        target[key]=product;
+        target[key]=product;if(prepared==null)residentRevision++;
         if(prepared==null)coverageDirty=true;
         if(prepared==null&&key.Level==0){nearGroundRevision++;scatterGroundChanges.Add(key);}lastBuildMs=data.BuildMilliseconds;largestBuildMs=Math.Max(largestBuildMs,lastBuildMs);
         LargestUploadMs=Math.Max(LargestUploadMs,timer.Elapsed.TotalMilliseconds);

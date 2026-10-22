@@ -10,15 +10,17 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     sealed class ScatterWork { public ScatterKey Key;public Task<ScatterPatch> Task; }
-    sealed class ScatterChunk { public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public Bounds[] Bounds;public Bounds AllBounds; public float Born; }
+    sealed class ScatterGroup {public Bounds Bounds;public int[] Indices;}
+    sealed class ScatterChunk { public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
     sealed class ArtPart { public Mesh Mesh;public Material Material;public int Submesh;public Matrix4x4 Local; }
-    sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; public bool Fades;public double LastUsed;public bool Generated; }
+    sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; public bool IdentityScale,Fades;public double LastUsed;public bool Generated; }
     sealed class DrawBatch
     {
         // Nonuniform scale needs both transform and inverse; stay below the platform's 511-instance limit.
         public readonly Matrix4x4[] Matrices=new Matrix4x4[256];public readonly Vector4[] Colors=new Vector4[256];
         public readonly Vector4[] Fades=new Vector4[256];
-        public readonly MaterialPropertyBlock Properties=new MaterialPropertyBlock();public int Count;public ArtModel Model;public ShadowCastingMode Shadows;public Bounds Bounds;
+        public readonly List<Vector4> UsedColors=new List<Vector4>(256),UsedFades=new List<Vector4>(256);
+        public readonly MaterialPropertyBlock Properties=new MaterialPropertyBlock();public int Count;public long Key;public bool CompactProperties;public ArtModel Model;public ShadowCastingMode Shadows;public Bounds Bounds;
         public Matrix4x4[][] PartMatrices;
     }
     LocalScatter scatter;LocalTerrainArtSet artSet;Texture2DArray[] generatedGround;
@@ -163,7 +165,7 @@ public sealed partial class LocalTerrainExplorer
                 Matrix4x4 local=prefab.transform.worldToLocalMatrix*filter.transform.localToWorldMatrix;
                 Bounds b=filter.sharedMesh.bounds;for(int corner=0;corner<8;corner++){var p=local.MultiplyPoint3x4(b.center+Vector3.Scale(b.extents,new Vector3((corner&1)==0?-1:1,(corner&2)==0?-1:1,(corner&4)==0?-1:1)));if(first){bounds=new Bounds(p,Vector3.zero);first=false;}else bounds.Encapsulate(p);}
                 for(int sub=0;sub<filter.sharedMesh.subMeshCount&&sub<renderer.sharedMaterials.Length;sub++)
-                {var material=new Material(renderer.sharedMaterials[sub]){enableInstancing=true};ownedScatterMaterials.Add(material);parts.Add(new ArtPart{Mesh=filter.sharedMesh,Material=material,Submesh=sub,Local=local});}
+                {var material=new Material(renderer.sharedMaterials[sub]){enableInstancing=true};if(material.HasProperty("_FogDistance"))material.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));ownedScatterMaterials.Add(material);parts.Add(new ArtPart{Mesh=filter.sharedMesh,Material=material,Submesh=sub,Local=local});}
             }
         }
         if(parts.Count==0)
@@ -176,7 +178,7 @@ public sealed partial class LocalTerrainExplorer
             long materialKey=ScatterArtKey(kind,variant&~7,lod<2?0:2);
             Material sharedMaterial=null;bool shared=kind==ScatterKind.GeneratedTree&&treeMaterials.TryGetValue(materialKey,out sharedMaterial);
             var material=shared?sharedMaterial:new Material(template){enableInstancing=true};
-            material.SetFloat("_Wind",kind==ScatterKind.Grass?.045f:rock||kind==ScatterKind.Fungus?0:kind==ScatterKind.Herb||kind==ScatterKind.MidPlant?.85f:.018f);material.SetFloat("_HerbWind",kind==ScatterKind.Herb||kind==ScatterKind.MidPlant?1:0);material.SetFloat("_FogDistance",(float)viewDistance);
+            material.SetFloat("_Wind",kind==ScatterKind.Grass?.045f:rock||kind==ScatterKind.Fungus?0:kind==ScatterKind.Herb||kind==ScatterKind.MidPlant?.85f:.018f);material.SetFloat("_HerbWind",kind==ScatterKind.Herb||kind==ScatterKind.MidPlant?1:0);material.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));
             if(kind==ScatterKind.Herb)
             {
                 var motion=PlantMotion.Herb(variant);
@@ -205,7 +207,7 @@ public sealed partial class LocalTerrainExplorer
             parts.Add(new ArtPart{Mesh=mesh,Material=material,Submesh=0,Local=Matrix4x4.identity});
         }
         float height=kind==ScatterKind.MidPlant||kind==ScatterKind.GeneratedTree?1:binding!=null&&binding.ReferenceHeightM>0?binding.ReferenceHeightM:Math.Max(.001f,bounds.size.y),width=kind==ScatterKind.MidPlant||kind==ScatterKind.GeneratedTree?1:binding!=null&&binding.ReferenceWidthM>0?binding.ReferenceWidthM:Math.Max(.001f,Math.Max(bounds.size.x,bounds.size.z));
-        var model=new ArtModel{Parts=parts.ToArray(),Scale=Matrix4x4.Scale(new Vector3(1/width,1/height,1/width)),Fades=parts.All(part=>part.Material.HasProperty("_LodTransition")),Generated=prefab==null,LastUsed=Time.realtimeSinceStartupAsDouble};scatterArt[key]=model;return model;
+        var model=new ArtModel{Parts=parts.ToArray(),Scale=Matrix4x4.Scale(new Vector3(1/width,1/height,1/width)),IdentityScale=width==1&&height==1,Fades=parts.All(part=>part.Material.HasProperty("_LodTransition")),Generated=prefab==null,LastUsed=Time.realtimeSinceStartupAsDouble};scatterArt[key]=model;return model;
     }
     void BuildScatterBatches()
     {
@@ -222,8 +224,22 @@ public sealed partial class LocalTerrainExplorer
             var chunkBounds=chunk.AllBounds;chunkBounds.Expand(10+(chunkBounds.center-eye).magnitude*.04f);
             if(TerrainVideoOptions.ScatterFrustum&&!GeometryUtility.TestPlanesAABB(scatterFrustum,chunkBounds)&&!MayCastVisibleShadow(chunkBounds,eye))
             {ScatterFrustumRejected+=chunk.Source.Instances.Length;continue;}
-            for(int i=0;i<chunk.Source.Instances.Length;i++)
+            bool grouped=!WorldGenPerformance.Original&&chunk.Groups!=null&&chunk.Groups.Length>1;
+            for(int region=0;region<(grouped?chunk.Groups.Length:1);region++)
             {
+            var group=grouped?chunk.Groups[region]:null;
+            if(grouped&&TerrainVideoOptions.ScatterFrustum)
+            {
+                var groupBounds=group.Bounds;
+                // Include the largest individual visibility margin anywhere in
+                // this bin. Reject only if NONE can be visible or cast a shadow.
+                groupBounds.Expand(10+((groupBounds.center-eye).magnitude+groupBounds.extents.magnitude)*.04f);
+                if(!GeometryUtility.TestPlanesAABB(scatterFrustum,groupBounds)&&!MayCastVisibleShadow(groupBounds,eye))
+                {ScatterFrustumRejected+=group.Indices.Length;continue;}
+            }
+            for(int member=0;member<(grouped?group.Indices.Length:chunk.Source.Instances.Length);member++)
+            {
+                int i=grouped?group.Indices[member]:member;
                 var p=chunk.Source.Instances[i];double distance=(chunk.Roots[i]-eye).magnitude;
                 if(IsSpecialist(p.Kind)&&!TerrainVideoOptions.SpecialistPlants)continue;
                 if(p.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlants)continue;
@@ -250,11 +266,22 @@ public sealed partial class LocalTerrainExplorer
                 if(p.Kind==ScatterKind.MidPlant)MidPlantObjects++;
                 if(p.Kind==ScatterKind.GeneratedTree)GeneratedTreeObjects++;
             }
+            }
         }
         foreach(var batch in drawBatches)
         {
-            batch.Properties.SetVectorArray("_Tint",batch.Colors);
-            batch.Properties.SetVectorArray("_LodTransition",batch.Fades);
+            // Most species/LOD batches are much smaller than the safety capacity.
+            // Upload only live property entries, not 256 colours + fades per draw.
+            // Clear resets Unity's fixed-on-first-set array lengths when reusing a block.
+            if(WorldGenPerformance.Original)
+            {if(batch.CompactProperties)batch.Properties.Clear();batch.CompactProperties=false;batch.Properties.SetVectorArray("_Tint",batch.Colors);batch.Properties.SetVectorArray("_LodTransition",batch.Fades);}
+            else
+            {
+                batch.Properties.Clear();batch.CompactProperties=true;
+                batch.UsedColors.Clear();batch.UsedFades.Clear();
+                for(int i=0;i<batch.Count;i++){batch.UsedColors.Add(batch.Colors[i]);batch.UsedFades.Add(batch.Fades[i]);}
+                batch.Properties.SetVectorArray("_Tint",batch.UsedColors);batch.Properties.SetVectorArray("_LodTransition",batch.UsedFades);
+            }
             if(batch.PartMatrices==null||batch.PartMatrices.Length!=batch.Model.Parts.Length)batch.PartMatrices=new Matrix4x4[batch.Model.Parts.Length][];
             for(int j=0;j<batch.Model.Parts.Length;j++)if(batch.Model.Parts[j].Local!=Matrix4x4.identity)
             {if(batch.PartMatrices[j]==null)batch.PartMatrices[j]=new Matrix4x4[batch.Matrices.Length];for(int i=0;i<batch.Count;i++)batch.PartMatrices[j][i]=batch.Matrices[i]*batch.Model.Parts[j].Local;}
@@ -286,16 +313,18 @@ public sealed partial class LocalTerrainExplorer
         if(!activeScatterBatches.TryGetValue(key,out var batch)||batch.Count==batch.Matrices.Length)
         {
             if(batchPool.Count>0){int last=batchPool.Count-1;batch=batchPool[last];batchPool.RemoveAt(last);}else batch=new DrawBatch();
-            batch.Model=Art(p.Kind,p.Variant,lod);batch.Shadows=shadowOnly?ShadowCastingMode.ShadowsOnly:casts?ShadowCastingMode.On:ShadowCastingMode.Off;
+            batch.Key=key;batch.Model=Art(p.Kind,p.Variant,lod);batch.Shadows=shadowOnly?ShadowCastingMode.ShadowsOnly:casts?ShadowCastingMode.On:ShadowCastingMode.Off;
             activeScatterBatches[key]=batch;drawBatches.Add(batch);
         }
         // Explicit wind-inclusive bounds also protect the engine's group culler.
         if(batch.Count==0)batch.Bounds=chunk.Bounds[index];else batch.Bounds.Encapsulate(chunk.Bounds[index]);
-        batch.Matrices[batch.Count]=chunk.Matrices[index]*batch.Model.Scale;
+        // Tree/mid models are already unit-normalized. Do not perform thousands
+        // of native matrix multiplications by identity whenever the view changes.
+        batch.Matrices[batch.Count]=batch.Model.IdentityScale&&!WorldGenPerformance.Original?chunk.Matrices[index]:chunk.Matrices[index]*batch.Model.Scale;
         batch.Colors[batch.Count]=new Vector4((float)p.Color.X,(float)p.Color.Y,(float)p.Color.Z,1);
         batch.Fades[batch.Count]=new Vector4(low,high,0,0);batch.Count++;
     }
-    void LateUpdate(){if(!closed){DrawScatter();DrawGroundCover();if(weatherCheckTarget!=null&&view!=null)view.Render();}}
+    void LateUpdate(){if(!closed){long started=WorldGenPerformance.Begin();DrawScatter();WorldGenPerformance.End(1,started);started=WorldGenPerformance.Begin();DrawGroundCover();WorldGenPerformance.End(2,started);if(weatherCheckTarget!=null&&view!=null)view.Render();}}
     void DrawScatter()
     {
         if(landMaterial!=null)landMaterial.SetFloat("_ForestFarEnabled",TerrainVideoOptions.FarForest?1:0);

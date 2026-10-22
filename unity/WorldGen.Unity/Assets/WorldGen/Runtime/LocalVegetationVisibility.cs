@@ -36,6 +36,35 @@ public sealed partial class LocalTerrainExplorer
             float padding=(float)p.HeightM*(tree?.25f:mid||herb?.9f:.05f)+.6f;bounds.Expand(2*padding);
             chunk.Bounds[i]=bounds;if(first){chunk.AllBounds=bounds;first=false;}else chunk.AllBounds.Encapsulate(bounds);
         }
+        // Static spatial bins avoid revisiting every plant in a half-kilometre
+        // source patch whenever the camera turns. This is an additional broad
+        // phase; the original per-plant LOD/frustum/shadow tests remain intact.
+        if(chunk.Groups!=null&&ReferenceEquals(chunk.GroupsFrame,frame))
+        {
+            // Terrain replacements only reproject Y; floating-origin shifts are
+            // uniform multiples of 2048m (also a multiple of the 128m bin size).
+            // Membership therefore stays exact until the tangent chart changes.
+            foreach(var group in chunk.Groups)
+            {
+                var b=chunk.Bounds[group.Indices[0]];
+                for(int j=1;j<group.Indices.Length;j++)b.Encapsulate(chunk.Bounds[group.Indices[j]]);
+                group.Bounds=b;
+            }
+            return;
+        }
+        var bins=new System.Collections.Generic.Dictionary<Vector2Int,System.Collections.Generic.List<int>>();
+        for(int i=0;i<count;i++)
+        {
+            var p=chunk.Roots[i];var key=new Vector2Int(Mathf.FloorToInt(p.x/128),Mathf.FloorToInt(p.z/128));
+            if(!bins.TryGetValue(key,out var list)){list=new System.Collections.Generic.List<int>();bins.Add(key,list);}list.Add(i);
+        }
+        var groups=new ScatterGroup[bins.Count];int at=0;
+        foreach(var indices in bins.Values)
+        {
+            var b=chunk.Bounds[indices[0]];for(int j=1;j<indices.Count;j++)b.Encapsulate(chunk.Bounds[indices[j]]);
+            groups[at++]=new ScatterGroup{Bounds=b,Indices=indices.ToArray()};
+        }
+        chunk.Groups=groups;chunk.GroupsFrame=frame;
     }
     // Conservative terrain-only occlusion, no baked-world assumptions/readback.
     // At t ALL eye-to-box rays lie inside an interpolated rectangle. Its entire
@@ -55,7 +84,8 @@ public sealed partial class LocalTerrainExplorer
                 if(timing.Out>0||timing.In>0&&Time.time-timing.In<TerrainCoverage.FadeSeconds)continue;
                 if(pair.Value.Heights==null)continue;
                 if(pair.Value.OcclusionMin==null)BuildTerrainOcclusion(pair.Value);
-                foreach(float lower in pair.Value.OcclusionMin)occlusionCeiling=Math.Max(occlusionCeiling,lower);
+                if(WorldGenPerformance.Original)foreach(float lower in pair.Value.OcclusionMin)occlusionCeiling=Math.Max(occlusionCeiling,lower);
+                else occlusionCeiling=Math.Max(occlusionCeiling,pair.Value.OcclusionCeiling);
                 vegetationOccluders.Add(pair.Value);
             }
         }
@@ -87,6 +117,7 @@ public sealed partial class LocalTerrainExplorer
     {
         int n=tile.Segments,stride=Math.Max(1,(n+15)/16),side=(n+stride-1)/stride;
         tile.OcclusionStride=stride;tile.OcclusionMin=new float[side*side];
+        tile.OcclusionCeiling=float.NegativeInfinity;
         tile.BufferBytes+=(long)tile.OcclusionMin.Length*4;
         for(int z=0;z<side;z++)for(int x=0;x<side;x++)
         {
@@ -97,6 +128,7 @@ public sealed partial class LocalTerrainExplorer
                 float h=tile.Heights[iz*(n+1)+ix];minimum=Math.Min(minimum,float.IsNaN(h)||float.IsInfinity(h)?float.NegativeInfinity:h);
             }
             tile.OcclusionMin[z*side+x]=minimum;
+            tile.OcclusionCeiling=Math.Max(tile.OcclusionCeiling,minimum);
         }
     }
     void PrepareVegetationShadowVisibility()

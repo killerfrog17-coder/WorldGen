@@ -42,7 +42,7 @@ public sealed partial class LocalTerrainExplorer
         tiles.TryGetValue(key,out var old);BeginTerrainReplacement(key,tile,old);
         tile.Root.transform.SetParent(terrainRoot.transform,false);
         tile.Root.transform.localPosition=new Vector3((float)(key.X*key.SizeM-originX),0,(float)(key.Z*key.SizeM-originZ));
-        tiles[key]=tile;tile.Root.SetActive(true);coverageDirty=true;installationsThisFrame++;TerrainCacheHits++;
+        tiles[key]=tile;residentRevision++;tile.Root.SetActive(true);coverageDirty=true;installationsThisFrame++;TerrainCacheHits++;
         if(key.Level==0){nearGroundRevision++;scatterGroundChanges.Add(key);}return true;
     }
     void ResetStreamingReuse(bool cancelJobs)

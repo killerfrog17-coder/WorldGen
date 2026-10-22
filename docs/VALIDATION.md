@@ -1,5 +1,44 @@
 # Version 3 validation evidence
 
+## Owner-authorized rendering performance pass /21October2026
+
+Native testing/profiling explicitly authorized for this task. Added opt-in release
+IL2CPP benchmark scripts and six deterministic dry sites from read-only seed11610541.
+Uncapped1920x1080 offscreen URP renders, fixed clear noon/history/calendar, grass
+30/300m, High60km terrain, configured fine radius153.6m, default non-grass. GPU
+drains bracket timing; frame-time percentiles are Update intervals, NOT presents.
+FrameTimingManager supplies no valid GPU samples in this setup. No claimed GPU
+per-draw trace, fullscreen/VSync or active-history FPS acceptance.
+
+Completed90-interval/six-site confirmation:48 heading render-instance/property
+comparisons,233,260 loading/idle readiness comparisons and unchanged source SHA.
+81-interval exploratory run stopped intentionally after three sites; still-loading
+terrain rows excluded. Final normal package completed27 intervals/three sites,
+24 heading checks and61,443 readiness comparisons. All108 legacy desert grass
+pages read back0 admitted GPU roots; pruning removes71,141,136 accounted bytes.
+Final eight-second recheck:12 intervals/two sites,16 heading checks/34,630 readiness
+comparisons. Earlier unchanged diagnostic repeated5 intervals/one site,8 heading
+checks/18,276 readiness comparisons. All completed runs preserve input SHA256
+6727F08B6F7B8AE62A04F6A65E9F8C4193413A77CF8D02B7947568862A1EDB89.
+
+Quality-preserving CPU fixes and staging/empty-page pruning are described in
+VEGETATION_PERFORMANCE.md. Grass shader experiment rejected/reverted; normal art,
+wind/density/LOD/quality/distance defaults unchanged. Earlier CPU A/B plain161->202
+and steep forest104->123FPS do not promise repeatable200FPS: later actual package
+plain82->91, rainforest107->106 (noise), no grass136/no trees194. Repeating the
+unchanged diagnostic binary also reduces its plain202 to87FPS, so the discrepancy
+is not isolated to final-package changes. Background/system/benchmark sensitivity
+remains unresolved; browser causation is NOT established. Keep all raw runs.
+100FPS minimum /165 general targets are NOT achieved; turns/streaming/forest GPU
+work remain important. Existing frustum/terrain occlusion are not general Hi-Z.
+
+Final compile/package exit0: player-vegetation-performance, BuiltUtc
+2026-10-21T23:46:59.2303693Z, normal product, IL2CPP, timing stats off. Shortcut
+updated; own test players stopped. Owner game/saves/preferences left untouched;
+no old crash-fix, long-play, arbitrary-world, scientific or full-image-equivalence
+acceptance. Owner on-screen comparison next. Raw reports/captures/frame CSVs in
+artifacts/performance-{matrix,confirmed,packaged,idle-recheck,diagnostic-recheck}.
+
 ## Vegetation quality controls / audio / sky defaults /21October2026
 
 Added a persistent machine-local Vegetation tab: stable visible-density thinning,

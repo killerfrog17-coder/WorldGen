@@ -53,7 +53,9 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     static void Boot() { if (FindAnyObjectByType<WorldGenRuntime>() == null) new GameObject("WorldGen Runtime").AddComponent<WorldGenRuntime>(); }
     void Start()
     {
-        Application.runInBackground = true; InitializeDisplayOptions();
+        Application.runInBackground = true;
+        if(WorldGenPerformance.Enabled){QualitySettings.vSyncCount=0;Application.targetFrameRate=-1;AudioListener.volume=0;}
+        else InitializeDisplayOptions();
         uiCheck = Environment.GetCommandLineArgs().Contains("--worldgen-ui-check");
         panels = groups.Select(g => false).ToArray();
         filePath = Path.Combine(Application.persistentDataPath, "worldgen.recipe.json");
@@ -78,8 +80,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         naturalMaterial=new Material(surfaceMaterial);naturalMaterial.SetFloat("_Natural",1);naturalMaterial.SetFloat("_Linear",QualitySettings.activeColorSpace==ColorSpace.Linear?1:0);
         wireframe = Environment.GetCommandLineArgs().Contains("--worldgen-wireframe"); showPlates = Environment.GetCommandLineArgs().Contains("--worldgen-plates"); showRivers = Environment.GetCommandLineArgs().Contains("--worldgen-rivers");
         if (int.TryParse(Argument("--worldgen-grid", "30"), out int grid) && (grid == 0 || grid == 5 || grid == 10 || grid == 15 || grid == 30)) gridSpacing = grid;
-        InitializeLibrary();
-        InitializeMusic();
+        if(!WorldGenPerformance.Enabled){InitializeLibrary();InitializeMusic();}
         if (WorldPresets.Names.Contains(preset)) recipe=setup.Preset(preset,recipe); else setup.From(recipe);
         if(!Environment.GetCommandLineArgs().Any(a=>a.StartsWith("--worldgen-",StringComparison.Ordinal)))RollSeed();
         if (!Environment.GetCommandLineArgs().Contains("--worldgen-library-earth") &&
@@ -97,6 +98,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         if(Environment.GetCommandLineArgs().Contains("--worldgen-dock-check")){screen="Setup";BeginWork(false,Argument("--worldgen-dock-check",""));StartCoroutine(CheckHistoryDock());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-atlas-check")){screen="Setup";BeginWork(false,Argument("--worldgen-atlas-check",""));StartCoroutine(CheckAtlasNavigation());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-local-terrain-check")){screen="Setup";BeginWork(false,Argument("--worldgen-local-terrain-check",""));StartCoroutine(CheckLocalTerrain());}
+        if(WorldGenPerformance.Enabled){screen="Setup";BeginWork(false,Argument("--worldgen-performance",""));StartCoroutine(CheckPerformance());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-game-review"))StartCoroutine(CheckGameShell());
         if(Environment.GetCommandLineArgs().Contains("--worldgen-exploration-music-check"))StartCoroutine(CheckExplorationMusic());
         if(Environment.GetCommandLineArgs().Contains("--worldgen-sky-chat-check"))StartCoroutine(CheckSkyChat());

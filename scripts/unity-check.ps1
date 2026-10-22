@@ -2,6 +2,7 @@ param(
     [string]$Unity='C:/Program Files/Unity/Hub/Editor/6000.6.0f1/Editor/Unity.exe',
     [switch]$BuildPlayer,
     [switch]$DevelopmentPlayer,
+    [switch]$PerformancePlayer,
     [switch]$Il2Cpp,
     [switch]$PlayerCheck,
     [switch]$Isolated,
@@ -42,6 +43,7 @@ $playerOutput=[IO.Path]::GetFullPath((Join-Path $artifacts ($PlayerFolder+'/Worl
 if(!$playerOutput.StartsWith([IO.Path]::GetFullPath($artifacts)+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Player folder must stay inside validation artifacts'}
 $arguments=@('-batchmode' ,'-nographics','-quit','-projectPath',('"'+$project+'"'),'-executeMethod',$method,'--worldgen-build-output',('"'+$playerOutput+'"'),'-logFile',('"'+$log+'"'))
 if($DevelopmentPlayer){$arguments+='--worldgen-development-player'}
+if($PerformancePlayer){$arguments+='--worldgen-performance-build'}
 if($Il2Cpp){if(!$BuildPlayer){throw '-Il2Cpp is a player-build option.'};$arguments+='--worldgen-il2cpp-player'}
 $assemblyInputs=@()
 if($BuildPlayer){foreach($name in @('WorldGen.Core','WorldGen.Serialization','WorldGen.Presentation','DelaunatorSharp')){$inputDll=Join-Path $project ('Assets/Plugins/WorldGen/'+$name+'.dll');$assemblyInputs+=[ordered]@{Assembly=$name;Path=$inputDll;Sha256=(Get-FileHash -LiteralPath $inputDll).Hash.ToLowerInvariant()}}}

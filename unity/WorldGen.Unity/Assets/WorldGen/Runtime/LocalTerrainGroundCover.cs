@@ -70,10 +70,21 @@ public sealed partial class LocalTerrainExplorer
         if(lichenFieldTexture==null)lichenFieldTexture=CreateGroundMatTexture(true);
         landMaterial.SetTexture("_GrassField",grassFieldTexture);landMaterial.SetTexture("_MossField",mossFieldTexture);landMaterial.SetTexture("_LichenField",lichenFieldTexture);
     }
+    // Unity-main-thread staging only. Every consumer overwrites every pixel and
+    // SetPixels/Apply copies it before the next consumer. Four normal grid sizes
+    // retain ~89KiB instead of three fresh Color arrays for every terrain upload.
+    static readonly Dictionary<int,Color[]> surfacePixelStaging=new Dictionary<int,Color[]>();
+    static Color[] SurfacePixelStaging(int count)
+    {
+        if(WorldGenPerformance.Original||count>65*65)return new Color[count];
+        if(!surfacePixelStaging.TryGetValue(count,out var pixels))
+        {pixels=new Color[count];if(surfacePixelStaging.Count<8)surfacePixelStaging.Add(count,pixels);}
+        return pixels;
+    }
     static Texture2D CreateFloraSurface(Tile tile)
     {
         if(tile.Cover==null||tile.Cover.Length==0)return null;
-        int side=tile.Segments+1;var pixels=new Color[side*side];
+        int side=tile.Segments+1;var pixels=SurfacePixelStaging(side*side);
         for(int i=0;i<pixels.Length;i++)
         {
             int at=i*16;float total=tile.Cover[at+3],moss=tile.Cover[at+10],lichen=tile.Cover[at+11];
@@ -249,7 +260,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var pair in tiles)
         {
             var key=pair.Key;var tile=pair.Value;
-            if(key.SizeM>Math.Max(2048,TerrainLod.BaseSizeM*HorizontalScale)*1.001||tile.Cover==null||tile.Cover.Length==0||CoverFullyHidden(tile.CoverageNodes)){ReleaseGroundCover(tile);continue;}
+            if(key.SizeM>Math.Max(2048,TerrainLod.BaseSizeM*HorizontalScale)*1.001||tile.Cover==null||tile.Cover.Length==0||CoverFullyHidden(tile.CoverageNodes)||!WorldGenPerformance.Original&&!HasMovingCover(tile)){ReleaseGroundCover(tile);continue;}
             expiredCoverPages.Clear();
             foreach(var page in tile.CoverPages.Keys)
             {
@@ -311,5 +322,20 @@ public sealed partial class LocalTerrainExplorer
         double size=page.Size,minX=Math.Max(tile.X*tile.SizeM,page.X*size),maxX=Math.Min((tile.X+1)*tile.SizeM,(page.X+1)*size);
         double minZ=Math.Max(tile.Z*tile.SizeM,page.Z*size),maxZ=Math.Min((tile.Z+1)*tile.SizeM,(page.Z+1)*size);
         double dx=Math.Max(0,Math.Max(minX-motion.X,motion.X-maxX)),dz=Math.Max(0,Math.Max(minZ-motion.Z,motion.Z-maxZ));return dx*dx+dz*dz;
+    }
+    static bool HasMovingCover(Tile tile)
+    {
+        if(tile.MovingCover>=0)return tile.MovingCover!=0;
+        var values=tile.Cover;
+        if(values==null||values.Length%16!=0)return true; // Unknown is not empty.
+        for(int at=0;at<values.Length;at+=16)
+        {
+            float moving=values[at+3]-values[at+10]-values[at+11];
+            if(float.IsNaN(moving)||float.IsInfinity(moving)||moving>0){tile.MovingCover=1;return true;}
+        }
+        // The placement kernel interpolates these same channels linearly before
+        // subtracting stationary mats. All-zero/nonpositive vertex support cannot
+        // produce its >=.002 moving-cover admission anywhere inside a triangle.
+        tile.MovingCover=0;return false;
     }
 }
