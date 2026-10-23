@@ -1,5 +1,19 @@
 # WorldGen repository instructions
 
+EATING CORRECTION,23October2026: owner accepts original-rig result broadly, asks
+feeding forelegs/muzzle fixed. Separate Desktop Deer - Eating Correction.lnk opens
+artifacts/deer-eating-correction-20261023/Deer - Eating Correction Review.blend,
+auto Eating with header Before fix toggle and visible floor. Standing torso/legs,
+slightly spread forehooves; offline fixed-length foot IK and distributed neck
+correction solve actual skinned muzzle clearance. Baked Eating action only; no
+new rig/weights/model/paint, live IK or per-frame body lift. Reloaded rest/skin/
+UV/images and ALL source actions exact.159 integer/half-frame samples: muzzle
+24.994-25mm, surface>=3.84mm, hoof drift0; loop surface gap0.131mm. CPU side poses
+inspected, NOT owner art/full collision/uneven terrain/game-controller acceptance.
+Other clips unchanged with old contact problems. TheForest and old open reviews
+untouched; no GPU inference/game/Unity/world/save/settings changes. See new eating
+section in docs/DEER_MESH2MOTION_REVIEW.md and native-validation evidence.
+
 MESH2MOTION REJECTED / ORIGINAL RIG,23October2026: owner rejects ALL new56-bone
 rig/skin modes (fitted+weight cleanup least bad, still bad) and ALL preceding
 UniMate takes despite heuristic REVIEW labels. Do not admit these to game assets.

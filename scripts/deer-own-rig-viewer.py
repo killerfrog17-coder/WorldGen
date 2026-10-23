@@ -20,7 +20,8 @@ def select(context):
     else:
         rig.data.pose_position='POSE';bank=info[p.bank]
         clip=p.clip if p.clip in bank else 'Idle'
-        action=bpy.data.actions[bank[clip]];rig.animation_data_create().action=action
+        action_name=info['uncorrected_eating'] if clip=='Eating' and p.raw_eating and 'uncorrected_eating' in info else bank[clip]
+        action=bpy.data.actions[action_name];rig.animation_data_create().action=action
         rig.animation_data.action_slot=action.slots[0];s.render.fps=info[p.bank+'_fps']
         s.frame_start=int(action.frame_range[0]);s.frame_end=int(action.frame_range[1])
         if clip in ('Idle','Walk','Trot','Run','Eating','Sleep','Graze','Rest'):
@@ -39,14 +40,17 @@ class DOR_Properties(bpy.types.PropertyGroup):
     bank:bpy.props.EnumProperty(items=[('transferred','Mesh2Motion transfer',''),
         ('original','Previous deer clips','')],update=changed)
     clip:bpy.props.EnumProperty(items=[(n,n,'') for n in CLIPS],update=changed)
+    raw_eating:bpy.props.BoolProperty(name='Before fix',description='Compare the uncorrected feeding pose',update=changed)
 
 
 class DOR_OT_clip(bpy.types.Operator):
     bl_idname='deer_own.clip';bl_label='Show clip'
     clip:bpy.props.StringProperty()
     def execute(self,context):
+        if self.clip=='Eating' and self.clip not in info[context.scene.deer_own_review.bank]:
+            context.scene.deer_own_review.bank='transferred'
         context.scene.deer_own_review.clip=self.clip
-        if self.clip!='Bind pose' and not context.screen.is_animation_playing:bpy.ops.screen.animation_play()
+        if self.clip!='Bind pose' and context.screen and not context.screen.is_animation_playing:bpy.ops.screen.animation_play()
         return {'FINISHED'}
 
 
@@ -73,9 +77,10 @@ class DOR_OT_view(bpy.types.Operator):
 
 def controls(layout,context):
     p=context.scene.deer_own_review;row=layout.row(align=True)
-    for clip in ('Bind pose','Idle','Walk','Trot','Run'):
+    for clip in ('Bind pose','Idle','Walk','Trot','Run','Eating'):
         row.operator('deer_own.clip',text=clip,depress=p.clip==clip).clip=clip
     row.operator('deer_own.play',text='Pause / Play')
+    if 'uncorrected_eating' in info and p.clip=='Eating':row.prop(p,'raw_eating',text='Before fix',toggle=True)
 
 
 class DOR_PT_panel(bpy.types.Panel):
@@ -104,6 +109,17 @@ def header(self,context):
 for cls in (DOR_Properties,DOR_OT_clip,DOR_OT_play,DOR_OT_view,DOR_PT_panel):bpy.utils.register_class(cls)
 bpy.types.Scene.deer_own_review=bpy.props.PointerProperty(type=DOR_Properties)
 bpy.types.VIEW3D_HT_header.prepend(header)
-scene.deer_own_review.bank='transferred';scene.deer_own_review.clip='Bind pose'
+scene.deer_own_review.bank='transferred'
+scene.deer_own_review.clip='Eating' if scene.get('eating_correction',False) else 'Bind pose'
 scene.sync_mode='FRAME_DROP';select(bpy.context)
+if scene.get('eating_correction',False) and not bpy.app.background:
+    def autoplay():
+        for window in bpy.context.window_manager.windows:
+            for area in window.screen.areas:
+                if area.type=='VIEW_3D':
+                    with bpy.context.temp_override(window=window,area=area):
+                        if not window.screen.is_animation_playing:bpy.ops.screen.animation_play()
+                    return None
+        return 1
+    bpy.app.timers.register(autoplay,first_interval=2)
 print('Original-rig deer viewer ready.',flush=True)

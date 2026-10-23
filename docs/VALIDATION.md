@@ -1,5 +1,17 @@
 # Version 3 validation evidence
 
+## Deer eating stance correction — 23 October 2026
+
+Owner-authorized offline Eating adjustment on the same rig. Standing forelegs
+and planted hooves replace the folded donor stance; baked neck correction keeps
+the actual skinned muzzle above a visible flat floor. Reload checks preserve
+mesh/rig/weights/UV/image pixels and every original action's keys exactly.159
+integer/half-frame samples: muzzle24.994–25mm, lowest surface3.84mm, hoof drift0,
+maximum half-frame motion1.80mm, loop gap0.131mm. Before/After controls verified;
+CPU previews inspected. No owner art/full collision/uneven-terrain/game approval.
+Separate review opened; original reviews/game untouched, no GPU inference. See
+[eating checkpoint](DEER_MESH2MOTION_REVIEW.md#eating-correction-checkpoint).
+
 ## Mesh2Motion rejection and original-rig comparison — 23 October 2026
 
 Owner rejects all replacement rig/skin variants and all preceding UniMate

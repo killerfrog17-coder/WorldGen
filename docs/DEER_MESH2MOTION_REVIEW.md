@@ -1,5 +1,38 @@
 # Mesh2Motion deer review
 
+## Eating correction checkpoint
+
+The owner accepts the original-rig trial generally but requests a better feeding
+stance: forelegs were folded into the body and the muzzle penetrated the floor.
+New separate Desktop **Deer - Eating Correction** opens
+`artifacts/deer-eating-correction-20261023/Deer - Eating Correction Review.blend`.
+It starts Eating automatically. Header **Before fix** toggles the unchanged
+transfer for direct comparison; a visible floor exposes contact problems.
+
+Only a new corrected Eating action is added/rebound. The standing torso/limb
+reference comes from the existing Idle, lowered 2.5 cm for the feeding stance;
+front hooves extend 6.5 cm and spread 1.5 cm per side. Offline fixed-length IK
+plants four hoof targets. The source feeding neck/head orientations remain the
+motion reference; a distributed neck correction solves actual skinned muzzle
+clearance, avoiding per-frame body lifting. Corrections are baked into ordinary
+pose keys: there is no runtime IK, new inference, rerigging or reskinning.
+
+Native Blender reload checks verify exact geometry/rest skeleton/weights/UV/image
+pixels and every source action's key arrays. Across 159 integer/half-frame samples:
+corrected muzzle bottom is 24.994–25.000 mm above the floor, lowest surface about
+3.84 mm, hoof surface drift zero. Maximum half-frame surface motion is 1.80 mm;
+loop endpoint surface gap 0.131 mm. Previously the muzzle reached 136 mm below
+the plane. Numeric checks plus two CPU floor-level previews are not owner art,
+full-intersection, uneven-terrain or game-controller acceptance. Other clips'
+known contact issues remain. The source and already open reviews are untouched;
+the new viewer was opened without closing or taking focus from The Forest.
+
+Reproduce with `scripts/correct-deer-eating.py` and validate with
+`scripts/check-deer-eating-correction.py`; both take `--source` (the original-rig
+review blend) and `--root` (a fresh artifact directory). `--pilot` renders/checks
+without saving a blend. Evidence: `correction-checks.json`,
+`native-validation.json`, and two CPU renders in the new ignored artifact root.
+
 23 October 2026. Offline Blender only. No game/Unity/world/save/settings changes,
 paid services, signup or GPU inference. The owner's Forest session and existing
 review windows were left running; the launcher avoids taking game focus.
