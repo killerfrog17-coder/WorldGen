@@ -3,6 +3,11 @@ import bpy
 from mathutils import Vector
 
 
+def available_clips(scene):
+    custom=scene.get('review_clips','')
+    return custom.split('|') if custom else [n for n in ('Idle','Walk','Run') if bpy.data.actions.get(n)]
+
+
 class LOCALDEER_OT_view(bpy.types.Operator):
     bl_idname = 'local_deer.view'
     bl_label = 'Inspect generated deer'
@@ -29,13 +34,19 @@ class LOCALDEER_OT_clip(bpy.types.Operator):
         action = bpy.data.actions.get(self.clip)
         if rig is None or action is None:
             return {'CANCELLED'}
-        rig.animation_data_create().action = action
+        data=rig.animation_data_create()
+        data.action=None
+        for bone in rig.pose.bones:
+            bone.matrix_basis.identity()
+        data.action = action
         if action.slots:
             rig.animation_data.action_slot = action.slots[0]
         context.scene.frame_start = int(action.frame_range[0])
-        context.scene.frame_end = int(action.frame_range[1])-1
+        context.scene.frame_end = int(action.frame_range[1])-(1 if context.scene.get('review_loop_closed',True) else 0)
         context.scene.frame_set(context.scene.frame_start)
         context.scene['review_clip'] = self.clip
+        if context.screen and context.window and not context.screen.is_animation_playing:
+            bpy.ops.screen.animation_play()
         return {'FINISHED'}
 
 
@@ -65,7 +76,7 @@ class LOCALDEER_PT_review(bpy.types.Panel):
             layout.operator('local_deer.view',text=title).side = side
         layout.prop(context.space_data.shading, 'type', text='Viewport')
         layout.prop(context.space_data.overlay, 'show_overlays', text='Show rig/grid')
-        clips = [name for name in ('Idle','Walk','Run') if bpy.data.actions.get(name)]
+        clips = available_clips(context.scene)
         if clips:
             layout.separator()
             row = layout.row(align=True)
@@ -74,7 +85,7 @@ class LOCALDEER_PT_review(bpy.types.Panel):
                     depress=context.scene.get('review_clip') == name).clip = name
             layout.operator('local_deer.play', icon='PLAY')
             layout.prop(context.scene, 'frame_current', text='Frame')
-            layout.label(text='Authored preview loops; no game controller')
+            layout.label(text='AI motion: research only' if context.scene.get('motion_origin','').startswith('AnyTop') else 'Authored preview loops; no game controller')
         else:
             layout.label(text='Shape review; not animated yet')
         layout.separator()
@@ -82,12 +93,43 @@ class LOCALDEER_PT_review(bpy.types.Panel):
         layout.label(text='Solid view keeps GPU use low')
 
 
+def draw_header(self,context):
+    clips=available_clips(context.scene)
+    if not clips:
+        return
+    layout=self.layout
+    layout.separator_spacer()
+    layout.label(text='Deer (research):' if context.scene.get('motion_origin','').startswith('AnyTop') else 'Deer:')
+    for i,name in enumerate(clips):
+        title=f'AI take {i+1}' if name.startswith('AI motion') else name
+        layout.operator('local_deer.clip',text=title,
+            depress=context.scene.get('review_clip')==name).clip=name
+    layout.operator('local_deer.play',text='Pause / Play',icon='PAUSE' if context.screen.is_animation_playing else 'PLAY')
+
+
+def autoplay():
+    scene=bpy.context.scene
+    if not scene.get('review_autoplay',False):
+        return None
+    for window in bpy.context.window_manager.windows:
+        for area in window.screen.areas:
+            if area.type=='VIEW_3D':
+                region=next((r for r in area.regions if r.type=='WINDOW'),None)
+                if region:
+                    with bpy.context.temp_override(window=window,area=area,region=region):
+                        bpy.ops.local_deer.clip(clip=scene.get('review_clip',available_clips(scene)[0]))
+                    return None
+    return 1.0
+
+
 for cls in (LOCALDEER_OT_view, LOCALDEER_OT_clip, LOCALDEER_OT_play, LOCALDEER_PT_review):
     bpy.utils.register_class(cls)
+bpy.types.VIEW3D_HT_header.prepend(draw_header)
+bpy.app.timers.register(autoplay,first_interval=2.0)
 for screen in bpy.data.screens:
     for area in screen.areas:
         if area.type == 'VIEW_3D':
-            area.spaces.active.show_region_ui = True
+            area.spaces.active.show_region_ui = not bool(bpy.context.scene.get('review_clips',''))
             for region in area.regions:
                 if region.type == 'UI':
                     try:

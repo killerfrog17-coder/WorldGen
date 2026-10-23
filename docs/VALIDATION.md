@@ -1,5 +1,37 @@
 # Version 3 validation evidence
 
+## Private AI deer texture/rig/motion refinement - 23 October 2026
+
+Owner requests better AI texture and motion on accepted generated shape, free
+tools only. Existing mesh -> Hunyuan3D-2 local6-view synthesis43.96s/4585.2MiB
+peakTorch, seed731924/30steps/512² views,2048² UV colour atlas. CPU xatlas/raster/
+bake98.8005% direct UV coverage; painted and UV mesh geometry arrays exact.
+Roughness/metalness fixed, not generated PBR. Front/back CPU renders inspected.
+
+Local SkinTokens33-joint/four-leg Z-up prediction22.93s/3506.9MiB,5beams, native
+TorchSDPA. EarlierYup inputs yielded incomplete rigs and were rejected. Model
+independent occupancies leaked hind-leg weights onto a forehoof; geometry gate
+and normalizedtop4 transfer corrected visible stretched spikes in selected poses.
+One anonymous hosted demo request rejected declared450s GPU duration; no quota
+workaround or payment. All successful inference local; shared service unchanged.
+
+AnyTop neural motion3x120frames20fps,1.47/1.26/1.26s excludinginitial model/T5
+load. Fixed-length local-rotation retarget, hoof-end correspondence and root-only
+floor cleanup. Final360frame Blender asset checks pass UVs/33bones/1-4 normalized
+weights/no constraints/finite bounded vertices. Lowest-vertex ranges approx0–
+.009/.023/.020m (negativefloat error<=1.35e-7m). Not naturalgait/no intersections/
+foot-sliding/seamless looping/controller/FPS acceptance. Selectedposes inspected.
+Top-barAI take1/2/3 andPause/Play verified in actual centre-monitorGUI, autoplay.
+
+CRITICAL licensing boundary: AnyTop codeMIT but released weights/data explicitly
+NON-COMMERCIAL RESEARCH ONLY, no Truebones data rights granted. These takes and
+review remain private experiments, NOT game/shared-build/production assets.
+HunyuanCommunity license has territory/output conditions too; no unrestricted
+distribution claim. DesktopDeer - AI Refined Review.lnk selects ignored final
+Blender file; game shortcut/executable/world/saves untouched. No Unity/game/world
+launches/profiling; Python syntax/whitespace and offline asset checks only.
+See DEER_AI_REFINEMENT.md for actual provenance, license links and limitations.
+
 ## Local generated deer Blender study - 23 October 2026
 
 Owner requests a newly generated deer, not the previous downloaded CC0 animal,

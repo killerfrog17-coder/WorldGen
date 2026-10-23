@@ -1,5 +1,28 @@
 # WorldGen repository instructions
 
+AI DEER REFINEMENT,23October2026 local: owner accepts generated shape, rejects
+photo projection/winged gait, requests free AI textures/rig/motion. Existing50k
+triangle mesh -> local Hunyuan3D-2 six512² view paint43.96s/4585MiB ->2048² UV
+atlas,98.8005% directcoverage; painted vsUVgeometry exact. Fixedmatte roughness,
+not full generated PBR. Local SkinTokens33-joint/four-leg rig22.93s/3507MiB
+with5beams andTorchSDPA, correctBlenderZup. InitialYup incomplete rigs rejected;
+remote-bone skin leakage gated geometrically then top4 normalized. AnyTop3
+genuine neural6s takes1.47/1.26/1.26s, fixed-length retarget androotcontact cleanup.
+IMPORTANT: AnyTop checkpoint/data terms NON-COMMERCIAL RESEARCH ONLY, despiteMIT
+code. NO game/shared-build/production asset admission. HunyuanCommunity license
+also has territory/output conditions; not unrestricted global redistribution.
+This is private pipeline evaluation. AnonymousHF SkinTokens450s request rejected,
+no workaround/payment; successful runs local. No key/signup/paid endpoint used.
+Artifactroot artifacts/deer-refine-20261023; final Deer - AI Refined Review.blend
+opened centre/primary, DesktopDeer - AI Refined Review.lnk. Top-leftAI take1/2/3
+buttons auto-play; Pause/Play. Neural takes not seamless namedwalk/run loops.
+360frame finite/weights/floor checks pass; selectedCPU texture/poses inspected,
+actualGUI controls/playback verified. Not art/naturalgait/intersection/foot-slide
+or FPS acceptance. No Unity/world/game launch or game runtime/save/settings edits.
+Existing ownerApps/ComfyUI untouched; isolated E:/AI/WorldGen3D envs/models only.
+All inference exited; reviewBlender leftopen. See docs/DEER_AI_REFINEMENT.md for
+source/model revisions, license links, failed experiments and limits.
+
 LOCAL GENERATED DEER STUDY,23October2026 local: owner rejects substituted animal
 assets and requests a free local-AI deer opened in Blender. New built-in imagegen
 doe reference -> local TripoSG FP16/50steps/seed731923 on RTX4060; model/code MIT,
