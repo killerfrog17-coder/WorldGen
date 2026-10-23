@@ -42,7 +42,10 @@ class LOCALDEER_OT_clip(bpy.types.Operator):
         if action.slots:
             rig.animation_data.action_slot = action.slots[0]
         context.scene.frame_start = int(action.frame_range[0])
-        context.scene.frame_end = int(action.frame_range[1])-(1 if context.scene.get('review_loop_closed',True) else 0)
+        closed=context.scene.get('review_loop_closed',True)
+        if 'review_closed_clips' in context.scene:
+            closed=self.clip in context.scene['review_closed_clips'].split('|')
+        context.scene.frame_end = int(action.frame_range[1])-(1 if closed else 0)
         context.scene.frame_set(context.scene.frame_start)
         context.scene['review_clip'] = self.clip
         if context.screen and context.window and not context.screen.is_animation_playing:
@@ -85,7 +88,10 @@ class LOCALDEER_PT_review(bpy.types.Panel):
                     depress=context.scene.get('review_clip') == name).clip = name
             layout.operator('local_deer.play', icon='PLAY')
             layout.prop(context.scene, 'frame_current', text='Frame')
-            layout.label(text='AI motion: research only' if context.scene.get('motion_origin','').startswith('AnyTop') else 'Authored preview loops; no game controller')
+            origin=context.scene.get('motion_origin','')
+            layout.label(text='AI motion: research only' if origin.startswith('AnyTop') else
+                         'CC0 motion on AI rig: diagnostic' if origin.startswith('Quaternius') else
+                         'Authored preview loops; no game controller')
         else:
             layout.label(text='Shape review; not animated yet')
         layout.separator()
@@ -99,7 +105,9 @@ def draw_header(self,context):
         return
     layout=self.layout
     layout.separator_spacer()
-    layout.label(text='Deer (research):' if context.scene.get('motion_origin','').startswith('AnyTop') else 'Deer:')
+    origin=context.scene.get('motion_origin','')
+    layout.label(text='Deer (research):' if origin.startswith('AnyTop') else
+                      'Deer (CC0 motion test):' if origin.startswith('Quaternius') else 'Deer:')
     for i,name in enumerate(clips):
         title=f'AI take {i+1}' if name.startswith('AI motion') else name
         layout.operator('local_deer.clip',text=title,

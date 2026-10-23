@@ -7,6 +7,36 @@ subscriptions, API credits, game/world launches, profiling or game changes.
 
 ## Review
 
+**Owner subsequently accepts the mesh/texture and rejects all three AnyTop
+animations.** Keep those assets as a failed motion experiment; do not describe
+them as usable locomotion. No further neural takes were generated.
+
+New Desktop **Deer - Authored Motion Comparison.lnk** opens the separate
+`Deer - Authored Motion Comparison.blend`. Top-left **Idle / Walk / Run /
+Pause-Play** controls automatically start Walk. This keeps the exact accepted
+AI mesh, UV texture and SkinTokens rig/weights, and uses **Quaternius CC0 authored
+deer motion** as a diagnostic control. No downloaded deer geometry replaces ours.
+Animation source: [Ultimate Animated Animals](https://quaternius.com/packs/ultimateanimatedanimals.html),
+already downloaded GLB SHA256
+`fabf360b22eaccccd056ee99d698a9562d15aa245821f96e4fbad6db3751604e`.
+
+The old retarget applied local rotation deltas without fully converting source
+and target bind axes. The control uses world deformation rotations with bind
+correction. Comparing it changes BOTH motion source and rotation conversion;
+it cannot establish that AnyTop alone was responsible. The same predicted skin
+can still have anatomical defects. Root-only floor correction reaches 12.24cm
+in Walk and 6.45cm in Run: this is evidence of proportion/contact mismatch, not
+successful foot locking. No claim that this diagnostic is a finished game gait.
+Source Idle/Walk have duplicate endpoint poses; Gallop has a unique last pose
+and must retain it when looping. No handcrafted gait curves were added.
+
+Offline checks compare unchanged rest vertices, UVs, skin and decoded texture
+pixels, absence of donor geometry, finite bounded evaluated vertices over123
+frames. Selected CPU poses inspected. They do not certify natural movement,
+self-intersections, planted feet, blending, turns or runtime performance.
+Scripts: `retarget-deer-authored-control.py`, `check-deer-authored-control.py`,
+`inspect-deer-donor.py`. Evidence `authored-comparison-checks.json` is ignored.
+
 Desktop **Deer - AI Refined Review.lnk** opens
 `artifacts/deer-refine-20261023/Deer - AI Refined Review.blend` with
 `scripts/local-deer-review-controls.py`. It automatically plays the first take.

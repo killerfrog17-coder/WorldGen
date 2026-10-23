@@ -1,5 +1,21 @@
 # WorldGen repository instructions
 
+DEER MOTION REJECTED / CONTROL,23October2026 local: owner accepts latest AI
+mesh/UV texture as placeholders, rejects ALL three AnyTop takes. Do not reroll
+neural takes or regenerate accepted mesh/paint. New diagnostic retargets existing
+Quaternius CC0 Idle/Walk/Gallop to SAME SkinTokens rig/skin on accepted AI mesh;
+NO donor geometry substitution. Bind-axis-correct world rotation deltas replace
+old unconverted local-axis deltas. This does not prove which earlier component
+alone caused bad motion. Source Gallop has unique last frame; retain it, unlike
+closed Idle/Walk duplicate endpoints. Minimal root lift prevents penetration;
+up to12.3cm walk correction exposes proportion/contact issues, NOT solved IK/
+foot locking. New Desktop Deer - Authored Motion Comparison.lnk and separate
+blend; top-left Idle/Walk/Run/Pause controls, auto Walk. Mesh/UV/skin/pixel arrays
+exact vs accepted review; one rig/no donor mesh,123 finite bounded frames checked.
+CPU selected poses only; no game/Unity launch, profiling or new inference/payment.
+Existing open reviews/apps untouched. Authored motion origin explicitly CC0,
+NOT generated/our authorship. Art/gait acceptance pending. See refinement docs.
+
 AI DEER REFINEMENT,23October2026 local: owner accepts generated shape, rejects
 photo projection/winged gait, requests free AI textures/rig/motion. Existing50k
 triangle mesh -> local Hunyuan3D-2 six512² view paint43.96s/4585MiB ->2048² UV

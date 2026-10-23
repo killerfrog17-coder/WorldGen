@@ -1,5 +1,22 @@
 # Version 3 validation evidence
 
+## Deer authored-motion diagnostic control - 23 October 2026
+
+Owner accepts generated mesh/paint placeholders, rejects ALL three AnyTop takes.
+No more inference. Existing CC0 Quaternius Idle/Walk/Gallop clips retargeted with
+world-space bind-axis correction onto SAME SkinTokens rig/skin and AI model.
+No donor geometry retained. Offline comparison asserts exact rest vertices, UVs,
+skin influence arrays and decoded large texture pixels vs rejected-motion review.
+One armature/no donor mesh,123 evaluated frames finite/bounded; selected CPU
+poses inspected. Minimal root floor correction prevents penetration but reaches
+12.24cm Walk/6.45cm Run: contact/rig proportions are NOT solved. Idle/Walk duplicate
+endpoints; Gallop retains unique final pose. See ignored authored-comparison-checks
+JSON for endpoint vs adjacent-frame deltas. This is NOT an attribution test of
+AnyTop alone (motion source AND retarget changed), nor natural-gait, intersection,
+foot locking, blending, turn or runtime acceptance. Separate comparison Blender
+and shortcut, visible playback controls; old owner reviews/apps left untouched.
+No game/world/Unity launch, profiling, paid API or new model download.
+
 ## Private AI deer texture/rig/motion refinement - 23 October 2026
 
 Owner requests better AI texture and motion on accepted generated shape, free
