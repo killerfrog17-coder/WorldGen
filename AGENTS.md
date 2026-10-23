@@ -1,5 +1,29 @@
 # WorldGen repository instructions
 
+LOCAL MOTION COMPARISON,23October2026: owner explicitly closed The Forest for
+UniMate/MoCap GPU trials. Both completed; all owned inference exited. Separate
+Desktop Deer - AI Motion Comparison.lnk opens accepted unchanged mesh/skin/paint
+in artifacts/deer-motion-comparison-20261023/Deer - AI Motion Comparison.blend.
+Top-left family selector, Raw AI/Cleaned, Pause/Play/Replay; native CC0 baseline
+also selectable. No live foot IK/gaze.12 UniMate2s candidates,8 heuristic REVIEW/
+4 rejected (feeding/forward-travel failures); selected run/feed cleanup meets
+guard, walk/alert cleanup rejected. Both MoCap3s raw-rotation and pose-swing
+variants REJECTED (tipped body/torso fold); finite kinematics alone is not art
+acceptance. Preserve raw takes/failed corrections. UniMate322.83s generation;
+MoCap2.47s cached-feature retry EXCLUDES preprocessing/DINO/setup.8GB RTX4060,
+no paid service/API. Isolated artifacts motion-eval venv, shared Comfy/rig envs
+read-only; no owner app closure. Native direct input adapter fixes MoCap default
+axes/cm assumptions;33-joint Pelvis conditioning copied from native34-bone rig.
+840 experimental frames finite/deformed,rest fit<=1.6um/replay<=1.2um; source
+mesh/skin/UV/image hashes unchanged.16 native viewer/action checks pass; selected
+CPU poses and actual GUI controls inspected. NOT natural gait/loop/collision/
+gameplay acceptance. UniMate weights CC BY-NC4; RMBG separate BRIA terms; all
+outputs private RESEARCH ONLY, no game-bank admission. Own generated deer stays,
+no Truebones donor mesh/motion downloaded. Current prototype/old reviews,
+Unity/game/world/saves/settings and user prompt deletion remain untouched.
+Viewer Blender left open on primary display; GPU generation finished, owner
+may reopen game. See docs/DEER_LOCAL_MOTION_COMPARISON.md and ignored evidence.
+
 DEER BEHAVIOUR PROTOTYPE,23October2026 local: owner explicitly resumed after
 gaming pause; no further inference or need to close Forest. Finished offline
 review artifacts/deer-behaviour-20261023/Deer - Game Ready Prototype.blend and

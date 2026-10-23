@@ -1,5 +1,33 @@
 # Version 3 validation evidence
 
+## Local deer motion comparison — 23 October 2026
+
+Owner closed The Forest and explicitly authorized GPU animation trials. UniMate
+v3 generated 12 retained 60-frame takes in 322.83 seconds; the final action-aware
+heuristic filter marks eight REVIEW and rejects four. REVIEW is not art approval.
+Offline cleanup of the selected run/feed meets non-regression guards;
+walk/alert corrections do not. MoCapAnything V2 inference loads and runs on the
+same deer with CC0 video input, but its rotation output tips the body; alternative
+neural-position swing reconstruction folds the torso. Both MoCap variants and
+their corrections are rejected. No game asset was replaced. Details, revisions,
+rights and limits: [DEER_LOCAL_MOTION_COMPARISON.md](DEER_LOCAL_MOTION_COMPARISON.md).
+
+Native Blender evaluated 840 experimental frames across 12 raw/clean actions:
+finite skinned surfaces, rest-fit maximum under 1.6 micrometres and joint-head
+replay error under 1.2 micrometres. Accepted mesh/skin/UV/image hashes and source
+blend hash remain exact. All 16 displayed actions pass native slot, frame-range,
+rate, finite-pose and non-static-motion control checks. Selected CPU renders
+and actual primary-monitor viewer/header controls were inspected. These checks
+do not establish natural gait, loops, anatomical limits, full surface collision,
+foot contact, game integration or performance. Known penetration and rejected
+neural deformation are retained visibly. No game/Unity launch or profiling.
+All inference exited; new comparison viewer alone left open.
+
+UniMate checkpoint is CC BY-NC4, MoCap/RMBG have distinct component terms;
+comparison outputs remain ignored private research, outside game asset banks.
+Shared ComfyUI/rig environments and servers, owner apps, game/saves/settings
+were not modified. User-deleted prompt and unrelated old study scripts preserved.
+
 ## Deer behaviour animation/controller prototype - 23 October 2026
 
 Owner resumes after requested gaming pause; no new generation, paid API or
