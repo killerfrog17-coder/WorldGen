@@ -61,6 +61,24 @@ class LOCALDEER_OT_play(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class LOCALDEER_OT_lod(bpy.types.Operator):
+    bl_idname = 'local_deer.lod'
+    bl_label = 'Inspect mesh LOD'
+    level: bpy.props.IntProperty(default=0)
+
+    def execute(self,context):
+        names=context.scene.get('review_lods','').split('|')
+        if not 0<=self.level<len(names):
+            return {'CANCELLED'}
+        for i,name in enumerate(names):
+            obj=bpy.data.objects.get(name)
+            if obj:
+                obj.hide_set(i!=self.level)
+                obj.hide_render=i!=self.level
+        context.scene['review_lod']=self.level
+        return {'FINISHED'}
+
+
 class LOCALDEER_PT_review(bpy.types.Panel):
     bl_label = 'Generated Deer'
     bl_idname = 'LOCALDEER_PT_review'
@@ -70,7 +88,7 @@ class LOCALDEER_PT_review(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        layout.label(text='LOCAL TRIPOSG SHAPE STUDY', icon='MESH_DATA')
+        layout.label(text='LOCAL AI DEER' if context.scene.get('review_lods','') else 'LOCAL TRIPOSG SHAPE STUDY', icon='MESH_DATA')
         layout.label(text='New mesh from our generated reference')
         layout.label(text='No downloaded deer model')
         layout.separator()
@@ -90,10 +108,22 @@ class LOCALDEER_PT_review(bpy.types.Panel):
             layout.prop(context.scene, 'frame_current', text='Frame')
             origin=context.scene.get('motion_origin','')
             layout.label(text='AI motion: research only' if origin.startswith('AnyTop') else
-                         'CC0 motion on AI rig: diagnostic' if origin.startswith('Quaternius') else
+                         ('CC0 authored motion / generated model' if context.scene.get('review_approved_motion',False) else
+                          'CC0 motion on AI rig: diagnostic') if origin.startswith('Quaternius') else
                          'Authored preview loops; no game controller')
         else:
             layout.label(text='Shape review; not animated yet')
+        lods=context.scene.get('review_lods','')
+        if lods:
+            layout.separator()
+            layout.label(text='Offline mesh LOD comparison')
+            row=layout.row(align=True)
+            for i,name in enumerate(lods.split('|')):
+                obj=bpy.data.objects.get(name)
+                count=len(obj.data.polygons) if obj else 0
+                title=f'{count/1000:.1f}k' if count>=1000 else str(count)
+                row.operator('local_deer.lod',text=title,
+                    depress=context.scene.get('review_lod',0)==i).level=i
         layout.separator()
         layout.label(text='Middle mouse: orbit; wheel: zoom')
         layout.label(text='Solid view keeps GPU use low')
@@ -107,7 +137,8 @@ def draw_header(self,context):
     layout.separator_spacer()
     origin=context.scene.get('motion_origin','')
     layout.label(text='Deer (research):' if origin.startswith('AnyTop') else
-                      'Deer (CC0 motion test):' if origin.startswith('Quaternius') else 'Deer:')
+                      ('Deer (CC0 motion):' if context.scene.get('review_approved_motion',False) else
+                       'Deer (CC0 motion test):') if origin.startswith('Quaternius') else 'Deer:')
     for i,name in enumerate(clips):
         title=f'AI take {i+1}' if name.startswith('AI motion') else name
         layout.operator('local_deer.clip',text=title,
@@ -130,14 +161,14 @@ def autoplay():
     return 1.0
 
 
-for cls in (LOCALDEER_OT_view, LOCALDEER_OT_clip, LOCALDEER_OT_play, LOCALDEER_PT_review):
+for cls in (LOCALDEER_OT_view, LOCALDEER_OT_clip, LOCALDEER_OT_play, LOCALDEER_OT_lod, LOCALDEER_PT_review):
     bpy.utils.register_class(cls)
 bpy.types.VIEW3D_HT_header.prepend(draw_header)
 bpy.app.timers.register(autoplay,first_interval=2.0)
 for screen in bpy.data.screens:
     for area in screen.areas:
         if area.type == 'VIEW_3D':
-            area.spaces.active.show_region_ui = not bool(bpy.context.scene.get('review_clips',''))
+            area.spaces.active.show_region_ui = bool(bpy.context.scene.get('review_lods','')) or not bool(bpy.context.scene.get('review_clips',''))
             for region in area.regions:
                 if region.type == 'UI':
                     try:

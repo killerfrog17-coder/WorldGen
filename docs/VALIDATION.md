@@ -1,5 +1,33 @@
 # Version 3 validation evidence
 
+## Budgeted deer / replacement AI texture - 23 October 2026
+
+Owner accepts authored CC0 motion and requests sharper paint with no Hunyuan
+geographic output restriction. Keep own TripoSG shape and approved rig/actions;
+rebuild welded/reduced mesh, UVs and textures.13 local RealVisXL V5/SDXL-depth
+views at1024,36steps,seed731940+view; Marigold IID lighting4steps/768 estimates
+illumination with bounded luminance-only correction preserving chroma/fine fur.
+No Hunyuan pixels or AnyTop motion; base SDXL illustrated/plastic views rejected.
+13 views536.88s/4554.3MiB peakTorch, delight54.03s/1987MiB; two CPU-decode pilots
+and eleven FP16-safe GPU decodes, not entire research/setup/iteration time.
+
+Selected `artifacts/deer-realvis-20261023/Deer - Game Asset Review v2.blend` has
+one material, packed2048 colour/1024 tangent normal and13999/6000/2200/700-triangle
+LODs. Exact rest rig and all123 evaluated bone frames vs approved authored-motion
+control; all mesh vertices normalized1-4 influences, UV/material/image assertions,
+selected finite bounded deformed poses at all four LODs. Source high/low surface
+distance4167 samples max1.284mm,p950.561mm. Images decoded lazily in Blender;
+checker now loads referenced packed images rather than treating has_data=False
+as missing texture. Forbidden old Hunyuan packed-image hash absent. Final CPU
+front/rear poses and13-source contact sheet inspected. Foreground rejection,
+robust broad-colour fusion and primary fine detail reduce projection artifacts;
+not proof of seamless consistent facial markings or final art acceptance.
+
+No Unity/game/world launch, behaviour/import/performance work or measured FPS
+benefit. Blender preserve-volume versus future engine linear skinning still
+needs runtime review. All old owner reviews/apps/saves left alone. Portable
+review/shortcut and source/pin/failure details in DEER_GAME_ASSET_PIPELINE.md.
+
 ## Deer authored-motion diagnostic control - 23 October 2026
 
 Owner accepts generated mesh/paint placeholders, rejects ALL three AnyTop takes.

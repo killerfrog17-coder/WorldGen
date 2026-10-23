@@ -1,5 +1,32 @@
 # WorldGen repository instructions
 
+DEER GAME-ASSET REVIEW,23October2026 local: owner now approves CC0-authored rig/
+motion and requests sharper texture without Hunyuan output restrictions plus
+game-friendly geometry. Retain accepted TripoSG sculpt; weld/reduce to13999
+triangles, xatlas UVs, exact geometry depth/neutral guides,13 local RealVisXL V5
+SDXL views (10body/3head,36steps,seed731940+view). New paint has NO Hunyuan input;
+base SDXL illustrated/plastic views rejected. Marigold IID lighting4steps at768
+estimates broad illumination; bounded luminance-only transfer retains fur/chroma.
+2K colour +1K high/low tangent normal, one material, four-weight LODs13999/6000/
+2200/700. Rig33 bones/all123 evaluated bone poses EXACT vs approved control;
+sampled dense-to-low surface max1.284mm,p95.561mm at1.65m animal. No new shape
+inference/rerig/animation generation or game/Unity/world/save/settings changes.
+CC0 Quaternius motion, MIT TripoSG/SkinTokens tools, OpenRAIL++ RealVis/SDXL/
+depth/Marigold; model-card MIT FP16-safe VAE. These output terms have no Hunyuan
+EU/UK/SK ban; do not label entire asset CC0 or unrestricted model weights.
+Successful13-view paint536.88s,peak4554MiB Torch; delight54.03s/1987MiB. Includes
+two CPU-decoded pilots, eleven faster FP16-safe GPU decodes; not full task time.
+Isolated rig-venv adds Accelerate1.4 only; shared ComfyUI/services untouched.
+Mapped-storage AV and meta position-buffer setup fixed in owned loaders; native
+SDPA/FP8 storage/FP16 compute fit8GB. Offline bounded mesh/skin/packed-image/
+pose/distance checks and selected CPU renders only; no game launch/profiling.
+New artifacts/deer-realvis-20261023/Deer - Game Asset Review v2.blend +Desktop
+Deer - Game Asset Review.lnk; top-left Idle/Walk/Run/Pause, sidebar mesh LODs.
+Old open/unsaved reviews not overwritten/closed. GPU inference complete. Owner
+art approval pending: independent-view markings/seams can still differ, not
+production retopology/contact/linear Unity skinning acceptance. See new
+docs/DEER_GAME_ASSET_PIPELINE.md and ignored asset-provenance/asset-checks JSON.
+
 DEER MOTION REJECTED / CONTROL,23October2026 local: owner accepts latest AI
 mesh/UV texture as placeholders, rejects ALL three AnyTop takes. Do not reroll
 neural takes or regenerate accepted mesh/paint. New diagnostic retargets existing
