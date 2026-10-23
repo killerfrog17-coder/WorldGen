@@ -1,5 +1,29 @@
 # Version 3 validation evidence
 
+## Deer behaviour animation/controller prototype - 23 October 2026
+
+Owner resumes after requested gaming pause; no new generation, paid API or
+inference. Offline Blender asset/controller only, no game/Unity/world launches
+or gameplay/FPS validation. See [DEER_BEHAVIOUR_PROTOTYPE.md](DEER_BEHAVIOUR_PROTOTYPE.md).
+Accepted own mesh/AI paint retained; forward-facing bind and firm hoof skin are
+intentional changes.34 bones/root, four normalized influences, four LODs13999/
+6000/2200/700tri, sixteen CC0-derived/adapted native actions, one material and
+2K colour/1K normal. Combined GLB shares all LODs and motion; no runtime Animator,
+LODGroup, navigation, ecological needs or population system is implied.
+
+Native keyed locations match the motion library, finite unit quaternions/closed
+loop endpoints, signed90deg root turns, sampled deformed floor clearance and
+export budgets/structure pass. Real viewer handler runs1752routine frames and
+10s gentle-slope movement; death hold and native/manual action binding pass.
+Maximum sampled slope stance height error~4.78cm, not perfect foot planting.
+Final actual LOD0 GLB reimport vs final blend:160vertex samples at each of seven
+poses, maximum nearest-vertex error~.0475mm. Selected CPU pose renders reviewed;
+GUI launch reports ready; no forced foreground screenshot interrupts owner app.
+Naturalness, all-pairs blends, body intersections, difficult terrain, UI layout
+and art still need owner review. GetUp/Drink/LieDown are adapted placeholders,
+not new deer mocap. No AnyTop/Hunyuan output admitted. Assets/check JSON/logs
+remain ignored local evidence, not part of source backup.
+
 ## Budgeted deer / replacement AI texture - 23 October 2026
 
 Owner accepts authored CC0 motion and requests sharper paint with no Hunyuan

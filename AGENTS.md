@@ -1,5 +1,29 @@
 # WorldGen repository instructions
 
+DEER BEHAVIOUR PROTOTYPE,23October2026 local: owner explicitly resumed after
+gaming pause; no further inference or need to close Forest. Finished offline
+review artifacts/deer-behaviour-20261023/Deer - Game Ready Prototype.blend and
+Desktop Deer - Behaviour Prototype shortcut.16 native motions incl trot/feeding/
+drink/alert/rest/descent/rise/turns/hits/death/jump; CC0 Quaternius deer + pinned
+Mesh2Motion horse motion, NO donor animal mesh or rejected AnyTop/Hunyuan output.
+Own accepted TripoSG/RealVis-SDXL-Marigold shape/paint retained; corrected~59deg
+sideways head bind to-.067deg; normalized strongest4 weights/firm hooves; linear
+skin,34 bones incl nondeforming MotionRoot.13999/6000/2200/700tri, one material,
+2K colour/1K normal. Combined7.34MB GLB shares4LODs/16clips/textures; standalone
+LOD alternatives too. Engine LODGroup/Animator/AI NOT implemented. Blender wrapper
+has routine/manual/native/speed/uneven-ground modes, blends/steering/stance locks/
+foot IK/head+ears. Drinking adapts eating; descent reverses adapted rise, NOT
+independent deer mocap. Native clips omit procedural layers. All keyed native
+locations/loop/skin/budget/floor/export checks pass; actual controller1752routine
+frames +10s slope/native/death checks pass, slope stance error max~4.78cm. Final
+LOD0 GLB reimport7poses/160surface samples each max~.0475mm. Selected CPU poses
+reviewed; GUI launches/ready log, owner foreground app not interrupted for forced
+layout review. Owner naturalness/intersection/feet/visual acceptance still needed.
+No Unity/player/world launch, profiling, new GPU generation, paid service or
+owner app closure. Existing game/shortcut/saves/preferences/ComfyUI untouched.
+Source backup excludes ignored assets/evidence. See DEER_BEHAVIOUR_PROTOTYPE.md.
+Preserve owner prompt deletion and unrelated old untracked deer study scripts.
+
 DEER GAME-ASSET REVIEW,23October2026 local: owner now approves CC0-authored rig/
 motion and requests sharper texture without Hunyuan output restrictions plus
 game-friendly geometry. Retain accepted TripoSG sculpt; weld/reduce to13999
