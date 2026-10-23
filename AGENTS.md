@@ -1,5 +1,22 @@
 # WorldGen repository instructions
 
+MESH2MOTION REJECTED / ORIGINAL RIG,23October2026: owner rejects ALL new56-bone
+rig/skin modes (fitted+weight cleanup least bad, still bad) and ALL preceding
+UniMate takes despite heuristic REVIEW labels. Do not admit these to game assets.
+CPU face comparisons show unchanged true bind face but replacement idle muzzle/
+cheek deformation. Separate Desktop Deer - Original Rig Motion Review.lnk opens
+artifacts/deer-own-rig-mesh2motion-20261023/Deer - Original Rig Motion Review.blend.
+Existing34-bone mesh/rest/UV/skin/paint exact after reload;16 prior actions plus13
+native transfers. Corrected foreleg segment/geometric side map; world bind deltas,
+head children rigidly inherited. No new rig/weights/live IK/gaze/floor lift.
+Starts true Bind pose; header Idle/Walk/Trot/Run/Pause/Face/Whole deer/Motion.
+29 controls and all-frame finite checks pass; NOT natural gait/contact approval.
+Walk penetrates5.4cm; feed/rest/death14-18cm. CPU-only local afk-rig0.1.2 wraps
+Mesh2Motion MIT/CC0 art; no signup/payment/GPU inference. TheForest/open reviews
+untouched; new viewer avoids stealing game focus. No game/Unity/world/save or
+settings changes. Source blend hash unchanged. See DEER_MESH2MOTION_REVIEW.md
+and ignored evidence. Do not overwrite open files or call rejected assets good.
+
 LOCAL MOTION COMPARISON,23October2026: owner explicitly closed The Forest for
 UniMate/MoCap GPU trials. Both completed; all owned inference exited. Separate
 Desktop Deer - AI Motion Comparison.lnk opens accepted unchanged mesh/skin/paint

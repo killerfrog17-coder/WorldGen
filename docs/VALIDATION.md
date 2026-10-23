@@ -1,5 +1,19 @@
 # Version 3 validation evidence
 
+## Mesh2Motion rejection and original-rig comparison — 23 October 2026
+
+Owner rejects all replacement rig/skin variants and all preceding UniMate
+results. Same-view CPU face comparisons show unchanged bind geometry but added
+replacement idle muzzle distortion. New original-rig trial retains exact mesh,
+UV, weights, rest skeleton and texture pixels after reload; source SHA unchanged.
+Sixteen old/thirteen transferred actions pass 29 control checks and all-frame
+finite skinned-geometry checks; transferred face children remain locally rigid.
+Corrected foreleg/side map, no new skin/live IK/floor lift. Walk penetrates about
+5.4 cm; feed/rest/death about 14–18 cm. CPU selected poses inspected; no natural
+gait, collision, Unity integration or FPS acceptance. CPU-only; The Forest and
+old reviews untouched. New primary-display viewer starts true bind. See
+[DEER_MESH2MOTION_REVIEW.md](DEER_MESH2MOTION_REVIEW.md).
+
 ## Local deer motion comparison — 23 October 2026
 
 Owner closed The Forest and explicitly authorized GPU animation trials. UniMate

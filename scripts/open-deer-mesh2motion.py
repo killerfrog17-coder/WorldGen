@@ -1,0 +1,61 @@
+"""Open the new review without closing or modifying any existing user apps."""
+import argparse
+import ctypes
+from ctypes import wintypes
+import json
+from pathlib import Path
+import subprocess
+import time
+
+
+def main():
+    repo=Path(__file__).resolve().parent.parent
+    ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,
+        default=repo/'artifacts/deer-mesh2motion-20261023')
+    ap.add_argument('--own-rig',action='store_true')
+    a=ap.parse_args();root=a.root.resolve()
+    blend=root/('Deer - Original Rig Motion Review.blend' if a.own_rig else 'Deer - Mesh2Motion Review.blend')
+    viewer='deer-own-rig-viewer.py' if a.own_rig else 'deer-mesh2motion-viewer.py'
+    ready='Original-rig deer viewer ready.' if a.own_rig else 'Mesh2Motion deer viewer ready.'
+    blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
+    assert blend.is_file()
+    running=subprocess.check_output(['tasklist','/FO','CSV','/NH'],text=True,errors='replace').lower()
+    playing='theforest.exe' in running or 'sonsoftheforest.exe' in running
+    startup=subprocess.STARTUPINFO()
+    if playing:
+        startup.dwFlags|=subprocess.STARTF_USESHOWWINDOW;startup.wShowWindow=4
+    log=root/'viewer.log'
+    with log.open('w') as f:
+        process=subprocess.Popen([str(blender),'--factory-startup','--disable-autoexec',str(blend),
+            '--python',str(repo/'scripts'/viewer)],
+            cwd=repo,stdout=f,stderr=subprocess.STDOUT,startupinfo=startup)
+    (root/'viewer-process.json').write_text(json.dumps({'pid':process.pid,'blend':str(blend)}))
+    user=ctypes.windll.user32;windows=[]
+    user.GetWindowThreadProcessId.argtypes=[wintypes.HWND,ctypes.POINTER(wintypes.DWORD)]
+    user.IsWindowVisible.argtypes=[wintypes.HWND]
+    user.MoveWindow.argtypes=[wintypes.HWND,ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_int,wintypes.BOOL]
+    user.ShowWindow.argtypes=[wintypes.HWND,ctypes.c_int];user.SetForegroundWindow.argtypes=[wintypes.HWND]
+    callback=ctypes.WINFUNCTYPE(wintypes.BOOL,wintypes.HWND,wintypes.LPARAM)
+    @callback
+    def find(hwnd,param):
+        pid=wintypes.DWORD();user.GetWindowThreadProcessId(hwnd,ctypes.byref(pid))
+        if pid.value==process.pid and user.IsWindowVisible(hwnd):windows.append(hwnd)
+        return True
+    end=time.monotonic()+90
+    while time.monotonic()<end and process.poll() is None:
+        windows.clear();user.EnumWindows(find,0)
+        if windows and ready in log.read_text(errors='replace'):
+            rect=wintypes.RECT();user.SystemParametersInfoW(48,0,ctypes.byref(rect),0)
+            hwnd=windows[0];user.ShowWindow(hwnd,4 if playing else 9)
+            user.MoveWindow(hwnd,rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top,True)
+            # Do not steal input while the owner is playing. The window opens
+            # on the primary display; its Desktop shortcut remains available.
+            if not playing:
+                user.ShowWindow(hwnd,3)
+                user.SetForegroundWindow(hwnd)
+            print('Mesh2Motion review opened on primary display.');return
+        time.sleep(.3)
+    raise RuntimeError('Viewer not ready; inspect '+str(log))
+
+
+if __name__=='__main__':main()
