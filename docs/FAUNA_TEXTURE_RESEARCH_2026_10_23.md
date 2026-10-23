@@ -7,6 +7,41 @@ new eating correction, but wants a more convincing material on the same mesh.
 
 ## Recommendation
 
+### Owner's quality/time shortlist
+
+The owner asks for original-Skyrim-or-better visual quality, not merely valid
+files. None of the untested generators has passed that owner review here. The
+assessments below are prioritization judgments, not measured quality scores or
+promises that every output reaches that standard. TRELLIS.2 painter is NOT tested.
+Times marked estimate are deliberately broad warm-run planning budgets on the
+4060/8GB, with installed/downloaded weights, excluding installation, reference
+creation, retopology, manual fixes and rerolls. Do not repeat them as benchmarks.
+
+| Method | Animal material suitability | Weapons/armour/props suitability | Planning time | Decision |
+|---|---|---|---|---|
+| TRELLIS.2 native painting | Strong candidate; fur/eyes need actual review | Strong candidate for material-aware surfaces | Several minutes, roughly3-10min texture-only ESTIMATE | Test first on accepted deer |
+| MV-Adapter SD2.1 low-memory | Plausible; coordinated views but lower detail than SDXL | Plausible; may need roughness/material finishing | Roughly1-5min texture/bake ESTIMATE | Test second |
+| Sequential RealVis/SDXL | Plausible high-detail colour; consistency/lighting still require care | Useful colour/detail painter, needs correct material maps | Roughly4-10min ESTIMATE | Fallback/comparison |
+| Pixal3D low-memory | Strong integrated model/material candidate, not proven existing-mesh painter | Strong integrated asset candidate | Roughly6-15min FULL MODEL+TEXTURE ESTIMATE | Consider for new assets |
+| Anatomy masks/palette baking | Preserves approved base quality, not a replacement for good base | Excellent for controlled recolours/wear of approved materials | Seconds-scale TARGET, unmeasured | Use for cheap variation |
+| Current thirteen independent RealVis views | Owner rejects current final appearance | Not validated; same lighting/consistency risks | 536.88s paint+54.03s delight MEASURED, plus CPU bake | Retire current recipe |
+| Hunyuan paint | Technically viable;2.1 PBR worth comparing technically | Technically viable PBR candidate | Older2.0 paint44s MEASURED;2.1 unmeasured | Exclude chosen release route for output-license reasons |
+
+Do not discard a research method as incapable of Skyrim-level quality merely
+because it is untested. Paint3D/SyncMVD/FlashTex are deferred for lower practical
+priority, not proven visual incapability; no credible4060 timing measured here.
+TEXGen is excluded from the immediate8GB shortlist for its official24GB setup,
+not a claim that it cannot produce sufficiently good textures. A sword's crisp
+edge/engraving and armour construction also depend on geometry/normals: a good
+colour map alone cannot guarantee the final asset's quality.
+
+Relevant external timing evidence: a community TRELLIS/Pixal-derived pipeline
+reports6.5-13min full jobs on4060 Laptop8GB and about60% spent on texture; this is
+not the official standalone painter or our PC. Pixal3D Studio reports6-8min full
+jobs on4070 SUPER12GB. These motivate broad budgets, not exact speed predictions.
+[4060 Laptop report](https://github.com/Quentincls/localmesh-engine),
+[Pixal3D Studio report](https://github.com/PrimeEcto/PIXAL-3D).
+
 Follow-up after the owner asks specifically about dedicated/native texture
 generation: **first trial should be TRELLIS.2 native existing-mesh painting via
 an 8 GB Windows implementation**, followed by MV-Adapter as the lower-memory
