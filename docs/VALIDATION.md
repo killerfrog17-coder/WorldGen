@@ -1,5 +1,28 @@
 # Version 3 validation evidence
 
+## AI fauna candidate batch launch - 22 October 2026
+
+Owner authorizes the proposed288 candidates. New Python batch orchestrator
+compiles; immutable generated CSV contains cricket48/cicada32/katydid48/frog64/
+bird96 rows, all20s, with explicit acoustic-form/take fields. Calls use official-
+guide source-isolated prompts and different named/sequenced seeds via existing
+SA3 Small-SFX8-step/CFG1 CUDA generator. No new model/API/install. Initially
+shared Comfy queue was empty and device reports RTX4060. Hidden detached worker
+started03:51:27Z23October in artifacts/fauna-ai-review-20261022. First five
+jobs completed/prepared (one/group), batch-status state generating, error null.
+This is actual partial offline generation evidence, NOT completion of288 jobs,
+listening acceptance, measured realistic identity or source-purity proof.
+
+Each completed mono PCM16/44.1k audition is hash-indexed with prompt/model/seed/
+stereo source/master and bounded processing. Owner deletion of indexed audition
+files is preserved on resume by source design; no deletion fixture was run.
+Interleaved groups permit immediate audition while later clips generate.
+Complete/rejected/paused/failed state and counts must be read from live status,
+not inferred from this launch note. No active sounds/fauna admission, executable/
+shortcut/world/save/weather/vegetation changes. Python compile plus requested
+offline generation only; no tests, player/world launches, profiling or audition.
+Raw/decoded copies and GPU contention are additional to mono delivery estimates.
+
 ## Fauna media withdrawal / official prompting review - 22 October 2026
 
 Owner prefers AI and asks to clear comparison audio. Before removal, all45

@@ -1,5 +1,60 @@
 # Ecoregions and the Earth starter pack (3.28)
 
+## Large AI audition batch started - 22 October 2026
+
+Owner approved the288-candidate batch after the size discussion. New reusable
+`scripts/generate-fauna-batch.py` builds an immutable, interleaved catalogue:
+48 cricket,32 cicada,48 katydid,64 frog,96 bird, all20s. Six/four/six/eight/eight
+acoustic forms each have8 candidate takes (12 for birds), allowing roughly half
+to be rejected toward the proposed144-file accepted bank. Forms are prompt
+families, NOT claimed real species, guaranteed stable AI voice identities or new
+saved world taxa. Audition for compatible takes before binding to regional flora/
+fauna. No automatic listening approval or selection based on merely valid PCM.
+
+Current batch: `artifacts/fauna-ai-review-20261022`, started03:51:27UTC23October
+(22October local). Five initial clips completed at publication of this note;
+this is an IN-PROGRESS checkpoint, not a claim288 jobs succeeded. The detached
+hidden Python worker uses existing local ComfyUI + RTX4060/Small-SFX, one
+inference at a time; GPU use may compete with the game. It does not start/kill
+the shared service or install/download new models. Output layout:
+
+```text
+artifacts/fauna-ai-review-20261022/
+  audition/<group>/*.wav      Mono44.1k PCM16 listening candidates; delete rejects here
+  candidates-stereo/*.wav     Preserved stereo candidates, NOT runtime media
+  audition-index.json         Form/take, prompt/seed/model/master, exact hashes, processing
+  catalog.csv                All288 immutable source-isolated prompts
+  batch-status.json          Prepared/present counts and overall state
+  jobs/status.json           Actual inference progress/errors
+  generator.log              Captured inference job events
+  README.txt                 Listening and pause/resume instructions
+```
+
+Completed clips get mono downmix, group rumble removal, conservative common
+level, peak bound and endpoint fades, matching the initial owner-liked AI bank's
+preparation. Stereo copies remain available; mono is spatial source format, not
+a reduction in sample rate. Atomic WAV/index publication makes completed clips
+available during inference, not only after the entire batch. Once an audition
+is indexed, resuming never recreates it if the owner deletes it. Changed existing
+unindexed files are not overwritten. No hot reload or in-game bank expansion is
+implied. The active `sounds/fauna` manifest STAYS EMPTY; no unreviewed batch
+audio is installed into the game and no executable/shortcut change is required.
+
+Graceful pause: create an empty `jobs/PAUSE` file; the current clip finishes.
+After any failure, inspect status/current-job.json and the shared Comfy queue
+before resuming, to avoid duplicating still-running inference. Same-root resume:
+
+```powershell
+python scripts/generate-fauna-batch.py --batch-root artifacts/fauna-ai-review-20261022
+```
+
+Both wrapper and generator have file locks. Resume is for an idle/stopped
+producer, not starting a second worker while this one runs. No whole-server
+interrupt, automatic owner-file deletion or model unloading. Python helper
+compiles; actual initial five offline generations/preparations succeeded. No
+agent listening, gameplay launches, test suites or profiling. Model licences,
+source-purity limitations and storage estimates from the sections below apply.
+
 ## AI selected; comparison media withdrawn - 22 October 2026
 
 Owner prefers AI and requests the new audio folder cleared before replacements.

@@ -1,5 +1,25 @@
 # WorldGen repository instructions
 
+AI FAUNA BATCH IN PROGRESS,22October2026 local: owner approves cooking288 new
+20s Small-SFX candidates (cricket48/cicada32/katydid48/frog64/bird96). Detached
+hidden python scripts/generate-fauna-batch.py runs under existing ComfyUI/CUDA;
+batch artifacts/fauna-ai-review-20261022, started2026-10-23T03:51:27Z, launcher
+PID12788 at start (verify current process before any intervention). First5
+completed, one/group, with mono audition copies and source hashes. This is NOT
+a completed288-job claim. Read batch-status.json/jobs/status.json/launcher logs
+for actual state. No player launch/profiling/audition; offline generation only.
+12/8 takes per acoustic form are candidate performances, not added saved species.
+Audition/<group> files arrive incrementally; index preserves owner deletions
+on resume. Stereo candidates and Comfy masters remain separately. NOTHING is
+automatically admitted into sounds/fauna; active game bank remains empty and
+shortcut unchanged. scripts/generate-fauna-batch.py --batch-root <same path>
+resumes once no current worker/job is active; file locks reject duplicate
+producer. Create jobs/PAUSE for graceful between-clip pause, not /interrupt on
+the shared server. Read current-job.json/queue before resuming a failed producer
+to avoid duplicating a still-running inference. No server kill/global model
+unload. Existing service/models reused; no installs/paid APIs. Keep owner game,
+saves/weather/music untouched. See ECOREGIONS/VALIDATION for limitations.
+
 FAUNA BANK CLEARED / AI preferred,22October2026 local: owner says AI wins and
 requests all newly generated/DSP/recorded fauna audio cleared. Exactly45 hash-
 verified clips plus45 packaged copies sent to Recycle Bin (recoverable), scoped
