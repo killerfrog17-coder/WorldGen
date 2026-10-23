@@ -7,6 +7,23 @@ new eating correction, but wants a more convincing material on the same mesh.
 
 ## Recommendation
 
+Follow-up after the owner asks specifically about dedicated/native texture
+generation: **first trial should be TRELLIS.2 native existing-mesh painting via
+an 8 GB Windows implementation**, followed by MV-Adapter as the lower-memory
+alternative. This supersedes the initial MV-Adapter-first ordering below.
+The full integrated TRELLIS.2 model+material path is also relevant for new animals;
+the accepted TripoSG deer does not need to be discarded to test native painting.
+Neither TRELLIS route has been run/benchmarked on this PC. Community 8 GB support
+is evidence of plausibility, not a successful local texture-stage claim.
+
+The roughly ten-minute figure applies only to the current thirteen-view RealVis
+workflow. Prior recorded Hunyuan3D-2 paint already ran here in **43.96 s** for six
+512px views (not including all preprocessing/baking). Its texture was superseded
+because of output licensing, not because it was intrinsically slow. Hunyuan2.1
+is a newer PBR painter; the older timing is NOT its benchmark. The paint license's
+section5c explicitly restricts Outputs outside its licensed territory. Existing
+private experiments are not permission to admit those maps into a shared game.
+
 Separate expensive base-coat creation from cheap species/individual variation.
 Use an existing-mesh, view-consistent texture method for a small approved base
 bank. Bake anatomy-aware colours and markings from that bank, driven by the
@@ -66,6 +83,21 @@ dark markings directly into height, which would emboss the coat pattern.
 | FlashTex | Lighting-conditioned relightable material optimization | Interesting for material quality; additional optimization/setup rather than cheapest variants |
 | Hunyuan3D 2.1 | Dedicated PBR paint | Official paint requirement 21 GB; previous output-territory restrictions also remain unsuitable for the chosen route |
 | TRELLIS.2 texturing | Native texture-only existing-mesh pipeline, including roughness | Official 24 GB/Linux baseline; low-memory community ports require separate verification, not categorically impossible |
+| TEXGen (CVMI/VAST) | Diffuses albedo directly on mesh UV domain | Official inference baseline24GB; useful research, poor first choice for8GB without further engineering |
+| Pixal3D | Integrated image-conditioned shape/PBR generation, low-memory community implementations | Candidate for NEW model+texture comparisons; not verified as a drop-in existing-deer painter |
+
+Pixal3D's community Studio reports ~6.8GB peak for draft on a4070 SUPER12GB,
+32GB RAM, with a6-10GB low-memory tier. These are publisher figures, not our4060
+results; its roughly43GB download/~60GB disk requirement makes it a larger trial.
+Its official project is separate from Hunyuan and publishes MIT code, with
+dependency terms retained. Do not apply one Tencent model's license to every
+other Tencent project. Do not assume any original high-memory requirement is
+proof that community offloading cannot work.
+
+TripoSG is the released shape generator used here, not the full current Tripo
+cloud product. Textured Tripo service demonstrations do not establish that its
+texture backend is released for free local execution. Paid/cloud Tripo/Meshy
+services remain outside the owner's current no-payment/local requirements.
 
 Code licenses and base/checkpoint/output terms remain distinct. MV-Adapter code
 and its model card are Apache 2.0; selected diffusion checkpoints keep their own
@@ -138,5 +170,11 @@ of storage/time cost. All AI work remains offline.
 - [TRELLIS.2 official requirements](https://github.com/microsoft/TRELLIS.2#-installation)
 - [TRELLIS.2 existing-mesh texturing source](https://github.com/microsoft/TRELLIS.2/blob/main/trellis2/pipelines/trellis2_texturing.py)
 - [Unity URP Lit source](https://github.com/Unity-Technologies/Graphics/blob/master/Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl)
+- [8GB Windows TRELLIS.2 implementation](https://github.com/IgorAherne/TRELLIS.2-stableprojectorz)
+- [TEXGen inference requirements](https://github.com/CVMI-Lab/TEXGen)
+- [Pixal3D official implementation](https://github.com/TencentARC/Pixal3D)
+- [Pixal3D Studio publisher hardware measurements](https://github.com/PrimeEcto/PIXAL-3D)
+- [Hunyuan2.1 paint license including output restrictions](https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1/blob/main/hy3dpaint/LICENSE)
+- [Released TripoSG scope](https://github.com/VAST-AI-Research/TripoSG)
 - Local `docs/DEER_GAME_ASSET_PIPELINE.md`, saved `bake.json`, raw paint/atlas,
   `EcologyModel.cs`, and the actual bundled URP package were inspected.

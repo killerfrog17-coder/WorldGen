@@ -1,5 +1,16 @@
 # WorldGen repository instructions
 
+TEXTURE OPTIONS FOLLOW-UP,23October2026: owner questions slow/fake current coat.
+Ten minutes is ONLY13-view RealVis method. Earlier local Hunyuan2 paint measured
+43.96s six512views, superseded for output rights; not Hunyuan2.1 timing. Research
+now prioritizes native TRELLIS.2 existing-mesh texture trial via8GB Windows port,
+then MV-Adapter; this supersedes initial MV-Adapter-first note below. No new trial
+run/installed. Keep accepted TripoSG deer/rig/eating. TEXGen official24GB inference
+poor first8GB choice; Pixal3D low-memory community full model/PBR route plausible
+but NOT verified existing-mesh painter or our4060 benchmark. CloudTripo texture
+quality does not describe released local TripoSG shape-only pipeline. See updated
+docs/FAUNA_TEXTURE_RESEARCH_2026_10_23.md. Research only; no GPU/app/game changes.
+
 FAUNA TEXTURE RESEARCH,23October2026: owner accepts corrected Eating and original
 rig generally; model shape accepted, material still visibly fake. Research only:
 docs/FAUNA_TEXTURE_RESEARCH_2026_10_23.md recommends coherent base coats plus cheap
