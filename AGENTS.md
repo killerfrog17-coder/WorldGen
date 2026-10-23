@@ -1,5 +1,28 @@
 # WorldGen repository instructions
 
+ADDITIONAL AUDIO-FIRST FAUNA BATCH,22October2026 local: owner asks all remaining
+planned audio-only-first entries added to candidate generation. Desktop fauna
+CSV has nine beyond the initial five: cockatoo/hornbill/hummingbird/parrot/
+pigeon/raven/toucan/turaco/woodpecker. All remain future visible/huntable animals,
+NOT permanently audio-only. Additional collection has360 x20s AI candidates:
+32 calls/group except parrot/raven48 each; woodpecker drumming24 and hummingbird
+wings16 are separate physical-sound banks, not a forest chorus. Exact prompts/
+forms/takes in scripts/generate-fauna-batch.py --collection additional. Nothing
+is installed into sounds/fauna, ecology, active emitters or the game executable.
+Original288 completed with zero generator failures in1568.59s (~26min), stored
+in original review folder; do not regenerate or restore owner-deleted auditions.
+Additional batch artifacts/fauna-ai-review-additional-20261022 started04:31:19Z
+23October, managed exec session44248, Python PID24524 at start (verify live ID
+before intervention). First4 mono clips prepared at initial source checkpoint;
+read batch-status/jobs/status for current counts, not this launch note. New
+detached-launch compound command was rejected; ordinary tool-managed execution
+succeeded. No server/process/permission changes. Disk<3GiB creates owned jobs/
+PAUSE after current clip. Resume needs --collection additional --seed-base
+21103017 and same --batch-root, only when current producer/jobs are idle. Base
+defaults/catalogue stay literal/resumable. No new installs, player launches,
+tests/profiling/listening; inspect/reject AI contamination manually. Game,
+owner Desktop planning CSV, saves/weather/music/terrain/vegetation untouched.
+
 AI FAUNA BATCH IN PROGRESS,22October2026 local: owner approves cooking288 new
 20s Small-SFX candidates (cricket48/cicada32/katydid48/frog64/bird96). Detached
 hidden python scripts/generate-fauna-batch.py runs under existing ComfyUI/CUDA;

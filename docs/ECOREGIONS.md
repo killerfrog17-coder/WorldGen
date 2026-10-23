@@ -1,5 +1,75 @@
 # Ecoregions and the Earth starter pack (3.28)
 
+## Remaining audio-first fauna candidates - 22 October 2026
+
+Owner asks whether more noise-only planned implementations remain and requests
+all of them added to the ongoing AUDIO GENERATION workflow. The editable desktop
+fauna CSV lists14 audio-first rows: the five already covered, plus nine woodland/
+canopy bird families. Those birds are noise-only FIRST, not permanently invisible:
+their planned eventual lightweight/interactive/huntable individuals stay intact.
+The planning CSV and saved fauna taxonomy are not rewritten by this asset pass.
+No speculative extra crickets/frogs/owls/mammals are counted as new ecology.
+
+Original batch completed288 jobs with zero generator failures in1568.59s
+(26min9s); this supersedes the in-progress launch count below. Completion means
+valid generated/prepared PCM, NOT owner acceptance of every sound or isolation.
+Original review folder is retained; owner-deleted auditions are never restored.
+
+New `additional` collection in scripts/generate-fauna-batch.py:
+
+| Candidate group | Count | Intended later use |
+| --- | ---: | --- |
+| Cockatoo | 32 | Sparse perched contact/squawk calls |
+| Hornbill | 32 | Hollow low/honking calls in supported habitat |
+| Hummingbird calls | 32 | Close sparse chirps/contact notes, not a distant chorus |
+| Parrot | 48 | Varied non-speech contact/squawk forms |
+| Pigeon | 32 | Low cooing phrases |
+| Raven | 48 | Croaks/rattles/knocking vocal forms, not fabricated human speech |
+| Toucan | 32 | Croaking/yelping/rattling contact forms |
+| Turaco | 32 | Resonant hollow/rough call phrases |
+| Woodpecker calls | 32 | Short contact/rattle calls |
+| Woodpecker bill impacts | 24 | Separate actual wood-tapping bursts, not musical percussion |
+| Hummingbird wings | 16 | Separate brief nearby wing hum/flutter, not continuous ambience |
+
+Total360 x20s new candidates, interleaved by group/form/take, same isolated-source
+Small-SFX workflow and deletion-safe mono audition index. About605MiB additional
+mono delivery candidates, with stereo copies/raw masters extra. The previous
+measured batch suggests roughly33min, allowing30-45min or longer under GPU load.
+Time/disk are extrapolations, not a finished new-batch benchmark. All648 total
+candidates are review material, not an accepted shipped bank or live animal count.
+The current in-game bank remains empty pending selection/cache/placement work.
+
+New folder: artifacts/fauna-ai-review-additional-20261022. Started04:31:19UTC
+23October, first four groups prepared at publication of this note. A tool-managed
+terminal session runs the worker after the compound detached-launch command was
+rejected; no permissions or shared-server configuration changed. Existing
+ComfyUI/RTX4060/models reused, queue initially idle. No code/DSP/field-recorded
+alternatives generated and no agent listening/game launches/profiling.
+
+Script now supports --collection original (unchanged default catalogue) and
+--collection additional. Processing uses suitable per-group low-cut frequencies
+to preserve low coos, croaks, wood resonance and wing hum rather than filtering
+every bird like a high whistle. If C: delivery volume drops below3GiB, it creates
+the owned jobs/PAUSE marker after publishing the current clip, without any shared
+server interrupt or file cleanup. Resume an IDLE additional producer only with:
+
+```powershell
+python scripts/generate-fauna-batch.py --collection additional --seed-base 21103017 --batch-root artifacts/fauna-ai-review-additional-20261022
+```
+
+Biological sound references, used for broad source/action distinctions, NOT
+downloaded/copied recordings or guarantees of synthetic species accuracy:
+[Cornell raven calls](https://www.allaboutbirds.org/guide/Common_Raven/sounds),
+[Cornell woodpecker drumming](https://www.allaboutbirds.org/news/how-to-recognize-woodpeckers-by-their-drumming-sounds/),
+[NPS woodpecker calls and trunk drumming](https://home.nps.gov/articles/pileated-woodpecker.htm),
+[Mass Audubon hummingbird wing sound](https://www.massaudubon.org/nature-wildlife/birds/ruby-throated-hummingbirds),
+[San Diego Zoo toucan vocal/bill sounds](https://animals.sandiegozoo.org/animals/toucan)
+and [turaco account](https://blogs.sandiegozoo.org/story-hub/zoonooz/a-world-of-birds).
+Other call shapes are bounded authored acoustic priors for existing broad bird
+families, not scientific reproductions of every member. Source-isolated prompts
+still need listening rejection, especially for mimicry, unwanted background
+callers, electronic wing hum or accidental musical/drum interpretations.
+
 ## Large AI audition batch started - 22 October 2026
 
 Owner approved the288-candidate batch after the size discussion. New reusable

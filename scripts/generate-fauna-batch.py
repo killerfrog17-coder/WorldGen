@@ -10,6 +10,7 @@ import hashlib
 import io
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 
@@ -65,7 +66,78 @@ FORMS = {
         'A single small songbird repeating quick dry chattering contact calls in short groups separated by silence.',
     ],
 }
+ADDITIONAL_FORMS = {
+    'cockatoo': [
+        'A single cockatoo repeating short rough raucous contact screeches with quiet pauses.',
+        'A single cockatoo repeating a nasal two-part squawk with long quiet gaps.',
+        'A single cockatoo repeating a rising raspy contact call with quiet pauses.',
+        'A single cockatoo producing low scratchy chattering contact calls in short groups separated by silence.',
+    ],
+    'hornbill': [
+        'A single hornbill repeating deep resonant hollow booming calls with quiet pauses.',
+        'A single hornbill repeating short nasal honking contact calls with quiet gaps.',
+        'A single hornbill repeating a throaty two-part croaking call separated by silence.',
+        'A single hornbill repeating a short hollow rising contact call with quiet pauses.',
+    ],
+    'hummingbird': [
+        'A single hummingbird repeating tiny high-pitched squeaky chirps with quiet gaps.',
+        'A single hummingbird producing a short fine chattering contact call followed by silence.',
+        'A single hummingbird repeating brief sharp two-note squeaks with long quiet pauses.',
+        'A single hummingbird producing fine dry high-pitched ticking calls in short groups separated by silence.',
+    ],
+    'parrot': [
+        'A single parrot repeating a clear nasal contact squawk with natural quiet pauses.',
+        'A single parrot producing short rough throaty chattering calls in groups separated by silence.',
+        'A single parrot repeating a rising whistled contact call with quiet gaps.',
+        'A single parrot repeating soft low clucking contact calls with quiet pauses.',
+        'A single parrot repeating a brief raspy two-part contact screech with long quiet gaps.',
+        'A single parrot producing a short bright squealing contact call followed by silence.',
+    ],
+    'pigeon': [
+        'A single pigeon repeating a soft low rounded three-part coo with quiet pauses.',
+        'A single pigeon repeating a deep hollow rolling coo followed by a long quiet gap.',
+        'A single pigeon repeating a gentle two-part throaty coo with natural quiet pauses.',
+        'A single pigeon repeating a low resonant coo that softly rises and falls, separated by silence.',
+    ],
+    'raven': [
+        'A single raven repeating deep rough croaking contact calls with quiet pauses.',
+        'A single raven producing a short hollow resonant two-part croak followed by silence.',
+        'A single raven repeating low guttural rattling calls with long quiet gaps.',
+        'A single raven producing soft woody knocking vocal notes in a brief group separated by silence.',
+        'A single raven repeating a dry nasal croak with a short rough finish and quiet pauses.',
+        'A single raven producing quiet throaty gurgling contact notes separated by long silence.',
+    ],
+    'toucan': [
+        'A single toucan repeating a low rough croaking call with quiet gaps.',
+        'A single toucan repeating a short hollow yelping contact call separated by silence.',
+        'A single toucan producing deep resonant rattling calls in short groups with quiet pauses.',
+        'A single toucan repeating a dry nasal two-part croak followed by a quiet gap.',
+    ],
+    'turaco': [
+        'A single turaco producing a short series of deep hollow harsh calls followed by silence.',
+        'A single turaco repeating a resonant low hooting call with quiet pauses.',
+        'A single turaco producing a rough throaty rising call phrase followed by a long quiet gap.',
+        'A single turaco repeating a hollow two-part cackling contact call with quiet pauses.',
+    ],
+    'woodpecker': [
+        'A single woodpecker repeating a short sharp clear contact call with quiet pauses.',
+        'A single woodpecker producing a brief high nasal rattling call followed by silence.',
+        'A single woodpecker repeating a short series of ringing squeaky calls with long quiet gaps.',
+        'A single woodpecker producing a low dry churring contact call separated by silence.',
+    ],
+    'woodpecker-drumming': [
+        'One woodpecker tapping its bill rapidly against a resonant dry tree trunk in short even bursts, with long silent pauses.',
+        'One woodpecker tapping its bill against a hollow tree trunk in a short accelerating roll, with long silent pauses.',
+        'One woodpecker tapping a firm dry branch in a brief crisp rolling burst that softly fades, with long silent pauses.',
+        'One woodpecker tapping a hollow dry branch in a low resonant rapid burst of repeated impacts, with long silent pauses.',
+    ],
+    'hummingbird-wings': [
+        'The rapid wingbeats of one small hummingbird hovering briefly, a fine soft buzzing flutter that rises and settles into silence.',
+        'The rapid wingbeats of one hummingbird making a brief close pass, a soft finely pulsing airy wing hum that grows and recedes into silence.',
+    ],
+}
 CHARACTER = ' Close-miked isolated caller, dry direct sound, silent background, consistent voice and microphone position, subtle natural timing variation.'
+MECHANICAL_CHARACTER = ' Close-miked isolated physical sound, dry direct recording, clean silent background and natural brief pauses.'
 RATE = 44100
 
 
@@ -82,6 +154,7 @@ def main():
     ap.add_argument('--comfy', type=Path, default=Path('E:/AI/ComfyUI'))
     ap.add_argument('--url', default='http://127.0.0.1:8188')
     ap.add_argument('--seed-base', type=int, default=10227319)
+    ap.add_argument('--collection', choices=('original','additional'), default='original')
     args = ap.parse_args()
     root = (repo/args.batch_root).resolve()
     if not root.is_relative_to((repo/'artifacts').resolve()):
@@ -92,17 +165,25 @@ def main():
 
 
 def run(repo, root, args):
+    forms_by_group = FORMS if args.collection=='original' else ADDITIONAL_FORMS
+    def take_count(family):
+        return (12 if family=='bird' else 8) if args.collection=='original' else (6 if family=='woodpecker-drumming' else 8)
+    planned = sum(len(forms)*take_count(family) for family,forms in forms_by_group.items())
+    expected = 288 if args.collection=='original' else 360
+    if planned!=expected:
+        raise ValueError('Unexpected catalogue size')
     tracks = []
-    # Interleave groups so all five get audition material early, not after a
+    # Interleave groups so every group gets audition material early, not after a
     # whole group has finished. Keep future regional call-form grouping explicit.
-    for take in range(1, 13):
-        for form in range(1, 9):
-            for family, forms in FORMS.items():
-                if form>len(forms) or take>(12 if family=='bird' else 8):
+    for take in range(1, max(take_count(f) for f in forms_by_group)+1):
+        for form in range(1, max(len(f) for f in forms_by_group.values())+1):
+            for family, forms in forms_by_group.items():
+                if form>len(forms) or take>take_count(family):
                     continue
+                character = MECHANICAL_CHARACTER if family in ('woodpecker-drumming','hummingbird-wings') else CHARACTER
                 tracks.append(dict(id=f'{family}-ai-f{form:02d}-t{take:02d}', group=family,
-                    seconds=20, brief=forms[form-1]+CHARACTER, form=form, take=take))
-    if len(tracks) != 288:
+                    seconds=20, brief=forms[form-1]+character, form=form, take=take))
+    if len(tracks) != planned:
         raise ValueError('Unexpected catalogue size')
     catalog = root/'catalog.csv'
     buffer = io.StringIO(newline='')
@@ -113,10 +194,11 @@ def run(repo, root, args):
         raise ValueError('Existing batch catalogue changed; use a fresh batch root')
     if not catalog.exists():
         catalog.write_bytes(content)
+    counts = ', '.join(f'{family}{len(forms)*take_count(family)}' for family,forms in forms_by_group.items())
     (root/'README.txt').write_text(
         'WORLDGEN FAUNA - AI AUDITION CANDIDATES\n'
         'Listen inside audition/<group>. Each fNN is a call form; tNN is a candidate take.\n'
-        'Counts: cricket48 cicada32 katydid48 frog64 bird96, each20seconds.\n'
+        'Counts: '+counts+', each20seconds.\n'
         'Files appear as jobs finish. Delete any audition WAV you dislike; resume will NOT recreate indexed deletions.\n'
         'Stereo candidates and raw Comfy masters are separate and retained for editing/provenance.\n'
         'Nothing is automatically installed into sounds/fauna or the running game.\n'
@@ -129,7 +211,7 @@ def run(repo, root, args):
     candidates, jobs, audition = root/'candidates-stereo', root/'jobs', root/'audition'
     for folder in (candidates, jobs, audition):
         folder.mkdir(exist_ok=True)
-    for family in FORMS:
+    for family in forms_by_group:
         (audition/family).mkdir(exist_ok=True)
     by_id = {t['id']:t for t in tracks}
     index_path = root/'audition-index.json'
@@ -137,7 +219,7 @@ def run(repo, root, args):
     started = datetime.now(timezone.utc).isoformat()
 
     def status(state, error=None):
-        atomic_json(root/'batch-status.json', dict(state=state, planned=288, prepared=len(index),
+        atomic_json(root/'batch-status.json', dict(state=state, collection=args.collection, planned=planned, prepared=len(index),
             present=sum((root/r['audition']).exists() for r in index.values()), started=started,
             updated=datetime.now(timezone.utc).isoformat(), error=error))
 
@@ -154,7 +236,10 @@ def run(repo, root, args):
         if sr!=RATE or audio.shape[1]!=2 or not np.isfinite(audio).all():
             raise ValueError('Invalid stereo candidate')
         mono = np.mean(audio, axis=1)
-        cutoff = dict(cricket=1200,cicada=900,katydid=1500,frog=90,bird=600)[track['group']]
+        cutoff = {'cricket':1200,'cicada':900,'katydid':1500,'frog':90,'bird':600,
+            'cockatoo':150,'hornbill':80,'hummingbird':1200,'parrot':150,'pigeon':60,
+            'raven':60,'toucan':100,'turaco':100,'woodpecker':300,
+            'woodpecker-drumming':60,'hummingbird-wings':40}[track['group']]
         mono = sosfilt(butter(2, cutoff, btype='highpass', fs=RATE, output='sos'), mono).astype('float32')
         mono -= np.mean(mono)
         rms = float(np.sqrt(np.mean(mono.astype('float64')**2)))
@@ -181,6 +266,11 @@ def run(repo, root, args):
         atomic_json(index_path,index)
         status('generating')
         print(json.dumps(dict(event='audition-ready',id=key,prepared=len(index))),flush=True)
+        # The shared Comfy server can run indefinitely, but this owned batch
+        # must not exhaust its C: delivery volume. Finish the current clip and
+        # pause our own producer, without a global server interruption.
+        if shutil.disk_usage(root).free<3*1024**3:
+            (jobs/'PAUSE').touch(exist_ok=True)
 
     status('starting')
     try:
@@ -191,7 +281,7 @@ def run(repo, root, args):
         command = [sys.executable,str(repo/'scripts/generate-weather-sounds.py'),
             '--catalog',str(catalog),'--output',str(candidates),'--evidence',str(jobs),
             '--checkpoint','stable_audio_3_small_sfx.safetensors','--seed-base',str(args.seed_base),
-            '--url',args.url,'--comfy',str(args.comfy),'--limit','288']
+            '--url',args.url,'--comfy',str(args.comfy),'--limit',str(planned)]
         with (root/'generator.log').open('a',encoding='utf-8',buffering=1) as log:
             child = subprocess.Popen(command,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,
                 text=True,encoding='utf-8',errors='replace',bufsize=1)
@@ -212,7 +302,7 @@ def run(repo, root, args):
                 raise
         if code:
             raise RuntimeError('Generator exited '+str(code)+'; inspect generator.log/current-job.json before resuming')
-        status('complete' if len(index)==288 else 'paused')
+        status('complete' if len(index)==planned else 'paused')
     except Exception as exc:
         status('failed',str(exc))
         raise

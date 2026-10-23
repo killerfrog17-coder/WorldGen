@@ -1,5 +1,33 @@
 # Version 3 validation evidence
 
+## Additional audio-first fauna candidate collection - 22 October 2026
+
+Owner requests all remaining audio-only planned entries added to sound generation.
+Read full desktop planning CSV and selected14 audio-first rows; initial5 already
+covered, remaining9 are bird families intended to become visible/interactive
+later. Added candidate calls for all9, separate woodpecker bill-impact and
+hummingbird-wing banks. No reclassification as permanently audio-only, no edits
+to owner planning CSV/saved taxonomy/world data, no new live spawn/agent code.
+
+Original collection completed288 prepared candidates, zero generator failures,
+1568.59s; no agent listening/owner universal acceptance inferred. New additional
+CSV has360 rows:32 each cockatoo/hornbill/hummingbird/pigeon/toucan/turaco/
+woodpecker,48 each parrot/raven,24 drumming,16 wings, all20s. Existing script
+generalized by collection with literal default base catalogue, dynamic limits/
+status and appropriate low-cut filters. Python compile passes. No test fixtures
+or source-equality campaign; preserving original catalogue is source reasoning.
+First4 additional actual inference/mono-preparation jobs completed, error null,
+state generating, started04:31:19Z23October. These counts are a partial launch
+checkpoint; inspect live status for completion/failure/rejections. A compound
+detached-launch command was blocked; ordinary tool-managed foreground session
+started successfully, with no permission/server changes. Source/hash/index and
+owner-deletion protections retained. New3GiB pause guard is source-reviewed,
+not an exercised low-disk fixture. No source purity/biology/performance claims.
+
+No active media admission, game build/launch, tests, captures, listening,
+profiling, rain/thunder/music, terrain/vegetation/lighting or save changes.
+648 combined candidates are potential audition material, not shipped sounds.
+
 ## AI fauna candidate batch launch - 22 October 2026
 
 Owner authorizes the proposed288 candidates. New Python batch orchestrator
