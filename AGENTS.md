@@ -1,5 +1,19 @@
 # WorldGen repository instructions
 
+FAUNA TEXTURE RESEARCH,23October2026: owner accepts corrected Eating and original
+rig generally; model shape accepted, material still visibly fake. Research only:
+docs/FAUNA_TEXTURE_RESEARCH_2026_10_23.md recommends coherent base coats plus cheap
+anatomical-mask/ecological variants. First new-model candidate MV-Adapter SD2.1
+official<10GB route; compare/fallback sequential installed RealVis inpainting,
+NOT13 independent photos again. Neither new workflow benchmarked/installed/run.
+Old bake already preserves primary-view fine detail; no claim averaging alone
+is cause. Current atlas47.48% occupied/97.58% painted coverage within occupancy;
+these differ. Fixed roughness/no hair normals are separate quality limits.
+URP bundled code supports smoothness in base alpha; species traits already have
+CoatPattern/lightness/seasonal whitening. Proposal, NOT implemented runtime flora/
+fauna/texture changes. No GPU inference, new models, app closure or viewer launch.
+Retain accepted shape/skin/rig/animations and do not silently replace texture.
+
 EATING CORRECTION,23October2026: owner accepts original-rig result broadly, asks
 feeding forelegs/muzzle fixed. Separate Desktop Deer - Eating Correction.lnk opens
 artifacts/deer-eating-correction-20261023/Deer - Eating Correction Review.blend,
