@@ -1,5 +1,33 @@
 # Version 3 validation evidence
 
+## Derived cricket/cicada/katydid/firefly profiles - 22 October 2026
+
+Owner requests one broad parent per missing insect group with generated regional
+forms. AmbientFauna adds four separate derived parent profiles and one candidate
+per parent/region; named world-seeded province founders and small regional branch
+variation supply stable names, identities, niches/activity and acoustic or flash
+traits. Cricket/cicada/katydid AudioOnly is explicit; firefly has no acoustics and
+only future LightweightVisual metadata. Stable species-song traits are separate
+from small individual variability; no sound generation/playback or live animals.
+F3+E exposes all generated fields, planning status and current-cell abiotic
+potential under Derived small fauna. Potential is NOT abundance, native-range
+proof or local occupancy. Recorded food-web diagram/links/taxa remain literal.
+No recipe/save/hash model fields or generation/history/terrain/water/vegetation
+rules changed. New derived classes are not reachable from serialized World;
+this is source-level reasoning, not a newly run hash/persistence audit.
+
+Shared Core/Presentation release compilation passes with0 warnings/errors.
+Owner compile/package-only: no suites, numeric fixtures, world/player launches,
+captures, profiling or sound audition. Bundled IL2CPP link.xml already preserves
+Core/Presentation public fields used by the wiki reflection; no new stripping
+rules are needed. Runtime wiki/art/sound acceptance is not inferred from compile.
+Release IL2CPP compile/package exits0; BuiltUtc2026-10-23T02:27:36Z (22October
+local). No C#/shader errors; existing div/mod, sky gradient-loop and TerrainTestAir
+advisories remain. Shortcut selects real C: player-ambient-fauna-profiles;
+night-reflections remains rollback. No owner game/settings/save edits. Desktop
+CSV's four candidate rows now identify derived profiles; owner cricket/cicada
+audio-only decisions are recorded without replacing the other planning rows.
+
 ## Generated-sky rough-surface reflections /22October2026
 
 Owner authorizes fixing the source-identified default-environment mismatch after

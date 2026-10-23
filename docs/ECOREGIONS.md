@@ -1,5 +1,68 @@
 # Ecoregions and the Earth starter pack (3.28)
 
+## Derived small-fauna profiles - 22 October 2026
+
+`AmbientFauna` adds exactly four broad parents: Cricket, Cicada, Katydid and
+Firefly. There is no authored Earth species roster for them. One candidate per
+parent is derived per region; world-seeded province founders dominate the traits,
+and a separate regional stream adds small bounded divergence. Names, stable
+version/seed/province/region identities, parent links and habitat/activity traits
+are inspectable in F3+E under **Derived small fauna**. This is static procedural
+diversification, not simulated genetics, ancestry walks or population evolution.
+
+Crickets and cicadas are explicitly **AudioOnly**, as requested; katydids use
+the same representation. Their stored song traits cover carrier frequency,
+harmonic/noise mix, relative loudness, pulse/phrase timing, envelopes and modest
+within-species differences. Calling tempo temperature sensitivity is distinct
+from pitch sensitivity; cicada tempo dependence is deliberately much smaller
+than orthopteran tempo dependence, with thermal activity gates separate. A
+species has a stable inherited song, not a random pitch every time it calls.
+Fireflies are **LightweightVisual** candidates with no acoustic traits: flash
+bouts/colour/height and activity metadata only, default nonsynchronous. No
+rendered insects, point lights, AudioSources, generated waveforms or playback,
+per-frame jobs, individual AI, emergence or reproductive simulation are added.
+
+Activity includes a solar-hour window, thermal envelope, local-warm-season
+offset/display-window duration and rain/wind suppression parameters. Warm
+humid-climate candidates use a warm/moist opportunity cue rather than an imposed
+northern calendar. These are future-scheduler inputs, NOT a running seasonal
+population model. Diet/life-stage descriptions distinguish cicada root/plant
+xylem feeding and firefly larval versus adult niches without inventing new
+saved food-web links or pretending the existing coarse food flags model sap.
+
+The constant-time HabitatSuitability query uses saved habitat/thermal/aridity/
+salinity and coarse canopy support. It is explicitly abiotic **potential**, not
+occurrence probability, abundance, verified host trees, local wetness, native
+dispersal or complete regional coverage. The wiki shows current-cell potential
+separately from the regional representative reference. Unknown reference habitat
+is null rather than claimed dry. Future audio/visual placement must validate
+actual local cover/trees/moisture and apply a coherent locality/dispersal policy;
+catalogue membership alone must never produce calling insects everywhere.
+
+Like derived flora, profiles are lazy per-world/per-region data, held through
+a weak world context and a concurrent region cache. No terrain scans, lineage
+graph walks or global animal census. Named founder/branch/name streams and an
+explicit `ambient-fauna-1` version isolate this work. No saved Taxon/SpeciesBits/
+region food-web/recipe/schema/biome/historical state changes; old worlds can
+inspect candidates without regeneration or a silent recorded ecology upgrade.
+The existing native3 count remains 203 recorded entries (184 animal entries,
+including 20 animal guilds); these four are separately labeled derived profiles.
+
+Research: [Singing Insects of North America](https://orthsoc.org/sina/howtouse.htm)
+uses song as well as ecology/season to distinguish cricket/katydid species;
+[NOAA](https://www.noaa.gov/education/explainers/can-crickets-tell-temperature-answer-is-in-their-chirp)
+describes species-dependent cricket chirp-rate/temperature relationships;
+[UConn's cicada species reference](https://cicadas.uconn.edu/species/) documents
+distinct mating songs; [UGA Extension](https://fieldreport.caes.uga.edu/publications/C1213/georgia-fireflies/)
+describes species-specific flash signals and temperature-dependent display.
+The numerical ranges here are independently authored gameplay priors, not fitted
+measurements, imported species records or copied sound recordings. No fixed
+13/17-year brood schedule or universal synchronous flashing is assumed.
+
+Owner compile/package-only restriction applies. No tests, player/world launches,
+screenshots, sound audition or profiling; numerical/biological calibration and
+runtime wiki review remain unverified. This is a profile foundation only.
+
 ## Broad animal lineages — native content 3, 16 October 2026
 
 Explicit `earth-native-3` recipes select 203 entries, including 164 named animal lineages. New recipes now default to native3 following focused generation, persistence and independent visual review; existing saves are never repopulated. Explicit `earth-native-2` still constructs its original 96 entries; missing/null still constructs the original 50. Terrain, climate, hydrology, biome classification and regional boundaries are unchanged. Content 3 adds actual coastal-access flags on non-ocean coastal cells and a wetland habitat flag on saline lakes, downstream of the accepted abiotic fields.

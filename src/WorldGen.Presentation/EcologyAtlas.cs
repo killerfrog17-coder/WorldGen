@@ -27,7 +27,7 @@ namespace WorldGen.Presentation
             var r=e.Regions[region];d.Region=region;d.Title=r.Name;d.FoodLinks=r.FoodWeb.Length;
             d.Diagram=FoodWebDiagram.Build(world,cell);
             d.Overview=EcologyView.Summary(world,cell)+"\n\nREGION RECORD\nID "+r.Id+" · province "+r.ProvinceId+" · representative cell "+r.RepresentativeCell+"\nArea "+(r.AreaM2/1e6).ToString("N2",CultureInfo.InvariantCulture)+" km² · "+r.Cells.Length+" source cells · "+r.PatchCount+" patches\nNeighbor regions: "+string.Join(", ",r.Neighbors)+"\n\nLOCAL HABITAT RECORD\n"+Known(e.Habitat[cell],token)+
-                "\n\nRecorded taxa and feeding opportunities are distinct from derived procedural ground/shrub/tree candidates. Neither is a live population census. Potential feeding links are not measured diets or energy fluxes. Fictional plant hazards are relative indices, not doses, food safety or animal-specific tolerance. Unmodelled information is not fabricated.";
+                "\n\nRecorded taxa and feeding opportunities are distinct from derived procedural plant and small-fauna candidates. Neither is a live population census. Potential feeding links are not measured diets or energy fluxes. Fictional plant hazards are relative indices, not doses, food safety or animal-specific tolerance. Unmodelled information is not fabricated.";
             var articles=new List<EcologyArticle>();
             string Name(int id)=>id>=0&&id<e.Taxa.Length?e.Taxa[id].Name:"Unknown taxon #"+id;
             var byConsumer=r.FoodWeb.GroupBy(l=>l.ConsumerId).ToDictionary(g=>g.Key,g=>g.ToArray());
@@ -47,6 +47,20 @@ namespace WorldGen.Presentation
             foreach(var s in flora.Specialists)Plant(s.Name,s.Form==SpecialistForm.Fungus?"Fungi":"Flowers & herbs",s);
             foreach(var s in flora.MidPlants)Plant(s.Name,"Mid-height plants",s);
             foreach(var s in flora.Trees)Plant(s.Name,"Trees",s);
+            foreach(var s in AmbientFauna.For(world).Region(region))
+            {
+                token.ThrowIfCancellationRequested();
+                double localSupport=AmbientFauna.HabitatSuitability(s,e.Habitat[cell]);
+                string title=s.Family+" - "+s.Name;
+                articles.Add(new EcologyArticle{Title=title,Category="Derived small fauna",Body=title+
+                    "\n\nDerived regional candidate from one broad parent lineage, not a named Earth species or a verified local population.\n"+
+                    "Current cell abiotic potential: "+(localSupport*100).ToString("0.#",CultureInfo.InvariantCulture)+"% (suitability, NOT abundance or occupancy probability).\n"+
+                    "\nGENERATED PROFILE\n"+Known(s,token)+
+                    (s.Representation==AmbientFaunaRepresentation.AudioOnly?
+                        "\nPlanned AUDIO ONLY: no visible animals or full individual agents. Calling traits are future audio inputs, not currently playing sounds.":
+                        "\nPlanned LIGHTWEIGHT VISUAL: silent firefly display traits only; no current rendering or spawning.")+
+                    "\nNo source taxa, saved food links, native-range raster or historical simulation changed. Activity/season traits are metadata, not running populations or dynamic evolution."});
+            }
             foreach(var pair in byConsumer.OrderBy(p=>p.Key))
             {
                 var b=new StringBuilder("FOOD WEB · "+Name(pair.Key)+"\n\nResource → consumer · resource class · regional co-occurrence\n\n");

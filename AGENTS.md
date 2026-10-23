@@ -1,5 +1,24 @@
 # WorldGen repository instructions
 
+OWNER-TEST-ONLY ambient fauna profiles,22October2026 local: shortcut selects real
+C: `artifacts/player-ambient-fauna-profiles/WorldGen.exe`, release IL2CPP
+BuiltUtc2026-10-23T02:27:36Z, compile/package0. AmbientFauna v1 has exactly four
+broad parents (cricket/cicada/katydid/firefly), province founders plus modest
+regional divergence, stable identities/names, niche/activity and acoustic/flash
+traits. Cricket/cicada/katydid AudioOnly; cricket/cicada permanently audio-only
+per owner. Firefly silent LightweightVisual metadata. F3+E Derived small fauna
+shows potential candidates/traits/current-cell abiotic suitability, NOT occupancy,
+abundance or native-dispersal proof. No playback, waveforms, emitters, spawning,
+AI, individual populations, real evolution or per-frame fauna work. Derived weak
+world/lazy region cache follows flora pattern: no saved Taxon/food-web/recipe/
+schema/hash-model changes, no regeneration or silent saved ecology upgrade.
+Terrain/water/vegetation/weather/history unchanged. Shared compile0 warnings/
+errors; D3D11/12 package no C#/shader errors, existing advisories remain. ONLY
+compile/package: no tests/fixtures/game/world launches/captures/profiling/sound
+audition/hash audit. Owner wiki review pending; night-reflections rollback.
+Desktop planning CSV updates four derived entries, retaining other rows and
+owner fields. See docs/ECOREGIONS.md/VALIDATION.md. Leave game/saves untouched.
+
 OWNER-TEST-ONLY night-reflection checkpoint,22October2026: shortcut selects real
 C: `artifacts/player-night-reflections/WorldGen.exe`, release IL2CPP
 BuiltUtc22:30:32Z, compile/package0. Owner reports grey-blue night cliff glow;
