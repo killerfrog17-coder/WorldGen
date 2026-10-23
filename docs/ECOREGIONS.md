@@ -1,5 +1,79 @@
 # Ecoregions and the Earth starter pack (3.28)
 
+## AI selected; comparison media withdrawn - 22 October 2026
+
+Owner prefers AI and requests the new audio folder cleared before replacements.
+All45 managed WAVs in sounds/fauna and45 corresponding packaged copies were
+hash-checked against the manifest and sent to the Windows Recycle Bin. Both
+playback manifests are now header-only. Credits remain for the historical
+withdrawn comparison. Rain, thunder, music, owner processes/settings/saves and
+older rollback build folders are untouched. Raw generation/download/provenance
+artifacts outside these playback folders remain. Existing decoded sounds can
+continue in an already-running game; next launch has NO wildlife audio until
+new approved media is published. No build is required for external media removal.
+The spatial-audio section below describes implemented playback and the previous
+library, NOT a current45-clip populated bank. No replacements generated this turn.
+
+### Bank size recommendation (design estimate, not an audibility guarantee)
+
+| Group | Accepted takes | Suggested structure |
+| --- | ---: | --- |
+| Cricket | 24 | 6 stable call forms, 4 takes each |
+| Cicada | 16 | 4 stable buzz forms, 4 takes each |
+| Katydid | 24 | 6 stable rasp forms, 4 takes each |
+| Native frog | 32 | 8 stable call forms, 4 takes each |
+| Understory bird | 48 | 8 stable voices, 6 phrases/takes each |
+
+This is144 accepted clips; generate roughly twice as many candidates so owner
+rejections are normal, not a replenishment chore. The previous15 x20s SA3 batch
+finished in118.59s (~7.9s/clip). Linear extrapolation for288 candidates is about
+38min; allow35-50min or longer with competing GPU load. This is NOT a new timing
+benchmark or promise. At the current mono44.1k PCM16 delivery format,20s is
+~1.68MiB: ~242MiB for144 accepted takes/~484MiB for288 candidates; temporary
+stereo masters/evidence/copies are additional. Accepted uncompressed float PCM
+would be~484MiB if all loaded, so deploy a bounded lazy working bank, not an
+ever-growing resident library. Shorter frog/bird phrase takes are another future
+option; existing generation helper currently enforces an18s non-transient minimum.
+
+Do not equate these sample lengths with time-until-repetition-is-noticed. A
+recognizable chirp/phrase or unwanted background can expose any bank immediately;
+call spacing, source positions and stable species identity matter. Future library
+selection should bind a regional species to a call-form, and vary compatible
+takes within it, rather than let one caller change into unrelated voices at each
+join. Larger per-family banks, call-form metadata and delete-friendly publishing
+are planned, NOT implemented by this cleanup. Current loader caps45 admitted
+files and current one-clip helper accepts variants1-3; extend those before
+publishing this proposed large bank. Manual deletions skip files on next load,
+but hot reload/file-watching is not present.
+
+### Source-isolated SA3 prompting
+
+Reviewed the [official SFX guide](https://stability.ai/guides/stable-audio-3-prompt-guide)
+and [upstream prompting guide](https://github.com/Stability-AI/stable-audio-3/blob/main/docs/guides/prompting.md).
+They recommend specifying source, action/duration and recording character;
+`TrackType: SFX` is useful, and duration should fit the described event. Small-SFX
+is the upstream model for SFX rather than music. Application to OUR sources:
+use one caller, a stable repeated call, close dry direct recording and silence
+between phrases. Avoid whole-scene cues (forest-at-night ambience, wetlands,
+summer soundscape) that invite additional layers. Avoid enumerating unwanted
+animals in the positive prompt; the current CFG1 workflow is not a reliable
+negative-prompt exclusion mechanism. Those isolation choices are engineering
+inferences, NOT a guide guarantee or proven optimal prompt. Listen/reject any
+cross-species calls, atmospheric beds, handling noise or changing voice identity.
+
+Example, with the helper's automatic SFX prefix shown:
+
+> TrackType: SFX. A single cricket repeating a clear four-chirp phrase with brief
+> quiet gaps. Close-miked isolated insect, dry direct sound, silent background,
+> consistent pitch and microphone position.
+
+`scripts/fauna-ai-prompts.csv` now holds15 revised UNRENDERED starter briefs.
+Use a fresh output/evidence directory pair with the generic generator and pass
+both to the publisher (`--ai-root`, `--ai-evidence`). Do not reuse the old
+immutable `artifacts/fauna-ai-candidates`/`fauna-ai-jobs` pair with changed briefs.
+The single-prompt helper already creates a new run folder. No new candidates,
+source separation, AI classifier or audio listening were performed this turn.
+
 ## Spatial fauna audio - 22 October 2026
 
 The three derived calling-insect parents now have noise-only playback. Native

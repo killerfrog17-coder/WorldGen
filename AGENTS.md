@@ -1,5 +1,24 @@
 # WorldGen repository instructions
 
+FAUNA BANK CLEARED / AI preferred,22October2026 local: owner says AI wins and
+requests all newly generated/DSP/recorded fauna audio cleared. Exactly45 hash-
+verified clips plus45 packaged copies sent to Recycle Bin (recoverable), scoped
+to sounds/fauna and player-fauna-ambience/sounds/fauna. Both active manifests
+are header-only; historical credits retained. No rain/thunder/music, owner
+process, save/settings, models or older rollback folders touched. Raw candidate/
+provenance artifacts outside playback folders remain. Existing in-memory clips
+can continue until owner relaunch; next launch has no wildlife clips. Shortcut
+and executable unchanged; no rebuild needed for external media withdrawal.
+Official SA3 SFX prompting guides reviewed; next catalogue briefs now specify
+one isolated caller, action/timing and dry close recording against silence,
+avoiding environment/other-animal cues. Not proof of source purity. No new
+generation/audition/tests/player launches. Recommend144 accepted clips across
+5 groups, roughly2x candidates, stable call-form/take groups and a bounded lazy
+playback cache BEFORE large-bank deployment (current loader caps45, 3 variants).
+Revised briefs are unrendered; old candidate paths are immutable. Use fresh
+output/evidence paths for new prompts. See ECOREGIONS/VALIDATION. Source/media
+cleanup does not imply all larger-bank playback changes already implemented.
+
 OWNER-TEST-ONLY spatial fauna audio,22October2026 local: shortcut selects real
 C: `artifacts/player-fauna-ambience/WorldGen.exe`, release IL2CPP
 BuiltUtc2026-10-23T03:21:06Z, compile/package0, no C#/shader errors. Noise-only

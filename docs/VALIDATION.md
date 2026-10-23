@@ -1,5 +1,27 @@
 # Version 3 validation evidence
 
+## Fauna media withdrawal / official prompting review - 22 October 2026
+
+Owner prefers AI and asks to clear comparison audio. Before removal, all45
+manifest-listed root clips AND45 copies in selected player-fauna-ambience/sounds/
+fauna matched SHA256; exact names/absolute roots/reparse flags were checked.
+Only these90 files were sent to Windows Recycle Bin, not permanently deleted.
+Both runtime manifests are header-only; historical credits and ignored raw
+candidate/download/provenance artifacts remain. No rain/thunder/music, models,
+older rollback folders or owner process/settings/saves touched. Media is external
+to the executable: shortcut/build unchanged; no build required. A running game's
+already decoded clips are not forcibly stopped; relaunch loads an empty bank.
+
+Official SA3 guides reviewed and15 starter briefs revised for isolated callers,
+source action/timing, dry close mic and silent background. New briefs UNRENDERED;
+no new generation, listening, tests/fixtures/game launches or profiling. Prompt
+clarity reduces risk but does not establish source purity. ECOREGIONS records
+proposed accepted/candidate counts and storage/time extrapolation from the
+existing15-job/118.59s evidence, not a new benchmark or guarantee of inaudibility.
+Large-bank admission/cache/call-form/deletion workflow still needs implementation
+before exceeding existing45-file/3-variant limits. User deletion of the one-shot
+prompt remains untouched/uncommitted.
+
 ## Spatial fauna / three-method audio library - 22 October 2026
 
 Owner requests noise-only crickets, cicadas, katydids, native frogs and native

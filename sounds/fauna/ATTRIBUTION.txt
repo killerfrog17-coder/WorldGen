@@ -1,5 +1,9 @@
 WORLDGEN FAUNA AUDIO - SOURCE CREDITS
 
+HISTORICAL CANDIDATES: the owner requested removal of all 45 playback clips on
+22 October 2026 after preferring the AI method. The current library.tsv is
+empty. Credits below document the withdrawn comparison set, not active audio.
+
 cricket: "Cricket Chirp" by TheWoodlandNomad
 https://freesound.org/people/TheWoodlandNomad/sounds/363111/
 CC0-1.0: https://creativecommons.org/publicdomain/zero/1.0/
