@@ -40,6 +40,7 @@ public sealed partial class LocalTerrainExplorer
         rainAudio.loop=true;rainAudio.playOnAwake=false;rainAudio.spatialBlend=0;rainAudio.volume=0;
         rainClip=AudioClip.Create("Original continuous rainfall",22050*60,2,22050,true,rainSynth.Read);rainAudio.clip=rainClip;
         InitializeFootsteps();
+        InitializeFaunaAudio();
         weatherSoundLoading=StartCoroutine(LoadWeatherRecordings());
     }
     IEnumerator LoadWeatherRecordings()
@@ -83,6 +84,7 @@ public sealed partial class LocalTerrainExplorer
     void ResetRecordedWeather(){if(rainSynth!=null)rainSynth.MillimetresPerHour=0;if(rainAudio!=null){rainAudio.Stop();rainAudio.volume=0;}}
     void DisposeWeatherAudio()
     {
+        DisposeFaunaAudio();
         weatherSoundDisposed=true;if(weatherSoundLoading!=null)StopCoroutine(weatherSoundLoading);weatherSoundLoading=null;
         if(weatherSoundRequest!=null){weatherSoundRequest.Abort();weatherSoundRequest.Dispose();weatherSoundRequest=null;}
         ResetRecordedWeather();if(rainClip!=null)Destroy(rainClip);

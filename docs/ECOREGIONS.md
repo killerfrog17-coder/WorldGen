@@ -1,5 +1,139 @@
 # Ecoregions and the Earth starter pack (3.28)
 
+## Spatial fauna audio - 22 October 2026
+
+The three derived calling-insect parents now have noise-only playback. Native
+frogs and native insectivorous understory birds use the EXISTING `Anura habitat
+guild` and `Understory bird guild` taxa, requiring `Biogeography.Present` in the
+source cell. They are audio-only for this pass, not permanently denied physical
+animals later. Firefly remains silent metadata. No new saved taxa, food-web
+links, populations, AI, physical animals, generation rules or save schema.
+The earlier profiles-only section below is historical where it says no playback.
+
+`FaunaAmbience` derives native-guild calling profiles and habitat/activity gains.
+Insects retain their existing province-founder/regional profiles. Species pitch
+is stable and modestly varied; a finite library does not realize every stored
+pulse/harmonic/temperature-response trait. Native calling forms are regional
+presentation derivatives, not new taxonomic or evolutionary claims. Annual
+seasons use hemisphere-relative warm peaks; humid warm regions use thermal/
+weather opportunities. Solar-hour, thermal and rain/wind gates soften activity;
+birds favour dawn/dusk and frogs favour moist conditions. Frog refuges use river,
+groundwater/flood and damp organic-forest PROXIES, not actual breeding-water or
+dynamic soil-wetness simulation. No arbitrary sounds on bare ocean/ice ground.
+
+Calling sites use a seeded planet-fixed jittered cube grid, NOT player-centred
+random spawning or render chunk/LOD seeds. Crickets are near the ground,
+katydids in low vegetation, frogs at wet ground/refuges. Cicadas and birds snap
+to an actual tree from the existing canonical planting predicate/cache. They
+remain ecological trees when graphics toggles hide them. This is not a perched
+animal or a guarantee a calling insect is on its specific biological host.
+
+One background habitat job at a time owns a separate terrain patch; moving
+24 m refreshes a 175 m neighbourhood, reusing successful AND rejected sites and
+evicting beyond 230 m. No complete per-frame world census, terrain queries,
+audio raycasts, model inference or per-animal physics. The 12-site voice pool
+retains callers across render-tile/chart changes; sources reproject with the
+floating origin. Activity refreshes at 2 Hz; gain/filter envelopes run per frame.
+Cheap resident terrain lower bounds muffle distant callers behind hills, not
+full material/foliage acoustic propagation. No camera-frustum culling for audio.
+DSP-clock scheduling overlaps two mono 3D voices for continuous insects with
+equal-power joins, stable starting offsets and varied clips. Frogs/birds use
+call-phrase clips with gaps. Settings pause world callers; explicit preview can
+still play. No exact future multiplayer/audio-phase synchronization is claimed:
+locations and profiles are seeded, scheduling currently follows local DSP time.
+
+### Three comparable sound libraries
+
+Audio settings has a wildlife master toggle/volume and per-group enable/source
+selection plus Preview (cycles variants), Stop preview, and loading status.
+Preview bypasses habitat/time, NOT master/wildlife volume. Missing or changed
+hash-bound media is skipped, never silently substituted by another method.
+
+There are **45 mono PCM16 44.1 kHz WAVs**, three per group per method:
+
+| Group | Local AI | Independent DSP | Free field recording |
+| --- | --- | --- | --- |
+| Cricket | 3 SA3 Small-SFX candidates | 3 tonal chirp/trill trains | 3 excerpts from TheWoodlandNomad's Cricket Chirp, CC0 |
+| Cicada | 3 SA3 Small-SFX candidates | 3 modulated filtered-noise buzzes | 3 excerpts from macdaddyno1's Japanese Cicada, CC0 |
+| Katydid | 3 SA3 Small-SFX candidates | 3 band-limited rasp trains | 3 excerpts from timb12957's SC_Katydid.wav, CC BY 4.0 |
+| Native frog | 3 SA3 Small-SFX candidates | 3 FM/harmonic croak phrases | 3 excerpts from SpliceSound's Green frog, croaking.wav, CC0 |
+| Understory bird | 3 SA3 Small-SFX candidates | 3 FM whistle phrases | 3 excerpts from organicmanpl's Single bird, CC0 |
+
+Field variants are three excerpts of ONE source per group, not three independent
+recordings. All methods use group-specific rumble removal, mono downmix,
+resampling, bounded common level/peak and short endpoint fades. These operations
+do not prove isolation, convincing anatomy, absence of unwanted AI sounds,
+natural transitions or a fictional regional species match. No clips have been
+auditioned by the agent; owner listening is required. Default source is AI,
+individually replaceable with DSP/field recordings in settings.
+
+Media totals 50.11 MiB on disk; all comparison banks decode to about 100.22 MiB
+PCM before engine overhead (not a measured native memory profile). Hash screening
+runs off-thread and Unity loads files asynchronously once per exploration. No
+per-frame disk reads. F3 full mode shows cached voice/clip/job status. This first
+pass deliberately keeps all banks resident for instant comparison; lazy bank
+eviction is a future option. CPU/FPS cost is unmeasured, not guaranteed free.
+
+### Reproduction, replacements and credits
+
+The existing `E:/AI/ComfyUI` service and installed SA3 Small-SFX/encoder weights
+were reused on the RTX4060; nothing was installed or charged. This does NOT move
+the game/builds onto E:. Local offline AI is not a dependency at game runtime.
+SA3 is free under its qualifying Community terms, not unconditionally licensed
+for every commercial business; check commercial registration/revenue conditions
+and encoder Gemma terms before distribution. No terms were accepted or account
+registration performed on the owner's behalf. See the [model card](https://huggingface.co/stabilityai/stable-audio-3-small-sfx),
+[upstream implementation](https://github.com/Stability-AI/stable-audio-3),
+[licence](https://stability.ai/license) and
+[commercial-use guidance](https://kb.stability.ai/knowledge-base/stable-audio-commerical-and-usage-licensing).
+
+With that existing local ComfyUI service running, generate a candidate:
+
+```powershell
+python scripts/render-fauna-ai.py --family cricket --variant 1 --prompt "One cricket giving soft clear rhythmic chirps with natural pauses."
+```
+
+Add `--publish` to replace that managed variant and update its SHA256 admission
+manifest (no automatic listening/acceptance). Relaunch to load a published clip.
+Each run gets a new evidence folder; the helper does not delete old candidates,
+kill/start servers, or overwrite unknown/externally modified media. `--seed` and
+`--checkpoint` are available; Small-SFX is the default, not a claim to be the
+best model for music. Song generation remains the existing separate workflow.
+The initial 15 briefs are `scripts/fauna-ai-prompts.csv`; batch reproduction:
+
+```powershell
+python scripts/generate-weather-sounds.py --catalog scripts/fauna-ai-prompts.csv --output artifacts/fauna-ai-candidates --evidence artifacts/fauna-ai-jobs --checkpoint stable_audio_3_small_sfx.safetensors --seed-base 731923 --limit 15
+python scripts/prepare-fauna-audio.py
+```
+
+`prepare-fauna-audio.py` independently synthesizes DSP, processes admitted AI
+candidates, verifies source-page licences and downloads only public HQ previews
+(original Freesound downloads require login; none bypassed). `--replace` is
+required for already managed clips that would change. One-clip replacement uses
+`--only-ai` and does not re-download/regenerate the other banks. Exact prompts,
+seeds, models, source URL/hash and processing levels are in ignored
+`artifacts/fauna-ai-jobs/results.json` and `artifacts/fauna-audio/release.json`.
+Runtime `sounds/fauna/library.tsv` and `ATTRIBUTION.txt` ARE source controlled;
+WAVs, downloaded masters, models and evidence are NOT backed up in Git. The
+packaged player receives a complete `sounds/fauna` copy plus credits; the repo
+shortcut uses the repo sound root for later replacements.
+
+Recording primary sources and licences:
+[cricket](https://freesound.org/people/TheWoodlandNomad/sounds/363111/),
+[cicada](https://freesound.org/people/macdaddyno1/sounds/321591/),
+[katydid](https://freesound.org/people/timb12957/sounds/158782/),
+[frog](https://freesound.org/people/SpliceSound/sounds/188195/),
+[bird](https://freesound.org/people/organicmanpl/sounds/518749/).
+Katydid attribution/title/source/licence/modifications ship in ATTRIBUTION.txt;
+retain this when redistributing. [CC BY 4.0 terms](https://creativecommons.org/licenses/by/4.0/).
+
+Playback architecture references: [Unity spatial blend](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/AudioSource-spatialBlend.html),
+[DSP scheduling](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/AudioSource.PlayScheduled.html),
+[scheduled ends](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/AudioSource.SetScheduledEndTime.html),
+and [Wwise randomized sound containers](https://www.audiokinetic.com/en/public-library/2024.1.4_8780/?id=creating_random_container&source=Help).
+These inform source variation/overlap, not a new middleware dependency or an
+assertion that a particular commercial game's sound system was reproduced.
+
 ## Derived small-fauna profiles - 22 October 2026
 
 `AmbientFauna` adds exactly four broad parents: Cricket, Cicada, Katydid and

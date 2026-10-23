@@ -1,0 +1,33 @@
+WORLDGEN FAUNA AUDIO - SOURCE CREDITS
+
+cricket: "Cricket Chirp" by TheWoodlandNomad
+https://freesound.org/people/TheWoodlandNomad/sounds/363111/
+CC0-1.0: https://creativecommons.org/publicdomain/zero/1.0/
+Public HQ preview; mono downmix, high-pass, excerpts, level normalization and fades. Three excerpts from ONE source recording; source backgrounds may remain.
+
+cicada: "Japanese Cicada" by macdaddyno1
+https://freesound.org/people/macdaddyno1/sounds/321591/
+CC0-1.0: https://creativecommons.org/publicdomain/zero/1.0/
+Public HQ preview; mono downmix, high-pass, excerpts, level normalization and fades. Three excerpts from ONE source recording; source backgrounds may remain.
+
+katydid: "SC_Katydid.wav" by timb12957
+https://freesound.org/people/timb12957/sounds/158782/
+CC-BY-4.0: https://creativecommons.org/licenses/by/4.0/
+Public HQ preview; mono downmix, high-pass, excerpts, level normalization and fades. Three excerpts from ONE source recording; source backgrounds may remain.
+
+frog: "Green frog, croaking.wav" by SpliceSound
+https://freesound.org/people/SpliceSound/sounds/188195/
+CC0-1.0: https://creativecommons.org/publicdomain/zero/1.0/
+Public HQ preview; mono downmix, high-pass, excerpts, level normalization and fades. Three excerpts from ONE source recording; source backgrounds may remain.
+
+bird: "Single bird" by organicmanpl
+https://freesound.org/people/organicmanpl/sounds/518749/
+CC0-1.0: https://creativecommons.org/publicdomain/zero/1.0/
+Public HQ preview; mono downmix, high-pass, excerpts, level normalization and fades. Three excerpts from ONE source recording; source backgrounds may remain.
+
+AI: Local Stable Audio 3 Small-SFX. Stability AI Community License and Gemma terms apply; not unconditionally public-domain audio. Check commercial registration/revenue requirements before release.
+https://huggingface.co/stabilityai/stable-audio-3-small-sfx
+https://stability.ai/license
+
+Code: independently authored offline DSP in scripts/prepare-fauna-audio.py.
+Media is not backed up in Git. release.json records processing, hashes, prompts and seeds. Waveform checks do not establish biological realism, source purity or seamless listening.

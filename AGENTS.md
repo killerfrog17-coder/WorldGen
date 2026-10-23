@@ -1,5 +1,29 @@
 # WorldGen repository instructions
 
+OWNER-TEST-ONLY spatial fauna audio,22October2026 local: shortcut selects real
+C: `artifacts/player-fauna-ambience/WorldGen.exe`, release IL2CPP
+BuiltUtc2026-10-23T03:21:06Z, compile/package0, no C#/shader errors. Noise-only
+cricket/cicada/katydid plus existing native Anura/understory-bird guilds. Native
+cell presence, local habitat/refuge/tree and solar/season/thermal/weather gates;
+no agents, models, new saved taxa/food links or world/recipe/save rule changes.
+Planet-fixed sites, bounded12 dual-source callers, off-thread habitat/manifest
+work, retained chart/LOD identities, DSP-scheduled equal-power insect overlaps,
+frog/bird phrase gaps and conservative terrain muffling. Regional profiles/pitch
+are seeded; exact acoustic trait synthesis/MP audio sync is NOT implemented.
+Audio settings has per-group toggles/source selection, volume and bypass-habitat
+Preview/Stop. F3 cached status; F3+E updated representation/calling profiles.
+45 mono44.1k PCM16 files:15 local SA3 Small-SFX,15 independent DSP,15 public HQ
+field excerpts (3 from ONE recording/group). Existing ComfyUI/models reused;
+no install/paid API/runtime inference.50.11MiB WAV/~100.22MiB decoded before
+engine overhead. Hash manifest and credits tracked; media/models/evidence NOT
+Git-backed. CC0 plus attributed CC BY4 katydid; SA3 commercial terms apply.
+scripts/render-fauna-ai.py supports new prompts/managed one-clip publication.
+Shared compilation0 warnings/errors; offline generation PCM sanity ONLY, no
+listening, suites/fixtures/game/world launches/captures/profiling. No naturalness,
+seamless listening or performance acceptance. Owner audition needed. Rain,
+thunder/weather/vegetation/terrain/lighting unchanged. Previous profiles player
+is rollback. See ECOREGIONS/WEATHER_AUDIO/VALIDATION; leave game/saves untouched.
+
 OWNER-TEST-ONLY ambient fauna profiles,22October2026 local: shortcut selects real
 C: `artifacts/player-ambient-fauna-profiles/WorldGen.exe`, release IL2CPP
 BuiltUtc2026-10-23T02:27:36Z, compile/package0. AmbientFauna v1 has exactly four

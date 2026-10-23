@@ -38,6 +38,20 @@ namespace WorldGen.Core
             RememberTrees(key,result,first);
         }
         public const int TreeCandidateSide=128;
+        /// <summary>Bounded sound/perch attachment using the existing planting
+        /// predicate/cache, independent of visible tree quality or draw toggles.</summary>
+        public bool TryFaunaTree(V point,LocalTerrain.LocalTerrainPatch patch,out ScatterInstance tree)
+        {
+            var key=Address(point);Basis(key.Face,out V n,out V u,out V v);double d=V.Dot(point,n);int count=Divisions(false);
+            int x=(int)Math.Floor(((V.Dot(point,u)/d+1)*.5*count-key.X)*TreeCandidateSide);
+            int y=(int)Math.Floor(((V.Dot(point,v)/d+1)*.5*count-key.Y)*TreeCandidateSide);
+            for(int dy=-1;dy<=1;dy++)for(int dx=-1;dx<=1;dx++)
+            {
+                int xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=TreeCandidateSide||yy>=TreeCandidateSide)continue;
+                if(TryTree(key,xx,yy,patch,out tree)&&(tree.Position-point).Length*terrain.RadiusM*scale<16)return true;
+            }
+            tree=default;return false;
+        }
         /// <summary>The ONE planting predicate, used by local meshes and distant
         /// forest pages. Never seeds on a render chart, LOD or completion order.</summary>
         public bool TryTree(ScatterKey key,int x,int y,LocalTerrain.LocalTerrainPatch patch,out ScatterInstance tree)

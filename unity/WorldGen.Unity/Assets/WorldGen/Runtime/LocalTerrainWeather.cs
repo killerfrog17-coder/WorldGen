@@ -38,6 +38,7 @@ public sealed partial class LocalTerrainExplorer
         if(weatherScreen!=null){weatherScreen.Ready=false;weatherScreen.Flash=0;}flashEnd=0;
         foreach(var voice in thunderVoices)if(voice!=null){voice.Due=-1;voice.Source.Stop();}
         ResetRecordedWeather();
+        ResetFaunaFrame();
     }
     void InitializeWeather()
     {
@@ -139,6 +140,7 @@ public sealed partial class LocalTerrainExplorer
         }
         Particles(rainParticles,false);Particles(snowParticles,true);
         UpdateRecordedWeather(audioPaused,aboveCloud);
+        UpdateFaunaAudio(audioPaused);
         long slot=(long)Math.Floor(weatherDays*8640); // Ten-second dated opportunity; no global storm list.
         if(!paused&&slot!=lastLightningSlot&&now>nextFlashAt)
         {

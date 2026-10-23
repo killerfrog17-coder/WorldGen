@@ -38,6 +38,12 @@ namespace WorldGen.Presentation
                 var b=new StringBuilder(t.Name+"\n"+t.ScientificName+"\n\nRecorded regional "+t.Rank+". "+(Biogeography.Present(e,cell,t.Id)?"Suitable and accessible in this source cell.":"Recorded elsewhere in this ecoregion; not confirmed in this source cell.")+"\n\nTAXON\n"+Known(t,token)+"\nREGIONAL PRESENCE / VARIANT\n"+Known(presence,token));
                 if(byConsumer.TryGetValue(t.Id,out var diet)){b.Append("\nFEEDING OPPORTUNITIES\n");foreach(var link in diet)b.Append(Name(link.ResourceId)).Append(" → ").Append(t.Name).Append(" · ").Append(link.Resource).Append(" · ").Append((link.OverlapPermille*.1).ToString("0.#",CultureInfo.InvariantCulture)).Append("% regional overlap\n");}
                 if(byResource.TryGetValue(t.Id,out var consumers)){b.Append("\nPOTENTIAL CONSUMERS\n");foreach(var link in consumers)b.Append(Name(link.ConsumerId)).Append(" · ").Append(link.Resource).Append('\n');}
+                if(t.ScientificName=="Anura habitat guild"||t.ScientificName=="Understory bird guild")
+                {
+                    var kind=t.ScientificName=="Anura habitat guild"?FaunaSoundKind.Frog:FaunaSoundKind.UnderstoryBird;
+                    b.Append("\nCURRENT LOCAL REPRESENTATION\nAudio only in this pass, not permanently excluded from future physical animals. Calling sites require recorded native cell presence and suitable local habitat. No spawned agents or animal population simulation.\n");
+                    if(FaunaAmbience.For(world).TryProfile(cell,kind,out var voice))b.Append("\nREGIONAL CALLING FORM\n").Append(Known(voice,token));
+                }
                 articles.Add(new EcologyArticle{Title=t.Name,Category=t.BasalResource?"Basal resources":t.Producer?"Recorded flora":"Fauna",Body=b.ToString()});
             }
             var flora=GroundFlora.For(world).Region(region);
@@ -57,7 +63,7 @@ namespace WorldGen.Presentation
                     "Current cell abiotic potential: "+(localSupport*100).ToString("0.#",CultureInfo.InvariantCulture)+"% (suitability, NOT abundance or occupancy probability).\n"+
                     "\nGENERATED PROFILE\n"+Known(s,token)+
                     (s.Representation==AmbientFaunaRepresentation.AudioOnly?
-                        "\nPlanned AUDIO ONLY: no visible animals or full individual agents. Calling traits are future audio inputs, not currently playing sounds.":
+                        "\nAUDIO ONLY: no visible animals or full individual agents. Habitat-based spatial callers are implemented; activity depends on local conditions, season, solar time and weather. A finite clip bank with bounded species pitch/timing variation approximates the profile, not a full synthesis of every acoustic trait.":
                         "\nPlanned LIGHTWEIGHT VISUAL: silent firefly display traits only; no current rendering or spawning.")+
                     "\nNo source taxa, saved food links, native-range raster or historical simulation changed. Activity/season traits are metadata, not running populations or dynamic evolution."});
             }

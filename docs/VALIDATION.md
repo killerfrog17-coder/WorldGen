@@ -1,5 +1,45 @@
 # Version 3 validation evidence
 
+## Spatial fauna / three-method audio library - 22 October 2026
+
+Owner requests noise-only crickets, cicadas, katydids, native frogs and native
+insectivorous understory birds, comparing local AI, procedural and free recorded
+sources. Existing free local ComfyUI/SA3 Small-SFX CUDA setup was used, no new
+installation/paid service. Fifteen candidate jobs completed with distinct saved
+model/prompt/seed/output hashes. Offline preparation produced45 admitted mono
+PCM16/44.1k WAVs:15 AI,15 independent DSP,15 field excerpts (three excerpts of
+one licensed recording per group). Finite PCM, bounded levels/durations and
+zero endpoints checked as part of generation, NOT acoustic/audition acceptance.
+50.11MiB WAV, theoretical100.22MiB decoded before Unity overhead. Waveform checks
+cannot establish source purity, realism, correct species or seamless listening.
+CC0 sources plus CC BY4.0 katydid credit/modifications ship in ATTRIBUTION.txt.
+SA3/Gemma model commercial-use conditions remain a distribution consideration.
+
+Core release compilation and shared Presentation/Serialization compilation:
+0 warnings/errors. Runtime source review: bounded12 dual-voice spatial callers,
+one off-thread site job, planet-fixed IDs, actual canonical tree attachments,
+native taxon-presence gates, independent solar/season/thermal/weather activity,
+DSP-scheduled equal-power insect joins and frog/bird phrase gaps. Frame/chart
+changes retain world-addressed nearby callers; no render-chunk birth reset.
+Source/hash/clip decoding is asynchronous; F3 status uses the existing cached
+full HUD refresh. Source methods/toggles/preview/volume are machine-local UI.
+No modified saved recipe/World/ecology collections, terrain/vegetation/weather
+generation, rain/thunder/lighting/geometry/LOD rules. This is source reasoning,
+not a new hash or persistence campaign. No actual ecological population/AI,
+ray-traced propagation, exact synthesis of all species traits or MP audio sync.
+
+Owner compile/package-only remains: no suites, fixtures, player/world launches,
+captures, profiling or audio listening. Gameplay scheduling/artifacts, habitat
+abundance, natural transitions, native memory/CPU/FPS and clip selection need
+owner review. Release IL2CPP compile/package exits0, BuiltUtc2026-10-23T03:21:06Z.
+No C#/shader errors; existing div/mod, sky gradient-loop and TerrainTestAir
+advisories remain. Player/worker packaging completed, shared input hashes frozen
+through the build. Sound manifest hashes also match the packaged45 WAVs. Shortcut
+selects real C: player-fauna-ambience; previous profiles player remains rollback.
+Python preparation/replacement helpers compile; the new one-clip replacement
+command has not been exercised (no extra inference/owner media replacement).
+No owner process/settings/saves changed. No gameplay/sound/performance acceptance.
+
 ## Derived cricket/cicada/katydid/firefly profiles - 22 October 2026
 
 Owner requests one broad parent per missing insect group with generated regional

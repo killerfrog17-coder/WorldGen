@@ -8,7 +8,7 @@ namespace WorldGen.Core
 {
     public enum AmbientFaunaFamily { Cricket, Cicada, Katydid, Firefly }
     public enum AmbientFaunaRepresentation { AudioOnly, LightweightVisual }
-    public enum InsectSongShape { ChirpTrain, SwellingBuzz, RaspTrain }
+    public enum InsectSongShape { ChirpTrain, SwellingBuzz, RaspTrain, PulsedCroak, WhistlePhrase }
     public enum InsectSeasonCue { AnnualWarmSeason, WarmMoistOpportunities }
 
     // Four broad authored parents, not a hardcoded list of Earth species.

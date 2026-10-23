@@ -74,9 +74,9 @@ public sealed partial class LocalTerrainExplorer
     // terrain lower bound must exceed the highest ray to reject the object.
     // Missing/transitioning/coarse terrain is UNKNOWN, hence visible. This is
     // not general scene Hi-Z and does not treat foliage as a solid occluder.
-    bool TerrainOccluded(Bounds box,Vector3 eye)
+    bool TerrainOccluded(Bounds box,Vector3 eye,bool acoustic=false)
     {
-        if(!TerrainVideoOptions.VegetationOcclusion||box.SqrDistance(eye)<45*45)return false;
+        if((!TerrainVideoOptions.VegetationOcclusion&&!acoustic)||box.SqrDistance(eye)<45*45)return false;
         if(occlusionFrame!=Time.frameCount)
         {
             occlusionFrame=Time.frameCount;vegetationOccluders.Clear();occlusionCeiling=float.NegativeInfinity;

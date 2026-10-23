@@ -88,6 +88,7 @@ public sealed partial class WorldGenRuntime
         GUILayout.Label("Rain  "+Mathf.RoundToInt(weather.RainVolume*100)+"%");float rain=GUILayout.HorizontalSlider(weather.RainVolume,0,1);
         GUILayout.Label("Thunder  "+Mathf.RoundToInt(weather.ThunderVolume*100)+"%");float thunder=GUILayout.HorizontalSlider(weather.ThunderVolume,0,1);
         if(rain!=weather.RainVolume||thunder!=weather.ThunderVolume){weather.RainVolume=rain;weather.ThunderVolume=thunder;weather.Save();}
+        DrawFaunaAudioOptions();
         GUILayout.Space(12);
     }
     void DrawMasterVolume()

@@ -1,5 +1,14 @@
 # Recorded weather effects
 
+## Wildlife audio (22 October 2026)
+
+Separate spatial cricket/cicada/katydid/native-frog/understory-bird callers now
+exist, with SA3, independent DSP and licensed field variants per group. See
+the current spatial-fauna section in ECOREGIONS.md for playback, controls,
+licences/provenance, replacement commands and limitations. Weather's original
+rain and curated thunder are unchanged; no wind audio was reintroduced.
+Wildlife's volume/source controls are in Audio settings, not weather generation.
+
 ## Current: owner-requested original rain restoration
 
 Rain now uses the exact `RainSynth.cs` from29d82da, with its original22050Hz
