@@ -1,5 +1,26 @@
 # WorldGen repository instructions
 
+LOCAL GENERATED DEER STUDY,23October2026 local: owner rejects substituted animal
+assets and requests a free local-AI deer opened in Blender. New built-in imagegen
+doe reference -> local TripoSG FP16/50steps/seed731923 on RTX4060; model/code MIT,
+isolated E:/AI/WorldGen3D environment reads existing CUDA packages without
+modifying ComfyUI/server.8GB weights downloaded; no paid/API generation. Owner
+explicitly closed TheForest before inference. Denoise~32s; wrapper tuple export
+error fixed and saved latents recovered with4.06s decoder-only retry. Raw113360
+verts/226722tri not watertight; original image/GLB/latents/hashes retained ignored
+in artifacts/deer-local-20261023. New own27-bone rig/4-weight skin and authored
+Idle/Walk/Run study loops, baked FK,25002verts/50000tri. NOT borrowed animal
+mesh/rig/motion, production retopology, realistic gait or game integration.
+Photo projection is approximate/mirrored with procedural backside fallback,
+NOT360-degree AI texturing. Blender Review v2 opened centre/primary monitor;
+Desktop Deer - Local AI Review.lnk loads Generated Deer sidebar controls. Prior
+open study/user files untouched. Offline asset finite/weights/loop/constraint
+checks pass171frames; CPU pose/opposite inspections and Python syntax checks
+only, no game/world launch or FPS tests. GPU inference exited; game can reopen.
+Owner asks visible progress windows on centre monitor when useful. See
+docs/LOCAL_DEER_STUDY.md for exact prompt/provenance/limitations. Prior rejected
+CC0-study scripts remain separately untracked; user-deleted prompt preserved.
+
 ADDITIONAL AUDIO-FIRST FAUNA BATCH,22October2026 local: owner asks all remaining
 planned audio-only-first entries added to candidate generation. Desktop fauna
 CSV has nine beyond the initial five: cockatoo/hornbill/hummingbird/parrot/

@@ -1,5 +1,36 @@
 # Version 3 validation evidence
 
+## Local generated deer Blender study - 23 October 2026
+
+Owner requests a newly generated deer, not the previous downloaded CC0 animal,
+with free local 3D inference and Blender review. New built-in imagegen reference
+is hosted; TripoSG 3D inference is local RTX4060, FP16/50 steps/seed731923. MIT
+code/model, no paid/API generation. Owner explicitly closed their game first.
+Isolated environment/model installation does not modify the existing ComfyUI
+environment or server. Denoising ~32s; initial wrapper mishandled upstream tuple
+output after successful extraction. Fixed and recovered saved latents without
+repeating denoise. Final raw GLB113360 vertices/226722 triangles, not watertight;
+the JSON4.06s timing describes the decoder-only recovery, not the entire run.
+
+Original asset-specific27-bone rig, max4 weights, authored Idle/Walk/Run studies
+and baked FK actions; no downloaded animal mesh/skeleton/motion. Review reduces
+to25002 vertices/50000 triangles. Corrected central belly influence leakage
+after pose inspection. Texture is a single-reference mirrored projection with
+procedural fallback/back-of-head masking, not full generated360-degree mapping.
+Material/anatomy/skin/motion limitations remain; not production game-ready art.
+
+Offline Blender asset checks pass171 frames including loop repeat endpoints:
+finite/bounded evaluated vertices, normalized1-4 influences, no live constraints,
+loop deltas0/2.384e-7/2.980e-7m. Sidebar registers. Selected CPU-rendered poses and
+opposite-side appearance inspected, not a full natural-motion acceptance review.
+Five new scripts pass Python syntax checks and source whitespace checks. No
+Unity/game/world launches, FPS profiling, gameplay AI, animation blending or
+terrain contact validation. Review v2 opened on centre/primary monitor with
+Desktop `Deer - Local AI Review.lnk`; prior user-open Blender study left intact.
+GPU inference finished; owner can resume game. Source backup excludes generated
+models/images/weights/Blender files. See `LOCAL_DEER_STUDY.md` for provenance and
+exact reference prompt; ignored artifact root `artifacts/deer-local-20261023`.
+
 ## Additional audio-first fauna candidate collection - 22 October 2026
 
 Owner requests all remaining audio-only planned entries added to sound generation.
