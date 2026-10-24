@@ -1,5 +1,35 @@
 # WorldGen repository instructions
 
+OVERNIGHT GIBBON/RECOVERY CHECKPOINT,24October2026~08:52CDT:
+Serial watch exec95232/PID30660 LIVE at Grasshopper rig batch (verify via lock).
+Earlier main63612 terminal0 verified; isolated Gibbon85276 terminal0 verified.
+62 reviews/248 candidate files ready, all owner ART pending, no painting/windows.
+Gibbon reference newly built-in-imagegen biped with raised arms (old quadruped
+reference retained). Mesh prep uses minor XY body axis for upright biped only.
+4 new6ktri meshes with own65/39/46/21-joint rigs. New CC0 human-base Idle_A/Walk/
+Jog source matrices only; no donor mesh. New experimental_biped correspondence
+pairs distinct side hand/foot chains and central head/spine. Actual Idle/Walk/
+Run samples move; exported source names/provenance retained. Source importer
+prints duplicate FCurve warnings; exported arrays do vary, not constant takes.
+Technical LIMITED usable_for_raw_audition: candidate1 selected Idle/Walk/Run side
+and Walk front retain compact biped shape; NOT natural gibbon gait/balance or
+brachiation/climbing/grasping. Candidates2/3/4 explicitly SCREENED OUT of agent
+recommendations: severe flat foot/ground sheets in motion, candidate4 plane also
+visible at Bind. Warnings+images retained; all4 files available for comparison.
+Viewer now labels known/screened-out defects; index has screened_out_candidates.
+No blanket art acceptance. Main queue continued while CPU-only source inspection.
+Finalizer deferred unrelated worker-state sync; file index authoritative.
+Coverage175/176; only CoastalSquid lacks a source. Newly found CC0 colossal squid
+swim rig https://blendswap.com/blend/33280, normal download explicitly LOGIN.
+No account/bypass/download; recorded possible owner-assisted source. OGA2D squid
+archive inspected in memory, PNGs only, not useful3D motion; not saved.
+Grasshopper3/4 direct reduction failed1ktri budget; isolated automatic256voxel
+prep saved986/989tri, all4 cached meshes retained. New retry-failed.json requests
+hash all4 repaired meshes; ONLY serial worker consumes request/archives failure,
+so agent never races live queue-state. New main consumed it and generates rigs.
+No game/Unity/Desktop/owner app closure or accepted-deer change. New source/GUI/
+retry changes need backup; prior remoteeb6fe0ab60d4f5fc0f34143a2812a60d9dbafb2f.
+
 OVERNIGHT BODY-MIDLINE/ORANGUTAN CHECKPOINT,24October2026~08:37CDT:
 Previous main15932/PID2856 and isolated Orangutan21769/PID31192 VERIFIED terminal0.
 New serial watch exec47587 resumed Grass rat rig3/4; verify live PID via worker.lock.

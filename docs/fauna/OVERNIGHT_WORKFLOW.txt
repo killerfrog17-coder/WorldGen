@@ -249,3 +249,16 @@ A curled rat tail exposed a bbox-center false rejection in minimal topology chec
 Land mammals can now use the middle-height surface median if it provides stronger
 bilateral endpoint support. Neither this nor a neural-root estimate is an art gate.
 Original first rat rigs were restored unchanged before resuming only missing work.
+
+A bipedal Gibbon raw source trial uses only CC0 human-base Idle_A/Walk/Jog data,
+with a new upright conditioning reference and anatomical side/height chain match.
+Candidate1 selected poses retained for owner comparison;2/3/4 screened out because
+of extreme stretched foot/ground sheets (candidate4 has floor-like bind geometry).
+This is not authored/natural gibbon gait or climbing/brachiation. Viewer sidebar
+shows defects explicitly; REVIEW_INDEX.csv carries reasons. No blanket acceptance.
+Ground biped reference rationale: https://nationalzoo.si.edu/animals/news/how-long-are-gibbons-arms-and-more-gibbon-facts
+Motion license: https://github.com/Mesh2Motion/mesh2motion-app/blob/main/LICENSE-CC0.MD
+Coastal squid potential CC0 swim source https://blendswap.com/blend/33280 requires
+normal login. No account created or file acquired. It remains an explicit gap.
+Worker recovery requests hash all4 repaired cached meshes and are consumed only
+by the serial producer, without external edits to its live in-memory queue state.

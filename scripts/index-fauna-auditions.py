@@ -17,8 +17,9 @@ for item in plan:
             notes='; '.join(data.get('motion_gaps',[]))
             warning_file=folder/'visual-warnings.json'
             if warning_file.exists():
-                warnings=json.loads(warning_file.read_text()).get('warnings',[])
+                screening=json.loads(warning_file.read_text());warnings=screening.get('warnings',[])
                 ready[-1]['visual_warnings']=warnings
+                ready[-1]['screened_out_candidates']=screening.get('candidate_recommendation_exclusions',[])
                 warning_text='; '.join('Candidate '+str(w['candidate'])+' '+w.get('clip','')+': '+w['reason'] for w in warnings)
                 notes='; '.join(x for x in (notes,warning_text) if x)
         else:

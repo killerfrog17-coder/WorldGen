@@ -7,6 +7,8 @@ from mathutils import Vector,Quaternion
 s=bpy.context.scene;models=json.loads(s['deer_four_rigs'])
 animal=s.get('fauna_animal','Deer')
 finished=bool(models[0].get('same_approved_model'))
+warning_path=Path(bpy.data.filepath).parent/'visual-warnings.json'
+screening=json.loads(warning_path.read_text()) if warning_path.exists() else {}
 state={'model':0,'clip':'Showcase','mode':0,'view':0,'skeleton':False,'coat':'Tawny woodland' if finished else 'Unpainted preview','started':time.monotonic(),'seed':734100,'coat_index':0,'active_rack':-1,'sex':'Female'}
 queue_cache=[];queue_items_cache=[]
 def queue_entries():
@@ -173,6 +175,12 @@ class D4_PT_panel(bpy.types.Panel):
             col.operator_menu_enum('deer_four.animal','animal',text='Choose animal')
             row=col.row(align=True);row.operator('deer_four.animal',text='Previous animal').step=-1;row.operator('deer_four.animal',text='Next animal').step=1
         col.label(text=f"{'RIG' if finished else 'MODEL'} {state['model']+1} / {len(models)} - {entry['joints']} generated joints")
+        warnings=[w for w in screening.get('warnings',[]) if w.get('candidate')==state['model']+1]
+        if warnings:
+            box=col.box();box.alert=True
+            ruled_out=state['model']+1 in screening.get('candidate_recommendation_exclusions',[])
+            box.label(text='Screened out: visible defects' if ruled_out else 'Known visual issue',icon='ERROR')
+            box.label(text='See REVIEW_INDEX.csv for details')
         if finished:col.label(text='Approved finished deer - prototype' if len(models)==1 else 'Same approved finished deer in all four')
         row=col.row(align=True)
         for index in range(len(models)):row.operator('deer_four.model',text=str(index+1),depress=index==state['model']).number=index

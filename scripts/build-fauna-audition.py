@@ -42,6 +42,7 @@ def correspondence(joints,parents):
     roots=np.flatnonzero(parents<0);assert len(roots)==1;pelvis=int(roots[0])
     leaves=[i for i,c in enumerate(children) if not c];bird=source['family'] in ('bird','bat');fish=source['family']=='fish'
     if fish:return fish_correspondence(joints,parents,children,leaves,pelvis)
+    if source.get('motion_profile')=='experimental_biped':return biped_correspondence(joints,parents,children,leaves,pelvis)
     if source.get('motion_profile')=='experimental_hind_hopper':return hopper_hind_correspondence(joints,parents,children,pelvis)
     if source['family'] in ('snake','spider','ground_insect'):return chain_correspondence(joints,parents,children,leaves,pelvis)
     # A low trunk or tail tip is not a fifth foot. Prefer lateral endpoints
@@ -109,6 +110,51 @@ def correspondence(joints,parents):
         pref=[c for c in children[i] if groups[c] in ('spine','neck')];main.append(pref[0] if pref else children[i][0] if children[i] else -1)
     names=[f'Joint_{i:02d}' for i in range(len(parents))];names[pelvis]='Pelvis';names[head]='Head'
     return binding,children,groups,main,names,pelvis,head
+
+def biped_correspondence(joints,parents,children,leaves,pelvis):
+    """Match limb subtrees by height/side, keeping finger branches together."""
+    center=float(joints[pelvis,0]);height=float(np.ptp(joints[:,2]));limbs=[]
+    for side in (-1,1):
+        tips=[n for n in leaves if (joints[n,0]-center)*side>height*.03]
+        assert len(tips)>=2,'Biped trial requires distinguishable hand and foot endpoints on each side'
+        foot=min(tips,key=lambda n:joints[n,2]);chain=path_to(parents,foot)
+        remaining=[n for n in tips if n!=foot and joints[n,2]>joints[pelvis,2]+height*.1]
+        assert remaining,'Biped trial lacks a separate raised arm branch'
+        hand=max(remaining,key=lambda n:abs(joints[n,0]-center))
+        limbs.append((side,foot,hand))
+    chest=max(set(path_to(parents,limbs[0][2]))&set(path_to(parents,limbs[1][2])),key=lambda n:len(path_to(parents,n)))
+    limb_nodes=set()
+    for _,foot,hand in limbs:
+        for tip in (foot,hand):
+            path=path_to(parents,tip);anchor=pelvis if tip==foot else chest
+            assert anchor in path
+            limb_nodes.update(path[path.index(anchor)+1:])
+    heads=[n for n in leaves if n not in limb_nodes and abs(joints[n,0]-center)<height*.17]
+    assert heads,'Biped trial lacks a distinct central head branch'
+    head=max(heads,key=lambda n:joints[n,2]);binding=np.zeros((len(parents),len(sn)));assigned=set();groups=['extra']*len(parents)
+    def bind(target,names,kind):
+        ids=[si[n] for n in names];ss=np.r_[0,np.cumsum(np.linalg.norm(np.diff(reference[ids],axis=0),axis=1))];ss/=max(ss[-1],1e-8)
+        tt=np.r_[0,np.cumsum(np.linalg.norm(np.diff(joints[target],axis=0),axis=1))];tt/=max(tt[-1],1e-8)
+        for node,t in zip(target,tt):
+            if node in assigned:continue
+            k=min(max(int(np.searchsorted(ss,t,side='right')-1),0),len(ids)-2);w=float(np.clip((t-ss[k])/max(ss[k+1]-ss[k],1e-8),0,1))
+            binding[node,ids[k]]=1-w;binding[node,ids[k+1]]+=w;groups[node]=kind;assigned.add(node)
+    bind(path_to(parents,chest),paths['spine'],'spine')
+    neck=path_to(parents,head);connection=max(set(path_to(parents,chest))&set(neck),key=lambda n:len(path_to(parents,n)))
+    bind(neck[neck.index(connection):],paths['neck'],'neck')
+    sides=sorted(('L','R'),key=lambda side:reference[si[paths['hind_'+side][-1]],0])
+    for (_,foot,hand),side in zip(limbs,sides):
+        hind=path_to(parents,foot);fore=path_to(parents,hand)
+        bind(hind[hind.index(pelvis):],paths['hind_'+side],'hind')
+        bind(fore[fore.index(chest):],paths['fore_'+side],'fore')
+    for i in range(len(parents)):
+        if i not in assigned:binding[i]=binding[int(parents[i])] if parents[i]>=0 else np.eye(len(sn))[si[source['root']]]
+    main=[]
+    for i in range(len(parents)):
+        pref=[c for c in children[i] if groups[c] in ('spine','neck')];main.append(pref[0] if pref else children[i][0] if children[i] else -1)
+    names=[f'Joint_{i:02d}' for i in range(len(parents))];names[pelvis]='Pelvis';names[head]='Head'
+    return binding,children,groups,main,names,pelvis,head
+
 
 def hopper_hind_correspondence(joints,parents,children,pelvis):
     """Pair lateral hip branches, never tail tips or individual hand fingers."""

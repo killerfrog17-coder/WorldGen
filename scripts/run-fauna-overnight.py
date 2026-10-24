@@ -78,7 +78,21 @@ try:
             trial_marker=folder/'source-trial-pending.json'
             previous=state['animals'].get(slug,{})
             if trial_marker.exists() and not a.motion_root:continue
-            if previous.get('status')=='failed':continue
+            if previous.get('status')=='failed':
+                # An explicit agent-prepared recovery can be queued without
+                # racing this producer's in-memory/JSON state. Only this worker
+                # consumes it, after verifying every repaired cached mesh.
+                recovery=folder/'retry-failed.json'
+                if not recovery.exists():continue
+                import hashlib
+                request=json.loads(recovery.read_text())
+                assert request.get('reason') and len(request['prepared_models'])==4
+                for number,digest in enumerate(request['prepared_models'],1):
+                    mesh=folder/f'candidate-{number}'/'model.glb'
+                    assert hashlib.sha256(mesh.read_bytes()).hexdigest()==digest,'Recovery mesh changed after request'
+                request['previous_failure']=previous
+                archive=folder/('recovery-consumed-'+str(time.time_ns())+'.json')
+                archive.write_text(json.dumps(request,indent=2));recovery.unlink()
             if previous.get('status')=='ready' and not rebuild_marker.exists():continue
             if previous.get('status')=='models_rigged_motion_pending' and source is None:continue
             if (folder/'native-checks.json').exists() and not rebuild_marker.exists():state['animals'][slug]={'status':'ready','animal':entry['animal'],'review':str(folder/'Animal - Raw Audition.blend')};save();continue

@@ -7,7 +7,7 @@ from mathutils import Matrix,Vector
 ap=argparse.ArgumentParser();ap.add_argument('--family',required=True);ap.add_argument('--output',type=Path,required=True)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);a.output.mkdir(parents=True,exist_ok=True)
 repo=Path(__file__).resolve().parent.parent;assets=repo/'artifacts/tools/mesh2motion-cli/node_modules/afk-rig/assets'
-family_file={'fish':'shark'}.get(a.family,a.family);source=assets/'animations'/f'{family_file}-animations.glb'
+family_file={'fish':'shark','human':'human-base'}.get(a.family,a.family);source=assets/'animations'/f'{family_file}-animations.glb'
 bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source))
 s=bpy.context.scene;objects=[o for o in s.objects if o.type=='EMPTY' and o.name not in ('Armature','Fox-Mesh','Horse-Mesh')]
 lookup={o.name:o for o in objects};names=[o.name for o in objects]
@@ -27,6 +27,12 @@ if a.family=='fox':
         paths['fore_'+side]=['Spine_2.001',*[n+'_'+side for n in ['Front_Leg_Shoulder','Front_Leg_Upper','Front_Leg_Lower','Front_Leg_Ankle','Front_Leg_Foot','Front_Leg_Tip']]]
         paths['hind_'+side]=['Hips',*[n+'_'+side for n in ['Back_Leg_Pelvis','Back_Leg_Upper','Back_Leg_Lower','Back_Leg_Ankle','Back_Leg_Foot','Back_Leg_Foot_1','Back_Leg_Tip']]]
     root='Hips';head='Head'
+elif a.family=='human':
+    paths={'spine':['pelvis','spine_01','spine_02','spine_03'],'neck':['spine_03','neck_01','head']}
+    for side,small in [('L','l'),('R','r')]:
+        paths['fore_'+side]=['spine_03',*[n+'_'+small for n in ('clavicle','upperarm','lowerarm','hand','middle_01','middle_02','middle_03','middle_04_leaf')]]
+        paths['hind_'+side]=['pelvis',*[n+'_'+small for n in ('thigh','calf','foot','ball','ball_leaf')]]
+    root='pelvis';head='head'
 elif a.family=='bird':
     paths={'spine':['hips','spine_0','spine_1'],'neck':['spine_1','spine_2','spine_3','head'],'tail':['hips','tail_1','tail_2','tail_3','tail_tip']}
     for side in ('L','R'):
@@ -55,6 +61,7 @@ rest_basis={o.name:o.matrix_basis.copy() for o in objects}
 for action in list(bpy.data.actions):
     if 'rest' in action.name.lower():continue
     if a.family=='snake' and action.name=='Dance':continue
+    if a.family=='human' and action.name not in {'Idle_A','Walk','Jog'}:continue
     slots={slot.identifier:slot for slot in action.slots}
     for o in objects:
         o.animation_data_clear();o.matrix_basis=rest_basis[o.name]
@@ -64,7 +71,8 @@ for action in list(bpy.data.actions):
     for k in range(count):
         f=first+k/(count-1)*(last-first);s.frame_set(int(f),subframe=f-int(f));bpy.context.view_layer.update()
         frames.append([np.array(C@lookup[n].matrix_world) for n in names])
-    key='clip_'+str(len(clips));arrays[key]=np.asarray(frames,np.float32);clips.append({'label':action.name,'key':key,'source_action':action.name,'fps':30,'frames':count})
+    label={'Idle_A':'Idle','Jog':'Run'}.get(action.name,action.name) if a.family=='human' else action.name
+    key='clip_'+str(len(clips));arrays[key]=np.asarray(frames,np.float32);clips.append({'label':label,'key':key,'source_action':action.name,'fps':30,'frames':count})
 np.savez_compressed(a.output/'source-motions.npz',**arrays)
 (a.output/'source-rig.json').write_text(json.dumps({'family':a.family,'source':str(source),'bones':bones,'clips':clips,'paths':paths,'root':root,'head':head,'license':'CC0-1.0','donor_mesh_exported':False},indent=2))
 shutil.copy2(assets/'LICENSE-CC0.md',a.output/'LICENSE-CC0.md')
