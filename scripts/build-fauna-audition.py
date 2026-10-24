@@ -28,7 +28,7 @@ flightless=a.animal in {'Ostrich','Emu','Cassowary','Kiwi','Penguin'} or bool(so
 clips=[c for c in source['clips'] if not (source['family']=='bird' and ((flightless and c['label'] in {'Flap','Glide'}) or ('bat' in a.animal.lower() and c['label']=='Walk')))]
 if source.get('hold_core_bind'):
     # A stabilized body cannot honestly demonstrate death/jump reactions.
-    clips=[c for c in clips if c['label'] in {'Idle','Run'}]
+    clips=[c for c in clips if c['label'] in {'Idle','Walk','Run'}]
 idle=motions[next(c['key'] for c in source['clips'] if c['label']=='Idle')][0]
 if source.get('reference_pose')=='source_bind':idle=np.asarray([b['rest'] for b in source['bones']],dtype=np.float32)
 reference=idle[:,:3,3];refq=[Matrix(m).to_quaternion() for m in idle]
@@ -369,11 +369,23 @@ for number in range(1,5):
     tree=KDTree(len(points))
     for k,p in enumerate(points):tree.insert(Vector(p),k)
     tree.balance();weights=data['sample_skin'];vgs=[body.vertex_groups.new(name=n) for n in names]
+    local_leg_skin=bool(source.get('rigid_ground_body'));leg_ids=[i for i in range(len(names)) if group[i]=='hind']
+    if local_leg_skin:
+        assert leg_ids
+        leg_starts=joints[leg_ids];leg_ends=np.array([joints[main[i]] if main[i]>=0 else joints[i]+(joints[i]-joints[int(parents[i])])*.3 for i in leg_ids]);leg_vectors=leg_ends-leg_starts;leg_lengths2=np.maximum(np.sum(leg_vectors**2,axis=1),1e-9)
+        skin_height=max(float(np.ptp(data['source_vertices'][:,2])),1e-5);leg_radius=skin_height*.055
     for v in mesh.vertices:
         near=tree.find_n(v.co,4);ids=[x[1] for x in near];d=np.array([x[2] for x in near]);w=1/np.maximum(d,.0001)**2
-        row=np.maximum(0,(weights[ids]*w[:,None]).sum(0)/w.sum());best=np.argsort(row)[-4:];vals=row[best]/max(row[best].sum(),1e-12)
+        row=np.maximum(0,(weights[ids]*w[:,None]).sum(0)/w.sum())
+        if local_leg_skin:
+            p=np.asarray(v.co);t=np.clip(np.sum((p-leg_starts)*leg_vectors,axis=1)/leg_lengths2,0,1);distance=np.linalg.norm(p-(leg_starts+t[:,None]*leg_vectors),axis=1);nearest=int(np.argmin(distance))
+            blend=float(np.clip((leg_radius-distance[nearest])/(leg_radius*.45),0,1)*np.clip((joints[pelvis,2]-skin_height*.02-p[2])/(skin_height*.10),0,1))
+            confined=np.zeros_like(row);confined[leg_ids]=row[leg_ids]
+            if confined.sum()<1e-8:confined[leg_ids[nearest]]=1
+            row=confined/max(confined.sum(),1e-12)*blend;row[pelvis]+=1-blend
+        best=np.argsort(row)[-4:];vals=row[best]/max(row[best].sum(),1e-12)
         for i,w in zip(best,vals):vgs[i].add([v.index],float(w),'REPLACE')
-    modifier=body.modifiers.new('Fresh neural skin - linear','ARMATURE');modifier.object=rig;modifier.use_deform_preserve_volume=False;body.parent=rig
+    modifier=body.modifiers.new('Localized ground legs / rigid feathered body' if local_leg_skin else 'Fresh neural skin - linear','ARMATURE');modifier.object=rig;modifier.use_deform_preserve_volume=False;body.parent=rig
     mat=bpy.data.materials.new(f'Reused raw fur {number}');mat.use_nodes=True;nodes=mat.node_tree.nodes;links=mat.node_tree.links
     tex=nodes.new('ShaderNodeTexImage');tex.image=fur;tex.projection='BOX';tex.projection_blend=.25
     coord=nodes.new('ShaderNodeTexCoord');mul=nodes.new('ShaderNodeVectorMath');mul.operation='SCALE';mul.inputs[3].default_value=8

@@ -391,12 +391,12 @@
     },
     "grouse": {
       "reason": "Owner rejects current spread-wing ground-bird motion/model result; folded-wing regeneration needed.",
-      "status": "regenerating",
+      "status": "replacement_ready_ground_only_owner_review_pending",
       "art_approved": false
     },
     "junglefowl": {
       "reason": "Owner rejects current spread-wing ground-bird motion/model result; folded-wing regeneration needed.",
-      "status": "requested",
+      "status": "regenerating",
       "art_approved": false
     }
   }

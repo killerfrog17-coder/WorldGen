@@ -1,5 +1,29 @@
 # WorldGen repository instructions
 
+GROUSE REPLACEMENT READY / JUNGLEFOWL ACTIVE,24October2026~12:25CDT:
+Grouse4 fresh folded meshes/rigs completed, but initial Walk distorted body/tail.
+Real selected foot endpoints confirmed low and correct; deformation came from
+limb skin influence/reference calibration. New SEPARATE folded-ground-bird-stable
+bank copies exact CC0 arrays, absolute_limb_directions+hold_core_bind+
+rigid_ground_body=true. Automatic smooth leg-capsule weight gate (radius.055x
+height, upper-body height blend) confines leg weights, pins feathered body/tail
+to root. No geometry edits or new hand-authored gait. Body/neck/tail rigid;
+actual Idle/Walk legs/root retained, no head scan/unfolding/flying/feeding.
+hold_core_bind output subset now allows Idle/Walk/Run; Squirrel remains Idle/Run
+because its source has no Walk. Qualified Pheasant's older bank UNCHANGED.
+Grouse native checks4 and CPU Walk side all4/front2/3 now coherent enough for
+RAW model/motion comparison, not natural/contact/game/art approval. Finalized
+usable_for_raw_audition; new bank source hashes now locked. Grouse available on
+manual revisit, no GUI switch/follow-up. Old rejected Grouse archive pruned only
+after replacement/native/hash checks; compact provenance retained.97 raw reviews.
+Old Grouse exec33399/PID36312 TERMINAL. New sole JUNGLEFOWL producer --only with
+folded-ground-bird-stable: exec80287/PID38552 LIVE (verify). Priority manifest
+updated with correct new bank/session. After Junglefowl: inspect native + CPU
+Walk/front, finalize source; prune rejected old files safely; then resume normal
+--watch to cached SecretaryBird/full remaining roster. Do not forget full176.
+Owner choices remain24; no painting/new textures/game/Desktop or app closure.
+Latest prior remote86671ea; localized ground skin fix/current status need backup.
+
 SQUIRREL NEW MODELS / GROUSE ACTIVE,24October2026~12:14CDT:
 Squirrel4 genuinely new meshes/fresh neural rigs completed, actual-source-bind
 alone still folded torso/hips. Source Run foot positions measured BELOW source
