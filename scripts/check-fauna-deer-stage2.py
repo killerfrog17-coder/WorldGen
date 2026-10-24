@@ -45,9 +45,17 @@ for label,action_name in info['actions'].items():
     action=bpy.data.actions[action_name];rig.animation_data_clear();rig.animation_data_create().action=action;rig.animation_data.action_slot=action.slots[0]
     first,last=action.frame_range;lowest=100;maximum=0;samples=0;head_lowest=100;head_highest=-100
     frames=sorted(set([float(first),float(last),*np.arange(first,last+.01,5),*np.arange(first+.5,last,17),*np.arange(first+.25,last,23)]))
+    if info.get('pose_corrections') and label in ('Walk','Trot','Run'):
+        frames=sorted(set([*frames,*np.arange(first+.125,last,.25),*np.arange(first+.0625,last,.125)]))
     for frame in frames:
         s.frame_set(int(frame),subframe=frame-int(frame));bpy.context.view_layer.update()
         assert all(np.isfinite(np.array(b.matrix)).all() for b in rig.pose.bones)
+        if info.get('pose_corrections') and label in ('Walk','Trot','Run'):
+            pelvis=rig.pose.bones['Pelvis'].matrix.translation.x
+            for name in ('Elbow_L','Elbow_R','Wrist_L','Wrist_R','Knee_L','Knee_R','Hock_L','Hock_R',
+                         'ForeHoof_L','ForeHoof_R','HindHoof_L','HindHoof_R'):
+                rest=rig.data.bones[name].matrix_local.translation.x-rig.data.bones['Pelvis'].matrix_local.translation.x
+                assert (rig.pose.bones[name].matrix.translation.x-pelvis)*rest>0,(label,frame,name,'crossed leg track')
         evaluated=body.evaluated_get(dg);mesh=evaluated.to_mesh();points=np.array([v.co[:] for v in mesh.vertices]);evaluated.to_mesh_clear()
         assert np.isfinite(points).all() and np.abs(points).max()<5,(label,frame,'unbounded pose')
         lowest=min(lowest,float(points[:,2].min()));maximum=max(maximum,float(np.abs(points).max()));samples+=1

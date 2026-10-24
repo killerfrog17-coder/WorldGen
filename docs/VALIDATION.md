@@ -1,5 +1,45 @@
 # Version 3 validation evidence
 
+## Deer motion corrections — 24 October2026
+
+**Owner subsequently reports the correction may look worse**, with unrealistic
+deformation and poor motion carryover. Numerical passes below do not establish
+motion improvement. At the owner's request the earlier Eating Correction review
+is now open on the rightmost monitor for comparison; both reviews are preserved.
+Art acceptance is rejected/pending further diagnosis, not passed.
+
+Owner rejected first fresh-deer gaits for leg clipping, Eating for neck bend,
+and Sleep for limb posture. Separate corrected review is open RIGHTMOST in
+`artifacts/fauna-deer-motion-corrections-20261023`; original review is retained.
+Parent-relative transfer, CPU bone-heat weights on a temporary proxy, sagittal
+limb tracks, twist-free bind swings, lower foreleg feeding stance/longer feeding
+blend and rebuilt folded rest/GetUp/LieDown are implemented. Approved bind mesh,
+UVs, active packed maps and species shape keys remain exact.
+
+Native validation passes1,518 selected poses including gait sixteenth-frame
+positions between keys, finite normalized top4 linear skin,34bones/16actions,
+all action/species/view/mode controls and no crossed knee/elbow/hoof sides in
+sampled gaits. Lowest sampled skin across clips is2.771mm above the plane;
+Eating muzzle24.830–24.849mm. A native contact pass inserts25 Walk pelvis samples,
+maximum incremental lift12.362mm; none needed in Trot/Run. This addresses the
+actual interpolated contact dips; increasing key density/twist cleanup alone
+did not fully resolve them. No tolerance was weakened to pass.
+
+Frozen-original-mask non-neighbour leg/torso triangle pair totals, with identical
+sample frames on each file: Walk440→0, Trot319→0, Run375→58, Eating0→0,
+Sleep500→344. These are triangle-pair events across sampled poses, not distinct
+penetrating limbs or a complete anatomical collision oracle. Earlier per-skin
+mask classification falsely suggested zero intersections and was discarded.
+Residual Run/Sleep contacts, natural movement and foot slide need owner review.
+Side/front CPU renders inspected; a larger outward elbow seed was rejected for
+splay, and intermediate lateral scissoring was corrected before publication.
+
+No new GPU inference/model/texture, game/Unity launch, FPS profiling, Desktop
+item or owner app closure. One follow-up requests inspection of the five clips;
+do not restart or alter the open review while the owner inspects. See
+[method and limits](DEER_STAGE2_ANIMATION_REVIEW.md); ignored native/contact/
+deformation JSON contains per-clip and per-frame evidence.
+
 ## Approved fresh deer animation review — 23 October2026
 
 Stage2 native checks pass: exact approved bind coordinates/topology/UV/active

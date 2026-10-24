@@ -1,5 +1,40 @@
 # WorldGen repository instructions
 
+OWNER COMPARING OLD DEER,24October2026: owner says motion-correction candidate
+may be WORSE, with unrealistic deformation/poor carryover. Do NOT call it art
+accepted or cured based on geometric/native checks. At owner request opened
+artifacts/deer-eating-correction-20261023/Deer - Eating Correction Review.blend
+RIGHTMOST via original-rig viewer; corrected review not closed/overwritten.
+Leave both reviews untouched while owner compares. Next work must isolate
+rest-fit/skin/retarget deformation against that earlier source, rather than
+stacking more pose/contact heuristics. Original Stage1 art remains approved.
+
+DEER MOTION CORRECTION,24October2026: owner reports Walk/Trot/Run leg clipping,
+Eating neck kink and poor Sleep, explicitly authorizing corrections after the
+preceding inspection. Separate candidate in
+artifacts/fauna-deer-motion-corrections-20261023/Deer - Stage2 Animation Review.blend;
+retain original Stage2/open unsaved reviews. Parent-relative retarget + CPU bone
+heat on temporary12mm voxel proxy replace world deltas/capsule skin for this
+candidate; original approved bind art/maps/shape keys retained. Top4 linear skin,
+34bones/16actions. Sagittal limb planes/anatomical lateral tracks followed by
+fixed-length IK; reject outward splay/scissoring after front view; foreleg seed
+retains12degree elbow pitch. Eating lower stance,
+more foreleg bend, gentler neck curve/1.10s feeding blends. Sleep folded separated
+legs; GetUp/LieDown rebuilt. Bounded<=40mm body contact lift after IK. Native and
+frozen-mask geometric diagnostics/CPU front-side renders are required; triangle
+contact counts are NOT universal collision/art acceptance. No GPU inference,
+game/Unity/Desktop changes, paid calls or owner app closures. Rightmost review
+when ready; same1/2/3/4 controls. See DEER_STAGE2_ANIMATION_REVIEW.md/VALIDATION.md
+and ignored native-validation/deformation-comparison JSON for actual evidence.
+Corrected review now opened RIGHTMOST; one follow-up sent, owner art pending.
+Leave this viewer untouched during inspection. Native1518 poses/art/controls
+pass; sampled floor min+2.771mm, muzzle24.830-24.849mm. Native interpolation
+contact pass adds25 Walk pelvis keys/max incremental12.362mm, Trot/Run none.
+Frozen-mask pair totals Walk440->0,Trot319->0,Run375->58,Eating0->0,Sleep500->344;
+these are selected triangle-pair diagnostics, NOT zero universal intersections
+or art/foot-slide acceptance. Native contact bake is a separate required step
+after builder, before checker. All inference/background validation exited.
+
 DEER STAGE2 REVIEW READY,23October2026: owner authorized animation and now says
 looking at it/give time to inspect. Leave viewer UNTOUCHED while reviewing.
 artifacts/fauna-deer-stage2-20261023/Deer - Stage2 Animation Review.blend opened

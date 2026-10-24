@@ -16,11 +16,18 @@ spec=importlib.util.spec_from_file_location('deer_library',Path(__file__).with_n
 lib=importlib.util.module_from_spec(spec);spec.loader.exec_module(lib)
 ap=argparse.ArgumentParser();ap.add_argument('--model',type=Path,required=True);ap.add_argument('--root',type=Path,required=True)
 ap.add_argument('--pilot',action='store_true');ap.add_argument('--replace-unopened',action='store_true')
+ap.add_argument('--retarget-mode',choices=['world','local','aligned'],default='world')
+ap.add_argument('--output-name');ap.add_argument('--render-prefix',default='')
+ap.add_argument('--corrected-poses',action='store_true',help='Owner-requested leg clearance, feeding stance and resting posture')
+ap.add_argument('--skin-file',default='fitted-skin.npz')
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=a.root.resolve()
 out=root/('Deer - Unpublished Motion Pilot.blend' if a.pilot else 'Deer - Stage2 Animation Review.blend')
+if a.output_name:
+    if Path(a.output_name).name!=a.output_name:raise ValueError('Output must be a filename')
+    out=root/a.output_name
 if out.exists() and not a.replace_unopened:raise FileExistsError(out)
 source=json.loads((root/'source-rig.json').read_text());target=json.loads((root/'target-rig.json').read_text())
-motion=np.load(root/'source-motions.npz');fit=np.load(root/'fitted-skin.npz')
+motion=np.load(root/'source-motions.npz');fit=np.load(root/a.skin_file)
 bpy.ops.wm.open_mainfile(filepath=str(a.model.resolve()));s=bpy.context.scene;info=json.loads(s['fauna_stage1'])
 body=bpy.data.objects[info['body']];basis=np.array([v.co[:] for v in body.data.vertices]);source_names=[b['name'] for b in source['bones']]
 bpy.ops.object.select_all(action='DESELECT');arm=bpy.data.armatures.new('Accepted deer skeleton - fitted');rig=bpy.data.objects.new('AI Deer Rig',arm)
@@ -63,8 +70,15 @@ head_ids=np.flatnonzero(weights[:,skel.index['Head']]>.65)
 def transfer(frame):
     g=[]
     for i,name in enumerate(skel.names):
-        q=Matrix(frame[source_index[i]]).to_quaternion()@reference_q[i].inverted()@skel.rest[i].to_quaternion()
         parent=skel.parents[i]
+        source_q=Matrix(frame[source_index[i]]).to_quaternion()
+        if a.retarget_mode=='local':
+            source_relative=source_q if parent<0 else Matrix(frame[source_index[parent]]).to_quaternion().inverted()@source_q
+            reference_relative=reference_q[i] if parent<0 else reference_q[parent].inverted()@reference_q[i]
+            local_q=skel.local[i].to_quaternion()@reference_relative.inverted()@source_relative
+            q=local_q if parent<0 else g[parent].to_quaternion()@local_q
+        elif a.retarget_mode=='aligned':q=skel.rest[i].to_quaternion()@reference_q[i].inverted()@source_q
+        else:q=source_q@reference_q[i].inverted()@skel.rest[i].to_quaternion()
         location=skel.rest[i].translation.copy() if parent<0 else g[parent]@skel.local[i].translation
         if name=='Pelvis':location+=Vector(frame[source_index[i],:3,3]-reference[i,:3,3])
         g.append(matrix(q,location))
@@ -83,31 +97,62 @@ def surface_feet(g):
             goal=g[i].translation+Vector((0,0,.004-lowest))
             skel.solve_chain(g,foot['chain'],goal,iterations=24)
             skel.rotate_branch(g,i,q@g[i].to_quaternion().inverted())
+    if a.corrected_poses:
+        # Fixed-length chains cannot always lift a rigid toe without moving the
+        # body. Keep the remaining contact adjustment explicit and bounded.
+        lift=max(0,.003-float(skin(g)[:,2].min()))
+        if lift>.04:raise ValueError(('Excessive body contact correction',lift))
+        if lift:skel.translate_all(g,(0,0,lift))
     return g
-raw={};poses={};reports={};labels=['Idle','Walk','Run','Eating'] if a.pilot else [c['label'] for c in source['clips']]
+raw={};poses={};reports={};labels=['Idle','Walk','Trot','Run','Eating','Sleep'] if a.pilot else [c['label'] for c in source['clips']]
 for clip in source['clips']:
     if clip['label'] not in labels:continue
     raw[clip['label']]=[transfer(f) for f in motion[clip['key']]]
 standing=ground([m.copy() for m in raw['Idle'][0]])
+def orient(g,name,direction):
+    index=skel.index[name];current=g[index].to_3x3()@Vector((0,1,0))
+    skel.rotate_branch(g,index,current.rotation_difference(Vector(direction).normalized()))
+
+def resting(original):
+    loc,rot=skel.basis(standing);_,sleep_rot=skel.basis(original)
+    for name in ('Neck1','Neck2','Neck3','Head'):
+        index=skel.index[name];rot[index]=Quaternion(rot[index]).slerp(Quaternion(sleep_rot[index]),.30)[:]
+    g=skel.fk((loc,rot));skel.translate_all(g,(0,0,-.64))
+    for side,sign in [('L',1),('R',-1)]:
+        for name,direction in [('UpperFore',(.055*sign,.025,-.22)),('Elbow',(.010*sign,-.31,.02)),
+            ('Wrist',(.06*sign,.30,-.04)),('ForeHoof',(0,.09,-.02)),('Thigh',(.08*sign,.24,-.25)),
+            ('Knee',(.02*sign,-.29,-.05)),('Hock',(.03*sign,.31,-.04)),('HindHoof',(0,.07,-.02))]:
+            orient(g,name+'_'+side,direction)
+    skel.translate_all(g,(0,0,.004-float(skin(g)[:,2].min())))
+    return g
+
 def feeding(original):
-    g=[m.copy() for m in standing];skel.translate_all(g,(0,0,-.070))
+    g=[m.copy() for m in standing];skel.translate_all(g,(0,0,-(.10 if a.corrected_poses else .070)))
+    if a.corrected_poses:skel.rotate_branch(g,skel.index['Pelvis'],Quaternion((1,0,0),-.08))
     for name in ('Neck1','Neck2','Neck3','Head'):
         i=skel.index[name];g[i]=matrix(original[i].to_quaternion(),g[skel.parents[i]]@skel.local[i].translation)
     for name in ('Ear_L','Ear_R','Jaw','Muzzle_L','Muzzle_R'):
         i=skel.index[name];g[i]=g[skel.parents[i]]@skel.local[i]
     for foot in feet:
-        i=skel.index[foot['bone']];q=g[i].to_quaternion();target_sole=skel.sole(standing,foot);target_sole.z=.004
+        i=skel.index[foot['bone']];q=(standing[i] if a.corrected_poses else g[i]).to_quaternion();target_sole=skel.sole(standing,foot);target_sole.z=.004
         if foot['bone'].startswith('Fore'):target_sole+=Vector((.01 if target_sole.x>0 else -.01,.050,0))
+        if a.corrected_poses and foot['bone'].startswith('Fore'):
+            side=foot['bone'].split('_')[-1]
+            for name,direction in [('UpperFore',(0,-.12,-.19)),('Elbow',(0,.22,-.22)),('Wrist',(0,.12,-.24))]:
+                orient(g,name+'_'+side,direction)
         goal=target_sole-q@Vector(foot['sole_local']);skel.solve_chain(g,foot['chain'],goal,iterations=32)
         skel.rotate_branch(g,i,q@g[i].to_quaternion().inverted())
     hi=skel.index['Head'];q=g[hi].to_quaternion()
     local=np.array([skel.inverse[hi]@Vector(point) for point in basis[head_ids]])
     lowest=(local@np.array(q.to_matrix()).T)[:,2].min()
-    goal=Vector((0,.70,.025-float(lowest)))
+    goal=Vector((0,.78 if a.corrected_poses else .70,.025-float(lowest)))
     chain=['Neck1','Neck2','Neck3','Head'];anchor=g[skel.index['Neck1']].translation
     reach=sum((skel.rest[skel.index[b]].translation-skel.rest[skel.index[c]].translation).length for c,b in zip(chain,chain[1:]))*.997
     dy=math.sqrt(max(.01,reach*reach-(goal.z-anchor.z)**2))
     goal.y=min(goal.y,anchor.y+dy)
+    if a.corrected_poses:
+        for name,angle in [('Neck1',-32),('Neck2',-45),('Neck3',-58)]:
+            angle=math.radians(angle);orient(g,name,(0,math.cos(angle),math.sin(angle)))
     skel.solve_chain(g,chain,goal,iterations=48)
     skel.rotate_branch(g,hi,q@g[hi].to_quaternion().inverted())
     return g
@@ -116,17 +161,19 @@ def action_for(label,frames):
     slot=action.slots.new(id_type='OBJECT',name=rig.name);layer=action.layers.new('Motion')
     strip=layer.strips.new(type='KEYFRAME');bag=strip.channelbag(slot,ensure=True)
     previous=None;locations=[];rotations=[];dense=[]
+    subdivisions=(8 if label in ('Walk','Trot','Run') else 4) if a.corrected_poses else 2
     for index,g in enumerate(frames):
         dense.append(g)
         if index+1<len(frames):
-            middle=skel.fk(blend_pose(skel.basis(g),skel.basis(frames[index+1]),.5))
-            if label not in ('Death','Sleep','lay_to_idle','Lie Down'):middle=surface_feet(middle)
-            dense.append(middle)
+            for fraction in np.arange(1,subdivisions)/subdivisions:
+                middle=skel.fk(blend_pose(skel.basis(g),skel.basis(frames[index+1]),fraction))
+                if label not in ('Death','Sleep','lay_to_idle','Lie Down'):middle=surface_feet(middle)
+                dense.append(middle)
     for frame,g in enumerate(dense):
         loc,rot=skel.basis(g)
         if previous is not None:rot[np.sum(rot*previous,axis=1)<0]*=-1
         previous=rot.copy();locations.append(loc);rotations.append(rot)
-    locations=np.array(locations);rotations=np.array(rotations);times=np.arange(len(dense),dtype=np.float32)*.5
+    locations=np.array(locations);rotations=np.array(rotations);times=np.arange(len(dense),dtype=np.float32)/subdivisions
     linear=bpy.types.Keyframe.bl_rna.properties['interpolation'].enum_items['LINEAR'].value
     for i,name in enumerate(skel.names):
         rig.pose.bones[name].rotation_mode='QUATERNION'
@@ -136,11 +183,47 @@ def action_for(label,frames):
                 curve.keyframe_points.add(len(dense));curve.keyframe_points.foreach_set('co',np.c_[times,values[:,component]].astype(np.float32).ravel())
                 curve.keyframe_points.foreach_set('interpolation',np.full(len(dense),linear,np.int32));curve.update()
     return action
+
+def front_clearance(g):
+    # Preserve stride length/height but keep each hoof in its anatomical lane;
+    # foreign bind rotations otherwise produce lateral scissoring in front view.
+    pelvis=skel.index['Pelvis'];offset=g[pelvis].translation.x-skel.rest[pelvis].translation.x
+    for entry in feet:
+        foot=skel.index[entry['bone']];q=g[foot].to_quaternion();goal=g[foot].translation.copy()
+        goal.x=skel.rest[foot].translation.x+offset
+        if entry['bone'].startswith('Fore'):
+            side=entry['bone'].split('_')[-1]
+            skel.rotate_branch(g,skel.index['Elbow_'+side],Quaternion((1,0,0),-math.radians(12)))
+        # The knee/elbow must stay in the same sagittal plane too: moving only
+        # the ankle leaves a scissoring intermediate joint hidden in side view.
+        chain=[skel.index[name] for name in entry['chain']]
+        directions=[g[b].translation-g[a].translation for a,b in zip(chain,chain[1:])]
+        for joint,child,direction in zip(chain,chain[1:],directions):
+            direction.x=0
+            if direction.length<1e-5:direction=Vector((0,0,-1))
+            current=g[child].translation-g[joint].translation
+            skel.rotate_branch(g,joint,current.rotation_difference(direction))
+        skel.solve_chain(g,entry['chain'],goal,iterations=32)
+        skel.rotate_branch(g,foot,q@g[foot].to_quaternion().inverted())
+        # A nearly straight FABRIK chain can retain opposite axial rolls in
+        # neighbouring keys. They cancel at keys but fold the skin between them.
+        # Keep solved joint positions and reconstruct a twist-free bind swing.
+        for joint,child in zip(chain,chain[1:]):
+            rest_direction=skel.rest[child].translation-skel.rest[joint].translation
+            direction=g[child].translation-g[joint].translation
+            rotation=rest_direction.rotation_difference(direction)@skel.rest[joint].to_quaternion()
+            g[joint]=matrix(rotation,g[joint].translation)
+    return surface_feet(g)
 actions={}
 for label in labels:
     frames=[];rows=[]
-    for original in raw[label]:
-        g=feeding(original) if label=='Eating' else ground([m.copy() for m in original],label not in ('Death','Sleep','lay_to_idle'))
+    for frame_index,original in enumerate(raw[label]):
+        if a.corrected_poses and label=='Sleep':g=resting(original)
+        elif a.corrected_poses and label=='lay_to_idle':
+            progress=smooth(frame_index/max(1,len(raw[label])-1))
+            g=skel.fk(blend_pose(skel.basis(resting(raw['Sleep'][0])),skel.basis(standing),progress))
+            g=surface_feet(g)
+        else:g=feeding(original) if label=='Eating' else ground([m.copy() for m in original],label not in ('Death','Sleep','lay_to_idle'))
         if label not in ('Death','Sleep','lay_to_idle'):g=surface_feet(g)
         vertices=skin(g)
         if label in ('Death','Sleep','lay_to_idle') and vertices[:,2].min()<.003:
@@ -160,6 +243,9 @@ for label in labels:
                     limited=prior.slerp(q,min(1,math.radians(15)/max(angle,1e-8)))
                     skel.rotate_branch(g,index,limited@q.inverted());previous[foot['bone']]=limited
                 surface_feet(g)
+        rows=[dict(lowest=float(skin(g)[:,2].min()),head_lowest=float(skin(g,head_ids)[:,2].min())) for g in frames]
+    if a.corrected_poses and label in ('Walk','Trot','Run'):
+        frames=[front_clearance(g) for g in frames]
         rows=[dict(lowest=float(skin(g)[:,2].min()),head_lowest=float(skin(g,head_ids)[:,2].min())) for g in frames]
     poses[label]=frames;actions[label]=action_for(label,frames).name
     reports[label]=dict(frames=len(frames),lowest=min(r['lowest'] for r in rows),head_lowest=min(r['head_lowest'] for r in rows))
@@ -188,8 +274,9 @@ if not a.pilot:
             else:offset=0
             for frame in range(round(duration*30)):
                 t=frame/30;pose=sample(label,t+offset)
-                if previous is not None and t<.45:
-                    pose=blend_pose(sample(previous,previous_duration+previous_offset+t),pose,smooth(t/.45))
+                transition=1.10 if a.corrected_poses and (label=='Eating' or previous=='Eating') else .45
+                if previous is not None and t<transition:
+                    pose=blend_pose(sample(previous,previous_duration+previous_offset+t),pose,smooth(t/transition))
                 g=surface_feet(skel.fk(pose));result.append(g)
             previous=label;previous_duration=duration;previous_offset=offset
         # Blend the end back to the opening Idle for a continuous demonstration.
@@ -203,6 +290,7 @@ if not a.pilot:
         ('Eating',5),('Idle',2),('Turn_Left',periods['Turn_Left']),('Idle',1),('Turn_Right',periods['Turn_Right']),
         ('Idle',1),('Head_But',periods['Head_But']),('Idle',1),('Kick',periods['Kick']),('Idle',2)])
 info.update(stage=2,rig=rig.name,actions=actions,motion_bank='Accepted Mesh2Motion authored motions',motion_fps=30,
+    retarget_mode=a.retarget_mode,pose_corrections=a.corrected_poses,skin_source=a.skin_file,
     skeleton=lib.metadata(rig),feet=feet,source_rig_sha256=source['source_sha256'],model_sha256=hashlib.sha256(a.model.read_bytes()).hexdigest())
 s['fauna_stage2']=json.dumps(info);s.render.fps=30;s.render.fps_base=1
 rig.animation_data_clear();rig.data.pose_position='POSE';idle=bpy.data.actions[actions['Idle']]
@@ -214,11 +302,12 @@ if not bpy.data.objects.get('Review floor'):
 rig.hide_set(True)
 bpy.ops.wm.save_as_mainfile(filepath=str(out))
 (root/'motion-fit-checks.json').write_text(json.dumps(dict(clips=reports,model_bind_unchanged=np.array_equal(basis,np.array([v.co[:] for v in body.data.vertices])),
-    motion_origin=source['motion_origin'],gpu_inference=False,game_launched=False),indent=2))
-for label,frame in [('Idle',0),('Walk',7),('Run',6),('Eating',40)]:
+    retarget_mode=a.retarget_mode,corrected_poses=a.corrected_poses,motion_origin=source['motion_origin'],gpu_inference=False,game_launched=False),indent=2))
+if a.pilot:s.render.resolution_x=700;s.render.resolution_y=595;s.cycles.samples=8
+for label,frame in [('Idle',0),('Walk',7),('Trot',5),('Run',6),('Eating',40),('Sleep',30)]:
     if label not in actions:continue
     action=bpy.data.actions[actions[label]];rig.animation_data.action=action;rig.animation_data.action_slot=action.slots[0];s.frame_set(frame)
     t=Vector((0,.05,.82));s.camera.location=t+Vector((1,.10,.13)).normalized()*4
     s.camera.rotation_euler=(t-s.camera.location).to_track_quat('-Z','Y').to_euler();s.camera.data.ortho_scale=2.8
-    s.render.filepath=str(root/('motion-'+label.lower()+'.png'));bpy.ops.render.render(write_still=True)
+    s.render.filepath=str(root/(a.render_prefix+'motion-'+label.lower()+'.png'));bpy.ops.render.render(write_still=True)
 print('Stage2 fitted-motion review built.',flush=True)
