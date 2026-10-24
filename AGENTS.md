@@ -1,5 +1,30 @@
 # WorldGen repository instructions
 
+OVERNIGHT FIRST35 PLAN CHECKPOINT,24October2026~09:18CDT:
+Same watch exec95232/PID30660 verified LIVE, impala shape-batch.
+70 raw reviews/280 files ready; no failed queue entries. Main GPU kept
+running through Hornbill/Hummingbird. All owner ART pending, no paint/textures/GUI.
+First35 roster rows now all have targeted appearance refinements in
+SPECIES_VARIATION_PLANS.json +asset-plan.json +editable FAUNA_ASSET_PLAN.csv.
+New19 refinements cover Duck/Pheasant/small freshwater fish/Mouse/Squirrel/Horse/
+Reindeer/Moose/Wild cattle and Grouse/Quail/Turkey/Junglefowl/Raccoon/Badger/Beaver/
+Otter/Lynx/Owl/Raven (20 entries including earlier subset context: actual total35).
+Correction: Mountain goat is NOT in the188 roster, so no new entry created;
+WildGoat geometry-limit wording corrected. No taxonomy/runtime additions.
+Horse baseline now Przewalski-like dun, not unqualified domestic coat varieties;
+reindeer both-sex seasonal racks; moose bell both-sex and unspotted calf; wildBos
+banteng analogue; bird sex/molt/display ornaments; per-model anatomical limits.
+Body species differences are explicit, not guaranteed recolour coverage. Some
+aliases still require dedicated references;35 refined is NOT all188 completed.
+Validated allfirst35 presence,188CSVrows, data/detail match,coat counts/classes/
+source links; animal/rank/family/status/polybudget/candidate scope remains exact.
+One overlong inline data-write command was automatically rejected before any
+mutation; completed via scoped apply_patch edits instead. No blocked action or
+permission request remains; do not retry the old large inline command.
+Only planning files changed, no generated assets/runtime/accepted deer/owner apps/
+Desktop. Previous remote316f5d949e4493d6e4729ac29382a7ac551b6e44 verified; new
+refinements need backup. Preserve unrelated owner deletion/untracked scripts.
+
 OVERNIGHT APPEARANCE PLAN REFINEMENT,24October2026~09:06CDT:
 Same serial watch exec95232/PID30660 verified LIVE; now hornbill shape-batch.
 67 reviews/268 files ready, all owner ART pending. No new GPU pilot,
