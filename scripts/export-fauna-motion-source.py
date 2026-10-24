@@ -54,6 +54,18 @@ elif a.family=='lemur':
         paths['fore_'+side]=['chest',*[n+'.'+side for n in ('shoulder','upper_arm','forearm','hand')]]
         paths['hind_'+side]=['hips',*[n+'.'+side for n in ('thigh','shin','foot','toe')]]
     names=list(dict.fromkeys(n for path in paths.values() for n in path));wanted={'Idle':'idle','Run':'run','Attack':'AttackMelee'};rotation=Matrix.Diagonal((-1,-1,1,1))
+elif a.family in ('sloth','mammoth','sabretooth'):
+    prefix='DEF-' if a.family=='sloth' else ''
+    spine=[prefix+f'spine.{i:03d}' for i in range(4,9)];neck=[prefix+f'spine.{i:03d}' for i in range(8,12)]
+    paths={'spine':spine,'neck':neck,'tail':[spine[0],*[prefix+f'spine.{i:03d}' for i in (3,2,1)],prefix+'spine']}
+    for side in ('L','R'):
+        fore=[prefix+n+'.'+side for n in ('shoulder','front_thigh','front_shin','front_foot','front_toe')]
+        hind=[prefix+n+'.'+side for n in ('thigh','shin','foot','toe')]
+        paths['fore_'+side]=[spine[-1],*fore];paths['hind_'+side]=[spine[1],*hind]
+    names=list(dict.fromkeys(n for path in paths.values() for n in path));rotation=Matrix.Diagonal((-1,-1,1,1))
+    wanted={'Idle':'Idle','Walk':'Walk'}
+    if a.family=='mammoth':wanted['Head shake']='HeadShake'
+    if a.family=='sabretooth':wanted.update(Run='Run',Bite='Bite')
 elif a.family=='turtle':
     paths={'spine':['Bone','Bone.001'],'neck':['Bone.001','Bone.015','Bone.016','Bone.017','Bone.018'],'tail':['Bone','Bone.005','Bone.006'],
       'fore_L':['Bone.001','Bone.013','Bone.014'],'fore_R':['Bone.002','Bone.011','Bone.012'],
@@ -93,6 +105,6 @@ for label,name in wanted.items():
     if a.family in ('ground_insect','primate') and label=='Idle':poses=[poses[0],poses[0]];frames=2
     key='clip_'+str(len(clips));arrays[key]=np.asarray(poses,np.float32);clips.append({'label':label,'key':key,'source_action':name+' (first pose held)' if a.family=='ground_insect' and label=='Idle' else name,'fps':30,'frames':frames})
 np.savez_compressed(a.output/'source-motions.npz',**arrays)
-head_name='Bone.018' if a.family=='turtle' else 'Bone.031' if a.family=='ground_insect' else 'b_Head' if a.family=='primate' else 'Head' if 'Head' in names else 'head' if 'head' in names else None
+head_name=('DEF-' if a.family=='sloth' else '')+'spine.011' if a.family in ('sloth','mammoth','sabretooth') else 'Bone.018' if a.family=='turtle' else 'Bone.031' if a.family=='ground_insect' else 'b_Head' if a.family=='primate' else 'Head' if 'Head' in names else 'head' if 'head' in names else None
 (a.output/'source-rig.json').write_text(json.dumps({'family':a.family,'source':str(a.source.resolve()),'bones':bones,'clips':clips,'paths':paths,'root':names[0],'head':head_name,'license':'CC0-1.0 verified at source page','donor_mesh_exported':False},indent=2))
 print('Exported motion source',a.family,len(bones),'bones',[(c['label'],c['frames']) for c in clips],flush=True)

@@ -3,7 +3,7 @@
 Automatic graph correspondence, fixed learned joint offsets and network skin.
 No donor geometry, anatomical painting, invented mammal gait or manual repair.
 """
-import argparse,json,sys,time
+import argparse,hashlib,json,sys,time
 from pathlib import Path
 import bpy,numpy as np
 from mathutils import Matrix,Vector
@@ -41,7 +41,12 @@ def correspondence(joints,parents):
     leaves=[i for i,c in enumerate(children) if not c];bird=source['family']=='bird';fish=source['family']=='fish'
     if fish:return fish_correspondence(joints,parents,children,leaves,pelvis)
     if source['family'] in ('snake','spider','ground_insect'):return chain_correspondence(joints,parents,children,leaves,pelvis)
-    feet=([min([i for i in leaves if joints[i,0]*side>0],key=lambda i:joints[i,2]) for side in (-1,1)] if bird else sorted(leaves,key=lambda i:joints[i,2])[:4]);legs=[]
+    # A low trunk or tail tip is not a fifth foot. Prefer lateral endpoints
+    # when all four are available, without changing any learned joint/weight.
+    middle=(joints[:,0].min()+joints[:,0].max())*.5
+    lateral=[i for i in leaves if abs(joints[i,0]-middle)>.12*np.ptp(joints[:,0])]
+    foot_pool=lateral if len(lateral)>=4 else leaves
+    feet=([min([i for i in leaves if joints[i,0]*side>0],key=lambda i:joints[i,2]) for side in (-1,1)] if bird else sorted(foot_pool,key=lambda i:joints[i,2])[:4]);legs=[]
     for foot in feet:
         chain=[foot];parent=int(parents[foot])
         while parent>=0 and len(children[parent])==1:chain.append(parent);parent=int(parents[parent])
@@ -271,8 +276,10 @@ for number in range(1,5):
         cache[label]=frames;actions[label]=bake(rig,label,frames,names)
     def sample(label,seconds):
         array=cache[label];x=seconds*30%max(1,len(array)-1);first=int(x);return blend_pose(array[first],array[min(first+1,len(array)-1)],x-first)
-    demos={};move=next((n for n in ('Walk','Run','Swim','Swim Horizontal','Swim Vertical','Side winding','Flap') if n in cache),'Idle')
-    locomotion=[('Idle',2),(move,3),('Idle',2)];showcase=[('Idle',2),*[(n,min(5,max(1.5,len(cache[n])/30))) for n in cache if n not in {'Idle','Death'}],('Idle',2)]
+    demos={};move=next((n for n in ('Walk','Run','Gallop','Swim','Swim Horizontal','Swim Vertical','Side winding','Flap') if n in cache),'Idle')
+    tiers=[n for n in ('Walk','Trot','Canter','Run','Gallop') if n in cache] if 'Walk' in cache else [move]
+    locomotion=[('Idle',2),*[(n,3) for n in tiers],*[(n,2) for n in tiers[-2::-1]],('Idle',2)]
+    showcase=[('Idle',2),*[(n,min(5,max(1.5,len(cache[n])/30))) for n in cache if n not in {'Idle','Death'}],('Idle',2)]
     for title,parts in [('Showcase',showcase),('Locomotion',locomotion)]:
         poses=[];previous=None;last_duration=0
         for label,duration in parts:
@@ -285,7 +292,8 @@ for number in range(1,5):
     entry={'number':number,'rig':rig.name,'body':body.name,'head':'Head','actions':actions,'demos':demos,'material':mat.name,'joints':len(names),'triangles':len(mesh.polygons),
         'rig_file':str(folder/'generated-rig.npz'),'parents':parents.tolist(),'joint_names':names,'generated_joint_heads':joints.tolist(),'binding':binding.tolist(),'groups':group,
         'animal':a.animal,'source_family':source['family'],'source_license':'CC0-1.0','manual_repairs':False,'painted':False,
-        'canonical_review_height_m':1.65,'runtime_species_scale_pending_approval':True,'surface_material':'plain neutral' if a.neutral_material else 'reused fur swatch','canonical_axis_correction':axis_correction}
+        'canonical_review_height_m':1.65,'runtime_species_scale_pending_approval':True,'surface_material':'plain neutral' if a.neutral_material else 'reused fur swatch','canonical_axis_correction':axis_correction,
+        'locomotion_sequence':[n for n,d in locomotion],'locomotion_durations_s':[d for n,d in locomotion]}
     entries.append(entry);body.hide_set(number!=1);body.hide_render=number!=1;rig.hide_set(True);rig.select_set(False)
     print('Assembled',a.animal,number,len(names),'fresh joints',flush=True)
 scene['deer_four_rigs']=json.dumps(entries);scene['fauna_animal']=a.animal;scene.render.fps=30;scene.sync_mode='FRAME_DROP'
@@ -309,5 +317,8 @@ if not any('dea' in label or 'dying' in label for label in labels):gaps.append('
 if source.get('adaptation'):gaps.append(source['adaptation'])
 if source['family'] in ('rabbit','squirrel') and 'walk' not in labels:gaps.append('No dedicated walk clip in '+source['family']+' source')
 if a.animal=='Sea otter':gaps.append('Terrestrial raw-motion trial only; no suitable swimming clip supplied')
-(root/'audition.json').write_text(json.dumps({'animal':a.animal,'candidates':entries,'seconds':round(time.perf_counter()-started,2),'status':'ready_for_owner_review','motion_gaps':gaps,'painted':False,'art_approved':False},indent=2))
+if source['family']=='sloth':gaps.append('Giant-sloth terrestrial walk transfer only; climbing and hanging motions still missing')
+if source['family']=='mammoth':gaps.append('Mammoth walk/head motion transfer; dedicated trunk articulation is not transferred by this generic mapper')
+(root/'audition.json').write_text(json.dumps({'animal':a.animal,'candidates':entries,'seconds':round(time.perf_counter()-started,2),'status':'ready_for_owner_review','motion_gaps':gaps,'painted':False,'art_approved':False,
+ 'motion_bank':str(a.motion_root.resolve()),'motion_rig_sha256':hashlib.sha256((a.motion_root/'source-rig.json').read_bytes()).hexdigest(),'motion_array_sha256':hashlib.sha256((a.motion_root/'source-motions.npz').read_bytes()).hexdigest()},indent=2))
 print('Raw audition ready',a.animal,flush=True)

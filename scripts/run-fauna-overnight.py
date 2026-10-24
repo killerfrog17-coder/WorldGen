@@ -49,8 +49,18 @@ def run(command,log):
     with log.open('w') as f:r=subprocess.run([str(x) for x in command],cwd=repo,stdout=f,stderr=subprocess.STDOUT,env=env)
     if r.returncode:raise RuntimeError(f'Step failed {r.returncode}: {log}')
 def native(script,args,log):run([blender,'--background','--factory-startup','--threads','3','--python-exit-code','1','--python',repo/'scripts'/script,'--',*args],log)
+
+def prepare_candidate(candidate,entry):
+    if not (candidate/'mesh-component-cleanup.json').exists():run([rig_python,repo/'scripts/clean-fauna-raw-components.py','--root',candidate,'--triangles',entry['triangle_budget']],candidate/'component-cleanup.log')
+    native('prepare-fauna-candidate.py',['--root',candidate,'--triangles',entry['triangle_budget']],candidate/'prepare.log')
 def source_for(entry):
     return resolve_source(entry,repo)
+
+def candidate_seeds(entry,number,candidate):
+    seed=735000+entry['priority_rank']*100+number;override=candidate/'seed-overrides.json'
+    values=json.loads(override.read_text()) if override.exists() else {}
+    shape=int(values.get('shape_seed',seed));rig=int(values.get('rig_seed',shape+100000))
+    return shape,rig
 try:
     while not pause_requested():
         did=False
@@ -59,10 +69,12 @@ try:
             if a.only and slug!=a.only:continue
             if entry['asset_status']!='queued' or entry['family']=='microfly':continue
             folder=root/slug;reference=root/'references'/f'{slug}.png';source=source_for(entry)
+            rebuild_marker=folder/'review-rebuild.json'
             previous=state['animals'].get(slug,{})
-            if previous.get('status') in ('ready','failed'):continue
+            if previous.get('status')=='failed':continue
+            if previous.get('status')=='ready' and not rebuild_marker.exists():continue
             if previous.get('status')=='models_rigged_motion_pending' and source is None:continue
-            if (folder/'native-checks.json').exists():state['animals'][slug]={'status':'ready','animal':entry['animal'],'review':str(folder/'Animal - Raw Audition.blend')};save();continue
+            if (folder/'native-checks.json').exists() and not rebuild_marker.exists():state['animals'][slug]={'status':'ready','animal':entry['animal'],'review':str(folder/'Animal - Raw Audition.blend')};save();continue
             if not reference.exists():continue
             if pause_requested():break
             # Space guard stops new work, never erases retained/user assets.
@@ -74,7 +86,7 @@ try:
                 if not a.no_cached_inference:
                     jobs=[]
                     for i in range(1,5):
-                        candidate=folder/f'candidate-{i}';candidate.mkdir(exist_ok=True);seed=735000+entry['priority_rank']*100+i
+                        candidate=folder/f'candidate-{i}';candidate.mkdir(exist_ok=True);seed,rig_seed=candidate_seeds(entry,i,candidate)
                         if not (candidate/'raw.glb').exists() and not (candidate/'model.glb').exists():jobs.append({'candidate':i,'output':str(candidate/'raw.glb'),'seed':seed})
                     if jobs:
                         manifest=folder/'shape-batch.json';manifest.write_text(json.dumps({'batch_root':str(root),'reference':str(reference),'jobs':jobs},indent=2))
@@ -82,23 +94,23 @@ try:
                     if pause_requested():break
                     for i in range(1,5):
                         candidate=folder/f'candidate-{i}'
-                        if not (candidate/'model.glb').exists():native('prepare-fauna-candidate.py',['--root',candidate,'--triangles',entry['triangle_budget']],candidate/'prepare.log')
+                        if not (candidate/'model.glb').exists():prepare_candidate(candidate,entry)
                     jobs=[]
                     for i in range(1,5):
-                        candidate=folder/f'candidate-{i}';seed=735000+entry['priority_rank']*100+i
+                        candidate=folder/f'candidate-{i}';seed,rig_seed=candidate_seeds(entry,i,candidate)
                         rig_path=candidate/'generated-rig.npz';required=minimum_leaves(entry)
                         if rig_path.exists() and not topology(rig_path,required)['pass']:quarantine(rig_path,root)
-                        if not rig_path.exists():jobs.append({'candidate':i,'output':str(rig_path),'mesh':str(candidate/'model.glb'),'seed':seed+100000,'minimum_leaves':required})
+                        if not rig_path.exists():jobs.append({'candidate':i,'output':str(rig_path),'mesh':str(candidate/'model.glb'),'seed':rig_seed,'minimum_leaves':required})
                     if jobs:
                         manifest=folder/'rig-batch.json';manifest.write_text(json.dumps({'batch_root':str(root),'jobs':jobs},indent=2))
                         run([rig_python,repo/'scripts/run-fauna-inference-batch.py','--manifest',manifest,'--kind','rig'],folder/'rig-batch.log')
                     if pause_requested():break
                 for i in range(1,5):
-                    candidate=folder/f'candidate-{i}';candidate.mkdir(exist_ok=True);seed=735000+entry['priority_rank']*100+i
+                    candidate=folder/f'candidate-{i}';candidate.mkdir(exist_ok=True);seed,rig_seed=candidate_seeds(entry,i,candidate)
                     if not (candidate/'raw.glb').exists() and not (candidate/'model.glb').exists():
                         run([shape_python,repo/'scripts/generate-deer-local.py','--source',reference,'--repo',repo/'artifacts/tools/TripoSG','--weights','E:/AI/WorldGen3D/models/TripoSG','--output',candidate/'raw.glb','--seed',seed,'--steps','50','--depth','8','--resident-gpu','--infer'],candidate/'shape.log')
-                    if not (candidate/'model.glb').exists():native('prepare-fauna-candidate.py',['--root',candidate,'--triangles',entry['triangle_budget']],candidate/'prepare.log')
-                    if not (candidate/'generated-rig.npz').exists():run([rig_python,repo/'scripts/deer-skin-ai.py','--repo',repo/'artifacts/tools/SkinTokens','--weights','E:/AI/WorldGen3D/models/SkinTokens','--mesh',candidate/'model.glb','--output',candidate/'generated-rig.npz','--beams','5','--seed',seed+100000],candidate/'rig.log')
+                    if not (candidate/'model.glb').exists():prepare_candidate(candidate,entry)
+                    if not (candidate/'generated-rig.npz').exists():run([rig_python,repo/'scripts/deer-skin-ai.py','--repo',repo/'artifacts/tools/SkinTokens','--weights','E:/AI/WorldGen3D/models/SkinTokens','--mesh',candidate/'model.glb','--output',candidate/'generated-rig.npz','--beams','5','--seed',rig_seed],candidate/'rig.log')
                     state['animals'][slug]['completed_raw_candidates']=i;save()
                     if pause_requested():break
                 if pause_requested():break
@@ -108,21 +120,22 @@ try:
                       'missing':'Suitable CC0 motion source; model approval/painting still waits for motion review'}
                     (folder/'raw-motion-pending.json').write_text(json.dumps(report,indent=2))
                     for i in range(1,5):
-                        for name in ('raw.glb','raw.latents.pt','reference-prepared.png'):
+                        for name in ('raw.glb','raw-clean.glb','raw.latents.pt','reference-prepared.png'):
                             p=folder/f'candidate-{i}'/name
                             if p.exists():p.unlink()
                     state['animals'][slug].update(status='models_rigged_motion_pending',finished=datetime.datetime.now().astimezone().isoformat());save()
                     print('RAW MODELS/RIGS READY; MOTION STILL MISSING',slug,flush=True)
                     subprocess.run([sys.executable,str(repo/'scripts/index-fauna-auditions.py'),'--root',str(root)],cwd=repo,env=env,check=True)
                     continue
-                if not (folder/'Animal - Raw Audition.blend').exists():native('build-fauna-audition.py',['--root',folder,'--motion-root',source,'--animal',entry['animal'],'--fur',repo/'artifacts/fauna-assets/deer/fur-source.png'],folder/'assemble.log')
+                if not (folder/'Animal - Raw Audition.blend').exists() or rebuild_marker.exists():native('build-fauna-audition.py',['--root',folder,'--motion-root',source,'--animal',entry['animal'],'--fur',repo/'artifacts/fauna-assets/deer/fur-source.png',*(['--rebuild-unreviewed'] if (folder/'Animal - Raw Audition.blend').exists() else [])],folder/'assemble.log')
                 native('check-fauna-audition.py',['--root',folder],folder/'check.log')
                 # Only exact intermediate names created by this worker; no
                 # recursive deletion or broad cleanup inside generated assets.
                 for i in range(1,5):
-                    for name in ('raw.glb','raw.latents.pt','reference-prepared.png'):
+                    for name in ('raw.glb','raw-clean.glb','raw.latents.pt','reference-prepared.png'):
                         p=folder/f'candidate-{i}'/name
                         if p.exists():p.unlink()
+                if rebuild_marker.exists():rebuild_marker.replace(folder/'mesh-preparation-rebuild-completed.json')
                 state['animals'][slug].update(status='ready',review=str(folder/'Animal - Raw Audition.blend'),finished=datetime.datetime.now().astimezone().isoformat());save();print('READY',slug,flush=True)
                 subprocess.run([sys.executable,str(repo/'scripts/index-fauna-auditions.py'),'--root',str(root)],cwd=repo,env=env,check=True)
             except Exception as exc:

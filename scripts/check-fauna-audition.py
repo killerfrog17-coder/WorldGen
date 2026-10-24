@@ -17,6 +17,20 @@ for i,entry in enumerate(models):
         for t in (0,.5,1):
             scene.frame_set(round(scene.frame_start+(scene.frame_end-scene.frame_start)*t));bpy.context.view_layer.update()
             assert all(np.isfinite(np.array(b.matrix)).all() for b in rig.pose.bones)
+    fast=next((n for n in ('Run','Gallop') if n in entry['actions']),None)
+    if fast and entry.get('locomotion_sequence'):
+        sequence=entry['locomotion_sequence'];assert fast in sequence
+        if 'Walk' in entry['actions']:assert sequence.index('Walk')<sequence.index(fast) and 'Walk' in sequence[sequence.index(fast)+1:]
+        start=sum(entry['locomotion_durations_s'][:sequence.index(fast)])
+        def pose_at(action,frame):
+            act=bpy.data.actions[action];rig.animation_data_create().action=act
+            if act.slots:rig.animation_data.action_slot=act.slots[0]
+            scene.frame_set(int(frame),subframe=frame-int(frame));bpy.context.view_layer.update()
+            return np.array([np.array(b.matrix_basis) for b in rig.pose.bones])
+        clip=bpy.data.actions[entry['actions'][fast]];first,last=clip.frame_range
+        expected=pose_at(clip.name,first+30%max(1,last-first))
+        actual=pose_at(entry['demos']['Locomotion'],(start+1)*30)
+        assert float(np.max(np.abs(expected-actual)))<2e-4,'Locomotion demo fails to reach the native fast-motion pose'
     bpy.ops.deer_four.skeleton();assert not rig.hide_get();bpy.ops.deer_four.skeleton();assert rig.hide_get()
     checks.append({'candidate':i+1,'joints':entry['joints'],'triangles':entry['triangles'],'joint_error_m':error,'all_clip_samples_finite':True})
 for _ in range(3):bpy.ops.deer_four.view()

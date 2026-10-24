@@ -13,8 +13,11 @@ def minimum_leaves(entry):
 
 def topology(path,required):
     with np.load(path) as data:
-        parents=data['parents'].astype(int);children=np.bincount(parents[parents>=0],minlength=len(parents));leaves=int(np.sum(children==0))
-    return {'joints':len(parents),'leaves':leaves,'required_leaves':required,'pass':leaves>=required}
+        parents=data['parents'].astype(int);children=np.bincount(parents[parents>=0],minlength=len(parents));leaf_ids=np.flatnonzero(children==0);leaves=len(leaf_ids)
+        x=data['source_vertices'][:,0];mid=(x.min()+x.max())*.5;epsilon=max(1e-5,float(np.ptp(x))*.005)
+        left=int(np.sum(data['joints'][leaf_ids,0]<mid-epsilon));right=int(np.sum(data['joints'][leaf_ids,0]>mid+epsilon))
+    side_required=4 if required>=9 else 3 if required>=7 else 2 if required>=5 else 1 if required>=3 else 0
+    return {'joints':len(parents),'leaves':leaves,'required_leaves':required,'left_endpoints':left,'right_endpoints':right,'required_per_side':side_required,'pass':leaves>=required and min(left,right)>=side_required}
 
 def quarantine(path,root):
     path=Path(path).resolve();root=Path(root).resolve()

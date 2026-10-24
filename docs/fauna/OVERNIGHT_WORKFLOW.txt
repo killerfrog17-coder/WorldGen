@@ -122,7 +122,34 @@ https://github.com/Ariescar/gobkit-free-assets . Ten sampled models shared the
 same coarse16-joint bind positions; not selected as a primary anatomical motion
 improvement. Small provenance/suitability metadata kept; sampled GLBs discarded.
 
+Riley's Low Poly Ice Age https://rkuhlf-assets.itch.io/ice-age is expressly CC0.
+The public zero-price "No thanks" flow downloaded IceAge.zip anonymously; no
+payment/email/login submitted. Archive hash and creator URL are retained.
+Three motion-only banks now available: Sloth (Idle/Walk; DEF bones evaluated
+with Rigify UI script disabled), SabreTooth (Idle/Walk/Run/Bite), Mammoth
+(Idle/Walk/Head shake). The sloth walk is quadrupedal terrestrial, not climbing;
+the mammoth's separate trunk chain is not transferred by the generic mapper.
+These supply the Sloth, felid and Elephant auditions respectively. Current
+coverage157/176,19 source gaps. Earlier156/20 note is a prior checkpoint.
+The natural-squid gap remains: Captain Coggles' CC0 stylized squid uses humanoid
+limbs/finger branches, not a straightforward radial-arm source. The CC0 Octopus
+in Cage at https://blendswap.com/blend/22871 needs login to download; no bypass.
+
 AFTER ALL RAW AUDITIONS
+Mesh preparation now filters tiny disconnected generation debris before reducing
+to the triangle budget. Fragmented feathered birds additionally use automatic
+192-voxel regularization; other families keep their original surface reduction.
+This prevents the observed owl silhouette collapse and irreducible over-budget
+Pheasant/Junglefowl fragments. It does not guarantee natural rig deformation.
+The Owl3 Flap diagnostic still shows substantial torso/wing distortion and needs
+an explicit visual warning despite valid arrays/controls. All art remains pending.
+Locomotion previews now visit all available Walk/Trot/Canter/Run/Gallop tiers,
+then return through lower tiers to Idle. Previously ready unapproved reviews were
+refreshed without regenerating their meshes/rigs. The native checker verifies
+the fast interval actually reaches the corresponding native fast-motion pose.
+Riley's separate Aquatic Animal Models pack is NOT CC0: its creator page limits
+redistribution. The IceAge CC0 dedication must not be generalized to that pack.
+
 Revisit priority order for targeted primary-source species/sex/age/season research,
 refine factual analogues versus explicit plausible hypotheses and generate needed
 reusable swatches. Never paint an unapproved model. If time still remains, inspect

@@ -11,14 +11,21 @@ for item in plan:
     slug=item['slug'];folder=root/slug;meta=folder/'audition.json';check=folder/'native-checks.json'
     status=item['asset_status'];path='';notes=''
     if status=='queued':
-        if meta.exists() and check.exists():
+        if meta.exists() and check.exists() and not (folder/'review-rebuild.json').exists():
             data=json.loads(meta.read_text());path=str(folder/'Animal - Raw Audition.blend');status='ready_for_owner_review'
             ready.append({'slug':slug,'name':item['animal'],'priority':item['priority_rank'],'path':path,'candidates':len(data['candidates'])})
             notes='; '.join(data.get('motion_gaps',[]))
+            warning_file=folder/'visual-warnings.json'
+            if warning_file.exists():
+                warnings=json.loads(warning_file.read_text()).get('warnings',[])
+                ready[-1]['visual_warnings']=warnings
+                warning_text='; '.join('Candidate '+str(w['candidate'])+' '+w.get('clip','')+': '+w['reason'] for w in warnings)
+                notes='; '.join(x for x in (notes,warning_text) if x)
         else:
             status='in_progress_or_waiting';pending.append(slug)
             q=queue.get(slug,{})
             if q.get('status')=='failed':status='generation_failed';notes=q.get('error','')
+            elif (folder/'review-rebuild.json').exists():status='refreshing_mesh_preparation';notes='Previous unapproved review retained; fragment-safe mesh preparation and animation review rebuilding'
             elif q.get('status')=='models_rigged_motion_pending':
                 status='models_rigged_motion_pending';notes='Four raw meshes/rigs available; animations and Blender motion review still missing';raw_motion_pending.append(slug)
             elif item['family']!='microfly' and source_for(item,repo) is None:status='waiting_for_motion_source';notes='Suitable CC0 motion still needed; see MOTION_COVERAGE.csv'

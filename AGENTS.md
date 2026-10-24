@@ -1,5 +1,32 @@
 # WorldGen repository instructions
 
+OVERNIGHT MESH/DEMO CHECKPOINT,24October2026~06:45CDT: serial watch worker
+PID31464/exec40581 verified LIVE; camel assembling,38 reviews/152 candidates
+ready before camel. Read exact current status/index; progression alone does not
+prove previous animal ready. All art/motion acceptance pending, unpainted.
+Confirmed owl low-poly defect: fragmented feathered raw mesh collapsed under
+direct decimation. New CPU tiny-component filter, bird-only automatic192-voxel
+regularization and strict triangle-budget guard fix preparation, not all motion.
+Same Owl3 seed now gives26-joint bilateral rig; all4 Owl rebuilt/native checked.
+Pheasant3/Junglefowl2 exceeded budget and were regenerated SAME original seeds,
+then rebuilt. Raven3 had an earlier documented geometry reroll after failed rigs.
+Selected Owl3 Flap oblique screenshot STILL has obvious torso/wing distortion;
+record review warning, do not claim cured/natural from finite/native checks.
+Representative mammal raw meshes were coherent; no blanket regeneration.
+Locomotion demo now includes every available Walk/Trot/Canter/Run/Gallop tier
+and returns down through Walk;27 previous unapproved reviews refreshed. Native
+checker compares full-fast demo pose with actual source clip. No painting or
+manual pose/weight repairs. Accepted deer untouched. New Riley IceAge source is
+explicit CC0: sloth terrestrial Idle/Walk; mammoth Idle/Walk/Headshake; sabretooth
+Idle/Walk/Run/Bite. Motion-only export, no donor meshes. Felids now sabretooth;
+Lynx rebuilt.157/176 source routes,19 genuine gaps. Riley aquatic pack is NOT
+CC0 (redistribution restricted), not used. All171 AI refs/5 own micro ready.
+Current run-control=run ignores ONLY retained exact completed internal PAUSE;
+owner/new PAUSE stops. One producer only, resident fast GPU. Own raw-clean GLB
+is removed after ready alongside raw/latents. No Desktop/game/app closures.
+Last source backup6ea7805e6c77032deeedbe701ff241406d334a92; new prep/demo/source
+changes need backup. Full176 visual scope remains active, not done at38 reviews.
+
 OVERNIGHT CONTINUATION CHECKPOINT,24October2026~05:42CDT: prior turn progressed
 and latest worker handle confirmed live. Current worker PID18540/exec10162,
 resumed Lynx saved rigs.31 reviews/124 candidates ready through Otter at start.
