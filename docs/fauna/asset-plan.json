@@ -3652,17 +3652,19 @@
         "paint_zones": [],
         "channels": "None: existing spatial audio representation",
         "method": "No visual asset generation in this batch",
-        "seam_control": "Not applicable"
+        "seam_control": "Not applicable",
+        "asset_allocation": "None. Audio-only existing base profile; no visual model, rig, coat or texture generation.",
+        "anatomical_paint_details": "Not applicable: no rendered animal in this stage."
       },
-      "sex_age_season": "Calling/activity/acoustic profile variation is already represented separately; no visible sex/age model required.",
-      "extras": "None: current implementation is noise-only.",
-      "hypothetical_variation": "Acoustic/activity hypotheses only, no painted coat or body model.",
+      "sex_age_season": "Adult male calling is the baseline, not every sex/age making the same sound. Link activity to lineage-specific emergence season, temperature and daily window; do not impose one universal midday schedule on all cicadas.",
+      "extras": "No visible extras. Retain one base profile with derived acoustic lineages; no new top-level profile for each call variant.",
+      "hypothetical_variation": "Alternative buzz pulse structure and stable pitch/timbre families can represent invented related lineages. Keep call identity coherent rather than randomizing every phrase into a different species.",
       "motion_source_plan": "Not applicable: spatial audio only",
       "required_behaviour_clips": [],
       "motion_gaps_policy": "Use only verified CC0 source motion. Missing clips stay explicitly missing; do not rename an unrelated action as feeding/running. No complex invented mammal/bird motion.",
       "model_prompt_constraints": "Neutral symmetric anatomy, visible distinct limbs, straight head/neck, natural eye sockets/lids, no baked accessories, isolated reference, front/side/rear checks. Bird/bat wings need actual separable geometry.",
       "review_plan": "1 candidates;2 bounded colour-only preview until painting approved;3 Side/Face/Orbit plus rear/front body;4 blended showcase/locomotion; visible Show/Hide Skeleton, pause and all available individual clips.",
-      "second_pass_status": "Pending targeted species/sex research after all raw auditions; current coat analogues are first-pass plans, hypothetical variants explicitly labelled.",
+      "second_pass_status": "Audio-only sex/season/spatial-call/speciation plan refined with sources. No visual asset allocation or playback-bank changes.",
       "actual_model_status": "No visual generation in this batch",
       "original_row": {
         "Priority": "1",
@@ -3680,6 +3682,23 @@
         "Your implementation choice": "Audio only - permanent",
         "Your priority": "",
         "Your notes": "Owner confirmed crickets and cicadas are audio-only. Profiles added; no playback yet."
+      },
+      "appearance_variation_plan": {
+        "real_analogues": [
+          "Species-specific male cicada calling songs"
+        ],
+        "coat_configurations": [],
+        "surface_class_count": 0,
+        "texture_assets": "None. Audio-only existing base profile; no visual model, rig, coat or texture generation.",
+        "sex_age_season": "Adult male calling is the baseline, not every sex/age making the same sound. Link activity to lineage-specific emergence season, temperature and daily window; do not impose one universal midday schedule on all cicadas.",
+        "extras": "No visible extras. Retain one base profile with derived acoustic lineages; no new top-level profile for each call variant.",
+        "paint_details": "Not applicable: no rendered animal in this stage.",
+        "hypotheses": "Alternative buzz pulse structure and stable pitch/timbre families can represent invented related lineages. Keep call identity coherent rather than randomizing every phrase into a different species.",
+        "geometry_limits": "No model requested here; do not count this audio profile as a four-model audition or assume all life stages call.",
+        "acoustic_plan": "Tree-anchored caller patches; several independent emitters can form a chorus in the world. Candidate files should contain one isolated caller without birds, wind or other insect species. Multiple performances vary timing/intensity within a stable form; no ambient soundtrack baked into every source. This is planning only, not a changed playback bank.",
+        "sources": [
+          "https://ask.ifas.ufl.edu/publication/IN602"
+        ]
       }
     },
     {
@@ -3702,17 +3721,19 @@
         "paint_zones": [],
         "channels": "None: existing spatial audio representation",
         "method": "No visual asset generation in this batch",
-        "seam_control": "Not applicable"
+        "seam_control": "Not applicable",
+        "asset_allocation": "None. Existing noise-only profile; no body texture or rig in this batch.",
+        "anatomical_paint_details": "Not applicable to an audio emitter."
       },
-      "sex_age_season": "Calling/activity/acoustic profile variation is already represented separately; no visible sex/age model required.",
-      "extras": "None: current implementation is noise-only.",
-      "hypothetical_variation": "Acoustic/activity hypotheses only, no painted coat or body model.",
+      "sex_age_season": "Adult male song as the ordinary baseline; do not make nymphs/females emit the same calling loop. Temperature can alter chirp rhythm, but a single exact thermometer rule does not fit all cricket lineages. Seasonal/daily activity is profile-specific.",
+      "extras": "No visible insect extras. One base profile, derived stable call forms and multiple recorded/generated performances.",
+      "hypothetical_variation": "Different chirp grouping, trill versus separated chirps and bounded spectral changes can form plausible acoustic lineages. Extreme playback pitch changes are not a substitute for a convincing source.",
       "motion_source_plan": "Not applicable: spatial audio only",
       "required_behaviour_clips": [],
       "motion_gaps_policy": "Use only verified CC0 source motion. Missing clips stay explicitly missing; do not rename an unrelated action as feeding/running. No complex invented mammal/bird motion.",
       "model_prompt_constraints": "Neutral symmetric anatomy, visible distinct limbs, straight head/neck, natural eye sockets/lids, no baked accessories, isolated reference, front/side/rear checks. Bird/bat wings need actual separable geometry.",
       "review_plan": "1 candidates;2 bounded colour-only preview until painting approved;3 Side/Face/Orbit plus rear/front body;4 blended showcase/locomotion; visible Show/Hide Skeleton, pause and all available individual clips.",
-      "second_pass_status": "Pending targeted species/sex research after all raw auditions; current coat analogues are first-pass plans, hypothetical variants explicitly labelled.",
+      "second_pass_status": "Audio-only sex/season/spatial-call/speciation plan refined with sources. No visual asset allocation or playback-bank changes.",
       "actual_model_status": "No visual generation in this batch",
       "original_row": {
         "Priority": "1",
@@ -3730,6 +3751,24 @@
         "Your implementation choice": "Audio only - permanent",
         "Your priority": "",
         "Your notes": "Owner confirmed crickets and cicadas are audio-only. Profiles added; no playback yet."
+      },
+      "appearance_variation_plan": {
+        "real_analogues": [
+          "Field/tree-cricket-like male calling forms"
+        ],
+        "coat_configurations": [],
+        "surface_class_count": 0,
+        "texture_assets": "None. Existing noise-only profile; no body texture or rig in this batch.",
+        "sex_age_season": "Adult male song as the ordinary baseline; do not make nymphs/females emit the same calling loop. Temperature can alter chirp rhythm, but a single exact thermometer rule does not fit all cricket lineages. Seasonal/daily activity is profile-specific.",
+        "extras": "No visible insect extras. One base profile, derived stable call forms and multiple recorded/generated performances.",
+        "paint_details": "Not applicable to an audio emitter.",
+        "hypotheses": "Different chirp grouping, trill versus separated chirps and bounded spectral changes can form plausible acoustic lineages. Extreme playback pitch changes are not a substitute for a convincing source.",
+        "geometry_limits": "Audio-only does not imply a visible hopping-cricket simulation. No additional model queue entry or texture allocation.",
+        "acoustic_plan": "Ground/litter/grass emitters for field forms; shrub/tree positions only for a compatible derived form. Keep sources fixed in world space while the listener moves, with independent phrase gaps and caller budgets. Generate/audition isolated caller files, then compose density spatially; preserve the current bank until explicitly changed.",
+        "sources": [
+          "https://www.noaa.gov/education/explainers/can-crickets-tell-temperature-answer-is-in-their-chirp",
+          "https://songsofinsects.com/biology-of-insect-song"
+        ]
       }
     },
     {
@@ -3752,17 +3791,19 @@
         "paint_zones": [],
         "channels": "None: existing spatial audio representation",
         "method": "No visual asset generation in this batch",
-        "seam_control": "Not applicable"
+        "seam_control": "Not applicable",
+        "asset_allocation": "None. Noise-only base profile, no wing/leaf-body texture or mesh.",
+        "anatomical_paint_details": "Not applicable to this audio-only representation."
       },
-      "sex_age_season": "Calling/activity/acoustic profile variation is already represented separately; no visible sex/age model required.",
-      "extras": "None: current implementation is noise-only.",
-      "hypothetical_variation": "Acoustic/activity hypotheses only, no painted coat or body model.",
+      "sex_age_season": "Male call activity and any female reply are distinct acoustic roles. Some lineages duet, others should not inherit that automatically. Seasonal and daily windows follow the chosen lineage rather than an all-night universal loop.",
+      "extras": "No rendered extras; keep one base profile and derive acoustic variation through speciation.",
+      "hypothetical_variation": "Bounded rasp/click grouping, phrase length and reply-delay changes can form invented related lineages. Do not randomly splice cricket chirps into a katydid phrase.",
       "motion_source_plan": "Not applicable: spatial audio only",
       "required_behaviour_clips": [],
       "motion_gaps_policy": "Use only verified CC0 source motion. Missing clips stay explicitly missing; do not rename an unrelated action as feeding/running. No complex invented mammal/bird motion.",
       "model_prompt_constraints": "Neutral symmetric anatomy, visible distinct limbs, straight head/neck, natural eye sockets/lids, no baked accessories, isolated reference, front/side/rear checks. Bird/bat wings need actual separable geometry.",
       "review_plan": "1 candidates;2 bounded colour-only preview until painting approved;3 Side/Face/Orbit plus rear/front body;4 blended showcase/locomotion; visible Show/Hide Skeleton, pause and all available individual clips.",
-      "second_pass_status": "Pending targeted species/sex research after all raw auditions; current coat analogues are first-pass plans, hypothetical variants explicitly labelled.",
+      "second_pass_status": "Audio-only sex/season/spatial-call/speciation plan refined with sources. No visual asset allocation or playback-bank changes.",
       "actual_model_status": "No visual generation in this batch",
       "original_row": {
         "Priority": "1",
@@ -3780,6 +3821,24 @@
         "Your implementation choice": "",
         "Your priority": "",
         "Your notes": ""
+      },
+      "appearance_variation_plan": {
+        "real_analogues": [
+          "Male katydid songs; female answer ticks only in appropriate lineages"
+        ],
+        "coat_configurations": [],
+        "surface_class_count": 0,
+        "texture_assets": "None. Noise-only base profile, no wing/leaf-body texture or mesh.",
+        "sex_age_season": "Male call activity and any female reply are distinct acoustic roles. Some lineages duet, others should not inherit that automatically. Seasonal and daily windows follow the chosen lineage rather than an all-night universal loop.",
+        "extras": "No rendered extras; keep one base profile and derive acoustic variation through speciation.",
+        "paint_details": "Not applicable to this audio-only representation.",
+        "hypotheses": "Bounded rasp/click grouping, phrase length and reply-delay changes can form invented related lineages. Do not randomly splice cricket chirps into a katydid phrase.",
+        "geometry_limits": "No visible insect or arthropod rig is implied. Duet behaviour is a future emitter scheduling feature, not already implemented by having two files.",
+        "acoustic_plan": "Vegetation-anchored sources at lineage-appropriate shrub/grass/canopy heights. Leave natural pauses and asynchronous starts; short reply ticks belong to another emitter when supported. Dry single-caller candidates preserve control over the chorus and avoid mixed bird/wind contamination.",
+        "sources": [
+          "https://songsofinsects.com/biology-of-insect-song",
+          "https://academic.oup.com/aesa/article/99/5/978/12202"
+        ]
       }
     },
     {
@@ -3802,17 +3861,19 @@
         "paint_zones": [],
         "channels": "None: existing spatial audio representation",
         "method": "No visual asset generation in this batch",
-        "seam_control": "Not applicable"
+        "seam_control": "Not applicable",
+        "asset_allocation": "None. Current guild remains audio-only; no skin atlas, skeleton or spawned frog body.",
+        "anatomical_paint_details": "Not applicable; potential future visible frog models require their own approved task."
       },
-      "sex_age_season": "Calling/activity/acoustic profile variation is already represented separately; no visible sex/age model required.",
-      "extras": "None: current implementation is noise-only.",
-      "hypothetical_variation": "Acoustic/activity hypotheses only, no painted coat or body model.",
+      "sex_age_season": "Male advertisement calls dominate the baseline; season, rain, temperature and local breeding habitat determine activity. Some frogs call by day as well as night; do not force every lineage into warm summer nights. Juvenile/body-colour sex traits have no visual cost here.",
+      "extras": "No visible extras. Keep one guild profile with coherent derived acoustic forms, not separately hand-authored global species profiles.",
+      "hypothetical_variation": "Peep/trill/croak families and bounded reply rhythms can define plausible acoustic lineages; retain a recognisable call identity within each population.",
       "motion_source_plan": "Not applicable: spatial audio only",
       "required_behaviour_clips": [],
       "motion_gaps_policy": "Use only verified CC0 source motion. Missing clips stay explicitly missing; do not rename an unrelated action as feeding/running. No complex invented mammal/bird motion.",
       "model_prompt_constraints": "Neutral symmetric anatomy, visible distinct limbs, straight head/neck, natural eye sockets/lids, no baked accessories, isolated reference, front/side/rear checks. Bird/bat wings need actual separable geometry.",
       "review_plan": "1 candidates;2 bounded colour-only preview until painting approved;3 Side/Face/Orbit plus rear/front body;4 blended showcase/locomotion; visible Show/Hide Skeleton, pause and all available individual clips.",
-      "second_pass_status": "Pending targeted species/sex research after all raw auditions; current coat analogues are first-pass plans, hypothetical variants explicitly labelled.",
+      "second_pass_status": "Audio-only sex/season/spatial-call/speciation plan refined with sources. No visual asset allocation or playback-bank changes.",
       "actual_model_status": "No visual generation in this batch",
       "original_row": {
         "Priority": "1",
@@ -3830,6 +3891,25 @@
         "Your implementation choice": "",
         "Your priority": "",
         "Your notes": ""
+      },
+      "appearance_variation_plan": {
+        "real_analogues": [
+          "Breeding frog calls from pond/stream/wetland-associated lineages"
+        ],
+        "coat_configurations": [],
+        "surface_class_count": 0,
+        "texture_assets": "None. Current guild remains audio-only; no skin atlas, skeleton or spawned frog body.",
+        "sex_age_season": "Male advertisement calls dominate the baseline; season, rain, temperature and local breeding habitat determine activity. Some frogs call by day as well as night; do not force every lineage into warm summer nights. Juvenile/body-colour sex traits have no visual cost here.",
+        "extras": "No visible extras. Keep one guild profile with coherent derived acoustic forms, not separately hand-authored global species profiles.",
+        "paint_details": "Not applicable; potential future visible frog models require their own approved task.",
+        "hypotheses": "Peep/trill/croak families and bounded reply rhythms can define plausible acoustic lineages; retain a recognisable call identity within each population.",
+        "geometry_limits": "Audio existence is not a visible/huntable frog implementation. No body model or texture is generated for this guild in the current raw queue.",
+        "acoustic_plan": "Anchor callers to actual suitable pond edges, wet grass, stream margins or low vegetation according to lineage. Allow several point emitters to build a chorus instead of baking a whole pond into one loop. Keep dry source calls isolated and let season/weather determine phrase density later; no existing playback/settings changed.",
+        "sources": [
+          "https://www.dnr.state.mn.us/reptiles_amphibians/frogs_toads/opera.html",
+          "https://home.nps.gov/yell/learn/nature/boreal-chorus-frog.htm",
+          "https://tpwd.texas.gov/education/resources/keep-texas-wild/amazing-amphibians/background-for-teachers"
+        ]
       }
     },
     {
@@ -3852,17 +3932,19 @@
         "paint_zones": [],
         "channels": "None: existing spatial audio representation",
         "method": "No visual asset generation in this batch",
-        "seam_control": "Not applicable"
+        "seam_control": "Not applicable",
+        "asset_allocation": "None for this audio-only guild. Individually named visible/huntable birds keep their separate model plans; this does not make every bird permanently invisible.",
+        "anatomical_paint_details": "Not applicable to sound-only presence."
       },
-      "sex_age_season": "Calling/activity/acoustic profile variation is already represented separately; no visible sex/age model required.",
-      "extras": "None: current implementation is noise-only.",
-      "hypothetical_variation": "Acoustic/activity hypotheses only, no painted coat or body model.",
+      "sex_age_season": "Do not hard-code all song as male-only: female song/duets occur in many lineages. Link breeding song, contact/alarm roles, daily windows and seasonal activity to the selected profile; no generic bird chorus at all hours.",
+      "extras": "No visible extras or bird mesh. One base guild profile with derived stable song families, distinct from named bird asset entries.",
+      "hypothetical_variation": "Related phrase contours, note spacing and bounded timbre differences can represent evolved song variation. A random file is a performance variant, not automatically another species.",
       "motion_source_plan": "Not applicable: spatial audio only",
       "required_behaviour_clips": [],
       "motion_gaps_policy": "Use only verified CC0 source motion. Missing clips stay explicitly missing; do not rename an unrelated action as feeding/running. No complex invented mammal/bird motion.",
       "model_prompt_constraints": "Neutral symmetric anatomy, visible distinct limbs, straight head/neck, natural eye sockets/lids, no baked accessories, isolated reference, front/side/rear checks. Bird/bat wings need actual separable geometry.",
       "review_plan": "1 candidates;2 bounded colour-only preview until painting approved;3 Side/Face/Orbit plus rear/front body;4 blended showcase/locomotion; visible Show/Hide Skeleton, pause and all available individual clips.",
-      "second_pass_status": "Pending targeted species/sex research after all raw auditions; current coat analogues are first-pass plans, hypothetical variants explicitly labelled.",
+      "second_pass_status": "Audio-only sex/season/spatial-call/speciation plan refined with sources. No visual asset allocation or playback-bank changes.",
       "actual_model_status": "No visual generation in this batch",
       "original_row": {
         "Priority": "1",
@@ -3880,6 +3962,24 @@
         "Your implementation choice": "",
         "Your priority": "",
         "Your notes": ""
+      },
+      "appearance_variation_plan": {
+        "real_analogues": [
+          "Understory territorial songs/calls; sex roles differ between lineages"
+        ],
+        "coat_configurations": [],
+        "surface_class_count": 0,
+        "texture_assets": "None for this audio-only guild. Individually named visible/huntable birds keep their separate model plans; this does not make every bird permanently invisible.",
+        "sex_age_season": "Do not hard-code all song as male-only: female song/duets occur in many lineages. Link breeding song, contact/alarm roles, daily windows and seasonal activity to the selected profile; no generic bird chorus at all hours.",
+        "extras": "No visible extras or bird mesh. One base guild profile with derived stable song families, distinct from named bird asset entries.",
+        "paint_details": "Not applicable to sound-only presence.",
+        "hypotheses": "Related phrase contours, note spacing and bounded timbre differences can represent evolved song variation. A random file is a performance variant, not automatically another species.",
+        "geometry_limits": "No rig/texture or huntable target is created by this guild. Future visible representatives need body-specific approval and behaviour work.",
+        "acoustic_plan": "Stable low-branch/undergrowth caller locations with occasional later source relocation, not sounds that follow the player. Mix isolated songs/calls from several world-space sources with natural gaps. Keep alarm/contact and territorial song families separate if added; no prerecorded full-forest background in the single-caller source.",
+        "sources": [
+          "https://academy.allaboutbirds.org/birdsong/",
+          "https://www.allaboutbirds.org/news/many-female-birds-sing-beautiful-songs-all-we-have-to-do-is-listen/"
+        ]
       }
     },
     {
@@ -3895,7 +3995,7 @@
       "raw_candidates": 4,
       "triangle_budget": 5500,
       "texture_plan": {
-        "reusable_swatch_count": 5,
+        "reusable_swatch_count": 6,
         "materials": [
           "short directional fur",
           "glossy eye/cornea",
@@ -3905,10 +4005,10 @@
         ],
         "coat_configuration_count": 4,
         "coats": [
-          "irregular black tan white patches",
-          "dark-dominant mottled",
-          "pale tan-dominant mottled",
-          "white-tail-tip bounded variants"
+          "balanced black/tan/white patches",
+          "dark-dominant patches",
+          "tan-dominant patches",
+          "hypothetical muted dryland patch contrast"
         ],
         "paint_zones": [
           "dorsal saddle",
@@ -3923,11 +4023,13 @@
         ],
         "channels": "One2K base-colour atlas +1K normal/roughness for medium/large animals;1K/512 for small animals;256-512 for tiny fauna. Shared eye/keratin swatches. No extra per-coat draw calls.",
         "method": "Generate reusable neutral swatches only after raw audition queue; after owner approval, map with anatomical masks and broad smooth blends. Never project one side photograph as complete360-degree texture.",
-        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam."
+        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam.",
+        "asset_allocation": "Six classes: short fur, longer tail fur, eye, nose/lid skin, paw skin and claw keratin. One neutral fur source plus seeded irregular-patch masks; white tail tip and dark muzzle remain linked identity regions.",
+        "anatomical_paint_details": "Irregular patches wrap across the body without mirrored atlas seams. Fur edges slightly break patch boundaries; avoid a smooth plastic camouflage print. Keep eye sockets/nose independent of patch randomness."
       },
-      "sex_age_season": "Sexes share the core model and initial coat masks unless a supported lineage requires dimorphism; bounded size distributions only. Plan age/season separately from sex.",
-      "extras": "Separate glossy eyes and visible lid/socket transitions after motion approval; bounded ear/tail/bill traits only where family anatomy supports them. Distinct body silhouette requires a second approved model, not forced recolouring.",
-      "hypothetical_variation": "Faint disruptive flank bands in shaded cover; sandy pale camouflage in open arid habitat; darker closed-canopy forms. Hypotheses are optional art candidates, not asserted existing species.",
+      "sex_age_season": "Do not encode sex through coat colour. Individual patch layout is stable, not rerolled whenever the animal reloads. Young need age proportions; later size changes remain moderate and overlapping.",
+      "extras": "Large rounded ears, slim long-legged body, fitted eyes/lids and whiskers after selection. Tail fullness is bounded and shares the actual tail rig.",
+      "hypothetical_variation": "Reduced contrast or tan dominance can form invented lineages; individual patch seeds are individual variation, not automatically species names.",
       "motion_source_plan": "fox",
       "required_behaviour_clips": [
         "idle",
@@ -3940,7 +4042,7 @@
       "motion_gaps_policy": "Use only verified CC0 source motion. Missing clips stay explicitly missing; do not rename an unrelated action as feeding/running. No complex invented mammal/bird motion.",
       "model_prompt_constraints": "Neutral symmetric anatomy, visible distinct limbs, straight head/neck, natural eye sockets/lids, no baked accessories, isolated reference, front/side/rear checks. Bird/bat wings need actual separable geometry.",
       "review_plan": "1 candidates;2 bounded colour-only preview until painting approved;3 Side/Face/Orbit plus rear/front body;4 blended showcase/locomotion; visible Show/Hide Skeleton, pause and all available individual clips.",
-      "second_pass_status": "Pending targeted species/sex research after all raw auditions; current coat analogues are first-pass plans, hypothetical variants explicitly labelled.",
+      "second_pass_status": "Targeted analogue/sex/age/season planning refined with linked sources; geometry approval and remaining alias research still pending. No textures generated or models painted.",
       "actual_model_status": "Not generated",
       "original_row": {
         "Priority": "5",
@@ -3958,6 +4060,28 @@
         "Your implementation choice": "",
         "Your priority": "",
         "Your notes": ""
+      },
+      "appearance_variation_plan": {
+        "real_analogues": [
+          "African painted/wild dog individual coat patterns"
+        ],
+        "coat_configurations": [
+          "balanced black/tan/white patches",
+          "dark-dominant patches",
+          "tan-dominant patches",
+          "hypothetical muted dryland patch contrast"
+        ],
+        "surface_class_count": 6,
+        "texture_assets": "Six classes: short fur, longer tail fur, eye, nose/lid skin, paw skin and claw keratin. One neutral fur source plus seeded irregular-patch masks; white tail tip and dark muzzle remain linked identity regions.",
+        "sex_age_season": "Do not encode sex through coat colour. Individual patch layout is stable, not rerolled whenever the animal reloads. Young need age proportions; later size changes remain moderate and overlapping.",
+        "extras": "Large rounded ears, slim long-legged body, fitted eyes/lids and whiskers after selection. Tail fullness is bounded and shares the actual tail rig.",
+        "paint_details": "Irregular patches wrap across the body without mirrored atlas seams. Fur edges slightly break patch boundaries; avoid a smooth plastic camouflage print. Keep eye sockets/nose independent of patch randomness.",
+        "hypotheses": "Reduced contrast or tan dominance can form invented lineages; individual patch seeds are individual variation, not automatically species names.",
+        "geometry_limits": "A pointed-ear wolf or fox body is not a painted dog through colour alone. Check ears, muzzle, long legs and paws; pack pursuit/bite behaviour is outside raw motion transfer.",
+        "sources": [
+          "https://www.sanbi.org/animal-of-the-week/african-wild-dog/",
+          "https://stlzoo.org/animals/mammals/carnivores/african-painted-dog"
+        ]
       }
     },
     {
@@ -3973,7 +4097,7 @@
       "raw_candidates": 4,
       "triangle_budget": 2500,
       "texture_plan": {
-        "reusable_swatch_count": 5,
+        "reusable_swatch_count": 6,
         "materials": [
           "short/medium fur",
           "eye/cornea",
@@ -3983,10 +4107,10 @@
         ],
         "coat_configuration_count": 4,
         "coats": [
-          "chestnut agouti",
-          "dark rump pale shoulders",
-          "golden-brown",
-          "grey-brown"
+          "rufous-brown grizzle",
+          "dark brown",
+          "gold-tipped rump analogue",
+          "hypothetical subdued pale forest-edge"
         ],
         "paint_zones": [
           "back",
@@ -4000,11 +4124,13 @@
         ],
         "channels": "One2K base-colour atlas +1K normal/roughness for medium/large animals;1K/512 for small animals;256-512 for tiny fauna. Shared eye/keratin swatches. No extra per-coat draw calls.",
         "method": "Generate reusable neutral swatches only after raw audition queue; after owner approval, map with anatomical masks and broad smooth blends. Never project one side photograph as complete360-degree texture.",
-        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam."
+        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam.",
+        "asset_allocation": "Six classes: body fur, longer rump guard hair, eye, nose/lid/paw skin, claw keratin and incisor enamel. Share two fur scales with dorsal/rump/underside masks; colours reuse the same detail.",
+        "anatomical_paint_details": "Coarse light-tipped hairs read as grizzle rather than painted dots. Keep paws, nose and ear skin localized; blend rump coat into torso without a fur-material band."
       },
-      "sex_age_season": "Sexes share the core model and initial coat masks unless a supported lineage requires dimorphism; bounded size distributions only. Plan age/season separately from sex.",
-      "extras": "Separate glossy eyes and visible lid/socket transitions after motion approval; bounded ear/tail/bill traits only where family anatomy supports them. Distinct body silhouette requires a second approved model, not forced recolouring.",
-      "hypothetical_variation": "Faint disruptive flank bands in shaded cover; sandy pale camouflage in open arid habitat; darker closed-canopy forms. Hypotheses are optional art candidates, not asserted existing species.",
+      "sex_age_season": "No obligatory contrasting male/female coats. Young require age proportions, not rabbit markings. Fur condition and wetness are state controls, separate from lineage pigmentation.",
+      "extras": "Tiny inconspicuous tail, modest longer rump silhouette, whiskers and fitted lateral eyes after approval. Visible incisors only if mouth geometry supports them.",
+      "hypothetical_variation": "More golden rump tips, subdued dark or pale edge-habitat pigment are optional designs, not exact species identifications.",
       "motion_source_plan": "CDmir rat or squirrel CC0, selected for ground gait; swimming/digging remain explicit gaps",
       "required_behaviour_clips": [
         "idle",
@@ -4017,7 +4143,7 @@
       "motion_gaps_policy": "Use only verified CC0 source motion. Missing clips stay explicitly missing; do not rename an unrelated action as feeding/running. No complex invented mammal/bird motion.",
       "model_prompt_constraints": "Neutral symmetric anatomy, visible distinct limbs, straight head/neck, natural eye sockets/lids, no baked accessories, isolated reference, front/side/rear checks. Bird/bat wings need actual separable geometry.",
       "review_plan": "1 candidates;2 bounded colour-only preview until painting approved;3 Side/Face/Orbit plus rear/front body;4 blended showcase/locomotion; visible Show/Hide Skeleton, pause and all available individual clips.",
-      "second_pass_status": "Pending targeted species/sex research after all raw auditions; current coat analogues are first-pass plans, hypothetical variants explicitly labelled.",
+      "second_pass_status": "Targeted analogue/sex/age/season planning refined with linked sources; geometry approval and remaining alias research still pending. No textures generated or models painted.",
       "actual_model_status": "Not generated",
       "original_row": {
         "Priority": "5",
@@ -4035,6 +4161,27 @@
         "Your implementation choice": "",
         "Your priority": "",
         "Your notes": ""
+      },
+      "appearance_variation_plan": {
+        "real_analogues": [
+          "Dasyprocta-like coarse rump fur, long-legged stance and tiny tail"
+        ],
+        "coat_configurations": [
+          "rufous-brown grizzle",
+          "dark brown",
+          "gold-tipped rump analogue",
+          "hypothetical subdued pale forest-edge"
+        ],
+        "surface_class_count": 6,
+        "texture_assets": "Six classes: body fur, longer rump guard hair, eye, nose/lid/paw skin, claw keratin and incisor enamel. Share two fur scales with dorsal/rump/underside masks; colours reuse the same detail.",
+        "sex_age_season": "No obligatory contrasting male/female coats. Young require age proportions, not rabbit markings. Fur condition and wetness are state controls, separate from lineage pigmentation.",
+        "extras": "Tiny inconspicuous tail, modest longer rump silhouette, whiskers and fitted lateral eyes after approval. Visible incisors only if mouth geometry supports them.",
+        "paint_details": "Coarse light-tipped hairs read as grizzle rather than painted dots. Keep paws, nose and ear skin localized; blend rump coat into torso without a fur-material band.",
+        "hypotheses": "More golden rump tips, subdued dark or pale edge-habitat pigment are optional designs, not exact species identifications.",
+        "geometry_limits": "The selected model must have an agouti's leg stance/tiny tail, not merely a tailless rat. Paca spotting and guinea-pig proportions need other anatomy. Generic rodent motion does not supply upright nut handling.",
+        "sources": [
+          "https://animals.sandiegozoo.org/animals/agouti"
+        ]
       }
     },
     {
@@ -4060,10 +4207,10 @@
         ],
         "coat_configuration_count": 4,
         "coats": [
-          "rufous back grey flanks",
-          "dark brown",
-          "pale upland",
-          "grey-brown"
+          "chestnut brown",
+          "grey-flanked brown",
+          "dark woodland analogue",
+          "hypothetical subdued pale litter"
         ],
         "paint_zones": [
           "back",
@@ -4077,11 +4224,13 @@
         ],
         "channels": "One2K base-colour atlas +1K normal/roughness for medium/large animals;1K/512 for small animals;256-512 for tiny fauna. Shared eye/keratin swatches. No extra per-coat draw calls.",
         "method": "Generate reusable neutral swatches only after raw audition queue; after owner approval, map with anatomical masks and broad smooth blends. Never project one side photograph as complete360-degree texture.",
-        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam."
+        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam.",
+        "asset_allocation": "Five classes: dense short fur, fine tail fur, eye, nose/lid/paw skin and ear skin. Share neutral fur; back/flank/underside and tail masks control colour, without a texture generation per tint.",
+        "anatomical_paint_details": "Chestnut dorsum grades to grey/pale flanks and underside. Ear bowls do not become large pink discs; tail remains lightly furred rather than a naked mouse tail."
       },
-      "sex_age_season": "Sexes share the core model and initial coat masks unless a supported lineage requires dimorphism; bounded size distributions only. Plan age/season separately from sex.",
-      "extras": "Separate glossy eyes and visible lid/socket transitions after motion approval; bounded ear/tail/bill traits only where family anatomy supports them. Distinct body silhouette requires a second approved model, not forced recolouring.",
-      "hypothetical_variation": "Faint disruptive flank bands in shaded cover; sandy pale camouflage in open arid habitat; darker closed-canopy forms. Hypotheses are optional art candidates, not asserted existing species.",
+      "sex_age_season": "Shared coat pool across sexes. Small body/age proportions remain bounded; do not add a universal winter-white state. Young have rounded proportions rather than decorative juvenile stripes.",
+      "extras": "Blunt muzzle, small eyes, partly fur-hidden rounded ears and short hairy tail after approval; minimal whiskers sized for the tiny body.",
+      "hypothetical_variation": "Subdued pale litter or dark woodland pigment is optional. Avoid domestic mouse patchwork as the baseline.",
       "motion_source_plan": "CDmir rat CC0 Walk/Run/Idle as small-rodent audition; assess tail/stride compatibility",
       "required_behaviour_clips": [
         "idle",
@@ -4094,7 +4243,7 @@
       "motion_gaps_policy": "Use only verified CC0 source motion. Missing clips stay explicitly missing; do not rename an unrelated action as feeding/running. No complex invented mammal/bird motion.",
       "model_prompt_constraints": "Neutral symmetric anatomy, visible distinct limbs, straight head/neck, natural eye sockets/lids, no baked accessories, isolated reference, front/side/rear checks. Bird/bat wings need actual separable geometry.",
       "review_plan": "1 candidates;2 bounded colour-only preview until painting approved;3 Side/Face/Orbit plus rear/front body;4 blended showcase/locomotion; visible Show/Hide Skeleton, pause and all available individual clips.",
-      "second_pass_status": "Pending targeted species/sex research after all raw auditions; current coat analogues are first-pass plans, hypothetical variants explicitly labelled.",
+      "second_pass_status": "Targeted analogue/sex/age/season planning refined with linked sources; geometry approval and remaining alias research still pending. No textures generated or models painted.",
       "actual_model_status": "Not generated",
       "original_row": {
         "Priority": "5",
@@ -4112,6 +4261,28 @@
         "Your implementation choice": "",
         "Your priority": "",
         "Your notes": ""
+      },
+      "appearance_variation_plan": {
+        "real_analogues": [
+          "Bank vole chestnut back, pale underside and short hairy tail"
+        ],
+        "coat_configurations": [
+          "chestnut brown",
+          "grey-flanked brown",
+          "dark woodland analogue",
+          "hypothetical subdued pale litter"
+        ],
+        "surface_class_count": 5,
+        "texture_assets": "Five classes: dense short fur, fine tail fur, eye, nose/lid/paw skin and ear skin. Share neutral fur; back/flank/underside and tail masks control colour, without a texture generation per tint.",
+        "sex_age_season": "Shared coat pool across sexes. Small body/age proportions remain bounded; do not add a universal winter-white state. Young have rounded proportions rather than decorative juvenile stripes.",
+        "extras": "Blunt muzzle, small eyes, partly fur-hidden rounded ears and short hairy tail after approval; minimal whiskers sized for the tiny body.",
+        "paint_details": "Chestnut dorsum grades to grey/pale flanks and underside. Ear bowls do not become large pink discs; tail remains lightly furred rather than a naked mouse tail.",
+        "hypotheses": "Subdued pale litter or dark woodland pigment is optional. Avoid domestic mouse patchwork as the baseline.",
+        "geometry_limits": "Wood mouse large ears/eyes and long tail are structural differences. A field-vole-like shorter tail/shaggier silhouette needs review, not just swapping the belly palette.",
+        "sources": [
+          "https://www.woodlandtrust.org.uk/trees-woods-and-wildlife/animals/mammals/bank-vole/",
+          "https://mammal.org.uk/british-mammals/bank-vole"
+        ]
       }
     },
     {
@@ -4127,7 +4298,7 @@
       "raw_candidates": 4,
       "triangle_budget": 6000,
       "texture_plan": {
-        "reusable_swatch_count": 5,
+        "reusable_swatch_count": 6,
         "materials": [
           "short directional fur",
           "eye/cornea",
@@ -4135,12 +4306,13 @@
           "hoof/horn keratin",
           "ear skin"
         ],
-        "coat_configuration_count": 4,
+        "coat_configuration_count": 5,
         "coats": [
-          "dark charcoal",
-          "mud-brown",
-          "grey mature",
-          "warm brown juvenile"
+          "dark charcoal African analogue",
+          "brown-grey African analogue",
+          "dark wet/mud state",
+          "grey-brown water-buffalo analogue on compatible shape",
+          "hypothetical muted warm brown"
         ],
         "paint_zones": [
           "dorsal/flanks",
@@ -4155,11 +4327,13 @@
         ],
         "channels": "One2K base-colour atlas +1K normal/roughness for medium/large animals;1K/512 for small animals;256-512 for tiny fauna. Shared eye/keratin swatches. No extra per-coat draw calls.",
         "method": "Generate reusable neutral swatches only after raw audition queue; after owner approval, map with anatomical masks and broad smooth blends. Never project one side photograph as complete360-degree texture.",
-        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam."
+        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam.",
+        "asset_allocation": "Six classes: coarse sparse coat, wrinkled skin, eye, nose/lid skin, horn/hoof keratin and temporary mud. Share coat/skin detail; muzzle, horn boss and bare/thin-furred regions are masks. Mud/wetness is not genetic variation.",
+        "anatomical_paint_details": "Horn grooves follow growth direction. Skin/coat transition at face and shoulders remains soft; local eye/nose gloss does not turn the whole animal into rubber."
       },
-      "sex_age_season": "Both sexes horns; mature male boss shape where supported; juveniles shorter.",
-      "extras": "Separate glossy eyes and visible lid/socket transitions after motion approval; bounded ear/tail/bill traits only where family anatomy supports them. Distinct body silhouette requires a second approved model, not forced recolouring.",
-      "hypothetical_variation": "Faint disruptive flank bands in shaded cover; sandy pale camouflage in open arid habitat; darker closed-canopy forms. Hypotheses are optional art candidates, not asserted existing species.",
+      "sex_age_season": "Both sexes have horns; mature male horn-base/boss and body robustness are linked traits rather than a horn/no-horn coin flip. Young need smaller horns and juvenile proportions. Sex differences are not universal black versus brown palettes.",
+      "extras": "African boss/horn family versus longer spreading water-buffalo family only after anatomy approval; two age/sex proportions per chosen family. Keep roots fitted to the skull and add tail tuft/eye detail later.",
+      "hypothetical_variation": "Muted warm/dark pigment and smaller coat-density differences are optional lineages, not evidence that all buffalo share one geometry.",
       "motion_source_plan": "horse",
       "required_behaviour_clips": [
         "idle",
@@ -4172,7 +4346,7 @@
       "motion_gaps_policy": "Use only verified CC0 source motion. Missing clips stay explicitly missing; do not rename an unrelated action as feeding/running. No complex invented mammal/bird motion.",
       "model_prompt_constraints": "Neutral symmetric anatomy, visible distinct limbs, straight head/neck, natural eye sockets/lids, no baked accessories, isolated reference, front/side/rear checks. Bird/bat wings need actual separable geometry.",
       "review_plan": "1 candidates;2 bounded colour-only preview until painting approved;3 Side/Face/Orbit plus rear/front body;4 blended showcase/locomotion; visible Show/Hide Skeleton, pause and all available individual clips.",
-      "second_pass_status": "Pending targeted species/sex research after all raw auditions; current coat analogues are first-pass plans, hypothetical variants explicitly labelled.",
+      "second_pass_status": "Targeted analogue/sex/age/season planning refined with linked sources; geometry approval and remaining alias research still pending. No textures generated or models painted.",
       "actual_model_status": "Not generated",
       "original_row": {
         "Priority": "5",
@@ -4190,6 +4364,29 @@
         "Your implementation choice": "",
         "Your priority": "",
         "Your notes": ""
+      },
+      "appearance_variation_plan": {
+        "real_analogues": [
+          "African/Cape buffalo",
+          "Wild water buffalo as a separate body/horn archetype"
+        ],
+        "coat_configurations": [
+          "dark charcoal African analogue",
+          "brown-grey African analogue",
+          "dark wet/mud state",
+          "grey-brown water-buffalo analogue on compatible shape",
+          "hypothetical muted warm brown"
+        ],
+        "surface_class_count": 6,
+        "texture_assets": "Six classes: coarse sparse coat, wrinkled skin, eye, nose/lid skin, horn/hoof keratin and temporary mud. Share coat/skin detail; muzzle, horn boss and bare/thin-furred regions are masks. Mud/wetness is not genetic variation.",
+        "sex_age_season": "Both sexes have horns; mature male horn-base/boss and body robustness are linked traits rather than a horn/no-horn coin flip. Young need smaller horns and juvenile proportions. Sex differences are not universal black versus brown palettes.",
+        "extras": "African boss/horn family versus longer spreading water-buffalo family only after anatomy approval; two age/sex proportions per chosen family. Keep roots fitted to the skull and add tail tuft/eye detail later.",
+        "paint_details": "Horn grooves follow growth direction. Skin/coat transition at face and shoulders remains soft; local eye/nose gloss does not turn the whole animal into rubber.",
+        "hypotheses": "Muted warm/dark pigment and smaller coat-density differences are optional lineages, not evidence that all buffalo share one geometry.",
+        "geometry_limits": "African and Asian buffalo differ in horns, head and proportions; four variants from one reference do not prove both archetypes exist. Bison is a separate entry and not an African-buffalo palette.",
+        "sources": [
+          "https://animals.sandiegozoo.org/animals/wild-cattle"
+        ]
       }
     },
     {
@@ -4205,7 +4402,7 @@
       "raw_candidates": 4,
       "triangle_budget": 6000,
       "texture_plan": {
-        "reusable_swatch_count": 5,
+        "reusable_swatch_count": 6,
         "materials": [
           "short directional fur",
           "eye/cornea",
@@ -4213,12 +4410,13 @@
           "hoof/horn keratin",
           "ear skin"
         ],
-        "coat_configuration_count": 4,
+        "coat_configuration_count": 5,
         "coats": [
-          "sandy beige",
+          "sand short coat",
           "dark brown",
           "pale cream",
-          "winter shaggy brown"
+          "shaggy winter Bactrian analogue on compatible shape",
+          "hypothetical grey-brown"
         ],
         "paint_zones": [
           "dorsal/flanks",
@@ -4233,11 +4431,13 @@
         ],
         "channels": "One2K base-colour atlas +1K normal/roughness for medium/large animals;1K/512 for small animals;256-512 for tiny fauna. Shared eye/keratin swatches. No extra per-coat draw calls.",
         "method": "Generate reusable neutral swatches only after raw audition queue; after owner approval, map with anatomical masks and broad smooth blends. Never project one side photograph as complete360-degree texture.",
-        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam."
+        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam.",
+        "asset_allocation": "Six classes: short body fur, shaggy neck/shoulder fur, eye, muzzle/lid skin, foot-pad/nail keratin and ear skin. Two fur scales plus head/underside/hump masks; long winter coat is a state/shape treatment, not another full atlas generation per hue.",
+        "anatomical_paint_details": "Directional fur flows over humps and blends into the neck. Muzzle/lid skin and foot pads use distinct local roughness. Avoid a sharp shaggy-neck material seam."
       },
-      "sex_age_season": "Sexes share the core model and initial coat masks unless a supported lineage requires dimorphism; bounded size distributions only. Plan age/season separately from sex.",
-      "extras": "One-hump and two-hump camels require explicit body/morph validation; never pretend texture creates second hump.",
-      "hypothetical_variation": "Faint disruptive flank bands in shaded cover; sandy pale camouflage in open arid habitat; darker closed-canopy forms. Hypotheses are optional art candidates, not asserted existing species.",
+      "sex_age_season": "Shared colour families across sexes; later neck/body fullness varies within an approved range. Hump condition is linked to body condition, not sex or a random genetic colour. Calves need age proportions; cold-adapted winter coat belongs to suitable lineages.",
+      "extras": "One- versus two-hump configurations need an approved back silhouette, not a painted hump. Fit nostrils, lips, lids/lashes and broad padded feet after motion selection; no saddle/accessories.",
+      "hypothetical_variation": "Subdued grey-brown or paler arid coats can be proposed. Do not claim every dromedary-like game lineage is an existing wild dromedary population.",
       "motion_source_plan": "horse",
       "required_behaviour_clips": [
         "idle",
@@ -4250,7 +4450,7 @@
       "motion_gaps_policy": "Use only verified CC0 source motion. Missing clips stay explicitly missing; do not rename an unrelated action as feeding/running. No complex invented mammal/bird motion.",
       "model_prompt_constraints": "Neutral symmetric anatomy, visible distinct limbs, straight head/neck, natural eye sockets/lids, no baked accessories, isolated reference, front/side/rear checks. Bird/bat wings need actual separable geometry.",
       "review_plan": "1 candidates;2 bounded colour-only preview until painting approved;3 Side/Face/Orbit plus rear/front body;4 blended showcase/locomotion; visible Show/Hide Skeleton, pause and all available individual clips.",
-      "second_pass_status": "Pending targeted species/sex research after all raw auditions; current coat analogues are first-pass plans, hypothetical variants explicitly labelled.",
+      "second_pass_status": "Targeted analogue/sex/age/season planning refined with linked sources; geometry approval and remaining alias research still pending. No textures generated or models painted.",
       "actual_model_status": "Not generated",
       "original_row": {
         "Priority": "5",
@@ -4268,6 +4468,29 @@
         "Your implementation choice": "",
         "Your priority": "",
         "Your notes": ""
+      },
+      "appearance_variation_plan": {
+        "real_analogues": [
+          "One-hump dromedary",
+          "Two-hump Bactrian form; wild/domestic body differences require review"
+        ],
+        "coat_configurations": [
+          "sand short coat",
+          "dark brown",
+          "pale cream",
+          "shaggy winter Bactrian analogue on compatible shape",
+          "hypothetical grey-brown"
+        ],
+        "surface_class_count": 6,
+        "texture_assets": "Six classes: short body fur, shaggy neck/shoulder fur, eye, muzzle/lid skin, foot-pad/nail keratin and ear skin. Two fur scales plus head/underside/hump masks; long winter coat is a state/shape treatment, not another full atlas generation per hue.",
+        "sex_age_season": "Shared colour families across sexes; later neck/body fullness varies within an approved range. Hump condition is linked to body condition, not sex or a random genetic colour. Calves need age proportions; cold-adapted winter coat belongs to suitable lineages.",
+        "extras": "One- versus two-hump configurations need an approved back silhouette, not a painted hump. Fit nostrils, lips, lids/lashes and broad padded feet after motion selection; no saddle/accessories.",
+        "paint_details": "Directional fur flows over humps and blends into the neck. Muzzle/lid skin and foot pads use distinct local roughness. Avoid a sharp shaggy-neck material seam.",
+        "hypotheses": "Subdued grey-brown or paler arid coats can be proposed. Do not claim every dromedary-like game lineage is an existing wild dromedary population.",
+        "geometry_limits": "Dromedary and Bactrian humps, coat and proportions are not simple palettes. A tall camel neck also needs motion checks; horse animation transfer does not automatically give correct camel gait or kneeling.",
+        "sources": [
+          "https://animals.sandiegozoo.org/animals/camel"
+        ]
       }
     },
     {
@@ -4292,12 +4515,13 @@
           "scaled feet",
           "optional bare facial skin"
         ],
-        "coat_configuration_count": 4,
+        "coat_configuration_count": 5,
         "coats": [
-          "black body blue neck red wattles",
-          "neck palette variation",
-          "brown juvenile",
-          "striped chick"
+          "black feather blue/red neck",
+          "muted blue/red adult",
+          "brighter female analogue",
+          "striped chick age state",
+          "hypothetical subdued dark-neck lineage"
         ],
         "paint_zones": [
           "crown",
@@ -4313,11 +4537,13 @@
         ],
         "channels": "One2K base-colour atlas +1K normal/roughness for medium/large animals;1K/512 for small animals;256-512 for tiny fauna. Shared eye/keratin swatches. No extra per-coat draw calls.",
         "method": "Generate reusable neutral swatches only after raw audition queue; after owner approval, map with anatomical masks and broad smooth blends. Never project one side photograph as complete360-degree texture.",
-        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam."
+        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam.",
+        "asset_allocation": "Six classes: coarse hair-like feather, bare neck/wattle skin, casque keratin, eye, bill/claw keratin and scaled foot skin. Share feather detail; blue/red skin regions and chick stripes are anatomical masks, not recolouring all feather pixels.",
+        "anatomical_paint_details": "Black coarse feathers retain directional fibre and local highlights. Bare blue/red neck skin is distinct from feather roots; casque growth texture and bill must not look like shiny plastic."
       },
-      "sex_age_season": "Species-dependent sex colours, breeding versus nonbreeding and juvenile plumage are separate profiles; do not force sexual dimorphism on monomorphic species.",
-      "extras": "Separate glossy eyes and visible lid/socket transitions after motion approval; bounded ear/tail/bill traits only where family anatomy supports them. Distinct body silhouette requires a second approved model, not forced recolouring.",
-      "hypothetical_variation": "Bounded habitat-linked pigment/pattern variation within this anatomy; mark invented patterns explicitly. Structural colours, emission and transparency remain separate material traits.",
+      "sex_age_season": "Adult sexes broadly similar; southern females can be larger/brighter with a taller casque. Do not force a brighter-male rule. Chicks need reduced casque/wattles and a juvenile striped shape, not the adult scaled down.",
+      "extras": "Casque and two southern-style wattles, fitted eye surrounds and strong inner toe claw after approval. Bound casque shape and neck colour as linked lineage traits, not random facial props.",
+      "hypothetical_variation": "Subdued neck contrast or altered bounded casque profile can be invented. Keep such designs separate from verified southern-cassowary sex differences.",
       "motion_source_plan": "bird",
       "required_behaviour_clips": [
         "idle",
@@ -4330,7 +4556,7 @@
       "motion_gaps_policy": "Use only verified CC0 source motion. Missing clips stay explicitly missing; do not rename an unrelated action as feeding/running. No complex invented mammal/bird motion.",
       "model_prompt_constraints": "Neutral symmetric anatomy, visible distinct limbs, straight head/neck, natural eye sockets/lids, no baked accessories, isolated reference, front/side/rear checks. Bird/bat wings need actual separable geometry.",
       "review_plan": "1 candidates;2 bounded colour-only preview until painting approved;3 Side/Face/Orbit plus rear/front body;4 blended showcase/locomotion; visible Show/Hide Skeleton, pause and all available individual clips.",
-      "second_pass_status": "Pending targeted species/sex research after all raw auditions; current coat analogues are first-pass plans, hypothetical variants explicitly labelled.",
+      "second_pass_status": "Targeted analogue/sex/age/season planning refined with linked sources; geometry approval and remaining alias research still pending. No textures generated or models painted.",
       "actual_model_status": "Not generated",
       "original_row": {
         "Priority": "5",
@@ -4348,6 +4574,29 @@
         "Your implementation choice": "",
         "Your priority": "",
         "Your notes": ""
+      },
+      "appearance_variation_plan": {
+        "real_analogues": [
+          "Southern double-wattled cassowary"
+        ],
+        "coat_configurations": [
+          "black feather blue/red neck",
+          "muted blue/red adult",
+          "brighter female analogue",
+          "striped chick age state",
+          "hypothetical subdued dark-neck lineage"
+        ],
+        "surface_class_count": 6,
+        "texture_assets": "Six classes: coarse hair-like feather, bare neck/wattle skin, casque keratin, eye, bill/claw keratin and scaled foot skin. Share feather detail; blue/red skin regions and chick stripes are anatomical masks, not recolouring all feather pixels.",
+        "sex_age_season": "Adult sexes broadly similar; southern females can be larger/brighter with a taller casque. Do not force a brighter-male rule. Chicks need reduced casque/wattles and a juvenile striped shape, not the adult scaled down.",
+        "extras": "Casque and two southern-style wattles, fitted eye surrounds and strong inner toe claw after approval. Bound casque shape and neck colour as linked lineage traits, not random facial props.",
+        "paint_details": "Black coarse feathers retain directional fibre and local highlights. Bare blue/red neck skin is distinct from feather roots; casque growth texture and bill must not look like shiny plastic.",
+        "hypotheses": "Subdued neck contrast or altered bounded casque profile can be invented. Keep such designs separate from verified southern-cassowary sex differences.",
+        "geometry_limits": "Northern/dwarf forms differ in wattles and proportions. The generic flightless Walk audition does not supply a natural sprint, kick or defensive display.",
+        "sources": [
+          "https://australian.museum/learn/animals/birds/southern-cassowary/",
+          "https://www.nationalzoo.si.edu/animals/southern-cassowary"
+        ]
       }
     },
     {
@@ -4363,7 +4612,7 @@
       "raw_candidates": 4,
       "triangle_budget": 4000,
       "texture_plan": {
-        "reusable_swatch_count": 5,
+        "reusable_swatch_count": 6,
         "materials": [
           "short/medium fur",
           "eye/cornea",
@@ -4371,12 +4620,13 @@
           "claw keratin",
           "ear skin"
         ],
-        "coat_configuration_count": 4,
+        "coat_configuration_count": 5,
         "coats": [
-          "grey black spots and bands",
-          "brown mottled",
-          "dark forest",
-          "pale mask variant"
+          "brown dark transverse bands",
+          "lower-contrast banded brown",
+          "provisional muted African-palm analogue",
+          "hypothetical dark canopy",
+          "hypothetical weak-banded litter form"
         ],
         "paint_zones": [
           "back",
@@ -4390,11 +4640,13 @@
         ],
         "channels": "One2K base-colour atlas +1K normal/roughness for medium/large animals;1K/512 for small animals;256-512 for tiny fauna. Shared eye/keratin swatches. No extra per-coat draw calls.",
         "method": "Generate reusable neutral swatches only after raw audition queue; after owner approval, map with anatomical masks and broad smooth blends. Never project one side photograph as complete360-degree texture.",
-        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam."
+        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam.",
+        "asset_allocation": "Six classes: body fur, fine tail fur, eye, nose/lid skin, paw pads and claw keratin. Shared fur; banded versus plain/provisional mottled masks and face/underside masks. Do not reuse one species' tail rings indiscriminately.",
+        "anatomical_paint_details": "Bands flow around torso with fur-soft edges. Keep nose, lids and pads distinct; do not paint a raccoon mask or large African-civet mane onto every palm civet."
       },
-      "sex_age_season": "Sexes share the core model and initial coat masks unless a supported lineage requires dimorphism; bounded size distributions only. Plan age/season separately from sex.",
-      "extras": "Separate glossy eyes and visible lid/socket transitions after motion approval; bounded ear/tail/bill traits only where family anatomy supports them. Distinct body silhouette requires a second approved model, not forced recolouring.",
-      "hypothetical_variation": "Faint disruptive flank bands in shaded cover; sandy pale camouflage in open arid habitat; darker closed-canopy forms. Hypotheses are optional art candidates, not asserted existing species.",
+      "sex_age_season": "No obligatory sex-specific colour; African palm-civet reference describes sexes as alike. Young need age proportions. Coherent lineage masks are stable; individual noise does not redefine species each reload.",
+      "extras": "Fitted lateral eyes/lids, muzzle whiskers, small ears and a long tail after approval. Local ear/muzzle/tail morphs remain bounded and require motion recheck.",
+      "hypothetical_variation": "Darker canopy or reduced-band forms are optional designs. A provisional muted coat is not claimed as a faithfully researched African-palm species texture.",
       "motion_source_plan": "fox; choose closer dedicated CC0 source where available",
       "required_behaviour_clips": [
         "idle",
@@ -4407,7 +4659,7 @@
       "motion_gaps_policy": "Use only verified CC0 source motion. Missing clips stay explicitly missing; do not rename an unrelated action as feeding/running. No complex invented mammal/bird motion.",
       "model_prompt_constraints": "Neutral symmetric anatomy, visible distinct limbs, straight head/neck, natural eye sockets/lids, no baked accessories, isolated reference, front/side/rear checks. Bird/bat wings need actual separable geometry.",
       "review_plan": "1 candidates;2 bounded colour-only preview until painting approved;3 Side/Face/Orbit plus rear/front body;4 blended showcase/locomotion; visible Show/Hide Skeleton, pause and all available individual clips.",
-      "second_pass_status": "Pending targeted species/sex research after all raw auditions; current coat analogues are first-pass plans, hypothetical variants explicitly labelled.",
+      "second_pass_status": "Targeted analogue/sex/age/season planning refined with linked sources; geometry approval and remaining alias research still pending. No textures generated or models painted.",
       "actual_model_status": "Not generated",
       "original_row": {
         "Priority": "5",
@@ -4425,6 +4677,31 @@
         "Your implementation choice": "",
         "Your priority": "",
         "Your notes": ""
+      },
+      "appearance_variation_plan": {
+        "real_analogues": [
+          "Banded palm civet",
+          "African palm civet alias needs further appearance/shape matching"
+        ],
+        "coat_configurations": [
+          "brown dark transverse bands",
+          "lower-contrast banded brown",
+          "provisional muted African-palm analogue",
+          "hypothetical dark canopy",
+          "hypothetical weak-banded litter form"
+        ],
+        "surface_class_count": 6,
+        "texture_assets": "Six classes: body fur, fine tail fur, eye, nose/lid skin, paw pads and claw keratin. Shared fur; banded versus plain/provisional mottled masks and face/underside masks. Do not reuse one species' tail rings indiscriminately.",
+        "sex_age_season": "No obligatory sex-specific colour; African palm-civet reference describes sexes as alike. Young need age proportions. Coherent lineage masks are stable; individual noise does not redefine species each reload.",
+        "extras": "Fitted lateral eyes/lids, muzzle whiskers, small ears and a long tail after approval. Local ear/muzzle/tail morphs remain bounded and require motion recheck.",
+        "paint_details": "Bands flow around torso with fur-soft edges. Keep nose, lids and pads distinct; do not paint a raccoon mask or large African-civet mane onto every palm civet.",
+        "hypotheses": "Darker canopy or reduced-band forms are optional designs. A provisional muted coat is not claimed as a faithfully researched African-palm species texture.",
+        "geometry_limits": "The two palm-civet aliases are different taxa and need their own head/body references before claiming one shape covers both. Generic fox motion does not provide tree climbing or gripping; those remain missing.",
+        "sources": [
+          "https://chiangmai.zoothailand.org/en/animal_view.php?c_id=&detail_id=61",
+          "https://forestry.sarawak.gov.my/web/subpage/webpage_view/878",
+          "https://animaldiversity.org/accounts/Nandinia_binotata/"
+        ]
       }
     },
     {
@@ -4449,12 +4726,13 @@
           "scaled feet",
           "optional bare facial skin"
         ],
-        "coat_configuration_count": 4,
+        "coat_configuration_count": 5,
         "coats": [
           "white yellow crest",
-          "black red tail panel",
-          "grey rose breast",
-          "brown juvenile"
+          "off-white subdued crest",
+          "black with restrained coloured tail on compatible lineage",
+          "pink/grey galah analogue on compatible shape",
+          "hypothetical cream/ochre crest"
         ],
         "paint_zones": [
           "crown",
@@ -4470,11 +4748,13 @@
         ],
         "channels": "One2K base-colour atlas +1K normal/roughness for medium/large animals;1K/512 for small animals;256-512 for tiny fauna. Shared eye/keratin swatches. No extra per-coat draw calls.",
         "method": "Generate reusable neutral swatches only after raw audition queue; after owner approval, map with anatomical masks and broad smooth blends. Never project one side photograph as complete360-degree texture.",
-        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam."
+        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam.",
+        "asset_allocation": "Six classes: body contour feather, crest/flight/tail feather, eye, bill/claw keratin, scaled foot and bare eye-ring skin. Shared feather detail; crest, underwing wash, cheek and tail regions have distinct masks.",
+        "anatomical_paint_details": "White feathers remain shaded, with subtle feather-row detail rather than pure white emission. Place yellow underwing/crest regions correctly. Eye ring and iris are distinct, with local bill roughness."
       },
-      "sex_age_season": "Species-dependent sex colours, breeding versus nonbreeding and juvenile plumage are separate profiles; do not force sexual dimorphism on monomorphic species.",
-      "extras": "Crest and cheek patches; movable crest only if rig supports it.",
-      "hypothetical_variation": "Bounded habitat-linked pigment/pattern variation within this anatomy; mark invented patterns explicitly. Structural colours, emission and transparency remain separate material traits.",
+      "sex_age_season": "Do not universally colour males brightly and females brown. Sulphur-crested sexes look similar; iris hue can differ at close range. Young need age-appropriate crest/bill proportions; avoid interpreting feather damage as a species pattern.",
+      "extras": "Two or three compatible crest outlines/raised states after approval, fitted bare eye ring and robust parrot bill. Crest movement needs its own controlled geometry rather than painted stripes.",
+      "hypothetical_variation": "Cream/ochre crest and muted grey palettes can be invented. Do not claim one skull/crest accurately becomes every black/white/pink cockatoo.",
       "motion_source_plan": "bird",
       "required_behaviour_clips": [
         "idle",
@@ -4487,7 +4767,7 @@
       "motion_gaps_policy": "Use only verified CC0 source motion. Missing clips stay explicitly missing; do not rename an unrelated action as feeding/running. No complex invented mammal/bird motion.",
       "model_prompt_constraints": "Neutral symmetric anatomy, visible distinct limbs, straight head/neck, natural eye sockets/lids, no baked accessories, isolated reference, front/side/rear checks. Bird/bat wings need actual separable geometry.",
       "review_plan": "1 candidates;2 bounded colour-only preview until painting approved;3 Side/Face/Orbit plus rear/front body;4 blended showcase/locomotion; visible Show/Hide Skeleton, pause and all available individual clips.",
-      "second_pass_status": "Pending targeted species/sex research after all raw auditions; current coat analogues are first-pass plans, hypothetical variants explicitly labelled.",
+      "second_pass_status": "Targeted analogue/sex/age/season planning refined with linked sources; geometry approval and remaining alias research still pending. No textures generated or models painted.",
       "actual_model_status": "Not generated",
       "original_row": {
         "Priority": "5",
@@ -4505,6 +4785,30 @@
         "Your implementation choice": "",
         "Your priority": "",
         "Your notes": ""
+      },
+      "appearance_variation_plan": {
+        "real_analogues": [
+          "Sulphur-crested white cockatoo",
+          "Black and galah-like palettes only on compatible shapes"
+        ],
+        "coat_configurations": [
+          "white yellow crest",
+          "off-white subdued crest",
+          "black with restrained coloured tail on compatible lineage",
+          "pink/grey galah analogue on compatible shape",
+          "hypothetical cream/ochre crest"
+        ],
+        "surface_class_count": 6,
+        "texture_assets": "Six classes: body contour feather, crest/flight/tail feather, eye, bill/claw keratin, scaled foot and bare eye-ring skin. Shared feather detail; crest, underwing wash, cheek and tail regions have distinct masks.",
+        "sex_age_season": "Do not universally colour males brightly and females brown. Sulphur-crested sexes look similar; iris hue can differ at close range. Young need age-appropriate crest/bill proportions; avoid interpreting feather damage as a species pattern.",
+        "extras": "Two or three compatible crest outlines/raised states after approval, fitted bare eye ring and robust parrot bill. Crest movement needs its own controlled geometry rather than painted stripes.",
+        "paint_details": "White feathers remain shaded, with subtle feather-row detail rather than pure white emission. Place yellow underwing/crest regions correctly. Eye ring and iris are distinct, with local bill roughness.",
+        "hypotheses": "Cream/ochre crest and muted grey palettes can be invented. Do not claim one skull/crest accurately becomes every black/white/pink cockatoo.",
+        "geometry_limits": "Galah, sulphur-crested and large black cockatoos differ in crest, bill and proportions. Generic bird motion lacks parrot climbing, bill manipulation and crest display until supplied.",
+        "sources": [
+          "https://animals.sandiegozoo.org/animals/cockatoo",
+          "https://australian.museum/learn/animals/birds/sulphur-crested-cockatoo/"
+        ]
       }
     },
     {
@@ -4520,7 +4824,7 @@
       "raw_candidates": 4,
       "triangle_budget": 6000,
       "texture_plan": {
-        "reusable_swatch_count": 5,
+        "reusable_swatch_count": 6,
         "materials": [
           "short directional fur",
           "eye/cornea",
@@ -4530,10 +4834,10 @@
         ],
         "coat_configuration_count": 4,
         "coats": [
-          "dark salt-pepper pale collar",
-          "brown-grey",
-          "strong collar",
-          "subtle collar"
+          "salt-pepper dark coat pale collar",
+          "warm brown-grey collar",
+          "dark subdued collar",
+          "hypothetical pale dryland"
         ],
         "paint_zones": [
           "dorsal/flanks",
@@ -4548,11 +4852,13 @@
         ],
         "channels": "One2K base-colour atlas +1K normal/roughness for medium/large animals;1K/512 for small animals;256-512 for tiny fauna. Shared eye/keratin swatches. No extra per-coat draw calls.",
         "method": "Generate reusable neutral swatches only after raw audition queue; after owner approval, map with anatomical masks and broad smooth blends. Never project one side photograph as complete360-degree texture.",
-        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam."
+        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam.",
+        "asset_allocation": "Six classes: coarse bristles, snout/lid skin, eye, hoof keratin, tooth enamel and optional dirt overlay. Shared bristle source; shoulder collar, muzzle and underside masks. Dirt is a state rather than a genetic coat.",
+        "anatomical_paint_details": "Pale collar follows the shoulder with bristly soft edges. Coarse grizzle is individual fibres, not spots. Snout nostrils and hoof borders need deliberate masks."
       },
-      "sex_age_season": "Subtle size/canine differences; no oversized boar tusks.",
-      "extras": "Separate glossy eyes and visible lid/socket transitions after motion approval; bounded ear/tail/bill traits only where family anatomy supports them. Distinct body silhouette requires a second approved model, not forced recolouring.",
-      "hypothetical_variation": "Faint disruptive flank bands in shaded cover; sandy pale camouflage in open arid habitat; darker closed-canopy forms. Hypotheses are optional art candidates, not asserted existing species.",
+      "sex_age_season": "Shared basic coat for sexes. Young need age proportions; no invented boar-like huge male tusk rule. Visible canine size depends on mouth/age, not antler-style random on/off selection.",
+      "extras": "Small rounded ears, tiny inconspicuous tail, fitted eyes and mobile-looking snout disc after selection. Teeth are smaller/straighter than the obvious curved wild-boar tusks; do not glue on giant upward tusks.",
+      "hypothetical_variation": "Reduced collar contrast and paler dryland pigment are optional. A white-lipped-peccary facial mask is a separate lineage decision, not automatically a collared-peccary sex coat.",
       "motion_source_plan": "horse",
       "required_behaviour_clips": [
         "idle",
@@ -4565,7 +4871,7 @@
       "motion_gaps_policy": "Use only verified CC0 source motion. Missing clips stay explicitly missing; do not rename an unrelated action as feeding/running. No complex invented mammal/bird motion.",
       "model_prompt_constraints": "Neutral symmetric anatomy, visible distinct limbs, straight head/neck, natural eye sockets/lids, no baked accessories, isolated reference, front/side/rear checks. Bird/bat wings need actual separable geometry.",
       "review_plan": "1 candidates;2 bounded colour-only preview until painting approved;3 Side/Face/Orbit plus rear/front body;4 blended showcase/locomotion; visible Show/Hide Skeleton, pause and all available individual clips.",
-      "second_pass_status": "Pending targeted species/sex research after all raw auditions; current coat analogues are first-pass plans, hypothetical variants explicitly labelled.",
+      "second_pass_status": "Targeted analogue/sex/age/season planning refined with linked sources; geometry approval and remaining alias research still pending. No textures generated or models painted.",
       "actual_model_status": "Not generated",
       "original_row": {
         "Priority": "5",
@@ -4583,6 +4889,27 @@
         "Your implementation choice": "",
         "Your priority": "",
         "Your notes": ""
+      },
+      "appearance_variation_plan": {
+        "real_analogues": [
+          "Collared peccary/javelina"
+        ],
+        "coat_configurations": [
+          "salt-pepper dark coat pale collar",
+          "warm brown-grey collar",
+          "dark subdued collar",
+          "hypothetical pale dryland"
+        ],
+        "surface_class_count": 6,
+        "texture_assets": "Six classes: coarse bristles, snout/lid skin, eye, hoof keratin, tooth enamel and optional dirt overlay. Shared bristle source; shoulder collar, muzzle and underside masks. Dirt is a state rather than a genetic coat.",
+        "sex_age_season": "Shared basic coat for sexes. Young need age proportions; no invented boar-like huge male tusk rule. Visible canine size depends on mouth/age, not antler-style random on/off selection.",
+        "extras": "Small rounded ears, tiny inconspicuous tail, fitted eyes and mobile-looking snout disc after selection. Teeth are smaller/straighter than the obvious curved wild-boar tusks; do not glue on giant upward tusks.",
+        "paint_details": "Pale collar follows the shoulder with bristly soft edges. Coarse grizzle is individual fibres, not spots. Snout nostrils and hoof borders need deliberate masks.",
+        "hypotheses": "Reduced collar contrast and paler dryland pigment are optional. A white-lipped-peccary facial mask is a separate lineage decision, not automatically a collared-peccary sex coat.",
+        "geometry_limits": "Pig and peccary ear/tail/tooth anatomy differs. A shortened boar mesh alone does not establish a correct peccary; generic ungulate motion still needs visual judgement.",
+        "sources": [
+          "https://animals.sandiegozoo.org/animals/peccary"
+        ]
       }
     },
     {
@@ -4606,12 +4933,13 @@
           "claw keratin",
           "ear skin"
         ],
-        "coat_configuration_count": 4,
+        "coat_configuration_count": 5,
         "coats": [
-          "coarse brown agouti",
-          "grey-brown",
-          "dark brown",
-          "sandy"
+          "dark-brown buff grizzle",
+          "grey-brown grizzle",
+          "warm tan-brown",
+          "hypothetical dark wet-grass",
+          "hypothetical pale dry-grass"
         ],
         "paint_zones": [
           "back",
@@ -4625,11 +4953,13 @@
         ],
         "channels": "One2K base-colour atlas +1K normal/roughness for medium/large animals;1K/512 for small animals;256-512 for tiny fauna. Shared eye/keratin swatches. No extra per-coat draw calls.",
         "method": "Generate reusable neutral swatches only after raw audition queue; after owner approval, map with anatomical masks and broad smooth blends. Never project one side photograph as complete360-degree texture.",
-        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam."
+        "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam.",
+        "asset_allocation": "Five classes: coarse grizzled fur, sparsely haired scaly tail, eye, nose/lid/paw skin and ear skin. One neutral fur source plus guard-hair modulation and dorsal/ventral masks; palette changes reuse detail.",
+        "anatomical_paint_details": "Mix dark and buff/grey guard hairs for hispid texture, pale underside and restrained face warmth. Separate tail scales and nose skin from body fur without a neck seam."
       },
-      "sex_age_season": "Sexes share the core model and initial coat masks unless a supported lineage requires dimorphism; bounded size distributions only. Plan age/season separately from sex.",
-      "extras": "Separate glossy eyes and visible lid/socket transitions after motion approval; bounded ear/tail/bill traits only where family anatomy supports them. Distinct body silhouette requires a second approved model, not forced recolouring.",
-      "hypothetical_variation": "Faint disruptive flank bands in shaded cover; sandy pale camouflage in open arid habitat; darker closed-canopy forms. Hypotheses are optional art candidates, not asserted existing species.",
+      "sex_age_season": "Coat shared across sexes, no ornamental colour split. Young need appropriate proportions. Tail is shorter than head/body and does not acquire a squirrel-like plume as a winter variant.",
+      "extras": "Robust body, fur-hidden ears, short sparse tail, fitted eyes and whiskers after approval. Keep ear size visually subordinate to the dense coat.",
+      "hypothetical_variation": "Dark wet-grass and pale dry-grass pigments are optional plausible designs, not verified named species or mandatory habitat colours.",
       "motion_source_plan": "CDmir rat CC0 Walk/Run/Idle as small-rodent audition; assess tail/stride compatibility",
       "required_behaviour_clips": [
         "idle",
@@ -4642,7 +4972,7 @@
       "motion_gaps_policy": "Use only verified CC0 source motion. Missing clips stay explicitly missing; do not rename an unrelated action as feeding/running. No complex invented mammal/bird motion.",
       "model_prompt_constraints": "Neutral symmetric anatomy, visible distinct limbs, straight head/neck, natural eye sockets/lids, no baked accessories, isolated reference, front/side/rear checks. Bird/bat wings need actual separable geometry.",
       "review_plan": "1 candidates;2 bounded colour-only preview until painting approved;3 Side/Face/Orbit plus rear/front body;4 blended showcase/locomotion; visible Show/Hide Skeleton, pause and all available individual clips.",
-      "second_pass_status": "Pending targeted species/sex research after all raw auditions; current coat analogues are first-pass plans, hypothetical variants explicitly labelled.",
+      "second_pass_status": "Targeted analogue/sex/age/season planning refined with linked sources; geometry approval and remaining alias research still pending. No textures generated or models painted.",
       "actual_model_status": "Not generated",
       "original_row": {
         "Priority": "5",
@@ -4660,6 +4990,30 @@
         "Your implementation choice": "",
         "Your priority": "",
         "Your notes": ""
+      },
+      "appearance_variation_plan": {
+        "real_analogues": [
+          "Hispid cotton rat"
+        ],
+        "coat_configurations": [
+          "dark-brown buff grizzle",
+          "grey-brown grizzle",
+          "warm tan-brown",
+          "hypothetical dark wet-grass",
+          "hypothetical pale dry-grass"
+        ],
+        "surface_class_count": 5,
+        "texture_assets": "Five classes: coarse grizzled fur, sparsely haired scaly tail, eye, nose/lid/paw skin and ear skin. One neutral fur source plus guard-hair modulation and dorsal/ventral masks; palette changes reuse detail.",
+        "sex_age_season": "Coat shared across sexes, no ornamental colour split. Young need appropriate proportions. Tail is shorter than head/body and does not acquire a squirrel-like plume as a winter variant.",
+        "extras": "Robust body, fur-hidden ears, short sparse tail, fitted eyes and whiskers after approval. Keep ear size visually subordinate to the dense coat.",
+        "paint_details": "Mix dark and buff/grey guard hairs for hispid texture, pale underside and restrained face warmth. Separate tail scales and nose skin from body fur without a neck seam.",
+        "hypotheses": "Dark wet-grass and pale dry-grass pigments are optional plausible designs, not verified named species or mandatory habitat colours.",
+        "geometry_limits": "A long-tailed slender mouse or heavily furred woodrat tail is not corrected by this coat. Four raw rat-based motion candidates still require owner selection for body clearance.",
+        "sources": [
+          "https://www.outdooralabama.com/rodents/hispid-cotton-rat",
+          "https://webapps.fhsu.edu/ksmammal/account.aspx?o=39&t=232",
+          "https://www.biokids.umich.edu/critters/Sigmodon_hispidus/"
+        ]
       }
     },
     {

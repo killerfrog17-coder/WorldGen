@@ -1,5 +1,31 @@
 # WorldGen repository instructions
 
+OVERNIGHT FIRST50 PLAN CHECKPOINT,24October2026~09:27CDT:
+Same watch exec95232/PID30660 verified LIVE, jaguar shape-batch.
+72 raw reviews/288 files ready, no failed queue entries. Generator ran
+uninterrupted through Impala/InsectivorousBat. All owner ART pending; no painting,
+new texture generation, UI windows, Desktop/game/accepted-deer changes.
+First50 catalogue rows now all have detailed linked appearance/representation
+plans in SPECIES_VARIATION_PLANS.json mirrored into asset-plan.json and editable
+FAUNA_ASSET_PLAN.csv. New15:5 audio-only profiles +AfricanHuntingDog/Agouti/
+BankVole/Buffalo/Camel/Cassowary/Civet/Cockatoo/CollaredPeccary/CottonRat.
+Audio5 explicitly zero coats/swatches/models, one base profile +derived coherent
+acoustic lineages, sex/age/season/caller-height/phrase-role plans. No playback
+bank or ecology code changed. CSV now includes Audio placement / variation;
+helper gives audio-appropriate research status rather than geometry-approval text.
+Sources include institutional zoology/conservation/university facts plus original
+katydid/birdsong research. Do NOT assume all bird song male-only or every frog
+calls only at night. These schedules remain plans, not claimed runtime changes.
+Buf/Camel/Civet/Cockatoo body/appendage limits explicit; not guaranteed recolour
+coverage. African palm-civet appearance/shape still needs further alias matching;
+other exact-species coverage may remain pending where documented.
+Validated allfirst50,188CSVrows,mirror/coats/classes/source fields, audio-zero
+allocations and populated audio-column5; raw scope fields unchanged by helper.
+Remaining138 rows initial plans/targeted research pending; many raw assets queued.
+CoastalSquid CC0 source still login-gated, not falsely marked animation-ready.
+Previous remote65f4a92a40e8305d8823b6d1108dd9370890c038; new planning work needs
+backup. Preserve owner's deleted prompt and unrelated untracked deer scripts.
+
 OVERNIGHT FIRST35 PLAN CHECKPOINT,24October2026~09:18CDT:
 Same watch exec95232/PID30660 verified LIVE, impala shape-batch.
 70 raw reviews/280 files ready; no failed queue entries. Main GPU kept

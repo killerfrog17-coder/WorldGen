@@ -18,16 +18,18 @@ def apply_refinements(rows,directory):
         row['sex_age_season']=detail['sex_age_season'];row['extras']=detail['extras']
         row['hypothetical_variation']=detail['hypotheses']
         row['second_pass_status']='Targeted analogue/sex/age/season planning refined with linked sources; geometry approval and remaining alias research still pending. No textures generated or models painted.'
+        if row['asset_status']=='audio_existing':
+            row['second_pass_status']='Audio-only sex/season/spatial-call/speciation plan refined with sources. No visual asset allocation or playback-bank changes.'
     return rows
 
 def write_table(rows,path):
-    columns=['Rank','Animal','Status','Representation','Triangles','Candidates','Swatches','Coats','Paint regions','Sex / age / season','Extras','Motion sources','Research status','Texture allocation','Plausible hypotheses','Geometry limits','Sources']
+    columns=['Rank','Animal','Status','Representation','Triangles','Candidates','Swatches','Coats','Paint regions','Sex / age / season','Extras','Motion sources','Research status','Texture allocation','Plausible hypotheses','Geometry limits','Sources','Audio placement / variation']
     path=Path(path);temporary=path.with_suffix('.csv.tmp')
     with temporary.open('w',newline='',encoding='utf-8-sig') as f:
         w=csv.writer(f);w.writerow(columns)
         for x in rows:
             detail=x.get('appearance_variation_plan',{})
-            w.writerow([x['priority_rank'],x['animal'],x['asset_status'],x['representation'],x['triangle_budget'],x['raw_candidates'],x['texture_plan']['reusable_swatch_count'],'; '.join(x['texture_plan']['coats']),'; '.join(x['texture_plan']['paint_zones']),x['sex_age_season'],x['extras'],x['motion_source_plan'],x['second_pass_status'],detail.get('texture_assets',''),x['hypothetical_variation'],detail.get('geometry_limits',''),'; '.join(detail.get('sources',[]))])
+            w.writerow([x['priority_rank'],x['animal'],x['asset_status'],x['representation'],x['triangle_budget'],x['raw_candidates'],x['texture_plan']['reusable_swatch_count'],'; '.join(x['texture_plan']['coats']),'; '.join(x['texture_plan']['paint_zones']),x['sex_age_season'],x['extras'],x['motion_source_plan'],x['second_pass_status'],detail.get('texture_assets',''),x['hypothetical_variation'],detail.get('geometry_limits',''),'; '.join(detail.get('sources',[])),detail.get('acoustic_plan','')])
     temporary.replace(path)
 
 if __name__=='__main__':
