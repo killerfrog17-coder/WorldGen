@@ -1,5 +1,28 @@
 # WorldGen repository instructions
 
+DUIKER REPLACEMENT READY / EMU ACTIVE,24October2026:
+Duiker4 fresh shapes/NN rigs/native controls completed. CPU Bind oblique and
+Walk phase.33 side/front all4 inspected: neutral geometry FOUR legs, original
+fifth-limb reference defect removed. Walk still provisional, warnings1 rear-leg
+skin and3 forefoot overlap; no art/natural/contact acceptance or model exclusion.
+Finalized usable_for_raw_audition; horse source hashes now locked for this trial.
+Duiker back in manual pending list, no GUI switch/prompt. Old rejected archive
+pruned16.78MiB/36 exact files after hashes/replacement checks; compact provenance
+retained. New reusable scripts/prune-rejected-fauna.py defaults read-only,
+--apply checks exact resolved root/manifest/native/source decision and retained
+review/4model/4rig hashes. Tested applied to Duiker only; no selected files touched.
+Old Duiker exec56874/PID43180 TERMINAL. New sole EMU --only folded-ground-bird-
+stable trial exec39210/PID10624 LIVE (verify). Brief VRAM wait cleared; shape log
+shows active resident inference. Queue phase can still say waiting_for_gpu_memory
+until next subprocess due old display bug, NOT a stopped job. Future worker code
+now clears stale free_gpu_gib/restores phase after gate; do NOT restart current
+inference merely to load this display fix. Current no low-memory mode/quality cut.
+After Emu: native+CPU Walk side/front all4, finalize technical source, prune old
+archive via helper, then RESUME full --watch to cached partial Turaco/rest176.
+Owner viewer PID16200 RIGHTMOST stays untouched,39 choices; no new texture work.
+Source-free/review subset is NOT full goal completion. Prior remote5a7ca65;
+new helper/guard-display fix/status checkpoint need backup.
+
 OWNER39 / PENDING VIEW REOPENED / DUIKER REROLL ACTIVE,24October2026~13:46CDT:
 Owner selected CottonRat2,Crane3,Falcon2,FishEagle2,Flamingo1,ForestEagle1;
 canonical OWNER_SELECTIONS now39. Owner explicitly asks Duiker+Emu fresh redo:

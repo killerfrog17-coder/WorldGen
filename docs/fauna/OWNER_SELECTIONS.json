@@ -596,12 +596,12 @@
     },
     "duiker": {
       "reason": "Owner rejects all four: fifth leg inherited from faulty reference; regenerate reference, four models and independent rigs.",
-      "status": "regenerating",
+      "status": "replacement_ready_owner_review_pending",
       "art_approved": false
     },
     "emu": {
       "reason": "Owner rejects leg assignment/motion; regenerate neutral two-leg reference and four models/fresh rigs with ground-only transfer.",
-      "status": "queued_for_fresh_reference_and_models",
+      "status": "regenerating",
       "art_approved": false
     }
   }

@@ -54,6 +54,10 @@ def run(command,log):
             state['phase']='waiting_for_gpu_memory';state['free_gpu_gib']=round(free,2);save()
             if pause_requested():raise RuntimeError('Owner-requested safe pause while waiting for GPU')
             time.sleep(10)
+        if 'free_gpu_gib' in state:
+            # The gate has cleared. Do not leave a live inference batch marked
+            # as waiting for VRAM until its next subprocess begins.
+            state.pop('free_gpu_gib',None);state['phase']=log.stem;save()
     print('STEP',state['current'],log.name,flush=True)
     with log.open('w') as f:r=subprocess.run([str(x) for x in command],cwd=repo,stdout=f,stderr=subprocess.STDOUT,env=env)
     if r.returncode:raise RuntimeError(f'Step failed {r.returncode}: {log}')
