@@ -1,5 +1,19 @@
 # Version 3 validation evidence
 
+## Approved fresh deer animation review — 23 October2026
+
+Stage2 native checks pass: exact approved bind coordinates/topology/UV/active
+packed image bytes/appearance shape-key coordinates;34 fitted bones, normalized
+top4 linear skin;16 actions including2 phase-blended demonstrations.798 selected
+integer/half/quarter-frame poses finite/bounded, all action/species/view/mode
+controls pass. Grazing muzzle25.170–25.187mm above plane; worst sampled body
+penetration3.613mm in Walk. Not zero penetration, universal collision/foot-slide,
+natural gait or game acceptance. Selected CPU idle/walk/run/eating previews
+inspected; earlier weight-spill/distance-gate/abrupt-hoof failures were corrected.
+Rightmost review is open; owner currently inspecting, leave viewer untouched.
+No GPU inference/game launch/profile/Unity/Desktop change. See
+[method and limits](DEER_STAGE2_ANIMATION_REVIEW.md).
+
 ## Deer lids, antlers and review navigation — 23 October2026
 
 Final separate `Deer - Stage1 Eyelid and Antler Review v3.blend`,face revision6.

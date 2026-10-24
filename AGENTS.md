@@ -1,5 +1,23 @@
 # WorldGen repository instructions
 
+DEER STAGE2 REVIEW READY,23October2026: owner authorized animation and now says
+looking at it/give time to inspect. Leave viewer UNTOUCHED while reviewing.
+artifacts/fauna-deer-stage2-20261023/Deer - Stage2 Animation Review.blend opened
+RIGHTMOST; one follow-up answered inspection pending.1 motion set1/1,2 existing
+species/antlers,3 views,4 showcase/locomotion; headerPause/Play and individual
+sidebar clips.34-bone accepted hierarchy fitted to approved fresh mesh; new
+anatomical capsule/spine/neck weights with geodesic smoothing/top4, linear skin.
+13 accepted Mesh2Motion authored source clips +reverseGetUp LieDown +2 blended
+demos=16 actions,60Hz keys/30fps. No stock mesh/neural generation. Initial foreign
+skin spill and later distance-gate membranes rejected; sampled toe-off93degree
+jump bounded, half-frame contact rebake. Grazing head ahead of planted forefeet,
+native muzzle25.170-25.187mm.798 native sampled integer/half/quarter poses pass,
+all controls pass; bind mesh/UV/active packed maps/shape-key coordinates EXACT
+against approved Stage1. Worst sampled body floor penetration3.613mm (Walk),
+NOT zero contact error/full intersection/gait acceptance. No game/Unity/GPU/
+Desktop changes,owner app closure or preference saves. Owner ART/MOTION REVIEW
+PENDING, no automatic production admission. See docs/DEER_STAGE2_ANIMATION_REVIEW.md.
+
 DEER STAGE2 AUTHORIZED,23October2026: owner accepted final Stage1 canthus/nav
 correction and explicitly says continue to animation phase. Use approved fresh
 artifacts/fauna-deer-stage1-20261023/Deer - Stage1 Eyelid and Antler Review v3.blend.

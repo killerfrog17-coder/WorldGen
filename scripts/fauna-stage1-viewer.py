@@ -7,6 +7,7 @@ import bpy
 from mathutils import Vector,Quaternion
 
 scene=bpy.context.scene;info=json.loads(scene['fauna_stage1'])
+stage2=info.get('stage')==2
 for coat in info['coats']:
     material=bpy.data.materials[coat['material']];nodes=material.node_tree.nodes;links=material.node_tree.links
     if 'Species tint' not in nodes:
@@ -16,7 +17,7 @@ for coat in info['coats']:
 state={'coat':0,'seed':732123,'view':0,'started':time.monotonic(),'bag':list(range(1,len(info['coats']))),'sex':'Female','antler':''}
 class F1_OT_model(bpy.types.Operator):
     bl_idname='fauna_review.model';bl_label='1 - Model'
-    def execute(self,context):self.report({'INFO'},'Model 1 / 1 - fresh deer');return {'FINISHED'}
+    def execute(self,context):self.report({'INFO'},'Motion set 1 / 1 - accepted authored bank' if stage2 else 'Model 1 / 1 - fresh deer');return {'FINISHED'}
 class F1_OT_species(bpy.types.Operator):
     bl_idname='fauna_review.species';bl_label='2 - Species variation'
     def execute(self,context):
@@ -98,7 +99,7 @@ class F1_OT_free_orbit(bpy.types.Operator):
         return {'RUNNING_MODAL'}
 def draw_controls(layout):
     row=layout.row(align=True)
-    row.operator('fauna_review.model',text='1: Model 1/1')
+    row.operator('fauna_review.model',text='1: Motion set 1/1' if stage2 else '1: Model 1/1')
     row.operator('fauna_review.species',text='2: Species variation')
     row.operator('fauna_review.view',text='3: Side / Face / Orbit')
     row.operator('fauna_review.view',text='Rear').rear=True
@@ -106,17 +107,17 @@ def draw_controls(layout):
     row.operator('fauna_review.free_orbit',text='Free orbit')
 def header(self,context):draw_controls(self.layout)
 class F1_PT_panel(bpy.types.Panel):
-    bl_idname='F1_PT_panel';bl_label='Animal model review - Stage 1'
+    bl_idname='F1_PT_panel';bl_label='Animal animation review - Stage 2' if stage2 else 'Animal model review - Stage 1'
     bl_space_type='VIEW_3D';bl_region_type='UI';bl_category='Animal Review'
     def draw(self,context):
-        col=self.layout.column();col.label(text='Fresh deer - Model 1 / 1')
+        col=self.layout.column();col.label(text='Deer animation - Motion set 1 / 1' if stage2 else 'Fresh deer - Model 1 / 1')
         col.label(text=info['coats'][state['coat']]['label'])
         col.label(text='Phenotype seed '+str(state['seed']))
         if info.get('antlers'):col.label(text=state['sex']+' - '+(state['antler'] or 'No antlers'))
         if 'ear' in state:col.label(text=f"Ear trait {state['ear']:.2f} / Tail {state['tail']:.2f}")
-        col.label(text=('Up to ' if info.get('antlers') else '')+str(info['triangle_count'])+' triangles - unrigged')
+        col.label(text=('Up to ' if info.get('antlers') else '')+str(info['triangle_count'])+' triangles'+(' - fitted rig' if stage2 else ' - unrigged'))
         col.separator();col.operator('fauna_review.species');col.operator('fauna_review.view')
-        col.label(text='Awaiting model/coat approval')
+        col.label(text='Approved model - animation review' if stage2 else 'Awaiting model/coat approval')
 def tick():
     for window in bpy.context.window_manager.windows:
         for area in window.screen.areas:
@@ -138,7 +139,7 @@ if not bpy.app.background:
     import blf
     def draw_status():
         blf.size(0,17);blf.color(0,1,1,1,1);blf.enable(0,blf.SHADOW);blf.shadow(0,3,0,0,0,1)
-        lines=['STAGE 1 - DEER MODEL 1 / 1 - FACE REV '+str(info.get('face_revision',info.get('nose_revision',1))),
+        lines=[('STAGE 2 - DEER MOTION SET 1 / 1' if stage2 else 'STAGE 1 - DEER MODEL 1 / 1 - FACE REV '+str(info.get('face_revision',info.get('nose_revision',1)))),
             '2: '+info['coats'][state['coat']]['label']+' | seed '+str(state['seed']),
             '3: Side / Face / Orbit | '+('up to ' if info.get('antlers') else '')+str(info['triangle_count'])+' triangles']
         if info.get('antlers'):lines.insert(2,state['sex']+' | '+(state['antler'] or 'No antlers'))
