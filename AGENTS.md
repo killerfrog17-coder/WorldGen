@@ -1,5 +1,24 @@
 # WorldGen repository instructions
 
+OWNER PAUSED FOR COMPETITIVE GAME,24October2026~14:14CDT:
+Owner explicitly says stop at a safe point, pause for a couple hours and leave
+nothing from this work in background. DO NOT RESUME until owner asks.
+run-control.json mode=pause with owner reason. Sole full worker exec2565/
+PID14848 exited normally after current Turaco rig batch; worker_exited=true,
+current=null, worker.lock absent. All4 Turaco meshes and fresh neural rigs saved;
+review assembly/native gallery check still pending.108 prior reviews/432 models
+remain ready,39 selections saved. No new inference/review process should start.
+Owner review PID16200 was already closed when checked; no app force-killed.
+Verified process scan for owned fauna generation/rig/build/check/render/viewer/
+audit scripts reports ZERO active. GPU context released; NVML1180MiB used/
+6778MiB free (other desktop/apps retained). No test/profiling/render run after
+pause. paused-for-competitive-game.json records exact resume point.
+Only on explicit resume: set run-control mode=run, then python scripts/
+run-fauna-overnight.py --watch; it will assemble cached Turaco before next animal.
+Keep original full176-new-visual scope and later texture-source work intact.
+Goal status must be paused now; no timer/automatic resume. Prior remote5f76242;
+this pause checkpoint needs backup.
+
 EMU READY / FULL ROSTER RESUMED108,24October2026:
 Emu first fresh candidate3 failed two neural skeleton attempts; original worker
 exec39210/PID10624 TERMINAL. Kept new models/rigs1/2/4 exact; regenerated ONLY
