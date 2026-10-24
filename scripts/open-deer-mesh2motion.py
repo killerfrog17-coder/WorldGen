@@ -16,6 +16,7 @@ def main():
     ap.add_argument('--trellis',action='store_true',help='Open the separate native-material comparison')
     ap.add_argument('--coat',action='store_true',help='Open the live anatomical material review')
     ap.add_argument('--coat-final',action='store_true',help='Open the finished material trial')
+    ap.add_argument('--stage1',action='store_true',help='Open the unrigged animal selection review')
     ap.add_argument('--rightmost',action='store_true',help='Place the review on the rightmost monitor')
     ap.add_argument('--blend-name',help='Separate review filename inside --root')
     a=ap.parse_args();root=a.root.resolve()
@@ -23,6 +24,7 @@ def main():
     if a.trellis:blend=root/'Deer - TRELLIS2 Material Review.blend'
     if a.coat:blend=root/'Deer - Masked Coat Working Review.blend'
     if a.coat_final:blend=root/'Deer - Masked Coat Review.blend'
+    if a.stage1:blend=root/'Deer - Stage1 Model Review.blend'
     if a.blend_name:
         assert Path(a.blend_name).name==a.blend_name and a.blend_name.endswith('.blend')
         blend=root/a.blend_name
@@ -32,6 +34,8 @@ def main():
         viewer='deer-trellis2-viewer.py';ready='TRELLIS2 viewer controls ready.'
     if a.coat or a.coat_final:
         viewer='deer-masked-coat-viewer.py';ready='Masked-coat live viewer ready.'
+    if a.stage1:
+        viewer='fauna-stage1-viewer.py';ready='Fauna stage1 viewer ready.'
     blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
     assert blend.is_file()
     running=subprocess.check_output(['tasklist','/FO','CSV','/NH'],text=True,errors='replace').lower()
@@ -75,8 +79,8 @@ def main():
                 if monitors:rect=max(monitors,key=lambda r:r.left)
             hwnd=windows[0];user.ShowWindow(hwnd,4 if playing else 9)
             user.MoveWindow(hwnd,rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top,True)
-            # Do not steal input while the owner is playing. The window opens
-            # on the primary display; its Desktop shortcut remains available.
+            # Keep input with the game; position only the newly launched review.
+            # This launcher creates no Desktop item.
             if not playing:
                 user.ShowWindow(hwnd,3)
                 user.SetForegroundWindow(hwnd)

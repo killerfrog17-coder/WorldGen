@@ -31,6 +31,7 @@ def main():
     ap.add_argument('--chunk', type=int, default=4096)
     ap.add_argument('--latents', type=Path)
     ap.add_argument('--infer', action='store_true', help='Explicitly allow local GPU inference')
+    ap.add_argument('--shared-gpu', action='store_true',help='Owner-authorized game/inference coexistence trial')
     args = ap.parse_args()
     if args.output.exists():
         raise FileExistsError(args.output)
@@ -46,6 +47,35 @@ def main():
     sys.modules['diso'] = optional_diso
     import torch
     import numpy as np
+    import safetensors.torch as safe_torch
+    # Newer safetensors' mapped-storage slicing can access-violate on this
+    # Windows installation. Use owned bytes as in the validated deer painters.
+    def owned_load_file(filename,device='cpu',**kwargs):
+        # Avoid both Rust/PyO3 deserialization and mapped torch storage slicing.
+        # Read the documented tensor offsets into owned NumPy allocations.
+        types={'F64':'<f8','F32':'<f4','F16':'<f2','BF16':'<u2','I64':'<i8','I32':'<i4',
+               'I16':'<i2','I8':'i1','U8':'u1','BOOL':'?'}
+        tensors={}
+        with Path(filename).open('rb') as stream:
+            header_size=int.from_bytes(stream.read(8),'little')
+            if header_size>100*1024*1024:raise ValueError('Invalid tensor header')
+            header=json.loads(stream.read(header_size));base=8+header_size
+            for key,item in header.items():
+                if key=='__metadata__':continue
+                first,last=item['data_offsets'];dtype=np.dtype(types[item['dtype']])
+                elements=int(np.prod(item['shape']))
+                if last-first!=elements*dtype.itemsize:raise ValueError('Invalid tensor extent')
+                stream.seek(base+first);array=np.fromfile(stream,dtype=dtype,count=elements)
+                if array.size!=elements:raise ValueError('Truncated tensor data')
+                # These inference components are explicitly requested in FP16.
+                # Cast each tensor before retaining it: the 5.36 GiB FP32 flow
+                # otherwise coexists with its half copy and exhausts commit.
+                if item['dtype']=='F32':array=array.astype(np.float16)
+                value=torch.from_numpy(array.reshape(item['shape']))
+                if item['dtype']=='BF16':value=value.view(torch.bfloat16)
+                tensors[key]=value.to(device)
+        return tensors
+    safe_torch.load_file=owned_load_file
     import trimesh
     from PIL import Image
     from triposg.pipelines.pipeline_triposg import TripoSGPipeline
@@ -62,9 +92,31 @@ def main():
     torch.set_grad_enabled(False)
     print('GPU:', torch.cuda.get_device_name(0), flush=True)
     free, total = torch.cuda.mem_get_info()
+    if args.shared_gpu:
+        # WDDM's CUDA free figure can exceed the device-wide free VRAM while
+        # another process is active. Use the conservative device-wide value.
+        measured=subprocess.check_output(['nvidia-smi','--query-gpu=memory.free','--format=csv,noheader,nounits'],text=True)
+        free=min(free,int(measured.strip().splitlines()[0])*2**20)
     print('Free VRAM MiB:', round(free/2**20), flush=True)
-    if free < 5.8*2**30:
-        raise RuntimeError('Please free the GPU before inference (need >=5.8 GiB free)')
+    minimum=(1.5 if args.shared_gpu else 5.8)*2**30
+    if free < minimum:
+        raise RuntimeError(f'Please free GPU memory before inference (need >={minimum/2**30:.1f} GiB free)')
+    telemetry=[];stop_monitor=None
+    if args.shared_gpu:
+        import threading
+        stop_monitor=threading.Event()
+        # Bound our allocator; never change the game, driver or GPU clocks.
+        torch.cuda.set_per_process_memory_fraction(min(.85,(free-512*2**20)/total))
+        def monitor():
+            while not stop_monitor.is_set():
+                try:
+                    row=subprocess.check_output(['nvidia-smi','--query-gpu=memory.used,memory.free,temperature.gpu,utilization.gpu',
+                        '--format=csv,noheader,nounits'],text=True,creationflags=subprocess.CREATE_NO_WINDOW).strip()
+                    telemetry.append(dict(elapsed=round(time.perf_counter()-start,2),values=row))
+                    args.output.with_suffix('.gpu.json').write_text(json.dumps(telemetry,indent=2))
+                except (OSError,subprocess.SubprocessError):pass
+                stop_monitor.wait(2)
+        threading.Thread(target=monitor,daemon=True).start()
     image = Image.open(args.source).convert('RGBA')
     alpha = image.getchannel('A')
     bounds = alpha.point(lambda v: 255 if v > 8 else 0).getbbox()
@@ -92,13 +144,16 @@ def main():
         TripoSGPipeline.model_cpu_offload_seq = 'image_encoder_dinov2->transformer->vae'
         pipe = TripoSGPipeline.from_pretrained(str(args.weights), torch_dtype=torch.float16,
                                              local_files_only=True)
-        pipe.enable_model_cpu_offload(gpu_id=0)
+        if args.shared_gpu:pipe.enable_sequential_cpu_offload(gpu_id=0)
+        else:pipe.enable_model_cpu_offload(gpu_id=0)
         original_decode = pipe.vae._decode
         def small_decode(*a, **kw):
             kw['num_chunks'] = args.chunk
             return original_decode(*a, **kw)
         pipe.vae._decode = small_decode
         def progress(pipeline, step, timestep, values):
+            if telemetry and int(telemetry[-1]['values'].split(',')[2])>=85:
+                raise RuntimeError('Shared-GPU trial paused at sampling boundary: GPU temperature >=85C')
             if step == args.steps-1:
                 torch.save(values['latents'].detach().cpu(), latent_path)
                 print('Latents saved; extracting surface', flush=True)
@@ -117,6 +172,7 @@ def main():
     if not np.isfinite(mesh.vertices).all() or len(mesh.faces) == 0:
         raise ValueError('Invalid generated surface')
     mesh.export(args.output)
+    if stop_monitor:stop_monitor.set()
     provenance = {
         'method': 'Local TripoSG image-to-shape, regular hierarchical decoder',
         'reference': str(args.source.resolve()), 'reference_sha256': sha256(args.source),
@@ -130,6 +186,8 @@ def main():
         'timing_scope': 'decoder-only recovery' if args.latents else 'model load, denoise and extraction',
         'recovered_latents': str(args.latents.resolve()) if args.latents else None,
         'gpu_peak_mib': round(torch.cuda.max_memory_allocated()/2**20,1),
+        'shared_gpu_trial': args.shared_gpu,
+        'offload': 'sequential CPU' if args.shared_gpu and not args.latents else 'model CPU',
         'mesh_sha256': sha256(args.output),
         'note': 'Shape only. No rig, animation or generated texture is claimed here.'
     }

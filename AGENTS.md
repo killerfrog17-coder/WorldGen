@@ -1,5 +1,42 @@
 # WorldGen repository instructions
 
+DEER FACE/SPECIES REVISION,23October2026: owner rejected first Stage1 face:
+nose stretched, eye/socket transition abrupt, ears too large/poorly painted;
+body and eyeballs accepted. Stage2 NOT approved. New separate Face and Species
+Review retains body/eyes, smaller tip rhinarium, wider connected lid transition,
+warm inner-ear skin/pale hair/furred rim. Eight coat families incl spots/light
+stripes/dark bands/plain woodland/grey/pale/dark/sandy; hypothetical patterns
+are explicit art hypotheses, not new taxa. Local ear .72-1.08(default .80),tail
+.70-1.20 morphs; fixed attachments, no extra triangles. 2 shuffles coat families
+and bounded linked traits,3 side/face/orbit. No antlers/new rig/animation/game
+changes. Published first review stays separate; do not overwrite owner files.
+Native finite/UV/eight-coat/operators/local-morph checks PASS,5738tri,non-facial
+neutral-body delta0. CPU five angles plus stripes/ear/tail extremes inspected.
+Revised review opened RIGHTMOST,one new follow-up sent;await owner approval.
+No Desktop items. Latest status/evidence in ignored review-state and
+stage1-validation JSON; docs/DEER_STAGE1_REDO.md explains rationale/limits.
+
+FRESH DEER STAGE1,23October2026: owner requests fresh ONE candidate, <=~6ktri,
+surface paint/species preview BEFORE rig approval; side/front/rear checks. New
+artifacts/fauna-deer-stage1-20261023/Deer - Stage1 Model Review.blend,5742tri,
+four packed2K coats plus bounded tint, separate glossy eyes/stitched lids and
+whiskers; locally rebuilt generated ear/crown defects. 1 model1/1,2 phenotype,
+3 side/face/orbit; Front body/Rear buttons. Opened RIGHTMOST, one follow-up sent;
+await owner selection before Stage2. Nothing else queued. NO MORE DESKTOP ITEMS.
+No new rig/animation/game/Unity/save work; accepted prior deer unchanged.
+Owner explicitly allows generation alongside Forest. Successful sequential CPU
+offload TripoSG218.04s/50steps/depth8/FP16; Torch peak412.8MiB, NVML total max
+3808MiB/68C; Forest PID5144 remained. No FPS claim. CPU loader attempts failed
+before clean Torch2.8 isolated runtime and streamed half-weight reader succeeded;
+shared AI env untouched. Native finite/maps/control checks pass; CPU five views
+inspected, post-fit mirrored-body nearest max5.09mm, eye anchors match. Art approval
+PENDING; no universal perfect-symmetry/retopology/animation claim. Reference copied
+20:45, raw20:59, final blend~21:33 local: first setup is NOT a30min total claim.
+Queue rules: one follow-up/window; after~2min no reply do NEXT QUEUED Stage1 only,
+silence never approval; later ready models wait without more pings/windows.
+See docs/FAUNA_ASSET_REVIEW_WORKFLOW.md and DEER_STAGE1_REDO.md; ignored prompts,
+telemetry, validation and review-state JSON retain exact identity/provenance.
+
 MASKED COAT TRIAL,23October2026: owner requests accepted body/rig/motions kept,
 painted anatomical regions plus reusable fur; ignore antlers. New separate
 artifacts/deer-masked-coat-20261023 review, Desktop Deer - Masked Coat Review.lnk

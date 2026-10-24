@@ -1,5 +1,27 @@
 # Version 3 validation evidence
 
+## Fresh deer stage1 — 23 October2026
+
+Owner requested facial/species changes after the initial review, accepting the
+body/eyeballs. Separate Face and Species Review: **5738 triangles/eight packed
+2K coat sets**, local ear/tail morphs, smaller muzzle-tip nose and broader joined
+lid transition. Native reload finite/UV/maps/controls checks pass; all eight
+families reached. Morph extremes remain finite/local (max displacement 8.04cm);
+neutral non-facial body coordinates exactly match the reduced candidate.
+Front/profile CPU face inspections informed additional corrections to dark lid
+creases and an uneven ear morph. Final five views plus both stripe families and
+ear/tail extremes inspected; revised rightmost viewer ready. No rig/animation/game change; Stage2 still
+requires owner approval. First published review is preserved separately.
+
+New local TripoSG shape under owner-authorized concurrent Forest trial:218.04s
+successful run,412.8MiB Torch peak; total-device telemetry max3808MiB/68°C.
+Forest stayed present; no game-FPS claim. New corrected unrigged review5742tri,
+four packed2K coat sets, real eye/lid geometry. Reload finite/UV/map/operator
+checks pass; CPU side/front/rear/face inspected. Maximum post-fit mirrored-body
+vertex distance5.09mm; eye anchor heights match. Rightmost review opened, one
+follow-up sent, **Stage2 awaits approval**. No Desktop items or game changes.
+See [actual process/failures/limits](DEER_STAGE1_REDO.md).
+
 ## Masked deer coat trial — 23 October 2026
 
 Texture-only review uses generated reusable fur and inspected geometric facial
