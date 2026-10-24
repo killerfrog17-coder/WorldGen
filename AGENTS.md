@@ -1,5 +1,28 @@
 # WorldGen repository instructions
 
+SQUIRREL NEW MODELS / GROUSE ACTIVE,24October2026~12:14CDT:
+Squirrel4 genuinely new meshes/fresh neural rigs completed, actual-source-bind
+alone still folded torso/hips. Source Run foot positions measured BELOW source
+hips(-.83..-.38z), but retarget sent them over body: donor/target rest mismatch.
+Opt-in absolute_limb_directions calibrates limb direction against generated rest;
+hold_core_bind stabilizes torso/head/tail while CC0 legs/root translation remain.
+Scoped only to squirrel-bind-reference; selected other animals unaffected.
+Native checks pass4, CPU Run side all4 plus front/oblique2/3 inspected. Core now
+coherent, but limb skinning/contact artifacts remain; candidate4 rear-body warning
+visible, no hard model exclusion. RAW MODEL-SELECTION audition only, NOT natural
+or approved Run/game motion; owner intends a different future animation method.
+Finalized usable_for_raw_audition with explicit limitations; source hash locked.
+Rejected old Squirrel archive pruned after verified replacement/file hashes,
+compact provenance retained; fresh4 models/rigs kept. Current96 raw reviews.
+Old Squirrel exec30463/PID15612 TERMINAL. New sole GROUSE producer --only with
+folded-ground-bird: exec33399/PID36312 LIVE (verify). priority-reroll-queue updated.
+After Grouse: inspect native and CPU Walk/front, finalize technical source,
+then Junglefowl --only same bank and same review. Only after both resume normal
+--watch; cached SecretaryBird partial shapes still retained. Do not touch current
+owner viewer or send another review request. Owner selections remain24.
+Latest prior remote443db04834ecf19067b2b2d2128f49fee00698d0; scoped limb/core fix
+and updated owner status need backup. No new texture painting/game/Desktop work.
+
 PHEASANT REPLACEMENT READY / SQUIRREL ACTIVE,24October2026~12:05CDT:
 Pheasant4 fresh meshes/rigs completed. Initial Walk still twisted neck backward;
 ground_only retarget now holds generated neutral neck/upper body relative to

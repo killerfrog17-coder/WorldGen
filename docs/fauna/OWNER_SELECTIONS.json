@@ -382,7 +382,7 @@
     },
     "squirrel": {
       "reason": "Run unusable; owner explicitly requests entire regeneration. Diagnose and generate new models/fresh rigs.",
-      "status": "regenerating",
+      "status": "new_models_ready_motion_provisional",
       "art_approved": false
     },
     "bees-guild": {
@@ -391,7 +391,7 @@
     },
     "grouse": {
       "reason": "Owner rejects current spread-wing ground-bird motion/model result; folded-wing regeneration needed.",
-      "status": "requested",
+      "status": "regenerating",
       "art_approved": false
     },
     "junglefowl": {

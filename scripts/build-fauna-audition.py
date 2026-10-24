@@ -384,6 +384,13 @@ for number in range(1,5):
     for i in range(len(names)):
         child=main[i];direction=refpoints[child]-refpoints[i] if child>=0 else np.zeros(3)
         refdirs.append(orient(direction,(0,1,0) if group[i] in ('fore','hind') else (0,0,1)) if np.linalg.norm(direction)>1e-5 else None)
+    if source.get('absolute_limb_directions'):
+        # Match the authored world-space limb swing against the actual learned
+        # rest directions, not an incompatible donor bind crouch/extension.
+        for i in range(len(names)):
+            if group[i] not in ('fore','hind') or main[i]<0:continue
+            direction=joints[main[i]]-joints[i]
+            if np.linalg.norm(direction)>1e-5:refdirs[i]=orient(direction,(0,1,0))
     if source['family'] in ('bird','bat') and not flightless:
         # A generated bird has open, visible wing geometry. Match each learned
         # wing direction to the closest real authored flap pose, so using Idle
@@ -443,6 +450,8 @@ for number in range(1,5):
                     if group[i] in ('squid_arm','squid_fin'):
                         delta=Matrix(frame[int(np.argmax(binding[i]))]).to_quaternion()
                         q=q@delta
+                elif source.get('hold_core_bind') and (i==pelvis or group[i] in ('spine','neck','tail')):
+                    q=(g[int(parent)].to_quaternion()@local[i].to_quaternion()) if parent>=0 else rest[i].to_quaternion()
                 elif source.get('ground_only') and group[i]=='neck' and parent>=0:
                     # Folded ground-bird audition: preserve its neutral upper
                     # body rather than twist it with the foreign head axes.
