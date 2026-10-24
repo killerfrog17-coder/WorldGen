@@ -1,5 +1,20 @@
 # WorldGen repository instructions
 
+OWNER REVIEWING HARE,24October2026~11:12CDT:
+Owner now explicitly READY to view. Opened Hare's4-model raw review RIGHTMOST via
+open-deer-mesh2motion.py --root artifacts/fauna-overnight-20261024/hare --four-rigs
+--blend-name "Animal - Raw Audition.blend" --rightmost; launcher ready PASSED.
+One async follow-up asks which model(s), if any, to keep. Leave viewer UNTOUCHED
+while owner inspects; no new windows/pings unless requested.1 models,2 raw fur
+colour ONLY,3 Side/Face/Orbit plus Front/Rear,4 Showcase/Locomotion; explicit
+Show/Hide Skeleton and individual clips; sidebar Next/Previous animal/dropdown
+browses ready queue in same window. No painting/extras before owner selection.
+Full generation continues headless, fast watch exec55344/PID38416 (verify).
+Latest index91 reviews/364 candidates; Peafowl rigging at last poll. Previous
+material plan backup50ac361 pushed; no texture generation in this goal so far.
+Owner earlier requested priority list; linked docs/fauna/FAUNA_ASSET_PLAN.csv
+(188 rows, Rank order) and batch REVIEW_INDEX.csv (actual ready progress).
+
 BEETLE ASSEMBLY RECOVERED,24October2026~10:47CDT:
 Prior goal turn made premature86 claim from producer advancing; corrected to85
 after actual assemble.log showed candidate4 failing, before later verified86.
