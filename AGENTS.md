@@ -30,6 +30,19 @@ new owner pause remains respected. Legacy blocked marker/shortcut untouched.
 First160 remote f00577b78677eb8e715a8f7ac8f709340ea0776f; new work needs backup.
 Preserve user prompt deletion and unrelated untracked deer scripts.
 
+LITTER BEETLE RECOVERY,24October2026~10:37CDT: fast watch exec68103/PID7088
+remains live on NativeSmallLizards. NativeLitterBeetles failed first prep: ordinary
+decimation could not reach1000tri on fragmented surface. All4 cached shapes now
+automatically256-voxel regularized,973/978/996/985tri; no manual anatomy/paint,
+donor geometry or extra neural generation. Candidate1 CPU oblique preparation
+silhouette inspected; no claim of full articulation/art approval. Published
+retry-failed.json with four prepared-model SHA256 digests. Only serial producer
+consumes it on a later queue pass; never mutate its live in-memory queue state.
+All4 raw/latents remain until checked animated replacement; do not erase early.
+No second GPU producer launched, no owner windows touched. Prior shared-source
+brief backup2aa0f67e92eb297aa3b2a5d974059a5ffe53d2ea verified remote. Current index
+84 ready/336, beetle recovery pending and allremaining models still needed.
+
 OWNER AWAKE / FIRST160 PLANS,24October2026~10:07CDT:
 Owner awake, says KEEP WORKING and not ready to review. No GUI/follow-up/window
 until requested. Answered stage: raw model/rig/motion before painting; latest78
