@@ -10,7 +10,9 @@ colour ONLY,3 Side/Face/Orbit plus Front/Rear,4 Showcase/Locomotion; explicit
 Show/Hide Skeleton and individual clips; sidebar Next/Previous animal/dropdown
 browses ready queue in same window. No painting/extras before owner selection.
 Full generation continues headless, fast watch exec55344/PID38416 (verify).
-Latest index91 reviews/364 candidates; Peafowl rigging at last poll. Previous
+Latest index92 reviews/368 candidates; Peafowl completed, Pelican waiting for GPU
+memory after viewer opened (do not close owner apps or silently switch low-memory
+mode). Hare viewer PID31956 (verify), leave it untouched during inspection. Previous
 material plan backup50ac361 pushed; no texture generation in this goal so far.
 Owner earlier requested priority list; linked docs/fauna/FAUNA_ASSET_PLAN.csv
 (188 rows, Rank order) and batch REVIEW_INDEX.csv (actual ready progress).
