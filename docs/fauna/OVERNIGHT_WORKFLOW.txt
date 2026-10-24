@@ -136,6 +136,23 @@ limbs/finger branches, not a straightforward radial-arm source. The CC0 Octopus
 in Cage at https://blendswap.com/blend/22871 needs login to download; no bypass.
 
 AFTER ALL RAW AUDITIONS
+Red kangaroo now has a DIFFERENT limited transfer audition. The original full-
+body rabbit transfer remains rejected. Keeping only angular leg channels still
+folded the long feet too high. The retained experiment instead follows authored
+CC0 rabbit foot paths using fixed-length planar IK baked offline. Source neutral
+bind is the reference, actor root orientation is extracted, and per-clip root
+offsets reset. Upper body/head/arms/tail remain at target bind. No new source gait
+curves or target mesh/skin are generated. Selected front/side poses are coherent
+enough for raw review, not full-cycle naturalness/contact or owner acceptance.
+No live runtime IK, body balance, slow tail-supported gait, feeding/rest/death
+is supplied. Wallaby can audition the same method; its actual result is pending.
+Current source coverage173/176 includes16 experimental cross-animal routes;
+remaining source gaps: Coastal squid, Gibbon, Orangutan. Full scope still176.
+Technical finalization can defer state synchronization for a completed unrelated
+animal while the producer runs. It never writes the live queue state; an atomic
+source decision and final pending-marker removal control index readiness. The
+producer later synchronizes from that record. This never grants owner approval.
+
 The separate hind-pinniped bank has now been tried on four generated seals.
 Native reload/controls passed; selected bind/stroke oblique/side/rear poses
 retained recognizable body/neck/flipper shapes. It is retained as a raw trial,

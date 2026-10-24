@@ -1,5 +1,41 @@
 # WorldGen repository instructions
 
+OVERNIGHT HOPPER CHECKPOINT,24October2026~08:22CDT: same watch worker
+PID2856/exec15932 verified LIVE, Grass rat shape batch.59 reviews/236 candidates
+ready incl FruitBat/Gazelle/Goose +RedKangaroo new limited trial. No uninspected
+technical trial; all owner ART acceptance pending, no painting. Main GPU kept
+running throughout CPU-only Kangaroo experiments, no new shape/rig inference.
+Old full-body rabbit transfer still REJECTED. New hind-hopper-trial keeps CC0
+rabbit Idle/Run ARRAY DATA unchanged but transfers FOOT PATHS through fixed-
+length planar offline FABRIK. Two lateral hip branches, not tail/fingers, drive
+hind legs; upper body/arms/head/tail held at bind. Source neutral bind reference,
+donor root orientation extraction/per-clip root offset reset. Full-body balance,
+slow tail-supported gait/feed/rest/death absent. Angle-only/minimal-swing/hinge
+experiments still folded feet too high; unused angle modes removed. Selected
+front/side new IK poses keep feet below body without earlier lateral folding.
+4 native reload/rig/weight/controls checks PASS, NOT full-cycle/contact/art cure.
+New source record technical usable_for_raw_audition, owner approval pending.
+Wallaby route prepared from this limited bank; not a Wallaby target-success claim.
+Coverage173/176 incl16 experimental routes;3 gaps: CoastalSquid/Gibbon/Orangutan.
+finalize-fauna-motion-trial.py --defer-worker-state safely handles a completed
+UNRELATED target while producer runs: validates not current target, immutable
+hash-checked source record written atomically, pending marker removed LAST,
+NEVER writes live queue-state. Index is authoritative; old Kanga worker status
+can remain motion-pending until ordinary worker reaches it and syncs from record.
+Stale raw-motion-pending report archived as before-source-review. Old rejected
+45MB Kanga blend removed after replacement; PNGs/rejection metadata retained.
+Superseded rejected Raven heavy intermediates/NPZ also removed exactly;52.13MiB
+total reclaimed, no recursive delete, current4 Raven candidates intact.
+No Desktop/window/game/app closure or accepted deer changes. Main module was
+loaded before new Wallaby dispatch; next routine restart should load latest code
+before it reaches that row. Current source remotee64bd1801c8c93025af47e91d02a982d3960cf48
+verified; new IK/source/finalizer changes need backup. Preserve owner edits.
+NEXT possibilities, NOT done: Orangutan reference is quadrupedal; existing CC0
+giant-sloth terrestrial bank may be a plausible limited trial (no climb). Gibbon
+reference is ALSO quadrupedal despite usual bipedal ground gait; do not claim
+that reference/motion is biologically proven. Consider biped reference +CC0
+human/kaiju source if needed. Ambient squid still needs a suitable motion method.
+
 OVERNIGHT PINNIPED CHECKPOINT,24October2026~07:51CDT: serial watch worker
 PID2856/exec15932 verified LIVE, Fish eagle shape batch. Previous main74378
 terminal0 verified; isolated Seal trial78252 terminal0 before finalization.

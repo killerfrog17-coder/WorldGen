@@ -3,10 +3,10 @@
 Automatic graph correspondence, fixed learned joint offsets and network skin.
 No donor geometry, anatomical painting, invented mammal gait or manual repair.
 """
-import argparse,hashlib,json,sys,time
+import argparse,hashlib,json,math,sys,time
 from pathlib import Path
 import bpy,numpy as np
-from mathutils import Matrix,Vector
+from mathutils import Matrix,Vector,Quaternion
 from mathutils.kdtree import KDTree
 sys.path.insert(0,str(Path(__file__).parent))
 from deer_behaviour_core import blend_pose,smooth
@@ -27,6 +27,7 @@ sn=[b['name'] for b in source['bones']];si={n:i for i,n in enumerate(sn)};paths=
 flightless=a.animal in {'Ostrich','Emu','Cassowary','Kiwi','Penguin'}
 clips=[c for c in source['clips'] if not (source['family']=='bird' and ((flightless and c['label'] in {'Flap','Glide'}) or ('bat' in a.animal.lower() and c['label']=='Walk')))]
 idle=motions[next(c['key'] for c in source['clips'] if c['label']=='Idle')][0]
+if source.get('reference_pose')=='source_bind':idle=np.asarray([b['rest'] for b in source['bones']],dtype=np.float32)
 reference=idle[:,:3,3];refq=[Matrix(m).to_quaternion() for m in idle]
 bpy.ops.wm.read_factory_settings(use_empty=True);scene=bpy.context.scene;entries=[]
 fur=bpy.data.images.load(str(a.fur.resolve()));fur.pack()
@@ -41,6 +42,7 @@ def correspondence(joints,parents):
     roots=np.flatnonzero(parents<0);assert len(roots)==1;pelvis=int(roots[0])
     leaves=[i for i,c in enumerate(children) if not c];bird=source['family'] in ('bird','bat');fish=source['family']=='fish'
     if fish:return fish_correspondence(joints,parents,children,leaves,pelvis)
+    if source.get('motion_profile')=='experimental_hind_hopper':return hopper_hind_correspondence(joints,parents,children,pelvis)
     if source['family'] in ('snake','spider','ground_insect'):return chain_correspondence(joints,parents,children,leaves,pelvis)
     # A low trunk or tail tip is not a fifth foot. Prefer lateral endpoints
     # when all four are available, without changing any learned joint/weight.
@@ -105,6 +107,34 @@ def correspondence(joints,parents):
     main=[]
     for i in range(len(parents)):
         pref=[c for c in children[i] if groups[c] in ('spine','neck')];main.append(pref[0] if pref else children[i][0] if children[i] else -1)
+    names=[f'Joint_{i:02d}' for i in range(len(parents))];names[pelvis]='Pelvis';names[head]='Head'
+    return binding,children,groups,main,names,pelvis,head
+
+def hopper_hind_correspondence(joints,parents,children,pelvis):
+    """Pair lateral hip branches, never tail tips or individual hand fingers."""
+    height=float(np.ptp(joints[:,2]));branches=[]
+    for child in children[pelvis]:
+        pending=[child];nodes=[]
+        while pending:
+            n=pending.pop();nodes.append(n);pending.extend(children[n])
+        tips=[n for n in nodes if not children[n]];tip=min(tips,key=lambda i:joints[i,2])
+        if abs(joints[child,0]-joints[pelvis,0])>height*.04 and joints[tip,2]<joints[pelvis,2]-height*.15:branches.append((child,tip))
+    assert len(branches)==2,'Masked hopper transfer needs two distinct lateral hip branches'
+    branches.sort(key=lambda row:joints[row[0],0]);assert joints[branches[0][0],0]<joints[pelvis,0]<joints[branches[1][0],0]
+    binding=np.eye(len(sn))[np.full(len(parents),si[source['root']])];groups=['extra']*len(parents)
+    sides=sorted(('L','R'),key=lambda side:reference[si[paths['hind_'+side][-1]],0])
+    for (_,tip),side in zip(branches,sides):
+        chain=path_to(parents,tip);ids=[si[n] for n in paths['hind_'+side]]
+        ss=np.r_[0,np.cumsum(np.linalg.norm(np.diff(reference[ids],axis=0),axis=1))];ss/=max(ss[-1],1e-8)
+        tt=np.r_[0,np.cumsum(np.linalg.norm(np.diff(joints[chain],axis=0),axis=1))];tt/=max(tt[-1],1e-8)
+        for node,t in zip(chain[1:],tt[1:]):
+            if len(chain)==len(ids):
+                binding[node]=0;binding[node,ids[chain.index(node)]]=1;groups[node]='hind';continue
+            k=min(max(int(np.searchsorted(ss,t,side='right')-1),0),len(ids)-2);w=np.clip((t-ss[k])/max(ss[k+1]-ss[k],1e-8),0,1)
+            binding[node]=0;binding[node,ids[k]]=1-w;binding[node,ids[k+1]]+=w;groups[node]='hind'
+    forks=[i for i,c in enumerate(children) if len(c)>=2 and groups[i]!='hind']
+    head=max(forks,key=lambda i:joints[i,2]) if forks else int(np.argmax(joints[:,2]))
+    main=[next((c for c in children[i] if groups[c]=='hind'),children[i][0] if children[i] else -1) for i in range(len(parents))]
     names=[f'Joint_{i:02d}' for i in range(len(parents))];names[pelvis]='Pelvis';names[head]='Head'
     return binding,children,groups,main,names,pelvis,head
 
@@ -176,6 +206,24 @@ def orient(direction,hint):
     y=Vector(direction).normalized();z=Vector(hint)-y*Vector(hint).dot(y)
     if z.length<1e-5:z=Vector((1,0,0))-y*y.x
     z.normalize();return Matrix((y.cross(z).normalized(),y,z)).transposed().to_quaternion()
+
+def planar_chain_ik(seed,target):
+    """Fixed-length Y/Z FABRIK, preserving the generated chain's bend seed."""
+    p=np.asarray(seed,dtype=float).copy();anchor=p[0].copy();lengths=np.linalg.norm(np.diff(p,axis=0),axis=1)
+    target=np.asarray(target,dtype=float)
+    if np.linalg.norm(target-anchor)>=lengths.sum():
+        direction=(target-anchor)/max(np.linalg.norm(target-anchor),1e-8)
+        for k,l in enumerate(lengths):p[k+1]=p[k]+direction*l
+        return p
+    for _ in range(18):
+        p[-1]=target
+        for k in range(len(p)-2,-1,-1):
+            d=p[k]-p[k+1];p[k]=p[k+1]+d/max(np.linalg.norm(d),1e-8)*lengths[k]
+        p[0]=anchor
+        for k,l in enumerate(lengths):
+            d=p[k+1]-p[k];p[k+1]=p[k]+d/max(np.linalg.norm(d),1e-8)*l
+        if np.linalg.norm(p[-1]-target)<1e-5:break
+    return p
 
 def bake(rig,label,poses,names):
     action=bpy.data.actions.new(rig.name+' | '+label);action.use_fake_user=True
@@ -259,16 +307,49 @@ for number in range(1,5):
     cache={};actions={}
     for clip in clips:
         label=clip['label'];frames=[]
-        for frame in motions[clip['key']]:
-            virtual=binding@frame[:,:3,3];g=[]
+        root_origin=motions[clip['key']][0,si[source['root']],:3,3] if source.get('zero_root_translation_per_clip') else reference[si[source['root']]]
+        source_frames=[]
+        for original_frame in motions[clip['key']]:
+            frame=original_frame
+            if source.get('normalize_root_orientation'):
+                root_id=si[source['root']];frame=original_frame.copy();origin=original_frame[root_id,:3,3]
+                R=np.array((refq[root_id]@Matrix(original_frame[root_id]).to_quaternion().inverted()).to_matrix())
+                frame[:,:3,:3]=R@original_frame[:,:3,:3];frame[:,:3,3]=(original_frame[:,:3,3]-origin)@R.T+origin
+            source_frames.append(frame)
+        ik_legs=[]
+        if source.get('rotation_transfer')=='foot_track_ik':
+            for tip in [n for n in range(len(names)) if group[n]=='hind' and not children[n]]:
+                chain=path_to(parents,tip)[1:];assert len(chain)>=4
+                source_tip=int(np.argmax(binding[tip]));side=next(side for side in ('L','R') if si[paths['hind_'+side][-1]]==source_tip)
+                source_ankle=si[paths['hind_'+side][-2]]
+                traces=np.array([f[source_tip,:3,3] for f in source_frames]);floor=float(traces[:,2].min())
+                ik_legs.append((chain,source_tip,source_ankle,traces[:,1].mean(),floor))
+        for frame in source_frames:
+            virtual=binding@frame[:,:3,3];g=[];ik_angles={}
+            for chain,source_tip,source_ankle,center_y,floor in ik_legs:
+                toe=frame[source_tip,:3,3];swing=max(0,float(toe[2]-floor))
+                desired_toe=joints[chain[-1]].copy();desired_toe[1]+=toe[1]-center_y;desired_toe[2]+=swing
+                ref=reference[source_tip]-reference[source_ankle];now=toe-frame[source_ankle,:3,3]
+                pitch=math.atan2(now[2],now[1])-math.atan2(ref[2],ref[1]);pitch=(pitch+math.pi)%(2*math.pi)-math.pi
+                pitch*=min(1,swing/.06)
+                foot_offset=np.array(Quaternion((1,0,0),pitch).to_matrix())@(joints[chain[-1]]-joints[chain[-2]])
+                root_travel=frame[si[source['root']],:3,3]-root_origin
+                seed=joints[chain[:-1],1:3]+root_travel[1:3]
+                solved=planar_chain_ik(seed,(desired_toe-foot_offset)[1:3])
+                for k,node in enumerate(chain[:-2]):
+                    original=joints[chain[k+1]]-joints[node];direction=solved[k+1]-solved[k]
+                    ik_angles[node]=math.atan2(direction[1],direction[0])-math.atan2(original[2],original[1])
+                ik_angles[chain[-2]]=pitch;ik_angles[chain[-1]]=pitch
             for i,parent in enumerate(parents):
-                if group[i]=='extra' and parent>=0:q=g[int(parent)].to_quaternion()@local[i].to_quaternion()
+                if source.get('motion_profile')=='experimental_hind_hopper' and i==pelvis:q=rest[i].to_quaternion()
+                elif group[i]=='extra' and parent>=0:q=g[int(parent)].to_quaternion()@local[i].to_quaternion()
+                elif i in ik_angles:q=Quaternion((1,0,0),ik_angles[i])@rest[i].to_quaternion()
                 elif i==pelvis or i==head or main[i]<0:
                     index=int(np.argmax(binding[i]));q=Matrix(frame[index]).to_quaternion()@bone_refq[i].inverted()@rest[i].to_quaternion()
                 elif refdirs[i] is not None:q=orient(virtual[main[i]]-virtual[i],(0,1,0) if group[i] in ('fore','hind') else (0,0,1))@refdirs[i].inverted()@rest[i].to_quaternion()
                 else:q=rest[i].to_quaternion()
                 location=rest[i].translation.copy() if parent<0 else g[int(parent)]@local[i].translation
-                if i==pelvis:location+=Vector(frame[si[source['root']],:3,3]-reference[si[source['root']]])
+                if i==pelvis:location+=Vector(frame[si[source['root']],:3,3]-root_origin)
                 m=q.to_matrix().to_4x4();m.translation=location;g.append(m)
             loc=[];rot=[]
             for i,parent in enumerate(parents):

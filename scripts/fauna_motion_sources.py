@@ -7,6 +7,7 @@ def transfer_trial_note(animal):
     if animal in QUADRUPED_PRIMATE_TRIALS:return 'EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing'
     if animal=='Sea lion':return 'EXPERIMENTAL fore-flipper swimming transfer; no authored sea-lion or hauled-out land movement supplied'
     if animal=='Walrus':return 'EXPERIMENTAL hind-flipper swimming transfer; no authored walrus or hauled-out land movement supplied'
+    if animal=='Wallaby':return 'EXPERIMENTAL rabbit foot-path transfer with fixed-length hind-leg IK and upper body held at bind; no authored wallaby movement or slow tail-supported gait supplied'
     return None
 
 def source_for(entry,repo):
@@ -20,6 +21,7 @@ def source_for(entry,repo):
     if animal in QUADRUPED_PRIMATE_TRIALS:key='fox' # Explicit quadrupedal transfer trial, not primate-authored motion.
     elif animal=='Sea lion':key='front-pinniped-trial'
     elif animal=='Walrus':key='hind-pinniped-trial'
+    elif animal=='Wallaby':key='hind-hopper-trial'
     elif fam=='bat':key='bat' if (bank/'bat'/'source-rig.json').exists() else 'bird'
     elif animal=='Sloth':key='sloth'
     elif animal=='Elephant':key='mammoth'
