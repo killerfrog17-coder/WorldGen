@@ -55,6 +55,12 @@ kill shared ComfyUI or owner apps.8GiB free-space guard stops new work. Each rea
 audition keeps four low-poly model/rig candidates and one review; only its exact
 raw high-poly/latent/prepared-reference intermediates are removed after reload.
 References/prompts are from built-in imagegen, not game-painted textures.
+After all motion-backed candidates have run, the same queue prepares four raw
+meshes and neural rigs for source-gap animals. These remain separately labelled
+models_rigged_motion_pending, with raw-motion-pending.json and no animated
+Blender-review claim. They do not count as completed auditions and cannot be
+painted yet. Adding a suitable motion bank later resumes assembly from saved
+raw candidates. No reference/model work is thrown away for a source gap.
 run-control.json mode=pause also requests a safe stop. An earlier completed
 internal PAUSE marker is retained as a record; mode=run plus the explicit
 ignore_completed_internal_checkpoint flag ignores only its exact original text.
@@ -100,6 +106,10 @@ Lemur by NewDLC/stakler https://opengameart.org/content/lemur is also CC0 with
 explicit creator confirmation. It has idle/run/attack, but diagnostic poses show
 stylized upright biped running; not selected for generic wild-primate locomotion.
 The inspection bank remains separately labelled and is not a queue source.
+Kenney Cube Pets2.0 https://kenney.nl/assets/cube-pets was also inspected (CC0
+confirmed in archive). Monkey has8 GLB nodes and0 skins: four single-piece limb
+objects, body and tail. Its rigid object walk/run does not supply jointed elbows
+or knees; not selected as an improvement for the current realistic audition rig.
 MOTION_COVERAGE.csv / motion-coverage.json track source gaps separately from
 generation failure. At this checkpoint156/176 have a raw retarget source or own
 simple insect motion;20 still need a suitable source. Source availability is

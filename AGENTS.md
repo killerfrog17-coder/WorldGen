@@ -1,5 +1,24 @@
 # WorldGen repository instructions
 
+OVERNIGHT CONTINUATION CHECKPOINT,24October2026~05:42CDT: prior turn progressed
+and latest worker handle confirmed live. Current worker PID18540/exec10162,
+resumed Lynx saved rigs.31 reviews/124 candidates ready through Otter at start.
+All171 refs +own5 microfauna remain ready. New worker sorts motion-backed work
+first, then prepares4 raw meshes/rigs for20 motion-source gaps, with explicit
+models_rigged_motion_pending/raw-motion-pending.json; these do NOT count as
+animated auditions or authorize painting. Later suitable source resumes from
+saved candidates. No fictitious rest/walk/climb clips used to fill gaps.
+Kenney Cube Pets2.0 inspected from official CC0 archive: monkey has8 nodes,
+0 skins, four rigid single-piece leg objects. Not selected for jointed animal
+motion. Earlier OGA monkey/lemur takes likewise excluded as upright stylized
+motions, not generic primate locomotion. No donor animal mesh admitted.
+Source backup remote last7093796668679cffc6f774a9835ea21a7f32fb14; new raw-gap
+queue/index and Kenney downloader changes need next source backup. Current
+source still preserves owner prompt deletion/unrelated deer scripts. All art
+pending, no paint/swatches/game/Desktop/window changes. End-state still ALL
+176 visual auditions;31/156 source-backed is NOT completion.20 motion gaps
+are not a blocked goal while meaningful queued work remains.
+
 OVERNIGHT STABLE CHECKPOINT,24October2026~05:31CDT: active serial watch worker
 PID21772/exec25853, verify worker.lock/status before any duplicate launch. All171
 AI conditioning references now copied with prompts/hashes;5 simple microfauna

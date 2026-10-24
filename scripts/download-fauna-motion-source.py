@@ -7,7 +7,7 @@ request=urllib.request.Request(a.page,headers={'User-Agent':'Mozilla/5.0 WorldGe
 html=urllib.request.urlopen(request,timeout=60).read().decode('utf-8')
 links=[urllib.parse.urljoin(a.page,x) for x in re.findall(r'href=[\"\x27]([^\"\x27]+)',html)]
 url=next(x for x in links if urllib.parse.unquote(urllib.parse.urlparse(x).path).rsplit('/',1)[-1]==a.file)
-assert urllib.parse.urlparse(url).netloc=='opengameart.org'
+assert urllib.parse.urlparse(url).netloc in {'opengameart.org','kenney.nl'}
 target=root/a.file
 if not target.exists():target.write_bytes(urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'}),timeout=120).read())
 if target.suffix.lower()=='.zip':

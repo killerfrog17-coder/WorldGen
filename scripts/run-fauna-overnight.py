@@ -12,6 +12,10 @@ repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,default=repo/'artifacts/fauna-overnight-20261024');ap.add_argument('--watch',action='store_true');ap.add_argument('--only');ap.add_argument('--no-cached-inference',action='store_true')
 a=ap.parse_args();root=a.root.resolve();root.mkdir(parents=True,exist_ok=True)
 plan=json.loads((repo/'docs/fauna/asset-plan.json').read_text())['rows']
+# Finish motion-backed auditions before spending GPU time on source-gap animals.
+# Those still receive independent raw meshes/rigs, but never a false "animated"
+# completion label or permission to paint.
+plan.sort(key=lambda row:(row['asset_status']=='queued' and row['family']!='microfly' and resolve_source(row,repo) is None,row['priority_rank']))
 blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe';shape_python=repo/'artifacts/tools/triposg-review-venv/Scripts/python.exe';rig_python=Path('E:/AI/WorldGen3D/rig-venv/Scripts/python.exe')
 env=os.environ.copy();temp=root/'temp';temp.mkdir(exist_ok=True);env['TMP']=str(temp);env['TEMP']=str(temp);env['OMP_NUM_THREADS']='3'
 lock=root/'worker.lock';fd=os.open(lock,os.O_CREAT|os.O_EXCL|os.O_WRONLY);os.write(fd,str(os.getpid()).encode());os.close(fd)
@@ -57,14 +61,15 @@ try:
             folder=root/slug;reference=root/'references'/f'{slug}.png';source=source_for(entry)
             previous=state['animals'].get(slug,{})
             if previous.get('status') in ('ready','failed'):continue
+            if previous.get('status')=='models_rigged_motion_pending' and source is None:continue
             if (folder/'native-checks.json').exists():state['animals'][slug]={'status':'ready','animal':entry['animal'],'review':str(folder/'Animal - Raw Audition.blend')};save();continue
-            if not reference.exists() or source is None:continue
+            if not reference.exists():continue
             if pause_requested():break
             # Space guard stops new work, never erases retained/user assets.
             import shutil
             if shutil.disk_usage(root).free<8*2**30:state['current']='disk_space_guard';save();raise RuntimeError('Less than8GiB free; paused without deleting retained work')
             did=True;state['current']=slug;folder.mkdir(exist_ok=True)
-            state['animals'][slug]={'status':'working','animal':entry['animal'],'source':str(source),'started':datetime.datetime.now().astimezone().isoformat()};save()
+            state['animals'][slug]={'status':'working','animal':entry['animal'],'source':str(source) if source else None,'started':datetime.datetime.now().astimezone().isoformat()};save()
             try:
                 if not a.no_cached_inference:
                     jobs=[]
@@ -97,6 +102,19 @@ try:
                     state['animals'][slug]['completed_raw_candidates']=i;save()
                     if pause_requested():break
                 if pause_requested():break
+                if source is None:
+                    report={'animal':entry['animal'],'status':'models_rigged_motion_pending','animated_review_ready':False,'painted':False,
+                      'candidates':[{'number':i,'mesh':str(folder/f'candidate-{i}'/'model.glb'),'rig':str(folder/f'candidate-{i}'/'generated-rig.npz'),'topology':topology(folder/f'candidate-{i}'/'generated-rig.npz',minimum_leaves(entry))} for i in range(1,5)],
+                      'missing':'Suitable CC0 motion source; model approval/painting still waits for motion review'}
+                    (folder/'raw-motion-pending.json').write_text(json.dumps(report,indent=2))
+                    for i in range(1,5):
+                        for name in ('raw.glb','raw.latents.pt','reference-prepared.png'):
+                            p=folder/f'candidate-{i}'/name
+                            if p.exists():p.unlink()
+                    state['animals'][slug].update(status='models_rigged_motion_pending',finished=datetime.datetime.now().astimezone().isoformat());save()
+                    print('RAW MODELS/RIGS READY; MOTION STILL MISSING',slug,flush=True)
+                    subprocess.run([sys.executable,str(repo/'scripts/index-fauna-auditions.py'),'--root',str(root)],cwd=repo,env=env,check=True)
+                    continue
                 if not (folder/'Animal - Raw Audition.blend').exists():native('build-fauna-audition.py',['--root',folder,'--motion-root',source,'--animal',entry['animal'],'--fur',repo/'artifacts/fauna-assets/deer/fur-source.png'],folder/'assemble.log')
                 native('check-fauna-audition.py',['--root',folder],folder/'check.log')
                 # Only exact intermediate names created by this worker; no
