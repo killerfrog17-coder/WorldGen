@@ -20,6 +20,12 @@ Bone animation may still deform badly: native format checks are not art approval
 The four shapes share resident model weights inside one serial process; likewise
 the four rig predictions reuse weights. Seeds/settings remain explicit. Cached
 rig calls reseed after loading so constructor RNG cannot change their stream.
+Rig prediction gets at most two seed attempts per candidate if it returns no
+complete result or lacks the basic leaf endpoints required by its body family.
+For example a six-joint straight chain cannot drive two feet and two wings.
+Rejected arrays stay labelled in the candidate folder, with trial seeds/errors
+in rig-batch-results.json. Remaining candidates still run after one fails.
+This is a technical topology requirement, not a natural-motion/collision gate.
 
 Tiny butterfly/moth, bee, dragonfly, fly and firefly auditions use own procedural
 low-poly geometry and deliberately simple wing-envelope/hover loops, within the

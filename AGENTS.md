@@ -1,5 +1,24 @@
 # WorldGen repository instructions
 
+OVERNIGHT STABLE CHECKPOINT,24October2026~05:31CDT: active serial watch worker
+PID21772/exec25853, verify worker.lock/status before any duplicate launch. All171
+AI conditioning references now copied with prompts/hashes;5 simple microfauna
+use own code. Imagegen batch198 COMPLETED, reference-batch-06-part1.json replaced
+with full83 entries; no pending reference generation, no paint/swatches made.
+29 new4-candidate reviews/116 candidates ready through Junglefowl +Raccoon/Badger;
+Beaver generating. Accepted deer still separate/unchanged. All art pending.
+Junglefowl initially failed incomplete NN inference; candidate2 was also only a
+6-joint straight chain. New fauna_rig_topology.py checks minimum retarget leaf
+endpoints by body family, never art acceptance. One extra seed trial maximum;
+failed NPZ/JSON archived inside same verified task candidate folder, results/seeds
+retained in rig-batch-results.json. Successful later rig seeds1837805/1837806;
+all4 meshes/rigs native reload/controls passed, no geometry reroll or manual fix.
+Batch continues other candidate jobs after one failure. No game/GPU-owner-app/
+Desktop changes. Source helpers/docs last pushed c08e64e25dde19177fa82c7e0fa98fa5e9901320;
+new topology/retry changes need next source backup. Read current index/counts,
+not this snapshot.20 suitable-CC0 motion gaps still recorded; do not pretend
+these are done, do not start painting or optional final art screen before queue.
+
 OVERNIGHT SOURCE COVERAGE/RESUME,24October2026~05:17CDT: worker safely
 checkpointed/resumed again, new exec62708 (read worker.lock for PID). Shared
 scripts/fauna_motion_sources.py now drives source dispatch; current worker uses

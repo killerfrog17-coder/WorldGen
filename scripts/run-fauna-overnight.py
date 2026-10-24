@@ -6,6 +6,7 @@ review, discards only its own high-poly/intermediate files after native reload.
 import argparse,datetime,json,os,subprocess,sys,time
 from pathlib import Path
 from fauna_motion_sources import source_for as resolve_source
+from fauna_rig_topology import minimum_leaves,topology,quarantine
 
 repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,default=repo/'artifacts/fauna-overnight-20261024');ap.add_argument('--watch',action='store_true');ap.add_argument('--only');ap.add_argument('--no-cached-inference',action='store_true')
@@ -80,7 +81,9 @@ try:
                     jobs=[]
                     for i in range(1,5):
                         candidate=folder/f'candidate-{i}';seed=735000+entry['priority_rank']*100+i
-                        if not (candidate/'generated-rig.npz').exists():jobs.append({'candidate':i,'output':str(candidate/'generated-rig.npz'),'mesh':str(candidate/'model.glb'),'seed':seed+100000})
+                        rig_path=candidate/'generated-rig.npz';required=minimum_leaves(entry)
+                        if rig_path.exists() and not topology(rig_path,required)['pass']:quarantine(rig_path,root)
+                        if not rig_path.exists():jobs.append({'candidate':i,'output':str(rig_path),'mesh':str(candidate/'model.glb'),'seed':seed+100000,'minimum_leaves':required})
                     if jobs:
                         manifest=folder/'rig-batch.json';manifest.write_text(json.dumps({'batch_root':str(root),'jobs':jobs},indent=2))
                         run([rig_python,repo/'scripts/run-fauna-inference-batch.py','--manifest',manifest,'--kind','rig'],folder/'rig-batch.log')
