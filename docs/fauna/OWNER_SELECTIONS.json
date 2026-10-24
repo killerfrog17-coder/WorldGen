@@ -601,7 +601,7 @@
     },
     "emu": {
       "reason": "Owner rejects leg assignment/motion; regenerate neutral two-leg reference and four models/fresh rigs with ground-only transfer.",
-      "status": "regenerating",
+      "status": "replacement_ready_ground_only_owner_review_pending",
       "art_approved": false
     }
   }

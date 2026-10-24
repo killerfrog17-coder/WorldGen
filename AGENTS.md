@@ -1,5 +1,26 @@
 # WorldGen repository instructions
 
+EMU READY / FULL ROSTER RESUMED108,24October2026:
+Emu first fresh candidate3 failed two neural skeleton attempts; original worker
+exec39210/PID10624 TERMINAL. Kept new models/rigs1/2/4 exact; regenerated ONLY
+shape3 seed3840326 (manual resident shape session13935 TERMINAL), clean/prep4k,
+new rig3940326. Explicit retry-failed.json hashes consumed by sole recovery
+worker exec44853/PID35316, now TERMINAL successful. New rigs19/61/48/51joints;
+all4 native checks/controls pass. CPU Bind oblique +Walk phase.33 side/front
+all4 inspected: TWO legs, upper body stable. Coarse fixed-upper-body Idle/Walk
+only, candidate3 toe rotation warning retained. No running/feeding/contact/art
+approval. Finalized usable_for_raw_audition; stable source hashes locked.
+Old owner-rejected Emu archive pruned25.72MiB via exact manifest helper. Failed
+new shape3 folder pruned10.08MiB after replacement/native/retained1/2/4hash checks;
+compact failed-model-candidate-3-manifest keeps hashes/NN failures/new identity.
+Duiker+Emu available on manual revisit; no new window/switch/review prompt.
+Priority6 rerolls finished.39 choices,108 raw reviews/432 candidates; full176
+still required,68 more. NO texture generation/painting or game integration.
+FULL --watch RESUMED as sole producer exec2565/PID14848 LIVE (verify), cached partial
+Turaco shape batch resumed. Future guard-display fix loaded; source quality stays
+resident FP16/50steps/depth8. Owner review PID16200 RIGHTMOST remains untouched.
+Prior remote877d285; this checkpoint and Emu ready status need backup.
+
 DUIKER REPLACEMENT READY / EMU ACTIVE,24October2026:
 Duiker4 fresh shapes/NN rigs/native controls completed. CPU Bind oblique and
 Walk phase.33 side/front all4 inspected: neutral geometry FOUR legs, original
