@@ -5,8 +5,19 @@ import bpy
 from mathutils import Vector,Quaternion
 
 s=bpy.context.scene;models=json.loads(s['deer_four_rigs'])
+animal=s.get('fauna_animal','Deer')
 finished=bool(models[0].get('same_approved_model'))
 state={'model':0,'clip':'Showcase','mode':0,'view':0,'skeleton':False,'coat':'Tawny woodland' if finished else 'Original fur','started':time.monotonic(),'seed':734100,'coat_index':0,'active_rack':-1,'sex':'Female'}
+queue_cache=[];queue_items_cache=[]
+def queue_entries():
+    global queue_cache,queue_items_cache
+    p=Path(bpy.data.filepath).parent.parent/'review-index.json'
+    if p.exists():
+        queue_cache=json.loads(p.read_text()).get('ready',[])
+        queue_items_cache=[(x['slug'],x['name'],'Raw motion audition -4 candidates') for x in queue_cache]
+    return queue_cache
+def animal_items(self,context):
+    queue_entries();return queue_items_cache or [('none','No review queue','')]
 if finished:
     for coat in models[0]['approved_art']['coats']:
         material=bpy.data.materials[coat['material']];nodes=material.node_tree.nodes;links=material.node_tree.links
@@ -57,7 +68,7 @@ def choose(label,play=True,phase=0):
     visibility()
 def set_view():
     target=rig().matrix_world@rig().pose.bones['Head'].head if state['view']==1 else Vector((0,0,.8))
-    direction=Vector((0,1,.05)) if state['view']==1 else Vector((1,0,.08))
+    direction=Vector((0,1,.05)) if state['view'] in (1,3) else Vector((0,-1,.05)) if state['view']==4 else Vector((1,0,.08))
     for window,area,space in regions():
         view=space.region_3d;view.view_perspective='PERSP';view.view_location=target
         view.view_distance=.9 if state['view']==1 else 3.1;view.view_rotation=direction.to_track_quat('Z','Y')
@@ -69,6 +80,27 @@ class D4_OT_model(bpy.types.Operator):
         playing=context.screen.is_animation_playing if context.screen else False
         state['model']=(state['model']+1)%len(models) if self.number<0 else self.number
         choose(state['clip'],play=playing,phase=phase);set_view();return {'FINISHED'}
+class D4_OT_animal(bpy.types.Operator):
+    bl_idname='deer_four.animal';bl_label='Change animal'
+    animal:bpy.props.EnumProperty(items=animal_items)
+    step:bpy.props.IntProperty(default=0)
+    def execute(self,context):
+        global s,models,animal,finished
+        entries=queue_entries()
+        if not entries:return {'CANCELLED'}
+        if self.step:
+            index=next((i for i,x in enumerate(entries) if Path(x['path'])==Path(bpy.data.filepath)),0)
+            selected=entries[(index+self.step)%len(entries)]
+        else:selected=next((x for x in entries if x['slug']==self.animal),entries[0])
+        if not Path(selected['path']).exists():return {'CANCELLED'}
+        bpy.ops.wm.open_mainfile(filepath=selected['path'])
+        s=bpy.context.scene;models=json.loads(s['deer_four_rigs']);animal=s.get('fauna_animal','Deer');finished=bool(models[0].get('same_approved_model'))
+        state.update(model=0,clip='Showcase',mode=0,view=0,skeleton=False,coat='Original fur',started=time.monotonic(),active_rack=-1)
+        choose('Showcase',play=False);set_view()
+        if not bpy.app.background:
+            if not bpy.app.timers.is_registered(tick):bpy.app.timers.register(tick,first_interval=.1)
+            bpy.app.timers.register(lambda:(playback(),None)[1],first_interval=.2)
+        return {'FINISHED'}
 class D4_OT_species(bpy.types.Operator):
     bl_idname='deer_four.species';bl_label='2 - Randomize species colour'
     def execute(self,context):
@@ -95,7 +127,11 @@ class D4_OT_species(bpy.types.Operator):
         state['coat']=label;return {'FINISHED'}
 class D4_OT_view(bpy.types.Operator):
     bl_idname='deer_four.view';bl_label='3 - Side / Face / Orbit'
-    def execute(self,context):state['view']=(state['view']+1)%3;state['started']=time.monotonic();set_view();return {'FINISHED'}
+    front:bpy.props.BoolProperty(default=False)
+    rear:bpy.props.BoolProperty(default=False)
+    def execute(self,context):
+        state['view']=3 if self.front else 4 if self.rear else (state['view']+1)%3
+        state['started']=time.monotonic();set_view();return {'FINISHED'}
 class D4_OT_mode(bpy.types.Operator):
     bl_idname='deer_four.mode';bl_label='4 - Showcase / Locomotion'
     def execute(self,context):state['mode']=1-state['mode'];choose('Locomotion' if state['mode'] else 'Showcase');return {'FINISHED'}
@@ -129,21 +165,28 @@ def controls(layout):
     row.operator('deer_four.play',text='Pause / Play')
 def header(self,context):controls(self.layout)
 class D4_PT_panel(bpy.types.Panel):
-    bl_idname='D4_PT_panel';bl_label='Four deer - independent generated rigs'
+    bl_idname='D4_PT_panel';bl_label='Animal raw motion review'
     bl_space_type='VIEW_3D';bl_region_type='UI';bl_category='Animal Review'
     def draw(self,context):
-        col=self.layout.column();entry=current();col.label(text=f"{'RIG' if finished else 'MODEL'} {state['model']+1} / {len(models)} - {entry['joints']} generated joints")
+        col=self.layout.column();entry=current();col.label(text=animal)
+        if queue_entries():
+            col.operator_menu_enum('deer_four.animal','animal',text='Choose animal')
+            row=col.row(align=True);row.operator('deer_four.animal',text='Previous animal').step=-1;row.operator('deer_four.animal',text='Next animal').step=1
+        col.label(text=f"{'RIG' if finished else 'MODEL'} {state['model']+1} / {len(models)} - {entry['joints']} generated joints")
         if finished:col.label(text='Approved finished deer - prototype' if len(models)==1 else 'Same approved finished deer in all four')
         row=col.row(align=True)
         for index in range(len(models)):row.operator('deer_four.model',text=str(index+1),depress=index==state['model']).number=index
         for op in ('deer_four.model','deer_four.species','deer_four.view','deer_four.mode'):col.operator(op)
+        row=col.row(align=True);row.operator('deer_four.view',text='Front body').front=True;row.operator('deer_four.view',text='Rear body').rear=True
         col.operator('deer_four.skeleton',text='Hide Skeleton' if state['skeleton'] else 'Show Skeleton');col.operator('deer_four.play')
         col.label(text='Playing: '+state['clip'].replace('_',' '));col.label(text='Coat: '+state['coat']+('' if finished else ' (colour only)'))
         if finished:col.label(text=state['sex']+' - '+('Antlers' if state['active_rack']>=0 else 'No antlers'))
         col.separator();col.label(text='Individual animations')
-        for label in ('Bind','Idle','Walk','Trot','Run','Eating','Sleep','lay_to_idle'):
+        preferred=['Idle','Walk','Trot','Run','Eating','Sleep','Rest','Jump','lay_to_idle','Death']
+        labels=['Bind',*[n for n in preferred if n in entry['actions']],*[n for n in entry['actions'] if n not in preferred]]
+        for label in labels:
             col.operator('deer_four.clip',text='Get Up' if label=='lay_to_idle' else label).clip=label
-        col.label(text='Fresh skeleton + network skin per candidate')
+        col.label(text='Own simple insect rig / wing motion' if entry.get('source_family')=='own simple microfauna' else 'Fresh skeleton + network skin per candidate')
         col.label(text='Raw automatic transfer; no manual repairs')
 def tick():
     for window,area,space in regions():
@@ -153,7 +196,7 @@ def tick():
         elif state['view']==1:space.region_3d.view_location=rig().matrix_world@rig().pose.bones['Head'].head
         area.tag_redraw()
     return .05
-for cls in (D4_OT_model,D4_OT_species,D4_OT_view,D4_OT_mode,D4_OT_skeleton,D4_OT_play,D4_OT_clip,D4_OT_free,D4_PT_panel):bpy.utils.register_class(cls)
+for cls in (D4_OT_model,D4_OT_animal,D4_OT_species,D4_OT_view,D4_OT_mode,D4_OT_skeleton,D4_OT_play,D4_OT_clip,D4_OT_free,D4_PT_panel):bpy.utils.register_class(cls)
 bpy.types.VIEW3D_HT_header.prepend(header)
 config=bpy.context.window_manager.keyconfigs.addon
 if config:

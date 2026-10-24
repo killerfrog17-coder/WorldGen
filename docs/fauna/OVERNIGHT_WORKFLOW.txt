@@ -1,0 +1,71 @@
+OVERNIGHT FAUNA AUDITIONS - 24 OCTOBER 2026
+
+Owner authorizes the full overnight queue. No runtime game integration and no
+painting until morning model approval. Accepted deer remains unchanged under
+artifacts/fauna-assets/deer. The editable full roster is FAUNA_ASSET_PLAN.csv;
+asset-plan.json has fuller paint/material/variation/motion plans for all188 entries.
+One accepted deer,176 new visual queues,5 existing audio-only entries and6 deferred.
+Birds previously audio-first can receive future visual auditions; no audible or
+visible game populations are changed by generating these review assets.
+
+WORK / REVIEW
+artifacts/fauna-overnight-20261024/<animal-slug>/Animal - Raw Audition.blend
+Each new visual audition contains4 distinct raw candidate meshes and individual
+rigs with suitable available motions. Neural shape: local TripoSG50steps/depth8,
+resident GPU, no low-memory offload. Neural rig: SkinTokens5beams, native SDPA,
+fresh prediction for each mesh; strongest4 normalized skin influences. Source
+motion is CC0; automatic graph/geometry transfer preserves learned joint offsets.
+No manual painting, anatomy extras, complex authored mammal gait or contact repair.
+Bone animation may still deform badly: native format checks are not art approval.
+
+Tiny butterfly/moth, bee, dragonfly, fly and firefly auditions use own procedural
+low-poly geometry and deliberately simple wing-envelope/hover loops, within the
+owner's simple-fauna allowance. They are labelled as own code, not AI-generated
+models or borrowed animations. No real-time point light per firefly. Their
+pigments/patterns are not painted yet. No movement AI or habitat spawning is added.
+
+Review controls:1 candidate,2 bounded colour-only preview,3 Side/Face/Orbit,
+4 Showcase/Locomotion. Animal Review also has Front body, Rear body, all available
+individual clips, Pause/Play and explicit Show/Hide Skeleton. Missing source clips
+remain missing; rabbit source has Idle/Rest/Run/Jump/Death but no dedicated walk/eat.
+
+Rebuild index:
+  python scripts/index-fauna-auditions.py
+Open a completed animal (replace hare with its slug):
+  python scripts/open-deer-mesh2motion.py --root artifacts/fauna-overnight-20261024/hare --four-rigs --blend-name "Animal - Raw Audition.blend" --rightmost
+REVIEW_INDEX.csv and review-index.json list ready files, priorities and motion gaps.
+No per-animal Desktop shortcuts and no flood of review windows overnight.
+
+SERIAL GPU WORKER
+  python scripts/run-fauna-overnight.py --watch
+It resumes saved stages and runs only animals with prepared references and motion
+banks. worker.lock prevents duplicate producers; verify PID before resuming a
+disconnected worker. queue-state.json has current animal/stage and failures.
+Create batch PAUSE to finish current safe subprocess/candidate and stop. Do not
+kill shared ComfyUI or owner apps.8GiB free-space guard stops new work. Each ready
+audition keeps four low-poly model/rig candidates and one review; only its exact
+raw high-poly/latent/prepared-reference intermediates are removed after reload.
+References/prompts are from built-in imagegen, not game-painted textures.
+
+SOURCES / PERMISSIONS
+Mesh2Motion official CC0 art dedication:
+https://github.com/Mesh2Motion/mesh2motion-app/blob/main/LICENSE-CC0.MD
+Installed afk-rig0.1.2 retains its MIT tool and CC0 animation assets. The separately
+licensed human-model variations are not used as animal donor assets.
+Dedicated rabbit by CDmir/TinyWorlds, CC0, creator confirms motion/commercial use:
+https://opengameart.org/content/rabbit-0
+Rabbit bank provenance and source hash: artifacts/fauna-motion-sources/rabbit.
+Only skeleton/motion is exported; donor body meshes never enter our auditions.
+Retained accepted horse/deer authored bank: fauna-assets/motion-bank/deer, CC0
+motion dedication retained. Entire generated animal is not automatically CC0.
+Gobkit public CC0 source was researched at https://gobkit.com/api/free and
+https://github.com/Ariescar/gobkit-free-assets . Ten sampled models shared the
+same coarse16-joint bind positions; not selected as a primary anatomical motion
+improvement. Small provenance/suitability metadata kept; sampled GLBs discarded.
+
+AFTER ALL RAW AUDITIONS
+Revisit priority order for targeted primary-source species/sex/age/season research,
+refine factual analogues versus explicit plausible hypotheses and generate needed
+reusable swatches. Never paint an unapproved model. If time still remains, inspect
+front/side/rear and key animation poses; flag clearly broken candidates with a
+reason. A heuristic or screenshot pass is not permission to call the rest accepted.

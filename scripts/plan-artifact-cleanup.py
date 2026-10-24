@@ -33,7 +33,8 @@ def add(path,reason):
     if path.exists():remove.append({'path':str(path),'reason':reason,'bytes':sizes.get(str(path).lower(),0),'directory':path.is_dir()})
 for b in builds:
     if b['path'].lower() not in retained:add(Path(b['path']),'Superseded game build; keep one final build per local day across both drives')
-keep_roots={'tools','fauna-assets','fauna-ai-review-20261022','fauna-ai-review-additional-20261022','climate-learning','exploration-music','terrain-surface-art-20261024','latest'}
+keep_roots={'tools','fauna-assets','fauna-motion-sources','fauna-ai-review-20261022','fauna-ai-review-additional-20261022','climate-learning','exploration-music','terrain-surface-art-20261024','latest'}
+keep_roots.update(p.name for p in art.glob('fauna-overnight-*') if p.is_dir())
 build_paths={b['path'].lower() for b in builds}
 for child in art.iterdir():
     if not child.is_dir() or str(child.resolve()).lower() in build_paths or child.name in keep_roots:continue

@@ -1,5 +1,42 @@
 # WorldGen repository instructions
 
+OVERNIGHT FAUNA QUEUE AUTHORIZED/RUNNING,24October2026: owner now explicitly
+starts overnight work, superseding earlier DO NOT START note. Full188-entry
+roster/plans saved docs/fauna/FAUNA_ASSET_PLAN.csv +asset-plan.json:1 accepted
+deer,176 new visual queues,5 current audio-only,6 deferred. For each queued animal
+prepare4 raw own model/rig/motion candidates; no painting/model extras until
+morning approval. After ALL raw auditions, refine real/plausible species/sex/age/
+season variation with research and optionally generate reusable swatches (still
+no painting). Last user adds: if extra time, inspect screenshots/key poses and
+flag clearly bad rigged candidates with reasons, without auto-approving others.
+
+Batch artifacts/fauna-overnight-20261024. CPU-generated own simple butterfly/moth,
+firefly, bee, dragonfly and fly auditions ready/checked; own low-poly/wing-envelope
+motion is allowed by user and labelled, NOT AI-generated shape. Hare+Rabbit4
+distinct TripoSG/SkinTokens candidates ready with dedicated CDmir/TinyWorlds CC0
+rabbit motion. Rabbit has Idle/Rest/Run/Jump/Death, NO dedicated Walk/Eating;
+don't rename unrelated clips. Red fox ready; serial watch worker moved to Wolf.
+Read live queue-state.json/native-checks/review-index for actual status, not this
+launch note. Python watch worker PID11340 at launch, exec session94121; verify
+before interventions. Shape50steps/depth8/resident GPU; no low-memory mode. Fresh
+5beam neural rig per mesh; automatic graph/geometry retarget, no manual corrections.
+Keep4low-poly candidates/oneblend; exact own raw/latent/prepared-image intermediates
+removed only after reload check.8GiB free-space guard. Worker uses lock; PAUSE
+stops at safe subprocess/candidate boundary. No owner apps closed or game changes.
+
+Motion banks under artifacts/fauna-motion-sources: rabbit (new CC0 download,
+only skeleton/motions exported), fox/bird (installed official Mesh2Motion CC0),
+horse (retained accepted CC0 bank). Ten Gobkit CC0 sample donors inspected: all
+share coarse16-joint bind positions, rejected as primary anatomical improvement;
+small metadata retained, samples discarded. Donor animal meshes never admitted.
+Built-in imagegen references only, prompts copied into batch references; reusable
+new texture generation hasn't started. No new Desktop items. Viewer1 models,
+2 bounded raw colour,3 Side/Face/Orbit plus Front/Rear,4 loops, all available clips,
+Pause and explicit Show/Hide Skeleton. Native checks are NOT art/gait acceptance.
+No flood of overnight windows/follow-ups. Rebuild morning index with
+scripts/index-fauna-auditions.py; open each ready raw blend via existing launcher.
+See docs/fauna/OVERNIGHT_WORKFLOW.txt for commands/provenance/resume details.
+
 OWNER CLEANUP / ACCEPTED DEER CONSOLIDATED,24October2026: owner accepts latest
 finished deer as prototype-ready despite motion imperfections. Then explicitly
 requests broad artifact cleanup, ONE final game build per local day (NO default

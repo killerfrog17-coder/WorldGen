@@ -179,7 +179,7 @@ def main():
     provenance = {
         'method': 'Local TripoSG image-to-shape, regular hierarchical decoder',
         'reference': str(args.source.resolve()), 'reference_sha256': sha256(args.source),
-        'reference_origin': 'New imagegen image, no downloaded deer asset',
+        'reference_origin': 'New imagegen animal reference; no downloaded animal mesh',
         'repo_revision': subprocess.check_output(['git','-C',str(args.repo),'rev-parse','HEAD'],text=True).strip(),
         'weights': str(args.weights), 'seed': args.seed, 'steps': args.steps,
         'depth': args.depth, 'decoder_chunk': args.chunk,
