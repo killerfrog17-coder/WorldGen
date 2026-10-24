@@ -136,6 +136,22 @@ limbs/finger branches, not a straightforward radial-arm source. The CC0 Octopus
 in Cage at https://blendswap.com/blend/22871 needs login to download; no bypass.
 
 AFTER ALL RAW AUDITIONS
+Quadrupedal primates have an explicitly EXPERIMENTAL fox-motion transfer route.
+A newly generated Baboon's selected Walk side/front poses were coherent enough
+to retain as a raw audition; this is not full gait/skin/contact acceptance and
+does not prove every other primate works. All10 routes retain warnings about
+missing dedicated gait, grasping, grooming and climbing. No motion is invented.
+Rabbit bounds were also tested on four new Red kangaroo models/rigs. REJECTED:
+direct transfer tips the body horizontal; automatic branch/orientation extraction
+still contorts hands/head. The unsuccessful adapter and active rabbit route are
+removed. Four raw meshes/fresh rigs remain motion pending, with the failed review
+separate for evidence. Wallaby has not been assigned this rejected method.
+Coverage now167/176 source routes including10 experimental primate routes;9 gaps
+remain. Do not redefine the full objective around this available subset.
+Ocean Trio https://opengameart.org/content/ocean-trio is CC0 but its native FBX
+contains no imported actions/armatures. Not selected; only small provenance and
+inspection records retained, not unused donor geometry.
+
 Dedicated bat motions now come from rubberduck's explicitly CC0 Vampire Bat:
 https://opengameart.org/content/vampire-bat-animated . Exported bones/motion only;
 donor mesh/coat never substitutes for our generated bat. The native source hides

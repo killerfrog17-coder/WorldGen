@@ -10,6 +10,7 @@ from mathutils import Matrix,Vector
 from mathutils.kdtree import KDTree
 sys.path.insert(0,str(Path(__file__).parent))
 from deer_behaviour_core import blend_pose,smooth
+from fauna_motion_sources import transfer_trial_note
 
 ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,required=True);ap.add_argument('--motion-root',type=Path,required=True)
 ap.add_argument('--animal',required=True);ap.add_argument('--fur',type=Path,required=True)
@@ -319,6 +320,8 @@ if source['family'] in ('rabbit','squirrel') and 'walk' not in labels:gaps.appen
 if a.animal=='Sea otter':gaps.append('Terrestrial raw-motion trial only; no suitable swimming clip supplied')
 if source['family']=='sloth':gaps.append('Giant-sloth terrestrial walk transfer only; climbing and hanging motions still missing')
 if source['family']=='mammoth':gaps.append('Mammoth walk/head motion transfer; dedicated trunk articulation is not transferred by this generic mapper')
+if transfer_trial_note(a.animal):gaps.append(transfer_trial_note(a.animal))
 (root/'audition.json').write_text(json.dumps({'animal':a.animal,'candidates':entries,'seconds':round(time.perf_counter()-started,2),'status':'ready_for_owner_review','motion_gaps':gaps,'painted':False,'art_approved':False,
+ 'experimental_transfer_trial':bool(transfer_trial_note(a.animal)),
  'motion_bank':str(a.motion_root.resolve()),'motion_rig_sha256':hashlib.sha256((a.motion_root/'source-rig.json').read_bytes()).hexdigest(),'motion_array_sha256':hashlib.sha256((a.motion_root/'source-motions.npz').read_bytes()).hexdigest()},indent=2))
 print('Raw audition ready',a.animal,flush=True)

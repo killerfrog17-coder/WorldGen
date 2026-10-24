@@ -1,8 +1,15 @@
 """Shared source dispatch for the raw fauna audition worker and coverage report."""
+QUADRUPED_PRIMATE_TRIALS={'Baboon','Capuchin','Chimpanzee','Gorilla','Guereza','Howler monkey','Lemur','Macaque','Spider monkey','Tamarin'}
+
+def transfer_trial_note(animal):
+    if animal in QUADRUPED_PRIMATE_TRIALS:return 'EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing'
+    return None
+
 def source_for(entry,repo):
     slug=entry['slug'];fam=entry['family'];animal=entry['animal'];bank=repo/'artifacts/fauna-motion-sources'
     if animal in {'Coastal squid (guild)','Sea turtle'}:return None
-    if fam=='bat':key='bat' if (bank/'bat'/'source-rig.json').exists() else 'bird'
+    if animal in QUADRUPED_PRIMATE_TRIALS:key='fox' # Explicit quadrupedal transfer trial, not primate-authored motion.
+    elif fam=='bat':key='bat' if (bank/'bat'/'source-rig.json').exists() else 'bird'
     elif animal=='Sloth':key='sloth'
     elif animal=='Elephant':key='mammoth'
     elif animal=='Shark':key='fish'

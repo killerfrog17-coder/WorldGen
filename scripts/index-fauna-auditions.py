@@ -28,6 +28,8 @@ for item in plan:
             elif (folder/'review-rebuild.json').exists():status='refreshing_mesh_preparation';notes='Previous unapproved review retained; fragment-safe mesh preparation and animation review rebuilding'
             elif q.get('status')=='models_rigged_motion_pending':
                 status='models_rigged_motion_pending';notes='Four raw meshes/rigs available; animations and Blender motion review still missing';raw_motion_pending.append(slug)
+                rejection=folder/'motion-trial-rejection.json'
+                if rejection.exists():notes+='; '+json.loads(rejection.read_text())['reason']
             elif item['family']!='microfly' and source_for(item,repo) is None:status='waiting_for_motion_source';notes='Suitable CC0 motion still needed; see MOTION_COVERAGE.csv'
     elif status=='accepted_baseline':path=str(repo/'artifacts/fauna-assets/deer/Deer - Prototype.blend')
     rows.append([item['priority_rank'],item['animal'],status,path,notes])

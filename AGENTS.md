@@ -1,5 +1,31 @@
 # WorldGen repository instructions
 
+OVERNIGHT TRANSFER TRIAL CHECKPOINT,24October2026~07:14CDT: active serial watch
+worker PID43204/exec90430, Cotton rat resumes retained shapes. Previous worker
+81435 terminal0 verified before restart.44 animated reviews/176 candidates plus
+Red kangaroo4 raw models/rigs MOTION PENDING, not an animated review. Cockatoo
+and Collared peccary ready. All art acceptance pending; no painting/windows.
+Baboon generated4 distinct models/fresh rigs with fox CC0 terrestrial motions;
+candidate1 Walk phase.33 side/front looks coherent in selected diagnostics, NOT
+full gait/collision approval. Explicit EXPERIMENTAL route now also available for
+Capuchin/Chimpanzee/Gorilla/Guereza/Howler/Lemur/Macaque/SpiderMonkey/Tamarin.
+All note missing primate-specific gait/climb/grasp/groom; no fictitious clips.
+Coverage167/176 including10 explicit cross-animal trials;9 genuine gaps remain.
+Rabbit-to-kangaroo trial REJECTED: original pitch tipped torso horizontal;
+automatic limb-branch/orientation experiment still gave contorted hands/head.
+Failed adapter code removed, rabbit route removed; do NOT promote to Wallaby.
+Four kangaroo models/fresh rigs preserved, no regeneration/paint/manual sculpt.
+Rejected unapproved blend/audition/native checks moved exactly inside kangaroo
+root to rejected-rabbit-motion, plus before/after PNGs and rejection JSON. One-off
+--only red-kangaroo rebuilt proper raw-motion-pending state without GPU work.
+Never count this rejected finite/native-passing trial as animation ready.
+Ocean Trio by Fleurman (OGA, CC0) inspected: FBX no actions/rigs, not a motion
+source. Unneeded8MB archive/FBX removed exactly within source root; small
+inspection/provenance/suitability retained. Remaining gaps: Redkangaroo/Wallaby,
+CoastalSquid/Gibbon/Orangutan/SeaLion/SeaTurtle/Seal/Walrus. Main queue still has
+much meaningful work; no blocked/complete goal status. Last source backupf00d9b09b7942085c91bf15e75876de244a66c96;
+new trial/index changes need backup. Preserve owner prompt deletion/deer scripts.
+
 OVERNIGHT BAT SOURCE CHECKPOINT,24October2026~06:53CDT: prior serial worker
 40581 exited0 at safe between-shape checkpoint, verified via write_stdin.
 New single watch worker PID8352/exec40572 resumes saved Civet shapes, no reroll.
