@@ -1,5 +1,21 @@
 # WorldGen repository instructions
 
+OWNER AWAKE / FIRST160 PLANS,24October2026~10:07CDT:
+Owner awake, says KEEP WORKING and not ready to review. No GUI/follow-up/window
+until requested. Answered stage: raw model/rig/motion before painting; latest78
+reviews/312 candidates +accepted deer, Lion generating. Fast resident mode,
+4 own models/new neural rigs per animal, serial GPU batches (not low-memory).
+Watch PID24740 remains LIVE; source-gap CoastalSquid still explicit. No failures
+observed. First160 catalogue entries now sourced detailed plans, mirrored to
+CSV/JSON;28 remain refined. New20 since140 GiantPanda through Pangolin. Eye/skin,
+primate sex/age and arthropod dimorphism explicit; Gibbon2/3/4 exclusions retained.
+No painting/new swatches/extras/game/Desktop/owner-app changes. Shared accepted
+deer untouched. Prior remote b85021963ae17a984a54ef05ce3edbacbe6e440b.
+First140 verification briefly failed after two tiny surface wording edits were
+not reapplied to mirror; helper rerun and PASS, corrected mirror backed separately
+at b850219. Do not claim the failed first verification passed.
+Preserve user prompt deletion and unrelated untracked deer scripts.
+
 OVERNIGHT FIRST140 CHECKPOINT,24October2026~10:01CDT:
 Serial fast watch PID24740 LIVE; Leopard shape-batch.77 raw reviews/308 candidates
 indexed, accepted deer separate; no failures observed. Lemming completed. No GUI
