@@ -1,5 +1,19 @@
 # WorldGen repository instructions
 
+RAW DEER AUDITION / REORDERED PIPELINE,24October2026: owner explicitly requests
+fresh model + automatic rig/motions + existing fur, NO painting/manual work or
+extended checks, before any finishing. New TripoSG seed732524 using existing
+reference,50steps/depth8/shared-GPU offload:122.59s generation. Existing accepted
+34-bone rig/rest/authored bank kept together; closest-surface barycentric top4
+skin transfer to fresh6000tri mesh, box-mapped fur, assembly2.44s. No manual fit,
+sculpt/paint/pose repairs, no new neural rig inference, no donor animal mesh
+retained. New artifacts/fauna-deer-raw-motion-20261024/Deer - Raw Generated Motion
+Audition.blend opened RIGHTMOST, Walk autoplay; one follow-up sent, owner art
+pending. Leave current and old reviews untouched while inspected. Generation
+finished; no GPU job/game/Unity/Desktop change or owner app closure. Order now:
+raw model/rig/motion owner approval FIRST, then paint/species/extras, then recheck.
+See FAUNA_ASSET_REVIEW_WORKFLOW.md; older opposite stage order is superseded.
+
 OWNER COMPARING OLD DEER,24October2026: owner says motion-correction candidate
 may be WORSE, with unrealistic deformation/poor carryover. Do NOT call it art
 accepted or cured based on geometric/native checks. At owner request opened

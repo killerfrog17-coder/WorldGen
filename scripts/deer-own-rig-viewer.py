@@ -94,8 +94,8 @@ class DOR_PT_panel(bpy.types.Panel):
         row=layout.row(align=True)
         row.operator('deer_own.view',text='Face').face=True
         row.operator('deer_own.view',text='Whole deer').face=False
-        layout.separator();layout.label(text='Original model, skeleton and weights')
-        layout.label(text='No replacement skin or live IK')
+        layout.separator();layout.label(text='Fresh generated mesh / automatic weights' if scene.get('raw_audition') else 'Original model, skeleton and weights')
+        layout.label(text='Existing rig and authored motion; no repair' if scene.get('raw_audition') else 'No replacement skin or live IK')
         layout.label(text='Transfer remains an unapproved trial')
 
 
@@ -110,7 +110,7 @@ for cls in (DOR_Properties,DOR_OT_clip,DOR_OT_play,DOR_OT_view,DOR_PT_panel):bpy
 bpy.types.Scene.deer_own_review=bpy.props.PointerProperty(type=DOR_Properties)
 bpy.types.VIEW3D_HT_header.prepend(header)
 scene.deer_own_review.bank='transferred'
-scene.deer_own_review.clip='Eating' if scene.get('eating_correction',False) else 'Bind pose'
+scene.deer_own_review.clip='Walk' if scene.get('raw_audition') else ('Eating' if scene.get('eating_correction',False) else 'Bind pose')
 scene.sync_mode='FRAME_DROP';select(bpy.context)
 if scene.get('eating_correction',False) and not bpy.app.background:
     def autoplay():

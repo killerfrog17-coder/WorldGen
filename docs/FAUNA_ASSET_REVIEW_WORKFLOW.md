@@ -1,5 +1,36 @@
 # Fauna asset review workflow
 
+## Current order — owner revision24 October2026
+
+**This supersedes the older stage order documented below.** Generate one fresh
+model, automatically rig/weight it and apply existing suitable authored motions
+BEFORE painting, facial refinement, species morphs or extras. Show the raw result
+in Blender on the rightmost monitor. Reuse an existing fur swatch with automatic
+mapping so the model is readable. No manual sculpture/painting/pose repairs or
+extended checks in this initial audition unless the owner subsequently requests
+them. It is an early rejection gate, not a quality or production acceptance claim.
+
+Once the owner accepts the model's deformation and movement, proceed to surface
+painting, species variations and optional antlers/ear/tail features. Then recheck
+that appearance work has not broken movement. Keep original references and rig/
+motion provenance; a fresh generated mesh need not mean regenerating its image
+reference or rig template. Explain which parts were reused.
+
+The24October raw deer uses a new TripoSG shape from the existing reference,
+seed732524,50steps/depth8, shared-GPU sequential offload. Generation122.59s;
+automatic Blender assembly2.44s, excluding script preparation/launch.6000triangles,
+existing34-bone rig and authored animations retained together; closest-surface
+barycentric top4 skin transfer. Existing fur uses box mapping; no painting or
+manual repairs. No donor animal mesh remains in the saved audition. This is NOT
+new neural rig generation, validated natural movement or accepted deformation.
+
+Raw review: `artifacts/fauna-deer-raw-motion-20261024/Deer - Raw Generated Motion Audition.blend`.
+Opened RIGHTMOST, one follow-up sent; leave it untouched while the owner inspects.
+Top bar Idle/Walk/Trot/Run/Eating/Pause; sidebar Sleep and other source clips.
+No new Desktop item or game/Unity changes. GPU generation is finished.
+
+## Historical workflow — superseded stage order
+
 Owner revision,23 October2026: one generated candidate at a time. Review is in
 Blender on the rightmost monitor. **Do not create Desktop shortcuts or other
 Desktop-root review items.** Keep source in the repository and generated assets
