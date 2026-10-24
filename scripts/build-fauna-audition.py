@@ -277,7 +277,7 @@ for number in range(1,5):
         cache[label]=frames;actions[label]=bake(rig,label,frames,names)
     def sample(label,seconds):
         array=cache[label];x=seconds*30%max(1,len(array)-1);first=int(x);return blend_pose(array[first],array[min(first+1,len(array)-1)],x-first)
-    demos={};move=next((n for n in ('Walk','Run','Gallop','Swim','Swim Horizontal','Swim Vertical','Side winding','Flap') if n in cache),'Idle')
+    demos={};move=next((n for n in ('Walk','Run','Gallop','Swim','Swim Horizontal','Swim Vertical','Side winding','Flipper stroke transfer','Flap') if n in cache),'Idle')
     tiers=[n for n in ('Walk','Trot','Canter','Run','Gallop') if n in cache] if 'Walk' in cache else [move]
     locomotion=[('Idle',2),*[(n,3) for n in tiers],*[(n,2) for n in tiers[-2::-1]],('Idle',2)]
     showcase=[('Idle',2),*[(n,min(5,max(1.5,len(cache[n])/30))) for n in cache if n not in {'Idle','Death'}],('Idle',2)]

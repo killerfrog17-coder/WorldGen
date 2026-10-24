@@ -1,5 +1,29 @@
 # WorldGen repository instructions
 
+OVERNIGHT FLIPPER SOURCE CHECKPOINT,24October2026~07:32CDT: serial watch worker
+PID22672/exec74378 verified LIVE, Emu shape batch. Prior worker90430 terminal0
+verified; isolated SeaTurtle trial79659 then terminal0, inspected before resume.
+48 reviews/192 candidates ready incl Duiker +SeaTurtle; Redkangaroo4 raw models/
+rigs motion pending; no pending technical trial. All owner ART approval pending.
+New prepare-fauna-flipper-source.py reuses UNCHANGED Mesh2Motion CC0 bird
+Glide/Flap arrays with fish-style four-flipper graph. Glide reference/Idle avoids
+perched-to-flight body pitch. Clip names Glide transfer / Flipper stroke transfer
+are explicit; no authored turtle swimming, land/nesting/feed/death claim.
+SeaTurtle4 fresh12-ish-joint rigs built/native checked. Sampled candidate1 Bind,
+stroke oblique/side +candidate3 front retain coherent shell/neck/flipper shapes;
+retain as raw EXPERIMENTAL audition, NOT full-cycle gait/contact/owner acceptance.
+New worker --motion-root REQUIRES --only and creates source-trial-pending.json;
+uninspected trials excluded from ready count and skipped by ordinary worker.
+finalize-fauna-motion-trial.py requires worker terminal/no lock,4 native-checked
+candidates, source hashes unchanged, no art approval, exact contained moves.
+Usable decision promotes technical source only; reject preserves4 meshes/rigs
+and separates failed review. Dynamic dispatch accepts reviewed source ONLY when
+hashes still match. Actual usable branch exercised by SeaTurtle. Remaining8
+source gaps: Redkangaroo/Wallaby/CoastalSquid/Gibbon/Orangutan/SeaLion/Seal/Walrus.
+Coverage168/176 including11 explicit cross-animal trials. All refs still ready.
+No new Desktop/window/game/app changes or painting. Latest source backup8c7ac1c9651bc70270bc0089e53461918e630050;
+new trial-gate/flipper helpers need backup. Preserve owner unrelated changes.
+
 OVERNIGHT TRANSFER TRIAL CHECKPOINT,24October2026~07:14CDT: active serial watch
 worker PID43204/exec90430, Cotton rat resumes retained shapes. Previous worker
 81435 terminal0 verified before restart.44 animated reviews/176 candidates plus

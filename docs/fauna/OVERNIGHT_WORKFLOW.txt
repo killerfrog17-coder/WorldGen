@@ -136,6 +136,23 @@ limbs/finger branches, not a straightforward radial-arm source. The CC0 Octopus
 in Cage at https://blendswap.com/blend/22871 needs login to download; no bypass.
 
 AFTER ALL RAW AUDITIONS
+Sea turtle now has an EXPERIMENTAL bird-Glide/Flap-to-flipper raw audition. Its
+actual source arrays are unchanged; Glide is the reference/Idle instead of a
+perched bird. Only graph correspondence changes. Native reload/controls passed,
+and selected bind/stroke oblique/side/front poses retained a coherent shell,
+neck and flipper silhouette. Full-cycle naturalness/contact and owner acceptance
+remain unverified. No turtle land, nesting, feeding or death clip is invented.
+The source bank is flipper-trial; explicit adaptation warnings remain in review.
+New single-animal source trials use --only <slug> --motion-root <bank>. They stay
+behind source-trial-pending.json and out of the animation-ready count until an
+agent inspects the actual target. finalize-fauna-motion-trial.py records either
+usable_for_raw_audition or rejected only after the worker exits. This is a
+technical source decision, NEVER owner art approval. Source hashes must match;
+rejected motion remains separate and its raw four meshes/rigs are retained.
+Dynamic source dispatch rechecks those hashes before reusing a reviewed bank.
+Current coverage168/176 includes11 explicitly experimental cross-animal routes;
+remaining gaps are listed in MOTION_COVERAGE.csv, not silently treated complete.
+
 Quadrupedal primates have an explicitly EXPERIMENTAL fox-motion transfer route.
 A newly generated Baboon's selected Walk side/front poses were coherent enough
 to retain as a raw audition; this is not full gait/skin/contact acceptance and

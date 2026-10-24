@@ -10,7 +10,7 @@ for animal in plan:
     if animal['family']=='microfly':status='Own simple wing/hover motion';clips='Idle / Flight / Perch';bank='own code'
     elif source:
         s=json.loads((source/'source-rig.json').read_text());status='Raw retarget source available; anatomical compatibility awaits review';clips=' / '.join(c['label'] for c in s['clips']);bank=source.name
-        if transfer_trial_note(animal['animal']):status='EXPERIMENTAL cross-animal transfer trial; suitability not yet established'
+        if transfer_trial_note(animal['animal']) or s.get('adaptation','').startswith('EXPERIMENTAL'):status='EXPERIMENTAL cross-animal transfer trial; suitability not yet established'
     else:status='Suitable CC0 motion source still needed';clips='';bank=''
     rows.append([animal['priority_rank'],animal['animal'],animal['family'],status,bank,clips])
 with (root/'MOTION_COVERAGE.csv').open('w',newline='',encoding='utf-8-sig') as f:

@@ -1,4 +1,6 @@
 """Shared source dispatch for the raw fauna audition worker and coverage report."""
+import hashlib,json
+from pathlib import Path
 QUADRUPED_PRIMATE_TRIALS={'Baboon','Capuchin','Chimpanzee','Gorilla','Guereza','Howler monkey','Lemur','Macaque','Spider monkey','Tamarin'}
 
 def transfer_trial_note(animal):
@@ -7,6 +9,11 @@ def transfer_trial_note(animal):
 
 def source_for(entry,repo):
     slug=entry['slug'];fam=entry['family'];animal=entry['animal'];bank=repo/'artifacts/fauna-motion-sources'
+    record=repo/'artifacts/fauna-overnight-20261024'/slug/'source-trial-reviewed.json'
+    if record.exists():
+        decision=json.loads(record.read_text());p=Path(decision['motion_source']).resolve()
+        if decision.get('decision')=='usable_for_raw_audition' and p.is_relative_to(bank) and all((p/n).exists() for n in ('source-rig.json','source-motions.npz')):
+            if hashlib.sha256((p/'source-rig.json').read_bytes()).hexdigest()==decision['motion_rig_sha256'] and hashlib.sha256((p/'source-motions.npz').read_bytes()).hexdigest()==decision['motion_array_sha256']:return p
     if animal in {'Coastal squid (guild)','Sea turtle'}:return None
     if animal in QUADRUPED_PRIMATE_TRIALS:key='fox' # Explicit quadrupedal transfer trial, not primate-authored motion.
     elif fam=='bat':key='bat' if (bank/'bat'/'source-rig.json').exists() else 'bird'

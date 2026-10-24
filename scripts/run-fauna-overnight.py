@@ -9,8 +9,13 @@ from fauna_motion_sources import source_for as resolve_source
 from fauna_rig_topology import minimum_leaves,topology,quarantine
 
 repo=Path(__file__).resolve().parent.parent
-ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,default=repo/'artifacts/fauna-overnight-20261024');ap.add_argument('--watch',action='store_true');ap.add_argument('--only');ap.add_argument('--no-cached-inference',action='store_true')
+ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,default=repo/'artifacts/fauna-overnight-20261024');ap.add_argument('--watch',action='store_true');ap.add_argument('--only');ap.add_argument('--no-cached-inference',action='store_true');ap.add_argument('--motion-root',type=Path)
 a=ap.parse_args();root=a.root.resolve();root.mkdir(parents=True,exist_ok=True)
+if a.motion_root:
+    if not a.only:ap.error('--motion-root is a single-animal technical trial and requires --only')
+    a.motion_root=a.motion_root.resolve()
+    assert a.motion_root.is_relative_to(repo/'artifacts/fauna-motion-sources')
+    assert all((a.motion_root/n).exists() for n in ('source-rig.json','source-motions.npz'))
 plan=json.loads((repo/'docs/fauna/asset-plan.json').read_text())['rows']
 # Finish motion-backed auditions before spending GPU time on source-gap animals.
 # Those still receive independent raw meshes/rigs, but never a false "animated"
@@ -68,9 +73,11 @@ try:
             slug=entry['slug']
             if a.only and slug!=a.only:continue
             if entry['asset_status']!='queued' or entry['family']=='microfly':continue
-            folder=root/slug;reference=root/'references'/f'{slug}.png';source=source_for(entry)
+            folder=root/slug;reference=root/'references'/f'{slug}.png';source=a.motion_root or source_for(entry)
             rebuild_marker=folder/'review-rebuild.json'
+            trial_marker=folder/'source-trial-pending.json'
             previous=state['animals'].get(slug,{})
+            if trial_marker.exists() and not a.motion_root:continue
             if previous.get('status')=='failed':continue
             if previous.get('status')=='ready' and not rebuild_marker.exists():continue
             if previous.get('status')=='models_rigged_motion_pending' and source is None:continue
@@ -81,6 +88,9 @@ try:
             import shutil
             if shutil.disk_usage(root).free<8*2**30:state['current']='disk_space_guard';save();raise RuntimeError('Less than8GiB free; paused without deleting retained work')
             did=True;state['current']=slug;folder.mkdir(exist_ok=True)
+            if a.motion_root:
+                assert not (folder/'native-checks.json').exists(),'Do not overwrite an existing review with a new source trial'
+                trial_marker.write_text(json.dumps({'animal':entry['animal'],'motion_source':str(source),'technical_source_review_pending':True,'art_approved':False},indent=2))
             state['animals'][slug]={'status':'working','animal':entry['animal'],'source':str(source) if source else None,'started':datetime.datetime.now().astimezone().isoformat()};save()
             try:
                 if not a.no_cached_inference:
@@ -136,7 +146,8 @@ try:
                         p=folder/f'candidate-{i}'/name
                         if p.exists():p.unlink()
                 if rebuild_marker.exists():rebuild_marker.replace(folder/'mesh-preparation-rebuild-completed.json')
-                state['animals'][slug].update(status='ready',review=str(folder/'Animal - Raw Audition.blend'),finished=datetime.datetime.now().astimezone().isoformat());save();print('READY',slug,flush=True)
+                final_status='experimental_motion_trial_pending' if a.motion_root else 'ready'
+                state['animals'][slug].update(status=final_status,review=str(folder/'Animal - Raw Audition.blend'),finished=datetime.datetime.now().astimezone().isoformat());save();print('TRIAL NEEDS TECHNICAL REVIEW' if a.motion_root else 'READY',slug,flush=True)
                 subprocess.run([sys.executable,str(repo/'scripts/index-fauna-auditions.py'),'--root',str(root)],cwd=repo,env=env,check=True)
             except Exception as exc:
                 state['animals'][slug].update(status='failed',error=str(exc));save();print('FAILED',slug,str(exc),flush=True)
