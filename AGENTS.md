@@ -1,5 +1,30 @@
 # WorldGen repository instructions
 
+PROCEDURAL SQUID / ALL188 PLANS,24October2026~10:25CDT:
+Owner awake and KEEP WORKING, not ready for reviews; no GUI/follow-up until asked.
+Owner explicitly allows modest underwater squid appearance and procedural arms.
+New own source scripts/prepare-fauna-squid-source.py creates three closed3s
+Idle/Swim/Escape pulse envelopes; no third-party motion or donor geometry.
+Four generated ~2ktri squid models/fresh inferred rigs completed; small branch
+rotations hold core paths steady. CPU Bind/Swim/Escape samples inspected across
+four; coarse fins/partly merged arms remain. Native finite/bind/control checks
+pass; technical source finalized usable_for_raw_audition, NOT owner art approval,
+ten-arm identification, collision-free motion, feeding/grasp or fluid simulation.
+Motion bank artifacts/fauna-motion-sources/procedural-squid; hash-checked decision
+under coastal-squid-guild routes it dynamically. All176 visual entries now have
+source/procedural routes,18 experimental cross-animal routes still explicit.
+All188 rows now have sourced linked appearance/sex/age/lifecycle plans mirrored
+JSON/CSV; six deferred entries zero allocation, five audio remain audio only.
+PASS188 mirrors/CSV/deferred scope; changed Python compile and diff checks pass.
+No swatches/painting/extras/runtime/game/Desktop/accepted-deer/owner-app changes.
+Squid trial exec92254/PID19964 EXITED. Normal fast resident watch RESUMED:
+exec68103/PID7088 LIVE (verify), Mongoose preparing;82 ready/328 models plus
+accepted deer at last index, no failures. Do not start another GPU producer.
+run-control modeRun ignores only the exact completed internal PAUSE checkpoint;
+new owner pause remains respected. Legacy blocked marker/shortcut untouched.
+First160 remote f00577b78677eb8e715a8f7ac8f709340ea0776f; new work needs backup.
+Preserve user prompt deletion and unrelated untracked deer scripts.
+
 OWNER AWAKE / FIRST160 PLANS,24October2026~10:07CDT:
 Owner awake, says KEEP WORKING and not ready to review. No GUI/follow-up/window
 until requested. Answered stage: raw model/rig/motion before painting; latest78

@@ -22,7 +22,7 @@ if rebuild:
     assert a.rebuild_unreviewed and not json.loads((root/'audition.json').read_text()).get('art_approved')
     assert root.is_relative_to(Path(__file__).resolve().parent.parent/'artifacts/fauna-overnight-20261024')
 source=json.loads((a.motion_root/'source-rig.json').read_text());motions=np.load(a.motion_root/'source-motions.npz')
-if source['family'] in ('bird','bat','fish','snake','spider','ground_insect','turtle','crocodile') or a.animal in {'Elephant','Rhinoceros','Hippopotamus','Pangolin','Armadillo'}:a.neutral_material=True
+if source['family'] in ('bird','bat','fish','snake','spider','ground_insect','turtle','crocodile','squid') or a.animal in {'Elephant','Rhinoceros','Hippopotamus','Pangolin','Armadillo'}:a.neutral_material=True
 sn=[b['name'] for b in source['bones']];si={n:i for i,n in enumerate(sn)};paths=source['paths']
 flightless=a.animal in {'Ostrich','Emu','Cassowary','Kiwi','Penguin'}
 clips=[c for c in source['clips'] if not (source['family']=='bird' and ((flightless and c['label'] in {'Flap','Glide'}) or ('bat' in a.animal.lower() and c['label']=='Walk')))]
@@ -41,6 +41,7 @@ def correspondence(joints,parents):
     children=[np.flatnonzero(parents==i).tolist() for i in range(len(parents))]
     roots=np.flatnonzero(parents<0);assert len(roots)==1;pelvis=int(roots[0])
     leaves=[i for i,c in enumerate(children) if not c];bird=source['family'] in ('bird','bat');fish=source['family']=='fish'
+    if source.get('motion_profile')=='procedural_squid':return squid_correspondence(joints,parents,children,leaves,pelvis)
     if fish:return fish_correspondence(joints,parents,children,leaves,pelvis)
     if source.get('motion_profile')=='experimental_biped':return biped_correspondence(joints,parents,children,leaves,pelvis)
     if source.get('motion_profile')=='experimental_hind_hopper':return hopper_hind_correspondence(joints,parents,children,pelvis)
@@ -109,6 +110,38 @@ def correspondence(joints,parents):
     for i in range(len(parents)):
         pref=[c for c in children[i] if groups[c] in ('spine','neck')];main.append(pref[0] if pref else children[i][0] if children[i] else -1)
     names=[f'Joint_{i:02d}' for i in range(len(parents))];names[pelvis]='Pelvis';names[head]='Head'
+    return binding,children,groups,main,names,pelvis,head
+
+def squid_correspondence(joints,parents,children,leaves,pelvis):
+    """Hold mantle/head paths steady; small phased bends on distal branches.
+
+    Learned appendage identity is approximate. Never claim ten resolved arms
+    from a network rig merely because this template contains ten motion slots.
+    """
+    tail=min(leaves,key=lambda n:joints[n,1])
+    central=[i for i,c in enumerate(children) if len(c)>=3]
+    head=max(central,key=lambda n:joints[n,1]) if central else pelvis
+    if head==pelvis:
+        options=[i for i in range(len(parents)) if i!=pelvis]
+        head=min(options,key=lambda n:float(np.linalg.norm(joints[n]-joints[pelvis])))
+    core=set(path_to(parents,tail))|set(path_to(parents,head));groups=['extra']*len(parents)
+    binding=np.eye(len(sn))[np.full(len(parents),si[source['root']])]
+    for i in core:groups[i]='spine'
+    center=joints[head];scale=max(float(np.ptp(joints[:,1])),1e-5)
+    for tip in sorted(leaves,key=lambda n:len(path_to(parents,n)),reverse=True):
+        if tip in core:continue
+        chain=[n for n in path_to(parents,tip) if n not in core]
+        if not chain:continue
+        fin=joints[tip,1]<center[1]-scale*.08
+        angle=math.atan2(float(joints[tip,2]-center[2]),float(joints[tip,0]-center[0]))%math.tau
+        slot=si['Fin_L' if joints[tip,0]<center[0] else 'Fin_R'] if fin else si[f'Arm_{round(angle*10/math.tau)%10}']
+        for node in chain:
+            if groups[node]!='extra':continue
+            binding[node]=0;binding[node,slot]=1;groups[node]='squid_fin' if fin else 'squid_arm'
+    active=sum(g in ('squid_arm','squid_fin') for g in groups)
+    assert active>=2,'Squid procedural trial needs at least two distinct distal joints'
+    main=[c[0] if c else -1 for c in children]
+    names=[f'Joint_{n:02d}' for n in range(len(parents))];names[pelvis]='Pelvis';names[head]='Head'
     return binding,children,groups,main,names,pelvis,head
 
 def biped_correspondence(joints,parents,children,leaves,pelvis):
@@ -387,7 +420,12 @@ for number in range(1,5):
                     ik_angles[node]=math.atan2(direction[1],direction[0])-math.atan2(original[2],original[1])
                 ik_angles[chain[-2]]=pitch;ik_angles[chain[-1]]=pitch
             for i,parent in enumerate(parents):
-                if source.get('motion_profile')=='experimental_hind_hopper' and i==pelvis:q=rest[i].to_quaternion()
+                if source.get('motion_profile')=='procedural_squid':
+                    q=(g[int(parent)].to_quaternion()@local[i].to_quaternion()) if parent>=0 else rest[i].to_quaternion()
+                    if group[i] in ('squid_arm','squid_fin'):
+                        delta=Matrix(frame[int(np.argmax(binding[i]))]).to_quaternion()
+                        q=q@delta
+                elif source.get('motion_profile')=='experimental_hind_hopper' and i==pelvis:q=rest[i].to_quaternion()
                 elif group[i]=='extra' and parent>=0:q=g[int(parent)].to_quaternion()@local[i].to_quaternion()
                 elif i in ik_angles:q=Quaternion((1,0,0),ik_angles[i])@rest[i].to_quaternion()
                 elif i==pelvis or i==head or main[i]<0:
@@ -419,7 +457,7 @@ for number in range(1,5):
         demos[title]=bake(rig,title,poses,names)
     entry={'number':number,'rig':rig.name,'body':body.name,'head':'Head','actions':actions,'demos':demos,'material':mat.name,'joints':len(names),'triangles':len(mesh.polygons),
         'rig_file':str(folder/'generated-rig.npz'),'parents':parents.tolist(),'joint_names':names,'generated_joint_heads':joints.tolist(),'binding':binding.tolist(),'groups':group,
-        'animal':a.animal,'source_family':source['family'],'source_license':'CC0-1.0','manual_repairs':False,'painted':False,
+        'animal':a.animal,'source_family':source['family'],'source_license':source.get('license','CC0-1.0'),'manual_repairs':False,'painted':False,
         'canonical_review_height_m':1.65,'runtime_species_scale_pending_approval':True,'surface_material':'plain neutral' if a.neutral_material else 'reused fur swatch','canonical_axis_correction':axis_correction,
         'locomotion_sequence':[n for n,d in locomotion],'locomotion_durations_s':[d for n,d in locomotion]}
     entries.append(entry);body.hide_set(number!=1);body.hide_render=number!=1;rig.hide_set(True);rig.select_set(False)

@@ -20,6 +20,9 @@ def apply_refinements(rows,directory):
         row['second_pass_status']='Targeted analogue/sex/age/season planning refined with linked sources; geometry approval and remaining alias research still pending. No textures generated or models painted.'
         if row['asset_status']=='audio_existing':
             row['second_pass_status']='Audio-only sex/season/spatial-call/speciation plan refined with sources. No visual asset allocation or playback-bank changes.'
+        elif row['asset_status']=='deferred':
+            row['second_pass_status']='Deferred representation and future anatomy/lifecycle researched; zero current visual allocation. No textures, models or motions generated.'
+            row['motion_source_plan']='Deferred: choose a matching body family and source only if this representation is activated; no current motion allocation.'
     return rows
 
 def write_table(rows,path):

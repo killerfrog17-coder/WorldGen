@@ -13,8 +13,10 @@ artifacts/fauna-overnight-20261024/<animal-slug>/Animal - Raw Audition.blend
 Each new visual audition contains4 distinct raw candidate meshes and individual
 rigs with suitable available motions. Neural shape: local TripoSG50steps/depth8,
 resident GPU, no low-memory offload. Neural rig: SkinTokens5beams, native SDPA,
-fresh prediction for each mesh; strongest4 normalized skin influences. Source
-motion is CC0; automatic graph/geometry transfer preserves learned joint offsets.
+fresh prediction for each mesh; strongest4 normalized skin influences.
+Borrowed motion is CC0; simple microfauna and the owner-authorized underwater
+squid use project-authored procedural motion. Automatic graph/geometry transfer
+preserves learned joint offsets.
 No manual painting, anatomy extras, complex authored mammal gait or contact repair.
 Bone animation may still deform badly: native format checks are not art approval.
 The four shapes share resident model weights inside one serial process; likewise
@@ -262,3 +264,16 @@ Coastal squid potential CC0 swim source https://blendswap.com/blend/33280 requir
 normal login. No account created or file acquired. It remains an explicit gap.
 Worker recovery requests hash all4 repaired cached meshes and are consumed only
 by the serial producer, without external edits to its live in-memory queue state.
+
+UPDATE 24October2026: owner explicitly permits a modest procedural underwater
+squid placeholder. Four generated models/fresh inferred rigs now have project-
+authored Idle/Swim/Escape pulse arm/fin envelopes, replacing that source gap.
+Native pose/control checks and selected CPU Bind/Swim/Escape poses passed the
+limited technical source review; coarse fins and partly merged arms remain.
+No ten-arm identification, fluid dynamics, grasping or owner art approval claim.
+All176 visual entries now have a source/procedural route; this is not completion
+of their model generation or approval of cross-animal transfer suitability.
+All188 catalogue entries now have targeted appearance/sex/age/lifecycle plans,
+including zero current allocation for the six deferred entries. No swatches or
+painting have been generated in this planning pass. Owner is awake and explicitly
+not ready for review; do not open Blender or send an art-review request yet.
