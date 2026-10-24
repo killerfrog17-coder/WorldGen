@@ -27,7 +27,10 @@ for item in plan:
             q=queue.get(slug,{})
             if q.get('status')=='failed':status='generation_failed';notes=q.get('error','')
             elif (folder/'source-trial-pending.json').exists():status='experimental_motion_trial_pending';notes='Source trial awaits technical inspection; excluded from animation-ready count';motion_trials_pending.append(slug)
-            elif (folder/'review-rebuild.json').exists():status='refreshing_mesh_preparation';notes='Previous unapproved review retained; fragment-safe mesh preparation and animation review rebuilding'
+            elif (folder/'review-rebuild.json').exists():
+                status='refreshing_raw_review'
+                rebuilding=json.loads((folder/'review-rebuild.json').read_text())
+                notes='Previous unapproved review retained; rebuilding: '+rebuilding.get('reason','raw preparation correction')
             elif q.get('status')=='models_rigged_motion_pending':
                 status='models_rigged_motion_pending';notes='Four raw meshes/rigs available; animations and Blender motion review still missing';raw_motion_pending.append(slug)
                 rejection=folder/'motion-trial-rejection.json'

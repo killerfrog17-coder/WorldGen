@@ -1,5 +1,30 @@
 # WorldGen repository instructions
 
+OVERNIGHT FIRST70 / ALIAS CORRECTIONS,24October2026~09:46CDT:
+Serial watch producer PID24740 resumed after exec95232 exited0 at an internal
+checkpoint. Current tool session handle was accidentally omitted from printed
+launch metadata; verify PID/worker.lock/queue-state and native subprocesses,
+never start another producer while this one lives. Fast resident inference stays.
+73 reviews/292 candidates currently indexed while ForestHog rebuilds; Duiker
+corrected and nativechecked. Original74 total temporarily minus two refreshing
+aliases, plus restoredDuiker; Kingfisher was safely interrupted after rig batch
+and will resume cached. No queue failures observed. All owner ART pending.
+Roster Duiker means BlueDuiker; ForestHog means RedRiverHog. Earlier generic
+references had wrong head/body cues. New built-in imagegen transparent references
+and exact prompts/provenance in ignored alias-reference-corrections.json and
+reference-index. Own prior candidate exact files archived before replacement;
+Duiker old13.62MiB pruned by manifest/hash after new4 nativechecks. ForestHog old
+archive must similarly prune ONLY after completed new review/checks. Tiny reason,
+hash metadata and old reference retained. Accepted deer untouched; no painting.
+First70 catalogue rows now have targeted sourced appearance plans, mirrored to
+asset-plan JSON and editable CSV. Added20 from prior first50: Crane through Ibex,
+including explicit alias/species, age, horn/casque and flight-posture limits.
+No swatches/textures generated; no Desktop/game/UI/window/owner app changes.
+Index now reports actual rebuild reason rather than assuming fragment cleanup.
+CoastalSquid remains sole CC0 motion source gap, login-gated source not accessed.
+Remaining118 refinements and most raw queue unfinished; full176 objective active.
+Preserve user deleted prompt and unrelated untracked deer scripts.
+
 OVERNIGHT FIRST50 PLAN CHECKPOINT,24October2026~09:27CDT:
 Same watch exec95232/PID30660 verified LIVE, jaguar shape-batch.
 72 raw reviews/288 files ready, no failed queue entries. Generator ran
