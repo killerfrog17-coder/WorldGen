@@ -2,7 +2,8 @@
 def source_for(entry,repo):
     slug=entry['slug'];fam=entry['family'];animal=entry['animal'];bank=repo/'artifacts/fauna-motion-sources'
     if animal in {'Coastal squid (guild)','Sea turtle'}:return None
-    if animal=='Sloth':key='sloth'
+    if fam=='bat':key='bat' if (bank/'bat'/'source-rig.json').exists() else 'bird'
+    elif animal=='Sloth':key='sloth'
     elif animal=='Elephant':key='mammoth'
     elif animal=='Shark':key='fish'
     elif animal in {'Dolphin','Orca','Whale','Dugong'}:key='cetacean'

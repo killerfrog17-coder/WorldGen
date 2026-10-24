@@ -1,5 +1,23 @@
 # WorldGen repository instructions
 
+OVERNIGHT BAT SOURCE CHECKPOINT,24October2026~06:53CDT: prior serial worker
+40581 exited0 at safe between-shape checkpoint, verified via write_stdin.
+New single watch worker PID8352/exec40572 resumes saved Civet shapes, no reroll.
+40 reviews/160 candidates ready through Cassowary before Civet. Dedicated CC0
+rubberduck Vampire Bat source added (20-bone transfer, Idle/Flap/Attack/Death),
+creator https://opengameart.org/content/vampire-bat-animated . Only motion/bones
+exported, no donor mesh. Hidden legacy source rig/collections initially yielded
+constant exported matrices; explicit offline visibility fixes evaluation. Flap
+now visibly varies in source skeleton diagnostic. Flat bat rest normalized by
+longitudinal extent to avoid amplifying body bob. Source suitability is not
+target animation approval. Bank provenance/license retained. Bat family now
+uses dedicated bank rather than bird, current worker loaded dispatch.
+Audited94 clips/17 banks for constant matrices: turtle/ground-insect held Idle
+expected. Ground-insect Bite did not move exported graph (mandibles excluded),
+removed misleading clip; kept held Idle + actual Walk. No insect reviews yet.
+No owner app/window/Desktop/game change or painting. Source backupbe72aab368e5d822758d2e4e223692d5a51cb260
+remotely verified; latest bat/inspection changes need next source backup.
+
 OVERNIGHT MESH/DEMO CHECKPOINT,24October2026~06:45CDT: serial watch worker
 PID31464/exec40581 verified LIVE; camel assembling,38 reviews/152 candidates
 ready before camel. Read exact current status/index; progression alone does not

@@ -136,6 +136,18 @@ limbs/finger branches, not a straightforward radial-arm source. The CC0 Octopus
 in Cage at https://blendswap.com/blend/22871 needs login to download; no bypass.
 
 AFTER ALL RAW AUDITIONS
+Dedicated bat motions now come from rubberduck's explicitly CC0 Vampire Bat:
+https://opengameart.org/content/vampire-bat-animated . Exported bones/motion only;
+donor mesh/coat never substitutes for our generated bat. The native source hides
+its rigs; offline evaluation explicitly reveals them to prevent static exports.
+Its short Idle/Flap/Attack/Death takes omit landing, hanging and feeding; individual
+wing fingers are outside the generic transferred main wing chain. Bat body bob
+uses longitudinal normalization because its rest pose is nearly flat. This is
+an unapproved transfer trial, not a claim that every target bat looks natural.
+An audit of all17 source banks found ground-insect Bite constant on the exported
+graph (mandibles excluded); that misleading clip was removed. Held insect/turtle
+Idle remains explicitly held; actual Walk is retained.
+
 Mesh preparation now filters tiny disconnected generation debris before reducing
 to the triangle budget. Fragmented feathered birds additionally use automatic
 192-voxel regularization; other families keep their original surface reduction.

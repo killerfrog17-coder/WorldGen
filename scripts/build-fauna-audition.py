@@ -21,7 +21,7 @@ if rebuild:
     assert a.rebuild_unreviewed and not json.loads((root/'audition.json').read_text()).get('art_approved')
     assert root.is_relative_to(Path(__file__).resolve().parent.parent/'artifacts/fauna-overnight-20261024')
 source=json.loads((a.motion_root/'source-rig.json').read_text());motions=np.load(a.motion_root/'source-motions.npz')
-if source['family'] in ('bird','fish','snake','spider','ground_insect','turtle','crocodile') or a.animal in {'Elephant','Rhinoceros','Hippopotamus','Pangolin','Armadillo'}:a.neutral_material=True
+if source['family'] in ('bird','bat','fish','snake','spider','ground_insect','turtle','crocodile') or a.animal in {'Elephant','Rhinoceros','Hippopotamus','Pangolin','Armadillo'}:a.neutral_material=True
 sn=[b['name'] for b in source['bones']];si={n:i for i,n in enumerate(sn)};paths=source['paths']
 flightless=a.animal in {'Ostrich','Emu','Cassowary','Kiwi','Penguin'}
 clips=[c for c in source['clips'] if not (source['family']=='bird' and ((flightless and c['label'] in {'Flap','Glide'}) or ('bat' in a.animal.lower() and c['label']=='Walk')))]
@@ -38,7 +38,7 @@ def path_to(parents,node):
 def correspondence(joints,parents):
     children=[np.flatnonzero(parents==i).tolist() for i in range(len(parents))]
     roots=np.flatnonzero(parents<0);assert len(roots)==1;pelvis=int(roots[0])
-    leaves=[i for i,c in enumerate(children) if not c];bird=source['family']=='bird';fish=source['family']=='fish'
+    leaves=[i for i,c in enumerate(children) if not c];bird=source['family'] in ('bird','bat');fish=source['family']=='fish'
     if fish:return fish_correspondence(joints,parents,children,leaves,pelvis)
     if source['family'] in ('snake','spider','ground_insect'):return chain_correspondence(joints,parents,children,leaves,pelvis)
     # A low trunk or tail tip is not a fifth foot. Prefer lateral endpoints
@@ -195,7 +195,7 @@ def bake(rig,label,poses,names):
 for number in range(1,5):
     folder=root/f'candidate-{number}';raw=np.load(folder/'generated-rig.npz');data={k:raw[k].copy() for k in raw.files}
     preparation=json.loads((folder/'mesh-preparation.json').read_text());axis_correction=None
-    if source['family']=='bird' and not flightless and preparation.get('family_axis_method')!='minor axis for spread wings':
+    if source['family'] in ('bird','bat') and not flightless and preparation.get('family_axis_method')!='minor axis for spread wings':
         p=data['source_vertices'];upper=p[p[:,2]>.78*1.65];torso=p[(p[:,2]>.25*1.65)&(p[:,2]<.65*1.65)]
         sign=1 if upper[:,0].mean()>=torso[:,0].mean() else -1
         C=np.array([[0,-sign,0],[sign,0,0],[0,0,1]])
@@ -238,7 +238,7 @@ for number in range(1,5):
     for i in range(len(names)):
         child=main[i];direction=refpoints[child]-refpoints[i] if child>=0 else np.zeros(3)
         refdirs.append(orient(direction,(0,1,0) if group[i] in ('fore','hind') else (0,0,1)) if np.linalg.norm(direction)>1e-5 else None)
-    if source['family']=='bird' and not flightless:
+    if source['family'] in ('bird','bat') and not flightless:
         # A generated bird has open, visible wing geometry. Match each learned
         # wing direction to the closest real authored flap pose, so using Idle
         # as the zero pose does not leave its wings permanently half open.
