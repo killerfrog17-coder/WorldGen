@@ -508,6 +508,32 @@
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
       "painting_started": false
+    },
+    "wolf": {
+      "animal": "Wolf",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T17:52:31.307215-05:00",
+      "model_sha256": "23399a3e7028240fe431b59e18066d9aacce220f42efd809a1326254ef2d450d",
+      "rig_sha256": "85cb11aaec14313147d75cdfecec0340b52e77020d8e18eaaef50321f0e50786",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "squirrel": {
+      "animal": "Squirrel",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T17:52:31.312846-05:00",
+      "model_sha256": "320d44649588b78cf6bd4cb96dfbcbcf44022d38fe8c9e7dd7b3de9ea66c8d85",
+      "rig_sha256": "85c6a305415b941777d8750eec30c5e7d250a8fbafef3deea441e323c28b85f7",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
     }
   },
   "source_root": "artifacts/fauna-overnight-20261024",
@@ -571,8 +597,8 @@
   },
   "pending_revisions": {
     "pheasant": {
-      "reason": "Walking unusable; generated spread wings cause ground-motion problems. Try folded-wing ground model and appropriate transfer.",
-      "status": "replacement_ready_ground_only_owner_review_pending",
+      "reason": "Owner requests manual leg/bone adjustment: whole legs should walk, not just toes/feet wiggle.",
+      "status": "manual_full_leg_walk_ready_owner_review_pending",
       "art_approved": false
     },
     "squirrel": {
@@ -585,18 +611,18 @@
       "status": "completed"
     },
     "grouse": {
-      "reason": "Owner rejects current spread-wing ground-bird motion/model result; folded-wing regeneration needed.",
-      "status": "replacement_ready_ground_only_owner_review_pending",
+      "reason": "Owner requests manual leg/bone adjustment: whole legs should walk, not just toes/feet wiggle.",
+      "status": "manual_full_leg_walk_ready_owner_review_pending",
       "art_approved": false
     },
     "junglefowl": {
-      "reason": "Owner rejects current spread-wing ground-bird motion/model result; folded-wing regeneration needed.",
-      "status": "replacement_ready_ground_only_owner_review_pending",
+      "reason": "Owner requests manual leg/bone adjustment: whole legs should walk, not just toes/feet wiggle.",
+      "status": "manual_full_leg_walk_ready_owner_review_pending",
       "art_approved": false
     },
     "duiker": {
-      "reason": "Owner rejects all four: fifth leg inherited from faulty reference; regenerate reference, four models and independent rigs.",
-      "status": "replacement_ready_owner_review_pending",
+      "reason": "Owner requests fresh source/model where the animal looks straight along its body, not turned toward camera.",
+      "status": "straight_head_round2_ready_owner_review_pending",
       "art_approved": false
     },
     "emu": {

@@ -1,7 +1,8 @@
 """Four own generated meshes/fresh rigs with suitable licensed source motion.
 
 Automatic graph correspondence, fixed learned joint offsets and network skin.
-No donor geometry, anatomical painting, invented mammal gait or manual repair.
+Hash-bound, owner-requested ground-bird leg repairs are optional. No donor
+geometry, anatomical painting or invented mammal gait.
 """
 import argparse,hashlib,json,math,sys,time
 from pathlib import Path
@@ -22,6 +23,16 @@ if rebuild:
     assert a.rebuild_unreviewed and not json.loads((root/'audition.json').read_text()).get('art_approved')
     assert root.is_relative_to(Path(__file__).resolve().parent.parent/'artifacts/fauna-overnight-20261024')
 source=json.loads((a.motion_root/'source-rig.json').read_text());motions=np.load(a.motion_root/'source-motions.npz')
+manual_path=root/'manual-ground-walk.json'
+manual=json.loads(manual_path.read_text()) if manual_path.exists() else None
+if manual is None:
+    canonical=Path(__file__).resolve().parent.parent/'docs/fauna/GROUND_BIRD_WALK_REPAIRS.json'
+    if canonical.exists():
+        manual=json.loads(canonical.read_text()).get(root.name)
+        if manual:manual_path=canonical
+if manual:
+    assert a.animal in {'Pheasant','Grouse','Junglefowl'} and source['family']=='bird'
+    source.update(hold_core_bind=True,absolute_limb_directions=True,rigid_ground_body=True)
 if source['family'] in ('bird','bat','fish','snake','spider','ground_insect','turtle','crocodile','squid') or a.animal in {'Elephant','Rhinoceros','Hippopotamus','Pangolin','Armadillo'}:a.neutral_material=True
 sn=[b['name'] for b in source['bones']];si={n:i for i,n in enumerate(sn)};paths=source['paths']
 flightless=a.animal in {'Ostrich','Emu','Cassowary','Kiwi','Penguin'} or bool(source.get('ground_only'))
@@ -372,6 +383,28 @@ for number in range(1,5):
         axis_correction=C.tolist()
     joints=data['joints'];parents=data['parents'].astype(int);points=data['sample_points']
     binding,children,group,main,names,pelvis,head=correspondence(joints,parents)
+    manual_feet={};manual_foot_vertices={}
+    if manual:
+        # Explicit anatomical correspondence: toe forks are not hip anchors.
+        # Keep the predicted rest skeleton and immutable authored bank intact.
+        spec=manual['candidates'][str(number)]
+        assert hashlib.sha256((folder/'generated-rig.npz').read_bytes()).hexdigest()==spec['rig_sha256'],'Manual mapping belongs to another generated rig'
+        assert hashlib.sha256((folder/'model.glb').read_bytes()).hexdigest()==spec['mesh_sha256'],'Manual mapping belongs to another generated mesh'
+        for i in range(len(names)):
+            if group[i]=='hind':group[i]='extra'
+        sides=sorted(('L','R'),key=lambda side:reference[si[paths['hind_'+side][-1]],0])
+        for leg,side in zip(spec['legs'],sides):
+            chain=leg['nodes'];roles=leg['roles'];ids=[si[n] for n in paths['hind_'+side]]
+            assert len(chain)==len(roles) and all(int(parents[c])==p for p,c in zip(chain,chain[1:]))
+            for k,(node,role) in enumerate(zip(chain[1:],roles[1:]),1):
+                low=min(int(role),len(ids)-1);high=min(low+1,len(ids)-1);fraction=role-low
+                binding[node]=0;binding[node,ids[low]]=1-fraction;binding[node,ids[high]]+=fraction
+                group[node]='hind';main[node]=chain[k+1] if k+1<len(chain) else -1
+            # A shared stationary pelvis helper must not inherit either foot.
+            anchor=chain[0]
+            if anchor!=pelvis and group[anchor] not in ('spine','neck'):group[anchor]='extra'
+            manual_feet[leg['foot']]=side
+            manual_foot_vertices[leg['foot']]=[]
     bpy.ops.object.select_all(action='DESELECT');mesh=bpy.data.meshes.new(f'{a.animal} candidate{number}')
     mesh.from_pydata(data['source_vertices'].tolist(),[],data['source_faces'].tolist());mesh.validate();mesh.update()
     body=bpy.data.objects.new(f'{a.animal} {number}',mesh);scene.collection.objects.link(body)
@@ -393,7 +426,7 @@ for number in range(1,5):
     if local_leg_skin:
         assert leg_ids
         leg_starts=joints[leg_ids];leg_ends=np.array([joints[main[i]] if main[i]>=0 else joints[i]+(joints[i]-joints[int(parents[i])])*.3 for i in leg_ids]);leg_vectors=leg_ends-leg_starts;leg_lengths2=np.maximum(np.sum(leg_vectors**2,axis=1),1e-9)
-        skin_height=max(float(np.ptp(data['source_vertices'][:,2])),1e-5);leg_radius=skin_height*.055
+        skin_height=max(float(np.ptp(data['source_vertices'][:,2])),1e-5);leg_radius=skin_height*(.085 if manual else .055)
     for v in mesh.vertices:
         near=tree.find_n(v.co,4);ids=[x[1] for x in near];d=np.array([x[2] for x in near]);w=1/np.maximum(d,.0001)**2
         row=np.maximum(0,(weights[ids]*w[:,None]).sum(0)/w.sum())
@@ -403,6 +436,11 @@ for number in range(1,5):
             confined=np.zeros_like(row);confined[leg_ids]=row[leg_ids]
             if confined.sum()<1e-8:confined[leg_ids[nearest]]=1
             row=confined/max(confined.sum(),1e-12)*blend;row[pelvis]+=1-blend
+            if manual:
+                foot=min(manual_feet,key=lambda n:float(np.linalg.norm(p[:2]-joints[n,:2])))
+                if p[2]<joints[foot,2]+skin_height*.035 and np.linalg.norm(p[:2]-joints[foot,:2])<skin_height*.27:
+                    row[:]=0;row[foot]=1
+                    manual_foot_vertices[foot].append(p.copy())
         best=np.argsort(row)[-4:];vals=row[best]/max(row[best].sum(),1e-12)
         for i,w in zip(best,vals):vgs[i].add([v.index],float(w),'REPLACE')
     modifier=body.modifiers.new('Localized ground legs / rigid feathered body' if local_leg_skin else 'Fresh neural skin - linear','ARMATURE');modifier.object=rig;modifier.use_deform_preserve_volume=False;body.parent=rig
@@ -479,6 +517,32 @@ for number in range(1,5):
                     original=joints[chain[k+1]]-joints[node];direction=solved[k+1]-solved[k]
                     ik_angles[node]=math.atan2(direction[1],direction[0])-math.atan2(original[2],original[1])
                 ik_angles[chain[-2]]=pitch;ik_angles[chain[-1]]=pitch
+            if manual:
+                # Fit the real CC0 foot tracks to each candidate's own limb
+                # lengths. Copying foreign absolute angles can fold a short
+                # generated shin into the belly even with correct labels.
+                for leg,side in zip(spec['legs'],sides):
+                    chain=[n for n,role in zip(leg['nodes'][1:],leg['roles'][1:]) if role<=4]
+                    ids=[si[n] for n in paths['hind_'+side]];foot=ids[4];root_id=si[source['root']]
+                    traces=np.array([f[foot,:3,3]-f[root_id,:3,3] for f in source_frames])
+                    now=frame[foot,:3,3]-frame[root_id,:3,3]
+                    role0=int(leg['roles'][1]);target_length=np.linalg.norm(np.diff(joints[chain,1:3],axis=0),axis=1).sum()
+                    donor_length=np.linalg.norm(np.diff(reference[ids[role0:5],1:3],axis=0),axis=1).sum()
+                    scale=float(np.clip(target_length/max(donor_length,1e-6),.4,1.6))
+                    desired=joints[chain[-1],1:3].copy()
+                    desired[0]+=(now[1]-traces[:,1].mean())*scale
+                    foot_node=leg['foot'];toe_now=frame[ids[5],:3,3]-frame[ids[4],:3,3];toe_ref=reference[ids[5]]-reference[ids[4]]
+                    pitch=(math.atan2(toe_now[2],toe_now[1])-math.atan2(toe_ref[2],toe_ref[1])+math.pi)%math.tau-math.pi
+                    pitch=float(np.clip(pitch,-.61,.61))
+                    foot_vertices=np.asarray(manual_foot_vertices[foot_node])
+                    if len(foot_vertices):
+                        offsets=(foot_vertices-joints[foot_node])@np.asarray(Quaternion((1,0,0),pitch).to_matrix()).T
+                        desired[1]=.005-float(offsets[:,2].min())
+                    desired[1]+=max(0,float(now[2]-traces[:,2].min()))*scale
+                    solved=planar_chain_ik(joints[chain,1:3],desired)
+                    for k,node in enumerate(chain[:-1]):
+                        old=joints[chain[k+1]]-joints[node];new=solved[k+1]-solved[k]
+                        ik_angles[node]=math.atan2(new[1],new[0])-math.atan2(old[2],old[1])
             for i,parent in enumerate(parents):
                 if source.get('motion_profile')=='procedural_squid':
                     q=(g[int(parent)].to_quaternion()@local[i].to_quaternion()) if parent>=0 else rest[i].to_quaternion()
@@ -493,13 +557,18 @@ for number in range(1,5):
                     q=g[int(parent)].to_quaternion()@local[i].to_quaternion()
                 elif source.get('motion_profile')=='experimental_hind_hopper' and i==pelvis:q=rest[i].to_quaternion()
                 elif group[i]=='extra' and parent>=0:q=g[int(parent)].to_quaternion()@local[i].to_quaternion()
+                elif i in manual_feet:
+                    ids=[si[n] for n in paths['hind_'+manual_feet[i]]]
+                    now=frame[ids[5],:3,3]-frame[ids[4],:3,3];ref=reference[ids[5]]-reference[ids[4]]
+                    pitch=(math.atan2(now[2],now[1])-math.atan2(ref[2],ref[1])+math.pi)%math.tau-math.pi
+                    q=Quaternion((1,0,0),float(np.clip(pitch,-.61,.61)))@rest[i].to_quaternion()
                 elif i in ik_angles:q=Quaternion((1,0,0),ik_angles[i])@rest[i].to_quaternion()
                 elif i==pelvis or i==head or main[i]<0:
                     index=int(np.argmax(binding[i]));q=Matrix(frame[index]).to_quaternion()@bone_refq[i].inverted()@rest[i].to_quaternion()
                 elif refdirs[i] is not None:q=orient(virtual[main[i]]-virtual[i],(0,1,0) if group[i] in ('fore','hind') else (0,0,1))@refdirs[i].inverted()@rest[i].to_quaternion()
                 else:q=rest[i].to_quaternion()
                 location=rest[i].translation.copy() if parent<0 else g[int(parent)]@local[i].translation
-                if i==pelvis:location+=Vector(frame[si[source['root']],:3,3]-root_origin)
+                if i==pelvis and not manual:location+=Vector(frame[si[source['root']],:3,3]-root_origin)
                 m=q.to_matrix().to_4x4();m.translation=location;g.append(m)
             loc=[];rot=[]
             for i,parent in enumerate(parents):
@@ -523,7 +592,8 @@ for number in range(1,5):
         demos[title]=bake(rig,title,poses,names)
     entry={'number':number,'rig':rig.name,'body':body.name,'head':'Head','actions':actions,'demos':demos,'material':mat.name,'joints':len(names),'triangles':len(mesh.polygons),
         'rig_file':str(folder/'generated-rig.npz'),'parents':parents.tolist(),'joint_names':names,'generated_joint_heads':joints.tolist(),'binding':binding.tolist(),'groups':group,
-        'animal':a.animal,'source_family':source['family'],'source_license':source.get('license','CC0-1.0'),'manual_repairs':False,'painted':False,
+        'animal':a.animal,'source_family':source['family'],'source_license':source.get('license','CC0-1.0'),'manual_repairs':bool(manual),'painted':False,
+        'manual_ground_walk':manual['candidates'][str(number)] if manual else None,
         'canonical_review_height_m':1.65,'runtime_species_scale_pending_approval':True,'surface_material':'plain neutral' if a.neutral_material else 'reused fur swatch','canonical_axis_correction':axis_correction,
         'locomotion_sequence':[n for n,d in locomotion],'locomotion_durations_s':[d for n,d in locomotion]}
     entries.append(entry);body.hide_set(number!=1);body.hide_render=number!=1;rig.hide_set(True);rig.select_set(False)
@@ -554,5 +624,6 @@ if source['family']=='mammoth':gaps.append('Mammoth walk/head motion transfer; d
 if transfer_trial_note(a.animal):gaps.append(transfer_trial_note(a.animal))
 (root/'audition.json').write_text(json.dumps({'animal':a.animal,'candidates':entries,'seconds':round(time.perf_counter()-started,2),'status':'ready_for_owner_review','motion_gaps':gaps,'painted':False,'art_approved':False,
  'experimental_transfer_trial':bool(transfer_trial_note(a.animal) or source.get('adaptation','').startswith('EXPERIMENTAL')),
+ 'manual_ground_walk_sha256':hashlib.sha256(manual_path.read_bytes()).hexdigest() if manual else None,
  'motion_bank':str(a.motion_root.resolve()),'motion_rig_sha256':hashlib.sha256((a.motion_root/'source-rig.json').read_bytes()).hexdigest(),'motion_array_sha256':hashlib.sha256((a.motion_root/'source-motions.npz').read_bytes()).hexdigest()},indent=2))
 print('Raw audition ready',a.animal,flush=True)

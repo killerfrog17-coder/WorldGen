@@ -217,7 +217,7 @@ class D4_PT_panel(bpy.types.Panel):
         for label in labels:
             col.operator('deer_four.clip',text='Get Up' if label=='lay_to_idle' else label).clip=label
         col.label(text='Own simple insect rig / wing motion' if entry.get('source_family')=='own simple microfauna' else 'Fresh skeleton + network skin per candidate')
-        col.label(text='Raw automatic transfer; no manual repairs')
+        col.label(text='Manual leg mapping / foot-track fit' if entry.get('manual_repairs') else 'Raw automatic transfer; no manual repairs')
 def tick():
     for window,area,space in regions():
         if state['view']==2:

@@ -1,5 +1,34 @@
 # WorldGen repository instructions
 
+STRAIGHT-HEAD DUIKER2 / MANUAL GROUND-BIRD STRIDES,24October2026~18:14CDT:
+Owner selects Wolf2/Squirrel3 (41 choices), asks manual full-leg walking for
+Pheasant/Grouse/Junglefowl and straight-facing Duiker source reroll. Saved choices
+are model-only, not gait/paint approvals. New built-in imagegen transparent
+Duiker reference has true side profile, head/muzzle aligned, one eye visible,
+four legs; source prompt/provenance in duiker/owner-reroll-request-v2.json.
+Round2 seeds5840204..7, fresh SkinTokens5940204..7, fast resident FP16 unchanged.
+All4 native checks pass; Bind side/front inspected all4: straight heads/four legs,
+ragged ear edges3/4 flagged, 1/2 cleaner. No sampled-motion naturalness approval.
+Prior rejected archive15.73MiB pruned via exact manifest after retained hashes
+verified; both rejection rounds keep compact provenance. No painting.
+Bird diagnosis: generic mapper stopped at branched toes, sometimes picked two
+toes of same foot. Explicit per-candidate hip/knee/hock/foot chains now drive
+CC0 foot tracks through fixed-length planar IK, hold upper body neutral and
+localize leg skin/rigid toes. Generated rest heads, own mesh/NN files and source
+banks unchanged; manual skin/pose corrections explicitly marked. Hash-bound
+config backed up in docs/fauna/GROUND_BIRD_WALK_REPAIRS.json; rebuilding another
+model with these same node IDs is prohibited by mesh/rig SHA assertions.
+All12 native controls/rest/weights checks pass;25 Walk samples/candidate show
+actual fore/aft foot travel(.188-.724m at1.65m review height). Residual sampled
+floor penetration up to~9.4cm in Grouse2; warnings retained, no universal contact/
+collision/gait approval. Side/front Walk1 inspected all3. Reviewer PID40988
+untouched; owner can reselect animal to reload replacements; no new popup.
+Normal queue resumed after Duiker exec80534 terminal. Sole --watch exec27425/
+PID10640 LIVE (verify), cached Aardvark followed;120 ready/480 candidates,
+56 raw sets remain of176. Goal tool still reports paused despite explicit owner
+resume; do not misuse create/update to resume it. Actual run-control mode=run.
+No game/Unity/Desktop/owner-app closures, new texture or paid API work.
+
 PRIMATE SOURCE RECHECK / PLAN TRACE RECONCILED,24October2026:
 While full queue runs, rechecked existing primate evidence and primary creator
 pages. Existing OGA CC0 Monkey_animated has one upright gestural take previously

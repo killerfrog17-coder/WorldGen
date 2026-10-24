@@ -1,0 +1,566 @@
+{
+  "pheasant": {
+    "reason": "Owner requests full-leg walk instead of toe-only wiggle",
+    "preserve_generated_rest_and_source_bank": true,
+    "candidates": {
+      "1": {
+        "legs": [
+          {
+            "nodes": [
+              6,
+              49,
+              50,
+              51,
+              52,
+              53,
+              54,
+              55
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              5.5,
+              6
+            ],
+            "foot": 52
+          },
+          {
+            "nodes": [
+              6,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              5.5,
+              6
+            ],
+            "foot": 36
+          }
+        ],
+        "mesh_sha256": "2601b9776ec9d2dd9efd3ccd0618c09a81118da4381bfc672c415c62cdb45542",
+        "rig_sha256": "9e86c6fc85f6de078c79e4e60a593620341f984b97b9ecdc7d53f202da0480e1"
+      },
+      "2": {
+        "legs": [
+          {
+            "nodes": [
+              18,
+              19,
+              20,
+              21,
+              22,
+              23
+            ],
+            "roles": [
+              0,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "foot": 21
+          },
+          {
+            "nodes": [
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "roles": [
+              0,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "foot": 9
+          }
+        ],
+        "mesh_sha256": "4e42f2d8c3d22662e51935c9db6e0622577d338df083e31f84531d50ffdc3c40",
+        "rig_sha256": "c9d29e95cdf0d8a20ec554f31d5b1b876d75b8c9406f7b2ebfacc134f4acd050"
+      },
+      "3": {
+        "legs": [
+          {
+            "nodes": [
+              22,
+              23,
+              24,
+              25,
+              26,
+              27
+            ],
+            "roles": [
+              0,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "foot": 25
+          },
+          {
+            "nodes": [
+              33,
+              34,
+              35,
+              36,
+              37,
+              38
+            ],
+            "roles": [
+              0,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "foot": 36
+          }
+        ],
+        "mesh_sha256": "61bbfe8f87c5a30cdc69f9aead1d4aa3a205aac3561932ca5939c8b6d16ce939",
+        "rig_sha256": "67a1cc2aec4d00185317e8efd7137af69e614bb3c75dc03924ac6a55a02c435b"
+      },
+      "4": {
+        "legs": [
+          {
+            "nodes": [
+              0,
+              22,
+              23,
+              24,
+              28,
+              29,
+              30
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "foot": 28
+          },
+          {
+            "nodes": [
+              0,
+              9,
+              10,
+              11,
+              15,
+              16,
+              17
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "foot": 15
+          }
+        ],
+        "mesh_sha256": "8c80b88d6c98dfc35b3f188780341da00f3b3ea013269e2b02abcf1b31cd8a56",
+        "rig_sha256": "a869c488b3618c4bde4dd0239cfceef2080522044b694fc462c69a5cbd93c227"
+      }
+    }
+  },
+  "grouse": {
+    "reason": "Owner requests full-leg walk instead of toe-only wiggle",
+    "preserve_generated_rest_and_source_bank": true,
+    "candidates": {
+      "1": {
+        "legs": [
+          {
+            "nodes": [
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "foot": 24
+          },
+          {
+            "nodes": [
+              20,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "foot": 30
+          }
+        ],
+        "mesh_sha256": "d4b56a0d0738caea96099d9483254dff34f4ce09e42edb54cbaf57c8f1dddad5",
+        "rig_sha256": "0dfb3cf90cfab1ebd9514755ce60df0ff3006d1b185d497fadeeccde597bc0b9"
+      },
+      "2": {
+        "legs": [
+          {
+            "nodes": [
+              0,
+              15,
+              16
+            ],
+            "roles": [
+              0,
+              2,
+              4
+            ],
+            "foot": 16
+          },
+          {
+            "nodes": [
+              0,
+              17,
+              18
+            ],
+            "roles": [
+              0,
+              2,
+              4
+            ],
+            "foot": 18
+          }
+        ],
+        "mesh_sha256": "95b3e2e09e41d15be0e6c037caab7042dd27fa0f44a68240abddd712d186a7fd",
+        "rig_sha256": "1f54ec0eca63c135191aac1353d68ba160703af6d1f304eb836090dc36168706"
+      },
+      "3": {
+        "legs": [
+          {
+            "nodes": [
+              0,
+              13,
+              14,
+              15,
+              16,
+              17
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              6
+            ],
+            "foot": 16
+          },
+          {
+            "nodes": [
+              0,
+              18,
+              19,
+              20,
+              21,
+              22
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              6
+            ],
+            "foot": 21
+          }
+        ],
+        "mesh_sha256": "8c63f7cc3ed197fc4af66c98cb95dcd43f3acc01a33c8c14f4df46647f9363dc",
+        "rig_sha256": "3b8ebd6a4772a5e3d2338e3b946f791ef0679be2020830937e17208ff600ed20"
+      },
+      "4": {
+        "legs": [
+          {
+            "nodes": [
+              0,
+              27,
+              28,
+              29,
+              30
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              4,
+              6
+            ],
+            "foot": 29
+          },
+          {
+            "nodes": [
+              0,
+              21,
+              22,
+              23,
+              24
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              4,
+              6
+            ],
+            "foot": 23
+          }
+        ],
+        "mesh_sha256": "887c6fb7c8983b728e2be4d779240f03a9253cebb0b806fd2774626e4f9d82fa",
+        "rig_sha256": "ab860653e7a845b60feea61560ee7a45113433c9fcaafbec8a8e9dbbd3a35a7a"
+      }
+    }
+  },
+  "junglefowl": {
+    "reason": "Owner requests full-leg walk instead of toe-only wiggle",
+    "preserve_generated_rest_and_source_bank": true,
+    "candidates": {
+      "1": {
+        "legs": [
+          {
+            "nodes": [
+              0,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36,
+              37
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              5.5,
+              6
+            ],
+            "foot": 34
+          },
+          {
+            "nodes": [
+              0,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              5.5,
+              6
+            ],
+            "foot": 26
+          }
+        ],
+        "mesh_sha256": "6c64eecdf2538b874bdecfd79da8699b13e78153be30c84f105b6a1bcdaa9fcb",
+        "rig_sha256": "87af4fedca97258a473c305c0d9d3c326409a1d3b9755c4e9536145a5e42fedc"
+      },
+      "2": {
+        "legs": [
+          {
+            "nodes": [
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36,
+              37
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              5.5,
+              6
+            ],
+            "foot": 34
+          },
+          {
+            "nodes": [
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "foot": 19
+          }
+        ],
+        "mesh_sha256": "12c2b757e96ea9c04bf80ebaf99eda7ec11d3f62ec0c8b618f821e9c9b4fcf48",
+        "rig_sha256": "f57600246745b91ef9b5d03e9e63dffe94e4cb13907e8df101cbcd19535d32fd"
+      },
+      "3": {
+        "legs": [
+          {
+            "nodes": [
+              0,
+              20,
+              21,
+              22,
+              23
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "foot": 23
+          },
+          {
+            "nodes": [
+              0,
+              16,
+              17,
+              18,
+              19
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "foot": 19
+          }
+        ],
+        "mesh_sha256": "ca2025b30b73fd39015edd160fdbb4862165b8f7c64c295ad17b9f82fbb5dc97",
+        "rig_sha256": "67bc296bb6b5df0bfb0ad822cdbc3ca4f1651b78a1cd504ec38ff3698fe452b8"
+      },
+      "4": {
+        "legs": [
+          {
+            "nodes": [
+              0,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              5.5,
+              6
+            ],
+            "foot": 23
+          },
+          {
+            "nodes": [
+              0,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              5.5,
+              6
+            ],
+            "foot": 38
+          }
+        ],
+        "mesh_sha256": "a6f217de7071691e2ce9bbc64f36270e2c13f31ef78909dd8f0503662cb4cd2e",
+        "rig_sha256": "fa4d18e6e2e733d7d8b50fff54f50c8e714212aaa15c4198b74eddf26bf949d0"
+      }
+    }
+  }
+}
