@@ -22,7 +22,8 @@ def material(name,colour,alpha=1,emission=False):
     b.inputs['Roughness'].default_value=.6;b.inputs['Alpha'].default_value=alpha
     if emission:
         b.inputs['Emission Color'].default_value=(*colour,1)
-        driver=b.inputs['Emission Strength'].driver_add('default_value').driver;driver.expression='6*max(0,sin(frame*0.13))**4'
+        # Match the60-frame preview period, with a smooth dark loop boundary.
+        driver=b.inputs['Emission Strength'].driver_add('default_value').driver;driver.expression='6*max(0,sin(frame*0.10471975511965977))**4'
     return m
 
 for number in range(1,5):

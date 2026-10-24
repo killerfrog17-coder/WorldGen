@@ -118,13 +118,14 @@
       "specific_candidate_selection": null,
       "proceed_without_re_review": true,
       "painting_started": false,
-      "blend_sha256": "113448a67bcd2f8c1e4e7a5dec4ed185a091e581bccb2d4c4298404dd682d0f2",
+      "blend_sha256": "b282580e906ea5b47f466c2ea4dc1bb9c62aaec95141e9884d58da9aea7ec17f",
       "triangles": [
         216,
         216,
         216,
         216
-      ]
+      ],
+      "blink_loop": "Smooth zero-brightness first/last frame,60-frame period; no point light."
     }
   }
 }
