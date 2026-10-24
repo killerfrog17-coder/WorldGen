@@ -7,6 +7,9 @@ hips(-.83..-.38z), but retarget sent them over body: donor/target rest mismatch.
 Opt-in absolute_limb_directions calibrates limb direction against generated rest;
 hold_core_bind stabilizes torso/head/tail while CC0 legs/root translation remain.
 Scoped only to squirrel-bind-reference; selected other animals unaffected.
+Stabilized-core consumer filters output clips to Idle/Run only: no false death,
+jump or hit demonstration while body is held. Rebuilt/native checked; original
+qualified source hashes unchanged (only consumer output subset changed).
 Native checks pass4, CPU Run side all4 plus front/oblique2/3 inspected. Core now
 coherent, but limb skinning/contact artifacts remain; candidate4 rear-body warning
 visible, no hard model exclusion. RAW MODEL-SELECTION audition only, NOT natural
