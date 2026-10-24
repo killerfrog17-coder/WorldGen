@@ -3,7 +3,10 @@ import argparse,json,sys
 from pathlib import Path
 import bpy
 ap=argparse.ArgumentParser();ap.add_argument('--source',type=Path,required=True);ap.add_argument('--output',type=Path)
-a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);bpy.ops.wm.open_mainfile(filepath=str(a.source.resolve()))
+a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
+if a.source.suffix.lower()=='.fbx':
+    bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.fbx(filepath=str(a.source.resolve()))
+else:bpy.ops.wm.open_mainfile(filepath=str(a.source.resolve()))
 report={'source':str(a.source),'fps':bpy.context.scene.render.fps,'actions':[(x.name,list(x.frame_range)) for x in bpy.data.actions],
  'rigs':[{'name':o.name,'bones':[{'name':b.name,'parent':b.parent.name if b.parent else None,'deform':b.use_deform,'head':list(o.matrix_world@b.head_local),'tail':list(o.matrix_world@b.tail_local)} for b in o.data.bones]} for o in bpy.data.objects if o.type=='ARMATURE']}
 if a.output:a.output.write_text(json.dumps(report,indent=2))

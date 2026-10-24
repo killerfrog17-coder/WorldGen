@@ -7,6 +7,8 @@ from mathutils import Matrix,Vector
 ap=argparse.ArgumentParser();ap.add_argument('--source',type=Path,required=True);ap.add_argument('--output',type=Path,required=True);ap.add_argument('--family',required=True)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);a.output.mkdir(exist_ok=True,parents=True)
 if a.source.suffix=='.blend':bpy.ops.wm.open_mainfile(filepath=str(a.source.resolve()))
+elif a.source.suffix.lower()=='.fbx':
+    bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.fbx(filepath=str(a.source.resolve()))
 else:
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(a.source.resolve()))
 s=bpy.context.scene;rig=max((o for o in s.objects if o.type=='ARMATURE'),key=lambda o:len(o.data.bones));rig.animation_data_clear()
@@ -37,8 +39,25 @@ elif a.family in ('crocodile','rat','squirrel'):
             paths['hind_'+side]=['Pan','Leg_'+side,*[f'Leg_{side}.{i:03d}' for i in range(1,4)]]
         wanted={'Idle':'Idle.001','Idle variation':'Idle.003','Run':'Run','Jump start':'Jump.Begin','Jump landing':'Jump.End','Hit':'Pain.000','Death':'Die.000'};head_name='Head';root_name='Pan'
     names=list(dict.fromkeys(n for path in paths.values() for n in path))
-    direction=rig.matrix_world@(rig.data.bones[head_name].head_local-rig.data.bones[root_name].head_local);direction.z=0
+    direction=rig.matrix_world.to_3x3()@(rig.data.bones[head_name].head_local-rig.data.bones[root_name].head_local);direction.z=0
     direction.normalize();right=Vector((direction.y,-direction.x,0));rotation=Matrix((right,direction,Vector((0,0,1)))).to_4x4()
+elif a.family=='primate':
+    paths={'spine':['b_Hip','b_Spine01','b_Spine02','b_Spine03'],'neck':['b_Spine03','b_Neck','b_Head'],
+      'tail':['b_Hip',*[f'b_Tail{i:02d}' for i in range(1,8)]]}
+    for side,long in [('L','Left'),('R','Right')]:
+        paths['fore_'+side]=['b_Spine03',*[f'b_{long}_{n}' for n in ('Shoulder','UpperArm','ForeArm','Hand','Hand2')]]
+        paths['hind_'+side]=['b_Hip',*[f'b_{long}_{n}' for n in ('Leg01','Leg02','Foot01','Foot02')]]
+    names=list(dict.fromkeys(n for path in paths.values() for n in path));wanted={'Idle':'Armature|Take 001|BaseLayer','Source movement':'Armature|Take 001|BaseLayer'};rotation=Matrix.Diagonal((-1,-1,1,1))
+elif a.family=='turtle':
+    paths={'spine':['Bone','Bone.001'],'neck':['Bone.001','Bone.015','Bone.016','Bone.017','Bone.018'],'tail':['Bone','Bone.005','Bone.006'],
+      'fore_L':['Bone.001','Bone.013','Bone.014'],'fore_R':['Bone.002','Bone.011','Bone.012'],
+      'hind_L':['Bone.003','Bone.007','Bone.008'],'hind_R':['Bone.004','Bone.009','Bone.010']}
+    names=list(dict.fromkeys(n for path in paths.values() for n in path));wanted={'Idle':'Walking.001','Walk':'Walking-loop'};rotation=Matrix.Diagonal((-1,-1,1,1))
+elif a.family=='ground_insect':
+    paths={'spine':['Bone','Bone.001'],'neck':['Bone.001','Bone.031'],'tail':['Bone','Bone.002']}
+    for side,starts in [('L',(7,11,15)),('R',(19,27,23))]:
+        for row,start in zip('abc',starts):paths['leg_'+row+'_'+side]=['Bone',*[f'Bone.{i:03d}' for i in range(start,start+4)]]
+    names=list(dict.fromkeys(n for path in paths.values() for n in path));wanted={'Idle':'bite','Walk':'walk','Bite':'bite'};rotation=Matrix.Identity(4)
 else:
     names=[b.name for b in rig.data.bones];rotation=Matrix.Diagonal((-1,-1,1,1));paths={}
     wanted={act.name:act.name for act in bpy.data.actions if act.frame_range[1]>act.frame_range[0]}
@@ -65,7 +84,9 @@ for label,name in wanted.items():
     for k in range(frames):
         f=first+k/(frames-1)*(last-first);s.frame_set(int(f),subframe=f-int(f));bpy.context.view_layer.update()
         poses.append([np.array(C@rig.matrix_world@rig.pose.bones[n].matrix) for n in names])
-    key='clip_'+str(len(clips));arrays[key]=np.asarray(poses,np.float32);clips.append({'label':label,'key':key,'source_action':name,'fps':30,'frames':frames})
+    if a.family in ('ground_insect','primate') and label=='Idle':poses=[poses[0],poses[0]];frames=2
+    key='clip_'+str(len(clips));arrays[key]=np.asarray(poses,np.float32);clips.append({'label':label,'key':key,'source_action':name+' (first pose held)' if a.family=='ground_insect' and label=='Idle' else name,'fps':30,'frames':frames})
 np.savez_compressed(a.output/'source-motions.npz',**arrays)
-(a.output/'source-rig.json').write_text(json.dumps({'family':a.family,'source':str(a.source.resolve()),'bones':bones,'clips':clips,'paths':paths,'root':names[0],'head':'Head' if 'Head' in names else 'head' if 'head' in names else None,'license':'CC0-1.0 verified at source page','donor_mesh_exported':False},indent=2))
+head_name='Bone.018' if a.family=='turtle' else 'Bone.031' if a.family=='ground_insect' else 'b_Head' if a.family=='primate' else 'Head' if 'Head' in names else 'head' if 'head' in names else None
+(a.output/'source-rig.json').write_text(json.dumps({'family':a.family,'source':str(a.source.resolve()),'bones':bones,'clips':clips,'paths':paths,'root':names[0],'head':head_name,'license':'CC0-1.0 verified at source page','donor_mesh_exported':False},indent=2))
 print('Exported motion source',a.family,len(bones),'bones',[(c['label'],c['frames']) for c in clips],flush=True)

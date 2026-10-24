@@ -77,6 +77,24 @@ Bird preparation uses the minor horizontal PCA axis for spread-wing references,
 major for flightless birds. Older unapproved bird inputs are rigidly realigned
 with mesh/joints/samples together. Closest authored flap directions establish
 the open-wing zero pose; this is automatic correspondence, not new animation.
+Turtle by Heathal: https://opengameart.org/content/turtle-0 (CC0, walking plus
+held source rest pose). Six-legged insect by mujtaba-io:
+https://opengameart.org/content/ant-3d-model-rigging-animated-low-poly-ish (CC0,
+walking/bite plus held first-pose idle). Six/eight-legged transfer requires
+the corresponding endpoint count; missing limbs remain technical failures.
+The Mesh2Motion fish bank includes an actual vertical tail stroke: measured
+tail-tip relative standard deviation x~0,z~0.881 in canonical source units.
+The cetacean audition bank reuses that unchanged stroke for Idle/Swim Vertical,
+not a stationary rest. No feeding/attack invented. This is a compatibility trial,
+not evidence that fish skinning is automatically suitable for every whale.
+The CC0 monkey source https://opengameart.org/content/monkey-3d-model-rigged-fbx
+was inspected but excluded: its upright gestural/hopping take is not ordinary
+primate locomotion. No queue motion bank was published from that take.
+MOTION_COVERAGE.csv / motion-coverage.json track source gaps separately from
+generation failure. At this checkpoint156/176 have a raw retarget source or own
+simple insect motion;20 still need a suitable source. Source availability is
+not anatomical compatibility or art approval. Rebuild this inventory with
+  python scripts/audit-fauna-motion-coverage.py
 Retained accepted horse/deer authored bank: fauna-assets/motion-bank/deer, CC0
 motion dedication retained. Entire generated animal is not automatically CC0.
 Gobkit public CC0 source was researched at https://gobkit.com/api/free and

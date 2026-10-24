@@ -1,5 +1,26 @@
 # WorldGen repository instructions
 
+OVERNIGHT SOURCE COVERAGE/RESUME,24October2026~05:17CDT: worker safely
+checkpointed/resumed again, new exec62708 (read worker.lock for PID). Shared
+scripts/fauna_motion_sources.py now drives source dispatch; current worker uses
+it and refreshes review index automatically after each ready animal. Resumed
+Junglefowl from saved raw meshes, no regeneration. Current coverage156/176 raw
+source/own-simple-motion routes;20 still lack suitable CC0 motion (see ignored
+MOTION_COVERAGE.csv/motion-coverage.json). New CC0 turtle/ant banks; snake/spider
+graph correspondence requires matching lateral endpoint count. Cetacean trial
+uses native Mesh2Motion vertical-tail swim (verified z-motion), same cycle for
+Idle, no stationary rest/feeding/attack claims. Shark uses fish; SeaOtter gets
+terrestrial-only trial, no swim. Squid/SeaTurtle/Sloth/pinnipeds/primates/hopping
+marsupials retain source gaps as appropriate. CC0 monkey take inspected and
+excluded as upright gesture/hop, no ordinary locomotion bank admitted.
+88 conditioning refs copied, final83-animal imagegen batch running in exec
+cell198; its functions store values may not become visible until exec completes.
+Empty reference-batch-06-part1.json was created during a premature partial read;
+replace with completed refs later. This is conditioning ONLY, no paint/swatches.
+26 new unpainted4-candidate reviews ready through Turkey; owner art pending.
+Scripts/docs backed up at remote a1aa4adc165a27a3bf9acb9f204dc81ad0c3c0e0;
+subsequent source profiles/coverage helper still need next source backup.
+
 OVERNIGHT PIPELINE CHECKPOINT,24October2026~04:48CDT: current serial worker
 PID34172/exec69344, verify lock/live status before intervention. Root remains
 artifacts/fauna-overnight-20261024. Cached resident TripoSG shapes and SkinTokens

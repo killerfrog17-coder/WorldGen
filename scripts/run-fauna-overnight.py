@@ -5,6 +5,7 @@ review, discards only its own high-poly/intermediate files after native reload.
 """
 import argparse,datetime,json,os,subprocess,sys,time
 from pathlib import Path
+from fauna_motion_sources import source_for as resolve_source
 
 repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,default=repo/'artifacts/fauna-overnight-20261024');ap.add_argument('--watch',action='store_true');ap.add_argument('--only');ap.add_argument('--no-cached-inference',action='store_true')
@@ -44,14 +45,7 @@ def run(command,log):
     if r.returncode:raise RuntimeError(f'Step failed {r.returncode}: {log}')
 def native(script,args,log):run([blender,'--background','--factory-startup','--threads','3','--python-exit-code','1','--python',repo/'scripts'/script,'--',*args],log)
 def source_for(entry):
-    slug=entry['slug'];fam=entry['family']
-    if entry['animal']=='Coastal squid (guild)':return None
-    if slug in ('hare','rabbit'):return repo/'artifacts/fauna-motion-sources/rabbit'
-    if slug=='squirrel':return repo/'artifacts/fauna-motion-sources/squirrel'
-    if entry['animal'] in {'Mouse','Bank vole','Cotton rat','Grass rat','Lemming','Shrew','Jerboa','Agouti','Paca','Pika','Ground squirrel','Marmot','Nutria','Beaver'}:return repo/'artifacts/fauna-motion-sources/rat'
-    key='rat' if fam in ('armoured_mammal','spiny_mammal') else 'fox' if fam in ('canid','felid','mammal','bear') else 'horse' if fam in ('ungulate','thickskin') else 'bird' if fam=='bat' else 'crocodile' if fam=='reptile' else fam
-    p=repo/'artifacts/fauna-motion-sources'/key
-    return p if (p/'source-rig.json').exists() else None
+    return resolve_source(entry,repo)
 try:
     while not pause_requested():
         did=False

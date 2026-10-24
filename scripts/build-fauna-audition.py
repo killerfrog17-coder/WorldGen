@@ -21,7 +21,7 @@ if rebuild:
     assert a.rebuild_unreviewed and not json.loads((root/'audition.json').read_text()).get('art_approved')
     assert root.is_relative_to(Path(__file__).resolve().parent.parent/'artifacts/fauna-overnight-20261024')
 source=json.loads((a.motion_root/'source-rig.json').read_text());motions=np.load(a.motion_root/'source-motions.npz')
-if source['family'] in ('bird','fish','snake','spider','crocodile') or a.animal in {'Elephant','Rhinoceros','Hippopotamus','Pangolin','Armadillo'}:a.neutral_material=True
+if source['family'] in ('bird','fish','snake','spider','ground_insect','turtle','crocodile') or a.animal in {'Elephant','Rhinoceros','Hippopotamus','Pangolin','Armadillo'}:a.neutral_material=True
 sn=[b['name'] for b in source['bones']];si={n:i for i,n in enumerate(sn)};paths=source['paths']
 flightless=a.animal in {'Ostrich','Emu','Cassowary','Kiwi','Penguin'}
 clips=[c for c in source['clips'] if not (source['family']=='bird' and ((flightless and c['label'] in {'Flap','Glide'}) or ('bat' in a.animal.lower() and c['label']=='Walk')))]
@@ -40,7 +40,7 @@ def correspondence(joints,parents):
     roots=np.flatnonzero(parents<0);assert len(roots)==1;pelvis=int(roots[0])
     leaves=[i for i,c in enumerate(children) if not c];bird=source['family']=='bird';fish=source['family']=='fish'
     if fish:return fish_correspondence(joints,parents,children,leaves,pelvis)
-    if source['family'] in ('snake','spider'):return chain_correspondence(joints,parents,children,leaves,pelvis)
+    if source['family'] in ('snake','spider','ground_insect'):return chain_correspondence(joints,parents,children,leaves,pelvis)
     feet=([min([i for i in leaves if joints[i,0]*side>0],key=lambda i:joints[i,2]) for side in (-1,1)] if bird else sorted(leaves,key=lambda i:joints[i,2])[:4]);legs=[]
     for foot in feet:
         chain=[foot];parent=int(parents[foot])
@@ -141,17 +141,20 @@ def chain_correspondence(joints,parents,children,leaves,pelvis):
             if node in assigned:continue
             k=min(max(int(np.searchsorted(ss,t,side='right')-1),0),len(ids)-2);w=np.clip((t-ss[k])/max(ss[k+1]-ss[k],1e-8),0,1)
             binding[node,ids[k]]=1-w;binding[node,ids[k+1]]+=w;groups[node]=kind;assigned.add(node)
-    head=max(leaves,key=lambda i:joints[i,1]);tail=min(leaves,key=lambda i:joints[i,1])
-    if source['family']=='spider':
+    centre_width=max(.12,np.ptp(joints[:,0])*.18)
+    central_endpoints=[i for i in leaves if abs(joints[i,0]-joints[pelvis,0])<centre_width] or leaves
+    head=max(central_endpoints,key=lambda i:joints[i,1]);tail=min(central_endpoints,key=lambda i:joints[i,1])
+    if source['family'] in ('spider','ground_insect'):
         lateral=[i for i in leaves if i not in (head,tail) and abs(joints[i,0]-joints[pelvis,0])>.10]
         sides={side:[i for i in lateral if (joints[i,0]-joints[pelvis,0])*sign>0] for side,sign in [('L',-1),('R',1)]}
-        if any(len(v)<4 for v in sides.values()):raise ValueError('Eight-legged rig unavailable: fewer than four distinct lateral endpoints per side')
+        leg_pairs=4 if source['family']=='spider' else 3
+        if any(len(v)<leg_pairs for v in sides.values()):raise ValueError(f'{leg_pairs*2}-legged rig unavailable: fewer than {leg_pairs} distinct lateral endpoints per side')
         limb_nodes={n for v in sides.values() for i in v for n in path_to(parents,i)[-2:]}
         central=[i for i in leaves if i not in limb_nodes and abs(joints[i,0]-joints[pelvis,0])<.25]
         if central:head=max(central,key=lambda i:joints[i,1]);tail=min(central,key=lambda i:joints[i,1])
         bind(path_to(parents,head),paths['spine']+paths['neck'][1:],'spine')
         for side,endpoints in sides.items():
-            for row,node in zip('abcd',sorted(endpoints,key=lambda i:joints[i,1],reverse=True)[:4]):bind(path_to(parents,node),paths['leg_'+row+'_'+side],'fore')
+            for row,node in zip('abcd'[:leg_pairs],sorted(endpoints,key=lambda i:joints[i,1],reverse=True)[:leg_pairs]):bind(path_to(parents,node),paths['leg_'+row+'_'+side],'fore')
     else:bind(path_to(parents,head),paths['spine'],'spine')
     bind(path_to(parents,tail),paths['tail'],'tail')
     for i in range(len(parents)):
@@ -268,7 +271,7 @@ for number in range(1,5):
         cache[label]=frames;actions[label]=bake(rig,label,frames,names)
     def sample(label,seconds):
         array=cache[label];x=seconds*30%max(1,len(array)-1);first=int(x);return blend_pose(array[first],array[min(first+1,len(array)-1)],x-first)
-    demos={};move=next((n for n in ('Walk','Run','Swim','Swim Horizontal','Side winding','Flap') if n in cache),'Idle')
+    demos={};move=next((n for n in ('Walk','Run','Swim','Swim Horizontal','Swim Vertical','Side winding','Flap') if n in cache),'Idle')
     locomotion=[('Idle',2),(move,3),('Idle',2)];showcase=[('Idle',2),*[(n,min(5,max(1.5,len(cache[n])/30))) for n in cache if n not in {'Idle','Death'}],('Idle',2)]
     for title,parts in [('Showcase',showcase),('Locomotion',locomotion)]:
         poses=[];previous=None;last_duration=0
@@ -299,5 +302,12 @@ if rebuild:
     bpy.ops.wm.open_mainfile(filepath=str(save_path));assert len(json.loads(bpy.context.scene['deer_four_rigs']))==4
     assert save_path.resolve().parent==root and out.resolve().parent==root
     save_path.replace(out)
-(root/'audition.json').write_text(json.dumps({'animal':a.animal,'candidates':entries,'seconds':round(time.perf_counter()-started,2),'status':'ready_for_owner_review','motion_gaps':['No dedicated walk/eating clip in rabbit source'] if source['family']=='rabbit' else [],'painted':False,'art_approved':False},indent=2))
+labels=[c['label'].lower() for c in clips];gaps=[]
+if not any(any(w in label for w in ('eat','feed','forage','graz')) for label in labels):gaps.append('No authored feeding/foraging clip supplied')
+if not any(any(w in label for w in ('sleep','rest','sit','coiled')) for label in labels):gaps.append('No dedicated resting/sleep clip supplied')
+if not any('dea' in label or 'dying' in label for label in labels):gaps.append('No death clip supplied')
+if source.get('adaptation'):gaps.append(source['adaptation'])
+if source['family'] in ('rabbit','squirrel') and 'walk' not in labels:gaps.append('No dedicated walk clip in '+source['family']+' source')
+if a.animal=='Sea otter':gaps.append('Terrestrial raw-motion trial only; no suitable swimming clip supplied')
+(root/'audition.json').write_text(json.dumps({'animal':a.animal,'candidates':entries,'seconds':round(time.perf_counter()-started,2),'status':'ready_for_owner_review','motion_gaps':gaps,'painted':False,'art_approved':False},indent=2))
 print('Raw audition ready',a.animal,flush=True)
