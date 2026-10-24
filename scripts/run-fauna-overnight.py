@@ -42,10 +42,11 @@ def save():
 def run(command,log):
     state['phase']=log.stem;save()
     tool_names={Path(str(x)).name for x in command}
-    # 356 resident runs recorded <=4201.1MiB allocated. Keep ~1.6GiB for
-    # allocator/runtime headroom, while allowing the normal review window.
-    # The previous5.8 gate could wait indefinitely at5.76GiB available.
-    minimum=5.7 if 'generate-deer-local.py' in tool_names or ('run-fauna-inference-batch.py' in tool_names and 'shape' in command) else 3.8 if 'deer-skin-ai.py' in tool_names or 'run-fauna-inference-batch.py' in tool_names else None
+    # Resident batches recorded <=4201.1MiB allocated /4450MiB reserved.
+    # 5.5GiB leaves >=1182MiB over that measured reserve and lets the
+    # owner browse the review window; model precision/settings stay fixed.
+    # The former5.7 gate stalled at5.68GiB with only the review using VRAM.
+    minimum=5.5 if 'generate-deer-local.py' in tool_names or ('run-fauna-inference-batch.py' in tool_names and 'shape' in command) else 3.8 if 'deer-skin-ai.py' in tool_names or 'run-fauna-inference-batch.py' in tool_names else None
     if minimum:
         while True:
             free=int(subprocess.check_output(['nvidia-smi','--query-gpu=memory.free','--format=csv,noheader,nounits'],text=True).strip().splitlines()[0])/1024

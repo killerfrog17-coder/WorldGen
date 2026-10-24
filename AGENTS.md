@@ -1,5 +1,20 @@
 # WorldGen repository instructions
 
+FULL ROSTER99 / RESIDENT GUARD RECALIBRATED,24October2026~12:45CDT:
+SecretaryBird4 completed/native finite+controls checked;99 raw reviews/396models.
+Full roster still176. All remaining78(at start) had references, no source gap;
+24 owner-selected model/rig hashes reverified unchanged. Skunk start then waited
+at5.68GiB against5.7 guard.376 recorded resident runs max4201.1MiB allocated,
+max recorded reserve4450MiB. Outer guard now5.5GiB (>=1182MiB over reserve),
+unchanged FP16/50steps/depth8/resident mode and generator's own CUDA preflight.
+No offload/quality reduction/app closure. Old exec24637/PID10620 safely ended at
+internal scheduling checkpoint before ANY Skunk generation; terminal/lock gone
+and zero raw/model outputs verified. Its misleading Owner-requested pause error
+archived as internal guard checkpoint; only this empty failure cleared.
+New sole --watch exec26721/PID43040 LIVE (verify). Skunk shape1 loaded, native
+CUDA preflight7097MiB; full generation pending. Owner review still untouched.
+Prior remote ef3f76c; guard fix and this checkpoint need backup. No painting.
+
 PRIORITY REROLLS FINISHED / FULL ROSTER RESUMED,24October2026~12:40CDT:
 All4 requested replacement sets are ready for RAW owner comparison. Junglefowl
 native4/controls finite and CPU Walk phase.33 side all4/front2/3 inspected;
