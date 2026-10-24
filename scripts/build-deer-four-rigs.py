@@ -13,7 +13,8 @@ sys.path.insert(0,str(Path(__file__).parent))
 from deer_behaviour_core import blend_pose,smooth
 
 ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,required=True)
-ap.add_argument('--motion-root',type=Path,required=True);ap.add_argument('--fur',type=Path,required=True)
+ap.add_argument('--motion-root',type=Path,required=True);ap.add_argument('--fur',type=Path)
+ap.add_argument('--approved-model',type=Path,help='Keep this finished art exactly; vary only generated rigs and weights')
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=a.root.resolve();started=time.perf_counter()
 out=root/'Deer - Four Generated Rigs.blend'
 if out.exists():raise FileExistsError(out)
@@ -21,8 +22,20 @@ source=json.loads((a.motion_root/'source-rig.json').read_text());motions=np.load
 sn=[b['name'] for b in source['bones']];si={n:i for i,n in enumerate(sn)}
 idle=motions[next(c['key'] for c in source['clips'] if c['label']=='Idle')][0]
 reference=idle[:,:3,3];reference_q=[Matrix(m).to_quaternion() for m in idle]
-bpy.ops.wm.read_factory_settings(use_empty=True);s=bpy.context.scene
-fur=bpy.data.images.load(str(a.fur.resolve()));fur.pack();entries=[]
+art=None;templates={}
+if a.approved_model:
+    bpy.ops.wm.open_mainfile(filepath=str(a.approved_model.resolve()));s=bpy.context.scene
+    art=json.loads(s['fauna_stage1'])
+    for coat in art['coats']:bpy.data.materials[coat['material']].use_fake_user=True
+    art_names=[art['body'],*art['eyes'],art['whiskers'],*[x['object'] for x in art['antlers']]]
+    templates={name:bpy.data.objects[name] for name in art_names}
+    for obj in templates.values():obj.hide_set(True);obj.hide_render=True
+    fur=None
+else:
+    if not a.fur:raise ValueError('--fur is required for raw-model reviews')
+    bpy.ops.wm.read_factory_settings(use_empty=True);s=bpy.context.scene
+    fur=bpy.data.images.load(str(a.fur.resolve()));fur.pack()
+entries=[]
 def canonical(data):
     p=data['source_vertices'].copy();low=p[:,2].min();scale=1.65/(p[:,2].max()-low)
     p[:,2]=(p[:,2]-low)*scale;p[:,:2]*=scale
@@ -114,13 +127,36 @@ def bake(rig,label,poses,names):
                 curve.update()
     return action.name
 for number in range(1,5):
-    folder=root/f'candidate-{number}';data=np.load(folder/'generated-rig.npz');p,joints,points,scale=canonical(data)
+    folder=root/f'candidate-{number}';data=np.load(folder/'generated-rig.npz')
+    if art:
+        # glTF export and inference return the approved Blender coordinate frame.
+        # No PCA, scaling, sculpting or donor skeleton fitting on finished art.
+        p=data['source_vertices'];joints=data['joints'];points=data['sample_points'];scale=1
+    else:p,joints,points,scale=canonical(data)
     parents=data['parents'].astype(int);binding,children,group,main,names,pelvis,head,legs=correspondence(joints,parents)
-    mesh=bpy.data.meshes.new(f'Generated deer {number}');mesh.from_pydata(p.tolist(),[],data['source_faces'].tolist());mesh.update()
-    body=bpy.data.objects.new(f'Deer {number}',mesh);s.collection.objects.link(body);bpy.context.view_layer.objects.active=body;body.select_set(True)
-    dec=body.modifiers.new('Automatic 6000 triangle budget','DECIMATE');dec.ratio=min(1,6000/len(mesh.polygons));dec.use_collapse_triangulate=True;bpy.ops.object.modifier_apply(modifier=dec.name)
-    tri=body.modifiers.new('Triangles','TRIANGULATE');bpy.ops.object.modifier_apply(modifier=tri.name)
-    for f in body.data.polygons:f.use_smooth=True
+    extras=[];candidate_art=None
+    bpy.ops.object.select_all(action='DESELECT')
+    if art:
+        copied={}
+        for name,original in templates.items():
+            obj=original.copy();obj.data=original.data.copy();obj.name=f'Rig {number} - {name}'
+            s.collection.objects.link(obj);obj.hide_set(False);obj.hide_render=False
+            obj.vertex_groups.clear()
+            for modifier in list(obj.modifiers):
+                if modifier.type=='ARMATURE':obj.modifiers.remove(modifier)
+            copied[name]=obj
+        body=copied[art['body']];extras=[obj for obj in copied.values() if obj!=body]
+        candidate_art=json.loads(json.dumps(art));candidate_art['body']=body.name
+        candidate_art['eyes']=[copied[n].name for n in art['eyes']];candidate_art['whiskers']=copied[art['whiskers']].name
+        for rack in candidate_art['antlers']:rack['object']=copied[rack['object']].name
+        material=body.data.materials[0]
+    else:
+        mesh=bpy.data.meshes.new(f'Generated deer {number}');mesh.from_pydata(p.tolist(),[],data['source_faces'].tolist());mesh.update()
+        body=bpy.data.objects.new(f'Deer {number}',mesh);s.collection.objects.link(body)
+        bpy.context.view_layer.objects.active=body;body.select_set(True)
+        dec=body.modifiers.new('Automatic 6000 triangle budget','DECIMATE');dec.ratio=min(1,6000/len(mesh.polygons));dec.use_collapse_triangulate=True;bpy.ops.object.modifier_apply(modifier=dec.name)
+        tri=body.modifiers.new('Triangles','TRIANGULATE');bpy.ops.object.modifier_apply(modifier=tri.name)
+        for f in body.data.polygons:f.use_smooth=True
     arm=bpy.data.armatures.new(f'Generated SkinTokens rig {number}');rig=bpy.data.objects.new(f'Deer rig {number}',arm);s.collection.objects.link(rig)
     body.select_set(False);rig.select_set(True);bpy.context.view_layer.objects.active=rig;bpy.ops.object.mode_set(mode='EDIT')
     for i,name in enumerate(names):
@@ -141,11 +177,16 @@ for number in range(1,5):
         row=np.maximum(0,(weights[ids]*blend[:,None]).sum(0)/blend.sum());best=np.argsort(row)[-4:];values=row[best]/max(row[best].sum(),1e-12)
         for index,value in zip(best,values):groups[index].add([vertex.index],float(value),'REPLACE')
     modifier=body.modifiers.new('Fresh SkinTokens skin - linear','ARMATURE');modifier.object=rig;modifier.use_deform_preserve_volume=False;body.parent=rig
-    material=bpy.data.materials.new(f'Existing fur {number}');material.use_nodes=True;nodes=material.node_tree.nodes;links=material.node_tree.links
-    tex=nodes.new('ShaderNodeTexImage');tex.image=fur;tex.projection='BOX';tex.projection_blend=.25
-    coord=nodes.new('ShaderNodeTexCoord');mul=nodes.new('ShaderNodeVectorMath');mul.operation='SCALE';mul.inputs[3].default_value=8
-    hsv=nodes.new('ShaderNodeHueSaturation');hsv.name='Review coat variation';bsdf=nodes.get('Principled BSDF');bsdf.inputs['Roughness'].default_value=.85
-    links.new(coord.outputs['Generated'],mul.inputs[0]);links.new(mul.outputs[0],tex.inputs['Vector']);links.new(tex.outputs['Color'],hsv.inputs['Color']);links.new(hsv.outputs[0],bsdf.inputs['Base Color']);body.data.materials.append(material)
+    for obj in extras:
+        vg=obj.vertex_groups.new(name='Head');vg.add(list(range(len(obj.data.vertices))),1,'REPLACE')
+        modifier=obj.modifiers.new('Head attachment - fresh rig','ARMATURE');modifier.object=rig
+        modifier.use_deform_preserve_volume=False;obj.parent=rig
+    if not art:
+        material=bpy.data.materials.new(f'Existing fur {number}');material.use_nodes=True;nodes=material.node_tree.nodes;links=material.node_tree.links
+        tex=nodes.new('ShaderNodeTexImage');tex.image=fur;tex.projection='BOX';tex.projection_blend=.25
+        coord=nodes.new('ShaderNodeTexCoord');mul=nodes.new('ShaderNodeVectorMath');mul.operation='SCALE';mul.inputs[3].default_value=8
+        hsv=nodes.new('ShaderNodeHueSaturation');hsv.name='Review coat variation';bsdf=nodes.get('Principled BSDF');bsdf.inputs['Roughness'].default_value=.85
+        links.new(coord.outputs['Generated'],mul.inputs[0]);links.new(mul.outputs[0],tex.inputs['Vector']);links.new(tex.outputs['Color'],hsv.inputs['Color']);links.new(hsv.outputs[0],bsdf.inputs['Base Color']);body.data.materials.append(material)
     rest=[arm.bones[n].matrix_local.copy() for n in names];inverse=[m.inverted() for m in rest]
     local=[inverse[int(parent)]@m if parent>=0 else m for parent,m in zip(parents,rest)]
     refpoints=binding@reference;refdirs=[]
@@ -191,12 +232,16 @@ for number in range(1,5):
         for f in range(15):poses.append(blend_pose(poses[-1],sample('Idle',0),smooth((f+1)/15)))
         demos[title]=bake(rig,title,poses,names)
     report={'number':number,'rig':rig.name,'body':body.name,'head':'Head','actions':actions,'demos':demos,'material':material.name,
-        'joints':len(names),'triangles':len(body.data.polygons),'rig_file':str(folder/'generated-rig.npz'),'mesh_file':str(folder/'deer-raw.glb'),
+        'joints':len(names),'triangles':sum(len(f.vertices)-2 for f in body.data.polygons),'rig_file':str(folder/'generated-rig.npz'),'mesh_file':str(root/'approved-body.glb' if art else folder/'deer-raw.glb'),
         'parents':parents.tolist(),'joint_names':names,'generated_joint_heads':joints.tolist(),'binding':binding.tolist(),'groups':group,
         'manual_repairs':False,'skin':'Fresh network sample weights, 4-neighbour interpolation and top4 normalization','motion':'Existing authored source; automatic graph/geometry transfer, fixed learned joint offsets; no IK/contact repair'}
+    if art:report.update(approved_art=candidate_art,objects=[body.name,*[x.name for x in extras]],same_approved_model=True)
     (folder/'assembly.json').write_text(json.dumps(report,indent=2));entries.append(report)
-    body.hide_set(number!=1);rig.hide_set(True);rig.select_set(False)
+    for obj in [body,*extras]:obj.hide_set(number!=1 or obj.name.startswith(f'Rig {number} - Antlers'));obj.hide_render=obj.hide_get()
+    rig.hide_set(True);rig.select_set(False)
     print('Assembled candidate',number,'independent joints',len(names),flush=True)
+if art:
+    for obj in templates.values():bpy.data.objects.remove(obj,do_unlink=True)
 s['deer_four_rigs']=json.dumps(entries);s.render.fps=30;s.sync_mode='FRAME_DROP'
 world=bpy.data.worlds.new('Review world');world.use_nodes=True;world.node_tree.nodes['Background'].inputs[0].default_value=(.2,.22,.25,1);s.world=world
 for screen in bpy.data.screens:
@@ -205,5 +250,5 @@ for screen in bpy.data.screens:
             space=area.spaces.active;space.shading.type='MATERIAL';space.shading.use_scene_world=False;space.overlay.show_overlays=False;space.show_region_ui=True
             space.region_3d.view_location=(0,0,.8);space.region_3d.view_distance=3.1;space.region_3d.view_rotation=Vector((1,0,.1)).to_track_quat('Z','Y')
 bpy.data.orphans_purge(do_recursive=True);bpy.ops.wm.save_as_mainfile(filepath=str(out))
-(root/'gallery.json').write_text(json.dumps({'candidates':entries,'assembly_seconds':round(time.perf_counter()-started,2),'new_skeleton_per_mesh':True,'manual_repairs':False,'art_approved':False},indent=2))
+(root/'gallery.json').write_text(json.dumps({'candidates':entries,'assembly_seconds':round(time.perf_counter()-started,2),'new_skeleton_per_mesh':True,'same_approved_model':bool(art),'approved_model':str(a.approved_model) if art else None,'manual_repairs':False,'art_approved':False},indent=2))
 print('Four fresh-rig candidates saved.',flush=True)

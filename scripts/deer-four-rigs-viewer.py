@@ -2,10 +2,18 @@
 import json,math,random,time
 from pathlib import Path
 import bpy
-from mathutils import Vector
+from mathutils import Vector,Quaternion
 
 s=bpy.context.scene;models=json.loads(s['deer_four_rigs'])
-state={'model':0,'clip':'Showcase','mode':0,'view':0,'skeleton':False,'coat':'Original fur','started':time.monotonic()}
+finished=bool(models[0].get('same_approved_model'))
+state={'model':0,'clip':'Showcase','mode':0,'view':0,'skeleton':False,'coat':'Tawny woodland' if finished else 'Original fur','started':time.monotonic(),'seed':734100,'coat_index':0,'active_rack':-1,'sex':'Female'}
+if finished:
+    for coat in models[0]['approved_art']['coats']:
+        material=bpy.data.materials[coat['material']];nodes=material.node_tree.nodes;links=material.node_tree.links
+        if 'Species tint' not in nodes:
+            bsdf=nodes.get('Principled BSDF');source=bsdf.inputs['Base Color'].links[0].from_socket
+            tint=nodes.new('ShaderNodeHueSaturation');tint.name='Species tint'
+            links.new(source,tint.inputs['Color']);links.new(tint.outputs['Color'],bsdf.inputs['Base Color'])
 def current():return models[state['model']]
 def rig():return bpy.data.objects[current()['rig']]
 def regions():
@@ -20,7 +28,12 @@ def playback():
 def visibility():
     for index,entry in enumerate(models):
         body=bpy.data.objects[entry['body']];r=bpy.data.objects[entry['rig']]
-        body.hide_set(index!=state['model']);body.hide_render=index!=state['model']
+        for name in entry.get('objects',[entry['body']]):
+            obj=bpy.data.objects[name];hidden=index!=state['model']
+            if entry.get('approved_art'):
+                racks=[x['object'] for x in entry['approved_art']['antlers']]
+                if name in racks:hidden=hidden or racks.index(name)!=state['active_rack']
+            obj.hide_set(hidden);obj.hide_render=hidden
         r.hide_viewport=False;r.hide_set(index!=state['model'] or not state['skeleton']);r.show_in_front=True
         r.data.display_type='OCTAHEDRAL'
     for window,area,space in regions():
@@ -49,7 +62,7 @@ def set_view():
         view=space.region_3d;view.view_perspective='PERSP';view.view_location=target
         view.view_distance=.9 if state['view']==1 else 3.1;view.view_rotation=direction.to_track_quat('Z','Y')
 class D4_OT_model(bpy.types.Operator):
-    bl_idname='deer_four.model';bl_label='1 - Next model'
+    bl_idname='deer_four.model';bl_label='1 - Next rig / model'
     number:bpy.props.IntProperty(default=-1)
     def execute(self,context):
         phase=(s.frame_current-s.frame_start)/max(1,s.frame_end-s.frame_start)
@@ -59,6 +72,22 @@ class D4_OT_model(bpy.types.Operator):
 class D4_OT_species(bpy.types.Operator):
     bl_idname='deer_four.species';bl_label='2 - Randomize species colour'
     def execute(self,context):
+        if finished:
+            state['seed']=(1664525*state['seed']+1013904223)&0xffffffff
+            coats=models[0]['approved_art']['coats'];state['coat_index']=(state['coat_index']+1+state['seed']%(len(coats)-1))%len(coats)
+            profile=coats[state['coat_index']];material=bpy.data.materials[profile['material']]
+            tint=material.node_tree.nodes['Species tint'];tint.inputs['Hue'].default_value=.48+((state['seed']>>8)%1000)/25000
+            tint.inputs['Saturation'].default_value=.90+((state['seed']>>16)%100)/500;tint.inputs['Value'].default_value=.92+((state['seed']>>24)%100)/625
+            ear=max(.72,min(1.08,profile['ear_scale']+(((state['seed']>>12)%100)/100-.5)*.06))
+            tail=max(.70,min(1.20,profile['tail_scale']+(((state['seed']>>20)%100)/100-.5)*.12))
+            male=bool((state['seed']>>6)&1);state['active_rack']=profile['antler_style'] if male else -1
+            state['sex']='Male' if male else 'Female';state['coat']=profile['label']
+            for entry in models:
+                body=bpy.data.objects[entry['body']];body.data.materials[0]=material
+                keys=body.data.shape_keys.key_blocks
+                keys['Compact ears'].value=max(0,(1-ear)/.28);keys['Large ears'].value=max(0,(ear-1)/.08)
+                keys['Short tail'].value=max(0,(1-tail)/.30);keys['Long tail'].value=max(0,(tail-1)/.20)
+            visibility();context.scene['review_phenotype_seed']=str(state['seed']);return {'FINISHED'}
         label,saturation,value=random.choice([('Woodland',1,1),('Pale',.45,1.4),('Dark',.8,.65),('Grey',.15,.95),('Warm',1.2,1.1)])
         for entry in models:
             hsv=bpy.data.materials[entry['material']].node_tree.nodes['Review coat variation']
@@ -84,9 +113,17 @@ class D4_OT_clip(bpy.types.Operator):
     def execute(self,context):choose(self.clip);return {'FINISHED'}
 class D4_OT_free(bpy.types.Operator):
     bl_idname='deer_four.free';bl_label='Stop automatic orbit'
-    def invoke(self,context,event):state['view']=-1;return {'PASS_THROUGH'}
+    def invoke(self,context,event):
+        state['view']=-1;self.region=context.space_data.region_3d;self.region.lock_rotation=False
+        self.previous=(event.mouse_x,event.mouse_y);context.window_manager.modal_handler_add(self);return {'RUNNING_MODAL'}
+    def modal(self,context,event):
+        if event.type in {'ESC','RIGHTMOUSE'} or (event.type=='MIDDLEMOUSE' and event.value=='RELEASE'):return {'FINISHED'}
+        if event.type=='MOUSEMOVE':
+            dx=event.mouse_x-self.previous[0];dy=event.mouse_y-self.previous[1];self.previous=(event.mouse_x,event.mouse_y)
+            self.region.view_rotation=(Quaternion((0,0,1),-dx*.006)@self.region.view_rotation@Quaternion((1,0,0),dy*.006)).normalized();context.area.tag_redraw()
+        return {'RUNNING_MODAL'}
 def controls(layout):
-    row=layout.row(align=True);row.operator('deer_four.model',text=f"1: Model {state['model']+1}/4")
+    row=layout.row(align=True);row.operator('deer_four.model',text=f"1: {'Rig' if finished else 'Model'} {state['model']+1}/4")
     row.operator('deer_four.species',text='2: Species');row.operator('deer_four.view',text='3: View');row.operator('deer_four.mode',text='4: Loop')
     row.operator('deer_four.skeleton',text='Hide Skeleton' if state['skeleton'] else 'Show Skeleton')
     row.operator('deer_four.play',text='Pause / Play')
@@ -95,16 +132,18 @@ class D4_PT_panel(bpy.types.Panel):
     bl_idname='D4_PT_panel';bl_label='Four deer - independent generated rigs'
     bl_space_type='VIEW_3D';bl_region_type='UI';bl_category='Animal Review'
     def draw(self,context):
-        col=self.layout.column();entry=current();col.label(text=f"MODEL {state['model']+1} / 4 - {entry['joints']} generated joints")
+        col=self.layout.column();entry=current();col.label(text=f"{'RIG' if finished else 'MODEL'} {state['model']+1} / 4 - {entry['joints']} generated joints")
+        if finished:col.label(text='Same approved finished deer in all four')
         row=col.row(align=True)
         for index in range(4):row.operator('deer_four.model',text=str(index+1),depress=index==state['model']).number=index
         for op in ('deer_four.model','deer_four.species','deer_four.view','deer_four.mode'):col.operator(op)
         col.operator('deer_four.skeleton',text='Hide Skeleton' if state['skeleton'] else 'Show Skeleton');col.operator('deer_four.play')
-        col.label(text='Playing: '+state['clip'].replace('_',' '));col.label(text='Coat: '+state['coat']+' (colour only)')
+        col.label(text='Playing: '+state['clip'].replace('_',' '));col.label(text='Coat: '+state['coat']+('' if finished else ' (colour only)'))
+        if finished:col.label(text=state['sex']+' - '+('Antlers' if state['active_rack']>=0 else 'No antlers'))
         col.separator();col.label(text='Individual animations')
         for label in ('Bind','Idle','Walk','Trot','Run','Eating','Sleep','lay_to_idle'):
             col.operator('deer_four.clip',text='Get Up' if label=='lay_to_idle' else label).clip=label
-        col.label(text='Fresh skeleton + network skin per model')
+        col.label(text='Fresh skeleton + network skin per candidate')
         col.label(text='Raw automatic transfer; no manual repairs')
 def tick():
     for window,area,space in regions():

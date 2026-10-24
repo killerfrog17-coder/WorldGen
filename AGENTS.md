@@ -1,5 +1,26 @@
 # WorldGen repository instructions
 
+SAME FINISHED DEER / FOUR FRESH RIGS,24October2026: owner rejects prior four
+different raw models and asks SAME approved finished model rigged four times.
+Completed D:/WorldGenAI/deer-approved-four-rigs-20261024/Deer - Four Generated
+Rigs.blend, opened RIGHTMOST; one async review question sent. Leave viewer
+UNTOUCHED while owner compares. Source approved Stage1 Eyelid and Antler Review
+v3; neutral body GLB identical for all four SkinTokens5beam seeds734101-4.
+Fresh36/40/43/39joint skeletons and network weights;25.22/47.01/66.03/56.29s,
+peak3506.9MiB; no offload/new model/paint. Assembly6.45s. Learned heads/hierarchy
+preserved in canonical coordinates,4-neighbour strongest4 normalized skin;
+same authored bank and automatic graph/geometry transfer, no manual fixes/IK.
+Eyes/hairs/racks bind rigidly to generated Head. Exact native approved geometry,
+UVs, shape-key coordinates, transforms, packed active maps and source hash pass;
+all8coats retained.1 rigs1-4,2 shared coats/ear/tail/50percent antler traits,
+3 side/face/orbit,4 showcase/locomotion; direct buttons, clips, Pause and explicit
+Show/Hide Skeleton. Continuous MMB orbit. Four distinct prediction hashes and
+controls pass; NOT natural gait/collision-free or owner art approval. All inference
+finished, no owner apps closed, no Desktop items/game changes. Existing reviews
+preserved. See FAUNA_ASSET_REVIEW_WORKFLOW.md and D: structural-checks/gallery/
+approved-input JSON. No MiniMax/video tool installation or training authorized
+in this task; owner may await CanItCode's promised future tool release.
+
 FOUR FRESH GENERATED RIGS / OWNER COMPARING,24October2026: owner explicitly asks
 4 new deer, EACH its own generated skeleton/skin, one switchable Blender review.
 Completed D:/WorldGenAI/deer-four-rigs-20261024/Deer - Four Generated Rigs.blend,

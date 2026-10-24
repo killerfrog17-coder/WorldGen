@@ -1,5 +1,48 @@
 # Fauna asset review workflow
 
+## Same approved model, four new rigs - 24 October 2026
+
+The owner rejected the preceding four-model audition and now requests a more
+controlled comparison: the **same approved finished deer** with four fresh
+SkinTokens skeleton/skin predictions. Source art is
+`artifacts/fauna-deer-stage1-20261023/Deer - Stage1 Eyelid and Antler Review v3.blend`.
+Use `export-approved-deer-rig-input.py` to export only neutral base body geometry;
+all four runs consume the identical GLB. Seeds734101-734104, five beams, native
+CUDA/SDPA, no low-memory offload or new model/texture generation. Output root:
+`D:/WorldGenAI/deer-approved-four-rigs-20261024`.
+
+`build-deer-four-rigs.py --approved-model <source.blend> --root <output>
+--motion-root artifacts/fauna-deer-stage2-20261023` retains finished body,
+UVs, packed maps, eyes, lashes/whiskers, ear/tail keys and four antler racks.
+Generated joints and hierarchy stay in their original canonical coordinates;
+fresh network sample weights use four-neighbour interpolation and normalized
+strongest four influences. No old skin or skeleton is substituted. Separate
+eyes/hairs/racks attach rigidly to each generated head bone. Existing authored
+motion is transferred using the same automatic graph/geometry mapper on all four;
+no manual pose/geometry/painting fixes or contact/IK cleanup. This tests stochastic
+rigging differences, not four distinct rigging software packages.
+
+The gallery switches **1 rig / 2 appearance / 3 side-face-orbit / 4 showcase versus
+locomotion**. Coat, bounded ear/tail and50/50 antler traits change together across
+all candidates so appearance remains comparable. Direct rig1-4 buttons, individual
+clips, Pause/Play and explicit Show/Hide Skeleton remain available. Middle drag
+uses continuous free orbit. Structural checks cover unchanged approved bind art,
+source/packed-map identity, fresh joint positions/hierarchy, top4 weights and
+controls. They do not certify natural deformation, gait or absence of clipping.
+The owner selects the most passable result; silence is not approval.
+
+Completed comparison opened RIGHTMOST with one review question sent; leave it
+untouched while inspected. Fresh predictions have36/40/43/39 joints and measured
+25.22/47.01/66.03/56.29seconds (model load through prediction/save),3506.9MiB peak
+Torch allocation. Assembly including motion bake/save took6.45seconds. Native
+checks pass for four distinct predictions, generated joint positions/hierarchy,
+top4 skin, controls and unchanged approved bind geometry/UV/shape-key coordinates,
+transforms and packed active maps; source blend hash unchanged. All eight coat
+materials are retained. No visual naturalness/collision approval is implied.
+All inference exited before review; no owner app closure, Desktop item or game
+integration. File identity/evidence is in batch `approved-input.json`, prediction
+JSON/NPZ, `gallery.json` and `structural-checks.json`.
+
 ## Four independent rigs — 24 October2026
 
 Owner requested four fresh models with newly generated skeletons, superseding
