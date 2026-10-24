@@ -1,5 +1,37 @@
 # WorldGen repository instructions
 
+DEER STAGE2 AUTHORIZED,23October2026: owner accepted final Stage1 canthus/nav
+correction and explicitly says continue to animation phase. Use approved fresh
+artifacts/fauna-deer-stage1-20261023/Deer - Stage1 Eyelid and Antler Review v3.blend.
+Preserve approved appearance/species/antler traits. Prefer existing accepted
+Eating Correction rig/motions via CPU fitting/skin transfer; investigate exact
+axes/proportions before new rig inference. Stage2 viewer requested1 motion bank,
+2 species,3 side/face/orbit,4 behaviour vs locomotion blend. No game/Unity/Desktop
+integration; rightmost review when ready. Owner Forest may remain open.
+
+DEER FINAL EYELIDS/ANTLERS,23October2026: owner approved lid correction plan,
+requested antlers, then stronger lids/longer brows, finally accepted shape with
+one remaining requested medial-canthus taper. Completed Face rev6 in separate
+artifacts/fauna-deer-stage1-20261023/Deer - Stage1 Eyelid and Antler Review v3.blend,
+opened RIGHTMOST. Bare skin/surround/margin tags follow connected lid geometry
+through UV bake; fuller upper hood, shallow lower lid,6mm front-corner extension,
+16 lashes/6 brow hairs (1.55x first revision length), accepted short-fur colour.
+Eyeballs EXACT vs accepted prior review. Four textured procedural antler racks
+44/72/84/96tri share packed512maps;2 rolls50% antlered male vs antlerless female
+plus existing coat/ear/tail variants. Only1 rack visible.5864 antlerless/5960max
+visible,6160 including hidden library. Native finite/UV/maps/traits/operators
+pass, both sexes/all4 racks visited. Hair root error<=.245mm, sampled mid/tip
+clearance>=4.495mm; neutral non-facial body delta0. Selected CPU face/eye/oblique
+views and4 rack pilots inspected; no future animation/intersection/FPS claim.
+MMB review navigation now stops auto-orbit and uses continuous quaternion drag;
+Free orbit button unlocks/perspective view. Native small-drag/release check passes;
+original reported90degree issue not reproduced/cause unconfirmed. No saved
+Blender preference changes. Owner's last art approval was conditional on the
+now-completed corner fix; no rig/animation has started in this task. No new GPU
+inference/imagegen/paid call/game/Unity/Desktop work or owner app closure. All
+published prior reviews stay separate; no new queued animal. See docs/DEER_STAGE1_REDO.md,
+FAUNA_ASSET_REVIEW_WORKFLOW.md and ignored validation/review-state JSON.
+
 DEER FACE/SPECIES REVISION,23October2026: owner rejected first Stage1 face:
 nose stretched, eye/socket transition abrupt, ears too large/poorly painted;
 body and eyeballs accepted. Stage2 NOT approved. New separate Face and Species

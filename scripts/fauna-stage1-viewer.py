@@ -4,7 +4,7 @@ import math
 import time
 from pathlib import Path
 import bpy
-from mathutils import Vector
+from mathutils import Vector,Quaternion
 
 scene=bpy.context.scene;info=json.loads(scene['fauna_stage1'])
 for coat in info['coats']:
@@ -13,7 +13,7 @@ for coat in info['coats']:
         bsdf=nodes.get('Principled BSDF');source=bsdf.inputs['Base Color'].links[0].from_socket
         tint=nodes.new('ShaderNodeHueSaturation');tint.name='Species tint'
         links.new(source,tint.inputs['Color']);links.new(tint.outputs['Color'],bsdf.inputs['Base Color'])
-state={'coat':0,'seed':732123,'view':0,'started':time.monotonic(),'bag':list(range(1,len(info['coats'])))}
+state={'coat':0,'seed':732123,'view':0,'started':time.monotonic(),'bag':list(range(1,len(info['coats']))),'sex':'Female','antler':''}
 class F1_OT_model(bpy.types.Operator):
     bl_idname='fauna_review.model';bl_label='1 - Model'
     def execute(self,context):self.report({'INFO'},'Model 1 / 1 - fresh deer');return {'FINISHED'}
@@ -37,6 +37,13 @@ class F1_OT_species(bpy.types.Operator):
             keys['Compact ears'].value=max(0,(1-ear)/.28);keys['Large ears'].value=max(0,(ear-1)/.08)
             keys['Short tail'].value=max(0,(1-tail)/.30);keys['Long tail'].value=max(0,(tail-1)/.20)
             state['ear']=ear;state['tail']=tail
+        if info.get('antlers'):
+            male=bool((state['seed']>>6)&1)
+            active=profile.get('antler_style',0) if male else -1
+            for index,antler in enumerate(info['antlers']):
+                obj=bpy.data.objects[antler['object']];obj.hide_set(index!=active);obj.hide_render=index!=active
+            state['sex']='Male' if male else 'Female'
+            state['antler']=info['antlers'][active]['label'] if male else 'No antlers'
         context.scene['review_phenotype_seed']=str(state['seed']);return {'FINISHED'}
 def set_view(context,index):
     for window in bpy.context.window_manager.windows:
@@ -61,6 +68,34 @@ class F1_OT_view(bpy.types.Operator):
         elif self.front:state['view']=4
         else:state['view']=(state['view']+1)%3
         state['started']=time.monotonic();set_view(context,state['view']);return {'FINISHED'}
+
+class F1_OT_free_orbit(bpy.types.Operator):
+    bl_idname='fauna_review.free_orbit';bl_label='Free orbit'
+    def execute(self,context):
+        state['view']=5
+        for window in bpy.context.window_manager.windows:
+            for area in window.screen.areas:
+                if area.type=='VIEW_3D':
+                    region=area.spaces.active.region_3d;region.lock_rotation=False;region.view_perspective='PERSP'
+        return {'FINISHED'}
+    def invoke(self,context,event):
+        self.execute(context)
+        if event.type=='MIDDLEMOUSE':
+            self.region=context.space_data.region_3d
+            self.previous=(event.mouse_x,event.mouse_y)
+            context.window_manager.modal_handler_add(self)
+            return {'RUNNING_MODAL'}
+        return {'FINISHED'}
+    def modal(self,context,event):
+        if event.type in {'ESC','RIGHTMOUSE'} or (event.type=='MIDDLEMOUSE' and event.value=='RELEASE'):
+            return {'FINISHED'}
+        if event.type=='MOUSEMOVE':
+            dx=event.mouse_x-self.previous[0];dy=event.mouse_y-self.previous[1]
+            self.previous=(event.mouse_x,event.mouse_y)
+            self.region.view_rotation=(Quaternion((0,0,1),-dx*.006)@
+                self.region.view_rotation@Quaternion((1,0,0),dy*.006)).normalized()
+            context.area.tag_redraw()
+        return {'RUNNING_MODAL'}
 def draw_controls(layout):
     row=layout.row(align=True)
     row.operator('fauna_review.model',text='1: Model 1/1')
@@ -68,6 +103,7 @@ def draw_controls(layout):
     row.operator('fauna_review.view',text='3: Side / Face / Orbit')
     row.operator('fauna_review.view',text='Rear').rear=True
     row.operator('fauna_review.view',text='Front body').front=True
+    row.operator('fauna_review.free_orbit',text='Free orbit')
 def header(self,context):draw_controls(self.layout)
 class F1_PT_panel(bpy.types.Panel):
     bl_idname='F1_PT_panel';bl_label='Animal model review - Stage 1'
@@ -76,8 +112,9 @@ class F1_PT_panel(bpy.types.Panel):
         col=self.layout.column();col.label(text='Fresh deer - Model 1 / 1')
         col.label(text=info['coats'][state['coat']]['label'])
         col.label(text='Phenotype seed '+str(state['seed']))
+        if info.get('antlers'):col.label(text=state['sex']+' - '+(state['antler'] or 'No antlers'))
         if 'ear' in state:col.label(text=f"Ear trait {state['ear']:.2f} / Tail {state['tail']:.2f}")
-        col.label(text=str(info['triangle_count'])+' triangles - unrigged')
+        col.label(text=('Up to ' if info.get('antlers') else '')+str(info['triangle_count'])+' triangles - unrigged')
         col.separator();col.operator('fauna_review.species');col.operator('fauna_review.view')
         col.label(text='Awaiting model/coat approval')
 def tick():
@@ -89,12 +126,13 @@ def tick():
                     area.spaces.active.region_3d.view_rotation=Vector((math.cos(angle),math.sin(angle),.08)).to_track_quat('Z','Y')
                 area.tag_redraw()
     return .05 if state['view']==2 else .25
-for cls in (F1_OT_model,F1_OT_species,F1_OT_view,F1_PT_panel):bpy.utils.register_class(cls)
+for cls in (F1_OT_model,F1_OT_species,F1_OT_view,F1_OT_free_orbit,F1_PT_panel):bpy.utils.register_class(cls)
 bpy.types.VIEW3D_HT_header.prepend(header)
 keyconfig=bpy.context.window_manager.keyconfigs.addon
 if keyconfig:
     km=keyconfig.keymaps.new(name='3D View',space_type='VIEW_3D')
     for key,op in [('ONE','fauna_review.model'),('TWO','fauna_review.species'),('THREE','fauna_review.view')]:km.keymap_items.new(op,key,'PRESS')
+    km.keymap_items.new('fauna_review.free_orbit','MIDDLEMOUSE','PRESS')
 if not bpy.app.background:bpy.app.timers.register(tick,first_interval=.1)
 if not bpy.app.background:
     import blf
@@ -102,7 +140,8 @@ if not bpy.app.background:
         blf.size(0,17);blf.color(0,1,1,1,1);blf.enable(0,blf.SHADOW);blf.shadow(0,3,0,0,0,1)
         lines=['STAGE 1 - DEER MODEL 1 / 1 - FACE REV '+str(info.get('face_revision',info.get('nose_revision',1))),
             '2: '+info['coats'][state['coat']]['label']+' | seed '+str(state['seed']),
-            '3: Side / Face / Orbit | '+str(info['triangle_count'])+' triangles']
+            '3: Side / Face / Orbit | '+('up to ' if info.get('antlers') else '')+str(info['triangle_count'])+' triangles']
+        if info.get('antlers'):lines.insert(2,state['sex']+' | '+(state['antler'] or 'No antlers'))
         height=bpy.context.region.height
         for i,line in enumerate(lines):blf.position(0,18,height-50-i*24,0);blf.draw(0,line)
         blf.disable(0,blf.SHADOW)

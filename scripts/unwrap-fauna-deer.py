@@ -12,5 +12,6 @@ fn=np.cross(vv[ff[:,1]]-vv[ff[:,0]],vv[ff[:,2]]-vv[ff[:,0]])
 for i in range(3):np.add.at(normal,ff[:,i],fn)
 normal/=np.maximum(np.linalg.norm(normal,axis=1,keepdims=True),1e-8)
 np.savez_compressed(root/'anatomy.npz',vertices=d['vertices'][vmap],faces=faces,uv=uv[faces],
-    vertex_uv=uv,normals=normal[vmap],region_weights=d['region_weights'][vmap])
+    vertex_uv=uv,normals=normal[vmap],region_weights=d['region_weights'][vmap],
+    **({'eye_regions':d['eye_regions'][vmap]} if 'eye_regions' in d else {}))
 print('Atlas prepared',len(faces),'triangles.',flush=True)

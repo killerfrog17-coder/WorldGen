@@ -27,7 +27,8 @@ def raster(d,size):
         weights=np.stack([group(['Pelvis','Spine1','Spine2','Chest']),group(['Head','Jaw','Muzzle_L','Muzzle_R']),
             group(['Neck1','Neck2','Neck3']),group(['Ear_L']),group(['Ear_R']),group(['Tail1','Tail2']),
             *[group([n]) for n in channels[6:]]],axis=1)
-    attributes=np.c_[d['vertices'],d['normals'],weights].astype(np.float32)
+    extras=d['eye_regions'] if 'eye_regions' in d else np.zeros((len(d['vertices']),3),np.float32)
+    attributes=np.c_[d['vertices'],d['normals'],weights,extras].astype(np.float32)
     out=np.zeros((size,size,attributes.shape[1]),np.float32);occupied=np.zeros((size,size),bool)
     for face,uv in zip(d['faces'],d['uv']):
         xy=np.c_[uv[:,0]*size-.5,(1-uv[:,1])*size-.5]
@@ -58,7 +59,7 @@ def main():
     d=np.load(root/'anatomy.npz');anchors=json.loads((root/'anchors.json').read_text());land=json.loads((root/'landmarks.json').read_text())
     size=a.size;maps,coverage,channels=raster(d,size);iy,ix=np.where(coverage)
     p=maps[iy,ix,:3];n=maps[iy,ix,3:6];n/=np.maximum(np.linalg.norm(n,axis=1,keepdims=True),1e-6)
-    weights=maps[iy,ix,6:];weight={name:weights[:,i] for i,name in enumerate(channels)}
+    weights=maps[iy,ix,6:6+len(channels)];weight={name:weights[:,i] for i,name in enumerate(channels)}
     settings=json.loads((root/'coat-settings.json').read_text()) if (root/'coat-settings.json').exists() else {}
     palettes=[([.38,.215,.105],[.36,.265,.18],[.67,.62,.50]),
               ([.43,.235,.105],[.37,.265,.17],[.71,.67,.55]),
@@ -165,6 +166,35 @@ def main():
         if not settings.get('separate_eyes',False):apply(name,eye_mask,eye_colour,.10)
         else:masks[name]=eye_mask
         height*=1-eye_mask
+    if 'eye_regions' in d:
+        lid,orbital,margin=maps[iy,ix,16:19].T
+        bare=smooth(.25,.85,lid)
+        # Keep the accepted short-fur colour ring at its existing position;
+        # widening bare skin must not create a much larger pale spectacle.
+        eye_vertical=p[:,2]-eye_mid[2]
+        local_u=np.minimum(np.abs((p-np.array(land['eye_right']['point']))@np.array([-.392,.92,0])),
+                           np.abs((p-np.array(land['eye_left']['point']))@np.array([-.392,-.92,0])))
+        ring_bounds=(1-smooth(.025,.033,local_u))*(1-smooth(.013,.022,np.abs(eye_vertical)))
+        thin=np.clip(orbital,0,1)*(1-bare)*ring_bounds
+        # A narrow ring of shorter, sparser, slightly paler hair surrounds the
+        # real bare lid. Keep its detail subdued rather than whitening body fur.
+        ring_colour=(np.array(pale_colour)*.78+np.array(face_colour)*.22)*(1+short[:,None]*.45)
+        apply('eye_short_fur',thin*.82,ring_colour,.74)
+        height*=1-thin*.75
+        upper=smooth(float(eye_mid[2]-.001),float(eye_mid[2]+.004),p[:,2])
+        skin=np.array([.205,.132,.095])*(1-upper[:,None]*.32)
+        wet_edge=smooth(.65,.96,margin)
+        skin=skin*(1-wet_edge[:,None]*.65)
+        pores=np.sin(p[:,0]*4500+p[:,1]*1500)*np.sin(p[:,2]*3700)*.000012
+        apply('lid_bare_skin',bare,skin,.49)
+        rough=rough*(1-bare*wet_edge)+.36*bare*wet_edge
+        height=height*(1-bare)+pores*bare
+        forward=p[:,1]-eye_mid[1]
+        medial=bare*smooth(.016,.026,forward)
+        corner_line=eye_vertical+.001+.23*np.maximum(0,forward-.018)
+        crease=medial*(1-smooth(.0010,.0035,np.abs(corner_line)))
+        apply('medial_canthus',crease*.55,[.115,.060,.043],.44)
+        height-=crease*.00004
     nose_width=np.clip(.046+v*.35,.032,.058)
     nq=(u/nose_width)**2+(v/settings.get('nose_ry',.032))**2+((depth+.018)/.052)**2
     nose_mask=(1-smooth(.85,1.18,nq))*face

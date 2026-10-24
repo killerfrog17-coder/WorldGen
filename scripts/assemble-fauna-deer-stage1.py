@@ -2,6 +2,7 @@
 import argparse
 import json
 import math
+import runpy
 from pathlib import Path
 import sys
 import bpy
@@ -38,7 +39,7 @@ for i,(label,ear_scale,tail_scale) in enumerate(profiles):
             normal=nodes.new('ShaderNodeNormalMap');normal.inputs['Strength'].default_value=.5
             links.new(node.outputs['Color'],normal.inputs['Color']);links.new(normal.outputs['Normal'],bsdf.inputs['Normal'])
         else:links.new(node.outputs['Color'],bsdf.inputs['Base Color' if role=='colour' else 'Roughness'])
-    coats.append(dict(label=label,material=mat.name,ear_scale=ear_scale,tail_scale=tail_scale))
+    coats.append(dict(label=label,material=mat.name,ear_scale=ear_scale,tail_scale=tail_scale,antler_style=[2,1,3,0,1,0,1,2][i]))
 body.data.materials.clear();body.data.materials.append(bpy.data.materials[coats[0]['material']])
 # Local morphs retain fixed attachments. These are appearance traits, not rigs.
 body.shape_key_add(name='Basis');base=d['vertices'];regions=d['region_weights']
@@ -85,14 +86,34 @@ for side in (-1,1):
         mid=(start+end)*.5+np.array([0,.008,.002]);base=len(wv)
         for point,width in [(start,.00045),(mid,.00030),(end,.00005)]:wv.extend([point+[0,0,-width],point+[0,0,width]])
         wf.extend([(base,base+1,base+2),(base+1,base+3,base+2),(base+2,base+3,base+4),(base+3,base+5,base+4)])
+def tapered_hair(start,end,bend,width,horizontal):
+    start=np.array(start);end=np.array(end);mid=(start+end)*.5+np.array(bend);offset=np.array(horizontal)*width
+    base=len(wv);wv.extend([start-offset,start+offset,mid-offset*.55,mid+offset*.55,end])
+    wf.extend([(base,base+1,base+2),(base+1,base+3,base+2),(base+2,base+3,base+4)])
+for label in ('right','left'):
+    anchor=land['eye_'+label];normal=np.array(anchor['normal']);horizontal=np.cross([0,0,1],normal);horizontal/=np.linalg.norm(horizontal)
+    vertical=np.cross(normal,horizontal)
+    for i,start in enumerate(anchor['upper_lid_roots']):
+        length=.006+.003*math.sin((i+1)*1.7)**2
+        end=np.array(start)+vertical*length+normal*(.0135+.002*math.sin(i*1.3)**2)+horizontal*((i-3.5)*.0005)
+        tapered_hair(start,end,normal*.004,.00026,horizontal)
+    for i,start in enumerate(anchor['brow_roots']):
+        end=np.array(start)+1.55*(normal*(.009+i*.0015)+vertical*(.006-i*.001)+horizontal*((i-1)*.004))
+        tapered_hair(start,end,vertical*.0015,.00022,horizontal)
 wd=bpy.data.meshes.new('Low polygon muzzle whiskers');wd.from_pydata(wv,[],wf);wd.update()
-whiskers=bpy.data.objects.new('Muzzle whiskers',wd);s.collection.objects.link(whiskers)
+whiskers=bpy.data.objects.new('Muzzle whiskers, lashes and brow hairs',wd);s.collection.objects.link(whiskers)
 wm=bpy.data.materials.new('Whisker keratin');wm.diffuse_color=(.025,.021,.016,1);whiskers.data.materials.append(wm)
+antler_builder=runpy.run_path(str(Path(__file__).with_name('build-fauna-antlers.py')))
+antlers=antler_builder['build_library'](body,root,info['head_target'][1])
 info.update(coats=coats,whiskers=whiskers.name,review_stage='Stage 1 - model/coat approval; no rig or animation yet',
+    antlers=antlers,eye_hairs=dict(upper_lashes=16,brow_whiskers=6),
     nose_revision=json.loads((root/'coat-settings.json').read_text()).get('rhinarium_revision',1),review_file=out.name,
     face_revision=json.loads((root/'coat-settings.json').read_text()).get('face_revision',1),ear_range=[.72,1.08],tail_range=[.70,1.20],
     triangle_count=sum(len(o.data.loop_triangles) if len(o.data.loop_triangles) else sum(len(p.vertices)-2 for p in o.data.polygons)
         for o in [body,*[bpy.data.objects[n] for n in info['eyes']],whiskers]))
+info['antlerless_triangles']=info['triangle_count']
+info['triangle_count']+=max(x['triangles'] for x in antlers)
+assert info['triangle_count']<=6000,info['triangle_count']
 s['fauna_stage1']=json.dumps(info);s.render.film_transparent=False
 body.select_set(True);bpy.context.view_layer.objects.active=body
 for screen in bpy.data.screens:
@@ -107,6 +128,8 @@ views={}
 render_views=[('side',(1,0,0),(0,0,.82),2.8),('front',(0,1,0),(0,0,.82),2.1),
     ('rear',(0,-1,0),(0,0,.82),2.1),('face',(0,1,0),info['head_target'],.62),
     ('head',(1,.2,.02),info['head_target'],.65)]
+render_views.extend([('eye',(1,.28,.06),land['eye_right']['point'],.13),
+    ('oblique',(.75,1,.05),info['head_target'],.65)])
 if a.pilot:render_views=render_views[-2:]
 for name,direction,target,span in render_views:
     target=Vector(target);s.camera.location=target+Vector(direction).normalized()*4

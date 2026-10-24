@@ -5,7 +5,86 @@ explicitly trying GPU generation while The Forest runs. **Stage1 only is ready;
 model/appearance approval is pending before any new rigging or animation.**
 See [review/queue rules](FAUNA_ASSET_REVIEW_WORKFLOW.md). No Desktop item created.
 
+Owner subsequently accepted the final corner correction and explicitly approved
+continuing to Stage2 animation. The approved static source is
+`Deer - Stage1 Eyelid and Antler Review v3.blend`; earlier pending-approval notes
+below document review history rather than revoke that authorization.
+
 ## Review
+
+### Eyelid anatomy and antlers
+
+The owner rejected the remaining eye surround as fur with a pasted-on eyeball,
+providing real deer references and approving a connected anatomical lid, bare
+skin, thin-furred outer ring, lashes and brow whiskers. New separate review:
+`Deer - Stage1 Eyelid and Antler Review v3.blend` (same launcher, choose this filename
+with `--blend-name`). Prior published files stay unchanged. This is still static
+Stage 1; no rigging approval has been given.
+
+The previous colour rim was extremely narrow and did not follow exactly the
+constructed aperture. Its surrounding surface still used body fur relief.
+The correction adds one 24-segment ring per eye: a fuller upper lid and thinner
+lower lid connected through the existing socket into the face. Three geometric
+surface weights (bare lid, surround and inner margin) survive UV splitting and
+barycentric texture baking. Bare skin replaces fur colour and fur height, has
+subtle pores and separate roughness, with a darker inner margin. A subdued
+short-fur ring blends into the rest of the face. The accepted eyeball mesh,
+size, iris and glossy material are retained. Sixteen tapered upper lashes and
+six brow whiskers use three triangles each. Lashes were moved outward after
+the first pilot exposed buried tips; native attachment/clearance checks accompany
+selected close-ups. There is no blinking animation or runtime hair system.
+
+The owner then accepted the fur-ring colour but requested more prominent skin,
+a more deer-like lid contour and longer brow whiskers. Face revision5 widens the
+upper hood to15.2mm above the eye centre versus11.4mm, with a raised crest,
+rounder upper aperture and shallower lower contour. The outer short-fur colour
+is retained and bounded to avoid expanding it into a large pale spectacle.
+Brow whiskers are1.55x the first eyelid revision's length. The first published
+eyelid/antler review remains separate; these are local corrections, not a new
+model/texture-generation pass.
+
+The owner accepted revision5 with one final requested detail: the surrounding
+skin should taper forward at the inner corner instead of following the eyeball
+uniformly. Revision6 extends the bare lid6mm toward the muzzle at that corner,
+blends its surrounding skin over8mm and drops the corner2mm, with a subtle
+medial crease. The opening/globe and the rest of the accepted contour stay as
+before. The local basis is mirrored anatomically, so the extension points toward
+the nose on BOTH sides. This completes the requested conditional art correction;
+no rigging has been performed in this task.
+
+Review navigation now provides **Free orbit**. Plain middle-drag stops the
+automatic orbit, unlocks the view and applies continuous quaternion rotation;
+it has no axis-snap step. Shift/Ctrl-middle-drag keep Blender's pan/zoom bindings.
+No Blender user preferences are saved. The earlier90-degree issue was not
+independently reproduced; native Alt-axis snapping and auto-orbit interference
+were possibilities, not a confirmed cause. The explicit review control avoids
+both for plain middle-drag.
+
+Final native reload verifies all8 coats/packed maps, both preview sexes/all4 rack
+styles, finite local morphs, the small-delta/free-orbit/release path and the
+5960 visible-triangle cap. Eyeball coordinates match the accepted review exactly;
+neutral non-facial body distance0. Eye-hair root distance<=.245mm, sampled mid/
+tip clearance>=4.495mm. Seven CPU angles rendered; selected close eye/front/
+oblique and4 rack pilots inspected. The final review is open on the rightmost
+monitor; the requested final corner correction is complete. Earlier published
+reviews are preserved. No rig/animation, game launch or GPU inference was done.
+
+Owner additionally requested antlers with a 50% chance when changing phenotype.
+Four authored procedural paired shapes share packed 512px colour, roughness and
+normal maps: Young spikes (44 triangles), Narrow forks (72), Woodland branches
+(84), Wide crown (96). Shafts taper and branch at embedded joins; pedicles are
+ray-fitted to the skull. Geometry is simple and deliberately economical, not a
+scan or an AI-generated rack. No paid service or local GPU model is involved.
+
+Key 2 chooses a seeded male/female preview with equal probability, shows only
+the male's profile-linked rack, and retains coat/ear/tail variation. Labels show
+sex and rack. The initial view is antlerless. This is the requested preview rule,
+not a new saved ecology sex/age/season model. All four racks remain stored in the
+review library, but at most one is drawn. Visible geometry is **5900 triangles
+without antlers, at most 5996 with them** in the first eyelid revision; its
+hidden library totals6196 triangles. The wider revision5 aperture removes36
+near-eye triangles, yielding5864 antlerless/5960 maximum visible/6160 including
+all hidden racks. Only one rack is drawn at once.
 
 ### Owner-requested facial/species revision
 

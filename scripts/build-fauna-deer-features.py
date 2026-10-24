@@ -29,6 +29,8 @@ def pick(view,pixel):
 eye,_=pick('head',(590,488));eye[0]=abs(eye[0]);nose,nn=pick('face',(500,648));nose[0]=0
 lip,ln=pick('face',(500,679));lip[0]=0
 land={};eyes=[];lid_objects=[]
+lid_groups=[body.vertex_groups.new(name=name).index for name in
+            ('SurfaceLidSkin','SurfaceEyeSurround','SurfaceLidMargin')]
 # Replace only the folded ear blades with closed, shallow curved shells.
 bm=bmesh.new();bm.from_mesh(body.data)
 bmesh.ops.bisect_plane(bm,geom=list(bm.verts)+list(bm.edges)+list(bm.faces),dist=1e-6,
@@ -127,9 +129,10 @@ for sign,label in [(1,'right'),(-1,'left')]:
     # Open the eye and stitch the eyelid directly into its boundary. This avoids
     # overlapping floating rings, coplanar seams and skin across the cornea.
     cb=bmesh.new();cb.from_mesh(body.data);remove=[]
+    deform=cb.verts.layers.deform.verify()
     for face in cb.faces:
         dp=np.array(face.calc_center_median())-center
-        q=(dp@horizontal/.035)**2+(dp@vertical/.024)**2
+        q=((dp@horizontal-sign*.004)/.040)**2+(dp@vertical/.028)**2
         if q<1.3 and abs(dp@normal)<.045:remove.append(face)
     if remove:bmesh.ops.delete(cb,geom=remove,context='FACES')
     adjacency={}
@@ -155,9 +158,21 @@ for sign,label in [(1,'right'),(-1,'left')]:
     oa=np.r_[0,np.cumsum(lengths)];oa=oa/oa[-1]*2*math.pi
     inner=[];segments=24
     for i in range(segments):
-        t=2*math.pi*i/segments;u=.018*math.cos(t);v=.0085*math.copysign(abs(math.sin(t))**1.35,math.sin(t))
+        t=2*math.pi*i/segments;sn=math.sin(t)
+        u=.018*math.cos(t);v=(.0094 if sn>=0 else .0075)*math.copysign(abs(sn)**(.95 if sn>=0 else 1.2),sn)
         depth=.011*math.sqrt(max(0,1-(u/.020)**2-(v/.014)**2))-.008+.0006
         inner.append(cb.verts.new(center+horizontal*u+vertical*v+normal*depth))
+    lip_ring=[]
+    for i,vertex in enumerate(inner):
+        t=2*math.pi*i/segments;sn=math.sin(t)
+        u=.0230*math.cos(t);v=(.0152 if sn>=0 else .0118)*math.copysign(abs(sn)**(1.0 if sn>=0 else 1.25),sn)
+        medial=max(0,math.cos(t)*sign)**6
+        u+=sign*.006*medial;v-=.002*medial
+        # Full upper hood and flatter, thinner lower lid. The upper crest
+        # projects above the cornea instead of reading as a painted outline.
+        depth=.011*math.sqrt(max(0,1-(u/.020)**2-(v/.014)**2))-.008+.0040+.0080*max(sn,0)
+        lip_ring.append(cb.verts.new(center+horizontal*u+vertical*v+normal*depth))
+    land['eye_'+label]['upper_lid_roots']=[list(lip_ring[i].co) for i in (1,2,3,5,6,8,9,11)]
     middle=[]
     for i,vertex in enumerate(inner):
         fraction=i/segments;k=min(len(outer)-1,int(np.searchsorted(oa/(2*math.pi),fraction,side='right')-1))
@@ -165,15 +180,24 @@ for sign,label in [(1,'right'),(-1,'left')]:
         edge_fraction=(fraction-f0)/max(f1-f0,1e-6)
         outer_point=outer[k].co.lerp(outer[(k+1)%len(outer)].co,edge_fraction)
         t=2*math.pi*i/segments
-        u=.0235*math.cos(t);v=.0135*math.copysign(abs(math.sin(t))**1.2,math.sin(t))
+        sn=math.sin(t);u=.028*math.cos(t)
+        v=(.019 if sn>=0 else .0155)*math.copysign(abs(sn)**1.1,sn)
+        medial=max(0,math.cos(t)*sign)**6
+        u+=sign*.008*medial;v-=.003*medial
         depth=((vertex.co-Vector(center)).dot(Vector(normal))*.45+
                (outer_point-Vector(center)).dot(Vector(normal))*.55+.0018)
         middle.append(cb.verts.new(center+horizontal*u+vertical*v+normal*depth))
-    for i in range(segments):
-        j=(i+1)%segments
-        for points in ((inner[i],middle[i],inner[j]),(inner[j],middle[i],middle[j])):
-            face=cb.faces.new(points);face.normal_update()
-            if face.normal.dot(Vector(normal))<0:face.normal_flip()
+    # Material regions follow the constructed skin, not a second approximate
+    # ellipse that can end up painting the empty aperture instead of the lid.
+    for ring,values in [(inner,(1,1,1)),(lip_ring,(1,1,0)),(middle,(0,1,0))]:
+        for vertex in ring:
+            for index,value in zip(lid_groups,values):vertex[deform][index]=value
+    for first,second in [(inner,lip_ring),(lip_ring,middle)]:
+        for i in range(segments):
+            j=(i+1)%segments
+            for points in ((first[i],second[i],first[j]),(first[j],second[i],second[j])):
+                face=cb.faces.new(points);face.normal_update()
+                if face.normal.dot(Vector(normal))<0:face.normal_flip()
     inner=middle
     oi=ii=0
     while oi<len(outer) or ii<segments:
@@ -197,6 +221,18 @@ for obj in [*lid_objects,*ear_objs]:obj.select_set(True)
 bpy.context.view_layer.objects.active=body;bpy.ops.object.join()
 for p in body.data.polygons:p.use_smooth=True
 body.data.update();bpy.context.view_layer.update()
+surface=tree_for(body)
+for label in ('right','left'):
+    landmark=land['eye_'+label];center=np.array(landmark['point']);normal=np.array(landmark['normal'])
+    horizontal=np.cross([0,0,1],normal);horizontal/=np.linalg.norm(horizontal)
+    vertical=np.cross(normal,horizontal);brow=[]
+    for u,v in [(-.015,.024),(0,.027),(.015,.024)]:
+        start=center+horizontal*u+vertical*v+normal*.08
+        hit,_,_,_=surface.ray_cast(Vector(start),Vector(-normal),.16)
+        if hit is None:raise ValueError('Brow hair has no skin attachment')
+        brow.append(list(hit+Vector(normal)*.00025))
+    landmark['brow_roots']=brow
+(root/'landmarks.json').write_text(json.dumps(land,indent=2))
 verts=np.array([v.co[:] for v in body.data.vertices],np.float32);faces=np.array([p.vertices[:] for p in body.data.polygons],np.int32)
 normals=np.array([v.normal[:] for v in body.data.vertices],np.float32)
 def smooth(a,b,x):
@@ -224,10 +260,15 @@ for label,ew in [('L',ear_l),('R',ear_r)]:
     points=verts[ew>.35];base=points[np.argmin(points[:,2])]
     anchors['Ear_'+label]=dict(head=base.tolist(),tail=points[np.argmax(points[:,2])].tolist())
 regions=np.stack([body_w,head,neck,ear_l,ear_r,tail,*feet],axis=1).astype(np.float32)
-np.savez_compressed(root/'body-tagged.npz',vertices=verts,faces=faces,normals=normals,region_weights=regions)
+eye_regions=np.zeros((len(verts),3),np.float32)
+for column,name in enumerate(('SurfaceLidSkin','SurfaceEyeSurround','SurfaceLidMargin')):
+    index=body.vertex_groups[name].index
+    for vertex in body.data.vertices:
+        eye_regions[vertex.index,column]=next((g.weight for g in vertex.groups if g.group==index),0)
+np.savez_compressed(root/'body-tagged.npz',vertices=verts,faces=faces,normals=normals,region_weights=regions,eye_regions=eye_regions)
 (root/'anchors.json').write_text(json.dumps(anchors,indent=2))
 ear_frames={label:dict(root=[sign*.065,float(eye[1]-.16),1.415],tip=[sign*.225,float(eye[1]-.12),1.65]) for sign,label in [(1,'L'),(-1,'R')]}
-(root/'coat-settings.json').write_text(json.dumps(dict(fresh_model=True,separate_eyes=True,center_x=0,eye_rx=.018,eye_ry=.0085,nose_ry=.023,rhinarium_revision=2,ear_frames=ear_frames,face_revision=3)))
+(root/'coat-settings.json').write_text(json.dumps(dict(fresh_model=True,separate_eyes=True,center_x=0,eye_rx=.018,eye_ry=.0085,nose_ry=.023,rhinarium_revision=2,ear_frames=ear_frames,face_revision=6)))
 info=dict(body=body.name,eyes=[o.name for o in eyes],model=1,stage=1,rigged=False,
     eye_center=eye.tolist(),head_target=[0,float(eye[1]),float(eye[2])],root=str(root))
 s['fauna_stage1']=json.dumps(info)

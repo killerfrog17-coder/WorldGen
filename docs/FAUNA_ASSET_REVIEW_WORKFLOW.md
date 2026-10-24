@@ -29,6 +29,15 @@ Patterns may explore plausible evolution beyond named modern species, but label
 biological analogies and art hypotheses clearly. Do not infer ecological rules
 from a palette alone.
 
+For eyes, inspect visible lid anatomy as well as the globe. Darkening ordinary
+fur is insufficient: tag actual connected lid skin, remove fur relief there and
+blend a short-furred orbital ring into the face. Check lash/brow attachments and
+sample midpoints/tips for burial. Keep accepted eyeball shape/material separate
+from these adjustments. Optional antler libraries share small material maps;
+only one selected rack renders. The deer preview uses the owner's50/50 male/
+female antler rule, independently of coat variation; this does not add saved
+population demographics.
+
 Finish obvious corrections before presenting. Send one follow-up and open one
 review. **Owner selection/approval is required before Stage 2.**
 

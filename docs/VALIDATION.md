@@ -1,5 +1,22 @@
 # Version 3 validation evidence
 
+## Deer lids, antlers and review navigation — 23 October2026
+
+Final separate `Deer - Stage1 Eyelid and Antler Review v3.blend`,face revision6.
+Native reload finite/UV/packed-map/controls checks pass across8 coats, both preview
+sexes/all4 antler racks and ear/tail traits.5864 antlerless/5960 maximum visible
+triangles;44/72/84/96-triangle racks share three packed512px material maps. Hidden
+library total6160, at most1 rack drawn. Bare lid regions have nonempty skin/short-
+fur masks; eye meshes EXACT vs previous accepted eyes; neutral non-facial body
+delta0. Sampled eye-hair roots<=.245mm from skin, mid/tips>=4.495mm outside it.
+Native Free orbit execute/small mouse-delta/release checks pass without90degree
+quantization; actual original user snapping cause remains unconfirmed. CPU7
+angles rendered, selected close eye/front/oblique and4 rack pilots inspected.
+Latest rightmost GUI ready; owner accepted appearance conditional on the now-
+completed tapered inner corner. No rig/animation/game/profile/inference/new
+imagegen/Desktop work. No universal animated-contact or naturalness claim.
+See [method, feedback and limits](DEER_STAGE1_REDO.md).
+
 ## Fresh deer stage1 — 23 October2026
 
 Owner requested facial/species changes after the initial review, accepting the
