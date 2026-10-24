@@ -39,11 +39,22 @@ elif a.family=='fish':
         paths['fin_front_'+side.upper()]=['pelvis','tail_1',*[f'front_fin_{i}_{side}' for i in range(3)],'front_fin_tip_'+side]
         paths['fin_back_'+side.upper()]=['pelvis',*[f'tail_{i}' for i in range(1,5)],*[f'back_fin_{i}_{side}' for i in range(3)],'back_fin_tip_'+side]
     root='pelvis';head='head'
+elif a.family=='snake':
+    paths={'spine':['head','head_tip'],'neck':['head','head_tip'],
+      'tail':['head','neck',*[f'tail{i:02d}' for i in range(1,21)],'tail_tip']}
+    root='head';head='head'
+elif a.family=='spider':
+    paths={'spine':['hips','spine_1','spine_2'],'neck':['spine_2','head','head_tip'],
+      'tail':['hips','tail_1','tail_2','tail_3','tail_tip']}
+    for side in ('l','r'):
+        for row in 'abcd':paths['leg_'+row+'_'+side.upper()]=['spine_1','legs_anchor_'+side,'legs_anchor_'+str('abcd'.index(row)+1)+'_'+side,*[f'leg_{row}_{n}_{side}' for n in (1,2,3)],f'leg_{row}_tip_{side}']
+    root='hips';head='head'
 else:paths={};root=next((n for n in names if n.lower()=='hips'),names[0]);head=next((n for n in names if n.lower()=='head'),None)
 arrays={};clips=[]
 rest_basis={o.name:o.matrix_basis.copy() for o in objects}
 for action in list(bpy.data.actions):
     if 'rest' in action.name.lower():continue
+    if a.family=='snake' and action.name=='Dance':continue
     slots={slot.identifier:slot for slot in action.slots}
     for o in objects:
         o.animation_data_clear();o.matrix_basis=rest_basis[o.name]

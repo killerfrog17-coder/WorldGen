@@ -17,6 +17,9 @@ fresh prediction for each mesh; strongest4 normalized skin influences. Source
 motion is CC0; automatic graph/geometry transfer preserves learned joint offsets.
 No manual painting, anatomy extras, complex authored mammal gait or contact repair.
 Bone animation may still deform badly: native format checks are not art approval.
+The four shapes share resident model weights inside one serial process; likewise
+the four rig predictions reuse weights. Seeds/settings remain explicit. Cached
+rig calls reseed after loading so constructor RNG cannot change their stream.
 
 Tiny butterfly/moth, bee, dragonfly, fly and firefly auditions use own procedural
 low-poly geometry and deliberately simple wing-envelope/hover loops, within the
@@ -46,6 +49,11 @@ kill shared ComfyUI or owner apps.8GiB free-space guard stops new work. Each rea
 audition keeps four low-poly model/rig candidates and one review; only its exact
 raw high-poly/latent/prepared-reference intermediates are removed after reload.
 References/prompts are from built-in imagegen, not game-painted textures.
+run-control.json mode=pause also requests a safe stop. An earlier completed
+internal PAUSE marker is retained as a record; mode=run plus the explicit
+ignore_completed_internal_checkpoint flag ignores only its exact original text.
+An owner-created/new PAUSE always stops the worker. Never delete this marker to
+work around an approval rejection. Verify worker.lock before restarting.
 
 SOURCES / PERMISSIONS
 Mesh2Motion official CC0 art dedication:
@@ -56,6 +64,19 @@ Dedicated rabbit by CDmir/TinyWorlds, CC0, creator confirms motion/commercial us
 https://opengameart.org/content/rabbit-0
 Rabbit bank provenance and source hash: artifacts/fauna-motion-sources/rabbit.
 Only skeleton/motion is exported; donor body meshes never enter our auditions.
+Additional dedicated CC0 banks: squirrel and rat by CDmir/TinyWorlds
+https://opengameart.org/content/undead-squirrel-animated
+https://opengameart.org/node/49970
+and crocodile by br-n518 https://opengameart.org/content/crocodile-0 .
+Squirrel uses the non-attack subset; its source style and missing Walk/feeding
+remain limitations. Snake and spider banks come from the same Mesh2Motion CC0
+asset dedication. Spider transfer requires eight lateral leg endpoints; a
+four-legged neural prediction is recorded as a failure instead of called ready.
+The donor mesh is never substituted for our generated animal.
+Bird preparation uses the minor horizontal PCA axis for spread-wing references,
+major for flightless birds. Older unapproved bird inputs are rigidly realigned
+with mesh/joints/samples together. Closest authored flap directions establish
+the open-wing zero pose; this is automatic correspondence, not new animation.
 Retained accepted horse/deer authored bank: fauna-assets/motion-bank/deer, CC0
 motion dedication retained. Entire generated animal is not automatically CC0.
 Gobkit public CC0 source was researched at https://gobkit.com/api/free and

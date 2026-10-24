@@ -283,9 +283,12 @@ def family(row):
     if n in simple:return 'microfly'
     if n in canids:return 'canid'
     if n in cats:return 'felid'
-    if n in bovids|deer|equids|pigs or n in {'Camel','Guanaco','Tapir'}:return 'ungulate'
+    if n in bovids|deer|equids|pigs or n in {'Camel','Guanaco','Tapir','Giraffe'}:return 'ungulate'
+    if n in {'Pangolin','Armadillo'}:return 'armoured_mammal'
+    if n in {'Echidna','Hedgehog','Porcupine'}:return 'spiny_mammal'
+    if n in {'Red kangaroo','Wallaby'}:return 'hopper_marsupial'
     if n in bears:return 'bear'
-    if 'bird' in f.lower() or n in {'Penguin','Puffin','Cormorant','Albatross','Gull','Tern'}:return 'bird'
+    if 'bird' in f.lower() or f=='Raptor or aerial scavenger' or n in {'Penguin','Puffin','Cormorant','Albatross','Gull','Tern'}:return 'bird'
     if f=='Primate':return 'primate'
     if f=='Bat':return 'bat'
     if n in {'Boa constrictor','Python','Venomous snake'}:return 'snake'
@@ -317,6 +320,9 @@ templates={
 'ground_insect':('chitin colour/roughness; joint membranes; compound-eye swatch; optional wing membrane','head, thorax, abdomen/elytra, leg segments, antennae, eyes, wing panels',1000,'spider only if six-leg remap sound; dedicated CC0 insect preferred'),
 'microfly':('chitin/body swatch; eye gloss; thin wing membrane; butterfly wing-scale swatch or emissive abdomen where appropriate','head/eyes, antennae, thorax/abdomen, legs, separate wing panels, optional luminous abdomen',500,'own simple wing flap/hover only; user-authorized')
 }
+templates['armoured_mammal']=('keratin scale/plate swatch; sparse belly fur or skin; eye/cornea; nasal leather; claw keratin','body armour plates, belly skin/fur, muzzle, eye sockets, ears, feet/claws, tail plates',4000,'rat as labelled quadruped audition; seek dedicated armoured-mammal source')
+templates['spiny_mammal']=('fur swatch; keratin quill/spine swatch; eye/cornea; nasal skin; claw keratin','quill cap/back, furred belly/face, muzzle, eye sockets, ears, feet/claws, tail where present',3500,'rat as labelled short-legged quadruped audition; curled posture remains a gap')
+templates['hopper_marsupial']=('short fur swatch; eye/cornea; nasal/paw skin; claw keratin; ear skin','back/flanks, belly/chest, muzzle, eye sockets, ears, forepaws, large hindfeet, muscular tail',5500,'Dedicated CC0 kangaroo/wallaby hop required; do not present fox or rabbit gait as anatomically validated')
 
 data=[]
 for row in sorted(rows,key=lambda r:(order.get(r['Fauna entry'],100+int(r['Your priority'] or r['Priority'])),r['Fauna entry'])):
@@ -329,6 +335,10 @@ for row in sorted(rows,key=lambda r:(order.get(r['Fauna entry'],100+int(r['Your 
     extra=extras.get(name,'Separate glossy eyes and visible lid/socket transitions after motion approval; bounded ear/tail/bill traits only where family anatomy supports them. Distinct body silhouette requires a second approved model, not forced recolouring.')
     if fam=='bird' and name not in sex:sexplan='Species-dependent sex colours, breeding versus nonbreeding and juvenile plumage are separate profiles; do not force sexual dimorphism on monomorphic species.'
     if name in {'Hare','Rabbit'}:motion='cdmir-rabbit CC0 (dedicated); Gobkit Hare CC0 as optional comparison, after clip inspection';budget=3500
+    if name=='Squirrel':motion='CDmir squirrel CC0 Run/Idle/Jump stages; undead-source attack style excluded from primary demo';budget=2500
+    if name in {'Mouse','Bank vole','Cotton rat','Grass rat','Lemming','Shrew','Jerboa'}:motion='CDmir rat CC0 Walk/Run/Idle as small-rodent audition; assess tail/stride compatibility';budget=1800
+    if name in {'Agouti','Paca','Pika','Ground squirrel','Marmot','Nutria','Beaver'}:motion='CDmir rat or squirrel CC0, selected for ground gait; swimming/digging remain explicit gaps';budget=2500
+    if name in {'Crocodile','Monitor lizard','Iguana','Native small lizards (guild)','Salamanders (guild)'}:motion='br-n518 crocodile CC0 Idle/Walk/Attack/Death as crawling-quadruped audition; non-crocodile compatibility remains visual-review pending'
     texcount=len(materials.split('; '))
     hypothetical=('Faint disruptive flank bands in shaded cover; sandy pale camouflage in open arid habitat; darker closed-canopy forms. Hypotheses are optional art candidates, not asserted existing species.' if fam not in {'bird','fish','marine','microfly'} else
                   'Bounded habitat-linked pigment/pattern variation within this anatomy; mark invented patterns explicitly. Structural colours, emission and transparency remain separate material traits.')

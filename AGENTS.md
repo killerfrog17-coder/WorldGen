@@ -1,5 +1,28 @@
 # WorldGen repository instructions
 
+OVERNIGHT PIPELINE CHECKPOINT,24October2026~04:48CDT: current serial worker
+PID34172/exec69344, verify lock/live status before intervention. Root remains
+artifacts/fauna-overnight-20261024. Cached resident TripoSG shapes and SkinTokens
+weights reuse loading across4 independent candidates, same settings/no offload;
+SkinTokens reseeds AFTER load. New dedicated rat/squirrel/crocodile CC0 banks,
+plus Mesh2Motion bird/fish/snake/spider. Bird PCA spread-wing direction and
+authored flap zero-pose alignment corrected; Duck/Pheasant rebuilt+checked.
+Mouse/Squirrel assembly now uses shared trunk ancestor rather than requiring
+donor-style chest ancestry; saved models/rigs reused and both native checks pass.
+Raptor family classification corrected in plan.48 imagegen conditioning refs
+copied, another40 references generating (NOT painted game textures). Current
+worker resumed Reindeer. Tiny own microfauna5+Hare/Rabbit/Fox/Wolf/Boar/Mouflon/
+Goat/Bear/Bison/Duck/Pheasant/Fish/Mouse/Squirrel/Horse native-ready, art pending.
+run-control.json mode=pause requests safe stop, mode=run resumes. Retain the old
+PAUSE record: deletion was blocked, and only its exact completed internal text
+is ignored with explicit ignore_completed_internal_checkpoint=true. New owner
+PAUSE still stops work. Do not duplicate workers or delete the record. No night
+viewer/follow-up flood, no painting until owner morning selection, no Desktop
+files/game changes. Morning viewer has animal dropdown/next/previous, numbered
+1-4 controls, individual clips and Show/Hide Skeleton. Rebuild index using
+scripts/index-fauna-auditions.py. Optional screenshot rejection AFTER full queue.
+See docs/fauna/OVERNIGHT_WORKFLOW.txt, queue-state.json and per-animal evidence.
+
 OVERNIGHT FAUNA QUEUE AUTHORIZED/RUNNING,24October2026: owner now explicitly
 starts overnight work, superseding earlier DO NOT START note. Full188-entry
 roster/plans saved docs/fauna/FAUNA_ASSET_PLAN.csv +asset-plan.json:1 accepted

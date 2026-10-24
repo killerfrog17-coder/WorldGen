@@ -13,6 +13,8 @@ import time
 import types
 from pathlib import Path
 
+_RESIDENT_PIPELINE_CACHE={}
+
 
 def sha256(path):
     with path.open('rb') as stream:
@@ -33,8 +35,10 @@ def main():
     ap.add_argument('--infer', action='store_true', help='Explicitly allow local GPU inference')
     ap.add_argument('--shared-gpu', action='store_true',help='Owner-authorized game/inference coexistence trial')
     ap.add_argument('--resident-gpu',action='store_true',help='Fast loading: keep the pipeline on GPU without CPU offload hooks')
+    ap.add_argument('--cache-resident',action='store_true',help='Reuse resident weights for multiple main calls in the same batch process')
     args = ap.parse_args()
     if args.shared_gpu and args.resident_gpu:raise ValueError('Resident and sequential-offload modes are mutually exclusive')
+    if args.cache_resident and not args.resident_gpu:raise ValueError('Resident cache requires --resident-gpu')
     if args.output.exists():
         raise FileExistsError(args.output)
     if not args.source.is_file() or not (args.weights/'model_index.json').is_file():
@@ -100,7 +104,8 @@ def main():
         measured=subprocess.check_output(['nvidia-smi','--query-gpu=memory.free','--format=csv,noheader,nounits'],text=True)
         free=min(free,int(measured.strip().splitlines()[0])*2**20)
     print('Free VRAM MiB:', round(free/2**20), flush=True)
-    minimum=(1.5 if args.shared_gpu else 5.8)*2**30
+    cache_key=str(args.weights.resolve());reused=bool(args.cache_resident and cache_key in _RESIDENT_PIPELINE_CACHE)
+    minimum=(1.5 if args.shared_gpu or reused else 5.8)*2**30
     if free < minimum:
         raise RuntimeError(f'Please free GPU memory before inference (need >={minimum/2**30:.1f} GiB free)')
     telemetry=[];stop_monitor=None
@@ -144,12 +149,14 @@ def main():
             dense_octree_depth=6, hierarchical_octree_depth=args.depth)[0]
     else:
         TripoSGPipeline.model_cpu_offload_seq = 'image_encoder_dinov2->transformer->vae'
-        pipe = TripoSGPipeline.from_pretrained(str(args.weights), torch_dtype=torch.float16,
-                                             local_files_only=True)
+        if reused:pipe=_RESIDENT_PIPELINE_CACHE[cache_key]
+        else:pipe=TripoSGPipeline.from_pretrained(str(args.weights), torch_dtype=torch.float16,local_files_only=True)
         if args.resident_gpu:pipe.to('cuda')
         elif args.shared_gpu:pipe.enable_sequential_cpu_offload(gpu_id=0)
         else:pipe.enable_model_cpu_offload(gpu_id=0)
-        original_decode = pipe.vae._decode
+        if args.cache_resident:_RESIDENT_PIPELINE_CACHE[cache_key]=pipe
+        if not hasattr(pipe.vae,'_worldgen_original_decode'):pipe.vae._worldgen_original_decode=pipe.vae._decode
+        original_decode = pipe.vae._worldgen_original_decode
         def small_decode(*a, **kw):
             kw['num_chunks'] = args.chunk
             return original_decode(*a, **kw)
@@ -190,6 +197,7 @@ def main():
         'recovered_latents': str(args.latents.resolve()) if args.latents else None,
         'gpu_peak_mib': round(torch.cuda.max_memory_allocated()/2**20,1),
         'shared_gpu_trial': args.shared_gpu,
+        'resident_weights_reused':reused,
         'offload': 'none (resident GPU)' if args.resident_gpu and not args.latents else ('sequential CPU' if args.shared_gpu and not args.latents else 'model CPU'),
         'mesh_sha256': sha256(args.output),
         'note': 'Shape only. No rig, animation or generated texture is claimed here.'

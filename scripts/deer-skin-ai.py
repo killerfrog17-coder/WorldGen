@@ -13,6 +13,8 @@ import sys
 import time
 import types
 
+_MODEL_CACHE={}
+
 
 def main():
     ap=argparse.ArgumentParser()
@@ -23,6 +25,7 @@ def main():
     ap.add_argument('--preflight',action='store_true')
     ap.add_argument('--beams',type=int,default=1)
     ap.add_argument('--seed',type=int,default=731925)
+    ap.add_argument('--cache-model',action='store_true',help='Reuse loaded weights across sequential calls in one batch process')
     args=ap.parse_args()
     args.repo,args.weights,args.mesh,args.output=[p.resolve() for p in [args.repo,args.weights,args.mesh,args.output]]
     import torch
@@ -57,7 +60,10 @@ def main():
     torch.manual_seed(args.seed)
     torch.set_grad_enabled(False)
     started=time.perf_counter()
-    model=TokenRig.load_from_system_checkpoint('experiments/articulation_xl_quantization_256_token_4/grpo_1400.ckpt').eval().to('cuda')
+    cache_key=str(args.weights);reused=bool(args.cache_model and cache_key in _MODEL_CACHE)
+    model=_MODEL_CACHE[cache_key] if reused else TokenRig.load_from_system_checkpoint('experiments/articulation_xl_quantization_256_token_4/grpo_1400.ckpt').eval().to('cuda')
+    if args.cache_model:_MODEL_CACHE[cache_key]=model
+    torch.manual_seed(args.seed)
     print('Model loaded. Generating skeleton and skin.',flush=True)
     mesh=trimesh.load(args.mesh,force='mesh')
     # Match upstream's Blender glTF importer: GLB Y-up -> Blender Z-up. Feeding
@@ -86,7 +92,7 @@ def main():
     np.savez_compressed(args.output,joints=joints,parents=parents,sample_points=points/scale+centre,
                         sample_skin=skin,source_vertices=mesh.vertices,source_faces=mesh.faces)
     provenance={'method':'Local SkinTokens skeleton and skin generation','beams':args.beams,'seed':args.seed,'attention':'Native Torch SDPA',
-        'joints':len(joints),'seconds':round(time.perf_counter()-started,2),
+        'joints':len(joints),'seconds':round(time.perf_counter()-started,2),'weights_reused':reused,'seed_after_model_load':True,
         'peak_gpu_mib':round(torch.cuda.max_memory_allocated()/2**20,1),'mesh':str(args.mesh),
         'coordinates':'Blender Z-up, matching upstream importer'}
     args.output.with_suffix('.json').write_text(json.dumps(provenance,indent=2))

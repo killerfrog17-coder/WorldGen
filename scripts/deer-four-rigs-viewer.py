@@ -7,7 +7,7 @@ from mathutils import Vector,Quaternion
 s=bpy.context.scene;models=json.loads(s['deer_four_rigs'])
 animal=s.get('fauna_animal','Deer')
 finished=bool(models[0].get('same_approved_model'))
-state={'model':0,'clip':'Showcase','mode':0,'view':0,'skeleton':False,'coat':'Tawny woodland' if finished else 'Original fur','started':time.monotonic(),'seed':734100,'coat_index':0,'active_rack':-1,'sex':'Female'}
+state={'model':0,'clip':'Showcase','mode':0,'view':0,'skeleton':False,'coat':'Tawny woodland' if finished else 'Unpainted preview','started':time.monotonic(),'seed':734100,'coat_index':0,'active_rack':-1,'sex':'Female'}
 queue_cache=[];queue_items_cache=[]
 def queue_entries():
     global queue_cache,queue_items_cache
@@ -95,7 +95,7 @@ class D4_OT_animal(bpy.types.Operator):
         if not Path(selected['path']).exists():return {'CANCELLED'}
         bpy.ops.wm.open_mainfile(filepath=selected['path'])
         s=bpy.context.scene;models=json.loads(s['deer_four_rigs']);animal=s.get('fauna_animal','Deer');finished=bool(models[0].get('same_approved_model'))
-        state.update(model=0,clip='Showcase',mode=0,view=0,skeleton=False,coat='Original fur',started=time.monotonic(),active_rack=-1)
+        state.update(model=0,clip='Showcase',mode=0,view=0,skeleton=False,coat='Unpainted preview',started=time.monotonic(),active_rack=-1)
         choose('Showcase',play=False);set_view()
         if not bpy.app.background:
             if not bpy.app.timers.is_registered(tick):bpy.app.timers.register(tick,first_interval=.1)

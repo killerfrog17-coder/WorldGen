@@ -2,7 +2,7 @@
 import argparse,json,sys
 from pathlib import Path
 import bpy,numpy as np
-from mathutils import Matrix
+from mathutils import Matrix,Vector
 
 ap=argparse.ArgumentParser();ap.add_argument('--source',type=Path,required=True);ap.add_argument('--output',type=Path,required=True);ap.add_argument('--family',required=True)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);a.output.mkdir(exist_ok=True,parents=True)
@@ -17,6 +17,28 @@ if a.family=='rabbit':
     paths={'spine':['Hips','Spine','Spine.001'],'neck':['Spine.001','Neck','Head'],'fore_L':['Spine.001','FrontUpLeg_L','FrontLeg_L','FrontPaw_L'],'fore_R':['Spine.001','FrontUpLeg_R','FrontLeg_R','FrontPaw_R'],
         'hind_L':['Hips','BackUpLeg_L','BackLeg_L','BackLeg_L.001','BackPaw_L'],'hind_R':['Hips','BackUpLeg_R','BackLeg_R','BackLeg_R.001','BackPaw_R'],'tail':['Hips','Tail']}
     wanted={'Idle':'Guarding','Rest':'Sitting.000','Run':'Running','Jump':'Jump','Death':'Dying.000'}
+elif a.family in ('crocodile','rat','squirrel'):
+    if a.family=='crocodile':
+        paths={'spine':['base','spine1'],'neck':['spine1','neck','head'],'tail':['base','spine2','tail1','tail2','tail3','tail4']}
+        for side in ('L','R'):
+            paths['fore_'+side]=['spine1','shoulder_'+side,*[f'arm{i}_{side}' for i in range(1,4)]]
+            paths['hind_'+side]=['base','spine2','hip_'+side,*[f'leg{i}_{side}' for i in range(1,4)]]
+        wanted={'Idle':'idle-loop','Walk':'walk-loop','Attack':'attack','Death':'death'};head_name='head';root_name='base'
+    elif a.family=='rat':
+        paths={'spine':['Hip','Backbone','Backbone.001'],'neck':['Backbone.001','Backbone.002','Head'],'tail':['Hip','Tail','Tail.001','Tail.002','Tail.003']}
+        for side in ('L','R'):
+            paths['fore_'+side]=['Backbone.001','FrontLeg_'+side,*[f'FrontLeg_{side}.{i:03d}' for i in range(1,4)]]
+            paths['hind_'+side]=['Hip','BackLeg_'+side,*[f'BackLeg_{side}.{i:03d}' for i in range(1,4)]]
+        wanted={'Idle':'Idle.001','Idle variation':'Idle.002','Walk':'Walk','Run':'Run','Attack':'Attack.000','Hit':'Hit','Death':'Die'};head_name='Head';root_name='Hip'
+    else:
+        paths={'spine':['Pan','Backbone','Backbone.001'],'neck':['Backbone.001','Neck','Head'],'tail':['Pan','Tail',*[f'Tail.{i:03d}' for i in range(1,6)]]}
+        for side in ('L','R'):
+            paths['fore_'+side]=['Backbone.001','Arm_'+side,f'Arm_{side}.001',f'Arm_{side}.002']
+            paths['hind_'+side]=['Pan','Leg_'+side,*[f'Leg_{side}.{i:03d}' for i in range(1,4)]]
+        wanted={'Idle':'Idle.001','Idle variation':'Idle.003','Run':'Run','Jump start':'Jump.Begin','Jump landing':'Jump.End','Hit':'Pain.000','Death':'Die.000'};head_name='Head';root_name='Pan'
+    names=list(dict.fromkeys(n for path in paths.values() for n in path))
+    direction=rig.matrix_world@(rig.data.bones[head_name].head_local-rig.data.bones[root_name].head_local);direction.z=0
+    direction.normalize();right=Vector((direction.y,-direction.x,0));rotation=Matrix((right,direction,Vector((0,0,1)))).to_4x4()
 else:
     names=[b.name for b in rig.data.bones];rotation=Matrix.Diagonal((-1,-1,1,1));paths={}
     wanted={act.name:act.name for act in bpy.data.actions if act.frame_range[1]>act.frame_range[0]}
@@ -45,5 +67,5 @@ for label,name in wanted.items():
         poses.append([np.array(C@rig.matrix_world@rig.pose.bones[n].matrix) for n in names])
     key='clip_'+str(len(clips));arrays[key]=np.asarray(poses,np.float32);clips.append({'label':label,'key':key,'source_action':name,'fps':30,'frames':frames})
 np.savez_compressed(a.output/'source-motions.npz',**arrays)
-(a.output/'source-rig.json').write_text(json.dumps({'family':a.family,'source':str(a.source.resolve()),'bones':bones,'clips':clips,'paths':paths,'root':names[0],'head':'Head' if 'Head' in names else None,'license':'CC0-1.0 verified at source page','donor_mesh_exported':False},indent=2))
+(a.output/'source-rig.json').write_text(json.dumps({'family':a.family,'source':str(a.source.resolve()),'bones':bones,'clips':clips,'paths':paths,'root':names[0],'head':'Head' if 'Head' in names else 'head' if 'head' in names else None,'license':'CC0-1.0 verified at source page','donor_mesh_exported':False},indent=2))
 print('Exported motion source',a.family,len(bones),'bones',[(c['label'],c['frames']) for c in clips],flush=True)
