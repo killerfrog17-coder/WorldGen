@@ -201,12 +201,32 @@ def hopper_hind_correspondence(joints,parents,children,pelvis):
             n=pending.pop();nodes.append(n);pending.extend(children[n])
         tips=[n for n in nodes if not children[n]];tip=min(tips,key=lambda i:joints[i,2])
         if abs(joints[child,0]-joints[pelvis,0])>height*.04 and joints[tip,2]<joints[pelvis,2]-height*.15:branches.append((child,tip))
+    bilateral=len(branches)==2 and min(joints[n,0] for n,_ in branches)<joints[pelvis,0]<max(joints[n,0] for n,_ in branches)
+    if not bilateral:
+        # Some predictions insert coincident helper joints around the pelvis.
+        # Follow only that zero-length hub, preserving every learned bone; its
+        # outgoing hip branches need not be direct children of the first root.
+        hub={pelvis};pending=[pelvis];epsilon=max(1e-7,height*1e-4)
+        while pending:
+            for child in children[pending.pop()]:
+                if np.linalg.norm(joints[child]-joints[pelvis])<=epsilon:
+                    hub.add(child);pending.append(child)
+        branches=[]
+        for anchor in hub:
+            for child in children[anchor]:
+                if child in hub or joints[child,2]<joints[pelvis,2]-height*.1:continue
+                pending=[child];tips=[]
+                while pending:
+                    node=pending.pop();pending.extend(children[node])
+                    if not children[node]:tips.append(node)
+                tip=min(tips,key=lambda i:joints[i,2])
+                if abs(joints[child,0]-joints[pelvis,0])>height*.04 and joints[tip,2]<joints[pelvis,2]-height*.15:branches.append((child,tip))
     assert len(branches)==2,'Masked hopper transfer needs two distinct lateral hip branches'
     branches.sort(key=lambda row:joints[row[0],0]);assert joints[branches[0][0],0]<joints[pelvis,0]<joints[branches[1][0],0]
     binding=np.eye(len(sn))[np.full(len(parents),si[source['root']])];groups=['extra']*len(parents)
     sides=sorted(('L','R'),key=lambda side:reference[si[paths['hind_'+side][-1]],0])
-    for (_,tip),side in zip(branches,sides):
-        chain=path_to(parents,tip);ids=[si[n] for n in paths['hind_'+side]]
+    for (child,tip),side in zip(branches,sides):
+        full_chain=path_to(parents,tip);chain=full_chain[full_chain.index(child)-1:];ids=[si[n] for n in paths['hind_'+side]]
         ss=np.r_[0,np.cumsum(np.linalg.norm(np.diff(reference[ids],axis=0),axis=1))];ss/=max(ss[-1],1e-8)
         tt=np.r_[0,np.cumsum(np.linalg.norm(np.diff(joints[chain],axis=0),axis=1))];tt/=max(tt[-1],1e-8)
         for node,t in zip(chain[1:],tt[1:]):

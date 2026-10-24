@@ -1,5 +1,27 @@
 # WorldGen repository instructions
 
+REVIEW REOPENED / WALLABY ASSEMBLY REPAIRED112,24October2026:
+Owner asked reopen new Blender after closing it immediately. Opened Wolf pending
+review RIGHTMOST via existing launcher; new viewer PID40988 (verify), pending
+filter with66 undecided at opening. Keep1-4/skeleton/manual animal navigation;
+no more new windows or automatic switching while owner browses.
+Full producer exec66785/PID25444 remains LIVE (verify), now Weasel;112 ready/
+448candidates,64 remain. Warthog completed. Wallaby initially FAILED assembly4:
+NN37bone hierarchy uses coincident pelvis helpers0/1/26/31; strict mapper assumed
+hip branches immediately below root. Scoped experimental_hind_hopper fallback
+traverses ONLY coincident root hub, excludes descending tail trunk, maps two
+lateral hip chains below static helpers. No learned bone/mesh/skin/source changes.
+Actual function checks: Wallaby1-3 binding/groups/main/names EXACT before/after;
+4 normalized/finite with static helpers and correct two hind branches. Manual
+CPU assembly and native checks pass all4; input model/rig hashes unchanged.
+Run4 phase.33 side/front inspected: still coarse rabbit-derived folded hip pose,
+NOT natural/contact/art acceptance. Warning retained, no model exclusion.
+retry-failed.json hashes4 +manual-recovery-ready.json queued for producer's next
+pass to sync its old failed state; DO NOT overwrite live queue-state manually.
+Index/file evidence already counts Wallaby ready; stale worker failure is resolved.
+39 choices unchanged, no texture painting/generation/game/Desktop work. Previous
+remote495e393; mapper fix and this checkpoint need backup.
+
 OWNER RESUMED WORK,24October2026~16:50CDT:
 Owner explicitly says ok continue, revoking competitive-game pause. run-control
 mode=run, resumed timestamp and user authorization recorded; paused checkpoint
