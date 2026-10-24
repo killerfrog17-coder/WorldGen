@@ -1,5 +1,25 @@
 # WorldGen repository instructions
 
+PHEASANT REPLACEMENT READY / SQUIRREL ACTIVE,24October2026~12:05CDT:
+Pheasant4 fresh meshes/rigs completed. Initial Walk still twisted neck backward;
+ground_only retarget now holds generated neutral neck/upper body relative to
+parent while retaining CC0 leg motion/root. Native checks all4 and CPU Walk side/
+front samples across4 pass limited technical review; NO head-scan, unfolding,
+flight,feeding or full gait/contact/art approval claim. Folded-ground-bird source
+metadata describes stabilization. FINALIZED usable_for_raw_audition; hash guard
+now locked for Pheasant: do not change shared source file after qualification.
+Pheasant is available again in manual viewer index; no automatic GUI switch or
+new follow-up. Rejected old Pheasant candidate archive pruned after file hashes/
+checked replacement; compact provenance retained. Current95 raw reviews.
+Old Pheasant exec41859/PID8228 TERMINAL. New sole producer SQUIRREL --only trial:
+exec30463/PID15612 LIVE (verify), motion-root squirrel-bind-reference. Corrected
+priority-reroll-queue.json session30463 (an interim mistaken41813 was corrected).
+After Squirrel finishes: inspect native Run/front poses, finalize technical
+decision; then Grouse and Junglefowl --only with folded-ground-bird, same procedure.
+Only AFTER all4 priority rerolls finish/qualify resume normal --watch; cached
+SecretaryBird partial shapes retained. No selected animal or owner viewer edited.
+Latest prior remote ea7387c2ba680c1a95b13234c9c760e7b8e99082; stabilization needs backup.
+
 OWNER BIRD/SQUIRREL REROLLS IN PROGRESS,24October2026~11:56CDT:
 24 explicit model choices in docs/fauna/OWNER_SELECTIONS.json. New batch: Bison4,
 Duck2,SmallNativeFreshwaterFish1,Mouse1,Horse1,Reindeer3,Moose3,WildCattle3; then

@@ -377,12 +377,12 @@
   "pending_revisions": {
     "pheasant": {
       "reason": "Walking unusable; generated spread wings cause ground-motion problems. Try folded-wing ground model and appropriate transfer.",
-      "status": "requested",
+      "status": "replacement_ready_ground_only_owner_review_pending",
       "art_approved": false
     },
     "squirrel": {
       "reason": "Run unusable; owner explicitly requests entire regeneration. Diagnose and generate new models/fresh rigs.",
-      "status": "requested",
+      "status": "regenerating",
       "art_approved": false
     },
     "bees-guild": {

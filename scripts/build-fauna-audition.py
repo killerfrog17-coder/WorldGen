@@ -443,6 +443,10 @@ for number in range(1,5):
                     if group[i] in ('squid_arm','squid_fin'):
                         delta=Matrix(frame[int(np.argmax(binding[i]))]).to_quaternion()
                         q=q@delta
+                elif source.get('ground_only') and group[i]=='neck' and parent>=0:
+                    # Folded ground-bird audition: preserve its neutral upper
+                    # body rather than twist it with the foreign head axes.
+                    q=g[int(parent)].to_quaternion()@local[i].to_quaternion()
                 elif source.get('motion_profile')=='experimental_hind_hopper' and i==pelvis:q=rest[i].to_quaternion()
                 elif group[i]=='extra' and parent>=0:q=g[int(parent)].to_quaternion()@local[i].to_quaternion()
                 elif i in ik_angles:q=Quaternion((1,0,0),ik_angles[i])@rest[i].to_quaternion()
