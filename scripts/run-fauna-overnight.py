@@ -109,8 +109,8 @@ try:
                     for i in range(1,5):
                         candidate=folder/f'candidate-{i}';seed,rig_seed=candidate_seeds(entry,i,candidate)
                         rig_path=candidate/'generated-rig.npz';required=minimum_leaves(entry)
-                        if rig_path.exists() and not topology(rig_path,required)['pass']:quarantine(rig_path,root)
-                        if not rig_path.exists():jobs.append({'candidate':i,'output':str(rig_path),'mesh':str(candidate/'model.glb'),'seed':rig_seed,'minimum_leaves':required})
+                        if rig_path.exists() and not topology(rig_path,required,entry['family'])['pass']:quarantine(rig_path,root)
+                        if not rig_path.exists():jobs.append({'candidate':i,'output':str(rig_path),'mesh':str(candidate/'model.glb'),'seed':rig_seed,'minimum_leaves':required,'family':entry['family']})
                     if jobs:
                         manifest=folder/'rig-batch.json';manifest.write_text(json.dumps({'batch_root':str(root),'jobs':jobs},indent=2))
                         run([rig_python,repo/'scripts/run-fauna-inference-batch.py','--manifest',manifest,'--kind','rig'],folder/'rig-batch.log')
@@ -126,7 +126,7 @@ try:
                 if pause_requested():break
                 if source is None:
                     report={'animal':entry['animal'],'status':'models_rigged_motion_pending','animated_review_ready':False,'painted':False,
-                      'candidates':[{'number':i,'mesh':str(folder/f'candidate-{i}'/'model.glb'),'rig':str(folder/f'candidate-{i}'/'generated-rig.npz'),'topology':topology(folder/f'candidate-{i}'/'generated-rig.npz',minimum_leaves(entry))} for i in range(1,5)],
+                      'candidates':[{'number':i,'mesh':str(folder/f'candidate-{i}'/'model.glb'),'rig':str(folder/f'candidate-{i}'/'generated-rig.npz'),'topology':topology(folder/f'candidate-{i}'/'generated-rig.npz',minimum_leaves(entry),entry['family'])} for i in range(1,5)],
                       'missing':'Suitable CC0 motion source; model approval/painting still waits for motion review'}
                     (folder/'raw-motion-pending.json').write_text(json.dumps(report,indent=2))
                     for i in range(1,5):

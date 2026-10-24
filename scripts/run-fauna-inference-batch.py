@@ -36,7 +36,7 @@ for item in manifest['jobs']:
             seed=item['seed']+attempt*1000003;sys.argv[sys.argv.index('--seed')+1]=str(seed);os.chdir(initial_dir)
             print('BATCH',a.kind,item['candidate'],'seed',seed,'attempt',attempt+1,flush=True)
             try:
-                module.main();check=topology(out,item.get('minimum_leaves',1));trials.append({'seed':seed,'topology':check})
+                module.main();check=topology(out,item.get('minimum_leaves',1),item.get('family'));trials.append({'seed':seed,'topology':check})
                 if not check['pass']:
                     trials[-1]['archived']=quarantine(out,base);raise RuntimeError('Generated hierarchy lacks required retarget endpoints')
                 success=True;break

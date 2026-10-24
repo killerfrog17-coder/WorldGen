@@ -239,3 +239,13 @@ refine factual analogues versus explicit plausible hypotheses and generate neede
 reusable swatches. Never paint an unapproved model. If time still remains, inspect
 front/side/rear and key animation poses; flag clearly broken candidates with a
 reason. A heuristic or screenshot pass is not permission to call the rest accepted.
+
+Orangutan now has a limited technical raw audition using the existing CC0 giant-
+sloth terrestrial Idle/Walk. Selected bind/front and walking front/side samples
+keep its quadrupedal silhouette; no authored orangutan fist contact or arboreal
+movement is claimed. Source arrays unchanged, all owner art approval pending.
+https://nationalzoo.si.edu/animals/orangutan describes ground fist-walking.
+A curled rat tail exposed a bbox-center false rejection in minimal topology checks.
+Land mammals can now use the middle-height surface median if it provides stronger
+bilateral endpoint support. Neither this nor a neural-root estimate is an art gate.
+Original first rat rigs were restored unchanged before resuming only missing work.

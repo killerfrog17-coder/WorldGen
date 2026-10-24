@@ -1,5 +1,26 @@
 # WorldGen repository instructions
 
+OVERNIGHT BODY-MIDLINE/ORANGUTAN CHECKPOINT,24October2026~08:37CDT:
+Previous main15932/PID2856 and isolated Orangutan21769/PID31192 VERIFIED terminal0.
+New serial watch exec47587 resumed Grass rat rig3/4; verify live PID via worker.lock.
+60 reviews/240 candidates ready, all owner ART pending, no painting or GUI windows.
+Orangutan4 raw models/rigs +Sloth CC0 Idle/Walk native checked; selected1 bind/front,
+Walk front/side and3 Walk side retain quadrupedal form without lateral body fold.
+Technical usable_for_raw_audition only: NOT authored orangutan gait/fist contact,
+climbing/hanging/grasping. Texture/model surface and whole-cycle quality pending.
+Current source coverage174/176 (Gibbon/CoastalSquid remain). Primary ground-gait
+reference https://nationalzoo.si.edu/animals/orangutan supports fist-walking,
+not generic knuckle-walking; cross-animal source remains explicit experiment.
+Grass rat1/2 false topology rejection caused by curved-tail shifted bbox center.
+Original FIRST seeds841201/841202 NPZ+JSON restored unchanged; later retry archived.
+Recovery JSON retained. Root-only alternative also false-rejected eccentric roots,
+so NOT used. Mammal-family feasibility now compares bbox and middle-height torso
+median and keeps stronger bilateral endpoint support. Other families unchanged;
+this remains a coarse endpoint check, NEVER art/deformation acceptance. Failed
+Grass-rat state only reset while no worker; cached meshes/first2 rigs reused.
+No owner edits/accepted deer/game/Desktop/app closures. Current new code needs
+backup after compile/diff check; prior remote8beff0f96f9e2ddd067dd86efc03855ffab850c1.
+
 OVERNIGHT HOPPER CHECKPOINT,24October2026~08:22CDT: same watch worker
 PID2856/exec15932 verified LIVE, Grass rat shape batch.59 reviews/236 candidates
 ready incl FruitBat/Gazelle/Goose +RedKangaroo new limited trial. No uninspected
