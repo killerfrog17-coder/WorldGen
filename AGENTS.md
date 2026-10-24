@@ -1,5 +1,19 @@
 # WorldGen repository instructions
 
+OWNER RESUMED WORK,24October2026~16:50CDT:
+Owner explicitly says ok continue, revoking competitive-game pause. run-control
+mode=run, resumed timestamp and user authorization recorded; paused checkpoint
+marked currently_paused=false. Fresh sole --watch producer exec66785/PID25444 LIVE
+(verify). Cached Turaco4meshes/4rigs assembled/native checked without inference;
+109 raw reviews/436candidates now ready,67 remain of full176. Vulture shape
+batch follows in resident fast mode; free VRAM6840MiB before launch. No viewer
+opened: previous review was closed for gaming, preserve that until requested.
+39 owner choices and accepted deer unchanged; no texture generation/painting.
+Continue full original scope, handle actual failures, then reusable texture
+sources after all raw auditions; no new owner approval needed just to resume.
+Earlier pause instructions below are history superseded by this direct resume.
+Prior remote b12c4cd; this resume checkpoint needs backup.
+
 OWNER PAUSED FOR COMPETITIVE GAME,24October2026~14:14CDT:
 Owner explicitly says stop at a safe point, pause for a couple hours and leave
 nothing from this work in background. DO NOT RESUME until owner asks.
