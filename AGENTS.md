@@ -1,5 +1,23 @@
 # WorldGen repository instructions
 
+OVERNIGHT FIRST100 CHECKPOINT,24October2026~09:52CDT:
+Watch PID24740 verified LIVE; Kiwi shape-batch.75 raw reviews/300 candidates
+indexed, accepted deer separate, no observed failures. Duiker/ForestHog alias
+corrections both rebuilt with4 fresh shapes/rigs/nativechecks. Old exact archived
+candidate files pruned after hash/native replacement verification:13.62+13.83MiB;
+tiny provenance/reason/oldreference records retained, no blend1 backups created.
+Kingfisher safely resumed cached rig work and is ready. No painting/extras,
+texture generation, new GUI windows/Desktop/game/owner-app/accepted-deer changes.
+First100 catalogue rows now have targeted sourced variation plans (shared
+surface sources, linked masks,sex/age/season,appendages,hypotheses,shape and motion
+limits).30 new since first70:Impala through Skunk. CSV188 rows mirrors JSON.
+Shared plan wording now includes feather/scale/skin/chitin, not just fur.
+RedKangaroo experimental footpath limitations explicit; Jerboa raw rat motions
+are NOT claimed biped hopping; flightless birds never approved for flying.
+CoastalSquid sole source gap remains; full176 raw objective active,88 detailed
+refinements still pending. Remote prior41d8f5b1bdd84307cba249f1bbc768025003fe4b.
+Preserve user prompt deletion and unrelated untracked deer scripts.
+
 OVERNIGHT FIRST70 / ALIAS CORRECTIONS,24October2026~09:46CDT:
 Serial watch producer PID24740 resumed after exec95232 exited0 at an internal
 checkpoint. Current tool session handle was accidentally omitted from printed
