@@ -258,12 +258,30 @@ def chain_correspondence(joints,parents,children,leaves,pelvis):
             binding[node,ids[k]]=1-w;binding[node,ids[k+1]]+=w;groups[node]=kind;assigned.add(node)
     centre_width=max(.12,np.ptp(joints[:,0])*.18)
     central_endpoints=[i for i in leaves if abs(joints[i,0]-joints[pelvis,0])<centre_width] or leaves
+    if source['family']=='ground_insect':
+        # A tucked hind foot can be near the midline. Do not mistake it for
+        # an abdomen endpoint and then remove it from the six-leg pool.
+        core=[i for i in central_endpoints if joints[i,2]>=joints[pelvis,2]-.18*np.ptp(joints[:,2])]
+        if core:central_endpoints=core
     head=max(central_endpoints,key=lambda i:joints[i,1]);tail=min(central_endpoints,key=lambda i:joints[i,1])
     if source['family'] in ('spider','ground_insect'):
         lateral=[i for i in leaves if i not in (head,tail) and abs(joints[i,0]-joints[pelvis,0])>.10]
         sides={side:[i for i in lateral if (joints[i,0]-joints[pelvis,0])*sign>0] for side,sign in [('L',-1),('R',1)]}
         leg_pairs=4 if source['family']=='spider' else 3
         if any(len(v)<leg_pairs for v in sides.values()):raise ValueError(f'{leg_pairs*2}-legged rig unavailable: fewer than {leg_pairs} distinct lateral endpoints per side')
+        if source['family']=='ground_insect':
+            # Antennae and several small mouth branches may also end laterally.
+            # Prefer low, outward endpoints spread across the body length,
+            # rather than blindly animating the three most forward leaves.
+            from itertools import combinations
+            span=np.maximum(np.ptp(joints,axis=0),1e-5)
+            def foot_score(nodes):
+                p=joints[list(nodes)];ys=np.sort(p[:,1])
+                return (.6*float(np.mean(p[:,2]-joints[:,2].min()))/span[2]
+                    -.7*float(np.min(np.diff(ys)))/span[1]
+                    -.5*float(np.ptp(ys))/span[1]
+                    -.2*float(np.mean(np.abs(p[:,0]-joints[pelvis,0])))/span[0])
+            sides={side:list(min(combinations(nodes,leg_pairs),key=foot_score)) for side,nodes in sides.items()}
         limb_nodes={n for v in sides.values() for i in v for n in path_to(parents,i)[-2:]}
         central=[i for i in leaves if i not in limb_nodes and abs(joints[i,0]-joints[pelvis,0])<.25]
         if central:head=max(central,key=lambda i:joints[i,1]);tail=min(central,key=lambda i:joints[i,1])

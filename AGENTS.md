@@ -1,5 +1,21 @@
 # WorldGen repository instructions
 
+BEETLE ASSEMBLY RECOVERED,24October2026~10:47CDT:
+Prior goal turn made premature86 claim from producer advancing; corrected to85
+after actual assemble.log showed candidate4 failing, before later verified86.
+Ground-insect mapper mistook a tucked hind foot for tail, then excluded it from
+six-leg pool. High core-endpoint gate plus low/outward/Y-spread foot selection
+fixes assembly while preserving all4 inferred rigs/skin. Native file/controls
+pass, selected CPU Walk poses across4 inspected; rough antennae/limbs/contact
+remain owner-unapproved. Now index VERIFIED86 reviews/344 candidates. Exact25.52MiB
+owned beetle raw/latents pruned only after replacement checks; hash record retained.
+No live queue-state edit: retry-failed.json asks serial worker to reconcile stale
+failed status from existing native checks on next pass, no regeneration needed.
+Current fast watch exec55344/PID38416 LIVE (verify), Ocelot rigging; previous
+exec68103/PID7088 EXITED at internal checkpoint. No duplicate GPU producer.
+Shared accepted deer/owner windows/game/Desktop untouched; no painting/swatches.
+Latest remote0359931de5d869d55078e8d1e8537aea76ff22e5; mapper fix needs backup.
+
 PROCEDURAL SQUID / ALL188 PLANS,24October2026~10:25CDT:
 Owner awake and KEEP WORKING, not ready for reviews; no GUI/follow-up until asked.
 Owner explicitly allows modest underwater squid appearance and procedural arms.
