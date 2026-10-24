@@ -1,5 +1,32 @@
 # WorldGen repository instructions
 
+FOUR FRESH GENERATED RIGS / OWNER COMPARING,24October2026: owner explicitly asks
+4 new deer, EACH its own generated skeleton/skin, one switchable Blender review.
+Completed D:/WorldGenAI/deer-four-rigs-20261024/Deer - Four Generated Rigs.blend,
+opened RIGHTMOST; owner answered "I'll compare them". Leave viewer UNTOUCHED.
+TripoSG shape seeds732601-4; SkinTokens5-beam seeds733601-4 generate29/35/33/36
+joints,21.91/23.58/22.84/24.41s. Learned joint heads/hierarchy preserved under
+uniform normalization/canonical alignment; no old skeleton or old skin reused.
+Fresh network weights4-neighbour/top4 normalized; each6000tri, existing box fur.
+Automatic graph/geometry mapping handles varying joint counts for the existing
+CC0-authored bank; fixed learned offsets, no IK/contact/pose repairs or painting.
+1 cycles models,2 colour-only variation,3 side/face/orbit,4 showcase/locomotion;
+explicit model1-4 buttons, individual clips, Pause, Show/Hide Skeleton. Structural
+and control checks pass, joint-head error<6e-8m, four distinct rig hashes. NOT
+natural motion, collision-free, automatic rejection or game acceptance.
+Owner requires FAST memory loading. Initial model-CPU-offload mode crashed at
+extraction; candidate1 saved latents recovered4.76s (not full task time). Resume
+low-memory batch was explicitly stopped at owner request. New --resident-gpu
+uses no CPU offload hooks; models2-4 total48.67/48.59/48.86s including loading/
+sampling/extraction. GPU inference finished; no owner apps closed/game changes.
+Owner reauthorized usual artifacts cleanup:5 obsolete builds removed/7.25GiB,
+9 retained under daily/latest3/selected-running rule. Additional planned old
+logs/backups/rejected-video-model deletion was BLOCKED BEFORE EXECUTION by
+automatic review (only reason "blocked by policy"); no evasion/extra deletion.
+Reports artifacts/checkpoint-retention.json and D: cleanup-extra-plan.json.
+No new Desktop items. See FAUNA_ASSET_REVIEW_WORKFLOW.md and D: gallery/source/
+structural-checks JSON; no paint/extras or new generation until owner feedback.
+
 RAW DEER REROLL / REVIEW CONTROLS,24October2026: owner says first raw audition
 looks better but requests regeneration, then explicitly requires the1-4 panel
 and Show/Hide Skeleton. Candidate B generated seed732525/same reference in113.89s;

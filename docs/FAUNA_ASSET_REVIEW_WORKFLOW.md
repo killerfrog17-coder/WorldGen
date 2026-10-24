@@ -1,5 +1,46 @@
 # Fauna asset review workflow
 
+## Four independent rigs — 24 October2026
+
+Owner requested four fresh models with newly generated skeletons, superseding
+template-rig reuse for this experiment. Review is open RIGHTMOST at
+`D:/WorldGenAI/deer-four-rigs-20261024/Deer - Four Generated Rigs.blend`.
+Owner is comparing; preserve this window and wait for selection or rejection.
+
+Each model has a separate SkinTokens skeleton and dense sample skin prediction:
+29/35/33/36 joints,21.91/23.58/22.84/24.41seconds respectively. Generated heads
+and hierarchy are preserved under one uniform normalization and canonical axis
+alignment. No old rig/skin is substituted. Automatic graph/geometry matching
+handles differing limb/spine/head chain counts when transferring the existing
+authored motions. Sample skin is interpolated from4 neighbours, strongest4
+normalized;6000triangles/model and existing box-mapped fur. No paint, sculpt,
+manual pose repair, IK or contact bake. Source animation terms are unchanged.
+
+The viewer has **1 model / 2 colour-only species preview / 3 side-face-orbit /
+4 showcase-locomotion**, direct model1-4 buttons, individual clips, Pause/Play
+and Show/Hide Skeleton. Model changes preserve the selected clip/phase. Visible
+skeleton enables bone overlays and In Front explicitly. Structural/control checks
+verify4 distinct prediction hashes, unchanged generated joint heads/hierarchy,
+normalized top4 skin, one displayed model and every requested control. These
+checks do NOT establish natural motion, sound skinning or collision-free poses.
+
+Owner requires fast loading rather than low-memory sequential offload. New
+`generate-deer-local.py --resident-gpu` holds the pipeline on CUDA without CPU
+offload hooks. Model2/3/4 generation measured48.67/48.59/48.86seconds including
+loading, denoising and extraction. Candidate1's earlier model-CPU-offload run
+crashed during extraction after saving latents;4.76second decoder recovery is
+not a full-generation timing. The owner-requested change stopped the subsequent
+low-memory batch; no further low-memory runs were used. No owner app closure or
+game/Unity changes. All inference finished before opening the gallery.
+
+Artifacts stay on D: for this batch, without new model/environment downloads or
+Desktop items. Owner-authorized build retention removed5 obsolete checkpoints,
+7.25GiB, retaining9 (daily/latest3/selected-running protection). Additional old
+test logs/backups/rejected video-model cleanup was rejected before execution by
+automatic review with only "blocked by policy"; those targets remain. No attempt
+was made to evade that block. The generation models/tools and world snapshots
+were preserved. See `artifacts/checkpoint-retention.json` and batch cleanup plan.
+
 ## Current order — owner revision24 October2026
 
 **This supersedes the older stage order documented below.** Generate one fresh

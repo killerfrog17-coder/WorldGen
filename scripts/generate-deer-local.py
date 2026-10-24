@@ -32,7 +32,9 @@ def main():
     ap.add_argument('--latents', type=Path)
     ap.add_argument('--infer', action='store_true', help='Explicitly allow local GPU inference')
     ap.add_argument('--shared-gpu', action='store_true',help='Owner-authorized game/inference coexistence trial')
+    ap.add_argument('--resident-gpu',action='store_true',help='Fast loading: keep the pipeline on GPU without CPU offload hooks')
     args = ap.parse_args()
+    if args.shared_gpu and args.resident_gpu:raise ValueError('Resident and sequential-offload modes are mutually exclusive')
     if args.output.exists():
         raise FileExistsError(args.output)
     if not args.source.is_file() or not (args.weights/'model_index.json').is_file():
@@ -144,7 +146,8 @@ def main():
         TripoSGPipeline.model_cpu_offload_seq = 'image_encoder_dinov2->transformer->vae'
         pipe = TripoSGPipeline.from_pretrained(str(args.weights), torch_dtype=torch.float16,
                                              local_files_only=True)
-        if args.shared_gpu:pipe.enable_sequential_cpu_offload(gpu_id=0)
+        if args.resident_gpu:pipe.to('cuda')
+        elif args.shared_gpu:pipe.enable_sequential_cpu_offload(gpu_id=0)
         else:pipe.enable_model_cpu_offload(gpu_id=0)
         original_decode = pipe.vae._decode
         def small_decode(*a, **kw):
@@ -187,7 +190,7 @@ def main():
         'recovered_latents': str(args.latents.resolve()) if args.latents else None,
         'gpu_peak_mib': round(torch.cuda.max_memory_allocated()/2**20,1),
         'shared_gpu_trial': args.shared_gpu,
-        'offload': 'sequential CPU' if args.shared_gpu and not args.latents else 'model CPU',
+        'offload': 'none (resident GPU)' if args.resident_gpu and not args.latents else ('sequential CPU' if args.shared_gpu and not args.latents else 'model CPU'),
         'mesh_sha256': sha256(args.output),
         'note': 'Shape only. No rig, animation or generated texture is claimed here.'
     }

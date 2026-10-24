@@ -19,6 +19,7 @@ def main():
     ap.add_argument('--stage1',action='store_true',help='Open the unrigged animal selection review')
     ap.add_argument('--stage2',action='store_true',help='Open the approved model with fitted authored motion')
     ap.add_argument('--raw-audition',action='store_true',help='Open raw generated deer with numbered review controls')
+    ap.add_argument('--four-rigs',action='store_true',help='Compare four independently generated deer skeletons')
     ap.add_argument('--rightmost',action='store_true',help='Place the review on the rightmost monitor')
     ap.add_argument('--blend-name',help='Separate review filename inside --root')
     a=ap.parse_args();root=a.root.resolve()
@@ -43,6 +44,8 @@ def main():
         viewer='fauna-stage2-viewer.py';ready='Fauna stage2 viewer ready.'
     if a.raw_audition:
         viewer='deer-raw-audition-viewer.py';ready='Raw deer numbered viewer ready.'
+    if a.four_rigs:
+        viewer='deer-four-rigs-viewer.py';ready='Four generated deer rigs viewer ready.'
     blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
     assert blend.is_file()
     running=subprocess.check_output(['tasklist','/FO','CSV','/NH'],text=True,errors='replace').lower()
