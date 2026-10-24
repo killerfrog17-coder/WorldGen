@@ -9,13 +9,23 @@ animal=s.get('fauna_animal','Deer')
 finished=bool(models[0].get('same_approved_model'))
 warning_path=Path(bpy.data.filepath).parent/'visual-warnings.json'
 screening=json.loads(warning_path.read_text()) if warning_path.exists() else {}
-state={'model':0,'clip':'Showcase','mode':0,'view':0,'skeleton':False,'coat':'Tawny woodland' if finished else 'Unpainted preview','started':time.monotonic(),'seed':734100,'coat_index':0,'active_rack':-1,'sex':'Female'}
+state={'model':0,'clip':'Showcase','mode':0,'view':0,'skeleton':False,'coat':'Tawny woodland' if finished else 'Unpainted preview','started':time.monotonic(),'seed':734100,'coat_index':0,'active_rack':-1,'sex':'Female','pending_only':True}
 queue_cache=[];queue_items_cache=[]
 def queue_entries():
     global queue_cache,queue_items_cache
     p=Path(bpy.data.filepath).parent.parent/'review-index.json'
     if p.exists():
         queue_cache=json.loads(p.read_text()).get('ready',[])
+        choices_path=Path(__file__).resolve().parent.parent/'docs/fauna/OWNER_SELECTIONS.json'
+        if state['pending_only'] and choices_path.exists():
+            choices=json.loads(choices_path.read_text())
+            decided=set(choices.get('animals',{}))
+            decided.update(slug for slug,entry in choices.get('procedural_revisions',{}).items()
+                           if entry.get('proceed_without_re_review'))
+            # The owner accepts any bee candidate after the requested simple
+            # silhouette revision; no further insect approval round was wanted.
+            if choices.get('pending_revisions',{}).get('bees-guild',{}).get('status')=='completed':decided.add('bees-guild')
+            queue_cache=[entry for entry in queue_cache if entry['slug'] not in decided]
         queue_items_cache=[(x['slug'],x['name'],'Raw motion audition -4 candidates') for x in queue_cache]
     return queue_cache
 def animal_items(self,context):
@@ -87,21 +97,29 @@ class D4_OT_animal(bpy.types.Operator):
     animal:bpy.props.EnumProperty(items=animal_items)
     step:bpy.props.IntProperty(default=0)
     def execute(self,context):
-        global s,models,animal,finished
+        global s,models,animal,finished,screening
         entries=queue_entries()
         if not entries:return {'CANCELLED'}
         if self.step:
-            index=next((i for i,x in enumerate(entries) if Path(x['path'])==Path(bpy.data.filepath)),0)
+            index=next((i for i,x in enumerate(entries) if Path(x['path'])==Path(bpy.data.filepath)),-1 if self.step>0 else 0)
             selected=entries[(index+self.step)%len(entries)]
         else:selected=next((x for x in entries if x['slug']==self.animal),entries[0])
         if not Path(selected['path']).exists():return {'CANCELLED'}
         bpy.ops.wm.open_mainfile(filepath=selected['path'])
         s=bpy.context.scene;models=json.loads(s['deer_four_rigs']);animal=s.get('fauna_animal','Deer');finished=bool(models[0].get('same_approved_model'))
+        warning_path=Path(selected['path']).parent/'visual-warnings.json'
+        screening=json.loads(warning_path.read_text()) if warning_path.exists() else {}
         state.update(model=0,clip='Showcase',mode=0,view=0,skeleton=False,coat='Unpainted preview',started=time.monotonic(),active_rack=-1)
         choose('Showcase',play=False);set_view()
         if not bpy.app.background:
             if not bpy.app.timers.is_registered(tick):bpy.app.timers.register(tick,first_interval=.1)
             bpy.app.timers.register(lambda:(playback(),None)[1],first_interval=.2)
+        return {'FINISHED'}
+class D4_OT_filter(bpy.types.Operator):
+    bl_idname='deer_four.filter';bl_label='Toggle pending animals filter'
+    def execute(self,context):
+        state['pending_only']=not state['pending_only'];queue_entries()
+        for window,area,space in regions():area.tag_redraw()
         return {'FINISHED'}
 class D4_OT_species(bpy.types.Operator):
     bl_idname='deer_four.species';bl_label='2 - Randomize species colour'
@@ -171,7 +189,11 @@ class D4_PT_panel(bpy.types.Panel):
     bl_space_type='VIEW_3D';bl_region_type='UI';bl_category='Animal Review'
     def draw(self,context):
         col=self.layout.column();entry=current();col.label(text=animal)
-        if queue_entries():
+        entries=queue_entries()
+        if (Path(bpy.data.filepath).parent.parent/'review-index.json').exists():
+            col.operator('deer_four.filter',text='Pending animals only' if state['pending_only'] else 'All ready animals',depress=state['pending_only'])
+            col.label(text=str(len(entries))+' animals in this list')
+        if entries:
             col.operator_menu_enum('deer_four.animal','animal',text='Choose animal')
             row=col.row(align=True);row.operator('deer_four.animal',text='Previous animal').step=-1;row.operator('deer_four.animal',text='Next animal').step=1
         col.label(text=f"{'RIG' if finished else 'MODEL'} {state['model']+1} / {len(models)} - {entry['joints']} generated joints")
@@ -204,7 +226,7 @@ def tick():
         elif state['view']==1:space.region_3d.view_location=rig().matrix_world@rig().pose.bones['Head'].head
         area.tag_redraw()
     return .05
-for cls in (D4_OT_model,D4_OT_animal,D4_OT_species,D4_OT_view,D4_OT_mode,D4_OT_skeleton,D4_OT_play,D4_OT_clip,D4_OT_free,D4_PT_panel):bpy.utils.register_class(cls)
+for cls in (D4_OT_model,D4_OT_animal,D4_OT_filter,D4_OT_species,D4_OT_view,D4_OT_mode,D4_OT_skeleton,D4_OT_play,D4_OT_clip,D4_OT_free,D4_PT_panel):bpy.utils.register_class(cls)
 bpy.types.VIEW3D_HT_header.prepend(header)
 config=bpy.context.window_manager.keyconfigs.addon
 if config:

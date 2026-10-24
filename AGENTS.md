@@ -1,5 +1,32 @@
 # WorldGen repository instructions
 
+OWNER39 / PENDING VIEW REOPENED / DUIKER REROLL ACTIVE,24October2026~13:46CDT:
+Owner selected CottonRat2,Crane3,Falcon2,FishEagle2,Flamingo1,ForestEagle1;
+canonical OWNER_SELECTIONS now39. Owner explicitly asks Duiker+Emu fresh redo:
+old Duiker reference visibly has FIVE legs, Emu leg assignment unusable.
+New built-in imagegen refs inspected: Duiker exact4 legs/hooves, Emu two clearly
+separated legs/feet. Copied into project references, prompt/path/SHA in each
+owner-reroll-request. Both old4 candidates moved within exact own roots to
+previous-owner-rejected, manifests/native/meta/ref retained until checked new
+replacement; old blends remain until atomic rebuild. Fresh seeds old+3100000,
+rig seed+100000; no model/skin reuse. Emu marker gives major-axis folded/ground
+reference,3leaf minimum and folded-ground-bird-stable bank for Idle/Walk only.
+Normal --watch exec26721/PID43040 TERMINAL at internal scheduling checkpoint;
+cached partial Turaco shapes retained. Sole current DUIKER --only horse source
+trial exec56874/PID43180 LIVE (verify). After Duiker native+CPU side/front all4,
+finalize technical source, prune verified old archive, then Emu same with stable
+bank; then resume full --watch for cached Turaco/rest. Do not forget all176.
+User also explicitly requested reviewer REOPEN. Previous exact owned viewer
+PID31956 gently closed/exited, no forced app kill; new Wolf viewer PID16200
+RIGHTMOST.39 choices hidden by default plus5 accepted procedural groups;62
+currently undecided reviews visible (106 ready total after withholding2 rerolls).
+Pending animals only toggle can reveal all ready; Next/Previous dynamically
+refresh. Actual native test toggles filter/all and switches Wolf->Pheasant;
+1-4/skeleton unchanged. Warning data now reloads on animal switch. JF warning3
+converted to viewer warning-list schema. Leave THIS window untouched while owner
+browses; no new prompts/windows. No textures/painting/Desktop/game changes.
+Prior remote1ae21a1; viewer/filter/choices/checkpoint need backup.
+
 RAW INVENTORY AUDIT /105 READY,24October2026~13:25CDT:
 New scripts/audit-fauna-queue.py audits original188/176 scope,188 detailed plan
 mirrors/CSV allocation, accepted deer hash, four native-checked candidates,

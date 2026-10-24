@@ -430,6 +430,84 @@
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
       "painting_started": false
+    },
+    "cotton-rat": {
+      "animal": "Cotton rat",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T13:39:31.306283-05:00",
+      "model_sha256": "053e2c9eab47f396783c8076bc906c9dd344b8b409ff04af937a961f8ea04b60",
+      "rig_sha256": "cf6a0fb55ef43a7a6b66de72aba4b51d5bd78c5011c048c23ac0e60eb0a23685",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "crane": {
+      "animal": "Crane",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T13:39:31.321334-05:00",
+      "model_sha256": "179493ce916b0fb34503e1085be6c297873713234d8b8773e282f6a1821fd00c",
+      "rig_sha256": "e4bbf2546b1111fe6a6230257424616206660f7ab422a327db4a2ea5dbff1e65",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "falcon": {
+      "animal": "Falcon",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T13:39:31.341449-05:00",
+      "model_sha256": "0387b4e372945397299c90af5186ed412d7f4c7a56316e853b3f05acc2195dfc",
+      "rig_sha256": "ad3db43f96425ef746854e88ad0ede9f4b450cd77a926492d502e1f487f652b5",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "fish-eagle": {
+      "animal": "Fish eagle",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T13:39:31.361498-05:00",
+      "model_sha256": "4bb0b5633a73c01d4a1626540fda1e44869364110081f290d118e3f1b3c6aa64",
+      "rig_sha256": "ac5583c5063a5680d69ab148f0fb79e363585f0e34dfca3f9ab5a8770db7e93c",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "flamingo": {
+      "animal": "Flamingo",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T13:39:31.381602-05:00",
+      "model_sha256": "676a0b23e98e0a3a41e3a30a2e76b9317ea7cdb5a76ccaa06b9541608b8b41af",
+      "rig_sha256": "dc00cd4987af8fb7aa2bb15657a93c5158c0d457202dd6619d36826b3d1b113b",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "forest-eagle": {
+      "animal": "Forest eagle",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T13:39:31.403863-05:00",
+      "model_sha256": "b26d2a96050b114bc79428a262ad2f5b246081c299a4ec8af036f690ba6c67b1",
+      "rig_sha256": "2b2a26fba3b2f4341ecb95ea911750c3c9c193bb0d3eb3a7ff7677c63f5a1d63",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
     }
   },
   "source_root": "artifacts/fauna-overnight-20261024",
@@ -514,6 +592,16 @@
     "junglefowl": {
       "reason": "Owner rejects current spread-wing ground-bird motion/model result; folded-wing regeneration needed.",
       "status": "replacement_ready_ground_only_owner_review_pending",
+      "art_approved": false
+    },
+    "duiker": {
+      "reason": "Owner rejects all four: fifth leg inherited from faulty reference; regenerate reference, four models and independent rigs.",
+      "status": "regenerating",
+      "art_approved": false
+    },
+    "emu": {
+      "reason": "Owner rejects leg assignment/motion; regenerate neutral two-leg reference and four models/fresh rigs with ground-only transfer.",
+      "status": "queued_for_fresh_reference_and_models",
       "art_approved": false
     }
   }
