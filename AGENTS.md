@@ -1,5 +1,19 @@
 # WorldGen repository instructions
 
+OVERNIGHT FIRST140 CHECKPOINT,24October2026~10:01CDT:
+Serial fast watch PID24740 LIVE; Leopard shape-batch.77 raw reviews/308 candidates
+indexed, accepted deer separate; no failures observed. Lemming completed. No GUI
+windows or owner apps touched. First140 catalogue rows now have sourced linked
+appearance/age/sex/season plans, mirrored to CSV/asset-plan;48 remain targeted
+refinement. New40 since prior100:SnowyOwl through FreshwaterTurtle. Amphibian,
+marine,primate skin/appendage and source limits explicit. CoastalSquid sole CC0
+source gap not counted animated; no account/paywall workaround. Elephant three
+aliases require ear/head/back/trunk geometry decisions, not colour alone. Ivory
+and keratin masks are distinct even when texture source group/atlas is shared.
+No texture generation, painting, game/Unity/Desktop/accepted-deer changes.
+Prior remote d28a1eaaa68d1ade51b7ed9d4e92258e0b187057; first140 now need backup.
+User prompt deletion/unrelated untracked deer scripts stay untouched.
+
 OVERNIGHT FIRST100 CHECKPOINT,24October2026~09:52CDT:
 Watch PID24740 verified LIVE; Kiwi shape-batch.75 raw reviews/300 candidates
 indexed, accepted deer separate, no observed failures. Duiker/ForestHog alias
