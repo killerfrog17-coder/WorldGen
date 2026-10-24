@@ -1,5 +1,24 @@
 # WorldGen repository instructions
 
+OWNER SELECTIONS / SIMPLE INSECT REVISION,24October2026:
+Canonical docs/fauna/OWNER_SELECTIONS.json now records Hare3,Rabbit1,RedFox3,
+WildBoar1,Mouflon1,WildGoat1,Bear2 with exact model/rig hashes. Geometry choices
+are NOT current raw animation approval; owner intends a different future method.
+Owner requests butterfly/moth and firefly alterations and explicitly says move
+on without another review round. Completed own procedural revisions in place,
+no GUI/window switching: butterflies one small body/two tiny antennae, no large
+head/eyes/legs, TWO joined wing panels (fore/hind contiguous per side), four
+distinct rounded/swallowtail/compact/moth outlines.80/84/80/76tri,4bones. Fireflies
+simple head/thorax/luminous abdomen roughly rear half body, tiny antennae/legs,
+two wings,216tri/4bones; blink reaches emission0, no per-insect point lights.
+Updated build-fauna-microfly.py supports checked temporary-file replacement,
+no.blend1 backups; repeated owner review not requested. Native controls/finite/
+weight checks pass all4 for both; selected CPU top/flight views inspected.
+Appearance plans/CSV mirrored; no species texture painting/new source images.
+Owner browsing manually, leave current viewer untouched; revised versions load
+on revisiting those animals. No new follow-up. Latest index96 reviews/384.
+Fast serial watch exec48280/PID576 (verify) remains active. Prior remote d10e43f.
+
 VIEWER COEXISTENCE GUARD,24October2026~11:29CDT:
 Owner browsing manually, Hare3 selected; do not touch/switch open viewer or send
 unsolicited review prompts. Watch exec55344/PID38416 terminal after internal

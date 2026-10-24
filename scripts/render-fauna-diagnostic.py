@@ -4,7 +4,7 @@ from pathlib import Path
 import bpy,numpy as np
 from mathutils import Vector
 
-ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,required=True);ap.add_argument('--model',type=int,default=1);ap.add_argument('--clip',default='Bind');ap.add_argument('--phase',type=float,default=.5);ap.add_argument('--view',choices=['side','front','rear','oblique'],default='side');ap.add_argument('--raw-mesh',type=Path)
+ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,required=True);ap.add_argument('--model',type=int,default=1);ap.add_argument('--clip',default='Bind');ap.add_argument('--phase',type=float,default=.5);ap.add_argument('--view',choices=['side','front','rear','oblique','top'],default='side');ap.add_argument('--raw-mesh',type=Path)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=a.root.resolve()
 if a.raw_mesh:
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(a.raw_mesh.resolve()));s=bpy.context.scene
@@ -21,7 +21,7 @@ else:
         first,last=action.frame_range;x=first+(last-first)*a.phase;s.frame_set(int(x),subframe=x-int(x))
     body=bpy.data.objects[e['body']]
 bpy.context.view_layer.update();evaluated=body.evaluated_get(bpy.context.evaluated_depsgraph_get());mesh=evaluated.to_mesh();p=np.array([evaluated.matrix_world@v.co for v in mesh.vertices]);evaluated.to_mesh_clear()
-center=Vector(((p.min(0)+p.max(0))*.5).tolist());span=float(np.ptp(p,axis=0).max());directions={'side':(1,0,.08),'front':(0,1,.08),'rear':(0,-1,.08),'oblique':(1,1,.25)}
+center=Vector(((p.min(0)+p.max(0))*.5).tolist());span=float(np.ptp(p,axis=0).max());directions={'side':(1,0,.08),'front':(0,1,.08),'rear':(0,-1,.08),'oblique':(1,1,.25),'top':(0,0,1)}
 camera=bpy.data.objects.new('Diagnostic camera',bpy.data.cameras.new('Diagnostic camera'));s.collection.objects.link(camera);camera.location=center+Vector(directions[a.view]).normalized()*span*2;camera.rotation_euler=(center-camera.location).to_track_quat('-Z','Y').to_euler();camera.data.type='ORTHO';camera.data.ortho_scale=span*1.22;s.camera=camera
 for pos,power,size in [((3,4,5),650,5),((-3,1,3),350,4),((0,-4,4),450,3)]:
     light=bpy.data.lights.new('Diagnostic softbox','AREA');light.energy=power;light.shape='DISK';light.size=size;obj=bpy.data.objects.new(light.name,light);s.collection.objects.link(obj);obj.location=center+Vector(pos);obj.rotation_euler=(center-obj.location).to_track_quat('-Z','Y').to_euler()

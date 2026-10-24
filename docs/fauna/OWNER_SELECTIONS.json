@@ -13,8 +13,118 @@
       "animation_approved": false,
       "animation_method": "Owner explicitly intends a different future method; stop refining current hare transfer.",
       "painting_started": false
+    },
+    "rabbit": {
+      "animal": "Rabbit",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T11:35:38.083749-05:00",
+      "model_sha256": "bc32d7350cf9ffc4cf11f2bd11df8e9d28c33ba547c317987729ab6b3f440b3d",
+      "rig_sha256": "8f075e9da145c3a015f951c4a48059d495bdf4077a7566d253fc9f47fb5efdbb",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "red-fox": {
+      "animal": "Red fox",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T11:35:38.099405-05:00",
+      "model_sha256": "1e8e85833f62c0a83a97de7e1f7471ea836a6afa5bb6e240ff7e0d06b3485a92",
+      "rig_sha256": "87a07debba6412796850ce426378c3d49403351f52f20401a3ac2a32140c607d",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "wild-boar": {
+      "animal": "Wild boar",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T11:35:38.108444-05:00",
+      "model_sha256": "f9df0c790f81e6aaa09bce633acec05708d984d50577daf8ae052186559a25d5",
+      "rig_sha256": "327dcb9d57857488d42af3fd65675cafddd040dd3f3520dae093354fd0d2a709",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "mouflon": {
+      "animal": "Mouflon",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T11:35:38.125067-05:00",
+      "model_sha256": "e9e6ca02970651b3fe8aff9eaa05b320ac6457cf9e68fc63ac86540c3338bf9f",
+      "rig_sha256": "c82e9739aa7cc63dee4aeee31696997db24ffb44702e31b783e9509df90267b4",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "wild-goat": {
+      "animal": "Wild goat",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T11:35:38.138673-05:00",
+      "model_sha256": "667141a59fd0d9d3469ce39402ac4ee14f3a02a6e1d11a2c751ca622337a6854",
+      "rig_sha256": "16d6624260616f34f7add8c9b42c8c6723ee9ef10a1793bb76ebd7b97d793ea1",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "bear": {
+      "animal": "Bear",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T11:35:38.153374-05:00",
+      "model_sha256": "82e1e897212614759e4531fc89a6b465dc1a7200423d8728c33e18dc1cad1495",
+      "rig_sha256": "bb15605d23d8ca5e7a7c28e7d95efef1b14a978bef2c2c23c162f05928043464",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
     }
   },
   "source_root": "artifacts/fauna-overnight-20261024",
-  "viewer_policy": "Owner browses animals manually and prompts choices; no automatic switches or further unsolicited review prompts."
+  "viewer_policy": "Owner browses animals manually and prompts choices; no automatic switches or further unsolicited review prompts.",
+  "procedural_revisions": {
+    "butterflies-and-moths-guild": {
+      "time": "2026-10-24T11:39:15.949764-05:00",
+      "change": "Small single body, two short antennae, no separate oversized head/eyes/legs, two joined wing panels with four distinct outlines.",
+      "owner_instruction": "Make requested alterations and move on; no further approval round.",
+      "specific_candidate_selection": null,
+      "proceed_without_re_review": true,
+      "painting_started": false,
+      "blend_sha256": "1763b5a86d33e9e7b9e30f2fc1cf46b46c56e1cc9215b856eba2c6f572aa6bef",
+      "triangles": [
+        80,
+        84,
+        80,
+        76
+      ]
+    },
+    "fireflies-derived-lineage": {
+      "time": "2026-10-24T11:39:15.952344-05:00",
+      "change": "Simple head/thorax and luminous rear abdomen spanning about half body length, small antennae/legs and two wings. Emission pulse only, no per-insect point light.",
+      "owner_instruction": "Make requested alterations and move on; no further approval round.",
+      "specific_candidate_selection": null,
+      "proceed_without_re_review": true,
+      "painting_started": false,
+      "blend_sha256": "113448a67bcd2f8c1e4e7a5dec4ed185a091e581bccb2d4c4298404dd682d0f2",
+      "triangles": [
+        216,
+        216,
+        216,
+        216
+      ]
+    }
+  }
 }
