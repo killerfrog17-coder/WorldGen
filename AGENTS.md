@@ -6,9 +6,9 @@ Same watch exec95232/PID30660 verified LIVE, impala shape-batch.
 running through Hornbill/Hummingbird. All owner ART pending, no paint/textures/GUI.
 First35 roster rows now all have targeted appearance refinements in
 SPECIES_VARIATION_PLANS.json +asset-plan.json +editable FAUNA_ASSET_PLAN.csv.
-New19 refinements cover Duck/Pheasant/small freshwater fish/Mouse/Squirrel/Horse/
+New20 refinements cover Duck/Pheasant/small freshwater fish/Mouse/Squirrel/Horse/
 Reindeer/Moose/Wild cattle and Grouse/Quail/Turkey/Junglefowl/Raccoon/Badger/Beaver/
-Otter/Lynx/Owl/Raven (20 entries including earlier subset context: actual total35).
+Otter/Lynx/Owl/Raven; actual total35 refined entries.
 Correction: Mountain goat is NOT in the188 roster, so no new entry created;
 WildGoat geometry-limit wording corrected. No taxonomy/runtime additions.
 Horse baseline now Przewalski-like dun, not unqualified domestic coat varieties;
