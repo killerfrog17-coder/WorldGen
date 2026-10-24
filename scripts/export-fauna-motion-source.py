@@ -48,6 +48,12 @@ elif a.family=='primate':
         paths['fore_'+side]=['b_Spine03',*[f'b_{long}_{n}' for n in ('Shoulder','UpperArm','ForeArm','Hand','Hand2')]]
         paths['hind_'+side]=['b_Hip',*[f'b_{long}_{n}' for n in ('Leg01','Leg02','Foot01','Foot02')]]
     names=list(dict.fromkeys(n for path in paths.values() for n in path));wanted={'Idle':'Armature|Take 001|BaseLayer','Source movement':'Armature|Take 001|BaseLayer'};rotation=Matrix.Diagonal((-1,-1,1,1))
+elif a.family=='lemur':
+    paths={'spine':['hips','spine','chest'],'neck':['chest','neck','head'],'tail':['hips',*[f'tail.{i:03d}' for i in range(1,7)]]}
+    for side in ('L','R'):
+        paths['fore_'+side]=['chest',*[n+'.'+side for n in ('shoulder','upper_arm','forearm','hand')]]
+        paths['hind_'+side]=['hips',*[n+'.'+side for n in ('thigh','shin','foot','toe')]]
+    names=list(dict.fromkeys(n for path in paths.values() for n in path));wanted={'Idle':'idle','Run':'run','Attack':'AttackMelee'};rotation=Matrix.Diagonal((-1,-1,1,1))
 elif a.family=='turtle':
     paths={'spine':['Bone','Bone.001'],'neck':['Bone.001','Bone.015','Bone.016','Bone.017','Bone.018'],'tail':['Bone','Bone.005','Bone.006'],
       'fore_L':['Bone.001','Bone.013','Bone.014'],'fore_R':['Bone.002','Bone.011','Bone.012'],

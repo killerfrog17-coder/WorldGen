@@ -96,6 +96,10 @@ not evidence that fish skinning is automatically suitable for every whale.
 The CC0 monkey source https://opengameart.org/content/monkey-3d-model-rigged-fbx
 was inspected but excluded: its upright gestural/hopping take is not ordinary
 primate locomotion. No queue motion bank was published from that take.
+Lemur by NewDLC/stakler https://opengameart.org/content/lemur is also CC0 with
+explicit creator confirmation. It has idle/run/attack, but diagnostic poses show
+stylized upright biped running; not selected for generic wild-primate locomotion.
+The inspection bank remains separately labelled and is not a queue source.
 MOTION_COVERAGE.csv / motion-coverage.json track source gaps separately from
 generation failure. At this checkpoint156/176 have a raw retarget source or own
 simple insect motion;20 still need a suitable source. Source availability is
