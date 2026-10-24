@@ -1,6 +1,7 @@
 """Build the full editable fauna asset plan from the owner's existing roster."""
 import argparse,csv,json,re
 from pathlib import Path
+from fauna_appearance_plans import apply_refinements,write_table
 
 ap=argparse.ArgumentParser();ap.add_argument('--roster',type=Path,required=True);ap.add_argument('--output',type=Path,required=True)
 a=ap.parse_args();a.output.mkdir(parents=True,exist_ok=True)
@@ -366,10 +367,8 @@ for row in sorted(rows,key=lambda r:(order.get(r['Fauna entry'],100+int(r['Your 
             info['texture_plan'].update(reusable_swatch_count=0,materials=[],coat_configuration_count=0,coats=[],paint_zones=[],channels='Deferred unresolved invertebrate/body families; no mammal fur assumption')
             info['extras']='Define an appropriate actual body/interaction family if activated; no current geometry or accessory generation.'
     data.append(info)
+data=apply_refinements(data,a.output)
 assert len(data)==188 and len({x['animal'] for x in data})==188
 (a.output/'asset-plan.json').write_text(json.dumps({'scope':'Full188-entry owner catalogue; raw visual auditions only, no runtime integration or painting','rows':data},indent=2))
-columns=['Rank','Animal','Status','Representation','Triangles','Candidates','Swatches','Coats','Paint regions','Sex / age / season','Extras','Motion sources','Research status']
-with (a.output/'FAUNA_ASSET_PLAN.csv').open('w',newline='',encoding='utf-8-sig') as f:
-    w=csv.writer(f);w.writerow(columns)
-    for x in data:w.writerow([x['priority_rank'],x['animal'],x['asset_status'],x['representation'],x['triangle_budget'],x['raw_candidates'],x['texture_plan']['reusable_swatch_count'],'; '.join(x['texture_plan']['coats']),'; '.join(x['texture_plan']['paint_zones']),x['sex_age_season'],x['extras'],x['motion_source_plan'],x['second_pass_status']])
+write_table(data,a.output/'FAUNA_ASSET_PLAN.csv')
 print('Planned',len(data),'entries;',sum(x['asset_status']=='queued' for x in data),'visual queues;',sum(x['asset_status']=='audio_existing' for x in data),'audio entries;',sum(x['asset_status']=='deferred' for x in data),'deferred.')

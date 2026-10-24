@@ -1,5 +1,29 @@
 # WorldGen repository instructions
 
+OVERNIGHT APPEARANCE PLAN REFINEMENT,24October2026~09:06CDT:
+Same serial watch exec95232/PID30660 verified LIVE; now hornbill shape-batch.
+67 reviews/268 files ready, all owner ART pending. No new GPU pilot,
+window, paint, textures, Desktop/game/accepted-deer changes this continuation.
+Main generator continued uninterrupted through Guanaco/Hawk. While GPU works,
+15 early-priority appearance plans refined, with primary institutional references,
+real analogues versus explicit hypotheses, exact coat sets/shared surface classes,
+anatomical mask instructions, sex/caste/age/season links, extras and geometry limits.
+10 land mammals plus5 tiny-flyer groups; not a claim every188 entry is researched.
+New docs/fauna/SPECIES_VARIATION_PLANS.json is source of these refinements;
+scripts/fauna_appearance_plans.py applies only planning fields atomically, asserts
+animal/rank/family/status/budget/candidate scope unchanged, writes expanded editable
+CSV. plan-fauna-overnight.py applies same overrides on regeneration. No swatches
+are generated before raw queue completion, and no unapproved model painted.
+Bear black-vs-brown body distinction, bovid sex/age horns, European-rabbit no
+normal winter-white, seasonal hare variants, firefly flightless female/flash limits,
+bee caste rules and fly single wing-pair explicitly documented. Species/sex rules
+are proposed asset configuration; no new taxonomy/runtime ecology is installed.
+Validated all15 coat counts/classes/source links/mirrored plan fields and188scope.
+Remaining173 entries retain initial plans and pending targeted research; many raw
+models still queued. CoastalSquid CC0 swim source remains login-gated as recorded.
+Current previous remote d7f2287408c935e4b3ec2d0aae2fc1273ba2c270; new plan work
+needs backup. Preserve owner's deleted prompt and unrelated untracked deer scripts.
+
 OVERNIGHT GIBBON/RECOVERY CHECKPOINT,24October2026~08:52CDT:
 Serial watch exec95232/PID30660 LIVE at Grasshopper rig batch (verify via lock).
 Earlier main63612 terminal0 verified; isolated Gibbon85276 terminal0 verified.
