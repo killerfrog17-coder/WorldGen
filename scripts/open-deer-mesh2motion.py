@@ -13,14 +13,18 @@ def main():
     ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,
         default=repo/'artifacts/deer-mesh2motion-20261023')
     ap.add_argument('--own-rig',action='store_true')
+    ap.add_argument('--trellis',action='store_true',help='Open the separate native-material comparison')
     ap.add_argument('--blend-name',help='Separate review filename inside --root')
     a=ap.parse_args();root=a.root.resolve()
     blend=root/('Deer - Original Rig Motion Review.blend' if a.own_rig else 'Deer - Mesh2Motion Review.blend')
+    if a.trellis:blend=root/'Deer - TRELLIS2 Material Review.blend'
     if a.blend_name:
         assert Path(a.blend_name).name==a.blend_name and a.blend_name.endswith('.blend')
         blend=root/a.blend_name
     viewer='deer-own-rig-viewer.py' if a.own_rig else 'deer-mesh2motion-viewer.py'
     ready='Original-rig deer viewer ready.' if a.own_rig else 'Mesh2Motion deer viewer ready.'
+    if a.trellis:
+        viewer='deer-trellis2-viewer.py';ready='TRELLIS2 viewer controls ready.'
     blender=repo/'artifacts/tools/blender-4.5.15/blender-4.5.15-windows-x64/blender.exe'
     assert blend.is_file()
     running=subprocess.check_output(['tasklist','/FO','CSV','/NH'],text=True,errors='replace').lower()
@@ -57,7 +61,7 @@ def main():
             if not playing:
                 user.ShowWindow(hwnd,3)
                 user.SetForegroundWindow(hwnd)
-            print('Mesh2Motion review opened on primary display.');return
+            print('Deer review opened on primary display.');return
         time.sleep(.3)
     raise RuntimeError('Viewer not ready; inspect '+str(log))
 

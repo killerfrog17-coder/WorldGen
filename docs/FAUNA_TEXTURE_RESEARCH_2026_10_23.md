@@ -1,5 +1,11 @@
 # Animal material and species-variant plan
 
+Later checkpoint: a full native TRELLIS.2 deer pass has now been run locally,
+62.766s for the successful512 pass excluding setup/retries. **Owner rejects its
+appearance.** This does not benchmark the existing-mesh painter or validate its
+quality. See [actual trial](DEER_TRELLIS2_REVIEW.md); research-only statements
+below describe the earlier planning checkpoint, not the current trial status.
+
 23 October 2026. Research and existing-source inspection only. No new generation,
 model downloads/installations, texture replacement, Blender launch, game changes
 or owner application closure. The owner accepts the original-rig trial and the

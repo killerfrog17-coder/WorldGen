@@ -1,5 +1,13 @@
 # Version 3 validation evidence
 
+## Native TRELLIS.2 trial — 23 October 2026
+
+Full local512 shape/native-PBR pass completed in62.766s after setup/retries.
+Export13187 triangles/two packed2K maps; finite geometry/UV, roughness and actual
+A/B/view/material operators pass Blender reload. Three CPU angles inspected,
+separate GUI opened. **Owner rejects appearance.** Accepted deer preserved;
+no rig/animation/game admission. See [trial/failures](DEER_TRELLIS2_REVIEW.md).
+
 ## Deer eating stance correction — 23 October 2026
 
 Owner-authorized offline Eating adjustment on the same rig. Standing forelegs

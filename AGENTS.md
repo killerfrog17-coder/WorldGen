@@ -1,5 +1,22 @@
 # WorldGen repository instructions
 
+TRELLIS2 TRIAL REJECTED,23October2026: owner requested free local full deer
+shape/native-PBR. Successful512/12step pass62.766s AFTER setup/retries;13187tri,
+2K colour+packed rough/metal, no generated normal. Same reference, seed732023;
+raw/latents/material fields retained ignored under deer-trellis2-20261023.
+Native BF16 flows, FP32 DINO/structure decode, one CPU flow at a time; owned-byte
+loading fixes mapped-storage AV. Separate D:/WorldGenAI/trellis2-venv Torch2.8
+reads task-owned C dependencies; shared AI tools untouched. Public timm DINOv3
+publisher license retained; no gated mirrors/payment. MIT Torch UV bake, no
+restricted renderer/RMBG. Reload finite/material/button checks and three CPU
+views pass, GUI comparison opened, inference exited/game can reopen. OWNER
+REJECTS appearance; no reroll/promotion/rerig without request. Accepted TripoSG
+deer/rig/motions/Eating remain untouched. Owner now asks feasibility of modular
+anatomy/materials, not authorization to build it yet. No Unity/game/save changes.
+Automatic cleanup review blocked old-build retention and broken task Torch
+removal; neither deleted. C remains low; do not claim reclaimed space. See
+docs/DEER_TRELLIS2_REVIEW.md for versions, failures/timings/limits.
+
 TEXTURE OPTIONS FOLLOW-UP,23October2026: owner questions slow/fake current coat.
 Ten minutes is ONLY13-view RealVis method. Earlier local Hunyuan2 paint measured
 43.96s six512views, superseded for output rights; not Hunyuan2.1 timing. Research
