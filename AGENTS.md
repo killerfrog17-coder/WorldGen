@@ -1,5 +1,22 @@
 # WorldGen repository instructions
 
+VIEWER COEXISTENCE GUARD,24October2026~11:29CDT:
+Owner browsing manually, Hare3 selected; do not touch/switch open viewer or send
+unsolicited review prompts. Watch exec55344/PID38416 terminal after internal
+idle-GPU checkpoint.5.8GiB starting guard stalled at5.76GiB with normal viewer.
+356 resident run records peak allocated4201.1MiB; guard now5.7GiB (~1.6GiB
+allocator/runtime headroom). This is only launch scheduling: resident GPU,50steps,
+depth8/chunk4096 unchanged, NO CPU offload/low-memory switch. Native generator's
+own preflight unchanged. Added gpu_peak_reserved_mib metadata. First Pika run
+SUCCESS62.78s,allocated4201.1/reserved4380MiB,offload none; device-wide6618used/
+1340free MiB sampled while next candidate runs. No owner apps closed or prefs
+changed. New sole fast watch exec48280/PID576 LIVE (verify), Pika shape-batch.
+Internal pre-inference pause raised old wording 'Owner-requested safe pause';
+verified terminal/no Pika outputs, retained event then cleared only that queued
+entry before restart. No work lost, no live queue-state mutation. Beetle stale
+failed state reconciliation is consumed on resumed pass. Last index94/376.
+Remote prior a31e8ef5a19fb8558821d347f5bcf44aa5759a4f; guard telemetry needs backup.
+
 OWNER SELECTED HARE3 / MANUAL BROWSING,24October2026:
 Owner selects Hare model3; animation is NOT approved and owner says a DIFFERENT
 future animation method will be used, bad current motion is acceptable for model

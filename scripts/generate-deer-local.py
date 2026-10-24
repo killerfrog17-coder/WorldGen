@@ -196,6 +196,7 @@ def main():
         'timing_scope': 'decoder-only recovery' if args.latents else 'model load, denoise and extraction',
         'recovered_latents': str(args.latents.resolve()) if args.latents else None,
         'gpu_peak_mib': round(torch.cuda.max_memory_allocated()/2**20,1),
+        'gpu_peak_reserved_mib': round(torch.cuda.max_memory_reserved()/2**20,1),
         'shared_gpu_trial': args.shared_gpu,
         'resident_weights_reused':reused,
         'offload': 'none (resident GPU)' if args.resident_gpu and not args.latents else ('sequential CPU' if args.shared_gpu and not args.latents else 'model CPU'),
