@@ -4267,7 +4267,7 @@
   "shared_texture_source_plan": {
     "status": "Planning only. Do not generate these until all raw auditions finish; do not map or paint an unapproved model.",
     "generation_order": "Reuse approved sources first. Then request only sources required by the highest-priority approved body; deduplicate materials across animals. Colour and pattern configurations remain masks/transforms, not a new bitmap per hue.",
-    "common_prompt_suffix": "A flat material swatch filling the frame, consistent scale and even diffuse illumination; no animal, face, eye, text, scene, depth perspective, cast shadow, baked reflection, rim light, vignette or large colour gradient. Fine natural surface detail, not stylized painted strokes. Appropriate for a repeatable game material; inspect and repair edge continuity instead of assuming the generated image tiles.",
+    "common_prompt_suffix": "A flat material swatch filling the frame, consistent scale and even diffuse illumination; no complete animal, face, text, scene, depth perspective, cast shadow, baked reflection, rim light, vignette or large colour gradient. Fine natural surface detail, not stylized painted strokes. Appropriate for a repeatable game material; inspect and repair edge continuity instead of assuming the generated image tiles.",
     "map_policy": "Generated images are colour/detail references, not automatic physically correct PBR. Derive conservative roughness/normal only where supported, without treating pigment boundaries as bumps. Eye cornea and wet nose reflections come from materials/lights, not baked white glints. Bake anatomical masks only after model approval, with connected lid/ear/nose regions and smooth neck transitions.",
     "resolution_policy": "Master sources may be 1024-2048 square; initial selected medium/large animal base atlas 2048, small 1024, tiny 256-512; normals/roughness can be lower. Actual atlas density follows screen size, accepted UVs and distinct face needs. Never spend a new full atlas or draw call merely to tint fur.",
     "sources": [
@@ -4455,6 +4455,7 @@
       }
     ],
     "no_bitmap_needed": "Whiskers, eyelash roots, antler branch shapes, horn count, beaks, tails, ear size and missing wing/limb anatomy require geometry or masks, not a new generic material image. Firefly emission is a bounded abdomen material; avoid an actual point light per insect.",
-    "acceptance": "Inspect generated swatches for baked lighting, repeated clumps, directional discontinuities and wrong anatomy/material. Owner approves model/motion first, then fitted painted species previews; no automatic admission into the game."
+    "acceptance": "Inspect generated swatches for baked lighting, repeated clumps, directional discontinuities and wrong anatomy/material. Owner approves model/motion first, then fitted painted species previews; no automatic admission into the game.",
+    "brief_precedence": "A source brief may request local material structure such as iris pigment, a feather vane or fine skin vessels. The generic exclusions forbid whole animals/faces and baked lighting, not the explicitly requested flat material detail. Eye iris sources still omit pupil/cornea/lids and all baked glints."
   }
 }
