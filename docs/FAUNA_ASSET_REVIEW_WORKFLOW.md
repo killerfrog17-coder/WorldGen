@@ -1,5 +1,45 @@
 # Fauna asset review workflow
 
+## Active roster workflow - 24 October 2026
+
+The owner subsequently authorized the full overnight roster. Current scope is
+188 entries:176 new visual animal/guild sets, one retained accepted deer, five
+existing audio-only groups and six deferred entries. Each new visual set has
+four raw candidates. Generate models, fresh independent rigs and suitable
+CC0 motion auditions first; five simple microfauna groups use authorized own
+procedural geometry/motion. Use fast resident generation, not low-memory mode.
+Keep known retarget/motion omissions explicit: a ready audition is not natural
+gait, collision-free skinning, game integration or owner art acceptance.
+
+The owner browses the existing window with Next/Previous animal and reports
+model numbers. Save choices in `docs/fauna/OWNER_SELECTIONS.json`; preserve model
+and rig hashes. Leave their viewer untouched, with no unsolicited switches,
+additional windows or review prompts. Retain1/2/3/4, side/face/orbit, Front/Rear,
+Pause/Play, individual clips and explicit Show/Hide Skeleton. Raw2 changes only
+placeholder colour; it does not imply painted species variants.
+
+Finish the raw queue before generating new reusable texture sources. Plans are
+in `docs/fauna/asset-plan.json`, `SPECIES_VARIATION_PLANS.json` and the editable
+`FAUNA_ASSET_PLAN.csv`. Twenty-six material-source briefs include reusable and
+conditional sources, not26 mandatory new images. Accepted-deer source inventory
+records which maps really exist. Painting/finishing needs selection of that body;
+silence is not approval. Selection of a raw model does not approve its motions.
+
+Run `python scripts/audit-fauna-queue.py` for a full-scope file/provenance snapshot
+in batch `queue-audit.json`. It checks all188 plans/table allocation, the accepted
+deer digest, four candidates and native-check evidence per completed set,
+retained generated-model/rig files, motion-source hashes/declarations and owner
+choice hashes. Missing/rebuilding/unqualified sets stay pending. This is NOT a
+visual/contact test or proof that the entire goal (including later texture work)
+is complete. Native sampling and screenshots have their own limited scope.
+The older horse bank's historical review was intentionally deleted during
+cleanup; `retained-source-provenance.json` verifies its identical canonical
+arrays, original pinned CC0 horse asset and licenses without changing source
+bank hashes.
+
+Older sections below describe historical checkpoints and superseded workflows.
+Use the active instructions above and current owner messages for ongoing work.
+
 ## Current retained assets and cleanup - 24 October 2026
 
 The owner accepts the finished deer comparison as good enough for a game
@@ -37,8 +77,8 @@ automatic approval review, with only "blocked by policy" stated. Shortcuts remai
 the large artifact cleanup itself completed with zero skips/errors. Reports are
 `artifacts/cleanup-report-20261024.json` and `checkpoint-retention.json`.
 
-The overnight multi-animal queue remains a proposal: the owner explicitly said
-not to start yet. Wait for their go-ahead before any animal generation.
+At that cleanup checkpoint the overnight queue was still a proposal. The owner
+later authorized it; the active roster workflow above supersedes that hold.
 
 ## Same approved model, four new rigs - 24 October 2026
 

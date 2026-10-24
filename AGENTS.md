@@ -1,5 +1,26 @@
 # WorldGen repository instructions
 
+RAW INVENTORY AUDIT /105 READY,24October2026~13:25CDT:
+New scripts/audit-fauna-queue.py audits original188/176 scope,188 detailed plan
+mirrors/CSV allocation, accepted deer hash, four native-checked candidates,
+model/rig ownership and hashes, declared CC0/project-authored motion hashes and
+33 owner choice hashes. Existing105 ready/420 candidates verify with ZERO errors;
+71 still pending. This is file/provenance evidence, NOT gait/contact/art/texture
+completion. Audible/deferred entries correctly have zero coat allocations;
+short procedural display labels Dragonflies/DetritivorousFlies are explicit aliases.
+Found horse bank original source points to deleted historical eating review.
+Retained exact arrays equal canonical fauna-assets/motion-bank/deer; bones/clips/
+canonical/original digest equal, and original afk-rig0.1.2 horse GLB/license hashes
+match pinned provenance. Added ignored retained-source-provenance.json sidecar;
+source-rig/motion bytes UNCHANGED (all prior review hashes stay valid). Audit
+validates this chain if historical origin missing. No stock mesh substituted.
+Workflow doc now begins current overnight scope/raw-first/owner33/manual viewer
+policy; old proposal-only/paint-first paragraphs marked historical/superseded.
+Sole --watch exec26721/PID43040 still LIVE (verify), Tapir rig batch active.
+Last6 normal batches avg5.65min; owner told105 done/71left,~6.5-8h raw ETA at13:19.
+No textures/painting/viewer/game/Desktop/app changes. Prior remote23b2c26;
+audit/workflow changes and this checkpoint need backup.
+
 OWNER33 / SOURCE REUSE INVENTORY,24October2026~13:12CDT:
 Owner selected AfricanHuntingDog1,Agouti4,BankVole2,Buffalo3,Camel1,Cassowary4,
 Civet1,Cockatoo3,CollaredPeccary3; canonical OWNER_SELECTIONS now33, all hashes
