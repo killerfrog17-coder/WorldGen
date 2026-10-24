@@ -4263,5 +4263,198 @@
         "https://mammal.org.uk/british-mammals/mole"
       ]
     }
+  },
+  "shared_texture_source_plan": {
+    "status": "Planning only. Do not generate these until all raw auditions finish; do not map or paint an unapproved model.",
+    "generation_order": "Reuse approved sources first. Then request only sources required by the highest-priority approved body; deduplicate materials across animals. Colour and pattern configurations remain masks/transforms, not a new bitmap per hue.",
+    "common_prompt_suffix": "A flat material swatch filling the frame, consistent scale and even diffuse illumination; no animal, face, eye, text, scene, depth perspective, cast shadow, baked reflection, rim light, vignette or large colour gradient. Fine natural surface detail, not stylized painted strokes. Appropriate for a repeatable game material; inspect and repair edge continuity instead of assuming the generated image tiles.",
+    "map_policy": "Generated images are colour/detail references, not automatic physically correct PBR. Derive conservative roughness/normal only where supported, without treating pigment boundaries as bumps. Eye cornea and wet nose reflections come from materials/lights, not baked white glints. Bake anatomical masks only after model approval, with connected lid/ear/nose regions and smooth neck transitions.",
+    "resolution_policy": "Master sources may be 1024-2048 square; initial selected medium/large animal base atlas 2048, small 1024, tiny 256-512; normals/roughness can be lower. Actual atlas density follows screen size, accepted UVs and distinct face needs. Never spend a new full atlas or draw call merely to tint fur.",
+    "sources": [
+      {
+        "id": "fur_short_directional",
+        "priority": 1,
+        "action": "Reuse artifacts/fauna-assets/deer/fur-source.png first",
+        "brief": "Fine short mammal fur, coherent gentle hair direction, neutral brown-grey. Preserve natural fibres and avoid wavy embossed ridges.",
+        "uses": "Deer, short-coated ungulates, canids, felids and selected small mammals; morphology and painted markings remain animal-specific."
+      },
+      {
+        "id": "fur_dense_fine",
+        "priority": 2,
+        "action": "Generate only if the short-fur source cannot convey the selected coat",
+        "brief": "Dense fine soft underfur, neutral grey-brown, small natural fibres, subtle local breakup.",
+        "uses": "Small mammals and selected dense-coated species; no giant painted clumps."
+      },
+      {
+        "id": "fur_coarse_guard",
+        "priority": 3,
+        "action": "New shared source if needed",
+        "brief": "Coarse guard hairs over a dense undercoat, muted brown-grey, restrained directional strand groups with no large curls.",
+        "uses": "Bear, boar, coarse-coated mammals; silhouette hair is later geometry."
+      },
+      {
+        "id": "fur_wool_shag",
+        "priority": 4,
+        "action": "New shared source if needed",
+        "brief": "Dense natural wool with small uneven fibre groups and shallow soft curls, neutral grey-brown, no deep baked occlusion.",
+        "uses": "Sheep-like wool and selected shag undercoats; not automatically every ox/bison mane."
+      },
+      {
+        "id": "feather_contour",
+        "priority": 5,
+        "action": "New shared source",
+        "brief": "Small overlapping contour-feather microstructure in neutral grey, subtle barbs and soft edges, close flat crop with consistent direction.",
+        "uses": "Bird body feather detail; actual coverts and pigment masks follow selected anatomy."
+      },
+      {
+        "id": "feather_flight",
+        "priority": 6,
+        "action": "New shared source",
+        "brief": "Close flat detail of a flight-feather vane with fine parallel barbs and subdued central shaft, neutral grey, no full bird or cast shadows.",
+        "uses": "Selected flight and tail feathers; one common swatch cannot create wing geometry or actual feather layering."
+      },
+      {
+        "id": "skin_nasal_lid",
+        "priority": 7,
+        "action": "Reuse suitable accepted deer skin detail or generate a neutral shared source",
+        "brief": "Fine mammal nasal/bare-lid skin pores in neutral dark grey-brown, restrained irregular fine grain with no heavy wrinkles.",
+        "uses": "Nasal leather and fitted bare lid margins; individual masks and local roughness remain separate."
+      },
+      {
+        "id": "skin_thin_ear",
+        "priority": 8,
+        "action": "Reuse suitable accepted ear source or generate only when needed",
+        "brief": "Fine thin bare skin in muted neutral pink-beige, delicate pores with subtle small vessels, diffuse and not translucent red.",
+        "uses": "Inner-ear/selected bare-skin details; furred outer rims are controlled by anatomy masks."
+      },
+      {
+        "id": "keratin_hard",
+        "priority": 9,
+        "action": "Reuse accepted hoof detail first",
+        "brief": "Natural hard hoof/claw/horn keratin, fine lengthwise growth grain, muted grey-brown, no polished highlights or large cracks.",
+        "uses": "Hooves, claws and horns after choosing direction/scale. Beaks/scales may need their own relief rather than literal hoof colour."
+      },
+      {
+        "id": "eye_iris",
+        "priority": 10,
+        "action": "Reuse accepted eye source; generate only if iris detail is inadequate",
+        "brief": "Flat iris pigment and subtle radial fibres without pupil, cornea, eyelids, lashes, reflections or white glints; neutral brown that can be conservatively tinted.",
+        "uses": "Iris only. Pupil shape, cornea gloss, socket/lid anatomy and highlights are authored after body approval; compound insect eyes use a different surface."
+      },
+      {
+        "id": "scale_reptile",
+        "priority": 11,
+        "action": "New shared source",
+        "brief": "Fine irregular reptile scales with restrained shallow boundaries, neutral grey-tan, no raised armour spikes or large cracks.",
+        "uses": "Selected lizard/crocodilian/armoured regions with anatomy-specific relief and scale size."
+      },
+      {
+        "id": "scale_snake_dorsal",
+        "priority": 12,
+        "action": "New shared source",
+        "brief": "Orderly small overlapping snake dorsal scales, neutral grey-brown, fine restrained edges and natural directional alignment.",
+        "uses": "Snake dorsal microdetail; markings and head shields are separate anatomical masks."
+      },
+      {
+        "id": "scale_snake_ventral",
+        "priority": 13,
+        "action": "New shared source",
+        "brief": "Broad smooth transverse snake belly scutes, neutral pale grey-beige, shallow segment divisions and fine wear without baked shade.",
+        "uses": "Only selected snake ventral surfaces; coordinate direction and spacing must be fitted."
+      },
+      {
+        "id": "skin_amphibian",
+        "priority": 14,
+        "action": "New shared source if amphibian visual bodies are approved",
+        "brief": "Smooth fine-pored amphibian skin, muted neutral tan-grey, very subtle irregular grain, no fur, scales or heavy leather cracks.",
+        "uses": "Visual salamander-like bodies only; existing audio-only frogs get no visual allocation."
+      },
+      {
+        "id": "scale_fish",
+        "priority": 15,
+        "action": "New shared source",
+        "brief": "Fine orderly overlapping fish scales, neutral silver-grey pigment with no baked metallic glints or iridescent lighting.",
+        "uses": "Selected bony fish; scales do not belong on squid, shark or marine mammals."
+      },
+      {
+        "id": "skin_denticle",
+        "priority": 16,
+        "action": "New shared source if needed",
+        "brief": "Very fine subdued shark denticle surface, neutral grey, matte diffuse micrograin without obvious fish scales or pebble leather.",
+        "uses": "Shark skin with appropriate detail scale."
+      },
+      {
+        "id": "skin_marine_smooth",
+        "priority": 17,
+        "action": "New shared source if needed",
+        "brief": "Smooth fine marine-mammal skin in neutral grey, subtle pores and soft fine wrinkles, no wet highlights or deep cracks.",
+        "uses": "Cetaceans and chosen sparsely haired pinniped areas; dense seal fur and walrus folds remain distinct anatomy."
+      },
+      {
+        "id": "skin_squid",
+        "priority": 18,
+        "action": "New shared source if needed",
+        "brief": "Fine soft cephalopod skin with subtle tiny chromatophore speckling in muted pale grey-beige, no fish scales, baked gloss or deep wrinkles.",
+        "uses": "Squid mantle/arms; colour state, sucker placement and fin translucency remain anatomical/material controls."
+      },
+      {
+        "id": "chitin_fine",
+        "priority": 19,
+        "action": "New shared source if needed",
+        "brief": "Fine hard insect cuticle, neutral grey-brown, delicate subtle surface grain, no armour spikes, animal silhouette or baked mirror reflections.",
+        "uses": "Insects/spiders with body-specific segment and pattern masks; no generic insect anatomy imposed on spiders."
+      },
+      {
+        "id": "wing_membrane_bat",
+        "priority": 20,
+        "action": "New shared source if needed",
+        "brief": "Thin bat-wing membrane fine skin detail in muted grey-brown, restrained faint small vessels, no finger bones, highlights or directional shadows.",
+        "uses": "Fitted bat membrane only; translucency and main veins follow geometry rather than arbitrary copied vessels."
+      },
+      {
+        "id": "wing_membrane_insect",
+        "priority": 21,
+        "action": "New shared source if needed",
+        "brief": "Very fine nearly clear insect-wing membrane grain, neutral pale grey, no strong iridescent lighting and no pre-imposed large vein layout.",
+        "uses": "Insect membrane detail; vein layout/opacity follows the selected wings. Distinct from bat skin."
+      },
+      {
+        "id": "wing_scales_butterfly",
+        "priority": 22,
+        "action": "New shared source if needed",
+        "brief": "Fine densely arranged butterfly wing-scale microstructure, neutral grey-beige, flat diffuse appearance without a butterfly silhouette or decorative colour pattern.",
+        "uses": "Butterfly/moth scale detail; species wing patterns are later connected masks on approved wing shapes."
+      },
+      {
+        "id": "shell_scute",
+        "priority": 23,
+        "action": "New shared source if needed",
+        "brief": "Natural tortoise/turtle scute microdetail, muted brown-grey with fine growth grain and subtle wear, no whole shell, deep cracks or baked occlusion.",
+        "uses": "Selected shell scutes; actual scute seams and centres are fitted anatomical regions."
+      },
+      {
+        "id": "antler_bone",
+        "priority": 24,
+        "action": "Reuse accepted antler maps first",
+        "brief": "Weathered antler cortical bone, neutral warm grey-brown, delicate longitudinal grooves and fine pores with no polished highlights.",
+        "uses": "Approved deer racks; velvet is a separate life-stage surface, and antler is not a keratin horn."
+      },
+      {
+        "id": "ivory_tooth",
+        "priority": 25,
+        "action": "New source only if accepted anatomy needs visible detail",
+        "brief": "Restrained ivory/dentine fine grain in warm neutral off-white, subtle lengthwise texture, no huge cracks or polished baked reflection.",
+        "uses": "Tusks and teeth after root/age anatomy approval; distinct from hoof/horn keratin."
+      },
+      {
+        "id": "mouth_tissue",
+        "priority": 26,
+        "action": "New source only for approved open-mouth geometry",
+        "brief": "Subtle moist oral tissue fine detail in muted pink-grey, even diffuse lighting, no teeth, lips, animal face or specular glints.",
+        "uses": "Actual mouth interior where visible; no painted fake openings on a closed mesh."
+      }
+    ],
+    "no_bitmap_needed": "Whiskers, eyelash roots, antler branch shapes, horn count, beaks, tails, ear size and missing wing/limb anatomy require geometry or masks, not a new generic material image. Firefly emission is a bounded abdomen material; avoid an actual point light per insect.",
+    "acceptance": "Inspect generated swatches for baked lighting, repeated clumps, directional discontinuities and wrong anatomy/material. Owner approves model/motion first, then fitted painted species previews; no automatic admission into the game."
   }
 }

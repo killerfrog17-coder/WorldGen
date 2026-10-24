@@ -17,6 +17,11 @@ All188 rows now have sourced linked appearance/sex/age/lifecycle plans mirrored
 JSON/CSV; six deferred entries zero allocation, five audio remain audio only.
 PASS188 mirrors/CSV/deferred scope; changed Python compile and diff checks pass.
 No swatches/painting/extras/runtime/game/Desktop/accepted-deer/owner-app changes.
+Subsequent source planning: SPECIES_VARIATION_PLANS.json now has26 shared surface
+briefs, prioritized/reuse-first with no baked lights/glints and no generated
+images.26 IDs/order and188 appearance mirrors/zero audio/deferred allocation PASS.
+MuskOx completed;84 ready/336 candidates, NativeLitterBeetles generating at latest
+live exec68103 poll. Source briefs need backup after prior9427a9386630f60cede61dfca54ded013300062d.
 Squid trial exec92254/PID19964 EXITED. Normal fast resident watch RESUMED:
 exec68103/PID7088 LIVE (verify), Mongoose preparing;82 ready/328 models plus
 accepted deer at last index, no failures. Do not start another GPU producer.
