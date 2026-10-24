@@ -61,6 +61,14 @@ for number in range(1,5):
         thickness=.048 if number==4 else .036
         ellipsoid((0,0,.83),(thickness,.25,thickness),'Pelvis',segments=8,rings=4)
         for side in (-1,1):tube((side*.012,.21,.85),(side*.045,.33,.87),.0025,'Head',sides=3)
+    elif a.kind=='bee':
+        head_y=.28
+        ellipsoid((0,0,.83),(.11+(number-1)*.005,.26,.10),'Pelvis',segments=6,rings=3)
+        ellipsoid((0,.28,.84),(.08,.09,.075),'Head',segments=6,rings=3)
+        for side in (-1,1):
+            tube((side*.025,.34,.87),(side*.05,.42,.89),.0025,'Head',sides=3)
+            for j in range(3):
+                tube((side*.075,.14-j*.12,.79),(side*.15,.10-j*.12,.71),.0025,'Pelvis',sides=3)
     elif a.kind=='firefly':
         head_y=.34
         # The rear half of the actual body glows, not an extra tiny tail bulb.
@@ -77,14 +85,14 @@ for number in range(1,5):
         ellipsoid((0,.12,.83),(.095,.19,.09),'Pelvis');ellipsoid((0,.43,.84),(.10,.105,.10),'Head')
         ellipsoid((0,-body_length*.5,.82),(.065 if a.kind!='bee' else .13,body_length*.55,.065 if a.kind!='bee' else .11),'Pelvis')
     for side in (-1,1):
-        if a.kind in ('butterfly','firefly'):continue
+        if a.kind in ('butterfly','firefly','bee'):continue
         ellipsoid((side*.075,.47,.87),(.035,.045,.04),'Head',2,6,3)
         p=(side*.04,.50,.91);q=(side*.15,.80 if a.kind=='butterfly' else .64,.94);tube(p,q,.005,'Head')
         if a.kind=='butterfly':ellipsoid(q,(.014,.022,.014),'Head',0,6,3)
         for j in range(3):
             p=(side*.06,.22-j*.13,.79);q=(side*(.20+j*.015),.12-j*.12,.70);r=(side*(.30+j*.02),.16-j*.14,.65)
             tube(p,q,.005,'Pelvis');tube(q,r,.004,'Pelvis')
-    wing_names=['Wing_L','Wing_R']+(['Hindwing_L','Hindwing_R'] if a.kind in ('bee','dragonfly') else [])
+    wing_names=['Wing_L','Wing_R']+(['Hindwing_L','Hindwing_R'] if a.kind=='dragonfly' else [])
     for side,suffix in [(-1,'L'),(1,'R')]:
         if a.kind=='butterfly':
             if number==1:
@@ -102,9 +110,8 @@ for number in range(1,5):
             panel([(.07,.23),(.25,.33),(length,.43),(length+.06,.31),(.40,.16)],side,'Wing_'+suffix)
             panel([(.07,.06),(.27,.10),(length*.95,-.08),(length,-.20),(.34,-.08)],side,'Hindwing_'+suffix)
         else:
-            length=(.55 if a.kind=='bee' else .43)+(number-1)*.035
+            length=(.35 if a.kind=='bee' else .43)+(number-1)*(.015 if a.kind=='bee' else .035)
             panel([(.06,.19),(.22,.39),(length,.40),(length+.10,.25),(length*.8,.05),(.08,.02)],side,'Wing_'+suffix)
-            if a.kind=='bee':panel([(.06,.08),(.25,.14),(length*.7,-.07),(.32,-.22),(.08,-.08)],side,'Hindwing_'+suffix)
     if a.kind=='dragonfly':
         ellipsoid((0,-.60,.82),(.035,.45,.035),'Pelvis')
     mesh=bpy.data.meshes.new(f'{a.kind} own geometry {number}');mesh.from_pydata(v,[],f);mesh.validate();mesh.update()
@@ -140,8 +147,8 @@ for number in range(1,5):
         actions[label]=action.name
     rig.animation_data_clear();demos={k:actions.pop(k) for k in ['Showcase','Locomotion']}
     entry={'number':number,'animal':a.animal,'rig':rig.name,'body':body.name,'head':'Head','actions':actions,'demos':demos,'material':bodymat.name,'joints':len(names),'triangles':len(mesh.polygons),'parents':parents,'joint_names':names,'generated_joint_heads':joints,'source_family':'own simple microfauna','geometry_method':'Own procedural shape audition; no borrowed animal mesh','motion_method':'Own wing-envelope/hover preview; user authorized simple microfauna animation','painted':False}
-    if a.kind in ('butterfly','firefly'):
-        entry['revision']='Owner silhouette revision2026-10-24: small butterfly body/joined wing pair; firefly luminous rear half'
+    if a.kind in ('butterfly','firefly','bee'):
+        entry['revision']={'butterfly':'Owner revision: small body/tiny antennae/joined wing pair','firefly':'Owner revision: simple body/luminous rear half','bee':'Owner revision: particle-like compact body/short appendages'}[a.kind]
         entry['visible_wing_panels']=2;entry['luminous_body_length_fraction']=.5 if a.kind=='firefly' else 0
     entries.append(entry);body.hide_set(number!=1);body.hide_render=number!=1;rig.hide_set(True)
 scene['deer_four_rigs']=json.dumps(entries);scene['fauna_animal']=a.animal;scene.render.fps=30;scene.sync_mode='FRAME_DROP'

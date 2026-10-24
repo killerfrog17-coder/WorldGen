@@ -7,7 +7,7 @@ ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,required=True);a
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);a.root=a.root.resolve();out=a.root/'model.glb';assert not out.exists()
 plan_path=Path(__file__).resolve().parent.parent/'docs/fauna/asset-plan.json'
 entry=next((x for x in json.loads(plan_path.read_text())['rows'] if x['slug']==a.root.parent.name),{})
-flightless=entry.get('animal') in {'Ostrich','Emu','Cassowary','Kiwi','Penguin'}
+flightless=entry.get('animal') in {'Ostrich','Emu','Cassowary','Kiwi','Penguin'} or (a.root.parent/'folded-wing-ground-review.json').exists()
 winged=entry.get('family') in {'bird','bat'} and not flightless
 biped=entry.get('animal')=='Gibbon'
 cleanup=a.root/'mesh-component-cleanup.json';cleanup_data=json.loads(cleanup.read_text()) if cleanup.exists() else {}

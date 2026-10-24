@@ -1294,7 +1294,7 @@
         "anatomical_paint_details": "Place thorax/abdomen bands by segment and preserve tail colour. Avoid painting uniform wasp stripes on every bee. Fuzz needs matte fibre detail while bare leg surfaces and eyes remain distinct."
       },
       "sex_age_season": "For a bumblebee-like lineage distinguish worker/queen female forms from males: queens larger/bulkier; male antenna/face and pollen-basket differences only if visible at gameplay scale. Male coats are species-linked, not always identical to females. Do not impose social castes on every solitary bee lineage.",
-      "extras": "Modest body fuzz silhouette and optional worker/queen pollen baskets after approval; no resolved stinger detail needed for an ambient speck. Four wing panels can share two coupled strokes; preserve current simple envelope animation.",
+      "extras": "Owner-requested fancy-particle proxy:108 triangles, compact two-part body, very short antennae and short single-segment leg stubs, one simple combined wing panel per side. No separate eyes, elaborate mouthparts or long articulated legs for this tiny representation.",
       "hypothetical_variation": "Additional restrained band positions or brown/ochre palettes are optional lineage designs. Keep sex/caste traits linked rather than rolling a queen abdomen onto random male markings.",
       "motion_source_plan": "own simple wing flap/hover only; user-authorized",
       "required_behaviour_clips": [
@@ -1339,7 +1339,7 @@
         "surface_class_count": 4,
         "texture_assets": "Four classes: body fuzz/chitin, translucent wing, compound-eye gloss and smooth leg/antenna chitin. One body-detail source with five segment-pattern masks; wing venation shared. Pollen loads are a small optional state mask/attachment, not a new species texture.",
         "sex_age_season": "For a bumblebee-like lineage distinguish worker/queen female forms from males: queens larger/bulkier; male antenna/face and pollen-basket differences only if visible at gameplay scale. Male coats are species-linked, not always identical to females. Do not impose social castes on every solitary bee lineage.",
-        "extras": "Modest body fuzz silhouette and optional worker/queen pollen baskets after approval; no resolved stinger detail needed for an ambient speck. Four wing panels can share two coupled strokes; preserve current simple envelope animation.",
+        "extras": "Owner-requested fancy-particle proxy:108 triangles, compact two-part body, very short antennae and short single-segment leg stubs, one simple combined wing panel per side. No separate eyes, elaborate mouthparts or long articulated legs for this tiny representation.",
         "paint_details": "Place thorax/abdomen bands by segment and preserve tail colour. Avoid painting uniform wasp stripes on every bee. Fuzz needs matte fibre detail while bare leg surfaces and eyes remain distinct.",
         "hypotheses": "Additional restrained band positions or brown/ochre palettes are optional lineage designs. Keep sex/caste traits linked rather than rolling a queen abdomen onto random male markings.",
         "geometry_limits": "Slender honeybee/solitary forms and round bumblebees may need different approved body choices. No full colony simulation or bee defensive AI is added by these asset plans.",
@@ -1753,7 +1753,7 @@
         "extras": "Male red eye skin and small ear tufts, sex-appropriate tail proportions and subtle leg-spur option after approval. Do not glue female coat onto an excessively long male tail without a shape review.",
         "paint_details": "Bare red facial region stays outside the glossy eyeball and integrates with feather edges. Neck ring is feather pigmentation, not a mesh/material seam. Tail bars line up along feather lengths and remain legible from rear.",
         "hypotheses": "Reduced ring contrast and darker forest body are optional patterns. Golden-pheasant style cape/crest is not treated as a simple palette of a ring-necked body.",
-        "geometry_limits": "Current generic bird motion does not prove a realistic pheasant burst takeoff or ground run. Strongly different pheasant taxa and male/female tail extremes may need additional selected shapes.",
+        "geometry_limits": "Current generic bird motion does not prove a realistic pheasant burst takeoff or ground run. Strongly different pheasant taxa and male/female tail extremes may need additional selected shapes. Owner rejected spread-wing walking models. Fresh folded-wing ground-motion auditions are being generated; Idle/Walk only, with wing unfolding, takeoff and flight explicitly missing until a suitable flight rig/model workflow is ready.",
         "sources": [
           "https://www.allaboutbirds.org/guide/Ring-necked_Pheasant/id/",
           "https://mdc.mo.gov/discover-nature/field-guide/ring-necked-pheasant"
@@ -2587,7 +2587,7 @@
         "extras": "Small crest, optional ruff and coherent tail fan after approval. Fan/drumming display remains a missing animation until supplied.",
         "paint_details": "Fine bars and pale feather spots over a warm/grey base, with the broad dark near-terminal tail band placed deliberately. No mammal-fur collar seam.",
         "hypotheses": "Dark wet-forest and pale woodland palettes or reduced pattern contrast are optional art hypotheses.",
-        "geometry_limits": "Sage-grouse sacs, prairie-chicken ornaments and ptarmigan feet are not generic grouse recolours. Bird Walk/Flap does not supply a drumming action.",
+        "geometry_limits": "Sage-grouse sacs, prairie-chicken ornaments and ptarmigan feet are not generic grouse recolours. Bird Walk/Flap does not supply a drumming action. Owner rejected spread-wing walking models. Fresh folded-wing ground-motion auditions are being generated; Idle/Walk only, with wing unfolding, takeoff and flight explicitly missing until a suitable flight rig/model workflow is ready.",
         "sources": [
           "https://www.allaboutbirds.org/guide/Ruffed_Grouse/id/",
           "https://abcbirds.org/birds/ruffed-grouse/"
@@ -2905,7 +2905,7 @@
         "extras": "Two or three comb/wattle sizes, male tail sickles and optional spur after approval. No default ornamental domestic crest or feathered legs.",
         "paint_details": "Golden neck grades by feather rows into the darker body. Bare face/comb use skin maps; eyelid transition stays visible without mammal-style lashes.",
         "hypotheses": "Dark forest and muted rufous patterns are optional. Domestic patchwork and exaggerated ornaments require an explicit alternate lineage.",
-        "geometry_limits": "Rooster/hen tail and comb differences require geometry, not colour alone. Generic Walk/Flap does not provide crowing or scratch-forage actions.",
+        "geometry_limits": "Rooster/hen tail and comb differences require geometry, not colour alone. Generic Walk/Flap does not provide crowing or scratch-forage actions. Owner rejected spread-wing walking models. Fresh folded-wing ground-motion auditions are being generated; Idle/Walk only, with wing unfolding, takeoff and flight explicitly missing until a suitable flight rig/model workflow is ready.",
         "sources": [
           "https://www.allaboutbirds.org/guide/Red_Junglefowl/id",
           "https://www.nparks.gov.sg/florafaunaweb/fauna/2/6/265"

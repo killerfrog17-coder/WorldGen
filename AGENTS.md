@@ -1,5 +1,44 @@
 # WorldGen repository instructions
 
+OWNER BIRD/SQUIRREL REROLLS IN PROGRESS,24October2026~11:56CDT:
+24 explicit model choices in docs/fauna/OWNER_SELECTIONS.json. New batch: Bison4,
+Duck2,SmallNativeFreshwaterFish1,Mouse1,Horse1,Reindeer3,Moose3,WildCattle3; then
+Quail4,Turkey1,Raccoon3,Badger2,Beaver2,Otter2,Lynx1,Owl4,Raven2. Earlier7 retained.
+Dragonflies and detritivorous flies look fine, no specific candidate selected.
+Bees simplified per owner:108tri/four bones, small2-part body, short antennae/
+single-segment legs, one simple joined wing panel per side. Native checks all4
+and CPU flight view pass. No painting. Current viewer UNTOUCHED, owner browses.
+Owner rejects Pheasant,Grouse,Junglefowl ground motions/spread-wing shapes; asks
+Squirrel fully regenerated after disastrous Run (CPU Hare-like crumpling verified).
+New built-in imagegen refs for all4 copied into batch/references/{slug}.png;
+exact prompts/generated-image paths/SHA in each owner-reroll-request.json.
+Three birds have wings folded and standing legs; squirrel neutral4-foot stance,
+low tail below head to avoid tail-driven axis inversion. No paid API.
+Old4 candidate folders moved ONLY within verified own animal root to
+previous-owner-rejected; file hashes retained. Do NOT prune until new checked
+replacements. Old .blend/audition retained until atomic replacement; old checks
+copied to archive then removed. review-rebuild.json gates index; count94 ready,
+not98 while these4 are being replaced. New seeds old+2100000, fresh NN rigs.
+Normal watch exec48280/PID576 TERMINAL at internal checkpoint after SecretaryBird
+partial shape batch (cached work retained). DO NOT resume --watch yet.
+Current sole producer exec41859/PID8228 LIVE (verify), PHEASANT --only trial with
+motion-root artifacts/fauna-motion-sources/folded-ground-bird. Pending order is
+Squirrel(squirrel-bind-reference),Grouse(folded-ground-bird),Junglefowl(same).
+See batch/priority-reroll-queue.json. For EACH: wait verified worker exit, inspect
+native checks + selected CPU Walk/Run/front poses, then finalize-fauna-motion-trial.py
+--animal-root <root> --decision usable_for_raw_audition --reason <honest limits>.
+Only then start NEXT --only <slug> --motion-root <bank>. Update priority manifest.
+After all4 trials qualified, resume full --watch to cached SecretaryBird/rest.
+New source banks copy exact CC0 arrays, no donor mesh. source_bind reference
+replaces posed Idle zero. folded-ground-bird clips Idle/Walk,ground_only=true:
+no unfolding/flight/takeoff/feeding supplied; not biologically flightless.
+prepare-fauna-candidate and minimal rig leaves respect per-animal
+folded-wing-ground-review.json marker (major body axis,3 minimum leaves).
+build-fauna-audition respects source ground_only and omits wing transfer.
+Original selected Quail/Turkey/Owl/Raven/Duck remain unchanged. Source/bee Python
+compile passed; new sources/selections/code need backup after prior86471f3.
+No new GUI windows/follow-ups/painting/texture images; reference pictures only.
+
 OWNER SELECTIONS / SIMPLE INSECT REVISION,24October2026:
 Canonical docs/fauna/OWNER_SELECTIONS.json now records Hare3,Rabbit1,RedFox3,
 WildBoar1,Mouflon1,WildGoat1,Bear2 with exact model/rig hashes. Geometry choices

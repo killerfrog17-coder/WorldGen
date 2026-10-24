@@ -7,6 +7,7 @@ def minimum_leaves(entry):
     if family=='snake':return 1
     if family=='spider':return 9
     if family=='ground_insect':return 7
+    if family=='bird' and (Path(__file__).resolve().parent.parent/'artifacts/fauna-overnight-20261024'/entry['slug']/'folded-wing-ground-review.json').exists():return 3
     if family in ('bird','bat'):return 3 if name in {'Ostrich','Emu','Cassowary','Kiwi','Penguin'} else 5
     if family in ('fish','marine'):return 4
     return 5

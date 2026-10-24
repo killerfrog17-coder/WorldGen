@@ -24,7 +24,7 @@ if rebuild:
 source=json.loads((a.motion_root/'source-rig.json').read_text());motions=np.load(a.motion_root/'source-motions.npz')
 if source['family'] in ('bird','bat','fish','snake','spider','ground_insect','turtle','crocodile','squid') or a.animal in {'Elephant','Rhinoceros','Hippopotamus','Pangolin','Armadillo'}:a.neutral_material=True
 sn=[b['name'] for b in source['bones']];si={n:i for i,n in enumerate(sn)};paths=source['paths']
-flightless=a.animal in {'Ostrich','Emu','Cassowary','Kiwi','Penguin'}
+flightless=a.animal in {'Ostrich','Emu','Cassowary','Kiwi','Penguin'} or bool(source.get('ground_only'))
 clips=[c for c in source['clips'] if not (source['family']=='bird' and ((flightless and c['label'] in {'Flap','Glide'}) or ('bat' in a.animal.lower() and c['label']=='Walk')))]
 idle=motions[next(c['key'] for c in source['clips'] if c['label']=='Idle')][0]
 if source.get('reference_pose')=='source_bind':idle=np.asarray([b['rest'] for b in source['bones']],dtype=np.float32)

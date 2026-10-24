@@ -91,6 +91,228 @@
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
       "painting_started": false
+    },
+    "bison": {
+      "animal": "Bison",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T11:49:05.898089-05:00",
+      "model_sha256": "309b4d88bb70f9c1673afc2119b6ae3df0351459b5a2073601df7f843efd3d6a",
+      "rig_sha256": "b399950973c41f2052b166c2a613353cec41c6bb399cbe5934bfd496f6a36fdc",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "duck": {
+      "animal": "Duck",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T11:49:05.913688-05:00",
+      "model_sha256": "c37b8e1393102cd3aeaa7cb3bd666cce6537ca6c5cf2ec76aa8fec20a54fd1d1",
+      "rig_sha256": "1ee600b29be6c4c820eb4de763ceb4a8333f23b2be88b896307c4903de1526c7",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false,
+      "owner_notes": "Some walking/wing-pose issues noted, but model2 selected; preserve it."
+    },
+    "small-native-freshwater-fish-guild": {
+      "animal": "Small native freshwater fish (guild)",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T11:49:05.924796-05:00",
+      "model_sha256": "44a49b5c0050387a26580fccaeac0bd83ec3537a01be554ee2ad3bc45f40178d",
+      "rig_sha256": "6eaa3a010fc258dd2389d4f5a1caa2c962534177de3add2062ff2d54f9d32d91",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "mouse": {
+      "animal": "Mouse",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T11:49:05.942948-05:00",
+      "model_sha256": "f3c3b254c574615f63b4b4e4e4aa121d771006562550cddd93079fc4f87f1354",
+      "rig_sha256": "d5a8f134b418d178496ab154b733eab1ef85dfebc2527f98822e5543d2557ac9",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "horse": {
+      "animal": "Horse",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T11:49:05.958404-05:00",
+      "model_sha256": "7fa637a1aa05b4bc7c09e97c61be9afad3c51a504e7ec0e46c757392963bdac7",
+      "rig_sha256": "7d938a876f6bcca4b370195e22ffad5c90c52599561a9394e7a0ca8e1cc245ba",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "reindeer": {
+      "animal": "Reindeer",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T11:49:05.967935-05:00",
+      "model_sha256": "e5a96ef2ecf3c0fb231dd999d71adf4c258381c3bb3d387e3e6b5de68639d702",
+      "rig_sha256": "68a8428fc444042842dbf724bce4aba41b52ce4c4655a15042c29765c00d9412",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "moose": {
+      "animal": "Moose",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T11:49:05.983081-05:00",
+      "model_sha256": "1452231124c29b78fee87ce6e03091c6c876422b40ce51b295514879acbeb234",
+      "rig_sha256": "930545fc5e28349349b477bff9b16e101e964794a06920e85f4f2a529b2fbf37",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "wild-cattle": {
+      "animal": "Wild cattle",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T11:49:06.002700-05:00",
+      "model_sha256": "4cfe1c8adac0ec74fe3a05a1ab7ac180fcfc2fd9a655c087900ce64beeec2915",
+      "rig_sha256": "be8479069e39d0a52718f91bfc37eecaaad79bfca3c938a06fed561e0da26361",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "quail": {
+      "animal": "Quail",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T11:56:23.181641-05:00",
+      "model_sha256": "a3710b58e4f53bdaba0fd8e18f192c6ab3e2b40c8b33bd536e3e909ba34a56dd",
+      "rig_sha256": "a8fd46a2c4d8258bb734925b21e0b5bd491aaecc0279a97558e0fe3d3ec51328",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "turkey": {
+      "animal": "Turkey",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T11:56:23.192788-05:00",
+      "model_sha256": "fa79971aa1d0c9fcec47e598f9d8b9b3fc8a6bbb7c607ca339da7bf683a8702c",
+      "rig_sha256": "bcea09c928390f2d8d518bd633c471a6cb38ea7f132feb723ba0e7e8a780d9d4",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "raccoon": {
+      "animal": "Raccoon",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T11:56:23.202843-05:00",
+      "model_sha256": "805bfb06c3315e152f005a1f0617f0ec46ebf1458b23db3165af58c06fdde174",
+      "rig_sha256": "6aaa7d41aa343e0be02f26a9f08a7e307decbe8ccb825b345f7f39a9bc474ef4",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "badger": {
+      "animal": "Badger",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T11:56:23.214275-05:00",
+      "model_sha256": "62e683aa8408f75f87dae83bea1baf6740be9c10d056b85d2a4bc57d2ab04724",
+      "rig_sha256": "300719dfb85453f56070e2625c1fc58b0b4e05d941a66a36c7cf2f587feba2d7",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "beaver": {
+      "animal": "Beaver",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T11:56:23.226273-05:00",
+      "model_sha256": "93e626895888b7a8d580b1baf9c3117135791beabfcd7b7bcdace4d3440d89d5",
+      "rig_sha256": "2aeb50cd4a323b07a29466ec0f77e53c55a8031824fa997d0897e6d7b195c4bc",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "otter": {
+      "animal": "Otter",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T11:56:23.239418-05:00",
+      "model_sha256": "7b36fa7014d983d3264207982a438426ca30846382320d3dca70974a0d3b06c9",
+      "rig_sha256": "1886f0d8c16968d1954807b5f5d6ceee3ff5e26546eecc3e0b422e6e08025ce5",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "lynx": {
+      "animal": "Lynx",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T11:56:23.249342-05:00",
+      "model_sha256": "f165de7ec230eee05d851c171963a5f8db854d6b22cd02e354c2056672542c23",
+      "rig_sha256": "3141ef8d1ce3d8ec1fc48629a4be5fa9529d28848e0d8f9412b221eda41a5902",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "owl": {
+      "animal": "Owl",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T11:56:23.263632-05:00",
+      "model_sha256": "4889f883adfd4a91d43bf5e83a8d602bae724d626c4de73633b3494252713507",
+      "rig_sha256": "4aedd161cabbb16527e0dc25279c08f331309470a1d5283199b308259545a7fc",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "raven": {
+      "animal": "Raven",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T11:56:23.268630-05:00",
+      "model_sha256": "97a2878c3134764a164cf467264e5642a8a706ba57d8b878a1adf6aa98736141",
+      "rig_sha256": "c15bb3a683388f6f41831cfd173bf63c79367047d2b2689d1bc25ca6401296d6",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
     }
   },
   "source_root": "artifacts/fauna-overnight-20261024",
@@ -126,6 +348,56 @@
         216
       ],
       "blink_loop": "Smooth zero-brightness first/last frame,60-frame period; no point light."
+    },
+    "dragonflies-guild": {
+      "owner_feedback": "Looks fine; no requested change or specific candidate choice.",
+      "proceed_without_re_review": true,
+      "painting_started": false
+    },
+    "native-detritivorous-flies-guild": {
+      "owner_feedback": "Looks fine; no requested change or specific candidate choice.",
+      "proceed_without_re_review": true,
+      "painting_started": false
+    },
+    "bees-guild": {
+      "time": "2026-10-24T12:00:42.636890-05:00",
+      "owner_instruction": "Simple particle-like bee, short realistic appendages and very low polygon count; any simple animation is fine.",
+      "triangles": [
+        108,
+        108,
+        108,
+        108
+      ],
+      "joints": 4,
+      "painting_started": false,
+      "specific_candidate_selection": null,
+      "blend_sha256": "c8a376ded1ae0ead2e9b3e4f65e151e4658547e2af21bd775060fc3cd9c506c1"
+    }
+  },
+  "pending_revisions": {
+    "pheasant": {
+      "reason": "Walking unusable; generated spread wings cause ground-motion problems. Try folded-wing ground model and appropriate transfer.",
+      "status": "requested",
+      "art_approved": false
+    },
+    "squirrel": {
+      "reason": "Run unusable; owner explicitly requests entire regeneration. Diagnose and generate new models/fresh rigs.",
+      "status": "requested",
+      "art_approved": false
+    },
+    "bees-guild": {
+      "reason": "Simplify into low-poly particle-like bees with realistic short appendages; any simple animation acceptable.",
+      "status": "completed"
+    },
+    "grouse": {
+      "reason": "Owner rejects current spread-wing ground-bird motion/model result; folded-wing regeneration needed.",
+      "status": "requested",
+      "art_approved": false
+    },
+    "junglefowl": {
+      "reason": "Owner rejects current spread-wing ground-bird motion/model result; folded-wing regeneration needed.",
+      "status": "requested",
+      "art_approved": false
     }
   }
 }
