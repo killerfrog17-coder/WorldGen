@@ -1,5 +1,24 @@
 # WorldGen repository instructions
 
+PRIMATE SOURCE RECHECK / PLAN TRACE RECONCILED,24October2026:
+While full queue runs, rechecked existing primate evidence and primary creator
+pages. Existing OGA CC0 Monkey_animated has one upright gestural take previously
+rejected for normal quadruped locomotion; Kenney cube-pets has object-transform
+clips, no armature, not a drop-in skeletal bank. No newly verified better native
+primate locomotion bank established, no new downloads/admissions, not a claim
+that none exists anywhere. Research snapshot under primate/source-recheck-
+20261024.json. Actual source dispatch retained:10 fox quadruped compatibility
+trials, Gibbon biped, Orangutan sloth. Updated all12 primate motion_source_plan
+rows and added raw_motion_source path/license/clip lists +native_primate_motion
+false; editable CSV mirrors actual raw bank and missing native behaviours.
+Protected original188 row priorities/families/status/budgets/candidate counts
+EXACT, no texture/geometry/runtime changes. Do NOT mistake experimental source
+coverage for species-native gait/grasping/climbing acceptance. Full --watch
+exec66785/PID25444 remains sole producer; reviewer PID40988 stays untouched.
+Wallaby repaired native artifacts are ready; old failed state waits producer
+next pass via explicit4hash recovery request. Prior remote1adf273; this planning
+reconciliation/checkpoint needs backup.
+
 REVIEW REOPENED / WALLABY ASSEMBLY REPAIRED112,24October2026:
 Owner asked reopen new Blender after closing it immediately. Opened Wolf pending
 review RIGHTMOST via existing launcher; new viewer PID40988 (verify), pending

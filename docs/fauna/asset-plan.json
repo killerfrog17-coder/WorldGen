@@ -12747,7 +12747,7 @@
       "sex_age_season": "Hamadryas adult male silver mantle/face and female profile are linked to sex/maturity. Other baboons do not all share that cape or colour. Young black coat and age proportions remain distinct from adult dark lineages.",
       "extras": "Dog-like muzzle, fitted eyelids/brows, hands/feet and nonprehensile tail after approval; appropriate cape only for matched males/forms.",
       "hypothetical_variation": "Muted olive-brown is a fictional lineage range; gelada chest patches are not automatically a baboon colour option.",
-      "motion_source_plan": "dedicated primate source required; human pack only a clearly labelled compatibility audition",
+      "motion_source_plan": "Raw audition: fox; EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing. Dedicated species-appropriate gait, climbing/grasping and other behaviours still require future motion work.",
       "required_behaviour_clips": [
         "idle",
         "locomotion appropriate to anatomy",
@@ -12801,6 +12801,27 @@
           "https://animals.sandiegozoo.org/animals/hamadryas-baboon",
           "https://animaldiversity.org/accounts/Papio_ursinus/"
         ]
+      },
+      "raw_motion_source": {
+        "bank": "artifacts\\fauna-motion-sources\\fox",
+        "license": "CC0-1.0",
+        "clips": [
+          "Bark",
+          "Bite",
+          "Death",
+          "Fall",
+          "Fetch",
+          "Howl",
+          "Idle",
+          "Idle Alert",
+          "Jump",
+          "Run",
+          "Sit",
+          "Sneak",
+          "Walk"
+        ],
+        "native_primate_motion": false,
+        "experimental_note": "EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing"
       }
     },
     {
@@ -12947,7 +12968,7 @@
       "sex_age_season": "Male-biased size in white-faced-like form; adult sex coat families shared. Young need age face/body proportions, not only tint. Species cap/tuft differences are not male/female presets.",
       "extras": "Fitted forward-facing eyes/lids, expressive muzzle outline, grasping hands and suitable prehensile tail after approval.",
       "hypothetical_variation": "Subdued cream surround is a fictional lineage option, not an exact new capuchin species.",
-      "motion_source_plan": "dedicated primate source required; human pack only a clearly labelled compatibility audition",
+      "motion_source_plan": "Raw audition: fox; EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing. Dedicated species-appropriate gait, climbing/grasping and other behaviours still require future motion work.",
       "required_behaviour_clips": [
         "idle",
         "locomotion appropriate to anatomy",
@@ -13000,6 +13021,27 @@
           "https://animaldiversity.org/accounts/Cebus_capucinus/",
           "https://animaldiversity.org/accounts/Cebus_apella/"
         ]
+      },
+      "raw_motion_source": {
+        "bank": "artifacts\\fauna-motion-sources\\fox",
+        "license": "CC0-1.0",
+        "clips": [
+          "Bark",
+          "Bite",
+          "Death",
+          "Fall",
+          "Fetch",
+          "Howl",
+          "Idle",
+          "Idle Alert",
+          "Jump",
+          "Run",
+          "Sit",
+          "Sneak",
+          "Walk"
+        ],
+        "native_primate_motion": false,
+        "experimental_note": "EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing"
       }
     },
     {
@@ -13147,7 +13189,7 @@
       "sex_age_season": "Adult male-biased bulk with shared hair families; ageing hair loss/greying and infant skin pigmentation are age-linked. Reproductive skin states, if added later, require proper sex/anatomy rather than random bright face colours.",
       "extras": "Fitted lids/brow ridge, protruding muzzle/lips, visible ears, grasping hands and no tail after approval.",
       "hypothetical_variation": "Subdued dark brown is a fictional lineage range, not a bonobo identity claim.",
-      "motion_source_plan": "dedicated primate source required; human pack only a clearly labelled compatibility audition",
+      "motion_source_plan": "Raw audition: fox; EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing. Dedicated species-appropriate gait, climbing/grasping and other behaviours still require future motion work.",
       "required_behaviour_clips": [
         "idle",
         "locomotion appropriate to anatomy",
@@ -13201,6 +13243,27 @@
           "https://animals.sandiegozoo.org/animals/chimpanzee",
           "https://animaldiversity.org/accounts/Pan_troglodytes/"
         ]
+      },
+      "raw_motion_source": {
+        "bank": "artifacts\\fauna-motion-sources\\fox",
+        "license": "CC0-1.0",
+        "clips": [
+          "Bark",
+          "Bite",
+          "Death",
+          "Fall",
+          "Fetch",
+          "Howl",
+          "Idle",
+          "Idle Alert",
+          "Jump",
+          "Run",
+          "Sit",
+          "Sneak",
+          "Walk"
+        ],
+        "native_primate_motion": false,
+        "experimental_note": "EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing"
       }
     },
     {
@@ -14454,7 +14517,7 @@
       "sex_age_season": "White-cheeked-like infants start beige, juveniles darken, mature females become beige while males remain dark. Siamangs do not share that colour sequence. These are linked lineage/sex/age states, not random coat toggles.",
       "extras": "Very long arms, grasping hands/feet, fitted face/lids and no tail after approval; throat sac only for the correct form.",
       "hypothetical_variation": "Muted brown is a fictional lineage option, not an exact named gibbon.",
-      "motion_source_plan": "dedicated primate source required; human pack only a clearly labelled compatibility audition",
+      "motion_source_plan": "Raw audition: biped-trial; EXPERIMENTAL human CC0 ground-walk/jog transfer onto a bipedal gibbon; no authored gibbon gait, raised-arm balance, climbing or brachiation supplied. Dedicated species-appropriate gait, climbing/grasping and other behaviours still require future motion work.",
       "required_behaviour_clips": [
         "idle",
         "locomotion appropriate to anatomy",
@@ -14509,6 +14572,17 @@
           "https://nationalzoo.si.edu/animals/white-cheeked-gibbon",
           "https://www.nationalzoo.si.edu/animals/siamang"
         ]
+      },
+      "raw_motion_source": {
+        "bank": "artifacts\\fauna-motion-sources\\biped-trial",
+        "license": "CC0-1.0",
+        "clips": [
+          "Idle",
+          "Run",
+          "Walk"
+        ],
+        "native_primate_motion": false,
+        "experimental_note": "EXPERIMENTAL human CC0 ground-walk/jog transfer onto a bipedal gibbon; no authored gibbon gait, raised-arm balance, climbing or brachiation supplied"
       }
     },
     {
@@ -14658,7 +14732,7 @@
       "sex_age_season": "Silver saddle belongs to mature males, with linked head/body bulk; not every male starts silver or every grey hair is male. Older females may grey locally. Infants need major proportion differences and age-linked tuft.",
       "extras": "Broad chest/shoulders, appropriate skull crest/brow, fitted lids/face and knuckle-capable hands after approval. No tail.",
       "hypothetical_variation": "Subdued dark brown is a fictional pigment range, not a mountain-gorilla identity claim.",
-      "motion_source_plan": "dedicated primate source required; human pack only a clearly labelled compatibility audition",
+      "motion_source_plan": "Raw audition: fox; EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing. Dedicated species-appropriate gait, climbing/grasping and other behaviours still require future motion work.",
       "required_behaviour_clips": [
         "idle",
         "locomotion appropriate to anatomy",
@@ -14711,6 +14785,27 @@
         "sources": [
           "https://www.nationalzoo.si.edu/animals/western-lowland-gorilla"
         ]
+      },
+      "raw_motion_source": {
+        "bank": "artifacts\\fauna-motion-sources\\fox",
+        "license": "CC0-1.0",
+        "clips": [
+          "Bark",
+          "Bite",
+          "Death",
+          "Fall",
+          "Fetch",
+          "Howl",
+          "Idle",
+          "Idle Alert",
+          "Jump",
+          "Run",
+          "Sit",
+          "Sneak",
+          "Walk"
+        ],
+        "native_primate_motion": false,
+        "experimental_note": "EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing"
       }
     },
     {
@@ -14758,7 +14853,7 @@
       "sex_age_season": "Adult sex colours broadly shared; mantle variation linked to chosen form. White newborn coat is age-specific, not an adult female colour. Young require age proportions and carrying support.",
       "extras": "Long nonprehensile tail with pale tuft, side mantle, fitted face/lids and reduced-thumb hand form after approval.",
       "hypothetical_variation": "Cream mantle is a fictional lineage choice, not a red-colobus recolour claim.",
-      "motion_source_plan": "dedicated primate source required; human pack only a clearly labelled compatibility audition",
+      "motion_source_plan": "Raw audition: fox; EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing. Dedicated species-appropriate gait, climbing/grasping and other behaviours still require future motion work.",
       "required_behaviour_clips": [
         "idle",
         "locomotion appropriate to anatomy",
@@ -14810,6 +14905,27 @@
         "sources": [
           "https://animaldiversity.org/accounts/Colobus_guereza/"
         ]
+      },
+      "raw_motion_source": {
+        "bank": "artifacts\\fauna-motion-sources\\fox",
+        "license": "CC0-1.0",
+        "clips": [
+          "Bark",
+          "Bite",
+          "Death",
+          "Fall",
+          "Fetch",
+          "Howl",
+          "Idle",
+          "Idle Alert",
+          "Jump",
+          "Run",
+          "Sit",
+          "Sneak",
+          "Walk"
+        ],
+        "native_primate_motion": false,
+        "experimental_note": "EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing"
       }
     },
     {
@@ -15163,7 +15279,7 @@
       "sex_age_season": "Red-howler sexes share deep reddish coat with age shade variation; male-biased size is linked to body form. Do not impose another howler species' strong black/gold sex colours. Young require age proportions/carrying support.",
       "extras": "Large lower jaw/throat silhouette, fitted lids/face, grasping hands and long prehensile tail after approval.",
       "hypothetical_variation": "Muted brown-red is a fictional lineage, not an exact black-howler sex profile.",
-      "motion_source_plan": "dedicated primate source required; human pack only a clearly labelled compatibility audition",
+      "motion_source_plan": "Raw audition: fox; EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing. Dedicated species-appropriate gait, climbing/grasping and other behaviours still require future motion work.",
       "required_behaviour_clips": [
         "idle",
         "locomotion appropriate to anatomy",
@@ -15215,6 +15331,27 @@
           "https://animaldiversity.org/accounts/Alouatta_seniculus/",
           "https://animaldiversity.org/accounts/Alouatta/"
         ]
+      },
+      "raw_motion_source": {
+        "bank": "artifacts\\fauna-motion-sources\\fox",
+        "license": "CC0-1.0",
+        "clips": [
+          "Bark",
+          "Bite",
+          "Death",
+          "Fall",
+          "Fetch",
+          "Howl",
+          "Idle",
+          "Idle Alert",
+          "Jump",
+          "Run",
+          "Sit",
+          "Sneak",
+          "Walk"
+        ],
+        "native_primate_motion": false,
+        "experimental_note": "EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing"
       }
     },
     {
@@ -15469,7 +15606,7 @@
       "sex_age_season": "Ringtail adult palettes broadly shared; collared-brown-like sex colour rules belong only to that lineage. Young need age head/body/carrying support. Tail rings are not a male-only feature.",
       "extras": "Fitted large eyes/lids, pointed muzzle, hands/feet and long nonprehensile balancing tail after approval. Ruffs need geometry where silhouette changes.",
       "hypothetical_variation": "Subdued grey-brown is a fictional lineage range, not a generic recolour that establishes every lemur species.",
-      "motion_source_plan": "dedicated primate source required; human pack only a clearly labelled compatibility audition",
+      "motion_source_plan": "Raw audition: fox; EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing. Dedicated species-appropriate gait, climbing/grasping and other behaviours still require future motion work.",
       "required_behaviour_clips": [
         "idle",
         "locomotion appropriate to anatomy",
@@ -15523,6 +15660,27 @@
           "https://nationalzoo.si.edu/animals/ring-tailed-lemur",
           "https://nationalzoo.si.edu/animals/collared-brown-lemur"
         ]
+      },
+      "raw_motion_source": {
+        "bank": "artifacts\\fauna-motion-sources\\fox",
+        "license": "CC0-1.0",
+        "clips": [
+          "Bark",
+          "Bite",
+          "Death",
+          "Fall",
+          "Fetch",
+          "Howl",
+          "Idle",
+          "Idle Alert",
+          "Jump",
+          "Run",
+          "Sit",
+          "Sneak",
+          "Walk"
+        ],
+        "native_primate_motion": false,
+        "experimental_note": "EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing"
       }
     },
     {
@@ -15670,7 +15828,7 @@
       "sex_age_season": "Male-biased size, conservative shared adult coat families. Face/reproductive skin condition is not a global male-red/female-grey rule. Young require age face/body proportions; winter density is separate from species.",
       "extras": "Fitted lids/brow/muzzle, hands/feet and lineage-appropriate tail after approval; Japanese stumpy tail cannot be only a colour switch.",
       "hypothetical_variation": "Muted olive-brown is a fictional lineage option, not an exact named macaque.",
-      "motion_source_plan": "dedicated primate source required; human pack only a clearly labelled compatibility audition",
+      "motion_source_plan": "Raw audition: fox; EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing. Dedicated species-appropriate gait, climbing/grasping and other behaviours still require future motion work.",
       "required_behaviour_clips": [
         "idle",
         "locomotion appropriate to anatomy",
@@ -15723,6 +15881,27 @@
           "https://animaldiversity.org/accounts/Macaca_mulatta/",
           "https://animaldiversity.org/accounts/Macaca_fuscata/"
         ]
+      },
+      "raw_motion_source": {
+        "bank": "artifacts\\fauna-motion-sources\\fox",
+        "license": "CC0-1.0",
+        "clips": [
+          "Bark",
+          "Bite",
+          "Death",
+          "Fall",
+          "Fetch",
+          "Howl",
+          "Idle",
+          "Idle Alert",
+          "Jump",
+          "Run",
+          "Sit",
+          "Sneak",
+          "Walk"
+        ],
+        "native_primate_motion": false,
+        "experimental_note": "EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing"
       }
     },
     {
@@ -15968,7 +16147,7 @@
       "sex_age_season": "Some mature males develop flanges/large throat sacs; fertile unflanged males also exist, so maturity is not a mandatory binary flange switch. Females and young need appropriate body proportions and hair length.",
       "extras": "Long arms, curved grasping fingers/toes, fitted face/lids, optional coherent flange/beard/throat presets and no tail after approval.",
       "hypothetical_variation": "Subdued rusty brown is a fictional lineage range, not a reliable species identification by colour alone.",
-      "motion_source_plan": "dedicated primate source required; human pack only a clearly labelled compatibility audition",
+      "motion_source_plan": "Raw audition: sloth; EXPERIMENTAL giant-sloth terrestrial walk transfer; no authored orangutan gait, fist contact, climbing, hanging or grasping supplied. Dedicated species-appropriate gait, climbing/grasping and other behaviours still require future motion work.",
       "required_behaviour_clips": [
         "idle",
         "locomotion appropriate to anatomy",
@@ -16022,6 +16201,16 @@
           "https://nationalzoo.si.edu/animals/orangutan",
           "https://nationalzoo.si.edu/animals/news/are-orangutans-monkeys-and-other-orangutan-facts"
         ]
+      },
+      "raw_motion_source": {
+        "bank": "artifacts\\fauna-motion-sources\\sloth",
+        "license": "CC0-1.0 verified at source page",
+        "clips": [
+          "Idle",
+          "Walk"
+        ],
+        "native_primate_motion": false,
+        "experimental_note": "EXPERIMENTAL giant-sloth terrestrial walk transfer; no authored orangutan gait, fist contact, climbing, hanging or grasping supplied"
       }
     },
     {
@@ -17869,7 +18058,7 @@
       "sex_age_season": "Keep adult sex palettes conservative; sex-specific anatomy and proportions should be verified for the selected form. Young require correct limb/head proportions and clinging behaviour.",
       "extras": "Long limbs, reduced or absent external thumb and prehensile tail with a bare gripping surface; no arbitrary short-tail variant on the same suspension design.",
       "hypothetical_variation": "Subdued brown-grey or pale underside is an optional fictional lineage; colour alone does not establish another named spider-monkey species.",
-      "motion_source_plan": "dedicated primate source required; human pack only a clearly labelled compatibility audition",
+      "motion_source_plan": "Raw audition: fox; EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing. Dedicated species-appropriate gait, climbing/grasping and other behaviours still require future motion work.",
       "required_behaviour_clips": [
         "idle",
         "locomotion appropriate to anatomy",
@@ -17920,6 +18109,27 @@
         "sources": [
           "https://primate.wisc.edu/primate-info-net/pin-factsheets/black-spider-monkey/"
         ]
+      },
+      "raw_motion_source": {
+        "bank": "artifacts\\fauna-motion-sources\\fox",
+        "license": "CC0-1.0",
+        "clips": [
+          "Bark",
+          "Bite",
+          "Death",
+          "Fall",
+          "Fetch",
+          "Howl",
+          "Idle",
+          "Idle Alert",
+          "Jump",
+          "Run",
+          "Sit",
+          "Sneak",
+          "Walk"
+        ],
+        "native_primate_motion": false,
+        "experimental_note": "EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing"
       }
     },
     {
@@ -17966,7 +18176,7 @@
       "sex_age_season": "Golden lion males and females are similar in size and appearance; no male-only mane or orange coat. Young need age proportions and dependent behaviours. Different tamarin face ornaments are lineage traits.",
       "extras": "Backswept mane around dark bare face, narrow hands/feet and long nonprehensile tail. Other tamarin moustaches/crests need appropriate geometry.",
       "hypothetical_variation": "Muted mane or darker body is an optional lineage design, not an assertion of a known lion-tamarin taxon.",
-      "motion_source_plan": "dedicated primate source required; human pack only a clearly labelled compatibility audition",
+      "motion_source_plan": "Raw audition: fox; EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing. Dedicated species-appropriate gait, climbing/grasping and other behaviours still require future motion work.",
       "required_behaviour_clips": [
         "idle",
         "locomotion appropriate to anatomy",
@@ -18018,6 +18228,27 @@
           "https://nationalzoo.si.edu/animals/golden-lion-tamarin",
           "https://primate.wisc.edu/primate-info-net/pin-factsheets/pin-factsheet-golden-lion-tamarin/"
         ]
+      },
+      "raw_motion_source": {
+        "bank": "artifacts\\fauna-motion-sources\\fox",
+        "license": "CC0-1.0",
+        "clips": [
+          "Bark",
+          "Bite",
+          "Death",
+          "Fall",
+          "Fetch",
+          "Howl",
+          "Idle",
+          "Idle Alert",
+          "Jump",
+          "Run",
+          "Sit",
+          "Sneak",
+          "Walk"
+        ],
+        "native_primate_motion": false,
+        "experimental_note": "EXPERIMENTAL fox quadrupedal motion transfer, not authored primate motion; climbing, grasping, grooming and primate-specific gait still missing"
       }
     },
     {
