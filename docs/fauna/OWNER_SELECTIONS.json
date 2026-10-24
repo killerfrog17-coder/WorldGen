@@ -313,6 +313,123 @@
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
       "painting_started": false
+    },
+    "african-hunting-dog": {
+      "animal": "African hunting dog",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T13:05:05.794184-05:00",
+      "model_sha256": "afb70861cf6ffb31969594763806d198bb6fe52ac64ea9866512b5a25f0952ef",
+      "rig_sha256": "46be0f8572d56db6467a70040ca35a2dec4607ba8a5591c9c0fdab05eeb1ff29",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "agouti": {
+      "animal": "Agouti",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T13:05:05.813030-05:00",
+      "model_sha256": "d7ef172c47acfc0477f04d3c6df4696e070e4e19328576de1630c553c5951876",
+      "rig_sha256": "e6cbcf55a20fe790b632d4b48ebd4f701e547402d3367a95a57a023006e913be",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "bank-vole": {
+      "animal": "Bank vole",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T13:05:05.824146-05:00",
+      "model_sha256": "e7daadbe2c519907510280c17e037b7954f06d4bcddf76a0fd423b796a3eccd6",
+      "rig_sha256": "cf46c252dffa9107ed6eb10257444b91dcaad27d4ed5b9056a35de575ac84da7",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "buffalo": {
+      "animal": "Buffalo",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T13:05:05.835431-05:00",
+      "model_sha256": "b40a9e5e4b936c2cb69d38800f14ef5b09008edfb335d173f670b2b7b97bd15e",
+      "rig_sha256": "d8d2967eb26b439b5bb4333a2d8c3ca24019adab374a73e2a551188b671cb44e",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "camel": {
+      "animal": "Camel",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T13:05:05.851988-05:00",
+      "model_sha256": "4aba6bbc26dbeaccace4bc5b0a05333e2b07f7c6cebe08db30de00163fccfe6d",
+      "rig_sha256": "f26e59df40404948c1e6a35257755a1c2d96de88c68011d2d575cdf95b43116b",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "cassowary": {
+      "animal": "Cassowary",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T13:05:05.868075-05:00",
+      "model_sha256": "a668ca40de25be7bb5f8ab043c67a3c0a5d5210a47aa4c2b2127574288e8ad96",
+      "rig_sha256": "19019b05f4baa822dd040831a688adc8d19efff480e16e91c161c32554f9c872",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "civet": {
+      "animal": "Civet",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T13:05:05.879900-05:00",
+      "model_sha256": "c712dddd9bf5225fc6b6938ef689952d777ae16ecbeb23a3e3c1cf4d868de4a5",
+      "rig_sha256": "43e66e0f9110d8fb312752a63c2e0fa442d60480a1a450397e71a5e7109323d1",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "cockatoo": {
+      "animal": "Cockatoo",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T13:05:05.894834-05:00",
+      "model_sha256": "0b0d1c1af794aaf4119dee40dcf6aaf88d5dbe40aa6e0c0545f6e220a0572e64",
+      "rig_sha256": "111fd1b174cacdfeaf104d99c2dace760957d7228bdf980d9b2f0d4157320980",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
+    },
+    "collared-peccary": {
+      "animal": "Collared peccary",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T13:05:05.898489-05:00",
+      "model_sha256": "9240433662281a10c465b018f3866a7f55af8958d1470ad25839155bf528af1a",
+      "rig_sha256": "c6e32afe710d7d30d046ed0021779f57323f0aca7a77a9af64eed37fbf2f0b0e",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
+      "painting_started": false
     }
   },
   "source_root": "artifacts/fauna-overnight-20261024",
