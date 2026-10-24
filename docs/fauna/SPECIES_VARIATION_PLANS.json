@@ -1749,7 +1749,7 @@
         "hypothetical subdued patch contrast"
       ],
       "surface_class_count": 6,
-      "texture_assets": "Six classes: short fur, mane/tail-tuft hair, eye, nose/lid skin, hoof detail and ear/ossicone skin. Shared ungulate sources with region-aware patch network and pale underside; ossicones are skin-covered anatomy, not antler keratin.",
+      "texture_assets": "Six classes: short fur, mane/tail-tuft hair, eye, nose/lid skin, hoof detail and ear/ossicone skin. Shared ungulate sources with region-aware patch network and pale underside; ossicones are skin-covered anatomy, not a bare keratin horn or branching antler.",
       "sex_age_season": "Both sexes have ossicones; male skull/head development and age pigment changes require linked presets, not a fifty-percent antler roll. Calves need long-limbed younger proportions rather than uniform scaling.",
       "extras": "Long articulated neck, fitted lateral eyes/lashes, skin-covered ossicones, mane and tufted tail after approval.",
       "paint_details": "Patch scale/orientation changes over neck and limbs smoothly; no seam ring at neck base. Skin-covered head structures retain their own fur/skin coverage rather than polished horn material.",
@@ -3824,8 +3824,8 @@
         "warm rusty adult",
         "hypothetical muted woodland brown"
       ],
-      "surface_class_count": 5,
-      "texture_assets": "Five classes: coarse body bristle, eye, nose/lid skin, hoof/tusk keratin and ear skin. Shared pig bristle source with pale spinal crest, face patches, ear fringe and underside masks; long hair silhouettes are extras rather than high-frequency paint alone.",
+      "surface_class_count": 6,
+      "texture_assets": "Six classes: coarse body bristle, eye, nose/lid skin, hoof keratin, tusk ivory and ear skin. Shared pig bristle source with pale spinal crest, face patches, ear fringe and underside masks; long hair silhouettes are extras rather than high-frequency paint alone.",
       "sex_age_season": "Adult sex variation includes male snout protuberances and appropriate tusk/head differences, not a deer-like rack roll. Coat intensity can vary with age/lineage. Young need a separately verified juvenile pattern and proportions before becoming a selectable age state.",
       "extras": "Long pointed tufted ears, pale spinal bristles, restrained tusks, slender tufted tail and appropriate male face shapes after approval. Preserve red-river-hog identity instead of adding a warthog face.",
       "paint_details": "Warm coat with anatomical pale face and ear details; nose disc, eyelids and hoof edges use fitted masks. Pale dorsal bristles should not become a flat white stripe painted across unrelated surfaces.",
