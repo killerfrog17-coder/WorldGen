@@ -1,5 +1,10 @@
 # Distance-budgeted terrain surface shading /22 October 2026
 
+24October art update: [soil/granite surface art](TERRAIN_SURFACE_ART_V1.md) supplies
+compressed512/256/128px material arrays through the existing art set. This
+supersedes the128px procedural-source size below for that checkpoint; shader
+operation counts, distance budgets and quality controls remain unchanged.
+
 The owner's Terrain lab comparisons isolate a large surface-sampling cost while
 lighting, shadows, geometry and vegetation remain. This replacement removes the
 old fourteen-potential-layer/triplanar texture path through850m. It does not

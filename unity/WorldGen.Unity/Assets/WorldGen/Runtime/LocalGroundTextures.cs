@@ -2,7 +2,7 @@ using UnityEngine;
 using WorldGen.Core;
 
 /// <summary>Small, tileable placeholder PBR data. Replace arrays/material in the art set, not placement code.</summary>
-static class LocalGroundTextures
+public static class LocalGroundTextures
 {
     static float Noise(float u,float v,int grid,int seed)
     {
@@ -10,7 +10,7 @@ static class LocalGroundTextures
         float Hash(int i,int j)=> (Rng.Mix((uint)((i%grid+grid)%grid+((j%grid+grid)%grid)*grid+seed))&65535)/65535f;
         return Mathf.Lerp(Mathf.Lerp(Hash(a,b),Hash(a+1,b),tx),Mathf.Lerp(Hash(a,b+1),Hash(a+1,b+1),tx),ty);
     }
-    public static Texture2DArray[] Create()
+    public static Texture2DArray[] Create(bool readable=false)
     {
         const int size=128;var arrays=new[]{new Texture2DArray(size,size,14,TextureFormat.RGBA32,true,false),new Texture2DArray(size,size,14,TextureFormat.RGBA32,true,true),new Texture2DArray(size,size,14,TextureFormat.RGBA32,true,true)};
         for(int layer=0;layer<14;layer++)
@@ -41,6 +41,6 @@ static class LocalGroundTextures
             }
             arrays[0].SetPixels(albedo,layer);arrays[1].SetPixels(normal,layer);arrays[2].SetPixels(mask,layer);
         }
-        foreach(var array in arrays){array.wrapMode=TextureWrapMode.Repeat;array.filterMode=FilterMode.Trilinear;array.anisoLevel=4;array.Apply(true,true);}return arrays;
+        foreach(var array in arrays){array.wrapMode=TextureWrapMode.Repeat;array.filterMode=FilterMode.Trilinear;array.anisoLevel=4;array.Apply(true,!readable);}return arrays;
     }
 }

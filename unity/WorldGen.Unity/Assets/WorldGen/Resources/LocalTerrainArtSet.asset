@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   Scatter: []
   GroundMaterial: {fileID: 0}
-  Albedo: {fileID: 0}
-  Normals: {fileID: 0}
-  Masks: {fileID: 0}
+  Albedo: {fileID: 18700000, guid: 888579090079e3e4bb6e3f9c2543d227, type: 2}
+  Normals: {fileID: 18700000, guid: 4d50b1e5190796d4081ee8fcbb64a5f3, type: 2}
+  Masks: {fileID: 18700000, guid: e6d539a90d668104ba420756bbc39080, type: 2}
   TextureRepeatMetres: 2

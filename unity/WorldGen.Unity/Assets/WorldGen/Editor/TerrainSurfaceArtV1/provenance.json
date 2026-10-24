@@ -1,0 +1,41 @@
+{
+  "generator": "Built-in imagegen",
+  "offline_bake": "Periodic-plus-smooth boundary removal, broad-light correction, neutral linear mean, shallow normal derivation",
+  "repeat_metres": 2,
+  "replacement_layers": {
+    "soil": [
+      0
+    ],
+    "granite": [
+      4,
+      8
+    ]
+  },
+  "materials": [
+    {
+      "material": "soil",
+      "source_sha256": "d577b77123f6d3c7e411c041c1b4c0bbbd5b5727e67392c02524629e657b9b44",
+      "linear_mean": 0.21404114048223255,
+      "target_mean": 0.21404114048223255,
+      "albedo_size": 512,
+      "normal_size": 256,
+      "mask_size": 128,
+      "edge_gradient_ratio": 0.5446085080997466,
+      "normal_method": "Conservative periodic luminance relief; no measured/inferred geometry",
+      "relief_std_m": 0.0015
+    },
+    {
+      "material": "granite",
+      "source_sha256": "a466d64d65c7fab1abee72b645f2c87d0bb87f8a0fd9c798cc5bcaf37de23262",
+      "linear_mean": 0.21404114048223255,
+      "target_mean": 0.21404114048223255,
+      "albedo_size": 512,
+      "normal_size": 256,
+      "mask_size": 128,
+      "edge_gradient_ratio": 0.5453925512382509,
+      "normal_method": "Conservative periodic luminance relief; no measured/inferred geometry",
+      "relief_std_m": 0.003
+    }
+  ],
+  "runtime_shader_changes": false
+}

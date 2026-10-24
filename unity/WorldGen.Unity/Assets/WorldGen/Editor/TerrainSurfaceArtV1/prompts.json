@@ -1,0 +1,13 @@
+{
+  "generator": "Built-in imagegen",
+  "materials": [
+    [
+      "soil",
+      "Use case: photorealistic-natural. Asset type: seamless game ground material, base-colour/albedo texture, one square swatch filling the entire image edge to edge. Primary request: extremely realistic natural fine mineral loam soil, small irregular crumbly aggregates, fine silt and sand grains with only a few tiny embedded stone flecks. View straight down orthographically at an approximately 2 metre wide patch of bare soil. No grass, plants, roots, leaves, footprints or large stones. Even texture density throughout, restrained local contrast, no conspicuous recognizable centre feature. Broad natural fine and medium scale detail. Neutral desaturated warm-grey/brown colour, not rich saturated orange; this will be tinted by an existing ecological ground palette. Completely flat diffuse shadow-free illumination, no directional lighting, no highlights, no baked ambient occlusion, no cast shadows, no depth of field, no perspective, no scenery or horizon. Seamlessly repeating on both axes: matching edge character and illumination, no frame, no border, no labels or text. Produce only the material surface, not a rendered sphere, not a presentation board."
+    ],
+    [
+      "granite",
+      "Use case: photorealistic-natural. Asset type: seamless game cliff rock material, base-colour/albedo texture, one square swatch filling the entire image edge to edge. Primary request: realistic weathered granite bedrock, broad irregular fractured stone facets with sparse subtle shallow joints and fine granular interlocking quartz/feldspar/mica crystals. Face-on orthographic geological material scan of an approximately 2 metre wide surface. Restrained rough relief and irregular natural structure, no large dark chasms, no piled loose boulders, no bricks, no regular geometric tessellation. Neutral slightly warm grey, subtle off-white and charcoal mineral grains; this will be tinted by an existing geology palette. Flat diffuse shadow-free lighting, no sun direction, no highlights, no hard black shadows, no vignette or brightness gradient. Seamless repeating surface on both axes with even edge detail, no prominent centre feature, no plants, moss or lichen, no surrounding terrain, no mountain scene, no sphere or presentation board, no text or borders. The output is an albedo material only; game lighting supplies all illumination."
+    ]
+  ]
+}
