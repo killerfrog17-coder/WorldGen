@@ -12,6 +12,8 @@ import numpy as np
 from mathutils import Matrix,Vector
 from mathutils.bvhtree import BVHTree
 from mathutils.geometry import barycentric_transform
+sys.path.insert(0,str(Path(__file__).parent))
+from deer_behaviour_core import blend_pose,smooth
 
 ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,required=True)
 ap.add_argument('--source',type=Path,required=True);ap.add_argument('--fur',type=Path,required=True)
@@ -77,6 +79,50 @@ for o in list(s.objects):
     if o.type=='MESH' and o!=body:bpy.data.objects.remove(o,do_unlink=True)
 body.hide_set(False);body.hide_render=False;rig.hide_set(True);rig.data.pose_position='POSE'
 s['own_rig_review']=json.dumps(info)
+clips={};fps=info['transferred_fps']
+rig.data.pose_position='POSE'
+for label in ('Idle','Walk','Trot','Run','Eating','Sleep','lay_to_idle'):
+    action=bpy.data.actions[info['transferred'][label]];rig.animation_data_clear();rig.animation_data_create().action=action;rig.animation_data.action_slot=action.slots[0]
+    array=[]
+    for frame in range(int(action.frame_range[0]),int(action.frame_range[1])+1):
+        s.frame_set(frame)
+        array.append((np.array([rig.pose.bones[n].location[:] for n in bone_names]),np.array([rig.pose.bones[n].matrix_basis.to_quaternion()[:] for n in bone_names])))
+    if label!='lay_to_idle' and all(np.max(np.abs(x-y))<1e-5 for x,y in zip(array[0],array[-1])):array=array[:-1]
+    clips[label]=array
+def sample(label,seconds):
+    array=clips[label];time=seconds*fps
+    if label=='lay_to_idle':time=min(time,len(array)-1)
+    else:time%=len(array)
+    first=int(time);return blend_pose(array[first],array[min(first+1,len(array)-1)] if label=='lay_to_idle' else array[(first+1)%len(array)],time-first)
+def demo(name,parts):
+    poses=[];previous=None;duration_before=0;offset_before=0
+    for label,duration in parts:
+        offset=0
+        if previous in ('Walk','Trot','Run') and label in ('Walk','Trot','Run'):
+            offset=((duration_before+offset_before)*fps/len(clips[previous])%1)*len(clips[label])/fps
+        for frame in range(round(duration*fps)):
+            t=frame/fps;pose=sample(label,t+offset)
+            if previous and t<.5:pose=blend_pose(sample(previous,duration_before+offset_before+t),pose,smooth(t/.5))
+            poses.append(pose)
+        previous=label;duration_before=duration;offset_before=offset
+    for frame in range(round(.5*fps)):poses.append(blend_pose(poses[-1],sample('Idle',0),smooth((frame+1)/(.5*fps))))
+    action=bpy.data.actions.new(name);action.use_fake_user=True;slot=action.slots.new(id_type='OBJECT',name=rig.name)
+    bag=action.layers.new('Raw preview blend').strips.new(type='KEYFRAME').channelbag(slot,ensure=True)
+    loc=np.array([p[0] for p in poses]);rot=np.array([p[1] for p in poses])
+    for frame in range(1,len(rot)):rot[frame,np.sum(rot[frame]*rot[frame-1],axis=1)<0]*=-1
+    times=np.arange(len(poses),dtype=np.float32)
+    for index,bone in enumerate(bone_names):
+        for path,values in [('location',loc[:,index]),('rotation_quaternion',rot[:,index])]:
+            for axis in range(values.shape[1]):
+                curve=bag.fcurves.new(data_path=f'pose.bones["{bone}"].{path}',index=axis);curve.keyframe_points.add(len(poses))
+                curve.keyframe_points.foreach_set('co',np.c_[times,values[:,axis]].astype(np.float32).ravel())
+                for key in curve.keyframe_points:key.interpolation='LINEAR'
+                curve.update()
+    return action.name
+demos={}
+demos['Showcase']=demo('Raw behaviour showcase',[('Idle',2),('Walk',3),('Trot',2),('Run',3),('Walk',2),('Idle',2),('Eating',5),('Idle',2),('Sleep',4),('lay_to_idle',len(clips['lay_to_idle'])/fps),('Idle',2)])
+demos['Locomotion']=demo('Raw locomotion loop',[('Idle',2),('Walk',3),('Trot',2),('Run',3),('Trot',2),('Walk',3),('Idle',2)])
+s['raw_review_demos']=json.dumps(demos)
 action=bpy.data.actions[info['transferred']['Walk']];rig.animation_data_create().action=action;rig.animation_data.action_slot=action.slots[0]
 s.render.fps=info['transferred_fps'];s.frame_start=int(action.frame_range[0]);s.frame_end=int(action.frame_range[1]);s.frame_set(s.frame_start)
 report={'stage':'raw automatic motion audition','source':str(a.source.resolve()),'triangles':len(body.data.polygons),'bones':len(rig.data.bones),

@@ -29,6 +29,29 @@ Opened RIGHTMOST, one follow-up sent; leave it untouched while the owner inspect
 Top bar Idle/Walk/Trot/Run/Eating/Pause; sidebar Sleep and other source clips.
 No new Desktop item or game/Unity changes. GPU generation is finished.
 
+Owner found the first raw pass better but requested another generation. Candidate
+B uses seed732525,113.89s generation, same automatic assembly, in the sibling
+`fauna-deer-raw-motion-20261024-b` root. Its new raw viewer restores the requested
+numbered controls in both the top bar and Animal Review sidebar:
+
+- **1:** animation bank1/1.
+- **2:** randomized fur-colour preview only; no painted patterns or extra anatomy
+  are claimed for this unfinished raw pass.
+- **3:** side, face and rotating view; ordinary middle drag stops automatic orbit.
+- **4:** blended behaviour showcase versus locomotion loop. These are ordinary
+  local-pose blends of the existing clips; original source actions stay intact.
+- **Show/Hide Skeleton:** explicitly unhides the rig, enables bone overlays and
+  draws bones in front of the body. Native GUI toggle/restore checks pass.
+
+Individual animations and Pause/Play remain available. The owner has never used
+Blender: say "the deer picture" instead of unexplained "3D viewport", and prefer
+visible buttons over instructions to search Blender properties. Alt+H alone did
+not solve the owner's visibility problem. Preserve older windows/files.
+
+Collision, stretch and joint-flip diagnostics can inform future automatic
+rejection, but this reroll has no added quality-rejection/repair gate and no art
+acceptance claim. Smoothing is not a repair for wrong weights or joint placement.
+
 ## Historical workflow — superseded stage order
 
 Owner revision,23 October2026: one generated candidate at a time. Review is in

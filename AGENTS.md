@@ -1,5 +1,20 @@
 # WorldGen repository instructions
 
+RAW DEER REROLL / REVIEW CONTROLS,24October2026: owner says first raw audition
+looks better but requests regeneration, then explicitly requires the1-4 panel
+and Show/Hide Skeleton. Candidate B generated seed732525/same reference in113.89s;
+raw automatic template-weight/rig/motion/fur approach retained, no painting or
+manual pose/geometry fixes. New root artifacts/fauna-deer-raw-motion-20261024-b,
+Deer - Raw Generated Motion Audition.blend opened RIGHTMOST with raw numbered
+viewer:1 bank1/1,2 fur colour variants ONLY,3 side/face/orbit,4 blended showcase/
+locomotion; individual clips and Pause/Play. Header and Animal Review sidebar
+both have Show/Hide Skeleton, enabling bone overlays and In Front explicitly;
+GUI toggle/restore checks pass. No need for owner Blender shortcuts. Alt+H
+instructions did not help owner; do not repeat unexplained Blender jargon.
+No further intervention in older windows; current generation is finished.
+No automatic quality-rejection gate or guaranteed deformation cure is claimed.
+Raw candidate B awaits owner review; no painting/extras until motion approved.
+
 RAW DEER AUDITION / REORDERED PIPELINE,24October2026: owner explicitly requests
 fresh model + automatic rig/motions + existing fur, NO painting/manual work or
 extended checks, before any finishing. New TripoSG seed732524 using existing

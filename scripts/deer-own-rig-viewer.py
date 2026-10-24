@@ -61,6 +61,20 @@ class DOR_OT_play(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class DOR_OT_skeleton(bpy.types.Operator):
+    bl_idname='deer_own.skeleton';bl_label='Show / hide skeleton'
+    def execute(self,context):
+        rig=bpy.data.objects[info['rig']]
+        showing=rig.hide_get() or rig.hide_viewport
+        rig.show_in_front=True;rig.hide_viewport=False;rig.hide_set(not showing)
+        rig.data.display_type='OCTAHEDRAL'
+        if showing:
+            for area in context.screen.areas:
+                for space in area.spaces:
+                    if space.type=='VIEW_3D':space.overlay.show_overlays=True;space.overlay.show_bones=True
+        return {'FINISHED'}
+
+
 class DOR_OT_view(bpy.types.Operator):
     bl_idname='deer_own.view';bl_label='View deer'
     face:bpy.props.BoolProperty(default=False)
@@ -80,6 +94,7 @@ def controls(layout,context):
     for clip in ('Bind pose','Idle','Walk','Trot','Run','Eating'):
         row.operator('deer_own.clip',text=clip,depress=p.clip==clip).clip=clip
     row.operator('deer_own.play',text='Pause / Play')
+    row.operator('deer_own.skeleton',text='Skeleton',depress=not bpy.data.objects[info['rig']].hide_get())
     if 'uncorrected_eating' in info and p.clip=='Eating':row.prop(p,'raw_eating',text='Before fix',toggle=True)
 
 
@@ -106,7 +121,7 @@ def header(self,context):
     row.operator('deer_own.view',text='Whole deer').face=False
 
 
-for cls in (DOR_Properties,DOR_OT_clip,DOR_OT_play,DOR_OT_view,DOR_PT_panel):bpy.utils.register_class(cls)
+for cls in (DOR_Properties,DOR_OT_clip,DOR_OT_play,DOR_OT_skeleton,DOR_OT_view,DOR_PT_panel):bpy.utils.register_class(cls)
 bpy.types.Scene.deer_own_review=bpy.props.PointerProperty(type=DOR_Properties)
 bpy.types.VIEW3D_HT_header.prepend(header)
 scene.deer_own_review.bank='transferred'
