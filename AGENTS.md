@@ -1,5 +1,36 @@
 # WorldGen repository instructions
 
+OVERNIGHT PINNIPED CHECKPOINT,24October2026~07:51CDT: serial watch worker
+PID2856/exec15932 verified LIVE, Fish eagle shape batch. Previous main74378
+terminal0 verified; isolated Seal trial78252 terminal0 before finalization.
+51 reviews/204 candidates ready incl Emu/Falcon/Seal; Redkangaroo4 raw models/
+rigs motion pending, no uninspected source trial. All owner ART pending/no paint.
+Emu1 first5-joint rig invalid; retry143 joints passed topology, Emu3 retried too;
+native checks pass, NOT art/gait acceptance. Do not equate huge rig with good art.
+New prepare-fauna-pinniped-sources.py creates separate fore/hind experimental
+banks, original source arrays UNCHANGED (hind arrays explicitly compared exact).
+Fore bank clones tested Glide/Flap-to-flipper bank for SeaLion; hind bank maps
+fish horizontal-tail stroke onto both rear-flipper chains for Seal/Walrus.
+NOAA supports fore propulsion in sea lions, rear propulsion in true seals; NPS
+also rear propulsion for walrus. URLs/inference limits in OVERNIGHT_WORKFLOW.txt.
+Seal4 fresh meshes/rigs native checked; sampled1 Bind/Swim oblique+side and3rear
+retain recognizable body/neck/flippers, no obvious body collapse. Technical
+usable_for_raw_audition decision recorded with hashes, owner approval pending.
+Swim-only, no authored pinniped/haul-out/feeding/rest/death claim. SeaLion/Walrus
+routes are explicitly experimental; no per-target success claim before review.
+Source coverage171/176 incl14 experimental cross-animal routes. Remaining5:
+Redkangaroo,Wallaby,CoastalSquid,Gibbon,Orangutan. Raw/source gaps not completion.
+SeaTurtle/Seal metadata now correctly flags experimental_transfer_trial=True.
+Current source remote98e5047d308113dff8f44dc8d16c1485e80b5ecf verified; new
+pinniped/source/doc changes need backup. No Desktop/window/game/app closure.
+Possible NEXT investigation: reuse existing Kangaroo4 raw meshes/rigs for a
+hind-leg-only authored CC0 bound trial with incompatible torso/head/arms held
+at bind and donor root orientation extracted. This is UNTESTED, not authorized
+promotion or promise; old full-body rabbit transfer remains rejected. Do not
+regenerate shapes for this CPU retarget experiment. Biped Gibbon/Orangutan and
+simple ambient squid still need an appropriate motion method; main queue has
+much work, so no blocked/complete goal status. Preserve owner unrelated edits.
+
 OVERNIGHT FLIPPER SOURCE CHECKPOINT,24October2026~07:32CDT: serial watch worker
 PID22672/exec74378 verified LIVE, Emu shape batch. Prior worker90430 terminal0
 verified; isolated SeaTurtle trial79659 then terminal0, inspected before resume.

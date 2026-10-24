@@ -136,6 +136,28 @@ limbs/finger branches, not a straightforward radial-arm source. The CC0 Octopus
 in Cage at https://blendswap.com/blend/22871 needs login to download; no bypass.
 
 AFTER ALL RAW AUDITIONS
+The separate hind-pinniped bank has now been tried on four generated seals.
+Native reload/controls passed; selected bind/stroke oblique/side/rear poses
+retained recognizable body/neck/flipper shapes. It is retained as a raw trial,
+not full-cycle naturalness/contact or owner art approval. Walrus can audition
+that same rear-propulsion route; sea lion uses the separate fore-stroke route.
+Those target animals still require their own model/motion review. No hauled-out
+land movement is supplied for any of these swimming-only prototypes.
+Source coverage171/176 now includes14 explicit cross-animal trials. Remaining5
+gaps: Red kangaroo, Wallaby, Coastal squid, Gibbon, Orangutan. A source route is
+not a completed target audition and does not authorize painting or game export.
+
+Pinniped source trials keep two propulsion types separate. NOAA describes true
+seals using rear flippers for propulsion and sea lions using front flippers:
+https://www.fisheries.noaa.gov/seals-sea-lions
+The NPS similarly identifies hind-flipper propulsion for walruses:
+https://home.nps.gov/bela/learn/kidsyouth/alaskan-animal-adaptations.htm
+Using an existing fish tail stroke for the former and a wing stroke for the
+latter is an experimental anatomical inference, not captured pinniped motion or
+proof of natural target animation. Fore/hind source banks contain unchanged
+authored CC0 arrays; no donor geometry. Both explicitly omit hauled-out land
+locomotion and foraging. Seal target trial must be inspected before admission.
+
 Sea turtle now has an EXPERIMENTAL bird-Glide/Flap-to-flipper raw audition. Its
 actual source arrays are unchanged; Glide is the reference/Idle instead of a
 perched bird. Only graph correspondence changes. Native reload/controls passed,
