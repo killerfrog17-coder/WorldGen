@@ -1,5 +1,21 @@
 # WorldGen repository instructions
 
+PRIORITY REROLLS FINISHED / FULL ROSTER RESUMED,24October2026~12:40CDT:
+All4 requested replacement sets are ready for RAW owner comparison. Junglefowl
+native4/controls finite and CPU Walk phase.33 side all4/front2/3 inspected;
+fixed feathered body stable, but candidate3 severe leg-skin distortion retained
+in visual-warnings.json. Other candidates coarse ground Idle/Walk; no flight,
+feeding/contact/gait/art approval. Qualified stable bank hashes locked. Source
+trial finalized usable_for_raw_audition for model-selection only. Old rejected
+Junglefowl archive pruned17.68MiB after exact path/hash/replacement checks;
+compact previous-rejection-provenance retained. Priority manifest complete.
+Current98 raw reviews/392 candidates, not full176. Normal --watch RESUMED as
+sole producer exec24637/PID10620 (verify), cached SecretaryBird shapes retained
+and component cleanup resumed. Owner selections24 in canonical OWNER_SELECTIONS;
+no painting or new texture sources. Current viewer untouched, owner navigates.
+No app closures/game/Desktop modifications. Prior remote e0733e5; this checkpoint
+and Junglefowl owner-status update need backup.
+
 GROUSE REPLACEMENT READY / JUNGLEFOWL ACTIVE,24October2026~12:25CDT:
 Grouse4 fresh folded meshes/rigs completed, but initial Walk distorted body/tail.
 Real selected foot endpoints confirmed low and correct; deformation came from
