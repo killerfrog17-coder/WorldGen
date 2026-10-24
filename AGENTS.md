@@ -1,5 +1,25 @@
 # WorldGen repository instructions
 
+OWNER SELECTED HARE3 / MANUAL BROWSING,24October2026:
+Owner selects Hare model3; animation is NOT approved and owner says a DIFFERENT
+future animation method will be used, bad current motion is acceptable for model
+selection. Stop refining hare transfer. docs/fauna/OWNER_SELECTIONS.json records model/rig
+hashes; owner-review-feedback.json records criticism and selection. Owner will
+use Next/Previous animal themselves and prompt choices. No automatic switching,
+new review windows, extra follow-ups or painting without subsequent instruction.
+Current Hare viewer remains untouched. Background full raw queue still authorized.
+All188 appearance plans and26 shared source briefs are complete; ZERO new texture
+images generated yet (original instruction schedules them only after raw queue).
+Brief diagnostic before steering: original CC0 rabbit source bank verified by
+hash; not fox/dog motion. Generic source uses Idle's first Guarding pose as zero,
+not actual bind. Isolated source_bind trial on exact same4 meshes/rigs improves
+the sampled Run body's excessive pitch. This is one-pose evidence, not a full
+motion cure. Superseded trial/copied4 meshes/rigs/source bank pruned after exact
+hash/path checks (66.03MiB), retaining hare/source-motion-comparison.json and one
+small bind-reference-Run-side.png. Original4 candidates/source/blend remain exact;
+do NOT promote, overwrite current review or pursue it after owner's new steering.
+CPU source diagnostic script retained for provenance inspection only.
+
 OWNER REVIEWING HARE,24October2026~11:12CDT:
 Owner now explicitly READY to view. Opened Hare's4-model raw review RIGHTMOST via
 open-deer-mesh2motion.py --root artifacts/fauna-overnight-20261024/hare --four-rigs

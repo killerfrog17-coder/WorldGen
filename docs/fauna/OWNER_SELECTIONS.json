@@ -1,0 +1,20 @@
+{
+  "scope": "Owner model selections for later finishing; motion approval is tracked separately.",
+  "animals": {
+    "hare": {
+      "animal": "Hare",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T11:19:17.525459-05:00",
+      "model_sha256": "f04841d6763e4a1e08b71c616425701185c4071918d4f9ce949d979b8868dfaa",
+      "rig_sha256": "4c53bb5dc344e1dfa2afe146193be59f8a7595a8db0b88f6b33ea9da9d4aa69b",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner explicitly intends a different future method; stop refining current hare transfer.",
+      "painting_started": false
+    }
+  },
+  "source_root": "artifacts/fauna-overnight-20261024",
+  "viewer_policy": "Owner browses animals manually and prompts choices; no automatic switches or further unsolicited review prompts."
+}
