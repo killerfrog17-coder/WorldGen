@@ -1,4 +1,4 @@
-param([switch]$Apply,[switch]$CopyRetainedToC)
+param([switch]$Apply,[switch]$CopyRetainedToC,[switch]$KeepLatestThree)
 $ErrorActionPreference='Stop'
 $repoRoot=[IO.Path]::GetFullPath((Split-Path -Parent $PSScriptRoot))
 $artifactRoot=[IO.Path]::GetFullPath((Join-Path $repoRoot 'artifacts'))
@@ -61,7 +61,7 @@ $builds=@(foreach($dir in Get-ChildItem -LiteralPath $artifactRoot -Directory -F
 if(!$builds.Count){throw 'No playable checkpoints found; refusing an empty retention plan.'}
 $keep=[Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 foreach($day in $builds | Group-Object Day){$null=$keep.Add(($day.Group | Sort-Object Timestamp,Name -Descending | Select-Object -First 1).Name)}
-foreach($build in $builds | Sort-Object Timestamp,Name -Descending | Select-Object -First 3){$null=$keep.Add($build.Name)}
+if($KeepLatestThree){foreach($build in $builds | Sort-Object Timestamp,Name -Descending | Select-Object -First 3){$null=$keep.Add($build.Name)}}
 # A launcher may intentionally select a rollback. Protect it in addition to the retention rule.
 $shortcut=Join-Path $repoRoot 'WorldGen.exe - Shortcut.lnk'
 if(Test-Path -LiteralPath $shortcut){
@@ -78,7 +78,7 @@ $localRemoved=0L;foreach($build in $remove){if(!$build.Linked){$localRemoved+=$b
 $copyBytes=0L;if($CopyRetainedToC){foreach($build in $retained){if($build.Linked){$copyBytes+=$build.Bytes}}}
 $report=[ordered]@{
     Applied=[bool]$Apply;Scope=$artifactRoot;LocalDayTimeZone=[TimeZoneInfo]::Local.Id
-    Rule='Newest playable checkpoint per local calendar date plus newest three overall; selected/running builds protected.'
+    Rule=$(if($KeepLatestThree){'Newest playable checkpoint per local calendar date plus newest three overall; selected/running builds protected.'}else{'Newest playable checkpoint per local calendar date only; selected/running builds protected.'})
     Found=$builds.Count;Retained=$retained;Remove=$remove;LocalRemovedBytes=$localRemoved;CopiedBytes=$copyBytes
     ExternalOriginalsDeleted=$false;OtherArtifactEntriesDeleted=$false;BeforeCFreeBytes=$beforeC
     RemovedNames=[Collections.Generic.List[string]]::new();MigratedNames=[Collections.Generic.List[string]]::new();PendingMigration=[Collections.Generic.List[string]]::new()

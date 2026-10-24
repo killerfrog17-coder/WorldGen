@@ -123,7 +123,7 @@ class D4_OT_free(bpy.types.Operator):
             self.region.view_rotation=(Quaternion((0,0,1),-dx*.006)@self.region.view_rotation@Quaternion((1,0,0),dy*.006)).normalized();context.area.tag_redraw()
         return {'RUNNING_MODAL'}
 def controls(layout):
-    row=layout.row(align=True);row.operator('deer_four.model',text=f"1: {'Rig' if finished else 'Model'} {state['model']+1}/4")
+    row=layout.row(align=True);row.operator('deer_four.model',text=f"1: {'Rig' if finished else 'Model'} {state['model']+1}/{len(models)}")
     row.operator('deer_four.species',text='2: Species');row.operator('deer_four.view',text='3: View');row.operator('deer_four.mode',text='4: Loop')
     row.operator('deer_four.skeleton',text='Hide Skeleton' if state['skeleton'] else 'Show Skeleton')
     row.operator('deer_four.play',text='Pause / Play')
@@ -132,10 +132,10 @@ class D4_PT_panel(bpy.types.Panel):
     bl_idname='D4_PT_panel';bl_label='Four deer - independent generated rigs'
     bl_space_type='VIEW_3D';bl_region_type='UI';bl_category='Animal Review'
     def draw(self,context):
-        col=self.layout.column();entry=current();col.label(text=f"{'RIG' if finished else 'MODEL'} {state['model']+1} / 4 - {entry['joints']} generated joints")
-        if finished:col.label(text='Same approved finished deer in all four')
+        col=self.layout.column();entry=current();col.label(text=f"{'RIG' if finished else 'MODEL'} {state['model']+1} / {len(models)} - {entry['joints']} generated joints")
+        if finished:col.label(text='Approved finished deer - prototype' if len(models)==1 else 'Same approved finished deer in all four')
         row=col.row(align=True)
-        for index in range(4):row.operator('deer_four.model',text=str(index+1),depress=index==state['model']).number=index
+        for index in range(len(models)):row.operator('deer_four.model',text=str(index+1),depress=index==state['model']).number=index
         for op in ('deer_four.model','deer_four.species','deer_four.view','deer_four.mode'):col.operator(op)
         col.operator('deer_four.skeleton',text='Hide Skeleton' if state['skeleton'] else 'Show Skeleton');col.operator('deer_four.play')
         col.label(text='Playing: '+state['clip'].replace('_',' '));col.label(text='Coat: '+state['coat']+('' if finished else ' (colour only)'))

@@ -1,5 +1,45 @@
 # Fauna asset review workflow
 
+## Current retained assets and cleanup - 24 October 2026
+
+The owner accepts the finished deer comparison as good enough for a game
+prototype, with known motion imperfections. The single retained asset is now
+`artifacts/fauna-assets/deer/Deer - Prototype.blend` (75.1MiB), using the initially
+displayed candidate1 rig because no preferred rig was named. It includes the
+approved body, all eight packed coats, eyes, hair, four optional antler racks,
+ear/tail keys, one generated rig and the existing authored motions/demos. The
+reference/fur swatch and one rig prediction remain beside it. Reusable original
+motion arrays and license/provenance are in `artifacts/fauna-assets/motion-bank/deer`.
+This is visual prototype acceptance, not completed game spawning/AI integration.
+
+Open with:
+```
+python scripts/open-deer-mesh2motion.py --root artifacts/fauna-assets/deer --four-rigs --blend-name "Deer - Prototype.blend" --rightmost
+```
+The viewer retains1/2/3/4, Pause/Play, individual clips and Show/Hide Skeleton;
+the model/rig selector now correctly says1/1. Native reload, packed-map and
+control checks pass. Original historical deer review paths below were deleted
+at the owner's request; they are provenance history, not current assets.
+
+Owner-requested cleanup removed257 explicit generated targets totaling98.00GiB
+across three drives; `artifacts` fell from59.98 to18.34GiB. Builds now retain only
+the last per local day across C/E, protecting selected/running builds; no default
+latest-three exception. Eight builds remain, one from today. Superseded deer
+experiments, unused texture/motion model downloads, generated test fixtures,
+captures and logs are gone. Actual owner worlds/saves, source/docs, sounds/music,
+running apps and shared AI installations were preserved. Both wildlife audition
+banks/catalogues remain, with duplicate stereo masters/job caches removed.
+Required dependency providers are retained, including both TRELLIS-named venvs
+used by the current TripoSG loader; CPU import preflights pass after cleanup.
+
+The separate Desktop-shortcut deletion command was rejected before execution by
+automatic approval review, with only "blocked by policy" stated. Shortcuts remain;
+the large artifact cleanup itself completed with zero skips/errors. Reports are
+`artifacts/cleanup-report-20261024.json` and `checkpoint-retention.json`.
+
+The overnight multi-animal queue remains a proposal: the owner explicitly said
+not to start yet. Wait for their go-ahead before any animal generation.
+
 ## Same approved model, four new rigs - 24 October 2026
 
 The owner rejected the preceding four-model audition and now requests a more

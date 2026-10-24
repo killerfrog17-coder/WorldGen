@@ -1,5 +1,43 @@
 # WorldGen repository instructions
 
+OWNER CLEANUP / ACCEPTED DEER CONSOLIDATED,24October2026: owner accepts latest
+finished deer as prototype-ready despite motion imperfections. Then explicitly
+requests broad artifact cleanup, ONE final game build per local day (NO default
+latest-three exception), one accepted deer, relevant maps and chosen work only.
+Cleanup completed257 explicit targets/98.00GiB across C/D/E; artifacts59.98->
+18.34GiB.48 obsolete builds removed including all46 external E: build copies;
+8 daily builds retained, only1 today, selected player-terrain-surface-art-v1
+protected. Actual owner worlds under world/, saves, source/docs, sounds/music,
+shared AI installs and running owner apps untouched. Old generated history test
+fixtures/review captures and rejected downloads removed. Both fauna audition
+banks/catalogues kept; duplicate stereo masters/jobs discarded. Required TripoSG/
+SkinTokens/Blender/Mesh2Motion/Puppeteer remain; C:trellis2-venv and D:trellis2-venv
+are STILL REQUIRED dependency providers for working TripoSG, not disposable simply
+because TRELLIS shape output was rejected. Other paint/motion model downloads gone.
+
+CANONICAL DEER NOW artifacts/fauna-assets/deer/Deer - Prototype.blend (75.1MiB),
+ONE approved finished mesh, candidate1 fresh36joint rig (initial displayed choice;
+owner did not pick among four), all8 packed coats/eyes/hairs/4 optional racks,
+ear/tail keys and existing authored clips/demos. ONE generated rig NPZ/JSON plus
+reference.png/fur-source.png retained. Shared source-rig.json/source-motions.npz
+and motion/tool license/provenance retained under fauna-assets/motion-bank/deer.
+All old deer artifact roots and D: comparison roots DELETED; do NOT follow older
+paths below as current files. Old Blender comparison remains open in RAM; no
+owner app closure. Native prototype reload/packed-map/controls checks and CPU-only
+TripoSG/SkinTokens import preflights pass after cleanup. No inference/new animals.
+Viewer supports1/1 with same2/3/4 and Show/Hide Skeleton. Open with existing
+open-deer-mesh2motion.py --root artifacts/fauna-assets/deer --four-rigs
+--blend-name "Deer - Prototype.blend" --rightmost.
+
+Separate attempt to remove obsolete Deer Desktop shortcuts was rejected BEFORE
+EXECUTION by automatic approval review, reason only "blocked by policy". DO NOT
+retry deletion through another wrapper; all Desktop shortcuts remain unchanged.
+Main artifact cleanup had0 skipped/errors. Reports artifacts/cleanup-report-
+20261024.json and checkpoint-retention.json. New plan/apply cleanup scripts
+enforce absolute named roots, protected/selected/running builds and reject links.
+Owner's proposed overnight fauna batch is STILL DISCUSSION ONLY; owner explicitly
+said DO NOT START YET. Wait for actual go-ahead; no GPU work for roster planning.
+
 SAME FINISHED DEER / FOUR FRESH RIGS,24October2026: owner rejects prior four
 different raw models and asks SAME approved finished model rigged four times.
 Completed D:/WorldGenAI/deer-approved-four-rigs-20261024/Deer - Four Generated
