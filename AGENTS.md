@@ -1,5 +1,24 @@
 # WorldGen repository instructions
 
+OWNER33 / SOURCE REUSE INVENTORY,24October2026~13:12CDT:
+Owner selected AfricanHuntingDog1,Agouti4,BankVole2,Buffalo3,Camel1,Cassowary4,
+Civet1,Cockatoo3,CollaredPeccary3; canonical OWNER_SELECTIONS now33, all hashes
+verified. No new textures/painting: current auditions use reused fur/simple
+colours. User asked counts: at report102 ready/74 not ready,292 raw shapes
+not yet generated; Quoll4 shapes done. Since then Quoll ready103/412; Stork
+active. Sole worker remains --watch exec26721/PID43040 (verify), fast resident.
+Read-only accepted-deer native material inventory:28 packed images/12materials,
+source blend hash unchanged. Standalone fur exists; skin/ears/hoof detail lives
+inside anatomical atlases, NOT separate reusable neutral swatches.512 eye image
+includes horizontal pupil, cannot reuse unchanged for other pupil forms.512
+antler3maps exist, legacy material label keratin is biologically wrong; bone
+planning retained, accepted blend NOT renamed/edited. Global26-source plan now
+records exact availability and inventory evidence; all188 per-animal plans
+unchanged. No new bitmap exports/generation. Ignored inventory under fauna-assets.
+Stale exact Duck/Hare raw intermediates pruned37.86MiB after native and retained
+hash checks; four reduced meshes/rigs/reviews and33 choices unchanged. Current
+owner viewer untouched. Prior remote8086951; plan/inventory checkpoint needs backup.
+
 FULL ROSTER99 / RESIDENT GUARD RECALIBRATED,24October2026~12:45CDT:
 SecretaryBird4 completed/native finite+controls checked;99 raw reviews/396models.
 Full roster still176. All remaining78(at start) had references, no source gap;

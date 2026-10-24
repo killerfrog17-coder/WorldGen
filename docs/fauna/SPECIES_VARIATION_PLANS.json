@@ -4456,6 +4456,36 @@
     ],
     "no_bitmap_needed": "Whiskers, eyelash roots, antler branch shapes, horn count, beaks, tails, ear size and missing wing/limb anatomy require geometry or masks, not a new generic material image. Firefly emission is a bounded abdomen material; avoid an actual point light per insect.",
     "acceptance": "Inspect generated swatches for baked lighting, repeated clumps, directional discontinuities and wrong anatomy/material. Owner approves model/motion first, then fitted painted species previews; no automatic admission into the game.",
-    "brief_precedence": "A source brief may request local material structure such as iris pigment, a feather vane or fine skin vessels. The generic exclusions forbid whole animals/faces and baked lighting, not the explicitly requested flat material detail. Eye iris sources still omit pupil/cornea/lids and all baked glints."
+    "brief_precedence": "A source brief may request local material structure such as iris pigment, a feather vane or fine skin vessels. The generic exclusions forbid whole animals/faces and baked lighting, not the explicitly requested flat material detail. Eye iris sources still omit pupil/cornea/lids and all baked glints.",
+    "accepted_reuse_inventory": {
+      "scope": "Read-only native inventory; no new images generated or exported. All accepted deer bytes unchanged.",
+      "blend": "artifacts\\fauna-assets\\deer\\Deer - Prototype.blend",
+      "blend_sha256": "0e2ff46b0b0860750084bed3af94d84f636144230550e9e80f753b3e415418a1",
+      "packed_image_count": 28,
+      "material_count": 12,
+      "evidence": "artifacts/fauna-assets/reusable-source-inventory.json",
+      "entries": {
+        "fur_short_directional": {
+          "availability": "Standalone reusable fur-source.png exists; preserve it before generating another short-fur swatch.",
+          "path": "artifacts/fauna-assets/deer/fur-source.png",
+          "sha256": "a0656dfc538a7c8e8d66268bcb12e1df3abd855e50d44cde993bd46392825bc2"
+        },
+        "skin_nasal_lid": {
+          "availability": "Accepted skin is baked into anatomical coat atlases, not a separate neutral skin swatch. Reuse region/mask/material treatment; do not tile the full deer atlas on another nose."
+        },
+        "skin_thin_ear": {
+          "availability": "Accepted ear appearance is inside anatomical coat atlases, not a standalone ear swatch. Fit inner-ear/rim masks to approved new anatomy before deriving or generating detail."
+        },
+        "keratin_hard": {
+          "availability": "Hoof treatment is baked into the coat atlases. Reuse the surface treatment where suitable; no separate neutral hoof bitmap was found. Horn, nail and hoof patterns still follow their own geometry."
+        },
+        "eye_iris": {
+          "availability": "Packed512x512 Deer iris and horizontal pupil plus accepted glossy eye material exist. This image includes the pupil: do not reuse it unchanged for round/vertical pupils or call it a pupil-free iris source. Preserve gloss as a material response."
+        },
+        "antler_bone": {
+          "availability": "Packed512x512 Antler colour/normal/roughness exist; reuse with compatible rack UVs. The retained legacy material label says keratin, but antlers are bone; do not copy that label into biological definitions or treat this as a generic horn surface."
+        }
+      }
+    }
   }
 }
