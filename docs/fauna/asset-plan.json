@@ -11407,7 +11407,7 @@
         "channels": "One2K base-colour atlas +1K normal/roughness for medium/large animals;1K/512 for small animals;256-512 for tiny fauna. Shared eye/keratin swatches. No extra per-coat draw calls.",
         "method": "Generate reusable neutral swatches only after raw audition queue; after owner approval, map with anatomical masks and broad smooth blends. Never project one side photograph as complete360-degree texture.",
         "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam.",
-        "asset_allocation": "Six classes: sparse bristle, long mane/tail tuft, bare wrinkled skin, eye, nose/lid skin and tusk/hoof keratin. Shared pig surfaces with face folds and bristle-density masks; dirt is a condition overlay.",
+        "asset_allocation": "Six shared source groups: sparse bristle, long mane/tail tuft, bare wrinkled skin, eye, nose/lid skin and tusk ivory/hoof detail. Ivory and hoof regions keep distinct material parameters. Shared pig surfaces use face-fold and bristle-density masks; dirt is a condition overlay.",
         "anatomical_paint_details": "Sparse hair reveals skin naturally; use thicker mane detail only on its real strip. Wrinkles follow nose/cheek anatomy, not generic fur grain."
       },
       "sex_age_season": "Male-biased bulk/tusk/facial growth needs matched presets; tusks are not male-only antlers. Young need age head/body and reduced tusk states rather than a scaled adult face.",
@@ -11455,7 +11455,7 @@
           "hypothetical darker bristle"
         ],
         "surface_class_count": 6,
-        "texture_assets": "Six classes: sparse bristle, long mane/tail tuft, bare wrinkled skin, eye, nose/lid skin and tusk/hoof keratin. Shared pig surfaces with face folds and bristle-density masks; dirt is a condition overlay.",
+        "texture_assets": "Six shared source groups: sparse bristle, long mane/tail tuft, bare wrinkled skin, eye, nose/lid skin and tusk ivory/hoof detail. Ivory and hoof regions keep distinct material parameters. Shared pig surfaces use face-fold and bristle-density masks; dirt is a condition overlay.",
         "sex_age_season": "Male-biased bulk/tusk/facial growth needs matched presets; tusks are not male-only antlers. Young need age head/body and reduced tusk states rather than a scaled adult face.",
         "extras": "Paired tusks, broad muzzle, soft-tissue facial growths, mane and tufted tail after approval. Facial growths are skin, not bony antlers.",
         "paint_details": "Sparse hair reveals skin naturally; use thicker mane detail only on its real strip. Wrinkles follow nose/cheek anatomy, not generic fur grain.",
@@ -14046,7 +14046,7 @@
         "channels": "One2K base-colour atlas +1K normal/roughness for medium/large animals;1K/512 for small animals;256-512 for tiny fauna. Shared eye/keratin swatches. No extra per-coat draw calls.",
         "method": "Generate reusable neutral swatches only after raw audition queue; after owner approval, map with anatomical masks and broad smooth blends. Never project one side photograph as complete360-degree texture.",
         "seam_control": "Shared continuous body coordinates, smooth throat/belly transitions, explicit face/ear masks; inspect front/side/rear and neck seam.",
-        "asset_allocation": "Five classes: thick wrinkled skin, finer ear/trunk-tip skin, eye, tusk/toe-nail keratin and sparse bristle detail. Shared skin sources with anatomical wrinkle scale, depigmentation and reversible mud/dust masks.",
+        "asset_allocation": "Five shared source groups: thick wrinkled skin, finer ear/trunk-tip skin, eye, tusk ivory/toe-nail detail and sparse bristles. Ivory and nail have distinct region masks/material parameters despite sharing an atlas. Anatomical wrinkle scale, depigmentation and reversible mud/dust use masks.",
         "anatomical_paint_details": "Large wrinkles follow knees/trunk/shoulders; smaller folds on face/ears. Pinkish depigmentation is localized and lineage/age matched; soil is an overlay rather than baked permanent light."
       },
       "sex_age_season": "African sexes often both tusked, with tuskless exceptions; Asian prominent tusks occur in only some males, females usually lacking visible large tusks. Age/sex bulk, tusk growth and calf proportions are linked, not a universal fifty-percent rack roll.",
@@ -14097,7 +14097,7 @@
           "mud-darkened condition"
         ],
         "surface_class_count": 5,
-        "texture_assets": "Five classes: thick wrinkled skin, finer ear/trunk-tip skin, eye, tusk/toe-nail keratin and sparse bristle detail. Shared skin sources with anatomical wrinkle scale, depigmentation and reversible mud/dust masks.",
+        "texture_assets": "Five shared source groups: thick wrinkled skin, finer ear/trunk-tip skin, eye, tusk ivory/toe-nail detail and sparse bristles. Ivory and nail have distinct region masks/material parameters despite sharing an atlas. Anatomical wrinkle scale, depigmentation and reversible mud/dust use masks.",
         "sex_age_season": "African sexes often both tusked, with tuskless exceptions; Asian prominent tusks occur in only some males, females usually lacking visible large tusks. Age/sex bulk, tusk growth and calf proportions are linked, not a universal fifty-percent rack roll.",
         "extras": "Species-matched ears, back/head silhouette, trunk tip finger count and tusk presets after approval. Tail hair and fitted lids remain local detail.",
         "paint_details": "Large wrinkles follow knees/trunk/shoulders; smaller folds on face/ears. Pinkish depigmentation is localized and lineage/age matched; soil is an overlay rather than baked permanent light.",
