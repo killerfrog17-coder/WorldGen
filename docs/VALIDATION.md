@@ -1,5 +1,14 @@
 # Version 3 validation evidence
 
+## Masked deer coat trial — 23 October 2026
+
+Texture-only review uses generated reusable fur and inspected geometric facial
+anchors. Reload verifies exact mesh/skin/UV/rig and all30 source actions, unchanged
+source hash, packed finite2K maps and actual coat/motion controls. Selected poses
+finite; body/three face CPU views inspected. Working and finished viewers opened
+on rightmost monitor; owner can play The Forest. No local GPU inference/game
+launch/profile or art acceptance. See [material trial](DEER_MASKED_COAT_REVIEW.md).
+
 ## Native TRELLIS.2 trial — 23 October 2026
 
 Full local512 shape/native-PBR pass completed in62.766s after setup/retries.

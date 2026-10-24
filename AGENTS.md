@@ -1,5 +1,20 @@
 # WorldGen repository instructions
 
+MASKED COAT TRIAL,23October2026: owner requests accepted body/rig/motions kept,
+painted anatomical regions plus reusable fur; ignore antlers. New separate
+artifacts/deer-masked-coat-20261023 review, Desktop Deer - Masked Coat Review.lnk
+opens RIGHTMOST monitor as requested. Working live preview also remains open;
+no owner apps closed. Built-in imagegen fur swatch only, explicit ray-picked
+eye/nose landmarks, bone/surface-gated masks for face/ears/tail/belly/hooves.
+No old colour pixels; accepted geometry-normal bake retained with subtle fur
+relief. Three packed2K maps, one material; same13999tri body. Native reload
+mesh/skin/UV/rig and all30 actions EXACT, source hash unchanged; selected finite
+poses/actual compare-motion controls pass, CPU body/three face views inspected.
+Initial round eyes/flat shading refined; art acceptance remains OWNER PENDING.
+No local GPU inference, game/Unity/save/settings changes; owner told Forest can
+launch/play throughout. No multi-coat/runtime speciation implementation yet.
+See docs/DEER_MASKED_COAT_REVIEW.md and ignored prompt/provenance/evidence.
+
 TRELLIS2 TRIAL REJECTED,23October2026: owner requested free local full deer
 shape/native-PBR. Successful512/12step pass62.766s AFTER setup/retries;13187tri,
 2K colour+packed rough/metal, no generated normal. Same reference, seed732023;
