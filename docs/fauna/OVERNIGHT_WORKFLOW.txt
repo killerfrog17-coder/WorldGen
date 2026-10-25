@@ -1,5 +1,19 @@
 OVERNIGHT FAUNA AUDITIONS - 24 OCTOBER 2026
 
+25 OCT CANID COLOUR PASSES
+Four checked colour copies now indexed: Hare3/Rabbit1/RedFox3/Wolf2. Canids reuse
+accepted directional fur; fox5/wolf6 palettes,2K colour/roughness and512normal.
+Separate fitted eyes/lids/whiskers add476tri each, total5969/5972. Native chosen
+body/skin/rig/all15 source actions EXACT, coat matching/skeleton/1-4 finite poses
+pass. Independently inspected frontal eye rays level both centres; cosmetic
+forward follows eye-midpoint to nose, not socket-depth skew or unreliable raw
+Head role. Shared mask/feature frame avoids leftover dark tear-shaped patches.
+Actual latest face front/side and selected full-body side/rear variants inspected.
+Raw face fragments/asymmetry and motions retained, no appearance approval/GUI.
+Colour support is now4 explicit slugs; next selected priority is WildBoar1, then
+Mouflon1. Do not claim all122 painted. Raw171ready/5pending last audited; same
+live16008 worker, Tortoise rig phase; no second inference producer.
+
 25 OCT COLOURING FIRST PASSES
 Hare3/Rabbit1 now have actual packed UV coats and separately skinned facial
 features in fauna-painted-20261024, not just source swatches or colour plans.

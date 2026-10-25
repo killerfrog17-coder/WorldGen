@@ -1,5 +1,37 @@
 # WorldGen repository instructions
 
+CANID COLOUR PASSES,25October2026~00:48CDT:
+Continued latest selected-body colouring authorisation. New checked separate
+RedFox3 and Wolf2 first passes in fauna-painted-20261024; total4started/122chosen,
+four hash-matching checked passes in separate review-index. No new owner window,
+review ping, Desktop/game/Unity work, paid/imagegen call or app closure.
+fauna_paint_recipes.py now shares4 explicit recipes (Hare/Rabbit/RedFox/Wolf),
+5fox and6wolf palettes, directional accepted-deer fur reused read-only. Canids
+2K colour/roughness,512normal; fox stockings/outer ears/white tail-tip/cross/
+silver guard tips, wolf saddle/face/underside. Hypotheses remain labelled.
+Selected5493/5496tri body/skin/rest rig and ALL15 source actions EXACT in native
+checker.16segment/4ring eyes +lid/whiskers add476tri, final5969/5972. New face
+pieces only, no limb/rig/body/motion repairs or morphology/age/sex implementation.
+Independent inspected front guide socket rays replace inaccurate mirrored
+median-head plane for canids; recast eye centres to EXACT same worldZ. Front
+axis is eye-midpoint->muzzle, NOT joining unequal-depth sockets. Shared recipe
+eye_frame used in both CPU mask bake and features, preventing exposed dark lid
+patch below adjusted cornea; only inner concealed body region gets bare mask.
+Head camera/view follows an evaluated anatomical body vertex, because Fox3's
+raw Head bone is actually near torso. Rig naming is NOT silently fixed.
+Owner-selected oblique fox skull/triangular cheek fragments and angular wolf
+cheeks/ruff retained; eyes/appearance still owner PENDING, not guaranteed realism.
+Actually inspected final canid head front/side, fox silver-side/cross-rear and
+wolf ivory-side/black-rear; native all4 palettes/1-4/skeleton checks pass. First
+2 untouched painted files still verify. Native reports now bind exact current
+blend SHA; stale copied check report cannot admit a newer file to painted index.
+Raw full audit171verified/5pending/errors[], not complete. Same sole--watch
+PID16008/exec94528 confirmed live, Tortoise4 shared shapes855.65s now rig-batch.
+Pending SpiderMonkey2 retry still queued for next pass, then remaining
+Tortoise/VenomousSnake/Walrus/Whale work. Never restart on observation timeout.
+NEXT finishing: WildBoar1, Mouflon1 then roster-selected priority; extend recipe
+and inspect anatomical guides, not every-family generic mask or raw-only hold.
+
 SELECTED COLOUR PASSES NOW HAVE ATLASES/FACES,25October2026~00:30CDT:
 Latest owner asks why passed models cannot be coloured now. Authorised and
 actually done first passes on Hare3/Rabbit1, alongside sole raw worker94528/

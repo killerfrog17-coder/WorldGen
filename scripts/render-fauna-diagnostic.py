@@ -30,7 +30,9 @@ else:
 bpy.context.view_layer.update();evaluated=body.evaluated_get(bpy.context.evaluated_depsgraph_get());mesh=evaluated.to_mesh();p=np.array([evaluated.matrix_world@v.co for v in mesh.vertices]);evaluated.to_mesh_clear()
 center=Vector(((p.min(0)+p.max(0))*.5).tolist());span=float(np.ptp(p,axis=0).max());directions={'side':(1,0,.08),'front':(0,1,.08),'rear':(0,-1,.08),'oblique':(1,1,.25),'top':(0,0,1)}
 if a.head and not a.raw_mesh:
-    head=np.array(r.matrix_world@r.pose.bones['Head'].head)
+    if e.get('paint_head_vertex') is not None:
+        ev=body.evaluated_get(bpy.context.evaluated_depsgraph_get());head=np.array(ev.matrix_world@ev.data.vertices[e['paint_head_vertex']].co)
+    else:head=np.array(r.matrix_world@r.pose.bones['Head'].head)
     center=Vector((head+np.array([0,.08,.035])).tolist());span=.72
 camera=bpy.data.objects.new('Diagnostic camera',bpy.data.cameras.new('Diagnostic camera'));s.collection.objects.link(camera);camera.location=center+Vector(directions[a.view]).normalized()*span*2;camera.rotation_euler=(center-camera.location).to_track_quat('-Z','Y').to_euler();camera.data.type='ORTHO';camera.data.ortho_scale=span*1.22;s.camera=camera
 for pos,power,size in [((3,4,5),650,5),((-3,1,3),350,4),((0,-4,4),450,3)]:

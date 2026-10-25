@@ -42,7 +42,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\red-fox\\Animal - Painted Species Review.blend"
     },
     "wild-boar": {
       "animal": "Wild boar",
@@ -524,7 +526,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\wolf\\Animal - Painted Species Review.blend"
     },
     "squirrel": {
       "animal": "Squirrel",

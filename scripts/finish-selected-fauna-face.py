@@ -10,8 +10,11 @@ from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
 repo=Path(__file__).resolve().parent.parent
+sys.path.insert(0,str(repo/'scripts'))
+from fauna_paint_recipes import SUPPORTED, family, eye_frame
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True)
-a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);assert a.slug in {'hare','rabbit'}
+a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);assert a.slug in SUPPORTED
+canid=family(a.slug)=='canid'
 root=repo/'artifacts/fauna-painted-20261024'/a.slug
 state=json.loads((root/'paint-state.json').read_text());assert not state['appearance_approved']
 assert state['status'] in {'anatomical_colouring_started','atlas_and_face_fitted_working'}
@@ -60,6 +63,10 @@ size=256;y,x=np.mgrid[0:size,0:size];u=(x+.5)/size*2-1;v=(y+.5)/size*2-1;r=np.sq
 fibre=.5+.25*np.sin(theta*91+r*19)+.16*np.sin(theta*143-r*38)
 iris=np.stack([.125+fibre*.065,.071+fibre*.045,.032+fibre*.020],axis=2)
 pupil=np.clip((r-.45)/.07,0,1);rim=np.clip((1-r)/.14,0,1)
+if canid:
+    iris=np.stack([.16+fibre*.08,.09+fibre*.05,.025+fibre*.018],axis=2)
+    if a.slug=='red-fox':pupil=np.clip((np.sqrt((u/.22)**2+(v/.73)**2)-.86)/.14,0,1)
+    else:pupil=np.clip((r-.39)/.065,0,1)
 iris=iris*pupil[:,:,None]*rim[:,:,None]+.008*(1-pupil[:,:,None]*rim[:,:,None]);rgba=np.dstack([iris,np.ones_like(r)])
 im=bpy.data.images.get(a.slug+' iris pigment') or bpy.data.images.new(a.slug+' iris pigment',width=size,height=size,alpha=True)
 im.pixels.foreach_set(rgba.astype(np.float32).ravel());im.pack()
@@ -96,24 +103,23 @@ def obj(name,vertices,polygons,materials,uvs=None,indices=None,anchor=None):
     mod=ob.modifiers.new('Selected rig','ARMATURE');mod.object=rig;mod.use_deform_preserve_volume=False
     features.append(ob.name);return ob
 
-segments=24;rx,rz=bake['eye_radius'];eye_reports=[]
+segments=16 if canid else 24;rings=4 if canid else 5;rx,rz=bake['eye_radius'];eye_reports=[]
 for side in ['right','left']:
-    anchor=land[side+'_eye'];center=np.array(anchor['point']);n=np.array(anchor['normal']);n/=np.linalg.norm(n)
-    hu=np.array([0.,1,0]);hu-=n*(hu@n);hu/=np.linalg.norm(hu)
-    vu=np.array([0.,0,1]);vu-=n*(vu@n)+hu*(vu@hu);vu/=np.linalg.norm(vu)
+    anchor=land[side+'_eye'];center=np.array(anchor['point']);n,hu,vu=eye_frame(a.slug,land,side)
     skin=sample(center)[2]
     def ellipse(t):
         # Small forward tear corner, fuller upper arch, shallow lower lid.
         c=math.cos(t);sn=math.sin(t);return hu*(rx*c*(1+.08*max(c,0)))+vu*(rz*sn*(1.03 if sn>0 else .87))
-    vertices=[center+n*.020];uvs=[(.5,.5)];polygons=[]
-    for ring in range(1,6):
-        rad=ring/5
+    bulge=.011 if canid else .018
+    vertices=[center+n*(.002+bulge)];uvs=[(.5,.5)];polygons=[]
+    for ring in range(1,rings+1):
+        rad=ring/rings
         for i in range(segments):
             t=i*math.tau/segments;offset=ellipse(t)*rad
-            vertices.append(center+offset+n*(.002+.018*math.sqrt(max(0,1-rad*rad))))
+            vertices.append(center+offset+n*(.002+bulge*math.sqrt(max(0,1-rad*rad))))
             uvs.append((.5+.5*rad*math.cos(t),.5+.5*rad*math.sin(t)))
     for i in range(segments):polygons.append((0,1+i,1+(i+1)%segments))
-    for j in range(4):
+    for j in range(rings-1):
         for i in range(segments):
             a0=1+j*segments+i;b0=1+j*segments+(i+1)%segments;c0=b0+segments;d0=a0+segments
             polygons.append((a0,b0,c0,d0))
@@ -126,7 +132,9 @@ for side in ['right','left']:
             hit=bvh.ray_cast(Vector(target+n*.20),Vector(-n),.4)[0]
             if hit is None:hit=sample(target)[0]
             surface=np.asarray(hit);upper=max(0,math.sin(t))
-            point=target+n*.002 if ring==0 else surface+n*([0,.003+.004*upper,.002,.0007][ring])
+            if canid and ring<3:
+                point=target+n*([.002,.004+.002*upper,.0015][ring])
+            else:point=target+n*.002 if ring==0 else surface+n*([0,.003+.004*upper,.002,.0007][ring])
             vertices.append(point);uvs.append(sample(surface)[1])
     for j in range(3):
         for i in range(segments):
@@ -139,8 +147,13 @@ for side in ['right','left']:
 nose=np.array(land['nose']['point']);vertices=[];polygons=[]
 for side in [-1,1]:
     for j in range(5):
-        start=nose+np.array([side*(.018+j*.002),-.022-j*.005,-.009+j*.007]);start=sample(start)[0]
-        direction=np.array([side*(.090+j*.008),-.028-j*.012,(j-2)*.014])
+        if canid:
+            start=nose+np.array(land['side_axis'])*side*(.018+j*.002)-np.array(land['front_axis'])*(.022+j*.005)+np.array([0,0,-.009+j*.007])
+            direction=np.array(land['side_axis'])*side*(.090+j*.008)-np.array(land['front_axis'])*(.028+j*.012)+np.array([0,0,(j-2)*.014])
+        else:
+            start=nose+np.array([side*(.018+j*.002),-.022-j*.005,-.009+j*.007])
+            direction=np.array([side*(.090+j*.008),-.028-j*.012,(j-2)*.014])
+        start=sample(start)[0]
         for k in range(4):
             t=k/3;point=start+direction*t+np.array([0,0,.008*math.sin(t*math.pi)])
             width=.00065*(1-t)+.00004;vertices.extend([point+[0,0,width],point-[0,0,width]])

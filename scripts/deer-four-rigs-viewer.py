@@ -84,6 +84,9 @@ def choose(label,play=True,phase=0):
     visibility()
 def set_view():
     target=rig().matrix_world@rig().pose.bones['Head'].head if state['view']==1 else Vector((0,0,.8))
+    if state['view']==1 and current().get('paint_head_vertex') is not None:
+        body=bpy.data.objects[current()['body']].evaluated_get(bpy.context.evaluated_depsgraph_get())
+        target=body.matrix_world@body.data.vertices[current()['paint_head_vertex']].co
     direction=Vector((0,1,.05)) if state['view'] in (1,3) else Vector((0,-1,.05)) if state['view']==4 else Vector((1,0,.08))
     manual_snake=current().get('rig_origin')=='manual body centerline'
     if manual_snake:

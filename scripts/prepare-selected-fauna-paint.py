@@ -11,10 +11,12 @@ import numpy as np
 from mathutils import Vector
 
 repo = Path(__file__).resolve().parent.parent
+sys.path.insert(0,str(repo/'scripts'))
+from fauna_paint_recipes import SUPPORTED, family, profiles as coat_profiles, fur_source
 ap = argparse.ArgumentParser(); ap.add_argument('--slug', required=True)
 ap.add_argument('--replace-working', action='store_true')
 a = ap.parse_args(sys.argv[sys.argv.index('--')+1:])
-assert a.slug in {'hare','rabbit'},'The first finishing prototype currently supports lagomorph masks only'
+assert a.slug in SUPPORTED,'No inspected body-family paint recipe yet'
 choices = json.loads((repo/'docs/fauna/OWNER_SELECTIONS.json').read_text())['animals']
 choice = choices[a.slug]; assert choice['model_selected'] and len(choice['selected_models']) == 1
 number = choice['selected_models'][0]
@@ -63,6 +65,12 @@ def smooth(low,high,x):
 # Working masks use continuous rest coordinates; final face masks are fitted
 # separately. One gradient crosses torso and throat, avoiding a neck colour seam.
 head = np.array(entry['generated_joint_heads'][names.index('Head')]); center_x = float(np.median(p[:,0]))
+if family(a.slug)=='canid':
+    # Raw rig role names can be imperfect; cosmetic anatomy follows geometry,
+    # without changing that selected rig or its animation tracks.
+    skull=p[(p[:,1]>.65)&(p[:,2]>1.16)&(p[:,2]<1.45)]
+    assert len(skull)>12
+    head=np.median(skull,axis=0);head[1]-=.035
 torso = p[(p[:,1] < head[1]-.12) & (p[:,2]>.35) & (p[:,2]<head[2]+.1)]
 belly_z = float(np.quantile(torso[:,2],.32))
 belly = (1-smooth(belly_z-.12,belly_z+.22,p[:,2])) * (.45+.55*smooth(.25,-.55,normal[:,2]))
@@ -76,18 +84,8 @@ nose = head_points[np.argmax(head_points[:,1])]
 nose_mask = np.exp(-(((p[:,0]-nose[0])/.042)**2+((p[:,1]-nose[1])/.04)**2+((p[:,2]-nose[2])/.033)**2)*1.8)*head_area
 tail = smooth(-.58,-.72,p[:,1]) * smooth(.20,.04,np.abs(p[:,0]-center_x))
 
-profiles = ([('European brown',[.40,.30,.18],[.72,.69,.59],True),
-             ('European grey-brown',[.32,.30,.25],[.70,.69,.62],True),
-             ('Snowshoe summer',[.39,.26,.16],[.71,.68,.59],True),
-             ('Snowshoe winter',[.82,.82,.76],[.88,.88,.82],True),
-             ('Sandy dryland (hypothetical)',[.57,.46,.30],[.80,.75,.63],True),
-             ('Dark wet-cover (hypothetical)',[.20,.18,.14],[.53,.51,.43],True)] if a.slug=='hare' else
-            [('Grey-brown agouti',[.34,.29,.22],[.72,.71,.65],False),
-             ('Warm brown agouti',[.43,.30,.19],[.75,.71,.61],False),
-             ('Dark melanistic',[.10,.085,.07],[.23,.21,.18],False),
-             ('Pale sandy (hypothetical)',[.58,.47,.32],[.81,.76,.65],False),
-             ('Litter-mottled (hypothetical)',[.31,.25,.17],[.69,.65,.55],False)])
-fur_path=repo/'artifacts/fauna-assets/textures/fur-dense-fine-v1.png'
+profiles=coat_profiles(a.slug)
+fur_path=repo/fur_source(a.slug)
 if not fur_path.exists():fur_path=repo/'artifacts/fauna-assets/deer/fur-source.png'
 fur = bpy.data.images.load(str(fur_path), check_existing=True); fur.pack()
 coats=[]
@@ -126,6 +124,7 @@ for index,(label,base,pale,dark_tips) in enumerate(profiles):
     coats.append({'label':label,'material':mat.name,'working_vertex_colour':attribute.name})
 body.data.materials.clear();body.data.materials.append(bpy.data.materials[coats[0]['material']])
 entry.update(selected_raw_candidate=number,painting_coats=coats,painted=True,appearance_approved=False)
+entry['paint_head_vertex']=int(np.argmin(np.linalg.norm(p-head,axis=1)))
 s['deer_four_rigs']=json.dumps([entry]);s['fauna_painting']=json.dumps({'source_candidate':number,'source_root':str(source_root),'stage':'Anatomical colouring working pass; facial fitting and atlas bake pending','coats':coats})
 s['fauna_animal']=entry['animal'];s.frame_set(0)
 bpy.context.preferences.filepaths.save_version=0

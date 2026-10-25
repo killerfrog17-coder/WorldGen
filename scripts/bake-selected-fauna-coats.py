@@ -3,15 +3,18 @@
 Uses shared generated fibre detail with anatomical masks, never a whole-animal
 photo projection. Pigment masks are not converted into bump height.
 """
-import argparse,hashlib,importlib.util,json,time
+import argparse,hashlib,importlib.util,json,time,sys
 from pathlib import Path
 import numpy as np
 from PIL import Image
 from scipy.ndimage import gaussian_filter,map_coordinates,distance_transform_edt
 
 repo=Path(__file__).resolve().parent.parent
+sys.path.insert(0,str(repo/'scripts'))
+from fauna_paint_recipes import SUPPORTED, family, profiles as coat_profiles, eye_radius as get_eye_radius, eye_frame
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=1024)
-a=ap.parse_args();assert a.slug in {'hare','rabbit'}
+a=ap.parse_args();assert a.slug in SUPPORTED
+canid=family(a.slug)=='canid'
 root=repo/'artifacts/fauna-painted-20261024'/a.slug;started=time.perf_counter()
 state=json.loads((root/'paint-state.json').read_text());land=json.loads((root/'face-landmarks.json').read_text())
 d=dict(np.load(root/'paint-anatomy.npz'));d['region_weights']=np.zeros((len(d['vertices']),10),np.float32)
@@ -36,40 +39,51 @@ belly=(1-smooth(state['belly_z']+.06,state['belly_z']+.38,p[:,2]))*(.4+.6*smooth
 chin=face*smooth(head[2]+.04,head[2]-.17,p[:,2])*smooth(.4,-.5,n[:,2])*.85
 tail=tail_weight*smooth(.15,-.7,n[:,2]);tail_top=tail_weight*smooth(.15,.7,n[:,2])
 inner=np.zeros(len(p));tips=np.zeros(len(p));frames=[]
+head_side=np.array(land['side_axis']);head_front=np.array(land['front_axis'])
 for side in [-1,1]:
-    points=d['vertices'][(d['vertices'][:,2]>state['ear_base']-.035)&(d['vertices'][:,1]<head[1]+.06)&((d['vertices'][:,0]-cx)*side>0)]
+    split=(d['vertices']-head)@head_side if canid else d['vertices'][:,0]-cx
+    points=d['vertices'][(d['vertices'][:,2]>state['ear_base']-.035)&(d['vertices'][:,1]<head[1]+.06)&(split*side>0)]
     assert len(points)>8,'No independent ear region found'
     root_point=points[points[:,2]<=np.quantile(points[:,2],.12)].mean(0);tip_point=points[points[:,2]>=np.quantile(points[:,2],.97)].mean(0)
     axis=tip_point-root_point;length=np.linalg.norm(axis);axis/=length
     across=np.cross([0,1,0],axis);across/=np.linalg.norm(across)
     rel=p-root_point;frac=rel@axis/length;u=rel@across
     width=max(float(np.quantile(np.abs((points-root_point)@across),.92)),.025)
-    side_gate=smooth(-.005,.015,(p[:,0]-cx)*side);spatial=smooth(state['ear_base']-.06,state['ear_base']+.06,p[:,2])*(1-smooth(head[1]+.01,head[1]+.13,p[:,1]))*side_gate
-    ear_inner=spatial*smooth(.08,.25,frac)*(1-smooth(.82,.98,frac))*(1-smooth(.48,.83,np.abs(u)/width))*smooth(.12,.65,n[:,1])
+    side_gate=smooth(-.005,.015,((p-head)@head_side if canid else p[:,0]-cx)*side);spatial=smooth(state['ear_base']-.06,state['ear_base']+.06,p[:,2])*(1-smooth(head[1]+.01,head[1]+.13,p[:,1]))*side_gate
+    ear_inner=spatial*smooth(.08,.25,frac)*(1-smooth(.82,.98,frac))*(1-smooth(.48,.83,np.abs(u)/width))*smooth(.12,.65,n@head_front if canid else n[:,1])
     inner=np.maximum(inner,ear_inner);tips=np.maximum(tips,spatial*smooth(.76,.96,frac)*(1-ear_inner*.7))
     frames.append({'side':side,'root':root_point.tolist(),'tip':tip_point.tolist(),'width':width})
 nose=np.array(land['nose']['point']);nn=np.array(land['nose']['normal']);nn/=np.linalg.norm(nn)
 up=np.array([0.,0.,1.]);across=np.cross(nn,up);across/=np.linalg.norm(across);up=np.cross(across,nn)
 delta=p-nose;nu=delta@across;nv=delta@up;nd=delta@nn
-width=.035*(.68+.32*np.clip(nv/.025+1,0,1));q=(nu/width)**2+(nv/.025)**2+(nd/.045)**2
+nw,nh=(.049,.033) if canid else (.035,.025)
+width=nw*(.68+.32*np.clip(nv/nh+1,0,1));q=(nu/width)**2+(nv/nh)**2+(nd/(.060 if canid else .045))**2
 nose_mask=(1-smooth(.7,1.2,q))*face*smooth(.05,.65,n@nn)
 eye_surround=np.zeros(len(p));bare=np.zeros(len(p))
-eye_radius=(.038,.032) if a.slug=='hare' else (.040,.034)
+eye_radius=get_eye_radius(a.slug)
 for key in ['right_eye','left_eye']:
-    point=np.array(land[key]['point']);normal=np.array(land[key]['normal']);normal/=np.linalg.norm(normal)
-    horizontal=np.array([0.,1.,0.]);horizontal-=normal*np.dot(horizontal,normal);horizontal/=np.linalg.norm(horizontal)
-    vertical=np.array([0.,0.,1.]);vertical-=normal*np.dot(vertical,normal)+horizontal*np.dot(vertical,horizontal);vertical/=np.linalg.norm(vertical)
+    point=np.array(land[key]['point']);normal,horizontal,vertical=eye_frame(a.slug,land,key.split('_')[0])
     rel=p-point;u=rel@horizontal;v=rel@vertical;depth=rel@normal
     radius=np.sqrt((u/eye_radius[0])**2+(v/eye_radius[1])**2)
     gate=(1-smooth(.025,.065,np.abs(depth)))*smooth(.05,.65,n@normal)
     eye_surround=np.maximum(eye_surround,(1-smooth(1.25,1.85,radius))*gate)
-    bare=np.maximum(bare,(1-smooth(.98,1.16,radius))*gate)
+    bare=np.maximum(bare,(1-smooth(.70 if canid else .98,.90 if canid else 1.16,radius))*gate)
 fur_weight=np.clip(1-nose_mask-inner*.55-bare,0,1)
-rough=np.clip(.84-nose_mask*.40-inner*.10-bare*.30,.3,.88)
+rough=np.clip(.84-nose_mask*(.58 if canid else .40)-inner*.10-bare*.30,.24,.88)
 height=hair*.00012*fur_weight
 
-profiles=([('European brown',[.40,.30,.18],[.79,.76,.66],True),('European grey-brown',[.32,.30,.25],[.77,.76,.69],True),('Snowshoe summer',[.39,.26,.16],[.78,.75,.66],True),('Snowshoe winter',[.82,.82,.76],[.89,.89,.83],True),('Sandy dryland (hypothetical)',[.57,.46,.30],[.83,.78,.67],True),('Dark wet-cover (hypothetical)',[.20,.18,.14],[.58,.56,.48],True)] if a.slug=='hare' else
-          [('Grey-brown agouti',[.34,.29,.22],[.79,.78,.72],False),('Warm brown agouti',[.43,.30,.19],[.81,.77,.67],False),('Dark melanistic',[.10,.085,.07],[.27,.25,.22],False),('Pale sandy (hypothetical)',[.58,.47,.32],[.85,.80,.69],False),('Litter-mottled (hypothetical)',[.31,.25,.17],[.76,.72,.62],False)])
+profiles=coat_profiles(a.slug)
+if canid:
+    tail_weight=smooth(-.48,-.67,p[:,1])
+    tail=np.zeros(len(p));tail_top=np.zeros(len(p))
+    throat=smooth(.25,.70,p[:,1])*(1-smooth(1.10,1.30,p[:,2]))*smooth(.0,.65,n[:,1])
+    belly=np.maximum(belly,throat*.88)
+    eye_z=(land['right_eye']['point'][2]+land['left_eye']['point'][2])/2
+    cheek=face*(1-smooth(eye_z-.09,eye_z-.015,p[:,2]))
+    stockings=1-smooth(.35,.55,p[:,2]);tail_tip=tail_weight*smooth(-.80,-.94,p[:,1])
+    ear_outer=np.clip(smooth(state['ear_base']-.03,state['ear_base']+.08,p[:,2])*(1-smooth(head[1]+.01,head[1]+.12,p[:,1]))-inner,0,1)
+    back=smooth(.05,.70,n[:,2])*smooth(.88,1.13,p[:,2])*(1-smooth(head[1]-.2,head[1]+.02,p[:,1]))
+    forehead=face*smooth(eye_z-.01,eye_z+.13,p[:,2])*(1-smooth(head[1]+.09,head[1]+.20,p[:,1]))
 distance,nearest=distance_transform_edt(~occupied,return_indices=True);pad=(~occupied)&(distance<=12)
 def extend(array):
     array[pad]=array[nearest[0][pad],nearest[1][pad]];return array
@@ -77,12 +91,28 @@ for index,(label,base,pale,dark_tips) in enumerate(profiles):
     base=np.array(base);pale=np.array(pale);colour=np.tile(base,(len(p),1))
     def paint(mask,target):return colour*(1-mask[:,None])+np.asarray(target)*mask[:,None]
     colour=paint(belly,pale);colour=paint(chin,pale);colour=paint(tail,pale)
+    if canid:
+        colour=paint(cheek*.85,pale)
+        if a.slug=='red-fox':
+            colour=paint(stockings*.98,[.050,.041,.032]);colour=paint(ear_outer*.95,[.055,.043,.032])
+            if 'cross' in label:
+                cross=np.exp(-((p[:,1]-.35)/.17)**2);spine=np.exp(-((p[:,0]-cx)/.10)**2)
+                colour=paint(back*np.maximum(cross,spine)*.85,[.065,.050,.037])
+            if 'Silver' in label:
+                guards=smooth(.25,.75,hair)*smooth(.40,1.00,p[:,2])*.70
+                colour=paint(guards,[.64,.63,.58])
+            colour=paint(tail_tip,[.85,.83,.76])
+        else:
+            strength=.12 if 'Ivory' in label else .55
+            colour=paint(back*strength,base*.42)
+            colour=paint(forehead*.28,base*.55)
+            colour=paint(tail_weight*.30,base*.55)
     if a.slug=='hare':colour=paint(tail_top*.9,[.055,.05,.045])
     colour=paint(eye_surround*.5,base*.55+pale*.45)
-    colour*=np.clip(1+hair[:,None]*.32,.64,1.34)
+    colour*=np.clip(1+hair[:,None]*(.24 if canid else .32),.64,1.34)
     colour=paint(inner,[.47,.35,.31])
     if dark_tips:colour=paint(tips*.94,[.045,.042,.037])
-    colour=paint(bare,[.075,.058,.045]);colour=paint(nose_mask,[.12,.09,.08] if a.slug=='hare' else [.23,.15,.14])
+    colour=paint(bare,[.075,.058,.045]);colour=paint(nose_mask,[.045,.035,.029] if canid else [.12,.09,.08] if a.slug=='hare' else [.23,.15,.14])
     if 'mottled' in label:
         m=(.5+.5*np.sin(p[:,1]*21+np.sin(p[:,2]*15)*2))*smooth(.1,.7,n[:,2])*.2
         colour=paint(m,[.13,.105,.075])

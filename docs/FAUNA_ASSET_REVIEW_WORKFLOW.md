@@ -2,6 +2,30 @@
 
 ## Current finishing update - 25 October 2026
 
+Four selected bodies now have checked first colour passes: Hare3/Rabbit1 and
+RedFox3/Wolf2. Canids reuse the accepted directional-fur source, with five fox
+coats (red, cross, silver-tipped dark, black, pale dryland) and six wolf coats
+(grey, tawny, dark brown, black, ivory northern analogue, pale dryland).
+The hypothetical palettes stay labelled. Colour and roughness are2K on canids,
+normal detail512; fur swatches are shared rather than generated per coat.
+Foot stockings, white tail tip and dark outer ears are fox-specific. Wolf uses
+a restrained back/forehead/underside mask set. No sex-specific coat rule or
+new ecology taxon is inferred. Ear/tail/age morphology remains future work.
+
+Canid eye anchors use two independently inspected frontal guide rays, then
+recast to equal rest-space height. A coarse skull's socket-depth asymmetry must
+not become a false head axis: forward is muzzle minus eye midpoint. Shared
+`fauna_paint_recipes.eye_frame` supplies both mask and facial-geometry axes;
+otherwise a misplaced dark lid patch can remain below an adjusted eyeball.
+The fox gets a vertical pupil design; wolf round, with scene-lit corneal gloss.
+Canid facial pieces use476 triangles, total5969/5972 including the unchanged
+5493/5496-triangle bodies. Selected source actions15 each are native-exact.
+The raw fox's triangular cheek fragments and oblique skull, and angular wolf
+ruff/cheek geometry are retained; first colour pass is not owner art approval.
+Front/side heads, fox silver side/cross rear and wolf ivory side/black rear were
+actually inspected after the final bake. The separate painted review index has
+four checked passes; the owner window is not changed or reopened automatically.
+
 Owner-selected bodies may be coloured now, alongside the remaining raw queue;
 there is no all-roster completion gate. Their model choice authorizes colouring
 even if motion is unapproved and will be replaced later. Needed shared sources
@@ -23,7 +47,8 @@ are retained and are not cured by colouring. Appearance remains unapproved.
 CPU source path: `prepare-selected-fauna-paint.py`, then ray-picked landmarks
 with `fit-selected-fauna-landmarks.py`, `bake-selected-fauna-coats.py`,
 `finish-selected-fauna-face.py`, and `check-selected-fauna-paint.py`.
-The first four scripts currently support hare/rabbit, not every body family.
+The first four scripts currently support hare/rabbit/red-fox/wolf, not every
+body family. Recipes and inspected eye picks must be extended for new bodies.
 `index-painted-fauna.py` exposes only hash-matching checked passes in a separate
 review index and records actual progress. It does not approve art or motions.
 The numbered viewer retains1 motion bank,2 coat,3 side/face/orbit,4 loops,
