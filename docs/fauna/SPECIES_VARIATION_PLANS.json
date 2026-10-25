@@ -4330,7 +4330,8 @@
         "status": "Generated source in use by selected Hare3/Rabbit1 working coats",
         "path": "artifacts/fauna-assets/textures/fur-dense-fine-v1.png",
         "provenance": "artifacts/fauna-assets/textures/fur-dense-fine-v1.json",
-        "sha256": "ef9f622acc7cfb2dbe24bdefbb0175a17b8bb6986a8f59d10fd5898b394e87e5"
+        "sha256": "ef9f622acc7cfb2dbe24bdefbb0175a17b8bb6986a8f59d10fd5898b394e87e5",
+        "seamless_verified": false
       },
       {
         "id": "fur_coarse_guard",
@@ -4341,7 +4342,8 @@
         "status": "Generated shared source, in use by selected WildBoar1 and Bear2 first colour passes",
         "path": "artifacts/fauna-assets/textures/fur-coarse-guard-v1.png",
         "provenance": "artifacts/fauna-assets/textures/fur-coarse-guard-v1.json",
-        "sha256": "0b8d1ac4915c3f11de85b36f36932715a45e0df4ae4e35f19268a6254378d0f4"
+        "sha256": "0b8d1ac4915c3f11de85b36f36932715a45e0df4ae4e35f19268a6254378d0f4",
+        "seamless_verified": false
       },
       {
         "id": "fur_wool_shag",
@@ -4352,7 +4354,8 @@
         "status": "Generated, visually inspected and mapped on selected Bison4",
         "path": "artifacts/fauna-assets/textures/fur-wool-shag-v1.png",
         "provenance": "artifacts/fauna-assets/textures/fur-wool-shag-v1.json",
-        "sha256": "928404d5d2e1abaaf95dee9ae447aa5f7d14f42edf70c0c5e450f75bd0e782f9"
+        "sha256": "928404d5d2e1abaaf95dee9ae447aa5f7d14f42edf70c0c5e450f75bd0e782f9",
+        "seamless_verified": false
       },
       {
         "id": "feather_contour",
@@ -4363,7 +4366,8 @@
         "status": "Generated, visually inspected and mapped on selected Duck2/Pheasant3",
         "path": "artifacts/fauna-assets/textures/feather-contour-v1.png",
         "provenance": "artifacts/fauna-assets/textures/feather-contour-v1.json",
-        "sha256": "184e666f6c67ef2f8e33f77fc321ff2ca664c03e4b7754bd0b6bd2531c4dd392"
+        "sha256": "184e666f6c67ef2f8e33f77fc321ff2ca664c03e4b7754bd0b6bd2531c4dd392",
+        "seamless_verified": false
       },
       {
         "id": "feather_flight",
@@ -4374,28 +4378,44 @@
         "status": "Generated, visually inspected and mapped on selected Duck2/Pheasant3",
         "path": "artifacts/fauna-assets/textures/feather-flight-v1.png",
         "provenance": "artifacts/fauna-assets/textures/feather-flight-v1.json",
-        "sha256": "d4706ef48e252020164f4603b989fca94ded963970b162de8ab6ffdc41f7cfc6"
+        "sha256": "d4706ef48e252020164f4603b989fca94ded963970b162de8ab6ffdc41f7cfc6",
+        "seamless_verified": false
       },
       {
         "id": "skin_nasal_lid",
         "priority": 7,
         "action": "Reuse suitable accepted deer skin detail or generate a neutral shared source",
         "brief": "Fine mammal nasal/bare-lid skin pores in neutral dark grey-brown, restrained irregular fine grain with no heavy wrinkles.",
-        "uses": "Nasal leather and fitted bare lid margins; individual masks and local roughness remain separate."
+        "uses": "Nasal leather and fitted bare lid margins; individual masks and local roughness remain separate.",
+        "path": "artifacts/fauna-assets/textures/skin-nasal-lid-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/skin-nasal-lid-v1.json",
+        "sha256": "682a7c8f6f66ee206902d636f13336c81d43afde325bb6b2d88094098a6f2571",
+        "status": "Generated and visually inspected reusable source only; anatomical mapping and owner appearance approval pending",
+        "seamless_verified": false
       },
       {
         "id": "skin_thin_ear",
         "priority": 8,
         "action": "Reuse suitable accepted ear source or generate only when needed",
         "brief": "Fine thin bare skin in muted neutral pink-beige, delicate pores with subtle small vessels, diffuse and not translucent red.",
-        "uses": "Inner-ear/selected bare-skin details; furred outer rims are controlled by anatomy masks."
+        "uses": "Inner-ear/selected bare-skin details; furred outer rims are controlled by anatomy masks.",
+        "path": "artifacts/fauna-assets/textures/skin-thin-ear-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/skin-thin-ear-v1.json",
+        "sha256": "d7e7d5b49ca8f3f8570aace50fb19a9b7eacfaed259f8b8b1eacf7af6e6aebd7",
+        "status": "Generated and visually inspected reusable source only; anatomical mapping and owner appearance approval pending",
+        "seamless_verified": false
       },
       {
         "id": "keratin_hard",
         "priority": 9,
         "action": "Reuse accepted hoof detail first",
         "brief": "Natural hard hoof/claw/horn keratin, fine lengthwise growth grain, muted grey-brown, no polished highlights or large cracks.",
-        "uses": "Hooves, claws and horns after choosing direction/scale. Beaks/scales may need their own relief rather than literal hoof colour."
+        "uses": "Hooves, claws and horns after choosing direction/scale. Beaks/scales may need their own relief rather than literal hoof colour.",
+        "path": "artifacts/fauna-assets/textures/keratin-hard-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/keratin-hard-v1.json",
+        "sha256": "3b5a4e7d29cd48be3465165428c4bd040f82f3786a0bfd166a52690169060ba9",
+        "status": "Generated and visually inspected reusable source only; anatomical mapping and owner appearance approval pending",
+        "seamless_verified": false
       },
       {
         "id": "eye_iris",
@@ -4409,91 +4429,154 @@
         "priority": 11,
         "action": "New shared source",
         "brief": "Fine irregular reptile scales with restrained shallow boundaries, neutral grey-tan, no raised armour spikes or large cracks.",
-        "uses": "Selected lizard/crocodilian/armoured regions with anatomy-specific relief and scale size."
+        "uses": "Selected lizard/crocodilian/armoured regions with anatomy-specific relief and scale size.",
+        "path": "artifacts/fauna-assets/textures/scale-reptile-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/scale-reptile-v1.json",
+        "sha256": "ab059ee29711858ea6411ef013da5eca91dd509973afcab1e02a5a7ead68f324",
+        "seamless_verified": false,
+        "status": "Generated and visually inspected reusable source only; anatomical mapping and owner appearance approval pending"
       },
       {
         "id": "scale_snake_dorsal",
         "priority": 12,
         "action": "New shared source",
         "brief": "Orderly small overlapping snake dorsal scales, neutral grey-brown, fine restrained edges and natural directional alignment.",
-        "uses": "Snake dorsal microdetail; markings and head shields are separate anatomical masks."
+        "uses": "Snake dorsal microdetail; markings and head shields are separate anatomical masks.",
+        "path": "artifacts/fauna-assets/textures/scale-snake-dorsal-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/scale-snake-dorsal-v1.json",
+        "sha256": "2185d53bdfa5493ce48fac1eeaf6f21934f5d177c36794145a71f218ea609a9a",
+        "seamless_verified": false,
+        "status": "Generated and visually inspected reusable source only; anatomical mapping and owner appearance approval pending"
       },
       {
         "id": "scale_snake_ventral",
         "priority": 13,
         "action": "New shared source",
         "brief": "Broad smooth transverse snake belly scutes, neutral pale grey-beige, shallow segment divisions and fine wear without baked shade.",
-        "uses": "Only selected snake ventral surfaces; coordinate direction and spacing must be fitted."
+        "uses": "Only selected snake ventral surfaces; coordinate direction and spacing must be fitted.",
+        "path": "artifacts/fauna-assets/textures/scale-snake-ventral-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/scale-snake-ventral-v1.json",
+        "sha256": "7313b7af858e44413a92d0a82fef1350c3261ff02bd500dc033bc5a3bdd15d7d",
+        "seamless_verified": false,
+        "status": "Generated and visually inspected reusable source only; anatomical mapping and owner appearance approval pending"
       },
       {
         "id": "skin_amphibian",
         "priority": 14,
         "action": "New shared source if amphibian visual bodies are approved",
         "brief": "Smooth fine-pored amphibian skin, muted neutral tan-grey, very subtle irregular grain, no fur, scales or heavy leather cracks.",
-        "uses": "Visual salamander-like bodies only; existing audio-only frogs get no visual allocation."
+        "uses": "Visual salamander-like bodies only; existing audio-only frogs get no visual allocation.",
+        "path": "artifacts/fauna-assets/textures/skin-amphibian-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/skin-amphibian-v1.json",
+        "sha256": "3d52a507614a2b70749ae8ebf915c5981ad81489afd10dd289c224f1d6d5f1d9",
+        "seamless_verified": false,
+        "status": "Generated and visually inspected reusable source only; anatomical mapping and owner appearance approval pending"
       },
       {
         "id": "scale_fish",
         "priority": 15,
         "action": "New shared source",
         "brief": "Fine orderly overlapping fish scales, neutral silver-grey pigment with no baked metallic glints or iridescent lighting.",
-        "uses": "Selected bony fish; scales do not belong on squid, shark or marine mammals."
+        "uses": "Selected bony fish; scales do not belong on squid, shark or marine mammals.",
+        "path": "artifacts/fauna-assets/textures/scale-fish-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/scale-fish-v1.json",
+        "sha256": "e96f19c35a7d204c7dc9068248f8aa61dd3cae472930448969d4ce721c80586d",
+        "status": "Generated reusable source, visually inspected; anatomical mapping and owner appearance approval pending",
+        "seamless_verified": false
       },
       {
         "id": "skin_denticle",
         "priority": 16,
         "action": "New shared source if needed",
         "brief": "Very fine subdued shark denticle surface, neutral grey, matte diffuse micrograin without obvious fish scales or pebble leather.",
-        "uses": "Shark skin with appropriate detail scale."
+        "uses": "Shark skin with appropriate detail scale.",
+        "path": "artifacts/fauna-assets/textures/skin-denticle-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/skin-denticle-v1.json",
+        "sha256": "36c2c33b161d44aefad4853aa3f4f78a3e22e74262074b954d43dea7b39a3200",
+        "seamless_verified": false,
+        "status": "Generated and visually inspected reusable source only; anatomical mapping and owner appearance approval pending"
       },
       {
         "id": "skin_marine_smooth",
         "priority": 17,
         "action": "New shared source if needed",
         "brief": "Smooth fine marine-mammal skin in neutral grey, subtle pores and soft fine wrinkles, no wet highlights or deep cracks.",
-        "uses": "Cetaceans and chosen sparsely haired pinniped areas; dense seal fur and walrus folds remain distinct anatomy."
+        "uses": "Cetaceans and chosen sparsely haired pinniped areas; dense seal fur and walrus folds remain distinct anatomy.",
+        "path": "artifacts/fauna-assets/textures/skin-marine-smooth-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/skin-marine-smooth-v1.json",
+        "sha256": "f202f987b79b0bddbb3d2e760ce64f3a6d8806f5b67e282c4d4fca9b0ef04db3",
+        "seamless_verified": false,
+        "status": "Generated and visually inspected reusable source only; anatomical mapping and owner appearance approval pending"
       },
       {
         "id": "skin_squid",
         "priority": 18,
         "action": "New shared source if needed",
         "brief": "Fine soft cephalopod skin with subtle tiny chromatophore speckling in muted pale grey-beige, no fish scales, baked gloss or deep wrinkles.",
-        "uses": "Squid mantle/arms; colour state, sucker placement and fin translucency remain anatomical/material controls."
+        "uses": "Squid mantle/arms; colour state, sucker placement and fin translucency remain anatomical/material controls.",
+        "path": "artifacts/fauna-assets/textures/skin-squid-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/skin-squid-v1.json",
+        "sha256": "c9d6f018150981b66afcccfc0d3bdb41deca3bd4844e217c83632ad5614fa29e",
+        "seamless_verified": false,
+        "status": "Generated and visually inspected reusable source only; anatomical mapping and owner appearance approval pending"
       },
       {
         "id": "chitin_fine",
         "priority": 19,
         "action": "New shared source if needed",
         "brief": "Fine hard insect cuticle, neutral grey-brown, delicate subtle surface grain, no armour spikes, animal silhouette or baked mirror reflections.",
-        "uses": "Insects/spiders with body-specific segment and pattern masks; no generic insect anatomy imposed on spiders."
+        "uses": "Insects/spiders with body-specific segment and pattern masks; no generic insect anatomy imposed on spiders.",
+        "path": "artifacts/fauna-assets/textures/chitin-fine-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/chitin-fine-v1.json",
+        "sha256": "0c495842aadf5cceadff2857a039a16786a78b4afb5623050de5c465a2099af0",
+        "seamless_verified": false,
+        "status": "Generated and visually inspected reusable source only; anatomical mapping and owner appearance approval pending"
       },
       {
         "id": "wing_membrane_bat",
         "priority": 20,
         "action": "New shared source if needed",
         "brief": "Thin bat-wing membrane fine skin detail in muted grey-brown, restrained faint small vessels, no finger bones, highlights or directional shadows.",
-        "uses": "Fitted bat membrane only; translucency and main veins follow geometry rather than arbitrary copied vessels."
+        "uses": "Fitted bat membrane only; translucency and main veins follow geometry rather than arbitrary copied vessels.",
+        "path": "artifacts/fauna-assets/textures/wing-membrane-bat-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/wing-membrane-bat-v1.json",
+        "sha256": "f691d92aebf0b542bbaf0575ff1666700b3660bb5665422407ce1729a595d93f",
+        "seamless_verified": false,
+        "status": "Generated and visually inspected reusable source only; anatomical mapping and owner appearance approval pending"
       },
       {
         "id": "wing_membrane_insect",
         "priority": 21,
         "action": "New shared source if needed",
         "brief": "Very fine nearly clear insect-wing membrane grain, neutral pale grey, no strong iridescent lighting and no pre-imposed large vein layout.",
-        "uses": "Insect membrane detail; vein layout/opacity follows the selected wings. Distinct from bat skin."
+        "uses": "Insect membrane detail; vein layout/opacity follows the selected wings. Distinct from bat skin.",
+        "status": "Use a simple neutral material at expected tiny display size; bitmap deferred unless a close approved view needs visible microdetail",
+        "generation_needed_now": false,
+        "reason": "Veins require selected wing anatomy. Neutral subpixel grain adds no useful visual information or extra material."
       },
       {
         "id": "wing_scales_butterfly",
         "priority": 22,
         "action": "New shared source if needed",
         "brief": "Fine densely arranged butterfly wing-scale microstructure, neutral grey-beige, flat diffuse appearance without a butterfly silhouette or decorative colour pattern.",
-        "uses": "Butterfly/moth scale detail; species wing patterns are later connected masks on approved wing shapes."
+        "uses": "Butterfly/moth scale detail; species wing patterns are later connected masks on approved wing shapes.",
+        "path": "artifacts/fauna-assets/textures/wing-scales-butterfly-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/wing-scales-butterfly-v1.json",
+        "sha256": "8ee68fd8492fdf33ff40991f8f012607fdedd5fd65ab3ddcb29c2b1ffc24750b",
+        "seamless_verified": false,
+        "status": "Generated and visually inspected reusable source only; anatomical mapping and owner appearance approval pending"
       },
       {
         "id": "shell_scute",
         "priority": 23,
         "action": "New shared source if needed",
         "brief": "Natural tortoise/turtle scute microdetail, muted brown-grey with fine growth grain and subtle wear, no whole shell, deep cracks or baked occlusion.",
-        "uses": "Selected shell scutes; actual scute seams and centres are fitted anatomical regions."
+        "uses": "Selected shell scutes; actual scute seams and centres are fitted anatomical regions.",
+        "path": "artifacts/fauna-assets/textures/shell-scute-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/shell-scute-v1.json",
+        "sha256": "08615c2c6b82e92ab2d7be7c15637bef69490eb99cf54096b6434c305e65923f",
+        "seamless_verified": false,
+        "status": "Generated and visually inspected reusable source only; anatomical mapping and owner appearance approval pending"
       },
       {
         "id": "antler_bone",
@@ -4507,21 +4590,34 @@
         "priority": 25,
         "action": "New source only if accepted anatomy needs visible detail",
         "brief": "Restrained ivory/dentine fine grain in warm neutral off-white, subtle lengthwise texture, no huge cracks or polished baked reflection.",
-        "uses": "Tusks and teeth after root/age anatomy approval; distinct from hoof/horn keratin."
+        "uses": "Tusks and teeth after root/age anatomy approval; distinct from hoof/horn keratin.",
+        "path": "artifacts/fauna-assets/textures/ivory-tooth-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/ivory-tooth-v1.json",
+        "sha256": "6a466ff555f3e40f748d49642837fe120535c33303a17c09f693c55c845d096b",
+        "seamless_verified": false,
+        "status": "Generated and visually inspected reusable source only; anatomical mapping and owner appearance approval pending"
       },
       {
         "id": "mouth_tissue",
         "priority": 26,
         "action": "New source only for approved open-mouth geometry",
         "brief": "Subtle moist oral tissue fine detail in muted pink-grey, even diffuse lighting, no teeth, lips, animal face or specular glints.",
-        "uses": "Actual mouth interior where visible; no painted fake openings on a closed mesh."
+        "uses": "Actual mouth interior where visible; no painted fake openings on a closed mesh.",
+        "status": "Conditional source deferred until approved visible mouth interior geometry requires it",
+        "generation_needed_now": false,
+        "reason": "No source allocation for a painted fake opening on a closed mesh; fit actual interior first."
       },
       {
         "id": "skin_thick_wrinkled",
         "priority": 27,
         "action": "Generate only when an approved elephant, rhinoceros or hippopotamus body needs a distinct skin source",
         "brief": "Fine irregular pores and shallow fine creases of thick sparsely haired mammal skin, neutral grey-brown, no scales, fur, pebbled reptile armour, deep cracks, cast shadows or baked dark wrinkle grooves. Flat diffuse close crop. Broad anatomical folds belong to the selected mesh or fitted normal detail rather than a universally tiled pattern.",
-        "uses": "Elephant, rhinoceros and hippopotamus base microdetail with animal-specific scale and roughness; generate separate fine-grain variants only if this common source is visibly inadequate. Do not substitute smooth cetacean skin. Ivory, keratin nails, ears, mouth, eyes, mud and major anatomical folds remain separate regions or geometry."
+        "uses": "Elephant, rhinoceros and hippopotamus base microdetail with animal-specific scale and roughness; generate separate fine-grain variants only if this common source is visibly inadequate. Do not substitute smooth cetacean skin. Ivory, keratin nails, ears, mouth, eyes, mud and major anatomical folds remain separate regions or geometry.",
+        "path": "artifacts/fauna-assets/textures/skin-thick-wrinkled-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/skin-thick-wrinkled-v1.json",
+        "sha256": "2132f4d682f00188b93eaf4b1f601274880f8929b9fd9b668131897155816f13",
+        "seamless_verified": false,
+        "status": "Generated and visually inspected reusable source only; anatomical mapping and owner appearance approval pending"
       }
     ],
     "no_bitmap_needed": "Whiskers, eyelash roots, antler branch shapes, horn count, beaks, tails, ear size and missing wing/limb anatomy require geometry or masks, not a new generic material image. Firefly emission is a bounded abdomen material; avoid an actual point light per insect.",
@@ -4557,6 +4653,22 @@
         }
       }
     },
-    "source_allocation_note": "27 planned reusable slots, not27 promised generations. Reuse accepted sources first; thick sparsely haired land-mammal skin is distinct from smooth cetacean skin. Priority values are stable slot ordering; actual generation follows approved animal priority and visible need."
+    "source_allocation_note": "27 planned reusable slots, not27 promised generations. Reuse accepted sources first; thick sparsely haired land-mammal skin is distinct from smooth cetacean skin. Priority values are stable slot ordering; actual generation follows approved animal priority and visible need.",
+    "source_preparation_checkpoint": {
+      "time": "2026-10-25T05:36:57.959940-05:00",
+      "generated_source_count": 22,
+      "reuse_slots": [
+        "fur_short_directional",
+        "eye_iris",
+        "antler_bone"
+      ],
+      "conditional_slots": [
+        "wing_membrane_insect",
+        "mouth_tissue"
+      ],
+      "new_model_painting_in_this_checkpoint": false,
+      "source_prompts_and_inspection": "Each generated image has an adjacent provenance JSON with exact prompt and usage limits. Edge joins are measured, not declared seamless.",
+      "source_images_bytes": 80340866
+    }
   }
 }

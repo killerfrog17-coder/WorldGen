@@ -1,5 +1,43 @@
 # WorldGen repository instructions
 
+SHARED SOURCE PREPARATION / FULL INVENTORY AUDIT,25October2026 ~05:44 local:
+Previous goal turn completed review delivery; this continuation made substantive
+source/evidence progress. Leave owner Blender review untouched, no new follow-up.
+Shared texture source library now22 generated images /80,340,866bytes (~76.6MiB),
+including16 new sources this pass (nasal/lid skin, ear skin, keratin, reptile and
+snake scales, amphibian skin, marine skin, squid, chitin, bat membrane, butterfly
+scales, shell scute, thick skin, ivory and denticle). Built-in imagegen only;
+all final outputs copied to artifacts/fauna-assets/textures, adjacent JSON has
+exact prompt, generated-source path, actual visual inspection, SHA/dimensions/
+edge-join stats and usage limits. First porous amphibian attempt rejected and
+replaced with smooth source. Not seamless or measured PBR; some sources need
+strong contrast/relief reduction and direction-aware fitting. No model painted
+or new GUI opened/changed in this pass. No local GPU inference/game changes.
+SPECIES_VARIATION_PLANS shared slots link all22 exact sources. Existing deer
+fur/eye/antler reuse supplies3 slots. Insect membrane bitmap deferred in favor
+of tiny simple material; mouth tissue conditional on approved visible interior.
+These are27 planned slots, not27 mandatory bitmap generations. Accepted deer
+native SHA still0e2ff46b0b0860750084bed3af94d84f636144230550e9e80f753b3e415418a1.
+
+New full-scope audit scripts/audit-fauna-queue-readiness.py checks all188 plans,
+176 raw four-candidate reviews, native exact-SHA/control proofs, mesh/rig inputs,
+motion array/rig SHA+CC0/project-authored label, selected correction identity and
+protected deer. Eleven roster Audio only/Skip for now entries explicitly excluded
+from current visual production, accepted deer separate. It initially found161
+legacy native checks without exact-file SHA. Bounded2-CPU-worker refresh completed
+161/161 exit0 via refresh-fauna-native-evidence.py, changed only check JSON/logs,
+not reviews/models. Full audit then reports ZERO inventory/identity/plan-field
+gap rows, no changed motion sources, all176 have4 raw candidates; selected corrected
+index intentionally counts692 because4 selected copies have1entry. Technical
+ready is not art, natural-gait, collision/contact or accurate-all-alias approval;
+experimental source adaptations/gaps remain explicit in per-animal audition JSON.
+Ignored full-readiness-audit.json and texture-source-index.json retain evidence.
+Current fauna queue ~11.0GiB incl retained4-candidate inputs and rejected history,
+no single file>100MiB;85.8MiB old rejected Echidna intermediates observed, not deleted.
+Source checkpoint f2929aa45f3b5270c79c7692c0285410c0997d31 was verified before this
+pass; next source backup must include this note, species-source metadata and2audit
+scripts. Preserve unrelated owner-deleted prompt and2old untracked deer scripts.
+
 OWNER REQUESTED BATCH READY / REVIEW OPEN,25October2026 ~05:21 local:
 All39 tasks ready:15 fresh four-candidate rerolls +24 selected manual repairs.
 Progress manifest/live reports39/39,100%,zero remaining. Own progress GUI13884
