@@ -1,5 +1,13 @@
 # WorldGen repository instructions
 
+SHARK AXES CHECKED,24October2026 late evening:
+All4 Shark Bind-side show snout negativeY/tail positiveY; rigid180Z all4 config
+restores actual head-forward fish correspondence. RawGLB/NN hashes exact, native4
+and controls pass; all4 corrected SwimHorizontal sidequarter inspected. Coarse
+fin/mouth/gill geometry remains, no whole-cycle/bite/natural propulsion approval.
+Manual recovery finalized; no regeneration/painting or live queue-state edits.
+Same serial worker continues Shorebird;10raw sets left after Shark completion.
+
 RAW QUEUE165 / PANGOLIN DIRECTION,24October2026 late evening:
 165 review sets audited,11 pending, errors[]; sole existing exec93476/worker21044
 continues (shark then shorebird). No new producer or owner review launch.

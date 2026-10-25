@@ -1707,5 +1707,96 @@
         "generated-rig.npz": "150faea93565352ee4a6099cdb9f39b1865828699e142bedc54cdd90d28d5526"
       }
     }
+  },
+  "shark": {
+    "reason": "All4 Bind-side show actual shark snout at negativeY and tail at positiveY; high dorsal fin normalized body sign backward. Rigid180Z restores head-forward before fish correspondence. Raw model and neural rig bytes unchanged.",
+    "axis_corrections": {
+      "1": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "2": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "3": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "4": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "2031fc0f76cf7fcf461b08791d825bc3d9e568a3b238005edc77a8e6b47283f9",
+        "generated-rig.npz": "37c0b4c183c4b6dfd4b53db440d542cd320ecbf599fa6c97b75aed38d400cf18"
+      },
+      "2": {
+        "model.glb": "d86501d609bf206a212477c21ec7a2fb34ba66f8d6358186cd9917f79f78baa1",
+        "generated-rig.npz": "b8857055021bbf720c6705430a918379abe508994a605b2fca0ef41b8c14fb49"
+      },
+      "3": {
+        "model.glb": "0bfdc8150159944ab56a24ef6ff098907f6c9314b92000520760dbca3b01b0c2",
+        "generated-rig.npz": "8952edec1cb13074a22832bf487e61548cf6fbea1611297d56e3b93137deaf99"
+      },
+      "4": {
+        "model.glb": "5794bbb1474d90cf03dffe5c668ba69e901ab4f408cd45b373d21426bfab4e63",
+        "generated-rig.npz": "db9f44710ccdeceea741aa3977f7522b285a974a4d7684e0f426cea5fc7d18e2"
+      }
+    }
   }
 }
