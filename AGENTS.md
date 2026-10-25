@@ -1,5 +1,21 @@
 # WorldGen repository instructions
 
+LATE ORCA/PENGUIN AXES FIXED,24October2026 evening:
+Orca all4 Bind-front tail-first confirmed, rigid180Z restores actual head/tail.
+Penguin all4 Bind-front were side profiles from torso/flipper PCA width: -90Z
+for1/3,+90Z for2/4, plus existing anatomical_bird full-leg matching. Head nodes
+move from low appendages to actual upper head (~1.45-1.58m review height);3/4
+full leg chains restored. Hash-pinned config only, all rawGLB/NN bytes exact.
+Both rebuilt/native4/controls pass; all4 corrected SwimVertical/Walk side at
+quarter +1front, all4 oldBind-front and1oldBind-side inspected. Remaining Orca
+tail-tip/Penguin tail-feather/web-foot roughness explicitly warned. No new model
+or rig inference, held-core poses, painting or owner selection changes.
+Porcupine front looks ambiguous but Bind-side confirms correct forward head:
+DO NOT rotate it on the basis of the front view alone. Pangolin/Platypus/
+PolarBear1 Bind-front also inspected; no axis correction needed from that view.
+Recoveries finalized without live state edits. Source generation still waits
+for all176 raw sets. Owner is back/asks status; no new viewer launch requested.
+
 RAW QUEUE159 / SPIDER ASSEMBLY RECOVERY,24October2026~22:08CDT:
 159raw review sets/636 candidate attempts verified,17of176 pending, audit errors[].
 Same exec93476/outer6340/sole--watch21044 continues; currentPorcupine rig at

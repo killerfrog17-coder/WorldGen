@@ -1467,5 +1467,188 @@
         "generated-rig.npz": "0155f0e23195fd8d5da83c8bbfddb47461ebbf3397eff4b1cf1b53c4d661cafb"
       }
     }
+  },
+  "orca": {
+    "reason": "All4 Bind fronts are tail-first; dorsal-fin high-point sign selected wrong head end. Rigid180Z restores actual head/tail direction before existing fish correspondence.",
+    "axis_corrections": {
+      "1": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "2": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "3": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "4": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "f4085e497085df1ec920bf79c0e6e9db3e15c1f33d83a514a2648f7f469b7d0b",
+        "generated-rig.npz": "f214ebcbf6d40cdea62251a8c2ca94fd26f57b0478b8d824c236906ac2776e41"
+      },
+      "2": {
+        "model.glb": "0610e063b8486e1723514faa8b7e65200822822b1bbd29ae459322b4ae275828",
+        "generated-rig.npz": "862ceee1a017f0c3865d287b04871acfcabb54f6d7aa043c2a7958599f4878da"
+      },
+      "3": {
+        "model.glb": "ddec21a45c5a277ad3434867609587807c34d7f95d54c37309e79b5b13eb6da6",
+        "generated-rig.npz": "34b773d7bd9a2ed26a0588225e77e56d308992aaacaa0bb6c2d86d45f8f2d679"
+      },
+      "4": {
+        "model.glb": "5a26fcd5fbde37b5fc221b15021067def06878616b228dc289fa94837e2a059b",
+        "generated-rig.npz": "df0d8759f0dcf864f29c4959ce5da5063b133a523179ed3560261182abe8fc6f"
+      }
+    }
+  },
+  "penguin": {
+    "reason": "All4 Bind fronts are side profiles; torso/flipper PCA width selected wrong body axis, mapping low side appendages as Head. Candidate-specific90deg rotation restores forward body axis; existing anatomical_bird paths restore complete leg chains where needed.",
+    "axis_corrections": {
+      "1": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "2": [
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "3": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "4": [
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "cf0129334b5bb524c5b153cc7e8bed2eb8b4ccb9cc96a03c92bec9e6e13f8241",
+        "generated-rig.npz": "e9f04bb966e939e1028ca5fef6c0665e6077ee4b655ef56e52cde15027bb67e8"
+      },
+      "2": {
+        "model.glb": "a61c7f457952f2bf1da33aa05940672dec183fcd43da7242ab85f610e1844ae4",
+        "generated-rig.npz": "8dc4cc953624af6f63e6eaa4727b2edbf9c595bfa6a35934461acbd7dce63bf8"
+      },
+      "3": {
+        "model.glb": "d06d6ec716ded182f6a37863edde756ba91b0b9a1adb192df18bb33f08e51c2a",
+        "generated-rig.npz": "1f6598bc004c67d90ced4149c09f190ffa65548b7a4b41255e1037071e757d4b"
+      },
+      "4": {
+        "model.glb": "534b87628daab2a3370e9600d71be4d90fe32a41f177a890692bfa97a9b03178",
+        "generated-rig.npz": "ef9255fa213e59f364db7a2c277c311d3a2b1ef7c157b413efa4035d0cbd0a6c"
+      }
+    },
+    "anatomical_bird": true
   }
 }
