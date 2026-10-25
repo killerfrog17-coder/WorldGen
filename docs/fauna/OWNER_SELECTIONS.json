@@ -2649,11 +2649,15 @@
   "review_window_request": {
     "reopen_rightmost_after_requested_revisions": true,
     "time": "2026-10-25T03:48:27.919554-05:00",
-    "reopened": false,
-    "pid": 30620,
+    "reopened": true,
+    "pid": 20976,
     "opened_on": "rightmost",
     "only_prepared": true,
-    "wait_until_all_requested_candidates_ready": true
+    "wait_until_all_requested_candidates_ready": true,
+    "opened_at": "2026-10-25T05:22:43.543338-05:00",
+    "prepared_review_animals": 17,
+    "progress_ready": 39,
+    "progress_total": 39
   },
   "selection_history": [
     {

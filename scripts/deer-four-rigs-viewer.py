@@ -5,6 +5,9 @@ import bpy
 from mathutils import Vector,Quaternion
 
 s=bpy.context.scene;models=json.loads(s['deer_four_rigs'])
+repair_proof=Path(bpy.data.filepath).parent/'owner-fix.json'
+if len(models)==1 and Path(bpy.data.filepath).name=='Animal - Owner Corrected.blend' and repair_proof.exists():
+    models[0]['original_model_number']=json.loads(repair_proof.read_text())['candidate']
 animal=s.get('fauna_animal','Deer')
 finished=bool(models[0].get('same_approved_model'))
 warning_path=Path(bpy.data.filepath).parent/'visual-warnings.json'
@@ -140,6 +143,9 @@ class D4_OT_animal(bpy.types.Operator):
         if not Path(selected['path']).exists():return {'CANCELLED'}
         bpy.ops.wm.open_mainfile(filepath=selected['path'])
         s=bpy.context.scene;models=json.loads(s['deer_four_rigs']);animal=s.get('fauna_animal','Deer');finished=bool(models[0].get('same_approved_model'))
+        repair_proof=Path(bpy.data.filepath).parent/'owner-fix.json'
+        if len(models)==1 and Path(bpy.data.filepath).name=='Animal - Owner Corrected.blend' and repair_proof.exists():
+            models[0]['original_model_number']=json.loads(repair_proof.read_text())['candidate']
         warning_path=Path(selected['path']).parent/'visual-warnings.json'
         screening=json.loads(warning_path.read_text()) if warning_path.exists() else {}
         state.update(model=0,clip='Showcase',mode=0,view=0,skeleton=False,coat_index=0,coat_bag=[],coat=models[0]['painting_coats'][0]['label'] if models[0].get('painting_coats') else 'Unpainted preview',started=time.monotonic(),active_rack=-1,extra_variant=0,extra_bags={})
@@ -234,6 +240,7 @@ class D4_PT_panel(bpy.types.Panel):
     bl_space_type='VIEW_3D';bl_region_type='UI';bl_category='Animal Review'
     def draw(self,context):
         col=self.layout.column();entry=current();col.label(text=animal)
+        if entry.get('original_model_number'):col.label(text=f"Selected source model {entry['original_model_number']} · corrected rig")
         entries=queue_entries()
         if (Path(bpy.data.filepath).parent.parent/'review-index.json').exists():
             col.operator('deer_four.filter',text='Pending animals only' if state['pending_only'] else 'All ready animals',depress=state['pending_only'])
@@ -268,11 +275,16 @@ class D4_PT_panel(bpy.types.Panel):
         col.label(text='Manual motion / skin correction' if entry.get('manual_repairs') else 'Raw automatic transfer; no manual repairs')
 def tick():
     for window,area,space in regions():
+        if state.get('panel_for_file')!=bpy.data.filepath:
+            space.show_region_ui=True
+            for region in area.regions:
+                if region.type=='UI':region.active_panel_category='Animal Review'
         if state['view']==2:
             angle=(time.monotonic()-state['started'])*.22
             space.region_3d.view_rotation=Vector((math.cos(angle),math.sin(angle),.08)).to_track_quat('Z','Y')
         elif state['view']==1:space.region_3d.view_location=rig().matrix_world@rig().pose.bones[current().get('review_head_bone','Head')].head
         area.tag_redraw()
+    state['panel_for_file']=bpy.data.filepath
     return .05
 for cls in (D4_OT_model,D4_OT_animal,D4_OT_filter,D4_OT_species,D4_OT_view,D4_OT_mode,D4_OT_skeleton,D4_OT_play,D4_OT_clip,D4_OT_free,D4_PT_panel):bpy.utils.register_class(cls)
 bpy.types.VIEW3D_HT_header.prepend(header)
