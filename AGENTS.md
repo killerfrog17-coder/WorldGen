@@ -1,5 +1,27 @@
 # WorldGen repository instructions
 
+RAW MODEL SELECTION COMPLETE / PAINTING PRIORITY,25October2026:
+Owner selected Nutria4, Porcupine1, Python1, VenomousSnake2, Echidna3, Gull3;
+Elephant2 retained with no repeat review. Elephant bilateral tusk/mouth-root
+219 vertices rigidly follow actual Joint_05;25 samples each Idle/Walk show zero
+head-local drift, native source checks pass; actions and bind geometry unchanged.
+Latest choice/proof SHA is in OWNER_SELECTIONS and ignored tusk-skin-correction.
+No further model generation/animation baking requested. Owner explicitly says
+prioritize painting remaining selected bodies.27 new first-colour copies plus
+accepted deer =28 technically checked texture previews; NOT owner appearance
+approval or complete game-ready/speciation acceptance.13 newly finished bodies:
+Horse/Reindeer/Moose/WildCattle/Grouse/Quail/Turkey/Junglefowl/Raccoon/Badger/
+Beaver/Otter/Lynx;4-6 packed atlas coats each, fitted facial features, original
+body/skin/rest/actions exact. CPU only, existing generated surface swatches.
+Next priority Owl/Raven, then later selected visual animals. Horns/antlers and
+other morphology extras for newly coloured ungulates remain separate finishing
+work; do not call these full species implementations. Paint queue now refreshes
+later owner choices;171 selected generated-body jobs, procedural tiny fauna
+tracked separately. Native proof SHA, not folder existence, gates the index.
+Painter resolves selected corrected/motion-revision files and one-entry sources,
+retaining original chosen-candidate provenance and actual source rig metadata.
+Leave owner windows untouched. No game/Unity/Desktop changes or paid calls.
+
 MOTION FOLLOW-UP READY / OWNER INSPECTING,25October2026:
 Owner asked to show currently ready candidates immediately. ONE NEW Blender GUI
 PID5340 opened RIGHTMOST from Nutria/Animal - Motion Revision.blend, visible

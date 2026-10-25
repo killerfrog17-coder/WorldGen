@@ -9,6 +9,7 @@ ap.add_argument('--blend-name',default='Animal - Raw Audition.blend');ap.add_arg
 ap.add_argument('--coat',type=int,default=0)
 ap.add_argument('--extra-variant',type=int,default=0)
 ap.add_argument('--surface-only',action='store_true');ap.add_argument('--focus',type=float,nargs=3)
+ap.add_argument('--span',type=float,help='Optional orthographic framing span for cosmetic anatomy guides')
 ap.add_argument('--tag',default='')
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=a.root.resolve()
 if a.raw_mesh:
@@ -59,6 +60,9 @@ if a.head and not a.raw_mesh:
     center=Vector((head+np.array([0,.08,.035])).tolist());span=e.get('paint_head_span',.72)
     if e.get('paint_face_direction'):directions['front']=tuple(Vector(e['paint_face_direction'])+Vector((0,0,.08)))
 if a.focus:center=Vector(a.focus)
+if a.span:
+    assert a.span>0
+    span=a.span
 camera=bpy.data.objects.new('Diagnostic camera',bpy.data.cameras.new('Diagnostic camera'));s.collection.objects.link(camera);camera.location=center+Vector(directions[a.view]).normalized()*span*2;camera.rotation_euler=(center-camera.location).to_track_quat('-Z','Y').to_euler();camera.data.type='ORTHO';camera.data.ortho_scale=span*1.22;s.camera=camera
 for pos,power,size in [((3,4,5),650,5),((-3,1,3),350,4),((0,-4,4),450,3)]:
     light=bpy.data.lights.new('Diagnostic softbox','AREA');light.energy=power;light.shape='DISK';light.size=size;obj=bpy.data.objects.new(light.name,light);s.collection.objects.link(obj);obj.location=center+Vector(pos);obj.rotation_euler=(center-obj.location).to_track_quat('-Z','Y').to_euler()

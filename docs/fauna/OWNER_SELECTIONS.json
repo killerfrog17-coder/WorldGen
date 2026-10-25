@@ -148,7 +148,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\small-native-freshwater-fish-guild\\Animal - Painted Species Review.blend"
     },
     "mouse": {
       "animal": "Mouse",
@@ -161,7 +163,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\mouse\\Animal - Painted Species Review.blend"
     },
     "horse": {
       "animal": "Horse",
@@ -174,7 +178,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\horse\\Animal - Painted Species Review.blend"
     },
     "reindeer": {
       "animal": "Reindeer",
@@ -187,7 +193,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\reindeer\\Animal - Painted Species Review.blend"
     },
     "moose": {
       "animal": "Moose",
@@ -200,7 +208,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\moose\\Animal - Painted Species Review.blend"
     },
     "wild-cattle": {
       "animal": "Wild cattle",
@@ -213,7 +223,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\wild-cattle\\Animal - Painted Species Review.blend"
     },
     "quail": {
       "animal": "Quail",
@@ -226,7 +238,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\quail\\Animal - Painted Species Review.blend"
     },
     "turkey": {
       "animal": "Turkey",
@@ -239,7 +253,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\turkey\\Animal - Painted Species Review.blend"
     },
     "raccoon": {
       "animal": "Raccoon",
@@ -252,7 +268,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\raccoon\\Animal - Painted Species Review.blend"
     },
     "badger": {
       "animal": "Badger",
@@ -265,7 +283,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\badger\\Animal - Painted Species Review.blend"
     },
     "beaver": {
       "animal": "Beaver",
@@ -278,7 +298,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\beaver\\Animal - Painted Species Review.blend"
     },
     "otter": {
       "animal": "Otter",
@@ -291,7 +313,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\otter\\Animal - Painted Species Review.blend"
     },
     "lynx": {
       "animal": "Lynx",
@@ -304,7 +328,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\lynx\\Animal - Painted Species Review.blend"
     },
     "owl": {
       "animal": "Owl",
@@ -553,7 +579,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\squirrel\\Animal - Painted Species Review.blend"
     },
     "forest-hog": {
       "animal": "Forest hog",
@@ -1340,7 +1368,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selected by owner; current source motion remains provisional.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\grouse\\Animal - Painted Species Review.blend"
     },
     "junglefowl": {
       "animal": "Junglefowl",
@@ -1353,7 +1383,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selected by owner; current source motion remains provisional.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\junglefowl\\Animal - Painted Species Review.blend"
     },
     "meerkat": {
       "animal": "Meerkat",
@@ -2253,14 +2285,122 @@
       "time": "2026-10-25T11:00:08.077060-05:00",
       "model_sha256": "8438c1e9af9af345e92b2dd4449752c5b19d22a14ad26a8702f777a787d51bdd",
       "rig_sha256": "fedf807081f96c5e659559d8b3c2d7b78bb0f76589add6dcaa707276619acf69",
-      "model_selected": false,
+      "model_selected": true,
       "animation_approved": false,
       "painting_started": false,
-      "owner_feedback": "Candidate2 chosen for attempted repair and explicit repeat review; final keep decision pending",
-      "proceed_without_re_review": false,
+      "owner_feedback": "Candidate2 acceptable for prototype; fix slight right tusk issue without repeat review",
+      "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\elephant\\Animal - Owner Corrected.blend",
-      "manual_fix_blend_sha256": "120638ce1dc747c760d5a7f8bb38acab0bf852f3ca4c36787c74ffe687800852",
-      "manual_fix_status": "explicit_owner_review_ready"
+      "manual_fix_blend_sha256": "0d2971fc16c2f8e0e63e2e6f349f17b00f03374bbb7b4f8050ae288f217a645a",
+      "manual_fix_status": "explicit_owner_review_ready",
+      "right_tusk_fixed": true
+    },
+    "nutria": {
+      "animal": "Nutria",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-25T11:54:15.216660-05:00",
+      "model_sha256": "3eeb0ecf933acc29ef32ec04fc38dd4f98e1bbb208013b2581b545a04c81caaa",
+      "rig_sha256": "bf7e39d913f3a7a6478a18ebb5ab396d3c50431a8f31b76117861873c8d64472",
+      "model_selected": true,
+      "animation_approved": true,
+      "animation_approval_scope": "Owner selected revised model/motion for prototype finishing; engine/game-ready assessment still pending",
+      "painting_started": false,
+      "motion_review_blend": "artifacts\\fauna-overnight-20261024\\nutria\\Animal - Motion Revision.blend",
+      "motion_review_blend_sha256": "2fcbcb743d17e4fdeb7c311eda5469c30fdeb57ba523219c5b0cffd4d8082d2c",
+      "source_review_candidate": 4
+    },
+    "porcupine": {
+      "animal": "Porcupine",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-25T11:54:15.216660-05:00",
+      "model_sha256": "b4764832a34a63e1f6d706122a619fcbce2fc14e64ebaca5b96e892b8e290890",
+      "rig_sha256": "e152d27d28449ecd166d87021c85f974d14ba6e46e3f59b944f67205bd1c715e",
+      "model_selected": true,
+      "animation_approved": true,
+      "animation_approval_scope": "Owner selected revised model/motion for prototype finishing; engine/game-ready assessment still pending",
+      "painting_started": false,
+      "motion_review_blend": "artifacts\\fauna-overnight-20261024\\porcupine\\Animal - Motion Revision.blend",
+      "motion_review_blend_sha256": "a6e0ff8fc479342c45035f294aa81d296b64f1dca7cc00f0d16a5b8046ecd1fd",
+      "source_review_candidate": 1
+    },
+    "python": {
+      "animal": "Python",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-25T11:54:15.216660-05:00",
+      "model_sha256": "ef8fd3c9f5cb372bc8392cff8ab833c4a9b42713589153ed2521ccdff2403a8d",
+      "rig_sha256": "e1456ad947e0a4712fe898bee6d50c0f3efcb3b68594faa6fcc7126d93a40935",
+      "model_selected": true,
+      "animation_approved": true,
+      "animation_approval_scope": "Owner selected revised model/motion for prototype finishing; engine/game-ready assessment still pending",
+      "painting_started": false,
+      "motion_review_blend": "artifacts\\fauna-overnight-20261024\\python\\Animal - Motion Revision.blend",
+      "motion_review_blend_sha256": "23fa4e463e3ffe08e2656fd18e82f0eac578cc61522ec170ec2d532a52c10b8f",
+      "source_review_candidate": 1
+    },
+    "venomous-snake": {
+      "animal": "Venomous snake",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-25T11:54:15.216660-05:00",
+      "model_sha256": "c636352836121e4fd622e441666cbdbc0e4a6fc50219ad1f90317cd7f45a7002",
+      "rig_sha256": "00e488df3217c0d93ea791531398401be686b5df4d2e39f48f3e3eb847b79866",
+      "model_selected": true,
+      "animation_approved": true,
+      "animation_approval_scope": "Owner selected revised model/motion for prototype finishing; engine/game-ready assessment still pending",
+      "painting_started": false,
+      "motion_review_blend": "artifacts\\fauna-overnight-20261024\\venomous-snake\\Animal - Motion Revision.blend",
+      "motion_review_blend_sha256": "9f7e5954256cf897ab7e0b1fd83bb7b4cae4d1fb169885a0dc6d9c1eace9a897",
+      "source_review_candidate": 2
+    },
+    "echidna": {
+      "animal": "Echidna",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-25T11:54:15.216660-05:00",
+      "model_sha256": "fd015ade769348d90ee098f5e3ee2f82c5641ab35ef7019a0413126e71aafd50",
+      "rig_sha256": "6dcea4b32b7f0587a70b993e0239f339a85fcf115c5328550a76ea2edd4b9c88",
+      "model_selected": true,
+      "animation_approved": true,
+      "animation_approval_scope": "Owner selected revised model/motion for prototype finishing; engine/game-ready assessment still pending",
+      "painting_started": false,
+      "motion_review_blend": "artifacts\\fauna-overnight-20261024\\echidna\\Animal - Motion Revision.blend",
+      "motion_review_blend_sha256": "5c90e50bb378a28b7d5d6746b502900f4e9a2e2a35eb264bd9eba9304ec35d36",
+      "source_review_candidate": 3
+    },
+    "gull": {
+      "animal": "Gull",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-25T11:54:15.216660-05:00",
+      "model_sha256": "7107040116d3934fca20879fa2d5c0575920ce26e895ccb56a7ce19021145ce4",
+      "rig_sha256": "b9e83a6c0e7b92e3e020b45eeac3dcc425556dcab4caaf27f722a252eedb6655",
+      "model_selected": true,
+      "animation_approved": true,
+      "animation_approval_scope": "Owner selected revised model/motion for prototype finishing; engine/game-ready assessment still pending",
+      "painting_started": false,
+      "motion_review_blend": "artifacts\\fauna-overnight-20261024\\gull\\Animal - Motion Revision.blend",
+      "motion_review_blend_sha256": "e585f373c1eb472119deca20ffab5b4272159d29c096a0d2f8c7ab0d68792a6f",
+      "source_review_candidate": 3
+    },
+    "bees-guild": {
+      "animal": "Bees (guild)",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-25T11:54:15.216660-05:00",
+      "model_selected": true,
+      "animation_approved": true,
+      "painting_started": false,
+      "selection_basis": "Owner explicitly said any bee animation/model is fine after simple appendage revision"
     }
   },
   "source_root": "artifacts/fauna-overnight-20261024",
@@ -2335,7 +2475,8 @@
     },
     "bees-guild": {
       "reason": "Simplify into low-poly particle-like bees with realistic short appendages; any simple animation acceptable.",
-      "status": "completed"
+      "status": "completed",
+      "explicit_repeat_review": false
     },
     "grouse": {
       "reason": "Owner requests manual leg/bone adjustment: whole legs should walk, not just toes/feet wiggle.",
@@ -2516,20 +2657,21 @@
     },
     "echidna": {
       "reason": "Replace artificial accelerated Walk Run; whole hind-paw confinement to remove floor anchors; inspect several frames",
-      "status": "motion_revision_ready_owner_review_pending",
-      "explicit_repeat_review": true,
+      "status": "owner_selected",
+      "explicit_repeat_review": false,
       "art_approved": false,
       "time": "2026-10-25T10:35:39.669109-05:00",
-      "proceed_without_re_review": false,
+      "proceed_without_re_review": true,
       "repair_candidate": null,
-      "prepared": "2026-10-25T11:27:48.009692-05:00"
+      "prepared": "2026-10-25T11:27:48.009692-05:00",
+      "completed": "2026-10-25T11:54:15.216660-05:00"
     },
     "elephant": {
-      "reason": "Repair candidate2: right forefoot and right hindfoot unmoving, left foreleg/tusk and tail confused; explicit re-review",
+      "reason": "Owner accepts candidate2; correct right tusk skin/motion without another review",
       "time": "2026-10-25T10:35:39.669109-05:00",
-      "status": "manual_motion_revision_ready_owner_review_pending",
-      "explicit_repeat_review": true,
-      "proceed_without_re_review": false,
+      "status": "fixed_no_repeat_review",
+      "explicit_repeat_review": false,
+      "proceed_without_re_review": true,
       "art_approved": false,
       "repair_candidate": 2,
       "prepared": "2026-10-25T11:27:48.519628-05:00"
@@ -2567,13 +2709,14 @@
     },
     "gull": {
       "reason": "Ground-only leg movement inadequate; restore suitable full-body walk and real flight with appropriate wing geometry",
-      "status": "motion_revision_ready_owner_review_pending",
-      "explicit_repeat_review": true,
+      "status": "owner_selected",
+      "explicit_repeat_review": false,
       "art_approved": false,
       "time": "2026-10-25T10:35:39.669109-05:00",
-      "proceed_without_re_review": false,
+      "proceed_without_re_review": true,
       "repair_candidate": null,
-      "prepared": "2026-10-25T11:27:48.418071-05:00"
+      "prepared": "2026-10-25T11:27:48.418071-05:00",
+      "completed": "2026-10-25T11:54:15.216660-05:00"
     },
     "hedgehog": {
       "reason": "Front feet deform in Run; left front foot also in Walk.",
@@ -2734,40 +2877,44 @@
     "nutria": {
       "reason": "Owner rejects jagged leg-only locomotion; Nutria multiple paws retain floor-anchored stretching; use actual Run, whole-paw skin and several-frame surface inspection",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "motion_revision_ready_owner_review_pending",
-      "explicit_repeat_review": true,
-      "proceed_without_re_review": false,
+      "status": "owner_selected",
+      "explicit_repeat_review": false,
+      "proceed_without_re_review": true,
       "art_approved": false,
-      "prepared": "2026-10-25T11:27:47.839629-05:00"
+      "prepared": "2026-10-25T11:27:47.839629-05:00",
+      "completed": "2026-10-25T11:54:15.216660-05:00"
     },
     "porcupine": {
       "reason": "Owner rejects jagged leg-only locomotion; Nutria multiple paws retain floor-anchored stretching; use actual Run, whole-paw skin and several-frame surface inspection",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "motion_revision_ready_owner_review_pending",
-      "explicit_repeat_review": true,
-      "proceed_without_re_review": false,
+      "status": "owner_selected",
+      "explicit_repeat_review": false,
+      "proceed_without_re_review": true,
       "art_approved": false,
-      "prepared": "2026-10-25T11:27:47.936695-05:00"
+      "prepared": "2026-10-25T11:27:47.936695-05:00",
+      "completed": "2026-10-25T11:54:15.216660-05:00"
     },
     "python": {
       "reason": "Replace weak jagged sidewinding with proper smooth procedural locomotion or a better source; inspect multiple frames",
       "time": "2026-10-25T10:35:39.669109-05:00",
-      "status": "motion_revision_ready_owner_review_pending",
-      "explicit_repeat_review": true,
-      "proceed_without_re_review": false,
+      "status": "owner_selected",
+      "explicit_repeat_review": false,
+      "proceed_without_re_review": true,
       "art_approved": false,
       "repair_candidate": null,
-      "prepared": "2026-10-25T11:27:48.257785-05:00"
+      "prepared": "2026-10-25T11:27:48.257785-05:00",
+      "completed": "2026-10-25T11:54:15.216660-05:00"
     },
     "venomous-snake": {
       "reason": "Same smooth procedural snake locomotion correction as Python; inspect several frames",
       "time": "2026-10-25T10:35:39.669109-05:00",
-      "status": "motion_revision_ready_owner_review_pending",
-      "explicit_repeat_review": true,
-      "proceed_without_re_review": false,
+      "status": "owner_selected",
+      "explicit_repeat_review": false,
+      "proceed_without_re_review": true,
       "art_approved": false,
       "repair_candidate": null,
-      "prepared": "2026-10-25T11:28:40.779047-05:00"
+      "prepared": "2026-10-25T11:28:40.779047-05:00",
+      "completed": "2026-10-25T11:54:15.216660-05:00"
     },
     "sea-otter": {
       "reason": "Forward head aligned with torso; swimming/aquatic motion, not dog running.",
@@ -2885,5 +3032,12 @@
     "owner_request": "is there a reason you cannot start now on coloring passed candidates?",
     "raw_sources_preserved": true,
     "appearance_approval_still_required": true
+  },
+  "raw_audition_phase": {
+    "status": "owner_selected_all_current_visual_entries",
+    "time": "2026-10-25T11:54:15.216660-05:00",
+    "owner_request": "Done with this phase; no more generation or animation baking; finish elephant tusk then paint remaining animals",
+    "remaining_exception": null,
+    "elephant_tusk_completed": true
   }
 }

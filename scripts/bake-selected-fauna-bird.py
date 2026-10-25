@@ -13,11 +13,11 @@ repo=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(repo/'scripts'))
 from fauna_paint_recipes import profiles,eye_radius,eye_frame
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=2048)
-a=ap.parse_args();assert a.slug in {'duck','pheasant'},'No inspected feather masks for this bird yet'
+a=ap.parse_args();assert a.slug in {'duck','pheasant','grouse','quail','turkey','junglefowl'},'No inspected feather masks for this bird yet'
 root=repo/'artifacts/fauna-painted-20261024'/a.slug;started=time.perf_counter()
 state=json.loads((root/'paint-state.json').read_text());assert not state['appearance_approved']
 land=json.loads((root/'face-landmarks.json').read_text());d=dict(np.load(root/'paint-anatomy.npz'))
-raw=json.loads((repo/'artifacts/fauna-overnight-20261024'/a.slug/'audition.json').read_text())['candidates'][state['source_candidate']-1]
+raw=json.loads((root/'selected-source-entry.json').read_text()) if (root/'selected-source-entry.json').exists() else json.loads((repo/'artifacts/fauna-overnight-20261024'/a.slug/'audition.json').read_text())['candidates'][state['source_candidate']-1]
 groups=np.asarray(raw['groups']);d['region_weights']=np.zeros((len(d['vertices']),10),np.float32)
 for channel,kind in [(0,'wing'),(1,'tail'),(2,'neck'),(3,'hind')]:d['region_weights'][:,channel]=d['weights'][:,groups==kind].sum(1)
 spec=importlib.util.spec_from_file_location('coat_raster',repo/'scripts/bake-deer-masked-coat.py');raster=importlib.util.module_from_spec(spec);spec.loader.exec_module(raster)
@@ -43,6 +43,8 @@ eyes=(np.array(land['right_eye']['point'])+np.array(land['left_eye']['point']))/
 front=np.array(land['front_axis']);side=np.array(land['side_axis']);forward=(p-eyes)@front;lateral=(p-eyes)@side
 head_mask=smooth(1.17,1.25,p[:,2])*smooth(.28,.43,p[:,1])
 if a.slug=='pheasant':head_mask=smooth(1.30,1.38,p[:,2])*smooth(1.00,1.10,p[:,1])
+groundbird=a.slug in {'grouse','quail','turkey','junglefowl'}
+if groundbird:head_mask=smooth(eyes[2]-.18,eyes[2]-.05,p[:,2])*smooth(head[1]-.18,head[1]-.02,p[:,1])
 head_detail=contour(p[:,1]*5.6,p[:,2]*5.6)*blend[:,0]+contour(p[:,0]*5.6,p[:,2]*5.6)*blend[:,1]+contour(p[:,0]*5.6,p[:,1]*5.6)*blend[:,2]
 feathers=feathers*(1-head_mask)+head_detail*head_mask
 bill=smooth(.045,.085,forward)*(1-smooth(1.40,1.46,p[:,2]))*smooth(1.20,1.25,p[:,2])
@@ -50,6 +52,9 @@ feet=1-smooth(.20,.28,p[:,2])
 if a.slug=='pheasant':
     bill=smooth(.055,.078,forward)*(1-smooth(1.53,1.56,p[:,2]))*smooth(1.43,1.47,p[:,2])
     feet=1-smooth(.29,.36,p[:,2])
+if groundbird:
+    bill=smooth(.030,.075,forward)*(1-smooth(eyes[2]+.01,eyes[2]+.06,p[:,2]))*smooth(eyes[2]-.17,eyes[2]-.10,p[:,2])
+    feet=1-smooth(.17,.25,p[:,2])
 wing=smooth(.28,.60,maps[iy,ix,6])*smooth(.16,.27,np.abs(p[:,0]-cx))
 if a.slug=='pheasant':wing=smooth(.12,.24,np.abs(p[:,0]-cx))*smooth(.04,.25,p[:,1])*(1-smooth(.85,1.05,p[:,1]))*smooth(.40,.60,p[:,2])*(1-smooth(.95,1.11,p[:,2]))
 wing_span=np.abs(p[:,0]-cx)
@@ -152,6 +157,34 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
             colour=paint(red_face,[.58,.065,.035])
         colour=paint(feet,np.array([.43,.36,.24])[None,:]*(.88+.12*scale_lines[:,None]))
         colour=paint(bill,[.56,.48,.32])
+    if groundbird:
+        colour=np.tile(base,(len(p),1));male='male' in label and 'female' not in label
+        body=(1-bill)*(1-feet)
+        mottling=smooth(-.05,.65,feathers)*.60*body
+        colour=paint(mottling,base*.32)
+        bars=smooth(.40,.82,np.sin(p[:,2]*185+np.sin(p[:,1]*41)*3+np.sin(p[:,0]*53)*2))*body*(1-head_mask)
+        colour=paint(bars*.16,pale*.85)
+        underside=(1-smooth(eyes[2]-.65,eyes[2]-.25,p[:,2]))*(1-feet)
+        colour=paint(underside*.25,pale)
+        if a.slug=='quail':
+            stripe=(1-smooth(.008,.022,np.abs(p[:,2]-eyes[2]-.032)))*head_mask
+            colour=paint(stripe*.85,pale)
+            throat=head_mask*(1-smooth(eyes[2]-.08,eyes[2]-.025,p[:,2]))
+            colour=paint(throat*.6,[.84,.81,.70] if male else pale)
+        elif a.slug=='junglefowl' and male:
+            colour=paint(head_mask*.90,pale)
+            breast=smooth(head[1]-.40,head[1]-.10,p[:,1])*(1-smooth(eyes[2]-.24,eyes[2]-.12,p[:,2]))*(1-feet)
+            colour=paint(breast*.9,[.045,.060,.039]);colour=paint(tail*.9,[.025,.070,.046])
+            crown=head_mask*smooth(eyes[2]+.06,eyes[2]+.12,p[:,2])
+            colour=paint(crown*.8,[.52,.055,.032])
+        elif a.slug=='turkey':
+            barehead=head_mask*smooth(eyes[2]-.13,eyes[2]-.04,p[:,2])
+            colour=paint(barehead*.85,[.33,.17,.16] if male else [.34,.29,.27])
+            facepatch=barehead*smooth(-.05,.04,forward)
+            colour=paint(facepatch*.7,[.37,.065,.05] if male else [.28,.20,.18])
+        colour*=np.clip(1+feathers[:,None]*.16,.78,1.22)
+        colour=paint(feet,np.array([.41,.34,.23])[None,:]*(.88+.12*scale_lines[:,None]))
+        colour=paint(bill,[.42,.34,.20])
     colour=paint(eye_surround*.25,base*.70);colour=paint(bare,[.055,.042,.030])
     image=np.zeros((a.size,a.size,3),np.float32);image[iy,ix]=np.clip(colour,0,1);extend(image)
     filename=f'coat-{index}-colour.png';Image.fromarray(np.uint8(np.clip(image,0,1)*255)).save(root/filename)
@@ -170,5 +203,9 @@ if a.slug=='pheasant':
     report['sources']=['https://mdc.mo.gov/discover-nature/field-guide/ring-necked-pheasant']
     report['limits']='Selected long-tailed adult body; female and immature are pigment studies without shortened female/juvenile tail or body proportions. Folded-wing Idle/Walk only; flight/takeoff remain missing. Feather detail is artistic, not measured PBR; owner art and motion approval pending.'
     report['folded_wing_mask_method']='Inspected rest-surface bounds; raw ground-bird skeleton has no separate wing/tail groups. No new wing or tail bones added.'
+if groundbird:
+    plan=json.loads((repo/'docs/fauna/SPECIES_VARIATION_PLANS.json').read_text())['animals'][{'grouse':'Grouse','quail':'Quail','turkey':'Turkey','junglefowl':'Junglefowl'}[a.slug]]
+    report['sources']=plan.get('sources',[])
+    report['limits']='Selected adult silhouette; sex labels describe pigment only. No new age proportions, ornaments, population rules or additional motions. Artistic feather relief; owner appearance review pending.'
 (root/'coat-bake.json').write_text(json.dumps(report,indent=2)+'\n')
 print('BIRD COAT ATLAS BAKED',a.slug,len(coat_records),a.size,report['seconds'],report['mask_pixels'],flush=True)

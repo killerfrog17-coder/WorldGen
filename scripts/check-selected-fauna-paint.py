@@ -32,7 +32,7 @@ def snapshot(entry):
     return {'bind_geometry_skin_rig':digest.hexdigest(),'actions':curves}
 
 bpy.ops.wm.open_mainfile(filepath=str(source));source_entries=json.loads(bpy.context.scene['deer_four_rigs'])
-before=snapshot(source_entries[state['source_candidate']-1])
+before=snapshot(source_entries[state.get('source_review_candidate',state['source_candidate'])-1])
 bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Painted Species Review.blend'))
 entries=json.loads(bpy.context.scene['deer_four_rigs']);assert len(entries)==1
 entry=entries[0];assert snapshot(entry)==before,'Selected bind geometry, skin, rig or source motions changed'

@@ -81,7 +81,7 @@ if canid:
     iris=np.stack([.16+fibre*.08,.09+fibre*.05,.025+fibre*.018],axis=2)
     if a.slug=='red-fox':pupil=np.clip((np.sqrt((u/.22)**2+(v/.73)**2)-.86)/.14,0,1)
     else:pupil=np.clip((r-.39)/.065,0,1)
-elif kind in {'caprine','bovine'}:
+elif kind in {'caprine','bovine','equine','cervid','small-carnivore','beaver'}:
     iris=np.stack([.22+fibre*.08,.14+fibre*.05,.035+fibre*.02],axis=2)
     pupil=np.clip((np.sqrt((u/.80)**2+(v/.20)**2)-.86)/.14,0,1)
 elif kind=='avian':
@@ -140,7 +140,7 @@ for side in ['right','left']:
         # Small forward tear corner, fuller upper arch, shallow lower lid.
         if kind=='fish':return hu*(rx*math.cos(t))+vu*(rz*math.sin(t))
         c=math.cos(t);sn=math.sin(t);return hu*(rx*c*(1+.08*max(c,0)))+vu*(rz*sn*(1.03 if sn>0 else .87))
-    bulge=.006 if kind=='rodent' else .003 if kind=='fish' else .0018 if a.slug=='pheasant' else .004 if kind=='avian' else .008 if kind in {'suine','caprine','ursid','bovine'} else .011 if canid else .018
+    bulge=.006 if kind=='rodent' else .003 if kind=='fish' else .0018 if a.slug=='pheasant' else .004 if kind=='avian' else .008 if kind in {'suine','caprine','ursid','bovine','equine','cervid','small-carnivore','beaver'} else .011 if canid else .018
     eye_margin=.0008 if a.slug=='pheasant' or kind=='fish' else .002
     vertices=[center+n*(eye_margin+bulge)];uvs=[(.5,.5)];polygons=[]
     for ring in range(1,rings+1):
@@ -195,7 +195,7 @@ if vertices:obj(a.slug+' muzzle whiskers',vertices,polygons,[whiskermat],anchor=
 
 entry.update(facial_objects=features,coat_objects=coat_objects,objects=[entry['body'],*features,*entry.get('appendage_objects',[])])
 entry['paint_face_direction']=land['front_axis']
-if kind in {'suine','caprine','ursid','bovine','avian','fish','rodent'}:
+if kind in {'suine','caprine','ursid','bovine','avian','fish','rodent','equine','cervid','small-carnivore','beaver'}:
     focus=(np.array(land['right_eye']['point'])+np.array(land['left_eye']['point'])+nose)/3
     entry['paint_head_vertex']=int(np.argmin(np.linalg.norm(p-focus,axis=1)))
     entry['paint_head_span']=.90;entry['paint_head_distance']=1.25

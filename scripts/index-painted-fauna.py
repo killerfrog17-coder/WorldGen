@@ -7,6 +7,14 @@ repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-2
 choices_path=repo/'docs/fauna/OWNER_SELECTIONS.json';choices=json.loads(choices_path.read_text())
 plan=json.loads((repo/'docs/fauna/asset-plan.json').read_text())['rows'];rank={x['slug']:x['priority_rank'] for x in plan}
 queue=json.loads((root/'paint-queue.json').read_text());ready=[]
+# Incorporate later owner choices without discarding existing finishing state.
+jobs={job['slug']:job for job in queue['jobs']}
+for row in plan:
+    slug=row['slug'];chosen=choices['animals'].get(slug,{})
+    if not chosen.get('model_selected') or not chosen.get('model_sha256'):continue
+    job=jobs.setdefault(slug,{'slug':slug,'animal':row.get('animal',row.get('name',slug)),'status':'queued_for_colouring','appearance_approved':False})
+    job.update(priority=row['priority_rank'],selected_models=chosen['selected_models'],model_sha256=chosen['model_sha256'],rig_sha256=chosen['rig_sha256'])
+queue['jobs']=sorted(jobs.values(),key=lambda job:job['priority'])
 for job in queue['jobs']:
     slug=job['slug'];folder=root/slug;state_path=folder/'paint-state.json';check_path=folder/'paint-native-checks.json'
     if not state_path.exists():continue

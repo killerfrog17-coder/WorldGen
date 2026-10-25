@@ -26,15 +26,18 @@ out = root/'Animal - Painted Species Review.blend'
 if out.exists():
     prior=json.loads((root/'paint-state.json').read_text())
     assert a.replace_working and prior['status']=='anatomical_colouring_started' and not prior['appearance_approved']
-source = repo/choice['manual_fix_blend'] if choice.get('manual_fix_blend') else source_root/'Animal - Raw Audition.blend'
-if choice.get('manual_fix_blend'):
-    assert source.resolve().parent==source_root.resolve()
-    assert hashlib.sha256(source.read_bytes()).hexdigest()==choice['manual_fix_blend_sha256']
+source_key = 'manual_fix_blend' if choice.get('manual_fix_blend') else 'motion_review_blend' if choice.get('motion_review_blend') else None
+source = repo/choice[source_key] if source_key else source_root/'Animal - Raw Audition.blend'
+if source_key:
+    assert source.resolve().parent == source_root.resolve()
+    assert hashlib.sha256(source.read_bytes()).hexdigest() == choice[source_key+'_sha256']
 source_hash = hashlib.sha256(source.read_bytes()).hexdigest()
 for filename, key in [('model.glb','model_sha256'), ('generated-rig.npz','rig_sha256')]:
     assert hashlib.sha256((source_root/f'candidate-{number}'/filename).read_bytes()).hexdigest() == choice[key]
 bpy.ops.wm.open_mainfile(filepath=str(source)); s = bpy.context.scene
-entries = json.loads(s['deer_four_rigs']); entry = entries[number-1]
+entries = json.loads(s['deer_four_rigs']); review_number = 1 if len(entries)==1 else choice.get('source_review_candidate',number)
+entry = entries[review_number-1]
+(root/'selected-source-entry.json').write_text(json.dumps(entry,indent=2)+'\n')
 body = bpy.data.objects[entry['body']]; rig = bpy.data.objects[entry['rig']]
 for row in entries:
     if row is entry: continue
@@ -68,7 +71,10 @@ def smooth(low,high,x):
 # Working masks use continuous rest coordinates; final face masks are fitted
 # separately. One gradient crosses torso and throat, avoiding a neck colour seam.
 head = np.array(entry['generated_joint_heads'][names.index('Head')]); center_x = float(np.median(p[:,0]))
-if family(a.slug)=='canid':
+if family(a.slug) in {'small-carnivore','beaver'}:
+    skull=p[(p[:,1]>np.quantile(p[:,1],.85))&(p[:,2]>.5)]
+    head=np.median(skull,axis=0);head[1]-=.17;head[2]+=.07
+elif family(a.slug)=='canid':
     # Raw rig role names can be imperfect; cosmetic anatomy follows geometry,
     # without changing that selected rig or its animation tracks.
     skull=p[(p[:,1]>.65)&(p[:,2]>1.16)&(p[:,2]<1.45)]
@@ -78,6 +84,10 @@ elif family(a.slug)=='caprine':
     skull=p[(p[:,1]>.45)&(p[:,2]>1.25)&(p[:,2]<1.58)]
     assert len(skull)>12
     head=np.median(skull,axis=0);head[1]-=.02
+elif a.slug=='wild-cattle':
+    skull=p[(p[:,1]>.95)&(p[:,2]>1.05)&(p[:,2]<1.45)]
+    assert len(skull)>12
+    head=np.median(skull,axis=0)
 elif family(a.slug)=='suine':
     skull=p[(p[:,1]>.72)&(p[:,2]>.95)&(p[:,2]<1.42)]
     assert len(skull)>12
@@ -150,6 +160,6 @@ bpy.context.preferences.filepaths.save_version=0
 bpy.ops.wm.save_as_mainfile(filepath=str(out))
 assert hashlib.sha256(np.array([v.co[:] for v in body.data.vertices],np.float32).tobytes()+np.array([f.vertices[:] for f in body.data.polygons],np.int32).tobytes()).hexdigest()==geometry_hash
 assert hashlib.sha256(source.read_bytes()).hexdigest()==source_hash
-state={'slug':a.slug,'source_candidate':number,'source_blend_path':str(source.relative_to(repo)),'source_blend_sha256':source_hash,'geometry_sha256':geometry_hash,'source_model_sha256':choice['model_sha256'],'source_rig_sha256':choice['rig_sha256'],'status':'anatomical_colouring_started','painting_started':True,'appearance_approved':False,'motion_approved':False,'coats':coats,'landmarks_pending':True,'nose_seed':nose.tolist(),'head_seed':head.tolist(),'center_x':center_x,'belly_z':belly_z,'ear_base':ear_base,'uv_added_without_geometry_change':True,'fur_source':str(fur_path.relative_to(repo)),'fur_sha256':hashlib.sha256(fur_path.read_bytes()).hexdigest()}
+state={'slug':a.slug,'source_candidate':number,'source_review_candidate':review_number,'source_blend_path':str(source.relative_to(repo)),'source_blend_sha256':source_hash,'geometry_sha256':geometry_hash,'source_model_sha256':choice['model_sha256'],'source_rig_sha256':choice['rig_sha256'],'status':'anatomical_colouring_started','painting_started':True,'appearance_approved':False,'motion_approved':False,'coats':coats,'landmarks_pending':True,'nose_seed':nose.tolist(),'head_seed':head.tolist(),'center_x':center_x,'belly_z':belly_z,'ear_base':ear_base,'uv_added_without_geometry_change':True,'fur_source':str(fur_path.relative_to(repo)),'fur_sha256':hashlib.sha256(fur_path.read_bytes()).hexdigest()}
 (root/'paint-state.json').write_text(json.dumps(state,indent=2)+'\n')
 print('ANATOMICAL COLOURING STARTED',a.slug,number,len(coats),'coats; geometry/rig/motions retained',flush=True)
