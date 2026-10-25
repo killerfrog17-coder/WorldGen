@@ -14,7 +14,7 @@ sys.path.insert(0,str(repo/'scripts'))
 from fauna_paint_recipes import SUPPORTED, family, eye_frame
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);assert a.slug in SUPPORTED
-canid=family(a.slug)=='canid'
+kind=family(a.slug);canid=kind=='canid';compact=kind!='lagomorph'
 root=repo/'artifacts/fauna-painted-20261024'/a.slug
 state=json.loads((root/'paint-state.json').read_text());assert not state['appearance_approved']
 assert state['status'] in {'anatomical_colouring_started','atlas_and_face_fitted_working'}
@@ -67,6 +67,9 @@ if canid:
     iris=np.stack([.16+fibre*.08,.09+fibre*.05,.025+fibre*.018],axis=2)
     if a.slug=='red-fox':pupil=np.clip((np.sqrt((u/.22)**2+(v/.73)**2)-.86)/.14,0,1)
     else:pupil=np.clip((r-.39)/.065,0,1)
+elif kind=='caprine':
+    iris=np.stack([.22+fibre*.08,.14+fibre*.05,.035+fibre*.02],axis=2)
+    pupil=np.clip((np.sqrt((u/.80)**2+(v/.20)**2)-.86)/.14,0,1)
 iris=iris*pupil[:,:,None]*rim[:,:,None]+.008*(1-pupil[:,:,None]*rim[:,:,None]);rgba=np.dstack([iris,np.ones_like(r)])
 im=bpy.data.images.get(a.slug+' iris pigment') or bpy.data.images.new(a.slug+' iris pigment',width=size,height=size,alpha=True)
 im.pixels.foreach_set(rgba.astype(np.float32).ravel());im.pack()
@@ -103,14 +106,14 @@ def obj(name,vertices,polygons,materials,uvs=None,indices=None,anchor=None):
     mod=ob.modifiers.new('Selected rig','ARMATURE');mod.object=rig;mod.use_deform_preserve_volume=False
     features.append(ob.name);return ob
 
-segments=16 if canid else 24;rings=4 if canid else 5;rx,rz=bake['eye_radius'];eye_reports=[]
+segments=16 if compact else 24;rings=4 if compact else 5;rx,rz=bake['eye_radius'];eye_reports=[]
 for side in ['right','left']:
     anchor=land[side+'_eye'];center=np.array(anchor['point']);n,hu,vu=eye_frame(a.slug,land,side)
     skin=sample(center)[2]
     def ellipse(t):
         # Small forward tear corner, fuller upper arch, shallow lower lid.
         c=math.cos(t);sn=math.sin(t);return hu*(rx*c*(1+.08*max(c,0)))+vu*(rz*sn*(1.03 if sn>0 else .87))
-    bulge=.011 if canid else .018
+    bulge=.008 if kind in {'suine','caprine'} else .011 if canid else .018
     vertices=[center+n*(.002+bulge)];uvs=[(.5,.5)];polygons=[]
     for ring in range(1,rings+1):
         rad=ring/rings
@@ -132,7 +135,7 @@ for side in ['right','left']:
             hit=bvh.ray_cast(Vector(target+n*.20),Vector(-n),.4)[0]
             if hit is None:hit=sample(target)[0]
             surface=np.asarray(hit);upper=max(0,math.sin(t))
-            if canid and ring<3:
+            if compact and ring<3:
                 point=target+n*([.002,.004+.002*upper,.0015][ring])
             else:point=target+n*.002 if ring==0 else surface+n*([0,.003+.004*upper,.002,.0007][ring])
             vertices.append(point);uvs.append(sample(surface)[1])
@@ -147,7 +150,7 @@ for side in ['right','left']:
 nose=np.array(land['nose']['point']);vertices=[];polygons=[]
 for side in [-1,1]:
     for j in range(5):
-        if canid:
+        if compact:
             start=nose+np.array(land['side_axis'])*side*(.018+j*.002)-np.array(land['front_axis'])*(.022+j*.005)+np.array([0,0,-.009+j*.007])
             direction=np.array(land['side_axis'])*side*(.090+j*.008)-np.array(land['front_axis'])*(.028+j*.012)+np.array([0,0,(j-2)*.014])
         else:
@@ -161,7 +164,11 @@ for side in [-1,1]:
         for k in range(3):polygons.append((base+k*2,base+k*2+1,base+k*2+3,base+k*2+2))
 obj(a.slug+' muzzle whiskers',vertices,polygons,[whiskermat],anchor=sample(nose)[2])
 
-entry.update(facial_objects=features,coat_objects=coat_objects,objects=[entry['body'],*features])
+entry.update(facial_objects=features,coat_objects=coat_objects,objects=[entry['body'],*features,*entry.get('appendage_objects',[])])
+if kind in {'suine','caprine'}:
+    focus=(np.array(land['right_eye']['point'])+np.array(land['left_eye']['point'])+nose)/3
+    entry['paint_head_vertex']=int(np.argmin(np.linalg.norm(p-focus,axis=1)))
+    entry['paint_head_span']=.90;entry['paint_head_distance']=1.25
 s['deer_four_rigs']=json.dumps([entry]);s['fauna_painting']=json.dumps({'source_candidate':state['source_candidate'],'stage':'UV coats and fitted facial features; appearance review pending','coats':entry['painting_coats']})
 state.update(status='atlas_and_face_fitted_working',coats=entry['painting_coats'],landmarks_pending=False,facial_objects=features,facial_eye_fits=eye_reports,uv_atlases_installed=True,appearance_approved=False)
 geometry=hashlib.sha256(np.array([v.co[:] for v in body.data.vertices],np.float32).tobytes()+np.array([f.vertices[:] for f in body.data.polygons],np.int32).tobytes()).hexdigest()

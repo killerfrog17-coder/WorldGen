@@ -18,6 +18,10 @@ for job in queue['jobs']:
     if approved:continue  # Indexing never revokes a later owner decision.
     chosen.update(painting_started=True,painting_status=state['status'],paint_review=str((folder/'Animal - Painted Species Review.blend').relative_to(repo)))
     if not check_path.exists() or not state.get('uv_atlases_installed'):continue
+    bake_path=folder/'coat-bake.json'
+    if not bake_path.exists():continue
+    bake=json.loads(bake_path.read_text())
+    if bake.get('mask_pixels',{}).get('nose',1)<=0:continue
     check=json.loads(check_path.read_text());blend=folder/'Animal - Painted Species Review.blend'
     if check.get('checked_blend_sha256')!=hashlib.sha256(blend.read_bytes()).hexdigest():continue
     assert check['source_bind_geometry_skin_rig_exact'] and check['source_actions_exact']

@@ -71,11 +71,21 @@ if family(a.slug)=='canid':
     skull=p[(p[:,1]>.65)&(p[:,2]>1.16)&(p[:,2]<1.45)]
     assert len(skull)>12
     head=np.median(skull,axis=0);head[1]-=.035
+elif family(a.slug)=='caprine':
+    skull=p[(p[:,1]>.45)&(p[:,2]>1.25)&(p[:,2]<1.58)]
+    assert len(skull)>12
+    head=np.median(skull,axis=0);head[1]-=.02
+elif family(a.slug)=='suine':
+    skull=p[(p[:,1]>.72)&(p[:,2]>.95)&(p[:,2]<1.42)]
+    assert len(skull)>12
+    head=np.median(skull,axis=0);head[1]-=.035
 torso = p[(p[:,1] < head[1]-.12) & (p[:,2]>.35) & (p[:,2]<head[2]+.1)]
 belly_z = float(np.quantile(torso[:,2],.32))
 belly = (1-smooth(belly_z-.12,belly_z+.22,p[:,2])) * (.45+.55*smooth(.25,-.55,normal[:,2]))
 head_area = smooth(head[1]-.2,head[1]+.05,p[:,1])*smooth(head[2]-.35,head[2]-.1,p[:,2])
 ear_base = float(head[2]+.10)
+if family(a.slug)=='caprine':ear_base=float(head[2]+.035)
+if family(a.slug)=='suine':ear_base=1.37
 ears = smooth(ear_base,ear_base+.15,p[:,2])
 inner = ears*smooth(.08,.65,normal[:,1])
 tip = ears*smooth(float(p[:,2].max()-.16),float(p[:,2].max()-.04),p[:,2])

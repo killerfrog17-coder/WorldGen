@@ -2,8 +2,40 @@
 
 ## Current finishing update - 25 October 2026
 
-Four selected bodies now have checked first colour passes: Hare3/Rabbit1 and
-RedFox3/Wolf2. Canids reuse the accepted directional-fur source, with five fox
+Six selected bodies now have checked first colour passes, adding WildBoar1 and
+Mouflon1 (five coats each). Boar reuses the new shared coarse-guard source;
+mouflon reuses the accepted short directional fur. Both have anatomy-gated
+nose/ear/hoof and eye/lid materials. Boar includes a longitudinal juvenile
+stripe pigment study; mouflon includes ram saddle, neck, belly and lower-leg
+markings. Juvenile palettes are labelled studies on adult bodies, not complete
+juvenile morphology. Body dimensions and source motion defects are retained.
+
+`add-selected-fauna-appendages.py` adds separately skinned, packed-texture
+libraries: three boar tusk sizes and young/adult/mature ram horn curls plus
+small-ewe/hornless choices. Repeated2 presses shuffle eligible options within
+each coat; coat pigment never forces boar sex. Ram/ewe and juvenile restrictions
+remain explicit. Only one pair renders. Maximum visible totals are6652 and7044
+triangles, including the unchanged5992/6000-triangle selected bodies and476
+facial triangles each. Root caps are buried along the sampled scalp normal.
+These are simple prototype appendages, not measured anatomy or a growth system.
+
+For lateral-eyed or oblique generated heads, frontal photographs can hide a
+socket. Neutral `render-fauna-diagnostic.py --surface-only --focus X Y Z --head`
+guides support both `--view side` and `--view left`. Optional per-copy
+`face-guide-picks.json` binds inspected camera/pixel picks to the selected model
+SHA; each eye is recast from its own side at the same rest-space height. An
+explicit snout seed is supported for a long muzzle whose height-gated seed is
+wrong. These records take precedence over the first four frontal/side defaults.
+Save new guide images before fitting, then bake, fit face, add appendages, check
+and index. Appearance is not approved by a finite or source-preservation check.
+
+All six first passes preserve chosen geometry/skin/rest rig and source actions;
+all appendage options, coats and review controls were reached in native checks.
+CPU head and body/trait views were inspected. No new owner window was opened.
+The finishing scripts currently support six explicit slugs, not every animal.
+
+The preceding canid checkpoint covered Hare3/Rabbit1 and RedFox3/Wolf2.
+Canids reuse the accepted directional-fur source, with five fox
 coats (red, cross, silver-tipped dark, black, pale dryland) and six wolf coats
 (grey, tawny, dark brown, black, ivory northern analogue, pale dryland).
 The hypothetical palettes stay labelled. Colour and roughness are2K on canids,
@@ -47,8 +79,9 @@ are retained and are not cured by colouring. Appearance remains unapproved.
 CPU source path: `prepare-selected-fauna-paint.py`, then ray-picked landmarks
 with `fit-selected-fauna-landmarks.py`, `bake-selected-fauna-coats.py`,
 `finish-selected-fauna-face.py`, and `check-selected-fauna-paint.py`.
-The first four scripts currently support hare/rabbit/red-fox/wolf, not every
-body family. Recipes and inspected eye picks must be extended for new bodies.
+The first four scripts currently support hare/rabbit/red-fox/wolf/wild-boar/
+mouflon, not every body family. Recipes and inspected eye picks must be extended
+for new bodies. Run the appendage step after face fitting where applicable.
 `index-painted-fauna.py` exposes only hash-matching checked passes in a separate
 review index and records actual progress. It does not approve art or motions.
 The numbered viewer retains1 motion bank,2 coat,3 side/face/orbit,4 loops,

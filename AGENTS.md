@@ -1,5 +1,46 @@
 # WorldGen repository instructions
 
+BOAR/MOUFLON FIRST COLOUR PASSES,25October2026~01:22CDT:
+Six selected bodies now have checked colour passes (6of122chosen, NOT all122).
+New WildBoar1/Mouflon1 copies in fauna-painted-20261024, five coats each; owner
+appearance/motion approval still PENDING, no GUI/review ping/Desktop/game work.
+Same chosen5992/6000tri body/skin/rest rig and ALL15 source actions EXACT native.
+Face extras476tri each; boar3tusk sizes max6652visible, mouflon3ram horn sizes+
+small-ewe/hornless options max7044visible. No new bones/rig/body morphology or
+motion repair. Libraries only show the selected pair.2 shuffles coat and linked
+age/sex appendage options using per-coat bags; sex/tusk size is NOT tied to dark
+pigment. Ewe can be horned or hornless, juvenile pigment previews have no tusks/
+horns and explicitly use the ADULT body. No age-body or runtime population rule.
+New add-selected-fauna-appendages.py creates top4 skinned textured tube libraries,
+packed256keratin colour/normal (horn) or ivory colour (tusk), shared per library.
+Horns taper late and bury root caps along actual scalp normal; coarse roots/
+curves remain prototype art, not exact species anatomy/intersection acceptance.
+Surface guides now support left side, --surface-only and --focus. Boar frontal
+view hid the far socket; do NOT mistake an ear-root shadow for that eye.
+Mesh-SHA-pinned face-guide-picks.json uses independently inspected opposite-side
+cameras/pixels; fit-selected-fauna-landmarks.py recasts each from ITS OWN SIDE
+at equalZ. Saved cameras/rays retained in face-landmarks.json. This supersedes
+frontal assumptions for Boar/Mouflon. Long boar snout's old height gate selected
+upper muzzle, not nose disc: corrected explicit guide nose .25,1.275,.88.
+Mask family variable was accidentally overwritten by channel loop kind='tail';
+fixed to group_kind so actual hoof/saddle/snout/new-family masks run. Boar nasal
+mask1569pixels, Mouflon1013 at2K; index now excludes a zero-nose-mask first pass.
+All6 native packed/maps/skin/source-action/1-4/skeleton checks pass; all appendage
+options reached in80coats. Actual final heads front/side, adult/juvenile-pigment
+boar side+large-tusk front, mouflon ram side/hornless ewe side/mature rear inspected.
+Paint originals/deer remain untouched; raw geometry artefacts/motions retained.
+One built-in imagegen coarse-guard master (18.6s) actually used by boar; source
+artifacts/fauna-assets/textures/fur-coarse-guard-v1.png +full prompt/provenance
+JSON SHA0b8d1ac4915c3f11de85b36f36932715a45e0df4ae4e35f19268a6254378d0f4.
+Not measured PBR or guaranteed seamless; no localGPU/paid API for colouring.
+Raw latest full audit174verified/2pending/errors[], not complete. Whale shared
+shape underway on SAME live16008/94528 worker; child4256/26756 confirmed live.
+SpiderMonkey2 bounded hash/seed retry still awaits next pass, no second producer.
+NEXT selected finishing WildGoat1, Bear2; recipe/face-fit/appendage scripts support
+only6 explicit slugs currently. Never repaint unselected bodies or overwrite an
+owner-open/approved review. Continue colouring alongside last raw jobs, not a
+new all-roster/source-only hold. No new owner application window opened.
+
 CANID COLOUR PASSES,25October2026~00:48CDT:
 Continued latest selected-body colouring authorisation. New checked separate
 RedFox3 and Wolf2 first passes in fauna-painted-20261024; total4started/122chosen,

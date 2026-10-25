@@ -4294,7 +4294,11 @@
         "priority": 3,
         "action": "New shared source if needed",
         "brief": "Coarse guard hairs over a dense undercoat, muted brown-grey, restrained directional strand groups with no large curls.",
-        "uses": "Bear, boar, coarse-coated mammals; silhouette hair is later geometry."
+        "uses": "Bear, boar, coarse-coated mammals; silhouette hair is later geometry.",
+        "status": "Generated shared source, in use by selected WildBoar1 first colour pass",
+        "path": "artifacts/fauna-assets/textures/fur-coarse-guard-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/fur-coarse-guard-v1.json",
+        "sha256": "0b8d1ac4915c3f11de85b36f36932715a45e0df4ae4e35f19268a6254378d0f4"
       },
       {
         "id": "fur_wool_shag",

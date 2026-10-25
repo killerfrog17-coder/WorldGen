@@ -1,5 +1,22 @@
 OVERNIGHT FAUNA AUDITIONS - 24 OCTOBER 2026
 
+25 OCT BOAR/MOUFLON COLOUR CHECKPOINT
+Six selected colour passes indexed of122chosen: +WildBoar1/Mouflon1, five coats
+each. New built-in imagegen coarse-guard swatch actually used, prompt/SHA saved
+with project texture; mouflon reuses short fur.2K colour/roughness,512normal.
+Selected body/skin/rig/all15 source actions exact; separately skinned eyes/lids,
+whiskers and3tusk/4horn libraries add no bones. Max visible6652/7044tri.2 shuffles
+eligible coat and age/sex appendage options, only selected pair renders; ewe can
+be hornless. Juvenile pigment variants explicitly retain adult body proportions.
+Opposite-side neutral guide picks, tied to chosen modelSHA, avoid hidden frontal
+eye assumptions. Long boar snout seed corrected to actual nasal disc. All6 native
+controls/skin/maps/source-motion tests pass, appendage variants all reached.
+First passes still owner-unapproved; no game/GUI/Desktop changes. All raw
+comparisons and accepted deer protected. Next WildGoat1/Bear2 selected finishing.
+Raw index174ready/2pending (Whale/SpiderMonkey2); SAME16008 worker is still live,
+shared shape mode unchanged. No duplicate producer or restart on observation
+expiry. Latest full audit174verified/2pending/errors[]; no completion claim.
+
 25 OCT CANID COLOUR PASSES
 Four checked colour copies now indexed: Hare3/Rabbit1/RedFox3/Wolf2. Canids reuse
 accepted directional fur; fox5/wolf6 palettes,2K colour/roughness and512normal.
