@@ -1,0 +1,809 @@
+{
+  "ground-squirrel": {
+    "reason": "Owner requested raw motion repair; source motion/own generated mesh retained.",
+    "reverse_clips": [
+      "Walk"
+    ],
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "f5568b3cd2ae310033c6469a1445f9d26a51c2a6eb2e0d3e1dc78c10f74905d2",
+        "generated-rig.npz": "4a49a86bc1c2bb6adb6306282dbcffddc2cc73511d025efcde6a9d6885aa7184"
+      },
+      "2": {
+        "model.glb": "f36c88c80a5e212c79acd03f620c215432f6bba0c65c7c89bd0febd7b6b3f96a",
+        "generated-rig.npz": "481953028622ce3451f0a769c2f3f04be22bec53111c24cff355597a07451a27"
+      },
+      "3": {
+        "model.glb": "a670b67d1f5aaa51e6bb3b78ab1556a861e19f5f7762091c19d3ff3d74f2b879",
+        "generated-rig.npz": "e43bde35ef8ae92babf6218e80419d8317f454bee121346c0a41d7062cdd2206"
+      },
+      "4": {
+        "model.glb": "ea766e2d97bedde2b036531a878b5ee519972d5b096bab35be42a72ea76f6979",
+        "generated-rig.npz": "719b6c27c98c894a6ab82dd87b31c4b97d038e346db50b366b3a2c4adde017e6"
+      }
+    }
+  },
+  "skunk": {
+    "reason": "Owner requested raw motion repair; source motion/own generated mesh retained.",
+    "reverse_clips": [
+      "Walk"
+    ],
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "cd3ae5df7744d60bb1437fea7a4e0b5f49a26e63ab9e62754b2872e7e5bb8320",
+        "generated-rig.npz": "e03fa7d39359859f6d2813a480cfe3472b8b8038232fe19ef6c47734de9e75dc"
+      },
+      "2": {
+        "model.glb": "1dad079795ed829c59192d7260bb2238f640aeea102d31462411c4fa2fdbe98d",
+        "generated-rig.npz": "8394dce2fea5a10402fa07b5745ff06fe4dce75c2fbc75da892b06a469d31552"
+      },
+      "3": {
+        "model.glb": "820742c14c468ce145fe071fcd7f00d473120fbca9e1b304e7f022538b9179e7",
+        "generated-rig.npz": "b1cf2658a35a2545c7f6a33686749f1be877cabdd82916937e3fb323d062c0fd"
+      },
+      "4": {
+        "model.glb": "89ec1c00c7a9e2bdb99a52d14ae44cd06f9c1acb5142479dbf8e2d07429a6c5f",
+        "generated-rig.npz": "8e3c79d0e9f8981a0476753388b3e66868882cf93d9491a8c1ccf0d2286ab11e"
+      }
+    }
+  },
+  "grass-rat": {
+    "reason": "Owner requested raw motion repair; source motion/own generated mesh retained.",
+    "anatomical_quadruped": true,
+    "source_flags": {
+      "hold_core_bind": true,
+      "reference_pose": "source_bind"
+    },
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "155d160d23ae4df9e7e3ff59908af4810ee6943ca142f14b68c3416aef653c3a",
+        "generated-rig.npz": "970ec9ce8dfa68ced83e2c0c5d47f9afb54d9aba6982b6a392ed2c86fb21ee2f"
+      },
+      "2": {
+        "model.glb": "268bdfe702ebe1443293b985229e21838bf07a4a92a1030800b63f475a0eac2f",
+        "generated-rig.npz": "b147cd9bb47feaa091d70cec26dafcdee84950049900dd7dc1b4fc829a3b2f78"
+      },
+      "3": {
+        "model.glb": "96f69fd4d2013e47029b9db0bbad1a7db167faf5b85eb8b5d2ffae7bfef6b10e",
+        "generated-rig.npz": "ee25b268a36abac04fdbe7aa64727b329ccb75bae770ea3bff7559798d5e2ee5"
+      },
+      "4": {
+        "model.glb": "498803d232b9b89faffce4db74a2a0a6e1774d96a0500522f9dde9482cb68369",
+        "generated-rig.npz": "16eb6466c9bfa7eec5c6717949a3cbdb56c1a48d929920b7957f7bd80eddfc6d"
+      }
+    }
+  },
+  "spotted-tailed-quoll": {
+    "reason": "Owner requested raw motion repair; source motion/own generated mesh retained.",
+    "anatomical_quadruped": true,
+    "source_flags": {
+      "hold_core_bind": true,
+      "reference_pose": "source_bind"
+    },
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "465dfbaa06e6c5c86d70b6085b9edd56b5842de7ee47fbb90c1c22b9da21d368",
+        "generated-rig.npz": "5a7ca861331b7e810f5cbb8f5e5fc61bccb25b7aed33c8f4777600e918930c1b"
+      },
+      "2": {
+        "model.glb": "5fe5a25233d09df9171f884e7a46f61ef6195ec6ef8df73e7367190f20bf3955",
+        "generated-rig.npz": "4afabe0816d84e84f40695601ff214e76cadc66aa9f2114787b698ccafd50d24"
+      },
+      "3": {
+        "model.glb": "0c7e49cd80e4fdbcb6ca5b492322b22873ec8f8a6948a1434439a94c5c939cdc",
+        "generated-rig.npz": "75af40fefb20d288b760865475ba7a318061cbfbcab22e59d967e306870d355c"
+      },
+      "4": {
+        "model.glb": "87fce0b751014f14f30ad760c8cfb0cd7e549b8a6657c12b645bf4152ba94f35",
+        "generated-rig.npz": "b92bd4a471b146f6c4ca5ac8ab37dae4a3a78cdb9fe89f16dbb0cf9bb37d1f57"
+      }
+    }
+  },
+  "jerboa": {
+    "reason": "Owner requested raw motion repair; source motion/own generated mesh retained.",
+    "source_flags": {},
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "f278fb65084f3ee22e82adee3d6673ff8086186df29676608c702f5e11a05d4d",
+        "generated-rig.npz": "757a21f1d110614525639fbe9988f65a141aae548ceff5052cf6c5b2eb35e297"
+      },
+      "2": {
+        "model.glb": "c82706e77271912d8da8fe4bd9550354e5564406e104d56df5fccf1195738647",
+        "generated-rig.npz": "015db4e8037d818c129cfadce77d47c7708d4cf6b967c7dad12cdc7d0c8625ae"
+      },
+      "3": {
+        "model.glb": "ef52f67a6048fbe05e41740d7804c5832b2d8ee5498f3b831b55b9fb8dbe4cf5",
+        "generated-rig.npz": "05a5f21e0f396029d58a3ecd300d984b764c768111765fb2cdd3171f0b3a38e4"
+      },
+      "4": {
+        "model.glb": "02a899fbff385b36c2b0722bc94b691897b2c1fa722658129c4316d07a8eba2f",
+        "generated-rig.npz": "af717e1a6c18544940f089b88d2fc2a47e88d71ddb21b3e60b68957386b46f87"
+      }
+    },
+    "motion_bank": "artifacts/fauna-motion-sources/hind-hopper-trial",
+    "hind_chains": {
+      "1": [
+        [
+          1,
+          21,
+          22,
+          23,
+          24,
+          25
+        ],
+        [
+          1,
+          26,
+          27,
+          28,
+          29,
+          30
+        ]
+      ],
+      "2": [
+        [
+          0,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        [
+          0,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29
+        ]
+      ],
+      "3": [
+        [
+          0,
+          21,
+          22,
+          23,
+          24,
+          25
+        ],
+        [
+          0,
+          26,
+          27,
+          28,
+          29,
+          30
+        ]
+      ],
+      "4": [
+        [
+          0,
+          22,
+          23,
+          24,
+          25,
+          26
+        ],
+        [
+          0,
+          27,
+          28,
+          29,
+          30,
+          31
+        ]
+      ]
+    }
+  },
+  "paca": {
+    "reason": "Owner requested raw motion repair; source motion/own generated mesh retained.",
+    "anatomical_quadruped": true,
+    "source_flags": {
+      "hold_core_bind": true,
+      "reference_pose": "source_bind"
+    }
+  },
+  "pika": {
+    "reason": "Owner requested raw motion repair; source motion/own generated mesh retained.",
+    "anatomical_quadruped": true,
+    "source_flags": {
+      "hold_core_bind": true,
+      "reference_pose": "source_bind"
+    }
+  },
+  "native-small-lizards-guild": {
+    "reason": "Owner requested raw motion repair; source motion/own generated mesh retained.",
+    "anatomical_quadruped": true,
+    "source_flags": {
+      "hold_core_bind": true,
+      "reference_pose": "source_bind"
+    },
+    "chains": {
+      "1": {
+        "hind": [
+          [
+            0,
+            34,
+            35,
+            36,
+            39,
+            40
+          ],
+          [
+            0,
+            45,
+            46,
+            47,
+            48,
+            49
+          ]
+        ],
+        "fore": [
+          [
+            3,
+            5,
+            6,
+            10,
+            11
+          ],
+          [
+            2,
+            14,
+            15,
+            16,
+            21,
+            22
+          ]
+        ]
+      },
+      "2": {
+        "hind": [
+          [
+            0,
+            32,
+            33,
+            34,
+            35
+          ],
+          [
+            0,
+            25,
+            26,
+            27,
+            29
+          ]
+        ],
+        "fore": [
+          [
+            2,
+            5,
+            6,
+            7,
+            8
+          ],
+          [
+            2,
+            15,
+            16,
+            23,
+            24
+          ]
+        ]
+      },
+      "3": {
+        "hind": [
+          [
+            0,
+            26,
+            27,
+            28,
+            29
+          ],
+          [
+            0,
+            38,
+            39,
+            40,
+            41
+          ]
+        ],
+        "fore": [
+          [
+            2,
+            5,
+            6,
+            12,
+            13
+          ],
+          [
+            2,
+            16,
+            17,
+            24,
+            25
+          ]
+        ]
+      },
+      "4": {
+        "hind": [
+          [
+            0,
+            46,
+            47,
+            48,
+            50,
+            51
+          ],
+          [
+            0,
+            34,
+            35,
+            36,
+            38,
+            39
+          ]
+        ],
+        "fore": [
+          [
+            2,
+            16,
+            17,
+            18,
+            19
+          ],
+          [
+            2,
+            6,
+            7,
+            10,
+            11
+          ]
+        ]
+      }
+    }
+  },
+  "salamanders-guild": {
+    "reason": "Owner requested raw motion repair; source motion/own generated mesh retained.",
+    "anatomical_quadruped": true,
+    "source_flags": {
+      "hold_core_bind": true,
+      "reference_pose": "source_bind"
+    }
+  },
+  "meerkat": {
+    "reason": "Owner asks front foot stretching fixed on candidate1; distal paw skin kept on wrist rather than foreign toe rotation.",
+    "pin_distal_skin_candidates": [
+      1
+    ],
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "c02c1ea1e3d69b5754eb458198b616828a9ca3dc96427c6bd0151e54ca292f19",
+        "generated-rig.npz": "a17bcb6907542ecd4a997d917ac8ef374a0f59b7e8122d5f5d5c584027f79b69"
+      },
+      "2": {
+        "model.glb": "a3dcd2f28e2fb994c12d25615507d46d41c70b40844e07238752f23d9dac4936",
+        "generated-rig.npz": "e80d07c0b14a3d1d0eff18b7d8a65a38f558767586d81c95abde02aea2be207c"
+      },
+      "3": {
+        "model.glb": "0e9ec0eed6174080a9b8eb5ac21e9cfaae2d2296be83e72c1672cc6f28dbdd8a",
+        "generated-rig.npz": "87b2f42636dc3f17bf3c7df33ca87c1661b4bc727b60ea4301fcfbe20efc8b26"
+      },
+      "4": {
+        "model.glb": "8da3dd2871b458e02c29fac6b09d6676931ac7187d44cd7c75be67defd355f8b",
+        "generated-rig.npz": "425b361defa1679306105960312cdcfd684572b5bfddd3b249ae5fddd102c860"
+      }
+    },
+    "localize_forelimb_skin_candidates": [
+      1
+    ]
+  },
+  "hummingbird": {
+    "reason": "Owner requests wing/leg skeleton repair. Explicit forward-axis and paired full appendage chains; head kept neutral.",
+    "retain_flight": true,
+    "source_flags": {
+      "hold_core_bind": true,
+      "reference_pose": "source_bind"
+    },
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "6d9a2c387c5c721564eed0225dafb9826e13186d8c4dd4ae983b1b67eb939d58",
+        "generated-rig.npz": "a9e2dd7013e2bf988994619284aebf13601177ab05611d18cce4d111221f33d4"
+      },
+      "2": {
+        "model.glb": "a37847c378f5e7598029fff67c7efeb7deda866398b5008445a821c5c8a62ae7",
+        "generated-rig.npz": "4f1471da03f6bcd823e5cfa785d785dcca84d2765406fa76e9364bd8628e9476"
+      },
+      "3": {
+        "model.glb": "87b369655884b22d791c58309057e9e0bab5e72dc050be5d071441aaca798517",
+        "generated-rig.npz": "fc06586cf319a104d604def93d89ac6fe0321209ec53cbb0968fa215540d2527"
+      },
+      "4": {
+        "model.glb": "5d23eb59ef0e18968db572615f72ce8be7e5c5f8c9804d161f1fe3ce19c05954",
+        "generated-rig.npz": "3630196026b336e881941191d27557631882efbf0c54c4de863b757ac62040ee"
+      }
+    },
+    "axis_corrections": {
+      "1": [
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "2": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "3": [
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "4": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "chains": {
+      "1": {
+        "fore": [
+          [
+            1,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          [
+            1,
+            13,
+            14,
+            15,
+            16,
+            17
+          ]
+        ],
+        "hind": [
+          [
+            0,
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          [
+            0,
+            33,
+            34,
+            35,
+            36,
+            37
+          ]
+        ]
+      },
+      "2": {
+        "fore": [
+          [
+            1,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          [
+            1,
+            10,
+            11,
+            12,
+            13,
+            14
+          ]
+        ],
+        "hind": [
+          [
+            0,
+            18,
+            19,
+            20,
+            21
+          ],
+          [
+            0,
+            22,
+            23,
+            24,
+            25,
+            26
+          ]
+        ]
+      },
+      "3": {
+        "fore": [
+          [
+            1,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          [
+            1,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ]
+        ],
+        "hind": [
+          [
+            0,
+            23,
+            24,
+            25
+          ],
+          [
+            0,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31
+          ]
+        ]
+      },
+      "4": {
+        "fore": [
+          [
+            1,
+            5,
+            6,
+            7
+          ],
+          [
+            1,
+            8,
+            9,
+            10
+          ]
+        ],
+        "hind": [
+          [
+            1,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          [
+            1,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        ]
+      }
+    }
+  },
+  "hornbill": {
+    "reason": "Owner rejects spread-wing ground audition; new folded-wing reference and full leg chains.",
+    "motion_bank": "artifacts/fauna-motion-sources/folded-ground-bird-stable",
+    "anatomical_bird": true,
+    "folded_bird_axis": true
+  },
+  "peafowl": {
+    "reason": "Owner rejects spread-wing ground audition; new folded-wing reference and full leg chains.",
+    "motion_bank": "artifacts/fauna-motion-sources/folded-ground-bird-stable",
+    "anatomical_bird": true,
+    "folded_bird_axis": true,
+    "chains": {
+      "4": {
+        "hind": [
+          [
+            11,
+            37,
+            38,
+            39,
+            40,
+            43
+          ],
+          [
+            1,
+            28,
+            29,
+            30,
+            31,
+            32
+          ]
+        ],
+        "fore": []
+      }
+    }
+  },
+  "armadillo": {
+    "reason": "Owner full redo; bilateral four-leg correspondence and neutral core avoid foreign head folds.",
+    "anatomical_quadruped": true,
+    "source_flags": {
+      "hold_core_bind": true,
+      "reference_pose": "source_bind"
+    },
+    "motion_bank": "artifacts/fauna-motion-sources/rat"
+  },
+  "capybara": {
+    "reason": "Owner full redo; bilateral four-leg correspondence and neutral core avoid foreign head folds.",
+    "anatomical_quadruped": true,
+    "source_flags": {
+      "hold_core_bind": true,
+      "reference_pose": "source_bind"
+    },
+    "motion_bank": "artifacts/fauna-motion-sources/rat"
+  },
+  "aardvark": {
+    "reason": "Owner selected model; repair tail/leg assignment or stretching hand without regenerating geometry.",
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "768c5bb0bb13f1307e942048d2dc4016da017440c36ed06273bc9a53daa93724",
+        "generated-rig.npz": "c703f501209b422c6358e7565d4f3ef03f51485daa60ff5718d075389ce0d950"
+      },
+      "2": {
+        "model.glb": "7a2e94e957a2a8d373e104e7c38709ef0ae73195ad8485e9478dcc319dd18e76",
+        "generated-rig.npz": "a89367ab2a5f6a6a32a8acfd064144688167dbbbca96f6dd266d0ef0c729ec82"
+      },
+      "3": {
+        "model.glb": "833776721d1097bc1160ef57e6a111e36f751eb2edcc274620badccbbf37644f",
+        "generated-rig.npz": "34901e2ac27ecc2a5efbcf5ce8fb23825343742f1a43280ef2759f4cfc4a20f9"
+      },
+      "4": {
+        "model.glb": "a82aa63228a15e2550b908f9ed6afb31e2428bbf8ca399bae4cf440a3f57a2d3",
+        "generated-rig.npz": "bd297ac56b997ac620f07e2023bf2f565fed472de1351a69b4282d1c4a25c3f3"
+      }
+    },
+    "anatomical_quadruped": true,
+    "source_flags": {
+      "hold_core_bind": true,
+      "reference_pose": "source_bind"
+    },
+    "chains": {
+      "3": {
+        "hind": [
+          [
+            1,
+            30,
+            31,
+            32,
+            33,
+            34
+          ],
+          [
+            1,
+            25,
+            26,
+            27,
+            28,
+            29
+          ]
+        ],
+        "fore": [
+          [
+            6,
+            20,
+            21,
+            22,
+            23,
+            24
+          ],
+          [
+            6,
+            15,
+            16,
+            17,
+            18,
+            19
+          ]
+        ]
+      }
+    }
+  },
+  "baboon": {
+    "reason": "Owner selected model; repair tail/leg assignment or stretching hand without regenerating geometry.",
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "659b8a92b04712501350db996da2ae1f9f8a20dbe823343db4e0d57dcf2e6d8a",
+        "generated-rig.npz": "2e02e7bdfb28374617737487f5076bbc6397360b765c190f838d7e9e8c1a54c4"
+      },
+      "2": {
+        "model.glb": "686bb4e10d3cb201a338baccc51097a23b4957e93a7528d568b4436ce2001bb8",
+        "generated-rig.npz": "43bfa6e7c03ea63ec8afd213aac4cdd4ab079a3acdc7db2edb2d21d101672274"
+      },
+      "3": {
+        "model.glb": "499fe8d8aad657abf3e6db0dae61e1c25ec4a6ea4348d62b2f6309edea17f55b",
+        "generated-rig.npz": "951f6db1dbae2bd684d486405e75d817175014787ae8a4775f90cfcf47de6820"
+      },
+      "4": {
+        "model.glb": "5b040f664d8d23e86a3a9c0593cb5b60c182c24691d04ba90d9f25329feb3051",
+        "generated-rig.npz": "83aaec834a0ab0037f7cc196bd1066ce856c47c3bb3b6cef90de403eb2ee1bce"
+      }
+    },
+    "pin_distal_skin_candidates": [
+      1
+    ],
+    "localize_forelimb_skin_candidates": [
+      1
+    ]
+  },
+  "boa-constrictor": {
+    "reason": "Owner explicitly requests entirely different rig method; mesh-traced head-to-tail bones and adjacent body skin, bounded CC0 snake yaw transfer.",
+    "manual_snake": true,
+    "source_flags": {
+      "reference_pose": "source_bind"
+    }
+  },
+  "capuchin": {
+    "reason": "Recover failed ambiguous upright reference; explicit bilateral quadruped correspondence and neutral core, experimental fox source.",
+    "anatomical_quadruped": true,
+    "source_flags": {
+      "hold_core_bind": true,
+      "reference_pose": "source_bind"
+    }
+  }
+}

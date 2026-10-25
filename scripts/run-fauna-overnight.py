@@ -74,6 +74,25 @@ def candidate_seeds(entry,number,candidate):
     values=json.loads(override.read_text()) if override.exists() else {}
     shape=int(values.get('shape_seed',seed));rig=int(values.get('rig_seed',shape+100000))
     return shape,rig
+
+def reset_failed_candidates(entry,folder,request):
+    """A verified recovery request can replace failed, unselected raw inputs."""
+    import hashlib,shutil
+    assert folder.resolve().parent==root and not folder.is_symlink()
+    choices=json.loads((repo/'docs/fauna/OWNER_SELECTIONS.json').read_text())
+    assert entry['slug'] not in choices['animals']
+    previous=folder/'previous-incomplete-generation';assert not previous.exists();previous.mkdir()
+    manifest=[]
+    for number in range(1,5):
+        candidate=folder/f'candidate-{number}';assert candidate.resolve().parent==folder.resolve() and not candidate.is_symlink()
+        files=[{'path':str(p.relative_to(candidate)),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in candidate.rglob('*') if p.is_file()]
+        manifest.append({'candidate':number,'files':files});candidate.rename(previous/candidate.name);candidate.mkdir()
+        seed=735000+entry['priority_rank']*100+number+3000001
+        (candidate/'seed-overrides.json').write_text(json.dumps({'shape_seed':seed,'rig_seed':seed+100000,'reason':request['reason']},indent=2))
+    reference=root/'references'/f"{entry['slug']}.png";shutil.copy2(reference,previous/'reference.png')
+    new=Path(request['new_reference']);assert new.is_file();shutil.copy2(new,reference)
+    (previous/'candidate-manifest.json').write_text(json.dumps(manifest,indent=2))
+    (folder/'review-rebuild.json').write_text(json.dumps({'reason':request['reason'],'failed_generation_replaced':True,'art_approved':False},indent=2))
 try:
     while not pause_requested():
         did=False
@@ -98,6 +117,7 @@ try:
                 for number,digest in enumerate(request['prepared_models'],1):
                     mesh=folder/f'candidate-{number}'/'model.glb'
                     assert hashlib.sha256(mesh.read_bytes()).hexdigest()==digest,'Recovery mesh changed after request'
+                if request.get('regenerate_failed_models'):reset_failed_candidates(entry,folder,request)
                 request['previous_failure']=previous
                 archive=folder/('recovery-consumed-'+str(time.time_ns())+'.json')
                 archive.write_text(json.dumps(request,indent=2));recovery.unlink()

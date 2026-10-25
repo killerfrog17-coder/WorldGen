@@ -14,6 +14,13 @@ def transfer_trial_note(animal):
 
 def source_for(entry,repo):
     slug=entry['slug'];fam=entry['family'];animal=entry['animal'];bank=repo/'artifacts/fauna-motion-sources'
+    repairs=repo/'docs/fauna/MOTION_REPAIR_OVERRIDES.json'
+    if repairs.exists():
+        override=json.loads(repairs.read_text()).get(slug,{}).get('motion_bank')
+        if override:
+            p=(repo/override).resolve();assert p.is_relative_to(bank.resolve())
+            assert all((p/n).exists() for n in ('source-rig.json','source-motions.npz'))
+            return p
     record=repo/'artifacts/fauna-overnight-20261024'/slug/'source-trial-reviewed.json'
     if record.exists():
         decision=json.loads(record.read_text());p=Path(decision['motion_source']).resolve()

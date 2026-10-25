@@ -139,7 +139,13 @@ def main():
                 if row['family'] != 'microfly':
                     directory = folder / ('candidate-' + str(number))
                     rig = read(directory / 'generated-rig.json')
-                    require(rig['method'] == 'Local SkinTokens skeleton and skin generation', 'Not fresh local rig inference')
+                    if row['slug']=='boa-constrictor' and rig['method']=='Owner-authorized body centerline rig':
+                        require(rig.get('manual_rig') and candidate.get('rig_origin')=='manual body centerline','Undeclared manual snake rig')
+                        require(rig['source_mesh_sha256']==digest(directory/'model.glb'),'Manual rig source mesh changed')
+                    elif row['slug']=='pronghorn' and number==4 and rig['method']=='Owner-permitted accepted deer model reuse':
+                        require(rig['source_rig_sha256']==digest(repo/'artifacts/fauna-assets/deer/generated-rig.npz'),'Deer fallback provenance changed')
+                        require(digest(directory/'generated-rig.npz')==rig['source_rig_sha256'],'Deer fallback rig changed')
+                    else:require(rig['method'] == 'Local SkinTokens skeleton and skin generation', 'Not fresh local rig inference')
                     require(Path(rig['mesh']).resolve() == (directory / 'model.glb').resolve(), 'Rig input belongs to another mesh')
                     require(Path(candidate['rig_file']).resolve() == (directory / 'generated-rig.npz').resolve(), 'Wrong candidate rig path')
                     require((directory / 'model.glb').read_bytes()[:4] == b'glTF', 'Invalid retained model header')

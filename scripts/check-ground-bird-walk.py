@@ -8,6 +8,7 @@ a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);root=a.root.resolve()
 bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Raw Audition.blend'))
 scene=bpy.context.scene;config=json.loads((root/'manual-ground-walk.json').read_text());results=[]
 for e in json.loads(scene['deer_four_rigs']):
+    if str(e['number']) not in config['candidates']:continue
     rig=bpy.data.objects[e['rig']];body=bpy.data.objects[e['body']]
     act=bpy.data.actions[e['actions']['Walk']];rig.animation_data_create().action=act;rig.animation_data.action_slot=act.slots[0]
     bones=[];floors=[];skin=[]

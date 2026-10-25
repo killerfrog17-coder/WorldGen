@@ -1,5 +1,82 @@
 # WorldGen repository instructions
 
+LARGE OWNER SELECTION / REVISION PASS IN PROGRESS,24October2026~19:25CDT:
+Owner reviewed through Zebra then additional batch. Canonical OWNER_SELECTIONS
+now103 incl provisional Meerkat1 (keep if front paw repair works). Tapir explicitly
+left UNTOUCHED/undecided. Squid comment all same is NOT a numbered selection.
+Pheasant3/Grouse3/Junglefowl2 chosen after earlier manual fixes; no full gait/
+runtime approval inferred. Aardvark3/Baboon1 chosen with repairs requested.
+Latest user explicitly asks open NEW updated Blender RIGHTMOST AFTER requested
+revision pass; old owned viewer PID40988 still open/untouched until then. Keep
+1-4/skeleton/animal navigation. Pending filter now retains conditional selected
+animals whose motion repair awaits review. No painting or game integration.
+
+Priority GPU pass: sole orchestration exec93476 runs scripts/run-fauna-priority-
+queue.py --jobs artifacts/fauna-overnight-20261024/owner-priority-jobs-current.json
+--resume-full. It serially invokes --only and automatically resumes full --watch
+after finite list. NEVER start duplicate when no worker.lock between child jobs;
+the outer orchestrator is still live. Actual status in jobs JSON +queue-state,
+verify specific session/PIDs. Original full exec27425 and Hornbill exec61439 are
+terminal. Jobs: Pronghorn,Peafowl,Native small lizards,Salamanders,Paca,Pika,
+Armadillo,Capybara,Seal. Hornbill already regenerated separately. New built-in
+refs: folded-wing Hornbill/Peafowl, aligned Pronghorn/Seal, neutral Armadillo/
+Capybara; source paths/prompts in owner-reference-redos-20261024[-b].json.
+No new painted textures. Fast resident FP16 settings unchanged.
+
+CPU repairs BUILT +native checked: Walk reversed ONLY for GroundSquirrel2/Skunk1
+(all candidates share clip reversal); GrassRat neck fold fixed by correct four
+limb assignment, digit/head exclusion, neutral core; Quoll3 tail removed from
+hind-leg map; Emu full4 leg-chain/foot-track IK; Pigeon1/Stork1 fullleg IK retain
+Flap/Glide; Hummingbird explicit +/-90degree canonical axes +full wing/foot
+chains, core held neutral; Meerkat1/Baboon1 local forelimb skin and distal paw/
+hand pin; Aardvark3 explicit true hind legs rather than curled tail. Native
+all4 controls/rest/weights pass per root; selected CPU front/side poses inspected.
+These remain raw imperfect prototypes, not universal contact/collision/gait
+acceptance. Exact raw model/NN hashes for owner selections preserved. New scoped
+rules/mappings in MOTION_REPAIR_OVERRIDES.json and GROUND_BIRD_WALK_REPAIRS.json.
+
+Boa uses ENTIRELY DIFFERENT owner-authorized mesh-traced body rig: script
+manual-boa-rig.py,36 ordered head-to-tail joints/two adjacent skin weights,
+bounded CC0 Snake Idle/Side winding yaw transfer, no neural rig/donor body.
+Original model GLBs unchanged; NPZ coordinates uniformly scale for review,
+rejected neural arrays retained named .neural-rejected. Native all4 pass; CPU
+Bind and Side winding1 top/side inspected. Audit explicitly recognizes this
+declared owner exception. Not fresh NN inference or own motion authorship.
+
+Hornbill NEW4 ready: corrected folded-wing canonical axes in builder (old
+preparation wrongly used spread-wing minor axis). Peafowl NEW4 initially failed
+candidate3 stale5-endpoint gate. Folded ground birds require3; recovered genuine
+candidate3 first NN trial; candidate4 legs attach at different body ancestors,
+explicit map fixes it. Rebuilt/native all4 pass, sampled Walk1/4 inspected.
+NativeSmallLizard NEW4 initial automatic pairing failed: explicit all4 limbs
+and all toes excluded from head candidates fixes builder; native all4 pass.
+Both retain explicit retry-failed4-model hashes +manual-recovery-ready.json for
+normal worker to reconcile old failed in-memory state. DO NOT edit live state;
+finish-fauna-manual-recovery.py removes exact redundant intermediates only.
+Peafowl22.86MiB +Lizard11.65MiB pruned, retained hashes unchanged. Need visual
+Lizard check and pending remaining rerolls before opening owner review.
+
+Pronghorn fresh1-4 still visibly turn head. Owner allowed own Deer fallback:
+candidate4 now reuses accepted own Deer NPZ EXACT +exported5318tri body, new
+metadata says accepted reuse, original protected deer all hashes unchanged.
+New candidates1-3 retained for comparison,4 fallback front/Walk inspected and
+native all4 pass. Do not call it fresh inference or exact pronghorn anatomy.
+Rejected new4 files compactly retained under rejected-new-head-turn-candidate4.
+All owner-rejected prior reroll sets in exact manifested previous-owner-rejected
+folders still await final checked replacement pruning (do not blindly delete).
+
+Capuchin actual failed all NN attempts (bilateral endpoint shortage). New
+quadrupedal/raised-tail built-in reference saved replacement-reference.png;
+retry-failed.json with4 old model hashes requests complete regeneration. New
+run-fauna-overnight.reset_failed_candidates consumes it only in producer after
+hash verification, archives exact incomplete candidates, then fresh seeds+3M.
+This recovery waits resumed full queue; never duplicate its GPU work. Source
+remains explicitly experimental fox quadruped, not native primate gait.
+Latest audit119/120 ready during replacement publishing, no errors; target176
+still incomplete. User goal is ACTIVE again. Finish requested revisions/reopen
+viewer, then continue full original scope and reusable textures only after raw
+inventory. No owner app closure, Desktop clutter, paid call or runtime changes.
+
 STRAIGHT-HEAD DUIKER2 / MANUAL GROUND-BIRD STRIDES,24October2026~18:14CDT:
 Owner selects Wolf2/Squirrel3 (41 choices), asks manual full-leg walking for
 Pheasant/Grouse/Junglefowl and straight-facing Duiker source reroll. Saved choices

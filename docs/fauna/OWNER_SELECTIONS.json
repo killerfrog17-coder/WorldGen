@@ -534,6 +534,820 @@
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
       "painting_started": false
+    },
+    "forest-hog": {
+      "animal": "Forest hog",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T18:51:40.230798-05:00",
+      "model_sha256": "b826fa0a8f5342422a4868390ab44cfd29501be3707733c91f61dadf60cc3b87",
+      "rig_sha256": "be06b6f1156f079b5893d06178390b21981a375661d228d814ab1fbecb0d1049",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "fruit-bat": {
+      "animal": "Fruit bat",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T18:51:40.240829-05:00",
+      "model_sha256": "ab13351626bebaa77e952327d149369a105486b986f7fec41c644933f209383d",
+      "rig_sha256": "dd7947fcf524d6bd3a8bcb5cbd2276a5eb9960d039217781ab764cdac096be43",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "gazelle": {
+      "animal": "Gazelle",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T18:51:40.245834-05:00",
+      "model_sha256": "1aa3b3d54694143069c23d9f06949fa4f01875d60915ade8b5aaa37d0ac77839",
+      "rig_sha256": "fa479548b001504343adc82af4dd552980b27b3d46e10c3e7da012e2c965da64",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "goose": {
+      "animal": "Goose",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T18:51:40.250872-05:00",
+      "model_sha256": "60164fdfc77379a18655923fad37f3f662e0840c5cf82faadec061910e37b3af",
+      "rig_sha256": "942136d0f7b0548025e0f99847b6ed4a10775126b82ab5841431bbadb06dbd48",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "grasshoppers-guild": {
+      "animal": "Grasshoppers (guild)",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T18:51:40.260900-05:00",
+      "model_sha256": "70b55cf4144065794ba792ae1a9e8f6bf7f21013cfcfb00af043ceae3f456d71",
+      "rig_sha256": "c06583a2858460b9e5dcba31b365083ec95a2dae02efdd24a6ac95e73a865de1",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "grey-heron": {
+      "animal": "Grey heron",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T18:51:40.270932-05:00",
+      "model_sha256": "4da340d106e4d58f0b4e4cd7aef9bf3df6c34c6b872fffba3ea5831abc467699",
+      "rig_sha256": "75876808ff663cecd6f173eb6f9866a863644f534214a72cda80d1bfd0acde6b",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "ground-squirrel": {
+      "animal": "Ground squirrel",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T18:51:40.280514-05:00",
+      "model_sha256": "f36c88c80a5e212c79acd03f620c215432f6bba0c65c7c89bd0febd7b6b3f96a",
+      "rig_sha256": "481953028622ce3451f0a769c2f3f04be22bec53111c24cff355597a07451a27",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false,
+      "required_motion_fix": "Reverse Walk only; Run is already correct."
+    },
+    "guanaco": {
+      "animal": "Guanaco",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T18:51:40.287973-05:00",
+      "model_sha256": "53021c848ee61b9304bdbb4767e89f22f0fc1cc2e60ccd3f2a4166845a37549c",
+      "rig_sha256": "08d557cd8623429decd4e3b80efd59a0f3ed64b257a877e21f803fee9a65c5b9",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "hawk": {
+      "animal": "Hawk",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T18:51:40.294706-05:00",
+      "model_sha256": "08ab3184c27fbd14ecb379eea4ad474fc49cae6f1d4a7400dd337a037100aa5f",
+      "rig_sha256": "b7261028d32017a4810aacc460336722eee1694b8174f4621a099ae9dc5ff011",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "ibex": {
+      "animal": "Ibex",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T18:51:40.297316-05:00",
+      "model_sha256": "9a6d66cdcd99046221a8cd09c7db55ca3f12796d6b327c78d1f7d1b9a2a3bc08",
+      "rig_sha256": "4708550fe08275d308b5f170c01eb28c9f6b1faa68ec256aecbe9d5f57cd3a13",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "impala": {
+      "animal": "Impala",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T18:51:40.300838-05:00",
+      "model_sha256": "a4925e0e53a9621289e6f415abab56d5b03a1a1636e451e397e2628f337765f4",
+      "rig_sha256": "1227c9eba89e79ab03de7b142eab5224ee7c9b1d2502d9cbacff0d01ccdc58a8",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "insectivorous-bat": {
+      "animal": "Insectivorous bat",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T18:51:40.310897-05:00",
+      "model_sha256": "096ea38d5da2b2276f8b550786f699b42a70fa63a077535e78b1365cc6d4454a",
+      "rig_sha256": "9f6ed5f8359dbf640b94a9862c0d8d80677e0c4135e7b9e7e0bea6015d6d8003",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "jaguar": {
+      "animal": "Jaguar",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T18:51:40.315216-05:00",
+      "model_sha256": "e1e39a5b81f4e5a7ca33d3ce192ccb0a94f7fb8dafb633f1343cd2ae42294652",
+      "rig_sha256": "6d110852fe91427284ca3d7aef35bc826695e747ad0e6b415355e6cc1f2923c8",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "kingfisher": {
+      "animal": "Kingfisher",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T18:51:40.321215-05:00",
+      "model_sha256": "e93f9e144b271669fa616d49b26d8ac51ee00d2dd6cd14b069168d7a6508b483",
+      "rig_sha256": "49dedf84c47d669c463dcb523f81c525cc329d9852860b2c477a1d2ae0b64b73",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "kiwi": {
+      "animal": "Kiwi",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T18:51:40.326242-05:00",
+      "model_sha256": "1f478b0124b26406f10008b4c37c3f840b4a1ba97cb348fac402379962504955",
+      "rig_sha256": "48e77a834fd684942de092195c313630e3b604a69e74131ebad3ade7c2dac40d",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "lemming": {
+      "animal": "Lemming",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T18:51:40.330803-05:00",
+      "model_sha256": "ac510f11c0ea02861244b1e1d04dbaa4f24f32a42d14300dad0b165488e6ebbb",
+      "rig_sha256": "792bf33e0a3fddd8626c124a60da2985dc00d999e575dc8b570636cd42921292",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "leopard": {
+      "animal": "Leopard",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T18:51:40.335809-05:00",
+      "model_sha256": "091788e0836fff0cbf3462b397312e72a6b12fed81e2728a5ced8c128e3d7dda",
+      "rig_sha256": "3e4dadd45acd3782f6ed06e55df36acfb3747ce85bfa7cd0d80aaa772ed4129d",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "lion": {
+      "animal": "Lion",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T18:51:40.344103-05:00",
+      "model_sha256": "7d8f8caa11d908e35e2ebcb45935b6cc77ba5c05c18cada34332334d9f0eed4a",
+      "rig_sha256": "cee61364fb857500082add1688c70e358a8fb36873bd99b36fb0bf8c07d9762c",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "marmot": {
+      "animal": "Marmot",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T18:51:40.351438-05:00",
+      "model_sha256": "897155915cf8f83e53d95f405f0adecc1b750a742069afc16f24c7fcbe37622c",
+      "rig_sha256": "c330d75458f008a3ad491e7e71b0ad41eb9b1dee12fd61d2874abe1479efa444",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "mongoose": {
+      "animal": "Mongoose",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T18:51:40.357764-05:00",
+      "model_sha256": "e7651187b650c8b926c8816e4a1ebbee40a3502882862e7c9f6f91a786a5c3a1",
+      "rig_sha256": "8f130b6e4a12318c679b02c99d820f6af84538e9202c9c8493e14b7f4967e48a",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "musk-ox": {
+      "animal": "Musk ox",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T18:51:40.362437-05:00",
+      "model_sha256": "317b3eece596393747e162d9fc079ad842cdb90bb7c3efb8c041ab092d385b48",
+      "rig_sha256": "83ffbf45c010a3fa7a7a37f7f07eafe1494ee948fff696cede86fb83b29c81c1",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "native-litter-beetles-guild": {
+      "animal": "Native litter beetles (guild)",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T18:51:40.365042-05:00",
+      "model_sha256": "935f2e07e6799da5c9ab874baf063475e7d3e11feb432399da0422cf2c18edc2",
+      "rig_sha256": "96f990fe92bd37aaeddc9579e2b746ab41342df66e0564426f85e1149238551f",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "ocelot": {
+      "animal": "Ocelot",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T18:51:40.371097-05:00",
+      "model_sha256": "01f2f9a5363a0082d12f8bbe3926fa3cf98e3316c58e7006fb858d472d4d2321",
+      "rig_sha256": "bcf0d081155c68a2a84771d15515cb6ae1d5c0a6318086c4870c3ba551c6bef7",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "oryx": {
+      "animal": "Oryx",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T18:51:40.376104-05:00",
+      "model_sha256": "29528d86353675817203766b3c7b8b1a588c618de6976cabeb239c70de27f2f6",
+      "rig_sha256": "f3f0cd6af5fe7ae0fc16bc4483ef48f107009ef18e5c8501d189003f0999dedf",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "ostrich": {
+      "animal": "Ostrich",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T18:51:40.381131-05:00",
+      "model_sha256": "3424c239b85a3c40ea7dbc72a3d7664348cc7ad23233afed7bdd8d03237c6cd8",
+      "rig_sha256": "0765df4b8b8f3b8552f51c9701087ce679af856f2962a9c4d035d8b4c17f6ac4",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "parrot": {
+      "animal": "Parrot",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T18:51:40.386138-05:00",
+      "model_sha256": "d3d7cc36883e1ebac860e50dfbe54d48ba353163755007538faa1cf77cf050b5",
+      "rig_sha256": "af09abfcd7d44dfe591d87bac4abe88c235d14610b45f07e26e3e55e7fe499fe",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "pelican": {
+      "animal": "Pelican",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T18:51:40.396212-05:00",
+      "model_sha256": "04f21ea1996003d9cdc2e49ffd0c44d3128036f112c426233861912091568bf1",
+      "rig_sha256": "4451028edddbe0f59956e04d006f2866a8f3771feca251eee51782ca9cf5e5de",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "pigeon": {
+      "animal": "Pigeon",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T18:51:40.400733-05:00",
+      "model_sha256": "99b440739010744c5e1cf852daaea072797daf5e385ca49d0710c2221b5b3ed0",
+      "rig_sha256": "757a175502adb1dd4a4e39f5b22f18f7e5132c84271e89dee1736226e1268bae",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false,
+      "required_motion_fix": "Fix leg skeleton/walking while preserving candidate1."
+    },
+    "puma": {
+      "animal": "Puma",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T18:51:40.405742-05:00",
+      "model_sha256": "b62092f07b68a170c984d4a86b82dae02fc63b84888eb2352bc2a517c6dd4fc7",
+      "rig_sha256": "88471e8b601ecc26cd8b9ef52fd13a2327f24976e986c602f0bf65921385676a",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "red-kangaroo": {
+      "animal": "Red kangaroo",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T18:51:40.410767-05:00",
+      "model_sha256": "e92abcc14402a069f90d74de9d4affe05c23fdf3b3fca2cd949dbeb54d73d2be",
+      "rig_sha256": "c7e72117a25f27affc1b7f9ff4443ae6c63808d4ee1eb607995fcfe0ab0aa9e3",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "secretary-bird": {
+      "animal": "Secretary bird",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T18:51:40.415773-05:00",
+      "model_sha256": "4e4e0475dfb30a0031a6cbc6dcfd0f2e2c7781bceb9ad41b229d07a087ab9e88",
+      "rig_sha256": "f9f4fc88e0721b29e77144f522a37adea69ba678ac2c93b9650e040357f50bdf",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "skunk": {
+      "animal": "Skunk",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T18:51:40.425797-05:00",
+      "model_sha256": "cd3ae5df7744d60bb1437fea7a4e0b5f49a26e63ab9e62754b2872e7e5bb8320",
+      "rig_sha256": "e03fa7d39359859f6d2813a480cfe3472b8b8038232fe19ef6c47734de9e75dc",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false,
+      "required_motion_fix": "Reverse Walk only."
+    },
+    "snowy-owl": {
+      "animal": "Snowy owl",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T18:51:40.430838-05:00",
+      "model_sha256": "a238a7f26e338f26f999c45d327db2c522fcb7872ebb64578d8c7d2a3d1570c7",
+      "rig_sha256": "d8add3f5fdd701b2926f7701c15fa97d852bca9b5d2e56b7719c79a88fcc93f3",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "spotted-hyena": {
+      "animal": "Spotted hyena",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T18:51:40.435844-05:00",
+      "model_sha256": "ef2c0f3c2f44b23a51e49982900b31edc88a36726b7a8be9c78d34cf759393c5",
+      "rig_sha256": "e70d11021d2d8624c59f43ae30bb4ae2ebdc41b732d9c2884ff01f51a8907875",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "spotted-tailed-quoll": {
+      "animal": "Spotted-tailed quoll",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T18:51:40.445908-05:00",
+      "model_sha256": "0c7e49cd80e4fdbcb6ca5b492322b22873ec8f8a6948a1434439a94c5c939cdc",
+      "rig_sha256": "75af40fefb20d288b760865475ba7a318061cbfbcab22e59d967e306870d355c",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false,
+      "required_motion_fix": "Fix tail being assigned as leg; preserve candidate3."
+    },
+    "stork": {
+      "animal": "Stork",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T18:51:40.450928-05:00",
+      "model_sha256": "23828bedd910dd90ddfacdfe5b0837847ed3fb4ad853fb0e4fd018362891c72d",
+      "rig_sha256": "7a0a1207b71c035a80a44bd8066939fb33c8e57a99bc56240cfd00ec7aba4a7f",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false,
+      "required_motion_fix": "Fix feet/leg skeleton so walking works; preserve candidate1."
+    },
+    "swan": {
+      "animal": "Swan",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T18:51:40.455934-05:00",
+      "model_sha256": "c742a66a2486fe194bb0d6062208e39eeebe4f8100c8eb1d02924cfa68963899",
+      "rig_sha256": "1f6861422df0cc82a242fb020da6c5ce81eb2d68f78538d7c1033772639e31bd",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "tiger": {
+      "animal": "Tiger",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T18:51:40.460986-05:00",
+      "model_sha256": "ac666c1ca3bd05d51b2f978f14539025b3b32b6ebf64d5d21445d6ec8870d8b8",
+      "rig_sha256": "f80db201de7291a8225241bc4a0c191a605b5c9e6ea031777099ccef35b31934",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "toucan": {
+      "animal": "Toucan",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T18:51:40.465993-05:00",
+      "model_sha256": "715c2289573af543fe07fd6f9702a626b1a781739780de6c3dcc925b28345368",
+      "rig_sha256": "7d9180d6ab913fa3b1ebe4a30bf55772c0f3fc29aaaef9db884d700e5aabcab5",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "turaco": {
+      "animal": "Turaco",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T18:51:40.471042-05:00",
+      "model_sha256": "b4991a802803701cfe39797febfb1c4e493db3dd20ab02af54b63a5d2552d974",
+      "rig_sha256": "0080b23e38cea485cbde3f7585fe468b43415ca53a94acf21fbc6e537f3a046a",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "vulture": {
+      "animal": "Vulture",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T18:51:40.481096-05:00",
+      "model_sha256": "328a10faf6d37bd66b6144374f2ddd160154e2bf57dac6b90ad16931ee5799cd",
+      "rig_sha256": "c7435d20517a9fe2277c29b885703b396a235ac75a6225b90737cc1f281793c3",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "wallaby": {
+      "animal": "Wallaby",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T18:51:40.486104-05:00",
+      "model_sha256": "1ab6b4aabd65e65eb3dda3c297365911528d68fa94781bb83d3d049f75154ea8",
+      "rig_sha256": "64ab1bf28fa1a0f88bc42a560c8929546b0391a212dacec671695c235d453b1d",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "warthog": {
+      "animal": "Warthog",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T18:51:40.491128-05:00",
+      "model_sha256": "f39a7c90bfaebd4d62b8ec9172d1ae2fb477d8066ee077a9d7c4f514a9cf50d2",
+      "rig_sha256": "9a87cd909390b830906c9a6dadad4c1820819f356ea6226fbb60be47c4bb2915",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "weasel": {
+      "animal": "Weasel",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T18:51:40.496134-05:00",
+      "model_sha256": "3b5636caf852167ec49feb2c8a477f7e11a2bf39586b8e94ed8c6dd2c10c4fa8",
+      "rig_sha256": "ba10cfd295d84f229dafce15c637c47e8713175c7e07a61effee9b1a687b723a",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "wild-ass": {
+      "animal": "Wild ass",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T18:51:40.501178-05:00",
+      "model_sha256": "d215355bee3035ae4a6ac4ac024f6018632a0a28da62f61d71894b521fb67789",
+      "rig_sha256": "8a96a5dd696b3f812bb0ea619f67cceec1807c70d2000d87a2ef80e162b72b1d",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Current raw audition model selected; motion not independently approved.",
+      "painting_started": false
+    },
+    "wildebeest": {
+      "animal": "Wildebeest",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T19:02:41.442371-05:00",
+      "model_sha256": "dd8283c866b1ece28264fcdda7040aa0598105fe63d2d8e6c09c0ab33c2e9db2",
+      "rig_sha256": "13295b6bb076c25e7d9fb9bfdf64600983e4ecb2f73377e044c9689a4d144c94",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+      "painting_started": false
+    },
+    "wolverine": {
+      "animal": "Wolverine",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T19:02:41.442371-05:00",
+      "model_sha256": "8e5ea478aa6742bb6828191126362ae719b1a0d6bff8099e29df0f46f278fe72",
+      "rig_sha256": "cd2182b02a290500fc3e15d837e0999dba610daba80225295639dffe17054a9c",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+      "painting_started": false
+    },
+    "wombat": {
+      "animal": "Wombat",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T19:02:41.442371-05:00",
+      "model_sha256": "94810813299df64d837220cacd102d3bafeb899ed0cb1ad4150196960fbb78f1",
+      "rig_sha256": "0ccd9dd81e23c3497645451628ab55a6cec18a6e95869dd72226c3935357c766",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+      "painting_started": false
+    },
+    "woodpecker": {
+      "animal": "Woodpecker",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T19:02:41.457994-05:00",
+      "model_sha256": "97de6527a5671d95ac91e589de1c71f6a4b3eff71c9df78bab1773b88c74a13b",
+      "rig_sha256": "bfedbb0eb0c67d48b504a25ee87f712e1132dc1f4b3f45958d7fa4aa9d95f6fe",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+      "painting_started": false
+    },
+    "yak": {
+      "animal": "Yak",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T19:02:41.457994-05:00",
+      "model_sha256": "850df5912e75c58e4d38a0faacd7c3c859cbb36e8b6815d630791123326e07e3",
+      "rig_sha256": "589a4909b248426df1266a29c645d3ba37b55e69fa89fc91b54f19e9ff133c91",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+      "painting_started": false
+    },
+    "zebra": {
+      "animal": "Zebra",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T19:02:41.457994-05:00",
+      "model_sha256": "7876af74e68c7154c2e17cd1910c2b2883725c9e61d04ab82cbf67c511e2f662",
+      "rig_sha256": "737fe806e7a0ec5addf0036fa358cba4f761442df38842574dc2f811a397a278",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+      "painting_started": false
+    },
+    "aardvark": {
+      "animal": "Aardvark",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T19:02:41.473620-05:00",
+      "model_sha256": "833776721d1097bc1160ef57e6a111e36f751eb2edcc274620badccbbf37644f",
+      "rig_sha256": "34901e2ac27ecc2a5efbcf5ce8fb23825343742f1a43280ef2759f4cfc4a20f9",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+      "painting_started": false,
+      "required_motion_fix": "Keep3 and move/map the left leg to the actual left leg rather than tail."
+    },
+    "albatross": {
+      "animal": "Albatross",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T19:02:41.473620-05:00",
+      "model_sha256": "522d51092ae61706b3e2e0f521dff7b1237a029dbf9cf0fb69a2536c274fc105",
+      "rig_sha256": "1cb11c834ac6da69527407ad19d06e8fb580d95c0fb1ec72e847aa361b0d6c85",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+      "painting_started": false
+    },
+    "anteater": {
+      "animal": "Anteater",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T19:02:41.473620-05:00",
+      "model_sha256": "e29ce0df3a80b5ad02bd30ee52b69c86d0cfbb21e318b1e8f883560de264bd90",
+      "rig_sha256": "157515602f207eb3d265afb54b75c41cc685906080d6a2557dc6c1e1fbe7b88c",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+      "painting_started": false
+    },
+    "baboon": {
+      "animal": "Baboon",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T19:02:41.473620-05:00",
+      "model_sha256": "659b8a92b04712501350db996da2ae1f9f8a20dbe823343db4e0d57dcf2e6d8a",
+      "rig_sha256": "2e02e7bdfb28374617737487f5076bbc6397360b765c190f838d7e9e8c1a54c4",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+      "painting_started": false,
+      "required_motion_fix": "Keep1; fix front-left hand stretch in Walk and Run."
+    },
+    "gibbon": {
+      "animal": "Gibbon",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T19:02:41.489734-05:00",
+      "model_sha256": "41b519621c6c066eddef66afb12f72b59b050220c290a0bc23227c747a56ba79",
+      "rig_sha256": "f17f608a3591131412800e4fbd2bceaeca4309fc9a2130eee1c2263f6878b980",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+      "painting_started": false
+    },
+    "orangutan": {
+      "animal": "Orangutan",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T19:02:41.500464-05:00",
+      "model_sha256": "182431ceec03806e30b6bb09fdd6231312c00ff0f7a5040a239dfc3a6a8f7bd7",
+      "rig_sha256": "3f9f45a4b6804dc672068ebfd2a9ee5fca1e3894f81eb5b6383eae3f392da62b",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+      "painting_started": false
+    },
+    "sea-turtle": {
+      "animal": "Sea turtle",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T19:02:41.505483-05:00",
+      "model_sha256": "9b634c46a0be5b8201f9275bc9101bb75356f9ad38fa14fab99681ee8392ad9f",
+      "rig_sha256": "e9551ec9c4dd12d6d866960dac5f23310bf26b41c04b5f9272742e59c934c7e0",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+      "painting_started": false
+    },
+    "pheasant": {
+      "animal": "Pheasant",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T19:02:41.505483-05:00",
+      "model_sha256": "61bbfe8f87c5a30cdc69f9aead1d4aa3a205aac3561932ca5939c8b6d16ce939",
+      "rig_sha256": "67a1cc2aec4d00185317e8efd7137af69e614bb3c75dc03924ac6a55a02c435b",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+      "painting_started": false
+    },
+    "grouse": {
+      "animal": "Grouse",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T19:02:41.505483-05:00",
+      "model_sha256": "8c63f7cc3ed197fc4af66c98cb95dcd43f3acc01a33c8c14f4df46647f9363dc",
+      "rig_sha256": "3b8ebd6a4772a5e3d2338e3b946f791ef0679be2020830937e17208ff600ed20",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+      "painting_started": false
+    },
+    "junglefowl": {
+      "animal": "Junglefowl",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T19:02:41.505483-05:00",
+      "model_sha256": "12c2b757e96ea9c04bf80ebaf99eda7ec11d3f62ec0c8b618f821e9c9b4fcf48",
+      "rig_sha256": "f57600246745b91ef9b5d03e9e63dffe94e4cb13907e8df101cbcd19535d32fd",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+      "painting_started": false
+    },
+    "meerkat": {
+      "animal": "Meerkat",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T19:26:02.453404-05:00",
+      "model_sha256": "c02c1ea1e3d69b5754eb458198b616828a9ca3dc96427c6bd0151e54ca292f19",
+      "rig_sha256": "a17bcb6907542ecd4a997d917ac8ef374a0f59b7e8122d5f5d5c584027f79b69",
+      "model_selected": true,
+      "conditional_selection": true,
+      "selection_condition": "Owner says keep1 if front foot can be fixed; local forelimb skin + distal paw pin correction built and sampled poses inspected. Owner visual confirmation pending.",
+      "animation_approved": false,
+      "painting_started": false
     }
   },
   "source_root": "artifacts/fauna-overnight-20261024",
@@ -598,7 +1412,7 @@
   "pending_revisions": {
     "pheasant": {
       "reason": "Owner requests manual leg/bone adjustment: whole legs should walk, not just toes/feet wiggle.",
-      "status": "manual_full_leg_walk_ready_owner_review_pending",
+      "status": "model_selected_after_manual_walk_revision",
       "art_approved": false
     },
     "squirrel": {
@@ -612,12 +1426,12 @@
     },
     "grouse": {
       "reason": "Owner requests manual leg/bone adjustment: whole legs should walk, not just toes/feet wiggle.",
-      "status": "manual_full_leg_walk_ready_owner_review_pending",
+      "status": "model_selected_after_manual_walk_revision",
       "art_approved": false
     },
     "junglefowl": {
       "reason": "Owner requests manual leg/bone adjustment: whole legs should walk, not just toes/feet wiggle.",
-      "status": "manual_full_leg_walk_ready_owner_review_pending",
+      "status": "model_selected_after_manual_walk_revision",
       "art_approved": false
     },
     "duiker": {
@@ -626,9 +1440,133 @@
       "art_approved": false
     },
     "emu": {
-      "reason": "Owner rejects leg assignment/motion; regenerate neutral two-leg reference and four models/fresh rigs with ground-only transfer.",
-      "status": "replacement_ready_ground_only_owner_review_pending",
+      "reason": "Manually correct full leg mapping/placement so it walks with actual legs.",
+      "status": "manual_motion_revision_ready_owner_review_pending",
+      "art_approved": false
+    },
+    "grass-rat": {
+      "reason": "All4 Run fold/snap neck into torso; inspect mapper/rig and redo motion without destroying acceptable geometry unnecessarily.",
+      "status": "manual_motion_revision_ready_owner_review_pending",
+      "art_approved": false
+    },
+    "hornbill": {
+      "reason": "Owner says redo hornbill.",
+      "status": "replacement_ready_owner_review_pending",
+      "art_approved": false
+    },
+    "hummingbird": {
+      "reason": "Correct wing and leg skeleton correspondence; owner asks manual adjustment.",
+      "status": "manual_motion_revision_ready_owner_review_pending",
+      "art_approved": false
+    },
+    "jerboa": {
+      "reason": "Tail must not be classified as a leg; another rig/motion attempt.",
+      "status": "manual_motion_revision_ready_owner_review_pending",
+      "art_approved": false
+    },
+    "meerkat": {
+      "reason": "Keep1 only if front-right foot stretching in Run can be fixed; otherwise regenerate.",
+      "status": "manual_motion_revision_ready_owner_review_pending",
+      "art_approved": false
+    },
+    "native-small-lizards-guild": {
+      "reason": "Completely broken; redo model/rig/motion pipeline.",
+      "status": "replacement_ready_owner_review_pending",
+      "art_approved": false
+    },
+    "paca": {
+      "reason": "Owner says redo paca.",
+      "status": "fresh_audition_requested",
+      "art_approved": false
+    },
+    "peafowl": {
+      "reason": "Redo; same unusable leg/walk issue as other ground birds.",
+      "status": "replacement_ready_owner_review_pending",
+      "art_approved": false
+    },
+    "pika": {
+      "reason": "Owner says redo pika.",
+      "status": "fresh_audition_requested",
+      "art_approved": false
+    },
+    "pronghorn": {
+      "reason": "Source must face straight along body; regenerate from corrected reference, or owner permits own deer mesh fallback.",
+      "status": "replacement_ready_owner_review_pending",
+      "art_approved": false
+    },
+    "salamanders-guild": {
+      "reason": "Same broken limb/retarget issue as native small lizard; redo.",
+      "status": "fresh_audition_requested",
+      "art_approved": false
+    },
+    "ground-squirrel": {
+      "reason": "Reverse Walk only; Run is already correct.",
+      "status": "manual_motion_revision_ready_owner_review_pending",
+      "art_approved": false
+    },
+    "skunk": {
+      "reason": "Reverse Walk only.",
+      "status": "manual_motion_revision_ready_owner_review_pending",
+      "art_approved": false
+    },
+    "pigeon": {
+      "reason": "Fix leg skeleton/walking while preserving candidate1.",
+      "status": "manual_motion_revision_ready_owner_review_pending",
+      "art_approved": false
+    },
+    "spotted-tailed-quoll": {
+      "reason": "Fix tail being assigned as leg; preserve candidate3.",
+      "status": "manual_motion_revision_ready_owner_review_pending",
+      "art_approved": false
+    },
+    "stork": {
+      "reason": "Fix feet/leg skeleton so walking works; preserve candidate1.",
+      "status": "manual_motion_revision_ready_owner_review_pending",
+      "art_approved": false
+    },
+    "aardvark": {
+      "reason": "Keep3 and move/map the left leg to the actual left leg rather than tail.",
+      "status": "manual_motion_revision_ready_owner_review_pending",
+      "art_approved": false
+    },
+    "baboon": {
+      "reason": "Keep1; fix front-left hand stretch in Walk and Run.",
+      "status": "manual_motion_revision_ready_owner_review_pending",
+      "art_approved": false
+    },
+    "boa-constrictor": {
+      "reason": "Entirely different rig method: manually place body bones instead of existing inferred rig.",
+      "status": "owner_requested_repair_pending",
+      "art_approved": false
+    },
+    "armadillo": {
+      "reason": "Owner requests redo.",
+      "status": "owner_requested_repair_pending",
+      "art_approved": false
+    },
+    "capybara": {
+      "reason": "Owner requests full redo from scratch.",
+      "status": "owner_requested_repair_pending",
+      "art_approved": false
+    },
+    "seal": {
+      "reason": "Redo from reference facing straight along body, not turning right.",
+      "status": "owner_requested_repair_pending",
       "art_approved": false
     }
+  },
+  "undecided_mentions": {
+    "tapir": {
+      "reason": "Owner replied leave untouched; will review again later.",
+      "selected": false
+    },
+    "coastal-squid-guild": {
+      "reason": "Owner notes candidates all appear the same; no specific candidate selection.",
+      "selected": false
+    }
+  },
+  "review_window_request": {
+    "reopen_rightmost_after_requested_revisions": true,
+    "time": "2026-10-24T19:02:41.521110-05:00"
   }
 }
