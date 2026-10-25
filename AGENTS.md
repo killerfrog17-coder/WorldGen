@@ -1,5 +1,33 @@
 # WorldGen repository instructions
 
+RAW QUEUE150 / RAISED-TAIL ALIGNMENT,24October2026~21:31CDT:
+150raw sets/600 candidates verified,26of176 pending, audit errors[]. Newly
+Howler/Iguana/Koala/Lemur/LongNosedBandicoot ready. Same exec93476 still live,
+currentMacaque shape; no new producer. Bandicoot native-ready, not visually
+sampled in this pass. Chimp stale failure has existing retry, native4 ready;
+wait for producer consumption, never hand-edit live state or repeat inference.
+
+Howler AND Lemur all4 old Bind-front show tail-first: raised tails fooled the
+high-head normalization and Head aliased root0. Pure graph diagnostics compare
+old/axis-only/axis+full-branch matching. Hash-pinned180Z plus anatomical_quad for
+these2 roots only; all rawGLB/NN/source SHA EXACT, no held-core or skin cleanup.
+NewHead Howler6/5/5/6, Lemur7/6/7/7. Rebuilt/native4 pass; all corrected quarter
+Walk-side +1front inspected, prior images retained before-axis-branch-*.
+Body/head semantics corrected; remaining hand approach/crossing/pitched feet
+explicitly warned, Howler2/4 excluded from clean-motion recommendations. No art
+approval or universal deformation cure claimed; all meshes remain available.
+
+Iguana all4 quarter-Walk side retain coherent main body/tail/limbs;2 angular
+tail-tip kink warned, no asset correction. Koala1rawfront/side aligned, all4Walk
+quarter inspected:1/2 fuller leg motion,3/4 mostly toe articulation (fore4nodes,
+hind2nodes). Pure anatomical-branch trial restores legs BUT picks lateral EARS
+as Head; NOT APPLIED. Keep current Koala head mapping6/4/6/6 and all raw assets;
+3/4 screened out for clean-motion recommendation only. Do not blindly enable
+anatomical_quad on Koala without preserving a verified true head correspondence.
+Graph/visual evidence is in each root's diagnostics/visual-warnings.json.
+No painting/source texture generation/game/Unity/owner window changes; accepted
+deer and every owner-selection hash still exact under full audit.
+
 RAW QUEUE145 CHECKPOINT,24October2026 evening:
 Hedgehog/Hippopotamus newly ready;145raw sets/580 candidates verified,31of176
 pending, audit errors[]. Same exec93476 remains live, currentHowlerMonkey shape.
