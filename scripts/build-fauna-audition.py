@@ -375,11 +375,28 @@ def chain_correspondence(joints,parents,children,leaves,pelvis):
         if core:central_endpoints=core
     head=max(central_endpoints,key=lambda i:joints[i,1]);tail=min(central_endpoints,key=lambda i:joints[i,1])
     if source['family'] in ('spider','ground_insect'):
-        lateral=[i for i in leaves if i not in (head,tail) and abs(joints[i,0]-joints[pelvis,0])>.10]
-        sides={side:[i for i in lateral if (joints[i,0]-joints[pelvis,0])*sign>0] for side,sign in [('L',-1),('R',1)]}
+        arthropod=repair.get('arthropod_correspondence',{}).get(str(number))
+        if arthropod:
+            # Hash-bound anatomical labels may separate a tucked leg from
+            # mouth/body endpoints without changing learned joints or skin.
+            pinned=repair.get('candidate_hashes',{}).get(str(number),{})
+            assert {'model.glb','generated-rig.npz'}<=set(pinned),'Explicit arthropod labels require pinned mesh and rig hashes'
+            head=int(arthropod['head']);tail=int(arthropod['tail'])
+            assert head!=tail and all(0<=n<len(parents) for n in (head,tail))
+            sides={side:[int(n) for n in arthropod['legs'][side]] for side in ('L','R')}
+        else:
+            lateral=[i for i in leaves if i not in (head,tail) and abs(joints[i,0]-joints[pelvis,0])>.10]
+            sides={side:[i for i in lateral if (joints[i,0]-joints[pelvis,0])*sign>0] for side,sign in [('L',-1),('R',1)]}
         leg_pairs=4 if source['family']=='spider' else 3
         if any(len(v)<leg_pairs for v in sides.values()):raise ValueError(f'{leg_pairs*2}-legged rig unavailable: fewer than {leg_pairs} distinct lateral endpoints per side')
-        if source['family']=='ground_insect':
+        if arthropod:
+            tips=[n for nodes in sides.values() for n in nodes]
+            assert all(len(nodes)==leg_pairs for nodes in sides.values())
+            assert len(set(tips))==leg_pairs*2 and all(n in leaves and n not in (head,tail) for n in tips)
+            assert all((joints[n,0]-joints[pelvis,0])*sign>0 for side,sign in [('L',-1),('R',1)] for n in sides[side])
+            distances=np.linalg.norm(joints[tips,None]-joints[None,tips],axis=2)
+            assert float(distances[np.triu_indices(len(tips),1)].min())>1e-5,'Duplicate physical leg endpoints'
+        if source['family']=='ground_insect' and not arthropod:
             # Antennae and several small mouth branches may also end laterally.
             # Prefer low, outward endpoints spread across the body length,
             # rather than blindly animating the three most forward leaves.
@@ -394,7 +411,7 @@ def chain_correspondence(joints,parents,children,leaves,pelvis):
             sides={side:list(min(combinations(nodes,leg_pairs),key=foot_score)) for side,nodes in sides.items()}
         limb_nodes={n for v in sides.values() for i in v for n in path_to(parents,i)[-2:]}
         central=[i for i in leaves if i not in limb_nodes and abs(joints[i,0]-joints[pelvis,0])<.25]
-        if central:head=max(central,key=lambda i:joints[i,1]);tail=min(central,key=lambda i:joints[i,1])
+        if central and not arthropod:head=max(central,key=lambda i:joints[i,1]);tail=min(central,key=lambda i:joints[i,1])
         bind(path_to(parents,head),paths['spine']+paths['neck'][1:],'spine')
         for side,endpoints in sides.items():
             for row,node in zip('abcd'[:leg_pairs],sorted(endpoints,key=lambda i:joints[i,1],reverse=True)[:leg_pairs]):bind(path_to(parents,node),paths['leg_'+row+'_'+side],'fore')

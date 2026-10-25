@@ -1407,5 +1407,65 @@
         "generated-rig.npz": "7a3bc07914fa8ec902da5087364a15b0665f2853606f4ccaf2c9c8bbf66f6d83"
       }
     }
+  },
+  "orb-weaving-spiders-guild": {
+    "reason": "Candidate4 has eight distinct physical leg endpoints; legacy matcher removed tucked front leg5 as tail. Pin true head-region19/abdomen1 and eight real leg tips, rotate4 body head-forward. Keep1-3 as unapproved legacy attempts with explicit warnings; no gate weakening or neural mesh/joint/skin change.",
+    "axis_corrections": {
+      "4": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "arthropod_correspondence": {
+      "4": {
+        "head": 19,
+        "tail": 1,
+        "legs": {
+          "L": [
+            5,
+            9,
+            13,
+            17
+          ],
+          "R": [
+            25,
+            29,
+            37,
+            33
+          ]
+        }
+      }
+    },
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "dcaaa30696670a5f8f1182ec17369b58b12be7e0a049265d4312dae62dfeb4ef",
+        "generated-rig.npz": "88f8ed5bcf4564c22cf8d8171ea85ad0deb0d527950a8215fd62d5c781863645"
+      },
+      "2": {
+        "model.glb": "4250490aa2d85d60fe84261df909eb2fb1721384da996d477d22579ec3a6c44a",
+        "generated-rig.npz": "bbbccaa05c179a7525722a37e383613253e5e3afaf4ab6d1fb6efbeea560ca5e"
+      },
+      "3": {
+        "model.glb": "461a562c821ca2e561f1657daf6bfde12e7a1e0ae0e75d851bbe3e5480c4e5d3",
+        "generated-rig.npz": "05b139522ca6cd0da881ac247657f3220b61cd9e768cd7a7537af1b50eb3e7ff"
+      },
+      "4": {
+        "model.glb": "4442c095cceea51b6a7ef255a8005e7e65d6db52175819cf4a112dc9379bb06f",
+        "generated-rig.npz": "0155f0e23195fd8d5da83c8bbfddb47461ebbf3397eff4b1cf1b53c4d661cafb"
+      }
+    }
   }
 }

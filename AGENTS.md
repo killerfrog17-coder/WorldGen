@@ -1,5 +1,38 @@
 # WorldGen repository instructions
 
+RAW QUEUE159 / SPIDER ASSEMBLY RECOVERY,24October2026~22:08CDT:
+159raw review sets/636 candidate attempts verified,17of176 pending, audit errors[].
+Same exec93476/outer6340/sole--watch21044 continues; currentPorcupine rig at
+checkpoint. New Macaque/Monitor/Nutria/Spider/Orca/Pangolin/Penguin/Platypus/
+PolarBear ready. Last5 (Orca..PolarBear) native-ready but NOT visually screened
+in this pass: check marine polarity/penguin axes when useful. No new GPU worker.
+
+Spider all4NN rigs passed leaf gate, but assembler4 removed real tucked leg5 as
+tail, leaving3 side endpoints. Added OPTIONAL hash-required arthropod_correspondence
+in build-fauna-audition; all normal/default paths unchanged. Spider4 ONLY:
+rotate180Z, head-region19,abdomen1,L[5,9,13,17],R[25,29,37,33]. Eight distinct
+real limb endpoints, four/side, leaf/nonbody membership, side signs and nonzero
+pair distances required; no gate weakening. Pure AST old/new binding+metadata
+EXACT for legacy1-3;4 maps all8 real endpoints to8 separate actual CC0 source
+leg tips, confirmed source LnegativeX/frontaYpositive. All rawGLB/NN hashes exact.
+All4 final full-bank native checks/controls pass.4Walk top/side and Bind side,
+1-3Walk top/rawtop inspected.4 is first motion comparison;1-3 remain explicitly
+excluded from clean-motion recommendations (unreliable legacy mapping,3 abdomen
+collapse,2 apparent short/incomplete appendage). They are failed RAW attempts,
+NOT4 verified good eight-leg animals. Keep them for owner comparison; no art
+approval claimed. Full9 source clips retained. Body-hold trial did not fix coarse
+geometry, reverted; invalid NaN axis diagnostic/trial-only logs pruned exactly.
+finish-fauna-manual-recovery pruned23.03MiB exact intermediates, wrote4hash retry;
+Spider+Chimp stale failed queue entries await producer next pass. Never hand-edit
+live state or restart/reinfer due stale statuses; native/index are ready.
+
+Bandicoot all4 quarterWalk side:3 stretched forelimb excluded for clean motion.
+Macaque1rawfront/side aligned, all4Walk side coherent body;4 pointed hand noted.
+Monitor all4Walk side coherent body/tail;2 web-like hindfoot noted. No changes
+to these inputs/rigs/actions. Per-root visual-warnings/index carry scope/limits.
+No painting/source textures/runtime/owner window changes; accepted deer and
+selection hashes intact. Only source code/config/checkpoint files go to Git.
+
 RAW QUEUE150 / RAISED-TAIL ALIGNMENT,24October2026~21:31CDT:
 150raw sets/600 candidates verified,26of176 pending, audit errors[]. Newly
 Howler/Iguana/Koala/Lemur/LongNosedBandicoot ready. Same exec93476 still live,
