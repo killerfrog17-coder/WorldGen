@@ -837,5 +837,96 @@
         "generated-rig.npz": "d6cdb25c1d3ff0fcd8d8c44a255abcb4effc91d749683dee1e3e33435a63d52d"
       }
     }
+  },
+  "dolphin": {
+    "reason": "All4 CPU front/side screenshots show tail toward canonical +Y, so high dorsal-fin/head heuristic reversed the animal. Rotate mesh, learned joints and skin sample coordinates together180deg Z before existing fish correspondence. Raw mesh and inferred arrays unchanged.",
+    "axis_corrections": {
+      "1": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "2": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "3": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "4": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "ae25f3bdb6ab4c9a1dc44db2fba5e2a220ade39007f846086a6edf9e5b53a70e",
+        "generated-rig.npz": "c83e802e9bbc9482898b80e1991ad6322cb1911d2c66e1716db4c31fd8b41aec"
+      },
+      "2": {
+        "model.glb": "14ddf1aab4df8f247c7e60a9e82f70af8bf4b476e477d543ac5e261f063a25a6",
+        "generated-rig.npz": "0fd49037e686f873b97ab2c521bdac93a7bd9d0e93c932ca13adcefc400dab70"
+      },
+      "3": {
+        "model.glb": "aadc1a69e396fbbb0fe6b460bc8c6bc334982d104958ea6f0b712eaa1a4a51e9",
+        "generated-rig.npz": "85a8006847601978cbc24b0109aec7eafd5b5b44d064ffaf44b1a558d7ba0bb5"
+      },
+      "4": {
+        "model.glb": "469f43a95c806762830596af274fecaac6685cfce1a436e00e5649b593a07732",
+        "generated-rig.npz": "1a76431109d38f878132109c5a83990ccbd51cc7382baa1da44bac69afb39aaf"
+      }
+    }
   }
 }

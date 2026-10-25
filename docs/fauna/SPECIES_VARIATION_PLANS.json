@@ -4452,6 +4452,13 @@
         "action": "New source only for approved open-mouth geometry",
         "brief": "Subtle moist oral tissue fine detail in muted pink-grey, even diffuse lighting, no teeth, lips, animal face or specular glints.",
         "uses": "Actual mouth interior where visible; no painted fake openings on a closed mesh."
+      },
+      {
+        "id": "skin_thick_wrinkled",
+        "priority": 27,
+        "action": "Generate only when an approved elephant, rhinoceros or hippopotamus body needs a distinct skin source",
+        "brief": "Fine irregular pores and shallow fine creases of thick sparsely haired mammal skin, neutral grey-brown, no scales, fur, pebbled reptile armour, deep cracks, cast shadows or baked dark wrinkle grooves. Flat diffuse close crop. Broad anatomical folds belong to the selected mesh or fitted normal detail rather than a universally tiled pattern.",
+        "uses": "Elephant, rhinoceros and hippopotamus base microdetail with animal-specific scale and roughness; generate separate fine-grain variants only if this common source is visibly inadequate. Do not substitute smooth cetacean skin. Ivory, keratin nails, ears, mouth, eyes, mud and major anatomical folds remain separate regions or geometry."
       }
     ],
     "no_bitmap_needed": "Whiskers, eyelash roots, antler branch shapes, horn count, beaks, tails, ear size and missing wing/limb anatomy require geometry or masks, not a new generic material image. Firefly emission is a bounded abdomen material; avoid an actual point light per insect.",
@@ -4486,6 +4493,7 @@
           "availability": "Packed512x512 Antler colour/normal/roughness exist; reuse with compatible rack UVs. The retained legacy material label says keratin, but antlers are bone; do not copy that label into biological definitions or treat this as a generic horn surface."
         }
       }
-    }
+    },
+    "source_allocation_note": "27 planned reusable slots, not27 promised generations. Reuse accepted sources first; thick sparsely haired land-mammal skin is distinct from smooth cetacean skin. Priority values are stable slot ordering; actual generation follows approved animal priority and visible need."
   }
 }

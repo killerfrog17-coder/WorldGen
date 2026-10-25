@@ -297,9 +297,11 @@ including zero current allocation for the six deferred entries. No swatches or
 painting have been generated in this planning pass. Owner is awake and explicitly
 not ready for review; do not open Blender or send an art-review request yet.
 
-SPECIES_VARIATION_PLANS.json also contains shared_texture_source_plan:26 reusable
+SPECIES_VARIATION_PLANS.json also contains shared_texture_source_plan:27 reusable
 surface slots, with accepted deer fur/eye/hoof/antler sources reused first. These
-are planned source classes, NOT26 new images or a texture per coat. Prompt briefs
+are planned source classes, NOT27 new images or a texture per coat. Thick sparsely
+haired land-mammal skin is distinct from the smooth marine-mammal source; major
+folds still need anatomical geometry or fitted detail. Prompt briefs
 avoid baked light/reflections and separate pigment from relief; fitted anatomical
 masks and body/eye geometry still wait for model approval. Sources are generated
 only after the raw audition queue, in order of actual approved-body need. Audio-

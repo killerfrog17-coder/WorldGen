@@ -1,5 +1,22 @@
 # WorldGen repository instructions
 
+DOLPHIN ALIGNMENT / TEXTURE PLAN GAP,24October2026 evening:
+134raw sets/536 candidates ready;42of176 remain at checkpoint, Echidna shape-batch
+active in existing exec93476 (verify current IDs/state; no new GPU producer).
+Sampled Dolphin front/side and2-4bind-front show all4 face backward: prep's high
+dorsal-fin heuristic picked tail as +Y. Unselected Dolphin gets hash-pinned
+180degree Z axis_corrections in MOTION_REPAIR_OVERRIDES, applied identically to
+mesh/joints/skin samples before existing fish correspondence. RawGLBs/NN arrays
+EXACT; native4/controls pass, repaired1Swim quarter-phase front/side inspected.
+No new rig/model inference or invented gait, no selected animal changed. Minor
+generated fluke irregularity remains; no full motion/collision/art approval.
+review-rebuild finalized with finish-fauna-manual-recovery, state not hand-edited.
+
+Shared source plan now27slots (not27mandatory images): missing thick sparsely
+haired land-mammal micro-skin added for Elephant/Rhino/Hippo, distinct from smooth
+cetacean skin. Anatomical folds stay geometry/fitted detail. No textures generated
+or painting started; source generation still waits for full raw queue completion.
+
 FULL QUEUE CONTINUATION / SOURCE RECHECK,24October2026 evening:
 Latest owner choices below are saved; Capuchin3/Capybara2 minor fixes completed,
 no re-show.132 raw sets/528 candidates verified;44 of176 remain, audit errors[].
