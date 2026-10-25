@@ -5,6 +5,8 @@ from fauna_rig_topology import topology,quarantine
 
 ap=argparse.ArgumentParser();ap.add_argument('--manifest',type=Path,required=True);ap.add_argument('--kind',choices=['shape','rig'],required=True)
 a=ap.parse_args();manifest=json.loads(a.manifest.resolve().read_text());repo=Path(__file__).resolve().parent.parent
+shape_mode=manifest.get('shape_memory_mode','resident')
+assert shape_mode in ('resident','shared_gpu'),'Unknown shape-memory mode'
 script=repo/'scripts'/('generate-deer-local.py' if a.kind=='shape' else 'deer-skin-ai.py')
 spec=importlib.util.spec_from_file_location('fauna_batch_inference',script);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 base=Path(manifest['batch_root']);started=time.perf_counter();initial_dir=Path.cwd()
@@ -24,11 +26,17 @@ for item in manifest['jobs']:
     if out.exists():continue
     os.chdir(initial_dir)
     if a.kind=='shape':
-        sys.argv=[str(script),'--source',manifest['reference'],'--repo',str(repo/'artifacts/tools/TripoSG'),'--weights','E:/AI/WorldGen3D/models/TripoSG','--output',str(out),'--seed',str(item['seed']),'--steps','50','--depth','8','--resident-gpu','--cache-resident','--infer']
+        memory_flags=['--resident-gpu','--cache-resident'] if shape_mode=='resident' else ['--shared-gpu']
+        sys.argv=[str(script),'--source',manifest['reference'],'--repo',str(repo/'artifacts/tools/TripoSG'),'--weights','E:/AI/WorldGen3D/models/TripoSG','--output',str(out),'--seed',str(item['seed']),'--steps','50','--depth','8',*memory_flags,'--infer']
     else:
         sys.argv=[str(script),'--repo',str(repo/'artifacts/tools/SkinTokens'),'--weights','E:/AI/WorldGen3D/models/SkinTokens','--mesh',item['mesh'],'--output',str(out),'--seed',str(item['seed']),'--beams','5','--cache-model']
     if a.kind=='shape':
-        print('BATCH',a.kind,item['candidate'],'seed',item['seed'],flush=True);module.main()
+        print('BATCH',a.kind,item['candidate'],'seed',item['seed'],'memory',shape_mode,flush=True);module.main()
+        if shape_mode=='shared_gpu':
+            # Sequential-offload hooks can form reference cycles. Reclaim the
+            # completed candidate before loading the next CPU-heavy pipeline.
+            import gc,torch
+            gc.collect();torch.cuda.empty_cache()
     else:
         trials=[];success=False
         for attempt in range(2):

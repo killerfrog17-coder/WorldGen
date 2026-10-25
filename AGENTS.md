@@ -1,5 +1,28 @@
 # WorldGen repository instructions
 
+MEMORY-SAVING HANDOFF /167 RAW SETS,24October2026~23:00CDT:
+Owner asks why not memory-saving while playing; agent explicitly announces
+switch under latest gaming preference, not a quality reduction. Fast-only
+preference remains historical; current run-control shape_memory_mode=shared_gpu,
+sameFP16/50steps/depth8, per-batch frozen manifest mode. Existing sequentialCPU
+offload path,1.5GiB shape gate; rigs retain5beams/3.8GiB gate. No game closure.
+Old93476/worker21044/outer6340 exited at Shrew VRAM wait, lock removed BEFORE
+new sole--watch worker16008/session94528 started. DO NOT resume/restart93476.
+Shrew candidate1 shared-mode output VERIFIED raw.json:250.26s,50steps/depth8,
+sequentialCPU,94712rawtri/watertight,412.8MiB Torch peak (not total device use).
+Candidate2 now generating. GamePID4244 remains, sampledGPU~65C; systemRAM32GiB
+(not64),~10-11GiB free during pilot. No second producer or FPS/art approval claim.
+New worker consumed Chimp+Spider hash retries: both state READY, no reinference.
+Worker recognizes only exact legacy intentional-wait checkpoint error as
+resumable; real failures still need four hash-pinned meshes. Handoff evidence
+saved ignored memory-mode-handoff.json.167sets/9pending audited,errors[].
+Microfauna all4 Bind-top screenshots per5groups verify simple requested shapes:
+Butterfly76-84tri/two joined panels,Firefly216/rearhalf glow,Bee108/short legs,
+Dragonfly372,Fly316. No runtime lighting/FPS/flight acceptance. Shorebird4 Bind/
+quarterWalk sides show coarse wings/feet;3 raised blocky wing excluded from clean
+motion recommendation only. Pure full-branch alternative preserves Head but
+has no demonstrated visual benefit, NOT applied. All models retained/unpainted.
+
 CROCODILE CORRESPONDENCE RECOVERY,24October2026~22:50CDT:
 All4 original Bind-side point backward; old Head=0/0/42/0 (torso/toe). Pure
 old/axis-only/full-branch comparison confirms axis-only still maps trunk. Scoped

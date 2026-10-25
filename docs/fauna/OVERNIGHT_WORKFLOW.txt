@@ -1,5 +1,21 @@
 OVERNIGHT FAUNA AUDITIONS - 24 OCTOBER 2026
 
+24 OCT LATE-EVENING MEMORY MODE
+After the owner asks about memory-saving operation while playing The Forest,
+the remaining shape queue uses run-control.json shape_memory_mode=shared_gpu.
+Each shape manifest freezes that mode for its four-candidate batch. This selects
+the existing sequential CPU-offload path with the same FP16/50steps/depth8;
+it changes resource use/speed, not the requested model-quality settings. The
+shape gate is1.5GiB free instead of resident mode's5.5GiB; rig inference retains
+its3.8GiB gate and5beams. No owner process is closed or altered. Set resident
+only when returning to the earlier fast-loading preference. An intentional
+memory-wait checkpoint is resumable, not an actual topology/generation failure.
+Keep the bounded hash-verified recovery gate for real failures unchanged.
+First resumed Shrew raw candidate completed in250.26s with50steps/depth8,
+412.8MiB Torch peak and watertight output while The Forest remained open.
+This is one shape-generation timing, not a complete animal/rig/painting timing,
+total device-memory usage, game-FPS test or visual-quality approval.
+
 24 OCT EVENING OWNER REVISIONS
 Owner model choices/conditional fixes are in OWNER_SELECTIONS.json. Scoped
 motion repairs are recorded in MOTION_REPAIR_OVERRIDES.json and explicit ground

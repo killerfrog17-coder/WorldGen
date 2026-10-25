@@ -27,6 +27,18 @@ lock=root/'worker.lock';fd=os.open(lock,os.O_CREAT|os.O_EXCL|os.O_WRONLY);os.wri
 state={'pid':os.getpid(),'started':datetime.datetime.now().astimezone().isoformat(),'animals':{},'current':None,'inference_serial':True,'painted':False}
 status_path=root/'queue-state.json'
 if status_path.exists():state['animals']=json.loads(status_path.read_text()).get('animals',{})
+# Old workers recorded an intentional wait checkpoint as a failed generation.
+# Only this precise between-stage condition is resumable without four mesh hashes;
+# real inference/topology failures retain the explicit recovery-request gate.
+for previous in state['animals'].values():
+    if previous.get('status')=='failed' and previous.get('error')=='Owner-requested safe pause while waiting for GPU':
+        previous['checkpoint_failure_history']=previous.get('checkpoint_failure_history',[])+[previous.pop('error')]
+        previous['status']='interrupted'
+def shape_memory_mode():
+    control=root/'run-control.json'
+    mode=json.loads(control.read_text()).get('shape_memory_mode','resident') if control.exists() else 'resident'
+    assert mode in ('resident','shared_gpu'),'Unknown shape-memory mode'
+    return mode
 def pause_requested():
     control=root/'run-control.json'
     mode=json.loads(control.read_text()) if control.exists() else {}
@@ -46,7 +58,13 @@ def run(command,log):
     # 5.5GiB leaves >=1182MiB over that measured reserve and lets the
     # owner browse the review window; model precision/settings stay fixed.
     # The former5.7 gate stalled at5.68GiB with only the review using VRAM.
-    minimum=5.5 if 'generate-deer-local.py' in tool_names or ('run-fauna-inference-batch.py' in tool_names and 'shape' in command) else 3.8 if 'deer-skin-ai.py' in tool_names or 'run-fauna-inference-batch.py' in tool_names else None
+    is_shape='generate-deer-local.py' in tool_names or ('run-fauna-inference-batch.py' in tool_names and 'shape' in command)
+    if is_shape:
+        memory_mode=(json.loads(Path(command[command.index('--manifest')+1]).read_text()).get('shape_memory_mode','resident') if '--manifest' in command else 'shared_gpu' if '--shared-gpu' in command else 'resident')
+        minimum=1.5 if memory_mode=='shared_gpu' else 5.5
+        state['shape_memory_mode']=memory_mode
+        save()
+    else:minimum=3.8 if 'deer-skin-ai.py' in tool_names or 'run-fauna-inference-batch.py' in tool_names else None
     if minimum:
         while True:
             free=int(subprocess.check_output(['nvidia-smi','--query-gpu=memory.free','--format=csv,noheader,nounits'],text=True).strip().splitlines()[0])/1024
@@ -134,6 +152,8 @@ try:
                 assert not (folder/'native-checks.json').exists(),'Do not overwrite an existing review with a new source trial'
                 trial_marker.write_text(json.dumps({'animal':entry['animal'],'motion_source':str(source),'technical_source_review_pending':True,'art_approved':False},indent=2))
             state['animals'][slug]={'status':'working','animal':entry['animal'],'source':str(source) if source else None,'started':datetime.datetime.now().astimezone().isoformat()};save()
+            if previous.get('checkpoint_failure_history'):
+                state['animals'][slug]['checkpoint_failure_history']=previous['checkpoint_failure_history'];save()
             try:
                 if not a.no_cached_inference:
                     jobs=[]
@@ -141,7 +161,7 @@ try:
                         candidate=folder/f'candidate-{i}';candidate.mkdir(exist_ok=True);seed,rig_seed=candidate_seeds(entry,i,candidate)
                         if not (candidate/'raw.glb').exists() and not (candidate/'model.glb').exists():jobs.append({'candidate':i,'output':str(candidate/'raw.glb'),'seed':seed})
                     if jobs:
-                        manifest=folder/'shape-batch.json';manifest.write_text(json.dumps({'batch_root':str(root),'reference':str(reference),'jobs':jobs},indent=2))
+                        manifest=folder/'shape-batch.json';manifest.write_text(json.dumps({'batch_root':str(root),'reference':str(reference),'shape_memory_mode':shape_memory_mode(),'jobs':jobs},indent=2))
                         run([shape_python,repo/'scripts/run-fauna-inference-batch.py','--manifest',manifest,'--kind','shape'],folder/'shape-batch.log')
                     if pause_requested():break
                     for i in range(1,5):
@@ -160,7 +180,7 @@ try:
                 for i in range(1,5):
                     candidate=folder/f'candidate-{i}';candidate.mkdir(exist_ok=True);seed,rig_seed=candidate_seeds(entry,i,candidate)
                     if not (candidate/'raw.glb').exists() and not (candidate/'model.glb').exists():
-                        run([shape_python,repo/'scripts/generate-deer-local.py','--source',reference,'--repo',repo/'artifacts/tools/TripoSG','--weights','E:/AI/WorldGen3D/models/TripoSG','--output',candidate/'raw.glb','--seed',seed,'--steps','50','--depth','8','--resident-gpu','--infer'],candidate/'shape.log')
+                        run([shape_python,repo/'scripts/generate-deer-local.py','--source',reference,'--repo',repo/'artifacts/tools/TripoSG','--weights','E:/AI/WorldGen3D/models/TripoSG','--output',candidate/'raw.glb','--seed',seed,'--steps','50','--depth','8','--shared-gpu' if shape_memory_mode()=='shared_gpu' else '--resident-gpu','--infer'],candidate/'shape.log')
                     if not (candidate/'model.glb').exists():prepare_candidate(candidate,entry)
                     if not (candidate/'generated-rig.npz').exists():run([rig_python,repo/'scripts/deer-skin-ai.py','--repo',repo/'artifacts/tools/SkinTokens','--weights','E:/AI/WorldGen3D/models/SkinTokens','--mesh',candidate/'model.glb','--output',candidate/'generated-rig.npz','--beams','5','--seed',rig_seed],candidate/'rig.log')
                     state['animals'][slug]['completed_raw_candidates']=i;save()
@@ -192,7 +212,8 @@ try:
                 state['animals'][slug].update(status=final_status,review=str(folder/'Animal - Raw Audition.blend'),finished=datetime.datetime.now().astimezone().isoformat());save();print('TRIAL NEEDS TECHNICAL REVIEW' if a.motion_root else 'READY',slug,flush=True)
                 subprocess.run([sys.executable,str(repo/'scripts/index-fauna-auditions.py'),'--root',str(root)],cwd=repo,env=env,check=True)
             except Exception as exc:
-                state['animals'][slug].update(status='failed',error=str(exc));save();print('FAILED',slug,str(exc),flush=True)
+                interrupted=pause_requested() and str(exc)=='Owner-requested safe pause while waiting for GPU'
+                state['animals'][slug].update(status='interrupted' if interrupted else 'failed',error=str(exc));save();print('CHECKPOINT' if interrupted else 'FAILED',slug,str(exc),flush=True)
         state['current']=None;save()
         if not a.watch or a.only:break
         if not did:time.sleep(10)
