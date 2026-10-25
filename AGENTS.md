@@ -1,5 +1,27 @@
 # WorldGen repository instructions
 
+RAW QUEUE140 / COMPARISON SCREENING,24October2026 evening:
+FreshwaterTurtle/GiantPanda/Giraffe newly finished:140raw sets/560 candidates
+verified by audit,36of176 pending, errors[]. Existing exec93476 remains live,
+outer6340/sole full--watch21044 last verified; currentGorilla shape-batch.
+No new producer, painting, source textures, game/Unity changes or owner window.
+Original Chimp failed queue entry still awaits existing retry consumption at
+next producer pass; native4/index ready, do not rerun or hand-edit queue-state.
+
+CPU screens only: Turtle1 rawfront/side +1/4Walk-side have correct facing and
+coarse shell/head/feet; not full gait acceptance. Panda all4 Walk-side at SAME
+quarter phase +1front: curled paws1, pointed/stretched forepaw3 and4 (also chest
+stretch4). Motion recommendation exclusions1/3/4;2 least severe sample but NOT
+owner/model/whole-gait approval. All meshes/rigs/actions retained unchanged.
+Elephant1 follow-up at half phase (matching2-4) ALSO has flattened rear-foot spike;
+updated warning retracts a clean/best-motion inference, compare1/2/4 provisionally.
+Giraffe all4 Walk-side quarter phase +1rawfront/side:2 has severe whole-leg/tail
+stretching and torso deformation, excluded from clean-motion recommendations.
+1/3/4 angular limb poses/possible near-foot contacts remain;1 raw front head yaw
+visible. No new reference/shape/rig inference or manual posing to hide defects.
+Per-root visual-warnings/index carry reasons; raw auditions are NOT accepted
+natural movement merely because native controls/provenance/finite checks pass.
+
 NEXT RAW SETS / FISH POLARITY FIX,24October2026 evening:
 137raw sets/548 candidates verified;39of176 remain, audit errors[]. Full serial
 exec93476 remains live, currentFreshwaterTurtle shape at checkpoint. Do not spawn
