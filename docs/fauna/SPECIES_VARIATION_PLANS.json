@@ -39,7 +39,8 @@
         "rust-grey snowshoe summer",
         "white snowshoe winter with dark ear tips",
         "hypothetical sandy dryland",
-        "hypothetical dark wet-cover"
+        "hypothetical dark wet-cover",
+        "Faint thicket bars (hypothetical)"
       ],
       "texture_assets": "Five reusable surface classes: directional coat fur, denser foot fur, eye, bare nose/lid skin and inner-ear skin. Share the coat swatch with palette shifts; separate ear-tip, belly, tail-top/underside and seasonal-whitening masks. No pink bare paw pads painted onto densely furred snowshoe soles.",
       "sex_age_season": "No obligatory sex-specific coat. Do not apply a universal larger-male rule: snowshoe females can be larger. The European analogue stays brown/grey in winter; whitening belongs only to an appropriate snow-adapted lineage. Juvenile proportions and ear/foot growth need separate later approval.",
@@ -52,7 +53,19 @@
         "https://animaldiversity.org/accounts/Lepus_americanus/",
         "https://www.wafwa.adfg.alaska.gov/index.cfm?adfg=snowshoehare.printerfriendly"
       ],
-      "surface_class_count": 5
+      "surface_class_count": 5,
+      "explicit_pigment_hypotheses": {
+        "Faint thicket bars (hypothetical)": {
+          "rationale": "Broken side markings under patchy thicket shade.",
+          "body_shape": "Same selected adult basis; no claim that this is a real-world taxon"
+        }
+      },
+      "implemented_bounded_ear_tail_traits": {
+        "maximum_ear_tip_fraction": 0.085,
+        "maximum_tail_length_fraction": 0.1,
+        "basis_unchanged": true,
+        "scope": "Conservative adult lineage-proportion hypotheses. Tail option only exists where the actual rearward tail region is safely identified."
+      }
     },
     "Rabbit": {
       "real_analogues": [
@@ -63,7 +76,8 @@
         "warm brown agouti",
         "dark melanistic analogue",
         "hypothetical pale sandy",
-        "hypothetical mottled litter camouflage"
+        "hypothetical mottled litter camouflage",
+        "Leaf-litter mottled (hypothetical)"
       ],
       "texture_assets": "Five surface classes as for the hare, with shorter coat/foot fur. Reuse neutral fur and shared eye/nose/ear assets. One agouti modulation mask and separate pale belly/tail underside masks; optional low-contrast mottling is a mask, not another model.",
       "sex_age_season": "Keep the same coat pool for both sexes; avoid a large ornamental dewlap or domestic-breed dimorphism by default. Wild European rabbits do not receive the hare's automatic white winter coat. Dependent naked newborns are outside this adult prototype; later juveniles need compact age proportions.",
@@ -74,7 +88,19 @@
       "sources": [
         "https://animaldiversity.org/accounts/Oryctolagus_cuniculus/"
       ],
-      "surface_class_count": 5
+      "surface_class_count": 5,
+      "explicit_pigment_hypotheses": {
+        "Leaf-litter mottled (hypothetical)": {
+          "rationale": "Low-contrast mottling against irregular dry leaves.",
+          "body_shape": "Same selected adult basis; no claim that this is a real-world taxon"
+        }
+      },
+      "implemented_bounded_ear_tail_traits": {
+        "maximum_ear_tip_fraction": 0.085,
+        "maximum_tail_length_fraction": 0.1,
+        "basis_unchanged": true,
+        "scope": "Conservative adult lineage-proportion hypotheses. Tail option only exists where the actual rearward tail region is safely identified."
+      }
     },
     "Red fox": {
       "real_analogues": [
@@ -85,7 +111,8 @@
         "dark shoulder-cross phase",
         "silver-tipped dark phase",
         "black phase",
-        "hypothetical pale dryland red"
+        "hypothetical pale dryland red",
+        "Broken russet flank bars (hypothetical)"
       ],
       "texture_assets": "Six surface classes: short face/leg fur, longer body/tail fur, eye, nose/lid skin, paw pad and claw keratin. Share two fur swatches across coats. Separate cross-saddle, silver guard-tip and dark stocking masks; white tail-tip/chin/underside masks are retained across these analogue phases.",
       "sex_age_season": "Coat phase is independent of sex and can vary within a lineage. Use modest overlapping size ranges rather than male-only dark coats. Winter density is a linked coat-length/normal treatment, not a white recolour. Young keep age-specific face/ear proportions later.",
@@ -97,7 +124,19 @@
         "https://www.awc.adfg.alaska.gov/index.cfm?adfg=redfox.main",
         "https://wildlife.ca.gov/Conservation/Mammals/Sierra-Nevada-Red-Fox/Identification"
       ],
-      "surface_class_count": 6
+      "surface_class_count": 6,
+      "explicit_pigment_hypotheses": {
+        "Broken russet flank bars (hypothetical)": {
+          "rationale": "Subdued broken bands in dense vegetation; existing muzzle and stockings retained.",
+          "body_shape": "Same selected adult basis; no claim that this is a real-world taxon"
+        }
+      },
+      "implemented_bounded_ear_tail_traits": {
+        "maximum_ear_tip_fraction": 0.085,
+        "maximum_tail_length_fraction": 0.1,
+        "basis_unchanged": true,
+        "scope": "Conservative adult lineage-proportion hypotheses. Tail option only exists where the actual rearward tail region is safely identified."
+      }
     },
     "Wolf": {
       "real_analogues": [
@@ -109,7 +148,8 @@
         "dark brown",
         "black with subtle guard-hair variation",
         "ivory northern analogue",
-        "hypothetical pale dryland"
+        "hypothetical pale dryland",
+        "Broken ash saddle (hypothetical)"
       ],
       "texture_assets": "Six shared classes: short facial fur, coarse body/ruff fur, eye, nose/lid skin, paw-pad skin and claw keratin. One saddle/face/underside mask set with palette and guard-tip controls; no unique body texture generation for each grey value.",
       "sex_age_season": "Sex does not select a separate colour family. Plan overlapping body-size ranges and modest neck fullness only after skin checks. Winter thickness is a bounded fur/roughness change; northern pale appearance is lineage-linked, not all wolves turning white each winter. Juveniles need age proportions, not only scale.",
@@ -120,7 +160,19 @@
       "sources": [
         "https://www.fws.gov/species/gray-wolf-canis-lupus"
       ],
-      "surface_class_count": 6
+      "surface_class_count": 6,
+      "explicit_pigment_hypotheses": {
+        "Broken ash saddle (hypothetical)": {
+          "rationale": "Discontinuous guard-hair saddle under woodland shadow.",
+          "body_shape": "Same selected adult basis; no claim that this is a real-world taxon"
+        }
+      },
+      "implemented_bounded_ear_tail_traits": {
+        "maximum_ear_tip_fraction": 0.085,
+        "maximum_tail_length_fraction": 0.1,
+        "basis_unchanged": true,
+        "scope": "Conservative adult lineage-proportion hypotheses. Tail option only exists where the actual rearward tail region is safely identified."
+      }
     },
     "Wild boar": {
       "real_analogues": [
@@ -227,7 +279,8 @@
         "warm brown adult",
         "older light-tipped shoulder fur",
         "reddish calf age state",
-        "hypothetical pale-brown adult"
+        "hypothetical pale-brown adult",
+        "Dune-brown broken brindle (hypothetical)"
       ],
       "texture_assets": "Six classes: long head/shoulder coat, short flank/hindquarter coat, eye, nose/lid skin, horn/hoof keratin and inner-ear skin. Two reusable fur scales with a smooth placement mask; calf colour is a palette/mask state. Spring shedding patches are a separate seasonal overlay.",
       "sex_age_season": "Both adult sexes have horns. Bulls need a broader heavier head/forequarters and larger horn profiles, cows a lighter silhouette; this is not horn/no-horn sex selection. Calves are reddish and need juvenile head/body proportions. Seasonal shedding is patchy old fur, separate from inherited coat colour.",
@@ -254,6 +307,12 @@
         "appearance_approved": false,
         "motion_approved": false,
         "native_check": "artifacts/fauna-painted-20261024/bison/paint-native-checks.json"
+      },
+      "explicit_pigment_hypotheses": {
+        "Dune-brown broken brindle (hypothetical)": {
+          "rationale": "Low-contrast coat disruption in dry grass and sandy scrub.",
+          "body_shape": "Same selected adult basis; no claim that this is a real-world taxon"
+        }
       }
     },
     "Butterflies and moths (guild)": {
@@ -389,7 +448,8 @@
         "brown eclipse male with residual male traits",
         "brown juvenile",
         "hypothetical muted olive-headed male",
-        "hypothetical pale reedbed mottling"
+        "hypothetical pale reedbed mottling",
+        "Reed-edge cryptic mottling (hypothetical)"
       ],
       "surface_class_count": 5,
       "texture_assets": "Five classes: contour-feather detail, flight-feather detail, eye, bill keratin and scaled/webbed foot skin. Share two feather swatches; male/female/eclipse mask sets place head, breast, back, wing speculum and tail separately. Speculum hue and small palette shifts do not require a new model.",
@@ -416,6 +476,12 @@
         "appearance_approved": false,
         "motion_approved": false,
         "native_check": "artifacts/fauna-painted-20261024/duck/paint-native-checks.json"
+      },
+      "explicit_pigment_hypotheses": {
+        "Reed-edge cryptic mottling (hypothetical)": {
+          "rationale": "Cryptic plumage in reeds; a pigment study on the selected adult build.",
+          "body_shape": "Same selected adult basis; no claim that this is a real-world taxon"
+        }
       }
     },
     "Pheasant": {
@@ -538,7 +604,8 @@
         "darker dun",
         "pale dun with cream underside",
         "winter-coat dun",
-        "hypothetical dark primitive-horse lineage"
+        "hypothetical dark primitive-horse lineage",
+        "Faint flank bars (hypothetical)"
       ],
       "surface_class_count": 6,
       "texture_assets": "Six classes: short body fur, coarse mane/tail hair, eye, muzzle/lid skin, hoof keratin and ear skin. Shared fur and mane sources; dorsal stripe, dark points, pale underside/muzzle and optional subtle leg bars are mask controls.",
@@ -549,7 +616,13 @@
       "geometry_limits": "The named analogue is stocky with a substantial head/neck and short legs. A generic slender riding-horse mesh cannot become exact Przewalski anatomy through dun paint alone; inspect the silhouette and choose another candidate if needed.",
       "sources": [
         "https://nationalzoo.si.edu/animals/przewalskis-horse"
-      ]
+      ],
+      "explicit_pigment_hypotheses": {
+        "Faint flank bars (hypothetical)": {
+          "rationale": "Low-contrast equid banding retained or strengthened in broken cover.",
+          "body_shape": "Same selected adult basis; no claim that this is a real-world taxon"
+        }
+      }
     },
     "Reindeer": {
       "real_analogues": [
@@ -560,7 +633,8 @@
         "dark autumn pale neck/rump/feet",
         "grey winter cream neck",
         "pale tundra analogue",
-        "brown calf age state"
+        "brown calf age state",
+        "Thicket-shadow bands (hypothetical)"
       ],
       "surface_class_count": 5,
       "texture_assets": "Five classes: dense fur, eye, nose/lid skin, hoof keratin and antler bone/velvet. Reuse the deer fur source at a coarser scale. Neck/rump/flank/feet masks and winter whitening are linked configurations; antler material is separate from coat.",
@@ -572,7 +646,80 @@
       "sources": [
         "https://www.adfg.alaska.gov/index.cfm?adfg=caribouidentification.main",
         "https://www.gov.nt.ca/ecc/sites/ecc/files/resources/128-caribou_ident_cards_en_press.pdf"
-      ]
+      ],
+      "implemented_appendage_review": {
+        "status": "Native working colour copy with fitted traits; appearance remains pending",
+        "configurations": [
+          {
+            "id": "adult",
+            "label": "Adult male appendage proportions; selected adult body",
+            "shape": "antler",
+            "size": 0.68,
+            "radius": 1.0,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "compact",
+            "label": "Compact adult male proportions; selected adult body",
+            "shape": "antler",
+            "size": 0.5168,
+            "radius": 0.85,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "female",
+            "label": "Adult female appendage proportions; selected adult body",
+            "shape": "antler",
+            "size": 0.2584,
+            "radius": 0.58,
+            "sex": "female",
+            "hypothetical": false
+          },
+          {
+            "id": "shed",
+            "label": "Seasonally shed antlers; adult body",
+            "shape": "none",
+            "size": 0.0,
+            "radius": 0.0,
+            "sex": "seasonal",
+            "hypothetical": false
+          },
+          {
+            "id": "hyp-compact",
+            "label": "Hypothetical dense-cover lineage: compact, less projecting appendages",
+            "shape": "antler",
+            "size": 0.45560000000000006,
+            "radius": 0.92,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          },
+          {
+            "id": "hyp-open",
+            "label": "Hypothetical open-habitat lineage: broader display within the same structure",
+            "shape": "antler",
+            "size": 0.7344,
+            "radius": 0.95,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          }
+        ],
+        "sources": {
+          "antlers": "https://www.nps.gov/articles/hornsvantlers.htm",
+          "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
+          "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
+          "oryx": "https://animals.sandiegozoo.org/animals/oryx",
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+        },
+        "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
+      },
+      "explicit_pigment_hypotheses": {
+        "Thicket-shadow bands (hypothetical)": {
+          "rationale": "Faint flank disruption in wooded cover; antler architecture stays cervid.",
+          "body_shape": "Same selected adult basis; no claim that this is a real-world taxon"
+        }
+      }
     },
     "Moose": {
       "real_analogues": [
@@ -583,7 +730,8 @@
         "near-black adult",
         "golden/grey-brown adult analogue",
         "rust-brown calf age state",
-        "hypothetical subdued pale upland"
+        "hypothetical subdued pale upland",
+        "Willow-marsh mottled (hypothetical)"
       ],
       "surface_class_count": 6,
       "texture_assets": "Six classes: coarse body fur, longer bell/neck fur, eye, nose/lid skin, hoof keratin and antler bone/velvet. Shared deer coarse-fur source; face, leg and bell masks and a calf palette do most of the work. Antler palm normal shares bone detail, not fur.",
@@ -596,7 +744,80 @@
         "https://www.nps.gov/dena/learn/nature/moose.htm",
         "https://home.nps.gov/articles/moose-did-you-know.htm",
         "https://www.awc.adfg.alaska.gov/index.cfm?adfg=moose.main"
-      ]
+      ],
+      "implemented_appendage_review": {
+        "status": "Native working colour copy with fitted traits; appearance remains pending",
+        "configurations": [
+          {
+            "id": "adult",
+            "label": "Adult male appendage proportions; selected adult body",
+            "shape": "palmate",
+            "size": 0.62,
+            "radius": 1.0,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "compact",
+            "label": "Compact adult male proportions; selected adult body",
+            "shape": "palmate",
+            "size": 0.4712,
+            "radius": 0.85,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "female",
+            "label": "Antlerless female / seasonally shed male",
+            "shape": "none",
+            "size": 0.0,
+            "radius": 0.0,
+            "sex": "female",
+            "hypothetical": false
+          },
+          {
+            "id": "shed",
+            "label": "Seasonally shed antlers; adult body",
+            "shape": "none",
+            "size": 0.0,
+            "radius": 0.0,
+            "sex": "seasonal",
+            "hypothetical": false
+          },
+          {
+            "id": "hyp-compact",
+            "label": "Hypothetical dense-cover lineage: compact, less projecting appendages",
+            "shape": "palmate",
+            "size": 0.41540000000000005,
+            "radius": 0.92,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          },
+          {
+            "id": "hyp-open",
+            "label": "Hypothetical open-habitat lineage: broader display within the same structure",
+            "shape": "palmate",
+            "size": 0.6696000000000001,
+            "radius": 0.95,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          }
+        ],
+        "sources": {
+          "antlers": "https://www.nps.gov/articles/hornsvantlers.htm",
+          "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
+          "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
+          "oryx": "https://animals.sandiegozoo.org/animals/oryx",
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+        },
+        "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
+      },
+      "explicit_pigment_hypotheses": {
+        "Willow-marsh mottled (hypothetical)": {
+          "rationale": "Subtle dark/lighter mottling among willow stems and wetland shade.",
+          "body_shape": "Same selected adult basis; no claim that this is a real-world taxon"
+        }
+      }
     },
     "Wild cattle": {
       "real_analogues": [
@@ -608,7 +829,8 @@
         "blackish mature-male analogue",
         "rufous female/young analogue",
         "brown juvenile",
-        "hypothetical subdued dark dorsal-stripe lineage"
+        "hypothetical subdued dark dorsal-stripe lineage",
+        "Dry-scrub broken brindle (hypothetical)"
       ],
       "surface_class_count": 5,
       "texture_assets": "Five classes: short coat, eye, muzzle/lid skin, horn/hoof keratin and ear skin. One fur source; rump/stocking/muzzle/eye-patch masks for the banteng analogue, plus optional dorsal stripe for an explicitly invented lineage.",
@@ -620,7 +842,71 @@
       "sources": [
         "https://chm-thai.onep.go.th/wp-content/uploads/2021/10/ONEP_V14.pdf",
         "https://www.taronga.org.au/about/newsroom/posts/celebrating-the-banteng"
-      ]
+      ],
+      "implemented_appendage_review": {
+        "status": "Native working colour copy with fitted traits; appearance remains pending",
+        "configurations": [
+          {
+            "id": "adult",
+            "label": "Adult male appendage proportions; selected adult body",
+            "shape": "lyre",
+            "size": 0.37,
+            "radius": 1.0,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "compact",
+            "label": "Compact adult male proportions; selected adult body",
+            "shape": "lyre",
+            "size": 0.2812,
+            "radius": 0.85,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "female",
+            "label": "Adult female appendage proportions; selected adult body",
+            "shape": "lyre",
+            "size": 0.3256,
+            "radius": 0.58,
+            "sex": "female",
+            "hypothetical": false
+          },
+          {
+            "id": "hyp-compact",
+            "label": "Hypothetical dense-cover lineage: compact, less projecting appendages",
+            "shape": "lyre",
+            "size": 0.2479,
+            "radius": 0.92,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          },
+          {
+            "id": "hyp-open",
+            "label": "Hypothetical open-habitat lineage: broader display within the same structure",
+            "shape": "lyre",
+            "size": 0.3996,
+            "radius": 0.95,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          }
+        ],
+        "sources": {
+          "antlers": "https://www.nps.gov/articles/hornsvantlers.htm",
+          "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
+          "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
+          "oryx": "https://animals.sandiegozoo.org/animals/oryx",
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+        },
+        "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
+      },
+      "explicit_pigment_hypotheses": {
+        "Dry-scrub broken brindle (hypothetical)": {
+          "rationale": "Muted brindling in a patchy scrub habitat.",
+          "body_shape": "Same selected adult basis; no claim that this is a real-world taxon"
+        }
+      }
     },
     "Grouse": {
       "real_analogues": [
@@ -1048,7 +1334,65 @@
       "geometry_limits": "African and Asian buffalo differ in horns, head and proportions; four variants from one reference do not prove both archetypes exist. Bison is a separate entry and not an African-buffalo palette.",
       "sources": [
         "https://animals.sandiegozoo.org/animals/wild-cattle"
-      ]
+      ],
+      "implemented_appendage_review": {
+        "status": "Native working colour copy with fitted traits; appearance remains pending",
+        "configurations": [
+          {
+            "id": "adult",
+            "label": "Adult male appendage proportions; selected adult body",
+            "shape": "buffalo",
+            "size": 0.43,
+            "radius": 1.0,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "compact",
+            "label": "Compact adult male proportions; selected adult body",
+            "shape": "buffalo",
+            "size": 0.3268,
+            "radius": 0.85,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "female",
+            "label": "Adult female appendage proportions; selected adult body",
+            "shape": "buffalo",
+            "size": 0.3784,
+            "radius": 0.58,
+            "sex": "female",
+            "hypothetical": false
+          },
+          {
+            "id": "hyp-compact",
+            "label": "Hypothetical dense-cover lineage: compact, less projecting appendages",
+            "shape": "buffalo",
+            "size": 0.2881,
+            "radius": 0.92,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          },
+          {
+            "id": "hyp-open",
+            "label": "Hypothetical open-habitat lineage: broader display within the same structure",
+            "shape": "buffalo",
+            "size": 0.46440000000000003,
+            "radius": 0.95,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          }
+        ],
+        "sources": {
+          "antlers": "https://www.nps.gov/articles/hornsvantlers.htm",
+          "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
+          "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
+          "oryx": "https://animals.sandiegozoo.org/animals/oryx",
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+        },
+        "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
+      }
     },
     "Camel": {
       "real_analogues": [
@@ -1164,7 +1508,65 @@
       "geometry_limits": "Pig and peccary ear/tail/tooth anatomy differs. A shortened boar mesh alone does not establish a correct peccary; generic ungulate motion still needs visual judgement.",
       "sources": [
         "https://animals.sandiegozoo.org/animals/peccary"
-      ]
+      ],
+      "implemented_appendage_review": {
+        "status": "Native working colour copy with fitted traits; appearance remains pending",
+        "configurations": [
+          {
+            "id": "adult",
+            "label": "Adult male appendage proportions; selected adult body",
+            "shape": "tusk",
+            "size": 0.035,
+            "radius": 1.0,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "compact",
+            "label": "Compact adult male proportions; selected adult body",
+            "shape": "tusk",
+            "size": 0.026600000000000002,
+            "radius": 0.85,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "female",
+            "label": "Adult female appendage proportions; selected adult body",
+            "shape": "tusk",
+            "size": 0.030800000000000004,
+            "radius": 0.58,
+            "sex": "female",
+            "hypothetical": false
+          },
+          {
+            "id": "hyp-compact",
+            "label": "Hypothetical dense-cover lineage: compact, less projecting appendages",
+            "shape": "tusk",
+            "size": 0.023450000000000002,
+            "radius": 0.92,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          },
+          {
+            "id": "hyp-open",
+            "label": "Hypothetical open-habitat lineage: broader display within the same structure",
+            "shape": "tusk",
+            "size": 0.03780000000000001,
+            "radius": 0.95,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          }
+        ],
+        "sources": {
+          "antlers": "https://www.nps.gov/articles/hornsvantlers.htm",
+          "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
+          "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
+          "oryx": "https://animals.sandiegozoo.org/animals/oryx",
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+        },
+        "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
+      }
     },
     "Cotton rat": {
       "real_analogues": [
@@ -1234,7 +1636,65 @@
         "https://www.montgomeryzoo.com/animal-realms/old-world-aviary",
         "https://www.sfzoo.org/animals-exhibits/a-to-z/blue-duiker/",
         "https://www.chattzoo.org/explore/blue-duiker"
-      ]
+      ],
+      "implemented_appendage_review": {
+        "status": "Native working colour copy with fitted traits; appearance remains pending",
+        "configurations": [
+          {
+            "id": "adult",
+            "label": "Adult male appendage proportions; selected adult body",
+            "shape": "spike",
+            "size": 0.13,
+            "radius": 1.0,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "compact",
+            "label": "Compact adult male proportions; selected adult body",
+            "shape": "spike",
+            "size": 0.0988,
+            "radius": 0.85,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "female",
+            "label": "Hornless female-lineage example; selected adult body",
+            "shape": "none",
+            "size": 0.0,
+            "radius": 0.0,
+            "sex": "female",
+            "hypothetical": false
+          },
+          {
+            "id": "hyp-compact",
+            "label": "Hypothetical dense-cover lineage: compact, less projecting appendages",
+            "shape": "spike",
+            "size": 0.08710000000000001,
+            "radius": 0.92,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          },
+          {
+            "id": "hyp-open",
+            "label": "Hypothetical open-habitat lineage: broader display within the same structure",
+            "shape": "spike",
+            "size": 0.14040000000000002,
+            "radius": 0.95,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          }
+        ],
+        "sources": {
+          "antlers": "https://www.nps.gov/articles/hornsvantlers.htm",
+          "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
+          "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
+          "oryx": "https://animals.sandiegozoo.org/animals/oryx",
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+        },
+        "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
+      }
     },
     "Emu": {
       "real_analogues": [
@@ -2462,7 +2922,65 @@
       "geometry_limits": "Warthog head differs from boar/red river hog. Kneeling feeding, tail-up running and tusk combat require proper pose work; raw horse motions alone do not provide these.",
       "sources": [
         "https://animals.sandiegozoo.org/animals/warthog"
-      ]
+      ],
+      "implemented_appendage_review": {
+        "status": "Native working colour copy with fitted traits; appearance remains pending",
+        "configurations": [
+          {
+            "id": "adult",
+            "label": "Adult male appendage proportions; selected adult body",
+            "shape": "tusk",
+            "size": 0.21,
+            "radius": 1.0,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "compact",
+            "label": "Compact adult male proportions; selected adult body",
+            "shape": "tusk",
+            "size": 0.1596,
+            "radius": 0.85,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "female",
+            "label": "Adult female appendage proportions; selected adult body",
+            "shape": "tusk",
+            "size": 0.1848,
+            "radius": 0.58,
+            "sex": "female",
+            "hypothetical": false
+          },
+          {
+            "id": "hyp-compact",
+            "label": "Hypothetical dense-cover lineage: compact, less projecting appendages",
+            "shape": "tusk",
+            "size": 0.1407,
+            "radius": 0.92,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          },
+          {
+            "id": "hyp-open",
+            "label": "Hypothetical open-habitat lineage: broader display within the same structure",
+            "shape": "tusk",
+            "size": 0.2268,
+            "radius": 0.95,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          }
+        ],
+        "sources": {
+          "antlers": "https://www.nps.gov/articles/hornsvantlers.htm",
+          "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
+          "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
+          "oryx": "https://animals.sandiegozoo.org/animals/oryx",
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+        },
+        "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
+      }
     },
     "Weasel": {
       "real_analogues": [
@@ -2530,7 +3048,65 @@
       "geometry_limits": "Broad forequarters and slim rear need raw deformation review. Generic horse motion does not validate characteristic gallop, herd flight or horn combat.",
       "sources": [
         "https://animaldiversity.org/accounts/Connochaetes_taurinus/"
-      ]
+      ],
+      "implemented_appendage_review": {
+        "status": "Native working colour copy with fitted traits; appearance remains pending",
+        "configurations": [
+          {
+            "id": "adult",
+            "label": "Adult male appendage proportions; selected adult body",
+            "shape": "wildebeest",
+            "size": 0.35,
+            "radius": 1.0,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "compact",
+            "label": "Compact adult male proportions; selected adult body",
+            "shape": "wildebeest",
+            "size": 0.26599999999999996,
+            "radius": 0.85,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "female",
+            "label": "Adult female appendage proportions; selected adult body",
+            "shape": "wildebeest",
+            "size": 0.308,
+            "radius": 0.58,
+            "sex": "female",
+            "hypothetical": false
+          },
+          {
+            "id": "hyp-compact",
+            "label": "Hypothetical dense-cover lineage: compact, less projecting appendages",
+            "shape": "wildebeest",
+            "size": 0.2345,
+            "radius": 0.92,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          },
+          {
+            "id": "hyp-open",
+            "label": "Hypothetical open-habitat lineage: broader display within the same structure",
+            "shape": "wildebeest",
+            "size": 0.378,
+            "radius": 0.95,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          }
+        ],
+        "sources": {
+          "antlers": "https://www.nps.gov/articles/hornsvantlers.htm",
+          "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
+          "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
+          "oryx": "https://animals.sandiegozoo.org/animals/oryx",
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+        },
+        "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
+      }
     },
     "Wolverine": {
       "real_analogues": [
@@ -2622,7 +3198,65 @@
       "geometry_limits": "Wild/domestic bodies differ beyond colour. Long coat can conceal leg problems, so raw movement still needs front/side inspection; snow travel/combat remain motion gaps.",
       "sources": [
         "https://animaldiversity.org/accounts/Bos_grunniens/"
-      ]
+      ],
+      "implemented_appendage_review": {
+        "status": "Native working colour copy with fitted traits; appearance remains pending",
+        "configurations": [
+          {
+            "id": "adult",
+            "label": "Adult male appendage proportions; selected adult body",
+            "shape": "lyre",
+            "size": 0.53,
+            "radius": 1.0,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "compact",
+            "label": "Compact adult male proportions; selected adult body",
+            "shape": "lyre",
+            "size": 0.40280000000000005,
+            "radius": 0.85,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "female",
+            "label": "Adult female appendage proportions; selected adult body",
+            "shape": "lyre",
+            "size": 0.46640000000000004,
+            "radius": 0.58,
+            "sex": "female",
+            "hypothetical": false
+          },
+          {
+            "id": "hyp-compact",
+            "label": "Hypothetical dense-cover lineage: compact, less projecting appendages",
+            "shape": "lyre",
+            "size": 0.3551,
+            "radius": 0.92,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          },
+          {
+            "id": "hyp-open",
+            "label": "Hypothetical open-habitat lineage: broader display within the same structure",
+            "shape": "lyre",
+            "size": 0.5724,
+            "radius": 0.95,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          }
+        ],
+        "sources": {
+          "antlers": "https://www.nps.gov/articles/hornsvantlers.htm",
+          "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
+          "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
+          "oryx": "https://animals.sandiegozoo.org/animals/oryx",
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+        },
+        "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
+      }
     },
     "Zebra": {
       "real_analogues": [
@@ -2992,7 +3626,74 @@
       "sources": [
         "https://home.nps.gov/yell/learn/nature/pronghorn.htm",
         "https://home.nps.gov/wica/learn/nature/pronghorn.htm"
-      ]
+      ],
+      "implemented_appendage_review": {
+        "status": "Native working colour copy with fitted traits; appearance remains pending",
+        "configurations": [
+          {
+            "id": "adult",
+            "label": "Adult male appendage proportions; selected adult body",
+            "shape": "pronghorn",
+            "size": 0.34,
+            "radius": 1.0,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "compact",
+            "label": "Compact adult male proportions; selected adult body",
+            "shape": "pronghorn",
+            "size": 0.2584,
+            "radius": 0.85,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "female",
+            "label": "Adult female appendage proportions; selected adult body",
+            "shape": "spike",
+            "size": 0.068,
+            "radius": 0.58,
+            "sex": "female",
+            "hypothetical": false
+          },
+          {
+            "id": "female-hornless",
+            "label": "Hornless female example",
+            "shape": "none",
+            "size": 0.0,
+            "radius": 0.0,
+            "sex": "female",
+            "hypothetical": false
+          },
+          {
+            "id": "hyp-compact",
+            "label": "Hypothetical dense-cover lineage: compact, less projecting appendages",
+            "shape": "pronghorn",
+            "size": 0.22780000000000003,
+            "radius": 0.92,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          },
+          {
+            "id": "hyp-open",
+            "label": "Hypothetical open-habitat lineage: broader display within the same structure",
+            "shape": "pronghorn",
+            "size": 0.3672,
+            "radius": 0.95,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          }
+        ],
+        "sources": {
+          "antlers": "https://www.nps.gov/articles/hornsvantlers.htm",
+          "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
+          "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
+          "oryx": "https://animals.sandiegozoo.org/animals/oryx",
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+        },
+        "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
+      }
     },
     "Puma": {
       "real_analogues": [
@@ -3176,7 +3877,65 @@
       "sources": [
         "https://www.adfg.alaska.gov/index.cfm?adfg=muskox.main",
         "https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main"
-      ]
+      ],
+      "implemented_appendage_review": {
+        "status": "Native working colour copy with fitted traits; appearance remains pending",
+        "configurations": [
+          {
+            "id": "adult",
+            "label": "Adult male appendage proportions; selected adult body",
+            "shape": "muskox",
+            "size": 0.4,
+            "radius": 1.0,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "compact",
+            "label": "Compact adult male proportions; selected adult body",
+            "shape": "muskox",
+            "size": 0.30400000000000005,
+            "radius": 0.85,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "female",
+            "label": "Adult female appendage proportions; selected adult body",
+            "shape": "muskox",
+            "size": 0.35200000000000004,
+            "radius": 0.58,
+            "sex": "female",
+            "hypothetical": false
+          },
+          {
+            "id": "hyp-compact",
+            "label": "Hypothetical dense-cover lineage: compact, less projecting appendages",
+            "shape": "muskox",
+            "size": 0.268,
+            "radius": 0.92,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          },
+          {
+            "id": "hyp-open",
+            "label": "Hypothetical open-habitat lineage: broader display within the same structure",
+            "shape": "muskox",
+            "size": 0.43200000000000005,
+            "radius": 0.95,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          }
+        ],
+        "sources": {
+          "antlers": "https://www.nps.gov/articles/hornsvantlers.htm",
+          "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
+          "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
+          "oryx": "https://animals.sandiegozoo.org/animals/oryx",
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+        },
+        "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
+      }
     },
     "Native litter beetles (guild)": {
       "real_analogues": [
@@ -3272,7 +4031,74 @@
       "sources": [
         "https://animals.sandiegozoo.org/animals/oryx",
         "https://www.nationalzoo.si.edu/animals/scimitar-horned-oryx"
-      ]
+      ],
+      "implemented_appendage_review": {
+        "status": "Native working colour copy with fitted traits; appearance remains pending",
+        "configurations": [
+          {
+            "id": "adult",
+            "label": "Adult male appendage proportions; selected adult body",
+            "shape": "spear",
+            "size": 0.85,
+            "radius": 1.0,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "compact",
+            "label": "Compact adult male proportions; selected adult body",
+            "shape": "spear",
+            "size": 0.646,
+            "radius": 0.85,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "female",
+            "label": "Adult female appendage proportions; selected adult body",
+            "shape": "spear",
+            "size": 0.935,
+            "radius": 0.62,
+            "sex": "female",
+            "hypothetical": false
+          },
+          {
+            "id": "hyp-compact",
+            "label": "Hypothetical dense-cover lineage: compact, less projecting appendages",
+            "shape": "spear",
+            "size": 0.5695,
+            "radius": 0.92,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          },
+          {
+            "id": "hyp-open",
+            "label": "Hypothetical open-habitat lineage: broader display within the same structure",
+            "shape": "spear",
+            "size": 0.918,
+            "radius": 0.95,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          },
+          {
+            "id": "scimitar",
+            "label": "Scimitar-like curved horn analogue; same selected body",
+            "shape": "scimitar",
+            "size": 0.8,
+            "radius": 0.75,
+            "sex": "both",
+            "hypothetical": false
+          }
+        ],
+        "sources": {
+          "antlers": "https://www.nps.gov/articles/hornsvantlers.htm",
+          "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
+          "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
+          "oryx": "https://animals.sandiegozoo.org/animals/oryx",
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+        },
+        "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
+      }
     },
     "Ostrich": {
       "real_analogues": [
@@ -3365,7 +4191,65 @@
       "geometry_limits": "Generic horse-derived clips remain raw transfers; impala leaping/pronking and male combat need distinct approved motions. Horn geometry must clear head and neck through those poses.",
       "sources": [
         "https://animaldiversity.org/accounts/Aepyceros_melampus/"
-      ]
+      ],
+      "implemented_appendage_review": {
+        "status": "Native working colour copy with fitted traits; appearance remains pending",
+        "configurations": [
+          {
+            "id": "adult",
+            "label": "Adult male appendage proportions; selected adult body",
+            "shape": "lyre",
+            "size": 0.5,
+            "radius": 1.0,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "compact",
+            "label": "Compact adult male proportions; selected adult body",
+            "shape": "lyre",
+            "size": 0.38,
+            "radius": 0.85,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "female",
+            "label": "Hornless adult female",
+            "shape": "none",
+            "size": 0.0,
+            "radius": 0.0,
+            "sex": "female",
+            "hypothetical": false
+          },
+          {
+            "id": "hyp-compact",
+            "label": "Hypothetical dense-cover lineage: compact, less projecting appendages",
+            "shape": "lyre",
+            "size": 0.335,
+            "radius": 0.92,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          },
+          {
+            "id": "hyp-open",
+            "label": "Hypothetical open-habitat lineage: broader display within the same structure",
+            "shape": "lyre",
+            "size": 0.54,
+            "radius": 0.95,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          }
+        ],
+        "sources": {
+          "antlers": "https://www.nps.gov/articles/hornsvantlers.htm",
+          "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
+          "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
+          "oryx": "https://animals.sandiegozoo.org/animals/oryx",
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+        },
+        "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
+      }
     },
     "Insectivorous bat": {
       "real_analogues": [
@@ -3809,7 +4693,65 @@
       "sources": [
         "https://animaldiversity.org/accounts/Capra_ibex/",
         "https://zoo.ch/en/conservation/animal-and-plant-encyclopedia/nubian-ibex"
-      ]
+      ],
+      "implemented_appendage_review": {
+        "status": "Native working colour copy with fitted traits; appearance remains pending",
+        "configurations": [
+          {
+            "id": "adult",
+            "label": "Adult male appendage proportions; selected adult body",
+            "shape": "scimitar",
+            "size": 0.68,
+            "radius": 1.0,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "compact",
+            "label": "Compact adult male proportions; selected adult body",
+            "shape": "scimitar",
+            "size": 0.5168,
+            "radius": 0.85,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "female",
+            "label": "Adult female appendage proportions; selected adult body",
+            "shape": "scimitar",
+            "size": 0.44200000000000006,
+            "radius": 0.58,
+            "sex": "female",
+            "hypothetical": false
+          },
+          {
+            "id": "hyp-compact",
+            "label": "Hypothetical dense-cover lineage: compact, less projecting appendages",
+            "shape": "scimitar",
+            "size": 0.45560000000000006,
+            "radius": 0.92,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          },
+          {
+            "id": "hyp-open",
+            "label": "Hypothetical open-habitat lineage: broader display within the same structure",
+            "shape": "scimitar",
+            "size": 0.7344,
+            "radius": 0.95,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          }
+        ],
+        "sources": {
+          "antlers": "https://www.nps.gov/articles/hornsvantlers.htm",
+          "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
+          "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
+          "oryx": "https://animals.sandiegozoo.org/animals/oryx",
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+        },
+        "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
+      }
     },
     "Flamingo": {
       "real_analogues": [
@@ -3876,7 +4818,65 @@
       "geometry_limits": "The previous generic boar conditioning is being replaced with a red-river-hog reference. Giant forest hog, bushpig and red river hog can require distinct head/ear/body selections; generic quadruped motion remains owner-unapproved.",
       "sources": [
         "https://www.nationalzoo.si.edu/animals/red-river-hog"
-      ]
+      ],
+      "implemented_appendage_review": {
+        "status": "Native working colour copy with fitted traits; appearance remains pending",
+        "configurations": [
+          {
+            "id": "adult",
+            "label": "Adult male appendage proportions; selected adult body",
+            "shape": "tusk",
+            "size": 0.065,
+            "radius": 1.0,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "compact",
+            "label": "Compact adult male proportions; selected adult body",
+            "shape": "tusk",
+            "size": 0.0494,
+            "radius": 0.85,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "female",
+            "label": "Adult female appendage proportions; selected adult body",
+            "shape": "tusk",
+            "size": 0.0572,
+            "radius": 0.58,
+            "sex": "female",
+            "hypothetical": false
+          },
+          {
+            "id": "hyp-compact",
+            "label": "Hypothetical dense-cover lineage: compact, less projecting appendages",
+            "shape": "tusk",
+            "size": 0.043550000000000005,
+            "radius": 0.92,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          },
+          {
+            "id": "hyp-open",
+            "label": "Hypothetical open-habitat lineage: broader display within the same structure",
+            "shape": "tusk",
+            "size": 0.07020000000000001,
+            "radius": 0.95,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          }
+        ],
+        "sources": {
+          "antlers": "https://www.nps.gov/articles/hornsvantlers.htm",
+          "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
+          "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
+          "oryx": "https://animals.sandiegozoo.org/animals/oryx",
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+        },
+        "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
+      }
     },
     "Fruit bat": {
       "real_analogues": [
@@ -3923,7 +4923,65 @@
       "sources": [
         "https://seaworld.org/animals/facts/mammals/thomsons-gazelle/",
         "https://blogs.sandiegozoo.org/story-hub/zoonooz/gazing-at-gazelles"
-      ]
+      ],
+      "implemented_appendage_review": {
+        "status": "Native working colour copy with fitted traits; appearance remains pending",
+        "configurations": [
+          {
+            "id": "adult",
+            "label": "Adult male appendage proportions; selected adult body",
+            "shape": "lyre",
+            "size": 0.35,
+            "radius": 1.0,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "compact",
+            "label": "Compact adult male proportions; selected adult body",
+            "shape": "lyre",
+            "size": 0.26599999999999996,
+            "radius": 0.85,
+            "sex": "male",
+            "hypothetical": false
+          },
+          {
+            "id": "female",
+            "label": "Adult female appendage proportions; selected adult body",
+            "shape": "lyre",
+            "size": 0.308,
+            "radius": 0.58,
+            "sex": "female",
+            "hypothetical": false
+          },
+          {
+            "id": "hyp-compact",
+            "label": "Hypothetical dense-cover lineage: compact, less projecting appendages",
+            "shape": "lyre",
+            "size": 0.2345,
+            "radius": 0.92,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          },
+          {
+            "id": "hyp-open",
+            "label": "Hypothetical open-habitat lineage: broader display within the same structure",
+            "shape": "lyre",
+            "size": 0.378,
+            "radius": 0.95,
+            "sex": "lineage-dependent",
+            "hypothetical": true
+          }
+        ],
+        "sources": {
+          "antlers": "https://www.nps.gov/articles/hornsvantlers.htm",
+          "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
+          "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
+          "oryx": "https://animals.sandiegozoo.org/animals/oryx",
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+        },
+        "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
+      }
     },
     "Fish eagle": {
       "real_analogues": [

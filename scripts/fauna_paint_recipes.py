@@ -20,7 +20,7 @@ def family(slug):
     if slug in {'mouse','squirrel'}:return 'rodent'
     return 'canid' if slug in {'red-fox','wolf'} else 'suine' if slug=='wild-boar' else 'caprine' if slug in {'mouflon','wild-goat'} else 'ursid' if slug=='bear' else 'bovine' if slug=='bison' else 'avian' if slug in {'duck','pheasant'} else 'fish' if slug=='small-native-freshwater-fish-guild' else 'lagomorph'
 
-def profiles(slug):
+def _base_profiles(slug):
     assert slug in SUPPORTED
     if slug in EXTENDED:return finish_profiles(slug)
     if slug=='raccoon':return [
@@ -203,6 +203,14 @@ def fur_source(slug):
     if slug in {'wild-boar','bear'}:return 'artifacts/fauna-assets/textures/fur-coarse-guard-v1.png'
     if slug in {'mouflon','wild-goat'}:return 'artifacts/fauna-assets/deer/fur-source.png'
     return 'artifacts/fauna-assets/deer/fur-source.png' if family(slug)=='canid' else 'artifacts/fauna-assets/textures/fur-dense-fine-v1.png'
+
+def profiles(slug):
+    from fauna_hypothetical_coats import EXTRA
+    result=_base_profiles(slug)
+    if slug in EXTRA:
+        label,base,pale,_=EXTRA[slug]
+        if not any(row[0]==label for row in result):result=[*result,(label,base,pale,False)]
+    return result
 
 def eye_frame(slug,land,side):
     """Same anatomical eye frame for pigment masks and fitted geometry."""

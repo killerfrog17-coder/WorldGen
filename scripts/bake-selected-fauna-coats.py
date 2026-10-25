@@ -12,6 +12,7 @@ from scipy.ndimage import gaussian_filter,map_coordinates,distance_transform_edt
 repo=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(repo/'scripts'))
 from fauna_paint_recipes import SUPPORTED, family, profiles as coat_profiles, eye_radius as get_eye_radius, eye_frame
+from fauna_hypothetical_coats import treatment
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=1024)
 a=ap.parse_args();assert a.slug in SUPPORTED
 if family(a.slug) in {'avian','fish'}:
@@ -290,6 +291,7 @@ for index,(label,base,pale,dark_tips) in enumerate(profiles):
     if 'mottled' in label:
         m=(.5+.5*np.sin(p[:,1]*21+np.sin(p[:,2]*15)*2))*smooth(.1,.7,n[:,2])*.2
         colour=paint(m,[.13,.105,.075])
+    colour=treatment(colour,label,p,n,np.maximum.reduce([bare,nose_mask,hoof,inner,tips]))
     image=np.zeros((a.size,a.size,3),np.float32);image[iy,ix]=np.clip(colour,0,1);extend(image)
     Image.fromarray(np.uint8(np.clip(image,0,1)*255)).save(root/f'coat-{index}-colour.png')
 rough_image=np.ones((a.size,a.size),np.float32)*.84;rough_image[iy,ix]=rough;extend(rough_image)

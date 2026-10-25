@@ -38,9 +38,22 @@ for job in queue['jobs']:
     ready.append({'slug':slug,'name':job['animal'],'priority':rank[slug],'path':str(blend),'candidates':1,'selected_raw_candidate':state['source_candidate'],'coats':len(state['coats']),'appearance_scope':state.get('appearance_scope','Selected body only; no age-proportion or ecology implementation inferred.'),'appearance_approved':False,'motion_approved':False})
 now=datetime.now().astimezone().isoformat();queue['updated']=now
 queue['counts']={'selected':len(queue['jobs']),'painting_started':sum((root/x['slug']/'paint-state.json').exists() for x in queue['jobs']),'checked_first_passes':len(ready),'appearance_approved':sum(bool(x.get('appearance_approved')) for x in queue['jobs'])}
+procedural_ready=[]
+for slug,revision in choices.get('procedural_revisions',{}).items():
+    folder=root/slug;proof_path=folder/'paint-procedural-checks.json';blend=folder/'Animal - Painted Species Review.blend'
+    if not proof_path.exists() or not blend.exists():continue
+    proof=json.loads(proof_path.read_text())
+    if proof['checked_blend_sha256']!=hashlib.sha256(blend.read_bytes()).hexdigest():continue
+    if not proof.get('source_bind_geometry_skin_rig_actions_exact') or not proof.get('all_coats_reachable'):continue
+    raw=repo/'artifacts/fauna-overnight-20261024'/slug/'Animal - Raw Audition.blend'
+    if hashlib.sha256(raw.read_bytes()).hexdigest()!=proof['source_blend_sha256']:continue
+    row=next(r for r in plan if r['slug']==slug)
+    procedural_ready.append({'slug':slug,'name':row.get('animal',slug),'priority':rank[slug],'path':str(blend),'candidates':proof['candidate_count'],'coats':proof['coats_per_candidate'],'procedural':True,'appearance_approved':False,'motion_approved':False,'appearance_scope':proof['scope']})
+    revision.update(painting_started=True,painting_status='procedural_coloured_working',paint_review=str(blend.relative_to(repo)),paint_native_sha256=proof['checked_blend_sha256'])
+queue['counts']['procedural_checked_first_passes']=len(procedural_ready)
 queue['started']=queue['counts']['painting_started']
 queue['limits']='Separate selected-body colour copies. Checked first passes still need owner appearance approval; raw motion acceptance is independent.'
-index={'updated':now,'ready':sorted(ready,key=lambda x:x['priority']),'notes':'First colour passes on owner-selected bodies only. Body/rig/source-motion preservation checked. Appearance and natural motion remain unapproved; raw debris and raw gait defects are retained.'}
+index={'updated':now,'ready':sorted(ready+procedural_ready,key=lambda x:x['priority']),'notes':'First colour passes on owner-selected bodies and accepted procedural tiny fauna. Body/rig/source-motion preservation checked. Appearance and natural motion remain unapproved; raw debris and raw gait defects are retained.'}
 for path,value in [(root/'paint-queue.json',queue),(root/'review-index.json',index),(choices_path,choices)]:
     temporary=path.with_suffix(path.suffix+'.tmp');temporary.write_text(json.dumps(value,indent=2)+'\n');temporary.replace(path)
 print(json.dumps(queue['counts']))

@@ -1,5 +1,56 @@
 # WorldGen repository instructions
 
+FULL COLOUR/TRAIT FINISHING ACTIVE,25October2026 ~15:13 local:
+Owner reiterates plausible invented coats AND extras alongside real analogues.
+All171 generated bodies have native-checked first colour copies; five accepted
+procedural microfauna groups now also have checked painted copies (4 retained
+tiny forms each,6 butterfly/moth palettes and5 each other group). Accepted deer
+separate. NO new model generation or animation baking. Native body/skin/rest/
+actions unchanged; no added insect polygons/lights. Firefly half-body emission
+mask and smooth pulse tested on evaluated shader at1/16/31/61; no per-bug light.
+Micro palettes use one packed512 butterfly/256 other atlas, body/eye/wing UV
+regions. Their source form/wing-envelope limitations remain explicit.
+
+finish-fauna-traits +fauna_trait_catalog add adult linked libraries for16 more:
+Reindeer/Moose/WildCattle/Buffalo/Gazelle/Ibex/Impala/MuskOx/Oryx/Pronghorn/
+Wildebeest/Yak/Duiker/ForestHog/Warthog/Peccary. Both-sex/sex-limited/seasonally
+shed configurations, compact/wider hypothetical architecture. Same adult bodies;
+not actual juvenile or sex body models. Source links/rules saved in species plans.
+All16 native identity/packed/reachable controls pass; actual front/side/Walk-quarter
+trait sheets viewed. Moose solid shallow palms; reindeer brow/upper branching.
+Existing5 earlier appendage libraries and accepted deer retained unchanged.
+
+Pronghorn initial triangle-coloured coat FIXED: temporarily joined sampling copy
+for UV projection and transferred UV corners back. Original15824 split vertices,
+source polygons/weights/rig remain EXACT. Degenerate source triangles retained.
+Actual final side inspected: continuous fur, white underside/rump; horns added.
+reunwrap-split-fauna-surface.py is safe selected-copy-only repair, not a raw weld.
+
+fauna_hypothetical_coats adds10 explicit habitat-pattern studies for common bodies
+and nonperiodic mottling. Generic rosettes now irregular/broken, ground-bird bars
+become small feather scallops. FULL CPU --refresh second-colour pass RUNNING via
+run-fauna-paint-batch, launcher23240 (actual PID/current in finish-progress.json).
+Now all171 supported; preserves existing atlas resolution, guides, traits and
+source rig/motion; each save rechecked and3views rerendered. Do not duplicate.
+New palettes inherit proper appendage options. Counts fluctuate during save/check;
+do not infer every second pass complete. Existing22 generated source swatches
+reused; no new local inference or paid service. Inspect final refreshed images.
+
+Hare/Rabbit/Fox/Wolf now have bounded +/-8.5% ear-length shape keys; safe rear-tail
+regions optionally +/-10%. Original basis/skin/rest/actions EXACT. Wolf tail not
+confidently isolated so omitted. Viewer2 applies linked morph choices; diagnostic
+renderer supports them, native checks verify bounds/all choices. Fitted via prior
+inspected ear frames; actually inspect both extremes before final acceptance.
+All4 fitting/native checks passed. Bodies are still unapproved for appearance.
+
+Inspection actual contact sheets: side01-08,front01-03,motion01-03 and all16 trait
+front/side/quarter sheets viewed; microfauna first all-coat sheet viewed, then
+plaid-looking moth mottling replaced with organic noise and colours linearised.
+Must regenerate/inspect final micro views. Raw source foot/wing defects remain;
+do not claim natural gait/contact or complete engine integration from painting.
+No owner GUI touched/pinged, game/Unity/Desktop changes or bot needed; phone works.
+Last verified source remote checkpoint before this expansion a9b38bb509aca161ca0176ec4d8e13d33fdaffc8.
+
 OWNER PHONE TEST / SECOND PASS,25October2026 ~14:44 local:
 Owner confirms native phone connection works after SMS MFA. Do not re-enable or
 restart remote daemon, do not save pairing codes. Owner asks delayed message test

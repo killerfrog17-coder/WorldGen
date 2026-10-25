@@ -59,7 +59,7 @@ for name in [*entry.get('facial_objects',[]),*entry.get('appendage_objects',[])]
         if material.use_nodes:assert all(n.image.packed_file for n in material.node_tree.nodes if n.type=='TEX_IMAGE')
 viewer=runpy.run_path(str(repo/'scripts/deer-four-rigs-viewer.py'))
 assert bpy.ops.deer_four.model()=={'FINISHED'}
-seen=set();extra_seen={}
+seen=set();extra_seen={};morph_seen={}
 for _ in range(80):
     bpy.ops.deer_four.species();seen.add(body.data.materials[0].name)
     for name in entry.get('coat_objects',[]):assert bpy.data.objects[name].data.materials[0]==body.data.materials[0]
@@ -68,11 +68,23 @@ for _ in range(80):
     options=profile.get('appendage_variants')
     expected=options[viewer['state']['extra_variant']]['objects'] if options else profile.get('visible_extras',[])
     assert visible==set(expected),'Wrong age/sex appendages visible'
+    if entry.get('body_morph_traits'):
+        expected_morph=options[viewer['state']['extra_variant']].get('body_morphs',{})
+        actual=[]
+        for trait,metadata in entry['body_morph_traits'].items():
+            value=body.data.shape_keys.key_blocks[metadata['shape_key']].value
+            assert abs(value-expected_morph.get(trait,0))<1e-5
+            assert metadata['bounds'][0]<=value<=metadata['bounds'][1]
+            actual.append((trait,round(value,3)))
+        morph_seen.setdefault(profile['material'],set()).add(tuple(actual))
     extra_seen.setdefault(profile['material'],set()).add(tuple(sorted(visible)))
 assert seen=={c['material'] for c in entry['painting_coats']},'Not all anatomical coat materials reachable'
 for coat in entry['painting_coats']:
     if coat.get('appendage_variants'):
         assert extra_seen[coat['material']]=={tuple(sorted(option['objects'])) for option in coat['appendage_variants']},'Not all appendage options reachable'
+        if entry.get('body_morph_traits'):
+            expected={tuple((trait,round(option.get('body_morphs',{}).get(trait,0.),3)) for trait in entry['body_morph_traits']) for option in coat['appendage_variants']}
+            assert morph_seen[coat['material']]==expected,'Not all ear/tail variants reached'
 bpy.ops.deer_four.skeleton();assert not bpy.data.objects[entry['rig']].hide_get()
 bpy.ops.deer_four.skeleton();assert bpy.data.objects[entry['rig']].hide_get()
 for _ in range(3):assert bpy.ops.deer_four.view()=={'FINISHED'}
@@ -89,6 +101,7 @@ report={'source_bind_geometry_skin_rig_exact':True,'source_actions_exact':True,'
 report['checked_blend_sha256']=hashlib.sha256(Path(bpy.data.filepath).read_bytes()).hexdigest()
 report['source_blend_sha256']=state['source_blend_sha256']
 report['appendage_objects_skinned']=len(entry.get('appendage_objects',[]))
+report['bounded_body_morphs_checked']=bool(morph_seen)
 report['age_sex_appendage_visibility_checked']=bool(entry.get('appendage_objects'))
 if entry.get('appendage_objects'):report['appendage_options_reached']={coat['label']:len(extra_seen[coat['material']]) for coat in entry['painting_coats']}
 (root/'paint-native-checks.json').write_text(json.dumps(report,indent=2)+'\n')

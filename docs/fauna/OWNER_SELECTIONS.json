@@ -2716,14 +2716,17 @@
       "owner_instruction": "Make requested alterations and move on; no further approval round.",
       "specific_candidate_selection": null,
       "proceed_without_re_review": true,
-      "painting_started": false,
+      "painting_started": true,
       "blend_sha256": "1763b5a86d33e9e7b9e30f2fc1cf46b46c56e1cc9215b856eba2c6f572aa6bef",
       "triangles": [
         80,
         84,
         80,
         76
-      ]
+      ],
+      "painting_status": "procedural_coloured_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\butterflies-and-moths-guild\\Animal - Painted Species Review.blend",
+      "paint_native_sha256": "684e63918857c3058244b97f0ee28bf8484975fdf7c236278f179f8aa14c8b20"
     },
     "fireflies-derived-lineage": {
       "time": "2026-10-24T11:39:15.952344-05:00",
@@ -2731,7 +2734,7 @@
       "owner_instruction": "Make requested alterations and move on; no further approval round.",
       "specific_candidate_selection": null,
       "proceed_without_re_review": true,
-      "painting_started": false,
+      "painting_started": true,
       "blend_sha256": "b282580e906ea5b47f466c2ea4dc1bb9c62aaec95141e9884d58da9aea7ec17f",
       "triangles": [
         216,
@@ -2739,17 +2742,26 @@
         216,
         216
       ],
-      "blink_loop": "Smooth zero-brightness first/last frame,60-frame period; no point light."
+      "blink_loop": "Smooth zero-brightness first/last frame,60-frame period; no point light.",
+      "painting_status": "procedural_coloured_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\fireflies-derived-lineage\\Animal - Painted Species Review.blend",
+      "paint_native_sha256": "d026aacf3606d4006ed8de84e669b8092a610e7ffb1fc93bf60b20573f72726b"
     },
     "dragonflies-guild": {
       "owner_feedback": "Looks fine; no requested change or specific candidate choice.",
       "proceed_without_re_review": true,
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "procedural_coloured_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\dragonflies-guild\\Animal - Painted Species Review.blend",
+      "paint_native_sha256": "2b148171080d5b3f1453f8edd0a549aa22e4af230fde0a021f68bea049ef30a0"
     },
     "native-detritivorous-flies-guild": {
       "owner_feedback": "Looks fine; no requested change or specific candidate choice.",
       "proceed_without_re_review": true,
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "procedural_coloured_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\native-detritivorous-flies-guild\\Animal - Painted Species Review.blend",
+      "paint_native_sha256": "e4aee3bcf3e002301c6750e2fad1e3a06b57eed115a4a33c9a536d4639fb86e9"
     },
     "bees-guild": {
       "time": "2026-10-24T12:00:42.636890-05:00",
@@ -2761,9 +2773,12 @@
         108
       ],
       "joints": 4,
-      "painting_started": false,
+      "painting_started": true,
       "specific_candidate_selection": null,
-      "blend_sha256": "c8a376ded1ae0ead2e9b3e4f65e151e4658547e2af21bd775060fc3cd9c506c1"
+      "blend_sha256": "c8a376ded1ae0ead2e9b3e4f65e151e4658547e2af21bd775060fc3cd9c506c1",
+      "painting_status": "procedural_coloured_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\bees-guild\\Animal - Painted Species Review.blend",
+      "paint_native_sha256": "c06da8647ee9cfef234a2934e5d7e6e47b051ba37f6336f695ad91f9cd11e84a"
     }
   },
   "pending_revisions": {

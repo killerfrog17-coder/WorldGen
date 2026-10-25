@@ -160,10 +160,14 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
     if groundbird:
         colour=np.tile(base,(len(p),1));male='male' in label and 'female' not in label
         body=(1-bill)*(1-feet)
-        mottling=smooth(-.05,.65,feathers)*.60*body
+        mottling=smooth(-.05,.65,feathers)*.38*body
         colour=paint(mottling,base*.32)
-        bars=smooth(.40,.82,np.sin(p[:,2]*185+np.sin(p[:,1]*41)*3+np.sin(p[:,0]*53)*2))*body*(1-head_mask)
-        colour=paint(bars*.16,pale*.85)
+        row=np.floor(p[:,2]/.044);fu=np.mod(p[:,1]/.063+row*.5,1)-.5;fv=np.mod(p[:,2]/.044,1)
+        feather_arc=np.sqrt((fu/.52)**2+((fv-.12)/.88)**2)
+        scallop=smooth(.76,.84,feather_arc)*(1-smooth(.92,1.04,feather_arc))
+        breaks=.55+.45*np.sin(p[:,1]*37+p[:,2]*27)**2
+        bars=scallop*breaks*body*(1-head_mask)
+        colour=paint(bars*.17,pale*.78)
         underside=(1-smooth(eyes[2]-.65,eyes[2]-.25,p[:,2]))*(1-feet)
         colour=paint(underside*.25,pale)
         if a.slug=='quail':
@@ -185,6 +189,8 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
         colour*=np.clip(1+feathers[:,None]*.16,.78,1.22)
         colour=paint(feet,np.array([.41,.34,.23])[None,:]*(.88+.12*scale_lines[:,None]))
         colour=paint(bill,[.42,.34,.20])
+    from fauna_hypothetical_coats import treatment
+    colour=treatment(colour,label,p,n,np.maximum.reduce([head_mask,bill,feet,bare]))
     colour=paint(eye_surround*.25,base*.70);colour=paint(bare,[.055,.042,.030])
     image=np.zeros((a.size,a.size,3),np.float32);image[iy,ix]=np.clip(colour,0,1);extend(image)
     filename=f'coat-{index}-colour.png';Image.fromarray(np.uint8(np.clip(image,0,1)*255)).save(root/filename)

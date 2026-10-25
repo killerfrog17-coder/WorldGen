@@ -18,7 +18,8 @@ ap.add_argument('--watch',action='store_true',help='Keep accepting inspected fac
 ap.add_argument('--refresh',action='store_true',help='Re-bake specified working copies after an inspected recipe correction')
 a=ap.parse_args()
 sys.path.insert(0,str(repo/'scripts'))
-from fauna_finish_catalog import SUPPORTED
+from fauna_finish_catalog import SUPPORTED as EXTENDED
+from fauna_paint_recipes import SUPPORTED
 queue=json.loads((root/'paint-queue.json').read_text())['jobs']
 jobs=[j for j in queue if j['slug'] in SUPPORTED and (not a.slugs or j['slug'] in a.slugs)]
 if a.limit:jobs=jobs[:a.limit]
@@ -55,10 +56,11 @@ try:
             else:
                 if finished(slug) and not a.refresh:
                     report['completed'].append(slug);save();continue
-                if not (folder/'face-guide-picks.json').exists():
+                if not (folder/'face-guide-picks.json').exists() and not (folder/'face-landmarks.json').exists():
                     report['waiting_for_guides'].append(slug);save();continue
-                run(slug,'fit-selected-fauna-landmarks.py',['--slug',slug],'fit.log')
-                run(slug,'bake-fauna-finish.py',['--slug',slug],'bake.log',False)
+                if not a.refresh or not (folder/'face-landmarks.json').exists():run(slug,'fit-selected-fauna-landmarks.py',['--slug',slug],'fit.log')
+                size=json.loads((folder/'coat-bake.json').read_text()).get('size',1024) if (folder/'coat-bake.json').exists() else 1024
+                run(slug,'bake-fauna-finish.py' if slug in EXTENDED else 'bake-selected-fauna-coats.py',['--slug',slug,'--size',str(size)],'bake.log',False)
                 run(slug,'finish-selected-fauna-face.py',['--slug',slug],'finish.log')
                 run(slug,'check-selected-fauna-paint.py',['--slug',slug],'final-paint-check.log')
                 for view in ['side','front','rear']:

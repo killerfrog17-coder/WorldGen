@@ -63,6 +63,10 @@ def playback():
 def visibility():
     for index,entry in enumerate(models):
         body=bpy.data.objects[entry['body']];r=bpy.data.objects[entry['rig']]
+        if entry.get('body_morph_traits') and body.data.shape_keys:
+            values=painting_variant(entry).get('body_morphs',{}) if index==state['model'] else {}
+            for trait,metadata in entry['body_morph_traits'].items():
+                lo,hi=metadata['bounds'];body.data.shape_keys.key_blocks[metadata['shape_key']].value=max(lo,min(hi,values.get(trait,0.)))
         for name in entry.get('objects',[entry['body']]):
             obj=bpy.data.objects[name];hidden=index!=state['model']
             if entry.get('painting_coats') and name in entry.get('appendage_objects',[]):

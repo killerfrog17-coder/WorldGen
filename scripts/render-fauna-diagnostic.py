@@ -37,6 +37,10 @@ else:
             extras=options[a.extra_variant%len(options)]['objects'] if options else profile.get('visible_extras',[])
             obj=bpy.data.objects[name];hidden=name not in extras
             obj.hide_set(hidden);obj.hide_render=hidden
+        if e.get('body_morph_traits') and body.data.shape_keys:
+            options=e['painting_coats'][a.coat].get('appendage_variants',[])
+            values=options[a.extra_variant%len(options)].get('body_morphs',{}) if options else {}
+            for trait,metadata in e['body_morph_traits'].items():body.data.shape_keys.key_blocks[metadata['shape_key']].value=values.get(trait,0.)
 if a.surface_only:
     for name in [*e.get('facial_objects',[]),*e.get('appendage_objects',[])]:
         obj=bpy.data.objects[name];obj.hide_set(True);obj.hide_render=True

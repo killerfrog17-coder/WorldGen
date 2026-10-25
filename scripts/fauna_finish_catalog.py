@@ -188,6 +188,11 @@ def profiles(slug):
                 b=[min(.88,b[0]*1.12),b[1]*.97,b[2]*.88]
             else:
                 shift=(i%3-1)*.025;b=[min(.9,max(.018,x+shift)) for x in b]
+        if 'hypothetical' in low:
+            if any(w in low for w in ('dryland','sandy','dry-cover')):b=[x*.72+t*.28 for x,t in zip(b,[.68,.56,.36])]
+            elif any(w in low for w in ('dark','forest','woodland','litter')):b=[x*.80 for x in b]
+            if 'subdued' in low or 'muted' in low:
+                grey=sum(b)/3;b=[x*.80+grey*.20 for x in b]
         result.append((label,b,p,False))
     return result or [('Base coat',base,pale,False)]
 

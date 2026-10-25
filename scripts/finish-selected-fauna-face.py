@@ -54,7 +54,20 @@ def image(filename,noncolour=False):
     im.pack();return im
 
 rough=image('coat-roughness.png',True);normal=image('coat-normal.png',True)
+from fauna_hypothetical_coats import rationale
+while len(entry['painting_coats'])<len(bake['coats']):
+    record=bake['coats'][len(entry['painting_coats'])];label=record['label']
+    mat=bpy.data.materials.new(a.slug+' '+label);mat.use_nodes=True;mat.use_fake_user=True
+    attr=body.data.color_attributes.new(name='Working '+label,type='BYTE_COLOR',domain='CORNER')
+    attr.data.foreach_set('color',np.tile([.3,.3,.3,1.],len(attr.data)).astype(np.float32).ravel())
+    added={'label':label,'material':mat.name,'working_vertex_colour':attr.name}
+    if entry.get('appendage_objects'):
+        template=next((c for c in entry['painting_coats'] if 'hypothetical' in c['label'].lower()),entry['painting_coats'][0])
+        for key in ['appendage_variants','visible_extras','trait_label']:
+            if key in template:added[key]=template[key]
+    entry['painting_coats'].append(added)
 for index,coat in enumerate(entry['painting_coats']):
+    coat.update(hypothetical='hypothetical' in coat['label'].lower(),ecological_hypothesis=rationale(coat['label']))
     mat=bpy.data.materials[coat['material']];nodes=mat.node_tree.nodes;links=mat.node_tree.links;nodes.clear()
     output=nodes.new('ShaderNodeOutputMaterial');bsdf=nodes.new('ShaderNodeBsdfPrincipled');links.new(bsdf.outputs['BSDF'],output.inputs['Surface'])
     for filename,socket,noncolour in [(bake['coats'][index]['file'],'Base Color',False),('coat-roughness.png','Roughness',True)]:

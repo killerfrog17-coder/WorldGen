@@ -14,6 +14,7 @@ from scipy.spatial import cKDTree
 repo=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(repo/'scripts'))
 from fauna_finish_catalog import SUPPORTED,PALETTES,category,profiles,radius,ROWS
 from fauna_paint_recipes import eye_frame
+from fauna_hypothetical_coats import treatment,rationale
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=1024)
 a=ap.parse_args();assert a.slug in SUPPORTED;started=time.monotonic()
 root=repo/'artifacts/fauna-painted-20261024'/a.slug
@@ -105,6 +106,23 @@ h=(np.sin(cell)*43758.5453)%1;j=(np.sin(cell+91)*22573.173)%1
 du=(u%1)-.15-.7*h;dv=(v%1)-.15-.7*j;rr=np.sqrt(du*du+dv*dv)
 spots=(1-smooth(.12,.24,rr))*(h>.28)*(1-face)
 rosettes=smooth(.12,.19,rr)*(1-smooth(.25,.34,rr))*(h>.2)*(1-face)
+if pattern in {'rosettes','ocelot'}:
+    # Jittered seed cells, irregular broken rings and varying orientation/size.
+    # No rigid grid of identical circular stamps.
+    rng_marks=np.random.default_rng(29453)
+    by,bz=np.mgrid[p[:,1].min()-.2:p[:,1].max()+.2:.135,p[:,2].min()-.2:p[:,2].max()+.2:.12]
+    seeds=np.stack([by.ravel(),bz.ravel()],axis=1)+rng_marks.uniform(-.045,.045,(by.size,2))
+    warped=np.stack([p[:,1]+.009*np.sin(p[:,2]*29),p[:,2]+.008*np.sin(p[:,1]*31)],axis=1)
+    _,near=cKDTree(seeds).query(warped,k=3);delta=warped[:,None,:]-seeds[near]
+    phase=(np.sin(near*37.15)*4567)%1*(2*np.pi)
+    aspect=1.65 if pattern=='ocelot' else 1.
+    du=delta[:,:,0]/aspect;dv=delta[:,:,1]*aspect
+    theta=np.arctan2(dv,du);rad=.037+.016*((np.sin(near*19.13)*2378)%1)
+    rr2=np.sqrt(du*du+dv*dv)/rad/(1+.10*np.sin(theta*3+phase)+.045*np.cos(theta*5-phase))
+    rings=smooth(.58,.76,rr2)*(1-smooth(.97,1.11,rr2))*(1-smooth(.82,.98,np.cos(theta-phase)))
+    rosettes=rings.max(1)*(1-face)
+    face_dots=(1-smooth(.16,.31,rr2.min(1)))*face
+    if a.slug=='jaguar':rosettes=np.maximum(rosettes,(1-smooth(.12,.25,rr2.min(1)))*(1-face)*.8)
 flank=smooth(.15,.65,np.abs(n[:,0]))
 bars=smooth(.35,.8,np.sin(p[:,2]*145+np.sin(p[:,1]*39)*2.6+np.sin(p[:,0]*47)*1.7))
 rng=np.random.default_rng(3517)
@@ -123,8 +141,10 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
         colour=paint(wing*.25,base*.65)
     if pattern in {'grizzle','sloth','spines'}:
         colour=paint(smooth(.12,.78,detail)*(.35 if pattern!='spines' else .6),pale)
+    mark_strength=.55 if 'hypothetical' in low and any(w in low for w in ['muted','subdued','weak']) else 1.
     if pattern in {'rosettes','ocelot'}:
-        colour=paint(rosettes*.92*flank,dark);colour=paint(spots*.6*(1-flank)*(1-face),dark)
+        colour=paint(rosettes*.92*flank*mark_strength,dark);colour=paint(spots*.6*(1-flank)*(1-face)*mark_strength,dark)
+        colour=paint(face_dots*.85,dark)
     if pattern in {'hyena','civet','monitor','pike'}:colour=paint(spots*.82,dark)
     if pattern in {'paca','quoll'}:
         marks=spots*.95*flank
@@ -146,10 +166,13 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
     if pattern in {'gazelle','oryx','pronghorn'}:
         colour=paint(belly,pale)
         stripe=np.exp(-((p[:,2]-(zlo+span*.52))/.065)**2)*flank*(1-face)
-        colour=paint(stripe*.8,dark)
+        if pattern!='pronghorn':colour=paint(stripe*.8,dark)
         colour=paint(face*.45,pale)
         if pattern=='oryx':colour=paint(surround*.9,dark)
-        if pattern=='pronghorn':colour=paint(tail_weight*.8,white)
+        if pattern=='pronghorn':
+            colour=paint(np.maximum(tail_weight*.95,belly*.9),white)
+            colour=paint(throat*.9,white)
+            if 'male' in low:colour=paint(face*np.exp(-((forward+.035)/.06)**2)*.75,dark)
     if pattern=='collar':colour=paint(np.exp(-((forward+headscale*2)/.10)**2)*(1-foot)*.85,pale)
     if pattern=='saddle':colour=paint(back*.6,pale)
     if pattern=='painted-dog':
@@ -286,6 +309,7 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
         colour=paint(ear*.6,base*.65+[.035,.02,.01]);colour=paint(keratin,[.09,.075,.055])
         colour=paint(nosemask,[.075,.057,.038])
     colour*=np.clip(1+detail[:,None]*(.17 if mammal else .10),.75,1.25)
+    colour=treatment(colour,label,p,n,np.maximum.reduce([face,foot,bill,bare]))
     colour=paint(bare,[.06,.045,.03])
     image=np.zeros((a.size,a.size,3),np.float32);image[iy,ix]=np.clip(colour,0,1);extend(image)
     filename=f'coat-{index}-colour.png';Image.fromarray(np.uint8(np.clip(image,0,1)*255)).save(root/filename)
