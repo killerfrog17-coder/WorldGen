@@ -1,5 +1,40 @@
 # WorldGen repository instructions
 
+PHONE DEER APPROVAL SAMPLE LIVE,25October2026 ~16:17 local:
+Owner asks snips/video for phone approval using accepted deer as test. Created
+private Sites gallery https://worldgen-animal-review.glassymole9.chatgpt.site
+via Sites skill. Site checkout artifacts/fauna-phone-review (its OWN nested Git),
+manifest .openai/hosting.json project_id appgprj_6ade6fbe0a5081918b25bcbf541da095.
+REUSE this ID/checkout, never create another for the same site. Current source
+2c4143fb972f5bc2c4b17625af1b8721d1da3e2b pushed/packaged; private version
+appgprj_6ade6fbe0a5081918b25bcbf541da095~appgver_d8e988e96ab0819195d3b64366c617d7,
+deployment appgdep_6ade719a053081919d5469bec443249f SUCCEEDED verified native.
+Private audience retained. Source credentials expire; obtain a fresh credential
+for SAME project if updating, never store/print tokens. No new auth setup needed.
+
+Approved deer source SHA still0e2ff46b0b0860750084bed3af94d84f636144230550e9e80f753b3e415418a1.
+scripts/render-fauna-phone-review.py renders read-only in background: six960x720
+WebP stills A side/B front/C rear/D face/E spotted antlerless/F hypothetical
+striped narrowfork, H264640x48024fps Walk3s/Run3s/Eating6s. Temporary in-memory
+action copies add cycle modifiers for clip repetition; no saved model/rig/skin/
+curve edit. Stills CPU Cycles; motion Eevee lightweight rendering, no inference.
+All nine deployed media ~0.46MiB total. Six PNG intermediates removed AFTER WebP
+conversion validated. Native preservation/image/video hashes in ignored checks/
+render-receipt.json. Owned initial slow CPU video producer27376 was explicitly
+stopped before its unfinished clip; complete final clips came from one replacement
+worker33589 session, now exited. No owner GUI/game/Unity/settings/Desktop changes.
+
+scripts/check-fauna-phone-review.mjs headless installed Chrome/Playwright checks
+390x844 phone layout,6 loaded stills,all3 clips metadata+advancing playback,
+quarter speed retained on switching,no horizontal overflow,no page errors:pass.
+Actual decoded OpenCV phases.11/.37/.73 each clip viewed and differ (Walk/Run/
+Eating mean RGB changes~4.5/5.2-5.9/.7-.9). Headless paused canvas frame callbacks
+proved unreliable; do NOT claim those cached grabs were actual poses. Final
+checks/decoded-motion-contact.jpg is actual decoded proof. Mobile screenshot
+and6stills viewed. Local8766 preview only; stop own venv launcher+child afterQA.
+Feedback happens in this chat using still letter or clip/time, no dummy submit
+form/backend acceptance. Do not infer new owner animal acceptance from this test.
+
 PAINTING DELIVERY READY / SECOND PASS COMPLETE,25October2026 ~16:04 local:
 All171 selected generated bodies finished colour refresh; finish-progress stage
 finished171/171,failed{},waiting[],currentnull. Final QA171/171 errors{},warnings{},
