@@ -1,5 +1,18 @@
 # WorldGen repository instructions
 
+CROCODILE CORRESPONDENCE RECOVERY,24October2026~22:50CDT:
+All4 original Bind-side point backward; old Head=0/0/42/0 (torso/toe). Pure
+old/axis-only/full-branch comparison confirms axis-only still maps trunk. Scoped
+rigid180Z+anatomical_quadruped gives actual forward snout7/6/6/6, complete limb
+branches. RawGLB/NN hashes unchanged, native4/controls pass; all4 before/after
+Walk-side quarter inspected, coarse feet remain. Recovery finalized; no new
+inference/painting/state edits. Possum3 sampled Walk forehand strongly stretches,
+excluded from clean-motion recommendation only; all4 retained. Cormorant/Dolphin/
+Dugong/PredatoryFreshwaterFish/FreshwaterTurtle all4 quarter-side samples recorded
+with limitations in per-root warnings.166raw ready; same93476/21044 Shorebird rig
+continues. No useful new CC0 swimming-otter source verified in targeted recheck;
+terrestrial trial stays explicitly swim-incomplete. No new owner viewer.
+
 SHARK AXES CHECKED,24October2026 late evening:
 All4 Shark Bind-side show snout negativeY/tail positiveY; rigid180Z all4 config
 restores actual head-forward fish correspondence. RawGLB/NN hashes exact, native4

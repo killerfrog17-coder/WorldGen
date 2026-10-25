@@ -1798,5 +1798,97 @@
         "generated-rig.npz": "db9f44710ccdeceea741aa3977f7522b285a974a4d7684e0f426cea5fc7d18e2"
       }
     }
+  },
+  "crocodile": {
+    "reason": "All4 Bind-side show snout negativeY/tail positiveY; old Head aliases torso0 on1/2/4 and toe42 on3. Axis-only still selects trunk; scoped rigid180Z plus full bilateral appendage branches excludes toe subtrees and selects actual forward snout7/6/6/6. No raw model or neural rig edits.",
+    "axis_corrections": {
+      "1": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "2": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "3": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "4": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "anatomical_quadruped": true,
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "1da479fca1143e266051fa5c442b3ffb823c24a40496411f8c33dd7578ccb2bb",
+        "generated-rig.npz": "494da4a67ab402a661900fd4bd727329d1407a1123d42bb14bea1ec9cb63ddf6"
+      },
+      "2": {
+        "model.glb": "bc67263aad9b82e0cdeba3de39316bac764866711b50e975ffb4a17f112f1bce",
+        "generated-rig.npz": "f3fbe95bdffffb736719fb9610196abd3fb84fbf66a875ba77f6b32ad949776f"
+      },
+      "3": {
+        "model.glb": "5559e97ff590ee5c3fb4f86eeb7d9c97a8a4db0cf036920b3be239e67ee217be",
+        "generated-rig.npz": "a5e82f06127f25f5a4417c64826ad24fa4c968da8b58a38e02030adcec638ace"
+      },
+      "4": {
+        "model.glb": "ad2ba5e87b5f244040013340f1489d54c6e9fb5efebf9144445a7e72d9dd97c0",
+        "generated-rig.npz": "2a7f2e0ee1569b9a33d542707a1901ef836519f3910f25ba01b745af60a06f80"
+      }
+    }
   }
 }
