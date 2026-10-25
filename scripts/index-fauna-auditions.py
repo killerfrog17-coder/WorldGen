@@ -20,6 +20,8 @@ for item in plan:
             if request.exists() and check.exists():
                 requested=datetime.datetime.fromisoformat(json.loads(request.read_text())['time']).timestamp()
                 fresh_redo=check.stat().st_mtime>=requested
+        if revision.get('status') in ('motion_revision_queued','motion_revision_in_progress'):
+            fresh_redo=False
         if fresh_redo and meta.exists() and check.exists() and not (folder/'review-rebuild.json').exists() and not (folder/'source-trial-pending.json').exists():
             data=json.loads(meta.read_text());path=str(folder/'Animal - Raw Audition.blend');status='ready_for_owner_review'
             selected=choices.get('animals',{}).get(slug,{})
@@ -32,6 +34,11 @@ for item in plan:
                     path=str(fixed)
             candidate_count=len(data['candidates'])
             if selected.get('manual_fix_blend') and path==str(repo/selected['manual_fix_blend']):candidate_count=len(json.loads(evidence.read_text())['candidates'])
+            motion_proof=folder/'owner-motion-review-ready.json'
+            if motion_proof.exists() and revision.get('status')=='motion_revision_ready_owner_review_pending':
+                proof=json.loads(motion_proof.read_text());revised=folder/proof['output'];native=json.loads((folder/proof['native_evidence']).read_text());digest=hashlib.sha256(revised.read_bytes()).hexdigest()
+                assert digest==proof['checked_blend_sha256']==native['checked_blend_sha256'] and proof['visual_inspection_completed'] and native['controls']
+                path=str(revised);candidate_count=len(native['candidates'])
             ready.append({'slug':slug,'name':item['animal'],'priority':item['priority_rank'],'path':path,'candidates':candidate_count})
             notes='; '.join(data.get('motion_gaps',[]))
             warning_file=folder/'visual-warnings.json'
@@ -44,7 +51,8 @@ for item in plan:
         else:
             status='in_progress_or_waiting';pending.append(slug)
             q=queue.get(slug,{})
-            if redo and not fresh_redo:status='owner_requested_reference_redo';notes=revision.get('reason','Fresh owner-requested four-model set pending')
+            if revision.get('status') in ('motion_revision_queued','motion_revision_in_progress'):status='owner_requested_motion_revision';notes=revision.get('reason','Owner-requested motion correction pending')
+            elif redo and not fresh_redo:status='owner_requested_reference_redo';notes=revision.get('reason','Fresh owner-requested four-model set pending')
             elif q.get('status')=='failed':status='generation_failed';notes=q.get('error','')
             elif (folder/'source-trial-pending.json').exists():status='experimental_motion_trial_pending';notes='Source trial awaits technical inspection; excluded from animation-ready count';motion_trials_pending.append(slug)
             elif (folder/'review-rebuild.json').exists():

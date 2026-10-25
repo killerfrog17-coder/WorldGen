@@ -1809,10 +1809,11 @@
       "animation_approved": false,
       "painting_started": false,
       "required_manual_fix": "Manually place the skeleton/all four leg chains; explicitly re-show selected model.",
-      "proceed_without_re_review": false,
+      "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\iguana\\Animal - Owner Corrected.blend",
-      "manual_fix_blend_sha256": "d75a2783a517a80b96951b11ce4f9790f14ac8df511fc589a69938b3d40ae820",
-      "manual_fix_status": "explicit_owner_review_ready"
+      "manual_fix_blend_sha256": "f776a30243bcafba83a57a12098a6d23d58dce0542a4153cca301d6989592caf",
+      "manual_fix_status": "owner_rig_approved_ground_clearance_corrected_no_repeat",
+      "owner_feedback": "Good; correct any Idle/Walk hover, no repeat review"
     },
     "koala": {
       "animal": "Koala",
@@ -1894,10 +1895,11 @@
       "animation_approved": false,
       "painting_started": false,
       "required_manual_fix": "Manually rig all four feet/legs; explicitly re-show selected model.",
-      "proceed_without_re_review": false,
+      "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\monitor-lizard\\Animal - Owner Corrected.blend",
-      "manual_fix_blend_sha256": "bc3adfa9475ce6bdeae8f8a5945255e8cc78f584fd8a4620fcab2d8fe3cf9e80",
-      "manual_fix_status": "explicit_owner_review_ready"
+      "manual_fix_blend_sha256": "d22a29bd0d172931f14ae4cb1cb4eb035ec61892fcfeef1a2a13b3f465696c3a",
+      "manual_fix_status": "owner_rig_approved_ground_clearance_corrected_no_repeat",
+      "owner_feedback": "Good; correct any Idle/Walk hover, no repeat review"
     },
     "orb-weaving-spiders-guild": {
       "animal": "Orb-weaving spiders (guild)",
@@ -2130,6 +2132,135 @@
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\whale\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "4e3b8453e20ed1c6808244f1cd6bad7458086a4cebd2aa9cf3ed5de32693badd",
       "manual_fix_status": "completed_best_effort_no_repeat_review"
+    },
+    "sea-otter": {
+      "animal": "Sea otter",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-25T10:35:39.669109-05:00",
+      "model_sha256": "19a2b109d090ef009e112cb8cea0819fb3fdb78762f7c268aef54442874bb2ad",
+      "rig_sha256": "104a0ec42b7f09890168466f27b04b779b1bcbaa1e938a389a14bd01c3114df6",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections."
+    },
+    "shark": {
+      "animal": "Shark",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-25T10:35:39.669109-05:00",
+      "model_sha256": "d888095e6d496986a680cac8f20db30de194acff6d61177fa3ee072557ba8aff",
+      "rig_sha256": "dae22193926855e00e01cf7fb2764868fbb8bb62b9a1bf1aabb9baa35e248ef8",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections."
+    },
+    "spider-monkey": {
+      "animal": "Spider monkey",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-25T10:35:39.669109-05:00",
+      "model_sha256": "b98f254563ac3264cd1d8ac1ae2636520a7894da074db116557167ff0888c65c",
+      "rig_sha256": "ffa8fb56593f4e6c05b0f982946835987e65b905b05208c4e55122393fefba8e",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections."
+    },
+    "tamarin": {
+      "animal": "Tamarin",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-25T10:35:39.669109-05:00",
+      "model_sha256": "3d03716e958cf091da5857cd9d049eea1dc0779925d5b1925fbce881a8c04142",
+      "rig_sha256": "c03cbd1213edde858165b7f5e5b5f2dadb231d6e2cf9788cf6bfcc82d0268a33",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections."
+    },
+    "chimpanzee": {
+      "animal": "Chimpanzee",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-25T10:35:39.669109-05:00",
+      "model_sha256": "21a642c652294d37ee1dfe4edaabbfce3e37009da248c80457cc5baaec961069",
+      "rig_sha256": "0d76c0475a702ccfe7f1c10578396ec242e670f1ea6ff268545418dae8bdb0f8",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections."
+    },
+    "crocodile": {
+      "animal": "Crocodile",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-25T10:35:39.669109-05:00",
+      "model_sha256": "c03a543654dd0969deea858622196d717eae46f3213f07efd715c05f2972e5fe",
+      "rig_sha256": "ea9831757241ad23921102cb1746c8044bbc469a8a2a6b3a9a9a677f0d586f5e",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections.",
+      "required_manual_fix": "Selected3: fix twisting of all four feet; no repeat review requested",
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\crocodile\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "cb72ae433db2282f12cfa0e359377573b795292fe1c4410d968d7d628226d62c",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
+    },
+    "giant-panda": {
+      "animal": "Giant panda",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-25T10:35:39.669109-05:00",
+      "model_sha256": "9c48675cfdb50ea2a2a228fb20ae08f5fa5917bb2ae51bda6ed882321bb0f72a",
+      "rig_sha256": "a35152c6767e906eef03197bc0cf0084bebb8bf4d34f08191aad9b961e3658bd",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections.",
+      "required_manual_fix": "Selected2: fix severe front-leg deformation; no repeat review requested",
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\giant-panda\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "c8b9aa76d544451adb599e20bea99b0ae15f3e4161aea99f4077970f85f540df",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
+    },
+    "giraffe": {
+      "animal": "Giraffe",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-25T10:35:39.669109-05:00",
+      "model_sha256": "388b527ef5566ad2d3a215d6e06de13faa40d9c2d8d2736598bc08526f8791db",
+      "rig_sha256": "1bbd7989bdfaadc54cbf2ea6636027dcf10769b17ccfbbbed9d0a48a7761c31a",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections."
+    },
+    "elephant": {
+      "animal": "Elephant",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-25T11:00:08.077060-05:00",
+      "model_sha256": "8438c1e9af9af345e92b2dd4449752c5b19d22a14ad26a8702f777a787d51bdd",
+      "rig_sha256": "fedf807081f96c5e659559d8b3c2d7b78bb0f76589add6dcaa707276619acf69",
+      "model_selected": false,
+      "animation_approved": false,
+      "painting_started": false,
+      "owner_feedback": "Candidate2 chosen for attempted repair and explicit repeat review; final keep decision pending",
+      "proceed_without_re_review": false,
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\elephant\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "120638ce1dc747c760d5a7f8bb38acab0bf852f3ca4c36787c74ffe687800852",
+      "manual_fix_status": "explicit_owner_review_ready"
     }
   },
   "source_root": "artifacts/fauna-overnight-20261024",
@@ -2352,10 +2483,11 @@
     "chimpanzee": {
       "reason": "Redo again: former grey background became wall/floor geometry. Isolated alpha cutout; aligned forward head.",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "reference_model_redo_queued",
-      "explicit_repeat_review": true,
+      "status": "owner_selected",
+      "explicit_repeat_review": false,
       "proceed_without_re_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T10:35:39.669109-05:00"
     },
     "cormorant": {
       "reason": "Feet scrunch in Walk; reduce the inward extreme of wing flapping to avoid visible self-clipping.",
@@ -2373,38 +2505,51 @@
       "completed": "2026-10-25T04:08:40.025280-05:00"
     },
     "crocodile": {
-      "reason": "Redo again: former grey background became backdrop/floor mesh. Isolated alpha cutout, straight tail.",
-      "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "reference_model_redo_queued",
-      "explicit_repeat_review": true,
-      "proceed_without_re_review": false,
-      "art_approved": false
+      "reason": "Selected3: fix twisting of all four feet; no repeat review requested",
+      "time": "2026-10-25T10:35:39.669109-05:00",
+      "status": "manual_revision_completed_no_repeat_review",
+      "explicit_repeat_review": false,
+      "proceed_without_re_review": true,
+      "art_approved": false,
+      "completed": "2026-10-25T11:27:48.653045-05:00",
+      "repair_candidate": 3
     },
     "echidna": {
-      "reason": "Owner requests regeneration from scratch.",
-      "status": "new_reference_preparation_pending",
+      "reason": "Replace artificial accelerated Walk Run; whole hind-paw confinement to remove floor anchors; inspect several frames",
+      "status": "motion_revision_ready_owner_review_pending",
       "explicit_repeat_review": true,
-      "art_approved": false
+      "art_approved": false,
+      "time": "2026-10-25T10:35:39.669109-05:00",
+      "proceed_without_re_review": false,
+      "repair_candidate": null,
+      "prepared": "2026-10-25T11:27:48.009692-05:00"
     },
     "elephant": {
-      "reason": "Redo again: former grey background became backdrop mesh. Isolated alpha cutout, exactly four legs.",
-      "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "reference_model_redo_queued",
+      "reason": "Repair candidate2: right forefoot and right hindfoot unmoving, left foreleg/tusk and tail confused; explicit re-review",
+      "time": "2026-10-25T10:35:39.669109-05:00",
+      "status": "manual_motion_revision_ready_owner_review_pending",
       "explicit_repeat_review": true,
       "proceed_without_re_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "repair_candidate": 2,
+      "prepared": "2026-10-25T11:27:48.519628-05:00"
     },
     "giant-panda": {
-      "reason": "Source head turned off-axis; regenerate four from inspected forward-facing reference.",
-      "status": "new_reference_preparation_pending",
-      "explicit_repeat_review": true,
-      "art_approved": false
+      "reason": "Selected2: fix severe front-leg deformation; no repeat review requested",
+      "status": "manual_revision_completed_no_repeat_review",
+      "explicit_repeat_review": false,
+      "art_approved": false,
+      "completed": "2026-10-25T11:30:20.858291-05:00",
+      "time": "2026-10-25T10:35:39.669109-05:00",
+      "proceed_without_re_review": true,
+      "repair_candidate": 2
     },
     "giraffe": {
       "reason": "Owner rejects off-axis source head; must inspect new reference before four-model generation.",
-      "status": "new_reference_preparation_pending",
-      "explicit_repeat_review": true,
-      "art_approved": false
+      "status": "owner_selected",
+      "explicit_repeat_review": false,
+      "art_approved": false,
+      "completed": "2026-10-25T10:35:39.669109-05:00"
     },
     "gorilla": {
       "reason": "Fix twisted feet in Run.",
@@ -2421,10 +2566,14 @@
       "completed": "2026-10-25T04:11:13.483629-05:00"
     },
     "gull": {
-      "reason": "Owner rejects abnormal off-axis head reference; regenerate four from a normal gull reference with head forward along torso.",
-      "status": "new_reference_preparation_pending",
+      "reason": "Ground-only leg movement inadequate; restore suitable full-body walk and real flight with appropriate wing geometry",
+      "status": "motion_revision_ready_owner_review_pending",
       "explicit_repeat_review": true,
-      "art_approved": false
+      "art_approved": false,
+      "time": "2026-10-25T10:35:39.669109-05:00",
+      "proceed_without_re_review": false,
+      "repair_candidate": null,
+      "prepared": "2026-10-25T11:27:48.418071-05:00"
     },
     "hedgehog": {
       "reason": "Front feet deform in Run; left front foot also in Walk.",
@@ -2444,11 +2593,12 @@
     },
     "iguana": {
       "reason": "Manually place the skeleton/all four leg chains; explicitly re-show selected model.",
-      "status": "manual_motion_revision_ready_owner_review_pending",
-      "proceed_without_re_review": false,
-      "explicit_repeat_review": true,
+      "status": "manual_revision_completed_no_repeat_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
       "art_approved": false,
-      "prepared": "2026-10-25T04:38:49.169581-05:00"
+      "prepared": "2026-10-25T04:38:49.169581-05:00",
+      "completed": "2026-10-25T10:33:25.060409-05:00"
     },
     "koala": {
       "reason": "Arm twist plus right ear stretching/popping in Walk/Run.",
@@ -2484,11 +2634,12 @@
     },
     "monitor-lizard": {
       "reason": "Manually rig all four feet/legs; explicitly re-show selected model.",
-      "status": "manual_motion_revision_ready_owner_review_pending",
-      "proceed_without_re_review": false,
-      "explicit_repeat_review": true,
+      "status": "manual_revision_completed_no_repeat_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
       "art_approved": false,
-      "prepared": "2026-10-25T04:38:49.191926-05:00"
+      "prepared": "2026-10-25T04:38:49.191926-05:00",
+      "completed": "2026-10-25T10:33:25.061409-05:00"
     },
     "pangolin": {
       "reason": "Repair foot twists, especially forefeet; slightly reduce excessive head bob.",
@@ -2581,68 +2732,78 @@
       "completed": "2026-10-25T04:38:49.332002-05:00"
     },
     "nutria": {
-      "reason": "Fresh model set; rejected appearance.",
+      "reason": "Owner rejects jagged leg-only locomotion; Nutria multiple paws retain floor-anchored stretching; use actual Run, whole-paw skin and several-frame surface inspection",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "reference_model_redo_queued",
+      "status": "motion_revision_ready_owner_review_pending",
       "explicit_repeat_review": true,
       "proceed_without_re_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "prepared": "2026-10-25T11:27:47.839629-05:00"
     },
     "porcupine": {
-      "reason": "Fresh reference/model set from scratch.",
+      "reason": "Owner rejects jagged leg-only locomotion; Nutria multiple paws retain floor-anchored stretching; use actual Run, whole-paw skin and several-frame surface inspection",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "reference_model_redo_queued",
+      "status": "motion_revision_ready_owner_review_pending",
       "explicit_repeat_review": true,
       "proceed_without_re_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "prepared": "2026-10-25T11:27:47.936695-05:00"
     },
     "python": {
-      "reason": "Perfectly straight forward-head source; own manual snake rig after tutorial research; explicitly re-show.",
-      "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "reference_model_redo_queued",
+      "reason": "Replace weak jagged sidewinding with proper smooth procedural locomotion or a better source; inspect multiple frames",
+      "time": "2026-10-25T10:35:39.669109-05:00",
+      "status": "motion_revision_ready_owner_review_pending",
       "explicit_repeat_review": true,
       "proceed_without_re_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "repair_candidate": null,
+      "prepared": "2026-10-25T11:27:48.257785-05:00"
     },
     "venomous-snake": {
-      "reason": "Perfectly straight forward-head source; own manual snake rig as Python; explicitly re-show.",
-      "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "reference_model_redo_queued",
+      "reason": "Same smooth procedural snake locomotion correction as Python; inspect several frames",
+      "time": "2026-10-25T10:35:39.669109-05:00",
+      "status": "motion_revision_ready_owner_review_pending",
       "explicit_repeat_review": true,
       "proceed_without_re_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "repair_candidate": null,
+      "prepared": "2026-10-25T11:28:40.779047-05:00"
     },
     "sea-otter": {
       "reason": "Forward head aligned with torso; swimming/aquatic motion, not dog running.",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "reference_model_redo_queued",
-      "explicit_repeat_review": true,
+      "status": "owner_selected",
+      "explicit_repeat_review": false,
       "proceed_without_re_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T10:35:39.669109-05:00"
     },
     "shark": {
       "reason": "Strictly forward-head reference aligned with torso.",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "reference_model_redo_queued",
-      "explicit_repeat_review": true,
+      "status": "owner_selected",
+      "explicit_repeat_review": false,
       "proceed_without_re_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T10:35:39.669109-05:00"
     },
     "spider-monkey": {
       "reason": "Fresh source/model set with head aligned forward.",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "reference_model_redo_queued",
-      "explicit_repeat_review": true,
+      "status": "owner_selected",
+      "explicit_repeat_review": false,
       "proceed_without_re_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T10:35:39.669109-05:00"
     },
     "tamarin": {
       "reason": "Fresh reference and models from scratch.",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "reference_model_redo_queued",
-      "explicit_repeat_review": true,
+      "status": "owner_selected",
+      "explicit_repeat_review": false,
       "proceed_without_re_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T10:35:39.669109-05:00"
     }
   },
   "undecided_mentions": {},
@@ -2650,14 +2811,16 @@
     "reopen_rightmost_after_requested_revisions": true,
     "time": "2026-10-25T03:48:27.919554-05:00",
     "reopened": true,
-    "pid": 20976,
+    "pid": 5340,
     "opened_on": "rightmost",
     "only_prepared": true,
     "wait_until_all_requested_candidates_ready": true,
-    "opened_at": "2026-10-25T05:22:43.543338-05:00",
-    "prepared_review_animals": 17,
+    "opened_at": "2026-10-25T11:30:23.190249-05:00",
+    "prepared_review_animals": 7,
     "progress_ready": 39,
-    "progress_total": 39
+    "progress_total": 39,
+    "start_animal": "nutria",
+    "revision_scope": "Requested motion corrections; unfinished entries excluded; later ready VenomousSnake added to same queue without touching live view"
   },
   "selection_history": [
     {

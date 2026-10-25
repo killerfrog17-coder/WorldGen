@@ -1,5 +1,69 @@
 # WorldGen repository instructions
 
+MOTION FOLLOW-UP READY / OWNER INSPECTING,25October2026:
+Owner asked to show currently ready candidates immediately. ONE NEW Blender GUI
+PID5340 opened RIGHTMOST from Nutria/Animal - Motion Revision.blend, visible
+1-4/Skeleton/Next Previous/individual clips/Animal Review panel confirmed via
+updated-review-window.png. Leave view UNTOUCHED. Initially6 ready; VenomousSnake
+finished exact checks and was added to SAME live queue, no new/reloaded window.
+Current pending list EXACTLY7 /25 candidates: Echidna4, Elephant1(provisional
+source2), Gull4, Nutria4, Porcupine4, Python4, VenomousSnake4. Index176 ready /
+689 displayed entries includes selected one-model corrections; not art acceptance.
+No unfinished revisions in pending list, no extra follow-up sent in this task.
+
+Recorded choices: SeaOtter4,Shark1,SpiderMonkey4,Tamarin3,Chimp4,Croc3,
+GiantPanda2,Giraffe4. Elephant2 is provisional repair only, model_selected false,
+explicit re-review. Iguana3/Monitor1 accepted except hover: canonical corrected
+clips/demos root Z fitted to actual skinned floor, quarter-frame minima~4-9mm
+at1.65m review scale; before Walk hovered.34-.46m. Native expected1 passes,
+newSHA published, no re-show as requested. Croc3 four paws scoped boxes/shortest
+swing and Panda2 true forelimbs now published no-repeat, exact native checks;
+25-phase rigid paw edge distortion1.0. Panda fixes freeze duplicate chest helpers
+5/9 to parent2, FK forelimb positions, whole low paw incl inner edge via nearest
+palm, bounded forearm swing and palm pitch. Worst actual Run phase viewed after
+final patch: original long ribbons gone; remaining gait is prototype. Earlier
+broad masks and whole-body IK trials were visually rejected, never published.
+
+Nutria/Porcupine/Echidna separate Motion Revision native4 files use ACTUAL CC0
+Rat Walk/Run endpoint tracks with fixed-length IK and source body bob/bounded
+core motion. Earlier sped-up Walk removed. Whole low paws rigid; proportional
+nonpaw limb radius+height falloff excludes belly. Echidna short2-node chains
+manually get knees/toes,3-node paws get proper toe rather than treating elbow as
+palm. Bind meshes retained. All4 viewed at Walk/Run0,.25,.5,.75, plus49-phase
+surface/edge diagnostics and exact native controls. No universal contact/gait
+claim. Final sheets owner-motion-reroll-audit.png SHA match current files.
+
+Snakes own smooth traveling-wave Slither +lifted Side winding preview,60Hz keys.
+Old noisy slice-median rest chain/skin replaced with straight40-station chain
+and analytical adjacent Y skin, bind vertices retained. Python keeps larger
+curve; thicker Venom uses broader/lower curvature to reduce inner-bend creases.
+Actual4-phase top sheets all4 inspected;97-phase native surfaces/loops checked,
+loops exact0, p99 edge distortion~1.2-1.6. Small sculpt creases remain; not no-slip
+contact simulation or mocap. Method inspiration https://pmc.ncbi.nlm.nih.gov/articles/PMC4434722/.
+
+Elephant2 retains own neural rig, EXPLICIT4 physical limb assignments replace
+tusk/tail-as-leg roles; source CC0 Mammoth. One-entry Owner Corrected expected1
+native pass,4 Walk phases side/front actually viewed, published explicit manual
+review. Tusk/trunk are head children; actual4 legs move. Art/contact owner pending.
+Gull retains own4 sculpts plus own cambered low-poly3-section wings. Folded shape
+key driven by keyed WingFold property, proper folded/open appearances. CC0 bird
+Walk foot-track IK/body bob and Flap/Glide angle tracks. Complete web feet pinned
+to palms, tucked back rigidly in flight (no accumulating each-bone rotation).
+Viewed all4 at4 Walk/Flap oblique phases and Glide front; native controls exact.
+Wing geometry remains simple/unpainted; no takeoff/landing supplied.
+
+Proofs/publishing: owner-motion-review-ready.json requires exact native/render/
+diagnostic SHA and actual vision, index prefers separate Motion Revision file;
+viewer pending filter recognizes explicit motion/manual re-review. Ordinary
+selected Croc/Panda/Iguana/Monitor absent. Source scripts include specialized
+rodent/snake/gull builders, diagnostics and publisher. Original raw native/model/
+rig files preserved; no local GPU inference, game/Unity/Desktop changes or owner
+app closure. All owned CPU build/check/render workers EXITED (verified via CIM),
+only GUI remains. Latest source checkpoint9157b8d69188e4a897996cbf32515cc8e917a005
+preceded this task; back up current sources next. Preserve unrelated deleted
+WorldGen_OneShot_Prompt.md and2old untracked deer scripts unstaged. Underlying
+preparation goal was already complete; no new goal was inferred/created here.
+
 SHARED SOURCE PREPARATION / FULL INVENTORY AUDIT,25October2026 ~05:44 local:
 Previous goal turn completed review delivery; this continuation made substantive
 source/evidence progress. Leave owner Blender review untouched, no new follow-up.

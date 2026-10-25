@@ -14,6 +14,8 @@ repo = Path(__file__).resolve().parent.parent
 # Each limb lists its real neural hierarchy, the start of the rigid hand/foot,
 # and the highest vertex eligible for the distal rigid patch (metres).
 SPECS = {
+    'crocodile': dict(limbs=[([11,12,13,14],13,.43),([15,16,17,18],17,.43),([26,27,28,29],28,.30),([30,31,32,33],32,.47)],clips=['Walk','Run'],foot_boxes=[(-1.65,-.55,2.75,3.95,.43),(.55,1.65,2.00,3.35,.43),(-1.65,-.50,.30,1.65,.30),(.50,1.65,-.35,.95,.47)]),
+    'giant-panda': dict(limbs=[([6,7,8],8,.31),([10,11,12],12,.31)],clips=['Walk','Run'],freeze_helpers=[5,9],include_chain_roots=True,rebuild_limb_positions=True,palm_pitch_limit=.60,swing_limits={6:.90,10:.90,7:1.20,11:1.20},foot_boxes=[(-.75,.75,.15,1.05,.31),(-.75,.75,.15,1.05,.31)],box_nearest_palm=True),
     'hedgehog': dict(limbs=[([7,8,9,10],9,.12),([11,12,13,14],13,.12)], clips=['Walk','Run']),
     'howler-monkey': dict(limbs=[([6,7,8,9,10,11,12],9,.29),([13,14,15,16,17,18,19],16,.29)], clips=['Run']),
     'koala': dict(limbs=[([11,12,13],13,.18),([14,15,16],16,.18)], clips=['Walk','Run'], ear_head=6),
@@ -76,6 +78,14 @@ for k,(chain,foot,ceiling) in enumerate(spec['limbs']):
         # Entire low paw, including peripheral vertices with wholly wrong
         # hind-leg weights. A distance cutoff through the same paw tears it.
         mask|=(nearest==k)&(vertices[:,2]<ceiling+height*.10)&(vertices[:,1]>spec['broad_forefoot_min_y'])
+    if spec.get('broad_whole_foot'):
+        mask|=(nearest==k)&(vertices[:,2]<ceiling+height*.035)
+    if spec.get('foot_boxes'):
+        x0,x1,y0,y1,z1=spec['foot_boxes'][k]
+        box=(vertices[:,0]>x0)&(vertices[:,0]<x1)&(vertices[:,1]>y0)&(vertices[:,1]<y1)&(vertices[:,2]<z1)
+        if spec.get('box_nearest_palm'):
+            palms=np.array([joints[f,:2] for _,f,_ in spec['limbs']]);box&=np.linalg.norm(vertices[:,None,:2]-palms,axis=2).argmin(1)==k
+        mask|=box
     if 'minimum_y' in spec:mask&=vertices[:,1]>spec['minimum_y']
     if 'minimum_x' in spec:mask&=vertices[:,0]>spec['minimum_x']
     ids=np.flatnonzero(mask); rigid=[]; leakage=0
@@ -102,6 +112,7 @@ if spec.get('ear_head') is not None:
     evidence['ear_vertices_pinned_to_head']=len(ids)
 
 targets=set(n for chain,_,_ in spec['limbs'] for n in chain[1:])
+if spec.get('include_chain_roots'):targets.update(n for chain,_,_ in spec['limbs'] for n in chain)
 flight_landmarks=None
 if spec.get('flight_forward_nodes'):
     # The learned bird graph does not reach both physical tail tips. Use the
@@ -122,8 +133,14 @@ for action_name in actions:
         matrices=[rig.pose.bones[n].matrix.copy() for n in names]
         for i in targets:
             original=rest[i].to_3x3().col[1].normalized(); posed=matrices[i].to_3x3().col[1].normalized()
-            q=original.rotation_difference(posed)@rest[i].to_quaternion()
+            delta=original.rotation_difference(posed);limit=spec.get('swing_limits',{}).get(i)
+            if limit and delta.angle>limit:delta=Quaternion().slerp(delta,limit/delta.angle)
+            q=delta@rest[i].to_quaternion()
             m=q.to_matrix().to_4x4(); m.translation=matrices[i].translation; matrices[i]=m
+        for i in spec.get('freeze_helpers',[]):matrices[i]=matrices[int(parents[i])]@local[i]
+        if spec.get('rebuild_limb_positions'):
+            for chain,_,_ in spec['limbs']:
+                for i in chain:matrices[i].translation=matrices[int(parents[i])]@local[i].translation
         if spec.get('palm_pitch_limit'):
             for chain,i,ceiling in spec['limbs']:
                 raw_q=rig.pose.bones[names[i]].matrix.to_quaternion();delta=raw_q@rest[i].to_quaternion().inverted()

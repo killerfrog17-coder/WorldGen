@@ -2,7 +2,7 @@
 import argparse,datetime,hashlib,json
 from pathlib import Path
 repo=Path(__file__).resolve().parent.parent
-p=argparse.ArgumentParser();p.add_argument('--slugs',nargs='+',choices=['iguana','monitor-lizard'],required=True);a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--slugs',nargs='+',choices=['iguana','monitor-lizard','elephant'],required=True);a=p.parse_args()
 path=repo/'docs/fauna/OWNER_SELECTIONS.json';choices=json.loads(path.read_text())
 for slug in a.slugs:
     root=repo/'artifacts/fauna-overnight-20261024'/slug;work=repo/'artifacts/fauna-owner-fixes-20261025'/slug;out=root/'Animal - Owner Corrected.blend'

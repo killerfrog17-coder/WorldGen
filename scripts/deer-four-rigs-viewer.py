@@ -26,7 +26,7 @@ def queue_entries():
             # Keep conditional selections visible until their requested repair
             # has been reviewed, even though the underlying mesh is chosen.
             for slug,revision in choices.get('pending_revisions',{}).items():
-                if revision.get('status')=='manual_motion_revision_ready_owner_review_pending':decided.discard(slug)
+                if revision.get('status') in ('manual_motion_revision_ready_owner_review_pending','motion_revision_ready_owner_review_pending'):decided.discard(slug)
             decided.update(slug for slug,entry in choices.get('procedural_revisions',{}).items()
                            if entry.get('proceed_without_re_review'))
             # The owner accepts any bee candidate after the requested simple
@@ -271,7 +271,7 @@ class D4_PT_panel(bpy.types.Panel):
         labels=['Bind',*[n for n in preferred if n in entry['actions']],*[n for n in entry['actions'] if n not in preferred]]
         for label in labels:
             col.operator('deer_four.clip',text='Get Up' if label=='lay_to_idle' else label).clip=label
-        col.label(text='Accepted own deer model/rig reuse' if entry.get('rig_origin')=='accepted own deer reuse' else 'Manual body centerline / adjacent skin' if entry.get('rig_origin')=='manual body centerline' else 'Manual anatomical rig / localized skin' if entry.get('rig_origin')=='manual anatomical rig' else 'Own simple insect rig / wing motion' if entry.get('source_family')=='own simple microfauna' else 'Fresh skeleton + network skin per candidate')
+        col.label(text='Accepted own deer model/rig reuse' if entry.get('rig_origin')=='accepted own deer reuse' else 'Manual body centerline / adjacent skin' if entry.get('rig_origin')=='manual body centerline' else 'Manual anatomical rig / localized skin' if entry.get('rig_origin')=='manual anatomical rig' else 'Own simple insect rig / wing motion' if entry.get('source_family')=='own simple microfauna' else 'Generated rig with manual corrections' if entry.get('manual_repairs') else 'Fresh skeleton + network skin per candidate')
         col.label(text='Manual motion / skin correction' if entry.get('manual_repairs') else 'Raw automatic transfer; no manual repairs')
 def tick():
     for window,area,space in regions():
