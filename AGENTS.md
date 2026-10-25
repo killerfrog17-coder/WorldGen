@@ -1,5 +1,32 @@
 # WorldGen repository instructions
 
+ELEVEN COLOUR PASSES / REMAINING REVIEW OPEN,25October2026:
+Selected Bison4/Duck2/Pheasant3 add checked separate colour copies; total11of122
+explicitly selected bodies, all appearance/motion unapproved. Native selected
+body/skin/rest/all source actions EXACT: Bison5974tri+476face+424max horns=6874,
+15actions; Duck3999+416face=4415,6actions; Pheasant3997+416=4413,4actions (Idle,
+Walk and2demos). Original raw reviews/accepted deer unchanged. Actual CPU heads,
+body/trait views inspected; shade/colour checks do not imply gait/art acceptance.
+Bison5adult coats blend new shag source into existing short fur,3horn proportions
+on SAME adult body; calf/sex body dimorphism absent. Duck6linked plumages have
+feather flow, bill/feet/nostrils and actual-wing speculum masks. Pheasant5palettes
+have red male eye skin, neck ring and barred tail; female/immature are explicitly
+pigment studies on the long-tailed adult. No swimming or flight/takeoff added.
+Birds have no muzzle whiskers; two shared built-in imagegen feather sources and
+exact prompt/provenance JSON saved under fauna-assets/textures. Not measured PBR
+or guaranteed seamless. Source plan/paint index record actual mapped sources.
+
+Owner now asks to inspect remaining choices. New raw Duiker viewer (slug duiker)
+opened RIGHTMOST, PID12496 at launch; verify current PID before intervention.
+Leave owner viewer untouched. Existing pending filter has50entries:49genuinely
+unselected models plus already-selected Aardvark repair. Earlier54 was176minus
+122explicit body selections, but5procedural insect guilds were already accepted
+without another review; accepted/proceed bodies therefore127of176,49choices
+remain. Do not force a new insect review or infer a specific unchosen raw body
+for painting. Raw176/704 remain complete; no GPU producer restart. Next selected
+colouring small-native-freshwater-fish-guild1, then Mouse1/Squirrel3 in priority.
+No user app closure, game/Unity/Desktop changes or automatic art acceptance.
+
 RAW176 COMPLETE / GOAT+BEAR COLOUR PASSES,25October2026:
 FULL raw audit now176verified/0pending/errors[],704candidates; all188 plans and
 accepted deer retained. Whale4 and bounded SpiderMonkey2 retry succeeded (seed

@@ -14,6 +14,10 @@ sys.path.insert(0,str(repo/'scripts'))
 from fauna_paint_recipes import SUPPORTED, family, profiles as coat_profiles, eye_radius as get_eye_radius, eye_frame
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=1024)
 a=ap.parse_args();assert a.slug in SUPPORTED
+if family(a.slug)=='avian':
+    import runpy
+    runpy.run_path(str(repo/'scripts/bake-selected-fauna-bird.py'),run_name='__main__')
+    raise SystemExit
 kind=family(a.slug);canid=kind=='canid';compact=kind!='lagomorph'
 root=repo/'artifacts/fauna-painted-20261024'/a.slug;started=time.perf_counter()
 state=json.loads((root/'paint-state.json').read_text());land=json.loads((root/'face-landmarks.json').read_text())
@@ -34,6 +38,19 @@ detail/=max(float(np.std(detail))*3,1e-4)
 def sample(u,v):return map_coordinates(detail,[np.mod(v,1)*767,np.mod(u,1)*767],order=1,mode='wrap')
 blend=np.abs(n)**6;blend/=np.maximum(blend.sum(1,keepdims=True),1e-8)
 hair=(sample(p[:,1]*2.1,p[:,2]*2.1)*blend[:,0]+sample(p[:,0]*2.1,p[:,2]*2.1)*blend[:,1]+sample(p[:,0]*2.1,p[:,1]*2.1)*blend[:,2])
+extra_fur_sources=[];shag=np.zeros(len(p))
+if kind=='bovine':
+    # Forequarter shag and shorter hindquarter fibres share continuous surface
+    # coordinates. The blending boundary never follows a UV island or neck seam.
+    shag=smooth(-.28,.20,p[:,1])*smooth(.38,.72,p[:,2])
+    short_path=repo/'artifacts/fauna-assets/deer/fur-source.png'
+    short=np.asarray(Image.open(short_path).convert('RGB').resize((768,768)),np.float32)/255
+    short_lum=short@np.array([.2126,.7152,.0722]);short_detail=short_lum-gaussian_filter(short_lum,15,mode='wrap')
+    short_detail/=max(float(np.std(short_detail))*3,1e-4)
+    def sample_short(u,v):return map_coordinates(short_detail,[np.mod(v,1)*767,np.mod(u,1)*767],order=1,mode='wrap')
+    short_hair=(sample_short(p[:,1]*2.8,p[:,2]*2.8)*blend[:,0]+sample_short(p[:,0]*2.8,p[:,2]*2.8)*blend[:,1]+sample_short(p[:,0]*2.8,p[:,1]*2.8)*blend[:,2])
+    hair=hair*shag+short_hair*(1-shag)
+    extra_fur_sources.append({'path':str(short_path.relative_to(repo)),'sha256':hashlib.sha256(short_path.read_bytes()).hexdigest(),'region':'Short hindquarter coat; smooth forequarter transition'})
 head=np.array(state['head_seed']);cx=state['center_x'];face=smooth(head[1]-.15,head[1]+.04,p[:,1])*smooth(head[2]-.32,head[2]-.12,p[:,2])
 belly=(1-smooth(state['belly_z']+.06,state['belly_z']+.38,p[:,2]))*(.4+.6*smooth(.25,-.65,n[:,2]))*(.28+.72*smooth(.1,.65,body_weight))
 chin=face*smooth(head[2]+.04,head[2]-.17,p[:,2])*smooth(.4,-.5,n[:,2])*.85
@@ -45,6 +62,7 @@ for side in [-1,1]:
     ear_gate=(d['vertices'][:,2]>state['ear_base']-.035)&(d['vertices'][:,1]<head[1]+.06)&(split*side>0)
     if kind in {'suine','caprine'}:ear_gate &= d['vertices'][:,1]>head[1]-.24
     if kind=='ursid':ear_gate=(d['vertices'][:,2]>state['ear_base']-.035)&(d['vertices'][:,1]>head[1]-.10)&(d['vertices'][:,1]<head[1]+.27)&(split*side>.12)
+    if kind=='bovine':ear_gate=(d['vertices'][:,2]>1.26)&(d['vertices'][:,2]<1.47)&(d['vertices'][:,1]>.55)&(d['vertices'][:,1]<.90)&(split*side>.10)
     points=d['vertices'][ear_gate]
     assert len(points)>8,'No independent ear region found'
     root_point=points[points[:,2]<=np.quantile(points[:,2],.12)].mean(0);tip_point=points[points[:,2]>=np.quantile(points[:,2],.97)].mean(0)
@@ -55,16 +73,17 @@ for side in [-1,1]:
     side_gate=smooth(-.005,.015,((p-head)@head_side if compact else p[:,0]-cx)*side);spatial=smooth(state['ear_base']-.06,state['ear_base']+.06,p[:,2])*(1-smooth(head[1]+.01,head[1]+.13,p[:,1]))*side_gate
     if kind in {'suine','caprine'}:spatial*=smooth(head[1]-.24,head[1]-.17,p[:,1])
     if kind=='ursid':spatial=smooth(state['ear_base']-.06,state['ear_base']+.06,p[:,2])*smooth(head[1]-.10,head[1]-.04,p[:,1])*(1-smooth(head[1]+.20,head[1]+.30,p[:,1]))*smooth(.10,.15,((p-head)@head_side)*side)
+    if kind=='bovine':spatial=smooth(1.24,1.29,p[:,2])*(1-smooth(1.43,1.49,p[:,2]))*smooth(.53,.60,p[:,1])*(1-smooth(.87,.94,p[:,1]))*smooth(.10,.15,((p-head)@head_side)*side)
     ear_inner=spatial*smooth(.08,.25,frac)*(1-smooth(.82,.98,frac))*(1-smooth(.48,.83,np.abs(u)/width))*smooth(.12,.65,n@head_front if compact else n[:,1])
     inner=np.maximum(inner,ear_inner);tips=np.maximum(tips,spatial*smooth(.76,.96,frac)*(1-ear_inner*.7))
     frames.append({'side':side,'root':root_point.tolist(),'tip':tip_point.tolist(),'width':width})
 nose=np.array(land['nose']['point']);nn=np.array(land['nose']['normal']);nn/=np.linalg.norm(nn)
 up=np.array([0.,0.,1.]);across=np.cross(nn,up);across/=np.linalg.norm(across);up=np.cross(across,nn)
 delta=p-nose;nu=delta@across;nv=delta@up;nd=delta@nn
-nw,nh=(.075,.055) if kind in {'suine','ursid'} else (.040,.028) if kind=='caprine' else (.049,.033) if canid else (.035,.025)
+nw,nh=(.085,.053) if kind=='bovine' else (.075,.055) if kind in {'suine','ursid'} else (.040,.028) if kind=='caprine' else (.049,.033) if canid else (.035,.025)
 width=nw*(.68+.32*np.clip(nv/nh+1,0,1));q=(nu/width)**2+(nv/nh)**2+(nd/(.060 if compact else .045))**2
 nose_mask=(1-smooth(.7,1.2,q))*face*smooth(.05,.65,n@nn)
-if kind in {'suine','ursid'}:nose_mask=(1-smooth(.7,1.2,q))*smooth(.0,.60,n@nn)
+if kind in {'suine','ursid','bovine'}:nose_mask=(1-smooth(.7,1.2,q))*smooth(.0,.60,n@nn)
 eye_surround=np.zeros(len(p));bare=np.zeros(len(p))
 eye_radius=get_eye_radius(a.slug)
 for key in ['right_eye','left_eye']:
@@ -74,16 +93,16 @@ for key in ['right_eye','left_eye']:
     gate=(1-smooth(.025,.065,np.abs(depth)))*smooth(.05,.65,n@normal)
     eye_surround=np.maximum(eye_surround,(1-smooth(1.25,1.85,radius))*gate)
     bare=np.maximum(bare,(1-smooth(.70 if compact else .98,.90 if compact else 1.16,radius))*gate)
-fur_weight=np.clip(1-nose_mask-inner*(.25 if kind=='ursid' else .55)-bare,0,1)
+fur_weight=np.clip(1-nose_mask-inner*(.25 if kind in {'ursid','bovine'} else .55)-bare,0,1)
 hoof=np.zeros(len(p))
-if kind in {'suine','caprine'}:hoof=1-smooth(.10 if kind=='caprine' else .15,.19 if kind=='caprine' else .25,p[:,2])
+if kind in {'suine','caprine','bovine'}:hoof=1-smooth(.10 if kind in {'caprine','bovine'} else .15,.19 if kind in {'caprine','bovine'} else .25,p[:,2])
 fur_weight*=1-hoof
 pads=(1-smooth(.045,.12,p[:,2]))*smooth(-.05,-.65,n[:,2]) if kind=='ursid' else np.zeros(len(p))
 rough=np.clip(.84-nose_mask*(.58 if canid else .52 if kind=='ursid' else .40)-inner*.10-bare*.30-hoof*.30-pads*.15,.24,.88)
-height=hair*(.00030 if kind=='ursid' else .00012)*fur_weight
+height=hair*((.00010+.00025*shag) if kind=='bovine' else .00030 if kind=='ursid' else .00012)*fur_weight
 
 profiles=coat_profiles(a.slug)
-if kind=='ursid':belly*=0;chin*=0;tail*=0
+if kind in {'ursid','bovine'}:belly*=0;chin*=0;tail*=0
 if canid:
     tail_weight=smooth(-.48,-.67,p[:,1])
     tail=np.zeros(len(p));tail_top=np.zeros(len(p))
@@ -138,6 +157,17 @@ for index,(label,base,pale,dark_tips) in enumerate(profiles):
         colour=paint(guards,np.minimum(base*2+.035,.85))
         if 'grizzle' in label:colour=paint(smooth(.30,.85,hair)*.48,[.68,.64,.53])
         colour=paint(pads,[.09,.072,.055])
+    elif kind=='bovine':
+        colour=paint(shag*.70,base*.66)
+        legs=(1-smooth(.27,.50,p[:,2]))*(1-hoof)
+        colour=paint(legs*.25,base*.60)
+        colour=paint(tail_weight*.65,base*.45)
+        guards=smooth(.15,.75,hair)*shag*(.60 if 'Light-tipped' in label else .18)
+        colour=paint(guards,pale)
+        if 'shedding' in label:
+            # Colour-only seasonal overlay, not a separate inherited species.
+            patches=smooth(.0,.60,np.sin(p[:,1]*19+np.sin(p[:,0]*23)*1.6+np.sin(p[:,2]*15)))*smooth(-.65,-.10,p[:,1])*(1-smooth(.28,.65,p[:,1]))*smooth(.50,.80,p[:,2])
+            colour=paint(patches*.40,pale)
     if canid:
         colour=paint(cheek*.85,pale)
         if a.slug=='red-fox':
@@ -157,10 +187,10 @@ for index,(label,base,pale,dark_tips) in enumerate(profiles):
     if a.slug=='hare':colour=paint(tail_top*.9,[.055,.05,.045])
     colour=paint(eye_surround*(.65 if kind=='caprine' else .20 if kind=='ursid' else .5),base*.55+pale*.45)
     colour*=np.clip(1+hair[:,None]*(.24 if canid else .32),.64,1.34)
-    colour=paint(inner,base*.65+[.025,.018,.012] if kind=='ursid' else [.47,.35,.31])
+    colour=paint(inner,base*.65+[.025,.018,.012] if kind in {'ursid','bovine'} else [.47,.35,.31])
     if dark_tips:colour=paint(tips*.94,[.045,.042,.037])
     colour=paint(hoof,[.065,.054,.044])
-    colour=paint(bare,[.075,.058,.045]);colour=paint(nose_mask,[.16,.115,.09] if kind=='suine' else [.055,.043,.034] if kind=='caprine' else [.040,.032,.025] if kind=='ursid' else [.045,.035,.029] if canid else [.12,.09,.08] if a.slug=='hare' else [.23,.15,.14])
+    colour=paint(bare,[.075,.058,.045]);colour=paint(nose_mask,[.16,.115,.09] if kind=='suine' else [.055,.043,.034] if kind=='caprine' else [.040,.032,.025] if kind in {'ursid','bovine'} else [.045,.035,.029] if canid else [.12,.09,.08] if a.slug=='hare' else [.23,.15,.14])
     if 'mottled' in label:
         m=(.5+.5*np.sin(p[:,1]*21+np.sin(p[:,2]*15)*2))*smooth(.1,.7,n[:,2])*.2
         colour=paint(m,[.13,.105,.075])
@@ -174,4 +204,7 @@ normal=np.dstack([-dx/physical_pixel,dy/physical_pixel,np.ones_like(dx)]);normal
 Image.fromarray(np.uint8(np.clip(normal*.5+.5,0,1)*255)).resize((512,512),Image.Resampling.LANCZOS).save(root/'coat-normal.png')
 summary={'method':'CPU rest-surface UV raster, shared generated fibre detail, separate anatomical pigment/roughness masks; no whole-animal photo projection','size':a.size,'normal_size':512,'coats':[{'label':x[0],'file':f'coat-{i}-colour.png'} for i,x in enumerate(profiles)],'uv_coverage_fraction':float(occupied.mean()),'mask_pixels':{key:int((value>.5).sum()) for key,value in [('belly',belly),('inner_ear',inner),('ear_tips',tips),('nose',nose_mask),('bare_lids',bare)]},'ear_frames':frames,'eye_radius':eye_radius,'fur_sha256':hashlib.sha256(fur_path.read_bytes()).hexdigest(),'seconds':round(time.perf_counter()-started,2),'limits':'Normal relief is restrained artistic fibre detail, not measured PBR. Face geometry and owner appearance review remain pending.'}
 (root/'coat-bake.json').write_text(json.dumps(summary,indent=2)+'\n')
+if extra_fur_sources:
+    summary.update(extra_fur_sources=extra_fur_sources,forequarter_shag_pixels=int((shag>.5).sum()))
+    (root/'coat-bake.json').write_text(json.dumps(summary,indent=2)+'\n')
 print('COAT ATLAS BAKED',a.slug,len(profiles),'coats',a.size,'pixels',summary['seconds'],'seconds',summary['mask_pixels'],flush=True)

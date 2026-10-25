@@ -240,7 +240,21 @@
         "https://www.nps.gov/subjects/bison/bison-facts.htm",
         "https://parks.canada.ca/pn-np/ab/elkisland/nature/eep-sar/media/photos2"
       ],
-      "surface_class_count": 6
+      "surface_class_count": 6,
+      "selected_finishing_checkpoint": {
+        "selected_candidate": 4,
+        "coats": [
+          "Dark brown adult",
+          "Warm brown adult",
+          "Light-tipped shoulder coat",
+          "Spring shedding overlay study",
+          "Pale-brown regional (hypothetical)"
+        ],
+        "scope": "Selected adult bison body only. Horn examples vary on the same adult build; bull/cow body dimorphism and reddish calf proportions are not implemented. Shedding is a colour overlay study, not new inherited coat genetics.",
+        "appearance_approved": false,
+        "motion_approved": false,
+        "native_check": "artifacts/fauna-painted-20261024/bison/paint-native-checks.json"
+      }
     },
     "Butterflies and moths (guild)": {
       "real_analogues": [
@@ -387,7 +401,22 @@
       "sources": [
         "https://home.nps.gov/miss/learn/nature/birdsmall.htm",
         "https://www.birdscanada.org/wp-content/uploads/2020/12/Ducks_female-and-eclipse.pdf"
-      ]
+      ],
+      "selected_finishing_checkpoint": {
+        "selected_candidate": 2,
+        "coats": [
+          "Mallard-like breeding male",
+          "Mottled brown adult female",
+          "Brown eclipse male",
+          "Immature pigment study (adult body)",
+          "Muted olive-headed male (hypothetical)",
+          "Pale reedbed mottling (hypothetical)"
+        ],
+        "scope": "Selected adult duck body. Linked breeding-male/female/eclipse and hypothetical plumages; immature pigment study retains the adult build. Duckling proportions, curled male tail geometry, bill morphs and swimming are not implemented.",
+        "appearance_approved": false,
+        "motion_approved": false,
+        "native_check": "artifacts/fauna-painted-20261024/duck/paint-native-checks.json"
+      }
     },
     "Pheasant": {
       "real_analogues": [
@@ -410,7 +439,21 @@
       "sources": [
         "https://www.allaboutbirds.org/guide/Ring-necked_Pheasant/id/",
         "https://mdc.mo.gov/discover-nature/field-guide/ring-necked-pheasant"
-      ]
+      ],
+      "selected_finishing_checkpoint": {
+        "selected_candidate": 3,
+        "coats": [
+          "Copper ring-necked male",
+          "Brown female pigment study (long-tailed body)",
+          "Buff immature pigment study (adult body)",
+          "Reduced-ring male (hypothetical)",
+          "Dark forest male (hypothetical)"
+        ],
+        "scope": "Selected long-tailed pheasant body. Female/immature pigment studies retain this adult tail/body and do not implement real sex/age proportions. Existing folded-wing Idle/Walk bank retained; flight/takeoff and spur/tuft geometry remain absent.",
+        "appearance_approved": false,
+        "motion_approved": false,
+        "native_check": "artifacts/fauna-painted-20261024/pheasant/paint-native-checks.json"
+      }
     },
     "Small native freshwater fish (guild)": {
       "real_analogues": [
@@ -4306,7 +4349,7 @@
         "action": "New shared source if needed",
         "brief": "Dense natural wool with small uneven fibre groups and shallow soft curls, neutral grey-brown, no deep baked occlusion.",
         "uses": "Sheep-like wool and selected shag undercoats; not automatically every ox/bison mane.",
-        "status": "Generated and visually inspected reusable source, awaiting selected Bison4 mapping",
+        "status": "Generated, visually inspected and mapped on selected Bison4",
         "path": "artifacts/fauna-assets/textures/fur-wool-shag-v1.png",
         "provenance": "artifacts/fauna-assets/textures/fur-wool-shag-v1.json",
         "sha256": "928404d5d2e1abaaf95dee9ae447aa5f7d14f42edf70c0c5e450f75bd0e782f9"
@@ -4316,14 +4359,22 @@
         "priority": 5,
         "action": "New shared source",
         "brief": "Small overlapping contour-feather microstructure in neutral grey, subtle barbs and soft edges, close flat crop with consistent direction.",
-        "uses": "Bird body feather detail; actual coverts and pigment masks follow selected anatomy."
+        "uses": "Bird body feather detail; actual coverts and pigment masks follow selected anatomy.",
+        "status": "Generated, visually inspected and mapped on selected Duck2/Pheasant3",
+        "path": "artifacts/fauna-assets/textures/feather-contour-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/feather-contour-v1.json",
+        "sha256": "184e666f6c67ef2f8e33f77fc321ff2ca664c03e4b7754bd0b6bd2531c4dd392"
       },
       {
         "id": "feather_flight",
         "priority": 6,
         "action": "New shared source",
         "brief": "Close flat detail of a flight-feather vane with fine parallel barbs and subdued central shaft, neutral grey, no full bird or cast shadows.",
-        "uses": "Selected flight and tail feathers; one common swatch cannot create wing geometry or actual feather layering."
+        "uses": "Selected flight and tail feathers; one common swatch cannot create wing geometry or actual feather layering.",
+        "status": "Generated, visually inspected and mapped on selected Duck2/Pheasant3",
+        "path": "artifacts/fauna-assets/textures/feather-flight-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/feather-flight-v1.json",
+        "sha256": "d4706ef48e252020164f4603b989fca94ded963970b162de8ab6ffdc41f7cfc6"
       },
       {
         "id": "skin_nasal_lid",

@@ -117,7 +117,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\bison\\Animal - Painted Species Review.blend"
     },
     "duck": {
       "animal": "Duck",
@@ -130,8 +132,10 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false,
-      "owner_notes": "Some walking/wing-pose issues noted, but model2 selected; preserve it."
+      "painting_started": true,
+      "owner_notes": "Some walking/wing-pose issues noted, but model2 selected; preserve it.",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\duck\\Animal - Painted Species Review.blend"
     },
     "small-native-freshwater-fish-guild": {
       "animal": "Small native freshwater fish (guild)",
@@ -1318,7 +1322,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selected by owner; current source motion remains provisional.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\pheasant\\Animal - Painted Species Review.blend"
     },
     "grouse": {
       "animal": "Grouse",

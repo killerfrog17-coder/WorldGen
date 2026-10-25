@@ -29,6 +29,8 @@ for job in queue['jobs']:
     ready.append({'slug':slug,'name':job['animal'],'priority':rank[slug],'path':str(blend),'candidates':1,'selected_raw_candidate':state['source_candidate'],'coats':len(state['coats']),'appearance_scope':state.get('appearance_scope','Selected body only; no age-proportion or ecology implementation inferred.'),'appearance_approved':False,'motion_approved':False})
 now=datetime.now().astimezone().isoformat();queue['updated']=now
 queue['counts']={'selected':len(queue['jobs']),'painting_started':sum((root/x['slug']/'paint-state.json').exists() for x in queue['jobs']),'checked_first_passes':len(ready),'appearance_approved':sum(bool(x.get('appearance_approved')) for x in queue['jobs'])}
+queue['started']=queue['counts']['painting_started']
+queue['limits']='Separate selected-body colour copies. Checked first passes still need owner appearance approval; raw motion acceptance is independent.'
 index={'updated':now,'ready':sorted(ready,key=lambda x:x['priority']),'notes':'First colour passes on owner-selected bodies only. Body/rig/source-motion preservation checked. Appearance and natural motion remain unapproved; raw debris and raw gait defects are retained.'}
 for path,value in [(root/'paint-queue.json',queue),(root/'review-index.json',index),(choices_path,choices)]:
     temporary=path.with_suffix(path.suffix+'.tmp');temporary.write_text(json.dumps(value,indent=2)+'\n');temporary.replace(path)

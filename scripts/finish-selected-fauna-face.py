@@ -67,9 +67,15 @@ if canid:
     iris=np.stack([.16+fibre*.08,.09+fibre*.05,.025+fibre*.018],axis=2)
     if a.slug=='red-fox':pupil=np.clip((np.sqrt((u/.22)**2+(v/.73)**2)-.86)/.14,0,1)
     else:pupil=np.clip((r-.39)/.065,0,1)
-elif kind=='caprine':
+elif kind in {'caprine','bovine'}:
     iris=np.stack([.22+fibre*.08,.14+fibre*.05,.035+fibre*.02],axis=2)
     pupil=np.clip((np.sqrt((u/.80)**2+(v/.20)**2)-.86)/.14,0,1)
+elif kind=='avian':
+    iris=np.stack([.055+fibre*.025,.031+fibre*.015,.012+fibre*.008],axis=2)
+    pupil=np.clip((r-.64)/.07,0,1)
+    if a.slug=='pheasant':
+        iris=np.stack([.22+fibre*.06,.12+fibre*.035,.025+fibre*.015],axis=2)
+        pupil=np.clip((r-.43)/.07,0,1)
 iris=iris*pupil[:,:,None]*rim[:,:,None]+.008*(1-pupil[:,:,None]*rim[:,:,None]);rgba=np.dstack([iris,np.ones_like(r)])
 im=bpy.data.images.get(a.slug+' iris pigment') or bpy.data.images.new(a.slug+' iris pigment',width=size,height=size,alpha=True)
 im.pixels.foreach_set(rgba.astype(np.float32).ravel());im.pack()
@@ -113,13 +119,14 @@ for side in ['right','left']:
     def ellipse(t):
         # Small forward tear corner, fuller upper arch, shallow lower lid.
         c=math.cos(t);sn=math.sin(t);return hu*(rx*c*(1+.08*max(c,0)))+vu*(rz*sn*(1.03 if sn>0 else .87))
-    bulge=.008 if kind in {'suine','caprine','ursid'} else .011 if canid else .018
-    vertices=[center+n*(.002+bulge)];uvs=[(.5,.5)];polygons=[]
+    bulge=.0018 if a.slug=='pheasant' else .004 if kind=='avian' else .008 if kind in {'suine','caprine','ursid','bovine'} else .011 if canid else .018
+    eye_margin=.0008 if a.slug=='pheasant' else .002
+    vertices=[center+n*(eye_margin+bulge)];uvs=[(.5,.5)];polygons=[]
     for ring in range(1,rings+1):
         rad=ring/rings
         for i in range(segments):
             t=i*math.tau/segments;offset=ellipse(t)*rad
-            vertices.append(center+offset+n*(.002+bulge*math.sqrt(max(0,1-rad*rad))))
+            vertices.append(center+offset+n*(eye_margin+bulge*math.sqrt(max(0,1-rad*rad))))
             uvs.append((.5+.5*rad*math.cos(t),.5+.5*rad*math.sin(t)))
     for i in range(segments):polygons.append((0,1+i,1+(i+1)%segments))
     for j in range(rings-1):
@@ -136,7 +143,8 @@ for side in ['right','left']:
             if hit is None:hit=sample(target)[0]
             surface=np.asarray(hit);upper=max(0,math.sin(t))
             if compact and ring<3:
-                point=target+n*([.002,.004+.002*upper,.0015][ring])
+                offsets=[.0008,.0013+.0005*upper,.0005] if a.slug=='pheasant' else [.002,.004+.002*upper,.0015]
+                point=target+n*offsets[ring]
             else:point=target+n*.002 if ring==0 else surface+n*([0,.003+.004*upper,.002,.0007][ring])
             vertices.append(point);uvs.append(sample(surface)[1])
     for j in range(3):
@@ -149,7 +157,7 @@ for side in ['right','left']:
 # Sparse tapered muzzle whiskers, attached using the local muzzle weights.
 nose=np.array(land['nose']['point']);vertices=[];polygons=[]
 for side in [-1,1]:
-    for j in range(5):
+    for j in range(0 if kind=='avian' else 5):
         if compact:
             start=nose+np.array(land['side_axis'])*side*(.018+j*.002)-np.array(land['front_axis'])*(.022+j*.005)+np.array([0,0,-.009+j*.007])
             direction=np.array(land['side_axis'])*side*(.090+j*.008)-np.array(land['front_axis'])*(.028+j*.012)+np.array([0,0,(j-2)*.014])
@@ -162,17 +170,21 @@ for side in [-1,1]:
             width=.00065*(1-t)+.00004;vertices.extend([point+[0,0,width],point-[0,0,width]])
         base=len(vertices)-8
         for k in range(3):polygons.append((base+k*2,base+k*2+1,base+k*2+3,base+k*2+2))
-obj(a.slug+' muzzle whiskers',vertices,polygons,[whiskermat],anchor=sample(nose)[2])
+if vertices:obj(a.slug+' muzzle whiskers',vertices,polygons,[whiskermat],anchor=sample(nose)[2])
 
 entry.update(facial_objects=features,coat_objects=coat_objects,objects=[entry['body'],*features,*entry.get('appendage_objects',[])])
 entry['paint_face_direction']=land['front_axis']
-if kind in {'suine','caprine','ursid'}:
+if kind in {'suine','caprine','ursid','bovine','avian'}:
     focus=(np.array(land['right_eye']['point'])+np.array(land['left_eye']['point'])+nose)/3
     entry['paint_head_vertex']=int(np.argmin(np.linalg.norm(p-focus,axis=1)))
     entry['paint_head_span']=.90;entry['paint_head_distance']=1.25
+    if a.slug=='pheasant':entry['paint_head_span']=.60;entry['paint_head_distance']=.90
 s['deer_four_rigs']=json.dumps([entry]);s['fauna_painting']=json.dumps({'source_candidate':state['source_candidate'],'stage':'UV coats and fitted facial features; appearance review pending','coats':entry['painting_coats']})
 state.update(status='atlas_and_face_fitted_working',coats=entry['painting_coats'],landmarks_pending=False,facial_objects=features,facial_eye_fits=eye_reports,uv_atlases_installed=True,appearance_approved=False)
 if kind=='ursid':state['appearance_scope']='Selected shoulder-humped body only. Near-black/cinnamon are pigment studies; a distinct black-bear archetype and cub/seasonal body proportions have not been modelled.'
+if kind=='bovine':state['appearance_scope']='Selected adult bison body only. Horn examples vary on the same adult build; bull/cow body dimorphism and reddish calf proportions are not implemented. Shedding is a colour overlay study, not new inherited coat genetics.'
+if a.slug=='duck':state['appearance_scope']='Selected adult duck body. Linked breeding-male/female/eclipse and hypothetical plumages; immature pigment study retains the adult build. Duckling proportions, curled male tail geometry, bill morphs and swimming are not implemented.'
+if a.slug=='pheasant':state['appearance_scope']='Selected long-tailed pheasant body. Female/immature pigment studies retain this adult tail/body and do not implement real sex/age proportions. Existing folded-wing Idle/Walk bank retained; flight/takeoff and spur/tuft geometry remain absent.'
 geometry=hashlib.sha256(np.array([v.co[:] for v in body.data.vertices],np.float32).tobytes()+np.array([f.vertices[:] for f in body.data.polygons],np.int32).tobytes()).hexdigest()
 assert geometry==state['geometry_sha256'],'Selected body geometry changed'
 state['body_triangles']=sum(len(f.vertices)-2 for f in body.data.polygons)

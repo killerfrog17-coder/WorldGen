@@ -11,7 +11,7 @@ from mathutils.bvhtree import BVHTree
 
 repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True)
-a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);assert a.slug in {'wild-boar','mouflon','wild-goat','bear'}
+a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);assert a.slug in {'wild-boar','mouflon','wild-goat','bear','bison'}
 root=repo/'artifacts/fauna-painted-20261024'/a.slug
 state=json.loads((root/'paint-state.json').read_text());assert not state['appearance_approved']
 land=json.loads((root/'face-landmarks.json').read_text());bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Painted Species Review.blend'))
@@ -42,6 +42,7 @@ def texture_material():
     ivory=a.slug in {'wild-boar','bear'}
     pigment=(.5+.5*np.sin(v*math.tau*18+np.sin(u*math.tau)*.3)) if not ivory else (.5+.5*np.sin(u*math.tau*12+v*4))
     base=np.array([.40,.34,.25] if a.slug=='bear' else [.83,.78,.64] if ivory else [.34,.265,.175]);rgb=base[None,None,:]*(.88+.16*pigment[:,:,None])
+    if a.slug=='bison':rgb=np.array([.29,.265,.22])[None,None,:]*(.88+.16*pigment[:,:,None])*(1-.72*v[:,:,None]**1.5)
     material=bpy.data.materials.new(a.slug+' appendage keratin');material.use_nodes=True
     shader=material.node_tree.nodes.get('Principled BSDF');shader.inputs['Roughness'].default_value=.38 if ivory else .64
     im=bpy.data.images.new(a.slug+' keratin colour',width=count,height=count,alpha=True)
@@ -146,6 +147,20 @@ elif a.slug=='wild-goat':
     females=[('doe','adult female horn example')];young=[('buds','young horn-bud study; adult body')]
     assignment=[males+females,males+females,males,females+young,males+females]
     entry['paint_body_distance']=3.8
+elif a.slug=='bison':
+    for style,length,radius,count in [('bull',.16,.040,18),('cow',.14,.026,16),('younger-adult',.09,.024,12)]:
+        pair=[]
+        for sign,key in [(1,'right_eye'),(-1,'left_eye')]:
+            target=np.array(land[key]['point'])-front*.14+up*.22
+            hit=bvh.ray_cast(Vector(target+side_axis*sign*.8),Vector(-side_axis*sign),1.6)[0]
+            root_point,skin=surface(hit if hit is not None else target)
+            root_normal=np.array(bvh.find_nearest(Vector(root_point))[1]);root_normal/=np.linalg.norm(root_normal)
+            path=[root_point+side_axis*sign*(length*.85*math.sin(t*2.4))+up*(length*(1-math.cos(t*2.4)))-front*(.025*t)-root_normal*.025*math.exp(-t*15) for t in np.linspace(0,1,count)]
+            name=f'bison {style} horn {sign}';pair.append(tube(name,path,radius,skin))
+            evidence.append({'object':name,'root':root_point.tolist(),'skin':skin,'shape':'short lateral-outward then upward/inward horn','same_adult_body':True})
+        libraries[style]=pair
+    variants=[('bull','adult bull horn proportions; same selected body'),('cow','adult cow horn proportions; same selected body'),('younger-adult','younger adult horn study; no calf proportions')]
+    assignment=[variants]*len(entry['painting_coats'])
 else:
     # Five claws on each existing paw; no added toes or new skinning bones.
     claws=[];low=p[p[:,2]<.22]

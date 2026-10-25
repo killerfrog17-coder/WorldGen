@@ -1,5 +1,21 @@
 OVERNIGHT FAUNA AUDITIONS - 24 OCTOBER 2026
 
+25 OCT ELEVEN CHECKED COLOUR PASSES / OWNER RAW REVIEW
+Added Bison4/Duck2/Pheasant3;11of122explicitly chosen bodies coloured/checked,
+0owner appearance approvals. All selected body/skin/rest/motions exact. Bison
+five adult coats+three horn profiles; Duck six linked feather patterns with
+wing/bill/feet masks; Pheasant five palettes with male red face and barred tail.
+Female/young palette studies do not supply different body proportions. New
+shared built-in imagegen feather sources/prompts saved under fauna-assets/textures.
+No GPU inference, game/Unity/Desktop change or owner app closure for painting.
+
+Raw176sets/704candidates finished. Owner asked to inspect remaining choices;
+Duiker (duiker) viewer opened RIGHTMOST, normal1-4/skeleton/Next/Previous controls.
+Leave it untouched while inspected. Pending filter50entries=49new choices plus
+Aardvark repair. Five procedural insect guilds already accepted without re-review
+explain why176-122=54 is not the actual remaining-choice count. Next selected
+colouring freshwater fish1, Mouse1/Squirrel3. Never auto-select an undecided body.
+
 25 OCT RAW PHASE COMPLETE / EIGHT COLOUR PASSES
 Full raw audit176verified/0pending/errors[],704candidates. Whale/Monkey retry now
 ready;16008/94528 exited0 after its idle watch loop was stopped. Control=complete,

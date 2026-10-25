@@ -1,5 +1,29 @@
 # Fauna asset review workflow
 
+## Latest selected colour checkpoint - 25 October 2026
+
+Eleven of122explicitly chosen bodies now have checked colour copies, adding
+Bison4/Duck2/Pheasant3. Bison blends shaggy forequarters into short hindquarter
+fur, five adult coat studies and three horn proportions on the same adult body.
+Duck has six linked plumages with separate bill/feet/lid masks and actual-wing
+speculum placement. Pheasant has five palettes, red male eye skin and a barred
+tail; female/immature palettes explicitly retain the selected long adult tail.
+Both birds reuse the new contour/flight feather sources. Exact built-in imagegen
+prompts and source hashes live beside the PNGs in fauna-assets/textures.
+
+Body geometry, skin weights, rest hierarchy and source action curves remain
+exact in the native comparisons. Bison/Duck/Pheasant retain15/6/4actions
+respectively; pheasant supplies Idle/Walk plus two demos, not flight/takeoff.
+All mapped sources are packed into the review files. Existing1-4/skeleton/coat
+controls pass. These are unapproved first appearances, not new motion approval.
+Next colouring priority: selected freshwater fish1, Mouse1 and Squirrel3.
+
+The owner is browsing the raw viewer opened on the rightmost monitor at Duiker.
+Do not switch or alter it during inspection. The pending list contains49new
+body choices plus the Aardvark repair. Five procedural insect guilds had already
+been accepted without further review:176minus122explicit model selections is
+54, but only49new choices actually remain. All176four-candidate sets are ready.
+
 ## Current finishing update - 25 October 2026
 
 The raw phase is complete:176 review sets/704 candidates, full file/provenance
