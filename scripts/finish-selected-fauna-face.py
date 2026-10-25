@@ -21,6 +21,7 @@ if extended:
     category=finish_category(a.slug)
     kind={'bird':'avian','fish':'fish','squid':'fish','ungulate':'caprine','bear':'ursid','canid':'canid','felid':'canid','reptile':'scaled','amphibian':'scaled','turtle':'scaled','snake':'scaled','marine':'scaled','ground_insect':'scaled','spider':'scaled'}.get(category,'small-carnivore')
 if a.slug=='sea-otter':kind='small-carnivore'
+surface_only_arthropod=extended and category in {'ground_insect','spider'}
 canid=kind=='canid';compact=kind!='lagomorph'
 root=repo/'artifacts/fauna-painted-20261024'/a.slug
 state=json.loads((root/'paint-state.json').read_text());assert not state['appearance_approved']
@@ -152,7 +153,7 @@ def obj(name,vertices,polygons,materials,uvs=None,indices=None,anchor=None):
     features.append(ob.name);return ob
 
 segments=16 if compact else 24;rings=4 if compact else 5;rx,rz=bake['eye_radius'];eye_reports=[]
-for side in ['right','left']:
+for side in ([] if surface_only_arthropod else ['right','left']):
     anchor=land[side+'_eye'];center=np.array(anchor['point']);n,hu,vu=eye_frame(a.slug,land,side)
     skin=sample(center)[2]
     def ellipse(t):
@@ -180,7 +181,7 @@ for side in ['right','left']:
         for i in range(segments):
             t=i*math.tau/segments;target=center+ellipse(t)*rad
             hit=bvh.ray_cast(Vector(target+n*.20),Vector(-n),.4)[0]
-            if hit is None:hit=sample(target)[0]
+            if hit is None or np.linalg.norm(np.array(hit)-target)>max(rx,rz)*.8+.008:hit=sample(target)[0]
             surface=np.asarray(hit);upper=max(0,math.sin(t))
             if compact and ring<3:
                 offsets=[.0008,.0013+.0005*upper,.0005] if a.slug=='pheasant' or kind=='fish' else [.002,.004+.002*upper,.0015]
@@ -191,7 +192,7 @@ for side in ['right','left']:
         for i in range(segments):
             polygons.append((j*segments+i,j*segments+(i+1)%segments,(j+1)*segments+(i+1)%segments,(j+1)*segments+i));indices.append(1 if j<(1 if kind=='fish' else 2) else 0)
     if np.dot(np.cross(vertices[polygons[0][1]]-vertices[polygons[0][0]],vertices[polygons[0][2]]-vertices[polygons[0][0]]),n)<0:polygons=[tuple(reversed(f)) for f in polygons]
-    lid=obj(a.slug+' '+side+' socket and eyelid',vertices,polygons,[body.data.materials[0],lidmat],uvs,indices);coat_objects.append(lid.name)
+    lid=obj(a.slug+' '+side+' socket and eyelid',vertices,polygons,[body.data.materials[0],lidmat],uvs,indices,anchor=skin);coat_objects.append(lid.name)
     eye_reports.append({'side':side,'point':center.tolist(),'radius':[rx,rz],'skin':skin,'outer_ring_surface_fitted':True})
 
 # Sparse tapered muzzle whiskers, attached using the local muzzle weights.
@@ -222,6 +223,7 @@ if kind in {'suine','caprine','ursid','bovine','avian','fish','rodent','equine',
 s['deer_four_rigs']=json.dumps([entry]);s['fauna_painting']=json.dumps({'source_candidate':state['source_candidate'],'stage':'UV coats and fitted facial features; appearance review pending','coats':entry['painting_coats']})
 state.update(status='atlas_and_face_fitted_working',coats=entry['painting_coats'],landmarks_pending=False,facial_objects=features,facial_eye_fits=eye_reports,uv_atlases_installed=True,appearance_approved=False)
 state['facial_fit_ignored_components']=len(components)-1
+state['facial_feature_policy']='surface_only_arthropod' if surface_only_arthropod else 'local_eye_anchor_skin_for_globe_and_lid'
 if kind=='ursid':state['appearance_scope']='Selected shoulder-humped body only. Near-black/cinnamon are pigment studies; a distinct black-bear archetype and cub/seasonal body proportions have not been modelled.'
 if kind=='bovine':state['appearance_scope']='Selected adult bison body only. Horn examples vary on the same adult build; bull/cow body dimorphism and reddish calf proportions are not implemented. Shedding is a colour overlay study, not new inherited coat genetics.'
 if a.slug=='duck':state['appearance_scope']='Selected adult duck body. Linked breeding-male/female/eclipse and hypothetical plumages; immature pigment study retains the adult build. Duckling proportions, curled male tail geometry, bill morphs and swimming are not implemented.'

@@ -70,7 +70,7 @@ def tube(name,path,radius,skin):
     polys += [tuple(reversed(range(segments))),tuple((len(path)-1)*segments+j for j in range(segments))]
     return mesh_object(name,verts,polys,skin,uv)
 
-def paddle(name,root,sign,size,skin):
+def paddle(name,root,sign,size,skin,compact=False):
     # Shallow solid palm, not a flat translucent card. Peripheral tines are tubes.
     outline=np.array([[.08,-.02,.08],[.31,-.15,.22],[.64,-.17,.38],[.84,.02,.48],[.71,.26,.44],[.40,.34,.29],[.13,.16,.12]])*size
     centers=[root+side*sign*x+front*y+up*z for x,y,z in outline];center=np.mean(centers,axis=0)
@@ -81,9 +81,21 @@ def paddle(name,root,sign,size,skin):
     for i in range(n):
         j=(i+1)%n;polys.extend([(0,i+1,j+1),(offset,offset+j+1,offset+i+1),(i+1,offset+i+1,offset+j+1,j+1)])
     mesh_object(name,verts,polys,skin,uv)
-    for i in [1,2,3,4,5]:
+    for i in ([1,3,5] if compact else [1,2,3,4,5]):
         q=centers[i];direction=(q-center)/np.linalg.norm(q-center)
         tube(name+' tine'+str(i),[q,q+direction*size*.10+up*.02,q+direction*size*.25+up*.07],.012,skin)
+
+def horn_boss(name,point,normal,skin):
+    direction=front-normal*(front@normal);direction/=max(np.linalg.norm(direction),1e-6);across=np.cross(normal,direction)
+    width=min(.145,max(.075,gap*.34));verts=[];uv=[];polys=[];segments=8;rings=4
+    for row in range(rings+1):
+        theta=math.pi*row/rings
+        for col in range(segments):
+            phi=math.tau*col/segments
+            verts.append(point-normal*.004+across*width*math.sin(theta)*math.cos(phi)+direction*.075*math.sin(theta)*math.sin(phi)+normal*.026*math.cos(theta));uv.append((col/segments,row/rings))
+    for row in range(rings):
+        for col in range(segments):polys.append((row*segments+col,row*segments+(col+1)%segments,(row+1)*segments+(col+1)%segments,(row+1)*segments+col))
+    mesh_object(name,verts,polys,skin,uv)
 
 variants=configurations(a.slug)
 for conf in variants:
@@ -94,22 +106,24 @@ for conf in variants:
             else:target=mid-front*.09+side*sign*max(.045,min(gap*.27,.09))+up*.10
             q,normal,skin=fit(target,shape!='tusk');start=q-normal*.018
             name=f'{a.slug} {conf["id"]} {sign}';t=np.linspace(0,1,9)
+            if a.slug in {'buffalo','musk-ox'} and conf['sex']!='female' and conf['id']!='water-sweep':horn_boss(name+' broad root',q,normal,skin)
             radial=(.018 if shape in {'antler','palmate','spike','pronghorn','tusk'} else .033)*conf['radius']
             if shape in {'antler','palmate'}:
                 path=[start+side*sign*length*width*(.45*x+.10*x*x)-front*length*.35*x*x+up*length*(.86*x-.18*x*x) for x in t]
                 if a.slug=='reindeer':
                     path=[start+side*sign*length*width*.55*math.sin(x*math.pi*.70)-front*length*.52*math.sin(x*math.pi*.85)+front*length*.22*x**3+up*length*.95*x for x in t]
                 tube(name+' beam',path,radial,skin)
-                if shape=='palmate':paddle(name+' palm',start,sign,length*width,skin)
+                if shape=='palmate':paddle(name+' palm',start,sign,length*width,skin,conf['id']=='hyp-compact')
                 else:
-                    for j,phase in enumerate([.28,.48,.69,.85]):
+                    phases=[.30,.56,.83] if conf['id']=='hyp-compact' else [.28,.48,.69,.85]
+                    for j,phase in enumerate(phases):
                         at=np.array([np.interp(phase,t,np.array(path)[:,axis]) for axis in range(3)])
                         size=length*(.31 if j==0 else .38 if j==1 else .30 if j==2 else .22)
                         tube(name+' tine'+str(j),[at,at+front*size*.20+up*size*.55,at+front*size*.25+up*size],radial*.55,skin)
                     if a.slug=='reindeer':
                         at=np.array(path[1]);end=at+front*length*.46+up*length*.06
                         tube(name+' brow beam',[at,(at+end)/2,end],radial*.65,skin)
-                        for j in range(3):
+                        for j in range(2 if conf['id']=='hyp-compact' else 3):
                             q0=at+(end-at)*(.45+j*.20)
                             tube(name+' brow point'+str(j),[q0,q0+up*length*.10,q0+up*length*.16+side*sign*.015],radial*.30,skin)
             else:
@@ -120,7 +134,7 @@ for conf in variants:
                     elif shape=='scimitar':off=up*length*(x-.24*x*x)-front*length*.70*x*x+side*sign*.025*x
                     elif shape=='spike':off=up*length*x-front*length*.28*x
                     elif shape=='pronghorn':off=up*length*(x-.22*x**4)-front*length*.34*x**4+side*sign*.025*x
-                    elif shape in {'buffalo','muskox','wildebeest'}:off=side*sign*length*width*math.sin(x*1.8)-up*length*.30*math.sin(x*math.pi)+up*length*.85*x*x-front*length*.05*x
+                    elif shape in {'buffalo','muskox','wildebeest','water-buffalo'}:off=side*sign*length*width*math.sin(x*1.8)-up*length*(.16 if shape=='water-buffalo' else .30)*math.sin(x*math.pi)+up*length*(.46 if shape=='water-buffalo' else .85)*x*x-front*length*.05*x
                     else:off=side*sign*length*width*.50*math.sin(x*2.6)+up*length*(.28*x+.69*x*x)-front*length*.13*x
                     path.append(start+off)
                 tube(name+' horn',path,radial,skin)
@@ -133,6 +147,9 @@ for coat in entry['painting_coats']:
     low=coat['label'].lower();hyp='hypothetical' in low
     options=[]
     for conf in variants:
+        if a.slug=='buffalo' and ('water-buffalo' in low)!=(conf['id']=='water-sweep'):continue
+        if 'female' in low and conf['sex'] not in {'female','both'}:continue
+        if 'male' in low and 'female' not in low and 'biased' not in low and conf['sex'] not in {'male','both','seasonal'}:continue
         if a.slug=='oryx' and conf['id']=='scimitar' and 'scimitar' not in low:continue
         if a.slug=='oryx' and 'scimitar' in low and conf['id']!='scimitar':continue
         if any(word in low for word in ['calf','juvenile','young']) and conf['id'] not in {'shed','female','compact','female-hornless'}:continue

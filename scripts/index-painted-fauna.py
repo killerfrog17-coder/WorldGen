@@ -34,7 +34,7 @@ for job in queue['jobs']:
     check=json.loads(check_path.read_text());blend=folder/'Animal - Painted Species Review.blend'
     if check.get('checked_blend_sha256')!=hashlib.sha256(blend.read_bytes()).hexdigest():continue
     assert check['source_bind_geometry_skin_rig_exact'] and check['source_actions_exact']
-    if not state.get('facial_objects'):continue
+    if not state.get('facial_objects') and state.get('facial_feature_policy')!='surface_only_arthropod':continue
     ready.append({'slug':slug,'name':job['animal'],'priority':rank[slug],'path':str(blend),'candidates':1,'selected_raw_candidate':state['source_candidate'],'coats':len(state['coats']),'appearance_scope':state.get('appearance_scope','Selected body only; no age-proportion or ecology implementation inferred.'),'appearance_approved':False,'motion_approved':False})
 now=datetime.now().astimezone().isoformat();queue['updated']=now
 queue['counts']={'selected':len(queue['jobs']),'painting_started':sum((root/x['slug']/'paint-state.json').exists() for x in queue['jobs']),'checked_first_passes':len(ready),'appearance_approved':sum(bool(x.get('appearance_approved')) for x in queue['jobs'])}

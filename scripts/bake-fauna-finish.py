@@ -21,10 +21,22 @@ root=repo/'artifacts/fauna-painted-20261024'/a.slug
 state=json.loads((root/'paint-state.json').read_text());land=json.loads((root/'face-landmarks.json').read_text())
 d=dict(np.load(root/'paint-anatomy.npz'));entry=json.loads((root/'selected-source-entry.json').read_text())
 groups=np.asarray(entry['groups']);weights=d['weights'];assert weights.shape[1]==len(groups)
+kind=category(a.slug)
+if kind=='snake':
+    heads=d['joint_heads'];parents=d['parents'];arc=np.zeros(len(heads));tangents=np.zeros_like(heads)
+    for j,parent in enumerate(parents):
+        if parent>=0:arc[j]=arc[parent]+np.linalg.norm(heads[j]-heads[parent])
+        children=np.where(parents==j)[0]
+        tangents[j]=heads[children[0]]-heads[j] if len(children) else heads[j]-heads[parent] if parent>=0 else [0,1,0]
+    vertex_tangent=weights@tangents;vertex_tangent/=np.maximum(np.linalg.norm(vertex_tangent,axis=1,keepdims=True),1e-8)
+    across=np.cross(vertex_tangent,[0,0,1]);bad=np.linalg.norm(across,axis=1)<.01;across[bad]=np.cross(vertex_tangent[bad],[0,1,0]);across/=np.maximum(np.linalg.norm(across,axis=1,keepdims=True),1e-8)
+    radial_up=np.cross(across,vertex_tangent)
+    d['eye_regions']=np.stack([weights@arc,np.sum(d['normals']*radial_up,axis=1),np.sum(d['normals']*across,axis=1)],axis=1)
 d['region_weights']=np.stack([weights[:,groups==g].sum(1) for g in ['spine','neck','tail','wing','fore','hind','head','ear','jaw','other']],axis=1)
 spec=importlib.util.spec_from_file_location('coat_raster',repo/'scripts/bake-deer-masked-coat.py');raster=importlib.util.module_from_spec(spec);spec.loader.exec_module(raster)
 maps,occupied,_=raster.raster(d,a.size);iy,ix=np.where(occupied);p=maps[iy,ix,:3];n=maps[iy,ix,3:6];n/=np.maximum(np.linalg.norm(n,axis=1,keepdims=True),1e-8)
-kind=category(a.slug);pattern=PALETTES[a.slug][2];sources=[]
+pattern=PALETTES[a.slug][2];sources=[]
+if kind=='snake':snake_arc=maps[iy,ix,16];snake_angle=np.arctan2(maps[iy,ix,18],maps[iy,ix,17])
 def smooth(lo,hi,x):
     t=np.clip((x-lo)/(hi-lo),0,1);return t*t*(3-2*t)
 def detail_source(path,scale=3):
@@ -166,9 +178,18 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
     if pattern in {'gazelle','oryx','pronghorn'}:
         colour=paint(belly,pale)
         stripe=np.exp(-((p[:,2]-(zlo+span*.52))/.065)**2)*flank*(1-face)
-        if pattern!='pronghorn':colour=paint(stripe*.8,dark)
+        if pattern!='pronghorn':colour=paint(stripe*(.10 if a.slug=='impala' else .8)*mark_strength,dark)
         colour=paint(face*.45,pale)
-        if pattern=='oryx':colour=paint(surround*.9,dark)
+        if pattern=='oryx':
+            colour=paint(surround*.9,dark)
+            if 'scimitar' in low:
+                colour=np.tile([.78,.76,.67],(len(p),1))
+                neck=smooth(-headscale*3.,-headscale*.55,forward)*(1-smooth(-.03,.06,forward))*smooth(eye_z-.65,eye_z-.28,p[:,2])
+                colour=paint(neck*.85,[.48,.25,.10])
+        if a.slug=='impala':
+            rump=smooth(.35,.75,-n[:,1])*smooth(-.05,.40,p[:,2]-zlo)*(1-face)
+            marks=np.maximum(np.exp(-((np.abs(p[:,0]-state['center_x'])-.12)/.028)**2)*rump,tail_weight*.75)
+            colour=paint(marks*.8,dark)
         if pattern=='pronghorn':
             colour=paint(np.maximum(tail_weight*.95,belly*.9),white)
             colour=paint(throat*.9,white)
@@ -223,10 +244,10 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
         if pattern=='lemur':colour=paint(tail_weight*smooth(.1,.65,np.sin(p[:,1]*31))*.95,white)
         if pattern=='meerkat':colour=paint(bars*back*.35,dark)
     if pattern in {'boa','python','viper'}:
-        saddles=smooth(.20,.65,np.sin(p[:,1]*18+np.sin(p[:,0]*20)*1.8))*(1-scale_belly)
+        saddles=smooth(.20,.65,np.sin(snake_arc*22+np.cos(snake_angle*2)*1.3))*(1-scale_belly)
         colour=paint(saddles*.8,dark)
         colour=paint(scale_belly*.8,pale)
-        if pattern=='viper':colour=paint((1-smooth(.035,.095,np.abs(p[:,0]-state['center_x']-.10*np.sin(p[:,1]*22))))*(1-scale_belly)*.8,dark)
+        if pattern=='viper':colour=paint((1-smooth(.14,.34,np.abs(snake_angle-.43*np.sin(snake_arc*26))))*(1-scale_belly)*.8,dark)
     if pattern in {'lizard','crocodile','salamander','monitor','iguana'}:
         colour=paint(spots*.35*(1-scale_belly),dark)
         if pattern=='salamander':colour=paint(spots*.80,[.71,.59,.22])
@@ -321,6 +342,6 @@ heightmap=np.zeros((a.size,a.size),np.float32);heightmap[iy,ix]=height;extend(he
 dy,dx=np.gradient(gaussian_filter(heightmap,.55));pixel=2.6/a.size
 normal=np.dstack([-dx/pixel,dy/pixel,np.ones_like(dx)]);normal/=np.linalg.norm(normal,axis=2,keepdims=True)
 Image.fromarray(np.uint8(np.clip(normal*.5+.5,0,1)*255)).resize((512,512),Image.Resampling.LANCZOS).save(root/'coat-normal.png')
-report={'method':'Continuous bind-surface anatomical masks and shared generated surface detail; explicit species recipe','slug':a.slug,'category':kind,'pattern':pattern,'size':a.size,'normal_size':512,'coats':coats,'eye_radius':[rx,rz],'uv_coverage_fraction':float(occupied.mean()),'mask_pixels':{key:int((value>.5).sum()) for key,value in [('nose',nosemask),('bill',bill),('bare_lids',bare),('belly',belly),('ear',ear)]},'required_masks':['bare_lids'],'surface_sources':sources,'seconds':round(time.monotonic()-started,2),'appearance_approved':False,'limits':ROWS[a.slug].get('geometry_limits','Selected approved silhouette and motions; pigment studies do not add age/sex body proportions or missing behaviours.')}
+report={'method':'Continuous bind-surface anatomical masks and shared generated surface detail; explicit species recipe','slug':a.slug,'category':kind,'pattern':pattern,'size':a.size,'normal_size':512,'coats':coats,'eye_radius':[rx,rz],'uv_coverage_fraction':float(occupied.mean()),'mask_pixels':{key:int((value>.5).sum()) for key,value in [('nose',nosemask),('bill',bill),('bare_lids',bare),('belly',belly),('ear',ear)]},'required_masks':[] if kind in {'ground_insect','spider'} else ['bare_lids'],'surface_sources':sources,'seconds':round(time.monotonic()-started,2),'appearance_approved':False,'limits':ROWS[a.slug].get('geometry_limits','Selected approved silhouette and motions; pigment studies do not add age/sex body proportions or missing behaviours.')}
 (root/'coat-bake.json').write_text(json.dumps(report,indent=2)+'\n')
 print('ANATOMICAL ATLAS',a.slug,len(coats),'coats',report['seconds'],'seconds',report['mask_pixels'],flush=True)

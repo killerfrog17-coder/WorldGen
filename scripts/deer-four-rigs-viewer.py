@@ -1,5 +1,5 @@
 """One-window comparison of four fresh meshes with independent generated rigs."""
-import json,math,random,time
+import json,math,random,time,textwrap
 from pathlib import Path
 import bpy
 from mathutils import Vector,Quaternion
@@ -265,10 +265,11 @@ class D4_PT_panel(bpy.types.Panel):
         for op in ('deer_four.model','deer_four.species','deer_four.view','deer_four.mode'):col.operator(op)
         row=col.row(align=True);row.operator('deer_four.view',text='Front body').front=True;row.operator('deer_four.view',text='Rear body').rear=True
         col.operator('deer_four.skeleton',text='Hide Skeleton' if state['skeleton'] else 'Show Skeleton');col.operator('deer_four.play')
-        col.label(text='Playing: '+state['clip'].replace('_',' '));col.label(text='Coat: '+state['coat']+('' if finished or current().get('painting_coats') else ' (colour only)'))
+        col.label(text='Playing: '+state['clip'].replace('_',' '))
+        for line in textwrap.wrap('Coat: '+state['coat']+('' if finished or current().get('painting_coats') else ' (colour only)'),width=42):col.label(text=line)
         if current().get('painting_coats'):col.label(text='Selected model coloured; appearance review pending')
         if current().get('painting_coats') and painting_variant(current())['label']:
-            col.label(text=painting_variant(current())['label'])
+            for line in textwrap.wrap(painting_variant(current())['label'],width=42):col.label(text=line)
         if finished:col.label(text=state['sex']+' - '+('Antlers' if state['active_rack']>=0 else 'No antlers'))
         col.separator();col.label(text='Individual animations')
         preferred=['Idle','Walk','Trot','Run','Eating','Sleep','Rest','Jump','lay_to_idle','Death']

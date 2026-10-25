@@ -27,6 +27,8 @@ SOURCES={
  'moose':'https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf',
  'oryx':'https://animals.sandiegozoo.org/animals/oryx',
  'pronghorn':'https://www.nps.gov/yell/learn/nature/pronghorn.htm',
+ 'muskox':'https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main',
+ 'wild_cattle':'https://animals.sandiegozoo.org/animals/wild-cattle',
 }
 
 def configurations(slug):
@@ -47,4 +49,5 @@ def configurations(slug):
     variants.append(dict(id='hyp-compact',label='Hypothetical dense-cover lineage: compact, less projecting appendages',shape=shape,size=size*.67,radius=.92,sex='lineage-dependent',hypothetical=True))
     variants.append(dict(id='hyp-open',label='Hypothetical open-habitat lineage: broader display within the same structure',shape=shape,size=size*1.08,radius=.95,sex='lineage-dependent',hypothetical=True))
     if slug=='oryx':variants.append(dict(id='scimitar',label='Scimitar-like curved horn analogue; same selected body',shape='scimitar',size=.80,radius=.75,sex='both',hypothetical=False))
+    if slug=='buffalo':variants.append(dict(id='water-sweep',label='Water-buffalo sweeping horn analogue; selected adult body',shape='water-buffalo',size=.62,radius=.75,sex='both',hypothetical=False))
     return variants

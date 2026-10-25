@@ -1,5 +1,47 @@
 # WorldGen repository instructions
 
+COLOUR REFRESH + CONTINUOUS FINAL QA,25October2026 ~15:43 local:
+Sole colour --refresh producer23240 launcher still RUNNING; actual current/PID/
+counts in finish-progress.json. Now late roster, zero failures so far. Separate
+read-only watch-fauna-final-qa.py launcher37992 consumes each completed refreshed
+file: exact native SHA gate,6phases per relevant source clip, added-feature edge/
+eye attachment checks and a CURRENT hypothetical/last coat side render. Receipt
+final-qa.json binds exact native/render SHA; it is NOT visual/owner approval.
+inspection/final-qa-progress.json is authoritative; no second colour producer.
+Earlier171 all-source moving-frame check found10 new-lid distortions, eyes stayed
+near body. Full per-animal paint-motion-checks.json retained; global progress is
+overwritten by bounded followups. Root cause: fur collar projection could hit
+far surface, then acquire neck/wing skin. finish-selected-fauna-face now rejects
+distant ray hits and uses same local anchor skin as globe for entire collar.
+WildGoat/Buffalo explicitly rebuilt/checks+motion clear; Impala had already passed
+the live colour producer before the fix, so explicitly rebuilt too. Continuous
+QA sees changed file stamps and automatically rechecks it; warnings now clear.
+No original body/skin/rig/action changed. Generated Grasshopper/LitterBeetle/
+OrbSpider now material-only dark ocular pigment (no mammal-like eye/lid geometry),
+native/index explicitly supports this cheaper appropriate arthropod policy.
+
+Buffalo/MuskOx male examples gain fitted broad horn bases; water-buffalo coat
+links only sweeping water-style horns, female roots remain slender. Reindeer/
+Moose hypothetical compact racks now have fewer tines, not just scaled length.
+WildCattle male/female and Pronghorn male-cheek palettes now restrict sex-labelled
+horn options; all four updated traits rechecked native. Oryx scimitar coat now
+white with rusty neck; Impala bold gazelle flank band removed, rump/tail marks
+added. Two bodies explicitly re-baked/rechecked without overlapping producer.
+Snakes upcoming coats use own manual-chain arc-length/surface angle for markings,
+so coiled Boa no longer relies on a world-Y stripe projection. Pangolin upcoming
+refresh state points to prepared keratin source instead of old thick-skin swatch.
+
+render-fauna-finish-options generated side/front views of10 explicit hypothetical
+coats and two female antler configurations; needs actual viewing of final sheets.
+Microfauna final mottling/linear-colour revisions rerendered all26 style palettes;
+needs final actual view. Full first-pass front01-08/motion01-08/side01-08 sheets
+viewed; rear01-02 viewed, rear03-08 still pending. These are coarse diagnostic
+views and some precede the refresh; inspect current final-lineage sheets too.
+Source body/gait defects remain accepted-prototype inputs, no new rig/gen/bake.
+New option/view text wraps in Animal Review so long lineage labels are legible.
+No GUI opened/closed or game/Unity/settings/Desktop changes. Remote phone works.
+Last source verified remote before new QA fixes22db2b0bc86647aaf43cf43f1c92ee5ce435d332.
+
 FULL COLOUR/TRAIT FINISHING ACTIVE,25October2026 ~15:13 local:
 Owner reiterates plausible invented coats AND extras alongside real analogues.
 All171 generated bodies have native-checked first colour copies; five accepted
