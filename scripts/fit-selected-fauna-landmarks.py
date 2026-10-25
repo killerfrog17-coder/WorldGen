@@ -96,6 +96,10 @@ elif family(a.slug)!='lagomorph':
     front=nose_seed-midpoint;front[2]=0;front/=np.linalg.norm(front)
     side=np.array([front[1],-front[0],0])
 nose=guided_nose if independent and guided_nose else cast([nose_seed[0],float(p[:,1].max()+1),nose_seed[2]],[0,-1,0])
+if independent and picks.get('cosmetic_head_from_eyes'):
+    head=(np.array(right_eye['point'])+np.array(left_eye['point']))/2-front*.08
+    state['head_seed']=head.tolist();state['cosmetic_head_origin']='Inspected paired sockets; generated rig role retained unchanged'
+    (root/'paint-state.json').write_text(json.dumps(state,indent=2)+'\n')
 assert abs(right_eye['point'][2]-left_eye['point'][2])<1e-5
 landmarks={'slug':a.slug,'source_candidate':state['source_candidate'],'method':'Inspected guide-pixel ray to largest connected body; opposite eye ray onto actual surface; front nose ray excludes loose debris.','right_eye':right_eye,'left_eye':left_eye,'nose':nose,'head_seed':head.tolist(),'side_axis':side.tolist(),'front_axis':front.tolist(),'eye_guide_pixel':pixel,'guide_camera':camera,'ignored_landmark_components':len(components)-1,'main_component_vertices':len(main),'body_vertices_unchanged':True,'body_geometry_sha256':state['geometry_sha256']}
 if front_guide:landmarks.update(method='Independent inspected front-camera socket rays on main body; no skull-plane mirroring.',eye_guide_pixel=None,front_guide_camera=front_guide,front_eye_pixels=front_pixels,eye_height_difference=abs(right_eye['point'][2]-left_eye['point'][2]))

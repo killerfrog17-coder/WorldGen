@@ -1,5 +1,94 @@
 # WorldGen repository instructions
 
+OWNER BATCH REVIEW / LIVE PROGRESS,25October2026:
+Owner closed Blender and explicitly asks to reopen RIGHTMOST only when ALL
+requested rerolls/manual review candidates are ready. New native progress GUI
+scripts/fauna-progress-window.py, owned PID13884 at launch (verify), rightmost
+rect3250,650..3836,1049. Read-only live39-task bar, counts/check stages and rough
+remaining workload range (not a promise/countdown). Manifest/live JSON under
+fauna-overnight-20261024/owner-review-progress*. No Desktop item. User may close
+the progress window; work continues. No owner app closure or game changes.
+
+Latest selections all recorded: Hedgehog1, Hippo4, Howler2, Iguana3, Koala1,
+Lemur3, Bandicoot4, Macaque2, Monitor1, OrbSpider4, Orca4, Pangolin1, Penguin4,
+Platypus2, PolarBear1, Puffin1, Rhino2, SeaLion1, Shorebird4, Shrew1, Sloth4,
+Tern1,Tortoise3,Walrus1,Whale4. Ordinary localized fixes proceed without re-show.
+Iguana3/Monitor1 manual four-leg rigs MUST re-show. Python/VenomousSnake require
+fresh perfectly straight source/model + OWN manual chain/spline rig and re-show;
+official Blender Spline IK manual researched. Walrus needs land Walk; SeaOtter
+needs aquatic motion instead of fox Run; Whale needs actual tail deformation.
+Tern needs Flap/Glide horizontal orientation and foot repair. Further repair
+details, source hashes and exact model numbers in OWNER_SELECTIONS pending map.
+
+15 rerolls: Chimp/Croc/Elephant/Echidna/Panda/Giraffe/Gull/Nutria/Porcupine/
+SeaOtter/Shark/SpiderMonkey/Tamarin/Python/VenomousSnake. First Chimp/Croc/Elephant
+rerolls had grey-backdrop wall/floor geometry; OWNER rejects again. Those are
+NOT ready. New15 built-in imagegen ALPHA references visually inspected (head
+along torso, correct limbs), exact prompts/provenance in ignored references/
+alpha-reference-revisions and extra-reference-revisions JSON. Verify alpha
+and native front+side geometry, never rely on forward-head prompt alone.
+
+Sole live finite GPU queue exec17754: owner-alpha-redos-20261025.json has
+Chimp,Croc,Elephant,Panda,Giraffe,Gull,Echidna. New ALPHA Chimp finished native,
+Croc shape last observed. Prior exec78739 gracefully exited at internal ref
+checkpoint; mode nowRUN/resident. DO NOT duplicate or restart full watch. New
+extra8 refs prepared safely on unrelated roots; owner-extra-redos JSON NOT YET
+launched. Need chain it AFTER real first queue parent exit (not a momentary lock
+gap). Python/Venomous manual request markers exist but worker manual-rig path
+not implemented yet. Exact live process/session evidence beats this note.
+
+Actual separate native fixes under each slug/Animal - Owner Corrected.blend:
+Duiker2 +64tri ear backings (6063tri) inspected/native matched, published choice
+manual_fix_blend/SHA, completed without re-show. Aardvark2 forepaw chain/tail
+leakage fix native pass and before/after inspected, not yet published. Ten more
+limb/ear/wing corrections implemented via repair-selected-fauna-limbs.py. They
+retain rest meshes/rigs and stabilize world bone roll + localize/pin distal skin.
+Refinement adds smooth wrist skin falloff and whole Koala ear/head binding.
+Exec2312 is final ten-animal refine/native sequence; exec39874 is current CPU
+before/after contact render pass. Prior same tests passed but SHA after a new
+save requires recheck. Native finite/control/rigid edge checks are NOT gait or
+collision acceptance. Final visual inspection/publication still pending for
+these10 and all newer requested repairs/manual lizards/marine changes.
+
+Source checkpoint previous f665084; current edits need explicit source backup.
+Preserve unrelated deleted prompt and two untracked older deer scripts unstaged.
+
+OWNER LIVE CHOICES / REGENS IN PROGRESS,25October2026:
+Owner is inspecting the remaining raw animals; leave viewer PID12496 (verify)
+untouched. Latest explicit choices recorded in OWNER_SELECTIONS: Duiker2 ear
+holes patch, Aardvark2 (supersedes3) front-right Run skin/twists, Possum2 Run feet,
+Cormorant3 Walk feet + inward wing flap clipping, Dolphin3, Dugong2, Freshwater
+predatory fish1, Freshwater turtle3, Gorilla4 Run feet, Guereza1 right-front arm
+twists. ALL corrections are best-effort and proceed WITHOUT re-show unless
+owner explicitly asks. No automatic motion/art acceptance implied. New four-
+candidate REGENS explicitly requested for Chimpanzee, Crocodile(straight tail),
+Echidna, Elephant(old FIVE-leg reference), GiantPanda, Giraffe, Gull. Inspect
+EVERY new reference for head forward along torso, correct limb count and tail
+pose before GPU generation. Forest is CLOSED; resident fast mode authorized.
+
+Chimp new reference+4meshes/fresh rigs complete; shape246.73s,rig58.63s. First
+assembly rejected stale hash-bound old corrections, then candidate3's15-joint
+graph needed explicit four limb chains. New override is bound to new4hashes;
+native build/check pass and finish-fauna-manual-recovery published/cleaned only
+known intermediates. Still needs bind-view inspection/index sync; no new window
+opened. Former producer exec18707 exited0 with failed status, DO NOT restart
+inference; cached-only state sync after current Croc producer exit suffices.
+CROC is the sole live GPU worker, exec46636; check real PID/current in queue-
+state and children. Shape210.79s done, rigs underway last observed. New cropped
+straight-tail reference was edited to reveal FOUR feet and inspected. Old
+model-specific axis/chain/hash overrides for chimp/croc archived under their
+previous-owner-rejected folders; generic anatomical matching retained. Croc's
+old180Z MUST NOT be applied to new inputs. NO full-watch restart. Need prepare
+fresh refs for Echidna/Elephant/Panda/Giraffe/Gull and serially regenerate4each.
+
+Painting checkpoint work preceding owner review requests: Fish1/Mouse1/Squirrel3
+are built in separate fauna-painted root, not yet all indexed/native rechecked.
+New scale-fish-v1 built-in imagegen source/provenance saved. Fish2000+416tri;
+Mouse1608+476;Squirrel2481+476, five palettes each. Raw meshes/rig/actions retained.
+Finish-face now ignores detached components when fitting rims/UV/skin; does NOT
+delete original raw flecks. Needs final actual-view/native checks/source backup.
+Latest source checkpoint before these changes f665084813cfdf77cf75ea08bac864757b33fbaf.
+
 ELEVEN COLOUR PASSES / REMAINING REVIEW OPEN,25October2026:
 Selected Bison4/Duck2/Pheasant3 add checked separate colour copies; total11of122
 explicitly selected bodies, all appearance/motion unapproved. Native selected

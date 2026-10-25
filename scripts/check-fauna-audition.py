@@ -1,11 +1,13 @@
 """Bounded native format/control checks, not an automatic art acceptance gate."""
-import argparse,json,runpy,sys
+import argparse,hashlib,json,runpy,sys
 from pathlib import Path
 import bpy,numpy as np
 
 ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,required=True)
+ap.add_argument('--blend-name',default='Animal - Raw Audition.blend')
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=a.root.resolve()
-bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Raw Audition.blend'));scene=bpy.context.scene
+assert Path(a.blend_name).name==a.blend_name
+bpy.ops.wm.open_mainfile(filepath=str(root/a.blend_name));scene=bpy.context.scene
 models=json.loads(scene['deer_four_rigs']);assert len(models)==4
 viewer=runpy.run_path(str(Path(__file__).with_name('deer-four-rigs-viewer.py')));checks=[]
 for i,entry in enumerate(models):
@@ -36,5 +38,6 @@ for i,entry in enumerate(models):
 for _ in range(3):bpy.ops.deer_four.view()
 for _ in range(2):bpy.ops.deer_four.mode()
 bpy.ops.deer_four.species()
-(root/'native-checks.json').write_text(json.dumps({'candidates':checks,'controls':True,'art_approved':False,'collision_free_claim':False},indent=2))
+report='native-checks.json' if a.blend_name=='Animal - Raw Audition.blend' else 'owner-fix-native-checks.json'
+(root/report).write_text(json.dumps({'candidates':checks,'controls':True,'art_approved':False,'collision_free_claim':False,'checked_blend_sha256':hashlib.sha256((root/a.blend_name).read_bytes()).hexdigest()},indent=2))
 print('Raw file, fresh rig positions/weights and controls pass; art review pending.',flush=True)

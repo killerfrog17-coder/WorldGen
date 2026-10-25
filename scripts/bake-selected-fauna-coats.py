@@ -14,9 +14,10 @@ sys.path.insert(0,str(repo/'scripts'))
 from fauna_paint_recipes import SUPPORTED, family, profiles as coat_profiles, eye_radius as get_eye_radius, eye_frame
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=1024)
 a=ap.parse_args();assert a.slug in SUPPORTED
-if family(a.slug)=='avian':
+if family(a.slug) in {'avian','fish'}:
     import runpy
-    runpy.run_path(str(repo/'scripts/bake-selected-fauna-bird.py'),run_name='__main__')
+    script='bake-selected-fauna-fish.py' if family(a.slug)=='fish' else 'bake-selected-fauna-bird.py'
+    runpy.run_path(str(repo/'scripts'/script),run_name='__main__')
     raise SystemExit
 kind=family(a.slug);canid=kind=='canid';compact=kind!='lagomorph'
 root=repo/'artifacts/fauna-painted-20261024'/a.slug;started=time.perf_counter()
@@ -39,6 +40,26 @@ def sample(u,v):return map_coordinates(detail,[np.mod(v,1)*767,np.mod(u,1)*767],
 blend=np.abs(n)**6;blend/=np.maximum(blend.sum(1,keepdims=True),1e-8)
 hair=(sample(p[:,1]*2.1,p[:,2]*2.1)*blend[:,0]+sample(p[:,0]*2.1,p[:,2]*2.1)*blend[:,1]+sample(p[:,0]*2.1,p[:,1]*2.1)*blend[:,2])
 extra_fur_sources=[];shag=np.zeros(len(p))
+if a.slug=='squirrel':
+    # Follow the selected generated tail chain instead of using world-up hair.
+    tail_path=repo/'artifacts/fauna-assets/textures/fur-coarse-guard-v1.png'
+    tuft=np.asarray(Image.open(tail_path).convert('RGB').resize((768,768)),np.float32)/255
+    tl=tuft@np.array([.2126,.7152,.0722]);td=tl-gaussian_filter(tl,15,mode='wrap');td/=max(float(np.std(td))*3,1e-5)
+    nearest=np.full(len(p),np.inf);arc=np.zeros(len(p));theta=np.zeros(len(p));length=0.;segments=0
+    heads=d['joint_heads'];parents=d['parents']
+    for i in range(len(groups)):
+        parent=int(parents[i])
+        if groups[i]!='tail' or parent<0 or groups[parent]!='tail':continue
+        start=heads[parent];delta=heads[i]-start;seglen=np.linalg.norm(delta)
+        if seglen<1e-5:continue
+        t=np.clip(((p-start)@delta)/(seglen*seglen),0,1);q=start+t[:,None]*delta;rel=p-q;dist=np.sum(rel*rel,axis=1);mask=dist<nearest
+        tangent=delta/seglen;across=np.array([1.,0,0]);across-=tangent*(across@tangent);across/=np.linalg.norm(across);up=np.cross(tangent,across)
+        nearest[mask]=dist[mask];arc[mask]=length+t[mask]*seglen;theta[mask]=np.arctan2(rel[mask]@up,rel[mask]@across)
+        length+=seglen;segments+=1
+    assert segments>=3,'No usable selected tail chain'
+    tail_hair=map_coordinates(td,[np.mod(arc*2.4,1)*767,np.mod(theta/(2*np.pi)*2,1)*767],order=1,mode='wrap')
+    weight=smooth(.25,.75,tail_weight);hair=hair*(1-weight)+tail_hair*weight
+    extra_fur_sources.append({'path':str(tail_path.relative_to(repo)),'sha256':hashlib.sha256(tail_path.read_bytes()).hexdigest(),'region':'Tail fibres aligned by nearest selected tail-chain segment','segments':segments})
 if kind=='bovine':
     # Forequarter shag and shorter hindquarter fibres share continuous surface
     # coordinates. The blending boundary never follows a UV island or neck seam.
@@ -63,6 +84,9 @@ for side in [-1,1]:
     if kind in {'suine','caprine'}:ear_gate &= d['vertices'][:,1]>head[1]-.24
     if kind=='ursid':ear_gate=(d['vertices'][:,2]>state['ear_base']-.035)&(d['vertices'][:,1]>head[1]-.10)&(d['vertices'][:,1]<head[1]+.27)&(split*side>.12)
     if kind=='bovine':ear_gate=(d['vertices'][:,2]>1.26)&(d['vertices'][:,2]<1.47)&(d['vertices'][:,1]>.55)&(d['vertices'][:,1]<.90)&(split*side>.10)
+    if kind=='rodent':
+        y0,y1,z0,lateral=(.72,1.24,1.30,.14) if a.slug=='mouse' else (1.10,1.65,1.36,.07)
+        ear_gate=(d['vertices'][:,2]>z0)&(d['vertices'][:,1]>y0)&(d['vertices'][:,1]<y1)&(split*side>lateral)
     points=d['vertices'][ear_gate]
     assert len(points)>8,'No independent ear region found'
     root_point=points[points[:,2]<=np.quantile(points[:,2],.12)].mean(0);tip_point=points[points[:,2]>=np.quantile(points[:,2],.97)].mean(0)
@@ -74,6 +98,7 @@ for side in [-1,1]:
     if kind in {'suine','caprine'}:spatial*=smooth(head[1]-.24,head[1]-.17,p[:,1])
     if kind=='ursid':spatial=smooth(state['ear_base']-.06,state['ear_base']+.06,p[:,2])*smooth(head[1]-.10,head[1]-.04,p[:,1])*(1-smooth(head[1]+.20,head[1]+.30,p[:,1]))*smooth(.10,.15,((p-head)@head_side)*side)
     if kind=='bovine':spatial=smooth(1.24,1.29,p[:,2])*(1-smooth(1.43,1.49,p[:,2]))*smooth(.53,.60,p[:,1])*(1-smooth(.87,.94,p[:,1]))*smooth(.10,.15,((p-head)@head_side)*side)
+    if kind=='rodent':spatial=smooth(z0-.025,z0+.02,p[:,2])*smooth(y0-.025,y0+.025,p[:,1])*(1-smooth(y1-.02,y1+.04,p[:,1]))*smooth(lateral-.02,lateral+.02,((p-head)@head_side)*side)
     ear_inner=spatial*smooth(.08,.25,frac)*(1-smooth(.82,.98,frac))*(1-smooth(.48,.83,np.abs(u)/width))*smooth(.12,.65,n@head_front if compact else n[:,1])
     inner=np.maximum(inner,ear_inner);tips=np.maximum(tips,spatial*smooth(.76,.96,frac)*(1-ear_inner*.7))
     frames.append({'side':side,'root':root_point.tolist(),'tip':tip_point.tolist(),'width':width})
@@ -81,9 +106,10 @@ nose=np.array(land['nose']['point']);nn=np.array(land['nose']['normal']);nn/=np.
 up=np.array([0.,0.,1.]);across=np.cross(nn,up);across/=np.linalg.norm(across);up=np.cross(across,nn)
 delta=p-nose;nu=delta@across;nv=delta@up;nd=delta@nn
 nw,nh=(.085,.053) if kind=='bovine' else (.075,.055) if kind in {'suine','ursid'} else (.040,.028) if kind=='caprine' else (.049,.033) if canid else (.035,.025)
+if kind=='rodent':nw,nh=(.041,.030) if a.slug=='mouse' else (.042,.030)
 width=nw*(.68+.32*np.clip(nv/nh+1,0,1));q=(nu/width)**2+(nv/nh)**2+(nd/(.060 if compact else .045))**2
 nose_mask=(1-smooth(.7,1.2,q))*face*smooth(.05,.65,n@nn)
-if kind in {'suine','ursid','bovine'}:nose_mask=(1-smooth(.7,1.2,q))*smooth(.0,.60,n@nn)
+if kind in {'suine','ursid','bovine','rodent'}:nose_mask=(1-smooth(.7,1.2,q))*smooth(.0,.60,n@nn)
 eye_surround=np.zeros(len(p));bare=np.zeros(len(p))
 eye_radius=get_eye_radius(a.slug)
 for key in ['right_eye','left_eye']:
@@ -168,6 +194,20 @@ for index,(label,base,pale,dark_tips) in enumerate(profiles):
             # Colour-only seasonal overlay, not a separate inherited species.
             patches=smooth(.0,.60,np.sin(p[:,1]*19+np.sin(p[:,0]*23)*1.6+np.sin(p[:,2]*15)))*smooth(-.65,-.10,p[:,1])*(1-smooth(.28,.65,p[:,1]))*smooth(.50,.80,p[:,2])
             colour=paint(patches*.40,pale)
+    elif kind=='rodent':
+        paws=(1-smooth(.085,.16,p[:,2]))*(1-tail_weight)
+        if a.slug=='mouse':
+            # Fine-coated mouse tails remain two-toned; no universal bare-rat
+            # tail or arbitrary sex-linked colour swap.
+            colour=paint(tail_weight*.55,base*.80)
+            colour=paint(tail,pale)
+            foot_colour=pale*.86+np.array([.045,.015,.005])
+            colour=paint(paws*.78,foot_colour)
+        else:
+            guards=smooth(.25,.80,hair)*tail_weight*.35
+            colour=paint(guards,np.minimum(pale*.88+.045,.87))
+            colour=paint(paws*.48,base*.64)
+            if 'rusty' in label:colour=paint(inner*.5,[.46,.25,.12])
     if canid:
         colour=paint(cheek*.85,pale)
         if a.slug=='red-fox':
@@ -188,9 +228,11 @@ for index,(label,base,pale,dark_tips) in enumerate(profiles):
     colour=paint(eye_surround*(.65 if kind=='caprine' else .20 if kind=='ursid' else .5),base*.55+pale*.45)
     colour*=np.clip(1+hair[:,None]*(.24 if canid else .32),.64,1.34)
     colour=paint(inner,base*.65+[.025,.018,.012] if kind in {'ursid','bovine'} else [.47,.35,.31])
+    if kind=='rodent':colour=paint(inner,base*.6+[.10,.065,.05])
     if dark_tips:colour=paint(tips*.94,[.045,.042,.037])
     colour=paint(hoof,[.065,.054,.044])
     colour=paint(bare,[.075,.058,.045]);colour=paint(nose_mask,[.16,.115,.09] if kind=='suine' else [.055,.043,.034] if kind=='caprine' else [.040,.032,.025] if kind in {'ursid','bovine'} else [.045,.035,.029] if canid else [.12,.09,.08] if a.slug=='hare' else [.23,.15,.14])
+    if kind=='rodent':colour=paint(nose_mask,[.29,.17,.145] if a.slug=='mouse' else [.075,.052,.037])
     if 'mottled' in label:
         m=(.5+.5*np.sin(p[:,1]*21+np.sin(p[:,2]*15)*2))*smooth(.1,.7,n[:,2])*.2
         colour=paint(m,[.13,.105,.075])
@@ -205,6 +247,7 @@ Image.fromarray(np.uint8(np.clip(normal*.5+.5,0,1)*255)).resize((512,512),Image.
 summary={'method':'CPU rest-surface UV raster, shared generated fibre detail, separate anatomical pigment/roughness masks; no whole-animal photo projection','size':a.size,'normal_size':512,'coats':[{'label':x[0],'file':f'coat-{i}-colour.png'} for i,x in enumerate(profiles)],'uv_coverage_fraction':float(occupied.mean()),'mask_pixels':{key:int((value>.5).sum()) for key,value in [('belly',belly),('inner_ear',inner),('ear_tips',tips),('nose',nose_mask),('bare_lids',bare)]},'ear_frames':frames,'eye_radius':eye_radius,'fur_sha256':hashlib.sha256(fur_path.read_bytes()).hexdigest(),'seconds':round(time.perf_counter()-started,2),'limits':'Normal relief is restrained artistic fibre detail, not measured PBR. Face geometry and owner appearance review remain pending.'}
 (root/'coat-bake.json').write_text(json.dumps(summary,indent=2)+'\n')
 if extra_fur_sources:
-    summary.update(extra_fur_sources=extra_fur_sources,forequarter_shag_pixels=int((shag>.5).sum()))
+    summary['extra_fur_sources']=extra_fur_sources
+    if kind=='bovine':summary['forequarter_shag_pixels']=int((shag>.5).sum())
     (root/'coat-bake.json').write_text(json.dumps(summary,indent=2)+'\n')
 print('COAT ATLAS BAKED',a.slug,len(profiles),'coats',a.size,'pixels',summary['seconds'],'seconds',summary['mask_pixels'],flush=True)

@@ -1221,17 +1221,17 @@
     "aardvark": {
       "animal": "Aardvark",
       "selected_models": [
-        3
+        2
       ],
-      "time": "2026-10-24T19:02:41.473620-05:00",
-      "model_sha256": "833776721d1097bc1160ef57e6a111e36f751eb2edcc274620badccbbf37644f",
-      "rig_sha256": "34901e2ac27ecc2a5efbcf5ce8fb23825343742f1a43280ef2759f4cfc4a20f9",
+      "time": "2026-10-25T03:05:59.272857-05:00",
+      "model_sha256": "7a2e94e957a2a8d373e104e7c38709ef0ae73195ad8485e9478dcc319dd18e76",
+      "rig_sha256": "a89367ab2a5f6a6a32a8acfd064144688167dbbbca96f6dd266d0ef0c729ec82",
       "model_selected": true,
       "animation_approved": false,
-      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+      "animation_method": "Owner selects prototype; requested best-effort manual fixes proceed without repeat review, not independent natural-motion approval.",
       "painting_started": false,
-      "required_motion_fix": "Keep3 and move/map the left leg to the actual left leg rather than tail.",
-      "latest_note": "Owner listed aardvark without new number; retain prior3."
+      "required_manual_fix": "Front-right foot stretches and twists at two points during Run. Manual patch; selected body2 supersedes3. No repeat review requested.",
+      "proceed_without_re_review": true
     },
     "albatross": {
       "animal": "Albatross",
@@ -1613,6 +1613,454 @@
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
       "painting_started": false
+    },
+    "duiker": {
+      "animal": "Duiker",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-25T03:05:59.272857-05:00",
+      "model_sha256": "f7c579af1677a8ba09a12f6ed5326d9a730477d15c58b783db631745d96581ad",
+      "rig_sha256": "66dd3d64cd7b2b6a3978cc3416d573d04b58ace6ae8999f3245fb40c3c0dc97a",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner selects prototype; requested best-effort manual fixes proceed without repeat review, not independent natural-motion approval.",
+      "painting_started": false,
+      "required_manual_fix": "Patch holes in the ears manually; selected body2. No repeat review requested.",
+      "proceed_without_re_review": true,
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\duiker\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "25faed110fbd0f485b39ace6a4e3870e3d5660631b8fd393656908ffd4ac6bac",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
+    },
+    "cormorant": {
+      "animal": "Cormorant",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-25T03:08:38.415453-05:00",
+      "model_sha256": "1e0b21ffdca45adcaeb854216b6c44129ea47276e9c4fe8f95eae35d057c0c1d",
+      "rig_sha256": "cb444f422e523e99d4734302d29f4da70ea231c01facf13376a30525d0b8749a",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "required_manual_fix": "Feet scrunch in Walk; reduce the inward extreme of wing flapping to avoid visible self-clipping.",
+      "proceed_without_re_review": true
+    },
+    "common-brushtail-possum": {
+      "animal": "Common brushtail possum",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-25T03:10:48.995405-05:00",
+      "model_sha256": "93f0be60b2a45ac64cc8632925de42d05211e0ee819b6f853228385d0773910b",
+      "rig_sha256": "dafdb9d498eb0544c1cb415fdc36cb751389bb3d6b12aefe263f186abe8a67c5",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "required_manual_fix": "Twisted feet in Run; best-effort manual skeleton/skin patch.",
+      "proceed_without_re_review": true
+    },
+    "dolphin": {
+      "animal": "Dolphin",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-25T03:13:02.154742-05:00",
+      "model_sha256": "aadc1a69e396fbbb0fe6b460bc8c6bc334982d104958ea6f0b712eaa1a4a51e9",
+      "rig_sha256": "85a8006847601978cbc24b0109aec7eafd5b5b44d064ffaf44b1a558d7ba0bb5",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false
+    },
+    "dugong": {
+      "animal": "Dugong",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-25T03:13:02.154742-05:00",
+      "model_sha256": "1e9d48c99401cd606fd060de83c966c8f9eff93c09256c3db356711ee3879ae8",
+      "rig_sha256": "8e905bb89dac6bfdfb1f74731608ea133322c53121d0b65770c9169d1b70a03d",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false
+    },
+    "freshwater-turtle": {
+      "animal": "Freshwater turtle",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-25T03:16:35.375416-05:00",
+      "model_sha256": "ca02b3c35218c71a0cc264826a81dd15da4b2839de0946578c134272ce6a16bd",
+      "rig_sha256": "7d4c3d29ee1ec8a434c37fb7f6356447809b1268829c6fe213e4e7de4469c6d8",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false
+    },
+    "freshwater-predatory-fish-guild": {
+      "animal": "Freshwater predatory fish (guild)",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-25T03:17:08.753776-05:00",
+      "model_sha256": "26295157038b7f42138e3458b5d7b802168875884932b1c7959c4a8185658b1f",
+      "rig_sha256": "fb055cb4f965d4f11b2727031a93e981e1d30a0511d407e8250758fb9e36d69e",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false
+    },
+    "gorilla": {
+      "animal": "Gorilla",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-25T03:20:19.847986-05:00",
+      "model_sha256": "0c16825ceb0dd655f666bca9edb80d8f2068f9afc88f85dedd51afa57d337f48",
+      "rig_sha256": "572d4628a012425568abf76cc527d54efa291ee748c84cb386e6ae58b1d176ab",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "required_manual_fix": "Fix twisted feet in Run.",
+      "proceed_without_re_review": true
+    },
+    "guereza": {
+      "animal": "Guereza",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-25T03:20:19.847986-05:00",
+      "model_sha256": "7310f733d32e37633add5cb9a3d17888b62e8b2bd620095af4af255596f6c360",
+      "rig_sha256": "40e02253622dc5971da06f2abf215bd5c5c6b4ea4f4cbf1421b7064fa053906d",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "required_manual_fix": "Fix two twists in the right front arm.",
+      "proceed_without_re_review": true
+    },
+    "hedgehog": {
+      "animal": "Hedgehog",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-25T03:30:27.948304-05:00",
+      "model_sha256": "c149b83b8bbac17429dd234e827eb59f6281e8562b83d86e4bf5cc3a3ef0ea92",
+      "rig_sha256": "a5be7b6c12a6be8c7b493596840dac54ed52f2b9e0ef47303299f498d89c3d36",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "required_manual_fix": "Front feet deform in Run; left front foot also in Walk.",
+      "proceed_without_re_review": true
+    },
+    "hippopotamus": {
+      "animal": "Hippopotamus",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-25T03:30:27.948304-05:00",
+      "model_sha256": "15dd2d7aab02194b77b6ba01307af4d6143afa66f7297138cd716027048ae3ce",
+      "rig_sha256": "bb94e3a5c26743cea465c2a6fbc22cccb502056f34fad038c2d9b369ec8699a1",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false
+    },
+    "howler-monkey": {
+      "animal": "Howler monkey",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-25T03:30:27.948304-05:00",
+      "model_sha256": "83bb49051799eabbb9be015a90a84a6b7056f02d17fe3f5cae9efa759ff9c980",
+      "rig_sha256": "d8b130f7676413b861234697c3846795d9b893b126b50ece140da84a542d77d0",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "required_manual_fix": "Hands deform in Run.",
+      "proceed_without_re_review": true
+    },
+    "iguana": {
+      "animal": "Iguana",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-25T03:30:27.948304-05:00",
+      "model_sha256": "c935477526671515073a77562f81cf21b9821c33ec349239e30f127e454a4dfb",
+      "rig_sha256": "1189eb32c8cd3d2096af82c44255b1f9027acbc25f981fa778d1979d3e4e0a84",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "required_manual_fix": "Manually place the skeleton/all four leg chains; explicitly re-show selected model.",
+      "proceed_without_re_review": false
+    },
+    "koala": {
+      "animal": "Koala",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-25T03:30:27.948304-05:00",
+      "model_sha256": "384ac94332287cb427d2dc510a73f659ca83dd68e86b2e555be07f8f64be19e6",
+      "rig_sha256": "f7efde3dde112825a4f9eb08cdeb1ecf2456bb3f05d218591e6f06594ecb4cef",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "required_manual_fix": "Arm twist plus right ear stretching/popping in Walk/Run.",
+      "proceed_without_re_review": true
+    },
+    "lemur": {
+      "animal": "Lemur",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-25T03:30:27.948304-05:00",
+      "model_sha256": "2db0b50f4036bcf74240701ea5f43b6d24562f58740b186ffa2112c3f767710e",
+      "rig_sha256": "4f68e031f41efa84b4cc6be389533d343b4590aa09c156b72fb2d16c74ef53a8",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "required_manual_fix": "Front-right arm has two twists in Run.",
+      "proceed_without_re_review": true
+    },
+    "long-nosed-bandicoot": {
+      "animal": "Long-nosed bandicoot",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-25T03:30:27.948304-05:00",
+      "model_sha256": "fcf9fdffcb2f92f23cfc34009cb060e24f7149470a7031af9a8ca29ae5e14332",
+      "rig_sha256": "7657c5c6a508071d53b5347d8477ec6a2b2840001f1dcf51e739b5a59cd30c3b",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "required_manual_fix": "Both front arms have two twists in Run.",
+      "proceed_without_re_review": true
+    },
+    "macaque": {
+      "animal": "Macaque",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-25T03:30:27.948304-05:00",
+      "model_sha256": "b9a8b57552bbb8ccc7b7d3cf2c6b97a76a3e1e0d3769778b134902dc591b1f92",
+      "rig_sha256": "8fd0804404dbb91bc51fd84ac52ab7676813b2cd923da312609480870161bf0d",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "required_manual_fix": "Double hand twist in Run.",
+      "proceed_without_re_review": true
+    },
+    "monitor-lizard": {
+      "animal": "Monitor lizard",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-25T03:30:27.948304-05:00",
+      "model_sha256": "29f26eaaa055815632fbf9e7ec49f4c42fab64349b559751508f6a1f40d33c7f",
+      "rig_sha256": "32759544ba28b75c9f40de0eb5871d33726b82ac456041cbbd381616d1c5b8a6",
+      "model_selected": true,
+      "animation_approved": false,
+      "painting_started": false,
+      "required_manual_fix": "Manually rig all four feet/legs; explicitly re-show selected model.",
+      "proceed_without_re_review": false
+    },
+    "orb-weaving-spiders-guild": {
+      "animal": "Orb-weaving spiders (guild)",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "model_sha256": "4442c095cceea51b6a7ef255a8005e7e65d6db52175819cf4a112dc9379bb06f",
+      "rig_sha256": "0155f0e23195fd8d5da83c8bbfddb47461ebbf3397eff4b1cf1b53c4d661cafb",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval."
+    },
+    "orca": {
+      "animal": "Orca",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "model_sha256": "5a26fcd5fbde37b5fc221b15021067def06878616b228dc289fa94837e2a059b",
+      "rig_sha256": "df0d8759f0dcf864f29c4959ce5da5063b133a523179ed3560261182abe8fc6f",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval."
+    },
+    "pangolin": {
+      "animal": "Pangolin",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "model_sha256": "330d392d687267960d65fcde999d6135cb29d107390fc596fbf577a3b2292da1",
+      "rig_sha256": "7d8c9948fad8dcb0312a646b7904a50fb2a0468ecdbe209281b1622876b1067d",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
+      "required_motion_fix": "Repair foot twists, especially forefeet; slightly reduce excessive head bob."
+    },
+    "penguin": {
+      "animal": "Penguin",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "model_sha256": "534b87628daab2a3370e9600d71be4d90fe32a41f177a890692bfa97a9b03178",
+      "rig_sha256": "ef9255fa213e59f364db7a2c277c311d3a2b1ef7c157b413efa4035d0cbd0a6c",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
+      "required_motion_fix": "Repair right foot deformation and smaller left-foot edge wriggle in Walk."
+    },
+    "platypus": {
+      "animal": "Platypus",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "model_sha256": "4173078afdd7217f11d11bf5af1daa7263dbf21d470df744f424b2a6e4b9732f",
+      "rig_sha256": "e988caac76766445d145c7900a222ce9901dcf5b00e7f1b86c8b9e33f2e9b4d9",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
+      "required_motion_fix": "Repair forefeet twists in Run."
+    },
+    "polar-bear": {
+      "animal": "Polar bear",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "model_sha256": "9beac3bf810f12794864ab86bac2db84b307cdc1a26b75866b2ea89ef025b990",
+      "rig_sha256": "109853abff96a8451dc2fd45aaf218e29bbd93b03bd516abdfa795c6acaa031a",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
+      "required_motion_fix": "Repair repeated forefeet twists in Run."
+    },
+    "puffin": {
+      "animal": "Puffin",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "model_sha256": "6da67a6389559232cac3202376840bc948a33236cd55ae8cf3bdcdb42c3130b0",
+      "rig_sha256": "eecb48fcf4925f3ad2f1d6ec9f1d55b577e316a4d8602ea3adf07208c5540568",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
+      "required_motion_fix": "Repair left-foot deformation."
+    },
+    "rhinoceros": {
+      "animal": "Rhinoceros",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "model_sha256": "5d29d8ce755263b74d77996727787ebca5910e5c1b65236a8ff9c0cc744d2026",
+      "rig_sha256": "171dc8ae7cd6809c4e0c12dc429cfe9b299454f8f5068d5a7d8b4977ff23458a",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval."
+    },
+    "sea-lion": {
+      "animal": "Sea lion",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "model_sha256": "1004b5bd3a4247324c887785c89fd1fc6b153045e4959e2f289c0a3e1514c2c9",
+      "rig_sha256": "3ad6b1aefdd4129f584e2494aa27eb7fc6418f507bc8d4246472408b2405e461",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval."
+    },
+    "shorebird": {
+      "animal": "Shorebird",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "model_sha256": "bdafbe8f73ef6c661c2a89cbade33c7de1684d348c5ee358cab68266dae775f4",
+      "rig_sha256": "f361c4a26155f8e0402b3e3dfba2a96e7d364a246a01c38cf711eb31fea4ab78",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
+      "required_motion_fix": "Manually rerig feet for walking."
+    },
+    "shrew": {
+      "animal": "Shrew",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "model_sha256": "6898dcc5da918be6d5be78537b4321cc42d6a49139fbca844b425df6c2db5db3",
+      "rig_sha256": "09f466e249f082ee8b5228b495ca678cd819b30d91bdb7209375131276f025d8",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
+      "required_motion_fix": "Repair forefeet twists."
+    },
+    "sloth": {
+      "animal": "Sloth",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "model_sha256": "354c3bef7b9fbbe87abdae912706f003a1991c4da68f0c56aaa812d349eb4f6c",
+      "rig_sha256": "5c825a5951af2953ccf0131834564184c2d6232be1a33c5c327a5e113e6c68c6",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval."
+    },
+    "tern": {
+      "animal": "Tern",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "model_sha256": "6f843ec1acb9b51e46d8a2a8a7b38a4f6dcbcc1203afc38a7dce40aa077767e4",
+      "rig_sha256": "b2d9bb77511c867a52c231a9f1616e550925f67f269666016fa806bdc65ef54f",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
+      "required_motion_fix": "Correct upward-facing orientation during Flap/Glide only; repair Walk foot twists."
+    },
+    "tortoise": {
+      "animal": "Tortoise",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "model_sha256": "2ea46756d8f80ef5e0aa7eab57dd2a1a8d5a95ed636fdf4a5dac3fb1c712592c",
+      "rig_sha256": "a1b543808dcb4a097c6a117d7cc4e1048bbc06c8d9977c6ec48a94aac855ed6d",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval."
+    },
+    "walrus": {
+      "animal": "Walrus",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "model_sha256": "48cca3315c7eac3ea4a15dff901e277afb6e7c944e1c606e612c5899f77a4581",
+      "rig_sha256": "5735fa84fb89d945c7138292e8682c17bd031d9d84bcb025a9c7f4ba9700d6f5",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
+      "required_motion_fix": "Add a credible ground Walk; swimming alone is insufficient."
+    },
+    "whale": {
+      "animal": "Whale",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "model_sha256": "a59035efdb9333ada763a1a1f919add1833921875930e7a20767bda4bafcfb4b",
+      "rig_sha256": "bd61ce5733d731ce3815dc82b1ba286a54b3402b39fa69a8977d3ee9e1f3e0b2",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
+      "required_motion_fix": "Rerig tail so it actually moves during swimming."
     }
   },
   "source_root": "artifacts/fauna-overnight-20261024",
@@ -1700,9 +2148,11 @@
       "art_approved": false
     },
     "duiker": {
-      "reason": "Owner requests fresh source/model where the animal looks straight along its body, not turned toward camera.",
-      "status": "straight_head_round2_ready_owner_review_pending",
-      "art_approved": false
+      "reason": "Patch holes in the ears manually; selected body2. No repeat review requested.",
+      "status": "manual_revision_completed_no_repeat_review",
+      "art_approved": false,
+      "proceed_without_re_review": true,
+      "completed": "2026-10-25T04:05:00.150928-05:00"
     },
     "emu": {
       "reason": "Manually correct full leg mapping/placement so it walks with actual legs.",
@@ -1790,9 +2240,10 @@
       "art_approved": false
     },
     "aardvark": {
-      "reason": "Keep3 and move/map the left leg to the actual left leg rather than tail.",
-      "status": "manual_motion_revision_ready_owner_review_pending",
-      "art_approved": false
+      "reason": "Front-right foot stretches and twists at two points during Run. Manual patch; selected body2 supersedes3. No repeat review requested.",
+      "status": "manual_fix_queued_no_re_review",
+      "art_approved": false,
+      "proceed_without_re_review": true
     },
     "baboon": {
       "reason": "Keep1; fix front-left hand stretch in Walk and Run.",
@@ -1827,16 +2278,290 @@
       "art_approved": false,
       "proceed_without_re_review": true,
       "completed_at": "2026-10-24T20:02:23.475096-05:00"
+    },
+    "chimpanzee": {
+      "reason": "Redo again: former grey background became wall/floor geometry. Isolated alpha cutout; aligned forward head.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "reference_model_redo_queued",
+      "explicit_repeat_review": true,
+      "proceed_without_re_review": false,
+      "art_approved": false
+    },
+    "cormorant": {
+      "reason": "Feet scrunch in Walk; reduce the inward extreme of wing flapping to avoid visible self-clipping.",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "art_approved": false
+    },
+    "common-brushtail-possum": {
+      "reason": "Twisted feet in Run. Candidate number requested asynchronously.",
+      "status": "manual_fix_queued_no_re_review",
+      "art_approved": false,
+      "proceed_without_re_review": true,
+      "selected_candidate": 2
+    },
+    "crocodile": {
+      "reason": "Redo again: former grey background became backdrop/floor mesh. Isolated alpha cutout, straight tail.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "reference_model_redo_queued",
+      "explicit_repeat_review": true,
+      "proceed_without_re_review": false,
+      "art_approved": false
+    },
+    "echidna": {
+      "reason": "Owner requests regeneration from scratch.",
+      "status": "new_reference_preparation_pending",
+      "explicit_repeat_review": true,
+      "art_approved": false
+    },
+    "elephant": {
+      "reason": "Redo again: former grey background became backdrop mesh. Isolated alpha cutout, exactly four legs.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "reference_model_redo_queued",
+      "explicit_repeat_review": true,
+      "proceed_without_re_review": false,
+      "art_approved": false
+    },
+    "giant-panda": {
+      "reason": "Source head turned off-axis; regenerate four from inspected forward-facing reference.",
+      "status": "new_reference_preparation_pending",
+      "explicit_repeat_review": true,
+      "art_approved": false
+    },
+    "giraffe": {
+      "reason": "Owner rejects off-axis source head; must inspect new reference before four-model generation.",
+      "status": "new_reference_preparation_pending",
+      "explicit_repeat_review": true,
+      "art_approved": false
+    },
+    "gorilla": {
+      "reason": "Fix twisted feet in Run.",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "art_approved": false
+    },
+    "guereza": {
+      "reason": "Fix two twists in the right front arm.",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "art_approved": false
+    },
+    "gull": {
+      "reason": "Owner rejects abnormal off-axis head reference; regenerate four from a normal gull reference with head forward along torso.",
+      "status": "new_reference_preparation_pending",
+      "explicit_repeat_review": true,
+      "art_approved": false
+    },
+    "hedgehog": {
+      "reason": "Front feet deform in Run; left front foot also in Walk.",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
+      "art_approved": false
+    },
+    "howler-monkey": {
+      "reason": "Hands deform in Run.",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
+      "art_approved": false
+    },
+    "iguana": {
+      "reason": "Manually place the skeleton/all four leg chains; explicitly re-show selected model.",
+      "status": "manual_fix_queued_explicit_review",
+      "proceed_without_re_review": false,
+      "explicit_repeat_review": true,
+      "art_approved": false
+    },
+    "koala": {
+      "reason": "Arm twist plus right ear stretching/popping in Walk/Run.",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
+      "art_approved": false
+    },
+    "lemur": {
+      "reason": "Front-right arm has two twists in Run.",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
+      "art_approved": false
+    },
+    "long-nosed-bandicoot": {
+      "reason": "Both front arms have two twists in Run.",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
+      "art_approved": false
+    },
+    "macaque": {
+      "reason": "Double hand twist in Run.",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
+      "art_approved": false
+    },
+    "monitor-lizard": {
+      "reason": "Manually rig all four feet/legs; explicitly re-show selected model.",
+      "status": "manual_fix_queued_explicit_review",
+      "proceed_without_re_review": false,
+      "explicit_repeat_review": true,
+      "art_approved": false
+    },
+    "pangolin": {
+      "reason": "Repair foot twists, especially forefeet; slightly reduce excessive head bob.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
+      "art_approved": false
+    },
+    "penguin": {
+      "reason": "Repair right foot deformation and smaller left-foot edge wriggle in Walk.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
+      "art_approved": false
+    },
+    "platypus": {
+      "reason": "Repair forefeet twists in Run.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
+      "art_approved": false
+    },
+    "polar-bear": {
+      "reason": "Repair repeated forefeet twists in Run.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
+      "art_approved": false
+    },
+    "puffin": {
+      "reason": "Repair left-foot deformation.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
+      "art_approved": false
+    },
+    "shorebird": {
+      "reason": "Manually rerig feet for walking.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
+      "art_approved": false
+    },
+    "shrew": {
+      "reason": "Repair forefeet twists.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
+      "art_approved": false
+    },
+    "tern": {
+      "reason": "Correct upward-facing orientation during Flap/Glide only; repair Walk foot twists.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
+      "art_approved": false
+    },
+    "walrus": {
+      "reason": "Add a credible ground Walk; swimming alone is insufficient.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
+      "art_approved": false
+    },
+    "whale": {
+      "reason": "Rerig tail so it actually moves during swimming.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "manual_fix_queued_no_re_review",
+      "proceed_without_re_review": true,
+      "explicit_repeat_review": false,
+      "art_approved": false
+    },
+    "nutria": {
+      "reason": "Fresh model set; rejected appearance.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "reference_model_redo_queued",
+      "explicit_repeat_review": true,
+      "proceed_without_re_review": false,
+      "art_approved": false
+    },
+    "porcupine": {
+      "reason": "Fresh reference/model set from scratch.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "reference_model_redo_queued",
+      "explicit_repeat_review": true,
+      "proceed_without_re_review": false,
+      "art_approved": false
+    },
+    "python": {
+      "reason": "Perfectly straight forward-head source; own manual snake rig after tutorial research; explicitly re-show.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "reference_model_redo_queued",
+      "explicit_repeat_review": true,
+      "proceed_without_re_review": false,
+      "art_approved": false
+    },
+    "venomous-snake": {
+      "reason": "Perfectly straight forward-head source; own manual snake rig as Python; explicitly re-show.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "reference_model_redo_queued",
+      "explicit_repeat_review": true,
+      "proceed_without_re_review": false,
+      "art_approved": false
+    },
+    "sea-otter": {
+      "reason": "Forward head aligned with torso; swimming/aquatic motion, not dog running.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "reference_model_redo_queued",
+      "explicit_repeat_review": true,
+      "proceed_without_re_review": false,
+      "art_approved": false
+    },
+    "shark": {
+      "reason": "Strictly forward-head reference aligned with torso.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "reference_model_redo_queued",
+      "explicit_repeat_review": true,
+      "proceed_without_re_review": false,
+      "art_approved": false
+    },
+    "spider-monkey": {
+      "reason": "Fresh source/model set with head aligned forward.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "reference_model_redo_queued",
+      "explicit_repeat_review": true,
+      "proceed_without_re_review": false,
+      "art_approved": false
+    },
+    "tamarin": {
+      "reason": "Fresh reference and models from scratch.",
+      "time": "2026-10-25T03:48:27.919554-05:00",
+      "status": "reference_model_redo_queued",
+      "explicit_repeat_review": true,
+      "proceed_without_re_review": false,
+      "art_approved": false
     }
   },
   "undecided_mentions": {},
   "review_window_request": {
     "reopen_rightmost_after_requested_revisions": true,
-    "time": "2026-10-24T19:02:41.521110-05:00",
-    "reopened": true,
+    "time": "2026-10-25T03:48:27.919554-05:00",
+    "reopened": false,
     "pid": 30620,
     "opened_on": "rightmost",
-    "only_prepared": true
+    "only_prepared": true,
+    "wait_until_all_requested_candidates_ready": true
   },
   "selection_history": [
     {
@@ -1874,6 +2599,25 @@
         "required_motion_fix": "Fix tail being assigned as leg; preserve candidate3."
       },
       "superseded_at": "2026-10-24T19:59:54.500089-05:00"
+    },
+    {
+      "slug": "aardvark",
+      "previous": {
+        "animal": "Aardvark",
+        "selected_models": [
+          3
+        ],
+        "time": "2026-10-24T19:02:41.473620-05:00",
+        "model_sha256": "833776721d1097bc1160ef57e6a111e36f751eb2edcc274620badccbbf37644f",
+        "rig_sha256": "34901e2ac27ecc2a5efbcf5ce8fb23825343742f1a43280ef2759f4cfc4a20f9",
+        "model_selected": true,
+        "animation_approved": false,
+        "animation_method": "Raw model selected by owner; current source motion remains provisional.",
+        "painting_started": false,
+        "required_motion_fix": "Keep3 and move/map the left leg to the actual left leg rather than tail.",
+        "latest_note": "Owner listed aardvark without new number; retain prior3."
+      },
+      "superseded_at": "2026-10-25T03:05:59.272857-05:00"
     }
   ],
   "colouring_authorization": {

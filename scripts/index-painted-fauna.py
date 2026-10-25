@@ -21,7 +21,8 @@ for job in queue['jobs']:
     bake_path=folder/'coat-bake.json'
     if not bake_path.exists():continue
     bake=json.loads(bake_path.read_text())
-    if bake.get('mask_pixels',{}).get('nose',1)<=0:continue
+    required_masks=bake.get('required_masks',['nose'])
+    if any(bake.get('mask_pixels',{}).get(key,1)<=0 for key in required_masks):continue
     check=json.loads(check_path.read_text());blend=folder/'Animal - Painted Species Review.blend'
     if check.get('checked_blend_sha256')!=hashlib.sha256(blend.read_bytes()).hexdigest():continue
     assert check['source_bind_geometry_skin_rig_exact'] and check['source_actions_exact']

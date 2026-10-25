@@ -1,18 +1,31 @@
 """Small morning review index; no game launch or inference."""
-import argparse,csv,json
+import argparse,csv,json,datetime
 from pathlib import Path
 from fauna_motion_sources import source_for
 repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,default=repo/'artifacts/fauna-overnight-20261024')
 a=ap.parse_args();root=a.root.resolve();plan=json.loads((repo/'docs/fauna/asset-plan.json').read_text())['rows']
 ready=[];pending=[];rows=[];raw_motion_pending=[];motion_trials_pending=[]
+choices=json.loads((repo/'docs/fauna/OWNER_SELECTIONS.json').read_text())
 queue_path=root/'queue-state.json';queue=json.loads(queue_path.read_text()).get('animals',{}) if queue_path.exists() else {}
 for item in plan:
     slug=item['slug'];folder=root/slug;meta=folder/'audition.json';check=folder/'native-checks.json'
     status=item['asset_status'];path='';notes=''
     if status=='queued':
-        if meta.exists() and check.exists() and not (folder/'review-rebuild.json').exists() and not (folder/'source-trial-pending.json').exists():
+        revision=choices.get('pending_revisions',{}).get(slug,{})
+        redo=revision.get('explicit_repeat_review') and not revision.get('status','').startswith('manual_')
+        request=folder/'owner-reroll-request-current.json';fresh_redo=True
+        if redo:
+            fresh_redo=False
+            if request.exists() and check.exists():
+                requested=datetime.datetime.fromisoformat(json.loads(request.read_text())['time']).timestamp()
+                fresh_redo=check.stat().st_mtime>=requested
+        if fresh_redo and meta.exists() and check.exists() and not (folder/'review-rebuild.json').exists() and not (folder/'source-trial-pending.json').exists():
             data=json.loads(meta.read_text());path=str(folder/'Animal - Raw Audition.blend');status='ready_for_owner_review'
+            selected=choices.get('animals',{}).get(slug,{})
+            if selected.get('manual_fix_blend'):
+                fixed=repo/selected['manual_fix_blend']
+                if fixed.exists():path=str(fixed)
             ready.append({'slug':slug,'name':item['animal'],'priority':item['priority_rank'],'path':path,'candidates':len(data['candidates'])})
             notes='; '.join(data.get('motion_gaps',[]))
             warning_file=folder/'visual-warnings.json'
@@ -25,7 +38,8 @@ for item in plan:
         else:
             status='in_progress_or_waiting';pending.append(slug)
             q=queue.get(slug,{})
-            if q.get('status')=='failed':status='generation_failed';notes=q.get('error','')
+            if redo and not fresh_redo:status='owner_requested_reference_redo';notes=revision.get('reason','Fresh owner-requested four-model set pending')
+            elif q.get('status')=='failed':status='generation_failed';notes=q.get('error','')
             elif (folder/'source-trial-pending.json').exists():status='experimental_motion_trial_pending';notes='Source trial awaits technical inspection; excluded from animation-ready count';motion_trials_pending.append(slug)
             elif (folder/'review-rebuild.json').exists():
                 status='refreshing_raw_review'

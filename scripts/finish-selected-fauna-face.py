@@ -26,7 +26,20 @@ rig.animation_data_clear();rig.data.pose_position='REST'
 for name in entry.get('facial_objects',[]):
     if name in bpy.data.objects:bpy.data.objects.remove(bpy.data.objects[name],do_unlink=True)
 p=np.array([v.co[:] for v in body.data.vertices]);faces=np.array([f.vertices[:] for f in body.data.polygons])
-bvh=BVHTree.FromPolygons([Vector(x) for x in p],faces.tolist(),all_triangles=True)
+# Generated meshes can retain detached flecks. Preserve those selected body
+# vertices, but never fit a lid or sample its weights/UV from a floating fleck.
+adj=[set() for _ in p]
+for face in faces:
+    for vertex in face:adj[vertex].update(int(i) for i in face if i!=vertex)
+remaining=set(range(len(p)));components=[]
+while remaining:
+    seed=remaining.pop();component={seed};stack=[seed]
+    while stack:
+        for vertex in adj[stack.pop()]:
+            if vertex in remaining:remaining.remove(vertex);component.add(vertex);stack.append(vertex)
+    components.append(component)
+main=max(components,key=len);face_ids=[i for i,face in enumerate(faces) if all(int(v) in main for v in face)]
+bvh=BVHTree.FromPolygons([Vector(x) for x in p],faces[face_ids].tolist(),all_triangles=True)
 body_uv=np.array([x.uv[:] for x in body.data.uv_layers.active.data]).reshape(-1,3,2)
 names={g.index:g.name for g in body.vertex_groups};features=[];coat_objects=[]
 
@@ -55,6 +68,7 @@ def plain(name,colour,roughness):
     return mat
 
 lidmat=plain(a.slug+' bare eyelid',(.027,.017,.012),.46)
+if kind=='fish':lidmat=plain(a.slug+' fixed ocular rim',(.16,.15,.095),.30)
 whiskermat=plain(a.slug+' whiskers',(.25,.23,.18),.7)
 eye=plain(a.slug+' living eye',(.025,.014,.007),.12);bsdf=eye.node_tree.nodes.get('Principled BSDF');bsdf.inputs['IOR'].default_value=1.38
 bsdf.inputs['Coat Weight'].default_value=.30;bsdf.inputs['Coat Roughness'].default_value=.08
@@ -76,6 +90,12 @@ elif kind=='avian':
     if a.slug=='pheasant':
         iris=np.stack([.22+fibre*.06,.12+fibre*.035,.025+fibre*.015],axis=2)
         pupil=np.clip((r-.43)/.07,0,1)
+elif kind=='fish':
+    iris=np.stack([.30+fibre*.07,.27+fibre*.06,.13+fibre*.04],axis=2)
+    pupil=np.clip((r-.56)/.065,0,1)
+elif kind=='rodent':
+    iris=np.stack([.055+fibre*.025,.030+fibre*.014,.012+fibre*.008],axis=2)
+    pupil=np.clip((r-.66)/.07,0,1)
 iris=iris*pupil[:,:,None]*rim[:,:,None]+.008*(1-pupil[:,:,None]*rim[:,:,None]);rgba=np.dstack([iris,np.ones_like(r)])
 im=bpy.data.images.get(a.slug+' iris pigment') or bpy.data.images.new(a.slug+' iris pigment',width=size,height=size,alpha=True)
 im.pixels.foreach_set(rgba.astype(np.float32).ravel());im.pack()
@@ -91,7 +111,7 @@ def bary(point,tri):
     w=np.maximum([1-b-c,b,c],0);return w/max(w.sum(),1e-8)
 
 def sample(point):
-    q,normal,tri,_=bvh.find_nearest(Vector(point));w=bary(q,tri);skin={}
+    q,normal,tri,_=bvh.find_nearest(Vector(point));tri=face_ids[tri];w=bary(q,tri);skin={}
     for vertex,factor in zip(faces[tri],w):
         for g in body.data.vertices[int(vertex)].groups:skin[names[g.group]]=skin.get(names[g.group],0)+factor*g.weight
     skin=dict(sorted(skin.items(),key=lambda x:-x[1])[:4]);total=sum(skin.values());skin={k:v/total for k,v in skin.items()}
@@ -118,9 +138,10 @@ for side in ['right','left']:
     skin=sample(center)[2]
     def ellipse(t):
         # Small forward tear corner, fuller upper arch, shallow lower lid.
+        if kind=='fish':return hu*(rx*math.cos(t))+vu*(rz*math.sin(t))
         c=math.cos(t);sn=math.sin(t);return hu*(rx*c*(1+.08*max(c,0)))+vu*(rz*sn*(1.03 if sn>0 else .87))
-    bulge=.0018 if a.slug=='pheasant' else .004 if kind=='avian' else .008 if kind in {'suine','caprine','ursid','bovine'} else .011 if canid else .018
-    eye_margin=.0008 if a.slug=='pheasant' else .002
+    bulge=.006 if kind=='rodent' else .003 if kind=='fish' else .0018 if a.slug=='pheasant' else .004 if kind=='avian' else .008 if kind in {'suine','caprine','ursid','bovine'} else .011 if canid else .018
+    eye_margin=.0008 if a.slug=='pheasant' or kind=='fish' else .002
     vertices=[center+n*(eye_margin+bulge)];uvs=[(.5,.5)];polygons=[]
     for ring in range(1,rings+1):
         rad=ring/rings
@@ -143,13 +164,13 @@ for side in ['right','left']:
             if hit is None:hit=sample(target)[0]
             surface=np.asarray(hit);upper=max(0,math.sin(t))
             if compact and ring<3:
-                offsets=[.0008,.0013+.0005*upper,.0005] if a.slug=='pheasant' else [.002,.004+.002*upper,.0015]
+                offsets=[.0008,.0013+.0005*upper,.0005] if a.slug=='pheasant' or kind=='fish' else [.002,.004+.002*upper,.0015]
                 point=target+n*offsets[ring]
             else:point=target+n*.002 if ring==0 else surface+n*([0,.003+.004*upper,.002,.0007][ring])
             vertices.append(point);uvs.append(sample(surface)[1])
     for j in range(3):
         for i in range(segments):
-            polygons.append((j*segments+i,j*segments+(i+1)%segments,(j+1)*segments+(i+1)%segments,(j+1)*segments+i));indices.append(1 if j<2 else 0)
+            polygons.append((j*segments+i,j*segments+(i+1)%segments,(j+1)*segments+(i+1)%segments,(j+1)*segments+i));indices.append(1 if j<(1 if kind=='fish' else 2) else 0)
     if np.dot(np.cross(vertices[polygons[0][1]]-vertices[polygons[0][0]],vertices[polygons[0][2]]-vertices[polygons[0][0]]),n)<0:polygons=[tuple(reversed(f)) for f in polygons]
     lid=obj(a.slug+' '+side+' socket and eyelid',vertices,polygons,[body.data.materials[0],lidmat],uvs,indices);coat_objects.append(lid.name)
     eye_reports.append({'side':side,'point':center.tolist(),'radius':[rx,rz],'skin':skin,'outer_ring_surface_fitted':True})
@@ -157,7 +178,7 @@ for side in ['right','left']:
 # Sparse tapered muzzle whiskers, attached using the local muzzle weights.
 nose=np.array(land['nose']['point']);vertices=[];polygons=[]
 for side in [-1,1]:
-    for j in range(0 if kind=='avian' else 5):
+    for j in range(0 if kind in {'avian','fish'} else 5):
         if compact:
             start=nose+np.array(land['side_axis'])*side*(.018+j*.002)-np.array(land['front_axis'])*(.022+j*.005)+np.array([0,0,-.009+j*.007])
             direction=np.array(land['side_axis'])*side*(.090+j*.008)-np.array(land['front_axis'])*(.028+j*.012)+np.array([0,0,(j-2)*.014])
@@ -174,17 +195,20 @@ if vertices:obj(a.slug+' muzzle whiskers',vertices,polygons,[whiskermat],anchor=
 
 entry.update(facial_objects=features,coat_objects=coat_objects,objects=[entry['body'],*features,*entry.get('appendage_objects',[])])
 entry['paint_face_direction']=land['front_axis']
-if kind in {'suine','caprine','ursid','bovine','avian'}:
+if kind in {'suine','caprine','ursid','bovine','avian','fish','rodent'}:
     focus=(np.array(land['right_eye']['point'])+np.array(land['left_eye']['point'])+nose)/3
     entry['paint_head_vertex']=int(np.argmin(np.linalg.norm(p-focus,axis=1)))
     entry['paint_head_span']=.90;entry['paint_head_distance']=1.25
     if a.slug=='pheasant':entry['paint_head_span']=.60;entry['paint_head_distance']=.90
 s['deer_four_rigs']=json.dumps([entry]);s['fauna_painting']=json.dumps({'source_candidate':state['source_candidate'],'stage':'UV coats and fitted facial features; appearance review pending','coats':entry['painting_coats']})
 state.update(status='atlas_and_face_fitted_working',coats=entry['painting_coats'],landmarks_pending=False,facial_objects=features,facial_eye_fits=eye_reports,uv_atlases_installed=True,appearance_approved=False)
+state['facial_fit_ignored_components']=len(components)-1
 if kind=='ursid':state['appearance_scope']='Selected shoulder-humped body only. Near-black/cinnamon are pigment studies; a distinct black-bear archetype and cub/seasonal body proportions have not been modelled.'
 if kind=='bovine':state['appearance_scope']='Selected adult bison body only. Horn examples vary on the same adult build; bull/cow body dimorphism and reddish calf proportions are not implemented. Shedding is a colour overlay study, not new inherited coat genetics.'
 if a.slug=='duck':state['appearance_scope']='Selected adult duck body. Linked breeding-male/female/eclipse and hypothetical plumages; immature pigment study retains the adult build. Duckling proportions, curled male tail geometry, bill morphs and swimming are not implemented.'
 if a.slug=='pheasant':state['appearance_scope']='Selected long-tailed pheasant body. Female/immature pigment studies retain this adult tail/body and do not implement real sex/age proportions. Existing folded-wing Idle/Walk bank retained; flight/takeoff and spur/tuft geometry remain absent.'
+if kind=='fish':state['appearance_scope']='Selected fish body only. Five countershaded/pattern studies do not create different fin topology or identified Earth taxa. Fixed ocular rims, no mobile eyelids or whiskers. Fin rays are baked opaque pigment; true membrane transmission and school AI are not implemented. Raw rig and swim bank retained.'
+if kind=='rodent':state['appearance_scope']='Selected adult rodent body only. Five labelled pigment studies are not exact species/sex/juvenile body matches. Ear/tail morphology and sparse fur silhouette are retained; no new hair cards, age bodies or tail-fullness morphs. Raw debris and motion defects remain independent of colouring.'
 geometry=hashlib.sha256(np.array([v.co[:] for v in body.data.vertices],np.float32).tobytes()+np.array([f.vertices[:] for f in body.data.polygons],np.int32).tobytes()).hexdigest()
 assert geometry==state['geometry_sha256'],'Selected body geometry changed'
 state['body_triangles']=sum(len(f.vertices)-2 for f in body.data.polygons)

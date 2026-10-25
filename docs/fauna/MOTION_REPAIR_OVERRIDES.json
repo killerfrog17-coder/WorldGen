@@ -813,30 +813,12 @@
     ]
   },
   "chimpanzee": {
-    "reason": "Complete four-limb paths despite crossed hands; preserve all own meshes/NN arrays, neutral core during experimental fox quadruped audition.",
     "anatomical_quadruped": true,
     "source_flags": {
       "hold_core_bind": true,
       "reference_pose": "source_bind"
     },
-    "candidate_hashes": {
-      "1": {
-        "model.glb": "18ca0ae6ebff39ae77b8f8e021f84ec01bd2770ff78ba3f890e23d38eab526e2",
-        "generated-rig.npz": "2c644d62cd2616e3777a657a4a6ada4c69e91f43d8d615c9b3ecfde4c503d833"
-      },
-      "2": {
-        "model.glb": "f4440c18a32c6c52245edb3b6d203c51b13d6a7a04d58fb264b857babe88cbf8",
-        "generated-rig.npz": "3a91fca9af0700eaae045f0588b4e1c2672aa08689d2a058c8a14ada2bd9f6e2"
-      },
-      "3": {
-        "model.glb": "fa7218f78177688145a2d632de2056e12daf57f324e940fa8186e1e078fb6682",
-        "generated-rig.npz": "54cd6b9a6c790dac9d668f8e05ad92944896418d9580b90f1316f97021190776"
-      },
-      "4": {
-        "model.glb": "5d6613acfa53aca5865301c315ef84a960b50852f4a122fa57790dd492c58741",
-        "generated-rig.npz": "d6cdb25c1d3ff0fcd8d8c44a255abcb4effc91d749683dee1e3e33435a63d52d"
-      }
-    }
+    "reason": "Owner-requested reference reroll: generic matching on new graphs; old model-specific corrections archived with rejected inputs."
   },
   "dolphin": {
     "reason": "All4 CPU front/side screenshots show tail toward canonical +Y, so high dorsal-fin/head heuristic reversed the animal. Rotate mesh, learned joints and skin sample coordinates together180deg Z before existing fish correspondence. Raw mesh and inferred arrays unchanged.",
@@ -1708,188 +1690,9 @@
       }
     }
   },
-  "shark": {
-    "reason": "All4 Bind-side show actual shark snout at negativeY and tail at positiveY; high dorsal fin normalized body sign backward. Rigid180Z restores head-forward before fish correspondence. Raw model and neural rig bytes unchanged.",
-    "axis_corrections": {
-      "1": [
-        [
-          -1,
-          0,
-          0
-        ],
-        [
-          0,
-          -1,
-          0
-        ],
-        [
-          0,
-          0,
-          1
-        ]
-      ],
-      "2": [
-        [
-          -1,
-          0,
-          0
-        ],
-        [
-          0,
-          -1,
-          0
-        ],
-        [
-          0,
-          0,
-          1
-        ]
-      ],
-      "3": [
-        [
-          -1,
-          0,
-          0
-        ],
-        [
-          0,
-          -1,
-          0
-        ],
-        [
-          0,
-          0,
-          1
-        ]
-      ],
-      "4": [
-        [
-          -1,
-          0,
-          0
-        ],
-        [
-          0,
-          -1,
-          0
-        ],
-        [
-          0,
-          0,
-          1
-        ]
-      ]
-    },
-    "candidate_hashes": {
-      "1": {
-        "model.glb": "2031fc0f76cf7fcf461b08791d825bc3d9e568a3b238005edc77a8e6b47283f9",
-        "generated-rig.npz": "37c0b4c183c4b6dfd4b53db440d542cd320ecbf599fa6c97b75aed38d400cf18"
-      },
-      "2": {
-        "model.glb": "d86501d609bf206a212477c21ec7a2fb34ba66f8d6358186cd9917f79f78baa1",
-        "generated-rig.npz": "b8857055021bbf720c6705430a918379abe508994a605b2fca0ef41b8c14fb49"
-      },
-      "3": {
-        "model.glb": "0bfdc8150159944ab56a24ef6ff098907f6c9314b92000520760dbca3b01b0c2",
-        "generated-rig.npz": "8952edec1cb13074a22832bf487e61548cf6fbea1611297d56e3b93137deaf99"
-      },
-      "4": {
-        "model.glb": "5794bbb1474d90cf03dffe5c668ba69e901ab4f408cd45b373d21426bfab4e63",
-        "generated-rig.npz": "db9f44710ccdeceea741aa3977f7522b285a974a4d7684e0f426cea5fc7d18e2"
-      }
-    }
-  },
   "crocodile": {
-    "reason": "All4 Bind-side show snout negativeY/tail positiveY; old Head aliases torso0 on1/2/4 and toe42 on3. Axis-only still selects trunk; scoped rigid180Z plus full bilateral appendage branches excludes toe subtrees and selects actual forward snout7/6/6/6. No raw model or neural rig edits.",
-    "axis_corrections": {
-      "1": [
-        [
-          -1,
-          0,
-          0
-        ],
-        [
-          0,
-          -1,
-          0
-        ],
-        [
-          0,
-          0,
-          1
-        ]
-      ],
-      "2": [
-        [
-          -1,
-          0,
-          0
-        ],
-        [
-          0,
-          -1,
-          0
-        ],
-        [
-          0,
-          0,
-          1
-        ]
-      ],
-      "3": [
-        [
-          -1,
-          0,
-          0
-        ],
-        [
-          0,
-          -1,
-          0
-        ],
-        [
-          0,
-          0,
-          1
-        ]
-      ],
-      "4": [
-        [
-          -1,
-          0,
-          0
-        ],
-        [
-          0,
-          -1,
-          0
-        ],
-        [
-          0,
-          0,
-          1
-        ]
-      ]
-    },
     "anatomical_quadruped": true,
-    "candidate_hashes": {
-      "1": {
-        "model.glb": "1da479fca1143e266051fa5c442b3ffb823c24a40496411f8c33dd7578ccb2bb",
-        "generated-rig.npz": "494da4a67ab402a661900fd4bd727329d1407a1123d42bb14bea1ec9cb63ddf6"
-      },
-      "2": {
-        "model.glb": "bc67263aad9b82e0cdeba3de39316bac764866711b50e975ffb4a17f112f1bce",
-        "generated-rig.npz": "f3fbe95bdffffb736719fb9610196abd3fb84fbf66a875ba77f6b32ad949776f"
-      },
-      "3": {
-        "model.glb": "5559e97ff590ee5c3fb4f86eeb7d9c97a8a4db0cf036920b3be239e67ee217be",
-        "generated-rig.npz": "a5e82f06127f25f5a4417c64826ad24fa4c968da8b58a38e02030adcec638ace"
-      },
-      "4": {
-        "model.glb": "ad2ba5e87b5f244040013340f1489d54c6e9fb5efebf9144445a7e72d9dd97c0",
-        "generated-rig.npz": "2a7f2e0ee1569b9a33d542707a1901ef836519f3910f25ba01b745af60a06f80"
-      }
-    }
+    "reason": "Owner-requested reference reroll: generic matching on new graphs; old model-specific corrections archived with rejected inputs."
   },
   "sloth": {
     "reason": "Scoped2/4 full-branch head correspondence: old Head2/3 were torso/neck-base; actual skull4 in both. Keep1/3 EXACT. Unrestricted full-branch trial3 picked low distal22, so do not enable globally. No mesh/neural rig/skin/source-motion edits.",
@@ -1915,5 +1718,15 @@
         "generated-rig.npz": "5c825a5951af2953ccf0131834564184c2d6232be1a33c5c327a5e113e6c68c6"
       }
     }
+  },
+  "gull": {
+    "source_flags": {
+      "ground_only": true,
+      "hold_core_bind": true,
+      "reference_pose": "source_bind",
+      "rigid_ground_body": true,
+      "absolute_limb_directions": true
+    },
+    "reason": "Owner-requested reference reroll: generic matching on new graphs; old model-specific corrections archived with rejected inputs."
   }
 }

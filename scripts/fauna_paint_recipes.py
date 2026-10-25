@@ -3,11 +3,12 @@
 These are prototype art palettes, not generated ecology taxa or approval of
 one mesh as every named real analogue. Extend one body family at a time.
 """
-SUPPORTED={'hare','rabbit','red-fox','wolf','wild-boar','mouflon','wild-goat','bear','bison','duck','pheasant'}
+SUPPORTED={'hare','rabbit','red-fox','wolf','wild-boar','mouflon','wild-goat','bear','bison','duck','pheasant','small-native-freshwater-fish-guild','mouse','squirrel'}
 
 def family(slug):
     assert slug in SUPPORTED
-    return 'canid' if slug in {'red-fox','wolf'} else 'suine' if slug=='wild-boar' else 'caprine' if slug in {'mouflon','wild-goat'} else 'ursid' if slug=='bear' else 'bovine' if slug=='bison' else 'avian' if slug in {'duck','pheasant'} else 'lagomorph'
+    if slug in {'mouse','squirrel'}:return 'rodent'
+    return 'canid' if slug in {'red-fox','wolf'} else 'suine' if slug=='wild-boar' else 'caprine' if slug in {'mouflon','wild-goat'} else 'ursid' if slug=='bear' else 'bovine' if slug=='bison' else 'avian' if slug in {'duck','pheasant'} else 'fish' if slug=='small-native-freshwater-fish-guild' else 'lagomorph'
 
 def profiles(slug):
     assert slug in SUPPORTED
@@ -81,13 +82,32 @@ def profiles(slug):
             ('Brown female pigment study (long-tailed body)',[.40,.30,.18],[.67,.55,.36],False),
             ('Buff immature pigment study (adult body)',[.50,.39,.24],[.74,.63,.44],False),
             ('Reduced-ring male (hypothetical)',[.46,.29,.135],[.69,.55,.34],False),
-            ('Dark forest male (hypothetical)',[.24,.16,.10],[.47,.37,.23],False)]
+            ('Dark forest male (hypothetical)',[.24,.16,.10],[.47,.37,.23],False)],
+        'small-native-freshwater-fish-guild':[
+            ('Silver flank / olive back',[.52,.55,.46],[.79,.81,.74],False),
+            ('Dusky lateral stripe',[.43,.48,.37],[.76,.79,.69],False),
+            ('Mottled brown pool form',[.35,.31,.22],[.64,.61,.48],False),
+            ('Dark-headed breeding pigment study',[.34,.35,.27],[.63,.65,.53],False),
+            ('Amber stream form (hypothetical)',[.57,.44,.22],[.78,.71,.48],False)],
+        'mouse':[
+            ('Golden-brown wood-mouse analogue',[.46,.32,.18],[.79,.75,.63],False),
+            ('Grey-brown / two-tone deer-mouse analogue',[.35,.32,.26],[.84,.83,.77],False),
+            ('Rufous two-tone',[.47,.255,.12],[.78,.70,.56],False),
+            ('Dark wet-cover (hypothetical)',[.145,.125,.095],[.48,.45,.37],False),
+            ('Pale sand (hypothetical)',[.63,.51,.32],[.86,.80,.66],False)],
+        'squirrel':[
+            ('Grey / pale belly',[.40,.39,.35],[.81,.80,.72],False),
+            ('Grey / rusty underside study',[.37,.34,.28],[.55,.31,.14],False),
+            ('Dark melanistic grey-squirrel analogue',[.085,.078,.065],[.22,.205,.17],False),
+            ('Rufous tree-squirrel pigment study',[.47,.245,.10],[.80,.72,.58],False),
+            ('Dry-woodland brown (hypothetical)',[.49,.39,.25],[.78,.70,.54],False)]
     }[slug]
 
 def eye_radius(slug):
-    return {'hare':(.038,.032),'rabbit':(.040,.034),'red-fox':(.029,.019),'wolf':(.032,.021),'wild-boar':(.027,.018),'mouflon':(.026,.019),'wild-goat':(.026,.019),'bear':(.025,.017),'bison':(.027,.020),'duck':(.021,.018),'pheasant':(.017,.015)}[slug]
+    return {'hare':(.038,.032),'rabbit':(.040,.034),'red-fox':(.029,.019),'wolf':(.032,.021),'wild-boar':(.027,.018),'mouflon':(.026,.019),'wild-goat':(.026,.019),'bear':(.025,.017),'bison':(.027,.020),'duck':(.021,.018),'pheasant':(.017,.015),'small-native-freshwater-fish-guild':(.043,.039),'mouse':(.035,.031),'squirrel':(.031,.027)}[slug]
 
 def fur_source(slug):
+    if slug=='small-native-freshwater-fish-guild':return 'artifacts/fauna-assets/textures/scale-fish-v1.png'
     if slug in {'duck','pheasant'}:return 'artifacts/fauna-assets/textures/feather-contour-v1.png'
     if slug=='bison':return 'artifacts/fauna-assets/textures/fur-wool-shag-v1.png'
     if slug in {'wild-boar','bear'}:return 'artifacts/fauna-assets/textures/fur-coarse-guard-v1.png'
@@ -99,7 +119,7 @@ def eye_frame(slug,land,side):
     import numpy as np
     anchor=land[side+'_eye'];n=np.array(anchor['normal']);n/=np.linalg.norm(n)
     if family(slug)!='lagomorph':
-        forward,lateral={'canid':(.62,.78),'suine':(.35,.94),'caprine':(.22,.975),'ursid':(.72,.69),'bovine':(.23,.973),'avian':(.20,.98)}[family(slug)]
+        forward,lateral={'canid':(.62,.78),'suine':(.35,.94),'caprine':(.22,.975),'ursid':(.72,.69),'bovine':(.23,.973),'avian':(.20,.98),'fish':(.16,.987),'rodent':(.34,.94)}[family(slug)]
         desired=np.array(land['front_axis'])*forward+np.array(land['side_axis'])*(1 if side=='right' else -1)*lateral
         actual=n.copy();actual[2]=0;actual/=np.linalg.norm(actual)
         n=actual*.55+desired*.45;n[2]=np.clip(anchor['normal'][2],-.12,.12);n/=np.linalg.norm(n)
