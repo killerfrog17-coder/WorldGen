@@ -1,5 +1,26 @@
 # WorldGen repository instructions
 
+FULL QUEUE CONTINUATION / SOURCE RECHECK,24October2026 evening:
+Latest owner choices below are saved; Capuchin3/Capybara2 minor fixes completed,
+no re-show.132 raw sets/528 candidates verified;44 of176 remain, audit errors[].
+Crocodile now ready; Dolphin shape-batch active at checkpoint. Exec93476 outer
+priority runner still owns sole full --watch child; verify liveIDs before action.
+Chimpanzee native4 files ready, retry-failed mesh hashes await producer's next
+pass to reconcile old failed state; do not manually edit queue-state or infer
+again. CPU Walk screenshots1-4 +4bind show distal-hand/foot/crossing issues;
+visual-warnings excludes1/4 from recommendations but retains all for comparison.
+Technical topology feasibility is not acceptable deformation/gait. No painting.
+ReviewPID30620 had exited by process inspection; leave closed unless requested.
+
+Gobkit current public catalogue239 rechecked via documented API. Downloaded
+three exact catalogue URLs (Proboscismonkey,Hummingbird,Rooster) with honest
+project UA; all3 have byte-identical sampled bindTRS AND normalized per-clip
+motion-channel data,16generic joints/idle,attack,dead,walk. This applies only to
+inspected3, not all239. No bank admitted. Exact3sourceGLBs hash-checked/pruned
+after sampling; compact licence/URL/SHA/TRS/motion-hash evidence retained at
+artifacts/fauna-motion-sources/gobkit/bird-primate-recheck-20261024.json.
+No paid endpoints/donor geometry use/new inference worker/game/Unity changes.
+
 LATEST OWNER26 CHOICES / SMALL CLEANUPS DONE,24October2026~20:00CDT:
 Owner chose Emu3,GrassRat4,GroundSquirrel4,Hornbill1,Hummingbird4,Jerboa2,
 Meerkat1,SmallLizard1,Paca1,Peafowl2,Pigeon1,Pika1,Pronghorn4,Salamander2,

@@ -13,7 +13,9 @@ permitted accepted own deer fallback, while1-3 retain the fresh attempts.
 These exceptions are declared in rig metadata and recognized by the audit;
 they are not fresh neural inference or production gait/contact acceptance.
 Conditional chosen animals stay in the pending review list until their requested
-motion repair is reviewed. Tapir was explicitly left unchanged/undecided.
+motion repair is reviewed. Latest choices supersede earlier undecided entries:
+Tapir1 and CoastalSquid1 are now selected. Capuchin3 Walk reversal and Capybara2
+local paw-weight cleanup are complete; owner explicitly says no repeat review.
 The finite priority reroll runner resumes the full serial raw roster afterward.
 No animal painting or gameplay integration is authorized by a raw model choice.
 
