@@ -82,6 +82,18 @@ Open a completed animal (replace hare with its slug):
 REVIEW_INDEX.csv and review-index.json list ready files, priorities and motion gaps.
 No per-animal Desktop shortcuts and no flood of review windows overnight.
 
+Optional CPU alignment image sweep:
+  python scripts/render-fauna-alignment-sweep.py
+This renders front/rear Bind views for a snapshot of ready, unselected visual
+animals, excluding the simple procedural microfauna. It leaves every blend,
+model, rig and owner choice unchanged. alignment-sweep.json records the worker
+PID, progress, source blend/image hashes and failures; verify that PID/session
+has exited before resuming. Cached images are skipped only when hashes match.
+It obeys run-control.json pause between renders and uses three CPU threads.
+Rendered images are evidence to inspect, not an automatic symmetry, gait,
+collision or art verdict. Per-root visual-warnings.json separately records
+which paired images the agent actually inspected and any observed limitations.
+
 SERIAL GPU WORKER
   python scripts/run-fauna-overnight.py --watch
 It resumes saved stages and runs only animals with prepared references and motion

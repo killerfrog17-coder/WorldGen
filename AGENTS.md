@@ -1,5 +1,21 @@
 # WorldGen repository instructions
 
+CPU ALIGNMENT SWEEP LIVE,24October2026~23:12CDT:
+New scripts/render-fauna-alignment-sweep.py runs CPU-only,3threads, session97000
+PID32324 (verify live). Snapshot40 ready/unselected nonmicrofauna,4models xfront/
+rear=320images;174 rendered/0failures at checkpoint. Manifest alignment-sweep.json
+stores actual blend/image SHA, progress/PID; resume only AFTER current PID exits.
+Every blend/model/rig/owner choice is read-only. run-control JSON pause is obeyed
+between renders. This is NOT automatic art/collision/symmetry acceptance.
+Actually visually inspected paired views in this turn: Duiker,Chimp,Possum,
+Cormorant,Crocodile,Dolphin,Dugong (all4each), per-root alignment_screening fields.
+Duiker approximately straight, earlier3/4 ragged ears remain. Chimp/Possum whole
+body/head oblique in nominal front/rear; this alone does NOT prove twisted neck.
+Other roots retain coarse fin/wing/foot detail, no new exclusions beyond existing
+motion warnings. Main GPU94528/16008 continues: all4 Shrew shapes now generated,
+shared-mode batch965.95s, rig-batch underway. No failed queue entries.167sets ready,
+9pending until Shrew native review completes. No new owner viewer or painting.
+
 MEMORY-SAVING HANDOFF /167 RAW SETS,24October2026~23:00CDT:
 Owner asks why not memory-saving while playing; agent explicitly announces
 switch under latest gaming preference, not a quality reduction. Fast-only
@@ -10,7 +26,7 @@ Old93476/worker21044/outer6340 exited at Shrew VRAM wait, lock removed BEFORE
 new sole--watch worker16008/session94528 started. DO NOT resume/restart93476.
 Shrew candidate1 shared-mode output VERIFIED raw.json:250.26s,50steps/depth8,
 sequentialCPU,94712rawtri/watertight,412.8MiB Torch peak (not total device use).
-Candidate2 now generating. GamePID4244 remains, sampledGPU~65C; systemRAM32GiB
+All4 shapes now generated; rig-batch underway. GamePID4244 remains, sampledGPU~65C; systemRAM32GiB
 (not64),~10-11GiB free during pilot. No second producer or FPS/art approval claim.
 New worker consumed Chimp+Spider hash retries: both state READY, no reinference.
 Worker recognizes only exact legacy intentional-wait checkpoint error as
