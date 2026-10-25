@@ -928,5 +928,278 @@
         "generated-rig.npz": "1a76431109d38f878132109c5a83990ccbd51cc7382baa1da44bac69afb39aaf"
       }
     }
+  },
+  "coastal-forage-fish-guild": {
+    "reason": "All4 checked front bind/raw screenshots show caudal fin toward canonical +Y: generic high-head/dorsal-fin normalization reversed head/tail. Rigid180deg Z for geometry, learned joints and skin samples together before unchanged fish motion correspondence; selected raw meshes/NN arrays preserved.",
+    "axis_corrections": {
+      "1": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "2": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "3": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "4": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "84f1c30552a8f67e10b9727275a16d0c60b82e4cb54af3d2f0030443d3cee6fd",
+        "generated-rig.npz": "49cb99caa6b275a6af4267faee5b9842b30075916299f7b188d4a413dd7f4f09"
+      },
+      "2": {
+        "model.glb": "8d69368d0d219082d8cea7ea370c5281058d3c80f885baef6cac4b199622cef9",
+        "generated-rig.npz": "05bee0c39d62055778b570a0d775e335ca39156ea427950c1172b2c0aeb94073"
+      },
+      "3": {
+        "model.glb": "9151bd89b9bbf71b14ac87aa5aa8adf400f30743159cb4cea9a4c887dad20e0f",
+        "generated-rig.npz": "4e40f4cab690490f3a07d3078eb7d5e003d8b59b858102cd533bcde571e46a9e"
+      },
+      "4": {
+        "model.glb": "128ca7a0ae0fa43951f65caaa0821a26eaa0a7277d181721b65e1e39bf40a070",
+        "generated-rig.npz": "f490e8d0ca2e6c0ac348365937b59a32b0519a002c95176ee418109b84d0cee2"
+      }
+    }
+  },
+  "small-native-freshwater-fish-guild": {
+    "reason": "All4 checked front bind/raw screenshots show caudal fin toward canonical +Y: generic high-head/dorsal-fin normalization reversed head/tail. Rigid180deg Z for geometry, learned joints and skin samples together before unchanged fish motion correspondence; selected raw meshes/NN arrays preserved.",
+    "axis_corrections": {
+      "1": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "2": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "3": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "4": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "44a49b5c0050387a26580fccaeac0bd83ec3537a01be554ee2ad3bc45f40178d",
+        "generated-rig.npz": "6eaa3a010fc258dd2389d4f5a1caa2c962534177de3add2062ff2d54f9d32d91"
+      },
+      "2": {
+        "model.glb": "3f0072479617c275516f9b8f0aabfc79ef920e41e44efd6dc68575f793bc993a",
+        "generated-rig.npz": "a35280af92058d46d3a8f22fca9e9fb565d901c043af766d4d777314a24a34bb"
+      },
+      "3": {
+        "model.glb": "a615121e9932d743e0e6193e13f427a05b52c6af86878a5c43ab8a0a99821852",
+        "generated-rig.npz": "2d1575b19da0c743d32683e3d5e67468e92aa28f86fb4496fbf4a5cdae3bb799"
+      },
+      "4": {
+        "model.glb": "1b96a38218ec1b53a0cb8df50a55e2df0545c300f0d441567f26018f331a12c8",
+        "generated-rig.npz": "49d303e94161b0a0658aa491ba6c69b2f7b8f3fc7fdf633f9b40513dec58165b"
+      }
+    }
+  },
+  "freshwater-predatory-fish-guild": {
+    "reason": "All4 checked front bind/raw screenshots show caudal fin toward canonical +Y: generic high-head/dorsal-fin normalization reversed head/tail. Rigid180deg Z for geometry, learned joints and skin samples together before unchanged fish motion correspondence; selected raw meshes/NN arrays preserved.",
+    "axis_corrections": {
+      "1": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "2": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "3": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "4": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "26295157038b7f42138e3458b5d7b802168875884932b1c7959c4a8185658b1f",
+        "generated-rig.npz": "fb055cb4f965d4f11b2727031a93e981e1d30a0511d407e8250758fb9e36d69e"
+      },
+      "2": {
+        "model.glb": "2f38d0a230c98a0af08f51a69c451fed8bce21c40dd6e67e7fc5cab2e797f188",
+        "generated-rig.npz": "12b6b7faebfbb03a1cb31b3265d321424b82b9605e0485849b8c4d9b90dcd2f4"
+      },
+      "3": {
+        "model.glb": "08f1a007c434fd5257d9bfa7ade1916750772c5e5dc915805dbda79f458695cd",
+        "generated-rig.npz": "1718acbba5175730249af0b1a8c7e41ecfd325469ab868500335258855dd20e2"
+      },
+      "4": {
+        "model.glb": "41f0b969e7dacd045c84582543df5b499431b3c43dadcd6f1fcda728a3e197d3",
+        "generated-rig.npz": "a74c9f7ee04c9bd94921a8a7e6819aa0ca99e0a0077418382b0141bd5d363b6d"
+      }
+    }
   }
 }

@@ -1,5 +1,32 @@
 # WorldGen repository instructions
 
+NEXT RAW SETS / FISH POLARITY FIX,24October2026 evening:
+137raw sets/548 candidates verified;39of176 remain, audit errors[]. Full serial
+exec93476 remains live, currentFreshwaterTurtle shape at checkpoint. Do not spawn
+another producer. Echidna/Elephant/FreshwaterPredatoryFish newly ready. Chimp old
+failed queue entry still awaits existing hash-bound retry consumption next pass;
+its native4 review already ready. No painting/textures generated or owner window.
+
+CPU screenshot screening: Echidna all4Walk-side +1front/1Bind show pointed/coarse
+feet also in bind;2 has long moving foot spike, excluded from recommendations,
+all4 retained. Elephant all4Walk-side +1front/rawfront/rawside:3 severe stretched
+hindlegs excluded,2/4 have lesser pose/foot warnings;1 is first comparison
+recommendation ONLY, not gait/contact/art approval. Warnings in per-root JSON.
+Remaining42 reference-sheet screenshot/hashes checked before Echidna ready:
+no obvious extra-limb artefact comparable to duiker at sheet scale, some oblique
+views remain; no reference replaced. Compact evidence retained in batch root.
+
+Fish front screenshots confirmed all4 in CoastalForageFish,SmallNativeFreshwater
+Fish,FreshwaterPredatoryFish also faced tail-first from high-dorsal-fin heuristic.
+Pinned rigid180Z corrections for all12 in MOTION_REPAIR_OVERRIDES, applied to
+geometry/joints/skin samples together before existing fish correspondence. Both
+owner-selected fish1 rawGLB/NN SHA EXACT; selection hashes unchanged. All3 rebuilt
+and native4 checked, selected1 SwimHorizontal-side inspected, proper head/tail
+mapping now. Before previews renamed before-axis- with hash provenance. No
+owner re-review/reopening, new shape/rig inference, new invented motion, or live
+queue-state edits. Future marine/fish batches still need polarity checks; do
+not generalize the mammal high-head heuristic or a mass-centroid guess blindly.
+
 DOLPHIN ALIGNMENT / TEXTURE PLAN GAP,24October2026 evening:
 134raw sets/536 candidates ready;42of176 remain at checkpoint, Echidna shape-batch
 active in existing exec93476 (verify current IDs/state; no new GPU producer).
