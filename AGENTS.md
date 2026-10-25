@@ -1,5 +1,34 @@
 # WorldGen repository instructions
 
+ALL-ANIMAL PHONE OVERVIEW LIVE,25October2026 ~16:22 local:
+Owner asks pictures containing all animals to spot recurring issues before
+individual assessments. SAME private site now has /overview.html and an entry
+link from deer sample. Covers177 unique animals/groups =176 queued+accepted deer,
+stable numbered001–177 across Side/Front/Other coats. Each mode has one3840-wide
+master image +8 smaller1920-wide sheets (24 per sheet,last9):27 JPEGs total10.3MiB.
+Human-readable names/numbers, tap fullsize/pinch zoom, master save link. One
+additional coat each, NOT all828 styles. Five tiny guilds use actual top/flight
+render in every mode (no invented front render), explicitly labelled. Deer uses
+existing approved sample. No rerender/inference/painting/native changes.
+
+Source builder scripts/build-fauna-phone-overviews.py verifies177 unique rows,
+current alternate-renderSHA and retained source presence; ignored checks/
+overview-inputs.json records27 output+1062 placement hashes, all matched. Actual
+first/last side sheets and mobile layout viewed; existing animal image inspection
+remains separate, no new owner art approval. check-fauna-phone-overviews.mjs passes
+390x844,all27 images across3modes loaded,contiguous1..177,8sheets/mode,no overflow/
+page errors; original deer phone clip/speed regression also passes. Local8766
+preview launcher+child stopped afterQA, no owner apps changed.
+
+SAME site project appgprj_6ade6fbe0a5081918b25bcbf541da095, owner-private policy
+re-read and retained. Nested Site Git source3c0b277df8431e99efcaf134bc38d8858ea7b456
+pushed+packaged; deployment appgdep_6ade72ec41f481919832c48f8a69680e SUCCEEDED.
+Version appgprj_6ade6fbe0a5081918b25bcbf541da095~appgver_146b0d86a3cc8191ae457a74c7ef133e.
+Source/media live in ignored artifacts/fauna-phone-review, not WorldGen source
+Git. Reuse project/checkout, do not create replacement site. Preserve unrelated
+deleted prompt+2old untracked deer scripts. Last WorldGen remote checkpoint before
+this overview source task cf2d1db55bb92fcd7ef5ac7bbbcc4914d13d0bdf.
+
 PHONE DEER APPROVAL SAMPLE LIVE,25October2026 ~16:17 local:
 Owner asks snips/video for phone approval using accepted deer as test. Created
 private Sites gallery https://worldgen-animal-review.glassymole9.chatgpt.site
