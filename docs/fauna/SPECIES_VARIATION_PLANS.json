@@ -1,6 +1,6 @@
 {
   "scope": "Sourced appearance/speciation plans. Owner-selected model colouring is now authorized concurrently with raw generation; actual finishing status is tracked in the paint queue. Research covers named analogues, not every alias.",
-  "shared_implementation": "Generate neutral reusable swatches after the raw queue. Appearance configurations are anatomical masks and colour transforms over shared surface swatches (fur, feathers, scales, skin, chitin), not separate generated models or extra runtime materials. Bake one atlas per selected appearance; switch atlases without extra draw calls. Fitted eyes/lids and local gloss remain distinct from body surfaces where anatomy requires them; do not add mammal features to insects. All numerical morph bounds are proposed art limits, not measured biological distributions.",
+  "shared_implementation": "Generate needed neutral reusable swatches for owner-selected bodies alongside the raw queue. Appearance configurations are anatomical masks and colour transforms over shared surface swatches (fur, feathers, scales, skin, chitin), not separate generated models or extra runtime materials. Bake one atlas per selected appearance; switch atlases without extra draw calls. Fitted eyes/lids and local gloss remain distinct from body surfaces where anatomy requires them; do not add mammal features to insects. All numerical morph bounds are proposed art limits, not measured biological distributions.",
   "animals": {
     "Deer": {
       "real_analogues": [

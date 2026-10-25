@@ -138,7 +138,9 @@ class D4_OT_species(bpy.types.Operator):
             coats=current()['painting_coats'];state['seed']=(1664525*state['seed']+1013904223)&0xffffffff
             if not state.get('coat_bag'):state['coat_bag']=[i for i in range(len(coats)) if i!=state['coat_index']]
             state['coat_index']=state['coat_bag'].pop((state['seed']>>8)%len(state['coat_bag'])) if state['coat_bag'] else 0
-            profile=coats[state['coat_index']];bpy.data.objects[current()['body']].data.materials[0]=bpy.data.materials[profile['material']]
+            profile=coats[state['coat_index']]
+            for name in [current()['body'],*current().get('coat_objects',[])]:
+                bpy.data.objects[name].data.materials[0]=bpy.data.materials[profile['material']]
             state['coat']=profile['label'];context.scene['review_phenotype_seed']=str(state['seed']);return {'FINISHED'}
         if finished:
             state['seed']=(1664525*state['seed']+1013904223)&0xffffffff

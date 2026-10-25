@@ -13,7 +13,7 @@
       "animation_approved": false,
       "animation_method": "Owner explicitly intends a different future method; stop refining current hare transfer.",
       "painting_started": true,
-      "painting_status": "anatomical_colouring_started",
+      "painting_status": "atlas_and_face_fitted_working",
       "paint_review": "artifacts\\fauna-painted-20261024\\hare\\Animal - Painted Species Review.blend"
     },
     "rabbit": {
@@ -28,7 +28,7 @@
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
       "painting_started": true,
-      "painting_status": "anatomical_colouring_started",
+      "painting_status": "atlas_and_face_fitted_working",
       "paint_review": "artifacts\\fauna-painted-20261024\\rabbit\\Animal - Painted Species Review.blend"
     },
     "red-fox": {

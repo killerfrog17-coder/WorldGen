@@ -1,5 +1,35 @@
 # Fauna asset review workflow
 
+## Current finishing update - 25 October 2026
+
+Owner-selected bodies may be coloured now, alongside the remaining raw queue;
+there is no all-roster completion gate. Their model choice authorizes colouring
+even if motion is unapproved and will be replaced later. Needed shared sources
+may also be generated now. The GPU raw producer uses sequential CPU offload
+while the owner plays, retaining FP16/50 steps/depth8. These later instructions
+supersede the historical ordering and resident-only statements below.
+
+Hare3 and Rabbit1 have separate first colour passes under
+`artifacts/fauna-painted-20261024`, with six/five palettes, 1K colour/roughness,
+512 normal detail, fitted glossy eyes, surface-fitted bare lid rims and sparse
+whiskers. The selected body geometry, skin, rest rig and all seven source actions
+per animal are exact against raw. Extras add780 triangles to3420/3430-triangle
+bodies. Whole front/side/rear and head front/side CPU views were inspected;
+all palettes are reachable and outer lid fur changes with the body palette.
+Morphology remains the chosen body: a snowshoe-like coat does not prove
+snowshoe foot/anatomy suitability. Tiny raw face fragments and raw gait defects
+are retained and are not cured by colouring. Appearance remains unapproved.
+
+CPU source path: `prepare-selected-fauna-paint.py`, then ray-picked landmarks
+with `fit-selected-fauna-landmarks.py`, `bake-selected-fauna-coats.py`,
+`finish-selected-fauna-face.py`, and `check-selected-fauna-paint.py`.
+The first four scripts currently support hare/rabbit, not every body family.
+`index-painted-fauna.py` exposes only hash-matching checked passes in a separate
+review index and records actual progress. It does not approve art or motions.
+The numbered viewer retains1 motion bank,2 coat,3 side/face/orbit,4 loops,
+individual clips, Pause and Show/Hide Skeleton. No new owner window is opened
+while they browse raw candidates. Never overwrite an owner-open/approved file.
+
 ## Active roster workflow - 24 October 2026
 
 The owner subsequently authorized the full overnight roster. Current scope is

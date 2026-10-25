@@ -1,5 +1,16 @@
 OVERNIGHT FAUNA AUDITIONS - 24 OCTOBER 2026
 
+25 OCT COLOURING FIRST PASSES
+Hare3/Rabbit1 now have actual packed UV coats and separately skinned facial
+features in fauna-painted-20261024, not just source swatches or colour plans.
+Six/five palettes;1K colour and roughness,512 normal; eyes/lids/whiskers add780tri.
+Native proof preserves chosen body/skin/rig/all7 source actions exactly; all
+coats,1-4/skeleton and finite clip-start features pass. Front/side/rear/body and
+front/side head CPU views inspected. No appearance/motion approval, raw debris
+and gait defects retained, no GUI launch. index-painted-fauna.py creates a
+separate checked-pass review index; current2 started/122 chosen, not122 painted.
+Needed shared sources and CPU colouring may proceed before all176 raw sets.
+
 24 OCT OWNER AUTHORIZES COLOURING PASSED CANDIDATES NOW
 The owner asks why colouring cannot start on passed candidates. Proceed on
 owner-selected bodies concurrently with remaining raw generation; do not wait

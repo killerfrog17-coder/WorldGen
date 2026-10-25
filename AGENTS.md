@@ -1,5 +1,37 @@
 # WorldGen repository instructions
 
+SELECTED COLOUR PASSES NOW HAVE ATLASES/FACES,25October2026~00:30CDT:
+Latest owner asks why passed models cannot be coloured now. Authorised and
+actually done first passes on Hare3/Rabbit1, alongside sole raw worker94528/
+PID16008 (verify), now Tern rig-batch. Raw170ready/6pending at last index;
+SpiderMonkey2 bounded hash/seed retry remains queued next producer pass.
+Two painted working copies under artifacts/fauna-painted-20261024 now install
+six/five packed1K colour atlases +shared1K rough/512normal, fitted glossy eyes,
+surface-ray-fit bare lids/fur surrounds and sparse tapered whiskers.5 facial
+objects/780tri extra each; selected3420/3430tri body geometry/skin/rest rig and
+ALL7 source actions EXACT native proof. No original mesh deletion/repair or
+motion changes. New fit-selected-fauna-landmarks.py stores inspected camera/
+pixel rays and matches opposite eye worldZ on actual opposite surface, ignores
+loose components for anchor casting. Reuses original saved guide on rerun even
+after diagnostic resolution changes. New bake-selected-fauna-coats.py is CPU
+rest-surface raster plus shared generated fibre and continuous anatomy masks;
+pigment boundaries do NOT become bumps. finish-selected-fauna-face.py installs
+atlases/adds separately top4-skinned features on UNPUBLISHED copies only.
+No new neural/imagegen calls, localGPU use, owner apps/windows/Desktop/game work.
+Native all coats/1-4/skeleton/clip-start features finite pass, image maps packed.
+Actually inspected CPU head side/front both, Hare winter side/rear and Rabbit
+base side/dark rear. No claim perfect anatomy/contact/motion: raw face flecks
+retained, body asymmetry/retarget defects stay; coat analogue does not imply
+snowshoe morphology. No ear/tail morphs or age models added. Art still OWNER
+PENDING, no GUI opened or extra review ping. Ready first-pass index separate;
+index-painted-fauna.py only publishes hash-matching checked passes and updates
+paint queue/OWNER selections without choosing or approving art.2started of122,
+not all122 painted. Painting script family support still Hare/Rabbit only;
+NEXT requested work is extend approved-body finishing in priority (RedFox3,
+Wolf2...), not optional raw screenshot sweep or another blanket painting hold.
+Current status atlas_and_face_fitted_working; never overwrite owner-open or
+appearance-approved files. Raw originals/accepted deer remain protected.
+
 OWNER AUTHORIZES COLOURING PASSED MODELS NOW,24Oct/25Oct2026 midnight:
 Owner again asks why colouring passed candidates cannot start. PROCEED now on
 owner-selected bodies alongside remaining raw queue; do NOT wait for all176.
