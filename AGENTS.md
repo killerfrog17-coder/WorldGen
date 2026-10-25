@@ -1,5 +1,85 @@
 # WorldGen repository instructions
 
+LIVE OWNER REVIEW CHECKPOINT,25October2026 ~05:00 local:
+Owner closed Blender, asks ALL requested candidates ready before reopening ONE
+RIGHTMOST review, with visible progress/ETA. Native Tk progress window PID13884
+(verify) on rightmost, script fauna-progress-window.py.39 tasks manifest/live in
+fauna-overnight/owner-review-progress*. Last actual29/39 ready (~94% stage work),
+all24 selected manual repairs now completed/staged; only15 reroll screenings
+remain in part. Ordinary repairs DO NOT re-show; Iguana3/Monitor1 explicitly DO
+re-show via status manual_motion_revision_ready_owner_review_pending, separate
+one-candidate Owner Corrected files. Walrus1/Whale4 also one-candidate corrections;
+other localized copies keep4entries. SHA-bound index supports actual counts.
+Source backup6d483f64906e9aafbdbfd48d3fb5c56bd1acf6fd verified remote; MANY newer
+sources below still need checkpoint. Preserve unrelated deleted prompt +2 old
+untracked deer scripts unstaged. Do not infer goal complete or close owner apps.
+
+First alpha queue exec17754 FINISHED all7. Waiting successor exec24064 is sole
+live finite extra8 queue; actual parent33452/24100 wrapper at last check; current
+VenomousSnake generation after Python finished. Verify real state/process before
+intervention. NO full-watch or duplicate inference. Forest CLOSED; resident fast
+mode authorized. Extra order Nutria,Porcupine,Shark,SpiderMonkey,Tamarin,SeaOtter,
+Python,VenomousSnake. Python4 shapes+MANUAL40-bone own longitudinal rigs +CC0 snake
+FK transfer now native-check READY; manual-straight-snake-rig.py hook confirmed.
+Venomous same marker/hook. New15 alpha refs/prompts/provenance visually inspected.
+
+All24 selected fixes are in canonical slug/Animal - Owner Corrected.blend,
+owner-fix.json + exact-SHA native checks + selected path/SHA in OWNER_SELECTIONS.
+publish-fauna-owner-repair.py handles no-repeat; publish-fauna-manual-review.py
+handles Iguana/Monitor explicit review. Actual side/front trouble phases inspected.
+Rigid feet + smooth own-limb skin + shortest swing remove twist. PolarBear paw
+periphery had hind-leg weights: whole low forepaw region now repaired, long sheet
+gone in inspected Run. Tern rotation now derives from actual skinned beak/tail
+points (short learned tail bone was misleading); Flap/Glide forward/horizontal
+views inspected; negative-Y review camera/true head landmark. Walrus own low
+alternating flipper Walk + retained aquatic clips. Whale true tail +Y was falsely
+Head: corrected roles + adjacent-tail skin, swims with moving flukes. Source
+shapes/rest preserved; no natural-gait/contact/universal-collision claim.
+
+Rerolls SCREENED/PUBLISHED proof: Chimp,Croc,Elephant,Panda,Giraffe (5). Chimp
+hands needed min-swing + footprint stabilization after alpha rebuild; now good
+sampled shape. Croc contacts/Giraffe Run remain provisional; candidate selection
+pending, not art approved. Additional unscreened audits show broad problems:
+Nutria/Porcupine Rat Run folds neck/core; SeaOtter aquatic paws failed automatic
+low-foot gate; Shark is actually head -Y. Those have CPU fixes underway, do NOT
+repeat GPU gen. New10 waiting readiness proofs (incl7+extra8 minus5published).
+
+Current CPU jobs to OBSERVE, not duplicate:
+exec21801 rebuild+render Echidna/Gull (may now finished). Echidna generic rat
+Run was gross, now rigid_core_except_limbs with geometric own-limb skin,
+bounded swing, Run accelerated Walk (explicit prototype limit). Gull new own
+13-bone two-leg rigs replace duplicated/toe-rooted neural graphs;4same generated
+meshes exact, manual-ground-walk.json/hash-bound GROUND_BIRD_WALK_REPAIRS entry.
+Second refinement foot_skin_height_m=.17 avoids partial foot membrane tearing.
+Both need final contact inspection; prior contact was still bad BEFORE latest
+exec21801. Use current previews/owner-alpha-reroll-audit.png and hash proof.
+exec92007 CPU rebuild/native+render SeaOtter/Nutria/Porcupine. SeaOtter source
+is explicit free fish-fin aquatic stroke trial (not dog Run or real otter mocap),
+all4 current chains/hash-bound; first GPU assembly failed candidate2 low-foot
+gate but models/rigs fine. CPU rebuild now passed SeaOtter/Nutria, Porcupine later
+in same command. Recovery cleans known latents only and creates cached sync marker.
+exec40416 rebuild/render Shark + Python. Shark fish_forward_sign=-1 and negative-Y
+face camera fix; generic +Y heuristic had treated tail as head. No new mesh.
+exec40203 old contact rendering for new Nutria/Pork/Shark/SpiderMonkey/Tamarin
+FINISHED; its first three are STALE after above fixes. SpiderMonkey/Tamarin
+contacts still need actual inspection, likely same wrist twist as first Chimp;
+apply scoped minimum swing/distal skin if necessary, not blind full regen.
+
+Audit/publish helpers: render-fauna-reroll-audit.py produces exact native SHA+
+12images per set; publish-fauna-reroll-review.py requires these, current native
+checks4 and no rebuild marker, records owner-redo-readiness with current request
+time. Only call AFTER actual vision. Progress consumes this proof. Manual audits
+use render-fauna-manual-rig-audit.py; limbs use render-fauna-owner-repairs.py.
+New body auto-fit + true-head camera + honest manual rig label added to viewer,
+not yet actual GUI checked; remaining native check calls exercise controls.
+Once39/39 ready: finish index/sync failed SeaOtter using cached-only rerun AFTER
+real GPU worker exit, source checkpoint, open one rightmost review with1-4,
+Show/Hide Skeleton and Next/Previous. No unsolicited re-review of ordinary fixes.
+Progress GUI can be closed/minimized by us after its purpose is done; no owner
+app closures. No paid APIs/game/Unity/Desktop work. Three newer painted copies
+Fish/Mouse/Squirrel still need final native/index after face fitter changes;
+11 checked prior color passes, don't report14 checked until final validation.
+
 OWNER BATCH REVIEW / LIVE PROGRESS,25October2026:
 Owner closed Blender and explicitly asks to reopen RIGHTMOST only when ALL
 requested rerolls/manual review candidates are ready. New native progress GUI

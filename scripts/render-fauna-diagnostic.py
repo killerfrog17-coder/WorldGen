@@ -49,10 +49,13 @@ if not a.raw_mesh and not a.head:
         ev=ob.evaluated_get(bpy.context.evaluated_depsgraph_get());m=ev.to_mesh();parts.append(np.array([ev.matrix_world@v.co for v in m.vertices]));ev.to_mesh_clear()
     p=np.vstack(parts)
 center=Vector(((p.min(0)+p.max(0))*.5).tolist());span=float(np.ptp(p,axis=0).max());directions={'side':(1,0,.08),'left':(-1,0,.08),'front':(0,1,.08),'rear':(0,-1,.08),'oblique':(1,1,.25),'top':(0,0,1)}
+if not a.raw_mesh and e.get('review_forward_direction'):
+    directions['front']=tuple(Vector(e['review_forward_direction'])+Vector((0,0,.08)))
+    directions['rear']=tuple(-Vector(e['review_forward_direction'])+Vector((0,0,.08)))
 if a.head and not a.raw_mesh:
     if e.get('paint_head_vertex') is not None:
         ev=body.evaluated_get(bpy.context.evaluated_depsgraph_get());head=np.array(ev.matrix_world@ev.data.vertices[e['paint_head_vertex']].co)
-    else:head=np.array(r.matrix_world@r.pose.bones['Head'].head)
+    else:head=np.array(r.matrix_world@r.pose.bones[e.get('review_head_bone','Head')].head)
     center=Vector((head+np.array([0,.08,.035])).tolist());span=e.get('paint_head_span',.72)
     if e.get('paint_face_direction'):directions['front']=tuple(Vector(e['paint_face_direction'])+Vector((0,0,.08)))
 if a.focus:center=Vector(a.focus)

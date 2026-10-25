@@ -5,10 +5,11 @@ import bpy,numpy as np
 
 ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,required=True)
 ap.add_argument('--blend-name',default='Animal - Raw Audition.blend')
+ap.add_argument('--expected-candidates',type=int,choices=[1,4],default=4)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=a.root.resolve()
 assert Path(a.blend_name).name==a.blend_name
 bpy.ops.wm.open_mainfile(filepath=str(root/a.blend_name));scene=bpy.context.scene
-models=json.loads(scene['deer_four_rigs']);assert len(models)==4
+models=json.loads(scene['deer_four_rigs']);assert len(models)==a.expected_candidates
 viewer=runpy.run_path(str(Path(__file__).with_name('deer-four-rigs-viewer.py')));checks=[]
 for i,entry in enumerate(models):
     bpy.ops.deer_four.model(number=i);rig=bpy.data.objects[entry['rig']];body=bpy.data.objects[entry['body']]

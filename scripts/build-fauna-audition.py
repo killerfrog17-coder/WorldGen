@@ -17,14 +17,17 @@ ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,required=True);a
 ap.add_argument('--animal',required=True);ap.add_argument('--fur',type=Path,required=True)
 ap.add_argument('--neutral-material',action='store_true')
 ap.add_argument('--rebuild-unreviewed',action='store_true')
+ap.add_argument('--candidate-count',type=int,choices=[1,4],default=4)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=a.root.resolve();out=root/'Animal - Raw Audition.blend';started=time.perf_counter()
 rebuild=out.exists()
 if rebuild:
     assert a.rebuild_unreviewed and not json.loads((root/'audition.json').read_text()).get('art_approved')
-    assert root.is_relative_to(Path(__file__).resolve().parent.parent/'artifacts/fauna-overnight-20261024')
+    assert any(root.is_relative_to(Path(__file__).resolve().parent.parent/parent) for parent in ('artifacts/fauna-overnight-20261024','artifacts/fauna-owner-fixes-20261025'))
 source=json.loads((a.motion_root/'source-rig.json').read_text());motions=np.load(a.motion_root/'source-motions.npz')
 repair_file=Path(__file__).resolve().parent.parent/'docs/fauna/MOTION_REPAIR_OVERRIDES.json'
 repair=json.loads(repair_file.read_text()).get(root.name,{}) if repair_file.exists() else {}
+local_policy=root/'owner-manual-motion-policy.json'
+if local_policy.exists():repair=json.loads(local_policy.read_text())
 if repair.get('motion_bank'):
     a.motion_root=Path(__file__).resolve().parent.parent/repair['motion_bank']
     assert a.motion_root.resolve().is_relative_to(Path(__file__).resolve().parent.parent/'artifacts/fauna-motion-sources')
@@ -47,7 +50,10 @@ flightless=a.animal in {'Ostrich','Emu','Cassowary','Kiwi','Penguin'} or bool(so
 clips=[c for c in source['clips'] if not (source['family']=='bird' and ((flightless and c['label'] in {'Flap','Glide'}) or ('bat' in a.animal.lower() and c['label']=='Walk')))]
 if source.get('hold_core_bind'):
     # A stabilized body cannot honestly demonstrate death/jump reactions.
-    clips=[c for c in clips if c['label'] in ({'Idle','Walk','Run','Flap','Glide'} if (manual and manual.get('retain_flight')) or repair.get('retain_flight') else {'Idle','Walk','Run'})]
+    allowed={'Idle','Walk','Run'}
+    if (manual and manual.get('retain_flight')) or repair.get('retain_flight'):allowed|={'Flap','Glide'}
+    if source.get('aquatic_only'):allowed|={c['label'] for c in source['clips'] if c['label'].startswith('Swim')}
+    clips=[c for c in clips if c['label'] in allowed]
 if repair.get('manual_snake'):clips=[c for c in clips if c['label'] in {'Idle','Side winding','Slither','Crawl','Forward'}]
 idle=motions[next(c['key'] for c in source['clips'] if c['label']=='Idle')][0]
 if source.get('reference_pose')=='source_bind':idle=np.asarray([b['rest'] for b in source['bones']],dtype=np.float32)
@@ -323,6 +329,10 @@ def fish_correspondence(joints,parents,children,leaves,pelvis):
     central=[i for i in leaves if abs(joints[i,0]-joints[pelvis,0])<max(.12,np.ptp(joints[:,0])*.25)] or leaves
     nose=max(central,key=lambda i:joints[i,1]);head=int(parents[nose]) if parents[nose]>=0 and parents[nose]!=pelvis else nose
     tail=min(central,key=lambda i:joints[i,1])
+    if repair.get('fish_forward_sign')==-1:
+        nose=min(central,key=lambda i:joints[i,1]);head=int(parents[nose]) if parents[nose]>=0 and parents[nose]!=pelvis else nose
+        tail=max(central,key=lambda i:joints[i,1])
+    head=int(repair.get('head_node',head));tail=int(repair.get('tail_node',tail))
     def bind(chain,src,kind):
         ids=[si[n] for n in src];ss=np.r_[0,np.cumsum(np.linalg.norm(np.diff(reference[ids],axis=0),axis=1))];ss/=max(ss[-1],1e-8)
         tt=np.r_[0,np.cumsum(np.linalg.norm(np.diff(joints[chain],axis=0),axis=1))];tt/=max(tt[-1],1e-8)
@@ -466,7 +476,7 @@ def bake(rig,label,poses,names):
                 curve.update()
     return action.name
 
-for number in range(1,5):
+for number in range(1,a.candidate_count+1):
     manual=manual_set if manual_set and str(number) in manual_set['candidates'] else None
     folder=root/f'candidate-{number}';raw=np.load(folder/'generated-rig.npz');data={k:raw[k].copy() for k in raw.files}
     input_rig_info=json.loads((folder/'generated-rig.json').read_text())
@@ -529,6 +539,9 @@ for number in range(1,5):
     distal_feet=[]
     if number in repair.get('pin_distal_skin_candidates',[]):
         distal_feet=[i for i in range(len(names)) if not children[i] and group[i] in ('fore','hind')]
+    core_leg_ids=[i for i in range(len(names)) if group[i] in ('fore','hind') and main[i]>=0] if repair.get('rigid_core_except_limbs') else []
+    if core_leg_ids:
+        core_starts=joints[core_leg_ids];core_delta=np.array([joints[main[i]]-joints[i] for i in core_leg_ids]);core_l2=np.maximum(np.sum(core_delta**2,axis=1),1e-8)
     fore_skin=number in repair.get('localize_forelimb_skin_candidates',[])
     if fore_skin:
         fore_ids=[i for i in range(len(names)) if group[i]=='fore' and main[i]>=0]
@@ -542,6 +555,10 @@ for number in range(1,5):
     for v in mesh.vertices:
         near=tree.find_n(v.co,4);ids=[x[1] for x in near];d=np.array([x[2] for x in near]);w=1/np.maximum(d,.0001)**2
         row=np.maximum(0,(weights[ids]*w[:,None]).sum(0)/w.sum())
+        if core_leg_ids:
+            p=np.asarray(v.co);u=np.clip(np.sum((p-core_starts)*core_delta,axis=1)/core_l2,0,1);distance=np.linalg.norm(p-(core_starts+u[:,None]*core_delta),axis=1);k=int(np.argmin(distance));node=core_leg_ids[k]
+            blend=float(np.clip((.22-distance[k])/.12,0,1)*np.clip((.65-p[2])/.15,0,1));blend=blend*blend*(3-2*blend)
+            row[:]=0;row[pelvis]=1-blend;row[node]+=blend*(1-u[k]);row[main[node]]+=blend*u[k]
         if local_leg_skin:
             p=np.asarray(v.co);t=np.clip(np.sum((p-leg_starts)*leg_vectors,axis=1)/leg_lengths2,0,1);distance=np.linalg.norm(p-(leg_starts+t[:,None]*leg_vectors),axis=1);nearest=int(np.argmin(distance))
             skin_ceiling=float(manual.get('skin_ceiling_m',joints[pelvis,2]-skin_height*.02)) if manual else float(joints[pelvis,2]-skin_height*.02)
@@ -555,7 +572,7 @@ for number in range(1,5):
             else:row=confined/max(confined.sum(),1e-12)*blend;row[pelvis]+=1-blend
             if manual:
                 foot=min(manual_feet,key=lambda n:float(np.linalg.norm(p[:2]-joints[n,:2])))
-                if p[2]<joints[foot,2]+skin_height*.035 and np.linalg.norm(p[:2]-joints[foot,:2])<skin_height*.27:
+                if p[2]<float(manual.get('foot_skin_height_m',joints[foot,2]+skin_height*.035)) and np.linalg.norm(p[:2]-joints[foot,:2])<skin_height*.27:
                     row[:]=0;row[foot]=1
                     manual_foot_vertices[foot].append(p.copy())
         if fore_skin:
@@ -568,6 +585,10 @@ for number in range(1,5):
             height=float(np.ptp(data['source_vertices'][:,2]))
             if p[2]<joints[foot,2]+height*.08 and np.linalg.norm(p[:2]-joints[foot,:2])<height*.13:
                 row[:]=0;row[int(parents[foot])]=1
+        if repair.get('rigid_core_z') is not None:
+            upper=float(repair['rigid_core_z']);lower=upper-.13
+            blend=float(np.clip((v.co.z-lower)/(upper-lower),0,1));blend=blend*blend*(3-2*blend)
+            row*=1-blend;row[pelvis]+=blend
         best=np.argsort(row)[-4:];vals=row[best]/max(row[best].sum(),1e-12)
         for i,w in zip(best,vals):vgs[i].add([v.index],float(w),'REPLACE')
     modifier=body.modifiers.new('Localized ground legs / rigid feathered body' if local_leg_skin else 'Fresh neural skin - linear','ARMATURE');modifier.object=rig;modifier.use_deform_preserve_volume=False;body.parent=rig
@@ -613,7 +634,10 @@ for number in range(1,5):
         label=clip['label'];frames=[]
         root_origin=motions[clip['key']][0,si[source['root']],:3,3] if source.get('zero_root_translation_per_clip') else reference[si[source['root']]]
         source_frames=[]
-        source_clip=motions[clip['key']]
+        replacement=repair.get('replace_clip_sources',{}).get(label)
+        source_clip=motions[next(c['key'] for c in source['clips'] if c['label']==replacement)] if replacement else motions[clip['key']]
+        if replacement and repair.get('replacement_speed',1)!=1:
+            length=max(2,round(len(source_clip)/float(repair['replacement_speed'])));source_clip=source_clip[np.rint(np.linspace(0,len(source_clip)-1,length)).astype(int)]
         if label in repair.get('reverse_clips',[]):source_clip=source_clip[::-1]
         for original_frame in source_clip:
             frame=original_frame
@@ -699,6 +723,10 @@ for number in range(1,5):
                 elif i in ik_angles:q=Quaternion((1,0,0),ik_angles[i])@rest[i].to_quaternion()
                 elif i==pelvis or i==head or main[i]<0:
                     index=int(np.argmax(binding[i]));q=Matrix(frame[index]).to_quaternion()@bone_refq[i].inverted()@rest[i].to_quaternion()
+                elif source.get('minimal_twist_limb_swing') and group[i] in ('fore','hind') and main[i]>=0:
+                    ref=refpoints[main[i]]-refpoints[i];now=virtual[main[i]]-virtual[i]
+                    delta=Vector(ref).normalized().rotation_difference(Vector(now).normalized()) if np.linalg.norm(ref)>1e-5 and np.linalg.norm(now)>1e-5 else Quaternion()
+                    q=Quaternion().slerp(delta,float(source.get('limb_swing_gain',1)))@rest[i].to_quaternion()
                 elif refdirs[i] is not None:q=orient(virtual[main[i]]-virtual[i],(0,1,0) if group[i] in ('fore','hind') else (0,0,1))@refdirs[i].inverted()@rest[i].to_quaternion()
                 else:q=rest[i].to_quaternion()
                 location=rest[i].translation.copy() if parent<0 else g[int(parent)]@local[i].translation
@@ -728,9 +756,10 @@ for number in range(1,5):
         'rig_file':str(folder/'generated-rig.npz'),'parents':parents.tolist(),'joint_names':names,'generated_joint_heads':joints.tolist(),'binding':binding.tolist(),'groups':group,
         'animal':a.animal,'source_family':source['family'],'source_license':source.get('license','CC0-1.0'),'manual_repairs':bool(manual_set or repair),'painted':False,
         'motion_repairs':repair,
-        'rig_origin':'manual body centerline' if repair.get('manual_snake') else 'accepted own deer reuse' if input_rig_info['method']=='Owner-permitted accepted deer model reuse' else 'neural prediction with scoped manual corrections' if manual_set or repair else 'neural prediction',
+        'rig_origin':'manual body centerline' if repair.get('manual_snake') else 'manual anatomical rig' if input_rig_info.get('manual_rig') else 'accepted own deer reuse' if input_rig_info['method']=='Owner-permitted accepted deer model reuse' else 'neural prediction with scoped manual corrections' if manual_set or repair else 'neural prediction',
         'manual_ground_walk':manual['candidates'][str(number)] if manual else None,
         'canonical_review_height_m':1.65,'runtime_species_scale_pending_approval':True,'surface_material':'plain neutral' if a.neutral_material else 'reused fur swatch','canonical_axis_correction':axis_correction,
+        'review_forward_direction':repair.get('review_forward_direction'),
         'locomotion_sequence':[n for n,d in locomotion],'locomotion_durations_s':[d for n,d in locomotion]}
     entries.append(entry);body.hide_set(number!=1);body.hide_render=number!=1;rig.hide_set(True);rig.select_set(False)
     print('Assembled',a.animal,number,len(names),'joints',flush=True)
@@ -745,7 +774,7 @@ save_path=root/'Animal - Raw Audition.rebuild.blend' if rebuild else out
 bpy.context.preferences.filepaths.save_version=0
 bpy.ops.wm.save_as_mainfile(filepath=str(save_path))
 if rebuild:
-    bpy.ops.wm.open_mainfile(filepath=str(save_path));assert len(json.loads(bpy.context.scene['deer_four_rigs']))==4
+    bpy.ops.wm.open_mainfile(filepath=str(save_path));assert len(json.loads(bpy.context.scene['deer_four_rigs']))==a.candidate_count
     assert save_path.resolve().parent==root and out.resolve().parent==root
     save_path.replace(out)
 labels=[c['label'].lower() for c in clips];gaps=[]
@@ -753,8 +782,10 @@ if not any(any(w in label for w in ('eat','feed','forage','graz')) for label in 
 if not any(any(w in label for w in ('sleep','rest','sit','coiled')) for label in labels):gaps.append('No dedicated resting/sleep clip supplied')
 if not any('dea' in label or 'dying' in label for label in labels):gaps.append('No death clip supplied')
 if source.get('adaptation'):gaps.append(source['adaptation'])
+if repair.get('rigid_core_z') is not None:gaps.append('Prototype rigid body/quills: locomotion preview only; transferred hit/death torso motion is limited')
+if repair.get('rigid_core_except_limbs'):gaps.append('Prototype rigid body/quills with geometric limb skin; Run is accelerated CC0 Walk; transferred hit/death torso motion is limited')
 if source['family'] in ('rabbit','squirrel') and 'walk' not in labels:gaps.append('No dedicated walk clip in '+source['family']+' source')
-if a.animal=='Sea otter':gaps.append('Terrestrial raw-motion trial only; no suitable swimming clip supplied')
+if a.animal=='Sea otter' and not source.get('aquatic_only'):gaps.append('Terrestrial raw-motion trial only; no suitable swimming clip supplied')
 if source['family']=='sloth':gaps.append('Giant-sloth terrestrial walk transfer only; climbing and hanging motions still missing')
 if source['family']=='mammoth':gaps.append('Mammoth walk/head motion transfer; dedicated trunk articulation is not transferred by this generic mapper')
 if transfer_trial_note(a.animal):gaps.append(transfer_trial_note(a.animal))

@@ -167,6 +167,9 @@ try:
                     for i in range(1,5):
                         candidate=folder/f'candidate-{i}'
                         if not (candidate/'model.glb').exists():prepare_candidate(candidate,entry)
+                    if (folder/'manual-straight-snake-request.json').exists():
+                        assert slug in ('python','venomous-snake')
+                        run([rig_python,repo/'scripts/manual-straight-snake-rig.py','--root',folder],folder/'manual-snake-rig.log')
                     jobs=[]
                     for i in range(1,5):
                         candidate=folder/f'candidate-{i}';seed,rig_seed=candidate_seeds(entry,i,candidate)

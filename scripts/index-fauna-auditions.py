@@ -1,5 +1,5 @@
 """Small morning review index; no game launch or inference."""
-import argparse,csv,json,datetime
+import argparse,csv,json,datetime,hashlib
 from pathlib import Path
 from fauna_motion_sources import source_for
 repo=Path(__file__).resolve().parent.parent
@@ -25,8 +25,14 @@ for item in plan:
             selected=choices.get('animals',{}).get(slug,{})
             if selected.get('manual_fix_blend'):
                 fixed=repo/selected['manual_fix_blend']
-                if fixed.exists():path=str(fixed)
-            ready.append({'slug':slug,'name':item['animal'],'priority':item['priority_rank'],'path':path,'candidates':len(data['candidates'])})
+                evidence=folder/'owner-fix-native-checks.json'
+                if fixed.exists() and evidence.exists():
+                    digest=hashlib.sha256(fixed.read_bytes()).hexdigest()
+                    assert digest==selected.get('manual_fix_blend_sha256')==json.loads(evidence.read_text()).get('checked_blend_sha256'),'Selected repair needs checks for this exact native file'
+                    path=str(fixed)
+            candidate_count=len(data['candidates'])
+            if selected.get('manual_fix_blend') and path==str(repo/selected['manual_fix_blend']):candidate_count=len(json.loads(evidence.read_text())['candidates'])
+            ready.append({'slug':slug,'name':item['animal'],'priority':item['priority_rank'],'path':path,'candidates':candidate_count})
             notes='; '.join(data.get('motion_gaps',[]))
             warning_file=folder/'visual-warnings.json'
             if warning_file.exists():

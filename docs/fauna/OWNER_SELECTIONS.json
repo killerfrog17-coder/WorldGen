@@ -1231,7 +1231,10 @@
       "animation_method": "Owner selects prototype; requested best-effort manual fixes proceed without repeat review, not independent natural-motion approval.",
       "painting_started": false,
       "required_manual_fix": "Front-right foot stretches and twists at two points during Run. Manual patch; selected body2 supersedes3. No repeat review requested.",
-      "proceed_without_re_review": true
+      "proceed_without_re_review": true,
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\aardvark\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "b967b90ffc9bc02536b690bd3cf66f73f5ad929bbab481e4cb44f51192583af9",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "albatross": {
       "animal": "Albatross",
@@ -1644,7 +1647,10 @@
       "animation_approved": false,
       "painting_started": false,
       "required_manual_fix": "Feet scrunch in Walk; reduce the inward extreme of wing flapping to avoid visible self-clipping.",
-      "proceed_without_re_review": true
+      "proceed_without_re_review": true,
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\cormorant\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "a92c5c25f35ea825f51a6a9359972f0d862447b177832c7b1d242c5bc8f13ac6",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "common-brushtail-possum": {
       "animal": "Common brushtail possum",
@@ -1658,7 +1664,10 @@
       "animation_approved": false,
       "painting_started": false,
       "required_manual_fix": "Twisted feet in Run; best-effort manual skeleton/skin patch.",
-      "proceed_without_re_review": true
+      "proceed_without_re_review": true,
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\common-brushtail-possum\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "2dc39ca38e292eef2d03c8f9fa56f59248a2be0664adb3d4ca7c8659bd65563a",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "dolphin": {
       "animal": "Dolphin",
@@ -1720,7 +1729,10 @@
       "animation_approved": false,
       "painting_started": false,
       "required_manual_fix": "Fix twisted feet in Run.",
-      "proceed_without_re_review": true
+      "proceed_without_re_review": true,
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\gorilla\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "7a944fbe4fcdff92e11604df5445fc59623d9d990108c31a197012e4fdadc954",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "guereza": {
       "animal": "Guereza",
@@ -1734,7 +1746,10 @@
       "animation_approved": false,
       "painting_started": false,
       "required_manual_fix": "Fix two twists in the right front arm.",
-      "proceed_without_re_review": true
+      "proceed_without_re_review": true,
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\guereza\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "93c9d7b035d35d9bdc9ee618d41d5c3d55bb4184ce6360e158aa63320c3206f5",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "hedgehog": {
       "animal": "Hedgehog",
@@ -1748,7 +1763,10 @@
       "animation_approved": false,
       "painting_started": false,
       "required_manual_fix": "Front feet deform in Run; left front foot also in Walk.",
-      "proceed_without_re_review": true
+      "proceed_without_re_review": true,
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\hedgehog\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "74a9811481fe00fcbf9f05780e2c30d04ae963aeeefa9f811cc4a798bc0b0d24",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "hippopotamus": {
       "animal": "Hippopotamus",
@@ -1774,7 +1792,10 @@
       "animation_approved": false,
       "painting_started": false,
       "required_manual_fix": "Hands deform in Run.",
-      "proceed_without_re_review": true
+      "proceed_without_re_review": true,
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\howler-monkey\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "b6c869490a67ba201fe0da62a6b0a4d62b31eabe2d0ef45013fa72527a5fce1e",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "iguana": {
       "animal": "Iguana",
@@ -1788,7 +1809,10 @@
       "animation_approved": false,
       "painting_started": false,
       "required_manual_fix": "Manually place the skeleton/all four leg chains; explicitly re-show selected model.",
-      "proceed_without_re_review": false
+      "proceed_without_re_review": false,
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\iguana\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "d75a2783a517a80b96951b11ce4f9790f14ac8df511fc589a69938b3d40ae820",
+      "manual_fix_status": "explicit_owner_review_ready"
     },
     "koala": {
       "animal": "Koala",
@@ -1802,7 +1826,10 @@
       "animation_approved": false,
       "painting_started": false,
       "required_manual_fix": "Arm twist plus right ear stretching/popping in Walk/Run.",
-      "proceed_without_re_review": true
+      "proceed_without_re_review": true,
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\koala\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "f6f7f662ac153d9a0c7624b84ba9cd2242006f261e4162d1d800eef291c6bd57",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "lemur": {
       "animal": "Lemur",
@@ -1816,7 +1843,10 @@
       "animation_approved": false,
       "painting_started": false,
       "required_manual_fix": "Front-right arm has two twists in Run.",
-      "proceed_without_re_review": true
+      "proceed_without_re_review": true,
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\lemur\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "e9a364a73e243e974256e590cb69e53b776b3c9e75ea54f463a76fb4b53f4e2a",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "long-nosed-bandicoot": {
       "animal": "Long-nosed bandicoot",
@@ -1830,7 +1860,10 @@
       "animation_approved": false,
       "painting_started": false,
       "required_manual_fix": "Both front arms have two twists in Run.",
-      "proceed_without_re_review": true
+      "proceed_without_re_review": true,
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\long-nosed-bandicoot\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "0f328e4dd20549651089dfa123dc98724843efb3f0e92e5e0972d73add886484",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "macaque": {
       "animal": "Macaque",
@@ -1844,7 +1877,10 @@
       "animation_approved": false,
       "painting_started": false,
       "required_manual_fix": "Double hand twist in Run.",
-      "proceed_without_re_review": true
+      "proceed_without_re_review": true,
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\macaque\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "96ffcd28f0192cfad082306ddc013442853eecfd29c1a44731fe908266e28f95",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "monitor-lizard": {
       "animal": "Monitor lizard",
@@ -1858,7 +1894,10 @@
       "animation_approved": false,
       "painting_started": false,
       "required_manual_fix": "Manually rig all four feet/legs; explicitly re-show selected model.",
-      "proceed_without_re_review": false
+      "proceed_without_re_review": false,
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\monitor-lizard\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "bc3adfa9475ce6bdeae8f8a5945255e8cc78f584fd8a4620fcab2d8fe3cf9e80",
+      "manual_fix_status": "explicit_owner_review_ready"
     },
     "orb-weaving-spiders-guild": {
       "animal": "Orb-weaving spiders (guild)",
@@ -1895,7 +1934,10 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
-      "required_motion_fix": "Repair foot twists, especially forefeet; slightly reduce excessive head bob."
+      "required_motion_fix": "Repair foot twists, especially forefeet; slightly reduce excessive head bob.",
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\pangolin\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "43c7a565141f1f5b2e07e27b72d798fdac172accee35ea4cb60fc707072190b3",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "penguin": {
       "animal": "Penguin",
@@ -1908,7 +1950,10 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
-      "required_motion_fix": "Repair right foot deformation and smaller left-foot edge wriggle in Walk."
+      "required_motion_fix": "Repair right foot deformation and smaller left-foot edge wriggle in Walk.",
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\penguin\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "d19fb8b392d601671e3b6a287413da48519b9175d2500ab2dd8a1cc040a9d18a",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "platypus": {
       "animal": "Platypus",
@@ -1921,7 +1966,10 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
-      "required_motion_fix": "Repair forefeet twists in Run."
+      "required_motion_fix": "Repair forefeet twists in Run.",
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\platypus\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "70fc3bc8612b6fe29f0fb8a2d4110091a6b72f44c690edc1aae2752ef836eb2e",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "polar-bear": {
       "animal": "Polar bear",
@@ -1934,7 +1982,10 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
-      "required_motion_fix": "Repair repeated forefeet twists in Run."
+      "required_motion_fix": "Repair repeated forefeet twists in Run.",
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\polar-bear\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "8ea3f19061d33c3b1d31d7823af717d7e960a28eaeb9556b1ffdd5058ce7c98c",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "puffin": {
       "animal": "Puffin",
@@ -1947,7 +1998,10 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
-      "required_motion_fix": "Repair left-foot deformation."
+      "required_motion_fix": "Repair left-foot deformation.",
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\puffin\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "5b62a4448dfb034ec9c67a723596dba12cffb4b871572dfd080f1fc051022d7c",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "rhinoceros": {
       "animal": "Rhinoceros",
@@ -1984,7 +2038,10 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
-      "required_motion_fix": "Manually rerig feet for walking."
+      "required_motion_fix": "Manually rerig feet for walking.",
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\shorebird\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "0f43f976fa105fde46e371f72600a44559fe08d701cf85653cc5580934fb3626",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "shrew": {
       "animal": "Shrew",
@@ -1997,7 +2054,10 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
-      "required_motion_fix": "Repair forefeet twists."
+      "required_motion_fix": "Repair forefeet twists.",
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\shrew\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "666b72e8387ce52bd76ce564db20280a8c0d2b7f0f020301f43b394608f2e6d8",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "sloth": {
       "animal": "Sloth",
@@ -2022,7 +2082,10 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
-      "required_motion_fix": "Correct upward-facing orientation during Flap/Glide only; repair Walk foot twists."
+      "required_motion_fix": "Correct upward-facing orientation during Flap/Glide only; repair Walk foot twists.",
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\tern\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "3fcf9c9bd0cad95d7e53a08bb08d2eca02a22eff2a055dc8d017fe8dafd1532e",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "tortoise": {
       "animal": "Tortoise",
@@ -2047,7 +2110,10 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
-      "required_motion_fix": "Add a credible ground Walk; swimming alone is insufficient."
+      "required_motion_fix": "Add a credible ground Walk; swimming alone is insufficient.",
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\walrus\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "d0a0d102e1c9cb905650510c7bf1389e343cbf851afeaa466e7b58c46253d53c",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     },
     "whale": {
       "animal": "Whale",
@@ -2060,7 +2126,10 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
-      "required_motion_fix": "Rerig tail so it actually moves during swimming."
+      "required_motion_fix": "Rerig tail so it actually moves during swimming.",
+      "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\whale\\Animal - Owner Corrected.blend",
+      "manual_fix_blend_sha256": "4e3b8453e20ed1c6808244f1cd6bad7458086a4cebd2aa9cf3ed5de32693badd",
+      "manual_fix_status": "completed_best_effort_no_repeat_review"
     }
   },
   "source_root": "artifacts/fauna-overnight-20261024",
@@ -2241,9 +2310,10 @@
     },
     "aardvark": {
       "reason": "Front-right foot stretches and twists at two points during Run. Manual patch; selected body2 supersedes3. No repeat review requested.",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "art_approved": false,
-      "proceed_without_re_review": true
+      "proceed_without_re_review": true,
+      "completed": "2026-10-25T04:08:39.248336-05:00"
     },
     "baboon": {
       "reason": "Keep1; fix front-left hand stretch in Walk and Run.",
@@ -2289,16 +2359,18 @@
     },
     "cormorant": {
       "reason": "Feet scrunch in Walk; reduce the inward extreme of wing flapping to avoid visible self-clipping.",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:08:40.074981-05:00"
     },
     "common-brushtail-possum": {
       "reason": "Twisted feet in Run. Candidate number requested asynchronously.",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "art_approved": false,
       "proceed_without_re_review": true,
-      "selected_candidate": 2
+      "selected_candidate": 2,
+      "completed": "2026-10-25T04:08:40.025280-05:00"
     },
     "crocodile": {
       "reason": "Redo again: former grey background became backdrop/floor mesh. Isolated alpha cutout, straight tail.",
@@ -2336,15 +2408,17 @@
     },
     "gorilla": {
       "reason": "Fix twisted feet in Run.",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:11:13.593685-05:00"
     },
     "guereza": {
       "reason": "Fix two twists in the right front arm.",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:11:13.483629-05:00"
     },
     "gull": {
       "reason": "Owner rejects abnormal off-axis head reference; regenerate four from a normal gull reference with head forward along torso.",
@@ -2354,139 +2428,157 @@
     },
     "hedgehog": {
       "reason": "Front feet deform in Run; left front foot also in Walk.",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
       "explicit_repeat_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:08:39.308496-05:00"
     },
     "howler-monkey": {
       "reason": "Hands deform in Run.",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
       "explicit_repeat_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:08:39.436767-05:00"
     },
     "iguana": {
       "reason": "Manually place the skeleton/all four leg chains; explicitly re-show selected model.",
-      "status": "manual_fix_queued_explicit_review",
+      "status": "manual_motion_revision_ready_owner_review_pending",
       "proceed_without_re_review": false,
       "explicit_repeat_review": true,
-      "art_approved": false
+      "art_approved": false,
+      "prepared": "2026-10-25T04:38:49.169581-05:00"
     },
     "koala": {
       "reason": "Arm twist plus right ear stretching/popping in Walk/Run.",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
       "explicit_repeat_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:08:39.527269-05:00"
     },
     "lemur": {
       "reason": "Front-right arm has two twists in Run.",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
       "explicit_repeat_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:08:39.658822-05:00"
     },
     "long-nosed-bandicoot": {
       "reason": "Both front arms have two twists in Run.",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
       "explicit_repeat_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:08:39.780877-05:00"
     },
     "macaque": {
       "reason": "Double hand twist in Run.",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
       "explicit_repeat_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:08:39.896837-05:00"
     },
     "monitor-lizard": {
       "reason": "Manually rig all four feet/legs; explicitly re-show selected model.",
-      "status": "manual_fix_queued_explicit_review",
+      "status": "manual_motion_revision_ready_owner_review_pending",
       "proceed_without_re_review": false,
       "explicit_repeat_review": true,
-      "art_approved": false
+      "art_approved": false,
+      "prepared": "2026-10-25T04:38:49.191926-05:00"
     },
     "pangolin": {
       "reason": "Repair foot twists, especially forefeet; slightly reduce excessive head bob.",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
       "explicit_repeat_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:38:49.616527-05:00"
     },
     "penguin": {
       "reason": "Repair right foot deformation and smaller left-foot edge wriggle in Walk.",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
       "explicit_repeat_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:38:49.693545-05:00"
     },
     "platypus": {
       "reason": "Repair forefeet twists in Run.",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
       "explicit_repeat_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:48:08.574141-05:00"
     },
     "polar-bear": {
       "reason": "Repair repeated forefeet twists in Run.",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
       "explicit_repeat_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:48:08.655125-05:00"
     },
     "puffin": {
       "reason": "Repair left-foot deformation.",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
       "explicit_repeat_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:38:49.783552-05:00"
     },
     "shorebird": {
       "reason": "Manually rerig feet for walking.",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
       "explicit_repeat_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:38:49.885589-05:00"
     },
     "shrew": {
       "reason": "Repair forefeet twists.",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
       "explicit_repeat_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:38:50.016704-05:00"
     },
     "tern": {
       "reason": "Correct upward-facing orientation during Flap/Glide only; repair Walk foot twists.",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
       "explicit_repeat_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:48:08.701378-05:00"
     },
     "walrus": {
       "reason": "Add a credible ground Walk; swimming alone is insufficient.",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
       "explicit_repeat_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:38:49.376667-05:00"
     },
     "whale": {
       "reason": "Rerig tail so it actually moves during swimming.",
       "time": "2026-10-25T03:48:27.919554-05:00",
-      "status": "manual_fix_queued_no_re_review",
+      "status": "manual_revision_completed_no_repeat_review",
       "proceed_without_re_review": true,
       "explicit_repeat_review": false,
-      "art_approved": false
+      "art_approved": false,
+      "completed": "2026-10-25T04:38:49.332002-05:00"
     },
     "nutria": {
       "reason": "Fresh model set; rejected appearance.",

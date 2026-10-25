@@ -90,21 +90,33 @@ def choose(label,play=True,phase=0):
         if play and not bpy.app.background:playback()
     visibility()
 def set_view():
-    target=rig().matrix_world@rig().pose.bones['Head'].head if state['view']==1 else Vector((0,0,.8))
+    target=rig().matrix_world@rig().pose.bones[current().get('review_head_bone','Head')].head if state['view']==1 else Vector((0,0,.8))
     if state['view']==1 and current().get('paint_head_vertex') is not None:
         body=bpy.data.objects[current()['body']].evaluated_get(bpy.context.evaluated_depsgraph_get())
         target=body.matrix_world@body.data.vertices[current()['paint_head_vertex']].co
     direction=Vector((0,1,.05)) if state['view'] in (1,3) else Vector((0,-1,.05)) if state['view']==4 else Vector((1,0,.08))
+    if current().get('review_forward_direction') and state['view'] in (1,3,4):direction=Vector(current()['review_forward_direction'])*( -1 if state['view']==4 else 1)+Vector((0,0,.05))
     if state['view']==1 and current().get('paint_face_direction'):direction=Vector(current()['paint_face_direction'])+Vector((0,0,.05))
     manual_snake=current().get('rig_origin')=='manual body centerline'
     if manual_snake:
         body=bpy.data.objects[current()['body']];corners=[body.matrix_world@Vector(c) for c in body.bound_box]
         if state['view']!=1:target=sum(corners,Vector())/len(corners)
         else:
-            head=rig().pose.bones['Head'];direction=(head.head-head.tail).normalized()+Vector((0,0,.08))
+            head=rig().pose.bones[current().get('review_head_bone','Head')];direction=(head.head-head.tail).normalized()+Vector((0,0,.08))
+    corners=None
+    if state['view']!=1 and not manual_snake and not current().get('paint_body_distance'):
+        body=bpy.data.objects[current()['body']].evaluated_get(bpy.context.evaluated_depsgraph_get())
+        corners=[body.matrix_world@Vector(c) for c in body.bound_box];target=sum(corners,Vector())/8
     for window,area,space in regions():
         view=space.region_3d;view.view_perspective='PERSP';view.view_location=target
         view.view_distance=(.4 if manual_snake else current().get('paint_head_distance',.9)) if state['view']==1 else (2.5 if manual_snake else current().get('paint_body_distance',3.1));view.view_rotation=direction.to_track_quat('Z','Y')
+        if corners:
+            forward=direction.normalized();right=forward.cross(Vector((0,0,1))).normalized();up=right.cross(forward).normalized()
+            span=lambda axis:max(c.dot(axis) for c in corners)-min(c.dot(axis) for c in corners)
+            region=next((r for r in area.regions if r.type=='WINDOW'),None);sidebar=next((r for r in area.regions if r.type=='UI'),None)
+            width=(region.width if region else area.width)-(sidebar.width if sidebar and space.show_region_ui else 0)
+            aspect=max(.5,width/max(1,region.height if region else area.height))
+            view.view_distance=max(1.,max(span(up),span(right)/aspect)*2.1+span(forward)*.5)
 class D4_OT_model(bpy.types.Operator):
     bl_idname='deer_four.model';bl_label='1 - Next rig / model'
     number:bpy.props.IntProperty(default=-1)
@@ -252,14 +264,14 @@ class D4_PT_panel(bpy.types.Panel):
         labels=['Bind',*[n for n in preferred if n in entry['actions']],*[n for n in entry['actions'] if n not in preferred]]
         for label in labels:
             col.operator('deer_four.clip',text='Get Up' if label=='lay_to_idle' else label).clip=label
-        col.label(text='Accepted own deer model/rig reuse' if entry.get('rig_origin')=='accepted own deer reuse' else 'Manual body centerline / adjacent skin' if entry.get('rig_origin')=='manual body centerline' else 'Own simple insect rig / wing motion' if entry.get('source_family')=='own simple microfauna' else 'Fresh skeleton + network skin per candidate')
+        col.label(text='Accepted own deer model/rig reuse' if entry.get('rig_origin')=='accepted own deer reuse' else 'Manual body centerline / adjacent skin' if entry.get('rig_origin')=='manual body centerline' else 'Manual anatomical rig / localized skin' if entry.get('rig_origin')=='manual anatomical rig' else 'Own simple insect rig / wing motion' if entry.get('source_family')=='own simple microfauna' else 'Fresh skeleton + network skin per candidate')
         col.label(text='Manual motion / skin correction' if entry.get('manual_repairs') else 'Raw automatic transfer; no manual repairs')
 def tick():
     for window,area,space in regions():
         if state['view']==2:
             angle=(time.monotonic()-state['started'])*.22
             space.region_3d.view_rotation=Vector((math.cos(angle),math.sin(angle),.08)).to_track_quat('Z','Y')
-        elif state['view']==1:space.region_3d.view_location=rig().matrix_world@rig().pose.bones['Head'].head
+        elif state['view']==1:space.region_3d.view_location=rig().matrix_world@rig().pose.bones[current().get('review_head_bone','Head')].head
         area.tag_redraw()
     return .05
 for cls in (D4_OT_model,D4_OT_animal,D4_OT_filter,D4_OT_species,D4_OT_view,D4_OT_mode,D4_OT_skeleton,D4_OT_play,D4_OT_clip,D4_OT_free,D4_PT_panel):bpy.utils.register_class(cls)

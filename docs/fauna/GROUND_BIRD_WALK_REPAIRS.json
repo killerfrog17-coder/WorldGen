@@ -1255,5 +1255,188 @@
       }
     },
     "skin_ceiling_m": 0.45
+  },
+  "gull": {
+    "reason": "Own manually placed two-leg gull ground rigs; avoid duplicated neural feet and toe-only motion. Folded-wing ground review, no flight claim.",
+    "skin_ceiling_m": 0.58,
+    "candidates": {
+      "1": {
+        "legs": [
+          {
+            "nodes": [
+              0,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "foot": 6
+          },
+          {
+            "nodes": [
+              0,
+              8,
+              9,
+              10,
+              11,
+              12
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "foot": 11
+          }
+        ],
+        "mesh_sha256": "d0e750fa0c1d86b719f783868b6f0fc557fe57c56659c9222e43becd98ce5db9",
+        "rig_sha256": "11edaa60c779c0253d331e86a3a34937f52409d7b33da421bee3612aa63e3058"
+      },
+      "2": {
+        "legs": [
+          {
+            "nodes": [
+              0,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "foot": 6
+          },
+          {
+            "nodes": [
+              0,
+              8,
+              9,
+              10,
+              11,
+              12
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "foot": 11
+          }
+        ],
+        "mesh_sha256": "c70188d85bf0766de6dcb2b0a34129133ee48ed1b3f97fd0ccbbd24e00959398",
+        "rig_sha256": "cdd55c6fed6bd10b54247b2c9afbdce13aed3b5083058f2a590aeffd355c4711"
+      },
+      "3": {
+        "legs": [
+          {
+            "nodes": [
+              0,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "foot": 6
+          },
+          {
+            "nodes": [
+              0,
+              8,
+              9,
+              10,
+              11,
+              12
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "foot": 11
+          }
+        ],
+        "mesh_sha256": "7107040116d3934fca20879fa2d5c0575920ce26e895ccb56a7ce19021145ce4",
+        "rig_sha256": "b9e83a6c0e7b92e3e020b45eeac3dcc425556dcab4caaf27f722a252eedb6655"
+      },
+      "4": {
+        "legs": [
+          {
+            "nodes": [
+              0,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "foot": 6
+          },
+          {
+            "nodes": [
+              0,
+              8,
+              9,
+              10,
+              11,
+              12
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "foot": 11
+          }
+        ],
+        "mesh_sha256": "0739ed930b4bd77d31ed051e2428f7d8dda0b90b3b15f10d39b2542e2ebb2d97",
+        "rig_sha256": "e3545bb578ed1927009bbba7197561c7ea0f2bc52c62306f02d8c3b7726d48e9"
+      }
+    },
+    "foot_skin_height_m": 0.17
   }
 }

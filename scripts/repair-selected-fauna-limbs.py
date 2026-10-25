@@ -20,10 +20,18 @@ SPECS = {
     'lemur': dict(limbs=[([12,13,14,15],15,.27)], clips=['Run']),
     'long-nosed-bandicoot': dict(limbs=[([15,16,17,18,19,20],18,.22),([21,22,23,24,25,26],24,.22)], clips=['Run']),
     'macaque': dict(limbs=[([17,18,19,20],19,.29),([21,22,23,24],23,.29)], clips=['Run']),
-    'gorilla': dict(limbs=[([20,21,22,23],22,.23),([24,25,26,27],26,.23)], clips=['Run']),
-    'guereza': dict(limbs=[([10,11,12,13],13,.60)], clips=['Run']),
+    'gorilla': dict(limbs=[([6,7,8,9,10,11,12],9,.34),([13,14,15,16,17,18,19],16,.34),([20,21,22,23],22,.23),([24,25,26,27],26,.23)], clips=['Run']),
+    'guereza': dict(limbs=[([10,11,12,13],13,.60)], clips=['Run'], minimum_y=.56, minimum_x=.17),
     'common-brushtail-possum': dict(limbs=[([9,10,11,12],12,.20),([13,14,15,16],16,.20),([18,19,20,21,22],21,.22),([23,24,25,26,27],26,.22)], clips=['Run']),
     'cormorant': dict(limbs=[([19,20,21,22],21,.10),([23,24,25,26],25,.10)], clips=['Walk'], wings=list(range(7,17))),
+    'pangolin': dict(limbs=[([19,20,21,22,23],22,.25),([24,25,26,27,28],27,.25),([29,30,31,32,33],32,.28),([34,35,36,37,38],37,.28)],clips=['Walk','Run'],head_amplitude={i:.75 for i in range(11,19)}),
+    'penguin': dict(limbs=[([31,32,33,34,35],33,.10),([40,41,42,43,44],42,.10)],clips=['Walk']),
+    'platypus': dict(limbs=[([8,9,10,11,12],10,.30),([13,14,15,16,17],15,.30)],clips=['Run'],palm_pitch_limit=.55,broad_forefoot_min_y=.25),
+    'polar-bear': dict(limbs=[([4,5,6,7],7,.36),([8,9,10,11,12],11,.36)],clips=['Run'],palm_pitch_limit=.65,broad_forefoot_min_y=.15),
+    'puffin': dict(limbs=[([21,22,23,24,25],23,.15)],clips=['Walk']),
+    'shorebird': dict(limbs=[([18,19,20,21,22,23],20,.17),([33,34,35,36,37,38],35,.17)],clips=['Walk']),
+    'shrew': dict(limbs=[([10,11,12,13,14],13,.34),([15,16,17,18,19],18,.34)],clips=['Walk','Run']),
+    'tern': dict(limbs=[([22,23,24,25,26],24,.14),([27,28,29,30,31],29,.14)],clips=['Walk'],flight_forward_nodes=(2,6)),
 }
 ap=argparse.ArgumentParser(); ap.add_argument('--slug',required=True,choices=SPECS)
 ap.add_argument('--replace-unpublished',action='store_true')
@@ -64,6 +72,12 @@ nearest=np.argmin(distances,axis=0)
 for k,(chain,foot,ceiling) in enumerate(spec['limbs']):
     distance=distances[k]; elbow_height=max(joints[chain[min(1,len(chain)-1)],2],ceiling)+height*.06
     mask=(nearest==k)&(vertices[:,2]<elbow_height)&(distance<height*.14)&((weights[:,chain].sum(1)>.18)|(distance<height*.045))
+    if 'broad_forefoot_min_y' in spec:
+        # Entire low paw, including peripheral vertices with wholly wrong
+        # hind-leg weights. A distance cutoff through the same paw tears it.
+        mask|=(nearest==k)&(vertices[:,2]<ceiling+height*.10)&(vertices[:,1]>spec['broad_forefoot_min_y'])
+    if 'minimum_y' in spec:mask&=vertices[:,1]>spec['minimum_y']
+    if 'minimum_x' in spec:mask&=vertices[:,0]>spec['minimum_x']
     ids=np.flatnonzero(mask); rigid=[]; leakage=0
     for vi in ids:
         old=weights[vi]; row=np.zeros(len(names)); row[chain]=old[chain]
@@ -88,8 +102,16 @@ if spec.get('ear_head') is not None:
     evidence['ear_vertices_pinned_to_head']=len(ids)
 
 targets=set(n for chain,_,_ in spec['limbs'] for n in chain[1:])
+flight_landmarks=None
+if spec.get('flight_forward_nodes'):
+    # The learned bird graph does not reach both physical tail tips. Use the
+    # actual skinned beak/tail surface, not a misleading short internal bone.
+    lo,hi=np.quantile(vertices[:,1],[.07,.93]);mid=float(np.median(vertices[:,0]))
+    head_ids=np.flatnonzero((vertices[:,1]<lo)&(abs(vertices[:,0]-mid)<.32));tail_ids=np.flatnonzero((vertices[:,1]>hi)&(abs(vertices[:,0]-mid)<.42))
+    assert len(head_ids)>4 and len(tail_ids)>4
+    ids=np.r_[head_ids,tail_ids];flight_landmarks=(ids,len(head_ids),np.c_[vertices[ids],np.ones(len(ids))],weights[ids])
 actions=[entry['actions'][c] for c in spec['clips'] if c in entry['actions']]+list(entry['demos'].values())
-if spec.get('wings'): actions=list(entry['actions'].values())+list(entry['demos'].values())
+if spec.get('wings') or spec.get('head_amplitude') or spec.get('flight_forward_nodes'): actions=list(entry['actions'].values())+list(entry['demos'].values())
 actions=list(dict.fromkeys(actions)); action_evidence=[]
 for action_name in actions:
     action=bpy.data.actions[action_name]; rig.data.pose_position='POSE'; rig.animation_data_create().action=action
@@ -102,6 +124,11 @@ for action_name in actions:
             original=rest[i].to_3x3().col[1].normalized(); posed=matrices[i].to_3x3().col[1].normalized()
             q=original.rotation_difference(posed)@rest[i].to_quaternion()
             m=q.to_matrix().to_4x4(); m.translation=matrices[i].translation; matrices[i]=m
+        if spec.get('palm_pitch_limit'):
+            for chain,i,ceiling in spec['limbs']:
+                raw_q=rig.pose.bones[names[i]].matrix.to_quaternion();delta=raw_q@rest[i].to_quaternion().inverted()
+                pitch=float(np.clip(delta.to_euler('XYZ').x,-spec['palm_pitch_limit'],spec['palm_pitch_limit']))
+                q=Quaternion((1,0,0),pitch)@rest[i].to_quaternion();m=q.to_matrix().to_4x4();m.translation=matrices[i].translation;matrices[i]=m
         if spec.get('wings'):
             # Reduce only downward wing excursion with FK, keeping real lengths.
             # Upstroke retains 85%, inward/downward stroke 55% of local swing.
@@ -111,6 +138,24 @@ for action_name in actions:
                 q=Quaternion().slerp(basis.to_quaternion(),.55 if down else .85)
                 basis=q.to_matrix().to_4x4(); basis.translation=pb.matrix_basis.translation
                 matrices[i]=matrices[int(parents[i])]@local[i]@basis
+        for i,factor in spec.get('head_amplitude',{}).items():
+            pb=rig.pose.bones[names[i]]; basis=pb.matrix_basis.copy();q=Quaternion().slerp(basis.to_quaternion(),factor)
+            basis=q.to_matrix().to_4x4();basis.translation=pb.matrix_basis.translation*factor
+            matrices[i]=matrices[int(parents[i])]@local[i]@basis
+        if spec.get('flight_forward_nodes'):
+            ids,head_count,points,skin=flight_landmarks
+            transforms=np.array([m@r.inverted() for m,r in zip(matrices,rest)])
+            q=(np.einsum('bij,kj->bki',transforms,points)*skin.T[:,:,None]).sum(0)[:,:3]
+            forward=q[:head_count].mean(0)-q[head_count:].mean(0)
+            theta=float(np.arctan2(forward[2],-forward[1]))
+            label=next((key for key,value in entry['actions'].items() if value==action_name),'Demo')
+            if label in ('Flap','Glide'):factor=1.
+            elif label=='Demo':
+                factor=float(np.clip((abs(theta)-np.deg2rad(50))/np.deg2rad(20),0,1));factor=factor*factor*(3-2*factor)
+            else:factor=0.
+            turn=Quaternion((1,0,0),theta*factor).to_matrix().to_4x4();pivot=matrices[0].translation.copy()
+            for i,matrix in enumerate(matrices):
+                position=pivot+turn.to_3x3()@(matrix.translation-pivot);matrices[i]=turn@matrix;matrices[i].translation=position
         values=[]
         for i,p in enumerate(parents):
             relative=matrices[int(p)].inverted()@matrices[i] if p>=0 else matrices[i]
