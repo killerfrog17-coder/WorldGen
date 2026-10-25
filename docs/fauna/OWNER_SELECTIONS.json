@@ -2224,7 +2224,7 @@
       "manual_fix_blend_sha256": "d19fb8b392d601671e3b6a287413da48519b9175d2500ab2dd8a1cc040a9d18a",
       "manual_fix_status": "completed_best_effort_no_repeat_review",
       "painting_started": true,
-      "painting_status": "anatomical_colouring_started",
+      "painting_status": "atlas_and_face_fitted_working",
       "paint_review": "artifacts\\fauna-painted-20261024\\penguin\\Animal - Painted Species Review.blend"
     },
     "platypus": {
@@ -2281,7 +2281,7 @@
       "manual_fix_blend_sha256": "5b62a4448dfb034ec9c67a723596dba12cffb4b871572dfd080f1fc051022d7c",
       "manual_fix_status": "completed_best_effort_no_repeat_review",
       "painting_started": true,
-      "painting_status": "anatomical_colouring_started",
+      "painting_status": "atlas_and_face_fitted_working",
       "paint_review": "artifacts\\fauna-painted-20261024\\puffin\\Animal - Painted Species Review.blend"
     },
     "rhinoceros": {
@@ -2417,7 +2417,7 @@
       "manual_fix_blend_sha256": "d0a0d102e1c9cb905650510c7bf1389e343cbf851afeaa466e7b58c46253d53c",
       "manual_fix_status": "completed_best_effort_no_repeat_review",
       "painting_started": true,
-      "painting_status": "anatomical_colouring_started",
+      "painting_status": "atlas_and_face_fitted_working",
       "paint_review": "artifacts\\fauna-painted-20261024\\walrus\\Animal - Painted Species Review.blend"
     },
     "whale": {
@@ -2436,7 +2436,7 @@
       "manual_fix_blend_sha256": "4e3b8453e20ed1c6808244f1cd6bad7458086a4cebd2aa9cf3ed5de32693badd",
       "manual_fix_status": "completed_best_effort_no_repeat_review",
       "painting_started": true,
-      "painting_status": "anatomical_colouring_started",
+      "painting_status": "atlas_and_face_fitted_working",
       "paint_review": "artifacts\\fauna-painted-20261024\\whale\\Animal - Painted Species Review.blend"
     },
     "sea-otter": {
@@ -2656,7 +2656,7 @@
       "motion_review_blend": "artifacts\\fauna-overnight-20261024\\venomous-snake\\Animal - Motion Revision.blend",
       "motion_review_blend_sha256": "9f7e5954256cf897ab7e0b1fd83bb7b4cae4d1fb169885a0dc6d9c1eace9a897",
       "source_review_candidate": 2,
-      "painting_status": "anatomical_colouring_started",
+      "painting_status": "atlas_and_face_fitted_working",
       "paint_review": "artifacts\\fauna-painted-20261024\\venomous-snake\\Animal - Painted Species Review.blend"
     },
     "echidna": {
@@ -2692,7 +2692,7 @@
       "motion_review_blend": "artifacts\\fauna-overnight-20261024\\gull\\Animal - Motion Revision.blend",
       "motion_review_blend_sha256": "e585f373c1eb472119deca20ffab5b4272159d29c096a0d2f8c7ab0d68792a6f",
       "source_review_candidate": 3,
-      "painting_status": "anatomical_colouring_started",
+      "painting_status": "atlas_and_face_fitted_working",
       "paint_review": "artifacts\\fauna-painted-20261024\\gull\\Animal - Painted Species Review.blend"
     },
     "bees-guild": {

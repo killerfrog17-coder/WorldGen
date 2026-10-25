@@ -1,5 +1,26 @@
 # WorldGen repository instructions
 
+ALL171 FIRST COLOUR COPIES CHECKED,25October2026 ~14:22 local:
+Latest index171/171 selected generated bodies exact native-SHA checked; accepted
+deer separate makes172 technically checked colour previews. No owner appearance
+approval or full species/game acceptance inferred. Penguin/Puffin final fitted
+nose corrections both pass. All144 generic recipes have side/front/rear images;
+older27 have earlier differing preview names. New finite CPU inspection worker
+scripts/render-fauna-painted-inspection.py fills consistent missing views and
+renders two moving phases per selected animal. PID29892 launcher (actual child
+PID in inspection/render-progress.json); verify before intervention. No GUI or
+owner ping. Its images are generated FOR inspection, not automatically approved.
+audit-fauna-paint-delivery.py creates exact-hash inventory and actual-render
+contact sheets. Sheets02-08 actually viewed this turn: identify early Owl and
+PaintedDog masks for improved re-bake, Pronghorn triangulated-looking pigment
+seams for repair, patterned felids/civet require less regular marks. Other coarse
+source silhouette defects retained. All images are not yet a completed second
+pass; five procedural microfauna and later ungulate extras remain outstanding.
+Owner cannot use async follow-up on phone: answer questions in ordinary chat.
+PC remote-control enabled; pairing still blocked MFA, owner given ChatGPT phone
+Settings/Security MFA instructions. Do not restart daemon or claim paired.
+Source checkpoint before these two inspection tools03d642724e439b1153c9d9c02eb28001b915d612.
+
 ALL-SELECTED PAINTING ACTIVE / PHONE PAIRING,25October2026 ~14:18 local:
 Owner explicitly requires ALL selected animals painted, then a second inspection/
 touchup pass; do not stop after a small batch. All171 selected generated bodies
