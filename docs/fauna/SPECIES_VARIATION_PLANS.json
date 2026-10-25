@@ -1,5 +1,5 @@
 {
-  "scope": "Planning refinements only. No generated textures, painting, approved-art changes or runtime species definitions. Research covers the named analogues, not every alias in the full roster.",
+  "scope": "Sourced appearance/speciation plans. Owner-selected model colouring is now authorized concurrently with raw generation; actual finishing status is tracked in the paint queue. Research covers named analogues, not every alias.",
   "shared_implementation": "Generate neutral reusable swatches after the raw queue. Appearance configurations are anatomical masks and colour transforms over shared surface swatches (fur, feathers, scales, skin, chitin), not separate generated models or extra runtime materials. Bake one atlas per selected appearance; switch atlases without extra draw calls. Fitted eyes/lids and local gloss remain distinct from body surfaces where anatomy requires them; do not add mammal features to insects. All numerical morph bounds are proposed art limits, not measured biological distributions.",
   "animals": {
     "Deer": {
@@ -4265,7 +4265,7 @@
     }
   },
   "shared_texture_source_plan": {
-    "status": "Planning only. Do not generate these until all raw auditions finish; do not map or paint an unapproved model.",
+    "status": "Reuse or generate needed shared sources for owner-selected models now; no need to wait for every raw audition. Never paint unselected bodies or infer appearance approval.",
     "generation_order": "Reuse approved sources first. Then request only sources required by the highest-priority approved body; deduplicate materials across animals. Colour and pattern configurations remain masks/transforms, not a new bitmap per hue.",
     "common_prompt_suffix": "A flat material swatch filling the frame, consistent scale and even diffuse illumination; no complete animal, face, text, scene, depth perspective, cast shadow, baked reflection, rim light, vignette or large colour gradient. Fine natural surface detail, not stylized painted strokes. Appropriate for a repeatable game material; inspect and repair edge continuity instead of assuming the generated image tiles.",
     "map_policy": "Generated images are colour/detail references, not automatic physically correct PBR. Derive conservative roughness/normal only where supported, without treating pigment boundaries as bumps. Eye cornea and wet nose reflections come from materials/lights, not baked white glints. Bake anatomical masks only after model approval, with connected lid/ear/nose regions and smooth neck transitions.",
@@ -4283,7 +4283,11 @@
         "priority": 2,
         "action": "Generate only if the short-fur source cannot convey the selected coat",
         "brief": "Dense fine soft underfur, neutral grey-brown, small natural fibres, subtle local breakup.",
-        "uses": "Small mammals and selected dense-coated species; no giant painted clumps."
+        "uses": "Small mammals and selected dense-coated species; no giant painted clumps.",
+        "status": "Generated source in use by selected Hare3/Rabbit1 working coats",
+        "path": "artifacts/fauna-assets/textures/fur-dense-fine-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/fur-dense-fine-v1.json",
+        "sha256": "ef9f622acc7cfb2dbe24bdefbb0175a17b8bb6986a8f59d10fd5898b394e87e5"
       },
       {
         "id": "fur_coarse_guard",

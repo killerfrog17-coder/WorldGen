@@ -1,5 +1,58 @@
 # WorldGen repository instructions
 
+OWNER AUTHORIZES COLOURING PASSED MODELS NOW,24Oct/25Oct2026 midnight:
+Owner again asks why colouring passed candidates cannot start. PROCEED now on
+owner-selected bodies alongside remaining raw queue; do NOT wait for all176.
+This supersedes every earlier raw-first/source-only/unpainted hold for selected
+models. Their raw model choice supplies body approval for colouring even when
+animation_approved=false; owner may replace animations later. No unselected
+body painting, new automatic model choice, runtime admission or art approval.
+Actual CPU colour work STARTED: Hare3 six coats, Rabbit1 five coats, separate
+artifacts/fauna-painted-20261024/<slug>/Animal - Painted Species Review.blend.
+These are WORKING copies, not ready final face/texture reviews. UV smart unwrap,
+rest-coordinate belly/throat/muzzle/ear/tail masks, multiple anatomical palettes,
+fine fur/detail bump/roughness. Selected body geometry and raw-source hashes
+verified unchanged; native BOTH copies now prove bind geometry/skin/rig and ALL
+selected source actions EXACT, valid UVs/packed source, all6/5 coats reachable,
+numbered controls/skeleton plus finite clip-start poses. First rabbit selection
+test caught low-bit LCG cycling subset; fixed painted coat shuffle-bag visits
+all coats, retested both pass. No art/natural motion approval. No face features fitted yet, no
+UV atlas baked. Nose seeds can be biased by existing stray face fragments:
+use main-component/ray-picked anchors; do not trust maximumY blindly. Next is
+facial fitting/glossy eyes/lids plus proper UV texture bake, not more raw QC.
+122 selected animals in paint-queue.json; only2 actually started. No claim122
+painted. OWNER_SELECTIONS first2 painting_started=true, others unchanged;
+motion approval remains false. New prepare-selected-fauna-paint.py currently
+supports Hare/Rabbit only, asserts otherwise. Existing numbered viewer now
+supports painting_coats:2 switches anatomical coats without tinting nose/ears;
+1 motion1/1,3 views,4 loops/skeleton/individual clips retained. No GUI opened.
+Imagegen skill read/applied (built-in only, no API key/paid external endpoint).
+Shared fur_dense_fine source generated1254square, saved to
+artifacts/fauna-assets/textures/fur-dense-fine-v1.png plus exact prompt/provenance
+JSON, already consumed by both working copies. Colour/detail source, not measured
+PBR/guaranteed seamless. Old accepted deer fur/model/rig/art remain protected.
+Use --replace-working ONLY for unpublished working copies, never owner-open or
+appearance-approved files; no Desktop items or owner app closures.
+
+Raw queue remains169/176, main94528/PID16008 (verify), now Tamarin shape.
+SpiderMonkey2 failed required endpoints after2seeds;1/3/4 rigs cached. New explicit
+bounded recovery queued: all4 prepared model hashes in retry-failed.json,
+candidate2 rig_seed2852635, same shape seed. Do not start another GPU worker or
+weaken topology gate; sole producer consumes retry next pass. Keep rejected rigs.
+Sloth scoped2/4 Head mapping fixed from torso/neck-base2/3 to skull4/4;
+1/3 correspondence/role metadata EXACT. Do NOT enable global full-branch Sloth:
+3 picks wrong low distal22. Native4 pass, all4 current quarterWalk side inspected,
+2/4 before/after compared; source inputs exact. Manual recovery finalized.
+CPU alignment sweep25390 finished after adding Sloth:336images/42 unselected
+nonmicro roots, no render failures. Earlier91626 finished328,97000 failed only
+Windows JSON replace and is closed. No live CPU sweep; do not restart old IDs.
+Paired alignment actually inspected33 of first41 roots;8 remain to inspect
+(Puffin/Python/Rhino/SeaLion/Otter/Shark/Shorebird/Shrew), plus newly rendered
+Sloth. Porcupine2 broad triangular bind sheets excluded from clean appearance
+recommendation; all4 sides show head-forward, NO rotation. LegacySpider1-3 remain
+reversed failed raw attempts; only4 verified proper eight-leg correspondence.
+Optional remaining raw screenshot review is secondary to requested colouring.
+
 RAW QUEUE168 / CPU SWEEP RESUMED,24October2026~23:17CDT:
 Shrew4 shapes/rigs/motion review ready; all4 Bind-side/quarterWalk inspected,
 correct head-forward axes.3 strong curled forefoot,4 flattened torso/tucked

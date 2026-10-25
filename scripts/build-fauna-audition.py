@@ -61,6 +61,7 @@ def path_to(parents,node):
     return list(reversed(result))
 
 def correspondence(joints,parents):
+    anatomical_quad=bool(repair.get('anatomical_quadruped')) or number in repair.get('anatomical_quadruped_candidates',[])
     children=[np.flatnonzero(parents==i).tolist() for i in range(len(parents))]
     roots=np.flatnonzero(parents<0);assert len(roots)==1;pelvis=int(roots[0])
     leaves=[i for i,c in enumerate(children) if not c];bird=source['family'] in ('bird','bat');fish=source['family']=='fish'
@@ -79,7 +80,7 @@ def correspondence(joints,parents):
         chain=[foot];parent=int(parents[foot])
         while parent>=0 and len(children[parent])==1:chain.append(parent);parent=int(parents[parent])
         legs.append([parent]+list(reversed(chain)))
-    if (repair.get('anatomical_quadruped') or repair.get('anatomical_bird')) and str(number) not in repair.get('chains',{}):
+    if (anatomical_quad or repair.get('anatomical_bird')) and str(number) not in repair.get('chains',{}):
         height=float(np.ptp(joints[:,2]));pairs=[];separate={-1:[],1:[]}
         for anchor,kids in enumerate(children):
             choices={-1:[],1:[]}
@@ -130,7 +131,7 @@ def correspondence(joints,parents):
     for chain in [*hind,*fore]:assert all(int(parents[c])==p for p,c in zip(chain,chain[1:]))
     common=(set(path_to(parents,fore[0][-1]))&set(path_to(parents,fore[1][-1]))) if fore else {pelvis};chest=max(common,key=lambda i:len(path_to(parents,i)))
     limb_nodes={n for leg in [*fore,*hind] for n in leg[1:]}
-    if repair.get('anatomical_quadruped'):
+    if anatomical_quad:
         # Every toe belongs to its limb, including toes not chosen as the main
         # endpoint. Otherwise a forward-reaching digit can become the head.
         pending=[leg[1] for leg in [*fore,*hind] if len(leg)>1]
@@ -141,7 +142,7 @@ def correspondence(joints,parents):
         candidates=[i for i in leaves if i not in limb_nodes and abs(joints[i,0])<halfwidth*.4 and joints[i,2]>.4]
         if not candidates:candidates=[i for i in range(len(parents)) if i not in limb_nodes and joints[i,2]>.4]
     else:candidates=[i for i,c in enumerate(children) if len(c)>=2 and i not in limb_nodes and joints[i,2]>.40]
-    if repair.get('anatomical_quadruped'):
+    if anatomical_quad:
         candidates=[i for i in leaves if i not in limb_nodes and joints[i,1]>joints[pelvis,1]] or candidates
     head=max(candidates,key=lambda i:joints[i,1]);binding=np.zeros((len(parents),len(sn)));assigned=set();groups=['extra']*len(parents)
     def bind(target,names,kind):

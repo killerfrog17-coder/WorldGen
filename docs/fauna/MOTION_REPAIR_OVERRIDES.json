@@ -1890,5 +1890,30 @@
         "generated-rig.npz": "2a7f2e0ee1569b9a33d542707a1901ef836519f3910f25ba01b745af60a06f80"
       }
     }
+  },
+  "sloth": {
+    "reason": "Scoped2/4 full-branch head correspondence: old Head2/3 were torso/neck-base; actual skull4 in both. Keep1/3 EXACT. Unrestricted full-branch trial3 picked low distal22, so do not enable globally. No mesh/neural rig/skin/source-motion edits.",
+    "anatomical_quadruped_candidates": [
+      2,
+      4
+    ],
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "3894806e06361e80ba0bce908840f6b37f4b84e77c5178a25b6a2a7d27e4a7a7",
+        "generated-rig.npz": "cdccc912a4514b88f09cfa6791fc3d0fa0dca5443f97878f97e4c145c48000dc"
+      },
+      "2": {
+        "model.glb": "24b48ee1bad2e519dbab622d38cc111500c3e04dccdb12312239576702b9bfec",
+        "generated-rig.npz": "9ed839926a11bca28b295d1e5ab921f37aeb68b32fbafc08fffa1194f898765d"
+      },
+      "3": {
+        "model.glb": "370ffcd05ffeb0f7b9cbc419135d07776c16607ee04c168627a5b8494e9ffd9f",
+        "generated-rig.npz": "3c7c4f1b195a4a7554b43557d7994938d7650fea5ea86bc4eef7889314e90de9"
+      },
+      "4": {
+        "model.glb": "354c3bef7b9fbbe87abdae912706f003a1991c4da68f0c56aaa812d349eb4f6c",
+        "generated-rig.npz": "5c825a5951af2953ccf0131834564184c2d6232be1a33c5c327a5e113e6c68c6"
+      }
+    }
   }
 }

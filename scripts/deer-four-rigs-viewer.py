@@ -9,7 +9,7 @@ animal=s.get('fauna_animal','Deer')
 finished=bool(models[0].get('same_approved_model'))
 warning_path=Path(bpy.data.filepath).parent/'visual-warnings.json'
 screening=json.loads(warning_path.read_text()) if warning_path.exists() else {}
-state={'model':0,'clip':'Showcase','mode':0,'view':0,'skeleton':False,'coat':'Tawny woodland' if finished else 'Unpainted preview','started':time.monotonic(),'seed':734100,'coat_index':0,'active_rack':-1,'sex':'Female','pending_only':True}
+state={'model':0,'clip':'Showcase','mode':0,'view':0,'skeleton':False,'coat':models[0]['painting_coats'][0]['label'] if models[0].get('painting_coats') else 'Tawny woodland' if finished else 'Unpainted preview','started':time.monotonic(),'seed':734100,'coat_index':0,'active_rack':-1,'sex':'Female','pending_only':True}
 queue_cache=[];queue_items_cache=[]
 def queue_entries():
     global queue_cache,queue_items_cache
@@ -17,7 +17,7 @@ def queue_entries():
     if p.exists():
         queue_cache=json.loads(p.read_text()).get('ready',[])
         choices_path=Path(__file__).resolve().parent.parent/'docs/fauna/OWNER_SELECTIONS.json'
-        if state['pending_only'] and choices_path.exists():
+        if state['pending_only'] and choices_path.exists() and not models[0].get('painting_coats'):
             choices=json.loads(choices_path.read_text())
             decided=set(choices.get('animals',{}))
             # Keep conditional selections visible until their requested repair
@@ -119,7 +119,7 @@ class D4_OT_animal(bpy.types.Operator):
         s=bpy.context.scene;models=json.loads(s['deer_four_rigs']);animal=s.get('fauna_animal','Deer');finished=bool(models[0].get('same_approved_model'))
         warning_path=Path(selected['path']).parent/'visual-warnings.json'
         screening=json.loads(warning_path.read_text()) if warning_path.exists() else {}
-        state.update(model=0,clip='Showcase',mode=0,view=0,skeleton=False,coat='Unpainted preview',started=time.monotonic(),active_rack=-1)
+        state.update(model=0,clip='Showcase',mode=0,view=0,skeleton=False,coat_index=0,coat_bag=[],coat=models[0]['painting_coats'][0]['label'] if models[0].get('painting_coats') else 'Unpainted preview',started=time.monotonic(),active_rack=-1)
         choose('Showcase',play=False);set_view()
         if not bpy.app.background:
             if not bpy.app.timers.is_registered(tick):bpy.app.timers.register(tick,first_interval=.1)
@@ -134,6 +134,12 @@ class D4_OT_filter(bpy.types.Operator):
 class D4_OT_species(bpy.types.Operator):
     bl_idname='deer_four.species';bl_label='2 - Randomize species colour'
     def execute(self,context):
+        if current().get('painting_coats'):
+            coats=current()['painting_coats'];state['seed']=(1664525*state['seed']+1013904223)&0xffffffff
+            if not state.get('coat_bag'):state['coat_bag']=[i for i in range(len(coats)) if i!=state['coat_index']]
+            state['coat_index']=state['coat_bag'].pop((state['seed']>>8)%len(state['coat_bag'])) if state['coat_bag'] else 0
+            profile=coats[state['coat_index']];bpy.data.objects[current()['body']].data.materials[0]=bpy.data.materials[profile['material']]
+            state['coat']=profile['label'];context.scene['review_phenotype_seed']=str(state['seed']);return {'FINISHED'}
         if finished:
             state['seed']=(1664525*state['seed']+1013904223)&0xffffffff
             coats=models[0]['approved_art']['coats'];state['coat_index']=(state['coat_index']+1+state['seed']%(len(coats)-1))%len(coats)
@@ -189,13 +195,13 @@ class D4_OT_free(bpy.types.Operator):
             self.region.view_rotation=(Quaternion((0,0,1),-dx*.006)@self.region.view_rotation@Quaternion((1,0,0),dy*.006)).normalized();context.area.tag_redraw()
         return {'RUNNING_MODAL'}
 def controls(layout):
-    row=layout.row(align=True);row.operator('deer_four.model',text=f"1: {'Rig' if finished else 'Model'} {state['model']+1}/{len(models)}")
+    row=layout.row(align=True);row.operator('deer_four.model',text=f"1: {'Motion' if current().get('painting_coats') else 'Rig' if finished else 'Model'} {state['model']+1}/{len(models)}")
     row.operator('deer_four.species',text='2: Species');row.operator('deer_four.view',text='3: View');row.operator('deer_four.mode',text='4: Loop')
     row.operator('deer_four.skeleton',text='Hide Skeleton' if state['skeleton'] else 'Show Skeleton')
     row.operator('deer_four.play',text='Pause / Play')
 def header(self,context):controls(self.layout)
 class D4_PT_panel(bpy.types.Panel):
-    bl_idname='D4_PT_panel';bl_label='Animal raw motion review'
+    bl_idname='D4_PT_panel';bl_label='Animal Review'
     bl_space_type='VIEW_3D';bl_region_type='UI';bl_category='Animal Review'
     def draw(self,context):
         col=self.layout.column();entry=current();col.label(text=animal)
@@ -219,7 +225,8 @@ class D4_PT_panel(bpy.types.Panel):
         for op in ('deer_four.model','deer_four.species','deer_four.view','deer_four.mode'):col.operator(op)
         row=col.row(align=True);row.operator('deer_four.view',text='Front body').front=True;row.operator('deer_four.view',text='Rear body').rear=True
         col.operator('deer_four.skeleton',text='Hide Skeleton' if state['skeleton'] else 'Show Skeleton');col.operator('deer_four.play')
-        col.label(text='Playing: '+state['clip'].replace('_',' '));col.label(text='Coat: '+state['coat']+('' if finished else ' (colour only)'))
+        col.label(text='Playing: '+state['clip'].replace('_',' '));col.label(text='Coat: '+state['coat']+('' if finished or current().get('painting_coats') else ' (colour only)'))
+        if current().get('painting_coats'):col.label(text='Selected model coloured; appearance review pending')
         if finished:col.label(text=state['sex']+' - '+('Antlers' if state['active_rack']>=0 else 'No antlers'))
         col.separator();col.label(text='Individual animations')
         preferred=['Idle','Walk','Trot','Run','Eating','Sleep','Rest','Jump','lay_to_idle','Death']

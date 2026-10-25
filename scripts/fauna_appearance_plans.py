@@ -7,6 +7,7 @@ def apply_refinements(rows,directory):
     if not path.exists():return rows
     details=json.loads(path.read_text())['animals']
     for row in rows:
+        row.pop('actual_model_status',None)  # Live artefact indexes own production status.
         detail=details.get(row['animal'])
         if detail is None:continue
         row['appearance_variation_plan']=detail
@@ -17,9 +18,11 @@ def apply_refinements(rows,directory):
         row['texture_plan']['anatomical_paint_details']=detail['paint_details']
         row['sex_age_season']=detail['sex_age_season'];row['extras']=detail['extras']
         row['hypothetical_variation']=detail['hypotheses']
-        row['second_pass_status']='Targeted analogue/sex/age/season planning refined with linked sources; geometry approval and remaining alias research still pending. No textures generated or models painted.'
+        row['second_pass_status']='Targeted appearance/speciation planning with linked sources. Colouring is authorized for owner-selected models; live finishing status is in artifacts/fauna-painted-20261024/paint-queue.json. Motion and appearance approvals remain separate.'
         if row['asset_status']=='audio_existing':
             row['second_pass_status']='Audio-only sex/season/spatial-call/speciation plan refined with sources. No visual asset allocation or playback-bank changes.'
+        elif row['asset_status']=='accepted_baseline':
+            row['second_pass_status']='Accepted deer model/rig/materials preserved. The concurrent colouring queue applies to other owner-selected new animals.'
         elif row['asset_status']=='deferred':
             row['second_pass_status']='Deferred representation and future anatomy/lifecycle researched; zero current visual allocation. No textures, models or motions generated.'
             row['motion_source_plan']='Deferred: choose a matching body family and source only if this representation is activated; no current motion allocation.'

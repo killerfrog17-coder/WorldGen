@@ -1,5 +1,18 @@
 OVERNIGHT FAUNA AUDITIONS - 24 OCTOBER 2026
 
+24 OCT OWNER AUTHORIZES COLOURING PASSED CANDIDATES NOW
+The owner asks why colouring cannot start on passed candidates. Proceed on
+owner-selected bodies concurrently with remaining raw generation; do not wait
+for all176. This supersedes the earlier batch-order painting/source hold below.
+Start in roster order: Hare3, Rabbit1, then other chosen models. Existing model
+selection supplies the body approval; animation_approved=false is not a painting
+gate, since the owner may replace the motion method later. Preserve every raw
+audition and the accepted deer. New colouring/UV/materials live separately under
+artifacts/fauna-painted-20261024. Only selected models may be finished; coloured
+appearance still needs owner review. Reuse accepted sources first, generate only
+needed shared swatches, and use CPU painting/baking while the game stays open.
+No runtime/game integration, automatic new model choice or appearance approval.
+
 24 OCT LATE-EVENING MEMORY MODE
 After the owner asks about memory-saving operation while playing The Forest,
 the remaining shape queue uses run-control.json shape_memory_mode=shared_gpu.
@@ -33,10 +46,10 @@ motion repair is reviewed. Latest choices supersede earlier undecided entries:
 Tapir1 and CoastalSquid1 are now selected. Capuchin3 Walk reversal and Capybara2
 local paw-weight cleanup are complete; owner explicitly says no repeat review.
 The finite priority reroll runner resumes the full serial raw roster afterward.
-No animal painting or gameplay integration is authorized by a raw model choice.
+The earlier painting hold is superseded above; gameplay integration remains out of scope.
 
-Owner authorizes the full overnight queue. No runtime game integration and no
-painting until morning model approval. Accepted deer remains unchanged under
+Owner authorizes the full overnight queue. No runtime game integration; painting
+now proceeds on owner-selected bodies as authorized above. Accepted deer remains unchanged under
 artifacts/fauna-assets/deer. The editable full roster is FAUNA_ASSET_PLAN.csv;
 asset-plan.json has fuller paint/material/variation/motion plans for all188 entries.
 One accepted deer,176 new visual queues,5 existing audio-only entries and6 deferred.

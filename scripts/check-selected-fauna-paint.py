@@ -1,0 +1,61 @@
+"""Native preservation/control checks for a selected model's colour copy.
+
+No art, anatomy, natural-motion or game-performance approval is inferred.
+"""
+import argparse,hashlib,json,runpy,sys
+from pathlib import Path
+import bpy,numpy as np
+
+repo=Path(__file__).resolve().parent.parent
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True)
+a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'artifacts/fauna-painted-20261024'/a.slug
+state=json.loads((root/'paint-state.json').read_text());source=repo/'artifacts/fauna-overnight-20261024'/a.slug/'Animal - Raw Audition.blend'
+
+def snapshot(entry):
+    body=bpy.data.objects[entry['body']];rig=bpy.data.objects[entry['rig']];digest=hashlib.sha256()
+    for values in [np.array([v.co[:] for v in body.data.vertices],'<f4'),np.array([p.vertices[:] for p in body.data.polygons],'<i4')]:digest.update(values.tobytes())
+    group_names={g.index:g.name for g in body.vertex_groups}
+    digest.update(json.dumps([sorted((group_names[g.group],g.weight) for g in v.groups) for v in body.data.vertices]).encode())
+    digest.update(json.dumps([(b.name,b.parent.name if b.parent else None,[list(row) for row in b.matrix_local],b.head_local[:],b.tail_local[:]) for b in rig.data.bones]).encode())
+    curves={}
+    for name in [*entry['actions'].values(),*entry['demos'].values()]:
+        action=bpy.data.actions[name];h=hashlib.sha256()
+        for layer in action.layers:
+            for strip in layer.strips:
+                for bag in strip.channelbags:
+                    for curve in bag.fcurves:
+                        h.update((curve.data_path+str(curve.array_index)).encode())
+                        h.update(np.array([(*k.co,*k.handle_left,*k.handle_right) for k in curve.keyframe_points],'<f4').tobytes())
+                        h.update(str([(k.interpolation,k.handle_left_type,k.handle_right_type) for k in curve.keyframe_points]).encode())
+        curves[name]=h.hexdigest()
+    return {'bind_geometry_skin_rig':digest.hexdigest(),'actions':curves}
+
+bpy.ops.wm.open_mainfile(filepath=str(source));source_entries=json.loads(bpy.context.scene['deer_four_rigs'])
+before=snapshot(source_entries[state['source_candidate']-1])
+bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Painted Species Review.blend'))
+entries=json.loads(bpy.context.scene['deer_four_rigs']);assert len(entries)==1
+entry=entries[0];assert snapshot(entry)==before,'Selected bind geometry, skin, rig or source motions changed'
+body=bpy.data.objects[entry['body']];uv=np.array([x.uv[:] for x in body.data.uv_layers.active.data]);assert np.isfinite(uv).all() and uv.min()>=-1e-5 and uv.max()<=1.00001
+for coat in entry['painting_coats']:
+    attr=body.data.color_attributes[coat['working_vertex_colour']]
+    assert np.isfinite(np.array([x.color[:] for x in attr.data])).all()
+    material=bpy.data.materials[coat['material']]
+    assert all(n.image.packed_file for n in material.node_tree.nodes if n.type=='TEX_IMAGE')
+viewer=runpy.run_path(str(repo/'scripts/deer-four-rigs-viewer.py'))
+assert bpy.ops.deer_four.model()=={'FINISHED'}
+seen=set()
+for _ in range(80):
+    bpy.ops.deer_four.species();seen.add(body.data.materials[0].name)
+assert seen=={c['material'] for c in entry['painting_coats']},'Not all anatomical coat materials reachable'
+bpy.ops.deer_four.skeleton();assert not bpy.data.objects[entry['rig']].hide_get()
+bpy.ops.deer_four.skeleton();assert bpy.data.objects[entry['rig']].hide_get()
+for _ in range(3):assert bpy.ops.deer_four.view()=={'FINISHED'}
+assert bpy.ops.deer_four.mode()=={'FINISHED'}
+for clip in ['Bind',*entry['actions']]:
+    assert bpy.ops.deer_four.clip(clip=clip)=={'FINISHED'}
+    bpy.context.view_layer.update();evaluated=body.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    assert np.isfinite(np.array([v.co[:] for v in evaluated.data.vertices])).all()
+assert hashlib.sha256(source.read_bytes()).hexdigest()==state['source_blend_sha256']
+report={'source_bind_geometry_skin_rig_exact':True,'source_actions_exact':True,'action_count':len(before['actions']),'uv_added_valid':True,'packed_fur_source':True,'all_coats_reachable':len(seen),'numbered_controls_and_skeleton':True,'all_source_clip_start_poses_finite':True,'appearance_approved':False,'motion_approved':False,'stage':'Working anatomical colour; facial fitting and final UV atlas still pending'}
+(root/'paint-native-checks.json').write_text(json.dumps(report,indent=2)+'\n')
+print('PAINT COPY CHECKS PASS',a.slug,len(seen),'coats; selected geometry/skin/rig/actions exact; art remains pending',flush=True)

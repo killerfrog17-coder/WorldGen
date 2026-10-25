@@ -12,7 +12,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner explicitly intends a different future method; stop refining current hare transfer.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "anatomical_colouring_started",
+      "paint_review": "artifacts\\fauna-painted-20261024\\hare\\Animal - Painted Species Review.blend"
     },
     "rabbit": {
       "animal": "Rabbit",
@@ -25,7 +27,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "anatomical_colouring_started",
+      "paint_review": "artifacts\\fauna-painted-20261024\\rabbit\\Animal - Painted Species Review.blend"
     },
     "red-fox": {
       "animal": "Red fox",
@@ -1853,5 +1857,12 @@
       },
       "superseded_at": "2026-10-24T19:59:54.500089-05:00"
     }
-  ]
+  ],
+  "colouring_authorization": {
+    "time": "2026-10-24T23:58:26.418855-05:00",
+    "scope": "Owner-selected models can be coloured now, concurrently with the remaining raw queue. Animation approval is separate.",
+    "owner_request": "is there a reason you cannot start now on coloring passed candidates?",
+    "raw_sources_preserved": true,
+    "appearance_approval_still_required": true
+  }
 }
