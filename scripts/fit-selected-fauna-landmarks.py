@@ -18,23 +18,26 @@ root=repo/'artifacts/fauna-painted-20261024'/a.slug
 state=json.loads((root/'paint-state.json').read_text())
 bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Painted Species Review.blend'))
 entry=json.loads(bpy.context.scene['deer_four_rigs'])[0];body=bpy.data.objects[entry['body']]
-p=np.array([v.co[:] for v in body.data.vertices]);faces=np.array([f.vertices[:] for f in body.data.polygons])
-adj=[set() for _ in p]
-for face in faces:
-    for v in face:adj[v].update(int(i) for i in face if i!=v)
-remaining=set(range(len(p)));components=[]
-while remaining:
-    seed=remaining.pop();component={seed};stack=[seed]
-    while stack:
-        for v in adj[stack.pop()]:
-            if v in remaining:remaining.remove(v);component.add(v);stack.append(v)
-    components.append(component)
+p=np.array([v.co[:] for v in body.data.vertices]);body.data.calc_loop_triangles();faces=np.array([t.vertices[:] for t in body.data.loop_triangles])
+from fauna_surface_components import components as geometric_components
+components=geometric_components(p,faces)
 main=max(components,key=len);face_ids=[i for i,f in enumerate(faces) if all(int(v) in main for v in f)]
 bvh=BVHTree.FromPolygons([Vector(x) for x in p],faces[face_ids].tolist(),all_triangles=True)
+all_bvh=BVHTree.FromPolygons([Vector(x) for x in p],faces.tolist(),all_triangles=True)
+component_sizes={v:len(component) for component in components for v in component}
+fallback_hits=[]
 def cast(origin,direction):
     point,normal,index,distance=bvh.ray_cast(Vector(origin),Vector(direction).normalized())
-    assert point is not None,'Facial guide ray missed main body'
-    return {'point':list(point),'normal':list(normal),'triangle':face_ids[index],'distance':distance}
+    triangle=face_ids[index] if point is not None else None
+    if point is None:
+        q,nn,tri,dd=all_bvh.ray_cast(Vector(origin),Vector(direction).normalized())
+        if q is not None:
+            nearest=bvh.find_nearest(q);size=component_sizes[int(faces[tri][0])]
+            if size>=128 or (size>=8 and nearest[3]<.08):
+                point,normal,triangle,distance=q,nn,tri,dd
+                fallback_hits.append({'triangle':tri,'component_vertices':size,'distance_to_main':nearest[3]})
+    assert point is not None,'Facial guide ray missed anatomical surface'
+    return {'point':list(point),'normal':list(normal),'triangle':triangle,'distance':distance}
 def cast_pixel(camera,pixel):
     matrix=Matrix(camera['camera_matrix']);width,height=camera['size'];scale=camera['scale']
     local=Vector((((pixel[0]+.5)/width-.5)*scale,(.5-(pixel[1]+.5)/height)*scale,0))
@@ -47,6 +50,7 @@ if prior.exists():
 else:
     guide=root/'previews/1-Bind-side-head.json'
     if not guide.exists():guide=root/'previews/1-Bind-side-head-surface.json'
+    if not guide.exists():guide=root/'previews/1-Bind-side-surface.json'
     camera=json.loads(guide.read_text())
 pixel={'hare':(507,535),'rabbit':(503,373),'red-fox':(447,462),'wolf':(490,330),'wild-boar':(500,450),'mouflon':(487,428)}.get(a.slug);width,height=camera['size'];scale=camera['scale']
 head=np.array(state['head_seed']);nose_seed=np.array(state['nose_seed'])
@@ -66,8 +70,14 @@ if pick_path.exists():
         independent[side_name]={'camera':guide,'pixel':item['pixel']}
     right_eye,left_eye=[cast_pixel(independent[key]['camera'],independent[key]['pixel']) for key in ['right','left']]
     level=(right_eye['point'][2]+left_eye['point'][2])/2
-    right_eye=cast([right_eye['point'][0]+.8,right_eye['point'][1],level],[-1,0,0])
-    left_eye=cast([left_eye['point'][0]-.8,left_eye['point'][1],level],[1,0,0])
+    if picks.get('recast_axis')=='front':
+        right_eye,left_eye=[cast([v['point'][0],float(p[:,1].max()+1),level],[0,-1,0]) for v in [right_eye,left_eye]]
+    else:
+        levelled=[]
+        for anchor in [right_eye,left_eye]:
+            sign=1 if anchor['normal'][0]>=0 else -1
+            levelled.append(cast([anchor['point'][0]+sign*.8,anchor['point'][1],level],[-sign,0,0]))
+        right_eye,left_eye=levelled
     if picks.get('nose_seed'):nose_seed=np.array(picks['nose_seed'])
     guided_nose=None
     if picks.get('nose_guide'):
@@ -108,5 +118,6 @@ if independent:
     landmarks['eye_plane_aligned']=bool(picks.get('align_eye_plane'))
     landmarks['eye_forward_depth_difference']=float(abs((np.array(right_eye['point'])-np.array(left_eye['point']))@front))
     if picks.get('nose_guide'):landmarks['nose_guide']=picks['nose_guide']
+landmarks['separate_anatomical_surface_hits']=fallback_hits
 (root/'face-landmarks.json').write_text(json.dumps(landmarks,indent=2)+'\n')
 print('FACIAL ANCHORS',a.slug,json.dumps({key:landmarks[key]['point'] for key in ['right_eye','left_eye','nose']}),flush=True)

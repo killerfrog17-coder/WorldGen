@@ -14,7 +14,14 @@ sys.path.insert(0,str(repo/'scripts'))
 from fauna_paint_recipes import SUPPORTED, family, eye_frame
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);assert a.slug in SUPPORTED
-kind=family(a.slug);canid=kind=='canid';compact=kind!='lagomorph'
+kind=family(a.slug)
+from fauna_finish_catalog import SUPPORTED as EXTENDED, category as finish_category
+extended=a.slug in EXTENDED
+if extended:
+    category=finish_category(a.slug)
+    kind={'bird':'avian','fish':'fish','squid':'fish','ungulate':'caprine','bear':'ursid','canid':'canid','felid':'canid','reptile':'scaled','amphibian':'scaled','turtle':'scaled','snake':'scaled','marine':'scaled','ground_insect':'scaled','spider':'scaled'}.get(category,'small-carnivore')
+if a.slug=='sea-otter':kind='small-carnivore'
+canid=kind=='canid';compact=kind!='lagomorph'
 root=repo/'artifacts/fauna-painted-20261024'/a.slug
 state=json.loads((root/'paint-state.json').read_text());assert not state['appearance_approved']
 assert state['status'] in {'anatomical_colouring_started','atlas_and_face_fitted_working'}
@@ -22,25 +29,20 @@ bake=json.loads((root/'coat-bake.json').read_text());land=json.loads((root/'face
 bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Painted Species Review.blend'))
 s=bpy.context.scene;entry=json.loads(s['deer_four_rigs'])[0]
 body=bpy.data.objects[entry['body']];rig=bpy.data.objects[entry['rig']]
+for polygon in body.data.polygons:polygon.use_smooth=True
+from fauna_surface_components import smooth_split_normals
+shading_vertices=smooth_split_normals(body.data)
 rig.animation_data_clear();rig.data.pose_position='REST'
 for name in entry.get('facial_objects',[]):
     if name in bpy.data.objects:bpy.data.objects.remove(bpy.data.objects[name],do_unlink=True)
-p=np.array([v.co[:] for v in body.data.vertices]);faces=np.array([f.vertices[:] for f in body.data.polygons])
+p=np.array([v.co[:] for v in body.data.vertices]);body.data.calc_loop_triangles();faces=np.array([t.vertices[:] for t in body.data.loop_triangles])
 # Generated meshes can retain detached flecks. Preserve those selected body
 # vertices, but never fit a lid or sample its weights/UV from a floating fleck.
-adj=[set() for _ in p]
-for face in faces:
-    for vertex in face:adj[vertex].update(int(i) for i in face if i!=vertex)
-remaining=set(range(len(p)));components=[]
-while remaining:
-    seed=remaining.pop();component={seed};stack=[seed]
-    while stack:
-        for vertex in adj[stack.pop()]:
-            if vertex in remaining:remaining.remove(vertex);component.add(vertex);stack.append(vertex)
-    components.append(component)
+from fauna_surface_components import components as geometric_components
+components=geometric_components(p,faces)
 main=max(components,key=len);face_ids=[i for i,face in enumerate(faces) if all(int(v) in main for v in face)]
 bvh=BVHTree.FromPolygons([Vector(x) for x in p],faces[face_ids].tolist(),all_triangles=True)
-body_uv=np.array([x.uv[:] for x in body.data.uv_layers.active.data]).reshape(-1,3,2)
+body_uv=np.array([[body.data.uv_layers.active.data[i].uv[:] for i in t.loops] for t in body.data.loop_triangles])
 names={g.index:g.name for g in body.vertex_groups};features=[];coat_objects=[]
 
 def image(filename,noncolour=False):
@@ -96,6 +98,10 @@ elif kind=='fish':
 elif kind=='rodent':
     iris=np.stack([.055+fibre*.025,.030+fibre*.014,.012+fibre*.008],axis=2)
     pupil=np.clip((r-.66)/.07,0,1)
+if extended and a.slug in {'owl','snowy-owl','falcon','hawk','fish-eagle','forest-eagle'}:
+    iris=np.stack([.47+fibre*.13,.30+fibre*.10,.055+fibre*.035],axis=2);pupil=np.clip((r-.46)/.07,0,1)
+if extended and category=='snake':
+    iris=np.stack([.25+fibre*.10,.19+fibre*.07,.055+fibre*.025],axis=2);pupil=np.clip((np.sqrt((u/.18)**2+(v/.80)**2)-.88)/.14,0,1)
 iris=iris*pupil[:,:,None]*rim[:,:,None]+.008*(1-pupil[:,:,None]*rim[:,:,None]);rgba=np.dstack([iris,np.ones_like(r)])
 im=bpy.data.images.get(a.slug+' iris pigment') or bpy.data.images.new(a.slug+' iris pigment',width=size,height=size,alpha=True)
 im.pixels.foreach_set(rgba.astype(np.float32).ravel());im.pack()
@@ -138,9 +144,9 @@ for side in ['right','left']:
     skin=sample(center)[2]
     def ellipse(t):
         # Small forward tear corner, fuller upper arch, shallow lower lid.
-        if kind=='fish':return hu*(rx*math.cos(t))+vu*(rz*math.sin(t))
+        if kind in {'fish','scaled'}:return hu*(rx*math.cos(t))+vu*(rz*math.sin(t))
         c=math.cos(t);sn=math.sin(t);return hu*(rx*c*(1+.08*max(c,0)))+vu*(rz*sn*(1.03 if sn>0 else .87))
-    bulge=.006 if kind=='rodent' else .003 if kind=='fish' else .0018 if a.slug=='pheasant' else .004 if kind=='avian' else .008 if kind in {'suine','caprine','ursid','bovine','equine','cervid','small-carnivore','beaver'} else .011 if canid else .018
+    bulge=.003 if kind=='scaled' else .006 if kind=='rodent' else .003 if kind=='fish' else .0018 if a.slug=='pheasant' else .004 if kind=='avian' else .008 if kind in {'suine','caprine','ursid','bovine','equine','cervid','small-carnivore','beaver'} else .011 if canid else .018
     eye_margin=.0008 if a.slug=='pheasant' or kind=='fish' else .002
     vertices=[center+n*(eye_margin+bulge)];uvs=[(.5,.5)];polygons=[]
     for ring in range(1,rings+1):
@@ -178,7 +184,7 @@ for side in ['right','left']:
 # Sparse tapered muzzle whiskers, attached using the local muzzle weights.
 nose=np.array(land['nose']['point']);vertices=[];polygons=[]
 for side in [-1,1]:
-    for j in range(0 if kind in {'avian','fish'} else 5):
+    for j in range(10 if a.slug=='walrus' else 5 if a.slug in {'seal','sea-lion','sea-otter'} else 0 if kind in {'avian','fish','scaled'} or (extended and category in {'thickskin','spiny_mammal','armoured_mammal','primate'}) else 5):
         if compact:
             start=nose+np.array(land['side_axis'])*side*(.018+j*.002)-np.array(land['front_axis'])*(.022+j*.005)+np.array([0,0,-.009+j*.007])
             direction=np.array(land['side_axis'])*side*(.090+j*.008)-np.array(land['front_axis'])*(.028+j*.012)+np.array([0,0,(j-2)*.014])
@@ -209,8 +215,12 @@ if a.slug=='duck':state['appearance_scope']='Selected adult duck body. Linked br
 if a.slug=='pheasant':state['appearance_scope']='Selected long-tailed pheasant body. Female/immature pigment studies retain this adult tail/body and do not implement real sex/age proportions. Existing folded-wing Idle/Walk bank retained; flight/takeoff and spur/tuft geometry remain absent.'
 if kind=='fish':state['appearance_scope']='Selected fish body only. Five countershaded/pattern studies do not create different fin topology or identified Earth taxa. Fixed ocular rims, no mobile eyelids or whiskers. Fin rays are baked opaque pigment; true membrane transmission and school AI are not implemented. Raw rig and swim bank retained.'
 if kind=='rodent':state['appearance_scope']='Selected adult rodent body only. Five labelled pigment studies are not exact species/sex/juvenile body matches. Ear/tail morphology and sparse fur silhouette are retained; no new hair cards, age bodies or tail-fullness morphs. Raw debris and motion defects remain independent of colouring.'
-geometry=hashlib.sha256(np.array([v.co[:] for v in body.data.vertices],np.float32).tobytes()+np.array([f.vertices[:] for f in body.data.polygons],np.int32).tobytes()).hexdigest()
+if extended:state['appearance_scope']='Selected owner-approved body and original motion retained. Anatomical '+category+' surface treatment and labelled pigment studies; species/sex/age silhouettes follow the existing plan limitations. Appearance review pending.'
+original_faces=[f.vertices[:] for f in body.data.polygons]
+polygon_bytes=json.dumps(original_faces).encode() if state.get('polygon_hash_encoding')=='json' else np.array(original_faces,np.int32).tobytes()
+geometry=hashlib.sha256(np.array([v.co[:] for v in body.data.vertices],np.float32).tobytes()+polygon_bytes).hexdigest()
 assert geometry==state['geometry_sha256'],'Selected body geometry changed'
+state['coincident_shading_vertices_smoothed']=shading_vertices
 state['body_triangles']=sum(len(f.vertices)-2 for f in body.data.polygons)
 state['facial_triangles']=sum(sum(len(f.vertices)-2 for f in bpy.data.objects[name].data.polygons) for name in features)
 bpy.context.preferences.filepaths.save_version=0;s.frame_set(0)

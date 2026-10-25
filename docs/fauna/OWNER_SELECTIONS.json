@@ -343,7 +343,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\owl\\Animal - Painted Species Review.blend"
     },
     "raven": {
       "animal": "Raven",
@@ -356,7 +358,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\raven\\Animal - Painted Species Review.blend"
     },
     "african-hunting-dog": {
       "animal": "African hunting dog",
@@ -369,7 +373,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\african-hunting-dog\\Animal - Painted Species Review.blend"
     },
     "agouti": {
       "animal": "Agouti",
@@ -382,7 +388,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\agouti\\Animal - Painted Species Review.blend"
     },
     "bank-vole": {
       "animal": "Bank vole",
@@ -395,7 +403,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\bank-vole\\Animal - Painted Species Review.blend"
     },
     "buffalo": {
       "animal": "Buffalo",
@@ -408,7 +418,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\buffalo\\Animal - Painted Species Review.blend"
     },
     "camel": {
       "animal": "Camel",
@@ -421,7 +433,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\camel\\Animal - Painted Species Review.blend"
     },
     "cassowary": {
       "animal": "Cassowary",
@@ -434,7 +448,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\cassowary\\Animal - Painted Species Review.blend"
     },
     "civet": {
       "animal": "Civet",
@@ -447,7 +463,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\civet\\Animal - Painted Species Review.blend"
     },
     "cockatoo": {
       "animal": "Cockatoo",
@@ -460,7 +478,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\cockatoo\\Animal - Painted Species Review.blend"
     },
     "collared-peccary": {
       "animal": "Collared peccary",
@@ -473,7 +493,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\collared-peccary\\Animal - Painted Species Review.blend"
     },
     "cotton-rat": {
       "animal": "Cotton rat",
@@ -486,7 +508,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\cotton-rat\\Animal - Painted Species Review.blend"
     },
     "crane": {
       "animal": "Crane",
@@ -499,7 +523,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\crane\\Animal - Painted Species Review.blend"
     },
     "falcon": {
       "animal": "Falcon",
@@ -512,7 +538,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\falcon\\Animal - Painted Species Review.blend"
     },
     "fish-eagle": {
       "animal": "Fish eagle",
@@ -525,7 +553,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\fish-eagle\\Animal - Painted Species Review.blend"
     },
     "flamingo": {
       "animal": "Flamingo",
@@ -538,7 +568,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\flamingo\\Animal - Painted Species Review.blend"
     },
     "forest-eagle": {
       "animal": "Forest eagle",
@@ -551,7 +583,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\forest-eagle\\Animal - Painted Species Review.blend"
     },
     "wolf": {
       "animal": "Wolf",
@@ -594,7 +628,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\forest-hog\\Animal - Painted Species Review.blend"
     },
     "fruit-bat": {
       "animal": "Fruit bat",
@@ -607,7 +643,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\fruit-bat\\Animal - Painted Species Review.blend"
     },
     "gazelle": {
       "animal": "Gazelle",
@@ -620,7 +658,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\gazelle\\Animal - Painted Species Review.blend"
     },
     "goose": {
       "animal": "Goose",
@@ -633,7 +673,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\goose\\Animal - Painted Species Review.blend"
     },
     "grasshoppers-guild": {
       "animal": "Grasshoppers (guild)",
@@ -646,7 +688,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\grasshoppers-guild\\Animal - Painted Species Review.blend"
     },
     "grey-heron": {
       "animal": "Grey heron",
@@ -659,7 +703,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\grey-heron\\Animal - Painted Species Review.blend"
     },
     "ground-squirrel": {
       "animal": "Ground squirrel",
@@ -672,7 +718,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\ground-squirrel\\Animal - Painted Species Review.blend"
     },
     "guanaco": {
       "animal": "Guanaco",
@@ -685,7 +733,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\guanaco\\Animal - Painted Species Review.blend"
     },
     "hawk": {
       "animal": "Hawk",
@@ -698,7 +748,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\hawk\\Animal - Painted Species Review.blend"
     },
     "ibex": {
       "animal": "Ibex",
@@ -711,7 +763,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\ibex\\Animal - Painted Species Review.blend"
     },
     "impala": {
       "animal": "Impala",
@@ -724,7 +778,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\impala\\Animal - Painted Species Review.blend"
     },
     "insectivorous-bat": {
       "animal": "Insectivorous bat",
@@ -737,7 +793,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\insectivorous-bat\\Animal - Painted Species Review.blend"
     },
     "jaguar": {
       "animal": "Jaguar",
@@ -750,7 +808,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\jaguar\\Animal - Painted Species Review.blend"
     },
     "kingfisher": {
       "animal": "Kingfisher",
@@ -763,7 +823,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\kingfisher\\Animal - Painted Species Review.blend"
     },
     "kiwi": {
       "animal": "Kiwi",
@@ -776,7 +838,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\kiwi\\Animal - Painted Species Review.blend"
     },
     "lemming": {
       "animal": "Lemming",
@@ -789,7 +853,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\lemming\\Animal - Painted Species Review.blend"
     },
     "leopard": {
       "animal": "Leopard",
@@ -802,7 +868,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\leopard\\Animal - Painted Species Review.blend"
     },
     "lion": {
       "animal": "Lion",
@@ -815,7 +883,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\lion\\Animal - Painted Species Review.blend"
     },
     "marmot": {
       "animal": "Marmot",
@@ -828,7 +898,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\marmot\\Animal - Painted Species Review.blend"
     },
     "mongoose": {
       "animal": "Mongoose",
@@ -841,7 +913,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\mongoose\\Animal - Painted Species Review.blend"
     },
     "musk-ox": {
       "animal": "Musk ox",
@@ -854,7 +928,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\musk-ox\\Animal - Painted Species Review.blend"
     },
     "native-litter-beetles-guild": {
       "animal": "Native litter beetles (guild)",
@@ -867,7 +943,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\native-litter-beetles-guild\\Animal - Painted Species Review.blend"
     },
     "ocelot": {
       "animal": "Ocelot",
@@ -880,7 +958,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\ocelot\\Animal - Painted Species Review.blend"
     },
     "oryx": {
       "animal": "Oryx",
@@ -893,7 +973,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\oryx\\Animal - Painted Species Review.blend"
     },
     "ostrich": {
       "animal": "Ostrich",
@@ -906,7 +988,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\ostrich\\Animal - Painted Species Review.blend"
     },
     "parrot": {
       "animal": "Parrot",
@@ -919,7 +1003,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\parrot\\Animal - Painted Species Review.blend"
     },
     "pelican": {
       "animal": "Pelican",
@@ -932,7 +1018,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\pelican\\Animal - Painted Species Review.blend"
     },
     "pigeon": {
       "animal": "Pigeon",
@@ -945,7 +1033,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\pigeon\\Animal - Painted Species Review.blend"
     },
     "puma": {
       "animal": "Puma",
@@ -958,7 +1048,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\puma\\Animal - Painted Species Review.blend"
     },
     "red-kangaroo": {
       "animal": "Red kangaroo",
@@ -971,7 +1063,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\red-kangaroo\\Animal - Painted Species Review.blend"
     },
     "secretary-bird": {
       "animal": "Secretary bird",
@@ -984,7 +1078,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\secretary-bird\\Animal - Painted Species Review.blend"
     },
     "skunk": {
       "animal": "Skunk",
@@ -997,7 +1093,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\skunk\\Animal - Painted Species Review.blend"
     },
     "snowy-owl": {
       "animal": "Snowy owl",
@@ -1010,7 +1108,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\snowy-owl\\Animal - Painted Species Review.blend"
     },
     "spotted-hyena": {
       "animal": "Spotted hyena",
@@ -1023,7 +1123,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\spotted-hyena\\Animal - Painted Species Review.blend"
     },
     "spotted-tailed-quoll": {
       "animal": "Spotted-tailed quoll",
@@ -1036,7 +1138,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\spotted-tailed-quoll\\Animal - Painted Species Review.blend"
     },
     "stork": {
       "animal": "Stork",
@@ -1049,7 +1153,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\stork\\Animal - Painted Species Review.blend"
     },
     "swan": {
       "animal": "Swan",
@@ -1062,7 +1168,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\swan\\Animal - Painted Species Review.blend"
     },
     "tiger": {
       "animal": "Tiger",
@@ -1075,7 +1183,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\tiger\\Animal - Painted Species Review.blend"
     },
     "toucan": {
       "animal": "Toucan",
@@ -1088,7 +1198,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\toucan\\Animal - Painted Species Review.blend"
     },
     "turaco": {
       "animal": "Turaco",
@@ -1101,7 +1213,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\turaco\\Animal - Painted Species Review.blend"
     },
     "vulture": {
       "animal": "Vulture",
@@ -1114,7 +1228,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\vulture\\Animal - Painted Species Review.blend"
     },
     "wallaby": {
       "animal": "Wallaby",
@@ -1127,7 +1243,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\wallaby\\Animal - Painted Species Review.blend"
     },
     "warthog": {
       "animal": "Warthog",
@@ -1140,7 +1258,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\warthog\\Animal - Painted Species Review.blend"
     },
     "weasel": {
       "animal": "Weasel",
@@ -1153,7 +1273,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\weasel\\Animal - Painted Species Review.blend"
     },
     "wild-ass": {
       "animal": "Wild ass",
@@ -1166,7 +1288,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\wild-ass\\Animal - Painted Species Review.blend"
     },
     "wildebeest": {
       "animal": "Wildebeest",
@@ -1179,7 +1303,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selected by owner; current source motion remains provisional.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\wildebeest\\Animal - Painted Species Review.blend"
     },
     "wolverine": {
       "animal": "Wolverine",
@@ -1192,7 +1318,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selected by owner; current source motion remains provisional.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\wolverine\\Animal - Painted Species Review.blend"
     },
     "wombat": {
       "animal": "Wombat",
@@ -1205,7 +1333,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selected by owner; current source motion remains provisional.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\wombat\\Animal - Painted Species Review.blend"
     },
     "woodpecker": {
       "animal": "Woodpecker",
@@ -1218,7 +1348,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selected by owner; current source motion remains provisional.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\woodpecker\\Animal - Painted Species Review.blend"
     },
     "yak": {
       "animal": "Yak",
@@ -1231,7 +1363,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selected by owner; current source motion remains provisional.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\yak\\Animal - Painted Species Review.blend"
     },
     "zebra": {
       "animal": "Zebra",
@@ -1244,7 +1378,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selected by owner; current source motion remains provisional.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\zebra\\Animal - Painted Species Review.blend"
     },
     "aardvark": {
       "animal": "Aardvark",
@@ -1257,12 +1393,14 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner selects prototype; requested best-effort manual fixes proceed without repeat review, not independent natural-motion approval.",
-      "painting_started": false,
+      "painting_started": true,
       "required_manual_fix": "Front-right foot stretches and twists at two points during Run. Manual patch; selected body2 supersedes3. No repeat review requested.",
       "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\aardvark\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "b967b90ffc9bc02536b690bd3cf66f73f5ad929bbab481e4cb44f51192583af9",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\aardvark\\Animal - Painted Species Review.blend"
     },
     "albatross": {
       "animal": "Albatross",
@@ -1275,7 +1413,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selected by owner; current source motion remains provisional.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\albatross\\Animal - Painted Species Review.blend"
     },
     "anteater": {
       "animal": "Anteater",
@@ -1288,7 +1428,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selected by owner; current source motion remains provisional.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\anteater\\Animal - Painted Species Review.blend"
     },
     "baboon": {
       "animal": "Baboon",
@@ -1301,7 +1443,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\baboon\\Animal - Painted Species Review.blend"
     },
     "gibbon": {
       "animal": "Gibbon",
@@ -1314,7 +1458,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selected by owner; current source motion remains provisional.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\gibbon\\Animal - Painted Species Review.blend"
     },
     "orangutan": {
       "animal": "Orangutan",
@@ -1327,7 +1473,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selected by owner; current source motion remains provisional.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\orangutan\\Animal - Painted Species Review.blend"
     },
     "sea-turtle": {
       "animal": "Sea turtle",
@@ -1340,7 +1488,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Raw model selected by owner; current source motion remains provisional.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\sea-turtle\\Animal - Painted Species Review.blend"
     },
     "pheasant": {
       "animal": "Pheasant",
@@ -1398,7 +1548,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\meerkat\\Animal - Painted Species Review.blend"
     },
     "emu": {
       "animal": "Emu",
@@ -1411,7 +1563,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\emu\\Animal - Painted Species Review.blend"
     },
     "grass-rat": {
       "animal": "Grass rat",
@@ -1424,7 +1578,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\grass-rat\\Animal - Painted Species Review.blend"
     },
     "hornbill": {
       "animal": "Hornbill",
@@ -1437,7 +1593,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\hornbill\\Animal - Painted Species Review.blend"
     },
     "hummingbird": {
       "animal": "Hummingbird",
@@ -1450,7 +1608,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\hummingbird\\Animal - Painted Species Review.blend"
     },
     "jerboa": {
       "animal": "Jerboa",
@@ -1463,7 +1623,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\jerboa\\Animal - Painted Species Review.blend"
     },
     "native-small-lizards-guild": {
       "animal": "Native small lizards (guild)",
@@ -1476,7 +1638,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\native-small-lizards-guild\\Animal - Painted Species Review.blend"
     },
     "paca": {
       "animal": "Paca",
@@ -1489,7 +1653,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\paca\\Animal - Painted Species Review.blend"
     },
     "peafowl": {
       "animal": "Peafowl",
@@ -1502,7 +1668,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\peafowl\\Animal - Painted Species Review.blend"
     },
     "pika": {
       "animal": "Pika",
@@ -1515,7 +1683,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\pika\\Animal - Painted Species Review.blend"
     },
     "pronghorn": {
       "animal": "Pronghorn",
@@ -1528,7 +1698,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\pronghorn\\Animal - Painted Species Review.blend"
     },
     "salamanders-guild": {
       "animal": "Salamanders (guild)",
@@ -1541,7 +1713,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\salamanders-guild\\Animal - Painted Species Review.blend"
     },
     "tapir": {
       "animal": "Tapir",
@@ -1554,7 +1728,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\tapir\\Animal - Painted Species Review.blend"
     },
     "armadillo": {
       "animal": "Armadillo",
@@ -1567,7 +1743,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\armadillo\\Animal - Painted Species Review.blend"
     },
     "boa-constrictor": {
       "animal": "Boa constrictor",
@@ -1580,7 +1758,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\boa-constrictor\\Animal - Painted Species Review.blend"
     },
     "capuchin": {
       "animal": "Capuchin",
@@ -1593,8 +1773,10 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false,
-      "required_motion_fix": "Completed: Reverse Walk only, no further review; owner explicitly requests no re-show."
+      "painting_started": true,
+      "required_motion_fix": "Completed: Reverse Walk only, no further review; owner explicitly requests no re-show.",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\capuchin\\Animal - Painted Species Review.blend"
     },
     "capybara": {
       "animal": "Capybara",
@@ -1607,8 +1789,10 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false,
-      "required_motion_fix": "Completed: Keep2 regardless; remove small front-right foot protrusion during Walk if possible, no re-show."
+      "painting_started": true,
+      "required_motion_fix": "Completed: Keep2 regardless; remove small front-right foot protrusion during Walk if possible, no re-show.",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\capybara\\Animal - Painted Species Review.blend"
     },
     "coastal-forage-fish-guild": {
       "animal": "Coastal forage fish (guild)",
@@ -1621,7 +1805,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\coastal-forage-fish-guild\\Animal - Painted Species Review.blend"
     },
     "coastal-squid-guild": {
       "animal": "Coastal squid (guild)",
@@ -1634,7 +1820,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\coastal-squid-guild\\Animal - Painted Species Review.blend"
     },
     "seal": {
       "animal": "Seal",
@@ -1647,7 +1835,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\seal\\Animal - Painted Species Review.blend"
     },
     "duiker": {
       "animal": "Duiker",
@@ -1660,12 +1850,14 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner selects prototype; requested best-effort manual fixes proceed without repeat review, not independent natural-motion approval.",
-      "painting_started": false,
+      "painting_started": true,
       "required_manual_fix": "Patch holes in the ears manually; selected body2. No repeat review requested.",
       "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\duiker\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "25faed110fbd0f485b39ace6a4e3870e3d5660631b8fd393656908ffd4ac6bac",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\duiker\\Animal - Painted Species Review.blend"
     },
     "cormorant": {
       "animal": "Cormorant",
@@ -1677,12 +1869,14 @@
       "rig_sha256": "cb444f422e523e99d4734302d29f4da70ea231c01facf13376a30525d0b8749a",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
+      "painting_started": true,
       "required_manual_fix": "Feet scrunch in Walk; reduce the inward extreme of wing flapping to avoid visible self-clipping.",
       "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\cormorant\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "a92c5c25f35ea825f51a6a9359972f0d862447b177832c7b1d242c5bc8f13ac6",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\cormorant\\Animal - Painted Species Review.blend"
     },
     "common-brushtail-possum": {
       "animal": "Common brushtail possum",
@@ -1694,12 +1888,14 @@
       "rig_sha256": "dafdb9d498eb0544c1cb415fdc36cb751389bb3d6b12aefe263f186abe8a67c5",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
+      "painting_started": true,
       "required_manual_fix": "Twisted feet in Run; best-effort manual skeleton/skin patch.",
       "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\common-brushtail-possum\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "2dc39ca38e292eef2d03c8f9fa56f59248a2be0664adb3d4ca7c8659bd65563a",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\common-brushtail-possum\\Animal - Painted Species Review.blend"
     },
     "dolphin": {
       "animal": "Dolphin",
@@ -1711,7 +1907,9 @@
       "rig_sha256": "85a8006847601978cbc24b0109aec7eafd5b5b44d064ffaf44b1a558d7ba0bb5",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\dolphin\\Animal - Painted Species Review.blend"
     },
     "dugong": {
       "animal": "Dugong",
@@ -1723,7 +1921,9 @@
       "rig_sha256": "8e905bb89dac6bfdfb1f74731608ea133322c53121d0b65770c9169d1b70a03d",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\dugong\\Animal - Painted Species Review.blend"
     },
     "freshwater-turtle": {
       "animal": "Freshwater turtle",
@@ -1735,7 +1935,9 @@
       "rig_sha256": "7d4c3d29ee1ec8a434c37fb7f6356447809b1268829c6fe213e4e7de4469c6d8",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\freshwater-turtle\\Animal - Painted Species Review.blend"
     },
     "freshwater-predatory-fish-guild": {
       "animal": "Freshwater predatory fish (guild)",
@@ -1747,7 +1949,9 @@
       "rig_sha256": "fb055cb4f965d4f11b2727031a93e981e1d30a0511d407e8250758fb9e36d69e",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\freshwater-predatory-fish-guild\\Animal - Painted Species Review.blend"
     },
     "gorilla": {
       "animal": "Gorilla",
@@ -1759,12 +1963,14 @@
       "rig_sha256": "572d4628a012425568abf76cc527d54efa291ee748c84cb386e6ae58b1d176ab",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
+      "painting_started": true,
       "required_manual_fix": "Fix twisted feet in Run.",
       "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\gorilla\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "7a944fbe4fcdff92e11604df5445fc59623d9d990108c31a197012e4fdadc954",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\gorilla\\Animal - Painted Species Review.blend"
     },
     "guereza": {
       "animal": "Guereza",
@@ -1776,12 +1982,14 @@
       "rig_sha256": "40e02253622dc5971da06f2abf215bd5c5c6b4ea4f4cbf1421b7064fa053906d",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
+      "painting_started": true,
       "required_manual_fix": "Fix two twists in the right front arm.",
       "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\guereza\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "93c9d7b035d35d9bdc9ee618d41d5c3d55bb4184ce6360e158aa63320c3206f5",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\guereza\\Animal - Painted Species Review.blend"
     },
     "hedgehog": {
       "animal": "Hedgehog",
@@ -1793,12 +2001,14 @@
       "rig_sha256": "a5be7b6c12a6be8c7b493596840dac54ed52f2b9e0ef47303299f498d89c3d36",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
+      "painting_started": true,
       "required_manual_fix": "Front feet deform in Run; left front foot also in Walk.",
       "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\hedgehog\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "74a9811481fe00fcbf9f05780e2c30d04ae963aeeefa9f811cc4a798bc0b0d24",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\hedgehog\\Animal - Painted Species Review.blend"
     },
     "hippopotamus": {
       "animal": "Hippopotamus",
@@ -1810,7 +2020,9 @@
       "rig_sha256": "bb94e3a5c26743cea465c2a6fbc22cccb502056f34fad038c2d9b369ec8699a1",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\hippopotamus\\Animal - Painted Species Review.blend"
     },
     "howler-monkey": {
       "animal": "Howler monkey",
@@ -1822,12 +2034,14 @@
       "rig_sha256": "d8b130f7676413b861234697c3846795d9b893b126b50ece140da84a542d77d0",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
+      "painting_started": true,
       "required_manual_fix": "Hands deform in Run.",
       "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\howler-monkey\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "b6c869490a67ba201fe0da62a6b0a4d62b31eabe2d0ef45013fa72527a5fce1e",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\howler-monkey\\Animal - Painted Species Review.blend"
     },
     "iguana": {
       "animal": "Iguana",
@@ -1839,13 +2053,15 @@
       "rig_sha256": "1189eb32c8cd3d2096af82c44255b1f9027acbc25f981fa778d1979d3e4e0a84",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
+      "painting_started": true,
       "required_manual_fix": "Manually place the skeleton/all four leg chains; explicitly re-show selected model.",
       "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\iguana\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "f776a30243bcafba83a57a12098a6d23d58dce0542a4153cca301d6989592caf",
       "manual_fix_status": "owner_rig_approved_ground_clearance_corrected_no_repeat",
-      "owner_feedback": "Good; correct any Idle/Walk hover, no repeat review"
+      "owner_feedback": "Good; correct any Idle/Walk hover, no repeat review",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\iguana\\Animal - Painted Species Review.blend"
     },
     "koala": {
       "animal": "Koala",
@@ -1857,12 +2073,14 @@
       "rig_sha256": "f7efde3dde112825a4f9eb08cdeb1ecf2456bb3f05d218591e6f06594ecb4cef",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
+      "painting_started": true,
       "required_manual_fix": "Arm twist plus right ear stretching/popping in Walk/Run.",
       "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\koala\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "f6f7f662ac153d9a0c7624b84ba9cd2242006f261e4162d1d800eef291c6bd57",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\koala\\Animal - Painted Species Review.blend"
     },
     "lemur": {
       "animal": "Lemur",
@@ -1874,12 +2092,14 @@
       "rig_sha256": "4f68e031f41efa84b4cc6be389533d343b4590aa09c156b72fb2d16c74ef53a8",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
+      "painting_started": true,
       "required_manual_fix": "Front-right arm has two twists in Run.",
       "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\lemur\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "e9a364a73e243e974256e590cb69e53b776b3c9e75ea54f463a76fb4b53f4e2a",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\lemur\\Animal - Painted Species Review.blend"
     },
     "long-nosed-bandicoot": {
       "animal": "Long-nosed bandicoot",
@@ -1891,12 +2111,14 @@
       "rig_sha256": "7657c5c6a508071d53b5347d8477ec6a2b2840001f1dcf51e739b5a59cd30c3b",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
+      "painting_started": true,
       "required_manual_fix": "Both front arms have two twists in Run.",
       "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\long-nosed-bandicoot\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "0f328e4dd20549651089dfa123dc98724843efb3f0e92e5e0972d73add886484",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\long-nosed-bandicoot\\Animal - Painted Species Review.blend"
     },
     "macaque": {
       "animal": "Macaque",
@@ -1908,12 +2130,14 @@
       "rig_sha256": "8fd0804404dbb91bc51fd84ac52ab7676813b2cd923da312609480870161bf0d",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
+      "painting_started": true,
       "required_manual_fix": "Double hand twist in Run.",
       "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\macaque\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "96ffcd28f0192cfad082306ddc013442853eecfd29c1a44731fe908266e28f95",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\macaque\\Animal - Painted Species Review.blend"
     },
     "monitor-lizard": {
       "animal": "Monitor lizard",
@@ -1925,13 +2149,15 @@
       "rig_sha256": "32759544ba28b75c9f40de0eb5871d33726b82ac456041cbbd381616d1c5b8a6",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
+      "painting_started": true,
       "required_manual_fix": "Manually rig all four feet/legs; explicitly re-show selected model.",
       "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\monitor-lizard\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "d22a29bd0d172931f14ae4cb1cb4eb035ec61892fcfeef1a2a13b3f465696c3a",
       "manual_fix_status": "owner_rig_approved_ground_clearance_corrected_no_repeat",
-      "owner_feedback": "Good; correct any Idle/Walk hover, no repeat review"
+      "owner_feedback": "Good; correct any Idle/Walk hover, no repeat review",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\monitor-lizard\\Animal - Painted Species Review.blend"
     },
     "orb-weaving-spiders-guild": {
       "animal": "Orb-weaving spiders (guild)",
@@ -1943,7 +2169,10 @@
       "rig_sha256": "0155f0e23195fd8d5da83c8bbfddb47461ebbf3397eff4b1cf1b53c4d661cafb",
       "model_selected": true,
       "animation_approved": false,
-      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval."
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\orb-weaving-spiders-guild\\Animal - Painted Species Review.blend"
     },
     "orca": {
       "animal": "Orca",
@@ -1955,7 +2184,10 @@
       "rig_sha256": "df0d8759f0dcf864f29c4959ce5da5063b133a523179ed3560261182abe8fc6f",
       "model_selected": true,
       "animation_approved": false,
-      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval."
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\orca\\Animal - Painted Species Review.blend"
     },
     "pangolin": {
       "animal": "Pangolin",
@@ -1971,7 +2203,10 @@
       "required_motion_fix": "Repair foot twists, especially forefeet; slightly reduce excessive head bob.",
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\pangolin\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "43c7a565141f1f5b2e07e27b72d798fdac172accee35ea4cb60fc707072190b3",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\pangolin\\Animal - Painted Species Review.blend"
     },
     "penguin": {
       "animal": "Penguin",
@@ -1987,7 +2222,10 @@
       "required_motion_fix": "Repair right foot deformation and smaller left-foot edge wriggle in Walk.",
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\penguin\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "d19fb8b392d601671e3b6a287413da48519b9175d2500ab2dd8a1cc040a9d18a",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_started": true,
+      "painting_status": "anatomical_colouring_started",
+      "paint_review": "artifacts\\fauna-painted-20261024\\penguin\\Animal - Painted Species Review.blend"
     },
     "platypus": {
       "animal": "Platypus",
@@ -2003,7 +2241,10 @@
       "required_motion_fix": "Repair forefeet twists in Run.",
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\platypus\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "70fc3bc8612b6fe29f0fb8a2d4110091a6b72f44c690edc1aae2752ef836eb2e",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\platypus\\Animal - Painted Species Review.blend"
     },
     "polar-bear": {
       "animal": "Polar bear",
@@ -2019,7 +2260,10 @@
       "required_motion_fix": "Repair repeated forefeet twists in Run.",
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\polar-bear\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "8ea3f19061d33c3b1d31d7823af717d7e960a28eaeb9556b1ffdd5058ce7c98c",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\polar-bear\\Animal - Painted Species Review.blend"
     },
     "puffin": {
       "animal": "Puffin",
@@ -2035,7 +2279,10 @@
       "required_motion_fix": "Repair left-foot deformation.",
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\puffin\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "5b62a4448dfb034ec9c67a723596dba12cffb4b871572dfd080f1fc051022d7c",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_started": true,
+      "painting_status": "anatomical_colouring_started",
+      "paint_review": "artifacts\\fauna-painted-20261024\\puffin\\Animal - Painted Species Review.blend"
     },
     "rhinoceros": {
       "animal": "Rhinoceros",
@@ -2047,7 +2294,10 @@
       "rig_sha256": "171dc8ae7cd6809c4e0c12dc429cfe9b299454f8f5068d5a7d8b4977ff23458a",
       "model_selected": true,
       "animation_approved": false,
-      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval."
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\rhinoceros\\Animal - Painted Species Review.blend"
     },
     "sea-lion": {
       "animal": "Sea lion",
@@ -2059,7 +2309,10 @@
       "rig_sha256": "3ad6b1aefdd4129f584e2494aa27eb7fc6418f507bc8d4246472408b2405e461",
       "model_selected": true,
       "animation_approved": false,
-      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval."
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\sea-lion\\Animal - Painted Species Review.blend"
     },
     "shorebird": {
       "animal": "Shorebird",
@@ -2075,7 +2328,10 @@
       "required_motion_fix": "Manually rerig feet for walking.",
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\shorebird\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "0f43f976fa105fde46e371f72600a44559fe08d701cf85653cc5580934fb3626",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\shorebird\\Animal - Painted Species Review.blend"
     },
     "shrew": {
       "animal": "Shrew",
@@ -2091,7 +2347,10 @@
       "required_motion_fix": "Repair forefeet twists.",
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\shrew\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "666b72e8387ce52bd76ce564db20280a8c0d2b7f0f020301f43b394608f2e6d8",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\shrew\\Animal - Painted Species Review.blend"
     },
     "sloth": {
       "animal": "Sloth",
@@ -2103,7 +2362,10 @@
       "rig_sha256": "5c825a5951af2953ccf0131834564184c2d6232be1a33c5c327a5e113e6c68c6",
       "model_selected": true,
       "animation_approved": false,
-      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval."
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\sloth\\Animal - Painted Species Review.blend"
     },
     "tern": {
       "animal": "Tern",
@@ -2119,7 +2381,10 @@
       "required_motion_fix": "Correct upward-facing orientation during Flap/Glide only; repair Walk foot twists.",
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\tern\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "3fcf9c9bd0cad95d7e53a08bb08d2eca02a22eff2a055dc8d017fe8dafd1532e",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\tern\\Animal - Painted Species Review.blend"
     },
     "tortoise": {
       "animal": "Tortoise",
@@ -2131,7 +2396,10 @@
       "rig_sha256": "a1b543808dcb4a097c6a117d7cc4e1048bbc06c8d9977c6ec48a94aac855ed6d",
       "model_selected": true,
       "animation_approved": false,
-      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval."
+      "animation_method": "Raw model selection; owner-requested local repairs do not imply full gait approval.",
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\tortoise\\Animal - Painted Species Review.blend"
     },
     "walrus": {
       "animal": "Walrus",
@@ -2147,7 +2415,10 @@
       "required_motion_fix": "Add a credible ground Walk; swimming alone is insufficient.",
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\walrus\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "d0a0d102e1c9cb905650510c7bf1389e343cbf851afeaa466e7b58c46253d53c",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_started": true,
+      "painting_status": "anatomical_colouring_started",
+      "paint_review": "artifacts\\fauna-painted-20261024\\walrus\\Animal - Painted Species Review.blend"
     },
     "whale": {
       "animal": "Whale",
@@ -2163,7 +2434,10 @@
       "required_motion_fix": "Rerig tail so it actually moves during swimming.",
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\whale\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "4e3b8453e20ed1c6808244f1cd6bad7458086a4cebd2aa9cf3ed5de32693badd",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_started": true,
+      "painting_status": "anatomical_colouring_started",
+      "paint_review": "artifacts\\fauna-painted-20261024\\whale\\Animal - Painted Species Review.blend"
     },
     "sea-otter": {
       "animal": "Sea otter",
@@ -2175,8 +2449,10 @@
       "rig_sha256": "104a0ec42b7f09890168466f27b04b779b1bcbaa1e938a389a14bd01c3114df6",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
-      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections."
+      "painting_started": true,
+      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections.",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\sea-otter\\Animal - Painted Species Review.blend"
     },
     "shark": {
       "animal": "Shark",
@@ -2188,8 +2464,10 @@
       "rig_sha256": "dae22193926855e00e01cf7fb2764868fbb8bb62b9a1bf1aabb9baa35e248ef8",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
-      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections."
+      "painting_started": true,
+      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections.",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\shark\\Animal - Painted Species Review.blend"
     },
     "spider-monkey": {
       "animal": "Spider monkey",
@@ -2201,8 +2479,10 @@
       "rig_sha256": "ffa8fb56593f4e6c05b0f982946835987e65b905b05208c4e55122393fefba8e",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
-      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections."
+      "painting_started": true,
+      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections.",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\spider-monkey\\Animal - Painted Species Review.blend"
     },
     "tamarin": {
       "animal": "Tamarin",
@@ -2214,8 +2494,10 @@
       "rig_sha256": "c03cbd1213edde858165b7f5e5b5f2dadb231d6e2cf9788cf6bfcc82d0268a33",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
-      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections."
+      "painting_started": true,
+      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections.",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\tamarin\\Animal - Painted Species Review.blend"
     },
     "chimpanzee": {
       "animal": "Chimpanzee",
@@ -2227,8 +2509,10 @@
       "rig_sha256": "0d76c0475a702ccfe7f1c10578396ec242e670f1ea6ff268545418dae8bdb0f8",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
-      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections."
+      "painting_started": true,
+      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections.",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\chimpanzee\\Animal - Painted Species Review.blend"
     },
     "crocodile": {
       "animal": "Crocodile",
@@ -2240,12 +2524,14 @@
       "rig_sha256": "ea9831757241ad23921102cb1746c8044bbc469a8a2a6b3a9a9a677f0d586f5e",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
+      "painting_started": true,
       "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections.",
       "required_manual_fix": "Selected3: fix twisting of all four feet; no repeat review requested",
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\crocodile\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "cb72ae433db2282f12cfa0e359377573b795292fe1c4410d968d7d628226d62c",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\crocodile\\Animal - Painted Species Review.blend"
     },
     "giant-panda": {
       "animal": "Giant panda",
@@ -2257,12 +2543,14 @@
       "rig_sha256": "a35152c6767e906eef03197bc0cf0084bebb8bf4d34f08191aad9b961e3658bd",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
+      "painting_started": true,
       "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections.",
       "required_manual_fix": "Selected2: fix severe front-leg deformation; no repeat review requested",
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\giant-panda\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "c8b9aa76d544451adb599e20bea99b0ae15f3e4161aea99f4077970f85f540df",
-      "manual_fix_status": "completed_best_effort_no_repeat_review"
+      "manual_fix_status": "completed_best_effort_no_repeat_review",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\giant-panda\\Animal - Painted Species Review.blend"
     },
     "giraffe": {
       "animal": "Giraffe",
@@ -2274,8 +2562,10 @@
       "rig_sha256": "1bbd7989bdfaadc54cbf2ea6636027dcf10769b17ccfbbbed9d0a48a7761c31a",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
-      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections."
+      "painting_started": true,
+      "owner_feedback": "Current regenerated candidate selected; crocodile and panda require explicit limb corrections.",
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\giraffe\\Animal - Painted Species Review.blend"
     },
     "elephant": {
       "animal": "Elephant",
@@ -2287,13 +2577,15 @@
       "rig_sha256": "fedf807081f96c5e659559d8b3c2d7b78bb0f76589add6dcaa707276619acf69",
       "model_selected": true,
       "animation_approved": false,
-      "painting_started": false,
+      "painting_started": true,
       "owner_feedback": "Candidate2 acceptable for prototype; fix slight right tusk issue without repeat review",
       "proceed_without_re_review": true,
       "manual_fix_blend": "artifacts\\fauna-overnight-20261024\\elephant\\Animal - Owner Corrected.blend",
       "manual_fix_blend_sha256": "0d2971fc16c2f8e0e63e2e6f349f17b00f03374bbb7b4f8050ae288f217a645a",
       "manual_fix_status": "explicit_owner_review_ready",
-      "right_tusk_fixed": true
+      "right_tusk_fixed": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\elephant\\Animal - Painted Species Review.blend"
     },
     "nutria": {
       "animal": "Nutria",
@@ -2306,10 +2598,12 @@
       "model_selected": true,
       "animation_approved": true,
       "animation_approval_scope": "Owner selected revised model/motion for prototype finishing; engine/game-ready assessment still pending",
-      "painting_started": false,
+      "painting_started": true,
       "motion_review_blend": "artifacts\\fauna-overnight-20261024\\nutria\\Animal - Motion Revision.blend",
       "motion_review_blend_sha256": "2fcbcb743d17e4fdeb7c311eda5469c30fdeb57ba523219c5b0cffd4d8082d2c",
-      "source_review_candidate": 4
+      "source_review_candidate": 4,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\nutria\\Animal - Painted Species Review.blend"
     },
     "porcupine": {
       "animal": "Porcupine",
@@ -2322,10 +2616,12 @@
       "model_selected": true,
       "animation_approved": true,
       "animation_approval_scope": "Owner selected revised model/motion for prototype finishing; engine/game-ready assessment still pending",
-      "painting_started": false,
+      "painting_started": true,
       "motion_review_blend": "artifacts\\fauna-overnight-20261024\\porcupine\\Animal - Motion Revision.blend",
       "motion_review_blend_sha256": "a6e0ff8fc479342c45035f294aa81d296b64f1dca7cc00f0d16a5b8046ecd1fd",
-      "source_review_candidate": 1
+      "source_review_candidate": 1,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\porcupine\\Animal - Painted Species Review.blend"
     },
     "python": {
       "animal": "Python",
@@ -2338,10 +2634,12 @@
       "model_selected": true,
       "animation_approved": true,
       "animation_approval_scope": "Owner selected revised model/motion for prototype finishing; engine/game-ready assessment still pending",
-      "painting_started": false,
+      "painting_started": true,
       "motion_review_blend": "artifacts\\fauna-overnight-20261024\\python\\Animal - Motion Revision.blend",
       "motion_review_blend_sha256": "23fa4e463e3ffe08e2656fd18e82f0eac578cc61522ec170ec2d532a52c10b8f",
-      "source_review_candidate": 1
+      "source_review_candidate": 1,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\python\\Animal - Painted Species Review.blend"
     },
     "venomous-snake": {
       "animal": "Venomous snake",
@@ -2354,10 +2652,12 @@
       "model_selected": true,
       "animation_approved": true,
       "animation_approval_scope": "Owner selected revised model/motion for prototype finishing; engine/game-ready assessment still pending",
-      "painting_started": false,
+      "painting_started": true,
       "motion_review_blend": "artifacts\\fauna-overnight-20261024\\venomous-snake\\Animal - Motion Revision.blend",
       "motion_review_blend_sha256": "9f7e5954256cf897ab7e0b1fd83bb7b4cae4d1fb169885a0dc6d9c1eace9a897",
-      "source_review_candidate": 2
+      "source_review_candidate": 2,
+      "painting_status": "anatomical_colouring_started",
+      "paint_review": "artifacts\\fauna-painted-20261024\\venomous-snake\\Animal - Painted Species Review.blend"
     },
     "echidna": {
       "animal": "Echidna",
@@ -2370,10 +2670,12 @@
       "model_selected": true,
       "animation_approved": true,
       "animation_approval_scope": "Owner selected revised model/motion for prototype finishing; engine/game-ready assessment still pending",
-      "painting_started": false,
+      "painting_started": true,
       "motion_review_blend": "artifacts\\fauna-overnight-20261024\\echidna\\Animal - Motion Revision.blend",
       "motion_review_blend_sha256": "5c90e50bb378a28b7d5d6746b502900f4e9a2e2a35eb264bd9eba9304ec35d36",
-      "source_review_candidate": 3
+      "source_review_candidate": 3,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\echidna\\Animal - Painted Species Review.blend"
     },
     "gull": {
       "animal": "Gull",
@@ -2386,10 +2688,12 @@
       "model_selected": true,
       "animation_approved": true,
       "animation_approval_scope": "Owner selected revised model/motion for prototype finishing; engine/game-ready assessment still pending",
-      "painting_started": false,
+      "painting_started": true,
       "motion_review_blend": "artifacts\\fauna-overnight-20261024\\gull\\Animal - Motion Revision.blend",
       "motion_review_blend_sha256": "e585f373c1eb472119deca20ffab5b4272159d29c096a0d2f8c7ab0d68792a6f",
-      "source_review_candidate": 3
+      "source_review_candidate": 3,
+      "painting_status": "anatomical_colouring_started",
+      "paint_review": "artifacts\\fauna-painted-20261024\\gull\\Animal - Painted Species Review.blend"
     },
     "bees-guild": {
       "animal": "Bees (guild)",

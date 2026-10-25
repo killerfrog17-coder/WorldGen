@@ -14,7 +14,9 @@ if state.get('source_blend_path'):source=repo/state['source_blend_path']
 
 def snapshot(entry):
     body=bpy.data.objects[entry['body']];rig=bpy.data.objects[entry['rig']];digest=hashlib.sha256()
-    for values in [np.array([v.co[:] for v in body.data.vertices],'<f4'),np.array([p.vertices[:] for p in body.data.polygons],'<i4')]:digest.update(values.tobytes())
+    digest.update(np.array([v.co[:] for v in body.data.vertices],'<f4').tobytes())
+    polygons=[p.vertices[:] for p in body.data.polygons]
+    digest.update(np.array(polygons,'<i4').tobytes() if all(len(p)==3 for p in polygons) else json.dumps(polygons).encode())
     group_names={g.index:g.name for g in body.vertex_groups}
     digest.update(json.dumps([sorted((group_names[g.group],g.weight) for g in v.groups) for v in body.data.vertices]).encode())
     digest.update(json.dumps([(b.name,b.parent.name if b.parent else None,[list(row) for row in b.matrix_local],b.head_local[:],b.tail_local[:]) for b in rig.data.bones]).encode())

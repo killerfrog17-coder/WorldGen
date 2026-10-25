@@ -10,6 +10,7 @@ ap.add_argument('--coat',type=int,default=0)
 ap.add_argument('--extra-variant',type=int,default=0)
 ap.add_argument('--surface-only',action='store_true');ap.add_argument('--focus',type=float,nargs=3)
 ap.add_argument('--span',type=float,help='Optional orthographic framing span for cosmetic anatomy guides')
+ap.add_argument('--quick',action='store_true',help='Workbench geometry guide; no ray tracing or inference')
 ap.add_argument('--tag',default='')
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=a.root.resolve()
 if a.raw_mesh:
@@ -67,8 +68,14 @@ camera=bpy.data.objects.new('Diagnostic camera',bpy.data.cameras.new('Diagnostic
 for pos,power,size in [((3,4,5),650,5),((-3,1,3),350,4),((0,-4,4),450,3)]:
     light=bpy.data.lights.new('Diagnostic softbox','AREA');light.energy=power;light.shape='DISK';light.size=size;obj=bpy.data.objects.new(light.name,light);s.collection.objects.link(obj);obj.location=center+Vector(pos);obj.rotation_euler=(center-obj.location).to_track_quat('-Z','Y').to_euler()
 world=bpy.data.worlds.new('Diagnostic background');world.use_nodes=True;world.node_tree.nodes['Background'].inputs[0].default_value=(.19,.21,.23,1);world.node_tree.nodes['Background'].inputs[1].default_value=.65;s.world=world
+s.render.threads_mode='FIXED';s.render.threads=4
 s.render.engine='CYCLES';s.cycles.device='CPU';s.cycles.samples=6;s.cycles.use_denoising=True;s.render.resolution_x=a.size;s.render.resolution_y=a.size;s.render.resolution_percentage=100
+if a.quick or a.surface_only:
+    assert a.surface_only
+    s.render.engine='BLENDER_WORKBENCH'
+    shading=s.display.shading;shading.light='STUDIO';shading.color_type='SINGLE';shading.single_color=(.55,.55,.55)
+    shading.show_shadows=True;shading.show_cavity=True;shading.cavity_type='BOTH'
 assert all(c.isalnum() or c in '-_.' for c in a.tag)
 dest=root/'previews';dest.mkdir(exist_ok=True);suffix=('-head' if a.head else '')+(f'-coat{a.coat}' if a.coat else '')+(f'-extra{a.extra_variant}' if a.extra_variant else '')+('-surface' if a.surface_only else '')+('-'+a.tag if a.tag else '');s.render.filepath=str(dest/f'{a.model}-{a.clip}-{a.view}{suffix}.png');s.render.image_settings.file_format='PNG';bpy.ops.render.render(write_still=True)
-if a.head:(dest/f'{a.model}-{a.clip}-{a.view}{suffix}.json').write_text(json.dumps({'camera_matrix':[list(row) for row in camera.matrix_world],'scale':camera.data.ortho_scale,'size':[a.size,a.size],'blend':a.blend_name},indent=2))
-print('CPU diagnostic saved',s.render.filepath,flush=True)
+if a.head or a.clip=='Bind':(dest/f'{a.model}-{a.clip}-{a.view}{suffix}.json').write_text(json.dumps({'camera_matrix':[list(row) for row in camera.matrix_world],'scale':camera.data.ortho_scale,'size':[a.size,a.size],'blend':a.blend_name},indent=2))
+print('Geometry guide saved' if a.surface_only else 'CPU diagnostic saved',s.render.filepath,flush=True)

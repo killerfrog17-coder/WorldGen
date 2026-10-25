@@ -1,5 +1,39 @@
 # WorldGen repository instructions
 
+ALL-SELECTED PAINTING ACTIVE / PHONE PAIRING,25October2026 ~14:18 local:
+Owner explicitly requires ALL selected animals painted, then a second inspection/
+touchup pass; do not stop after a small batch. All171 selected generated bodies
+now prepared;165 have exact native-SHA checked first-colour copies at this
+checkpoint, plus accepted deer separately. This is NOT appearance acceptance or
+complete game-ready/species implementation. New fauna_finish_catalog covers144
+remaining recipes, shared CPU atlas baker, inspected guide picks for all144,
+original body/skin/rest/actions preserved. Existing27 specific recipes retained.
+Five procedural microfauna still need their own colour finishing; horns/antlers
+on later ungulates and second-pass art/motion checks remain outstanding.
+New geometric connectivity joins coincident positions ONLY for surface sampling,
+fixing split-vertex Pronghorn head classification; source geometry is not welded.
+Quad-safe loop-triangle raster sampling preserves original Gull polygons.
+
+Owner away asks two-way phone messaging. OpenAI Docs + Plugin Management skills
+used; no Discord/WhatsApp connector found. Installed native Codex remote-control
+daemon enabled, but pair request403 explicitly says MFA required. Owner asked
+via async question to enable account MFA, or choose Discord instead. No phone
+paired/code issued, no messaging bot deployed. Do not claim current chat remote
+access works until verified. Pair only after required account setup. Enabling
+daemon restarted managed host and interrupted tool children; stale paint lock
+PID27224 verified dead, removed exact lock, resumed hidden durable paint worker
+PID23816 (verify live). No duplicate producer or owner-app closure. Current
+finish-progress.json is authoritative. Initial failed FruitBat/Lion/Marmot/
+MuskOx/Pronghorn manually corrected; resumed worker renders missing previews.
+Penguin/Puffin nose picks corrected after actual guide inspection; pending check.
+Never restart inference/raw queue: selection phase is finished.
+
+New generic first copies need a second visual pass: early Owl/painted-dog recipes
+were subsequently improved; re-bake those and inspect all coloured views. Broad
+pigment studies do not imply true sex/age silhouettes. Owner windows untouched,
+no game/Unity/Desktop writes or paid calls. Preserve unrelated deleted prompt
+and two old untracked deer scripts; source backup excludes ignored assets.
+
 RAW MODEL SELECTION COMPLETE / PAINTING PRIORITY,25October2026:
 Owner selected Nutria4, Porcupine1, Python1, VenomousSnake2, Echidna3, Gull3;
 Elephant2 retained with no repeat review. Elephant bilateral tusk/mouth-root

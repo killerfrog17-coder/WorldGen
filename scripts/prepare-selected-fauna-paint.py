@@ -48,8 +48,10 @@ for action in list(bpy.data.actions):
 rig.animation_data_clear(); rig.data.pose_position = 'REST'
 body.hide_set(False); body.hide_render = False; rig.hide_set(True)
 p = np.array([v.co[:] for v in body.data.vertices], dtype=np.float32)
-faces = np.array([f.vertices[:] for f in body.data.polygons], dtype=np.int32)
-geometry_hash = hashlib.sha256(p.tobytes()+faces.tobytes()).hexdigest()
+original_faces=[f.vertices[:] for f in body.data.polygons]
+polygon_bytes=np.array(original_faces,dtype=np.int32).tobytes() if all(len(f)==3 for f in original_faces) else json.dumps(original_faces).encode()
+body.data.calc_loop_triangles();faces=np.array([t.vertices[:] for t in body.data.loop_triangles],np.int32)
+geometry_hash = hashlib.sha256(p.tobytes()+polygon_bytes).hexdigest()
 names = entry['joint_names']; weights = np.zeros((len(p),len(names)),np.float32)
 groups = {g.index:g.name for g in body.vertex_groups}
 for v in body.data.vertices:
@@ -61,7 +63,8 @@ bpy.context.view_layer.objects.active = body
 bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
 bpy.ops.uv.smart_project(angle_limit=1.151917, island_margin=.012, area_weight=.1, correct_aspect=True, scale_to_bounds=True)
 bpy.ops.object.mode_set(mode='OBJECT')
-uv = np.array([x.uv[:] for x in body.data.uv_layers.active.data],np.float32).reshape(-1,3,2)
+body.data.calc_loop_triangles()
+uv = np.array([[body.data.uv_layers.active.data[i].uv[:] for i in t.loops] for t in body.data.loop_triangles],np.float32)
 np.savez_compressed(root/'paint-anatomy.npz', vertices=p, normals=normal, faces=faces, uv=uv, weights=weights,
                     bone_names=np.array(names), joint_heads=np.array(entry['generated_joint_heads']), parents=np.array(entry['parents']))
 
@@ -70,8 +73,11 @@ def smooth(low,high,x):
 
 # Working masks use continuous rest coordinates; final face masks are fitted
 # separately. One gradient crosses torso and throat, avoiding a neck colour seam.
-head = np.array(entry['generated_joint_heads'][names.index('Head')]); center_x = float(np.median(p[:,0]))
-if family(a.slug) in {'small-carnivore','beaver'}:
+head = np.array(entry['generated_joint_heads'][names.index('Head') if 'Head' in names else names.index(entry['head']) if entry.get('head') in names else 0]); center_x = float(np.median(p[:,0]))
+if family(a.slug).startswith('finish-'):
+    skull=p[(p[:,1]>np.quantile(p[:,1],.78))&(p[:,2]>np.quantile(p[:,2],.45))]
+    if len(skull)>8:head=np.median(skull,axis=0)
+elif family(a.slug) in {'small-carnivore','beaver'}:
     skull=p[(p[:,1]>np.quantile(p[:,1],.85))&(p[:,2]>.5)]
     head=np.median(skull,axis=0);head[1]-=.17;head[2]+=.07
 elif family(a.slug)=='canid':
@@ -99,7 +105,7 @@ elif family(a.slug)=='fish':
     assert len(skull)>12
     head=np.median(skull,axis=0)
 torso = p[(p[:,1] < head[1]-.12) & (p[:,2]>.35) & (p[:,2]<head[2]+.1)]
-belly_z = float(np.quantile(torso[:,2],.32))
+belly_z = float(np.quantile(torso[:,2],.32)) if len(torso) else float(np.quantile(p[:,2],.35))
 belly = (1-smooth(belly_z-.12,belly_z+.22,p[:,2])) * (.45+.55*smooth(.25,-.55,normal[:,2]))
 head_area = smooth(head[1]-.2,head[1]+.05,p[:,1])*smooth(head[2]-.35,head[2]-.1,p[:,2])
 ear_base = float(head[2]+.10)
@@ -109,7 +115,7 @@ ears = smooth(ear_base,ear_base+.15,p[:,2])
 inner = ears*smooth(.08,.65,normal[:,1])
 tip = ears*smooth(float(p[:,2].max()-.16),float(p[:,2].max()-.04),p[:,2])
 head_points = p[(head_area>.4) & (p[:,2]<ear_base+.05)]
-nose = head_points[np.argmax(head_points[:,1])]
+nose = head_points[np.argmax(head_points[:,1])] if len(head_points) else p[np.argmax(p[:,1])]
 nose_mask = np.exp(-(((p[:,0]-nose[0])/.042)**2+((p[:,1]-nose[1])/.04)**2+((p[:,2]-nose[2])/.033)**2)*1.8)*head_area
 tail = smooth(-.58,-.72,p[:,1]) * smooth(.20,.04,np.abs(p[:,0]-center_x))
 
@@ -158,8 +164,8 @@ s['deer_four_rigs']=json.dumps([entry]);s['fauna_painting']=json.dumps({'source_
 s['fauna_animal']=entry['animal'];s.frame_set(0)
 bpy.context.preferences.filepaths.save_version=0
 bpy.ops.wm.save_as_mainfile(filepath=str(out))
-assert hashlib.sha256(np.array([v.co[:] for v in body.data.vertices],np.float32).tobytes()+np.array([f.vertices[:] for f in body.data.polygons],np.int32).tobytes()).hexdigest()==geometry_hash
+assert hashlib.sha256(np.array([v.co[:] for v in body.data.vertices],np.float32).tobytes()+polygon_bytes).hexdigest()==geometry_hash
 assert hashlib.sha256(source.read_bytes()).hexdigest()==source_hash
-state={'slug':a.slug,'source_candidate':number,'source_review_candidate':review_number,'source_blend_path':str(source.relative_to(repo)),'source_blend_sha256':source_hash,'geometry_sha256':geometry_hash,'source_model_sha256':choice['model_sha256'],'source_rig_sha256':choice['rig_sha256'],'status':'anatomical_colouring_started','painting_started':True,'appearance_approved':False,'motion_approved':False,'coats':coats,'landmarks_pending':True,'nose_seed':nose.tolist(),'head_seed':head.tolist(),'center_x':center_x,'belly_z':belly_z,'ear_base':ear_base,'uv_added_without_geometry_change':True,'fur_source':str(fur_path.relative_to(repo)),'fur_sha256':hashlib.sha256(fur_path.read_bytes()).hexdigest()}
+state={'slug':a.slug,'source_candidate':number,'source_review_candidate':review_number,'source_blend_path':str(source.relative_to(repo)),'source_blend_sha256':source_hash,'geometry_sha256':geometry_hash,'polygon_hash_encoding':'triangles' if all(len(f)==3 for f in original_faces) else 'json','source_model_sha256':choice['model_sha256'],'source_rig_sha256':choice['rig_sha256'],'status':'anatomical_colouring_started','painting_started':True,'appearance_approved':False,'motion_approved':False,'coats':coats,'landmarks_pending':True,'nose_seed':nose.tolist(),'head_seed':head.tolist(),'center_x':center_x,'belly_z':belly_z,'ear_base':ear_base,'uv_added_without_geometry_change':True,'fur_source':str(fur_path.relative_to(repo)),'fur_sha256':hashlib.sha256(fur_path.read_bytes()).hexdigest()}
 (root/'paint-state.json').write_text(json.dumps(state,indent=2)+'\n')
 print('ANATOMICAL COLOURING STARTED',a.slug,number,len(coats),'coats; geometry/rig/motions retained',flush=True)

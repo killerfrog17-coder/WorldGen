@@ -5,8 +5,12 @@ one mesh as every named real analogue. Extend one body family at a time.
 """
 SUPPORTED={'raccoon','badger','beaver','otter','lynx','grouse','quail','turkey','junglefowl','reindeer','moose','wild-cattle','horse','hare','rabbit','red-fox','wolf','wild-boar','mouflon','wild-goat','bear','bison','duck','pheasant','small-native-freshwater-fish-guild','mouse','squirrel'}
 
+from fauna_finish_catalog import SUPPORTED as EXTENDED, category as finish_category, profiles as finish_profiles, surface as finish_surface, radius as finish_radius
+SUPPORTED |= EXTENDED
+
 def family(slug):
     assert slug in SUPPORTED
+    if slug in EXTENDED:return 'finish-'+finish_category(slug)
     if slug in {'raccoon','badger','otter','lynx'}:return 'small-carnivore'
     if slug=='beaver':return 'beaver'
     if slug in {'grouse','quail','turkey','junglefowl'}:return 'avian'
@@ -18,6 +22,7 @@ def family(slug):
 
 def profiles(slug):
     assert slug in SUPPORTED
+    if slug in EXTENDED:return finish_profiles(slug)
     if slug=='raccoon':return [
         ('Grey-brown masked',[.35,.32,.26],[.68,.64,.54],False),
         ('Warm brown masked',[.41,.29,.17],[.73,.65,.48],False),
@@ -182,6 +187,7 @@ def profiles(slug):
     }[slug]
 
 def eye_radius(slug):
+    if slug in EXTENDED:return finish_radius(slug)
     if slug in {'raccoon','badger','beaver','otter','lynx'}:return (.029,.023)
     if slug in {'grouse','quail','turkey','junglefowl'}:return (.022,.019)
     if slug in {'reindeer','moose','wild-cattle'}:return (.028,.021)
@@ -189,6 +195,7 @@ def eye_radius(slug):
     return {'hare':(.038,.032),'rabbit':(.040,.034),'red-fox':(.029,.019),'wolf':(.032,.021),'wild-boar':(.027,.018),'mouflon':(.026,.019),'wild-goat':(.026,.019),'bear':(.025,.017),'bison':(.027,.020),'duck':(.021,.018),'pheasant':(.017,.015),'small-native-freshwater-fish-guild':(.043,.039),'mouse':(.035,.031),'squirrel':(.031,.027)}[slug]
 
 def fur_source(slug):
+    if slug in EXTENDED:return 'artifacts/fauna-assets/textures/'+finish_surface(slug)
     if slug in {'grouse','quail','turkey','junglefowl'}:return 'artifacts/fauna-assets/textures/feather-contour-v1.png'
     if slug=='small-native-freshwater-fish-guild':return 'artifacts/fauna-assets/textures/scale-fish-v1.png'
     if slug in {'duck','pheasant'}:return 'artifacts/fauna-assets/textures/feather-contour-v1.png'
@@ -202,7 +209,8 @@ def eye_frame(slug,land,side):
     import numpy as np
     anchor=land[side+'_eye'];n=np.array(anchor['normal']);n/=np.linalg.norm(n)
     if family(slug)!='lagomorph':
-        forward,lateral={'small-carnivore':(.55,.835),'beaver':(.35,.937),'cervid':(.24,.971),'equine':(.30,.954),'canid':(.62,.78),'suine':(.35,.94),'caprine':(.22,.975),'ursid':(.72,.69),'bovine':(.23,.973),'avian':(.20,.98),'fish':(.16,.987),'rodent':(.34,.94)}[family(slug)]
+        forward,lateral=({'bird':(.45,.89),'primate':(.88,.475),'felid':(.75,.66)}.get(finish_category(slug),(.35,.937)) if slug in EXTENDED else {'small-carnivore':(.55,.835),'beaver':(.35,.937),'cervid':(.24,.971),'equine':(.30,.954),'canid':(.62,.78),'suine':(.35,.94),'caprine':(.22,.975),'ursid':(.72,.69),'bovine':(.23,.973),'avian':(.20,.98),'fish':(.16,.987),'rodent':(.34,.94)}[family(slug)])
+        if slug in {'owl','snowy-owl'}:forward,lateral=.97,.243
         desired=np.array(land['front_axis'])*forward+np.array(land['side_axis'])*(1 if side=='right' else -1)*lateral
         actual=n.copy();actual[2]=0;actual/=np.linalg.norm(actual)
         n=actual*.55+desired*.45;n[2]=np.clip(anchor['normal'][2],-.12,.12);n/=np.linalg.norm(n)
