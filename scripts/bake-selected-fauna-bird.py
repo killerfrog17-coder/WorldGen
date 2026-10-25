@@ -78,8 +78,10 @@ if a.slug=='pheasant':
     secondary*=0;speculum*=0;white_bars*=0
     collar=(1-smooth(.010,.030,np.abs(p[:,2]-1.29)))*smooth(.95,1.10,p[:,1])
     breast=smooth(.65,.95,p[:,1])*(1-smooth(1.20,1.29,p[:,2]))*smooth(.56,.72,p[:,2])
-eye_surround=np.zeros(len(p));bare=np.zeros(len(p));rx,rz=eye_radius(a.slug)
+from fauna_eye_profiles import dimensions
+eye_surround=np.zeros(len(p));bare=np.zeros(len(p));rx,rz=dimensions(land,eye_radius(a.slug))
 for key in ['right_eye','left_eye']:
+    rx,rz=dimensions(land,eye_radius(a.slug),key.split('_')[0])
     normal,horizontal,vertical=eye_frame(a.slug,land,key.split('_')[0]);delta=p-np.array(land[key]['point'])
     radius=np.sqrt(((delta@horizontal)/rx)**2+((delta@vertical)/rz)**2)
     gate=(1-smooth(.020,.050,np.abs(delta@normal)))*smooth(.05,.65,n@normal)

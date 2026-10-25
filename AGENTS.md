@@ -1,5 +1,49 @@
 # WorldGen repository instructions
 
+ALL-ANIMAL EYE PASS COMPLETE / PHONE CLOSE-UPS LIVE,25October2026 ~17:28 local:
+Owner requested a socket/size/lid pass after seeing misplaced eyes. All171
+selected generated bodies independently audited against actual neutral right/
+left/front sculpts,43 socket sheets actually viewed; all43 revised three-view
+sheets actually viewed after corrections. Curated geometry-SHA-gated centre/
+size/camera picks backed in docs/fauna/EYE_SOCKET_GUIDES.json. No forced mirrored
+centres or equal world Z. Fit uses actual rim normals and stable upright frames;
+explicit open sockets infer depth from the rim rather than arbitrary nearest
+surface. Notable targeted changes include Penguin/Panda/Horse/Kangaroo/Gull,
+plus frontal-eye orientation fixes for felids, raccoon, civet and bats.
+
+Separate painted copies now have socket-specific caps, shaped bare upper/lower
+rims and inner corners, atlas fur transitions and sparse suitable mammal lashes/
+brow hairs. Round pupils restored for small carnivores/primates instead of an
+inherited ungulate pupil. Fish/reptile/avian and surface-only arthropod policies
+remain distinct. Selected body mesh/skin/rest rig and ALL source actions EXACT
+in171 native checks;3456 sampled clip phases have finite added features and ZERO
+attachment warnings. Exact final audit inspection/eye-pass-completion.json says
+171/171,errors{},accepted-deer unchanged. Deer SHA remains
+0e2ff46b0b0860750084bed3af94d84f636144230550e9e80f753b3e415418a1.
+Five tiny procedural guilds retained; index176 current appearance reviews ready,
+plus accepted deer. NOT new owner art approval, natural-gait/contact acceptance
+or universal game readiness. Existing sculpt/debris/motion limits remain.
+
+SAME private Site now /eyes.html:171 searchable animals, consistent overview
+numbers, Front/Right/Left and Revised/Before,1026 compact WebP images~9.4MiB.
+All177 overview Side/Front/Other coats refreshed from current source identities.
+Mobile390x844 controls/image switching/search/wrap/no-overflow and all1026 image
+assets pass; overview177/27images/3modes check passes. Actual mobile layout viewed.
+Same project appgprj_6ade6fbe0a5081918b25bcbf541da095, owner-only audience verified
+and preserved. Nested Site source2bdbcc2ed839579aa50392c0d68e1689237f3f64 pushed/
+packaged; deployment appgdep_6ade8249039c8191b1a9451b01a84b27 SUCCEEDED. URL
+https://worldgen-animal-review.glassymole9.chatgpt.site/eyes.html . No new Site.
+
+Finite eye producer and QA workers EXITED; no Blender inference/GUI launched,
+owned local preview14920 stopped afterQA. Owner apps/Remote/game/Unity/Desktop
+untouched. Windows progress file read/replace retries prevent reader locks from
+cancelling valid work. Four null-direction body-render failures fixed via an
+explicit read-only camera fallback;171 receipts record the renderer-only source
+signature migration, native files unchanged, final checks all pass. Preserve
+source backups plus source guides; generated eye evidence~434MiB is local only,
+not duplicated native/model backups. No paid calls/new texture generation.
+Preserve unrelated deleted prompt and2old untracked deer scripts unstaged.
+
 ALL-ANIMAL PHONE OVERVIEW LIVE,25October2026 ~16:22 local:
 Owner asks pictures containing all animals to spot recurring issues before
 individual assessments. SAME private site now has /overview.html and an entry

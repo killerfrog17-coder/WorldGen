@@ -12,6 +12,7 @@ from mathutils.bvhtree import BVHTree
 repo=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(repo/'scripts'))
 from fauna_paint_recipes import SUPPORTED, family, eye_frame
+from fauna_eye_profiles import dimensions,contour
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);assert a.slug in SUPPORTED
 kind=family(a.slug)
@@ -97,7 +98,7 @@ if canid:
     iris=np.stack([.16+fibre*.08,.09+fibre*.05,.025+fibre*.018],axis=2)
     if a.slug=='red-fox':pupil=np.clip((np.sqrt((u/.22)**2+(v/.73)**2)-.86)/.14,0,1)
     else:pupil=np.clip((r-.39)/.065,0,1)
-elif kind in {'caprine','bovine','equine','cervid','small-carnivore','beaver'}:
+elif kind in {'caprine','bovine','equine','cervid'}:
     iris=np.stack([.22+fibre*.08,.14+fibre*.05,.035+fibre*.02],axis=2)
     pupil=np.clip((np.sqrt((u/.80)**2+(v/.20)**2)-.86)/.14,0,1)
 elif kind=='avian':
@@ -116,6 +117,8 @@ if extended and a.slug in {'owl','snowy-owl','falcon','hawk','fish-eagle','fores
     iris=np.stack([.47+fibre*.13,.30+fibre*.10,.055+fibre*.035],axis=2);pupil=np.clip((r-.46)/.07,0,1)
 if extended and category=='snake':
     iris=np.stack([.25+fibre*.10,.19+fibre*.07,.055+fibre*.025],axis=2);pupil=np.clip((np.sqrt((u/.18)**2+(v/.80)**2)-.88)/.14,0,1)
+if land.get('eye_revision') and kind in {'caprine','cervid','equine','bovine'}:
+    pupil=np.clip((((u/.70)**4+(v/.25)**4)**.25-.88)/.15,0,1)
 iris=iris*pupil[:,:,None]*rim[:,:,None]+.008*(1-pupil[:,:,None]*rim[:,:,None]);rgba=np.dstack([iris,np.ones_like(r)])
 im=bpy.data.images.get(a.slug+' iris pigment') or bpy.data.images.new(a.slug+' iris pigment',width=size,height=size,alpha=True)
 im.pixels.foreach_set(rgba.astype(np.float32).ravel());im.pack()
@@ -152,16 +155,21 @@ def obj(name,vertices,polygons,materials,uvs=None,indices=None,anchor=None):
     mod=ob.modifiers.new('Selected rig','ARMATURE');mod.object=rig;mod.use_deform_preserve_volume=False
     features.append(ob.name);return ob
 
-segments=16 if compact else 24;rings=4 if compact else 5;rx,rz=bake['eye_radius'];eye_reports=[]
+reviewed=bool(land.get('eye_revision'))
+segments=24 if reviewed else 16 if compact else 24;rings=5 if reviewed else 4 if compact else 5;rx,rz=dimensions(land,bake['eye_radius']);eye_reports=[]
 for side in ([] if surface_only_arthropod else ['right','left']):
+    rx,rz=dimensions(land,bake['eye_radius'],side)
     anchor=land[side+'_eye'];center=np.array(anchor['point']);n,hu,vu=eye_frame(a.slug,land,side)
     skin=sample(center)[2]
     def ellipse(t):
+        if reviewed:
+            x,z=contour(t,kind);return hu*(rx*x)+vu*(rz*z)
         # Small forward tear corner, fuller upper arch, shallow lower lid.
         if kind in {'fish','scaled'}:return hu*(rx*math.cos(t))+vu*(rz*math.sin(t))
         c=math.cos(t);sn=math.sin(t);return hu*(rx*c*(1+.08*max(c,0)))+vu*(rz*sn*(1.03 if sn>0 else .87))
     bulge=.003 if kind=='scaled' else .006 if kind=='rodent' else .003 if kind=='fish' else .0018 if a.slug=='pheasant' else .004 if kind=='avian' else .008 if kind in {'suine','caprine','ursid','bovine','equine','cervid','small-carnivore','beaver'} else .011 if canid else .018
     eye_margin=.0008 if a.slug=='pheasant' or kind=='fish' else .002
+    if reviewed:bulge=min(rx,rz)*(.16 if kind in {'fish','scaled'} else .24);eye_margin=min(rx,rz)*.025
     vertices=[center+n*(eye_margin+bulge)];uvs=[(.5,.5)];polygons=[]
     for ring in range(1,rings+1):
         rad=ring/rings
@@ -169,6 +177,18 @@ for side in ([] if surface_only_arthropod else ['right','left']):
             t=i*math.tau/segments;offset=ellipse(t)*rad
             vertices.append(center+offset+n*(eye_margin+bulge*math.sqrt(max(0,1-rad*rad))))
             uvs.append((.5+.5*rad*math.cos(t),.5+.5*rad*math.sin(t)))
+    def eye_surface_depth(target):
+        distance=max(rx,rz)*3+.04
+        hit=bvh.ray_cast(Vector(target+n*distance),Vector(-n),distance*2)[0]
+        if hit is None or np.linalg.norm(np.asarray(hit)-target)>max(rx,rz)*1.5:hit=sample(target)[0]
+        return float(np.clip((np.asarray(hit)-target)@n,0,min(rx,rz)*1.2))
+    if reviewed:
+        # A low-poly sculpt can protrude in front of a flat replacement lens.
+        # Fit the cap's depth to that actual surface so half an iris cannot be
+        # buried in the cheek; its slight corneal bulge remains above it.
+        for vi,vertex in enumerate(vertices):
+            target=vertex-n*((vertex-center)@n)
+            vertices[vi]=vertex+n*eye_surface_depth(target)
     for i in range(segments):polygons.append((0,1+i,1+(i+1)%segments))
     for j in range(rings-1):
         for i in range(segments):
@@ -177,23 +197,55 @@ for side in ([] if surface_only_arthropod else ['right','left']):
     if np.dot(np.cross(vertices[polygons[0][1]]-vertices[0],vertices[polygons[0][2]]-vertices[0]),n)<0:polygons=[tuple(reversed(f)) for f in polygons]
     obj(a.slug+' '+side+' eye',vertices,polygons,[eye],uvs,anchor=skin)
     vertices=[];uvs=[];polygons=[];indices=[]
-    for ring,rad in enumerate([1.,1.10,1.21,1.43]):
+    lid_radii=[1.,1.035,1.08,1.16] if reviewed else [1.,1.10,1.21,1.43]
+    for ring,rad in enumerate(lid_radii):
         for i in range(segments):
             t=i*math.tau/segments;target=center+ellipse(t)*rad
             hit=bvh.ray_cast(Vector(target+n*.20),Vector(-n),.4)[0]
             if hit is None or np.linalg.norm(np.array(hit)-target)>max(rx,rz)*.8+.008:hit=sample(target)[0]
             surface=np.asarray(hit);upper=max(0,math.sin(t))
-            if compact and ring<3:
+            if reviewed:
+                # Narrow bare inner rim, shaped upper arch, surface-fitted fur
+                # beyond it. Avoid a thick, uniformly black goggle-like ring.
+                depth=eye_surface_depth(target)
+                if ring==0:point=target+n*(depth+eye_margin)
+                elif ring==1:point=target+n*(depth+min(rx,rz)*(.055+.045*upper))
+                elif ring==2:point=target+n*(depth+min(rx,rz)*(.045+.025*upper))
+                else:point=target+n*(depth+min(rx,rz)*.008)
+            elif compact and ring<3:
                 offsets=[.0008,.0013+.0005*upper,.0005] if a.slug=='pheasant' or kind=='fish' else [.002,.004+.002*upper,.0015]
                 point=target+n*offsets[ring]
             else:point=target+n*.002 if ring==0 else surface+n*([0,.003+.004*upper,.002,.0007][ring])
             vertices.append(point);uvs.append(sample(surface)[1])
-    for j in range(3):
+    for j in range(len(lid_radii)-1):
         for i in range(segments):
-            polygons.append((j*segments+i,j*segments+(i+1)%segments,(j+1)*segments+(i+1)%segments,(j+1)*segments+i));indices.append(1 if j<(1 if kind=='fish' else 2) else 0)
+            polygons.append((j*segments+i,j*segments+(i+1)%segments,(j+1)*segments+(i+1)%segments,(j+1)*segments+i))
+            bare_band=True if reviewed else j<(1 if kind=='fish' else 2)
+            indices.append(1 if bare_band else 0)
     if np.dot(np.cross(vertices[polygons[0][1]]-vertices[polygons[0][0]],vertices[polygons[0][2]]-vertices[polygons[0][0]]),n)<0:polygons=[tuple(reversed(f)) for f in polygons]
-    lid=obj(a.slug+' '+side+' socket and eyelid',vertices,polygons,[body.data.materials[0],lidmat],uvs,indices,anchor=skin);coat_objects.append(lid.name)
+    lid=obj(a.slug+' '+side+' socket and eyelid',vertices,polygons,[body.data.materials[0],lidmat],uvs,indices,anchor=skin)
+    if not reviewed:coat_objects.append(lid.name)
     eye_reports.append({'side':side,'point':center.tolist(),'radius':[rx,rz],'skin':skin,'outer_ring_surface_fitted':True})
+    hairy=kind not in {'avian','fish','scaled'} and not (extended and category=='marine' and a.slug!='sea-otter')
+    if reviewed and hairy:
+        hair_vertices=[];hair_polygons=[]
+        for index,t in enumerate([.48,.96,1.45,1.98,2.50]):
+            start=center+ellipse(t)*1.04
+            start+=n*(eye_surface_depth(start)+min(rx,rz)*.06)
+            direction=vu*rz*(.22+.06*math.sin(t))+n*rz*.15+hu*rx*(.08*math.cos(t))
+            base=len(hair_vertices)
+            for k in range(3):
+                progress=k/2;point=start+direction*progress;width=rx*.006*(1-progress)+rx*.0004
+                hair_vertices.extend([point+hu*width,point-hu*width])
+            for k in range(2):hair_polygons.append((base+k*2,base+k*2+1,base+k*2+3,base+k*2+2))
+        for index in range(2):
+            start=center+hu*rx*(.35-index*.9)+vu*rz*1.65
+            start=sample(start)[0]+n*rz*.025;direction=hu*rx*(.30-index*.45)+vu*rz*.48+n*rz*.25;base=len(hair_vertices)
+            for k in range(3):
+                progress=k/2;point=start+direction*progress;width=rx*.005*(1-progress)+rx*.0003
+                hair_vertices.extend([point+hu*width,point-hu*width])
+            for k in range(2):hair_polygons.append((base+k*2,base+k*2+1,base+k*2+3,base+k*2+2))
+        obj(a.slug+' '+side+' subtle lashes and brow hairs',hair_vertices,hair_polygons,[whiskermat],anchor=skin)
 
 # Sparse tapered muzzle whiskers, attached using the local muzzle weights.
 nose=np.array(land['nose']['point']);vertices=[];polygons=[]

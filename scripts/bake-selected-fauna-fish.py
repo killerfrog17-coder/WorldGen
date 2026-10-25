@@ -43,8 +43,10 @@ rays=(.5+.5*np.cos(phase))**12
 gill_y=1.39+.11*((p[:,2]-.79)/.44)**2
 gill=np.exp(-((p[:,1]-gill_y)/.026)**2)*smooth(.30,.45,p[:,2])*(1-smooth(1.16,1.29,p[:,2]))*smooth(.20,.65,np.abs(n[:,0]))*(1-fin)
 nose=np.array(land['nose']['point']);mouth=smooth(2.08,2.20,p[:,1])*(1-smooth(.035,.075,np.abs(p[:,2]-nose[2])))*(1-fin)
-eye_rim=np.zeros(len(p));bare=np.zeros(len(p));rx,rz=eye_radius(a.slug)
+from fauna_eye_profiles import dimensions
+eye_rim=np.zeros(len(p));bare=np.zeros(len(p));rx,rz=dimensions(land,eye_radius(a.slug))
 for key in ['right_eye','left_eye']:
+    rx,rz=dimensions(land,eye_radius(a.slug),key.split('_')[0])
     normal,horizontal,vertical=eye_frame(a.slug,land,key.split('_')[0]);delta=p-np.array(land[key]['point'])
     q=np.sqrt(((delta@horizontal)/rx)**2+((delta@vertical)/rz)**2)
     gate=(1-smooth(.025,.065,np.abs(delta@normal)))*smooth(.04,.65,n@normal)

@@ -215,6 +215,8 @@ def profiles(slug):
 def eye_frame(slug,land,side):
     """Same anatomical eye frame for pigment masks and fitted geometry."""
     import numpy as np
+    fitted=land[side+'_eye'].get('fit_frame')
+    if fitted:return tuple(np.asarray(fitted[key]) for key in ['normal','horizontal','vertical'])
     anchor=land[side+'_eye'];n=np.array(anchor['normal']);n/=np.linalg.norm(n)
     if family(slug)!='lagomorph':
         forward,lateral=({'bird':(.45,.89),'primate':(.88,.475),'felid':(.75,.66)}.get(finish_category(slug),(.35,.937)) if slug in EXTENDED else {'small-carnivore':(.55,.835),'beaver':(.35,.937),'cervid':(.24,.971),'equine':(.30,.954),'canid':(.62,.78),'suine':(.35,.94),'caprine':(.22,.975),'ursid':(.72,.69),'bovine':(.23,.973),'avian':(.20,.98),'fish':(.16,.987),'rodent':(.34,.94)}[family(slug)])

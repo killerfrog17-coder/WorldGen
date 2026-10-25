@@ -72,8 +72,10 @@ if kind=='bat':
     membrane=np.maximum(wing_weight,smooth(bodywidth*.5,bodywidth*.9,np.abs(p[:,0]-state['center_x'])))
     detail=detail*membrane+fur*(1-membrane)
 
-surround=np.zeros(len(p));bare=np.zeros(len(p));eye_patches=[];rx,rz=radius(a.slug)
+from fauna_eye_profiles import dimensions
+surround=np.zeros(len(p));bare=np.zeros(len(p));eye_patches=[];rx,rz=dimensions(land,radius(a.slug))
 for key in ['right_eye','left_eye']:
+    rx,rz=dimensions(land,radius(a.slug),key.split('_')[0])
     normal,horizontal,vertical=eye_frame(a.slug,land,key.split('_')[0]);delta=p-np.array(land[key]['point'])
     q=np.sqrt(((delta@horizontal)/rx)**2+((delta@vertical)/rz)**2)
     gate=(1-smooth(.025,.065,np.abs(delta@normal)))*smooth(.02,.65,n@normal)

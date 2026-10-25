@@ -117,11 +117,13 @@ width=nw*(.68+.32*np.clip(nv/nh+1,0,1));q=(nu/width)**2+(nv/nh)**2+(nd/(.060 if 
 nose_mask=(1-smooth(.7,1.2,q))*face*smooth(.05,.65,n@nn)
 if kind in {'suine','ursid','bovine','rodent'}:nose_mask=(1-smooth(.7,1.2,q))*smooth(.0,.60,n@nn)
 eye_surround=np.zeros(len(p));bare=np.zeros(len(p))
-eye_radius=get_eye_radius(a.slug)
+from fauna_eye_profiles import dimensions
+eye_radius=dimensions(land,get_eye_radius(a.slug))
 for key in ['right_eye','left_eye']:
+    local_radius=dimensions(land,eye_radius,key.split('_')[0])
     point=np.array(land[key]['point']);normal,horizontal,vertical=eye_frame(a.slug,land,key.split('_')[0])
     rel=p-point;u=rel@horizontal;v=rel@vertical;depth=rel@normal
-    radius=np.sqrt((u/eye_radius[0])**2+(v/eye_radius[1])**2)
+    radius=np.sqrt((u/local_radius[0])**2+(v/local_radius[1])**2)
     gate=(1-smooth(.025,.065,np.abs(depth)))*smooth(.05,.65,n@normal)
     eye_surround=np.maximum(eye_surround,(1-smooth(1.25,1.85,radius))*gate)
     bare=np.maximum(bare,(1-smooth(.70 if compact else .98,.90 if compact else 1.16,radius))*gate)
