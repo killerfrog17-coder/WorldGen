@@ -1,5 +1,32 @@
 # WorldGen repository instructions
 
+RAW QUEUE143 / GUEREZA CORRESPONDENCE,24October2026 evening:
+Gorilla/Guereza/Gull newly ready:143raw sets/572 candidates,33of176 pending;
+full audit errors[]. Existing exec93476 outer6340/sole--watch21044 live at last
+process check; currentHedgehog preparing/rigging after171.11s resident shape.
+No new GPU producer/window/painting/source texture generation/runtime changes.
+Chimp stale failed state still awaits existing hash-bound retry next full pass;
+its native4 review is ready. Do not restart inference or hand-edit live state.
+
+Gorilla all4 Walk-side quarter-phase inspected: coarse hands/pitched rear feet;
+4 pointed/flat forehand excluded from clean-motion recommendations. All retained.
+Guereza actual correspondence diagnostic found2/3/4 Head mapped to forelimb/digit
+forks (nodes34/21/33). Existing anatomical_quadruped full-branch matcher excludes
+whole limb/digit subtrees from head candidates: newHead12/11/11;1Head3->5. Pure
+graph comparison all4finite/normalized; source and rawGLB/NN SHA EXACT. Added
+hash-pinned Guereza override only, no new inference/skin cleanup or held-core
+poses. All4 rebuilt/native checked, equal quarter-Walk before/after inspected.
+Correct head semantics retained, but substantial forehand distortion2/3/4 remains
+and is explicitly screened out for clean-motion recommendations. Before renders
+retained as before-branchmatch-*.png; branch-correspondence-diagnostic.json stores
+actual node coordinates. finish-fauna-manual-recovery finalized unrelated root;
+no live queue-state edit. Do not claim all deformation/natural gait cured.
+
+Gull all4Flap-front quarter +1Bind-front/Walk-side: coarse/asymmetric wing surfaces
+also present at bind1; ground Walk retains spread wings and pointed flat feet.
+Warnings retained, no blanket unusable-model/art verdict from one sampled pose.
+No owner's selection/accepted deer changed or repeated approval requested.
+
 RAW QUEUE140 / COMPARISON SCREENING,24October2026 evening:
 FreshwaterTurtle/GiantPanda/Giraffe newly finished:140raw sets/560 candidates
 verified by audit,36of176 pending, errors[]. Existing exec93476 remains live,

@@ -1201,5 +1201,27 @@
         "generated-rig.npz": "a74c9f7ee04c9bd94921a8a7e6819aa0ca99e0a0077418382b0141bd5d363b6d"
       }
     }
+  },
+  "guereza": {
+    "reason": "Actual graph comparison shows Guereza2/3/4 generic matcher named a forehand node Head and confused digits with limb endpoints. Use existing full bilateral limb-branch matcher with all digit subtrees excluded from head candidates. No learned joint, weight, mesh or source-motion changes.",
+    "anatomical_quadruped": true,
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "7310f733d32e37633add5cb9a3d17888b62e8b2bd620095af4af255596f6c360",
+        "generated-rig.npz": "40e02253622dc5971da06f2abf215bd5c5c6b4ea4f4cbf1421b7064fa053906d"
+      },
+      "2": {
+        "model.glb": "2f2df5680ea6094fbd7b5f985a1f3660248cf9870356597122c7fde77a11c153",
+        "generated-rig.npz": "3b3679e9137c6cc28ecddbee34783bb6719920a22d8e2eb210a6837e18345ea8"
+      },
+      "3": {
+        "model.glb": "9e7d6c1b0e7e26d4a4b6e2dd6e037b67b24295e22bded934774ae2f083def3e6",
+        "generated-rig.npz": "8b43530a7984735b2b2b924c5101874fc6695a442e4b640e545973cbc05654f2"
+      },
+      "4": {
+        "model.glb": "6657a1bdde0d481aff80b0c40a06c95f4c6a82fb08bbde267653d8e278c9450b",
+        "generated-rig.npz": "147565fbe5ae8035f5a1521ff4572603a2b69581fb9964f53a45abba7843f7ce"
+      }
+    }
   }
 }
