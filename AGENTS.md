@@ -1,5 +1,16 @@
 # WorldGen repository instructions
 
+RAW QUEUE145 CHECKPOINT,24October2026 evening:
+Hedgehog/Hippopotamus newly ready;145raw sets/580 candidates verified,31of176
+pending, audit errors[]. Same exec93476 remains live, currentHowlerMonkey shape.
+Hedgehog1Walk quarter front/side: correct alignment, coarse pointed feet/lumpy
+spines, limited warning only; other3 not screened in that pass. Hippo all4Walk
+side at quarter: bent/pitched forefeet but upper central head mapped correctly
+(nodes18/8/5/5 at~1.2-1.31m review height). No collapse-based exclusions from this
+single sampled pose. Per-root warnings store limits; not natural gait/art/contact
+approval. No new repair/model/rig inference outside normal serial generation,
+no painting/textures/game/Unity/window changes. Accepted deer and choices intact.
+
 RAW QUEUE143 / GUEREZA CORRESPONDENCE,24October2026 evening:
 Gorilla/Guereza/Gull newly ready:143raw sets/572 candidates,33of176 pending;
 full audit errors[]. Existing exec93476 outer6340/sole--watch21044 live at last
