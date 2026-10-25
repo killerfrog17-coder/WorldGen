@@ -616,16 +616,15 @@
     "ground-squirrel": {
       "animal": "Ground squirrel",
       "selected_models": [
-        2
+        4
       ],
-      "time": "2026-10-24T18:51:40.280514-05:00",
-      "model_sha256": "f36c88c80a5e212c79acd03f620c215432f6bba0c65c7c89bd0febd7b6b3f96a",
-      "rig_sha256": "481953028622ce3451f0a769c2f3f04be22bec53111c24cff355597a07451a27",
+      "time": "2026-10-24T19:59:54.421964-05:00",
+      "model_sha256": "ea766e2d97bedde2b036531a878b5ee519972d5b096bab35be42a72ea76f6979",
+      "rig_sha256": "719b6c27c98c894a6ab82dd87b31c4b97d038e346db50b366b3a2c4adde017e6",
       "model_selected": true,
       "animation_approved": false,
-      "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false,
-      "required_motion_fix": "Reverse Walk only; Run is already correct."
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
     },
     "guanaco": {
       "animal": "Guanaco",
@@ -892,14 +891,13 @@
       "selected_models": [
         1
       ],
-      "time": "2026-10-24T18:51:40.400733-05:00",
+      "time": "2026-10-24T19:59:54.468839-05:00",
       "model_sha256": "99b440739010744c5e1cf852daaea072797daf5e385ca49d0710c2221b5b3ed0",
       "rig_sha256": "757a175502adb1dd4a4e39f5b22f18f7e5132c84271e89dee1736226e1268bae",
       "model_selected": true,
       "animation_approved": false,
-      "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false,
-      "required_motion_fix": "Fix leg skeleton/walking while preserving candidate1."
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
     },
     "puma": {
       "animal": "Puma",
@@ -945,14 +943,13 @@
       "selected_models": [
         1
       ],
-      "time": "2026-10-24T18:51:40.425797-05:00",
+      "time": "2026-10-24T19:59:54.484464-05:00",
       "model_sha256": "cd3ae5df7744d60bb1437fea7a4e0b5f49a26e63ab9e62754b2872e7e5bb8320",
       "rig_sha256": "e03fa7d39359859f6d2813a480cfe3472b8b8038232fe19ef6c47734de9e75dc",
       "model_selected": true,
       "animation_approved": false,
-      "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false,
-      "required_motion_fix": "Reverse Walk only."
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
     },
     "snowy-owl": {
       "animal": "Snowy owl",
@@ -983,30 +980,28 @@
     "spotted-tailed-quoll": {
       "animal": "Spotted-tailed quoll",
       "selected_models": [
-        3
+        1
       ],
-      "time": "2026-10-24T18:51:40.445908-05:00",
-      "model_sha256": "0c7e49cd80e4fdbcb6ca5b492322b22873ec8f8a6948a1434439a94c5c939cdc",
-      "rig_sha256": "75af40fefb20d288b760865475ba7a318061cbfbcab22e59d967e306870d355c",
+      "time": "2026-10-24T19:59:54.500089-05:00",
+      "model_sha256": "465dfbaa06e6c5c86d70b6085b9edd56b5842de7ee47fbb90c1c22b9da21d368",
+      "rig_sha256": "5a7ca861331b7e810f5cbb8f5e5fc61bccb25b7aed33c8f4777600e918930c1b",
       "model_selected": true,
       "animation_approved": false,
-      "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false,
-      "required_motion_fix": "Fix tail being assigned as leg; preserve candidate3."
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
     },
     "stork": {
       "animal": "Stork",
       "selected_models": [
         1
       ],
-      "time": "2026-10-24T18:51:40.450928-05:00",
+      "time": "2026-10-24T19:59:54.500089-05:00",
       "model_sha256": "23828bedd910dd90ddfacdfe5b0837847ed3fb4ad853fb0e4fd018362891c72d",
       "rig_sha256": "7a0a1207b71c035a80a44bd8066939fb33c8e57a99bc56240cfd00ec7aba4a7f",
       "model_selected": true,
       "animation_approved": false,
-      "animation_method": "Current raw audition model selected; motion not independently approved.",
-      "painting_started": false,
-      "required_motion_fix": "Fix feet/leg skeleton so walking works; preserve candidate1."
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
     },
     "swan": {
       "animal": "Swan",
@@ -1215,7 +1210,8 @@
       "animation_approved": false,
       "animation_method": "Raw model selected by owner; current source motion remains provisional.",
       "painting_started": false,
-      "required_motion_fix": "Keep3 and move/map the left leg to the actual left leg rather than tail."
+      "required_motion_fix": "Keep3 and move/map the left leg to the actual left leg rather than tail.",
+      "latest_note": "Owner listed aardvark without new number; retain prior3."
     },
     "albatross": {
       "animal": "Albatross",
@@ -1248,14 +1244,13 @@
       "selected_models": [
         1
       ],
-      "time": "2026-10-24T19:02:41.473620-05:00",
+      "time": "2026-10-24T19:59:54.515715-05:00",
       "model_sha256": "659b8a92b04712501350db996da2ae1f9f8a20dbe823343db4e0d57dcf2e6d8a",
       "rig_sha256": "2e02e7bdfb28374617737487f5076bbc6397360b765c190f838d7e9e8c1a54c4",
       "model_selected": true,
       "animation_approved": false,
-      "animation_method": "Raw model selected by owner; current source motion remains provisional.",
-      "painting_started": false,
-      "required_motion_fix": "Keep1; fix front-left hand stretch in Walk and Run."
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
     },
     "gibbon": {
       "animal": "Gibbon",
@@ -1340,13 +1335,261 @@
       "selected_models": [
         1
       ],
-      "time": "2026-10-24T19:26:02.453404-05:00",
+      "time": "2026-10-24T19:59:54.437589-05:00",
       "model_sha256": "c02c1ea1e3d69b5754eb458198b616828a9ca3dc96427c6bd0151e54ca292f19",
       "rig_sha256": "a17bcb6907542ecd4a997d917ac8ef374a0f59b7e8122d5f5d5c584027f79b69",
       "model_selected": true,
-      "conditional_selection": true,
-      "selection_condition": "Owner says keep1 if front foot can be fixed; local forelimb skin + distal paw pin correction built and sampled poses inspected. Owner visual confirmation pending.",
       "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
+    },
+    "emu": {
+      "animal": "Emu",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T19:59:54.406341-05:00",
+      "model_sha256": "ccb30cb48136303fff4a2d3e473875c0771ffdc8f6e423a50f81459d36a2ac67",
+      "rig_sha256": "50efa239008b51d91bf03d9a9811b794efa7bc1f4cae9ba39566f58f15384693",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
+    },
+    "grass-rat": {
+      "animal": "Grass rat",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T19:59:54.421964-05:00",
+      "model_sha256": "498803d232b9b89faffce4db74a2a0a6e1774d96a0500522f9dde9482cb68369",
+      "rig_sha256": "16eb6466c9bfa7eec5c6717949a3cbdb56c1a48d929920b7957f7bd80eddfc6d",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
+    },
+    "hornbill": {
+      "animal": "Hornbill",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T19:59:54.421964-05:00",
+      "model_sha256": "31aa59bdbd6d4f5eac72dde0a3c2594c33805f62ddf24e48ba14047042f4d782",
+      "rig_sha256": "cc5ce5ddc9e16d307b7f0468b0fef6326da6404285b2063af07a49edb8ed6742",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
+    },
+    "hummingbird": {
+      "animal": "Hummingbird",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T19:59:54.437589-05:00",
+      "model_sha256": "5d23eb59ef0e18968db572615f72ce8be7e5c5f8c9804d161f1fe3ce19c05954",
+      "rig_sha256": "3630196026b336e881941191d27557631882efbf0c54c4de863b757ac62040ee",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
+    },
+    "jerboa": {
+      "animal": "Jerboa",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T19:59:54.437589-05:00",
+      "model_sha256": "c82706e77271912d8da8fe4bd9550354e5564406e104d56df5fccf1195738647",
+      "rig_sha256": "015db4e8037d818c129cfadce77d47c7708d4cf6b967c7dad12cdc7d0c8625ae",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
+    },
+    "native-small-lizards-guild": {
+      "animal": "Native small lizards (guild)",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T19:59:54.453214-05:00",
+      "model_sha256": "4ee94c7e5c0b3d28d581c17829d61fa7d2fb1ee2b6130e908b0a17184b029d9a",
+      "rig_sha256": "c4476a9add944864e053e0cb1e0be4143de72a7b63e317e5a5c96aa4b5824cc9",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
+    },
+    "paca": {
+      "animal": "Paca",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T19:59:54.453214-05:00",
+      "model_sha256": "cccab7fc9ffd3bf2cf169a809300b0babe89e58e78e720e6a7c1dcd3f8135272",
+      "rig_sha256": "4b381b47ceccd0ddbee4eb493d62b59595b12e50f40cdc293a6eda7f852c563b",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
+    },
+    "peafowl": {
+      "animal": "Peafowl",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T19:59:54.468839-05:00",
+      "model_sha256": "c12b6def20dca1fe992950843daf10ffde3857c6787a427feb086e48c303eaaa",
+      "rig_sha256": "40dd863791d68b021800afe7e5e59a3f78ad2ce324ef301a9fcb6d5f3ea28743",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
+    },
+    "pika": {
+      "animal": "Pika",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T19:59:54.468839-05:00",
+      "model_sha256": "66e6ab16a61c1f082708de509238629a3091c2da50c411087242d716c010c280",
+      "rig_sha256": "13b2eff4eecd9389a0c5b467054356e176cbffcb19cd30c9aa3d9a692b605f2d",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
+    },
+    "pronghorn": {
+      "animal": "Pronghorn",
+      "selected_models": [
+        4
+      ],
+      "time": "2026-10-24T19:59:54.484464-05:00",
+      "model_sha256": "cdd0c50879f9a7988bedf0e7e97f0e76d7fa0eeef060c67f79b237ee796fc2ce",
+      "rig_sha256": "5de86da22570fa9f87bf9eabd110b0252453ceec1186edb5b39ea10bf5cd9e3a",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
+    },
+    "salamanders-guild": {
+      "animal": "Salamanders (guild)",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T19:59:54.484464-05:00",
+      "model_sha256": "d716dc76b36fb4b66c8dc55a41c4fbf9e7a38aeb747fad3a6006f495f4bfe5bd",
+      "rig_sha256": "1e235fc85ef96e455c5ad91ff623391d0e8995fb944ad2cca07b6dfb26ef8720",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
+    },
+    "tapir": {
+      "animal": "Tapir",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T19:59:54.500089-05:00",
+      "model_sha256": "86146ae90eafc43b484c87a7fc866a467a73bf655f9065f050d21544b8c2dacc",
+      "rig_sha256": "e3446dcee78320d7410b2a8a39185a7d529db9062cb567e3291c169a00f9042c",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
+    },
+    "armadillo": {
+      "animal": "Armadillo",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T19:59:54.515715-05:00",
+      "model_sha256": "5f91792bb22b268c13a4ffdba433d7f04941c96a84e4f7dc45d859435c34f696",
+      "rig_sha256": "bf9f0c91ca20ec23625edc69a145b04c4564e3b2deec27185773df396f272913",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
+    },
+    "boa-constrictor": {
+      "animal": "Boa constrictor",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T19:59:54.515715-05:00",
+      "model_sha256": "1a9bd7bd422af08782aebd65723be729b78ab3621ea4665e0166f41a9643f8ae",
+      "rig_sha256": "811873fb8f82e3d6ecfaa3de5f44cbb30cf307cd8f90ece6db6d6bb1ee6181ba",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
+    },
+    "capuchin": {
+      "animal": "Capuchin",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T19:59:54.515715-05:00",
+      "model_sha256": "70f4e55cf0b1097cb7b57b4d139a6b1c335150789cd13fd0198fe4c2c8a3d497",
+      "rig_sha256": "c548f7fdd9b31466566799efc2fd36c70ce0644c4dcaea6b9d273b5aeb08ad85",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false,
+      "required_motion_fix": "Completed: Reverse Walk only, no further review; owner explicitly requests no re-show."
+    },
+    "capybara": {
+      "animal": "Capybara",
+      "selected_models": [
+        2
+      ],
+      "time": "2026-10-24T19:59:54.531340-05:00",
+      "model_sha256": "c9327c4039426781d3f355ff6fb935852540b1a68f7015d31eac4a4779e27203",
+      "rig_sha256": "164ae3977d6e819fc566eca6291806f403becfd499612f20ce3ff5c030899c9e",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false,
+      "required_motion_fix": "Completed: Keep2 regardless; remove small front-right foot protrusion during Walk if possible, no re-show."
+    },
+    "coastal-forage-fish-guild": {
+      "animal": "Coastal forage fish (guild)",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T19:59:54.531340-05:00",
+      "model_sha256": "84f1c30552a8f67e10b9727275a16d0c60b82e4cb54af3d2f0030443d3cee6fd",
+      "rig_sha256": "49cb99caa6b275a6af4267faee5b9842b30075916299f7b188d4a413dd7f4f09",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
+    },
+    "coastal-squid-guild": {
+      "animal": "Coastal squid (guild)",
+      "selected_models": [
+        1
+      ],
+      "time": "2026-10-24T19:59:54.531340-05:00",
+      "model_sha256": "3c43aec89fa1e64650f933a0d90e3f1913e0acffa3be6fb85ba80ddb5738ee5d",
+      "rig_sha256": "519b59139b8aa0363b2ebc5224adb8d8a86f92ebe7a221e2712d2ec415bdd7db",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
+      "painting_started": false
+    },
+    "seal": {
+      "animal": "Seal",
+      "selected_models": [
+        3
+      ],
+      "time": "2026-10-24T19:59:54.531340-05:00",
+      "model_sha256": "e8ba0f6c45eece10dba59541614dcb76d72d39fc84ef7aea8a7c33b2ddc1d0f2",
+      "rig_sha256": "c72f92406e5f1138a06ba0f3cf45546cf45ec650606c530cb0e592fdf197c077",
+      "model_selected": true,
+      "animation_approved": false,
+      "animation_method": "Owner accepts raw candidate after review; production controller/contact acceptance remains separate.",
       "painting_started": false
     }
   },
@@ -1441,87 +1684,87 @@
     },
     "emu": {
       "reason": "Manually correct full leg mapping/placement so it walks with actual legs.",
-      "status": "manual_motion_revision_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "grass-rat": {
       "reason": "All4 Run fold/snap neck into torso; inspect mapper/rig and redo motion without destroying acceptable geometry unnecessarily.",
-      "status": "manual_motion_revision_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "hornbill": {
       "reason": "Owner says redo hornbill.",
-      "status": "replacement_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "hummingbird": {
       "reason": "Correct wing and leg skeleton correspondence; owner asks manual adjustment.",
-      "status": "manual_motion_revision_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "jerboa": {
       "reason": "Tail must not be classified as a leg; another rig/motion attempt.",
-      "status": "manual_motion_revision_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "meerkat": {
       "reason": "Keep1 only if front-right foot stretching in Run can be fixed; otherwise regenerate.",
-      "status": "manual_motion_revision_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "native-small-lizards-guild": {
       "reason": "Completely broken; redo model/rig/motion pipeline.",
-      "status": "replacement_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "paca": {
       "reason": "Owner says redo paca.",
-      "status": "replacement_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "peafowl": {
       "reason": "Redo; same unusable leg/walk issue as other ground birds.",
-      "status": "replacement_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "pika": {
       "reason": "Owner says redo pika.",
-      "status": "replacement_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "pronghorn": {
       "reason": "Source must face straight along body; regenerate from corrected reference, or owner permits own deer mesh fallback.",
-      "status": "replacement_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "salamanders-guild": {
       "reason": "Same broken limb/retarget issue as native small lizard; redo.",
-      "status": "replacement_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "ground-squirrel": {
       "reason": "Reverse Walk only; Run is already correct.",
-      "status": "manual_motion_revision_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "skunk": {
       "reason": "Reverse Walk only.",
-      "status": "manual_motion_revision_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "pigeon": {
       "reason": "Fix leg skeleton/walking while preserving candidate1.",
-      "status": "manual_motion_revision_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "spotted-tailed-quoll": {
       "reason": "Fix tail being assigned as leg; preserve candidate3.",
-      "status": "manual_motion_revision_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "stork": {
       "reason": "Fix feet/leg skeleton so walking works; preserve candidate1.",
-      "status": "manual_motion_revision_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "aardvark": {
@@ -1531,40 +1774,40 @@
     },
     "baboon": {
       "reason": "Keep1; fix front-left hand stretch in Walk and Run.",
-      "status": "manual_motion_revision_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "boa-constrictor": {
       "reason": "Entirely different rig method: manually place body bones instead of existing inferred rig.",
-      "status": "manual_motion_revision_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "armadillo": {
       "reason": "Owner requests redo.",
-      "status": "replacement_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
     },
     "capybara": {
-      "reason": "Owner requests full redo from scratch.",
-      "status": "replacement_ready_owner_review_pending",
-      "art_approved": false
+      "reason": "Keep2 regardless; remove small front-right foot protrusion during Walk if possible, no re-show.",
+      "status": "requested_cleanup_applied_no_re_review",
+      "art_approved": false,
+      "proceed_without_re_review": true,
+      "completed_at": "2026-10-24T20:02:23.475096-05:00"
     },
     "seal": {
       "reason": "Redo from reference facing straight along body, not turning right.",
-      "status": "replacement_ready_owner_review_pending",
+      "status": "owner_selected_after_revision",
       "art_approved": false
-    }
-  },
-  "undecided_mentions": {
-    "tapir": {
-      "reason": "Owner replied leave untouched; will review again later.",
-      "selected": false
     },
-    "coastal-squid-guild": {
-      "reason": "Owner notes candidates all appear the same; no specific candidate selection.",
-      "selected": false
+    "capuchin": {
+      "reason": "Reverse Walk only, no further review; owner explicitly requests no re-show.",
+      "status": "requested_cleanup_applied_no_re_review",
+      "art_approved": false,
+      "proceed_without_re_review": true,
+      "completed_at": "2026-10-24T20:02:23.475096-05:00"
     }
   },
+  "undecided_mentions": {},
   "review_window_request": {
     "reopen_rightmost_after_requested_revisions": true,
     "time": "2026-10-24T19:02:41.521110-05:00",
@@ -1572,5 +1815,43 @@
     "pid": 30620,
     "opened_on": "rightmost",
     "only_prepared": true
-  }
+  },
+  "selection_history": [
+    {
+      "slug": "ground-squirrel",
+      "previous": {
+        "animal": "Ground squirrel",
+        "selected_models": [
+          2
+        ],
+        "time": "2026-10-24T18:51:40.280514-05:00",
+        "model_sha256": "f36c88c80a5e212c79acd03f620c215432f6bba0c65c7c89bd0febd7b6b3f96a",
+        "rig_sha256": "481953028622ce3451f0a769c2f3f04be22bec53111c24cff355597a07451a27",
+        "model_selected": true,
+        "animation_approved": false,
+        "animation_method": "Current raw audition model selected; motion not independently approved.",
+        "painting_started": false,
+        "required_motion_fix": "Reverse Walk only; Run is already correct."
+      },
+      "superseded_at": "2026-10-24T19:59:54.421964-05:00"
+    },
+    {
+      "slug": "spotted-tailed-quoll",
+      "previous": {
+        "animal": "Spotted-tailed quoll",
+        "selected_models": [
+          3
+        ],
+        "time": "2026-10-24T18:51:40.445908-05:00",
+        "model_sha256": "0c7e49cd80e4fdbcb6ca5b492322b22873ec8f8a6948a1434439a94c5c939cdc",
+        "rig_sha256": "75af40fefb20d288b760865475ba7a318061cbfbcab22e59d967e306870d355c",
+        "model_selected": true,
+        "animation_approved": false,
+        "animation_method": "Current raw audition model selected; motion not independently approved.",
+        "painting_started": false,
+        "required_motion_fix": "Fix tail being assigned as leg; preserve candidate3."
+      },
+      "superseded_at": "2026-10-24T19:59:54.500089-05:00"
+    }
+  ]
 }

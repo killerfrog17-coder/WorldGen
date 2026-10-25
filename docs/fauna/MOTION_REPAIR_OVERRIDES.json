@@ -690,13 +690,16 @@
     "motion_bank": "artifacts/fauna-motion-sources/rat"
   },
   "capybara": {
-    "reason": "Owner full redo; bilateral four-leg correspondence and neutral core avoid foreign head folds.",
+    "reason": "Owner full redo; bilateral four-leg correspondence and neutral core avoid foreign head folds. Owner selected2; local rigid paw skin cleanup removes a stray moving foot tip without changing the model or NN rig; no re-show.",
     "anatomical_quadruped": true,
     "source_flags": {
       "hold_core_bind": true,
       "reference_pose": "source_bind"
     },
-    "motion_bank": "artifacts/fauna-motion-sources/rat"
+    "motion_bank": "artifacts/fauna-motion-sources/rat",
+    "pin_distal_skin_candidates": [
+      2
+    ]
   },
   "aardvark": {
     "reason": "Owner selected model; repair tail/leg assignment or stretching hand without regenerating geometry.",
@@ -799,11 +802,40 @@
     }
   },
   "capuchin": {
-    "reason": "Recover failed ambiguous upright reference; explicit bilateral quadruped correspondence and neutral core, experimental fox source.",
+    "reason": "Recover failed ambiguous upright reference; explicit bilateral quadruped correspondence and neutral core, experimental fox source. Owner selected3 and requests Walk reversal only, no re-show.",
     "anatomical_quadruped": true,
     "source_flags": {
       "hold_core_bind": true,
       "reference_pose": "source_bind"
+    },
+    "reverse_clips": [
+      "Walk"
+    ]
+  },
+  "chimpanzee": {
+    "reason": "Complete four-limb paths despite crossed hands; preserve all own meshes/NN arrays, neutral core during experimental fox quadruped audition.",
+    "anatomical_quadruped": true,
+    "source_flags": {
+      "hold_core_bind": true,
+      "reference_pose": "source_bind"
+    },
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "18ca0ae6ebff39ae77b8f8e021f84ec01bd2770ff78ba3f890e23d38eab526e2",
+        "generated-rig.npz": "2c644d62cd2616e3777a657a4a6ada4c69e91f43d8d615c9b3ecfde4c503d833"
+      },
+      "2": {
+        "model.glb": "f4440c18a32c6c52245edb3b6d203c51b13d6a7a04d58fb264b857babe88cbf8",
+        "generated-rig.npz": "3a91fca9af0700eaae045f0588b4e1c2672aa08689d2a058c8a14ada2bd9f6e2"
+      },
+      "3": {
+        "model.glb": "fa7218f78177688145a2d632de2056e12daf57f324e940fa8186e1e078fb6682",
+        "generated-rig.npz": "54cd6b9a6c790dac9d668f8e05ad92944896418d9580b90f1316f97021190776"
+      },
+      "4": {
+        "model.glb": "5d6613acfa53aca5865301c315ef84a960b50852f4a122fa57790dd492c58741",
+        "generated-rig.npz": "d6cdb25c1d3ff0fcd8d8c44a255abcb4effc91d749683dee1e3e33435a63d52d"
+      }
     }
   }
 }

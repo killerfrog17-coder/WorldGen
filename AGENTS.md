@@ -1,5 +1,41 @@
 # WorldGen repository instructions
 
+LATEST OWNER26 CHOICES / SMALL CLEANUPS DONE,24October2026~20:00CDT:
+Owner chose Emu3,GrassRat4,GroundSquirrel4,Hornbill1,Hummingbird4,Jerboa2,
+Meerkat1,SmallLizard1,Paca1,Peafowl2,Pigeon1,Pika1,Pronghorn4,Salamander2,
+Skunk1,Quoll1,Stork1,Tapir1,Armadillo1,Baboon1,Boa1,Capuchin3,Capybara2,
+CoastalForageFish1,CoastalSquid1,Seal3. Canonical122 choices; changed choices
+have history. Bare Aardvark mention retains prior3 (told owner). Tapir/squid
+undecided notes removed. Raw candidate choices are not production/controller
+or universal contact/gait approval. No painting yet.
+Capuchin3 Walk reversed ONLY (Run unchanged); Capybara2 distal paw weights pin
+to wrist for requested small front-foot protrusion cleanup. Both rebuilt/native
+all4 checked, selected raw model and NN hashes EXACT. User says keep2 eitherway
+and do NOT show either again: no viewer reload/window/follow-up. Their pending
+cleanup statuses complete/proceed_without_re_review. Do NOT apply speculative
+Capuchin bind-axis/pose changes after this acceptance. Current viewerPID30620
+RIGHTMOST stays untouched; selected completed entries leave pending list.
+
+Automatic continuation progress: Capuchin new4 finished, Chimpanzee rigs1/4
+failed4 seeded endpoint tests. Actual graph inspection shows full four limbs;
+crossed fingertips were on wrong side of bbox midline, not missing arms.
+fauna_rig_topology now PRIMATE-ONLY fallback verifies2 proximal attachment
+pairs/four disjoint low complete appendage subtrees with adequate drop, while
+preserving original endpoint counts. Other-family outputs EXACT vs previous
+function for inspected arrays. Reused genuine last failed NN arrays1/4 with
+new proof, no joint/skin/mesh edits. Chimp all4 rebuilt/native pass, scoped
+anatomical mapping +neutral core on experimental fox source, owner art pending.
+finish-fauna-manual-recovery writes4 mesh hashes for producer's later state sync;
+do not manually edit live state.129 raw sets verified at last audit,47 remain;
+current full worker was CommonBrushtailPossum shape. Exec93476/outer6340 and
+sole --watch21044 remain live (verify). Keep goal active; actual127/128/129
+counts moved through Capuchin/CoastalForageFish/Chimp. No new GPU worker.
+Current stage source textures NOT started. Extra Gobkit search found new10bird
+post pointing same service; Python GET403, web public manifest readable239models.
+Earlier ten sampled models share16 generic joints; new bird packs NOT tested
+yet. Do not infer all current239 use that same unsuitable skeleton. No bank
+admitted or paid endpoint used. Research optional while full raw queue runs.
+
 REVISION PASS DONE / OWNER REQUESTED REVIEW OPEN,24October2026~19:47CDT:
 User asks open current prepared candidates NOW and exclude work not ready; asks
 baking ETA. Opened fresh viewer PID30620 RIGHTMOST on Emu via current numbered
