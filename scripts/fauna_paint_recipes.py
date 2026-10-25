@@ -3,11 +3,11 @@
 These are prototype art palettes, not generated ecology taxa or approval of
 one mesh as every named real analogue. Extend one body family at a time.
 """
-SUPPORTED={'hare','rabbit','red-fox','wolf','wild-boar','mouflon'}
+SUPPORTED={'hare','rabbit','red-fox','wolf','wild-boar','mouflon','wild-goat','bear'}
 
 def family(slug):
     assert slug in SUPPORTED
-    return 'canid' if slug in {'red-fox','wolf'} else 'suine' if slug=='wild-boar' else 'caprine' if slug=='mouflon' else 'lagomorph'
+    return 'canid' if slug in {'red-fox','wolf'} else 'suine' if slug=='wild-boar' else 'caprine' if slug in {'mouflon','wild-goat'} else 'ursid' if slug=='bear' else 'lagomorph'
 
 def profiles(slug):
     assert slug in SUPPORTED
@@ -49,15 +49,28 @@ def profiles(slug):
             ('Dark winter ram',[.225,.145,.09],[.82,.80,.72],False),
             ('Tan-brown ewe',[.46,.34,.22],[.80,.76,.66],False),
             ('Plain juvenile pigment study (adult body)',[.42,.315,.22],[.76,.71,.61],False),
-            ('Pale dryland (hypothetical)',[.61,.49,.33],[.86,.81,.70],False)]
+            ('Pale dryland (hypothetical)',[.61,.49,.33],[.86,.81,.70],False)],
+        'wild-goat':[
+            ('Warm brown summer',[.43,.305,.18],[.75,.70,.59],False),
+            ('Grey-brown winter',[.36,.345,.29],[.75,.73,.65],False),
+            ('Mature male dark markings',[.39,.285,.18],[.76,.71,.62],False),
+            ('Lighter female / young palette (adult body)',[.53,.42,.285],[.80,.75,.65],False),
+            ('Sandy dryland (hypothetical)',[.64,.52,.35],[.85,.80,.68],False)],
+        'bear':[
+            ('Near-black pigment study (current body)',[.075,.065,.055],[.32,.26,.20],False),
+            ('Cinnamon pigment study (current body)',[.36,.215,.115],[.45,.34,.24],False),
+            ('Dark brown',[.225,.16,.10],[.36,.285,.215],False),
+            ('Blond',[.60,.49,.33],[.68,.585,.445],False),
+            ('Silver-tipped grizzle',[.35,.255,.17],[.46,.37,.28],False),
+            ('Pale woodland (hypothetical)',[.53,.50,.415],[.64,.595,.49],False)]
     }[slug]
 
 def eye_radius(slug):
-    return {'hare':(.038,.032),'rabbit':(.040,.034),'red-fox':(.029,.019),'wolf':(.032,.021),'wild-boar':(.027,.018),'mouflon':(.026,.019)}[slug]
+    return {'hare':(.038,.032),'rabbit':(.040,.034),'red-fox':(.029,.019),'wolf':(.032,.021),'wild-boar':(.027,.018),'mouflon':(.026,.019),'wild-goat':(.026,.019),'bear':(.025,.017)}[slug]
 
 def fur_source(slug):
-    if slug=='wild-boar':return 'artifacts/fauna-assets/textures/fur-coarse-guard-v1.png'
-    if slug=='mouflon':return 'artifacts/fauna-assets/deer/fur-source.png'
+    if slug in {'wild-boar','bear'}:return 'artifacts/fauna-assets/textures/fur-coarse-guard-v1.png'
+    if slug in {'mouflon','wild-goat'}:return 'artifacts/fauna-assets/deer/fur-source.png'
     return 'artifacts/fauna-assets/deer/fur-source.png' if family(slug)=='canid' else 'artifacts/fauna-assets/textures/fur-dense-fine-v1.png'
 
 def eye_frame(slug,land,side):
@@ -65,7 +78,7 @@ def eye_frame(slug,land,side):
     import numpy as np
     anchor=land[side+'_eye'];n=np.array(anchor['normal']);n/=np.linalg.norm(n)
     if family(slug)!='lagomorph':
-        forward,lateral={'canid':(.62,.78),'suine':(.35,.94),'caprine':(.22,.975)}[family(slug)]
+        forward,lateral={'canid':(.62,.78),'suine':(.35,.94),'caprine':(.22,.975),'ursid':(.72,.69)}[family(slug)]
         desired=np.array(land['front_axis'])*forward+np.array(land['side_axis'])*(1 if side=='right' else -1)*lateral
         actual=n.copy();actual[2]=0;actual/=np.linalg.norm(actual)
         n=actual*.55+desired*.45;n[2]=np.clip(anchor['normal'][2],-.12,.12);n/=np.linalg.norm(n)

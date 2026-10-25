@@ -44,8 +44,11 @@ prior=root/'face-landmarks.json'
 if prior.exists():
     saved=json.loads(prior.read_text());assert saved['body_geometry_sha256']==state['geometry_sha256']
     camera=saved['guide_camera']  # Later diagnostic renders may have another size.
-else:camera=json.loads((root/'previews/1-Bind-side-head.json').read_text())
-pixel={'hare':(507,535),'rabbit':(503,373),'red-fox':(447,462),'wolf':(490,330),'wild-boar':(500,450),'mouflon':(487,428)}[a.slug];width,height=camera['size'];scale=camera['scale']
+else:
+    guide=root/'previews/1-Bind-side-head.json'
+    if not guide.exists():guide=root/'previews/1-Bind-side-head-surface.json'
+    camera=json.loads(guide.read_text())
+pixel={'hare':(507,535),'rabbit':(503,373),'red-fox':(447,462),'wolf':(490,330),'wild-boar':(500,450),'mouflon':(487,428)}.get(a.slug);width,height=camera['size'];scale=camera['scale']
 head=np.array(state['head_seed']);nose_seed=np.array(state['nose_seed'])
 front=nose_seed-head;front[2]=0;front/=np.linalg.norm(front)
 side=np.array([front[1],-front[0],0])
@@ -66,8 +69,18 @@ if pick_path.exists():
     right_eye=cast([right_eye['point'][0]+.8,right_eye['point'][1],level],[-1,0,0])
     left_eye=cast([left_eye['point'][0]-.8,left_eye['point'][1],level],[1,0,0])
     if picks.get('nose_seed'):nose_seed=np.array(picks['nose_seed'])
+    guided_nose=None
+    if picks.get('nose_guide'):
+        item=picks['nose_guide'];guide=item['camera'] if isinstance(item['camera'],dict) else json.loads((root/item['camera']).read_text())
+        guided_nose=cast_pixel(guide,item['pixel']);nose_seed=np.array(guided_nose['point'])
     midpoint=(np.array(right_eye['point'])+np.array(left_eye['point']))/2
     front=nose_seed-midpoint;front[2]=0;front/=np.linalg.norm(front);side=np.array([front[1],-front[0],0])
+    if picks.get('align_eye_plane'):
+        aligned=[]
+        for sign,anchor in [(1,right_eye),(-1,left_eye)]:
+            target=np.array(anchor['point']);target-=front*((target-midpoint)@front)
+            aligned.append(cast(target+side*sign*.8,-side*sign))
+        right_eye,left_eye=aligned
 elif family(a.slug)!='lagomorph':
     # Independently inspected sockets avoid copying a median-head plane onto
     # an asymmetric/oblique generated skull.
@@ -82,10 +95,14 @@ elif family(a.slug)!='lagomorph':
     midpoint=(np.array(right_eye['point'])+np.array(left_eye['point']))/2
     front=nose_seed-midpoint;front[2]=0;front/=np.linalg.norm(front)
     side=np.array([front[1],-front[0],0])
-nose=cast([nose_seed[0],float(p[:,1].max()+1),nose_seed[2]],[0,-1,0])
+nose=guided_nose if independent and guided_nose else cast([nose_seed[0],float(p[:,1].max()+1),nose_seed[2]],[0,-1,0])
 assert abs(right_eye['point'][2]-left_eye['point'][2])<1e-5
 landmarks={'slug':a.slug,'source_candidate':state['source_candidate'],'method':'Inspected guide-pixel ray to largest connected body; opposite eye ray onto actual surface; front nose ray excludes loose debris.','right_eye':right_eye,'left_eye':left_eye,'nose':nose,'head_seed':head.tolist(),'side_axis':side.tolist(),'front_axis':front.tolist(),'eye_guide_pixel':pixel,'guide_camera':camera,'ignored_landmark_components':len(components)-1,'main_component_vertices':len(main),'body_vertices_unchanged':True,'body_geometry_sha256':state['geometry_sha256']}
 if front_guide:landmarks.update(method='Independent inspected front-camera socket rays on main body; no skull-plane mirroring.',eye_guide_pixel=None,front_guide_camera=front_guide,front_eye_pixels=front_pixels,eye_height_difference=abs(right_eye['point'][2]-left_eye['point'][2]))
 if independent:landmarks.update(method='Independent opposite-side inspected guide rays, levelled and recast from their own side; no frontal hidden-socket assumption.',eye_guide_pixel=None,independent_eye_guides=independent,eye_height_difference=abs(right_eye['point'][2]-left_eye['point'][2]))
+if independent:
+    landmarks['eye_plane_aligned']=bool(picks.get('align_eye_plane'))
+    landmarks['eye_forward_depth_difference']=float(abs((np.array(right_eye['point'])-np.array(left_eye['point']))@front))
+    if picks.get('nose_guide'):landmarks['nose_guide']=picks['nose_guide']
 (root/'face-landmarks.json').write_text(json.dumps(landmarks,indent=2)+'\n')
 print('FACIAL ANCHORS',a.slug,json.dumps({key:landmarks[key]['point'] for key in ['right_eye','left_eye','nose']}),flush=True)

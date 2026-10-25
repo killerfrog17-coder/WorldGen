@@ -1,6 +1,6 @@
 """Install CPU coat atlases and fitted, separately skinned facial features.
 
-Unpublished hare/rabbit working copies only. The selected body, weights,
+Unpublished supported mammal working copies only. The selected body, weights,
 hierarchy and source actions stay unchanged; appearance still needs review.
 """
 import argparse, hashlib, json, math, sys
@@ -113,7 +113,7 @@ for side in ['right','left']:
     def ellipse(t):
         # Small forward tear corner, fuller upper arch, shallow lower lid.
         c=math.cos(t);sn=math.sin(t);return hu*(rx*c*(1+.08*max(c,0)))+vu*(rz*sn*(1.03 if sn>0 else .87))
-    bulge=.008 if kind in {'suine','caprine'} else .011 if canid else .018
+    bulge=.008 if kind in {'suine','caprine','ursid'} else .011 if canid else .018
     vertices=[center+n*(.002+bulge)];uvs=[(.5,.5)];polygons=[]
     for ring in range(1,rings+1):
         rad=ring/rings
@@ -165,12 +165,14 @@ for side in [-1,1]:
 obj(a.slug+' muzzle whiskers',vertices,polygons,[whiskermat],anchor=sample(nose)[2])
 
 entry.update(facial_objects=features,coat_objects=coat_objects,objects=[entry['body'],*features,*entry.get('appendage_objects',[])])
-if kind in {'suine','caprine'}:
+entry['paint_face_direction']=land['front_axis']
+if kind in {'suine','caprine','ursid'}:
     focus=(np.array(land['right_eye']['point'])+np.array(land['left_eye']['point'])+nose)/3
     entry['paint_head_vertex']=int(np.argmin(np.linalg.norm(p-focus,axis=1)))
     entry['paint_head_span']=.90;entry['paint_head_distance']=1.25
 s['deer_four_rigs']=json.dumps([entry]);s['fauna_painting']=json.dumps({'source_candidate':state['source_candidate'],'stage':'UV coats and fitted facial features; appearance review pending','coats':entry['painting_coats']})
 state.update(status='atlas_and_face_fitted_working',coats=entry['painting_coats'],landmarks_pending=False,facial_objects=features,facial_eye_fits=eye_reports,uv_atlases_installed=True,appearance_approved=False)
+if kind=='ursid':state['appearance_scope']='Selected shoulder-humped body only. Near-black/cinnamon are pigment studies; a distinct black-bear archetype and cub/seasonal body proportions have not been modelled.'
 geometry=hashlib.sha256(np.array([v.co[:] for v in body.data.vertices],np.float32).tobytes()+np.array([f.vertices[:] for f in body.data.polygons],np.int32).tobytes()).hexdigest()
 assert geometry==state['geometry_sha256'],'Selected body geometry changed'
 state['body_triangles']=sum(len(f.vertices)-2 for f in body.data.polygons)

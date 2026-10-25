@@ -42,7 +42,7 @@ def shape_memory_mode():
 def pause_requested():
     control=root/'run-control.json'
     mode=json.loads(control.read_text()) if control.exists() else {}
-    if mode.get('mode')=='pause':return True
+    if mode.get('mode') in {'pause','complete'}:return True
     legacy=root/'PAUSE'
     if not legacy.exists():return False
     # Preserve the blocked-to-delete internal checkpoint as a record. This

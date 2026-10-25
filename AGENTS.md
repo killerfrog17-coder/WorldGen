@@ -1,5 +1,52 @@
 # WorldGen repository instructions
 
+RAW176 COMPLETE / GOAT+BEAR COLOUR PASSES,25October2026:
+FULL raw audit now176verified/0pending/errors[],704candidates; all188 plans and
+accepted deer retained. Whale4 and bounded SpiderMonkey2 retry succeeded (seed
+2852635,65joints,82.24s); successful Monkey1/3/4 reused. DO NOT restart the raw
+producer during ordinary goal continuations. Same16008/94528 completed, stopped
+ONLY its idle watch loop after current=null/no child, and observed exec94528
+EXIT0. worker_exited=true, lock absent; run-control mode=complete. Worker now
+treats complete as terminal just like its pause control, so accidental watch
+relaunch cannot silently begin new inference. This is NOT an owner pause of
+the overall goal: selected-body colouring remains active. Receipt in ignored
+raw-phase-completed.json binds audit/index SHAs. Raw temp0files/0bytes and all
+704 candidate folders have0 known raw high-poly/latent intermediates remaining.
+No deletion/reclaimed-space claim; worker had already cleaned those exact files.
+
+Eight selected colour copies now checked (8of122chosen), adding WildGoat1 five
+coats and Bear2 six, same artifacts/fauna-painted-20261024 roots. Both6000tri
+selected body/skin/rest rig +ALL15 source actions EXACT in native check. No new
+body, rig/bones, poses or gameplay. Face476tri; goat backward scimitar horns in
+3male sizes/female/buds plus2small beard meshes, max7114visible; bear20small claws
+(5per existing paw), max6996. Only eligible appendages render. Male dark-neck/
+shoulder goat palette has male options; other adult palettes allow both sexes,
+female/young palette small horns/buds, no juvenile-proportion claim. Bear keeps
+selected shoulder-humped archetype; near-black/cinnamon are PIGMENT studies, not
+a new black-bear model. Distinct black-bear/cub/seasonal body forms still absent.
+
+Mesh-pinned opposite-side picks fit both heads. Optional align_eye_plane recasts
+paired sockets into one depth plane perpendicular to nose-forward, at equalZ;
+corrects hidden eye placement on oblique goat WITHOUT changing chosen skull.
+Optional embedded nose_guide fixes off-centre maxY nasal seed. Saved metadata
+retains cameras/picks/depth residual. New face view follows bind face-forward;
+Front body remains world+Y for actual alignment checks (no hidden yaw repair).
+Whole-body CPU diagnostic bounds now include visible features so long horns
+fit; goat viewer body distance3.8. Bear corneal bulge8mm, coarse tip contrast/
+300micron artistic fur relief, furred inner ears, muzzle/nose/pad/claw regions.
+Normals remain artistic, not measured PBR. Earlier six colour files untouched.
+All8 native maps/source preservation/1-4/skeleton/coat+appendage reachability pass;
+actual heads front/side, goat mature/female/rear, bear cinnamon-side/grizzle-front
+inspected. Art/natural-motion approval pending; no owner window or ping opened.
+
+One new built-in imagegen shag source prepared for selected Bison4 (26.1s), not
+yet mapped: artifacts/fauna-assets/textures/fur-wool-shag-v1.png +exact prompt/
+provenance JSON, SHA928404d5d2e1abaaf95dee9ae447aa5f7d14f42edf70c0c5e450f75bd0e782f9.
+Not guaranteed seamless/measured PBR. No new localGPU/paid API/installs or owner
+app closure. Next selected colouring Bison4, then roster priority; explicit
+recipe support is now8slugs, not every family. Preserve all raw comparisons,
+deer, source/body selections and user-open files; no automatic new model choice.
+
 BOAR/MOUFLON FIRST COLOUR PASSES,25October2026~01:22CDT:
 Six selected bodies now have checked colour passes (6of122chosen, NOT all122).
 New WildBoar1/Mouflon1 copies in fauna-painted-20261024, five coats each; owner

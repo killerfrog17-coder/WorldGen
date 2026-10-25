@@ -1,4 +1,4 @@
-"""Small skinned horn/tusk libraries on the chosen boar/mouflon colour copies.
+"""Small skinned horn/tusk/claw libraries on supported chosen colour copies.
 
 The selected body/rig/actions remain untouched. Options are illustrative linked
 age/sex review configurations, not implemented population or growth rules.
@@ -11,7 +11,7 @@ from mathutils.bvhtree import BVHTree
 
 repo=Path(__file__).resolve().parent.parent
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True)
-a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);assert a.slug in {'wild-boar','mouflon'}
+a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);assert a.slug in {'wild-boar','mouflon','wild-goat','bear'}
 root=repo/'artifacts/fauna-painted-20261024'/a.slug
 state=json.loads((root/'paint-state.json').read_text());assert not state['appearance_approved']
 land=json.loads((root/'face-landmarks.json').read_text());bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Painted Species Review.blend'))
@@ -39,9 +39,9 @@ def surface(target):
 
 def texture_material():
     count=256;y,x=np.mgrid[0:count,0:count];u=x/count;v=y/count
-    ivory=a.slug=='wild-boar'
+    ivory=a.slug in {'wild-boar','bear'}
     pigment=(.5+.5*np.sin(v*math.tau*18+np.sin(u*math.tau)*.3)) if not ivory else (.5+.5*np.sin(u*math.tau*12+v*4))
-    base=np.array([.83,.78,.64] if ivory else [.34,.265,.175]);rgb=base[None,None,:]*(.88+.16*pigment[:,:,None])
+    base=np.array([.40,.34,.25] if a.slug=='bear' else [.83,.78,.64] if ivory else [.34,.265,.175]);rgb=base[None,None,:]*(.88+.16*pigment[:,:,None])
     material=bpy.data.materials.new(a.slug+' appendage keratin');material.use_nodes=True
     shader=material.node_tree.nodes.get('Principled BSDF');shader.inputs['Roughness'].default_value=.38 if ivory else .64
     im=bpy.data.images.new(a.slug+' keratin colour',width=count,height=count,alpha=True)
@@ -56,8 +56,8 @@ def texture_material():
     return material
 
 material=texture_material()
-def tube(name,path,radius,skin,horn=False):
-    path=np.asarray(path);vertices=[];polys=[];uv=[];segments=6;last=None
+def tube(name,path,radius,skin,horn=False,segments=6):
+    path=np.asarray(path);vertices=[];polys=[];uv=[];last=None
     for i,point in enumerate(path):
         t=i/(len(path)-1);tangent=path[min(i+1,len(path)-1)]-path[max(0,i-1)];tangent/=np.linalg.norm(tangent)
         normal=up if last is None else last;normal=normal-tangent*(normal@tangent)
@@ -74,7 +74,7 @@ def tube(name,path,radius,skin,horn=False):
     ob.matrix_world=body.matrix_world.copy();mesh.materials.append(material);layer=mesh.uv_layers.new(name='UVMap')
     for poly in mesh.polygons:
         poly.use_smooth=True
-        seam=any(uv[mesh.loops[k].vertex_index][0]==0 for k in poly.loop_indices) and any(uv[mesh.loops[k].vertex_index][0]>.8 for k in poly.loop_indices)
+        seam=any(uv[mesh.loops[k].vertex_index][0]==0 for k in poly.loop_indices) and any(uv[mesh.loops[k].vertex_index][0]>=1-1/segments-1e-6 for k in poly.loop_indices)
         for k in poly.loop_indices:
             a0,b0=uv[mesh.loops[k].vertex_index];layer.data[k].uv=(1 if seam and a0==0 else a0,b0)
     for key,weight in skin.items():group=ob.vertex_groups.new(name=key);group.add(list(range(len(vertices))),float(weight),'REPLACE')
@@ -92,7 +92,7 @@ if a.slug=='wild-boar':
         libraries[style]=pair
     adults=[('medium','adult male example'),('small','adult female example'),('large','mature male example')]
     assignment=[adults,adults,adults,[(None,'juvenile pigment study; adult body')],adults]
-else:
+elif a.slug=='mouflon':
     for style,radius,angle,count in [('young-ram',.14,3.2,14),('adult-ram',.19,4.4,20),('mature-ram',.23,5.2,24),('small-ewe',.07,1.3,10)]:
         pair=[]
         for sign in [-1,1]:
@@ -110,6 +110,58 @@ else:
     rams=[('adult-ram','adult ram example'),('young-ram','younger ram horn example'),('mature-ram','mature ram horn example')]
     ewes=[('small-ewe','small-horned ewe lineage'),(None,'hornless ewe lineage')]
     assignment=[rams,rams,ewes,[(None,'juvenile pigment study; adult body')],rams+ewes]
+elif a.slug=='wild-goat':
+    for style,length,count in [('young-buck',.25,12),('adult-buck',.50,18),('mature-buck',.85,24),('doe',.18,10),('buds',.055,5)]:
+        pair=[]
+        for sign in [-1,1]:
+            target=eye_mid-front*.10+side_axis*sign*.085+up*.08
+            hit=bvh.ray_cast(Vector(target+up*.8),Vector(-up),1.6)[0];root_point,skin=surface(hit if hit is not None else target)
+            root_normal=np.array(bvh.find_nearest(Vector(root_point))[1]);root_normal/=np.linalg.norm(root_normal)
+            path=[root_point+up*(length*(t-.25*t*t))-front*(length*(.18*t+.65*t*t))+side_axis*sign*(.025*math.sin(t*math.pi/2))-root_normal*.035*math.exp(-t*15) for t in np.linspace(0,1,count)]
+            name=f'{a.slug} {style} horn {sign}';pair.append(tube(name,path,.026*(length/.50)**.55,skin))
+            evidence.append({'object':name,'root':root_point.tolist(),'skin':skin,'length_parameter':length,'shape':'backward scimitar, no ram spiral'})
+        libraries[style]=pair
+    beard_material=bpy.data.materials.new('Goat dark beard');beard_material.use_nodes=True
+    beard_shader=beard_material.node_tree.nodes.get('Principled BSDF');beard_shader.inputs['Base Color'].default_value=(.045,.033,.022,1);beard_shader.inputs['Roughness'].default_value=.90
+    beards={}
+    for style,length in [('short',.065),('full',.105)]:
+        root_point,skin=surface(nose-front*.14-up*.065);vertices=[];polys=[]
+        for strand in range(5):
+            base=len(vertices)
+            for i,t in enumerate([0,.55,1]):
+                centre=root_point+side_axis*((strand-2)*.007)-up*(length*t*(.90+.025*strand))-front*(length*.12*t)
+                for j in range(3):
+                    angle=math.tau*j/3;vertices.append(centre+(.0055*(1-t)+.0001)*(side_axis*math.cos(angle)+front*math.sin(angle)))
+            for i in range(2):
+                for j in range(3):polys.append((base+i*3+j,base+i*3+(j+1)%3,base+(i+1)*3+(j+1)%3,base+(i+1)*3+j))
+            polys.extend([(base+2,base+1,base),(base+6,base+7,base+8)])
+        name=f'wild-goat {style} beard';mesh=bpy.data.meshes.new(name);mesh.from_pydata(vertices,[],polys);mesh.update()
+        ob=bpy.data.objects.new(name,mesh);s.collection.objects.link(ob);ob.matrix_world=body.matrix_world.copy();mesh.materials.append(beard_material)
+        for poly in mesh.polygons:poly.use_smooth=True
+        for key,weight in skin.items():group=ob.vertex_groups.new(name=key);group.add(list(range(len(vertices))),float(weight),'REPLACE')
+        mod=ob.modifiers.new('Selected rig','ARMATURE');mod.object=rig;mod.use_deform_preserve_volume=False
+        objects.append(name);beards[style]=name;evidence.append({'object':name,'root':root_point.tolist(),'skin':skin,'length':length})
+    for style in ['young-buck','adult-buck','mature-buck']:libraries[style].append(beards['short' if style=='young-buck' else 'full'])
+    males=[('adult-buck','adult male horn example'),('young-buck','younger male horn example'),('mature-buck','mature male horn example')]
+    females=[('doe','adult female horn example')];young=[('buds','young horn-bud study; adult body')]
+    assignment=[males+females,males+females,males,females+young,males+females]
+    entry['paint_body_distance']=3.8
+else:
+    # Five claws on each existing paw; no added toes or new skinning bones.
+    claws=[];low=p[p[:,2]<.22]
+    for fore in [False,True]:
+        for sign in [-1,1]:
+            foot=low[((low[:,1]>.0)==fore)&(low[:,0]*sign>.08)]
+            assert len(foot)>10,'Cannot isolate the selected bear paw'
+            centre=np.median(foot,axis=0);toe_y=float(np.quantile(foot[:,1],.95));spread=float(np.ptp(foot[:,0]))*.30
+            for toe in range(5):
+                target=np.array([centre[0]+(toe-2)*spread/2,toe_y,.085]);root_point,skin=surface(target)
+                length=.055 if fore else .035
+                path=[root_point+np.array([0,length*t,-.016*t*t]) for t in [0,.5,1]]
+                name=f'bear {"fore" if fore else "hind"} {sign} claw {toe}'
+                claws.append(tube(name,path,.007,skin,segments=5))
+            evidence.append({'paw_fore':fore,'side':sign,'toe_front_y':toe_y,'foot_vertices':len(foot)})
+    libraries['fixed-claws']=claws;assignment=[[('fixed-claws','Selected shoulder-humped archetype; pigment study')]]*len(entry['painting_coats'])
 assert len(assignment)==len(entry['painting_coats'])
 for coat,variants in zip(entry['painting_coats'],assignment):
     options=[{'objects':libraries[style] if style else [],'label':label} for style,label in variants]

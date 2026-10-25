@@ -1,5 +1,26 @@
 OVERNIGHT FAUNA AUDITIONS - 24 OCTOBER 2026
 
+25 OCT RAW PHASE COMPLETE / EIGHT COLOUR PASSES
+Full raw audit176verified/0pending/errors[],704candidates. Whale/Monkey retry now
+ready;16008/94528 exited0 after its idle watch loop was stopped. Control=complete,
+lock absent; no current producer. This does NOT pause the overall colour task.
+Do not restart GPU jobs unless a new raw generation is explicitly needed.
+Known high-poly/latent intermediates0 across704 folders; raw temp0files.
+
+Selected WildGoat1/Bear2 colour passes add5/6coats, current8of122chosen checked.
+Same6000tri bodies/skin/rest/all15 actions exact; no new bones or poses. Goat
+scimitar horn male/female/bud options+small beard variants max7114visible; bear
+five claws per paw max6996. Near-black/cinnamon on its shoulder-humped body are
+pigment studies, not a black-bear archetype/cub morphology. Actual CPU heads,
+body/trait views inspected, all8 native controls/maps/reachability pass; no owner
+art approval or window launch. Guided nose/paired-eye plane fit does not change
+selected skull; anatomical face camera differs from world Front body checks.
+
+Shared shag/wool source prepared for selected Bison4, not mapped yet; PNG and
+exact built-in imagegen prompt/provenance in fauna-assets/textures. Next Bison4
+then selected roster priority. No more raw-only hold or new automatic model
+selection. Accepted deer, all raw comparisons and user-open files protected.
+
 25 OCT BOAR/MOUFLON COLOUR CHECKPOINT
 Six selected colour passes indexed of122chosen: +WildBoar1/Mouflon1, five coats
 each. New built-in imagegen coarse-guard swatch actually used, prompt/SHA saved

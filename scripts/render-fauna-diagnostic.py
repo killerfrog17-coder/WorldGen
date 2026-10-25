@@ -40,12 +40,20 @@ if a.surface_only:
     mat=bpy.data.materials.new('Neutral anatomy guide');mat.use_nodes=True;mat.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value=(.30,.28,.25,1)
     mat.node_tree.nodes['Principled BSDF'].inputs['Roughness'].default_value=.85;body.data.materials[0]=mat
 bpy.context.view_layer.update();evaluated=body.evaluated_get(bpy.context.evaluated_depsgraph_get());mesh=evaluated.to_mesh();p=np.array([evaluated.matrix_world@v.co for v in mesh.vertices]);evaluated.to_mesh_clear()
+if not a.raw_mesh and not a.head:
+    parts=[p]
+    for name in e.get('objects',[]):
+        ob=bpy.data.objects[name]
+        if name==e['body'] or ob.type!='MESH' or ob.hide_render:continue
+        ev=ob.evaluated_get(bpy.context.evaluated_depsgraph_get());m=ev.to_mesh();parts.append(np.array([ev.matrix_world@v.co for v in m.vertices]));ev.to_mesh_clear()
+    p=np.vstack(parts)
 center=Vector(((p.min(0)+p.max(0))*.5).tolist());span=float(np.ptp(p,axis=0).max());directions={'side':(1,0,.08),'left':(-1,0,.08),'front':(0,1,.08),'rear':(0,-1,.08),'oblique':(1,1,.25),'top':(0,0,1)}
 if a.head and not a.raw_mesh:
     if e.get('paint_head_vertex') is not None:
         ev=body.evaluated_get(bpy.context.evaluated_depsgraph_get());head=np.array(ev.matrix_world@ev.data.vertices[e['paint_head_vertex']].co)
     else:head=np.array(r.matrix_world@r.pose.bones['Head'].head)
     center=Vector((head+np.array([0,.08,.035])).tolist());span=e.get('paint_head_span',.72)
+    if e.get('paint_face_direction'):directions['front']=tuple(Vector(e['paint_face_direction'])+Vector((0,0,.08)))
 if a.focus:center=Vector(a.focus)
 camera=bpy.data.objects.new('Diagnostic camera',bpy.data.cameras.new('Diagnostic camera'));s.collection.objects.link(camera);camera.location=center+Vector(directions[a.view]).normalized()*span*2;camera.rotation_euler=(center-camera.location).to_track_quat('-Z','Y').to_euler();camera.data.type='ORTHO';camera.data.ortho_scale=span*1.22;s.camera=camera
 for pos,power,size in [((3,4,5),650,5),((-3,1,3),350,4),((0,-4,4),450,3)]:

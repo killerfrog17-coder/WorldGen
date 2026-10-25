@@ -26,7 +26,7 @@ for job in queue['jobs']:
     if check.get('checked_blend_sha256')!=hashlib.sha256(blend.read_bytes()).hexdigest():continue
     assert check['source_bind_geometry_skin_rig_exact'] and check['source_actions_exact']
     if not state.get('facial_objects'):continue
-    ready.append({'slug':slug,'name':job['animal'],'priority':rank[slug],'path':str(blend),'candidates':1,'selected_raw_candidate':state['source_candidate'],'coats':len(state['coats']),'appearance_approved':False,'motion_approved':False})
+    ready.append({'slug':slug,'name':job['animal'],'priority':rank[slug],'path':str(blend),'candidates':1,'selected_raw_candidate':state['source_candidate'],'coats':len(state['coats']),'appearance_scope':state.get('appearance_scope','Selected body only; no age-proportion or ecology implementation inferred.'),'appearance_approved':False,'motion_approved':False})
 now=datetime.now().astimezone().isoformat();queue['updated']=now
 queue['counts']={'selected':len(queue['jobs']),'painting_started':sum((root/x['slug']/'paint-state.json').exists() for x in queue['jobs']),'checked_first_passes':len(ready),'appearance_approved':sum(bool(x.get('appearance_approved')) for x in queue['jobs'])}
 index={'updated':now,'ready':sorted(ready,key=lambda x:x['priority']),'notes':'First colour passes on owner-selected bodies only. Body/rig/source-motion preservation checked. Appearance and natural motion remain unapproved; raw debris and raw gait defects are retained.'}

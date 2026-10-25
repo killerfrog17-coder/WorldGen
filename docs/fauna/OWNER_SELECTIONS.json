@@ -87,7 +87,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\wild-goat\\Animal - Painted Species Review.blend"
     },
     "bear": {
       "animal": "Bear",
@@ -100,7 +102,9 @@
       "model_selected": true,
       "animation_approved": false,
       "animation_method": "Owner intends a different future animation method; current raw motions are not acceptance.",
-      "painting_started": false
+      "painting_started": true,
+      "painting_status": "atlas_and_face_fitted_working",
+      "paint_review": "artifacts\\fauna-painted-20261024\\bear\\Animal - Painted Species Review.blend"
     },
     "bison": {
       "animal": "Bison",

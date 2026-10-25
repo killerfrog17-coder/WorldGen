@@ -2,6 +2,37 @@
 
 ## Current finishing update - 25 October 2026
 
+The raw phase is complete:176 review sets/704 candidates, full file/provenance
+audit with zero pending/error entries. This is technical audition completion,
+not natural-motion or owner visual approval. The idle generator exited cleanly;
+its control is `complete`, and selected-body colouring continues independently.
+Do not restart GPU generation simply because the overall finishing goal is active.
+
+Eight colour passes are checked, adding WildGoat1 and Bear2. Goat has five coats,
+backward scimitar horn sizes for male/female/young examples and two small beard
+variants; maximum visible7114 triangles. Bear has six coat/pigment studies,
+fitted eyes, furred ear interiors, muzzle/nose/pad regions and five small claws
+on each existing paw; maximum6996 triangles. Both retain the chosen6000-triangle
+body, original skin/rest hierarchy and all15 source actions exactly. Near-black
+and cinnamon on this shoulder-humped bear are pigment studies; the plan's
+distinct black-bear archetype is not created by recolouring it. No cub or other
+age/season body proportions have been implemented.
+
+Optional `align_eye_plane` in mesh-pinned guide picks places both sockets in a
+common forward-depth plane using actual opposite-side surface rays. A guided
+nasal pick can embed its camera in the same record, avoiding a maxY edge seed.
+It is a cosmetic fit, not a repair of the selected skull or rig. Face camera
+now uses bind face-forward when provided; Front body still checks world+Y.
+Whole-body render framing includes visible appendages, and the goat's wider
+review framing accommodates the largest horns. All eight native controls,
+source preservation and palette/eligible-appendage options pass. Actual CPU
+head/body/selected trait images were inspected; appearance remains owner pending.
+
+The explicit paint recipe set now covers eight mammals. Shared short fur,
+dense fine fur and coarse guard fur are reused. A new shag/wool source has been
+generated and inspected for selected Bison4 next; it is not mapped to a body
+yet. Its full prompt and provenance stay beside the project source PNG.
+
 Six selected bodies now have checked first colour passes, adding WildBoar1 and
 Mouflon1 (five coats each). Boar reuses the new shared coarse-guard source;
 mouflon reuses the accepted short directional fur. Both have anatomy-gated

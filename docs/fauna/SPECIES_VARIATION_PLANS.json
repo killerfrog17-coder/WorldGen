@@ -4295,7 +4295,7 @@
         "action": "New shared source if needed",
         "brief": "Coarse guard hairs over a dense undercoat, muted brown-grey, restrained directional strand groups with no large curls.",
         "uses": "Bear, boar, coarse-coated mammals; silhouette hair is later geometry.",
-        "status": "Generated shared source, in use by selected WildBoar1 first colour pass",
+        "status": "Generated shared source, in use by selected WildBoar1 and Bear2 first colour passes",
         "path": "artifacts/fauna-assets/textures/fur-coarse-guard-v1.png",
         "provenance": "artifacts/fauna-assets/textures/fur-coarse-guard-v1.json",
         "sha256": "0b8d1ac4915c3f11de85b36f36932715a45e0df4ae4e35f19268a6254378d0f4"
@@ -4305,7 +4305,11 @@
         "priority": 4,
         "action": "New shared source if needed",
         "brief": "Dense natural wool with small uneven fibre groups and shallow soft curls, neutral grey-brown, no deep baked occlusion.",
-        "uses": "Sheep-like wool and selected shag undercoats; not automatically every ox/bison mane."
+        "uses": "Sheep-like wool and selected shag undercoats; not automatically every ox/bison mane.",
+        "status": "Generated and visually inspected reusable source, awaiting selected Bison4 mapping",
+        "path": "artifacts/fauna-assets/textures/fur-wool-shag-v1.png",
+        "provenance": "artifacts/fauna-assets/textures/fur-wool-shag-v1.json",
+        "sha256": "928404d5d2e1abaaf95dee9ae447aa5f7d14f42edf70c0c5e450f75bd0e782f9"
       },
       {
         "id": "feather_contour",
