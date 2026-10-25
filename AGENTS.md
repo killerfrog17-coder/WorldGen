@@ -1,5 +1,23 @@
 # WorldGen repository instructions
 
+RAW QUEUE168 / CPU SWEEP RESUMED,24October2026~23:17CDT:
+Shrew4 shapes/rigs/motion review ready; all4 Bind-side/quarterWalk inspected,
+correct head-forward axes.3 strong curled forefoot,4 flattened torso/tucked
+hindlimbs excluded for clean-motion recommendation ONLY; all4 retained, no
+rig/skin/pose repair or art approval.8raw sets left; main GPU94528/16008 now
+Sloth shared-memory shape. Game stays open. No new source textures/painting.
+CPU97000/PID32324 actually EXITED1 at174 cachedimages: Windows WinError5 atomic
+progress-file replace, NOT render/inference failure. Both main/tmp same174 SHA
+entries; no completed evidence lost. Added bounded2s same-replace retries;
+REAL Windows no-delete-share reader smoke recovered in.41s, test files removed.
+Verified old PID absent before resume. New CPU session91626/PID21744 runs from
+the174-image cache (verify live), now includes Shrew in its updated snapshot.
+Do NOT restart old97000. Resume policy/source hash skip observed in actual run.
+Further paired Bind front/rear views inspected all4 each Echidna,Elephant,
+FreshwaterTurtle,GiantPanda; existing coarse paws/spines/ears/tail warnings remain.
+Panda4 head more off-axis than2, recorded as bind-pose caveat, not anim-induced.
+No owner choices changed or guaranteed straight/symmetric/natural models claim.
+
 CPU ALIGNMENT SWEEP LIVE,24October2026~23:12CDT:
 New scripts/render-fauna-alignment-sweep.py runs CPU-only,3threads, session97000
 PID32324 (verify live). Snapshot40 ready/unselected nonmicrofauna,4models xfront/

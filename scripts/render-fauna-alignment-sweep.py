@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import time
 
 repo = Path(__file__).resolve().parent.parent
 parser = argparse.ArgumentParser(description=__doc__)
@@ -30,7 +31,17 @@ def save():
     report['updated'] = datetime.datetime.now().astimezone().isoformat()
     temporary = report_path.with_suffix('.json.tmp')
     temporary.write_text(json.dumps(report, indent=2) + '\n')
-    temporary.replace(report_path)
+    # Windows readers/indexers can briefly deny FILE_SHARE_DELETE even when
+    # these task-owned files are writable. Retry this same atomic replacement;
+    # never discard completed image evidence or rerender merely for that race.
+    for attempt in range(20):
+        try:
+            temporary.replace(report_path)
+            return
+        except PermissionError:
+            if attempt == 19:
+                raise
+            time.sleep(.1)
 
 
 def digest(path):
@@ -83,6 +94,10 @@ try:
                 save()
         print('ALIGNMENT VIEWS', row['slug'], flush=True)
     report['status'] = 'rendered_snapshot'
+except Exception as exc:
+    report['status'] = 'failed'
+    report['error'] = str(exc)
+    raise
 finally:
     report['current'] = None
     save()
