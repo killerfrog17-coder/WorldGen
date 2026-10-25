@@ -25,8 +25,18 @@ def main():
     old = (root / 'previous-owner-rejected').resolve()
     assert root.parent == batch and old.parent == root and old.name == 'previous-owner-rejected'
     assert old.is_dir() and not old.is_symlink()
-    decision = json.loads((root / 'source-trial-reviewed.json').read_text())
-    assert decision['decision'] == 'usable_for_raw_audition'
+    decision_path=root/'source-trial-reviewed.json'
+    if decision_path.exists():
+        decision = json.loads(decision_path.read_text())
+        assert decision['decision'] == 'usable_for_raw_audition'
+    else:
+        # A fresh replacement using an established bank is not a new source
+        # qualification. Require a checked current-file proof instead.
+        proof=json.loads((root/'replacement-checked.json').read_text())
+        assert proof['raw_replacement_checked'] and not proof['art_approved']
+        assert proof['review_sha256']==digest(root/'Animal - Raw Audition.blend')
+        assert (root/'owner-reroll-request-current.json').exists()
+        assert not (root/'source-trial-pending.json').exists()
     checks = json.loads((root / 'native-checks.json').read_text())
     assert len(checks['candidates']) == 4 and checks['controls']
     retained = [root / 'Animal - Raw Audition.blend']

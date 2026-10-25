@@ -868,5 +868,392 @@
         "rig_sha256": "7a0a1207b71c035a80a44bd8066939fb33c8e57a99bc56240cfd00ec7aba4a7f"
       }
     }
+  },
+  "hornbill": {
+    "reason": "Owner requested redo of unusable ground bird walk. Explicit full leg chains derived from current rig, inspected against canonical body.",
+    "retain_flight": false,
+    "candidates": {
+      "1": {
+        "legs": [
+          {
+            "nodes": [
+              1,
+              16,
+              17,
+              18,
+              19,
+              22,
+              23
+            ],
+            "roles": [
+              0,
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              6.0
+            ],
+            "foot": 19
+          },
+          {
+            "nodes": [
+              1,
+              6,
+              7,
+              8,
+              9,
+              14,
+              15
+            ],
+            "roles": [
+              0,
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              6.0
+            ],
+            "foot": 9
+          }
+        ],
+        "mesh_sha256": "31aa59bdbd6d4f5eac72dde0a3c2594c33805f62ddf24e48ba14047042f4d782",
+        "rig_sha256": "cc5ce5ddc9e16d307b7f0468b0fef6326da6404285b2063af07a49edb8ed6742"
+      },
+      "2": {
+        "legs": [
+          {
+            "nodes": [
+              0,
+              50,
+              51,
+              52,
+              53,
+              58,
+              59,
+              60,
+              61
+            ],
+            "roles": [
+              0,
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              5.333333333333333,
+              5.666666666666667,
+              6.0
+            ],
+            "foot": 53
+          },
+          {
+            "nodes": [
+              0,
+              31,
+              32,
+              33,
+              34,
+              39,
+              40,
+              41,
+              42
+            ],
+            "roles": [
+              0,
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              5.333333333333333,
+              5.666666666666667,
+              6.0
+            ],
+            "foot": 34
+          }
+        ],
+        "mesh_sha256": "6faa46a80319c2bb36b813642cd69751b048b4393929248c9cb5cbee5f0ee329",
+        "rig_sha256": "24b23df0bc958ca17bb0a09137542a56eb17d70d5ef0b5f05374b1bd7f80f92f"
+      },
+      "3": {
+        "legs": [
+          {
+            "nodes": [
+              0,
+              26,
+              27,
+              28,
+              33,
+              34
+            ],
+            "roles": [
+              0,
+              1.0,
+              2.5,
+              4.0,
+              5.0,
+              6.0
+            ],
+            "foot": 28
+          },
+          {
+            "nodes": [
+              0,
+              17,
+              18,
+              19,
+              24,
+              25
+            ],
+            "roles": [
+              0,
+              1.0,
+              2.5,
+              4.0,
+              5.0,
+              6.0
+            ],
+            "foot": 19
+          }
+        ],
+        "mesh_sha256": "cc0511f66081e4873d6cbb96b9e4f3e228204fb126be49381dfadbe2b51119ac",
+        "rig_sha256": "ecf1ee254a2e2c82222a5240b3c412c384299995bc6298775b7d79b21be66a33"
+      },
+      "4": {
+        "legs": [
+          {
+            "nodes": [
+              0,
+              30,
+              31,
+              32,
+              39,
+              40,
+              41
+            ],
+            "roles": [
+              0,
+              1.0,
+              2.5,
+              4.0,
+              5.0,
+              5.5,
+              6.0
+            ],
+            "foot": 32
+          },
+          {
+            "nodes": [
+              0,
+              19,
+              20,
+              21,
+              28,
+              29
+            ],
+            "roles": [
+              0,
+              1.0,
+              2.5,
+              4.0,
+              5.0,
+              6.0
+            ],
+            "foot": 21
+          }
+        ],
+        "mesh_sha256": "021afb47305099b54a592c54f730b26cdf0f0ab1568996ee50cf9f8c87e38b93",
+        "rig_sha256": "b607965dc3342f2f191704e0377cd5cec09d247091b1c784a680e1dc4a354c64"
+      }
+    }
+  },
+  "peafowl": {
+    "reason": "Owner requested redo of unusable ground bird walk. Explicit full leg chains derived from current rig, inspected against canonical body.",
+    "retain_flight": false,
+    "candidates": {
+      "1": {
+        "legs": [
+          {
+            "nodes": [
+              6,
+              65,
+              66,
+              67,
+              68,
+              69
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              6
+            ],
+            "foot": 68
+          },
+          {
+            "nodes": [
+              6,
+              70,
+              71,
+              72,
+              73,
+              74
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              6
+            ],
+            "foot": 73
+          }
+        ],
+        "mesh_sha256": "3e6e1dbc9d02b9ed1106a440fd2c9cd249d93b6348b71278bf70aa0967e45005",
+        "rig_sha256": "0005d8c7f29b821915d406400159ddce922d9b837f9aaecf007f2b0d241ca3a0"
+      },
+      "2": {
+        "legs": [
+          {
+            "nodes": [
+              7,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "roles": [
+              0,
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0
+            ],
+            "foot": 12
+          },
+          {
+            "nodes": [
+              7,
+              14,
+              15,
+              16,
+              17,
+              18
+            ],
+            "roles": [
+              0,
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0
+            ],
+            "foot": 17
+          }
+        ],
+        "mesh_sha256": "c12b6def20dca1fe992950843daf10ffde3857c6787a427feb086e48c303eaaa",
+        "rig_sha256": "40dd863791d68b021800afe7e5e59a3f78ad2ce324ef301a9fcb6d5f3ea28743"
+      },
+      "3": {
+        "legs": [
+          {
+            "nodes": [
+              3,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              4,
+              5,
+              5.5,
+              6
+            ],
+            "foot": 37
+          },
+          {
+            "nodes": [
+              3,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25
+            ],
+            "roles": [
+              0,
+              1,
+              2,
+              4,
+              5,
+              5.5,
+              6
+            ],
+            "foot": 22
+          }
+        ],
+        "mesh_sha256": "aa33d7d9a23fd6e4ca49ec2e88ba3821494f2b748fbb4f2f196660ef70508214",
+        "rig_sha256": "f2d4ff19c455ec019feadaaac170e02c692cb35e018966cf60ec94b989c7df24"
+      },
+      "4": {
+        "legs": [
+          {
+            "nodes": [
+              11,
+              37,
+              38,
+              39,
+              40,
+              43
+            ],
+            "roles": [
+              0,
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0
+            ],
+            "foot": 40
+          },
+          {
+            "nodes": [
+              1,
+              28,
+              29,
+              30,
+              31,
+              32
+            ],
+            "roles": [
+              0,
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0
+            ],
+            "foot": 31
+          }
+        ],
+        "mesh_sha256": "2a4cf9961c12944620dbbe0eb9f5fa34e3adf8d34c6edb461763a782e6292ff9",
+        "rig_sha256": "0863bab12dd848ceff0a41764aacc5c2572dc7ffef829b239cc16d44ffcfc6e1"
+      }
+    },
+    "skin_ceiling_m": 0.45
   }
 }

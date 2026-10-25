@@ -1476,7 +1476,7 @@
     },
     "paca": {
       "reason": "Owner says redo paca.",
-      "status": "fresh_audition_requested",
+      "status": "replacement_ready_owner_review_pending",
       "art_approved": false
     },
     "peafowl": {
@@ -1486,7 +1486,7 @@
     },
     "pika": {
       "reason": "Owner says redo pika.",
-      "status": "fresh_audition_requested",
+      "status": "replacement_ready_owner_review_pending",
       "art_approved": false
     },
     "pronghorn": {
@@ -1496,7 +1496,7 @@
     },
     "salamanders-guild": {
       "reason": "Same broken limb/retarget issue as native small lizard; redo.",
-      "status": "fresh_audition_requested",
+      "status": "replacement_ready_owner_review_pending",
       "art_approved": false
     },
     "ground-squirrel": {
@@ -1536,22 +1536,22 @@
     },
     "boa-constrictor": {
       "reason": "Entirely different rig method: manually place body bones instead of existing inferred rig.",
-      "status": "owner_requested_repair_pending",
+      "status": "manual_motion_revision_ready_owner_review_pending",
       "art_approved": false
     },
     "armadillo": {
       "reason": "Owner requests redo.",
-      "status": "owner_requested_repair_pending",
+      "status": "replacement_ready_owner_review_pending",
       "art_approved": false
     },
     "capybara": {
       "reason": "Owner requests full redo from scratch.",
-      "status": "owner_requested_repair_pending",
+      "status": "replacement_ready_owner_review_pending",
       "art_approved": false
     },
     "seal": {
       "reason": "Redo from reference facing straight along body, not turning right.",
-      "status": "owner_requested_repair_pending",
+      "status": "replacement_ready_owner_review_pending",
       "art_approved": false
     }
   },
@@ -1567,6 +1567,10 @@
   },
   "review_window_request": {
     "reopen_rightmost_after_requested_revisions": true,
-    "time": "2026-10-24T19:02:41.521110-05:00"
+    "time": "2026-10-24T19:02:41.521110-05:00",
+    "reopened": true,
+    "pid": 30620,
+    "opened_on": "rightmost",
+    "only_prepared": true
   }
 }

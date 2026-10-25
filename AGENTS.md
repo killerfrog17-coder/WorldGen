@@ -1,5 +1,48 @@
 # WorldGen repository instructions
 
+REVISION PASS DONE / OWNER REQUESTED REVIEW OPEN,24October2026~19:47CDT:
+User asks open current prepared candidates NOW and exclude work not ready; asks
+baking ETA. Opened fresh viewer PID30620 RIGHTMOST on Emu via current numbered
+viewer. Original PID40988 had already exited; no owner app closed. New log ready;
+leave this window untouched while owner inspects.1 models,2 colour,3 views,
+4 showcase/locomotion,explicitSkeleton. Pending list retains conditional motion
+repairs, hides unfinished/rebuild-marker targets (currently new Capuchin).
+User told redo pass finished; full raw126/176,50 remain, measured rough4-5h.
+103 selected models incl conditional Meerkat1; Tapir explicitly untouched.
+
+Finite priority exec93476/outerPID6340 is STILL LIVE but has finished all9 jobs
+and launched the sole full --watch child PID21044, currentCapuchin shape-batch
+(verify current IDs/session). owner-priority-jobs-current priority_pass_finished
+true. DO NOT start another producer due between-child gaps. Worker consumed
+Peafowl/Lizard/Paca four-model recovery hashes and reconciled all3 ready. Capuchin
+failed inputs archived by verified reset callback; fresh quadruped reference
+and+3M seeds now being generated. Full original176 raw goal remains active.
+
+After6122009: recovered Paca with independent left/right attachment ancestors;
+head/digit subtree exclusion remains scoped. All requested fresh sets complete,
+native all4 checked: Hornbill/Pronghorn/Peafowl/Lizard/Salamander/Paca/Pika/
+Armadillo/Capybara/Seal. Current Seal neutral fronts all4 inspected aligned.
+Pronghorn4 remains owner-permitted own accepted-deer fallback; fresh1-3 retain
+head yaw and are flagged. Paca4/Pika4 residual forepaw shape distortion flagged.
+Peafowl1 NN actually omitted both legs (folded wings wrongly chosen); appended
+two manually placed five-bone chains65..74, local leg skin below.45m avoids
+pulling feathered body. Peafowl3 corrected to actual leg20/35 branches rather
+than folded wing12/16. Candidate2 shared body helper7 and3 helper4 kept static.
+Current peafowl1/3 CPU Walk side/front inspected, no previous broad feather
+membrane; foot contact/gait still provisional. Scriptrepair-peafowl-missing-
+legs.py +audit declaration retains original NN/body, no claimed fresh inference.
+
+Native+sampled all requested CPU repairs ready too: Emu/Pigeon1/Stork1,
+Hummingbird axes/wings/feet, GrassRat,Quoll3,Jerboa,Aardvark3,Baboon1,
+GroundSquirrel2/Skunk1 Walk reversal,Meerkat1. Boa manual36-joint traced rig
+remains two CC0-derived raw clips; viewer centers thin body and face direction
+at actual head tangent. No painting, runtime integration, paid API or Desktop
+items. Rejected prior sets pruned by exact manifest/current review proof,
+retained hashes verified. Native-recovery discarded only exact redundant
+intermediates. References/prompts: batch/revision-reference-prompts.json,
+built-in imagegen; all project inputs copied into workspace. Last remote6122009;
+new manual fixes/viewer/cleanup/checkpoint edits need next explicit backup.
+
 LARGE OWNER SELECTION / REVISION PASS IN PROGRESS,24October2026~19:25CDT:
 Owner reviewed through Zebra then additional batch. Canonical OWNER_SELECTIONS
 now103 incl provisional Meerkat1 (keep if front paw repair works). Tapir explicitly

@@ -85,9 +85,15 @@ def choose(label,play=True,phase=0):
 def set_view():
     target=rig().matrix_world@rig().pose.bones['Head'].head if state['view']==1 else Vector((0,0,.8))
     direction=Vector((0,1,.05)) if state['view'] in (1,3) else Vector((0,-1,.05)) if state['view']==4 else Vector((1,0,.08))
+    manual_snake=current().get('rig_origin')=='manual body centerline'
+    if manual_snake:
+        body=bpy.data.objects[current()['body']];corners=[body.matrix_world@Vector(c) for c in body.bound_box]
+        if state['view']!=1:target=sum(corners,Vector())/len(corners)
+        else:
+            head=rig().pose.bones['Head'];direction=(head.head-head.tail).normalized()+Vector((0,0,.08))
     for window,area,space in regions():
         view=space.region_3d;view.view_perspective='PERSP';view.view_location=target
-        view.view_distance=.9 if state['view']==1 else 3.1;view.view_rotation=direction.to_track_quat('Z','Y')
+        view.view_distance=(.4 if manual_snake else .9) if state['view']==1 else (2.5 if manual_snake else 3.1);view.view_rotation=direction.to_track_quat('Z','Y')
 class D4_OT_model(bpy.types.Operator):
     bl_idname='deer_four.model';bl_label='1 - Next rig / model'
     number:bpy.props.IntProperty(default=-1)
@@ -200,7 +206,7 @@ class D4_PT_panel(bpy.types.Panel):
         if entries:
             col.operator_menu_enum('deer_four.animal','animal',text='Choose animal')
             row=col.row(align=True);row.operator('deer_four.animal',text='Previous animal').step=-1;row.operator('deer_four.animal',text='Next animal').step=1
-        col.label(text=f"{'RIG' if finished else 'MODEL'} {state['model']+1} / {len(models)} - {entry['joints']} generated joints")
+        col.label(text=f"{'RIG' if finished else 'MODEL'} {state['model']+1} / {len(models)} - {entry['joints']} joints")
         warnings=[w for w in screening.get('warnings',[]) if w.get('candidate')==state['model']+1]
         if warnings:
             box=col.box();box.alert=True

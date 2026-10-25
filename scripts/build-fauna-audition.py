@@ -80,7 +80,7 @@ def correspondence(joints,parents):
         while parent>=0 and len(children[parent])==1:chain.append(parent);parent=int(parents[parent])
         legs.append([parent]+list(reversed(chain)))
     if (repair.get('anatomical_quadruped') or repair.get('anatomical_bird')) and str(number) not in repair.get('chains',{}):
-        height=float(np.ptp(joints[:,2]));pairs=[]
+        height=float(np.ptp(joints[:,2]));pairs=[];separate={-1:[],1:[]}
         for anchor,kids in enumerate(children):
             choices={-1:[],1:[]}
             for child in kids:
@@ -91,6 +91,12 @@ def correspondence(joints,parents):
                 if not tips:continue
                 foot=min(tips,key=lambda n:joints[n,2])
                 if joints[foot,2]>joints[anchor,2]-height*.18 or joints[foot,2]>height*.42:continue
+                if len(kids)>1 and max(joints[n,2] for n in tips)<height*.5:
+                    full=path_to(parents,foot);candidate=full[full.index(anchor):]
+                    dx_foot=float(np.median(joints[tips,0])-joints[anchor,0])
+                    first=candidate[1:min(3,len(candidate))]
+                    if abs(dx_foot)>height*.025 and float(np.mean(joints[first,1])-joints[anchor,1])>-height*.15:
+                        separate[-1 if dx_foot<0 else 1].append((float(joints[anchor,1]),candidate))
                 early=[child]
                 while len(early)<3 and len(children[early[-1]])==1:early.append(children[early[-1]][0])
                 dx=float(np.mean(joints[early,0])-joints[anchor,0])
@@ -101,8 +107,16 @@ def correspondence(joints,parents):
                 pair=[max(choices[s],key=lambda x:x[0])[1] for s in (-1,1)]
                 pairs.append((float(joints[anchor,1]),pair))
         need=1 if bird else 2
-        assert len(pairs)>=need,'Manual anatomical repair lacks bilateral leg attachment pairs'
-        pairs.sort(key=lambda x:x[0]);legs=pairs[0][1] if bird else pairs[0][1]+pairs[-1][1]
+        if len(pairs)<need and not bird:
+            # Learned left/right hips need not share exactly one ancestor.
+            # Pair complete low appendage subtrees by attachment position;
+            # a subtree containing the high head cannot become a foot.
+            assert all(len(v)>=2 for v in separate.values()),'Manual anatomical repair lacks four low appendage branches'
+            picked={side:sorted(rows,key=lambda z:z[0]) for side,rows in separate.items()}
+            legs=[picked[s][k][1] for k in (0,-1) for s in (-1,1)]
+        else:
+            assert len(pairs)>=need,'Manual anatomical repair lacks bilateral leg attachment pairs'
+            pairs.sort(key=lambda x:x[0]);legs=pairs[0][1] if bird else pairs[0][1]+pairs[-1][1]
         assert len({leg[-1] for leg in legs})==need*2,'Manual anatomical repair picked duplicate feet'
     if bird:
         hind=legs;fore=[]
@@ -512,7 +526,8 @@ for number in range(1,5):
         row=np.maximum(0,(weights[ids]*w[:,None]).sum(0)/w.sum())
         if local_leg_skin:
             p=np.asarray(v.co);t=np.clip(np.sum((p-leg_starts)*leg_vectors,axis=1)/leg_lengths2,0,1);distance=np.linalg.norm(p-(leg_starts+t[:,None]*leg_vectors),axis=1);nearest=int(np.argmin(distance))
-            blend=float(np.clip((leg_radius-distance[nearest])/(leg_radius*.45),0,1)*np.clip((joints[pelvis,2]-skin_height*.02-p[2])/(skin_height*.10),0,1))
+            skin_ceiling=float(manual.get('skin_ceiling_m',joints[pelvis,2]-skin_height*.02)) if manual else float(joints[pelvis,2]-skin_height*.02)
+            blend=float(np.clip((leg_radius-distance[nearest])/(leg_radius*.45),0,1)*np.clip((skin_ceiling-p[2])/(skin_height*.10),0,1))
             confined=np.zeros_like(row);confined[leg_ids]=row[leg_ids]
             if confined.sum()<1e-8:confined[leg_ids[nearest]]=1
             if manual and manual.get('retain_flight'):
@@ -700,7 +715,7 @@ for number in range(1,5):
         'canonical_review_height_m':1.65,'runtime_species_scale_pending_approval':True,'surface_material':'plain neutral' if a.neutral_material else 'reused fur swatch','canonical_axis_correction':axis_correction,
         'locomotion_sequence':[n for n,d in locomotion],'locomotion_durations_s':[d for n,d in locomotion]}
     entries.append(entry);body.hide_set(number!=1);body.hide_render=number!=1;rig.hide_set(True);rig.select_set(False)
-    print('Assembled',a.animal,number,len(names),'fresh joints',flush=True)
+    print('Assembled',a.animal,number,len(names),'joints',flush=True)
 scene['deer_four_rigs']=json.dumps(entries);scene['fauna_animal']=a.animal;scene.render.fps=30;scene.sync_mode='FRAME_DROP'
 world=bpy.data.worlds.new('Raw review world');world.use_nodes=True;world.node_tree.nodes['Background'].inputs[0].default_value=(.2,.22,.25,1);scene.world=world
 for screen in bpy.data.screens:

@@ -69,5 +69,5 @@ for number in range(1,5):
     # Adjacent rest-bone influences follow traced arc, never another coil.
     parents=np.arange(len(joints))-1
     np.savez_compressed(current,source_vertices=v,source_faces=faces,joints=joints,parents=parents,sample_points=v,sample_skin=skin)
-    meta={'method':'Owner-authorized body centerline rig','mesh':str((f/'model.glb').resolve()),'source_mesh_sha256':hashlib.sha256((f/'model.glb').read_bytes()).hexdigest(),'manual_rig':True,'neural_rig_replaced':True,'joints':len(joints),'uniform_review_scale':scale,'bone_placement':'36 ordered head-to-tail joints along thinned mesh silhouette, inspected in Blender','weights':'At most two adjacent traced body bones; no donor geometry','details':details}
+    meta={'method':'Owner-authorized body centerline rig','mesh':str((f/'model.glb').resolve()),'source_mesh_sha256':hashlib.sha256((f/'model.glb').read_bytes()).hexdigest(),'manual_rig':True,'neural_rig_replaced':True,'joints':len(joints),'uniform_review_scale':scale,'bone_placement':'36 ordered head-to-tail joints along thinned mesh silhouette; visual inspection recorded separately','weights':'At most two adjacent traced body bones; no donor geometry','details':details}
     current.with_suffix('.json').write_text(json.dumps(meta,indent=2));print('Manual body rig',number,details,flush=True)

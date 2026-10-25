@@ -145,6 +145,10 @@ def main():
                     elif row['slug']=='pronghorn' and number==4 and rig['method']=='Owner-permitted accepted deer model reuse':
                         require(rig['source_rig_sha256']==digest(repo/'artifacts/fauna-assets/deer/generated-rig.npz'),'Deer fallback provenance changed')
                         require(digest(directory/'generated-rig.npz')==rig['source_rig_sha256'],'Deer fallback rig changed')
+                    elif row['slug']=='peafowl' and number==1 and rig['method']=='Neural rig with owner-requested manual leg additions':
+                        require(rig['source_mesh_sha256']==digest(directory/'model.glb'),'Manual bird legs belong to another mesh')
+                        require(rig['original_neural_sha256']==digest(directory/'generated-rig.before-manual-legs.npz'),'Original neural body rig changed')
+                        require(len(rig['manual_leg_chains'])==2,'Both manual bird leg chains required')
                     else:require(rig['method'] == 'Local SkinTokens skeleton and skin generation', 'Not fresh local rig inference')
                     require(Path(rig['mesh']).resolve() == (directory / 'model.glb').resolve(), 'Rig input belongs to another mesh')
                     require(Path(candidate['rig_file']).resolve() == (directory / 'generated-rig.npz').resolve(), 'Wrong candidate rig path')

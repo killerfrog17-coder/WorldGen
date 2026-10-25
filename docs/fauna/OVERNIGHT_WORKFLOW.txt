@@ -1,5 +1,22 @@
 OVERNIGHT FAUNA AUDITIONS - 24 OCTOBER 2026
 
+24 OCT EVENING OWNER REVISIONS
+Owner model choices/conditional fixes are in OWNER_SELECTIONS.json. Scoped
+motion repairs are recorded in MOTION_REPAIR_OVERRIDES.json and explicit ground
+bird chains in GROUND_BIRD_WALK_REPAIRS.json. These later owner requests permit
+manual limb mapping/skinning and foot-track fitting on named raw auditions;
+the general no-manual-work instruction below describes the original batch.
+Boa now has an owner-requested mesh-traced36-joint body rig rather than neural
+rigging, with bounded CC0 snake motion. Peafowl1 has manual leg additions where
+the neural prediction missed both actual legs. Pronghorn4 uses the owner's
+permitted accepted own deer fallback, while1-3 retain the fresh attempts.
+These exceptions are declared in rig metadata and recognized by the audit;
+they are not fresh neural inference or production gait/contact acceptance.
+Conditional chosen animals stay in the pending review list until their requested
+motion repair is reviewed. Tapir was explicitly left unchanged/undecided.
+The finite priority reroll runner resumes the full serial raw roster afterward.
+No animal painting or gameplay integration is authorized by a raw model choice.
+
 Owner authorizes the full overnight queue. No runtime game integration and no
 painting until morning model approval. Accepted deer remains unchanged under
 artifacts/fauna-assets/deer. The editable full roster is FAUNA_ASSET_PLAN.csv;
