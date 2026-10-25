@@ -1,5 +1,46 @@
 # WorldGen repository instructions
 
+PAINTING DELIVERY READY / SECOND PASS COMPLETE,25October2026 ~16:04 local:
+All171 selected generated bodies finished colour refresh; finish-progress stage
+finished171/171,failed{},waiting[],currentnull. Final QA171/171 errors{},warnings{},
+all sampled relevant source clips finite. Five accepted procedural tiny-fauna
+groups also painted/native checked,4 retained forms each. Index now176 appearance
+reviews ready; OWNER appearance approval remains0. Accepted deer separate and
+protected SHA0e2ff46b0b0860750084bed3af94d84f636144230550e9e80f753b3e415418a1 unchanged.
+794 body coats +26 tiny styles +8 accepted deer coats=828 coat/style variants.
+1136 body colour/roughness/normal maps EXCLUDES feature/horn and tiny atlases;
+22 prepared generated shared source swatches. Not828 distinct animal models.
+
+All19 CURRENT final default/lineage/bounded-trait/microfauna contact sheets
+actually viewed, exact sheet/input hashes recorded in finish-sheet-inputs.json.
+Per-animal final-qa receipts now identify actual coarse lineage sheet inspection;
+micro proof marks one form per style viewed, NOT all4 rendered. Full source bind
+geometry/skin/rest/actions remain exact. Final ledger painting-delivery-ready.json
+records171 native/current QA matches+5 procedural source/native matches, deerSHA,
+counts and limits. Delivery inventory171 native+front/side/rear ready,Issues[].
+These are owner appearance-review candidates, NOT universal natural motion,
+species accuracy, collision/contact, juvenile/sex body forms or engine acceptance.
+Original selected prototype gait/body/wing imperfections remain. No generation
+or animation baking requested. Do not restart finished workers or overwrite
+owner-approved/open files. CIM confirmed no task colour/QA/render workers left;
+owner progress GUI/ComfyUI/native phone server left untouched. No GUI opened.
+
+Final fixes: Elephant cheek nose dot removed by actual trunk-tip guide and no
+black nasal disc; ivory restricted to true tusk area, ears remain grey. Zebra
+brown/foal stripes brown; Tapir calf pigment broken pale stripes/spots on ADULT
+shape. Microfauna generated atlases explicitly sRGB with no double conversion,
+all26 style renders refreshed and actually inspected. Pronghorn split-vertex UV
+repair and10 lid skin/projection fixes checked. Arthropods use surface ocular
+pigment, not added mammalian globes/lids. Linked trait libraries21 newlypainted
+animals plus accepted deer; bounded ears4 mammals/tailsHare+Rabbit only. Real and
+hypothetical coats/appendages labelled; source plans synchronized with catalogue.
+
+Source checkpoint99a8231fce7d0d83d1a8cd106a2c9b0f6ea08f21 was verified before
+these last fixes/ledger/index changes; next checkpoint includes this note and
+build-fauna-finish-sheets.py. Preserve unrelated deleted WorldGen_OneShot_Prompt.md
+and2old untracked deer scripts unstaged. Native phone remote connection works;
+no daemon restart, pairing-code storage, bot setup or new review ping needed.
+
 COLOUR REFRESH + CONTINUOUS FINAL QA,25October2026 ~15:43 local:
 Sole colour --refresh producer23240 launcher still RUNNING; actual current/PID/
 counts in finish-progress.json. Now late roster, zero failures so far. Separate

@@ -28,6 +28,13 @@ try:
             if seen.get(slug)==stamp:continue
             proof=json.loads((folder/'paint-native-checks.json').read_text());digest=hashlib.sha256(blend.read_bytes()).hexdigest()
             if proof.get('checked_blend_sha256')!=digest:continue
+            receipt_path=folder/'final-qa.json'
+            if receipt_path.exists():
+                receipt=json.loads(receipt_path.read_text());image=repo/receipt['lineage_render']
+                if receipt.get('checked_blend_sha256')==digest and receipt.get('all_sampled_source_clips_finite') and not receipt.get('motion_warnings') and image.exists() and hashlib.sha256(image.read_bytes()).hexdigest()==receipt['lineage_render_sha256']:
+                    seen[slug]=stamp
+                    if slug not in status['completed']:status['completed'].append(slug)
+                    continue
             status['current']=slug;save();worked=True
             try:
                 run(folder,'check-fauna-finish-motion.py',['--slugs',slug],'final-motion-qa.log')

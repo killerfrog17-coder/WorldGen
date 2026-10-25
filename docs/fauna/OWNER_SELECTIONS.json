@@ -2726,7 +2726,7 @@
       ],
       "painting_status": "procedural_coloured_working",
       "paint_review": "artifacts\\fauna-painted-20261024\\butterflies-and-moths-guild\\Animal - Painted Species Review.blend",
-      "paint_native_sha256": "684e63918857c3058244b97f0ee28bf8484975fdf7c236278f179f8aa14c8b20"
+      "paint_native_sha256": "75cdb0f0a23664b09c02753984f7c7d9652906f78acf6507bbe004dc54b96bad"
     },
     "fireflies-derived-lineage": {
       "time": "2026-10-24T11:39:15.952344-05:00",
@@ -2745,7 +2745,7 @@
       "blink_loop": "Smooth zero-brightness first/last frame,60-frame period; no point light.",
       "painting_status": "procedural_coloured_working",
       "paint_review": "artifacts\\fauna-painted-20261024\\fireflies-derived-lineage\\Animal - Painted Species Review.blend",
-      "paint_native_sha256": "d026aacf3606d4006ed8de84e669b8092a610e7ffb1fc93bf60b20573f72726b"
+      "paint_native_sha256": "955e39dbe5968b0e592382089db604826295f0fa53d033559da9687cee3676b4"
     },
     "dragonflies-guild": {
       "owner_feedback": "Looks fine; no requested change or specific candidate choice.",
@@ -2753,7 +2753,7 @@
       "painting_started": true,
       "painting_status": "procedural_coloured_working",
       "paint_review": "artifacts\\fauna-painted-20261024\\dragonflies-guild\\Animal - Painted Species Review.blend",
-      "paint_native_sha256": "2b148171080d5b3f1453f8edd0a549aa22e4af230fde0a021f68bea049ef30a0"
+      "paint_native_sha256": "45e17c0bffe9f5acbeaef5980f4fa15156f23f7a2091db9e7d8e428a3301be5d"
     },
     "native-detritivorous-flies-guild": {
       "owner_feedback": "Looks fine; no requested change or specific candidate choice.",
@@ -2761,7 +2761,7 @@
       "painting_started": true,
       "painting_status": "procedural_coloured_working",
       "paint_review": "artifacts\\fauna-painted-20261024\\native-detritivorous-flies-guild\\Animal - Painted Species Review.blend",
-      "paint_native_sha256": "e4aee3bcf3e002301c6750e2fad1e3a06b57eed115a4a33c9a536d4639fb86e9"
+      "paint_native_sha256": "164a3933045d2f87a0d741520333de17f41866f27de95c162343491af867a3ae"
     },
     "bees-guild": {
       "time": "2026-10-24T12:00:42.636890-05:00",
@@ -2778,7 +2778,7 @@
       "blend_sha256": "c8a376ded1ae0ead2e9b3e4f65e151e4658547e2af21bd775060fc3cd9c506c1",
       "painting_status": "procedural_coloured_working",
       "paint_review": "artifacts\\fauna-painted-20261024\\bees-guild\\Animal - Painted Species Review.blend",
-      "paint_native_sha256": "c06da8647ee9cfef234a2934e5d7e6e47b051ba37f6336f695ad91f9cd11e84a"
+      "paint_native_sha256": "2938715e347f9de0ad4adc36f20dbd0ebf13892360eb2fe1ca648839fa21b14b"
     }
   },
   "pending_revisions": {

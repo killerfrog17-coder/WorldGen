@@ -36,6 +36,10 @@ for job in queue['jobs']:
     assert check['source_bind_geometry_skin_rig_exact'] and check['source_actions_exact']
     if not state.get('facial_objects') and state.get('facial_feature_policy')!='surface_only_arthropod':continue
     ready.append({'slug':slug,'name':job['animal'],'priority':rank[slug],'path':str(blend),'candidates':1,'selected_raw_candidate':state['source_candidate'],'coats':len(state['coats']),'appearance_scope':state.get('appearance_scope','Selected body only; no age-proportion or ecology implementation inferred.'),'appearance_approved':False,'motion_approved':False})
+    final_path=folder/'final-qa.json'
+    if final_path.exists():
+        final=json.loads(final_path.read_text())
+        ready[-1]['appearance_review_ready']=bool(final.get('checked_blend_sha256')==check['checked_blend_sha256'] and final.get('all_sampled_source_clips_finite') and not final.get('motion_warnings') and final.get('actually_visually_inspected'))
 now=datetime.now().astimezone().isoformat();queue['updated']=now
 queue['counts']={'selected':len(queue['jobs']),'painting_started':sum((root/x['slug']/'paint-state.json').exists() for x in queue['jobs']),'checked_first_passes':len(ready),'appearance_approved':sum(bool(x.get('appearance_approved')) for x in queue['jobs'])}
 procedural_ready=[]
@@ -49,8 +53,10 @@ for slug,revision in choices.get('procedural_revisions',{}).items():
     if hashlib.sha256(raw.read_bytes()).hexdigest()!=proof['source_blend_sha256']:continue
     row=next(r for r in plan if r['slug']==slug)
     procedural_ready.append({'slug':slug,'name':row.get('animal',slug),'priority':rank[slug],'path':str(blend),'candidates':proof['candidate_count'],'coats':proof['coats_per_candidate'],'procedural':True,'appearance_approved':False,'motion_approved':False,'appearance_scope':proof['scope']})
+    procedural_ready[-1]['appearance_review_ready']=bool(proof.get('actually_visually_inspected'))
     revision.update(painting_started=True,painting_status='procedural_coloured_working',paint_review=str(blend.relative_to(repo)),paint_native_sha256=proof['checked_blend_sha256'])
 queue['counts']['procedural_checked_first_passes']=len(procedural_ready)
+queue['counts']['appearance_reviews_ready']=sum(bool(row.get('appearance_review_ready')) for row in ready+procedural_ready)
 queue['started']=queue['counts']['painting_started']
 queue['limits']='Separate selected-body colour copies. Checked first passes still need owner appearance approval; raw motion acceptance is independent.'
 index={'updated':now,'ready':sorted(ready+procedural_ready,key=lambda x:x['priority']),'notes':'First colour passes on owner-selected bodies and accepted procedural tiny fauna. Body/rig/source-motion preservation checked. Appearance and natural motion remain unapproved; raw debris and raw gait defects are retained.'}

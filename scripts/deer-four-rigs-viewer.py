@@ -267,7 +267,9 @@ class D4_PT_panel(bpy.types.Panel):
         col.operator('deer_four.skeleton',text='Hide Skeleton' if state['skeleton'] else 'Show Skeleton');col.operator('deer_four.play')
         col.label(text='Playing: '+state['clip'].replace('_',' '))
         for line in textwrap.wrap('Coat: '+state['coat']+('' if finished or current().get('painting_coats') else ' (colour only)'),width=42):col.label(text=line)
-        if current().get('painting_coats'):col.label(text='Selected model coloured; appearance review pending')
+        if current().get('painting_coats'):
+            col.label(text='Selected body appearance preview')
+            if any(word in state['coat'].lower() for word in ['calf','foal','lamb','juvenile','immature']):col.label(text='Age colours use the adult body shape')
         if current().get('painting_coats') and painting_variant(current())['label']:
             for line in textwrap.wrap(painting_variant(current())['label'],width=42):col.label(text=line)
         if finished:col.label(text=state['sex']+' - '+('Antlers' if state['active_rack']>=0 else 'No antlers'))

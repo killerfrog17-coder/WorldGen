@@ -86,6 +86,7 @@ across/=np.linalg.norm(across);up=np.cross(across,nn);delta=p-nose
 nosew=.055 if kind in {'ungulate','canid','bear','felid','marine','thickskin'} else .035
 noseq=((delta@across)/nosew)**2+((delta@up)/(.035 if kind!='thickskin' else .06))**2+((delta@nn)/.045)**2
 nosemask=(1-smooth(.6,1.3,noseq))*smooth(.02,.65,n@nn)
+if a.slug=='elephant':nosemask[:]=0  # Trunk tip is skin, not a pig-like black nose disc.
 mammal=kind in {'mammal','canid','ungulate','bear','felid','bat','hopper_marsupial','armoured_mammal','primate','spiny_mammal','thickskin'} or a.slug=='sea-otter'
 if kind=='bird':
     bill=smooth(.035,.080,forward)*(1-smooth(eye_z+.01,eye_z+.07,p[:,2]))*smooth(eye_z-.22,eye_z-.10,p[:,2])*face
@@ -146,6 +147,7 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
     def paint(mask,target):
         return colour*(1-np.clip(mask,0,1)[:,None])+np.asarray(target)*np.clip(mask,0,1)[:,None]
     dark=np.array([.055,.045,.028]);white=np.array([.82,.80,.72])
+    if pattern=='zebra' and ('brown' in low or 'foal' in low):dark=np.array([.24,.135,.065])
     colour=paint(belly*.65,pale)
     if kind in {'snake','reptile','amphibian','fish'}:colour=paint(scale_belly*.85,pale)
     if kind=='bird':
@@ -211,6 +213,10 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
             colour=paint(stripe*.95,dark)
         elif pattern=='tapir' and any(x in low for x in ('saddle','malay')):
             colour=paint(smooth(-.55,-.35,p[:,1])*(1-smooth(.20,.40,p[:,1]))*.95,pale)
+        elif pattern=='tapir' and 'calf' in low:
+            stripes=smooth(.35,.75,np.sin(p[:,2]*46+np.sin(p[:,1]*11)*.7))*flank*(1-face)
+            broken=smooth(.14,.40,organic)
+            colour=paint(np.maximum(stripes*broken,spots*.45)*.9,[.76,.69,.51])
         elif pattern=='guereza':colour=paint(np.maximum(flank*(1-face)*.8,tail_weight),white)
         elif pattern=='panda':
             colour=paint(foot*.97,dark)
@@ -229,7 +235,9 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
     if pattern=='otter':colour=paint(face*.6,pale)
     if a.slug in {'walrus','elephant'}:
         ivory=smooth(.06,.10,np.abs(lateral))*(1-smooth(.32,.42,np.abs(lateral)))*smooth(-.02,.06,forward)*(1-smooth(eye_z-.12,eye_z-.05,p[:,2]))
-        if a.slug=='elephant':ivory*=smooth(.62,.70,p[:,2])
+        if a.slug=='elephant':
+            # The selected body's checked tusk/mouth region, excluding ears.
+            ivory=smooth(.82,.91,p[:,1])*smooth(.06,.09,np.abs(p[:,0]))*(1-smooth(.34,.40,np.abs(p[:,0])))*smooth(.65,.70,p[:,2])*(1-smooth(1.08,1.15,p[:,2]))
         colour=paint(ivory*.95,[.78,.73,.60])
     if a.slug=='rhinoceros':
         horn=smooth(eye_z+.06,eye_z+.17,p[:,2])*smooth(-.02,.05,forward)

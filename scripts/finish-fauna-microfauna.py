@@ -71,7 +71,7 @@ for entry in entries:
     mesh.materials.clear();coats=[]
     for index,label in enumerate(LABELS):
         base=[.08,.065,.04];wingcolour=[.65,.67,.57]
-        if kind=='butterfly':wingcolour=[[.88,.78,.38],[.84,.30,.045],[.10,.40,.76],[.12,.58,.21],[.34,.25,.15],[.64,.55,.32]][index]
+        if kind=='butterfly':wingcolour=[[.88,.78,.38],[.84,.43,.045],[.10,.40,.76],[.12,.58,.21],[.34,.25,.15],[.64,.55,.32]][index]
         elif kind=='bee':base=[[.80,.43,.06],[.64,.46,.20],[.25,.08,.035],[.12,.38,.24],[.68,.59,.37]][index]
         elif kind=='dragonfly':base=[[.07,.38,.66],[.61,.11,.055],[.17,.40,.17],[.34,.24,.10],[.38,.32,.13]][index]
         elif kind=='fly':base=[[.04,.045,.035],[.07,.28,.11],[.06,.14,.34],[.19,.12,.06],[.25,.24,.13]][index]
@@ -97,8 +97,8 @@ for entry in entries:
         if kind=='firefly' and index==2:rgb[(u<.25)&(v>.63)&(v<.78)]=[.38,.065,.025]
         # Image pixels use bottom-up rows. No baked light or specular highlights.
         image=bpy.data.images.new(f'{a.slug} body{entry["number"]} palette{index}',width=size,height=size,alpha=True)
-        rgb=np.clip(rgb,0,1);linear=np.where(rgb<=.04045,rgb/12.92,((rgb+.055)/1.055)**2.4)
-        image.pixels.foreach_set(np.dstack([linear,alpha]).astype(np.float32).ravel());image.pack()
+        rgb=np.clip(rgb,0,1);image.colorspace_settings.name='sRGB'
+        image.pixels.foreach_set(np.dstack([rgb,alpha]).astype(np.float32).ravel());image.pack()
         material=bpy.data.materials.new(f'{a.slug} body{entry["number"]} coat{index}');material.use_nodes=True;material.use_fake_user=True
         shader=material.node_tree.nodes.get('Principled BSDF');shader.inputs['Roughness'].default_value=.60 if kind=='butterfly' else .42;shader.inputs['Metallic'].default_value=.32 if kind=='fly' and index in [1,2,4] else .08
         tex=material.node_tree.nodes.new('ShaderNodeTexImage');tex.image=image;material.node_tree.links.new(tex.outputs['Color'],shader.inputs['Base Color']);material.node_tree.links.new(tex.outputs['Alpha'],shader.inputs['Alpha'])

@@ -710,7 +710,9 @@
           "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
           "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
           "oryx": "https://animals.sandiegozoo.org/animals/oryx",
-          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm",
+          "muskox": "https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main",
+          "wild_cattle": "https://animals.sandiegozoo.org/animals/wild-cattle"
         },
         "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
       },
@@ -808,7 +810,9 @@
           "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
           "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
           "oryx": "https://animals.sandiegozoo.org/animals/oryx",
-          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm",
+          "muskox": "https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main",
+          "wild_cattle": "https://animals.sandiegozoo.org/animals/wild-cattle"
         },
         "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
       },
@@ -897,7 +901,9 @@
           "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
           "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
           "oryx": "https://animals.sandiegozoo.org/animals/oryx",
-          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm",
+          "muskox": "https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main",
+          "wild_cattle": "https://animals.sandiegozoo.org/animals/wild-cattle"
         },
         "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
       },
@@ -1382,6 +1388,15 @@
             "radius": 0.95,
             "sex": "lineage-dependent",
             "hypothetical": true
+          },
+          {
+            "id": "water-sweep",
+            "label": "Water-buffalo sweeping horn analogue; selected adult body",
+            "shape": "water-buffalo",
+            "size": 0.62,
+            "radius": 0.75,
+            "sex": "both",
+            "hypothetical": false
           }
         ],
         "sources": {
@@ -1389,7 +1404,9 @@
           "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
           "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
           "oryx": "https://animals.sandiegozoo.org/animals/oryx",
-          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm",
+          "muskox": "https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main",
+          "wild_cattle": "https://animals.sandiegozoo.org/animals/wild-cattle"
         },
         "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
       }
@@ -1563,7 +1580,9 @@
           "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
           "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
           "oryx": "https://animals.sandiegozoo.org/animals/oryx",
-          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm",
+          "muskox": "https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main",
+          "wild_cattle": "https://animals.sandiegozoo.org/animals/wild-cattle"
         },
         "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
       }
@@ -1691,7 +1710,9 @@
           "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
           "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
           "oryx": "https://animals.sandiegozoo.org/animals/oryx",
-          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm",
+          "muskox": "https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main",
+          "wild_cattle": "https://animals.sandiegozoo.org/animals/wild-cattle"
         },
         "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
       }
@@ -2977,7 +2998,9 @@
           "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
           "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
           "oryx": "https://animals.sandiegozoo.org/animals/oryx",
-          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm",
+          "muskox": "https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main",
+          "wild_cattle": "https://animals.sandiegozoo.org/animals/wild-cattle"
         },
         "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
       }
@@ -3103,7 +3126,9 @@
           "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
           "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
           "oryx": "https://animals.sandiegozoo.org/animals/oryx",
-          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm",
+          "muskox": "https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main",
+          "wild_cattle": "https://animals.sandiegozoo.org/animals/wild-cattle"
         },
         "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
       }
@@ -3253,7 +3278,9 @@
           "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
           "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
           "oryx": "https://animals.sandiegozoo.org/animals/oryx",
-          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm",
+          "muskox": "https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main",
+          "wild_cattle": "https://animals.sandiegozoo.org/animals/wild-cattle"
         },
         "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
       }
@@ -3690,7 +3717,9 @@
           "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
           "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
           "oryx": "https://animals.sandiegozoo.org/animals/oryx",
-          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm",
+          "muskox": "https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main",
+          "wild_cattle": "https://animals.sandiegozoo.org/animals/wild-cattle"
         },
         "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
       }
@@ -3932,7 +3961,9 @@
           "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
           "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
           "oryx": "https://animals.sandiegozoo.org/animals/oryx",
-          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm",
+          "muskox": "https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main",
+          "wild_cattle": "https://animals.sandiegozoo.org/animals/wild-cattle"
         },
         "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
       }
@@ -4095,7 +4126,9 @@
           "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
           "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
           "oryx": "https://animals.sandiegozoo.org/animals/oryx",
-          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm",
+          "muskox": "https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main",
+          "wild_cattle": "https://animals.sandiegozoo.org/animals/wild-cattle"
         },
         "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
       }
@@ -4246,7 +4279,9 @@
           "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
           "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
           "oryx": "https://animals.sandiegozoo.org/animals/oryx",
-          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm",
+          "muskox": "https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main",
+          "wild_cattle": "https://animals.sandiegozoo.org/animals/wild-cattle"
         },
         "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
       }
@@ -4748,7 +4783,9 @@
           "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
           "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
           "oryx": "https://animals.sandiegozoo.org/animals/oryx",
-          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm",
+          "muskox": "https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main",
+          "wild_cattle": "https://animals.sandiegozoo.org/animals/wild-cattle"
         },
         "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
       }
@@ -4873,7 +4910,9 @@
           "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
           "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
           "oryx": "https://animals.sandiegozoo.org/animals/oryx",
-          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm",
+          "muskox": "https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main",
+          "wild_cattle": "https://animals.sandiegozoo.org/animals/wild-cattle"
         },
         "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
       }
@@ -4978,7 +5017,9 @@
           "reindeer": "https://www.fda.gov/animal-veterinary/animal-health-literacy/fun-facts-about-reindeer-and-caribou",
           "moose": "https://www.adfg.alaska.gov/static/regulations/wildliferegulations/pdfs/mooseid.pdf",
           "oryx": "https://animals.sandiegozoo.org/animals/oryx",
-          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm"
+          "pronghorn": "https://www.nps.gov/yell/learn/nature/pronghorn.htm",
+          "muskox": "https://www.adfg.alaska.gov/index.cfm?adfg=muskoxidentification.main",
+          "wild_cattle": "https://animals.sandiegozoo.org/animals/wild-cattle"
         },
         "scope": "Selected adult body and original rig/motion; numerical trait sizes are bounded art settings, not population biology or true age/sex body morphs."
       }

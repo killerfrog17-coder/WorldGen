@@ -1,5 +1,5 @@
 """Small CPU render for pipeline diagnostics or the optional final screenshot pass."""
-import argparse,json,sys
+import argparse,hashlib,json,sys
 from pathlib import Path
 import bpy,numpy as np
 from mathutils import Vector
@@ -13,6 +13,8 @@ ap.add_argument('--span',type=float,help='Optional orthographic framing span for
 ap.add_argument('--quick',action='store_true',help='Workbench geometry guide; no ray tracing or inference')
 ap.add_argument('--tag',default='')
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=a.root.resolve()
+source_path=a.raw_mesh.resolve() if a.raw_mesh else root/a.blend_name
+source_sha=hashlib.sha256(source_path.read_bytes()).hexdigest()
 if a.raw_mesh:
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(a.raw_mesh.resolve()));s=bpy.context.scene
     body=max((o for o in s.objects if o.type=='MESH'),key=lambda o:len(o.data.vertices));a.clip='Raw'
@@ -81,5 +83,6 @@ if a.quick or a.surface_only:
     shading.show_shadows=True;shading.show_cavity=True;shading.cavity_type='BOTH'
 assert all(c.isalnum() or c in '-_.' for c in a.tag)
 dest=root/'previews';dest.mkdir(exist_ok=True);suffix=('-head' if a.head else '')+(f'-coat{a.coat}' if a.coat else '')+(f'-extra{a.extra_variant}' if a.extra_variant else '')+('-surface' if a.surface_only else '')+('-'+a.tag if a.tag else '');s.render.filepath=str(dest/f'{a.model}-{a.clip}-{a.view}{suffix}.png');s.render.image_settings.file_format='PNG';bpy.ops.render.render(write_still=True)
-if a.head or a.clip=='Bind':(dest/f'{a.model}-{a.clip}-{a.view}{suffix}.json').write_text(json.dumps({'camera_matrix':[list(row) for row in camera.matrix_world],'scale':camera.data.ortho_scale,'size':[a.size,a.size],'blend':a.blend_name},indent=2))
+assert hashlib.sha256(source_path.read_bytes()).hexdigest()==source_sha,'Native source changed during render; retry the current view'
+(dest/f'{a.model}-{a.clip}-{a.view}{suffix}.json').write_text(json.dumps({'camera_matrix':[list(row) for row in camera.matrix_world],'scale':camera.data.ortho_scale,'size':[a.size,a.size],'blend':a.blend_name,'source_sha256':source_sha,'render_sha256':hashlib.sha256(Path(s.render.filepath).read_bytes()).hexdigest(),'model':a.model,'coat':a.coat,'extra_variant':a.extra_variant,'clip':a.clip,'phase':a.phase},indent=2))
 print('Geometry guide saved' if a.surface_only else 'CPU diagnostic saved',s.render.filepath,flush=True)
