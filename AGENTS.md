@@ -1,5 +1,23 @@
 # WorldGen repository instructions
 
+RAW QUEUE165 / PANGOLIN DIRECTION,24October2026 late evening:
+165 review sets audited,11 pending, errors[]; sole existing exec93476/worker21044
+continues (shark then shorebird). No new producer or owner review launch.
+Pangolin all4 Bind-side evidence proves1/3 snout backward;2/4 already correct.
+Scoped rigid180Z1/3 only, hash-bound rawGLB/NN unchanged. Rebuilt/native4 controls
+pass; all4 quarter Walk-side inspected, actual upper forward Head nodes12/9/7/11.
+Coarse scales/pointed feet remain; no art/gait/contact acceptance. Recovery marker
+finalized, no live queue-state edits. Python4 winding crease, Puffin1/4 crumpled
+wings, Rhino4 forefoot stretch and limited Platypus/PolarBear/Porcupine1 samples
+recorded in per-root visual-warnings. SeaLion/Otter all4 Bind/motion sides sampled;
+SeaLion explicitly experimental fore-flipper bird-motion transfer, Otter foxWalk
+on swimming-like bind is NOT native swim or grounded gait. Keep limitations.
+Owner asks about painting: CPU mapping/painting can overlap GPU generation on
+approved bodies; local AI texture inference competes. No painting started on
+this question alone; current goal still conditional reusable source generation
+after176 raw sets, then fit only owner-approved bodies. No need to wait for all
+models once owner actually starts the approved-body finishing phase.
+
 LATE ORCA/PENGUIN AXES FIXED,24October2026 evening:
 Orca all4 Bind-front tail-first confirmed, rigid180Z restores actual head/tail.
 Penguin all4 Bind-front were side profiles from torso/flipper PCA width: -90Z

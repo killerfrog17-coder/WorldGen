@@ -1650,5 +1650,62 @@
       }
     },
     "anatomical_bird": true
+  },
+  "pangolin": {
+    "reason": "Bind-side all4 inspected:1/3 actual snout at negativeY, scale-covered tail at positiveY;2/4 already correct. Scoped rigid180Z only1/3 before automatic correspondence. No raw mesh or neural rig edits.",
+    "axis_corrections": {
+      "1": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "3": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "candidate_hashes": {
+      "1": {
+        "model.glb": "330d392d687267960d65fcde999d6135cb29d107390fc596fbf577a3b2292da1",
+        "generated-rig.npz": "7d8c9948fad8dcb0312a646b7904a50fb2a0468ecdbe209281b1622876b1067d"
+      },
+      "2": {
+        "model.glb": "c33ae26b86cf816201ed582a145667edc327982b3a57297648f3c6d3a046882b",
+        "generated-rig.npz": "ef5859e57f48161391bafdcd5984f9b28a6667ebcd005dee226e9d17c88aa761"
+      },
+      "3": {
+        "model.glb": "8d670ba58ca6b27bb20f04c96b535902d5640130fe517b7a0407dc0aa1f2a433",
+        "generated-rig.npz": "71dfaab026ce369e5f0c94de9f97fb703eca1151142d1e68feb2f0d076ff0a01"
+      },
+      "4": {
+        "model.glb": "f1a10cc591544aa3130940b2a26b25932e072f2737e033fe7d3aec9297bead48",
+        "generated-rig.npz": "150faea93565352ee4a6099cdb9f39b1865828699e142bedc54cdd90d28d5526"
+      }
+    }
   }
 }
