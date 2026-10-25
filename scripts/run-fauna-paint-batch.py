@@ -15,6 +15,7 @@ python=Path('E:/AI/WorldGen3D/rig-venv/Scripts/python.exe')
 ap=argparse.ArgumentParser();ap.add_argument('--phase',choices=['guides','finish'],required=True)
 ap.add_argument('--slugs',nargs='*');ap.add_argument('--limit',type=int)
 ap.add_argument('--watch',action='store_true',help='Keep accepting inspected face guides until this whole finishing queue is processed')
+ap.add_argument('--refresh',action='store_true',help='Re-bake specified working copies after an inspected recipe correction')
 a=ap.parse_args()
 sys.path.insert(0,str(repo/'scripts'))
 from fauna_finish_catalog import SUPPORTED
@@ -52,7 +53,7 @@ try:
                     image=folder/f'previews/1-Bind-{view}-surface.png'
                     if not image.exists():run(slug,'render-fauna-diagnostic.py',['--root',str(folder),'--blend-name','Animal - Painted Species Review.blend','--view',view,'--surface-only','--size','640'],f'guide-{view}.log')
             else:
-                if finished(slug):
+                if finished(slug) and not a.refresh:
                     report['completed'].append(slug);save();continue
                 if not (folder/'face-guide-picks.json').exists():
                     report['waiting_for_guides'].append(slug);save();continue

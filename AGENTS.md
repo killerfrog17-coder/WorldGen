@@ -1,5 +1,24 @@
 # WorldGen repository instructions
 
+OWNER PHONE TEST / SECOND PASS,25October2026 ~14:44 local:
+Owner confirms native phone connection works after SMS MFA. Do not re-enable or
+restart remote daemon, do not save pairing codes. Owner asks delayed message test
+and progress totals. Exact census171 selected first-colour copies native verified,
+784 reachable coat palettes (10 bodies with6,80 with5,81 with4),1126 body atlases
+(784 colour +342 rough/normal). Deer adds8 coats, total792 across172 painted
+bodies; five procedural microfauna still not painted. Shared22 generated source
+images prepared,16 body-detail sources actually referenced (includes reused deer
+fur); eye/horn maps additional to1126 body maps. No full morphology claim.
+Finite inspection worker completed171 with zero render errors at14:32, two moving
+phases and three body views available; actual visual review is still outstanding.
+Second-pass local CPU refresh of Owl and AfricanHuntingDog now uses corrected
+recipes after inspecting sheets. run-fauna-paint-batch.py new --refresh explicitly
+re-bakes these unpublished copies. PID5448 launcher (verifyactualchild/status),
+no duplicate worker. Native identity/packed/coats controls checked again per save.
+Do not mistake generated inspection frames for completed art review. Need finish
+five microfauna, later ungulate extras, Pronghorn pigment seam issue and remaining
+visual touchups before declaring the owner painting request complete.
+
 ALL171 FIRST COLOUR COPIES CHECKED,25October2026 ~14:22 local:
 Latest index171/171 selected generated bodies exact native-SHA checked; accepted
 deer separate makes172 technically checked colour previews. No owner appearance
