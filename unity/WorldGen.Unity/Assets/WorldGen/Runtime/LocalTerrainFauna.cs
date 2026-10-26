@@ -19,7 +19,7 @@ public sealed partial class LocalTerrainExplorer
         public FaunaPrototypeSpawn Spawn;public AnimalModel Model;public GameObject Root;public MeshRenderer Renderer;public MaterialPropertyBlock Props;
         public int Slot;public double X,Z,HomeX,HomeZ,GroundY,NextDecision,Time,OldTime,BlendAge,Life,NextGround;
         public float Heading,TargetHeading,Speed,TargetSpeed,Fade,NominalSpeed;
-        public FaunaRuntimeClip Clip,OldClip;public bool Wanted=true;public Vector4 Parts;
+        public FaunaRuntimeClip Clip,OldClip;public bool Wanted=true,Manual;public Vector4 Parts;
         public V Planet;public Rng Random;
     }
     FaunaPrototypePlanner animalPlanner;
@@ -43,7 +43,7 @@ public sealed partial class LocalTerrainExplorer
         if(catalogue==null||animalShader==null||!animalShader.isSupported){Debug.LogWarning("Visible fauna assets/shader unavailable.");return;}
         var profiles=JsonUtility.FromJson<FaunaPrototypeCatalogue>(catalogue.text);
         if(profiles.version!=1||profiles.animals.Length!=177)throw new InvalidDataException("Visible fauna catalogue mismatch");
-        animalPlanner=new FaunaPrototypePlanner(sourceWorld,terrain,profiles.animals,HorizontalScale);
+        animalProfiles=profiles.animals;animalPlanner=new FaunaPrototypePlanner(sourceWorld,terrain,animalProfiles,HorizontalScale);
         for(int i=AnimalLimit-1;i>=0;i--)animalSlots.Push(i);
         animalBoneBuffer=new GraphicsBuffer(GraphicsBuffer.Target.Structured,animalBoneData.Length,64);
         for(int i=0;i<animalBoneData.Length;i++)animalBoneData[i]=Matrix4x4.identity;
@@ -74,7 +74,7 @@ public sealed partial class LocalTerrainExplorer
                 // Share the model cache across media, rather than loading every
                 // ground species before considering nearby birds or insects.
                 animalWanted.Clear();animalWanted.AddRange(animalPlan.Result.OrderBy(s=>(s.Position-playerAt).Length*radius/Math.Max(1,s.Profile.radiusM)).ThenBy(s=>s.Id));animalCandidates=animalWanted.Count;
-                var ids=new HashSet<ulong>(animalWanted.Select(s=>s.Id));foreach(var animal in animals.Values)animal.Wanted=ids.Contains(animal.Spawn.Id);
+                var ids=new HashSet<ulong>(animalWanted.Select(s=>s.Id));foreach(var animal in animals.Values)animal.Wanted=animal.Manual||ids.Contains(animal.Spawn.Id);
             }
             animalPlan=null;
         }
@@ -87,20 +87,21 @@ public sealed partial class LocalTerrainExplorer
             animalPlan=Task.Run(()=>planner.Build(at,scale,hour,token),token);
         }
         bool localPopulation=HeightAboveGround<1200;
-        if(!localPopulation){animalWanted.Clear();foreach(var animal in animals.Values)animal.Wanted=false;}
+        if(!localPopulation){animalWanted.Clear();animalManualWanted.Clear();foreach(var animal in animals.Values)animal.Wanted=false;}
         if(!stopped&&localPopulation)
         {
+            UpdateManualAnimalSpawns();
             foreach(var spawn in animalWanted)
             {
-                if(animalSlots.Count==0)break;
+                if(animalSlots.Count<=animalManualWanted.Count)break;
                 if(animals.ContainsKey(spawn.Id)||!animalModels.TryGetValue(spawn.Profile.slug,out var model))continue;
                 if((spawn.Position-Position).Length*frame.RadiusM>spawn.Profile.radiusM)continue;
                 AddAnimal(spawn,model);
             }
-            if(animalLoading==null&&CenterReady&&!NearTerrainPending())
+            if(animalLoading==null&&CenterReady&&(animalManualWanted.Count>0||!NearTerrainPending()))
             {
-                var next=animalWanted.FirstOrDefault(s=>!animalModels.ContainsKey(s.Profile.slug)&&!animalLoadFailures.Contains(s.Profile.slug));
-                if(next!=null&&(animalModels.Count<AnimalModelLimit||EvictAnimalModel()))
+                var next=animalManualWanted.FirstOrDefault(s=>!animalModels.ContainsKey(s.Profile.slug)&&!animalLoadFailures.Contains(s.Profile.slug))??animalWanted.FirstOrDefault(s=>!animalModels.ContainsKey(s.Profile.slug)&&!animalLoadFailures.Contains(s.Profile.slug));
+                if(next!=null&&(animalModels.Count<AnimalModelLimit||EvictAnimalModel()||animalManualWanted.Any(s=>s.Profile.slug==next.Profile.slug)&&EvictWildAnimalModel()))
                 {
                     if(!File.Exists(Path.Combine(Application.streamingAssetsPath,"fauna",next.Profile.bundle)))
                     {animalLoadFailures.Add(next.Profile.slug);Debug.LogWarning("Missing fauna bundle "+next.Profile.slug);}
@@ -145,7 +146,7 @@ public sealed partial class LocalTerrainExplorer
         var old=animalModels.Where(p=>p.Value.Users==0).OrderBy(p=>p.Value.LastUse).FirstOrDefault();if(old.Value==null)return false;
         Destroy(old.Value.Material);old.Value.Bundle.Unload(true);animalModels.Remove(old.Key);return true;
     }
-    void AddAnimal(FaunaPrototypeSpawn spawn,AnimalModel model)
+    void AddAnimal(FaunaPrototypeSpawn spawn,AnimalModel model,bool manual=false)
     {
         var root=new GameObject(spawn.Profile.name,typeof(MeshFilter),typeof(MeshRenderer));root.layer=30;root.transform.SetParent(transform,false);
         root.transform.localScale=Vector3.one*(float)spawn.Profile.lengthM;
@@ -153,7 +154,7 @@ public sealed partial class LocalTerrainExplorer
         renderer.shadowCastingMode=spawn.Profile.lengthM>=.35?ShadowCastingMode.On:ShadowCastingMode.Off;renderer.receiveShadows=true;renderer.lightProbeUsage=LightProbeUsage.Off;
         renderer.motionVectorGenerationMode=MotionVectorGenerationMode.Camera;
         var rng=new Rng(sourceWorld.Recipe.Seed,"local-fauna-wander-1",unchecked((int)spawn.Hash));
-        var animal=new Animal{Spawn=spawn,Model=model,Root=root,Renderer=renderer,Slot=animalSlots.Pop(),Random=rng,Props=new MaterialPropertyBlock(),
+        var animal=new Animal{Spawn=spawn,Model=model,Manual=manual,Root=root,Renderer=renderer,Slot=animalSlots.Pop(),Random=rng,Props=new MaterialPropertyBlock(),
             Heading=(float)(rng.Unit()*360),Time=rng.Unit()*7,GroundY=frame.SurfaceY(spawn.Position,spawn.GroundM)};
         TerrainHandoff.Coordinates(frame,spawn.Position,out animal.X,out animal.Z);animal.HomeX=animal.X;animal.HomeZ=animal.Z;animal.Planet=spawn.Position;
         animal.TargetHeading=animal.Heading;animal.Random=rng;

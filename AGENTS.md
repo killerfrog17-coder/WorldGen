@@ -1,5 +1,27 @@
 # WorldGen repository instructions
 
+FAUNA SPAWN COMMANDS,26October2026~14:08CDT:
+Owner requests an in-game animal spawn command. Added /spawn <animal> [1-32],
+/spawn list [filter] [page], /spawn clear, /help entry and Tab completion. Slugs,
+names and aliases accepted; ambiguous/invalid requests explained. Manual queue
+max64 active/pending,24 types, shared128 actors; async loading prioritised and
+can evict nonmanual wildlife/models. Manual flag survives regional replans;
+clear cancels manual pending/live only. Dry ground/deep water required, ecology
+and activity bypassed for debug; normal local-distance/high-altitude retirement.
+No native/rig/animation/world/save changes.208 pure parser/catalogue checks pass,
+shared compile0warnings/errors. New release IL2CPP BuiltUtc2026-10-26T19:08:13.7652438Z
+compile/package0, no C#/shader errors; staged DLL inputs verified. Existing177
+bundles unchanged. Compile/package-only restriction retained; no player/world/
+fixture/profiling launches, runtime spawn/placement/lifecycle owner-test pending.
+Task staging E:/AI/WorldGen3D/build-stage-fauna-spawn-command, copied shipping
+files to artifacts/player-fauna-spawn-command; repo shortcut selects new package.
+Original selected visible-fauna package preserved. Prior artifacts-only cleanup
+authorization used on ONLY unselected/nonrunning player-terrain-tree-reveal's
+WorldGen_BackUpThisFolder_ButDontShipItWithYourGame; executable/data retained,
+exact cleanup manifest under fauna-runtime-20261026/spawn-build-cleanup.json.
+Build-created importer/project settings restored. Preserve other human-animation
+audit work, owner prompt deletion and two old untracked deer scripts unstaged.
+
 FREE HUMAN ANIMATION INVENTORY,26October2026:
 Owner requires ZERO payment; asked actual free counts and game coverage before
 animation building. Downloaded ONLY Quaternius UAL1/UAL2 Standard +KayKit Free1.1,

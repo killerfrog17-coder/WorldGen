@@ -5,6 +5,30 @@ exploration. Existing source Blender files, artwork, rigs and animations remain
 read-only. This pass adds runtime conversion, regional placement and simple
 wandering; it does not revise the accepted art or motion.
 
+## Spawn commands
+
+Press Enter or `/` to open chat, then use:
+
+- `/spawn deer` - spawn one deer nearby.
+- `/spawn red fox 5` - names with spaces and catalogue aliases work too.
+- `/spawn list` or `/spawn list 2` - browse the 177 animal names in pages.
+- `/spawn list freshwater` - search names and aliases.
+- `/spawn clear` - remove command-spawned animals and cancel their pending spawns.
+
+Tab completes animal names. Counts are 1–32 per command, with at most 64 active
+or queued command spawns and 24 distinct loaded animal types. Commands bypass
+regional presence and time-of-day restrictions for testing; ground animals still
+require dry ground ahead, and swimmers require sufficiently deep water. Flying
+animals appear above the nearby surface, close to camera height. Unsuitable
+spots are skipped with a count in chat.
+
+Models load asynchronously with command requests taking priority over regional
+wildlife. Chat confirms both the queued request and completed spawn, or reports
+an asset failure. These animals keep wandering through regional refreshes and
+despawn after leaving their normal local range; they are not saved. Clearing
+them retains regional wildlife. Manual spawns share the existing 128-actor budget
+and may displace distant regional actors/models to make room.
+
 ## Behaviour and placement
 
 Animals choose a new heading/activity every 2–8 seconds. Heading and speed change
@@ -86,8 +110,8 @@ is performed. Runtime visual correctness, density, movement transitions and FPS
 still require an owner playtest. No save schema, world generation or ecology
 presence record is changed by the prototype.
 
-The final release IL2CPP build is `artifacts/player-visible-fauna`, BuiltUtc
-`2026-10-26T18:44:08.9844205Z`. It contains all 177 bundles, 541 movement clips
+The current release IL2CPP build is `artifacts/player-fauna-spawn-command`, BuiltUtc
+`2026-10-26T19:08:13.7652438Z`. It contains all 177 bundles, 541 movement clips
 and 830 coat layers (376.0 MiB of bundles). The packaged hashes and sampled native
 skinning checks pass; the largest sampled normalized position error is
 `4.89230791495413e-7`. Detailed build evidence is in [VALIDATION](VALIDATION.md).

@@ -13,6 +13,8 @@ public sealed partial class LocalTerrainExplorer
     Func<string,PlayCommandResult> command;GUIStyle chatStyle;
     public bool ChatOpen=>chatOpen;
     public string ChatText=>chatText;
+    void PostExplorerChat(string text,bool error=false)
+    {chatLines.Add(new ChatLine{Text=text,At=Time.realtimeSinceStartupAsDouble,Error=error});while(chatLines.Count>100)chatLines.RemoveAt(0);}
     public void SetCommandHandler(Func<string,PlayCommandResult> handler){command=handler;}
     public void OpenChat(string prefix="")
     {
@@ -74,8 +76,8 @@ public sealed partial class LocalTerrainExplorer
         }
         if(keyboard.tabKey.wasPressedThisFrame)
         {
-            var options=PlayCommands.Complete(chatText);if(options.Length==1){chatText=options[0]+" ";chatCaret=chatText.Length;}
-            else if(options.Length>1){chatLines.Add(new ChatLine{Text=string.Join("   ",options),At=Time.realtimeSinceStartupAsDouble});if(chatLines.Count>100)chatLines.RemoveAt(0);}
+            var options=chatText.StartsWith("/spawn ",StringComparison.OrdinalIgnoreCase)?FaunaSpawnCommands.Complete(chatText,animalProfiles):PlayCommands.Complete(chatText);if(options.Length==1){chatText=options[0]+" ";chatCaret=chatText.Length;}
+            else if(options.Length>1)PostExplorerChat(string.Join("   ",options.Take(8))+(options.Length>8?"   (type more to narrow; /spawn list lists animals)":""));
         }
         return true;
     }

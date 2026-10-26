@@ -8,6 +8,7 @@ public sealed partial class LocalTerrainExplorer
     public PlayCommandResult ExecuteExplorerCommand(string text)
     {
         var words=text.Trim().Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);
+        if(words.Length>0&&words[0].Equals("/spawn",StringComparison.OrdinalIgnoreCase))return ExecuteAnimalSpawnCommand(text);
         if(words.Length>0&&words[0].Equals("/seed",StringComparison.OrdinalIgnoreCase))
             return words.Length!=1?new PlayCommandResult(false,"Usage: /seed"):sourceWorld==null?new PlayCommandResult(false,"World seed is not available yet."):new PlayCommandResult(true,"World seed: "+sourceWorld.Recipe.Seed.ToString(System.Globalization.CultureInfo.InvariantCulture));
         if(words.Length>0&&words[0].Equals("/flora",StringComparison.OrdinalIgnoreCase))return DescribeSpecialistFlora(words);

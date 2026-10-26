@@ -1,5 +1,31 @@
 # Version 3 validation evidence
 
+## Animal spawn commands - 26 October 2026
+
+Added `/spawn <animal> [1-32]`, paginated/searchable `/spawn list [filter] [page]`
+and `/spawn clear`, with help and Tab completion. Forced spawns bypass the regional
+presence filter while retaining dry-ground/water-depth checks. The bounded async
+queue reserves actor slots and prioritizes model loading; regional refreshes
+retain manual actors, and clear removes only command spawns. No animal native,
+motion, world ecology or save schema changed.
+
+Shared compilation: 0 warnings/errors. A pure command/catalogue audit passed
+208 checks covering every model slug, name/count parsing, malformed/oversized
+counts, ambiguity, filtering, pagination including overflow, clear/help syntax
+and completion. No worlds or players were created for this audit. Release IL2CPP
+build exited 0 without C#/shader errors, BuiltUtc
+`2026-10-26T19:08:13.7652438Z`. All staged authoritative DLL inputs were verified.
+The package uses the same 177 verified fauna bundles. Compile/package-only
+restriction remains: actual spawning, placement and queue lifecycle still need
+an owner playtest; no game/player/fixture/profiling launch was performed.
+
+Build staging used a task-owned E: directory to reduce C: pressure; the ready
+shipping package is `artifacts/player-fauna-spawn-command` and the existing
+shortcut selects it. The preceding selected build remained intact throughout.
+Previously authorized cleanup removed only the old unselected tree-reveal
+build's generated nonshipping C++/debug backup, retaining its executable/data.
+Unrelated build-generated importer/project settings were restored.
+
 ## Visible fauna prototype - 26 October 2026
 
 Owner accepts the selected animal placeholders and requests game integration
