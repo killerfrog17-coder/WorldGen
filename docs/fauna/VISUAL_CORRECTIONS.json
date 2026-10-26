@@ -149,18 +149,51 @@
       "number": 6,
       "slug": "red-fox",
       "name": "Red fox",
-      "status": "anatomy_working_not_published",
+      "status": "independently_checked_static_appearance_ready_for_owner_review",
       "reference_comparison_completed": true,
       "appearance_approved": false,
-      "source_sha256": "b5123ab9264fa4e557714a30d4e163bb3f1a1cbfef26d6a51b8670150dff13db",
-      "reference": "https://www.nationalgeographic.com.es/mundo-animal/la-pupila-un-instrumento-optico-de-precision_19363",
-      "body_and_pattern_review": "Remaining general body/pattern review not certified by this face pass.",
+      "source_sha256": "f73a9365da7a2d4b3377e114431c2f0a6a877906b140df335bed055e50c8be60",
+      "reference": [
+        "artifacts/fauna-visual-corrections/references/fox.jpg",
+        "artifacts/fauna-visual-corrections/references/fox-profile.jpg"
+      ],
+      "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
       "independent_critic_pass": false,
       "latest_anatomy_work": {
         "root": "artifacts\\fauna-anatomy-revision\\red-fox",
         "native_sha256": "19f1014a6a64597ff570d679883f6c502dc5835aafd0586a619de3ce813766d2",
         "preservation_proof_matches": true,
         "latest_native_independent_appearance_clearance": false
+      },
+      "independent_critic": {
+        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\fox-raccoon-fresh-final-gate.json",
+        "sha256": "7239f2b7cb1d5c313c2e104f65f464a6e55ca7580aa105e647a0945234439473",
+        "native_sha256": "f73a9365da7a2d4b3377e114431c2f0a6a877906b140df335bed055e50c8be60",
+        "verdict": "no_major_visible_faults_at_low_poly_prototype_standard",
+        "secondary_polish": [
+          {
+            "finding": "Alternate-coat cheek boundaries and pale inner-ear patches are more abrupt than the red woodland coat. Dark cross, silver, pale and russet variants would benefit from a softer fur-edged pigment transition. This remains a secondary material issue at the supplied full-body scale.",
+            "evidence_paths": [
+              "artifacts/fauna-anatomy-revision/red-fox/eye-audit/coat-01-front.png",
+              "artifacts/fauna-anatomy-revision/red-fox/eye-audit/coat-02-front.png",
+              "artifacts/fauna-anatomy-revision/red-fox/eye-audit/coat-04-front.png",
+              "artifacts/fauna-anatomy-revision/red-fox/eye-audit/coat-05-front.png"
+            ]
+          },
+          {
+            "finding": "Close-profile eye has a small exposed grey crescent and very regular vertical pupil. Slightly subtler rim integration would improve the close-up; paired position and general slit-pupil appearance are plausible.",
+            "evidence_paths": [
+              "artifacts/fauna-anatomy-revision/red-fox/eye-audit/right-after.png"
+            ]
+          },
+          {
+            "finding": "Body fur has less detail than the painted head, particularly around the rear neck. The join is sufficiently blended for this prototype; matching texture frequency would improve polish.",
+            "evidence_paths": [
+              "artifacts/fauna-anatomy-revision/red-fox/appearance-options/coat-00-extra-00-rear.png",
+              "artifacts/fauna-anatomy-revision/red-fox/appearance-options/coat-00-extra-00-side.png"
+            ]
+          }
+        ]
       }
     },
     {
@@ -441,28 +474,100 @@
       "number": 22,
       "slug": "reindeer",
       "name": "Reindeer",
-      "status": "anatomy_working_not_published",
-      "reference_comparison_completed": false,
+      "status": "independently_checked_static_appearance_ready_for_owner_review",
+      "reference_comparison_completed": true,
       "appearance_approved": false,
       "latest_anatomy_work": {
         "root": "artifacts\\fauna-anatomy-revision\\reindeer",
         "native_sha256": "5e05cbb7e880b4fd5c8a136eb2df89a559fc266eaffaca605f27d3213aed626c",
         "preservation_proof_matches": false,
         "latest_native_independent_appearance_clearance": false
+      },
+      "source_sha256": "a61295b6ebbf91fb8688836acb509251eb50fc0b5a654086d94df0e3fbd9d203",
+      "reference": [
+        "https://images.squarespace-cdn.com/content/v1/54a3efb4e4b0243cdd445408/1573820909866-MBGIDH01ZE7OEM3W6DWG/Reindeer%2BTromso%2BNorway.jpg",
+        "https://www.sprucemeadows.com/data_assets/headers/1666024491040_Reindeer.jpg",
+        "artifacts/fauna-anatomy-revision/references/reindeer-fresh-critic-full-antlers.jpg"
+      ],
+      "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
+      "independent_critic": {
+        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\reindeer-branching-final-fresh.json",
+        "sha256": "342b4846fe6e176c92fcc286d704f34ffd136c156d1368a96029a394bde97c3a",
+        "native_sha256": "a61295b6ebbf91fb8688836acb509251eb50fc0b5a654086d94df0e3fbd9d203",
+        "verdict": "no_major_visible_faults_at_low_poly_prototype_standard",
+        "secondary_polish": [
+          "In the close profile renders, the upper edge of the lower antler web has a short straight shelf and the web is more modest than the broad palm visible in the profile photograph. Softening that edge and adding restrained irregular breadth could improve species specificity, but its current silhouette remains plausible and continuous.",
+          "Close head renders show softer nose/nostril paint and more obvious thin whisker lines than the reference. Better nostril definition and subtler whiskers would improve close-up finish.",
+          "Head/upper-neck fur is higher contrast and more directional than the simpler body coat, particularly in Brown summer. The full-body transition is readable and acceptable, but more consistent fur scale would polish it.",
+          "The eye highlight/iris detail is very subdued in profile and the lids can read slightly heavy at close range; this does not create an obvious placement or integration failure."
+        ]
       }
     },
     {
       "number": 23,
       "slug": "moose",
       "name": "Moose",
-      "status": "anatomy_working_not_published",
-      "reference_comparison_completed": false,
+      "status": "independently_checked_static_appearance_ready_for_owner_review",
+      "reference_comparison_completed": true,
       "appearance_approved": false,
       "latest_anatomy_work": {
         "root": "artifacts\\fauna-anatomy-revision\\moose",
         "native_sha256": "707af2ac978e2030e8ab25f71d30e9270e28153819b2934c7bee0bfdb51a8ed4",
         "preservation_proof_matches": false,
         "latest_native_independent_appearance_clearance": false
+      },
+      "source_sha256": "74526bc513882b0b373d0a71bc03fee72b3dd057291f3ce0322f0a9cba860fb1",
+      "reference": [
+        "https://www.birdingtours.de/fileadmin/Images/Blog/2025/Interviews/Lofoten_NicolasStettler-Elch-frontal-Wiese-Europa-Norwegen.jpg",
+        "https://www.animalfactsencyclopedia.com/images/moose-close-up.jpg",
+        "https://www.nps.gov/common/uploads/stories/images/nri/20150205/articles/9A5019E9-9B32-9C84-D04879CC32426436/9A5019E9-9B32-9C84-D04879CC32426436.jpg",
+        "https://www.fws.gov/sites/default/files/images/2024-07/bull-moose.jpg"
+      ],
+      "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
+      "independent_critic": {
+        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\moose-fresh-complete-visual.json",
+        "sha256": "98e4b925606bb7575aa273cead2ff25fb10afc4af1b433caa241a1bae024d18d",
+        "native_sha256": "74526bc513882b0b373d0a71bc03fee72b3dd057291f3ce0322f0a9cba860fb1",
+        "verdict": "no_major_visible_faults_at_low_poly_prototype_standard",
+        "secondary_polish": [
+          {
+            "issue": "Antler palms are very flat, pale and angular, with fairly regular sharp triangular tines and visible faceted palm shading. More cupping, varied tine lengths/curvature and restrained bone variation would improve comparison with the actual NPS/FWS antlers. Current forms retain the essential moose palm-and-tine silhouette.",
+            "views": [
+              "appearance-options/coat-00-extra-00-front.png",
+              "appearance-options/coat-00-extra-05-front.png",
+              "appearance-options/coat-00-extra-00-side.png"
+            ]
+          },
+          {
+            "issue": "Near-root upward tines overlap the ears strongly in close profiles, forming a cone-like shape in front of each ear. No detached join is established by these images, but clearer clearance and less overlap would make the crown easier to read.",
+            "views": [
+              "eye-audit/right-after.png",
+              "eye-audit/left-after.png"
+            ]
+          },
+          {
+            "issue": "The pale muzzle whisker fan is conspicuous and more visible on one side in the frontal render; reduce its brightness/regularity or verify paired placement for a less wire-like appearance.",
+            "views": [
+              "eye-audit/front-after.png",
+              "eye-audit/left-after.png"
+            ]
+          },
+          {
+            "issue": "Head and upper-neck paint has higher contrast and coarser apparent fur detail than the smoother body. The texture-frequency transition is visible, especially behind the ears and upper shoulder, but no hard rectangular cutoff is apparent in full-body views.",
+            "views": [
+              "head-overview/right-after.png",
+              "head-overview/left-after.png",
+              "appearance-options/coat-00-extra-00-side.png"
+            ]
+          },
+          {
+            "issue": "Black-brown coat has stronger pale facial mottling than the ordinary dark moose photos. Softer mottling would look more natural, while the explicitly hypothetical coat can retain its stronger variation.",
+            "views": [
+              "eye-audit/coat-01-front.png",
+              "appearance-options/coat-01-extra-00-side.png"
+            ]
+          }
+        ]
       }
     },
     {
@@ -544,18 +649,49 @@
       "number": 29,
       "slug": "raccoon",
       "name": "Raccoon",
-      "status": "anatomy_working_not_published",
+      "status": "independently_checked_static_appearance_ready_for_owner_review",
       "reference_comparison_completed": true,
       "appearance_approved": false,
-      "source_sha256": "2101e1e62999bbe48d73a692c0ba60ff5843e7243f40c38cded8e75fdd3be5f4",
-      "reference": "https://rachelmankowitz.com/2014/04/19/the-dancing-raccoon/",
-      "body_and_pattern_review": "Remaining general body/pattern review not certified by this face pass.",
+      "source_sha256": "b8665f6674e862e31ac49841d3213343399aaaab9436c0588a112a8b225a6c44",
+      "reference": [
+        "artifacts/fauna-visual-corrections/references/raccoon.jpg",
+        "artifacts/fauna-visual-corrections/references/raccoon-profile.jpg"
+      ],
+      "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
       "independent_critic_pass": false,
       "latest_anatomy_work": {
         "root": "artifacts\\fauna-anatomy-revision\\raccoon",
         "native_sha256": "c91fd9ffc6a80bca24de423309354fafde8f3d34488735617c51038e59bc0d4e",
         "preservation_proof_matches": true,
         "latest_native_independent_appearance_clearance": false
+      },
+      "independent_critic": {
+        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\fox-raccoon-fresh-final-gate.json",
+        "sha256": "7239f2b7cb1d5c313c2e104f65f464a6e55ca7580aa105e647a0945234439473",
+        "native_sha256": "b8665f6674e862e31ac49841d3213343399aaaab9436c0588a112a8b225a6c44",
+        "verdict": "no_major_visible_faults_at_low_poly_prototype_standard",
+        "secondary_polish": [
+          {
+            "finding": "Eyes are very glossy and nearly uniformly black, with limited visible lid structure. They look slightly bead-like in close-up. A subtler highlight and more evident narrow upper lid would improve realism; placement and dark round-eye appearance remain plausible.",
+            "evidence_paths": [
+              "artifacts/fauna-anatomy-revision/raccoon/eye-audit/front-after.png",
+              "artifacts/fauna-anatomy-revision/raccoon/eye-audit/right-after.png"
+            ]
+          },
+          {
+            "finding": "Detailed brownish head/nape fur changes to simpler grey-brown body fur behind the ears. The small brown nape patch and texture-frequency shift are noticeable in rear/side inspection; soften this transition for polish. It does not form a dominant complete collar or obscure the silhouette.",
+            "evidence_paths": [
+              "artifacts/fauna-anatomy-revision/raccoon/appearance-options/coat-00-extra-00-rear.png",
+              "artifacts/fauna-anatomy-revision/raccoon/appearance-options/coat-00-extra-00-side.png"
+            ]
+          },
+          {
+            "finding": "Tail rings are unusually clean and uniform. Mild edge variation would make the pattern less graphic while retaining clear recognition.",
+            "evidence_paths": [
+              "artifacts/fauna-anatomy-revision/raccoon/appearance-options/coat-00-extra-00-side.png"
+            ]
+          }
+        ]
       }
     },
     {

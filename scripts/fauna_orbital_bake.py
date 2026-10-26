@@ -5,7 +5,7 @@ and interpolation between unrelated body UV islands. No lighting is baked.
 """
 import numpy as np
 
-def bake(patches,coats,atlases,support_sample,load_image):
+def bake(patches,coats,atlases,support_sample,load_image,root=None,slug=None):
     W,H=256,128;positions=np.zeros((H,W,3));occupied=np.zeros((H,W),bool);source_uv=np.zeros((H,W,2));clone_uv=np.zeros((H,W,2));clone_weight=np.zeros((H,W))
     for record in patches:
         ob=record['object'];mesh=ob.data;mesh.calc_loop_triangles();points=np.array([v.co[:] for v in mesh.vertices]);uv=mesh.uv_layers['Orbital bake UV'];clone_attr=mesh.attributes.get('Fitted clone blend');weights=np.array([v.value for v in clone_attr.data]) if clone_attr else None
@@ -39,12 +39,31 @@ def bake(patches,coats,atlases,support_sample,load_image):
             if weights is None:
                 t=np.clip((rho-1.15)/1.15,0,1);clone_weight[y,x]=1-t*t*(3-2*t)
     ys,xs=np.where(occupied);uv=np.mod(source_uv[ys,xs],1);other_uv=np.mod(clone_uv[ys,xs],1);blend=clone_weight[ys,xs,None]
+    direct=None;base_values=None
+    if root is not None and slug in {'lion','tiger','jaguar','leopard','puma','ocelot'}:
+        # New feline lids have no original UV surface. Sample their registered
+        # pigmentation directly rather than jumping between nearest coarse
+        # skull triangles, which produced visible radial colour wedges.
+        import hashlib
+        query=positions[ys,xs].copy();normals=np.zeros_like(query)
+        for record in patches:
+            mask=(xs//128)==record['half'];normals[mask]=record['normal']
+        signature=hashlib.sha256(query.tobytes()+normals.tobytes()).hexdigest()
+        np.savez_compressed(root/'orbital-projection-input.npz',points=query,normals=normals,signature=signature)
+        cache=root/'orbital-projection-colour.npz'
+        if cache.exists():
+            result=np.load(cache)
+            if str(result['signature'])==signature:direct=result['colour']
     for coat,atlas in zip(coats,atlases):
         image=load_image(coat['file']);pixels=np.empty(len(image.pixels),np.float32);image.pixels.foreach_get(pixels);pixels=pixels.reshape(image.size[1],image.size[0],4)
         def sample(coords):
             xy=coords*[image.size[0]-1,image.size[1]-1];lo=xy.astype(int);hi=np.minimum(lo+1,[image.size[0]-1,image.size[1]-1]);t=xy-lo
             return pixels[lo[:,1],lo[:,0]]*(1-t[:,0:1])*(1-t[:,1:2])+pixels[lo[:,1],hi[:,0]]*t[:,0:1]*(1-t[:,1:2])+pixels[hi[:,1],lo[:,0]]*(1-t[:,0:1])*t[:,1:2]+pixels[hi[:,1],hi[:,0]]*t[:,0:1]*t[:,1:2]
         values=sample(uv)*(1-blend)+sample(other_uv)*blend
+        if direct is not None:
+            if base_values is None:base_values=values[:,:3].copy()
+            ratio=np.clip(values[:,:3]/np.maximum(base_values,.018),.16,3.)
+            valid=np.isfinite(direct).all(1);values[valid,:3]=direct[valid]*ratio[valid]
         result=np.ones((H,W,4),np.float32);result[:,:,:3]=0;result[ys,xs]=values;known=occupied.copy()
         for _ in range(9):
             summed=np.zeros_like(result);count=np.zeros((H,W),np.float32)

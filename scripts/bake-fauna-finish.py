@@ -15,11 +15,12 @@ repo=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(repo/'scripts'
 from fauna_finish_catalog import SUPPORTED,PALETTES,category,profiles,radius,ROWS
 from fauna_paint_recipes import eye_frame
 from fauna_hypothetical_coats import treatment,rationale,organic_stripes
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=1024);ap.add_argument('--root',type=Path)
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=1024);ap.add_argument('--root',type=Path);ap.add_argument('--source-atlases',action='store_true')
 a=ap.parse_args();assert a.slug in SUPPORTED;started=time.monotonic()
 root=(a.root or repo/'artifacts/fauna-painted-20261024'/a.slug).resolve()
 state=json.loads((root/'paint-state.json').read_text());land=json.loads((root/'face-landmarks.json').read_text())
-d=dict(np.load(root/'paint-anatomy.npz'));entry=json.loads((root/'selected-source-entry.json').read_text())
+d=dict(np.load(root/'paint-anatomy.npz'));entry_path=root/'selected-source-entry.json'
+entry=json.loads(entry_path.read_text()) if entry_path.exists() else json.loads((repo/'artifacts/fauna-overnight-20261024'/a.slug/'audition.json').read_text())['candidates'][state['source_candidate']-1]
 groups=np.asarray(entry['groups']);weights=d['weights'];assert weights.shape[1]==len(groups)
 kind=category(a.slug)
 if kind=='snake':
@@ -405,7 +406,7 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
     colour=treatment(colour,label,p,n,np.maximum.reduce([face,foot,bill,bare]))
     colour=paint(bare,[.06,.045,.03])
     image=np.zeros((a.size,a.size,3),np.float32);image[iy,ix]=np.clip(colour,0,1);extend(image)
-    filename=f'coat-{index}-colour.png';Image.fromarray(np.uint8(np.clip(image,0,1)*255)).save(root/filename)
+    filename=f'coat-{index}-colour.png';colour_root=root/'unprojected-atlases' if a.source_atlases else root;colour_root.mkdir(exist_ok=True);Image.fromarray(np.uint8(np.clip(image,0,1)*255)).save(colour_root/filename)
     coats.append({'label':label,'file':filename})
 
 roughmap=np.ones((a.size,a.size),np.float32)*.8;roughmap[iy,ix]=rough;extend(roughmap)

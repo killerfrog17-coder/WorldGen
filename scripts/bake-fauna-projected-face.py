@@ -98,6 +98,13 @@ if a.slug=='red-fox':
     nasal_q=((nasal_rel@side_axis)/.041)**2+(nasal_rel[:,2]/.025)**2+((nasal_rel@front)/.032)**2
 elif a.slug in {'hare','rabbit'}:
     nasal_q=((nasal_rel@side_axis)/nw)**2+(nasal_rel[:,2]/nh)**2+((nasal_rel@front)/.025)**2
+elif a.slug=='wolf':
+    nasal_q=((nasal_rel@side_axis)/.050)**2+(nasal_rel[:,2]/.031)**2+((nasal_rel@front)/.045)**2
+    # Remove the lateral black crescent introduced by conflicting guide nose
+    # boundaries; it sits on fur outside the actual terminal nasal pad.
+    shell=((nasal_rel@side_axis)/.080)**2+(nasal_rel[:,2]/.052)**2+((nasal_rel@front)/.080)**2
+    leaked=(1-smooth(.85,1.3,shell))*smooth(.95,1.6,nasal_q)*(1-smooth(.09,.23,sampled@np.array([.2126,.7152,.0722])))
+    sampled=sampled*(1-leaked[:,None])+np.array([.60,.575,.535])*leaked[:,None]
 side_nose=(1-smooth(1.05,1.55,nasal_q))
 side_nose*=1-smooth(.45,.80,n@front)
 if a.slug=='buffalo':side_nose*=1-alpha
@@ -202,3 +209,6 @@ report={'slug':a.slug,'guide_sha256':hashlib.sha256(paint_path.read_bytes()).hex
 if views:report.update(method='Calibrated generated front/profile guides fused by surface visibility and view normal into original UVs; mirrored profile guide fitted independently to the other side.',view_configurations=views,limits='Generated paint can retain lighting and fine-fibre stretching; native front/profile/coat inspection and owner review required.')
 (root/'face-projection.json').write_text(json.dumps(report,indent=2)+'\n');print('FACE GUIDE BAKED',a.slug,report['painted_pixels'])
 if probes:(root/'paint-probes.json').write_text(json.dumps(probes,indent=2)+'\n')
+if a.slug in {'lion','tiger','jaguar','leopard','puma','ocelot'} and views:
+    from fauna_orbital_projection import bake as project_orbital_skin
+    project_orbital_skin(root,views)

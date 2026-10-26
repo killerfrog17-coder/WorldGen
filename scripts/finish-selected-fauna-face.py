@@ -503,14 +503,15 @@ if anatomical:
         from fauna_stitched_orbits import prepare as prepare_stitched_orbits
         state['orbital_topology_correction']=prepare_stitched_orbits(body,orbital_patches,land,sample,root,a.slug)
     from fauna_orbital_bake import bake as bake_orbital_pigment
-    state['orbital_atlas_pixels']=bake_orbital_pigment(orbital_patches,bake['coats'],orbital_atlases,support_sample,image)
+    state['orbital_atlas_pixels']=bake_orbital_pigment(orbital_patches,bake['coats'],orbital_atlases,support_sample,image,root=root,slug=a.slug)
 
 # Sparse tapered muzzle whiskers, attached using the local muzzle weights.
 nose=np.array(land['nose']['point']);vertices=[];polygons=[]
 for side in [-1,1]:
     for j in range(10 if a.slug=='walrus' else 5 if a.slug in {'seal','sea-lion','sea-otter'} else 0 if kind in {'avian','fish','scaled'} or (extended and category in {'thickskin','spiny_mammal','armoured_mammal','primate'}) else 5):
         if compact:
-            start=nose+np.array(land['side_axis'])*side*(.018+j*.002)-np.array(land['front_axis'])*(.022+j*.005)+np.array([0,0,-.009+j*.007])
+            muzzle_pad=a.slug in {'wolf','lion','tiger','jaguar','leopard','puma','ocelot'}
+            start=nose+np.array(land['side_axis'])*side*((.037 if muzzle_pad else .018)+j*.002)-np.array(land['front_axis'])*((.067 if muzzle_pad else .022)+j*.005)+np.array([0,0,-.009+j*.007])
             direction=np.array(land['side_axis'])*side*(.090+j*.008)-np.array(land['front_axis'])*(.028+j*.012)+np.array([0,0,(j-2)*.014])
         else:
             start=nose+np.array([side*(.018+j*.002),-.022-j*.005,-.009+j*.007])

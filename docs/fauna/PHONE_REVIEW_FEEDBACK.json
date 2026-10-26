@@ -53,13 +53,13 @@
         "Snow-white fox appearance must be supported."
       ],
       "updated_at": "2026-10-25T19:54:04.091517-05:00",
-      "review_update": "Face revised against real animal references: fitted eyes/pupils, lids, ear fur, mask and nasal paint. Existing selected body and animations retained; appearance remains for review.",
+      "review_update": "Appearance rebuilt against actual front/profile photos; all coats and attachment examples independently checked at prototype quality. Existing selected body and animations retained; awaiting your review.",
       "repair_review": {
-        "plan": "artifacts\\fauna-visual-corrections\\red-fox\\phone-review-plan.json",
-        "media_root": "artifacts\\fauna-visual-corrections\\phone-media",
-        "check": "artifacts\\fauna-visual-corrections\\red-fox\\visual-native-check.json",
-        "blend": "artifacts\\fauna-visual-corrections\\red-fox\\Animal - Painted Species Review.blend",
-        "blend_sha256": "b5123ab9264fa4e557714a30d4e163bb3f1a1cbfef26d6a51b8670150dff13db"
+        "plan": "artifacts\\fauna-anatomy-revision\\red-fox\\phone-review-plan.json",
+        "media_root": "artifacts\\fauna-anatomy-revision\\phone-media",
+        "check": "artifacts\\fauna-anatomy-revision\\red-fox\\visual-native-check.json",
+        "blend": "artifacts\\fauna-anatomy-revision\\red-fox\\Animal - Painted Species Review.blend",
+        "blend_sha256": "f73a9365da7a2d4b3377e114431c2f0a6a877906b140df335bed055e50c8be60"
       },
       "correction": "Retargeted the real right hind leg and tail from explicit physical paths in the existing CC0 fox bank; confined whole paws and stabilized axial frames. Closed walk/run cycles and fitted ground clearance. Original bind geometry, appearance and rest skeleton retained.",
       "published_source_sha": "3c41ad7be03f6a31858627e4600ffce4e196c27b",
@@ -154,13 +154,13 @@
       "slug": "raccoon",
       "status": "awaiting_owner_review",
       "owner_approved": false,
-      "review_update": "Face revised against real animal references: fitted eyes/pupils, lids, ear fur, mask and nasal paint. Existing selected body and animations retained; appearance remains for review.",
+      "review_update": "Appearance rebuilt against actual front/profile photos; all coats and attachment examples independently checked at prototype quality. Existing selected body and animations retained; awaiting your review.",
       "repair_review": {
-        "plan": "artifacts\\fauna-visual-corrections\\raccoon\\phone-review-plan.json",
-        "media_root": "artifacts\\fauna-visual-corrections\\phone-media",
-        "check": "artifacts\\fauna-visual-corrections\\raccoon\\visual-native-check.json",
-        "blend": "artifacts\\fauna-visual-corrections\\raccoon\\Animal - Painted Species Review.blend",
-        "blend_sha256": "2101e1e62999bbe48d73a692c0ba60ff5843e7243f40c38cded8e75fdd3be5f4"
+        "plan": "artifacts\\fauna-anatomy-revision\\raccoon\\phone-review-plan.json",
+        "media_root": "artifacts\\fauna-anatomy-revision\\phone-media",
+        "check": "artifacts\\fauna-anatomy-revision\\raccoon\\visual-native-check.json",
+        "blend": "artifacts\\fauna-anatomy-revision\\raccoon\\Animal - Painted Species Review.blend",
+        "blend_sha256": "b8665f6674e862e31ac49841d3213343399aaaab9436c0588a112a8b225a6c44"
       },
       "published_source_sha": "3c41ad7be03f6a31858627e4600ffce4e196c27b",
       "published_deployment": "appgdep_6adee0afa3208191aa7880f8d6b36685"
@@ -202,6 +202,32 @@
         "check": "artifacts\\fauna-anatomy-revision\\native-detritivorous-flies-guild\\visual-native-check.json",
         "blend": "artifacts\\fauna-anatomy-revision\\native-detritivorous-flies-guild\\Animal - Painted Species Review.blend",
         "blend_sha256": "b454c1fa1e784a0b9dc5ec4d6817940d477e383b0aa217593fae8ab9bf4d8652"
+      }
+    },
+    {
+      "slug": "moose",
+      "status": "awaiting_owner_review",
+      "owner_approved": false,
+      "review_update": "Appearance rebuilt against actual front/profile photos; all coats and attachment examples independently checked at prototype quality. Existing selected body and animations retained; awaiting your review.",
+      "repair_review": {
+        "plan": "artifacts\\fauna-anatomy-revision\\moose\\phone-review-plan.json",
+        "media_root": "artifacts\\fauna-anatomy-revision\\phone-media",
+        "check": "artifacts\\fauna-anatomy-revision\\moose\\visual-native-check.json",
+        "blend": "artifacts\\fauna-anatomy-revision\\moose\\Animal - Painted Species Review.blend",
+        "blend_sha256": "74526bc513882b0b373d0a71bc03fee72b3dd057291f3ce0322f0a9cba860fb1"
+      }
+    },
+    {
+      "slug": "reindeer",
+      "status": "awaiting_owner_review",
+      "owner_approved": false,
+      "review_update": "Appearance rebuilt against actual front/profile photos; all coats and attachment examples independently checked at prototype quality. Existing selected body and animations retained; awaiting your review.",
+      "repair_review": {
+        "plan": "artifacts\\fauna-anatomy-revision\\reindeer\\phone-review-plan.json",
+        "media_root": "artifacts\\fauna-anatomy-revision\\phone-media",
+        "check": "artifacts\\fauna-anatomy-revision\\reindeer\\visual-native-check.json",
+        "blend": "artifacts\\fauna-anatomy-revision\\reindeer\\Animal - Painted Species Review.blend",
+        "blend_sha256": "a61295b6ebbf91fb8688836acb509251eb50fc0b5a654086d94df0e3fbd9d203"
       }
     }
   ],

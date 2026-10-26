@@ -2,7 +2,8 @@
 import numpy as np
 
 def apply(body,land,slug):
-    if slug not in {'wolf','red-fox','raccoon','hare','rabbit','buffalo','lynx','reindeer','horse','badger'}:return None
+    felids={'lion','tiger','jaguar','leopard','puma','ocelot'}
+    if slug not in {'wolf','red-fox','raccoon','hare','rabbit','buffalo','lynx','reindeer','horse','badger'}|felids:return None
     original=np.array([v.co[:] for v in body.data.vertices]);p=original.copy();F=np.array(land['front_axis']);S=np.array(land['side_axis']);nose=np.array(land['nose']['point']);mid=(np.array(land['right_eye']['point'])+land['left_eye']['point'])/2
     def smooth(t):t=np.clip(t,0,1);return t*t*(3-2*t)
     if slug in {'reindeer','horse','badger'}:
@@ -101,7 +102,8 @@ def apply(body,land,slug):
         for i in ids:neighbours[i]=connected-set(ids)
     relative=original-mid;forward=relative@F;height=relative[:,2]
     weight=smooth((forward+.34)/.15)*smooth((.30-forward)/.12)*smooth((height+.49)/.12)*smooth((.035-height)/.10)
-    nasal=original-nose;protect=np.sqrt((nasal@F/.11)**2+(nasal@S/.095)**2+(nasal[:,2]/.075)**2);weight*=smooth((protect-.85)/.70)
+    nasal=original-nose;nasal_radii=(.050,.045,.035) if slug=='red-fox' else (.060,.050,.040) if slug in felids else (.11,.095,.075)
+    protect=np.sqrt((nasal@F/nasal_radii[0])**2+(nasal@S/nasal_radii[1])**2+(nasal[:,2]/nasal_radii[2])**2);weight*=smooth((protect-.85)/.70)
     for key in ['right_eye','left_eye']:
         anchor=land[key];N,H,V=[np.array(anchor['fit_frame'][k]) for k in ['normal','horizontal','vertical']];d=original-np.array(anchor['point']);q=np.sqrt((d@H/.070)**2+(d@V/.060)**2);weight*=smooth((q-1)/.55)
     for _ in range(9):
@@ -110,7 +112,7 @@ def apply(body,land,slug):
             for i in np.where(weight>0)[0]:
                 if neighbours[i]:q[i]=p[i]+(p[list(neighbours[i])].mean(0)-p[i])*factor*weight[i]
             p=q
-    if slug=='wolf':
+    if slug=='wolf' or slug in felids:
         # Match the approved deer method's LOCAL socket-bed relaxation before
         # cutting the lid opening. Subdivision alone retains angular pit walls.
         orbital=np.zeros(len(p))

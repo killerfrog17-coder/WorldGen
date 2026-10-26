@@ -68,7 +68,7 @@ def tube(name,path,radius,skin):
         t=i/(len(path)-1);tangent=path[min(i+1,len(path)-1)]-path[max(i-1,0)];tangent/=np.linalg.norm(tangent)
         cross=last-tangent*(last@tangent)
         if np.linalg.norm(cross)<.01:cross=up-tangent*(up@tangent)
-        cross/=np.linalg.norm(cross);last=cross;other=np.cross(tangent,cross);r=radius*(1-t)**.72+.0003
+        cross/=np.linalg.norm(cross);last=cross;other=np.cross(tangent,cross);r=radius*(1-t)**(.46 if a.slug=='reindeer' and land.get('anatomical_orbit') else .72)+.0003
         for j in range(segments):verts.append(q+r*(cross*math.cos(j*math.tau/segments)+other*math.sin(j*math.tau/segments)));uv.append((j/segments,t))
     for i in range(len(path)-1):
         for j in range(segments):polys.append((i*segments+j,i*segments+(j+1)%segments,(i+1)*segments+(j+1)%segments,(i+1)*segments+j))
@@ -142,11 +142,11 @@ def antler_shovel(name,outline,normal,thickness,skin):
     outline=np.array(outline);center=outline.mean(0);normal=np.array(normal);normal/=np.linalg.norm(normal);verts=[];uv=[]
     horizontal=outline[1]-outline[0];horizontal/=np.linalg.norm(horizontal);vertical=np.cross(normal,horizontal);extent=max(np.ptp(outline@horizontal),np.ptp(outline@vertical),.01)
     for sign in [-1,1]:
-        for i,q in enumerate([center,*outline]):
-            verts.append(q+normal*thickness*sign*(1.2 if i==0 else .65));uv.append((.5+(q-center)@horizontal/extent,.5+(q-center)@vertical/extent))
-    count=len(outline);offset=count+1;polys=[]
+        for q in outline:
+            verts.append(q+normal*thickness*sign*.8);uv.append((.5+(q-center)@horizontal/extent,.5+(q-center)@vertical/extent))
+    count=len(outline);offset=count;polys=[tuple(range(count)),tuple(reversed(range(offset,offset+count)))]
     for i in range(count):
-        j=(i+1)%count;polys.extend([(0,i+1,j+1),(offset,offset+j+1,offset+i+1),(i+1,offset+i+1,offset+j+1,j+1)])
+        j=(i+1)%count;polys.append((i,offset+i,offset+j,j))
     for i,face in enumerate(polys):
         A,B,C=[np.array(verts[v]) for v in face[:3]]
         if np.cross(B-A,C-A)@(np.mean([verts[v] for v in face],axis=0)-center)<0:polys[i]=tuple(reversed(face))
@@ -224,6 +224,7 @@ for conf in variants:
             if a.slug in {'buffalo','musk-ox'} and conf['sex']!='female' and conf['id']!='water-sweep' and not (a.slug=='buffalo' and land.get('physical_eye_revision')):horn_boss(name+' broad root',q,normal,skin)
             radial=(.018 if shape in {'antler','palmate','spike','pronghorn','tusk'} else .070 if a.slug=='buffalo' and land.get('physical_eye_revision') else .033)*conf['radius']
             if a.slug in {'reindeer','moose'} and land.get('anatomical_orbit'):radial*=1.45
+            if a.slug=='reindeer' and land.get('anatomical_orbit'):radial*=1.25
             if shape in {'antler','palmate'}:
                 path=[start+side*sign*length*width*(.45*x+.10*x*x)-front*length*.35*x*x+up*length*(.86*x-.18*x*x) for x in t]
                 if a.slug=='moose' and land.get('anatomical_orbit'):
@@ -254,9 +255,10 @@ for conf in variants:
                         if land.get('anatomical_orbit'):brow=[at+(end-at)*x-up*length*.045*math.sin(x*math.pi)+side*sign*length*.045*x*x for x in np.linspace(0,1,9)]
                         tube(name+' brow beam',brow,radial*.65,skin)
                         if land.get('anatomical_orbit') and conf['id']!='female':
-                            contour=[(.06,-.025),(.21,-.015),(.39,.015),(.47,.06),(.43,.14),(.35,.17),(.28,.14),(.20,.07),(.08,.045)]
+                            contour=[(.06,-.025),(.20,-.015),(.42,.015),(.47,.04),(.41,.08),(.30,.10),(.20,.06),(.08,.045)]
                             antler_shovel(name+' brow shovel',[at+front*length*x+up*length*z for x,z in contour],side,.014*conf['radius'],skin)
-                        for j in range(2 if land.get('anatomical_orbit') or conf['id']=='hyp-compact' else 3):
+                        brow_count=3 if land.get('anatomical_orbit') and conf['id']!='female' else 2 if land.get('anatomical_orbit') or conf['id']=='hyp-compact' else 3
+                        for j in range(brow_count):
                             q0=at+(end-at)*(.45+j*.20)
                             if land.get('anatomical_orbit'):
                                 phase=.45+j*.20;q0=np.array([np.interp(phase,np.linspace(0,1,len(brow)),np.array(brow)[:,axis]) for axis in range(3)])-up*.002
@@ -264,7 +266,11 @@ for conf in variants:
                             if land.get('anatomical_orbit'):
                                 q0=at+front*length*(.28 if j==0 else .43)+up*length*(.12 if j==0 else .06)
                                 brow_point=[q0+up*length*(.13 if j==0 else .055)*x+front*length*(.025 if j==0 else .14)*x*x+side*sign*length*.018*x for x in np.linspace(0,1,6)]
-                            tube(name+' brow point'+str(j),brow_point,radial*.35,skin)
+                                if conf['id']!='female':
+                                    x0,z0,vertical,forward=[(.25,.065,.22,.045),(.36,.055,.16,.10),(.44,.025,.07,.15)][j]
+                                    q0=at+front*length*x0+up*length*z0
+                                    brow_point=[q0+up*length*vertical*x+front*length*forward*x*x+side*sign*length*.025*math.sin(x*math.pi/2) for x in np.linspace(0,1,8)]
+                            tube(name+' brow point'+str(j),brow_point,radial*(.62 if land.get('anatomical_orbit') and conf['id']!='female' else .35),skin)
             else:
                 path=[]
                 for x in t:

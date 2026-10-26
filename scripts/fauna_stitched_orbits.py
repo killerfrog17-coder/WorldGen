@@ -36,12 +36,12 @@ def prepare(body,patches,land,skin_sample,root,slug):
     flecks={i for i,face in enumerate(faces) if all(v in fleck_vertices for v in face)}
     removed=set(flecks);proofs=[]
     from fauna_paint_recipes import family
-    kind=family(slug);prey=slug in {'hare','rabbit'};bovid=kind in {'caprine','bovine','cervid','equine'} or slug=='buffalo'
+    kind=family(slug);prey=slug in {'hare','rabbit'};feline=slug in {'lion','tiger','jaguar','leopard','puma','ocelot'};bovid=kind in {'caprine','bovine','cervid','equine'} or slug=='buffalo'
     globe_vertical=.80 if prey else .70;globe_depth=.55;globe_offset=.40
     top,bottom,tilt=(.60,.53,.025) if prey else (.50,.40,.06) if slug=='red-fox' else (.55,.55,.02) if slug=='raccoon' else (.34,.34,.02) if kind=='ursid' else (.40,.35,.02) if bovid else (.30,.27,.02) if kind=='suine' else (.45,.36,.06)
     profile=land.get('anatomical_orbit',{});top=profile.get('aperture_top',top);bottom=profile.get('aperture_bottom',bottom);tilt=profile.get('aperture_tilt',tilt)
     for record in patches:
-        if slug in {'badger','otter','squirrel','beaver','mouse'}:record['source_fur_radius']=1.65
+        if feline or slug in {'badger','otter','squirrel','beaver','mouse'}:record['source_fur_radius']=1.65
         side='right' if record['half']==0 else 'left';ob=record['object'];C=record['center'];H=record['horizontal'];V=record['vertical'];N=np.array(record.get('normal',np.cross(V,H)));N/=np.linalg.norm(N);R=record['radius'];rx=record['rx']
         centroids=np.array([p[f].mean(0) for f in faces]);rel=centroids-C
         q=((rel@H)/(rx*1.5))**2+((rel@V)/(R*.95))**2
@@ -97,8 +97,16 @@ def prepare(body,patches,land,skin_sample,root,slug):
         if area<0:outer=[outer[0],*reversed(outer[1:])]
         boundary_ids=[representatives[key] for key in outer];outer_p=p[boundary_ids]
         lengths=np.linalg.norm(np.roll(outer_p,-1,axis=0)-outer_p,axis=1);arc=np.r_[0,np.cumsum(lengths)];arc=arc/arc[-1]*math.tau
+        angle_offset=0.;parameterization='perimeter arc length'
+        if feline or slug=='wolf':
+            xy=np.c_[(outer_p-C)@H,(outer_p-C)@V];angles=np.mod(np.arctan2(xy[:,1],xy[:,0]),math.tau);steps=np.mod(np.roll(angles,-1)-angles,math.tau)
+            if abs(steps.sum()-math.tau)<1e-5:
+                # Match each inner lid ray to the same outer skull ray. Equal
+                # perimeter lengths can pair different directions on an uneven
+                # cut boundary, twisting the bridge into a scalloped fitting.
+                angle_offset=float(angles[0]);arc=np.r_[0,np.cumsum(steps)];parameterization='matched anatomical polar angle'
         # Rebuild the eye as a closed, buried ellipsoid, not an oval surface cap.
-        eye=bpy.data.objects[f'{slug} {side} eye'];old_materials=list(eye.data.materials);ev=[C+N*(R*globe_depth-R*globe_offset)];eu=[(.5,.5)];ef=[];segments=32;rows=12;Ri=R*(.82 if prey else .88)
+        eye=bpy.data.objects[f'{slug} {side} eye'];old_materials=list(eye.data.materials);ev=[C+N*(R*globe_depth-R*globe_offset)];eu=[(.5,.5)];ef=[];segments=32;rows=12;Ri=R*(.68 if feline else .72 if slug=='wolf' else .82 if prey else .88)
         for row in range(1,rows):
             theta=math.pi*row/rows
             for col in range(segments):
@@ -123,16 +131,22 @@ def prepare(body,patches,land,skin_sample,root,slug):
         def depth_at(u,v):return R*globe_depth*math.sqrt(max(0.,1-(u/R)**2-(v/(R*globe_vertical))**2))-R*globe_offset
         for ring in range(3):
             for i in range(count):
-                t=math.tau*i/count;c=math.cos(t);sn=math.sin(t);front=max(0,c*medial)**6
+                t=angle_offset+math.tau*i/count;c=math.cos(t);sn=math.sin(t);front=max(0,c*medial)**6
                 if ring==0:
                     u=R*.90*c;v=R*(top if sn>=0 else bottom)*math.copysign(abs(sn)**(1 if sn>=0 else 1.1),sn)-medial*R*tilt*c;depth=depth_at(u,v)+R*.025
                 elif ring==1:
                     u=R*1.08*c+medial*R*.12*front;v=R*(max(top+.15,.65) if sn>=0 else max(bottom+.12,.55))*math.copysign(abs(sn)**(1 if sn>=0 else 1.25),sn)-medial*R*tilt*c-R*.04*front
-                    depth=depth_at(u,v)+R*((.075+.04*max(sn,0) if sn>=0 else .10) if slug in {'wolf','red-fox','hare','rabbit','bear'} else (.16+.14*max(sn,0) if sn>=0 else .24))
+                    depth=depth_at(u,v)+R*((.075+.04*max(sn,0) if sn>=0 else .10) if feline or slug in {'wolf','red-fox','hare','rabbit','bear'} else (.16+.14*max(sn,0) if sn>=0 else .24))
+                    if feline or slug=='wolf':
+                        skull=skin_sample(C+H*u+V*v)[0];depth=depth*.45+float((skull-C)@N)*.55
                 else:
                     fraction=i/count;k=min(len(outer_p)-1,int(np.searchsorted(arc/math.tau,fraction,side='right')-1));a0=arc[k]/math.tau;a1=arc[k+1]/math.tau;alpha=(fraction-a0)/max(a1-a0,1e-8);target=outer_p[k]*(1-alpha)+outer_p[(k+1)%len(outer_p)]*alpha
                     point=np.array(verts[count+i])*.35+target*.65+N*R*.015;verts.append(point);bare.append(0.);continue
                 verts.append(C+H*u+V*v+N*depth);bare.append(1. if ring==0 else 0.)
+        if feline or slug=='wolf':
+            ring=np.array(verts[2*count:3*count])
+            for _ in range(2):ring=ring*.70+(np.roll(ring,1,axis=0)+np.roll(ring,-1,axis=0))*.15
+            verts[2*count:3*count]=list(ring)
         for ring in range(2):
             for i in range(count):
                 j=(i+1)%count;a=ring*count+i;b=ring*count+j;triangles.extend([(a,a+count,b),(b,a+count,b+count)])
@@ -155,7 +169,7 @@ def prepare(body,patches,land,skin_sample,root,slug):
         ob.data.uv_layers.active=ob.data.uv_layers['UVMap'];ob.data.uv_layers['UVMap'].active_render=True
         weights=[skin_sample(point)[2] for point in verts]
         for j,original_id in enumerate(boundary_ids):weights[boundary_start+j]=source_weights[original_id]
-        _weights(ob,weights);removed.update(cut);proofs.append({'side':side,'boundary_body_vertices':boundary_ids,'boundary_skin_vertices':list(range(boundary_start,len(verts))),'skin_object':ob.name,'removed_faces':sorted(cut),'globe_radius':R,'enclosed_original_boundary_loops_covered':len(loops)-1})
+        _weights(ob,weights);removed.update(cut);proofs.append({'side':side,'boundary_body_vertices':boundary_ids,'boundary_skin_vertices':list(range(boundary_start,len(verts))),'skin_object':ob.name,'removed_faces':sorted(cut),'globe_radius':R,'enclosed_original_boundary_loops_covered':len(loops)-1,'bridge_parameterization':parameterization})
         patch_normals=np.array([v.normal[:] for v in ob.data.vertices])
         for j,original_id in enumerate(boundary_ids):patch_normals[boundary_start+j]=source_normals[original_id]
         ob.data.normals_split_custom_set_from_vertices(patch_normals.tolist())

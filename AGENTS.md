@@ -1,5 +1,40 @@
 # WorldGen repository instructions
 
+KEEP WORKING / EXACT APPEARANCE GATES,26October2026~09:15CDT:
+User requests continued all-roster front/profile reference correction plus fresh
+fork-none independent critics; NO premature final. Existing bad animations
+accepted, no motion edits/baking/model generation/paid external API/game or GUI
+changes. Eight mammals now passed exact static low-poly prototype gates:
+Bison1ee5dc...,Goat29fa1a...,Hare07d83a...,Rabbit3d36b5...,Moose74526b...,
+Foxf73a93...,Raccoonb8665f...,Reindeera61295.... Freeze these natives. Five tiny
+ambient guilds passed tiny-use static standard; Fly revised b454c1.... Protected
+Deer0e2ff46... unchanged. NO owner acceptance or all-roster game-ready claim.
+Phone LIVE source1231cf2b415bb948e98d45277a69e3f60474923c, successful private
+Sites deploy appgdep_6adf5d4afb748191a6e95003e45027c3, same phone URL. All eight
+mammal revisions +Fly now live, 177cards/354clips/2342media, Done/notes retained.
+Exact native critics/publish receipts under fauna-anatomy-revision; other cards
+remain old art, not new passes. 163entries incl other families still uncleared.
+Wolf new nasal-leak mask, lid polar matching and smaller physical pupil just
+rebuilt exact13f66ba86cb56e072140ebc28f47413e2fef815475062e92cfdd0ef2c7fdeb2d;
+all coats/body examples rendered, independent wolf_fresh_complete_gate running.
+Not passed yet. Preserve eye centres; no animation work.
+Six new cats have inspected actual front/profile photos, explicit authored eye
+fits where raw source has no clear socket, corrected nasal picks, neutral studio
+clay and real-eye generated registered front/profile guides. First Lion/Tiger/
+Jaguar actual painted results rejected by independent cats-first-paint-diagnosis;
+bead eyes, radial fur lids, head/body collar changes remain active rework. Never
+publish these as passed. Smaller pupil/iris, 2K original-UV species source bake,
+CPU direct orbital guide projection now implemented; earlier radial-clamp
+attempt rejected. CPU helper avoids PIL/SciPy in Blender. Native preservation
+checks gate every rebuild. Latest cat worker1316 plus leopard/puma/ocelot75583
+(check real processes) active/finishing. Body paint clay guides for all6 rendered
+read-only. Built-in imagegen cell1387 generates Tiger/Jaguar/Lion body-right
+pigment guides. All generated outputs remain workspace-copied with prompt/meta.
+No local neuralGPU inference. No active goal inferred/created. Latest source
+backup54a2e6... predates these changes; checkpoint explicit own sources next.
+Preserve unrelated deleted WorldGen_OneShot_Prompt.md and two untracked old deer
+scripts unstaged. Never overwrite approved/frozen native bodies by blanket run.
+
 KEEP WORKING / APPEARANCE PASS IN PROGRESS,26October2026~08:20CDT:
 User requests every selected animal front/profile-reference comparison plus
 independent fork-none critic, no premature final. Animation defects accepted;

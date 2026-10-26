@@ -69,7 +69,7 @@ for i in manual:
     assert np.linalg.norm(old['points'][i]-(np.array(land['right_eye']['point'])+land['left_eye']['point'])/2)<.55
     covered[i]=True
 assert covered[changed].all(),'Geometry changed outside inspected socket/manual cheek region: '+str([(int(i),float(delta[i])) for i in changed if not covered[i]][:20])
-assert float(delta.max())<(.155 if sculpt and a.slug=='lynx' else .11 if sculpt and a.slug=='buffalo' else .095 if sculpt and a.slug in {'hare','rabbit','red-fox','raccoon','wolf'} else .07 if manual or land.get('anatomical_orbit') else .05),'Excessive local head edit'
+assert float(delta.max())<(.155 if sculpt and a.slug=='lynx' else .11 if sculpt and a.slug=='buffalo' else .095 if sculpt and a.slug in {'hare','rabbit','red-fox','raccoon','wolf','lion','tiger','jaguar','leopard','puma','ocelot'} else .07 if manual or land.get('anatomical_orbit') else .05),'Excessive local head edit'
 for name in entry['facial_objects']:
     ob=bpy.data.objects[name];assert all(np.isfinite(v.co[:]).all() for v in ob.data.vertices),name
 boundary_gap=0.;posed_gap=0.;morph_boundary_delta=0.;posed_samples=[]
