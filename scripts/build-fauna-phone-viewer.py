@@ -1,6 +1,7 @@
 """Package every selected animal's views, all coats/extras and source motion clips."""
 import argparse,hashlib,json,shutil
 from pathlib import Path
+from fauna_phone_clips import review_clip_labels
 repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-phone-media';site=repo/'artifacts/fauna-phone-review/dist'
 ap=argparse.ArgumentParser();ap.add_argument('--partial',action='store_true');a=ap.parse_args();plan=json.loads((root/'plan.json').read_text());animals=[];ledger=[];complete=0
 def copy(source,target,digest):
@@ -24,11 +25,20 @@ for item in plan['animals']:
   elif not item['procedural']:
    for view,label in [('front','Face — front'),('right','Face — right'),('left','Face — left')]:
     path=site/f"eyes/{item['slug']}-{view}-after.webp";assert path.exists();row['pictures'].append({'label':label,'url':str(path.relative_to(site)).replace('\\','/')})
-  for clip in r['videos']:
+  chosen=review_clip_labels([clip['label'] for clip in r['videos']])
+  for label in chosen:
+   clip=next(clip for clip in r['videos'] if clip['label']==label)
    target=site/'animals'/item['slug']/clip['file'];copy(folder/clip['file'],target,clip['sha256']);row['clips'].append({'label':clip['label'],'url':str(target.relative_to(site)).replace('\\','/'),'seconds':clip['seconds']})
   assert len([v for v in row['variations'] if v['type']=='paint'])==len(item['coats'])
   assert len([v for v in row['variations'] if v['type']=='extra'])==len(item['extras'])
-  assert len(row['clips'])==len(item['clips'])
+  assert len(row['clips'])==2
+  # Prune only obsolete published previews; native actions and render masters stay.
+  published_folder=(site/'animals'/item['slug']).resolve();allowed=(site/'animals').resolve()
+  assert published_folder.is_relative_to(allowed)
+  keep={Path(clip['url']).name for clip in row['clips']}
+  for old in published_folder.glob('clip-*.mp4'):
+   assert old.resolve().is_relative_to(allowed) and old.is_file()
+   if old.name not in keep:old.unlink()
  else:assert a.partial,'Not all animal media is ready: '+item['slug']
  animals.append(row)
 assert len(animals)==177

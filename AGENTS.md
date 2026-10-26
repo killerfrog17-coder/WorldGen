@@ -1,5 +1,27 @@
 # WorldGen repository instructions
 
+PHONE VIEWER TWO-CLIP POLICY LIVE,25October2026 ~19:13 local:
+Owner explicitly wants ONLY TWO main animations per animal, superseding the
+all-clip delivery below. All177 phone pages now have exactly2 clips /354 total.
+Walk+Run for ordinary ground animals; Walk+Flap where flight exists; Walk+Swim
+for Walrus; swim pairs for fish; Run+Jump for Hare/Rabbit; Slither+Side winding
+for Python/VenomousSnake; Flight+Perch for tiny insects; available movement+Idle
+where only one locomotion exists. Never invent unavailable swimming/flying.
+New scripts/fauna_phone_clips.py drives the package selection. Published-only
+unused clip MP4s pruned from the bounded dist/animals folders; native actions
+and original rendered masters retained. All828 coats/118 extras, pictures,
+animal identities and asset_revision values EXACT unchanged, so saved Done
+markers/notes remain valid. Manifest fetch uses no-store for fresh clip menus.
+Phone QA177/354 counts, family-specific pairs, exactly2 MP4s per animal folder,
+playback/speed, Done reload/reopen, notes and backup import/export ALL PASS.
+Same owner-private Site successfully published source
+69d002ff9e1f42cbf2af40a06d6b7bbcf304deb7, deployment
+appgdep_6ade9b0a5c308191a3587b10ba989dbf; version
+appgprj_6ade6fbe0a5081918b25bcbf541da095~appgver_2dd7473d3438819184a56a2743948d71.
+No new renders/models/painting, owner app/window/game changes or approval
+resets. Verified owned temporary preview30628 at8766 stopped on teardown.
+Preserve unrelated deleted prompt and2old untracked deer scripts unstaged.
+
 PHONE INDIVIDUAL REVIEW VIEWER LIVE,25October2026 ~19:08 local:
 Owner asked for deer-style phone reviews for ALL animals: animation clips,
 body/face views, every paint job and extras, plus persistent Done markers.
