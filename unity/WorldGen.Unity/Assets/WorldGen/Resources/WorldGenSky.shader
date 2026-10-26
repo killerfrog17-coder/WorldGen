@@ -13,6 +13,7 @@ Shader "WorldGen/PlayableSky"
             #pragma target 3.0
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
+            #include "WorldGenFog.hlsl"
             TEXTURE2D(_Stars);SAMPLER(sampler_Stars);
             float4 _Zenith,_Horizon,_StarRight,_StarUp,_StarForward,_GalaxyPole,_LocalUp,_NightAirGlow;
             float _StarVisibility,_Daylight,_Twilight,_GalacticGlow,_StellarGlow,_FieldSeed,_AirDensity,_AerosolHaze;int _BodyCount;
@@ -45,10 +46,8 @@ Shader "WorldGen/PlayableSky"
                 #ifndef UNITY_COLORSPACE_GAMMA
                 zenith=SRGBToLinear(zenith);horizon=SRGBToLinear(horizon);
                 #endif
-                float localHeight=dot(d,_LocalUp.xyz),up=saturate(localHeight),vertical=pow(up,.42);
-                float3 color=lerp(horizon,zenith,vertical);
-                if(localHeight<0)color=lerp(horizon,zenith*.15,saturate(-localHeight*3));
-                color=lerp(zenith*.05,color,_AirDensity)+_NightAirGlow.rgb*_AirDensity*(1.4-up*.4);
+                float localHeight=dot(d,_LocalUp.xyz),up=saturate(localHeight);
+                float3 color=WorldGenSkyAirColor(localHeight,zenith,horizon,_NightAirGlow.rgb,_AirDensity);
                 float3 equatorial=float3(dot(d,_StarRight.xyz),dot(d,_StarUp.xyz),dot(d,_StarForward.xyz));
                 float2 uv=float2(atan2(equatorial.x,equatorial.z)*.159154943+.5,asin(clamp(equatorial.y,-1,1))*.318309886+.5);
                 float3 stars=SAMPLE_TEXTURE2D(_Stars,sampler_Stars,uv).rgb;

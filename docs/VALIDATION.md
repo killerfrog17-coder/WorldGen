@@ -1,5 +1,33 @@
 # Version 3 validation evidence
 
+## Stable loading fog and opaque frontier - 26 October 2026
+
+Owner reports chunk-border fog rewinds and visible fogged silhouettes. Found
+requested-detail readiness could drop to zero during otherwise visible LOD
+replacement, immediately clamping the entire reveal inward. Readiness now gates
+additional outward reveal only; ordinary terrain/forest replans and prepared
+chart handoffs retain the prior distance. Explicit view-distance reductions and
+new-area/teleport resets remain effective. Existing initial quality/tree gating
+is retained; travel may expose a late local replacement rather than hide it with
+a global fog retreat.
+
+Fully fogged surfaces now match the sky's directional base gradient, colour
+space, air density and airglow. Final loading fade covers 72–100% of the range;
+at/beyond the endpoint the surface colour contributes nothing. Weather depth
+uses reconstructed ray distance and opens smoothly behind fog-hidden surfaces,
+so cloud/ray occlusion does not trace their old silhouettes.
+
+5,990 pure `--streaming-fog-only` checks pass: quality-gated initial reveal,
+near-refinement and forest-plan regressions, chart continuity, reset/shorter
+distance behavior and bounded monotonic reveal at four frame rates. Release
+IL2CPP compile/package succeeded, no C#/shader errors, BuiltUtc
+`2026-10-26T20:24:47.4220390Z`, `artifacts/player-stable-loading-fog`. Exact 127
+runtime/shader sources and staged shared DLL inputs stayed stable; all 177 fauna
+bundles and 177 native animal hashes matched. Shortcut selects the new package.
+No world/fixture/player/capture/profiling launch; actual travel/opacity/cloud
+appearance and performance remain owner-review pending. See
+`docs/TERRAIN_RENDERING_REPAIR.md` and ignored stable-loading-fog-20261026 evidence.
+
 ## Terrain boundary and mouse capture repair - 26 October 2026
 
 Owner screenshot showed flat/vertical curtains during loading, plus pointer loss

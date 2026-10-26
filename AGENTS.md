@@ -1,5 +1,28 @@
 # WorldGen repository instructions
 
+STABLE LOADING FOG / OPAQUE FRONTIER,26October2026~15:25CDT:
+Owner reports fog snapping inward at chunk borders, plus visible fogged shapes.
+Requested-quality readiness can drop to0 when existing visible land requests
+finer tiles; old Math.Min immediately rewound the whole horizon. New pure
+TerrainStreamingReveal gates additional expansion only, preserves prior reveal
+through terrain/forest replans and prepared chart handoffs. Initial/new-area
+reset8m; explicit shorter view-distance cap remains. Quality-aware initial
+ground/tree readiness retained; travel can show a late local LOD replacement
+instead of global fog retreat. Shared WorldGenFog sky-air function gives opaque
+surfaces the same directional base gradient/colour space/density/airglow as sky.
+Loading fade72–100%, zero surface-colour contribution at/beyond endpoint. Weather
+uses reconstructed ray distance and smoothly opens fog-hidden geometry for
+clouds/rays, avoiding silhouette occlusion after its surface is fogged out.
+5,990 pure --streaming-fog-only checks pass, no world/fixtures/player launched.
+Release IL2CPP player-stable-loading-fog BuiltUtc2026-10-26T20:24:47.4220390Z
+compile/package0, no C#/shader errors.127 runtime/shader source hashes +staged
+DLLs stable; all177 packaged fauna +177 native hashes match. Existing repo
+shortcut selects package; previous builds/owner apps retained. No captures or
+profiling; travel/opacity/cloud/FPS visual acceptance remains owner pending.
+Build-created importer/project settings restored. See TERRAIN_RENDERING_REPAIR
+and VALIDATION; ignored stable-loading-fog-20261026 evidence. Backup explicit own
+source/docs/shortcut only, preserve unrelated deleted prompt and2old deer scripts.
+
 HUMAN ANIMATION AUDITION DELIVERED,26October2026:
 Owner authorizes Blender comparison before game integration. New separate native
 artifacts/human-animation-preview/Human - Animation Comparison.blend SHA

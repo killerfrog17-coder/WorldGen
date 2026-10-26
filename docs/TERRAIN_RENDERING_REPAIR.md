@@ -1,5 +1,41 @@
 # Terrain boundary and mouse capture repair
 
+Follow-up: the owner reported the loading fog jumping inward at chunk/LOD changes
+and distant silhouettes remaining visible through it. Requested-detail readiness
+can legitimately drop to zero when nearby tiles request finer meshes, even while
+their old surface remains visible. Applying that instantaneous result as a hard
+cap on the existing reveal caused the whole horizon to retreat and expand again.
+
+`TerrainStreamingReveal` now uses readiness only to permit additional outward
+reveal. An already revealed distance is retained through terrain/scatter/forest
+replans and chart handoffs. Explicit shorter view-distance settings still cap
+it, and teleports/new areas reset to 8 m. Readiness remains quality-aware: an
+initial coarse backdrop cannot certify a complete horizon. During travel, a late
+replacement may become visible through its local LOD transition; it no longer
+retracts the entire scene to hide that work. This trades a global fog rewind for
+the existing local product transitions, as requested by the owner.
+
+The old air shader already reached full opacity, but its single horizon colour
+could differ from the actual sky gradient behind a mountain. Clouds also stopped
+at that mountain's depth after the mountain was visually fogged out. A shared
+sky-air colour function now supplies the same directional background to sky and
+fully fogged surfaces, with matching colour space, observer density and airglow.
+The final loading fade spans 72–100% of the reveal distance and returns only
+background colour at/beyond the limit. Weather uses reconstructed ray distance
+and smoothly treats fog-hidden surfaces as open sky, preventing cloud/ray
+occlusion from reintroducing their outlines. Natural aerial perspective and
+weather fog remain separate from this loading frontier.
+
+Focused `--streaming-fog-only` checks cover initial quality gating, refinement
+and forest-readiness regressions, chart continuity, shorter view distances,
+teleport resets, and bounded outward reveal at 15/30/60/144 FPS. All 5,990 pure
+checks pass. Release IL2CPP package `artifacts/player-stable-loading-fog`, BuiltUtc
+`2026-10-26T20:24:47.4220390Z`, completed with no C#/shader errors. All 127 runtime/
+shader source hashes, staged shared DLL hashes, 177 packaged fauna bundles and
+177 native animal sources verified unchanged during packaging. The existing
+shortcut selects this package. No world fixture, player, capture or profiling
+was run; visual opacity, cloud transitions and travel remain owner-review pending.
+
 The owner reported enormous flat surfaces/vertical curtains during forest loading,
 plus a mouse pointer escaping to other monitors during first-person movement.
 

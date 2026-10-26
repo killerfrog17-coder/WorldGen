@@ -6,6 +6,7 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     Material skyMaterial;Texture2D starAtlas;
+    Vector4 fogSkyZenith,fogSkyHorizon,fogSkyGlow;
     CelestialSettings skyConfig;int starSeed=-1;StellarEnvironment starEnvironment;
     readonly System.Collections.Generic.List<Light> suspendedSkyLights=new System.Collections.Generic.List<Light>();
     readonly Vector4[] skyDirections=new Vector4[8],skyColors=new Vector4[8],skyParameters=new Vector4[8];
@@ -85,6 +86,9 @@ public sealed partial class LocalTerrainExplorer
         skyMaterial.SetVector("_NightAirGlow",ColorOf(sampled.NightAirGlow));skyMaterial.SetFloat("_AirDensity",(float)Math.Exp(-Math.Max(0,altitude)/8000));skyMaterial.SetFloat("_AerosolHaze",(float)skyConfig.Haze);
         skyMaterial.SetVector("_StarRight",Vector(sampled.StarRight));skyMaterial.SetVector("_StarUp",Vector(sampled.StarUp));skyMaterial.SetVector("_StarForward",Vector(sampled.StarForward));
         skyMaterial.SetFloat("_StarVisibility",(float)sampled.StarVisibility);skyMaterial.SetFloat("_Daylight",(float)sampled.Daylight);skyMaterial.SetFloat("_Twilight",(float)sampled.Twilight);skyMaterial.SetFloat("_GalacticGlow",(float)sampled.GalacticGlow);skyMaterial.SetFloat("_StellarGlow",(float)sampled.StellarGlow);
+        Color RenderColour(V value){var c=ColorOf(value);return QualitySettings.activeColorSpace==ColorSpace.Linear?c.linear:c;}
+        fogSkyZenith=RenderColour(sampled.Zenith);fogSkyHorizon=RenderColour(sampled.Horizon);fogSkyHorizon.w=1;
+        fogSkyGlow=ColorOf(sampled.NightAirGlow);fogSkyGlow.w=(float)Math.Exp(-Math.Max(0,altitude)/8000);
         int count=Math.Min(8,sampled.Bodies.Length),secondary=0;for(int i=0;i<count;i++){var b=sampled.Bodies[i];skyDirections[i]=Vector(b.Direction);skyColors[i]=ColorOf(b.Color)*(b.MoonIndex<0?1:(float)(skyConfig.Moons[b.MoonIndex].Albedo/.12));skyLightDirections[i]=Vector(b.LightDirection);skyParameters[i]=new Vector4((float)(b.AngularRadiusDegrees*Math.PI/180),b.Surface,(b.MoonIndex+1)*79+starSeed%4096,(float)b.IlluminatedFraction);
             if(i!=primary&&secondary<4){secondaryDirections[secondary]=Vector(b.Direction);secondaryColors[secondary++]=ColorOf(b.Color)*(float)b.Illuminance;}}
         skyDirectionCount=count;skyMaterial.SetInt("_BodyCount",count);skyMaterial.SetVectorArray("_BodyColors",skyColors);skyMaterial.SetVectorArray("_BodyParameters",skyParameters);

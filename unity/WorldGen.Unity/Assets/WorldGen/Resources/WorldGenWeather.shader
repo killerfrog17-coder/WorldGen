@@ -7,6 +7,7 @@ Shader "WorldGen/Weather"
         HLSLINCLUDE
         #pragma target 3.5
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+        #include "WorldGenFog.hlsl"
         #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
         TEXTURE3D(_WeatherNoise);SAMPLER(sampler_WeatherNoise);
@@ -30,7 +31,15 @@ Shader "WorldGen/Weather"
             #else
             if(raw>=.99999999)return 200000;
             #endif
-            return LinearEyeDepth(raw,_ZBufferParams);
+            #if !UNITY_REVERSED_Z
+            raw=lerp(UNITY_NEAR_CLIP_VALUE,1,raw);
+            #endif
+            // Surface fog uses ray length, not camera-forward depth. Treat its
+            // opaque endpoint like open sky so clouds cannot trace hidden land.
+            float distance=length(ComputeWorldSpacePosition(uv,raw,_WeatherInvVP)-_WeatherCamera);
+            if(_WorldGenFogSkyHorizon.w>.5)
+                distance=lerp(distance,200000,WorldGenStreamingFogOpacity(distance,_WorldGenFogSkyZenith.w));
+            return distance;
         }
         float3 Ray(float2 uv)
         {
@@ -183,11 +192,7 @@ Shader "WorldGen/Weather"
         }
         float OpenSky(float2 uv)
         {if(any(uv<0)||any(uv>1))return 0;
-            #if UNITY_REVERSED_Z
-            return 1-step(.00000001,SAMPLE_TEXTURE2D_X(_WeatherDepthTexture,sampler_PointClamp,uv).r);
-            #else
-            return step(.99999999,SAMPLE_TEXTURE2D_X(_WeatherDepthTexture,sampler_PointClamp,uv).r);
-            #endif
+            return step(199999,DepthDistance(uv));
         }
         half4 CompositeFrag(Varyings input):SV_Target
         {

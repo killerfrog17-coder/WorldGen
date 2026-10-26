@@ -14,7 +14,7 @@ public sealed partial class LocalTerrainExplorer
     Task<Dictionary<TerrainTileKey,int>> detailPlan;
     CancellationTokenSource detailCancellation;
     int detailRevision=-1,detailGeneration,plannedPixels;float plannedFov;
-    double detailX,detailZ,nextRequestAt,frameUploadMs,fogSafeRadius,terrainRevealRadius,forestRevealRadius,streamedFog=300,fogCheckAt;
+    double detailX,detailZ,nextRequestAt,frameUploadMs,fogSafeRadius,terrainRevealRadius,forestRevealRadius,streamedFog=TerrainStreamingReveal.InitialDistance,fogCheckAt;
     bool detailDirty;
     TerrainQualityFootprint fogFootprint;
     readonly Dictionary<TerrainTileKey,double[]> backdrops=new Dictionary<TerrainTileKey,double[]>();
@@ -35,7 +35,7 @@ public sealed partial class LocalTerrainExplorer
     void ResetDetailFrame()
     {
         detailCancellation?.Cancel();detailEstimator=new TerrainDetailEstimator(terrain,frame);
-        detailDirty=true;backdrops.Clear();backdropRevision++;streamedFog=300;fogSafeRadius=terrainRevealRadius=forestRevealRadius=0;fogCheckAt=0;fogFootprint=null;
+        detailDirty=true;backdrops.Clear();backdropRevision++;streamedFog=TerrainStreamingReveal.InitialDistance;fogSafeRadius=terrainRevealRadius=forestRevealRadius=0;fogCheckAt=0;fogFootprint=null;
     }
     Dictionary<TerrainTileKey,int> InitialDetailPlan(double x,double z,double altitude)
     {
@@ -139,10 +139,10 @@ public sealed partial class LocalTerrainExplorer
             double safe=Math.Min(terrainRevealRadius,forestRevealRadius);
             fogSafeRadius=Math.Max(8,safe);
         }
-        // Both ground and enabled tree representations must be present. Retained
-        // ready parents count during replacement; mesh quality changes alone do
-        // not retract the border. Expansion remains smooth and camera-wide.
-        streamedFog=Math.Min(fogSafeRadius,streamedFog+Math.Max(3000,streamedFog*2)*Time.unscaledDeltaTime);
+        // Readiness gates NEW reveal only. Walking into a finer LOD request or
+        // replacing a forest page must not pull the whole visible world inward.
+        // A late product uses its local transition instead of restarting fog.
+        streamedFog=TerrainStreamingReveal.Advance(streamedFog,fogSafeRadius,viewDistance*.98,Time.unscaledDeltaTime);
         SetFog();
     }
 }

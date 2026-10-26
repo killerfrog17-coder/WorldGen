@@ -1,5 +1,6 @@
 #ifndef WORLDGEN_AIR_INCLUDED
 #define WORLDGEN_AIR_INCLUDED
+#include "WorldGenFog.hlsl"
 #ifndef WORLDGEN_AIR_CUSTOM_DATA
 float4 _AirGeometry;float _AirObserverM,_AirHaze;
 int _SecondaryLightCount;float4 _SecondaryDirections[4],_SecondaryColors[4];
@@ -22,12 +23,16 @@ float AirColumn(float distance,float h0,float h1,float scale)
 }
 float3 ApplyPlanetAir(float3 color,float3 position,float3 camera,float3 hazeColor,float distanceLimit)
 {
+    float3 ray=position-camera;float distance=length(ray);
+    // Fully fogged geometry must lose ALL surface contrast, including against
+    // the sky's altitude-dependent gradient, rather than becoming a flat cutout.
+    if(distance>=distanceLimit)return WorldGenFogSkyColor(ray/max(.001,distance),hazeColor);
     float2 horizontal=position.xz+WG_AIR_GEOMETRY.zw;float radial=WG_AIR_GEOMETRY.x+WG_AIR_GEOMETRY.y+position.y;
     float altitude=sqrt(radial*radial+dot(horizontal,horizontal))-WG_AIR_GEOMETRY.x;
-    float distance=length(position-camera);
     float rayleigh=AirColumn(distance,WG_AIR_OBSERVER,altitude,8000),aerosol=AirColumn(distance,WG_AIR_OBSERVER,altitude,1200)*WG_AIR_HAZE;
     float3 transmission=exp(-rayleigh*float3(.0000058,.0000135,.0000331)-aerosol*.000012);
     float3 air=color*transmission+hazeColor*(1-transmission);
-    return lerp(air,hazeColor,smoothstep(distanceLimit*.86,distanceLimit,distance));
+    if(distance<=distanceLimit*.72)return air;
+    return lerp(air,WorldGenFogSkyColor(ray/max(.001,distance),hazeColor),WorldGenStreamingFogOpacity(distance,distanceLimit));
 }
 #endif
