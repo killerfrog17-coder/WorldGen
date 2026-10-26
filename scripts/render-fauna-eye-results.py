@@ -4,7 +4,8 @@ from pathlib import Path
 import bpy,numpy as np
 from mathutils import Matrix,Vector
 repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--bodies',action='store_true');ap.add_argument('--coats',action='store_true');ap.add_argument('--diffuse-only',action='store_true');ap.add_argument('--nasal-debug',action='store_true');ap.add_argument('--root',type=Path);ap.add_argument('--sculpt',action='store_true');ap.add_argument('--blend',type=Path);ap.add_argument('--output-root',type=Path);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);folder=(a.root or root/a.slug).resolve();dest=(a.output_root or folder/'eye-audit').resolve();dest.mkdir(parents=True,exist_ok=True)
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--camera-scale',type=float,default=1.);ap.add_argument('--bodies',action='store_true');ap.add_argument('--coats',action='store_true');ap.add_argument('--diffuse-only',action='store_true');ap.add_argument('--nasal-debug',action='store_true');ap.add_argument('--root',type=Path);ap.add_argument('--sculpt',action='store_true');ap.add_argument('--clay',action='store_true');ap.add_argument('--blend',type=Path);ap.add_argument('--output-root',type=Path);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);folder=(a.root or root/a.slug).resolve();dest=(a.output_root or folder/'eye-audit').resolve();dest.mkdir(parents=True,exist_ok=True)
+assert a.camera_scale==1 or a.output_root,'Use a separate output root for wider camera diagnostics'
 source=(a.blend or folder/'Animal - Painted Species Review.blend').resolve();digest=hashlib.sha256(source.read_bytes()).hexdigest()
 bpy.ops.wm.open_mainfile(filepath=str(source));s=bpy.context.scene;e=json.loads(s['deer_four_rigs'])[0];body=bpy.data.objects[e['body']];rig=bpy.data.objects[e['rig']];rig.animation_data_clear();rig.data.pose_position='REST'
 for ob in list(s.objects):
@@ -23,12 +24,15 @@ if a.diffuse_only:
 if a.nasal_debug:
  mat=bpy.data.materials.new('Read-only nasal field diagnostic');mat.use_nodes=True;nodes=mat.node_tree.nodes;nodes.clear();links=mat.node_tree.links
  output=nodes.new('ShaderNodeOutputMaterial');emission=nodes.new('ShaderNodeEmission');attribute=nodes.new('ShaderNodeAttribute');attribute.attribute_name='Fauna nasal disc';mix=nodes.new('ShaderNodeMixRGB');mix.inputs[1].default_value=(.3,.3,.3,1);mix.inputs[2].default_value=(1,0,0,1);links.new(attribute.outputs['Fac'],mix.inputs[0]);links.new(mix.outputs[0],emission.inputs['Color']);links.new(emission.outputs[0],output.inputs['Surface']);body.data.materials[0]=mat
-if a.sculpt:
- for ob in s.objects:
-  if ob.type=='MESH':ob.hide_render=ob!=body
+if a.sculpt or a.clay:
+ if a.sculpt:
+  for ob in s.objects:
+   if ob.type=='MESH':ob.hide_render=ob!=body
  s.render.engine='BLENDER_WORKBENCH';s.display.shading.light='STUDIO';s.display.shading.color_type='SINGLE';s.display.shading.single_color=(.46,.44,.40);s.display.shading.show_shadows=True;s.display.shading.show_cavity=True;s.display.shading.cavity_type='BOTH';s.display.shading.curvature_ridge_factor=1.5;s.display.shading.curvature_valley_factor=1.7
+mode_suffix='sculpt' if a.sculpt else 'clay' if a.clay else 'after'
 for view in ['right','left','front']:
- guide=json.loads((folder/'eye-audit'/f'{view}.json').read_text());camera.matrix_world=Matrix(guide['camera_matrix']);camera.data.ortho_scale=guide['scale'];s.render.filepath=str(dest/(f'{view}-'+('sculpt' if a.sculpt else 'after')+'.png'));bpy.ops.render.render(write_still=True)
+ guide=json.loads((folder/'eye-audit'/f'{view}.json').read_text());camera.matrix_world=Matrix(guide['camera_matrix']);camera.data.ortho_scale=guide['scale']*a.camera_scale;s.render.filepath=str(dest/f'{view}-{mode_suffix}.png');bpy.ops.render.render(write_still=True)
+ if a.camera_scale!=1:(dest/f'{view}.json').write_text(json.dumps({'camera_matrix':[list(row) for row in camera.matrix_world],'scale':camera.data.ortho_scale,'size':[512,512],'source_sha256':digest,'camera_scale_multiplier':a.camera_scale},indent=2)+'\n')
 if a.coats:
  assert not a.sculpt
  for index,coat in enumerate(e['painting_coats']):
@@ -61,9 +65,9 @@ if a.bodies:
    motion=json.loads((folder/'paint-motion-checks.json').read_text());assert motion['read_blend_sha256']==digest
    (folder/'final-qa.json').write_text(json.dumps({'checked_blend_sha256':digest,'all_sampled_source_clips_finite':motion['all_sampled_surfaces_finite'],'motion_warnings':motion['warnings'],'lineage_coat':coat,'lineage_label':state['coats'][coat]['label'],'lineage_render':str(path.relative_to(repo)),'lineage_render_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'actually_visually_inspected':False,'appearance_approved':False},indent=2)+'\n')
 assert hashlib.sha256(source.read_bytes()).hexdigest()==digest
-suffix='sculpt' if a.sculpt else 'after'
+suffix=mode_suffix
 evidence=[]
 for view in ['right','left','front']:
  path=dest/f'{view}-{suffix}.png';guide_path=folder/'eye-audit'/f'{view}.json'
  evidence.append({'view':view,'file':str(path.relative_to(repo)),'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'camera_guide_sha256':hashlib.sha256(guide_path.read_bytes()).hexdigest()})
-(dest/f'{suffix}-renders.json').write_text(json.dumps({'source_sha256':digest,'views':evidence,'actual_vision_pending':True},indent=2)+'\n')
+(dest/f'{suffix}-renders.json').write_text(json.dumps({'source_sha256':digest,'views':evidence,'camera_scale_multiplier':a.camera_scale,'actual_vision_pending':True},indent=2)+'\n')

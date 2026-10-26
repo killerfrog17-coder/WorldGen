@@ -5,7 +5,7 @@ from fauna_surface_components import components
 def refine(body,land,slug):
     mesh=body.data;before=np.array([v.co[:] for v in mesh.vertices]);old_count=len(before)
     source=mesh.attributes.new('Visual source face','INT','FACE');source.data.foreach_set('value',np.arange(len(mesh.polygons),dtype=np.int32))
-    bm=bmesh.new();bm.from_mesh(mesh);passes=2 if slug in {'hare','rabbit'} else 1
+    bm=bmesh.new();bm.from_mesh(mesh);passes=2 if slug=='rabbit' else 1
     body_faces=np.array([list(f.vertices) for f in mesh.polygons]);main=max(components(before,body_faces),key=len);marker=bm.verts.layers.int.new('Refine main surface');bm.verts.index_update()
     for vertex in bm.verts:vertex[marker]=int(vertex.index in main)
     selected_count=0

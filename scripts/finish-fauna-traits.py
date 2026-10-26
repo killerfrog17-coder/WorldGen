@@ -29,12 +29,14 @@ gap=np.linalg.norm(np.array(land['right_eye']['point'])-land['left_eye']['point'
 names={g.index:g.name for g in body.vertex_groups};objects=[];libraries={};evidence=[]
 material=bpy.data.materials.new(a.slug+' fitted horn/antler texture');material.use_nodes=True
 nodes=material.node_tree.nodes;links=material.node_tree.links;shader=nodes.get('Principled BSDF');shader.inputs['Roughness'].default_value=.61
-image=bpy.data.images.load(str(repo/'artifacts/fauna-assets/textures/keratin-hard-v1.png'),check_existing=True).copy();image.name=a.slug+' compact keratin texture';image.scale(256,256);image.pack()
+image=bpy.data.images.load(str(repo/'artifacts/fauna-assets/textures/keratin-hard-v1.png'),check_existing=True).copy();image.name=a.slug+' compact keratin texture';image.scale(512 if a.slug=='buffalo' else 256,512 if a.slug=='buffalo' else 256);image.pack()
 tex=nodes.new('ShaderNodeTexImage');tex.image=image
 tint=nodes.new('ShaderNodeHueSaturation');tint.inputs['Saturation'].default_value=.35;tint.inputs['Value'].default_value=.75 if TRAITS[a.slug][0] in {'antler','palmate','tusk'} else .35
 if a.slug=='buffalo' and land.get('physical_eye_revision'):tint.inputs['Value'].default_value=.09
 links.new(tex.outputs['Color'],tint.inputs['Color']);links.new(tint.outputs['Color'],shader.inputs['Base Color'])
 bump=nodes.new('ShaderNodeBump');bump.inputs['Strength'].default_value=.12;bump.inputs['Distance'].default_value=.0007;links.new(tex.outputs['Color'],bump.inputs['Height']);links.new(bump.outputs['Normal'],shader.inputs['Normal'])
+if a.slug=='buffalo' and land.get('physical_eye_revision'):
+    noise=nodes.new('ShaderNodeTexNoise');noise.inputs['Scale'].default_value=38;noise.inputs['Detail'].default_value=4;noise.inputs['Roughness'].default_value=.7;links.new(noise.outputs['Fac'],bump.inputs['Height']);bump.inputs['Strength'].default_value=.42;bump.inputs['Distance'].default_value=.0025
 
 def fit(target,from_above=False):
     hit=bvh.ray_cast(Vector(target+up*.55),Vector(-up),1.1)[0] if from_above else None
@@ -98,20 +100,50 @@ def horn_boss(name,point,normal,skin):
         for col in range(segments):polys.append((row*segments+col,row*segments+(col+1)%segments,(row+1)*segments+(col+1)%segments,(row+1)*segments+col))
     mesh_object(name,verts,polys,skin,uv)
 
+def merged_buffalo_rack(conf,length,width):
+    target=mid+up*.145;hit=bvh.ray_cast(Vector(target+front*.65),Vector(-front),1.3)[0];assert hit is not None
+    center=np.array(hit)-front*.048;_,_,skin=fit(np.array(hit));halves=[]
+    for sign in [-1,1]:
+        target=mid+side*sign*gap*.38+up*.145;hit=bvh.ray_cast(Vector(target+front*.65),Vector(-front),1.3)[0];assert hit is not None
+        root=np.array(hit)-front*.18;path=[];radii=[]
+        for t in np.linspace(0,1,7):path.append(center*(1-t)+root*t);radii.append((.080+.040*math.sin(t*math.pi/2))*conf['radius'])
+        for t in np.linspace(0,1,25)[1:]:
+            off=side*sign*length*width*math.sin(t*2.55)-up*length*.42*math.sin(t*math.pi)+up*length*.62*t*t+front*length*.08*t
+            path.append(root+off);radii.append((.070*(1-t)**.72+.050*math.exp(-t/.13)+.003)*conf['radius'])
+        halves.append((path,radii));evidence.append({'id':conf['id'],'side':sign,'root':root.tolist(),'skin':skin,'construction':'Single continuous rack; lateral roots sweep back on crown behind the eyes, central boss seated across anterior forehead'})
+    path=np.array([*reversed(halves[0][0]),*halves[1][0][1:]]);radii=[*reversed(halves[0][1]),*halves[1][1][1:]];verts=[];uv=[];polys=[];segments=16;previous=front.copy()
+    head_faces=faces[((p[faces].mean(1)-mid)@front>-.20)&(p[faces].mean(1)[:,2]>mid[2]+.04)];head_bvh=BVHTree.FromPolygons([Vector(v) for v in p],head_faces.tolist(),all_triangles=True)
+    for i,q in enumerate(path):
+        tangent=path[min(i+1,len(path)-1)]-path[max(i-1,0)];tangent/=np.linalg.norm(tangent);across=previous-tangent*(previous@tangent);across/=np.linalg.norm(across);vertical=np.cross(tangent,across);previous=across;r=radii[i]
+        for j in range(segments):
+            phi=math.tau*j/segments;point=q+across*math.cos(phi)*r*.85+vertical*math.sin(phi)*r
+            if abs((point-mid)@side)<gap*.65 and (point-q)@front>-.1*r:
+                hit=head_bvh.ray_cast(Vector(point+front*.7),Vector(-front),1.4)[0]
+                if hit is not None:
+                    needed=(np.array(hit)-point)@front+.018
+                    if needed>0:point+=front*needed
+            verts.append(point);uv.append((j/segments,i/(len(path)-1)))
+    for i in range(len(path)-1):
+        for j in range(segments):polys.append((i*segments+j,i*segments+(j+1)%segments,(i+1)*segments+(j+1)%segments,(i+1)*segments+j))
+    polys.extend([tuple(reversed(range(segments))),tuple((len(path)-1)*segments+j for j in range(segments))]);mesh_object(f'{a.slug} {conf["id"]} continuous horn and boss',verts,polys,skin,uv)
+
 variants=configurations(a.slug)
 for conf in variants:
     before=len(objects);shape=conf['shape'];length=conf['size'];width=1.18 if conf['id']=='hyp-open' else .78 if conf['id']=='hyp-compact' else 1.
     if shape!='none':
-        for sign in [-1,1]:
+        merged=a.slug=='buffalo' and land.get('physical_eye_revision') and conf['sex']!='female' and conf['id']!='water-sweep'
+        if merged:merged_buffalo_rack(conf,length,width)
+        for sign in ([] if merged else [-1,1]):
             if shape=='tusk':target=nose-front*.12+side*sign*.075-up*.025
             else:target=mid-front*.09+side*sign*max(.045,min(gap*.27,.09))+up*.10
             if a.slug=='buffalo' and land.get('physical_eye_revision'):
                 # Reference: boss lies across the anterior crown ABOVE the eyes,
                 # rather than nearest-vertex snapping to the poll behind the ears.
-                target=mid+front*.025+side*sign*gap*.27+up*.25
-            q,normal,skin=fit(target,shape!='tusk');start=q-normal*.018
+                target=mid+front*.025+side*sign*gap*.38+up*.145
+                hit=bvh.ray_cast(Vector(target+front*.65),Vector(-front),1.3)[0];assert hit is not None,'Buffalo crown attachment missed actual head';target=np.array(hit)
+            q,normal,skin=fit(target,shape!='tusk' and not (a.slug=='buffalo' and land.get('physical_eye_revision')));start=q-normal*.018
             name=f'{a.slug} {conf["id"]} {sign}';t=np.linspace(0,1,17 if a.slug=='buffalo' and land.get('physical_eye_revision') else 9)
-            if a.slug in {'buffalo','musk-ox'} and conf['sex']!='female' and conf['id']!='water-sweep':horn_boss(name+' broad root',q,normal,skin)
+            if a.slug in {'buffalo','musk-ox'} and conf['sex']!='female' and conf['id']!='water-sweep' and not (a.slug=='buffalo' and land.get('physical_eye_revision')):horn_boss(name+' broad root',q,normal,skin)
             radial=(.018 if shape in {'antler','palmate','spike','pronghorn','tusk'} else .070 if a.slug=='buffalo' and land.get('physical_eye_revision') else .033)*conf['radius']
             if shape in {'antler','palmate'}:
                 path=[start+side*sign*length*width*(.45*x+.10*x*x)-front*length*.35*x*x+up*length*(.86*x-.18*x*x) for x in t]
@@ -141,7 +173,7 @@ for conf in variants:
                     elif shape=='pronghorn':off=up*length*(x-.22*x**4)-front*length*.34*x**4+side*sign*.025*x
                     elif shape in {'buffalo','muskox','wildebeest','water-buffalo'}:
                         if a.slug=='buffalo' and land.get('physical_eye_revision'):
-                            off=side*sign*length*width*math.sin(x*2.15)-up*length*(.15 if shape=='water-buffalo' else .42)*math.sin(x*math.pi)+up*length*(.40 if shape=='water-buffalo' else .62)*x*x+front*length*.08*x
+                            off=side*sign*length*width*math.sin(x*(2.15 if shape=='water-buffalo' else 2.55))-up*length*(.15 if shape=='water-buffalo' else .42)*math.sin(x*math.pi)+up*length*(.40 if shape=='water-buffalo' else .62)*x*x+front*length*.08*x
                         else:off=side*sign*length*width*math.sin(x*1.8)-up*length*(.16 if shape=='water-buffalo' else .30)*math.sin(x*math.pi)+up*length*(.46 if shape=='water-buffalo' else .85)*x*x-front*length*.05*x
                     else:off=side*sign*length*width*.50*math.sin(x*2.6)+up*length*(.28*x+.69*x*x)-front*length*.13*x
                     path.append(start+off)

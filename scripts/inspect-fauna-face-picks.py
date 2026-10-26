@@ -16,7 +16,9 @@ for x,y in np.array(a.pixels).reshape(-1,2):
     if point is None:continue
     poly=mesh.polygons[face];vs=np.array([mesh.vertices[i].co[:] for i in poly.vertices])
     part=next(part for part in parts if poly.vertices[0] in part)
-    records.append({'pixel':[x,y],'face':face,'vertices':list(poly.vertices),'positions':vs.tolist(),'area':poly.area,'component_size':len(part),'component_vertices':sorted(part) if len(part)<100 else None})
+    triangle=vs[:3];bc=np.linalg.lstsq(np.stack([triangle[1]-triangle[0],triangle[2]-triangle[0]],axis=1),np.array(point)-triangle[0],rcond=None)[0];bary=np.array([1-bc.sum(),*bc]);uv=bary@np.array([mesh.uv_layers.active.data[i].uv[:] for i in list(poly.loop_indices)[:3]])
+    face_uv=np.array([mesh.uv_layers.active.data[i].uv[:] for i in poly.loop_indices]);uv_area=float(abs(np.linalg.det(np.array([face_uv[1]-face_uv[0],face_uv[2]-face_uv[0]])))*.5)
+    records.append({'pixel':[x,y],'point':list(point),'uv':uv.tolist(),'face_uv':face_uv.tolist(),'uv_area':uv_area,'normal':list(normal),'face':face,'vertices':list(poly.vertices),'positions':vs.tolist(),'area':poly.area,'component_size':len(part),'component_vertices':sorted(part) if len(part)<100 else None})
 (root/f'inspected-face-picks-{a.view}.json').write_text(json.dumps(records,indent=2)+'\n')
 if a.view=='front':(root/'inspected-face-picks.json').write_text(json.dumps(records,indent=2)+'\n')
 print(json.dumps(records))

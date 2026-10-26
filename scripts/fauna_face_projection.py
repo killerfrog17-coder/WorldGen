@@ -6,7 +6,7 @@ from scipy.interpolate import RBFInterpolator
 from scipy.ndimage import map_coordinates
 
 def sample_view(root,config,vertices,faces,points,normals):
-    guide=json.loads((root/'eye-audit'/f"{config['camera']}.json").read_text());M=np.array(guide['camera_matrix']);R=M[:3,:3];position=M[:3,3];scale=guide['scale'];W,H=guide['size']
+    guide=json.loads((root/config.get('camera_directory','eye-audit')/f"{config['camera']}.json").read_text());M=np.array(guide['camera_matrix']);R=M[:3,:3];position=M[:3,3];scale=guide['scale'];W,H=guide['size']
     path=root/config['image'];paint=np.asarray(Image.open(path).convert('RGB'),np.float32)/255
     if config.get('flip_x'):paint=paint[:,::-1].copy()
     def project(p):
@@ -24,6 +24,9 @@ def sample_view(root,config,vertices,faces,points,normals):
     warp=RBFInterpolator(target,source,kernel='thin_plate_spline',smoothing=0);xy=warp(screen[:,:2]/[W,H])*[paint.shape[1]-1,paint.shape[0]-1]
     sampled=np.stack([map_coordinates(paint[:,:,c],[xy[:,1],xy[:,0]],order=1,mode='nearest') for c in range(3)],axis=1)
     at=np.clip(np.rint(screen[:,:2]).astype(int),[0,0],[W-1,H-1]);visible=np.abs(screen[:,2]-depth[at[:,1],at[:,0]])<.022
-    t=np.clip((normals@M[:3,2]-.15)/.65,0,1);weight=t*t*(3-2*t)*visible
+    alignment=normals@M[:3,2]
+    if config.get('two_sided'):alignment=np.abs(alignment)
+    t=np.clip((alignment-.15)/.65,0,1);weight=t*t*(3-2*t)*visible
     weight*=((screen[:,0]>0)&(screen[:,0]<W-1)&(screen[:,1]>0)&(screen[:,1]<H-1))
+    border=config.get('fade_border',.08);edge=np.minimum.reduce([screen[:,0]/W,1-screen[:,0]/W,screen[:,1]/H,1-screen[:,1]/H]);fade=np.clip(edge/max(border,1e-6),0,1);weight*=fade*fade*(3-2*fade)*config.get('weight',1.)
     return sampled,weight

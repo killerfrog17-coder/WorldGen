@@ -58,6 +58,8 @@ if stitched:
     state['reference_head_sculpt']=sculpt_reference_head(body,land,a.slug)
     from fauna_orbital_refine import refine as refine_orbital_surface
     state['orbital_surface_refinement']=refine_orbital_surface(body,land,a.slug)
+    from fauna_paint_uv import prepare as prepare_colour_uv
+    state['colour_uv_correction']=prepare_colour_uv(body,root,bake['size'])
 p=np.array([v.co[:] for v in body.data.vertices]);source_positions=p.copy();body.data.calc_loop_triangles();faces=np.array([t.vertices[:] for t in body.data.loop_triangles])
 if physical_eye and land['physical_eye_revision'].get('sculpt_socket_clearance') and not stitched:
     # A local manual socket correction is permitted by the owner's visual pass.
@@ -114,7 +116,9 @@ components=geometric_components(p,faces)
 main=set().union(*[part for part in components if len(part)>=12]) if a.slug=='pronghorn' else max(components,key=len);face_ids=[i for i,face in enumerate(faces) if all(int(v) in main for v in face)]
 bvh=BVHTree.FromPolygons([Vector(x) for x in p],faces[face_ids].tolist(),all_triangles=True)
 support_bvh=BVHTree.FromPolygons([Vector(x) for x in source_positions],faces[face_ids].tolist(),all_triangles=True) if anatomical else bvh
-body_uv=np.array([[body.data.uv_layers.active.data[i].uv[:] for i in t.loops] for t in body.data.loop_triangles])
+source_body_uv=np.array([[body.data.uv_layers['UVMap'].data[i].uv[:] for i in t.loops] for t in body.data.loop_triangles])
+paint_uv_layer=body.data.uv_layers.get('Fauna Paint UV') or body.data.uv_layers['UVMap']
+body_uv=np.array([[paint_uv_layer.data[i].uv[:] for i in t.loops] for t in body.data.loop_triangles])
 names={g.index:g.name for g in body.vertex_groups};features=[];coat_objects=[]
 
 def image(filename,noncolour=False):
@@ -155,6 +159,7 @@ for index,coat in enumerate(entry['painting_coats']):
     output=nodes.new('ShaderNodeOutputMaterial');bsdf=nodes.new('ShaderNodeBsdfPrincipled');links.new(bsdf.outputs['BSDF'],output.inputs['Surface'])
     for filename,socket,noncolour in [(bake['coats'][index]['file'],'Base Color',False),('coat-roughness.png','Roughness',True)]:
         tex=nodes.new('ShaderNodeTexImage');tex.image=image(filename,noncolour)
+        uvnode=nodes.new('ShaderNodeUVMap');uvnode.uv_map='Fauna Paint UV' if stitched and socket=='Base Color' else 'UVMap';links.new(uvnode.outputs['UV'],tex.inputs['Vector'])
         if socket=='Base Color' and land.get('paired_eye_revision'):
             # A lid can cross several disconnected body UV islands. Interpolating
             # those UVs produces zebra-like streaks even on plain fur. Sample the
@@ -163,7 +168,7 @@ for index,coat in enumerate(entry['painting_coats']):
             if anatomical:
                 uv=nodes.new('ShaderNodeUVMap');uv.uv_map='Orbital bake UV';fur=nodes.new('ShaderNodeTexImage');fur.image=orbital_atlases[index];fur.extension='EXTEND';links.new(uv.outputs['UV'],fur.inputs['Vector']);links.new(fur.outputs['Color'],mix.inputs[2])
         else:links.new(tex.outputs['Color'],bsdf.inputs[socket])
-    tex=nodes.new('ShaderNodeTexImage');tex.image=normal;nmap=nodes.new('ShaderNodeNormalMap');nmap.inputs['Strength'].default_value=.65
+    tex=nodes.new('ShaderNodeTexImage');tex.image=normal;nmap=nodes.new('ShaderNodeNormalMap');nmap.inputs['Strength'].default_value=.65;uvnode=nodes.new('ShaderNodeUVMap');uvnode.uv_map='UVMap';links.new(uvnode.outputs['UV'],tex.inputs['Vector'])
     links.new(tex.outputs['Color'],nmap.inputs['Color']);links.new(nmap.outputs['Normal'],bsdf.inputs['Normal'])
     if land.get('paired_eye_revision'):
         weight=nodes.new('ShaderNodeAttribute');weight.attribute_name='Fitted lid weight';subtract=nodes.new('ShaderNodeMath');subtract.operation='MULTIPLY_ADD';subtract.inputs[1].default_value=-.12 if anatomical else -.65;subtract.inputs[2].default_value=.12 if anatomical else .65;links.new(weight.outputs['Fac'],subtract.inputs[0]);links.new(subtract.outputs[0],nmap.inputs['Strength'])
@@ -197,7 +202,7 @@ if land.get('paired_eye_revision'):
 if physical_eye:
     bsdf.inputs['Roughness'].default_value=.24;bsdf.inputs['Specular IOR Level'].default_value=.24
 if anatomical:
-    bsdf.inputs['Roughness'].default_value=.34;bsdf.inputs['Coat Weight'].default_value=.25;bsdf.inputs['Coat Roughness'].default_value=.09
+    bsdf.inputs['Roughness'].default_value=.17;bsdf.inputs['Specular IOR Level'].default_value=.35;bsdf.inputs['Coat Weight'].default_value=0
 # A pigment-only iris: highlights come from the scene, never a painted white dot.
 size=256;y,x=np.mgrid[0:size,0:size];u=(x+.5)/size*2-1;v=(y+.5)/size*2-1;r=np.sqrt(u*u+v*v);theta=np.arctan2(v,u)
 fibre=.5+.25*np.sin(theta*91+r*19)+.16*np.sin(theta*143-r*38)
@@ -302,7 +307,7 @@ def obj(name,vertices,polygons,materials,uvs=None,indices=None,anchor=None):
         skin=anchor if anchor is not None else sample(point)[2]
         for key,weight in skin.items():
             group=ob.vertex_groups.get(key) or ob.vertex_groups.new(name=key);group.add([i],float(weight),'REPLACE')
-    mod=ob.modifiers.new('Selected rig','ARMATURE');mod.object=rig;mod.use_deform_preserve_volume=False
+    mod=ob.modifiers.new('Selected rig','ARMATURE');mod.object=rig;source_mod=next((m for m in body.modifiers if m.type=='ARMATURE'),None);mod.use_deform_preserve_volume=source_mod.use_deform_preserve_volume if source_mod else False
     features.append(ob.name);return ob
 
 reviewed=bool(land.get('eye_revision'))
@@ -443,7 +448,7 @@ for side in ([] if surface_only_arthropod else ['right','left']):
         for loop in lid.data.loops:
             rel=np.asarray(vertices[loop.vertex_index])-center;u=.5+float(rel@hu)/(rx*lid_radii[-1]*2);v=.5+float(rel@vu)/(sphere_radius*.65*lid_radii[-1]*2);layer.data[loop.index].uv=(half*.5+u*.5,v)
         lid.data.uv_layers.active=lid.data.uv_layers['UVMap'];lid.data.uv_layers['UVMap'].active_render=True
-        orbital_patches.append({'object':lid,'half':half,'center':center,'horizontal':hu,'vertical':vu,'radius':sphere_radius,'rx':rx})
+        orbital_patches.append({'object':lid,'half':half,'center':center,'normal':n,'horizontal':hu,'vertical':vu,'radius':sphere_radius,'rx':rx})
     if land.get('paired_eye_revision'):
         marker=lid.data.attributes.new('Fitted lid weight','FLOAT','POINT');marker.data.foreach_set('value',np.ones(len(vertices),np.float32))
         loop_vertices=np.array([loop.vertex_index for loop in lid.data.loops]);sample_uv=np.array(uvs)
@@ -478,6 +483,12 @@ for side in ([] if surface_only_arthropod else ['right','left']):
 
 if anatomical:
     if stitched:
+        # Texture projection must use the CURRENT sculpted surface. Reusing
+        # the earlier broad head's coordinates stretches pigment after a fix.
+        projection_normals=np.array([v.normal[:] for v in body.data.vertices],np.float32)
+        np.savez_compressed(root/'projection-anatomy.npz',vertices=p.astype(np.float32),normals=projection_normals,faces=faces.astype(np.int32),uv=body_uv.astype(np.float32),source_uv=source_body_uv.astype(np.float32))
+        projection_land=json.loads(json.dumps(land));projection_land['nose']['point']=sample(np.array(land['nose']['point']))[0].tolist()
+        (root/'projection-landmarks.json').write_text(json.dumps(projection_land,indent=2)+'\n')
         from fauna_stitched_orbits import prepare as prepare_stitched_orbits
         state['orbital_topology_correction']=prepare_stitched_orbits(body,orbital_patches,land,sample,root,a.slug)
     from fauna_orbital_bake import bake as bake_orbital_pigment

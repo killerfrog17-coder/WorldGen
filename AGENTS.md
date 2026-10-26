@@ -1,5 +1,69 @@
 # WorldGen repository instructions
 
+VISUAL REBUILD FOUND REAL UV OVERLAPS / WIDE PAINT NEXT,26October2026~03:30CDT:
+Do NOT claim art finished. Latest user explicitly says KEEP WORKING until confident,
+front AND side real-photo comparison per animal, independent critics with no
+history/bias. Fresh fork-none critics now audited14 baseline animal heads plus
+new Canid/Raccoon/Buffalo revisions. They still flag cheek/jaw forms, nose/lid
+integration, horn boss/ears, cropped paint boundaries. Reports/messages are
+ACTIONABLE rejections, not owner acceptance. Existing bad motion accepted now;
+no animation edits or new3D generation/paid APIs/GUI/game work authorized here.
+
+Six anatomy working copies (Hare/Rabbit/Fox/Wolf/Raccoon/Buffalo) are separate
+from frozen LIVE3 partial improvements. Source checkpoint79be766a9fc62a7494c62d332d674ac665b8c4a1 pushed/remote verified; newer changes pending backup.
+Pipeline source improvements since then:
+* Local cuts limited to own outward skull hemisphere, smaller ellipse, explicit
+  disjoint-eye cut assertion. Earlier broad cuts overlapped across Hare forehead:
+  removed, NEVER published. Middle skin bridge interpolates actual outer loop.
+* New lid-attached lashes replace obsolete cap-root positions; closed ellipsoid
+  and iris physical size adjusted; shader modeled after approved Deer. Deer stays
+  immutable. None of these technical improvements constitute art approval.
+* Head sculpt tapers/rounds prey cheeks and shortens Rabbit muzzle; both retain
+  lateral centres. Hare one local refinement pass works; Rabbit REQUIRES2 (one
+  produced branching boundary and failed before save). Native tolerance2e-7
+  permits one-ULP source rounding, not broader geometry edits.
+* Actual PRE-CUT sculpted surface exported projection-anatomy.npz, with original
+  source_uv and effective projection-landmarks nose point, no stale broad-head
+  painting coordinates. Face painter supports explicit front/profile cameras.
+* Confirmed Raccoon ear UV overlap: SAME UV mapped two surface points differing
+  .136-.241m. Painting could not distinguish them. New fauna_paint_uv.py retains
+  UVMap and creates unique Fauna Paint UV for overlapping/degenerate/out-of-tile
+  faces in small reserved strip, common affine on others. Raccoon46faces repaired
+  /48overlap pairs, Fox7,Wolf24,Buffalo33. Base colours transfer from immutable
+  unprojected-atlases through source_uv; all new paint uses correct new UV.
+  Roughness/normal explicitly retain ORIGINAL UVMap. Packed material color uses
+  Fauna Paint UV. No disk/GPU resolution increase. UV detection cached by hash.
+* Native checker verifies original vertex prefix/morph deltas/source-surface child
+  interpolation, original UV layers/skin/rest/ALL actions, exact REST+6Walk/Run
+  boundary samples. Additional colour UV allowed; metadata signature embedded in
+  native and checked. Earlier Raccoon showed zero boundary gaps, all proof pass.
+* Photo view cosine now chooses guide blend, NOT opacity; tight images have edge
+  fade. Source matte cropping created straight ear-tip/neck paint bands: need
+  WIDE full-head/front+profile generated guides next. Head falloff now rounded
+  neck field rather than intersecting planes; primary dark cheek masks removed.
+* Buffalo male rack now one continuous paired-boss mesh, lateral roots swept
+  behind eyes. Latest change conforms anterior central mesh to actual forehead,
+  while ear source vertices drop below sweep. Prototype still critic-UNAPPROVED.
+
+Current sole finite own CPU rebuild worker exec48439: run-fauna-anatomy-revision.py
+hare rabbit red-fox raccoon wolf buffalo --workers2. Verify actual exit; no GPU
+inference. Sequence geometry/UV ->CPU paint ->pack ->Buffalo traits ->nativecheck
+->3heads/allcoats/fullhead. No art-ready label. Wait BEFORE shared script edits.
+After it completes render --clay --camera-scale1.8 --output-root <root>/head-paint-source
+for full-geometry texture inputs; new renderer writes per-view exact camera JSON.
+Generator refs must be visually viewed, camera metadata preserved. Existing guides
+were too tight. Use existing tight guide as color reference, not as proof of mesh.
+
+Fresh critics: /root/canid_current_critic and /root/raccoon_buffalo_current_critic
+completed newest critique; /root/hoof_face_critic completed Horse/Reindeer/Moose.
+No user approval inferred. Full scope177visual animals; protected Deer1. Only
+six anatomy roots working, not177 corrected. Baselines Boar/Mouflon/Goat/Bear/Bison
+plusHorse/Reindeer/Moose need species-specific muzzles/appendages/head coats; latest
+critic messages have exact photos and defects. Root downloaded/viewed most6 real
+front/profile refs; additional Goat/Bison/Fox/Raccoon profiles now in references.
+No new private viewer deployment since3c41ad7/appgdep_6adee0afa3208191aa7880f8d6b36685.
+Preserve unrelated owner prompt deletion and2old untracked deer scripts.
+
 LOCAL ORBITAL REFINEMENT VERIFIED / STILL ART WORKING,26October2026:
 Anatomy experiment now six isolated roots: Wolf/Fox/Raccoon/Hare/Rabbit/Buffalo.
 New fauna_orbital_refine.py subdivides ONLY main-body eye neighborhoods with
