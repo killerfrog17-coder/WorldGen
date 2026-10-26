@@ -12,7 +12,7 @@ from scipy.ndimage import gaussian_filter,map_coordinates,distance_transform_edt
 repo=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(repo/'scripts'))
 from fauna_paint_recipes import SUPPORTED, family, profiles as coat_profiles, eye_radius as get_eye_radius, eye_frame
-from fauna_hypothetical_coats import treatment
+from fauna_hypothetical_coats import treatment,organic_stripes
 ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=1024);ap.add_argument('--root',type=Path)
 a=ap.parse_args();assert a.slug in SUPPORTED
 if family(a.slug) in {'avian','fish'}:
@@ -81,6 +81,7 @@ inner=np.zeros(len(p));tips=np.zeros(len(p));frames=[]
 head_side=np.array(land['side_axis']);head_front=np.array(land['front_axis'])
 for side in [-1,1]:
     split=(d['vertices']-head)@head_side if compact else d['vertices'][:,0]-cx
+    if a.slug=='bison':split=d['vertices'][:,0]-cx
     ear_gate=(d['vertices'][:,2]>state['ear_base']-.035)&(d['vertices'][:,1]<head[1]+.06)&(split*side>0)
     if kind in {'small-carnivore','beaver'}:ear_gate &= (d['vertices'][:,1]>head[1]-.27)&(d['vertices'][:,1]<head[1]+.12)
     if kind in {'suine','caprine','equine'}:ear_gate &= d['vertices'][:,1]>head[1]-.24
@@ -126,7 +127,7 @@ for key in ['right_eye','left_eye']:
     radius=np.sqrt((u/local_radius[0])**2+(v/local_radius[1])**2)
     gate=(1-smooth(.025,.065,np.abs(depth)))*smooth(.05,.65,n@normal)
     eye_surround=np.maximum(eye_surround,(1-smooth(1.25,1.85,radius))*gate)
-    bare=np.maximum(bare,(1-smooth(.70 if compact else .98,.90 if compact else 1.16,radius))*gate)
+    bare=np.maximum(bare,(1-smooth(1.06 if land.get('paired_eye_revision') else .70 if compact else .98,1.16 if land.get('paired_eye_revision') else .90 if compact else 1.16,radius))*gate)
 fur_weight=np.clip(1-nose_mask-inner*(.25 if kind in {'ursid','bovine'} else .55)-bare,0,1)
 hoof=np.zeros(len(p))
 if kind in {'suine','caprine','bovine','equine','cervid'}:hoof=1-smooth(.10 if kind in {'caprine','bovine'} else .15,.19 if kind in {'caprine','bovine'} else .25,p[:,2])
@@ -162,7 +163,7 @@ for index,(label,base,pale,dark_tips) in enumerate(profiles):
         colour=paint(guard,np.minimum(base*1.65+.045,.65))
         if 'Juvenile' in label:
             region=smooth(-1.0,-.76,p[:,1])*(1-smooth(.30,.55,p[:,1]))*smooth(.50,.72,p[:,2])*(1-smooth(1.38,1.52,p[:,2]))*smooth(.25,.65,np.abs(n[:,0]))
-            stripe=smooth(.20,.72,np.sin((p[:,2]-.68)*42+np.sin(p[:,1]*3)*.45))*region
+            stripe=organic_stripes(p,n,count=12,seed=37,horizontal=True,broken=True)*region
             colour=paint(stripe,[.72,.59,.36])
     elif kind=='cervid':
         legs=(1-smooth(.32,.78,p[:,2]))*(1-hoof)
@@ -267,7 +268,8 @@ for index,(label,base,pale,dark_tips) in enumerate(profiles):
     if canid:
         colour=paint(cheek*.85,pale)
         if a.slug=='red-fox':
-            colour=paint(stockings*.98,[.050,.041,.032]);colour=paint(ear_outer*.95,[.055,.043,.032])
+            winter='Snow-white' in label
+            colour=paint(stockings*.98,base*.97 if winter else [.050,.041,.032]);colour=paint(ear_outer*.95,base*.95 if winter else [.055,.043,.032])
             if 'cross' in label:
                 cross=np.exp(-((p[:,1]-.35)/.17)**2);spine=np.exp(-((p[:,0]-cx)/.10)**2)
                 colour=paint(back*np.maximum(cross,spine)*.85,[.065,.050,.037])

@@ -14,10 +14,10 @@ from scipy.spatial import cKDTree
 repo=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(repo/'scripts'))
 from fauna_finish_catalog import SUPPORTED,PALETTES,category,profiles,radius,ROWS
 from fauna_paint_recipes import eye_frame
-from fauna_hypothetical_coats import treatment,rationale
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=1024)
+from fauna_hypothetical_coats import treatment,rationale,organic_stripes
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=1024);ap.add_argument('--root',type=Path)
 a=ap.parse_args();assert a.slug in SUPPORTED;started=time.monotonic()
-root=repo/'artifacts/fauna-painted-20261024'/a.slug
+root=(a.root or repo/'artifacts/fauna-painted-20261024'/a.slug).resolve()
 state=json.loads((root/'paint-state.json').read_text());land=json.loads((root/'face-landmarks.json').read_text())
 d=dict(np.load(root/'paint-anatomy.npz'));entry=json.loads((root/'selected-source-entry.json').read_text())
 groups=np.asarray(entry['groups']);weights=d['weights'];assert weights.shape[1]==len(groups)
@@ -80,7 +80,7 @@ for key in ['right_eye','left_eye']:
     q=np.sqrt(((delta@horizontal)/rx)**2+((delta@vertical)/rz)**2)
     gate=(1-smooth(.025,.065,np.abs(delta@normal)))*smooth(.02,.65,n@normal)
     surround=np.maximum(surround,(1-smooth(1.3,2.0,q))*gate)
-    bare=np.maximum(bare,(1-smooth(.78,.97,q))*gate)
+    bare=np.maximum(bare,(1-smooth(1.06,1.16,q) if land.get('paired_eye_revision') else 1-smooth(.78,.97,q))*gate)
     patch=(1-smooth(2.,3.6,q))*gate;eye_patches.append(patch)
 nn=np.array(land['nose']['normal']);nn/=np.linalg.norm(nn);across=np.cross(nn,[0.,0,1.])
 if np.linalg.norm(across)<1e-5:across=side.copy()
@@ -167,11 +167,21 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
         if pattern=='paca':marks*=smooth(.15,.65,.5+.5*np.cos(p[:,2]*43))
         colour=paint(marks,white)
     if pattern in {'tiger','zebra','ass','iguana'}:
-        wave=p[:,1]*(23 if pattern=='tiger' else 35)+np.sin(p[:,2]*8)*1.7+np.sin(p[:,0]*10)*.7
-        stripes=smooth(.27,.60,np.sin(wave))*flank
+        limbs=smooth(.24,.60,np.maximum(maps[iy,ix,10],maps[iy,ix,11]))*(1-face)
+        body_stripes=organic_stripes(p,n,count=11 if pattern=='tiger' else 16,seed=71 if pattern=='tiger' else 23,broken=pattern=='tiger')
+        leg_stripes=organic_stripes(p,n,count=21,seed=37,horizontal=True)
+        stripes=(body_stripes*(1-limbs)+leg_stripes*limbs)*flank*(1-face)
         if pattern=='ass':stripes*=foot*.75
         colour=paint(stripes*(.95 if pattern!='iguana' else .45),dark)
-        if pattern=='zebra':colour=paint(face*smooth(.30,.65,np.sin(forward*74+lateral*19))*.95,dark)
+        if pattern=='zebra':
+            along=np.clip((forward/headscale+.65)*.65,0,1);narrow=1-.43*along
+            u=.5+lateral/(headscale*1.8*narrow);v=along
+            marks=organic_stripes(p,n,count=9,seed=113,uv=(u,v))
+            colour=paint(face*marks*.95,dark)
+        if pattern=='tiger':
+            u=.48+(p[:,2]-eye_z)/(headscale*1.6)+.12*(np.abs(lateral)/headscale)**1.3;v=np.clip(np.abs(lateral)/(headscale*.95),0,1)
+            marks=organic_stripes(p,n,count=6,seed=151,uv=(u,v),broken=True)
+            colour=paint(face*marks*.9,dark)
     if pattern=='giraffe':
         # Irregular cells with fine pale corridors, not regular polka dots.
         seeds=rng.uniform(d['vertices'].min(0)-.1,d['vertices'].max(0)+.1,size=(650,3))
@@ -207,7 +217,8 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
         colour=paint(face*.80,dark);colour=paint(tail_weight*smooth(-.8,-1.2,p[:,1]),white)
     if pattern in {'skunk','wolverine','anteater','tapir','guereza','panda'}:
         if pattern=='skunk':
-            stripe=np.exp(-((np.abs(p[:,0]-state['center_x'])-.16)/.075)**2)*smooth(.25,.75,n[:,2])
+            centre=state['center_x']+.018*np.sin(p[:,1]*5)+.008*np.sin(p[:,1]*13);spacing=.15+.018*np.sin(p[:,1]*4+.3);width=.067+.014*np.sin(p[:,1]*7)
+            stripe=np.exp(-((np.abs(p[:,0]-centre)-spacing)/width)**2)*smooth(.25,.75,n[:,2])
             colour=paint(np.maximum(stripe,tail_weight*.65),white)
         elif pattern=='wolverine':colour=paint(np.exp(-((p[:,2]-(zlo+span*.65))/.13)**2)*flank*.8,pale)
         elif pattern=='anteater':
@@ -216,7 +227,7 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
         elif pattern=='tapir' and any(x in low for x in ('saddle','malay')):
             colour=paint(smooth(-.55,-.35,p[:,1])*(1-smooth(.20,.40,p[:,1]))*.95,pale)
         elif pattern=='tapir' and 'calf' in low:
-            stripes=smooth(.35,.75,np.sin(p[:,2]*46+np.sin(p[:,1]*11)*.7))*flank*(1-face)
+            stripes=organic_stripes(p,n,count=11,seed=137,horizontal=True,broken=True)*flank*(1-face)
             broken=smooth(.14,.40,organic)
             colour=paint(np.maximum(stripes*broken,spots*.45)*.9,[.76,.69,.51])
         elif pattern=='guereza':colour=paint(np.maximum(flank*(1-face)*.8,tail_weight),white)

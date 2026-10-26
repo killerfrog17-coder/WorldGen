@@ -23,17 +23,28 @@
     },
     {
       "slug": "rabbit",
-      "status": "queued",
+      "status": "awaiting_owner_review",
       "owner_approved": false,
       "issues": [
         "Run has the same major posture/rear-body deformation; assess another suitable CC0 rabbit motion source.",
         "Add snow-white cold-climate appearance."
       ],
-      "updated_at": "2026-10-25T19:54:04.091517-05:00"
+      "updated_at": "2026-10-25T19:54:04.091517-05:00",
+      "review_update": "Run posture/rear skin and hind-paw twist revised; snow-white coat and paired eyes added.",
+      "repair_review": {
+        "plan": "artifacts\\fauna-repairs\\rabbit\\review-plan.json",
+        "media_root": "artifacts\\fauna-repairs\\rabbit\\media",
+        "check": "artifacts\\fauna-repairs\\rabbit\\native-check.json",
+        "blend": "artifacts\\fauna-repairs\\rabbit\\Animal - Run Repaired.blend",
+        "blend_sha256": "7bf779998e7ea38a6bf6d8841ec3813b619ba2c2a981c418f1e1f242e14a478d"
+      },
+      "correction": "Retained the existing CC0 quadruped rabbit bank after rejecting an unsuitable upright-character donor. Levelled torso, compensated neck and world leg swing, confined rear-core and hind-paw skin, removed hind-paw axial flips. Original bind geometry and non-Run individual actions retained.",
+      "published_source_sha": "70c1681a9d8f4cd6a06e3a5a163a1df0e3da487f",
+      "published_deployment": "appgdep_6adeb7a6fe2881919eba82579bc16e83"
     },
     {
       "slug": "red-fox",
-      "status": "queued",
+      "status": "awaiting_owner_review",
       "owner_approved": false,
       "issues": [
         "Front paws twist in motion.",
@@ -41,7 +52,18 @@
         "Eyes badly positioned in frontal face view; precise symmetric fit required.",
         "Snow-white fox appearance must be supported."
       ],
-      "updated_at": "2026-10-25T19:54:04.091517-05:00"
+      "updated_at": "2026-10-25T19:54:04.091517-05:00",
+      "review_update": "Actual right hind leg and tail reassigned; paw twists, paired eyes and lid seams revised; snow-white coat added.",
+      "repair_review": {
+        "plan": "artifacts\\fauna-repairs\\red-fox\\review-plan.json",
+        "media_root": "artifacts\\fauna-repairs\\red-fox\\media",
+        "check": "artifacts\\fauna-repairs\\red-fox\\native-check.json",
+        "blend": "artifacts\\fauna-repairs\\red-fox\\Animal - Motion Repaired.blend",
+        "blend_sha256": "f25bac32bf2af7e14e75ba0099c21d4bdf93fea57e97b4107aa901aaca5ed394"
+      },
+      "correction": "Retargeted the real right hind leg and tail from explicit physical paths in the existing CC0 fox bank; confined whole paws and stabilized axial frames. Closed walk/run cycles and fitted ground clearance. Original bind geometry, appearance and rest skeleton retained.",
+      "published_source_sha": "70c1681a9d8f4cd6a06e3a5a163a1df0e3da487f",
+      "published_deployment": "appgdep_6adeb7a6fe2881919eba82579bc16e83"
     },
     {
       "slug": "wolf",

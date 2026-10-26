@@ -31,6 +31,14 @@ bake=json.loads((root/'coat-bake.json').read_text());land=json.loads((root/'face
 bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Painted Species Review.blend'))
 s=bpy.context.scene;entry=json.loads(s['deer_four_rigs'])[0]
 body=bpy.data.objects[entry['body']];rig=bpy.data.objects[entry['rig']]
+# JSON references are not Blender datablock users. Retain active repaired clips
+# when an appearance save clears the currently playing action.
+action_names=list(dict.fromkeys([*entry['actions'].values(),*entry['demos'].values()]))
+missing=[name for name in action_names if name not in bpy.data.actions]
+if missing:
+    provenance=json.loads((root/'revision-source.json').read_text())
+    with bpy.data.libraries.load(str(repo/provenance['source']),link=False) as (available,loaded):loaded.actions=missing
+for name in action_names:bpy.data.actions[name].use_fake_user=True
 for polygon in body.data.polygons:polygon.use_smooth=True
 from fauna_surface_components import smooth_split_normals
 shading_vertices=smooth_split_normals(body.data)
@@ -42,7 +50,7 @@ p=np.array([v.co[:] for v in body.data.vertices]);body.data.calc_loop_triangles(
 # vertices, but never fit a lid or sample its weights/UV from a floating fleck.
 from fauna_surface_components import components as geometric_components
 components=geometric_components(p,faces)
-main=max(components,key=len);face_ids=[i for i,face in enumerate(faces) if all(int(v) in main for v in face)]
+main=set().union(*[part for part in components if len(part)>=12]) if a.slug=='pronghorn' else max(components,key=len);face_ids=[i for i,face in enumerate(faces) if all(int(v) in main for v in face)]
 bvh=BVHTree.FromPolygons([Vector(x) for x in p],faces[face_ids].tolist(),all_triangles=True)
 body_uv=np.array([[body.data.uv_layers.active.data[i].uv[:] for i in t.loops] for t in body.data.loop_triangles])
 names={g.index:g.name for g in body.vertex_groups};features=[];coat_objects=[]
@@ -73,9 +81,17 @@ for index,coat in enumerate(entry['painting_coats']):
     mat=bpy.data.materials[coat['material']];nodes=mat.node_tree.nodes;links=mat.node_tree.links;nodes.clear()
     output=nodes.new('ShaderNodeOutputMaterial');bsdf=nodes.new('ShaderNodeBsdfPrincipled');links.new(bsdf.outputs['BSDF'],output.inputs['Surface'])
     for filename,socket,noncolour in [(bake['coats'][index]['file'],'Base Color',False),('coat-roughness.png','Roughness',True)]:
-        tex=nodes.new('ShaderNodeTexImage');tex.image=image(filename,noncolour);links.new(tex.outputs['Color'],bsdf.inputs[socket])
+        tex=nodes.new('ShaderNodeTexImage');tex.image=image(filename,noncolour)
+        if socket=='Base Color' and land.get('paired_eye_revision'):
+            # A lid can cross several disconnected body UV islands. Interpolating
+            # those UVs produces zebra-like streaks even on plain fur. Sample the
+            # body atlas into lid vertex colours and interpolate in lid space.
+            weight=nodes.new('ShaderNodeAttribute');weight.attribute_name='Fitted lid weight';colour=nodes.new('ShaderNodeVertexColor');colour.layer_name=f'Fitted lid colour {index}';mix=nodes.new('ShaderNodeMixRGB');links.new(weight.outputs['Fac'],mix.inputs[0]);links.new(tex.outputs['Color'],mix.inputs[1]);links.new(colour.outputs['Color'],mix.inputs[2]);links.new(mix.outputs[0],bsdf.inputs[socket])
+        else:links.new(tex.outputs['Color'],bsdf.inputs[socket])
     tex=nodes.new('ShaderNodeTexImage');tex.image=normal;nmap=nodes.new('ShaderNodeNormalMap');nmap.inputs['Strength'].default_value=.65
     links.new(tex.outputs['Color'],nmap.inputs['Color']);links.new(nmap.outputs['Normal'],bsdf.inputs['Normal'])
+    if land.get('paired_eye_revision'):
+        weight=nodes.new('ShaderNodeAttribute');weight.attribute_name='Fitted lid weight';subtract=nodes.new('ShaderNodeMath');subtract.operation='MULTIPLY_ADD';subtract.inputs[1].default_value=-.65;subtract.inputs[2].default_value=.65;links.new(weight.outputs['Fac'],subtract.inputs[0]);links.new(subtract.outputs[0],nmap.inputs['Strength'])
     coat.update(colour_atlas=bake['coats'][index]['file'],roughness_atlas='coat-roughness.png',normal_atlas='coat-normal.png')
 body.data.materials[0]=bpy.data.materials[entry['painting_coats'][0]['material']]
 
@@ -90,7 +106,7 @@ whiskermat=plain(a.slug+' whiskers',(.25,.23,.18),.7)
 eye=plain(a.slug+' living eye',(.025,.014,.007),.12);bsdf=eye.node_tree.nodes.get('Principled BSDF');bsdf.inputs['IOR'].default_value=1.38
 bsdf.inputs['Coat Weight'].default_value=.30;bsdf.inputs['Coat Roughness'].default_value=.08
 if land.get('paired_eye_revision'):
-    bsdf.inputs['Roughness'].default_value=.25;bsdf.inputs['Coat Weight'].default_value=.04;bsdf.inputs['Coat Roughness'].default_value=.20
+    bsdf.inputs['Roughness'].default_value=.30;bsdf.inputs['Specular IOR Level'].default_value=.25;bsdf.inputs['Coat Weight'].default_value=0;bsdf.inputs['Coat Roughness'].default_value=.20
 # A pigment-only iris: highlights come from the scene, never a painted white dot.
 size=256;y,x=np.mgrid[0:size,0:size];u=(x+.5)/size*2-1;v=(y+.5)/size*2-1;r=np.sqrt(u*u+v*v);theta=np.arctan2(v,u)
 fibre=.5+.25*np.sin(theta*91+r*19)+.16*np.sin(theta*143-r*38)
@@ -172,7 +188,7 @@ for side in ([] if surface_only_arthropod else ['right','left']):
     bulge=.003 if kind=='scaled' else .006 if kind=='rodent' else .003 if kind=='fish' else .0018 if a.slug=='pheasant' else .004 if kind=='avian' else .008 if kind in {'suine','caprine','ursid','bovine','equine','cervid','small-carnivore','beaver'} else .011 if canid else .018
     eye_margin=.0008 if a.slug=='pheasant' or kind=='fish' else .002
     if reviewed:bulge=min(rx,rz)*(.16 if kind in {'fish','scaled'} else .24);eye_margin=min(rx,rz)*.025
-    if land.get('paired_eye_revision'):bulge=min(rx,rz)*(.10 if canid else .16)
+    if land.get('paired_eye_revision'):bulge=min(rx,rz)*.16;eye_margin=min(rx,rz)*.08
     vertices=[center+n*(eye_margin+bulge)];uvs=[(.5,.5)];polygons=[]
     for ring in range(1,rings+1):
         rad=ring/rings
@@ -184,14 +200,19 @@ for side in ([] if surface_only_arthropod else ['right','left']):
         distance=max(rx,rz)*3+.04
         hit=bvh.ray_cast(Vector(target+n*distance),Vector(-n),distance*2)[0]
         if hit is None or np.linalg.norm(np.asarray(hit)-target)>max(rx,rz)*1.5:hit=sample(target)[0]
-        return float(np.clip((np.asarray(hit)-target)@n,0,min(rx,rz)*1.2))
+        limit=max(rx,rz)*3 if land.get('paired_eye_revision') else min(rx,rz)*1.2
+        return float(np.clip((np.asarray(hit)-target)@n,0,limit))
+    paired_depth=0.
+    convex=land.get('paired_eye_revision',{}).get('convex_lens',False)
+    if convex:
+        depths=[eye_surface_depth(center+ellipse(t)) for t in np.linspace(0,math.tau,25)[:-1]];paired_depth=min(float(np.quantile(depths,.75)),min(rx,rz)*.35)+land['paired_eye_revision'].get('lens_outset',0)
     if reviewed:
         # A low-poly sculpt can protrude in front of a flat replacement lens.
         # Fit the cap's depth to that actual surface so half an iris cannot be
         # buried in the cheek; its slight corneal bulge remains above it.
         for vi,vertex in enumerate(vertices):
             target=vertex-n*((vertex-center)@n)
-            vertices[vi]=vertex+n*eye_surface_depth(target)
+            vertices[vi]=vertex+n*(paired_depth if convex else eye_surface_depth(target))
     for i in range(segments):polygons.append((0,1+i,1+(i+1)%segments))
     for j in range(rings-1):
         for i in range(segments):
@@ -200,7 +221,7 @@ for side in ([] if surface_only_arthropod else ['right','left']):
     if np.dot(np.cross(vertices[polygons[0][1]]-vertices[0],vertices[polygons[0][2]]-vertices[0]),n)<0:polygons=[tuple(reversed(f)) for f in polygons]
     obj(a.slug+' '+side+' eye',vertices,polygons,[eye],uvs,anchor=skin)
     vertices=[];uvs=[];polygons=[];indices=[]
-    lid_radii=[1.,1.035,1.08,1.16] if reviewed else [1.,1.10,1.21,1.43]
+    lid_radii=[1.,1.04,1.10,1.30,1.60] if land.get('paired_eye_revision') else [1.,1.035,1.08,1.16] if reviewed else [1.,1.10,1.21,1.43]
     for ring,rad in enumerate(lid_radii):
         for i in range(segments):
             t=i*math.tau/segments;target=center+ellipse(t)*rad
@@ -211,7 +232,10 @@ for side in ([] if surface_only_arthropod else ['right','left']):
                 # Narrow bare inner rim, shaped upper arch, surface-fitted fur
                 # beyond it. Avoid a thick, uniformly black goggle-like ring.
                 depth=eye_surface_depth(target)
-                if ring==0:point=target+n*(depth+eye_margin)
+                if land.get('paired_eye_revision'):
+                    inner=target+n*((paired_depth if convex else depth)+eye_margin+min(rx,rz)*.04*upper)
+                    fraction=max(0,(ring-2)/max(1,len(lid_radii)-3));fraction=fraction*fraction*(3-2*fraction);point=inner*(1-fraction)+(surface+n*.0008)*fraction
+                elif ring==0:point=target+n*(depth+eye_margin)
                 elif ring==1:point=target+n*(depth+min(rx,rz)*(.055+.045*upper))
                 elif ring==2:point=target+n*(depth+min(rx,rz)*(.045+.025*upper))
                 else:point=target+n*(depth+min(rx,rz)*.008)
@@ -223,11 +247,20 @@ for side in ([] if surface_only_arthropod else ['right','left']):
     for j in range(len(lid_radii)-1):
         for i in range(segments):
             polygons.append((j*segments+i,j*segments+(i+1)%segments,(j+1)*segments+(i+1)%segments,(j+1)*segments+i))
-            bare_band=True if reviewed else j<(1 if kind=='fish' else 2)
+            bare_band=j<2 if land.get('paired_eye_revision') else True if reviewed else j<(1 if kind=='fish' else 2)
             indices.append(1 if bare_band else 0)
     if np.dot(np.cross(vertices[polygons[0][1]]-vertices[polygons[0][0]],vertices[polygons[0][2]]-vertices[polygons[0][0]]),n)<0:polygons=[tuple(reversed(f)) for f in polygons]
     lid=obj(a.slug+' '+side+' socket and eyelid',vertices,polygons,[body.data.materials[0],lidmat],uvs,indices,anchor=skin)
-    if not reviewed:coat_objects.append(lid.name)
+    if land.get('paired_eye_revision'):
+        marker=lid.data.attributes.new('Fitted lid weight','FLOAT','POINT');marker.data.foreach_set('value',np.ones(len(vertices),np.float32))
+        loop_vertices=np.array([loop.vertex_index for loop in lid.data.loops]);sample_uv=np.array(uvs)
+        for ci,coat in enumerate(bake['coats']):
+            im=image(coat['file']);pixels=np.empty(len(im.pixels),np.float32);im.pixels.foreach_get(pixels);pixels=pixels.reshape(im.size[1],im.size[0],4);uv=np.mod(sample_uv,1);xy=uv*np.array([im.size[0]-1,im.size[1]-1]);lo=xy.astype(int);hi=np.minimum(lo+1,np.array([im.size[0]-1,im.size[1]-1]));t=xy-lo
+            values=pixels[lo[:,1],lo[:,0]]*(1-t[:,0:1])*(1-t[:,1:2])+pixels[lo[:,1],hi[:,0]]*t[:,0:1]*(1-t[:,1:2])+pixels[hi[:,1],lo[:,0]]*(1-t[:,0:1])*t[:,1:2]+pixels[hi[:,1],hi[:,0]]*t[:,0:1]*t[:,1:2]
+            values[:,:3]=np.where(values[:,:3]<=.04045,values[:,:3]/12.92,((values[:,:3]+.055)/1.055)**2.4)
+            attr=lid.data.color_attributes.new(name=f'Fitted lid colour {ci}',type='BYTE_COLOR',domain='CORNER');attr.data.foreach_set('color',values[loop_vertices].astype(np.float32).ravel())
+        lid.data.update()
+    if not reviewed or land.get('paired_eye_revision'):coat_objects.append(lid.name)
     eye_reports.append({'side':side,'point':center.tolist(),'radius':[rx,rz],'skin':skin,'outer_ring_surface_fitted':True})
     hairy=kind not in {'avian','fish','scaled'} and not (extended and category=='marine' and a.slug!='sea-otter')
     if reviewed and hairy:

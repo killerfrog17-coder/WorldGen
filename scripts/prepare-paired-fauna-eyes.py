@@ -3,14 +3,21 @@ import argparse,copy,hashlib,json,shutil
 from pathlib import Path
 import numpy as np
 repo=Path(__file__).resolve().parent.parent
-ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='+',required=True);a=ap.parse_args()
+ap=argparse.ArgumentParser();ap.add_argument('--slugs',nargs='+',required=True);ap.add_argument('--use-current-landmarks',action='store_true');a=ap.parse_args()
 for slug in a.slugs:
  source=repo/'artifacts/fauna-painted-20261024'/slug;out=repo/'artifacts/fauna-review-revisions'/slug;out.mkdir(parents=True,exist_ok=True)
  assert out.resolve().is_relative_to((repo/'artifacts/fauna-review-revisions').resolve())
  for name in ['Animal - Painted Species Review.blend','paint-state.json','face-landmarks.json','paint-anatomy.npz','selected-source-entry.json','coat-bake.json']:
   path=source/name
+  if name=='Animal - Painted Species Review.blend':
+   feedback=json.loads((repo/'docs/fauna/PHONE_REVIEW_FEEDBACK.json').read_text());active=next((r.get('repair_review',{}).get('blend') for r in feedback['items'] if r['slug']==slug and r.get('status')=='awaiting_owner_review'),None)
+   if active:path=repo/active
   if path.exists() and not (out/name).exists():shutil.copy2(path,out/name)
- land=json.loads((source/'face-landmarks.json').read_text());original=copy.deepcopy(land);right=land['right_eye'];left=land['left_eye'];mid=(np.array(right['point'])+np.array(left['point']))*.5;F=np.array(land['nose']['point'])-mid;F[2]=0;F/=np.linalg.norm(F);S=np.array([F[1],-F[0],0.]);up=np.array([0.,0.,1.]);land['front_axis']=F.tolist();land['side_axis']=S.tolist()
+ native=source/'Animal - Painted Species Review.blend';feedback=json.loads((repo/'docs/fauna/PHONE_REVIEW_FEEDBACK.json').read_text());active=next((r.get('repair_review',{}).get('blend') for r in feedback['items'] if r['slug']==slug and r.get('status')=='awaiting_owner_review'),None)
+ if active:native=repo/active
+ provenance=out/'revision-source.json'
+ if not provenance.exists():provenance.write_text(json.dumps({'source':str(native.relative_to(repo)),'source_sha256':hashlib.sha256(native.read_bytes()).hexdigest(),'owner_approved':False},indent=2)+'\n')
+ land=json.loads(((out if a.use_current_landmarks else source)/'face-landmarks.json').read_text());original=copy.deepcopy(land);right=land['right_eye'];left=land['left_eye'];mid=(np.array(right['point'])+np.array(left['point']))*.5;F=np.array(land['nose']['point'])-mid;F[2]=0;F/=np.linalg.norm(F);S=np.array([F[1],-F[0],0.]);up=np.array([0.,0.,1.]);land['front_axis']=F.tolist();land['side_axis']=S.tolist()
  R=np.array(right['point']);L=np.array(left['point']);height=(R[2]+L[2])*.5
  # Respect each actual socket's depth, while matching their head-space height,
  # opening dimensions and mirrored facing. Body asymmetry is measured, not hidden.

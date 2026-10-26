@@ -5,8 +5,8 @@ import bpy,numpy as np
 from mathutils import Matrix,Vector
 from mathutils.bvhtree import BVHTree
 repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
-folder=root/a.slug;review=json.loads((folder/'eye-review.json').read_text());state=json.loads((folder/'paint-state.json').read_text())
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--root',type=Path);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
+folder=(a.root or root/a.slug).resolve();review=json.loads((folder/'eye-review.json').read_text());state=json.loads((folder/'paint-state.json').read_text())
 assert review['geometry_sha256']==state['geometry_sha256']
 bpy.ops.wm.open_mainfile(filepath=str(folder/'Animal - Painted Species Review.blend'))
 entry=json.loads(bpy.context.scene['deer_four_rigs'])[0];body=bpy.data.objects[entry['body']]

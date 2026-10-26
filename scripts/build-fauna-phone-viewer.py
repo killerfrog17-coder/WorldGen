@@ -15,7 +15,8 @@ for item in plan['animals']:
  update=repairs.get(item['slug']);folder=root/item['slug']
  if update:
   repair=update['repair_review'];replacement=next(row for row in json.loads((repo/repair['plan']).read_text())['animals'] if row['slug']==item['slug'])
-  assert all(replacement[k]==item[k] for k in ['number','slug','name','accepted','coats','extras'])
+  assert all(replacement[k]==item[k] for k in ['number','slug','name','accepted','extras'])
+  assert replacement['coats'][:len(item['coats'])]==item['coats'],'Existing paint options must remain in order'
   proof=json.loads((repo/repair['check']).read_text());native=(repo/replacement['source']).resolve();assert native.is_relative_to(repo)
   assert proof['all_checks_passed'] and proof['actually_visually_inspected'] and proof['checked_blend_sha256']==replacement['source_sha256']==hashlib.sha256(native.read_bytes()).hexdigest()
   for view in proof['visual_evidence']:assert hashlib.sha256((repo/view['file']).read_bytes()).hexdigest()==view['sha256']
@@ -33,6 +34,9 @@ for item in plan['animals']:
     record['type']='paint' if im['view']=='coat' else 'extra';record['caption']='Paint job' if im['view']=='coat' else 'Extra shape · '+item['coats'][im['coat']]['label'];row['variations'].append(record)
    else:row['pictures'].append(record)
   if item['slug']=='deer':row['pictures'].append({'label':'Face & eyes','url':'media/D-face.webp'})
+  elif item.get('face_views'):
+   for face in item['face_views']:
+    target=site/'animals'/item['slug']/Path(face['file']).name;copy(repo/face['file'],target,face['sha256']);row['pictures'].append({'label':face['label'],'url':str(target.relative_to(site)).replace('\\','/')})
   elif not item['procedural']:
    for view,label in [('front','Face — front'),('right','Face — right'),('left','Face — left')]:
     path=site/f"eyes/{item['slug']}-{view}-after.webp";assert path.exists();row['pictures'].append({'label':label,'url':str(path.relative_to(site)).replace('\\','/')})

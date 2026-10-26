@@ -4,8 +4,8 @@ from pathlib import Path
 import bpy,numpy as np
 from mathutils import Matrix,Vector
 repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--bodies',action='store_true');ap.add_argument('--root',type=Path);ap.add_argument('--sculpt',action='store_true');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);folder=(a.root or root/a.slug).resolve();dest=folder/'eye-audit'
-source=folder/'Animal - Painted Species Review.blend';digest=hashlib.sha256(source.read_bytes()).hexdigest()
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--bodies',action='store_true');ap.add_argument('--root',type=Path);ap.add_argument('--sculpt',action='store_true');ap.add_argument('--blend',type=Path);ap.add_argument('--output-root',type=Path);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);folder=(a.root or root/a.slug).resolve();dest=(a.output_root or folder/'eye-audit').resolve();dest.mkdir(parents=True,exist_ok=True)
+source=(a.blend or folder/'Animal - Painted Species Review.blend').resolve();digest=hashlib.sha256(source.read_bytes()).hexdigest()
 bpy.ops.wm.open_mainfile(filepath=str(source));s=bpy.context.scene;e=json.loads(s['deer_four_rigs'])[0];body=bpy.data.objects[e['body']];rig=bpy.data.objects[e['rig']];rig.animation_data_clear();rig.data.pose_position='REST'
 for ob in list(s.objects):
  if ob.type=='LIGHT':bpy.data.objects.remove(ob,do_unlink=True)
@@ -20,7 +20,7 @@ if a.sculpt:
   if ob.type=='MESH':ob.hide_render=ob!=body
  s.render.engine='BLENDER_WORKBENCH';s.display.shading.light='STUDIO';s.display.shading.color_type='SINGLE';s.display.shading.single_color=(.46,.44,.40);s.display.shading.show_shadows=True;s.display.shading.show_cavity=True;s.display.shading.cavity_type='BOTH';s.display.shading.curvature_ridge_factor=1.5;s.display.shading.curvature_valley_factor=1.7
 for view in ['right','left','front']:
- guide=json.loads((dest/f'{view}.json').read_text());camera.matrix_world=Matrix(guide['camera_matrix']);camera.data.ortho_scale=guide['scale'];s.render.filepath=str(dest/(f'{view}-'+('sculpt' if a.sculpt else 'after')+'.png'));bpy.ops.render.render(write_still=True)
+ guide=json.loads((folder/'eye-audit'/f'{view}.json').read_text());camera.matrix_world=Matrix(guide['camera_matrix']);camera.data.ortho_scale=guide['scale'];s.render.filepath=str(dest/(f'{view}-'+('sculpt' if a.sculpt else 'after')+'.png'));bpy.ops.render.render(write_still=True)
 if a.bodies:
  previews=folder/'previews';state=json.loads((folder/'paint-state.json').read_text())
  alternate=next((i for i,c in reversed(list(enumerate(state['coats']))) if 'hypothetical' in c['label'].lower()),len(state['coats'])-1)

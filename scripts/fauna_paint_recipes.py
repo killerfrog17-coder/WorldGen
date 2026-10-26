@@ -210,6 +210,8 @@ def profiles(slug):
     if slug in EXTRA:
         label,base,pale,_=EXTRA[slug]
         if not any(row[0]==label for row in result):result=[*result,(label,base,pale,False)]
+    if slug in {'rabbit','red-fox'}:
+        result=[*result,('Snow-white cold-climate (hypothetical)',[.83,.85,.86],[.91,.92,.92],False)]
     return result
 
 def eye_frame(slug,land,side):

@@ -12,9 +12,9 @@ from scipy.ndimage import gaussian_filter,map_coordinates,distance_transform_edt
 repo=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(repo/'scripts'))
 from fauna_paint_recipes import profiles,eye_radius,eye_frame
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=2048)
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=2048);ap.add_argument('--root',type=Path)
 a=ap.parse_args();assert a.slug in {'duck','pheasant','grouse','quail','turkey','junglefowl'},'No inspected feather masks for this bird yet'
-root=repo/'artifacts/fauna-painted-20261024'/a.slug;started=time.perf_counter()
+root=(a.root or repo/'artifacts/fauna-painted-20261024'/a.slug).resolve();started=time.perf_counter()
 state=json.loads((root/'paint-state.json').read_text());assert not state['appearance_approved']
 land=json.loads((root/'face-landmarks.json').read_text());d=dict(np.load(root/'paint-anatomy.npz'))
 raw=json.loads((root/'selected-source-entry.json').read_text()) if (root/'selected-source-entry.json').exists() else json.loads((repo/'artifacts/fauna-overnight-20261024'/a.slug/'audition.json').read_text())['candidates'][state['source_candidate']-1]

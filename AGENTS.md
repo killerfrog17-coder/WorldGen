@@ -1,5 +1,45 @@
 # WorldGen repository instructions
 
+PHONE FEEDBACK ACTIVE / RABBIT+FOX PUBLISHED,25October2026~21:20CDT:
+Latest LIVE private phone Site source70c1681a9d8f4cd6a06e3a5a163a1df0e3da487f,
+deployment appgdep_6adeb7a6fe2881919eba82579bc16e83 SUCCEEDED. Rabbit1 keeps
+existing CC0 rabbit bank after upright Quaternius Bunny rejected. Torso/gaze/leg
+root compensation, rear-core+paw skin and bounded hind paws:161 native samples,
+loop exact, model/UV/face/textures/rest/nonRun actions exact; raw foot contact/
+silhouette still prototype. Fox3 physical right hind5..8 now animated, actual
+TAIL26..33 no longer hind leg. Existing CC0 fox bank explicit paths,537 skin
+vertices, whole paws rigid,194 Walk/Run samples, loops exact/floor>=4mm. Both
+have paired eyes/lid seam fix +snow-white coats, added at end preserving existing
+paint indices.177 animals/830 coats/118 extras/354 clips. Browser behavior passes;
+Done/notes preserved. Neither new revision is owner appearance/motion approval.
+
+Broader eye/stripe scope REMAINS ACTIVE. Unpublished revisions separate under
+artifacts/fauna-review-revisions. First full finite169 pass finished164+3surface
+only+2errors; Bison ear gate and Pronghorn OPEN socket ray issue now repaired.
+All166 original new head triptychs+underlying sculpts actually viewed, followed
+by32 scoped manual exceptions in docs/fauna/EYE_REVIEW_ADJUSTMENTS.json. Some
+manual caps still need final review; DON'T publish technical passes as art.
+Current producer exec79337 refines manual entries without explicit forward;
+prior manual fallback accidentally used old head F rather than fitted F. Fixed.
+Horse+40mm socket height; Lion+120mm; flat convex lens only manual cases.
+Pronghorn actual open apertures use old paired hole centres and rim support.
+
+Current separate finite media batch exec99941 / media-worker.lock, status in
+media-progress.json,153 jobs; last96 complete. It never publishes. Some later
+manual natives are being regenerated; exact native SHA guards reject races and
+those media must rerender. Root finite eye batch status progress.json separate.
+No duplicate producer. Still need final exception images, stripe BODY views,
+full visual-proof index, two-clip media and positive-SHA private publication.
+Native-only eye work preserves selected body/skin/rest/actions. Eyelid UV islands
+caused zebra streaks; paired lids now sample per-coat BYTE_COLOR (FLOAT_COLOR
+rendered white here), body shared material chooses colour via lid marker; no
+extra material copies per lid/coat. Shader catches reflections, not painted dots.
+Check browser current two-clip mode; preserve localStorage and accepted deer.
+No user GUI/game/Unity/Desktop changes, paid calls or model generation. Local
+HTTP preview exec87808 port8766 may remain; close own server at finish only.
+Preserve unrelated deleted prompt and two old untracked deer scripts unstaged.
+
+
 PHONE OWNER FEEDBACK ACTIVE / FULL EYES+MOTION+PATTERNS,25October2026:
 Owner is still assessing phone viewer. Preserve ongoing scope across new messages:
 Rabbit same severe Run issue, consider different suitable CC0 animation source;

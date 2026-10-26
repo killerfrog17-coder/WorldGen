@@ -77,7 +77,8 @@
         "dark melanistic analogue",
         "hypothetical pale sandy",
         "hypothetical mottled litter camouflage",
-        "Leaf-litter mottled (hypothetical)"
+        "Leaf-litter mottled (hypothetical)",
+        "Snow-white cold-climate (hypothetical)"
       ],
       "texture_assets": "Five surface classes as for the hare, with shorter coat/foot fur. Reuse neutral fur and shared eye/nose/ear assets. One agouti modulation mask and separate pale belly/tail underside masks; optional low-contrast mottling is a mask, not another model.",
       "sex_age_season": "Keep the same coat pool for both sexes; avoid a large ornamental dewlap or domestic-breed dimorphism by default. Wild European rabbits do not receive the hare's automatic white winter coat. Dependent naked newborns are outside this adult prototype; later juveniles need compact age proportions.",
@@ -100,7 +101,8 @@
         "maximum_tail_length_fraction": 0.1,
         "basis_unchanged": true,
         "scope": "Conservative adult lineage-proportion hypotheses. Tail option only exists where the actual rearward tail region is safely identified."
-      }
+      },
+      "snow_coat_request": "Owner requires a plausible snowy lineage on this selected body. Reuse fur detail; keep dark nose/eyes/lids; white fox has white-furred feet/outer ears. Pigment hypothesis does not imply full Arctic morphology or normal European-rabbit seasonal biology."
     },
     "Red fox": {
       "real_analogues": [
@@ -112,7 +114,8 @@
         "silver-tipped dark phase",
         "black phase",
         "hypothetical pale dryland red",
-        "Broken russet flank bars (hypothetical)"
+        "Broken russet flank bars (hypothetical)",
+        "Snow-white cold-climate (hypothetical)"
       ],
       "texture_assets": "Six surface classes: short face/leg fur, longer body/tail fur, eye, nose/lid skin, paw pad and claw keratin. Share two fur swatches across coats. Separate cross-saddle, silver guard-tip and dark stocking masks; white tail-tip/chin/underside masks are retained across these analogue phases.",
       "sex_age_season": "Coat phase is independent of sex and can vary within a lineage. Use modest overlapping size ranges rather than male-only dark coats. Winter density is a linked coat-length/normal treatment, not a white recolour. Young keep age-specific face/ear proportions later.",
@@ -136,7 +139,8 @@
         "maximum_tail_length_fraction": 0.1,
         "basis_unchanged": true,
         "scope": "Conservative adult lineage-proportion hypotheses. Tail option only exists where the actual rearward tail region is safely identified."
-      }
+      },
+      "snow_coat_request": "Owner requires a plausible snowy lineage on this selected body. Reuse fur detail; keep dark nose/eyes/lids; white fox has white-furred feet/outer ears. Pigment hypothesis does not imply full Arctic morphology or normal European-rabbit seasonal biology."
     },
     "Wolf": {
       "real_analogues": [
@@ -5769,5 +5773,17 @@
       "source_prompts_and_inspection": "Each generated image has an adjacent provenance JSON with exact prompt and usage limits. Edge joins are measured, not declared seamless.",
       "source_images_bytes": 80340866
     }
+  },
+  "continuous_colour_variation_policy": {
+    "scope": "All visual animals, inherited by every animal plan. Keep distinct anatomical pattern/species base palettes.",
+    "requested": true,
+    "runtime_enabled": false,
+    "enable_condition": "Only adopt after representative on/off Unity profiling shows no meaningful cost or batching regression; retain discrete base-coat fallback.",
+    "implementation_candidate": "One stable appearance seed/packed tint assigned at spawn, shared textures and materials, renderer shader user value in supported URP. No per-frame randomization or unique texture/material per individual.",
+    "individual_range": "Small controlled warm/cool, brightness and saturation changes within each base coat; white coats stay near white.",
+    "lineage_range": "Broader plausible palettes selected as distinct base species/ecotypes; pigment masks preserve eyes/nose/lids/hoof and characteristic markings.",
+    "pattern_rule": "Colour variation does not replace anatomical paint jobs such as spotting, curved stripes or white winter coverage.",
+    "source": "https://docs.unity3d.com/6000.4/Documentation/Manual/renderer-shader-user-value-intro.html",
+    "performance_status": "Architecture researched; game rendering not benchmarked or enabled."
   }
 }
