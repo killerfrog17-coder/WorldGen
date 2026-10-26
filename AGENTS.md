@@ -1,5 +1,35 @@
 # WorldGen repository instructions
 
+PLACEHOLDERS ACCEPTED / CLEANUP COMPLETE,26October2026~11:31CDT:
+Owner says current set is fine for placeholders; no further appearance work
+requested. Production remains stopped. Owner requested temp/old-iteration
+cleanup; completed LOCAL artifacts-only manifest/dry-run/native PowerShell
+delete.1,986 targets removed,12,868,804,028bytes(11.985GiB); zero failures.
+Artifacts42.252->30.270GiB.7,893 retained file hashes VERIFIED unchanged;
+all177 current selected animal natives, textures/animations/review assets,
+selected raw candidate sources and source/proof baselines retained. Eight
+dated nightly playable builds retained per existing checkpoint manifest;
+removed only their explicit non-shipping debug/C++ backup children(8.145GiB).
+Running WorldGen PID25212 at player-terrain-surface-art-v1 retained untouched
+as a runtime; no user apps closed/settings changed. Other removals:513
+unselected candidate folders,275 regenerable preview dirs,19 rejected-reroll
+archives,1,165 bytecode-cache dirs, obsolete Blender installer/debug symbols,
+already deployed phone tar archive. Raw full native audition comparisons
+remain; historical audits expecting all individual unselected candidate input
+folders will no longer pass intentionally. Never restart generation to refill.
+Plan/report/verification: artifacts/fauna-cleanup-{plan,report,verification}-
+20261026.json. Scripts plan-fauna-temp-cleanup.py/apply-fauna-temp-cleanup.ps1
+record exact protected paths/hashes and resolved root/link/running-app checks.
+Prior request opened current full177 Blender set RIGHTMOST from Wolf via new
+--review-index routing; viewer17592 logged ready, subsequently owner closed
+it normally(quit.blend recovery noted). Do not reopen automatically. Current
+anatomy review-index paths retain newest technically checked saved revisions
+and clearly label unfinished versions. Shared list override persists across
+animal folders; raw pending filter bypassed for this explicit current list.
+Cleanup did not change any animal geometry, paint or motion. Keep latest
+nineteen separately saved v2 paint sources. Preserve unrelated deleted prompt
+and two untracked old deer scripts unstaged. No active goal inferred/created.
+
 OWNER REQUESTED STOPPING POINT,26October2026~11:15CDT:
 Owner latest says 'get to a stopping point soon'. STOPPED at saved checkpoint;
 do not auto-resume appearance work without new owner instruction. No active

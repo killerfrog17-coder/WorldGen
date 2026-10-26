@@ -1,5 +1,5 @@
 """One-window comparison of four fresh meshes with independent generated rigs."""
-import json,math,random,time,textwrap
+import json,math,random,time,textwrap,os
 from pathlib import Path
 import bpy
 from mathutils import Vector,Quaternion
@@ -14,13 +14,17 @@ warning_path=Path(bpy.data.filepath).parent/'visual-warnings.json'
 screening=json.loads(warning_path.read_text()) if warning_path.exists() else {}
 state={'model':0,'clip':'Showcase','mode':0,'view':0,'skeleton':False,'coat':models[0]['painting_coats'][0]['label'] if models[0].get('painting_coats') else 'Tawny woodland' if finished else 'Unpainted preview','started':time.monotonic(),'seed':734100,'coat_index':0,'active_rack':-1,'sex':'Female','pending_only':True,'extra_variant':0,'extra_bags':{}}
 queue_cache=[];queue_items_cache=[]
+def review_index_path():
+    override=os.environ.get('WORLDGEN_FAUNA_REVIEW_INDEX')
+    return Path(override) if override else Path(bpy.data.filepath).parent.parent/'review-index.json'
+
 def queue_entries():
     global queue_cache,queue_items_cache
-    p=Path(bpy.data.filepath).parent.parent/'review-index.json'
+    p=review_index_path()
     if p.exists():
         queue_cache=json.loads(p.read_text()).get('ready',[])
         choices_path=Path(__file__).resolve().parent.parent/'docs/fauna/OWNER_SELECTIONS.json'
-        if state['pending_only'] and choices_path.exists() and not models[0].get('painting_coats'):
+        if state['pending_only'] and choices_path.exists() and not models[0].get('painting_coats') and not os.environ.get('WORLDGEN_FAUNA_REVIEW_INDEX'):
             choices=json.loads(choices_path.read_text())
             decided=set(choices.get('animals',{}))
             # Keep conditional selections visible until their requested repair
@@ -246,9 +250,11 @@ class D4_PT_panel(bpy.types.Panel):
         col=self.layout.column();entry=current();col.label(text=animal)
         if entry.get('original_model_number'):col.label(text=f"Selected source model {entry['original_model_number']} · corrected rig")
         entries=queue_entries()
-        if (Path(bpy.data.filepath).parent.parent/'review-index.json').exists():
+        if review_index_path().exists():
             col.operator('deer_four.filter',text='Pending animals only' if state['pending_only'] else 'All ready animals',depress=state['pending_only'])
             col.label(text=str(len(entries))+' animals in this list')
+        row=next((x for x in entries if Path(x['path'])==Path(bpy.data.filepath)),None)
+        if row and row.get('visual_status'):col.label(text=row['visual_status'])
         if entries:
             col.operator_menu_enum('deer_four.animal','animal',text='Choose animal')
             row=col.row(align=True);row.operator('deer_four.animal',text='Previous animal').step=-1;row.operator('deer_four.animal',text='Next animal').step=1

@@ -3,6 +3,7 @@ import argparse
 import ctypes
 from ctypes import wintypes
 import json
+import os
 from pathlib import Path
 import subprocess
 import time
@@ -22,6 +23,7 @@ def main():
     ap.add_argument('--four-rigs',action='store_true',help='Compare four independently generated deer skeletons')
     ap.add_argument('--rightmost',action='store_true',help='Place the review on the rightmost monitor')
     ap.add_argument('--blend-name',help='Separate review filename inside --root')
+    ap.add_argument('--review-index',type=Path,help='Use one current animal list across native folders')
     a=ap.parse_args();root=a.root.resolve()
     blend=root/('Deer - Original Rig Motion Review.blend' if a.own_rig else 'Deer - Mesh2Motion Review.blend')
     if a.trellis:blend=root/'Deer - TRELLIS2 Material Review.blend'
@@ -54,10 +56,13 @@ def main():
     if playing:
         startup.dwFlags|=subprocess.STARTF_USESHOWWINDOW;startup.wShowWindow=4
     log=root/'viewer.log'
+    environment=os.environ.copy()
+    if a.review_index:
+        index=a.review_index.resolve();assert index.is_file();environment['WORLDGEN_FAUNA_REVIEW_INDEX']=str(index)
     with log.open('w') as f:
         process=subprocess.Popen([str(blender),'--factory-startup','--disable-autoexec',str(blend),
             '--python',str(repo/'scripts'/viewer)],
-            cwd=repo,stdout=f,stderr=subprocess.STDOUT,startupinfo=startup)
+            cwd=repo,stdout=f,stderr=subprocess.STDOUT,startupinfo=startup,env=environment)
     (root/'viewer-process.json').write_text(json.dumps({'pid':process.pid,'blend':str(blend)}))
     user=ctypes.windll.user32;windows=[]
     user.GetWindowThreadProcessId.argtypes=[wintypes.HWND,ctypes.POINTER(wintypes.DWORD)]
