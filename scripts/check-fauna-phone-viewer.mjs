@@ -1,0 +1,27 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {chromium} from 'playwright';
+const base=process.argv[2]??'http://127.0.0.1:8766',partial=process.argv.includes('--partial');
+const data=await(await fetch(base+'/animals/index.json')).json();assert.equal(data.count,177);assert.equal(data.animals.length,177);if(!partial)assert.equal(data.ready,177);
+const ids=new Set();let paints=0,extras=0,clips=0;
+for(const row of data.animals){assert(!ids.has(row.slug));ids.add(row.slug);if(!row.ready){assert(partial);continue}assert(row.clips.length>0);assert(row.pictures.length>=4);const variants=row.variations.filter(v=>v.type==='paint');assert(variants.length>=4);paints+=variants.length;extras+=row.variations.filter(v=>v.type==='extra').length;clips+=row.clips.length;for(const file of [...row.pictures,...row.variations,...row.clips]){const stat=await fs.stat(path.resolve('artifacts/fauna-phone-review/dist',file.url));assert(stat.size>100,file.url)}}
+if(!partial){assert.equal(paints,828);assert.equal(extras,118);assert.equal(clips,1188)}
+const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
+try{
+ const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,acceptDownloads:true});const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await page.goto(base+'/#deer');await page.waitForFunction(()=>document.querySelector('#animal-title').textContent==='Deer');assert.equal(await page.locator('#status').textContent(),'Done');assert.equal(await page.locator('#pictures figure').count(),4);assert.equal(await page.locator('#variations figure').count(),13);
+ await page.locator('[data-filter="pending"]').click();await page.waitForFunction(()=>document.querySelector('#animal-title').textContent==='Hare');assert.equal(await page.locator('#progress').evaluate(p=>p.value),1);
+ await page.locator('[data-speed="0.25"]').click();await page.locator('#clips button').filter({hasText:/^Run$/}).click();await page.waitForFunction(()=>{const v=document.querySelector('video');return v.readyState>=2&&v.videoWidth===640&&v.currentTime>.2});assert.equal(await page.locator('video').evaluate(v=>v.playbackRate),.25);
+ await page.locator('.review-notes summary').click();await page.fill('#notes','Run at 0.5s: review the front foot.');await page.locator('#done').click();assert.notEqual(await page.locator('#animal-title').textContent(),'Hare');assert.equal(await page.locator('#progress').evaluate(p=>p.value),2);assert.equal(await page.locator('#animal option[value="hare"]').count(),0);
+ await page.reload();await page.waitForFunction(()=>document.querySelector('#progress').value===2);await page.locator('[data-filter="done"]').click();assert.equal(await page.locator('#animal option').count(),2);await page.selectOption('#animal','hare');assert.equal(await page.locator('#status').textContent(),'Done');assert.equal(await page.locator('#notes').inputValue(),'Run at 0.5s: review the front foot.');
+ await page.locator('.saved summary').click();const downloading=page.waitForEvent('download');await page.click('#export');const download=await downloading;const backup=await fs.readFile(await download.path(),'utf8');const parsed=JSON.parse(backup);assert(parsed.reviews.hare.done);assert.equal(parsed.reviews.hare.notes,'Run at 0.5s: review the front foot.');
+ await page.locator('#done').click();assert.equal(await page.locator('#status').textContent(),'To review');assert.equal(await page.locator('#progress').evaluate(p=>p.value),1);
+ await page.setInputFiles('#import',{name:'progress.json',mimeType:'application/json',buffer:Buffer.from(backup)});await page.waitForFunction(()=>document.querySelector('#progress').value===2);await page.locator('[data-filter="done"]').click();await page.selectOption('#animal','hare');assert.equal(await page.locator('#status').textContent(),'Done');
+ await page.locator('[data-filter="all"]').click();await page.fill('#search','006');assert.equal(await page.locator('#animal option').count(),1);assert.equal(await page.locator('#animal-title').textContent(),'Red fox');await page.fill('#search','');await page.selectOption('#animal','deer');
+ await page.locator('[data-variation="paint"]').click();assert.equal(await page.locator('#variations figure').count(),8);await page.locator('[data-variation="extra"]').click();assert.equal(await page.locator('#variations figure').count(),5);await page.locator('[data-variation="all"]').click();
+ for(const name of ['Walk','Run','Eating']){await page.locator('#clips button').filter({hasText:new RegExp('^'+name+'$')}).click();await page.waitForFunction(()=>document.querySelector('video').readyState>=2);assert.equal(await page.locator('video').evaluate(v=>v.playbackRate),.25)}
+ await page.evaluate(()=>scrollTo(0,0));assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:'artifacts/fauna-phone-review/checks/full-viewer-mobile.png',fullPage:false});
+ await page.setViewportSize({width:1280,height:900});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert.deepEqual(errors,[]);
+ console.log(JSON.stringify({animals:177,ready:data.ready,coats:paints,extras,clips,phone_layout:'pass',done_reload_and_undo:'pass',progress_export_import:'pass',notes_persist:'pass',speed_and_playback:'pass',errors}));
+}finally{await browser.close()}

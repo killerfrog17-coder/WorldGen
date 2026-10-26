@@ -1,5 +1,62 @@
 # WorldGen repository instructions
 
+PHONE INDIVIDUAL REVIEW VIEWER LIVE,25October2026 ~19:08 local:
+Owner asked for deer-style phone reviews for ALL animals: animation clips,
+body/face views, every paint job and extras, plus persistent Done markers.
+Same OWNER-PRIVATE Site published successfully, audience unchanged:
+https://worldgen-animal-review.glassymole9.chatgpt.site
+Project appgprj_6ade6fbe0a5081918b25bcbf541da095; exact pushed source
+SHA e9918d888926757d3937faf31908d69cbb35cbca; deployment
+appgdep_6ade996936b48191a97dac5e02435f8d SUCCEEDED. Version
+appgprj_6ade6fbe0a5081918b25bcbf541da095~appgver_3f5a84119c708191951520c26373c1fc.
+Do NOT republish/poll a successful deployment. Nested Site Git checkout is
+artifacts/fauna-phone-review. Its sources are backed by the Site remote.
+
+ALL177 animals ready:828 coat examples,118 extra-shape examples,1188 non-demo
+source motion clips.1482 new JPEG stills +514 retained face close-ups;2670 new
+media files (~124MiB) in Site dist/animals. Original deer sample at /deer.html;
+/overview.html and /eyes.html retained. New root has search/stable numbers,
+animal navigation, all clips +1/.5/.25 speeds, Side/Front/Rear (+Top for tiny),
+face close-ups, coats/extras filters, Done&next/Reopen and per-animal notes.
+Done/notes save ONLY in the current phone browser, NOT canonical owner choices
+or server sync. JSON export/import backs up or moves progress. Accepted deer
+initializes one Done; other appearances remain owner PENDING. Phone QA used an
+isolated browser context; fake test approvals never became owner selections.
+
+Native media renders loaded approved files read-only; mesh/rig/skin/actions and
+all177 source native SHAs unchanged, including protected deer SHA
+0e2ff46b0b0860750084bed3af94d84f636144230550e9e80f753b3e415418a1.
+Eevee previews use GPU rendering, no model generation/inference or painting.
+Temporary action-copy time remap preserves native seconds at24fps.9-pose camera
+bounds/root XY following; no saved native changes. Early ordinary receipts have
+truthful earlier renderer SHAs. Five tiny previews got wider framing/native-time
+firefly emission; bounded spider rerender corrected projected camera centring.
+Final check:177/177,1188 MP4 decoded at5 phases,1482 JPEG identities/dimensions,
+ZERO errors/framing warnings. Actual four motion sheets covering all177 viewed,
+plus fixed spider Eating, three coat/extra sample sheets and mobile screenshot.
+No art/natural-gait/contact or game-ready approval is implied by these checks.
+
+Proofs ignored under artifacts/fauna-phone-media:plan.json, per-animal receipt/
+media-check.json, checks/media-check.json and motion-inspection-index.json.
+Phone controls QA artifacts/fauna-phone-review/checks/full-viewer-check.json:
+177/828/118/1188 counts,390x844 +desktop no overflow, playback/speed, notes,
+Done reload/undo/filter and backup export/import ALL PASS. Original deer phone
+page regression also passes. Main finite2-worker render session7996 EXIT0;
+bounded tiny/spider workers EXIT0; worker.lock absent. No owned render/check
+workers remain. Verified owned local preview PID6512 at8766 was stopped during
+final teardown; owner windows/apps/Remote/game/Unity/Desktop remain untouched.
+
+Source server rejects a single124MiB Git receive request. Recovery helper
+scripts/push-fauna-site-chunks.mjs accepted short-lived credential on hidden
+stdin only, built16 ordinary fast-forward8MiB batch commits, verified remote
+and EXACT full-tree equality with retained original local checkpoint d9f4878.
+No automatic publication window; ONLY final complete source published through
+native private operation. Recovery state in ignored checks/source-upload-chunks.
+json; local refs preserve both full checkpoint and upload chain. Never store a
+credential in files/args/logs. Root source backup must include new plan/render/
+batch/package/media-check/browser-check/recovery helpers and viewer UI sources.
+Preserve unrelated owner-deleted prompt and2old untracked deer scripts unstaged.
+
 ALL-ANIMAL EYE PASS COMPLETE / PHONE CLOSE-UPS LIVE,25October2026 ~17:28 local:
 Owner requested a socket/size/lid pass after seeing misplaced eyes. All171
 selected generated bodies independently audited against actual neutral right/
