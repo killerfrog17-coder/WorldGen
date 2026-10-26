@@ -126,7 +126,7 @@ def prepare(body,patches,land,skin_sample,root,slug):
                     u=R*.90*c;v=R*(top if sn>=0 else bottom)*math.copysign(abs(sn)**(1 if sn>=0 else 1.1),sn)-medial*R*tilt*c;depth=depth_at(u,v)+R*.025
                 elif ring==1:
                     u=R*1.08*c+medial*R*.12*front;v=R*(max(top+.15,.65) if sn>=0 else max(bottom+.12,.55))*math.copysign(abs(sn)**(1 if sn>=0 else 1.25),sn)-medial*R*tilt*c-R*.04*front
-                    depth=depth_at(u,v)+R*((.075+.04*max(sn,0) if sn>=0 else .10) if slug in {'wolf','red-fox','hare','rabbit'} else (.16+.14*max(sn,0) if sn>=0 else .24))
+                    depth=depth_at(u,v)+R*((.075+.04*max(sn,0) if sn>=0 else .10) if slug in {'wolf','red-fox','hare','rabbit','bear'} else (.16+.14*max(sn,0) if sn>=0 else .24))
                 else:
                     fraction=i/count;k=min(len(outer_p)-1,int(np.searchsorted(arc/math.tau,fraction,side='right')-1));a0=arc[k]/math.tau;a1=arc[k+1]/math.tau;alpha=(fraction-a0)/max(a1-a0,1e-8);target=outer_p[k]*(1-alpha)+outer_p[(k+1)%len(outer_p)]*alpha
                     point=np.array(verts[count+i])*.35+target*.65+N*R*.015;verts.append(point);bare.append(0.);continue

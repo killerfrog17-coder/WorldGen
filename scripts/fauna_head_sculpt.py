@@ -2,9 +2,24 @@
 import numpy as np
 
 def apply(body,land,slug):
-    if slug not in {'wolf','red-fox','raccoon','hare','rabbit','buffalo'}:return None
+    if slug not in {'wolf','red-fox','raccoon','hare','rabbit','buffalo','lynx'}:return None
     original=np.array([v.co[:] for v in body.data.vertices]);p=original.copy();F=np.array(land['front_axis']);S=np.array(land['side_axis']);nose=np.array(land['nose']['point']);mid=(np.array(land['right_eye']['point'])+land['left_eye']['point'])/2
     def smooth(t):t=np.clip(t,0,1);return t*t*(3-2*t)
+    if slug=='lynx':
+        # The selected sculpt has solid horn-like ear tips and long hanging
+        # cheek blocks. References show short tufts and a broad, shallow ruff.
+        rel=p-mid;f=rel@F;z=rel[:,2];side=rel@S
+        ears=smooth((np.abs(side)-.045)/.035)*smooth((.08-f)/.12)*smooth((f+.24)/.10)
+        p[:,2]-=np.maximum(z-.15,0)*.58*ears
+        ruff=smooth((np.abs(side)-.038)/.045)*smooth((-.045-z)/.05)*smooth((z+.42)/.10)*smooth((f+.23)/.10)*smooth((.15-f)/.10)
+        p[:,2]+=np.minimum(.145,np.maximum(-.04-z,0)*.65)*ruff;p-=S[None,:]*(side*.10*ruff)[:,None]
+        delta=p-original;delta*=np.minimum(1,.150/np.maximum(np.linalg.norm(delta,axis=1),1e-12))[:,None];p=original+delta
+        for vertex,point in zip(body.data.vertices,p):vertex.co=point
+        if body.data.shape_keys:
+            for key in body.data.shape_keys.key_blocks:
+                for vertex,shift in zip(key.data,delta):vertex.co=np.array(vertex.co)+shift
+        body.data.update();ids=np.where(np.linalg.norm(delta,axis=1)>1e-7)[0]
+        return {'method':'Lynx front/profile photographs: shorten solid ear-tip horns, lift and taper hanging lower ruff; original eye centres and motions retained. Identical displacement on every morph.','vertices':ids.tolist(),'positions':{str(i):p[i].tolist() for i in ids},'max_displacement':float(np.linalg.norm(delta,axis=1).max()),'appearance_approved':False}
     if slug=='buffalo':
         rel=p-mid;f=rel@F;z=rel[:,2];side=rel@S;head=smooth((f-.04)/.14)*smooth((-.025-z)/.09)*smooth((z+.44)/.12)
         p+=S[None,:]*(side*.20*head)[:,None];p-=F[None,:]*(np.minimum(.026,np.maximum(f-.10,0)*.10)*head)[:,None];p[:,2]-=.018*head*smooth((-.16-z)/.075)

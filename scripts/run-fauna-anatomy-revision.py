@@ -11,7 +11,8 @@ def build(slug):
  stages=[('geometry_and_colour_uv',command('finish-selected-fauna-face.py',[])),('project_current_surface',[str(python),str(repo/'scripts/bake-fauna-projected-face.py'),'--slug',slug,'--root',str(root)]),('pack_current_paint',command('finish-selected-fauna-face.py',[]))]
  if slug=='buffalo':stages.append(('fit_horn_variants',command('finish-fauna-traits.py',[])))
  if slug in {'wild-boar','mouflon','wild-goat','bison'}:stages.append(('fit_species_appendages',command('add-selected-fauna-appendages.py',[])))
- stages.extend([('native_preservation_check',command('check-fauna-visual-correction.py',[])),('render_heads_and_coats',command('render-fauna-eye-results.py',['--coats'])),('render_full_head',command('render-fauna-eye-results.py',['--camera-scale','1.5','--output-root',str(root/'head-overview')]))])
+ full_scale='3.0' if slug=='lynx' else '2.5' if slug in {'hare','rabbit'} else '1.5'
+ stages.extend([('native_preservation_check',command('check-fauna-visual-correction.py',[])),('render_heads_and_coats',command('render-fauna-eye-results.py',['--coats'])),('render_full_head',command('render-fauna-eye-results.py',['--camera-scale',full_scale,'--output-root',str(root/'head-overview')]))])
  try:
   with log.open('w') as output:
    for stage,cmd in stages:

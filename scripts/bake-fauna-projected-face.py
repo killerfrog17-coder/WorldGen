@@ -9,6 +9,7 @@ import numpy as np
 from PIL import Image
 from scipy.interpolate import RBFInterpolator
 from scipy.ndimage import map_coordinates,distance_transform_edt
+from scipy.spatial import cKDTree
 repo=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(repo/'scripts'));from fauna_paint_recipes import profiles,SUPPORTED
 ap=argparse.ArgumentParser();ap.add_argument('--slug',choices=sorted(SUPPORTED),required=True);ap.add_argument('--root',type=Path);a=ap.parse_args()
@@ -56,7 +57,7 @@ def smooth(lo,hi,x):
     t=np.clip((x-lo)/(hi-lo),0,1);return t*t*(3-2*t)
 front=np.array(land['front_axis']);eye_mid=(np.array(land['right_eye']['point'])+land['left_eye']['point'])/2
 at=np.clip(np.rint(screen[:,:2]).astype(int),[0,0],[W-1,H-1]);visible=np.abs(screen[:,2]-depth[at[:,1],at[:,0]])<.022
-relative=p-eye_mid;behind=np.maximum(-(relative@front)-.08,0)/.45;below=np.maximum(-relative[:,2]-.12,0)/.38
+relative=p-eye_mid;behind=np.maximum(-(relative@front)-.08,0)/(.80 if a.slug=='raccoon' else .45);below=np.maximum(-relative[:,2]-.12,0)/(.65 if a.slug=='raccoon' else .38)
 head=1-smooth(.65,1.,np.sqrt(behind*behind+below*below))
 alpha=smooth(.20,.65,n@front)*head*visible
 alpha*=((screen[:,0]>0)&(screen[:,0]<W-1)&(screen[:,1]>0)&(screen[:,1]<H-1))
@@ -68,7 +69,13 @@ if views:
     sampled=combined/np.maximum(total[:,None],1e-8)
     # View cosine chooses BETWEEN paint guides; it is not paint opacity.
     # Treating it as opacity left old hard ear/face masks visible at angles.
-    confidence=total/np.maximum(head,1e-8);alpha=head*smooth(.015,.72,confidence)
+    confidence=total/np.maximum(head,1e-8);alpha=head*smooth(.002,.08,confidence)
+    # Down-facing chin facets are not observed by horizontal cameras. Extend
+    # only nearby, well-observed paint across these small gaps in 3D, rather
+    # than exposing the previous hard polygonal muzzle mask underneath.
+    good=(confidence>.12)&(head>.90);missing=(confidence<.08)&(head>.90);filled=np.zeros(len(p),bool)
+    if np.any(good) and np.any(missing):
+        ids=np.where(good)[0];query=np.where(missing)[0];distance,nearest=cKDTree(p[ids]).query(p[query]);use=distance<.075;chosen=query[use];sampled[chosen]=sampled[ids[nearest[use]]];alpha[chosen]=head[chosen];filled[chosen]=True
 elif a.slug in {'hare','rabbit'}:raise ValueError('Explicit calibrated front/profile guide mappings required')
 nasal_rel=p-np.array(land['nose']['point']);side_axis=np.array(land['side_axis']);nw,nh=land['physical_eye_revision']['nose_radius']
 nasal_scale=1.12 if a.slug in {'red-fox','wolf'} else 1.
@@ -79,6 +86,13 @@ side_nose*=1-smooth(.45,.80,n@front)
 if a.slug=='buffalo':side_nose*=1-alpha
 if not land['physical_eye_revision'].get('nasal_disc',True):side_nose*=0
 original=root/'unprojected-atlases';original.mkdir(exist_ok=True);palettes=profiles(a.slug)
+if a.slug=='raccoon':
+    mask=np.zeros(len(p))
+    for key in ['right_eye','left_eye']:
+        anchor=land[key];C=np.array(anchor['point']);H=np.array(anchor['fit_frame']['horizontal']);V=np.array(anchor['fit_frame']['vertical']);N=np.array(anchor['fit_frame']['normal']);R=anchor['radius'][0];delta=p-C-V*(R*.25);h=delta@H;v=delta@V
+        edge=.06*np.sin(h/R*3.7+v/R*2.3)+.035*np.sin(h/R*8.1-v/R*5.2)
+        q=(h/(R*2.65))**2+(v/(R*1.95))**2;field=1-smooth(.78+edge,1.18+edge,q);field*=smooth(-R*2.,-R*.5,delta@N)*(1-smooth(R*2.,R*3.,delta@N));mask=np.maximum(mask,field)
+    luminance=sampled@np.array([.2126,.7152,.0722]);dark_fur=np.array([.052,.042,.033])[None,:]*(.70+.60*np.clip(luminance/.4,0,1.5))[:,None];sampled=sampled*(1-mask[:,None])+np.minimum(sampled,dark_fur)*mask[:,None]
 for ci,coat in enumerate(bake['coats']):
     dst=root/coat['file'];backup=original/dst.name
     if not backup.exists():shutil.copy2(dst,backup)
@@ -100,15 +114,22 @@ for ci,coat in enumerate(bake['coats']):
         # White fur stays white in shadow. A brightness gate misclassified the
         # grey cheeks as red fur and multiplied them into cyan on pale coats.
         chroma=sat/np.maximum(colour.mean(1),.035);white=1-smooth(.18,.50,chroma);dark=1-smooth(.08,.20,lum)
-        ratio=base/np.maximum(reference_base,.04)
-        tinted=colour*ratio
-        if a.slug=='red-fox' and ci in {2,3,6}:
-            tinted=lum[:,None]*base/max(float(reference_base@np.array([.2126,.7152,.0722])),.1)
-        if a.slug in {'hare','rabbit'} and any(x in palettes[ci][0].lower() for x in ['white','snow']):
-            tinted=lum[:,None]*base/max(float(reference_base@np.array([.2126,.7152,.0722])),.1)
-        pale_fur=colour*pale/np.maximum(reference_pale,.1)
+        # The guide is a rendered animal, not an albedo sampled at palette[0].
+        # Per-channel division by that palette clips brighter coats and turns
+        # neutral shadows cyan. Preserve bounded luminance detail instead.
+        valid=(alpha>.5)&(lum>.10)&(lum<.90)
+        fur_lum=float(np.median(lum[valid&(white<.45)])) if np.any(valid&(white<.45)) else .35
+        pale_lum=float(np.median(lum[valid&(white>.65)])) if np.any(valid&(white>.65)) else .60
+        def pigment(target,reference):
+            detail=np.clip(lum/max(reference,.10)-1.,-.82,1.20)
+            amplitude=np.minimum(target*.68,(1-target)*.68)
+            return target[None,:]+detail[:,None]*amplitude[None,:]
+        tinted=pigment(base,fur_lum);pale_fur=pigment(pale,pale_lum)
         colour=tinted*(1-white[:,None])+pale_fur*white[:,None]
-        colour=colour*(1-dark[:,None])+sampled*dark[:,None]
+        # True dark markings and the fitted nasal pad retain pigment. Do not
+        # preserve the guide's broad shaded cheek as a different paint job.
+        pigment_keep=np.maximum(1-smooth(.045,.10,lum),1-smooth(.85,1.35,nasal_q))
+        colour=colour*(1-pigment_keep[:,None])+sampled*pigment_keep[:,None]
         if any(word in palettes[ci][0].lower() for word in ['snow-white','snow white','winter white']) or (base.mean()>.70 and np.ptp(base)<.12):
             # Shadows in a brown guide are not inherited dark pigment. Preserve
             # actual nasal skin, while pale fur receives only restrained detail.

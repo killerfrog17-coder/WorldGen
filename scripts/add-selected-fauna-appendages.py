@@ -38,6 +38,12 @@ def surface(target):
     return np.array(q),{key:value/total for key,value in skin.items()}
 
 def texture_material():
+    if land.get('anatomical_orbit') and a.slug in {'mouflon','wild-goat'}:
+        source=repo/'artifacts/fauna-assets/textures/keratin-hard-v1.png';material=bpy.data.materials.new(a.slug+' generated keratin and growth relief');material.use_nodes=True;nodes=material.node_tree.nodes;links=material.node_tree.links;shader=nodes.get('Principled BSDF');shader.inputs['Roughness'].default_value=.58
+        im=bpy.data.images.load(str(source),check_existing=True).copy();im.name=a.slug+' compact generated horn grain';im.scale(512,512);im.pack();tex=nodes.new('ShaderNodeTexImage');tex.image=im;tint=nodes.new('ShaderNodeHueSaturation');tint.inputs['Saturation'].default_value=.40;tint.inputs['Value'].default_value=.55 if a.slug=='mouflon' else .85;links.new(tex.outputs['Color'],tint.inputs['Color']);links.new(tint.outputs['Color'],shader.inputs['Base Color'])
+        grain=nodes.new('ShaderNodeBump');grain.inputs['Strength'].default_value=.20;grain.inputs['Distance'].default_value=.0007;links.new(tex.outputs['Color'],grain.inputs['Height']);uv=nodes.new('ShaderNodeUVMap');uv.uv_map='UVMap';wave=nodes.new('ShaderNodeTexWave');wave.bands_direction='Y';wave.inputs['Scale'].default_value=18;wave.inputs['Distortion'].default_value=1.3;links.new(uv.outputs['UV'],wave.inputs['Vector']);ridge=nodes.new('ShaderNodeBump');ridge.inputs['Strength'].default_value=.22;ridge.inputs['Distance'].default_value=.0014;links.new(wave.outputs['Fac'],ridge.inputs['Height']);links.new(grain.outputs['Normal'],ridge.inputs['Normal']);links.new(ridge.outputs['Normal'],shader.inputs['Normal'])
+        state['appendage_texture_source']={'path':str(source.relative_to(repo)),'sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'method':'Shared generated longitudinal keratin grain and restrained irregular transverse growth relief; no broad painted sine bands.','limits':'Artistic colour/relief, not measured PBR.'}
+        return material
     count=256;y,x=np.mgrid[0:count,0:count];u=x/count;v=y/count
     ivory=a.slug in {'wild-boar','bear'}
     pigment=(.5+.5*np.sin(v*math.tau*18+np.sin(u*math.tau)*.3)) if not ivory else (.5+.5*np.sin(u*math.tau*12+v*4))
@@ -94,18 +100,22 @@ if a.slug=='wild-boar':
     adults=[('medium','adult male example'),('small','adult female example'),('large','mature male example')]
     assignment=[adults,adults,adults,[(None,'juvenile pigment study; adult body')],adults]
 elif a.slug=='mouflon':
-    for style,radius,angle,count in [('young-ram',.14,3.2,14),('adult-ram',.19,4.4,20),('mature-ram',.23,5.2,24),('small-ewe',.07,1.3,10)]:
+    for style,radius,angle,count in [('young-ram',.14,3.2,14),('adult-ram',.19,4.15,20),('mature-ram',.23,4.65,24),('small-ewe',.07,1.3,10)]:
         pair=[]
         for sign in [-1,1]:
-            target=eye_mid+front*(.015 if land.get('anatomical_orbit') else -.12)+side_axis*sign*(np.linalg.norm(np.array(land['right_eye']['point'])-land['left_eye']['point'])*.28 if land.get('anatomical_orbit') else .11)+up*.11
+            target=eye_mid+front*(-.035 if land.get('anatomical_orbit') else -.12)+side_axis*sign*(np.linalg.norm(np.array(land['right_eye']['point'])-land['left_eye']['point'])*.28 if land.get('anatomical_orbit') else .11)+up*.11
             hit=bvh.ray_cast(Vector(target+up*.8),Vector(-up),1.6)[0]
             root_point,skin=surface(hit if hit is not None else target)
-            if land.get('anatomical_orbit'):assert root_point[2]>eye_mid[2]+.05,'Ram horn ray landed below crown'
+            if land.get('anatomical_orbit'):assert root_point[2]>eye_mid[2]+.08,'Ram horn ray landed below crown'
             root_normal=np.array(bvh.find_nearest(Vector(root_point))[1]);root_normal/=np.linalg.norm(root_normal)
             path=[]
             for theta in np.linspace(0,angle,count):
+                # Ram horns curve out around the ears before returning toward
+                # the cheek. A sagittal-only coil reads as two hanging bars
+                # from the front even when its profile is a perfect spiral.
                 lateral=.035*math.sin(min(theta,math.pi/2))+.07*(1-math.exp(-theta))
-                path.append(root_point+side_axis*sign*lateral-front*(radius*math.sin(theta))+up*(radius*(math.cos(theta)-1)+theta*.020)-root_normal*(.014 if land.get('anatomical_orbit') else .065)*math.exp(-theta*8))
+                if land.get('anatomical_orbit'):lateral=radius*(.74*(1-math.exp(-theta*1.8))+.45*math.sin(theta))
+                path.append(root_point+side_axis*sign*lateral-front*(radius*math.sin(theta))+up*(radius*(math.cos(theta)-1)+theta*.020)-root_normal*(.055 if land.get('anatomical_orbit') else .065)*math.exp(-theta*3))
             name=f'{a.slug} {style} horn {sign}';pair.append(tube(name,path,(.014 if style=='small-ewe' else .062 if land.get('anatomical_orbit') else .050)*(radius/.19)**.7,skin,horn=True,segments=10 if land.get('anatomical_orbit') else 6))
             evidence.append({'object':name,'root':root_point.tolist(),'skin':skin,'coil_radius':radius,'coil_angle':angle})
         libraries[style]=pair

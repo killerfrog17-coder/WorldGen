@@ -1,5 +1,56 @@
 # WorldGen repository instructions
 
+VISUAL REWORK CONTINUES / NOT DONE,26October2026~06:10CDT:
+Latest owner requires every animal compared to actual front/profile photos plus
+independent fork-none critics. Existing bad animations accepted; NO animation
+changes/baking, neural3D generation, paid calls, owner GUI/game/Unity changes.
+Keep working across context, do not stop after useful partial progress.
+20 isolated anatomy roots, now14 have full rebuild/paint/native/render checks;
+all remain owner-unapproved/unpublished. Six Reindeer/Moose/Badger/Otter/Squirrel/
+Beaver still only geometry/clay. Bison and Goat have earlier exact-native
+prototype-no-major-fault critic findings; other coats/full bodies still need
+actual inspection. Do NOT propagate those two findings to the whole roster.
+New independent baseline reports persisted: early hoof/carnivore/small mammal,
+primates8, waterbirds8, flying-birds8, reptiles-amphibians8; earlier6 files42
+remain. They reject specific placement/material/face faults, never animation.
+Fresh Fox/Raccoon report rejects hard muzzle paint edges and low mask/collar;
+both SINCE rebuilt with stronger projection coverage and local near-surface
+fill, so latest report is no longer their exact SHA. New Raccoon eye mask field
+is too round/high in actual root view; refine before acceptance. Fox pale muzzle
+polygon remains even in unlit/albedo diagnostic: investigate UV/projection,
+do not repeatedly claim an eye pass solved it. Diagnostic inspected-face-picks
+and latest-albedo available. Current Fox pupil/centres judged plausible.
+Lynx raw critic confirmed wrong nasal seed: actual front ray382477 lab corrects
+it, no arbitrary eye centre move. More forward feline frames and bounded ear/
+ruff correction, generated2view real-ref paint now14thworking. Ruff STILL blocky.
+Mouse far-left eye was behind actual face; explicit raw left-ray336390 moved
+it forward onto actual skin, paired .45F facing; actual render now shows both.
+Mouse nose front360510, Lynx382477 metadata retains original source rays. Cameras
+are provisional reference aids, NOT measured anatomical ground truth. Earlier
+'38degree stale camera' statement was confounded by wrong nasal anchor.
+Raw critic report/ref files moved from repo-root critic-reports into proper
+artifacts/fauna-anatomy-revision/critic-reports, no root clutter left.
+Bear ratio recolour clipping fixed with bounded luminance/palette mapping;
+fresh critic still rejected one-hole nose/eye rims. New fitted nasal cap trial
+looks like a separate button and is NOT acceptable yet; do not publish. Nose
+seed corrected original-camera280390, actual source [-.00119,1.3623,1.1899].
+Cap winding fixed and surface-seated, still visible seam. Eyes smaller pupil/
+larger brown iris and thinner rims; current native technically passes only.
+Mouflon frontal coil now a loop rather than straight dangling bars, roots sunk
+into actual crown, shortened terminal angle; needs new actual/ref review. Shared
+keratin .55value, restrained growth relief. Buffalo boss paired-volume remodel
+and nostril/lip work still pending; existing cap/slab critic rejection retained.
+Imagegen current cell1159: Badger/Otter/Squirrel/Beaver2guides each. Results saved
+functions.store <slug>_<front/right>_guide_result and _guide_prompt. MUST wait,
+inspect all8 generated inputs, copy/provenance/install/calibrate before use.
+Refs artifacts/fauna-anatomy-revision/references8 actual root-viewed photos.
+Generated guides ONLY paint inputs, never native renders. Built-in imagegen only.
+CPU sessions84319(Fox/Rac) completed0,3279(Mouse/Lynx) completed0,4585(Bear) may
+need poll. No local GPU inference. No anatomy update on phone; old source/deploy
+below remains. Source checkpoint235fe97f626a429da790b6a8be2921fbed2cdc08 preceded
+these changes; next explicit backup includes source and this note. Preserve
+unrelated deleted prompt and2old untracked deer scripts unstaged. Deer protected.
+
 VISUAL REWORK ACTIVE / NOT FINISHED,26October2026~05:00CDT:
 Latest owner says KEEP WORKING until confident, actual front AND profile photos
 per animal and independent critics fork_turns=none. Existing bad animation is

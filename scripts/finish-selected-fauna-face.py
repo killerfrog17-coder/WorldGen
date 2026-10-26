@@ -519,7 +519,7 @@ for side in [-1,1]:
         for k in range(3):polygons.append((base+k*2,base+k*2+1,base+k*2+3,base+k*2+2))
 if vertices:obj(a.slug+' muzzle whiskers',vertices,polygons,[whiskermat],anchor=sample(nose)[2])
 
-if stitched and a.slug in {'wild-boar','bison'}:
+if stitched and a.slug in {'wild-boar','bear'}:
     from fauna_anatomy_details import add as add_anatomy_details
     state['species_head_details']=add_anatomy_details(a.slug,land,body,root,repo,obj,sample,bvh,body.data.materials[0],coat_objects)
 
