@@ -1,6 +1,6 @@
 # WorldGen repository instructions
 
-PHONE EYE/STRIPE REVIEW COMPLETE / PRIVATE PUBLICATION PENDING,25October2026~22:05CDT:
+PHONE EYE/STRIPE REVIEW PUBLISHED,25October2026~22:08CDT:
 Rabbit/Fox motion repairs and snow coats already LIVE from70c1681. New166
 appearance-only natives/media now technically checked and actually inspected;
 168 added-eye bodies revised incl Rabbit/Fox; all177 visual entries audited,
@@ -27,11 +27,12 @@ is recorded but DISABLED until measured; no Unity/game changes.
 
 Media QC166checked/0pending/0errors;177animals/830coats/118extras/354clips.
 Browser Done/notes/reload/backup/speeds/2clips passes. New Site source prepared
-and exact tree checked; regular push hit receive-pack size limit. Recovering
-using8MiB fast-forward source commits, no history rewrite; state keyed by
-opened base70c1681. Final private deploy/remoteSHA still to record. All finite
+and exact tree checked; regular push hit receive-pack size limit. Recovered
+using10 bounded fast-forward source commits, exact tree retained, no history
+rewrite; base70c1681. LIVE source d363f91a2793673b1de9fedcc9060340046ade3d,
+private deployment appgdep_6adec3d263048191beb1fff806cf0a86 SUCCEEDED. All finite
 CPU render/build workers finished; own local server session87808 port8766
-should be stopped at finish. No owner GUI/game/Desktop/paid/model-generation
+stopped at finish. No owner GUI/game/Desktop/paid/model-generation
 changes. Preserve unrelated deleted prompt and two old untracked deer scripts.
 
 

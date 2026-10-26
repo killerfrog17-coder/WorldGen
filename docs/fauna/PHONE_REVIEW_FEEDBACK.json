@@ -112,5 +112,12 @@
       "updated_at": "2026-10-25T19:54:04.092517-05:00",
       "correction": "Shared-material stable per-instance tint design recorded; runtime disabled until measured. No Unity/game changes or individual texture duplication."
     }
-  ]
+  ],
+  "latest_publication": {
+    "source_sha": "d363f91a2793673b1de9fedcc9060340046ade3d",
+    "deployment": "appgdep_6adec3d263048191beb1fff806cf0a86",
+    "status": "succeeded",
+    "url": "https://worldgen-animal-review.glassymole9.chatgpt.site",
+    "owner_approval_inferred": false
+  }
 }
