@@ -37,7 +37,7 @@ def prepare(body,patches,land,skin_sample,root,slug):
     removed=set(flecks);proofs=[]
     from fauna_paint_recipes import family
     kind=family(slug);prey=slug in {'hare','rabbit'};feline=slug in {'lion','tiger','jaguar','leopard','puma','ocelot'};bovid=kind in {'caprine','bovine','cervid','equine'} or slug=='buffalo'
-    globe_vertical=.80 if prey else .70;globe_depth=.55;globe_offset=.40
+    globe_vertical=.80 if prey else .70;globe_depth=.55;globe_offset=.55 if feline else .40
     top,bottom,tilt=(.60,.53,.025) if prey else (.50,.40,.06) if slug=='red-fox' else (.55,.55,.02) if slug=='raccoon' else (.34,.34,.02) if kind=='ursid' else (.40,.35,.02) if bovid else (.30,.27,.02) if kind=='suine' else (.45,.36,.06)
     profile=land.get('anatomical_orbit',{});top=profile.get('aperture_top',top);bottom=profile.get('aperture_bottom',bottom);tilt=profile.get('aperture_tilt',tilt)
     for record in patches:
@@ -133,12 +133,18 @@ def prepare(body,patches,land,skin_sample,root,slug):
             for i in range(count):
                 t=angle_offset+math.tau*i/count;c=math.cos(t);sn=math.sin(t);front=max(0,c*medial)**6
                 if ring==0:
-                    u=R*.90*c;v=R*(top if sn>=0 else bottom)*math.copysign(abs(sn)**(1 if sn>=0 else 1.1),sn)-medial*R*tilt*c;depth=depth_at(u,v)+R*.025
+                    u=R*.90*c;v=R*(top if sn>=0 else bottom)*math.copysign(abs(sn)**(.75 if feline and sn>=0 else 1 if sn>=0 else 1.1),sn)-medial*R*tilt*c;depth=depth_at(u,v)+R*.025
                 elif ring==1:
                     u=R*1.08*c+medial*R*.12*front;v=R*(max(top+.15,.65) if sn>=0 else max(bottom+.12,.55))*math.copysign(abs(sn)**(1 if sn>=0 else 1.25),sn)-medial*R*tilt*c-R*.04*front
                     depth=depth_at(u,v)+R*((.075+.04*max(sn,0) if sn>=0 else .10) if feline or slug in {'wolf','red-fox','hare','rabbit','bear'} else (.16+.14*max(sn,0) if sn>=0 else .24))
                     if feline or slug=='wolf':
                         skull=skin_sample(C+H*u+V*v)[0];skull_depth=float((skull-C)@N);depth=skull_depth+R*.02 if feline else depth*.45+skull_depth*.55
+                        if feline and sn>0:
+                            # The upper eyelid must cover the globe in profile.
+                            # A nearest-skull query alone follows the receding
+                            # forehead and leaves an exposed bead below it.
+                            hood=depth_at(u,min(v,R*top)) + R*.15
+                            depth=max(depth,hood*sn+depth*(1-sn))
                 else:
                     fraction=i/count;k=min(len(outer_p)-1,int(np.searchsorted(arc/math.tau,fraction,side='right')-1));a0=arc[k]/math.tau;a1=arc[k+1]/math.tau;alpha=(fraction-a0)/max(a1-a0,1e-8);target=outer_p[k]*(1-alpha)+outer_p[(k+1)%len(outer_p)]*alpha
                     point=np.array(verts[count+i])*.35+target*.65+N*R*.015;verts.append(point);bare.append(0.);continue

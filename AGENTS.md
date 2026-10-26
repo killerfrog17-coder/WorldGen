@@ -1,5 +1,37 @@
 # WorldGen repository instructions
 
+CONTINUED APPEARANCE REWORK,26October2026~10:44CDT:
+Same owner task ACTIVE; keep working, no final/goal inferred. Eight frozen
+mammals +five ambient guilds remain the ONLY new independent static passes;
+accepted protected Deer unchanged. Phone source/deploy still1231cf2b/appgdep_
+6adf5d4afb748191a6e95003e45027c3. Wolf/sixcats remain UNPASSED, no live updates.
+Latest stable-source seven rebuild exec49394 started15:38UTC, observed Wolf/
+Puma/Lion/Tiger complete; Jaguar/Leopard underway, Ocelot next. Verify status
+before shared source edits: pipeline SHA guard rejects mixed-source results.
+Sixcat earlier exec74267 finished0. Current sources add actual upper-lid hood
+cover in profile, Puma eye recess, bounded feline cheek taper and Lion crown
+dome. Current Puma still visibly bead-like/boxy; not finished. Fresh head-only
+puma-lion-current-geometry-diagnosis report rejected older viewed heads and
+explicitly caught a Puma native/render race. NEVER use it as a current pass.
+Fresh fork-none wolf_latest_full_appearance critic currently reviewing stable
+Wolf all coats/heads/photos; do not rewrite Wolf during its review.
+Seven new overhead body guides actually viewed, copied with exact prompts/
+source/target SHAs, calibrated using inspected silhouette cross sections.
+New direct overhead paint replaces bad stretched dorsal extrapolation; Wolf
+side/rear and Puma side actually viewed. Some limb transitions remain visible,
+appearance still pending. Diagnostics proved the old ribbed strip was pigment
+extrapolation, NOT roughness/normal/lighting/UV corruption; don't remove fur
+shaders speculatively. New read-only rendered-surface probe documents this.
+All eleven other working roots now have inspected front/right BODY guides and
+initial silhouette front/right/mirrored-left registration, not rebuilt native
+approval: Boar/Mouflon/Bear/Buffalo/Horse/Badger/Otter/Mouse/Squirrel/Beaver/Lynx.
+Last six Mouse/Beaver/Lynx guides collected1465, actually viewed/copied with
+provenance. No imagegen cells pending. Bear/Badger/Otter direct fur/hood opt-in
+metadata remains NOT IMPLEMENTED in helper, their old native defects remain.
+No motion changes, owner GUI changes, paid API, local neural inference or game
+work. Source backup after8d8ea00 required for current own dirty files. Preserve
+unrelated deleted prompt and two untracked old deer scripts unstaged.
+
 CONTINUED APPEARANCE REWORK,26October2026~09:58CDT:
 Same owner task active, KEEP WORKING; no final/goal inferred. Eight frozen
 mammal static gates +five ambient gates remain the ONLY new passes (plus

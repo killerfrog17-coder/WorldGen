@@ -189,7 +189,7 @@ for ci,coat in enumerate(bake['coats']):
     # A front paint guide must not leave the profile of the nasal disc white.
     # Wrap only the small actual nose volume, preserving the painted front.
     nasal_colour=image[iy,ix];nasal_lum=np.maximum(nasal_colour@np.array([.2126,.7152,.0722]),1e-5)
-    nasal_colour=nasal_colour*((.080/np.maximum(nasal_lum,.015)) if a.slug=='wolf' else np.minimum(1.,.035/nasal_lum))[:,None]
+    nasal_colour=nasal_colour*((.120/np.maximum(nasal_lum,.015)) if a.slug=='wolf' else np.minimum(1.,.035/nasal_lum))[:,None]
     image[iy,ix]=image[iy,ix]*(1-side_nose[:,None])+nasal_colour*side_nose[:,None]
     if land.get('anatomical_orbit',{}).get('stitched') and a.slug in {'wolf','red-fox','raccoon','buffalo'}:
         # Bind-space nostril pigment goes into the actual selected nasal UVs;
