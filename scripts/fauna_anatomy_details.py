@@ -11,9 +11,9 @@ def add(slug,land,body,root,repo,obj,sample,bvh,coat_material,coat_objects):
         # A boar has a broad terminal nasal disc with TWO nostrils. The chosen
         # body has one central cavity; cover it with a fitted, closed disc.
         N=F*.99+Z*.14;N/=np.linalg.norm(N);V=np.cross(S,N);V*=1 if V@Z>0 else -1
-        fit=land.get('nasal_disc_fit',{});C=np.array(fit.get('center',nose))-F*.006-Z*.005;w,h=fit.get('width_radius',.060 if slug=='bear' else .080),fit.get('height_radius',.034 if slug=='bear' else .051);points=[C+N*.006];uv=[(.5,.5)];dark=[0.];faces=[];count=48;rows=7
+        fit=land.get('nasal_disc_fit',{});C=np.array(fit.get('center',nose))-F*.006-Z*.005;w,h=fit.get('width_radius',.074 if slug=='bear' else .080),fit.get('height_radius',.034 if slug=='bear' else .051);points=[C+N*.006];uv=[(.5,.5)];dark=[0.];faces=[];count=48;rows=7
         if slug=='bear':
-            source=np.array([v.co[:] for v in body.data.vertices]);relative=source-C;field=((relative@S)/w)**2+((relative@V)/h)**2;depths=relative@N;near=depths[(field<1.4)&(abs(depths)<.10)];fore=float(np.max(near)) if len(near) else 0.;points[0]=C+N*(fore+.004)
+            source=np.array([v.co[:] for v in body.data.vertices]);relative=source-C;field=((relative@S)/w)**2+((relative@V)/h)**2;depths=relative@N;near=depths[(field<1.4)&(abs(depths)<.10)];fore=float(np.quantile(near,.80)) if len(near) else 0.;points[0]=C+N*(fore+.002)
         for row in range(1,rows+1):
             rho=row/rows
             for j in range(count):
@@ -23,7 +23,10 @@ def add(slug,land,body,root,repo,obj,sample,bvh,coat_material,coat_objects):
                 point=C+S*w*u*taper+V*h*v+N*depth
                 if slug=='bear':
                     target=C+S*w*u*taper+V*h*v;hit=bvh.ray_cast(Vector(target+N*.4),Vector(-N),.8)[0];edge=float((np.array(hit)-target)@N) if hit is not None else -.012
-                    depth=(fore+.004-.002*well)*(1-rho**4)+(edge+.001)*rho**4;point=target+N*depth
+                    depth=(fore+.002-.012*well)*(1-rho**4)+(edge+.001)*rho**4
+                    # Keep the pigmented nostril surface in front of retained
+                    # source skin; otherwise the source fills the dark well.
+                    depth=max(depth,edge+.001);point=target+N*depth
                 points.append(point);uv.append((.5+.45*u,.5+.45*v));dark.append(well**2)
         for j in range(count):faces.append((0,1+j,1+(j+1)%count))
         for row in range(rows-1):

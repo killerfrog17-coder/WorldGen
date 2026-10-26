@@ -19,7 +19,12 @@ def bake(root,views):
     combined_fur=np.zeros_like(query);fur_total=np.zeros(len(query))
     for config in views:
         colour,weight,_=sample_view(root,config,d['vertices'],d['faces'],fur_query,normals,ignore_occlusion=True);combined_fur+=colour*weight[:,None];fur_total+=weight
-    fur=combined_fur/np.maximum(fur_total[:,None],1e-8);t=np.clip((1.8-rho)/.55,0,1);weight=t*t*(3-2*t);srgb=srgb*(1-weight[:,None])+fur*weight[:,None]
+    feline=land.get('slug') in {'lion','tiger','jaguar','leopard','puma','ocelot'}
+    # The fitted feline aperture already covers the guide's iris. Erasing a
+    # 1.8-radius region also erased the actual dark canthus and lid pigment,
+    # leaving a pale bead surround. Limit cleanup to the concealed inner field.
+    edge,width=(1.10,.25) if feline else (1.8,.55)
+    fur=combined_fur/np.maximum(fur_total[:,None],1e-8);t=np.clip((edge-rho)/width,0,1);weight=t*t*(3-2*t);srgb=srgb*(1-weight[:,None])+fur*weight[:,None]
     # BYTE image buffers use the same encoded RGB convention as loaded coat
     # images. Converting this one field to linear again made a dark eye collar.
     srgb[total<.01]=np.nan

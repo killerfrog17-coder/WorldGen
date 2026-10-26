@@ -40,7 +40,9 @@ def bake(patches,coats,atlases,support_sample,load_image,root=None,slug=None):
                 t=np.clip((rho-1.15)/1.15,0,1);clone_weight[y,x]=1-t*t*(3-2*t)
     ys,xs=np.where(occupied);uv=np.mod(source_uv[ys,xs],1);other_uv=np.mod(clone_uv[ys,xs],1);blend=clone_weight[ys,xs,None]
     direct=None;base_values=None
-    if root is not None and slug in {'lion','tiger','jaguar','leopard','puma','ocelot'}:
+    import json
+    direct_config=json.loads((root/'face-landmarks.json').read_text()).get('anatomical_orbit',{}) if root is not None else {}
+    if root is not None and (slug in {'lion','tiger','jaguar','leopard','puma','ocelot'} or direct_config.get('direct_registered_fur')):
         # New feline lids have no original UV surface. Sample their registered
         # pigmentation directly rather than jumping between nearest coarse
         # skull triangles, which produced visible radial colour wedges.
@@ -49,7 +51,7 @@ def bake(patches,coats,atlases,support_sample,load_image,root=None,slug=None):
         for record in patches:
             mask=(xs//128)==record['half'];normals[mask]=record['normal']
         import json
-        dependency=hashlib.sha256((root/'face-paint-views.json').read_bytes())
+        dependency=hashlib.sha256((root/'face-paint-views.json').read_bytes());dependency.update((root/'face-landmarks.json').read_bytes())
         for config in json.loads((root/'face-paint-views.json').read_text()):
             dependency.update((root/config['image']).read_bytes());dependency.update((root/config.get('camera_directory','eye-audit')/(config['camera']+'.json')).read_bytes())
         signature=hashlib.sha256(query.tobytes()+normals.tobytes()+dependency.digest()).hexdigest()

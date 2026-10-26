@@ -4,8 +4,8 @@ from pathlib import Path
 import bpy,numpy as np
 from mathutils import Vector
 repo=Path(__file__).resolve().parent.parent
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--views',nargs='+',choices=['front','right','left','top','rear'],default=['right','front','left']);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'artifacts/fauna-anatomy-revision'/a.slug;source=root/'Animal - Painted Species Review.blend';digest=hashlib.sha256(source.read_bytes()).hexdigest();bpy.ops.wm.open_mainfile(filepath=str(source));s=bpy.context.scene;entry=json.loads(s['deer_four_rigs'])[0];rig=bpy.data.objects[entry['rig']];rig.animation_data_clear();rig.data.pose_position='REST'
-dest=root/'body-paint-source';dest.mkdir(exist_ok=True)
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--hide-appendages',action='store_true');ap.add_argument('--directory',default='body-paint-source');ap.add_argument('--views',nargs='+',choices=['front','right','left','top','rear'],default=['right','front','left']);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'artifacts/fauna-anatomy-revision'/a.slug;source=root/'Animal - Painted Species Review.blend';digest=hashlib.sha256(source.read_bytes()).hexdigest();bpy.ops.wm.open_mainfile(filepath=str(source));s=bpy.context.scene;entry=json.loads(s['deer_four_rigs'])[0];rig=bpy.data.objects[entry['rig']];rig.animation_data_clear();rig.data.pose_position='REST'
+dest=root/a.directory;dest.mkdir(exist_ok=True)
 for ob in list(s.objects):
  if ob.type=='LIGHT':bpy.data.objects.remove(ob,do_unlink=True)
 mat=bpy.data.materials.new('Neutral body paint registration');mat.use_nodes=True;bs=mat.node_tree.nodes.get('Principled BSDF');bs.inputs['Base Color'].default_value=(.32,.32,.32,1);bs.inputs['Roughness'].default_value=.78
@@ -15,6 +15,8 @@ for ob in s.objects:
   for i in range(len(ob.data.materials)):ob.data.materials[i]=mat
   points.extend([ob.matrix_world@v.co for v in ob.data.vertices])
 p=np.array(points);target=Vector(((p.min(0)+p.max(0))*.5).tolist());span=float(np.ptp(p,axis=0).max());camera=bpy.data.objects.new('Registered body paint camera',bpy.data.cameras.new('Registered body paint camera'));s.collection.objects.link(camera);camera.data.type='ORTHO';camera.data.ortho_scale=span*1.18;s.camera=camera
+if a.hide_appendages:
+ for name in entry.get('appendage_objects',[]):bpy.data.objects[name].hide_render=True
 for pos,power in [((3,4,5),700),((-3,1,3),500),((0,-4,4),500),((0,3,-1.5),160)]:
  data=bpy.data.lights.new('Body softbox','AREA');data.energy=power;data.shape='DISK';data.size=5;ob=bpy.data.objects.new(data.name,data);s.collection.objects.link(ob);ob.location=target+Vector(pos);ob.rotation_euler=(target-ob.location).to_track_quat('-Z','Y').to_euler()
 s.render.engine='BLENDER_EEVEE_NEXT';s.eevee.taa_render_samples=24;s.render.resolution_x=s.render.resolution_y=768;s.render.resolution_percentage=100;s.render.image_settings.file_format='PNG'

@@ -200,18 +200,49 @@
       "number": 7,
       "slug": "wolf",
       "name": "Wolf",
-      "status": "anatomy_working_not_published",
+      "status": "independently_checked_static_appearance_ready_for_owner_review",
       "reference_comparison_completed": true,
       "appearance_approved": false,
-      "source_sha256": "3518512b793a22da10200feba0af722bb9e2e009905a73a68f08ace86dc3748c",
-      "reference": "https://www.wildlifesciencecenter.org/gray-wolf",
-      "body_and_pattern_review": "Remaining general body/pattern review not certified by this face pass.",
+      "source_sha256": "138b230452d62cc325f8417f41e698da21c0cf96cedc83fe3af7177df045e8a6",
+      "reference": [
+        "https://www.wildlifesciencecenter.org/gray-wolf",
+        "https://www.pexels.com/photo/close-up-profile-of-a-gray-wolf-in-nature-32473175/"
+      ],
+      "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
       "independent_critic_pass": false,
       "latest_anatomy_work": {
         "root": "artifacts\\fauna-anatomy-revision\\wolf",
         "native_sha256": "7cae8db7e26e12e708061a92a3390f7aa7f697f314f7a74084a6924c0ccd7160",
         "preservation_proof_matches": true,
         "latest_native_independent_appearance_clearance": false
+      },
+      "independent_critic": {
+        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\wolf-latest-full-appearance.json",
+        "sha256": "9afbebe86d80ac26dac9d06cd216aeaa89ccfad5c5441df4f0f8bbd5e9d3b8a8",
+        "native_sha256": "138b230452d62cc325f8417f41e698da21c0cf96cedc83fe3af7177df045e8a6",
+        "verdict": "pass_no_major_visible_faults_at_low_poly_prototype_standard",
+        "secondary_polish": [
+          {
+            "severity": "minor",
+            "feature": "Nasal detail",
+            "evidence": [
+              "eye-audit/front-after.png",
+              "head-overview/front-after.png"
+            ],
+            "finding": "Paired nares are weak, small and close to the middle of the broad smooth nasal pad compared with the real frontal reference. They do not form a distinct two-hole nasal silhouette in the close view.",
+            "suggestion": "For a future close-up quality pass, strengthen restrained paired lower/lateral nostril definition while keeping the current terminal pad fitted to the muzzle."
+          },
+          {
+            "severity": "minor",
+            "feature": "Eye medial corners",
+            "evidence": [
+              "eye-audit/front-after.png",
+              "eye-audit/coat-04-front.png"
+            ],
+            "finding": "Small grey inner-corner globe wedges are visible; the ivory face also loses some eyelid contrast. Eye placement and seating remain readable, and neither issue materially harms the full-body prototype.",
+            "suggestion": "A later close-up pass could darken the medial wet margin and preserve a narrow eyelid edge on the ivory coat."
+          }
+        ]
       }
     },
     {

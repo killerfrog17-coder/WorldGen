@@ -106,24 +106,27 @@ def apply(body,land,slug):
         # the nasal tip, leaving the selected cats' rectangular cheek shelves.
         rel=p-mid;f=rel@F;z=rel[:,2];side=rel@S;nf=float((nose-mid)@F)
         cheek=smooth((np.abs(side)-.045)/.045)*smooth((-.015-z)/.065)*smooth((z+.28)/.075)*smooth((f+.23)/.10)*smooth((nf-.035-f)/.085)
-        taper=.22 if slug=='puma' else .16 if slug in {'tiger','jaguar'} else .12
+        taper=.42 if slug=='puma' else .16 if slug in {'tiger','jaguar'} else .12
         p-=S[None,:]*(side*taper*cheek)[:,None]
         for _ in range(4):
             q=p.copy()
             for i in np.where(cheek>0)[0]:
                 if neighbours[i]:q[i]=p[i]+(p[list(neighbours[i])].mean(0)-p[i])*.22*cheek[i]
             p=q
+        if slug=='puma':
+            ear=smooth((np.abs(side)-.085)/.035)*smooth((f+.34)/.08)*smooth((-.015-f)/.08)*smooth((z-.10)/.055)
+            p[:,2]-=np.maximum(z-.115,0)*.52*ear
     if slug=='lion':
         # The selected mane has two hard, tall crown blades. Soften those
         # existing tufts into the rounded adult mane shown in front/profile
         # references, keeping the chosen body and all vertex skin unchanged.
-        rel=p-mid;f=rel@F;z=rel[:,2];mane=smooth((f+.44)/.14)*smooth((.25-f)/.13)*smooth((z-.15)/.10)
+        rel=p-mid;f=rel@F;z=rel[:,2];mane=smooth((f+.72)/.14)*smooth((.25-f)/.13)*smooth((z-.15)/.10)
         p[:,2]-=np.maximum(z-.16,0)*.55*mane
         # The central crown is an irregular folded sheet in the raw sculpt.
         # Fit its existing vertices to a shallow convex dome, keeping the
         # lateral ear lobes outside this central mask.
-        side=rel@S;dome=.19+.08*np.sqrt(np.maximum(0,1-(side/.22)**2-((f+.06)/.30)**2))
-        crown=smooth((.19-np.abs(side))/.045)*smooth((f+.33)/.10)*smooth((.20-f)/.10)*smooth((z-.19)/.055)
+        side=rel@S;dome=.16+.07*np.sqrt(np.maximum(0,1-(side/.22)**2-((f+.30)/.40)**2))
+        crown=smooth((.19-np.abs(side))/.045)*smooth((f+.72)/.10)*smooth((.20-f)/.10)*smooth((z-.17)/.055)
         p[:,2]-=np.maximum(p[:,2]-(mid[2]+dome),0)*crown
         p-=S[None,:]*(np.maximum(np.abs(rel@S)-.10,0)*np.sign(rel@S)*.16*mane)[:,None]
         for _ in range(12):
@@ -158,7 +161,9 @@ def apply(body,land,slug):
         d=p-nose;u=d@S;v=d[:,2];forward=d@F;well=np.zeros(len(p))
         for sign in [-1,1]:well=np.maximum(well,np.exp(-(((u-(.010+sign*.030))/.018)**2+((v-.001)/.011)**2)*2))
         gate=smooth((forward+.085)/.035)*smooth((.035-forward)/.025);p-=F[None,:]*(well*gate*.009)[:,None]
-    delta=p-original;length=np.linalg.norm(delta,axis=1);delta*=np.minimum(1,.090/np.maximum(length,1e-12))[:,None];p=original+delta
+    delta=p-original
+    if slug=='lion':delta*=(1-smooth((np.linalg.norm(original-mid,axis=1)-.60)/.08))[:,None]
+    length=np.linalg.norm(delta,axis=1);limit=.145 if slug=='lion' else .090;delta*=np.minimum(1,limit/np.maximum(length,1e-12))[:,None];p=original+delta
     for vertex,point in zip(body.data.vertices,p):vertex.co=point
     if body.data.shape_keys:
         for key in body.data.shape_keys.key_blocks:

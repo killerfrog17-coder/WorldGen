@@ -25,8 +25,13 @@ def apply(image,body,coat,palettes):
     if body is None:return image
     colour,control,alpha=body;colour=colour.copy()
     if coat:
-        base=np.array(palettes[coat][1]);reference=np.array(palettes[0][1]);ratio=np.clip(base/np.maximum(reference,.035),.12,3.)
-        lum=control@np.array([.2126,.7152,.0722]);chroma=np.ptp(control,axis=1)/np.maximum(control.mean(1),.035)
-        dark=np.clip((lum-.035)/.12,0,1);pale=(1-np.clip((chroma-.12)/.32,0,1))*np.clip((lum-.44)/.20,0,1);tint=dark*(1-pale)
-        colour=colour*(1-tint[:,None])+colour*ratio*tint[:,None]
+        # Generated albedo is not numerically equal to palette[0]. Dividing
+        # each RGB channel by that palette turns brown shadow into cyan on
+        # grey coats. Retain luminance detail within the requested pigment.
+        base=np.array(palettes[coat][1]);pale=np.array(palettes[coat][2]);lum=colour@np.array([.2126,.7152,.0722]);low=control@np.array([.2126,.7152,.0722]);chroma=np.ptp(control,axis=1)/np.maximum(control.mean(1),.035)
+        use=(low>.18)&(low<.75)&(chroma>.12);reference=float(np.median(low[use])) if use.any() else .35
+        detail=np.clip(lum/max(reference,.10)-1.,-.82,1.20);tinted=base[None,:]+detail[:,None]*np.minimum(base*.68,(1-base)*.68)[None,:]
+        white=(1-np.clip((chroma-.12)/.20,0,1))*np.clip((low-.50)/.20,0,1);pale_detail=np.clip(lum/.65-1.,-.65,.55);pale_colour=pale[None,:]+pale_detail[:,None]*np.minimum(pale*.50,(1-pale)*.50)[None,:]
+        tinted=tinted*(1-white[:,None])+pale_colour*white[:,None]
+        keep=1-np.clip((low-.06)/.10,0,1);colour=colour*keep[:,None]+tinted*(1-keep[:,None])
     return image*(1-alpha[:,None])+colour*alpha[:,None]

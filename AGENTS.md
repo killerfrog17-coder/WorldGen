@@ -1,5 +1,62 @@
 # WorldGen repository instructions
 
+OWNER REQUESTED STOPPING POINT,26October2026~11:15CDT:
+Owner latest says 'get to a stopping point soon'. STOPPED at saved checkpoint;
+do not auto-resume appearance work without new owner instruction. No active
+goal exists; none created/paused. All owned build/render/generation workers
+exited; all independent critics completed; imagegen1519/1520/1526 collected.
+15/177 entries meet current strict STATIC gate: accepted protected Deer +nine
+mammals +five ambient guilds.162 NOT cleared.17 other mammal anatomy roots
+remain unfinished; other old cards are NOT certified by this pass.
+New ninth mammal WOLF exact138b230452d62cc325f8417f41e698da21c0cf96cedc83fe3af7177df045e8a6
+passed fresh wolf-latest-full-appearance critic (28 current renders/seven coats/
+two actual photos), root viewed all28 including contacts and both photos.
+Minor nasal/medial-eye polish retained. Native/static gate recorded; existing
+two clips rendered read-only, no motion changes. Now live PHONE source
+01a235e090c9cf80ed43ae5a8e7b75ed6f5447f3, successful private deployment
+appgdep_6adf767b84708191a490e13e6586d6ac, savedversion
+appgprj_6ade6fbe0a5081918b25bcbf541da095~appgver_ba16d7158e208191816fb948e9c84ac2.
+Wolf published-review.json preserves exact provenance. Prior eight mammal
+passes +ambient passes frozen; Deer exact0e2ff46... unchanged verified.
+Fresh FULL critics current-hoof-full/current-small-mammal-full reject all7:
+Horse cyan pale-coat mane/tail/legs +tail-root patch; Boar detached snout plate/
+rear strip/slit eyes; Mouflon ear/horn intersections and regular grey hoops;
+Buffalo duplicated horn/ear paint and head/body join; Squirrel tiny eyes/halo/
+coat collar/rear plain strip; Beaver rump strip/nasal stamp; Lynx faceted brows/
+exposed eyes/coat collars. Reports bind actual native/render/photo hashes.
+Latest stable queues:36982 completed with Lion scope and Mouse duplicate-RBF
+failures;26086 completed all except Lion one-argument smooth typo;72915 Lion
+rerun finished0 after typo/scope mask corrected. All these remain UNPASSED.
+Bear/Badger/Otter direct registered fur +local hood now IMPLEMENTED; darker
+actual species irises restored. Bear broad nasal cap paired wells now cover
+retained underlying skin, nasal body mask narrowed; native still pending art.
+Puma ears/cheeks shortened/tapered, feline iris cleanup narrowed to retain dark
+lid/canthus pigment, upper hood extended. Still visible cat/head issues; no
+new cat pass. Lion crown now less folded but broad ear/mane masses still bad.
+Shared body variant RGB-ratio tint replaced with bounded luminance-based tint
+to address cyan; syntax checked ONLY, no resulting native render yet. Do not
+claim pale-coat correction passed or rebuild frozen passes casually.
+19 NEW sources now saved SEPARATELY with -v2 PNG/JSON exact prompt/generated
+path/edit-target/output hashes, actual root inspection: eleven top guides
+(Boar/Mouflon/Bear/Buffalo/Horse/Badger/Otter/Mouse/Squirrel/Beaver/Lynx), six
+hornless front/right BODY guides(Boar/Mouflon/Buffalo), two hornless Buffalo
+HEAD guides. Not installed/calibrated/rebaked at stopping point. Their saved
+incoming manifests and owner-stopping-checkpoint.json are under anatomy root.
+New renderer --hide-appendages/--directory supports separate hornless camera
+roots; actual hornless front/right/top and head clays inspected. Buffalo's old
+head guide explicitly painted a huge horn on the neck, causing false collar;
+new no-horn guide removes this source fault but current native NOT updated.
+Resume: calibrate19 v2 sources to their correct camera directories, install,
+rebake only unpassed roots, inspect all variants/attachments then fresh fork-
+none critics. Top calibrator currently assumes body-paint-source; adapt for
+hornless-body-paint-source. Mouse silhouette registration duplicate targets
+were merged to remove singular RBF; make both calibration helpers deduplicate
+before rerun. No renderer/source modifications during source-SHA-guarded queues.
+No paid APIs, local neural inference, animation repair, game/Unity/Desktop or
+owner GUI changes. Anatomy root~2.02GiB before latest19 sources, no large temp
+workers left. Preserve unrelated owner-deleted prompt and two old untracked
+deer scripts unstaged. Commit/push current OWN source/docs before final stop.
+
 CONTINUED APPEARANCE REWORK,26October2026~10:44CDT:
 Same owner task ACTIVE; keep working, no final/goal inferred. Eight frozen
 mammals +five ambient guilds remain the ONLY new independent static passes;
