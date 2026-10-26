@@ -4,7 +4,7 @@
     "bison": {
       "geometry_sha256": "f90076735caa47ae4b4d52174edd6899fd895d8555d6a2fab5ebd4ac7000c5be",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed.",
       "forward": [
         0.12,
@@ -15,7 +15,7 @@
     "pronghorn": {
       "geometry_sha256": "bce3a8d10412e66a2cbc94deed68ea5b4c109741c82cb62c37b84c1b69fb5225",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual source sculpt has open eye-socket apertures: central rays pass through both holes. Retain old aperture centres at matched height/depth and use surrounding skull support rather than a nonexistent central face.",
       "forward": [
         0,
@@ -27,62 +27,67 @@
     "cotton-rat": {
       "geometry_sha256": "913a8fc98c7b312930815f545f3c8f5570ccbfedee8f4093e3b65158908eef9d",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed.",
       "forward": [
         0,
         1,
         0
-      ]
+      ],
+      "recenter_nose": true
     },
     "native-small-lizards-guild": {
       "geometry_sha256": "d4829a57fe58e48324dcf8c9e258c69880ca10e0eddbd55d68e42065db89ea52",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed.",
       "forward": [
         0,
         1,
         0
-      ]
+      ],
+      "recenter_nose": true
     },
     "salamanders-guild": {
       "geometry_sha256": "c9f82b02ebfd8b64dc091a298bb4c2d3f28da6975f0d0c4b6b2150eaa707c076",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed.",
       "forward": [
         0,
         1,
         0
-      ]
+      ],
+      "recenter_nose": true
     },
     "freshwater-turtle": {
       "geometry_sha256": "1be060d874dfad715664c5dc361314afc07fb4e2e5108fe18b5bac3c84a30e40",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed.",
       "forward": [
         0,
         1,
         0
-      ]
+      ],
+      "recenter_nose": true
     },
     "marmot": {
       "geometry_sha256": "b1795f8e441da472c6e776b85ed65367d3cbc77ca9582fcc53b5e5818907a13a",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed.",
       "forward": [
         0,
         1,
         0
-      ]
+      ],
+      "recenter_nose": true
     },
     "lion": {
       "geometry_sha256": "a69a0e2c1b1604736f624b1fbe46090548271f199650783b4b5b5435c3de05bf",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed.",
       "forward": [
         0,
@@ -90,63 +95,66 @@
         0
       ],
       "height_delta": 0.12,
-      "depth_delta": -0.045
+      "depth_delta": -0.045,
+      "recenter_nose": true
     },
     "horse": {
       "geometry_sha256": "b538d735eb3e52a174796a8c95bcd968133c1e12a41943eef6e01865051121fb",
-      "convex_lens": true,
-      "lens_outset": 0.002,
-      "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed.",
-      "facing": 0.38,
-      "height_delta": 0.04,
-      "depth_delta": -0.015
+      "convex_lens": false,
+      "lens_outset": 0,
+      "review_basis": "Independent source socket floors and normals are visibly asymmetric in the retained skull. Keep those actual sculpt supports, matching height/aperture and reducing glare/UV seam artefacts; do not invent a mirrored socket that intersects the brow.",
+      "facing": 0.3,
+      "height_delta": 0,
+      "depth_delta": 0,
+      "independent_socket_centers": true,
+      "retain_source_socket_frames": true
     },
     "beaver": {
       "geometry_sha256": "aedf0d90c6bfaa934ed940548bb4c52d7bf88070b63871ff1704942d511b8bd2",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed."
     },
     "bank-vole": {
       "geometry_sha256": "14d02d63632fc5b5388184006161a6438c197fa4859d8f3d00dfc82ccf709bc5",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed."
     },
     "guanaco": {
       "geometry_sha256": "ba58e42f49203a6e4bacb974fc98517eae1fc9f49c18747e4286832f07ea9536",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed."
     },
     "jerboa": {
       "geometry_sha256": "9162dd267f6f58592257da1cd1ce002cd60bd278952b1956bdf9c9b4f0b3571c",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed."
     },
     "capuchin": {
       "geometry_sha256": "e9d3ed2e010f7a02fb6ffb98f9fd6e40a9b2dc5c061b0447733daa76fa7799fe",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed."
     },
     "chimpanzee": {
       "geometry_sha256": "c9828eceaebc156845978ed70c2b4e2cc5ad9e1a0913c8a87239c7d3e6ac1e55",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed."
     },
     "common-brushtail-possum": {
       "geometry_sha256": "705d07d95770cae04862c274fc78678f437f5d2532d70847083e64198618019f",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed."
     },
     "dugong": {
       "geometry_sha256": "273593ecf4b00b4f271b78fccf91149123b4641e8330e3f9cded07f953233c37",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed.",
       "forward": [
         0,
@@ -157,7 +165,7 @@
     "coastal-forage-fish-guild": {
       "geometry_sha256": "9ef5c242a129e3a272b180468e5b7da1de8e22999557b056c74166b7b84f95ba",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual front and bilateral native head/sculpt review; occluded/deep lens or incorrectly oblique front camera observed.",
       "forward": [
         0,
@@ -168,60 +176,61 @@
     "giraffe": {
       "geometry_sha256": "5ae3197aa167b15d29678efab6da7fabe96678130dc4c44859a84ea4158480a2",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed."
     },
     "guereza": {
       "geometry_sha256": "b3e0ee080615b66ff4682187911133bc8233c12e439e72a9eb96821de324f930",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed."
     },
     "iguana": {
       "geometry_sha256": "0900aa399eaa11960c39291abdd1258032f6f037dd095785e8d905fe7fc01540",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed."
     },
     "lemur": {
       "geometry_sha256": "9a626614ae4bc40d3a8565be1650318c6f6a3f7ff5a921ae00b44235530d7490",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed."
     },
     "nutria": {
       "geometry_sha256": "c62d3376402043db81218bbb959c79392c24e6062b9e4ffc5e3553c85bb8eeab",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual frontal and bilateral native head renders against underlying untextured sculpt; incorrect head plane or lens/body intersection observed.",
       "forward": [
         0,
         1,
         0
-      ]
+      ],
+      "recenter_nose": true
     },
     "sea-otter": {
       "geometry_sha256": "b21ec4b739a162870e51392b98687656b5fab6f12bd859c6246959b618d3c6fb",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual front and bilateral native head/sculpt review; occluded/deep lens or incorrectly oblique front camera observed."
     },
     "sloth": {
       "geometry_sha256": "5de0a40c0cc55f4bc44845e31c9ad5ca3e8470346ed8765bb9134697da71f48e",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual front and bilateral native head/sculpt review; occluded/deep lens or incorrectly oblique front camera observed."
     },
     "tamarin": {
       "geometry_sha256": "cf1d283b0841c96bc97639876854c9632a3c2b46d28b5d066979f4aa6259314d",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual front and bilateral native head/sculpt review; occluded/deep lens or incorrectly oblique front camera observed."
     },
     "walrus": {
       "geometry_sha256": "ba118015c1f7582aade45e4c2b1fd245a8a09bbac5743969c7101f55bca9b3f3",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual front and bilateral native head/sculpt review; occluded/deep lens or incorrectly oblique front camera observed.",
       "forward": [
         0,
@@ -232,7 +241,7 @@
     "sea-lion": {
       "geometry_sha256": "aabfaf96fda5b8a35913c4ecc1027a16b0acab58836ce9d6ea5d116f0115f60c",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual front and bilateral native head/sculpt review; occluded/deep lens or incorrectly oblique front camera observed.",
       "forward": [
         0,
@@ -243,7 +252,7 @@
     "shark": {
       "geometry_sha256": "f6412b67b9065433cd8885434f1b76cb1125e54286cf997a01479219844957b2",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual front and bilateral native head/sculpt review; occluded/deep lens or incorrectly oblique front camera observed.",
       "forward": [
         0,
@@ -254,7 +263,7 @@
     "freshwater-predatory-fish-guild": {
       "geometry_sha256": "8d5feff27cfa98f1a94fcd782a8afbf5bec4aa5dd3eecbfb51707635210f13c8",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual front and bilateral native head/sculpt review; occluded/deep lens or incorrectly oblique front camera observed.",
       "forward": [
         0,
@@ -265,7 +274,7 @@
     "small-native-freshwater-fish-guild": {
       "geometry_sha256": "94a1de9b6997a12649418d944f075af6e93184f4ff3c6037d6c1aab66f8233a3",
       "convex_lens": true,
-      "lens_outset": 0.002,
+      "lens_outset": 0,
       "review_basis": "Actual front and bilateral native head/sculpt review; occluded/deep lens or incorrectly oblique front camera observed.",
       "forward": [
         0,

@@ -205,7 +205,7 @@ for side in ([] if surface_only_arthropod else ['right','left']):
     paired_depth=0.
     convex=land.get('paired_eye_revision',{}).get('convex_lens',False)
     if convex:
-        depths=[eye_surface_depth(center+ellipse(t)) for t in np.linspace(0,math.tau,25)[:-1]];paired_depth=min(float(np.quantile(depths,.75)),min(rx,rz)*.35)+land['paired_eye_revision'].get('lens_outset',0)
+        depths=[eye_surface_depth(center+ellipse(t)*.35) for t in np.linspace(0,math.tau,25)[:-1]];paired_depth=min(float(np.quantile(depths,.60)),min(rx,rz)*.10)+land['paired_eye_revision'].get('lens_outset',0)
     if reviewed:
         # A low-poly sculpt can protrude in front of a flat replacement lens.
         # Fit the cap's depth to that actual surface so half an iris cannot be
@@ -222,6 +222,7 @@ for side in ([] if surface_only_arthropod else ['right','left']):
     obj(a.slug+' '+side+' eye',vertices,polygons,[eye],uvs,anchor=skin)
     vertices=[];uvs=[];polygons=[];indices=[]
     lid_radii=[1.,1.04,1.10,1.30,1.60] if land.get('paired_eye_revision') else [1.,1.035,1.08,1.16] if reviewed else [1.,1.10,1.21,1.43]
+    if convex:lid_radii=[1.,1.03,1.07,1.18,1.36]
     for ring,rad in enumerate(lid_radii):
         for i in range(segments):
             t=i*math.tau/segments;target=center+ellipse(t)*rad

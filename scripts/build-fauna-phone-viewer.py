@@ -5,7 +5,15 @@ from fauna_phone_clips import review_clip_labels
 repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-phone-media';site=repo/'artifacts/fauna-phone-review/dist'
 ap=argparse.ArgumentParser();ap.add_argument('--partial',action='store_true');a=ap.parse_args();plan=json.loads((root/'plan.json').read_text());animals=[];ledger=[];complete=0
 feedback_path=repo/'docs/fauna/PHONE_REVIEW_FEEDBACK.json';feedback=json.loads(feedback_path.read_text()) if feedback_path.exists() else {'items':[]}
-repairs={row['slug']:row for row in feedback['items'] if row.get('status') in {'corrected_ready_for_review','awaiting_owner_review','approved'} and row.get('repair_review')}
+repairs={}
+# A manually inspected batch is an appearance revision, never owner acceptance.
+# Explicit motion repairs take precedence over batch appearance-only copies.
+batch=next((row.get('checked_revisions_index') for row in feedback['items'] if row['slug']=='__all_eyes__'),None)
+if batch:
+ batch_path=(repo/batch).resolve();assert batch_path.is_relative_to(repo)
+ revisions=json.loads(batch_path.read_text())
+ repairs.update({row['slug']:row for row in revisions['items']})
+repairs.update({row['slug']:row for row in feedback['items'] if row.get('status') in {'corrected_ready_for_review','awaiting_owner_review','approved'} and row.get('repair_review')})
 def copy(source,target,digest):
  assert source.exists() and hashlib.sha256(source.read_bytes()).hexdigest()==digest,source
  target.parent.mkdir(exist_ok=True,parents=True)

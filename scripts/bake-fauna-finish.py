@@ -4,7 +4,7 @@ Shared generated surface swatches supply fine detail; explicit recipes supply
 anatomical pigment. Every mask uses continuous bind-surface coordinates rather
 than a projected animal photograph. Geometry/skin/motion are read-only inputs.
 """
-import argparse,hashlib,importlib.util,json,sys,time
+import argparse,hashlib,importlib.util,json,math,sys,time
 from pathlib import Path
 import numpy as np
 from PIL import Image
@@ -139,6 +139,21 @@ if pattern in {'rosettes','ocelot'}:
     face_dots=(1-smooth(.16,.31,rr2.min(1)))*face
     if a.slug=='jaguar':rosettes=np.maximum(rosettes,(1-smooth(.12,.25,rr2.min(1)))*(1-face)*.8)
 flank=smooth(.15,.65,np.abs(n[:,0]))
+tail_pigment=np.zeros(len(p));tail_arc=np.zeros(len(p));tail_length=1.
+if pattern=='tiger':
+    # The tiger's learned graph mislabels its tail as a limb. Pigment follows
+    # the physical posterior centreline rather than that incorrect role label.
+    heads=d['joint_heads'];parents=d['parents'];node=int(np.argmin(heads[:,1]));chain=[]
+    while node>=0:chain.append(node);node=int(parents[node])
+    chain=list(reversed(chain));node=chain[-1]
+    while True:
+        children=np.where(parents==node)[0]
+        if not len(children):break
+        node=int(children[np.argmax(np.linalg.norm(heads[children]-heads[node],axis=1))]);chain.append(node)
+    start=heads[chain[:-1]];delta=np.diff(heads[chain],axis=0);length=np.linalg.norm(delta,axis=1);arc=np.r_[0,np.cumsum(length)];best=np.full(len(p),1e6)
+    for k,(origin,vector) in enumerate(zip(start,delta)):
+        t=np.clip(((p-origin)@vector)/max(float(vector@vector),1e-8),0,1);distance=np.linalg.norm(p-origin-t[:,None]*vector,axis=1);near=distance<best;best[near]=distance[near];tail_arc[near]=arc[k]+t[near]*length[k]
+    tail_length=float(arc[-1]);tail_pigment=(1-smooth(.055,.105,best))*smooth(.10,.25,tail_arc)*smooth(heads[chain[0],1]-.06,heads[chain[0],1]-.18,p[:,1])
 bars=smooth(.35,.8,np.sin(p[:,2]*145+np.sin(p[:,1]*39)*2.6+np.sin(p[:,0]*47)*1.7))
 rng=np.random.default_rng(3517)
 noise=gaussian_filter(rng.normal(size=(24,24,24)),.8,mode='wrap');noise=(noise-noise.min())/(noise.max()-noise.min())
@@ -167,12 +182,21 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
         if pattern=='paca':marks*=smooth(.15,.65,.5+.5*np.cos(p[:,2]*43))
         colour=paint(marks,white)
     if pattern in {'tiger','zebra','ass','iguana'}:
-        limbs=smooth(.24,.60,np.maximum(maps[iy,ix,10],maps[iy,ix,11]))*(1-face)
-        body_stripes=organic_stripes(p,n,count=11 if pattern=='tiger' else 16,seed=71 if pattern=='tiger' else 23,broken=pattern=='tiger')
+        # Learned limb weights can leak far into the torso. Pigment boundaries
+        # use the actual stand height, so a wrong rig label cannot turn half a
+        # tiger's trunk into horizontal leg bands.
+        limbs=(1-smooth(zlo+span*.30,zlo+span*.48,p[:,2]))*(1-face)
+        count=(25 if 'dense' in low else 19) if pattern=='tiger' else (19 if 'wider' in low else 26)
+        body_stripes=organic_stripes(p,n,count=count,seed=71 if pattern=='tiger' else 23,broken=pattern=='tiger')
         leg_stripes=organic_stripes(p,n,count=21,seed=37,horizontal=True)
-        stripes=(body_stripes*(1-limbs)+leg_stripes*limbs)*flank*(1-face)
+        coverage=np.maximum(flank,smooth(-.15,.40,n[:,2])*.95)
+        stripes=(body_stripes*(1-limbs)+leg_stripes*limbs)*coverage*(1-face)
         if pattern=='ass':stripes*=foot*.75
         colour=paint(stripes*(.95 if pattern!='iguana' else .45),dark)
+        if pattern=='tiger':
+            colour=paint(tail_pigment,base)
+            rings=smooth(.10,.50,np.cos(tail_arc/max(tail_length,.1)*math.tau*9+.15*np.sin(tail_arc*13)))
+            colour=paint(tail_pigment*np.maximum(rings,smooth(tail_length*.92,tail_length*.98,tail_arc))*.96,dark)
         if pattern=='zebra':
             along=np.clip((forward/headscale+.65)*.65,0,1);narrow=1-.43*along
             u=.5+lateral/(headscale*1.8*narrow);v=along

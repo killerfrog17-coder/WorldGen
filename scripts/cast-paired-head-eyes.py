@@ -2,7 +2,7 @@
 import argparse,json,sys
 from pathlib import Path
 import bpy,numpy as np
-from mathutils import Vector
+from mathutils import Matrix,Vector
 from mathutils.bvhtree import BVHTree
 repo=Path(__file__).resolve().parent.parent;ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);folder=repo/'artifacts/fauna-review-revisions'/a.slug;original=repo/'artifacts/fauna-painted-20261024'/a.slug
 bpy.ops.wm.open_mainfile(filepath=str(folder/'Animal - Painted Species Review.blend'));entry=json.loads(bpy.context.scene['deer_four_rigs'])[0];body=bpy.data.objects[entry['body']];body.data.calc_loop_triangles();p=np.array([v.co[:] for v in body.data.vertices]);tri=np.array([t.vertices[:] for t in body.data.loop_triangles]);sys.path.insert(0,str(repo/'scripts'));from fauna_surface_components import components
@@ -21,9 +21,19 @@ facing={'canid':.78,'felid':.86,'primate':.95,'ursid':.74,'bear':.74,'lagomorph'
 if a.slug in {'owl','snowy-owl'}:facing=.96
 if a.slug in {'hawk','falcon','forest-eagle','fish-eagle'}:facing=.70
 manual=plane.get('manual_visual_adjustment',{});facing=manual.get('facing',facing)
+if manual.get('recenter_nose'):
+ nose=np.array(land['nose']['point']);target=F*float(nose@F)+S*d;target[2]=nose[2];hit=bvh.ray_cast(Vector(target+F*2),Vector(-F),4.)
+ if hit[0] is not None:land['nose'].update(point=list(hit[0]),normal=list(hit[1]),triangle=ids[hit[2]])
 if kind in {'canid','felid'}:radii[1]*=.80
 for (side,sign),hit in zip([('right',1),('left',-1)],hits):
- center=np.array(hit[0]);normal=F*facing+S*sign*np.sqrt(1-facing**2);horizontal=np.cross(up,normal)
+ center=np.array(old[side+'_eye']['point']) if manual.get('independent_socket_centers') else np.array(hit[0]);center[2]=height;normal=F*facing+S*sign*np.sqrt(1-facing**2);horizontal=np.cross(up,normal)
+ if manual.get('socket_pixel_picks'):
+  pick=manual['socket_pixel_picks'][side];guide=json.loads((folder/'eye-audit'/(side+'.json')).read_text());m=Matrix(guide['camera_matrix']);scale=guide['scale'];width,pixels_high=guide['size'];x,y=pick['pixel'];w,h=pick['size'];direction=(m.to_3x3()@Vector((0,0,-1))).normalized()
+  def ray(px,py):
+   origin=m@Vector((((px+.5)/width-.5)*scale,(.5-(py+.5)/pixels_high)*scale,0));point=bvh.ray_cast(origin,direction,10)[0];assert point is not None;return np.array(point)
+  support=np.mean([ray(x+dx*w*.55,y+dy*h*.55) for dx,dy in [(1,0),(-1,0),(0,1),(0,-1)]],axis=0);origin=np.array(m@Vector((((x+.5)/width-.5)*scale,(.5-(y+.5)/pixels_high)*scale,0)));view_dir=np.array(direction);center=origin+view_dir*((support-origin)@view_dir);radii=np.array([scale*w/width*.5,scale*h/pixels_high*.5]);center[2]=height
+ if manual.get('retain_source_socket_frames'):
+  center=np.array(old[side+'_eye']['point']);center[2]=height;normal=np.array(old[side+'_eye']['normal']);normal/=np.linalg.norm(normal);horizontal=np.cross(up,normal)
  if horizontal@(np.array(land['nose']['point'])-center)<0:horizontal=-horizontal
  horizontal/=np.linalg.norm(horizontal);vertical=np.cross(normal,horizontal)
  if vertical[2]<0:vertical=-vertical

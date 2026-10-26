@@ -8,13 +8,13 @@
       "model": 3,
       "owner_approved": false,
       "updated_at": "2026-10-25T19:45:04.259966-05:00",
-      "review_update": "Run updated after your feedback.",
+      "review_update": "Run repair retained; paired eyes, eyelid joins and coat patterns updated.",
       "repair_review": {
-        "plan": "artifacts/fauna-repairs/hare/review-plan.json",
-        "media_root": "artifacts/fauna-repairs/hare/media",
-        "check": "artifacts/fauna-repairs/hare/native-check.json",
-        "blend": "artifacts/fauna-repairs/hare/Animal - Run Repaired.blend",
-        "blend_sha256": "ca40b928bfe2dd7a556e5633163e0767e8cded9cac5cb69632de9eebb2b48bd5"
+        "plan": "artifacts\\fauna-review-revisions\\hare\\phone-review-plan.json",
+        "media_root": "artifacts\\fauna-review-revisions\\phone-media",
+        "check": "artifacts\\fauna-review-revisions\\hare\\revision-native-check.json",
+        "blend": "artifacts\\fauna-review-revisions\\hare\\Animal - Painted Species Review.blend",
+        "blend_sha256": "59e92ea8d3bd13ff330796cc03d4f06bdfdf0382ffddbe31429cdf2c7ded5cfb"
       },
       "correction": "Levelled the transferred torso pitch, distributed neck compensation to retain gaze, bounded body bob and removed hind-limb influence from332 upper rear torso vertices. Rebuilt native review demos. Lower-leg skin and original non-Run individual actions retained.",
       "limits": "Prototype manual repair; owner reassessment pending.",
@@ -67,7 +67,7 @@
     },
     {
       "slug": "wolf",
-      "status": "queued",
+      "status": "awaiting_owner_review",
       "owner_approved": false,
       "issues": [
         "Eyes very badly positioned; fit precisely and symmetrically."
@@ -76,33 +76,41 @@
     },
     {
       "slug": "__all_eyes__",
-      "status": "queued",
+      "status": "awaiting_owner_review",
       "owner_approved": false,
       "issues": [
         "Comprehensive placement review across all visual animals.",
         "Identify whether central white eye dots are lighting reflections or painted/material defects; correct distracting appearance."
       ],
-      "updated_at": "2026-10-25T19:54:04.092517-05:00"
+      "updated_at": "2026-10-25T19:54:04.092517-05:00",
+      "checked_revisions_index": "artifacts\\fauna-review-revisions\\checked-review-revisions.json",
+      "correction": "Paired skull-plane/surface fits, source-specific manual adjustments, seam-free fur surround sampling and softer corneal highlights. All 177 visual entries audited; 168 added-eye bodies revised. Nine tiny/protected/surface-only entries retain appropriate original treatment.",
+      "remaining_limits": [
+        "Horse original asymmetric sockets retained; rejected skull edits excluded.",
+        "Several coarse source heads retain angular surrounds; owner art review remains pending."
+      ]
     },
     {
       "slug": "__all_stripes__",
-      "status": "queued",
+      "status": "awaiting_owner_review",
       "owner_approved": false,
       "issues": [
         "Replace straight repeated stripes across species with natural, anatomy-following painted patterns; varied widths, tapering, curvature, irregularity and appropriate branching/breaks."
       ],
-      "updated_at": "2026-10-25T19:54:04.092517-05:00"
+      "updated_at": "2026-10-25T19:54:04.092517-05:00",
+      "correction": "Static atlases now use curved, tapered, irregular, branching and broken marks. Tiger/Zebra anatomical body/limb/head masks and Tiger tail rings were separately inspected; discrete palettes retained."
     },
     {
       "slug": "__all_colour_variation__",
-      "status": "queued",
+      "status": "design_recorded_pending_runtime_profile",
       "owner_approved": false,
       "issues": [
         "Retain discrete base species/pattern palettes; support subtle stable individual colour differences if performance cost is negligible.",
         "Larger lineage colour ranges must stay plausible and respect anatomical masks.",
         "Do not enable runtime variation without checking batching and profiling; preserve discrete fallback."
       ],
-      "updated_at": "2026-10-25T19:54:04.092517-05:00"
+      "updated_at": "2026-10-25T19:54:04.092517-05:00",
+      "correction": "Shared-material stable per-instance tint design recorded; runtime disabled until measured. No Unity/game changes or individual texture duplication."
     }
   ]
 }
