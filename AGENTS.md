@@ -1,5 +1,20 @@
 # WorldGen repository instructions
 
+FREE HUMAN ANIMATION INVENTORY,26October2026:
+Owner requires ZERO payment; asked actual free counts and game coverage before
+animation building. Downloaded ONLY Quaternius UAL1/UAL2 Standard +KayKit Free1.1,
+bundled CC0 verified. Parsed actual GLB tracks: Q1=39moving+3aimposes, Q2=42moving,
+KayKit Medium=115ordinary moving+2deathposes. Core196motion entries+5poses;
+NOT196distinct gameplay actions or retarget/visual acceptance. Excludes all
+Tposes, FBX/GLB/RM duplicates,14Kay special skeleton/experimental entries and
+28Large-rig alternate entries. Quat finger joints exist; Kay23-joint rigs have
+NO fingers, so own grip poses needed. Actual hashes/full names/durations in
+ignored artifacts/human-animation-sources/inventory.json+tsv/provenance JSON.
+scripts/audit-human-animation-sources.py reproduces. Coverage/gaps in docs/
+HUMAN_ANIMATION_SOURCE_AUDIT.md. NO character animation applied or game changes;
+owner Blender human review left untouched. Human appearance baseline remains
+pending decision, both owner says good enough for next motion test.
+
 VISIBLE FAUNA PROTOTYPE,26October2026~13:44CDT:
 New owner task: integrate all accepted animal placeholders with basic smooth
 wandering and regional spawning. Appearance work stays stopped; all177 selected
