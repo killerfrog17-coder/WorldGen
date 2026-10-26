@@ -1,5 +1,39 @@
 # Version 3 validation evidence
 
+## Visible fauna prototype - 26 October 2026
+
+Owner accepts the selected animal placeholders and requests game integration
+with simple smooth wandering, movement clips only and ecoregion-based counts.
+All 177 selected native Blender hashes remain unchanged, including protected
+Deer `0e2ff46b0b0860750084bed3af94d84f636144230550e9e80f753b3e415418a1`.
+No source motion, rig, paint or model generation was changed in this pass.
+
+Read-only export: **177 models, 541 movement clips, 830 coat layers**. Original
+4/8-weight skinning palettes are retained; the gull's driven wing-fold morph is
+supported. Every clip's sampled start/middle/end surface agrees with Blender's
+evaluated native to normalized error below 0.0001; observed maximum
+`4.89230791495413e-7`. Two-frame idle clips check both distinct frames. These are
+import-fidelity checks, not original gait/contact acceptance. Export receipts and
+all output hashes pass; final streaming bundle hashes also pass. Bundles total
+394,286,086 bytes (376.0 MiB). Static ecology mapping: 176 native taxa, no missing
+models, plus the explicitly derived firefly profile.
+
+Shared Presentation compilation: **0 warnings, 0 errors**. All 177 Unity bundles
+built successfully. Final release IL2CPP package exited 0, BuiltUtc
+`2026-10-26T18:44:08.9844205Z`, without C#/shader errors. Eighteen pinned runtime
+source hashes and authoritative staged DLL inputs remained unchanged through the
+final build. A preceding package attempt exhausted temporary disk space; only
+this task's 2.625 GiB regenerable conversion cache was removed before successful
+retries. Original animal files, saved worlds and the running game were retained.
+Build-generated unrelated settings/importer changes were restored.
+
+The existing shortcut now selects `player-visible-fauna`. Validation remained
+**compile/package-only**: no game/player/world launch, gameplay capture, fixture
+suite or profiling. Runtime visuals, natural movement, terrain contacts,
+distribution and FPS remain owner-playtest items. The new AI is deliberately
+basic, with bounded local populations and no navigation, hunting, needs or saved
+entity state. See [implementation and limits](FAUNA_RUNTIME_PROTOTYPE.md).
+
 ## Terrain and tree reveal — 26 October 2026
 
 Owner reports trees floating temporarily and the horizon becoming visible before

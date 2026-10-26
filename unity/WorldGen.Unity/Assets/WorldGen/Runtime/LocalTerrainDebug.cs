@@ -102,6 +102,7 @@ public sealed partial class LocalTerrainExplorer
             "\nDistant forest · "+ForestFieldCount+" resident / "+forestPriority.Length+" planned pages · "+ForestPacketCount+" representatives · "+ForestDrawCalls+" draws"+
             "\n\nTERRAIN LOD\nAdaptive terrain · "+new[]{"Low","Medium","High","Ultra","Extreme"}[detailOptions.Quality]+" · "+new[]{"Low","Balanced","High","Maximum"}[detailOptions.Effort]+" loading ("+WorkerLimit+" lanes) · reveal "+(streamedFog/1000).ToString("F1")+" km"+(DetailPlanning?" · planning":"")+
             "\nReady coverage: ground "+(terrainRevealRadius/1000).ToString("F1")+" km / trees "+(TreesNeededForReveal?(forestRevealRadius/1000).ToString("F1")+" km":"off")+
+            "\n"+AnimalFaunaDebug+
             (mapStream==null?"":"\nMap cache · "+mapStream.TileHits+" tile hits · "+mapStream.TilesBuilt+" built · "+mapStream.WorkerCount+" workers")+
             (weatherScreen==null?"":"\n\nWEATHER & SKY\nWeather "+CurrentWeather.TemperatureC.ToString("F1")+" °C · rain "+CurrentWeather.RainMmPerHour.ToString("F2")+" / snow water "+CurrentWeather.SnowWaterMmPerHour.ToString("F2")+" mm/h · cloud "+(CurrentWeather.CloudCover*100).ToString("F0")+"% · gust "+CurrentWeather.GustMps.ToString("F1")+" m/s"+(WeatherControl.Mode=="auto"?"":" · TEST: "+WeatherControl.Mode)+"\n"+WeatherSoundDebug)+
             (weatherScreen==null?"":"\n"+FaunaAudioDebug+"\n"+WindDebugText)+

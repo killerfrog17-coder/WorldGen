@@ -42,6 +42,11 @@ unity/WorldGen.Unity/Assets/Resources/PerformanceTestRunSettings.json*
 unity/WorldGen.Unity/Assets/Resources.meta
 
 # Local credentials must never enter source checkpoints.
+# Reproducible animal runtime bundles and Unity's intermediate asset cache.
+unity/WorldGen.Unity/Assets/StreamingAssets/fauna/
+unity/WorldGen.Unity/Assets/StreamingAssets/fauna.meta
+unity/WorldGen.Unity/Assets/WorldGen/Editor/GeneratedFauna/
+unity/WorldGen.Unity/Assets/WorldGen/Editor/GeneratedFauna.meta
 .env
 .env.*
 !.env.example

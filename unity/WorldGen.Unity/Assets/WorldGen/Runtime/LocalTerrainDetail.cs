@@ -29,7 +29,7 @@ public sealed partial class LocalTerrainExplorer
     // awaiting their bounded install are no longer consuming a CPU permit
     // (including while the user has disabled their drawing).
     int ActiveWorkerCount
-    {get{int count=jobs.Count+scatterJobs.Count;foreach(var work in forestJobs)if(!work.Task.IsCompleted)count++;return count;}}
+    {get{int count=jobs.Count+scatterJobs.Count;foreach(var work in forestJobs)if(!work.Task.IsCompleted)count++;if(animalPlan!=null&&!animalPlan.IsCompleted)count++;return count;}}
     bool CanInstall=>installationsThisFrame<detailOptions.Installations&&(installationsThisFrame==0||frameUploadMs<detailOptions.UploadBudgetMs);
     bool CanRequest=>Time.realtimeSinceStartupAsDouble>=nextRequestAt;
     void ResetDetailFrame()

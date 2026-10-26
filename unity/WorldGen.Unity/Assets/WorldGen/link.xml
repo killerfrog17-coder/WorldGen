@@ -1,4 +1,12 @@
 <linker>
+  <!-- Streamed animal ScriptableObjects are only discovered after loading an
+       external AssetBundle; keep their serialized schema in IL2CPP players. -->
+  <assembly fullname="Assembly-CSharp">
+    <type fullname="WorldGenFaunaAsset" preserve="all" />
+    <type fullname="FaunaRuntimeClip" preserve="all" />
+    <type fullname="FaunaRuntimeCoat" preserve="all" />
+    <type fullname="FaunaRuntimeParts" preserve="all" />
+  </assembly>
   <!-- Canonical saves/hash reconstruction discover these public record fields
        through reflection. Stripping must not change the authoritative schema. -->
   <assembly fullname="WorldGen.Core" preserve="all" />

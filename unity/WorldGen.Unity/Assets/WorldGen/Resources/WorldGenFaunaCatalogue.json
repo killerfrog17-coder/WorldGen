@@ -1,0 +1,3250 @@
+{
+  "version": 1,
+  "animals": [
+    {
+      "slug": "deer",
+      "name": "Deer",
+      "aliases": [
+        "Deer",
+        "Red deer",
+        "White-tailed deer",
+        "Chital",
+        "Indian muntjac",
+        "Sambar"
+      ],
+      "medium": "ground",
+      "lengthM": 1.8,
+      "walkMps": 1.17,
+      "runMps": 5.4,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "deer.fauna"
+    },
+    {
+      "slug": "hare",
+      "name": "Hare",
+      "aliases": [
+        "Hare",
+        "Arctic hare",
+        "European hare",
+        "Snowshoe hare",
+        "Mountain hare"
+      ],
+      "medium": "ground",
+      "lengthM": 0.65,
+      "walkMps": 0.423,
+      "runMps": 1.95,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "hare.fauna"
+    },
+    {
+      "slug": "rabbit",
+      "name": "Rabbit",
+      "aliases": [
+        "Rabbit",
+        "European rabbit"
+      ],
+      "medium": "ground",
+      "lengthM": 0.4,
+      "walkMps": 0.26,
+      "runMps": 1.2,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "rabbit.fauna"
+    },
+    {
+      "slug": "butterflies-and-moths-guild",
+      "name": "Butterflies and moths (guild)",
+      "aliases": [
+        "Butterflies and moths (guild)",
+        "Butterflies and moths"
+      ],
+      "medium": "air",
+      "lengthM": 0.075,
+      "walkMps": 0.375,
+      "runMps": 0.562,
+      "radiusM": 22,
+      "densityPerKm2": 18000,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": true,
+      "nocturnal": false,
+      "bundle": "butterflies-and-moths-guild.fauna"
+    },
+    {
+      "slug": "fireflies-derived-lineage",
+      "name": "Fireflies (derived lineage)",
+      "aliases": [
+        "Fireflies (derived lineage)"
+      ],
+      "medium": "air",
+      "lengthM": 0.018,
+      "walkMps": 0.2,
+      "runMps": 0.3,
+      "radiusM": 22,
+      "densityPerKm2": 18000,
+      "derivedFirefly": true,
+      "freshwater": false,
+      "tiny": true,
+      "nocturnal": true,
+      "bundle": "fireflies-derived-lineage.fauna"
+    },
+    {
+      "slug": "red-fox",
+      "name": "Red fox",
+      "aliases": [
+        "Red fox"
+      ],
+      "medium": "ground",
+      "lengthM": 1.05,
+      "walkMps": 0.683,
+      "runMps": 3.15,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "red-fox.fauna"
+    },
+    {
+      "slug": "wolf",
+      "name": "Wolf",
+      "aliases": [
+        "Wolf",
+        "Gray wolf",
+        "Arctic wolf"
+      ],
+      "medium": "ground",
+      "lengthM": 1.5,
+      "walkMps": 0.975,
+      "runMps": 4.5,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "wolf.fauna"
+    },
+    {
+      "slug": "wild-boar",
+      "name": "Wild boar",
+      "aliases": [
+        "Wild boar"
+      ],
+      "medium": "ground",
+      "lengthM": 1.6,
+      "walkMps": 1.04,
+      "runMps": 4.8,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "wild-boar.fauna"
+    },
+    {
+      "slug": "mouflon",
+      "name": "Mouflon",
+      "aliases": [
+        "Mouflon"
+      ],
+      "medium": "ground",
+      "lengthM": 1.4,
+      "walkMps": 0.91,
+      "runMps": 4.2,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "mouflon.fauna"
+    },
+    {
+      "slug": "wild-goat",
+      "name": "Wild goat",
+      "aliases": [
+        "Wild goat"
+      ],
+      "medium": "ground",
+      "lengthM": 1.25,
+      "walkMps": 0.812,
+      "runMps": 3.75,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "wild-goat.fauna"
+    },
+    {
+      "slug": "bear",
+      "name": "Bear",
+      "aliases": [
+        "Bear",
+        "American black bear",
+        "Brown bear"
+      ],
+      "medium": "ground",
+      "lengthM": 2.1,
+      "walkMps": 1.365,
+      "runMps": 6.3,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "bear.fauna"
+    },
+    {
+      "slug": "bison",
+      "name": "Bison",
+      "aliases": [
+        "Bison"
+      ],
+      "medium": "ground",
+      "lengthM": 3.1,
+      "walkMps": 2.015,
+      "runMps": 9.3,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "bison.fauna"
+    },
+    {
+      "slug": "bees-guild",
+      "name": "Bees (guild)",
+      "aliases": [
+        "Bees (guild)",
+        "Bees"
+      ],
+      "medium": "air",
+      "lengthM": 0.026,
+      "walkMps": 0.2,
+      "runMps": 0.3,
+      "radiusM": 22,
+      "densityPerKm2": 18000,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": true,
+      "nocturnal": false,
+      "bundle": "bees-guild.fauna"
+    },
+    {
+      "slug": "dragonflies-guild",
+      "name": "Dragonflies (guild)",
+      "aliases": [
+        "Dragonflies (guild)",
+        "Dragonflies"
+      ],
+      "medium": "air",
+      "lengthM": 0.09,
+      "walkMps": 0.45,
+      "runMps": 0.675,
+      "radiusM": 22,
+      "densityPerKm2": 18000,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": true,
+      "nocturnal": false,
+      "bundle": "dragonflies-guild.fauna"
+    },
+    {
+      "slug": "native-detritivorous-flies-guild",
+      "name": "Native detritivorous flies (guild)",
+      "aliases": [
+        "Native detritivorous flies (guild)",
+        "Native detritivorous flies"
+      ],
+      "medium": "air",
+      "lengthM": 0.014,
+      "walkMps": 0.2,
+      "runMps": 0.3,
+      "radiusM": 22,
+      "densityPerKm2": 18000,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": true,
+      "nocturnal": false,
+      "bundle": "native-detritivorous-flies-guild.fauna"
+    },
+    {
+      "slug": "duck",
+      "name": "Duck",
+      "aliases": [
+        "Duck"
+      ],
+      "medium": "air",
+      "lengthM": 0.65,
+      "walkMps": 3.25,
+      "runMps": 4.875,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "duck.fauna"
+    },
+    {
+      "slug": "pheasant",
+      "name": "Pheasant",
+      "aliases": [
+        "Pheasant"
+      ],
+      "medium": "ground",
+      "lengthM": 1.0,
+      "walkMps": 0.65,
+      "runMps": 3.0,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "pheasant.fauna"
+    },
+    {
+      "slug": "small-native-freshwater-fish-guild",
+      "name": "Small native freshwater fish (guild)",
+      "aliases": [
+        "Small native freshwater fish (guild)",
+        "Native freshwater fish",
+        "Small freshwater fish guild"
+      ],
+      "medium": "water",
+      "lengthM": 0.14,
+      "walkMps": 0.12,
+      "runMps": 0.192,
+      "radiusM": 180,
+      "densityPerKm2": 120,
+      "derivedFirefly": false,
+      "freshwater": true,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "small-native-freshwater-fish-guild.fauna"
+    },
+    {
+      "slug": "mouse",
+      "name": "Mouse",
+      "aliases": [
+        "Mouse",
+        "Wood mouse",
+        "Deer mouse",
+        "African forest mouse",
+        "Rajah spiny rat"
+      ],
+      "medium": "ground",
+      "lengthM": 0.18,
+      "walkMps": 0.117,
+      "runMps": 0.54,
+      "radiusM": 70,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "mouse.fauna"
+    },
+    {
+      "slug": "squirrel",
+      "name": "Squirrel",
+      "aliases": [
+        "Squirrel"
+      ],
+      "medium": "ground",
+      "lengthM": 0.45,
+      "walkMps": 0.293,
+      "runMps": 1.35,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "squirrel.fauna"
+    },
+    {
+      "slug": "horse",
+      "name": "Horse",
+      "aliases": [
+        "Horse",
+        "Przewalski's horse"
+      ],
+      "medium": "ground",
+      "lengthM": 2.8,
+      "walkMps": 1.82,
+      "runMps": 8.4,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "horse.fauna"
+    },
+    {
+      "slug": "reindeer",
+      "name": "Reindeer",
+      "aliases": [
+        "Reindeer"
+      ],
+      "medium": "ground",
+      "lengthM": 2.0,
+      "walkMps": 1.3,
+      "runMps": 6.0,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "reindeer.fauna"
+    },
+    {
+      "slug": "moose",
+      "name": "Moose",
+      "aliases": [
+        "Moose"
+      ],
+      "medium": "ground",
+      "lengthM": 2.8,
+      "walkMps": 1.82,
+      "runMps": 8.4,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "moose.fauna"
+    },
+    {
+      "slug": "wild-cattle",
+      "name": "Wild cattle",
+      "aliases": [
+        "Wild cattle"
+      ],
+      "medium": "ground",
+      "lengthM": 2.7,
+      "walkMps": 1.755,
+      "runMps": 8.1,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "wild-cattle.fauna"
+    },
+    {
+      "slug": "grouse",
+      "name": "Grouse",
+      "aliases": [
+        "Grouse"
+      ],
+      "medium": "ground",
+      "lengthM": 0.5,
+      "walkMps": 0.325,
+      "runMps": 1.5,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "grouse.fauna"
+    },
+    {
+      "slug": "quail",
+      "name": "Quail",
+      "aliases": [
+        "Quail"
+      ],
+      "medium": "air",
+      "lengthM": 0.23,
+      "walkMps": 1.15,
+      "runMps": 1.725,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "quail.fauna"
+    },
+    {
+      "slug": "turkey",
+      "name": "Turkey",
+      "aliases": [
+        "Turkey"
+      ],
+      "medium": "air",
+      "lengthM": 1.15,
+      "walkMps": 5.75,
+      "runMps": 8.625,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "turkey.fauna"
+    },
+    {
+      "slug": "junglefowl",
+      "name": "Junglefowl",
+      "aliases": [
+        "Junglefowl",
+        "Red junglefowl"
+      ],
+      "medium": "ground",
+      "lengthM": 0.65,
+      "walkMps": 0.423,
+      "runMps": 1.95,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "junglefowl.fauna"
+    },
+    {
+      "slug": "raccoon",
+      "name": "Raccoon",
+      "aliases": [
+        "Raccoon"
+      ],
+      "medium": "ground",
+      "lengthM": 0.85,
+      "walkMps": 0.552,
+      "runMps": 2.55,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "raccoon.fauna"
+    },
+    {
+      "slug": "badger",
+      "name": "Badger",
+      "aliases": [
+        "Badger"
+      ],
+      "medium": "ground",
+      "lengthM": 0.85,
+      "walkMps": 0.552,
+      "runMps": 2.55,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "badger.fauna"
+    },
+    {
+      "slug": "beaver",
+      "name": "Beaver",
+      "aliases": [
+        "Beaver",
+        "American beaver"
+      ],
+      "medium": "ground",
+      "lengthM": 1.0,
+      "walkMps": 0.65,
+      "runMps": 3.0,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "beaver.fauna"
+    },
+    {
+      "slug": "otter",
+      "name": "Otter",
+      "aliases": [
+        "Otter"
+      ],
+      "medium": "ground",
+      "lengthM": 1.2,
+      "walkMps": 0.78,
+      "runMps": 3.6,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "otter.fauna"
+    },
+    {
+      "slug": "lynx",
+      "name": "Lynx",
+      "aliases": [
+        "Lynx",
+        "Canada lynx",
+        "Eurasian lynx"
+      ],
+      "medium": "ground",
+      "lengthM": 1.1,
+      "walkMps": 0.715,
+      "runMps": 3.3,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "lynx.fauna"
+    },
+    {
+      "slug": "owl",
+      "name": "Owl",
+      "aliases": [
+        "Owl"
+      ],
+      "medium": "air",
+      "lengthM": 1.1,
+      "walkMps": 5.5,
+      "runMps": 8.25,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": true,
+      "bundle": "owl.fauna"
+    },
+    {
+      "slug": "raven",
+      "name": "Raven",
+      "aliases": [
+        "Raven"
+      ],
+      "medium": "air",
+      "lengthM": 1.15,
+      "walkMps": 5.75,
+      "runMps": 8.625,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "raven.fauna"
+    },
+    {
+      "slug": "african-hunting-dog",
+      "name": "African hunting dog",
+      "aliases": [
+        "African hunting dog"
+      ],
+      "medium": "ground",
+      "lengthM": 1.3,
+      "walkMps": 0.845,
+      "runMps": 3.9,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "african-hunting-dog.fauna"
+    },
+    {
+      "slug": "agouti",
+      "name": "Agouti",
+      "aliases": [
+        "Agouti",
+        "South American agouti"
+      ],
+      "medium": "ground",
+      "lengthM": 0.6,
+      "walkMps": 0.39,
+      "runMps": 1.8,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "agouti.fauna"
+    },
+    {
+      "slug": "bank-vole",
+      "name": "Bank vole",
+      "aliases": [
+        "Bank vole"
+      ],
+      "medium": "ground",
+      "lengthM": 0.15,
+      "walkMps": 0.098,
+      "runMps": 0.45,
+      "radiusM": 70,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "bank-vole.fauna"
+    },
+    {
+      "slug": "buffalo",
+      "name": "Buffalo",
+      "aliases": [
+        "Buffalo",
+        "African buffalo",
+        "Wild water buffalo"
+      ],
+      "medium": "ground",
+      "lengthM": 2.8,
+      "walkMps": 1.82,
+      "runMps": 8.4,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "buffalo.fauna"
+    },
+    {
+      "slug": "camel",
+      "name": "Camel",
+      "aliases": [
+        "Camel"
+      ],
+      "medium": "ground",
+      "lengthM": 3.0,
+      "walkMps": 1.95,
+      "runMps": 9.0,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "camel.fauna"
+    },
+    {
+      "slug": "cassowary",
+      "name": "Cassowary",
+      "aliases": [
+        "Cassowary"
+      ],
+      "medium": "ground",
+      "lengthM": 1.8,
+      "walkMps": 1.17,
+      "runMps": 5.4,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "cassowary.fauna"
+    },
+    {
+      "slug": "civet",
+      "name": "Civet",
+      "aliases": [
+        "Civet",
+        "African palm civet",
+        "Banded palm civet"
+      ],
+      "medium": "ground",
+      "lengthM": 1.05,
+      "walkMps": 0.683,
+      "runMps": 3.15,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "civet.fauna"
+    },
+    {
+      "slug": "cockatoo",
+      "name": "Cockatoo",
+      "aliases": [
+        "Cockatoo"
+      ],
+      "medium": "air",
+      "lengthM": 0.85,
+      "walkMps": 4.25,
+      "runMps": 6.375,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "cockatoo.fauna"
+    },
+    {
+      "slug": "collared-peccary",
+      "name": "Collared peccary",
+      "aliases": [
+        "Collared peccary"
+      ],
+      "medium": "ground",
+      "lengthM": 1.05,
+      "walkMps": 0.683,
+      "runMps": 3.15,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "collared-peccary.fauna"
+    },
+    {
+      "slug": "cotton-rat",
+      "name": "Cotton rat",
+      "aliases": [
+        "Cotton rat",
+        "Hispid cotton rat"
+      ],
+      "medium": "ground",
+      "lengthM": 0.25,
+      "walkMps": 0.163,
+      "runMps": 0.75,
+      "radiusM": 70,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "cotton-rat.fauna"
+    },
+    {
+      "slug": "crane",
+      "name": "Crane",
+      "aliases": [
+        "Crane"
+      ],
+      "medium": "air",
+      "lengthM": 2.1,
+      "walkMps": 10.5,
+      "runMps": 15.75,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "crane.fauna"
+    },
+    {
+      "slug": "duiker",
+      "name": "Duiker",
+      "aliases": [
+        "Duiker",
+        "Blue duiker"
+      ],
+      "medium": "ground",
+      "lengthM": 1.0,
+      "walkMps": 0.65,
+      "runMps": 3.0,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "duiker.fauna"
+    },
+    {
+      "slug": "emu",
+      "name": "Emu",
+      "aliases": [
+        "Emu"
+      ],
+      "medium": "ground",
+      "lengthM": 1.9,
+      "walkMps": 1.235,
+      "runMps": 5.7,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "emu.fauna"
+    },
+    {
+      "slug": "falcon",
+      "name": "Falcon",
+      "aliases": [
+        "Falcon"
+      ],
+      "medium": "air",
+      "lengthM": 1.0,
+      "walkMps": 5.0,
+      "runMps": 7.5,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "falcon.fauna"
+    },
+    {
+      "slug": "fish-eagle",
+      "name": "Fish eagle",
+      "aliases": [
+        "Fish eagle"
+      ],
+      "medium": "air",
+      "lengthM": 2.1,
+      "walkMps": 10.5,
+      "runMps": 15.75,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "fish-eagle.fauna"
+    },
+    {
+      "slug": "flamingo",
+      "name": "Flamingo",
+      "aliases": [
+        "Flamingo"
+      ],
+      "medium": "air",
+      "lengthM": 1.5,
+      "walkMps": 7.5,
+      "runMps": 11.25,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "flamingo.fauna"
+    },
+    {
+      "slug": "forest-eagle",
+      "name": "Forest eagle",
+      "aliases": [
+        "Forest eagle",
+        "Crowned eagle",
+        "Harpy eagle"
+      ],
+      "medium": "air",
+      "lengthM": 2.0,
+      "walkMps": 10.0,
+      "runMps": 15.0,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "forest-eagle.fauna"
+    },
+    {
+      "slug": "forest-hog",
+      "name": "Forest hog",
+      "aliases": [
+        "Forest hog",
+        "Red river hog"
+      ],
+      "medium": "ground",
+      "lengthM": 1.6,
+      "walkMps": 1.04,
+      "runMps": 4.8,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "forest-hog.fauna"
+    },
+    {
+      "slug": "fruit-bat",
+      "name": "Fruit bat",
+      "aliases": [
+        "Fruit bat"
+      ],
+      "medium": "air",
+      "lengthM": 0.8,
+      "walkMps": 4.0,
+      "runMps": 6.0,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": true,
+      "bundle": "fruit-bat.fauna"
+    },
+    {
+      "slug": "gazelle",
+      "name": "Gazelle",
+      "aliases": [
+        "Gazelle"
+      ],
+      "medium": "ground",
+      "lengthM": 1.15,
+      "walkMps": 0.747,
+      "runMps": 3.45,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "gazelle.fauna"
+    },
+    {
+      "slug": "goose",
+      "name": "Goose",
+      "aliases": [
+        "Goose"
+      ],
+      "medium": "air",
+      "lengthM": 1.4,
+      "walkMps": 7.0,
+      "runMps": 10.5,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "goose.fauna"
+    },
+    {
+      "slug": "grass-rat",
+      "name": "Grass rat",
+      "aliases": [
+        "Grass rat"
+      ],
+      "medium": "ground",
+      "lengthM": 0.25,
+      "walkMps": 0.163,
+      "runMps": 0.75,
+      "radiusM": 70,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "grass-rat.fauna"
+    },
+    {
+      "slug": "grasshoppers-guild",
+      "name": "Grasshoppers (guild)",
+      "aliases": [
+        "Grasshoppers (guild)",
+        "Grasshoppers"
+      ],
+      "medium": "ground",
+      "lengthM": 0.05,
+      "walkMps": 0.08,
+      "runMps": 0.2,
+      "radiusM": 70,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "grasshoppers-guild.fauna"
+    },
+    {
+      "slug": "grey-heron",
+      "name": "Grey heron",
+      "aliases": [
+        "Grey heron"
+      ],
+      "medium": "air",
+      "lengthM": 1.8,
+      "walkMps": 9.0,
+      "runMps": 13.5,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "grey-heron.fauna"
+    },
+    {
+      "slug": "ground-squirrel",
+      "name": "Ground squirrel",
+      "aliases": [
+        "Ground squirrel"
+      ],
+      "medium": "ground",
+      "lengthM": 0.28,
+      "walkMps": 0.182,
+      "runMps": 0.84,
+      "radiusM": 70,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "ground-squirrel.fauna"
+    },
+    {
+      "slug": "guanaco",
+      "name": "Guanaco",
+      "aliases": [
+        "Guanaco"
+      ],
+      "medium": "ground",
+      "lengthM": 2.1,
+      "walkMps": 1.365,
+      "runMps": 6.3,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "guanaco.fauna"
+    },
+    {
+      "slug": "hawk",
+      "name": "Hawk",
+      "aliases": [
+        "Hawk",
+        "Red-tailed hawk",
+        "Common buzzard"
+      ],
+      "medium": "air",
+      "lengthM": 1.25,
+      "walkMps": 6.25,
+      "runMps": 9.375,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "hawk.fauna"
+    },
+    {
+      "slug": "hornbill",
+      "name": "Hornbill",
+      "aliases": [
+        "Hornbill"
+      ],
+      "medium": "ground",
+      "lengthM": 1.3,
+      "walkMps": 0.845,
+      "runMps": 3.9,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "hornbill.fauna"
+    },
+    {
+      "slug": "hummingbird",
+      "name": "Hummingbird",
+      "aliases": [
+        "Hummingbird"
+      ],
+      "medium": "air",
+      "lengthM": 0.12,
+      "walkMps": 0.6,
+      "runMps": 0.9,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "hummingbird.fauna"
+    },
+    {
+      "slug": "ibex",
+      "name": "Ibex",
+      "aliases": [
+        "Ibex"
+      ],
+      "medium": "ground",
+      "lengthM": 1.4,
+      "walkMps": 0.91,
+      "runMps": 4.2,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "ibex.fauna"
+    },
+    {
+      "slug": "impala",
+      "name": "Impala",
+      "aliases": [
+        "Impala"
+      ],
+      "medium": "ground",
+      "lengthM": 1.5,
+      "walkMps": 0.975,
+      "runMps": 4.5,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "impala.fauna"
+    },
+    {
+      "slug": "insectivorous-bat",
+      "name": "Insectivorous bat",
+      "aliases": [
+        "Insectivorous bat"
+      ],
+      "medium": "air",
+      "lengthM": 0.28,
+      "walkMps": 1.4,
+      "runMps": 2.1,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": true,
+      "bundle": "insectivorous-bat.fauna"
+    },
+    {
+      "slug": "jaguar",
+      "name": "Jaguar",
+      "aliases": [
+        "Jaguar"
+      ],
+      "medium": "ground",
+      "lengthM": 2.15,
+      "walkMps": 1.397,
+      "runMps": 6.45,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "jaguar.fauna"
+    },
+    {
+      "slug": "jerboa",
+      "name": "Jerboa",
+      "aliases": [
+        "Jerboa"
+      ],
+      "medium": "ground",
+      "lengthM": 0.24,
+      "walkMps": 0.156,
+      "runMps": 0.72,
+      "radiusM": 70,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "jerboa.fauna"
+    },
+    {
+      "slug": "kingfisher",
+      "name": "Kingfisher",
+      "aliases": [
+        "Kingfisher"
+      ],
+      "medium": "air",
+      "lengthM": 0.32,
+      "walkMps": 1.6,
+      "runMps": 2.4,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "kingfisher.fauna"
+    },
+    {
+      "slug": "kiwi",
+      "name": "Kiwi",
+      "aliases": [
+        "Kiwi"
+      ],
+      "medium": "ground",
+      "lengthM": 0.5,
+      "walkMps": 0.325,
+      "runMps": 1.5,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "kiwi.fauna"
+    },
+    {
+      "slug": "lemming",
+      "name": "Lemming",
+      "aliases": [
+        "Lemming"
+      ],
+      "medium": "ground",
+      "lengthM": 0.16,
+      "walkMps": 0.104,
+      "runMps": 0.48,
+      "radiusM": 70,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "lemming.fauna"
+    },
+    {
+      "slug": "leopard",
+      "name": "Leopard",
+      "aliases": [
+        "Leopard"
+      ],
+      "medium": "ground",
+      "lengthM": 2.1,
+      "walkMps": 1.365,
+      "runMps": 6.3,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "leopard.fauna"
+    },
+    {
+      "slug": "lion",
+      "name": "Lion",
+      "aliases": [
+        "Lion"
+      ],
+      "medium": "ground",
+      "lengthM": 2.7,
+      "walkMps": 1.755,
+      "runMps": 8.1,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "lion.fauna"
+    },
+    {
+      "slug": "marmot",
+      "name": "Marmot",
+      "aliases": [
+        "Marmot"
+      ],
+      "medium": "ground",
+      "lengthM": 0.65,
+      "walkMps": 0.423,
+      "runMps": 1.95,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "marmot.fauna"
+    },
+    {
+      "slug": "meerkat",
+      "name": "Meerkat",
+      "aliases": [
+        "Meerkat"
+      ],
+      "medium": "ground",
+      "lengthM": 0.5,
+      "walkMps": 0.325,
+      "runMps": 1.5,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "meerkat.fauna"
+    },
+    {
+      "slug": "mongoose",
+      "name": "Mongoose",
+      "aliases": [
+        "Mongoose"
+      ],
+      "medium": "ground",
+      "lengthM": 0.65,
+      "walkMps": 0.423,
+      "runMps": 1.95,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "mongoose.fauna"
+    },
+    {
+      "slug": "musk-ox",
+      "name": "Musk ox",
+      "aliases": [
+        "Musk ox"
+      ],
+      "medium": "ground",
+      "lengthM": 2.3,
+      "walkMps": 1.495,
+      "runMps": 6.9,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "musk-ox.fauna"
+    },
+    {
+      "slug": "native-litter-beetles-guild",
+      "name": "Native litter beetles (guild)",
+      "aliases": [
+        "Native litter beetles (guild)",
+        "Native litter beetles"
+      ],
+      "medium": "ground",
+      "lengthM": 0.025,
+      "walkMps": 0.08,
+      "runMps": 0.2,
+      "radiusM": 70,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "native-litter-beetles-guild.fauna"
+    },
+    {
+      "slug": "native-small-lizards-guild",
+      "name": "Native small lizards (guild)",
+      "aliases": [
+        "Native small lizards (guild)",
+        "Native small lizards"
+      ],
+      "medium": "ground",
+      "lengthM": 0.2,
+      "walkMps": 0.13,
+      "runMps": 0.6,
+      "radiusM": 70,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "native-small-lizards-guild.fauna"
+    },
+    {
+      "slug": "ocelot",
+      "name": "Ocelot",
+      "aliases": [
+        "Ocelot"
+      ],
+      "medium": "ground",
+      "lengthM": 1.2,
+      "walkMps": 0.78,
+      "runMps": 3.6,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "ocelot.fauna"
+    },
+    {
+      "slug": "oryx",
+      "name": "Oryx",
+      "aliases": [
+        "Oryx"
+      ],
+      "medium": "ground",
+      "lengthM": 2.0,
+      "walkMps": 1.3,
+      "runMps": 6.0,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "oryx.fauna"
+    },
+    {
+      "slug": "ostrich",
+      "name": "Ostrich",
+      "aliases": [
+        "Ostrich"
+      ],
+      "medium": "ground",
+      "lengthM": 2.6,
+      "walkMps": 1.69,
+      "runMps": 7.8,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "ostrich.fauna"
+    },
+    {
+      "slug": "paca",
+      "name": "Paca",
+      "aliases": [
+        "Paca",
+        "Lowland paca"
+      ],
+      "medium": "ground",
+      "lengthM": 0.8,
+      "walkMps": 0.52,
+      "runMps": 2.4,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "paca.fauna"
+    },
+    {
+      "slug": "parrot",
+      "name": "Parrot",
+      "aliases": [
+        "Parrot"
+      ],
+      "medium": "air",
+      "lengthM": 0.9,
+      "walkMps": 4.5,
+      "runMps": 6.75,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "parrot.fauna"
+    },
+    {
+      "slug": "peafowl",
+      "name": "Peafowl",
+      "aliases": [
+        "Peafowl"
+      ],
+      "medium": "ground",
+      "lengthM": 1.8,
+      "walkMps": 1.17,
+      "runMps": 5.4,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "peafowl.fauna"
+    },
+    {
+      "slug": "pelican",
+      "name": "Pelican",
+      "aliases": [
+        "Pelican"
+      ],
+      "medium": "air",
+      "lengthM": 2.7,
+      "walkMps": 13,
+      "runMps": 19.5,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "pelican.fauna"
+    },
+    {
+      "slug": "pigeon",
+      "name": "Pigeon",
+      "aliases": [
+        "Pigeon"
+      ],
+      "medium": "air",
+      "lengthM": 0.65,
+      "walkMps": 3.25,
+      "runMps": 4.875,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "pigeon.fauna"
+    },
+    {
+      "slug": "pika",
+      "name": "Pika",
+      "aliases": [
+        "Pika"
+      ],
+      "medium": "ground",
+      "lengthM": 0.2,
+      "walkMps": 0.13,
+      "runMps": 0.6,
+      "radiusM": 70,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "pika.fauna"
+    },
+    {
+      "slug": "pronghorn",
+      "name": "Pronghorn",
+      "aliases": [
+        "Pronghorn"
+      ],
+      "medium": "ground",
+      "lengthM": 1.5,
+      "walkMps": 0.975,
+      "runMps": 4.5,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "pronghorn.fauna"
+    },
+    {
+      "slug": "puma",
+      "name": "Puma",
+      "aliases": [
+        "Puma"
+      ],
+      "medium": "ground",
+      "lengthM": 2.0,
+      "walkMps": 1.3,
+      "runMps": 6.0,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "puma.fauna"
+    },
+    {
+      "slug": "red-kangaroo",
+      "name": "Red kangaroo",
+      "aliases": [
+        "Red kangaroo"
+      ],
+      "medium": "ground",
+      "lengthM": 2.3,
+      "walkMps": 1.495,
+      "runMps": 6.9,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "red-kangaroo.fauna"
+    },
+    {
+      "slug": "salamanders-guild",
+      "name": "Salamanders (guild)",
+      "aliases": [
+        "Salamanders (guild)",
+        "Salamanders"
+      ],
+      "medium": "ground",
+      "lengthM": 0.18,
+      "walkMps": 0.117,
+      "runMps": 0.54,
+      "radiusM": 70,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "salamanders-guild.fauna"
+    },
+    {
+      "slug": "secretary-bird",
+      "name": "Secretary bird",
+      "aliases": [
+        "Secretary bird"
+      ],
+      "medium": "air",
+      "lengthM": 2.0,
+      "walkMps": 10.0,
+      "runMps": 15.0,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "secretary-bird.fauna"
+    },
+    {
+      "slug": "skunk",
+      "name": "Skunk",
+      "aliases": [
+        "Skunk"
+      ],
+      "medium": "ground",
+      "lengthM": 0.7,
+      "walkMps": 0.455,
+      "runMps": 2.1,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "skunk.fauna"
+    },
+    {
+      "slug": "snowy-owl",
+      "name": "Snowy owl",
+      "aliases": [
+        "Snowy owl"
+      ],
+      "medium": "air",
+      "lengthM": 1.5,
+      "walkMps": 7.5,
+      "runMps": 11.25,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": true,
+      "bundle": "snowy-owl.fauna"
+    },
+    {
+      "slug": "spotted-hyena",
+      "name": "Spotted hyena",
+      "aliases": [
+        "Spotted hyena"
+      ],
+      "medium": "ground",
+      "lengthM": 1.6,
+      "walkMps": 1.04,
+      "runMps": 4.8,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "spotted-hyena.fauna"
+    },
+    {
+      "slug": "spotted-tailed-quoll",
+      "name": "Spotted-tailed quoll",
+      "aliases": [
+        "Spotted-tailed quoll"
+      ],
+      "medium": "ground",
+      "lengthM": 0.85,
+      "walkMps": 0.552,
+      "runMps": 2.55,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "spotted-tailed-quoll.fauna"
+    },
+    {
+      "slug": "stork",
+      "name": "Stork",
+      "aliases": [
+        "Stork"
+      ],
+      "medium": "air",
+      "lengthM": 2.0,
+      "walkMps": 10.0,
+      "runMps": 15.0,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "stork.fauna"
+    },
+    {
+      "slug": "swan",
+      "name": "Swan",
+      "aliases": [
+        "Swan"
+      ],
+      "medium": "air",
+      "lengthM": 2.1,
+      "walkMps": 10.5,
+      "runMps": 15.75,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "swan.fauna"
+    },
+    {
+      "slug": "tapir",
+      "name": "Tapir",
+      "aliases": [
+        "Tapir",
+        "Lowland tapir"
+      ],
+      "medium": "ground",
+      "lengthM": 2.1,
+      "walkMps": 1.365,
+      "runMps": 6.3,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "tapir.fauna"
+    },
+    {
+      "slug": "tiger",
+      "name": "Tiger",
+      "aliases": [
+        "Tiger"
+      ],
+      "medium": "ground",
+      "lengthM": 2.7,
+      "walkMps": 1.755,
+      "runMps": 8.1,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "tiger.fauna"
+    },
+    {
+      "slug": "toucan",
+      "name": "Toucan",
+      "aliases": [
+        "Toucan"
+      ],
+      "medium": "air",
+      "lengthM": 0.75,
+      "walkMps": 3.75,
+      "runMps": 5.625,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "toucan.fauna"
+    },
+    {
+      "slug": "turaco",
+      "name": "Turaco",
+      "aliases": [
+        "Turaco"
+      ],
+      "medium": "air",
+      "lengthM": 0.75,
+      "walkMps": 3.75,
+      "runMps": 5.625,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "turaco.fauna"
+    },
+    {
+      "slug": "vulture",
+      "name": "Vulture",
+      "aliases": [
+        "Vulture"
+      ],
+      "medium": "air",
+      "lengthM": 2.4,
+      "walkMps": 12.0,
+      "runMps": 18.0,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "vulture.fauna"
+    },
+    {
+      "slug": "wallaby",
+      "name": "Wallaby",
+      "aliases": [
+        "Wallaby"
+      ],
+      "medium": "ground",
+      "lengthM": 1.1,
+      "walkMps": 0.715,
+      "runMps": 3.3,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "wallaby.fauna"
+    },
+    {
+      "slug": "warthog",
+      "name": "Warthog",
+      "aliases": [
+        "Warthog"
+      ],
+      "medium": "ground",
+      "lengthM": 1.4,
+      "walkMps": 0.91,
+      "runMps": 4.2,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "warthog.fauna"
+    },
+    {
+      "slug": "weasel",
+      "name": "Weasel",
+      "aliases": [
+        "Weasel"
+      ],
+      "medium": "ground",
+      "lengthM": 0.3,
+      "walkMps": 0.195,
+      "runMps": 0.9,
+      "radiusM": 70,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "weasel.fauna"
+    },
+    {
+      "slug": "wild-ass",
+      "name": "Wild ass",
+      "aliases": [
+        "Wild ass"
+      ],
+      "medium": "ground",
+      "lengthM": 2.1,
+      "walkMps": 1.365,
+      "runMps": 6.3,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "wild-ass.fauna"
+    },
+    {
+      "slug": "wildebeest",
+      "name": "Wildebeest",
+      "aliases": [
+        "Wildebeest",
+        "Blue wildebeest"
+      ],
+      "medium": "ground",
+      "lengthM": 2.3,
+      "walkMps": 1.495,
+      "runMps": 6.9,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "wildebeest.fauna"
+    },
+    {
+      "slug": "wolverine",
+      "name": "Wolverine",
+      "aliases": [
+        "Wolverine"
+      ],
+      "medium": "ground",
+      "lengthM": 1.1,
+      "walkMps": 0.715,
+      "runMps": 3.3,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "wolverine.fauna"
+    },
+    {
+      "slug": "wombat",
+      "name": "Wombat",
+      "aliases": [
+        "Wombat"
+      ],
+      "medium": "ground",
+      "lengthM": 1.0,
+      "walkMps": 0.65,
+      "runMps": 3.0,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "wombat.fauna"
+    },
+    {
+      "slug": "woodpecker",
+      "name": "Woodpecker",
+      "aliases": [
+        "Woodpecker"
+      ],
+      "medium": "air",
+      "lengthM": 0.5,
+      "walkMps": 2.5,
+      "runMps": 3.75,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "woodpecker.fauna"
+    },
+    {
+      "slug": "yak",
+      "name": "Yak",
+      "aliases": [
+        "Yak"
+      ],
+      "medium": "ground",
+      "lengthM": 2.6,
+      "walkMps": 1.69,
+      "runMps": 7.8,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "yak.fauna"
+    },
+    {
+      "slug": "zebra",
+      "name": "Zebra",
+      "aliases": [
+        "Zebra",
+        "Plains zebra"
+      ],
+      "medium": "ground",
+      "lengthM": 2.5,
+      "walkMps": 1.625,
+      "runMps": 7.5,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "zebra.fauna"
+    },
+    {
+      "slug": "aardvark",
+      "name": "Aardvark",
+      "aliases": [
+        "Aardvark"
+      ],
+      "medium": "ground",
+      "lengthM": 1.7,
+      "walkMps": 1.105,
+      "runMps": 5.1,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "aardvark.fauna"
+    },
+    {
+      "slug": "albatross",
+      "name": "Albatross",
+      "aliases": [
+        "Albatross"
+      ],
+      "medium": "air",
+      "lengthM": 3.0,
+      "walkMps": 13,
+      "runMps": 19.5,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "albatross.fauna"
+    },
+    {
+      "slug": "anteater",
+      "name": "Anteater",
+      "aliases": [
+        "Anteater"
+      ],
+      "medium": "ground",
+      "lengthM": 2.0,
+      "walkMps": 1.3,
+      "runMps": 6.0,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "anteater.fauna"
+    },
+    {
+      "slug": "armadillo",
+      "name": "Armadillo",
+      "aliases": [
+        "Armadillo"
+      ],
+      "medium": "ground",
+      "lengthM": 0.7,
+      "walkMps": 0.455,
+      "runMps": 2.1,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "armadillo.fauna"
+    },
+    {
+      "slug": "baboon",
+      "name": "Baboon",
+      "aliases": [
+        "Baboon"
+      ],
+      "medium": "ground",
+      "lengthM": 0.95,
+      "walkMps": 0.617,
+      "runMps": 2.85,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "baboon.fauna"
+    },
+    {
+      "slug": "boa-constrictor",
+      "name": "Boa constrictor",
+      "aliases": [
+        "Boa constrictor"
+      ],
+      "medium": "ground",
+      "lengthM": 2.6,
+      "walkMps": 1.69,
+      "runMps": 7.8,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "boa-constrictor.fauna"
+    },
+    {
+      "slug": "capuchin",
+      "name": "Capuchin",
+      "aliases": [
+        "Capuchin"
+      ],
+      "medium": "ground",
+      "lengthM": 0.85,
+      "walkMps": 0.552,
+      "runMps": 2.55,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "capuchin.fauna"
+    },
+    {
+      "slug": "capybara",
+      "name": "Capybara",
+      "aliases": [
+        "Capybara"
+      ],
+      "medium": "ground",
+      "lengthM": 1.3,
+      "walkMps": 0.845,
+      "runMps": 3.9,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "capybara.fauna"
+    },
+    {
+      "slug": "chimpanzee",
+      "name": "Chimpanzee",
+      "aliases": [
+        "Chimpanzee"
+      ],
+      "medium": "ground",
+      "lengthM": 1.2,
+      "walkMps": 0.78,
+      "runMps": 3.6,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "chimpanzee.fauna"
+    },
+    {
+      "slug": "coastal-forage-fish-guild",
+      "name": "Coastal forage fish (guild)",
+      "aliases": [
+        "Coastal forage fish (guild)",
+        "Coastal forage fish"
+      ],
+      "medium": "water",
+      "lengthM": 0.22,
+      "walkMps": 0.143,
+      "runMps": 0.229,
+      "radiusM": 180,
+      "densityPerKm2": 120,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "coastal-forage-fish-guild.fauna"
+    },
+    {
+      "slug": "coastal-squid-guild",
+      "name": "Coastal squid (guild)",
+      "aliases": [
+        "Coastal squid (guild)",
+        "Coastal squid"
+      ],
+      "medium": "water",
+      "lengthM": 0.45,
+      "walkMps": 0.293,
+      "runMps": 0.468,
+      "radiusM": 180,
+      "densityPerKm2": 120,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "coastal-squid-guild.fauna"
+    },
+    {
+      "slug": "common-brushtail-possum",
+      "name": "Common brushtail possum",
+      "aliases": [
+        "Common brushtail possum"
+      ],
+      "medium": "ground",
+      "lengthM": 0.85,
+      "walkMps": 0.552,
+      "runMps": 2.55,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "common-brushtail-possum.fauna"
+    },
+    {
+      "slug": "cormorant",
+      "name": "Cormorant",
+      "aliases": [
+        "Cormorant"
+      ],
+      "medium": "air",
+      "lengthM": 1.3,
+      "walkMps": 6.5,
+      "runMps": 9.75,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "cormorant.fauna"
+    },
+    {
+      "slug": "crocodile",
+      "name": "Crocodile",
+      "aliases": [
+        "Crocodile"
+      ],
+      "medium": "ground",
+      "lengthM": 3.3,
+      "walkMps": 2.145,
+      "runMps": 9.9,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "crocodile.fauna"
+    },
+    {
+      "slug": "dolphin",
+      "name": "Dolphin",
+      "aliases": [
+        "Dolphin"
+      ],
+      "medium": "water",
+      "lengthM": 2.4,
+      "walkMps": 1.56,
+      "runMps": 2.496,
+      "radiusM": 180,
+      "densityPerKm2": 120,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "dolphin.fauna"
+    },
+    {
+      "slug": "dugong",
+      "name": "Dugong",
+      "aliases": [
+        "Dugong"
+      ],
+      "medium": "water",
+      "lengthM": 2.8,
+      "walkMps": 1.82,
+      "runMps": 2.912,
+      "radiusM": 180,
+      "densityPerKm2": 120,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "dugong.fauna"
+    },
+    {
+      "slug": "echidna",
+      "name": "Echidna",
+      "aliases": [
+        "Echidna"
+      ],
+      "medium": "ground",
+      "lengthM": 0.5,
+      "walkMps": 0.325,
+      "runMps": 1.5,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "echidna.fauna"
+    },
+    {
+      "slug": "elephant",
+      "name": "Elephant",
+      "aliases": [
+        "Elephant",
+        "African savanna elephant",
+        "Asian elephant",
+        "African forest elephant"
+      ],
+      "medium": "ground",
+      "lengthM": 5.6,
+      "walkMps": 2.5,
+      "runMps": 13,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "elephant.fauna"
+    },
+    {
+      "slug": "freshwater-predatory-fish-guild",
+      "name": "Freshwater predatory fish (guild)",
+      "aliases": [
+        "Freshwater predatory fish (guild)",
+        "Freshwater predatory fish"
+      ],
+      "medium": "water",
+      "lengthM": 0.65,
+      "walkMps": 0.423,
+      "runMps": 0.676,
+      "radiusM": 180,
+      "densityPerKm2": 120,
+      "derivedFirefly": false,
+      "freshwater": true,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "freshwater-predatory-fish-guild.fauna"
+    },
+    {
+      "slug": "freshwater-turtle",
+      "name": "Freshwater turtle",
+      "aliases": [
+        "Freshwater turtle"
+      ],
+      "medium": "ground",
+      "lengthM": 0.35,
+      "walkMps": 0.227,
+      "runMps": 1.05,
+      "radiusM": 70,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "freshwater-turtle.fauna"
+    },
+    {
+      "slug": "giant-panda",
+      "name": "Giant panda",
+      "aliases": [
+        "Giant panda"
+      ],
+      "medium": "ground",
+      "lengthM": 1.6,
+      "walkMps": 1.04,
+      "runMps": 4.8,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "giant-panda.fauna"
+    },
+    {
+      "slug": "gibbon",
+      "name": "Gibbon",
+      "aliases": [
+        "Gibbon"
+      ],
+      "medium": "ground",
+      "lengthM": 0.9,
+      "walkMps": 0.585,
+      "runMps": 2.7,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "gibbon.fauna"
+    },
+    {
+      "slug": "giraffe",
+      "name": "Giraffe",
+      "aliases": [
+        "Giraffe"
+      ],
+      "medium": "ground",
+      "lengthM": 4.8,
+      "walkMps": 2.5,
+      "runMps": 13,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "giraffe.fauna"
+    },
+    {
+      "slug": "gorilla",
+      "name": "Gorilla",
+      "aliases": [
+        "Gorilla"
+      ],
+      "medium": "ground",
+      "lengthM": 1.75,
+      "walkMps": 1.137,
+      "runMps": 5.25,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "gorilla.fauna"
+    },
+    {
+      "slug": "guereza",
+      "name": "Guereza",
+      "aliases": [
+        "Guereza"
+      ],
+      "medium": "ground",
+      "lengthM": 1.15,
+      "walkMps": 0.747,
+      "runMps": 3.45,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "guereza.fauna"
+    },
+    {
+      "slug": "gull",
+      "name": "Gull",
+      "aliases": [
+        "Gull"
+      ],
+      "medium": "air",
+      "lengthM": 1.2,
+      "walkMps": 6.0,
+      "runMps": 9.0,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "gull.fauna"
+    },
+    {
+      "slug": "hedgehog",
+      "name": "Hedgehog",
+      "aliases": [
+        "Hedgehog"
+      ],
+      "medium": "ground",
+      "lengthM": 0.27,
+      "walkMps": 0.176,
+      "runMps": 0.81,
+      "radiusM": 70,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "hedgehog.fauna"
+    },
+    {
+      "slug": "hippopotamus",
+      "name": "Hippopotamus",
+      "aliases": [
+        "Hippopotamus"
+      ],
+      "medium": "ground",
+      "lengthM": 3.5,
+      "walkMps": 2.275,
+      "runMps": 10.5,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "hippopotamus.fauna"
+    },
+    {
+      "slug": "howler-monkey",
+      "name": "Howler monkey",
+      "aliases": [
+        "Howler monkey",
+        "Red howler monkey"
+      ],
+      "medium": "ground",
+      "lengthM": 1.25,
+      "walkMps": 0.812,
+      "runMps": 3.75,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "howler-monkey.fauna"
+    },
+    {
+      "slug": "iguana",
+      "name": "Iguana",
+      "aliases": [
+        "Iguana"
+      ],
+      "medium": "ground",
+      "lengthM": 1.4,
+      "walkMps": 0.91,
+      "runMps": 4.2,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "iguana.fauna"
+    },
+    {
+      "slug": "koala",
+      "name": "Koala",
+      "aliases": [
+        "Koala"
+      ],
+      "medium": "ground",
+      "lengthM": 0.75,
+      "walkMps": 0.488,
+      "runMps": 2.25,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "koala.fauna"
+    },
+    {
+      "slug": "lemur",
+      "name": "Lemur",
+      "aliases": [
+        "Lemur"
+      ],
+      "medium": "ground",
+      "lengthM": 0.8,
+      "walkMps": 0.52,
+      "runMps": 2.4,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "lemur.fauna"
+    },
+    {
+      "slug": "long-nosed-bandicoot",
+      "name": "Long-nosed bandicoot",
+      "aliases": [
+        "Long-nosed bandicoot"
+      ],
+      "medium": "ground",
+      "lengthM": 0.45,
+      "walkMps": 0.293,
+      "runMps": 1.35,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "long-nosed-bandicoot.fauna"
+    },
+    {
+      "slug": "macaque",
+      "name": "Macaque",
+      "aliases": [
+        "Macaque"
+      ],
+      "medium": "ground",
+      "lengthM": 0.9,
+      "walkMps": 0.585,
+      "runMps": 2.7,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "macaque.fauna"
+    },
+    {
+      "slug": "monitor-lizard",
+      "name": "Monitor lizard",
+      "aliases": [
+        "Monitor lizard"
+      ],
+      "medium": "ground",
+      "lengthM": 1.6,
+      "walkMps": 1.04,
+      "runMps": 4.8,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "monitor-lizard.fauna"
+    },
+    {
+      "slug": "nutria",
+      "name": "Nutria",
+      "aliases": [
+        "Nutria"
+      ],
+      "medium": "ground",
+      "lengthM": 1.0,
+      "walkMps": 0.65,
+      "runMps": 3.0,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "nutria.fauna"
+    },
+    {
+      "slug": "orangutan",
+      "name": "Orangutan",
+      "aliases": [
+        "Orangutan"
+      ],
+      "medium": "ground",
+      "lengthM": 1.35,
+      "walkMps": 0.878,
+      "runMps": 4.05,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "orangutan.fauna"
+    },
+    {
+      "slug": "orb-weaving-spiders-guild",
+      "name": "Orb-weaving spiders (guild)",
+      "aliases": [
+        "Orb-weaving spiders (guild)",
+        "Orb-weaving spiders"
+      ],
+      "medium": "ground",
+      "lengthM": 0.07,
+      "walkMps": 0.08,
+      "runMps": 0.21,
+      "radiusM": 70,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "orb-weaving-spiders-guild.fauna"
+    },
+    {
+      "slug": "orca",
+      "name": "Orca",
+      "aliases": [
+        "Orca"
+      ],
+      "medium": "water",
+      "lengthM": 6.5,
+      "walkMps": 4,
+      "runMps": 6.4,
+      "radiusM": 180,
+      "densityPerKm2": 120,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "orca.fauna"
+    },
+    {
+      "slug": "pangolin",
+      "name": "Pangolin",
+      "aliases": [
+        "Pangolin"
+      ],
+      "medium": "ground",
+      "lengthM": 1.1,
+      "walkMps": 0.715,
+      "runMps": 3.3,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "pangolin.fauna"
+    },
+    {
+      "slug": "penguin",
+      "name": "Penguin",
+      "aliases": [
+        "Penguin"
+      ],
+      "medium": "ground",
+      "lengthM": 0.9,
+      "walkMps": 0.585,
+      "runMps": 2.7,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "penguin.fauna"
+    },
+    {
+      "slug": "platypus",
+      "name": "Platypus",
+      "aliases": [
+        "Platypus"
+      ],
+      "medium": "ground",
+      "lengthM": 0.55,
+      "walkMps": 0.358,
+      "runMps": 1.65,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "platypus.fauna"
+    },
+    {
+      "slug": "polar-bear",
+      "name": "Polar bear",
+      "aliases": [
+        "Polar bear"
+      ],
+      "medium": "ground",
+      "lengthM": 2.5,
+      "walkMps": 1.625,
+      "runMps": 7.5,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "polar-bear.fauna"
+    },
+    {
+      "slug": "porcupine",
+      "name": "Porcupine",
+      "aliases": [
+        "Porcupine"
+      ],
+      "medium": "ground",
+      "lengthM": 0.85,
+      "walkMps": 0.552,
+      "runMps": 2.55,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "porcupine.fauna"
+    },
+    {
+      "slug": "puffin",
+      "name": "Puffin",
+      "aliases": [
+        "Puffin"
+      ],
+      "medium": "air",
+      "lengthM": 0.55,
+      "walkMps": 2.75,
+      "runMps": 4.125,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "puffin.fauna"
+    },
+    {
+      "slug": "python",
+      "name": "Python",
+      "aliases": [
+        "Python",
+        "African rock python",
+        "Reticulated python"
+      ],
+      "medium": "ground",
+      "lengthM": 3.6,
+      "walkMps": 2.34,
+      "runMps": 10.8,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "python.fauna"
+    },
+    {
+      "slug": "rhinoceros",
+      "name": "Rhinoceros",
+      "aliases": [
+        "Rhinoceros"
+      ],
+      "medium": "ground",
+      "lengthM": 3.8,
+      "walkMps": 2.47,
+      "runMps": 11.4,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "rhinoceros.fauna"
+    },
+    {
+      "slug": "sea-lion",
+      "name": "Sea lion",
+      "aliases": [
+        "Sea lion"
+      ],
+      "medium": "water",
+      "lengthM": 2.1,
+      "walkMps": 1.365,
+      "runMps": 2.184,
+      "radiusM": 180,
+      "densityPerKm2": 120,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "sea-lion.fauna"
+    },
+    {
+      "slug": "sea-otter",
+      "name": "Sea otter",
+      "aliases": [
+        "Sea otter"
+      ],
+      "medium": "water",
+      "lengthM": 1.2,
+      "walkMps": 0.78,
+      "runMps": 1.248,
+      "radiusM": 180,
+      "densityPerKm2": 120,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "sea-otter.fauna"
+    },
+    {
+      "slug": "sea-turtle",
+      "name": "Sea turtle",
+      "aliases": [
+        "Sea turtle"
+      ],
+      "medium": "water",
+      "lengthM": 1.0,
+      "walkMps": 0.65,
+      "runMps": 1.04,
+      "radiusM": 180,
+      "densityPerKm2": 120,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "sea-turtle.fauna"
+    },
+    {
+      "slug": "seal",
+      "name": "Seal",
+      "aliases": [
+        "Seal"
+      ],
+      "medium": "water",
+      "lengthM": 1.7,
+      "walkMps": 1.105,
+      "runMps": 1.768,
+      "radiusM": 180,
+      "densityPerKm2": 120,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "seal.fauna"
+    },
+    {
+      "slug": "shark",
+      "name": "Shark",
+      "aliases": [
+        "Shark"
+      ],
+      "medium": "water",
+      "lengthM": 3.0,
+      "walkMps": 1.95,
+      "runMps": 3.12,
+      "radiusM": 180,
+      "densityPerKm2": 120,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "shark.fauna"
+    },
+    {
+      "slug": "shorebird",
+      "name": "Shorebird",
+      "aliases": [
+        "Shorebird"
+      ],
+      "medium": "air",
+      "lengthM": 0.5,
+      "walkMps": 2.5,
+      "runMps": 3.75,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "shorebird.fauna"
+    },
+    {
+      "slug": "shrew",
+      "name": "Shrew",
+      "aliases": [
+        "Shrew"
+      ],
+      "medium": "ground",
+      "lengthM": 0.1,
+      "walkMps": 0.08,
+      "runMps": 0.3,
+      "radiusM": 70,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "shrew.fauna"
+    },
+    {
+      "slug": "sloth",
+      "name": "Sloth",
+      "aliases": [
+        "Sloth"
+      ],
+      "medium": "ground",
+      "lengthM": 0.75,
+      "walkMps": 0.488,
+      "runMps": 2.25,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "sloth.fauna"
+    },
+    {
+      "slug": "spider-monkey",
+      "name": "Spider monkey",
+      "aliases": [
+        "Spider monkey"
+      ],
+      "medium": "ground",
+      "lengthM": 1.5,
+      "walkMps": 0.975,
+      "runMps": 4.5,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "spider-monkey.fauna"
+    },
+    {
+      "slug": "tamarin",
+      "name": "Tamarin",
+      "aliases": [
+        "Tamarin"
+      ],
+      "medium": "ground",
+      "lengthM": 0.55,
+      "walkMps": 0.358,
+      "runMps": 1.65,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "tamarin.fauna"
+    },
+    {
+      "slug": "tern",
+      "name": "Tern",
+      "aliases": [
+        "Tern"
+      ],
+      "medium": "air",
+      "lengthM": 0.75,
+      "walkMps": 3.75,
+      "runMps": 5.625,
+      "radiusM": 170,
+      "densityPerKm2": 180,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "tern.fauna"
+    },
+    {
+      "slug": "tortoise",
+      "name": "Tortoise",
+      "aliases": [
+        "Tortoise"
+      ],
+      "medium": "ground",
+      "lengthM": 0.4,
+      "walkMps": 0.26,
+      "runMps": 1.2,
+      "radiusM": 170,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "tortoise.fauna"
+    },
+    {
+      "slug": "venomous-snake",
+      "name": "Venomous snake",
+      "aliases": [
+        "Venomous snake"
+      ],
+      "medium": "ground",
+      "lengthM": 1.0,
+      "walkMps": 0.65,
+      "runMps": 3.0,
+      "radiusM": 650,
+      "densityPerKm2": 0,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "venomous-snake.fauna"
+    },
+    {
+      "slug": "walrus",
+      "name": "Walrus",
+      "aliases": [
+        "Walrus"
+      ],
+      "medium": "water",
+      "lengthM": 3.0,
+      "walkMps": 1.95,
+      "runMps": 3.12,
+      "radiusM": 180,
+      "densityPerKm2": 120,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "walrus.fauna"
+    },
+    {
+      "slug": "whale",
+      "name": "Whale",
+      "aliases": [
+        "Whale"
+      ],
+      "medium": "water",
+      "lengthM": 14.0,
+      "walkMps": 4,
+      "runMps": 6.4,
+      "radiusM": 180,
+      "densityPerKm2": 120,
+      "derivedFirefly": false,
+      "freshwater": false,
+      "tiny": false,
+      "nocturnal": false,
+      "bundle": "whale.fauna"
+    }
+  ]
+}

@@ -1,5 +1,38 @@
 # WorldGen repository instructions
 
+VISIBLE FAUNA PROTOTYPE,26October2026~13:44CDT:
+New owner task: integrate all accepted animal placeholders with basic smooth
+wandering and regional spawning. Appearance work stays stopped; all177 selected
+natives from fauna-anatomy-revision/review-index.json retained read-only, protected
+Deer0e2ff46... unchanged. All177 native hashes verified again after packaging.
+177 per-animal streaming bundles,541 movement clips,830 coat layers,376.0MiB.
+Only idle/walk/trot/run/fly/glide/swim roles; no feeding/sleep/death/attack/demos.
+Export original native global palettes30Hz,4/8 weights, no retarget/animation repair;
+sampled beginning/middle/end surface error max4.89230791495413e-7 normalized.
+Gull native driven wing-fold morph explicitly retained pre-skin. BC7 material
+atlases512/1024, normal transfer approximate (no procedural micro-bump). First
+body morph fixed, optional rack visibility retained; no full review morph system.
+Ecology catalogue binds176 native taxa; fireflies derived warm/moist/night profile.
+Stable local placements and plausible mass/diet/productivity density priors;
+NO world-scale size/density multiplier. Ground48/air24/water32/tiny24 caps,128
+actors total,24 cached models. Smooth heading/speed,0.55s clip blends, basic
+step/water rejection; no navigation/obstacle collision/needs/persistence yet.
+Ground baseline refresh avoids freezing above changed terrain LODs; high flying
+unloads population. Model streaming order balances nearby media. F3 wildlife row;
+--worldgen-no-animals diagnostic bypass. Existing audio/world/save state untouched.
+Release IL2CPP player-visible-fauna BuiltUtc2026-10-26T18:44:08.9844205Z exited0,
+no C#/shader errors; full177 bundle build0 and packaged hashes verified. Shared
+Presentation compile0warnings/errors; static catalogue audit176mapped/0missing.
+Compile/package-only restriction retained: NO player/world/fixture/profiling or
+gameplay captures. Runtime appearance/densities/transitions/FPS await owner test.
+Existing repo shortcut selects new build; running old game/apps left untouched.
+One final build hit disk peak; removed ONLY own regenerable GeneratedFauna cache
+708files/2818557831bytes, retained all sources/exports/bundles. Successful retry
+followed by final grounding/streaming rebuild. Source scripts reproduce cache.
+Unity build-created settings/importer changes restored. See docs/FAUNA_RUNTIME_
+PROTOTYPE.md and VALIDATION. Preserve unrelated owner prompt deletion, old deer
+scripts and parallel human-builder demo sources/artifacts; do not stage them.
+
 HUMAN BUILDER APPEARANCE DEMO OPEN,26October2026:
 Owner requested a small MPFB/UMA Blender comparison before animation/game work.
 Created6 adults per method /12 total in isolated artifacts/human-builder-demo,
