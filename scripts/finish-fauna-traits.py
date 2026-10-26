@@ -125,7 +125,20 @@ def merged_buffalo_rack(conf,length,width):
             verts.append(point);uv.append((j/segments,i/(len(path)-1)))
     for i in range(len(path)-1):
         for j in range(segments):polys.append((i*segments+j,i*segments+(j+1)%segments,(i+1)*segments+(j+1)%segments,(i+1)*segments+j))
-    polys.extend([tuple(reversed(range(segments))),tuple((len(path)-1)*segments+j for j in range(segments))]);mesh_object(f'{a.slug} {conf["id"]} continuous horn and boss',verts,polys,skin,uv)
+    polys.extend([tuple(reversed(range(segments))),tuple((len(path)-1)*segments+j for j in range(segments))]);name=mesh_object(f'{a.slug} {conf["id"]} continuous horn and boss',verts,polys,skin,uv)
+    # Union folded/self-overlapping boss sections into one solid keratin mass.
+    # The previous conformed tube left thin projecting strips below the boss.
+    ob=bpy.data.objects[name];bpy.ops.object.select_all(action='DESELECT');ob.select_set(True);bpy.context.view_layer.objects.active=ob
+    mod=ob.modifiers.new('Solid seated keratin boss','REMESH');mod.mode='VOXEL';mod.voxel_size=.006;mod.use_smooth_shade=True;bpy.ops.object.modifier_apply(modifier=mod.name)
+    smooth=ob.modifiers.new('Restrained boss edge relaxation','SMOOTH');smooth.factor=.30;smooth.iterations=2;bpy.ops.object.modifier_apply(modifier=smooth.name)
+    triangle_count=sum(len(face.vertices)-2 for face in ob.data.polygons)
+    if triangle_count>2200:
+        decimate=ob.modifiers.new('Compact horn surface','DECIMATE');decimate.ratio=2200/triangle_count;decimate.use_collapse_triangulate=True;bpy.ops.object.modifier_apply(modifier=decimate.name)
+    ob.vertex_groups.clear()
+    for bone,w in skin.items():ob.vertex_groups.new(name=bone).add(list(range(len(ob.data.vertices))),w,'REPLACE')
+    if not ob.data.uv_layers:ob.data.uv_layers.new(name='UVMap')
+    bpy.ops.object.mode_set(mode='EDIT');bpy.ops.mesh.select_all(action='SELECT');bpy.ops.uv.smart_project(angle_limit=1.15,island_margin=.025);bpy.ops.object.mode_set(mode='OBJECT');ob.data.uv_layers.active.active_render=True
+    for face in ob.data.polygons:face.use_smooth=True
 
 variants=configurations(a.slug)
 for conf in variants:

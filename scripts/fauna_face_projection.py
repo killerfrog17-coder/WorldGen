@@ -28,5 +28,5 @@ def sample_view(root,config,vertices,faces,points,normals):
     if config.get('two_sided'):alignment=np.abs(alignment)
     t=np.clip((alignment-.15)/.65,0,1);weight=t*t*(3-2*t)*visible
     weight*=((screen[:,0]>0)&(screen[:,0]<W-1)&(screen[:,1]>0)&(screen[:,1]<H-1))
-    border=config.get('fade_border',.08);edge=np.minimum.reduce([screen[:,0]/W,1-screen[:,0]/W,screen[:,1]/H,1-screen[:,1]/H]);fade=np.clip(edge/max(border,1e-6),0,1);weight*=fade*fade*(3-2*fade)*config.get('weight',1.)
+    border=config.get('fade_border',.22);edge=np.minimum.reduce([screen[:,0]/W,1-screen[:,0]/W,screen[:,1]/H,1-screen[:,1]/H]);fade=np.clip(edge/max(border,1e-6),0,1);weight*=fade*fade*(3-2*fade)*config.get('weight',1.)
     return sampled,weight

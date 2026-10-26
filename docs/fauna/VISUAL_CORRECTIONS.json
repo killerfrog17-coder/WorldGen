@@ -14,17 +14,29 @@
       "number": 2,
       "slug": "hare",
       "name": "Hare",
-      "status": "working_copy_not_published",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\hare",
+        "native_sha256": "ba83b20065889c52b9f10734b6b5f94c0f80f500b4f5afe0ff4059e16ec16097",
+        "preservation_proof_matches": true,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 3,
       "slug": "rabbit",
       "name": "Rabbit",
-      "status": "working_copy_not_published",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\rabbit",
+        "native_sha256": "8c4d7b701686fa60fd9bf666ac6aaa70ab7582b07a7ae5b154f75a5bb1d60782",
+        "preservation_proof_matches": true,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 4,
@@ -46,65 +58,107 @@
       "number": 6,
       "slug": "red-fox",
       "name": "Red fox",
-      "status": "critic_rejected_pending_rework",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": true,
       "appearance_approved": false,
       "source_sha256": "b5123ab9264fa4e557714a30d4e163bb3f1a1cbfef26d6a51b8670150dff13db",
       "reference": "https://www.nationalgeographic.com.es/mundo-animal/la-pupila-un-instrumento-optico-de-precision_19363",
       "body_and_pattern_review": "Remaining general body/pattern review not certified by this face pass.",
-      "independent_critic_pass": false
+      "independent_critic_pass": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\red-fox",
+        "native_sha256": "19f1014a6a64597ff570d679883f6c502dc5835aafd0586a619de3ce813766d2",
+        "preservation_proof_matches": true,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 7,
       "slug": "wolf",
       "name": "Wolf",
-      "status": "critic_rejected_pending_rework",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": true,
       "appearance_approved": false,
       "source_sha256": "3518512b793a22da10200feba0af722bb9e2e009905a73a68f08ace86dc3748c",
       "reference": "https://www.wildlifesciencecenter.org/gray-wolf",
       "body_and_pattern_review": "Remaining general body/pattern review not certified by this face pass.",
-      "independent_critic_pass": false
+      "independent_critic_pass": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\wolf",
+        "native_sha256": "7cae8db7e26e12e708061a92a3390f7aa7f697f314f7a74084a6924c0ccd7160",
+        "preservation_proof_matches": true,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 8,
       "slug": "wild-boar",
       "name": "Wild boar",
-      "status": "working_copy_not_published",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\wild-boar",
+        "native_sha256": "487f303662a601c3f0a5bd4390f25ec42dd592edaebfeac3364123e5bc056232",
+        "preservation_proof_matches": false,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 9,
       "slug": "mouflon",
       "name": "Mouflon",
-      "status": "working_copy_not_published",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\mouflon",
+        "native_sha256": "210d5677f33515a87702a73a5ef4c41aab6f8061c25b66d26fc729b1d71514a1",
+        "preservation_proof_matches": false,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 10,
       "slug": "wild-goat",
       "name": "Wild goat",
-      "status": "queued",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\wild-goat",
+        "native_sha256": "6612180b2141cf3ac3a29f389d0c4d8cb0135322c42c956cb3aefad629d154bc",
+        "preservation_proof_matches": true,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 11,
       "slug": "bear",
       "name": "Bear",
-      "status": "queued",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\bear",
+        "native_sha256": "8f2495413776fa3ecf5741a3313c030c30db2dcbd6d0c9299f32c569ee41b019",
+        "preservation_proof_matches": true,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 12,
       "slug": "bison",
       "name": "Bison",
-      "status": "queued",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\bison",
+        "native_sha256": "b82fa83122e765bf8287212c579ef918e9273a3a18ef7eac3e931a5323ffc955",
+        "preservation_proof_matches": true,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 13,
@@ -142,9 +196,16 @@
       "number": 17,
       "slug": "pheasant",
       "name": "Pheasant",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ground-birds-baseline.json",
+        "report_sha256": "57820b0692eb9f649b7689d93d13a5684e9aff8b6a762c0fa11d98cef2035d4e",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 18,
@@ -158,125 +219,220 @@
       "number": 19,
       "slug": "mouse",
       "name": "Mouse",
-      "status": "queued",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\mouse",
+        "native_sha256": "2360118316963dd4a662d7acbb02af31ec374240dfcc7d0dd7e2a7439701799a",
+        "preservation_proof_matches": false,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 20,
       "slug": "squirrel",
       "name": "Squirrel",
-      "status": "queued",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\squirrel",
+        "native_sha256": "0b26e2fcc0e70fc1d910b26e01b2e865890bfe1fca864c4cfdf3cede8977ceca",
+        "preservation_proof_matches": false,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 21,
       "slug": "horse",
       "name": "Horse",
-      "status": "queued",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\horse",
+        "native_sha256": "67c356789ee8bb86795614dde28c58ca1d4b73ff0d5c897313d0d6883416ca00",
+        "preservation_proof_matches": false,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 22,
       "slug": "reindeer",
       "name": "Reindeer",
-      "status": "queued",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\reindeer",
+        "native_sha256": "5e05cbb7e880b4fd5c8a136eb2df89a559fc266eaffaca605f27d3213aed626c",
+        "preservation_proof_matches": false,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 23,
       "slug": "moose",
       "name": "Moose",
-      "status": "queued",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\moose",
+        "native_sha256": "707af2ac978e2030e8ab25f71d30e9270e28153819b2934c7bee0bfdb51a8ed4",
+        "preservation_proof_matches": false,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 24,
       "slug": "wild-cattle",
       "name": "Wild cattle",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\hoof-mammals-baseline.json",
+        "report_sha256": "05221e4f2fca09805a0251d17f9acbe3021a51be94780d1a4031c13467d2e67b",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 25,
       "slug": "grouse",
       "name": "Grouse",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ground-birds-baseline.json",
+        "report_sha256": "57820b0692eb9f649b7689d93d13a5684e9aff8b6a762c0fa11d98cef2035d4e",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 26,
       "slug": "quail",
       "name": "Quail",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ground-birds-baseline.json",
+        "report_sha256": "57820b0692eb9f649b7689d93d13a5684e9aff8b6a762c0fa11d98cef2035d4e",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 27,
       "slug": "turkey",
       "name": "Turkey",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ground-birds-baseline.json",
+        "report_sha256": "57820b0692eb9f649b7689d93d13a5684e9aff8b6a762c0fa11d98cef2035d4e",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 28,
       "slug": "junglefowl",
       "name": "Junglefowl",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ground-birds-baseline.json",
+        "report_sha256": "57820b0692eb9f649b7689d93d13a5684e9aff8b6a762c0fa11d98cef2035d4e",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 29,
       "slug": "raccoon",
       "name": "Raccoon",
-      "status": "critic_rejected_pending_rework",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": true,
       "appearance_approved": false,
       "source_sha256": "2101e1e62999bbe48d73a692c0ba60ff5843e7243f40c38cded8e75fdd3be5f4",
       "reference": "https://rachelmankowitz.com/2014/04/19/the-dancing-raccoon/",
       "body_and_pattern_review": "Remaining general body/pattern review not certified by this face pass.",
-      "independent_critic_pass": false
+      "independent_critic_pass": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\raccoon",
+        "native_sha256": "c91fd9ffc6a80bca24de423309354fafde8f3d34488735617c51038e59bc0d4e",
+        "preservation_proof_matches": true,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 30,
       "slug": "badger",
       "name": "Badger",
-      "status": "queued",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\badger",
+        "native_sha256": "9853ebb731639af63c79f88f5df423a2daa398920b920d0333a8c38d14bd80cd",
+        "preservation_proof_matches": false,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 31,
       "slug": "beaver",
       "name": "Beaver",
-      "status": "queued",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\beaver",
+        "native_sha256": "04a9617c610e3a0a7444d4e5f38c165705e5d75ae840e1fb6bbca1b1076e8cca",
+        "preservation_proof_matches": false,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 32,
       "slug": "otter",
       "name": "Otter",
-      "status": "queued",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\otter",
+        "native_sha256": "22b61b1cd77ce98cb04fb356f62042926ec94e52fc86245d5744e9cb01711fcc",
+        "preservation_proof_matches": false,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 33,
       "slug": "lynx",
       "name": "Lynx",
-      "status": "queued",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\lynx",
+        "native_sha256": "34c3bb0b60e9eb8f0a756af2d1d17e7b5ff765efd5a12910b5e02f0cc7495ab2",
+        "preservation_proof_matches": false,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 34,
@@ -298,41 +454,75 @@
       "number": 36,
       "slug": "african-hunting-dog",
       "name": "African hunting dog",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\small-predators-baseline.json",
+        "report_sha256": "e56b84fc77af58f09d562805f22d55f953a3a94b70ab78e332c956380706d928",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 37,
       "slug": "agouti",
       "name": "Agouti",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\rodents-baseline.json",
+        "report_sha256": "25c358cf934b15e6c585880a7409d403d253c260a2e60b21059c5389035d62d2",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 38,
       "slug": "bank-vole",
       "name": "Bank vole",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\rodents-baseline.json",
+        "report_sha256": "25c358cf934b15e6c585880a7409d403d253c260a2e60b21059c5389035d62d2",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 39,
       "slug": "buffalo",
       "name": "Buffalo",
-      "status": "working_copy_not_published",
+      "status": "anatomy_working_not_published",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "latest_anatomy_work": {
+        "root": "artifacts\\fauna-anatomy-revision\\buffalo",
+        "native_sha256": "3f943d8671f41d0b9c514f7926e11a1bac9cd81e2ad47ee1c44676185a609347",
+        "preservation_proof_matches": true,
+        "latest_native_independent_appearance_clearance": false
+      }
     },
     {
       "number": 40,
       "slug": "camel",
       "name": "Camel",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\hoof-mammals-baseline.json",
+        "report_sha256": "05221e4f2fca09805a0251d17f9acbe3021a51be94780d1a4031c13467d2e67b",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 41,
@@ -346,9 +536,16 @@
       "number": 42,
       "slug": "civet",
       "name": "Civet",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\small-predators-baseline.json",
+        "report_sha256": "e56b84fc77af58f09d562805f22d55f953a3a94b70ab78e332c956380706d928",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 43,
@@ -370,9 +567,16 @@
       "number": 45,
       "slug": "cotton-rat",
       "name": "Cotton rat",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\rodents-baseline.json",
+        "report_sha256": "25c358cf934b15e6c585880a7409d403d253c260a2e60b21059c5389035d62d2",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 46,
@@ -386,9 +590,16 @@
       "number": 47,
       "slug": "duiker",
       "name": "Duiker",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ungulates-baseline.json",
+        "report_sha256": "720135856ec8ca83d7976e3b52689f6419b55d77011cc9fc8a553f6cfe5f9ded",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 48,
@@ -450,25 +661,46 @@
       "number": 55,
       "slug": "gazelle",
       "name": "Gazelle",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ungulates-baseline.json",
+        "report_sha256": "720135856ec8ca83d7976e3b52689f6419b55d77011cc9fc8a553f6cfe5f9ded",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 56,
       "slug": "goose",
       "name": "Goose",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ground-birds-baseline.json",
+        "report_sha256": "57820b0692eb9f649b7689d93d13a5684e9aff8b6a762c0fa11d98cef2035d4e",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 57,
       "slug": "grass-rat",
       "name": "Grass rat",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\rodents-baseline.json",
+        "report_sha256": "25c358cf934b15e6c585880a7409d403d253c260a2e60b21059c5389035d62d2",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 58,
@@ -490,17 +722,31 @@
       "number": 60,
       "slug": "ground-squirrel",
       "name": "Ground squirrel",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\rodents-baseline.json",
+        "report_sha256": "25c358cf934b15e6c585880a7409d403d253c260a2e60b21059c5389035d62d2",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 61,
       "slug": "guanaco",
       "name": "Guanaco",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\hoof-mammals-baseline.json",
+        "report_sha256": "05221e4f2fca09805a0251d17f9acbe3021a51be94780d1a4031c13467d2e67b",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 62,
@@ -530,17 +776,31 @@
       "number": 65,
       "slug": "ibex",
       "name": "Ibex",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ungulates-baseline.json",
+        "report_sha256": "720135856ec8ca83d7976e3b52689f6419b55d77011cc9fc8a553f6cfe5f9ded",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 66,
       "slug": "impala",
       "name": "Impala",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ungulates-baseline.json",
+        "report_sha256": "720135856ec8ca83d7976e3b52689f6419b55d77011cc9fc8a553f6cfe5f9ded",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 67,
@@ -554,17 +814,31 @@
       "number": 68,
       "slug": "jaguar",
       "name": "Jaguar",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\big-cats-baseline.json",
+        "report_sha256": "9bc9a3e1ec7845db0601296c66f733a2ab9395b41a55bd33f202e0e857f192ff",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 69,
       "slug": "jerboa",
       "name": "Jerboa",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\rodents-baseline.json",
+        "report_sha256": "25c358cf934b15e6c585880a7409d403d253c260a2e60b21059c5389035d62d2",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 70,
@@ -586,57 +860,106 @@
       "number": 72,
       "slug": "lemming",
       "name": "Lemming",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\rodents-baseline.json",
+        "report_sha256": "25c358cf934b15e6c585880a7409d403d253c260a2e60b21059c5389035d62d2",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 73,
       "slug": "leopard",
       "name": "Leopard",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\big-cats-baseline.json",
+        "report_sha256": "9bc9a3e1ec7845db0601296c66f733a2ab9395b41a55bd33f202e0e857f192ff",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 74,
       "slug": "lion",
       "name": "Lion",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\big-cats-baseline.json",
+        "report_sha256": "9bc9a3e1ec7845db0601296c66f733a2ab9395b41a55bd33f202e0e857f192ff",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 75,
       "slug": "marmot",
       "name": "Marmot",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\rodents-baseline.json",
+        "report_sha256": "25c358cf934b15e6c585880a7409d403d253c260a2e60b21059c5389035d62d2",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 76,
       "slug": "meerkat",
       "name": "Meerkat",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\small-predators-baseline.json",
+        "report_sha256": "e56b84fc77af58f09d562805f22d55f953a3a94b70ab78e332c956380706d928",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 77,
       "slug": "mongoose",
       "name": "Mongoose",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\small-predators-baseline.json",
+        "report_sha256": "e56b84fc77af58f09d562805f22d55f953a3a94b70ab78e332c956380706d928",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 78,
       "slug": "musk-ox",
       "name": "Musk ox",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\hoof-mammals-baseline.json",
+        "report_sha256": "05221e4f2fca09805a0251d17f9acbe3021a51be94780d1a4031c13467d2e67b",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 79,
@@ -658,17 +981,31 @@
       "number": 81,
       "slug": "ocelot",
       "name": "Ocelot",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\big-cats-baseline.json",
+        "report_sha256": "9bc9a3e1ec7845db0601296c66f733a2ab9395b41a55bd33f202e0e857f192ff",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 82,
       "slug": "oryx",
       "name": "Oryx",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ungulates-baseline.json",
+        "report_sha256": "720135856ec8ca83d7976e3b52689f6419b55d77011cc9fc8a553f6cfe5f9ded",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 83,
@@ -730,17 +1067,31 @@
       "number": 90,
       "slug": "pronghorn",
       "name": "Pronghorn",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\ungulates-baseline.json",
+        "report_sha256": "720135856ec8ca83d7976e3b52689f6419b55d77011cc9fc8a553f6cfe5f9ded",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 91,
       "slug": "puma",
       "name": "Puma",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\big-cats-baseline.json",
+        "report_sha256": "9bc9a3e1ec7845db0601296c66f733a2ab9395b41a55bd33f202e0e857f192ff",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 92,
@@ -770,9 +1121,16 @@
       "number": 95,
       "slug": "skunk",
       "name": "Skunk",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\small-predators-baseline.json",
+        "report_sha256": "e56b84fc77af58f09d562805f22d55f953a3a94b70ab78e332c956380706d928",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 96,
@@ -786,9 +1144,16 @@
       "number": 97,
       "slug": "spotted-hyena",
       "name": "Spotted hyena",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\small-predators-baseline.json",
+        "report_sha256": "e56b84fc77af58f09d562805f22d55f953a3a94b70ab78e332c956380706d928",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 98,
@@ -826,9 +1191,16 @@
       "number": 102,
       "slug": "tiger",
       "name": "Tiger",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\big-cats-baseline.json",
+        "report_sha256": "9bc9a3e1ec7845db0601296c66f733a2ab9395b41a55bd33f202e0e857f192ff",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 103,
@@ -874,33 +1246,61 @@
       "number": 108,
       "slug": "weasel",
       "name": "Weasel",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\small-predators-baseline.json",
+        "report_sha256": "e56b84fc77af58f09d562805f22d55f953a3a94b70ab78e332c956380706d928",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 109,
       "slug": "wild-ass",
       "name": "Wild ass",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\hoof-mammals-baseline.json",
+        "report_sha256": "05221e4f2fca09805a0251d17f9acbe3021a51be94780d1a4031c13467d2e67b",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 110,
       "slug": "wildebeest",
       "name": "Wildebeest",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\hoof-mammals-baseline.json",
+        "report_sha256": "05221e4f2fca09805a0251d17f9acbe3021a51be94780d1a4031c13467d2e67b",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 111,
       "slug": "wolverine",
       "name": "Wolverine",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\small-predators-baseline.json",
+        "report_sha256": "e56b84fc77af58f09d562805f22d55f953a3a94b70ab78e332c956380706d928",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 112,
@@ -922,17 +1322,31 @@
       "number": 114,
       "slug": "yak",
       "name": "Yak",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\hoof-mammals-baseline.json",
+        "report_sha256": "05221e4f2fca09805a0251d17f9acbe3021a51be94780d1a4031c13467d2e67b",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 115,
       "slug": "zebra",
       "name": "Zebra",
-      "status": "queued",
+      "status": "baseline_critic_rejected_pending_rework",
       "reference_comparison_completed": false,
-      "appearance_approved": false
+      "appearance_approved": false,
+      "independent_baseline_review": {
+        "report": "artifacts\\fauna-anatomy-revision\\critic-reports\\hoof-mammals-baseline.json",
+        "report_sha256": "05221e4f2fca09805a0251d17f9acbe3021a51be94780d1a4031c13467d2e67b",
+        "critic_without_inherited_history": true,
+        "front_and_profile_real_photos_viewed": true,
+        "scope": "Canonical earlier baseline, not acceptance of newer anatomy work."
+      }
     },
     {
       "number": 116,

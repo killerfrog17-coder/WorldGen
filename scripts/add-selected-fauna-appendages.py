@@ -10,9 +10,9 @@ from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
 repo=Path(__file__).resolve().parent.parent
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True)
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--root',type=Path)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);assert a.slug in {'wild-boar','mouflon','wild-goat','bear','bison'}
-root=repo/'artifacts/fauna-painted-20261024'/a.slug
+root=(a.root or repo/'artifacts/fauna-painted-20261024'/a.slug).resolve()
 state=json.loads((root/'paint-state.json').read_text());assert not state['appearance_approved']
 land=json.loads((root/'face-landmarks.json').read_text());bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Painted Species Review.blend'))
 s=bpy.context.scene;entry=json.loads(s['deer_four_rigs'])[0];body=bpy.data.objects[entry['body']];rig=bpy.data.objects[entry['rig']]
@@ -86,7 +86,7 @@ if a.slug=='wild-boar':
     for style,length in [('small',.045),('medium',.075),('large',.11)]:
         pair=[]
         for sign in [-1,1]:
-            target=nose-front*.11+side_axis*sign*.085-up*.035;root_point,skin=surface(target)
+            target=nose-front*(.22 if land.get('anatomical_orbit') else .11)+side_axis*sign*.085-up*.035;root_point,skin=surface(target)
             path=[root_point+side_axis*sign*(length*.95*math.sin(t*math.pi*.6))+front*(length*.12*t)+up*(length*(t*.60+t*t*.20)) for t in np.linspace(0,1,8)]
             name=f'{a.slug} {style} tusk {sign}';pair.append(tube(name,path,.014*(length/.085)**.6,skin))
             evidence.append({'object':name,'root':root_point.tolist(),'max_root_target_distance':float(np.linalg.norm(target-root_point)),'skin':skin})
@@ -97,15 +97,16 @@ elif a.slug=='mouflon':
     for style,radius,angle,count in [('young-ram',.14,3.2,14),('adult-ram',.19,4.4,20),('mature-ram',.23,5.2,24),('small-ewe',.07,1.3,10)]:
         pair=[]
         for sign in [-1,1]:
-            target=eye_mid-front*.12+side_axis*sign*.11+up*.11
+            target=eye_mid+front*(.015 if land.get('anatomical_orbit') else -.12)+side_axis*sign*(np.linalg.norm(np.array(land['right_eye']['point'])-land['left_eye']['point'])*.28 if land.get('anatomical_orbit') else .11)+up*.11
             hit=bvh.ray_cast(Vector(target+up*.8),Vector(-up),1.6)[0]
             root_point,skin=surface(hit if hit is not None else target)
+            if land.get('anatomical_orbit'):assert root_point[2]>eye_mid[2]+.05,'Ram horn ray landed below crown'
             root_normal=np.array(bvh.find_nearest(Vector(root_point))[1]);root_normal/=np.linalg.norm(root_normal)
             path=[]
             for theta in np.linspace(0,angle,count):
                 lateral=.035*math.sin(min(theta,math.pi/2))+.07*(1-math.exp(-theta))
-                path.append(root_point+side_axis*sign*lateral-front*(radius*math.sin(theta))+up*(radius*(math.cos(theta)-1)+theta*.020)-root_normal*.065*math.exp(-theta*8))
-            name=f'{a.slug} {style} horn {sign}';pair.append(tube(name,path,(.014 if style=='small-ewe' else .050)*(radius/.19)**.7,skin,horn=True))
+                path.append(root_point+side_axis*sign*lateral-front*(radius*math.sin(theta))+up*(radius*(math.cos(theta)-1)+theta*.020)-root_normal*(.014 if land.get('anatomical_orbit') else .065)*math.exp(-theta*8))
+            name=f'{a.slug} {style} horn {sign}';pair.append(tube(name,path,(.014 if style=='small-ewe' else .062 if land.get('anatomical_orbit') else .050)*(radius/.19)**.7,skin,horn=True,segments=10 if land.get('anatomical_orbit') else 6))
             evidence.append({'object':name,'root':root_point.tolist(),'skin':skin,'coil_radius':radius,'coil_angle':angle})
         libraries[style]=pair
     rams=[('adult-ram','adult ram example'),('young-ram','younger ram horn example'),('mature-ram','mature ram horn example')]
@@ -127,10 +128,14 @@ elif a.slug=='wild-goat':
     beards={}
     for style,length in [('short',.065),('full',.105)]:
         root_point,skin=surface(nose-front*.14-up*.065);vertices=[];polys=[]
-        for strand in range(5):
+        rng=np.random.default_rng(731 if style=='short' else 941)
+        for strand in range(19 if land.get('anatomical_orbit') else 5):
             base=len(vertices)
+            lateral=rng.uniform(-.033,.033) if land.get('anatomical_orbit') else (strand-2)*.007
+            rear=rng.uniform(-.014,.014) if land.get('anatomical_orbit') else 0.
+            strand_length=length*rng.uniform(.45,1.05) if land.get('anatomical_orbit') else length*(.90+.025*strand)
             for i,t in enumerate([0,.55,1]):
-                centre=root_point+side_axis*((strand-2)*.007)-up*(length*t*(.90+.025*strand))-front*(length*.12*t)
+                centre=root_point+side_axis*lateral*(1-.25*t)-up*(strand_length*t)+front*(rear-length*.12*t)
                 for j in range(3):
                     angle=math.tau*j/3;vertices.append(centre+(.0055*(1-t)+.0001)*(side_axis*math.cos(angle)+front*math.sin(angle)))
             for i in range(2):
@@ -181,7 +186,7 @@ assert len(assignment)==len(entry['painting_coats'])
 for coat,variants in zip(entry['painting_coats'],assignment):
     options=[{'objects':libraries[style] if style else [],'label':label} for style,label in variants]
     coat.update(visible_extras=options[0]['objects'],trait_label=options[0]['label'],appendage_variants=options)
-entry['appendage_objects']=objects;entry['objects']=[entry['body'],*entry.get('facial_objects',[]),*objects]
+entry['appendage_objects']=objects;entry['objects']=list(dict.fromkeys([entry['body'],*entry.get('facial_objects',[]),*entry.get('coat_objects',[]),*objects]))
 visible=set(entry['painting_coats'][0]['visible_extras'])
 for name in objects:bpy.data.objects[name].hide_set(name not in visible);bpy.data.objects[name].hide_render=name not in visible
 s['deer_four_rigs']=json.dumps([entry])

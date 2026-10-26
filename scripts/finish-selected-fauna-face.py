@@ -168,7 +168,7 @@ for index,coat in enumerate(entry['painting_coats']):
             if anatomical:
                 uv=nodes.new('ShaderNodeUVMap');uv.uv_map='Orbital bake UV';fur=nodes.new('ShaderNodeTexImage');fur.image=orbital_atlases[index];fur.extension='EXTEND';links.new(uv.outputs['UV'],fur.inputs['Vector']);links.new(fur.outputs['Color'],mix.inputs[2])
         else:links.new(tex.outputs['Color'],bsdf.inputs[socket])
-    tex=nodes.new('ShaderNodeTexImage');tex.image=normal;nmap=nodes.new('ShaderNodeNormalMap');nmap.inputs['Strength'].default_value=.65;uvnode=nodes.new('ShaderNodeUVMap');uvnode.uv_map='UVMap';links.new(uvnode.outputs['UV'],tex.inputs['Vector'])
+    tex=nodes.new('ShaderNodeTexImage');tex.image=normal;nmap=nodes.new('ShaderNodeNormalMap');nmap.uv_map='UVMap';nmap.inputs['Strength'].default_value=.65;uvnode=nodes.new('ShaderNodeUVMap');uvnode.uv_map='UVMap';links.new(uvnode.outputs['UV'],tex.inputs['Vector'])
     links.new(tex.outputs['Color'],nmap.inputs['Color']);links.new(nmap.outputs['Normal'],bsdf.inputs['Normal'])
     if land.get('paired_eye_revision'):
         weight=nodes.new('ShaderNodeAttribute');weight.attribute_name='Fitted lid weight';subtract=nodes.new('ShaderNodeMath');subtract.operation='MULTIPLY_ADD';subtract.inputs[1].default_value=-.12 if anatomical else -.65;subtract.inputs[2].default_value=.12 if anatomical else .65;links.new(weight.outputs['Fac'],subtract.inputs[0]);links.new(subtract.outputs[0],nmap.inputs['Strength'])
@@ -237,7 +237,7 @@ if physical_eye:
     # Iris dimensions are physical, independent of the eyelid opening's aspect.
     # The previous radial UV stretched a circular iris over an entire ellipse.
     if a.slug=='wolf':
-        iris=np.stack([.34+fibre*.11,.29+fibre*.10,.12+fibre*.06],axis=2)
+        iris=np.stack([.34+fibre*.11,.29+fibre*.10,.12+fibre*.06],axis=2);pupil=np.clip((r-.50)/.06,0,1)
     elif a.slug=='red-fox':
         iris=np.stack([.38+fibre*.15,.205+fibre*.10,.055+fibre*.04],axis=2)
     elif a.slug=='raccoon':
@@ -262,6 +262,12 @@ if physical_eye:
         elif a.slug=='raccoon':iris=sampled*.27
         elif a.slug=='buffalo':iris=sampled*.35
         elif a.slug=='rabbit':iris=sampled*.22
+        elif 'iris_scale' in land['physical_eye_revision']:iris=sampled*land['physical_eye_revision']['iris_scale']
+        round_radius=land['physical_eye_revision'].get('round_pupil_radius')
+        if round_radius is not None:pupil=np.clip((r-round_radius)/.06,0,1)
+        if land['physical_eye_revision'].get('pupil_shape')=='vertical':pupil=np.clip((np.sqrt((u/.24)**2+(v/.74)**2)-.88)/.12,0,1)
+        if land['physical_eye_revision'].get('iris_tint'):
+            lum=iris@np.array([.2126,.7152,.0722]);iris=lum[:,:,None]*np.array(land['physical_eye_revision']['iris_tint'])
         state['iris_texture_source']={'path':str(source.relative_to(repo)),'sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'painted_catchlights':False,'pupil':'species-shaped shader pigment mask'}
 if anatomical:
     mean=iris[r<1].mean(0);iris=iris*.62+mean*.38
@@ -488,6 +494,7 @@ if anatomical:
         projection_normals=np.array([v.normal[:] for v in body.data.vertices],np.float32)
         np.savez_compressed(root/'projection-anatomy.npz',vertices=p.astype(np.float32),normals=projection_normals,faces=faces.astype(np.int32),uv=body_uv.astype(np.float32),source_uv=source_body_uv.astype(np.float32))
         projection_land=json.loads(json.dumps(land));projection_land['nose']['point']=sample(np.array(land['nose']['point']))[0].tolist()
+        if land.get('nasal_disc_fit'):projection_land['nose']['point']=land['nasal_disc_fit']['center']
         (root/'projection-landmarks.json').write_text(json.dumps(projection_land,indent=2)+'\n')
         from fauna_stitched_orbits import prepare as prepare_stitched_orbits
         state['orbital_topology_correction']=prepare_stitched_orbits(body,orbital_patches,land,sample,root,a.slug)
@@ -511,6 +518,10 @@ for side in [-1,1]:
         base=len(vertices)-8
         for k in range(3):polygons.append((base+k*2,base+k*2+1,base+k*2+3,base+k*2+2))
 if vertices:obj(a.slug+' muzzle whiskers',vertices,polygons,[whiskermat],anchor=sample(nose)[2])
+
+if stitched and a.slug in {'wild-boar','bison'}:
+    from fauna_anatomy_details import add as add_anatomy_details
+    state['species_head_details']=add_anatomy_details(a.slug,land,body,root,repo,obj,sample,bvh,body.data.materials[0],coat_objects)
 
 entry.update(facial_objects=features,coat_objects=coat_objects,objects=[entry['body'],*features,*entry.get('appendage_objects',[])])
 entry['paint_face_direction']=land['front_axis']

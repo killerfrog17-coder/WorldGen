@@ -8,7 +8,7 @@ def verify(old,new,retopology):
     assert original_uv_names==[x[0] for x in new_original_uv],'Original UV layers changed'
     assert set(x[0] for x in new['uv'])-set(original_uv_names)<={'Fauna Paint UV'},'Unexpected new UV layer'
     source=new['points'][:count];area=np.zeros(len(old['faces']));parents=new['source_face_ids'];assert len(parents)==len(new['faces'])
-    max_uv=max_skin=max_shape=0.;checked=set()
+    max_uv=max_skin=max_shape=max_escape=0.;checked=set()
     old_weights=[dict(skin) for skin in old['weights']];new_weights=[dict(skin) for skin in new['weights']]
     for fi,face in enumerate(new['faces']):
         parent=parents[fi];assert 0<=parent<len(old['faces']);original=old['faces'][parent];assert len(original)==3
@@ -16,7 +16,14 @@ def verify(old,new,retopology):
         if np.linalg.norm(np.cross(U,V))<1e-12:
             assert face==original;continue
         bc=np.linalg.solve(matrix,np.stack([(points-A)@U,(points-A)@V]));bary=np.stack([1-bc.sum(0),bc[0],bc[1]],axis=1)
-        assert bary.min()>-2e-5 and bary.max()<1+2e-5,'Refinement escaped source triangle'
+        # Float32 subdivision of a thin triangle can put a child a few tens of
+        # nanometres beyond an edge while its barycentric error looks large.
+        # Bound actual distance to the convex source triangle in model units.
+        distances=[]
+        for edge_start,edge_end in [(A,B),(B,C),(C,A)]:
+            edge=edge_end-edge_start;t=np.clip(((points-edge_start)@edge)/max(float(edge@edge),1e-20),0,1);distances.append(np.linalg.norm(points-(edge_start+t[:,None]*edge),axis=1))
+        inside=(bary>=0).all(1);distance=np.min(distances,axis=0);distance[inside]=np.linalg.norm(bary[inside]@source[original]-points[inside],axis=1);escape=float(distance.max());max_escape=max(max_escape,escape)
+        assert escape<2e-6,'Refinement escaped source triangle: '+str({'parent':parent,'face':fi,'escape_model_units':escape})
         assert np.max(np.abs(bary@source[original]-points))<2e-6,'Refinement changed source surface'
         area[parent]+=np.linalg.norm(np.cross(points[1]-points[0],points[2]-points[0]))*.5
         for (_,old_uv),(_,new_uv) in zip(old['uv'],new_original_uv):
@@ -35,4 +42,4 @@ def verify(old,new,retopology):
         p=source[face];expected=np.linalg.norm(np.cross(p[1]-p[0],p[2]-p[0]))*.5
         assert area[fi]<=expected+2e-7,'Refinement duplicated surface'
         if fi not in permitted:assert abs(area[fi]-expected)<2e-7,'Surface lost outside documented openings/debris'
-    return {'original_vertex_count':count,'added_vertices':len(new['points'])-count,'checked_used_new_vertices':len(checked),'max_uv_interpolation_error':max_uv,'max_skin_interpolation_error':max_skin,'max_shape_interpolation_error':max_shape,'source_surface_preserved_except_documented_openings_and_debris':True}
+    return {'original_vertex_count':count,'added_vertices':len(new['points'])-count,'checked_used_new_vertices':len(checked),'max_uv_interpolation_error':max_uv,'max_skin_interpolation_error':max_skin,'max_shape_interpolation_error':max_shape,'max_source_triangle_escape_model_units':max_escape,'source_surface_preserved_except_documented_openings_and_debris':True}

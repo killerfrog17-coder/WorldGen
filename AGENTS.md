@@ -1,5 +1,92 @@
 # WorldGen repository instructions
 
+VISUAL REWORK ACTIVE / NOT FINISHED,26October2026~05:00CDT:
+Latest owner says KEEP WORKING until confident, actual front AND profile photos
+per animal and independent critics fork_turns=none. Existing bad animation is
+accepted now: no motion edits, new neural3D generation, paid calls or game/GUI
+changes. No goal inferred. Do not stop after a useful partial result.
+
+20 isolated anatomy roots now exist under artifacts/fauna-anatomy-revision:
+original6 + WildBoar/Mouflon/Goat/Bear/Bison/Horse/Reindeer/Moose/Lynx/Badger/
+Otter/Mouse/Squirrel/Beaver. These are NOT owner-approved and NOT phone-published.
+BISON has exact-hash fresh independent no-major-fault finding at low-poly prototype
+standard in critic-reports/current-bovids-gate.json (3views+close+2alternatecoats).
+Other coats still need actual inspection. No owner approval inferred. Buffalo
+same report still rejects boss/forehead slab and weak nostril/lip definition.
+Fresh current-predators-gate.json rejected Fox pale04 cyan/grey boundaries, Wolf
+angular socket/cheek folds, Raccoon mask-too-low/body transition. Fox/Wolf have
+SINCE rebuilt after chroma/bed fixes, so that report is NOT their latest SHA gate;
+Raccoon remains unchanged/needs mask+neck work. Do not freeze/approve all9.
+
+Independent baseline files now6 under critic-reports: big-cats, ground-birds,
+ungulates, hoof-mammals, rodents, small-predators (42animals). Earlier23 baselines
+were reviewed in agent messages; not all are consolidated into files. All are
+specific rework findings, not acceptance. Critic reports carry source/render SHAs
+and actual photo URLs. Spawn only critics, no production delegation authorized.
+
+Source checkpoint d9cb5f9fa57914ca71ea1fc42944a47299acb44f verified remote; newer
+changes below need source backup (usual explicit own paths, never unrelated
+owner-deleted prompt or2old untracked deer scripts).
+* Paint guides now WIDE full heads, ears and necks. Their generated photo-like
+  PNGs are ONLY paint inputs, NEVER model renders/approval. Source snapshots,
+  prompts and hashes in wide-*-paint-source.json. install-fauna-wide-paint-guide
+  persists explicit eye/nose TPS calibration and mirrored profile. Real native
+  results stay eye-audit/head-overview. Original tight guides abandoned for6.
+* Projection cosine opacity formerly canceled border fade -> hard rectangles.
+  Broader fade/confidence now blends. RGB ratio tint wrongly made SHADOWED white
+  fur cyan on Fox04: classify neutral fur by chroma instead of brightness now.
+  Snow/white pigment retains only anatomical nasal dark region, not dark fur.
+* Body render-active UV flags were cleared by BMesh -> Buffalo EEVEE crash in
+  extract_tangents. Explicit UVMap render flag and NormalMap.uv_map fixed this.
+* Horse LEFT old centre was~.056m too far back into crease. Explicit original-
+  surface left camera pick274,244 in head-socket-source repaired it; saved input
+  ray/camera/provenance. One refinement pass now works (13k2pass discarded for
+  compact1pass). Original holes can produce enclosed extra boundary loops:
+  only fully enclosed inner loops may be covered; disjoint loops still fail.
+* Native refinement uses actual distance to convex source triangle (2micrometre
+  model tolerance), UV/skin/morph checks unchanged. Prior barycentric bound failed
+  a thin Horse triangle at -3.27e-5 despite35nanometre reconstruction error.
+  Manual Fox9 cheek points then local sculpt now verify composed final coords.
+* Head sculpt now bounded jaw/cheek taper on Fox/Wolf/Raccoon plus Taubin fold
+  relaxation; Wolf radius reduced.037->.030 against frontal proportions. Latest
+  Wolf also gets3x20% local socket-bed relaxation following approved Deer code,
+  subdivision alone preserved angular original pit walls. Deer NOT changed.
+* New Boar nasal closed2-nostril disc covers original single cavity. Original
+  nasal seed was~19pixels off centre; current-clay annulus fitted explicitly,
+  center/radii in nasal_disc_fit. Profile projection was reduced to sit flush.
+  Still needs painted actual-view review. No generic nose cap added elsewhere.
+* Mouflon horn above-ray at side.11 missed narrow crown and landed on neck!
+  Root now side=.28*eyeGap and asserts height>eyes+.05; burial reduced.014.
+  Latest rebuild39223 finished, MUST actually view new roots before accepting.
+  Goat beard19varied short clumps replaces5parallel needles. Other horns retain.
+* Buffalo continuous boss now voxel-unioned/smoothed/compact2200tri and UV rebuilt,
+  all constant actual head weights restored. No thin dangling strips now, but
+  fresh critic still says slab-like silhouette; next remodel paired root volumes.
+* A trial Bison wool-clump mesh looked like warts/spikes in clay: REJECTED/REMOVED,
+  never published. Current Bison uses painted curl detail on original head.
+* New align-fauna-head-cameras aligns F to actual eye-midpoint->fitted nose.
+  Mouse had STALE front camera38degrees off; Lynx14, Badger8. No model rotation.
+  Applied only remaining8 roots before their paint-source generation. Original
+  camera JSON retained in legacy-eye-cameras. Their final paintings not begun.
+  Lynx uses vertical pupil/gold tint, small mammals species-shaped apertures.
+
+Latest finite workers: Fox/Wolf52173 completed0; Horse74905 completed0 (current
+native proof/render passes); Mouflon39223 completed0; wide remaining8 rebuild
+67348 may still need poll (last Reindeer/Moose/Badger/Lynx ready). No GPU inference.
+Imagegen cell1099 running Boar wide front/right; prompts/results in functions
+store wild-boar_wide_{front,right}_*. Wait/copy/inspect/save metadata when done.
+No other imagegen pending. Built-in only. New6 guides Mouflon/Goat/Bear +4Bison/
+Horse installed/provenance saved and actually used. Current11 full rebuilds
+technically checked except Boar only clay, none is wholesale art-ready.
+
+Phone remains OLD source3c41ad7be03f6a31858627e4600ffce4e196c27b, deployment
+appgdep_6adee0afa3208191aa7880f8d6b36685, no new anatomy published. Frozen live3
+roots in fauna-visual-corrections untouched. Done/notes/exactly2clips stay intact.
+Accepted Deer SHA0e2ff46b0b0860750084bed3af94d84f636144230550e9e80f753b3e415418a1
+protected. Next: finish Boar/remaining8 paints, new independent actual-native
+reviews, keep correcting full roster; no false completion/cosmetic pass claims.
+
+
 VISUAL REBUILD FOUND REAL UV OVERLAPS / WIDE PAINT NEXT,26October2026~03:30CDT:
 Do NOT claim art finished. Latest user explicitly says KEEP WORKING until confident,
 front AND side real-photo comparison per animal, independent critics with no

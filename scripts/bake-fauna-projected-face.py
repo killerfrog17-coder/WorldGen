@@ -10,8 +10,8 @@ from PIL import Image
 from scipy.interpolate import RBFInterpolator
 from scipy.ndimage import map_coordinates,distance_transform_edt
 repo=Path(__file__).resolve().parent.parent
-sys.path.insert(0,str(repo/'scripts'));from fauna_paint_recipes import profiles
-ap=argparse.ArgumentParser();ap.add_argument('--slug',choices=['raccoon','red-fox','wolf','hare','rabbit','buffalo'],required=True);ap.add_argument('--root',type=Path);a=ap.parse_args()
+sys.path.insert(0,str(repo/'scripts'));from fauna_paint_recipes import profiles,SUPPORTED
+ap=argparse.ArgumentParser();ap.add_argument('--slug',choices=sorted(SUPPORTED),required=True);ap.add_argument('--root',type=Path);a=ap.parse_args()
 root=(a.root or repo/'artifacts/fauna-visual-corrections'/a.slug).resolve()
 land=json.loads((root/('projection-landmarks.json' if (root/'projection-landmarks.json').exists() else 'face-landmarks.json')).read_text());guide=json.loads((root/'eye-audit/front.json').read_text());bake=json.loads((root/'coat-bake.json').read_text())
 paint_path=root/'front-paint-guide.png';paint=np.asarray(Image.open(paint_path).convert('RGB'),np.float32)/255
@@ -68,7 +68,7 @@ if views:
     sampled=combined/np.maximum(total[:,None],1e-8)
     # View cosine chooses BETWEEN paint guides; it is not paint opacity.
     # Treating it as opacity left old hard ear/face masks visible at angles.
-    confidence=total/np.maximum(head,1e-8);alpha=head*smooth(.015,.12,confidence)
+    confidence=total/np.maximum(head,1e-8);alpha=head*smooth(.015,.72,confidence)
 elif a.slug in {'hare','rabbit'}:raise ValueError('Explicit calibrated front/profile guide mappings required')
 nasal_rel=p-np.array(land['nose']['point']);side_axis=np.array(land['side_axis']);nw,nh=land['physical_eye_revision']['nose_radius']
 nasal_scale=1.12 if a.slug in {'red-fox','wolf'} else 1.
@@ -97,7 +97,9 @@ for ci,coat in enumerate(bake['coats']):
         # Preserve guide hair detail and natural white cheeks; change only fur
         # pigment. Snow/silver/black coats must never retain orange-red faces.
         lum=colour@np.array([.2126,.7152,.0722]);sat=colour.max(1)-colour.min(1)
-        white=smooth(.32,.55,lum)*(1-smooth(.08,.24,sat));dark=1-smooth(.08,.20,lum)
+        # White fur stays white in shadow. A brightness gate misclassified the
+        # grey cheeks as red fur and multiplied them into cyan on pale coats.
+        chroma=sat/np.maximum(colour.mean(1),.035);white=1-smooth(.18,.50,chroma);dark=1-smooth(.08,.20,lum)
         ratio=base/np.maximum(reference_base,.04)
         tinted=colour*ratio
         if a.slug=='red-fox' and ci in {2,3,6}:
@@ -107,6 +109,12 @@ for ci,coat in enumerate(bake['coats']):
         pale_fur=colour*pale/np.maximum(reference_pale,.1)
         colour=tinted*(1-white[:,None])+pale_fur*white[:,None]
         colour=colour*(1-dark[:,None])+sampled*dark[:,None]
+        if any(word in palettes[ci][0].lower() for word in ['snow-white','snow white','winter white']) or (base.mean()>.70 and np.ptp(base)<.12):
+            # Shadows in a brown guide are not inherited dark pigment. Preserve
+            # actual nasal skin, while pale fur receives only restrained detail.
+            pigment=base[None,:]*(.78+.30*np.clip(lum/.45,0,1.3))[:,None]
+            nasal_keep=1-smooth(.85,1.35,nasal_q)
+            colour=pigment*(1-nasal_keep[:,None])+sampled*nasal_keep[:,None]
     image[iy,ix]=image[iy,ix]*(1-alpha[:,None])+colour*alpha[:,None]
     # A front paint guide must not leave the profile of the nasal disc white.
     # Wrap only the small actual nose volume, preserving the painted front.

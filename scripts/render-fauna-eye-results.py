@@ -4,7 +4,7 @@ from pathlib import Path
 import bpy,numpy as np
 from mathutils import Matrix,Vector
 repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--camera-scale',type=float,default=1.);ap.add_argument('--bodies',action='store_true');ap.add_argument('--coats',action='store_true');ap.add_argument('--diffuse-only',action='store_true');ap.add_argument('--nasal-debug',action='store_true');ap.add_argument('--root',type=Path);ap.add_argument('--sculpt',action='store_true');ap.add_argument('--clay',action='store_true');ap.add_argument('--blend',type=Path);ap.add_argument('--output-root',type=Path);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);folder=(a.root or root/a.slug).resolve();dest=(a.output_root or folder/'eye-audit').resolve();dest.mkdir(parents=True,exist_ok=True)
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--camera-scale',type=float,default=1.);ap.add_argument('--bodies',action='store_true');ap.add_argument('--coats',action='store_true');ap.add_argument('--diffuse-only',action='store_true');ap.add_argument('--nasal-debug',action='store_true');ap.add_argument('--root',type=Path);ap.add_argument('--sculpt',action='store_true');ap.add_argument('--clay',action='store_true');ap.add_argument('--paint-source',action='store_true');ap.add_argument('--albedo',action='store_true');ap.add_argument('--blend',type=Path);ap.add_argument('--output-root',type=Path);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);folder=(a.root or root/a.slug).resolve();dest=(a.output_root or folder/'eye-audit').resolve();dest.mkdir(parents=True,exist_ok=True)
 assert a.camera_scale==1 or a.output_root,'Use a separate output root for wider camera diagnostics'
 source=(a.blend or folder/'Animal - Painted Species Review.blend').resolve();digest=hashlib.sha256(source.read_bytes()).hexdigest()
 bpy.ops.wm.open_mainfile(filepath=str(source));s=bpy.context.scene;e=json.loads(s['deer_four_rigs'])[0];body=bpy.data.objects[e['body']];rig=bpy.data.objects[e['rig']];rig.animation_data_clear();rig.data.pose_position='REST'
@@ -16,6 +16,15 @@ land=json.loads((folder/'face-landmarks.json').read_text());center=(Vector(land[
 for pos,power in [((3,4,5),600),((-3,1,3),350),((0,-4,4),400)]:
  data=bpy.data.lights.new('Eye audit softbox','AREA');data.energy=power;data.shape='DISK';data.size=4;ob=bpy.data.objects.new(data.name,data);s.collection.objects.link(ob);ob.location=center+Vector(pos);ob.rotation_euler=(center-ob.location).to_track_quat('-Z','Y').to_euler()
 s.render.engine='BLENDER_EEVEE_NEXT';s.eevee.taa_render_samples=24;s.render.resolution_x=s.render.resolution_y=512;s.render.resolution_percentage=100;s.render.image_settings.file_format='PNG'
+if a.albedo:
+ assert a.output_root,'Albedo diagnostics require separate output root'
+ for mat in bpy.data.materials:
+  if not mat.use_nodes:continue
+  nodes=mat.node_tree.nodes;links=mat.node_tree.links;shader=next((n for n in nodes if n.type=='BSDF_PRINCIPLED'),None);output=next((n for n in nodes if n.type=='OUTPUT_MATERIAL'),None)
+  if shader is None or output is None:continue
+  emission=nodes.new('ShaderNodeEmission');emission.inputs['Color'].default_value=shader.inputs['Base Color'].default_value
+  if shader.inputs['Base Color'].is_linked:links.new(shader.inputs['Base Color'].links[0].from_socket,emission.inputs['Color'])
+  links.new(emission.outputs[0],output.inputs['Surface'])
 if a.diffuse_only:
  for mat in body.data.materials:
   if mat.use_nodes:
@@ -25,6 +34,9 @@ if a.nasal_debug:
  mat=bpy.data.materials.new('Read-only nasal field diagnostic');mat.use_nodes=True;nodes=mat.node_tree.nodes;nodes.clear();links=mat.node_tree.links
  output=nodes.new('ShaderNodeOutputMaterial');emission=nodes.new('ShaderNodeEmission');attribute=nodes.new('ShaderNodeAttribute');attribute.attribute_name='Fauna nasal disc';mix=nodes.new('ShaderNodeMixRGB');mix.inputs[1].default_value=(.3,.3,.3,1);mix.inputs[2].default_value=(1,0,0,1);links.new(attribute.outputs['Fac'],mix.inputs[0]);links.new(mix.outputs[0],emission.inputs['Color']);links.new(emission.outputs[0],output.inputs['Surface']);body.data.materials[0]=mat
 if a.sculpt or a.clay:
+ if a.paint_source:
+  assert a.clay
+  for name in e.get('appendage_objects',[]):bpy.data.objects[name].hide_render=True
  if a.sculpt:
   for ob in s.objects:
    if ob.type=='MESH':ob.hide_render=ob!=body
