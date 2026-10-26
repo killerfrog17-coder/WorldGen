@@ -1,5 +1,32 @@
 # WorldGen repository instructions
 
+HUMAN BUILDER APPEARANCE DEMO OPEN,26October2026:
+Owner requested a small MPFB/UMA Blender comparison before animation/game work.
+Created6 adults per method /12 total in isolated artifacts/human-builder-demo,
+native Human - Character Builder Comparison.blend exactSHA
+6a688775b591065c5d690cd6105e45d03a1662c669fad08cc7ea9dd8ed2e0cd6.
+Native check all12 finite/nonempty, all file image maps packed; actual root
+front/profile sheets all12 +both full lineups and paired views inspected.
+Stock baselines, NOT owner art approval/final characters or runtime integration.
+MPFB2.0.18 tool/core CC0 output, actual53-bone rigs and loaded morphs retained;
+UMA native DNA/wardrobe generated in separate downloaded UMAProject with Unity
+6000.6, exported frozen appearance snapshots +source recipe. MIT tool retained.
+Blender approximates UMA bespoke Unity shaders; supplied B/F VeryShort hair
+renders bald, stock hair/eyes remain prototype quality. No new AI/paid calls or
+animation work. Six morphology briefs include broad population references plus
+independent trait combination and age/build variation.
+ONE working GUI37944 opened RIGHTMOST; own screenshot viewer-ready.png shows
+sidebar/buttons and owner ALREADY changed selection to F. LEAVE UNTOUCHED.
+1 method,2 person,3 view,4 compare,5 lineup; visible buttons available. Controls
+are in Item sidebar because Blender4.5 Region.active_panel_category is read-only;
+earlier failed OWN GUI was closed before delivery, no owner app changed.
+Removed1,908,013,793bytes of ONLY this demo's aborted ZIPs, obsolete diagnostic,
+probe/unused texture exports and isolated Unity Library/Temp. Current natives,
+maps, downloaded tools/assets/recipes retained. No game/animal changes by this
+task; other fauna runtime work remains unrelated and must not be staged here.
+See docs/HUMAN_CHARACTER_BUILDER_DEMO.md, ignored tool-manifest/native-check/
+temp-cleanup evidence. Backup only own human demo source/docs and this note.
+
 TERRAIN/TREE REVEAL,26October2026: new owner task after fauna stopping point;
 fauna appearance remains STOPPED. Owner reports temporary floating and wants
 one outward fog border waiting for trees. New player-terrain-tree-reveal release
