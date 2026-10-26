@@ -1,5 +1,87 @@
 # WorldGen repository instructions
 
+PHONE OWNER FEEDBACK ACTIVE / FULL EYES+MOTION+PATTERNS,25October2026:
+Owner is still assessing phone viewer. Preserve ongoing scope across new messages:
+Rabbit same severe Run issue, consider different suitable CC0 animation source;
+Rabbit snow-white required. Fox front paw twists + tail treated as leg; precise
+symmetric eyes and snow fox support. Wolf eyes worse, precise symmetric fit.
+Owner asks COMPREHENSIVE eye-placement review, asks what central white dots are,
+and rejects straight repeated stripes across species: wants interesting natural
+painted markings. Also asks low-cost continuous individual colour variation for
+ALL animals while keeping distinct species/base paint patterns. All requests
+queued in docs/fauna/PHONE_REVIEW_FEEDBACK.json. NONE of these newer fixes is
+published/approved yet. Existing live phone still last Hare repair below.
+Do NOT let latest message replace earlier queued scope; work through all.
+
+Read-only Wolf glint test CONFIRMED reflection, not iris paint: actual packed iris
+maxRGB.231/no white pixels; dots change with lights and disappear with Specular
+IOR Level0 +Coat0. Evidence artifacts/fauna-review-revisions/wolf/highlight-audit
+3 PNGs/check.json ACTUALLY VIEWED. Prior material roughness.12/coat.30 made glints
+excessive. New UNPUBLISHED copies Fox/Wolf have matched normal/radius/height,
+roughness.25/coat.04 and reduced bulge, but ACTUAL render still shows misplacement
+and Fox partly clipped: DO NOT call them fixed. Old side-ray eye picks have major
+head-depth/facing mismatch. Old front_axis/camera stale after eye centre changes;
+Fox camera was off-centre (~eye midpointx320 vs nosex256). Recomputing head forward
+from CURRENT eye midpoint->nose fixes camera framing but NOT actual wrong socket
+picks. Need new precise SCULPT socket picks. Current neutral/front guide Fox hole
+centres roughly(146,242)/(276,242); Wolf roughly(218,258)/(303,258), must inspect
+and refine. These are NOT yet recorded/applied final picks; source eyes still old.
+
+New scripts/prepare-paired-fauna-eyes.py copies baseline native+metadata into
+artifacts/fauna-review-revisions/<slug>, keeps true side depth, pairs facing,
+height/radii and refreshes head cameras. Body and source actions unchanged.
+Currently Fox/Wolf copies only, all worker commands EXITED. Current native files
+in copies were built via bake-selected-fauna-coats.py --root <copy> --size2048,
+finish-selected-fauna-face.py --root <copy>, render-fauna-eye-results.py --root
+<copy> [--sculpt]. All three now accept optional --root; default canonical
+behaviour retained. Current paired eyes NOT sufficiently fixed, need actual socket
+anchors, then rebake/rebuild/rerender. Existing baseline source NEVER overwritten.
+Sculpt/after right/left/front in each copy's eye-audit; original full guides in
+canonical fauna-painted-20261024/<slug>/eye-audit. All171 landmark symmetry stats
+in fauna-review-revisions/eye-symmetry-audit.json are diagnostic flags only, not
+validated anatomical errors. Do NOT blindly mirror 3D eyes off asymmetric skulls.
+Need account for actual cavities + matched projection/angles/size and skin support.
+
+Snow coats not implemented yet. Rabbit currently6 coats, no white; fox lacks
+white too. profiles wrapper in scripts/fauna_paint_recipes.py appends hypothetical
+extra after base; append snowy after existing list to preserve indices. Fox black
+stockings/outer-ear recipe must be disabled/replaced for snowy coat. Reuse existing
+fur, keep dark nose/eyes/lid skin. Need atlas masks and real review pictures;
+user says no need to see every minor colour but variants must be possible.
+Stripes are currently sine waves in fauna_hypothetical_coats.treatment and
+bake-fauna-finish.py lines169 etc; redesign anatomical curves/tapers, irregular
+spacing/widths, branch/break structures appropriate per family, not merely hue.
+
+Colour-performance read-only research: project Unity6000.6.0f1/URP17.6.0. No
+animal renderer integration yet. Official Unity RSUV docs6000.4 supports BOTH
+MeshRenderer and SkinnedMeshRenderer.SetShaderUserValue(uint), shared materials,
+no batching interference. https://docs.unity3d.com/6000.4/Documentation/Manual/renderer-shader-user-value-intro.html
+and renderer-shader-user-value-set-and-use.html. Per-individual packed tint can
+be chosen once on spawn. Still benchmark before enabling; preserve discrete
+fallback and anatomical masks, no per-animal unique textures/material copies.
+No Unity/game/owner app changes authorised as necessary by this question, so
+runtime adoption remains conditional; record policy while finishing asset fixes.
+Existing SPECIES_VARIATION_PLANS Rabbit excludes white as normal European rabbit;
+latest owner explicitly wants plausible cold-climate white lineage, supersedes
+that omission. Add hypothesis, not false normal seasonal-biology claim.
+
+Rabbit currently source bank rabbit (CC0). Existing alternate Gobkit Hare asset
+metadata artifacts/fauna-motion-sources/gobkit/hare.json gives CC0/idle attack dead
+walk only; other3 Gobkit audited animals previously had IDENTICAL generic16-joint
+tracks (not an established rabbit gait). Kenney Cube Pets source has no jointed
+skins, rigid one-piece legs; previous suitability.json rejects as improvement.
+Must actually inspect another source's motion, not equate a different filename
+with better gait. Reuse approved Rabbit1 body. Fox own physical limb/tail fixes
+need inspect rig/skin and source assignments. No new model inference requested.
+
+Source changes THIS TURN remain uncommitted: queue JSON, highlight test helper,
+paired-eye prep helper and optional-root/sculpt support in3existing scripts.
+Back up source via usual git commit/push/remote verify; preserve unrelated deleted
+prompt and2old untracked deer scripts. No active inference/render worker/GUI/
+preview currently; no paid/imagegen calls, owner windows untouched. DO NOT END
+at a partial helpful answer: complete queued authorised asset work and publish
+verified per-animal updates; natural gait/art acceptance remains owner-pending.
+
 PHONE FEEDBACK QUEUE / HARE RUN MANUAL REPAIR LIVE,25October2026 ~19:47 local:
 Owner is inspecting phone reviews; queue incoming feedback in
  docs/fauna/PHONE_REVIEW_FEEDBACK.json. Hare3 Run was nose-down with collapsed

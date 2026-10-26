@@ -13,7 +13,7 @@ repo=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(repo/'scripts'))
 from fauna_paint_recipes import SUPPORTED, family, eye_frame
 from fauna_eye_profiles import dimensions,contour
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True)
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--root',type=Path)
 a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);assert a.slug in SUPPORTED
 kind=family(a.slug)
 from fauna_finish_catalog import SUPPORTED as EXTENDED, category as finish_category
@@ -24,7 +24,7 @@ if extended:
 if a.slug=='sea-otter':kind='small-carnivore'
 surface_only_arthropod=extended and category in {'ground_insect','spider'}
 canid=kind=='canid';compact=kind!='lagomorph'
-root=repo/'artifacts/fauna-painted-20261024'/a.slug
+root=(a.root or repo/'artifacts/fauna-painted-20261024'/a.slug).resolve()
 state=json.loads((root/'paint-state.json').read_text());assert not state['appearance_approved']
 assert state['status'] in {'anatomical_colouring_started','atlas_and_face_fitted_working'}
 bake=json.loads((root/'coat-bake.json').read_text());land=json.loads((root/'face-landmarks.json').read_text())
@@ -89,6 +89,8 @@ if kind=='fish':lidmat=plain(a.slug+' fixed ocular rim',(.16,.15,.095),.30)
 whiskermat=plain(a.slug+' whiskers',(.25,.23,.18),.7)
 eye=plain(a.slug+' living eye',(.025,.014,.007),.12);bsdf=eye.node_tree.nodes.get('Principled BSDF');bsdf.inputs['IOR'].default_value=1.38
 bsdf.inputs['Coat Weight'].default_value=.30;bsdf.inputs['Coat Roughness'].default_value=.08
+if land.get('paired_eye_revision'):
+    bsdf.inputs['Roughness'].default_value=.25;bsdf.inputs['Coat Weight'].default_value=.04;bsdf.inputs['Coat Roughness'].default_value=.20
 # A pigment-only iris: highlights come from the scene, never a painted white dot.
 size=256;y,x=np.mgrid[0:size,0:size];u=(x+.5)/size*2-1;v=(y+.5)/size*2-1;r=np.sqrt(u*u+v*v);theta=np.arctan2(v,u)
 fibre=.5+.25*np.sin(theta*91+r*19)+.16*np.sin(theta*143-r*38)
@@ -170,6 +172,7 @@ for side in ([] if surface_only_arthropod else ['right','left']):
     bulge=.003 if kind=='scaled' else .006 if kind=='rodent' else .003 if kind=='fish' else .0018 if a.slug=='pheasant' else .004 if kind=='avian' else .008 if kind in {'suine','caprine','ursid','bovine','equine','cervid','small-carnivore','beaver'} else .011 if canid else .018
     eye_margin=.0008 if a.slug=='pheasant' or kind=='fish' else .002
     if reviewed:bulge=min(rx,rz)*(.16 if kind in {'fish','scaled'} else .24);eye_margin=min(rx,rz)*.025
+    if land.get('paired_eye_revision'):bulge=min(rx,rz)*(.10 if canid else .16)
     vertices=[center+n*(eye_margin+bulge)];uvs=[(.5,.5)];polygons=[]
     for ring in range(1,rings+1):
         rad=ring/rings

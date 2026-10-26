@@ -4,7 +4,7 @@ from pathlib import Path
 import bpy,numpy as np
 from mathutils import Matrix,Vector
 repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--bodies',action='store_true');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);folder=root/a.slug;dest=folder/'eye-audit'
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--bodies',action='store_true');ap.add_argument('--root',type=Path);ap.add_argument('--sculpt',action='store_true');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);folder=(a.root or root/a.slug).resolve();dest=folder/'eye-audit'
 source=folder/'Animal - Painted Species Review.blend';digest=hashlib.sha256(source.read_bytes()).hexdigest()
 bpy.ops.wm.open_mainfile(filepath=str(source));s=bpy.context.scene;e=json.loads(s['deer_four_rigs'])[0];body=bpy.data.objects[e['body']];rig=bpy.data.objects[e['rig']];rig.animation_data_clear();rig.data.pose_position='REST'
 for ob in list(s.objects):
@@ -15,8 +15,12 @@ land=json.loads((folder/'face-landmarks.json').read_text());center=(Vector(land[
 for pos,power in [((3,4,5),600),((-3,1,3),350),((0,-4,4),400)]:
  data=bpy.data.lights.new('Eye audit softbox','AREA');data.energy=power;data.shape='DISK';data.size=4;ob=bpy.data.objects.new(data.name,data);s.collection.objects.link(ob);ob.location=center+Vector(pos);ob.rotation_euler=(center-ob.location).to_track_quat('-Z','Y').to_euler()
 s.render.engine='BLENDER_EEVEE_NEXT';s.eevee.taa_render_samples=24;s.render.resolution_x=s.render.resolution_y=512;s.render.resolution_percentage=100;s.render.image_settings.file_format='PNG'
+if a.sculpt:
+ for ob in s.objects:
+  if ob.type=='MESH':ob.hide_render=ob!=body
+ s.render.engine='BLENDER_WORKBENCH';s.display.shading.light='STUDIO';s.display.shading.color_type='SINGLE';s.display.shading.single_color=(.46,.44,.40);s.display.shading.show_shadows=True;s.display.shading.show_cavity=True;s.display.shading.cavity_type='BOTH';s.display.shading.curvature_ridge_factor=1.5;s.display.shading.curvature_valley_factor=1.7
 for view in ['right','left','front']:
- guide=json.loads((dest/f'{view}.json').read_text());camera.matrix_world=Matrix(guide['camera_matrix']);camera.data.ortho_scale=guide['scale'];s.render.filepath=str(dest/f'{view}-after.png');bpy.ops.render.render(write_still=True)
+ guide=json.loads((dest/f'{view}.json').read_text());camera.matrix_world=Matrix(guide['camera_matrix']);camera.data.ortho_scale=guide['scale'];s.render.filepath=str(dest/(f'{view}-'+('sculpt' if a.sculpt else 'after')+'.png'));bpy.ops.render.render(write_still=True)
 if a.bodies:
  previews=folder/'previews';state=json.loads((folder/'paint-state.json').read_text())
  alternate=next((i for i,c in reversed(list(enumerate(state['coats']))) if 'hypothetical' in c['label'].lower()),len(state['coats'])-1)

@@ -20,6 +20,67 @@
       "limits": "Prototype manual repair; owner reassessment pending.",
       "published_source_sha": "59aeac7406c651f0ff2e12832323a89f1d0ffa77",
       "published_deployment": "appgdep_6adea3071a50819185d06a0b5ddd7e05"
+    },
+    {
+      "slug": "rabbit",
+      "status": "queued",
+      "owner_approved": false,
+      "issues": [
+        "Run has the same major posture/rear-body deformation; assess another suitable CC0 rabbit motion source.",
+        "Add snow-white cold-climate appearance."
+      ],
+      "updated_at": "2026-10-25T19:54:04.091517-05:00"
+    },
+    {
+      "slug": "red-fox",
+      "status": "queued",
+      "owner_approved": false,
+      "issues": [
+        "Front paws twist in motion.",
+        "Tail is being treated as a leg; correct physical rig roles and skin.",
+        "Eyes badly positioned in frontal face view; precise symmetric fit required.",
+        "Snow-white fox appearance must be supported."
+      ],
+      "updated_at": "2026-10-25T19:54:04.091517-05:00"
+    },
+    {
+      "slug": "wolf",
+      "status": "queued",
+      "owner_approved": false,
+      "issues": [
+        "Eyes very badly positioned; fit precisely and symmetrically."
+      ],
+      "updated_at": "2026-10-25T19:54:04.091517-05:00"
+    },
+    {
+      "slug": "__all_eyes__",
+      "status": "queued",
+      "owner_approved": false,
+      "issues": [
+        "Comprehensive placement review across all visual animals.",
+        "Identify whether central white eye dots are lighting reflections or painted/material defects; correct distracting appearance."
+      ],
+      "updated_at": "2026-10-25T19:54:04.092517-05:00"
+    },
+    {
+      "slug": "__all_stripes__",
+      "status": "queued",
+      "owner_approved": false,
+      "issues": [
+        "Replace straight repeated stripes across species with natural, anatomy-following painted patterns; varied widths, tapering, curvature, irregularity and appropriate branching/breaks."
+      ],
+      "updated_at": "2026-10-25T19:54:04.092517-05:00"
+    },
+    {
+      "slug": "__all_colour_variation__",
+      "status": "queued",
+      "owner_approved": false,
+      "issues": [
+        "Retain discrete base species/pattern palettes; support subtle stable individual colour differences if performance cost is negligible.",
+        "Larger lineage colour ranges must stay plausible and respect anatomical masks.",
+        "Do not enable runtime variation without checking batching and profiling; preserve discrete fallback."
+      ],
+      "updated_at": "2026-10-25T19:54:04.092517-05:00"
     }
   ]
 }

@@ -13,7 +13,7 @@ repo=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(repo/'scripts'))
 from fauna_paint_recipes import SUPPORTED, family, profiles as coat_profiles, eye_radius as get_eye_radius, eye_frame
 from fauna_hypothetical_coats import treatment
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=1024)
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=1024);ap.add_argument('--root',type=Path)
 a=ap.parse_args();assert a.slug in SUPPORTED
 if family(a.slug) in {'avian','fish'}:
     import runpy
@@ -21,7 +21,7 @@ if family(a.slug) in {'avian','fish'}:
     runpy.run_path(str(repo/'scripts'/script),run_name='__main__')
     raise SystemExit
 kind=family(a.slug);canid=kind=='canid';compact=kind!='lagomorph'
-root=repo/'artifacts/fauna-painted-20261024'/a.slug;started=time.perf_counter()
+root=(a.root or repo/'artifacts/fauna-painted-20261024'/a.slug).resolve();started=time.perf_counter()
 state=json.loads((root/'paint-state.json').read_text());land=json.loads((root/'face-landmarks.json').read_text())
 d=dict(np.load(root/'paint-anatomy.npz'));d['region_weights']=np.zeros((len(d['vertices']),10),np.float32)
 raw=json.loads((root/'selected-source-entry.json').read_text()) if (root/'selected-source-entry.json').exists() else json.loads((repo/'artifacts/fauna-overnight-20261024'/a.slug/'audition.json').read_text())['candidates'][state['source_candidate']-1]
