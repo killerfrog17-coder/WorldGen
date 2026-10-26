@@ -75,7 +75,7 @@ public sealed partial class LocalTerrainExplorer
             }
             else ProjectScatter(pair.Value);
         }
-        scatterGroundChanges.Clear();projectedGroundRevision=nearGroundRevision;lastGroundProject=Time.realtimeSinceStartupAsDouble;scatterDirty=true;
+        scatterGroundChanges.Clear();projectedGroundRevision=scatterGroundRevision;scatterDirty=true;
     }
     public double TestPreparedScatterError()
     {

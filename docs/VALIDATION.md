@@ -1,5 +1,29 @@
 # Version 3 validation evidence
 
+## Terrain and tree reveal — 26 October 2026
+
+Owner reports trees floating temporarily and the horizon becoming visible before
+forest coverage; requests a shared expanding fog border. Terrain readiness is
+now intersected with installed nearby tree-chunk coverage and ready/baked forest
+pages. Retained ready ancestors, complete finer unions and empty pages count;
+disabled trees bypass the gate. Missing forests can share workers with distant
+terrain without taking priority over immediate ground or overdue chart handoff.
+Every terrain LOD now triggers affected scatter/forest grounding before drawing,
+including cache restoration/retirement, without the earlier 250ms delay. Distant
+aggregate stands fit bounded terrain slopes. F3 shows both ready distances.
+
+Shared Presentation build: 0 warnings/errors. Release IL2CPP package exited 0,
+BuiltUtc `2026-10-26T16:45:42.8145960Z`; no C#/shader errors, existing advisories
+remain. Authoritative input DLLs verified by build script; all eight changed
+source hashes unchanged through build. Build-created project defaults and
+unrelated importer whitespace restored. Shortcut selects separate
+`player-terrain-tree-reveal`; running preceding surface-art-v1 remains untouched.
+Compile/package-only per existing owner restriction: no suites, world fixtures,
+game launches, gameplay captures or profiling. Runtime appearance, transitions,
+loading/frame cost and completeness of the floating fix await owner review.
+No tree placement, terrain generation, surface-art, shadow, fauna or save change.
+See [implementation and limits](TERRAIN_TREE_REVEAL.md).
+
 ## Deer motion corrections — 24 October2026
 
 **Owner subsequently reports the correction may look worse**, with unrealistic

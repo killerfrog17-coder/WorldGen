@@ -30,12 +30,13 @@ public sealed partial class LocalTerrainExplorer
     V TreePigment(int code){code&=~7;if(!treePigments.TryGetValue(code,out var pigment)){pigment=new TreeMorphology(code).Leaf;treePigments.Add(code,pigment);}return pigment;}
     readonly HashSet<TerrainTileKey> scatterGroundChanges=new HashSet<TerrainTileKey>();
     readonly Dictionary<ScatterKey,ScatterChunk> scatterChunks=new Dictionary<ScatterKey,ScatterChunk>();
+    readonly Dictionary<ScatterKey,ForestRevealBounds> scatterRevealBounds=new Dictionary<ScatterKey,ForestRevealBounds>();
     readonly List<ScatterWork> scatterJobs=new List<ScatterWork>();readonly HashSet<ScatterKey> scatterWanted=new HashSet<ScatterKey>();readonly List<ScatterKey> scatterPriority=new List<ScatterKey>();
     readonly Dictionary<long,ArtModel> scatterArt=new Dictionary<long,ArtModel>();readonly List<Mesh> ownedScatterMeshes=new List<Mesh>();readonly List<Material> ownedScatterMaterials=new List<Material>();
     readonly List<DrawBatch> drawBatches=new List<DrawBatch>();readonly List<DrawBatch> batchPool=new List<DrawBatch>();
     readonly Dictionary<long,DrawBatch> activeScatterBatches=new Dictionary<long,DrawBatch>();
     readonly HashSet<ScatterKind> prefabScatterKinds=new HashSet<ScatterKind>();
-    double scatterX=double.NaN,scatterZ,scatterAltitude,lastBatchTime,lastGroundProject;bool scatterDirty=true;int nearGroundRevision,projectedGroundRevision;
+    double scatterX=double.NaN,scatterZ,scatterAltitude,lastBatchTime;bool scatterDirty=true;int scatterGroundRevision,projectedGroundRevision;
     Light precedingSun,localSun;AmbientMode precedingAmbient;Color precedingSky,precedingEquator,precedingGround;bool lightingSaved;double nextDaylightAt;
     public int ScatterObjects { get;private set; }
     public int ScatterDrawCalls { get;private set; }
@@ -82,13 +83,19 @@ public sealed partial class LocalTerrainExplorer
     }
     void RefreshScatterWanted()
     {
-        scatterX=motion.X;scatterZ=motion.Z;scatterAltitude=HeightAboveGround;scatterWanted.Clear();scatterPriority.Clear();
+        scatterX=motion.X;scatterZ=motion.Z;scatterAltitude=HeightAboveGround;scatterWanted.Clear();scatterPriority.Clear();scatterRevealBounds.Clear();fogCheckAt=0;
         if(scatterAltitude<2200)
         {
             foreach(var key in scatter.Around(Position,1800))scatterWanted.Add(key);
             if(scatterAltitude<160)foreach(var key in scatter.Around(Position,100,true))scatterWanted.Add(key);
         }
         scatterPriority.AddRange(scatterWanted);var at=Position;
+        foreach(var key in scatterWanted)
+        {
+            if(key.Detail)continue;var bounds=new ForestRevealBounds{Center=scatter.Position(key)};
+            for(int y=0;y<2;y++)for(int x=0;x<2;x++)bounds.Radius=Math.Max(bounds.Radius,(scatter.Position(key,x,y)-bounds.Center).Length*frame.RadiusM);
+            bounds.Radius=bounds.Radius*1.01+1;scatterRevealBounds.Add(key,bounds);
+        }
         double Distance(ScatterKey k){V p=scatter.Position(k)-at;return p.X*p.X+p.Y*p.Y+p.Z*p.Z;}
         scatterPriority.Sort((a,b)=>{int d=Distance(a).CompareTo(Distance(b));return d!=0?d:a.CompareTo(b);});
         foreach(var key in scatterChunks.Keys.Where(k=>!scatterWanted.Contains(k)).ToArray()){scatterChunks.Remove(key);canopySourceRevision++;}scatterDirty=true;
@@ -98,7 +105,9 @@ public sealed partial class LocalTerrainExplorer
         if(scatter==null)return;
         if(TerrainDiagnostics.HoldPlants)
         {if(scatterDirty||ScatterViewChanged||Time.realtimeSinceStartupAsDouble-lastBatchTime>1)BuildScatterBatches();return;}
-        if(nearGroundRevision!=projectedGroundRevision&&Time.realtimeSinceStartupAsDouble-lastGroundProject>.25)
+        // Ground at every LOD can arrive or change beneath already resident
+        // vegetation. Reproject before this frame's draws, without a 250ms lag.
+        if(scatterGroundRevision!=projectedGroundRevision)
         {
             foreach(var chunk in scatterChunks.Values)
             {
@@ -110,7 +119,7 @@ public sealed partial class LocalTerrainExplorer
                 }
                 if(affected)ProjectScatter(chunk);
             }
-            ProjectForestGround();scatterGroundChanges.Clear();projectedGroundRevision=nearGroundRevision;lastGroundProject=Time.realtimeSinceStartupAsDouble;scatterDirty=true;
+            ProjectForestGround();scatterGroundChanges.Clear();projectedGroundRevision=scatterGroundRevision;scatterDirty=true;
         }
         if(double.IsNaN(scatterX)||Math.Abs(motion.X-scatterX)>32||Math.Abs(motion.Z-scatterZ)>32||Math.Abs(HeightAboveGround-scatterAltitude)>100)RefreshScatterWanted();
         for(int i=scatterJobs.Count-1;i>=0;i--)

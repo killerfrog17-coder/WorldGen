@@ -1,5 +1,25 @@
 # WorldGen repository instructions
 
+TERRAIN/TREE REVEAL,26October2026: new owner task after fauna stopping point;
+fauna appearance remains STOPPED. Owner reports temporary floating and wants
+one outward fog border waiting for trees. New player-terrain-tree-reveal release
+IL2CPP BuiltUtc2026-10-26T16:45:42.8145960Z compile/package0, no C#/shader errors;
+existing advisories remain. Shared Presentation compile0 warnings/errors. Fog
+now intersects actual terrain union with installed near coarse scatter and
+READY/baked distant forest coverage (empty pages/retained ready parent or full
+finer union count). Disabled trees bypass. Forest blockers get an early bounded
+worker turn after near ground; single lane alternates terrain, overdue chart
+handoff retains priority. Failed page retries2s. All terrain LOD upload/restore/
+retirement notifies immediate affected scatter/forest grounding; aggregated
+stands use bounded ground slopes, individual trees upright. F3 ready distances.
+Source SHA checks unchanged through build; no suites/fixtures/player/world
+launch/capture/profiling under existing compile/package-only owner restriction.
+Visual/floating/FPS acceptance remains owner pending. Existing shortcut selects
+new build; running surface-art-v1 PID25212 at checkpoint left untouched. Restore
+build-created settings/importer edits; no placement/world/save/fauna changes.
+See docs/TERRAIN_TREE_REVEAL.md. Preserve unrelated prompt deletion and old
+untracked deer scripts; source backup only explicit own paths.
+
 PLACEHOLDERS ACCEPTED / CLEANUP COMPLETE,26October2026~11:31CDT:
 Owner says current set is fine for placeholders; no further appearance work
 requested. Production remains stopped. Owner requested temp/old-iteration

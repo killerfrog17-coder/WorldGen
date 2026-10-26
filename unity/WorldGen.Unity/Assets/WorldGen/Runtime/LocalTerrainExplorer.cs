@@ -45,6 +45,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     V startingPoint; double originX,originZ,plannedX=double.NaN,plannedZ,plannedAltitude;
     float heading=20,pitch=0; bool closed; int generation;
     double lastBuildMs,largestBuildMs; string error="";
+    bool forestScheduledFirst;
     public bool Ready=>terrain!=null;
     public bool IsWalking=>!motion.Flying;
     public double TravelM=>motion.X+motion.Z;
@@ -201,7 +202,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         // Retain fallback through the transition, not merely until upload.
         foreach(var key in tiles.Keys.Where(k=>!wanted.ContainsKey(k)).ToArray())
             if(CanRetireTransition(key))
-            {CacheTerrain(key,tiles[key]);tiles.Remove(key);}
+            {CacheTerrain(key,tiles[key]);tiles.Remove(key);residentRevision++;scatterGroundRevision++;scatterGroundChanges.Add(key);}
         long scatterTrace=WorldGenPerformance.TraceBegin(),scatterStarted=WorldGenPerformance.Begin();UpdateScatter();WorldGenPerformance.End(0,scatterStarted);WorldGenPerformance.TraceEnd(2,scatterTrace);
         long weatherTrace=WorldGenPerformance.TraceBegin(),weatherStarted=WorldGenPerformance.Begin();UpdateWeatherPresentation();WorldGenPerformance.End(3,weatherStarted);WorldGenPerformance.TraceEnd(3,weatherTrace);
         UpdateDebugReadout();
@@ -218,6 +219,13 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             else jobs.LastOrDefault(j=>j.Prepared!=null||!ImmediateTerrain(j.Key))?.Cancellation?.Cancel();
         }
         bool handoffDue=preparedFrame!=null&&ReanchorDistance>=ReanchorLimit;
+        // Share the outward loading front instead of finishing a bare horizon
+        // before the forest gets any worker time. Alternate with terrain on a
+        // single-worker machine; never reserve this turn ahead of near ground
+        // or an overdue chart handoff.
+        long priorTerrainRequests=TerrainBuildRequests;
+        if(!nearPending&&!handoffDue&&forestRevealRadius<terrainRevealRadius&&(!forestScheduledFirst||WorkerLimit>1))
+            if(ScheduleForestWork())forestScheduledFirst=true;
         if(!handoffDue){ScheduleBackdrop();SchedulePredictiveTerrain();}
         foreach(var key in priority)
         {
@@ -229,6 +237,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             RequestTerrain(key,detail,wantedEdges[key]);
         }
         SchedulePreparedWork(false);
+        if(TerrainBuildRequests>priorTerrainRequests)forestScheduledFirst=false;
         ScheduleForestWork();
         UpdateTerrainCoverage();UpdateStreamingFog();
         RetireTerrainGradually();
@@ -286,7 +295,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         else if(prepared==null)BeginTerrainReplacement(key,product,null);
         target[key]=product;if(prepared==null)residentRevision++;
         if(prepared==null)coverageDirty=true;
-        if(prepared==null&&key.Level==0){nearGroundRevision++;scatterGroundChanges.Add(key);}lastBuildMs=data.BuildMilliseconds;largestBuildMs=Math.Max(largestBuildMs,lastBuildMs);
+        if(prepared==null){scatterGroundRevision++;scatterGroundChanges.Add(key);}lastBuildMs=data.BuildMilliseconds;largestBuildMs=Math.Max(largestBuildMs,lastBuildMs);
         LargestUploadMs=Math.Max(LargestUploadMs,timer.Elapsed.TotalMilliseconds);
         frameUploadMs+=timer.Elapsed.TotalMilliseconds;
         if(timer.ElapsedMilliseconds>20)Debug.Log("Local terrain upload "+timer.ElapsedMilliseconds+"ms; apply "+applyMs.ToString("F2")+"ms; objects/retire "+(timer.Elapsed.TotalMilliseconds-beforeApply-applyMs).ToString("F2")+"ms; collections "+(GC.CollectionCount(0)-collections)+"; worker buffers "+data.BufferMilliseconds.ToString("F2")+"ms");

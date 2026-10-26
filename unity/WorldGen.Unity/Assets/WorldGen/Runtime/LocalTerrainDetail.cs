@@ -14,7 +14,7 @@ public sealed partial class LocalTerrainExplorer
     Task<Dictionary<TerrainTileKey,int>> detailPlan;
     CancellationTokenSource detailCancellation;
     int detailRevision=-1,detailGeneration,plannedPixels;float plannedFov;
-    double detailX,detailZ,nextRequestAt,frameUploadMs,fogSafeRadius,streamedFog=300,fogCheckAt;
+    double detailX,detailZ,nextRequestAt,frameUploadMs,fogSafeRadius,terrainRevealRadius,forestRevealRadius,streamedFog=300,fogCheckAt;
     bool detailDirty;
     TerrainCoverageFootprint fogFootprint;
     readonly Dictionary<TerrainTileKey,double[]> backdrops=new Dictionary<TerrainTileKey,double[]>();
@@ -35,7 +35,7 @@ public sealed partial class LocalTerrainExplorer
     void ResetDetailFrame()
     {
         detailCancellation?.Cancel();detailEstimator=new TerrainDetailEstimator(terrain,frame);
-        detailDirty=true;backdrops.Clear();backdropRevision++;streamedFog=300;fogSafeRadius=0;fogCheckAt=0;fogFootprint=null;
+        detailDirty=true;backdrops.Clear();backdropRevision++;streamedFog=300;fogSafeRadius=terrainRevealRadius=forestRevealRadius=0;fogCheckAt=0;fogFootprint=null;
     }
     Dictionary<TerrainTileKey,int> InitialDetailPlan(double x,double z,double altitude)
     {
@@ -134,11 +134,14 @@ public sealed partial class LocalTerrainExplorer
             fogCheckAt=now+.15;double limit=viewDistance*.98;
             if(fogFootprint==null)fogFootprint=new TerrainCoverageFootprint(tiles.Keys);
             double gap=fogFootprint.NearestGap(wanted.Keys,motion.X,motion.Z,limit/.94);
-            double safe=Math.Min(limit,gap*.94);
+            terrainRevealRadius=Math.Min(limit,gap*.94);
+            forestRevealRadius=TreeRevealDistance(limit);
+            double safe=Math.Min(terrainRevealRadius,forestRevealRadius);
             fogSafeRadius=Math.Max(100,safe);
         }
-        // Only a real gap in the visible union can pull haze inward. A pending
-        // replacement/edge rebuild/coarsening does not erase existing coverage.
+        // Both ground and enabled tree representations must be present. Retained
+        // ready parents count during replacement; mesh quality changes alone do
+        // not retract the border. Expansion remains smooth and camera-wide.
         streamedFog=Math.Min(fogSafeRadius,streamedFog+Math.Max(3000,streamedFog*2)*Time.unscaledDeltaTime);
         SetFog();
     }
