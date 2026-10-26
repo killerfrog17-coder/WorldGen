@@ -1,5 +1,29 @@
 # WorldGen repository instructions
 
+TREE EFFICIENCY CHECKPOINT,26October2026~18:49CDT:
+Owner authorized retained tree batches, reused billboard shader work and shared
+per-tree wind; game testing allowed. Final player-tree-efficiency IL2CPP
+BuiltUtc2026-10-26T23:38:18.7180949Z, existing root shortcut now selects it;
+prior player-forest-overlap-streaming retained. Own build/benchmark exited.
+No owner apps killed/preferences saved. Other fauna repair remains independent.
+Saved Vegetation Efficient tree rendering defaultsON, off restores old paths.
+GPU exact-tree handoff120mMedium/162mUltra retains legacy exact census, activates
+only with ALL nearby level-zero pages/bakes ready. CPU submitted trees5514->1225
+at tested view, same321654field roots/896000grass slots. No density/mesh/grass
+or shadow range changes. Wind root compute is camera-scoped with old fallback;
+prepared billboard projections reuse coverage samples, old variants retained.
+Same-frame1080p checks: shader0pixels>2RGB,max2; wind exact; handoff7/2073600
+pixels>2,mean.00017. Actual render inspected. Settled10s Ultra6km tropical
+forest: steady41.49->43.02FPS, turning29.28->30.70; turning batches9.00->6.07ms,
+scatter9.09->6.16ms. Shadowbatch~2.1ms unchanged. Modest~4-5%overall gain,
+remaining dense foliage cost NOT solved. Standalone wind/shader gains NOT
+established (legacy wind43.74/legacy shader43.52); no universal win claim.
+Initial verify window notsettled excluded; FrameTimingManager unavailable.
+132source hashes/stagedDLLs and177packaged fauna bundles verified unchanged;
+fauna repair has separate newer outputs, DO NOT repackage them here. Project
+settings/importer autochanges restored. Evidence tree-efficiency-20261026/probe;
+docs FOLIAGE_SHADOWS/VALIDATION. Prior overlap/depth experiments remainOFF.
+
 FOREST STREAMING HITCH CHECKPOINT,26October2026~18:01CDT:
 Owner LIFTED no-launch/test rule; use short proportionate tests. Prioritizes
 foliage overlap and forest-only walking freezes, grass unchanged. Owner says

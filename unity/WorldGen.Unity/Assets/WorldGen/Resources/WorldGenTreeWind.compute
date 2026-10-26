@@ -1,0 +1,18 @@
+#pragma kernel UpdateWind
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+#include "WorldGenWind.hlsl"
+struct WindRoot {float4 positionFlex;float4 heightAxis;};
+StructuredBuffer<WindRoot> _WindRoots;
+RWStructuredBuffer<float4> _WindResults;
+uint _WindCount;
+[numthreads(64,1,1)]
+void UpdateWind(uint3 tid:SV_DispatchThreadID)
+{
+    if(tid.x>=_WindCount)return;
+    WindRoot root=_WindRoots[tid.x];float3 position=root.positionFlex.xyz;
+    float height=length((position+root.heightAxis.xyz)-position);
+    float3 bend=WorldGenVegetationOffset(position,root.positionFlex.w);
+    float3 delta=normalize(float3(0,1,0)+bend)-float3(0,1,0);
+    float strength=_WeatherDrivenVegetationWind>.5?min(1.5,VegetationLocalStrength(position)):1;
+    _WindResults[tid.x]=float4(delta*height,strength);
+}

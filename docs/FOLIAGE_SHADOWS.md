@@ -1,5 +1,57 @@
 # Foliage shadow and near-foot density checkpoint / 22 October 2026
 
+## Retained tree submission and shared shading / 26 October 2026
+
+The saved Vegetation control **Efficient tree rendering** defaults on and can
+restore the prior submission/shader/wind path for comparison. Tree density,
+mesh geometry, grass quality and shadow ranges are unchanged.
+
+Existing persistent forest GPU buffers now also handle exact individual trees
+just beyond local mesh LOD: the local-to-field blend ends at120m on Medium and
+162m on Ultra, instead of350m. These are billboard submission distances, not
+mesh-detail or forest-population reductions. The old exact-census radius is
+retained. Near pages extend to the player and must ALL be level-zero/resident
+and finish their actual tree bakes before the closer handoff activates. Coarse
+ancestors cannot retire close CPU trees. Incomplete coverage retains fallback.
+This reduces roots copied/culled/rebatched on camera motion without changing
+which tree census supplies the surrounding forest.
+
+Billboard vertices prepare view choice and affine ray projections. Fragments
+reuse initial colour/coverage samples across detailed/simplified LOD blending;
+the prior path redundantly sampled those textures again. Tiny horizon crowns
+retain their one-view path. Coverage, depth correction, normal reconstruction,
+alpha rejection and dithered transitions remain. The shader keeps a literal
+legacy variant for same-build image and timing checks.
+
+Near mesh trees dispatch a small compute buffer once per frame: geographic wind
+noise, local strength and primary trunk bend are evaluated per submitted tree
+instance rather than per vertex/pass. Leaf flutter still evaluates on individual
+vertices after the primary bend. Root inputs upload only when batches change.
+The cache is camera-scoped; bake/fixture cameras and unsupported compute/SM4.5
+hardware retain the old vertex path. No wind-update throttling or temporal
+interpolation is introduced. Duplicated mesh LOD instances can each have a root
+entry, still much less work than evaluating the root field at every vertex.
+
+Short same-build1080p/6km tropical-forest checks with Ultra vegetation passed
+image equivalence: shader0pixels>2RGB (maximum2), shared wind exact, nearer
+handoff7/2,073,600pixels>2 (mean maximum-channel difference0.00017).
+Local CPU-submitted tree count5514->1225; the persistent field retains the
+same321,654root records, and grass remains896,000candidate slots. The closer
+handoff changes submission, not census density. Root inspected the actual
+render; this is not an all-scenes visual certification.
+
+Settled10s cases: steady41.49->43.02FPS; turning29.28->30.70FPS. Turning
+batch work9.00->6.07ms and scatter update9.09->6.16ms; shadow batch work
+remains~2.1ms. This is a modest~4-5%frame-rate gain, not a fix for the remaining
+heavy foliage pixel cost. Isolated legacy-wind43.74FPS and legacy-shader43.52FPS
+cases did NOT establish independent gains for either GPU change in this view;
+keep their literal A/B paths and do not infer a universal win from fewer shader
+operations. FrameTimingManager was unavailable; these are completed-frame wall
+times with an end-window GPU barrier, not isolated GPU timings. The initial
+verification window was not fully settled and is excluded from timing claims.
+Evidence: ignored artifacts/tree-efficiency-20261026/probe. Release IL2CPP
+build and132source hashes/stagedDLLs checked;177packaged fauna bundles retained.
+
 ## Forest overlap and streaming hitch work / 26 October 2026
 
 Owner reports grass-off still only reaches the low100s and asks to prioritize
@@ -404,10 +456,9 @@ save/worker schemas and vegetation animation are unchanged.
 
 ## Validation policy
 
-Owner's compile/package-only restriction remains: no game/world launches,
-fixtures, automated suites, screenshots or profiling. Review shader/material
-GUID bindings, compiler results and retained instancing variants before
-publishing; these establish build integration, not runtime visual/performance
-acceptance. Compare shadow quality and the separate canopy toggle from the
+Owner lifted the old compile/package-only restriction on26October2026. Use
+short runtime image/performance checks proportional to the change; owner game
+processes remain untouched. Compiler/package checks alone do not establish
+visual or performance acceptance. Compare shadow quality and the separate canopy toggle from the
 same view. Fixed180m coverage can cost more than the original50m pipeline or
 preceding Very-low60m range. Density20x is an expensive experiment.

@@ -6,6 +6,7 @@ param(
     [string]$Cases='',
     [double]$Seconds=6,
     [double]$ViewDistance=60000,
+    [int]$PlantQuality=2,
     [int]$Width=1920,[int]$Height=1080,
     [int]$TimeoutMinutes=45,
     [switch]$PresentMon,
@@ -27,6 +28,7 @@ if($Original){$arguments+='--worldgen-perf-original'}
 if($StutterTrace){$arguments+='--worldgen-stutter-trace'}
 if($Cases){$arguments+=@('--worldgen-perf-cases',('"'+$Cases+'"'))}
 $arguments+=@('--worldgen-perf-view',$ViewDistance.ToString([Globalization.CultureInfo]::InvariantCulture))
+$arguments+=@('--worldgen-perf-plant-quality',"$PlantQuality")
 $run=$null;$capture=$null
 try {
     $run=Start-Process -FilePath $player -ArgumentList $arguments -WorkingDirectory $repo -WindowStyle Hidden -PassThru

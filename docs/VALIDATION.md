@@ -1,5 +1,37 @@
 # Version 3 validation evidence
 
+## Retained tree instances and shared shading - 26 October 2026
+
+Owner authorized retained GPU tree submission, reused billboard shader work and
+per-tree shared wind. Saved Vegetation -> Efficient tree rendering defaults ON;
+OFF restores the earlier path for comparison. Existing GPU individual-tree
+fields now overlap local billboards at129.6-162m on Ultra (96-120m Medium),
+after the mesh transition finishes. Old exact-census distance/density remain.
+ALL nearby exact pages/bakes must be ready before closer submission activates;
+coarse parents cannot retire local CPU trees. Meshes, grass and shadow range
+are unchanged. The optional prior depth/banding experiments remain OFF.
+
+Release IL2CPP build succeeded, noC#/shadererrors;132runtime/shader source
+hashes and stagedDLLs checked,177fauna bundles retained. Same-frame independent
+comparisons: shader0/2,073,600pixels>2RGB (max2); wind exact; resident handoff
+7pixels>2 (mean0.00017). Root inspected actual render. CPU-submitted trees
+5514->1225, same321,654field roots and896,000grass candidate slots.
+
+1080p/6km Ultra vegetation tropical forest, Ryzen5700X/RTX4060, settled10s
+same-build cases: steady41.49->43.02FPS, turning29.28->30.70FPS. Turning batch
+9.00->6.07ms, scatter9.09->6.16ms; shadow batches remain~2.1ms. Isolated legacy
+wind43.74 and legacy shader43.52FPS do NOT establish standalone GPU gains;
+short-run variation remains. This is a modest~4-5%total gain. Remaining dense
+foliage cost is not solved. No isolated GPU timestamps: FrameTimingManager
+unavailable; frame windows include completion barriers. Initial verify window
+not settled, excluded. Other fauna task paused its owned export coordinator
+for timing. Input snapshot unchanged, no owner apps killed/preferences saved.
+
+Evidence ignored artifacts/tree-efficiency-20261026/probe; final player
+player-tree-efficiency BuiltUtc2026-10-26T23:38:18.7180949Z. Existing root shortcut
+selects it, prior player-forest-overlap-streaming retained. Build-generated
+project/importer settings restored. No broad holdout/all-hardware FPS claim.
+
 ## Forest streaming hitch and overlap experiments - 26 October 2026
 
 Owner lifted the no-launch/test restriction and prioritizes forest walking

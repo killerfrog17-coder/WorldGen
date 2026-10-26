@@ -10,6 +10,7 @@ Shader "WorldGen/TreeSurface2"
         _Wind("Flexibility",Float)=.03 _PlantTraits("Plant traits",Vector)=(.03,.5,.7,1)
         _FogDistance("Fog distance",Float)=60000 _FogColor("Fog",Color)=(.57,.69,.76,1) _AmbientTint("Ambient",Color)=(.12,.14,.17,1)
         [PerRendererData] _Tint("Instance tint",Color)=(1,1,1,1)
+        [PerRendererData] _TreeWindSlot("Shared tree wind index",Float)=-1
         [PerRendererData] _LodTransition("Distance transition",Vector)=(0,1,0,0)
     }
     SubShader
@@ -32,9 +33,14 @@ Shader "WorldGen/TreeSurface2"
         UNITY_INSTANCING_BUFFER_START(Props)
             UNITY_DEFINE_INSTANCED_PROP(float4,_Tint)
             UNITY_DEFINE_INSTANCED_PROP(float4,_LodTransition)
+            UNITY_DEFINE_INSTANCED_PROP(float,_TreeWindSlot)
         UNITY_INSTANCING_BUFFER_END(Props)
         struct A {float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 tangentOS:TANGENT;float2 uv:TEXCOORD0;float2 mask:TEXCOORD1;float4 color:COLOR;UNITY_VERTEX_INPUT_INSTANCE_ID};
-        struct O {float4 positionCS:SV_POSITION;float3 position:TEXCOORD0;float3 normal:TEXCOORD1;float4 tangent:TEXCOORD2;float2 uv:TEXCOORD3;float2 mask:TEXCOORD4;float4 color:COLOR;float3 local:TEXCOORD5;nointerpolation float3 direction:TEXCOORD6;nointerpolation float2 viewLod:TEXCOORD7;UNITY_VERTEX_INPUT_INSTANCE_ID};
+        struct O {float4 positionCS:SV_POSITION;float3 position:TEXCOORD0;float3 normal:TEXCOORD1;float4 tangent:TEXCOORD2;float2 uv:TEXCOORD3;float2 mask:TEXCOORD4;float4 color:COLOR;float3 local:TEXCOORD5;nointerpolation float3 direction:TEXCOORD6;nointerpolation float2 viewLod:TEXCOORD7;
+            #if defined(WORLDGEN_TREE_EFFICIENT)
+            nointerpolation uint3 viewIndices:TEXCOORD8;nointerpolation float3 viewWeights:TEXCOORD9;float4 viewA:TEXCOORD10;float4 viewB:TEXCOORD11;float4 viewC:TEXCOORD12;
+            #endif
+            UNITY_VERTEX_INPUT_INSTANCE_ID};
         O vert(A a)
         {
             O o=(O)0;UNITY_SETUP_INSTANCE_ID(a);UNITY_TRANSFER_INSTANCE_ID(a,o);
@@ -46,13 +52,17 @@ Shader "WorldGen/TreeSurface2"
                 o.direction=d;o.local=p;
             }
             float3 world=TransformObjectToWorld(p),root=TransformObjectToWorld(float3(0,0,0));
-            if(_Impostor<.5)world=WorldGenTreeWind(world,root,a.mask,_Wind,_PlantTraits);
+            if(_Impostor<.5)world=WorldGenTreeWindCached(world,root,a.mask,_Wind,_PlantTraits,UNITY_ACCESS_INSTANCED_PROP(Props,_TreeWindSlot));
             o.position=world;o.positionCS=TransformWorldToHClip(world);o.normal=TransformObjectToWorldNormal(a.normalOS);
             if(_Impostor>.5)
             {
                 float3x3 m=(float3x3)GetObjectToWorldMatrix();
                 float scale=max(length(float3(m[0][0],m[1][0],m[2][0])),max(length(float3(m[0][1],m[1][1],m[2][1])),length(float3(m[0][2],m[1][2],m[2][2]))));
                 o.viewLod=WorldGenTreeViewLod(length(root-_WorldSpaceCameraPos),_ImpostorBounds.w*scale);
+                #if defined(WORLDGEN_TREE_EFFICIENT)
+                WorldGenPreparedTreeViews prepared=WorldGenPrepareTreeViews(o.local-_ImpostorBounds.xyz,o.direction,_ImpostorBounds.w,o.viewLod);
+                o.viewIndices=prepared.indices;o.viewWeights=prepared.weights;o.viewA=prepared.a;o.viewB=prepared.b;o.viewC=prepared.c;
+                #endif
             }
             o.tangent=float4(TransformObjectToWorldDir(a.tangentOS.xyz),a.tangentOS.w);o.uv=a.uv;o.mask=a.mask;o.color=a.color;return o;
         }
@@ -65,7 +75,12 @@ Shader "WorldGen/TreeSurface2"
                 early=_TreeEarlyAlpha>.5;
                 #endif
                 half4 color;half3 objectNormal;
+                #if defined(WORLDGEN_TREE_EFFICIENT)
+                WorldGenPreparedTreeViews prepared;prepared.indices=i.viewIndices;prepared.weights=i.viewWeights;prepared.a=i.viewA;prepared.b=i.viewB;prepared.c=i.viewC;
+                WorldGenPreparedTreeSurface(prepared,i.local-_ImpostorBounds.xyz,i.direction,_ImpostorBounds.w,i.viewLod,early,color,objectNormal);
+                #else
                 WorldGenTreeSurface(i.local-_ImpostorBounds.xyz,i.direction,_ImpostorBounds.w,i.viewLod,early,color,objectNormal);
+                #endif
                 clip(color.a-.4);albedo=color.rgb;normal=TransformObjectToWorldNormal(objectNormal);foliage=1;
             }
             else
@@ -116,6 +131,7 @@ Shader "WorldGen/TreeSurface2"
             #pragma target 4.0
             #pragma target 4.5 WORLDGEN_TREE_QUAD_ALPHA
             #pragma multi_compile_local _ WORLDGEN_TREE_QUAD_ALPHA
+            #pragma multi_compile_local _ WORLDGEN_TREE_EFFICIENT
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_instancing
@@ -130,6 +146,7 @@ Shader "WorldGen/TreeSurface2"
             #pragma target 4.0
             #pragma target 4.5 WORLDGEN_TREE_QUAD_ALPHA
             #pragma multi_compile_local _ WORLDGEN_TREE_QUAD_ALPHA
+            #pragma multi_compile_local _ WORLDGEN_TREE_EFFICIENT
             #pragma vertex shadowVert
             #pragma fragment depthFrag
             #pragma multi_compile_instancing
@@ -142,6 +159,7 @@ Shader "WorldGen/TreeSurface2"
             #pragma target 4.0
             #pragma target 4.5 WORLDGEN_TREE_QUAD_ALPHA
             #pragma multi_compile_local _ WORLDGEN_TREE_QUAD_ALPHA
+            #pragma multi_compile_local _ WORLDGEN_TREE_EFFICIENT
             #pragma vertex vert
             #pragma fragment depthFrag
             #pragma multi_compile_instancing
@@ -154,6 +172,7 @@ Shader "WorldGen/TreeSurface2"
             #pragma target 4.0
             #pragma target 4.5 WORLDGEN_TREE_QUAD_ALPHA
             #pragma multi_compile_local _ WORLDGEN_TREE_QUAD_ALPHA
+            #pragma multi_compile_local _ WORLDGEN_TREE_EFFICIENT
             #pragma vertex vert
             #pragma fragment depthFrag
             #pragma multi_compile_instancing

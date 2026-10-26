@@ -17,6 +17,7 @@ public sealed partial class LocalTerrainExplorer
     void RegisterScatterMaterial(Material material)
     {
         ownedScatterMaterials.Add(material);
+        ConfigureEfficientTreeMaterial(material);
         if(material.HasProperty("_VegetationSceneEnabled"))material.SetFloat("_VegetationSceneEnabled",1);
         else legacyVegetationScene.Add(material);
     }
@@ -76,6 +77,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void BindTerrainSceneCamera(ScriptableRenderContext context,Camera camera)
     {
+        BindSharedTreeWind(camera);
         float treeStart=(float)WorldGen.Presentation.TreeRenderingLod.ViewStart(TerrainVideoOptions.TreeQuality),treePixels=(float)WorldGen.Presentation.TreeRenderingLod.PixelStart(TerrainVideoOptions.TreeQuality);
         Shader.SetGlobalVector("_WorldGenTreeViewRanges",camera==view&&TerrainVideoOptions.EfficientTreeViews?new Vector4(treeStart,treeStart*1.5f,treePixels,treePixels*.5f):Vector4.zero);
         Shader.SetGlobalFloat("_WorldGenTreeViewProjection",camera==view?view.pixelHeight/Mathf.Tan(view.fieldOfView*Mathf.Deg2Rad*.5f):0);

@@ -84,7 +84,10 @@ public sealed partial class LocalTerrainExplorer
     // CPU instancing -> identical GPU individual impostors, NOT tree retirement.
     // The hierarchy continues exact roots past this handoff until projected
     // node error justifies aggregation. Do not spend a 1.4km CPU buffer twice.
-    double ForestHandoffReach=>Math.Min(TerrainVideoOptions.TreeIdentityRange,Math.Max(350,TerrainVideoOptions.TreeFarLod*2.7));
+    double LegacyForestReach=>Math.Min(TerrainVideoOptions.TreeIdentityRange,Math.Max(350,TerrainVideoOptions.TreeFarLod*2.7));
+    bool residentForestReady;int residentForestEpoch=-1;double nextResidentForestCheck;V residentForestCheckAt;
+    double ForestHandoffReach=>residentForestReady&&TerrainVideoOptions.EfficientTreeRendering&&!WorldGenPerformance.LegacyTreeResident?
+        Math.Min(LegacyForestReach,Math.Max(120,TerrainVideoOptions.TreeFarLod*1.8)):LegacyForestReach;
     public bool ForestPending=>forestPlan!=null||forestJobs.Count>0||forestPriority.Any(k=>!forestFields.ContainsKey(k))||forestFields.Values.Any(f=>!f.Ready);
     static uint ForestMix(uint x){x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);}
     static uint ForestKeyHash(int x,int z,int level,int face=0)=>ForestMix(unchecked((uint)x*73856093u^(uint)z*19349663u^(uint)level*83492791u^(uint)face*15485863u));
@@ -140,7 +143,9 @@ public sealed partial class LocalTerrainExplorer
         {
             if(forestOptions!=TerrainVideoOptions.VegetationRevision)nextForestVisibility=0;
             forestPlanAt=Position;forestPlanRange=viewDistance;forestOptions=TerrainVideoOptions.VegetationRevision;
-            var at=Position;double range=viewDistance,exact=ForestHandoffReach+256,inner=Math.Max(0,VegetationQuality.ForestStart(ForestHandoffReach)-160);var source=scatter;
+            // Preserve the old exact-census radius. Only submission changes;
+            // moving the GPU handoff must not coarsen the forest population.
+            var at=Position;double range=viewDistance,exact=LegacyForestReach+256,inner=0;var source=scatter;
             forestPlan=Task.Run(()=>source.PlanForest(at,range,exact,4096,inner),cancellation.Token);
         }
         if(forestHashDirty)foreach(var field in forestFields.Values)
@@ -164,6 +169,23 @@ public sealed partial class LocalTerrainExplorer
             if((center-Position).Length*frame.RadiusM-radius>viewDistance+512||(center-Position).Length*frame.RadiusM+radius<VegetationQuality.ForestStart(ForestHandoffReach)-128||ForestReplacementReady(key))RemoveForestField(key);
         }
         }
+        UpdateResidentForestReadiness();
+    }
+    void UpdateResidentForestReadiness()
+    {
+        double now=Time.realtimeSinceStartupAsDouble;
+        if(residentForestEpoch==forestOwnershipEpoch&&now<nextResidentForestCheck&&(Position-residentForestCheckAt).Length*frame.RadiusM<32)return;
+        residentForestEpoch=forestOwnershipEpoch;nextResidentForestCheck=now+.2;residentForestCheckAt=Position;
+        // A previously loaded coarse parent must never retire a close exact
+        // CPU tree. Move submission closer only after ALL nearby level-zero
+        // pages (including empty ones) and their actual-tree bakes are ready.
+        bool ready=ForestNeededForReveal&&forestCoveragePlanned&&(Position-forestCoverageAt).Length*frame.RadiusM<=128;
+        if(ready)foreach(var key in forestPriority)
+        {
+            if(key.Level!=0||ForestGapDistance(key)>LegacyForestReach+64)continue;
+            if(!forestFields.TryGetValue(key,out var field)||!field.Ready){ready=false;break;}
+        }
+        if(residentForestReady!=ready){residentForestReady=ready;scatterDirty=true;}
     }
     bool ScheduleForestWork()
     {
@@ -322,6 +344,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void ResetForestFields()
     {
+        residentForestReady=false;residentForestEpoch=-1;nextResidentForestCheck=0;
         foreach(var work in forestJobs){work.Cancellation.Cancel();var stop=work.Cancellation;work.Task.ContinueWith(_=>stop.Dispose(),TaskScheduler.Default);}forestJobs.Clear();
         foreach(var batch in forestBatches.Values)batch.Dispose();forestBatches.Clear();forestFields.Clear();forestFreeIds.Clear();forestRootCount=forestNextId=0;
         forestFlagBuffer?.Dispose();forestHashBuffer?.Dispose();forestFlagBuffer=forestHashBuffer=null;forestCull=null;Array.Clear(forestFlags,0,forestFlags.Length);forestHashDirty=true;nextForestVisibility=0;

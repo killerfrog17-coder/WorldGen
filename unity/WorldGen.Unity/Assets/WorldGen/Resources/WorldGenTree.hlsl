@@ -24,4 +24,25 @@ float3 WorldGenTreeWind(float3 p,float3 root,float2 mask,float enabled,float4 tr
     }
     return p;
 }
+#if SHADER_TARGET >= 45
+StructuredBuffer<float4> _WorldGenTreeWindData;
+float _WorldGenTreeWindCacheEnabled;
+#endif
+float3 WorldGenTreeWindCached(float3 p,float3 root,float2 mask,float enabled,float4 traits,float slot)
+{
+    #if SHADER_TARGET >= 45
+    if(_WorldGenTreeWindCacheEnabled>.5&&slot>=0)
+    {
+        if(enabled<=0)return p;
+        float4 cached=_WorldGenTreeWindData[(uint)slot];p+=cached.xyz*(mask.x*mask.x);
+        if(mask.y>.5&&mask.y<2.5)
+        {
+            float3 direction=_WeatherDrivenVegetationWind>.5?_VegetationDirection.xyz:_GrassWindDirection.xyz;
+            p+=direction*WorldGenOriginalGrassWave(p)*(.12*cached.w*mask.x);
+        }
+        return p;
+    }
+    #endif
+    return WorldGenTreeWind(p,root,mask,enabled,traits);
+}
 #endif

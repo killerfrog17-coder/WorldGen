@@ -88,4 +88,74 @@ void WorldGenTreeSurface(float3 p,float3 view,float radius,float2 lod,bool early
         color=lerp(detailed,color,lod.x);normal=normalize(lerp(detailedNormal,normal,lod.x));
     }
 }
+// View choice and affine ray projection are constant/linear across a tree
+// billboard. Prepare them at vertices; retain the literal path for A/B checks.
+struct WorldGenPreparedTreeViews {uint3 indices;float3 weights;float4 a,b,c;};
+float4 WorldGenPrepareTreeView(uint index,float3 p,float3 view,float radius)
+{
+    float3 d=WorldGenTreeViewDirection(index),r,u;WorldGenTreeViewBasis(d,r,u);
+    float inverse=rcp(max(.2,dot(view,d)));
+    float3 projected=p-view*(dot(p,d)*inverse);
+    return float4(.5+float2(dot(projected,r),dot(projected,u))/(2*radius),float2(dot(view,r),dot(view,u))*inverse);
+}
+WorldGenPreparedTreeViews WorldGenPrepareTreeViews(float3 p,float3 view,float radius,float2 lod)
+{
+    WorldGenPreparedTreeViews o=(WorldGenPreparedTreeViews)0;
+    // Tiny horizon crowns retain the cheap one-view path. Do not prepare three
+    // projections at six vertices for a billboard covering only a few pixels.
+    if(lod.y>=1)return o;
+    WorldGenTreeSelectViews(view,o.indices,o.weights);
+    o.a=WorldGenPrepareTreeView(o.indices.x,p,view,radius);
+    o.b=WorldGenPrepareTreeView(o.indices.y,p,view,radius);
+    o.c=WorldGenPrepareTreeView(o.indices.z,p,view,radius);return o;
+}
+half4 WorldGenPreparedTreeCoverage(float4 projection,uint index)
+{
+    half4 color=SAMPLE_TEXTURE2D_ARRAY(_TreeColourViews,sampler_TreeColourViews,projection.xy,index);return color;
+}
+half4 WorldGenTreeMaskCoverage(half4 color,float2 uv)
+{color.a*=all(uv>=0)&&all(uv<=1);return color;}
+void WorldGenPreparedTreeFullView(float4 projection,uint index,half4 coverage,out half4 color,out half3 normal)
+{
+    half4 depth=SAMPLE_TEXTURE2D_ARRAY(_TreeNormalViews,sampler_TreeNormalViews,projection.xy,index);
+    float2 uv=projection.xy+projection.zw*(coverage.a>.2?depth.a-.5:0);
+    color=WorldGenTreeMaskCoverage(SAMPLE_TEXTURE2D_ARRAY(_TreeColourViews,sampler_TreeColourViews,uv,index),uv);
+    normal=SAMPLE_TEXTURE2D_ARRAY(_TreeNormalViews,sampler_TreeNormalViews,uv,index).rgb*2-1;
+}
+void WorldGenPreparedTreeSurface(WorldGenPreparedTreeViews prepared,float3 p,float3 view,float radius,float2 lod,bool early,out half4 color,out half3 normal)
+{
+    color=0;normal=view;
+    if(lod.y>=1){WorldGenTreeSurface(p,view,radius,lod,early,color,normal);return;}
+    half4 rawA=WorldGenPreparedTreeCoverage(prepared.a,prepared.indices.x),rawB=WorldGenPreparedTreeCoverage(prepared.b,prepared.indices.y),rawC=WorldGenPreparedTreeCoverage(prepared.c,prepared.indices.z);
+    half4 aa=WorldGenTreeMaskCoverage(rawA,prepared.a.xy),ab=WorldGenTreeMaskCoverage(rawB,prepared.b.xy),ac=WorldGenTreeMaskCoverage(rawC,prepared.c.xy);
+    if(lod.x>0)
+    {
+        float3 covered;WorldGenTreeCombine(aa,ab,ac,prepared.weights,color,covered);
+        if(lod.y>0)
+        {
+            half4 dominant=prepared.weights.x>=prepared.weights.y&&prepared.weights.x>=prepared.weights.z?aa:prepared.weights.y>=prepared.weights.z?ab:ac;
+            color=lerp(color,dominant,lod.y);
+        }
+        float front=sqrt(max(.001,radius*radius-dot(p,p)));normal=normalize(p+view*front);
+        if(lod.x>=1)return;
+    }
+    half4 a,b,c;half3 na,nb,nc;
+    bool masked=false;
+    #if SHADER_TARGET >= 45
+    if(early&&lod.x<=0)
+    {
+        if(WorldGenQuadAll(max(aa.a,max(ab.a,ac.a))<=.2?1:0)>.5)clip(-1);
+        masked=true;
+    }
+    #endif
+    // The initial colour samples also supply the simplified representation
+    // through an LOD blend; no separate three-read simplified surface pass.
+    WorldGenPreparedTreeFullView(prepared.a,prepared.indices.x,masked?aa:rawA,a,na);
+    WorldGenPreparedTreeFullView(prepared.b,prepared.indices.y,masked?ab:rawB,b,nb);
+    WorldGenPreparedTreeFullView(prepared.c,prepared.indices.z,masked?ac:rawC,c,nc);
+    float3 covered;half4 detailed;WorldGenTreeCombine(a,b,c,prepared.weights,detailed,covered);
+    half3 detailedNormal=normalize(na*covered.x+nb*covered.y+nc*covered.z+view*.00001);
+    if(lod.x<=0){color=detailed;normal=detailedNormal;}
+    else{color=lerp(detailed,color,lod.x);normal=normalize(lerp(detailedNormal,normal,lod.x));}
+}
 #endif
