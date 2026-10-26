@@ -101,31 +101,31 @@ def horn_boss(name,point,normal,skin):
     mesh_object(name,verts,polys,skin,uv)
 
 def merged_buffalo_rack(conf,length,width):
-    target=mid+up*.145;hit=bvh.ray_cast(Vector(target+front*.65),Vector(-front),1.3)[0];assert hit is not None
-    center=np.array(hit)-front*.048;_,_,skin=fit(np.array(hit));halves=[]
+    verts=[];uv=[];polys=[];segments=16
     for sign in [-1,1]:
         target=mid+side*sign*gap*.38+up*.145;hit=bvh.ray_cast(Vector(target+front*.65),Vector(-front),1.3)[0];assert hit is not None
-        root=np.array(hit)-front*.18;path=[];radii=[]
-        for t in np.linspace(0,1,7):path.append(center*(1-t)+root*t);radii.append((.080+.040*math.sin(t*math.pi/2))*conf['radius'])
-        for t in np.linspace(0,1,25)[1:]:
+        surface_root=np.array(hit);_,_,skin=fit(surface_root);center=surface_root-front*.025+up*.018;first=len(verts);rings=10
+        # Two independently seated convex horn-root bosses with a central
+        # division. A conformed tube across the forehead produced a flat slab.
+        for row in range(rings+1):
+            theta=math.pi*row/rings
+            for j in range(segments):
+                phi=math.tau*j/segments;verts.append(center+side*(gap*.44*conf['radius']*math.sin(theta)*math.cos(phi))+front*(.100*conf['radius']*math.sin(theta)*math.sin(phi))+up*(.092*conf['radius']*math.cos(theta)));uv.append((j/segments,row/rings))
+        for row in range(rings):
+            for j in range(segments):polys.append((first+row*segments+j,first+row*segments+(j+1)%segments,first+(row+1)*segments+(j+1)%segments,first+(row+1)*segments+j))
+        root=center+side*sign*.035-front*.010;path=[];radii=[]
+        for t in np.linspace(0,1,29):
             off=side*sign*length*width*math.sin(t*2.55)-up*length*.42*math.sin(t*math.pi)+up*length*.62*t*t+front*length*.08*t
-            path.append(root+off);radii.append((.070*(1-t)**.72+.050*math.exp(-t/.13)+.003)*conf['radius'])
-        halves.append((path,radii));evidence.append({'id':conf['id'],'side':sign,'root':root.tolist(),'skin':skin,'construction':'Single continuous rack; lateral roots sweep back on crown behind the eyes, central boss seated across anterior forehead'})
-    path=np.array([*reversed(halves[0][0]),*halves[1][0][1:]]);radii=[*reversed(halves[0][1]),*halves[1][1][1:]];verts=[];uv=[];polys=[];segments=16;previous=front.copy()
-    head_faces=faces[((p[faces].mean(1)-mid)@front>-.20)&(p[faces].mean(1)[:,2]>mid[2]+.04)];head_bvh=BVHTree.FromPolygons([Vector(v) for v in p],head_faces.tolist(),all_triangles=True)
-    for i,q in enumerate(path):
-        tangent=path[min(i+1,len(path)-1)]-path[max(i-1,0)];tangent/=np.linalg.norm(tangent);across=previous-tangent*(previous@tangent);across/=np.linalg.norm(across);vertical=np.cross(tangent,across);previous=across;r=radii[i]
-        for j in range(segments):
-            phi=math.tau*j/segments;point=q+across*math.cos(phi)*r*.85+vertical*math.sin(phi)*r
-            if abs((point-mid)@side)<gap*.65 and (point-q)@front>-.1*r:
-                hit=head_bvh.ray_cast(Vector(point+front*.7),Vector(-front),1.4)[0]
-                if hit is not None:
-                    needed=(np.array(hit)-point)@front+.018
-                    if needed>0:point+=front*needed
-            verts.append(point);uv.append((j/segments,i/(len(path)-1)))
-    for i in range(len(path)-1):
-        for j in range(segments):polys.append((i*segments+j,i*segments+(j+1)%segments,(i+1)*segments+(j+1)%segments,(i+1)*segments+j))
-    polys.extend([tuple(reversed(range(segments))),tuple((len(path)-1)*segments+j for j in range(segments))]);name=mesh_object(f'{a.slug} {conf["id"]} continuous horn and boss',verts,polys,skin,uv)
+            path.append(root+off);radii.append((.070*(1-t)**.72+.016*math.exp(-t/.13)+.002)*conf['radius'])
+        path=np.array(path);start=len(verts);previous=front.copy()
+        for i,q in enumerate(path):
+            tangent=path[min(i+1,len(path)-1)]-path[max(i-1,0)];tangent/=np.linalg.norm(tangent);across=previous-tangent*(previous@tangent);across/=np.linalg.norm(across);vertical=np.cross(tangent,across);previous=across;r=radii[i]
+            for j in range(segments):
+                phi=math.tau*j/segments;verts.append(q+across*math.cos(phi)*r+vertical*math.sin(phi)*r);uv.append((j/segments,i/(len(path)-1)))
+        for i in range(len(path)-1):
+            for j in range(segments):polys.append((start+i*segments+j,start+i*segments+(j+1)%segments,start+(i+1)*segments+(j+1)%segments,start+(i+1)*segments+j))
+        polys.extend([tuple(reversed([start+j for j in range(segments)])),tuple(start+(len(path)-1)*segments+j for j in range(segments))]);evidence.append({'id':conf['id'],'side':sign,'root':surface_root.tolist(),'skin':skin,'construction':'Paired convex root bosses seated independently above brows, central division, buried horn bases and lateral/down/up sweep; no cross-forehead panel'})
+    name=mesh_object(f'{a.slug} {conf["id"]} continuous horn and boss',verts,polys,skin,uv)
     # Union folded/self-overlapping boss sections into one solid keratin mass.
     # The previous conformed tube left thin projecting strips below the boss.
     ob=bpy.data.objects[name];bpy.ops.object.select_all(action='DESELECT');ob.select_set(True);bpy.context.view_layer.objects.active=ob

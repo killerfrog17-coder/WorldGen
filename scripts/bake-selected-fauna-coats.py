@@ -13,7 +13,7 @@ repo=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(repo/'scripts'))
 from fauna_paint_recipes import SUPPORTED, family, profiles as coat_profiles, eye_radius as get_eye_radius, eye_frame
 from fauna_hypothetical_coats import treatment,organic_stripes
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=1024);ap.add_argument('--root',type=Path)
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--size',type=int,default=1024);ap.add_argument('--root',type=Path);ap.add_argument('--coat-index',type=int);ap.add_argument('--source-atlases',action='store_true')
 a=ap.parse_args();assert a.slug in SUPPORTED
 if family(a.slug) in {'avian','fish'}:
     import runpy
@@ -172,6 +172,7 @@ distance,nearest=distance_transform_edt(~occupied,return_indices=True);pad=(~occ
 def extend(array):
     array[pad]=array[nearest[0][pad],nearest[1][pad]];return array
 for index,(label,base,pale,dark_tips) in enumerate(profiles):
+    if a.coat_index is not None and index!=a.coat_index:continue
     base=np.array(base);pale=np.array(pale);colour=np.tile(base,(len(p),1))
     def paint(mask,target):return colour*(1-mask[:,None])+np.asarray(target)*mask[:,None]
     colour=paint(belly,pale);colour=paint(chin,pale);colour=paint(tail,pale)
@@ -236,7 +237,13 @@ for index,(label,base,pale,dark_tips) in enumerate(profiles):
         colour=paint(guards,pale)
         if 'shedding' in label:
             # Colour-only seasonal overlay, not a separate inherited species.
-            patches=smooth(.0,.60,np.sin(p[:,1]*19+np.sin(p[:,0]*23)*1.6+np.sin(p[:,2]*15)))*smooth(-.65,-.10,p[:,1])*(1-smooth(.28,.65,p[:,1]))*smooth(.50,.80,p[:,2])
+            patches=np.zeros(len(p));rng=np.random.default_rng(84531)
+            for sign in [-1,1]:
+                for _ in range(19):
+                    y=rng.uniform(-.85,.50);z=rng.uniform(.72,1.48);ry=rng.uniform(.055,.17);rz=rng.uniform(.045,.14);q=((p[:,1]-y)/ry)**2+((p[:,2]-z)/rz)**2
+                    edge=.10*np.sin(p[:,1]*83+p[:,2]*67)+.07*np.sin(p[:,1]*139-p[:,2]*101)
+                    patch=(1-smooth(.50+edge,1.20+edge,q))*smooth(.08,.60,n[:,0]*sign);patches=np.maximum(patches,patch)
+            patches*=smooth(.55,.78,p[:,2])
             colour=paint(patches*.40,pale)
     elif kind in {'small-carnivore','beaver'}:
         eye_mid=(np.array(land['right_eye']['point'])+np.array(land['left_eye']['point']))/2
@@ -334,7 +341,9 @@ for index,(label,base,pale,dark_tips) in enumerate(profiles):
         colour=paint(m,[.13,.105,.075])
     colour=treatment(colour,label,p,n,np.maximum.reduce([bare,nose_mask,hoof,inner,tips]))
     image=np.zeros((a.size,a.size,3),np.float32);image[iy,ix]=np.clip(colour,0,1);extend(image)
-    Image.fromarray(np.uint8(np.clip(image,0,1)*255)).save(root/f'coat-{index}-colour.png')
+    colour_root=root/'unprojected-atlases' if a.source_atlases else root;colour_root.mkdir(exist_ok=True);Image.fromarray(np.uint8(np.clip(image,0,1)*255)).save(colour_root/f'coat-{index}-colour.png')
+if a.source_atlases:
+    (root/'source-coat-rebake.json').write_text(json.dumps({'slug':a.slug,'indices':[a.coat_index] if a.coat_index is not None else list(range(len(profiles))),'size':a.size,'method':'Rebaked original-UV source pigment only; current native and projected paint remain unchanged until explicit rebuild.','appearance_approved':False},indent=2)+'\n');print('SOURCE COAT REBAKED',a.slug,a.coat_index,flush=True);raise SystemExit
 rough_image=np.ones((a.size,a.size),np.float32)*.84;rough_image[iy,ix]=rough;extend(rough_image)
 Image.fromarray(np.uint8(rough_image*255)).save(root/'coat-roughness.png')
 height_image=np.zeros((a.size,a.size),np.float32);height_image[iy,ix]=height;extend(height_image)

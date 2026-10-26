@@ -26,8 +26,8 @@ def components(points,faces):
         result.append(part)
     return result
 
-def smooth_split_normals(mesh):
-    """Average exact-position shading normals, retaining split skin vertices."""
+def averaged_split_normals(mesh):
+    """Return continuous projection/shading normals across imported UV splits."""
     points=np.array([v.co[:] for v in mesh.vertices]);normal=np.array([v.normal[:] for v in mesh.vertices])
     groups={}
     for i,point in enumerate(np.round(points,6)):groups.setdefault(tuple(point),[]).append(i)
@@ -36,5 +36,10 @@ def smooth_split_normals(mesh):
         if len(ids)<2:continue
         mean=normal[ids].sum(0);length=np.linalg.norm(mean)
         if length>1e-8:normal[ids]=mean/length;changed+=len(ids)
+    return normal,changed
+
+def smooth_split_normals(mesh):
+    """Average exact-position shading normals, retaining split skin vertices."""
+    normal,changed=averaged_split_normals(mesh)
     if changed:mesh.normals_split_custom_set_from_vertices(normal.tolist())
     return changed

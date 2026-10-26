@@ -164,6 +164,32 @@
       },
       "published_source_sha": "3c41ad7be03f6a31858627e4600ffce4e196c27b",
       "published_deployment": "appgdep_6adee0afa3208191aa7880f8d6b36685"
+    },
+    {
+      "slug": "bison",
+      "status": "awaiting_owner_review",
+      "owner_approved": false,
+      "review_update": "Appearance rebuilt against actual front/profile photos; all coats and attachment examples independently checked at prototype quality. Existing selected body and animations retained; awaiting your review.",
+      "repair_review": {
+        "plan": "artifacts\\fauna-anatomy-revision\\bison\\phone-review-plan.json",
+        "media_root": "artifacts\\fauna-anatomy-revision\\phone-media",
+        "check": "artifacts\\fauna-anatomy-revision\\bison\\visual-native-check.json",
+        "blend": "artifacts\\fauna-anatomy-revision\\bison\\Animal - Painted Species Review.blend",
+        "blend_sha256": "1ee5dc77b412df10f0a2cf44c0897a65bb41231e1a120d9af9fc90d17f3f51dd"
+      }
+    },
+    {
+      "slug": "wild-goat",
+      "status": "awaiting_owner_review",
+      "owner_approved": false,
+      "review_update": "Appearance rebuilt against actual front/profile photos; all coats and attachment examples independently checked at prototype quality. Existing selected body and animations retained; awaiting your review.",
+      "repair_review": {
+        "plan": "artifacts\\fauna-anatomy-revision\\wild-goat\\phone-review-plan.json",
+        "media_root": "artifacts\\fauna-anatomy-revision\\phone-media",
+        "check": "artifacts\\fauna-anatomy-revision\\wild-goat\\visual-native-check.json",
+        "blend": "artifacts\\fauna-anatomy-revision\\wild-goat\\Animal - Painted Species Review.blend",
+        "blend_sha256": "29fa1aee40b23dfe9cf4bbc27736d0a2de50b9c26d583d86a2522f8b76c0285b"
+      }
     }
   ],
   "latest_publication": {

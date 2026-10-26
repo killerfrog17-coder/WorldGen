@@ -21,7 +21,8 @@ def _weights(ob,weights):
             group=ob.vertex_groups.get(name) or ob.vertex_groups.new(name=name);group.add([i],float(value),'REPLACE')
 
 def prepare(body,patches,land,skin_sample,root,slug):
-    mesh=body.data;p=np.array([v.co[:] for v in mesh.vertices]);faces=[list(f.vertices) for f in mesh.polygons];source_normals=np.array([v.normal[:] for v in mesh.vertices]);parent_attribute=mesh.attributes.get('Visual source face');source_parent_ids=[v.value for v in parent_attribute.data] if parent_attribute else None
+    from fauna_surface_components import averaged_split_normals
+    mesh=body.data;p=np.array([v.co[:] for v in mesh.vertices]);faces=[list(f.vertices) for f in mesh.polygons];source_normals=averaged_split_normals(mesh)[0];parent_attribute=mesh.attributes.get('Visual source face');source_parent_ids=[v.value for v in parent_attribute.data] if parent_attribute else None
     source_weights=[{body.vertex_groups[g.group].name:g.weight for g in v.groups} for v in mesh.vertices]
     keys=[tuple(x) for x in np.round(p,6)];edges={}
     for fi,face in enumerate(faces):
@@ -40,6 +41,7 @@ def prepare(body,patches,land,skin_sample,root,slug):
     top,bottom,tilt=(.60,.53,.025) if prey else (.50,.40,.06) if slug=='red-fox' else (.55,.55,.02) if slug=='raccoon' else (.34,.34,.02) if kind=='ursid' else (.40,.35,.02) if bovid else (.30,.27,.02) if kind=='suine' else (.45,.36,.06)
     profile=land.get('anatomical_orbit',{});top=profile.get('aperture_top',top);bottom=profile.get('aperture_bottom',bottom);tilt=profile.get('aperture_tilt',tilt)
     for record in patches:
+        if slug in {'badger','otter','squirrel','beaver','mouse'}:record['source_fur_radius']=1.65
         side='right' if record['half']==0 else 'left';ob=record['object'];C=record['center'];H=record['horizontal'];V=record['vertical'];N=np.array(record.get('normal',np.cross(V,H)));N/=np.linalg.norm(N);R=record['radius'];rx=record['rx']
         centroids=np.array([p[f].mean(0) for f in faces]);rel=centroids-C
         q=((rel@H)/(rx*1.5))**2+((rel@V)/(R*.95))**2

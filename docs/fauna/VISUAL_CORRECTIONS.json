@@ -122,14 +122,50 @@
       "number": 10,
       "slug": "wild-goat",
       "name": "Wild goat",
-      "status": "anatomy_working_not_published",
-      "reference_comparison_completed": false,
+      "status": "independently_checked_static_appearance_ready_for_owner_review",
+      "reference_comparison_completed": true,
       "appearance_approved": false,
       "latest_anatomy_work": {
         "root": "artifacts\\fauna-anatomy-revision\\wild-goat",
         "native_sha256": "6612180b2141cf3ac3a29f389d0c4d8cb0135322c42c956cb3aefad629d154bc",
         "preservation_proof_matches": true,
         "latest_native_independent_appearance_clearance": false
+      },
+      "source_sha256": "29fa1aee40b23dfe9cf4bbc27736d0a2de50b9c26d583d86a2522f8b76c0285b",
+      "reference": [
+        "artifacts/fauna-visual-corrections/references/wild-goat-front.jpg",
+        "artifacts/fauna-visual-corrections/references/wild-goat-profile.jpg",
+        "artifacts/fauna-anatomy-revision/critic-reports/reference-photos/goat-full.jpg",
+        "artifacts/fauna-anatomy-revision/critic-reports/reference-photos/goat-cretan-full.jpg"
+      ],
+      "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
+      "independent_critic": {
+        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\goat-fresh-final-visual.json",
+        "sha256": "53548bc3c44663f1cce896a701e9b4a0173f08edffb301406cd8f99ebdecce5d",
+        "native_sha256": "29fa1aee40b23dfe9cf4bbc27736d0a2de50b9c26d583d86a2522f8b76c0285b",
+        "verdict": "pass_no_major_visible_faults_at_low_poly_prototype_standard",
+        "secondary_polish": [
+          {
+            "id": "beard_silhouette_polish",
+            "finding": "Current beard has a connected filled upper tuft and taper, without the large open wire-like gaps. It is narrow and relatively straight in close profile but reads as a goat beard at full-body scale.",
+            "action": "Optional broader irregular clump contour and slight curvature would give a softer tuft; no longer a major attachment fault."
+          },
+          {
+            "id": "profile_eye_edging",
+            "finding": "Lateral eye placement is plausible and narrowness from the front is expected. In both profiles the aperture reads as a narrow black capsule with very little gold iris and conspicuous pale lower edging. Reference profile has a fuller visible gold iris and softly integrated dark lid.",
+            "action": "Consider slightly fuller vertical aperture/visible gold iris and softer lower edging; preserve lateral placement and horizontal pupil."
+          },
+          {
+            "id": "head_body_detail_transition",
+            "finding": "Sharper photo-like head/upper-neck fur changes into much smoother body fur around the neck and withers, especially warm and pale coats.",
+            "action": "Soften the change of detail scale into the shoulder."
+          },
+          {
+            "id": "horn_surface",
+            "finding": "Uniform pale fine grid-like relief looks somewhat manufactured.",
+            "action": "Optional restrained tonal variation and less uniform growth relief; current material remains acceptable at prototype scale."
+          }
+        ]
       }
     },
     {
@@ -150,14 +186,33 @@
       "number": 12,
       "slug": "bison",
       "name": "Bison",
-      "status": "anatomy_working_not_published",
-      "reference_comparison_completed": false,
+      "status": "independently_checked_static_appearance_ready_for_owner_review",
+      "reference_comparison_completed": true,
       "appearance_approved": false,
       "latest_anatomy_work": {
         "root": "artifacts\\fauna-anatomy-revision\\bison",
         "native_sha256": "b82fa83122e765bf8287212c579ef918e9273a3a18ef7eac3e931a5323ffc955",
         "preservation_proof_matches": true,
         "latest_native_independent_appearance_clearance": false
+      },
+      "source_sha256": "1ee5dc77b412df10f0a2cf44c0897a65bb41231e1a120d9af9fc90d17f3f51dd",
+      "reference": [
+        "https://www.colorado.edu/coloradan/sites/default/files/styles/large_image_style/public/article-image/bison.jpg?itok=8qqUzfKk",
+        "https://www.distinctlymontana.com/sites/default/files/2020-08/istock_27023944_xxxlarge_0.jpg",
+        "https://pbs.twimg.com/media/DCxU-JjVoAAtE-Y.jpg"
+      ],
+      "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
+      "independent_critic": {
+        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\current-full-ungulates-gate.json",
+        "sha256": "e891f79ac42b5345892b779fe74e1d274409bcb5d704a38bfefa55307ca9634c",
+        "native_sha256": "1ee5dc77b412df10f0a2cf44c0897a65bb41231e1a120d9af9fc90d17f3f51dd",
+        "verdict": "no_major_visible_faults_at_low_poly_prototype_standard",
+        "secondary_polish": [
+          "The forehead and shoulder silhouette are smoother and more dome-like than the shaggy photographic examples; a little less uniform surface character would help at close range, but the hump, massive front half, compact muzzle, beard and short curved horns already identify a credible bison prototype.",
+          "At eye-audit scale the lower lip/nasal silhouette is angular and the eyes are small dark slits. These remain readable and reasonably integrated; refinement is secondary at this standard.",
+          "Coat03 is explicitly a colour-only shedding overlay study. Its soft, flat, somewhat rounded patches suggest pigment differences; they do not reproduce the dangling physical mats in the shedding photograph. No physical wool-clump success is claimed.",
+          "Coat05 broken brindle is deliberately hypothetical and rather faint. The hypothetical coats and smaller horn studies are visually coherent options, not validation of a particular real population, sex-specific body or calf morphology."
+        ]
       }
     },
     {

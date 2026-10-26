@@ -20,8 +20,12 @@ def intersection(first,second):
 def prepare(body,root,size=2048):
     mesh=body.data;mesh.calc_loop_triangles();original=mesh.uv_layers['UVMap'];triangles=np.array([[original.data[i].uv[:] for i in f.loops] for f in mesh.loop_triangles]);assert all(len(f.vertices)==3 for f in mesh.polygons)
     uv_hash=hashlib.sha256(triangles.astype(np.float32).tobytes()).hexdigest();cache_path=root/'paint-uv-correction.json';cache=json.loads(cache_path.read_text()) if cache_path.exists() else {}
-    cached=cache.get('source_uv_sha256')==uv_hash and cache.get('algorithm_version')==1
-    lo=triangles.min(1);hi=triangles.max(1);bad=set(cache['repaired_triangle_indices']) if cached else {i for i,t in enumerate(triangles) if area(t)<1e-12 or lo[i].min()<0 or hi[i].max()>1};buckets={};overlaps=cache['overlap_pairs'] if cached else [];grid=64
+    cached=cache.get('source_uv_sha256')==uv_hash and cache.get('algorithm_version')==2
+    lo=triangles.min(1);hi=triangles.max(1);areas=np.array([area(t) for t in triangles]);longest=np.linalg.norm(np.roll(triangles,-1,axis=1)-triangles,axis=2).max(1);altitude=2*areas/np.maximum(longest,1e-12)*size;under_resolved=set(np.where(altitude<2.5)[0].tolist())
+    # A positive-area UV sliver can still be narrower than one texel. It then
+    # samples a neighbour/black padding instead of its own paint: the visible
+    # black triangle on the hare's lip had only 0.37px UV width at 2K.
+    bad=set(cache['repaired_triangle_indices']) if cached else {i for i,t in enumerate(triangles) if area(t)<1e-12 or lo[i].min()<0 or hi[i].max()>1}|under_resolved;buckets={};overlaps=cache['overlap_pairs'] if cached else [];grid=64
     for i in ([] if cached else range(len(triangles))):
         low=np.maximum(np.floor(lo[i]*grid).astype(int),0);high=np.minimum(np.floor(hi[i]*grid).astype(int),grid-1)
         candidates=set()
@@ -40,5 +44,5 @@ def prepare(body,root,size=2048):
         for loop,point in zip(tri.loops,face):uv.data[loop].uv=point
     mesh.uv_layers.active=original;original.active_render=True
     body['fauna_colour_uv_signature']=uv_hash
-    report={'method':'Original UVMap retained. Positive-area overlapping/degenerate/out-of-tile colour faces receive unique cells in a reserved atlas strip; other colour UVs receive one common vertical affine transform.','source_uv_sha256':uv_hash,'algorithm_version':1,'original_uv':'UVMap','colour_uv':'Fauna Paint UV','overlap_pairs':overlaps,'repaired_triangle_indices':sorted(bad),'repaired_faces':len(bad),'total_faces':len(triangles),'reserved_fraction':band,'grid':[columns,rows],'atlas_size':size,'appearance_approved':False}
+    report={'method':'Original UVMap retained. Overlapping/degenerate/out-of-tile or under-resolved colour faces receive unique cells in a reserved atlas strip; other colour UVs receive one common vertical affine transform.','source_uv_sha256':uv_hash,'algorithm_version':2,'under_resolved_triangle_indices':sorted(under_resolved),'minimum_source_triangle_altitude_pixels':float(altitude.min()),'original_uv':'UVMap','colour_uv':'Fauna Paint UV','overlap_pairs':overlaps,'repaired_triangle_indices':sorted(bad),'repaired_faces':len(bad),'total_faces':len(triangles),'reserved_fraction':band,'grid':[columns,rows],'atlas_size':size,'appearance_approved':False}
     (root/'paint-uv-correction.json').write_text(json.dumps(report,indent=2)+'\n');return report

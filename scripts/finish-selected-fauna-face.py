@@ -60,6 +60,9 @@ if stitched:
     state['orbital_surface_refinement']=refine_orbital_surface(body,land,a.slug)
     from fauna_paint_uv import prepare as prepare_colour_uv
     state['colour_uv_correction']=prepare_colour_uv(body,root,bake['size'])
+    # Sculpt/refinement rebuilds the mesh and invalidates imported custom
+    # normals. Restore continuity across UV splits before render AND painting.
+    shading_vertices=smooth_split_normals(body.data)
 p=np.array([v.co[:] for v in body.data.vertices]);source_positions=p.copy();body.data.calc_loop_triangles();faces=np.array([t.vertices[:] for t in body.data.loop_triangles])
 if physical_eye and land['physical_eye_revision'].get('sculpt_socket_clearance') and not stitched:
     # A local manual socket correction is permitted by the owner's visual pass.
@@ -491,7 +494,8 @@ if anatomical:
     if stitched:
         # Texture projection must use the CURRENT sculpted surface. Reusing
         # the earlier broad head's coordinates stretches pigment after a fix.
-        projection_normals=np.array([v.normal[:] for v in body.data.vertices],np.float32)
+        from fauna_surface_components import averaged_split_normals
+        projection_normals=averaged_split_normals(body.data)[0].astype(np.float32)
         np.savez_compressed(root/'projection-anatomy.npz',vertices=p.astype(np.float32),normals=projection_normals,faces=faces.astype(np.int32),uv=body_uv.astype(np.float32),source_uv=source_body_uv.astype(np.float32))
         projection_land=json.loads(json.dumps(land));projection_land['nose']['point']=sample(np.array(land['nose']['point']))[0].tolist()
         if land.get('nasal_disc_fit'):projection_land['nose']['point']=land['nasal_disc_fit']['center']

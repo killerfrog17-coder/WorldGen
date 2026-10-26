@@ -129,8 +129,12 @@ elif a.slug=='wild-goat':
             target=eye_mid-front*.10+side_axis*sign*.085+up*.08
             hit=bvh.ray_cast(Vector(target+up*.8),Vector(-up),1.6)[0];root_point,skin=surface(hit if hit is not None else target)
             root_normal=np.array(bvh.find_nearest(Vector(root_point))[1]);root_normal/=np.linalg.norm(root_normal)
-            path=[root_point+up*(length*(t-.25*t*t))-front*(length*(.18*t+.65*t*t))+side_axis*sign*(.025*math.sin(t*math.pi/2))-root_normal*.035*math.exp(-t*15) for t in np.linspace(0,1,count)]
-            name=f'{a.slug} {style} horn {sign}';pair.append(tube(name,path,.026*(length/.50)**.55,skin))
+            if land.get('anatomical_orbit') and style in {'young-buck','adult-buck','mature-buck'}:
+                arc=2.60 if style=='mature-buck' else 2.15 if style=='adult-buck' else 1.60;radius=length*(.48 if style=='mature-buck' else .55 if style=='adult-buck' else .62)
+                path=[root_point+up*(radius*math.sin(arc*t))-front*(radius*(1-math.cos(arc*t)))+side_axis*sign*(.035*math.sin(t*math.pi/2))-root_normal*(.050 if style=='mature-buck' else .040)*math.exp(-t*15) for t in np.linspace(0,1,count)]
+            else:path=[root_point+up*(length*(t-.25*t*t))-front*(length*(.18*t+.65*t*t))+side_axis*sign*(.025*math.sin(t*math.pi/2))-root_normal*.035*math.exp(-t*15) for t in np.linspace(0,1,count)]
+            thickness=(1.50 if style=='mature-buck' else 1.30 if style=='adult-buck' else 1.) if land.get('anatomical_orbit') else 1.
+            name=f'{a.slug} {style} horn {sign}';pair.append(tube(name,path,.026*(length/.50)**.55*thickness,skin,horn=bool(land.get('anatomical_orbit')),segments=10 if land.get('anatomical_orbit') else 6))
             evidence.append({'object':name,'root':root_point.tolist(),'skin':skin,'length_parameter':length,'shape':'backward scimitar, no ram spiral'})
         libraries[style]=pair
     beard_material=bpy.data.materials.new('Goat dark beard');beard_material.use_nodes=True
@@ -139,9 +143,21 @@ elif a.slug=='wild-goat':
     for style,length in [('short',.065),('full',.105)]:
         root_point,skin=surface(nose-front*.14-up*.065);vertices=[];polys=[]
         rng=np.random.default_rng(731 if style=='short' else 941)
+        if land.get('anatomical_orbit'):
+            # A continuous tapered tuft supplies the mass. Sparse free strands
+            # alone read as a wire comb even at ordinary game viewing distance.
+            rings=[(0.,.027,.014),(.18,.030,.017),(.40,.025,.015),(.63,.018,.012),(.82,.010,.008),(1.,.0008,.0008)]
+            for t,width,depth in rings:
+                centre=root_point+up*(.012-length*t)-front*(length*.13*t)
+                for j in range(10):
+                    angle=math.tau*j/10;irregular=1+.10*math.sin(j*2.7+t*8)
+                    vertices.append(centre+side_axis*(width*math.cos(angle)*irregular)+front*(depth*math.sin(angle)*irregular))
+            for i in range(len(rings)-1):
+                for j in range(10):polys.append((i*10+j,i*10+(j+1)%10,(i+1)*10+(j+1)%10,(i+1)*10+j))
+            polys.extend([tuple(reversed(range(10))),tuple(range(50,60))])
         for strand in range(19 if land.get('anatomical_orbit') else 5):
             base=len(vertices)
-            lateral=rng.uniform(-.033,.033) if land.get('anatomical_orbit') else (strand-2)*.007
+            lateral=rng.uniform(-.025,.025) if land.get('anatomical_orbit') else (strand-2)*.007
             rear=rng.uniform(-.014,.014) if land.get('anatomical_orbit') else 0.
             strand_length=length*rng.uniform(.45,1.05) if land.get('anatomical_orbit') else length*(.90+.025*strand)
             for i,t in enumerate([0,.55,1]):

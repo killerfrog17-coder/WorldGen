@@ -59,6 +59,11 @@ front=np.array(land['front_axis']);eye_mid=(np.array(land['right_eye']['point'])
 at=np.clip(np.rint(screen[:,:2]).astype(int),[0,0],[W-1,H-1]);visible=np.abs(screen[:,2]-depth[at[:,1],at[:,0]])<.022
 relative=p-eye_mid;behind=np.maximum(-(relative@front)-.08,0)/(.80 if a.slug=='raccoon' else .45);below=np.maximum(-relative[:,2]-.12,0)/(.65 if a.slug=='raccoon' else .38)
 head=1-smooth(.65,1.,np.sqrt(behind*behind+below*below))
+if a.slug=='wild-goat':
+    # This selected goat's head turns across its body. A half-space head mask
+    # includes the far-side withers, which are outside registered head paint.
+    # Bound lower-head coverage laterally, preserving the actual high ears.
+    lateral=abs(relative@np.array(land['side_axis']));low=smooth(-.07,-.20,relative[:,2]);head*=1-low*smooth(.16,.23,lateral)
 alpha=smooth(.20,.65,n@front)*head*visible
 alpha*=((screen[:,0]>0)&(screen[:,0]<W-1)&(screen[:,1]>0)&(screen[:,1]<H-1))
 if views:
@@ -81,6 +86,11 @@ nasal_rel=p-np.array(land['nose']['point']);side_axis=np.array(land['side_axis']
 nasal_scale=1.12 if a.slug in {'red-fox','wolf'} else 1.
 nasal_height=.65 if a.slug in {'red-fox','wolf'} else 1.
 nasal_q=((nasal_rel@side_axis)/(nw*nasal_scale))**2+(nasal_rel[:,2]/(nh*nasal_scale*nasal_height))**2+((nasal_rel@front)/.075)**2
+if a.slug=='red-fox':
+    # Front/profile guides disagree on the extent of the black nasal pad.
+    # Seat that boundary on the actual small terminal pad; otherwise camera
+    # blend changes make pale triangular cutouts across the whisker pads.
+    nasal_q=((nasal_rel@side_axis)/.041)**2+(nasal_rel[:,2]/.025)**2+((nasal_rel@front)/.032)**2
 side_nose=(1-smooth(1.05,1.55,nasal_q))
 side_nose*=1-smooth(.45,.80,n@front)
 if a.slug=='buffalo':side_nose*=1-alpha
@@ -89,10 +99,10 @@ original=root/'unprojected-atlases';original.mkdir(exist_ok=True);palettes=profi
 if a.slug=='raccoon':
     mask=np.zeros(len(p))
     for key in ['right_eye','left_eye']:
-        anchor=land[key];C=np.array(anchor['point']);H=np.array(anchor['fit_frame']['horizontal']);V=np.array(anchor['fit_frame']['vertical']);N=np.array(anchor['fit_frame']['normal']);R=anchor['radius'][0];delta=p-C-V*(R*.25);h=delta@H;v=delta@V
+        anchor=land[key];C=np.array(anchor['point']);H=np.array(anchor['fit_frame']['horizontal']);V=np.array(anchor['fit_frame']['vertical']);N=np.array(anchor['fit_frame']['normal']);R=anchor['radius'][0];delta=p-C+V*(R*.10);h=delta@H;v=delta@V
         edge=.06*np.sin(h/R*3.7+v/R*2.3)+.035*np.sin(h/R*8.1-v/R*5.2)
-        q=(h/(R*2.65))**2+(v/(R*1.95))**2;field=1-smooth(.78+edge,1.18+edge,q);field*=smooth(-R*2.,-R*.5,delta@N)*(1-smooth(R*2.,R*3.,delta@N));mask=np.maximum(mask,field)
-    luminance=sampled@np.array([.2126,.7152,.0722]);dark_fur=np.array([.052,.042,.033])[None,:]*(.70+.60*np.clip(luminance/.4,0,1.5))[:,None];sampled=sampled*(1-mask[:,None])+np.minimum(sampled,dark_fur)*mask[:,None]
+        q=(h/(R*2.65))**2+(v/(R*1.30))**2;field=1-smooth(.65+edge,1.25+edge,q);field*=smooth(-R*2.,-R*.5,delta@N)*(1-smooth(R*2.,R*3.,delta@N));mask=np.maximum(mask,field)
+    luminance=sampled@np.array([.2126,.7152,.0722]);dark_fur=np.array([.075,.060,.043])[None,:]*(.50+1.0*np.clip(luminance/.4,0,1.5))[:,None];sampled=sampled*(1-mask[:,None])+np.minimum(sampled,dark_fur)*mask[:,None]
 for ci,coat in enumerate(bake['coats']):
     dst=root/coat['file'];backup=original/dst.name
     if not backup.exists():shutil.copy2(dst,backup)
@@ -142,15 +152,18 @@ for ci,coat in enumerate(bake['coats']):
     nasal_colour=image[iy,ix];nasal_lum=np.maximum(nasal_colour@np.array([.2126,.7152,.0722]),1e-5)
     nasal_colour=nasal_colour*np.minimum(1.,.035/nasal_lum)[:,None]
     image[iy,ix]=image[iy,ix]*(1-side_nose[:,None])+nasal_colour*side_nose[:,None]
-    if land.get('anatomical_orbit',{}).get('stitched') and a.slug in {'wolf','red-fox','raccoon'}:
+    if land.get('anatomical_orbit',{}).get('stitched') and a.slug in {'wolf','red-fox','raccoon','buffalo'}:
         # Bind-space nostril pigment goes into the actual selected nasal UVs;
         # separate oval rim objects would project across the muzzle in profile.
         span=nw*(.65 if a.slug=='wolf' else .75);u=(nasal_rel@side_axis)/span;v=nasal_rel[:,2]/(nh*.75);nostril=np.zeros(len(p))
         for sign in [-1,1]:
-            q=((u-sign*.52)/.24)**2+((v-.02-sign*.35*(u-sign*.52))/.15)**2
+            q=((u-sign*.52)/(.28 if a.slug=='buffalo' else .24))**2+((v-.02-sign*.35*(u-sign*.52))/(.23 if a.slug=='buffalo' else .15))**2
             nostril=np.maximum(nostril,1-smooth(.65,1.25,q))
         nostril*=smooth(-.045,-.018,nasal_rel@front)*(1-smooth(.035,.065,nasal_rel@front))
         image[iy,ix]=image[iy,ix]*(1-nostril[:,None])+np.array([.004,.0035,.003])*nostril[:,None]
+    if a.slug=='wild-goat' and ci==2:
+        from fauna_species_pigment import goat_mature_male
+        state=json.loads((root/'paint-state.json').read_text());image[iy,ix]=goat_mature_male(image[iy,ix],p,n,land,state['center_x'])
     distance,nearest=distance_transform_edt(~occupied,return_indices=True);pad=(~occupied)&(distance<=12);image[pad]=image[nearest[0][pad],nearest[1][pad]]
     Image.fromarray(np.uint8(np.clip(image,0,1)*255)).save(dst)
 rough_path=root/'coat-roughness.png';rough=np.asarray(Image.open(rough_path).convert('L'),np.float32)/255

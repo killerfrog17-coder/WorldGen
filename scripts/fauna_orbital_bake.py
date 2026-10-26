@@ -24,7 +24,14 @@ def bake(patches,coats,atlases,support_sample,load_image):
         for y,x in zip(ys,xs):
             rel=positions[y,x]-record['center'];u=float(rel@record['horizontal']);v=float(rel@record['vertical']);rho=np.sqrt((u/record['rx'])**2+(v/(record['radius']*.60))**2)
             target=record['center']+record['horizontal']*u+record['vertical']*v
-            source_uv[y,x]=support_sample(positions[y,x] if weights is not None else target)[1]
+            source_point=positions[y,x] if weights is not None else target
+            minimum=record.get('source_fur_radius',0.)
+            if minimum and rho<minimum:
+                # Paint guides deliberately contain grey placeholder eyes.
+                # Do not clone that removed eye pigment onto the new fur lid.
+                # The narrow bare margin is a separate shader attribute.
+                factor=minimum/max(rho,.05);source_point=record['center']+record['horizontal']*u*factor+record['vertical']*v*factor
+            source_uv[y,x]=support_sample(source_point)[1]
             # Clone nearby upper/lower fur at its original scale. Collapsing
             # inner rings onto one sampled radius creates radial starbursts.
             direction=-1 if 'raccoon' in ob.name else 1
