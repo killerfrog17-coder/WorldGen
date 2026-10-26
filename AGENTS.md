@@ -1,5 +1,65 @@
 # WorldGen repository instructions
 
+OWNER RESUMES VISUAL CORRECTIONS ONLY,25October2026:
+Reconsider EVERY selected animal from assumption appearance is bad. Fit eyes,
+pupils, lids, ears, noses, markings and morphology attachments against actual
+front/side animal references; prior lenient appearance passes are withdrawn.
+Preserve owner body choices, phone Done/notes and accepted deer. Owner explicitly
+ACCEPTS bad animations for now: NO further animation fixes or baking. A future
+long animation pass will follow owner-assigned importance and AI video sources.
+Start blatant Fox/Wolf/Raccoon/Buffalo issues, then remaining visual roster.
+No Video2Rig installation/training or paid Tripo/video calls authorized here.
+This RESUMES and supersedes the pause immediately below for visual work only.
+
+VISUAL CORRECTION WORKING CHECKPOINT,25October2026 late evening:
+Original phone Site remains eac7ea20bb9f571854a90d12c29f15a42571b19f; NO visual
+corrections from this turn published yet. Eight isolated working roots under
+artifacts/fauna-visual-corrections: Fox/Wolf/Raccoon/Buffalo plus untouched queued
+Hare/Rabbit/WildBoar/Mouflon. Docs VISUAL_CORRECTIONS tracks all177, not approval.
+First3 now have actual reference-guided AI face paint baked into EXISTING UVs,
+physical circular iris mapping (Fox slit/Wolf round/Raccoon dark large pupil),
+narrow lids, explicit frontal socket picks and no pink wolf inner-ear patch.
+Generated iris-neutral-radial-v2.png +provenance in fauna-assets/textures;3 per-
+animal front-paint-guide PNG/JSON in working roots. All4 generated via BUILT-IN
+imagegen only; actual results viewed. Front guide drifts corrected by explicit
+feature correspondence warp, visible/depth-gated projection; not measured PBR.
+Snow Fox and white Wolf stay white; all7/7/4 head coat renders actually viewed.
+References and current three head views compared; no owner appearance approval.
+
+Critical confirmed bug: body has shape keys. Editing mesh vertices alone does
+NOT change rendered Basis. Finisher now applies local correction equally to ALL
+original shape keys (loading source bind every run), preserving morph deltas and
+avoiding cumulative feathered displacement. Check script verifies all shape key
+deltas, retained face UVs/topology, vertex skin, rest rig and EVERY action/demo.
+Fox9 explicitly ray-picked cheek-fin vertices are smoothed;7 tiny detached faces
+removed, Wolf1/Raccoon70 tiny detached faces removed. Blender BMesh FACES_ONLY
+retains vertex order/skin; cleanup JSON records original removed face indices.
+First cheek smoothing picked wrong adjacent faces, was REVERTED, never published.
+Current scripts smooth-fauna-picked-head and inspect-fauna-face-picks supersede.
+Some visible sculpt guides lacked exact current camera/image receipts; render
+helper now emits exact image SHA +camera-guide SHA, separate sculpt/after receipts.
+Do not claim stale-camera mismatch established cause for every animal. Actual
+confirmed invisible-edit cause above was morph Basis, not body/world matrix.
+
+Fox native latest is CHANGING while wrapping its nose paint onto profile; do NOT
+publish older native/receipt SHA. External bake exec45004 is current pending;
+WAIT exit before finisher/render/check/phone plan regeneration (dependent tools
+must not run against active bake). Wolf/Raccoon also need final media refreshed
+after morph-key fix. Old completed phone renders have stale source SHAs. New
+phone output root fauna-visual-corrections/phone-media; plans in each animal root.
+Need finish nose/profile check, exact native checks, actually inspect updated
+front/profile/all coats, then regenerate2clips per animal and publish partial
+3-animal improvement without calling other animals fixed. Buffalo has new crown
+horn roots/curves but still requires horn-boss joins and final paint/inspection;
+new darker horn value source change not yet applied. No body/animation rerolls.
+
+Site get_site confirmed owner-only. Source helper OPEN completed at eac7ea20...
+in existing artifacts/fauna-phone-review, no dist edits yet. Credential only in
+tool memory (refresh near publish), full opening object in visualSiteOpening.
+Tool description includes full schemas; never print get_site token-bearing data.
+No GUI/game changes. No Video2Rig install/train/paid call. Need source backup
+current scripts/notes; preserve owner-deleted prompt +2 old untracked deer scripts.
+
 OWNER PAUSED ALL ANIMAL PRODUCTION / FACE PASS REJECTED,25October2026~23:10CDT:
 Owner explicitly says pause to assess https://github.com/canitcode/video2rig.
 No producers/renderers active at pause; read-only repository/docs/GPU assessment

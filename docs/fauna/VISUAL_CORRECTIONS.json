@@ -1,0 +1,1431 @@
+{
+  "scope": "Owner asks every animal be reconsidered assuming appearance is bad. No inherited technical or lenient visual pass constitutes appearance approval. Existing phone selections/Done/notes retained.",
+  "animation_policy": "Existing animations accepted for now. Do not repair/rebake; future long pass ordered by owner, using AI video.",
+  "animals": [
+    {
+      "number": 1,
+      "slug": "deer",
+      "name": "Deer",
+      "status": "protected_owner_approved_deer",
+      "reference_comparison_completed": false,
+      "appearance_approved": true
+    },
+    {
+      "number": 2,
+      "slug": "hare",
+      "name": "Hare",
+      "status": "working_copy_not_published",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 3,
+      "slug": "rabbit",
+      "name": "Rabbit",
+      "status": "working_copy_not_published",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 4,
+      "slug": "butterflies-and-moths-guild",
+      "name": "Butterflies and moths (guild)",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 5,
+      "slug": "fireflies-derived-lineage",
+      "name": "Fireflies (derived lineage)",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 6,
+      "slug": "red-fox",
+      "name": "Red fox",
+      "status": "improved_face_ready_for_review",
+      "reference_comparison_completed": true,
+      "appearance_approved": false,
+      "source_sha256": "b5123ab9264fa4e557714a30d4e163bb3f1a1cbfef26d6a51b8670150dff13db",
+      "reference": "https://www.nationalgeographic.com.es/mundo-animal/la-pupila-un-instrumento-optico-de-precision_19363",
+      "body_and_pattern_review": "Remaining general body/pattern review not certified by this face pass."
+    },
+    {
+      "number": 7,
+      "slug": "wolf",
+      "name": "Wolf",
+      "status": "improved_face_ready_for_review",
+      "reference_comparison_completed": true,
+      "appearance_approved": false,
+      "source_sha256": "3518512b793a22da10200feba0af722bb9e2e009905a73a68f08ace86dc3748c",
+      "reference": "https://www.wildlifesciencecenter.org/gray-wolf",
+      "body_and_pattern_review": "Remaining general body/pattern review not certified by this face pass."
+    },
+    {
+      "number": 8,
+      "slug": "wild-boar",
+      "name": "Wild boar",
+      "status": "working_copy_not_published",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 9,
+      "slug": "mouflon",
+      "name": "Mouflon",
+      "status": "working_copy_not_published",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 10,
+      "slug": "wild-goat",
+      "name": "Wild goat",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 11,
+      "slug": "bear",
+      "name": "Bear",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 12,
+      "slug": "bison",
+      "name": "Bison",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 13,
+      "slug": "bees-guild",
+      "name": "Bees (guild)",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 14,
+      "slug": "dragonflies-guild",
+      "name": "Dragonflies (guild)",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 15,
+      "slug": "native-detritivorous-flies-guild",
+      "name": "Native detritivorous flies (guild)",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 16,
+      "slug": "duck",
+      "name": "Duck",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 17,
+      "slug": "pheasant",
+      "name": "Pheasant",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 18,
+      "slug": "small-native-freshwater-fish-guild",
+      "name": "Small native freshwater fish (guild)",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 19,
+      "slug": "mouse",
+      "name": "Mouse",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 20,
+      "slug": "squirrel",
+      "name": "Squirrel",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 21,
+      "slug": "horse",
+      "name": "Horse",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 22,
+      "slug": "reindeer",
+      "name": "Reindeer",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 23,
+      "slug": "moose",
+      "name": "Moose",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 24,
+      "slug": "wild-cattle",
+      "name": "Wild cattle",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 25,
+      "slug": "grouse",
+      "name": "Grouse",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 26,
+      "slug": "quail",
+      "name": "Quail",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 27,
+      "slug": "turkey",
+      "name": "Turkey",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 28,
+      "slug": "junglefowl",
+      "name": "Junglefowl",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 29,
+      "slug": "raccoon",
+      "name": "Raccoon",
+      "status": "improved_face_ready_for_review",
+      "reference_comparison_completed": true,
+      "appearance_approved": false,
+      "source_sha256": "2101e1e62999bbe48d73a692c0ba60ff5843e7243f40c38cded8e75fdd3be5f4",
+      "reference": "https://rachelmankowitz.com/2014/04/19/the-dancing-raccoon/",
+      "body_and_pattern_review": "Remaining general body/pattern review not certified by this face pass."
+    },
+    {
+      "number": 30,
+      "slug": "badger",
+      "name": "Badger",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 31,
+      "slug": "beaver",
+      "name": "Beaver",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 32,
+      "slug": "otter",
+      "name": "Otter",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 33,
+      "slug": "lynx",
+      "name": "Lynx",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 34,
+      "slug": "owl",
+      "name": "Owl",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 35,
+      "slug": "raven",
+      "name": "Raven",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 36,
+      "slug": "african-hunting-dog",
+      "name": "African hunting dog",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 37,
+      "slug": "agouti",
+      "name": "Agouti",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 38,
+      "slug": "bank-vole",
+      "name": "Bank vole",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 39,
+      "slug": "buffalo",
+      "name": "Buffalo",
+      "status": "working_copy_not_published",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 40,
+      "slug": "camel",
+      "name": "Camel",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 41,
+      "slug": "cassowary",
+      "name": "Cassowary",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 42,
+      "slug": "civet",
+      "name": "Civet",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 43,
+      "slug": "cockatoo",
+      "name": "Cockatoo",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 44,
+      "slug": "collared-peccary",
+      "name": "Collared peccary",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 45,
+      "slug": "cotton-rat",
+      "name": "Cotton rat",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 46,
+      "slug": "crane",
+      "name": "Crane",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 47,
+      "slug": "duiker",
+      "name": "Duiker",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 48,
+      "slug": "emu",
+      "name": "Emu",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 49,
+      "slug": "falcon",
+      "name": "Falcon",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 50,
+      "slug": "fish-eagle",
+      "name": "Fish eagle",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 51,
+      "slug": "flamingo",
+      "name": "Flamingo",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 52,
+      "slug": "forest-eagle",
+      "name": "Forest eagle",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 53,
+      "slug": "forest-hog",
+      "name": "Forest hog",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 54,
+      "slug": "fruit-bat",
+      "name": "Fruit bat",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 55,
+      "slug": "gazelle",
+      "name": "Gazelle",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 56,
+      "slug": "goose",
+      "name": "Goose",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 57,
+      "slug": "grass-rat",
+      "name": "Grass rat",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 58,
+      "slug": "grasshoppers-guild",
+      "name": "Grasshoppers (guild)",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 59,
+      "slug": "grey-heron",
+      "name": "Grey heron",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 60,
+      "slug": "ground-squirrel",
+      "name": "Ground squirrel",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 61,
+      "slug": "guanaco",
+      "name": "Guanaco",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 62,
+      "slug": "hawk",
+      "name": "Hawk",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 63,
+      "slug": "hornbill",
+      "name": "Hornbill",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 64,
+      "slug": "hummingbird",
+      "name": "Hummingbird",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 65,
+      "slug": "ibex",
+      "name": "Ibex",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 66,
+      "slug": "impala",
+      "name": "Impala",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 67,
+      "slug": "insectivorous-bat",
+      "name": "Insectivorous bat",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 68,
+      "slug": "jaguar",
+      "name": "Jaguar",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 69,
+      "slug": "jerboa",
+      "name": "Jerboa",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 70,
+      "slug": "kingfisher",
+      "name": "Kingfisher",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 71,
+      "slug": "kiwi",
+      "name": "Kiwi",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 72,
+      "slug": "lemming",
+      "name": "Lemming",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 73,
+      "slug": "leopard",
+      "name": "Leopard",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 74,
+      "slug": "lion",
+      "name": "Lion",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 75,
+      "slug": "marmot",
+      "name": "Marmot",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 76,
+      "slug": "meerkat",
+      "name": "Meerkat",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 77,
+      "slug": "mongoose",
+      "name": "Mongoose",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 78,
+      "slug": "musk-ox",
+      "name": "Musk ox",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 79,
+      "slug": "native-litter-beetles-guild",
+      "name": "Native litter beetles (guild)",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 80,
+      "slug": "native-small-lizards-guild",
+      "name": "Native small lizards (guild)",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 81,
+      "slug": "ocelot",
+      "name": "Ocelot",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 82,
+      "slug": "oryx",
+      "name": "Oryx",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 83,
+      "slug": "ostrich",
+      "name": "Ostrich",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 84,
+      "slug": "paca",
+      "name": "Paca",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 85,
+      "slug": "parrot",
+      "name": "Parrot",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 86,
+      "slug": "peafowl",
+      "name": "Peafowl",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 87,
+      "slug": "pelican",
+      "name": "Pelican",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 88,
+      "slug": "pigeon",
+      "name": "Pigeon",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 89,
+      "slug": "pika",
+      "name": "Pika",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 90,
+      "slug": "pronghorn",
+      "name": "Pronghorn",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 91,
+      "slug": "puma",
+      "name": "Puma",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 92,
+      "slug": "red-kangaroo",
+      "name": "Red kangaroo",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 93,
+      "slug": "salamanders-guild",
+      "name": "Salamanders (guild)",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 94,
+      "slug": "secretary-bird",
+      "name": "Secretary bird",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 95,
+      "slug": "skunk",
+      "name": "Skunk",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 96,
+      "slug": "snowy-owl",
+      "name": "Snowy owl",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 97,
+      "slug": "spotted-hyena",
+      "name": "Spotted hyena",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 98,
+      "slug": "spotted-tailed-quoll",
+      "name": "Spotted-tailed quoll",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 99,
+      "slug": "stork",
+      "name": "Stork",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 100,
+      "slug": "swan",
+      "name": "Swan",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 101,
+      "slug": "tapir",
+      "name": "Tapir",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 102,
+      "slug": "tiger",
+      "name": "Tiger",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 103,
+      "slug": "toucan",
+      "name": "Toucan",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 104,
+      "slug": "turaco",
+      "name": "Turaco",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 105,
+      "slug": "vulture",
+      "name": "Vulture",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 106,
+      "slug": "wallaby",
+      "name": "Wallaby",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 107,
+      "slug": "warthog",
+      "name": "Warthog",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 108,
+      "slug": "weasel",
+      "name": "Weasel",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 109,
+      "slug": "wild-ass",
+      "name": "Wild ass",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 110,
+      "slug": "wildebeest",
+      "name": "Wildebeest",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 111,
+      "slug": "wolverine",
+      "name": "Wolverine",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 112,
+      "slug": "wombat",
+      "name": "Wombat",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 113,
+      "slug": "woodpecker",
+      "name": "Woodpecker",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 114,
+      "slug": "yak",
+      "name": "Yak",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 115,
+      "slug": "zebra",
+      "name": "Zebra",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 116,
+      "slug": "aardvark",
+      "name": "Aardvark",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 117,
+      "slug": "albatross",
+      "name": "Albatross",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 118,
+      "slug": "anteater",
+      "name": "Anteater",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 119,
+      "slug": "armadillo",
+      "name": "Armadillo",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 120,
+      "slug": "baboon",
+      "name": "Baboon",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 121,
+      "slug": "boa-constrictor",
+      "name": "Boa constrictor",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 122,
+      "slug": "capuchin",
+      "name": "Capuchin",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 123,
+      "slug": "capybara",
+      "name": "Capybara",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 124,
+      "slug": "chimpanzee",
+      "name": "Chimpanzee",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 125,
+      "slug": "coastal-forage-fish-guild",
+      "name": "Coastal forage fish (guild)",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 126,
+      "slug": "coastal-squid-guild",
+      "name": "Coastal squid (guild)",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 127,
+      "slug": "common-brushtail-possum",
+      "name": "Common brushtail possum",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 128,
+      "slug": "cormorant",
+      "name": "Cormorant",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 129,
+      "slug": "crocodile",
+      "name": "Crocodile",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 130,
+      "slug": "dolphin",
+      "name": "Dolphin",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 131,
+      "slug": "dugong",
+      "name": "Dugong",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 132,
+      "slug": "echidna",
+      "name": "Echidna",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 133,
+      "slug": "elephant",
+      "name": "Elephant",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 134,
+      "slug": "freshwater-predatory-fish-guild",
+      "name": "Freshwater predatory fish (guild)",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 135,
+      "slug": "freshwater-turtle",
+      "name": "Freshwater turtle",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 136,
+      "slug": "giant-panda",
+      "name": "Giant panda",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 137,
+      "slug": "gibbon",
+      "name": "Gibbon",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 138,
+      "slug": "giraffe",
+      "name": "Giraffe",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 139,
+      "slug": "gorilla",
+      "name": "Gorilla",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 140,
+      "slug": "guereza",
+      "name": "Guereza",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 141,
+      "slug": "gull",
+      "name": "Gull",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 142,
+      "slug": "hedgehog",
+      "name": "Hedgehog",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 143,
+      "slug": "hippopotamus",
+      "name": "Hippopotamus",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 144,
+      "slug": "howler-monkey",
+      "name": "Howler monkey",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 145,
+      "slug": "iguana",
+      "name": "Iguana",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 146,
+      "slug": "koala",
+      "name": "Koala",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 147,
+      "slug": "lemur",
+      "name": "Lemur",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 148,
+      "slug": "long-nosed-bandicoot",
+      "name": "Long-nosed bandicoot",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 149,
+      "slug": "macaque",
+      "name": "Macaque",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 150,
+      "slug": "monitor-lizard",
+      "name": "Monitor lizard",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 151,
+      "slug": "nutria",
+      "name": "Nutria",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 152,
+      "slug": "orangutan",
+      "name": "Orangutan",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 153,
+      "slug": "orb-weaving-spiders-guild",
+      "name": "Orb-weaving spiders (guild)",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 154,
+      "slug": "orca",
+      "name": "Orca",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 155,
+      "slug": "pangolin",
+      "name": "Pangolin",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 156,
+      "slug": "penguin",
+      "name": "Penguin",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 157,
+      "slug": "platypus",
+      "name": "Platypus",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 158,
+      "slug": "polar-bear",
+      "name": "Polar bear",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 159,
+      "slug": "porcupine",
+      "name": "Porcupine",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 160,
+      "slug": "puffin",
+      "name": "Puffin",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 161,
+      "slug": "python",
+      "name": "Python",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 162,
+      "slug": "rhinoceros",
+      "name": "Rhinoceros",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 163,
+      "slug": "sea-lion",
+      "name": "Sea lion",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 164,
+      "slug": "sea-otter",
+      "name": "Sea otter",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 165,
+      "slug": "sea-turtle",
+      "name": "Sea turtle",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 166,
+      "slug": "seal",
+      "name": "Seal",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 167,
+      "slug": "shark",
+      "name": "Shark",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 168,
+      "slug": "shorebird",
+      "name": "Shorebird",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 169,
+      "slug": "shrew",
+      "name": "Shrew",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 170,
+      "slug": "sloth",
+      "name": "Sloth",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 171,
+      "slug": "spider-monkey",
+      "name": "Spider monkey",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 172,
+      "slug": "tamarin",
+      "name": "Tamarin",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 173,
+      "slug": "tern",
+      "name": "Tern",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 174,
+      "slug": "tortoise",
+      "name": "Tortoise",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 175,
+      "slug": "venomous-snake",
+      "name": "Venomous snake",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 176,
+      "slug": "walrus",
+      "name": "Walrus",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    },
+    {
+      "number": 177,
+      "slug": "whale",
+      "name": "Whale",
+      "status": "queued",
+      "reference_comparison_completed": false,
+      "appearance_approved": false
+    }
+  ]
+}

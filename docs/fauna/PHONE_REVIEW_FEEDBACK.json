@@ -53,13 +53,13 @@
         "Snow-white fox appearance must be supported."
       ],
       "updated_at": "2026-10-25T19:54:04.091517-05:00",
-      "review_update": "Actual right hind leg and tail reassigned; paw twists, paired eyes and lid seams revised; snow-white coat added.",
+      "review_update": "Face revised against real animal references: fitted eyes/pupils, lids, ear fur, mask and nasal paint. Existing selected body and animations retained; appearance remains for review.",
       "repair_review": {
-        "plan": "artifacts\\fauna-repairs\\red-fox\\review-plan.json",
-        "media_root": "artifacts\\fauna-repairs\\red-fox\\media",
-        "check": "artifacts\\fauna-repairs\\red-fox\\native-check.json",
-        "blend": "artifacts\\fauna-repairs\\red-fox\\Animal - Motion Repaired.blend",
-        "blend_sha256": "f25bac32bf2af7e14e75ba0099c21d4bdf93fea57e97b4107aa901aaca5ed394"
+        "plan": "artifacts\\fauna-visual-corrections\\red-fox\\phone-review-plan.json",
+        "media_root": "artifacts\\fauna-visual-corrections\\phone-media",
+        "check": "artifacts\\fauna-visual-corrections\\red-fox\\visual-native-check.json",
+        "blend": "artifacts\\fauna-visual-corrections\\red-fox\\Animal - Painted Species Review.blend",
+        "blend_sha256": "b5123ab9264fa4e557714a30d4e163bb3f1a1cbfef26d6a51b8670150dff13db"
       },
       "correction": "Retargeted the real right hind leg and tail from explicit physical paths in the existing CC0 fox bank; confined whole paws and stabilized axial frames. Closed walk/run cycles and fitted ground clearance. Original bind geometry, appearance and rest skeleton retained.",
       "published_source_sha": "70c1681a9d8f4cd6a06e3a5a163a1df0e3da487f",
@@ -72,7 +72,15 @@
       "issues": [
         "Eyes very badly positioned; fit precisely and symmetrically."
       ],
-      "updated_at": "2026-10-25T19:54:04.091517-05:00"
+      "updated_at": "2026-10-25T19:54:04.091517-05:00",
+      "review_update": "Face revised against real animal references: fitted eyes/pupils, lids, ear fur, mask and nasal paint. Existing selected body and animations retained; appearance remains for review.",
+      "repair_review": {
+        "plan": "artifacts\\fauna-visual-corrections\\wolf\\phone-review-plan.json",
+        "media_root": "artifacts\\fauna-visual-corrections\\phone-media",
+        "check": "artifacts\\fauna-visual-corrections\\wolf\\visual-native-check.json",
+        "blend": "artifacts\\fauna-visual-corrections\\wolf\\Animal - Painted Species Review.blend",
+        "blend_sha256": "3518512b793a22da10200feba0af722bb9e2e009905a73a68f08ace86dc3748c"
+      }
     },
     {
       "slug": "__all_eyes__",
@@ -138,6 +146,19 @@
         "check": "artifacts\\fauna-repairs\\tiger\\native-check.json",
         "blend": "artifacts\\fauna-repairs\\tiger\\Animal - Final Motion.blend",
         "blend_sha256": "508cca10ea6cf5f68cdc608812d8f5f975d217ecfa67b70a6469568c092bd075"
+      }
+    },
+    {
+      "slug": "raccoon",
+      "status": "awaiting_owner_review",
+      "owner_approved": false,
+      "review_update": "Face revised against real animal references: fitted eyes/pupils, lids, ear fur, mask and nasal paint. Existing selected body and animations retained; appearance remains for review.",
+      "repair_review": {
+        "plan": "artifacts\\fauna-visual-corrections\\raccoon\\phone-review-plan.json",
+        "media_root": "artifacts\\fauna-visual-corrections\\phone-media",
+        "check": "artifacts\\fauna-visual-corrections\\raccoon\\visual-native-check.json",
+        "blend": "artifacts\\fauna-visual-corrections\\raccoon\\Animal - Painted Species Review.blend",
+        "blend_sha256": "2101e1e62999bbe48d73a692c0ba60ff5843e7243f40c38cded8e75fdd3be5f4"
       }
     }
   ],

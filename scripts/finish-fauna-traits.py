@@ -12,8 +12,8 @@ from mathutils.bvhtree import BVHTree
 repo=Path(__file__).resolve().parent.parent;sys.path.insert(0,str(repo/'scripts'))
 from fauna_trait_catalog import TRAITS,SOURCES,configurations
 from fauna_surface_components import components
-ap=argparse.ArgumentParser();ap.add_argument('--slug',choices=sorted(TRAITS),required=True)
-a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=repo/'artifacts/fauna-painted-20261024'/a.slug
+ap=argparse.ArgumentParser();ap.add_argument('--slug',choices=sorted(TRAITS),required=True);ap.add_argument('--root',type=Path)
+a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);root=(a.root or repo/'artifacts/fauna-painted-20261024'/a.slug).resolve()
 state=json.loads((root/'paint-state.json').read_text());assert not state['appearance_approved']
 land=json.loads((root/'face-landmarks.json').read_text());blend=root/'Animal - Painted Species Review.blend'
 bpy.ops.wm.open_mainfile(filepath=str(blend));s=bpy.context.scene;entry=json.loads(s['deer_four_rigs'])[0]
@@ -32,6 +32,7 @@ nodes=material.node_tree.nodes;links=material.node_tree.links;shader=nodes.get('
 image=bpy.data.images.load(str(repo/'artifacts/fauna-assets/textures/keratin-hard-v1.png'),check_existing=True).copy();image.name=a.slug+' compact keratin texture';image.scale(256,256);image.pack()
 tex=nodes.new('ShaderNodeTexImage');tex.image=image
 tint=nodes.new('ShaderNodeHueSaturation');tint.inputs['Saturation'].default_value=.35;tint.inputs['Value'].default_value=.75 if TRAITS[a.slug][0] in {'antler','palmate','tusk'} else .35
+if a.slug=='buffalo' and land.get('physical_eye_revision'):tint.inputs['Value'].default_value=.09
 links.new(tex.outputs['Color'],tint.inputs['Color']);links.new(tint.outputs['Color'],shader.inputs['Base Color'])
 bump=nodes.new('ShaderNodeBump');bump.inputs['Strength'].default_value=.12;bump.inputs['Distance'].default_value=.0007;links.new(tex.outputs['Color'],bump.inputs['Height']);links.new(bump.outputs['Normal'],shader.inputs['Normal'])
 
@@ -58,7 +59,7 @@ def mesh_object(name,verts,polys,skin,uv):
     objects.append(name);return name
 
 def tube(name,path,radius,skin):
-    path=np.asarray(path);verts=[];polys=[];uv=[];segments=5;last=side.copy()
+    path=np.asarray(path);verts=[];polys=[];uv=[];segments=10 if a.slug=='buffalo' and land.get('physical_eye_revision') else 5;last=side.copy()
     for i,q in enumerate(path):
         t=i/(len(path)-1);tangent=path[min(i+1,len(path)-1)]-path[max(i-1,0)];tangent/=np.linalg.norm(tangent)
         cross=last-tangent*(last@tangent)
@@ -104,10 +105,14 @@ for conf in variants:
         for sign in [-1,1]:
             if shape=='tusk':target=nose-front*.12+side*sign*.075-up*.025
             else:target=mid-front*.09+side*sign*max(.045,min(gap*.27,.09))+up*.10
+            if a.slug=='buffalo' and land.get('physical_eye_revision'):
+                # Reference: boss lies across the anterior crown ABOVE the eyes,
+                # rather than nearest-vertex snapping to the poll behind the ears.
+                target=mid+front*.025+side*sign*gap*.27+up*.25
             q,normal,skin=fit(target,shape!='tusk');start=q-normal*.018
-            name=f'{a.slug} {conf["id"]} {sign}';t=np.linspace(0,1,9)
+            name=f'{a.slug} {conf["id"]} {sign}';t=np.linspace(0,1,17 if a.slug=='buffalo' and land.get('physical_eye_revision') else 9)
             if a.slug in {'buffalo','musk-ox'} and conf['sex']!='female' and conf['id']!='water-sweep':horn_boss(name+' broad root',q,normal,skin)
-            radial=(.018 if shape in {'antler','palmate','spike','pronghorn','tusk'} else .033)*conf['radius']
+            radial=(.018 if shape in {'antler','palmate','spike','pronghorn','tusk'} else .070 if a.slug=='buffalo' and land.get('physical_eye_revision') else .033)*conf['radius']
             if shape in {'antler','palmate'}:
                 path=[start+side*sign*length*width*(.45*x+.10*x*x)-front*length*.35*x*x+up*length*(.86*x-.18*x*x) for x in t]
                 if a.slug=='reindeer':
@@ -134,7 +139,10 @@ for conf in variants:
                     elif shape=='scimitar':off=up*length*(x-.24*x*x)-front*length*.70*x*x+side*sign*.025*x
                     elif shape=='spike':off=up*length*x-front*length*.28*x
                     elif shape=='pronghorn':off=up*length*(x-.22*x**4)-front*length*.34*x**4+side*sign*.025*x
-                    elif shape in {'buffalo','muskox','wildebeest','water-buffalo'}:off=side*sign*length*width*math.sin(x*1.8)-up*length*(.16 if shape=='water-buffalo' else .30)*math.sin(x*math.pi)+up*length*(.46 if shape=='water-buffalo' else .85)*x*x-front*length*.05*x
+                    elif shape in {'buffalo','muskox','wildebeest','water-buffalo'}:
+                        if a.slug=='buffalo' and land.get('physical_eye_revision'):
+                            off=side*sign*length*width*math.sin(x*2.15)-up*length*(.15 if shape=='water-buffalo' else .42)*math.sin(x*math.pi)+up*length*(.40 if shape=='water-buffalo' else .62)*x*x+front*length*.08*x
+                        else:off=side*sign*length*width*math.sin(x*1.8)-up*length*(.16 if shape=='water-buffalo' else .30)*math.sin(x*math.pi)+up*length*(.46 if shape=='water-buffalo' else .85)*x*x-front*length*.05*x
                     else:off=side*sign*length*width*.50*math.sin(x*2.6)+up*length*(.28*x+.69*x*x)-front*length*.13*x
                     path.append(start+off)
                 tube(name+' horn',path,radial,skin)

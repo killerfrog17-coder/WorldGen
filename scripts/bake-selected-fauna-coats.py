@@ -23,6 +23,7 @@ if family(a.slug) in {'avian','fish'}:
 kind=family(a.slug);canid=kind=='canid';compact=kind!='lagomorph'
 root=(a.root or repo/'artifacts/fauna-painted-20261024'/a.slug).resolve();started=time.perf_counter()
 state=json.loads((root/'paint-state.json').read_text());land=json.loads((root/'face-landmarks.json').read_text())
+physical_eye=bool(land.get('physical_eye_revision'))
 d=dict(np.load(root/'paint-anatomy.npz'));d['region_weights']=np.zeros((len(d['vertices']),10),np.float32)
 raw=json.loads((root/'selected-source-entry.json').read_text()) if (root/'selected-source-entry.json').exists() else json.loads((repo/'artifacts/fauna-overnight-20261024'/a.slug/'audition.json').read_text())['candidates'][state['source_candidate']-1]
 groups=np.asarray(raw['groups']);weights=d['weights']
@@ -113,10 +114,15 @@ nose=np.array(land['nose']['point']);nn=np.array(land['nose']['normal']);nn/=np.
 up=np.array([0.,0.,1.]);across=np.cross(nn,up);across/=np.linalg.norm(across);up=np.cross(across,nn)
 delta=p-nose;nu=delta@across;nv=delta@up;nd=delta@nn
 nw,nh=(.085,.053) if kind=='bovine' else (.075,.055) if kind in {'suine','ursid'} else (.040,.028) if kind=='caprine' else (.049,.033) if canid else (.035,.025)
+if physical_eye:nw,nh=land['physical_eye_revision']['nose_radius']
 if kind=='rodent':nw,nh=(.041,.030) if a.slug=='mouse' else (.042,.030)
 width=nw*(.68+.32*np.clip(nv/nh+1,0,1));q=(nu/width)**2+(nv/nh)**2+(nd/(.060 if compact else .045))**2
 nose_mask=(1-smooth(.7,1.2,q))*face*smooth(.05,.65,n@nn)
 if kind in {'suine','ursid','bovine','rodent'}:nose_mask=(1-smooth(.7,1.2,q))*smooth(.0,.60,n@nn)
+if physical_eye:
+    # The nasal disc is the actual nose tip, not a tiny forehead dot; its
+    # boundary tapers towards the philtrum and follows the inspected face axis.
+    nose_mask=(1-smooth(.70,1.05,q))*smooth(-.10,.55,n@nn)
 eye_surround=np.zeros(len(p));bare=np.zeros(len(p))
 from fauna_eye_profiles import dimensions
 eye_radius=dimensions(land,get_eye_radius(a.slug))
@@ -128,12 +134,14 @@ for key in ['right_eye','left_eye']:
     gate=(1-smooth(.025,.065,np.abs(depth)))*smooth(.05,.65,n@normal)
     eye_surround=np.maximum(eye_surround,(1-smooth(1.25,1.85,radius))*gate)
     bare=np.maximum(bare,(1-smooth(1.06 if land.get('paired_eye_revision') else .70 if compact else .98,1.16 if land.get('paired_eye_revision') else .90 if compact else 1.16,radius))*gate)
+if physical_eye:bare*=.65
 fur_weight=np.clip(1-nose_mask-inner*(.25 if kind in {'ursid','bovine'} else .55)-bare,0,1)
 hoof=np.zeros(len(p))
 if kind in {'suine','caprine','bovine','equine','cervid'}:hoof=1-smooth(.10 if kind in {'caprine','bovine'} else .15,.19 if kind in {'caprine','bovine'} else .25,p[:,2])
 fur_weight*=1-hoof
 pads=(1-smooth(.045,.12,p[:,2]))*smooth(-.05,-.65,n[:,2]) if kind=='ursid' else np.zeros(len(p))
 rough=np.clip(.84-nose_mask*(.58 if canid else .52 if kind=='ursid' else .40)-inner*.10-bare*.30-hoof*.30-pads*.15,.24,.88)
+if physical_eye:rough=np.maximum(rough,.42*nose_mask)
 height=hair*((.00010+.00025*shag) if kind=='bovine' else .00030 if kind=='ursid' else .00012)*fur_weight
 
 profiles=coat_profiles(a.slug)
@@ -149,6 +157,17 @@ if canid:
     ear_outer=np.clip(smooth(state['ear_base']-.03,state['ear_base']+.08,p[:,2])*(1-smooth(head[1]+.01,head[1]+.12,p[:,1]))-inner,0,1)
     back=smooth(.05,.70,n[:,2])*smooth(.88,1.13,p[:,2])*(1-smooth(head[1]-.2,head[1]+.02,p[:,1]))
     forehead=face*smooth(eye_z-.01,eye_z+.13,p[:,2])*(1-smooth(head[1]+.09,head[1]+.20,p[:,1]))
+    if physical_eye:
+        mid=(np.array(land['right_eye']['point'])+land['left_eye']['point'])/2
+        depth=(p-mid)@head_front;lateral=(p-mid)@head_side;z=p[:,2]-mid[2]
+        headgate=smooth(-.26,-.10,depth)*smooth(-.35,-.22,z)
+        # White lips/cheeks rise towards the outer face, below the actual eyes.
+        boundary=-.080+.045*np.clip(np.abs(lateral)/.18,0,1)
+        cheek=headgate*(1-smooth(boundary-.025,boundary+.025,z))
+        throat=smooth(-.30,-.16,depth)*(1-smooth(-.15,-.07,z))*smooth(-.65,-.40,z)
+        belly=np.maximum(belly,throat*.92)
+        back*=1-smooth(-.36,-.23,depth)
+        forehead=headgate*smooth(-.015,.10,z)*(1-smooth(.12,.22,depth))
 distance,nearest=distance_transform_edt(~occupied,return_indices=True);pad=(~occupied)&(distance<=12)
 def extend(array):
     array[pad]=array[nearest[0][pad],nearest[1][pad]];return array
@@ -229,6 +248,24 @@ for index,(label,base,pale,dark_tips) in enumerate(profiles):
             colour=paint(facegate*.75,pale)
             mask=np.exp(-((p[:,2]-eye_mid[2])/.047)**2)*smooth(-.14,-.03,ahead)*(1-smooth(.11,.20,ahead))
             colour=paint(mask*.95,[.045,.038,.030])
+            if physical_eye:
+                # Two broad, tapered orbital patches with a pale nasal bridge;
+                # no straight horizontal band joining tiny eye dots.
+                facegate=smooth(-.16,-.04,ahead)*smooth(-.28,-.16,p[:,2]-eye_mid[2])
+                colour=paint(facegate*.95,pale)
+                orbital=np.zeros(len(p))
+                for eye_side in ['right','left']:
+                    anchor=np.array(land[eye_side+'_eye']['point'])
+                    rel=p-anchor;horizontal=rel@head_side;vertical=rel[:,2]
+                    sign=1 if eye_side=='right' else -1
+                    vertical=vertical+sign*horizontal*.20
+                    q=np.sqrt((horizontal/.112)**2+(vertical/.077)**2)
+                    orbital=np.maximum(orbital,(1-smooth(.80,1.18,q))*smooth(-.075,-.015,ahead))
+                bridge=(1-smooth(.045,.075,np.abs(sidepos)))*smooth(-.10,-.015,p[:,2]-eye_mid[2])
+                orbital*=1-bridge
+                colour=paint(orbital*.99,[.032,.029,.026])
+                crown=(1-smooth(.040,.075,np.abs(sidepos)))*smooth(-.04,.04,p[:,2]-eye_mid[2])*facegate
+                colour=paint(crown*.75,base*.42)
             rings=smooth(.15,.65,np.sin(p[:,1]*31))*tail_weight
             colour=paint(tail_weight*.85,pale*.70);colour=paint(rings*.90,base*.25)
         elif a.slug=='badger':
@@ -285,7 +322,7 @@ for index,(label,base,pale,dark_tips) in enumerate(profiles):
     if a.slug=='hare':colour=paint(tail_top*.9,[.055,.05,.045])
     colour=paint(eye_surround*(.65 if kind=='caprine' else .20 if kind=='ursid' else .5),base*.55+pale*.45)
     colour*=np.clip(1+hair[:,None]*(.24 if canid else .32),.64,1.34)
-    colour=paint(inner,base*.65+[.025,.018,.012] if kind in {'ursid','bovine','small-carnivore','beaver'} else [.47,.35,.31])
+    colour=paint(inner,base*.55+pale*.45 if physical_eye and canid else base*.65+[.025,.018,.012] if kind in {'ursid','bovine','small-carnivore','beaver'} else [.47,.35,.31])
     if kind=='rodent':colour=paint(inner,base*.6+[.10,.065,.05])
     if dark_tips:colour=paint(tips*.94,[.045,.042,.037])
     if a.slug in {'raccoon','badger'}:colour=paint(eye_surround*.92,[.045,.036,.026])

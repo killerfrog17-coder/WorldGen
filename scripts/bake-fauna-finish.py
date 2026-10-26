@@ -87,6 +87,8 @@ if np.linalg.norm(across)<1e-5:across=side.copy()
 across/=np.linalg.norm(across);up=np.cross(across,nn);delta=p-nose
 nosew=.055 if kind in {'ungulate','canid','bear','felid','marine','thickskin'} else .035
 noseq=((delta@across)/nosew)**2+((delta@up)/(.035 if kind!='thickskin' else .06))**2+((delta@nn)/.045)**2
+if land.get('physical_eye_revision'):
+    nw,nh=land['physical_eye_revision']['nose_radius'];noseq=((delta@across)/nw)**2+((delta@up)/nh)**2+((delta@nn)/.065)**2
 nosemask=(1-smooth(.6,1.3,noseq))*smooth(.02,.65,n@nn)
 if a.slug=='elephant':nosemask[:]=0  # Trunk tip is skin, not a pig-like black nose disc.
 mammal=kind in {'mammal','canid','ungulate','bear','felid','bat','hopper_marsupial','armoured_mammal','primate','spiny_mammal','thickskin'} or a.slug=='sea-otter'
@@ -110,6 +112,7 @@ scale_belly=(1-smooth(-.1,.3,n[:,2]))*.7 if kind in {'snake','reptile','amphibia
 rough=np.full(len(p),.78 if mammal else .68 if kind=='bird' else .53 if kind in {'reptile','snake','turtle'} else .39 if kind in {'marine','fish','squid','amphibian'} else .57)
 rough-=nosemask*(.43 if mammal else 0)+bare*.23+bill*.15+keratin*.2
 rough=np.clip(rough,.22,.9)
+if land.get('physical_eye_revision'):rough=np.maximum(rough,.43*nosemask)
 height=detail*(.00012 if mammal or kind=='bird' else .00009)*(1-bare)*(1-nosemask*.9)*(1-bill)
 if kind=='bat':rough=rough*(1-membrane)+.51*membrane
 distance,nearest=distance_transform_edt(~occupied,return_indices=True);pad=(~occupied)&(distance<=12)
