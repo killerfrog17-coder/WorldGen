@@ -20,7 +20,7 @@ public static class WorldGenPerformance
     public static bool Measuring;
     public static readonly double[] Milliseconds=new double[4];
     public static readonly bool TraceEnabled=Enabled&&Environment.GetCommandLineArgs().Contains("--worldgen-stutter-trace");
-    public static readonly double[] TraceMilliseconds=new double[9];static int traceFrame=-1;
+    public static readonly double[] TraceMilliseconds=new double[17];static int traceFrame=-1;
     public static bool SuppressIdleScatter,SkipMapUploads,ForceFreshCoverCull,NoLocalTrees,ForceFreshForestOwnership,TreeLegacyAlpha,SuppressFarForest,ForceIndividualTreeAdmission,DrainEachFrame,LegacyTreeQueues;
     public static long TraceBegin()
     {
@@ -332,6 +332,73 @@ public sealed partial class LocalTerrainExplorer
     public string PerformanceForestState=>$"fields {ForestFieldCount}/{forestPriority.Length}, roots {ForestPacketCount}, pending {ForestPending}, baked local {BakedTreeModels}, baked forest {BakedForestModels}, pending models {PendingTreeModels}, texture bytes {TreeBakeBytes}";
     public void PerformanceInvalidate(){scatterDirty=true;}
     public void PerformanceShadows(bool enabled){if(localSun!=null)localSun.shadows=enabled?LightShadows.Soft:LightShadows.None;}
+    public string PerformanceVerifyFoliageDepth(string output)
+    {
+        bool prior=TerrainVideoOptions.FoliageDepthPrepass;
+        TerrainVideoOptions.FoliageDepthPrepass=false;DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(Path.Combine(output,"overlap-off.png"));var before=LastCapturePixels;
+        TerrainVideoOptions.FoliageDepthPrepass=true;DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(Path.Combine(output,"overlap-on.png"));var after=LastCapturePixels;
+        int delta=0,changed=0;for(int i=0;i<before.Length;i++){int d=Math.Max(Math.Abs(before[i].r-after[i].r),Math.Max(Math.Abs(before[i].g-after[i].g),Math.Abs(before[i].b-after[i].b)));delta=Math.Max(delta,d);if(d>1)changed++;}
+        TerrainVideoOptions.FoliageDepthPrepass=prior;
+        if(changed>before.Length*.001)throw new InvalidOperationException("Tree depth prepass changed visible surfaces: "+changed+" pixels, max delta "+delta);
+        return "Tree silhouette prepass on/off: "+changed+" pixels >1 RGB difference; max delta "+delta;
+    }
+    public string PerformanceVerifySelectiveProjection()
+    {
+        var prior=scatterGroundChanges.ToArray();int checkedRoots=0,repairedRoots=0,checkedChunks=0,coarseChecks=0;
+        try
+        {
+            foreach(var tile in tiles.Keys)
+            {
+                if(tile.Level!=0)continue;
+                scatterGroundChanges.Clear();scatterGroundChanges.Add(tile);
+                foreach(var chunk in scatterChunks.Values)
+                {
+                    if(chunk.Groups==null||!chunk.Source.Instances.Any(p=>p.Kind==ScatterKind.GeneratedTree))continue;
+                    bool affected=false;foreach(var root in chunk.Roots)if(ChangedGroundAt(root.x+originX,root.z+originZ,.01)){affected=true;break;}
+                    if(!affected)continue;
+                    ProjectScatter(chunk);
+                    for(int i=0;i<chunk.Roots.Length;i++)
+                    {
+                        var root=chunk.Roots[i];if(!ChangedGroundAt(root.x+originX,root.z+originZ,.01))continue;
+                        root.y+=.25f;chunk.Roots[i]=root;var matrix=chunk.Matrices[i];matrix.m13=root.y;chunk.Matrices[i]=matrix;
+                        var bounds=chunk.Bounds[i];bounds.center+=Vector3.up*.25f;chunk.Bounds[i]=bounds;repairedRoots++;
+                    }
+                    ProjectScatterGround(chunk);var selective=(Matrix4x4[])chunk.Matrices.Clone();ProjectScatter(chunk);
+                    for(int i=0;i<selective.Length;i++)
+                    {
+                        if(selective[i]!=chunk.Matrices[i])throw new InvalidOperationException("Selective ground projection differs from full projection at root "+i);
+                        checkedRoots++;
+                    }
+                    scatterGroundChanges.Clear();
+                    foreach(var root in chunk.Roots)
+                    {
+                        double size=TerrainLod.BaseSizeM*HorizontalScale*(1<<16);
+                        scatterGroundChanges.Add(new TerrainTileKey((int)Math.Floor((root.x+originX)/size),(int)Math.Floor((root.z+originZ)/size),16,HorizontalScale));
+                    }
+                    for(int i=0;i<chunk.Roots.Length;i++)if(chunk.GroundLevels[i]<16)
+                    {
+                        var root=chunk.Roots[i];if(ChangedGroundAt(root.x+originX,root.z+originZ,.01,chunk.GroundLevels[i]))throw new InvalidOperationException("Coarse replacement invalidated a finer ground owner");coarseChecks++;
+                    }
+                    scatterGroundChanges.Clear();scatterGroundChanges.Add(tile);
+                    if(++checkedChunks>=4)break;
+                }
+                if(checkedChunks>=4)break;
+            }
+        }
+        finally{scatterGroundChanges.Clear();foreach(var tile in prior)scatterGroundChanges.Add(tile);scatterDirty=true;}
+        if(repairedRoots==0)throw new InvalidOperationException("Selective projection fixture did not touch actual roots");
+        return "Selective/full ground projection: "+checkedRoots+" exact matrices, "+repairedRoots+" displaced roots repaired across "+checkedChunks+" chunks; "+coarseChecks+" coarse-parent ownership guards";
+    }
+    public string PerformanceVerifyTreeBands(string output)
+    {
+        bool prior=TerrainVideoOptions.FrontToBackTrees;
+        TerrainVideoOptions.FrontToBackTrees=false;BuildScatterBatches();int count=ScatterObjects;DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(Path.Combine(output,"tree-bands-off.png"));var before=LastCapturePixels;
+        TerrainVideoOptions.FrontToBackTrees=true;BuildScatterBatches();if(ScatterObjects!=count)throw new InvalidOperationException("Tree distance bands changed admitted instance count");DrawScatter();DrawGroundCover();view.Render();PerformanceCapture(Path.Combine(output,"tree-bands-on.png"));var after=LastCapturePixels;
+        int changed=0,delta=0;for(int i=0;i<before.Length;i++){int d=Math.Max(Math.Abs(before[i].r-after[i].r),Math.Max(Math.Abs(before[i].g-after[i].g),Math.Abs(before[i].b-after[i].b)));if(d>1)changed++;delta=Math.Max(delta,d);}
+        TerrainVideoOptions.FrontToBackTrees=prior;BuildScatterBatches();
+        if(changed>before.Length*.001)throw new InvalidOperationException("Tree distance batches changed visible surfaces: "+changed+" pixels");
+        return "Tree distance batches: same "+count+" admitted objects; "+changed+" pixels >1 RGB difference, max delta "+delta;
+    }
     public string PerformanceCounts=>string.Join(",",TileCount,WantedCount,ScatterObjects,SpecialistObjects,MidPlantObjects,GeneratedTreeObjects,ScatterDrawCalls,GroundCoverDraws,GroundCoverCandidates,GroundCoverBytes,ScatterFrustumRejected,ScatterTerrainRejected);
     public void PerformanceDrySite()
     {
@@ -357,8 +424,8 @@ public sealed partial class WorldGenRuntime
     static string Perf(double value)=>value.ToString("F5",CultureInfo.InvariantCulture);
     struct StutterRow
     {
-        public double Time,Frame,Update,Map,Scatter,Weather,Ground,Fog,Coverage,Sky;public int Gc;public long Heap,MainAllocated;
-        public override string ToString()=>string.Join(",",Perf(Time),Perf(Frame),Gc,Heap,MainAllocated,Perf(Update),Perf(Map),Perf(Scatter),Perf(Weather),Perf(Ground),Perf(Fog),Perf(Coverage),Perf(Sky));
+        public double Time,Frame,Update,Map,Scatter,Weather,Ground,Fog,Coverage,Sky,Batches,Bakes,Projection,Forest,Shadows,CoverDraw,Canopy,ForestDraw;public int Gc;public long Heap,MainAllocated;
+        public override string ToString()=>string.Join(",",Perf(Time),Perf(Frame),Gc,Heap,MainAllocated,Perf(Update),Perf(Map),Perf(Scatter),Perf(Weather),Perf(Ground),Perf(Fog),Perf(Coverage),Perf(Sky),Perf(Batches),Perf(Bakes),Perf(Projection),Perf(Forest),Perf(Shadows),Perf(CoverDraw),Perf(Canopy),Perf(ForestDraw));
     }
     IEnumerator CheckPerformance()
     {
@@ -375,6 +442,7 @@ public sealed partial class WorldGenRuntime
         string filter=Argument("--worldgen-perf-sites","");
         string caseFilter=Argument("--worldgen-perf-cases","");
         double seconds=double.Parse(Argument("--worldgen-perf-seconds","6"),CultureInfo.InvariantCulture);
+        double profileView=double.Parse(Argument("--worldgen-perf-view","60000"),CultureInfo.InvariantCulture);
         var cases=new List<PerfCase>{
             new PerfCase("stutter-idle",()=>{}),
             new PerfCase("stutter-no-idle-scatter",()=>WorldGenPerformance.SuppressIdleScatter=true),
@@ -429,18 +497,23 @@ public sealed partial class WorldGenRuntime
             new PerfCase("flying-terrain-only",()=>{terrainExplorer.PerformancePose(60);TerrainVideoOptions.GroundCover=false;terrainExplorer.ScatterEnabled=false;TerrainVideoOptions.FarForest=false;}),
             new PerfCase("turning-original",()=>WorldGenPerformance.OriginalCase=true),
             new PerfCase("turning",()=>{}),
+            new PerfCase("turning-depth-off",()=>TerrainVideoOptions.FoliageDepthPrepass=false),
+            new PerfCase("turning-bands-off",()=>TerrainVideoOptions.FrontToBackTrees=false),
+            new PerfCase("turning-depth-on",()=>TerrainVideoOptions.FoliageDepthPrepass=true),
+            new PerfCase("travel-depth-off",()=>TerrainVideoOptions.FoliageDepthPrepass=false),
+            new PerfCase("overlap-verify",()=>{}),
             new PerfCase("turning-uncached-ownership",()=>WorldGenPerformance.ForceFreshForestOwnership=true),
             new PerfCase("travel",()=>{}),
             new PerfCase("weather-off",()=>{var w=WeatherVideoOptions.Current;w.Clouds=0;w.SunGlare=w.SunRays=w.Adaptation=w.Visibility=0;})
         };
         if(!WorldGenPerformance.TraceEnabled)cases.RemoveAll(c=>c.Name.StartsWith("stutter-",StringComparison.Ordinal));
-        File.WriteAllText(Path.Combine(output,"machine.txt"),$"{SystemInfo.processorType}\n{SystemInfo.graphicsDeviceName}\n{SystemInfo.graphicsDeviceVersion}\nRAM {SystemInfo.systemMemorySize} MB VRAM {SystemInfo.graphicsMemorySize} MB\n{Screen.width}x{Screen.height}, {QualitySettings.activeColorSpace}, VSync {QualitySettings.vSyncCount}, target {Application.targetFrameRate}\nUnity {Application.unityVersion}\nUTC {DateTime.UtcNow:o}\nSeed {world.Recipe.Seed}; scale .1; clear noon; High terrain; view 60km; fine radius153.6m; grass30/300m; default non-grass.\nCPU sections are submission/update times, NOT GPU times. PresentMon is the independent GPU/presentation measurement.\n");
+        File.WriteAllText(Path.Combine(output,"machine.txt"),$"{SystemInfo.processorType}\n{SystemInfo.graphicsDeviceName}\n{SystemInfo.graphicsDeviceVersion}\nRAM {SystemInfo.systemMemorySize} MB VRAM {SystemInfo.graphicsMemorySize} MB\n{Screen.width}x{Screen.height}, {QualitySettings.activeColorSpace}, VSync {QualitySettings.vSyncCount}, target {Application.targetFrameRate}\nUnity {Application.unityVersion}\nUTC {DateTime.UtcNow:o}\nSeed {world.Recipe.Seed}; scale .1; clear noon; High terrain; view {profileView}m; fine radius153.6m; grass30/300m; default non-grass.\nCPU sections are submission/update times, NOT GPU times. PresentMon is the independent GPU/presentation measurement.\n");
         File.AppendAllText(Path.Combine(output,"machine.txt"),$"Forced single offscreen URP render {width}x{height}; automatic camera disabled. Frame timing stats enabled: {FrameTimingManager.IsFeatureEnabled()}. Original CPU paths: {WorldGenPerformance.Original}.\n");
         File.WriteAllText(Path.Combine(output,"summary.csv"),"site,cell,biome,relief,case,frames,seconds,fps,p50_ms,p95_ms,p99_ms,max_ms,over10ms,over16ms,scatter_update_ms,scatter_submit_ms,grass_submit_ms,weather_ms,tiles,wanted,objects,specialists,mid,trees,scatter_draws,grass_draws,grass_candidates,grass_bytes,frustum_rejected,terrain_rejected,settled,start_qpc,end_qpc,gpu_ms,cpu_ms,timing_samples,gpu_drain_ms\n");
         foreach(var site in sites)
         {
             if(site.Item2<0||filter.Length>0&&!filter.Split(',').Contains(site.Item1))continue;
-            void Defaults(){var w=WeatherVideoOptions.Current;w.Clouds=1;w.SunGlare=.35f;w.SunRays=.12f;w.Adaptation=.5f;w.Visibility=1;TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassBladeDistance=30;TerrainVideoOptions.GrassDistance=300;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.Current.Quality=2;TerrainVideoOptions.Current.Effort=1;TerrainVideoOptions.Current.ViewDistanceM=60000;TerrainVideoOptions.Current.FullDetailTiles=1.5;}
+            void Defaults(){var w=WeatherVideoOptions.Current;w.Clouds=1;w.SunGlare=.35f;w.SunRays=.12f;w.Adaptation=.5f;w.Visibility=1;TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassBladeDistance=30;TerrainVideoOptions.GrassDistance=300;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.Current.Quality=2;TerrainVideoOptions.Current.Effort=1;TerrainVideoOptions.Current.ViewDistanceM=profileView;TerrainVideoOptions.Current.FullDetailTiles=1.5;}
             Defaults();TerrainVideoOptions.Revision++;selectedCell=site.Item2;ExploreTerrain(world.Surface.Cells[site.Item2].Position);
             deadline=Time.realtimeSinceStartupAsDouble+240;while(terrainExplorer!=null&&!terrainExplorer.Ready&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
             if(terrainExplorer==null||!terrainExplorer.Ready){Debug.LogError("PERF terrain unavailable");Application.Quit(1);yield break;}
@@ -471,6 +544,7 @@ public sealed partial class WorldGenRuntime
                 yield return new WaitForSecondsRealtime(4);
                 if(item.Name=="stutter-idle")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyRenderCleanup()+"\n"+terrainExplorer.PerformanceVerifyVegetationScene()+"\n"+terrainExplorer.PerformanceVerifyGrassCullCache()+"\n");
                 if(item.Name=="forest-ready"){File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyForestIdentity()+"\n"+terrainExplorer.PerformanceVerifyTreeAlpha()+"\n"+terrainExplorer.PerformanceVerifyTreeGroupAdmission()+"\n"+terrainExplorer.PerformanceVerifyTreeQueues(Path.Combine(output,site.Item1+"-queues"))+"\n");terrainExplorer.PerformanceCapture(Path.Combine(output,site.Item1+"-forest.png"));}
+                if(item.Name=="overlap-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifySelectiveProjection()+"\n"+terrainExplorer.PerformanceVerifyTreeBands(output)+"\n"+terrainExplorer.PerformanceVerifyFoliageDepth(output)+"\n");
                 if(item.Name=="full")
                 {
                     // Explicitly let the old path allocate/place its empty pages,
@@ -506,10 +580,10 @@ public sealed partial class WorldGenRuntime
                     {
                         if(now>=heapAt){heap=GC.GetTotalMemory(false);heapAt=now+.25;}
                         var t=WorldGenPerformance.TraceMilliseconds;
-                        stutter.Add(new StutterRow{Time=now-start,Frame=frameMs,Gc=GC.CollectionCount(0),Heap=heap,MainAllocated=GC.GetAllocatedBytesForCurrentThread(),Update=t[0],Map=t[1],Scatter=t[2],Weather=t[3],Ground=t[4],Fog=t[5],Coverage=t[6],Sky=t[7]});
+                        stutter.Add(new StutterRow{Time=now-start,Frame=frameMs,Gc=GC.CollectionCount(0),Heap=heap,MainAllocated=GC.GetAllocatedBytesForCurrentThread(),Update=t[0],Map=t[1],Scatter=t[2],Weather=t[3],Ground=t[4],Fog=t[5],Coverage=t[6],Sky=t[7],Batches=t[9],Bakes=t[10],Projection=t[11],Forest=t[12],Shadows=t[13],CoverDraw=t[14],Canopy=t[15],ForestDraw=t[16]});
                     }
                     if(item.Name.StartsWith("turning",StringComparison.Ordinal))terrainExplorer.PerformanceTurn(20+(float)((now-start)*60));
-                    if(item.Name=="travel")terrainExplorer.PerformanceTravel((now-start)*8);
+                    if(item.Name.StartsWith("travel",StringComparison.Ordinal))terrainExplorer.PerformanceTravel((now-start)*8);
                     for(int j=0;j<4;j++)sections[j]+=WorldGenPerformance.Milliseconds[j];
                     FrameTimingManager.CaptureFrameTimings();
                     if(FrameTimingManager.GetLatestTimings(1,timings)>0&&timings[0].frameStartTimestamp!=lastTiming&&timings[0].gpuFrameTime>0)
@@ -529,7 +603,7 @@ public sealed partial class WorldGenRuntime
                 File.AppendAllText(Path.Combine(output,"summary.csv"),row+"\n");
                 File.AppendAllText(Path.Combine(output,"forest-state.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceForestState+"\n");
                 File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-frames.csv"),new[]{"ms"}.Concat(frames.Select(Perf)));
-                if(stutter!=null)File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-trace.csv"),new[]{"t_s,frame_ms,gc0,heap_bytes,allocated_main_total,explorer_ms,map_ms,scatter_ms,weather_ms,ground_ms,fog_ms,coverage_ms,sky_ms"}.Concat(stutter.Select(s=>s.ToString())));
+                if(stutter!=null)File.WriteAllLines(Path.Combine(output,site.Item1+"-"+item.Name+"-trace.csv"),new[]{"t_s,frame_ms,gc0,heap_bytes,allocated_main_total,explorer_ms,map_ms,scatter_ms,weather_ms,ground_ms,fog_ms,coverage_ms,sky_ms,batches_ms,bakes_ms,projection_ms,forest_ms,shadow_batches_ms,cover_draw_ms,canopy_ms,forest_draw_ms"}.Concat(stutter.Select(s=>s.ToString())));
                 Debug.Log("PERF END "+row+" gc0="+(GC.CollectionCount(0)-gc));
             }
             File.AppendAllText(Path.Combine(output,"equivalence.txt"),site.Item1+": "+terrainExplorer.PerformancePendingComparisons+" loading/idle readiness comparisons passed.\n");

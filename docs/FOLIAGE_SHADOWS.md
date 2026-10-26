@@ -1,5 +1,93 @@
 # Foliage shadow and near-foot density checkpoint / 22 October 2026
 
+## Forest overlap and streaming hitch work / 26 October 2026
+
+Owner reports grass-off still only reaches the low100s and asks to prioritize
+overlapping foliage plus intermittent walking freezes. They report the freezes
+do not recur when traversing the same fully loaded patch. The no-launch/test
+restriction is explicitly lifted; use short tests proportional to the change.
+
+Baseline hidden-player tropical forest turning/walking traces record maxima
+42/52ms, including vegetation updates around20–25ms. Those60km scenes were NOT
+fully settled, so average FPS is not a clean isolated comparison. Evidence is
+under ignored forest-overlap-stutter-20261026/baseline. Input Earth is unchanged.
+
+Terrain changes previously reprojected every root in an overlapping source
+chunk, rebuilt all matrices and all bounds. The new path visits affected spatial
+groups, queries ground only for roots in changed tile footprints and updates
+their height/matrix/bounds immediately. Rotation, scale and X/Z remain valid.
+Chart/origin changes still use full reprojection. Distant individual roots get
+the same footprint test; aggregated stands include their neighbouring slope
+sample footprint. Enlarged historical group bounds remain conservative. No
+height corrections are delayed and terrain is not moved to match trees.
+
+An experimental saved Vegetation control, Tree depth prepass,
+adds a tree-only silhouette depth pass before opaque shading. It reuses actual
+geometry, wind, alpha/parallax coverage and instance LOD dithering; no solid
+crown substitutes hide gaps. Forward rendering keeps LEqual and all non-tree
+surfaces keep their prior path. The pass writes the existing depth attachment,
+not a new full-screen colour target. Near and forest-packet shaders opt in via
+WorldGenFoliageDepth; depth-only output omits lighting. It duplicates silhouette
+work, so visual equivalence and on/off timing must decide whether to enable it.
+Grass quality, blade distances, density, populations and tree geometry unchanged.
+
+The first completed probe preserved pixels exactly with the depth pass on/off,
+but was slower (turning36.4vs38.6FPS; travel43.7vs49.7FPS). It defaults OFF.
+These are same-build short windows, not a universal GPU result. A replacement
+saved control, Prioritize nearby trees when drawing, splits visible local tree
+batches into64m radial bands; Unity otherwise sorts the entire species batch
+as one broad object. The admitted roots/models/LOD coverage remain unchanged;
+more draws trade CPU submission against hidden-pixel work. This needs its own
+same-build comparison before a performance claim. Its first short turning run
+did not establish a gain (66.4FPS with bands, not fully settled, versus70.4FPS
+without, settled); it now also defaults OFF. Both experiments remain optional.
+
+The probe also reproduced106–112ms travel frames around6.7s with45–49ms in
+projection and80–88ms in total scatter updates. Slicing incoming installation
+alone did NOT fix these frames; do not claim it did. Incoming chunk projection is now
+time-sliced, at most384roots and about1.5ms per frame (checks every16roots).
+Unfinished chunks do not count as ready and do not render; existing fallback
+coverage remains until complete. Already processed roots queue rechecks if
+their ground changes during installation. Chart/origin changes restart the
+unpublished chunk. Final grouping remains a bounded-per-chunk operation.
+
+Further inspection found a missing terrain ownership test: a changed COARSE
+parent could invalidate every root in its rectangle even though an unchanged
+finer surface still supplied its visible height. Each root now tracks its
+actual ground LOD; changes coarser than that owner do not reproject it. Removed
+fine owners and arriving finer surfaces still invalidate immediately. Distant
+stands retain the coarsest level among their centre/four slope samples. These
+CPU-only levels follow field slot reuse/compaction and prepared chart adoption;
+the GPU root layout remains64bytes.
+
+Selective/full projection verification passed32724matrices, including1621
+deliberately displaced roots repaired in4chunks. First probe pixels had zero
+RGB difference between depth on/off; actual forest image inspected. Validation
+of the newer sliced installation and distance batches is recorded below. The first
+probe build had been intentionally cancelled for the owner's uncontended test.
+Detailed opt-in trace slots now separate batch/bake/projection/forest/shadow/
+ground-cover/canopy/forest-draw work. The benchmark also supports a shorter
+--worldgen-perf-view without changing ordinary game view distance.
+
+Final ownership run on Ryzen5700X/RTX4060,1080p, medium vegetation,6km benchmark
+view,12s travel: the6.5–7.2s boundary window maximum fell110.90->37.45ms versus
+the preceding same-route normal release; projection49.29->7.23ms and total
+scatter87.84->21.31ms at the reproduced spike. Whole-walk maximum46.55ms still
+includes an isolated frame with only.083ms scatter, so this is NOT hitch-free.
+Mean travel85.36FPS versus85.04 in the prior normal release is essentially
+unchanged; the demonstrated gain is the repeated streaming hitch, not a general
+forest GPU speedup. Some streaming remains during travel; do not compare these
+means with the earlier60km/partially loaded baseline as a clean FPS claim.
+
+32724selective/full matrices and32724coarse-parent ownership guards pass;
+1621displaced roots repair. Both optional render experiments match0RGB pixels
+at>1channel difference;6466admitted objects unchanged by distance batches.
+Release IL2CPP player-forest-overlap-streaming, BuiltUtc2026-10-26T22:56:12.6444738Z,
+compiles/packages without C#/shader errors;130runtime/shader inputs and staged
+DLLs match,177fauna bundles/native sources unchanged. Existing shortcut selects
+this tested package. Broader forest GPU optimization and owner Ultra-scene
+review remain outstanding; no200FPS claim. All owned test/build workers exited.
+
 ## Steady sunlight and bounded low-sun casters / 26 October 2026
 
 The owner reports about10 FPS at sunrise/sunset versus80–90 at noon and130+ at

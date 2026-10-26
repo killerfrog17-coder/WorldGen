@@ -27,13 +27,15 @@ public sealed partial class LocalTerrainExplorer
     void ProjectPreparedScatter(ScatterChunk chunk,PreparedFrame pending,double ox,double oz)
     {
         var frame=pending.Frame;
-        double Height(double x,double z,double fallback)
+        double Height(double x,double z,double fallback,out int groundLevel)
         {
+            groundLevel=17;
             for(int level=0;level<=16;level++)
             {
                 double size=TerrainLod.BaseSizeM*HorizontalScale*(1<<level);
                 var key=new TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),level,HorizontalScale);
                 if(!pending.Tiles.TryGetValue(key,out var tile)||tile.Heights==null)continue;
+                groundLevel=level;
                 int n=tile.Segments,side=n+1;
                 double gx=(x/size-key.X)*n,gz=(z/size-key.Z)*n;
                 int a=Math.Min(n-1,Math.Max(0,(int)gx)),b=Math.Min(n-1,Math.Max(0,(int)gz));double u=gx-a,v=gz-b;
@@ -42,12 +44,12 @@ public sealed partial class LocalTerrainExplorer
             }
             return fallback;
         }
-        var source=chunk.Source.Instances;chunk.Matrices=new Matrix4x4[source.Length];chunk.Roots=new Vector3[source.Length];
+        var source=chunk.Source.Instances;chunk.Matrices=new Matrix4x4[source.Length];chunk.Roots=new Vector3[source.Length];chunk.GroundLevels=new int[source.Length];
         for(int i=0;i<source.Length;i++)
         {
             var p=source[i];double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));
             double x=V.Dot(p.Position,frame.East)*frame.RadiusM/dot,z=V.Dot(p.Position,frame.North)*frame.RadiusM/dot;
-            double y=Height(x,z,frame.SurfaceY(p.Position,p.GroundM));
+            double y=Height(x,z,frame.SurfaceY(p.Position,p.GroundM),out int level);chunk.GroundLevels[i]=level;
             bool herb=IsSpecialist(p.Kind),vertical=herb||p.Kind==ScatterKind.GeneratedTree||p.Kind==ScatterKind.MidPlant||p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
             V up=vertical?p.Position:p.Normal;
             var normal=new Vector3((float)V.Dot(up,frame.East),(float)V.Dot(up,frame.Origin),(float)V.Dot(up,frame.North)).normalized;
@@ -71,6 +73,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 var prepared=pending.Scatter[pair.Key];
                 pair.Value.Matrices=prepared.Matrices;pair.Value.Roots=prepared.Roots;pair.Value.Bounds=prepared.Bounds;pair.Value.AllBounds=prepared.AllBounds;
+                pair.Value.GroundLevels=prepared.GroundLevels;
                 pair.Value.Groups=prepared.Groups;pair.Value.GroupsFrame=prepared.GroupsFrame;
             }
             else ProjectScatter(pair.Value);

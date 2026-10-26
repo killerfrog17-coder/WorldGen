@@ -5,15 +5,39 @@ using UnityEngine.Rendering.Universal;
 
 public sealed class WeatherRendererFeature:ScriptableRendererFeature
 {
-    WeatherPass pass;
-    public override void Create(){pass=new WeatherPass{renderPassEvent=RenderPassEvent.BeforeRenderingTransparents};}
+    WeatherPass pass;FoliageDepthPass foliageDepth;
+    public override void Create(){pass=new WeatherPass{renderPassEvent=RenderPassEvent.BeforeRenderingTransparents};foliageDepth=new FoliageDepthPass{renderPassEvent=RenderPassEvent.BeforeRenderingOpaques};}
     public override void AddRenderPasses(ScriptableRenderer renderer,ref RenderingData renderingData)
     {
+        // Prime only tree cutouts, not the entire world. Forward passes keep
+        // LEqual so terrain, wildlife and grass without this pass remain valid.
+        if(TerrainVideoOptions.FoliageDepthPrepass&&renderingData.cameraData.camera.cullingMask==(1<<30))renderer.EnqueuePass(foliageDepth);
         var screen=renderingData.cameraData.camera.GetComponent<LocalWeatherScreen>();if(screen==null||!screen.Ready||screen.Material==null)return;
         if(TerrainDiagnostics.NoWeather)return;
         var o=WeatherVideoOptions.Current;bool visibility=o.Visibility>0&&(screen.UseField||screen.Weather.PrecipitationMmPerHour>0||screen.Weather.Fog>0);
         if(o.Clouds==0&&o.Adaptation==0&&o.SunGlare==0&&o.SunRays==0&&screen.Flash==0&&!visibility)return;
         screen.Prepare(renderingData.cameraData.camera,(GL.GetGPUProjectionMatrix(renderingData.cameraData.GetProjectionMatrix(),true)*renderingData.cameraData.GetViewMatrix()).inverse);pass.Screen=screen;renderer.EnqueuePass(pass);
+    }
+    sealed class FoliageDepthPass:ScriptableRenderPass
+    {
+        static readonly ShaderTagId tag=new ShaderTagId("WorldGenFoliageDepth");
+        sealed class Data{public RendererListHandle List;}
+        public override void RecordRenderGraph(RenderGraph graph,ContextContainer frameData)
+        {
+            var resources=frameData.Get<UniversalResourceData>();
+            var camera=frameData.Get<UniversalCameraData>();var rendering=frameData.Get<UniversalRenderingData>();var lights=frameData.Get<UniversalLightData>();
+            if(!resources.activeDepthTexture.IsValid())return;
+            using(var builder=graph.AddRasterRenderPass<Data>("Tree silhouettes before foliage shading",out var data))
+            {
+                var drawing=RenderingUtils.CreateDrawingSettings(tag,rendering,camera,lights,SortingCriteria.CommonOpaque);
+                drawing.perObjectData=PerObjectData.None;
+                var parameters=new RendererListParams(rendering.cullResults,drawing,new FilteringSettings(RenderQueueRange.opaque,1<<30));
+                parameters.filteringSettings.batchLayerMask=uint.MaxValue;
+                data.List=graph.CreateRendererList(parameters);builder.UseRendererList(data.List);
+                builder.SetRenderAttachmentDepth(resources.activeDepthTexture,AccessFlags.ReadWrite);
+                builder.SetRenderFunc((Data d,RasterGraphContext c)=>c.cmd.DrawRendererList(d.List));
+            }
+        }
     }
     sealed class WeatherPass:ScriptableRenderPass
     {

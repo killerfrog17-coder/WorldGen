@@ -15,6 +15,7 @@ public static partial class TerrainVideoOptions
     public static bool DistantTreeShadowCards=true,EfficientTreeViews=true;
     public static bool SteadyDaylightShadows=true;
     public static bool DawnDuskShadowBudget=true;
+    public static bool FoliageDepthPrepass=false,FrontToBackTrees=false;
     public static float ForestLightUp=1;
     public static int ForestShadowQuality=2;
     public static float ForestShadowSoftness=2;
@@ -44,6 +45,7 @@ public static partial class TerrainVideoOptions
         DistantTreeShadowCards=Flag("distant-shadow-cards");EfficientTreeViews=Flag("efficient-tree-views");
         SteadyDaylightShadows=Flag("steady-daylight-shadows");
         DawnDuskShadowBudget=Flag("dawn-dusk-shadow-budget");
+        FoliageDepthPrepass=Flag("foliage-depth-prepass",false);FrontToBackTrees=Flag("front-to-back-trees",false);
         CanopyShade=Flag("canopy-shade");
         ForestShadowQuality=Mathf.Clamp(PlayerPrefs.GetInt("vegetation-forest-shadow-quality",2),0,4);
         ForestShadowSoftness=Value("forest-shadow-softness",2,.75f,4);
@@ -69,6 +71,8 @@ public static partial class TerrainVideoOptions
         Flag("distant-shadow-cards",DistantTreeShadowCards);Flag("efficient-tree-views",EfficientTreeViews);
         Flag("steady-daylight-shadows",SteadyDaylightShadows);
         Flag("dawn-dusk-shadow-budget",DawnDuskShadowBudget);
+        Flag("foliage-depth-prepass",FoliageDepthPrepass);
+        Flag("front-to-back-trees",FrontToBackTrees);
         Flag("canopy-shade",CanopyShade);
         PlayerPrefs.SetInt("vegetation-forest-shadow-quality",ForestShadowQuality);Value("forest-shadow-softness",ForestShadowSoftness);
         PlayerPrefs.SetInt("vegetation-specialist-detail",SpecialistDetail);PlayerPrefs.SetInt("vegetation-mid-detail",MidPlantDetail);PlayerPrefs.SetInt("vegetation-tree-detail",TreeDetail);
@@ -94,6 +98,7 @@ public static partial class TerrainVideoOptions
         DistantTreeShadowCards=EfficientTreeViews=true;
         SteadyDaylightShadows=true;
         DawnDuskShadowBudget=true;
+        FoliageDepthPrepass=false;FrontToBackTrees=false;
     }
     public static bool KeepVegetation(ScatterKind kind,ulong id)
     {
@@ -165,6 +170,9 @@ public sealed partial class WorldGenRuntime
         TerrainVideoOptions.SteadyDaylightShadows=GUILayout.Toggle(TerrainVideoOptions.SteadyDaylightShadows,"Steady daylight shadows");
         GUILayout.Label("Sunlight holds while you stand still, then catches up gently as you move or look around. Dawn and dusk keep following the sun.",MutedStyle());
         TerrainVideoOptions.DawnDuskShadowBudget=GUILayout.Toggle(TerrainVideoOptions.DawnDuskShadowBudget,"Reduce detailed shadows at dawn/dusk");
+        TerrainVideoOptions.FrontToBackTrees=GUILayout.Toggle(TerrainVideoOptions.FrontToBackTrees,"Prioritize nearby trees when drawing");
+        TerrainVideoOptions.FoliageDepthPrepass=GUILayout.Toggle(TerrainVideoOptions.FoliageDepthPrepass,"Tree depth prepass (experimental)");
+        GUILayout.Label("Draw tree silhouettes first so hidden foliage can skip expensive lighting. Disable to compare on your GPU.");
         GUILayout.Label("Shorter, softer detailed shadows near the horizon. Direct sunlight fades into the existing ambient sky lighting as the sun rises or sets.",MutedStyle());
         TerrainVideoOptions.SimplifiedForestShadows=GUILayout.Toggle(TerrainVideoOptions.SimplifiedForestShadows,"Simplified forest shadows (off = previous rendering)");
         GUI.enabled=enabled&&TerrainVideoOptions.SimplifiedForestShadows;

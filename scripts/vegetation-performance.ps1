@@ -5,6 +5,7 @@ param(
     [string]$Sites='plains,forest-flat,forest-hills,mountains,desert,tundra',
     [string]$Cases='',
     [double]$Seconds=6,
+    [double]$ViewDistance=60000,
     [int]$Width=1920,[int]$Height=1080,
     [int]$TimeoutMinutes=45,
     [switch]$PresentMon,
@@ -25,6 +26,7 @@ $arguments=@('-force-d3d11','-screen-fullscreen','0','-screen-width',"$Width",'-
 if($Original){$arguments+='--worldgen-perf-original'}
 if($StutterTrace){$arguments+='--worldgen-stutter-trace'}
 if($Cases){$arguments+=@('--worldgen-perf-cases',('"'+$Cases+'"'))}
+$arguments+=@('--worldgen-perf-view',$ViewDistance.ToString([Globalization.CultureInfo]::InvariantCulture))
 $run=$null;$capture=$null
 try {
     $run=Start-Process -FilePath $player -ArgumentList $arguments -WorkingDirectory $repo -WindowStyle Hidden -PassThru

@@ -11,7 +11,7 @@ public sealed partial class LocalTerrainExplorer
 {
     sealed class ScatterWork { public ScatterKey Key;public Task<ScatterPatch> Task; }
     sealed class ScatterGroup {public Bounds Bounds,RootBounds;public int[] Indices;public bool Trees,ForestOwned;public int ForestEpoch=-1;}
-    sealed class ScatterChunk { public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
+    sealed class ScatterChunk { public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public int[] GroundLevels;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
     sealed class ArtPart { public Mesh Mesh;public Material Material;public int Submesh;public Matrix4x4 Local; }
     sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; public bool IdentityScale,Fades;public double LastUsed;public bool Generated;public int TreeCode;public bool TreeBake,TreeQueued,TreeBaked,TreeStand;public Texture2DArray TreeColour,TreeNormal; }
     sealed class DrawBatch
@@ -34,7 +34,10 @@ public sealed partial class LocalTerrainExplorer
     readonly List<ScatterWork> scatterJobs=new List<ScatterWork>();readonly HashSet<ScatterKey> scatterWanted=new HashSet<ScatterKey>();readonly List<ScatterKey> scatterPriority=new List<ScatterKey>();
     readonly Dictionary<long,ArtModel> scatterArt=new Dictionary<long,ArtModel>();readonly List<Mesh> ownedScatterMeshes=new List<Mesh>();readonly List<Material> ownedScatterMaterials=new List<Material>();
     readonly List<DrawBatch> drawBatches=new List<DrawBatch>();readonly List<DrawBatch> batchPool=new List<DrawBatch>();
-    readonly Dictionary<long,DrawBatch> activeScatterBatches=new Dictionary<long,DrawBatch>();
+    readonly Dictionary<(long,int),DrawBatch> activeScatterBatches=new Dictionary<(long,int),DrawBatch>();
+    ScatterChunk installingScatter;ScatterKey installingScatterKey;LocalTerrainFrame installingScatterFrame;int installingScatterAt;
+    double installingScatterOriginX,installingScatterOriginZ;
+    readonly Queue<int> installingScatterRechecks=new Queue<int>();bool[] installingScatterDirty;
     readonly HashSet<ScatterKind> prefabScatterKinds=new HashSet<ScatterKind>();
     double scatterX=double.NaN,scatterZ,scatterAltitude,lastBatchTime;bool scatterDirty=true;int scatterGroundRevision,projectedGroundRevision;
     Light precedingSun,localSun;AmbientMode precedingAmbient;Color precedingSky,precedingEquator,precedingGround;bool lightingSaved;double nextDaylightAt;
@@ -110,6 +113,7 @@ public sealed partial class LocalTerrainExplorer
         // vegetation. Reproject before this frame's draws, without a 250ms lag.
         if(scatterGroundRevision!=projectedGroundRevision)
         {
+            InvalidateInstallingScatterGround();
             foreach(var chunk in scatterChunks.Values)
             {
                 bool affected=scatterGroundChanges.Count==0||chunk.Bounds==null;
@@ -118,26 +122,63 @@ public sealed partial class LocalTerrainExplorer
                     var b=chunk.AllBounds;double x0=key.X*key.SizeM-originX,z0=key.Z*key.SizeM-originZ;
                     if(b.max.x>=x0&&b.min.x<=x0+key.SizeM&&b.max.z>=z0&&b.min.z<=z0+key.SizeM){affected=true;break;}
                 }
-                if(affected)ProjectScatter(chunk);
+                if(affected)ProjectScatterGround(chunk);
             }
             ProjectForestGround();scatterGroundChanges.Clear();projectedGroundRevision=scatterGroundRevision;scatterDirty=true;
         }
         if(double.IsNaN(scatterX)||Math.Abs(motion.X-scatterX)>32||Math.Abs(motion.Z-scatterZ)>32||Math.Abs(HeightAboveGround-scatterAltitude)>100)RefreshScatterWanted();
-        for(int i=scatterJobs.Count-1;i>=0;i--)
+        for(int i=scatterJobs.Count-1;installingScatter==null&&i>=0;i--)
         {
             var work=scatterJobs[i];if(!work.Task.IsCompleted)continue;scatterJobs.RemoveAt(i);
             if(work.Task.IsFaulted){error=work.Task.Exception.GetBaseException().Message;debugOpen=true;CaptureMouse();continue;}
-            if(!work.Task.IsCanceled&&scatterWanted.Contains(work.Key)){var chunk=new ScatterChunk{Source=work.Task.Result,Born=Math.Max(.001f,Time.time)};ProjectScatter(chunk);scatterChunks[work.Key]=chunk;scatterDirty=true;}break;
+            if(!work.Task.IsCanceled&&scatterWanted.Contains(work.Key)){installingScatter=new ScatterChunk{Source=work.Task.Result};installingScatterKey=work.Key;installingScatterFrame=null;}break;
         }
-        if(!mapOpen&&CenterReady&&!NearTerrainPending()&&ActiveWorkerCount<WorkerLimit&&scatterJobs.Count<1)
+        InstallScatterSlice();
+        if(!mapOpen&&installingScatter==null&&CenterReady&&!NearTerrainPending()&&ActiveWorkerCount<WorkerLimit&&scatterJobs.Count<1)
         {
             foreach(var key in scatterPriority)
             {if(scatterChunks.ContainsKey(key)||HasScatterJob(key))continue;RequestScatter(key);break;}
         }
-        if(!mapOpen){UpdateTreeImpostors();UpdateForestFields();}
+        if(!mapOpen){long t=WorldGenPerformance.TraceBegin();UpdateTreeImpostors();WorldGenPerformance.TraceEnd(10,t);t=WorldGenPerformance.TraceBegin();UpdateForestFields();WorldGenPerformance.TraceEnd(12,t);}
         if(scatterDirty||ScatterViewChanged||!WorldGenPerformance.SuppressIdleScatter&&Time.realtimeSinceStartupAsDouble-lastBatchTime>1)BuildScatterBatches();
     }
-    bool HasScatterJob(ScatterKey key){foreach(var job in scatterJobs)if(job.Key.Equals(key))return true;return false;}
+    bool HasScatterJob(ScatterKey key){if(installingScatter!=null&&installingScatterKey.Equals(key))return true;foreach(var job in scatterJobs)if(job.Key.Equals(key))return true;return false;}
+    void InvalidateInstallingScatterGround()
+    {
+        if(installingScatter==null||installingScatterFrame!=frame)return;
+        for(int i=0;i<installingScatterAt;i++)
+        {
+            var root=installingScatter.Roots[i];
+            if(!installingScatterDirty[i]&&ChangedGroundAt(root.x+originX,root.z+originZ,.01,installingScatter.GroundLevels[i]))
+            {installingScatterDirty[i]=true;installingScatterRechecks.Enqueue(i);}
+        }
+    }
+    void InstallScatterSlice()
+    {
+        if(installingScatter==null)return;
+        if(!scatterWanted.Contains(installingScatterKey)){installingScatter=null;installingScatterRechecks.Clear();return;}
+        var chunk=installingScatter;int count=chunk.Source.Instances.Length;
+        if(installingScatterFrame!=frame||installingScatterOriginX!=originX||installingScatterOriginZ!=originZ)
+        {
+            installingScatterFrame=frame;installingScatterOriginX=originX;installingScatterOriginZ=originZ;installingScatterAt=0;installingScatterRechecks.Clear();installingScatterDirty=new bool[count];
+            chunk.Matrices=new Matrix4x4[count];chunk.Roots=new Vector3[count];chunk.GroundLevels=new int[count];chunk.Bounds=new Bounds[count];chunk.AllBounds=new Bounds();
+        }
+        long trace=WorldGenPerformance.TraceBegin(),started=System.Diagnostics.Stopwatch.GetTimestamp();int processed=0;
+        // New source patches used to project thousands of roots in one frame.
+        // Retain ready forest fallback until this complete chunk is installed.
+        while(installingScatterRechecks.Count>0||installingScatterAt<count)
+        {
+            int i;if(installingScatterRechecks.Count>0){i=installingScatterRechecks.Dequeue();installingScatterDirty[i]=false;}else i=installingScatterAt++;
+            ProjectScatterRoot(chunk,i);PrepareScatterRootBounds(chunk,i);
+            if(i==0&&processed==0&&installingScatterAt==1)chunk.AllBounds=chunk.Bounds[i];else chunk.AllBounds.Encapsulate(chunk.Bounds[i]);
+            processed++;
+            if((processed&15)==0&&(processed>=384||System.Diagnostics.Stopwatch.GetTimestamp()-started>System.Diagnostics.Stopwatch.Frequency*.0015))break;
+        }
+        WorldGenPerformance.TraceEnd(11,trace);
+        if(installingScatterAt<count||installingScatterRechecks.Count>0)return;
+        PrepareScatterGroups(chunk,frame);chunk.Born=Math.Max(.001f,Time.time);scatterChunks[installingScatterKey]=chunk;
+        canopySourceRevision++;scatterDirty=true;installingScatter=null;installingScatterDirty=null;
+    }
     void RequestScatter(ScatterKey key)
     {
         // Capture job inputs only for actual requests. An in-loop lambda used
@@ -146,35 +187,96 @@ public sealed partial class LocalTerrainExplorer
         scatterJobs.Add(new ScatterWork{Key=key,Task=Task.Run(()=>producer==null?source.Build(key,token):producer.Scatter(key,token),token)});
     }
     double VisibleGround(double x,double z,double fallback)
+        =>VisibleGround(x,z,fallback,out _);
+    double VisibleGround(double x,double z,double fallback,out int groundLevel)
     {
+        groundLevel=17;
         for(int level=0;level<=16;level++)
         {
             double size=WorldGen.Presentation.TerrainLod.BaseSizeM*HorizontalScale*(1<<level);var key=new WorldGen.Presentation.TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),level,HorizontalScale);
             if(!tiles.TryGetValue(key,out var tile)||tile.Heights==null)continue;int n=tile.Segments,side=n+1;
+            groundLevel=level;
             double gx=(x/size-key.X)*n,gz=(z/size-key.Z)*n;int a=Math.Min(n-1,Math.Max(0,(int)gx)),b=Math.Min(n-1,Math.Max(0,(int)gz));double u=gx-a,v=gz-b;
             double h00=tile.Heights[b*side+a],h10=tile.Heights[b*side+a+1],h01=tile.Heights[(b+1)*side+a],h11=tile.Heights[(b+1)*side+a+1];
             return u+v<=1?h00+(h10-h00)*u+(h01-h00)*v:h11+(h01-h11)*(1-u)+(h10-h11)*(1-v);
         }
         return fallback;
     }
+    bool ChangedGroundAt(double x,double z,double margin=0,int groundLevel=17)
+    {
+        if(scatterGroundChanges.Count==0)return true;
+        foreach(var key in scatterGroundChanges)
+        {
+            if(key.Level>groundLevel)continue; // An unchanged finer surface still owns this root.
+            double x0=key.X*key.SizeM,z0=key.Z*key.SizeM;
+            if(x>=x0-margin&&x<=x0+key.SizeM+margin&&z>=z0-margin&&z<=z0+key.SizeM+margin)return true;
+        }
+        return false;
+    }
+    static float ScatterEmbedding(ScatterInstance p)
+    {
+        if(IsSpecialist(p.Kind))return .003f;
+        if(p.Kind==ScatterKind.GeneratedTree||p.Kind==ScatterKind.MidPlant||p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree)return .045f;
+        return p.Kind==ScatterKind.Outcrop?(float)p.HeightM*.55f:p.Kind==ScatterKind.Boulder?(float)p.HeightM*.35f:.015f;
+    }
+    void ProjectScatterGround(ScatterChunk chunk)
+    {
+        if(scatterGroundChanges.Count==0||chunk.Groups==null||!ReferenceEquals(chunk.GroupsFrame,frame))
+        {if(WorldGenPerformance.TraceEnabled)Debug.Log("Forest full-projection fallback: changes="+scatterGroundChanges.Count+", missingGroups="+(chunk.Groups==null)+", chartChanged="+(!ReferenceEquals(chunk.GroupsFrame,frame))+", roots="+chunk.Source.Instances.Length);ProjectScatter(chunk);return;}
+        long trace=WorldGenPerformance.TraceBegin();bool changed=false;
+        foreach(var group in chunk.Groups)
+        {
+            // A fine terrain replacement must not reproject the entire source
+            // patch. Membership, X/Z, rotation and scale have not changed.
+            bool affected=false;var roots=group.RootBounds;
+            foreach(var key in scatterGroundChanges)
+            {
+                double x0=key.X*key.SizeM-originX,z0=key.Z*key.SizeM-originZ;
+                if(roots.max.x>=x0-.01&&roots.min.x<=x0+key.SizeM+.01&&roots.max.z>=z0-.01&&roots.min.z<=z0+key.SizeM+.01){affected=true;break;}
+            }
+            if(!affected)continue;
+            foreach(int i in group.Indices)
+            {
+                var root=chunk.Roots[i];if(!ChangedGroundAt(root.x+originX,root.z+originZ,.01,chunk.GroundLevels[i]))continue;
+                var p=chunk.Source.Instances[i];double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));
+                double x=V.Dot(p.Position,frame.East)*frame.RadiusM/dot,z=V.Dot(p.Position,frame.North)*frame.RadiusM/dot;
+                float y=(float)VisibleGround(x,z,frame.SurfaceY(p.Position,p.GroundM),out int level)-ScatterEmbedding(p);chunk.GroundLevels[i]=level;
+                float delta=y-root.y;if(delta==0)continue;
+                root.y=y;chunk.Roots[i]=root;var matrix=chunk.Matrices[i];matrix.m13=y;chunk.Matrices[i]=matrix;
+                var bounds=chunk.Bounds[i];bounds.center+=Vector3.up*delta;chunk.Bounds[i]=bounds;
+                // Retained old heights only make these culling bounds more
+                // conservative. Exact leaf/root geometry moves immediately.
+                group.Bounds.Encapsulate(bounds);group.RootBounds.Encapsulate(root);chunk.AllBounds.Encapsulate(bounds);changed=true;
+            }
+        }
+        if(changed)canopySourceRevision++;
+        WorldGenPerformance.TraceEnd(11,trace);
+    }
     void ProjectScatter(ScatterChunk chunk)
     {
+        long trace=WorldGenPerformance.TraceBegin();
         var source=chunk.Source.Instances;
         if(chunk.Matrices==null||chunk.Matrices.Length!=source.Length){chunk.Matrices=new Matrix4x4[source.Length];chunk.Roots=new Vector3[source.Length];}
+        if(chunk.GroundLevels==null||chunk.GroundLevels.Length!=source.Length)chunk.GroundLevels=new int[source.Length];
         for(int i=0;i<source.Length;i++)
         {
-            var p=source[i];double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));double x=V.Dot(p.Position,frame.East)*frame.RadiusM/dot,z=V.Dot(p.Position,frame.North)*frame.RadiusM/dot;
-            double y=VisibleGround(x,z,frame.SurfaceY(p.Position,p.GroundM));
+            ProjectScatterRoot(chunk,i);
+        }
+        PrepareScatterBounds(chunk);
+        canopySourceRevision++;
+        WorldGenPerformance.TraceEnd(11,trace);
+    }
+    void ProjectScatterRoot(ScatterChunk chunk,int i)
+    {
+            var p=chunk.Source.Instances[i];double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));double x=V.Dot(p.Position,frame.East)*frame.RadiusM/dot,z=V.Dot(p.Position,frame.North)*frame.RadiusM/dot;
+            double y=VisibleGround(x,z,frame.SurfaceY(p.Position,p.GroundM),out int level);chunk.GroundLevels[i]=level;
             bool herb=IsSpecialist(p.Kind),vertical=herb||p.Kind==ScatterKind.GeneratedTree||p.Kind==ScatterKind.MidPlant||p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
             V up=vertical?p.Position:p.Normal;var normal=new Vector3((float)V.Dot(up,frame.East),(float)V.Dot(up,frame.Origin),(float)V.Dot(up,frame.North)).normalized;
             // An ellipsoidal mesh touching at its bottom point looks levitating.
             // Embed its broad lower body; outcrops are bedrock, not balanced eggs.
-            var position=new Vector3((float)(x-originX),(float)y-(herb?.003f:vertical?.045f:p.Kind==ScatterKind.Outcrop?(float)p.HeightM*.55f:p.Kind==ScatterKind.Boulder?(float)p.HeightM*.35f:.015f),(float)(z-originZ));chunk.Roots[i]=position;
+            var position=new Vector3((float)(x-originX),(float)y-ScatterEmbedding(p),(float)(z-originZ));chunk.Roots[i]=position;
             var rotation=Quaternion.FromToRotation(Vector3.up,normal)*Quaternion.Euler(0,(float)p.YawDegrees,0);
             chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,new Vector3((float)p.WidthM,(float)p.HeightM,(float)p.WidthM));
-        }
-        PrepareScatterBounds(chunk);
-        canopySourceRevision++;
     }
     ArtModel Art(ScatterKind kind,int variant,int lod)
     {
@@ -239,12 +341,13 @@ public sealed partial class LocalTerrainExplorer
     }
     void BuildScatterBatches()
     {
+        long trace=WorldGenPerformance.TraceBegin();
         lastBatchTime=Time.realtimeSinceStartupAsDouble;scatterDirty=false;
         foreach(var batch in drawBatches){batch.Count=0;batchPool.Add(batch);}drawBatches.Clear();activeScatterBatches.Clear();
         var eye=view.transform.localPosition;scatterEye=eye;scatterRotation=view.transform.localRotation;scatterProjection=view.projectionMatrix;scatterOptions=ScatterOptionsStamp;
         GeometryUtility.CalculateFrustumPlanes(view,scatterFrustum);
         PrepareVegetationShadowVisibility();
-        BuildTreeShadowBatches();
+        long shadowTrace=WorldGenPerformance.TraceBegin();BuildTreeShadowBatches();WorldGenPerformance.TraceEnd(13,shadowTrace);
         ScatterObjects=0;SpecialistObjects=0;MidPlantObjects=0;GeneratedTreeObjects=0;ScatterFrustumRejected=ScatterTerrainRejected=ScatterShadowOnly=0;
         foreach(var pair in scatterChunks)
         {
@@ -348,6 +451,7 @@ public sealed partial class LocalTerrainExplorer
                 scatterArt.Remove(item.Key);
             }
         }
+        WorldGenPerformance.TraceEnd(9,trace);
     }
     void AddScatterInstance(ScatterChunk chunk,int index,ScatterInstance p,int lod,float low,float high,bool shadowOnly,int artVariant=int.MinValue)
     {
@@ -360,11 +464,13 @@ public sealed partial class LocalTerrainExplorer
         int variant=artVariant==int.MinValue?p.Variant:artVariant;
         if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)variant=TreeFlora.ModelCode(variant,TerrainVideoOptions.TreeImpostors?lod:Math.Min(1,lod));
         long key=ScatterArtKey(p.Kind,variant,lod)|(shadowOnly?1L<<60:0);
-        if(!activeScatterBatches.TryGetValue(key,out var batch)||batch.Count==batch.Matrices.Length)
+        int distanceBand=TerrainVideoOptions.FrontToBackTrees&&p.Kind==ScatterKind.GeneratedTree&&!shadowOnly?(int)((chunk.Roots[index]-scatterEye).magnitude/64):0;
+        var batchKey=(key,distanceBand);
+        if(!activeScatterBatches.TryGetValue(batchKey,out var batch)||batch.Count==batch.Matrices.Length)
         {
             if(batchPool.Count>0){int last=batchPool.Count-1;batch=batchPool[last];batchPool.RemoveAt(last);}else batch=new DrawBatch();
             batch.Key=key;batch.Model=Art(p.Kind,variant,lod);batch.Shadows=shadowOnly?ShadowCastingMode.ShadowsOnly:casts?ShadowCastingMode.On:ShadowCastingMode.Off;
-            activeScatterBatches[key]=batch;drawBatches.Add(batch);
+            activeScatterBatches[batchKey]=batch;drawBatches.Add(batch);
         }
         // Explicit wind-inclusive bounds also protect the engine's group culler.
         if(batch.Count==0)batch.Bounds=chunk.Bounds[index];else batch.Bounds.Encapsulate(chunk.Bounds[index]);
@@ -376,7 +482,7 @@ public sealed partial class LocalTerrainExplorer
         {var actual=TreePigment(p.Variant);var shared=TreePigment(variant);batch.Colors[batch.Count]=new Vector4((float)(p.Color.X*actual.X/Math.Max(.01,shared.X)),(float)(p.Color.Y*actual.Y/Math.Max(.01,shared.Y)),(float)(p.Color.Z*actual.Z/Math.Max(.01,shared.Z)),1);}
         batch.Fades[batch.Count]=new Vector4(low,high,0,0);batch.Count++;
     }
-    void LateUpdate(){if(!closed){CaptureMouse();UpdateSunPresentation();UpdateCanopyShade();long started=WorldGenPerformance.Begin();DrawScatter();WorldGenPerformance.End(1,started);started=WorldGenPerformance.Begin();DrawGroundCover();WorldGenPerformance.End(2,started);if(weatherCheckTarget!=null&&view!=null)view.Render();}}
+    void LateUpdate(){if(!closed){CaptureMouse();UpdateSunPresentation();long trace=WorldGenPerformance.TraceBegin();UpdateCanopyShade();WorldGenPerformance.TraceEnd(15,trace);long started=WorldGenPerformance.Begin();DrawScatter();WorldGenPerformance.End(1,started);started=WorldGenPerformance.Begin();trace=WorldGenPerformance.TraceBegin();DrawGroundCover();WorldGenPerformance.TraceEnd(14,trace);WorldGenPerformance.End(2,started);if(weatherCheckTarget!=null&&view!=null)view.Render();}}
     void DrawScatter()
     {
         if(landMaterial!=null&&landMaterial.GetFloat("_ForestFarEnabled")!=(TerrainVideoOptions.FarForest?1:0)){landMaterial.SetFloat("_ForestFarEnabled",TerrainVideoOptions.FarForest?1:0);PublishTerrainScene();}
@@ -393,7 +499,7 @@ public sealed partial class LocalTerrainExplorer
             var parameters=new RenderParams(part.Material){camera=view,layer=30,worldBounds=batch.Bounds,matProps=batch.Properties,shadowCastingMode=batch.Shadows,receiveShadows=true};
             Graphics.RenderMeshInstanced(in parameters,part.Mesh,part.Submesh,matrices,batch.Count);ScatterDrawCalls++;
         }
-        DrawForestFields();
+        long trace=WorldGenPerformance.TraceBegin();DrawForestFields();WorldGenPerformance.TraceEnd(16,trace);
     }
     void DisposeScatter()
     {

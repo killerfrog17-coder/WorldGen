@@ -27,6 +27,13 @@ public sealed partial class LocalTerrainExplorer
         bool first=true;
         for(int i=0;i<count;i++)
         {
+            PrepareScatterRootBounds(chunk,i);
+            var bounds=chunk.Bounds[i];if(first){chunk.AllBounds=bounds;first=false;}else chunk.AllBounds.Encapsulate(bounds);
+        }
+        PrepareScatterGroups(chunk,boundsFrame);
+    }
+    void PrepareScatterRootBounds(ScatterChunk chunk,int i)
+    {
             var p=chunk.Source.Instances[i];bool tree=p.Kind==ScatterKind.GeneratedTree,mid=p.Kind==ScatterKind.MidPlant,herb=IsSpecialist(p.Kind);
             // Full crown and tilted local up, NOT a root-only visibility test.
             var local=new Bounds(new Vector3(0,.5f,0),tree||mid?new Vector3(1.4f,1.3f,1.4f):new Vector3(1.5f,1.5f,1.5f));
@@ -35,8 +42,11 @@ public sealed partial class LocalTerrainExplorer
             Vector3 Abs(Vector3 v)=>new Vector3(Math.Abs(v.x),Math.Abs(v.y),Math.Abs(v.z));
             var bounds=new Bounds(matrix.MultiplyPoint3x4(local.center),2*(Abs(a)+Abs(b)+Abs(c)));
             float padding=(float)p.HeightM*(tree?.25f:mid||herb?.9f:.05f)+.6f;bounds.Expand(2*padding);
-            chunk.Bounds[i]=bounds;if(first){chunk.AllBounds=bounds;first=false;}else chunk.AllBounds.Encapsulate(bounds);
-        }
+            chunk.Bounds[i]=bounds;
+    }
+    void PrepareScatterGroups(ScatterChunk chunk,LocalTerrainFrame boundsFrame)
+    {
+        int count=chunk.Source.Instances.Length;
         // Static spatial bins avoid revisiting every plant in a half-kilometre
         // source patch whenever the camera turns. This is an additional broad
         // phase; the original per-plant LOD/frustum/shadow tests remain intact.

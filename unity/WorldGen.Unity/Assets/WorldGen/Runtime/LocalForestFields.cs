@@ -19,6 +19,7 @@ public sealed partial class LocalTerrainExplorer
     sealed class ForestBatch
     {
         public ArtModel Model;public V Pigment;public readonly List<ForestRoot> Data=new List<ForestRoot>();public readonly Stack<int> Free=new Stack<int>();
+        public readonly List<int> GroundLevels=new List<int>();
         public GraphicsBuffer Roots,Visible,Args;public int Capacity;public bool Dirty=true,CullValid;public Matrix4x4 CullMatrix;public Vector3 CullEye;public Vector4 CullChart,CullRange;public int CullRevision;
         public MaterialPropertyBlock Properties=new MaterialPropertyBlock();
         public void Dispose(){Roots?.Dispose();Visible?.Dispose();Args?.Dispose();CullValid=false;}
@@ -120,7 +121,7 @@ public sealed partial class LocalTerrainExplorer
         {
             // Reproject immutable planet-addressed payloads; never reseed a forest
             // because its terrain chart was replaced.
-            forestFrame=frame;foreach(var batch in forestBatches.Values){batch.Data.Clear();batch.Free.Clear();batch.Dirty=true;}
+            forestFrame=frame;foreach(var batch in forestBatches.Values){batch.Data.Clear();batch.GroundLevels.Clear();batch.Free.Clear();batch.Dirty=true;}
             forestRootCount=0;foreach(var field in forestFields.Values){field.Roots.Clear();ProjectForest(field);}forestRevision++;forestHashDirty=true;
         }
         if(forestPlan!=null&&forestPlan.IsCompleted)
@@ -211,8 +212,8 @@ public sealed partial class LocalTerrainExplorer
             int candidateSide=LocalScatter.TreeCandidateSide,slotId=(int)(tree.Id&65535),cellX=(int)((tree.Id>>40)&0xfffff)*candidateSide+slotId%candidateSide,cellY=(int)((tree.Id>>20)&0xfffff)*candidateSide+slotId/candidateSide;
             var root=new ForestRoot{Position=new Vector3((float)px,height-.045f,(float)pz),Width=(float)(tree.WidthM*source.CrownScale),Height=(float)tree.HeightM,Yaw=(float)(tree.YawDegrees*Math.PI/180),Field=(uint)field.Id|((uint)page.Key.Level<<16),CellX=cellX,CellY=cellY,Face=(uint)page.Key.Face|(densityHash<<8),
                 Tint=new Vector3((float)(tree.Color.X*pigment.X/Math.Max(.01,shared.X)),(float)(tree.Color.Y*pigment.Y/Math.Max(.01,shared.Y)),(float)(tree.Color.Z*pigment.Z/Math.Max(.01,shared.Z))),Padding=source.CrownScale>1.001?1:0};
-            ProjectForestRootGround(ref root);
-            int slot;if(batch.Free.Count>0){slot=batch.Free.Pop();batch.Data[slot]=root;}else{slot=batch.Data.Count;batch.Data.Add(root);}batch.Dirty=true;forestRootCount++;
+            ProjectForestRootGround(ref root,out int groundLevel);
+            int slot;if(batch.Free.Count>0){slot=batch.Free.Pop();batch.Data[slot]=root;batch.GroundLevels[slot]=groundLevel;}else{slot=batch.Data.Count;batch.Data.Add(root);batch.GroundLevels.Add(groundLevel);}batch.Dirty=true;forestRootCount++;
             if(!field.Roots.TryGetValue(batch,out var slots)){slots=new List<int>();field.Roots.Add(batch,slots);}slots.Add(slot);
             var b=ForestRootBounds(root);if(first){field.Bounds=b;first=false;}else field.Bounds.Encapsulate(b);
         }
@@ -228,23 +229,29 @@ public sealed partial class LocalTerrainExplorer
             if(!affected)continue;
             foreach(var pair in field.Roots)foreach(int slot in pair.Value)
             {
-                var root=pair.Key.Data[slot];var before=root;ProjectForestRootGround(ref root);
+                var root=pair.Key.Data[slot];
+                // A stand samples neighbouring heights for its broad slope;
+                // individual roots only depend on the height beneath the root.
+                double margin=root.Padding==0?.01:Math.Max(2,root.Width*.5)+.01;
+                if(!ChangedGroundAt(root.Position.x,root.Position.z,margin,pair.Key.GroundLevels[slot]))continue;
+                var before=root;ProjectForestRootGround(ref root,out int groundLevel);pair.Key.GroundLevels[slot]=groundLevel;
                 if(root.Position.y==before.Position.y&&root.SlopeX==before.SlopeX&&root.SlopeZ==before.SlopeZ)continue;pair.Key.Data[slot]=root;pair.Key.Dirty=true;
                 field.Bounds.Encapsulate(ForestRootBounds(root));
             }
         }
         forestRevision++;nextForestVisibility=0;
     }
-    void ProjectForestRootGround(ref ForestRoot root)
+    void ProjectForestRootGround(ref ForestRoot root,out int groundLevel)
     {
-        double x=root.Position.x,z=root.Position.z,y=VisibleGround(x,z,root.Position.y+.045f);
+        double x=root.Position.x,z=root.Position.z,y=VisibleGround(x,z,root.Position.y+.045f,out groundLevel);
         root.Position.y=(float)y-.045f;
         // Only aggregated stands follow the broad terrain slope. Individual
         // tree silhouettes stay upright; no per-frame terrain queries are added.
         if(root.Padding==0){root.SlopeX=root.SlopeZ=0;return;}
         double step=Math.Max(2,root.Width*.5);
-        root.SlopeX=(float)Math.Max(-2,Math.Min(2,(VisibleGround(x+step,z,y)-VisibleGround(x-step,z,y))/(2*step)));
-        root.SlopeZ=(float)Math.Max(-2,Math.Min(2,(VisibleGround(x,z+step,y)-VisibleGround(x,z-step,y))/(2*step)));
+        root.SlopeX=(float)Math.Max(-2,Math.Min(2,(VisibleGround(x+step,z,y,out int a)-VisibleGround(x-step,z,y,out int b))/(2*step)));
+        root.SlopeZ=(float)Math.Max(-2,Math.Min(2,(VisibleGround(x,z+step,y,out int c)-VisibleGround(x,z-step,y,out int d))/(2*step)));
+        groundLevel=Math.Max(groundLevel,Math.Max(Math.Max(a,b),Math.Max(c,d)));
     }
     static Bounds ForestRootBounds(ForestRoot root)=>new Bounds(root.Position+Vector3.up*root.Height*.5f,
         new Vector3(root.Width*3,root.Height*3+root.Width*3*(Math.Abs(root.SlopeX)+Math.Abs(root.SlopeZ)),root.Width*3));
@@ -256,8 +263,8 @@ public sealed partial class LocalTerrainExplorer
     void CompactForest(ForestBatch batch)
     {
         if(batch.Free.Count<256||batch.Free.Count<batch.Data.Count/3)return;
-        var map=new int[batch.Data.Count];int live=0;for(int i=0;i<batch.Data.Count;i++)if(batch.Data[i].Height>0){map[i]=live;batch.Data[live++]=batch.Data[i];}
-        batch.Data.RemoveRange(live,batch.Data.Count-live);batch.Free.Clear();batch.Dirty=true;
+        var map=new int[batch.Data.Count];int live=0;for(int i=0;i<batch.Data.Count;i++)if(batch.Data[i].Height>0){map[i]=live;batch.Data[live]=batch.Data[i];batch.GroundLevels[live++]=batch.GroundLevels[i];}
+        batch.GroundLevels.RemoveRange(live,batch.Data.Count-live);batch.Data.RemoveRange(live,batch.Data.Count-live);batch.Free.Clear();batch.Dirty=true;
         foreach(var field in forestFields.Values)if(field.Roots.TryGetValue(batch,out var slots))for(int i=0;i<slots.Count;i++)slots[i]=map[slots[i]];
     }
     void PrepareForestHash()

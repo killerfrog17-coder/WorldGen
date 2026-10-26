@@ -1,5 +1,37 @@
 # WorldGen repository instructions
 
+FOREST STREAMING HITCH CHECKPOINT,26October2026~18:01CDT:
+Owner LIFTED no-launch/test rule; use short proportionate tests. Prioritizes
+foliage overlap and forest-only walking freezes, grass unchanged. Owner says
+same fully-loaded patch does NOT freeze. Their test was uncontended: owned
+workers stopped, resumed only after response and owner closed WorldGen.
+Root cause of reproduced106?112ms boundary frames: coarse terrain replacements
+invalidated roots already owned by unchanged finer ground. Root CPU ground-LOD
+metadata now guards this; fine arrival/removal still immediate. Aggregated
+stands track centre/four-slope maximumLOD; slot reuse/compaction and prepared
+chart adoption keep metadata. GPU root stride64 unchanged. Selective local
+root Y/matrix/bounds updates avoid whole-chunk rebuilds. Incoming chunks now
+project~1.5ms/384roots per frame; ground rechecks queue before publication,
+chart/origin resets restart pending data, ready fallback stays. Slicing alone
+DID NOT fix the prior spike; ownership guard was required.
+Two overlap experiments BOTH defaultOFF: Tree depth prepass, Prioritize nearby
+trees when drawing (64m bands). Both preserve actual test pixels0delta and same
+6466 admittedobjects, but no speed gain established. Do not enable by default
+or claim forestGPU improvement without new evidence. Grass/model/populations
+unchanged. Detailed opt-in CPU trace and --worldgen-perf-view added.
+Final ownership-final12s travel boundary110.90->37.45ms, projection49.29->7.23,
+scatter87.84->21.31. Wholewalk max46.55ms remains; mean85.36vs85.04 unchanged.
+Ryzen5700X/RTX4060/1080p/medium/6km view, travel streaming. No hitch-free or
+universalFPS claim.32724matrix checks+32724coarse-owner guards+1621repairs pass.
+IL2CPP player-forest-overlap-streaming BuiltUtc2026-10-26T22:56:12.6444738Z,
+compile/package0/noC#/shadererrors,130runtime/shaderSHA+DLLstable,177bundle/native
+unchanged. Existing shortcut selected; previous player-sun-shadow-budget stays.
+All own build/benchmark workers exited, read-only inputSHA unchanged; source
+settings/importer autobuild changes restored. Ownsource/docs/shortcut backup
+required. Preserve unrelated deletedprompt+2olddeerscripts. No fauna appearance
+work resumed. See FOLIAGE_SHADOWS/VALIDATION, ignored forest-overlap-stutter-
+20261026 phases baseline/probe/final/ownership-final. Owner Ultra check pending.
+
 LOW-SUN SHADOW BUDGET / STEADY SUN,26October2026~16:50CDT:
 Owner reports10FPS dawn/dusk vs80–90noon/130+night, wants originalForest behavior.
 Installed controller/data confirm ENABLED low-angle range/resolution reductions

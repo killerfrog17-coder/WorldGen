@@ -137,6 +137,18 @@ Shader "WorldGen/TreeSurface2"
         }
         Pass
         {
+            Name "FoliageDepth" Tags {"LightMode"="WorldGenFoliageDepth"} Cull Off ColorMask 0 ZWrite On
+            HLSLPROGRAM
+            #pragma target 4.0
+            #pragma target 4.5 WORLDGEN_TREE_QUAD_ALPHA
+            #pragma multi_compile_local _ WORLDGEN_TREE_QUAD_ALPHA
+            #pragma vertex vert
+            #pragma fragment depthFrag
+            #pragma multi_compile_instancing
+            ENDHLSL
+        }
+        Pass
+        {
             Name "DepthOnly" Tags {"LightMode"="DepthOnly"} Cull Off ColorMask R ZWrite On
             HLSLPROGRAM
             #pragma target 4.0

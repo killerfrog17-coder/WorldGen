@@ -1,5 +1,40 @@
 # Version 3 validation evidence
 
+## Forest streaming hitch and overlap experiments - 26 October 2026
+
+Owner lifted the no-launch/test restriction and prioritizes forest walking
+freezes and tree overlap while retaining grass quality/density. Their loaded-
+patch test did not reproduce the freezes. Short hidden-player runs on bundled
+read-only Earth reproduced106–112ms frames when a coarse terrain replacement
+reprojected roots already owned by unchanged finer ground.
+
+Selective root updates now track the actual ground LOD; coarse parents cannot
+invalidate finer owners. Fine arrivals/removals remain immediate. Distant stand
+height/slope samples and prepared charts retain this ownership metadata. New
+source chunk projection is also sliced (~1.5ms/384roots per frame), with changed
+ground rechecks before publication; chart/origin shifts restart pending data.
+Existing ready fallback remains. Grass, populations and animal assets unchanged.
+
+Final same-route12s boundary window110.90->37.45ms; projection49.29->7.23ms;
+scatter87.84->21.31ms. Whole-walk worst46.55ms still includes unrelated residual
+frame spikes. Mean travel85.36vs85.04FPS is effectively unchanged: this improves
+the reproduced streaming hitch, not the general forest GPU bottleneck. Hardware
+Ryzen5700X/RTX4060,1080p, medium vegetation,6km benchmark view. Travel not fully
+settled; no universal FPS or hitch-free claim. Initial60km baseline was partial.
+
+32724selective/full transform comparisons,1621displaced-root repairs and32724
+coarse-owner guards pass. Optional tree-only depth prepass and64m distance-batch
+experiments retain identical test images (0pixels>1RGBdifference), same6466
+admitted objects. Neither established a speed gain, so BOTH default OFF and
+remain saved Vegetation controls for deliberate owner comparison.
+
+Final IL2CPP player-forest-overlap-streaming BuiltUtc2026-10-26T22:56:12.6444738Z
+compile/package0, noC#/shadererrors.130runtime/shader source hashes and staged
+DLLs stable;177bundle/native hashes preserved. Existing shortcut selected;
+build-generated settings/importer changes restored. All own workers exited;
+input snapshot unchanged, no owner game/apps killed. See FOLIAGE_SHADOWS and
+ignored forest-overlap-stutter-20261026 evidence. Owner Ultra-scene check pending.
+
 ## Low-sun shadow budget and steady sunlight - 26 October 2026
 
 Owner reports10FPS at sunrise/sunset versus80–90 noon and130+ night, asking for
