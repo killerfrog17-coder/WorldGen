@@ -1,5 +1,26 @@
 # WorldGen repository instructions
 
+OWNER PAUSED ALL ANIMAL PRODUCTION / FACE PASS REJECTED,25October2026~23:10CDT:
+Owner explicitly says pause to assess https://github.com/canitcode/video2rig.
+No producers/renderers active at pause; read-only repository/docs/GPU assessment
+only. Do not resume animal fixes until owner resumes. Latest owner instructions
+REJECT earlier appearance sweep judgments: reconsider EVERY animal assuming it
+is bad, compare real front/side references, fix obvious errors; preserve choices/
+notes but do not infer art approval from prior claimed passes. Explicit backlog:
+Hare Run+Jump upper hind limbs fold inside torso, extend backwards manually;
+Rabbit much worse, use an ENTIRELY DIFFERENT animation set (not same-bank tweaks);
+Fox stretched iris/apertures; Wolf eyes/ear paint must compare real frontal photo;
+Raccoon generic eyes/thin bar/nose patch unacceptable; Buffalo socket/horn bases
+wrong. Broader every-animal anatomy, eyes, ears, markings, attachments and motion
+reassessment is authorized but PAUSED. No new fixes from these latest requests
+have been published; prior22:38live assets remain owner-rejected for appearance.
+Read-only Hare/Fox rig inspection JSON produced. LuckyBunny CC0 alternative
+found online but NOT downloaded/evaluated; Gobkit Hare previously rejected for
+generic one-joint limbs. Video2rig inspected at55d51b3b9685125a8ea27841d6af9523f6352aa1,
+needs own-model first-frame-generated video; optional paid BytePlus helper, local
+per-creature joint reader. Actual GPU RTX4060/8188MiB. No install/clone/train/API
+spend or model/window changes authorized/performed for this assessment.
+
 FINAL OWNER-DEADLINE SWEEP PUBLISHED,25October2026~22:38CDT:
 Owner requests one last sweep ready by23:00local, aiming above baseline. Actually
 viewed60 compact sheets covering ALL177 phone entries:3head/body views +base/
