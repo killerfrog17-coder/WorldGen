@@ -40,7 +40,8 @@ lum=fur@np.array([.2126,.7152,.0722]);detail=lum-gaussian_filter(lum,15,mode='wr
 detail/=max(float(np.std(detail))*3,1e-4)
 def sample(u,v):return map_coordinates(detail,[np.mod(v,1)*767,np.mod(u,1)*767],order=1,mode='wrap')
 blend=np.abs(n)**6;blend/=np.maximum(blend.sum(1,keepdims=True),1e-8)
-hair=(sample(p[:,1]*2.1,p[:,2]*2.1)*blend[:,0]+sample(p[:,0]*2.1,p[:,2]*2.1)*blend[:,1]+sample(p[:,0]*2.1,p[:,1]*2.1)*blend[:,2])
+fur_frequency=.90 if a.slug in {'hare','rabbit'} else 1.05 if a.slug in {'red-fox','wolf','raccoon','badger','otter','beaver','mouse','lynx'} else 2.1
+hair=(sample(p[:,1]*fur_frequency,p[:,2]*fur_frequency)*blend[:,0]+sample(p[:,0]*fur_frequency,p[:,2]*fur_frequency)*blend[:,1]+sample(p[:,0]*fur_frequency,p[:,1]*fur_frequency)*blend[:,2])
 extra_fur_sources=[];shag=np.zeros(len(p))
 if a.slug=='squirrel':
     # Follow the selected generated tail chain instead of using world-up hair.

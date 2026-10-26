@@ -1,6 +1,32 @@
 """Reference-directed coat markings in bind space, never animated geometry."""
 import numpy as np
 
+def prey_soft_features(colour,p,n,land,bake,pale,sampled,slug):
+    """Small light chin and thin-fur ear interior, independent of hair hue.
+
+    Spatial boundaries follow the registered muzzle and existing ear frames;
+    individual grey guard hairs never become discrete white paint spots.
+    """
+    def smooth(a,b,x):
+        t=np.clip((x-a)/(b-a),0,1);return t*t*(3-2*t)
+    F=np.array(land['front_axis']);nose=np.array(land['nose']['point']);d=p-nose
+    chin=smooth(-.16,-.065,d@F)*smooth(-.19,-.10,d[:,2])*(1-smooth(-.010,.015,d[:,2]))
+    S=np.array(land['side_axis']);nw,nh=land['physical_eye_revision']['nose_radius'];nasal=(d@S/nw)**2+(d[:,2]/nh)**2+(d@F/.025)**2
+    chin*=smooth(.65,1.45,nasal)*smooth(.08,.20,sampled@np.array([.2126,.7152,.0722]))
+    detail=np.clip((sampled@np.array([.2126,.7152,.0722]))/.60,.65,1.10)
+    target=np.array(pale)[None,:]*(.82+.16*detail)[:,None]
+    colour=colour*(1-chin[:,None]*.88)+target*chin[:,None]*.88
+    inner=np.zeros(len(p))
+    for frame in bake['ear_frames']:
+        root=np.array(frame['root']);axis=np.array(frame['tip'])-root;length=np.linalg.norm(axis);axis/=length
+        across=np.cross(F,axis);across/=np.linalg.norm(across);dd=p-root;t=dd@axis/length;u=dd@across
+        gate=smooth(.20,.32,t)*(1-smooth(.80,.96,t))*(1-smooth(.42,.72,abs(u)/frame['width']))
+        gate*=smooth(.15,.65,n@F)*(1-smooth(.10,.17,abs(dd@F)))
+        inner=np.maximum(inner,gate)
+    skin=np.array([.51,.38,.35] if slug=='rabbit' else [.43,.35,.29])
+    target=skin[None,:]*(.82+.24*detail)[:,None]
+    return colour*(1-inner[:,None]*.80)+target*inner[:,None]*.80
+
 def goat_mature_male(colour,p,n,land,center_x):
     """Connected dark face/neck, dorsal line and foreleg/shoulder marking.
 

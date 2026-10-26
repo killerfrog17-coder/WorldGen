@@ -12,7 +12,7 @@ from scipy.ndimage import map_coordinates,distance_transform_edt
 from scipy.spatial import cKDTree
 repo=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(repo/'scripts'));from fauna_paint_recipes import profiles,SUPPORTED
-ap=argparse.ArgumentParser();ap.add_argument('--slug',choices=sorted(SUPPORTED),required=True);ap.add_argument('--root',type=Path);a=ap.parse_args()
+ap=argparse.ArgumentParser();ap.add_argument('--slug',choices=sorted(SUPPORTED),required=True);ap.add_argument('--root',type=Path);ap.add_argument('--probe-file',type=Path);a=ap.parse_args()
 root=(a.root or repo/'artifacts/fauna-visual-corrections'/a.slug).resolve()
 land=json.loads((root/('projection-landmarks.json' if (root/'projection-landmarks.json').exists() else 'face-landmarks.json')).read_text());guide=json.loads((root/'eye-audit/front.json').read_text());bake=json.loads((root/'coat-bake.json').read_text())
 paint_path=root/'front-paint-guide.png';paint=np.asarray(Image.open(paint_path).convert('RGB'),np.float32)/255
@@ -22,6 +22,8 @@ if has_source_uv:
 d['region_weights']=np.zeros((len(d['vertices']),10),np.float32)
 spec=importlib.util.spec_from_file_location('raster',repo/'scripts/bake-deer-masked-coat.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 size=bake['size'];maps,occupied,_=module.raster(d,size);iy,ix=np.where(occupied);p=maps[iy,ix,:3];n=maps[iy,ix,3:6];n/=np.maximum(np.linalg.norm(n,axis=1,keepdims=True),1e-8)
+probes=json.loads(a.probe_file.read_text()) if a.probe_file else [];probe_ids=cKDTree(p).query([v['point'] for v in probes])[1] if probes else []
+for row,i in zip(probes,probe_ids):row.update(baked_point=p[i].tolist(),baked_normal=n[i].tolist(),views=[],coat_results=[])
 M=np.array(guide['camera_matrix']);R=M[:3,:3];position=M[:3,3];scale=guide['scale'];W,H=guide['size']
 def project(points):
     camera=(points-position)@R
@@ -68,19 +70,22 @@ alpha=smooth(.20,.65,n@front)*head*visible
 alpha*=((screen[:,0]>0)&(screen[:,0]<W-1)&(screen[:,1]>0)&(screen[:,1]<H-1))
 if views:
     from fauna_face_projection import sample_view
-    total=np.zeros(len(p));combined=np.zeros_like(p)
+    total=np.zeros(len(p));combined=np.zeros_like(p);control_combined=np.zeros_like(p)
     for view in views:
-        colour,weight=sample_view(root,view,d['vertices'],d['faces'],p,n);weight*=head;total+=weight;combined+=colour*weight[:,None]
-    sampled=combined/np.maximum(total[:,None],1e-8)
+        colour,weight,control=sample_view(root,view,d['vertices'],d['faces'],p,n,control_sigma=12.);weight*=head;total+=weight;combined+=colour*weight[:,None];control_combined+=control*weight[:,None]
+        for row,i in zip(probes,probe_ids):row['views'].append({'camera':view['camera'],'weight':float(weight[i]),'pigment':colour[i].tolist()})
+    sampled=combined/np.maximum(total[:,None],1e-8);control_sampled=control_combined/np.maximum(total[:,None],1e-8)
     # View cosine chooses BETWEEN paint guides; it is not paint opacity.
     # Treating it as opacity left old hard ear/face masks visible at angles.
     confidence=total/np.maximum(head,1e-8);alpha=head*smooth(.002,.08,confidence)
     # Down-facing chin facets are not observed by horizontal cameras. Extend
     # only nearby, well-observed paint across these small gaps in 3D, rather
     # than exposing the previous hard polygonal muzzle mask underneath.
-    good=(confidence>.12)&(head>.90);missing=(confidence<.08)&(head>.90);filled=np.zeros(len(p),bool)
+    good=(confidence>.12)&(head>.90)
+    chin_zone=((relative@front)>-.035)&(relative[:,2]<-.055)&(n[:,2]<.12)
+    missing=(confidence<.08)&(head>.90)&chin_zone;filled=np.zeros(len(p),bool)
     if np.any(good) and np.any(missing):
-        ids=np.where(good)[0];query=np.where(missing)[0];distance,nearest=cKDTree(p[ids]).query(p[query]);use=distance<.075;chosen=query[use];sampled[chosen]=sampled[ids[nearest[use]]];alpha[chosen]=head[chosen];filled[chosen]=True
+        ids=np.where(good)[0];query=np.where(missing)[0];distance,nearest=cKDTree(p[ids]).query(p[query]);use=distance<.075;chosen=query[use];sampled[chosen]=sampled[ids[nearest[use]]];control_sampled[chosen]=control_sampled[ids[nearest[use]]];alpha[chosen]=head[chosen];filled[chosen]=True
 elif a.slug in {'hare','rabbit'}:raise ValueError('Explicit calibrated front/profile guide mappings required')
 nasal_rel=p-np.array(land['nose']['point']);side_axis=np.array(land['side_axis']);nw,nh=land['physical_eye_revision']['nose_radius']
 nasal_scale=1.12 if a.slug in {'red-fox','wolf'} else 1.
@@ -91,10 +96,13 @@ if a.slug=='red-fox':
     # Seat that boundary on the actual small terminal pad; otherwise camera
     # blend changes make pale triangular cutouts across the whisker pads.
     nasal_q=((nasal_rel@side_axis)/.041)**2+(nasal_rel[:,2]/.025)**2+((nasal_rel@front)/.032)**2
+elif a.slug in {'hare','rabbit'}:
+    nasal_q=((nasal_rel@side_axis)/nw)**2+(nasal_rel[:,2]/nh)**2+((nasal_rel@front)/.025)**2
 side_nose=(1-smooth(1.05,1.55,nasal_q))
 side_nose*=1-smooth(.45,.80,n@front)
 if a.slug=='buffalo':side_nose*=1-alpha
 if not land['physical_eye_revision'].get('nasal_disc',True):side_nose*=0
+for row,i in zip(probes,probe_ids):row.update(alpha=float(alpha[i]),projected_pigment=sampled[i].tolist())
 original=root/'unprojected-atlases';original.mkdir(exist_ok=True);palettes=profiles(a.slug)
 if a.slug=='raccoon':
     mask=np.zeros(len(p))
@@ -111,19 +119,25 @@ for ci,coat in enumerate(bake['coats']):
         source_uv=maps[iy,ix,-3:-1];sx=np.clip(source_uv[:,0],0,1)*(original_pixels.shape[1]-1);sy=(1-np.clip(source_uv[:,1],0,1))*(original_pixels.shape[0]-1)
         image=np.zeros((size,size,3),np.float32);image[iy,ix]=np.stack([map_coordinates(original_pixels[:,:,c],[sy,sx],order=1,mode='nearest') for c in range(3)],axis=1)
     else:image=original_pixels.copy()
+    for row,i in zip(probes,probe_ids):row['coat_results'].append({'coat':ci,'source_pigment':image[iy[i],ix[i]].tolist()})
     colour=sampled.copy()
     if a.slug=='raccoon':
         if ci==1:colour*=np.array([1.08,.97,.85])
         elif ci==2:colour*=np.array([.65,.65,.65])
         elif ci==3:colour=colour*.90+.07
-    elif ci:
+    elif ci or a.slug in {'hare','rabbit'}:
         _,base,pale,_=palettes[ci];base=np.array(base);pale=np.array(pale);reference_base=np.array(palettes[0][1]);reference_pale=np.array(palettes[0][2])
         # Preserve guide hair detail and natural white cheeks; change only fur
         # pigment. Snow/silver/black coats must never retain orange-red faces.
-        lum=colour@np.array([.2126,.7152,.0722]);sat=colour.max(1)-colour.min(1)
+        lum=colour@np.array([.2126,.7152,.0722]);control=control_sampled if a.slug in {'hare','rabbit'} else colour;control_lum=control@np.array([.2126,.7152,.0722]);sat=control.max(1)-control.min(1)
         # White fur stays white in shadow. A brightness gate misclassified the
         # grey cheeks as red fur and multiplied them into cyan on pale coats.
-        chroma=sat/np.maximum(colour.mean(1),.035);white=1-smooth(.18,.50,chroma);dark=1-smooth(.08,.20,lum)
+        chroma=sat/np.maximum(control.mean(1),.035);white=1-smooth(.18,.50,chroma);dark=1-smooth(.08,.20,control_lum)
+        if a.slug in {'hare','rabbit'}:
+            # Agouti guard hairs are grey within otherwise brown fur. A
+            # per-hair/weak chroma test turned them into chalky paint islands.
+            # Only broad, bright neutral fur regions count as pale markings.
+            white=(1-smooth(.10,.24,chroma))*smooth(.38,.65,control_lum)
         # The guide is a rendered animal, not an albedo sampled at palette[0].
         # Per-channel division by that palette clips brighter coats and turns
         # neutral shadows cyan. Preserve bounded luminance detail instead.
@@ -138,7 +152,7 @@ for ci,coat in enumerate(bake['coats']):
         colour=tinted*(1-white[:,None])+pale_fur*white[:,None]
         # True dark markings and the fitted nasal pad retain pigment. Do not
         # preserve the guide's broad shaded cheek as a different paint job.
-        pigment_keep=np.maximum(1-smooth(.045,.10,lum),1-smooth(.85,1.35,nasal_q))
+        pigment_keep=np.maximum(1-smooth(.045,.10,control_lum),1-smooth(.85,1.35,nasal_q))
         colour=colour*(1-pigment_keep[:,None])+sampled*pigment_keep[:,None]
         if any(word in palettes[ci][0].lower() for word in ['snow-white','snow white','winter white']) or (base.mean()>.70 and np.ptp(base)<.12):
             # Shadows in a brown guide are not inherited dark pigment. Preserve
@@ -146,6 +160,17 @@ for ci,coat in enumerate(bake['coats']):
             pigment=base[None,:]*(.78+.30*np.clip(lum/.45,0,1.3))[:,None]
             nasal_keep=1-smooth(.85,1.35,nasal_q)
             colour=pigment*(1-nasal_keep[:,None])+sampled*nasal_keep[:,None]
+    if a.slug in {'hare','rabbit'}:
+        from fauna_species_pigment import prey_soft_features
+        colour=prey_soft_features(colour,p,n,land,bake,palettes[ci][2],sampled,a.slug)
+    if a.slug in {'red-fox','wolf','raccoon'} and views:
+        # Behind/below the skull, converge continuously to the same body coat
+        # pigment and fibre scale. A photographic neck bib must not end as a
+        # separate high-contrast patch at the visibility boundary.
+        neck=smooth(-.06,-.38,relative@front)*smooth(.10,-.20,relative[:,2])
+        detail=np.clip((sampled@np.array([.2126,.7152,.0722]))/np.maximum(control_sampled@np.array([.2126,.7152,.0722]),.08),.76,1.24)
+        neck_target=image[iy,ix]*detail[:,None]
+        colour=colour*(1-neck[:,None])+neck_target*neck[:,None]
     image[iy,ix]=image[iy,ix]*(1-alpha[:,None])+colour*alpha[:,None]
     # A front paint guide must not leave the profile of the nasal disc white.
     # Wrap only the small actual nose volume, preserving the painted front.
@@ -165,6 +190,7 @@ for ci,coat in enumerate(bake['coats']):
         from fauna_species_pigment import goat_mature_male
         state=json.loads((root/'paint-state.json').read_text());image[iy,ix]=goat_mature_male(image[iy,ix],p,n,land,state['center_x'])
     distance,nearest=distance_transform_edt(~occupied,return_indices=True);pad=(~occupied)&(distance<=12);image[pad]=image[nearest[0][pad],nearest[1][pad]]
+    for row,i in zip(probes,probe_ids):row['coat_results'][-1]['final_pigment']=image[iy[i],ix[i]].tolist()
     Image.fromarray(np.uint8(np.clip(image,0,1)*255)).save(dst)
 rough_path=root/'coat-roughness.png';rough=np.asarray(Image.open(rough_path).convert('L'),np.float32)/255
 nx,ny=target[2];radius=np.array([26.,18.]) if a.slug=='raccoon' else np.array([32.,23.]);nasal=np.exp(-np.sum(((screen[:,:2]-[nx,ny])/radius)**4,axis=1))*alpha
@@ -175,3 +201,4 @@ if not has_source_uv:
 report={'slug':a.slug,'guide_sha256':hashlib.sha256(paint_path.read_bytes()).hexdigest(),'target_camera':guide,'target_pixels':target.tolist(),'guide_pixels':source.tolist(),'painted_pixels':int((alpha>.5).sum()),'method':'Visible front head projection of generated paint into original UVs, explicit landmark warp and smooth normal/depth-gated blend; original non-front atlases retained.','limits':'Single front guide only; profile join, fur direction, baked shading and all variants require actual native inspection. Not a replacement render or approved appearance.'}
 if views:report.update(method='Calibrated generated front/profile guides fused by surface visibility and view normal into original UVs; mirrored profile guide fitted independently to the other side.',view_configurations=views,limits='Generated paint can retain lighting and fine-fibre stretching; native front/profile/coat inspection and owner review required.')
 (root/'face-projection.json').write_text(json.dumps(report,indent=2)+'\n');print('FACE GUIDE BAKED',a.slug,report['painted_pixels'])
+if probes:(root/'paint-probes.json').write_text(json.dumps(probes,indent=2)+'\n')

@@ -1,5 +1,80 @@
 # WorldGen repository instructions
 
+KEEP WORKING / APPEARANCE PASS IN PROGRESS,26October2026~08:20CDT:
+User requests every selected animal front/profile-reference comparison plus
+independent fork-none critic, no premature final. Animation defects accepted;
+NO motion edits/baking, model generation, paid APIs, GUI/game/Unity changes.
+Five mammal exact-SHA static gates now passed: Bison1ee5dc..., Goat29fa1a...,
+Hare07d83ad4112966f06f97ddc85ea88be6bd651b80d13b2cd25898deafaa68ad77,
+Rabbit3d36b5d738011a8cb9dbd440231777b857aedfa01c788e489ff6df7f6ad3958d,
+Moose74526bc513882b0b373d0a71bc03fee72b3dd057291f3ce0322f0a9cba860fb1.
+Freeze these natives unless new evidence warrants changes. Bison+Goat LIVE;
+latest site source e7f0f62541a51df68cfc8c42608a036f2ffce9c3, successful
+deploy appgdep_6adf4964f08081919f75c85ce1c7246a, same phone URL. Hare/Rabbit
+2-clip media complete, recorded through exact critic publisher, not deployed.
+Moose gate just completed; root still must inspect every body/coat option and
+prepare media/publish. Five ambient guilds passed tiny-use static standard;
+four canonical guilds recorded in VISUAL_CORRECTIONS, fly separate compact
+copy b454c1fa...8652 checked/passed/media ready/recorded, not deployed yet.
+Protected Deer SHA verified unchanged. No owner acceptance inferred for new art.
+Rear head zebra bands were nearest-paint fill leaking beyond chin; restricted
+to actual underside chin zone, actually gone on Hare/Rabbit. Enlarged body fur
+frequency, low-pass guard-hair colour classification and calibrated base coats
+remove chalky recolour islands and improve head/body match on these two. Nose
+and split lip preserved explicitly; thin-fur inner ears restored from frames.
+Albedo proved broad black chin was studio-light shadow: added restrained low
+front bounce to diagnostic/phone renderers. No anatomy/motion changed for this.
+Same rear-fill/UVv2/split-normal fixes rebuilt12 remaining old working mammals;
+Fox/Raccoon have newer body-fibre/neck harmonisation too, native checked again,
+fresh criticism still needed. Wolf has angular lids/nasal crescent pending.
+Reindeer eyes/head/all coats passed current critic, rack rejected as needle
+comb. New shovel/web/asymmetric branch+union rebuild exec76328 underway or
+recently done; inspect native/render then fresh gate. Moose now united rounded
+palms+low lateral beam in source traits builder, all original body/rig/actions
+retained, report moose-fresh-complete-visual.json exact-SHA pass. NPS/FWS adult
+moose refs downloaded/actually viewed, sidecars preserved. No model inference.
+Six bigcats prepared isolated roots (Lion/Tiger/Jaguar/Leopard/Puma/Ocelot) but
+NOT painted/rebuilt yet; raw labs complete. First3 real front/profile photos
+actually viewed; later3 downloaded but not root-viewed yet. Independent raw
+critic found Lion nasal seed on low whisker pad, Tiger low/lateral, Jaguar a
+little low. Corrected raw front pixels375502/359453/370443, aligned cameras and
+face-frame-lab renders. Eye sockets absent/ambiguous: AUTHOR locations honestly,
+do not claim exact recovered sockets. All original UV/skin/actions protected.
+27 anatomy roots =20 old mammals +6 new cat preps +1 fly; full roster far from
+done. Native preservation is NOT visual acceptance. Continue substantive work.
+Latest source backup7f31a743b3ca0c7e31e96df58923d493b04bb922 predates this
+note and newer source edits; checkpoint explicit own sources/docs. Preserve
+unrelated deleted WorldGen_OneShot_Prompt.md and2old untracked deer scripts.
+
+VISUAL REWORK ACTIVE / TWO LARGE ANIMAL GATES PASSED,26October2026~07:40CDT:
+Owner asks KEEP WORKING across compactions until confident; actual front/profile
+photo comparisons and independent fork-none critics explicitly authorised.
+Bad animations accepted; NO motion editing/baking, neural3D, paid calls, owner
+GUI/game/Unity changes. No new goal. Raw choices and protected Deer untouched.
+Bison exact native 1ee5dc77b412df10f0a2cf44c0897a65bb41231e1a120d9af9fc90d17f3f51dd
+passed all6coats/3hornsets and is LIVE on phone viewer. Site source bb05bcd806d2cadbe4eaad01da923cf6353653cc,
+deploy appgdep_6adf3d456aac8191856ac507d3433177. Freeze Bison native; do not
+rebuild it for shared-script changes. Goat exact29fa1aee40b23dfe9cf4bbc27736d0a2de50b9c26d583d86a2522f8b76c0285b
+passed fresh 33-render/4-photo independent review after connected mature coat,
+withers coverage, horn shape and filled beard fixes. Phone media complete and
+recorded awaiting owner review; NOT yet deployed. Goat root now also frozen.
+20 mammal anatomy roots/18 rebuilt; Reindeer/Moose still new-paint pending.
+Four ambient guilds independently passed intended tiny-scale static appearance;
+fly isolated compact-body/short-antenna/eye-mass correction preserves UV/skin/
+rig/actions/coats/topology, needs fresh critic. No owner acceptance inferred.
+Hare mouth black shard was subpixel UV sliver, actually fixed by colour UV v2
+(minimum triangle altitude2.5px, retained originalUV). Rabbit chin narrowed but
+fresh critic still rejects BOTH rear-ear/nape striped paint, head/body detail
+join, alternate speckling and broad dark chin. Current next diagnostic re-bakes
+Rabbit original-UV source atlases, before adding more arbitrary projection.
+Reindeer right actual recess333368 raw camera confirmed independently; left
+raw has no reliable aperture, authored opposite-side fit399368 explicitly
+uncertain. Cameras/frames refreshed. New paired real-eye guide generation
+cell1225 underway; old right double-eye guide REJECTED. No new paint installed.
+Latest sources backup93b669b preceded these edits; back up current explicit own
+sources/docs. Preserve unrelated deleted WorldGen_OneShot_Prompt.md and two
+old untracked deer scripts. Full roster NOT done; continue useful production.
+
 VISUAL REWORK CONTINUES / NOT DONE,26October2026~06:10CDT:
 Latest owner requires every animal compared to actual front/profile photos plus
 independent fork-none critics. Existing bad animations accepted; NO animation

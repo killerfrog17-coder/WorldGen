@@ -14,45 +14,136 @@
       "number": 2,
       "slug": "hare",
       "name": "Hare",
-      "status": "anatomy_working_not_published",
-      "reference_comparison_completed": false,
+      "status": "independently_checked_static_appearance_ready_for_owner_review",
+      "reference_comparison_completed": true,
       "appearance_approved": false,
       "latest_anatomy_work": {
         "root": "artifacts\\fauna-anatomy-revision\\hare",
         "native_sha256": "ba83b20065889c52b9f10734b6b5f94c0f80f500b4f5afe0ff4059e16ec16097",
         "preservation_proof_matches": true,
         "latest_native_independent_appearance_clearance": false
+      },
+      "source_sha256": "07d83ad4112966f06f97ddc85ea88be6bd651b80d13b2cd25898deafaa68ad77",
+      "reference": [
+        "artifacts/fauna-anatomy-revision/critic-reports/prey-gate-references/hare-front.jpg",
+        "artifacts/fauna-anatomy-revision/critic-reports/prey-gate-references/hare-profile-side.jpg"
+      ],
+      "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
+      "independent_critic": {
+        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\prey-final-fresh-complete.json",
+        "sha256": "b28b00f75ef332413ca3d173f58786f38731559919e57b7457e88c268f147d5b",
+        "native_sha256": "07d83ad4112966f06f97ddc85ea88be6bd651b80d13b2cd25898deafaa68ad77",
+        "verdict": "no_major_visible_faults_at_low_poly_prototype_standard",
+        "secondary_polish": [
+          {
+            "issue": "The eye corners show flat gray wedges and the exposed brown iris reads subdued next to the brighter amber actual profile reference.",
+            "severity": "secondary",
+            "paths": [
+              "eye-audit/left-after.png",
+              "eye-audit/right-after.png"
+            ]
+          },
+          {
+            "issue": "The white muzzle/chin area is a fairly round, regular patch and the mouth is a tiny isolated mark; a less regular fur transition would look more natural at close inspection.",
+            "severity": "secondary",
+            "paths": [
+              "eye-audit/front-after.png"
+            ]
+          },
+          {
+            "issue": "Fur detail is denser around the head and upper neck than on the body. A faint pale, smooth nape/shoulder transition is visible from behind; it is mild at full-body size rather than a dominant broken paint region.",
+            "severity": "secondary",
+            "paths": [
+              "appearance-options/coat-00-extra-00-rear.png",
+              "appearance-options/coat-00-extra-00-side.png"
+            ]
+          }
+        ]
       }
     },
     {
       "number": 3,
       "slug": "rabbit",
       "name": "Rabbit",
-      "status": "anatomy_working_not_published",
-      "reference_comparison_completed": false,
+      "status": "independently_checked_static_appearance_ready_for_owner_review",
+      "reference_comparison_completed": true,
       "appearance_approved": false,
       "latest_anatomy_work": {
         "root": "artifacts\\fauna-anatomy-revision\\rabbit",
         "native_sha256": "8c4d7b701686fa60fd9bf666ac6aaa70ab7582b07a7ae5b154f75a5bb1d60782",
         "preservation_proof_matches": true,
         "latest_native_independent_appearance_clearance": false
+      },
+      "source_sha256": "3d36b5d738011a8cb9dbd440231777b857aedfa01c788e489ff6df7f6ad3958d",
+      "reference": [
+        "artifacts/fauna-anatomy-revision/critic-reports/prey-gate-references/rabbit-front.jpg",
+        "artifacts/fauna-anatomy-revision/critic-reports/prey-gate-references/rabbit-profile-alt.jpg"
+      ],
+      "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
+      "independent_critic": {
+        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\prey-final-fresh-complete.json",
+        "sha256": "b28b00f75ef332413ca3d173f58786f38731559919e57b7457e88c268f147d5b",
+        "native_sha256": "3d36b5d738011a8cb9dbd440231777b857aedfa01c788e489ff6df7f6ad3958d",
+        "verdict": "no_major_visible_faults_at_low_poly_prototype_standard",
+        "secondary_polish": [
+          {
+            "issue": "The forehead-to-nose profile is somewhat straight and pointed, and the white muzzle is thin from the side compared with the fuller soft muzzle of the actual side photograph. This remains recognisable at prototype scale.",
+            "severity": "secondary",
+            "paths": [
+              "head-overview/left-after.png",
+              "head-overview/right-after.png"
+            ]
+          },
+          {
+            "issue": "The pale gray eye-corner wedge and sharp lower outer lid angle can look synthetic in close views.",
+            "severity": "secondary",
+            "paths": [
+              "eye-audit/left-after.png",
+              "eye-audit/right-after.png"
+            ]
+          },
+          {
+            "issue": "Head and neck fur detail is denser and more mottled than the body. The rear nape has a mild change in fur scale/brightness where it meets the shoulders; further blending would improve close viewing.",
+            "severity": "secondary",
+            "paths": [
+              "appearance-options/coat-00-extra-00-rear.png",
+              "appearance-options/coat-03-extra-00-side.png"
+            ]
+          }
+        ]
       }
     },
     {
       "number": 4,
       "slug": "butterflies-and-moths-guild",
       "name": "Butterflies and moths (guild)",
-      "status": "queued",
-      "reference_comparison_completed": false,
-      "appearance_approved": false
+      "status": "independently_checked_static_appearance_at_tiny_ambient_scale",
+      "reference_comparison_completed": true,
+      "appearance_approved": false,
+      "source_sha256": "75cdb0f0a23664b09c02753984f7c7d9652906f78acf6507bbe004dc54b96bad",
+      "independent_critic": {
+        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\ambient-insects-current-gate.json",
+        "sha256": "61c25094ddd9e70a95f03f68c505d58d6d6c84fd39cc9e01c69de5550966e23d",
+        "native_sha256": "75cdb0f0a23664b09c02753984f7c7d9652906f78acf6507bbe004dc54b96bad",
+        "verdict": "no_major_visible_faults_at_low_poly_prototype_standard"
+      },
+      "body_and_pattern_review": "All current coats and front/side/top/rear stills compared with actual photographs by root and fresh critic; simplified tiny ambient standard. Existing live art retained. No macro anatomy or motion certification."
     },
     {
       "number": 5,
       "slug": "fireflies-derived-lineage",
       "name": "Fireflies (derived lineage)",
-      "status": "queued",
-      "reference_comparison_completed": false,
-      "appearance_approved": false
+      "status": "independently_checked_static_appearance_at_tiny_ambient_scale",
+      "reference_comparison_completed": true,
+      "appearance_approved": false,
+      "source_sha256": "955e39dbe5968b0e592382089db604826295f0fa53d033559da9687cee3676b4",
+      "independent_critic": {
+        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\ambient-insects-current-gate.json",
+        "sha256": "61c25094ddd9e70a95f03f68c505d58d6d6c84fd39cc9e01c69de5550966e23d",
+        "native_sha256": "955e39dbe5968b0e592382089db604826295f0fa53d033559da9687cee3676b4",
+        "verdict": "no_major_visible_faults_at_low_poly_prototype_standard"
+      },
+      "body_and_pattern_review": "All current coats and front/side/top/rear stills compared with actual photographs by root and fresh critic; simplified tiny ambient standard. Existing live art retained. No macro anatomy or motion certification."
     },
     {
       "number": 6,
@@ -219,25 +310,59 @@
       "number": 13,
       "slug": "bees-guild",
       "name": "Bees (guild)",
-      "status": "queued",
-      "reference_comparison_completed": false,
-      "appearance_approved": false
+      "status": "independently_checked_static_appearance_at_tiny_ambient_scale",
+      "reference_comparison_completed": true,
+      "appearance_approved": false,
+      "source_sha256": "2938715e347f9de0ad4adc36f20dbd0ebf13892360eb2fe1ca648839fa21b14b",
+      "independent_critic": {
+        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\ambient-insects-current-gate.json",
+        "sha256": "61c25094ddd9e70a95f03f68c505d58d6d6c84fd39cc9e01c69de5550966e23d",
+        "native_sha256": "2938715e347f9de0ad4adc36f20dbd0ebf13892360eb2fe1ca648839fa21b14b",
+        "verdict": "no_major_visible_faults_at_low_poly_prototype_standard"
+      },
+      "body_and_pattern_review": "All current coats and front/side/top/rear stills compared with actual photographs by root and fresh critic; simplified tiny ambient standard. Existing live art retained. No macro anatomy or motion certification."
     },
     {
       "number": 14,
       "slug": "dragonflies-guild",
       "name": "Dragonflies (guild)",
-      "status": "queued",
-      "reference_comparison_completed": false,
-      "appearance_approved": false
+      "status": "independently_checked_static_appearance_at_tiny_ambient_scale",
+      "reference_comparison_completed": true,
+      "appearance_approved": false,
+      "source_sha256": "45e17c0bffe9f5acbeaef5980f4fa15156f23f7a2091db9e7d8e428a3301be5d",
+      "independent_critic": {
+        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\ambient-insects-current-gate.json",
+        "sha256": "61c25094ddd9e70a95f03f68c505d58d6d6c84fd39cc9e01c69de5550966e23d",
+        "native_sha256": "45e17c0bffe9f5acbeaef5980f4fa15156f23f7a2091db9e7d8e428a3301be5d",
+        "verdict": "no_major_visible_faults_at_low_poly_prototype_standard"
+      },
+      "body_and_pattern_review": "All current coats and front/side/top/rear stills compared with actual photographs by root and fresh critic; simplified tiny ambient standard. Existing live art retained. No macro anatomy or motion certification."
     },
     {
       "number": 15,
       "slug": "native-detritivorous-flies-guild",
       "name": "Native detritivorous flies (guild)",
-      "status": "queued",
-      "reference_comparison_completed": false,
-      "appearance_approved": false
+      "status": "independently_checked_static_appearance_ready_for_owner_review",
+      "reference_comparison_completed": true,
+      "appearance_approved": false,
+      "source_sha256": "b454c1fa1e784a0b9dc5ec4d6817940d477e383b0aa217593fae8ab9bf4d8652",
+      "reference": [
+        "https://www.hatebugs.com/uploads/1/1/3/5/113525575/052876780-lucilia-caesar-blow-fly-front_3_orig.jpg",
+        "https://media.snl.no/media/22350/standard_compressed_Cynomya-mortuorum-hode-forfra.jpg",
+        "https://live.staticflickr.com/5549/9142961258_508222d963_b.jpg"
+      ],
+      "body_and_pattern_review": "All coat and distinct attachment examples reviewed at prototype standard; secondary limitations in exact-SHA critic gate.",
+      "independent_critic": {
+        "file": "artifacts\\fauna-anatomy-revision\\critic-reports\\fly-compact-fresh-visual.json",
+        "sha256": "72e9abe1284cff2f1aac15d724a66b7872568a61e5abf07266d84db7f672b259",
+        "native_sha256": "b454c1fa1e784a0b9dc5ec4d6817940d477e383b0aa217593fae8ab9bf4d8652",
+        "verdict": "pass_at_tiny_ambient_standard",
+        "secondary_polish": [
+          "Eyes are small faceted buttons compared with the broader, oval compound-eye masses in the supplied photos. This is visible in front and oblique stills but does not obscure the tiny flying-insect read; enlarge/elongate the eye masses only if close presentation becomes part of the intended use.",
+          "Thorax and abdomen are smooth simple lobes, and the six legs are sparse angular lines. Surface segmentation, bristles, tarsal detail and the more domed reference thorax are omitted; acceptable simplification for this tiny ambient proxy.",
+          "Green and blue coats communicate the metallic bottle-fly color families through glossy pigment, though the uniform color and black eyes are less varied than the actual references. Brown, black and muted bronze retain clear silhouette contrast."
+        ]
+      }
     },
     {
       "number": 16,

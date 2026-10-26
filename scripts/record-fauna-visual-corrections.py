@@ -20,7 +20,10 @@ references={
 for slug in a.slugs:
     root=base/slug;native=root/'Animal - Painted Species Review.blend';digest=hashlib.sha256(native.read_bytes()).hexdigest();gate=None
     if critic:
-        gate=next(row for row in critic['animals'] if row['slug']==slug);assert gate['native_sha256']==digest and gate['verdict'] in {'no_major_visible_faults_at_low_poly_prototype_standard','pass_no_major_visible_faults_at_low_poly_prototype_standard'} and not gate['blockers'],'Independent appearance gate is stale or still has blockers'
+        gate=next(row for row in critic['animals'] if row['slug']==slug)
+        verdicts={'no_major_visible_faults_at_low_poly_prototype_standard','pass_no_major_visible_faults_at_low_poly_prototype_standard'}
+        if slug=='native-detritivorous-flies-guild':verdicts.add('pass_at_tiny_ambient_standard')
+        assert gate['native_sha256']==digest and gate['verdict'] in verdicts and not gate['blockers'],'Independent appearance gate is stale or still has blockers'
         assert len(gate['reference_photos'])>=2
         for record in [*gate['evidence'],*gate['reference_photos']]:
             assert record['actually_viewed'] and hashlib.sha256((repo/record['path']).read_bytes()).hexdigest()==record['sha256'],'Changed/unviewed critic evidence'
@@ -30,16 +33,23 @@ for slug in a.slugs:
     media=json.loads((root.parent/'phone-media'/slug/'receipt.json').read_text());assert media['complete'] and media['source_sha256']==digest
     for record in [*media['stills'],*media['videos']]:assert hashlib.sha256((root.parent/'phone-media'/slug/record['file']).read_bytes()).hexdigest()==record['sha256']
     assert len(media['videos'])==2
-    coat_report=json.loads((root/'eye-audit/coat-renders.json').read_text());assert coat_report['source_sha256']==digest
-    after=json.loads((root/'eye-audit/after-renders.json').read_text());assert after['source_sha256']==digest
-    for record in after['views']:
-        assert hashlib.sha256((repo/record['file']).read_bytes()).hexdigest()==record['sha256']
-        assert hashlib.sha256((root/'eye-audit'/f"{record['view']}.json").read_bytes()).hexdigest()==record['camera_guide_sha256']
-    files=[root/'eye-audit'/f'{v}-after.png' for v in ['front','right','left']]
-    files += [root/'eye-audit'/f'coat-{i:02d}-front.png' for i in range(len(coat_report['coats']))]
+    ambient=slug=='native-detritivorous-flies-guild' and bool(proof.get('changed_body_regions'))
+    files=[]
+    if ambient:
+        assert gate and not proof['motion_modified'] and len(proof['retained_topology_uv_skin_rest_actions_coats_sha256'])==4
+        assert len(media['stills'])==9 and {r['view'] for r in media['stills']}=={'front','side','rear','top','coat'}
+    else:
+        coat_report=json.loads((root/'eye-audit/coat-renders.json').read_text());assert coat_report['source_sha256']==digest
+        after=json.loads((root/'eye-audit/after-renders.json').read_text());assert after['source_sha256']==digest
+        for record in after['views']:
+            assert hashlib.sha256((repo/record['file']).read_bytes()).hexdigest()==record['sha256']
+            assert hashlib.sha256((root/'eye-audit'/f"{record['view']}.json").read_bytes()).hexdigest()==record['camera_guide_sha256']
+        files=[root/'eye-audit'/f'{v}-after.png' for v in ['front','right','left']]
+        files += [root/'eye-audit'/f'coat-{i:02d}-front.png' for i in range(len(coat_report['coats']))]
     visual_evidence=[{'file':r['path'],'sha256':r['sha256']} for r in gate['evidence']] if gate else [{'file':str(p.relative_to(repo)),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files]
     proof.update(actually_visually_inspected=True,appearance_approved=False,reference=references[slug],visual_evidence=visual_evidence,visual_scope='Front/profile heads, all coat examples and all distinct attachment sets compared to actual photographs and independently critiqued.' if gate else 'Front and both profile faces, all head coat variants and selected body views compared. Face improvement for owner review; original source-body limitations and bad animations retained.',limits='Low-poly prototype appearance for owner review; existing bad animation retained. No owner approval, real sex/age body implementation or full game-integration claim.')
     if gate:proof['independent_critic']={'file':str(critic_path.relative_to(repo)),'sha256':hashlib.sha256(critic_path.read_bytes()).hexdigest(),'native_sha256':digest,'verdict':gate['verdict'],'secondary_polish':gate['secondary_polish']}
+    if ambient:proof['visual_scope']='Front, side, rear, top and all five coat examples compared to real fly photographs and independently critiqued for tiny ambient use; not macro anatomy or motion approval.'
     proof_path.write_text(json.dumps(proof,indent=2)+'\n')
     item=next((r for r in feedback['items'] if r['slug']==slug),None)
     if item is None:item={'slug':slug};feedback['items'].append(item)

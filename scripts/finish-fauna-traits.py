@@ -34,6 +34,8 @@ tex=nodes.new('ShaderNodeTexImage');tex.image=image
 tint=nodes.new('ShaderNodeHueSaturation');tint.inputs['Saturation'].default_value=.35;tint.inputs['Value'].default_value=.75 if TRAITS[a.slug][0] in {'antler','palmate','tusk'} else .35
 if a.slug=='buffalo' and land.get('physical_eye_revision'):tint.inputs['Value'].default_value=.09
 links.new(tex.outputs['Color'],tint.inputs['Color']);links.new(tint.outputs['Color'],shader.inputs['Base Color'])
+if a.slug=='moose' and land.get('anatomical_orbit'):
+    bone_colour=nodes.new('ShaderNodeMixRGB');bone_colour.inputs[0].default_value=.20;bone_colour.inputs[1].default_value=(.34,.27,.18,1);links.new(tint.outputs['Color'],bone_colour.inputs[2]);links.new(bone_colour.outputs[0],shader.inputs['Base Color'])
 bump=nodes.new('ShaderNodeBump');bump.inputs['Strength'].default_value=.12;bump.inputs['Distance'].default_value=.0007;links.new(tex.outputs['Color'],bump.inputs['Height']);links.new(bump.outputs['Normal'],shader.inputs['Normal'])
 if a.slug=='buffalo' and land.get('physical_eye_revision'):
     noise=nodes.new('ShaderNodeTexNoise');noise.inputs['Scale'].default_value=38;noise.inputs['Detail'].default_value=4;noise.inputs['Roughness'].default_value=.7;links.new(noise.outputs['Fac'],bump.inputs['Height']);bump.inputs['Strength'].default_value=.42;bump.inputs['Distance'].default_value=.0025
@@ -61,7 +63,7 @@ def mesh_object(name,verts,polys,skin,uv):
     objects.append(name);return name
 
 def tube(name,path,radius,skin):
-    path=np.asarray(path);verts=[];polys=[];uv=[];segments=10 if a.slug=='buffalo' and land.get('physical_eye_revision') else 5;last=side.copy()
+    path=np.asarray(path);verts=[];polys=[];uv=[];segments=10 if a.slug=='buffalo' and land.get('physical_eye_revision') else 8 if a.slug in {'reindeer','moose'} and land.get('anatomical_orbit') else 5;last=side.copy()
     for i,q in enumerate(path):
         t=i/(len(path)-1);tangent=path[min(i+1,len(path)-1)]-path[max(i-1,0)];tangent/=np.linalg.norm(tangent)
         cross=last-tangent*(last@tangent)
@@ -74,6 +76,33 @@ def tube(name,path,radius,skin):
     return mesh_object(name,verts,polys,skin,uv)
 
 def paddle(name,root,sign,size,skin,compact=False):
+    if a.slug=='moose' and land.get('anatomical_orbit'):
+        # Broad distal palms sweep outward/up above a low lateral beam. The
+        # older shallow hexagon faced sideways and read as a sheet-metal card.
+        outline=np.array([[.20,.12],[.32,.08],[.54,.15],[.72,.31],[.85,.50],[.86,.66],[.78,.75],[.66,.77],[.54,.63],[.43,.43],[.33,.26]])
+        centers=[root+side*sign*size*x+up*size*z+front*size*(.04+.10*math.sin(x*3)-.09*z) for x,z in outline]
+        center=np.mean(centers,axis=0);verts=[];uv=[]
+        for direction in [-1,1]:
+            for q in [center,*centers]:
+                bulge=.022 if np.linalg.norm(q-center)<.001 else .010
+                verts.append(q+front*direction*bulge);uv.append((.5+(q-center)@side/size,.5+(q-center)@up/size))
+        count=len(centers);offset=count+1;polys=[]
+        for i in range(count):
+            j=(i+1)%count;polys.extend([(0,i+1,j+1),(offset,offset+j+1,offset+i+1),(i+1,offset+i+1,offset+j+1,j+1)])
+        for i,face in enumerate(polys):
+            A,B,C=[np.array(verts[v]) for v in face[:3]]
+            if np.cross(B-A,C-A)@(np.mean([verts[v] for v in face],axis=0)-center)<0:polys[i]=tuple(reversed(face))
+        mesh_object(name,verts,polys,skin,uv)
+        for i in ([4,6,8] if compact else [3,4,5,6,7,8]):
+            q=centers[i];direction=(q-center)/np.linalg.norm(q-center);length=size*(.18 if i%2 else .24)
+            path=[q+direction*length*t+up*length*.18*t*t-front*length*.12*t*t for t in np.linspace(0,1,6)]
+            tube(name+' tine'+str(i),path,.014 if not compact else .012,skin)
+        # Forward brow points remain separate from the main palmate branch.
+        for j in range(1 if compact else 2):
+            q=root+side*sign*size*(.16+j*.12)+up*size*.07
+            path=[q+front*size*.25*t+up*size*(.05*t+.13*t*t)+side*sign*size*.045*t for t in np.linspace(0,1,7)]
+            tube(name+' brow'+str(j),path,.016,skin)
+        return
     # Shallow solid palm, not a flat translucent card. Peripheral tines are tubes.
     outline=np.array([[.08,-.02,.08],[.31,-.15,.22],[.64,-.17,.38],[.84,.02,.48],[.71,.26,.44],[.40,.34,.29],[.13,.16,.12]])*size
     centers=[root+side*sign*x+front*y+up*z for x,y,z in outline];center=np.mean(centers,axis=0)
@@ -87,6 +116,41 @@ def paddle(name,root,sign,size,skin,compact=False):
     for i in ([1,3,5] if compact else [1,2,3,4,5]):
         q=centers[i];direction=(q-center)/np.linalg.norm(q-center)
         tube(name+' tine'+str(i),[q,q+direction*size*.10+up*.02,q+direction*size*.25+up*.07],.012,skin)
+
+def merge_moose_antler(name,parts,skin):
+    """Join intersecting authored palm/beam/tines into one rounded surface."""
+    assert a.slug in {'moose','reindeer'} and len(parts)>3 and all(n.startswith(a.slug+' ') for n in parts)
+    bpy.ops.object.select_all(action='DESELECT')
+    for part in parts:
+        ob=bpy.data.objects[part];assert ob!=body
+        for mod in list(ob.modifiers):ob.modifiers.remove(mod)
+        ob.select_set(True)
+    ob=bpy.data.objects[parts[0]];bpy.context.view_layer.objects.active=ob;bpy.ops.object.join();ob.name=name+' continuous rack'
+    ob.data.remesh_voxel_size=.0035 if a.slug=='reindeer' else .0045;bpy.ops.object.voxel_remesh()
+    mod=ob.modifiers.new('Round palm edges and tine junctions','SMOOTH');mod.factor=.55;mod.iterations=3;bpy.ops.object.modifier_apply(modifier=mod.name)
+    ob.data.calc_loop_triangles();mod=ob.modifiers.new('Bound visible antler budget','DECIMATE');mod.ratio=min(1.,1800/max(len(ob.data.loop_triangles),1));mod.use_collapse_triangulate=True;bpy.ops.object.modifier_apply(modifier=mod.name)
+    ob.vertex_groups.clear()
+    for bone,weight in skin.items():ob.vertex_groups.new(name=bone).add(list(range(len(ob.data.vertices))),weight,'REPLACE')
+    ob.data.materials.clear();ob.data.materials.append(material)
+    for poly in ob.data.polygons:poly.material_index=0;poly.use_smooth=True
+    bpy.ops.object.mode_set(mode='EDIT');bpy.ops.mesh.select_all(action='SELECT');bpy.ops.uv.smart_project(angle_limit=1.15,island_margin=.025);bpy.ops.object.mode_set(mode='OBJECT')
+    mod=ob.modifiers.new('Original selected head skin','ARMATURE');mod.object=rig
+    objects[:]=[n for n in objects if n not in parts];objects.append(ob.name)
+    evidence.append({'object':ob.name,'method':'Authored beam/palm/tines union, 3.5-4.5mm voxel rounding and bounded 1800-triangle reduction; constant actual root skin; no rig/actions/body edits.','skin':skin})
+
+def antler_shovel(name,outline,normal,thickness,skin):
+    outline=np.array(outline);center=outline.mean(0);normal=np.array(normal);normal/=np.linalg.norm(normal);verts=[];uv=[]
+    horizontal=outline[1]-outline[0];horizontal/=np.linalg.norm(horizontal);vertical=np.cross(normal,horizontal);extent=max(np.ptp(outline@horizontal),np.ptp(outline@vertical),.01)
+    for sign in [-1,1]:
+        for i,q in enumerate([center,*outline]):
+            verts.append(q+normal*thickness*sign*(1.2 if i==0 else .65));uv.append((.5+(q-center)@horizontal/extent,.5+(q-center)@vertical/extent))
+    count=len(outline);offset=count+1;polys=[]
+    for i in range(count):
+        j=(i+1)%count;polys.extend([(0,i+1,j+1),(offset,offset+j+1,offset+i+1),(i+1,offset+i+1,offset+j+1,j+1)])
+    for i,face in enumerate(polys):
+        A,B,C=[np.array(verts[v]) for v in face[:3]]
+        if np.cross(B-A,C-A)@(np.mean([verts[v] for v in face],axis=0)-center)<0:polys[i]=tuple(reversed(face))
+    mesh_object(name,verts,polys,skin,uv)
 
 def horn_boss(name,point,normal,skin):
     direction=front-normal*(front@normal);direction/=max(np.linalg.norm(direction),1e-6);across=np.cross(normal,direction)
@@ -147,6 +211,7 @@ for conf in variants:
         merged=a.slug=='buffalo' and land.get('physical_eye_revision') and conf['sex']!='female' and conf['id']!='water-sweep'
         if merged:merged_buffalo_rack(conf,length,width)
         for sign in ([] if merged else [-1,1]):
+            side_start=len(objects)
             if shape=='tusk':target=nose-front*.12+side*sign*.075-up*.025
             else:target=mid-front*.09+side*sign*max(.045,min(gap*.27,.09))+up*.10
             if a.slug=='buffalo' and land.get('physical_eye_revision'):
@@ -155,27 +220,51 @@ for conf in variants:
                 target=mid+front*.025+side*sign*gap*.38+up*.145
                 hit=bvh.ray_cast(Vector(target+front*.65),Vector(-front),1.3)[0];assert hit is not None,'Buffalo crown attachment missed actual head';target=np.array(hit)
             q,normal,skin=fit(target,shape!='tusk' and not (a.slug=='buffalo' and land.get('physical_eye_revision')));start=q-normal*.018
-            name=f'{a.slug} {conf["id"]} {sign}';t=np.linspace(0,1,17 if a.slug=='buffalo' and land.get('physical_eye_revision') else 9)
+            name=f'{a.slug} {conf["id"]} {sign}';t=np.linspace(0,1,17 if (a.slug=='buffalo' and land.get('physical_eye_revision')) or (a.slug in {'reindeer','moose'} and land.get('anatomical_orbit')) else 9)
             if a.slug in {'buffalo','musk-ox'} and conf['sex']!='female' and conf['id']!='water-sweep' and not (a.slug=='buffalo' and land.get('physical_eye_revision')):horn_boss(name+' broad root',q,normal,skin)
             radial=(.018 if shape in {'antler','palmate','spike','pronghorn','tusk'} else .070 if a.slug=='buffalo' and land.get('physical_eye_revision') else .033)*conf['radius']
+            if a.slug in {'reindeer','moose'} and land.get('anatomical_orbit'):radial*=1.45
             if shape in {'antler','palmate'}:
                 path=[start+side*sign*length*width*(.45*x+.10*x*x)-front*length*.35*x*x+up*length*(.86*x-.18*x*x) for x in t]
+                if a.slug=='moose' and land.get('anatomical_orbit'):
+                    path=[start+side*sign*length*width*(.55*x+.16*x*x)+up*length*(.05*x+.15*x*x)-front*length*.06*x*x for x in t]
                 if a.slug=='reindeer':
                     path=[start+side*sign*length*width*.55*math.sin(x*math.pi*.70)-front*length*.52*math.sin(x*math.pi*.85)+front*length*.22*x**3+up*length*.95*x for x in t]
                 tube(name+' beam',path,radial,skin)
                 if shape=='palmate':paddle(name+' palm',start,sign,length*width,skin,conf['id']=='hyp-compact')
                 else:
                     phases=[.30,.56,.83] if conf['id']=='hyp-compact' else [.28,.48,.69,.85]
+                    if a.slug=='reindeer' and land.get('anatomical_orbit'):
+                        phases=[.40,.74] if conf['id']=='female' else [.31,.58,.84] if conf['id']=='hyp-compact' else [.23,.49,.70,.87] if sign<0 else [.28,.53,.80]
+                    branch_roots=[]
                     for j,phase in enumerate(phases):
                         at=np.array([np.interp(phase,t,np.array(path)[:,axis]) for axis in range(3)])
+                        branch_roots.append(at)
                         size=length*(.31 if j==0 else .38 if j==1 else .30 if j==2 else .22)
-                        tube(name+' tine'+str(j),[at,at+front*size*.20+up*size*.55,at+front*size*.25+up*size],radial*.55,skin)
+                        tine=[at,at+front*size*.20+up*size*.55,at+front*size*.25+up*size]
+                        if a.slug=='reindeer' and land.get('anatomical_orbit'):
+                            tine=[at+front*size*(.55*x-.20*x*x)+up*size*(.80*x+.20*x*x)+side*sign*size*(.12 if j%2 else -.08)*x for x in np.linspace(0,1,7)]
+                        tube(name+' tine'+str(j),tine,radial*.55,skin)
                     if a.slug=='reindeer':
-                        at=np.array(path[1]);end=at+front*length*.46+up*length*.06
-                        tube(name+' brow beam',[at,(at+end)/2,end],radial*.65,skin)
-                        for j in range(2 if conf['id']=='hyp-compact' else 3):
+                        if land.get('anatomical_orbit') and conf['id']!='female' and len(branch_roots)>=3:
+                            A,B=branch_roots[-2:];D=up*length*.12+front*length*.04;N=np.cross(B-A,D)
+                            antler_shovel(name+' upper branch web',[A-front*length*.018,B-front*length*.012,B+D*.70,A+D],N,.010*conf['radius'],skin)
+                        at=np.array(path[2] if land.get('anatomical_orbit') else path[1]);end=at+front*length*.46+up*length*.06
+                        brow=[at,(at+end)/2,end]
+                        if land.get('anatomical_orbit'):brow=[at+(end-at)*x-up*length*.045*math.sin(x*math.pi)+side*sign*length*.045*x*x for x in np.linspace(0,1,9)]
+                        tube(name+' brow beam',brow,radial*.65,skin)
+                        if land.get('anatomical_orbit') and conf['id']!='female':
+                            contour=[(.06,-.025),(.21,-.015),(.39,.015),(.47,.06),(.43,.14),(.35,.17),(.28,.14),(.20,.07),(.08,.045)]
+                            antler_shovel(name+' brow shovel',[at+front*length*x+up*length*z for x,z in contour],side,.014*conf['radius'],skin)
+                        for j in range(2 if land.get('anatomical_orbit') or conf['id']=='hyp-compact' else 3):
                             q0=at+(end-at)*(.45+j*.20)
-                            tube(name+' brow point'+str(j),[q0,q0+up*length*.10,q0+up*length*.16+side*sign*.015],radial*.30,skin)
+                            if land.get('anatomical_orbit'):
+                                phase=.45+j*.20;q0=np.array([np.interp(phase,np.linspace(0,1,len(brow)),np.array(brow)[:,axis]) for axis in range(3)])-up*.002
+                            brow_point=[q0,q0+up*length*.10,q0+up*length*.16+side*sign*.015]
+                            if land.get('anatomical_orbit'):
+                                q0=at+front*length*(.28 if j==0 else .43)+up*length*(.12 if j==0 else .06)
+                                brow_point=[q0+up*length*(.13 if j==0 else .055)*x+front*length*(.025 if j==0 else .14)*x*x+side*sign*length*.018*x for x in np.linspace(0,1,6)]
+                            tube(name+' brow point'+str(j),brow_point,radial*.35,skin)
             else:
                 path=[]
                 for x in t:
@@ -193,6 +282,7 @@ for conf in variants:
                 tube(name+' horn',path,radial,skin)
                 if shape=='pronghorn':
                     at=path[4];tube(name+' prong',[at,at+front*length*.20+up*.025,at+front*length*.38+up*.035],radial*.65,skin)
+            if a.slug in {'moose','reindeer'} and land.get('anatomical_orbit'):merge_moose_antler(name,objects[side_start:],skin)
             evidence.append({'id':conf['id'],'side':sign,'root':q.tolist(),'root_normal':normal.tolist(),'skin':skin,'target_distance':float(np.linalg.norm(q-target))})
     libraries[conf['id']]=objects[before:]
 

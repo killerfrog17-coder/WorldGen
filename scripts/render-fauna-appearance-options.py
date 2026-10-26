@@ -10,7 +10,7 @@ for ob in list(s.objects):
  if ob.type=='LIGHT':bpy.data.objects.remove(ob,do_unlink=True)
 camera=bpy.data.objects.new('Appearance inspection camera',bpy.data.cameras.new('Appearance inspection camera'));s.collection.objects.link(camera);camera.data.type='ORTHO';s.camera=camera
 center=body.matrix_world@Vector(np.mean([v.co[:] for v in body.data.vertices],axis=0))
-for pos,power in [((3,4,5),650),((-3,1,3),350),((0,-4,4),400)]:
+for pos,power in [((3,4,5),650),((-3,1,3),350),((0,-4,4),400),((0,3,-1.5),140)]:
  data=bpy.data.lights.new('Appearance softbox','AREA');data.energy=power;data.shape='DISK';data.size=4;ob=bpy.data.objects.new(data.name,data);s.collection.objects.link(ob);ob.location=center+Vector(pos);ob.rotation_euler=(center-ob.location).to_track_quat('-Z','Y').to_euler()
 world=bpy.data.worlds.new('Appearance neutral world');world.use_nodes=True;world.node_tree.nodes['Background'].inputs[0].default_value=(.18,.20,.22,1);world.node_tree.nodes['Background'].inputs[1].default_value=.7;s.world=world;s.render.engine='BLENDER_EEVEE_NEXT';s.eevee.taa_render_samples=24;s.render.resolution_x=s.render.resolution_y=512;s.render.resolution_percentage=100;s.render.image_settings.file_format='PNG'
 coats=e['painting_coats'];cases=[(i,0) for i in range(len(coats))];seen=set()

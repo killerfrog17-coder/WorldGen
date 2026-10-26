@@ -48,7 +48,7 @@ appearance();s.frame_set(15 if item['procedural'] else 0)
 p=points();center=Vector(((p.min(0)+p.max(0))*.5).tolist());scale=max(float(np.ptp(p,axis=0).max()),.1)
 camera=bpy.data.objects.new('Phone review camera',bpy.data.cameras.new('Phone review camera'));s.collection.objects.link(camera);camera.data.type='ORTHO';s.camera=camera
 lights=[]
-for offset,power,size in [((3,4,5),650,5),((-3,1,3),350,4),((0,-4,4),450,3)]:
+for offset,power,size in [((3,4,5),650,5),((-3,1,3),350,4),((0,-4,4),450,3),((0,3,-1.5),140,4)]:
  data=bpy.data.lights.new('Phone softbox','AREA');data.energy=power;data.shape='DISK';data.size=size;ob=bpy.data.objects.new(data.name,data);s.collection.objects.link(ob);ob.location=center+Vector(offset);ob.rotation_euler=(center-ob.location).to_track_quat('-Z','Y').to_euler();lights.append(ob)
 world=bpy.data.worlds.new('Phone neutral background');world.use_nodes=True;world.node_tree.nodes['Background'].inputs[0].default_value=(.18,.20,.22,1);world.node_tree.nodes['Background'].inputs[1].default_value=.7;s.world=world
 s.render.engine='BLENDER_EEVEE_NEXT';s.eevee.taa_render_samples=12;s.render.threads_mode='FIXED';s.render.threads=2;s.render.resolution_percentage=100

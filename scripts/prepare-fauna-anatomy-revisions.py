@@ -22,6 +22,12 @@ settings={
  'mouse':((.018,.012),.20,.78),
  'squirrel':((.028,.018),.20,.77),
  'beaver':((.055,.037),.23,.75),
+ 'lion':((.075,.048),.70,.46),
+ 'tiger':((.065,.042),.78,.44),
+ 'jaguar':((.066,.043),.72,.45),
+ 'leopard':((.055,.036),.72,.44),
+ 'puma':((.057,.038),.70,.46),
+ 'ocelot':((.040,.027),.70,None),
 }
 for slug in a.slugs:
  assert slug in settings,slug
@@ -45,4 +51,5 @@ for slug in a.slugs:
   eye['fit_frame']={'normal':N.tolist(),'horizontal':H.tolist(),'vertical':V.tolist()}
  land['physical_eye_revision']={'method':'Buried physical iris and anatomically shaped stitched lids. Existing centres are provisional until front/profile photo comparison.','iris_radius_factor':1.3,'sculpt_socket_clearance':True,'nose_radius':nose_radius,'nasal_disc':True,'iris_scale':iris_scale,'round_pupil_radius':pupil,'reference_comparison_pending':True}
  land['anatomical_orbit']={'globe_radius_factor':1.,'burial':.82,'iris_radius':.68,'upper_aperture':.52,'lower_aperture':.55,'outer_skin_radius':2.65,'globe_recess_front':0.,'stitched':True}
+ if slug=='ocelot':land['physical_eye_revision']['pupil_shape']='vertical'
  (dest/'face-landmarks.json').write_text(json.dumps(land,indent=2)+'\n');print('PREPARED',slug,flush=True)
