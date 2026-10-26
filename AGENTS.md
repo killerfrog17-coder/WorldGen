@@ -1,5 +1,31 @@
 # WorldGen repository instructions
 
+HUMAN ANIMATION AUDITION DELIVERED,26October2026:
+Owner authorizes Blender comparison before game integration. New separate native
+artifacts/human-animation-preview/Human - Animation Comparison.blend SHA
+0946d797f3c620492444f2ec65d2a88280053fbda2c882dde3dfaf826942d229.
+12 people (6MPFB/6UMA),15 identical free CC0 clips each: Quaternius locomotion,
+crouch/sitting/attack/chop/swim, KayKit alternate walk/run/jump/dig. Original MPFB
+53-bone rest/meshes/weights/shapes exact digests preserved. UMA recovered ORIGINAL
+full skin influences/helpers/humanoid maps in isolated downloaded UMA project;
+rebuild vertices match previous appearance snapshots EXACT0.0 error. Bind-pose
+direction calibration; geometric side mapping fixes UMA opposite X naming.
+No neural re-rig, paid calls, game project/player/save changes or first-person
+system. Rotation retargeting, no contact IK; tool grips/props/transitions future.
+Source appearance native SHA6a688775... unchanged. Native checks12rigs/180actions,
+packed maps/exact sources,900 finite/bounded evaluated surfaces pass. Actual key
+textured poses viewed for ALL6 paired variants; A Walk/Run4phases and other clips
+also inspected. This is a motion audition, NOT owner acceptance/gameplay readiness.
+ONE own GUI PID16176 launched RIGHTMOST; actual viewer-ready.png inspected with
+visible method/compare/play/clip/person controls. Owner already switched B/Run
+by capture; later owner CLOSED it (clean Blender quit in viewer.log). Leave it
+closed unless requested. Skeleton/views are lower in same
+scrolling Item panel.1method/2person/3view/4compare/5lineup/6clip/Spaceplay.
+Read-only current renderer/native-check/provenance evidence retained; isolated
+UMA Library cache1,707,507,411bytes and own obsolete144MB probe removed via narrow
+validated cleanup scripts. Source checkpoint includes this note. Preserve
+owner-deleted prompt and two old untracked deer scripts, all unrelated work.
+
 TERRAIN CURTAINS / CURSOR REPAIR,26October2026~14:41CDT:
 Owner reports inverted-looking forest/terrain loading and pointer escaping to
 other monitors. Found area-only readiness certified coarse horizon backdrops

@@ -12,6 +12,10 @@ using UMA.CharacterSystem;
 
 public static class HumanBuilderDemoExport
 {
+    static bool rigOnly;
+    [Serializable] public class RigBone { public string name, parent, human; public Vector3 position; public Quaternion rotation; }
+    [Serializable] public class SkinPart { public string name; public Vector3[] vertices; public string[] bones; public int[] counts,indices; public float[] weights; }
+    [Serializable] public class RigSnapshot { public string variant; public RigBone[] bones; public SkinPart[] meshes; }
     [Serializable] public class MeshPart { public string name; public Vector3[] vertices; public Vector3[] normals; public Vector2[] uv; public Submesh[] submeshes; public MaterialInfo[] materials; }
     [Serializable] public class Submesh { public int[] triangles; }
     [Serializable] public class MaterialInfo { public string name; public string shader; public Color color; public Map[] maps; }
@@ -29,6 +33,16 @@ public static class HumanBuilderDemoExport
         File.WriteAllText(Path.Combine(Root,"available-races.json"), JsonUtility.ToJson(new StringList { values = races }, true));
         for(int i=0;i<6;i++) BuildVariant(i);
         Debug.Log("HUMAN_DEMO_UMA_ALL_READY " + Root);
+    }
+
+    public static void ExportRigs()
+    {
+        rigOnly=true;
+        EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+        UMAAssetIndexer.Instance.AddEverything(true);
+        UMAAssetIndexer.Instance.RebuildRaceRecipes();
+        for(int i=0;i<6;i++)BuildVariant(i);
+        Debug.Log("HUMAN_ANIMATION_UMA_SKINS_READY");
     }
 
     static void BuildVariant(int variant)
@@ -95,7 +109,8 @@ public static class HumanBuilderDemoExport
                 foreach(string property in new[]{"_BaseColor","_RootColor","_Tip_Color"})if(material.HasProperty(property))material.SetColor(property,hairs[variant]);
             }
         }
-        ExportCharacter(avatar, ((char)('A'+variant)).ToString());
+        if(rigOnly)ExportSkin(avatar, ((char)('A'+variant)).ToString());
+        else ExportCharacter(avatar, ((char)('A'+variant)).ToString());
         UnityEngine.Object.DestroyImmediate(go);
     }
 
@@ -106,6 +121,35 @@ public static class HumanBuilderDemoExport
         avatar.preloadWardrobeRecipes.recipes.Add(new DynamicCharacterAvatar.WardrobeRecipeListItem(recipe));
     }
     [Serializable] public class StringList { public string[] values; }
+
+    static void ExportSkin(DynamicCharacterAvatar avatar,string variant)
+    {
+        var transforms=new HashSet<Transform>();var parts=new List<SkinPart>();
+        foreach(var renderer in avatar.GetComponentsInChildren<SkinnedMeshRenderer>())
+        {
+            if(renderer.sharedMesh==null)continue;
+            foreach(var bone in renderer.bones)
+                for(var t=bone;t!=null&&t!=avatar.transform;t=t.parent)transforms.Add(t);
+            var baked=new Mesh();renderer.BakeMesh(baked);
+            var matrix=avatar.transform.worldToLocalMatrix*renderer.transform.localToWorldMatrix;
+            var counts=renderer.sharedMesh.GetBonesPerVertex();var weights=renderer.sharedMesh.GetAllBoneWeights();
+            parts.Add(new SkinPart{name=renderer.name,vertices=baked.vertices.Select(matrix.MultiplyPoint3x4).ToArray(),
+                bones=renderer.bones.Select(b=>b.name).ToArray(),counts=counts.Select(v=>(int)v).ToArray(),
+                indices=weights.Select(v=>v.boneIndex).ToArray(),weights=weights.Select(v=>v.weight).ToArray()});
+            counts.Dispose();weights.Dispose();UnityEngine.Object.DestroyImmediate(baked);
+        }
+        var animator=avatar.GetComponent<Animator>();var human=new Dictionary<Transform,string>();
+        if(animator!=null&&animator.avatar!=null&&animator.avatar.isHuman)
+            foreach(HumanBodyBones id in Enum.GetValues(typeof(HumanBodyBones)))
+            {if(id==HumanBodyBones.LastBone)continue;var t=animator.GetBoneTransform(id);if(t!=null)human[t]=id.ToString();}
+        var bones=transforms.Select(t=>new RigBone{name=t.name,parent=t.parent!=null&&transforms.Contains(t.parent)?t.parent.name:null,
+            human=human.ContainsKey(t)?human[t]:null,position=avatar.transform.InverseTransformPoint(t.position),
+            rotation=Quaternion.Inverse(avatar.transform.rotation)*t.rotation}).ToArray();
+        string directory=Path.GetFullPath(Path.Combine(Application.dataPath,"../../../../human-animation-preview/uma-skin"));
+        Directory.CreateDirectory(directory);
+        File.WriteAllText(Path.Combine(directory,variant+".json"),JsonUtility.ToJson(new RigSnapshot{variant=variant,bones=bones,meshes=parts.ToArray()}));
+        Debug.Log("HUMAN_ANIMATION_SKIN_EXPORTED "+variant+" bones="+bones.Length);
+    }
 
     static void ExportCharacter(DynamicCharacterAvatar avatar, string name)
     {
