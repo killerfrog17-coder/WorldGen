@@ -1,5 +1,41 @@
 # WorldGen repository instructions
 
+FINAL OWNER-DEADLINE SWEEP PUBLISHED,25October2026~22:38CDT:
+Owner requests one last sweep ready by23:00local, aiming above baseline. Actually
+viewed60 compact sheets covering ALL177 phone entries:3head/body views +base/
+last coat and4actual video frames for EACH2clips (1416motion samples). Ignored
+final-sweep/review.json binds sheets/source hashes and explicit remaining issues;
+NOT owner art approval or universal gait/collision acceptance. No new models.
+
+Two separate verified motion repairs: Capuchin Run actual4physical limbs use
+fixed-length IK from existing CC0fox endpoint tracks, stable torso/head/real tail;
+original body/skin/Walk/all other individual actions exact. Run194sample checker
+across Walk+Run, new Run loop0/floor4mm; old selected Walk has pre-existing
+negative floor/loop drift and is retained. Tiger physical tail2..6 gets adjacent
+skin/sway, loops0 and floor4mm,215tail vertices changed; rest/model/UV/face/
+packed textures/other individual actions exact. Original tail already97.5%
+tail-chain influence, NOT a major hind-leg role reassignment. Both actual8phase
+side/front contacts and full phone frames viewed; prototype gait limits remain.
+
+Five improved palette families: true white Tiger, broad organic tri-colour
+HuntingDog patches with distinct dominant patterns, brown Peahen/green-neck
+Peafowl paint, grey/red-tail/blue-green/olive Parrot, stronger female/immature
+SnowyOwl barring.25existing paint indices retained, no extra coat clones. Female/
+immature pigment stays on selected adult shape; do not claim age/sex morphology.
+All5current native heads and all changed paint variants actually viewed.
+Rejected Horse conformal-eye trial was visually worse, deleted own trial native/
+images/script; canonical and published Horse unchanged. Coarse Horse/Capuchin/
+Possum/Sloth/Tamarin surrounds and some source-head asymmetry remain flagged.
+
+Publisher fixes legacy UTF8 punctuation;177animals/830coats/118extras/354clips
+and Done/notes/backup/speed/phone checks pass. Paired media166checked/0pending/
+0errors;2final motion receipts/hashes/decoded clips independently checked.
+LIVE private Site source eac7ea20bb9f571854a90d12c29f15a42571b19f, deployment
+appgdep_6adecb175be48191a526770bf96f56c8 SUCCEEDED before23:00deadline. No owner
+GUI/game/Unity/Desktop changes, paid calls or inference. Own local preview
+server session34355 port8766 stopped after publication. Preserve unrelated
+deleted prompt and two old untracked deer scripts.
+
 PHONE EYE/STRIPE REVIEW PUBLISHED,25October2026~22:08CDT:
 Rabbit/Fox motion repairs and snow coats already LIVE from70c1681. New166
 appearance-only natives/media now technically checked and actually inspected;

@@ -161,6 +161,19 @@ organic=map_coordinates(noise,[np.mod(p[:,0]*5+12,24),np.mod(p[:,1]*5+12,24),np.
 coats=[]
 for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
     base=np.array(base);pale=np.array(pale);colour=np.tile(base,(len(p),1));low=label.lower()
+    # Distinct named pigment states need real palette changes, not a small
+    # brightness multiplier of the first coat.
+    if pattern=='tiger' and 'white-pigment' in low:base=np.array([.84,.85,.81]);pale=np.array([.93,.93,.88]);colour=np.tile(base,(len(p),1))
+    if pattern=='peafowl':
+        if any(t in low for t in ['peahen','female','immature']):base=np.array([.39,.29,.18]);pale=np.array([.64,.56,.40])
+        elif 'green-neck' in low:base=np.array([.18,.37,.20])
+        elif 'bronze' in low:base=np.array([.34,.33,.17])
+        colour=np.tile(base,(len(p),1))
+    if pattern=='parrot':
+        if 'grey body' in low:base=np.array([.40,.42,.40]);pale=np.array([.67,.67,.62])
+        elif 'blue-green' in low:base=np.array([.12,.37,.49])
+        elif 'olive' in low:base=np.array([.34,.40,.18])
+        colour=np.tile(base,(len(p),1))
     def paint(mask,target):
         return colour*(1-np.clip(mask,0,1)[:,None])+np.asarray(target)*np.clip(mask,0,1)[:,None]
     dark=np.array([.055,.045,.028]);white=np.array([.82,.80,.72])
@@ -235,9 +248,11 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
     if pattern=='collar':colour=paint(np.exp(-((forward+headscale*2)/.10)**2)*(1-foot)*.85,pale)
     if pattern=='saddle':colour=paint(back*.6,pale)
     if pattern=='painted-dog':
-        patches=organic
-        colour=paint(smooth(.55,.72,patches)*.95,dark)
-        colour=paint((1-smooth(.17,.30,patches))*.85,white)
+        # Broad irregular connected cells, sampled in 3D so they wrap over the
+        # back and do not become straight projection stripes at a UV seam.
+        patch_rng=np.random.default_rng(181+index*13);lo=d['vertices'].min(0);hi=d['vertices'].max(0);sites=patch_rng.uniform(lo-.12,hi+.12,size=(130,3));warped=p+np.stack([np.sin(p[:,1]*13+p[:,2]*7),np.sin(p[:,2]*12+p[:,0]*17),np.sin(p[:,0]*16+p[:,1]*11)],axis=1)*.075;_,cell=cKDTree(sites).query(warped)
+        probabilities=[.22,.62,.16] if 'dark-dominant' in low else [.65,.23,.12] if 'tan-dominant' in low else [.43,.37,.20];classes=patch_rng.choice(3,size=len(sites),p=probabilities);patch_colours=np.array([base,dark,white])[classes[cell]]
+        colour=colour*.05+patch_colours*.95
         colour=paint(face*.80,dark);colour=paint(tail_weight*smooth(-.8,-1.2,p[:,1]),white)
     if pattern in {'skunk','wolverine','anteater','tapir','guereza','panda'}:
         if pattern=='skunk':
@@ -342,8 +357,9 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
             if pattern=='kingfisher':colour=paint(belly*.95,[.65,.34,.12])
             if pattern=='hummingbird':colour=paint(throat*.85,[.54,.12,.095])
             if pattern=='peafowl':
-                female='female' in low
-                colour=paint(face*.95,[.30,.28,.18] if female else [.065,.22,.35]);colour=paint(wing*.50,[.22,.31,.13])
+                female=any(t in low for t in ['female','peahen','immature'])
+                neck_colour=[.30,.28,.18] if female else [.08,.30,.17] if 'green-neck' in low else [.25,.29,.12] if 'bronze' in low else [.065,.22,.35]
+                colour=paint(face*.95,neck_colour);colour=paint(wing*.50,[.22,.31,.13])
                 train=np.maximum(tail_weight,smooth(-.25,-.55,p[:,1])*smooth(.05,.55,n[:,2]))
                 colour=paint(train*.85,[.25,.25,.12] if female else [.18,.29,.12])
                 if not female:
@@ -351,13 +367,21 @@ for index,(label,base,pale,_) in enumerate(profiles(a.slug)):
                     q=(tu/.36)**2+(tv/.28)**2
                     for limit,target in [(1.,[.48,.36,.12]),(.70,[.11,.32,.23]),(.41,[.065,.22,.37]),(.17,[.025,.055,.055])]:
                         colour=paint((1-smooth(limit*.85,limit,q))*train,target)
-            if pattern=='parrot':colour=paint(wingtip*.65,[.10,.28,.42]);colour=paint(face*smooth(eye_z+.06,eye_z+.17,p[:,2])*.6,[.55,.10,.07])
+            if pattern=='parrot':
+                colour=paint(wingtip*.65,[.10,.28,.42] if 'grey body' not in low else [.28,.29,.28])
+                if 'grey body' in low:
+                    rear=smooth(float(np.quantile(d['vertices'][:,1],.27)),float(np.quantile(d['vertices'][:,1],.08)),p[:,1]);colour=paint(np.maximum(tail_weight,rear)*.95,[.57,.065,.045])
+                elif 'warm face' in low:colour=paint(face*smooth(eye_z+.06,eye_z+.17,p[:,2])*.7,[.61,.22,.075])
             if pattern=='turaco':colour=paint(wingtip*.7,[.48,.07,.05])
         if pattern=='cockatoo':colour=paint(face*smooth(eye_z+.12,eye_z+.25,p[:,2]),[.70,.60,.18])
         if pattern=='woodpecker':
             colour=paint(spots*wing*.9,white);colour=paint(belly*.90,white)
             colour=paint(face*smooth(eye_z+.06,eye_z+.15,p[:,2])*.9,[.50,.045,.03])
         if pattern=='pigeon':colour=paint(throat*.55,[.18,.29,.23]);colour=paint(wing*bars*.25,dark)
+        if a.slug=='snowy-owl':
+            strength=0. if 'nearly white' in low else .25 if 'lightly' in low else .58 if 'female' in low else .78 if 'immature' in low else .32
+            feather_bars=organic_stripes(p,n,count=23,seed=421,horizontal=True,broken=True)*(1-face)*(1-foot)*(1-bill)
+            colour=paint(feather_bars*strength*(.35+.65*smooth(.2,.65,organic)),[.18,.16,.12])
         if pattern in {'puffin','penguin'}:colour=paint(face*.6,pale)
         footcol=[.60,.22,.08] if pattern in {'puffin','penguin','goose','swan','stork'} else [.60,.43,.16] if pattern in {'raptor','eagle','gull','tern'} else [.29,.25,.18]
         billcol=[.66,.41,.12] if pattern in {'puffin','gull','tern','eagle'} else [.51,.13,.075] if pattern=='stork' else [.19,.16,.11]

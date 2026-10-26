@@ -19,6 +19,14 @@ def copy(source,target,digest):
  target.parent.mkdir(exist_ok=True,parents=True)
  if not target.exists() or hashlib.sha256(target.read_bytes()).hexdigest()!=digest:shutil.copy2(source,target)
  ledger.append({'source':str(source.relative_to(repo)),'file':str(target.relative_to(site)),'sha256':digest})
+def display_text(value):
+ # Repair old UTF-8 text that was read once with the Windows legacy code page.
+ # Only known corruption prefixes trigger the conversion; proper names stay.
+ for _ in range(2):
+  if not any(token in value for token in ['\u00e2\u20ac','\u00c2\u00b7','\u00c3']):break
+  try:value=value.encode('cp1252').decode('utf-8')
+  except (UnicodeEncodeError,UnicodeDecodeError):break
+ return value
 for item in plan['animals']:
  update=repairs.get(item['slug']);folder=root/item['slug']
  if update:
@@ -63,6 +71,9 @@ for item in plan['animals']:
    assert old.resolve().is_relative_to(allowed) and old.is_file()
    if old.name not in keep:old.unlink()
  else:assert a.partial,'Not all animal media is ready: '+item['slug']
+ for record in [row,*row['pictures'],*row['variations'],*row['clips']]:
+  for key in ['name','label','caption','review_update']:
+   if key in record:record[key]=display_text(record[key])
  animals.append(row)
 assert len(animals)==177
 dest=site/'animals';dest.mkdir(exist_ok=True);(dest/'index.json').write_text(json.dumps({'animals':animals,'count':177,'ready':complete,'coats':sum(sum(v['type']=='paint' for v in r['variations']) for r in animals),'extras':sum(sum(v['type']=='extra' for v in r['variations']) for r in animals),'clips':sum(len(r['clips']) for r in animals)},ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8')

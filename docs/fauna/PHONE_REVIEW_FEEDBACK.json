@@ -111,13 +111,61 @@
       ],
       "updated_at": "2026-10-25T19:54:04.092517-05:00",
       "correction": "Shared-material stable per-instance tint design recorded; runtime disabled until measured. No Unity/game changes or individual texture duplication."
+    },
+    {
+      "slug": "capuchin",
+      "status": "awaiting_owner_review",
+      "origin": "final_sweep",
+      "owner_approved": false,
+      "review_update": "Run rebuilt on the actual four limbs with a stable torso; original selected Walk and skin retained.",
+      "repair_review": {
+        "plan": "artifacts\\fauna-repairs\\capuchin\\review-plan.json",
+        "media_root": "artifacts\\fauna-repairs\\capuchin\\media",
+        "check": "artifacts\\fauna-repairs\\capuchin\\native-check.json",
+        "blend": "artifacts\\fauna-repairs\\capuchin\\Animal - Final Motion.blend",
+        "blend_sha256": "3a0fcba397a868a89e453cb75b5c8f3480afb71bafe91533aa6acc1fa5b21ff9"
+      }
+    },
+    {
+      "slug": "tiger",
+      "status": "awaiting_owner_review",
+      "origin": "final_sweep",
+      "owner_approved": false,
+      "review_update": "Tail skin/sway and walk/run loops stabilized; true white coat added. Original limb gait remains prototype.",
+      "repair_review": {
+        "plan": "artifacts\\fauna-repairs\\tiger\\review-plan.json",
+        "media_root": "artifacts\\fauna-repairs\\tiger\\media",
+        "check": "artifacts\\fauna-repairs\\tiger\\native-check.json",
+        "blend": "artifacts\\fauna-repairs\\tiger\\Animal - Final Motion.blend",
+        "blend_sha256": "508cca10ea6cf5f68cdc608812d8f5f975d217ecfa67b70a6469568c092bd075"
+      }
     }
   ],
   "latest_publication": {
-    "source_sha": "d363f91a2793673b1de9fedcc9060340046ade3d",
-    "deployment": "appgdep_6adec3d263048191beb1fff806cf0a86",
+    "source_sha": "eac7ea20bb9f571854a90d12c29f15a42571b19f",
+    "deployment": "appgdep_6adecb175be48191a526770bf96f56c8",
     "status": "succeeded",
     "url": "https://worldgen-animal-review.glassymole9.chatgpt.site",
     "owner_approval_inferred": false
+  },
+  "last_sweep": {
+    "report": "artifacts\\fauna-review-revisions\\final-sweep\\review.json",
+    "animals_visually_inspected": 177,
+    "sampled_motion_frames": 1416,
+    "motion_corrections": [
+      "capuchin",
+      "tiger"
+    ],
+    "palette_refinements": [
+      "tiger",
+      "african-hunting-dog",
+      "peafowl",
+      "parrot",
+      "snowy-owl"
+    ],
+    "owner_approval_inferred": false,
+    "deadline_local": "2026-10-25 23:00 America/Chicago",
+    "published_before_deadline": true,
+    "published_at_local": "2026-10-25T22:38:10-05:00"
   }
 }
