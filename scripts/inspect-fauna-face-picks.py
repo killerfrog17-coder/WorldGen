@@ -6,8 +6,8 @@ from mathutils import Matrix,Vector
 from mathutils.bvhtree import BVHTree
 repo=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(repo/'scripts'));from fauna_surface_components import components
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--view',choices=['front','right','left'],default='front');ap.add_argument('--pixels',type=float,nargs='+',required=True);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
-root=repo/'artifacts/fauna-visual-corrections'/a.slug;guide=json.loads((root/'eye-audit'/f'{a.view}.json').read_text());M=Matrix(guide['camera_matrix']);W,H=guide['size'];scale=guide['scale']
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--root',type=Path);ap.add_argument('--view',choices=['front','right','left'],default='front');ap.add_argument('--pixels',type=float,nargs='+',required=True);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
+root=(a.root or repo/'artifacts/fauna-visual-corrections'/a.slug).resolve();guide=json.loads((root/'eye-audit'/f'{a.view}.json').read_text());M=Matrix(guide['camera_matrix']);W,H=guide['size'];scale=guide['scale']
 bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Painted Species Review.blend'));e=json.loads(bpy.context.scene['deer_four_rigs'])[0];body=bpy.data.objects[e['body']];mesh=body.data
 bvh=BVHTree.FromPolygons([v.co for v in mesh.vertices],[f.vertices[:] for f in mesh.polygons]);records=[]
 mesh.calc_loop_triangles();parts=components(np.array([v.co[:] for v in mesh.vertices]),np.array([f.vertices[:] for f in mesh.loop_triangles]))

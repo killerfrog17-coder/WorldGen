@@ -1,0 +1,121 @@
+{
+  "policy": "Independent read-only critics launched without inherited conversation history. No technical proof or previous status supplied. Real front and profile photos viewed by each critic. Major unresolved defects block appearance confidence, and owner approval is never inferred.",
+  "animation_policy": "Existing motion accepted for now; no animation edits.",
+  "reviews": [
+    {
+      "animal": "red-fox",
+      "version": "published visual-corrections",
+      "major": [
+        "Exposed circular button eyes and unsupported profile cap",
+        "Asymmetric nasal coverage"
+      ],
+      "secondary": [
+        "Synthetic radial iris",
+        "Angular jaw shelf",
+        "Rigid whiskers",
+        "Boxy ear recesses"
+      ],
+      "verdict": "unfinished"
+    },
+    {
+      "animal": "wolf",
+      "version": "published visual-corrections",
+      "major": [
+        "Protruding bright circle eyes, insufficient lid support",
+        "Triangular dark cheek planes and neck fin"
+      ],
+      "secondary": [
+        "Nose blur/no nostrils",
+        "Blocky jaw"
+      ],
+      "verdict": "unfinished"
+    },
+    {
+      "animal": "raccoon",
+      "version": "published visual-corrections",
+      "major": [
+        "Exposed marble eyes without shaped canthi",
+        "Ear-base shards",
+        "Asymmetric/disconnected nasal coverage"
+      ],
+      "secondary": [
+        "Inflated cheeks, blocky muzzle",
+        "Separate mask ovals instead of swept mask"
+      ],
+      "verdict": "unfinished"
+    },
+    {
+      "animal": "hare",
+      "version": "visual-corrections working",
+      "major": [
+        "Pale cylindrical eye sleeves",
+        "Detached head debris"
+      ],
+      "secondary": [
+        "Printed iris dial",
+        "Inflated lower muzzle",
+        "Texture projection smears"
+      ],
+      "verdict": "unfinished"
+    },
+    {
+      "animal": "rabbit",
+      "version": "visual-corrections working",
+      "major": [
+        "Detached geometry debris"
+      ],
+      "secondary": [
+        "Uniform round hard eye rims and pale halo",
+        "Cheek/muzzle shelf",
+        "Weak nostril detail",
+        "Projection streaks"
+      ],
+      "verdict": "unfinished"
+    },
+    {
+      "animal": "buffalo",
+      "version": "visual-corrections working",
+      "major": [
+        "Split faceted boss blocks/side plates",
+        "Circular unsupported eyes",
+        "Polygon ear slabs and scraps",
+        "Indistinct bovine nasal anatomy"
+      ],
+      "secondary": [
+        "Needle horn tips",
+        "Smooth uniform hide and horns"
+      ],
+      "verdict": "unfinished"
+    },
+    {
+      "animal": "wolf",
+      "version": "anatomy-revision first stitched-lid and multi-view paint",
+      "major": [
+        "Upper sockets create persistent scowl",
+        "Smooth black nose cap without clear nostrils"
+      ],
+      "secondary": [
+        "Pointed muzzle and thin lower jaw",
+        "Angular ruff/folded cheek surfaces",
+        "Stretched cheek fur"
+      ],
+      "acceptable": [
+        "Eye locations broadly plausible and balanced",
+        "Round pupil and amber appropriate",
+        "Ears read appropriately; tips cropped"
+      ],
+      "verdict": "recognizable but close-up confidence not achieved; further revisions in progress"
+    }
+  ],
+  "reference_links": {
+    "wolf_front": "https://www.wildlifesciencecenter.org/gray-wolf",
+    "wolf_profile": "https://www.pexels.com/photo/close-up-profile-of-a-gray-wolf-in-nature-32473175/",
+    "wolf_other_profile": "https://defenders.org/blog/2019/10/coexisting-gray-wolves",
+    "buffalo_front": "https://viva.ug/animals/wildlife/buffalo-african/",
+    "buffalo_profile": "https://www.lunikhygamefarm.co.za/exotic-game-2",
+    "fox_profile": "https://www.fotoma.sk/galeria/49797/liska-hrdzava/",
+    "raccoon_profile": "https://wizoo.jp/Gallery/Raccoon",
+    "hare_front": "https://www.kevinsawford.com/galleries/view/head-on-hare",
+    "rabbit_profile": "https://www.naturfoto.cz/kralik-divy-fotografie_sk-17682.html"
+  }
+}

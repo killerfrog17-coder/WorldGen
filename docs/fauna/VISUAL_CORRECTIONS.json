@@ -46,23 +46,25 @@
       "number": 6,
       "slug": "red-fox",
       "name": "Red fox",
-      "status": "improved_face_ready_for_review",
+      "status": "critic_rejected_pending_rework",
       "reference_comparison_completed": true,
       "appearance_approved": false,
       "source_sha256": "b5123ab9264fa4e557714a30d4e163bb3f1a1cbfef26d6a51b8670150dff13db",
       "reference": "https://www.nationalgeographic.com.es/mundo-animal/la-pupila-un-instrumento-optico-de-precision_19363",
-      "body_and_pattern_review": "Remaining general body/pattern review not certified by this face pass."
+      "body_and_pattern_review": "Remaining general body/pattern review not certified by this face pass.",
+      "independent_critic_pass": false
     },
     {
       "number": 7,
       "slug": "wolf",
       "name": "Wolf",
-      "status": "improved_face_ready_for_review",
+      "status": "critic_rejected_pending_rework",
       "reference_comparison_completed": true,
       "appearance_approved": false,
       "source_sha256": "3518512b793a22da10200feba0af722bb9e2e009905a73a68f08ace86dc3748c",
       "reference": "https://www.wildlifesciencecenter.org/gray-wolf",
-      "body_and_pattern_review": "Remaining general body/pattern review not certified by this face pass."
+      "body_and_pattern_review": "Remaining general body/pattern review not certified by this face pass.",
+      "independent_critic_pass": false
     },
     {
       "number": 8,
@@ -236,12 +238,13 @@
       "number": 29,
       "slug": "raccoon",
       "name": "Raccoon",
-      "status": "improved_face_ready_for_review",
+      "status": "critic_rejected_pending_rework",
       "reference_comparison_completed": true,
       "appearance_approved": false,
       "source_sha256": "2101e1e62999bbe48d73a692c0ba60ff5843e7243f40c38cded8e75fdd3be5f4",
       "reference": "https://rachelmankowitz.com/2014/04/19/the-dancing-raccoon/",
-      "body_and_pattern_review": "Remaining general body/pattern review not certified by this face pass."
+      "body_and_pattern_review": "Remaining general body/pattern review not certified by this face pass.",
+      "independent_critic_pass": false
     },
     {
       "number": 30,

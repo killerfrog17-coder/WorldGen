@@ -11,8 +11,8 @@ from scipy.interpolate import RBFInterpolator
 from scipy.ndimage import map_coordinates,distance_transform_edt
 repo=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(repo/'scripts'));from fauna_paint_recipes import profiles
-ap=argparse.ArgumentParser();ap.add_argument('--slug',choices=['raccoon','red-fox','wolf'],required=True);a=ap.parse_args()
-root=repo/'artifacts/fauna-visual-corrections'/a.slug
+ap=argparse.ArgumentParser();ap.add_argument('--slug',choices=['raccoon','red-fox','wolf','hare','rabbit'],required=True);ap.add_argument('--root',type=Path);a=ap.parse_args()
+root=(a.root or repo/'artifacts/fauna-visual-corrections'/a.slug).resolve()
 land=json.loads((root/'face-landmarks.json').read_text());guide=json.loads((root/'eye-audit/front.json').read_text());bake=json.loads((root/'coat-bake.json').read_text())
 paint_path=root/'front-paint-guide.png';paint=np.asarray(Image.open(paint_path).convert('RGB'),np.float32)/255
 d=dict(np.load(root/'paint-anatomy.npz'));d['region_weights']=np.zeros((len(d['vertices']),10),np.float32)
@@ -47,9 +47,18 @@ ear_gate=smooth(eye_mid[2]+.10,eye_mid[2]+.19,p[:,2])*smooth(-.40,-.22,(p-eye_mi
 head=np.maximum(head,ear_gate)
 alpha=smooth(.20,.65,n@front)*head*visible
 alpha*=((screen[:,0]>0)&(screen[:,0]<W-1)&(screen[:,1]>0)&(screen[:,1]<H-1))
+views_path=root/'face-paint-views.json';views=json.loads(views_path.read_text()) if views_path.exists() else None
+if views:
+    from fauna_face_projection import sample_view
+    total=np.zeros(len(p));combined=np.zeros_like(p)
+    for view in views:
+        colour,weight=sample_view(root,view,d['vertices'],d['faces'],p,n);weight*=head;total+=weight;combined+=colour*weight[:,None]
+    sampled=combined/np.maximum(total[:,None],1e-8);alpha=np.clip(total,0,1)
+elif a.slug in {'hare','rabbit'}:raise ValueError('Explicit calibrated front/profile guide mappings required')
 nasal_rel=p-np.array(land['nose']['point']);side_axis=np.array(land['side_axis']);nw,nh=land['physical_eye_revision']['nose_radius']
 nasal_q=((nasal_rel@side_axis)/nw)**2+(nasal_rel[:,2]/nh)**2+((nasal_rel@front)/.065)**2
 side_nose=(1-smooth(.65,1.12,nasal_q))
+if not land['physical_eye_revision'].get('nasal_disc',True):side_nose*=0
 original=root/'unprojected-atlases';original.mkdir(exist_ok=True);palettes=profiles(a.slug)
 for ci,coat in enumerate(bake['coats']):
     dst=root/coat['file'];backup=original/dst.name
@@ -70,6 +79,8 @@ for ci,coat in enumerate(bake['coats']):
         tinted=colour*ratio
         if a.slug=='red-fox' and ci in {2,3,6}:
             tinted=lum[:,None]*base/max(float(reference_base@np.array([.2126,.7152,.0722])),.1)
+        if a.slug in {'hare','rabbit'} and any(x in palettes[ci][0].lower() for x in ['white','snow']):
+            tinted=lum[:,None]*base/max(float(reference_base@np.array([.2126,.7152,.0722])),.1)
         pale_fur=colour*pale/np.maximum(reference_pale,.1)
         colour=tinted*(1-white[:,None])+pale_fur*white[:,None]
         colour=colour*(1-dark[:,None])+sampled*dark[:,None]
@@ -79,10 +90,21 @@ for ci,coat in enumerate(bake['coats']):
     nasal_colour=image[iy,ix];nasal_lum=np.maximum(nasal_colour@np.array([.2126,.7152,.0722]),1e-5)
     nasal_colour=nasal_colour*np.minimum(1.,.085/nasal_lum)[:,None]
     image[iy,ix]=image[iy,ix]*(1-side_nose[:,None])+nasal_colour*side_nose[:,None]
+    if land.get('anatomical_orbit',{}).get('stitched') and a.slug in {'wolf','red-fox','raccoon'}:
+        # Bind-space nostril pigment goes into the actual selected nasal UVs;
+        # separate oval rim objects would project across the muzzle in profile.
+        span=nw*(.65 if a.slug=='wolf' else .75);u=(nasal_rel@side_axis)/span;v=nasal_rel[:,2]/(nh*.75);nostril=np.zeros(len(p))
+        for sign in [-1,1]:
+            q=((u-sign*.52)/.24)**2+((v-.02-sign*.35*(u-sign*.52))/.15)**2
+            nostril=np.maximum(nostril,1-smooth(.65,1.25,q))
+        nostril*=smooth(-.045,-.018,nasal_rel@front)*(1-smooth(.035,.065,nasal_rel@front))
+        image[iy,ix]=image[iy,ix]*(1-nostril[:,None])+np.array([.004,.0035,.003])*nostril[:,None]
     distance,nearest=distance_transform_edt(~occupied,return_indices=True);pad=(~occupied)&(distance<=12);image[pad]=image[nearest[0][pad],nearest[1][pad]]
     Image.fromarray(np.uint8(np.clip(image,0,1)*255)).save(dst)
 rough_path=root/'coat-roughness.png';rough=np.asarray(Image.open(rough_path).convert('L'),np.float32)/255
 nx,ny=target[2];radius=np.array([26.,18.]) if a.slug=='raccoon' else np.array([32.,23.]);nasal=np.exp(-np.sum(((screen[:,:2]-[nx,ny])/radius)**4,axis=1))*alpha
+if not land['physical_eye_revision'].get('nasal_disc',True):nasal*=0
 nasal=np.maximum(nasal,side_nose);rough[iy,ix]=rough[iy,ix]*(1-nasal)+.47*nasal;Image.fromarray(np.uint8(np.clip(rough,0,1)*255)).save(rough_path)
 report={'slug':a.slug,'guide_sha256':hashlib.sha256(paint_path.read_bytes()).hexdigest(),'target_camera':guide,'target_pixels':target.tolist(),'guide_pixels':source.tolist(),'painted_pixels':int((alpha>.5).sum()),'method':'Visible front head projection of generated paint into original UVs, explicit landmark warp and smooth normal/depth-gated blend; original non-front atlases retained.','limits':'Single front guide only; profile join, fur direction, baked shading and all variants require actual native inspection. Not a replacement render or approved appearance.'}
+if views:report.update(method='Calibrated generated front/profile guides fused by surface visibility and view normal into original UVs; mirrored profile guide fitted independently to the other side.',view_configurations=views,limits='Generated paint can retain lighting and fine-fibre stretching; native front/profile/coat inspection and owner review required.')
 (root/'face-projection.json').write_text(json.dumps(report,indent=2)+'\n');print('FACE GUIDE BAKED',a.slug,report['painted_pixels'])

@@ -1,5 +1,94 @@
 # WorldGen repository instructions
 
+LOCAL ORBITAL REFINEMENT VERIFIED / STILL ART WORKING,26October2026:
+Anatomy experiment now six isolated roots: Wolf/Fox/Raccoon/Hare/Rabbit/Buffalo.
+New fauna_orbital_refine.py subdivides ONLY main-body eye neighborhoods with
+original UV/deform/shape interpolation, preserving original vertex prefix and
+source polygon ID per child. This prevents long original triangles making huge
+jagged holes. Native checker independently validates every retained child lies
+on its source triangle, UV/skin/shape interpolation, surface-area coverage outside
+documented openings, source prefix/keys, rig/rest/ALL actions and exact boundary
+skin/position. Hare proof passed maxUV1.4e-7,skin5.5e-7,shape1.6e-7, boundary0.
+This is technical proof, NOT art acceptance. New head sculpts taper lower prey
+cheeks/soften jaw, Rabbit bounded muzzle shortening +16% eye size; lateral eye
+centres retained. Newest tweaks still need rebuild/actual-view/native checks.
+Critic rightly says real lateral eyes look narrow in front: DO NOT rotate hare
+or rabbit eyes toward camera simply to hide that. Hare iris spokes reduced.
+
+Raised nostril rim trial was independently rejected for protruding strips;
+fauna_nasal_detail.py deleted (never published). Now bind-space nostril pigment
+baked into actual nasal UVs, restrained shader grain/roughness, no extra cap/rims.
+Wolf existing paired eye placement now independently judged plausible/balanced,
+but profile eye integration, cheek folds and muzzle proportions remain concerns.
+Fox/Raccoon new PROFILE generated paint guides (actual current clay cameras)
+visually inspected +exact prompts/provenance retained. Calibrated front/right/
+independently mirrored left projections currently CPU-baking sessions85356/61423
+at checkpoint; wait for exit BEFORE rebuilding natives. Raccoon apparent ear
+scraps are largely painted triangles on intact clay, so fix paint rather than
+blindly deleting ear geometry. Its new orbital fur clones from black mask BELOW
+eye, not pale brow. Nothing new published since live source3c41ad7.
+Fresh critics read no root context/status/code. VISUAL_CRITICISM keeps unresolved
+findings; do not infer pass from source/script success. All177 remain active scope,
+Deer protected. No animation edits, paid calls or owner GUI/game changes.
+
+INDEPENDENT VISUAL CRITICS REJECTED FIRST PASSES,26October2026:
+User explicitly requests continue until confident, comparing real FRONT and SIDE
+references and independent critic agents with NO inherited conversation history.
+Three fork-none critics used, read-only. Major findings saved in
+VISUAL_CRITICISM.json; original Fox/Wolf/Raccoon live partial improvements and
+Hare/Rabbit/Buffalo working passes remain UNFINISHED. Tracker first3 now
+critic_rejected_pending_rework. Do not inherit old positive technical/art flags.
+No motion edits authorized now; existing bad animations accepted for future pass.
+
+Separate anatomy experiment artifacts/fauna-anatomy-revision/wolf opens immutable
+original paired source f668e88c9cba6b80c3b03485941e6914185af4e4a4e4e6e77351d08033dd36fa
+on every rebuild, never accumulates socket edits. New fauna_stitched_orbits.py
+removes actual orbital faces (ANY triangle vertex inside opening, not centroid),
+adds buried closed ellipsoids and shaped lids bridging exact retained boundary.
+Boundary positions and skin identical; body vertices/skin/UVs/rest/actions stay,
+except explicit bounded head sculpt applied identically across shape keys.
+Source shading normals copied to boundary to avoid fake angular patch seams.
+fauna_orbital_bake.py continuous per-coat256x128 atlases, actual3D nearest support
+UV at outer boundary; interior fur cloning fades to exact boundary. Narrow bare
+margin via attribute. Existing deer geometry is read-only inspiration, protected.
+New source wolf-profile.jpg from actual Pexels photo viewed, plus generated right
+paint guide copied with metadata. Front+independently mirrored profile mappings
+projected into existing UVs, no new 3D head/model/inference. Main nose-cap trial
+visually rejected and removed; small inset nostril/lip pieces currently testing.
+Latest critic finds plausible balanced eye positions/appropriate pupil+amber,
+but heavy upper brow/nose definition and cheek folds need improvement. Brow
+revised afterward; next critic followup running. Not published; old3 live native
+SHAs/media untouched. New source scripts and prey work require source backup.
+
+LIVE VISUAL UPDATE / FIRST3 ONLY,26October2026 ~00:10CDT:
+First3 face improvements (Fox/Wolf/Raccoon) now PRIVATE LIVE on existing phone
+viewer; Site source3c41ad7be03f6a31858627e4600ffce4e196c27b, deployment
+appgdep_6adee0afa3208191aa7880f8d6b36685 SUCCEEDED. All177entries/830coats/118extras/
+354clips retained, exactly2clips/animal, Done/notes preserved. Actual mobile QA
+and6updated clip decodes pass. This is a face improvement for review, NOT animal
+or game-ready art approval; others still old appearances. Frozen new natives:
+Fox b5123ab9264fa4e557714a30d4e163bb3f1a1cbfef26d6a51b8670150dff13db;
+Wolf3518512b793a22da10200feba0af722bb9e2e009905a73a68f08ace86dc3748c;
+Raccoon2101e1e62999bbe48d73a692c0ba60ff5843e7243f40c38cded8e75fdd3be5f4.
+DO NOT resave these while their media publishes; changes require all new SHA
+proofs/media. Root source checkpoint ceeabbd5ff359faaa642b9dc73ac97292132b1b4
+pushed and remote verified; newer prey-family changes not yet backed up.
+
+Continue VISUAL ONLY, no animation edits. Hare/Rabbit next, new explicit side
+socket picks physically fitted, circular iris/appropriate pupil, no canine bare
+nose disc. Fresh actual clay3views compared with real rabbit front and hare eye
+photo. New front paint guides generated/copied+provenance; need native fitting/
+projection. New2048CPU base bakes21223/7575 completed. Sources retain current
+accepted-bad animations. Source painter supports projected guides only3slugs
+so far; extend for Hare/Rabbit (dark/white cohorts preserved). Existing updated
+eyes still showed old atlas bare patches until re-bake; do not publish those.
+Buffalo working horn correction NOT yet published/final, Boar/Mouflon roots only
+prepared.8total working roots. VISUAL_CORRECTIONS currently3face-improved,5working,
+168queued, accepted deer protected. Do not misreport 177 media-ready as corrected.
+All prior new rendering/server workers exited; own HTTP8766 PIDs29008/40508 were
+verified and stopped. No owner GUI/game changes. Site helper finished; no pending
+source session. No external paid APIs, Video2Rig install/train or generation.
+
 OWNER RESUMES VISUAL CORRECTIONS ONLY,25October2026:
 Reconsider EVERY selected animal from assumption appearance is bad. Fit eyes,
 pupils, lids, ears, noses, markings and morphology attachments against actual

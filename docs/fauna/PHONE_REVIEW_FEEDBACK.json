@@ -62,8 +62,8 @@
         "blend_sha256": "b5123ab9264fa4e557714a30d4e163bb3f1a1cbfef26d6a51b8670150dff13db"
       },
       "correction": "Retargeted the real right hind leg and tail from explicit physical paths in the existing CC0 fox bank; confined whole paws and stabilized axial frames. Closed walk/run cycles and fitted ground clearance. Original bind geometry, appearance and rest skeleton retained.",
-      "published_source_sha": "70c1681a9d8f4cd6a06e3a5a163a1df0e3da487f",
-      "published_deployment": "appgdep_6adeb7a6fe2881919eba82579bc16e83"
+      "published_source_sha": "3c41ad7be03f6a31858627e4600ffce4e196c27b",
+      "published_deployment": "appgdep_6adee0afa3208191aa7880f8d6b36685"
     },
     {
       "slug": "wolf",
@@ -80,7 +80,9 @@
         "check": "artifacts\\fauna-visual-corrections\\wolf\\visual-native-check.json",
         "blend": "artifacts\\fauna-visual-corrections\\wolf\\Animal - Painted Species Review.blend",
         "blend_sha256": "3518512b793a22da10200feba0af722bb9e2e009905a73a68f08ace86dc3748c"
-      }
+      },
+      "published_source_sha": "3c41ad7be03f6a31858627e4600ffce4e196c27b",
+      "published_deployment": "appgdep_6adee0afa3208191aa7880f8d6b36685"
     },
     {
       "slug": "__all_eyes__",
@@ -159,7 +161,9 @@
         "check": "artifacts\\fauna-visual-corrections\\raccoon\\visual-native-check.json",
         "blend": "artifacts\\fauna-visual-corrections\\raccoon\\Animal - Painted Species Review.blend",
         "blend_sha256": "2101e1e62999bbe48d73a692c0ba60ff5843e7243f40c38cded8e75fdd3be5f4"
-      }
+      },
+      "published_source_sha": "3c41ad7be03f6a31858627e4600ffce4e196c27b",
+      "published_deployment": "appgdep_6adee0afa3208191aa7880f8d6b36685"
     }
   ],
   "latest_publication": {

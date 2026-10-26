@@ -29,7 +29,10 @@ state=json.loads((root/'paint-state.json').read_text());assert not state['appear
 assert state['status'] in {'anatomical_colouring_started','atlas_and_face_fitted_working'}
 bake=json.loads((root/'coat-bake.json').read_text());land=json.loads((root/'face-landmarks.json').read_text())
 physical_eye=bool(land.get('physical_eye_revision'))
-bpy.ops.wm.open_mainfile(filepath=str(root/'Animal - Painted Species Review.blend'))
+anatomical=land.get('anatomical_orbit')
+stitched=bool(anatomical and anatomical.get('stitched'))
+native_source=repo/json.loads((root/'visual-source.json').read_text())['source'] if stitched else root/'Animal - Painted Species Review.blend'
+bpy.ops.wm.open_mainfile(filepath=str(native_source))
 s=bpy.context.scene;entry=json.loads(s['deer_four_rigs'])[0]
 body=bpy.data.objects[entry['body']];rig=bpy.data.objects[entry['rig']]
 # JSON references are not Blender datablock users. Retain active repaired clips
@@ -46,8 +49,17 @@ shading_vertices=smooth_split_normals(body.data)
 rig.animation_data_clear();rig.data.pose_position='REST'
 for name in entry.get('facial_objects',[]):
     if name in bpy.data.objects:bpy.data.objects.remove(bpy.data.objects[name],do_unlink=True)
-p=np.array([v.co[:] for v in body.data.vertices]);body.data.calc_loop_triangles();faces=np.array([t.vertices[:] for t in body.data.loop_triangles])
-if physical_eye and land['physical_eye_revision'].get('sculpt_socket_clearance'):
+if stitched:
+    for index,point in state.get('manual_head_positions',{}).items():
+        index=int(index);shift=np.array(point)-body.data.vertices[index].co;body.data.vertices[index].co=point
+        if body.data.shape_keys:
+            for key in body.data.shape_keys.key_blocks:key.data[index].co=np.array(key.data[index].co)+shift
+    from fauna_head_sculpt import apply as sculpt_reference_head
+    state['reference_head_sculpt']=sculpt_reference_head(body,land,a.slug)
+    from fauna_orbital_refine import refine as refine_orbital_surface
+    state['orbital_surface_refinement']=refine_orbital_surface(body,land,a.slug)
+p=np.array([v.co[:] for v in body.data.vertices]);source_positions=p.copy();body.data.calc_loop_triangles();faces=np.array([t.vertices[:] for t in body.data.loop_triangles])
+if physical_eye and land['physical_eye_revision'].get('sculpt_socket_clearance') and not stitched:
     # A local manual socket correction is permitted by the owner's visual pass.
     # Clear the opening beneath the cornea rather than floating an entire eye
     # in front of an undisturbed solid face. No skin, bones or actions change.
@@ -64,14 +76,21 @@ if physical_eye and land['physical_eye_revision'].get('sculpt_socket_clearance')
     p=source_positions.copy();changed=[]
     for index,point in state.get('manual_head_positions',{}).items():p[int(index)]=point
     for side in ['right','left']:
+        if stitched:continue
         center=np.array(land[side+'_eye']['point']);n,hu,vu=eye_frame(a.slug,land,side);rx,rz=dimensions(land,bake['eye_radius'],side)
         rel=p-center;u=rel@hu;v=rel@vu;depth=rel@n
         radial=np.sqrt((u/rx)**2+(v/rz)**2)
-        selected=(radial<1.22)&(np.abs(depth)<rx*1.4)
-        sphere=rx*2.5;edge=math.sqrt(sphere*sphere-rx*rx)
-        target=np.sqrt(np.maximum(sphere*sphere-u*u-v*v,0))-edge-.003
-        t=np.clip((1.22-radial)/.20,0,1);t=t*t*(3-2*t)
-        shift=np.maximum(depth-target,0)*t*selected
+        if anatomical:
+            globe=rx*anatomical['globe_radius_factor'];radial=np.sqrt((u/rx)**2+(v/(globe*.60))**2)
+            selected=(radial<2.2)&(np.abs(depth)<globe*2)
+            target=np.full(len(p),-globe*.65);t=np.clip((2.2-radial)/.9,0,1);t=t*t*(3-2*t)
+            shift=np.minimum(np.maximum(depth-target,0),.055)*t*selected
+        else:
+            selected=(radial<1.22)&(np.abs(depth)<rx*1.4)
+            sphere=rx*2.5;edge=math.sqrt(sphere*sphere-rx*rx)
+            target=np.sqrt(np.maximum(sphere*sphere-u*u-v*v,0))-edge-.003
+            t=np.clip((1.22-radial)/.20,0,1);t=t*t*(3-2*t)
+            shift=np.maximum(depth-target,0)*t*selected
         p-=shift[:,None]*n;changed.extend(np.where(shift>1e-8)[0].tolist())
     for vertex,point in zip(body.data.vertices,p):vertex.co=point
     if body.data.shape_keys:
@@ -94,6 +113,7 @@ from fauna_surface_components import components as geometric_components
 components=geometric_components(p,faces)
 main=set().union(*[part for part in components if len(part)>=12]) if a.slug=='pronghorn' else max(components,key=len);face_ids=[i for i,face in enumerate(faces) if all(int(v) in main for v in face)]
 bvh=BVHTree.FromPolygons([Vector(x) for x in p],faces[face_ids].tolist(),all_triangles=True)
+support_bvh=BVHTree.FromPolygons([Vector(x) for x in source_positions],faces[face_ids].tolist(),all_triangles=True) if anatomical else bvh
 body_uv=np.array([[body.data.uv_layers.active.data[i].uv[:] for i in t.loops] for t in body.data.loop_triangles])
 names={g.index:g.name for g in body.vertex_groups};features=[];coat_objects=[]
 
@@ -106,8 +126,12 @@ def image(filename,noncolour=False):
     im.pack();return im
 
 rough=image('coat-roughness.png',True);normal=image('coat-normal.png',True)
+orbital_fur=None;orbital_atlases=[];orbital_patches=[]
+if anatomical:
+    for ci in range(len(bake['coats'])):
+        atlas=bpy.data.images.new(a.slug+' continuous orbital coat '+str(ci),width=256,height=128,alpha=True);atlas.colorspace_settings.name='sRGB';orbital_atlases.append(atlas)
 from fauna_hypothetical_coats import rationale
-if physical_eye:
+if physical_eye and land['physical_eye_revision'].get('nasal_disc',True):
     # Bind-space nasal weight is independent of UV seams/visibility. It follows
     # the mesh during animation and also covers the profile of the nasal disc.
     F=np.array(land['front_axis']);S=np.array(land['side_axis']);nose=np.array(land['nose']['point']);rel=p-nose;nw,nh=land['physical_eye_revision']['nose_radius']
@@ -136,17 +160,25 @@ for index,coat in enumerate(entry['painting_coats']):
             # those UVs produces zebra-like streaks even on plain fur. Sample the
             # body atlas into lid vertex colours and interpolate in lid space.
             weight=nodes.new('ShaderNodeAttribute');weight.attribute_name='Fitted lid weight';colour=nodes.new('ShaderNodeVertexColor');colour.layer_name=f'Fitted lid colour {index}';mix=nodes.new('ShaderNodeMixRGB');links.new(weight.outputs['Fac'],mix.inputs[0]);links.new(tex.outputs['Color'],mix.inputs[1]);links.new(colour.outputs['Color'],mix.inputs[2]);links.new(mix.outputs[0],bsdf.inputs[socket])
+            if anatomical:
+                uv=nodes.new('ShaderNodeUVMap');uv.uv_map='Orbital bake UV';fur=nodes.new('ShaderNodeTexImage');fur.image=orbital_atlases[index];fur.extension='EXTEND';links.new(uv.outputs['UV'],fur.inputs['Vector']);links.new(fur.outputs['Color'],mix.inputs[2])
         else:links.new(tex.outputs['Color'],bsdf.inputs[socket])
     tex=nodes.new('ShaderNodeTexImage');tex.image=normal;nmap=nodes.new('ShaderNodeNormalMap');nmap.inputs['Strength'].default_value=.65
     links.new(tex.outputs['Color'],nmap.inputs['Color']);links.new(nmap.outputs['Normal'],bsdf.inputs['Normal'])
     if land.get('paired_eye_revision'):
-        weight=nodes.new('ShaderNodeAttribute');weight.attribute_name='Fitted lid weight';subtract=nodes.new('ShaderNodeMath');subtract.operation='MULTIPLY_ADD';subtract.inputs[1].default_value=-.65;subtract.inputs[2].default_value=.65;links.new(weight.outputs['Fac'],subtract.inputs[0]);links.new(subtract.outputs[0],nmap.inputs['Strength'])
+        weight=nodes.new('ShaderNodeAttribute');weight.attribute_name='Fitted lid weight';subtract=nodes.new('ShaderNodeMath');subtract.operation='MULTIPLY_ADD';subtract.inputs[1].default_value=-.12 if anatomical else -.65;subtract.inputs[2].default_value=.12 if anatomical else .65;links.new(weight.outputs['Fac'],subtract.inputs[0]);links.new(subtract.outputs[0],nmap.inputs['Strength'])
     if physical_eye:
         nasal=nodes.new('ShaderNodeAttribute');nasal.attribute_name='Fauna nasal disc'
         source_colour=bsdf.inputs['Base Color'].links[0].from_socket;mix=nodes.new('ShaderNodeMixRGB');mix.blend_type='DARKEN';mix.inputs[2].default_value=(.012,.009,.007,1)
         links.new(nasal.outputs['Fac'],mix.inputs[0]);links.new(source_colour,mix.inputs[1]);links.new(mix.outputs[0],bsdf.inputs['Base Color'])
-        source_rough=bsdf.inputs['Roughness'].links[0].from_socket;rough_mix=nodes.new('ShaderNodeMixRGB');rough_mix.inputs[2].default_value=(.47,.47,.47,1);links.new(nasal.outputs['Fac'],rough_mix.inputs[0]);links.new(source_rough,rough_mix.inputs[1]);links.new(rough_mix.outputs[0],bsdf.inputs['Roughness'])
+        if stitched:links.new(source_colour,bsdf.inputs['Base Color'])
+        source_rough=bsdf.inputs['Roughness'].links[0].from_socket;rough_mix=nodes.new('ShaderNodeMixRGB');nr=.62 if stitched else .47;rough_mix.inputs[2].default_value=(nr,nr,nr,1);links.new(nasal.outputs['Fac'],rough_mix.inputs[0]);links.new(source_rough,rough_mix.inputs[1]);links.new(rough_mix.outputs[0],bsdf.inputs['Roughness'])
     coat.update(colour_atlas=bake['coats'][index]['file'],roughness_atlas='coat-roughness.png',normal_atlas='coat-normal.png')
+    if stitched:
+        bare=nodes.new('ShaderNodeAttribute');bare.attribute_name='Fitted bare lid';power=nodes.new('ShaderNodeMath');power.operation='POWER';power.inputs[1].default_value=3.;links.new(bare.outputs['Fac'],power.inputs[0])
+        old_colour=bsdf.inputs['Base Color'].links[0].from_socket;margin=nodes.new('ShaderNodeMixRGB');margin.inputs[2].default_value=(.012,.008,.006,1);links.new(power.outputs[0],margin.inputs[0]);links.new(old_colour,margin.inputs[1]);links.new(margin.outputs[0],bsdf.inputs['Base Color'])
+        bsdf.inputs['Specular IOR Level'].default_value=.25
+        grain=nodes.new('ShaderNodeTexNoise');grain.inputs['Scale'].default_value=450;grain.inputs['Detail'].default_value=2;nasal_bump=nodes.new('ShaderNodeBump');nasal_bump.inputs['Distance'].default_value=.00035;links.new(grain.outputs['Fac'],nasal_bump.inputs['Height']);links.new(nmap.outputs['Normal'],nasal_bump.inputs['Normal']);links.new(nasal.outputs['Fac'],nasal_bump.inputs['Strength']);links.new(nasal_bump.outputs['Normal'],bsdf.inputs['Normal'])
 body.data.materials[0]=bpy.data.materials[entry['painting_coats'][0]['material']]
 
 def plain(name,colour,roughness):
@@ -155,6 +187,7 @@ def plain(name,colour,roughness):
     return mat
 
 lidmat=plain(a.slug+' bare eyelid',(.027,.017,.012),.46)
+if anatomical:lidmat=plain(a.slug+' bare eyelid',(.007,.005,.004),.45)
 if kind=='fish':lidmat=plain(a.slug+' fixed ocular rim',(.16,.15,.095),.30)
 whiskermat=plain(a.slug+' whiskers',(.25,.23,.18),.7)
 eye=plain(a.slug+' living eye',(.025,.014,.007),.12);bsdf=eye.node_tree.nodes.get('Principled BSDF');bsdf.inputs['IOR'].default_value=1.38
@@ -163,6 +196,8 @@ if land.get('paired_eye_revision'):
     bsdf.inputs['Roughness'].default_value=.30;bsdf.inputs['Specular IOR Level'].default_value=.25;bsdf.inputs['Coat Weight'].default_value=0;bsdf.inputs['Coat Roughness'].default_value=.20
 if physical_eye:
     bsdf.inputs['Roughness'].default_value=.24;bsdf.inputs['Specular IOR Level'].default_value=.24
+if anatomical:
+    bsdf.inputs['Roughness'].default_value=.34;bsdf.inputs['Coat Weight'].default_value=.25;bsdf.inputs['Coat Roughness'].default_value=.09
 # A pigment-only iris: highlights come from the scene, never a painted white dot.
 size=256;y,x=np.mgrid[0:size,0:size];u=(x+.5)/size*2-1;v=(y+.5)/size*2-1;r=np.sqrt(u*u+v*v);theta=np.arctan2(v,u)
 fibre=.5+.25*np.sin(theta*91+r*19)+.16*np.sin(theta*143-r*38)
@@ -203,6 +238,8 @@ if physical_eye:
     elif a.slug=='raccoon':
         iris=np.stack([.055+fibre*.025,.035+fibre*.018,.020+fibre*.012],axis=2)
         pupil=np.clip((r-.72)/.06,0,1)
+    elif a.slug=='hare':pupil=np.clip((r-.51)/.06,0,1)
+    elif a.slug=='rabbit':pupil=np.clip((r-.79)/.05,0,1)
     source=repo/'artifacts/fauna-assets/textures/iris-neutral-radial-v2.png'
     if source.exists():
         # Read the generated pigment field into circular physical coordinates.
@@ -219,7 +256,14 @@ if physical_eye:
         if a.slug=='wolf':iris=luminance[:,:,None]*np.array([1.10,1.06,.66])
         elif a.slug=='raccoon':iris=sampled*.27
         elif a.slug=='buffalo':iris=sampled*.35
+        elif a.slug=='rabbit':iris=sampled*.22
         state['iris_texture_source']={'path':str(source.relative_to(repo)),'sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'painted_catchlights':False,'pupil':'species-shaped shader pigment mask'}
+if anatomical:
+    mean=iris[r<1].mean(0);iris=iris*.62+mean*.38
+    if a.slug=='hare':iris=(iris*.24+mean*.76)*.65
+    if a.slug=='wolf':
+        lum=iris@np.array([.2126,.7152,.0722]);iris=lum[:,:,None]*np.array([1.40,1.0,.48])*.60
+    rim=np.clip((1-r)/.065,0,1)
 iris=iris*pupil[:,:,None]*rim[:,:,None]+.008*(1-pupil[:,:,None]*rim[:,:,None]);rgba=np.dstack([iris,np.ones_like(r)])
 im=bpy.data.images.get(a.slug+' iris pigment') or bpy.data.images.new(a.slug+' iris pigment',width=size,height=size,alpha=True)
 im.pixels.foreach_set(rgba.astype(np.float32).ravel());im.pack()
@@ -228,8 +272,8 @@ for node in list(eye.node_tree.nodes):
 tex=eye.node_tree.nodes.new('ShaderNodeTexImage');tex.image=im;eye.node_tree.links.new(tex.outputs['Color'],bsdf.inputs['Base Color'])
 if physical_eye:tex.extension='EXTEND'
 
-def bary(point,tri):
-    v0,v1,v2=p[faces[tri]];e0=v1-v0;e1=v2-v0;v=np.array(point)-v0
+def bary(point,tri,coordinates=None):
+    v0,v1,v2=(p if coordinates is None else coordinates)[faces[tri]];e0=v1-v0;e1=v2-v0;v=np.array(point)-v0
     d00=e0@e0;d01=e0@e1;d11=e1@e1;d20=v@e0;d21=v@e1;den=d00*d11-d01*d01
     if abs(den)<1e-14:return np.array([1.,0,0])
     b=(d11*d20-d01*d21)/den;c=(d00*d21-d01*d20)/den
@@ -241,6 +285,10 @@ def sample(point):
         for g in body.data.vertices[int(vertex)].groups:skin[names[g.group]]=skin.get(names[g.group],0)+factor*g.weight
     skin=dict(sorted(skin.items(),key=lambda x:-x[1])[:4]);total=sum(skin.values());skin={k:v/total for k,v in skin.items()}
     return np.asarray(q),w@body_uv[tri],skin
+
+def support_sample(point):
+    q,normal,tri,_=support_bvh.find_nearest(Vector(point));tri=face_ids[tri]
+    return np.asarray(q),bary(q,tri,source_positions)@body_uv[tri]
 
 def obj(name,vertices,polygons,materials,uvs=None,indices=None,anchor=None):
     mesh=bpy.data.meshes.new(name);mesh.from_pydata(vertices,[],polygons);mesh.update()
@@ -263,8 +311,12 @@ if physical_eye:segments=40;rings=8
 for side in ([] if surface_only_arthropod else ['right','left']):
     rx,rz=dimensions(land,bake['eye_radius'],side)
     anchor=land[side+'_eye'];center=np.array(anchor['point']);n,hu,vu=eye_frame(a.slug,land,side)
+    if anatomical:center=center-np.array(land['front_axis'])*anatomical.get('globe_recess_front',0.)
     skin=sample(center)[2]
     def ellipse(t):
+        if anatomical:
+            c=math.cos(t);z=math.sin(t);R=rx*anatomical['globe_radius_factor'];upper=anatomical['upper_aperture'];lower=anatomical['lower_aperture']
+            return hu*rx*c+vu*R*(z*abs(z)*(upper if z>0 else lower)+.07*c*(1 if side=='right' else -1))
         if physical_eye:
             # Upper arch is full; the lower edge is shallower, with corners.
             c=math.cos(t);z=math.sin(t)
@@ -282,9 +334,11 @@ for side in ([] if surface_only_arthropod else ['right','left']):
     if land.get('paired_eye_revision'):bulge=min(rx,rz)*.16;eye_margin=min(rx,rz)*.08
     sphere_radius=max(rx*2.5,rz*1.65)
     sphere_edge=math.sqrt(sphere_radius*sphere_radius-rx*rx)
+    if anatomical:sphere_radius=rx*anatomical['globe_radius_factor'];sphere_edge=sphere_radius*anatomical['burial'];eye_margin=0.
     def cap_height(offset):
         return math.sqrt(max(0,sphere_radius*sphere_radius-float(offset@offset)))-sphere_edge
     iris_radius=rz*land.get('physical_eye_revision',{}).get('iris_radius_factor',.95)
+    if anatomical:iris_radius=sphere_radius*anatomical['iris_radius']
     vertices=[center+n*(eye_margin+bulge)];uvs=[(.5,.5)];polygons=[]
     for ring in range(1,rings+1):
         rad=ring/rings
@@ -306,7 +360,9 @@ for side in ([] if surface_only_arthropod else ['right','left']):
     convex=land.get('paired_eye_revision',{}).get('convex_lens',False)
     if convex:
         depths=[eye_surface_depth(center+ellipse(t)*.35) for t in np.linspace(0,math.tau,25)[:-1]];paired_depth=min(float(np.quantile(depths,.60)),min(rx,rz)*.10)+land['paired_eye_revision'].get('lens_outset',0)
-    if physical_eye:
+    if anatomical:
+        paired_depth=0.
+    elif physical_eye:
         # One rigid corneal surface. Never drape iris vertices over individual
         # body triangles: that made the previous eyes kink and stretch.
         required=[]
@@ -333,13 +389,22 @@ for side in ([] if surface_only_arthropod else ['right','left']):
     lid_radii=[1.,1.04,1.10,1.30,1.60] if land.get('paired_eye_revision') else [1.,1.035,1.08,1.16] if reviewed else [1.,1.10,1.21,1.43]
     if convex:lid_radii=[1.,1.03,1.07,1.18,1.36]
     if physical_eye:lid_radii=[1.,1.025,1.075,1.22]
+    if anatomical:lid_radii=[1.,1.05,1.14,1.36,1.72,2.15,anatomical['outer_skin_radius']]
     for ring,rad in enumerate(lid_radii):
         for i in range(segments):
             t=i*math.tau/segments;target=center+ellipse(t)*rad
-            hit=bvh.ray_cast(Vector(target+n*.20),Vector(-n),.4)[0]
-            if hit is None or np.linalg.norm(np.array(hit)-target)>max(rx,rz)*.8+.008:hit=sample(target)[0]
+            hit=support_bvh.ray_cast(Vector(target+n*.20),Vector(-n),.4)[0]
+            if hit is None or np.linalg.norm(np.array(hit)-target)>max(rx,rz)*.8+.008:hit=support_sample(target)[0] if anatomical else sample(target)[0]
             surface=np.asarray(hit);upper=max(0,math.sin(t))
-            if physical_eye:
+            if anatomical:
+                edge_offset=ellipse(t);edge_depth=cap_height(edge_offset)
+                # Only the immediate lid bridges onto the globe. Beyond it,
+                # tissue follows the original skull instead of forming a cone.
+                blend=np.clip((rad-1.04)/.46,0,1);blend=blend*blend*(3-2*blend)
+                depth=float((surface-target)@n);lip=sphere_radius*.028 if ring==1 else 0.
+                ridge=sphere_radius*(.05*max(0,math.sin(t))**2+.015*max(0,-math.sin(t)))*math.exp(-((rad-1.22)/.25)**2)
+                point=target+n*((edge_depth+lip)*(1-blend)+(depth+.0004)*blend+ridge)
+            elif physical_eye:
                 # First edge matches the smooth lens exactly. Only the outer
                 # fur edge follows the source skin; the bare band stays narrow.
                 edge_offset=ellipse(t)
@@ -362,14 +427,23 @@ for side in ([] if surface_only_arthropod else ['right','left']):
                 offsets=[.0008,.0013+.0005*upper,.0005] if a.slug=='pheasant' or kind=='fish' else [.002,.004+.002*upper,.0015]
                 point=target+n*offsets[ring]
             else:point=target+n*.002 if ring==0 else surface+n*([0,.003+.004*upper,.002,.0007][ring])
-            vertices.append(point);uvs.append(sample(surface)[1])
+            vertices.append(point)
+            if anatomical:
+                fur_target=center+ellipse(t)*max(rad,1.75);uvs.append(support_sample(fur_target)[1])
+            else:uvs.append(sample(surface)[1])
     for j in range(len(lid_radii)-1):
         for i in range(segments):
             polygons.append((j*segments+i,j*segments+(i+1)%segments,(j+1)*segments+(i+1)%segments,(j+1)*segments+i))
-            bare_band=j<2 if physical_eye else j<2 if land.get('paired_eye_revision') else True if reviewed else j<(1 if kind=='fish' else 2)
+            bare_band=j==0 if anatomical else j<2 if physical_eye else j<2 if land.get('paired_eye_revision') else True if reviewed else j<(1 if kind=='fish' else 2)
             indices.append(1 if bare_band else 0)
     if np.dot(np.cross(vertices[polygons[0][1]]-vertices[polygons[0][0]],vertices[polygons[0][2]]-vertices[polygons[0][0]]),n)<0:polygons=[tuple(reversed(f)) for f in polygons]
     lid=obj(a.slug+' '+side+' socket and eyelid',vertices,polygons,[body.data.materials[0],lidmat],uvs,indices,anchor=skin)
+    if anatomical:
+        layer=lid.data.uv_layers.new(name='Orbital bake UV');half=0 if side=='right' else 1
+        for loop in lid.data.loops:
+            rel=np.asarray(vertices[loop.vertex_index])-center;u=.5+float(rel@hu)/(rx*lid_radii[-1]*2);v=.5+float(rel@vu)/(sphere_radius*.65*lid_radii[-1]*2);layer.data[loop.index].uv=(half*.5+u*.5,v)
+        lid.data.uv_layers.active=lid.data.uv_layers['UVMap'];lid.data.uv_layers['UVMap'].active_render=True
+        orbital_patches.append({'object':lid,'half':half,'center':center,'horizontal':hu,'vertical':vu,'radius':sphere_radius,'rx':rx})
     if land.get('paired_eye_revision'):
         marker=lid.data.attributes.new('Fitted lid weight','FLOAT','POINT');marker.data.foreach_set('value',np.ones(len(vertices),np.float32))
         loop_vertices=np.array([loop.vertex_index for loop in lid.data.loops]);sample_uv=np.array(uvs)
@@ -401,6 +475,13 @@ for side in ([] if surface_only_arthropod else ['right','left']):
                 hair_vertices.extend([point+hu*width,point-hu*width])
             for k in range(2):hair_polygons.append((base+k*2,base+k*2+1,base+k*2+3,base+k*2+2))
         obj(a.slug+' '+side+' subtle lashes and brow hairs',hair_vertices,hair_polygons,[whiskermat],anchor=skin)
+
+if anatomical:
+    if stitched:
+        from fauna_stitched_orbits import prepare as prepare_stitched_orbits
+        state['orbital_topology_correction']=prepare_stitched_orbits(body,orbital_patches,land,sample,root,a.slug)
+    from fauna_orbital_bake import bake as bake_orbital_pigment
+    state['orbital_atlas_pixels']=bake_orbital_pigment(orbital_patches,bake['coats'],orbital_atlases,support_sample,image)
 
 # Sparse tapered muzzle whiskers, attached using the local muzzle weights.
 nose=np.array(land['nose']['point']);vertices=[];polygons=[]
@@ -441,6 +522,7 @@ if extended:state['appearance_scope']='Selected owner-approved body and original
 original_faces=[f.vertices[:] for f in body.data.polygons]
 polygon_bytes=json.dumps(original_faces).encode() if state.get('polygon_hash_encoding')=='json' else np.array(original_faces,np.int32).tobytes()
 geometry=hashlib.sha256(np.array([v.co[:] for v in body.data.vertices],np.float32).tobytes()+polygon_bytes).hexdigest()
+if stitched:state['geometry_sha256']=geometry
 assert geometry==state['geometry_sha256'],'Selected body geometry changed'
 state['coincident_shading_vertices_smoothed']=shading_vertices
 state['body_triangles']=sum(len(f.vertices)-2 for f in body.data.polygons)
