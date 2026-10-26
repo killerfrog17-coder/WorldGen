@@ -4,16 +4,27 @@ from pathlib import Path
 from fauna_phone_clips import review_clip_labels
 repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-phone-media';site=repo/'artifacts/fauna-phone-review/dist'
 ap=argparse.ArgumentParser();ap.add_argument('--partial',action='store_true');a=ap.parse_args();plan=json.loads((root/'plan.json').read_text());animals=[];ledger=[];complete=0
+feedback_path=repo/'docs/fauna/PHONE_REVIEW_FEEDBACK.json';feedback=json.loads(feedback_path.read_text()) if feedback_path.exists() else {'items':[]}
+repairs={row['slug']:row for row in feedback['items'] if row.get('status') in {'corrected_ready_for_review','awaiting_owner_review','approved'} and row.get('repair_review')}
 def copy(source,target,digest):
  assert source.exists() and hashlib.sha256(source.read_bytes()).hexdigest()==digest,source
  target.parent.mkdir(exist_ok=True,parents=True)
  if not target.exists() or hashlib.sha256(target.read_bytes()).hexdigest()!=digest:shutil.copy2(source,target)
  ledger.append({'source':str(source.relative_to(repo)),'file':str(target.relative_to(site)),'sha256':digest})
 for item in plan['animals']:
- folder=root/item['slug'];receipt=folder/'receipt.json';ready=False
+ update=repairs.get(item['slug']);folder=root/item['slug']
+ if update:
+  repair=update['repair_review'];replacement=next(row for row in json.loads((repo/repair['plan']).read_text())['animals'] if row['slug']==item['slug'])
+  assert all(replacement[k]==item[k] for k in ['number','slug','name','accepted','coats','extras'])
+  proof=json.loads((repo/repair['check']).read_text());native=(repo/replacement['source']).resolve();assert native.is_relative_to(repo)
+  assert proof['all_checks_passed'] and proof['actually_visually_inspected'] and proof['checked_blend_sha256']==replacement['source_sha256']==hashlib.sha256(native.read_bytes()).hexdigest()
+  for view in proof['visual_evidence']:assert hashlib.sha256((repo/view['file']).read_bytes()).hexdigest()==view['sha256']
+  item=replacement;folder=(repo/repair['media_root']/item['slug']).resolve();assert folder.is_relative_to(repo)
+ receipt=folder/'receipt.json';ready=False
  if receipt.exists():
   r=json.loads(receipt.read_text());ready=r.get('complete') and r['source_sha256']==item['source_sha256']
  row={k:item[k] for k in ['number','slug','name','accepted']};row.update(asset_revision=item['source_sha256'],pictures=[],variations=[],clips=[],ready=bool(ready))
+ if update:row['review_update']=update.get('review_update','Updated after your feedback.')
  if ready:
   assert hashlib.sha256((repo/item['source']).read_bytes()).hexdigest()==item['source_sha256'];complete+=1
   for im in r['stills']:

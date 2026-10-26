@@ -11,10 +11,18 @@
       "rig_sha256": "4c53bb5dc344e1dfa2afe146193be59f8a7595a8db0b88f6b33ea9da9d4aa69b",
       "model_selected": true,
       "animation_approved": false,
-      "animation_method": "Owner explicitly intends a different future method; stop refining current hare transfer.",
+      "animation_method": "Owner requested manual Run correction during phone review; revised torso/neck pose and confined rear torso weights. Owner reassessment pending.",
       "painting_started": true,
       "painting_status": "atlas_and_face_fitted_working",
-      "paint_review": "artifacts\\fauna-painted-20261024\\hare\\Animal - Painted Species Review.blend"
+      "paint_review": "artifacts\\fauna-painted-20261024\\hare\\Animal - Painted Species Review.blend",
+      "phone_motion_repair": {
+        "plan": "artifacts/fauna-repairs/hare/review-plan.json",
+        "media_root": "artifacts/fauna-repairs/hare/media",
+        "check": "artifacts/fauna-repairs/hare/native-check.json",
+        "blend": "artifacts/fauna-repairs/hare/Animal - Run Repaired.blend",
+        "blend_sha256": "ca40b928bfe2dd7a556e5633163e0767e8cded9cac5cb69632de9eebb2b48bd5",
+        "status": "awaiting_owner_review"
+      }
     },
     "rabbit": {
       "animal": "Rabbit",

@@ -1,0 +1,25 @@
+{
+  "scope": "Owner feedback from individual phone reviews; completion does not imply owner approval.",
+  "items": [
+    {
+      "slug": "hare",
+      "status": "awaiting_owner_review",
+      "feedback": "Run is slanted nose-down; entire rear half appears compressed. Try manual correction first.",
+      "model": 3,
+      "owner_approved": false,
+      "updated_at": "2026-10-25T19:45:04.259966-05:00",
+      "review_update": "Run updated after your feedback.",
+      "repair_review": {
+        "plan": "artifacts/fauna-repairs/hare/review-plan.json",
+        "media_root": "artifacts/fauna-repairs/hare/media",
+        "check": "artifacts/fauna-repairs/hare/native-check.json",
+        "blend": "artifacts/fauna-repairs/hare/Animal - Run Repaired.blend",
+        "blend_sha256": "ca40b928bfe2dd7a556e5633163e0767e8cded9cac5cb69632de9eebb2b48bd5"
+      },
+      "correction": "Levelled the transferred torso pitch, distributed neck compensation to retain gaze, bounded body bob and removed hind-limb influence from332 upper rear torso vertices. Rebuilt native review demos. Lower-leg skin and original non-Run individual actions retained.",
+      "limits": "Prototype manual repair; owner reassessment pending.",
+      "published_source_sha": "59aeac7406c651f0ff2e12832323a89f1d0ffa77",
+      "published_deployment": "appgdep_6adea3071a50819185d06a0b5ddd7e05"
+    }
+  ]
+}

@@ -1,5 +1,40 @@
 # WorldGen repository instructions
 
+PHONE FEEDBACK QUEUE / HARE RUN MANUAL REPAIR LIVE,25October2026 ~19:47 local:
+Owner is inspecting phone reviews; queue incoming feedback in
+ docs/fauna/PHONE_REVIEW_FEEDBACK.json. Hare3 Run was nose-down with collapsed
+rear half. Latest explicit request supersedes older instruction to stop refining
+hare transfer. Manual correction complete, status AWAITING OWNER REVIEW, NOT
+owner-approved. Original selected body/paint native ffcc0043... remains unchanged.
+Separate artifacts/fauna-repairs/hare/Animal - Run Repaired.blend SHA
+ca40b928bfe2dd7a556e5633163e0767e8cded9cac5cb69632de9eebb2b48bd5
+keeps bind geometry/topology/UV/shape keys/facial geometry/packed textures/rest
+skeleton EXACT. Run root pitch corrected to anatomical torso axis, bounded bob;
+neck compensation retains original world gaze.332 upper rear torso skin vertices
+confined away from hind-leg influence; lower-leg weights EXACT unchanged. Other
+individual actions EXACT; Showcase/Locomotion rebaked from corrected Run.
+Dense161-phase check: torso pitch before -58.64..-32.73deg, after .84..4.73deg;
+loop vertex error0, minimum actual body floor .004m; rear-core mean log edge
+distortion .14076 -> .08943, gaze difference <=.045deg. These metrics are NOT
+natural-gait, contact/collision or appearance approval. Residual source gait is
+prototype. Final side/front at.25/.75 and4-phase Run/Jump sheets ACTUALLY VIEWED.
+Native check exact SHA +6 render evidence SHAs in native-check.json.
+
+Phone package now supports SHA/vision-gated repair overlays from feedback queue;
+base painted index/master media untouched. Active hare review-plan/media are in
+fauna-repairs/hare. Uses ONLY2 clips Run/Jump. Other176 manifests exact unchanged;
+all828 coats/118 extras retained. Run update notice visible, old Done/notes survive
+with revision notice. Mobile playback/speed/counts/backup/progress QA ALL PASS.
+Same OWNER-PRIVATE Site successfully published source
+59aeac7406c651f0ff2e12832323a89f1d0ffa77, deployment
+appgdep_6adea3071a50819185d06a0b5ddd7e05, version
+appgprj_6ade6fbe0a5081918b25bcbf541da095~appgver_b22386a2d2cc81919e61e633d18d002e.
+Native controls retained; no owner GUI/apps/Remote/game/Unity/Desktop changes.
+All owned native build/check/render workers EXITED. Verified owned local
+preview12904 at8766 stopped on final teardown. Source backup includes inspect/repair/
+check scripts, phone overlay/render support and feedback/owner-selection records.
+Leave unrelated deleted prompt and2old deer scripts unstaged.
+
 PHONE VIEWER TWO-CLIP POLICY LIVE,25October2026 ~19:13 local:
 Owner explicitly wants ONLY TWO main animations per animal, superseding the
 all-clip delivery below. All177 phone pages now have exactly2 clips /354 total.
