@@ -13,12 +13,15 @@ public static partial class TerrainVideoOptions
     public static bool MidPlantShadows=true,TreeShadows=true;
     public static bool SimplifiedForestShadows=true;
     public static bool DistantTreeShadowCards=true,EfficientTreeViews=true;
+    public static bool SteadyDaylightShadows=true;
+    public static bool DawnDuskShadowBudget=true;
+    public static float ForestLightUp=1;
     public static int ForestShadowQuality=2;
     public static float ForestShadowSoftness=2;
     public static bool CanopyShade=true;
-    public static float ForestShadowDistance=>180;
-    public static int ForestShadowResolution=>ForestShadowQuality<2?1024:ForestShadowQuality==2?2048:4096;
-    public static int ForestShadowSamples=>ForestShadowQuality==0?2:ForestShadowQuality==4?9:4;
+    public static float ForestShadowDistance=>DawnDuskShadowBudget?(float)VegetationShadowBudget.ShadowRange(ForestLightUp):180;
+    public static int ForestShadowResolution=>Math.Min(ForestShadowQuality<2?1024:ForestShadowQuality==2?2048:4096,DawnDuskShadowBudget?VegetationShadowBudget.ResolutionCap(ForestLightUp):4096);
+    public static int ForestShadowSamples=>DawnDuskShadowBudget&&ForestLightUp<.10f?2:Math.Min(ForestShadowQuality==0?2:ForestShadowQuality==4?9:4,DawnDuskShadowBudget&&ForestLightUp<.28f?4:9);
     public static int GrassQuality=2,SpecialistQuality=2,MidQuality=2,TreeQuality=2;
     public static float TreeIdentityRange= (float)VegetationQuality.TreeIdentityRange;
     public static void ApplyPlantQuality(int layer,int quality)
@@ -39,6 +42,8 @@ public static partial class TerrainVideoOptions
         GrassNearDensity=Value("grass-near-density",2,1,20);
         SimplifiedForestShadows=Flag("simple-forest-shadows");
         DistantTreeShadowCards=Flag("distant-shadow-cards");EfficientTreeViews=Flag("efficient-tree-views");
+        SteadyDaylightShadows=Flag("steady-daylight-shadows");
+        DawnDuskShadowBudget=Flag("dawn-dusk-shadow-budget");
         CanopyShade=Flag("canopy-shade");
         ForestShadowQuality=Mathf.Clamp(PlayerPrefs.GetInt("vegetation-forest-shadow-quality",2),0,4);
         ForestShadowSoftness=Value("forest-shadow-softness",2,.75f,4);
@@ -62,6 +67,8 @@ public static partial class TerrainVideoOptions
         Flag("specialists",SpecialistPlants);Flag("mid",MidPlants);Flag("trees",GeneratedTrees);Flag("far-forest",FarForest);
         Value("grass-near-density",GrassNearDensity);Flag("simple-forest-shadows",SimplifiedForestShadows);
         Flag("distant-shadow-cards",DistantTreeShadowCards);Flag("efficient-tree-views",EfficientTreeViews);
+        Flag("steady-daylight-shadows",SteadyDaylightShadows);
+        Flag("dawn-dusk-shadow-budget",DawnDuskShadowBudget);
         Flag("canopy-shade",CanopyShade);
         PlayerPrefs.SetInt("vegetation-forest-shadow-quality",ForestShadowQuality);Value("forest-shadow-softness",ForestShadowSoftness);
         PlayerPrefs.SetInt("vegetation-specialist-detail",SpecialistDetail);PlayerPrefs.SetInt("vegetation-mid-detail",MidPlantDetail);PlayerPrefs.SetInt("vegetation-tree-detail",TreeDetail);
@@ -85,6 +92,8 @@ public static partial class TerrainVideoOptions
         GroundCover=GrassCanopy=GrassWind=true;TreeIdentityRange=(float)VegetationQuality.TreeIdentityRange;ApplyAllPlantQuality(2);
         GrassNearDensity=2;SimplifiedForestShadows=CanopyShade=true;ForestShadowQuality=2;ForestShadowSoftness=2;
         DistantTreeShadowCards=EfficientTreeViews=true;
+        SteadyDaylightShadows=true;
+        DawnDuskShadowBudget=true;
     }
     public static bool KeepVegetation(ScatterKind kind,ulong id)
     {
@@ -153,17 +162,21 @@ public sealed partial class WorldGenRuntime
         GUILayout.Label("Close views keep depth and detailed normals. Distant crowns use simpler lighting; tiny crowns use one capture. Tree quality controls the transition.",MutedStyle());
         TerrainVideoOptions.GrassWind=GUILayout.Toggle(TerrainVideoOptions.GrassWind,"Vegetation wind animation");
         GUILayout.Space(12);GUILayout.Label("FOREST SHADOWS",SectionStyle());
+        TerrainVideoOptions.SteadyDaylightShadows=GUILayout.Toggle(TerrainVideoOptions.SteadyDaylightShadows,"Steady daylight shadows");
+        GUILayout.Label("Sunlight holds while you stand still, then catches up gently as you move or look around. Dawn and dusk keep following the sun.",MutedStyle());
+        TerrainVideoOptions.DawnDuskShadowBudget=GUILayout.Toggle(TerrainVideoOptions.DawnDuskShadowBudget,"Reduce detailed shadows at dawn/dusk");
+        GUILayout.Label("Shorter, softer detailed shadows near the horizon. Direct sunlight fades into the existing ambient sky lighting as the sun rises or sets.",MutedStyle());
         TerrainVideoOptions.SimplifiedForestShadows=GUILayout.Toggle(TerrainVideoOptions.SimplifiedForestShadows,"Simplified forest shadows (off = previous rendering)");
         GUI.enabled=enabled&&TerrainVideoOptions.SimplifiedForestShadows;
-        TerrainVideoOptions.DistantTreeShadowCards=GUILayout.Toggle(TerrainVideoOptions.DistantTreeShadowCards,"Cheaper distant tree shadow cards");
-        GUILayout.Label("Detailed proxies blend to baked crown silhouettes from 64 to 96 m. Existing proxies remain until tree images are ready.",MutedStyle());
+        TerrainVideoOptions.DistantTreeShadowCards=GUILayout.Toggle(TerrainVideoOptions.DistantTreeShadowCards,"Cheaper distant tree shadows");
+        GUILayout.Label("Nearby shadows keep detail. Farther trees use baked silhouettes or broad solid crowns under low sunlight, with a smooth transition.",MutedStyle());
         GUILayout.Label("Forest shadow quality");
         TerrainVideoOptions.ForestShadowQuality=GUILayout.SelectionGrid(TerrainVideoOptions.ForestShadowQuality,VegetationQuality.Names,5);
-        GUILayout.Label("Fixed cascades: 16 / 48 / 100 / 180 m. Atlas "+TerrainVideoOptions.ForestShadowResolution+" px; ~"+(TerrainVideoOptions.ForestShadowResolution/2)+" px per cascade; "+TerrainVideoOptions.ForestShadowSamples+" foliage filter samples.");
+        GUILayout.Label("Four cascades; current range "+TerrainVideoOptions.ForestShadowDistance.ToString("F0")+"m (180m in full daylight). Atlas "+TerrainVideoOptions.ForestShadowResolution+"px; ~"+(TerrainVideoOptions.ForestShadowResolution/2)+"px per cascade; "+TerrainVideoOptions.ForestShadowSamples+" foliage filter samples.");
         GUILayout.Label("Foliage shadow softness  "+TerrainVideoOptions.ForestShadowSoftness.ToString("F2"));
         TerrainVideoOptions.ForestShadowSoftness=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.ForestShadowSoftness,.75f,4)*20)/20;
         TerrainVideoOptions.CanopyShade=GUILayout.Toggle(TerrainVideoOptions.CanopyShade,"Broad distant canopy shade (height-aware placed-tree coverage)");
-        GUILayout.Label("Quality changes resolution/filtering, not range. Broad shade blends in before detailed shadows end; it is approximate canopy shelter, not distant leaf silhouettes. Softness changes filter footprint.",MutedStyle());
+        GUILayout.Label("Quality controls resolution/filtering. The dawn/dusk budget can reduce range independently. Broad canopy shade blends in before detailed shadows end. Softness changes filter footprint.",MutedStyle());
         GUI.enabled=enabled;
         GUILayout.Space(10);
         vegetationDiagnostics=GUILayout.Toggle(vegetationDiagnostics,"Advanced diagnostics / A-B comparisons");

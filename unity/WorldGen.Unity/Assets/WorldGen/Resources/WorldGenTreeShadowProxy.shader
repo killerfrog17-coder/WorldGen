@@ -1,7 +1,7 @@
 Shader "WorldGen/TreeShadowProxy"
 {
     Properties {
-        _ShadowCard("Baked silhouette",Float)=0 _ShadowFade("LOD coverage",Float)=1
+        _ShadowCard("Baked silhouette",Float)=0 _ShadowCoverage("LOD coverage interval",Vector)=(0,1,0,0)
         _TreeColourViews("Tree silhouettes",2DArray)=""{}
         _ImpostorBounds("Object centre/radius",Vector)=(0,.5,0,1)
     }
@@ -24,10 +24,10 @@ Shader "WorldGen/TreeShadowProxy"
             float3 _LightDirection;
             float _ShadowCard;float4 _ImpostorBounds;
             UNITY_INSTANCING_BUFFER_START(ShadowProps)
-                UNITY_DEFINE_INSTANCED_PROP(float,_ShadowFade)
+                UNITY_DEFINE_INSTANCED_PROP(float4,_ShadowCoverage)
             UNITY_INSTANCING_BUFFER_END(ShadowProps)
             struct A{float4 positionOS:POSITION;float3 normalOS:NORMAL;float2 uv:TEXCOORD0;UNITY_VERTEX_INPUT_INSTANCE_ID};
-            struct O{float4 positionCS:SV_POSITION;float2 uvA:TEXCOORD0;float2 uvB:TEXCOORD1;float2 uvC:TEXCOORD2;nointerpolation uint3 indices:TEXCOORD3;nointerpolation float3 weights:TEXCOORD4;nointerpolation float fade:TEXCOORD5;};
+            struct O{float4 positionCS:SV_POSITION;float2 uvA:TEXCOORD0;float2 uvB:TEXCOORD1;float2 uvC:TEXCOORD2;nointerpolation uint3 indices:TEXCOORD3;nointerpolation float3 weights:TEXCOORD4;nointerpolation float2 coverage:TEXCOORD5;};
             O vert(A a)
             {
                 UNITY_SETUP_INSTANCE_ID(a);O o=(O)0;
@@ -47,20 +47,18 @@ Shader "WorldGen/TreeShadowProxy"
                 #else
                 clip.z=max(clip.z,UNITY_NEAR_CLIP_VALUE*clip.w);
                 #endif
-                o.positionCS=clip;o.fade=UNITY_ACCESS_INSTANCED_PROP(ShadowProps,_ShadowFade);return o;
+                o.positionCS=clip;o.coverage=UNITY_ACCESS_INSTANCED_PROP(ShadowProps,_ShadowCoverage).xy;return o;
             }
             half4 frag(O i):SV_Target
             {
-                float d=WorldGenDither(i.positionCS.xy);
+                float d=WorldGenDither(i.positionCS.xy);clip(d-i.coverage.x);clip(i.coverage.y-d);
                 if(_ShadowCard>.5)
                 {
-                    clip(d-(1-i.fade));
                     half a=SAMPLE_TEXTURE2D_ARRAY(_TreeColourViews,sampler_TreeColourViews,i.uvA,i.indices.x).a*(all(i.uvA>=0)&&all(i.uvA<=1));
                     half b=SAMPLE_TEXTURE2D_ARRAY(_TreeColourViews,sampler_TreeColourViews,i.uvB,i.indices.y).a*(all(i.uvB>=0)&&all(i.uvB<=1));
                     half c=SAMPLE_TEXTURE2D_ARRAY(_TreeColourViews,sampler_TreeColourViews,i.uvC,i.indices.z).a*(all(i.uvC>=0)&&all(i.uvC<=1));
                     clip(dot(float3(a,b,c),i.weights)-.4);
                 }
-                else clip(i.fade-d);
                 return 0;
             }
             ENDHLSL

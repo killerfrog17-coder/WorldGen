@@ -8,7 +8,7 @@ public sealed partial class LocalTerrainExplorer
 {
     readonly Plane[] scatterFrustum=new Plane[6];
     readonly System.Collections.Generic.HashSet<Tile> vegetationOccluders=new System.Collections.Generic.HashSet<Tile>();int occlusionFrame=-1;
-    float occlusionCeiling,vegetationShadowRadius,vegetationShadowSlope;bool allShadowCasters;
+    float occlusionCeiling,vegetationShadowRadius,vegetationShadowDistance,vegetationShadowUp;double vegetationShadowSlope;
     Vector3 scatterEye;Quaternion scatterRotation;Matrix4x4 scatterProjection;int scatterOptions;
     public int ScatterFrustumRejected {get;private set;}
     public int ScatterTerrainRejected {get;private set;}
@@ -136,24 +136,22 @@ public sealed partial class LocalTerrainExplorer
     }
     void PrepareVegetationShadowVisibility()
     {
-        vegetationShadowRadius=0;allShadowCasters=false;
+        vegetationShadowRadius=0;
         if(!TerrainVideoOptions.VegetationShadows||localSun==null||localSun.intensity<=0||localSun.shadows==LightShadows.None)return;
         var pipeline=GraphicsSettings.currentRenderPipeline as UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset;
         float distance=pipeline==null?50:pipeline.shadowDistance;
         if(distance<=0)return;
-        // Enclose the entire shadow-receiving frustum, including its vertical
-        // drop below the eye. Tree height alone misses hill-to-valley shadows.
-        float tangent=Mathf.Tan(view.fieldOfView*Mathf.Deg2Rad*.5f);
-        vegetationShadowRadius=distance*Mathf.Sqrt(1+tangent*tangent*(1+view.aspect*view.aspect))+8;
-        Vector3 sun=-localSun.transform.forward;
-        allShadowCasters=sun.y<=.01f;
-        vegetationShadowSlope=Mathf.Sqrt(sun.x*sun.x+sun.z*sun.z)/Math.Max(.0001f,sun.y);
+        // URP fades receiving shadows by radial world distance, not by the
+        // diagonal of a far-clip rectangle. Never expand casters without bound
+        // as sunlight approaches the horizon.
+        vegetationShadowDistance=distance;vegetationShadowRadius=distance+8;
+        vegetationShadowUp=(-localSun.transform.forward).y;
+        vegetationShadowSlope=VegetationShadowBudget.Slope(vegetationShadowUp);
     }
     bool MayCastVisibleShadow(Bounds box,Vector3 eye)
     {
-        if(vegetationShadowRadius<=0)return false;if(allShadowCasters)return true;
-        float drop=Math.Max(0,box.max.y-eye.y+vegetationShadowRadius);
-        float reach=vegetationShadowRadius+drop*vegetationShadowSlope;
+        if(vegetationShadowRadius<=0)return false;
+        float reach=(float)VegetationShadowBudget.ReachWithSlope(vegetationShadowDistance,box.max.y-eye.y,vegetationShadowSlope);
         return box.SqrDistance(eye)<reach*reach;
     }
 }

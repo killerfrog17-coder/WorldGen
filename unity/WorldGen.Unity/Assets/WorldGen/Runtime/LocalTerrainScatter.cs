@@ -72,6 +72,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(scatter==null)return;scatterX=double.NaN;
         skyPoseReady=sunPoseWritten=false;nextDaylightAt=0;
+        sunObserverReady=false;sunMotionBody=int.MinValue;SunShadowsHeld=false;
         // Texture phase remains planet-addressed across floating origins and chart changes.
         double modulus=1024;V p=frame.Origin*(frame.RadiusM+frame.AltitudeM);
         landMaterial.SetVector("_TextureAnchor",new Vector4((float)(p.X%modulus),(float)(p.Y%modulus),(float)(p.Z%modulus),0));
@@ -354,6 +355,7 @@ public sealed partial class LocalTerrainExplorer
         bool casts=TerrainVideoOptions.VegetationShadows&&p.Kind!=ScatterKind.Grass&&!IsSpecialist(p.Kind)&&lod<(p.Kind==ScatterKind.MidPlant?1:2)&&
             (p.Kind!=ScatterKind.MidPlant||TerrainVideoOptions.MidPlantShadows)&&(p.Kind!=ScatterKind.GeneratedTree||TerrainVideoOptions.TreeShadows);
         if(ReplaceTreeShadow(p))casts=false;
+        if(casts&&!MayCastVisibleShadow(chunk.Bounds[index],scatterEye))casts=false;
         if(shadowOnly&&!casts)return;
         int variant=artVariant==int.MinValue?p.Variant:artVariant;
         if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)variant=TreeFlora.ModelCode(variant,TerrainVideoOptions.TreeImpostors?lod:Math.Min(1,lod));

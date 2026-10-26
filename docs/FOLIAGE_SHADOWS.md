@@ -1,5 +1,80 @@
 # Foliage shadow and near-foot density checkpoint / 22 October 2026
 
+## Steady sunlight and bounded low-sun casters / 26 October 2026
+
+The owner reports about10 FPS at sunrise/sunset versus80–90 at noon and130+ at
+night. These are owner observations, not agent GPU profiling. Source inspection
+found an unbounded culling policy: below light-up .01 every loaded vegetation
+caster was accepted; slightly above it, a conservative vertical-drop estimate
+multiplied by the inverse light elevation. At one degree and the default180m
+shadow range the old broad-phase reach was nearly20km. The local forest is
+smaller than that, but the estimate effectively admitted its entire loaded area.
+The frustum-diagonal receiver bound also exceeded URP's actual radial shadow fade.
+
+Vegetation caster selection now uses the radial receiver range and a finite
+offscreen allowance:256m at the full180m setting. Tree caster coverage fades
+over224–256m at that range. This intentionally approximates very long, distant
+cast shadows; existing cached broad canopy shelter remains available while the
+direct light is active. This pass does not add ambient canopy occlusion.
+Visible fallback scatter meshes obey the same bound. Shadow batches are divided
+into128m spatial bins so one huge instanced-group bound does not keep unrelated
+casters active in every cascade. Coverage property blocks update with batches,
+rather than being uploaded again on every stationary draw.
+
+Sun-facing alpha cards can have poor fill cost at grazing angles despite their
+two-triangle geometry. Distant trees now use 40–72-triangle opaque crown casters
+under low light, smoothly transitioning to cards as light-up rises .20→.30
+(roughly11.5–17.5degrees). Near proxies remain. Near/coarse/card representations
+partition complementary ordered coverage; coarse crowns also serve as the
+fallback before an atlas is ready. This adds no shadow texture/camera/cache.
+
+New saved **Reduce detailed shadows at dawn/dusk**, default on, reduces the
+detailed receiver range smoothly from180m to60m toward the horizon. The four
+cascade endpoints change from16/48/100/180m to16/32/46/60m. At the shortest range
+the outer caster allowance ends at136m. Atlas resolution is capped at2048px
+below light-up .28 and1024px below .10; foliage filtering caps at4 then2 samples.
+Direct sunlight fades smoothly between8 and2.5degrees elevation, reaching zero
+below2.5degrees. Existing sky/ambient light remains; no new ambient light is
+invented. Continuous range changes refresh vegetation batches at most once per
+second; normal movement/settings invalidation remains immediate.
+
+The installed original The Forest's serialized controller has
+LowerShadowsAtExtremeLightAngles enabled. Its controller shortens horizon shadow
+range to about35% of the configured range, reduces higher-preset shadow
+resolution at low angles, and fades direct sunlight to zero near2.67degrees.
+Ambient SH presets and bounce contributions remain. These are local code/data
+observations, not an inference that it caches all shadows or stops shading.
+Inspection/settings evidence is retained under ignored sun-shadow-budget-20261026.
+
+New saved **Steady daylight shadows**, default on, is a presentation-only light
+pose. Daylight above12degrees can hold while the observer remains still, then
+catch up over five seconds during movement/looking or after5degrees of drift.
+Near-horizon daylight follows through an eased catch-up; moonlight, explicit
+resets and large clock jumps use the current pose. The visible sun and weather
+sun/flare direction follow that same presented pose. The clock, weather dates,
+physical day length and celestial simulation remain unchanged. This was written
+independently from behavior observed in the installed original The Forest's
+lighting controller; proprietary source is not copied into the game.
+
+Holding a light direction does not itself cache shadow maps. URP continues to
+render the existing main-light atlas; the performance fixes here bound admitted
+casters, reduce grazing-angle alpha overdraw, taper the dawn/dusk budget and
+improve batch culling. Dynamic
+animals keep their existing realtime shadow path. F3 shows held/following status,
+caster limit and card/coarse counts.
+
+2,475 pure sun-motion/caster-budget checks pass, including the old inverse-angle
+failure, high hills/below-horizon light, finite reach, distance fades, stable
+daylight, catch-up/reset behavior, dawn/dusk budgets and four frame rates. Mesh-only inspection
+measures256coarse casters (maximum72triangles) and verifies512visible near/middle
+mesh signatures unchanged from the preceding build. No world/player/rendering
+was launched by these checks. Release IL2CPP artifacts/player-sun-shadow-budget,
+BuiltUtc2026-10-26T21:50:34.0671788Z, compiled/packaged without C#/shader errors.
+128runtime/shader source hashes and staged DLLs match; all177 fauna bundles and
+native sources are preserved. Existing shortcut selects this package. No game
+launch or profiling; actual lighting transitions and FPS remain owner-review
+pending. The earlier render-LOD section below describes the preceding build.
+
 ## Dense forest render LOD follow-up / 26 October 2026
 
 Two separately saved Vegetation controls default on: **Cheaper distant tree

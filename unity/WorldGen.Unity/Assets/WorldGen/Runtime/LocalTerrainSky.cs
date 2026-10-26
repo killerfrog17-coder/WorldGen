@@ -13,6 +13,10 @@ public sealed partial class LocalTerrainExplorer
     readonly Vector4[] skyLightDirections=new Vector4[8],secondaryDirections=new Vector4[4],secondaryColors=new Vector4[4];
     double skyYear,skyHour=9;
     bool skyPoseReady,sunPoseWritten;int sunPrimary=-1;
+    float sunBaseIntensity;
+    readonly SunShadowMotion sunShadowMotion=new SunShadowMotion();
+    V sunObserverPosition,sunObserverLook;bool sunObserverReady;double sunObserverActiveUntil;int sunMotionBody=int.MinValue;
+    public bool SunShadowsHeld {get;private set;}
     int skyDirectionCount;
     public PlayableSkyFrame SkyFrame {get;private set;}
     void InitializeSky()
@@ -76,7 +80,7 @@ public sealed partial class LocalTerrainExplorer
         Color ColorOf(V value)=>new Color((float)value.X,(float)value.Y,(float)value.Z);
         sunPrimary=primary;
         float cloudLight=weatherScreen==null?1:Mathf.Lerp(1,.3f,(float)CurrentWeather.CloudCover);
-        if(!TerrainDiagnostics.FreezeSun||!sunPoseWritten){localSun.color=ColorOf(body.Color);localSun.intensity=(float)body.Illuminance*cloudLight;}
+        if(!TerrainDiagnostics.FreezeSun||!sunPoseWritten){localSun.color=ColorOf(body.Color);sunBaseIntensity=(float)body.Illuminance*cloudLight;localSun.intensity=sunBaseIntensity;}
         ConfigureWeatherScreen(sampled,Vector(sampled.Bodies[0].Direction),ColorOf(sampled.Bodies[0].Color));
         skyMaterial.SetVector("_Zenith",ColorOf(sampled.Zenith));skyMaterial.SetVector("_Horizon",ColorOf(sampled.Horizon));
         // Already-linear illumination, matching terrain's bakedGI/grass ambient.
@@ -104,6 +108,12 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!skyPoseReady||localSun==null||skyMaterial==null||SkyFrame==null)return;
         var at=Position;double latitude=Math.Asin(at.Z)*180/Math.PI;
+        double now=Time.realtimeSinceStartupAsDouble;var forward=view.transform.forward;
+        V look=frame.East*forward.x+frame.Origin*forward.y+frame.North*forward.z;
+        if(!sunObserverReady){sunObserverPosition=at;sunObserverLook=look;sunObserverReady=true;}
+        if((at-sunObserverPosition).Length*frame.RadiusM>.1||V.Dot(look,sunObserverLook)<.999961923)
+        {sunObserverPosition=at;sunObserverLook=look;sunObserverActiveUntil=now+.25;}
+        bool observerMoving=now<sunObserverActiveUntil;
         double radius=frame.RadiusM+frame.AltitudeM+motion.Y;
         double altitude=Math.Sqrt(radius*radius+motion.X*motion.X+motion.Z*motion.Z)-frame.RadiusM;
         V east=V.Cross(Math.Abs(at.Z)>.999999?new V(0,1,0):new V(0,0,1),at).Unit,north=V.Cross(at,east).Unit;
@@ -113,18 +123,24 @@ public sealed partial class LocalTerrainExplorer
             V direction=moon<0?PlayableSky.SunDirection(latitude,skyHour,skyYear):PlayableSky.MoonDirection(latitude,skyHour,skyYear,skyConfig.Moons[moon],altitude);
             V planet=east*direction.X+at*direction.Y+north*direction.Z;
             var local=new Vector3((float)V.Dot(planet,frame.East),(float)V.Dot(planet,frame.Origin),(float)V.Dot(planet,frame.North));
-            skyDirections[i]=local;
             if(i==sunPrimary&&(!TerrainDiagnostics.FreezeSun||!sunPoseWritten))
             {
-                // Exact current direction, not a Slerp between old poses. Carry
-                // roll continuously: switching LookRotation's up axis near the
-                // zenith can abruptly rotate the shadow-map texel grid.
-                Vector3 forward=-local.normalized;
-                Vector3 up=Vector3.ProjectOnPlane(localSun.transform.up,forward);
-                if(up.sqrMagnitude<1e-6f)up=Vector3.ProjectOnPlane(Math.Abs(forward.y)>.9f?Vector3.forward:Vector3.up,forward);
-                localSun.transform.rotation=Quaternion.LookRotation(forward,up);
+                bool enabled=TerrainVideoOptions.SteadyDaylightShadows&&moon<0&&direction.Y>0;
+                localSun.intensity=sunBaseIntensity*(TerrainVideoOptions.DawnDuskShadowBudget&&moon<0?(float)VegetationShadowBudget.DirectSunlight(direction.Y):1);
+                bool hold=direction.Y>Math.Sin(12*Math.PI/180);
+                planet=sunShadowMotion.Step(planet,now,observerMoving,hold,!enabled||!sunPoseWritten||sunMotionBody!=moon);
+                sunMotionBody=moon;SunShadowsHeld=enabled&&hold&&sunShadowMotion.Holding;
+                local=new Vector3((float)V.Dot(planet,frame.East),(float)V.Dot(planet,frame.Origin),(float)V.Dot(planet,frame.North));
+                // Preserve roll while the direction holds/catches up, avoiding
+                // a shadow-grid flip as the sun passes near the zenith.
+                Vector3 lightForward=-local.normalized;
+                Vector3 up=Vector3.ProjectOnPlane(localSun.transform.up,lightForward);
+                if(up.sqrMagnitude<1e-6f)up=Vector3.ProjectOnPlane(Math.Abs(lightForward.y)>.9f?Vector3.forward:Vector3.up,lightForward);
+                localSun.transform.rotation=Quaternion.LookRotation(lightForward,up);
                 sunPoseWritten=true;
             }
+            skyDirections[i]=local;
+            if(moon<0&&weatherScreen!=null)weatherScreen.SunDirection=local.normalized;
         }
         skyMaterial.SetVectorArray("_BodyDirections",skyDirections);
     }

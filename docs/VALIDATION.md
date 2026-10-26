@@ -1,5 +1,40 @@
 # Version 3 validation evidence
 
+## Low-sun shadow budget and steady sunlight - 26 October 2026
+
+Owner reports10FPS at sunrise/sunset versus80–90 noon and130+ night, asking for
+original-The-Forest behavior. Installed controller/data confirm enabled low-angle
+shadow-distance reduction, lower high-preset shadow resolution and direct sun
+fade near2.67degrees, retaining ambient/bounce. No proprietary source is copied.
+
+Fixed unbounded vegetation admission at/below the horizon and near20km conservative
+reach at1degree. Radial receiver bounds plus76m cap offscreen casters; outer32m
+fade. Spatial128m bins prevent huge instanced bounds. New distant opaque crown
+casters40–72tri replace grazing-angle alpha cards, with complementary coverage
+and old near proxies retained. Properties upload on batch rebuild, not per draw.
+Saved Steady daylight shadows holds still-observer daylight above12degrees,
+catching up over5seconds on movement/look or5degree drift. Actual sky sun and
+weather flare follow the presented light. This is NOT shadow-map caching.
+
+Saved dawn/dusk budget defaults on: detailed range180->60m, four cascade ends
+16/48/100/180->16/32/46/60m, atlas caps2048/1024 and foliage filter caps4/2 at
+low sun, direct-light fade8->2.5degrees. Existing ambient remains; ambient canopy
+occlusion was not added. Sun-induced range rebuilds limited to1Hz, other existing
+movement/settings invalidation retained. F3 exposes range/caster bound and coarse
+caster counts. Vegetation controls permit owner A/B comparison.
+
+2,475 pure sun-motion/budget checks pass, including inverse-angle failure,
+bounded hills/horizon reach, fade continuity, day hold/catch-up/reset and four
+frame rates. Mesh-only Unity audit256coarse casters verifies512visible near/mid
+mesh signatures unchanged. Release IL2CPP compile/package exits0 without C# or
+shader errors: artifacts/player-sun-shadow-budget,
+BuiltUtc2026-10-26T21:50:34.0671788Z.128runtime/shader input hashes and staged
+DLLs match; all177fauna bundle/native hashes match. Build-generated settings and
+importer changes restored; existing shortcut selects this verified package.
+No game/world/capture/profiling launched. Visual stability, dawn lighting and
+actual FPS remain owner-review pending. See FOLIAGE_SHADOWS and ignored
+sun-shadow-budget-20261026 evidence. Previous package retained.
+
 ## Dense forest rendering LOD - 26 October 2026
 
 Owner authorizes cheaper distant shadow casters/shading and palm/tree-fern LODs

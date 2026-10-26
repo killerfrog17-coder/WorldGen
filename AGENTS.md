@@ -1,5 +1,27 @@
 # WorldGen repository instructions
 
+LOW-SUN SHADOW BUDGET / STEADY SUN,26October2026~16:50CDT:
+Owner reports10FPS dawn/dusk vs80–90noon/130+night, wants originalForest behavior.
+Installed controller/data confirm ENABLED low-angle range/resolution reductions
+and directsun fade near2.67degrees, ambient/bounce retained. No proprietarycopy.
+Fixed below-horizon all-casters admission and inverse-angle near20km reach at1deg.
+Radial bound+76m cap, outer32m fade,128m instanced bins; visible fallback samecap.
+Distant40–72tri opaque crowns atlowSun instead of costly alpha cards; distance
+64–96m near/coarse/card complementary coverage, existingbake/card fallback safe.
+Coverage uploaded perbatch only. New saved Vegetation Steady daylight shadows
+defaultON:still daylightabove12deg holds;5sec catchup onmove/look or5degdrift.
+Sky sun/flare follows; clock unchanged. NOT shadowmap cache. New saved dawn/dusk
+budget ON:180->60m receiver range,4cascade ends16/48/100/180->16/32/46/60;
+lowSun atlas2048/1024/filter4/2; directsun fades8->2.5deg; existingambient stays.
+No new ambient canopyocclusion. Range-induced batchrefresh atmost1Hz.
+2475pure sun/budget checks pass. Mesh-only audit256coarse,512visible near/middle
+hashes unchanged. IL2CPP player-sun-shadow-budget BuiltUtc2026-10-26T21:50:34.0671788Z
+compile/package0, noC#/shadererrors;128runtime/shaderSHA+stagedDLL stable,177bundle/
+nativeSHA match. Existingshortcut selected, priorpackage retained. No game/world/
+capture/profiling; lighting/FPS ownerreview pending. Buildautochanges restored.
+Ownsource/docs/shortcut backup required; preserve unrelated deletedprompt+2old
+deerscripts. Fauna appearance remains STOPPED; owner apps untouched.
+
 DENSE FOREST RENDER LOD,26October2026~16:04CDT:
 Owner authorizes cheaper distant shadow/shading paths and heavy frond middle
 meshes. Two saved Vegetation A/B toggles default ON: Cheaper distant tree shading,
