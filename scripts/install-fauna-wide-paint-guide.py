@@ -10,7 +10,7 @@ corners=[[0,0],[512,0],[0,512],[512,512]];guide_corners=[[0,0],[1254,0],[0,1254]
 path=root/'face-paint-views.json';views=json.loads(path.read_text()) if path.exists() else []
 if a.only_wide:views=[v for v in views if v.get('camera_directory')==a.camera_directory]
 views=[v for v in views if not(v.get('camera_directory')==a.camera_directory and v['camera'] in ([a.view] if a.view=='front' else ['right','left']))]
-config=dict(camera=a.view,image=dest.name,camera_directory=a.camera_directory,target_pixels=[[0,0]]*expected+corners,guide_pixels=points+guide_corners,two_sided=True,fade_border=.12,weight=1.)
+config=dict(camera=a.view,image=dest.name,camera_directory=a.camera_directory,target_pixels=[[0,0]]*expected+corners,guide_pixels=points+guide_corners,two_sided=True,fade_border=.12,weight=1.,reject_neutral_exterior=True)
 views.append(config)
 if a.view=='right':
  other=json.loads(json.dumps(config));other.update(camera='left',flip_x=True);other['guide_pixels']=[[1253-x,y] for x,y in points]+guide_corners;views.append(other)

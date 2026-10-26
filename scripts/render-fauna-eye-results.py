@@ -4,7 +4,7 @@ from pathlib import Path
 import bpy,numpy as np
 from mathutils import Matrix,Vector
 repo=Path(__file__).resolve().parent.parent;root=repo/'artifacts/fauna-painted-20261024'
-ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--camera-scale',type=float,default=1.);ap.add_argument('--bodies',action='store_true');ap.add_argument('--coats',action='store_true');ap.add_argument('--diffuse-only',action='store_true');ap.add_argument('--nasal-debug',action='store_true');ap.add_argument('--root',type=Path);ap.add_argument('--sculpt',action='store_true');ap.add_argument('--clay',action='store_true');ap.add_argument('--studio-clay',action='store_true');ap.add_argument('--paint-source',action='store_true');ap.add_argument('--albedo',action='store_true');ap.add_argument('--blend',type=Path);ap.add_argument('--output-root',type=Path);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);folder=(a.root or root/a.slug).resolve();dest=(a.output_root or folder/'eye-audit').resolve();dest.mkdir(parents=True,exist_ok=True)
+ap=argparse.ArgumentParser();ap.add_argument('--slug',required=True);ap.add_argument('--camera-scale',type=float,default=1.);ap.add_argument('--bodies',action='store_true');ap.add_argument('--coats',action='store_true');ap.add_argument('--diffuse-only',action='store_true');ap.add_argument('--nasal-debug',action='store_true');ap.add_argument('--object-debug',action='store_true');ap.add_argument('--root',type=Path);ap.add_argument('--sculpt',action='store_true');ap.add_argument('--clay',action='store_true');ap.add_argument('--studio-clay',action='store_true');ap.add_argument('--paint-source',action='store_true');ap.add_argument('--albedo',action='store_true');ap.add_argument('--blend',type=Path);ap.add_argument('--output-root',type=Path);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);folder=(a.root or root/a.slug).resolve();dest=(a.output_root or folder/'eye-audit').resolve();dest.mkdir(parents=True,exist_ok=True)
 assert a.camera_scale==1 or a.output_root,'Use a separate output root for wider camera diagnostics'
 source=(a.blend or folder/'Animal - Painted Species Review.blend').resolve();digest=hashlib.sha256(source.read_bytes()).hexdigest()
 bpy.ops.wm.open_mainfile(filepath=str(source));s=bpy.context.scene;e=json.loads(s['deer_four_rigs'])[0];body=bpy.data.objects[e['body']];rig=bpy.data.objects[e['rig']];rig.animation_data_clear();rig.data.pose_position='REST'
@@ -47,7 +47,8 @@ if a.studio_clay:
  for ob in s.objects:
   if ob.type=='MESH':
    for i in range(len(ob.data.materials)):ob.data.materials[i]=mat
-if a.slug=='tiger' and dest.name=='object-debug':
+if a.object_debug:
+ assert a.output_root,'Object identity diagnostics require separate output root'
  for ob in s.objects:
   if ob.type!='MESH':continue
   colour=(.3,.3,.3,1) if ob==body else (0,1,1,1) if ob.name.endswith(' eye') else (1,0,0,1) if 'orbital' in ob.name.lower() or 'lid' in ob.name.lower() else (0,1,0,1)

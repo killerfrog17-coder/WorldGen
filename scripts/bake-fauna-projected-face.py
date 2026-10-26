@@ -99,7 +99,7 @@ if a.slug=='red-fox':
 elif a.slug in {'hare','rabbit'}:
     nasal_q=((nasal_rel@side_axis)/nw)**2+(nasal_rel[:,2]/nh)**2+((nasal_rel@front)/.025)**2
 elif a.slug=='wolf':
-    nasal_q=((nasal_rel@side_axis)/.050)**2+(nasal_rel[:,2]/.031)**2+((nasal_rel@front)/.045)**2
+    nasal_q=(((nasal_rel@side_axis)-.010)/.065)**2+(nasal_rel[:,2]/.035)**2+((nasal_rel@front)/land['physical_eye_revision'].get('nasal_fit_depth',.045))**2
     # Remove the lateral black crescent introduced by conflicting guide nose
     # boundaries; it sits on fur outside the actual terminal nasal pad.
     shell=((nasal_rel@side_axis)/.080)**2+(nasal_rel[:,2]/.052)**2+((nasal_rel@front)/.080)**2
@@ -107,10 +107,16 @@ elif a.slug=='wolf':
     sampled=sampled*(1-leaked[:,None])+np.array([.60,.575,.535])*leaked[:,None]
 side_nose=(1-smooth(1.05,1.55,nasal_q))
 side_nose*=1-smooth(.45,.80,n@front)
+if a.slug=='wolf':side_nose=1-smooth(.95,1.35,nasal_q)
 if a.slug=='buffalo':side_nose*=1-alpha
+if a.slug in {'lion','tiger','jaguar','leopard','puma','ocelot'}:side_nose*=0
 if not land['physical_eye_revision'].get('nasal_disc',True):side_nose*=0
 for row,i in zip(probes,probe_ids):row.update(alpha=float(alpha[i]),projected_pigment=sampled[i].tolist())
 original=root/'unprojected-atlases';original.mkdir(exist_ok=True);palettes=profiles(a.slug)
+from fauna_body_projection import prepare as prepare_body_paint,apply as apply_body_paint
+body_paint=prepare_body_paint(root,d['vertices'],d['faces'],p,n)
+if body_paint is not None:
+    for row,i in zip(probes,probe_ids):row['body_paint']={'pigment':body_paint[0][i].tolist(),'control':body_paint[1][i].tolist(),'alpha':float(body_paint[2][i])}
 if a.slug=='raccoon':
     mask=np.zeros(len(p))
     for key in ['right_eye','left_eye']:
@@ -126,6 +132,7 @@ for ci,coat in enumerate(bake['coats']):
         source_uv=maps[iy,ix,-3:-1];sx=np.clip(source_uv[:,0],0,1)*(original_pixels.shape[1]-1);sy=(1-np.clip(source_uv[:,1],0,1))*(original_pixels.shape[0]-1)
         image=np.zeros((size,size,3),np.float32);image[iy,ix]=np.stack([map_coordinates(original_pixels[:,:,c],[sy,sx],order=1,mode='nearest') for c in range(3)],axis=1)
     else:image=original_pixels.copy()
+    image[iy,ix]=apply_body_paint(image[iy,ix],body_paint,ci,palettes)
     for row,i in zip(probes,probe_ids):row['coat_results'].append({'coat':ci,'source_pigment':image[iy[i],ix[i]].tolist()})
     colour=sampled.copy()
     if a.slug=='raccoon':
@@ -182,7 +189,7 @@ for ci,coat in enumerate(bake['coats']):
     # A front paint guide must not leave the profile of the nasal disc white.
     # Wrap only the small actual nose volume, preserving the painted front.
     nasal_colour=image[iy,ix];nasal_lum=np.maximum(nasal_colour@np.array([.2126,.7152,.0722]),1e-5)
-    nasal_colour=nasal_colour*np.minimum(1.,.035/nasal_lum)[:,None]
+    nasal_colour=nasal_colour*((.080/np.maximum(nasal_lum,.015)) if a.slug=='wolf' else np.minimum(1.,.035/nasal_lum))[:,None]
     image[iy,ix]=image[iy,ix]*(1-side_nose[:,None])+nasal_colour*side_nose[:,None]
     if land.get('anatomical_orbit',{}).get('stitched') and a.slug in {'wolf','red-fox','raccoon','buffalo'}:
         # Bind-space nostril pigment goes into the actual selected nasal UVs;
@@ -207,6 +214,7 @@ if not has_source_uv:
     rough[iy,ix]=rough[iy,ix]*(1-nasal)+.47*nasal;Image.fromarray(np.uint8(np.clip(rough,0,1)*255)).save(rough_path)
 report={'slug':a.slug,'guide_sha256':hashlib.sha256(paint_path.read_bytes()).hexdigest(),'target_camera':guide,'target_pixels':target.tolist(),'guide_pixels':source.tolist(),'painted_pixels':int((alpha>.5).sum()),'method':'Visible front head projection of generated paint into original UVs, explicit landmark warp and smooth normal/depth-gated blend; original non-front atlases retained.','limits':'Single front guide only; profile join, fur direction, baked shading and all variants require actual native inspection. Not a replacement render or approved appearance.'}
 if views:report.update(method='Calibrated generated front/profile guides fused by surface visibility and view normal into original UVs; mirrored profile guide fitted independently to the other side.',view_configurations=views,limits='Generated paint can retain lighting and fine-fibre stretching; native front/profile/coat inspection and owner review required.')
+if body_paint is not None:report.update(body_paint_view_configurations=json.loads((root/'body-paint-views.json').read_text()),body_projection_pixels=int((body_paint[2]>.5).sum()),body_projection_limits='Registered generated body guides and bounded local surface pigment extension; not measured albedo, may retain lighting, seams and silhouette mismatch. All native coats/views still require visual inspection.')
 (root/'face-projection.json').write_text(json.dumps(report,indent=2)+'\n');print('FACE GUIDE BAKED',a.slug,report['painted_pixels'])
 if probes:(root/'paint-probes.json').write_text(json.dumps(probes,indent=2)+'\n')
 if a.slug in {'lion','tiger','jaguar','leopard','puma','ocelot'} and views:

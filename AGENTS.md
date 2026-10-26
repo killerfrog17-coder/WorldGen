@@ -1,5 +1,57 @@
 # WorldGen repository instructions
 
+CONTINUED APPEARANCE REWORK,26October2026~09:58CDT:
+Same owner task active, KEEP WORKING; no final/goal inferred. Eight frozen
+mammal static gates +five ambient gates remain the ONLY new passes (plus
+protected accepted Deer unchanged). Live phone source1231cf2b415bb948e98d45277a69e3f60474923c,
+private succeeded appgdep_6adf5d4afb748191a6e95003e45027c3; no subsequent deploy.
+Wolf and six cats are still UNPASSED isolated anatomy roots, not live updates.
+Independent wolf-fresh-complete-gate exact13f66ba... rejected head/torso detail
+join +pale right nose; cats-first-paint-diagnosis rejected all3 old cat faces.
+Current seven are substantially newer. Do not use those old reports as passes.
+Latest finite stable-source seven rebuild+all full-body coats is exec48168,
+started14:57UTC; verify CIM/logs before other writes. Previous88105 complete.
+DO NOT edit shared appearance source during this run: queue now SHA-guards
+modules before/after EVERY stage, rejects mixed-source results. No new native
+publication until exact native/render hashes, actual root vision and fresh
+fork-none independent full appearance critic. Existing source actions retained.
+Found actual colour-space bug: Blender loaded BYTE image pixel values equal
+PIL encoded RGB (direct numeric check). Removed double linear conversion from
+new direct feline orbital images; dark collars improved. New cat globes use
+smaller physical iris radius, less dominant round pupil, modestly larger authored
+apertures/full upper lid, same centres. Lid fur uses translated upper/lower
+source field rather than radial collapse; new bridge follows skull bed. Lion
+crown blades softened locally. Cat nose paint preserves generated actual nasal
+pigment; generic black side-disc disabled for6cats. Wolf current nasal field
+fits actual wide terminal pad with paired pigment nares, no new nose object.
+Six cats +Wolf now have exact-prompt workspace copies of built-in generated
+front/right BODY guides and explicit calibrated front/right/mirrored-left views.
+New fauna_body_projection.py paints retained UVs; multiple view+local surface
+extension. Debug probes proved grey back strip was actual guide backdrop
+RGB~.38,.41,.44, outside old fixed grey threshold. New robust polynomial border
+background fit/mask actually inspected (wolf/jag/tiger diagnostic masks). Narrow
+remaining unseen dorsal/ventral/paw strips require bounded local surface fill;
+latest range scales with body height (.10-.24m), support counts/distance report
+written. Current run tests this; NOT yet visual approval. Earlier .085m left
+old plain/striped coat strips; never published. No shader/per-frame generation.
+Six cat head guides and fourteen body guides all actually viewed, workspace PNG
+copies +exact prompt/default source/edit-target hashes in adjacent JSON. New
+body-source clay rendered/read-only for11other existing roots (Boar/Mouflon/
+Bear/Buffalo/Horse/Badger/Otter/Mouse/Squirrel/Beaver/Lynx), contacts viewed.
+Bear/Badger/Otter/Horse8 full-body front/profile paint guides generated, actually
+viewed and copied with metadata, NOT calibrated/installed yet. Their existing
+head/native issues remain. Bear broad nasal cap currently reads like button;
+real brown-bear front/profile actually viewed again. Need stronger paired
+nostril wells/lower projection and fitted eye/lid work, not new model/motion.
+Imagegen functions cell1438 active: Boar/Mouflon/Buffalo/Squirrel xfront/right
+body guides; prompts/results stored <slug>_body_<view>_v1_prompt/result. Collect
+and inspect before copying/using. No other imagegen cells pending (1353/1387/
+1395/1409/1413/1423 all collected). All paid external APIs forbidden; built-in
+imagegen only, no neural3D/local inference/animation edits/game/GUI changes.
+Latest source backup102b3ea7a5d6c76545662cb156697022118a43ca verified remote;
+checkpoint this source work next. Preserve unrelated prompt deletion +2old
+untracked deer scripts unstaged. Other 163entries still need new visual clearance.
+
 KEEP WORKING / EXACT APPEARANCE GATES,26October2026~09:15CDT:
 User requests continued all-roster front/profile reference correction plus fresh
 fork-none independent critics; NO premature final. Existing bad animations

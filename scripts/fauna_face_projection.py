@@ -5,6 +5,17 @@ from PIL import Image
 from scipy.interpolate import RBFInterpolator
 from scipy.ndimage import map_coordinates,binary_propagation,distance_transform_edt,gaussian_filter
 
+def neutral_exterior_coverage(paint):
+    """Fit the actual controlled grey backdrop; do not assume one grey value."""
+    H,W=paint.shape[:2];yy,xx=np.mgrid[0:H,0:W];x=xx/max(W-1,1);y=yy/max(H-1,1);basis=np.stack([np.ones_like(x),x,y,x*y,x*x,y*y],axis=2)
+    border=(xx<8)|(xx>=W-8)|(yy<8)|(yy>=H-8);ids=np.where(border.ravel())[0][::8];rgb=paint.reshape(-1,3);median=np.median(rgb[ids],axis=0);use=np.linalg.norm(rgb[ids]-median,axis=1)<.10;A=basis.reshape(-1,6)
+    if use.sum()<30:return np.ones((H,W))
+    for _ in range(4):
+        fit=np.linalg.lstsq(A[ids[use]],rgb[ids[use]],rcond=None)[0];error=np.linalg.norm(A[ids]@fit-rgb[ids],axis=1);use=error<.035
+        if use.sum()<30:return np.ones((H,W))
+    predicted=(A@fit).reshape(H,W,3);error=np.linalg.norm(paint-predicted,axis=2);candidate=(error<.045)&(np.ptp(paint,axis=2)<.17);seed=border&candidate;exterior=binary_propagation(seed,mask=candidate)
+    return np.clip(distance_transform_edt(~exterior)/4.,0,1)
+
 def sample_view(root,config,vertices,faces,points,normals,control_sigma=0.,ignore_occlusion=False):
     guide=json.loads((root/config.get('camera_directory','eye-audit')/f"{config['camera']}.json").read_text());M=np.array(guide['camera_matrix']);R=M[:3,:3];position=M[:3,3];scale=guide['scale'];W,H=guide['size']
     path=root/config['image'];rgba=np.asarray(Image.open(path).convert('RGBA'),np.float32)/255;paint=rgba[:,:,:3];coverage=rgba[:,:,3]
@@ -12,8 +23,7 @@ def sample_view(root,config,vertices,faces,points,normals,control_sigma=0.,ignor
         # Registered AI paint guides can shift an outer silhouette despite
         # accurate eye/nose registration. Never project their neutral exterior
         # onto the model: it created pale angular withers patches on variants.
-        lum=paint@np.array([.2126,.7152,.0722]);neutral=np.ptp(paint,axis=2)<.055;candidate=neutral&(lum>.10)&(lum<.37);seed=np.zeros(candidate.shape,bool);seed[[0,-1],:]=True;seed[:,[0,-1]]=True
-        exterior=binary_propagation(seed&candidate,mask=candidate);coverage=np.clip(distance_transform_edt(~exterior)/4.,0,1)
+        coverage=neutral_exterior_coverage(paint)
     if config.get('flip_x'):paint=paint[:,::-1].copy();coverage=coverage[:,::-1].copy()
     def project(p):
         camera=(p-position)@R

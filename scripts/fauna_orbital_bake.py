@@ -48,8 +48,12 @@ def bake(patches,coats,atlases,support_sample,load_image,root=None,slug=None):
         query=positions[ys,xs].copy();normals=np.zeros_like(query)
         for record in patches:
             mask=(xs//128)==record['half'];normals[mask]=record['normal']
-        signature=hashlib.sha256(query.tobytes()+normals.tobytes()).hexdigest()
-        np.savez_compressed(root/'orbital-projection-input.npz',points=query,normals=normals,signature=signature)
+        import json
+        dependency=hashlib.sha256((root/'face-paint-views.json').read_bytes())
+        for config in json.loads((root/'face-paint-views.json').read_text()):
+            dependency.update((root/config['image']).read_bytes());dependency.update((root/config.get('camera_directory','eye-audit')/(config['camera']+'.json')).read_bytes())
+        signature=hashlib.sha256(query.tobytes()+normals.tobytes()+dependency.digest()).hexdigest()
+        np.savez_compressed(root/'orbital-projection-input.npz',points=query,normals=normals,signature=signature,ys=ys,xs=xs)
         cache=root/'orbital-projection-colour.npz'
         if cache.exists():
             result=np.load(cache)

@@ -100,6 +100,17 @@ def apply(body,land,slug):
     for ids in groups.values():
         connected=set().union(*(neighbours[i] for i in ids))
         for i in ids:neighbours[i]=connected-set(ids)
+    if slug=='lion':
+        # The selected mane has two hard, tall crown blades. Soften those
+        # existing tufts into the rounded adult mane shown in front/profile
+        # references, keeping the chosen body and all vertex skin unchanged.
+        rel=p-mid;f=rel@F;z=rel[:,2];mane=smooth((f+.44)/.14)*smooth((.25-f)/.13)*smooth((z-.15)/.10)
+        p[:,2]-=np.maximum(z-.19,0)*.40*mane
+        for _ in range(5):
+            q=p.copy()
+            for i in np.where(mane>0)[0]:
+                if neighbours[i]:q[i]=p[i]+(p[list(neighbours[i])].mean(0)-p[i])*.18*mane[i]
+            p=q
     relative=original-mid;forward=relative@F;height=relative[:,2]
     weight=smooth((forward+.34)/.15)*smooth((.30-forward)/.12)*smooth((height+.49)/.12)*smooth((.035-height)/.10)
     nasal=original-nose;nasal_radii=(.050,.045,.035) if slug=='red-fox' else (.060,.050,.040) if slug in felids else (.11,.095,.075)
