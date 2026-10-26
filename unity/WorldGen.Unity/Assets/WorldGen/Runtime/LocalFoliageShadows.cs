@@ -4,17 +4,21 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using WorldGen.Core;
+using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
     sealed class TreeShadowBatch
     {
-        public Mesh Mesh;public readonly Matrix4x4[] Matrices=new Matrix4x4[256];
+        public Mesh Mesh;public Material Material;public readonly Matrix4x4[] Matrices=new Matrix4x4[256];
+        public readonly float[] Fades=new float[256];public readonly MaterialPropertyBlock Properties=new MaterialPropertyBlock();
         public Bounds Bounds;public int Count;
     }
     readonly Dictionary<int,Mesh> treeShadowMeshes=new Dictionary<int,Mesh>();
     readonly List<TreeShadowBatch> treeShadowBatches=new List<TreeShadowBatch>(),treeShadowPool=new List<TreeShadowBatch>();
-    readonly Dictionary<int,TreeShadowBatch> treeShadowActive=new Dictionary<int,TreeShadowBatch>();
+    readonly Dictionary<long,TreeShadowBatch> treeShadowActive=new Dictionary<long,TreeShadowBatch>();
+    readonly Dictionary<ArtModel,Material> treeShadowCardMaterials=new Dictionary<ArtModel,Material>();
+    readonly HashSet<ArtModel> treeShadowCardModels=new HashSet<ArtModel>();
     Material treeShadowMaterial;UniversalRenderPipelineAsset foliageShadowPipeline;
     float originalShadowDistance,publishedShadowDistance,originalShadowBorder,publishedShadowBorder;
     int originalShadowResolution,publishedShadowResolution,originalShadowCascades,publishedShadowCascades;
@@ -23,6 +27,8 @@ public sealed partial class LocalTerrainExplorer
     Vector3 shadowAxisX,shadowAxisY,shadowAxisZ,shadowReceiverMin,shadowReceiverMax;
     public int TreeShadowObjects {get;private set;}
     public int TreeShadowDraws {get;private set;}
+    public int TreeShadowCards {get;private set;}
+    public long TreeShadowTriangles {get;private set;}
     bool UseTreeShadowProxies=>TerrainVideoOptions.SimplifiedForestShadows&&treeShadowMaterial!=null&&TerrainVideoOptions.GeneratedTrees&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeShadows&&TerrainVideoOptions.VegetationShadows&&!TerrainDiagnostics.HideTrees&&!TerrainDiagnostics.HidePlants;
     bool ReplaceTreeShadow(ScatterInstance plant)=>plant.Kind==ScatterKind.GeneratedTree&&UseTreeShadowProxies&&treeShadowMeshes.ContainsKey(TreeFlora.RenderCode(plant.Variant));
 
@@ -77,9 +83,23 @@ public sealed partial class LocalTerrainExplorer
     }
     void BuildTreeShadowBatches()
     {
-        foreach(var b in treeShadowBatches){b.Count=0;treeShadowPool.Add(b);}treeShadowBatches.Clear();treeShadowActive.Clear();TreeShadowObjects=0;
+        foreach(var b in treeShadowBatches){b.Count=0;treeShadowPool.Add(b);}treeShadowBatches.Clear();treeShadowActive.Clear();treeShadowCardModels.Clear();TreeShadowObjects=TreeShadowCards=0;
+        // Card materials borrow an existing bake. They never own its textures.
+        var expired=new List<ArtModel>();foreach(var p in treeShadowCardMaterials)if(!p.Key.TreeBaked)expired.Add(p.Key);
+        foreach(var owner in expired){Destroy(treeShadowCardMaterials[owner]);treeShadowCardMaterials.Remove(owner);}
         if(!UseTreeShadowProxies||vegetationShadowRadius<=0)return;
         PrepareTreeShadowFrustum();
+        void Add(int code,bool card,Mesh mesh,Material material,Matrix4x4 matrix,Bounds bounds,float fade)
+        {
+            if(fade<=0)return;long key=((long)(uint)code<<1)|(card?1L:0L);
+            if(!treeShadowActive.TryGetValue(key,out var batch)||batch.Count==batch.Matrices.Length)
+            {
+                if(treeShadowPool.Count>0){int last=treeShadowPool.Count-1;batch=treeShadowPool[last];treeShadowPool.RemoveAt(last);}else batch=new TreeShadowBatch();
+                batch.Mesh=mesh;batch.Material=material;batch.Count=0;treeShadowBatches.Add(batch);treeShadowActive[key]=batch;
+            }
+            batch.Matrices[batch.Count]=matrix;batch.Fades[batch.Count]=fade;
+            if(batch.Count++==0)batch.Bounds=bounds;else batch.Bounds.Encapsulate(bounds);
+        }
         bool built=false;
         foreach(var chunk in scatterChunks.Values)
         {
@@ -101,13 +121,28 @@ public sealed partial class LocalTerrainExplorer
                         if(treeShadowMeshes.Count>=96)continue;
                         mesh=LocalScatterMeshes.BuildTreeShadowProxy(code);treeShadowMeshes.Add(code,mesh);built=true;
                     }
-                    if(!treeShadowActive.TryGetValue(code,out var batch)||batch.Count==batch.Matrices.Length)
+                    float blend=TerrainVideoOptions.DistantTreeShadowCards&&TerrainVideoOptions.TreeImpostors?(float)TreeRenderingLod.ShadowWeight(Math.Sqrt(chunk.Bounds[index].SqrDistance(scatterEye))):0;
+                    ArtModel owner=null;
+                    if(blend>0)
                     {
-                        if(treeShadowPool.Count>0){int last=treeShadowPool.Count-1;batch=treeShadowPool[last];treeShadowPool.RemoveAt(last);}else batch=new TreeShadowBatch();
-                        batch.Mesh=mesh;batch.Count=0;treeShadowBatches.Add(batch);treeShadowActive[code]=batch;
+                        long artKey=ScatterArtKey(ScatterKind.GeneratedTree,code,2);
+                        scatterArt.TryGetValue(artKey,out owner);
+                        if((owner==null||!owner.TreeBaked)&&scatterArt.TryGetValue(artKey|(1L<<49),out var stand))owner=stand;
+                        if(owner==null)owner=Art(ScatterKind.GeneratedTree,code,2);
+                        owner.LastUsed=Time.realtimeSinceStartupAsDouble;treeShadowCardModels.Add(owner);
+                        if(!owner.TreeBaked)blend=0;
                     }
-                    batch.Matrices[batch.Count]=chunk.Matrices[index];
-                    if(batch.Count++==0)batch.Bounds=chunk.Bounds[index];else batch.Bounds.Encapsulate(chunk.Bounds[index]);
+                    Add(code,false,mesh,treeShadowMaterial,chunk.Matrices[index],chunk.Bounds[index],1-blend);
+                    if(blend>0)
+                    {
+                        if(!treeShadowCardMaterials.TryGetValue(owner,out var material))
+                        {
+                            material=new Material(treeShadowMaterial){name="Baked tree shadow card / "+code,enableInstancing=true};
+                            material.SetFloat("_ShadowCard",1);material.SetTexture("_TreeColourViews",owner.TreeColour);
+                            material.SetVector("_ImpostorBounds",owner.Parts[0].Material.GetVector("_ImpostorBounds"));treeShadowCardMaterials.Add(owner,material);
+                        }
+                        Add(code,true,owner.Parts[0].Mesh,material,chunk.Matrices[index],chunk.Bounds[index],blend);TreeShadowCards++;
+                    }
                     TreeShadowObjects++;
                 }
             }
@@ -143,13 +178,14 @@ public sealed partial class LocalTerrainExplorer
     }
     void DrawTreeShadowProxies()
     {
-        TreeShadowDraws=0;
+        TreeShadowDraws=0;TreeShadowTriangles=0;
         if(!UseTreeShadowProxies||localSun==null||localSun.shadows==LightShadows.None||localSun.intensity<=0)return;
         foreach(var batch in treeShadowBatches)
         {
             if(batch.Count==0)continue;
-            var parameters=new RenderParams(treeShadowMaterial){camera=view,layer=30,worldBounds=batch.Bounds,shadowCastingMode=ShadowCastingMode.ShadowsOnly,receiveShadows=false};
-            Graphics.RenderMeshInstanced(in parameters,batch.Mesh,0,batch.Matrices,batch.Count);TreeShadowDraws++;
+            batch.Properties.SetFloatArray("_ShadowFade",batch.Fades);
+            var parameters=new RenderParams(batch.Material){camera=view,layer=30,worldBounds=batch.Bounds,matProps=batch.Properties,shadowCastingMode=ShadowCastingMode.ShadowsOnly,receiveShadows=false};
+            Graphics.RenderMeshInstanced(in parameters,batch.Mesh,0,batch.Matrices,batch.Count);TreeShadowDraws++;TreeShadowTriangles+=(long)batch.Mesh.GetIndexCount(0)/3*batch.Count;
         }
     }
     void DisposeFoliageShadows()
@@ -158,6 +194,7 @@ public sealed partial class LocalTerrainExplorer
         RestoreFoliageShadowDistance();foliageShadowPipeline=null;
         foreach(var mesh in treeShadowMeshes.Values)Destroy(mesh);treeShadowMeshes.Clear();
         if(treeShadowMaterial!=null)Destroy(treeShadowMaterial);treeShadowMaterial=null;
+        foreach(var material in treeShadowCardMaterials.Values)Destroy(material);treeShadowCardMaterials.Clear();treeShadowCardModels.Clear();
         treeShadowBatches.Clear();treeShadowPool.Clear();treeShadowActive.Clear();
         Shader.SetGlobalVector("_WorldGenFoliageShadowSettings",Vector4.zero);
     }

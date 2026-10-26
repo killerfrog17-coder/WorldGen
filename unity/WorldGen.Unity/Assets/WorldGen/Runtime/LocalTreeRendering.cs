@@ -81,6 +81,7 @@ public sealed partial class LocalTerrainExplorer
             // Hard texture budget. Retire only models not referenced by current
             // draw batches; never destroy textures still used by a draw.
             var used=new HashSet<ArtModel>(drawBatches.Select(b=>b.Model));
+            used.UnionWith(treeShadowCardModels);
             // A camera turn must not evict and re-bake the forest behind us.
             var expired=scatterArt.Where(p=>p.Value.TreeBaked&&!p.Value.TreeStand&&!used.Contains(p.Value)&&Time.realtimeSinceStartupAsDouble-p.Value.LastUsed>30).OrderBy(p=>p.Value.LastUsed).FirstOrDefault();
             if(expired.Value==null)

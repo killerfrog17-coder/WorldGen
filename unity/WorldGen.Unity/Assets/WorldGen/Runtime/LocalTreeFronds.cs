@@ -20,10 +20,18 @@ static partial class LocalScatterMeshes
         }
         for(int j=0;j<parts;j++)for(int k=0;k<sides;k++){int a=first+j*(sides+1)+k;b.Triangle(a,a+1,a+sides+1);b.Triangle(a+1,a+sides+2,a+sides+1);}TreeMark(b,mask,0);
     }
-    static void TreeBlade(Builder b,List<Vector2> mask,Vector3 root,Vector3 control,Vector3 tip,float width,int parts,Color colour)
+    static void TreeBlade(Builder b,List<Vector2> mask,Vector3 root,Vector3 control,Vector3 tip,float width,int parts,Color colour,bool simple=false)
     {
         parts=Math.Max(2,parts);int first=b.V.Count;
         var axis=(tip-root).normalized;var side=Vector3.Cross(axis,Mathf.Abs(axis.y)<.98f?Vector3.up:Vector3.right).normalized;
+        if(simple)
+        {
+            // Retain root, tip, widest point and leaflet population.
+            var center=root*.25f+control*.5f+tip*.25f;
+            b.Add(root,colour,new Vector2(.5f,0));b.Add(center-side*width,colour,new Vector2(0,.5f));
+            b.Add(tip,colour,new Vector2(.5f,1));b.Add(center+side*width,colour,new Vector2(1,.5f));
+            b.Triangle(first,first+1,first+2);b.Triangle(first,first+2,first+3);TreeMark(b,mask,1);return;
+        }
         for(int j=0;j<=parts;j++)
         {
             float t=j/(float)parts,w=width*Mathf.Pow(Mathf.Max(0,Mathf.Sin(t*Mathf.PI)),.65f);
@@ -57,7 +65,7 @@ static partial class LocalScatterMeshes
             {
                 var hub=P(.50f);
                 for(int ray=-7;ray<=7;ray++)
-                {var direction=Quaternion.AngleAxis(ray*6.5f,Vector3.up)*outward;var tip=hub+direction*.28f-Vector3.up*.065f;TreeBlade(b,mask,hub,Vector3.Lerp(hub,tip,.5f)+Vector3.up*.04f,tip,.025f,lod==0?5:3,leaf);}
+                {var direction=Quaternion.AngleAxis(ray*6.5f,Vector3.up)*outward;var tip=hub+direction*.28f-Vector3.up*.065f;TreeBlade(b,mask,hub,Vector3.Lerp(hub,tip,.5f)+Vector3.up*.04f,tip,.025f,lod==0?5:3,leaf,lod>0);}
             }
             else
             {
@@ -68,7 +76,7 @@ static partial class LocalScatterMeshes
                     for(int sign=-1;sign<=1;sign+=2)
                     {
                         Vector3 root=P(t),tip=root+across*(sign*length)+outward*length*.35f-Vector3.up*length*.32f;
-                        TreeBlade(b,mask,root,Vector3.Lerp(root,tip,.45f)+Vector3.up*length*.22f,tip,fern?.010f:.014f,lod==0?4:2,leaf*new Color(.93f+(float)random.Unit()*.1f,1,.95f,1));
+                        TreeBlade(b,mask,root,Vector3.Lerp(root,tip,.45f)+Vector3.up*length*.22f,tip,fern?.010f:.014f,lod==0?4:2,leaf*new Color(.93f+(float)random.Unit()*.1f,1,.95f,1),lod>0);
                     }
                 }
             }

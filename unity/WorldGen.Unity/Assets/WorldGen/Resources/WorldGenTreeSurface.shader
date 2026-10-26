@@ -25,8 +25,7 @@ Shader "WorldGen/TreeSurface2"
         #include "WorldGenWind.hlsl"
         #include "WorldGenTree.hlsl"
         TEXTURE2D_ARRAY(_TreeLeafNormals);SAMPLER(sampler_TreeLeafNormals);
-        TEXTURE2D_ARRAY(_TreeColourViews);SAMPLER(sampler_TreeColourViews);
-        TEXTURE2D_ARRAY(_TreeNormalViews);SAMPLER(sampler_TreeNormalViews);
+        #include "WorldGenTreeViews.hlsl"
         float4 _PlantTraits,_ImpostorBounds,_AmbientTint,_FogColor;
         float _TreeLeafShape,_TreeBarkPattern,_Impostor,_Wind,_FogDistance,_TreeEarlyAlpha;
         float3 _LightDirection;
@@ -35,76 +34,39 @@ Shader "WorldGen/TreeSurface2"
             UNITY_DEFINE_INSTANCED_PROP(float4,_LodTransition)
         UNITY_INSTANCING_BUFFER_END(Props)
         struct A {float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 tangentOS:TANGENT;float2 uv:TEXCOORD0;float2 mask:TEXCOORD1;float4 color:COLOR;UNITY_VERTEX_INPUT_INSTANCE_ID};
-        struct O {float4 positionCS:SV_POSITION;float3 position:TEXCOORD0;float3 normal:TEXCOORD1;float4 tangent:TEXCOORD2;float2 uv:TEXCOORD3;float2 mask:TEXCOORD4;float4 color:COLOR;float3 local:TEXCOORD5;nointerpolation float3 direction:TEXCOORD6;UNITY_VERTEX_INPUT_INSTANCE_ID};
-        float3 ViewDirection(int index)
-        {float2 q=float2(index%4,index/4)/3.*2-1;return normalize(float3((q.x+q.y)*.5,1-max(abs(q.x),abs(q.y)),(q.x-q.y)*.5));}
-        void ViewBasis(float3 d,out float3 r,out float3 u)
-        {r=cross(float3(0,1,0),d);r=dot(r,r)<.0001?float3(1,0,0):normalize(r);u=normalize(cross(d,r));}
+        struct O {float4 positionCS:SV_POSITION;float3 position:TEXCOORD0;float3 normal:TEXCOORD1;float4 tangent:TEXCOORD2;float2 uv:TEXCOORD3;float2 mask:TEXCOORD4;float4 color:COLOR;float3 local:TEXCOORD5;nointerpolation float3 direction:TEXCOORD6;nointerpolation float2 viewLod:TEXCOORD7;UNITY_VERTEX_INPUT_INSTANCE_ID};
         O vert(A a)
         {
             O o=(O)0;UNITY_SETUP_INSTANCE_ID(a);UNITY_TRANSFER_INSTANCE_ID(a,o);
             float3 p=a.positionOS.xyz;
             if(_Impostor>.5)
             {
-                float3 d=normalize(TransformWorldToObject(_WorldSpaceCameraPos)-_ImpostorBounds.xyz),r,u;ViewBasis(d,r,u);
+                float3 d=normalize(TransformWorldToObject(_WorldSpaceCameraPos)-_ImpostorBounds.xyz),r,u;WorldGenTreeViewBasis(d,r,u);
                 p=_ImpostorBounds.xyz+(r*(a.uv.x*2-1)+u*(a.uv.y*2-1))*_ImpostorBounds.w;
                 o.direction=d;o.local=p;
             }
             float3 world=TransformObjectToWorld(p),root=TransformObjectToWorld(float3(0,0,0));
             if(_Impostor<.5)world=WorldGenTreeWind(world,root,a.mask,_Wind,_PlantTraits);
             o.position=world;o.positionCS=TransformWorldToHClip(world);o.normal=TransformObjectToWorldNormal(a.normalOS);
+            if(_Impostor>.5)
+            {
+                float3x3 m=(float3x3)GetObjectToWorldMatrix();
+                float scale=max(length(float3(m[0][0],m[1][0],m[2][0])),max(length(float3(m[0][1],m[1][1],m[2][1])),length(float3(m[0][2],m[1][2],m[2][2]))));
+                o.viewLod=WorldGenTreeViewLod(length(root-_WorldSpaceCameraPos),_ImpostorBounds.w*scale);
+            }
             o.tangent=float4(TransformObjectToWorldDir(a.tangentOS.xyz),a.tangentOS.w);o.uv=a.uv;o.mask=a.mask;o.color=a.color;return o;
-        }
-        half4 ViewCoverage(int index,float3 localPoint,float3 direction)
-        {
-            float3 d=ViewDirection(index),r,u;ViewBasis(d,r,u);float rayDot=max(.2,dot(direction,d));
-            float3 projected=localPoint-direction*dot(localPoint,d)/rayDot;
-            float2 uv=.5+float2(dot(projected,r),dot(projected,u))/(2*_ImpostorBounds.w);
-            return SAMPLE_TEXTURE2D_ARRAY(_TreeColourViews,sampler_TreeColourViews,uv,index);
-        }
-        void ViewSample(int index,float3 localPoint,float3 direction,half4 initial,bool prefetched,out half4 colour,out half3 normal)
-        {
-            float3 d=ViewDirection(index),r,u;ViewBasis(d,r,u);
-            float rayDot=max(.2,dot(direction,d));
-            float3 projected=localPoint-direction*dot(localPoint,d)/rayDot;
-            float2 uv=.5+float2(dot(projected,r),dot(projected,u))/(2*_ImpostorBounds.w);
-            // Begin on this capture's centre plane, not the camera billboard's
-            // plane. Empty pixels carry no valid depth: keep that initial ray
-            // intersection rather than interpreting transparent black as -R.
-            half4 coverage;if(prefetched)coverage=initial;else coverage=SAMPLE_TEXTURE2D_ARRAY(_TreeColourViews,sampler_TreeColourViews,uv,index);
-            half4 depth=SAMPLE_TEXTURE2D_ARRAY(_TreeNormalViews,sampler_TreeNormalViews,uv,index);
-            float distance=(coverage.a>.2?(depth.a-.5)*2*_ImpostorBounds.w:0)/rayDot;
-            uv+=float2(dot(direction,r),dot(direction,u))*distance/(2*_ImpostorBounds.w);
-            colour=SAMPLE_TEXTURE2D_ARRAY(_TreeColourViews,sampler_TreeColourViews,uv,index);
-            colour.a*=all(uv>=0)&&all(uv<=1)?1:0;
-            normal=SAMPLE_TEXTURE2D_ARRAY(_TreeNormalViews,sampler_TreeNormalViews,uv,index).rgb*2-1;
         }
         void Surface(O i,out half3 albedo,out half3 normal,out half foliage)
         {
             if(_Impostor>.5)
             {
-                float3 d=i.direction;d.y=max(0,d.y);d/=max(.0001,abs(d.x)+abs(d.y)+abs(d.z));
-                float2 q=saturate(float2(d.x+d.z,d.x-d.z)*.5+.5)*3;
-                int2 cell=min((int2)floor(q),int2(2,2));float2 f=q-cell;
-                int a=cell.y*4+cell.x,b,c;float3 weights;
-                if(f.x+f.y<1){b=a+1;c=a+4;weights=float3(1-f.x-f.y,f.x,f.y);}
-                else{a+=5;b=a-1;c=a-4;weights=float3(f.x+f.y-1,1-f.x,1-f.y);}
-                half4 ca,cb,cc;half3 na,nb,nc;float3 p=i.local-_ImpostorBounds.xyz;
+                bool early=false;
                 #if defined(WORLDGEN_TREE_QUAD_ALPHA) && SHADER_TARGET >= 45
-                if(_TreeEarlyAlpha>.5)
-                {
-                    half4 aa=ViewCoverage(a,p,i.direction),ab=ViewCoverage(b,p,i.direction),ac=ViewCoverage(c,p,i.direction);
-                    // All three rays have zero parallax below .2. Their final
-                    // weighted alpha therefore cannot reach the .4 cutoff.
-                    if(WorldGenQuadAll(max(aa.a,max(ab.a,ac.a))<=.2?1:0)>.5)clip(-1);
-                    ViewSample(a,p,i.direction,aa,true,ca,na);ViewSample(b,p,i.direction,ab,true,cb,nb);ViewSample(c,p,i.direction,ac,true,cc,nc);
-                }
-                else
+                early=_TreeEarlyAlpha>.5;
                 #endif
-                {ViewSample(a,p,i.direction,0,false,ca,na);ViewSample(b,p,i.direction,0,false,cb,nb);ViewSample(c,p,i.direction,0,false,cc,nc);}
-                half3 w=weights*half3(ca.a,cb.a,cc.a);half alpha=w.x+w.y+w.z;clip(alpha-.4);
-                albedo=(ca.rgb*w.x+cb.rgb*w.y+cc.rgb*w.z)/max(.001,alpha);
-                normal=TransformObjectToWorldNormal(normalize(na*w.x+nb*w.y+nc*w.z));foliage=1;
+                half4 color;half3 objectNormal;
+                WorldGenTreeSurface(i.local-_ImpostorBounds.xyz,i.direction,_ImpostorBounds.w,i.viewLod,early,color,objectNormal);
+                clip(color.a-.4);albedo=color.rgb;normal=TransformObjectToWorldNormal(objectNormal);foliage=1;
             }
             else
             {

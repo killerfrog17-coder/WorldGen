@@ -333,6 +333,7 @@ public sealed partial class LocalTerrainExplorer
         if(scatterArt.Count>384)
         {
             var used=new HashSet<ArtModel>(drawBatches.Select(b=>b.Model));
+            used.UnionWith(treeShadowCardModels);
             foreach(var item in scatterArt.Where(p=>p.Value.Generated&&!p.Value.TreeStand&&!p.Value.TreeQueued&&!used.Contains(p.Value)&&Time.realtimeSinceStartupAsDouble-p.Value.LastUsed>30).OrderBy(p=>p.Value.LastUsed).Take(Math.Min(8,scatterArt.Count-384)).ToArray())
             {
                 ReleaseTreeTextures(item.Value);

@@ -1,5 +1,36 @@
 # Version 3 validation evidence
 
+## Dense forest rendering LOD - 26 October 2026
+
+Owner authorizes cheaper distant shadow casters/shading and palm/tree-fern LODs
+after installed original-The-Forest mesh/shadow comparison. New separately saved
+Vegetation A/B toggles default on. Current proxies blend into a two-triangle
+sun-facing card over64–96m (distance to existing conservative caster bounds).
+Cards borrow actual tree alpha captures, blend three views, use complementary
+shadow coverage and retain proxies until their atlas is ready. Bake owners are
+pinned while shadow batches reference their mesh/textures. F3 reports cards and
+submitted caster triangles. Existing180m/four-cascade atlas, broad canopy shade,
+populations, terrain/fog repair, sun timing and animal assets remain.
+
+Both visible tree paths share distance/projected-size sampling LOD: full12-sample
+reconstruction ->3colour/alpha samples with crown-envelope lighting ->1capture
+for crowns only a few pixels across. Transitions blend both representations;
+reported counts are steady-path shader samples, not a measured scene speedup.
+Tree quality retains detailed reconstruction progressively farther on higher
+settings. The mode-off path retains full reconstruction.
+
+Middle mesh triangle counts: fan palms3312->1062, feather palms6372->2052,
+tree ferns5116->1684 (67–68% reduction). Two mesh-only hidden Unity batch runs
+verify all256 close meshes have identical vertices/normals/indices/UV1 hashes.
+No world/scene/rendering was launched by those mesh audits.658 pure rendering
+policy checks pass, shared compile0warnings/errors. Release IL2CPP compile/package
+succeeded with no C#/shader errors, BuiltUtc2026-10-26T21:04:14.3021051Z,
+artifacts/player-forest-render-lod.128runtime/shader inputs and staged sharedDLLs
+stable; all177 fauna bundles/native sources reverified. Existing shortcut now
+selects this package. No player/capture/profiling; actual shader/batch behavior,
+shadow/crown transitions and dense-forest FPS require owner visual review.
+See FOLIAGE_SHADOWS and ignored forest-render-lod-20261026 evidence.
+
 ## Stable loading fog and opaque frontier - 26 October 2026
 
 Owner reports chunk-border fog rewinds and visible fogged silhouettes. Found

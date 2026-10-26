@@ -12,6 +12,7 @@ public static partial class TerrainVideoOptions
     public static float TreeNearLod=120,TreeFarLod=450,TreeMaxDistance=1400;
     public static bool MidPlantShadows=true,TreeShadows=true;
     public static bool SimplifiedForestShadows=true;
+    public static bool DistantTreeShadowCards=true,EfficientTreeViews=true;
     public static int ForestShadowQuality=2;
     public static float ForestShadowSoftness=2;
     public static bool CanopyShade=true;
@@ -37,6 +38,7 @@ public static partial class TerrainVideoOptions
         SpecialistPlants=Flag("specialists");MidPlants=Flag("mid");GeneratedTrees=Flag("trees");FarForest=Flag("far-forest");
         GrassNearDensity=Value("grass-near-density",2,1,20);
         SimplifiedForestShadows=Flag("simple-forest-shadows");
+        DistantTreeShadowCards=Flag("distant-shadow-cards");EfficientTreeViews=Flag("efficient-tree-views");
         CanopyShade=Flag("canopy-shade");
         ForestShadowQuality=Mathf.Clamp(PlayerPrefs.GetInt("vegetation-forest-shadow-quality",2),0,4);
         ForestShadowSoftness=Value("forest-shadow-softness",2,.75f,4);
@@ -59,6 +61,7 @@ public static partial class TerrainVideoOptions
         void Value(string name,float value)=>PlayerPrefs.SetFloat("vegetation-"+name,value);
         Flag("specialists",SpecialistPlants);Flag("mid",MidPlants);Flag("trees",GeneratedTrees);Flag("far-forest",FarForest);
         Value("grass-near-density",GrassNearDensity);Flag("simple-forest-shadows",SimplifiedForestShadows);
+        Flag("distant-shadow-cards",DistantTreeShadowCards);Flag("efficient-tree-views",EfficientTreeViews);
         Flag("canopy-shade",CanopyShade);
         PlayerPrefs.SetInt("vegetation-forest-shadow-quality",ForestShadowQuality);Value("forest-shadow-softness",ForestShadowSoftness);
         PlayerPrefs.SetInt("vegetation-specialist-detail",SpecialistDetail);PlayerPrefs.SetInt("vegetation-mid-detail",MidPlantDetail);PlayerPrefs.SetInt("vegetation-tree-detail",TreeDetail);
@@ -81,6 +84,7 @@ public static partial class TerrainVideoOptions
         MidPlantShadows=TreeShadows=VegetationShadows=ScatterFrustum=VegetationOcclusion=true;
         GroundCover=GrassCanopy=GrassWind=true;TreeIdentityRange=(float)VegetationQuality.TreeIdentityRange;ApplyAllPlantQuality(2);
         GrassNearDensity=2;SimplifiedForestShadows=CanopyShade=true;ForestShadowQuality=2;ForestShadowSoftness=2;
+        DistantTreeShadowCards=EfficientTreeViews=true;
     }
     public static bool KeepVegetation(ScatterKind kind,ulong id)
     {
@@ -145,10 +149,14 @@ public sealed partial class WorldGenRuntime
         GUI.enabled=enabled&&TerrainVideoOptions.GeneratedTrees;
         PlantQualityRow("Tree quality",TerrainVideoOptions.TreeQuality,3);GUI.enabled=enabled;
         TerrainVideoOptions.FarForest=GUILayout.Toggle(TerrainVideoOptions.FarForest,"Horizon forest coverage");
+        TerrainVideoOptions.EfficientTreeViews=GUILayout.Toggle(TerrainVideoOptions.EfficientTreeViews,"Cheaper distant tree shading");
+        GUILayout.Label("Close views keep depth and detailed normals. Distant crowns use simpler lighting; tiny crowns use one capture. Tree quality controls the transition.",MutedStyle());
         TerrainVideoOptions.GrassWind=GUILayout.Toggle(TerrainVideoOptions.GrassWind,"Vegetation wind animation");
         GUILayout.Space(12);GUILayout.Label("FOREST SHADOWS",SectionStyle());
         TerrainVideoOptions.SimplifiedForestShadows=GUILayout.Toggle(TerrainVideoOptions.SimplifiedForestShadows,"Simplified forest shadows (off = previous rendering)");
         GUI.enabled=enabled&&TerrainVideoOptions.SimplifiedForestShadows;
+        TerrainVideoOptions.DistantTreeShadowCards=GUILayout.Toggle(TerrainVideoOptions.DistantTreeShadowCards,"Cheaper distant tree shadow cards");
+        GUILayout.Label("Detailed proxies blend to baked crown silhouettes from 64 to 96 m. Existing proxies remain until tree images are ready.",MutedStyle());
         GUILayout.Label("Forest shadow quality");
         TerrainVideoOptions.ForestShadowQuality=GUILayout.SelectionGrid(TerrainVideoOptions.ForestShadowQuality,VegetationQuality.Names,5);
         GUILayout.Label("Fixed cascades: 16 / 48 / 100 / 180 m. Atlas "+TerrainVideoOptions.ForestShadowResolution+" px; ~"+(TerrainVideoOptions.ForestShadowResolution/2)+" px per cascade; "+TerrainVideoOptions.ForestShadowSamples+" foliage filter samples.");

@@ -76,6 +76,9 @@ public sealed partial class LocalTerrainExplorer
     }
     void BindTerrainSceneCamera(ScriptableRenderContext context,Camera camera)
     {
+        float treeStart=(float)WorldGen.Presentation.TreeRenderingLod.ViewStart(TerrainVideoOptions.TreeQuality),treePixels=(float)WorldGen.Presentation.TreeRenderingLod.PixelStart(TerrainVideoOptions.TreeQuality);
+        Shader.SetGlobalVector("_WorldGenTreeViewRanges",camera==view&&TerrainVideoOptions.EfficientTreeViews?new Vector4(treeStart,treeStart*1.5f,treePixels,treePixels*.5f):Vector4.zero);
+        Shader.SetGlobalFloat("_WorldGenTreeViewProjection",camera==view?view.pixelHeight/Mathf.Tan(view.fieldOfView*Mathf.Deg2Rad*.5f):0);
         // The same sky gradient is the opaque endpoint for land, vegetation and
         // animals. Other cameras keep their own legacy/material fog settings.
         var fogZenith=fogSkyZenith;fogZenith.w=landMaterial==null?0:landMaterial.GetFloat("_FogDistance");

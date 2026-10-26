@@ -1,5 +1,29 @@
 # WorldGen repository instructions
 
+DENSE FOREST RENDER LOD,26October2026~16:04CDT:
+Owner authorizes cheaper distant shadow/shading paths and heavy frond middle
+meshes. Two saved Vegetation A/B toggles default ON: Cheaper distant tree shading,
+Cheaper distant tree shadow cards. Proxy shadows blend64–96m (to existingcaster
+bounds) into2tri sun-facing cards, borrowing existing actual-tree3alpha captures.
+Proxies remain until bake ready; near/far ordered coverage complementary. Bake
+owners pinned against both eviction paths, card materials borrow textures.
+F3 cards/submittedcastertris before cascade repetition. Shared visible view
+sampler12->3->1steady texture reads; quality-dependent distance and projected
+pixel transitions, blends both during bands, crown-envelope normal far. No FPS
+claim. Middle fanpalms3312->1062, featherpalms6372->2052, treeferns5116->1684;
+same leafletcount/root/tips. Mesh-only hidden Unity two-run audit256 close-mesh
+vertex/normal/index/UV1 hashes EXACT.658pure policy checks pass; shared0warnings/
+errors. Release IL2CPP player-forest-render-lod BuiltUtc2026-10-26T21:04:14.3021051Z
+compile/package0, noC#/shadererrors.128runtime/shader source hashes+stagedDLLs
+stable; all177bundle/native hashes verified. Existing repo shortcut updated.
+No game/world/scene/render capture or profiling; visual/shader-instancing/FPS
+acceptance pending owner review.180m/4cascades/canopy shade/populations/sun timing
+and stable loadingfog retained. NO shadowmap cache/sunhold added in this pass.
+Build-created settings/importer changes restored. See FOLIAGE_SHADOWS/VALIDATION;
+ignored forest-render-lod-20261026 proof. Backup own sources/docs/shortcut only.
+Preserve unrelated deleted prompt and2old untracked deer scripts; owner apps
+left untouched; stopped fauna appearance work remains stopped.
+
 STABLE LOADING FOG / OPAQUE FRONTIER,26October2026~15:25CDT:
 Owner reports fog snapping inward at chunk borders, plus visible fogged shapes.
 Requested-quality readiness can drop to0 when existing visible land requests

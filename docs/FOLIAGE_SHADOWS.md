@@ -1,5 +1,50 @@
 # Foliage shadow and near-foot density checkpoint / 22 October 2026
 
+## Dense forest render LOD follow-up / 26 October 2026
+
+Two separately saved Vegetation controls default on: **Cheaper distant tree
+shadow cards** and **Cheaper distant tree shading**. Both can be disabled for
+an owner A/B comparison. Population, placement, shadow distance/cascades and
+sun motion remain unchanged; the stable loading-fog fix is retained.
+
+Shadow proxies are retained nearby, then crossfade over 64–96 m measured from
+the existing conservative tree bounds. Beyond that interval a tree can cast
+from one two-triangle card facing the light. It samples three alpha captures
+from an existing shared tree bake, without colour/normal/depth reconstruction.
+The old proxy remains until that bake is ready; a missing texture never removes
+the tree's shadow. Near/far shadow fragments use complementary ordered coverage
+through the overlap. Both use the existing main-light atlas, not a new shadow
+camera. Borrowed bake models are pinned against eviction while used by shadow
+batches; card materials do not own those textures. F3 reports card instances and
+submitted caster triangles before any cascade repetition. Cards approximate
+light-space depth/self-shadowing and require visual review.
+
+Visible impostors share one sampling implementation between CPU-instanced trees
+and GPU forest fields. Close impostors retain three-view colour/normal/depth
+reconstruction (normally 12 texture samples). Beyond quality-dependent ranges
+they blend to three colour/alpha samples and smooth crown-envelope normals;
+captures only a few pixels across can blend further to one colour/alpha sample.
+Very low/Low/Medium/High/Ultra start this distance transition at 80/100/120/160/
+220 m and finish at 1.5 times that distance. One-view projected-diameter starts
+at 12/10.25/8.5/6.75/5 pixels and finishes at half those diameters. Mixed transition
+bands evaluate both representations; these are steady-path sample reductions,
+not a guaranteed scene-wide FPS improvement. Detailed lighting, alpha clipping,
+canopy shade, shadows and opaque distance fog still apply.
+
+Middle-distance palm and tree-fern leaflets retain the same roots/tips/counts,
+but use two-triangle flat kites instead of folded strips. Fan palm middle meshes
+drop 3312→1062 triangles; feather palms 6372→2052; tree ferns 5116→1684 (67–68%).
+Mesh-only Unity inspection of 256 specimens verifies every close-mesh vertex,
+normal, index and UV1 signature is unchanged. No scenes/worlds/rendering were
+run for that inspection. All 658 pure rendering-policy checks pass. Release
+IL2CPP `artifacts/player-forest-render-lod`, BuiltUtc
+`2026-10-26T21:04:14.3021051Z`, compiled/packaged with no C#/shader errors.
+128 runtime/shader source hashes and staged shared DLLs remained stable; all177
+packaged fauna bundles and177 native animal hashes match. Existing shortcut
+selects this package. No game launch/capture/profiling; shadow transitions,
+material-property instancing, visual compromises and FPS remain owner-review
+pending. Sun timing and shadow-map caching were not changed in this render pass.
+
 ## Owner controls
 
 Game settings > Vegetation keeps the five **Grass quality** presets and adds
