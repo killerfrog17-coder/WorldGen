@@ -1,5 +1,34 @@
 # WorldGen repository instructions
 
+TERRAIN CURTAINS / CURSOR REPAIR,26October2026~14:41CDT:
+Owner reports inverted-looking forest/terrain loading and pointer escaping to
+other monitors. Found area-only readiness certified coarse horizon backdrops
+as finished near terrain (owner screenshot32/560tiles yet58.8km ground ready).
+TerrainQualityFootprint now requires requested grid spacing, permits legitimate
+dense ancestors/finer unions, invalidates on same-key segment changes. Shared
+forest/terrain reveal retained; minimumunsupported radius100->8m. Removed ALL
+regular-grid opaque perimeter-wall vertices/triangles (old minimum80m skirt,
+larger on high-relief tiles). Planned edge collapse retained. Channel refinement
+and two test files' obsolete512-skirt index assumptions updated. Authoritative
+height sampler, sampled surface heights and tree identities unchanged; trees
+still project onto land. No terrain height is derived from tree positions.
+Shared scene fog was already linear but terrain/tree/scatter/fauna re-converted
+it; production paths now use shared linear colour, legacy paths preserved.
+Owner Player.log repeated zero-threadgroup forest errors: compaction could empty
+a batch after its first check; skip empty batches before dispatch/draw now.
+Focused gameplay reconciles cursor lock/visibility in Update+LateUpdate, focus
+return resets native clip, overlays/focus loss release; unfocused input ignored.
+Passive diagnostic bypass retained. Release IL2CPP player-terrain-seam-cursor
+BuiltUtc2026-10-26T19:41:09.4330066Z exited0, no C#/shader errors. Shared build0
+warnings/errors. Pure coverage/topology audit43708 assertions across4..128 grids
+passed; NO world fixtures/suites/player/capture/profiling launched under retained
+compile/package-only restriction.66 runtime source hashes/staged DLLs stable;
+177 fauna bundle/native hashes reverified. Runtime terrain seams, transitions,
+cursor/multimonitor/FPS still owner-review pending. Shortcut selects new package,
+previous package/running apps preserved. Staging on E: as prior task; importer/
+project-default build rewrites restored. See docs/TERRAIN_RENDERING_REPAIR.md.
+Preserve unrelated owner prompt deletion, old deer scripts and human-thread work.
+
 FAUNA SPAWN COMMANDS,26October2026~14:08CDT:
 Owner requests an in-game animal spawn command. Added /spawn <animal> [1-32],
 /spawn list [filter] [page], /spawn clear, /help entry and Tab completion. Slugs,

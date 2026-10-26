@@ -41,8 +41,22 @@ public sealed partial class LocalTerrainExplorer
     public bool MapReady=>mapSurface!=null&&!mapDirty&&!mapRefining&&shownMapRevision==mapRevision;
     public int MapBuildCount {get;private set;}
     double MaximumViewDistance=>terrain==null?250000:Math.Min(250000,terrain.RadiusM*HorizontalScale*.3);
-    void CaptureMouse(){if(passiveSkyCheck||passiveReanchorCheck)return;Cursor.lockState=mapOpen||paused||chatOpen||ecologyOpen?CursorLockMode.None:CursorLockMode.Locked;Cursor.visible=mapOpen||paused||chatOpen||ecologyOpen;}
-    void OnApplicationFocus(bool focus){if(focus&&!closed)CaptureMouse();}
+    bool WantsMouseLook=>!closed&&Application.isFocused&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen;
+    void CaptureMouse()
+    {
+        if(passiveSkyCheck||passiveReanchorCheck)return;
+        bool capture=WantsMouseLook;var state=capture?CursorLockMode.Locked:CursorLockMode.None;
+        if(Cursor.lockState!=state)Cursor.lockState=state;
+        if(Cursor.visible==capture)Cursor.visible=!capture;
+    }
+    void OnApplicationFocus(bool focus)
+    {
+        if(closed||passiveSkyCheck||passiveReanchorCheck)return;
+        // Re-establish the native window clip after Alt-Tab/focus changes even
+        // when the managed lock property still reports its previous value.
+        if(focus)Cursor.lockState=CursorLockMode.None;
+        CaptureMouse();
+    }
     void HandleDebugKeys()
     {
         var k=ActiveKeyboard;if(k==null)return;

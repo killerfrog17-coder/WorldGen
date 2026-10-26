@@ -141,7 +141,6 @@ namespace WorldGen.Presentation
             int before=samples.Count;
             for(int id=0;id<before;id++)
             {
-                if(id>=original.Length&&id<mesh.Positions.Length/3)continue; // skirts
                 double x=positions[id*3],z=positions[id*3+2];
                 for(int axis=0;axis<3;axis++)
                 {

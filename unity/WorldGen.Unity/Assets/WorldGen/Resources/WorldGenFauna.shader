@@ -90,7 +90,7 @@ Shader "WorldGen/AnimatedFauna"
                 surface.smoothness=1-clamp(mask.r,.08,.97);surface.normalTS=half3(0,0,1);
                 half3 color=UniversalFragmentPBR(input,surface).rgb+SecondaryCelestialLight(n,albedo);
                 color+=albedo*mask.b*_Glow;
-                return half4(ApplyPlanetAir(color,i.world,_WorldSpaceCameraPos,SRGBToLinear(VegetationFog(float4(.57,.69,.76,1)).rgb),VegetationFogDistance(60000)),1);
+                return half4(ApplyPlanetAir(color,i.world,_WorldSpaceCameraPos,VegetationFogLinear(SRGBToLinear(float3(.57,.69,.76))),VegetationFogDistance(60000)),1);
             }
             ENDHLSL
         }

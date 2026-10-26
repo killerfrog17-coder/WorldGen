@@ -132,7 +132,7 @@ Shader "WorldGen/TreeSurface2"
             half diffuse=saturate((dot(n,sun.direction)+foliage*.2)/(1+foliage*.2));
             half transmission=foliage*.14*pow(saturate(dot(-n,sun.direction)),2);
             half3 color=albedo*(VegetationAmbient(_AmbientTint).rgb*1.4+sun.color*(diffuse+transmission)*sun.shadowAttenuation)+SecondaryCelestialLight(n,albedo);
-            return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,SRGBToLinear(VegetationFog(_FogColor).rgb),VegetationFogDistance(_FogDistance)),1);
+            return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,VegetationFogLinear(SRGBToLinear(_FogColor.rgb)),VegetationFogDistance(_FogDistance)),1);
         }
         half4 depthFrag(O i):SV_Target
         {UNITY_SETUP_INSTANCE_ID(i);WorldGenScatterFade(i.positionCS.xy,UNITY_ACCESS_INSTANCED_PROP(Props,_LodTransition));half3 c,n;half f;Surface(i,c,n,f);return 0;}

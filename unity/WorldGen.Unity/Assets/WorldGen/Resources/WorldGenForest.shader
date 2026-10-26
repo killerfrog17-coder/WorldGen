@@ -85,7 +85,7 @@ Shader "WorldGen/ForestPackets"
                 float3 normal=normalize(na*w.x+nb*w.y+nc*w.z);normal=Rotate(normal/float3(root.width,root.height,root.width),root.yaw);normal.x-=root.slopeX*normal.y;normal.z-=root.slopeZ*normal.y;normal=normalize(normal);
                 Light sun=WorldGenFoliageLight(i.world);half diffuse=saturate((dot(normal,sun.direction)+.2)/1.2),transmission=.14*pow(saturate(dot(-normal,sun.direction)),2);
                 half3 colour=albedo*(VegetationAmbient(_AmbientTint).rgb*1.4+sun.color*(diffuse+transmission)*sun.shadowAttenuation)+SecondaryCelestialLight(normal,albedo);
-                return half4(ApplyPlanetAir(colour,i.world,_WorldSpaceCameraPos,SRGBToLinear(VegetationFog(_FogColor).rgb),VegetationFogDistance(_FogDistance)),1);
+                return half4(ApplyPlanetAir(colour,i.world,_WorldSpaceCameraPos,VegetationFogLinear(SRGBToLinear(_FogColor.rgb)),VegetationFogDistance(_FogDistance)),1);
             }
             ENDHLSL
         }

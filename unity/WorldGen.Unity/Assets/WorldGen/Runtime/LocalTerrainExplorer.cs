@@ -133,6 +133,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         fpsClock=fpsNow;
         RecordLoadingFrame();
         if(closed)return;
+        CaptureMouse();
         bool chatInput=!WorldGenPerformance.Enabled&&HandleChatKeys();if(!chatInput&&!WorldGenPerformance.Enabled)HandleDebugKeys();if(closed)return;
         if(terrain==null)
         {
@@ -144,7 +145,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         ApplyTerrainDiagnostics();ApplyFoliageShadowOptions();installationsThisFrame=0;frameUploadMs=0;double movementStartX=motion.X,movementStartZ=motion.Z;
         long mapStarted=WorldGenPerformance.TraceBegin();UpdateMapWork();WorldGenPerformance.TraceEnd(1,mapStarted);
         var keyboard=ActiveKeyboard;var mouse=Mouse.current;
-        if(!mapOpen&&!paused&&!chatInput&&!ecologyOpen)
+        if(!mapOpen&&!paused&&!chatInput&&!ecologyOpen&&Application.isFocused)
         {
             if(mouse!=null&&!passiveSkyCheck&&!passiveReanchorCheck){var d=mouse.delta.ReadValue();heading+=d.x*.1f;pitch=Mathf.Clamp(pitch-d.y*.1f,-85,85);
                 if(motion.Flying){float scroll=mouse.scroll.ReadValue().y;if(scroll!=0)motion.FlySpeed=Math.Max(5,Math.Min(20000,motion.FlySpeed*Math.Exp(Math.Sign(scroll)*.25)));}}

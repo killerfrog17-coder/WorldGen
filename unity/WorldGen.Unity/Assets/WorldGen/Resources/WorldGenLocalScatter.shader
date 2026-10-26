@@ -102,10 +102,11 @@ Shader "WorldGen/LocalScatter"
                 if(_TreeSurface>.5&&i.plant.y>.5&&i.plant.y<2.5)
                 {Light sun=GetMainLight(input.shadowCoord);sun.shadowAttenuation=WorldGenCanopyShadow(sun.shadowAttenuation,i.position);color+=s.albedo*sun.color*(pow(saturate(dot(-n,sun.direction)),2)*.12)*sun.shadowAttenuation;}
                 color+=SecondaryCelestialLight(n,s.albedo);
-                float3 fog=VegetationFog(_FogColor).rgb;
+                float3 fog=_FogColor.rgb;
                 #ifndef UNITY_COLORSPACE_GAMMA
                 fog=SRGBToLinear(fog);
                 #endif
+                fog=VegetationFogLinear(fog);
                 return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,fog,VegetationFogDistance(_FogDistance)),1);
             }
             ENDHLSL

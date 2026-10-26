@@ -49,6 +49,14 @@ namespace WorldGen.Presentation
         public int[] WaterClipTriangles = Array.Empty<int>();
         public double EastM, NorthM, SizeM, MinHeightM, MaxHeightM, BuildMilliseconds;
         public int Segments, GroundVertices;
+        public static int[] SurfaceTriangles(int segments)
+        {
+            if(segments<4||segments>128)throw new ArgumentOutOfRangeException(nameof(segments));
+            int side=segments+1,cursor=0;var indices=new int[segments*segments*6];
+            for(int z=0;z<segments;z++)for(int x=0;x<segments;x++)
+            {int a=z*side+x;indices[cursor++]=a;indices[cursor++]=a+side;indices[cursor++]=a+1;indices[cursor++]=a+1;indices[cursor++]=a+side;indices[cursor++]=a+side+1;}
+            return indices;
+        }
         public static LocalTerrainMesh Build(LocalTerrain terrain, LocalTerrainFrame frame, double eastM, double northM,
             double sizeM = 2048, int segments = 64, CancellationToken token = default,double[]? edgeSteps=null,TerrainSampleCache? sampleCache=null)
         {
@@ -71,7 +79,7 @@ namespace WorldGen.Presentation
                 double box=100000*frame.HorizontalScale;int a=(int)Math.Floor(x/box),b=(int)Math.Floor(z/box);
                 if(!patchCache.TryGetValue((a,b),out var local)){local=terrain.Patch(frame.Position((a+.5)*box,(b+.5)*box),150000);patchCache.Add((a,b),local);}var sampled=local.Sample(p);sampleCache?.Store(p,sampled);return sampled;
             }
-            int side = segments + 1, halo = side + 2, ground = side * side, perimeter = segments * 4;
+            int side = segments + 1, halo = side + 2, ground = side * side;
             mesh.GroundVertices = ground;
             // Every terrain LOD needs the grass/moss/lichen material mixture.
             // Only nearby tiles create geometry from this compact regular grid.
@@ -106,10 +114,10 @@ namespace WorldGen.Presentation
                     }
                 }
             }
-            mesh.Positions = new float[(ground + perimeter) * 3]; mesh.Normals = new float[mesh.Positions.Length]; mesh.Colors = new float[(ground + perimeter) * 4];
+            mesh.Positions = new float[ground * 3]; mesh.Normals = new float[mesh.Positions.Length]; mesh.Colors = new float[ground * 4];
             mesh.SurfaceWeights=new float[mesh.Colors.Length];
             mesh.GroundWeightsB=new float[mesh.Colors.Length];
-            mesh.Lithology=new float[(ground+perimeter)*6];
+            mesh.Lithology=new float[ground*6];
             mesh.WaterPositions = new float[ground * 3]; mesh.WaterColors = new float[ground * 4];
             for (int z = 0; z < side; z++) for (int x = 0; x < side; x++)
             {
@@ -151,27 +159,11 @@ namespace WorldGen.Presentation
                 }
                 mesh.Colors[i * 4] = (float)color.X; mesh.Colors[i * 4 + 1] = (float)color.Y; mesh.Colors[i * 4 + 2] = (float)color.Z; mesh.Colors[i * 4 + 3] = (float)coverage;
             }
-            mesh.Triangles = new int[segments * segments * 6 + perimeter * 6]; int cursor = 0;
-            void Triangle(int a, int b, int c) { mesh.Triangles[cursor++] = a; mesh.Triangles[cursor++] = b; mesh.Triangles[cursor++] = c; }
-            for (int z = 0; z < segments; z++) for (int x = 0; x < segments; x++)
-            { int a = z * side + x; Triangle(a, a + side, a + 1); Triangle(a + 1, a + side, a + side + 1); }
-            // Render-only skirts conceal coarse/fine LOD T-junctions. They are NEVER used by walking queries.
-            var edge = new int[perimeter]; int k = 0;
-            for (int x = 0; x < segments; x++) edge[k++] = x;
-            for (int z = 0; z < segments; z++) edge[k++] = z * side + segments;
-            for (int x = segments; x > 0; x--) edge[k++] = segments * side + x;
-            for (int z = segments; z > 0; z--) edge[k++] = z * side;
-            double skirt = Math.Max(80, (mesh.MaxHeightM - mesh.MinHeightM) * .5);
-            for (int i = 0; i < perimeter; i++)
-            {
-                int src = edge[i], dst = ground + i;
-                Array.Copy(mesh.Positions, src * 3, mesh.Positions, dst * 3, 3); mesh.Positions[dst * 3 + 1] -= (float)skirt;
-                Array.Copy(mesh.Normals, src * 3, mesh.Normals, dst * 3, 3); Array.Copy(mesh.Colors, src * 4, mesh.Colors, dst * 4, 4);
-                Array.Copy(mesh.SurfaceWeights,src*4,mesh.SurfaceWeights,dst*4,4);
-                Array.Copy(mesh.GroundWeightsB,src*4,mesh.GroundWeightsB,dst*4,4);
-                Array.Copy(mesh.Lithology,src*6,mesh.Lithology,dst*6,6);
-                int next = (i + 1) % perimeter; Triangle(src, dst, edge[next]); Triangle(edge[next], dst, ground + next);
-            }
+            mesh.Triangles=SurfaceTriangles(segments);
+            // Planned neighbors already share collapsed triangle edges above.
+            // The old >=80m perimeter skirts also appeared on INTERIOR fallback
+            // boundaries, making manufactured cliffs through loaded terrain.
+            // Keep the sampled land surface; never extrude those opaque walls.
             var waterSamples=LocalChannelMesh.Refine(mesh,terrain,frame,patch,samples,token);
             LocalWaterMesh.Build(mesh,frame,waterSamples,terrain.Amplification!=null);
             if(terrain.Amplification!=null)RiverscapeMesh.Append(mesh,frame,patch,waterSamples,token);

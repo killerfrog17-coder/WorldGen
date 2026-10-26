@@ -109,7 +109,7 @@ Shader "WorldGen/LocalTerrain"
                 }
                 float3 fogColor=TerrainFogColor().rgb,farColor=i.color.rgb;
                 #ifndef UNITY_COLORSPACE_GAMMA
-                farColor=SRGBToLinear(farColor);fogColor=SRGBToLinear(fogColor);
+                farColor=SRGBToLinear(farColor);if(_TerrainSceneEnabled<.5)fogColor=SRGBToLinear(fogColor);
                 #endif
                 float distance=length(i.position-_WorldSpaceCameraPos);
                 if(_Water<.5&&i.color.a< -1.5)

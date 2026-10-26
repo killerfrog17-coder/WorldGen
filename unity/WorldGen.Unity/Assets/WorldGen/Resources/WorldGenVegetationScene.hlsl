@@ -7,6 +7,8 @@ float4 _VegetationSceneData[19];
 CBUFFER_END
 float _VegetationSceneEnabled;
 float4 VegetationFog(float4 legacy){return _VegetationSceneEnabled>.5?_VegetationSceneData[0]:legacy;}
+// Shared colours are already linear; callers convert only their legacy input.
+float3 VegetationFogLinear(float3 legacyLinear){return _VegetationSceneEnabled>.5?_VegetationSceneData[0].rgb:legacyLinear;}
 float4 VegetationAmbient(float4 legacy){return _VegetationSceneEnabled>.5?_VegetationSceneData[1]:legacy;}
 float VegetationFogDistance(float legacy){return _VegetationSceneEnabled>.5?_VegetationSceneData[2].x:legacy;}
 float VegetationDaylight(float legacy){return _VegetationSceneEnabled>.5?_VegetationSceneData[2].y:legacy;}

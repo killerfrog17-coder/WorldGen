@@ -110,7 +110,7 @@ is performed. Runtime visual correctness, density, movement transitions and FPS
 still require an owner playtest. No save schema, world generation or ecology
 presence record is changed by the prototype.
 
-The current release IL2CPP build is `artifacts/player-fauna-spawn-command`, BuiltUtc
+The fauna spawn-command checkpoint is `artifacts/player-fauna-spawn-command`, BuiltUtc
 `2026-10-26T19:08:13.7652438Z`. It contains all 177 bundles, 541 movement clips
 and 830 coat layers (376.0 MiB of bundles). The packaged hashes and sampled native
 skinning checks pass; the largest sampled normalized position error is

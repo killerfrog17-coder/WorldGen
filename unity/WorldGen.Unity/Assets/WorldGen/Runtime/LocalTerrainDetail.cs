@@ -16,7 +16,7 @@ public sealed partial class LocalTerrainExplorer
     int detailRevision=-1,detailGeneration,plannedPixels;float plannedFov;
     double detailX,detailZ,nextRequestAt,frameUploadMs,fogSafeRadius,terrainRevealRadius,forestRevealRadius,streamedFog=300,fogCheckAt;
     bool detailDirty;
-    TerrainCoverageFootprint fogFootprint;
+    TerrainQualityFootprint fogFootprint;
     readonly Dictionary<TerrainTileKey,double[]> backdrops=new Dictionary<TerrainTileKey,double[]>();
     struct BackdropEntry{public TerrainTileKey Key;public double[] Value;public int Order;}
     readonly List<BackdropEntry> backdropOrder=new List<BackdropEntry>();Comparison<BackdropEntry> backdropComparison;
@@ -132,12 +132,12 @@ public sealed partial class LocalTerrainExplorer
         if(now>=fogCheckAt)
         {
             fogCheckAt=now+.15;double limit=viewDistance*.98;
-            if(fogFootprint==null)fogFootprint=new TerrainCoverageFootprint(tiles.Keys);
-            double gap=fogFootprint.NearestGap(wanted.Keys,motion.X,motion.Z,limit/.94);
+            if(fogFootprint==null)fogFootprint=new TerrainQualityFootprint(tiles.Select(p=>new KeyValuePair<TerrainTileKey,int>(p.Key,p.Value.Segments)));
+            double gap=fogFootprint.NearestGap(wanted,motion.X,motion.Z,limit/.94);
             terrainRevealRadius=Math.Min(limit,gap*.94);
             forestRevealRadius=TreeRevealDistance(limit);
             double safe=Math.Min(terrainRevealRadius,forestRevealRadius);
-            fogSafeRadius=Math.Max(100,safe);
+            fogSafeRadius=Math.Max(8,safe);
         }
         // Both ground and enabled tree representations must be present. Retained
         // ready parents count during replacement; mesh quality changes alone do

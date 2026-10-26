@@ -1,5 +1,35 @@
 # Version 3 validation evidence
 
+## Terrain boundary and mouse capture repair - 26 October 2026
+
+Owner screenshot showed flat/vertical curtains during loading, plus pointer loss
+in gameplay. Fixed coarse-backdrop false readiness with grid-spacing-aware
+coverage; removed the regular terrain mesh's manufactured perimeter walls;
+retained sampled heights and planned edge collapse. Updated channel refinement
+and its tests' obsolete skirt-index assumptions. Shared linear fog colour is no
+longer converted twice. Owner log's zero-threadgroup forest dispatch path now
+skips batches emptied by compaction. Focused gameplay restores cursor capture
+each Update/LateUpdate and focus return; overlays/focus loss release it.
+
+Shared compilation: 0 warnings/errors. Pure math/topology audit passed 43,708
+assertions, including reproduction of the old area-only false readiness, dense
+ancestors, fine unions, partial gaps, negative coordinates, same-key resolution
+replacement and valid open-boundary/upward-wound surface topology at 4–128 grid
+segments. This did not create or launch worlds. Existing world-based suites were
+not run; their skirt-index expectations were updated in source only.
+
+Release IL2CPP compile/package exited 0, BuiltUtc
+`2026-10-26T19:41:09.4330066Z`, without C#/shader errors. All 66 pinned runtime
+source hashes and staged authoritative DLL inputs stayed unchanged through build.
+The unchanged 177 fauna native/bundle hashes were reverified for the package.
+Shortcut selects `player-terrain-seam-cursor`; preceding package/running apps
+were retained, and build-created importer/project-default changes were restored.
+No game/player launch, gameplay capture or profiling under the existing
+compile/package-only restriction. The screenshot diagnosis is supported by the
+code/log faults and static checks; actual rendered terrain seams, transition
+quality, multi-monitor cursor capture and FPS remain owner-playtest items.
+See [repair details](TERRAIN_RENDERING_REPAIR.md).
+
 ## Animal spawn commands - 26 October 2026
 
 Added `/spawn <animal> [1-32]`, paginated/searchable `/spawn list [filter] [page]`

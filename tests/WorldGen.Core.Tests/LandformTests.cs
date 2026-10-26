@@ -115,13 +115,13 @@ static class LandformTests
         for(int k=0;k<thinMesh.WaterTriangles.Length;k+=3)
         {int i=thinMesh.WaterTriangles[k]*3,j=thinMesh.WaterTriangles[k+1]*3,l=thinMesh.WaterTriangles[k+2]*3;var p=thinMesh.WaterPositions;waterArea+=Math.Abs((p[j]-p[i])*(p[l+2]-p[i+2])-(p[j+2]-p[i+2])*(p[l]-p[i]))*.5;}
         check(thin.WidthM<3&&thinMesh.WaterTriangles.Length>0&&waterArea>1000&&waterArea<20000,"A two-metre stream remains visible without becoming a sixteen-metre grid channel");
-        Console.WriteLine($"Thin stream {thin.WidthM:F2}m, clipped water {waterArea:F0}m2, added land vertices {thinMesh.Positions.Length/3-thinMesh.GroundVertices-512}");
+        Console.WriteLine($"Thin stream {thin.WidthM:F2}m, clipped water {waterArea:F0}m2, added land vertices {thinMesh.Positions.Length/3-thinMesh.GroundVertices}");
         var leftMesh=LocalTerrainMesh.Build(thinTerrain,thinFrame,-2048,0,2048,128);
         var rightMesh=LocalTerrainMesh.Build(thinTerrain,thinFrame,0,0,2048,128);
         List<(double Z,double Y)> Edge(LocalTerrainMesh m,double x)
         {
             var result=new List<(double,double)>();for(int i=0;i<m.Positions.Length/3;i++)
-                if((i<m.GroundVertices||i>=m.GroundVertices+512)&&Math.Abs(m.Positions[i*3]-x)<.00001)result.Add((m.Positions[i*3+2],m.Positions[i*3+1]));
+                if(Math.Abs(m.Positions[i*3]-x)<.00001)result.Add((m.Positions[i*3+2],m.Positions[i*3+1]));
             return result.OrderBy(p=>p.Item1).ToList();
         }
         var le=Edge(leftMesh,2048);var re=Edge(rightMesh,0);

@@ -294,6 +294,9 @@ public sealed partial class LocalTerrainExplorer
         foreach(var batch in forestBatches.Values)
         {
             var model=batch.Model;if(!model.TreeBaked||batch.Data.Count==0)continue;CompactForest(batch);
+            // Compaction can remove the final dead slots. Never dispatch zero
+            // groups or reuse an earlier indirect instance count for that batch.
+            if(batch.Data.Count==0){batch.CullValid=false;continue;}
             if(batch.Capacity<batch.Data.Count)
             {
                 batch.Dispose();batch.Capacity=Mathf.NextPowerOfTwo(Math.Max(64,batch.Data.Count));batch.Roots=new GraphicsBuffer(GraphicsBuffer.Target.Structured,batch.Capacity,64);batch.Visible=new GraphicsBuffer(GraphicsBuffer.Target.Append,batch.Capacity,4);batch.Args=new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments,1,GraphicsBuffer.IndirectDrawArgs.size);

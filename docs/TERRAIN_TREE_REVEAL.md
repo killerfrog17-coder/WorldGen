@@ -1,5 +1,9 @@
 # Terrain and tree loading frontier — 26 October 2026
 
+Follow-up: the area-only readiness guarantee below was insufficient for coarse
+backdrops. [The rendering repair](TERRAIN_RENDERING_REPAIR.md) adds requested-detail
+readiness, removes exposed perimeter walls and unifies shared fog colour handling.
+
 The owner reports trees temporarily floating and terrain becoming visible long
 before distant trees. The requested behavior is one outward fog border that
 waits for enabled tree coverage, accepting slower terrain reveal.

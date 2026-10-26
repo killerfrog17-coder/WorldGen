@@ -8,9 +8,10 @@ public sealed partial class LocalTerrainExplorer
     void UpdateTerrainCoverage()
     {
         if(!coverageDirty)return;coverVisibilityRevision++;long started=WorldGenPerformance.TraceBegin();coverageDirty=false;var keys=tiles.Keys.ToArray();
-        // Reuse this index through timestamp/material-only changes. Do not key
-        // fog readiness to the requested detail plan or inactive mesh cache.
-        if(fogFootprint==null||!fogFootprint.Matches(keys)){fogFootprint=new TerrainCoverageFootprint(keys);fogCheckAt=0;}
+        // Coverage masks can use a coarse fallback, but the reveal frontier must
+        // wait for the requested sampling detail. Include resolution changes.
+        var surfaces=tiles.Select(p=>new System.Collections.Generic.KeyValuePair<TerrainTileKey,int>(p.Key,p.Value.Segments));
+        if(fogFootprint==null||!fogFootprint.Matches(surfaces)){fogFootprint=new TerrainQualityFootprint(surfaces);fogCheckAt=0;}
         // Only actual resident ancestors can need holes. Avoid scanning all
         // resident tiles for every tile whenever a single product arrives.
         var children=new System.Collections.Generic.Dictionary<TerrainTileKey,System.Collections.Generic.List<TerrainTileKey>>();

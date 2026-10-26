@@ -373,7 +373,7 @@ public sealed partial class LocalTerrainExplorer
         {var actual=TreePigment(p.Variant);var shared=TreePigment(variant);batch.Colors[batch.Count]=new Vector4((float)(p.Color.X*actual.X/Math.Max(.01,shared.X)),(float)(p.Color.Y*actual.Y/Math.Max(.01,shared.Y)),(float)(p.Color.Z*actual.Z/Math.Max(.01,shared.Z)),1);}
         batch.Fades[batch.Count]=new Vector4(low,high,0,0);batch.Count++;
     }
-    void LateUpdate(){if(!closed){UpdateSunPresentation();UpdateCanopyShade();long started=WorldGenPerformance.Begin();DrawScatter();WorldGenPerformance.End(1,started);started=WorldGenPerformance.Begin();DrawGroundCover();WorldGenPerformance.End(2,started);if(weatherCheckTarget!=null&&view!=null)view.Render();}}
+    void LateUpdate(){if(!closed){CaptureMouse();UpdateSunPresentation();UpdateCanopyShade();long started=WorldGenPerformance.Begin();DrawScatter();WorldGenPerformance.End(1,started);started=WorldGenPerformance.Begin();DrawGroundCover();WorldGenPerformance.End(2,started);if(weatherCheckTarget!=null&&view!=null)view.Render();}}
     void DrawScatter()
     {
         if(landMaterial!=null&&landMaterial.GetFloat("_ForestFarEnabled")!=(TerrainVideoOptions.FarForest?1:0)){landMaterial.SetFloat("_ForestFarEnabled",TerrainVideoOptions.FarForest?1:0);PublishTerrainScene();}
