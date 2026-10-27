@@ -32,6 +32,13 @@ public static class SurvivalPrototypeTests
         SurvivalPhysiology.Advance(a,3600,environment);for(int i=0;i<60;i++)SurvivalPhysiology.Advance(b,60,environment);
         Check(Math.Abs(a.EnergyKcal-b.EnergyKcal)<1e-7&&Math.Abs(a.CoreTemperatureC-b.CoreTemperatureC)<1e-7,"Physiology independent of host request chunking");
         Check(a.EnergyKcal<6000&&a.WaterDeficitL>0,"Rest still consumes food and water");
+        var tired=new SurvivalState{Stamina=6};SurvivalPhysiology.Advance(tired,15,new SurvivalEnvironment{TemperatureC=22,SpeedMps=6,Sprinting=true});
+        Check(tired.SprintExhausted&&!SurvivalPhysiology.CanSprint(tired),"Empty sprint reserve enters recovery");
+        SurvivalPhysiology.Advance(tired,60,new SurvivalEnvironment{TemperatureC=22,SpeedMps=3});
+        Check(tired.Stamina>5&&!SurvivalPhysiology.CanSprint(tired),"A tiny recovery does not alternate sprint/jog every frame");
+        tired=WorldJson.Read<SurvivalState>(WorldJson.Write(tired));Check(tired.SprintExhausted&&!SurvivalPhysiology.CanSprint(tired),"Sprint recovery persists across save/reload");
+        SurvivalPhysiology.Advance(tired,120,new SurvivalEnvironment{TemperatureC=22,Resting=true});Check(SurvivalPhysiology.CanSprint(tired),"Recovering a useful reserve permits sprinting again");
+        tired.Stamina=0;tired.SprintExhausted=true;tired.Mode=SurvivalMode.Creative;Check(SurvivalPhysiology.CanSprint(tired),"Creative movement ignores survival exhaustion");
         var cold=new SurvivalState();var sheltered=cold.Copy();SurvivalPhysiology.Advance(cold,4*3600,new SurvivalEnvironment{TemperatureC=-10,WindMps=8,RainMmPerHour=2});
         SurvivalPhysiology.Advance(sheltered,4*3600,new SurvivalEnvironment{TemperatureC=-10,WindMps=8,RainMmPerHour=2,Shelter=.9,Insulation=2,FireWarmth=12});
         Check(cold.CoreTemperatureC<sheltered.CoreTemperatureC&&cold.Health<sheltered.Health,"Shelter, insulation and fire protect from wet cold");

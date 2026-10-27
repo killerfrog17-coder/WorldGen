@@ -204,7 +204,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var old=survival.Inventory;survival.Sites=survival.Sites.Concat(new[]{new SurvivalSite{Id=survival.NextSite++,Kind="drop",Position=Position,Contents=old.Items.Select(i=>i.Copy()).ToArray()}}).ToArray();
             var bed=survival.Sites.Where(s=>s.Kind=="bed"||s.Kind=="hide-bed").OrderBy(s=>(s.Position-Position).Length).FirstOrDefault();
-            survival.Inventory=new SurvivalInventory();survival.Health=100;survival.Stamina=100;survival.EnergyKcal=4000;survival.WaterDeficitL=0;survival.Fatigue=.1;survival.CoreTemperatureC=37;survival.Wetness=survival.Bleeding=survival.Illness=0;survival.Dead=false;
+            survival.Inventory=new SurvivalInventory();survival.Health=100;survival.Stamina=100;survival.SprintExhausted=false;survival.EnergyKcal=4000;survival.WaterDeficitL=0;survival.Fatigue=.1;survival.CoreTemperatureC=37;survival.Wetness=survival.Bleeding=survival.Illness=0;survival.Dead=false;
             survivalOpen=false;motion.Flying=false;Teleport(bed?.Position??startingPoint);CaptureMouse();
         }
     }

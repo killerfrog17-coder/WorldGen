@@ -106,7 +106,7 @@ public sealed partial class LocalTerrainExplorer
     string DebugText()
     {
         return "GROUND & STREAMING\nScale "+HorizontalScale.ToString("G3")+" · "+GroundDebugText+"\n"+
-            (motion.Flying?"Flying":ActiveKeyboard!=null&&ActiveKeyboard.cKey.isPressed?"Walking":ActiveKeyboard!=null&&ActiveKeyboard.shiftKey.isPressed?"Sprinting":"Jogging")+"  ·  "+Diagnostics+"\n\nVEGETATION\nScatter "+ScatterObjects.ToString("N0")+" instances  ·  "+ScatterDrawCalls+" draws"+
+            (motion.Flying?"Flying":ActiveKeyboard!=null&&(ActiveKeyboard.cKey.isPressed||ActiveKeyboard.ctrlKey.isPressed)?"Walking":ActiveKeyboard!=null&&ActiveKeyboard.shiftKey.isPressed&&SurvivalPhysiology.CanSprint(survival)?"Sprinting":"Jogging")+"  ·  "+Diagnostics+"\n\nVEGETATION\nScatter "+ScatterObjects.ToString("N0")+" instances  ·  "+ScatterDrawCalls+" draws"+
             "\nLow vegetation · "+GroundCoverDraws+" draws · "+(GroundCoverBytes/1048576d).ToString("F1")+" MiB GPU buffers · "+GroundCoverCandidates.ToString("N0")+" candidate slots · "+SpecialistObjects+" herbs/fungi · "+MidPlantObjects+" mid plants · "+GeneratedTreeObjects+" trees"+
             "\nVegetation culling · "+ScatterFrustumRejected+" outside view · "+ScatterTerrainRejected+" behind hills · "+ScatterShadowOnly+" shadow-only · "+GrassPagesOccluded+" grass pages hidden"+
             "\nGrass field · "+(TerrainVideoOptions.GroundCover?TerrainVideoOptions.GrassDensity.ToString("F2")+"× · close "+TerrainVideoOptions.GrassBladeDistance.ToString("F0")+"m · geometry "+(TerrainVideoOptions.GrassCanopy?TerrainVideoOptions.GrassDistance.ToString("F0")+"m":"OFF")+" · detail "+TerrainVideoOptions.GrassDetail:"OFF")+

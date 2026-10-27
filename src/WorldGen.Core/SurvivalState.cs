@@ -28,6 +28,7 @@ namespace WorldGen.Core
         public int Version=1;public SurvivalMode Mode;public SurvivalInventory Inventory=SurvivalItems.Starter();
         public int Seed,ConsumptionEvents;
         public double Health=100,Stamina=100,EnergyKcal=6000,WaterDeficitL,Fatigue=.05,CoreTemperatureC=37,Wetness,Bleeding,Illness,Days;
+        [System.Runtime.Serialization.OptionalField] public bool SprintExhausted;
         public long NextSite=1;public bool Dead;public SurvivalSite[] Sites=Array.Empty<SurvivalSite>();
         public SurvivalCorpse[] Corpses=Array.Empty<SurvivalCorpse>();public SurvivalResourceUse[] Resources=Array.Empty<SurvivalResourceUse>();
         public SurvivalState Copy(){var s=(SurvivalState)MemberwiseClone();s.Inventory=Inventory.Copy();s.Sites=Sites.Select(x=>x.Copy()).ToArray();s.Corpses=Corpses.Select(x=>x.Copy()).ToArray();s.Resources=Resources.Select(x=>x.Copy()).ToArray();return s;}
@@ -63,6 +64,7 @@ namespace WorldGen.Core
         }
         static void Step(SurvivalState s,double seconds,SurvivalEnvironment e)
         {
+            RefreshSprintRecovery(s);
             double hours=seconds/3600,day=seconds/86400,shelter=SurvivalMath.Clamp(e.Shelter),speed=Math.Max(0,e.SpeedMps);
             s.Days+=day;
             double exertion=speed*(.8+e.CarriedKg/100)+(e.Sprinting?2:0),heat=Math.Max(0,e.TemperatureC-25);
@@ -79,6 +81,7 @@ namespace WorldGen.Core
             double k=e.InWater?1.8:.55;s.CoreTemperatureC=SurvivalMath.Clamp(equilibrium+(s.CoreTemperatureC-equilibrium)*Math.Exp(-k*hours),20,45);
             double loss=(e.Sprinting?8:speed>4?3:speed>.2?-3:-12)*(seconds/60);
             if(loss>0)s.Stamina=Math.Max(0,s.Stamina-loss);else s.Stamina=Math.Min(MaxStamina(s),s.Stamina-loss);
+            RefreshSprintRecovery(s);
             double harm=Math.Max(0,s.WaterDeficitL-3)*2+Math.Max(0,35-s.CoreTemperatureC)*5+Math.Max(0,s.CoreTemperatureC-39)*7+s.Bleeding*8+s.Illness*1.5+(s.EnergyKcal<=0?1.3:0);
             s.Health=SurvivalMath.Clamp(s.Health-harm*hours,0,100);
             if(harm<.01&&s.EnergyKcal>1500&&s.WaterDeficitL<1&&s.Fatigue<.7)s.Health=Math.Min(100,s.Health+(e.Sleeping?2:.4)*hours);
@@ -90,6 +93,12 @@ namespace WorldGen.Core
             s.Dead=s.Health<=0;
         }
         public static double MaxStamina(SurvivalState s)=>100*SurvivalMath.Clamp(1-s.Fatigue*.4-Math.Max(0,s.WaterDeficitL-1)*.1,.2,1);
+        public static bool CanSprint(SurvivalState s)=>s==null||s.Mode!=SurvivalMode.Survival||!s.Dead&&!s.SprintExhausted&&s.Stamina>5;
+        static void RefreshSprintRecovery(SurvivalState s)
+        {
+            if(s.Stamina<=5)s.SprintExhausted=true;
+            else if(s.Stamina>=Math.Min(25,MaxStamina(s)*.8))s.SprintExhausted=false;
+        }
         public static double MovementFactor(SurvivalState s)=>s.Mode!=SurvivalMode.Survival?1:SurvivalMath.Clamp(.45+.55*s.Health/100-Math.Max(0,s.WaterDeficitL-2)*.05-s.Fatigue*.15,.25,1);
         public static bool Eat(SurvivalState s,long id,out string message)
         {

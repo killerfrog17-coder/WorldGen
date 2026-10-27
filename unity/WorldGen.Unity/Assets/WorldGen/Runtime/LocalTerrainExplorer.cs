@@ -156,7 +156,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
                 if(keyboard.fKey.wasPressedThisFrame&&survival?.Mode!=SurvivalMode.Survival){motion.Flying=!motion.Flying;motion.VerticalSpeed=0;}
                 motion.Move(Time.unscaledDeltaTime,(keyboard.wKey.isPressed?1:0)-(keyboard.sKey.isPressed?1:0),
                     (keyboard.dKey.isPressed?1:0)-(keyboard.aKey.isPressed?1:0),(keyboard.spaceKey.isPressed?1:0)-(keyboard.ctrlKey.isPressed?1:0),
-                    heading,pitch,keyboard.shiftKey.isPressed&&(survival==null||survival.Stamina>5),keyboard.spaceKey.wasPressedThisFrame&&(survival==null||survival.Stamina>5),Ground,walk:keyboard.cKey.isPressed||keyboard.ctrlKey.isPressed);
+                    heading,pitch,keyboard.shiftKey.isPressed&&SurvivalPhysiology.CanSprint(survival),keyboard.spaceKey.wasPressedThisFrame&&(survival==null||survival.Mode!=SurvivalMode.Survival||survival.Stamina>5),Ground,walk:keyboard.cKey.isPressed||keyboard.ctrlKey.isPressed);
             }
         }
         TrackStreamingMotion(motion.X-movementStartX,motion.Z-movementStartZ,Time.unscaledDeltaTime);

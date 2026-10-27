@@ -344,3 +344,19 @@ selects this follow-up; the clock and previous players remain for rollback.
 Owned build/test workers have exited; no owner applications were closed.
 Evidence: `artifacts/survival-inventory-native-final` and
 `artifacts/survival-inventory-package-proof.json`.
+
+### Sprint recovery follow-up
+
+Holding sprint at the old 5-point cutoff could alternate sprint/jog every frame
+as a fraction of stamina returned. Exhaustion now remains latched until a useful
+reserve returns (normally 25 points, adjusted for a severely reduced maximum).
+That recovery state persists in saves and resets on respawn. Creative movement
+ignores survival exhaustion. Footsteps/debug gait also respect the sprint gate
+and crouch; no animation assets or camera-facing rules changed.
+
+Selected build is now `artifacts/player-survival-endurance`, IL2CPP UTC
+`2026-10-27T13:24:18.9225530Z`. It passes 21 native no-graphics checks; core
+survival checks are 120. All 177 fauna bundles/rig sidecars and staged DLL inputs
+are verified. This is logical/native validation of the gait gate, not a new
+visual animation or FPS certification. Earlier packages are retained. Evidence:
+`artifacts/survival-endurance-native-final` and its package proof JSON.

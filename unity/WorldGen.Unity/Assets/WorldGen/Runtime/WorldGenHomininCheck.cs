@@ -52,6 +52,12 @@ public sealed partial class WorldGenRuntime
             bool harvested=true;for(int i=0;i<4;i++)harvested&=SurvivalPhysiology.Harvest(harvest,carcass,"bone",out _);
             WorldJson.Read<SurvivalState>(WorldJson.Write(harvest)).Validate();
             Check(harvested&&carcass.BoneKg==0&&!SurvivalPhysiology.Harvest(harvest,carcass,"bone",out _),"native exhausted carcass retains a valid nonnegative saved balance");
+            var tired=new SurvivalState{Stamina=6};SurvivalPhysiology.Advance(tired,15,new SurvivalEnvironment{TemperatureC=22,SpeedMps=6,Sprinting=true});
+            Check(tired.SprintExhausted&&!SurvivalPhysiology.CanSprint(tired),"native sprint exhaustion enters recovery");
+            SurvivalPhysiology.Advance(tired,60,new SurvivalEnvironment{TemperatureC=22,SpeedMps=3});tired=WorldJson.Read<SurvivalState>(WorldJson.Write(tired));
+            Check(tired.Stamina>5&&!SurvivalPhysiology.CanSprint(tired),"native sprint recovery persists instead of alternating gaits at the cutoff");
+            SurvivalPhysiology.Advance(tired,120,new SurvivalEnvironment{TemperatureC=22,Resting=true});Check(SurvivalPhysiology.CanSprint(tired),"native useful stamina recovery permits sprinting again");
+            tired.Stamina=0;tired.Mode=SurvivalMode.Creative;Check(SurvivalPhysiology.CanSprint(tired),"native creative movement ignores survival exhaustion");
             var play=new PlaySession{Survival=new SurvivalState()};play.Survival.Corpses=Enumerable.Range(0,8).Select(i=>SurvivalPhysiology.Carcass("deer",(ulong)i+1,new V(1,0,0),70,0)).ToArray();
             foreach(var corpse in play.Survival.Corpses)corpse.SettledPose=Enumerable.Repeat(.12345678f,2048).ToArray();
             string json=WorldJson.Write(play);File.WriteAllText(Path.Combine(output,"play-session.json"),json);

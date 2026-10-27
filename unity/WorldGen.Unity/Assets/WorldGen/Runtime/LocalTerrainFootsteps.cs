@@ -75,7 +75,7 @@ public sealed partial class LocalTerrainExplorer
         // A past impact may finish naturally after takeoff. Cutting it on every
         // tiny contact gap causes crackling; only context changes silence voices.
         if(suspended&&stepVoices!=null)foreach(var voice in stepVoices)voice.Stop();
-        var keyboard=ActiveKeyboard;var gait=keyboard!=null&&keyboard.cKey.isPressed?TravelGait.Walk:keyboard!=null&&keyboard.shiftKey.isPressed?TravelGait.Sprint:TravelGait.Jog;
+        var keyboard=ActiveKeyboard;var gait=keyboard!=null&&(keyboard.cKey.isPressed||keyboard.ctrlKey.isPressed)?TravelGait.Walk:keyboard!=null&&keyboard.shiftKey.isPressed&&SurvivalPhysiology.CanSprint(survival)?TravelGait.Sprint:TravelGait.Jog;
         double travelled=Math.Sqrt(dx*dx+dy*dy+dz*dz);if(active){supportedFrames++;supportedMetres+=travelled;largestStep=Math.Max(largestStep,travelled);}
         if(!stepCadence.Advance(travelled,active,gait))return;cadenceContacts++;
         if(!FootstepsReady||FootstepVolume<=0)return;

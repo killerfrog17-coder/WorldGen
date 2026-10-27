@@ -1,5 +1,22 @@
 # WorldGen repository instructions
 
+SPRINT RECOVERY CHECKPOINT,27October2026~08:26CDT:
+Selected shortcut player-survival-endurance IL2CPP BuiltUtc
+2026-10-27T13:24:18.9225530Z;21native no-graphics checks PASS,120survival checks.
+177fauna/177rig-sidecarSHA +4stagedDLLs verified. Sprint at5stamina previously
+alternated run/jog as fractional reserve returned. New optional saved
+SprintExhausted latch clears at min(25,80%MaxStamina), resets on respawn;
+Creative movement bypasses physiology. Footsteps/debug respect gate+crouch.
+No meshes/animation assets/camera-facing rules changed, no new visual/FPSclaim.
+All owned build/player workers exited, no ownerapps closed. Ownsource/docs/
+shortcut backup+push required. Earlier players retained. Ownerreview pending.
+Next audit found at least one living lineage marked extinct in rules3holdout17:
+descendant reuse selects an already extinct child. Fix under NEW rulesversion,
+preserve existing rule1/2/3 histories. Do not silently rewrite their outcomes.
+Also archaic persistence/biological branching calibration remains open; don't
+claim two seeds establish realistic extinction or ancestry. Architecture first;
+continue until user wrap-up. Preserve deletedprompt/2olddeerscripts unstaged.
+
 INVENTORY TRANSACTION CHECKPOINT,27October2026~08:16CDT:
 Existing shortcut NOW selects player-survival-inventory IL2CPP BuiltUtc
 2026-10-27T13:13:44.0904970Z. 17actualnative no-graphics checks PASS;115survival
