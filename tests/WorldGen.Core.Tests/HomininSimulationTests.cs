@@ -77,6 +77,13 @@ public static class HomininSimulationTests
         var invalidLiving=newReturn.Copy();invalidLiving.DeepPast.Lineages[invalidLiving.DeepPast.Populations[0].Lineage].ExtinctYear=invalidLiving.Years;invalidLiving.DeepPast.SealDomain();invalidLiving.Seal();
         bool rejectedLiving=false;try{engine.Validate(invalidLiving);}catch(ArgumentException){rejectedLiving=true;}Check(rejectedLiving,"Validation rejects living cohorts attached to extinct lineages under new rules");
         string beforeAtlas=WorldJson.Write(a);var earlyCategories=AtlasNavigation.CategoriesFor(a);
+        bool refusedLegacy=false,refusedLiving=false;
+        try{engine.UpgradeToCurrentHistory(a);}catch(InvalidOperationException error){refusedLegacy=error.Message.Contains("handoff");}
+        try{engine.UpgradeToLivingWorldHistory(a);}catch(InvalidOperationException error){refusedLiving=error.Message.Contains("handoff");}
+        Check(refusedLegacy&&refusedLiving&&!Prehistory.CanUpgradeHistory(a)&&WorldJson.Write(a)==beforeAtlas,"Legacy history upgraders explicitly refuse an early-human handoff without altering populations");
+        var overlapping=a.Copy();overlapping.History=new HistoryState();overlapping.Seal();bool rejectedOverlap=false;
+        try{engine.Validate(overlapping);}catch(ArgumentException){rejectedOverlap=true;}
+        Check(rejectedOverlap,"Validation rejects overlapping early-human and later-city models even though later history is outside the early domain hash");
         var stages=HomininView.Stages(a);Check(stages.Population==a.Population.Sum()&&stages.PeopleByStage.Sum()==stages.Population,"Lithic stage counts reconcile to the same published population");
         var mixedStages=a.Copy();foreach(var tradition in mixedStages.DeepPast.Traditions)tradition.Knowledge=LithicKnowledge.Flakes;
         int advancedMinority=mixedStages.DeepPast.Populations.GroupBy(p=>p.Tradition).OrderBy(g=>g.Sum(p=>p.People)).First().Key;
@@ -117,6 +124,7 @@ public static class HomininSimulationTests
         earlyWorld.Facts[0].Value="Only this view changed";Check(WorldJson.Write(a)==beforeAtlas,"Browsing and editing returned atlas documents cannot mutate simulation records");
         var laterPrepared=engine.PrepareSapiens();Check(ReferenceEquals(AtlasNavigation.CategoriesFor(laterPrepared),AtlasNavigation.Categories)&&AtlasTables.Columns("people",laterPrepared).SequenceEqual(AtlasTables.Columns("people")),"Later-history categories and columns retain their existing interface");
         Check(HomininView.Stages(laterPrepared)==null,"Later-history era IDs and observer labels keep their existing policy");
+        var laterUpgrade=engine.UpgradeToCurrentHistory(laterPrepared);engine.Validate(laterUpgrade);Check(laterUpgrade.History.Version==Prehistory.CurrentHistoryVersion&&laterUpgrade.DeepPast==null,"Ordinary sapiens history retains its supported upgrade path");
         Check(HistoryAtlas.Read(laterPrepared).Facts.Any(f=>f.Label=="Surviving states"),"The established later-history overview still uses its original adapter");
         var smallBand=new HomininPopulation{People=100,Tradition=3,Language=2,Communication=.4,Learning=.5,Appearance=Enumerable.Repeat(2000,8).ToArray(),Ancestry=new[]{new HomininAncestry{Lineage=0,Share=1}}};
         var largeBand=new HomininPopulation{People=300,Tradition=8,Language=5,Communication=.8,Learning=.9,Appearance=Enumerable.Repeat(8000,8).ToArray(),Ancestry=new[]{new HomininAncestry{Lineage=1,Share=1}}};

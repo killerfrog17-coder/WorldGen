@@ -1,5 +1,21 @@
 # WorldGen repository instructions
 
+HISTORY MODEL BOUNDARY CHECKPOINT,27October2026~11:23CDT:
+Shortcut NOW player-survival-history-boundary IL2CPP BuiltUtc
+2026-10-27T16:20:48.5400957Z.413hominin/153survival checks,45native PASS.
+Legacy current/livingWorldHistory upgraders explicitlyrefuseDeepPastActive with
+population-preserving-handoff explanation; ordinarysapiens upgrade stillpasses.
+CanUpgradeHistoryfalseactiveearly; ValidateHomininsrejectsHistory!=null overlap
+(fieldoutsideearlyhash). Sourcehistoriesunchanged. No rules/schema/hashchange,
+no actualcityhandoff. FourDLL/177fauna/177rigSHA+20ka CLR/nativehash exact.
+No freshvisual/FPSclaim. Allownworkers exited,ownerapps untouched. Evidence
+survival-history-boundary-native-final/package-proof; stage/storageretained.
+Ownsource/docs/shortcut backup+push+REMOTEverification required. Preserveunrelated
+deletedprompt+2deerscripts. Ownerasyncplayreviewpending. Continuearchitecturefirst
+untilwrap-up, no olddeadline/no newgoal/subagent. NEXT: foundrespawnchooses
+unfinishedbedblueprints; moveeligibility/equipmentdrop/vitalreset intoCore,
+onlycompletedbedding, preserveitems/camps/time and fallbackifnone. Notyetedited.
+
 LITHIC OVERVIEW CHECKPOINT,27October2026~11:10CDT:
 Shortcut NOW player-survival-stage-overview IL2CPP BuiltUtc
 2026-10-27T16:07:46.0381340Z.410hominin/153survival checks,44native PASS.

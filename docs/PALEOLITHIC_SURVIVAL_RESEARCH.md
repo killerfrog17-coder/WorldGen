@@ -4,9 +4,9 @@ Owner scope: 27 October 2026. Gameplay prototype plus an early-history overhaul;
 no paid services, no new animal appearance work. Earlier saves retain their
 historical rules unless explicitly starting/upgrading the early-history scenario.
 
-Current selected checkpoint: `artifacts/player-survival-stage-overview`, IL2CPP
-UTC `2026-10-27T16:07:46.0381340Z`, through the existing project shortcut.
-Core checks: 153 survival and 410 hominin/clock/view assertions; 44 native geometry/
+Current selected checkpoint: `artifacts/player-survival-history-boundary`, IL2CPP
+UTC `2026-10-27T16:20:48.5400957Z`, through the existing project shortcut.
+Core checks: 153 survival and 413 hominin/clock/view assertions; 45 native geometry/
 persistence checks, an editor mesh-lifetime regression and 20 unload cycles.
 The 20,000-year early-history canonical hash matches between CLR and IL2CPP.
 Earlier graphical survival review passed 24 functional checks; later changes
@@ -14,8 +14,8 @@ have the narrower verification described below, not fresh visual/FPS acceptance.
 
 The owner-authorized cleanup retains the latest three players, latest per local
 day, selected and running builds. Six superseded survival players were removed
-(12.04 GiB); current latest rollback players are `player-survival-storage`
-and `player-survival-creative-food`, plus daily checkpoints. Older delivery paragraphs
+(12.04 GiB); current latest rollback players are `player-survival-stage-overview`
+and `player-survival-storage`, plus daily checkpoints. Older delivery paragraphs
 are chronological records; their player folders may have been purged. Source
 archives, review screenshots, native inputs and saves remain.
 
@@ -634,3 +634,19 @@ unchanged. Initial Unity editor startup exited before compilation; the retry
 built successfully. No fresh graphical or FPS acceptance is claimed. Existing
 shortcut selects this package. Evidence: stage-overview native-final/package
 proof, with the first startup log retained separately.
+
+
+### Explicit boundary with later history
+
+The legacy current-history and living-world upgrade entry points now explicitly
+refuse an active early-human scenario, explaining that a population-preserving
+handoff is required. Ordinary sapiens history still upgrades. Validation rejects
+an active early-human save that also contains a later-history model: that field
+is outside the early domain fingerprint and must not silently coexist with it.
+This is a boundary guard, not the missing handoff implementation. All 413 focused
+history checks and 45 native checks pass; input histories remain unchanged.
+
+IL2CPP checkpoint UTC `2026-10-27T16:20:48.5400957Z`,
+`artifacts/player-survival-history-boundary`, is selected on the shortcut. Package
+DLLs, 177 fauna bundles/rig sidecars and CLR/native early-history hash match.
+No new visual/FPS claim. Evidence: history-boundary native-final/package proof.
