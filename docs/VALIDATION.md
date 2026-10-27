@@ -1,5 +1,24 @@
 # Version 3 validation evidence
 
+## Fall health balance revision - 27 October 2026
+
+Owner clarifies health as overall physical condition, separately from anatomical
+injuries. Assume a fit character landing well, rather than converting a clinical
+injury-risk threshold directly to HP loss. The revised curve has no HP loss
+through4.5m and reaches100HP loss at18m: about1HP at5m,13 at8m,26 at10m,
+41 at12m and69 at15m. Fractures/landing posture/surface responses remain future
+work; these are game tuning values, not survival probabilities.
+
+165 fall/death checks pass, including four frame rates and13 heights. Release
+IL2CPP `player-fall-balance`, built2026-10-27T21:36:07.9355301Z. Existing shortcut
+selects it; previous death-update retained. The packaged flow check additionally
+tests a10m fall surviving from full health and uses20m for fatal impact:
+16 packaged checks pass, exit0/no runtime errors. Build success/no C#/shader
+errors and578 assembly/art-preservation hashes verified. Own workers exited.
+Ragdoll geometry, camera, UI, physiology and art remain unchanged. Evidence under
+`artifacts/fall-balance`; the earlier actual-window UI/6-model physics renders
+remain the relevant visual evidence. Hidden captures are not visual validation.
+
 ## Player death, ragdoll and impact damage - 27 October 2026
 
 Release IL2CPP `player-death-update`, built2026-10-27T21:16:38.2295598Z.

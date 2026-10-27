@@ -1,5 +1,21 @@
 # WorldGen repository instructions
 
+FALL HEALTH BALANCE REVISION,27October2026:
+Owner clarifies health=overall condition, separate from anatomical injury; fit
+character/optimal landing assumed. Supersedes prior3m/10m fall curve below.
+Now4.5m0HP,5m~1,8m13,10m26,12m41,15m69,18m100. Formula100*clamp((h-4.5)/13.5)^1.5;
+gameplay values, NOT clinical injury/survival prediction. Injuries not added yet.
+165fall/death checks pass (13heights/fourFPS);16packaged checks pass, adds10m
+survival and20m fatalimpact, exit0/no runtime errors. Buildsuccess/noC#/shader
+errors;578DLL/canonical/packaged/nativefauna/humanmap/native hashes verified.
+Ragdoll/UI/physiology/assets unchanged; no need re-audition
+unchanged skins. Earlier actual-window deathscreen/6model physics evidence stays.
+IL2CPP player-fall-balance built2026-10-27T21:36:07.9355301Z, existing shortcut
+selected, previous death-update kept. Evidence artifacts/fall-balance; own
+source/docs/shortcut backup artifacts/source-checkpoints/fall-balance-20261027;
+push+remoteverify required. Owner apps/saves untouched. Preserve unrelated
+prompt deletion/two deer scripts; scrapped systems remain stopped.
+
 PLAYER DEATH / RAGDOLL / FALL DAMAGE,27October2026:
 Owner NEW scope authorizes death UI: You died +Respawn(random dry land), Back to
 world simulation, Back to main menu. These explicit buttons supersede no-panel

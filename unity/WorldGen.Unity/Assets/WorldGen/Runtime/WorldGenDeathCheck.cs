@@ -20,8 +20,9 @@ public sealed partial class LocalTerrainExplorer
             playerDeathVelocity=Vector3.down*(float)impact;
             PlayerDamageRules.Apply(Vitals,Mode,PlayerDamageRules.FallDamage(impact),PlayerDeathCause.Fall);UpdatePlayerDeath();UpdateCamera();
         }
-        Fall(5);Check(Vitals.Health>84&&Vitals.Health<85&&!DeathVisible,"five-metre fall hurts but is survivable");
-        Fall(12);Check(DeathVisible&&Vitals.DeathCause==PlayerDeathCause.Fall&&playerRagdoll!=null&&playerRagdoll.BodyCount==13,"fatal impact starts native-bone ragdoll and death screen");
+        Fall(5);Check(Vitals.Health>99&&Vitals.Health<100&&!DeathVisible,"five-metre controlled fall costs less than one health point");
+        Vitals.Restore();Fall(10);Check(Vitals.Health>73&&Vitals.Health<75&&!DeathVisible,"ten-metre fall is survivable from full health");
+        Vitals.Restore();Fall(20);Check(DeathVisible&&Vitals.DeathCause==PlayerDeathCause.Fall&&playerRagdoll!=null&&playerRagdoll.BodyCount==13,"fatal impact starts native-bone ragdoll and death screen");
         yield return new WaitForSecondsRealtime(2);yield return new WaitForEndOfFrame();
         var image=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"death-screen.png"),image.EncodeToPNG());Destroy(image);
         Check(!humanHideBody&&!WantsMouseLook&&!paused&&Cursor.lockState==CursorLockMode.None,"dead body visible, cursor released, pause cannot obscure death screen");

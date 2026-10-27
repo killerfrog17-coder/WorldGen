@@ -6,7 +6,9 @@ namespace WorldGen.Presentation
     /// <summary>Forgiving prototype impact balance, not clinical injury prediction.</summary>
     public static class PlayerDamageRules
     {
-        public const double FreeFallMeters=3,FatalFallMeters=10;
+        // Assume a fit character lands well. Injury risk is deliberately not
+        // converted directly to lost health; fractures will be a separate system.
+        public const double FreeFallMeters=4.5,FatalFallMeters=18;
         public static double EquivalentFallMeters(double downwardSpeed)
             =>double.IsFinite(downwardSpeed)&&downwardSpeed>0?downwardSpeed*downwardSpeed/(2*TerrainMotion.Gravity):0;
         public static double FallDamage(double downwardSpeed)

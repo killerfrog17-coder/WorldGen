@@ -9,13 +9,13 @@ static class PlayerDeathTests
     {
         int count=0;void Check(bool ok,string text){count++;if(!ok)throw new Exception(text);}
         foreach(double dt in new[]{1d/240,1d/60,1d/20,.25})
-        foreach(double height in new[]{.45,2d,3,4,5,6,8,10,25})
+        foreach(double height in new[]{.45,2d,3,4,4.5,5,6,8,10,12,15,18,25})
         {
             var motor=new TerrainMotion{Y=TerrainMotion.EyeHeightM+height};double impact=0;
             for(int i=0;i<20000&&!motor.Grounded;i++){motor.Move(dt,0,0,0,0,0,false,false,(x,z)=>0);impact=Math.Max(impact,motor.LandingSpeedMps);}
             Check(motor.Grounded&&Math.Abs(PlayerDamageRules.EquivalentFallMeters(impact)-height)<1e-8,"Frame-independent contact speed at "+height+" / "+dt);
             var s=new PlayerSurvival();PlayerDamageRules.Apply(s,GameMode.Survival,PlayerDamageRules.FallDamage(impact),PlayerDeathCause.Fall);
-            Check(height<=3?s.Health>99.999:height>=10?s.Health<1e-8:s.Health>0&&s.Health<100,"Fall balance "+height);
+            Check(height<=4.5?s.Health>99.999:height>=18?s.Dead:s.Health>0&&s.Health<100,"Fall balance "+height);
             motor.Move(dt,0,0,0,0,0,false,false,(x,z)=>0);Check(motor.LandingSpeedMps==0,"Stationary contact not repeated");
         }
         var grounded=new TerrainMotion();grounded.Place(0,0,0);grounded.Move(.1,0,0,0,0,0,false,false,(x,z)=>100);

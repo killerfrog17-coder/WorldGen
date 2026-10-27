@@ -135,19 +135,27 @@ Falls apply only in Survival. The motor publishes actual downward speed on
 contact, solving the gravity step at the ground crossing. This avoids counting
 teleports, ordinary ground contact, normal jumps or a terrain LOD rise as falls.
 The equivalent height is v²/(2g); the HP loss is
-`100 * clamp((height - 3) / 7, 0, 1)^1.5`.
+`100 * clamp((height - 4.5) / 13.5, 0, 1)^1.5`.
 
 | Equivalent fall | HP lost out of 100 |
 | --- | ---: |
-| Through 3 m | 0 |
-| 4 m | 5 |
-| 5 m | 15 |
-| 6 m | 28 |
-| 8 m | 60 |
-| 10 m and above | 100 |
+| Through 4.5 m | 0 |
+| 5 m | 0.7 |
+| 6 m | 4 |
+| 8 m | 13 |
+| 10 m | 26 |
+| 12 m | 41 |
+| 15 m | 69 |
+| 18 m and above | 100 |
 
 This is forgiving deterministic game balance, not a clinical safe/lethal-height
-claim. The [2021 field-triage guideline](https://doi.org/10.1097/TA.0000000000003627)
+claim. Following owner feedback, assume a fit human landing well. Health means
+overall physiological condition, not a total of anatomical injuries. Future
+fractures can severely limit a limb without large immediate HP loss; illness
+and blood loss can reduce HP independently of fractures. Ordinary fatigue stays
+in energy/stamina. This revision replaces the earlier3m/10m injury-risk-like
+curve; it does not simulate diagnoses or fractures now.
+The [2021 field-triage guideline](https://doi.org/10.1097/TA.0000000000003627)
 uses a fall above 10 feet (about 3 m) as a serious-injury risk criterion for all
 ages; that is a triage criterion, not a guaranteed injury or death boundary.
 Landing posture, hard/soft surfaces, limb fractures and water-impact handling
