@@ -1,5 +1,25 @@
 # WorldGen repository instructions
 
+UPRIGHT RUNNING / FIRST-PERSON BODY HIDDEN,27October2026:
+Completed the rollback below. Release IL2CPP player-upright-running built
+2026-10-27T17:45:30.8700811Z; existing shortcut selects it, prior package kept.
+ALL KayKit runs and leaning Quaternius jog/sprint removed from selected bank.
+Three freely usable CMU captured strides (16_35,16_36,35_17) fit original MPFB
+53-bone skins; /runstyle natural|relaxed|brisk. CMU is NOT CC0; credit/permission
+sources ship in HUMAN-SOURCES.txt. Measured stride cadence, relaxed idle fingers.
+First person hides ENTIRE local body in owner-camera colour/depth only; full
+shadow and other-camera/NPC visibility retained. No new HUD hints or clothing.
+20 camera/save assertions +335 actual Unity render/skin checks pass. All six
+people/new run poses inspected. 42 accepted PNGs/native0946... unchanged; skin
+geometry/normal/UV/weights exact, FBX bind rounding <=2.98e-7. Same-frame editor
+review forces skin matrices per render; initial cached-pose captures rejected.
+177 canonical/native/packaged fauna hashes unchanged; 4 staged assembly hashes
+verified; no compiler/shader errors. No FPS/contact-IK or owner acceptance claim.
+Source/evidence artifacts/human-running-runtime, human-running-review; own
+source/docs/shortcut checkpoint artifacts/source-checkpoints/upright-running-20261027.
+Owner game left untouched; own workers exited. Preserve unrelated deleted prompt
+and two deer scripts. No survival/history work is authorized to resume.
+
 USER-AUTHORIZED PRE-NIGHT ROLLBACK,27October2026:
 Owner explicitly SCRAPS overnight survival/earlyHomo work. Trackedsource restored
 EXACT7ba44ebdabdd7b0dfce3f3887b55f64e5b305e2a, lastpre-night humanrefinement.
@@ -14,8 +34,8 @@ head-only visibility rulebelow. No controlHUDtext, no clothes/newpopulationcaps.
 No paidcalls. Keep originalMPFB0946...native/skins and177fauna unchanged. Runtime
 humanassetderivatives hadnight19clips; REBUILD selectedroles with newruns before
 newplayer. All source/nightdata archived, don't delete saves or ownerapps.
-Currentnewtaskinprogress, onlyrestorebuildafterproof; sourcebackup+GitHubpush+
-remoteverification required. Preserveunstaged ownerdeletedprompt+2deerscripts.
+New task delivered above; sourcebackup+GitHubpush+remoteverification required.
+Preserveunstaged ownerdeletedprompt+2deerscripts.
 
 HUMAN REFINEMENT CHECKPOINT,26October2026~23:20CDT:
 Owner strongly rejects unsolicited controls/tutorial text on gameplay screen;

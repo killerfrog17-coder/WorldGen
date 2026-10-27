@@ -154,7 +154,8 @@ removed. Saved worlds and sessions were not modified. Sessions saved by the
 discarded version are not promised compatible with the restored version; keep
 them for the archived build rather than silently converting them.
 
-The replacement `player-upright-running` uses the eight-clip bank and body
+The replacement IL2CPP `player-upright-running`, built
+2026-10-27T17:45:30.8700811Z and selected by the existing shortcut, uses the eight-clip bank and body
 visibility described above. It preserves accepted skin/eye PNGs byte-for-byte
 (42 maps), original mesh geometry/UVs/weights and the source native file. FBX
 bind-matrix rounding is below 1e-6. In the A-skin motion audition, mean torso

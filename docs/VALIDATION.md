@@ -24,6 +24,12 @@ forces skin matrices per render. Inspected actual new run poses for all six
 variants and the visibility/shadow images. No all-animation contact-IK, FPS or
 multiplayer claim. Evidence: `artifacts/human-running-runtime`.
 
+Release IL2CPP `player-upright-running` built2026-10-27T17:45:30.8700811Z,
+Build Finished Result Success, no C#/shader errors. Four assembly inputs verified
+after packaging; all177 bundled fauna match canonical hashes and no discarded
+survival rig sidecars remain. Existing shortcut selects it; prior package kept.
+Own editor/build workers exited; no owner app was closed.
+
 ## Human cleanup, eye opacity and growable populations - 26 October 2026
 
 Owner rejects intrusive control hints and modern clothes, requests alternate
