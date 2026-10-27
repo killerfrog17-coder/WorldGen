@@ -70,6 +70,12 @@ public sealed partial class WorldGenRuntime
             Check(targetBounds.IntersectRay(thirdPersonRay,out float rangeFromCamera)&&rangeFromCamera>3&&LocalTerrainExplorer.SurvivalHitInReach(playerEye,thirdPersonRay.GetPoint(rangeFromCamera),3),"native third-person aim does not consume the player's physical weapon reach");
             var cover=LocalTerrainExplorer.CreateSurvivalShelterPanel(Vector3.zero,Vector3.right,Vector3.up);
             Check(cover.triangles.Length==3&&cover.normals.Length==3&&cover.normals.All(n=>n.sqrMagnitude>.99f),"native double-sided shelter cover has valid lighting normals without cancelling duplicate faces");Destroy(cover);
+            var insect=SurvivalPhysiology.Carcass("bee",991,new V(1,0,0),.0001,0);var small=new SurvivalState{Corpses=new[]{insect}};
+            Check(insect.MassKg==.0001&&insect.MeatKg<.0001,"native tiny carcasses do not gain a ten-gram minimum mass");
+            double carried=small.Inventory.Mass;bool picked=SurvivalPhysiology.Harvest(small,insect,"meat",out _);WorldJson.Read<SurvivalState>(WorldJson.Write(small)).Validate();
+            Check(picked&&Math.Abs(small.Inventory.Mass-carried-.0001*.32)<1e-9,"native tiny food portions conserve biomass and remain valid saved data");
+            Check(SurvivalPhysiology.AnimalVitality(.025)<=3&&SurvivalPhysiology.AnimalVitality(100)>SurvivalItems.Get("stone-spear").Damage,"native animal vitality is proportionate for small prey and deer");
+            Check(LocalTerrainExplorer.SurvivalHitInReach(new Vector3(0,1.1f,0),new Vector3(0,.1f,.3f),1.4),"native upper-body reach can strike ground-level small prey with a short tool");
             var play=new PlaySession{Survival=new SurvivalState()};play.Survival.Corpses=Enumerable.Range(0,8).Select(i=>SurvivalPhysiology.Carcass("deer",(ulong)i+1,new V(1,0,0),70,0)).ToArray();
             foreach(var corpse in play.Survival.Corpses)corpse.SettledPose=Enumerable.Repeat(.12345678f,2048).ToArray();
             string json=WorldJson.Write(play);File.WriteAllText(Path.Combine(output,"play-session.json"),json);

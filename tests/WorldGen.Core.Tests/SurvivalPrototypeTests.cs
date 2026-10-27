@@ -65,6 +65,13 @@ public static class SurvivalPrototypeTests
         Check(SurvivalCrafting.Craft(small,craft,true,out _),"Small portions can be roasted");
         Check(Math.Abs(small.Inventory.Items.Where(i=>i.Item=="cooked-meat").Sum(i=>i.Fraction*SurvivalItems.Get(i.Item).Kcal)-calories)<1e-8,"Cooking cannot multiply small portions into full steaks");
         var lean=SurvivalPhysiology.Carcass("mouse",78,new V(1,0,0),.02,0);Check(lean.SinewUnits*.04<=lean.MassKg*.008+1e-8&&lean.HideUnits==0,"Tiny animals cannot create heavyweight hides or sinew");
+        var insects=new SurvivalState();var bee=SurvivalPhysiology.Carcass("bee",79,new V(1,0,0),.0001,0);var gnat=SurvivalPhysiology.Carcass("gnat",80,new V(1,0,0),.000001,0);insects.Corpses=new[]{bee,gnat};
+        Check(bee.MassKg==.0001&&gnat.MassKg==.000001,"Small carcasses retain their actual mass instead of creating a ten-gram minimum");
+        double beforeInsectMass=insects.Inventory.Mass;Check(SurvivalPhysiology.Harvest(insects,bee,"meat",out _),"Tiny edible portions can use the existing fractional food representation");
+        Check(Math.Abs(insects.Inventory.Mass-beforeInsectMass-.0001*.32)<1e-9,"Tiny harvest conserves biomass rather than producing a large steak");
+        WorldJson.Read<SurvivalState>(WorldJson.Write(insects)).Validate();Check(gnat.MeatKg<.000001,"Sub-ten-milligram carcasses remain valid saved survival data");
+        Check(SurvivalPhysiology.AnimalVitality(.025)<=3&&SurvivalPhysiology.AnimalVitality(3)<SurvivalItems.Get("wood-spear").Damage,"A strike kills mouse-sized prey and a spear can kill rabbit-sized prey");
+        Check(SurvivalPhysiology.AnimalVitality(100)>2*SurvivalItems.Get("wood-spear").Damage&&SurvivalPhysiology.AnimalVitality(100)<=2*SurvivalItems.Get("stone-spear").Damage&&SurvivalPhysiology.AnimalVitality(3900)>SurvivalPhysiology.AnimalVitality(100),"Deer retain the wooden/stone spear distinction and large animals have a greater damage threshold");
         var buildState=new SurvivalState();var blueprint=SurvivalCrafting.Shelters.First(b=>b.Id=="bed");var site=SurvivalCrafting.PlaceBlueprint(buildState,blueprint,new V(1,0,0),0);
         Check(buildState.Inventory.TryAdd("grass",2,out _)&&SurvivalCrafting.SupplyBlueprint(buildState,site,out _)&&site.Progress>0&&site.Progress<1,"Blueprint accepts a partial material delivery");
         Check(buildState.Inventory.TryAdd("grass",3,out _)&&SurvivalCrafting.SupplyBlueprint(buildState,site,out _)&&site.Progress==1&&!buildState.Inventory.Has("grass"),"A later delivery completes construction without duplicating materials");

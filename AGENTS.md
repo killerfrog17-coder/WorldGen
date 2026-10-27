@@ -1,5 +1,27 @@
 # WorldGen repository instructions
 
+SMALL PREY CHECKPOINT,27October2026~09:49CDT:
+Shortcut NOW player-survival-small-prey IL2CPP BuiltUtc
+2026-10-27T14:45:55.8694366Z;30native no-graphics checks PASS,126survival tests;
+372hominin retained. FourstagedDLL/177fauna/177rigsidecarSHA verified,20ka CLR/
+IL2CPPcanonicalhash still e4d796...0d158. Carcass/runtime mass no longerclamps
+tinybiota to10g;positive recordedmass retained,fireflyauthored20mgproxy instead
+of20g fallback. Fractionalfood conservesmass andvalidsavedmicrocarcasses pass.
+AnimalVitality=max(1,sqrt(kg)*6.8), no18HPadultfloor;mousefist/rabbitspear/deer
+68HPweapon distinction tested. Gameplayproxy, notanatomicalinjury. Reach/throw
+origin upperbody~.55mbeloweye, allowingground-levelshorttoolhits. Exacthand
+contact/release and species-specificharvestparts stillunfinished. No newart/
+animation/nativeinputs/visual/FPSclaim. Ownedworkers exited, ownerapps untouched.
+Ownsource/docs/shortcut backup+push+remoteverification REQUIRED. Unrelatedprompt
+deletion/2deerscripts untouched. Asyncreviewpending no duplicate/GPUtest.
+NEXT UI audit CONFIRMS HistoryAtlas.Directory/Read require History!=null, so
+DeepPastActive records appearempty/"no cultures" despiteactualtraditions/languages.
+Add early-history atlasadapter using actual IDs, separately populations/biological
+lineages/traditions/communication/knowledge, neverlabelspeciesasethnicity. Legacy
+history32 mustremainunchanged; use state-awarecategories/tables andrichread-only
+pages/timelines. Dynamicmaps/tribeNPC/latercityhandoff stillnotimplemented.
+Continue until ownerwrap-up, architecturefirst; no olddeadline.
+
 CAMP MESH LIFETIME / CURRENT DELIVERY,27October2026~09:31CDT:
 Shortcut NOW player-survival-mesh-lifetime IL2CPP BuiltUtc
 2026-10-27T14:25:08.3697541Z;26native no-graphics geometry/persistence checks PASS;

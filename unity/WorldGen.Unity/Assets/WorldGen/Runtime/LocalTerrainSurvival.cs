@@ -203,7 +203,9 @@ public sealed partial class LocalTerrainExplorer
         if(survival.Mode==SurvivalMode.Survival)survival.Stamina=Math.Max(0,survival.Stamina-8);
         TriggerHumanSurvivalAction("Attack");if(humanPlayer!=null)humanPlayer.TargetYaw=heading;
         Vector3 from=view.transform.position,dir=view.transform.forward;
-        Vector3 playerFrom=transform.TransformPoint(new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ)));
+        // Reach starts at upper-body height, rather than the orbiting camera or
+        // the eyes: short tools must still be able to reach ground-level prey.
+        Vector3 playerFrom=transform.TransformPoint(new Vector3((float)(motion.X-originX),(float)motion.Y-.55f,(float)(motion.Z-originZ)));
         Vector3 aimedPoint=from+dir*60;double reach=thrown?45:weapon!=null&&weapon.Reach>0?weapon.Reach:1.4;
         Animal hit=null;float best=float.PositiveInfinity;
         foreach(var animal in animals.Values)
@@ -255,13 +257,14 @@ public sealed partial class LocalTerrainExplorer
     }
     double SurvivalAnimalMass(Animal animal)
     {
-        var taxon=SurvivalTaxon(animal);if(taxon!=null)return Math.Max(.01,taxon.MassKg);
+        var taxon=SurvivalTaxon(animal);if(taxon!=null&&SurvivalMath.Finite(taxon.MassKg)&&taxon.MassKg>0)return taxon.MassKg;
+        if(animal.Spawn.Profile.derivedFirefly)return .00002; // 20 mg authored proxy, not a 20 g unknown mammal.
         return Math.Max(.02,Math.Pow(animal.Spawn.Profile.lengthM,3)*10);
     }
     void DamageSurvivalAnimal(Animal animal,double damage,Vector3 direction)
     {
         if(animal.Dead)return;double mass=SurvivalAnimalMass(animal);
-        if(animal.Health<=0)animal.Health=18+Math.Sqrt(mass)*5;
+        if(animal.Health<=0)animal.Health=SurvivalPhysiology.AnimalVitality(mass);
         animal.Health-=damage;animal.TargetHeading=(float)(Math.Atan2(animal.X-motion.X,animal.Z-motion.Z)*180/Math.PI);animal.TargetSpeed=(float)animal.Spawn.Profile.runMps;animal.NextDecision=animal.Life+7;
         if(animal.Health>0){SurvivalNotice("Wounded "+animal.Spawn.Profile.name.ToLowerInvariant()+".");return;}
         animal.Dead=true;var corpse=SurvivalPhysiology.Carcass(animal.Spawn.Profile.slug,animal.Spawn.Id,animal.Planet,mass,animal.Heading);

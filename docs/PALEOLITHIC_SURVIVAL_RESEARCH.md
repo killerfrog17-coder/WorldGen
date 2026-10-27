@@ -4,9 +4,9 @@ Owner scope: 27 October 2026. Gameplay prototype plus an early-history overhaul;
 no paid services, no new animal appearance work. Earlier saves retain their
 historical rules unless explicitly starting/upgrading the early-history scenario.
 
-Current selected checkpoint: `artifacts/player-survival-mesh-lifetime`, IL2CPP
-UTC `2026-10-27T14:25:08.3697541Z`, through the existing project shortcut.
-Core checks: 120 survival and 372 hominin/clock assertions; 26 native geometry/
+Current selected checkpoint: `artifacts/player-survival-small-prey`, IL2CPP
+UTC `2026-10-27T14:45:55.8694366Z`, through the existing project shortcut.
+Core checks: 126 survival and 372 hominin/clock assertions; 30 native geometry/
 persistence checks, an editor mesh-lifetime regression and 20 unload cycles.
 The 20,000-year early-history canonical hash matches between CLR and IL2CPP.
 Earlier graphical survival review passed 24 functional checks; later changes
@@ -14,8 +14,8 @@ have the narrower verification described below, not fresh visual/FPS acceptance.
 
 The owner-authorized cleanup retains the latest three players, latest per local
 day, selected and running builds. Six superseded survival players were removed
-(12.04 GiB); current rollback players are `player-survival-reach` and
-`player-survival-time-gate`, plus daily checkpoints. Older delivery paragraphs
+(12.04 GiB); current latest rollback players are `player-survival-mesh-lifetime`
+and `player-survival-reach`, plus daily checkpoints. Older delivery paragraphs
 are chronological records; their player folders may have been purged. Source
 archives, review screenshots, native inputs and saves remain.
 
@@ -483,3 +483,25 @@ The cleanup script now also retains the latest three, refuses to run during a
 project editor/build, protects nested running workers and writes separate audit
 manifests even on failure. Final applied cleanup:
 `artifacts/daily-cleanup-20261027-143000-084.json`.
+
+### Small-prey biomass and vitality
+
+Carcasses now retain their positive recorded mass, including insects, rather
+than forcing a 10 g minimum. The derived firefly uses an authored 20 mg proxy
+instead of the unknown-animal fallback. Fractional food conserves the resulting
+tiny meat quantities and remains valid saved data. Composition is still generic;
+bird/fish/reptile-specific products and anatomical butchery remain unfinished.
+
+Gameplay vitality now scales with body mass without an 18-point adult-sized
+base. Mouse-sized prey can die from a strike and rabbit-sized prey from a spear;
+the 100 kg deer retains its previous 68-point threshold and the wooden/stone
+spear distinction. This is a game balance proxy, not anatomical injury modeling.
+Physical reach now originates around the upper body so short tools can reach
+ground-level prey; exact hand contact/release remains future work.
+
+Selected build UTC `2026-10-27T14:45:55.8694366Z`,
+`artifacts/player-survival-small-prey`, passes 30 native checks and 126 core
+survival checks. Native tiny portions conserve mass and save/reload, and ground
+reach passes. The 20 ka hominin hash remains CLR/IL2CPP-identical. Package DLLs,
+177 fauna bundles and original-rig sidecars match. No new visual/FPS claim.
+Evidence: `artifacts/survival-small-prey-native-final` and package proof JSON.
