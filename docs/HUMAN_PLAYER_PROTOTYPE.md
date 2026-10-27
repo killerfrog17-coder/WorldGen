@@ -14,12 +14,13 @@ and animal renderer are separate.
   and slower movement. A full crouch collision/capsule system is not implemented.
 - F retains existing flight. Alt + wheel adjusts flight speed; plain wheel now
   adjusts the camera. Flight deliberately uses a neutral body pose.
-- `/spawn human 3` or `/humans 3`: queue nearby demo humans, without a fixed head-count cap.
-- `/humans clear`: remove the demo humans. Three try to spawn automatically
-  on nearby dry, gentle ground once the initial terrain is available.
-- `/runstyle natural`, `/runstyle relaxed`, or `/runstyle brisk`: compare
-  the three captured run styles on player and NPCs.
-  The selected style is saved with the play session. `/runstyle list` lists them.
+- `/spawn human [count]`: queue nearby humans, one by default, without a fixed
+  head-count cap. No NPC humans spawn automatically.
+- `/spawn human clear`: remove command-spawned humans and cancel their queue.
+  `/spawn clear` clears both manually spawned animals and humans.
+- The `/humans` and `/runstyle` audition commands, their help and autocomplete
+  entries are removed. Old optional run-style save values remain readable but
+  are ignored; everyone uses the accepted jog and the separate sprint clip.
 
 There is no control-instruction banner on the gameplay screen. Do not add
 unsolicited control/tutorial overlays; commands/help remain available.
@@ -95,18 +96,18 @@ MPFB tool code is GPL; the selected core/output and official system assets are
 CC0, as described in the [MakeHuman/MPFB licence](https://www.makehumancommunity.org/about/license.html).
 Non-running movement uses the free [Quaternius Universal Animation Library](https://quaternius.itch.io/universal-animation-library)
 and [KayKit jump](https://kaylousberg.itch.io/kaykit-character-animations), both CC0.
-Running now uses [CMU captured motion](https://mocap.cs.cmu.edu/), free for all
-uses under its stated permission, **not CC0**. Natural uses 16_35, Relaxed 16_36,
-Brisk/Sprint 35_17. Bruce Hahne/cgspeed's BVH conversion is linked by CMU's
-[resources page](https://mocap.cs.cmu.edu/resources.php); downloaded mirrors are
-`https://raw.githubusercontent.com/una-dinosauria/cmu-mocap/master/data/016/16_35.bvh`,
-`data/016/16_36.bvh` and `data/035/35_17.bvh` under the same prefix. The local
-`sources.json` records exact hashes. Runtime acknowledgements ship in
-`StreamingAssets/HUMAN-SOURCES.txt`. Rejected forward-leaning 16_55 and 127_03
-are not shipped. The original 53-bone skins and target rests remain the inputs;
-the source T-pose calibrates rotations, complete strides loop with matched foot
-phase, and runtime cadence uses measured travel distance. These are retargeted
-captures, without contact IK or a guarantee against all foot sliding.
+Jogging and sprinting use [CMU captured motion](https://mocap.cs.cmu.edu/), free
+for all uses under its stated permission, **not CC0**. Jogging retains accepted
+16_35; sprinting uses the faster captured 143_01, with different body/limb motion.
+Bruce Hahne/cgspeed's BVH conversion is linked by CMU's
+[resources page](https://mocap.cs.cmu.edu/resources.php). Downloaded sources are
+`https://raw.githubusercontent.com/una-dinosauria/cmu-mocap/master/data/016/16_35.bvh`
+and `https://raw.githubusercontent.com/una-dinosauria/cmu-mocap/master/data/143/143_01.bvh`.
+The local `sources.json` records exact hashes; runtime acknowledgements ship in
+`StreamingAssets/HUMAN-SOURCES.txt`. Original 53-bone skins/rests remain the
+inputs; source T-poses calibrate rotations and complete strides loop with a
+shared foot phase. Runtime cadence uses measured travel distance. These are
+retargeted captures, without contact IK or a guarantee against all foot sliding.
 
 Exact earlier downloaded files and provenance remain in
 `artifacts/human-animation-sources`. No tool code, paid service or neural inference
@@ -154,8 +155,8 @@ removed. Saved worlds and sessions were not modified. Sessions saved by the
 discarded version are not promised compatible with the restored version; keep
 them for the archived build rather than silently converting them.
 
-The replacement IL2CPP `player-upright-running`, built
-2026-10-27T17:45:30.8700811Z and selected by the existing shortcut, uses the eight-clip bank and body
+The earlier IL2CPP `player-upright-running`, built
+2026-10-27T17:45:30.8700811Z used the then-eight-clip bank and body
 visibility described above. It preserves accepted skin/eye PNGs byte-for-byte
 (42 maps), original mesh geometry/UVs/weights and the source native file. FBX
 bind-matrix rounding is below 1e-6. In the A-skin motion audition, mean torso
@@ -171,6 +172,29 @@ Same-frame editor captures need `forceMatrixRecalculationPerRender`; initial
 cached-pose captures were rejected. Evidence: `artifacts/human-running-runtime`
 and the Blender motion audition under `artifacts/human-running-review`. This
 does not establish perfect foot contacts or owner acceptance of the new runs.
+
+## Manual human spawning and dedicated sprint - 27 October
+
+The subsequent owner revision removes automatic demo humans and both audition
+commands. `/spawn human [count]` is the entry point, one by default; specific
+human clear and shared `/spawn clear` cancel queued requests as well as live
+NPCs. No new population limit is introduced. Old optional run-style save data
+is readable but no longer controls animation.
+
+The selected movement bank is now seven roles: Idle, Walk, Run (jog), Sprint,
+Crouch, Jump and Swim. The accepted jog retains CMU16_35. Sprint replaces the
+slower35_17 take with CMU143_01, measured at approximately 6 m/s from its root
+travel. It supplies different limb/body motion rather than accelerating the
+jog. Shared gait phase, smooth weight changes and stride-based cadence remain.
+The faster source has a short complete stride, so the offline stride selector
+now admits periods down to 0.35 s. Checked raw endpoints before accepting that
+cycle; the retained jog still selects the same frames 51..146.
+
+Evidence is under `artifacts/human-sprint-runtime`: source candidate metadata,
+stride diagnostics, CPU Blender auditions and actual Unity renders of all six
+sprints. 22 camera/save/help assertions and 334 Unity skin/render/command checks
+pass. The opt-in editor review reloads Resources after NewScene, which can
+unload stack-only asset references. No contact-IK or perfect all-terrain foot-placement claim.
 
 The broader `--play-session-only` check fails at its existing physical-noise
 macro-anchor assertion. An isolated archive of the pre-human HEAD reproduced

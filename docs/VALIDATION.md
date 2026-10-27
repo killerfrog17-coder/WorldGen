@@ -1,5 +1,23 @@
 # Version 3 validation evidence
 
+## Manual human spawns and dedicated sprint - 27 October 2026
+
+Owner removes `/humans`, `/runstyle` and automatic NPC human companions. Help,
+completion and runtime handlers are removed. `/spawn human [count]` remains,
+default1, with no fixed population ceiling. `/spawn human clear` removes humans;
+shared `/spawn clear` now cancels humans and animals together. Legacy optional
+run-style save values stay readable but unused.
+
+Seven selected motion roles; accepted CMU16_35 jog remains and CMU143_01 supplies
+a distinct captured fast sprint (root travel measured~6m/s). Old slower sprint
+and relaxed-run audition take are removed from derivatives. Frames/phase/cadence
+use the captured stride; no target re-rig or pigment changes. Actual sprint
+renders inspected for all six adults.22 focused camera/save/help tests +334
+Unity skin/pose/visibility/command assertions pass. The initial editor command
+fixture lost a stack-only Resources asset during NewScene; reloading it fixes
+the fixture. No runtime asset workaround was added. Build evidence under
+`artifacts/human-sprint-runtime`; animation contact IK remains absent.
+
 ## Pre-night rollback, captured running and first-person visibility - 27 October 2026
 
 Owner authorized removing the overnight survival/history implementation and

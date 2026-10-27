@@ -1,12 +1,12 @@
 # Free human animation inventory
 
-Current running revision (27 October): all KayKit runs and the original
-Quaternius jog/sprint are rejected for this prototype. Three captured CMU takes
-replace them: Natural 16_35, Relaxed 16_36, Brisk/Sprint 35_17. This is a new
-source with free-for-all-uses permission, **not CC0**; attribution ships in
-`StreamingAssets/HUMAN-SOURCES.txt`. Original inventory counts below describe
-the earlier downloaded libraries, not the selected runtime bank. See
-`HUMAN_PLAYER_PROTOTYPE.md` for source URLs and reproduction.
+Current running revision (27 October): the selected runtime bank has one jog
+(CMU 16_35) and a separate fast sprint (CMU 143_01), replacing the previous
+run-style audition. KayKit runs and Quaternius jog/sprint remain rejected.
+CMU has free-for-all-uses permission, **not CC0**; attribution ships in
+`StreamingAssets/HUMAN-SOURCES.txt`. Inventory counts below describe the earlier
+libraries, not the seven selected runtime movement roles. See
+`HUMAN_PLAYER_PROTOTYPE.md` for URLs and reproduction.
 
 Owner requires zero spending. Audited the actual public free downloads on
 26 October 2026, without changing the Blender appearance review, any character,

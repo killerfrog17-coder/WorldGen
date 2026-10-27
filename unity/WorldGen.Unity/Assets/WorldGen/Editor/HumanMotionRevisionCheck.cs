@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -13,25 +12,6 @@ using UnityEngine.Playables;
 
 public static class HumanMotionRevisionCheck
 {
-    static string Skin(SkinnedMeshRenderer renderer)
-    {
-        var mesh=renderer.sharedMesh;
-        using(var stream=new MemoryStream())using(var writer=new BinaryWriter(stream))
-        {
-            foreach(var p in mesh.vertices){writer.Write(p.x);writer.Write(p.y);writer.Write(p.z);}
-            foreach(var p in mesh.normals){writer.Write(p.x);writer.Write(p.y);writer.Write(p.z);}
-            foreach(var p in mesh.uv){writer.Write(p.x);writer.Write(p.y);}
-            foreach(var p in mesh.colors){writer.Write(p.r);writer.Write(p.g);writer.Write(p.b);writer.Write(p.a);}
-            foreach(int i in mesh.triangles)writer.Write(i);
-            using(var counts=mesh.GetBonesPerVertex())foreach(byte count in counts)writer.Write(count);
-            using(var weights=mesh.GetAllBoneWeights())foreach(var weight in weights){writer.Write(renderer.bones[weight.boneIndex].name);writer.Write(weight.weight);}
-            foreach(int i in Enumerable.Range(0,mesh.bindposes.Length).OrderBy(i=>renderer.bones[i].name,StringComparer.Ordinal))
-            {writer.Write(renderer.bones[i].name);for(int k=0;k<16;k++)writer.Write(mesh.bindposes[i][k]);}
-            writer.Flush();using(var hash=SHA256.Create())return BitConverter.ToString(hash.ComputeHash(stream.ToArray())).Replace("-","");
-        }
-    }
-    static Dictionary<string,string> Skins(WorldGenHumanLibrary library)
-        =>library.People.SelectMany(p=>p.Prefab.GetComponentsInChildren<SkinnedMeshRenderer>(true).Select(r=>(Key:p.Variant+"/"+r.name,Hash:Skin(r)))).ToDictionary(p=>p.Key,p=>p.Hash);
     static Dictionary<string,float[]> Channels(WorldGenHumanLibrary library)
     {
         var result=new Dictionary<string,float[]>();
@@ -51,18 +31,35 @@ public static class HumanMotionRevisionCheck
     }
     public static void BuildAndReview()
     {
-        string repo=Path.GetFullPath(Path.Combine(Application.dataPath,"../../..")),output=Path.Combine(repo,"artifacts/human-running-runtime/review");Directory.CreateDirectory(output);
-        bool reviewOnly=Environment.GetCommandLineArgs().Contains("--worldgen-review-only");
-        if(!reviewOnly)foreach(string file in Directory.GetFiles(Path.Combine(repo,"artifacts/human-running-runtime/prior-exports"),"*.fbx",SearchOption.AllDirectories))
-        {string destination="Assets/WorldGen/GeneratedHumans/"+Path.GetFileName(Path.GetDirectoryName(file))+"/"+Path.GetFileName(file);File.Copy(file,destination,true);AssetDatabase.ImportAsset(destination,ImportAssetOptions.ForceUpdate);}
-        var before=Skins(Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary"));var beforeChannels=Channels(Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary"));
-        if(!reviewOnly)HumanRuntimeBuilder.Build();var library=Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");var after=Skins(library);var afterChannels=Channels(library);
+        string repo=Path.GetFullPath(Path.Combine(Application.dataPath,"../../.."));
+        var args=Environment.GetCommandLineArgs();int outputAt=Array.IndexOf(args,"--worldgen-review-output");
+        string output=outputAt>=0?Path.GetFullPath(args[outputAt+1]):Path.Combine(repo,"artifacts/human-running-runtime/review");Directory.CreateDirectory(output);
+        bool reviewOnly=args.Contains("--worldgen-review-only");
+        var priorLibrary=Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");
+        float[] Jog(AnimationClip clip)=>AnimationUtility.GetCurveBindings(clip).OrderBy(b=>b.path+"/"+b.propertyName,StringComparer.Ordinal).SelectMany(b=>AnimationUtility.GetEditorCurve(clip,b).keys.SelectMany(k=>new[]{k.time,k.value})).ToArray();
+        var previousJog=priorLibrary.People.ToDictionary(p=>p.Variant,p=>Jog(p.Clips[Array.IndexOf(p.Roles,"Run")]));
+        var beforeChannels=Channels(priorLibrary);
+        if(!reviewOnly)HumanRuntimeBuilder.Build();
+        var library=Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");var afterChannels=Channels(library);
         File.WriteAllLines(Path.Combine(output,"skin-channel-differences.txt"),beforeChannels.Select(row=>{var next=afterChannels[row.Key];return row.Key+" lengths "+row.Value.Length+"/"+next.Length+" max "+(row.Value.Length==next.Length?row.Value.Zip(next,(a,b)=>Math.Abs(a-b)).DefaultIfEmpty(0).Max():-1); }));
         var report=new List<string>();void Check(bool ok,string text){if(!ok)throw new InvalidDataException(text);report.Add("PASS "+text);}
         Check(beforeChannels.Count==afterChannels.Count,"same skin channels and renderer count");
         foreach(var row in beforeChannels)
         {float tolerance=row.Key.EndsWith("/bind",StringComparison.Ordinal)?1e-6f:0;var next=afterChannels[row.Key];Check(row.Value.Length==next.Length&&row.Value.Zip(next,(a,b)=>Math.Abs(a-b)).All(d=>d<=tolerance),"unchanged skin channel (FBX bind rounding <=1e-6 only): "+row.Key);}
         EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
+        // NewScene can unload Resources referenced only by this method's stack.
+        library=Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");
+        var commandObject=new GameObject("Human spawn command review");var explorer=commandObject.AddComponent<LocalTerrainExplorer>();
+        const System.Reflection.BindingFlags fields=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
+        typeof(LocalTerrainExplorer).GetField("humanLibrary",fields).SetValue(explorer,library);
+        long Queued()=>(long)typeof(LocalTerrainExplorer).GetField("humanSpawnQueued",fields).GetValue(explorer);
+        Check(explorer.TestHumanCount==0&&Queued()==0,"human population starts empty");
+        Check(explorer.ExecuteExplorerCommand("/humans 3")==null&&explorer.ExecuteExplorerCommand("/runstyle natural")==null,"removed commands have no runtime handlers");
+        var spawned=explorer.ExecuteExplorerCommand("/spawn human 24");
+        Check(spawned.Success&&Queued()==24,"shared spawn command queues humans without former cap: "+string.Join(";",spawned.Lines)+" queue="+Queued());
+        Check(!explorer.ExecuteExplorerCommand("/spawn human -1").Success&&Queued()==24,"invalid human count leaves queue intact");
+        Check(explorer.ExecuteExplorerCommand("/spawn clear").Success&&Queued()==0,"shared clear cancels queued humans");
+        UnityEngine.Object.DestroyImmediate(commandObject);
         RenderSettings.ambientMode=AmbientMode.Flat;RenderSettings.ambientLight=new Color(.5f,.5f,.5f);
         var lamp=new GameObject("Review sunlight").AddComponent<Light>();lamp.type=LightType.Directional;lamp.intensity=2;lamp.shadows=LightShadows.Soft;lamp.transform.rotation=Quaternion.Euler(45,-35,0);RenderSettings.sun=lamp;
         var floor=GameObject.CreatePrimitive(PrimitiveType.Plane);floor.transform.localScale=Vector3.one*4;
@@ -85,7 +82,9 @@ public static class HumanMotionRevisionCheck
         {
             foreach(var person in library.People)
             {
-                Check(person.Roles.Length==8&&!person.Roles.Any(r=>r.StartsWith("KayKit",StringComparison.Ordinal)),"eight selected clips, rejected running options removed: "+person.Variant);
+                var jog=Jog(person.Clips[Array.IndexOf(person.Roles,"Run")]);var priorJog=previousJog[person.Variant];
+                Check(jog.Length==priorJog.Length&&jog.Zip(priorJog,(a,b)=>Math.Abs(a-b)).All(d=>d<=1e-5f),"accepted jogging curves retained: "+person.Variant);
+                Check(person.Roles.Length==7&&!person.Roles.Any(r=>r.StartsWith("KayKit",StringComparison.Ordinal)),"seven movement clips, run audition bank removed: "+person.Variant);
                 var actor=UnityEngine.Object.Instantiate(person.Prefab);actor.transform.position=Vector3.zero;
                 var graph=PlayableGraph.Create("Captured motion review");graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
                 var animationOutput=AnimationPlayableOutput.Create(graph,"Body",actor.GetComponent<Animator>());AnimationClipPlayable active=default;AnimationClip currentClip=null;
@@ -93,14 +92,13 @@ public static class HumanMotionRevisionCheck
                 {
                     if(currentClip!=clip){if(active.IsValid())graph.DestroyPlayable(active);active=AnimationClipPlayable.Create(graph,clip);active.SetApplyFootIK(false);active.SetApplyPlayableIK(false);active.SetSpeed(0);animationOutput.SetSourcePlayable(active);currentClip=clip;graph.Play();}
                     active.SetTime(time);graph.Evaluate(0);
-                    Debug.Log("POSE "+person.Variant+" "+clip.name+" "+time+" "+actor.GetComponentsInChildren<Transform>().First(t=>t.name=="foot_l").localRotation);
                 }
                 foreach(var renderer in actor.GetComponentsInChildren<SkinnedMeshRenderer>())
                 {renderer.forceMatrixRecalculationPerRender=true;var block=new MaterialPropertyBlock();block.SetFloat("_HumanViewId",1);renderer.SetPropertyBlock(block);renderer.sharedMaterials=renderer.sharedMaterials.Select(m=>{var copy=new Material(m);copy.SetFloat("_HumanViewId",1);return copy;}).ToArray();}
-                foreach(string role in new[]{"Run","Sprint","Relaxed run"})
+                foreach(string role in new[]{"Run","Sprint"})
                 {
                     int index=Array.IndexOf(person.Roles,role);var clip=person.Clips[index];
-                    Check(clip.length>.4f&&clip.length<1.3f&&person.StrideMeters[index]>.5f,"captured cycle duration and measured stride: "+person.Variant+" "+role);
+                    Check(clip.length>.3f&&clip.length<1.3f&&person.StrideMeters[index]>.5f,"captured cycle duration and measured stride: "+person.Variant+" "+role);
                     Color32[] priorPhase=null;
                     foreach(float phase in new[]{.15f,.4f}){Sample(clip,clip.length*phase);var rendered=Capture(camera,person.Variant+"-"+role.Replace(' ','-')+"-"+phase.ToString("F2",System.Globalization.CultureInfo.InvariantCulture));if(priorPhase!=null)Check(Difference(priorPhase,rendered)>500,"actual pose changes across captured stride: "+person.Variant+" "+role);priorPhase=rendered;}
                 }

@@ -13,8 +13,8 @@ https://quaternius.itch.io/universal-animation-library
 KayKit Character Animations free pack (jump): CC0.
 https://kaylousberg.itch.io/kaykit-character-animations
 
-Running: Carnegie Mellon University Motion Capture Database, takes 16_35,
-16_36 and 35_17. Free for all uses under the database's permission; NOT CC0.
+Jogging/sprinting: Carnegie Mellon University Motion Capture Database, takes
+16_35 and 143_01. Free for all uses under the database's permission; NOT CC0.
 The data used in this project was obtained from mocap.cs.cmu.edu.
 The database was created with funding from NSF EIA-0196217.
 https://mocap.cs.cmu.edu/

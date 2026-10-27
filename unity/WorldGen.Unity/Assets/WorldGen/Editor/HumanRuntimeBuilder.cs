@@ -13,7 +13,7 @@ public static class HumanRuntimeBuilder
     [Serializable] sealed class Metadata {public string variant,source_sha256;public float eye_height;public Surface[] materials;public MotionInfo[] clips;}
     [Serializable] sealed class MotionInfo{public string label;public float travel_m;}
     [Serializable] sealed class Surface {public string @object,kind,texture;public bool alpha;public float roughness;}
-    static readonly string[] Roles={"Idle","Walk","Run","Sprint","Crouch","Jump","Swim","Relaxed run"};
+    static readonly string[] Roles={"Idle","Walk","Run","Sprint","Crouch","Jump","Swim"};
     public static void AuditHeadMasks()
     {
         var library=Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");var rows=new List<string>();

@@ -16,12 +16,13 @@ public sealed partial class LocalTerrainExplorer
         Check(humanPlayer!=null&&humanLibrary.People.Length==6,"six real MPFB variants loaded");
         TestNearbyFlatGround();TestWalking();yield return new WaitForSecondsRealtime(1);
         TerrainVideoOptions.GroundCover=false; // Expose actual feet for this diagnostic only.
-        Check(ExecuteExplorerCommand("/humans clear").Success,"clear NPC command");
+        Check(humanNpcs.Count==0&&humanSpawnQueued==0,"humans do not spawn automatically");
+        Check(ExecuteExplorerCommand("/spawn human clear").Success,"clear human spawn command");
         Check(ExecuteExplorerCommand("/spawn human 24").Success,"spawn human alias queues more than former cap");
         double spawnDeadline=Time.unscaledTime+15;
         while(humanSpawnQueued>0&&Time.unscaledTime<spawnDeadline)yield return null;
         Check(humanNpcs.Count==24,"more than sixteen live humans");
-        Check(!ExecuteExplorerCommand("/humans -1").Success,"reject negative population request");
+        Check(!ExecuteExplorerCommand("/spawn human -1").Success,"reject negative population request");
         var air=animalProfiles.First(p=>p.medium=="air"&&p.tiny);
         Check(ExecuteExplorerCommand("/spawn "+air.slug+" 160").Success,"queue more than previous animal command limit");
         double animalDeadline=Time.unscaledTime+40;
@@ -29,9 +30,9 @@ public sealed partial class LocalTerrainExplorer
         Check(animals.Values.Count(a=>a.Manual)==160&&animalBoneData.Length/AnimalBones>128,"animal palette grows beyond former population cap");
         var gpu=new Matrix4x4[32];animalBoneBuffer.GetData(gpu,0,0,gpu.Length);
         Check(gpu.Select((m,i)=>m==animalBoneData[i]).All(b=>b),"grown GPU palette retains uploaded poses");
-        ExecuteExplorerCommand("/spawn clear");
         var first=humanNpcs[0].Root.transform.localPosition;yield return new WaitForSecondsRealtime(8);
         Check(humanNpcs.Any(h=>h.Speed>.05f)||(humanNpcs[0].Root.transform.localPosition-first).sqrMagnitude>.01,"demo humans move with live clips");
+        Check(ExecuteExplorerCommand("/spawn clear").Success&&humanNpcs.Count==0&&humanSpawnQueued==0,"spawn clear also clears humans and their queue");
         float idleYaw=humanPlayer.Yaw;heading+=90;yield return new WaitForSecondsRealtime(.5f);
         Check(Mathf.Abs(Mathf.DeltaAngle(idleYaw,humanPlayer.Yaw))<.1,"camera orbit does not turn stationary player");
         humanReviewPose=true;
@@ -63,7 +64,7 @@ public sealed partial class LocalTerrainExplorer
                 yield return null;
                 view.transform.localPosition=humanPlayer.Root.transform.localPosition+new Vector3(0,humanPlayer.Definition.EyeHeight,-.65f);view.transform.localRotation=Quaternion.identity;
                 PerformanceCapture(Path.Combine(output,"human-"+variant+"-eyes.png"));
-                if(variant==0)foreach(string role in new[]{"Run","Sprint","Relaxed run"})
+                if(variant==0)foreach(string role in new[]{"Run","Sprint"})
                 {
                     heading=90;TestHumanView(3);PoseHumanCheck(Array.IndexOf(humanPlayer.Definition.Roles,role),.25);
                     yield return null;PerformanceCapture(Path.Combine(output,"run-option-"+role.Replace(' ','-')+".png"));

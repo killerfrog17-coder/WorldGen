@@ -55,10 +55,10 @@ class CmuMotion:
             signal=forward*sign;peaks=[]
             for i in range(3,len(signal)-3):
                 if signal[i]>=max(signal[i-3:i]) and signal[i]>max(signal[i+1:i+4]):
-                    if peaks and (i-peaks[-1])*self.dt<.35:
+                    if peaks and (i-peaks[-1])*self.dt<.25:
                         if signal[i]>signal[peaks[-1]]:peaks[-1]=i
                     else:peaks.append(i)
-            pairs.extend((a,b) for a,b in zip(peaks,peaks[1:]) if .45<=(b-a)*self.dt<=1.25)
+            pairs.extend((a,b) for a,b in zip(peaks,peaks[1:]) if .35<=(b-a)*self.dt<=1.25)
         if not pairs:raise ValueError('No complete running stride: '+str(self.path))
         self.start,self.end=min(pairs,key=lambda p:abs((p[0]+p[1])/2-len(raw)/2))
         self.seconds=(self.end-self.start)*self.dt

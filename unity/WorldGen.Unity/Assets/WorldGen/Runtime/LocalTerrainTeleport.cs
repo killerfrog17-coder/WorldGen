@@ -9,10 +9,8 @@ public sealed partial class LocalTerrainExplorer
     public PlayCommandResult ExecuteExplorerCommand(string text)
     {
         var words=text.Trim().Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);
-        if(words.Length>0&&words[0].Equals("/runstyle",StringComparison.OrdinalIgnoreCase))return ExecuteHumanRunStyle(words);
-        if(words.Length>0&&words[0].Equals("/humans",StringComparison.OrdinalIgnoreCase))return ExecuteHumanCommand(words);
         if(words.Length>1&&words[0].Equals("/spawn",StringComparison.OrdinalIgnoreCase)&&(words[1].Equals("human",StringComparison.OrdinalIgnoreCase)||words[1].Equals("humans",StringComparison.OrdinalIgnoreCase)))
-            return ExecuteHumanCommand(new[]{"/humans"}.Concat(words.Skip(2)).ToArray());
+            return ExecuteHumanSpawn(words.Skip(2).ToArray());
         if(words.Length>0&&words[0].Equals("/spawn",StringComparison.OrdinalIgnoreCase))return ExecuteAnimalSpawnCommand(text);
         if(words.Length>0&&words[0].Equals("/seed",StringComparison.OrdinalIgnoreCase))
             return words.Length!=1?new PlayCommandResult(false,"Usage: /seed"):sourceWorld==null?new PlayCommandResult(false,"World seed is not available yet."):new PlayCommandResult(true,"World seed: "+sourceWorld.Recipe.Seed.ToString(System.Globalization.CultureInfo.InvariantCulture));

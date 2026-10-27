@@ -26,7 +26,9 @@ static class PlayerCameraRigTests
         var restored=WorldJson.Read<PlaySession>(WorldJson.Write(saved));restored.Validate();
         Check(restored.PlayerHumanVariant==4&&restored.CameraDistance==7.2&&restored.CameraDistanceLocked,"Save round trip retains person and view");
         Check(saved.Copy().PlayerHumanVariant==4,"Session copy retains person");
-        saved.HumanRunStyle=3;Check(WorldJson.Read<PlaySession>(WorldJson.Write(saved)).HumanRunStyle==3,"Run style round trip");
+        saved.HumanRunStyle=3;Check(WorldJson.Read<PlaySession>(WorldJson.Write(saved)).HumanRunStyle==3,"Legacy optional run-style field remains readable");
+        Check(!PlayCommands.Complete("/").Any(c=>c=="/humans"||c=="/runstyle"),"Removed human audition commands are not suggested");
+        Check(!PlayCommands.Execute(saved,0,"/help").Lines.Any(c=>c.Contains("/humans")||c.Contains("/runstyle")),"Removed human audition commands are not advertised");
         var profiles=new[]{new FaunaPrototypeProfile{slug="deer",name="Deer"}};
         foreach(int n in new[]{33,160,1000,1000000})
         {var request=FaunaSpawnCommands.Parse("/spawn deer "+n,profiles);Check(request.Error==""&&request.Count==n,"Explicit animal requests exceed former count caps");}

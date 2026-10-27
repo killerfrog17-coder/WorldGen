@@ -315,7 +315,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         finally{view.targetTexture=priorTarget;RenderTexture.active=previous;target.Release();Destroy(target);Destroy(texture);}
     }
     public void TestMove(double east,double north){motion.X=east;motion.Z=north;}
-    public void StorePlayer(PlaySession session){session.HasPlayer=true;session.PlayerPosition=Position;session.Flying=motion.Flying;session.Heading=heading;session.Pitch=pitch;session.HeightAboveGround=Math.Max(0,HeightAboveGround);session.CameraDistance=humanCamera.Distance;session.CameraDistanceLocked=humanCamera.Locked;session.HumanRunStyle=humanRunStyle;if(humanPlayer!=null)session.PlayerHumanVariant=humanPlayer.Definition.Variant[0]-'A';}
+    public void StorePlayer(PlaySession session){session.HasPlayer=true;session.PlayerPosition=Position;session.Flying=motion.Flying;session.Heading=heading;session.Pitch=pitch;session.HeightAboveGround=Math.Max(0,HeightAboveGround);session.CameraDistance=humanCamera.Distance;session.CameraDistanceLocked=humanCamera.Locked;if(humanPlayer!=null)session.PlayerHumanVariant=humanPlayer.Definition.Variant[0]-'A';}
     public void Resume(){paused=false;CaptureMouse();}
     public void TestWalking(){motion.Place(motion.X,motion.Z,Ground(motion.X,motion.Z));pitch=0;}
     public void TestNearbyFlatGround()

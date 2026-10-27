@@ -23,9 +23,9 @@ public sealed partial class LocalTerrainExplorer
         if(request.Action=="clear"&&request.Error.Length==0)
         {
             var ids=animals.Where(p=>p.Value.Manual).Select(p=>p.Key).ToArray();
-            long count=ids.Length+animalManualWanted.Count+animalManualRequests.Sum(b=>(long)b.Count-b.Index);
+            long count=ids.Length+animalManualWanted.Count+animalManualRequests.Sum(b=>(long)b.Count-b.Index)+ClearSpawnedHumans();
             animalManualWanted.Clear();animalManualRequests.Clear();foreach(ulong id in ids)RemoveAnimal(id);
-            return new PlayCommandResult(true,"Cleared "+count+" command-spawned/queued animals. Regional wildlife is retained.");
+            return new PlayCommandResult(true,"Cleared "+count+" command-spawned/queued animals and humans. Regional wildlife is retained.");
         }
         if(animalDisabled)return new PlayCommandResult(false,"Animals disabled by --worldgen-no-animals.");
         if(!Ready||animalPlanner==null||!CenterReady)return new PlayCommandResult(false,"Wait for nearby terrain and wildlife to initialize.");

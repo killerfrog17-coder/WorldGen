@@ -1,5 +1,5 @@
 """Render prospective captured running cycles on the existing MPFB A skin, CPU only."""
-import hashlib,importlib.util,json,math,sys
+import argparse,hashlib,importlib.util,json,math,sys
 from pathlib import Path
 import bpy
 from mathutils import Vector
@@ -8,7 +8,9 @@ sys.path.insert(0,str(REPO/'scripts'))
 from human_cmu_motion import CmuMotion
 from human_motion_common import Motion
 import human_animation_stage as stage
-OUT=REPO/'artifacts/human-running-review';OUT.mkdir(parents=True,exist_ok=True)
+ap=argparse.ArgumentParser();ap.add_argument('--candidates',default='16_35,16_36,16_55,35_17,127_03');ap.add_argument('--output',default='artifacts/human-running-review')
+args=ap.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
+OUT=REPO/args.output;OUT.mkdir(parents=True,exist_ok=True)
 SOURCE=REPO/'artifacts/human-animation-preview/Human - Animation Comparison.blend'
 digest=hashlib.sha256(SOURCE.read_bytes()).hexdigest()
 bpy.ops.wm.open_mainfile(filepath=str(SOURCE))
@@ -23,7 +25,7 @@ for obj in bpy.data.collections['MPFB_A'].objects:
         if modifier.type=='SUBSURF' or modifier.type=='MASK' and modifier.name.startswith('Delete.'):obj.modifiers.remove(modifier)
 records=[];clips=json.loads(rig['preview_clips'])
 reference=Motion(next((REPO/'artifacts/human-animation-sources/quaternius-ual1').rglob('UAL1_Standard.glb')))
-for filename in ['16_35','16_36','16_55','35_17','127_03']:
+for filename in args.candidates.split(','):
     motion=CmuMotion(REPO/'artifacts/human-running-sources/cmu'/f'{filename}.bvh')
     motion.align_to(reference)
     samples=[motion.sample(filename,min(i/30,motion.seconds)) for i in range(round(motion.seconds*30)+1)]

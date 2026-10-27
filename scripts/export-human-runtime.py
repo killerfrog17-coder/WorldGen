@@ -1,7 +1,7 @@
 """Read-only MPFB audition -> FBX skins/native actions and unlit material maps.
 
 CPU only. Never rewrites the audition or changes source rigs/weights/actions.
-Runtime derivatives omit subdivision, animation uses the already fitted CC0 bank.
+Runtime derivatives omit subdivision; free captured running uses the existing rig.
 """
 import argparse, hashlib, json, sys, time
 from pathlib import Path
@@ -13,7 +13,7 @@ REPO = Path(__file__).resolve().parent.parent
 SOURCE = REPO/'artifacts/human-animation-preview/Human - Animation Comparison.blend'
 OUTPUT = REPO/'artifacts/human-runtime/exports'
 EVIDENCE = REPO/'artifacts/human-runtime'
-CLIPS = {'Idle', 'Walk', 'Run', 'Sprint', 'Crouch', 'Jump', 'Swim', 'Relaxed run'}
+CLIPS = {'Idle', 'Walk', 'Run', 'Sprint', 'Crouch', 'Jump', 'Swim'}
 REUSE_TEXTURES = False
 CMU_MOTIONS = {}
 
@@ -75,7 +75,7 @@ def export(letter):
     for original in list(clips):
         if original['label'] in {'Run','Sprint'}:
             bpy.data.actions.remove(bpy.data.actions[original['action']]);clips.remove(original)
-    for label,filename in [('Run','16_35'),('Sprint','35_17'),('Relaxed run','16_36')]:
+    for label,filename in [('Run','16_35'),('Sprint','143_01')]:
         if filename not in CMU_MOTIONS:
             motion=CmuMotion(REPO/'artifacts/human-running-sources/cmu'/f'{filename}.bvh');motion.align_to(reference);CMU_MOTIONS[filename]=motion
         motion=CMU_MOTIONS[filename]
