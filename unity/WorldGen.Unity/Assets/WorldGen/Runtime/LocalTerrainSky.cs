@@ -80,12 +80,17 @@ public sealed partial class LocalTerrainExplorer
         Color ColorOf(V value)=>new Color((float)value.X,(float)value.Y,(float)value.Z);
         sunPrimary=primary;
         float cloudLight=weatherScreen==null?1:Mathf.Lerp(1,.3f,(float)CurrentWeather.CloudCover);
-        if(!TerrainDiagnostics.FreezeSun||!sunPoseWritten){localSun.color=ColorOf(body.Color);sunBaseIntensity=(float)body.Illuminance*cloudLight;localSun.intensity=sunBaseIntensity;}
+        // Redistribute daytime illumination toward diffuse sky fill. Night/moon
+        // illumination is unchanged; this is independent of foliage shadow mode.
+        float day=(float)sampled.Daylight;
+        var ambient=sampled.Ambient*(1+.7*day);
+        Shader.SetGlobalFloat("_WorldGenCanopyAmbientDay",day);
+        if(!TerrainDiagnostics.FreezeSun||!sunPoseWritten){localSun.color=ColorOf(body.Color);sunBaseIntensity=(float)body.Illuminance*cloudLight*Mathf.Lerp(1,.9f,day);localSun.intensity=sunBaseIntensity;}
         ConfigureWeatherScreen(sampled,Vector(sampled.Bodies[0].Direction),ColorOf(sampled.Bodies[0].Color));
         skyMaterial.SetVector("_Zenith",ColorOf(sampled.Zenith));skyMaterial.SetVector("_Horizon",ColorOf(sampled.Horizon));
         // Already-linear illumination, matching terrain's bakedGI/grass ambient.
         // One scene upload at 10Hz; never rewrite resident tile materials.
-        Shader.SetGlobalVector("_WorldGenSkyReflection",new Vector4((float)sampled.Ambient.X,(float)sampled.Ambient.Y,(float)sampled.Ambient.Z,1));
+        Shader.SetGlobalVector("_WorldGenSkyReflection",new Vector4((float)ambient.X,(float)ambient.Y,(float)ambient.Z,1));
         skyMaterial.SetVector("_LocalUp",Vector(new V(0,1,0)));
         skyMaterial.SetVector("_NightAirGlow",ColorOf(sampled.NightAirGlow));skyMaterial.SetFloat("_AirDensity",(float)Math.Exp(-Math.Max(0,altitude)/8000));skyMaterial.SetFloat("_AerosolHaze",(float)skyConfig.Haze);
         skyMaterial.SetVector("_StarRight",Vector(sampled.StarRight));skyMaterial.SetVector("_StarUp",Vector(sampled.StarUp));skyMaterial.SetVector("_StarForward",Vector(sampled.StarForward));
@@ -97,7 +102,7 @@ public sealed partial class LocalTerrainExplorer
             if(i!=primary&&secondary<4){secondaryDirections[secondary]=Vector(b.Direction);secondaryColors[secondary++]=ColorOf(b.Color)*(float)b.Illuminance;}}
         skyDirectionCount=count;skyMaterial.SetInt("_BodyCount",count);skyMaterial.SetVectorArray("_BodyColors",skyColors);skyMaterial.SetVectorArray("_BodyParameters",skyParameters);
         skyMaterial.SetVectorArray("_BodyLightDirections",skyLightDirections);
-        void MaterialLight(Material material){if(material.HasProperty("_FogColor"))material.SetVector("_FogColor",ColorOf(sampled.Horizon));if(material.HasProperty("_AmbientTint"))material.SetVector("_AmbientTint",ColorOf(sampled.Ambient));if(material.HasProperty("_Daylight"))material.SetFloat("_Daylight",(float)sampled.Daylight);
+        void MaterialLight(Material material){if(material.HasProperty("_FogColor"))material.SetVector("_FogColor",ColorOf(sampled.Horizon));if(material.HasProperty("_AmbientTint"))material.SetVector("_AmbientTint",ColorOf(ambient));if(material.HasProperty("_Daylight"))material.SetFloat("_Daylight",day);
             material.SetVector("_AirGeometry",new Vector4((float)frame.RadiusM,(float)frame.AltitudeM,(float)originX,(float)originZ));material.SetFloat("_AirObserverM",(float)altitude);material.SetFloat("_AirHaze",(float)skyConfig.Haze);material.SetInt("_SecondaryLightCount",secondary);material.SetVectorArray("_SecondaryDirections",secondaryDirections);material.SetVectorArray("_SecondaryColors",secondaryColors);}
         MaterialLight(landMaterial);MaterialLight(waterMaterial);foreach(var material in legacyVegetationScene)if(material!=null)MaterialLight(material);
         terrainSecondaryCount=secondary;PublishTerrainScene();

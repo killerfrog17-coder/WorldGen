@@ -1,5 +1,31 @@
 # Foliage shadow and near-foot density checkpoint / 22 October 2026
 
+## Daytime sky fill - 26 October 2026
+
+Owner requests brighter daytime shadowed areas across all rendering modes,
+retaining greater shelter beneath dense canopy. Local sky ambient and rough-
+surface sky reflection now scale smoothly from1x at night to1.7x in full day;
+primary direct illumination scales from1x to.9x over the same daylight curve.
+This adjusts the shared lighting upload, independent of soft/coarse foliage or
+other shadow settings. It does not change skybox brightness, time, sunlight
+direction, shadow ranges or night/moon illumination.
+
+Existing evaluated canopy shelter attenuates daytime ambient by up to28%, with
+a quadratic response to overlapping crown coverage. Sparse shelter loses little
+fill, dense shelter more. Full-cover noon ambient still has about22%more fill
+than before, rather than becoming darker overall. Trees/forest fields, blades,
+terrain/ground overlays, rocks and animals share this rule. It follows existing
+Canopy shade enablement/range/height fades; disabling that field still retains
+the general daylight fill increase. This is a local cover approximation, not
+sky-visibility ray tracing or a measurement of total forest extent.
+
+The relative adjustment reuses the already evaluated shelter value: no extra
+texture reads, lights, passes, maps or population queries. Only bounded scalar
+arithmetic is added. No separate measured FPS guarantee is claimed. Release
+player `player-daylight-fill` is selected on the existing shortcut; owner was
+already running WorldGen, so that session was left alone and not used as a
+controlled visual/performance test. Previous player remains available.
+
 ## Vegetation communities and coarse foliage shade / 26 October 2026
 
 Owner explicitly permits different representations and small visual compromises,

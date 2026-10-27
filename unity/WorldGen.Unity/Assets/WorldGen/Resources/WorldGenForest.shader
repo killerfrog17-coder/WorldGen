@@ -62,8 +62,8 @@ Shader "WorldGen/ForestPackets"
                 ForestSurface(i,_TreeEarlyAlpha>.5,color,objectNormal);clip(color.a-.4);
                 half3 albedo=color.rgb*SRGBToLinear(root.tint);
                 float3 normal=Rotate(objectNormal/float3(root.width,root.height,root.width),root.yaw);normal.x-=root.slopeX*normal.y;normal.z-=root.slopeZ*normal.y;normal=normalize(normal);
-                Light sun=WorldGenFoliageLight(i.world);half diffuse=saturate((dot(normal,sun.direction)+.2)/1.2),transmission=.14*pow(saturate(dot(-normal,sun.direction)),2);
-                half3 colour=albedo*(VegetationAmbient(_AmbientTint).rgb*1.4+sun.color*(diffuse+transmission)*sun.shadowAttenuation)+SecondaryCelestialLight(normal,albedo);
+                half canopy;Light sun=WorldGenFoliageLight(i.world,canopy);half diffuse=saturate((dot(normal,sun.direction)+.2)/1.2),transmission=.14*pow(saturate(dot(-normal,sun.direction)),2);
+                half3 colour=albedo*(VegetationAmbient(_AmbientTint).rgb*(1.4*WorldGenCanopyAmbient(canopy))+sun.color*(diffuse+transmission)*sun.shadowAttenuation)+SecondaryCelestialLight(normal,albedo);
                 return half4(ApplyPlanetAir(colour,i.world,_WorldSpaceCameraPos,VegetationFogLinear(SRGBToLinear(_FogColor.rgb)),VegetationFogDistance(_FogDistance)),1);
             }
             half4 depthFrag(O i):SV_Target

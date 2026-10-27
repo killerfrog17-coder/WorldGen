@@ -58,15 +58,15 @@ void SurfaceLayers(O i,float extra,out int3 layers,out float3 fractions)
     fractions.y*=count>1.5?extra:0;fractions.z*=count>2.5?extra:0;
     fractions/=max(.001,dot(fractions,1));
 }
-float3 SurfaceLeafLight(float3 albedo,float3 normal,Light sun,float transmission)
+float3 SurfaceLeafLight(float3 albedo,float3 normal,Light sun,float transmission,half canopy)
 {
     if(TerrainTest(TD_UNLIT))return albedo;
-    return albedo*(TerrainAmbient().rgb+sun.color*(.48+.52*saturate(dot(normal,sun.direction))+transmission)*sun.shadowAttenuation*lerp(.025,1,TerrainDaylight()));
+    return albedo*(TerrainAmbient().rgb*WorldGenCanopyAmbient(canopy)+sun.color*(.48+.52*saturate(dot(normal,sun.direction))+transmission)*sun.shadowAttenuation*lerp(.025,1,TerrainDaylight()));
 }
-float3 SurfaceMatLight(float3 normal,Light sun)
+float3 SurfaceMatLight(float3 normal,Light sun,half canopy)
 {
     if(TerrainTest(TD_UNLIT))return 1;
-    return TerrainAmbient().rgb+sun.color*(.42+.58*saturate(dot(normal,sun.direction)))*sun.shadowAttenuation*lerp(.025,1,TerrainDaylight());
+    return TerrainAmbient().rgb*WorldGenCanopyAmbient(canopy)+sun.color*(.42+.58*saturate(dot(normal,sun.direction)))*sun.shadowAttenuation*lerp(.025,1,TerrainDaylight());
 }
 
 half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
@@ -129,7 +129,7 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     if(!TerrainTest(TD_UNLIT)){sun=WorldGenFoliageLight(i.position,canopyShade);transmission=pow(saturate(dot(-sun.direction,input.viewDirectionWS)),3)*.22;}
     half3 color;
     if(TerrainTest(TD_UNLIT))color=albedo;
-    else if(TerrainTest(TD_SIMPLE))color=SurfaceLeafLight(albedo,n,sun,transmission);
+    else if(TerrainTest(TD_SIMPLE))color=SurfaceLeafLight(albedo,n,sun,transmission,canopyShade);
     else color=WorldGenCanopyPbr(UniversalFragmentPBR(input,s).rgb,albedo,TerrainAmbient().rgb,ao,canopyShade);
 
     // Ecological weights/tints remain at every distance. Only their microscopic
@@ -153,7 +153,7 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         tint=.815;
         #endif
         float3 normal=normalize(float3((mat.g-.5)*.35,.8,(mat.b-.5)*.35)+n*.25);
-        vegetation+=SurfaceLeafLight(farColor*(tint*mat.r*2),normal,sun,transmission)*mix.x;
+        vegetation+=SurfaceLeafLight(farColor*(tint*mat.r*2),normal,sun,transmission,canopyShade)*mix.x;
     }
     [branch] if(mix.y+mix.z>.001)
     {
@@ -166,14 +166,14 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
             float3 mat=.5;
             if(textures&&detail>.001)mat=lerp(mat,SurfaceMat(TEXTURE2D_ARGS(_MossField,sampler_MossField),world/.8,worldDx/.8,worldDy/.8,axes),detail);
             float3 normal=normalize(n+float3(mat.g-.5,0,mat.b-.5)*1.3);
-            vegetation+=lerp(farColor,moss,.4)*(mat.r*2)*SurfaceMatLight(normal,sun)*mix.y;
+            vegetation+=lerp(farColor,moss,.4)*(mat.r*2)*SurfaceMatLight(normal,sun,canopyShade)*mix.y;
         }
         if(mix.z>.001)
         {
             float3 mat=.5;
             if(textures&&detail>.001)mat=lerp(mat,SurfaceMat(TEXTURE2D_ARGS(_LichenField,sampler_LichenField),world/.8,worldDx/.8,worldDy/.8,axes),detail);
             float3 normal=normalize(n+float3(mat.g-.5,0,mat.b-.5));
-            vegetation+=lerp(farColor,lichen,.55)*(mat.r*2)*SurfaceMatLight(normal,sun)*mix.z;
+            vegetation+=lerp(farColor,lichen,.55)*(mat.r*2)*SurfaceMatLight(normal,sun,canopyShade)*mix.z;
         }
     }
     color=color*(1-dot(mix,1))+vegetation;
@@ -184,7 +184,7 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         #ifndef UNITY_COLORSPACE_GAMMA
         leaves=SRGBToLinear(leaves);
         #endif
-        color=lerp(color,SurfaceLeafLight(leaves,n,sun,transmission),saturate(forest.a)*smoothstep(700,1800,distance)*.8);
+        color=lerp(color,SurfaceLeafLight(leaves,n,sun,transmission,canopyShade),saturate(forest.a)*smoothstep(700,1800,distance)*.8);
     }
     if(_MidSurfaceEnabled>.5&&textures&&!TerrainTest(TD_MID))
     {
@@ -193,7 +193,7 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         #ifndef UNITY_COLORSPACE_GAMMA
         leaves=SRGBToLinear(leaves);
         #endif
-        color=lerp(color,SurfaceLeafLight(leaves,n,sun,transmission),saturate(mid.a)*smoothstep(180,1000,distance));
+        color=lerp(color,SurfaceLeafLight(leaves,n,sun,transmission,canopyShade),saturate(mid.a)*smoothstep(180,1000,distance));
     }
     if(!TerrainTest(TD_UNLIT))color+=SecondaryCelestialLight(n,albedo);
     return half4(TerrainTestAir(color,i.position,_WorldSpaceCameraPos,fogColor,TerrainFogDistance()),1);

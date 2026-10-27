@@ -1,5 +1,17 @@
 # Version 3 validation evidence
 
+## Daytime ambient/direct balance - 26 October 2026
+
+Shared runtime ambient/reflection1->1.7x and direct1->.9x follow sampled daylight;
+night/moon values remain unchanged. Existing canopy visibility provides up to
+28%daytime ambient attenuation without additional sampling/passes/lights/maps.
+All shadow modes get the shared fill increase; relative attenuation follows the
+existing canopy field settings. Shader receivers include ground overlays,
+terrain, trees/field, blades, rocks and fauna. No asset/geometry changes.
+Release IL2CPP player-daylight-fill compiled/packaged; source/staged assemblies
+and177repaired fauna bundles checked. Owner's running game left alone; no new
+controlled render/FPS test or measured zero-cost claim. Prior build retained.
+
 ## Vegetation communities and soft canopy shelter - 26 October 2026
 
 Shared crown competition/stand fields replace nearly uniform closed-forest

@@ -1,5 +1,22 @@
 # WorldGen repository instructions
 
+DAYLIGHT FILL CHECKPOINT,26October2026:
+Owner requests quick brighter daytime ambient relative to direct illumination,
+independent of soft foliage shadows, with density-sensitive canopy fill if cheap.
+Runtime daylight curve scales shared ambient/reflection1->1.7x, direct1->.9x;
+night/moon unchanged. Existing already-evaluated canopy visibility attenuates
+ambient up to28%with squared cover, no additional reads/passes/lights/maps.
+Full-cover noon fill still~22%higher than old; sparse forest less attenuated.
+Relative part follows existing canopy field enablement/range, general fill
+increase applies all modes. Ground overlays/terrain/trees/grass/rocks/fauna use
+shared helper. No assets/geometry/animal opacity/rig/animation changes.
+New IL2CPP player-daylight-fill selected by existing shortcut, prior player kept.
+Owner running player-vegetation-communities PID2956 left alone; no controlled
+visual/FPS run while owner plays. Build/source/DLL/177fauna bundle checks recorded
+under ignored artifacts/daylight-fill-20261026; no measured zero-cost guarantee.
+Preserve unrelated deleted prompt/two untracked old deer scripts. Fauna appearance
+task remains stopped; no new goal. Game testing remains authorized when useful.
+
 VEGETATION COMMUNITY CHECKPOINT,26October2026~20:50CDT:
 Owner authorizes representation changes, approximate foliage shade even nearby,
 realistic habitat-dependent stocking/gaps/understory, no cliff grass; animal

@@ -105,10 +105,10 @@ Shader "WorldGen/TreeSurface2"
             // Crown-envelope normals describe a volume, not the arbitrary side
             // of a shoot card. Only actual blade/wood surfaces flip by face.
             if(_Impostor<.5&&i.mask.y<1.5)n*=IS_FRONT_VFACE(face,1,-1);
-            Light sun=WorldGenFoliageLight(i.position);
+            half canopy;Light sun=WorldGenFoliageLight(i.position,canopy);
             half diffuse=saturate((dot(n,sun.direction)+foliage*.2)/(1+foliage*.2));
             half transmission=foliage*.14*pow(saturate(dot(-n,sun.direction)),2);
-            half3 color=albedo*(VegetationAmbient(_AmbientTint).rgb*1.4+sun.color*(diffuse+transmission)*sun.shadowAttenuation)+SecondaryCelestialLight(n,albedo);
+            half3 color=albedo*(VegetationAmbient(_AmbientTint).rgb*(1.4*WorldGenCanopyAmbient(canopy))+sun.color*(diffuse+transmission)*sun.shadowAttenuation)+SecondaryCelestialLight(n,albedo);
             return half4(ApplyPlanetAir(color,i.position,_WorldSpaceCameraPos,VegetationFogLinear(SRGBToLinear(_FogColor.rgb)),VegetationFogDistance(_FogDistance)),1);
         }
         half4 depthFrag(O i):SV_Target

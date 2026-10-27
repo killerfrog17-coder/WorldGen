@@ -3,6 +3,14 @@
 TEXTURE2D(_WorldGenCanopyPrevious);TEXTURE2D(_WorldGenCanopyCurrent);
 SAMPLER(sampler_WorldGenCanopyCurrent);
 float4 _WorldGenCanopyRect0,_WorldGenCanopyRect1,_WorldGenCanopySettings;
+float _WorldGenCanopyAmbientDay;
+// Reuse the shelter already evaluated for direct light. Dense overlapping crowns
+// attenuate more sky fill than sparse cover; no additional field reads or passes.
+half WorldGenCanopyAmbient(half shade)
+{
+    half cover=saturate((1-shade)*(1.0/.78));
+    return 1-.28*cover*cover*_WorldGenCanopyAmbientDay;
+}
 float WorldGenCanopyCoverage(float4 sample,float3 position,float edge)
 {
     float coverage=sample.b;
@@ -53,5 +61,8 @@ half WorldGenCanopyShadow(half detailed,float3 position)
 // Approximate only the sunlit part of PBR output. Retain indirect sky light,
 // solid-object shadow outlines, secondary lights and emissions.
 half3 WorldGenCanopyPbr(half3 color,half3 albedo,half3 ambient,half ao,half shade)
-{return color-max(0,color-albedo*ambient*ao)*(1-shade);}
+{
+    half3 indirect=albedo*ambient*ao;
+    return max(0,color-max(0,color-indirect)*(1-shade)-indirect*(1-WorldGenCanopyAmbient(shade)));
+}
 #endif
