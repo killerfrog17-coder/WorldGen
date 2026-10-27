@@ -110,6 +110,8 @@ public sealed partial class LocalTerrainExplorer
     void RefreshSurvivalScene()
     {
         if(survival==null||frame==null)return;
+        var liveSites=new HashSet<long>(survival.Sites.Select(s=>s.Id));
+        foreach(var id in survivalSiteObjects.Keys.Where(id=>!liveSites.Contains(id)).ToArray()){Destroy(survivalSiteObjects[id]);survivalSiteObjects.Remove(id);}
         foreach(var site in survival.Sites)
         {
             double d=(site.Position-Position).Length*frame.RadiusM;

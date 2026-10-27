@@ -45,18 +45,18 @@ namespace WorldGen.Core
                 return (width,height,kg,litres);
             }
         }
-        public bool TryAdd(string item,int count,out string reason,double age=0,double fraction=1)
+        public bool TryAdd(string item,int count,out string reason,double age=0,double fraction=1,double condition=1)
         {
             reason="";if(count<1||!SurvivalItems.TryGet(item,out var d)){reason="Invalid item or quantity.";return false;}
-            if(!SurvivalMath.Finite(age)||age<0||!SurvivalMath.Finite(fraction)||fraction<=0||fraction>1||fraction!=1&&d.Kind!=SurvivalItemKind.Food){reason="Invalid portion.";return false;}
+            if(!SurvivalMath.Finite(age)||age<0||!SurvivalMath.Finite(fraction)||fraction<=0||fraction>1||fraction!=1&&d.Kind!=SurvivalItemKind.Food||!SurvivalMath.Finite(condition)||condition<0||condition>1){reason="Invalid portion or condition.";return false;}
             var capacity=Capacity;
             if(d.StorageWidth>0&&(count!=1||Has(item))){reason="That carrying attachment is already worn.";return false;}
             if(d.StorageWidth==0&&(d.Kg*count*fraction>capacity.kg+16||d.Litres*count*fraction>capacity.litres+24))
             {reason="Your hands and carrying equipment are full.";return false;}
             var proposed=Copy();int remaining=count;
-            foreach(var s in proposed.Items.Where(s=>s.Item==item&&Math.Abs(s.AgeDays-age)<.05&&Math.Abs(s.Fraction-fraction)<1e-8&&s.Condition>.99))
+            foreach(var s in proposed.Items.Where(s=>s.Item==item&&Math.Abs(s.AgeDays-age)<.05&&Math.Abs(s.Fraction-fraction)<1e-8&&Math.Abs(s.Condition-condition)<1e-8))
             {int n=Math.Min(remaining,d.Stack-s.Count);s.Count+=n;remaining-=n;if(remaining==0)break;}
-            var list=proposed.Items.ToList();while(remaining>0){int n=Math.Min(remaining,d.Stack);list.Add(new SurvivalStack{Id=proposed.NextId++,Item=item,Count=n,AgeDays=age,Fraction=fraction});remaining-=n;}
+            var list=proposed.Items.ToList();while(remaining>0){int n=Math.Min(remaining,d.Stack);list.Add(new SurvivalStack{Id=proposed.NextId++,Item=item,Count=n,AgeDays=age,Fraction=fraction,Condition=condition});remaining-=n;}
             proposed.Items=list.ToArray();if(!proposed.Pack(out reason))return false;
             Items=proposed.Items;NextId=proposed.NextId;return true;
         }

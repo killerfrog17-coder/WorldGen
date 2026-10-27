@@ -4,9 +4,9 @@ Owner scope: 27 October 2026. Gameplay prototype plus an early-history overhaul;
 no paid services, no new animal appearance work. Earlier saves retain their
 historical rules unless explicitly starting/upgrading the early-history scenario.
 
-Current selected checkpoint: `artifacts/player-survival-creative-food`, IL2CPP
-UTC `2026-10-27T15:44:07.2598576Z`, through the existing project shortcut.
-Core checks: 136 survival and 403 hominin/clock/view assertions; 38 native geometry/
+Current selected checkpoint: `artifacts/player-survival-storage`, IL2CPP
+UTC `2026-10-27T15:53:48.9150230Z`, through the existing project shortcut.
+Core checks: 153 survival and 403 hominin/clock/view assertions; 43 native geometry/
 persistence checks, an editor mesh-lifetime regression and 20 unload cycles.
 The 20,000-year early-history canonical hash matches between CLR and IL2CPP.
 Earlier graphical survival review passed 24 functional checks; later changes
@@ -14,8 +14,8 @@ have the narrower verification described below, not fresh visual/FPS acceptance.
 
 The owner-authorized cleanup retains the latest three players, latest per local
 day, selected and running builds. Six superseded survival players were removed
-(12.04 GiB); current latest rollback players are `player-survival-mesh-lifetime`
-and `player-survival-reach`, plus daily checkpoints. Older delivery paragraphs
+(12.04 GiB); current latest rollback players are `player-survival-creative-food`
+and `player-survival-hominin-atlas`, plus daily checkpoints. Older delivery paragraphs
 are chronological records; their player folders may have been purged. Source
 archives, review screenshots, native inputs and saves remain.
 
@@ -574,3 +574,32 @@ and 38 native checks. IL2CPP checkpoint UTC `2026-10-27T15:44:07.2598576Z`,
 selects this build; the atlas checkpoint remains available. No new visual/FPS
 acceptance is claimed. Evidence: `artifacts/survival-creative-food-native-final`
 and package proof JSON.
+
+
+### Shared inventory and camp-transfer rules
+
+`SurvivalStorage` owns carrying-to-cache, cache-to-carrying and dropped-item
+transactions. Runtime menus call this Core interface instead of editing both
+inventories independently. Transfers preserve age, condition and fractional food
+portions. Trial packing must succeed before either side is published. Invalid
+or stale entry references, foreign camp objects and full hands leave the whole
+saved state unchanged. Taking the final dropped item retires its saved site;
+streamed visuals clean up objects whose saved site has gone away.
+
+New site-local entries use the largest remaining ID plus one, preventing the
+old length-based allocator from colliding after an entry was removed. Taking
+uses the actual entry reference, so old saves with duplicate site-local IDs do
+not need an invented migration. Worn and pristine items cannot silently merge
+and repair one another. Existing corpse/blueprint identities and save schemas
+are unchanged. The focused suite now has 153 survival assertions; native package
+verification is recorded after the build finishes.
+
+
+Storage package UTC `2026-10-27T15:53:48.9150230Z`,
+`artifacts/player-survival-storage`, passes all 43 native checks. Original fauna
+bundles/rig sidecars, staged DLL inputs and CLR/native early-history hash are
+verified. The shortcut selects it. No fresh graphical/FPS acceptance is claimed.
+Native evidence is under `artifacts/survival-storage-native-final` and its package
+proof JSON. Four further superseded players (8.03 GiB) were purged under the
+same rule, retaining current/latest-three/daily/running builds, saves, native
+inputs and review evidence; manifest `daily-cleanup-20261027-155506-548.json`.

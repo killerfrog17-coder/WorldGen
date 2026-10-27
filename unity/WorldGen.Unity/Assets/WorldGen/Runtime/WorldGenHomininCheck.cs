@@ -95,6 +95,15 @@ public sealed partial class WorldGenRuntime
             }
             Check(creativeFoods,"native Creative food recipes do not read absent ingredients");
             Check(creativePortions,"native Creative food recipes create valid full portions");
+            var storage=new SurvivalState{Inventory=new SurvivalInventory(),NextSite=2};var rack=new SurvivalSite{Id=1,Kind="cache",Position=new V(1,0,0)};storage.Sites=new[]{rack};
+            storage.Inventory.TryAdd("pack",1,out _);storage.Inventory.TryAdd("raw-meat",2,out _,.4,.15,.7);long storedId=storage.Inventory.Items.Single(i=>i.Item=="raw-meat").Id;
+            Check(SurvivalStorage.Store(storage,rack,storedId,2,out _),"native storage removes actual carried portions");
+            var entry=rack.Contents.Single();double beforeTransferMass=storage.Inventory.Mass+entry.Count*entry.Fraction*SurvivalItems.Get(entry.Item).Kg;
+            Check(SurvivalStorage.Take(storage,rack,entry,1,out _)&&storage.Inventory.Items.Single(i=>i.Item=="raw-meat").Condition==.7&&storage.Inventory.Items.Single(i=>i.Item=="raw-meat").Fraction==.15&&Math.Abs(beforeTransferMass-storage.Inventory.Mass-rack.Contents.Sum(i=>i.Count*i.Fraction*SurvivalItems.Get(i.Item).Kg))<1e-10,"native storage preserves food condition, portion size and total mass");
+            string storageBefore=WorldJson.Write(storage);Check(!SurvivalStorage.Take(storage,rack,entry,1,out _)&&WorldJson.Write(storage)==storageBefore,"native storage rejects stale entry requests without mutation");
+            long takeId=storage.Inventory.Items.Single(i=>i.Item=="raw-meat").Id;
+            Check(SurvivalStorage.Drop(storage,takeId,1,new V(1,0,0),out var dropped,out _)&&SurvivalStorage.Take(storage,dropped,dropped.Contents[0],1,out _)&&!storage.Sites.Any(site=>site.Id==dropped.Id),"native dropped-item round trip retires its empty saved site");
+            WorldJson.Read<SurvivalState>(WorldJson.Write(storage)).Validate();Check(storage.Sites.Single().Contents.Single().Fraction==.15,"native stored portions survive saved-data validation");
             foreach(var corpse in play.Survival.Corpses)corpse.SettledPose=Enumerable.Repeat(.12345678f,2048).ToArray();
             string json=WorldJson.Write(play);File.WriteAllText(Path.Combine(output,"play-session.json"),json);
             Check(System.Text.Encoding.UTF8.GetByteCount(json)>65536,"native survival save exceeds the former camera-only limit");

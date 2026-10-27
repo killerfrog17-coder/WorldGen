@@ -1,5 +1,25 @@
 # WorldGen repository instructions
 
+SHARED STORAGE CHECKPOINT,27October2026~10:56CDT:
+Existing shortcut NOW player-survival-storage IL2CPP BuiltUtc
+2026-10-27T15:53:48.9150230Z.153survival/403hominin checks,43native PASS.
+NewCore SurvivalStorage owns atomic cache/drop/take transfers. Menusdelegate;
+actualage/condition/fraction retained, no pickuprepair. Fullhands/neededpackdrop/
+staleentry/foreigncamp/invalidposition failures keepbothsides. Lastdrop reclaimed
+retiressavedsite; runtimecleans orphan siteobjects. max+1siteitemIDs avoidlength
+collision afterremoval; reference-basedTake supportslegacyduplicateIDs safely.
+TryAdd optionalcondition preserveswornstacks, doesn'tmergewithpristine. Nosave
+schema/historyrules/animalasset changes. FourDLL/177fauna/177rigSHA+20ka CLR/native
+hash exact. No freshvisual/FPSclaim; earlier24actualfunctionalreview retained.
+Ownedworkers exited,ownerapps untouched. Approvedcleanup removed4superseded
+players8.03GiB; storage/creative-food/hominin-atlas latest3+dailies remain. Manifest
+artifacts/daily-cleanup-20261027-155506-548.json. Earlierdeliveryfolderreferences
+arechronological, manyplayerspurged; source/evidence/nativeinputs/saves retained.
+Ownsource/docs/shortcut backup+push+REMOTEverification required. Preserveddeleted
+prompt/2deerscripts. Ownerreviewstillpending; continuearchitecturefirstuntilwrap.
+No newgoal/subagent. Majorremaining: earlyhistorycityhandoff/tribeNPC/renderedice,
+species-specificharvestparts, polishedcampart/toolcontact/fittedvisibleclothes.
+
 CREATIVE FOOD FOLLOW-UP,27October2026~10:45CDT:
 Existing shortcut NOW player-survival-creative-food IL2CPP BuiltUtc
 2026-10-27T15:44:07.2598576Z.136survival/403hominin tests,38nativechecks PASS.

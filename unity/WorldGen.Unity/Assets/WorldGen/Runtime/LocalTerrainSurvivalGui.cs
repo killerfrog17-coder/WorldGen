@@ -114,9 +114,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DropSurvivalItem(SurvivalStack stack)
     {
-        var trial=survival.Inventory.Copy();if(!trial.RemoveStack(stack.Id,1))return;
-        if(!trial.Pack(out var why)){SurvivalNotice("Empty the carrying attachment first. "+why);return;}
-        survival.Inventory=trial;survival.Sites=survival.Sites.Concat(new[]{new SurvivalSite{Id=survival.NextSite++,Kind="drop",Position=Position,Contents=new[]{new SurvivalStack{Id=1,Item=stack.Item,AgeDays=stack.AgeDays,Condition=stack.Condition,Fraction=stack.Fraction}}}}).ToArray();RefreshSurvivalScene();
+        if(SurvivalStorage.Drop(survival,stack.Id,1,Position,out _,out var why))RefreshSurvivalScene();else SurvivalNotice(why);
     }
     void DrawSurvivalCraft()
     {
@@ -174,9 +172,9 @@ public sealed partial class LocalTerrainExplorer
             if(site.Kind=="bed"||site.Kind=="hide-bed"||SurvivalCrafting.Shelters.Any(b=>b.Id==site.Kind&&b.Shelter>.5))
                 if(GUILayout.Button("Rest / sleep")){survivalSleeping=true;survivalSleepRemaining=8*3600;survivalOpen=false;CaptureMouse();TriggerHumanSurvivalAction("Sit");}
             foreach(var item in site.Contents.ToArray())if(GUILayout.Button("Take "+SurvivalItems.Get(item.Item).Name+" ×"+item.Count))
-            {if(survival.Inventory.TryAdd(item.Item,item.Count,out var why,item.AgeDays,item.Fraction)){site.Contents=site.Contents.Where(i=>!ReferenceEquals(i,item)).ToArray();if(site.Kind=="drop"&&site.Contents.Length==0){survival.Sites=survival.Sites.Where(s=>s.Id!=site.Id).ToArray();if(survivalSiteObjects.TryGetValue(site.Id,out var root)){Destroy(root);survivalSiteObjects.Remove(site.Id);}}}else SurvivalNotice(why);}
+            {if(SurvivalStorage.Take(survival,site,item,item.Count,out var why))RefreshSurvivalScene();else SurvivalNotice(why);}
             if(site.Kind=="cache")foreach(var item in survival.Inventory.Items.Where(i=>SurvivalItems.Get(i.Item).StorageWidth==0).ToArray())if(GUILayout.Button("Store one "+SurvivalItems.Get(item.Item).Name))
-            {if(survival.Inventory.RemoveStack(item.Id,1))site.Contents=site.Contents.Concat(new[]{new SurvivalStack{Id=site.Contents.Length+1,Item=item.Item,AgeDays=item.AgeDays,Condition=item.Condition,Fraction=item.Fraction}}).ToArray();}
+            {if(!SurvivalStorage.Store(survival,site,item.Id,1,out var why))SurvivalNotice(why);}
         }
         else if(survivalNodeTarget!=null){var node=survivalNodeTarget;GUILayout.Label(SurvivalItems.Get(node.Item).Name);if(GUILayout.Button("Gather"))GatherSurvivalNode(node);}
         else GUILayout.Label("No camp, carcass or gatherable object within reach.");
