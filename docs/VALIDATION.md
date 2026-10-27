@@ -22,6 +22,12 @@ survival playtesting or calibrated medical timings. Physiology research sources
 and balance details are recorded in HUMAN_PLAYER_PROTOTYPE. Evidence under
 `artifacts/game-modes`. No source animal/human assets were regenerated.
 
+Release IL2CPP `player-game-modes` built2026-10-27T18:41:07.8741946Z:
+Build Finished Result Success, no C#/shader errors. Four assembly input hashes
+verified; all177 canonical/native/packaged fauna,42 human pigment maps and the
+protected human native hash unchanged. Existing shortcut selected, prior player
+retained. Own workers exited; owner apps and saves were not modified.
+
 ## Manual human spawns and dedicated sprint - 27 October 2026
 
 Owner removes `/humans`, `/runstyle` and automatic NPC human companions. Help,

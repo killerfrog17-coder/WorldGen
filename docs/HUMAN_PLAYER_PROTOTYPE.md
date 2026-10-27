@@ -46,6 +46,9 @@ system yet. This supersedes the earlier first-person body/head-only mask.
 
 ## Game modes and survival needs
 
+Release IL2CPP `player-game-modes` built2026-10-27T18:41:07.8741946Z,
+selected by the existing shortcut. Previous `player-human-sprint` is retained.
+
 New and legacy sessions default to Creative, preserving the prior sandbox.
 Creative has flight access, no survival drain/damage and an unlimited-resource
 capability flag for future inventory/crafting. Selecting Creative restores
@@ -101,7 +104,8 @@ movement decisions, and avoid sampled water/steep terrain. These are demonstrati
 actors, not population/history simulation or functioning social AI. They are
 not persistent NPC saves. A fitted swim clip is included in the bank; the existing
 controller does not yet provide a swimming mechanic. Sitting, work, combat,
-inventory, survival rules and a character creation screen are deferred.
+inventory and a character creation screen are deferred. Basic player needs and
+mode rules are described above.
 
 The six fixed body/skin/hair examples are placeholders from the audition,
 not a finished runtime genetics/creation system. Modern outfits are omitted;
@@ -229,7 +233,7 @@ does not establish perfect foot contacts or owner acceptance of the new runs.
 ## Manual human spawning and dedicated sprint - 27 October
 
 Release IL2CPP `player-human-sprint` built 2026-10-27T18:10:01.8902259Z,
-selected by the existing shortcut. Prior `player-upright-running` is retained.
+was selected at that revision's delivery. Prior `player-upright-running` is retained.
 
 The subsequent owner revision removes automatic demo humans and both audition
 commands. `/spawn human [count]` is the entry point, one by default; specific

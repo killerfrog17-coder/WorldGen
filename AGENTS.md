@@ -1,5 +1,37 @@
 # WorldGen repository instructions
 
+COMMAND-ONLY GAME MODES / SURVIVAL NEEDS,27October2026:
+Owner NEW explicit scope: /gamemode survival|creative|spectator, NO HUD; does NOT
+resume scrapped inventory/building/early-Homo work. New/legacy sessions Creative.
+Creative grants F-flight +unlimited-resource capability (no inventory exists),
+no needs/damage; selecting it restores vitals, including dead-player recovery.
+Spectator always flies/noclips and hides whole player actor/shadow, not NPCs;
+camera skips terrain pull-in. Survival cannot F-fly; saved flight/teleport paths
+also gated. Saved Mode+deep-copied optional PlayerSurvival payload; missing fields
+healthy Creative. Spectator signed underground altitude saves/restores; exiting
+underground lifts normal body out of land. Zoom/lock retained across spectator.
+Vitals: Health/Stamina/Energy full100; Hunger/Thirst0satisfied..100depleted;
+CoreTemperatureC37normal, Wetness0..1, Exhausted, DeathCause. Sprint~11s, recovery
+hysteresis, energy limits stamina; jump costs12. Actual movement affects heat,
+food/water/energy. Weather temp/humidity/wind/rain +2Hz ecology-based canopy/
+immersion probe; independent of graphics options. Cold/wet/wind and heat strain,
+dehydration/starvation can kill; death blocks voluntary movement. Insulation
+future input0. Needs freeze on pause/map/chat/ecology/unfocus/loading, no offline
+catchup. Solar-day duration controls needs/exposure; calendar compression ignored.
+No HUD/auto-death text or respawn; /gamemode alone explicitly queries vitals in
+existing chat. No food/drink/clothing/fall/combat/drowning implementation here.
+67targeted model/mode/save/movement tests +22existing camera/save +15actual Unity
+command/visibility checks pass. Actual Creative/Spectator/Survival renders viewed.
+Release IL2CPP player-game-modes built2026-10-27T18:41:07.8741946Z selected by
+existing shortcut; prior player kept. Build0/no C#/shader errors;4DLL inputs,
+177canonical/native/packaged fauna,42human PNGs/protected0946...native verified.
+No model/rig/animation/shader/terrain-generation changes. No clinical timing or
+full-world survival/FPS claim. Research sources/balance in HUMAN_PLAYER_PROTOTYPE;
+evidence artifacts/game-modes; own source/docs/shortcut checkpoint
+artifacts/source-checkpoints/game-modes-20261027. Push/remoteverify required.
+Own workers exited; owner apps/saves untouched. Preserve deleted prompt +2old
+deer scripts; no new NPC/autospawn/controls HUD/runstyle commands.
+
 MANUAL HUMAN SPAWNS / DEDICATED SPRINT,27October2026:
 Owner removes /humans and /runstyle commands, including handlers/help/completion,
 and ALL automatic demo human spawns. /spawn human [count] remains, default1;
