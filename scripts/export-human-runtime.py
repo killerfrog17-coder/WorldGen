@@ -13,7 +13,8 @@ REPO = Path(__file__).resolve().parent.parent
 SOURCE = REPO/'artifacts/human-animation-preview/Human - Animation Comparison.blend'
 OUTPUT = REPO/'artifacts/human-runtime/exports'
 EVIDENCE = REPO/'artifacts/human-runtime'
-CLIPS = {'Idle', 'Walk', 'Run', 'Sprint', 'Crouch', 'Jump', 'Swim','KayKit run','KayKit run B','KayKit large run'}
+REUSE_TEXTURES = False
+CLIPS = {'Idle', 'Walk', 'Run', 'Sprint', 'Crouch', 'Jump', 'Swim','KayKit run','KayKit run B','KayKit large run','Sit down','Sitting','Stand up','Sword attack','Chop wood','Dig'}
 
 
 def bake(ob, name, size, alpha=False):
@@ -101,15 +102,18 @@ def export(letter):
         for obj in bpy.context.selected_objects:obj.select_set(False)
         ob.select_set(True);bpy.context.view_layer.objects.active=ob
         size=2048 if kind=='Basemesh' else 512 if kind in {'Eyes','Teeth','Eyebrows','Eyelashes'} else 1024
-        diffuse=bake(ob,name+' pigment',size)
+        cached=folder/(name+'.png')
+        reuse=REUSE_TEXTURES and cached.exists()
+        diffuse=bpy.data.images.load(str(cached),check_existing=False) if reuse else bake(ob,name+' pigment',size)
         transparent=kind in {'Hair','Eyebrows','Eyelashes','Eyes'}
-        if transparent:
+        if transparent and not reuse:
             alpha=bake(ob,name+' opacity',size,True)
             pixels=np.empty(size*size*4,dtype=np.float32);diffuse.pixels.foreach_get(pixels)
             coverage=np.empty_like(pixels);alpha.pixels.foreach_get(coverage)
             pixels[3::4]=coverage[0::4];diffuse.pixels.foreach_set(pixels)
             bpy.data.images.remove(alpha)
-        diffuse.filepath_raw=str(folder/(name+'.png'));diffuse.file_format='PNG';diffuse.save()
+        if not reuse:
+            diffuse.filepath_raw=str(folder/(name+'.png'));diffuse.file_format='PNG';diffuse.save()
         # Plain FBX material bindings; Unity replaces them with the shared human shader.
         mat=bpy.data.materials.new('Human_'+letter+'_'+name);mat.use_nodes=True
         p=mat.node_tree.nodes.get('Principled BSDF');p.inputs['Roughness'].default_value=.18 if kind=='Eyes' else .72
@@ -141,8 +145,10 @@ def export(letter):
 
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--variants',default='ABCDEF')
+    global REUSE_TEXTURES
+    parser=argparse.ArgumentParser();parser.add_argument('--variants',default='ABCDEF');parser.add_argument('--reuse-textures',action='store_true')
     args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
+    REUSE_TEXTURES=args.reuse_textures
     EVIDENCE.mkdir(parents=True,exist_ok=True)
     reports=[export(letter) for letter in args.variants]
     (EVIDENCE/'export-report.json').write_text(json.dumps(reports,indent=2))

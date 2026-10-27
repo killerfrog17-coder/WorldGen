@@ -1,5 +1,48 @@
 # WorldGen repository instructions
 
+OVERNIGHT SURVIVAL / EARLY-HOMO WORK ACTIVE,27October2026~02:10CDT:
+Owner explicitly authorizes research + implementation of branching hominin/glacial
+history and playable Paleolithic survival; keep working until owner asks wrap-up.
+Aim first playable within6-7h after05:49UTC start; do NOT stop merely because a
+checkpoint is useful. Active goal exists for this authorized overnight task.
+13 obsolete daily builds removed,8.98GiB recovered; latest-per-day +selected
+player-human-refinement retained. Do not delete native/fauna/human/audio inputs.
+Core inventory/needs/crafting/carcass/calendar checkpoint934c1aa pushed main;
+85 focused survival tests passed. Default calendar365/24 historical days per
+playable day; physiology/fuel/spoilage uses playable time, NOT seasonal time.
+New optional PlaySession.Survival; shared list/grid packing, hands/equipment,
+30recipes/12camp blueprints, finite harvest. Runtime integration WIP; no delivery
+or visual/physics acceptance yet. No arbitrary population/corpse caps added.
+177 original skeleton sidecars exported read-only to StreamingAssets/fauna-rigs;
+original natives/bundles untouched. Human runtime derivative now16free clips
+using cached identical textures, source audition0946d797... untouched. Ragdoll
+uses original bone palettes +hierarchy, no death animation. Actual play test
+first caught stripped URP/Lit; custom Resources WorldGenSurvival shader added.
+Second IL2CPP build session14871 currently running; inspect real processes/log.
+Latest executable player-survival-prototype NOT selected; root shortcut still
+human-refinement. First attempted runtime review exited on shader-null before
+tests. Repeat --worldgen-performance artifacts/latest/world.json --worldgen-perf-
+sites plains --worldgen-perf-cases survival-review --worldgen-perf-view1500.
+Current review needs initial ragdoll pose/settle, gathering, UI, save verification.
+New HomininModel/Simulation/Technology +PleistoceneClimate compiled;312focused
+tests pass including budget/partition/resume. Small5000cell Earth2.8M-year run
+~14s. First had no sapiens; calibrated run~25s generated8.5Mpeople, farming far
+too early(~196ka) and copper~93ka: NOT realism-cleared. Calibration still needed.
+Latest changes make sapiens-like emergence a descendant branch, not a global
+ancestral-lineage flag; add appearance inheritance. These need fresh long run.
+New early scenario via PrepareHominins, default new-game UI toggle; original
+Prepare/history hashes kept. Old saves NOT automatically converted. SpeciesHomo,
+prehistory-hominin-1, optional DeepPast. No bridge to later existing state history
+yet. Regional habitat guilds/climate currently HISTORY data; rendered world still
+uses base generation ecology. Need honestly implement/describe this distinction.
+Research docs PALEOLITHIC_SURVIVAL_RESEARCH. Need continue substantive work:
+runtime fixes/visual review; realistic foraging/technology/time; deephistory QA,
+handoff/age UI; survival polish/interaction+animation, packaging +source pushes.
+Preserve unrelated deleted WorldGen_OneShot_Prompt.md +two old untracked deer
+scripts unstaged. Build autochanges to ProjectSettings/URP/foliage texture importer
+must be restored only after build completes, not committed. Fauna appearance stays
+STOPPED. No paid APIs/local inference needed. No controls/tutorial HUD text.
+
 HUMAN REFINEMENT CHECKPOINT,26October2026~23:20CDT:
 Owner strongly rejects unsolicited controls/tutorial text on gameplay screen;
 DO NOT reintroduce such hints. Keep controls in help/settings. Modern clothes

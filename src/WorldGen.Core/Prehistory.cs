@@ -12,6 +12,7 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public SocietyState Society;
         [System.Runtime.Serialization.OptionalField] public HistoryState History;
         [System.Runtime.Serialization.OptionalField] public SimulationTimeline Timeline;
+        [System.Runtime.Serialization.OptionalField] public HomininHistory DeepPast;
         public int Origin, Years; public bool Started;
         public long[] Population=Array.Empty<long>();
         public int[] ArrivalYear=Array.Empty<int>(), Ancestry=Array.Empty<int>();
@@ -20,13 +21,14 @@ namespace WorldGen.Core
         // It is neither serialized, hashed, nor consulted by simulation rules.
         [NonSerialized] internal object DomainToken=new object();
         public static bool SameDomain(PrehistoryState a,PrehistoryState b)=>ReferenceEquals(a,b)||a!=null&&b!=null&&a.DomainToken!=null&&ReferenceEquals(a.DomainToken,b.DomainToken);
-        public PrehistoryState Copy(bool copySociety=true){var s=(PrehistoryState)MemberwiseClone();s.DomainToken=new object();s.Timeline=Timeline?.Copy();s.Population=(long[])Population.Clone();s.ArrivalYear=(int[])ArrivalYear.Clone();s.Ancestry=(int[])Ancestry.Clone();if(copySociety){s.Society=Society?.Copy();s.History=History?.Copy();}return s;}
+        public PrehistoryState Copy(bool copySociety=true){var s=(PrehistoryState)MemberwiseClone();s.DomainToken=new object();s.Timeline=Timeline?.Copy();s.DeepPast=DeepPast?.Copy();s.Population=(long[])Population.Clone();s.ArrivalYear=(int[])ArrivalYear.Clone();s.Ancestry=(int[])Ancestry.Clone();if(copySociety){s.Society=Society?.Copy();s.History=History?.Copy();}return s;}
         internal PrehistoryState CopyClockOnly(){var s=(PrehistoryState)MemberwiseClone();s.Timeline=Timeline?.Copy();return s;}
         internal PrehistoryState CopyAggregateOwned()
         {
             var copy=Copy(false);copy.Society=Society.CopyOwned(History.Aggregates.Living);copy.History=History.CopyOwned();return copy;
         }
-        public string ComputeHash()=>History?.Aggregates!=null?AggregateHash(true):Timeline!=null?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,History,Timeline}):Version=="prehistory-6"?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,History}):Version=="prehistory-4"||Version=="prehistory-5"?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society}):StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry});
+        public string ComputeHash()=>DeepPast==null?BaseHash():StateHash.Compute(new object[]{BaseHash(),DeepPast});
+        string BaseHash()=>History?.Aggregates!=null?AggregateHash(true):Timeline!=null?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,History,Timeline}):Version=="prehistory-6"?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,History}):Version=="prehistory-4"||Version=="prehistory-5"?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society}):StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry});
         public void Seal(){Hash=ComputeHash();}
     }
     /// <summary>Independent demographic state on connected ecoregion patches. Never alters generated geography.</summary>
@@ -178,9 +180,10 @@ namespace WorldGen.Core
             if(IsAggregateHistoryVersion(requested))s.History.Version="history-16";
             s.Seal();if(requested==LivingWorldHistoryVersion)return UpgradeToLivingWorldHistory(s);if(requested==EnvironmentalHistoryVersion)return UpgradeToEnvironmentalHistory(s);if(requested==LanguageHistoryVersion)return UpgradeToLanguageHistory(s);if(requested==AggregateHistoryVersion)return UpgradeToAggregateHistory(s);if(requested==LivingHistoryVersion)return UpgradeToLivingHistory(s);if(requested==ConnectedHistoryVersion)return UpgradeToConnectedHistory(s);if(requested==RegionalHistoryVersion)return UpgradeToRegionalHistory(s);if(requested==CommunityHistoryVersion)return UpgradeToCommunityHistory(s);if(requested==DiffusionHistoryVersion)return UpgradeToDiffusionHistory(s);if(requested==AgronomicHistoryVersion)return UpgradeToAgronomicHistory(s);if(requested==TechnicalHistoryVersion)return UpgradeToTechnicalHistory(s);if(requested==ProvincialFrontierHistoryVersion)return UpgradeToProvincialFrontierHistory(s);if(requested==ColonialHistoryVersion)return UpgradeToColonialHistory(s);if(requested==CoastalHistoryVersion)return UpgradeToCoastalHistory(s);if(requested==TerritorialHistoryVersion)return UpgradeToTerritorialHistory(s);if(requested==ResearchPacingHistoryVersion)return UpgradeToResearchPacingHistory(s);return s;
         }
-        public PrehistoryState Start(PrehistoryState source){Validate(source);if(source.Started)return source;var s=source.Copy();s.Started=true;s.Population[s.Origin]=Math.Min(200,Patches[s.Origin].Capacity);s.ArrivalYear[s.Origin]=0;if(s.History?.Aggregates!=null)s.History.Aggregates.TotalPopulation+=s.Population[s.Origin];if(s.History?.Identities?.Version>=2)EnsureForagerHeritage(s,s.Origin);s.Seal();return s;}
+        public PrehistoryState Start(PrehistoryState source){if(EarlyHominins(source))return StartHominins(source);Validate(source);if(source.Started)return source;var s=source.Copy();s.Started=true;s.Population[s.Origin]=Math.Min(200,Patches[s.Origin].Capacity);s.ArrivalYear[s.Origin]=0;if(s.History?.Aggregates!=null)s.History.Aggregates.TotalPopulation+=s.Population[s.Origin];if(s.History?.Identities?.Version>=2)EnsureForagerHeritage(s,s.Origin);s.Seal();return s;}
         public void Validate(PrehistoryState s)
         {
+            if(EarlyHominins(s)){ValidateHominins(s);return;}
             if(s==null||(s.Version!="prehistory-1"&&s.Version!="prehistory-2"&&s.Version!="prehistory-3"&&s.Version!="prehistory-4"&&s.Version!="prehistory-5"&&s.Version!="prehistory-6")||s.Species!="Homo sapiens"||s.WorldHash!=World.Stages.Last().Hash||s.Origin<0||s.Origin>=Patches.Length||s.Years<0||s.Version!="prehistory-4"&&s.Version!="prehistory-5"&&s.Version!="prehistory-6"&&s.Years%(s.Version=="prehistory-1"?250:100)!=0||s.Population?.Length!=Patches.Length||s.ArrivalYear?.Length!=Patches.Length||s.Ancestry?.Length!=Patches.Length*8||s.Population.Any(p=>p<0)||s.Ancestry.Any(a=>a<0||a>10000)||s.Hash!=s.ComputeHash())throw new ArgumentException("Invalid or incompatible prehistory save.");
             if(s.History?.Aggregates!=null){ValidateAggregateHistory(s);ValidateAggregateTimeline(s);return;}
             if(s.Version=="prehistory-4"||s.Version=="prehistory-5"||s.Version=="prehistory-6")ValidateSociety(s);if(s.Version=="prehistory-6")ValidateHistory(s);
@@ -188,6 +191,7 @@ namespace WorldGen.Core
         }
         public PrehistoryState Advance(PrehistoryState source,int steps,CancellationToken token=default)
         {
+            if(EarlyHominins(source))return AdvanceHominins(source,checked((long)steps*YearsPerStep(source)*SimulationTime.Year),int.MaxValue,token,true);
             if(source.Version=="prehistory-4"||source.Version=="prehistory-5"||source.Version=="prehistory-6")return AdvanceYears(source,checked(steps*YearsPerStep(source)),token);
             Validate(source);if(!source.Started)throw new InvalidOperationException("Start the world before advancing time.");if(steps<1||steps>10000)throw new ArgumentOutOfRangeException(nameof(steps));var s=source.Copy(false);
             if(EraHistory(s))s.Society=s.Society.CopyDemographicKnowledge();

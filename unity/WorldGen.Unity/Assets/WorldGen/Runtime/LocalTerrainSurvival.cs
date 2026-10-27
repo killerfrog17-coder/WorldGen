@@ -1,0 +1,242 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using WorldGen.Core;
+using WorldGen.Presentation;
+
+public sealed partial class LocalTerrainExplorer
+{
+    SurvivalState survival;bool survivalOpen;int survivalTab;Vector2 survivalScroll;long survivalSelected;
+    string survivalMessage="",survivalAction="";double survivalMessageUntil,survivalActionRemaining,survivalActionTotal;
+    Action survivalCompletion;V survivalActionOrigin;bool survivalSleeping;double survivalRefreshAt,survivalLastX,survivalLastZ;
+    readonly Dictionary<long,GameObject> survivalSiteObjects=new Dictionary<long,GameObject>();
+    LocalScatter survivalLattice;
+    readonly Dictionary<string,SurvivalNode> survivalNodes=new Dictionary<string,SurvivalNode>();
+    readonly List<Material> survivalMaterials=new List<Material>();
+    sealed class SurvivalNode{public string Key,Item;public int Count;public V Position;public GameObject Root;}
+    SurvivalNode survivalNodeTarget;SurvivalCorpse survivalCorpseTarget;SurvivalSite survivalSiteTarget;
+    GameObject heldSurvivalTool;long heldSurvivalId=-1;float survivalAttackClock;double survivalAttackAt;
+    public SurvivalState Survival=>survival;
+    bool SurvivalBlocked=>survivalOpen||survival?.Dead==true;
+    bool SurvivalBusy=>survivalCompletion!=null||survivalSleeping;
+    void InitializeSurvival()
+    {
+        survival=playState?.Survival??new SurvivalState();survival.Validate();if(playState!=null)playState.Survival=survival;
+        survivalLastX=motion.X;survivalLastZ=motion.Z;
+        if(survival.Mode==SurvivalMode.Survival)motion.Flying=false;
+        InitializeRagdolls();RefreshSurvivalScene();
+    }
+    void SurvivalNotice(string message){survivalMessage=message;survivalMessageUntil=Time.realtimeSinceStartupAsDouble+5;}
+    void OpenSurvival(int tab=0)
+    {
+        survivalOpen=true;survivalTab=tab;chatOpen=false;survivalScroll=Vector2.zero;CaptureMouse();
+    }
+    bool HandleSurvivalKeys()
+    {
+        if(survival==null||paused||mapOpen||ecologyOpen||chatOpen)return false;var k=ActiveKeyboard;
+        if(k==null)return survivalOpen;
+        if(k.iKey.wasPressedThisFrame||k.tabKey.wasPressedThisFrame)
+        {survivalOpen=!survivalOpen;if(survivalOpen)survivalTab=0;CaptureMouse();return true;}
+        if(k.bKey.wasPressedThisFrame){OpenSurvival(2);return true;}
+        if(k.escapeKey.wasPressedThisFrame&&(survivalOpen||SurvivalBusy))
+        {survivalOpen=false;CancelSurvivalAction();CaptureMouse();return true;}
+        if(survivalOpen||survival.Dead)return true;
+        if(k.eKey.wasPressedThisFrame)
+        {
+            FindSurvivalTarget();
+            if(survivalNodeTarget!=null)GatherSurvivalNode(survivalNodeTarget);
+            else if(survivalCorpseTarget!=null||survivalSiteTarget!=null)OpenSurvival(3);
+            else TryDrinkAtWater();
+        }
+        var mouse=Mouse.current;
+        if(mouse!=null&&mouse.leftButton.wasPressedThisFrame)AttackSurvival(false);
+        if(mouse!=null&&mouse.rightButton.wasPressedThisFrame)AttackSurvival(true);
+        return false;
+    }
+    void UpdateSurvival()
+    {
+        if(survival==null||!Ready)return;
+        float dt=Math.Min(.1f,Time.unscaledDeltaTime);bool stopped=paused||mapOpen||ecologyOpen||chatOpen||survivalOpen||!Application.isFocused&&!WorldGenPerformance.Enabled;
+        double dx=motion.X-survivalLastX,dz=motion.Z-survivalLastZ;survivalLastX=motion.X;survivalLastZ=motion.Z;
+        double speed=dt>0?Math.Min(12,Math.Sqrt(dx*dx+dz*dz)/dt):0;
+        if(!stopped)
+        {
+            double shelter=0,insulation=survival.Inventory.Items.Where(i=>i.Worn&&SurvivalItems.Get(i.Item).Insulation>0).GroupBy(i=>i.Item).Sum(g=>SurvivalItems.Get(g.Key).Insulation),warmth=0;
+            foreach(var site in survival.Sites)
+            {
+                double distance=(site.Position-Position).Length*frame.RadiusM;
+                var blueprint=SurvivalCrafting.Shelters.FirstOrDefault(b=>b.Id==site.Kind);
+                if(blueprint!=null&&distance<blueprint.Radius){shelter=Math.Max(shelter,blueprint.Shelter);insulation=Math.Max(insulation,blueprint.Insulation);}
+                if(site.Kind=="hearth"&&site.FuelHours>0&&distance<5)warmth=Math.Max(warmth,28*Math.Max(0,1-distance/5));
+            }
+            double playableSeconds=dt*86400/((playState?.Settings.RealMinutesPerDay??60)*60);
+            bool water=false;if(walkingPatch!=null){var sample=walkingPatch.Sample(Position);water=!double.IsNaN(sample.WaterSurfaceM)&&sample.WaterSurfaceM>sample.ElevationM+.5&&HeightAboveGround<1.8;}
+            SurvivalPhysiology.Advance(survival,playableSeconds,new SurvivalEnvironment{TemperatureC=weatherScreen!=null?CurrentWeather.TemperatureC:18,
+                WindMps=weatherScreen!=null?CurrentWeather.GustMps:1,RainMmPerHour=CurrentWeather.RainMmPerHour,SpeedMps=motion.Flying?0:speed,
+                CarriedKg=survival.Inventory.Mass,Shelter=shelter,Insulation=insulation,FireWarmth=warmth,InWater=water,
+                Sprinting=speed>4,Resting=SurvivalBusy&&speed<.1,Sleeping=survivalSleeping});
+            if(survivalCompletion!=null)
+            {
+                if((Position-survivalActionOrigin).Length*frame.RadiusM>1.5)CancelSurvivalAction();
+                else {survivalActionRemaining-=playableSeconds;if(survivalActionRemaining<=0){var complete=survivalCompletion;survivalCompletion=null;survivalAction="";complete();RefreshSurvivalScene();}}
+            }
+            if(survival.Dead){CancelSurvivalAction();survivalSleeping=false;survivalOpen=true;CaptureMouse();}
+        }
+        motion.SpeedFactor=survival.Mode==SurvivalMode.Survival?SurvivalPhysiology.MovementFactor(survival):1;
+        if(Time.realtimeSinceStartupAsDouble>=survivalRefreshAt){survivalRefreshAt=Time.realtimeSinceStartupAsDouble+1;RefreshSurvivalScene();}
+        UpdateSurvivalHeldTool(dt);UpdateRagdolls(stopped?0:dt);
+    }
+    void BeginSurvivalAction(string label,double seconds,Action complete)
+    {
+        if(SurvivalBusy){SurvivalNotice("Finish or cancel the current action first.");return;}
+        survivalAction=label;survivalActionRemaining=survivalActionTotal=survival.Mode==SurvivalMode.Creative?1:seconds;
+        survivalCompletion=complete;survivalActionOrigin=Position;survivalOpen=false;CaptureMouse();TriggerHumanSurvivalAction("Dig");
+    }
+    void CancelSurvivalAction(){survivalCompletion=null;survivalAction="";survivalSleeping=false;}
+    void RefreshSurvivalScene()
+    {
+        if(survival==null||frame==null)return;
+        foreach(var site in survival.Sites)
+        {
+            double d=(site.Position-Position).Length*frame.RadiusM;
+            if(d>250){if(survivalSiteObjects.TryGetValue(site.Id,out var old)){Destroy(old);survivalSiteObjects.Remove(site.Id);}continue;}
+            if(!survivalSiteObjects.TryGetValue(site.Id,out var root)){root=CreateSurvivalStructure(site);survivalSiteObjects[site.Id]=root;}
+            TerrainHandoff.Coordinates(frame,site.Position,out double x,out double z);root.transform.localPosition=new Vector3((float)(x-originX),(float)VisibleGround(x,z,Ground(x,z)),(float)(z-originZ));
+            var fire=root.transform.Find("Fire");if(fire!=null)fire.gameObject.SetActive(site.FuelHours>0);
+        }
+        RefreshSurvivalNodes();
+    }
+    bool ResourceAvailable(string key,int total)=>!survival.Resources.Any(r=>r.Key==key&&survival.Days-r.UsedDay<30&&r.Count>=total);
+    void RefreshSurvivalNodes()
+    {
+        survivalLattice??=new LocalScatter(terrain,HorizontalScale);
+        var keep=new HashSet<string>();
+        foreach(var tile in survivalLattice.Around(Position,48,true))for(int slot=0;slot<16;slot++)
+        {
+            ulong address=tile.Id(15,slot);uint hash=Rng.Mix((uint)address^(uint)(address>>32)^(uint)sourceWorld.Recipe.Seed);
+            V point=survivalLattice.Position(tile,((slot%4)+.25+(hash%101)/202d)/4,((slot/4)+.25+((hash>>8)%101)/202d)/4);
+            if((point-Position).Length*frame.RadiusM>48)continue;
+            TerrainHandoff.Coordinates(frame,point,out double px,out double pz);
+            var sample=walkingPatch.Sample(point);
+            if(sample.Underwater||!double.IsNaN(sample.WaterSurfaceM)&&sample.WaterSurfaceM>sample.ElevationM+.02)continue;
+            var habitat=sourceWorld.Ecology.Habitat[sample.Cell];
+            bool woody=habitat.Biome==Biome.TemperateForest||(habitat.Biome==Biome.TropicalRainforest||habitat.Biome==Biome.TropicalSeasonalForest)||habitat.Biome==Biome.BorealForest||habitat.Biome==Biome.Savanna;
+            bool vegetated=habitat.AridityMilli>180&&habitat.MeanTenthsC>-40&&habitat.Biome!=Biome.Ice;
+            string[] pool=woody?new[]{"stick","stick","stone","fibre","grass","tinder","bark","berries","roots","nuts","resin"}:
+                vegetated?new[]{"stone","fibre","grass","tinder","roots","stone"}:new[]{"stone","stone","stone","stone"};
+            string item=pool[hash%(uint)pool.Length];
+            var bedrock=GroundEnvironment.For(sourceWorld).Cell(sample.Cell).Bedrock;
+            if(hash%19==0&&(bedrock==RockFamily.Limestone||bedrock==RockFamily.Mudstone))item="flint";
+            if(hash%157==0&&(bedrock==RockFamily.Metamorphic||bedrock==RockFamily.Mudstone))item="pyrite";
+            string key=address.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            int count=item=="flint"||item=="pyrite"?1:2+(int)(hash%3);
+            if(!ResourceAvailable(key,count))continue;
+            double floor=VisibleGround(px,pz,Ground(px,pz));if((item=="grass"||item=="fibre"||item=="berries"||item=="roots")&&(Math.Abs(Ground(px+1,pz)-floor)>1||Math.Abs(Ground(px,pz+1)-floor)>1))continue;
+            keep.Add(key);if(!survivalNodes.TryGetValue(key,out var node))
+            {node=new SurvivalNode{Key=key,Item=item,Position=point,Count=count};node.Root=CreateSurvivalPickup(item);survivalNodes[key]=node;}
+            node.Root.transform.localPosition=new Vector3((float)(px-originX),(float)floor+.08f,(float)(pz-originZ));
+        }
+        foreach(var key in survivalNodes.Keys.Where(k=>!keep.Contains(k)).ToArray()){Destroy(survivalNodes[key].Root);survivalNodes.Remove(key);}
+    }
+    void FindSurvivalTarget()
+    {
+        survivalNodeTarget=null;survivalCorpseTarget=null;survivalSiteTarget=null;double nearest=3.7;
+        foreach(var node in survivalNodes.Values){double d=(node.Position-Position).Length*frame.RadiusM;if(d<nearest){nearest=d;survivalNodeTarget=node;}}
+        foreach(var corpse in survival.Corpses){double d=(corpse.Position-Position).Length*frame.RadiusM;if(d<nearest){nearest=d;survivalNodeTarget=null;survivalCorpseTarget=corpse;}}
+        foreach(var site in survival.Sites){double d=(site.Position-Position).Length*frame.RadiusM;if(d<nearest){nearest=d;survivalNodeTarget=null;survivalCorpseTarget=null;survivalSiteTarget=site;}}
+    }
+    void GatherSurvivalNode(SurvivalNode node)
+    {
+        BeginSurvivalAction("Gathering "+SurvivalItems.Get(node.Item).Name.ToLowerInvariant(),8,()=>
+        {
+            if(!ResourceAvailable(node.Key,node.Count)){SurvivalNotice("This patch has been gathered.");return;}
+            if(!survival.Inventory.TryAdd(node.Item,1,out var why)){SurvivalNotice(why);return;}
+            var use=survival.Resources.FirstOrDefault(r=>r.Key==node.Key);if(use==null){use=new SurvivalResourceUse{Key=node.Key};survival.Resources=survival.Resources.Concat(new[]{use}).ToArray();}
+            if(survival.Days-use.UsedDay>=30)use.Count=0;use.Count++;use.UsedDay=survival.Days;SurvivalNotice("Gathered "+SurvivalItems.Get(node.Item).Name.ToLowerInvariant()+".");
+        });
+    }
+    void TryDrinkAtWater()
+    {
+        var point=frame.Position(motion.X+Math.Sin(heading*Math.PI/180)*1.8,motion.Z+Math.Cos(heading*Math.PI/180)*1.8);var sample=walkingPatch.Sample(point);
+        bool fresh=!sourceWorld.Hydrology.OceanConnected[sample.Cell]&&!double.IsNaN(sample.WaterSurfaceM)&&sample.WaterSurfaceM>=sample.ElevationM-.1;
+        if(!fresh){SurvivalNotice("No fresh water or gatherable object within reach.");return;}
+        BeginSurvivalAction("Collecting fresh water",8,()=>
+        {
+            if(survival.Inventory.Has("empty-waterskin"))
+            {var trial=survival.Inventory.Copy();trial.Remove("empty-waterskin",1);if(trial.TryAdd("waterskin",1,out var why))survival.Inventory=trial;else{SurvivalNotice(why);return;}}
+            else survival.WaterDeficitL=Math.Max(0,survival.WaterDeficitL-.5);
+            // Untreated freshwater has risk, not a guaranteed immediate illness.
+            if(teleportRandom.Unit()<.04)survival.Illness=Math.Min(1,survival.Illness+.25);SurvivalNotice("Collected untreated freshwater.");
+        });
+    }
+    bool HasSurvivalFire=>survival.Sites.Any(s=>s.Kind=="hearth"&&s.FuelHours>0&&(s.Position-Position).Length*frame.RadiusM<5);
+    void AttackSurvival(bool thrown)
+    {
+        if(SurvivalBusy||Time.realtimeSinceStartupAsDouble<survivalAttackAt||survival.Dead)return;
+        var weapon=survival.Inventory.Held;double damage=weapon?.Damage??3;if(damage<=0)damage=3;
+        if(thrown&&weapon!=null&&weapon.Id!="stone-spear"&&weapon.Id!="wood-spear"&&weapon.Id!="throwing-stick"&&weapon.Id!="sling"&&weapon.Id!="stone")return;
+        if(thrown&&weapon==null)return;
+        if(thrown&&weapon.Id=="sling"&&!survival.Inventory.Has("stone")){SurvivalNotice("A stone is needed for the sling.");return;}
+        if(survival.Mode==SurvivalMode.Survival&&survival.Stamina<8){SurvivalNotice("Too exhausted to attack.");return;}
+        survivalAttackAt=Time.realtimeSinceStartupAsDouble+(thrown?.9:.65);survivalAttackClock=1;
+        if(survival.Mode==SurvivalMode.Survival)survival.Stamina=Math.Max(0,survival.Stamina-8);
+        TriggerHumanSurvivalAction("Attack");
+        Vector3 from=view.transform.position,dir=view.transform.forward;Animal hit=null;float best=thrown?45:12;
+        foreach(var animal in animals.Values)
+        {
+            if(animal.Dead)continue;var bounds=animal.Renderer.bounds;
+            if(!bounds.IntersectRay(new Ray(from,dir),out float distance)||distance>best)continue;
+            double reach=thrown?45:weapon?.Reach??1.4;
+            if((animal.Planet-Position).Length*frame.RadiusM>reach+animal.Spawn.Profile.lengthM*.4)continue;
+            Vector3 target=from+dir*distance;bool blocked=false;for(int i=1;i<=6;i++){var p=Vector3.Lerp(from,target,i/6f);if(p.y<VisibleGround(p.x+originX,p.z+originZ,p.y)-.1){blocked=true;break;}}
+            if(blocked)continue;hit=animal;best=distance;
+        }
+        if(thrown)
+        {
+            string item=weapon.Id=="sling"?"stone":weapon.Id;
+            if(survival.Mode!=SurvivalMode.Creative)survival.Inventory.Remove(item,1);
+            SpawnSurvivalProjectile(item,from,dir,hit,best,damage*1.7);
+        }
+        else if(hit!=null)DamageSurvivalAnimal(hit,damage,dir);
+    }
+    double SurvivalAnimalMass(Animal animal)
+    {
+        if(animal.Spawn.Taxon>=0&&animal.Spawn.Taxon<sourceWorld.Ecology.Taxa.Length)return Math.Max(.01,sourceWorld.Ecology.Taxa[animal.Spawn.Taxon].MassKg);
+        var mapped=FaunaPrototypePlanner.BindProfiles(EarthFaunaPack.Create(),animalProfiles);
+        foreach(var pair in mapped)if(pair.Value.slug==animal.Spawn.Profile.slug)return Math.Max(.01,EarthFaunaPack.Create()[pair.Key].MassKg);
+        return Math.Max(.02,Math.Pow(animal.Spawn.Profile.lengthM,3)*10);
+    }
+    void DamageSurvivalAnimal(Animal animal,double damage,Vector3 direction)
+    {
+        if(animal.Dead)return;double mass=SurvivalAnimalMass(animal);
+        if(animal.Health<=0)animal.Health=18+Math.Sqrt(mass)*5;
+        animal.Health-=damage;animal.TargetHeading=(float)(Math.Atan2(animal.X-motion.X,animal.Z-motion.Z)*180/Math.PI);animal.TargetSpeed=(float)animal.Spawn.Profile.runMps;animal.NextDecision=animal.Life+7;
+        if(animal.Health>0){SurvivalNotice("Wounded "+animal.Spawn.Profile.name.ToLowerInvariant()+".");return;}
+        animal.Dead=true;var corpse=SurvivalPhysiology.Carcass(animal.Spawn.Profile.slug,animal.Spawn.Id,animal.Planet,mass,animal.Heading);
+        survival.Corpses=survival.Corpses.Concat(new[]{corpse}).ToArray();StartAnimalRagdoll(animal,corpse,direction);SurvivalNotice(animal.Spawn.Profile.name+" killed.");
+    }
+    void UpdateSurvivalHeldTool(float dt)
+    {
+        if(humanPlayer==null)return;var stack=survival.Inventory.Items.FirstOrDefault(s=>s.Id==survival.Inventory.Equipped);
+        long id=stack?.Id??0;
+        if(id!=heldSurvivalId)
+        {
+            heldSurvivalId=id;if(heldSurvivalTool!=null)Destroy(heldSurvivalTool);
+            if(stack!=null)
+            {
+                heldSurvivalTool=CreateSurvivalTool(stack.Item);var hand=humanPlayer.Root.GetComponentsInChildren<Transform>().FirstOrDefault(t=>t.name=="hand.R"||t.name=="hand_r"||t.name.Contains("hand")&&t.name.EndsWith(".R",StringComparison.Ordinal));
+                heldSurvivalTool.transform.SetParent(hand??humanPlayer.Root.transform,false);heldSurvivalTool.transform.localPosition=hand!=null?Vector3.zero:new Vector3(.3f,1,0);
+                heldSurvivalTool.transform.localRotation=Quaternion.Euler(0,0,hand!=null?90:0);
+            }
+        }
+        survivalAttackClock=Math.Max(0,survivalAttackClock-dt*2);
+    }
+    void DisposeSurvival()
+    {
+        DisposeRagdolls();foreach(var root in survivalSiteObjects.Values)if(root!=null)Destroy(root);foreach(var node in survivalNodes.Values)if(node.Root!=null)Destroy(node.Root);
+        if(heldSurvivalTool!=null)Destroy(heldSurvivalTool);foreach(var material in survivalMaterials)if(material!=null)Destroy(material);
+        survivalSiteObjects.Clear();survivalNodes.Clear();survivalMaterials.Clear();
+    }
+}

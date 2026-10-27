@@ -15,7 +15,7 @@ public sealed partial class LocalTerrainExplorer
     {
         public HumanRuntimeDefinition Definition;public GameObject Root;public Animator Animator;
         public PlayableGraph Graph;public AnimationMixerPlayable Mixer;public AnimationClipPlayable[] Inputs;
-        public float[] Weights;public int Jump=-1,RunStyle;public bool Airborne;
+        public float[] Weights;public int Jump=-1,RunStyle,Action=-1;public float ActionRemaining;public bool Airborne;
         public readonly List<Material> OwnedMaterials=new List<Material>();
         public TerrainMotion Motor;public V Planet;public float Yaw,TargetYaw,Speed,TargetSpeed;public double Decision,ObstacleAt,GaitPhase;
     }
@@ -93,7 +93,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdateHumans()
     {
         if(humanPlayer==null||!Ready||humanReviewPose)return;
-        bool stopped=paused||mapOpen||ecologyOpen||chatOpen||!Application.isFocused&&!WorldGenPerformance.Enabled;
+        bool stopped=paused||mapOpen||ecologyOpen||chatOpen||survivalOpen||!Application.isFocused&&!WorldGenPerformance.Enabled;
         float dt=stopped?0:Math.Min(.1f,Time.unscaledDeltaTime);
         bool changed=!ReferenceEquals(humanFrame,frame);
         if(changed)
@@ -159,6 +159,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(airborne&&!actor.Airborne&&actor.Jump>=0)actor.Inputs[actor.Jump].SetTime(0);
         actor.Airborne=airborne;float total=0;
+        actor.ActionRemaining=Math.Max(0,actor.ActionRemaining-dt);if(actor.ActionRemaining<=0)actor.Action=-1;
         // Keep left/right foot phases aligned when mixing clips with different
         // durations, rather than blending unrelated free-running cycles.
         string runRole=HumanRunRoles[actor.RunStyle];
@@ -175,6 +176,7 @@ public sealed partial class LocalTerrainExplorer
             else if(speed<3.4f){float run=Mathf.InverseLerp(1.5f,3.4f,speed);target=role=="Walk"?1-run:role==runRole?run:0;}
             else if(actor.RunStyle>0)target=role==runRole?1:0;
             else {float sprint=Mathf.InverseLerp(3.4f,6,speed);target=role=="Run"?1-sprint:role=="Sprint"?sprint:0;}
+            if(actor.Action>=0)target=i==actor.Action?1:0;
             if(role=="Walk")rate=Mathf.Clamp(speed/1.5f,.5f,1.6f);
             if(role=="Run")rate=Mathf.Clamp(speed/3.4f,.6f,1.6f);
             if(role=="Sprint")rate=Mathf.Clamp(speed/6,.6f,1.3f);

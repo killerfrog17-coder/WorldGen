@@ -18,7 +18,7 @@ namespace WorldGen.Core
     [Serializable] public sealed class SurvivalStack
     {
         public long Id;public string Item;public int Count=1;public double AgeDays,Condition=1;
-        public int Container=-1,X,Y;public bool Rotated;
+        public int Container=-1,X,Y;public bool Rotated,Worn;
         public SurvivalStack Copy()=>(SurvivalStack)MemberwiseClone();
     }
     [Serializable] public sealed class SurvivalInventory
@@ -46,6 +46,10 @@ namespace WorldGen.Core
         public bool TryAdd(string item,int count,out string reason,double age=0)
         {
             reason="";if(count<1||!SurvivalItems.TryGet(item,out var d)){reason="Invalid item or quantity.";return false;}
+            var capacity=Capacity;
+            if(d.StorageWidth>0&&(count!=1||Has(item))){reason="That carrying attachment is already worn.";return false;}
+            if(d.StorageWidth==0&&(d.Kg*count>capacity.kg+16||d.Litres*count>capacity.litres+24))
+            {reason="Your hands and carrying equipment are full.";return false;}
             var proposed=Copy();int remaining=count;
             foreach(var s in proposed.Items.Where(s=>s.Item==item&&Math.Abs(s.AgeDays-age)<.05&&s.Condition>.99))
             {int n=Math.Min(remaining,d.Stack-s.Count);s.Count+=n;remaining-=n;if(remaining==0)break;}
@@ -59,9 +63,9 @@ namespace WorldGen.Core
             int hands=0;double kg=0,litres=0;
             // Wear at most one of each carrying attachment, never bags inside bags.
             var worn=new HashSet<string>();
-            foreach(var s in Items.Where(s=>SurvivalItems.Get(s.Item).StorageWidth>0))
-            {if(s.Count!=1||!worn.Add(s.Item)){reason="That carrying attachment is already worn.";return false;}s.Container=-2;}
-            foreach(var s in Items.Where(s=>SurvivalItems.Get(s.Item).StorageWidth==0).OrderByDescending(s=>s.Id==Equipped).ThenByDescending(s=>SurvivalItems.Get(s.Item).Width*SurvivalItems.Get(s.Item).Height))
+            foreach(var s in Items.Where(s=>SurvivalItems.Get(s.Item).StorageWidth>0||s.Worn))
+            {if(s.Count!=1||!worn.Add(s.Item)||s.Worn&&SurvivalItems.Get(s.Item).Kind!=SurvivalItemKind.Clothing){reason="That attachment is already worn or cannot be worn.";return false;}s.Container=-2;}
+            foreach(var s in Items.Where(s=>SurvivalItems.Get(s.Item).StorageWidth==0&&!s.Worn).OrderByDescending(s=>s.Id==Equipped).ThenByDescending(s=>SurvivalItems.Get(s.Item).Width*SurvivalItems.Get(s.Item).Height))
             {
                 var d=SurvivalItems.Get(s.Item);int need=d.TwoHands?2:1;
                 bool inHand=(s.Id==Equipped||capacity.width==0)&&hands+need<=2&&s.Count*d.Kg<=8&&s.Count*d.Litres<=12;
@@ -89,6 +93,11 @@ namespace WorldGen.Core
         }
         public bool Equip(long id,out string reason)
         {long old=Equipped;Equipped=Equipped==id?0:id;if(Pack(out reason))return true;Equipped=old;Pack(out _);return false;}
+        public bool Wear(long id,out string reason)
+        {
+            var item=Items.FirstOrDefault(s=>s.Id==id);if(item==null||SurvivalItems.Get(item.Item).Kind!=SurvivalItemKind.Clothing){reason="This item cannot be worn.";return false;}
+            item.Worn=!item.Worn;if(Pack(out reason))return true;item.Worn=!item.Worn;Pack(out _);return false;
+        }
         public void Validate()
         {
             if(Items==null||NextId<1||!Enum.IsDefined(typeof(InventoryView),View))throw new ArgumentException("Invalid inventory.");

@@ -73,7 +73,7 @@ public sealed partial class WorldGenRuntime
         GUILayout.Label("TIME & CALENDAR",SectionStyle());
         s.RealMinutesPerDay=Number("day","Day length",s.RealMinutesPerDay,1,10080,"min IRL");
         s.CalendarDaysPerDay=Number("calendar","Calendar per day",s.CalendarDaysPerDay,1,365,"days");
-        GUILayout.BeginHorizontal();foreach(var choice in new[]{("Day",1d),("Week",7d),("Month",SimulationTime.Year/(12d*SimulationTime.Day))})
+        GUILayout.BeginHorizontal();foreach(var choice in new[]{("Day",1d),("Week",7d),("24-day year",365d/24),("Month",SimulationTime.Year/(12d*SimulationTime.Day))})
             if(GUILayout.Button(choice.Item1)){s.CalendarDaysPerDay=choice.Item2;inputText.Remove("play-calendar");GUI.FocusControl(null);}GUILayout.EndHorizontal();
         GUILayout.Label("One solar cycle: "+s.RealMinutesPerDay.ToString("G4")+" real minutes · one calendar year: "+(SimulationTime.Year/(double)SimulationTime.Day/s.CalendarDaysPerDay*s.RealMinutesPerDay/60).ToString("G4")+" real hours",MutedStyle());
         GUILayout.Space(18);}

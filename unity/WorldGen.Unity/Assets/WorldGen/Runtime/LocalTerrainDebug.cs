@@ -37,11 +37,11 @@ public sealed partial class LocalTerrainExplorer
     Texture2D mapTexture;int mapRevision;
     public bool DebugVisible=>debugOpen;
     public bool MapVisible=>mapOpen;
-    public bool Paused=>paused;
+    public bool Paused=>paused||survivalOpen||survival?.Dead==true;
     public bool MapReady=>mapSurface!=null&&!mapDirty&&!mapRefining&&shownMapRevision==mapRevision;
     public int MapBuildCount {get;private set;}
     double MaximumViewDistance=>terrain==null?250000:Math.Min(250000,terrain.RadiusM*HorizontalScale*.3);
-    bool WantsMouseLook=>!closed&&Application.isFocused&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen;
+    bool WantsMouseLook=>!closed&&Application.isFocused&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen&&!SurvivalBlocked;
     void CaptureMouse()
     {
         if(passiveSkyCheck||passiveReanchorCheck)return;
@@ -86,6 +86,7 @@ public sealed partial class LocalTerrainExplorer
         if(ecologyOpen){DrawEcologyDebug();return;}
         if(debugOpen)DrawDebugOverlay();
         if(paused){if(drawPause!=null)drawPause();else{GUILayout.BeginArea(new Rect(Screen.width/2f-130,Screen.height/2f-70,260,140),GUI.skin.box);if(GUILayout.Button("Resume"))Resume();if(GUILayout.Button("World simulation"))Close();GUILayout.EndArea();}return;}
+        if(DrawSurvival())return;
         DrawWorldMap();
     }
     public void Pause(){paused=true;mapOpen=false;CaptureMouse();}

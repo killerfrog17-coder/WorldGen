@@ -107,14 +107,15 @@ namespace WorldGen.Core
             var s=source.CopyClockOnly();s.Timeline=InitialTimeline(source);s.Seal();return s;
         }
         public long NextSimulationEvent(PrehistoryState source)
-        {Validate(source);var timeline=source.Timeline??InitialTimeline(source);return timeline.Events[0].Due;}
-        internal long NextOwnedSimulationEvent(PrehistoryState source)=>(source.Timeline??InitialTimeline(source)).Events[0].Due;
+        {Validate(source);if(EarlyHominins(source))return source.DeepPast.NextBoundaryYear*SimulationTime.Year;var timeline=source.Timeline??InitialTimeline(source);return timeline.Events[0].Due;}
+        internal long NextOwnedSimulationEvent(PrehistoryState source)=>EarlyHominins(source)?source.DeepPast.NextBoundaryYear*SimulationTime.Year:(source.Timeline??InitialTimeline(source)).Events[0].Due;
         public PrehistoryState AdvanceSeconds(PrehistoryState source,long seconds,int maximumEvents=int.MaxValue,CancellationToken token=default)
             =>AdvanceCalendar(source,seconds,maximumEvents,token,true);
         internal PrehistoryState AdvanceOwnedSeconds(PrehistoryState source,long seconds,int maximumEvents,CancellationToken token,int maximumGlobalWork=int.MaxValue)
             =>AdvanceCalendar(source,seconds,maximumEvents,token,false,maximumGlobalWork);
         PrehistoryState AdvanceCalendar(PrehistoryState source,long seconds,int maximumEvents,CancellationToken token,bool validateInput,int maximumGlobalWork=int.MaxValue)
         {
+            if(EarlyHominins(source))return AdvanceHominins(source,seconds,maximumEvents,token,validateInput);
             if(AggregateHistory(source))return AdvanceAggregateCalendar(source,seconds,maximumEvents,token,validateInput,maximumGlobalWork);
             if(validateInput)using(ProfileWork("checkpoint validation"))Validate(source);if(!source.Started)throw new InvalidOperationException("Start the world first.");
             long now=SimulationTime.Seconds(source);if(seconds<1||seconds>SimulationTime.Maximum-now||maximumEvents<1||maximumGlobalWork<1)throw new ArgumentOutOfRangeException(nameof(seconds));

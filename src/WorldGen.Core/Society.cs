@@ -14,6 +14,7 @@ namespace WorldGen.Core
         }
         public PrehistoryState AdvanceYears(PrehistoryState source,int years,CancellationToken token=default)
         {
+            if(EarlyHominins(source))return AdvanceHominins(source,checked((long)years*SimulationTime.Year),int.MaxValue,token,true);
             using(ProfileWork("checkpoint validation"))Validate(source);if(!source.Started)throw new InvalidOperationException("Start the world first.");
             if(years<1||years>1000000||source.Years>10000000-years)throw new ArgumentOutOfRangeException(nameof(years));
             if(source.Timeline!=null||ModernHistory(source))return AdvanceCalendar(ModernHistory(source)?UpgradeScheduling(source):source,years*SimulationTime.Year,int.MaxValue,token,false);
