@@ -54,7 +54,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdatePlayerSurvival(double dx,double dz)
     {
         if(respawnWaiting){if(!CenterReady)return;respawnWaiting=false;}
-        if(!SurvivalActive||paused||mapOpen||ecologyOpen||chatOpen||!Application.isFocused||!Ready)return;
+        if(!SurvivalActive||inventoryOpen||paused||mapOpen||ecologyOpen||chatOpen||!Application.isFocused||!Ready)return;
         double dt=Math.Max(0,Math.Min(.25,Time.unscaledDeltaTime));
         if(weatherProvider==null||dt<=0)return;
         if(Time.unscaledTimeAsDouble>=survivalEnvironmentAt)
@@ -76,10 +76,11 @@ public sealed partial class LocalTerrainExplorer
         }
         double speed=Vitals.Incapacitated?0:Math.Min(TerrainMotion.RunSpeedMps,Math.Sqrt(dx*dx+dz*dz)/dt);survivalMovementSpeed=speed;
         SurvivalRules.Advance(Vitals,dt,PlayerRules.Settings.RealMinutesPerDay,survivalEnvironment,speed,survivalSprinting);
+        Vitals.Stamina=Math.Max(0,Vitals.Stamina-dt*Math.Max(0,Inventory.LoadEffort-1)*speed*.3);
     }
     void UpdateSurvivalHud()
     {
-        bool show=SurvivalActive&&!DeathVisible&&Ready&&weatherProvider!=null&&survivalEnvironmentAt>0&&!closed&&!paused&&!mapOpen&&!ecologyOpen&&!(debugOpen&&debugFull);
+        bool show=SurvivalActive&&!inventoryOpen&&!DeathVisible&&Ready&&weatherProvider!=null&&survivalEnvironmentAt>0&&!closed&&!paused&&!mapOpen&&!ecologyOpen&&!(debugOpen&&debugFull);
         if(!show){if(survivalHudCanvas!=null)survivalHudCanvas.enabled=false;return;}
         if(survivalHudCanvas==null)
         {

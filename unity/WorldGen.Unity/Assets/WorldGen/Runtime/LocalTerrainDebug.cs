@@ -37,11 +37,11 @@ public sealed partial class LocalTerrainExplorer
     Texture2D mapTexture;int mapRevision;
     public bool DebugVisible=>debugOpen;
     public bool MapVisible=>mapOpen;
-    public bool Paused=>paused;
+    public bool Paused=>paused||inventoryOpen;
     public bool MapReady=>mapSurface!=null&&!mapDirty&&!mapRefining&&shownMapRevision==mapRevision;
     public int MapBuildCount {get;private set;}
     double MaximumViewDistance=>terrain==null?250000:Math.Min(250000,terrain.RadiusM*HorizontalScale*.3);
-    bool WantsMouseLook=>!closed&&Application.isFocused&&!DeathVisible&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen;
+    bool WantsMouseLook=>!closed&&Application.isFocused&&!DeathVisible&&!inventoryOpen&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen;
     void CaptureMouse()
     {
         if(passiveSkyCheck||passiveReanchorCheck)return;
@@ -82,6 +82,7 @@ public sealed partial class LocalTerrainExplorer
         if(MenuSkin!=null)GUI.skin=MenuSkin;
         GUI.color=GUI.contentColor=GUI.backgroundColor=Color.white;
         if(DeathVisible){DrawPlayerDeath();return;}
+        if(inventoryOpen){DrawInventory();return;}
         DrawChat();
         DrawTerrainDiagnosticOverlay();
         if(ecologyOpen){DrawEcologyDebug();return;}

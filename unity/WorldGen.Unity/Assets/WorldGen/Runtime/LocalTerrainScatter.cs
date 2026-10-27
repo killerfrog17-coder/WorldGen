@@ -385,6 +385,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 int i=grouped?group.Indices[member]:member;
                 var p=chunk.Source.Instances[i];double distance=(chunk.Roots[i]-eye).magnitude;
+                if(CollectedRock(p))continue;
                 if(IsSpecialist(p.Kind)&&!TerrainVideoOptions.SpecialistPlants)continue;
                 if(p.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlants)continue;
                 if(p.Kind==ScatterKind.GeneratedTree&&(!TerrainVideoOptions.GeneratedTrees||WorldGenPerformance.NoLocalTrees))continue;
@@ -440,7 +441,7 @@ public sealed partial class LocalTerrainExplorer
         if(scatterArt.Count>384)
         {
             var used=new HashSet<ArtModel>(drawBatches.Select(b=>b.Model));
-            foreach(var item in scatterArt.Where(p=>p.Value.Generated&&!p.Value.TreeStand&&!p.Value.TreeQueued&&!used.Contains(p.Value)&&Time.realtimeSinceStartupAsDouble-p.Value.LastUsed>30).OrderBy(p=>p.Value.LastUsed).Take(Math.Min(8,scatterArt.Count-384)).ToArray())
+            foreach(var item in scatterArt.Where(p=>p.Value.Generated&&!inventoryPinnedArt.Contains(p.Value)&&!p.Value.TreeStand&&!p.Value.TreeQueued&&!used.Contains(p.Value)&&Time.realtimeSinceStartupAsDouble-p.Value.LastUsed>30).OrderBy(p=>p.Value.LastUsed).Take(Math.Min(8,scatterArt.Count-384)).ToArray())
             {
                 ReleaseTreeTextures(item.Value);
                 foreach(var part in item.Value.Parts)
@@ -494,7 +495,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void LateUpdate()
     {
-        if(closed)return;CaptureMouse();UpdateSunPresentation();long trace=WorldGenPerformance.TraceBegin();UpdateCanopyShade();WorldGenPerformance.TraceEnd(15,trace);
+        if(closed)return;CaptureMouse();UpdateInventoryVisuals();UpdateSunPresentation();long trace=WorldGenPerformance.TraceBegin();UpdateCanopyShade();WorldGenPerformance.TraceEnd(15,trace);
         bool completion=WorldGenPerformance.Measuring&&WorldGenPerformance.ProfileRenderCompletion&&weatherCheckTarget!=null&&view!=null;
         long renderStarted=completion?System.Diagnostics.Stopwatch.GetTimestamp():0;
         long started=WorldGenPerformance.Begin();DrawScatter();WorldGenPerformance.End(1,started);started=WorldGenPerformance.Begin();trace=WorldGenPerformance.TraceBegin();DrawGroundCover();WorldGenPerformance.TraceEnd(14,trace);WorldGenPerformance.End(2,started);

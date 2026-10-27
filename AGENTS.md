@@ -1,5 +1,36 @@
 # WorldGen repository instructions
 
+PHYSICAL INVENTORY PROTOTYPE,27October2026:
+Owner NEWscope authorizes inventory ONLY; no scrapped crafting/building/history
+resumption. Unturned-style left editable name/native rotatable human, middle
+hands/back/container grids, right Nearby real reachable natural rocks/bag contents.
+Body ZEROstorage; one temporary round bag6x7/.6kg. Smallrock1hand, large2hands;
+no stacking or arbitrary hotbar. Actual10cm-cell footprint/rotation; no itemcount
+cap. >25kg/.55mwidth/.45mheight boulders scenery. Carried mass includes bagcontents;
+dropbag removes load, doesn't change actual masses. Smooth load movement cost,
+additional Survival exertion; balance prototype, not clinical capacity.
+I/Tabinventory, Eaimpickup, Q/1/2activehand, Rstow/Rdragrotate, Gdropactive,
+Bdrop/rewearbag. Drag/contexttransfers; bagaccess.65s, reach3m/terrainLOS checked
+oncompletion. Existing scatter IDs tombstoned; no new groundjunk scattered.
+Nearby scan only oninventory/actions; drops planet-positioned/nonphysical.
+Inventory optional PlaySession/deepcopy/validated; oldsave1starter, removedbag
+NOTreplaced; death retains inventory. Clock/movement/needs pause ininventory;
+cursor free/HUDhidden. Spectator interaction disabled. No gameplay hintbanner;
+controls inside inventory/Character&help. Layer29isolated native preview; original
+53bone skins/7movementclips unchanged. Basic hold-arm pose/FPfloatingrocks only,
+no fingergrips/pickup animations/FPhandmesh. Backbag owner-FPcamera hidden only;
+othercameras see it. No animal/native/model/texture changes.
+68inventory+22camera/save+67survival/modes+165fall/death+160thermal/HUD pass.
+Editor native preview pass;24packaged actual-input flow checks pass/noerrors,
+front/side/heldrenders inspected. Mouse drag/context end-to-end ownertrial pending;
+no FPS or polished holding animation claim. IL2CPP player-inventory built
+2026-10-27T23:34:51.2736132Z, existing shortcut selected; fall-balance retained.
+Buildsuccess/noC#/shadererrors;578DLL/fauna/native/humanmap/protected0946...hashes
+verified and faunaindex exact. Evidence artifacts/inventory; ownsource/docs/
+shortcut checkpoint artifacts/source-checkpoints/inventory-20261027. Push/remote
+verify required. Own workers exited; ownerapps/saves untouched. Preserve unrelated
+prompt deletion/two old deer scripts. No new desktop files.
+
 FALL HEALTH BALANCE REVISION,27October2026:
 Owner clarifies health=overall condition, separate from anatomical injury; fit
 character/optimal landing assumed. Supersedes prior3m/10m fall curve below.

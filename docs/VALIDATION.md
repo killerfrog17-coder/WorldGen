@@ -1,5 +1,45 @@
 # Version 3 validation evidence
 
+## Physical inventory prototype - 27 October 2026
+
+New owner scope is inventory only: Unturned-style character/container/Nearby
+layout, no intrinsic body storage, one temporary6x7 bag, real carryable existing
+rocks, one/two-hand occupancy, spatial packing/rotation and persisted ground
+removal. It does not resume the scrapped crafting/building/history task.
+
+- 68 inventory assertions pass: packing, rotation, atomic invalid transfers,
+  both-hand exclusion, contents/mass after dropping a bag, nesting-cycle
+  rejection, old-save starter initialization, deep copy and JSON ownership.
+- Existing22 camera/save,67 survival/mode,165 fall/death and160 thermal/HUD
+  assertions pass. The model/physiology and existing art inputs are unchanged.
+- Editor preview check passes with the actual native textured human and bag,
+  dedicated layer29 camera and neutral preview shader. Actual portrait inspected.
+- 24 packaged flow checks pass: real natural E pickups into both hands, delayed
+  R stow, B drop/rewear loaded bag, Q/G active-hand drop, I/Tab opening/closing,
+  cursor/clock isolation, independent preview, hotkeys in inventory, R drag
+  rotation, chart reload depletion, fresh-session capture/deep copy and full
+  PlaySession roundtrip. Native front/side inventory and held-item captures
+  inspected. Test exit0, no runtime errors/exceptions.
+- Initial harness failures came from waiting for only one reachable stone,
+  unfocused synthetic keyboard input and incorrect diagnostic camera-offset
+  aiming. Those probes are retained; final tests use actual source stones and
+  keyboard handling, not injected loot. A preview edit-mode Destroy warning was
+  corrected. Final UI control styling fixes text clipping in smaller windows.
+- Mouse dragging/context transfers are implemented and code-reviewed; complete
+  interactive mouse workflows remain for owner trial. Large two-hand exclusion
+  is core-tested. No universal frame-time or animation-quality claim.
+
+Release IL2CPP `player-inventory`, BuiltUtc 2026-10-27T23:34:51.2736132Z; existing
+shortcut selects it and prior fall-balance player is retained. Build succeeds
+without C#/shader errors. 578 staged-assembly/canonical-and-packaged fauna/
+native fauna/human texture/protected-native hashes verified; fauna index exact.
+Evidence: ignored `artifacts/inventory`; own source/docs/shortcut checkpoint:
+`artifacts/source-checkpoints/inventory-20261027`. Owner apps/saves untouched.
+No new desktop files, gameplay control banner, clothing, NPC spawns or caps.
+Basic hold poses, floating first-person held rocks without separate hand meshes,
+terrain-only reach occlusion and nonphysical drop placement remain placeholders.
+Death retains inventory pending a later design decision.
+
 ## Fall health balance revision - 27 October 2026
 
 Owner clarifies health as overall physical condition, separately from anatomical

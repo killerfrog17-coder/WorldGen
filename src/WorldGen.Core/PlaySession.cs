@@ -36,15 +36,17 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public int HumanRunStyle;
         [System.Runtime.Serialization.OptionalField] public GameMode Mode=GameMode.Creative;
         [System.Runtime.Serialization.OptionalField] public PlayerSurvival Survival=new PlayerSurvival();
+        [System.Runtime.Serialization.OptionalField] public PlayerInventory Inventory=PlayerInventory.Starter();
         [System.Runtime.Serialization.OnDeserializing] void InitializeOptionalHuman(System.Runtime.Serialization.StreamingContext context){PlayerHumanVariant=-1;Mode=GameMode.Creative;Survival=new PlayerSurvival();}
         public V PlayerPosition;
         public double Heading,Pitch,HeightAboveGround=1.65;
-        public PlaySession Copy(){var s=(PlaySession)MemberwiseClone();s.Settings=Settings.Copy();s.Survival=Survival?.Copy()??new PlayerSurvival();return s;}
+        public PlaySession Copy(){var s=(PlaySession)MemberwiseClone();s.Settings=Settings.Copy();s.Survival=Survival?.Copy()??new PlayerSurvival();s.Inventory=Inventory?.Copy()??PlayerInventory.Starter();return s;}
         public static PlaySession Legacy()=>new PlaySession{Settings=new PlaySettings{HorizontalScale=1,Sky=CelestialSettings.Preset("No moons"),MoonVisualExaggeration=1,SunVisualExaggeration=1}};
         public void Validate()
         {
             if(!Enum.IsDefined(typeof(GameMode),Mode))throw new ArgumentException("Invalid game mode.");
             Survival=Survival??new PlayerSurvival();Survival.Validate();
+            Inventory=Inventory??PlayerInventory.Starter();Inventory.Validate();
             if(PlayerHumanVariant< -1||PlayerHumanVariant>5||HumanRunStyle<0||HumanRunStyle>3||!Finite(CameraDistance)||CameraDistance<0||CameraDistance>12)throw new ArgumentException("Invalid human or camera state.");
             if(Version!="play-session-1"||Settings==null)throw new ArgumentException("Unsupported play session.");Settings.Validate();
             bool Finite(double v)=>!double.IsNaN(v)&&!double.IsInfinity(v);

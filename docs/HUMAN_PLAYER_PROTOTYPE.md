@@ -8,6 +8,13 @@ and animal renderer are separate.
 
 ## Controls
 
+- I / Tab: open/close inventory. E: take an aimed-at reachable rock into a free
+  hand. Q or1/2: active hand. R: stow its item; G: put it on the ground.
+  B: set down the worn bag, or wear a nearby bag. Within inventory, drag between
+  hands/grids/Nearby; R rotates a dragged footprint, right click opens transfers.
+  Character drag/turn buttons rotate the preview. Character & help settings
+  contain these instructions; none are placed on the normal gameplay HUD.
+
 - Mouse wheel out: third person, up to 12 metres; wheel in: first person.
 - Middle click: lock/unlock the requested camera distance, including first person.
 - WASD: existing movement; C: walk; Shift: sprint; Space: jump; Ctrl: crouch pose
@@ -29,6 +36,57 @@ and animal renderer are separate.
 
 There is no control-instruction banner on the gameplay screen. Do not add
 unsolicited control/tutorial overlays; commands/help remain available.
+
+## Physical inventory prototype - 27 October
+
+Owner authorizes an Unturned-inspired layout: editable player name and rotatable
+native human on the left, hands/back attachment and container grids in the
+middle, accessible nearby ground items and bags on the right. A dedicated
+layer29 camera/render texture isolates the native preview; its simple fixed
+lighting preserves pigment/cutout independently of world night/fog. The live
+player's original skin, rig, movement clips and first-person body mask stay
+unchanged. Basic two-bone arm positioning and held rock visuals are presentation
+placeholders, not detailed finger grips, pickup/stow animations or weapons.
+
+The body has zero general storage. One explicitly temporary testing bag starts
+on the back with a6x7 grid,0.6kg empty mass and a simple round placeholder visual.
+It is a real item and may be removed or carried, retaining the very same contents.
+There are no belt tools or arbitrary quickbar yet:1/2 select physical hands.
+Small rocks use one hand each, large rocks reserve both. Pack access takes0.65s;
+failed transfers recheck reach/occupancy and retain the source item. Containers
+may be worn, held or on reachable ground; far-away bags cannot be accessed.
+
+Loose natural Stone instances, and carryable Boulder instances only, expose
+their original globally stable scatter IDs. Dimensions, rock-family variant
+and tint are retained; approximate ellipsoid mass uses2600kg/m³. Rocks above
+25kg or0.55m width/0.45m height remain scenery. This is a carrying approximation,
+not a geological density model. Packing rounds width/height up to10cm cells;
+rotation is supported and items never stack in this pass. No berries/arrows/
+crafting, other pickups, harvesting or construction was added.
+
+Nearby scans run on inventory/action requests, not continuously while walking.
+Successful collection records a tombstone and removes the original from scatter
+batches/target readouts. Carried/dropped visuals reuse existing rock art, pinned
+against generated-art eviction. No second procedural scatter is introduced.
+Dropped items use planetary positions, re-ground in the current chart and
+render only nearby. They are placed rather than physically thrown. Reach is
+3m from the character eye with sampled terrain occlusion; tree/wall/prop
+occlusion is future work because those props have no colliders yet.
+
+`PlayerInventory` owns unique item instances, container packing, both-hand
+exclusion, load and collected identities. The optional PlaySession field gets
+one starter bag for old saves; deep copies, JSON round trips and validation
+retain the actual ownership. A deliberately removed bag is not replenished.
+Inventory and collected ground identities persist across game/simulation entry,
+save/load and respawn; death item loss is not designed yet. This is single-player
+session storage, not a multiplayer shared-loot authority implementation.
+
+Mass includes worn/held items and contents of carried containers; dropping a
+loaded bag removes its entire load without changing any item's true mass.
+Movement scales smoothly above8kg via1/(1+((mass-8)/25)^1.5), with additional
+Survival exertion cost. It is prototype balance, not a measured human capacity.
+The inventory pauses local movement/needs and the play clock, releases cursor
+capture and hides the survival HUD. Spectator has no inventory interaction.
 
 Third-person camera probes the existing terrain height field and pulls inward
 before crossing the ground. It does not add terrain mesh colliders. The distance

@@ -27,7 +27,7 @@ public sealed partial class LocalTerrainExplorer
                     if(group.Bounds.SqrDistance(eye)>80*80)continue;
                     foreach(int i in group.Indices)
                     {
-                        var p=chunk.Source.Instances[i];
+                        var p=chunk.Source.Instances[i];if(CollectedRock(p))continue;
                         if(IsSpecialist(p.Kind)&&!TerrainVideoOptions.SpecialistPlants||p.Kind==ScatterKind.MidPlant&&!TerrainVideoOptions.MidPlants||p.Kind==ScatterKind.GeneratedTree&&!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.KeepVegetation(p.Kind,p.Id))continue;
                         float distance=chunk.Bounds[i].SqrDistance(eye);if(distance>80*80)continue;
                         if(TerrainVideoOptions.VegetationBlend(p.Kind,p.WidthM,Math.Sqrt(distance)).Visibility<=0)continue;

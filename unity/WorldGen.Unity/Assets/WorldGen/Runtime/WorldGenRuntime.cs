@@ -104,6 +104,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         if(Environment.GetCommandLineArgs().Contains("--worldgen-atlas-check")){screen="Setup";BeginWork(false,Argument("--worldgen-atlas-check",""));StartCoroutine(CheckAtlasNavigation());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-local-terrain-check")){screen="Setup";BeginWork(false,Argument("--worldgen-local-terrain-check",""));StartCoroutine(CheckLocalTerrain());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-death-check")){screen="Setup";BeginWork(false,Argument("--worldgen-death-check",""));StartCoroutine(CheckPlayerDeathFlow());}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-inventory-check")){screen="Setup";BeginWork(false,Argument("--worldgen-inventory-check",""));StartCoroutine(CheckPlayerInventoryFlow());}
         if(WorldGenPerformance.Enabled){screen="Setup";BeginWork(false,Argument("--worldgen-performance",""));StartCoroutine(CheckPerformance());}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-game-review"))StartCoroutine(CheckGameShell());
         if(Environment.GetCommandLineArgs().Contains("--worldgen-exploration-music-check"))StartCoroutine(CheckExplorationMusic());
