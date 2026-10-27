@@ -1,5 +1,33 @@
 # WorldGen repository instructions
 
+CLOCK / PLAYABLE FOLLOW-UP CHECKPOINT,27October2026~07:50CDT:
+Final IL2CPP player-survival-clock BuiltUtc2026-10-27T12:45:56.8764890Z;
+12native no-graphics checks PASS,358hominin/clock tests PASS, 177bundle/current
+stagedDLL SHA verified. Native inputs unchanged. Survival/render/skin/ragdoll
+runtime source IDENTICAL to visually reviewed15b39fd; h3 setup/playback/persistence
+changes only. All owned Unity/player/CLI workers exited, owner apps untouched.
+Measured CLR1779cohort Copy7.22ms/6.48MB; old60historical-second threshold under
+24-dayyear could request~6copies/sec. Early local clocks NOW retain saved credit
+until actual scheduled history event; flush empty elapsed years in one publication
+on leaving play. Calendar/season time still includes credit; no event skipping,
+mutable-public/private snapshot sharing or universalFPS claim. Direct prepared
+world exploration still initializes populations. Ordinary legacy local budgets
+retained; exit credit flush supported. Event labels use EVENT year instead of
+current year. Core358tests cover due/before boundaries, credit roundtrip/offset,
+empty-time flush/domain identity, legacy slices and labels. Native12checks pass.
+Existing shortcut to select clock build after final source checkpoint; older
+history/survival/human-refinement retained. Async user survival review still
+pending; don't pile on duplicate questions or start a GPU test during review.
+Current source/docs push+backup REQUIRED. Unrelated deletedprompt/2deerscripts
+remain UNSTAGED. Game survival/early-history foundation is playable; later-city
+bridge, rendered glacial ecology, NPCtribes, fitted clothing/contactIK remain
+unfinished as documented. See PALEOLITHIC_SURVIVAL_RESEARCH for actual scope.
+Next later-history adapter cannot simply call UpgradeToLivingWorldHistory:
+InitializeFreshHumanVariation would fabricate ancestry; preserve identities,
+mixtures/communication/learned practices and headcounts with versioned migration.
+No need for further broad retesting absent a new issue. Owner original asks
+continue until wrap-up; newer priority architecture first, old deadline withdrawn.
+
 RULES-3 HISTORY FOLLOW-UP CHECKPOINT,27October2026~07:25CDT:
 Separate IL2CPP player-survival-history BuiltUtc2026-10-27T12:19:22.6394039Z;
 10native no-graphics persistence checks PASS, 110survival/348hominin/45variation/

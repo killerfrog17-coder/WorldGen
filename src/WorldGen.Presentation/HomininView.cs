@@ -6,8 +6,9 @@ namespace WorldGen.Presentation
 {
     public static class HomininView
     {
-        public static string Date(PrehistoryState state)
-        {int bp=state.DeepPast.YearsBeforePresent(state.Years);return bp>=0?bp.ToString("N0")+" years before reference":(-bp).ToString("N0")+" years after reference";}
+        public static string Date(PrehistoryState state)=>Date(state,state.Years);
+        public static string Date(PrehistoryState state,int elapsedYears)
+        {int bp=state.DeepPast.YearsBeforePresent(elapsedYears);return bp>=0?bp.ToString("N0")+" years before reference":(-bp).ToString("N0")+" years after reference";}
         public static string Status(PrehistoryState state)
         {
             var h=state.DeepPast;int living=h.Populations.Select(p=>p.Lineage).Distinct().Count();

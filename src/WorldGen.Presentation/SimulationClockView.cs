@@ -9,6 +9,30 @@ namespace WorldGen.Presentation
         public readonly struct PlaybackSlice
         {public readonly long Seconds;public readonly int MaximumEvents,MaximumGlobalWork;public PlaybackSlice(long seconds,int events,int globals=int.MaxValue){Seconds=seconds;MaximumEvents=events;MaximumGlobalWork=globals;}}
         public const int FastMaximumEvents=16384,FastMaximumGlobalWork=2048;
+        public static bool LocalHistoryEventDue(PrehistoryState state,long pending)
+        {
+            if(state==null)throw new ArgumentNullException(nameof(state));
+            if(pending<0)throw new ArgumentOutOfRangeException(nameof(pending));
+            if(state?.DeepPast?.Active!=true)return pending>=60;
+            if(!state.Started)return pending>0;
+            long remaining=state.DeepPast.NextBoundaryYear*SimulationTime.Year-SimulationTime.Seconds(state);
+            return pending>=Math.Max(1,remaining);
+        }
+        public static PlaybackSlice LocalPublication(PrehistoryState state,long pending)
+        {
+            if(state==null)throw new ArgumentNullException(nameof(state));
+            if(pending<1)throw new ArgumentOutOfRangeException(nameof(pending));
+            // PlaySession already retains fine calendar credit. Publish early
+            // history at an actual event, or flush all empty elapsed time when
+            // leaving play, rather than deep-copying its domain every minute.
+            var early=state.DeepPast;
+            if(early!=null&&early.Active)
+            {
+                long until=Math.Max(1,early.NextBoundaryYear*SimulationTime.Year-SimulationTime.Seconds(state));
+                return new PlaybackSlice(Math.Min(pending,until),1,256);
+            }
+            return new PlaybackSlice(Math.Min(pending,SimulationTime.Day),1024,256);
+        }
         public static PlaybackSlice Publication(long now,long requested,double rate)
         {
             if(now<0||requested<1)throw new ArgumentOutOfRangeException(nameof(requested));
@@ -60,7 +84,7 @@ namespace WorldGen.Presentation
         }
         public static string YearNumber(int year,int epochYear=-1)
         {long relative=(long)year-(epochYear>=0?epochYear:0);return relative<0?(-relative).ToString("N0",CultureInfo.InvariantCulture)+" before civilization":relative.ToString("N0",CultureInfo.InvariantCulture);}
-        public static string Year(PrehistoryState? state,int year)=>state?.DeepPast?.Active==true?HomininView.Date(state):"Year "+YearNumber(year,EpochYear(state));
+        public static string Year(PrehistoryState? state,int year)=>state?.DeepPast?.Active==true?HomininView.Date(state,year):"Year "+YearNumber(year,EpochYear(state));
         public static string Date(PrehistoryState state,double rate)=>state.DeepPast?.Active==true?HomininView.Date(state):Date(SimulationTime.Seconds(state),rate,EpochYear(state));
         public static string Rate(double seconds)
         {int unit=seconds>=SimulationTime.Year?6:seconds>=30*SimulationTime.Day?5:seconds>=7*SimulationTime.Day?4:seconds>=SimulationTime.Day?3:seconds>=SimulationTime.Hour?2:seconds>=60?1:0;double value=seconds/UnitSeconds[unit];return value.ToString("0.###",CultureInfo.InvariantCulture)+" "+(value==1?Units[unit].TrimEnd('s'):Units[unit])+"/s";}

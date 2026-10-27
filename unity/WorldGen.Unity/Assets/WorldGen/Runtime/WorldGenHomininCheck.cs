@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using UnityEngine;
 using WorldGen.Core;
 using WorldGen.Serialization;
+using WorldGen.Presentation;
 
 public sealed partial class WorldGenRuntime
 {
@@ -26,6 +27,9 @@ public sealed partial class WorldGenRuntime
             Check(initial.DeepPast.Languages.Length==1,"native player retains the founding communication identity");
             var state=engine.AdvanceYears(initial,20000);engine.Validate(state);
             Check(state.DeepPast.Languages.Length==state.DeepPast.NextLanguage,"native player tracks communication branches");
+            var clock=new PlaySession();clock.Accumulate(300);
+            Check(!SimulationClockView.LocalHistoryEventDue(state,(long)clock.PendingHistorySeconds),"ordinary local play retains clock credit without requesting a demographic publication");
+            Check(SimulationClockView.LocalPublication(state,3*SimulationTime.Year).Seconds==3*SimulationTime.Year,"leaving play can flush empty years in one native publication");
             Check(state.DeepPast.Traditions.All(t=>(t.Knowledge&LithicKnowledge.Pottery)==0),"early foundation does not grant late pottery");
             world.Prehistory=state;var restored=WorldFile.Read(WorldFile.Write(world));var resumed=new Prehistory(restored);
             Check(restored.Prehistory.Hash==state.Hash,"compact native save retains early-history canonical hash");

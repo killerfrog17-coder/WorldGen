@@ -266,3 +266,42 @@ rendering, skinning and ragdoll source files are unchanged from the visually
 checked survival build; history startup/UI and the diagnostic entry point differ.
 The existing shortcut is being moved to this checked follow-up; both earlier
 players are retained. Native evidence: `artifacts/survival-history-native-final`.
+
+### Local clock publication follow-up
+
+A direct probe of the populated 1,779-cohort state measured about 7.22 ms and
+6.48 MB allocated per detached snapshot on the CLR. The previous local loop
+requested a publication after 60 historical seconds. With a one-hour solar day
+and 24 solar days per historical year, that threshold is about 0.164 real seconds,
+despite the next early-history demographic event being many years away.
+
+The follow-up keeps fine time in the already saved PlaySession credit and waits
+for an actual early-history event before publishing that domain during gameplay.
+Leaving local play flushes empty elapsed years in one publication rather than
+one copy per day. Calendar/season time still includes the retained credit. Public
+simulation snapshots continue to detach their data; mutable records are not
+shared with private simulation work as an optimization. Legacy local budgets
+are preserved. Event-date labels also now use the event's year rather than the
+current state's date. 357 hominin/clock checks pass, including saved credit,
+calendar-offset conservation and an event-boundary slice; native checking of
+this follow-up is in progress. This is not a measured universal FPS claim.
+
+Final clock build UTC `2026-10-27T12:45:56.8764890Z`,
+`artifacts/player-survival-clock`, passes 12 native no-graphics checks, including
+ordinary-play clock deferral and a multi-year empty-time flush. 358 hominin/clock
+checks pass; direct exploration of a prepared world still requests population
+initialization. Package DLL inputs and all 177 fauna bundles are verified.
+Survival/render/skin/ragdoll runtime sources remain identical to the visual
+checkpoint. The shortcut will select this follow-up, with earlier players kept.
+
+### Later-history handoff requirements
+
+The handoff is still unfinished. A future versioned adapter must conserve
+population totals, retain extinct as well as living identities, preserve
+communication parentage and biological mixtures, and map learned practices and
+local subsistence intensity rather than generating replacement cultures. Isolated
+archaic cohorts need a continuing demographic owner. Existing
+`UpgradeToLivingWorldHistory` calls `InitializeFreshHumanVariation`; it cannot be
+used unchanged for this migration. Clock/schema conversion, ancestry provenance
+and the existing later-history invariant checks should precede enabling that
+handoff. None of this is implied by the current regional stage labels.

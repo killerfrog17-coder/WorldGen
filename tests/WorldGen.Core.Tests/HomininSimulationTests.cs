@@ -11,6 +11,7 @@ public static class HomininSimulationTests
         int n=0;void Check(bool ok,string message){n++;if(!ok)throw new Exception(message);}
         var recipe=Recipe.Preset("Earth");recipe.Detail=5000;var world=new WorldPipeline().Generate(recipe);var engine=new Prehistory(world);
         string immutable=StateHash.Compute(world);var prepared=engine.PrepareHominins();engine.Validate(prepared);
+        Check(SimulationClockView.LocalHistoryEventDue(prepared,1),"Direct exploration of an unstarted early world still initializes its founding population");
         Check(prepared.Species=="Homo"&&prepared.DeepPast.Lineages.Length==1&&!prepared.DeepPast.Lineages[0].SapiensLike,"Early Homo start, not a renamed sapiens origin");
         var s=engine.Start(prepared);Check(s.DeepPast.Populations.Length==1&&s.Society.Cultures.Length==1,"Tradition and ancestry exist from the founding population");
         Check(s.DeepPast.Version==2&&s.DeepPast.Languages.Length==1&&s.DeepPast.Languages[0].Parent==-1,"Founding communication identity is recorded independently of biological ancestry");
@@ -18,6 +19,22 @@ public static class HomininSimulationTests
         var b=engine.AdvanceYears(engine.AdvanceYears(s,7500),12500);Check(a.Hash==b.Hash,"Evolution and climate independent of request partition");
         var budget=engine.AdvanceSeconds(s,20000*SimulationTime.Year,1);while(SimulationTime.Seconds(budget)<20000*SimulationTime.Year)budget=engine.AdvanceSeconds(budget,20000*SimulationTime.Year-SimulationTime.Seconds(budget),1);
         Check(a.Hash==budget.Hash,"Event budget does not change evolution");
+        long untilBoundary=a.DeepPast.NextBoundaryYear*SimulationTime.Year-SimulationTime.Seconds(a);
+        Check(!SimulationClockView.LocalHistoryEventDue(a,untilBoundary-1)&&SimulationClockView.LocalHistoryEventDue(a,untilBoundary),"Local early-history publication waits for its actual scheduled event");
+        var partialFlush=SimulationClockView.LocalPublication(a,3*SimulationTime.Year);
+        Check(partialFlush.Seconds==3*SimulationTime.Year&&partialFlush.MaximumEvents==1,"Leaving play flushes empty years in one publication rather than daily copies");
+        var boundarySlice=SimulationClockView.LocalPublication(a,untilBoundary+SimulationTime.Year);
+        Check(boundarySlice.Seconds==untilBoundary&&boundarySlice.MaximumEvents==1,"Local credit is consumed through the next event without skipping it");
+        var legacySlice=SimulationClockView.LocalPublication(new PrehistoryState(),SimulationTime.Year);
+        Check(legacySlice.Seconds==SimulationTime.Day&&legacySlice.MaximumEvents==1024,"Legacy local publication budgets are preserved");
+        Check(SimulationClockView.Year(a,0)!=SimulationClockView.Year(a,a.Years)&&SimulationClockView.Year(a,a.Years)==HomininView.Date(a),"Historical event labels use their event year instead of the current date");
+        var localPlay=new PlaySession{CalendarOffsetSeconds=1234};for(int i=0;i<3000;i++)localPlay.Accumulate(.1);
+        Check(!SimulationClockView.LocalHistoryEventDue(a,(long)localPlay.PendingHistorySeconds),"Five minutes of normal local play do not trigger empty early-history publications");
+        double visibleTime=PlayCalendar.Seconds(localPlay,SimulationTime.Seconds(a));Check(visibleTime>SimulationTime.Seconds(a)+SimulationTime.Day,"Fine calendar and seasons advance despite retaining the demographic checkpoint");
+        var savedCredit=WorldJson.Read<PlaySession>(WorldJson.Write(localPlay));savedCredit.Validate();var exitSlice=SimulationClockView.LocalPublication(a,(long)savedCredit.PendingHistorySeconds);
+        var flushed=engine.AdvanceSeconds(a,exitSlice.Seconds,exitSlice.MaximumEvents);savedCredit.Consume(exitSlice.Seconds);
+        Check(Math.Abs(PlayCalendar.Seconds(savedCredit,SimulationTime.Seconds(flushed))-visibleTime)<.001&&savedCredit.PendingHistorySeconds<1,"Save/reload and exit flush conserve fine clock credit and calendar offset");
+        Check(flushed.DeepPast.CanonicalHash==a.DeepPast.CanonicalHash&&flushed.Timeline.ProcessedEvents==a.Timeline.ProcessedEvents,"Empty-time flush does not invent a demographic event or mutate its domain");
         Check(a.DeepPast.Populations.All(p=>p.People>=0&&Math.Abs(p.Ancestry.Sum(x=>x.Share)-1)<1e-6),"Population and admixture bounds");
         Check(a.DeepPast.Populations.Sum(p=>Math.Round(p.People))==a.Population.Sum(),"Published headcounts reconcile");
         var restored=WorldJson.Read<PrehistoryState>(WorldJson.Write(a));engine.Validate(restored);Check(engine.AdvanceYears(restored,1000).Hash==engine.AdvanceYears(a,1000).Hash,"Saved early history resumes identically");

@@ -61,13 +61,15 @@ public sealed partial class WorldGenRuntime
         if(WorldGenPerformance.Enabled)playingLocal=false; // Fixed benchmark sun/weather/calendar; never advance a saved history.
         if(playingLocal)play.Accumulate(Math.Max(0,elapsed));
         if(terrainExplorer!=null&&terrainExplorer.Ready)terrainExplorer.SetDaylight(terrainExplorer.LocalSolarHour,PlayCalendar.Seconds(play,SimulationTime.Seconds(world.Prehistory))/(double)SimulationTime.Year);
-        long pending=playingLocal?(long)Math.Floor(play.PendingHistorySeconds):humanPlayback.Pending;
-        bool localDue=playingLocal&&(pending>=60||clockNow-playPublicationAt>=2);
-        if((run||localDue)&&humanStep==null&&pending>0)
+        bool flushPlay=!WorldGenPerformance.Enabled&&terrainExplorer==null&&play.HasPlayer&&play.PendingHistorySeconds>=1&&!Busy&&!saveDialog&&exportJob==null;
+        bool usePlayClock=playingLocal||flushPlay;
+        long pending=usePlayClock?(long)Math.Floor(play.PendingHistorySeconds):humanPlayback.Pending;
+        bool localDue=playingLocal&&(world.Prehistory.DeepPast?.Active==true?SimulationClockView.LocalHistoryEventDue(world.Prehistory,pending):pending>=60||clockNow-playPublicationAt>=2);
+        if((run||localDue||flushPlay)&&humanStep==null&&pending>0)
         {
             var engine=humans;var state=engine.UpgradeScheduling(world.Prehistory);if(!state.Started){state=engine.Start(state);world.Prehistory=state;UpdateHumanPalette();}
-            calendarWorkStarted=SimulationTime.Seconds(state);calendarWorkIsPlay=playingLocal;if(playingLocal)playPublicationAt=clockNow;
-            var slice=playingLocal?new SimulationClockView.PlaybackSlice(Math.Min(pending,SimulationTime.Day),1024,256):SimulationClockView.Publication((long)calendarWorkStarted,pending,humanPlayback.Rate);long seconds=slice.Seconds;int maximumEvents=slice.MaximumEvents;
+            calendarWorkStarted=SimulationTime.Seconds(state);calendarWorkIsPlay=usePlayClock;if(usePlayClock)playPublicationAt=clockNow;
+            var slice=usePlayClock?SimulationClockView.LocalPublication(state,pending):SimulationClockView.Publication((long)calendarWorkStarted,pending,humanPlayback.Rate);long seconds=slice.Seconds;int maximumEvents=slice.MaximumEvents;
             // Session validation/copies are background work too. Fine clocks
             // also use the private input: public validation is not a cheap tick.
             var reusable=humanSession;var work=new HumanPlaybackWork();humanPlaybackWork=work;var token=humanCancellation.Token;
