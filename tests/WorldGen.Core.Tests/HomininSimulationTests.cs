@@ -77,6 +77,16 @@ public static class HomininSimulationTests
         var invalidLiving=newReturn.Copy();invalidLiving.DeepPast.Lineages[invalidLiving.DeepPast.Populations[0].Lineage].ExtinctYear=invalidLiving.Years;invalidLiving.DeepPast.SealDomain();invalidLiving.Seal();
         bool rejectedLiving=false;try{engine.Validate(invalidLiving);}catch(ArgumentException){rejectedLiving=true;}Check(rejectedLiving,"Validation rejects living cohorts attached to extinct lineages under new rules");
         string beforeAtlas=WorldJson.Write(a);var earlyCategories=AtlasNavigation.CategoriesFor(a);
+        var stages=HomininView.Stages(a);Check(stages.Population==a.Population.Sum()&&stages.PeopleByStage.Sum()==stages.Population,"Lithic stage counts reconcile to the same published population");
+        var mixedStages=a.Copy();foreach(var tradition in mixedStages.DeepPast.Traditions)tradition.Knowledge=LithicKnowledge.Flakes;
+        int advancedMinority=mixedStages.DeepPast.Populations.GroupBy(p=>p.Tradition).OrderBy(g=>g.Sum(p=>p.People)).First().Key;
+        mixedStages.DeepPast.Traditions[advancedMinority].Knowledge|=LithicKnowledge.Blades|LithicKnowledge.BoneTools|LithicKnowledge.Symbols;
+        var coexistence=HomininView.Stages(mixedStages);
+        Check(coexistence.Frontier==LithicStage.UpperPaleolithic&&coexistence.Predominant==LithicStage.LowerPaleolithic&&coexistence.Label=="Upper Paleolithic frontier","A small advanced tradition does not relabel the majority's technical stage");
+        mixedStages.DeepPast.Traditions=mixedStages.DeepPast.Traditions.Concat(new[]{new HomininTradition{Id=mixedStages.DeepPast.Traditions.Length,Knowledge=LithicKnowledge.Bronze}}).ToArray();
+        Check(HomininView.Stages(mixedStages).Frontier==LithicStage.UpperPaleolithic,"An unrepresented historical tradition does not advance the living technical frontier");
+        Check(HomininView.Stages(prepared).Population==0&&HomininView.Stages(prepared).Label=="Early Homo","A prepared empty scenario does not invent a populated technical stage");
+        Check(HomininView.DateFromOrigin(a.DeepPast.OriginYearsBeforePresent,a.Years)==HomininView.Date(a)&&HomininView.DateFromOrigin(2800000,2801000).Contains("after reference"),"Browser chronicle dates use the same before/after-reference calendar without copying history");
         Check(earlyCategories.Any(c=>c.Kind=="population")&&earlyCategories.Any(c=>c.Kind=="lineage")&&!earlyCategories.Any(c=>c.Kind=="ethnicity"||c.Kind=="state"),"Early atlas keeps biological lineages distinct from ethnicities and later states");
         Check(AtlasNavigation.CategoriesFor(true).SequenceEqual(earlyCategories)&&earlyCategories.All(c=>AtlasTables.Columns(c.Kind,true).SequenceEqual(AtlasTables.Columns(c.Kind,a))),"Browser atlas layout needs only the published scenario flag, not a second demographic snapshot");
         foreach(var category in earlyCategories)
@@ -86,6 +96,7 @@ public static class HomininSimulationTests
         }
         Check(HistoryAtlas.Directory(a,"population").Sum(row=>row.Value)==a.Population.Sum()&&HistoryAtlas.Directory(a,"people").Sum(row=>row.Value)==a.Population.Sum()&&HistoryAtlas.Directory(a,"language").Sum(row=>row.Value)==a.Population.Sum(),"Atlas headcounts reconcile across population, tradition and communication views");
         var earlyWorld=HistoryAtlas.Read(a,"world",-1,world,engine);Check(earlyWorld.Facts.Any(f=>f.Label=="Living lineages")&&earlyWorld.Sections.SelectMany(section=>section.Links).Any(link=>link.Kind=="population"),"World overview presents early history instead of claiming no cultures are recorded");
+        Check(earlyWorld.Facts.Any(f=>f.Label=="Technical frontier")&&earlyWorld.Sections.Single(section=>section.Title=="Technical stages").Links.Sum(link=>link.Value)==a.Population.Sum(),"Atlas exposes the actual coexistence of local lithic stages");
         var firstPopulation=a.DeepPast.Populations[0];var populationPage=HistoryAtlas.Read(a,"population",firstPopulation.Id,world,engine);
         Check(populationPage.Cell==engine.Patches[firstPopulation.Region].Cell&&new[]{"lineage","people","language"}.All(kind=>populationPage.Facts.SelectMany(f=>f.Related).Any(link=>link.Kind==kind)),"Population article links its actual separate identities and geographic region");
         Check(HistoryAtlas.Selection(a,birthplace,HistoryOverlay.Cultures)?.Id==a.Society.CellCulture[birthplace]&&HistoryAtlas.ProfilesAt(a,birthplace).Any(link=>link.Kind=="technology"),"Map inspection opens the recorded local tradition and its practices");
@@ -105,6 +116,7 @@ public static class HomininSimulationTests
         Check(HistoryAtlas.Read(sparse,"population",sparseId,world,engine).Facts.Any(f=>f.Label=="People"),"Population articles resolve stable sparse IDs rather than array positions");
         earlyWorld.Facts[0].Value="Only this view changed";Check(WorldJson.Write(a)==beforeAtlas,"Browsing and editing returned atlas documents cannot mutate simulation records");
         var laterPrepared=engine.PrepareSapiens();Check(ReferenceEquals(AtlasNavigation.CategoriesFor(laterPrepared),AtlasNavigation.Categories)&&AtlasTables.Columns("people",laterPrepared).SequenceEqual(AtlasTables.Columns("people")),"Later-history categories and columns retain their existing interface");
+        Check(HomininView.Stages(laterPrepared)==null,"Later-history era IDs and observer labels keep their existing policy");
         Check(HistoryAtlas.Read(laterPrepared).Facts.Any(f=>f.Label=="Surviving states"),"The established later-history overview still uses its original adapter");
         var smallBand=new HomininPopulation{People=100,Tradition=3,Language=2,Communication=.4,Learning=.5,Appearance=Enumerable.Repeat(2000,8).ToArray(),Ancestry=new[]{new HomininAncestry{Lineage=0,Share=1}}};
         var largeBand=new HomininPopulation{People=300,Tradition=8,Language=5,Communication=.8,Learning=.9,Appearance=Enumerable.Repeat(8000,8).ToArray(),Ancestry=new[]{new HomininAncestry{Lineage=1,Share=1}}};

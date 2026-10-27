@@ -4,9 +4,9 @@ Owner scope: 27 October 2026. Gameplay prototype plus an early-history overhaul;
 no paid services, no new animal appearance work. Earlier saves retain their
 historical rules unless explicitly starting/upgrading the early-history scenario.
 
-Current selected checkpoint: `artifacts/player-survival-storage`, IL2CPP
-UTC `2026-10-27T15:53:48.9150230Z`, through the existing project shortcut.
-Core checks: 153 survival and 403 hominin/clock/view assertions; 43 native geometry/
+Current selected checkpoint: `artifacts/player-survival-stage-overview`, IL2CPP
+UTC `2026-10-27T16:07:46.0381340Z`, through the existing project shortcut.
+Core checks: 153 survival and 410 hominin/clock/view assertions; 44 native geometry/
 persistence checks, an editor mesh-lifetime regression and 20 unload cycles.
 The 20,000-year early-history canonical hash matches between CLR and IL2CPP.
 Earlier graphical survival review passed 24 functional checks; later changes
@@ -14,8 +14,8 @@ have the narrower verification described below, not fresh visual/FPS acceptance.
 
 The owner-authorized cleanup retains the latest three players, latest per local
 day, selected and running builds. Six superseded survival players were removed
-(12.04 GiB); current latest rollback players are `player-survival-creative-food`
-and `player-survival-hominin-atlas`, plus daily checkpoints. Older delivery paragraphs
+(12.04 GiB); current latest rollback players are `player-survival-storage`
+and `player-survival-creative-food`, plus daily checkpoints. Older delivery paragraphs
 are chronological records; their player folders may have been purged. Source
 archives, review screenshots, native inputs and saves remain.
 
@@ -603,3 +603,34 @@ Native evidence is under `artifacts/survival-storage-native-final` and its packa
 proof JSON. Four further superseded players (8.03 GiB) were purged under the
 same rule, retaining current/latest-three/daily/running builds, saves, native
 inputs and review evidence; manifest `daily-cleanup-20261027-155506-548.json`.
+
+
+### Local technical stages in the overview
+
+The overview now labels the living technical frontier from actual represented
+traditions, with separate headcounts for Lower, Middle and Upper Paleolithic,
+Epipaleolithic/Mesolithic, Neolithic, Chalcolithic and Bronze Age stages. A small
+advanced tradition can coexist with a large population using older techniques;
+the tooltip and atlas distinguish the frontier from the most common stage.
+An unrepresented historical tradition cannot advance the living frontier.
+Prepared empty scenarios remain labelled Early Homo rather than inventing a
+populated technical stage. These are capability labels, not universal calendar
+ages, technology grants or a biological rank.
+
+Unity retains one detached summary per demographic domain publication; clock-only
+updates and GUI repaints reuse it. The browser receives its labels with the full
+publication and retains them during clock-only updates. Existing later-history
+music/era IDs and simulation scheduling are unchanged. The browser clock and
+chronicle event dates also use the shared early-history reference calendar.
+There are 410 focused hominin/climate/clock/view checks; browser and worker builds
+have no warnings/errors. Package verification is recorded after the build.
+
+
+Stage-overview package: `artifacts/player-survival-stage-overview`, IL2CPP UTC
+`2026-10-27T16:07:46.0381340Z`, passes 44 native checks. Native article output
+contains the recorded stage distribution and historical dates; all four staged
+DLLs, 177 fauna bundles and rig sidecars match. The 20 ka CLR/native hash is
+unchanged. Initial Unity editor startup exited before compilation; the retry
+built successfully. No fresh graphical or FPS acceptance is claimed. Existing
+shortcut selects this package. Evidence: stage-overview native-final/package
+proof, with the first startup log retained separately.

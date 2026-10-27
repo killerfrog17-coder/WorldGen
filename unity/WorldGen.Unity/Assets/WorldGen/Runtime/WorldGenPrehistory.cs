@@ -84,6 +84,16 @@ public sealed partial class WorldGenRuntime
             });
         }
     }
+    HomininHistory humanStageDomain;
+    HomininStageOverview humanStages;
+    HomininStageOverview CurrentHomininStages()
+    {
+        var domain=world?.Prehistory?.DeepPast;
+        if(!ReferenceEquals(domain,humanStageDomain)){humanStageDomain=domain;humanStages=HomininView.Stages(world?.Prehistory);}
+        return humanStages;
+    }
+    string CurrentHistoryEraName()=>CurrentHomininStages()?.Label??WorldEraView.Name(CurrentMusicEra());
+    string CurrentHistoryEraDescription()=>CurrentHomininStages()?.Description??WorldEraView.Description(CurrentMusicEra());
     void UpdateHumanPalette()
     {
         RequestHistoryBorders();

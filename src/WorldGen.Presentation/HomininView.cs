@@ -4,11 +4,39 @@ using WorldGen.Core;
 
 namespace WorldGen.Presentation
 {
+    [Serializable] public sealed class HomininStageOverview
+    {
+        public string Label="Early Homo",Description="No resident populations are established yet.";
+        public LithicStage Frontier,Predominant;public long Population;
+        public long[] PeopleByStage=new long[(int)LithicStage.BronzeAge+1];
+    }
     public static class HomininView
     {
+        // Build once per demographic publication, not every rendered frame.
+        // A frontier is a local capability, never a global technology grant.
+        public static HomininStageOverview? Stages(PrehistoryState? state)
+        {
+            if(state?.DeepPast?.Active!=true)return null;
+            var h=state.DeepPast;var result=new HomininStageOverview();
+            var stages=h.Traditions.Select(t=>HomininHistory.Stage(t,h.RulesVersion<3)).ToArray();
+            foreach(var p in h.Populations)if(p.People>0)result.PeopleByStage[(int)stages[p.Tradition]]+=(long)Math.Round(p.People);
+            result.Population=result.PeopleByStage.Sum();if(result.Population==0)return result;
+            int present=0;long most=0;
+            for(int stage=0;stage<result.PeopleByStage.Length;stage++)
+            {
+                long people=result.PeopleByStage[stage];if(people==0)continue;
+                present++;result.Frontier=(LithicStage)stage;
+                if(people>most){most=people;result.Predominant=(LithicStage)stage;}
+            }
+            result.Label=HomininHistory.StageName(result.Frontier)+(present>1?" frontier":"");
+            result.Description="Most people: "+HomininHistory.StageName(result.Predominant)+". Local traditions coexist; the frontier is not universal adoption. "+string.Join("; ",Enumerable.Range(0,result.PeopleByStage.Length).Where(i=>result.PeopleByStage[i]>0).Select(i=>HomininHistory.StageName((LithicStage)i)+": "+result.PeopleByStage[i].ToString("N0",System.Globalization.CultureInfo.InvariantCulture)+" people"));
+            return result;
+        }
         public static string Date(PrehistoryState state)=>Date(state,state.Years);
         public static string Date(PrehistoryState state,int elapsedYears)
-        {int bp=state.DeepPast.YearsBeforePresent(elapsedYears);return bp>=0?bp.ToString("N0")+" years before reference":(-bp).ToString("N0")+" years after reference";}
+            =>DateFromOrigin(state.DeepPast.OriginYearsBeforePresent,elapsedYears);
+        public static string DateFromOrigin(int originYearsBeforePresent,int elapsedYears)
+        {long bp=(long)originYearsBeforePresent-elapsedYears;return bp>=0?bp.ToString("N0")+" years before reference":(-bp).ToString("N0")+" years after reference";}
         public static string Status(PrehistoryState state)
         {
             var h=state.DeepPast;int living=h.Populations.Select(p=>p.Lineage).Distinct().Count();

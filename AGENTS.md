@@ -1,5 +1,26 @@
 # WorldGen repository instructions
 
+LITHIC OVERVIEW CHECKPOINT,27October2026~11:10CDT:
+Shortcut NOW player-survival-stage-overview IL2CPP BuiltUtc
+2026-10-27T16:07:46.0381340Z.410hominin/153survival checks,44native PASS.
+HomininView.Stages detachedsummary countsactualcohorts bylocalLithicStage. Main
+Unity/browseroverview now Lower/Middle/UpperPaleolithic/Epipaleo-Meso/Neo/Chalco/
+Bronzefrontier, separatelypredominantstage/populationbars inatlas. No global
+unlockorbiologicalrank; unrepresentedadvancedtraditions ignored. Empty prepared
+scenarioEarlyHomo. Unity cachesbyactualDeepPastdomainreference, browserlabels
+onlyfullpublication; clock/repaint no newcohortcensus. Laterera/music/scheduling
+IDs unchanged. Browserclock/headline/event datesnowsharedbefore/afterreference
+calendarusingoriginmetadata, notsecondhistorymodel. Web+worker0warnings/errors.
+FourDLL/177fauna/177rigSHA verified;20ka CLR/nativehash exactunchanged. Native
+articletext actuallyviewed; nofreshGPUvisual/FPSclaim. FirstUnitystartup exited
+beforecompile; retrycleanbuilt; startupfailure.log retained. Ownworkers exited,
+ownerapps untouched. Storage/Creativefood/atlas earlierplayers stillavailable.
+Ownsource/docs/shortcut backup+push+REMOTEverification required. Preservedeleted
+prompt+2olddeerscripts. Ownerreviewpending; continuearchitecturefirstuntilwrap.
+No newgoal/subagents. Majorremaining limitsunchanged: renderedhistoricalice/coast,
+tribeNPCs/latercityhandoff, latearchaicdistributioncalibration, anatomyharvestparts,
+polishedart/clothes/toolcontacts. Do not claim allthese finished.
+
 SHARED STORAGE CHECKPOINT,27October2026~10:56CDT:
 Existing shortcut NOW player-survival-storage IL2CPP BuiltUtc
 2026-10-27T15:53:48.9150230Z.153survival/403hominin checks,43native PASS.
