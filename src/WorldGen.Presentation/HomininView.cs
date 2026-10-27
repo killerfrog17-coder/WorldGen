@@ -25,7 +25,8 @@ namespace WorldGen.Presentation
                 text+="\n\n"+l.Name+(l.SapiensLike?" (sapiens-like)":"")+" · "+Math.Round(p.People).ToString("N0")+" people\n"+t.Name+" · "+HomininHistory.StageName(HomininHistory.Stage(t));
                 text+="\nCommunication capacity "+(p.Communication*100).ToString("F0")+" · teaching "+(t.Teaching*100).ToString("F0")+" · cultural retention "+(t.Retention*100).ToString("F0");
                 text+="\nLearned practices: "+string.Join(", ",Enum.GetValues(typeof(LithicKnowledge)).Cast<LithicKnowledge>().Where(k=>k!=LithicKnowledge.None&&(t.Knowledge&k)!=0).Select(Prehistory.LithicSkillName));
-                text+="\nLanguage lineage "+p.Language+" · ancestry "+string.Join(", ",p.Ancestry.Where(a=>a.Share>.005).Select(a=>h.Lineages[a.Lineage].Name+" "+(a.Share*100).ToString("F0")+"%"));
+                var language=h.Version>=2?h.Languages[p.Language]:null;
+                text+="\n"+(language?.Name??("Language identity "+p.Language))+(language?.Parent>=0?" (from "+h.Languages[language.Parent].Name+")":"")+" · ancestry "+string.Join(", ",p.Ancestry.Where(a=>a.Share>.005).Select(a=>h.Lineages[a.Lineage].Name+" "+(a.Share*100).ToString("F0")+"%"));
             }
             var env=h.Habitats.FirstOrDefault(e=>e.Region==region);if(env!=null)text+="\n\nGlacial climate: "+env.TemperatureDelta.ToString("F1")+" °C from baseline; rainfall ×"+env.RainFactor.ToString("F2")+"; woody cover "+(env.WoodyCover*100).ToString("F0")+"%; ice "+(env.Ice*100).ToString("F0")+"%.";
             return text;

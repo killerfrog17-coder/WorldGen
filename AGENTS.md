@@ -1,5 +1,29 @@
 # WorldGen repository instructions
 
+SOURCE-ONLY HOMININ IDENTITY FOLLOW-UP,27October2026~06:40CDT:
+Selected root shortcut now points to VERIFIED player-survival-prototype, build
+11:10:46UTC, source15b39fd; prior human-refinement kept. All owned Unity/player
+workers exited; async owner survival review pending. No further GPU tests while
+owner may review. Current core adds HomininHistory.Version2 communication lineage
+records, parentage/founding/disappearance; legacy1 IDs retained with UNKNOWN
+ancestry rather than fabricated parents. 323focused core checks PASS; actual
+compact world from SHIPPED version1 CLI upgraded with all cohorts/traditions
+unchanged. Reciprocal ancestry mixing now conserves represented gene/trait
+totals across unequal populations, without replacing culture/language IDs.
+These changes are NOT IN SELECTED PLAYER yet. Do not claim otherwise.
+Fresh actual source-v2 Earth5000/seed42 full2.8M run completed135.955s at below-
+normal CPU priority,10.05Mpeople/2406cohorts/63livinglineages/2800events. This
+revealed UNREALISTIC innovation dates: pottery397ka, needles644ka, herding92ka,
+copper78ka, cultivation68ka, bronze59ka. Prior51.793s report used STALE no-build
+CLI before canonical-domain field; NOT a final-code benchmark. Research inputs
+remain artifacts/hominin-research/current-v2*. Calibration needs work; do not
+advertise simulation as realism-cleared. Consider explicit broad evidence-based
+plausibility priors in EarthLike mode, preserve free trajectory option; native
+copper working must be separated from smelting/Chalcolithic. Research first.
+Source phase push +backup required. Preserve unrelated owner prompt deletion
+and two old untracked deer scripts. No owner apps closed. Existing source15b39fd
+backup under artifacts/source-checkpoints/survival-20261027/own-source.zip.
+
 SURVIVAL / EARLY-HOMO PLAYABLE CHECKPOINT,27October2026~06:15CDT:
 Owner withdrew previous6-7h schedule after interruption; architecture/usability
 before extra content. Original request to continue until owner wraps up retained.

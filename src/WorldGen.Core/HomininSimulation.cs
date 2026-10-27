@@ -14,7 +14,8 @@ namespace WorldGen.Core
             if(origin<0)origin=ChooseOrigin();if(origin<0||origin>=Patches.Length||Patches[origin].Capacity<25)throw new ArgumentException("Choose a habitable founding region.");
             var h=new HomininHistory{EarthLikeTrajectory=earthLike,
                 Lineages=new[]{new HomininLineage{Id=0,OriginRegion=origin,Name="Homo "+HomininName(0,"lineage")}},
-                Traditions=new[]{new HomininTradition{Id=0,OriginRegion=origin,Name=HomininName(0,"tradition")+" tradition"}}};
+                Traditions=new[]{new HomininTradition{Id=0,OriginRegion=origin,Name=HomininName(0,"tradition")+" tradition"}},
+                Languages=new[]{new HomininLanguage{Id=0,OriginRegion=origin,Name=HomininName(0,"language")+" communication tradition"}}};
             var s=new PrehistoryState{Version="prehistory-hominin-1",Species="Homo",Origin=origin,WorldHash=World.Stages.Last().Hash,DeepPast=h,
                 Population=new long[Patches.Length],ArrivalYear=Enumerable.Repeat(-1,Patches.Length).ToArray(),Ancestry=Enumerable.Repeat(5000,Patches.Length*8).ToArray(),
                 Society=new SocietyState{Knowledge=new int[Patches.Length],CellCulture=Enumerable.Repeat(-1,World.Surface.Cells.Length).ToArray(),SelectedStepYears=1000},
@@ -29,7 +30,7 @@ namespace WorldGen.Core
         }
         PrehistoryState StartHominins(PrehistoryState source)
         {
-            ValidateHominins(source);if(source.Started)return source;var s=source.Copy();s.Started=true;
+            ValidateHominins(source);source=UpgradeHomininLanguagesOwned(source);if(source.Started)return source;var s=source.Copy();s.Started=true;
             s.DeepPast.Populations=new[]{new HomininPopulation{Id=0,Region=s.Origin,Lineage=0,Tradition=0,Language=0,People=Math.Min(150,Patches[s.Origin].Capacity),Ancestry=new[]{new HomininAncestry{Lineage=0,Share=1}}}};
             HumanAppearanceEnvironment(s.Origin,out _,out double uv,out int mean);
             for(int k=0;k<8;k++)s.DeepPast.Populations[0].Appearance[k]=HistoryHumanVariation.FounderValue(World.Recipe.Seed,s.Origin,(HumanAppearanceTrait)k,uv,mean);
@@ -38,6 +39,7 @@ namespace WorldGen.Core
         PrehistoryState AdvanceHominins(PrehistoryState source,long seconds,int maximumEvents,CancellationToken token,bool validate)
         {
             if(validate)ValidateHominins(source);if(!source.Started)throw new InvalidOperationException("Start the world first.");
+            source=UpgradeHomininLanguagesOwned(source);
             long now=SimulationTime.Seconds(source);if(seconds<1||seconds>SimulationTime.Maximum-now||maximumEvents<1)throw new ArgumentOutOfRangeException(nameof(seconds));
             long target=now+seconds;
             if(target<source.DeepPast.NextBoundaryYear*SimulationTime.Year)
@@ -61,7 +63,7 @@ namespace WorldGen.Core
         {
             var h=s.DeepPast;int dt=s.Years-h.LastBoundaryYear,bp=h.YearsBeforePresent(s.Years),seed=World.Recipe.Seed;
             homininRoutes??=Routes.SelectMany(r=>new[]{(region:r.A,route:r),(region:r.B,route:r)}).GroupBy(x=>x.region).ToDictionary(g=>g.Key,g=>g.Select(x=>x.route).ToArray());
-            var groups=h.Populations.Where(p=>p.People>=1).OrderBy(p=>p.Id).ToList();var traditions=h.Traditions.ToList();var lineages=h.Lineages.ToList();var events=h.Events.ToList();var habitats=h.Habitats.ToDictionary(e=>e.Region);
+            var groups=h.Populations.Where(p=>p.People>=1).OrderBy(p=>p.Id).ToList();var traditions=h.Traditions.ToList();var lineages=h.Lineages.ToList();var languages=h.Languages.ToList();var events=h.Events.ToList();var habitats=h.Habitats.ToDictionary(e=>e.Region);
             var byRegion=groups.GroupBy(p=>p.Region).ToDictionary(g=>g.Key,g=>g.ToList());
             var beforeRegional=byRegion.ToDictionary(p=>p.Key,p=>p.Value.Sum(g=>g.People));
             double globalGlacial=PleistoceneClimate.GlacialFraction(seed,bp),globalSea=-120*PleistoceneClimate.GlacialFraction(seed,bp+3000);
@@ -127,8 +129,7 @@ namespace WorldGen.Core
                     TransferHomininKnowledge(ta,tb,Math.Min(a.Communication,b.Communication),seed,a.Id+b.Id,s.Years,dt);
                     if(a.Lineage!=b.Lineage&&Math.Abs(a.Compactness-b.Compactness)+Math.Abs(a.Stature-b.Stature)<.7)
                     {
-                        double fraction=1-Math.Exp(-dt/60000d);MixHomininAncestry(a,b,fraction);MixHomininAncestry(b,a,fraction);
-                        double communication=a.Communication;a.Communication+=(b.Communication-a.Communication)*fraction;b.Communication+=(communication-b.Communication)*fraction;
+                        ExchangeHomininAncestry(a,b,1-Math.Exp(-dt/60000d));
                     }
                 }
             }
@@ -151,7 +152,8 @@ namespace WorldGen.Core
                 if(resident!=null){double fraction=moved/(resident.People+moved);MixHomininAncestry(resident,p,fraction);resident.People+=moved;resident.LastContactYear=s.Years;resident.Communication+=(p.Communication-resident.Communication)*fraction;resident.Learning+=(p.Learning-resident.Learning)*fraction;TransferHomininKnowledge(traditions[resident.Tradition],t,Math.Min(resident.Communication,p.Communication),seed,p.Id+resident.Id,s.Years,dt);continue;}
                 incoming.Id=h.NextPopulation++;incoming.People=moved;incoming.FoundedYear=incoming.LastMoveYear=s.Years;incoming.LastContactYear=s.Years;
                 if(s.Years-p.FoundedYear>5000)
-                {var tradition=t.Copy();tradition.Id=traditions.Count;tradition.Parent=t.Id;tradition.FoundedYear=s.Years;tradition.OriginRegion=to;tradition.Name=HomininName(tradition.Id,"tradition")+" tradition";traditions.Add(tradition);incoming.Tradition=tradition.Id;incoming.Language=h.NextLanguage++;}
+                {var tradition=t.Copy();tradition.Id=traditions.Count;tradition.Parent=t.Id;tradition.FoundedYear=s.Years;tradition.OriginRegion=to;tradition.Name=HomininName(tradition.Id,"tradition")+" tradition";traditions.Add(tradition);incoming.Tradition=tradition.Id;incoming.Language=h.NextLanguage++;
+                    languages.Add(new HomininLanguage{Id=incoming.Language,Parent=p.Language,FoundedYear=s.Years,OriginRegion=to,Name=HomininName(incoming.Language,"language")+" communication tradition"});}
                 arrivals.Add(incoming);residentIndex[(to,incoming.Lineage)]=incoming;if(s.ArrivalYear[to]<0){s.ArrivalYear[to]=s.Years;Event(incoming,"arrival","A descendant population established itself in a new region.");}
             }
             groups.AddRange(arrivals);
@@ -183,7 +185,19 @@ namespace WorldGen.Core
             }
             var extant=new HashSet<int>(groups.Select(p=>p.Lineage));
             foreach(var lineage in lineages)if(!extant.Contains(lineage.Id)&&lineage.ExtinctYear<0){lineage.ExtinctYear=s.Years;events.Add(new HomininEvent{Year=s.Years,Region=lineage.OriginRegion,Lineage=lineage.Id,Kind="extinction",Text=lineage.Name+" ceased to exist as a distinct living population; mixed ancestry may survive."});}
-            h.Populations=groups.OrderBy(p=>p.Id).ToArray();h.Lineages=lineages.ToArray();h.Traditions=traditions.ToArray();h.Events=events.ToArray();h.Habitats=habitats.Values.OrderBy(e=>e.Region).ToArray();
+            var livingLanguages=new HashSet<int>(groups.Select(p=>p.Language));foreach(var language in languages)if(language.ExtinctYear<0&&!livingLanguages.Contains(language.Id))language.ExtinctYear=s.Years;
+            h.Populations=groups.OrderBy(p=>p.Id).ToArray();h.Lineages=lineages.ToArray();h.Traditions=traditions.ToArray();h.Languages=languages.ToArray();h.Events=events.ToArray();h.Habitats=habitats.Values.OrderBy(e=>e.Region).ToArray();
+        }
+        public PrehistoryState UpgradeHomininLanguages(PrehistoryState source)
+        {ValidateHominins(source);return UpgradeHomininLanguagesOwned(source);}
+        PrehistoryState UpgradeHomininLanguagesOwned(PrehistoryState source)
+        {
+            if(source.DeepPast.Version>=2)return source;
+            var s=source.Copy();var h=s.DeepPast;h.Version=2;
+            // The first checkpoint stored IDs but not language parentage. Keep
+            // those identities; do not invent ancestors or dates during upgrade.
+            h.Languages=Enumerable.Range(0,h.NextLanguage).Select(i=>new HomininLanguage{Id=i,OriginRegion=-1,FoundedYear=-1,LegacyOriginUnknown=true,Name=HomininName(i,"language")+" communication tradition"}).ToArray();
+            h.SealDomain();s.Seal();return s;
         }
         static int CountBits(long bits){int n=0;while(bits!=0){bits&=bits-1;n++;}return n;}
         static double HomininWoodland(Biome biome)=>biome==Biome.TropicalRainforest||biome==Biome.TemperateRainforest?.9:biome==Biome.TropicalSeasonalForest||biome==Biome.TemperateForest?.7:biome==Biome.BorealForest?.6:biome==Biome.Savanna||biome==Biome.MediterraneanWoodland?.3:.05;
@@ -193,6 +207,23 @@ namespace WorldGen.Core
             foreach(var a in donor.Ancestry){shares.TryGetValue(a.Lineage,out double previous);shares[a.Lineage]=previous+a.Share*fraction;}
             for(int k=0;k<8;k++)recipient.Appearance[k]=(int)Math.Round(recipient.Appearance[k]*(1-fraction)+donor.Appearance[k]*fraction);
             recipient.Ancestry=shares.OrderBy(p=>p.Key).Select(p=>new HomininAncestry{Lineage=p.Key,Share=p.Value}).ToArray();
+        }
+        /// <summary>Coarse, reciprocal gene flow with equal represented people
+        /// exchanged. A smaller cohort changes more; ancestry totals are not
+        /// created by mixing a large cohort with an already modified donor.
+        /// Learned traditions and language identity are unaffected.</summary>
+        public static void ExchangeHomininAncestry(HomininPopulation a,HomininPopulation b,double fraction)
+        {
+            if(a==null||b==null||!SurvivalMath.Finite(fraction)||fraction<0||fraction>1||!SurvivalMath.Finite(a.People)||!SurvivalMath.Finite(b.People)||a.People<=0||b.People<=0)throw new ArgumentException("Invalid reciprocal ancestry exchange.");
+            if(ReferenceEquals(a,b)||fraction==0)return;
+            var originalA=a.Copy();double exchanged=Math.Min(a.People,b.People)*fraction,fa=exchanged/a.People,fb=exchanged/b.People;
+            MixHomininAncestry(a,b,fa);MixHomininAncestry(b,originalA,fb);
+            double ac=a.Communication,al=a.Learning,ad=a.ColdAdaptation,ab=a.Compactness,asize=a.Stature;
+            a.Communication+=(b.Communication-ac)*fa;b.Communication+=(ac-b.Communication)*fb;
+            a.Learning+=(b.Learning-al)*fa;b.Learning+=(al-b.Learning)*fb;
+            a.ColdAdaptation+=(b.ColdAdaptation-ad)*fa;b.ColdAdaptation+=(ad-b.ColdAdaptation)*fb;
+            a.Compactness+=(b.Compactness-ab)*fa;b.Compactness+=(ab-b.Compactness)*fb;
+            a.Stature+=(b.Stature-asize)*fa;b.Stature+=(asize-b.Stature)*fb;
         }
         static void TransferHomininKnowledge(HomininTradition a,HomininTradition b,double communication,int seed,int entity,int year,int dt)
         {
@@ -211,8 +242,8 @@ namespace WorldGen.Core
         }
         void ValidateHominins(PrehistoryState s)
         {
-            if(s==null||s.Version!="prehistory-hominin-1"||s.Species!="Homo"||s.WorldHash!=World.Stages.Last().Hash||s.DeepPast==null||s.DeepPast.Version!=1||s.Origin<0||s.Origin>=Patches.Length||s.Population?.Length!=Patches.Length||s.Ancestry?.Length!=Patches.Length*8||s.ArrivalYear?.Length!=Patches.Length||s.Timeline?.Version!="event-calendar-hominin-1"||s.Timeline.Seconds<0||s.Years!=s.Timeline.Seconds/SimulationTime.Year||s.Society==null||s.Hash!=s.ComputeHash())throw new ArgumentException("Invalid early-hominin save.");
-            var h=s.DeepPast;if(h.CanonicalHash!=h.ComputeDomainHash())throw new ArgumentException("Early-hominin domain fingerprint changed.");if(h.NextBoundaryYear<=s.Years||h.LastBoundaryYear>s.Years||h.Lineages==null||h.Traditions==null||h.Populations==null||h.Habitats==null||h.Events==null)throw new ArgumentException("Invalid hominin timeline.");
+            if(s==null||s.Version!="prehistory-hominin-1"||s.Species!="Homo"||s.WorldHash!=World.Stages.Last().Hash||s.DeepPast==null||(s.DeepPast.Version!=1&&s.DeepPast.Version!=2)||s.Origin<0||s.Origin>=Patches.Length||s.Population?.Length!=Patches.Length||s.Ancestry?.Length!=Patches.Length*8||s.ArrivalYear?.Length!=Patches.Length||s.Timeline?.Version!="event-calendar-hominin-1"||s.Timeline.Seconds<0||s.Years!=s.Timeline.Seconds/SimulationTime.Year||s.Society==null||s.Hash!=s.ComputeHash())throw new ArgumentException("Invalid early-hominin save.");
+            var h=s.DeepPast;if(h.CanonicalHash!=h.ComputeDomainHash())throw new ArgumentException("Early-hominin domain fingerprint changed.");if(h.NextBoundaryYear<=s.Years||h.LastBoundaryYear>s.Years||h.NextLanguage<1||h.NextPopulation<1||h.Lineages==null||h.Lineages.Length==0||h.Traditions==null||h.Traditions.Length==0||h.Populations==null||h.Habitats==null||h.Events==null)throw new ArgumentException("Invalid hominin timeline.");
             var ids=new HashSet<int>();foreach(var p in h.Populations)
                 if(p==null||!ids.Add(p.Id)||p.Id<0||p.Id>=h.NextPopulation||p.Region<0||p.Region>=Patches.Length||p.Lineage<0||p.Lineage>=h.Lineages.Length||p.Tradition<0||p.Tradition>=h.Traditions.Length||!SurvivalMath.Finite(p.People)||p.People<0||p.Appearance==null||p.Appearance.Length!=8||p.Appearance.Any(v=>v<0||v>10000)||p.Ancestry==null||Math.Abs(p.Ancestry.Sum(a=>a.Share)-1)>1e-6||p.Ancestry.Any(a=>a.Lineage<0||a.Lineage>=h.Lineages.Length||!SurvivalMath.Finite(a.Share)||a.Share<0))throw new ArgumentException("Invalid hominin population.");
             bool Unit(double x)=>SurvivalMath.Finite(x)&&x>=0&&x<=1;
@@ -223,6 +254,17 @@ namespace WorldGen.Core
             }
             for(int i=0;i<h.Traditions.Length;i++)
             {var t=h.Traditions[i];if(t==null||t.Id!=i||t.Parent>=i||t.Parent< -1||t.Name==null||t.OriginRegion<0||t.OriginRegion>=Patches.Length||t.FoundedYear<0||t.FoundedYear>s.Years||!Unit(t.Teaching)||!Unit(t.Network)||!Unit(t.Retention)||!Unit(t.Sedentism)||!Unit(t.Cultivation)||!Unit(t.Herding)||((long)t.Knowledge&~((1L<<25)-1))!=0)throw new ArgumentException("Invalid hominin tradition.");}
+            if(h.Version>=2)
+            {
+                if(h.Languages==null||h.Languages.Length!=h.NextLanguage)throw new ArgumentException("Missing hominin language identities.");
+                for(int i=0;i<h.Languages.Length;i++)
+                {
+                    var l=h.Languages[i];
+                    if(l==null||l.Id!=i||l.Parent< -1||l.Parent>=i||l.Name==null||l.ExtinctYear< -1||l.ExtinctYear>s.Years||l.FoundedYear>s.Years||l.OriginRegion>=Patches.Length||
+                       (l.LegacyOriginUnknown?(l.OriginRegion< -1||l.FoundedYear< -1):(l.OriginRegion<0||l.FoundedYear<0)))throw new ArgumentException("Invalid hominin language ancestry.");
+                }
+                if(h.Populations.Any(p=>h.Languages[p.Language].ExtinctYear>=0))throw new ArgumentException("A living population refers to an extinct communication tradition.");
+            }
             var totals=new long[Patches.Length];foreach(var p in h.Populations)totals[p.Region]+=(long)Math.Round(p.People);
             if(!totals.SequenceEqual(s.Population)||s.Society.CellCulture.Length!=World.Surface.Cells.Length||s.Society.Cultures.Length!=h.Traditions.Length||s.Society.CellCulture.Any(c=>c< -1||c>=h.Traditions.Length))throw new ArgumentException("Early-hominin publication totals disagree with the authoritative cohorts.");
             foreach(var e in h.Events)if(e==null||e.Year<0||e.Year>s.Years||e.Region<0||e.Region>=Patches.Length||e.Lineage<0||e.Lineage>=h.Lineages.Length||e.Tradition<0||e.Tradition>=h.Traditions.Length||e.Kind==null||e.Text==null)throw new ArgumentException("Invalid hominin event provenance.");

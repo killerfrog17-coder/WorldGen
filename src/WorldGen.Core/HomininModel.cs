@@ -29,6 +29,12 @@ namespace WorldGen.Core
     }
     [Serializable] public sealed class HomininAncestry
     {public int Lineage;public double Share;public HomininAncestry Copy()=>(HomininAncestry)MemberwiseClone();}
+    [Serializable] public sealed class HomininLanguage
+    {
+        public int Id,Parent=-1,OriginRegion,FoundedYear,ExtinctYear=-1;
+        public string Name="";public bool LegacyOriginUnknown;
+        public HomininLanguage Copy()=>(HomininLanguage)MemberwiseClone();
+    }
     [Serializable] public sealed class HomininPopulation
     {
         public int Id,Region,Lineage,Tradition,Language,FoundedYear,LastContactYear,LastMoveYear;
@@ -46,18 +52,24 @@ namespace WorldGen.Core
     {public int Year,Region,Lineage,Tradition;public string Kind="",Text="";public HomininEvent Copy()=>(HomininEvent)MemberwiseClone();}
     [Serializable] public sealed class HomininHistory
     {
-        public int Version=1,OriginYearsBeforePresent=PleistoceneClimate.DefaultOriginYearsBeforePresent,LastBoundaryYear,NextBoundaryYear=1000,NextPopulation=1,NextLanguage=1;
+        public int Version=2,OriginYearsBeforePresent=PleistoceneClimate.DefaultOriginYearsBeforePresent,LastBoundaryYear,NextBoundaryYear=1000,NextPopulation=1,NextLanguage=1;
         public bool Active=true,EarthLikeTrajectory=true;
         public string CanonicalHash="";
         public HomininLineage[] Lineages=Array.Empty<HomininLineage>();public HomininTradition[] Traditions=Array.Empty<HomininTradition>();
         public HomininPopulation[] Populations=Array.Empty<HomininPopulation>();public HomininHabitat[] Habitats=Array.Empty<HomininHabitat>();public HomininEvent[] Events=Array.Empty<HomininEvent>();
+        [System.Runtime.Serialization.OptionalField] public HomininLanguage[] Languages=Array.Empty<HomininLanguage>();
+        [System.Runtime.Serialization.OnDeserializing] void InitializeLanguages(System.Runtime.Serialization.StreamingContext context){Languages=Array.Empty<HomininLanguage>();}
         public HomininHistory Copy()
         {
             var h=(HomininHistory)MemberwiseClone();h.Lineages=Lineages.Select(x=>x.Copy()).ToArray();h.Traditions=Traditions.Select(x=>x.Copy()).ToArray();
-            h.Populations=Populations.Select(x=>x.Copy()).ToArray();h.Habitats=Habitats.Select(x=>x.Copy()).ToArray();h.Events=Events.Select(x=>x.Copy()).ToArray();return h;
+            h.Populations=Populations.Select(x=>x.Copy()).ToArray();h.Habitats=Habitats.Select(x=>x.Copy()).ToArray();h.Events=Events.Select(x=>x.Copy()).ToArray();h.Languages=(Languages??Array.Empty<HomininLanguage>()).Select(x=>x.Copy()).ToArray();return h;
         }
         public int YearsBeforePresent(int elapsed)=>OriginYearsBeforePresent-elapsed;
-        public string ComputeDomainHash()=>StateHash.Compute(new object[]{Version,OriginYearsBeforePresent,LastBoundaryYear,NextBoundaryYear,NextPopulation,NextLanguage,Active,EarthLikeTrajectory,Lineages,Traditions,Populations,Habitats,Events});
+        public string ComputeDomainHash()
+        {
+            object legacy=new object[]{Version,OriginYearsBeforePresent,LastBoundaryYear,NextBoundaryYear,NextPopulation,NextLanguage,Active,EarthLikeTrajectory,Lineages,Traditions,Populations,Habitats,Events};
+            return Version==1?StateHash.Compute(legacy):StateHash.Compute(new object[]{legacy,Languages});
+        }
         public void SealDomain(){CanonicalHash=ComputeDomainHash();}
         public static LithicStage Stage(HomininTradition tradition)
         {

@@ -160,3 +160,26 @@ an appropriate held weapon. Detailed controls and mode switches are inside
 Character & help. `/spawn deer 1`, `/give list`, `/survival`, `/heal` and `/mode
 survival|creative|spectator` support prototype testing. No control hints were added
 to the normal gameplay HUD.
+
+### Subsequent core architecture work (not in the selected build yet)
+
+Hominin domain version 2 records communication traditions with parent IDs,
+founding region/date and disappearance dates, separately from biology and tool
+traditions. These are lineage records, not generated vocabularies or proof that
+the founding population possessed modern grammar. Version 1 upgrades preserve
+its existing IDs and explicitly mark missing ancestry unknown. The legacy domain
+hash remains valid; populations and learned practices are not regenerated.
+
+323 core checks pass, including parentage, detached publication copies and
+version migration. A compact world generated with the actually packaged version
+1 worker was loaded and upgraded by the new code with every cohort and learned
+tradition unchanged. Evidence: `artifacts/hominin-research/language-provenance-proof.txt`.
+The selected playable build is still the separately verified survival checkpoint.
+
+Reciprocal admixture now exchanges equal represented numbers of people rather
+than applying the same fraction twice to different-sized cohorts and a modified
+donor. Weighted ancestry and inherited-trait totals are conserved; language and
+learned-culture IDs are not replaced by biological exchange. The new tests cover
+this distinction explicitly. A current version-2, 5,000-cell Earth seed-42 run
+advances 2.8 million years and validates in about 136 seconds at below-normal CPU
+priority. This is one full-run check, not a cross-seed realism/performance claim.
