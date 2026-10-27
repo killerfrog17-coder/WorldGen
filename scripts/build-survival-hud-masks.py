@@ -53,7 +53,7 @@ im=Image.fromarray(np.stack([sdf(polygon(water_points)),sdf(polygon(food_points)
 im.save(DEST/'Shapes.png')
 for folder in [DEST]:
     meta=folder.with_suffix('.meta')
-    if not meta.exists():meta.write_text('fileFormatVersion: 2\nguid: '+uuid.uuid4().hex+'\nfolderAsset: yes\nDefaultImporter:\n  externalObjects: {}\n  userData: \n  assetBundleName: \n  assetBundleVariant: \n',encoding='utf-8')
+    if not meta.exists():meta.write_text('fileFormatVersion: 2\nguid: '+uuid.uuid4().hex+'\nfolderAsset: yes\nDefaultImporter:\n  externalObjects: {}\n  userData:\n  assetBundleName:\n  assetBundleVariant:\n',encoding='utf-8')
 print('HUD mask atlas:',DEST/'Shapes.png')
 print('Water bounds:',np.min(water_points,axis=0),np.max(water_points,axis=0))
 print('Stomach bounds:',np.min(food_points,axis=0),np.max(food_points,axis=0))
