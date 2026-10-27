@@ -53,7 +53,7 @@ namespace WorldGen.Core
     [Serializable] public sealed class HomininHistory
     {
         public int Version=2,OriginYearsBeforePresent=PleistoceneClimate.DefaultOriginYearsBeforePresent,LastBoundaryYear,NextBoundaryYear=1000,NextPopulation=1,NextLanguage=1;
-        [System.Runtime.Serialization.OptionalField] public int RulesVersion=3;
+        [System.Runtime.Serialization.OptionalField] public int RulesVersion=4;
         public bool Active=true,EarthLikeTrajectory=true;
         public string CanonicalHash="";
         public HomininLineage[] Lineages=Array.Empty<HomininLineage>();public HomininTradition[] Traditions=Array.Empty<HomininTradition>();

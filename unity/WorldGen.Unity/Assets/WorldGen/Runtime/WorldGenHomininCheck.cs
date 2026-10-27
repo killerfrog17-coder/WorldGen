@@ -23,7 +23,7 @@ public sealed partial class WorldGenRuntime
             Directory.CreateDirectory(output);string input=Argument("--worldgen-hominin-check","");byte[] original=File.ReadAllBytes(input);
             var world=input.EndsWith(".world",StringComparison.OrdinalIgnoreCase)?WorldFile.Read(original):WorldJson.ReadWorld(System.Text.Encoding.UTF8.GetString(original));
             var engine=new Prehistory(world);var initial=engine.Start(engine.PrepareHominins());
-            Check(initial.DeepPast.Version==2&&initial.DeepPast.RulesVersion==3,"native player creates the current early-history schema and rules");
+            Check(initial.DeepPast.Version==2&&initial.DeepPast.RulesVersion==4,"native player creates the current early-history schema and rules");
             Check(initial.DeepPast.Languages.Length==1,"native player retains the founding communication identity");
             var state=engine.AdvanceYears(initial,20000);engine.Validate(state);
             Check(state.DeepPast.Languages.Length==state.DeepPast.NextLanguage,"native player tracks communication branches");
@@ -33,10 +33,14 @@ public sealed partial class WorldGenRuntime
             Check(state.DeepPast.Traditions.All(t=>(t.Knowledge&LithicKnowledge.Pottery)==0),"early foundation does not grant late pottery");
             world.Prehistory=state;var restored=WorldFile.Read(WorldFile.Write(world));var resumed=new Prehistory(restored);
             Check(restored.Prehistory.Hash==state.Hash,"compact native save retains early-history canonical hash");
-            Check(restored.Prehistory.DeepPast.RulesVersion==3,"compact native save retains the explicit rule revision");
+            Check(restored.Prehistory.DeepPast.RulesVersion==4,"compact native save retains the explicit rule revision");
             Check(resumed.AdvanceYears(restored.Prehistory,1000).Hash==engine.AdvanceYears(state,1000).Hash,"fresh native engine resumes the same populations and traditions");
             var people=new HomininActorSampler(engine,state);
             Check(people.TrySample(engine.Patches[state.Origin].Cell,123,false,out var person)&&WorldJson.Read<HomininActorProfile>(WorldJson.Write(person)).HistoryHash==state.Hash,"native actor profiles retain demographic provenance through serialization");
+            var returning=state.Copy();var ancestral=returning.DeepPast.Populations.First(p=>!returning.DeepPast.Lineages[p.Lineage].SapiensLike);ancestral.Communication=ancestral.Learning=.9;
+            int lostId=returning.DeepPast.Lineages.Length;var lost=returning.DeepPast.Lineages[ancestral.Lineage].Copy();lost.Id=lostId;lost.Parent=ancestral.Lineage;lost.Name="Lost descendant fixture";lost.SapiensLike=true;lost.FoundedYear=10000;lost.ExtinctYear=15000;
+            returning.DeepPast.Lineages=returning.DeepPast.Lineages.Concat(new[]{lost}).ToArray();returning.DeepPast.SealDomain();returning.Seal();var living=engine.AdvanceYears(returning,1000);engine.Validate(living);
+            Check(living.DeepPast.Lineages[lostId].ExtinctYear==15000&&!living.DeepPast.Populations.Any(p=>p.Lineage==lostId),"native current rules do not resurrect a recorded extinct lineage");
             var arranged=new SurvivalInventory{View=InventoryView.Grid,NextId=7,Items=new[]{
                 new SurvivalStack{Id=1,Item="pack",Container=-2},
                 new SurvivalStack{Id=2,Item="stone-spear",Container=0,X=3,Rotated=true},

@@ -1,5 +1,27 @@
 # WorldGen repository instructions
 
+LINEAGE LIFECYCLE CHECKPOINT,27October2026~08:38CDT:
+Existing shortcut NOW player-survival-lineages IL2CPP BuiltUtc
+2026-10-27T13:34:45.1043466Z;22native no-graphics checks PASS,372hominin and
+120survival checks PASS. 177fauna/177rigsidecar/fourstagedDLL hashes verified.
+NEW scenarios RulesVersion4: descendant lookup never reuses extinct child;
+current validator rejects positive living cohorts assigned to extinct lineage.
+Old rules1/2/3 retain their outcomes; regressions explicitly reproduce oldbug.
+Full seed17/5000cell/2.8Ma run validates:1806cohorts/64extantlineages/0living-
+extinct contradiction,68.863sec below-normal (NOT general speedup). Technology
+firstdates match priorseed17. Evidence hominin-research/rules4-lifecycle-proof.
+Core/identity change only after endurance build, no render/animation change.
+Archaic persistence calibration NOT solved:rules3seed42~471202archaic,seed17
+~212783at reference, much notisolated. Don't force globalkilldate or cognitive
+speciespenalty. Newprimary2026nature s41586-026-10625-1 challenges universal
+inbreedingdoom;2019PLOS0225117 provides small-band sufficiencymodel,2024Science
+38991054 gene-flow evidence. Needcontact/breedingnetwork separate from huge
+ecoregion census before mate-finding/collapse rules. Researchdoc includes links.
+All ownedCLI/build/player workers exited, no ownerapps closed. Existing async
+review pending; no duplicate question. Ownsource/docs/shortcut backup+push
+required. Preserve unrelated deletedprompt/2olddeerscripts. Architecture first;
+user original wants continued work until wrap-up, old overnight deadline gone.
+
 SPRINT RECOVERY CHECKPOINT,27October2026~08:26CDT:
 Selected shortcut player-survival-endurance IL2CPP BuiltUtc
 2026-10-27T13:24:18.9225530Z;21native no-graphics checks PASS,120survival checks.

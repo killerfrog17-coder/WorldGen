@@ -172,7 +172,7 @@ namespace WorldGen.Core
                 }
                 if(!lineages[p.Lineage].SapiensLike&&p.Communication>.72&&p.Learning>.75)
                 {
-                    int parent=p.Lineage;bool newlyCreated=false;var descendant=lineages.FirstOrDefault(l=>l.Parent==parent&&l.SapiensLike);
+                    int parent=p.Lineage;bool newlyCreated=false;var descendant=lineages.FirstOrDefault(l=>l.Parent==parent&&l.SapiensLike&&(h.RulesVersion<4||l.ExtinctYear<0));
                     if(descendant==null)
                     {
                         descendant=new HomininLineage{Id=lineages.Count,Parent=parent,FoundedYear=s.Years,OriginRegion=p.Region,Name="Homo "+HomininName(lineages.Count,"lineage"),
@@ -249,7 +249,7 @@ namespace WorldGen.Core
         void ValidateHominins(PrehistoryState s)
         {
             if(s==null||s.Version!="prehistory-hominin-1"||s.Species!="Homo"||s.WorldHash!=World.Stages.Last().Hash||s.DeepPast==null||(s.DeepPast.Version!=1&&s.DeepPast.Version!=2)||s.Origin<0||s.Origin>=Patches.Length||s.Population?.Length!=Patches.Length||s.Ancestry?.Length!=Patches.Length*8||s.ArrivalYear?.Length!=Patches.Length||s.Timeline?.Version!="event-calendar-hominin-1"||s.Timeline.Seconds<0||s.Years!=s.Timeline.Seconds/SimulationTime.Year||s.Society==null||s.Hash!=s.ComputeHash())throw new ArgumentException("Invalid early-hominin save.");
-            var h=s.DeepPast;if(h.CanonicalHash!=h.ComputeDomainHash())throw new ArgumentException("Early-hominin domain fingerprint changed.");if(h.RulesVersion<1||h.RulesVersion>3||h.Version==1&&h.RulesVersion!=1||h.NextBoundaryYear<=s.Years||h.LastBoundaryYear>s.Years||h.NextLanguage<1||h.NextPopulation<1||h.Lineages==null||h.Lineages.Length==0||h.Traditions==null||h.Traditions.Length==0||h.Populations==null||h.Habitats==null||h.Events==null)throw new ArgumentException("Invalid hominin timeline.");
+            var h=s.DeepPast;if(h.CanonicalHash!=h.ComputeDomainHash())throw new ArgumentException("Early-hominin domain fingerprint changed.");if(h.RulesVersion<1||h.RulesVersion>4||h.Version==1&&h.RulesVersion!=1||h.NextBoundaryYear<=s.Years||h.LastBoundaryYear>s.Years||h.NextLanguage<1||h.NextPopulation<1||h.Lineages==null||h.Lineages.Length==0||h.Traditions==null||h.Traditions.Length==0||h.Populations==null||h.Habitats==null||h.Events==null)throw new ArgumentException("Invalid hominin timeline.");
             var ids=new HashSet<int>();foreach(var p in h.Populations)
                 if(p==null||!ids.Add(p.Id)||p.Id<0||p.Id>=h.NextPopulation||p.Region<0||p.Region>=Patches.Length||p.Lineage<0||p.Lineage>=h.Lineages.Length||p.Tradition<0||p.Tradition>=h.Traditions.Length||!SurvivalMath.Finite(p.People)||p.People<0||p.Appearance==null||p.Appearance.Length!=8||p.Appearance.Any(v=>v<0||v>10000)||p.Ancestry==null||Math.Abs(p.Ancestry.Sum(a=>a.Share)-1)>1e-6||p.Ancestry.Any(a=>a.Lineage<0||a.Lineage>=h.Lineages.Length||!SurvivalMath.Finite(a.Share)||a.Share<0))throw new ArgumentException("Invalid hominin population.");
             bool Unit(double x)=>SurvivalMath.Finite(x)&&x>=0&&x<=1;
@@ -260,6 +260,7 @@ namespace WorldGen.Core
             }
             for(int i=0;i<h.Traditions.Length;i++)
             {var t=h.Traditions[i];if(t==null||t.Id!=i||t.Parent>=i||t.Parent< -1||t.Name==null||t.OriginRegion<0||t.OriginRegion>=Patches.Length||t.FoundedYear<0||t.FoundedYear>s.Years||!Unit(t.Teaching)||!Unit(t.Network)||!Unit(t.Retention)||!Unit(t.Sedentism)||!Unit(t.Cultivation)||!Unit(t.Herding)||((long)t.Knowledge&~((1L<<(h.RulesVersion>=3?26:25))-1))!=0)throw new ArgumentException("Invalid hominin tradition.");}
+            if(h.RulesVersion>=4&&h.Populations.Any(p=>p.People>0&&h.Lineages[p.Lineage].ExtinctYear>=0))throw new ArgumentException("A living population refers to an extinct biological lineage.");
             if(h.Version>=2)
             {
                 if(h.Languages==null||h.Languages.Length!=h.NextLanguage)throw new ArgumentException("Missing hominin language identities.");

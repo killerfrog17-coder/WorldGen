@@ -223,7 +223,8 @@ Model coefficients in `HomininChronology` are tuning parameters, not numbers
 copied from these papers. Perishable techniques have especially uncertain
 histories. Rules versions are saved independently of the record schema: version
 1 playable checkpoints retain their old rules when communication records are
-added; pre-policy version 2 files retain rules 2. New scenarios use rules 3.
+added; pre-policy version 2 files retain rules 2. Chronology changes begin in
+rules 3; the lineage-lifecycle follow-up below introduces rules 4.
 Native copper and extractive smelting are separate flags, and new-rule bronze
 requires smelting. Existing histories are not retroactively rewritten. The
 selected playable build still predates this calibration work.
@@ -360,3 +361,54 @@ survival checks are 120. All 177 fauna bundles/rig sidecars and staged DLL input
 are verified. This is logical/native validation of the gait gate, not a new
 visual animation or FPS certification. Earlier packages are retained. Evidence:
 `artifacts/survival-endurance-native-final` and its package proof JSON.
+
+### Biological lineage lifecycle audit
+
+The rules-3 seed-17 run contained one living population assigned to a lineage
+already recorded extinct. When another ancestral cohort became sapiens-like,
+the descendant lookup could reuse its extinct sibling's record. Rules 4 only
+reuse an extant descendant and otherwise record a new one; validation rejects
+living cohorts attached to extinct lineages. Existing rules 1/2/3 retain their
+recorded behavior. Regression checks reproduce the legacy case and verify the
+new descendant, unchanged old extinction date and validation failure.
+
+The full 2.8-million-year seed-17 rules-4 run completes and validates: 1,806
+cohorts, 64 extant biological lineages and no living/extinct contradiction.
+First recorded technology dates match that seed's rules-3 probe. The run took
+68.863 seconds at below-normal priority; the difference from prior wall times
+is not evidence of a general speedup. Evidence is
+`artifacts/hominin-research/rules4-lifecycle-proof.json`.
+
+This audit also exposes a calibration limit: rules-3 seed 42 still has about
+471,202 archaic-classified people at reference time, and seed 17 about 212,783;
+roughly 157,864 and 107,536 respectively share regions with sapiens-like cohorts.
+The identity fix does not make this a realistic extinction distribution. Coarse
+lineage branching, persistent co-resident cohorts and assimilation need further
+work before claiming the intended mostly isolated late archaic survival. No
+global extermination rule or arbitrary forced end date has been added.
+
+The next demographic revision needs mechanisms rather than a species-specific
+death multiplier. [Vaesen et al. (2019)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0225117)
+show that small-population effects can produce extinction without assuming a
+cognitive disadvantage; this is a sufficiency model, not proof of one universal
+cause. [Li et al. (2024)](https://pubmed.ncbi.nlm.nih.gov/38991054/)
+support recurrent gene flow and a role for assimilation.
+However, [Bossoms Mesa et al. (2026)](https://www.nature.com/articles/s41586-026-10625-1)
+find no close-relative mating signature or rising genetic load in their late
+northwestern sample, and no evidence of recent modern-human gene flow there.
+Regional histories differ; a universal inbreeding-collapse rule would ignore
+this evidence.
+
+Architecture inference: distinguish breeding/contact networks from total
+ecoregion headcounts before applying mate-finding or small-band risk. Merely
+sharing a huge geographic region should not imply universal contact or mixing.
+Future integration must retain biological ancestry while allowing distinct
+demographic lineages to disappear, and keep learned culture/language separate.
+Those demographic mechanisms are not implemented by the lifecycle bug fix.
+
+Selected lifecycle build: `artifacts/player-survival-lineages`, IL2CPP UTC
+`2026-10-27T13:34:45.1043466Z`. All 22 native no-graphics checks pass, including
+the extinct-child fixture and compact persistence of rules 4; 372 hominin tests
+and 120 survival tests pass. Package DLLs, all 177 fauna bundles and 177 original
+rig sidecars are verified. No graphics changes beyond the previously recorded
+movement gate; no new render/FPS claim. Older selected players remain available.
