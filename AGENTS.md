@@ -1,5 +1,17 @@
 # WorldGen repository instructions
 
+CREATIVE FOOD FOLLOW-UP,27October2026~10:45CDT:
+Existing shortcut NOW player-survival-creative-food IL2CPP BuiltUtc
+2026-10-27T15:44:07.2598576Z.136survival/403hominin tests,38nativechecks PASS.
+Creative bypassedfood inputs butCraft stillFirst()inspectedmissinginputfraction;
+nowonlySurvival readsinputportion,Creativefullportion. ALLfoodrecipes without
+input/fire checked bothCLR/native. No schema/historyrules/renderingchanges.
+20ka CLR/nativehash exact;fourDLL/177fauna/177rigsidecarSHA verified. Evidence
+survival-creative-food-native-final/package-proof; prioratlasbuild retained.
+Allownworkers exited,ownerapps untouched. No newvisual/FPSclaim. Ownsource/docs/
+shortcut backup+push+REMOTEverification required. Preserveunrelatedpromptdeletion
+and2deerscripts. Ownerreviewpending,keepworkingarchitecturefirstuntilwrap-up.
+
 EARLY HISTORY ATLAS CHECKPOINT,27October2026~10:39CDT:
 Existing shortcut NOW player-survival-hominin-atlas IL2CPP BuiltUtc
 2026-10-27T15:36:36.1414426Z. 403hominin/climate/clock/view checks,126survival,

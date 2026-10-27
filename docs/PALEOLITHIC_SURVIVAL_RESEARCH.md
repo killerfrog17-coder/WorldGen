@@ -4,9 +4,9 @@ Owner scope: 27 October 2026. Gameplay prototype plus an early-history overhaul;
 no paid services, no new animal appearance work. Earlier saves retain their
 historical rules unless explicitly starting/upgrading the early-history scenario.
 
-Current selected checkpoint: `artifacts/player-survival-hominin-atlas`, IL2CPP
-UTC `2026-10-27T15:36:36.1414426Z`, through the existing project shortcut.
-Core checks: 126 survival and 403 hominin/clock/view assertions; 36 native geometry/
+Current selected checkpoint: `artifacts/player-survival-creative-food`, IL2CPP
+UTC `2026-10-27T15:44:07.2598576Z`, through the existing project shortcut.
+Core checks: 136 survival and 403 hominin/clock/view assertions; 38 native geometry/
 persistence checks, an editor mesh-lifetime regression and 20 unload cycles.
 The 20,000-year early-history canonical hash matches between CLR and IL2CPP.
 Earlier graphical survival review passed 24 functional checks; later changes
@@ -560,3 +560,17 @@ All four staged DLLs, 177 animal bundles and original-rig sidecars match their
 inputs. Existing shortcut selects this build; small-prey and other recent/daily
 players remain. The package is not fresh graphical or FPS acceptance. Evidence:
 `artifacts/survival-hominin-atlas-native-final` and package proof JSON.
+
+
+### Creative food creation
+
+Creative crafting bypasses ingredients, so it must not inspect an absent food
+stack to determine the output portion. It now creates a full portion; Survival
+mode retains the consumed portion's size. All food recipes are exercised from
+an otherwise ingredient-free Creative inventory. There are 136 survival checks
+and 38 native checks. IL2CPP checkpoint UTC `2026-10-27T15:44:07.2598576Z`,
+`artifacts/player-survival-creative-food`, preserves the early-history hash,
+177 fauna bundles/rig sidecars and four staged DLL inputs. Existing shortcut
+selects this build; the atlas checkpoint remains available. No new visual/FPS
+acceptance is claimed. Evidence: `artifacts/survival-creative-food-native-final`
+and package proof JSON.

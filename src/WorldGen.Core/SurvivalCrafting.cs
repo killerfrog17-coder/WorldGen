@@ -83,7 +83,7 @@ namespace WorldGen.Core
         public static bool Craft(SurvivalState s,SurvivalRecipe r,bool fire,out string message)
         {
             if(!CanCraft(s,r,fire,out message))return false;var inventory=s.Inventory.Copy();double fraction=1;
-            if(SurvivalItems.Get(r.Output).Kind==SurvivalItemKind.Food)foreach(var m in r.Materials)
+            if(s.Mode!=SurvivalMode.Creative&&SurvivalItems.Get(r.Output).Kind==SurvivalItemKind.Food)foreach(var m in r.Materials)
                 if(SurvivalItems.Get(m.item).Kind==SurvivalItemKind.Food){fraction=inventory.Items.Where(i=>i.Item==m.item).OrderByDescending(i=>i.AgeDays).First().Fraction;break;}
             if(s.Mode!=SurvivalMode.Creative)foreach(var m in r.Materials)inventory.Remove(m.item,m.count);
             if(!inventory.TryAdd(r.Output,r.Count,out message,0,fraction))return false;

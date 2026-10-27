@@ -28,6 +28,12 @@ public static class SurvivalPrototypeTests
         var craft=SurvivalCrafting.Recipes.First(r=>r.Id=="cooked-meat");Check(s.Inventory.TryAdd("raw-meat",1,out _),"Meat added");hash=WorldJson.Write(s.Inventory);
         Check(!SurvivalCrafting.Craft(s,craft,false,out _),"Cooking requires fire");Check(hash==WorldJson.Write(s.Inventory),"Failed crafting preserves ingredients");
         Check(SurvivalCrafting.Craft(s,craft,true,out _),"Cooked at fire");Check(!s.Inventory.Has("raw-meat"),"No ingredient duplication");
+        foreach(var recipe in SurvivalCrafting.Recipes.Where(r=>SurvivalItems.Get(r.Output).Kind==SurvivalItemKind.Food))
+        {
+            var creative=new SurvivalState{Mode=SurvivalMode.Creative,Inventory=new SurvivalInventory()};creative.Inventory.TryAdd("pack",1,out _);
+            Check(SurvivalCrafting.Craft(creative,recipe,false,out _),"Creative food creation does not inspect absent ingredients: "+recipe.Id);
+            Check(creative.Inventory.Items.Single(i=>i.Item==recipe.Output).Fraction==1,"Creative output is a full portion: "+recipe.Id);creative.Validate();
+        }
         var a=new SurvivalState();var b=a.Copy();var environment=new SurvivalEnvironment{TemperatureC=22,WindMps=1};
         SurvivalPhysiology.Advance(a,3600,environment);for(int i=0;i<60;i++)SurvivalPhysiology.Advance(b,60,environment);
         Check(Math.Abs(a.EnergyKcal-b.EnergyKcal)<1e-7&&Math.Abs(a.CoreTemperatureC-b.CoreTemperatureC)<1e-7,"Physiology independent of host request chunking");

@@ -86,6 +86,15 @@ public sealed partial class WorldGenRuntime
             Check(WorldJson.Write(state)==beforeAtlas,"native atlas inspection does not mutate the simulation checkpoint");
             var later=engine.PrepareSapiens();Check(ReferenceEquals(AtlasNavigation.CategoriesFor(later),AtlasNavigation.Categories)&&HistoryAtlas.Read(later).Facts.Any(f=>f.Label=="Surviving states"),"native later-history atlas retains its established adapter");
             var play=new PlaySession{Survival=new SurvivalState()};play.Survival.Corpses=Enumerable.Range(0,8).Select(i=>SurvivalPhysiology.Carcass("deer",(ulong)i+1,new V(1,0,0),70,0)).ToArray();
+            bool creativeFoods=true,creativePortions=true;
+            foreach(var recipe in SurvivalCrafting.Recipes.Where(r=>SurvivalItems.Get(r.Output).Kind==SurvivalItemKind.Food))
+            {
+                var creative=new SurvivalState{Mode=SurvivalMode.Creative,Inventory=new SurvivalInventory()};creative.Inventory.TryAdd("pack",1,out _);
+                creativeFoods&=SurvivalCrafting.Craft(creative,recipe,false,out _);
+                creativePortions&=creative.Inventory.Items.Single(i=>i.Item==recipe.Output).Fraction==1;creative.Validate();
+            }
+            Check(creativeFoods,"native Creative food recipes do not read absent ingredients");
+            Check(creativePortions,"native Creative food recipes create valid full portions");
             foreach(var corpse in play.Survival.Corpses)corpse.SettledPose=Enumerable.Repeat(.12345678f,2048).ToArray();
             string json=WorldJson.Write(play);File.WriteAllText(Path.Combine(output,"play-session.json"),json);
             Check(System.Text.Encoding.UTF8.GetByteCount(json)>65536,"native survival save exceeds the former camera-only limit");
