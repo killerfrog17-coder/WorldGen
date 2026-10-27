@@ -93,8 +93,8 @@ public sealed partial class LocalTerrainExplorer
                 if((Position-survivalActionOrigin).Length*frame.RadiusM>1.5)CancelSurvivalAction();
                 else {survivalActionRemaining-=playableSeconds;if(survivalActionRemaining<=0){var complete=survivalCompletion;survivalCompletion=null;survivalAction="";complete();RefreshSurvivalScene();}}
             }
-            if(survival.Dead){CancelSurvivalAction();survivalSleeping=false;survivalOpen=true;CaptureMouse();}
         }
+        if(survival.Dead&&(!survivalOpen||SurvivalBusy)){CancelSurvivalAction();survivalSleeping=false;survivalOpen=true;CaptureMouse();}
         motion.SpeedFactor=survival.Mode==SurvivalMode.Survival?SurvivalPhysiology.MovementFactor(survival):1;
         if(Time.realtimeSinceStartupAsDouble>=survivalRefreshAt){survivalRefreshAt=Time.realtimeSinceStartupAsDouble+1;RefreshSurvivalScene();}
         UpdateSurvivalHeldTool(dt);UpdateRagdolls(stopped?0:dt);
@@ -189,6 +189,8 @@ public sealed partial class LocalTerrainExplorer
         });
     }
     bool HasSurvivalFire=>survival.Sites.Any(s=>s.Kind=="hearth"&&s.Progress>=1&&s.Lit&&s.FuelHours>0&&(s.Position-Position).Length*frame.RadiusM<5);
+    public static bool SurvivalHitInReach(Vector3 playerOrigin,Vector3 hitPoint,double reach)
+        =>reach>0&&!double.IsNaN(reach)&&!double.IsInfinity(reach)&&(hitPoint-playerOrigin).sqrMagnitude<=reach*reach+1e-6;
     void AttackSurvival(bool thrown)
     {
         if(SurvivalBusy||Time.realtimeSinceStartupAsDouble<survivalAttackAt||survival.Dead)return;
@@ -200,21 +202,23 @@ public sealed partial class LocalTerrainExplorer
         survivalAttackAt=Time.realtimeSinceStartupAsDouble+(thrown?.9:.65);survivalAttackClock=1;
         if(survival.Mode==SurvivalMode.Survival)survival.Stamina=Math.Max(0,survival.Stamina-8);
         TriggerHumanSurvivalAction("Attack");if(humanPlayer!=null)humanPlayer.TargetYaw=heading;
-        Vector3 from=view.transform.position,dir=view.transform.forward;Animal hit=null;float best=thrown?45:12;
+        Vector3 from=view.transform.position,dir=view.transform.forward;
+        Vector3 playerFrom=transform.TransformPoint(new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ)));
+        Vector3 aimedPoint=from+dir*60;double reach=thrown?45:weapon!=null&&weapon.Reach>0?weapon.Reach:1.4;
+        Animal hit=null;float best=float.PositiveInfinity;
         foreach(var animal in animals.Values)
         {
             if(animal.Dead)continue;var bounds=animal.Renderer.bounds;
             if(!bounds.IntersectRay(new Ray(from,dir),out float distance)||distance>best)continue;
-            double reach=thrown?45:weapon?.Reach??1.4;
-            if((animal.Planet-Position).Length*frame.RadiusM>reach+animal.Spawn.Profile.lengthM*.4)continue;
-            Vector3 target=from+dir*distance;bool blocked=false;for(int i=1;i<=6;i++){var p=Vector3.Lerp(from,target,i/6f);if(p.y<VisibleGround(p.x+originX,p.z+originZ,p.y)-.1){blocked=true;break;}}
-            if(blocked)continue;hit=animal;best=distance;
+            Vector3 target=from+dir*distance;if(!SurvivalHitInReach(playerFrom,target,reach))continue;
+            bool blocked=false;for(int i=1;i<=6;i++){var p=transform.InverseTransformPoint(Vector3.Lerp(playerFrom,target,i/6f));if(p.y<VisibleGround(p.x+originX,p.z+originZ,p.y)-.1){blocked=true;break;}}
+            if(blocked)continue;hit=animal;best=distance;aimedPoint=target;
         }
         if(thrown)
         {
             string item=weapon.Id=="sling"?"stone":weapon.Id;
-            if(survival.Mode!=SurvivalMode.Creative)survival.Inventory.Remove(item,1);
-            SpawnSurvivalProjectile(item,from,dir,hit,best,damage*1.7);
+            if(survival.Mode!=SurvivalMode.Creative&&!(weapon.Id=="sling"?survival.Inventory.Remove(item,1):survival.Inventory.RemoveStack(survival.Inventory.Equipped,1)))return;
+            SpawnSurvivalProjectile(item,playerFrom,(aimedPoint-playerFrom).normalized,damage*1.7);
         }
         else if(hit!=null)DamageSurvivalAnimal(hit,damage,dir);
     }

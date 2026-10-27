@@ -1,5 +1,22 @@
 # WorldGen repository instructions
 
+PHYSICAL HUNTING REACH CHECKPOINT,27October2026~09:03CDT:
+Shortcut NOW player-survival-reach IL2CPP BuiltUtc2026-10-27T13:59:11.6533108Z.
+25native no-graphics geometry/persistence checks PASS;fourDLL/177fauna/177rig
+sidecarsSHA verified. Core120survival/372hominin retained. Aim ray selects hit,
+PLAYER eye-to-hit3D distance determines reach; horizontal-onlydistance/12m
+cameralimit removed. Native nearby/overhead/thirdperson8mback geometry pass.
+Terrain obstruction originates player eye; throws originate player+aimtoward
+camera target, consume HELD stack exceptslingstones. Handrelease/contact not
+refined; changedthrow appearance remains ownerpending. No creatureappearance/
+rig/actions edits. Deathcleanup outsideclockgate handlesstopped/deadstate too.
+All ownedworkers exited;ownerapps untouched. Ownsource/docs/shortcut backup+
+GitHubpush REQUIRED. Earlierplayers retained, feedbackquestion stillpending;
+don'tduplicate/GPUtest whileownermightreview. Continue until owner wrap-up,
+architecturefirst. Mainunfinished laterhistoryhandoff/tribalNPCs/renderediceage/
+fittedclothes/contactIK/archaicdemographiccalibration documented. Preserve
+unrelateddeletedprompt/twoolddeerscripts unstaged.
+
 LOCAL TIME GATE CHECKPOINT,27October2026~08:53CDT:
 Shortcut NOW player-survival-time-gate IL2CPP BuiltUtc
 2026-10-27T13:48:43.4725414Z;22native persistence checks PASS;fourDLL/177fauna/

@@ -138,7 +138,7 @@ public sealed partial class LocalTerrainExplorer
             p.Root.transform.localPosition=next;p.Root.transform.rotation=Quaternion.LookRotation(p.Velocity.normalized)*Quaternion.Euler(90,0,0);
         }
     }
-    void SpawnSurvivalProjectile(string item,Vector3 origin,Vector3 direction,Animal candidate,float distance,double damage)
+    void SpawnSurvivalProjectile(string item,Vector3 origin,Vector3 direction,double damage)
     {
         var root=CreateSurvivalTool(item);root.transform.SetParent(transform,false);root.transform.position=origin+direction*.4f;
         survivalProjectiles.Add(new SurvivalProjectile{Item=item,Root=root,Velocity=transform.InverseTransformDirection(direction)*22,Damage=damage});

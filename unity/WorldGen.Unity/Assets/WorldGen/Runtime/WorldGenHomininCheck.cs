@@ -62,6 +62,11 @@ public sealed partial class WorldGenRuntime
             Check(tired.Stamina>5&&!SurvivalPhysiology.CanSprint(tired),"native sprint recovery persists instead of alternating gaits at the cutoff");
             SurvivalPhysiology.Advance(tired,120,new SurvivalEnvironment{TemperatureC=22,Resting=true});Check(SurvivalPhysiology.CanSprint(tired),"native useful stamina recovery permits sprinting again");
             tired.Stamina=0;tired.Mode=SurvivalMode.Creative;Check(SurvivalPhysiology.CanSprint(tired),"native creative movement ignores survival exhaustion");
+            Vector3 playerEye=new Vector3(0,1.65f,0),closeHit=new Vector3(0,1.65f,2.8f);
+            Check(LocalTerrainExplorer.SurvivalHitInReach(playerEye,closeHit,3),"native melee reach includes a nearby physical hit point");
+            Check(!LocalTerrainExplorer.SurvivalHitInReach(playerEye,new Vector3(0,10,1),3),"native melee reach rejects a vertically distant target despite its nearby map location");
+            var thirdPersonRay=new Ray(new Vector3(0,1.65f,-8),Vector3.forward);var targetBounds=new Bounds(new Vector3(0,1.65f,3),new Vector3(1,1,1));
+            Check(targetBounds.IntersectRay(thirdPersonRay,out float rangeFromCamera)&&rangeFromCamera>3&&LocalTerrainExplorer.SurvivalHitInReach(playerEye,thirdPersonRay.GetPoint(rangeFromCamera),3),"native third-person aim does not consume the player's physical weapon reach");
             var play=new PlaySession{Survival=new SurvivalState()};play.Survival.Corpses=Enumerable.Range(0,8).Select(i=>SurvivalPhysiology.Carcass("deer",(ulong)i+1,new V(1,0,0),70,0)).ToArray();
             foreach(var corpse in play.Survival.Corpses)corpse.SettledPose=Enumerable.Repeat(.12345678f,2048).ToArray();
             string json=WorldJson.Write(play);File.WriteAllText(Path.Combine(output,"play-session.json"),json);

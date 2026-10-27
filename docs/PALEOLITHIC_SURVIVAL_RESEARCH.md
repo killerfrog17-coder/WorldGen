@@ -428,3 +428,20 @@ package DLLs and 177 fauna/rig-sidecar inputs match. The shared gate is compiled
 and source-reviewed; this follow-up did not automate interactive focus changes
 or repeat graphical acceptance. Evidence is under
 `artifacts/survival-time-gate-native-final` and its package proof JSON.
+
+### Physical hunting reach
+
+Camera aim now chooses a hit point, while actual player-space 3D distance decides
+weapon reach. The previous horizontal planet-distance test could accept targets
+too far above the player, while the camera-ray limit made third-person reach
+inconsistent. Terrain obstruction is tested from the player's eye position.
+Throws also start there, aimed toward the camera's target, and consume the held
+stack rather than a different stored copy. Precise hand release/contact remains
+unfinished. Death cleanup now runs even when the shared clock gate is stopped.
+
+Selected build: `artifacts/player-survival-reach`, IL2CPP UTC
+`2026-10-27T13:59:11.6533108Z`. All 25 native checks pass, including nearby reach,
+overhead rejection and a near target aimed at from a third-person camera 8 m
+behind the player. Package DLLs and 177 fauna/rig-sidecar inputs match. These are
+geometry/persistence checks; the changed throw appearance awaits owner review.
+Animal source meshes, skins and animation clips remain unchanged.
