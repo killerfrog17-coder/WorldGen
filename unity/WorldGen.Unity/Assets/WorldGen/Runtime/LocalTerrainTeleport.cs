@@ -9,6 +9,7 @@ public sealed partial class LocalTerrainExplorer
     public PlayCommandResult ExecuteExplorerCommand(string text)
     {
         var words=text.Trim().Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);
+        if(words.Length>0&&words[0].Equals("/gamemode",StringComparison.OrdinalIgnoreCase))return ExecuteGameMode(words);
         if(words.Length>1&&words[0].Equals("/spawn",StringComparison.OrdinalIgnoreCase)&&(words[1].Equals("human",StringComparison.OrdinalIgnoreCase)||words[1].Equals("humans",StringComparison.OrdinalIgnoreCase)))
             return ExecuteHumanSpawn(words.Skip(2).ToArray());
         if(words.Length>0&&words[0].Equals("/spawn",StringComparison.OrdinalIgnoreCase))return ExecuteAnimalSpawnCommand(text);
@@ -40,7 +41,11 @@ public sealed partial class LocalTerrainExplorer
         var at=terrain.Patch(target,2000).Sample(target);Teleport(target);
         double waterRise=at.Underwater?at.WaterSurfaceM-at.ElevationM:0;
         motion.Y=Ground(0,0)+waterRise+clearance;
-        if(clearance>TerrainMotion.EyeHeightM||waterRise>0)motion.Flying=true;
+        if(!SurvivalActive&&(clearance>TerrainMotion.EyeHeightM||waterRise>0))motion.Flying=true;
+        if(SurvivalActive)motion.Flying=false;
+        if(Spectating)motion.Flying=motion.NoClip=true;
+        motion.Grounded=!motion.Flying&&waterRise+clearance<=TerrainMotion.EyeHeightM+.01;
+        survivalEnvironmentAt=0;
         motion.VerticalSpeed=0;UpdateCamera();
         TerrainMapViewport.Degrees(target,out double lat,out double lon);lon=playState?.OfficialLongitude(lon)??lon;
         return new PlayCommandResult(true,"Teleported to "+lat.ToString("F6",System.Globalization.CultureInfo.InvariantCulture)+", "+lon.ToString("F6",System.Globalization.CultureInfo.InvariantCulture)+" (latitude, longitude).");

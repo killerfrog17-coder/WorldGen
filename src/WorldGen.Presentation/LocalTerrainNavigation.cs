@@ -9,26 +9,26 @@ namespace WorldGen.Presentation
     {
         public const double EyeHeightM=1.65, Gravity=9.81,WalkSpeedMps=1.5,JogSpeedMps=3.4,RunSpeedMps=6,JumpHeightM=.45;
         public double X,Y,Z,VerticalSpeed,FlySpeed=200;
-        public bool Flying,Grounded;
+        public bool Flying,Grounded,NoClip;
         public void Place(double x,double z,double ground,bool fly=false,double aboveGround=40)
         {X=x;Z=z;Flying=fly;Y=ground+(fly?aboveGround:EyeHeightM);VerticalSpeed=0;Grounded=!fly;}
-        public void Move(double dt,double forward,double right,double up,double heading,double pitch,bool sprint,bool jump,Func<double,double,double> ground,bool walk=false)
+        public void Move(double dt,double forward,double right,double up,double heading,double pitch,bool sprint,bool jump,Func<double,double,double> ground,bool walk=false,double speedScale=1)
         {
             dt=Math.Max(0,Math.Min(.25,dt));if(dt<=0)return;
             int steps=(int)Math.Ceiling(dt/.02);double step=dt/steps;
-            for(int i=0;i<steps;i++)MoveStep(step,forward,right,up,heading,pitch,sprint,jump&&i==0,ground,walk);
+            for(int i=0;i<steps;i++)MoveStep(step,forward,right,up,heading,pitch,sprint,jump&&i==0,ground,walk,speedScale);
         }
-        void MoveStep(double dt,double forward,double right,double up,double heading,double pitch,bool sprint,bool jump,Func<double,double,double> ground,bool walk)
+        void MoveStep(double dt,double forward,double right,double up,double heading,double pitch,bool sprint,bool jump,Func<double,double,double> ground,bool walk,double speedScale)
         {
             double yaw=heading*Math.PI/180,tilt=pitch*Math.PI/180;
             double dx=Math.Sin(yaw)*forward+Math.Cos(yaw)*right,dz=Math.Cos(yaw)*forward-Math.Sin(yaw)*right;
             double length=Math.Sqrt(dx*dx+dz*dz);if(length>1){dx/=length;dz/=length;}
-            double rate=(Flying?FlySpeed*(sprint?3:1):walk?WalkSpeedMps:sprint?RunSpeedMps:JogSpeedMps)*dt;
+            double rate=(Flying?FlySpeed*(sprint?3:1):walk?WalkSpeedMps:sprint?RunSpeedMps:JogSpeedMps)*dt*Math.Max(0,Math.Min(1,speedScale));
             if(Flying)
             {
                 double cp=Math.Cos(tilt),fx=Math.Sin(yaw)*forward*cp+Math.Cos(yaw)*right,fz=Math.Cos(yaw)*forward*cp-Math.Sin(yaw)*right,fy=-Math.Sin(tilt)*forward+up;
                 double magnitude=Math.Sqrt(fx*fx+fy*fy+fz*fz);if(magnitude>1){fx/=magnitude;fy/=magnitude;fz/=magnitude;}
-                X+=fx*rate;Z+=fz*rate;Y+=fy*rate;Grounded=false;VerticalSpeed=0;Y=Math.Max(Y,ground(X,Z)+EyeHeightM);return;
+                X+=fx*rate;Z+=fz*rate;Y+=fy*rate;Grounded=false;VerticalSpeed=0;if(!NoClip)Y=Math.Max(Y,ground(X,Z)+EyeHeightM);return;
             }
             double oldGround=ground(X,Z),oldX=X,oldZ=Z,tx=X+dx*rate,tz=Z+dz*rate;
             // Height queries are millimetre quantized. At very high FPS a real

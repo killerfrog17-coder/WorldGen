@@ -33,6 +33,7 @@ public sealed partial class LocalTerrainExplorer
     bool LegacySkyDiagnostic=>passiveSkyCheck&&!Array.Exists(Environment.GetCommandLineArgs(),s=>s=="--worldgen-weather-check");
     void ResetWeatherFrame()
     {
+        survivalEnvironmentAt=0;
         weatherProvider=null;nextWeatherAt=0;nextDaylightAt=0;
         if(rainParticles!=null)rainParticles.Clear();if(snowParticles!=null)snowParticles.Clear();
         if(weatherScreen!=null){weatherScreen.Ready=false;weatherScreen.Flash=0;}flashEnd=0;

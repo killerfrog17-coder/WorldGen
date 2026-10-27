@@ -1,5 +1,27 @@
 # Version 3 validation evidence
 
+## Command-only game modes and survival needs - 27 October 2026
+
+Owner requests Creative, Survival and Spectator through `/gamemode` only, with
+NO new HUD. New/old sessions default Creative. Modes and a deep-copied, validated
+optional PlayerSurvival payload persist independently of world generation.
+Creative grants flight/unlimited-resource capability and restores needs;
+Spectator hides the local actor/shadows, flies and bypasses terrain/camera
+collision; Survival forbids flight and applies stamina/energy, hunger/thirst,
+wetness and core-temperature effects. Extreme cold/heat and deprivation can kill.
+Death blocks movement; no overlay/automatic respawn/new structures/items/clothes.
+Querying `/gamemode` explicitly prints vitals in existing chat only.
+
+67 targeted model/save/movement tests pass, including missing-field legacy
+defaults, copied state isolation, invalid states/modes, signed spectator altitude,
+flight collision, finite sprint/exhaustion recovery, hot exertion/dehydration,
+humidity, shade, wet/windy cold, immersion and lethal polar exposure.22 existing
+camera/save checks pass.15 Unity mode/command/render checks pass; actual Creative,
+Spectator and Survival body/NPC/shadow images inspected. These are not full-world
+survival playtesting or calibrated medical timings. Physiology research sources
+and balance details are recorded in HUMAN_PLAYER_PROTOTYPE. Evidence under
+`artifacts/game-modes`. No source animal/human assets were regenerated.
+
 ## Manual human spawns and dedicated sprint - 27 October 2026
 
 Owner removes `/humans`, `/runstyle` and automatic NPC human companions. Help,

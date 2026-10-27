@@ -79,12 +79,12 @@ public sealed partial class LocalTerrainExplorer
     void ReadHumanCameraInput(Mouse mouse,Keyboard keyboard)
     {
         if(mouse==null)return;
-        if(mouse.middleButton.wasPressedThisFrame)humanCamera.ToggleLock();
+        if(!Spectating&&mouse.middleButton.wasPressedThisFrame)humanCamera.ToggleLock();
         float scroll=mouse.scroll.ReadValue().y;if(scroll==0)return;
         // Preserve fly-speed adjustment without competing with camera zoom.
         if(motion.Flying&&keyboard!=null&&(keyboard.leftAltKey.isPressed||keyboard.rightAltKey.isPressed))
             motion.FlySpeed=Math.Max(5,Math.Min(20000,motion.FlySpeed*Math.Exp(Math.Sign(scroll)*.25)));
-        else humanCamera.Zoom(Math.Sign(scroll)*Math.Max(1,Math.Min(4,Math.Abs(scroll)/120)));
+        else if(!Spectating)humanCamera.Zoom(Math.Sign(scroll)*Math.Max(1,Math.Min(4,Math.Abs(scroll)/120)));
     }
     void UpdateHumans()
     {
@@ -202,6 +202,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateHumanCamera()
     {
+        if(Spectating){view.transform.localPosition=new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ));view.transform.localRotation=Quaternion.Euler(pitch,heading,0);return;}
         var rotation=Quaternion.Euler(pitch,heading,0);float dt=Math.Min(.1f,Time.unscaledDeltaTime);
         humanCameraDistance=Mathf.Lerp(humanCameraDistance,(float)humanCamera.Distance,1-Mathf.Exp(-dt*12));
         float pivotDrop=Mathf.SmoothStep(0,.22f,Mathf.Clamp01(humanCameraDistance));

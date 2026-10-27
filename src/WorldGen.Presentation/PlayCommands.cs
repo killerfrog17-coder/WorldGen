@@ -32,14 +32,15 @@ namespace WorldGen.Presentation
         public static string[] Complete(string input)
         {
             string[] options=input.StartsWith("/tp ",StringComparison.OrdinalIgnoreCase)?new[]{"/tp random","/tp random land"}:input.StartsWith("/weather ",StringComparison.OrdinalIgnoreCase)?WeatherControl.Modes.Select(m=>"/weather "+m).ToArray():input.StartsWith("/time set ",StringComparison.OrdinalIgnoreCase)?new[]{"/time set day","/time set midnight","/time set night","/time set noon","/time set sunrise","/time set sunset"}:new[]{"/date","/flora","/midflora","/trees","/help","/time","/tp","/weather"};
-            return options.Concat(new[]{"/seed","/spawn"}).Where(s=>s.StartsWith(input,StringComparison.OrdinalIgnoreCase)).OrderBy(s=>s,StringComparer.Ordinal).ToArray();
+            if(input.StartsWith("/gamemode ",StringComparison.OrdinalIgnoreCase))options=new[]{"/gamemode survival","/gamemode creative","/gamemode spectator"};
+            return options.Concat(new[]{"/seed","/spawn","/gamemode"}).Where(s=>s.StartsWith(input,StringComparison.OrdinalIgnoreCase)).OrderBy(s=>s,StringComparer.Ordinal).ToArray();
         }
         public static PlayCommandResult Execute(PlaySession play,long historySeconds,string input,double? longitude=null,double latitude=0,WeatherControl? weather=null)
         {
             double localLongitude=longitude??play.PrimeMeridianLongitude,localHour=play.LocalSolarHour(localLongitude);
             var words=(input??"").Trim().Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);if(words.Length==0)return new PlayCommandResult(false,"Empty command. Try /help.");
             string command=words[0].ToLowerInvariant();
-            if(command=="/help")return words.Length==1?new PlayCommandResult(true,Help.Concat(new[]{"/seed — show world seed",FaunaSpawnCommands.Help,"/spawn human [positive count] - spawn humans; /spawn clear removes command spawns"}).ToArray()):new PlayCommandResult(false,"Usage: /help");
+            if(command=="/help")return words.Length==1?new PlayCommandResult(true,Help.Concat(new[]{"/seed — show world seed",FaunaSpawnCommands.Help,"/gamemode survival | creative | spectator - /gamemode alone reports current vitals","/spawn human [positive count] - spawn humans; /spawn clear removes command spawns"}).ToArray()):new PlayCommandResult(false,"Usage: /help");
             if(command=="/weather")
             {
                 if(weather==null)return new PlayCommandResult(false,"Weather commands are available while exploring the world.");

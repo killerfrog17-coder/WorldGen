@@ -1,0 +1,65 @@
+using System;
+using WorldGen.Core;
+
+namespace WorldGen.Presentation
+{
+    public struct SurvivalEnvironment
+    {
+        public double AirTemperatureC,Humidity,WindMps,RainMmPerHour,Sunlight,Insulation;
+        public bool Immersed;
+    }
+    /// <summary>Approximate gameplay physiology, not a clinical thermoregulation model.</summary>
+    public static class SurvivalRules
+    {
+        static double Clamp(double n,double lo=0,double hi=1)=>Math.Max(lo,Math.Min(hi,n));
+        public static bool TryMode(string value,out GameMode mode)
+        {
+            switch(value.ToLowerInvariant())
+            {case "survival":mode=GameMode.Survival;return true;case "creative":mode=GameMode.Creative;return true;case "spectator":mode=GameMode.Spectator;return true;default:mode=GameMode.Creative;return false;}
+        }
+        public static void Advance(PlayerSurvival state,double seconds,double minutesPerDay,SurvivalEnvironment environment,double speed,bool sprinting)
+        {
+            if(!double.IsFinite(seconds)||seconds<0||seconds>86400||!double.IsFinite(minutesPerDay)||minutesPerDay<1||minutesPerDay>10080)throw new ArgumentOutOfRangeException(nameof(seconds));
+            if(!double.IsFinite(speed)||speed<0)throw new ArgumentOutOfRangeException(nameof(speed));
+            if(!double.IsFinite(environment.AirTemperatureC)||!double.IsFinite(environment.Humidity)||!double.IsFinite(environment.WindMps)||!double.IsFinite(environment.RainMmPerHour)||!double.IsFinite(environment.Sunlight)||!double.IsFinite(environment.Insulation))throw new ArgumentException("Invalid survival environment.");
+            if(state.Dead)return;
+            // Fixed substeps keep low-FPS frames and saved deterministic probes comparable.
+            while(seconds>1e-9&&!state.Dead)
+            {double dt=Math.Min(.25,seconds);Step(state,dt,minutesPerDay,environment,speed,sprinting);seconds-=dt;}
+        }
+        static void Step(PlayerSurvival s,double dt,double minutesPerDay,SurvivalEnvironment e,double speed,bool sprinting)
+        {
+            double day=dt/(minutesPerDay*60),thermal=dt*60/minutesPerDay;
+            double activity=Clamp(speed/TerrainMotion.RunSpeedMps),humidity=Clamp(e.Humidity),wind=Clamp(e.WindMps,0,60),sun=Clamp(e.Sunlight);
+            double sweat=Clamp((e.AirTemperatureC-20)/12+activity*1.2+sun*.5,0,4);
+            if(e.Immersed)s.Wetness=1;
+            else s.Wetness=Clamp(s.Wetness+thermal*(Math.Max(0,e.RainMmPerHour)*.003+sweat*.003-(.002+wind*.0003)*(1-humidity)));
+            double cold=Math.Max(0,18-e.AirTemperatureC)*(1+wind*.05+s.Wetness*.9)*(1-Clamp(e.Insulation)*.9);
+            if(e.Immersed)cold+=Math.Max(0,30-e.AirTemperatureC)*1.5;
+            double coldLoad=Math.Max(0,cold-5-activity*8);
+            double evaporation=3*(1-humidity*.75)*(1+wind*.03)*(1-Clamp((s.Thirst-45)/55)*.8);
+            double heatLoad=Math.Max(0,Math.Max(0,e.AirTemperatureC-28)*.28+activity*1.5+sun*1.5-evaporation);
+            double target=Clamp(37-coldLoad*.16+heatLoad*.5,26,43.5);
+            s.CoreTemperatureC+=(target-s.CoreTemperatureC)*(1-Math.Exp(-thermal/150));
+            s.Hunger=Clamp(s.Hunger+day*(100+activity*70+coldLoad*.7),0,100);
+            s.Thirst=Clamp(s.Thirst+day*100*(1+Math.Max(0,e.AirTemperatureC-22)*.07+activity*1.4+sweat*.5),0,100);
+            bool resting=speed<.1;
+            bool comfortable=s.CoreTemperatureC>=36&&s.CoreTemperatureC<=38;
+            if(resting&&s.Hunger<65&&s.Thirst<65&&comfortable)s.Energy=Clamp(s.Energy+day*65,0,100);
+            else s.Energy=Clamp(s.Energy-day*(8+activity*70+coldLoad*.5+heatLoad*4),0,100);
+            bool exerting=sprinting&&speed>TerrainMotion.JogSpeedMps+.05&&s.CanSprint;
+            s.Stamina=Clamp(s.Stamina+dt*(exerting?-9:resting?14:speed<=TerrainMotion.WalkSpeedMps+.1?11:4),0,s.MaximumStamina);
+            if(s.Stamina<=.01)s.Exhausted=true;
+            else if(s.Exhausted&&s.Stamina>=Math.Min(25,s.MaximumStamina*.4))s.Exhausted=false;
+            double coldDamage=Math.Max(0,35-s.CoreTemperatureC)*.32,heatDamage=Math.Max(0,s.CoreTemperatureC-39.5)*.45;
+            double thirstDamage=s.Thirst>=100?180d/3600:0,hungerDamage=s.Hunger>=100?20d/3600:0;
+            double damage=coldDamage+heatDamage+thirstDamage+hungerDamage;
+            if(damage>0)
+            {
+                s.Health=Clamp(s.Health-damage*thermal,0,100);
+                if(s.Dead)s.DeathCause=coldDamage>=Math.Max(heatDamage,Math.Max(thirstDamage,hungerDamage))?PlayerDeathCause.Cold:heatDamage>=Math.Max(thirstDamage,hungerDamage)?PlayerDeathCause.Heat:thirstDamage>=hungerDamage?PlayerDeathCause.Dehydration:PlayerDeathCause.Starvation;
+            }
+            else if(comfortable&&s.Hunger<50&&s.Thirst<50)s.Health=Clamp(s.Health+day*30,0,100);
+        }
+    }
+}

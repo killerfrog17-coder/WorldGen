@@ -140,7 +140,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             if(!building.IsCompleted)return;
             if(building.IsFaulted||building.IsCanceled){error=building.Exception?.GetBaseException().Message??"Cancelled";debugOpen=true;CaptureMouse();return;}
             terrain=building.Result;viewDistance=Math.Min(viewDistance,MaximumViewDistance);InitializeScatter();Teleport(startingPoint);InitializeAnimalFauna();InitializeHumans();
-            if(playState!=null&&playState.HasPlayer){heading=(float)playState.Heading;pitch=(float)playState.Pitch;motion.Flying=playState.Flying;motion.Y=Ground(0,0)+Math.Max(TerrainMotion.EyeHeightM,playState.HeightAboveGround);UpdateCamera();}
+            if(playState!=null&&playState.HasPlayer){heading=(float)playState.Heading;pitch=(float)playState.Pitch;motion.Flying=playState.Flying;motion.Y=Ground(0,0)+(Spectating?playState.HeightAboveGround:Math.Max(TerrainMotion.EyeHeightM,playState.HeightAboveGround));UpdateCamera();}
+            ApplyPlayerMode();
         }
         ApplyTerrainDiagnostics();ApplyFoliageShadowOptions();installationsThisFrame=0;frameUploadMs=0;double movementStartX=motion.X,movementStartZ=motion.Z;
         long mapStarted=WorldGenPerformance.TraceBegin();UpdateMapWork();WorldGenPerformance.TraceEnd(1,mapStarted);
@@ -152,13 +153,18 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             if(keyboard!=null&&!WorldGenPerformance.Enabled)
             {
                 MovementSeconds+=Math.Max(0,Math.Min(.25,Time.unscaledDeltaTime));
-                if(keyboard.fKey.wasPressedThisFrame){motion.Flying=!motion.Flying;motion.VerticalSpeed=0;}
-                motion.Move(Time.unscaledDeltaTime,(keyboard.wKey.isPressed?1:0)-(keyboard.sKey.isPressed?1:0),
-                    (keyboard.dKey.isPressed?1:0)-(keyboard.aKey.isPressed?1:0),(keyboard.spaceKey.isPressed?1:0)-(keyboard.ctrlKey.isPressed?1:0),
-                    heading,pitch,keyboard.shiftKey.isPressed,keyboard.spaceKey.wasPressedThisFrame,Ground,walk:keyboard.cKey.isPressed||keyboard.ctrlKey.isPressed);
+                if(Mode==GameMode.Creative&&keyboard.fKey.wasPressedThisFrame){motion.Flying=!motion.Flying;motion.VerticalSpeed=0;}
+                bool alive=!SurvivalActive||!Vitals.Dead;
+                survivalSprinting=keyboard.shiftKey.isPressed&&(!SurvivalActive||Vitals.CanSprint);
+                bool jump=alive&&keyboard.spaceKey.wasPressedThisFrame&&(!SurvivalActive||Vitals.Stamina>=12);
+                if(SurvivalActive&&jump&&motion.Grounded)Vitals.Stamina=Math.Max(0,Vitals.Stamina-12);
+                motion.Move(Time.unscaledDeltaTime,alive?(keyboard.wKey.isPressed?1:0)-(keyboard.sKey.isPressed?1:0):0,
+                    alive?(keyboard.dKey.isPressed?1:0)-(keyboard.aKey.isPressed?1:0):0,(keyboard.spaceKey.isPressed?1:0)-(keyboard.ctrlKey.isPressed?1:0),
+                    heading,pitch,survivalSprinting,jump,Ground,walk:keyboard.cKey.isPressed||keyboard.ctrlKey.isPressed,speedScale:SurvivalActive?Vitals.MovementScale:1);
             }
         }
         TrackStreamingMotion(motion.X-movementStartX,motion.Z-movementStartZ,Time.unscaledDeltaTime);
+        UpdatePlayerSurvival(motion.X-movementStartX,motion.Z-movementStartZ);
         if(Math.Abs(motion.X-originX)>8192||Math.Abs(motion.Z-originZ)>8192)
         {
             originX=Math.Floor(motion.X/2048)*2048;originZ=Math.Floor(motion.Z/2048)*2048;
@@ -315,7 +321,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         finally{view.targetTexture=priorTarget;RenderTexture.active=previous;target.Release();Destroy(target);Destroy(texture);}
     }
     public void TestMove(double east,double north){motion.X=east;motion.Z=north;}
-    public void StorePlayer(PlaySession session){session.HasPlayer=true;session.PlayerPosition=Position;session.Flying=motion.Flying;session.Heading=heading;session.Pitch=pitch;session.HeightAboveGround=Math.Max(0,HeightAboveGround);session.CameraDistance=humanCamera.Distance;session.CameraDistanceLocked=humanCamera.Locked;if(humanPlayer!=null)session.PlayerHumanVariant=humanPlayer.Definition.Variant[0]-'A';}
+    public void StorePlayer(PlaySession session){session.HasPlayer=true;session.PlayerPosition=Position;session.Flying=motion.Flying;session.Heading=heading;session.Pitch=pitch;session.HeightAboveGround=Spectating?HeightAboveGround:Math.Max(0,HeightAboveGround);session.Mode=Mode;session.Survival=Vitals.Copy();session.CameraDistance=humanCamera.Distance;session.CameraDistanceLocked=humanCamera.Locked;if(humanPlayer!=null)session.PlayerHumanVariant=humanPlayer.Definition.Variant[0]-'A';}
     public void Resume(){paused=false;CaptureMouse();}
     public void TestWalking(){motion.Place(motion.X,motion.Z,Ground(motion.X,motion.Z));pitch=0;}
     public void TestNearbyFlatGround()

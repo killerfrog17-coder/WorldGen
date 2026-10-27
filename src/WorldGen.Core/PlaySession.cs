@@ -34,18 +34,22 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public double CameraDistance;
         [System.Runtime.Serialization.OptionalField] public bool CameraDistanceLocked;
         [System.Runtime.Serialization.OptionalField] public int HumanRunStyle;
-        [System.Runtime.Serialization.OnDeserializing] void InitializeOptionalHuman(System.Runtime.Serialization.StreamingContext context){PlayerHumanVariant=-1;}
+        [System.Runtime.Serialization.OptionalField] public GameMode Mode=GameMode.Creative;
+        [System.Runtime.Serialization.OptionalField] public PlayerSurvival Survival=new PlayerSurvival();
+        [System.Runtime.Serialization.OnDeserializing] void InitializeOptionalHuman(System.Runtime.Serialization.StreamingContext context){PlayerHumanVariant=-1;Mode=GameMode.Creative;Survival=new PlayerSurvival();}
         public V PlayerPosition;
         public double Heading,Pitch,HeightAboveGround=1.65;
-        public PlaySession Copy(){var s=(PlaySession)MemberwiseClone();s.Settings=Settings.Copy();return s;}
+        public PlaySession Copy(){var s=(PlaySession)MemberwiseClone();s.Settings=Settings.Copy();s.Survival=Survival?.Copy()??new PlayerSurvival();return s;}
         public static PlaySession Legacy()=>new PlaySession{Settings=new PlaySettings{HorizontalScale=1,Sky=CelestialSettings.Preset("No moons"),MoonVisualExaggeration=1,SunVisualExaggeration=1}};
         public void Validate()
         {
+            if(!Enum.IsDefined(typeof(GameMode),Mode))throw new ArgumentException("Invalid game mode.");
+            Survival=Survival??new PlayerSurvival();Survival.Validate();
             if(PlayerHumanVariant< -1||PlayerHumanVariant>5||HumanRunStyle<0||HumanRunStyle>3||!Finite(CameraDistance)||CameraDistance<0||CameraDistance>12)throw new ArgumentException("Invalid human or camera state.");
             if(Version!="play-session-1"||Settings==null)throw new ArgumentException("Unsupported play session.");Settings.Validate();
             bool Finite(double v)=>!double.IsNaN(v)&&!double.IsInfinity(v);
             if(MeridianVersion<0||MeridianVersion>1||!Finite(PrimeMeridianLongitude)||PrimeMeridianLongitude< -180||PrimeMeridianLongitude>=180||!Finite(SolarDays)||SolarDays<0||!Finite(CalendarOffsetSeconds)||Math.Abs(CalendarOffsetSeconds)>1e15||!Finite(PendingHistorySeconds)||PendingHistorySeconds<0||PendingHistorySeconds>1e12||
-                !Finite(Heading)||!Finite(Pitch)||Math.Abs(Pitch)>85||!Finite(HeightAboveGround)||HeightAboveGround<0||HeightAboveGround>1e7||
+                !Finite(Heading)||!Finite(Pitch)||Math.Abs(Pitch)>85||!Finite(HeightAboveGround)||(Mode==GameMode.Spectator?HeightAboveGround< -1e7:HeightAboveGround<0)||HeightAboveGround>1e7||
                 HasPlayer&&(!Finite(PlayerPosition.X)||!Finite(PlayerPosition.Y)||!Finite(PlayerPosition.Z)||Math.Abs(PlayerPosition.Length-1)>1e-5))throw new ArgumentException("Invalid play session state.");
         }
         // Visual solar cycles and historical/seasonal time have intentionally independent rates.

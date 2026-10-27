@@ -12,8 +12,13 @@ and animal renderer are separate.
 - Middle click: lock/unlock the requested camera distance, including first person.
 - WASD: existing movement; C: walk; Shift: sprint; Space: jump; Ctrl: crouch pose
   and slower movement. A full crouch collision/capsule system is not implemented.
-- F retains existing flight. Alt + wheel adjusts flight speed; plain wheel now
-  adjusts the camera. Flight deliberately uses a neutral body pose.
+- F toggles flight in Creative only. Alt + wheel adjusts flight speed; plain
+  wheel adjusts the camera. Flight deliberately uses a neutral body pose.
+  Spectator always flies, hides the player and bypasses terrain/camera collision;
+  its wheel/middle button do not alter the retained body-camera zoom settings.
+- `/gamemode survival`, `/gamemode creative`, `/gamemode spectator` are the only
+  mode selectors. `/gamemode` alone explicitly reports mode/vitals in chat.
+  There are no new HUD elements or mode-selection menu controls.
 - `/spawn human [count]`: queue nearby humans, one by default, without a fixed
   head-count cap. No NPC humans spawn automatically.
 - `/spawn human clear`: remove command-spawned humans and cancel their queue.
@@ -38,6 +43,54 @@ passes, keyed by a per-human ID. Shadow passes retain the complete person.
 Another camera receives no hide ID, so the same person remains fully visible
 there. NPCs and third-person bodies remain visible. There is no multiplayer
 system yet. This supersedes the earlier first-person body/head-only mask.
+
+## Game modes and survival needs
+
+New and legacy sessions default to Creative, preserving the prior sandbox.
+Creative has flight access, no survival drain/damage and an unlimited-resource
+capability flag for future inventory/crafting. Selecting Creative restores
+health, stamina, energy, hunger/thirst, temperature and wetness; it can recover a
+dead prototype player. There is no inventory/resource system to bypass yet.
+Spectator freezes needs and disables the entire player actor, including its
+shadows, while retaining other humans. Its free camera passes through terrain,
+including beneath the ground; signed altitude is saved and restored. On leaving
+Spectator the normal body returns, and an underground position is lifted out of
+terrain. Prop collisions otherwise remain at the previous implementation level.
+
+Survival disables flight, including old saved flight flags and teleport-induced
+flight. It retains normal third-person/first-person camera behavior. The saved
+`PlayerSurvival` state contains Health, Stamina and Energy (100 is full), Hunger
+and Thirst (0 is satisfied, 100 depleted), CoreTemperatureC and Wetness (0..1).
+Short-term sprint stamina lasts about11s from full, recovers when not sprinting,
+and uses exhaustion hysteresis. Longer-term energy limits maximum stamina and
+recovers with rest when fed, hydrated and thermally comfortable. Jumping costs
+stamina. Low energy or severe exposure slows movement; death blocks voluntary
+movement and records its cause. No death overlay, automatic respawn, food/drink
+interaction, clothing, fall/combat damage or drowning system is added here.
+
+Needs use real elapsed gameplay time and the selected solar-day duration, not
+historical calendar compression. Stamina uses real seconds. Exposure response
+is calibrated around the default60-minute solar day and scales with its duration.
+Pause, map, ecology/chat overlays, unfocused play and loading do not consume
+needs; saves/offline time do not catch up metabolism. The local weather provides
+temperature, humidity, rain and wind. A cached2Hz ecology probe supplies canopy
+shelter/solar exposure and immersion, independently of graphics/shadow quality.
+Exertion warms the player, raises thirst and costs energy. Heat primarily raises
+water demand; excessive retained body heat can also damage health. Cold, wind,
+wet skin and cold immersion lower body temperature. Insulation is an explicit
+future input, currently zero; no clothing assets were added.
+
+These are gameplay approximations with tuning constants, not a clinical model.
+The [CDC heat/cold summary](https://www.cdc.gov/yellow-book/hcp/environmental-hazards-risks/heat-and-cold-illness-in-travelers.html)
+supports the roles of exertion, evaporation/humidity, dehydration and wet/windy
+cold exposure. The35C hypothermia threshold follows that source and the
+[NHS definition](https://www.nhs.uk/conditions/hypothermia/); the game begins
+progressive cold damage below it. Timing/damage rates are prototype balance.
+
+67 focused survival/mode/save/movement assertions and22 previous camera/save
+checks pass.15 actual Unity command/visibility checks cover mode switching,
+noclip movement, body/NPC visibility, dead-player recovery and command removal.
+Creative/Spectator/Survival renders were inspected. Evidence: `artifacts/game-modes`.
 
 ## Motion and scope
 
