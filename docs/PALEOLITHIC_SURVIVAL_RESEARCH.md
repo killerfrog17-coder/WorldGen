@@ -668,3 +668,30 @@ There are 162 survival assertions and 47 native checks. IL2CPP checkpoint UTC
 on the existing shortcut. The history hash, 177 fauna bundles/rig sidecars and
 four staged DLL inputs are verified. This is native domain/geometry/save testing,
 not fresh graphical/FPS acceptance. Evidence: respawn native-final/package proof.
+
+
+### Owner review stopping point
+
+The owner is preparing to test. Work is stopped at the verified respawn package
+selected above. All owned editor, player, Blender and generation workers have
+exited; no owner application was closed. This checkpoint includes the survival
+loop and early-history architecture. Rendered historical ice/coasts, demographic
+NPC tribes, a conservative later-city handoff, calibrated late archaic survival,
+species-specific carcass parts and polished tool/contact art remain unfinished.
+
+A separate throw audition is preserved under `artifacts/human-throw-audition`.
+The authored CC0 Quaternius UAL2 `OverhandThrow` was fitted to the existing MPFB
+rig. Actual A-side poses at five phases were rendered on two CPU threads and
+four were inspected. Six staged exports contain 20 clips each; their 42 reused
+texture maps and protected source native SHA are verified unchanged. These have
+NOT been promoted into Unity or the canonical runtime export folder. The selected
+game still has its prior 19-clip bank and throw behavior. The proposed 0.3-second
+release marker needs integration and checking, including pause/cancel behavior,
+actual hand release and preserved projectile payload. B?F throw poses have not
+been visually accepted. No new model, rig, texture generation or paid calls.
+
+Reproduction: `scripts/audition-human-throw.py` creates the isolated native/CPU
+renders. `scripts/export-human-runtime.py --reuse-textures --include-throw
+--output artifacts/human-throw-audition/exports` adds the staged motion after
+copying the existing maps there. Omitting the new flag retains the old export
+motion selection. No game assets were changed by this audition.

@@ -77,6 +77,10 @@ def export(letter):
     for label,clip in [('Interact','Interact'),('Pick up','PickUp_Table'),('Punch','Punch_Jab')]:
         samples=[q1.sample(clip,min(i/30,q1.duration(clip))) for i in range(round(q1.duration(clip)*30)+1)]
         clips.append(retarget.animate(rig,'MPFB',(label,q1,clip),samples))
+    if 'Throw' in CLIPS:
+        q2=Motion(next((REPO/'artifacts/human-animation-sources/quaternius-ual2').rglob('UAL2_Standard.glb')))
+        clip='OverhandThrow';samples=[q2.sample(clip,min(i/30,q2.duration(clip))) for i in range(round(q2.duration(clip)*30)+1)]
+        clips.append(retarget.animate(rig,'MPFB',('Throw',q2,clip),samples))
     actions={c['action']:c for c in clips if c['label'] in CLIPS}
     for ob in list(bpy.data.objects):
         if ob!=rig and ob not in objects:bpy.data.objects.remove(ob,do_unlink=True)
@@ -142,17 +146,24 @@ def export(letter):
         use_custom_props=False,path_mode='STRIP',mesh_smooth_type='FACE',use_triangles=True)
     metadata={'variant':letter,'source_sha256':hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
         'eye_height':collection['head_center'][2], 'materials':records,
-        'clips':[actions[k] for k in actions], 'seconds':time.monotonic()-started}
+        'clips':[actions[k] for k in actions], 'seconds':time.monotonic()-started,
+        'throw_release_seconds':.3 if 'Throw' in CLIPS else 0}
     (folder/'human.json').write_text(json.dumps(metadata,indent=2))
     print('HUMAN_EXPORTED',letter,round(metadata['seconds'],2),flush=True)
     return metadata
 
 
 def main():
-    global REUSE_TEXTURES
+    global REUSE_TEXTURES,OUTPUT,EVIDENCE
     parser=argparse.ArgumentParser();parser.add_argument('--variants',default='ABCDEF');parser.add_argument('--reuse-textures',action='store_true')
+    parser.add_argument('--include-throw',action='store_true');parser.add_argument('--output')
     args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
     REUSE_TEXTURES=args.reuse_textures
+    if args.include_throw:CLIPS.add('Throw')
+    if args.output:
+        OUTPUT=Path(args.output).resolve()
+        if not OUTPUT.is_relative_to(REPO/'artifacts'):parser.error('Export derivatives must remain inside repository artifacts.')
+        EVIDENCE=OUTPUT.parent
     EVIDENCE.mkdir(parents=True,exist_ok=True)
     reports=[export(letter) for letter in args.variants]
     (EVIDENCE/'export-report.json').write_text(json.dumps(reports,indent=2))

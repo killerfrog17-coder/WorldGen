@@ -1,5 +1,26 @@
 # WorldGen repository instructions
 
+OWNER REVIEW STOPPING POINT,27October2026~11:46CDT:
+OWNER says readyfairlysoon, startappropriatestoppingpoint soTHEYcanTEST. STOP
+newimplementation/generation now; userhasnotacceptedgameplay yet. Existing
+shortcutplayer-survival-respawn, UTC2026-10-27T16:28:48.3741239Z unchanged.
+162survival/413history checks,47native +177fauna/177rig/fourDLL proofs retained.
+All ownedUnity/player/Blender/generation workers EXITED; ownerapps untouched.
+Final ownsource/docs/shortcutbackup andGitHubpush+remoteverification required.
+Preserveunrelateddeletedprompt+2deerscripts. No newgoal or agents.
+SeparateCPUmotionauditiononly: scripts/audition-human-throw.py readsprotected
+MPFB0946d797...Native, appendsCC0UAL2OverhandThrow inDERIVATIVE A review, renders
+5actualsideposes8samples/twoCPUthreads; rootVIEWED4. Native+images/motion.json
+saved artifacts/human-throw-audition. OriginalsourceSHAexact. Exporteroptional
+--include-throw/--output adds6staged20clipFBXexports inthatfolder;42PNGsBYTEEXACT
+reusedfromcanonical. Took~10.4-11.1sec/variant, all6reportsverified. B-FposesNOT
+visuallyreviewed; rig/skincomparativeproof NOTdone. .3sec metadata isPROPOSALonly.
+NO Unity/humanasset/native/faunachange orruntimeThrowhook; canonicalexports old19
+unchanged. GameRMBstilloldattackanimation. Futureworkneedsreleaseevent/pause/cancel,
+actualhandorigin/payloadcondition, preservationproof+posechecks BEFOREpromotion.
+Exportdefaultwithoutflagremainsold19. Ownerwrappingmeansleaveauditionisolated,
+not halfintegrated. Largerunfinishedlimits inresearchdoc remain; don'tclaimdone.
+
 RESPAWN OWNERSHIP CHECKPOINT,27October2026~11:31CDT:
 Shortcut NOW player-survival-respawn IL2CPP BuiltUtc2026-10-27T16:28:48.3741239Z.
 162survival/413hominin checks,47native PASS. NewCoreSurvivalRespawn.TryApply owns
