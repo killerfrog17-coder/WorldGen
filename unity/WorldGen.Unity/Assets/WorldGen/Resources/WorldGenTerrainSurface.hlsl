@@ -125,18 +125,22 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     InputData input=(InputData)0;input.positionWS=i.position;input.normalWS=n;input.viewDirectionWS=GetWorldSpaceNormalizeViewDir(i.position);
     input.shadowCoord=TransformWorldToShadowCoord(i.position);input.bakedGI=TerrainAmbient().rgb;input.shadowMask=1;input.normalizedScreenSpaceUV=GetNormalizedScreenSpaceUV(i.positionCS);
     SurfaceData s=(SurfaceData)0;s.albedo=albedo;s.alpha=1;s.occlusion=ao;s.smoothness=1-rough;s.metallic=metal;s.normalTS=half3(0,0,1);
-    Light sun=(Light)0;float transmission=0;
-    if(!TerrainTest(TD_UNLIT)){sun=WorldGenFoliageLight(i.position);transmission=pow(saturate(dot(-sun.direction,input.viewDirectionWS)),3)*.22;}
+    Light sun=(Light)0;float transmission=0;half canopyShade=1;
+    if(!TerrainTest(TD_UNLIT)){sun=WorldGenFoliageLight(i.position,canopyShade);transmission=pow(saturate(dot(-sun.direction,input.viewDirectionWS)),3)*.22;}
     half3 color;
     if(TerrainTest(TD_UNLIT))color=albedo;
     else if(TerrainTest(TD_SIMPLE))color=SurfaceLeafLight(albedo,n,sun,transmission);
-    else color=UniversalFragmentPBR(input,s).rgb;
+    else color=WorldGenCanopyPbr(UniversalFragmentPBR(input,s).rgb,albedo,TerrainAmbient().rgb,ao,canopyShade);
 
     // Ecological weights/tints remain at every distance. Only their microscopic
     // material textures retire; these few weights are NOT an 850m texture stack.
     float4 flora=float4(cover,0,0,cover);
     if(_FloraSurfaceEnabled>.5&&textures)flora=SAMPLE_TEXTURE2D(_FloraSurface,sampler_FloraSurface,i.coverageUV*(1-_FloraSurface_TexelSize.xy)+.5*_FloraSurface_TexelSize.xy);
     float3 mix=max(0,float3(flora.a,flora.g,flora.b))/.45*_GroundFlora;mix/=max(1,dot(mix,1));
+    // Match the grass placement gate on the actual rasterized face. Averaged
+    // vertex normals/weights can otherwise smear a grass mat down a cliff.
+    float3 face=cross(worldDx,worldDy);face*=rsqrt(max(1e-12,dot(face,face)));
+    mix.x*=smoothstep(.62,.86,abs(dot(face,TerrainUp().xyz)));
     if(TerrainTest(TD_GRASS))mix.x=0;if(TerrainTest(TD_MOSS))mix.y=0;if(TerrainTest(TD_LICHEN))mix.z=0;
     float3 axes=SurfaceAxes(TerrainUp().xyz,TerrainTest(TD_AXIS)?1:_TerrainSurfaceControls.w,extra);
     float3 vegetation=0;

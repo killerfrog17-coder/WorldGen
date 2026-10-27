@@ -69,8 +69,8 @@ namespace WorldGen.Core
                 // Cheap upper admission before expensive local surface queries.
                 double densityCap=D.Clamp(nominal*nominal*jacobian/(side*side)*TreeFlora.PlacementPerM2);
                 if(r.Unit()>densityCap)return false;
-                double potential=patch.ForestPotential(at),stand=TreeFlora.Stand(at,seed,terrain.RadiusM*scale,potential);
-                if(admission>potential*stand)return false;
+                var forest=patch.ForestProfile(at);double potential=forest.Coverage,stand=TreeFlora.Stand(forest,at,seed,terrain.RadiusM*scale);
+                if(admission>potential*stand*TreeFlora.Stocking(forest))return false;
                 var sample=patch.Sample(at);if(sample.Underwater||sample.ElevationM<2)return false;
                 var e=world.Ecology;var h=e!=null&&sample.Cell<e.Habitat.Length?e.Habitat[sample.Cell]:null;
                 var species=terrain.FloraRegion(sample.Cell).Trees;double sum=0;
@@ -90,6 +90,13 @@ namespace WorldGen.Core
                 double cohort=r.Unit(),size=cohort<.12?.18+.16*r.Unit():cohort<.30?.40+.25*r.Unit():.72+.36*r.Unit();
                 if(s.Morphology.Strategy==TreeCrownStrategy.TropicalCanopy)
                     size=cohort<.69?.10+.35*r.Unit():cohort>.99?1.28+.28*r.Unit():.82+.25*r.Unit();
+                // Shade tolerance matters for seedlings, not a ban on adult
+                // pioneer trees remaining in a closed stand. Suppressed young
+                // cohorts stay smaller; openings release the same lineage.
+                if(size<.65)size*=1-.35*TreeFlora.CanopyShade(forest,at,seed,terrain.RadiusM*scale)*(1-s.ShadeTolerance);
+                double localWarm=(h==null?18:h.WarmTenthsC*.1)-.006*(sample.ElevationM-world.ElevationM[sample.Cell]);
+                double growth=D.Clamp((localWarm-5)/12);growth=growth*growth*(3-2*growth);
+                size*=(.28+.72*growth)*(.65+.35*D.Clamp(sample.Ground.DepthM/.6));
                 double tint=.93+.12*r.Unit();
                 tree=new ScatterInstance{Id=id,Kind=ScatterKind.GeneratedTree,Variant=s.MorphologyCode|(int)(r.Unit()*6),Position=at,Normal=(at-east*sx-north*sz).Unit,
                     GroundM=sample.ElevationM,HeightM=D.Q(s.HeightM*size,1000),WidthM=D.Q(s.WidthM*size*(.88+.24*r.Unit()),1000),

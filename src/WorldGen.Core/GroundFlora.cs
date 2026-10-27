@@ -30,7 +30,7 @@ namespace WorldGen.Core
     /// acquire bounded regional traits; this is static biogeography, not simulated evolution.</summary>
     public sealed class GroundFlora
     {
-        public const string Version="ground-flora-5";
+        public const string Version="ground-flora-6";
         static readonly ConditionalWeakTable<World,GroundFlora> contexts=new ConditionalWeakTable<World,GroundFlora>();
         readonly World world;
         readonly ConcurrentDictionary<int,GroundFloraRegion> regions=new ConcurrentDictionary<int,GroundFloraRegion>();
@@ -133,7 +133,7 @@ namespace WorldGen.Core
         }
         /// <summary>Continuous physical-space patching and local exclusion. Never reshapes ground/water.</summary>
         public static GroundCoverProfile Surface(GroundCoverProfile profile,V point,int seed,double radiusM,
-            GroundProfile ground,double elevationM,double sourceElevationM,double up,bool underwater,double ice,Biome? biome=null)
+            GroundProfile ground,double elevationM,double sourceElevationM,double up,bool underwater,double ice,Biome? biome=null,double? canopyShade=null)
         {
             if(underwater||elevationM<.3||ice>.5)return default;
             V physical=point*(radiusM/1000);
@@ -142,8 +142,24 @@ namespace WorldGen.Core
             double site=D.Clamp(.72*stand+.28*local+.10*(D.Clamp(ground.WaterCapacityMm/120)-ground.Gravel));
             double Smooth(double low,double high,double value){double t=D.Clamp((value-low)/(high-low));return t*t*(3-2*t);}
             double patch=.84+.28*(local*2-1);
-            double slope=D.Clamp((up-.46)/.43),altitude=D.Clamp((2200-(elevationM-sourceElevationM))/1800);
-            profile.ScaleWeights(D.Clamp(patch)*slope*altitude*(1-ice));
+            // Rooted foliage needs soil-bearing slopes. Crusts can persist on
+            // exposed rock; never apply the old permissive moss slope to grass.
+            double altitude=D.Clamp((2200-(elevationM-sourceElevationM))/1800);
+            profile.ScaleWeights(D.Clamp(patch)*altitude*(1-ice));
+            for(int f=0;f<9;f++)profile.SetWeight(f,profile.Weight(f)*(f==6||f==7?D.Clamp((up-.35)/.50):GrassSlopeAdmission(up)));
+            if(canopyShade.HasValue)
+            {
+                double oldShade=GroundSpecialists.Canopy(biome??Biome.Grassland),shade=D.Clamp(canopyShade.Value);
+                for(int f=0;f<9;f++)
+                {
+                    // Describe baked a linear biome-light response into these
+                    // weights. Remove THAT baseline, then apply the local one.
+                    // Normalizing by the new shade curve would cancel the very
+                    // suppression needed to prevent lawns under closed crowns.
+                    double localLight=f<3?Math.Pow(1-shade,2)*(f==1?D.Clamp((1-shade)/.30):1):LightResponse(f,shade);
+                    profile.SetWeight(f,profile.Weight(f)*localLight/Math.Max(.05,LightResponse(f,oldShade)));
+                }
+            }
             bool tundra=biome==Biome.Tundra||biome==Biome.Alpine;
             if(biome==Biome.Desert)
             {
@@ -186,6 +202,24 @@ namespace WorldGen.Core
             }
             if(profile.Coverage>.95)profile.ScaleWeights(.95/profile.Coverage);
             return profile;
+        }
+        // Shared with the final triangle check in GroundCoverPlacement.compute:
+        // zero at >=~52deg, full by ~31deg, continuous on intermediate slopes.
+        public static double GrassSlopeAdmission(double up){double t=D.Clamp((up-.62)/.24);return t*t*(3-2*t);}
+        static double LightResponse(int form,double shade)
+        {
+            switch((GroundGrowthForm)form)
+            {
+                case GroundGrowthForm.CoolGrass:return 1-.90*shade;
+                case GroundGrowthForm.WarmGrass:return 1-.98*shade;
+                case GroundGrowthForm.DryTuft:return 1-.94*shade;
+                case GroundGrowthForm.Forb:return 1-.65*shade;
+                case GroundGrowthForm.Fern:return .18+.82*shade;
+                case GroundGrowthForm.Moss:return .35+.65*shade;
+                case GroundGrowthForm.Lichen:return 1-.70*shade;
+                case GroundGrowthForm.Succulent:return 1-.95*shade;
+                default:return 1-.50*shade;
+            }
         }
     }
     public struct GroundCoverProfile

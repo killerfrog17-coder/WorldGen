@@ -23,9 +23,10 @@ namespace WorldGen.Core
                 var e=world.Ecology;var habitat=e!=null&&sample.Cell<e.Habitat.Length?e.Habitat[sample.Cell]:null;
                 var species=terrain.FloraRegion(sample.Cell).MidPlants;
                 double warm=habitat==null?18:habitat.WarmTenthsC*.1-.006*(sample.ElevationM-world.ElevationM[sample.Cell]),sum=0;
+                double shade=TreeFlora.CanopyShade(sample.Forest,p,seed,terrain.RadiusM*scale);
                 for(int i=0;i<species.Length;i++)
                 {
-                    double fit=MidFlora.Suitability(species[i],habitat,sample.Ground,sample.Biome,warm);
+                    double fit=MidFlora.Suitability(species[i],habitat,sample.Ground,sample.Biome,warm,shade);
                     weights[i]=fit<.005?0:fit*MidFlora.Colony(species[i],p,seed,terrain.RadiusM*scale);sum+=weights[i];
                 }
                 double cu=(key.X+u)*2/divisions-1,cv=(key.Y+v)*2/divisions-1,jacobian=1/Math.Pow(1+cu*cu+cv*cv,1.5);

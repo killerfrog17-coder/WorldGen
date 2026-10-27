@@ -110,7 +110,8 @@ public sealed partial class LocalTerrainExplorer
     {
         bool active=camera==view&&CanopyActive&&canopyFront>=0;
         int front=Math.Max(0,canopyFront),previous=1-front;
-        Shader.SetGlobalVector("_WorldGenCanopySettings",new Vector4(active?1:0,(float)Math.Min(1,(Time.realtimeSinceStartupAsDouble-canopyBlendStarted)/.5),90,160));
+        bool soft=TerrainVideoOptions.DistantTreeShadowCards;
+        Shader.SetGlobalVector("_WorldGenCanopySettings",new Vector4(active?1:0,(float)Math.Min(1,(Time.realtimeSinceStartupAsDouble-canopyBlendStarted)/.5),soft?-1:90,soft?0:160));
         Shader.SetGlobalTexture("_WorldGenCanopyPrevious",canopyTextures[previous]??Texture2D.blackTexture);
         Shader.SetGlobalTexture("_WorldGenCanopyCurrent",canopyTextures[front]??Texture2D.blackTexture);
         Shader.SetGlobalVector("_WorldGenCanopyRect0",canopyRects[previous]);Shader.SetGlobalVector("_WorldGenCanopyRect1",canopyRects[front]);

@@ -50,4 +50,8 @@ half WorldGenCanopyShadow(half detailed,float3 position)
     #endif
     return detailed;
 }
+// Approximate only the sunlit part of PBR output. Retain indirect sky light,
+// solid-object shadow outlines, secondary lights and emissions.
+half3 WorldGenCanopyPbr(half3 color,half3 albedo,half3 ambient,half ao,half shade)
+{return color-max(0,color-albedo*ambient*ao)*(1-shade);}
 #endif

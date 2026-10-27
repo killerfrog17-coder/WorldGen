@@ -1,5 +1,35 @@
 # WorldGen repository instructions
 
+VEGETATION COMMUNITY CHECKPOINT,26October2026~20:50CDT:
+Owner authorizes representation changes, approximate foliage shade even nearby,
+realistic habitat-dependent stocking/gaps/understory, no cliff grass; animal
+shadows should retain detailed geometry. This game task is separate from the
+stopped fauna appearance task below. No appearance/animation work resumed.
+Final player-vegetation-communities IL2CPP BuiltUtc2026-10-27T01:33:42.7381041Z;
+existing root shortcut selects it, player-tree-efficiency retained for rollback.
+532source/stagedDLL and177canonical repaired fauna bundle hashes verified.
+Preserve independent fauna commit2b8e7f9 eye-opacity/socket repairs.
+Tree crown competition and biome/fire-dependent stable stand variation now
+shared by local/far placement/planning/maps. Habitat limits/mangroves corrected;
+cold/shallow-soil trees stunted. Local canopy light drives understory; actual
+triangle slopes reject grass above~52deg. Fern/succulent ribbons retired in
+favour of existing specialist forms. No arbitrary mandatory clearing quota,
+simulated succession, source terrain/world edits or guaranteed density targets.
+Soft coarse foliage shadows + Canopy shade: retained256sq actual crown shelter
+near-to-far; crown casters retire when ready,12tri trunks +actual animals remain.
+Off/warming fallback shaped crowns; animal opacity/mesh/rig/actions unchanged.
+Terrain/rock/fauna PBR now receives approximate canopy sun attenuation.
+Focused tests23053/152772/220/5758pass; GPU64flat/0cliff/0fern/0succulent,
+48map equivalence probes. Inspected15habitat views, not all-world certification.
+NO reliable FPS improvement established. Earlier117-125FPS windows failed to
+repeat; latest58-62. Final cached/proxy58.43/60.09FPS, submission+GPU completion
+15.867/15.447ms, not isolated GPU timings. Dense forest FPS remains unresolved;
+do not advertise earlier optimistic numbers or claim pacing was proved causal.
+Evidence ignored artifacts/vegetation-communities-20261026; docs updated.
+Owned player/compiler/profiler processes exited; owned orphan ETW trace24860
+stopped. No owner apps killed. Preserve unrelated deleted prompt/two old deer
+scripts unstaged. No new goal exists. User game testing remains allowed.
+
 TREE EFFICIENCY CHECKPOINT,26October2026~18:49CDT:
 Owner authorized retained tree batches, reused billboard shader work and shared
 per-tree wind; game testing allowed. Final player-tree-efficiency IL2CPP

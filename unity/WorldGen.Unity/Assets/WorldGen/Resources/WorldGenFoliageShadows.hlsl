@@ -4,7 +4,7 @@
 // Camera-scoped: enabled, shadow range, filter footprint in shadow texels, taps.
 // Keep the stock path for standalone fixtures and for the owner A/B toggle.
 float4 _WorldGenFoliageShadowSettings;
-Light WorldGenFoliageLight(float3 position)
+Light WorldGenFoliageLight(float3 position,out half canopy)
 {
     Light light=GetMainLight();
     if(_WorldGenFoliageShadowSettings.x<.5)
@@ -46,7 +46,8 @@ Light WorldGenFoliageLight(float3 position)
     }
     #endif
     }
-    light.shadowAttenuation=WorldGenCanopyShadow(light.shadowAttenuation,position);
+    canopy=WorldGenCanopyShadow(1,position);light.shadowAttenuation=min(light.shadowAttenuation,canopy);
     return light;
 }
+Light WorldGenFoliageLight(float3 position){half canopy;return WorldGenFoliageLight(position,canopy);}
 #endif

@@ -20,7 +20,7 @@ namespace WorldGen.Core
                 var ecology=world.Ecology;var h=ecology!=null&&sample.Cell<ecology.Habitat.Length?ecology.Habitat[sample.Cell]:null;
                 var species=terrain.FloraRegion(sample.Cell).Specialists;V physical=p*(terrain.RadiusM*scale/1000);
                 double warm=h==null?18:h.WarmTenthsC*.1-.006*(sample.ElevationM-world.ElevationM[sample.Cell]);
-                double shade=GroundSpecialists.Canopy(biome)*D.Clamp(.80+.38*SphereNoise.Sample(physical,seed^0x342af,11));
+                double shade=TreeFlora.CanopyShade(sample.Forest,p,seed,terrain.RadiusM*scale);
                 double sum=0;
                 for(int i=0;i<species.Length;i++)
                 {

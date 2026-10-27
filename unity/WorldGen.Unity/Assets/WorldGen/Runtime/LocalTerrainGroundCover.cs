@@ -93,7 +93,7 @@ public sealed partial class LocalTerrainExplorer
         for(int i=0;i<pixels.Length;i++)
         {
             int at=i*16;float total=tile.Cover[at+3],moss=tile.Cover[at+10],lichen=tile.Cover[at+11];
-            pixels[i]=new Color(total,moss,lichen,Math.Max(0,total-moss-lichen));
+            pixels[i]=new Color(total,moss,lichen,Math.Max(0,total-moss-lichen-tile.Cover[at+9]-tile.Cover[at+12]));
         }
         var texture=new Texture2D(side,side,TextureFormat.RGBAHalf,false,true){name="Ground flora material weights",filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};
         texture.SetPixels(pixels);texture.Apply(false,true);return texture;

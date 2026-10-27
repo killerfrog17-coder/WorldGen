@@ -14,11 +14,10 @@ public sealed partial class LocalTerrainExplorer
         public readonly Vector4[] Coverage=new Vector4[256];public readonly MaterialPropertyBlock Properties=new MaterialPropertyBlock();
         public Bounds Bounds;public int Count;
     }
-    readonly Dictionary<int,Mesh> treeShadowMeshes=new Dictionary<int,Mesh>(),treeShadowFarMeshes=new Dictionary<int,Mesh>();
+    readonly Dictionary<int,Mesh> treeShadowMeshes=new Dictionary<int,Mesh>(),treeShadowTrunkMeshes=new Dictionary<int,Mesh>();
+    bool usingSoftCanopyShadows;
     readonly List<TreeShadowBatch> treeShadowBatches=new List<TreeShadowBatch>(),treeShadowPool=new List<TreeShadowBatch>();
     readonly Dictionary<(int,int,int,int),TreeShadowBatch> treeShadowActive=new Dictionary<(int,int,int,int),TreeShadowBatch>();
-    readonly Dictionary<ArtModel,Material> treeShadowCardMaterials=new Dictionary<ArtModel,Material>();
-    readonly HashSet<ArtModel> treeShadowCardModels=new HashSet<ArtModel>();
     Material treeShadowMaterial;UniversalRenderPipelineAsset foliageShadowPipeline;
     float originalShadowDistance,publishedShadowDistance,originalShadowBorder,publishedShadowBorder;
     int originalShadowResolution,publishedShadowResolution,originalShadowCascades,publishedShadowCascades;
@@ -32,7 +31,8 @@ public sealed partial class LocalTerrainExplorer
     public int TreeShadowCoarse {get;private set;}
     public long TreeShadowTriangles {get;private set;}
     bool UseTreeShadowProxies=>TerrainVideoOptions.SimplifiedForestShadows&&treeShadowMaterial!=null&&TerrainVideoOptions.GeneratedTrees&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeShadows&&TerrainVideoOptions.VegetationShadows&&!TerrainDiagnostics.HideTrees&&!TerrainDiagnostics.HidePlants;
-    bool ReplaceTreeShadow(ScatterInstance plant)=>plant.Kind==ScatterKind.GeneratedTree&&UseTreeShadowProxies&&treeShadowMeshes.ContainsKey(TreeFlora.RenderCode(plant.Variant));
+    bool SoftCanopyShadows=>TerrainVideoOptions.DistantTreeShadowCards&&CanopyActive&&CanopyShadeReady;
+    bool ReplaceTreeShadow(ScatterInstance plant)=>plant.Kind==ScatterKind.GeneratedTree&&UseTreeShadowProxies&&(SoftCanopyShadows?treeShadowTrunkMeshes:treeShadowMeshes).ContainsKey(TreeFlora.RenderCode(plant.Variant));
 
     void ApplyFoliageShadowOptions()
     {
@@ -95,9 +95,8 @@ public sealed partial class LocalTerrainExplorer
     }
     void BuildTreeShadowBatches()
     {
-        foreach(var b in treeShadowBatches){b.Count=0;treeShadowPool.Add(b);}treeShadowBatches.Clear();treeShadowActive.Clear();treeShadowCardModels.Clear();TreeShadowObjects=TreeShadowCards=TreeShadowCoarse=0;
-        var expired=new List<ArtModel>();foreach(var p in treeShadowCardMaterials)if(!p.Key.TreeBaked)expired.Add(p.Key);
-        foreach(var owner in expired){Destroy(treeShadowCardMaterials[owner]);treeShadowCardMaterials.Remove(owner);}
+        usingSoftCanopyShadows=SoftCanopyShadows;
+        foreach(var b in treeShadowBatches){b.Count=0;treeShadowPool.Add(b);}treeShadowBatches.Clear();treeShadowActive.Clear();TreeShadowObjects=TreeShadowCards=TreeShadowCoarse=0;
         if(!UseTreeShadowProxies||vegetationShadowRadius<=0)return;
         PrepareTreeShadowFrustum();
         void Add(int code,int lod,Mesh mesh,Material material,Matrix4x4 matrix,Bounds bounds,float start,float end)
@@ -114,7 +113,7 @@ public sealed partial class LocalTerrainExplorer
             batch.Matrices[batch.Count]=matrix;batch.Coverage[batch.Count]=new Vector4(start,end,0,0);
             if(batch.Count++==0)batch.Bounds=bounds;else batch.Bounds.Encapsulate(bounds);
         }
-        bool built=false;float lightCardWeight=(float)VegetationShadowBudget.CardWeight(vegetationShadowUp);
+        bool built=false;
         foreach(var chunk in scatterChunks.Values)
         {
             if(chunk.Bounds==null)PrepareScatterBounds(chunk);
@@ -129,41 +128,23 @@ public sealed partial class LocalTerrainExplorer
                     float distance=Mathf.Sqrt(bounds.SqrDistance(scatterEye)),coverage=(float)VegetationShadowBudget.CasterFade(distance,vegetationShadowDistance);
                     if(coverage<=0)continue;
                     int code=TreeFlora.RenderCode(plant.Variant);
+                    if(usingSoftCanopyShadows)
+                    {
+                        if(!treeShadowTrunkMeshes.TryGetValue(code,out var trunk))
+                        {
+                            if(built){scatterDirty=true;continue;}if(treeShadowTrunkMeshes.Count>=96)continue;
+                            trunk=LocalScatterMeshes.BuildTreeShadowTrunk(code);treeShadowTrunkMeshes.Add(code,trunk);built=true;
+                        }
+                        Add(code,1,trunk,treeShadowMaterial,chunk.Matrices[index],bounds,0,coverage);TreeShadowCoarse++;TreeShadowObjects++;continue;
+                    }
                     if(!treeShadowMeshes.TryGetValue(code,out var mesh))
                     {
                         if(built){scatterDirty=true;continue;}if(treeShadowMeshes.Count>=96)continue;
                         mesh=LocalScatterMeshes.BuildTreeShadowProxy(code);treeShadowMeshes.Add(code,mesh);built=true;
                     }
-                    float far=TerrainVideoOptions.DistantTreeShadowCards?(float)TreeRenderingLod.ShadowWeight(distance):0;
-                    Mesh coarse=null;
-                    if(far>0&&!treeShadowFarMeshes.TryGetValue(code,out coarse))
-                    {
-                        if(built){scatterDirty=true;far=0;}
-                        else{coarse=LocalScatterMeshes.BuildTreeShadowProxy(code,2);treeShadowFarMeshes.Add(code,coarse);built=true;}
-                    }
-                    float card=far>0&&TerrainVideoOptions.TreeImpostors?lightCardWeight:0;ArtModel owner=null;
-                    if(card>0)
-                    {
-                        long artKey=ScatterArtKey(ScatterKind.GeneratedTree,code,2);scatterArt.TryGetValue(artKey,out owner);
-                        if((owner==null||!owner.TreeBaked)&&scatterArt.TryGetValue(artKey|(1L<<49),out var stand))owner=stand;
-                        if(owner==null)owner=Art(ScatterKind.GeneratedTree,code,2);
-                        owner.LastUsed=Time.realtimeSinceStartupAsDouble;treeShadowCardModels.Add(owner);
-                        if(!owner.TreeBaked)card=0;
-                    }
-                    float nearEnd=coverage*(1-far),coarseEnd=coverage*(1-far*card);
-                    Add(code,0,mesh,treeShadowMaterial,chunk.Matrices[index],bounds,0,nearEnd);
-                    if(far>0&&coarseEnd>nearEnd)
-                    {Add(code,1,coarse,treeShadowMaterial,chunk.Matrices[index],bounds,nearEnd,coarseEnd);TreeShadowCoarse++;}
-                    if(far*card>0)
-                    {
-                        if(!treeShadowCardMaterials.TryGetValue(owner,out var material))
-                        {
-                            material=new Material(treeShadowMaterial){name="Baked tree shadow card / "+code,enableInstancing=true};
-                            material.SetFloat("_ShadowCard",1);material.SetTexture("_TreeColourViews",owner.TreeColour);
-                            material.SetVector("_ImpostorBounds",owner.Parts[0].Material.GetVector("_ImpostorBounds"));treeShadowCardMaterials.Add(owner,material);
-                        }
-                        Add(code,2,owner.Parts[0].Mesh,material,chunk.Matrices[index],bounds,coarseEnd,coverage);TreeShadowCards++;
-                    }
+                    // Finer shaped fallback while the cached field warms up,
+                    // or when the owner disables soft canopy shade.
+                    Add(code,0,mesh,treeShadowMaterial,chunk.Matrices[index],bounds,0,coverage);
                     TreeShadowObjects++;
                 }
             }
@@ -216,9 +197,8 @@ public sealed partial class LocalTerrainExplorer
         RestoreFoliageShadowDistance();foliageShadowPipeline=null;
         TerrainVideoOptions.ForestLightUp=1;
         foreach(var mesh in treeShadowMeshes.Values)Destroy(mesh);treeShadowMeshes.Clear();
-        foreach(var mesh in treeShadowFarMeshes.Values)Destroy(mesh);treeShadowFarMeshes.Clear();
+        foreach(var mesh in treeShadowTrunkMeshes.Values)Destroy(mesh);treeShadowTrunkMeshes.Clear();
         if(treeShadowMaterial!=null)Destroy(treeShadowMaterial);treeShadowMaterial=null;
-        foreach(var material in treeShadowCardMaterials.Values)Destroy(material);treeShadowCardMaterials.Clear();treeShadowCardModels.Clear();
         treeShadowBatches.Clear();treeShadowPool.Clear();treeShadowActive.Clear();
         Shader.SetGlobalVector("_WorldGenFoliageShadowSettings",Vector4.zero);
     }
@@ -226,8 +206,15 @@ public sealed partial class LocalTerrainExplorer
 
 static partial class LocalScatterMeshes
 {
+    public static Mesh BuildTreeShadowTrunk(int code)
+    {
+        var m=new TreeMorphology(code);var b=new Builder();
+        b.Tube(Vector3.zero,Vector3.up*Mathf.Max(.2f,(float)m.CrownBase),(float)m.TrunkRadius,(float)m.TrunkRadius*.45f,6,Color.white);
+        var mesh=b.Finish(false);mesh.name="Tree solid-trunk shadow / "+code;return mesh;
+    }
     // Shadows inherit the actual shared art's leaf bounds, including palms,
-    // needles and regional crown strategies. No new placement or giant sphere.
+    // needles and regional crown strategies. The coarse mode uses one rounded
+    // fitted envelope: a grid of octahedra casts conspicuous diamond shadows.
     public static Mesh BuildTreeShadowProxy(int code,int divisions=4)
     {
         divisions=Math.Max(1,Math.Min(4,divisions));
@@ -241,7 +228,16 @@ static partial class LocalScatterMeshes
             if(cells.TryGetValue(key,out var bounds)){bounds.Encapsulate(p);cells[key]=bounds;}else cells.Add(key,new Bounds(p,Vector3.zero));
         }
         var builder=new Builder();
-        foreach(var cell in cells.Values)
+        if(divisions<=2&&cells.Count>0)
+        {
+            bool first=true;var crown=new Bounds();
+            foreach(var cell in cells.Values){if(first){crown=cell;first=false;}else crown.Encapsulate(cell);}
+            // Twelve azimuth samples give a rounded projected outline, with
+            // only96 triangles and no foliage texture samples. Slightly inset
+            // to represent the porous crown rather than an opaque bounding box.
+            builder.Crown(crown.center,crown.extents*.88f,12,4,Color.white,code,.025f);
+        }
+        else foreach(var cell in cells.Values)
         {
             var e=cell.extents;float minimum=Mathf.Max(.012f,envelope.size.y*.012f);e=new Vector3(Mathf.Max(minimum,e.x),Mathf.Max(minimum,e.y),Mathf.Max(minimum,e.z));
             int first=builder.V.Count;var c=cell.center;

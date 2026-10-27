@@ -135,8 +135,9 @@ namespace WorldGen.Presentation
                 for(int layer=0;layer<4;layer++){mesh.SurfaceWeights[i*4+layer]=(float)groundSurface.Weight(layer);mesh.GroundWeightsB[i*4+layer]=(float)groundSurface.Weight(layer+4);}
                 for(int layer=0;layer<6;layer++)mesh.Lithology[i*6+layer]=(float)sample.Ground.RockWeight(layer);
                 V color = groundSurface.Color;
+                double canopyShade=sample.Underwater?0:TreeFlora.CanopyShade(sample.Forest,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,terrain.RadiusM*frame.HorizontalScale)*TreeFlora.SlopeAdmission(up);
                 var cover=GroundFlora.Surface(sample.Cover,frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,
-                    terrain.RadiusM*frame.HorizontalScale,sample.Ground,sample.ElevationM,sample.BaseElevationM,up,sample.Underwater,snow,sample.Biome);
+                    terrain.RadiusM*frame.HorizontalScale,sample.Ground,sample.ElevationM,sample.BaseElevationM,up,sample.Underwater,snow,sample.Biome,canopyShade);
                 double coverage=D.Clamp(cover.Coverage);
                 var mid=sample.MidCover;double midAmount=sample.Underwater||sample.ElevationM<2?0:
                     mid.Coverage*MidFlora.StandDensity(frame.Position(eastM+x*step,northM+z*step),terrain.SourceSeed,terrain.RadiusM*frame.HorizontalScale)*D.Clamp((up-.65)/.25);

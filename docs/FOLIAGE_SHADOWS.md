@@ -1,5 +1,122 @@
 # Foliage shadow and near-foot density checkpoint / 22 October 2026
 
+## Vegetation communities and coarse foliage shade / 26 October 2026
+
+Owner explicitly permits different representations and small visual compromises,
+and requests realistic habitat structure rather than identical dense forests.
+Detailed foliage shadow outlines are unnecessary even nearby; animal shadows
+still need their actual geometry. This pass changes placement as well as rendering.
+
+The previous closed-stand gap cutoff(.16) and high density floor produced very
+little variation through much of closed forest. A shared planet-stable stand field now
+uses community gap/variation traits blended across source profiles. Wet closed
+rainforest/mangrove communities have smaller/rarer openings; temperate/boreal
+stands vary more, with the existing fire potential increasing structural variation.
+The fields approximate static natural gap/recovery/competition conditions, not
+simulated dated fires, actual treefall events or a guaranteed clearing every N metres.
+Climate/soil/productivity/salinity/permafrost/rooting support continue to constrain
+forest occurrence. No trees are planted just to fill visual holes.
+
+Tree recruitment now budgets expected crown area using lineage width and existing
+size cohorts. Large crowns self-thin instead of piling the same fixed stem density
+into an opaque ceiling. Sparse woodland/savanna is exempt from closed-stand
+competition; the old savanna placement was itself excessively sparse, so its
+moisture/fire-dependent opportunity was recalibrated. Ground-level flora, small
+specialists and mid-height taxa sample the SAME local canopy field: grasses and
+open scrub favour light; moist ferns/moss and shade specialists favour shelter.
+This is approximate potential canopy light, not a per-plant ray-traced census.
+
+Grass light demand is nonlinear: open-ground grasses fall off strongly beneath
+closed crowns, rather than maintaining a knee-high forest lawn after a small
+linear shade discount. The original descriptive biome response is removed before
+applying this local response; normalizing against the new curve would cancel the
+suppression. Ferns, moss, sedges and specialist taxa retain their own responses.
+Open-ground quality, near-foot density controls and LOD ranges are unchanged.
+
+Mangrove suitability excludes unrelated conifer/palm/tree-fern lineages despite
+shared regional flood tolerance. Warm lowland seasonal forest limits conifers;
+existing warmth/cold limits retain palms/canes/tree ferns in suitable warm habitats.
+Cold or shallow-soil trees are stunted; shade-sensitive young cohorts remain
+smaller under cover. Regional fictional lineages and their climate/soil tolerances
+remain, rather than replacing them with literal Earth species everywhere.
+
+Rooted ground vegetation now fades on soil-bearing slopes, reaching zero near52deg;
+moss/lichen crusts retain a separate rock-friendly rule. GroundCoverPlacement checks
+the ACTUAL drawn grid triangle, so interpolating grassy corner samples cannot
+spawn blades across a cliff. Coarse ground sampling still cannot resolve every
+small soil pocket; no claim of centimetre-scale botanical accuracy.
+
+Generic ground ribbons and the grass material no longer duplicate fern and
+succulent coverage; those retain their specialist/mid-plant representations.
+Wet sedges can still make suitable riparian forest floors lush. This pass does
+not assume that every forest should have a bare floor or scattered clearings.
+
+Vegetation -> **Soft coarse foliage shadows**, together with **Canopy shade**,
+uses the already retained256-square placed-crown field from the player's feet
+through its existing600-800m coverage. Bilinear spatial filtering and fractional
+crown area give soft partial shelter, with height-aware release upward through
+foliage. Crown shadow geometry retires once this field is ready; only tiny12tri
+solid-trunk proxies and actual animal/other-object casters remain in the sunlight
+atlas. The field refreshes on existing placement/anchor changes, not every sun
+sample, and does not follow individual wind-blown leaves or predict long lateral
+foliage shadows. This intentionally approximates overhead forest shelter.
+
+Shaped crown proxies remain a warm-up/off fallback. Cache readiness changes switch
+submission in the same frame. The old saved cheaper-shadow key is retained; soft
+shade off restores shaped proxies, Canopy shade off disables the field, and
+Simplified forest shadows off restores original actual-tree casting. Atlas/ranges
+remain; foliage receivers use at most4filter samples (2lowest/low-sun). No
+interpolation or cache of sunlight shadow maps is added. Existing spatial field
+replacement blending remains.
+
+Bare terrain PBR, rocks and fauna previously bypassed cached canopy shading in
+their main lighting term. They now attenuate an approximate sunlit component,
+retaining indirect sky light, actual solid-object shadow outlines, secondary
+lights and emissions. This is an inexpensive lighting approximation, not a full
+separation of PBR lobes or measured forest radiative transfer. Grass, herbs,
+shrubs and rebuilt trees already use the shared light path. Animal meshes,
+rigs, animation, opacity masks and textures remain unchanged.
+
+Two intermediate geometric-only versions were rejected in root visual review:
+a grid of octahedra cast obvious diamonds; a rounded crown still cast a solid
+blob. Their ignored review directories are failed/interim evidence, not the
+selected final player or claimed final performance.
+
+Research basis: [USFS crown competition and canopy gaps](https://research.fs.usda.gov/treesearch/6637),
+[NPS old-growth gap regeneration](https://irmadev.nps.gov/DataStore/Reference/Profile/2257057),
+[USFS coastal temperate rainforest structure](https://research.fs.usda.gov/download/treesearch/67202.pdf),
+[Missouri native savanna disturbance](https://mdc.mo.gov/discover-nature/habitats/grasslands-prairies-savannas/savannas).
+These inform the qualitative relationships, not the project's numerical tuning.
+
+Focused checks:23053community,152772canonical forest/transport,220tree-field and
+5758ground-flora assertions pass. Local and distant exact census still agree;
+source world hash unchanged. Fixture densities: rainforest316.8,temperate139.5,
+boreal192.5,savanna9.7,grassland0.1stems/ha;desert/tundra0. These are fixture
+observations, not universal standards or saved ecological population counts.
+
+Final IL2CPP player `player-vegetation-communities` built
+2026-10-27T01:33:42.7381041Z. Verified532source hashes, staged assemblies and all
+177corrected fauna bundle hashes. GPU fixtures produce64flat-grass roots and
+zero cliff/duplicate-fern/succulent roots.48map probes retain material/profile/
+height/water equivalence. Actual rendered savanna, tropical and temperate views
+were inspected from four ground headings and an overview; this is not an
+all-biome or seasonal visual certification.
+
+Performance is NOT a certified improvement. Earlier short hidden-player forest
+windows reached117-125FPS, but later repeats were58-62FPS; those earlier numbers
+must not be advertised as a reliable gain. The final same-build comparison gave
+58.43FPS cached shelter versus60.09FPS shaped crown proxies. Per-frame submission
+plus explicit GPU completion averaged15.867ms versus15.447ms, excluding Update/
+presentation/frame-loop waits; these are not isolated GPU timestamps. Thus the
+soft representation removes crown caster work and changes the appearance, but
+does not establish a net standalone shadow speedup in this fixture. PresentMon
+produced no usable present data. Its owned orphan trace was stopped. The dense
+forest performance problem remains open; hidden-window pacing was a hypothesis,
+not a confirmed explanation. Evidence: ignored
+`artifacts/vegetation-communities-20261026`, especially `render-cost` and the
+15-view `community-review-contact.jpg`. Existing shortcut selects this build;
+`player-tree-efficiency` remains available for rollback.
+
 ## Retained tree submission and shared shading / 26 October 2026
 
 The saved Vegetation control **Efficient tree rendering** defaults on and can

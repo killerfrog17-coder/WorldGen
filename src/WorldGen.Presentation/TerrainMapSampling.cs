@@ -76,7 +76,7 @@ namespace WorldGen.Presentation
             // Productive raw profiles can exceed one. Planting clamps the
             // combined probability, not its potential before stand modulation.
             double potential=sample.Forest.Coverage;
-            return 10000*TreeFlora.PlacementPerM2*D.Clamp(TreeFlora.Stand(point,terrain.SourceSeed,terrain.RadiusM*terrain.HorizontalScale,potential)*potential)*TreeFlora.SlopeAdmission(up);
+            return 10000*TreeFlora.PlacementPerM2*D.Clamp(TreeFlora.Stand(sample.Forest,point,terrain.SourceSeed,terrain.RadiusM*terrain.HorizontalScale)*potential*TreeFlora.Stocking(sample.Forest))*TreeFlora.SlopeAdmission(up);
         }
         public static TerrainMapImage Build(LocalTerrain terrain,TerrainMapViewport view,int width,int height,CancellationToken token,Layer layer,float[]? cellColors,World? world,TerrainMapContext? context=null,int canvasWidth=0,int canvasHeight=0,int offsetX=0,int offsetY=0)
         {
@@ -120,7 +120,7 @@ namespace WorldGen.Presentation
                         else
                         {
                             var soil=LocalGeology.Surface(s.Ground,p,terrain.SourceSeed,s.ElevationM,up,s.OceanInfluence,s.Biome==Biome.Ice?1:0,radius);
-                            var cover=GroundFlora.Surface(s.Cover,p,terrain.SourceSeed,radius,s.Ground,s.ElevationM,s.BaseElevationM,up,s.Underwater,s.Biome==Biome.Ice?1:0,s.Biome);
+                            var cover=GroundFlora.Surface(s.Cover,p,terrain.SourceSeed,radius,s.Ground,s.ElevationM,s.BaseElevationM,up,s.Underwater,s.Biome==Biome.Ice?1:0,s.Biome,TreeFlora.CanopyShade(s.Forest,p,terrain.SourceSeed,radius)*TreeFlora.SlopeAdmission(up));
                             color=Mix(soil.Color,cover.Color*.90,cover.Coverage/.45);
                             var forest=TreeFlora.Surface(s.Forest,p,terrain.SourceSeed,radius,s.ElevationM,up,s.Underwater);
                             color=Mix(color,s.MidCover.Color,s.MidCover.Coverage*MidFlora.StandDensity(p,terrain.SourceSeed,radius));color=Mix(color,forest.Color,forest.Coverage*.8);

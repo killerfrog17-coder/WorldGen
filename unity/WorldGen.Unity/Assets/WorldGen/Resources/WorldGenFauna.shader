@@ -20,6 +20,7 @@ Shader "WorldGen/AnimatedFauna"
         #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
         #include "WorldGenLighting.hlsl"
         #include "WorldGenVegetationScene.hlsl"
+        #include "WorldGenCanopyShadows.hlsl"
         StructuredBuffer<float4x4> _FaunaBones;
         TEXTURE2D_ARRAY(_Coats);SAMPLER(sampler_Coats);
         TEXTURE2D(_Mask);SAMPLER(sampler_Mask);
@@ -88,7 +89,7 @@ Shader "WorldGen/AnimatedFauna"
                 input.normalizedScreenSpaceUV=GetNormalizedScreenSpaceUV(i.positionCS);
                 SurfaceData surface=(SurfaceData)0;surface.albedo=albedo;surface.alpha=1;surface.occlusion=1;
                 surface.smoothness=1-clamp(mask.r,.08,.97);surface.normalTS=half3(0,0,1);
-                half3 color=UniversalFragmentPBR(input,surface).rgb+SecondaryCelestialLight(n,albedo);
+                half3 color=WorldGenCanopyPbr(UniversalFragmentPBR(input,surface).rgb,albedo,input.bakedGI,1,WorldGenCanopyShadow(1,i.world))+SecondaryCelestialLight(n,albedo);
                 color+=albedo*mask.b*_Glow;
                 return half4(ApplyPlanetAir(color,i.world,_WorldSpaceCameraPos,VegetationFogLinear(SRGBToLinear(float3(.57,.69,.76))),VegetationFogDistance(60000)),1);
             }

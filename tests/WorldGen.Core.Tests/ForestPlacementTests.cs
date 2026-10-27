@@ -24,7 +24,7 @@ static class ForestPlacementTests
             {
                 var point=mapPatch.Position(i*3,i*7);var sample=mapPatch.Sample(point);
                 double potential=sample.Forest.Coverage,up=.68+i*.012;
-                double expected=10000*TreeFlora.PlacementPerM2*D.Clamp(potential*TreeFlora.Stand(point,recipe.Seed,terrain.RadiusM*.1,potential))*TreeFlora.SlopeAdmission(up);
+                double expected=10000*TreeFlora.PlacementPerM2*D.Clamp(potential*TreeFlora.Stocking(sample.Forest)*TreeFlora.Stand(sample.Forest,point,recipe.Seed,terrain.RadiusM*.1))*TreeFlora.SlopeAdmission(up);
                 double actual=TerrainMapSampling.TreeDensity(terrain,null,sample,point,up);
                 Check(Math.Abs(actual-expected)<1e-10,"Tree-density map shares planting stand field "+biome+": "+actual+" vs "+expected);
             }

@@ -108,12 +108,12 @@ namespace WorldGen.Core
             }
             return result;
         }
-        public static double Suitability(MidPlantSpecies s,HabitatCell h,GroundProfile soil,Biome biome,double warm)
+        public static double Suitability(MidPlantSpecies s,HabitatCell h,GroundProfile soil,Biome biome,double warm,double? localShade=null)
         {
             if(biome==Biome.Ice||biome==Biome.Ocean||biome==Biome.Freshwater||biome==Biome.SalineLake)return 0;
             bool cold=biome==Biome.Tundra||biome==Biome.Alpine;double wet=h==null?.8:h.AridityMilli*.001;
             double flood=h==null?0:Math.Max(h.FloodFractionPermille*.001,D.Clamp((100-h.WaterTableCm)/100d));
-            double shade=GroundSpecialists.Canopy(biome),weight=1;
+            double shade=localShade??GroundSpecialists.Canopy(biome),weight=1;
             switch(s.Form)
             {
                 case MidGrowthForm.LeafyBush:weight=cold?.18:biome==Biome.Desert?0:.85;break;
@@ -126,6 +126,7 @@ namespace WorldGen.Core
             }
             double moisture=Math.Exp(-Math.Pow((wet*(.8+.3*D.Clamp(soil.WaterCapacityMm/100))-s.Moisture)/Math.Max(.3,s.Moisture*.8),2));
             double light=Math.Exp(-Math.Pow((shade-s.Shade)/.65,2));
+            if(s.Form==MidGrowthForm.OpenScrub||s.Form==MidGrowthForm.Succulent||s.Form==MidGrowthForm.ReedStand)light*=D.Clamp((1-shade)/.60);
             double temperature=D.Clamp((warm-s.MinWarmC)/6)*D.Clamp((s.MaxWarmC-warm)/6);
             double ph=D.Clamp((soil.PH-s.MinPH)/.8)*D.Clamp((s.MaxPH-soil.PH)/.8),salt=1-D.Clamp(soil.Salinity/Math.Max(.01,s.MaxSalinity));
             double roots=D.Clamp(soil.DepthM/(s.Form==MidGrowthForm.DwarfHeath?.12:.28))*(.55+.45*soil.Fertility)*(1-.6*soil.Gravel);

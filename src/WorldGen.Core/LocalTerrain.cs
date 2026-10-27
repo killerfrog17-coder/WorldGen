@@ -260,15 +260,17 @@ namespace WorldGen.Core
             /// unrelated ground-layer queries. A placement admission filter,
             /// NOT final height/water/slope or a substitute for those checks.</summary>
             public double ForestPotential(V point)
+                =>ForestProfile(point).Coverage;
+            public ForestCoverProfile ForestProfile(V point)
             {
-                double px=point.X*owner.RadiusM,py=point.Y*owner.RadiusM,pz=point.Z*owner.RadiusM,sum=0,coverage=0;
+                double px=point.X*owner.RadiusM,py=point.Y*owner.RadiusM,pz=point.Z*owner.RadiusM,sum=0;var profile=new ForestCoverProfile();
                 foreach(var f in sources)
                 {
                     double x=px-f.Center.X*owner.RadiusM,y=py-f.Center.Y*owner.RadiusM,z=pz-f.Center.Z*owner.RadiusM;
                     double distance=(x*x+y*y+z*z)/(f.SupportM*f.SupportM);if(distance>=1)continue;
-                    double r=Math.Sqrt(distance),t=1-r,weight=t*t*t*t*(1+4*r);sum+=weight;coverage+=f.Forest.Coverage*weight;
+                    double r=Math.Sqrt(distance),t=1-r,weight=t*t*t*t*(1+4*r);sum+=weight;profile.Add(f.Forest,weight);
                 }
-                if(sum<=0)throw new InvalidOperationException("Tree potential outside supporting patch");return coverage/sum;
+                if(sum<=0)throw new InvalidOperationException("Tree potential outside supporting patch");profile.Divide(sum);return profile;
             }
             /// <summary>Identical canonical final elevation, without unused
             /// ecological/material blending. Not a dry/coarse/render-mesh query.

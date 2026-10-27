@@ -98,7 +98,7 @@ Shader "WorldGen/LocalScatter"
                 input.normalizedScreenSpaceUV=GetNormalizedScreenSpaceUV(i.positionCS);
                 SurfaceData s=(SurfaceData)0;s.albedo=tex.rgb*tint;s.alpha=1;s.occlusion=mask.r;s.metallic=_Metallic*mask.a;
                 s.smoothness=1-saturate(mask.g*_Roughness);s.normalTS=half3(0,0,1);
-                half3 color=UniversalFragmentPBR(input,s).rgb;
+                half3 color=WorldGenCanopyPbr(UniversalFragmentPBR(input,s).rgb,s.albedo,input.bakedGI,s.occlusion,WorldGenCanopyShadow(1,i.position));
                 if(_TreeSurface>.5&&i.plant.y>.5&&i.plant.y<2.5)
                 {Light sun=GetMainLight(input.shadowCoord);sun.shadowAttenuation=WorldGenCanopyShadow(sun.shadowAttenuation,i.position);color+=s.albedo*sun.color*(pow(saturate(dot(-n,sun.direction)),2)*.12)*sun.shadowAttenuation;}
                 color+=SecondaryCelestialLight(n,s.albedo);

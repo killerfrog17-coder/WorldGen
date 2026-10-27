@@ -94,10 +94,10 @@ namespace WorldGen.Core
 
     public struct ForestCoverProfile
     {
-        public V Color;public double Coverage,HeightM,WidthM,Openness,WarmC,ReferenceElevationM;
+        public V Color;public double Coverage,HeightM,WidthM,Openness,WarmC,ReferenceElevationM,GapThreshold,StandVariation;
         public int MorphologyCode;double dominantWeight;
-        internal void Add(ForestCoverProfile p,double w){Color+=p.Color*w;Coverage+=p.Coverage*w;HeightM+=p.HeightM*w;WidthM+=p.WidthM*w;Openness+=p.Openness*w;WarmC+=p.WarmC*w;ReferenceElevationM+=p.ReferenceElevationM*w;if(w*p.Coverage>dominantWeight){dominantWeight=w*p.Coverage;MorphologyCode=p.MorphologyCode;}}
-        internal void Divide(double w){Color/=w;Coverage/=w;HeightM/=w;WidthM/=w;Openness/=w;WarmC/=w;ReferenceElevationM/=w;}
+        internal void Add(ForestCoverProfile p,double w){Color+=p.Color*w;Coverage+=p.Coverage*w;HeightM+=p.HeightM*w;WidthM+=p.WidthM*w;Openness+=p.Openness*w;WarmC+=p.WarmC*w;ReferenceElevationM+=p.ReferenceElevationM*w;GapThreshold+=p.GapThreshold*w;StandVariation+=p.StandVariation*w;if(w*p.Coverage>dominantWeight){dominantWeight=w*p.Coverage;MorphologyCode=p.MorphologyCode;}}
+        internal void Divide(double w){Color/=w;Coverage/=w;HeightM/=w;WidthM/=w;Openness/=w;WarmC/=w;ReferenceElevationM/=w;GapThreshold/=w;StandVariation/=w;}
     }
 
     /// <summary>Static derived lineages, not literal Earth species or simulated
@@ -105,12 +105,12 @@ namespace WorldGen.Core
     /// random combinations at every region or plant. Saved food webs stay literal.</summary>
     public static class TreeFlora
     {
-        public const string Version="tree-flora-3";
+        public const string Version="tree-flora-4";
         public const double PlacementPerM2=.055;
         public static int RenderCode(int code)=>code&0x70ffff00;
         public static int ModelCode(int code,int lod)
         {if(lod>=2)return RenderCode(code);var form=(TreeGrowthForm)((code>>28)&7);return form==TreeGrowthForm.BroadCrown||form==TreeGrowthForm.NeedleCrown?code&~7:code;}
-        public static double HabitatAdmission(LocalTerrainSample sample)=>D.Clamp(sample.Forest.Coverage);
+        public static double HabitatAdmission(LocalTerrainSample sample)=>D.Clamp(sample.Forest.Coverage*Stocking(sample.Forest));
         public static double SlopeAdmission(double up)=>D.Clamp((up-.60)/.22);
         public static double SpeciesWeight(TreeSpecies species,HabitatCell habitat,LocalTerrainSample sample,V at,int seed,double radius,double sourceElevation)
         {
@@ -176,9 +176,9 @@ namespace WorldGen.Core
                 case Biome.TemperateForest:return .85;
                 case Biome.BorealForest:return .76;
                 case Biome.TropicalSeasonalForest:return .70;
-                case Biome.MediterraneanWoodland:return .12;
+                case Biome.MediterraneanWoodland:return .26;
                 case Biome.Mangrove:return .85;
-                case Biome.Savanna:return .009;
+                case Biome.Savanna:return .045;
                 case Biome.Floodplain:return .18;
                 case Biome.Grassland:return .0012;
                 default:return 0;
@@ -190,6 +190,9 @@ namespace WorldGen.Core
             // ecotone must not be guillotined by the nearest biome label.
             // Their actual warmth/permafrost/slope still limit surviving trees.
             if(biome==Biome.Ice||biome==Biome.Ocean||biome==Biome.Freshwater||biome==Biome.SalineLake)return 0;
+            // Mangrove salt/flood tolerance must not turn every unrelated
+            // regional lineage into a mangrove-shaped palm or tree fern.
+            if(biome==Biome.Mangrove&&s.Form!=TreeGrowthForm.BroadCrown)return 0;
             double wet=h==null?.9:h.AridityMilli*.001,warm=(h==null?18:h.WarmTenthsC*.1)-elevationOffset*.006,cold=(h==null?5:h.ColdTenthsC*.1)-elevationOffset*.006;
             double fit=D.Clamp((warm-s.MinWarmC)/5)*D.Clamp((s.MaxWarmC-warm)/7)*D.Clamp((cold-s.MinColdC)/8);
             fit*=Math.Exp(-Math.Pow((wet-s.Moisture)/Math.Max(.3,s.Moisture*.75),2));
@@ -197,6 +200,7 @@ namespace WorldGen.Core
             double flood=h==null?0:h.FloodFractionPermille*.001;fit*=1-flood*(1-s.FloodTolerance);
             if(h!=null)fit*=1-.85*h.PermafrostPermille*.001;
             if(s.Form==TreeGrowthForm.NeedleCrown)fit*=biome==Biome.BorealForest?1.8:biome==Biome.TropicalRainforest||biome==Biome.Mangrove||biome==Biome.Savanna?0:.6;
+            if(s.Form==TreeGrowthForm.NeedleCrown&&biome==Biome.TropicalSeasonalForest)fit*=D.Clamp((25-warm)/7);
             if(s.Form==TreeGrowthForm.BroadCrown)fit*=biome==Biome.BorealForest?.25:1;
             if(s.Form==TreeGrowthForm.TreeFern)fit*=D.Clamp((wet-.8)/.6)*GroundSpecialists.Canopy(biome);
             if(s.Form==TreeGrowthForm.FrondCrown)fit*=biome==Biome.Mangrove?.12:.65;
@@ -206,16 +210,45 @@ namespace WorldGen.Core
             return Math.Max(0,fit);
         }
         public static double Stand(V position,int seed,double physicalRadiusM,double potential)
+            =>Stand(new ForestCoverProfile{Coverage=potential,GapThreshold=.38,StandVariation=.45},position,seed,physicalRadiusM);
+        /// <summary>Static stand mosaic, not a simulated fire or treefall history.
+        /// Regional community traits control how often small canopy gaps survive;
+        /// the SAME field drives local trees, distant pages and understory light.</summary>
+        public static double Stand(ForestCoverProfile profile,V position,int seed,double physicalRadiusM)
         {
             V km=position*(physicalRadiusM/1000);
             double n=.5+.5*SphereNoise.Sample(km,seed^0x6937af,3.3);
             double opening=.5+.5*SphereNoise.Sample(km,seed^0x41a8c3,19);
             double open=(.08+.92*Smooth((n-.28)/.38))*(.14+.86*Smooth((opening-.22)/.32));
-            double closed=(.82+.18*Smooth((n-.23)/.43))*(.84+.16*Smooth((opening-.19)/.36));
-            // Closed forest has a connected canopy with occasional gaps, not
-            // the same strongly perforated field used by open woodland.
-            double gap=Smooth((.16-opening)/.10);
-            closed*=1-.92*gap;return open+(closed-open)*Smooth((potential-.15)/.45);
+            double variation=D.Clamp(profile.StandVariation);
+            double closed=(1-variation+variation*Smooth((n-.25)/.48))*(.86+.14*Smooth((opening-.20)/.40));
+            // The previous .16 threshold was in an almost unreachable noise
+            // tail: a closed biome stayed almost identically packed for miles.
+            double gap=Smooth((profile.GapThreshold-opening)/.10);
+            closed*=1-.96*gap;return open+(closed-open)*Smooth((profile.Coverage-.15)/.45);
+        }
+        static double ExpectedCrownArea(ForestCoverProfile p)
+        {
+            // Account for the existing size cohorts; do not place 550 mature
+            // 15-25m crowns/ha simply because 550 narrow stems fit the lattice.
+            bool tropical=((p.MorphologyCode>>22)&3)==(int)TreeCrownStrategy.TropicalCanopy;
+            return Math.PI*.25*p.WidthM*p.WidthM*(tropical?.31:.64);
+        }
+        public static double Stocking(ForestCoverProfile p)
+        {
+            var form=(TreeGrowthForm)((p.MorphologyCode>>28)&7);
+            var strategy=(TreeCrownStrategy)((p.MorphologyCode>>22)&3);
+            double budget=form==TreeGrowthForm.BroadCrown&&strategy==TreeCrownStrategy.TropicalCanopy?3.6:
+                form==TreeGrowthForm.BroadCrown&&strategy==TreeCrownStrategy.OpenWoodland?1.5:2.2;
+            double packed=Math.Min(1,budget/Math.Max(.001,PlacementPerM2*ExpectedCrownArea(p)));
+            // Sparse sites are not competing closed stands. Applying the same
+            // self-thinning to rare savanna/grassland trees erased woodlands.
+            return 1+(packed-1)*Smooth((p.Coverage-.025)/.30);
+        }
+        public static double CanopyShade(ForestCoverProfile p,V position,int seed,double radius)
+        {
+            double area=PlacementPerM2*ExpectedCrownArea(p)*Stocking(p)*D.Clamp(p.Coverage)*Stand(p,position,seed,radius);
+            return D.Clamp(1-Math.Exp(-area*(1-.55*D.Clamp(p.Openness))));
         }
         static double Smooth(double t){t=D.Clamp(t);return t*t*(3-2*t);}
         public static ForestCoverProfile Describe(HabitatCell h,GroundProfile soil,TreeSpecies[] species,Biome biome)
@@ -225,15 +258,22 @@ namespace WorldGen.Core
             if(sum>1e-6){p.Color/=sum;p.HeightM/=sum;p.WidthM/=sum;p.Openness/=sum;}
             double potential=biome==Biome.Desert?.006:Potential(biome);
             if(biome==Biome.Savanna&&h!=null)
-            {double opportunity=D.Clamp((h.AridityMilli*.001-.45)/.65)*(1-.75*h.FirePotentialPermille*.001);potential=.004+.025*opportunity*opportunity;}
+            {double opportunity=D.Clamp((h.AridityMilli*.001-.45)/.65)*(1-.75*h.FirePotentialPermille*.001);potential=.035+.15*opportunity*opportunity;}
             double productivity=h==null?1:D.Clamp(.65+h.ProductivityGCM2Year/1800.0,.65,1.15);
             double fire=h==null?1:1-.42*h.FirePotentialPermille*.001;
             double support=D.Clamp(sum*1.5);
-            p.Coverage=potential*support*productivity*fire;return p;
+            p.Coverage=potential*support*productivity*fire;
+            // Small treefall gaps recover fastest in wet, closed communities.
+            // Fire-prone/drier stands vary more; do not insert a meadow quota.
+            bool wetForest=biome==Biome.TropicalRainforest||biome==Biome.TemperateRainforest||biome==Biome.Mangrove;
+            p.GapThreshold=wetForest?.26:biome==Biome.TemperateForest?.35:biome==Biome.BorealForest?.34:.34;
+            p.StandVariation=wetForest?.24:biome==Biome.TemperateForest?.52:.60;
+            if(h!=null){p.GapThreshold+=.045*h.FirePotentialPermille*.001;p.StandVariation+=.15*h.FirePotentialPermille*.001;}
+            return p;
         }
         public static ForestCoverProfile Surface(ForestCoverProfile p,V point,int seed,double radius,double elevation,double up,bool underwater)
         {
-            p.Coverage*=underwater||elevation<2?0:Stand(point,seed,radius,p.Coverage)*D.Clamp((up-.60)/.22)*D.Clamp((p.WarmC-(elevation-p.ReferenceElevationM)*.006-6)/5);
+            p.Coverage*=underwater||elevation<2?0:Stand(p,point,seed,radius)*Stocking(p)*D.Clamp((up-.60)/.22)*D.Clamp((p.WarmC-(elevation-p.ReferenceElevationM)*.006-6)/5);
             return p;
         }
     }

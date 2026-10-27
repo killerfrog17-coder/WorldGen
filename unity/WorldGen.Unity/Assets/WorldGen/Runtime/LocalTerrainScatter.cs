@@ -440,7 +440,6 @@ public sealed partial class LocalTerrainExplorer
         if(scatterArt.Count>384)
         {
             var used=new HashSet<ArtModel>(drawBatches.Select(b=>b.Model));
-            used.UnionWith(treeShadowCardModels);
             foreach(var item in scatterArt.Where(p=>p.Value.Generated&&!p.Value.TreeStand&&!p.Value.TreeQueued&&!used.Contains(p.Value)&&Time.realtimeSinceStartupAsDouble-p.Value.LastUsed>30).OrderBy(p=>p.Value.LastUsed).Take(Math.Min(8,scatterArt.Count-384)).ToArray())
             {
                 ReleaseTreeTextures(item.Value);
@@ -493,11 +492,22 @@ public sealed partial class LocalTerrainExplorer
         {var actual=TreePigment(p.Variant);var shared=TreePigment(variant);batch.Colors[batch.Count]=new Vector4((float)(p.Color.X*actual.X/Math.Max(.01,shared.X)),(float)(p.Color.Y*actual.Y/Math.Max(.01,shared.Y)),(float)(p.Color.Z*actual.Z/Math.Max(.01,shared.Z)),1);}
         batch.Fades[batch.Count]=new Vector4(low,high,0,0);batch.Count++;
     }
-    void LateUpdate(){if(!closed){CaptureMouse();UpdateSunPresentation();long trace=WorldGenPerformance.TraceBegin();UpdateCanopyShade();WorldGenPerformance.TraceEnd(15,trace);long started=WorldGenPerformance.Begin();DrawScatter();WorldGenPerformance.End(1,started);started=WorldGenPerformance.Begin();trace=WorldGenPerformance.TraceBegin();DrawGroundCover();WorldGenPerformance.TraceEnd(14,trace);WorldGenPerformance.End(2,started);if(weatherCheckTarget!=null&&view!=null)view.Render();}}
+    void LateUpdate()
+    {
+        if(closed)return;CaptureMouse();UpdateSunPresentation();long trace=WorldGenPerformance.TraceBegin();UpdateCanopyShade();WorldGenPerformance.TraceEnd(15,trace);
+        bool completion=WorldGenPerformance.Measuring&&WorldGenPerformance.ProfileRenderCompletion&&weatherCheckTarget!=null&&view!=null;
+        long renderStarted=completion?System.Diagnostics.Stopwatch.GetTimestamp():0;
+        long started=WorldGenPerformance.Begin();DrawScatter();WorldGenPerformance.End(1,started);started=WorldGenPerformance.Begin();trace=WorldGenPerformance.TraceBegin();DrawGroundCover();WorldGenPerformance.TraceEnd(14,trace);WorldGenPerformance.End(2,started);
+        if(weatherCheckTarget!=null&&view!=null)view.Render();
+        if(completion){WeatherCheckGpuBarrier();WorldGenPerformance.CompletedRenderMs=(System.Diagnostics.Stopwatch.GetTimestamp()-renderStarted)*1000d/System.Diagnostics.Stopwatch.Frequency;}
+    }
     void DrawScatter()
     {
         if(landMaterial!=null&&landMaterial.GetFloat("_ForestFarEnabled")!=(TerrainVideoOptions.FarForest?1:0)){landMaterial.SetFloat("_ForestFarEnabled",TerrainVideoOptions.FarForest?1:0);PublishTerrainScene();}
         ScatterDrawCalls=ForestDrawCalls=TreeShadowDraws=0;if(!ScatterEnabled||view==null||TerrainDiagnostics.HidePlants)return;
+        // Cache publication/teleport invalidation can happen in LateUpdate.
+        // Switch crown/trunk submission in the same frame, without a bright flash.
+        if(usingSoftCanopyShadows!=SoftCanopyShadows)BuildScatterBatches();
         UpdateEfficientTreeMaterials();PrepareSharedTreeWind();
         DrawTreeShadowProxies();
         foreach(var batch in drawBatches)for(int j=0;j<batch.Model.Parts.Length;j++)

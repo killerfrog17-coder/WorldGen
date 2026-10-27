@@ -1,5 +1,38 @@
 # Version 3 validation evidence
 
+## Vegetation communities and soft canopy shelter - 26 October 2026
+
+Shared crown competition/stand fields replace nearly uniform closed-forest
+stocking. Habitat suitability restricts tree types; local light/slope rules
+drive ground/mid vegetation. Actual compute triangles reject cliff grass;
+generic ribbons no longer duplicate fern/succulent representations. These are
+static ecological approximations, not simulated succession or universal density
+targets. Source world geometry/hash remains unchanged.
+
+23053community,152772forest census/transport/hierarchy,220tree-field and
+5758ground-flora assertions pass. Runtime GPU fixtures:64flat grass roots,
+zero cliff, fern-ribbon and succulent-ribbon roots.48map probes pass. Root
+inspected four headings plus overview for savanna/tropical/temperate habitats.
+
+Soft coarse foliage shadows + Canopy shade use retained placed-crown shelter
+from near feet;12triangle trunks and actual animal casters remain in the atlas.
+Shaped crowns are the fallback. This preserves animal mesh/opacity/rig/actions;
+all177canonical corrected fauna bundles match packaged SHA256 baselines.
+
+Final IL2CPP `player-vegetation-communities` BuiltUtc
+2026-10-27T01:33:42.7381041Z succeeds with noC#/shadererrors;532source hashes and
+staged DLL hashes match. Existing shortcut selects it; prior player retained.
+Build-generated importer/project settings restored; owned test workers stopped.
+
+NO reliable FPS gain established: earlier117-125FPS windows did not repeat
+(later58-62). Final same-build cached/proxy cases58.43/60.09FPS; submission plus
+GPU completion mean15.867/15.447ms (466/479samples), not isolated GPU timestamps.
+Cached foliage shelter is an appearance/representation change with reduced crown
+caster work, not a measured net speedup here. Dense-forest FPS remains unresolved.
+PresentMon yielded no usable present data; its owned orphan trace was stopped.
+Full evidence and limitations: FOLIAGE_SHADOWS.md and ignored
+artifacts/vegetation-communities-20261026. No all-hardware/all-biome claim.
+
 ## Retained tree instances and shared shading - 26 October 2026
 
 Owner authorized retained GPU tree submission, reused billboard shader work and

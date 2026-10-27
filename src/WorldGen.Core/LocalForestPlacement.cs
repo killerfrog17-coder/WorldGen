@@ -70,10 +70,10 @@ namespace WorldGen.Core
                 double expected=0;
                 foreach(var key in result)
                 {
-                    ForestBounds(key,out V center,out double radius);double support=terrain.Profile(terrain.NearestCell(center)).Forest.Coverage;
+                    ForestBounds(key,out V center,out double radius);var forest=terrain.Profile(terrain.NearestCell(center)).Forest;double support=forest.Coverage;
                     Basis(key.Face,out V normal,out V a,out V b);double dot=V.Dot(center,normal),u=V.Dot(center,a)/dot,v=V.Dot(center,b)/dot;
                     double area=TreeLatticeStep*TreeLatticeStep/Math.Pow(1+u*u+v*v,1.5);
-                    double single=D.Clamp(area*TreeFlora.PlacementPerM2)*D.Clamp(support*TreeFlora.Stand(center,seed,terrain.RadiusM*scale,support));
+                    double single=D.Clamp(area*TreeFlora.PlacementPerM2)*D.Clamp(support*TreeFlora.Stocking(forest)*TreeFlora.Stand(forest,center,seed,terrain.RadiusM*scale));
                     double probability=1-Math.Pow(1-single,(1L<<key.Level)*(1L<<key.Level));
                     expected+=ForestPageSide*ForestPageSide*probability;
                 }

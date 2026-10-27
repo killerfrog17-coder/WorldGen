@@ -43,18 +43,24 @@ void Place(uint3 id:SV_DispatchThreadID)
         float h00=Attribute(a.x,a.y,k),h10=Attribute(a.x+1,a.y,k),h01=Attribute(a.x,a.y+1,k),h11=Attribute(a.x+1,a.y+1,k);
         values[k]=f.x+f.y<=1?h00+(h10-h00)*f.x+(h01-h00)*f.y:h11+(h01-h11)*(1-f.x)+(h10-h11)*(1-f.y);
     }
-    // Moss and lichens are stationary ground materials, not waving leaves.
-    float cover=saturate(values[3]-values[10]-values[11]);if(cover<.002)return;
+    // Ferns and succulents use the existing specialist/mid-plant models.
+    // Rendering their potential cover again as generic ribbons made shaded
+    // forest look like a lawn even when actual grass weights were suppressed.
+    float cover=saturate(values[3]-values[9]-values[10]-values[11]-values[12]);if(cover<.002)return;
     float step=_Tile.z/_Tile.w;
     float sx=f.x+f.y<=1?(Attribute(a.x+1,a.y,15)-Attribute(a.x,a.y,15))/step:(Attribute(a.x+1,a.y+1,15)-Attribute(a.x,a.y+1,15))/step;
     float sz=f.x+f.y<=1?(Attribute(a.x,a.y+1,15)-Attribute(a.x,a.y,15))/step:(Attribute(a.x+1,a.y+1,15)-Attribute(a.x+1,a.y,15))/step;
+    // Interpolated flora can bleed across a sharp cliff from neighbouring soil
+    // vertices. The actual rendered triangle is authoritative for rooting.
+    float up=rsqrt(1+sx*sx+sz*sz);if(up<=.62)return;
+    cover*=smoothstep(.62,.86,up);if(cover<.002)return;
     Root r;r.positionForm=float4(p.x-_Tile.x,values[15]-.016,p.y-_Tile.y,_Spacing);
     // Species, height and cover are selected per leaf, not once for a whole tuft.
     r.colorHeight=float4(values[0],values[1],values[2],max(.1,values[13]));
     r.shape=float4(max(.4,values[14]),Rand(hash+5),Rand(hash+6),Rand(hash+7));
     r.normal=float4(normalize(float3(-sx,1,-sz)),cover);
     r.grasses=float4(values[4],values[5],values[6],values[7])/max(.00001,cover);
-    r.herbs=float4(values[8],values[9],0,0)/max(.00001,cover);
+    r.herbs=float4(values[8],0,0,0)/max(.00001,cover);
     _Roots.Append(r);
 }
 

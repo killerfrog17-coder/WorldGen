@@ -23,7 +23,7 @@ public static partial class TerrainVideoOptions
     public static bool CanopyShade=true;
     public static float ForestShadowDistance=>DawnDuskShadowBudget?(float)VegetationShadowBudget.ShadowRange(ForestLightUp):180;
     public static int ForestShadowResolution=>Math.Min(ForestShadowQuality<2?1024:ForestShadowQuality==2?2048:4096,DawnDuskShadowBudget?VegetationShadowBudget.ResolutionCap(ForestLightUp):4096);
-    public static int ForestShadowSamples=>DawnDuskShadowBudget&&ForestLightUp<.10f?2:Math.Min(ForestShadowQuality==0?2:ForestShadowQuality==4?9:4,DawnDuskShadowBudget&&ForestLightUp<.28f?4:9);
+    public static int ForestShadowSamples=>DawnDuskShadowBudget&&ForestLightUp<.10f?2:Math.Min(ForestShadowQuality==0?2:ForestShadowQuality==4?9:4,DistantTreeShadowCards?4:DawnDuskShadowBudget&&ForestLightUp<.28f?4:9);
     public static int GrassQuality=2,SpecialistQuality=2,MidQuality=2,TreeQuality=2;
     public static float TreeIdentityRange= (float)VegetationQuality.TreeIdentityRange;
     public static void ApplyPlantQuality(int layer,int quality)
@@ -182,14 +182,14 @@ public sealed partial class WorldGenRuntime
         GUILayout.Label("Shorter, softer detailed shadows near the horizon. Direct sunlight fades into the existing ambient sky lighting as the sun rises or sets.",MutedStyle());
         TerrainVideoOptions.SimplifiedForestShadows=GUILayout.Toggle(TerrainVideoOptions.SimplifiedForestShadows,"Simplified forest shadows (off = previous rendering)");
         GUI.enabled=enabled&&TerrainVideoOptions.SimplifiedForestShadows;
-        TerrainVideoOptions.DistantTreeShadowCards=GUILayout.Toggle(TerrainVideoOptions.DistantTreeShadowCards,"Cheaper distant tree shadows");
-        GUILayout.Label("Nearby shadows keep detail. Farther trees use baked silhouettes or broad solid crowns under low sunlight, with a smooth transition.",MutedStyle());
+        TerrainVideoOptions.DistantTreeShadowCards=GUILayout.Toggle(TerrainVideoOptions.DistantTreeShadowCards,"Soft coarse foliage shadows");
+        GUILayout.Label("Cached soft canopy shade replaces foliage outlines; trunks and animals retain shadow-map geometry. Needs canopy shade below.",MutedStyle());
         GUILayout.Label("Forest shadow quality");
         TerrainVideoOptions.ForestShadowQuality=GUILayout.SelectionGrid(TerrainVideoOptions.ForestShadowQuality,VegetationQuality.Names,5);
         GUILayout.Label("Four cascades; current range "+TerrainVideoOptions.ForestShadowDistance.ToString("F0")+"m (180m in full daylight). Atlas "+TerrainVideoOptions.ForestShadowResolution+"px; ~"+(TerrainVideoOptions.ForestShadowResolution/2)+"px per cascade; "+TerrainVideoOptions.ForestShadowSamples+" foliage filter samples.");
         GUILayout.Label("Foliage shadow softness  "+TerrainVideoOptions.ForestShadowSoftness.ToString("F2"));
         TerrainVideoOptions.ForestShadowSoftness=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.ForestShadowSoftness,.75f,4)*20)/20;
-        TerrainVideoOptions.CanopyShade=GUILayout.Toggle(TerrainVideoOptions.CanopyShade,"Broad distant canopy shade (height-aware placed-tree coverage)");
+        TerrainVideoOptions.CanopyShade=GUILayout.Toggle(TerrainVideoOptions.CanopyShade,"Canopy shade (height-aware placed-tree coverage)");
         GUILayout.Label("Quality controls resolution/filtering. The dawn/dusk budget can reduce range independently. Broad canopy shade blends in before detailed shadows end. Softness changes filter footprint.",MutedStyle());
         GUI.enabled=enabled;
         GUILayout.Space(10);
