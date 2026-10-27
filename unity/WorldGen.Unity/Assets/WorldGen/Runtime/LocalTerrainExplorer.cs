@@ -139,7 +139,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         {
             if(!building.IsCompleted)return;
             if(building.IsFaulted||building.IsCanceled){error=building.Exception?.GetBaseException().Message??"Cancelled";debugOpen=true;CaptureMouse();return;}
-            terrain=building.Result;viewDistance=Math.Min(viewDistance,MaximumViewDistance);InitializeScatter();Teleport(startingPoint);InitializeAnimalFauna();
+            terrain=building.Result;viewDistance=Math.Min(viewDistance,MaximumViewDistance);InitializeScatter();Teleport(startingPoint);InitializeAnimalFauna();InitializeHumans();
             if(playState!=null&&playState.HasPlayer){heading=(float)playState.Heading;pitch=(float)playState.Pitch;motion.Flying=playState.Flying;motion.Y=Ground(0,0)+Math.Max(TerrainMotion.EyeHeightM,playState.HeightAboveGround);UpdateCamera();}
         }
         ApplyTerrainDiagnostics();ApplyFoliageShadowOptions();installationsThisFrame=0;frameUploadMs=0;double movementStartX=motion.X,movementStartZ=motion.Z;
@@ -148,14 +148,14 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(!mapOpen&&!paused&&!chatInput&&!ecologyOpen&&Application.isFocused)
         {
             if(mouse!=null&&!passiveSkyCheck&&!passiveReanchorCheck){var d=mouse.delta.ReadValue();heading+=d.x*.1f;pitch=Mathf.Clamp(pitch-d.y*.1f,-85,85);
-                if(motion.Flying){float scroll=mouse.scroll.ReadValue().y;if(scroll!=0)motion.FlySpeed=Math.Max(5,Math.Min(20000,motion.FlySpeed*Math.Exp(Math.Sign(scroll)*.25)));}}
+                ReadHumanCameraInput(mouse,keyboard);}
             if(keyboard!=null&&!WorldGenPerformance.Enabled)
             {
                 MovementSeconds+=Math.Max(0,Math.Min(.25,Time.unscaledDeltaTime));
                 if(keyboard.fKey.wasPressedThisFrame){motion.Flying=!motion.Flying;motion.VerticalSpeed=0;}
                 motion.Move(Time.unscaledDeltaTime,(keyboard.wKey.isPressed?1:0)-(keyboard.sKey.isPressed?1:0),
                     (keyboard.dKey.isPressed?1:0)-(keyboard.aKey.isPressed?1:0),(keyboard.spaceKey.isPressed?1:0)-(keyboard.ctrlKey.isPressed?1:0),
-                    heading,pitch,keyboard.shiftKey.isPressed,keyboard.spaceKey.wasPressedThisFrame,Ground,walk:keyboard.cKey.isPressed);
+                    heading,pitch,keyboard.shiftKey.isPressed,keyboard.spaceKey.wasPressedThisFrame,Ground,walk:keyboard.cKey.isPressed||keyboard.ctrlKey.isPressed);
             }
         }
         TrackStreamingMotion(motion.X-movementStartX,motion.Z-movementStartZ,Time.unscaledDeltaTime);
@@ -169,7 +169,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             foreach(var chunk in scatterChunks.Values)ProjectScatter(chunk);scatterDirty=true;
         }
         if(!TerrainDiagnostics.HoldTerrain)UpdatePreparedFrame();
-        UpdateCamera();UpdateFootsteps();double altitude=HeightAboveGround;
+        UpdateHumans();UpdateCamera();UpdateFootsteps();double altitude=HeightAboveGround;
         debugGroundClearance=altitude;debugElevation=groundMemoElevation+altitude;
         if(TerrainDiagnostics.HoldTerrain){UpdateScatter();UpdateAnimalFauna();UpdateWeatherPresentation();UpdateDebugReadout();return;}
         double replanDistance=TerrainLod.ReplanDistance(HorizontalScale);
@@ -247,7 +247,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     }
     bool HasMatchingTerrainJob(TerrainTileKey key)
     {foreach(var job in jobs)if(WorkMatchesCurrent(job)&&job.Key.Equals(key))return true;return false;}
-    void UpdateCamera(){view.transform.localPosition=new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ));view.transform.localRotation=Quaternion.Euler(pitch,heading,0);}
+    void UpdateCamera(){if(humanPlayer!=null){UpdateHumanCamera();return;}view.transform.localPosition=new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ));view.transform.localRotation=Quaternion.Euler(pitch,heading,0);}
     int residentRevision,nearMemoFrame=-1,nearMemoRevision,nearMemoCount;double nearMemoX,nearMemoZ;bool nearMemoPending;
     Dictionary<TerrainTileKey,int> nearMemoWanted;
     bool NearTerrainPendingFresh()=>wanted.Any(p=>ImmediateTerrain(p.Key)&&
@@ -315,7 +315,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         finally{view.targetTexture=priorTarget;RenderTexture.active=previous;target.Release();Destroy(target);Destroy(texture);}
     }
     public void TestMove(double east,double north){motion.X=east;motion.Z=north;}
-    public void StorePlayer(PlaySession session){session.HasPlayer=true;session.PlayerPosition=Position;session.Flying=motion.Flying;session.Heading=heading;session.Pitch=pitch;session.HeightAboveGround=Math.Max(0,HeightAboveGround);}
+    public void StorePlayer(PlaySession session){session.HasPlayer=true;session.PlayerPosition=Position;session.Flying=motion.Flying;session.Heading=heading;session.Pitch=pitch;session.HeightAboveGround=Math.Max(0,HeightAboveGround);session.CameraDistance=humanCamera.Distance;session.CameraDistanceLocked=humanCamera.Locked;if(humanPlayer!=null)session.PlayerHumanVariant=humanPlayer.Definition.Variant[0]-'A';}
     public void Resume(){paused=false;CaptureMouse();}
     public void TestWalking(){motion.Place(motion.X,motion.Z,Ground(motion.X,motion.Z));pitch=0;}
     public void TestNearbyFlatGround()
@@ -351,5 +351,5 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     }
     public void TestView(double height,float yaw=20,float tilt=12){motion.Flying=true;motion.Y=Ground(motion.X,motion.Z)+height;heading=yaw;pitch=tilt;RefreshWanted();UpdateCamera();}
     public void Close(){if(closed)return;RestoreTerrainDiagnostics();closed=true;if(view!=null)view.enabled=false;detailCancellation?.Cancel();cancellation.Cancel();if(!passiveSkyCheck&&!passiveReanchorCheck){Cursor.lockState=CursorLockMode.None;Cursor.visible=true;}close?.Invoke();}
-    void OnDestroy(){RestoreTerrainDiagnostics();closed=true;cancellation.Cancel();ClearTerrainTransitions();terrainProducts?.Clear();foreach(var work in jobs)work.Task.ContinueWith(t=>{if(t.Status==TaskStatus.RanToCompletion)t.Result.Dispose();},TaskScheduler.Default);DisposeProgressiveMap();DisposeMapInspection();DisposeEcologyDebug();cancellation.Dispose();CancelPreparedFrame();DisposeRetiringTerrain();DisposeFootsteps();DisposeCloudMap();DisposeRiverMap();DisposeChat();DisposeWeather();DisposeSky();DisposeAnimalFauna();DisposeScatter();DisposeTerrainScene();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
+    void OnDestroy(){RestoreTerrainDiagnostics();closed=true;cancellation.Cancel();ClearTerrainTransitions();terrainProducts?.Clear();foreach(var work in jobs)work.Task.ContinueWith(t=>{if(t.Status==TaskStatus.RanToCompletion)t.Result.Dispose();},TaskScheduler.Default);DisposeProgressiveMap();DisposeMapInspection();DisposeEcologyDebug();cancellation.Dispose();CancelPreparedFrame();DisposeRetiringTerrain();DisposeFootsteps();DisposeCloudMap();DisposeRiverMap();DisposeChat();DisposeWeather();DisposeSky();DisposeHumans();DisposeAnimalFauna();DisposeScatter();DisposeTerrainScene();foreach(var tile in tiles.Values)DestroyTile(tile);if(mapTexture!=null)Destroy(mapTexture);if(landMaterial!=null)Destroy(landMaterial);if(waterMaterial!=null)Destroy(waterMaterial);}
 }

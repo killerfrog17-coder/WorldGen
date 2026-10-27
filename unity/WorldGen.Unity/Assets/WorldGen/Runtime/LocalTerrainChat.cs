@@ -76,7 +76,7 @@ public sealed partial class LocalTerrainExplorer
         }
         if(keyboard.tabKey.wasPressedThisFrame)
         {
-            var options=chatText.StartsWith("/spawn ",StringComparison.OrdinalIgnoreCase)?FaunaSpawnCommands.Complete(chatText,animalProfiles):PlayCommands.Complete(chatText);if(options.Length==1){chatText=options[0]+" ";chatCaret=chatText.Length;}
+            var options=chatText.StartsWith("/spawn ",StringComparison.OrdinalIgnoreCase)?FaunaSpawnCommands.Complete(chatText,animalProfiles).Concat(new[]{"/spawn human"}.Where(s=>s.StartsWith(chatText,StringComparison.OrdinalIgnoreCase))).ToArray():PlayCommands.Complete(chatText);if(options.Length==1){chatText=options[0]+" ";chatCaret=chatText.Length;}
             else if(options.Length>1)PostExplorerChat(string.Join("   ",options.Take(8))+(options.Length>8?"   (type more to narrow; /spawn list lists animals)":""));
         }
         return true;

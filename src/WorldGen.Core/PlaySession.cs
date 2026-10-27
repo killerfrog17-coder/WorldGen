@@ -30,12 +30,17 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public int MeridianVersion;
         [System.Runtime.Serialization.OptionalField] public double PrimeMeridianLongitude;
         public bool HasPlayer,Flying;
+        [System.Runtime.Serialization.OptionalField] public int PlayerHumanVariant=-1;
+        [System.Runtime.Serialization.OptionalField] public double CameraDistance;
+        [System.Runtime.Serialization.OptionalField] public bool CameraDistanceLocked;
+        [System.Runtime.Serialization.OnDeserializing] void InitializeOptionalHuman(System.Runtime.Serialization.StreamingContext context){PlayerHumanVariant=-1;}
         public V PlayerPosition;
         public double Heading,Pitch,HeightAboveGround=1.65;
         public PlaySession Copy(){var s=(PlaySession)MemberwiseClone();s.Settings=Settings.Copy();return s;}
         public static PlaySession Legacy()=>new PlaySession{Settings=new PlaySettings{HorizontalScale=1,Sky=CelestialSettings.Preset("No moons"),MoonVisualExaggeration=1,SunVisualExaggeration=1}};
         public void Validate()
         {
+            if(PlayerHumanVariant< -1||PlayerHumanVariant>5||!Finite(CameraDistance)||CameraDistance<0||CameraDistance>12)throw new ArgumentException("Invalid human or camera state.");
             if(Version!="play-session-1"||Settings==null)throw new ArgumentException("Unsupported play session.");Settings.Validate();
             bool Finite(double v)=>!double.IsNaN(v)&&!double.IsInfinity(v);
             if(MeridianVersion<0||MeridianVersion>1||!Finite(PrimeMeridianLongitude)||PrimeMeridianLongitude< -180||PrimeMeridianLongitude>=180||!Finite(SolarDays)||SolarDays<0||!Finite(CalendarOffsetSeconds)||Math.Abs(CalendarOffsetSeconds)>1e15||!Finite(PendingHistorySeconds)||PendingHistorySeconds<0||PendingHistorySeconds>1e12||

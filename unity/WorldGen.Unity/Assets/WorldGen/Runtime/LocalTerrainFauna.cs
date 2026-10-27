@@ -264,7 +264,7 @@ public sealed partial class LocalTerrainExplorer
         {var request=animalBundleRequest;if(request.isDone)request.assetBundle?.Unload(true);else request.completed+=_=>request.assetBundle?.Unload(true);}
         if(animalLoading!=null)StopCoroutine(animalLoading);animalLoading=null;animalPendingBundle?.Unload(true);animalPendingBundle=null;
         foreach(var id in animals.Keys.ToArray())RemoveAnimal(id);
-        foreach(var model in animalModels.Values){Destroy(model.Material);model.Bundle.Unload(true);}animalModels.Clear();
+        foreach(var model in animalModels.Values){Destroy(model.Material);if(model.Bundle!=null)model.Bundle.Unload(true);}animalModels.Clear();
         if(ReferenceEquals(animalSceneOwner,this)){Shader.SetGlobalBuffer("_FaunaBones",(GraphicsBuffer)null);animalSceneOwner=null;}
         animalBoneBuffer?.Dispose();animalBoneBuffer=null;
     }

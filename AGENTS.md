@@ -1,5 +1,39 @@
 # WorldGen repository instructions
 
+HUMAN PLAYER PROTOTYPE CHECKPOINT,26October2026~22:35CDT:
+Owner authorizes MPFB human player +basic wandering/running human NPCs, camera
+wheel first/third person, middle-click zoom lock; requests visible FP body with
+head hidden ONLY for owner camera, future other players/cameras remain headed.
+Final IL2CPP player-human-prototype BuiltUtc2026-10-27T03:31:19.5268805Z selected
+by existing root shortcut; prior player-daylight-fill retained. Six actual MPFB
+audition variants, original53bone skin/rig,7fitted free CC0 clips each. Read-only
+native source0946d797f3c620492444f2ec65d2a88280053fbda2c882dde3dfaf826942d229
+unchanged. CPU colour/opacity bakes +FBX derivatives omit subdivision, creator
+morphs; 38–50ktri/person. Native Unity skins/Playable quaternion blends; shared
+locomotion phase, speed/yaw easing, no new re-rig or neural/paid calls.
+Player variant +camera distance/lock persist as optional PlaySession fields;
+old saves get random-human/FP defaults. NPCs are nonpersistent demo actors,3near
+dry gentle ground,16max. /humans count|clear; /spawn human count. Cwalk/Shift
+sprint/Ctrlcrouch/Spacejump; Fflight unchanged, Alt+wheel flight speed. Swimclip
+included but no swimming mechanic, sitting/creator/survival/modes not implemented.
+Human shader camera identity hides local head/upper neck only in forward/depth;
+real head shadow remains. Separate real camera renders full head. Runtime local
+material identity +camera command binding fixes first failed mask check. Eye
+offset avoids viewing inside collar at steep down-look. First-person torso,
+arms/legs actually viewed. No global mesh/head disabling. Terrain camera pull-in
+uses bounded cached height probes, no new terrain colliders; prop collision future.
+15camera/save tests +935packaged checks pass; all6front/side images and final
+FP/head/other-camera renders root viewed.545source/stagedDLL/177fauna hashes
+verified. Wildlife eye-opacity/rig/animation assets preserved; guarded existing
+shutdown unload of destroyed animal bundle. Final review no errors/exceptions,
+snapshot hash unchanged. Owned Blender/Unity/player workers exited; no owner apps
+killed. Evidence artifacts/human-runtime/final-review +docs HUMAN_PLAYER_PROTOTYPE.
+Broader --play-session-only FAILS existing physical-noise macro-anchor assertion
+at PlaySessionTests.cs32; isolated archive of PRE-HUMAN HEAD reproduces same.
+New camera/identity saves pass. No universal FPS, contact-IK or multiplayer claim.
+Fauna appearance task remains stopped. Preserve unrelated deleted prompt/two old
+untracked deer scripts unstaged. No goal created. Checkpoint own sources/docs.
+
 DAYLIGHT FILL CHECKPOINT,26October2026:
 Owner requests quick brighter daytime ambient relative to direct illumination,
 independent of soft foliage shadows, with density-sensitive canopy fill if cheap.

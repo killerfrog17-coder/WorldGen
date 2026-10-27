@@ -1,0 +1,22 @@
+Human prototype graphical assets
+
+MPFB 2.0.18 core mesh, rig, modelling output and selected official MakeHuman
+system skin/hair/eye/clothing assets: CC0.
+https://www.makehumancommunity.org/about/license.html
+https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html
+
+The MPFB tool itself is GPLv3 and is not included in this player.
+
+Quaternius Universal Animation Library free Standard animations: CC0.
+https://quaternius.itch.io/universal-animation-library
+
+KayKit Character Animations free pack (jump): CC0.
+https://kaylousberg.itch.io/kaykit-character-animations
+
+The native skinning, fitted motions and pigmentation come from the local
+Human - Animation Comparison.blend audition, SHA256:
+0946d797f3c620492444f2ec65d2a88280053fbda2c882dde3dfaf826942d229
+
+Runtime derivatives omit subdivision, bake unlit material colour/opacity and
+add a camera-only head mask. This prototype has no final wardrobe, facial
+performance, character creator or complete interaction/animation coverage.

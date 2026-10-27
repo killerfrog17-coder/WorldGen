@@ -1,5 +1,32 @@
 # Version 3 validation evidence
 
+## MPFB human player, demo NPCs and body camera - 26 October 2026
+
+Release IL2CPP player-human-prototype BuiltUtc2026-10-27T03:31:19.5268805Z.
+Six MPFB native skins, seven fitted Quaternius/KayKit clips each, blended native
+Playables, smooth demo wandering, scroll first/third-person camera and middle-
+click distance lock. First-person body remains; head masking is keyed per-human
+and camera, forward/depth only. A separate actual camera sees the complete head;
+shadow pass never applies the head mask. No wildlife model/opacity/animation
+assets changed. Guarded a shutdown unload of already-destroyed animal bundles.
+
+15focused camera/save tests pass (old saves, identity/view round trip, lock/zoom
+bounds and intervening terrain obstruction). Final packaged human-review passes
+935checks:6skins x7clips x3phases, native finite/bounded skin surfaces, NPC spawn/
+clear/movement, real rendered head removal, separate camera/full head, shadow
+caster flags, camera lock/unlock. Root viewed all6front/side poses plus final
+first-person/body and head/other-camera renders. Screenshot grass hiding is a
+diagnostic-only setting, not a production vegetation change. Snapshot SHA stable,
+no player errors/exceptions in final review.545runtime/editor/shader/Core sources,
+staged assemblies and177canonical repaired fauna bundle hashes checked.
+
+Existing broad --play-session-only still fails physical-noise macro-anchor
+equivalence at PlaySessionTests.cs:32. Isolated archived pre-human HEAD reproduces
+that same failure; no terrain fix included here. New camera/save tests pass.
+No all-terrain foot-contact, full multiplayer, swimming mechanic or FPS guarantee.
+Evidence: ignored artifacts/human-runtime; source/asset pipeline details in
+HUMAN_PLAYER_PROTOTYPE.md. Prior player-daylight-fill retained for rollback.
+
 ## Daytime ambient/direct balance - 26 October 2026
 
 Shared runtime ambient/reflection1->1.7x and direct1->.9x follow sampled daylight;

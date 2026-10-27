@@ -47,6 +47,12 @@ unity/WorldGen.Unity/Assets/StreamingAssets/fauna/
 unity/WorldGen.Unity/Assets/StreamingAssets/fauna.meta
 unity/WorldGen.Unity/Assets/WorldGen/Editor/GeneratedFauna/
 unity/WorldGen.Unity/Assets/WorldGen/Editor/GeneratedFauna.meta
+unity/WorldGen.Unity/Assets/WorldGen/Editor/GeneratedHumans/
+unity/WorldGen.Unity/Assets/WorldGen/Editor/GeneratedHumans.meta
+unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumans/
+unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumans.meta
+unity/WorldGen.Unity/Assets/WorldGen/Resources/Humans/
+unity/WorldGen.Unity/Assets/WorldGen/Resources/Humans.meta
 .env
 .env.*
 !.env.example
