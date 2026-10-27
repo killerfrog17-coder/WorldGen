@@ -1,5 +1,23 @@
 # WorldGen repository instructions
 
+INVENTORY TRANSACTION CHECKPOINT,27October2026~08:16CDT:
+Existing shortcut NOW selects player-survival-inventory IL2CPP BuiltUtc
+2026-10-27T13:13:44.0904970Z. 17actualnative no-graphics checks PASS;115survival
+and368hominin tests PASS. Staged4DLL/177fauna/177originalrig-sidecarSHA verified.
+Packing/Compact now operate on detached trial layouts: failed greedy repacking
+of an already valid manual arrangement leaves original slots exact. Regression
+reproduces prior overlap corruption. Exhausted bone/other harvest yields clamp
+tiny subtraction remainder to0, so valid carcasses can save after lastportion;
+regression four0.3kg portions from1.2kg bone. No extrayields created.
+HomininActorSampler compiled/native serialization checked, still NOT wired to
+NPCwandering/tribalAI. Rendering/skin/physics/survival-adapter sources unchanged
+from actual visualcheckpoint15b39fd. No new graphics/FPS claim. All ownedworkers
+exited, ownerapps untouched; previous clock/history/survival players retained.
+Evidence artifacts/survival-inventory-native-final +package-proof.json.
+Ownsource/docs/oldshortcut backup+GitHubpush required. Async ownerreview pending;
+continue as authorized until wrap-up, architecture first. Unrelated deleted
+prompt/2olddeerscripts preserved unstaged. Remaining limits in researchdoc.
+
 NPC PROVENANCE INTERFACE,27October2026~08:05CDT:
 SOURCE-ONLY after selected player-survival-clock/dfae94c. HomininActorSampler
 validates/copies one demographic publication, samples local cohorts weighted by

@@ -319,7 +319,28 @@ time history advances. Returned data do not alias the sampler or source state.
 
 This does not create demographic people, tribes, language dialogue, archaic body
 models or new rendered humans. The existing wandering NPCs are unchanged. The
-interface and its tests are source-only after the selected clock package;
+interface and its tests were initially source-only after the clock package;
 368 hominin/climate/clock assertions pass, including 1:3 cohort weighting,
 explicit lineage filtering, deterministic sampling, isolation and JSON
 round-trip. Ancestry and learned culture remain separate identities.
+
+### Inventory transaction follow-up
+
+Two save-integrity defects were found during review. A valid manually arranged
+bag can defeat the greedy compactor; a failed packing attempt now leaves the
+original slots untouched instead of publishing a partly rearranged, overlapping
+layout. Exhausting a carcass yield also clamps subtraction round-off to zero,
+preventing a tiny negative remainder from rejecting the next save. Both have
+reproducing regressions; there are 115 survival checks.
+
+Final IL2CPP build UTC `2026-10-27T13:13:44.0904970Z`,
+`artifacts/player-survival-inventory`, passes 17 native no-graphics checks,
+including these two regressions, NPC-profile serialization, clock publication
+and survival save/load. The NPC interface is compiled but remains unused by
+current wandering actors. All 177 fauna bundles and original-rig sidecars match
+their package inputs. Rendering, human/animal animation, ragdoll and survival
+adapter sources are unchanged from the visual checkpoint. Existing shortcut
+selects this follow-up; the clock and previous players remain for rollback.
+Owned build/test workers have exited; no owner applications were closed.
+Evidence: `artifacts/survival-inventory-native-final` and
+`artifacts/survival-inventory-package-proof.json`.

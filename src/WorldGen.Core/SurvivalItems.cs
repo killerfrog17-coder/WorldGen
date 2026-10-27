@@ -62,8 +62,13 @@ namespace WorldGen.Core
         }
         public bool Pack(out string reason)
         {
-            if(PackLayout(true,out reason))return true;
-            return View==InventoryView.List&&PackLayout(false,out reason);
+            var trial=Copy();
+            if(!trial.PackLayout(true,out reason))
+            {
+                if(View!=InventoryView.List)return false;
+                trial=Copy();if(!trial.PackLayout(false,out reason))return false;
+            }
+            Items=trial.Items;return true;
         }
         int[] RowWidths()
         {
@@ -113,7 +118,13 @@ namespace WorldGen.Core
             {var od=SurvivalItems.Get(other.Item);int ow=other.Rotated?od.Height:od.Width,oh=other.Rotated?od.Width:od.Height;if(x<other.X+ow&&x+w>other.X&&y<other.Y+oh&&y+h>other.Y){reason="Another item occupies that space.";return false;}}
             s.X=x;s.Y=y;s.Rotated=rotated;return true;
         }
-        public bool Compact(out string reason)=>PackLayout(false,out reason);
+        public bool Compact(out string reason)
+        {
+            // A greedy arrangement can fail even when the existing layout fits.
+            // Never publish a partially packed bag with overlapping old/new slots.
+            var trial=Copy();if(!trial.PackLayout(false,out reason))return false;
+            Items=trial.Items;return true;
+        }
         public bool Remove(string item,int amount)
         {
             if(amount<1||!Has(item,amount))return false;

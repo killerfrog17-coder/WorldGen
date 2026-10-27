@@ -121,7 +121,10 @@ namespace WorldGen.Core
             double fraction=1;if(SurvivalItems.Get(item).Kind==SurvivalItemKind.Food&&available>1e-8){double portion=Math.Min(unit,available);fraction=portion/unit;unit=portion;}
             if(available+1e-8<unit){message="There is no usable "+part+" remaining.";return false;}
             if(!s.Inventory.TryAdd(item,1,out message,c.AgeDays,fraction))return false;
-            switch(part){case "hide":c.HideUnits-=unit;c.Skinned=true;break;case "fat":c.FatKg-=unit;break;case "organs":c.OrganKg-=unit;break;case "bone":c.BoneKg-=unit;break;case "sinew":c.SinewUnits-=unit;break;default:c.MeatKg-=unit;break;}
+            // Exhausting a yield may leave a tiny negative floating-point
+            // remainder (for example four 0.3 kg portions from 1.2 kg of bone).
+            // Keep the saved finite balance nonnegative after the transaction.
+            switch(part){case "hide":c.HideUnits=Math.Max(0,c.HideUnits-unit);c.Skinned=true;break;case "fat":c.FatKg=Math.Max(0,c.FatKg-unit);break;case "organs":c.OrganKg=Math.Max(0,c.OrganKg-unit);break;case "bone":c.BoneKg=Math.Max(0,c.BoneKg-unit);break;case "sinew":c.SinewUnits=Math.Max(0,c.SinewUnits-unit);break;default:c.MeatKg=Math.Max(0,c.MeatKg-unit);break;}
             message="Harvested "+SurvivalItems.Get(item).Name.ToLowerInvariant()+".";return true;
         }
     }

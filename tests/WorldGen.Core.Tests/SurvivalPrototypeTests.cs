@@ -14,6 +14,17 @@ public static class SurvivalPrototypeTests
         var bare=new SurvivalInventory();Check(bare.TryAdd("stone",4,out _),"One handful of stones");Check(bare.TryAdd("stick",6,out _),"Second hand bundle");Check(!bare.TryAdd("log",1,out _),"No invisible naked backpack");
         string hash=WorldJson.Write(s.Inventory);Check(!s.Inventory.TryAdd("log",100,out _),"Oversized pickup rejected");Check(WorldJson.Write(s.Inventory)==hash,"Failed pickup atomic");
         s.Inventory.View=InventoryView.Grid;Check(s.Inventory.Pack(out _),"Same contents fit grid view");s.Inventory.View=InventoryView.List;Check(s.Inventory.Pack(out _),"Same contents fit list view");
+        var arranged=new SurvivalInventory{View=InventoryView.Grid,NextId=7,Items=new[]{
+            new SurvivalStack{Id=1,Item="pack",Container=-2},
+            new SurvivalStack{Id=2,Item="stone-spear",Container=0,X=3,Y=0,Rotated=true},
+            new SurvivalStack{Id=3,Item="dryhide",Container=0,X=4,Y=0,Rotated=true},
+            new SurvivalStack{Id=4,Item="hide-wrap",Container=0,X=1,Y=0,Rotated=true},
+            new SurvivalStack{Id=5,Item="hide-wrap",Container=0,X=1,Y=3},
+            new SurvivalStack{Id=6,Item="stone-spear",Container=0,X=0,Y=0,Rotated=true}}};
+        arranged.Validate();string arrangedBefore=WorldJson.Write(arranged);
+        Check(!arranged.Compact(out _),"Greedy compaction may fail for an already valid manually arranged bag");
+        Check(WorldJson.Write(arranged)==arrangedBefore,"Failed compaction preserves every previous slot rather than leaving overlapping items");
+        arranged.Validate();Check(arranged.Pack(out _)&&WorldJson.Write(arranged)==arrangedBefore,"The preserved bag remains valid and retains its manual layout");
         var craft=SurvivalCrafting.Recipes.First(r=>r.Id=="cooked-meat");Check(s.Inventory.TryAdd("raw-meat",1,out _),"Meat added");hash=WorldJson.Write(s.Inventory);
         Check(!SurvivalCrafting.Craft(s,craft,false,out _),"Cooking requires fire");Check(hash==WorldJson.Write(s.Inventory),"Failed crafting preserves ingredients");
         Check(SurvivalCrafting.Craft(s,craft,true,out _),"Cooked at fire");Check(!s.Inventory.Has("raw-meat"),"No ingredient duplication");
@@ -26,6 +37,11 @@ public static class SurvivalPrototypeTests
         Check(cold.CoreTemperatureC<sheltered.CoreTemperatureC&&cold.Health<sheltered.Health,"Shelter, insulation and fire protect from wet cold");
         var c=SurvivalPhysiology.Carcass("deer",42,new V(1,0,0),70,0);s.Corpses=new[]{c};double before=c.MeatKg;
         Check(SurvivalPhysiology.Harvest(s,c,"meat",out _),"Sharp tool harvests meat");Check(Math.Abs(before-c.MeatKg-.25)<1e-8,"Meat removed from finite carcass");
+        var bones=new SurvivalState();var tenKg=SurvivalPhysiology.Carcass("small-deer",999,new V(1,0,0),10,0);bones.Corpses=new[]{tenKg};
+        bool boneHarvest=true;for(int i=0;i<4;i++)boneHarvest&=SurvivalPhysiology.Harvest(bones,tenKg,"bone",out _);
+        Check(boneHarvest&&tenKg.BoneKg==0,"Exhausted bone yield has no tiny negative floating-point balance");
+        WorldJson.Read<SurvivalState>(WorldJson.Write(bones)).Validate();
+        Check(!SurvivalPhysiology.Harvest(bones,tenKg,"bone",out _),"Exhausted carcass saves correctly and cannot supply another bone portion");
         c.SettledPose=new float[16];c.SettledPose[0]=1;c.PoseSource="test-source";
         var saved=WorldJson.Read<SurvivalState>(WorldJson.Write(s));saved.Validate();Check(saved.Corpses[0].SpawnId==42,"Carcass identity saved");
         Check(saved.Corpses[0].HasAnchor&&saved.Corpses[0].SettledPose[0]==1&&saved.Corpses[0].PoseSource=="test-source","Corpse anchor and skin pose survive serialization");

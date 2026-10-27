@@ -35,6 +35,23 @@ public sealed partial class WorldGenRuntime
             Check(restored.Prehistory.Hash==state.Hash,"compact native save retains early-history canonical hash");
             Check(restored.Prehistory.DeepPast.RulesVersion==3,"compact native save retains the explicit rule revision");
             Check(resumed.AdvanceYears(restored.Prehistory,1000).Hash==engine.AdvanceYears(state,1000).Hash,"fresh native engine resumes the same populations and traditions");
+            var people=new HomininActorSampler(engine,state);
+            Check(people.TrySample(engine.Patches[state.Origin].Cell,123,false,out var person)&&WorldJson.Read<HomininActorProfile>(WorldJson.Write(person)).HistoryHash==state.Hash,"native actor profiles retain demographic provenance through serialization");
+            var arranged=new SurvivalInventory{View=InventoryView.Grid,NextId=7,Items=new[]{
+                new SurvivalStack{Id=1,Item="pack",Container=-2},
+                new SurvivalStack{Id=2,Item="stone-spear",Container=0,X=3,Rotated=true},
+                new SurvivalStack{Id=3,Item="dryhide",Container=0,X=4,Rotated=true},
+                new SurvivalStack{Id=4,Item="hide-wrap",Container=0,X=1,Rotated=true},
+                new SurvivalStack{Id=5,Item="hide-wrap",Container=0,X=1,Y=3},
+                new SurvivalStack{Id=6,Item="stone-spear",Container=0,Rotated=true}}};
+            arranged.Validate();string slots=WorldJson.Write(arranged);
+            Check(!arranged.Compact(out _),"native greedy packing reports a failed rearrangement");
+            Check(WorldJson.Write(arranged)==slots,"native failed packing leaves every original slot unchanged");
+            arranged.Validate();Check(arranged.Pack(out _),"native manually arranged inventory remains valid");
+            var harvest=new SurvivalState();var carcass=SurvivalPhysiology.Carcass("small-deer",999,new V(1,0,0),10,0);harvest.Corpses=new[]{carcass};
+            bool harvested=true;for(int i=0;i<4;i++)harvested&=SurvivalPhysiology.Harvest(harvest,carcass,"bone",out _);
+            WorldJson.Read<SurvivalState>(WorldJson.Write(harvest)).Validate();
+            Check(harvested&&carcass.BoneKg==0&&!SurvivalPhysiology.Harvest(harvest,carcass,"bone",out _),"native exhausted carcass retains a valid nonnegative saved balance");
             var play=new PlaySession{Survival=new SurvivalState()};play.Survival.Corpses=Enumerable.Range(0,8).Select(i=>SurvivalPhysiology.Carcass("deer",(ulong)i+1,new V(1,0,0),70,0)).ToArray();
             foreach(var corpse in play.Survival.Corpses)corpse.SettledPose=Enumerable.Repeat(.12345678f,2048).ToArray();
             string json=WorldJson.Write(play);File.WriteAllText(Path.Combine(output,"play-session.json"),json);
