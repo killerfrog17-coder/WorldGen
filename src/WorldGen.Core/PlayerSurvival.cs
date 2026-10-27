@@ -3,7 +3,7 @@ using System;
 namespace WorldGen.Core
 {
     public enum GameMode { Creative=0,Survival=1,Spectator=2 }
-    public enum PlayerDeathCause { None=0,Cold=1,Heat=2,Dehydration=3,Starvation=4 }
+    public enum PlayerDeathCause { None=0,Cold=1,Heat=2,Dehydration=3,Starvation=4,Fall=5 }
 
     public static class GameModeRules
     {

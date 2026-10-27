@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--player-death-only")){PlayerDeathTests.Run();return;}
 if(args.Contains("--player-camera-only")){PlayerCameraRigTests.Run();return;}
 if(args.Contains("--survival-modes-only")){SurvivalModeTests.Run();return;}
 if(args.Contains("--survival-hud-only")){SurvivalHudTests.Run();return;}

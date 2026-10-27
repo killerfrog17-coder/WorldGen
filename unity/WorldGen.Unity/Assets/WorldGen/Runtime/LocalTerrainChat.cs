@@ -18,7 +18,7 @@ public sealed partial class LocalTerrainExplorer
     public void SetCommandHandler(Func<string,PlayCommandResult> handler){command=handler;}
     public void OpenChat(string prefix="")
     {
-        if(paused||mapOpen||ecologyOpen)return;chatOpen=true;chatText=prefix;chatCaret=prefix.Length;chatOpenedFrame=Time.frameCount;chatHistoryIndex=chatHistory.Count;chatDraft="";chatSelectAll=false;chatScroll=0;GUIUtility.keyboardControl=0;CaptureMouse();
+        if(DeathVisible||paused||mapOpen||ecologyOpen)return;chatOpen=true;chatText=prefix;chatCaret=prefix.Length;chatOpenedFrame=Time.frameCount;chatHistoryIndex=chatHistory.Count;chatDraft="";chatSelectAll=false;chatScroll=0;GUIUtility.keyboardControl=0;CaptureMouse();
     }
     void CloseChat(){chatOpen=false;chatSelectAll=false;CaptureMouse();}
     void ChatCharacter(char character)

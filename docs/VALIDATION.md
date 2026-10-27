@@ -1,5 +1,42 @@
 # Version 3 validation evidence
 
+## Player death, ragdoll and impact damage - 27 October 2026
+
+Release IL2CPP `player-death-update`, built2026-10-27T21:16:38.2295598Z.
+Existing shortcut selects it; prior `player-cold-death` is retained.
+The three-choice death screen, native-bone physics collapse, random dry-land
+respawn, simulation/menu exits and reopening a dead session are implemented.
+Starvation, dehydration and cold death share the flow. Heat physiology remains
+unchanged. No inventory, weapons or scrapped history work was resumed.
+
+- 117 impact/death checks: contact speed at 240/60/20/4Hz across nine heights,
+  no repeated stationary hit, terrain-rise/jump exclusions, mode immunity,
+  saved fall cause, reset and fatal needs depletion.
+- 67 existing survival/mode checks,160 thermal/HUD checks and22 camera/save
+  checks pass.
+- 97 Unity physics checks cover all six original MPFB skins,13 fitted bodies
+  each, actual collapse and bounded evaluated skin. All six resting captures
+  were inspected. The initial skin probe incorrectly applied FBX scale twice;
+  correcting the measurement, without modifying the model, resolved that failure.
+- 15 packaged runtime checks pass, including a survivable5m fall, fatal12m
+  impact, cursor/body/animation ownership, random dry respawn, starvation/
+  dehydration/cold deaths, both exit destinations and dead-session re-entry.
+  Final actual-window run exited0 without runtime errors/exceptions. Its
+  `actual-window/death-screen.png` was inspected. Hidden-window captures were
+  black and rejected; an early forced native window resize failed a DX11
+  resolution switch. The final displayed run retained Unity's initial dimensions.
+- Build success, no C#/shader errors;4 frozen DLL hashes,177 canonical and177
+  packaged fauna bundles,177 original fauna natives,42 accepted human PNGs and
+  protected human native0946... verified (578 hashes total).
+
+Evidence: ignored `artifacts/death-update`; own source/docs/shortcut checkpoint
+under `artifacts/source-checkpoints/death-update-20261027`. Owner saves/apps
+were not modified. Test worlds use an isolated library and read-only bundled
+Earth fixture. Ragdoll self-collision is disabled; collision is against its
+small local terrain patch, not trees/rocks, with no persistent corpse system.
+Clinical fall-height prediction, injuries and universal terrain/FPS guarantees
+are not claimed. Build-created importer/settings changes were restored.
+
 ## Temporary critical-cold death rule - 27 October 2026
 
 Owner rejects cold unconsciousness while no rescue mechanic exists. Critical

@@ -1,5 +1,37 @@
 # WorldGen repository instructions
 
+PLAYER DEATH / RAGDOLL / FALL DAMAGE,27October2026:
+Owner NEW scope authorizes death UI: You died +Respawn(random dry land), Back to
+world simulation, Back to main menu. These explicit buttons supersede no-panel
+rule only here; no controls/tutorial hints. Full FP body hiding while alive stays.
+Thirteen unit-scale Rigidbody/capsule/CharacterJoint proxies drive unchanged
+MPFB53bones; animations stop while dead, owning camera shows full body in third
+person. Self collisions disabled; local24m height-sampled collider only, quiet
+corpse freezes. No vegetation/prop colliders or persistent corpse save added.
+Respawn clears physics/recreates same actor variant, restores vitals, dry/gentle
+random land, Survival onfoot, retains zoom/lock; initial ground loading grace.
+Existing world/menu capture/unload path used; returning with dead state reopens
+screen. No injury/inventory/weapons/scrapped early-Homo work resumed.
+Motor reports actual impact speed, solves gravity contact height per substep;
+Survival only v²/(2g), HP100*clamp((height-3)/7)^1.5. Through3m0,5m15,8m60,
+10m100. Gameplay balance, not universal medical safe/lethal height. Fall appended
+enumvalue5. No harm for normal jumps/ground contact/LOD rise; modes immune.
+Existing hunger/thirst depletion kills through same flow; cold/heat rules kept.
+117fall/death +67survival/mode +160thermal/HUD +22camera/save tests pass.
+97Unity physics checks/all6 actual resting renders inspected;15packaged flow
+checks pass incl dryrespawn/native animation, both menus and dead-state reentry.
+Actual-window deathscreen inspected, exit0/no runtime errors. Hidden captures
+black rejected; early native-window resize DX11 failure rejected. Final same
+initial dimensions succeeds. Initial baked-skin probe double-appliedFBXscale,
+test measurement fixed; models untouched. No universal ragdoll/terrain/FPS claim.
+Release IL2CPP player-death-update built2026-10-27T21:16:38.2295598Z selected by
+existing shortcut; previous cold-death build kept. Buildsuccess/noC#/shadererrors;
+4DLL+177canonical+177packaged+177nativefauna+42humanmaps+protected0946...native
+verified578hashes. Evidence artifacts/death-update; backup ownsource/docs/shortcut
+artifacts/source-checkpoints/death-update-20261027, push+remoteverify required.
+Own workers exited; owner apps/saves untouched; isolated testlibrary only.
+Preserve unrelated prompt deletion and2old deer scripts. No new goal created.
+
 TEMPORARY COLD DEATH,27October2026:
 Owner rejects cold unconsciousness without rescue mechanics. Critical core30C
 now kills (Health0, DeathCauseCold, Unconsciousfalse). Previously saved cold

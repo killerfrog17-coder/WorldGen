@@ -73,10 +73,10 @@ a recovery band can restore consciousness; sustained heat can still kill.
 At the owner's subsequent request, critical cold now causes actual death at30C
 core temperature instead of unconsciousness. Old saved cold knockouts also
 resolve to cold death on resuming Survival. This is a temporary prototype rule
-until rescue/rewarming gameplay exists. Death currently has no respawn flow and
-still stops controls; `/gamemode creative` restores the player for testing.
-Death blocks voluntary movement and records its cause. No death overlay, automatic respawn, food/drink
-interaction, clothing, fall/combat damage or drowning system is added here.
+until rescue/rewarming gameplay exists. Death now hands the existing human skin
+to a physics ragdoll and opens the three-choice death screen described below.
+Death blocks voluntary movement and records its cause. Food/drink interaction,
+clothing, combat damage and drowning are not implemented yet.
 
 Needs use real elapsed gameplay time and the selected solar-day duration, not
 historical calendar compression. Stamina uses real seconds. Exposure response
@@ -106,7 +106,57 @@ describes possible loss of consciousness and the seriousness of heatstroke;
 progressive hypothermia and wet/cold exposure. Uncompensated heat gain/loss now
 accumulates instead of approaching a potentially safe cold equilibrium. At the
 default day length, naked freezing exposure develops over in-game hours; much
-more severe weather is faster. No collapse animation/ragdoll is claimed.
+more severe weather is faster. Heat unconsciousness keeps its earlier recovery
+behavior; actual death from any supported cause uses the ragdoll.
+
+## Death, respawn and falls - 27 October
+
+The death screen has exactly three normal choices: Respawn, Back to world
+simulation, and Back to main menu. Respawn restores all vitals and teleports the
+same human variant to random dry land with a modest local slope. It remains in
+Survival on foot, retains camera preferences, releases the corpse physics, and
+does not drain needs while its initial ground is loading. If no dry placement
+is found, it stays dead and reports that failure rather than spawning underwater.
+Leaving for simulation/menu uses the existing player capture and scene-unload
+path. A stored dead session opens the death screen on re-entry; it does not
+silently revive. Corpse bone transforms are transient, not saved/persistent bodies.
+
+Death changes to a fixed third-person camera looking at the falling body. Living
+first-person body hiding is unchanged. Thirteen unit-scale Rigidbody proxies,
+capsules and limited CharacterJoints drive the original MPFB bones without
+editing the asset, weights or animations. Animation stops while physics owns
+the pose. The corpse collides with a local 24-metre square height-sampled mesh;
+this does not add colliders to all terrain or vegetation. Proxy self-collision
+is disabled to avoid initial overlaps; joints constrain the limbs. A settled
+corpse freezes after a quiet period. Tree/rock collisions, persistent corpses,
+advanced anatomical ragdoll constraints and injury-specific poses are future work.
+
+Falls apply only in Survival. The motor publishes actual downward speed on
+contact, solving the gravity step at the ground crossing. This avoids counting
+teleports, ordinary ground contact, normal jumps or a terrain LOD rise as falls.
+The equivalent height is v²/(2g); the HP loss is
+`100 * clamp((height - 3) / 7, 0, 1)^1.5`.
+
+| Equivalent fall | HP lost out of 100 |
+| --- | ---: |
+| Through 3 m | 0 |
+| 4 m | 5 |
+| 5 m | 15 |
+| 6 m | 28 |
+| 8 m | 60 |
+| 10 m and above | 100 |
+
+This is forgiving deterministic game balance, not a clinical safe/lethal-height
+claim. The [2021 field-triage guideline](https://doi.org/10.1097/TA.0000000000003627)
+uses a fall above 10 feet (about 3 m) as a serious-injury risk criterion for all
+ages; that is a triage criterion, not a guaranteed injury or death boundary.
+Landing posture, hard/soft surfaces, limb fractures and water-impact handling
+are not modeled in this first HP-only pass. A wounded player can die from a
+smaller impact. Creative and Spectator are immune.
+
+Starvation and dehydration already dealt progressive damage at full depletion;
+both now reach the same death screen/ragdoll. Their existing demand and damage
+rates remain unchanged, as do the cold/heat exposure rules.
 
 ## Approved survival HUD
 

@@ -10,11 +10,14 @@ namespace WorldGen.Presentation
         public const double EyeHeightM=1.65, Gravity=9.81,WalkSpeedMps=1.5,JogSpeedMps=3.4,RunSpeedMps=6,JumpHeightM=.45;
         public double X,Y,Z,VerticalSpeed,FlySpeed=200;
         public bool Flying,Grounded,NoClip;
+        // Largest actual landing this Move call. Consumed by the owning player,
+        // never derived from terrain LOD changes or a remembered takeoff height.
+        public double LandingSpeedMps {get;private set;}
         public void Place(double x,double z,double ground,bool fly=false,double aboveGround=40)
-        {X=x;Z=z;Flying=fly;Y=ground+(fly?aboveGround:EyeHeightM);VerticalSpeed=0;Grounded=!fly;}
+        {X=x;Z=z;Flying=fly;Y=ground+(fly?aboveGround:EyeHeightM);VerticalSpeed=0;LandingSpeedMps=0;Grounded=!fly;}
         public void Move(double dt,double forward,double right,double up,double heading,double pitch,bool sprint,bool jump,Func<double,double,double> ground,bool walk=false,double speedScale=1)
         {
-            dt=Math.Max(0,Math.Min(.25,dt));if(dt<=0)return;
+            LandingSpeedMps=0;dt=Math.Max(0,Math.Min(.25,dt));if(dt<=0)return;
             int steps=(int)Math.Ceiling(dt/.02);double step=dt/steps;
             for(int i=0;i<steps;i++)MoveStep(step,forward,right,up,heading,pitch,sprint,jump&&i==0,ground,walk,speedScale);
         }
@@ -55,8 +58,18 @@ namespace WorldGen.Presentation
             if(Grounded&&!jump&&oldGround-(floor-EyeHeightM)<=travel+contactSkin)
             {Y=floor;VerticalSpeed=0;return;}
             if(jump&&Grounded){VerticalSpeed=Math.Sqrt(2*Gravity*JumpHeightM);Grounded=false;}
+            double beforeY=Y,beforeSpeed=VerticalSpeed;
             Y+=VerticalSpeed*dt-.5*Gravity*dt*dt;VerticalSpeed-=Gravity*dt;
-            if(Y<=floor){Y=floor;VerticalSpeed=0;Grounded=true;}else Grounded=false;
+            if(Y<=floor)
+            {
+                // Solve at the contact height, rather than using the end-of-step
+                // speed (which overestimates at low FPS). A rising floor cannot
+                // manufacture impact energy while the player is stationary.
+                if(beforeY>=floor&&VerticalSpeed<0)
+                    LandingSpeedMps=Math.Max(LandingSpeedMps,Math.Sqrt(Math.Max(0,beforeSpeed*beforeSpeed+2*Gravity*(beforeY-floor))));
+                Y=floor;VerticalSpeed=0;Grounded=true;
+            }
+            else Grounded=false;
         }
     }
 

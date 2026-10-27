@@ -47,11 +47,13 @@ public sealed partial class LocalTerrainExplorer
         if(words.Length!=2||!SurvivalRules.TryMode(words[1],out var mode))return new PlayCommandResult(false,usage);
         PlayerRules.Mode=mode;
         if(mode==GameMode.Creative)Vitals.Restore();
+        if(!DeathVisible&&deathPresented)ClearPlayerDeath();
         ApplyPlayerMode();if(Ready)UpdateCamera();
         return new PlayCommandResult(true,"Game mode: "+mode.ToString().ToLowerInvariant()+".");
     }
     void UpdatePlayerSurvival(double dx,double dz)
     {
+        if(respawnWaiting){if(!CenterReady)return;respawnWaiting=false;}
         if(!SurvivalActive||paused||mapOpen||ecologyOpen||chatOpen||!Application.isFocused||!Ready)return;
         double dt=Math.Max(0,Math.Min(.25,Time.unscaledDeltaTime));
         if(weatherProvider==null||dt<=0)return;
@@ -77,7 +79,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateSurvivalHud()
     {
-        bool show=SurvivalActive&&Ready&&weatherProvider!=null&&survivalEnvironmentAt>0&&!closed&&!paused&&!mapOpen&&!ecologyOpen&&!(debugOpen&&debugFull);
+        bool show=SurvivalActive&&!DeathVisible&&Ready&&weatherProvider!=null&&survivalEnvironmentAt>0&&!closed&&!paused&&!mapOpen&&!ecologyOpen&&!(debugOpen&&debugFull);
         if(!show){if(survivalHudCanvas!=null)survivalHudCanvas.enabled=false;return;}
         if(survivalHudCanvas==null)
         {

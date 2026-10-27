@@ -71,7 +71,7 @@ public sealed partial class WorldGenRuntime
         {
             terrainExplorer = null; terrainReturnFrame = Time.frameCount; cameraView.enabled = true; humanClockSample=Time.realtimeSinceStartupAsDouble;humanPlayback.Reset();humanPlaying = false;
             if (globe != null) globe.SetActive(true); terrainUnloading=SceneManager.UnloadSceneAsync(scene);
-        },world,play,DrawPlayPause,terrainMeshProcess);
+        },world,play,DrawPlayPause,terrainMeshProcess,ReturnFromPlay);
         terrainExplorer.MenuSkin=gameSkin;
         terrainExplorer.SetCommandHandler(text=>PlayCommands.Execute(play,SimulationTime.Seconds(world.Prehistory),text,terrainExplorer.Ready?Math.Atan2(terrainExplorer.Position.Y,terrainExplorer.Position.X)*180/Math.PI:play.PrimeMeridianLongitude,terrainExplorer.Ready?Math.Asin(Math.Max(-1,Math.Min(1,terrainExplorer.Position.Z)))*180/Math.PI:0,terrainExplorer.WeatherControl));
     }

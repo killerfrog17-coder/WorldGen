@@ -65,9 +65,9 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public V Position=>frame.Position(motion.X,motion.Z);
     public double HeightAboveGround=>motion.Y-Ground(motion.X,motion.Z);
     public string Diagnostics=>tiles.Count+" / "+wanted.Count+" tiles · last "+lastBuildMs.ToString("F1")+" ms · max "+largestBuildMs.ToString("F1")+" ms/tile";
-    public void Initialize(Task<LocalTerrain> source,V position,Action onClose,World sourceWorld=null,PlaySession session=null,Action pauseMenu=null,TerrainMeshProcess worker=null)
+    public void Initialize(Task<LocalTerrain> source,V position,Action onClose,World sourceWorld=null,PlaySession session=null,Action pauseMenu=null,TerrainMeshProcess worker=null,Action<string> onDeathExit=null)
     {
-        building=source;meshProcess=worker;startingPoint=session!=null&&session.HasPlayer?session.PlayerPosition:position;close=onClose;this.sourceWorld=sourceWorld;playState=session;drawPause=pauseMenu;explorationSettings=session?.Settings.Copy()??new PlaySettings{HorizontalScale=1};
+        building=source;meshProcess=worker;startingPoint=session!=null&&session.HasPlayer?session.PlayerPosition:position;close=onClose;deathExit=onDeathExit;this.sourceWorld=sourceWorld;playState=session;drawPause=pauseMenu;explorationSettings=session?.Settings.Copy()??new PlaySettings{HorizontalScale=1};
         mapViewport.Longitude=session?.PrimeMeridianLongitude??0;
         var cameraRoot=new GameObject("Exploration camera",typeof(Camera),typeof(UnityEngine.Rendering.Universal.UniversalAdditionalCameraData));
         cameraRoot.transform.SetParent(transform,false);cameraRoot.layer=30;view=cameraRoot.GetComponent<Camera>();
@@ -134,7 +134,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         RecordLoadingFrame();
         if(closed)return;
         CaptureMouse();
-        bool chatInput=!WorldGenPerformance.Enabled&&HandleChatKeys();if(!chatInput&&!WorldGenPerformance.Enabled)HandleDebugKeys();if(closed)return;
+        bool chatInput=!DeathVisible&&!WorldGenPerformance.Enabled&&HandleChatKeys();if(!DeathVisible&&!chatInput&&!WorldGenPerformance.Enabled)HandleDebugKeys();if(closed)return;
         if(terrain==null)
         {
             if(!building.IsCompleted)return;
@@ -146,7 +146,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         ApplyTerrainDiagnostics();ApplyFoliageShadowOptions();installationsThisFrame=0;frameUploadMs=0;double movementStartX=motion.X,movementStartZ=motion.Z;
         long mapStarted=WorldGenPerformance.TraceBegin();UpdateMapWork();WorldGenPerformance.TraceEnd(1,mapStarted);
         var keyboard=ActiveKeyboard;var mouse=Mouse.current;
-        if(!mapOpen&&!paused&&!chatInput&&!ecologyOpen&&Application.isFocused)
+        UpdatePlayerDeath();
+        if(!DeathVisible&&!mapOpen&&!paused&&!chatInput&&!ecologyOpen&&Application.isFocused)
         {
             if(mouse!=null&&(!SurvivalActive||!Vitals.Incapacitated)&&!passiveSkyCheck&&!passiveReanchorCheck){var d=mouse.delta.ReadValue();heading+=d.x*.1f;pitch=Mathf.Clamp(pitch-d.y*.1f,-85,85);
                 ReadHumanCameraInput(mouse,keyboard);}
@@ -161,6 +162,9 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
                 motion.Move(Time.unscaledDeltaTime,alive?(keyboard.wKey.isPressed?1:0)-(keyboard.sKey.isPressed?1:0):0,
                     alive?(keyboard.dKey.isPressed?1:0)-(keyboard.aKey.isPressed?1:0):0,(keyboard.spaceKey.isPressed?1:0)-(keyboard.ctrlKey.isPressed?1:0),
                     heading,pitch,survivalSprinting,jump,Ground,walk:keyboard.cKey.isPressed||keyboard.ctrlKey.isPressed,speedScale:SurvivalActive?Vitals.MovementScale:1);
+                double moveDt=Math.Max(.001,Math.Min(.25,Time.unscaledDeltaTime));
+                playerDeathVelocity=new Vector3((float)((motion.X-movementStartX)/moveDt),(float)(-Math.Max(-motion.VerticalSpeed,motion.LandingSpeedMps)),(float)((motion.Z-movementStartZ)/moveDt));
+                PlayerDamageRules.Apply(Vitals,Mode,PlayerDamageRules.FallDamage(motion.LandingSpeedMps),PlayerDeathCause.Fall);
             }
         }
         TrackStreamingMotion(motion.X-movementStartX,motion.Z-movementStartZ,Time.unscaledDeltaTime);
@@ -174,7 +178,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             foreach(var entry in previousTerrain)entry.Value.Root.transform.localPosition=new Vector3((float)(entry.Key.X*entry.Key.SizeM-originX),0,(float)(entry.Key.Z*entry.Key.SizeM-originZ));
             foreach(var chunk in scatterChunks.Values)ProjectScatter(chunk);scatterDirty=true;
         }
-        if(!TerrainDiagnostics.HoldTerrain)UpdatePreparedFrame();
+        UpdatePlayerDeath();
+        if(!TerrainDiagnostics.HoldTerrain&&!DeathVisible)UpdatePreparedFrame();
         UpdateHumans();UpdateCamera();UpdateFootsteps();UpdateSurvivalHud();double altitude=HeightAboveGround;
         debugGroundClearance=altitude;debugElevation=groundMemoElevation+altitude;
         if(TerrainDiagnostics.HoldTerrain){UpdateScatter();UpdateAnimalFauna();UpdateWeatherPresentation();UpdateDebugReadout();return;}
@@ -253,7 +258,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     }
     bool HasMatchingTerrainJob(TerrainTileKey key)
     {foreach(var job in jobs)if(WorkMatchesCurrent(job)&&job.Key.Equals(key))return true;return false;}
-    void UpdateCamera(){if(humanPlayer!=null){UpdateHumanCamera();return;}view.transform.localPosition=new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ));view.transform.localRotation=Quaternion.Euler(pitch,heading,0);}
+    void UpdateCamera(){if(deathPresented){UpdateDeathCamera();return;}if(humanPlayer!=null){UpdateHumanCamera();return;}view.transform.localPosition=new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ));view.transform.localRotation=Quaternion.Euler(pitch,heading,0);}
     int residentRevision,nearMemoFrame=-1,nearMemoRevision,nearMemoCount;double nearMemoX,nearMemoZ;bool nearMemoPending;
     Dictionary<TerrainTileKey,int> nearMemoWanted;
     bool NearTerrainPendingFresh()=>wanted.Any(p=>ImmediateTerrain(p.Key)&&
