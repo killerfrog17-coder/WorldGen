@@ -1,5 +1,31 @@
 # WorldGen repository instructions
 
+EARLY HISTORY ATLAS CHECKPOINT,27October2026~10:39CDT:
+Existing shortcut NOW player-survival-hominin-atlas IL2CPP BuiltUtc
+2026-10-27T15:36:36.1414426Z. 403hominin/climate/clock/view checks,126survival,
+36actual native no-graphics geometry/persistence/atlas checks PASS. FourstagedDLL,
+177fauna,177originalrigsidecar SHA verified.20ka CLR/IL2CPPstate+domainhash exact
+unchanged e4d79625d45da24e3202629ba8c7aa3edf5e145c4cea7da2b55f693241e0d158.
+HomininAtlasView on-demand detached projection exposes populations/biological
+lineages/traditions/communication/practices separately. No fake ethnicity/state/
+grammar. SparseIDs, legacy unknown language origins and old extinction-record
+contradictions inspected honestly. Extinction events NOT attributed to default
+tradition0. Real article history sections+pagination; before-reference article/
+copy/header dates. Native plain-text articles actually inspected. Directory totals
+oneindex/request; ordinarycellselection uses publishedculture, no worldrecount.
+Unity state-aware categories/tables+sort; browser same sharedlayout via scenario
+flag, no full demographic copy or JS model. Web+worker builds0warnings/errors.
+No Core history/rules/world hash changes. Rendered ice/coasts, demographictribeNPCs,
+conservative later city/state handoff stillNOTimplemented; actor samplerunused.
+Survivalworkingcheckpoint retained, docs boundarytable recordsnextconnection.
+No freshGPUvisual/FPSclaim; earlier24functional survivalreview retained. Allown
+workers exited, ownerapps untouched. Previoussmallprey/mesh/reachplayers retained.
+Evidence survival-hominin-atlas-native-final/package-proof; docs current.
+Ownsource/docs/shortcut backup+push+REMOTEverification REQUIRED. Unrelateddeleted
+prompt+2olddeerscripts untouched. Ownerasyncgameplayreview stillpending; don't
+sendduplicatequestions or contendwithGPU. Latestowner architecturefirst, no old
+schedule; continue authorizedwork untilwrap-up. No new goal/subagent.
+
 SMALL PREY CHECKPOINT,27October2026~09:49CDT:
 Shortcut NOW player-survival-small-prey IL2CPP BuiltUtc
 2026-10-27T14:45:55.8694366Z;30native no-graphics checks PASS,126survival tests;

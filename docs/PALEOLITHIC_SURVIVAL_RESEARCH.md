@@ -4,9 +4,9 @@ Owner scope: 27 October 2026. Gameplay prototype plus an early-history overhaul;
 no paid services, no new animal appearance work. Earlier saves retain their
 historical rules unless explicitly starting/upgrading the early-history scenario.
 
-Current selected checkpoint: `artifacts/player-survival-small-prey`, IL2CPP
-UTC `2026-10-27T14:45:55.8694366Z`, through the existing project shortcut.
-Core checks: 126 survival and 372 hominin/clock assertions; 30 native geometry/
+Current selected checkpoint: `artifacts/player-survival-hominin-atlas`, IL2CPP
+UTC `2026-10-27T15:36:36.1414426Z`, through the existing project shortcut.
+Core checks: 126 survival and 403 hominin/clock/view assertions; 36 native geometry/
 persistence checks, an editor mesh-lifetime regression and 20 unload cycles.
 The 20,000-year early-history canonical hash matches between CLR and IL2CPP.
 Earlier graphical survival review passed 24 functional checks; later changes
@@ -449,8 +449,8 @@ or repeat graphical acceptance. Evidence is under
 Camera aim now chooses a hit point, while actual player-space 3D distance decides
 weapon reach. The previous horizontal planet-distance test could accept targets
 too far above the player, while the camera-ray limit made third-person reach
-inconsistent. Terrain obstruction is tested from the player's eye position.
-Throws also start there, aimed toward the camera's target, and consume the held
+inconsistent. Terrain obstruction is tested from the player's upper body (originally the
+eye in this checkpoint). Throws start there, aimed toward the camera's target, and consume the held
 stack rather than a different stored copy. Precise hand release/contact remains
 unfinished. Death cleanup now runs even when the shared clock gate is stopped.
 
@@ -505,3 +505,58 @@ survival checks. Native tiny portions conserve mass and save/reload, and ground
 reach passes. The 20 ka hominin hash remains CLR/IL2CPP-identical. Package DLLs,
 177 fauna bundles and original-rig sidecars match. No new visual/FPS claim.
 Evidence: `artifacts/survival-small-prey-native-final` and package proof JSON.
+
+
+### Early-history atlas and ownership boundary
+
+The early Homo state now has its own read-only atlas adapter. It exposes the
+recorded regional populations, biological lineages, learned traditions,
+communication identities and practices. These categories replace the later
+city/state directories only while an early-history scenario is active. The
+browser receives a scenario flag and uses the same layout policies; it does
+not copy or reconstruct the demographic model in JavaScript.
+
+Population articles link their actual three identities and geographic region.
+Lineages retain biological ancestry and extinction records; traditions show
+cultural descent and capabilities; communication records show only recorded
+parentage. Old saves with unknown language origins remain explicitly unknown.
+The timeline reads the actual event archive. An extinction event's default
+tradition field is not treated as evidence that tradition zero caused it.
+Older rules can contain a living population with an extinction date: the atlas
+shows that contradiction rather than silently modifying the saved history.
+
+Population, tradition and communication totals reconcile to the same published
+headcount. Table construction builds its totals once per requested directory;
+ordinary cell selection uses the existing publication and does not recount
+world populations each frame. Returned documents have no mutable references
+into the history state. There are 403 focused history/climate/clock/view checks;
+both browser projects compile without warnings or errors. Native packaging and
+inspection evidence are recorded after the package is verified below.
+
+The architectural boundaries for the next integration remain explicit:
+
+| Owner | Current contract | Next connection |
+| --- | --- | --- |
+| Core history | Versioned immutable publications, stable region IDs, lineage/tradition/communication identities | Breeding/contact networks and a conservative later-history handoff |
+| Historical climate | Regional climate/resource envelopes and lagged habitat estimates | Rendered vegetation/ice/coast adapters; do not alter terrain heights from vegetation |
+| Actor creation | Detached `HomininActorSampler` result with provenance, ancestry and inherited appearance | Persist once when making an actor; no resampling existing people on each publication |
+| Survival | Saved needs, inventory, construction, corpses and playable-time quantities | Historical knowledge restrictions and social ownership after actor provenance is connected |
+| Runtime presentation | Loaded models, poses, physics bodies and streamed props | Reconstruct from saved domain records; unloading a visual must not delete a camp or carcass |
+| Atlas | On-demand documents and independent identity links | No demographic updates, invented cities, language grammars or NPC tribes during inspection |
+
+In particular, connecting early history to the later city simulation must be a
+new versioned, headcount-conserving transfer. Calling the existing fresh-human
+initializer would lose inherited ancestry and invent cultures. That handoff is
+not implemented or advertised as complete. The current demo humans likewise
+remain demo actors, not the historical population census.
+
+
+Atlas package verification: `artifacts/player-survival-hominin-atlas`, IL2CPP
+UTC `2026-10-27T15:36:36.1414426Z`, passes all 36 native no-graphics checks.
+Copied native world/population articles contain the recorded identities,
+headcounts and before-reference dates, with reachable recorded-history sections.
+The 20,000-year state and domain hashes still match the CLR control exactly.
+All four staged DLLs, 177 animal bundles and original-rig sidecars match their
+inputs. Existing shortcut selects this build; small-prey and other recent/daily
+players remain. The package is not fresh graphical or FPS acceptance. Evidence:
+`artifacts/survival-hominin-atlas-native-final` and package proof JSON.

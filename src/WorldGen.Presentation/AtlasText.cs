@@ -7,7 +7,7 @@ namespace WorldGen.Presentation
     {
         public static string PlainText(AtlasDocument document,AtlasTimeline? page=null)
         {
-            var text=new StringBuilder().AppendLine(document.Title).AppendLine(document.Subtitle).AppendLine("Snapshot: year "+SimulationClockView.YearNumber(document.Year,document.EpochYear)).AppendLine().AppendLine(document.Introduction);
+            var text=new StringBuilder().AppendLine(document.Title).AppendLine(document.Subtitle).AppendLine("Snapshot: "+AtlasNavigation.SnapshotLabel(document)).AppendLine().AppendLine(document.Introduction);
             foreach(var fact in document.Facts)text.AppendLine(fact.Label+": "+fact.Value);
             foreach(var section in document.Sections)
             {

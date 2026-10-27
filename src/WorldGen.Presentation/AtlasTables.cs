@@ -12,8 +12,11 @@ namespace WorldGen.Presentation
         static AtlasMeasure T(string key,string text)=>new AtlasMeasure{Key=key,Text=text??""};
         static string Year(PrehistoryState s,int y)=>SimulationClockView.YearNumber(y,SimulationClockView.EpochYear(s));
         static AtlasMeasure Y(PrehistoryState s,string key,int year)=>new AtlasMeasure{Key=key,Number=year,Numeric=true,Text=Year(s,year)};
-        public static string[] Columns(string kind)
+        public static string[] Columns(string kind)=>Columns(kind,null);
+        public static string[] Columns(string kind,PrehistoryState? state)=>Columns(kind,state?.DeepPast?.Active==true);
+        public static string[] Columns(string kind,bool earlyHumanHistory)
         {
+            if(earlyHumanHistory)return HomininAtlasView.Columns(kind);
             switch(AtlasNavigation.DirectoryKind(kind))
             {
                 case "state":return new[]{"Name","Population","Area km²","Government","Age","Era","Status"};
@@ -33,6 +36,8 @@ namespace WorldGen.Presentation
         }
         public static AtlasMeasure[] Measures(PrehistoryState s,AtlasLink row)
         {
+            if(s==null)return Array.Empty<AtlasMeasure>();
+            if(s.DeepPast?.Active==true)return HomininAtlasView.Measures(s,row);
             var h=s.History;int id=row.Id;
             switch(row.Kind)
             {
