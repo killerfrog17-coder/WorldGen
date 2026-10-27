@@ -20,7 +20,7 @@ public sealed partial class LocalTerrainExplorer
         public int Slot;public double X,Z,HomeX,HomeZ,GroundY,NextDecision,Time,OldTime,BlendAge,Life,NextGround;
         public float Heading,TargetHeading,Speed,TargetSpeed,Fade,NominalSpeed;
         public FaunaRuntimeClip Clip,OldClip;public bool Wanted=true,Manual;public Vector4 Parts;
-        public V Planet;public Rng Random;public bool Dead;public double Health,NextThreat,NextBite;
+        public V Planet;public Rng Random;
     }
     FaunaPrototypePlanner animalPlanner;
     Task<List<FaunaPrototypeSpawn>> animalPlan;LocalTerrainFrame animalPlanFrame,animalFrame;
@@ -80,7 +80,6 @@ public sealed partial class LocalTerrainExplorer
                 TerrainHandoff.Coordinates(frame,animal.Planet,out animal.X,out animal.Z);
                 TerrainHandoff.Coordinates(frame,animal.Spawn.Position,out animal.HomeX,out animal.HomeZ);
                 animal.GroundY=frame.SurfaceY(animal.Planet,animal.Spawn.GroundM);animal.NextGround=0;
-                if(animal.Dead&&animalRagdolls.TryGetValue(animal.Spawn.Id,out var corpse))animal.GroundY=Ground(animal.X,animal.Z)+corpse.Corpse.RootOffsetM;
             }
         }
         if(animalPlan!=null&&animalPlan.IsCompleted)
@@ -91,13 +90,12 @@ public sealed partial class LocalTerrainExplorer
                 var playerAt=Position;double radius=frame.RadiusM;
                 // Share the model cache across media, rather than loading every
                 // ground species before considering nearby birds or insects.
-                var deadIds=new HashSet<ulong>(survival?.Corpses.Select(c=>c.SpawnId)??Enumerable.Empty<ulong>());
-                animalWanted.Clear();animalWanted.AddRange(animalPlan.Result.Where(s=>!deadIds.Contains(s.Id)).OrderBy(s=>(s.Position-playerAt).Length*radius/Math.Max(1,s.Profile.radiusM)).ThenBy(s=>s.Id));AppendSavedCarcasses();animalCandidates=animalWanted.Count;
+                animalWanted.Clear();animalWanted.AddRange(animalPlan.Result.OrderBy(s=>(s.Position-playerAt).Length*radius/Math.Max(1,s.Profile.radiusM)).ThenBy(s=>s.Id));animalCandidates=animalWanted.Count;
                 var ids=new HashSet<ulong>(animalWanted.Select(s=>s.Id));foreach(var animal in animals.Values)animal.Wanted=animal.Manual||ids.Contains(animal.Spawn.Id);
             }
             animalPlan=null;
         }
-        bool stopped=paused||mapOpen||survivalOpen;
+        bool stopped=paused||mapOpen;
         if(!stopped&&CenterReady&&!NearTerrainPending()&&HeightAboveGround<1200&&animalPlan==null&&ActiveWorkerCount<WorkerLimit&&
            (now>=nextAnimalPlan||(Position-animalPlanAt).Length*frame.RadiusM>80))
         {
@@ -145,20 +143,6 @@ public sealed partial class LocalTerrainExplorer
         foreach(ulong id in animalRemoval)RemoveAnimal(id);
         if(paletteLength>0)animalBoneBuffer.SetData(animalBoneData,0,0,paletteLength);
     }
-    void AppendSavedCarcasses()
-    {
-        if(survival==null||animalProfiles==null)return;
-        var wantedIds=new HashSet<ulong>(animalWanted.Select(s=>s.Id));
-        foreach(var corpse in survival.Corpses)
-        {
-            if(wantedIds.Contains(corpse.SpawnId))continue;
-            var profile=animalProfiles.FirstOrDefault(p=>p.slug==corpse.Slug);if(profile==null)continue;
-            var position=corpse.HasAnchor?corpse.AnchorPosition:corpse.Position;
-            if((position-Position).Length*frame.RadiusM>profile.radiusM)continue;
-            var sample=walkingPatch.Sample(position);
-            animalWanted.Add(new FaunaPrototypeSpawn{Id=corpse.SpawnId,Position=position,Profile=profile,Hash=corpse.AppearanceHash,CoatSeed=corpse.CoatSeed,ColdC=corpse.ColdC,Aridity=corpse.Aridity,Taxon=-1,GroundM=sample.ElevationM});
-        }
-    }
     IEnumerator LoadAnimalModel(FaunaPrototypeProfile profile)
     {
         string path=Path.Combine(Application.streamingAssetsPath,"fauna",profile.bundle);
@@ -200,17 +184,7 @@ public sealed partial class LocalTerrainExplorer
         var parts=options[option].parts;animal.Parts=new Vector4(parts[0],parts[1],parts[2],parts[3]);
         animal.Props.SetFloat("_Coat",coat);animal.Props.SetInt("_PaletteOffset",animal.Slot*AnimalBones);animal.Props.SetVector("_Parts",animal.Parts);
         animals.Add(spawn.Id,animal);model.Users++;model.LastUse=Time.realtimeSinceStartupAsDouble;
-        DecideAnimal(animal);UpdateAnimal(animal,0);
-        var corpse=survival?.Corpses.FirstOrDefault(c=>c.SpawnId==spawn.Id);
-        if(corpse!=null)
-        {
-            animal.Planet=corpse.HasAnchor?corpse.AnchorPosition:corpse.Position;TerrainHandoff.Coordinates(frame,animal.Planet,out animal.X,out animal.Z);
-            animal.GroundY=Ground(animal.X,animal.Z)+corpse.RootOffsetM;animal.Heading=(float)corpse.Heading;
-            animal.Root.transform.localPosition=new Vector3((float)(animal.X-originX),(float)animal.GroundY,(float)(animal.Z-originZ));
-            animal.Root.transform.localRotation=Quaternion.Euler(0,animal.Heading,0);
-            animal.Dead=true;StartAnimalRagdoll(animal,corpse,Vector3.zero);
-        }
-        return true;
+        DecideAnimal(animal);UpdateAnimal(animal,0);return true;
     }
     static int ChooseAnimalCoat(WorldGenFaunaAsset asset,FaunaPrototypeSpawn spawn)
     {
@@ -248,8 +222,6 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateAnimal(Animal animal,float dt)
     {
-        if(animal.Dead){UpdateDeadAnimal(animal);return;}
-        UpdateSurvivalAnimalThreat(animal);
         var profile=animal.Spawn.Profile;animal.Life+=dt;if(animal.Life>=animal.NextDecision)DecideAnimal(animal);
         float turn=profile.tiny?200:profile.medium=="air"?65:profile.medium=="water"?45:85;
         animal.Heading=Mathf.MoveTowardsAngle(animal.Heading,animal.TargetHeading,turn*dt);
@@ -303,7 +275,7 @@ public sealed partial class LocalTerrainExplorer
     {var result=new Matrix4x4();for(int i=0;i<16;i++)result[i]=a[i]+(b[i]-a[i])*t;return result;}
     void RemoveAnimal(ulong id)
     {
-        RemoveAnimalRagdoll(id);var animal=animals[id];Destroy(animal.Root);animal.Model.Users--;animal.Model.LastUse=Time.realtimeSinceStartupAsDouble;animalSlots.Push(animal.Slot);animals.Remove(id);
+        var animal=animals[id];Destroy(animal.Root);animal.Model.Users--;animal.Model.LastUse=Time.realtimeSinceStartupAsDouble;animalSlots.Push(animal.Slot);animals.Remove(id);
     }
     void DisposeAnimalFauna()
     {

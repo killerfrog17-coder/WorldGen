@@ -8,7 +8,7 @@ namespace WorldGen.Presentation
     public sealed class TerrainMotion
     {
         public const double EyeHeightM=1.65, Gravity=9.81,WalkSpeedMps=1.5,JogSpeedMps=3.4,RunSpeedMps=6,JumpHeightM=.45;
-        public double X,Y,Z,VerticalSpeed,FlySpeed=200,SpeedFactor=1;
+        public double X,Y,Z,VerticalSpeed,FlySpeed=200;
         public bool Flying,Grounded;
         public void Place(double x,double z,double ground,bool fly=false,double aboveGround=40)
         {X=x;Z=z;Flying=fly;Y=ground+(fly?aboveGround:EyeHeightM);VerticalSpeed=0;Grounded=!fly;}
@@ -23,7 +23,7 @@ namespace WorldGen.Presentation
             double yaw=heading*Math.PI/180,tilt=pitch*Math.PI/180;
             double dx=Math.Sin(yaw)*forward+Math.Cos(yaw)*right,dz=Math.Cos(yaw)*forward-Math.Sin(yaw)*right;
             double length=Math.Sqrt(dx*dx+dz*dz);if(length>1){dx/=length;dz/=length;}
-            double rate=(Flying?FlySpeed*(sprint?3:1):(walk?WalkSpeedMps:sprint?RunSpeedMps:JogSpeedMps)*Math.Max(.1,Math.Min(1,SpeedFactor)))*dt;
+            double rate=(Flying?FlySpeed*(sprint?3:1):walk?WalkSpeedMps:sprint?RunSpeedMps:JogSpeedMps)*dt;
             if(Flying)
             {
                 double cp=Math.Cos(tilt),fx=Math.Sin(yaw)*forward*cp+Math.Cos(yaw)*right,fz=Math.Cos(yaw)*forward*cp-Math.Sin(yaw)*right,fy=-Math.Sin(tilt)*forward+up;

@@ -14,7 +14,6 @@ namespace WorldGen.Presentation
     {
         public static AtlasFact NewsDetail(PrehistoryState state,int year,int culture,int cell,ChronicleCategory category)
         {
-            if(state?.DeepPast?.Active==true)return HomininAtlasView.NewsDetail(state,year,culture,cell,category);
             if(state?.History==null)return new AtlasFact();var archive=state.History.Archive;var news=new ChronicleNews(state);
             int first=ChronicleFeed.FirstAtOrAfter(archive,year);
             HistoricalEvent? chosen=null;int priority=int.MinValue;
@@ -40,7 +39,6 @@ namespace WorldGen.Presentation
         }
         public static AtlasTimeline Timeline(PrehistoryState? s,string kind="world",int id=-1,int offset=0,bool includeRoutine=false)
         {
-            if(s?.DeepPast?.Active==true)return HomininAtlasView.Timeline(s,kind,id,offset,includeRoutine);
             var page=new AtlasTimeline{IncludeRoutine=includeRoutine};if(s?.History==null||s.Society==null)return page;
             int cell=kind=="city"&&id>=0&&id<s.Society.Settlements.Length?s.Society.Settlements[id].Cell:-1;
             var ruler=kind=="ruler"&&id>=0&&id<(s.History.Dynamics?.Leaders.Length??0)?s.History.Dynamics!.Leaders[id]:null;

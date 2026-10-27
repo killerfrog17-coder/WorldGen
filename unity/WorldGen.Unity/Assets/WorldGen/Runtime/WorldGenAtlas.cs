@@ -34,10 +34,10 @@ public sealed partial class WorldGenRuntime
     void LoadAtlasArticle(string kind,int id)
     {
         atlasSearchFocused=false;GUIUtility.keyboardControl=0;
-        atlasDocument=kind=="location"?AtlasNavigation.Location(humanOverlayOpacity>0?CurrentSelectionCard():CurrentBaseCard(),id,atlasSnapshot?.Years??0,SimulationClockView.EpochYear(atlasSnapshot),atlasSnapshot?.DeepPast?.Active==true?HomininView.Date(atlasSnapshot):""):HistoryAtlas.Read(atlasSnapshot,kind,id,world,humans);
+        atlasDocument=kind=="location"?AtlasNavigation.Location(humanOverlayOpacity>0?CurrentSelectionCard():CurrentBaseCard(),id,atlasSnapshot?.Years??0,SimulationClockView.EpochYear(atlasSnapshot)):HistoryAtlas.Read(atlasSnapshot,kind,id,world,humans);
         atlasKind=AtlasNavigation.DirectoryKind(kind);atlasSection="Overview";atlasArticleScroll=Vector2.zero;atlasTimeline=null;
     }
-    void RefreshAtlasDirectory(){if(!AtlasTables.Columns(atlasKind,atlasSnapshot).Contains(atlasSort)){atlasSort="Name";atlasSortDescending=false;}atlasDirectory=AtlasTables.Sort(HistoryAtlas.Directory(atlasSnapshot,atlasKind,atlasSearch,atlasPast),atlasSort,atlasSortDescending);atlasRepeatedNames=new HashSet<string>(atlasDirectory.GroupBy(x=>x.Name).Where(g=>g.Count()>1).Select(g=>g.Key));atlasDirectoryScroll=Vector2.zero;atlasDirectoryPage=0;}
+    void RefreshAtlasDirectory(){if(!AtlasTables.Columns(atlasKind).Contains(atlasSort)){atlasSort="Name";atlasSortDescending=false;}atlasDirectory=AtlasTables.Sort(HistoryAtlas.Directory(atlasSnapshot,atlasKind,atlasSearch,atlasPast),atlasSort,atlasSortDescending);atlasRepeatedNames=new HashSet<string>(atlasDirectory.GroupBy(x=>x.Name).Where(g=>g.Count()>1).Select(g=>g.Key));atlasDirectoryScroll=Vector2.zero;atlasDirectoryPage=0;}
     void AtlasNavigate(AtlasLink link){if(string.IsNullOrEmpty(link.Kind))return;atlasBack.Push(Tuple.Create(atlasDocument.Kind,atlasDocument.Id));LoadAtlasArticle(link.Kind,link.Id);RefreshAtlasDirectory();EndAtlasUiChange();}
     void EndAtlasUiChange(){if(Event.current!=null&&Event.current.type!=EventType.Layout&&Event.current.type!=EventType.Repaint)GUIUtility.ExitGUI();}
     void DrawAtlas()
@@ -46,17 +46,16 @@ public sealed partial class WorldGenRuntime
         float width=Mathf.Min(1120,Screen.width-32),height=Mathf.Min(800,Screen.height-100);var panel=new Rect((Screen.width-width)/2,58,width,height);
         GUI.Box(panel,"");GUILayout.BeginArea(new Rect(panel.x+16,panel.y+12,panel.width-32,panel.height-24));
         GUILayout.BeginHorizontal();GUILayout.Label("WORLD ATLAS",new GUIStyle(GUI.skin.label){fontSize=18,fontStyle=FontStyle.Bold});
-        GUILayout.Label("Playback paused · "+SimulationClockView.Year(atlasSnapshot,atlasSnapshot?.Years??0),new GUIStyle(GUI.skin.label){wordWrap=true},GUILayout.Width(atlasSnapshot?.DeepPast?.Active==true?Mathf.Min(330,width*.4f):200));
+        GUILayout.Label("Playback paused · "+SimulationClockView.Year(atlasSnapshot,atlasSnapshot?.Years??0),GUILayout.Width(200));
         if(GUILayout.Button("Refresh",GUILayout.Width(80))){atlasSnapshot=world?.Prehistory;LoadAtlasArticle(atlasDocument.Kind,atlasDocument.Id);RefreshAtlasDirectory();EndAtlasUiChange();}
         if(GUILayout.Button("Close",GUILayout.Width(65))){CloseWorldAtlas();EndAtlasUiChange();}GUILayout.EndHorizontal();
         GUILayout.Space(8);GUILayout.BeginHorizontal();
         GUILayout.BeginVertical(GUILayout.Width(205));
         if(GUILayout.Toggle(atlasKind=="world","World overview",GUI.skin.button)&&atlasKind!="world")OpenAtlas();
         if(GUILayout.Toggle(atlasKind=="view","Map settings",GUI.skin.button)&&atlasKind!="view")OpenAtlas("view");
-        var categories=AtlasNavigation.CategoriesFor(atlasSnapshot);
-        foreach(var category in categories)
+        foreach(var category in AtlasNavigation.Categories)
             if(GUILayout.Button(category.Name,new GUIStyle(GUI.skin.button){normal=atlasKind==category.Kind?GUI.skin.button.active:GUI.skin.button.normal})){atlasSearch="";OpenAtlas("directory:"+category.Kind);}
-        if(categories.Any(c=>c.Kind==atlasKind))
+        if(AtlasNavigation.Categories.Any(c=>c.Kind==atlasKind))
         {
         GUI.SetNextControlName("AtlasSearch");string search=GUILayout.TextField(atlasSearch);atlasSearchFocused=GUI.GetNameOfFocusedControl()=="AtlasSearch";
         if(search!=atlasSearch){atlasSearch=search;RefreshAtlasDirectory();EndAtlasUiChange();}GUILayout.Label("Search names",new GUIStyle(GUI.skin.label){fontSize=11});
@@ -88,8 +87,8 @@ public sealed partial class WorldGenRuntime
             if(atlasKind=="view")DrawSocietyMapSettings();
             else
             {
-                var columns=AtlasTables.Columns(atlasKind,atlasSnapshot);AtlasParagraph(atlasDirectory.Length.ToString("N0")+" records · click a heading to sort",11);
-                float ColumnWidth(string column)=>column=="Name"?170:column=="Government"||column=="Way of life"||column=="Role"||column=="Cultural context"||column=="Parent heritage"||column=="Parent communication"||column=="Parent tradition"?170:115;
+                var columns=AtlasTables.Columns(atlasKind);AtlasParagraph(atlasDirectory.Length.ToString("N0")+" records · click a heading to sort",11);
+                float ColumnWidth(string column)=>column=="Name"?170:column=="Government"||column=="Way of life"||column=="Role"||column=="Cultural context"||column=="Parent heritage"?170:115;
                 GUILayout.BeginHorizontal();foreach(string column in columns)if(GUILayout.Button(column+(atlasSort==column?(atlasSortDescending?" ▾":" ▴"):" ↕"),GUILayout.Width(ColumnWidth(column)))){if(atlasSort==column)atlasSortDescending=!atlasSortDescending;else{atlasSort=column;atlasSortDescending=column!="Name";}atlasDirectory=AtlasTables.Sort(atlasDirectory,atlasSort,atlasSortDescending);atlasDirectoryPage=0;EndAtlasUiChange();}GUILayout.EndHorizontal();
                 foreach(var entry in atlasDirectory.Skip(atlasDirectoryPage*200).Take(200))
                 {GUILayout.BeginHorizontal();foreach(string column in columns){if(column=="Name"){if(GUILayout.Button(entry.Name,GUILayout.Width(ColumnWidth(column))))AtlasNavigate(entry);}else GUILayout.Label(AtlasTables.Cell(entry,column).Text,new GUIStyle(GUI.skin.label){wordWrap=true,fontSize=12},GUILayout.Width(ColumnWidth(column)));}GUILayout.EndHorizontal();}

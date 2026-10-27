@@ -509,7 +509,6 @@ public sealed partial class WorldGenRuntime
         int profilePlants=int.Parse(Argument("--worldgen-perf-plant-quality","2"));
         var cases=new List<PerfCase>{
             new PerfCase("human-review",()=>{}),
-            new PerfCase("survival-review",()=>{}),
             new PerfCase("forest-community-review",()=>{}),
             new PerfCase("foliage-proxy-compare",()=>TerrainVideoOptions.DistantTreeShadowCards=false),
             new PerfCase("trees-efficient-verify",()=>{}),
@@ -638,7 +637,6 @@ public sealed partial class WorldGenRuntime
                 }
                 if(item.Name=="flying-60m"){terrainExplorer.PerformanceCapture(Path.Combine(output,site.Item1+"-flying.png"));yield return new WaitForSecondsRealtime(1);}
                 if(item.Name=="human-review")yield return terrainExplorer.PerformanceHumanReview(output);
-                if(item.Name=="survival-review")yield return terrainExplorer.PerformanceSurvivalReview(output);
                 WorldGenPerformance.ProfileRenderCompletion=item.Name=="forest-community-review"||item.Name=="foliage-proxy-compare";
                 var renderCosts=new List<double>();var frames=new List<double>(10000);var sections=new double[4];int gc=GC.CollectionCount(0);
                 var stutter=WorldGenPerformance.TraceEnabled?new List<StutterRow>(30000):null;

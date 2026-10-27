@@ -22,7 +22,7 @@ namespace WorldGen.Core
         static bool LivingWorldHistory(PrehistoryState s)=>s?.History?.Version==LivingWorldHistoryVersion;
         public PrehistoryState UpgradeToLivingWorldHistory(PrehistoryState source)
         {
-            Validate(source);RequireLaterHistoryUpgrade(source);if(LivingWorldHistory(source))return source;
+            Validate(source);if(LivingWorldHistory(source))return source;
             source=UpgradeToEnvironmentalHistory(source);var s=source.Copy();
             s.History.Version=LivingWorldHistoryVersion;ExpandNuclearCapabilities(s);InitializeFreshHumanVariation(s);InitializeInternational(s);InitializeColonialPortRetries(s);InitializeProvisionedPorts(s);InitializeCoastalFarming(s);InitializeReceiverFrontierLearning(s);InitializeRegionalTraditions(s);InitializeGeographicKnowledge(s);InitializeRealmLifecycles(s);s.Seal();return s;
         }

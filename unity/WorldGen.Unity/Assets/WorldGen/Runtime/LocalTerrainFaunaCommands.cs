@@ -57,7 +57,7 @@ public sealed partial class LocalTerrainExplorer
             if(profile.medium=="ground"&&wet||profile.medium=="water"&&(!wet||double.IsNaN(water)||water-sample.ElevationM<Math.Max(.3,profile.lengthM*.65)))b.Unsafe++;
             else
             {
-                ulong id;do{id=++animalManualSequence;}while(animals.ContainsKey(id)||survival!=null&&survival.Corpses.Any(c=>c.SpawnId==id));var habitat=sourceWorld.Ecology.Habitat[sample.Cell];uint hash=Rng.Mix((uint)id^(uint)(id>>32));
+                ulong id=++animalManualSequence;var habitat=sourceWorld.Ecology.Habitat[sample.Cell];uint hash=Rng.Mix((uint)id^(uint)(id>>32));
                 animalManualWanted.Add(new FaunaPrototypeSpawn{Id=id,Hash=hash,Position=point,Profile=profile,Region=sourceWorld.Ecology.Region[sample.Cell],Taxon=-1,
                     CoatSeed=unchecked((int)hash),GroundM=sample.ElevationM,WaterM=water,HeightM=profile.medium=="air"?b.AirHeight:profile.medium=="water"?-.6:0,
                     ColdC=habitat.ColdTenthsC/10.0,Aridity=habitat.AridityMilli/1000.0});

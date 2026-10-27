@@ -1,8 +1,6 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
-if(args.Contains("--survival-only")){SurvivalPrototypeTests.Run();return;}
-if(args.Contains("--hominin-only")){HomininSimulationTests.Run();return;}
 if(args.Contains("--player-camera-only")){PlayerCameraRigTests.Run();return;}
 if(args.Contains("--vegetation-community-only")){VegetationCommunityTests.Run();return;}
 if(args.Contains("--streaming-fog-only")){TerrainStreamingRevealTests.Run();return;}

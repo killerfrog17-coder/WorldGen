@@ -37,14 +37,11 @@ public sealed partial class LocalTerrainExplorer
     Texture2D mapTexture;int mapRevision;
     public bool DebugVisible=>debugOpen;
     public bool MapVisible=>mapOpen;
-    public bool Paused=>paused||survivalOpen||survival?.Dead==true;
-    // Calendar credit and physiology share this gate. Menu/music pause remains
-    // separate so chatting or changing focus does not change those controls.
-    public bool LocalTimeRunning=>!closed&&!paused&&!mapOpen&&!chatOpen&&!ecologyOpen&&!SurvivalBlocked&&(Application.isFocused||WorldGenPerformance.Enabled);
+    public bool Paused=>paused;
     public bool MapReady=>mapSurface!=null&&!mapDirty&&!mapRefining&&shownMapRevision==mapRevision;
     public int MapBuildCount {get;private set;}
     double MaximumViewDistance=>terrain==null?250000:Math.Min(250000,terrain.RadiusM*HorizontalScale*.3);
-    bool WantsMouseLook=>!closed&&Application.isFocused&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen&&!SurvivalBlocked;
+    bool WantsMouseLook=>!closed&&Application.isFocused&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen;
     void CaptureMouse()
     {
         if(passiveSkyCheck||passiveReanchorCheck)return;
@@ -89,7 +86,6 @@ public sealed partial class LocalTerrainExplorer
         if(ecologyOpen){DrawEcologyDebug();return;}
         if(debugOpen)DrawDebugOverlay();
         if(paused){if(drawPause!=null)drawPause();else{GUILayout.BeginArea(new Rect(Screen.width/2f-130,Screen.height/2f-70,260,140),GUI.skin.box);if(GUILayout.Button("Resume"))Resume();if(GUILayout.Button("World simulation"))Close();GUILayout.EndArea();}return;}
-        if(DrawSurvival())return;
         DrawWorldMap();
     }
     public void Pause(){paused=true;mapOpen=false;CaptureMouse();}
@@ -109,7 +105,7 @@ public sealed partial class LocalTerrainExplorer
     string DebugText()
     {
         return "GROUND & STREAMING\nScale "+HorizontalScale.ToString("G3")+" · "+GroundDebugText+"\n"+
-            (motion.Flying?"Flying":ActiveKeyboard!=null&&(ActiveKeyboard.cKey.isPressed||ActiveKeyboard.ctrlKey.isPressed)?"Walking":ActiveKeyboard!=null&&ActiveKeyboard.shiftKey.isPressed&&SurvivalPhysiology.CanSprint(survival)?"Sprinting":"Jogging")+"  ·  "+Diagnostics+"\n\nVEGETATION\nScatter "+ScatterObjects.ToString("N0")+" instances  ·  "+ScatterDrawCalls+" draws"+
+            (motion.Flying?"Flying":ActiveKeyboard!=null&&ActiveKeyboard.cKey.isPressed?"Walking":ActiveKeyboard!=null&&ActiveKeyboard.shiftKey.isPressed?"Sprinting":"Jogging")+"  ·  "+Diagnostics+"\n\nVEGETATION\nScatter "+ScatterObjects.ToString("N0")+" instances  ·  "+ScatterDrawCalls+" draws"+
             "\nLow vegetation · "+GroundCoverDraws+" draws · "+(GroundCoverBytes/1048576d).ToString("F1")+" MiB GPU buffers · "+GroundCoverCandidates.ToString("N0")+" candidate slots · "+SpecialistObjects+" herbs/fungi · "+MidPlantObjects+" mid plants · "+GeneratedTreeObjects+" trees"+
             "\nVegetation culling · "+ScatterFrustumRejected+" outside view · "+ScatterTerrainRejected+" behind hills · "+ScatterShadowOnly+" shadow-only · "+GrassPagesOccluded+" grass pages hidden"+
             "\nGrass field · "+(TerrainVideoOptions.GroundCover?TerrainVideoOptions.GrassDensity.ToString("F2")+"× · close "+TerrainVideoOptions.GrassBladeDistance.ToString("F0")+"m · geometry "+(TerrainVideoOptions.GrassCanopy?TerrainVideoOptions.GrassDistance.ToString("F0")+"m":"OFF")+" · detail "+TerrainVideoOptions.GrassDetail:"OFF")+

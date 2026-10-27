@@ -34,15 +34,6 @@ try
     var sw = System.Diagnostics.Stopwatch.StartNew();
     var w = args.Contains("--world") ? (Path.GetExtension(Arg("--world")).Equals(".world", StringComparison.OrdinalIgnoreCase) ? WorldFile.Read(File.ReadAllBytes(Arg("--world")), cancel.Token) : WorldJson.ReadWorld(File.ReadAllText(Arg("--world")))) : pipeline.Generate(recipe, p => Console.Error.WriteLine($"{p.Percent,3}% {p.Stage} [{sw.ElapsedMilliseconds} ms]"), cancel.Token);
     recipe = w.Recipe;
-    if(args.Contains("--hominins"))
-    {
-        var engine=new Prehistory(w);var state=w.Prehistory?.DeepPast?.Active==true?w.Prehistory:engine.Start(engine.PrepareHominins());
-        int years=int.Parse(Arg("--hominin-years","20000"));var timer=System.Diagnostics.Stopwatch.StartNew();
-        state=engine.AdvanceYears(state,years,cancel.Token);engine.Validate(state);w.Prehistory=state;
-        Console.WriteLine(HomininView.Status(state));
-        Console.WriteLine("Hominin simulation: "+timer.Elapsed.TotalSeconds.ToString("F3")+" seconds; "+state.DeepPast.Populations.Length+" cohorts; "+state.DeepPast.Events.Length+" events");
-        string report=Arg("--hominin-report");if(report.Length>0){Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(report))!);File.WriteAllText(report,WorldJson.Write(state));}
-    }
     foreach (var stage in w.Stages) Console.WriteLine(stage.Name + " " + stage.Hash);
     foreach (var warning in w.Warnings) Console.Error.WriteLine("Note: " + warning);
     foreach (var metric in w.Metrics.Where(m => !m.Name.StartsWith("parent_"))) Console.WriteLine($"{metric.Name}: {metric.Value} {metric.Unit}");

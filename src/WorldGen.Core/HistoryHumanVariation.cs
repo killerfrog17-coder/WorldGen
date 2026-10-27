@@ -99,14 +99,6 @@ namespace WorldGen.Core
             if(migrants<=0)return existing;if(previousResidents<=0)return incoming;
             return (int)(((decimal)existing*previousResidents+(decimal)incoming*migrants)/((decimal)previousResidents+migrants));
         }
-        static readonly uint[,] AppearanceDriftStreams=CreateAppearanceDriftStreams();
-        static uint[,] CreateAppearanceDriftStreams()
-        {
-            string[] prefixes={"human-appearance-drift-a-32-","human-appearance-drift-b-32-","human-appearance-drift-c-32-","human-appearance-round-32-"};
-            var hashes=new uint[4,8];
-            for(int p=0;p<4;p++)for(int t=0;t<8;t++){uint hash=2166136261;foreach(char c in prefixes[p]+t)hash=unchecked((hash^c)*16777619);hashes[p,t]=hash;}
-            return hashes;
-        }
         public static int Evolve(int seed,int region,int year,HumanAppearanceTrait trait,int previous,int elapsed,long residents,double uv,int meanTenthsC,double culturalBuffer=0)
         {
             if(previous<0||previous>10000)throw new ArgumentOutOfRangeException(nameof(previous));
@@ -120,10 +112,10 @@ namespace WorldGen.Core
             double ne=D.Clamp(residents*.1,60,10000),p=previous/10000.0;
             double sigma=1300*Math.Sqrt((elapsed/Human.GenerationYears)*(.02+.98*p*(1-p))/(2*ne));
             int key=unchecked(year*397+region*104729);
-            double noise=(Rng.ValueFromStreamHash(seed,AppearanceDriftStreams[0,(int)trait],key)+Rng.ValueFromStreamHash(seed,AppearanceDriftStreams[1,(int)trait],key)+Rng.ValueFromStreamHash(seed,AppearanceDriftStreams[2,(int)trait],key)-1.5)*2;
+            double noise=(Rng.Value(seed,"human-appearance-drift-a-32-"+(int)trait,key)+Rng.Value(seed,"human-appearance-drift-b-32-"+(int)trait,key)+Rng.Value(seed,"human-appearance-drift-c-32-"+(int)trait,key)-1.5)*2;
             value=D.Q(D.Clamp(value+noise*sigma,0,10000),1000000);
             int whole=(int)value;
-            if(Rng.ValueFromStreamHash(seed,AppearanceDriftStreams[3,(int)trait],key)<value-whole)whole++;
+            if(Rng.Value(seed,"human-appearance-round-32-"+(int)trait,key)<value-whole)whole++;
             return Math.Max(0,Math.Min(10000,whole));
         }
         public static V SkinSwatch(int pigment)

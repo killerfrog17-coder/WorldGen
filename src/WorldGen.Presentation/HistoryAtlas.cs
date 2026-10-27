@@ -24,7 +24,7 @@ namespace WorldGen.Presentation
     }
     [Serializable] public sealed class AtlasDocument
     {
-        public string Kind="world",Title="World at a glance",Subtitle="",Introduction="",Note="",SnapshotDate="";
+        public string Kind="world",Title="World at a glance",Subtitle="",Introduction="",Note="";
         public int Id=-1,Cell=-1,Year,EpochYear=-1;
         public double Longitude,Latitude;
         public AtlasFact[] Facts=Array.Empty<AtlasFact>();
@@ -53,7 +53,6 @@ namespace WorldGen.Presentation
         }
         public static AtlasLink? Selection(PrehistoryState? s,int cell,HistoryOverlay overlay)
         {
-            if(s?.DeepPast?.Active==true)return HomininAtlasView.Selection(s,cell,overlay);
             if(s?.Society==null||s.History==null||cell<0||cell>=HistoricalCells.Count(s))return null;
             int id=SocietyView.SelectionId(s,cell,overlay);if(id==-1)return null;
             if(id<=-2)return CultureLink(s.Society.Cultures[-2-id]);
@@ -72,7 +71,6 @@ namespace WorldGen.Presentation
         }
         public static string Summary(PrehistoryState? s,AtlasLink? link)
         {
-            if(s?.DeepPast?.Active==true&&link!=null)return HomininAtlasView.Summary(s,link);
             if(s?.History==null||s.Society==null||link==null)return "Select an inhabited location to explore its history.";
             switch(link.Kind)
             {
@@ -98,7 +96,6 @@ namespace WorldGen.Presentation
         }
         public static AtlasLink[] ProfilesAt(PrehistoryState? s,int cell)
         {
-            if(s?.DeepPast?.Active==true)return HomininAtlasView.ProfilesAt(s,cell);
             if(s?.History==null||s.Society==null||cell<0||cell>=HistoricalCells.Count(s))return Array.Empty<AtlasLink>();
             var links=new List<AtlasLink>();int state=HistoricalCells.Polity(s,cell),faith=HistoricalCells.Religion(s,cell);
             int claim=HistoricalRecognizedClaims.TitleAt(s,cell);if(claim>=0&&HistoricalRecognizedClaims.Holder(s,cell)>=0)links.Add(ClaimLink(s,claim));
@@ -113,7 +110,6 @@ namespace WorldGen.Presentation
         public static string ProfileLabel(AtlasLink link)=>link.Kind=="notable"?"Notable person":link.Kind=="ethnicity"?"Ethnic identity":link.Kind=="language"?"Language":link.Kind=="organization"?"Organization":link.Kind=="technology"?"Technology":link.Kind=="claim"?"Title":link.Kind=="province"?"Province":link.Kind=="religion"?"Belief":link.Kind=="people"?"People":link.Kind=="city"?"City":link.Kind=="ruler"?"Ruler":link.Detail=="Imperial government"?"Realm":link.Detail=="Local government"?"Local state":"State";
         public static AtlasLink[] Directory(PrehistoryState? s,string kind,string search="",bool past=false)
         {
-            if(s?.DeepPast?.Active==true)return HomininAtlasView.Directory(s,kind,search,past);
             if(s?.Society==null||s.History==null)return Array.Empty<AtlasLink>();
             var h=s.History;IEnumerable<AtlasLink> entries;
             switch(kind)
@@ -136,7 +132,6 @@ namespace WorldGen.Presentation
         }
         public static AtlasDocument Read(PrehistoryState? s,string kind="world",int id=-1,World? world=null,Prehistory? engine=null)
         {
-            if(s?.DeepPast?.Active==true)return HomininAtlasView.Read(s,kind,id,world,engine);
             var d=new AtlasDocument{Kind=kind,Id=id,Year=s?.Years??0,EpochYear=SimulationClockView.EpochYear(s),Subtitle=SimulationClockView.Year(s,s?.Years??0),Note="Generated history. Indicators are model estimates; populations use aggregate accounts, not an individual census."};
             if(AtlasNavigation.IsDirectory(kind)){d.Title=AtlasNavigation.CategoryName(kind);d.Note="";return d;}
             if(kind=="view"){d.Title="Map settings";d.Note="";return d;}

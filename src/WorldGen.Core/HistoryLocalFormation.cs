@@ -106,7 +106,7 @@ namespace WorldGen.Core
         }
         public PrehistoryState UpgradeToCurrentHistory(PrehistoryState source)
         {
-            Validate(source);RequireLaterHistoryUpgrade(source);if(source.History?.Version==CurrentHistoryVersion)return UpgradeRealmLifecycles(UpgradeGeographicKnowledge(UpgradeRegionalTraditions(source)));
+            Validate(source);if(source.History?.Version==CurrentHistoryVersion)return UpgradeRealmLifecycles(UpgradeGeographicKnowledge(UpgradeRegionalTraditions(source)));
             if(ModernHistory(source))return UpgradeToLivingWorldHistory(source);
             var delegated=DelegatedHistory(source)?source:UpgradeToDelegatedHistory(source.History?.Version=="history-9"?UpgradeHistoricalModel(source):source);
             return UpgradeToCurrentHistory(UpgradeToModernHistory(UpgradeToInstitutionalHistory(delegated)));

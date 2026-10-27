@@ -48,11 +48,10 @@ namespace WorldGen.Presentation
         static long RemotePopulation(PrehistoryState state,int cell)
         {var a=state.History.Aggregates;int raw=a.Cells[cell*5+1];return raw>=0?a.Polities[a.PopulationCohort(raw)].Remote:0;}
         public static string Lifestyle(ForagerLifestyle style)=>style+" foragers";
-        public static string Status(Prehistory engine,PrehistoryState state)=>state?.DeepPast?.Active==true?HomininView.Status(state):state==null?"Preparing human habitat…":!state.Started?"Homo sapiens · "+engine.PatchName(state.Origin):
+        public static string Status(Prehistory engine,PrehistoryState state)=>state==null?"Preparing human habitat…":!state.Started?"Homo sapiens · "+engine.PatchName(state.Origin):
             $"{SimulationClockView.Year(state,state.Years)} · {SocietyView.Population(state):N0} people · {SocietyView.Stage(state.Society?.Phase??SocietyStage.Foragers)}";
         public static string Describe(Prehistory engine,PrehistoryState state,int cell,HistoryOverlay overlay=HistoryOverlay.Civilizations)
         {
-            if(state?.DeepPast?.Active==true)return HomininView.Describe(engine,state,cell);
             string society=SocietyView.Describe(state,cell,overlay);if(society.Length>0)return society;
             if(engine==null||state==null||cell<0||cell>=engine.CellPatch.Length)return "Select a human population";
             int p=engine.CellPatch[cell];if(p<0)return "Uninhabited water";

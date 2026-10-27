@@ -13,8 +13,7 @@ REPO = Path(__file__).resolve().parent.parent
 SOURCE = REPO/'artifacts/human-animation-preview/Human - Animation Comparison.blend'
 OUTPUT = REPO/'artifacts/human-runtime/exports'
 EVIDENCE = REPO/'artifacts/human-runtime'
-REUSE_TEXTURES = False
-CLIPS = {'Idle', 'Walk', 'Run', 'Sprint', 'Crouch', 'Jump', 'Swim','KayKit run','KayKit run B','KayKit large run','Sit down','Sitting','Stand up','Sword attack','Chop wood','Dig','Interact','Pick up','Punch'}
+CLIPS = {'Idle', 'Walk', 'Run', 'Sprint', 'Crouch', 'Jump', 'Swim','KayKit run','KayKit run B','KayKit large run'}
 
 
 def bake(ob, name, size, alpha=False):
@@ -73,14 +72,6 @@ def export(letter):
     for label,file,clip in [('KayKit run B','Rig_Medium_MovementBasic.glb','Running_B'),('KayKit large run','Rig_Large_MovementBasic.glb','Running_A')]:
         motion=Motion(next(bank.rglob(file)));samples=[motion.sample(clip,min(i/30,motion.duration(clip))) for i in range(round(motion.duration(clip)*30)+1)]
         clips.append(retarget.animate(rig,'MPFB',(label,motion,clip),samples))
-    q1=Motion(next((REPO/'artifacts/human-animation-sources/quaternius-ual1').rglob('UAL1_Standard.glb')))
-    for label,clip in [('Interact','Interact'),('Pick up','PickUp_Table'),('Punch','Punch_Jab')]:
-        samples=[q1.sample(clip,min(i/30,q1.duration(clip))) for i in range(round(q1.duration(clip)*30)+1)]
-        clips.append(retarget.animate(rig,'MPFB',(label,q1,clip),samples))
-    if 'Throw' in CLIPS:
-        q2=Motion(next((REPO/'artifacts/human-animation-sources/quaternius-ual2').rglob('UAL2_Standard.glb')))
-        clip='OverhandThrow';samples=[q2.sample(clip,min(i/30,q2.duration(clip))) for i in range(round(q2.duration(clip)*30)+1)]
-        clips.append(retarget.animate(rig,'MPFB',('Throw',q2,clip),samples))
     actions={c['action']:c for c in clips if c['label'] in CLIPS}
     for ob in list(bpy.data.objects):
         if ob!=rig and ob not in objects:bpy.data.objects.remove(ob,do_unlink=True)
@@ -110,18 +101,15 @@ def export(letter):
         for obj in bpy.context.selected_objects:obj.select_set(False)
         ob.select_set(True);bpy.context.view_layer.objects.active=ob
         size=2048 if kind=='Basemesh' else 512 if kind in {'Eyes','Teeth','Eyebrows','Eyelashes'} else 1024
-        cached=folder/(name+'.png')
-        reuse=REUSE_TEXTURES and cached.exists()
-        diffuse=bpy.data.images.load(str(cached),check_existing=False) if reuse else bake(ob,name+' pigment',size)
+        diffuse=bake(ob,name+' pigment',size)
         transparent=kind in {'Hair','Eyebrows','Eyelashes','Eyes'}
-        if transparent and not reuse:
+        if transparent:
             alpha=bake(ob,name+' opacity',size,True)
             pixels=np.empty(size*size*4,dtype=np.float32);diffuse.pixels.foreach_get(pixels)
             coverage=np.empty_like(pixels);alpha.pixels.foreach_get(coverage)
             pixels[3::4]=coverage[0::4];diffuse.pixels.foreach_set(pixels)
             bpy.data.images.remove(alpha)
-        if not reuse:
-            diffuse.filepath_raw=str(folder/(name+'.png'));diffuse.file_format='PNG';diffuse.save()
+        diffuse.filepath_raw=str(folder/(name+'.png'));diffuse.file_format='PNG';diffuse.save()
         # Plain FBX material bindings; Unity replaces them with the shared human shader.
         mat=bpy.data.materials.new('Human_'+letter+'_'+name);mat.use_nodes=True
         p=mat.node_tree.nodes.get('Principled BSDF');p.inputs['Roughness'].default_value=.18 if kind=='Eyes' else .72
@@ -146,24 +134,15 @@ def export(letter):
         use_custom_props=False,path_mode='STRIP',mesh_smooth_type='FACE',use_triangles=True)
     metadata={'variant':letter,'source_sha256':hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
         'eye_height':collection['head_center'][2], 'materials':records,
-        'clips':[actions[k] for k in actions], 'seconds':time.monotonic()-started,
-        'throw_release_seconds':.3 if 'Throw' in CLIPS else 0}
+        'clips':[actions[k] for k in actions], 'seconds':time.monotonic()-started}
     (folder/'human.json').write_text(json.dumps(metadata,indent=2))
     print('HUMAN_EXPORTED',letter,round(metadata['seconds'],2),flush=True)
     return metadata
 
 
 def main():
-    global REUSE_TEXTURES,OUTPUT,EVIDENCE
-    parser=argparse.ArgumentParser();parser.add_argument('--variants',default='ABCDEF');parser.add_argument('--reuse-textures',action='store_true')
-    parser.add_argument('--include-throw',action='store_true');parser.add_argument('--output')
+    parser=argparse.ArgumentParser();parser.add_argument('--variants',default='ABCDEF')
     args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
-    REUSE_TEXTURES=args.reuse_textures
-    if args.include_throw:CLIPS.add('Throw')
-    if args.output:
-        OUTPUT=Path(args.output).resolve()
-        if not OUTPUT.is_relative_to(REPO/'artifacts'):parser.error('Export derivatives must remain inside repository artifacts.')
-        EVIDENCE=OUTPUT.parent
     EVIDENCE.mkdir(parents=True,exist_ok=True)
     reports=[export(letter) for letter in args.variants]
     (EVIDENCE/'export-report.json').write_text(json.dumps(reports,indent=2))

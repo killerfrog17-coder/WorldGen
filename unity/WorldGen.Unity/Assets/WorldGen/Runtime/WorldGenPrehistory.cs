@@ -23,11 +23,8 @@ public sealed partial class WorldGenRuntime
     readonly SimulationPlayback humanPlayback=new SimulationPlayback();double humanClockSample,calendarWorkStarted;
     bool simulationPaused,resumeHumanPlayback;string simulationTab="";
     bool technologyCeilingOpen;
-    bool startWithEarlyHominins=true;
     HistoricalTechnologyCeiling preferredTechnologyCeiling=HistoricalTechnologyCeiling.Modern;
     float SimulationSidebar=>0;
-    void OnApplicationFocus(bool focused){if(terrainExplorer!=null)humanClockSample=Time.realtimeSinceStartupAsDouble;}
-    void OnApplicationPause(bool suspended){if(terrainExplorer!=null)humanClockSample=Time.realtimeSinceStartupAsDouble;}
     void ToggleSimulationPause(){playPauseTab="";if(!simulationPaused){resumeHumanPlayback=humanPlaying;humanPlaying=false;simulationPaused=true;}else{simulationPaused=false;humanPlaying=resumeHumanPlayback;}}
     void PollHumans()
     {
@@ -44,7 +41,7 @@ public sealed partial class WorldGenRuntime
         if(humanPreparation!=null&&humanPreparation.IsCompleted)
         {
             var task=humanPreparation;humanPreparation=null;
-            try{humans=task.GetAwaiter().GetResult();if(world.Prehistory==null){world.Prehistory=startWithEarlyHominins?humans.PrepareHominins():humans.Prepare();if(!startWithEarlyHominins&&preferredTechnologyCeiling!=HistoricalTechnologyCeiling.Modern)world.Prehistory=humans.SetTechnologyCeiling(world.Prehistory,preferredTechnologyCeiling);}else{humans.Validate(world.Prehistory);if(world.Prehistory.History?.Modern!=null)preferredTechnologyCeiling=world.Prehistory.History.Modern.TechnologyCeiling;}UpdateHumanPalette();}
+            try{humans=task.GetAwaiter().GetResult();if(world.Prehistory==null){world.Prehistory=humans.Prepare();if(preferredTechnologyCeiling!=HistoricalTechnologyCeiling.Modern)world.Prehistory=humans.SetTechnologyCeiling(world.Prehistory,preferredTechnologyCeiling);}else{humans.Validate(world.Prehistory);if(world.Prehistory.History?.Modern!=null)preferredTechnologyCeiling=world.Prehistory.History.Modern.TechnologyCeiling;}UpdateHumanPalette();}
             catch(Exception ex){error=ex.Message;humans=null;}
         }
         if(humanStep!=null&&humanStep.IsCompleted)
@@ -59,19 +56,17 @@ public sealed partial class WorldGenRuntime
         humanPlayback.World(world.Prehistory,CurrentMusicEra());
         bool run=screen=="Simulation"&&!atlasOpen&&selectedEvent==null&&!simulationPaused&&humanPlaying&&!Busy&&!saveDialog&&exportJob==null;
         humanPlayback.Accumulate(elapsed,run);
-        bool playingLocal=screen=="Simulation"&&!Environment.GetCommandLineArgs().Contains("--worldgen-local-terrain-check")&&terrainExplorer!=null&&terrainExplorer.Ready&&terrainExplorer.LocalTimeRunning&&!saveDialog;
+        bool playingLocal=screen=="Simulation"&&!Environment.GetCommandLineArgs().Contains("--worldgen-local-terrain-check")&&terrainExplorer!=null&&terrainExplorer.Ready&&!terrainExplorer.Paused&&!terrainExplorer.MapVisible&&!saveDialog;
         if(WorldGenPerformance.Enabled)playingLocal=false; // Fixed benchmark sun/weather/calendar; never advance a saved history.
         if(playingLocal)play.Accumulate(Math.Max(0,elapsed));
         if(terrainExplorer!=null&&terrainExplorer.Ready)terrainExplorer.SetDaylight(terrainExplorer.LocalSolarHour,PlayCalendar.Seconds(play,SimulationTime.Seconds(world.Prehistory))/(double)SimulationTime.Year);
-        bool flushPlay=!WorldGenPerformance.Enabled&&terrainExplorer==null&&play.HasPlayer&&play.PendingHistorySeconds>=1&&!Busy&&!saveDialog&&exportJob==null;
-        bool usePlayClock=playingLocal||flushPlay;
-        long pending=usePlayClock?(long)Math.Floor(play.PendingHistorySeconds):humanPlayback.Pending;
-        bool localDue=playingLocal&&(world.Prehistory.DeepPast?.Active==true?SimulationClockView.LocalHistoryEventDue(world.Prehistory,pending):pending>=60||clockNow-playPublicationAt>=2);
-        if((run||localDue||flushPlay)&&humanStep==null&&pending>0)
+        long pending=playingLocal?(long)Math.Floor(play.PendingHistorySeconds):humanPlayback.Pending;
+        bool localDue=playingLocal&&(pending>=60||clockNow-playPublicationAt>=2);
+        if((run||localDue)&&humanStep==null&&pending>0)
         {
             var engine=humans;var state=engine.UpgradeScheduling(world.Prehistory);if(!state.Started){state=engine.Start(state);world.Prehistory=state;UpdateHumanPalette();}
-            calendarWorkStarted=SimulationTime.Seconds(state);calendarWorkIsPlay=usePlayClock;if(usePlayClock)playPublicationAt=clockNow;
-            var slice=usePlayClock?SimulationClockView.LocalPublication(state,pending):SimulationClockView.Publication((long)calendarWorkStarted,pending,humanPlayback.Rate);long seconds=slice.Seconds;int maximumEvents=slice.MaximumEvents;
+            calendarWorkStarted=SimulationTime.Seconds(state);calendarWorkIsPlay=playingLocal;if(playingLocal)playPublicationAt=clockNow;
+            var slice=playingLocal?new SimulationClockView.PlaybackSlice(Math.Min(pending,SimulationTime.Day),1024,256):SimulationClockView.Publication((long)calendarWorkStarted,pending,humanPlayback.Rate);long seconds=slice.Seconds;int maximumEvents=slice.MaximumEvents;
             // Session validation/copies are background work too. Fine clocks
             // also use the private input: public validation is not a cheap tick.
             var reusable=humanSession;var work=new HumanPlaybackWork();humanPlaybackWork=work;var token=humanCancellation.Token;
@@ -84,16 +79,6 @@ public sealed partial class WorldGenRuntime
             });
         }
     }
-    HomininHistory humanStageDomain;
-    HomininStageOverview humanStages;
-    HomininStageOverview CurrentHomininStages()
-    {
-        var domain=world?.Prehistory?.DeepPast;
-        if(!ReferenceEquals(domain,humanStageDomain)){humanStageDomain=domain;humanStages=HomininView.Stages(world?.Prehistory);}
-        return humanStages;
-    }
-    string CurrentHistoryEraName()=>CurrentHomininStages()?.Label??WorldEraView.Name(CurrentMusicEra());
-    string CurrentHistoryEraDescription()=>CurrentHomininStages()?.Description??WorldEraView.Description(CurrentMusicEra());
     void UpdateHumanPalette()
     {
         RequestHistoryBorders();
@@ -152,7 +137,7 @@ public sealed partial class WorldGenRuntime
     void StartHumanWorld()
     {
         if(humans==null)return;
-        try{WorldMeridian.Apply(play,world);if(world.Prehistory.DeepPast==null&&!world.Prehistory.Started&&world.Prehistory.History?.Sky==null)world.Prehistory=humans.ConfigureCelestialHistory(world.Prehistory,play.Settings.Sky??CelestialSettings.Preset("No moons"));world.Prehistory=humans.Start(world.Prehistory);screen="Simulation";simulationTab="";simulationPaused=false;expandedInspection=false;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;humanPlaying=false;SetProjection(Projection.Map);mapPan=Vector3.zero;mapZoom=1;centerLongitude=(float)play.PrimeMeridianLongitude;UpdateHumanPalette();Refresh();}catch(Exception ex){error=ex.Message;}
+        try{WorldMeridian.Apply(play,world);if(!world.Prehistory.Started&&world.Prehistory.History?.Sky==null)world.Prehistory=humans.ConfigureCelestialHistory(world.Prehistory,play.Settings.Sky??CelestialSettings.Preset("No moons"));world.Prehistory=humans.Start(world.Prehistory);screen="Simulation";simulationTab="";simulationPaused=false;expandedInspection=false;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;humanPlaying=false;SetProjection(Projection.Map);mapPan=Vector3.zero;mapZoom=1;centerLongitude=(float)play.PrimeMeridianLongitude;UpdateHumanPalette();Refresh();}catch(Exception ex){error=ex.Message;}
     }
     void FocusHumanOrigin()
     {
@@ -162,22 +147,9 @@ public sealed partial class WorldGenRuntime
     }
     void DrawHumanSetup()
     {
-        GUILayout.Label("Human origins",new GUIStyle(GUI.skin.label){fontStyle=FontStyle.Bold});
-        GUILayout.Label(world?.Prehistory?.DeepPast?.Active==true?"Early Homo: branching populations":"Homo sapiens");
+        GUILayout.Label("Sapients",new GUIStyle(GUI.skin.label){fontStyle=FontStyle.Bold});GUILayout.Label("Homo sapiens");
         if(humans==null){GUILayout.Label(worldReady?"Preparing human habitat…":"Generate the world to place humans");return;}
         GUILayout.Label(PrehistoryView.Status(humans,world.Prehistory));
-        if(!world.Prehistory.Started&&humanStep==null)
-        {
-            bool early=GUILayout.Toggle(world.Prehistory.DeepPast?.Active==true,"Begin near early Homo (2.8 million years before reference)");
-            if(early!=(world.Prehistory.DeepPast?.Active==true)){startWithEarlyHominins=early;world.Prehistory=early?humans.PrepareHominins(world.Prehistory.Origin):humans.PrepareSapiens(world.Prehistory.Origin);UpdateHumanPalette();}
-            if(early)GUILayout.Label("Early-history prototype: populations and regional traditions. The handoff to later cities and states is still in development.");
-            if(early)
-            {
-                bool earthLike=GUILayout.Toggle(world.Prehistory.DeepPast.EarthLikeTrajectory,"Earth-like evolution and technology");
-                if(earthLike!=world.Prehistory.DeepPast.EarthLikeTrajectory){world.Prehistory=humans.PrepareHominins(world.Prehistory.Origin,earthLike);UpdateHumanPalette();}
-                GUILayout.Label(earthLike?"Uses broad timing priors; individual discoveries and spread remain regional.":"Open trajectory: historical technology timing priors are disabled.");
-            }
-        }
         DrawTechnologyCeiling();
         GUI.enabled=!Busy&&humanStep==null&&!world.Prehistory.Started;
         GUILayout.BeginHorizontal();
@@ -191,8 +163,8 @@ public sealed partial class WorldGenRuntime
     void PrepareHumanOrigin(int origin)
     {
         var ceiling=world.Prehistory.History?.Modern?.TechnologyCeiling;
-        world.Prehistory=world.Prehistory.DeepPast?.Active==true?humans.PrepareHominins(origin,world.Prehistory.DeepPast.EarthLikeTrajectory):humans.Prepare(origin);
-        if(world.Prehistory.DeepPast==null&&ceiling.HasValue)world.Prehistory=humans.SetTechnologyCeiling(world.Prehistory,ceiling.Value);
+        world.Prehistory=humans.Prepare(origin);
+        if(ceiling.HasValue)world.Prehistory=humans.SetTechnologyCeiling(world.Prehistory,ceiling.Value);
     }
     void DrawTechnologyCeiling()
     {
@@ -207,32 +179,12 @@ public sealed partial class WorldGenRuntime
     {
         if(humans==null){GUILayout.Label("Preparing human habitat…");return;}
         var state=world.Prehistory;
-        if(state.DeepPast?.Active==true)
-        {
-            GUILayout.Label(HomininView.Status(state));
-            GUILayout.BeginHorizontal();GUI.enabled=humanStep==null;
-            if(GUILayout.Button("+100,000 years"))AdvanceHomininPreview(100000,false);
-            if(GUILayout.Button("To sapiens-like emergence"))AdvanceHomininPreview(3000000,true);
-            GUI.enabled=true;GUILayout.EndHorizontal();
-        }
         GUILayout.BeginHorizontal();GUILayout.Label(SimulationClockView.Date(state,humanPlayback.Rate));
         GUILayout.Label(SimulationClockView.Rate(humanPlayback.Rate));GUILayout.FlexibleSpace();
         if(GUILayout.Button(humanPlaying?"Pause":"Play")){if(!state.Started)StartHumanWorld();humanPlaying=!humanPlaying;}
         if(GUILayout.Button("Previous speed"))ChangeHumanSpeed(-1);
         if(GUILayout.Button("Next speed"))ChangeHumanSpeed(1);
         GUI.enabled=true;GUILayout.EndHorizontal();
-    }
-    void AdvanceHomininPreview(int years,bool untilSapiens)
-    {
-        if(humanStep!=null||humans==null)return;humanPlaying=false;humanPlayback.Reset();
-        var engine=humans;var initial=world.Prehistory;if(!initial.Started)initial=engine.Start(initial);
-        calendarWorkStarted=SimulationTime.Seconds(initial);var token=humanCancellation.Token;
-        humanStep=Task.Run(()=>{
-            var state=initial;int end=state.Years+years;
-            while(state.Years<end){token.ThrowIfCancellationRequested();if(untilSapiens&&state.DeepPast.Populations.Any(p=>state.DeepPast.Lineages[p.Lineage].SapiensLike))break;
-                state=engine.AdvanceYears(state,Math.Min(50000,end-state.Years),token);}
-            return state;
-        });
     }
     System.Collections.IEnumerator CheckPrehistory()
     {
