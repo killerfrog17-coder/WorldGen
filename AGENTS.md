@@ -1,5 +1,22 @@
 # WorldGen repository instructions
 
+TEMPORARY COLD DEATH,27October2026:
+Owner rejects cold unconsciousness without rescue mechanics. Critical core30C
+now kills (Health0, DeathCauseCold, Unconsciousfalse). Previously saved cold
+knockouts below32C convert on resumed Survival tick. Full-cold HUD threshold
+unchanged; gradual exposure/heat behavior unchanged. Heat remains prior KO/
+recovery path pending owner's design decision; recommendation given for later
+progressive thirst/stamina penalties followed by fatal critical heat, no KO.
+Death still stops controls; no new respawn/death panel. /gamemode creative is
+the current prototype recovery. Do not claim movement/respawn was fixed.
+160targeted thermal/HUD/state +67survival/mode tests pass. Release IL2CPP
+player-cold-death built2026-10-27T20:55:16.7401923Z, existing shortcut selected;
+prior HUD player kept, owner runningPID10636 not touched. Build success/no C#/
+shader errors;4frozen DLL hashes +177packaged fauna verified. No art/shader/UI/
+world or animation changes. Evidence artifacts/cold-death; own source/docs/
+shortcut checkpoint artifacts/source-checkpoints/cold-death-20261027. Push and
+remoteverify. Preserve unrelated prompt deletion +two old deer scripts.
+
 APPROVED SURVIVAL HUD / FELT VS CORE TEMPERATURE,27October2026:
 Owner explicitly NOW authorizes bottom-right HUD from Downloads/Unity_Survival_
 HUD_Export.zip. Supersedes NO HUD instruction below ONLY for approved display;

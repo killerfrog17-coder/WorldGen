@@ -36,7 +36,9 @@ static class SurvivalHudTests
         Check(fresh.Health==100&&Math.Abs(fresh.CoreTemperatureC-37)<.2,"Freezing weather does not instantly damage a warm body");
         var neutral=new SurvivalEnvironment{AirTemperatureC=24,Humidity=.5};
         var collapse=new PlayerSurvival{CoreTemperatureC=29.9};SurvivalRules.Advance(collapse,.25,60,neutral,0,false);
-        Check(collapse.Unconscious&&!collapse.Dead&&collapse.MovementScale==0&&!collapse.CanSprint,"Severe cold incapacitates before death");
+        Check(collapse.Dead&&!collapse.Unconscious&&collapse.DeathCause==PlayerDeathCause.Cold&&collapse.MovementScale==0&&!collapse.CanSprint,"Critical cold causes actual death instead of unconsciousness");
+        var oldColdKnockout=new PlayerSurvival{CoreTemperatureC=31,Unconscious=true};SurvivalRules.Advance(oldColdKnockout,.1,60,neutral,0,false);
+        Check(oldColdKnockout.Dead&&!oldColdKnockout.Unconscious&&oldColdKnockout.DeathCause==PlayerDeathCause.Cold,"Existing saved cold knockouts resolve to death on resuming survival");
         Check(SurvivalHudValues.From(collapse,22).BodyStress== -1,"Full cold glow marks critical core temperature even in comfortable air");
         var hot=new PlayerSurvival{CoreTemperatureC=40.6};var dangerous=new SurvivalEnvironment{AirTemperatureC=50,Humidity=.95,Sunlight=1};
         SurvivalRules.Advance(hot,.25,60,dangerous,0,false);
@@ -49,7 +51,7 @@ static class SurvivalHudTests
         var fatal=new PlayerSurvival{CoreTemperatureC=40.6};SurvivalRules.Advance(fatal,600,60,dangerous,0,false);
         Check(fatal.Dead&&fatal.DeathCause==PlayerDeathCause.Heat,"Sustained severe hyperthermia remains potentially fatal");
         var freezing=new PlayerSurvival();SurvivalRules.Advance(freezing,800,60,new SurvivalEnvironment{AirTemperatureC=0,WindMps=5,Humidity=.5},0,false);
-        Check(freezing.Unconscious&&freezing.Dead&&freezing.DeathCause==PlayerDeathCause.Cold,"Naked freezing exposure accumulates over hours instead of reaching a permanently safe equilibrium");
+        Check(!freezing.Unconscious&&freezing.Dead&&freezing.DeathCause==PlayerDeathCause.Cold,"Naked freezing exposure accumulates over hours and ends in death");
         collapse.Restore();Check(!collapse.Unconscious&&!collapse.Incapacitated,"Creative reset clears incapacitation");
         Console.WriteLine("PASS "+n+" HUD bindings/thermal feedback/incapacitation assertions.");
     }

@@ -1,5 +1,24 @@
 # Version 3 validation evidence
 
+## Temporary critical-cold death rule - 27 October 2026
+
+Owner rejects cold unconsciousness while no rescue mechanic exists. Critical
+core cold30C now sets Health0/DeathCauseCold and clears Unconscious immediately.
+Old saved cold knockouts below32C are resolved on the first resumed Survival
+tick. Gradual cooling, exposure calculations, HUD mapping and heat behavior
+remain unchanged. Death still immobilizes the current prototype; there is no
+automatic respawn/death UI, and Creative mode restores the player.
+
+160 targeted HUD/thermal/state tests and67 survival/mode tests pass, covering
+actual cold death, old knockout conversion, accumulated freezing exposure, and
+the preserved heat knockout/recovery path. No new art/geometry/shader changes.
+Evidence under `artifacts/cold-death`.
+
+Release IL2CPP `player-cold-death` built2026-10-27T20:55:16.7401923Z,
+Build Finished Result Success, no C#/shader errors. Four assembly input hashes
+and177 packaged fauna hashes verified. Existing shortcut selects it; previous
+HUD player and owner running instance retained. No owner app/save changes.
+
 ## Approved survival HUD and two temperature signals - 27 October 2026
 
 Owner supplied Unity_Survival_HUD_Export.zip and now explicitly authorizes the

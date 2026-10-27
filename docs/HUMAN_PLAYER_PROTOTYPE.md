@@ -68,8 +68,13 @@ Short-term sprint stamina lasts about11s from full, recovers when not sprinting,
 and uses exhaustion hysteresis. Longer-term energy is the exact stamina cap and
 recovers with rest when fed, hydrated and thermally comfortable. Jumping costs
 stamina. Low energy or severe exposure slows movement; critical core temperature
-can cause unconsciousness, stopping movement/look input. Cooling or warming into
-a recovery band can restore consciousness; sustained exposure can still kill.
+can cause unconsciousness from heat, stopping movement/look input. Cooling into
+a recovery band can restore consciousness; sustained heat can still kill.
+At the owner's subsequent request, critical cold now causes actual death at30C
+core temperature instead of unconsciousness. Old saved cold knockouts also
+resolve to cold death on resuming Survival. This is a temporary prototype rule
+until rescue/rewarming gameplay exists. Death currently has no respawn flow and
+still stops controls; `/gamemode creative` restores the player for testing.
 Death blocks voluntary movement and records its cause. No death overlay, automatic respawn, food/drink
 interaction, clothing, fall/combat damage or drowning system is added here.
 
@@ -93,8 +98,8 @@ cold exposure. The35C hypothermia threshold follows that source and the
 hypothermic impairment below it. Timing/damage rates are prototype balance.
 
 The HUD revision refines that behavior: below35C begins impairment, injury grows
-below32C, and critical cold30C or heat40.5C can incapacitate before death. These
-are gameplay thresholds, not universal clinical collapse temperatures. The
+below32C, critical cold30C is fatal for now, and heat40.5C can incapacitate before
+death. These are gameplay thresholds, not universal clinical collapse temperatures. The
 [NHS heatstroke guidance](https://www.nhs.uk/conditions/heat-exhaustion-heatstroke/)
 describes possible loss of consciousness and the seriousness of heatstroke;
 [CDC cold guidance](https://www.cdc.gov/winter-weather/prevention/) describes

@@ -12,7 +12,14 @@ namespace WorldGen.Presentation
     public static class SurvivalRules
     {
         static double Clamp(double n,double lo=0,double hi=1)=>Math.Max(lo,Math.Min(hi,n));
-        public const double ColdCollapseC=30,HeatCollapseC=40.5;
+        public const double ColdDeathC=30,HeatCollapseC=40.5;
+        static bool ResolveFatalCold(PlayerSurvival state)
+        {
+            // No rescue/rewarming gameplay exists yet. Also resolve a saved
+            // cold knockout from the preceding prototype instead of stranding it.
+            if(state.CoreTemperatureC>ColdDeathC&&!(state.Unconscious&&state.CoreTemperatureC<32))return false;
+            state.Health=0;state.Unconscious=false;state.DeathCause=PlayerDeathCause.Cold;return true;
+        }
         // Perceived exposure is deliberately fast, unlike accumulated core heat.
         public static double FeelsLike(SurvivalEnvironment e,double wetness,double speed)
         {
@@ -32,6 +39,7 @@ namespace WorldGen.Presentation
             if(!double.IsFinite(speed)||speed<0)throw new ArgumentOutOfRangeException(nameof(speed));
             if(!double.IsFinite(environment.AirTemperatureC)||!double.IsFinite(environment.Humidity)||!double.IsFinite(environment.WindMps)||!double.IsFinite(environment.RainMmPerHour)||!double.IsFinite(environment.Sunlight)||!double.IsFinite(environment.Insulation))throw new ArgumentException("Invalid survival environment.");
             if(state.Dead)return;
+            if(seconds>0&&ResolveFatalCold(state))return;
             // Fixed substeps keep low-FPS frames and saved deterministic probes comparable.
             while(seconds>1e-9&&!state.Dead)
             {double dt=Math.Min(.25,seconds);Step(state,dt,minutesPerDay,environment,speed,sprinting);seconds-=dt;}
@@ -53,7 +61,8 @@ namespace WorldGen.Presentation
             // indefinitely without progressing beyond mild hypothermia.
             if(coldLoad>0||heatLoad>0)s.CoreTemperatureC=Clamp(s.CoreTemperatureC+(heatLoad*.0015-coldLoad*.0008)*thermal,26,43.5);
             else s.CoreTemperatureC+=(37-s.CoreTemperatureC)*(1-Math.Exp(-thermal/150));
-            if(s.CoreTemperatureC<=ColdCollapseC||s.CoreTemperatureC>=HeatCollapseC)s.Unconscious=true;
+            if(ResolveFatalCold(s))return;
+            if(s.CoreTemperatureC>=HeatCollapseC)s.Unconscious=true;
             else if(s.Unconscious&&s.CoreTemperatureC>=32&&s.CoreTemperatureC<=39.5)s.Unconscious=false;
             s.Hunger=Clamp(s.Hunger+day*(100+activity*70+coldLoad*.7),0,100);
             s.Thirst=Clamp(s.Thirst+day*100*(1+Math.Max(0,e.AirTemperatureC-22)*.07+activity*1.4+sweat*.5),0,100);

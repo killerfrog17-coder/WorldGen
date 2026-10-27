@@ -9,7 +9,7 @@ namespace WorldGen.Presentation
         static float Unit(double n)=>(float)Math.Max(0,Math.Min(1,n));
         public static SurvivalHudValues From(PlayerSurvival s,double feelsLike)
         {
-            float cold=Unit((36.5-s.CoreTemperatureC)/(36.5-SurvivalRules.ColdCollapseC));
+            float cold=Unit((36.5-s.CoreTemperatureC)/(36.5-SurvivalRules.ColdDeathC));
             float hot=Unit((s.CoreTemperatureC-37.5)/(SurvivalRules.HeatCollapseC-37.5));
             return new SurvivalHudValues{Health=Unit(s.Health/100),Energy=Unit(s.Energy/100),Stamina=Unit(Math.Min(s.Stamina,s.Energy)/100),
                 Hydration=Unit(1-s.Thirst/100),Fullness=Unit(1-s.Hunger/100),FeelsLikeC=(float)feelsLike,BodyStress=hot>0?hot:-cold};
