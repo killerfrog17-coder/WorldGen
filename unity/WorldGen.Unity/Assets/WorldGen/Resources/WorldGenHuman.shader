@@ -26,10 +26,10 @@ Shader "WorldGen/Human"
             O o;o.world=TransformObjectToWorld(a.position.xyz);o.positionCS=TransformWorldToHClip(o.world);
             o.normal=TransformObjectToWorldNormal(a.normal);o.uv=TRANSFORM_TEX(a.uv,_BaseMap);o.head=a.color.r;return o;
         }
-        void CutHead(half head)
+        void CutLocalBody()
         {
             bool ownView=_WorldGenFirstPersonHumanId>.5&&abs(_HumanViewId-_WorldGenFirstPersonHumanId)<.25;
-            clip(.5-(ownView?head:0));
+            clip(ownView?-1:1);
         }
         half4 Pigment(float2 uv){half4 p=SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap,uv);clip(p.a-max(.001,_Cutoff));return p;}
         ENDHLSL
@@ -48,7 +48,7 @@ Shader "WorldGen/Human"
             #include "WorldGenVegetationScene.hlsl"
             half4 frag(O i,FRONT_FACE_TYPE face:FRONT_FACE_SEMANTIC):SV_Target
             {
-                CutHead(i.head);half3 albedo=Pigment(i.uv).rgb;
+                CutLocalBody();half3 albedo=Pigment(i.uv).rgb;
                 half3 n=normalize(i.normal)*IS_FRONT_VFACE(face,1,-1);
                 InputData input=(InputData)0;input.positionWS=i.world;input.normalWS=n;input.viewDirectionWS=GetWorldSpaceNormalizeViewDir(i.world);
                 input.shadowCoord=TransformWorldToShadowCoord(i.world);input.bakedGI=VegetationAmbient(float4(.12,.14,.17,1)).rgb;input.shadowMask=1;
@@ -83,7 +83,7 @@ Shader "WorldGen/Human"
                 #endif
                 return o;
             }
-            // Complete heads cast shadows even in first person.
+            // The complete body casts shadows even when hidden from its own camera.
             half4 shadowFrag(O i):SV_Target{Pigment(i.uv);return 0;}
             ENDHLSL
         }
@@ -94,7 +94,7 @@ Shader "WorldGen/Human"
             #pragma target 3.5
             #pragma vertex vert
             #pragma fragment depthFrag
-            half4 depthFrag(O i):SV_Target{CutHead(i.head);Pigment(i.uv);return 0;}
+            half4 depthFrag(O i):SV_Target{CutLocalBody();Pigment(i.uv);return 0;}
             ENDHLSL
         }
         Pass
@@ -104,7 +104,7 @@ Shader "WorldGen/Human"
             #pragma target 3.5
             #pragma vertex vert
             #pragma fragment normalsFrag
-            half4 normalsFrag(O i,FRONT_FACE_TYPE face:FRONT_FACE_SEMANTIC):SV_Target{CutHead(i.head);Pigment(i.uv);return half4(normalize(i.normal)*IS_FRONT_VFACE(face,1,-1),0);}
+            half4 normalsFrag(O i,FRONT_FACE_TYPE face:FRONT_FACE_SEMANTIC):SV_Target{CutLocalBody();Pigment(i.uv);return half4(normalize(i.normal)*IS_FRONT_VFACE(face,1,-1),0);}
             ENDHLSL
         }
     }

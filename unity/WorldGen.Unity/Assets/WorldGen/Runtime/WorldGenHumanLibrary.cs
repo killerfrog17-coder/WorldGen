@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-/// <summary>Offline MPFB skins and fitted public-domain motion, with native rigs.</summary>
+/// <summary>Offline MPFB skins and fitted freely licensed motion, with native rigs.</summary>
 public sealed class WorldGenHumanLibrary : ScriptableObject
 {
     public HumanRuntimeDefinition[] People;
@@ -14,4 +14,5 @@ public sealed class WorldGenHumanLibrary : ScriptableObject
     public float EyeHeight;
     public AnimationClip[] Clips;
     public string[] Roles;
+    public float[] StrideMeters=Array.Empty<float>();
 }

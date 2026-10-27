@@ -32,7 +32,7 @@ namespace WorldGen.Presentation
         public static string[] Complete(string input)
         {
             string[] options=input.StartsWith("/tp ",StringComparison.OrdinalIgnoreCase)?new[]{"/tp random","/tp random land"}:input.StartsWith("/weather ",StringComparison.OrdinalIgnoreCase)?WeatherControl.Modes.Select(m=>"/weather "+m).ToArray():input.StartsWith("/time set ",StringComparison.OrdinalIgnoreCase)?new[]{"/time set day","/time set midnight","/time set night","/time set noon","/time set sunrise","/time set sunset"}:new[]{"/date","/flora","/midflora","/trees","/help","/time","/tp","/weather"};
-            if(input.StartsWith("/runstyle ",StringComparison.OrdinalIgnoreCase))options=new[]{"/runstyle list","/runstyle quaternius","/runstyle kaykit-a","/runstyle kaykit-b","/runstyle kaykit-large"};
+            if(input.StartsWith("/runstyle ",StringComparison.OrdinalIgnoreCase))options=new[]{"/runstyle list","/runstyle natural","/runstyle relaxed","/runstyle brisk"};
             return options.Concat(new[]{"/seed","/spawn","/humans","/runstyle"}).Where(s=>s.StartsWith(input,StringComparison.OrdinalIgnoreCase)).OrderBy(s=>s,StringComparer.Ordinal).ToArray();
         }
         public static PlayCommandResult Execute(PlaySession play,long historySeconds,string input,double? longitude=null,double latitude=0,WeatherControl? weather=null)

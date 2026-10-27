@@ -13,10 +13,21 @@ https://quaternius.itch.io/universal-animation-library
 KayKit Character Animations free pack (jump): CC0.
 https://kaylousberg.itch.io/kaykit-character-animations
 
-The native skinning, fitted motions and pigmentation come from the local
+Running: Carnegie Mellon University Motion Capture Database, takes 16_35,
+16_36 and 35_17. Free for all uses under the database's permission; NOT CC0.
+The data used in this project was obtained from mocap.cs.cmu.edu.
+The database was created with funding from NSF EIA-0196217.
+https://mocap.cs.cmu.edu/
+BVH conversion: Bruce Hahne/cgspeed MotionBuilder-friendly CMU conversion.
+https://mocap.cs.cmu.edu/resources.php
+https://github.com/una-dinosauria/cmu-mocap
+Rotations fitted to the existing MPFB rig; travel removed, stride loops and
+foot phase aligned. No CMU subject model or tool code is distributed.
+
+The native skinning, other fitted motions and pigmentation come from the local
 Human - Animation Comparison.blend audition, SHA256:
 0946d797f3c620492444f2ec65d2a88280053fbda2c882dde3dfaf826942d229
 
 Runtime derivatives omit subdivision, bake unlit material colour/opacity and
-add a camera-only head mask. This prototype has no final wardrobe, facial
+use camera-only local-body hiding. This prototype has no final wardrobe, facial
 performance, character creator or complete interaction/animation coverage.

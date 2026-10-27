@@ -23,13 +23,13 @@ public sealed partial class LocalTerrainExplorer
     readonly List<HumanActor> humanNpcs=new List<HumanActor>();
     readonly System.Random humanRandom=new System.Random();
     WorldGenHumanLibrary humanLibrary;HumanActor humanPlayer;LocalTerrainFrame humanFrame;
-    bool humansInitialized,humanAutoSpawned,humanReviewPose;int humanNextId=2,humanReviewHeadMask=-1;
+    bool humansInitialized,humanAutoSpawned,humanReviewPose;int humanNextId=2,humanReviewBodyMask=-1;
     float humanCameraDistance,humanEyeOffset;double humanCameraProbeAt;Vector3 humanProbePivot,humanProbeDirection;float humanClearDistance=12;
-    double humanLastX,humanLastZ;bool humanHideHead;
+    double humanLastX,humanLastZ;bool humanHideBody;
     long humanSpawnQueued;
     int humanRunStyle;
-    static readonly string[] HumanRunStyles={"quaternius","kaykit-a","kaykit-b","kaykit-large"};
-    static readonly string[] HumanRunRoles={"Run","KayKit run","KayKit run B","KayKit large run"};
+    static readonly string[] HumanRunStyles={"natural","relaxed","brisk"};
+    static readonly string[] HumanRunRoles={"Run","Relaxed run","Sprint"};
     public string HumanDebug=>humanPlayer==null?"Humans unavailable":"Human "+humanPlayer.Definition.Variant+"; "+humanNpcs.Count+" demo NPCs; "+(humanCamera.FirstPerson?"first person":"third person "+humanCamera.Distance.ToString("F1")+"m")+(humanCamera.Locked?" (zoom locked)":"");
     void InitializeHumans()
     {
@@ -39,7 +39,7 @@ public sealed partial class LocalTerrainExplorer
         int variant=playState?.PlayerHumanVariant??-1;if(variant<0||variant>=humanLibrary.People.Length)variant=humanRandom.Next(humanLibrary.People.Length);
         if(playState!=null)playState.PlayerHumanVariant=variant;
         humanCamera.Restore(playState?.CameraDistance??0,playState?.CameraDistanceLocked??false);humanCameraDistance=(float)humanCamera.Distance;
-        humanRunStyle=playState?.HumanRunStyle??0;
+        humanRunStyle=playState?.HumanRunStyle??0;if(humanRunStyle<0||humanRunStyle>=HumanRunStyles.Length)humanRunStyle=0;
         humanPlayer=CreateHuman(variant,1);humanPlayer.Yaw=humanPlayer.TargetYaw=heading;
         humanEyeOffset=humanPlayer.Definition.EyeHeight-(float)TerrainMotion.EyeHeightM;
         RenderPipelineManager.beginCameraRendering+=BindHumanCamera;
@@ -75,7 +75,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void BindHumanCamera(ScriptableRenderContext context,Camera camera)
     {
-        float id=camera==view&&(humanReviewHeadMask<0?humanHideHead:humanReviewHeadMask==1)?1:0;
+        float id=camera==view&&(humanReviewBodyMask<0?humanHideBody:humanReviewBodyMask==1)?1:0;
         Shader.SetGlobalFloat("_WorldGenFirstPersonHumanId",id);
         var commands=CommandBufferPool.Get("Human camera visibility");commands.SetGlobalFloat("_WorldGenFirstPersonHumanId",id);
         context.ExecuteCommandBuffer(commands);CommandBufferPool.Release(commands);
@@ -162,9 +162,10 @@ public sealed partial class LocalTerrainExplorer
         // Keep left/right foot phases aligned when mixing clips with different
         // durations, rather than blending unrelated free-running cycles.
         string runRole=HumanRunRoles[actor.RunStyle];
-        float runFrequency=1/actor.Definition.Clips[Array.IndexOf(actor.Definition.Roles,runRole)].length;
-        float sprintFrequency=actor.RunStyle==0?1.5f:runFrequency*1.4f;
-        float frequency=crouch?speed/3:speed<1.5f?speed/2:speed<3.4f?Mathf.Lerp(.75f,runFrequency,Mathf.InverseLerp(1.5f,3.4f,speed)):Mathf.Lerp(runFrequency,sprintFrequency,Mathf.InverseLerp(3.4f,6,speed));
+        float Stride(string role,float fallbackSpeed)
+        {int index=Array.IndexOf(actor.Definition.Roles,role);var strides=actor.Definition.StrideMeters;return strides!=null&&index<strides.Length&&strides[index]>.05f?strides[index]:fallbackSpeed*actor.Definition.Clips[index].length;}
+        float runStride=Stride(runRole,3.4f),sprintStride=Stride("Sprint",6);
+        float frequency=crouch?speed/3:speed<1.5f?speed/2:speed<3.4f?Mathf.Lerp(speed/2,speed/runStride,Mathf.InverseLerp(1.5f,3.4f,speed)):speed/(actor.RunStyle>0?runStride:Mathf.Lerp(runStride,sprintStride,Mathf.InverseLerp(3.4f,6,speed)));
         if(!airborne)actor.GaitPhase=(actor.GaitPhase+dt*frequency)%1;
         for(int i=0;i<actor.Inputs.Length;i++)
         {
@@ -180,7 +181,7 @@ public sealed partial class LocalTerrainExplorer
             if(role=="Sprint")rate=Mathf.Clamp(speed/6,.6f,1.3f);
             if(role=="Crouch")rate=speed<.05f?0:Mathf.Clamp(speed/1.5f,.3f,1.5f);
             if(role=="Jump")rate=actor.Definition.Clips[i].length/.61f;
-            if(role=="Walk"||role=="Run"||role=="Sprint"||role=="Crouch"||role.StartsWith("KayKit ",StringComparison.Ordinal))
+            if(role=="Walk"||role=="Run"||role=="Sprint"||role=="Crouch"||role=="Relaxed run")
             {actor.Inputs[i].SetTime(actor.GaitPhase*actor.Definition.Clips[i].length);rate=0;}
             actor.Inputs[i].SetSpeed(rate);actor.Weights[i]=Mathf.Lerp(actor.Weights[i],target,1-Mathf.Exp(-dt*12));total+=actor.Weights[i];
         }
@@ -223,7 +224,7 @@ public sealed partial class LocalTerrainExplorer
             humanClearDistance=(float)PlayerCameraRig.ClearDistance(p,direction,humanCamera.Distance,Ground);
             Ground(motion.X,motion.Z);
         }
-        float distance=Mathf.Min(humanCameraDistance,humanClearDistance);humanHideHead=distance<.65f;
+        float distance=Mathf.Min(humanCameraDistance,humanClearDistance);humanHideBody=distance<.65f;
         view.transform.localPosition=pivot+back*distance;view.transform.localRotation=rotation;
     }
     PlayCommandResult ExecuteHumanCommand(string[] words)

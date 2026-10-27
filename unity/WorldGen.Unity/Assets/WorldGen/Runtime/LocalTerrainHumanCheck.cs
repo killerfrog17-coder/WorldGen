@@ -63,36 +63,36 @@ public sealed partial class LocalTerrainExplorer
                 yield return null;
                 view.transform.localPosition=humanPlayer.Root.transform.localPosition+new Vector3(0,humanPlayer.Definition.EyeHeight,-.65f);view.transform.localRotation=Quaternion.identity;
                 PerformanceCapture(Path.Combine(output,"human-"+variant+"-eyes.png"));
-                if(variant==0)foreach(string role in new[]{"Run","Sprint","KayKit run","KayKit run B","KayKit large run"})
+                if(variant==0)foreach(string role in new[]{"Run","Sprint","Relaxed run"})
                 {
                     heading=90;TestHumanView(3);PoseHumanCheck(Array.IndexOf(humanPlayer.Definition.Roles,role),.25);
                     yield return null;PerformanceCapture(Path.Combine(output,"run-option-"+role.Replace(' ','-')+".png"));
                 }
             }
             heading=0;pitch=72;humanPlayer.Root.transform.localRotation=Quaternion.identity;PoseHumanCheck(Array.IndexOf(humanPlayer.Definition.Roles,"Idle"),0);
-            TestHumanView(0);yield return null;PerformanceCapture(Path.Combine(output,"human-first-person-body.png"));
-            Check(humanHideHead,"first-person activates camera-only head mask");
+            TestHumanView(0);yield return null;PerformanceCapture(Path.Combine(output,"human-first-person-no-body.png"));
+            Check(humanHideBody,"first-person activates camera-only body mask");
             heading=0;pitch=8;humanPlayer.Root.transform.localRotation=Quaternion.Euler(0,180,0);TestHumanView(4);yield return null;
-            humanReviewHeadMask=0;yield return null;PerformanceCapture(Path.Combine(output,"human-head-visible.png"));var full=LastCapturePixels;
-            humanReviewHeadMask=1;yield return null;PerformanceCapture(Path.Combine(output,"human-head-hidden.png"));var hidden=LastCapturePixels;
-            report.Add("Head mask global="+Shader.GetGlobalFloat("_WorldGenFirstPersonHumanId")+"; material ids="+string.Join(",",humanPlayer.Root.GetComponentsInChildren<SkinnedMeshRenderer>().Select(r=>r.sharedMaterial.GetFloat("_HumanViewId"))));
-            Check(full.Zip(hidden,(a,b)=>Math.Abs(a.r-b.r)+Math.Abs(a.g-b.g)+Math.Abs(a.b-b.b)).Count(d=>d>8)>50,"own-camera mask actually changes rendered head pixels");
+            humanReviewBodyMask=0;yield return null;PerformanceCapture(Path.Combine(output,"human-body-visible.png"));var full=LastCapturePixels;
+            humanReviewBodyMask=1;yield return null;PerformanceCapture(Path.Combine(output,"human-body-hidden.png"));var hidden=LastCapturePixels;
+            report.Add("Body mask global="+Shader.GetGlobalFloat("_WorldGenFirstPersonHumanId")+"; material ids="+string.Join(",",humanPlayer.Root.GetComponentsInChildren<SkinnedMeshRenderer>().Select(r=>r.sharedMaterial.GetFloat("_HumanViewId"))));
+            Check(full.Zip(hidden,(a,b)=>Math.Abs(a.r-b.r)+Math.Abs(a.g-b.g)+Math.Abs(a.b-b.b)).Count(d=>d>8)>50,"own-camera mask actually hides rendered body pixels");
             var other=Instantiate(view);other.name="Human other-player camera check";other.enabled=false;
             var target=new RenderTexture(1280,800,24);other.targetTexture=target;other.transform.position=view.transform.position;other.transform.rotation=view.transform.rotation;
             var prior=RenderTexture.active;var texture=new Texture2D(1280,800,TextureFormat.RGB24,false);
             try
             {
                 other.Render();RenderTexture.active=target;texture.ReadPixels(new Rect(0,0,1280,800),0,0);texture.Apply();
-                File.WriteAllBytes(Path.Combine(output,"human-other-camera-full-head.png"),texture.EncodeToPNG());
+                File.WriteAllBytes(Path.Combine(output,"human-other-camera-full-body.png"),texture.EncodeToPNG());
                 Check(Shader.GetGlobalFloat("_WorldGenFirstPersonHumanId")==0,"other camera sees complete human, no mesh/visibility mutation");
             }
             finally{RenderTexture.active=prior;other.targetTexture=null;target.Release();Destroy(target);Destroy(texture);Destroy(other.gameObject);}
-            humanHideHead=false;
+            humanHideBody=false;
             Check(humanPlayer.Root.GetComponentsInChildren<SkinnedMeshRenderer>().All(r=>r.shadowCastingMode==UnityEngine.Rendering.ShadowCastingMode.On),"first-person body and head keep real shadow casters");
             humanCamera.Restore(0,false);humanCamera.ToggleLock();humanCamera.Zoom(-1);Check(humanCamera.FirstPerson,"first-person zoom lock");
             humanCamera.ToggleLock();humanCamera.Zoom(-1);Check(!humanCamera.FirstPerson,"zoom unlock restores third person");
         }
-        finally{humanReviewPose=false;humanHideHead=false;humanReviewHeadMask=-1;File.WriteAllLines(Path.Combine(output,"human-check.txt"),report);}
+        finally{humanReviewPose=false;humanHideBody=false;humanReviewBodyMask=-1;File.WriteAllLines(Path.Combine(output,"human-check.txt"),report);}
     }
     void PoseHumanCheck(int selected,double time)
     {

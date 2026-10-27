@@ -1,5 +1,29 @@
 # Version 3 validation evidence
 
+## Pre-night rollback, captured running and first-person visibility - 27 October 2026
+
+Owner authorized removing the overnight survival/history implementation and
+restoring the last pre-night human-refinement game. Rollback commit `59acf7e`
+restores 435 tracked paths from `7ba44eb...`. Discarded work is archived on
+remote branch `archive/scrapped-overnight-20261027` at `7cd31308...`; local source
+archive/manifest are under `artifacts/source-checkpoints/pre-night-rollback-20261027`.
+Saves and unrelated owner files remain untouched.
+
+Three CMU captured running cycles replace rejected KayKit and leaning Quaternius
+runs. Native MPFB SHA remains `0946d797f3c620492444f2ec65d2a88280053fbda2c882dde3dfaf826942d229`.
+Six variants retain exact geometry/UV/normal/skin channels; only imported bind
+matrix float rounding up to 2.98e-7 differs in the old/new channel audit. All 42
+pigment/opacity maps are reused byte-for-byte. CMU permission/credit is shipped;
+it is free for all uses rather than CC0. No paid generation or new rig is used.
+
+20 focused camera/save assertions pass. Actual Unity graphics review passes335
+checks including all six skins/three runs/two phases, pose changes, stride data,
+full first-person body hiding, full retained shadows and another camera's full
+person. Initial same-frame cached skins were rejected; the editor-only review
+forces skin matrices per render. Inspected actual new run poses for all six
+variants and the visibility/shadow images. No all-animation contact-IK, FPS or
+multiplayer claim. Evidence: `artifacts/human-running-runtime`.
+
 ## Human cleanup, eye opacity and growable populations - 26 October 2026
 
 Owner rejects intrusive control hints and modern clothes, requests alternate

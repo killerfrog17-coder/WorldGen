@@ -10,9 +10,10 @@ using UnityEngine.Rendering;
 public static class HumanRuntimeBuilder
 {
     const string Input="Assets/WorldGen/GeneratedHumans",Output="Assets/WorldGen/Resources/Humans";
-    [Serializable] sealed class Metadata {public string variant,source_sha256;public float eye_height;public Surface[] materials;}
+    [Serializable] sealed class Metadata {public string variant,source_sha256;public float eye_height;public Surface[] materials;public MotionInfo[] clips;}
+    [Serializable] sealed class MotionInfo{public string label;public float travel_m;}
     [Serializable] sealed class Surface {public string @object,kind,texture;public bool alpha;public float roughness;}
-    static readonly string[] Roles={"Idle","Walk","Run","Sprint","Crouch","Jump","Swim","KayKit run","KayKit run B","KayKit large run"};
+    static readonly string[] Roles={"Idle","Walk","Run","Sprint","Crouch","Jump","Swim","Relaxed run"};
     public static void AuditHeadMasks()
     {
         var library=Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");var rows=new List<string>();
@@ -86,7 +87,7 @@ public static class HumanRuntimeBuilder
             var prefab=PrefabUtility.SaveAsPrefabAsset(root,prefabPath);UnityEngine.Object.DestroyImmediate(root);
             var clips=AssetDatabase.LoadAllAssetsAtPath(modelPath).OfType<AnimationClip>().Where(c=>!c.name.StartsWith("__")).ToArray();
             var ordered=Roles.Select(role=>clips.Single(c=>c.name==role)).ToArray();
-            people.Add(new HumanRuntimeDefinition{Variant=info.variant,SourceSha256=info.source_sha256,Prefab=prefab,EyeHeight=info.eye_height,Clips=ordered,Roles=Roles});
+            people.Add(new HumanRuntimeDefinition{Variant=info.variant,SourceSha256=info.source_sha256,Prefab=prefab,EyeHeight=info.eye_height,Clips=ordered,Roles=Roles,StrideMeters=Roles.Select(role=>info.clips?.FirstOrDefault(c=>c.label==role)?.travel_m??0).ToArray()});
             checks.Add(info.variant+" "+bounds.size+"; "+ordered.Length+" clips; "+prefab.GetComponentsInChildren<SkinnedMeshRenderer>(true).Sum(r=>r.sharedMesh.triangles.Length/3)+" triangles");
         }
         if(people.Count!=6)throw new InvalidDataException("Expected six MPFB variants");

@@ -13,7 +13,9 @@ REPO = Path(__file__).resolve().parent.parent
 SOURCE = REPO/'artifacts/human-animation-preview/Human - Animation Comparison.blend'
 OUTPUT = REPO/'artifacts/human-runtime/exports'
 EVIDENCE = REPO/'artifacts/human-runtime'
-CLIPS = {'Idle', 'Walk', 'Run', 'Sprint', 'Crouch', 'Jump', 'Swim','KayKit run','KayKit run B','KayKit large run'}
+CLIPS = {'Idle', 'Walk', 'Run', 'Sprint', 'Crouch', 'Jump', 'Swim', 'Relaxed run'}
+REUSE_TEXTURES = False
+CMU_MOTIONS = {}
 
 
 def bake(ob, name, size, alpha=False):
@@ -68,10 +70,20 @@ def export(letter):
     from human_motion_common import Motion
     spec=importlib.util.spec_from_file_location('human_retarget',REPO/'scripts/build-human-animation-preview.py')
     retarget=importlib.util.module_from_spec(spec);spec.loader.exec_module(retarget)
-    bank=REPO/'artifacts/human-animation-sources/kaykit'
-    for label,file,clip in [('KayKit run B','Rig_Medium_MovementBasic.glb','Running_B'),('KayKit large run','Rig_Large_MovementBasic.glb','Running_A')]:
-        motion=Motion(next(bank.rglob(file)));samples=[motion.sample(clip,min(i/30,motion.duration(clip))) for i in range(round(motion.duration(clip)*30)+1)]
-        clips.append(retarget.animate(rig,'MPFB',(label,motion,clip),samples))
+    from human_cmu_motion import CmuMotion
+    reference=Motion(next((REPO/'artifacts/human-animation-sources/quaternius-ual1').rglob('UAL1_Standard.glb')))
+    for original in list(clips):
+        if original['label'] in {'Run','Sprint'}:
+            bpy.data.actions.remove(bpy.data.actions[original['action']]);clips.remove(original)
+    for label,filename in [('Run','16_35'),('Sprint','35_17'),('Relaxed run','16_36')]:
+        if filename not in CMU_MOTIONS:
+            motion=CmuMotion(REPO/'artifacts/human-running-sources/cmu'/f'{filename}.bvh');motion.align_to(reference);CMU_MOTIONS[filename]=motion
+        motion=CMU_MOTIONS[filename]
+        samples=[motion.sample(filename,min(i/30,motion.seconds)) for i in range(round(motion.seconds*30)+1)]
+        record=retarget.animate(rig,'MPFB',(label,motion,filename),samples)
+        record['travel_m']=motion.speed*motion.seconds*record['leg_ratio']*abs(rig.matrix_world.to_scale().z)
+        record['license']=motion.license;record['source_clip']=filename;clips.append(record)
+    scene.render.fps=30;scene.render.fps_base=1
     actions={c['action']:c for c in clips if c['label'] in CLIPS}
     for ob in list(bpy.data.objects):
         if ob!=rig and ob not in objects:bpy.data.objects.remove(ob,do_unlink=True)
@@ -101,15 +113,17 @@ def export(letter):
         for obj in bpy.context.selected_objects:obj.select_set(False)
         ob.select_set(True);bpy.context.view_layer.objects.active=ob
         size=2048 if kind=='Basemesh' else 512 if kind in {'Eyes','Teeth','Eyebrows','Eyelashes'} else 1024
-        diffuse=bake(ob,name+' pigment',size)
+        cached=folder/(name+'.png');reuse=REUSE_TEXTURES and cached.exists()
+        diffuse=bpy.data.images.load(str(cached),check_existing=False) if reuse else bake(ob,name+' pigment',size)
         transparent=kind in {'Hair','Eyebrows','Eyelashes','Eyes'}
-        if transparent:
+        if transparent and not reuse:
             alpha=bake(ob,name+' opacity',size,True)
             pixels=np.empty(size*size*4,dtype=np.float32);diffuse.pixels.foreach_get(pixels)
             coverage=np.empty_like(pixels);alpha.pixels.foreach_get(coverage)
             pixels[3::4]=coverage[0::4];diffuse.pixels.foreach_set(pixels)
             bpy.data.images.remove(alpha)
-        diffuse.filepath_raw=str(folder/(name+'.png'));diffuse.file_format='PNG';diffuse.save()
+        if not reuse:
+            diffuse.filepath_raw=str(folder/(name+'.png'));diffuse.file_format='PNG';diffuse.save()
         # Plain FBX material bindings; Unity replaces them with the shared human shader.
         mat=bpy.data.materials.new('Human_'+letter+'_'+name);mat.use_nodes=True
         p=mat.node_tree.nodes.get('Principled BSDF');p.inputs['Roughness'].default_value=.18 if kind=='Eyes' else .72
@@ -141,8 +155,12 @@ def export(letter):
 
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--variants',default='ABCDEF')
+    global OUTPUT,EVIDENCE,REUSE_TEXTURES
+    parser=argparse.ArgumentParser();parser.add_argument('--variants',default='ABCDEF');parser.add_argument('--reuse-textures',action='store_true');parser.add_argument('--output')
     args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
+    REUSE_TEXTURES=args.reuse_textures
+    if args.output:
+        OUTPUT=Path(args.output).resolve();EVIDENCE=OUTPUT.parent
     EVIDENCE.mkdir(parents=True,exist_ok=True)
     reports=[export(letter) for letter in args.variants]
     (EVIDENCE/'export-report.json').write_text(json.dumps(reports,indent=2))

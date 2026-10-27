@@ -17,8 +17,8 @@ and animal renderer are separate.
 - `/spawn human 3` or `/humans 3`: queue nearby demo humans, without a fixed head-count cap.
 - `/humans clear`: remove the demo humans. Three try to spawn automatically
   on nearby dry, gentle ground once the initial terrain is available.
-- `/runstyle quaternius`, `/runstyle kaykit-a`, `/runstyle kaykit-b`, or
-  `/runstyle kaykit-large`: compare the four run styles on player and NPCs.
+- `/runstyle natural`, `/runstyle relaxed`, or `/runstyle brisk`: compare
+  the three captured run styles on player and NPCs.
   The selected style is saved with the play session. `/runstyle list` lists them.
 
 There is no control-instruction banner on the gameplay screen. Do not add
@@ -32,11 +32,11 @@ orientation is retained when the camera turns in either view; movement updates
 the body's facing direction. Walking toward the camera then stopping keeps
 the character facing it.
 
-First person retains torso, arms and legs. Head/hair/eyes and the upper-neck mask
-are hidden only in the owning camera's forward/depth passes, keyed by a per-human
-ID. Shadow passes retain the complete head. Another camera receives no hide ID,
-so this does not mutate a shared mesh, disable head objects, or make a networked
-player intrinsically headless. There is no multiplayer system yet.
+First person hides the entire local body in the owning camera's forward/depth
+passes, keyed by a per-human ID. Shadow passes retain the complete person.
+Another camera receives no hide ID, so the same person remains fully visible
+there. NPCs and third-person bodies remain visible. There is no multiplayer
+system yet. This supersedes the earlier first-person body/head-only mask.
 
 ## Motion and scope
 
@@ -83,6 +83,8 @@ Cancellation commands clear queued requests as well as existing explicit spawns.
 2. Run `scripts/export-human-runtime.py` in Blender background mode. It reads the
    audition without saving it, bakes unlit material colour/opacity on CPU, writes
    native FBX skins/actions and metadata to `artifacts/human-runtime/exports`.
+   `--reuse-textures` retains existing accepted pigment/opacity maps. The three
+   CMU BVHs listed below must be in `artifacts/human-running-sources/cmu`.
 3. Stage the current Core/Presentation/Serialization DLLs, then run Unity batch
    `-executeMethod HumanRuntimeBuilder.Build`. It creates the six prefabs and
    `Resources/Humans/HumanLibrary.asset`. Generated data stays ignored by Git.
@@ -91,9 +93,22 @@ Cancellation commands clear queued requests as well as existing explicit spawns.
 
 MPFB tool code is GPL; the selected core/output and official system assets are
 CC0, as described in the [MakeHuman/MPFB licence](https://www.makehumancommunity.org/about/license.html).
-Movement uses the free [Quaternius Universal Animation Library](https://quaternius.itch.io/universal-animation-library)
-and [KayKit character animations](https://kaylousberg.itch.io/kaykit-character-animations),
-both CC0. Exact downloaded files and provenance remain in
+Non-running movement uses the free [Quaternius Universal Animation Library](https://quaternius.itch.io/universal-animation-library)
+and [KayKit jump](https://kaylousberg.itch.io/kaykit-character-animations), both CC0.
+Running now uses [CMU captured motion](https://mocap.cs.cmu.edu/), free for all
+uses under its stated permission, **not CC0**. Natural uses 16_35, Relaxed 16_36,
+Brisk/Sprint 35_17. Bruce Hahne/cgspeed's BVH conversion is linked by CMU's
+[resources page](https://mocap.cs.cmu.edu/resources.php); downloaded mirrors are
+`https://raw.githubusercontent.com/una-dinosauria/cmu-mocap/master/data/016/16_35.bvh`,
+`data/016/16_36.bvh` and `data/035/35_17.bvh` under the same prefix. The local
+`sources.json` records exact hashes. Runtime acknowledgements ship in
+`StreamingAssets/HUMAN-SOURCES.txt`. Rejected forward-leaning 16_55 and 127_03
+are not shipped. The original 53-bone skins and target rests remain the inputs;
+the source T-pose calibrates rotations, complete strides loop with matched foot
+phase, and runtime cadence uses measured travel distance. These are retargeted
+captures, without contact IK or a guarantee against all foot sliding.
+
+Exact earlier downloaded files and provenance remain in
 `artifacts/human-animation-sources`. No tool code, paid service or neural inference
 is required in the game. See the earlier HUMAN_CHARACTER_BUILDER_DEMO and
 HUMAN_ANIMATION_PREVIEW documents for the original foundation and retargeting.
@@ -115,8 +130,8 @@ people and final first-person/body/head/other-camera images. Terrain input SHA
 remained unchanged; no player exceptions/errors in that run. This initial build
 and the previous `player-daylight-fill` remain available for comparison.
 
-The current refinement is `player-human-refinement`, built
-2026-10-27T04:12:37.0559529Z, now selected by the shortcut. It removes the control
+The earlier refinement is `player-human-refinement`, built
+2026-10-27T04:12:37.0559529Z. It removed the control
 banner and modern outfits, fixes cornea opacity, preserves idle facing, adds the
 three KayKit run alternatives and removes fixed population/type caps. Runtime
 review passes1162checks, including24live humans,160explicitly spawned animals,
@@ -127,6 +142,34 @@ request parser checks pass. No claim that every alternative run is better;
 the style selector lets the owner compare. No multiplayer or unlimited-hardware
 claim is implied by removing population caps. Evidence is under ignored
 `artifacts/human-refinement`.
+
+## Pre-night rollback and upright running revision - 27 October
+
+The owner scrapped the overnight survival and early-Homo work. Source was
+restored to pre-night `7ba44ebdabdd7b0dfce3f3887b55f64e5b305e2a`; the discarded
+night is retained on GitHub branch `archive/scrapped-overnight-20261027`
+(`7cd31308e696fa7046fdf5b42a4daf4cdeeeecae`) and in a local source archive.
+Survival pickups, structures, inventory and the incomplete history changes are
+removed. Saved worlds and sessions were not modified. Sessions saved by the
+discarded version are not promised compatible with the restored version; keep
+them for the archived build rather than silently converting them.
+
+The replacement `player-upright-running` uses the eight-clip bank and body
+visibility described above. It preserves accepted skin/eye PNGs byte-for-byte
+(42 maps), original mesh geometry/UVs/weights and the source native file. FBX
+bind-matrix rounding is below 1e-6. In the A-skin motion audition, mean torso
+lean was about 10-13 degrees for the chosen captures, versus 29 for the old
+jog and 41 for the old sprint; these measurements are not universal anatomical
+quality scores. Source files remain local and unchanged.
+
+The focused camera/save suite passes 20 assertions. Actual Unity renders cover
+all six people and three new runs at two phases. A 335-check review verifies
+skin channels, changing evaluated poses, measured stride metadata, whole local
+body hiding, retained full shadows and another camera seeing the same person.
+Same-frame editor captures need `forceMatrixRecalculationPerRender`; initial
+cached-pose captures were rejected. Evidence: `artifacts/human-running-runtime`
+and the Blender motion audition under `artifacts/human-running-review`. This
+does not establish perfect foot contacts or owner acceptance of the new runs.
 
 The broader `--play-session-only` check fails at its existing physical-noise
 macro-anchor assertion. An isolated archive of the pre-human HEAD reproduced

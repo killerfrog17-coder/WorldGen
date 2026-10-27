@@ -155,7 +155,17 @@ def animate(rig,method,clip,sampled):
         fc.keyframe_points.foreach_set('co',[v for index,value in enumerate(array,1) for v in (index,value[fc.array_index])])
         for point in fc.keyframe_points:point.interpolation='LINEAR'
     action['source_file']=str(source.path.relative_to(REPO));action['source_clip']=name
-    action['license']='CC0';action['sample_rate']=30;action['source_sha256']=hashlib.sha256(source.path.read_bytes()).hexdigest()
+    if getattr(source,'use_idle_fingers',False):
+        idle=next(c for c in json.loads(rig['preview_clips']) if c['label']=='Idle')
+        idle_action=bpy.data.actions[idle['action']]
+        idle_bag=idle_action.layers[0].strips[0].channelbag(idle_action.slots[0])
+        reference={(fc.data_path,fc.array_index):fc for fc in idle_bag.fcurves}
+        for fc in channelbag.fcurves:
+            bone=fc.data_path.split('"')[1]
+            if bone.startswith(('thumb_','index_','middle_','ring_','pinky_')) and (fc.data_path,fc.array_index) in reference:
+                value=reference[fc.data_path,fc.array_index].evaluate(1)
+                for point in fc.keyframe_points:point.co.y=value
+    action['license']=getattr(source,'license','CC0');action['sample_rate']=30;action['source_sha256']=hashlib.sha256(source.path.read_bytes()).hexdigest()
     action['label']=label
     return {'label':label,'action':action.name,'frames':len(sampled),'source':str(source.path.relative_to(REPO)),
             'source_clip':name,'mapped_bones':len(reverse),'leg_ratio':ratio}
