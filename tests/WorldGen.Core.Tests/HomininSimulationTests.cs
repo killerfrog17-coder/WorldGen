@@ -35,6 +35,25 @@ public static class HomininSimulationTests
         var flushed=engine.AdvanceSeconds(a,exitSlice.Seconds,exitSlice.MaximumEvents);savedCredit.Consume(exitSlice.Seconds);
         Check(Math.Abs(PlayCalendar.Seconds(savedCredit,SimulationTime.Seconds(flushed))-visibleTime)<.001&&savedCredit.PendingHistorySeconds<1,"Save/reload and exit flush conserve fine clock credit and calendar offset");
         Check(flushed.DeepPast.CanonicalHash==a.DeepPast.CanonicalHash&&flushed.Timeline.ProcessedEvents==a.Timeline.ProcessedEvents,"Empty-time flush does not invent a demographic event or mutate its domain");
+        var actorSource=a.Copy();var sampler=new HomininActorSampler(engine,actorSource);int birthplace=engine.Patches[a.Origin].Cell;
+        Check(sampler.TrySample(birthplace,123,false,out var person)&&person.Population>=0&&person.Appearance.Available,"Future NPC profile comes from a recorded local population");
+        Check(person.WorldHash==a.WorldHash&&person.HistoryHash==a.Hash&&person.Ancestry.Sum(x=>x.Share)>.999999&&person.TraditionName.Length>0&&person.LanguageName.Length>0,"NPC profile retains ancestry, culture, communication and checkpoint provenance");
+        string personJson=WorldJson.Write(person);Check(sampler.TrySample(birthplace,123,false,out var repeated)&&WorldJson.Write(repeated)==personJson,"Individual sampling is deterministic for the same demographic checkpoint");
+        actorSource.DeepPast.Populations.First(p=>p.Id==person.Population).Appearance[0]=0;person.Ancestry[0].Share=0;person.Appearance.SkinPigmentation=0;
+        Check(sampler.TrySample(birthplace,123,false,out var isolated)&&WorldJson.Write(isolated)==personJson,"Sampler and returned actor profiles do not alias mutable source/output records");
+        Check(!sampler.TrySample(-1,0,false,out _)&&!sampler.TrySample(Array.FindIndex(engine.CellPatch,p=>p<0),0,false,out _),"Sampler does not invent a population in invalid or unoccupied water locations");
+        Check(!sampler.TrySample(birthplace,123,true,out _),"Sapiens-only creation does not silently substitute an early archaic lineage");
+        var mixed=s.Copy();var first=mixed.DeepPast.Populations[0];first.People=100;
+        var descendant=mixed.DeepPast.Lineages[0].Copy();descendant.Id=1;descendant.Parent=0;descendant.Name="Homo sampling-fixture";descendant.SapiensLike=true;
+        mixed.DeepPast.Lineages=mixed.DeepPast.Lineages.Concat(new[]{descendant}).ToArray();
+        var more=first.Copy();more.Id=mixed.DeepPast.NextPopulation++;more.People=300;more.Lineage=1;more.Ancestry=new[]{new HomininAncestry{Lineage=1,Share=1}};
+        mixed.DeepPast.Populations=new[]{first,more};mixed.Population[first.Region]=400;mixed.DeepPast.SealDomain();mixed.Seal();
+        var weighted=new HomininActorSampler(engine,mixed);int descendantSamples=0;bool allSampled=true;
+        for(int i=0;i<1000;i++){bool found=weighted.TrySample(birthplace,i,false,out var sample);allSampled&=found;if(found&&sample.Lineage==1)descendantSamples++;}
+        Check(allSampled,"Occupied cohort sampling succeeds across individual seeds");
+        Check(descendantSamples>690&&descendantSamples<810,"Local actor selection weights people rather than choosing each cohort equally");
+        Check(weighted.TrySample(birthplace,123,true,out var modern)&&modern.SapiensLike&&modern.Lineage==1&&modern.Ancestry.Single().Lineage==1,"Explicit sapiens-only filtering retains the selected population's actual ancestry");
+        Check(WorldJson.Write(WorldJson.Read<HomininActorProfile>(personJson))==personJson,"Actor provenance and appearance can persist independently of later demographic checkpoints");
         Check(a.DeepPast.Populations.All(p=>p.People>=0&&Math.Abs(p.Ancestry.Sum(x=>x.Share)-1)<1e-6),"Population and admixture bounds");
         Check(a.DeepPast.Populations.Sum(p=>Math.Round(p.People))==a.Population.Sum(),"Published headcounts reconcile");
         var restored=WorldJson.Read<PrehistoryState>(WorldJson.Write(a));engine.Validate(restored);Check(engine.AdvanceYears(restored,1000).Hash==engine.AdvanceYears(a,1000).Hash,"Saved early history resumes identically");

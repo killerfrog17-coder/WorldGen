@@ -305,3 +305,21 @@ archaic cohorts need a continuing demographic owner. Existing
 used unchanged for this migration. Clock/schema conversion, ancestry provenance
 and the existing later-history invariant checks should precede enabling that
 handoff. None of this is implied by the current regional stage labels.
+
+### NPC provenance interface
+
+`HomininActorSampler` is a source-only boundary for future NPC creation. Build
+one detached sampler per demographic publication, then sample an occupied cell
+with a stable individual seed. Local cohorts are weighted by their represented
+headcounts; a sapiens-only request returns unavailable if none live there. The
+result records the world/history hashes, year, population, lineage, ancestry
+mixture, learned tradition, communication identity and inherited appearance.
+Persist that result when creating the actor rather than resampling it every
+time history advances. Returned data do not alias the sampler or source state.
+
+This does not create demographic people, tribes, language dialogue, archaic body
+models or new rendered humans. The existing wandering NPCs are unchanged. The
+interface and its tests are source-only after the selected clock package;
+368 hominin/climate/clock assertions pass, including 1:3 cohort weighting,
+explicit lineage filtering, deterministic sampling, isolation and JSON
+round-trip. Ancestry and learned culture remain separate identities.

@@ -1,5 +1,19 @@
 # WorldGen repository instructions
 
+NPC PROVENANCE INTERFACE,27October2026~08:05CDT:
+SOURCE-ONLY after selected player-survival-clock/dfae94c. HomininActorSampler
+validates/copies one demographic publication, samples local cohorts weighted by
+People, optional sapiens-only unavailable if none. Persisted output records
+world/history/year/population/lineage/tradition/language, ancestry and inherited
+appearance; detached outputs, no census mutation or fabricated identities.
+368hominin/climate/clock checks pass, incl1:3 weighting/JSON/determinism/aliasing.
+No game NPC/appearance/tribe changes, no new player build needed for unusedAPI.
+Selected clock build stays, all owned game/Unity workers stopped. Source-only
+checkpoint+backup/push required. User feedback pending; no duplicate question.
+Owner requested continue until wrap-up, deadline withdrawn, architecture first.
+Preserve unrelated prompt deletion/2old deer scripts. Later history bridge still
+unfinished; see documented conservation/provenance requirements.
+
 CLOCK / PLAYABLE FOLLOW-UP CHECKPOINT,27October2026~07:50CDT:
 Final IL2CPP player-survival-clock BuiltUtc2026-10-27T12:45:56.8764890Z;
 12native no-graphics checks PASS,358hominin/clock tests PASS, 177bundle/current
