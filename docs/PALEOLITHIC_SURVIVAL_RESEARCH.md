@@ -183,3 +183,86 @@ learned-culture IDs are not replaced by biological exchange. The new tests cover
 this distinction explicitly. A current version-2, 5,000-cell Earth seed-42 run
 advances 2.8 million years and validates in about 136 seconds at below-normal CPU
 priority. This is one full-run check, not a cross-seed realism/performance claim.
+
+### Chronology calibration in progress
+
+That full run exposed severe anachronisms (including pottery hundreds of
+thousands of years early). The next rules revision therefore separates broad
+Earth-like plausibility weights from the open trajectory. These are explicit
+game calibration priors; they are not claims that archaeology determines an
+invention date, or that inherited traits predict a culture's capabilities.
+The weights modify innovation probability continuously. Local prerequisites,
+resources, retention and transmission still matter; there is no global date
+that grants a technology to everyone. Open trajectories omit the timing weights.
+
+Research anchors include:
+
+* [Acheulean evidence](https://www.nature.com/articles/nature10372): a dated
+  1.76-million-year assemblage, rather than the prototype's 2.55-million-year
+  handaxe result. This is an evidence anchor, not an absolute invention ceiling.
+* [Hafted spear points](https://pubmed.ncbi.nlm.nih.gov/23161998/): approximately
+  500,000-year evidence. Organic woodworking and stone-tipped composite weapons
+  need separate treatment.
+* [Eyed-needle research](https://doi.org/10.1126/sciadv.adp2887): late Paleolithic
+  sewing evidence is distinct from much earlier use of bones as implements.
+* [Xianrendong pottery](https://scholars.lib.ntu.edu.tw/entities/publication/166ad619-7b8a-4ba9-a50b-4a406b7ea2e9):
+  pottery by foragers about 20,000 years ago; pottery must not require agriculture.
+* [Rice exploitation, cultivation and domestication](https://doi.org/10.1126/science.ade4487):
+  separate stages in the archaeological record, rather than a single instant
+  switch from foraging to fully domesticated crops.
+* [Early goat management](https://pubmed.ncbi.nlm.nih.gov/10731145/): selective
+  herd management around 10,000 years ago; this is not equivalent to an early
+  association with dogs or occasional capture of wild animals.
+* [Extractive copper metallurgy](https://www.sciencedirect.com/science/article/pii/S0305440310001986):
+  evidence around 7,000 years ago. Cold-working native copper is a separate skill
+  and does not by itself classify a culture as Chalcolithic.
+* [Early tin-bronze evidence](https://discovery.ucl.ac.uk/id/eprint/1420706/):
+  sporadic early alloy production differs from widespread Bronze Age technology.
+
+Model coefficients in `HomininChronology` are tuning parameters, not numbers
+copied from these papers. Perishable techniques have especially uncertain
+histories. Rules versions are saved independently of the record schema: version
+1 playable checkpoints retain their old rules when communication records are
+added; pre-policy version 2 files retain rules 2. New scenarios use rules 3.
+Native copper and extractive smelting are separate flags, and new-rule bronze
+requires smelting. Existing histories are not retroactively rewritten. The
+selected playable build still predates this calibration work.
+
+The first weighted run exposed two implementation problems beyond rate tuning.
+Legacy random rolls used 24-bit values including exactly zero, so an extremely
+unlikely positive hazard could still fire after quantization. Rules 3 use an
+open-interval 32-bit roll for these rare events; established random algorithms
+are unchanged. A regression reproduces the actual premature prepared-core event
+(seed 42, stream `lithic-innovation-256`, entity 3516219). Rules 1/2 retain their
+recorded random behaviour.
+
+The old sedentism calculation also made some annual-plant habitats unable to
+establish recurrent camps before they had farmed, while farming required camps.
+Rules 3 allow concentrated fishing resources, storage, plant tending and local
+pressure to support recurrent camps before cultivation. This represents an
+opportunity, not a mandatory village or a completed settlement simulation.
+
+The corrected seed-42, 5,000-cell Earth run validates after 2.8 million years in
+95.638 seconds at below-normal CPU priority. First recorded needles are about
+51.8 ka before reference, pottery 20 ka, herding 11.1 ka and cultivation 10.25 ka.
+Native copper, smelting and bronze remain distinct; their first records in this
+seed are 9.15, 4.75 and 3.15 ka. These are simulation outcomes, not substituted
+historical dates or a cross-seed certification. Evidence is retained under
+`artifacts/hominin-research/rules3-corrected*`; a separate seed-17 check follows.
+
+The seed-17 check also completes and validates (140.457 seconds at below-normal
+priority): first needles 45.8 ka, pottery 20 ka, herding 10.5 ka, cultivation
+9.3 ka, native copper 9.6 ka, smelting 3.8 ka and bronze 3.1 ka. Metallurgy is late
+in these two probes; the broader model still needs calibration. Two runs are not
+validation of every world or a scientific prediction.
+
+Rules-3 IL2CPP package UTC `2026-10-27T12:19:22.6394039Z` is
+`artifacts/player-survival-history`. It passes ten focused native, no-graphics
+checks of early-history creation, compact save/hash/rule preservation, fresh
+engine resume and a survival session with multiple saved physics poses larger
+than 64 KB. Core checks: 110 survival, 348 hominin/climate, 45 human variation,
+20 player-camera/save. The 177 packaged fauna hashes match. Runtime survival,
+rendering, skinning and ragdoll source files are unchanged from the visually
+checked survival build; history startup/UI and the diagnostic entry point differ.
+The existing shortcut is being moved to this checked follow-up; both earlier
+players are retained. Native evidence: `artifacts/survival-history-native-final`.

@@ -54,6 +54,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     void Start()
     {
         Application.runInBackground = true;
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-hominin-check")){StartCoroutine(CheckHomininPersistence());return;}
         // Isolated packaged-shader regression: no display prefs, world or music.
         if(Environment.GetCommandLineArgs().Contains("--worldgen-short-grass-check")){StartCoroutine(LocalTerrainExplorer.CheckShortGrass(Argument("--worldgen-output","")));return;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-tree-shader-check")){StartCoroutine(CheckTreeShader(Argument("--worldgen-output","")));return;}

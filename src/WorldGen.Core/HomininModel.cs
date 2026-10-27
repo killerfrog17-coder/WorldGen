@@ -9,7 +9,7 @@ namespace WorldGen.Core
         FireMaking=1L<<5,Hafting=1L<<6,HideWorking=1L<<7,PreparedCores=1L<<8,Adhesives=1L<<9,
         Blades=1L<<10,BoneTools=1L<<11,Fishing=1L<<12,Watercraft=1L<<13,Projectiles=1L<<14,
         Needles=1L<<15,Symbols=1L<<16,FoodStorage=1L<<17,Microliths=1L<<18,
-        PlantManagement=1L<<19,Cultivation=1L<<20,Herding=1L<<21,Pottery=1L<<22,Copper=1L<<23,Bronze=1L<<24
+        PlantManagement=1L<<19,Cultivation=1L<<20,Herding=1L<<21,Pottery=1L<<22,Copper=1L<<23,Bronze=1L<<24,MetalSmelting=1L<<25
     }
     public enum LithicStage { LowerPaleolithic,MiddlePaleolithic,UpperPaleolithic,Epipaleolithic,Neolithic,Chalcolithic,BronzeAge }
     [Serializable] public sealed class HomininLineage
@@ -53,12 +53,14 @@ namespace WorldGen.Core
     [Serializable] public sealed class HomininHistory
     {
         public int Version=2,OriginYearsBeforePresent=PleistoceneClimate.DefaultOriginYearsBeforePresent,LastBoundaryYear,NextBoundaryYear=1000,NextPopulation=1,NextLanguage=1;
+        [System.Runtime.Serialization.OptionalField] public int RulesVersion=3;
         public bool Active=true,EarthLikeTrajectory=true;
         public string CanonicalHash="";
         public HomininLineage[] Lineages=Array.Empty<HomininLineage>();public HomininTradition[] Traditions=Array.Empty<HomininTradition>();
         public HomininPopulation[] Populations=Array.Empty<HomininPopulation>();public HomininHabitat[] Habitats=Array.Empty<HomininHabitat>();public HomininEvent[] Events=Array.Empty<HomininEvent>();
         [System.Runtime.Serialization.OptionalField] public HomininLanguage[] Languages=Array.Empty<HomininLanguage>();
-        [System.Runtime.Serialization.OnDeserializing] void InitializeLanguages(System.Runtime.Serialization.StreamingContext context){Languages=Array.Empty<HomininLanguage>();}
+        [System.Runtime.Serialization.OnDeserializing] void InitializeLanguages(System.Runtime.Serialization.StreamingContext context){Languages=Array.Empty<HomininLanguage>();RulesVersion=0;}
+        [System.Runtime.Serialization.OnDeserialized] void InitializeLegacyRules(System.Runtime.Serialization.StreamingContext context){if(RulesVersion==0)RulesVersion=Version==1?1:2;}
         public HomininHistory Copy()
         {
             var h=(HomininHistory)MemberwiseClone();h.Lineages=Lineages.Select(x=>x.Copy()).ToArray();h.Traditions=Traditions.Select(x=>x.Copy()).ToArray();
@@ -68,13 +70,13 @@ namespace WorldGen.Core
         public string ComputeDomainHash()
         {
             object legacy=new object[]{Version,OriginYearsBeforePresent,LastBoundaryYear,NextBoundaryYear,NextPopulation,NextLanguage,Active,EarthLikeTrajectory,Lineages,Traditions,Populations,Habitats,Events};
-            return Version==1?StateHash.Compute(legacy):StateHash.Compute(new object[]{legacy,Languages});
+            return Version==1?StateHash.Compute(legacy):RulesVersion==2?StateHash.Compute(new object[]{legacy,Languages}):StateHash.Compute(new object[]{legacy,Languages,RulesVersion});
         }
         public void SealDomain(){CanonicalHash=ComputeDomainHash();}
-        public static LithicStage Stage(HomininTradition tradition)
+        public static LithicStage Stage(HomininTradition tradition,bool legacyCopperStage=false)
         {
             var k=tradition.Knowledge;if((k&LithicKnowledge.Bronze)!=0)return LithicStage.BronzeAge;
-            if((k&LithicKnowledge.Copper)!=0)return LithicStage.Chalcolithic;
+            if((k&(legacyCopperStage?LithicKnowledge.Copper:LithicKnowledge.MetalSmelting))!=0)return LithicStage.Chalcolithic;
             if((k&(LithicKnowledge.Cultivation|LithicKnowledge.Herding))!=0&&(tradition.Cultivation>.3||tradition.Herding>.3))return LithicStage.Neolithic;
             if((k&LithicKnowledge.Microliths)!=0)return LithicStage.Epipaleolithic;
             if((k&(LithicKnowledge.Blades|LithicKnowledge.BoneTools|LithicKnowledge.Symbols))==(LithicKnowledge.Blades|LithicKnowledge.BoneTools|LithicKnowledge.Symbols))return LithicStage.UpperPaleolithic;

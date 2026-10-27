@@ -1,5 +1,36 @@
 # WorldGen repository instructions
 
+RULES-3 HISTORY FOLLOW-UP CHECKPOINT,27October2026~07:25CDT:
+Separate IL2CPP player-survival-history BuiltUtc2026-10-27T12:19:22.6394039Z;
+10native no-graphics persistence checks PASS, 110survival/348hominin/45variation/
+20camera checks PASS. 177bundle/stagedDLL inputs verified final. Survival/render/
+ragdoll runtime source unchanged from visual15b39fd checkpoint; only history
+startup/UI +new CPU diagnostic entry differ. Prior selected15b39fd package pinned
+and unchanged during this build. Existing shortcut to be updated to new checked
+history player; prior survival and human-refinement packages retained.
+Schema2 communication records +RulesVersion3 for NEW scenarios. Legacy schema1
+upgrade keeps rules1; pre-policy2 files keep rules2. Actual shipped-v1 next-boundary
+populations/ancestry/knowledge/events matched exactly under preserved rules1.
+New EarthLike mode uses EXPLICIT soft chronology priors, NOT scientific invention
+dates or purely emergent predictions. Open trajectory checkbox omits date priors.
+Native copper !=smelting: separate flag; native working alone not Chalcolithic.
+Old RNG24-bit zero admitted tiny hazards: rules3 open-interval32-bit rare rolls,
+legacy algorithms untouched. Repro seed42/innovation256/entity3516219 test passes.
+Recurrent camps now possible BEFORE farming via fishing/storage/tending/pressure,
+fixing circular sedentism prerequisite. Other rule revisions retained.
+Corrected actual R3 Earth5000 seed42 full2.8M95.638s,5.19Mpeople/1779cohorts/59
+livinglineages; needles51.8ka,pottery20ka,herding11.1ka,cultivation10.25ka.
+Holdout17 full140.457s,4.66Mpeople/1806cohorts/64livinglineages; needles45.8ka,
+pottery20ka,herding10.5ka,cultivation9.3ka. Both metallurgy late (smelting4.75/3.8ka,
+bronze3.15/3.1ka); do not claim universal realism/performance. CPU below-normal.
+No new GPU review while async owner survival feedback pending. Source/docs backup
+and push required for this phase. Research/evidence docs PALEOLITHIC_SURVIVAL_RESEARCH.
+NEW measured architecture concern: h2 1779cohort snapshot.Copy 7.22ms/6.48MB on CLR;
+current local-calendar publication every2s clones it even with no history event.
+Investigate event-coalesced local clocks without sharing mutable public snapshots.
+Also SimulationClockView.Year currently ignores event year for DeepPast; fix that.
+No speculative FPS claims. Preserve unrelated deleted prompt/two old deer scripts.
+
 SOURCE-ONLY HOMININ IDENTITY FOLLOW-UP,27October2026~06:40CDT:
 Selected root shortcut now points to VERIFIED player-survival-prototype, build
 11:10:46UTC, source15b39fd; prior human-refinement kept. All owned Unity/player

@@ -22,7 +22,7 @@ namespace WorldGen.Presentation
             foreach(var p in groups)
             {
                 var t=h.Traditions[p.Tradition];var l=h.Lineages[p.Lineage];
-                text+="\n\n"+l.Name+(l.SapiensLike?" (sapiens-like)":"")+" · "+Math.Round(p.People).ToString("N0")+" people\n"+t.Name+" · "+HomininHistory.StageName(HomininHistory.Stage(t));
+                text+="\n\n"+l.Name+(l.SapiensLike?" (sapiens-like)":"")+" · "+Math.Round(p.People).ToString("N0")+" people\n"+t.Name+" · "+HomininHistory.StageName(HomininHistory.Stage(t,h.RulesVersion<3));
                 text+="\nCommunication capacity "+(p.Communication*100).ToString("F0")+" · teaching "+(t.Teaching*100).ToString("F0")+" · cultural retention "+(t.Retention*100).ToString("F0");
                 text+="\nLearned practices: "+string.Join(", ",Enum.GetValues(typeof(LithicKnowledge)).Cast<LithicKnowledge>().Where(k=>k!=LithicKnowledge.None&&(t.Knowledge&k)!=0).Select(Prehistory.LithicSkillName));
                 var language=h.Version>=2?h.Languages[p.Language]:null;

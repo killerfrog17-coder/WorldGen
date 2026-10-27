@@ -72,6 +72,11 @@ namespace WorldGen.Core
         public double Unit() => (Next() >> 8) / 16777216.0;
         public V Vector() => new V(Unit() * 2 - 1, Unit() * 2 - 1, Unit() * 2 - 1).Unit;
         public static double Value(int seed, string stream, int id) { var r = new Rng(seed, stream, id); return r.Unit(); }
+        // New rare-event policies need an open interval: the legacy 24-bit
+        // quantization can return exactly zero, accepting arbitrarily tiny
+        // positive hazards. Preserve Unit/Value for all established algorithms.
+        public static double OpenValue(int seed,string stream,int id)
+        {var r=new Rng(seed,stream,id);return (r.Next()+.5)/4294967296d;}
         internal static double ValueFromStreamHash(int seed,uint streamHash,int id)
         {var r=new Rng();r.state=Mix(unchecked((uint)seed)^streamHash^Mix((uint)id));if(r.state==0)r.state=1;return r.Unit();}
     }

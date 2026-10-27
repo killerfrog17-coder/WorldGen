@@ -23,10 +23,11 @@ public static class HomininSimulationTests
         var restored=WorldJson.Read<PrehistoryState>(WorldJson.Write(a));engine.Validate(restored);Check(engine.AdvanceYears(restored,1000).Hash==engine.AdvanceYears(a,1000).Hash,"Saved early history resumes identically");
         Check(a.DeepPast.Languages.Length==a.DeepPast.NextLanguage&&a.DeepPast.Languages.Skip(1).All(l=>l.Parent>=0&&l.Parent<l.Id),"Communication branches retain earlier parent identities");
         var detached=a.Copy();detached.DeepPast.Languages[0].Name="Changed only in the copy";Check(detached.DeepPast.Languages[0].Name!=a.DeepPast.Languages[0].Name,"Communication records detach with published snapshots");
-        var legacy=a.Copy();legacy.DeepPast.Version=1;legacy.DeepPast.Languages=Array.Empty<HomininLanguage>();legacy.DeepPast.SealDomain();legacy.Seal();engine.Validate(legacy);string legacyHash=legacy.Hash;
+        var legacy=a.Copy();legacy.DeepPast.Version=1;legacy.DeepPast.RulesVersion=1;legacy.DeepPast.Languages=Array.Empty<HomininLanguage>();legacy.DeepPast.SealDomain();legacy.Seal();engine.Validate(legacy);string legacyHash=legacy.Hash;
         var upgraded=engine.UpgradeHomininLanguages(legacy);engine.Validate(upgraded);
         Check(legacy.Hash==legacyHash&&legacy.DeepPast.Version==1&&upgraded.DeepPast.Version==2,"Language-history upgrade leaves the previous checkpoint unchanged");
         Check(upgraded.DeepPast.Populations.Select(p=>p.Language).SequenceEqual(legacy.DeepPast.Populations.Select(p=>p.Language))&&upgraded.DeepPast.Languages.All(l=>l.LegacyOriginUnknown&&l.Parent==-1),"Old language IDs survive upgrade without invented parentage");
+        Check(upgraded.DeepPast.RulesVersion==1&&a.DeepPast.RulesVersion==3,"Rule revisions remain explicit across identity-only save upgrades");
         var smallBand=new HomininPopulation{People=100,Tradition=3,Language=2,Communication=.4,Learning=.5,Appearance=Enumerable.Repeat(2000,8).ToArray(),Ancestry=new[]{new HomininAncestry{Lineage=0,Share=1}}};
         var largeBand=new HomininPopulation{People=300,Tradition=8,Language=5,Communication=.8,Learning=.9,Appearance=Enumerable.Repeat(8000,8).ToArray(),Ancestry=new[]{new HomininAncestry{Lineage=1,Share=1}}};
         double beforeCommunication=smallBand.People*smallBand.Communication+largeBand.People*largeBand.Communication;
@@ -45,6 +46,18 @@ public static class HomininSimulationTests
         Check(HomininHistory.Stage(new HomininTradition())==LithicStage.LowerPaleolithic,"Initial tool tradition lower Paleolithic");
         Check(HomininHistory.Stage(new HomininTradition{Knowledge=LithicKnowledge.PreparedCores})==LithicStage.MiddlePaleolithic,"Regional technical stage");
         Check(HomininHistory.Stage(new HomininTradition{Knowledge=LithicKnowledge.Cultivation,Cultivation=.6})==LithicStage.Neolithic,"Farming matters independently of date");
+        Check(HomininHistory.Stage(new HomininTradition{Knowledge=LithicKnowledge.Cultivation|LithicKnowledge.Copper,Cultivation=.6})==LithicStage.Neolithic,"Native copper ornaments alone do not imply extractive metallurgy");
+        Check(HomininHistory.Stage(new HomininTradition{Knowledge=LithicKnowledge.Copper|LithicKnowledge.MetalSmelting})==LithicStage.Chalcolithic,"Extractive metalworking has a distinct technical stage");
+        Check(HomininHistory.Stage(new HomininTradition{Knowledge=LithicKnowledge.Copper},true)==LithicStage.Chalcolithic,"Legacy stage descriptions remain available for legacy rules");
+        foreach(var skill in new[]{LithicKnowledge.Pottery,LithicKnowledge.Needles,LithicKnowledge.Cultivation,LithicKnowledge.Herding,LithicKnowledge.MetalSmelting,LithicKnowledge.Bronze})
+        {
+            Check(HomininChronology.Weight(skill,700000,true)<1e-10,"Earth-like chronology suppresses severely anachronistic "+skill);
+            Check(HomininChronology.Weight(skill,0,true)>HomininChronology.Weight(skill,50000,true)&&HomininChronology.Weight(skill,50000,true)>0,"Plausibility is a soft time prior, not an exact date unlock");
+            Check(HomininChronology.Weight(skill,700000,false)==1,"Open trajectory omits historical date priors");
+        }
+        Check(Rng.Value(42,"lithic-innovation-256",3516219)==0,"Recorded legacy rare-event fixture reproduces 24-bit zero quantization");
+        Check(Rng.OpenValue(42,"lithic-innovation-256",3516219)>1e-11,"New policy does not accept an infinitesimal hazard merely because the old roll rounded to zero");
+        Check(Enumerable.Range(0,10000).All(i=>Rng.OpenValue(42,"open-value-check",i)>0&&Rng.OpenValue(42,"open-value-check",i)<1),"Rare-event random values exclude both endpoints");
         Console.WriteLine("PASS "+n+" hominin/climate assertions; "+a.DeepPast.Populations.Length+" cohorts / "+a.DeepPast.Traditions.Length+" traditions in "+watch.Elapsed.TotalSeconds.ToString("F2")+"s");
     }
 }

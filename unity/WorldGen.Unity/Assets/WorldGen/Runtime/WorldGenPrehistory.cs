@@ -157,6 +157,12 @@ public sealed partial class WorldGenRuntime
             bool early=GUILayout.Toggle(world.Prehistory.DeepPast?.Active==true,"Begin near early Homo (2.8 million years before reference)");
             if(early!=(world.Prehistory.DeepPast?.Active==true)){startWithEarlyHominins=early;world.Prehistory=early?humans.PrepareHominins(world.Prehistory.Origin):humans.PrepareSapiens(world.Prehistory.Origin);UpdateHumanPalette();}
             if(early)GUILayout.Label("Early-history prototype: populations and regional traditions. The handoff to later cities and states is still in development.");
+            if(early)
+            {
+                bool earthLike=GUILayout.Toggle(world.Prehistory.DeepPast.EarthLikeTrajectory,"Earth-like evolution and technology");
+                if(earthLike!=world.Prehistory.DeepPast.EarthLikeTrajectory){world.Prehistory=humans.PrepareHominins(world.Prehistory.Origin,earthLike);UpdateHumanPalette();}
+                GUILayout.Label(earthLike?"Uses broad timing priors; individual discoveries and spread remain regional.":"Open trajectory: historical technology timing priors are disabled.");
+            }
         }
         DrawTechnologyCeiling();
         GUI.enabled=!Busy&&humanStep==null&&!world.Prehistory.Started;
@@ -171,7 +177,7 @@ public sealed partial class WorldGenRuntime
     void PrepareHumanOrigin(int origin)
     {
         var ceiling=world.Prehistory.History?.Modern?.TechnologyCeiling;
-        world.Prehistory=world.Prehistory.DeepPast?.Active==true?humans.PrepareHominins(origin):humans.Prepare(origin);
+        world.Prehistory=world.Prehistory.DeepPast?.Active==true?humans.PrepareHominins(origin,world.Prehistory.DeepPast.EarthLikeTrajectory):humans.Prepare(origin);
         if(world.Prehistory.DeepPast==null&&ceiling.HasValue)world.Prehistory=humans.SetTechnologyCeiling(world.Prehistory,ceiling.Value);
     }
     void DrawTechnologyCeiling()

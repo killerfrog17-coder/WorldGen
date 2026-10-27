@@ -129,7 +129,13 @@ namespace WorldGen.Core
                     TransferHomininKnowledge(ta,tb,Math.Min(a.Communication,b.Communication),seed,a.Id+b.Id,s.Years,dt);
                     if(a.Lineage!=b.Lineage&&Math.Abs(a.Compactness-b.Compactness)+Math.Abs(a.Stature-b.Stature)<.7)
                     {
-                        ExchangeHomininAncestry(a,b,1-Math.Exp(-dt/60000d));
+                        double fraction=1-Math.Exp(-dt/60000d);
+                        if(h.RulesVersion>=2)ExchangeHomininAncestry(a,b,fraction);
+                        else
+                        {
+                            MixHomininAncestry(a,b,fraction);MixHomininAncestry(b,a,fraction);
+                            double communication=a.Communication;a.Communication+=(b.Communication-a.Communication)*fraction;b.Communication+=(communication-b.Communication)*fraction;
+                        }
                     }
                 }
             }
@@ -236,14 +242,14 @@ namespace WorldGen.Core
             foreach(var g in h.Populations)s.Population[g.Region]+=(long)Math.Round(g.People);
             foreach(var region in h.Populations.GroupBy(p=>p.Region))
             {double total=region.Sum(p=>p.People);for(int k=0;k<8;k++)s.Ancestry[region.Key*8+k]=(int)Math.Round(region.Sum(p=>p.People*p.Appearance[k])/Math.Max(1,total));}
-            s.Society.Cultures=h.Traditions.Select(t=>new CultureIdentity{Id=t.Id,Name=t.Name,OriginCell=Patches[t.OriginRegion].Cell,FoundedYear=t.FoundedYear,Stage=SocietyStage.Foragers,Population=(long)Math.Round(h.Populations.Where(p=>p.Tradition==t.Id).Sum(p=>p.People)),Subsistence=HomininHistory.StageName(HomininHistory.Stage(t)),Farming=(int)(t.Cultivation*1000)}).ToArray();
+            s.Society.Cultures=h.Traditions.Select(t=>new CultureIdentity{Id=t.Id,Name=t.Name,OriginCell=Patches[t.OriginRegion].Cell,FoundedYear=t.FoundedYear,Stage=SocietyStage.Foragers,Population=(long)Math.Round(h.Populations.Where(p=>p.Tradition==t.Id).Sum(p=>p.People)),Subsistence=HomininHistory.StageName(HomininHistory.Stage(t,h.RulesVersion<3)),Farming=(int)(t.Cultivation*1000)}).ToArray();
             foreach(var region in h.Populations.GroupBy(p=>p.Region)){int culture=region.OrderByDescending(p=>p.People).First().Tradition;foreach(int cell in Patches[region.Key].Cells)s.Society.CellCulture[cell]=culture;}
             s.Society.Events=h.Events.Select(e=>new ChronicleEvent{Year=e.Year,Cell=Patches[e.Region].Cell,CultureId=e.Tradition,Category=e.Kind=="technology"?ChronicleCategory.Discoveries:ChronicleCategory.Society,Text=e.Text}).ToArray();
         }
         void ValidateHominins(PrehistoryState s)
         {
             if(s==null||s.Version!="prehistory-hominin-1"||s.Species!="Homo"||s.WorldHash!=World.Stages.Last().Hash||s.DeepPast==null||(s.DeepPast.Version!=1&&s.DeepPast.Version!=2)||s.Origin<0||s.Origin>=Patches.Length||s.Population?.Length!=Patches.Length||s.Ancestry?.Length!=Patches.Length*8||s.ArrivalYear?.Length!=Patches.Length||s.Timeline?.Version!="event-calendar-hominin-1"||s.Timeline.Seconds<0||s.Years!=s.Timeline.Seconds/SimulationTime.Year||s.Society==null||s.Hash!=s.ComputeHash())throw new ArgumentException("Invalid early-hominin save.");
-            var h=s.DeepPast;if(h.CanonicalHash!=h.ComputeDomainHash())throw new ArgumentException("Early-hominin domain fingerprint changed.");if(h.NextBoundaryYear<=s.Years||h.LastBoundaryYear>s.Years||h.NextLanguage<1||h.NextPopulation<1||h.Lineages==null||h.Lineages.Length==0||h.Traditions==null||h.Traditions.Length==0||h.Populations==null||h.Habitats==null||h.Events==null)throw new ArgumentException("Invalid hominin timeline.");
+            var h=s.DeepPast;if(h.CanonicalHash!=h.ComputeDomainHash())throw new ArgumentException("Early-hominin domain fingerprint changed.");if(h.RulesVersion<1||h.RulesVersion>3||h.Version==1&&h.RulesVersion!=1||h.NextBoundaryYear<=s.Years||h.LastBoundaryYear>s.Years||h.NextLanguage<1||h.NextPopulation<1||h.Lineages==null||h.Lineages.Length==0||h.Traditions==null||h.Traditions.Length==0||h.Populations==null||h.Habitats==null||h.Events==null)throw new ArgumentException("Invalid hominin timeline.");
             var ids=new HashSet<int>();foreach(var p in h.Populations)
                 if(p==null||!ids.Add(p.Id)||p.Id<0||p.Id>=h.NextPopulation||p.Region<0||p.Region>=Patches.Length||p.Lineage<0||p.Lineage>=h.Lineages.Length||p.Tradition<0||p.Tradition>=h.Traditions.Length||!SurvivalMath.Finite(p.People)||p.People<0||p.Appearance==null||p.Appearance.Length!=8||p.Appearance.Any(v=>v<0||v>10000)||p.Ancestry==null||Math.Abs(p.Ancestry.Sum(a=>a.Share)-1)>1e-6||p.Ancestry.Any(a=>a.Lineage<0||a.Lineage>=h.Lineages.Length||!SurvivalMath.Finite(a.Share)||a.Share<0))throw new ArgumentException("Invalid hominin population.");
             bool Unit(double x)=>SurvivalMath.Finite(x)&&x>=0&&x<=1;
@@ -253,7 +259,7 @@ namespace WorldGen.Core
                 var l=h.Lineages[i];if(l==null||l.Id!=i||l.Parent>=i||l.Parent< -1||l.Name==null||l.OriginRegion<0||l.OriginRegion>=Patches.Length||l.FoundedYear<0||l.FoundedYear>s.Years||l.ExtinctYear< -1||l.ExtinctYear>s.Years||!Unit(l.Communication)||!Unit(l.Learning)||!Unit(l.BodyCompactness)||!Unit(l.Stature)||l.FoundingAncestry==null)throw new ArgumentException("Invalid hominin lineage.");
             }
             for(int i=0;i<h.Traditions.Length;i++)
-            {var t=h.Traditions[i];if(t==null||t.Id!=i||t.Parent>=i||t.Parent< -1||t.Name==null||t.OriginRegion<0||t.OriginRegion>=Patches.Length||t.FoundedYear<0||t.FoundedYear>s.Years||!Unit(t.Teaching)||!Unit(t.Network)||!Unit(t.Retention)||!Unit(t.Sedentism)||!Unit(t.Cultivation)||!Unit(t.Herding)||((long)t.Knowledge&~((1L<<25)-1))!=0)throw new ArgumentException("Invalid hominin tradition.");}
+            {var t=h.Traditions[i];if(t==null||t.Id!=i||t.Parent>=i||t.Parent< -1||t.Name==null||t.OriginRegion<0||t.OriginRegion>=Patches.Length||t.FoundedYear<0||t.FoundedYear>s.Years||!Unit(t.Teaching)||!Unit(t.Network)||!Unit(t.Retention)||!Unit(t.Sedentism)||!Unit(t.Cultivation)||!Unit(t.Herding)||((long)t.Knowledge&~((1L<<(h.RulesVersion>=3?26:25))-1))!=0)throw new ArgumentException("Invalid hominin tradition.");}
             if(h.Version>=2)
             {
                 if(h.Languages==null||h.Languages.Length!=h.NextLanguage)throw new ArgumentException("Missing hominin language identities.");
