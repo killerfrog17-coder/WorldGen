@@ -175,6 +175,9 @@ does not establish perfect foot contacts or owner acceptance of the new runs.
 
 ## Manual human spawning and dedicated sprint - 27 October
 
+Release IL2CPP `player-human-sprint` built 2026-10-27T18:10:01.8902259Z,
+selected by the existing shortcut. Prior `player-upright-running` is retained.
+
 The subsequent owner revision removes automatic demo humans and both audition
 commands. `/spawn human [count]` is the entry point, one by default; specific
 human clear and shared `/spawn clear` cancel queued requests as well as live

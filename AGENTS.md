@@ -1,5 +1,27 @@
 # WorldGen repository instructions
 
+MANUAL HUMAN SPAWNS / DEDICATED SPRINT,27October2026:
+Owner removes /humans and /runstyle commands, including handlers/help/completion,
+and ALL automatic demo human spawns. /spawn human [count] remains, default1;
+/spawn human clear cancels humans, shared /spawn clear clears humans +animals.
+No population cap added. Old optional HumanRunStyle save field remains readable
+but is UNUSED; no runtime style selector. Supersedes prior runstyle instructions.
+Accepted jog16_35 retained; separate captured CMU143_01 fast sprint replaces
+slow35_17. Source root travel~6m/s, own limb/body gait; shared phase/cadence blends.
+Selected bank now7roles. Full first-person local-body hiding remains unchanged.
+22camera/save/help tests +334Unity skin/render/command checks pass; actual sprint
+poses inspected for all6people. Same original53bone rig/weights/native0946...,42
+pigment PNGs and177canonical/native/packaged fauna unchanged. No paid/inference
+calls. CMU permission NOT CC0; credits ship. Editor NewScene fixture reloads
+stack-only Resources; no runtime asset workaround. No contactIK/FPS/owner
+animation-acceptance claim. Release IL2CPP player-human-sprint built
+2026-10-27T18:10:01.8902259Z, existing shortcut selected, previous package kept.
+Build success/no C#/shadererrors;4DLL hashes +177package bundles verified.
+Evidence artifacts/human-sprint-runtime. Ownsource/docs/shortcut checkpoint
+artifacts/source-checkpoints/human-sprint-20261027; GitHub push +remote verify.
+Own workers exited; owner apps/saves untouched. Preserve deleted prompt +2old
+deer scripts. Scrapped survival/history task remains stopped.
+
 UPRIGHT RUNNING / FIRST-PERSON BODY HIDDEN,27October2026:
 Completed the rollback below. Release IL2CPP player-upright-running built
 2026-10-27T17:45:30.8700811Z; existing shortcut selects it, prior package kept.

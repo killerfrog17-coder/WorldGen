@@ -18,6 +18,11 @@ fixture lost a stack-only Resources asset during NewScene; reloading it fixes
 the fixture. No runtime asset workaround was added. Build evidence under
 `artifacts/human-sprint-runtime`; animation contact IK remains absent.
 
+Release IL2CPP `player-human-sprint` built2026-10-27T18:10:01.8902259Z,
+Build Finished Result Success with no C#/shader errors. Four frozen assembly
+hashes verified; all177 packaged fauna match canonical. Existing shortcut
+selects it; prior player retained. Own workers exited; no owner app was closed.
+
 ## Pre-night rollback, captured running and first-person visibility - 27 October 2026
 
 Owner authorized removing the overnight survival/history implementation and
