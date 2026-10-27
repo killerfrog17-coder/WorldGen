@@ -1,5 +1,23 @@
 # WorldGen repository instructions
 
+LOCAL TIME GATE CHECKPOINT,27October2026~08:53CDT:
+Shortcut NOW player-survival-time-gate IL2CPP BuiltUtc
+2026-10-27T13:48:43.4725414Z;22native persistence checks PASS;fourDLL/177fauna/
+177rig-sidecar SHA verified. Core120survival/372hominin unchanged. Calendar was
+still advancing in chat/ecology/unfocused while physiology stopped. Shared
+LocalTimeRunning now gates both, inclclosed/map/pause/inventory/dead/focus;
+diagnostic focus bypass kept. Parent runtime focus/suspend callbacks reset local
+wall sample onreturn. Overview sim/menu/music controls unchanged. Compiled/source
+reviewed, no interactive focusautomation or newgraphics/FPSclaim. Prior players
+retained, all ownedworkers exited, no ownerapps closed. Ownsource/docs/shortcut
+backup+push REQUIRED. Async ownerreview pending; don'tduplicatequestion. Continue
+authorized work until owner wrap-up, architecture first. Knownhandoff/glacial
+rendering/tribalNPC/archaiccalibration limits documented. Preserve unrelated
+deletedprompt/twodeerscripts unstaged. Next inspect hunting range: existing code
+checks horizontal planet distance +12m camera ray, so vertical/thirdperson range
+may be inconsistent. Fix using player-space reach and camera aim separately;
+don't alter originalfauna meshes/rigs or resume stoppedappearance work.
+
 LINEAGE LIFECYCLE CHECKPOINT,27October2026~08:38CDT:
 Existing shortcut NOW player-survival-lineages IL2CPP BuiltUtc
 2026-10-27T13:34:45.1043466Z;22native no-graphics checks PASS,372hominin and

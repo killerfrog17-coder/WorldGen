@@ -38,6 +38,9 @@ public sealed partial class LocalTerrainExplorer
     public bool DebugVisible=>debugOpen;
     public bool MapVisible=>mapOpen;
     public bool Paused=>paused||survivalOpen||survival?.Dead==true;
+    // Calendar credit and physiology share this gate. Menu/music pause remains
+    // separate so chatting or changing focus does not change those controls.
+    public bool LocalTimeRunning=>!closed&&!paused&&!mapOpen&&!chatOpen&&!ecologyOpen&&!SurvivalBlocked&&(Application.isFocused||WorldGenPerformance.Enabled);
     public bool MapReady=>mapSurface!=null&&!mapDirty&&!mapRefining&&shownMapRevision==mapRevision;
     public int MapBuildCount {get;private set;}
     double MaximumViewDistance=>terrain==null?250000:Math.Min(250000,terrain.RadiusM*HorizontalScale*.3);

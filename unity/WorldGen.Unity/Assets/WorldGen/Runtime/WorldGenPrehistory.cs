@@ -26,6 +26,8 @@ public sealed partial class WorldGenRuntime
     bool startWithEarlyHominins=true;
     HistoricalTechnologyCeiling preferredTechnologyCeiling=HistoricalTechnologyCeiling.Modern;
     float SimulationSidebar=>0;
+    void OnApplicationFocus(bool focused){if(terrainExplorer!=null)humanClockSample=Time.realtimeSinceStartupAsDouble;}
+    void OnApplicationPause(bool suspended){if(terrainExplorer!=null)humanClockSample=Time.realtimeSinceStartupAsDouble;}
     void ToggleSimulationPause(){playPauseTab="";if(!simulationPaused){resumeHumanPlayback=humanPlaying;humanPlaying=false;simulationPaused=true;}else{simulationPaused=false;humanPlaying=resumeHumanPlayback;}}
     void PollHumans()
     {
@@ -57,7 +59,7 @@ public sealed partial class WorldGenRuntime
         humanPlayback.World(world.Prehistory,CurrentMusicEra());
         bool run=screen=="Simulation"&&!atlasOpen&&selectedEvent==null&&!simulationPaused&&humanPlaying&&!Busy&&!saveDialog&&exportJob==null;
         humanPlayback.Accumulate(elapsed,run);
-        bool playingLocal=screen=="Simulation"&&!Environment.GetCommandLineArgs().Contains("--worldgen-local-terrain-check")&&terrainExplorer!=null&&terrainExplorer.Ready&&!terrainExplorer.Paused&&!terrainExplorer.MapVisible&&!saveDialog;
+        bool playingLocal=screen=="Simulation"&&!Environment.GetCommandLineArgs().Contains("--worldgen-local-terrain-check")&&terrainExplorer!=null&&terrainExplorer.Ready&&terrainExplorer.LocalTimeRunning&&!saveDialog;
         if(WorldGenPerformance.Enabled)playingLocal=false; // Fixed benchmark sun/weather/calendar; never advance a saved history.
         if(playingLocal)play.Accumulate(Math.Max(0,elapsed));
         if(terrainExplorer!=null&&terrainExplorer.Ready)terrainExplorer.SetDaylight(terrainExplorer.LocalSolarHour,PlayCalendar.Seconds(play,SimulationTime.Seconds(world.Prehistory))/(double)SimulationTime.Year);

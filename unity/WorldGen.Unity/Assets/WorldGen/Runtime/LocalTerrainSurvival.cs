@@ -59,7 +59,7 @@ public sealed partial class LocalTerrainExplorer
     void UpdateSurvival()
     {
         if(survival==null||!Ready)return;
-        float dt=Math.Min(.1f,Time.unscaledDeltaTime);bool stopped=paused||mapOpen||ecologyOpen||chatOpen||survivalOpen||!Application.isFocused&&!WorldGenPerformance.Enabled;
+        float dt=Math.Min(.1f,Time.unscaledDeltaTime);bool stopped=!LocalTimeRunning;
         double dx=motion.X-survivalLastX,dz=motion.Z-survivalLastZ;survivalLastX=motion.X;survivalLastZ=motion.Z;
         double speed=dt>0?Math.Min(12,Math.Sqrt(dx*dx+dz*dz)/dt):0;
         if(!stopped)

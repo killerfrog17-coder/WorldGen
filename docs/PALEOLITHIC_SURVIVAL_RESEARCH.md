@@ -412,3 +412,19 @@ the extinct-child fixture and compact persistence of rules 4; 372 hominin tests
 and 120 survival tests pass. Package DLLs, all 177 fauna bundles and 177 original
 rig sidecars are verified. No graphics changes beyond the previously recorded
 movement gate; no new render/FPS claim. Older selected players remain available.
+
+### Consistent local time suspension
+
+Survival physiology already stopped in chat, ecology inspection and while the
+window was unfocused, but calendar credit did not share those conditions. A
+single `LocalTimeRunning` gate now controls both. Existing menu/music controls
+remain separate. Focus/suspend callbacks reset the local wall-clock sample to
+avoid counting an inactive interval on return. Overview simulation behavior and
+the diagnostic focus bypass are retained.
+
+Selected build: `artifacts/player-survival-time-gate`, IL2CPP UTC
+`2026-10-27T13:48:43.4725414Z`. The 22 native persistence checks still pass;
+package DLLs and 177 fauna/rig-sidecar inputs match. The shared gate is compiled
+and source-reviewed; this follow-up did not automate interactive focus changes
+or repeat graphical acceptance. Evidence is under
+`artifacts/survival-time-gate-native-final` and its package proof JSON.
