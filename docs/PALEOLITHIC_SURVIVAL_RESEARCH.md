@@ -128,7 +128,35 @@ works, but fitted visible Paleolithic clothes are unfinished. Generic authored
 actions are reused; precise hand/tool contacts, animal contact IK and swimming
 remain unfinished. These limits should not be presented as completed systems.
 
-Core verification at this checkpoint: 106 survival/inventory/calendar checks,
+Core verification at this checkpoint: 110 survival/inventory/calendar checks,
 315 hominin/climate checks including full compact-world save/resume, 45 existing
 human-variation checks and 20 player-camera/save checks pass. Packaged runtime
 verification and selected-build details are recorded in the checkpoint log.
+
+The library session loader now accepts persistent survival data up to the shared
+document memory budget; the old 64 KB camera-settings guard could reject valid
+saves after only a few ragdolls. Both saving and loading enforce the same budget.
+An actual library-loader test covers a session larger than the former limit.
+
+### Playable build evidence
+
+IL2CPP build UTC `2026-10-27T11:10:46.5743211Z`, folder
+`artifacts/player-survival-prototype`. The previous human-refinement player is
+retained. Actual packaged review `artifacts/survival-runtime-final3` passes 24
+checks: initialization/actions, camp props, cooking, finite gathering, articulated
+death/settling, finite harvest, saved pose restoration and floating-origin rebase.
+The elevated-death test preserves an 8 m root offset, covering the placement rule
+needed for flying wildlife rather than snapping it to ground at death.
+
+List/grid/crafting/shelter screenshots were visually inspected after allowing
+the test window to initialize. Earlier hidden-window captures were blank and are
+not visual evidence. The grid is a text-only prototype with some short labels;
+the corpse shot is partly occluded by grass. No broad FPS or anatomical-physics
+acceptance claim follows from these checks.
+
+Use I or Tab for equipment, switch List/Grid there; B opens camp plans, E gathers
+or inspects nearby camps/carcasses/water. Left click strikes and right click throws
+an appropriate held weapon. Detailed controls and mode switches are inside
+Character & help. `/spawn deer 1`, `/give list`, `/survival`, `/heal` and `/mode
+survival|creative|spectator` support prototype testing. No control hints were added
+to the normal gameplay HUD.

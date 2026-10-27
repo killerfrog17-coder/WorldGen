@@ -18,6 +18,7 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public uint AppearanceHash;
         [System.Runtime.Serialization.OptionalField] public int CoatSeed;
         [System.Runtime.Serialization.OptionalField] public double ColdC,Aridity;
+        [System.Runtime.Serialization.OptionalField] public double RootOffsetM;
         public SurvivalCorpse Copy(){var c=(SurvivalCorpse)MemberwiseClone();c.SettledPose=SettledPose==null?null:(float[])SettledPose.Clone();return c;}
     }
     [Serializable] public sealed class SurvivalResourceUse
@@ -39,7 +40,10 @@ namespace WorldGen.Core
             bool Point(V p)=>Range(p.Length,.99999,1.00001);
             var ids=new System.Collections.Generic.HashSet<long>();foreach(var s in Sites)
                 if(s==null||!ids.Add(s.Id)||s.Id<1||s.Id>=NextSite||s.Kind==null||!Point(s.Position)||!Range(s.Heading,-1e9,1e9)||!Range(s.Progress,0,1)||!Range(s.FuelHours,0,10000)||!Range(s.AgeDays,0,1e10)||s.Contents==null)throw new ArgumentException("Invalid camp structure.");
+            foreach(var site in Sites)foreach(var item in site.Contents)
+                if(item==null||!SurvivalItems.TryGet(item.Item,out var d)||item.Count<1||!Range(item.AgeDays,0,1e10)||!Range(item.Condition,0,1)||!Range(item.Fraction,double.Epsilon,1)||item.Fraction!=1&&d.Kind!=SurvivalItemKind.Food)throw new ArgumentException("Invalid stored camp item.");
             foreach(var c in Corpses)if(c==null||c.Slug==null||!Point(c.Position)||c.HasAnchor&&!Point(c.AnchorPosition)||!Range(c.MassKg,.00001,1e8)||!Range(c.MeatKg,0,c.MassKg)||!Range(c.FatKg,0,c.MassKg)||!Range(c.OrganKg,0,c.MassKg)||!Range(c.BoneKg,0,c.MassKg)||!Range(c.HideUnits,0,1)||!Range(c.SinewUnits,0,100)||!Range(c.AgeDays,0,1e10)||c.SettledPose!=null&&(c.SettledPose.Length%16!=0||c.SettledPose.Any(p=>!SurvivalMath.Finite(p))))throw new ArgumentException("Invalid harvested animal.");
+            if(Corpses.Select(c=>c.SpawnId).Distinct().Count()!=Corpses.Length||Corpses.Any(c=>!Range(c.Heading,-1e9,1e9)||!SurvivalMath.Finite(c.ColdC)||!SurvivalMath.Finite(c.Aridity)||!Range(c.RootOffsetM,-1e7,1e7)))throw new ArgumentException("Invalid carcass identity or appearance.");
             foreach(var r in Resources)if(r==null||r.Key==null||!Range(r.UsedDay,0,Days)||r.Count<0)throw new ArgumentException("Invalid gathered resource record.");
         }
     }

@@ -149,13 +149,14 @@ public sealed partial class WorldGenRuntime
     void DrawHumanSetup()
     {
         GUILayout.Label("Human origins",new GUIStyle(GUI.skin.label){fontStyle=FontStyle.Bold});
-        GUILayout.Label(world?.Prehistory?.DeepPast?.Active==true?"Early Homo ? branching populations":"Homo sapiens");
+        GUILayout.Label(world?.Prehistory?.DeepPast?.Active==true?"Early Homo: branching populations":"Homo sapiens");
         if(humans==null){GUILayout.Label(worldReady?"Preparing human habitat…":"Generate the world to place humans");return;}
         GUILayout.Label(PrehistoryView.Status(humans,world.Prehistory));
         if(!world.Prehistory.Started&&humanStep==null)
         {
             bool early=GUILayout.Toggle(world.Prehistory.DeepPast?.Active==true,"Begin near early Homo (2.8 million years before reference)");
             if(early!=(world.Prehistory.DeepPast?.Active==true)){startWithEarlyHominins=early;world.Prehistory=early?humans.PrepareHominins(world.Prehistory.Origin):humans.PrepareSapiens(world.Prehistory.Origin);UpdateHumanPalette();}
+            if(early)GUILayout.Label("Early-history prototype: populations and regional traditions. The handoff to later cities and states is still in development.");
         }
         DrawTechnologyCeiling();
         GUI.enabled=!Busy&&humanStep==null&&!world.Prehistory.Started;

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.IO;
 using WorldGen.Core;
 using WorldGen.Serialization;
 
@@ -44,12 +45,21 @@ public static class SurvivalPrototypeTests
         var buildState=new SurvivalState();var blueprint=SurvivalCrafting.Shelters.First(b=>b.Id=="bed");var site=SurvivalCrafting.PlaceBlueprint(buildState,blueprint,new V(1,0,0),0);
         Check(buildState.Inventory.TryAdd("grass",2,out _)&&SurvivalCrafting.SupplyBlueprint(buildState,site,out _)&&site.Progress>0&&site.Progress<1,"Blueprint accepts a partial material delivery");
         Check(buildState.Inventory.TryAdd("grass",3,out _)&&SurvivalCrafting.SupplyBlueprint(buildState,site,out _)&&site.Progress==1&&!buildState.Inventory.Has("grass"),"A later delivery completes construction without duplicating materials");
+        var incomplete=new SurvivalState();var layout=SurvivalCrafting.PlaceBlueprint(incomplete,SurvivalCrafting.Shelters.First(b=>b.Id=="lean-to"),new V(1,0,0),0);
+        Check(incomplete.Inventory.TryAdd("stick",8,out _)&&SurvivalCrafting.SupplyBlueprint(incomplete,layout,out _),"Construction can aggregate several carried stacks in one delivery");
+        WorldJson.Read<SurvivalState>(WorldJson.Write(incomplete)).Validate();Check(layout.Progress<1,"Incomplete multi-stack construction is a valid saved camp");
         var storedFood=small.Inventory.Items.First(i=>i.Item=="cooked-meat");var loadedSmall=WorldJson.Read<SurvivalState>(WorldJson.Write(small));loadedSmall.Validate();
         Check(loadedSmall.Inventory.Items.First(i=>i.Id==storedFood.Id).Fraction==storedFood.Fraction,"Fractional portions survive serialization");
         var fireState=new SurvivalState{Sites=new[]{new SurvivalSite{Id=1,Kind="hearth",Position=new V(1,0,0),FuelHours=2,Lit=false}},NextSite=2};
         SurvivalPhysiology.Advance(fireState,3600,new SurvivalEnvironment{TemperatureC=20});Check(fireState.Sites[0].FuelHours==2,"Fuel in an unlit hearth is not consumed");
         var old=PlaySession.Legacy();old.Validate();Check(old.Version=="play-session-1"&&old.Settings.CalendarDaysPerDay==1,"Legacy session clock is preserved");
         var current=new PlaySession{Survival=small};var read=WorldJson.Read<PlaySession>(WorldJson.Write(current));read.Validate();Check(read.Version=="play-session-2","Survival save version prevents old players silently discarding inventory");
+        var persistent=new PlaySession{Survival=new SurvivalState()};persistent.Survival.Corpses=Enumerable.Range(0,8).Select(i=>SurvivalPhysiology.Carcass("deer",(ulong)(100+i),new V(1,0,0),70,0)).ToArray();
+        foreach(var corpse in persistent.Survival.Corpses)corpse.SettledPose=Enumerable.Repeat(.12345678f,128*16).ToArray();
+        string sessionJson=WorldJson.Write(persistent);Check(System.Text.Encoding.UTF8.GetByteCount(sessionJson)>65536,"Persistent physics save exercises the former camera-only size ceiling");
+        string folder=Path.Combine(Path.GetTempPath(),"WorldGen-survival-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(folder);string sessionFile=Path.Combine(folder,"play-session.json");
+        try{File.WriteAllText(sessionFile,sessionJson);var actual=WorldLibrary.ReadPlaySession(Path.Combine(folder,"snapshot.world"));Check(actual.Survival.Corpses.Length==8&&actual.Survival.Corpses[7].SettledPose.Length==2048,"Actual library loader accepts a survival session with multiple saved ragdolls");}
+        finally{File.Delete(sessionFile);Directory.Delete(folder);}
         foreach(var r in SurvivalCrafting.Recipes){Check(r.Materials.All(m=>SurvivalItems.TryGet(m.item,out _)),"Recipe inputs exist "+r.Id);Check(SurvivalItems.TryGet(r.Output,out _),"Recipe output exists "+r.Id);}
         Console.WriteLine("PASS "+checks+" survival/inventory/calendar assertions");
     }

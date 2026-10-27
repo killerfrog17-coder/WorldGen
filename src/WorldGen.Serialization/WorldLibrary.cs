@@ -16,6 +16,7 @@ namespace WorldGen.Serialization
     /// <summary>Named, immutable full-world saves. Filesystem metadata is not generation state.</summary>
     public sealed class WorldLibrary
     {
+        const int MaximumPlaySessionBytes=250000000;
         public string Root { get; }
         public WorldLibrary(string root)
         {
@@ -65,7 +66,11 @@ namespace WorldGen.Serialization
         {
             string path=Path.Combine(Path.GetDirectoryName(Path.GetFullPath(snapshotPath)),"play-session.json");
             if(!File.Exists(path))return PlaySession.Legacy();
-            if(new FileInfo(path).Length>65536)throw new InvalidDataException("Play session is too large.");
+            // A session now includes inventory, camps and persistent articulated
+            // carcasses. The old camera-settings-only 64 KB guard rejected valid
+            // survival saves after only a few kills. Use the general document
+            // memory limit, never a hidden population/corpse count ceiling.
+            if(new FileInfo(path).Length>MaximumPlaySessionBytes)throw new InvalidDataException("Play session exceeds the document size limit.");
             var session=WorldJson.Read<PlaySession>(File.ReadAllText(path))??throw new InvalidDataException("Missing play session.");session.Validate();return session;
         }
         // Recoverable deletion. Never follow a user-created directory junction outside the library.
@@ -109,7 +114,11 @@ namespace WorldGen.Serialization
             File.WriteAllText(Path.Combine(pending, "recipe.json"), WorldJson.Write(world.Recipe));
             File.WriteAllBytes(Path.Combine(pending, "heightmap.pgm"), WorldJson.Heightmap(world));
             File.WriteAllText(Path.Combine(pending, "metadata.json"), WorldJson.Write(entry));
-            if(play!=null)File.WriteAllText(Path.Combine(pending,"play-session.json"),WorldJson.Write(play));
+            if(play!=null)
+            {
+                string sessionPath=Path.Combine(pending,"play-session.json");File.WriteAllText(sessionPath,WorldJson.Write(play));
+                if(new FileInfo(sessionPath).Length>MaximumPlaySessionBytes)throw new InvalidDataException("Play session exceeds the document size limit.");
+            }
             cancellation.ThrowIfCancellationRequested();
             Directory.Move(pending, Folder(id));
             entry.SnapshotPath = Path.Combine(Folder(id), "snapshot.world");

@@ -262,6 +262,7 @@ public sealed partial class LocalTerrainExplorer
         if(animal.Health>0){SurvivalNotice("Wounded "+animal.Spawn.Profile.name.ToLowerInvariant()+".");return;}
         animal.Dead=true;var corpse=SurvivalPhysiology.Carcass(animal.Spawn.Profile.slug,animal.Spawn.Id,animal.Planet,mass,animal.Heading);
         corpse.AppearanceHash=animal.Spawn.Hash;corpse.CoatSeed=animal.Spawn.CoatSeed;corpse.ColdC=animal.Spawn.ColdC;corpse.Aridity=animal.Spawn.Aridity;
+        animal.GroundY=animal.Root.transform.localPosition.y;corpse.RootOffsetM=animal.GroundY-Ground(animal.X,animal.Z);nextAnimalPlan=0;
         survival.Corpses=survival.Corpses.Concat(new[]{corpse}).ToArray();StartAnimalRagdoll(animal,corpse,direction);SurvivalNotice(animal.Spawn.Profile.name+" killed.");
     }
     void UpdateSurvivalHeldTool(float dt)

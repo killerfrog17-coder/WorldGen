@@ -40,10 +40,15 @@ public sealed partial class LocalTerrainExplorer
         ExecuteExplorerCommand("/spawn deer 1");double deadline=Time.realtimeSinceStartupAsDouble+45;Animal deer=null;
         while(Time.realtimeSinceStartupAsDouble<deadline){deer=animals.Values.FirstOrDefault(a=>a.Manual&&a.Spawn.Profile.slug=="deer");if(deer!=null)break;yield return null;}
         Check(deer!=null,"deer streams for hunting");
+        // Exercise the elevated root used by flying wildlife too: a death must
+        // fall from its current height, rather than being snapped to the ground.
+        deer.Root.transform.localPosition+=Vector3.up*8;
+        float deathHeight=deer.Root.transform.localPosition.y;
         var before=animalBoneData.Skip(deer.Slot*AnimalBones).Take(deer.Model.Asset.BoneCount).ToArray();DamageSurvivalAnimal(deer,10000,Vector3.right*.2f);
         Check(deer.Dead&&animalRagdolls.ContainsKey(deer.Spawn.Id),"lethal hit starts articulated original-skeleton physics");
         var rag=animalRagdolls[deer.Spawn.Id];Check(rag.Bodies.Count(b=>b!=null)>5,"deer has articulated body and limb rigidbodies");
         UpdateDeadAnimal(deer);float maxError=0;for(int i=0;i<before.Length;i++)for(int k=0;k<16;k++)maxError=Math.Max(maxError,Math.Abs(before[i][k]-animalBoneData[deer.Slot*AnimalBones+i][k]));
+        Check(Math.Abs(deer.Root.transform.localPosition.y-deathHeight)<.001,"elevated wildlife begins its physical fall at its displayed height");
         File.WriteAllText(Path.Combine(output,"ragdoll-initial-pose-error.txt"),maxError.ToString("R",System.Globalization.CultureInfo.InvariantCulture));
         Check(maxError<.025,"ragdoll begins close to the currently displayed native pose");
         var corpse=survival.Corpses.Last();double meat=corpse.MeatKg;Check(SurvivalPhysiology.Harvest(survival,corpse,"meat",out _),"carcass yields meat");Check(corpse.MeatKg<meat,"finite yield decreases");
@@ -59,6 +64,7 @@ public sealed partial class LocalTerrainExplorer
         Check(AddAnimal(spawn,model),"saved carcass streams back into the renderer");deer=animals[spawn.Id];
         float restoredError=0;for(int i=0;i<model.Asset.BoneCount;i++)for(int k=0;k<16;k++)restoredError=Math.Max(restoredError,Math.Abs(pose[i*16+k]-animalBoneData[deer.Slot*AnimalBones+i][k]));
         Check(deer.Dead&&restoredError<.025,"saved carcass restores its articulated skin pose without resurrecting");
+        Check(Math.Abs(deer.Root.transform.localPosition.y-deathHeight)<.01,"saved airborne-death root offset survives reload");
         foreach(var body in animalRagdolls[spawn.Id].Bodies)if(body!=null)body.Sleep();
         var rootBefore=deer.Root.transform.localPosition;var boneBefore=animalRagdolls[spawn.Id].Bones.First().position;double priorOrigin=originX;originX+=2048;UpdateDeadAnimal(deer);
         Check(Math.Abs(deer.Root.transform.localPosition.x-rootBefore.x+2048)<.01&&Math.Abs(animalRagdolls[spawn.Id].Bones.First().position.x-boneBefore.x+2048)<.03,"corpse bodies rebase with the floating terrain origin");originX=priorOrigin;UpdateDeadAnimal(deer);

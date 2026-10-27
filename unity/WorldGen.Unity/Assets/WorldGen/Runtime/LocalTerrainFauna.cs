@@ -80,6 +80,7 @@ public sealed partial class LocalTerrainExplorer
                 TerrainHandoff.Coordinates(frame,animal.Planet,out animal.X,out animal.Z);
                 TerrainHandoff.Coordinates(frame,animal.Spawn.Position,out animal.HomeX,out animal.HomeZ);
                 animal.GroundY=frame.SurfaceY(animal.Planet,animal.Spawn.GroundM);animal.NextGround=0;
+                if(animal.Dead&&animalRagdolls.TryGetValue(animal.Spawn.Id,out var corpse))animal.GroundY=Ground(animal.X,animal.Z)+corpse.Corpse.RootOffsetM;
             }
         }
         if(animalPlan!=null&&animalPlan.IsCompleted)
@@ -90,7 +91,8 @@ public sealed partial class LocalTerrainExplorer
                 var playerAt=Position;double radius=frame.RadiusM;
                 // Share the model cache across media, rather than loading every
                 // ground species before considering nearby birds or insects.
-                animalWanted.Clear();animalWanted.AddRange(animalPlan.Result.OrderBy(s=>(s.Position-playerAt).Length*radius/Math.Max(1,s.Profile.radiusM)).ThenBy(s=>s.Id));AppendSavedCarcasses();animalCandidates=animalWanted.Count;
+                var deadIds=new HashSet<ulong>(survival?.Corpses.Select(c=>c.SpawnId)??Enumerable.Empty<ulong>());
+                animalWanted.Clear();animalWanted.AddRange(animalPlan.Result.Where(s=>!deadIds.Contains(s.Id)).OrderBy(s=>(s.Position-playerAt).Length*radius/Math.Max(1,s.Profile.radiusM)).ThenBy(s=>s.Id));AppendSavedCarcasses();animalCandidates=animalWanted.Count;
                 var ids=new HashSet<ulong>(animalWanted.Select(s=>s.Id));foreach(var animal in animals.Values)animal.Wanted=animal.Manual||ids.Contains(animal.Spawn.Id);
             }
             animalPlan=null;
@@ -107,7 +109,6 @@ public sealed partial class LocalTerrainExplorer
         if(!localPopulation){animalWanted.Clear();animalManualWanted.Clear();animalManualRequests.Clear();foreach(var animal in animals.Values)animal.Wanted=false;}
         if(!stopped&&localPopulation)
         {
-            AppendSavedCarcasses();
             UpdateManualAnimalSpawns();
             long admission=System.Diagnostics.Stopwatch.GetTimestamp();
             foreach(var spawn in animalWanted)
@@ -147,9 +148,10 @@ public sealed partial class LocalTerrainExplorer
     void AppendSavedCarcasses()
     {
         if(survival==null||animalProfiles==null)return;
+        var wantedIds=new HashSet<ulong>(animalWanted.Select(s=>s.Id));
         foreach(var corpse in survival.Corpses)
         {
-            if(animalWanted.Any(s=>s.Id==corpse.SpawnId))continue;
+            if(wantedIds.Contains(corpse.SpawnId))continue;
             var profile=animalProfiles.FirstOrDefault(p=>p.slug==corpse.Slug);if(profile==null)continue;
             var position=corpse.HasAnchor?corpse.AnchorPosition:corpse.Position;
             if((position-Position).Length*frame.RadiusM>profile.radiusM)continue;
@@ -203,7 +205,7 @@ public sealed partial class LocalTerrainExplorer
         if(corpse!=null)
         {
             animal.Planet=corpse.HasAnchor?corpse.AnchorPosition:corpse.Position;TerrainHandoff.Coordinates(frame,animal.Planet,out animal.X,out animal.Z);
-            animal.GroundY=Ground(animal.X,animal.Z);animal.Heading=(float)corpse.Heading;
+            animal.GroundY=Ground(animal.X,animal.Z)+corpse.RootOffsetM;animal.Heading=(float)corpse.Heading;
             animal.Root.transform.localPosition=new Vector3((float)(animal.X-originX),(float)animal.GroundY,(float)(animal.Z-originZ));
             animal.Root.transform.localRotation=Quaternion.Euler(0,animal.Heading,0);
             animal.Dead=true;StartAnimalRagdoll(animal,corpse,Vector3.zero);

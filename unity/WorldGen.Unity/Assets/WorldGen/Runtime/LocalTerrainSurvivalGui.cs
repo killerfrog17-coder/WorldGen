@@ -13,6 +13,7 @@ public sealed partial class LocalTerrainExplorer
         {
             float width=Math.Min(Screen.width-40,1050),height=Math.Min(Screen.height-40,730);
             survivalWindowRect=new Rect((Screen.width-width)/2,(Screen.height-height)/2,width,height);
+            Color panelColor=GUI.color;GUI.color=new Color(.045f,.055f,.06f,.97f);GUI.DrawTexture(survivalWindowRect,Texture2D.whiteTexture);GUI.color=panelColor;
             GUI.Box(survivalWindowRect,GUIContent.none);GUILayout.BeginArea(new Rect(survivalWindowRect.x+20,survivalWindowRect.y+16,width-40,height-32));
             GUILayout.BeginHorizontal();GUILayout.Label(survival.Dead?"YOU HAVE DIED":"CAMP & EQUIPMENT",GUILayout.Height(30));GUILayout.FlexibleSpace();
             if(!survival.Dead&&GUILayout.Button("Close",GUILayout.Width(90))){survivalOpen=false;CaptureMouse();}GUILayout.EndHorizontal();
@@ -55,11 +56,12 @@ public sealed partial class LocalTerrainExplorer
         else
         {
             GUILayout.Space(8);
+            var rowStyle=new GUIStyle(GUI.skin.button){alignment=TextAnchor.MiddleLeft,fixedHeight=28,padding=new RectOffset(10,10,4,4)};
             foreach(var stack in bag.Items.ToArray())
             {
                 var item=SurvivalItems.Get(stack.Item);GUILayout.BeginHorizontal();
                 bool selected=stack.Id==survivalSelected;string wear=stack.Container==-2?" [worn]":stack.Id==bag.Equipped?" [held]":"";
-                if(GUILayout.Toggle(selected,item.Name+" ×"+stack.Count+wear,"Button",GUILayout.MinWidth(290))&&!selected)survivalSelected=stack.Id;
+                if(GUILayout.Toggle(selected,item.Name+" ×"+stack.Count+wear,rowStyle,GUILayout.MinWidth(290))&&!selected)survivalSelected=stack.Id;
                 GUILayout.Label((stack.Count*item.Kg*stack.Fraction).ToString("F2")+" kg",GUILayout.Width(85));GUILayout.Label((stack.Count*item.Litres*stack.Fraction).ToString("F1")+" L",GUILayout.Width(75));
                 GUILayout.Label(item.ShelfDays>0?(stack.AgeDays>item.ShelfDays?"Spoiled":"Freshness "+Math.Max(0,100*(1-stack.AgeDays/item.ShelfDays)).ToString("F0")+"%"):"",GUILayout.Width(130));GUILayout.EndHorizontal();
             }
@@ -93,7 +95,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var d=SurvivalItems.Get(s.Item);int w=s.Rotated?d.Height:d.Width,h=s.Rotated?d.Width:d.Height;
             var area=new Rect(rect.x+s.X*cell+2,rect.y+s.Y*cell+2,w*cell-6,h*cell-6);
-            string label=d.Id=="stone-spear"||d.Id=="wood-spear"?"Spear":d.Id=="cooked-meat"?"Roast":d.Id=="raw-meat"?"Meat":d.Id=="waterskin"?"Water":d.Name.Split(' ')[0];
+            string label=d.Id=="stone-spear"||d.Id=="wood-spear"?"Spear":d.Id=="cooked-meat"?"Roast":d.Id=="raw-meat"?"Meat":d.Id=="waterskin"?"Water":d.Id=="hammer"?"Hammer":d.Id=="fire-drill"?"Drill":d.Id=="knife"?"Knife":d.Id=="dressing"?"Cloth":d.Id=="tinder"?"Tinder":d.Id=="cord"?"Cord":d.Id=="nuts"?"Nuts":d.Name.Split(' ')[0];
             GUI.Box(area,new GUIContent(label+"\nx"+s.Count,d.Name));
             if(e.type==EventType.MouseDown&&e.button==0&&area.Contains(e.mousePosition))
             {survivalSelected=s.Id;survivalDragged=s.Id;survivalDragOffset=e.mousePosition-area.position;e.Use();}
