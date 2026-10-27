@@ -12,7 +12,7 @@ plan=json.loads((root/'export-plan.json').read_text())['animals']
 catalogue=json.loads((repo/'unity/WorldGen.Unity/Assets/WorldGen/Resources/WorldGenFaunaCatalogue.json').read_text())['animals']
 inventory={r['slug']:r for r in json.loads((root/'native-inventory.json').read_text())['animals']}
 assert len(plan)==len(catalogue)==177 and {r['slug'] for r in plan}=={r['slug'] for r in catalogue}
-signature=hashlib.sha256((repo/'scripts/export-fauna-runtime.py').read_bytes()+(repo/'scripts/fauna_runtime_surface.py').read_bytes()).hexdigest()
+signature=hashlib.sha256((repo/'scripts/export-fauna-runtime.py').read_bytes()+(repo/'scripts/fauna_runtime_surface.py').read_bytes()+(repo/'scripts/fauna_runtime_uv.py').read_bytes()).hexdigest()
 output=repo/'unity/WorldGen.Unity/Assets/StreamingAssets/fauna';output.mkdir(parents=True,exist_ok=True)
 rows=[];worst=0;clips=0;coats=0
 for item in plan:

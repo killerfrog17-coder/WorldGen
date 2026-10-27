@@ -24,6 +24,36 @@ fauna repair has separate newer outputs, DO NOT repackage them here. Project
 settings/importer autochanges restored. Evidence tree-efficiency-20261026/probe;
 docs FOLIAGE_SHADOWS/VALIDATION. Prior overlap/depth experiments remainOFF.
 
+FAUNA EYE CLOSURE REPAIR INSTALLED,26October2026:
+Owner explicitly requests actual IN-GAME eye-hole repairs. Confirmed runtime UV
+bug collapsed stitched lids to one atlas coordinate; maskG0 made fauna shader
+discard entire lids. Fixed separate destination UVs, opaque unpainted mask /
+neutral normal backgrounds, conservative thin-triangle samples. True source
+alpha retained by regression. ALL177 exports/bundles verified and INSTALLED in
+canonical Assets/StreamingAssets/fauna, current player-tree-efficiency, retained
+player-forest-overlap-streaming and their EXISTING E:build staging folders.
+Launcher still selects tree-efficiency. Executables unchanged; no full game copy,
+live game compile, paid/inference call, owner app closure or player launch.
+Latest assets.json SHA c32a7e0620dbaa646506bf15bfa2fd9825749b653f6ac5daa015e2fa7e70e27f.
+177bundles412.0MiB,541movementclips/830coats retained. Native SHA changed ONLY
+10 canonical sources: Hare/Rabbit/Wolf/Badger/Jaguar/Leopard/Lion/Ocelot/Puma/Tiger.
+They gain192 interior socket triangles each, exact rim coordinates+weights;
+original mesh/skin/shapes/rest/actions exact. All other167 natives, incl protected
+Deer, unchanged. DO NOT restore old177-native pins from the tree task: current
+runtime native-inventory/export-plan now include these authorized10 repairs.
+Future paint rebuilds retain sealed_socket_interior profile + shared helper.
+All177 original triangle-stream/normal/skin prefixes + motion payloads exact;
+all solid-part alpha checks pass. Final central-ray coverage on ALL26 stitched
+animals has0misses;10lining seams max0gap over5phases of EVERY shipped clip.
+Actual exported before/after eye renders inspected; coarse source anatomy remains
+placeholder art. Isolated Unity loader verified ALL177 with original game asset
+type and exact pose/compressed-mask/normal payloads. Evidence /installation /
+final-proof under artifacts/fauna-eye-closure-repair; docs FAUNA_EYE_CLOSURE_REPAIR.
+All owned workers exited; temporary suspension around main-thread performance
+probe resumed/completed. Verified cache/staging duplicates2,201,599,887bytes
+removed. Current canonical assets/player data/evidence retained. Source backup
+includes own scripts/docs/note only; preserve unrelated prompt deletion/deer files.
+
 FOREST STREAMING HITCH CHECKPOINT,26October2026~18:01CDT:
 Owner LIFTED no-launch/test rule; use short proportionate tests. Prioritizes
 foliage overlap and forest-only walking freezes, grass unchanged. Owner says

@@ -16,7 +16,8 @@ a=ap.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
 plan=json.loads((root/'export-plan.json').read_text())['animals']
 sys.path.insert(0,str(repo/'scripts'))
 import fauna_runtime_surface as cpu_surface
-signature=hashlib.sha256(Path(__file__).read_bytes()+(repo/'scripts/fauna_runtime_surface.py').read_bytes()).hexdigest()
+import fauna_runtime_uv as runtime_uv
+signature=hashlib.sha256(Path(__file__).read_bytes()+(repo/'scripts/fauna_runtime_surface.py').read_bytes()+(repo/'scripts/fauna_runtime_uv.py').read_bytes()).hexdigest()
 
 def floats(file,values):file.write(np.asarray(values,dtype='<f4').tobytes())
 def ints(file,values):file.write(np.asarray(values,dtype='<i4').tobytes())
@@ -70,7 +71,7 @@ def export(item):
     axis=Matrix(((1,0,0,0),(0,0,1,0),(0,1,0,0),(0,0,0,1)))
     C=axis@turn@Matrix.Scale(1/span,4)@Matrix.Translation(Vector((-(low.x+high.x)*.5,-(low.y+high.y)*.5,-low.z)))
     inverseC=C.inverted();inverseRig=rig.matrix_world.inverted();inverseBind=[b.matrix_local.inverted() for b in bones]
-    temp=[];part_uv=[]
+    temp=[];part_uv=[];uv_reports=[]
     # Keep every part, including optional racks, but separate their destination
     # atlas rectangles. All original source UV/attribute layers remain inputs.
     count=max(1,len(original)-1);columns=2;rows=math.ceil(count/columns)
@@ -81,16 +82,10 @@ def export(item):
         for mod in list(copy.modifiers):copy.modifiers.remove(mod)
         copy.hide_render=False;copy.hide_set(False)
         if data.shape_keys:copy.shape_key_clear()
-        default_uv=data.uv_layers.active
-        colour_uv=data.uv_layers.get('Fauna Paint UV') or default_uv
-        uv=data.uv_layers.new(name='RuntimeUV')
         if pi==0:rect=(.002,.002,.746,.996) if count>0 else (.002,.002,.996,.996)
         else:
             at=pi-1;rect=(.752+(at%columns)*.124,.002+(at//columns)*.996/rows,.120,.996/rows-.004)
-        for li,target in enumerate(uv.data):
-            source_uv=colour_uv.data[li].uv if colour_uv else (0.5,0.5)
-            target.uv=(rect[0]+max(0,min(1,source_uv[0]))*rect[2],rect[1]+max(0,min(1,source_uv[1]))*rect[3])
-        if default_uv:default_uv.active_render=True
+        uv_reports.append(runtime_uv.prepare(copy,rect))
         temp.append(copy);part_uv.append(rect)
     for ob in original:ob.hide_render=True;ob.hide_set(True)
     # Native surface nodes are evaluated into an unlit colour atlas. This keeps
@@ -254,6 +249,8 @@ def export(item):
     manifest['nativeSkinChecks']=validation;manifest['influences']=influences
     manifest['hasMorph']=bool(morph)
     manifest['surface_method']=a.surface;manifest['reused_native_bakes']=sorted(reusable)
+    manifest['runtime_uv_checks']=uv_reports
+    manifest['source_to_runtime']=list(map(list,C));manifest['part_names']=names
     (out/'model.json').write_text(json.dumps(manifest,indent=2)+'\n');files.append('model.json')
     assert hashlib.sha256(source.read_bytes()).hexdigest()==digest
     receipt.write_text(json.dumps({'source_sha256':digest,'exporter_sha256':signature,'seconds':round(time.monotonic()-started,2),'files':{f:hashlib.sha256((out/f).read_bytes()).hexdigest() for f in files},'complete':True},indent=2)+'\n')

@@ -42,17 +42,22 @@ class Surface:
             for tri in mesh.loop_triangles:
                 loops=np.array(tri.loops);xy=np.array([target.data[int(i)].uv[:] for i in loops])*size-.5
                 lo=np.maximum(np.ceil(xy.min(0)).astype(int),0);hi=np.minimum(np.floor(xy.max(0)).astype(int),size-1)
-                if np.any(lo>hi):continue
+                if np.any(lo>hi):lo=hi=np.clip(np.rint(xy.mean(0)),0,size-1).astype(int)
                 A,B,C=xy;den=(B[1]-C[1])*(A[0]-C[0])+(C[0]-B[0])*(A[1]-C[1])
                 if abs(den)<1e-12:continue
                 yy,xx=np.mgrid[lo[1]:hi[1]+1,lo[0]:hi[0]+1]
                 a=((B[1]-C[1])*(xx-C[0])+(C[0]-B[0])*(yy-C[1]))/den
                 b=((C[1]-A[1])*(xx-C[0])+(A[0]-C[0])*(yy-C[1]))/den;c=1-a-b
                 inside=(a>=-1e-7)&(b>=-1e-7)&(c>=-1e-7)
-                if not inside.any():continue
-                count=int(inside.sum());record=mats.setdefault(tri.material_index,{'pixels':[],'loops':[],'vertices':[],'bary':[],'triangles':[]})
-                record['pixels'].append(yy[inside]*size+xx[inside]);record['loops'].append(np.tile(loops,(count,1)))
-                record['vertices'].append(np.tile(np.array(tri.vertices),(count,1)));record['bary'].append(np.c_[a[inside],b[inside],c[inside]])
+                if not inside.any():
+                    # Retain a shading sample for thin lashes/whiskers whose
+                    # nondegenerate bake triangle falls between pixel centres.
+                    point=np.clip(np.rint(xy.mean(0)),0,size-1).astype(int)
+                    pixels=np.array([point[1]*size+point[0]]);bary=np.array([[1/3,1/3,1/3]])
+                else:pixels=yy[inside]*size+xx[inside];bary=np.c_[a[inside],b[inside],c[inside]]
+                count=len(pixels);record=mats.setdefault(tri.material_index,{'pixels':[],'loops':[],'vertices':[],'bary':[],'triangles':[]})
+                record['pixels'].append(pixels);record['loops'].append(np.tile(loops,(count,1)))
+                record['vertices'].append(np.tile(np.array(tri.vertices),(count,1)));record['bary'].append(bary)
                 record['triangles'].append(np.full(count,tri.index))
             for mi,record in mats.items():
                 self.groups.append({'object':pi,'material':mi,**{k:np.concatenate(v) for k,v in record.items()}})
@@ -143,6 +148,8 @@ class Surface:
         cache[key]=result;return result
     def bake(self,kind,path,materials):
         size=self.size;image=np.zeros((size*size,4),np.float32);image[:,3]=1;known=np.zeros(size*size,bool)
+        if kind=='mask':image[:,:3]=(.65,1,0)
+        elif kind=='normal':image[:,:3]=(.5,.5,1)
         for group in self.groups:
             material=materials[group['object']][group['material']];n=len(group['pixels']);cache={}
             bsdf=next((node for node in material.node_tree.nodes if node.type=='BSDF_PRINCIPLED'),None) if material and material.use_nodes else None

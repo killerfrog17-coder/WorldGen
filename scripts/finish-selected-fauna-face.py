@@ -528,6 +528,9 @@ if stitched and a.slug in {'wild-boar','bear'}:
     from fauna_anatomy_details import add as add_anatomy_details
     state['species_head_details']=add_anatomy_details(a.slug,land,body,root,repo,obj,sample,bvh,body.data.materials[0],coat_objects)
 
+if land.get('anatomical_orbit',{}).get('sealed_socket_interior'):
+    from fauna_eye_socket_lining import seal as seal_socket_interior
+    features.extend(seal_socket_interior(a.slug,land,rig))
 entry.update(facial_objects=features,coat_objects=coat_objects,objects=[entry['body'],*features,*entry.get('appendage_objects',[])])
 entry['paint_face_direction']=land['front_axis']
 if kind in {'suine','caprine','ursid','bovine','avian','fish','rodent','equine','cervid','small-carnivore','beaver'}:
