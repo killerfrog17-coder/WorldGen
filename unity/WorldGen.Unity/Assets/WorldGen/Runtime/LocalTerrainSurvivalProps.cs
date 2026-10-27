@@ -74,6 +74,12 @@ public sealed partial class LocalTerrainExplorer
     GameObject CreateSurvivalStructure(SurvivalSite site)
     {
         var root=new GameObject("Camp "+site.Kind);root.layer=30;root.transform.SetParent(transform,false);root.transform.localRotation=Quaternion.Euler(0,(float)site.Heading,0);
+        if(site.Progress<1)
+        {
+            root.name+=" unfinished";
+            for(int x=-1;x<=1;x+=2)for(int z=-1;z<=1;z+=2)SurvivalPole(root,"Layout stake",new Vector3(x*1.3f,0,z*1.1f),new Vector3(x*1.3f,.55f,z*1.1f),.025f,SurvivalWood);
+            return root;
+        }
         if(site.Kind=="hearth")
         {
             for(int i=0;i<10;i++){float angle=i*Mathf.PI/5;SurvivalPrimitive(root,"Hearth stone",PrimitiveType.Sphere,new Vector3(Mathf.Sin(angle)*.48f,.1f,Mathf.Cos(angle)*.48f),new Vector3(.22f,.17f,.2f),SurvivalStone);}

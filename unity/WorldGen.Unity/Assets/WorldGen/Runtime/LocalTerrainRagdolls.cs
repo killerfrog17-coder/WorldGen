@@ -30,7 +30,8 @@ public sealed partial class LocalTerrainExplorer
         }
         if(rig==null||rig.version!=1||rig.sourceSha256!=animal.Model.Asset.SourceSha256||rig.bones.Length!=animal.Model.Asset.BoneCount)
         {Debug.LogError("Original ragdoll bind hierarchy unavailable for "+slug);return;}
-        int count=rig.bones.Length;
+        int count=rig.bones.Length;bool restoring=corpse.PoseSource==animal.Model.Asset.SourceSha256&&corpse.SettledPose?.Length==count*16;
+        if(restoring)for(int i=0;i<count;i++){var pose=new Matrix4x4();for(int k=0;k<16;k++)pose[k]=corpse.SettledPose[i*16+k];animalBoneData[animal.Slot*AnimalBones+i]=pose;}
         var rag=new AnimalRagdoll{Animal=animal,Corpse=corpse,Bones=new Transform[count],Bodies=new Rigidbody[count],InverseBind=new Matrix4x4[count],Attachments=new Matrix4x4[count],PhysicalParent=new int[count],Velocities=new Vector3[count],Spins=new Vector3[count]};
         var initial=new Matrix4x4[count];int firstPhysical=Array.FindIndex(rig.bones,b=>b.physical);
         if(firstPhysical<0)firstPhysical=0;
@@ -71,7 +72,7 @@ public sealed partial class LocalTerrainExplorer
         // ground/objects remain collidable. Articulated joints retain anatomy.
         var colliders=rag.Bones.Select(b=>b.GetComponent<Collider>()).Where(c=>c!=null).ToArray();
         for(int i=0;i<colliders.Length;i++)for(int j=i+1;j<colliders.Length;j++)Physics.IgnoreCollision(colliders[i],colliders[j]);
-        rag.Ground=CreateRagdollGround(animal);animalRagdolls[corpse.SpawnId]=rag;
+        rag.Ground=CreateRagdollGround(animal);animalRagdolls[corpse.SpawnId]=rag;if(restoring)foreach(var body in rag.Bodies)if(body!=null)body.Sleep();
         animal.TargetSpeed=animal.Speed=0;animal.Props.SetFloat("_Glow",0);animal.Props.SetFloat("_Fade",1);animal.Renderer.SetPropertyBlock(animal.Props);
     }
     GameObject CreateRagdollGround(Animal animal)
@@ -86,13 +87,32 @@ public sealed partial class LocalTerrainExplorer
     void UpdateDeadAnimal(Animal animal)
     {
         if(!animalRagdolls.TryGetValue(animal.Spawn.Id,out var rag))return;
-        bool awake=rag.Bodies.Any(b=>b!=null&&!b.IsSleeping()&&!b.isKinematic);if(!awake&&rag.QuietFrames++>3)return;rag.QuietFrames=0;
+        var expected=new Vector3((float)(animal.X-originX),(float)animal.GroundY,(float)(animal.Z-originZ));var delta=expected-animal.Root.transform.localPosition;
+        if(delta.sqrMagnitude>.000001f)
+        {
+            var positions=rag.Bones.Select(b=>b.position).ToArray();animal.Root.transform.localPosition=expected;
+            var worldDelta=transform.TransformVector(delta);
+            for(int i=0;i<rag.Bodies.Length;i++)if(rag.Bodies[i]!=null)rag.Bodies[i].position=positions[i]+worldDelta;
+            if(rag.Ground!=null)rag.Ground.transform.localPosition+=delta;
+            rag.QuietFrames=0;
+        }
+        bool awake=rag.Bodies.Any(b=>b!=null&&!b.IsSleeping()&&!b.isKinematic);
+        if(!awake){if(rag.QuietFrames++==3)StoreRagdollPose(rag);if(rag.QuietFrames>4)return;}else rag.QuietFrames=0;
         for(int i=0;i<rag.Bones.Length;i++)
         {
             if(rag.Bodies[i]!=null)continue;int parent=rag.PhysicalParent[i];var pose=parent<0?animal.Root.transform.localToWorldMatrix*rag.Attachments[i]:rag.Bones[parent].localToWorldMatrix*rag.Attachments[i];
             rag.Bones[i].SetPositionAndRotation(pose.GetColumn(3),pose.rotation);
         }
-        for(int i=0;i<rag.Bones.Length;i++)animalBoneData[animal.Slot*AnimalBones+i]=animal.Root.transform.worldToLocalMatrix*rag.Bones[i].localToWorldMatrix*rag.InverseBind[i];
+        var bounds=new Bounds(animal.Root.transform.InverseTransformPoint(rag.Bones[0].position),Vector3.one*.2f);
+        for(int i=0;i<rag.Bones.Length;i++)
+        {animalBoneData[animal.Slot*AnimalBones+i]=animal.Root.transform.worldToLocalMatrix*rag.Bones[i].localToWorldMatrix*rag.InverseBind[i];bounds.Encapsulate(animal.Root.transform.InverseTransformPoint(rag.Bones[i].position));}
+        bounds.Expand(.35f);animal.Renderer.localBounds=bounds;
+    }
+    void StoreRagdollPose(AnimalRagdoll rag)
+    {
+        var animal=rag.Animal;rag.Corpse.SettledPose=new float[rag.Bones.Length*16];rag.Corpse.PoseSource=animal.Model.Asset.SourceSha256;
+        for(int i=0;i<rag.Bones.Length;i++)for(int k=0;k<16;k++)rag.Corpse.SettledPose[i*16+k]=animalBoneData[animal.Slot*AnimalBones+i][k];
+        int body=Array.FindIndex(rag.Bodies,b=>b!=null);if(body>=0){var point=transform.InverseTransformPoint(rag.Bones[body].position);rag.Corpse.Position=frame.Position(point.x+originX,point.z+originZ);}
     }
     void UpdateRagdolls(float dt)
     {
@@ -126,6 +146,7 @@ public sealed partial class LocalTerrainExplorer
     void RemoveAnimalRagdoll(ulong id)
     {
         if(!animalRagdolls.TryGetValue(id,out var rag))return;
+        StoreRagdollPose(rag);
         if(rag.Ground!=null){var mesh=rag.Ground.GetComponent<MeshCollider>()?.sharedMesh;if(mesh!=null)Destroy(mesh);Destroy(rag.Ground);}
         animalRagdolls.Remove(id);
     }

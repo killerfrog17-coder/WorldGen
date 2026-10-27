@@ -27,7 +27,7 @@ namespace WorldGen.Core
         {
             var copy=Copy(false);copy.Society=Society.CopyOwned(History.Aggregates.Living);copy.History=History.CopyOwned();return copy;
         }
-        public string ComputeHash()=>DeepPast==null?BaseHash():StateHash.Compute(new object[]{BaseHash(),DeepPast});
+        public string ComputeHash()=>DeepPast?.Active==true?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Timeline,Society.SelectedStepYears,Society.ManualStep,DeepPast.CanonicalHash}):DeepPast==null?BaseHash():StateHash.Compute(new object[]{BaseHash(),DeepPast});
         string BaseHash()=>History?.Aggregates!=null?AggregateHash(true):Timeline!=null?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,History,Timeline}):Version=="prehistory-6"?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society,History}):Version=="prehistory-4"||Version=="prehistory-5"?StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry,Society}):StateHash.Compute(new object[]{Version,Species,WorldHash,Origin,Years,Started,Population,ArrivalYear,Ancestry});
         public void Seal(){Hash=ComputeHash();}
     }
@@ -62,7 +62,7 @@ namespace WorldGen.Core
         {
             World=world;var e=world.Ecology;var s=world.Surface;
             ruralWeight=new long[s.Cells.Length];ruralPrefix=new long[s.Cells.Length];
-            bool historicalEcology=world.Prehistory==null||RevisedHistory(world.Prehistory);
+            bool historicalEcology=world.Prehistory==null||world.Prehistory.DeepPast!=null||RevisedHistory(world.Prehistory);
             if(e==null||e.Region.Length!=s.Cells.Length)throw new ArgumentException("Generate ecoregions before placing humans.");
             CellPatch=Enumerable.Repeat(-1,s.Cells.Length).ToArray();var patches=new List<Patch>();var queue=new Queue<int>();
             for(int i=0;i<CellPatch.Length;i++)
@@ -92,7 +92,7 @@ namespace WorldGen.Core
                     biome==Biome.Grassland||biome==Biome.Savanna?ForagerLifestyle.Grassland:ForagerLifestyle.Woodland;
                 patches.Add(new Patch{Region=region,Cell=cells[0],Cells=cells.ToArray(),Capacity=Math.Max(0,(long)Math.Round(capacity)),RadiusKm=Math.Sqrt(area/Math.PI),Lifestyle=lifestyle});
             }
-            bool modern=world.Prehistory==null||world.Prehistory.Version=="prehistory-3"||world.Prehistory.Version=="prehistory-4"||(world.Prehistory.Version=="prehistory-5"||world.Prehistory.Version=="prehistory-6");
+            bool modern=world.Prehistory==null||world.Prehistory.DeepPast!=null||world.Prehistory.Version=="prehistory-3"||world.Prehistory.Version=="prehistory-4"||(world.Prehistory.Version=="prehistory-5"||world.Prehistory.Version=="prehistory-6");
             if(modern&&world.Subcells!=null)foreach(var group in world.Subcells.Cells)
             {
                 // One conservative settlement node per island cell, supported by its largest island only.
@@ -144,7 +144,7 @@ namespace WorldGen.Core
                 }
             }
             Routes=routes.Values.ToArray();
-            if(world.Prehistory==null||(world.Prehistory.Version=="prehistory-5"||world.Prehistory.Version=="prehistory-6"))Routes=Routes.Concat(CoastalDetours(token)).OrderBy(r=>r.A).ThenBy(r=>r.B).ThenBy(r=>r.Coastal).ThenBy(r=>r.SeaDropM).ToArray();
+            if(world.Prehistory==null||world.Prehistory.DeepPast!=null||(world.Prehistory.Version=="prehistory-5"||world.Prehistory.Version=="prehistory-6"))Routes=Routes.Concat(CoastalDetours(token)).OrderBy(r=>r.A).ThenBy(r=>r.B).ThenBy(r=>r.Coastal).ThenBy(r=>r.SeaDropM).ToArray();
             // Geometry-only setup index. Ordinary treaty reviews address at
             // most eight neighboring land districts, not duplicate sea routes.
             var landLinks=new System.Collections.Generic.List<int>[Patches.Length];
@@ -169,10 +169,13 @@ namespace WorldGen.Core
             return best;
         }
         public PrehistoryState Prepare(int origin=-1)
+            =>World.Prehistory?.DeepPast?.Active==true?PrepareHominins(origin,World.Prehistory.DeepPast.EarthLikeTrajectory):PrepareSapiensState(origin,false);
+        public PrehistoryState PrepareSapiens(int origin=-1)=>PrepareSapiensState(origin,true);
+        PrehistoryState PrepareSapiensState(int origin,bool currentRules)
         {
             if(origin<0)origin=ChooseOrigin();if(origin<0||origin>=Patches.Length||Patches[origin].Capacity<25)throw new ArgumentException("This location cannot support a founding band; choose another land region.");
-            string version=World.Prehistory?.Version??"prehistory-6";
-            var s=new PrehistoryState{Version=version,Origin=origin,WorldHash=World.Stages.Last().Hash,Population=new long[Patches.Length],ArrivalYear=Enumerable.Repeat(-1,Patches.Length).ToArray(),Ancestry=Enumerable.Repeat(5000,Patches.Length*8).ToArray(),History=version=="prehistory-6"?new HistoryState{Version=World.Prehistory?.History?.Version??CurrentHistoryVersion}:null,Society=version=="prehistory-4"||version=="prehistory-5"||version=="prehistory-6"?new SocietyState{Knowledge=new int[Patches.Length]}:null};
+            string version=currentRules?"prehistory-6":World.Prehistory?.Version??"prehistory-6";
+            var s=new PrehistoryState{Version=version,Origin=origin,WorldHash=World.Stages.Last().Hash,Population=new long[Patches.Length],ArrivalYear=Enumerable.Repeat(-1,Patches.Length).ToArray(),Ancestry=Enumerable.Repeat(5000,Patches.Length*8).ToArray(),History=version=="prehistory-6"?new HistoryState{Version=currentRules?CurrentHistoryVersion:World.Prehistory?.History?.Version??CurrentHistoryVersion}:null,Society=version=="prehistory-4"||version=="prehistory-5"||version=="prehistory-6"?new SocietyState{Knowledge=new int[Patches.Length]}:null};
             // A new history retains the user's limit, not the previous world's
             // live ports/campaign memories referencing settlements it no longer has.
             if(ModernHistory(s))s.History.Modern=new HistoricalModernSettings{TechnologyCeiling=World.Prehistory?.History?.Modern?.TechnologyCeiling??HistoricalTechnologyCeiling.Modern};

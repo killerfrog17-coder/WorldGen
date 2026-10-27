@@ -33,7 +33,7 @@ public sealed partial class LocalTerrainExplorer
     void TriggerHumanSurvivalAction(string role)
     {
         if(humanPlayer==null)return;
-        string actual=role=="Attack"?"Sword attack":role=="Sit"?"Sitting":role;
+        string actual=role=="Attack"?(survival?.Inventory.Held==null?"Punch":"Sword attack"):role=="Sit"?"Sitting":role;
         int index=Array.IndexOf(humanPlayer.Definition.Roles,actual);if(index<0)return;
         humanPlayer.Action=index;humanPlayer.ActionRemaining=role=="Sit"?3600:role=="Dig"?2.5f:humanPlayer.Definition.Clips[index].length;
         humanPlayer.Inputs[index].SetTime(0);

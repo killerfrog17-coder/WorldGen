@@ -21,6 +21,11 @@ public static class HomininSimulationTests
         Check(a.DeepPast.Populations.Sum(p=>Math.Round(p.People))==a.Population.Sum(),"Published headcounts reconcile");
         var restored=WorldJson.Read<PrehistoryState>(WorldJson.Write(a));engine.Validate(restored);Check(engine.AdvanceYears(restored,1000).Hash==engine.AdvanceYears(a,1000).Hash,"Saved early history resumes identically");
         Check(StateHash.Compute(world)==immutable,"Early history does not rewrite generation ecology or terrain");
+        world.Prehistory=a;var binary=WorldFile.Write(world);var reloaded=WorldFile.Read(binary);var freshEngine=new Prehistory(reloaded);
+        Check(freshEngine.Patches.Length==engine.Patches.Length&&freshEngine.Routes.Length==engine.Routes.Length,"Saved early world retains geographic route domain");
+        Check(freshEngine.AdvanceYears(reloaded.Prehistory,2000).Hash==engine.AdvanceYears(a,2000).Hash,"Full compact world reload resumes identically with a fresh engine");
+        world.Prehistory=null;
+        Check(PleistoceneClimate.GlacialFraction(42,20000)>PleistoceneClimate.GlacialFraction(42,0)+.5,"Late glacial maximum precedes rapid forward-time deglaciation");
         var cold=PleistoceneClimate.At(42,20000,65,0,300);var tropical=PleistoceneClimate.At(42,20000,0,0,300);Check(cold.TemperatureDeltaC<tropical.TemperatureDeltaC,"Regional glacial cooling differs with latitude");
         foreach(int year in Enumerable.Range(0,300).Select(i=>i*10000)){var c=PleistoceneClimate.At(42,year,60,30,400);Check(c.Glacial>=0&&c.Glacial<=1&&c.PrecipitationFactor>0&&c.SeaLevelM<=0&&c.IceSuitability>=0&&c.IceSuitability<=1,"Climate bounds");}
         Check(HomininHistory.Stage(new HomininTradition())==LithicStage.LowerPaleolithic,"Initial tool tradition lower Paleolithic");

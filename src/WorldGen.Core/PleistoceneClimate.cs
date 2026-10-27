@@ -21,9 +21,11 @@ namespace WorldGen.Core
             // Integrate cycle frequency continuously through the mid-Pleistocene
             // transition; no phase jump when moving between regime envelopes.
             double ancient=Math.Max(0,bp-1200000)/41000,mid=Math.Min(500000,Math.Max(0,bp-700000));
-            double phase=ancient+mid/65000+Math.Min(700000,bp)/100000+Rng.Value(seed,"pleistocene-phase",0)*.18;
+            double phase=ancient+mid/65000+Math.Min(700000,bp)/100000+Rng.Value(seed,"pleistocene-phase",0)*.02;
             phase-=Math.Floor(phase);
-            double saw=phase<.83?Smooth(phase/.83):1-Smooth((phase-.83)/.17);
+            // This coordinate runs BACKWARD from the reference interglacial:
+            // fast warming forward in time is the short rising limb in BP time.
+            double saw=phase<.2?Smooth(phase/.2):1-Smooth((phase-.2)/.8);
             double precession=Math.Sin(bp/23000*2*Math.PI+Rng.Value(seed,"pleistocene-precession",0)*6.28);
             return Clamp(saw*(.58+.42*transition)+precession*.06);
         }

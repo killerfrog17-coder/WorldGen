@@ -23,7 +23,7 @@ namespace WorldGen.Core
     [Serializable]
     public sealed class PlaySession
     {
-        public string Version="play-session-1";
+        public string Version="play-session-2";
         public PlaySettings Settings=new PlaySettings();
         public double SolarDays,PendingHistorySeconds;
         [System.Runtime.Serialization.OptionalField] public double CalendarOffsetSeconds;
@@ -39,11 +39,11 @@ namespace WorldGen.Core
         public V PlayerPosition;
         public double Heading,Pitch,HeightAboveGround=1.65;
         public PlaySession Copy(){var s=(PlaySession)MemberwiseClone();s.Settings=Settings.Copy();s.Survival=Survival?.Copy();return s;}
-        public static PlaySession Legacy()=>new PlaySession{Settings=new PlaySettings{HorizontalScale=1,CalendarDaysPerDay=1,Sky=CelestialSettings.Preset("No moons"),MoonVisualExaggeration=1,SunVisualExaggeration=1}};
+        public static PlaySession Legacy()=>new PlaySession{Version="play-session-1",Settings=new PlaySettings{HorizontalScale=1,CalendarDaysPerDay=1,Sky=CelestialSettings.Preset("No moons"),MoonVisualExaggeration=1,SunVisualExaggeration=1}};
         public void Validate()
         {
             if(PlayerHumanVariant< -1||PlayerHumanVariant>5||HumanRunStyle<0||HumanRunStyle>3||!Finite(CameraDistance)||CameraDistance<0||CameraDistance>12)throw new ArgumentException("Invalid human or camera state.");
-            if(Version!="play-session-1"||Settings==null)throw new ArgumentException("Unsupported play session.");Settings.Validate();Survival?.Validate();
+            if((Version!="play-session-1"&&Version!="play-session-2")||Settings==null||Version=="play-session-1"&&Survival!=null)throw new ArgumentException("Unsupported play session. Survival sessions require the current player.");Settings.Validate();Survival?.Validate();
             bool Finite(double v)=>!double.IsNaN(v)&&!double.IsInfinity(v);
             if(MeridianVersion<0||MeridianVersion>1||!Finite(PrimeMeridianLongitude)||PrimeMeridianLongitude< -180||PrimeMeridianLongitude>=180||!Finite(SolarDays)||SolarDays<0||!Finite(CalendarOffsetSeconds)||Math.Abs(CalendarOffsetSeconds)>1e15||!Finite(PendingHistorySeconds)||PendingHistorySeconds<0||PendingHistorySeconds>1e12||
                 !Finite(Heading)||!Finite(Pitch)||Math.Abs(Pitch)>85||!Finite(HeightAboveGround)||HeightAboveGround<0||HeightAboveGround>1e7||

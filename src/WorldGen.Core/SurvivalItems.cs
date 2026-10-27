@@ -18,6 +18,8 @@ namespace WorldGen.Core
     [Serializable] public sealed class SurvivalStack
     {
         public long Id;public string Item;public int Count=1;public double AgeDays,Condition=1;
+        [System.Runtime.Serialization.OptionalField] public double Fraction=1;
+        [System.Runtime.Serialization.OnDeserializing] void InitializeFraction(System.Runtime.Serialization.StreamingContext context){Fraction=1;}
         public int Container=-1,X,Y;public bool Rotated,Worn;
         public SurvivalStack Copy()=>(SurvivalStack)MemberwiseClone();
     }
@@ -26,8 +28,8 @@ namespace WorldGen.Core
         public long NextId=1;public InventoryView View;public long Equipped;
         public SurvivalStack[] Items=Array.Empty<SurvivalStack>();
         public SurvivalInventory Copy()=>new SurvivalInventory{NextId=NextId,View=View,Equipped=Equipped,Items=Items.Select(s=>s.Copy()).ToArray()};
-        public double Mass=>Items.Sum(s=>SurvivalItems.Get(s.Item).Kg*s.Count);
-        public double Bulk=>Items.Sum(s=>SurvivalItems.Get(s.Item).Litres*s.Count);
+        public double Mass=>Items.Sum(s=>SurvivalItems.Get(s.Item).Kg*s.Count*s.Fraction);
+        public double Bulk=>Items.Sum(s=>SurvivalItems.Get(s.Item).Litres*s.Count*s.Fraction);
         public SurvivalItem Held=>Items.FirstOrDefault(s=>s.Id==Equipped) is SurvivalStack s?SurvivalItems.Get(s.Item):null;
         public int Count(string item)=>Items.Where(s=>s.Item==item).Sum(s=>s.Count);
         public bool Has(string item,int amount=1)=>Count(item)>=amount;
@@ -43,36 +45,53 @@ namespace WorldGen.Core
                 return (width,height,kg,litres);
             }
         }
-        public bool TryAdd(string item,int count,out string reason,double age=0)
+        public bool TryAdd(string item,int count,out string reason,double age=0,double fraction=1)
         {
             reason="";if(count<1||!SurvivalItems.TryGet(item,out var d)){reason="Invalid item or quantity.";return false;}
+            if(!SurvivalMath.Finite(age)||age<0||!SurvivalMath.Finite(fraction)||fraction<=0||fraction>1||fraction!=1&&d.Kind!=SurvivalItemKind.Food){reason="Invalid portion.";return false;}
             var capacity=Capacity;
             if(d.StorageWidth>0&&(count!=1||Has(item))){reason="That carrying attachment is already worn.";return false;}
-            if(d.StorageWidth==0&&(d.Kg*count>capacity.kg+16||d.Litres*count>capacity.litres+24))
+            if(d.StorageWidth==0&&(d.Kg*count*fraction>capacity.kg+16||d.Litres*count*fraction>capacity.litres+24))
             {reason="Your hands and carrying equipment are full.";return false;}
             var proposed=Copy();int remaining=count;
-            foreach(var s in proposed.Items.Where(s=>s.Item==item&&Math.Abs(s.AgeDays-age)<.05&&s.Condition>.99))
+            foreach(var s in proposed.Items.Where(s=>s.Item==item&&Math.Abs(s.AgeDays-age)<.05&&Math.Abs(s.Fraction-fraction)<1e-8&&s.Condition>.99))
             {int n=Math.Min(remaining,d.Stack-s.Count);s.Count+=n;remaining-=n;if(remaining==0)break;}
-            var list=proposed.Items.ToList();while(remaining>0){int n=Math.Min(remaining,d.Stack);list.Add(new SurvivalStack{Id=proposed.NextId++,Item=item,Count=n,AgeDays=age});remaining-=n;}
+            var list=proposed.Items.ToList();while(remaining>0){int n=Math.Min(remaining,d.Stack);list.Add(new SurvivalStack{Id=proposed.NextId++,Item=item,Count=n,AgeDays=age,Fraction=fraction});remaining-=n;}
             proposed.Items=list.ToArray();if(!proposed.Pack(out reason))return false;
             Items=proposed.Items;NextId=proposed.NextId;return true;
         }
         public bool Pack(out string reason)
         {
+            if(PackLayout(true,out reason))return true;
+            return View==InventoryView.List&&PackLayout(false,out reason);
+        }
+        int[] RowWidths()
+        {
+            var rows=new List<int>();foreach(var s in Items){var d=SurvivalItems.Get(s.Item);for(int y=0;y<d.StorageHeight;y++)rows.Add(d.StorageWidth);}return rows.ToArray();
+        }
+        bool PackLayout(bool retainLayout,out string reason)
+        {
             reason="";var capacity=Capacity;var cells=new bool[Math.Max(1,capacity.width),Math.Max(1,capacity.height)];
+            var rows=RowWidths();for(int y=0;y<rows.Length;y++)for(int x=rows[y];x<capacity.width;x++)cells[x,y]=true;
             int hands=0;double kg=0,litres=0;
             // Wear at most one of each carrying attachment, never bags inside bags.
             var worn=new HashSet<string>();
             foreach(var s in Items.Where(s=>SurvivalItems.Get(s.Item).StorageWidth>0||s.Worn))
             {if(s.Count!=1||!worn.Add(s.Item)||s.Worn&&SurvivalItems.Get(s.Item).Kind!=SurvivalItemKind.Clothing){reason="That attachment is already worn or cannot be worn.";return false;}s.Container=-2;}
-            foreach(var s in Items.Where(s=>SurvivalItems.Get(s.Item).StorageWidth==0&&!s.Worn).OrderByDescending(s=>s.Id==Equipped).ThenByDescending(s=>SurvivalItems.Get(s.Item).Width*SurvivalItems.Get(s.Item).Height))
+            foreach(var s in Items.Where(s=>SurvivalItems.Get(s.Item).StorageWidth==0&&!s.Worn).OrderByDescending(s=>s.Id==Equipped).ThenByDescending(s=>retainLayout&&s.Container==0).ThenByDescending(s=>SurvivalItems.Get(s.Item).Width*SurvivalItems.Get(s.Item).Height))
             {
                 var d=SurvivalItems.Get(s.Item);int need=d.TwoHands?2:1;
-                bool inHand=(s.Id==Equipped||capacity.width==0)&&hands+need<=2&&s.Count*d.Kg<=8&&s.Count*d.Litres<=12;
+                bool inHand=(s.Id==Equipped||capacity.width==0)&&hands+need<=2&&s.Count*d.Kg*s.Fraction<=8&&s.Count*d.Litres*s.Fraction<=12;
                 if(inHand){s.Container=-1;s.X=hands;s.Y=0;s.Rotated=false;hands+=need;continue;}
-                kg+=d.Kg*s.Count;litres+=d.Litres*s.Count;
+                kg+=d.Kg*s.Count*s.Fraction;litres+=d.Litres*s.Count*s.Fraction;
                 if(kg>capacity.kg+1e-8||litres>capacity.litres+1e-8){reason="Your hands and carrying equipment are full.";return false;}
                 bool placed=false;
+                if(retainLayout&&s.Container==0)
+                {
+                    int w=s.Rotated?d.Height:d.Width,h=s.Rotated?d.Width:d.Height;bool free=s.X>=0&&s.Y>=0&&s.X+w<=capacity.width&&s.Y+h<=capacity.height;
+                    if(free)for(int y=s.Y;y<s.Y+h;y++)for(int x=s.X;x<s.X+w;x++)if(cells[x,y])free=false;
+                    if(free){for(int y=s.Y;y<s.Y+h;y++)for(int x=s.X;x<s.X+w;x++)cells[x,y]=true;placed=true;}
+                }
                 for(int turn=0;turn<2&&!placed;turn++)
                 {
                     int w=turn==0?d.Width:d.Height,h=turn==0?d.Height:d.Width;
@@ -85,11 +104,28 @@ namespace WorldGen.Core
             }
             return true;
         }
+        public bool Move(long id,int x,int y,bool rotated,out string reason)
+        {
+            reason="";var s=Items.FirstOrDefault(i=>i.Id==id);if(s==null||s.Container!=0){reason="Only stored items can be rearranged.";return false;}
+            var d=SurvivalItems.Get(s.Item);var capacity=Capacity;int w=rotated?d.Height:d.Width,h=rotated?d.Width:d.Height;var rows=RowWidths();
+            if(x<0||y<0||x+w>capacity.width||y+h>capacity.height||Enumerable.Range(y,h).Any(row=>x+w>rows[row])){reason="Outside the carrying attachment.";return false;}
+            foreach(var other in Items.Where(i=>i.Container==0&&i.Id!=id))
+            {var od=SurvivalItems.Get(other.Item);int ow=other.Rotated?od.Height:od.Width,oh=other.Rotated?od.Width:od.Height;if(x<other.X+ow&&x+w>other.X&&y<other.Y+oh&&y+h>other.Y){reason="Another item occupies that space.";return false;}}
+            s.X=x;s.Y=y;s.Rotated=rotated;return true;
+        }
+        public bool Compact(out string reason)=>PackLayout(false,out reason);
         public bool Remove(string item,int amount)
         {
             if(amount<1||!Has(item,amount))return false;
-            foreach(var s in Items.Where(s=>s.Item==item).OrderByDescending(s=>s.AgeDays)){int n=Math.Min(amount,s.Count);s.Count-=n;amount-=n;if(amount==0)break;}
-            Items=Items.Where(s=>s.Count>0).ToArray();if(!Items.Any(s=>s.Id==Equipped))Equipped=0;Pack(out _);return true;
+            var trial=Copy();foreach(var s in trial.Items.Where(s=>s.Item==item).OrderByDescending(s=>s.AgeDays)){int n=Math.Min(amount,s.Count);s.Count-=n;amount-=n;if(amount==0)break;}
+            trial.Items=trial.Items.Where(s=>s.Count>0).ToArray();if(!trial.Items.Any(s=>s.Id==trial.Equipped))trial.Equipped=0;
+            if(!trial.Pack(out _))return false;Items=trial.Items;Equipped=trial.Equipped;return true;
+        }
+        public bool RemoveStack(long id,int amount)
+        {
+            var trial=Copy();var stack=trial.Items.FirstOrDefault(i=>i.Id==id);if(stack==null||amount<1||stack.Count<amount)return false;
+            stack.Count-=amount;trial.Items=trial.Items.Where(s=>s.Count>0).ToArray();if(!trial.Items.Any(s=>s.Id==trial.Equipped))trial.Equipped=0;
+            if(!trial.Pack(out _))return false;Items=trial.Items;Equipped=trial.Equipped;return true;
         }
         public bool Equip(long id,out string reason)
         {long old=Equipped;Equipped=Equipped==id?0:id;if(Pack(out reason))return true;Equipped=old;Pack(out _);return false;}
@@ -102,7 +138,7 @@ namespace WorldGen.Core
         {
             if(Items==null||NextId<1||!Enum.IsDefined(typeof(InventoryView),View))throw new ArgumentException("Invalid inventory.");
             var ids=new HashSet<long>();foreach(var s in Items)
-                if(s==null||!ids.Add(s.Id)||s.Id<1||s.Id>=NextId||!SurvivalItems.TryGet(s.Item,out var d)||s.Count<1||s.Count>d.Stack||!SurvivalMath.Finite(s.AgeDays)||s.AgeDays<0||!SurvivalMath.Finite(s.Condition)||s.Condition<0||s.Condition>1)throw new ArgumentException("Invalid inventory item.");
+                if(s==null||!ids.Add(s.Id)||s.Id<1||s.Id>=NextId||!SurvivalItems.TryGet(s.Item,out var d)||s.Count<1||s.Count>d.Stack||!SurvivalMath.Finite(s.AgeDays)||s.AgeDays<0||!SurvivalMath.Finite(s.Condition)||s.Condition<0||s.Condition>1||!SurvivalMath.Finite(s.Fraction)||s.Fraction<=0||s.Fraction>1||s.Fraction!=1&&d.Kind!=SurvivalItemKind.Food)throw new ArgumentException("Invalid inventory item.");
             if(Equipped!=0&&!ids.Contains(Equipped))throw new ArgumentException("Invalid held item.");
             if(!Copy().Pack(out _))throw new ArgumentException("Inventory exceeds carrying equipment.");
         }
@@ -124,6 +160,8 @@ namespace WorldGen.Core
             Add("bark","Bark sheet",SurvivalItemKind.Resource,.2,1,6,2,1);
             Add("cord","Plant-fibre cordage",SurvivalItemKind.Resource,.07,.2,12);
             Add("hide","Fresh hide",SurvivalItemKind.Resource,2.5,5,1,3,2);
+            Add("small-hide","Small fresh pelt",SurvivalItemKind.Resource,.15,.5,4,2,1);
+            Add("small-dryhide","Small dried pelt",SurvivalItemKind.Resource,.1,.35,4,2,1);
             Add("dryhide","Scraped, dried hide",SurvivalItemKind.Resource,1.2,3,1,3,2);
             Add("bone","Bone",SurvivalItemKind.Resource,.3,.35,6,2,1);
             Add("sinew","Sinew",SurvivalItemKind.Resource,.04,.12,8);
@@ -150,6 +188,7 @@ namespace WorldGen.Core
             Add("basket","Woven carrying basket",SurvivalItemKind.Container,1.2,2);Store("basket",5,4,10,18);
             Add("belt","Hide tool belt",SurvivalItemKind.Container,.25,.2);Store("belt",5,1,3,4);
             Add("waterskin","Filled hide waterskin",SurvivalItemKind.Food,1.15,1.2);items["waterskin"].WaterMl=1000;
+            Add("raw-water","Untreated freshwater waterskin",SurvivalItemKind.Food,1.15,1.2);items["raw-water"].WaterMl=1000;
             Add("empty-waterskin","Empty hide waterskin",SurvivalItemKind.Tool,.15,.3);
             Add("hide-wrap","Hide body wrap",SurvivalItemKind.Clothing,1.1,2,1,2,2);items["hide-wrap"].Insulation=.8;
             Add("fur-wrap","Fur mantle",SurvivalItemKind.Clothing,2,4,1,3,2);items["fur-wrap"].Insulation=1.6;

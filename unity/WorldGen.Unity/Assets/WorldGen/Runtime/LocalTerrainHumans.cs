@@ -152,7 +152,7 @@ public sealed partial class LocalTerrainExplorer
             npc.Root.transform.localPosition=new Vector3((float)(npc.Motor.X-originX),(float)(npc.Motor.Y-TerrainMotion.EyeHeightM),(float)(npc.Motor.Z-originZ));
             npc.Root.transform.localRotation=Quaternion.Euler(0,npc.Yaw,0);
         }
-        humanEyeOffset=Mathf.Lerp(humanEyeOffset,humanPlayer.Definition.EyeHeight-(float)TerrainMotion.EyeHeightM-(crouch?.42f:0),1-Mathf.Exp(-dt*12));
+        humanEyeOffset=Mathf.Lerp(humanEyeOffset,humanPlayer.Definition.EyeHeight-(float)TerrainMotion.EyeHeightM-(crouch?.42f:survivalSleeping?.7f:0),1-Mathf.Exp(-dt*12));
         Ground(motion.X,motion.Z); // Preserve player-centred elevation/debug memo.
     }
     static void AnimateHuman(HumanActor actor,float speed,bool airborne,bool crouch,float dt)

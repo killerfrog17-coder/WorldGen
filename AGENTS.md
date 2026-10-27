@@ -1,47 +1,48 @@
 # WorldGen repository instructions
 
-OVERNIGHT SURVIVAL / EARLY-HOMO WORK ACTIVE,27October2026~02:10CDT:
-Owner explicitly authorizes research + implementation of branching hominin/glacial
-history and playable Paleolithic survival; keep working until owner asks wrap-up.
-Aim first playable within6-7h after05:49UTC start; do NOT stop merely because a
-checkpoint is useful. Active goal exists for this authorized overnight task.
-13 obsolete daily builds removed,8.98GiB recovered; latest-per-day +selected
-player-human-refinement retained. Do not delete native/fauna/human/audio inputs.
-Core inventory/needs/crafting/carcass/calendar checkpoint934c1aa pushed main;
-85 focused survival tests passed. Default calendar365/24 historical days per
-playable day; physiology/fuel/spoilage uses playable time, NOT seasonal time.
-New optional PlaySession.Survival; shared list/grid packing, hands/equipment,
-30recipes/12camp blueprints, finite harvest. Runtime integration WIP; no delivery
-or visual/physics acceptance yet. No arbitrary population/corpse caps added.
-177 original skeleton sidecars exported read-only to StreamingAssets/fauna-rigs;
-original natives/bundles untouched. Human runtime derivative now16free clips
-using cached identical textures, source audition0946d797... untouched. Ragdoll
-uses original bone palettes +hierarchy, no death animation. Actual play test
-first caught stripped URP/Lit; custom Resources WorldGenSurvival shader added.
-Second IL2CPP build session14871 currently running; inspect real processes/log.
-Latest executable player-survival-prototype NOT selected; root shortcut still
-human-refinement. First attempted runtime review exited on shader-null before
-tests. Repeat --worldgen-performance artifacts/latest/world.json --worldgen-perf-
-sites plains --worldgen-perf-cases survival-review --worldgen-perf-view1500.
-Current review needs initial ragdoll pose/settle, gathering, UI, save verification.
-New HomininModel/Simulation/Technology +PleistoceneClimate compiled;312focused
-tests pass including budget/partition/resume. Small5000cell Earth2.8M-year run
-~14s. First had no sapiens; calibrated run~25s generated8.5Mpeople, farming far
-too early(~196ka) and copper~93ka: NOT realism-cleared. Calibration still needed.
-Latest changes make sapiens-like emergence a descendant branch, not a global
-ancestral-lineage flag; add appearance inheritance. These need fresh long run.
-New early scenario via PrepareHominins, default new-game UI toggle; original
-Prepare/history hashes kept. Old saves NOT automatically converted. SpeciesHomo,
-prehistory-hominin-1, optional DeepPast. No bridge to later existing state history
-yet. Regional habitat guilds/climate currently HISTORY data; rendered world still
-uses base generation ecology. Need honestly implement/describe this distinction.
-Research docs PALEOLITHIC_SURVIVAL_RESEARCH. Need continue substantive work:
-runtime fixes/visual review; realistic foraging/technology/time; deephistory QA,
-handoff/age UI; survival polish/interaction+animation, packaging +source pushes.
-Preserve unrelated deleted WorldGen_OneShot_Prompt.md +two old untracked deer
-scripts unstaged. Build autochanges to ProjectSettings/URP/foliage texture importer
-must be restored only after build completes, not committed. Fauna appearance stays
-STOPPED. No paid APIs/local inference needed. No controls/tutorial HUD text.
+SURVIVAL / EARLY-HOMO ARCHITECTURE CHECKPOINT,27October2026~05:50CDT:
+Owner withdrew the old6-7h schedule after interruption; prioritize coherent
+architecture and usable tested checkpoint over extra content. Overnight scope
+still authorized; no source/appearance rollback. Existing goal reports blocked
+from an earlier interruption, but owner has explicitly resumed work here.
+13obsolete builds removed8.98GiB; latest-per-day and selected human-refinement
+protected. Core934c1aa +WIP10164d0 pushed. Further source checkpoint required.
+Core54items/34recipes/12camp blueprints; common mass/bulk/grid rules, bare hands,
+worn insulation, fractional small-animal food, finite harvest, multi-trip builds,
+raw-water boiling, playable needs/fuel/spoilage. Default365/24 historical days per
+playable day; old saves keep old clock. Survival session uses play-session-2;
+old player must reject rather than silently discard new inventory. No tutorial
+controls HUD and no arbitrary human/animal/corpse population ceilings.
+177original-bone sidecars; native/source animal meshes and animations untouched.
+Physics ragdolls(no deathclip), current skin pose/anchor/yield persisted; saved
+corpses independently stream even if debug-spawned. Manual IDs skip saved deaths.
+19free human action roles via derivatives/cached identical textures; original
+MPFB audition0946d797... untouched. Generic contacts, no precision IK.
+Latest IL2CPP player-survival-prototype BuiltUtc2026-10-27T10:47:53.0378391Z;
+22packaged runtime checks PASS including meat/cook/gather/camp meshes, articulated
+deer initial pose max2.8014183e-6, finite settle/harvest, saved corpse pose restore
+and floating-origin rebase. Actual captures inspected: tool scale fixed, but
+hidden-window ScreenCapture UI images BLACK and NOT visual UI acceptance. Corpse
+partly occluded by grass. Must improve visual proof; root shortcut still original
+human-refinement until accepted usable checkpoint. Review4 under artifacts.
+106survival +315hominin/climate +45humanvariation +20camera assertions PASS.
+Early HomininHistory is sparse regional lineages/cohorts, ancestry, traditions,
+language descent; glacial regional envelopes/lagged resource guilds. Stable
+geographic IDs; published/save arrays detached, fine clocks share private domain.
+New scenario prehistory-hominin-1; old history hashes/saves retained. Full compact
+world reload with fresh engine deterministic. Latest5000cell Earth seed42 full
+2.8M-year run51.793s,3.182Mpeople/1810cohorts/67livinglineages/2608events,
+sapiens-like2.947M first~399.5ka; NO agriculture by reference in this seed.
+Calibration NOT realism-cleared. Do not advertise earlier14s/25s or dates.
+Later-city/state history handoff NOT implemented; early scenario remains separate.
+History habitat changes NOT rendered-world vegetation/ice/coast rebuilding.
+Forage is generic habitat proxy, visible clothing remains unfinished, shelter art
+simple(no excavation), precise tool contacts/swimming/NPCtribes not completed.
+Docs PALEOLITHIC_SURVIVAL_RESEARCH records sources and scope. User lets us launch
+short proportionate game tests. No owner app closure. Build-autochanges restored
+for URP/ProjectSettings/foliage importer after last build. Preserve unrelated
+owner-deleted WorldGen_OneShot_Prompt.md +2untracked old deer scripts unstaged.
+Fauna appearance remains STOPPED. No paid services/local inference used.
 
 HUMAN REFINEMENT CHECKPOINT,26October2026~23:20CDT:
 Owner strongly rejects unsolicited controls/tutorial text on gameplay screen;

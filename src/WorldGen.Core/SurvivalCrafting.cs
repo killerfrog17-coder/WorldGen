@@ -32,6 +32,8 @@ namespace WorldGen.Core
             Recipe("fire-drill","Make hand-drill fire kit","fire-drill",1,90,"sharp",false,("stick",2),("bark",1)),
             Recipe("fire-striker","Assemble flint-and-pyrite kit","fire-striker",1,10,null,false,("flint",1),("pyrite",1)),
             Recipe("dryhide","Scrape and dry hide","dryhide",1,240,"scraper",false,("hide",1)),
+            Recipe("small-dryhide","Scrape and dry small pelt","small-dryhide",1,100,"scraper",false,("small-hide",1)),
+            Recipe("pelt-pouch","Sew small-pelt pouch","pouch",1,120,"awl",false,("small-dryhide",3),("cord",2)),
             Recipe("awl","Shape bone awl","awl",1,90,"sharp",false,("bone",1)),
             Recipe("needle","Shape eyed bone needle","needle",1,180,"awl",false,("bone",1)),
             Recipe("pouch","Sew hide belt pouch","pouch",1,120,"awl",false,("dryhide",1),("cord",2)),
@@ -45,6 +47,8 @@ namespace WorldGen.Core
             Recipe("sling","Weave hunting sling","sling",1,120,null,false,("cord",3),("fibre",2)),
             Recipe("dressing","Prepare absorbent dressing","dressing",2,30,null,false,("fibre",2)),
             Recipe("cooked-meat","Roast meat","cooked-meat",1,45,null,true,("raw-meat",1)),
+            Recipe("boil-water","Boil water using heated stones","waterskin",1,100,"stone",true,("raw-water",1)),
+            Recipe("marrow","Crack marrow bone","marrow",1,25,"hammer",false,("bone",1)),
             Recipe("roasted-roots","Roast edible roots","roasted-roots",1,45,null,true,("roots",1)),
             Recipe("dried-meat","Heat and dry meat","dried-meat",1,150,null,true,("raw-meat",1))
         };
@@ -78,9 +82,11 @@ namespace WorldGen.Core
         }
         public static bool Craft(SurvivalState s,SurvivalRecipe r,bool fire,out string message)
         {
-            if(!CanCraft(s,r,fire,out message))return false;var inventory=s.Inventory.Copy();
+            if(!CanCraft(s,r,fire,out message))return false;var inventory=s.Inventory.Copy();double fraction=1;
+            if(SurvivalItems.Get(r.Output).Kind==SurvivalItemKind.Food)foreach(var m in r.Materials)
+                if(SurvivalItems.Get(m.item).Kind==SurvivalItemKind.Food){fraction=inventory.Items.Where(i=>i.Item==m.item).OrderByDescending(i=>i.AgeDays).First().Fraction;break;}
             if(s.Mode!=SurvivalMode.Creative)foreach(var m in r.Materials)inventory.Remove(m.item,m.count);
-            if(!inventory.TryAdd(r.Output,r.Count,out message))return false;
+            if(!inventory.TryAdd(r.Output,r.Count,out message,0,fraction))return false;
             s.Inventory=inventory;message="Made "+r.Name.ToLowerInvariant()+".";return true;
         }
         public static bool Build(SurvivalState s,ShelterBlueprint b,V point,double heading,out string message)
@@ -88,7 +94,40 @@ namespace WorldGen.Core
             if(b.Id=="hearth"&&s.Mode!=SurvivalMode.Creative&&!s.Inventory.Has("fire-drill")&&!s.Inventory.Has("fire-striker")){message="A firemaking kit is needed.";return false;}
             if(s.Mode!=SurvivalMode.Creative)foreach(var m in b.Materials)if(!s.Inventory.Has(m.item,m.count)){message="Requires "+MaterialsText(b.Materials)+".";return false;}
             var inventory=s.Inventory.Copy();if(s.Mode!=SurvivalMode.Creative)foreach(var m in b.Materials)if(m.item!="digging-stick")inventory.Remove(m.item,m.count);
-            s.Inventory=inventory;s.Sites=s.Sites.Concat(new[]{new SurvivalSite{Id=s.NextSite++,Kind=b.Id,Position=point,Heading=heading,FuelHours=b.Id=="hearth"?2:0}}).ToArray();message="Built "+b.Name.ToLowerInvariant()+".";return true;
+            s.Inventory=inventory;s.Sites=s.Sites.Concat(new[]{new SurvivalSite{Id=s.NextSite++,Kind=b.Id,Position=point,Heading=heading,FuelHours=b.Id=="hearth"?2:0,Lit=b.Id=="hearth"}}).ToArray();message="Built "+b.Name.ToLowerInvariant()+".";return true;
+        }
+        public static SurvivalSite PlaceBlueprint(SurvivalState s,ShelterBlueprint b,V point,double heading)
+        {
+            var site=new SurvivalSite{Id=s.NextSite++,Kind=b.Id,Position=point,Heading=heading,Progress=0};
+            s.Sites=s.Sites.Concat(new[]{site}).ToArray();return site;
+        }
+        public static bool SupplyBlueprint(SurvivalState s,SurvivalSite site,out string message)
+        {
+            var b=Shelters.FirstOrDefault(x=>x.Id==site.Kind);if(b==null||site.Progress>=1){message="This structure is already complete.";return false;}
+            var inventory=s.Inventory.Copy();var supplied=site.Contents.Select(i=>i.Copy()).ToList();int donated=0,total=0,ready=0;
+            foreach(var material in b.Materials)
+            {
+                total+=material.count;int existing=supplied.Where(i=>i.Item==material.item).Sum(i=>i.Count);
+                int amount=Math.Min(material.count-existing,inventory.Count(material.item));
+                if(material.item=="digging-stick")amount=inventory.Has(material.item)?material.count-existing:0;
+                if(s.Mode==SurvivalMode.Creative)amount=material.count-existing;
+                if(amount>0)
+                {
+                    if(s.Mode==SurvivalMode.Creative||material.item=="digging-stick"||inventory.Remove(material.item,amount))
+                    {supplied.Add(new SurvivalStack{Id=supplied.Count+1,Item=material.item,Count=amount});existing+=amount;donated+=amount;}
+                }
+                ready+=Math.Min(material.count,existing);
+            }
+            if(donated==0){message="Bring "+MaterialsText(b.Materials)+"; materials can be delivered in several trips.";return false;}
+            s.Inventory=inventory;site.Contents=supplied.ToArray();site.Progress=ready/(double)Math.Max(1,total);
+            if(site.Progress>=1)
+            {
+                site.Contents=Array.Empty<SurvivalStack>();site.FuelHours=site.Kind=="hearth"?2:0;
+                site.Lit=site.Kind=="hearth"&&(inventory.Has("fire-drill")||inventory.Has("fire-striker")||s.Mode==SurvivalMode.Creative);
+                message="Completed "+b.Name.ToLowerInvariant()+".";
+            }
+            else message="Supplied materials · "+(site.Progress*100).ToString("F0")+"% complete.";
+            return true;
         }
     }
 }

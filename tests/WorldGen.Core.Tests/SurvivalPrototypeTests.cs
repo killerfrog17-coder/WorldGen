@@ -25,11 +25,31 @@ public static class SurvivalPrototypeTests
         Check(cold.CoreTemperatureC<sheltered.CoreTemperatureC&&cold.Health<sheltered.Health,"Shelter, insulation and fire protect from wet cold");
         var c=SurvivalPhysiology.Carcass("deer",42,new V(1,0,0),70,0);s.Corpses=new[]{c};double before=c.MeatKg;
         Check(SurvivalPhysiology.Harvest(s,c,"meat",out _),"Sharp tool harvests meat");Check(Math.Abs(before-c.MeatKg-.25)<1e-8,"Meat removed from finite carcass");
+        c.SettledPose=new float[16];c.SettledPose[0]=1;c.PoseSource="test-source";
         var saved=WorldJson.Read<SurvivalState>(WorldJson.Write(s));saved.Validate();Check(saved.Corpses[0].SpawnId==42,"Carcass identity saved");
+        Check(saved.Corpses[0].HasAnchor&&saved.Corpses[0].SettledPose[0]==1&&saved.Corpses[0].PoseSource=="test-source","Corpse anchor and skin pose survive serialization");
+        var poseCopy=s.Copy();poseCopy.Corpses[0].SettledPose[0]=2;Check(c.SettledPose[0]==1,"Corpse pose snapshots detach their arrays");
         var copy=s.Copy();copy.Corpses[0].MeatKg=0;copy.Inventory.Items[0].Condition=.5;Check(s.Corpses[0].MeatKg>0&&s.Inventory.Items[0].Condition==1,"Save copies independent");
         var play=new PlaySession();play.Accumulate(24*60*60);Check(Math.Abs(play.PendingHistorySeconds-SimulationTime.Year)<1e-5,"24 one-hour days advance exactly one historical year");
         s.WaterDeficitL=2;var water=s.Inventory.Items.First(i=>i.Item=="waterskin");Check(SurvivalPhysiology.Eat(s,water.Id,out _),"Drink waterskin");Check(s.Inventory.Has("empty-waterskin")&&s.WaterDeficitL==1,"Vessel retained and one litre consumed");
         s.Inventory.TryAdd("raw-meat",1,out _);var spoiled=s.Inventory.Items.First(i=>i.Item=="raw-meat");spoiled.AgeDays=5;Check(!SurvivalCrafting.Craft(s,craft,true,out _),"Cooking cannot sanitize spoiled meat");
+        var small=new SurvivalState();small.Inventory=new SurvivalInventory();small.Inventory.TryAdd("pack",1,out _);small.Inventory.TryAdd("knife",1,out _);
+        var bird=SurvivalPhysiology.Carcass("small-bird",77,new V(1,0,0),.12,0);double mass=small.Inventory.Mass;
+        Check(SurvivalPhysiology.Harvest(small,bird,"meat",out _),"Small birds provide usable fractional food portions");
+        Check(Math.Abs(small.Inventory.Mass-mass-.12*.32)<1e-9&&bird.MeatKg==0,"Small-animal meat conserves mass");
+        double calories=small.Inventory.Items.Where(i=>i.Item=="raw-meat").Sum(i=>i.Fraction*SurvivalItems.Get(i.Item).Kcal);
+        Check(SurvivalCrafting.Craft(small,craft,true,out _),"Small portions can be roasted");
+        Check(Math.Abs(small.Inventory.Items.Where(i=>i.Item=="cooked-meat").Sum(i=>i.Fraction*SurvivalItems.Get(i.Item).Kcal)-calories)<1e-8,"Cooking cannot multiply small portions into full steaks");
+        var lean=SurvivalPhysiology.Carcass("mouse",78,new V(1,0,0),.02,0);Check(lean.SinewUnits*.04<=lean.MassKg*.008+1e-8&&lean.HideUnits==0,"Tiny animals cannot create heavyweight hides or sinew");
+        var buildState=new SurvivalState();var blueprint=SurvivalCrafting.Shelters.First(b=>b.Id=="bed");var site=SurvivalCrafting.PlaceBlueprint(buildState,blueprint,new V(1,0,0),0);
+        Check(buildState.Inventory.TryAdd("grass",2,out _)&&SurvivalCrafting.SupplyBlueprint(buildState,site,out _)&&site.Progress>0&&site.Progress<1,"Blueprint accepts a partial material delivery");
+        Check(buildState.Inventory.TryAdd("grass",3,out _)&&SurvivalCrafting.SupplyBlueprint(buildState,site,out _)&&site.Progress==1&&!buildState.Inventory.Has("grass"),"A later delivery completes construction without duplicating materials");
+        var storedFood=small.Inventory.Items.First(i=>i.Item=="cooked-meat");var loadedSmall=WorldJson.Read<SurvivalState>(WorldJson.Write(small));loadedSmall.Validate();
+        Check(loadedSmall.Inventory.Items.First(i=>i.Id==storedFood.Id).Fraction==storedFood.Fraction,"Fractional portions survive serialization");
+        var fireState=new SurvivalState{Sites=new[]{new SurvivalSite{Id=1,Kind="hearth",Position=new V(1,0,0),FuelHours=2,Lit=false}},NextSite=2};
+        SurvivalPhysiology.Advance(fireState,3600,new SurvivalEnvironment{TemperatureC=20});Check(fireState.Sites[0].FuelHours==2,"Fuel in an unlit hearth is not consumed");
+        var old=PlaySession.Legacy();old.Validate();Check(old.Version=="play-session-1"&&old.Settings.CalendarDaysPerDay==1,"Legacy session clock is preserved");
+        var current=new PlaySession{Survival=small};var read=WorldJson.Read<PlaySession>(WorldJson.Write(current));read.Validate();Check(read.Version=="play-session-2","Survival save version prevents old players silently discarding inventory");
         foreach(var r in SurvivalCrafting.Recipes){Check(r.Materials.All(m=>SurvivalItems.TryGet(m.item,out _)),"Recipe inputs exist "+r.Id);Check(SurvivalItems.TryGet(r.Output,out _),"Recipe output exists "+r.Id);}
         Console.WriteLine("PASS "+checks+" survival/inventory/calendar assertions");
     }

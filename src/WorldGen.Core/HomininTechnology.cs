@@ -31,11 +31,11 @@ namespace WorldGen.Core
             new LithicOpportunity(LithicKnowledge.FoodStorage,LithicKnowledge.FireKeeping|LithicKnowledge.HideWorking,.65,.7,.00002),
             new LithicOpportunity(LithicKnowledge.Microliths,LithicKnowledge.Blades|LithicKnowledge.Adhesives,.7,.75,.00003),
             new LithicOpportunity(LithicKnowledge.PlantManagement,LithicKnowledge.FoodStorage,.72,.75,.000015),
-            new LithicOpportunity(LithicKnowledge.Cultivation,LithicKnowledge.PlantManagement,.77,.78,.000012),
-            new LithicOpportunity(LithicKnowledge.Herding,LithicKnowledge.FoodStorage,.77,.78,.000008),
+            new LithicOpportunity(LithicKnowledge.Cultivation,LithicKnowledge.PlantManagement,.815,.78,.000025),
+            new LithicOpportunity(LithicKnowledge.Herding,LithicKnowledge.FoodStorage,.815,.78,.000018),
             new LithicOpportunity(LithicKnowledge.Pottery,LithicKnowledge.FireMaking|LithicKnowledge.FoodStorage,.75,.78,.000016),
-            new LithicOpportunity(LithicKnowledge.Copper,LithicKnowledge.FireMaking|LithicKnowledge.Pottery,.8,.82,.000008),
-            new LithicOpportunity(LithicKnowledge.Bronze,LithicKnowledge.Copper,.82,.84,.000006)
+            new LithicOpportunity(LithicKnowledge.Copper,LithicKnowledge.FireMaking|LithicKnowledge.Pottery,.8,.82,.00008),
+            new LithicOpportunity(LithicKnowledge.Bronze,LithicKnowledge.Copper,.8,.84,.00006)
         };
         void AdvanceLithicTradition(PrehistoryState s,HomininTradition tradition,HomininPopulation representative,double people,double communication,double learning,int dt,List<HomininEvent> events)
         {

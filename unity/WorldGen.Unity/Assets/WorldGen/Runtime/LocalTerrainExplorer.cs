@@ -141,7 +141,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             if(!building.IsCompleted)return;
             if(building.IsFaulted||building.IsCanceled){error=building.Exception?.GetBaseException().Message??"Cancelled";debugOpen=true;CaptureMouse();return;}
             terrain=building.Result;viewDistance=Math.Min(viewDistance,MaximumViewDistance);InitializeScatter();Teleport(startingPoint);InitializeAnimalFauna();InitializeHumans();InitializeSurvival();
-            if(playState!=null&&playState.HasPlayer){heading=(float)playState.Heading;pitch=(float)playState.Pitch;motion.Flying=playState.Flying;motion.Y=Ground(0,0)+Math.Max(TerrainMotion.EyeHeightM,playState.HeightAboveGround);UpdateCamera();}
+            if(playState!=null&&playState.HasPlayer){heading=(float)playState.Heading;pitch=(float)playState.Pitch;motion.Flying=playState.Flying;motion.Y=Ground(0,0)+Math.Max(TerrainMotion.EyeHeightM,playState.HeightAboveGround);if(survivalNewSession&&survival.Mode==SurvivalMode.Survival)motion.Place(motion.X,motion.Z,Ground(motion.X,motion.Z));UpdateCamera();}
         }
         ApplyTerrainDiagnostics();ApplyFoliageShadowOptions();installationsThisFrame=0;frameUploadMs=0;double movementStartX=motion.X,movementStartZ=motion.Z;
         long mapStarted=WorldGenPerformance.TraceBegin();UpdateMapWork();WorldGenPerformance.TraceEnd(1,mapStarted);
@@ -316,7 +316,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         finally{view.targetTexture=priorTarget;RenderTexture.active=previous;target.Release();Destroy(target);Destroy(texture);}
     }
     public void TestMove(double east,double north){motion.X=east;motion.Z=north;}
-    public void StorePlayer(PlaySession session){session.Survival=survival?.Copy();session.HasPlayer=true;session.PlayerPosition=Position;session.Flying=motion.Flying;session.Heading=heading;session.Pitch=pitch;session.HeightAboveGround=Math.Max(0,HeightAboveGround);session.CameraDistance=humanCamera.Distance;session.CameraDistanceLocked=humanCamera.Locked;session.HumanRunStyle=humanRunStyle;if(humanPlayer!=null)session.PlayerHumanVariant=humanPlayer.Definition.Variant[0]-'A';}
+    public void StorePlayer(PlaySession session){foreach(var rag in animalRagdolls.Values)StoreRagdollPose(rag);session.Survival=survival?.Copy();session.HasPlayer=true;session.PlayerPosition=Position;session.Flying=motion.Flying;session.Heading=heading;session.Pitch=pitch;session.HeightAboveGround=Math.Max(0,HeightAboveGround);session.CameraDistance=humanCamera.Distance;session.CameraDistanceLocked=humanCamera.Locked;session.HumanRunStyle=humanRunStyle;if(humanPlayer!=null)session.PlayerHumanVariant=humanPlayer.Definition.Variant[0]-'A';}
     public void Resume(){paused=false;CaptureMouse();}
     public void TestWalking(){motion.Place(motion.X,motion.Z,Ground(motion.X,motion.Z));pitch=0;}
     public void TestNearbyFlatGround()

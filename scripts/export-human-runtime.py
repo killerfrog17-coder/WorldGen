@@ -14,7 +14,7 @@ SOURCE = REPO/'artifacts/human-animation-preview/Human - Animation Comparison.bl
 OUTPUT = REPO/'artifacts/human-runtime/exports'
 EVIDENCE = REPO/'artifacts/human-runtime'
 REUSE_TEXTURES = False
-CLIPS = {'Idle', 'Walk', 'Run', 'Sprint', 'Crouch', 'Jump', 'Swim','KayKit run','KayKit run B','KayKit large run','Sit down','Sitting','Stand up','Sword attack','Chop wood','Dig'}
+CLIPS = {'Idle', 'Walk', 'Run', 'Sprint', 'Crouch', 'Jump', 'Swim','KayKit run','KayKit run B','KayKit large run','Sit down','Sitting','Stand up','Sword attack','Chop wood','Dig','Interact','Pick up','Punch'}
 
 
 def bake(ob, name, size, alpha=False):
@@ -73,6 +73,10 @@ def export(letter):
     for label,file,clip in [('KayKit run B','Rig_Medium_MovementBasic.glb','Running_B'),('KayKit large run','Rig_Large_MovementBasic.glb','Running_A')]:
         motion=Motion(next(bank.rglob(file)));samples=[motion.sample(clip,min(i/30,motion.duration(clip))) for i in range(round(motion.duration(clip)*30)+1)]
         clips.append(retarget.animate(rig,'MPFB',(label,motion,clip),samples))
+    q1=Motion(next((REPO/'artifacts/human-animation-sources/quaternius-ual1').rglob('UAL1_Standard.glb')))
+    for label,clip in [('Interact','Interact'),('Pick up','PickUp_Table'),('Punch','Punch_Jab')]:
+        samples=[q1.sample(clip,min(i/30,q1.duration(clip))) for i in range(round(q1.duration(clip)*30)+1)]
+        clips.append(retarget.animate(rig,'MPFB',(label,q1,clip),samples))
     actions={c['action']:c for c in clips if c['label'] in CLIPS}
     for ob in list(bpy.data.objects):
         if ob!=rig and ob not in objects:bpy.data.objects.remove(ob,do_unlink=True)

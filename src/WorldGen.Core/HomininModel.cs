@@ -48,6 +48,7 @@ namespace WorldGen.Core
     {
         public int Version=1,OriginYearsBeforePresent=PleistoceneClimate.DefaultOriginYearsBeforePresent,LastBoundaryYear,NextBoundaryYear=1000,NextPopulation=1,NextLanguage=1;
         public bool Active=true,EarthLikeTrajectory=true;
+        public string CanonicalHash="";
         public HomininLineage[] Lineages=Array.Empty<HomininLineage>();public HomininTradition[] Traditions=Array.Empty<HomininTradition>();
         public HomininPopulation[] Populations=Array.Empty<HomininPopulation>();public HomininHabitat[] Habitats=Array.Empty<HomininHabitat>();public HomininEvent[] Events=Array.Empty<HomininEvent>();
         public HomininHistory Copy()
@@ -56,6 +57,8 @@ namespace WorldGen.Core
             h.Populations=Populations.Select(x=>x.Copy()).ToArray();h.Habitats=Habitats.Select(x=>x.Copy()).ToArray();h.Events=Events.Select(x=>x.Copy()).ToArray();return h;
         }
         public int YearsBeforePresent(int elapsed)=>OriginYearsBeforePresent-elapsed;
+        public string ComputeDomainHash()=>StateHash.Compute(new object[]{Version,OriginYearsBeforePresent,LastBoundaryYear,NextBoundaryYear,NextPopulation,NextLanguage,Active,EarthLikeTrajectory,Lineages,Traditions,Populations,Habitats,Events});
+        public void SealDomain(){CanonicalHash=ComputeDomainHash();}
         public static LithicStage Stage(HomininTradition tradition)
         {
             var k=tradition.Knowledge;if((k&LithicKnowledge.Bronze)!=0)return LithicStage.BronzeAge;

@@ -155,7 +155,7 @@ public sealed partial class WorldGenRuntime
         if(!world.Prehistory.Started&&humanStep==null)
         {
             bool early=GUILayout.Toggle(world.Prehistory.DeepPast?.Active==true,"Begin near early Homo (2.8 million years before reference)");
-            if(early!=(world.Prehistory.DeepPast?.Active==true)){startWithEarlyHominins=early;world.Prehistory=early?humans.PrepareHominins(world.Prehistory.Origin):humans.Prepare(world.Prehistory.Origin);UpdateHumanPalette();}
+            if(early!=(world.Prehistory.DeepPast?.Active==true)){startWithEarlyHominins=early;world.Prehistory=early?humans.PrepareHominins(world.Prehistory.Origin):humans.PrepareSapiens(world.Prehistory.Origin);UpdateHumanPalette();}
         }
         DrawTechnologyCeiling();
         GUI.enabled=!Busy&&humanStep==null&&!world.Prehistory.Started;

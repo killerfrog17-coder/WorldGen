@@ -8,9 +8,9 @@ using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
-    SurvivalState survival;bool survivalOpen;int survivalTab;Vector2 survivalScroll;long survivalSelected;
+    SurvivalState survival;bool survivalOpen,survivalNewSession;int survivalTab;Vector2 survivalScroll;long survivalSelected;
     string survivalMessage="",survivalAction="";double survivalMessageUntil,survivalActionRemaining,survivalActionTotal;
-    Action survivalCompletion;V survivalActionOrigin;bool survivalSleeping;double survivalRefreshAt,survivalLastX,survivalLastZ;
+    Action survivalCompletion;V survivalActionOrigin;bool survivalSleeping;double survivalSleepRemaining;bool survivalPriorGrounded;double survivalPriorFallSpeed;double survivalRefreshAt,survivalLastX,survivalLastZ;
     readonly Dictionary<long,GameObject> survivalSiteObjects=new Dictionary<long,GameObject>();
     LocalScatter survivalLattice;
     readonly Dictionary<string,SurvivalNode> survivalNodes=new Dictionary<string,SurvivalNode>();
@@ -23,7 +23,8 @@ public sealed partial class LocalTerrainExplorer
     bool SurvivalBusy=>survivalCompletion!=null||survivalSleeping;
     void InitializeSurvival()
     {
-        survival=playState?.Survival??new SurvivalState();survival.Validate();if(playState!=null)playState.Survival=survival;
+        survivalNewSession=playState?.Survival==null;
+        survival=playState?.Survival??new SurvivalState{Seed=sourceWorld.Recipe.Seed};survival.Validate();if(playState!=null){playState.Version="play-session-2";playState.Survival=survival;}
         survivalLastX=motion.X;survivalLastZ=motion.Z;
         if(survival.Mode==SurvivalMode.Survival)motion.Flying=false;
         InitializeRagdolls();RefreshSurvivalScene();
@@ -68,10 +69,20 @@ public sealed partial class LocalTerrainExplorer
             {
                 double distance=(site.Position-Position).Length*frame.RadiusM;
                 var blueprint=SurvivalCrafting.Shelters.FirstOrDefault(b=>b.Id==site.Kind);
-                if(blueprint!=null&&distance<blueprint.Radius){shelter=Math.Max(shelter,blueprint.Shelter);insulation=Math.Max(insulation,blueprint.Insulation);}
-                if(site.Kind=="hearth"&&site.FuelHours>0&&distance<5)warmth=Math.Max(warmth,28*Math.Max(0,1-distance/5));
+                if(site.Progress>=1&&blueprint!=null&&distance<blueprint.Radius){shelter=Math.Max(shelter,blueprint.Shelter);insulation=Math.Max(insulation,blueprint.Insulation);}
+                if(site.Kind=="hearth"&&site.Lit&&site.FuelHours>0&&distance<5)warmth=Math.Max(warmth,28*Math.Max(0,1-distance/5));
             }
             double playableSeconds=dt*86400/((playState?.Settings.RealMinutesPerDay??60)*60);
+            if(survivalSleeping)
+            {
+                double extra=Math.Min(survivalSleepRemaining,playableSeconds*59);
+                playState?.Accumulate(extra*((playState?.Settings.RealMinutesPerDay??60)*60)/86400);
+                playableSeconds+=extra;survivalSleepRemaining-=playableSeconds;
+                if(survivalSleepRemaining<=0||survival.Fatigue<.02){survivalSleeping=false;if(humanPlayer!=null)humanPlayer.ActionRemaining=0;}
+            }
+            if(survival.Mode==SurvivalMode.Survival&&motion.Grounded&&!survivalPriorGrounded&&survivalPriorFallSpeed< -7)
+            {double hurt=Math.Pow(-survivalPriorFallSpeed-6,2)*1.3;survival.Health=Math.Max(0,survival.Health-hurt);SurvivalNotice("Hurt by the fall.");}
+            survivalPriorGrounded=motion.Grounded;survivalPriorFallSpeed=motion.VerticalSpeed;
             bool water=false;if(walkingPatch!=null){var sample=walkingPatch.Sample(Position);water=!double.IsNaN(sample.WaterSurfaceM)&&sample.WaterSurfaceM>sample.ElevationM+.5&&HeightAboveGround<1.8;}
             SurvivalPhysiology.Advance(survival,playableSeconds,new SurvivalEnvironment{TemperatureC=weatherScreen!=null?CurrentWeather.TemperatureC:18,
                 WindMps=weatherScreen!=null?CurrentWeather.GustMps:1,RainMmPerHour=CurrentWeather.RainMmPerHour,SpeedMps=motion.Flying?0:speed,
@@ -92,9 +103,10 @@ public sealed partial class LocalTerrainExplorer
     {
         if(SurvivalBusy){SurvivalNotice("Finish or cancel the current action first.");return;}
         survivalAction=label;survivalActionRemaining=survivalActionTotal=survival.Mode==SurvivalMode.Creative?1:seconds;
-        survivalCompletion=complete;survivalActionOrigin=Position;survivalOpen=false;CaptureMouse();TriggerHumanSurvivalAction("Dig");
+        survivalCompletion=complete;survivalActionOrigin=Position;survivalOpen=false;CaptureMouse();TriggerHumanSurvivalAction(label.StartsWith("Gathering",StringComparison.Ordinal)?"Pick up":"Interact");
+        if(humanPlayer!=null&&humanPlayer.Action>=0)humanPlayer.ActionRemaining=(float)Math.Max(.5,survivalActionTotal*(playState?.Settings.RealMinutesPerDay??60)*60/86400);
     }
-    void CancelSurvivalAction(){survivalCompletion=null;survivalAction="";survivalSleeping=false;}
+    void CancelSurvivalAction(){survivalCompletion=null;survivalAction="";survivalSleeping=false;if(humanPlayer!=null){humanPlayer.Action=-1;humanPlayer.ActionRemaining=0;}}
     void RefreshSurvivalScene()
     {
         if(survival==null||frame==null)return;
@@ -102,9 +114,10 @@ public sealed partial class LocalTerrainExplorer
         {
             double d=(site.Position-Position).Length*frame.RadiusM;
             if(d>250){if(survivalSiteObjects.TryGetValue(site.Id,out var old)){Destroy(old);survivalSiteObjects.Remove(site.Id);}continue;}
+            if(survivalSiteObjects.TryGetValue(site.Id,out var existing)&&site.Progress>=1&&existing.name.EndsWith("unfinished",StringComparison.Ordinal)){Destroy(existing);survivalSiteObjects.Remove(site.Id);}
             if(!survivalSiteObjects.TryGetValue(site.Id,out var root)){root=CreateSurvivalStructure(site);survivalSiteObjects[site.Id]=root;}
             TerrainHandoff.Coordinates(frame,site.Position,out double x,out double z);root.transform.localPosition=new Vector3((float)(x-originX),(float)VisibleGround(x,z,Ground(x,z)),(float)(z-originZ));
-            var fire=root.transform.Find("Fire");if(fire!=null)fire.gameObject.SetActive(site.FuelHours>0);
+            var fire=root.transform.Find("Fire");if(fire!=null)fire.gameObject.SetActive(site.Lit&&site.FuelHours>0&&site.Progress>=1);
         }
         RefreshSurvivalNodes();
     }
@@ -165,13 +178,17 @@ public sealed partial class LocalTerrainExplorer
         BeginSurvivalAction("Collecting fresh water",8,()=>
         {
             if(survival.Inventory.Has("empty-waterskin"))
-            {var trial=survival.Inventory.Copy();trial.Remove("empty-waterskin",1);if(trial.TryAdd("waterskin",1,out var why))survival.Inventory=trial;else{SurvivalNotice(why);return;}}
-            else survival.WaterDeficitL=Math.Max(0,survival.WaterDeficitL-.5);
+            {var trial=survival.Inventory.Copy();trial.Remove("empty-waterskin",1);if(trial.TryAdd("raw-water",1,out var why))survival.Inventory=trial;else{SurvivalNotice(why);return;}}
+            else
+            {
+                survival.WaterDeficitL=Math.Max(0,survival.WaterDeficitL-.5);
+                if(Rng.Value(survival.Seed,"survival-water-risk",survival.ConsumptionEvents++)<.04)survival.Illness=Math.Min(1,survival.Illness+.25);
+            }
             // Untreated freshwater has risk, not a guaranteed immediate illness.
-            if(teleportRandom.Unit()<.04)survival.Illness=Math.Min(1,survival.Illness+.25);SurvivalNotice("Collected untreated freshwater.");
+            SurvivalNotice("Collected untreated freshwater.");
         });
     }
-    bool HasSurvivalFire=>survival.Sites.Any(s=>s.Kind=="hearth"&&s.FuelHours>0&&(s.Position-Position).Length*frame.RadiusM<5);
+    bool HasSurvivalFire=>survival.Sites.Any(s=>s.Kind=="hearth"&&s.Progress>=1&&s.Lit&&s.FuelHours>0&&(s.Position-Position).Length*frame.RadiusM<5);
     void AttackSurvival(bool thrown)
     {
         if(SurvivalBusy||Time.realtimeSinceStartupAsDouble<survivalAttackAt||survival.Dead)return;
@@ -182,7 +199,7 @@ public sealed partial class LocalTerrainExplorer
         if(survival.Mode==SurvivalMode.Survival&&survival.Stamina<8){SurvivalNotice("Too exhausted to attack.");return;}
         survivalAttackAt=Time.realtimeSinceStartupAsDouble+(thrown?.9:.65);survivalAttackClock=1;
         if(survival.Mode==SurvivalMode.Survival)survival.Stamina=Math.Max(0,survival.Stamina-8);
-        TriggerHumanSurvivalAction("Attack");
+        TriggerHumanSurvivalAction("Attack");if(humanPlayer!=null)humanPlayer.TargetYaw=heading;
         Vector3 from=view.transform.position,dir=view.transform.forward;Animal hit=null;float best=thrown?45:12;
         foreach(var animal in animals.Values)
         {
@@ -201,11 +218,40 @@ public sealed partial class LocalTerrainExplorer
         }
         else if(hit!=null)DamageSurvivalAnimal(hit,damage,dir);
     }
+    readonly Dictionary<string,Taxon> survivalTaxa=new Dictionary<string,Taxon>();
+    Taxon SurvivalTaxon(Animal animal)
+    {
+        if(animal.Spawn.Taxon>=0&&animal.Spawn.Taxon<sourceWorld.Ecology.Taxa.Length)return sourceWorld.Ecology.Taxa[animal.Spawn.Taxon];
+        if(survivalTaxa.Count==0&&animalProfiles!=null){var taxa=EarthFaunaPack.Create();foreach(var pair in FaunaPrototypePlanner.BindProfiles(taxa,animalProfiles))survivalTaxa[pair.Value.slug]=taxa[pair.Key];}
+        return survivalTaxa.TryGetValue(animal.Spawn.Profile.slug,out var t)?t:null;
+    }
+    void UpdateSurvivalAnimalThreat(Animal animal)
+    {
+        if(survival==null||survivalOpen||paused||mapOpen||ecologyOpen||chatOpen||survival.Mode!=SurvivalMode.Survival||survival.Dead||motion.Flying||Time.realtimeSinceStartupAsDouble<animal.NextThreat)return;
+        animal.NextThreat=Time.realtimeSinceStartupAsDouble+.4;
+        var profile=animal.Spawn.Profile;if(profile.tiny||profile.medium=="water")return;
+        double dx=motion.X-animal.X,dz=motion.Z-animal.Z,distance=Math.Sqrt(dx*dx+dz*dz);
+        bool crouch=ActiveKeyboard!=null&&ActiveKeyboard.ctrlKey.isPressed;
+        double alarm=Math.Max(8,Math.Min(30,profile.lengthM*15))*(crouch?.4:1);
+        if(distance>alarm)return;
+        double middle=VisibleGround((animal.X+motion.X)*.5,(animal.Z+motion.Z)*.5,animal.GroundY);
+        if(middle>Math.Max(animal.Root.transform.localPosition.y+.8,motion.Y))return;
+        var taxon=SurvivalTaxon(animal);double mass=taxon?.MassKg??1;
+        bool predator=mass>12&&taxon!=null&&(taxon.Eats&Food.Vertebrate)!=0&&(taxon.Eats&(Food.Grass|Food.Browse|Food.Fruit|Food.Seed))==0;
+        bool defensive=mass>250&&distance<Math.Max(2.5,profile.lengthM);
+        bool attack=(predator&&distance<10||defensive)&&!HasSurvivalFire;
+        animal.TargetHeading=(float)(Math.Atan2(attack?dx:-dx,attack?dz:-dz)*180/Math.PI);
+        animal.TargetSpeed=(float)profile.runMps;animal.NextDecision=animal.Life+2;
+        if(attack&&distance<Math.Max(1.1,profile.lengthM*.55)&&Time.realtimeSinceStartupAsDouble>=animal.NextBite)
+        {
+            animal.NextBite=Time.realtimeSinceStartupAsDouble+2.3;
+            survival.Health=Math.Max(0,survival.Health-Math.Min(45,5+Math.Sqrt(mass)*1.8));survival.Bleeding=Math.Min(10,survival.Bleeding+.12);
+            SurvivalNotice("Struck by "+profile.name.ToLowerInvariant()+".");
+        }
+    }
     double SurvivalAnimalMass(Animal animal)
     {
-        if(animal.Spawn.Taxon>=0&&animal.Spawn.Taxon<sourceWorld.Ecology.Taxa.Length)return Math.Max(.01,sourceWorld.Ecology.Taxa[animal.Spawn.Taxon].MassKg);
-        var mapped=FaunaPrototypePlanner.BindProfiles(EarthFaunaPack.Create(),animalProfiles);
-        foreach(var pair in mapped)if(pair.Value.slug==animal.Spawn.Profile.slug)return Math.Max(.01,EarthFaunaPack.Create()[pair.Key].MassKg);
+        var taxon=SurvivalTaxon(animal);if(taxon!=null)return Math.Max(.01,taxon.MassKg);
         return Math.Max(.02,Math.Pow(animal.Spawn.Profile.lengthM,3)*10);
     }
     void DamageSurvivalAnimal(Animal animal,double damage,Vector3 direction)
@@ -215,6 +261,7 @@ public sealed partial class LocalTerrainExplorer
         animal.Health-=damage;animal.TargetHeading=(float)(Math.Atan2(animal.X-motion.X,animal.Z-motion.Z)*180/Math.PI);animal.TargetSpeed=(float)animal.Spawn.Profile.runMps;animal.NextDecision=animal.Life+7;
         if(animal.Health>0){SurvivalNotice("Wounded "+animal.Spawn.Profile.name.ToLowerInvariant()+".");return;}
         animal.Dead=true;var corpse=SurvivalPhysiology.Carcass(animal.Spawn.Profile.slug,animal.Spawn.Id,animal.Planet,mass,animal.Heading);
+        corpse.AppearanceHash=animal.Spawn.Hash;corpse.CoatSeed=animal.Spawn.CoatSeed;corpse.ColdC=animal.Spawn.ColdC;corpse.Aridity=animal.Spawn.Aridity;
         survival.Corpses=survival.Corpses.Concat(new[]{corpse}).ToArray();StartAnimalRagdoll(animal,corpse,direction);SurvivalNotice(animal.Spawn.Profile.name+" killed.");
     }
     void UpdateSurvivalHeldTool(float dt)
@@ -228,7 +275,9 @@ public sealed partial class LocalTerrainExplorer
             {
                 heldSurvivalTool=CreateSurvivalTool(stack.Item);var hand=humanPlayer.Root.GetComponentsInChildren<Transform>().FirstOrDefault(t=>t.name=="hand.R"||t.name=="hand_r"||t.name.Contains("hand")&&t.name.EndsWith(".R",StringComparison.Ordinal));
                 heldSurvivalTool.transform.SetParent(hand??humanPlayer.Root.transform,false);heldSurvivalTool.transform.localPosition=hand!=null?Vector3.zero:new Vector3(.3f,1,0);
-                heldSurvivalTool.transform.localRotation=Quaternion.Euler(0,0,hand!=null?90:0);
+                var scale=heldSurvivalTool.transform.parent.lossyScale;
+                heldSurvivalTool.transform.localScale=new Vector3(1/Mathf.Max(.0001f,Mathf.Abs(scale.x)),1/Mathf.Max(.0001f,Mathf.Abs(scale.y)),1/Mathf.Max(.0001f,Mathf.Abs(scale.z)));
+                heldSurvivalTool.transform.rotation=humanPlayer.Root.transform.rotation*Quaternion.Euler(0,0,-12);
             }
         }
         survivalAttackClock=Math.Max(0,survivalAttackClock-dt*2);

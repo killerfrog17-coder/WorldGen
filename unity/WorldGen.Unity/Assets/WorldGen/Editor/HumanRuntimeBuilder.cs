@@ -12,7 +12,7 @@ public static class HumanRuntimeBuilder
     const string Input="Assets/WorldGen/GeneratedHumans",Output="Assets/WorldGen/Resources/Humans";
     [Serializable] sealed class Metadata {public string variant,source_sha256;public float eye_height;public Surface[] materials;}
     [Serializable] sealed class Surface {public string @object,kind,texture;public bool alpha;public float roughness;}
-    static readonly string[] Roles={"Idle","Walk","Run","Sprint","Crouch","Jump","Swim","KayKit run","KayKit run B","KayKit large run","Sit down","Sitting","Stand up","Sword attack","Chop wood","Dig"};
+    static readonly string[] Roles={"Idle","Walk","Run","Sprint","Crouch","Jump","Swim","KayKit run","KayKit run B","KayKit large run","Sit down","Sitting","Stand up","Sword attack","Chop wood","Dig","Interact","Pick up","Punch"};
     public static void AuditHeadMasks()
     {
         var library=Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");var rows=new List<string>();
@@ -45,7 +45,7 @@ public static class HumanRuntimeBuilder
             {
                 string role=Roles.FirstOrDefault(r=>clip.name.EndsWith("| "+r,StringComparison.Ordinal)||clip.name==r);
                 if(role==null)continue;
-                clip.name=role;bool loop=role!="Jump"&&role!="Sit down"&&role!="Stand up"&&role!="Sword attack";clip.loopTime=loop;clip.loopPose=loop;
+                clip.name=role;bool loop=role!="Jump"&&role!="Sit down"&&role!="Stand up"&&role!="Sword attack"&&role!="Pick up"&&role!="Punch";clip.loopTime=loop;clip.loopPose=loop;
                 clip.lockRootRotation=true;clip.keepOriginalOrientation=true;
                 clip.lockRootPositionXZ=true;clip.keepOriginalPositionXZ=true;clip.keepOriginalPositionY=true;
                 selected.Add(clip);

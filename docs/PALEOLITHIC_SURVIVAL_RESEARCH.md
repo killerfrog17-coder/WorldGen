@@ -73,3 +73,62 @@ the inventory/build interface. Needs feedback should remain compact and optional
 
 This document records decisions and sources, not verification that every planned
 system has shipped. Implementation evidence is recorded separately as it exists.
+
+## Architecture checkpoint, 27 October
+
+The owner withdrew the overnight deadline after an interruption and prioritised
+coherent architecture over additional content. The implementation now separates:
+
+* `SurvivalState`, `SurvivalItems` and `SurvivalCrafting`: serializable game rules,
+  physical carrying/packing, needs, transactions, finite carcasses and camp plans.
+  List and grid inventory share the same contents and constraints. Buildings
+  accept partial deliveries over multiple trips. Food portions preserve mass and
+  calories even for small birds and mice. Raw water can be carried and boiled.
+* Unity adapters: world interactions, authored human action playback, equipment,
+  procedural camp props, hunting and original-skeleton articulated ragdolls.
+  Death uses physics rather than the untested death animations. Corpse identity,
+  remaining yields, anchor and current bone pose are saved separately from the
+  ephemeral wildlife planner. No population/corpse count ceiling was added.
+* `HomininHistory`: sparse regional cohorts, branching biological lineages,
+  ancestral mixtures, language-descent identities and inherited local traditions.
+  The biological and cultural records are distinct. Derived map headcounts are
+  reconciled against the authoritative cohorts. Private simulation sessions own
+  mutable work; publications and saves detach their arrays.
+* `PleistoceneClimate`: changing regional/seasonal climate envelopes, sea-level
+  effects on migration and lagged resource/vegetation guilds. Geographic region
+  IDs stay stable. Coarse scheduled boundaries are independent of UI request
+  sizes; between boundaries only the clock advances.
+
+The survival catalogue currently has 54 items, 34 recipes and 12 camp/shelter
+blueprints. These are a broad playable prototype, not a claim that every early
+human population possessed every listed technology. The kit/recipe availability
+is not yet connected to the selected historical group's learned practices.
+
+### Limits that remain explicit
+
+The early-Homo scenario is a new, separately versioned simulation. Existing
+history saves keep their established rules. The new scenario has regional
+Lower/Middle/Upper Paleolithic, Epipaleolithic/Mesolithic, Neolithic and metal-age
+descriptions; its handoff into the existing detailed later state/city simulation
+is not implemented. Population, language and innovation coefficients are
+calibrated gameplay priors, not validated evolutionary predictions. In particular,
+innovation dates still need calibration across seeds; native copper working is
+not equivalent to extractive metallurgy. There is no established language
+invention date at 80 ka, and archaic groups are not treated as mute.
+
+Glacial habitat changes currently affect historical resources and migration,
+not the rendered terrain, coastlines, individual plant/animal taxa or moving ice
+sheets. Rendered tribal NPCs are not yet backed by these cohorts. Basic wildlife
+threat/flee behaviour is deliberately simple. Forage pickups are habitat-aware
+generic proxies, not a complete botanical edibility/phenology system.
+
+Shelter meshes and held tools are prototype art. Snow shelters do not excavate
+the terrain, and caves require future geometry support. Worn hide insulation
+works, but fitted visible Paleolithic clothes are unfinished. Generic authored
+actions are reused; precise hand/tool contacts, animal contact IK and swimming
+remain unfinished. These limits should not be presented as completed systems.
+
+Core verification at this checkpoint: 106 survival/inventory/calendar checks,
+315 hominin/climate checks including full compact-world save/resume, 45 existing
+human-variation checks and 20 player-camera/save checks pass. Packaged runtime
+verification and selected-build details are recorded in the checkpoint log.
