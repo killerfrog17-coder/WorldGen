@@ -82,7 +82,6 @@ public sealed partial class LocalTerrainExplorer
         if(MenuSkin!=null)GUI.skin=MenuSkin;
         GUI.color=GUI.contentColor=GUI.backgroundColor=Color.white;
         DrawChat();
-        DrawHumanCameraHint();
         DrawTerrainDiagnosticOverlay();
         if(ecologyOpen){DrawEcologyDebug();return;}
         if(debugOpen)DrawDebugOverlay();

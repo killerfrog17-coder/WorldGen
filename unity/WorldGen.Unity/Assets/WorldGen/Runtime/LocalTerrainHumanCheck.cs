@@ -17,10 +17,23 @@ public sealed partial class LocalTerrainExplorer
         TestNearbyFlatGround();TestWalking();yield return new WaitForSecondsRealtime(1);
         TerrainVideoOptions.GroundCover=false; // Expose actual feet for this diagnostic only.
         Check(ExecuteExplorerCommand("/humans clear").Success,"clear NPC command");
-        Check(ExecuteExplorerCommand("/spawn human 3").Success&&humanNpcs.Count==3,"spawn human alias and count");
-        Check(!ExecuteExplorerCommand("/humans 500").Success,"bounded NPC population");
+        Check(ExecuteExplorerCommand("/spawn human 24").Success,"spawn human alias queues more than former cap");
+        double spawnDeadline=Time.unscaledTime+15;
+        while(humanSpawnQueued>0&&Time.unscaledTime<spawnDeadline)yield return null;
+        Check(humanNpcs.Count==24,"more than sixteen live humans");
+        Check(!ExecuteExplorerCommand("/humans -1").Success,"reject negative population request");
+        var air=animalProfiles.First(p=>p.medium=="air"&&p.tiny);
+        Check(ExecuteExplorerCommand("/spawn "+air.slug+" 160").Success,"queue more than previous animal command limit");
+        double animalDeadline=Time.unscaledTime+40;
+        while(animals.Values.Count(a=>a.Manual)<160&&Time.unscaledTime<animalDeadline)yield return null;
+        Check(animals.Values.Count(a=>a.Manual)==160&&animalBoneData.Length/AnimalBones>128,"animal palette grows beyond former population cap");
+        var gpu=new Matrix4x4[32];animalBoneBuffer.GetData(gpu,0,0,gpu.Length);
+        Check(gpu.Select((m,i)=>m==animalBoneData[i]).All(b=>b),"grown GPU palette retains uploaded poses");
+        ExecuteExplorerCommand("/spawn clear");
         var first=humanNpcs[0].Root.transform.localPosition;yield return new WaitForSecondsRealtime(8);
         Check(humanNpcs.Any(h=>h.Speed>.05f)||(humanNpcs[0].Root.transform.localPosition-first).sqrMagnitude>.01,"demo humans move with live clips");
+        float idleYaw=humanPlayer.Yaw;heading+=90;yield return new WaitForSecondsRealtime(.5f);
+        Check(Mathf.Abs(Mathf.DeltaAngle(idleYaw,humanPlayer.Yaw))<.1,"camera orbit does not turn stationary player");
         humanReviewPose=true;
         try
         {
@@ -28,7 +41,8 @@ public sealed partial class LocalTerrainExplorer
             {
                 DestroyHuman(humanPlayer);humanPlayer=CreateHuman(variant,1);humanPlayer.Root.transform.localPosition=new Vector3((float)(motion.X-originX),(float)(motion.Y-WorldGen.Presentation.TerrainMotion.EyeHeightM),(float)(motion.Z-originZ));
                 humanEyeOffset=humanPlayer.Definition.EyeHeight-(float)WorldGen.Presentation.TerrainMotion.EyeHeightM;
-                foreach(string role in new[]{"Idle","Walk","Run","Sprint","Crouch","Jump","Swim"})
+                Check(humanPlayer.Root.GetComponentsInChildren<SkinnedMeshRenderer>().All(r=>!r.name.Contains("suit")),"no modern clothing in variant "+variant);
+                foreach(string role in humanPlayer.Definition.Roles)
                 {
                     int clip=Array.IndexOf(humanPlayer.Definition.Roles,role);Check(clip>=0,"variant "+variant+" clip "+role);
                     for(int phase=0;phase<3;phase++)
@@ -45,6 +59,15 @@ public sealed partial class LocalTerrainExplorer
                 heading=0;pitch=8;humanPlayer.Root.transform.localRotation=Quaternion.Euler(0,180,0);PoseHumanCheck(Array.IndexOf(humanPlayer.Definition.Roles,"Walk"),.4);
                 TestHumanView(4);yield return null;PerformanceCapture(Path.Combine(output,"human-"+variant+"-walk-front.png"));
                 heading=90;TestHumanView(4);yield return null;PerformanceCapture(Path.Combine(output,"human-"+variant+"-walk-side.png"));
+                heading=0;humanPlayer.Root.transform.localRotation=Quaternion.Euler(0,180,0);TestHumanView(1.2);
+                yield return null;
+                view.transform.localPosition=humanPlayer.Root.transform.localPosition+new Vector3(0,humanPlayer.Definition.EyeHeight,-.65f);view.transform.localRotation=Quaternion.identity;
+                PerformanceCapture(Path.Combine(output,"human-"+variant+"-eyes.png"));
+                if(variant==0)foreach(string role in new[]{"Run","Sprint","KayKit run","KayKit run B","KayKit large run"})
+                {
+                    heading=90;TestHumanView(3);PoseHumanCheck(Array.IndexOf(humanPlayer.Definition.Roles,role),.25);
+                    yield return null;PerformanceCapture(Path.Combine(output,"run-option-"+role.Replace(' ','-')+".png"));
+                }
             }
             heading=0;pitch=72;humanPlayer.Root.transform.localRotation=Quaternion.identity;PoseHumanCheck(Array.IndexOf(humanPlayer.Definition.Roles,"Idle"),0);
             TestHumanView(0);yield return null;PerformanceCapture(Path.Combine(output,"human-first-person-body.png"));

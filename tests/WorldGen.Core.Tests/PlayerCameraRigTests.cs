@@ -26,6 +26,10 @@ static class PlayerCameraRigTests
         var restored=WorldJson.Read<PlaySession>(WorldJson.Write(saved));restored.Validate();
         Check(restored.PlayerHumanVariant==4&&restored.CameraDistance==7.2&&restored.CameraDistanceLocked,"Save round trip retains person and view");
         Check(saved.Copy().PlayerHumanVariant==4,"Session copy retains person");
+        saved.HumanRunStyle=3;Check(WorldJson.Read<PlaySession>(WorldJson.Write(saved)).HumanRunStyle==3,"Run style round trip");
+        var profiles=new[]{new FaunaPrototypeProfile{slug="deer",name="Deer"}};
+        foreach(int n in new[]{33,160,1000,1000000})
+        {var request=FaunaSpawnCommands.Parse("/spawn deer "+n,profiles);Check(request.Error==""&&request.Count==n,"Explicit animal requests exceed former count caps");}
         foreach(double bad in new[]{double.NaN,double.PositiveInfinity,-1,13})
         {bool rejected=false;try{new PlaySession{CameraDistance=bad}.Validate();}catch(ArgumentException){rejected=true;}Check(rejected,"Reject invalid saved zoom");}
         Console.WriteLine("PASS "+count+" player camera/save assertions");

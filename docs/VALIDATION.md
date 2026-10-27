@@ -1,5 +1,33 @@
 # Version 3 validation evidence
 
+## Human cleanup, eye opacity and growable populations - 26 October 2026
+
+Owner rejects intrusive control hints and modern clothes, requests alternate
+runs, correct eyes, retained idle orientation and removal of entity-count caps.
+Control hint function/calls removed entirely. Outfit meshes omitted; only their
+body-delete masks removed, helper mask retained. MPFB transparent outer cornea
+uses black albedo; exported native inner-eye coverage now clips that outer shell
+without deleting black pupils. Actual six face/eye renders inspected.
+
+Three additional CC0 KayKit run choices join Quaternius; /runstyle list and named
+selection, persisted per session. Same53bone/native weights; no source native
+overwrite. Camera motion alone does not turn stationary body in either view.
+Animal32/64/128 and24species count ceilings removed; geometric GPU palette growth
+preserves poses; inactive-only model eviction. Natural category totals no longer
+truncated. Human16cap removed. Spawn requests lazy/queued, admission time sliced,
+not preallocated according to a huge input count. Hardware/streaming/habitat rules
+still apply. No new HUD, paid service, neural call or replacement wardrobe.
+
+IL2CPP player-human-refinement BuiltUtc2026-10-27T04:12:37.0559529Z; compile/package
+succeed.20focused tests pass. Packaged review1162checks passes:24humans,160explicit
+animals, GPU growth/readback, idle facing, all6skins x10clips x3phases, no clothing,
+camera head/full-other-camera/shadow-caster/lock checks. Actual eyes/body variants,
+five run pose options and first-person body viewed. No runtime exceptions/errors;
+input snapshot unchanged.177repaired wildlife bundles retained. Existing shortcut
+updated, previous player retained. No FPS or better-animation guarantee; owner
+can choose the authored style. Evidence artifacts/human-refinement. Existing
+pre-human terrain macro-anchor test failure remains separate (below).
+
 ## MPFB human player, demo NPCs and body camera - 26 October 2026
 
 Release IL2CPP player-human-prototype BuiltUtc2026-10-27T03:31:19.5268805Z.

@@ -12,7 +12,7 @@ public static class HumanRuntimeBuilder
     const string Input="Assets/WorldGen/GeneratedHumans",Output="Assets/WorldGen/Resources/Humans";
     [Serializable] sealed class Metadata {public string variant,source_sha256;public float eye_height;public Surface[] materials;}
     [Serializable] sealed class Surface {public string @object,kind,texture;public bool alpha;public float roughness;}
-    static readonly string[] Roles={"Idle","Walk","Run","Sprint","Crouch","Jump","Swim"};
+    static readonly string[] Roles={"Idle","Walk","Run","Sprint","Crouch","Jump","Swim","KayKit run","KayKit run B","KayKit large run"};
     public static void AuditHeadMasks()
     {
         var library=Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");var rows=new List<string>();

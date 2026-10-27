@@ -12,8 +12,8 @@ namespace WorldGen.Presentation
     }
     public static class FaunaSpawnCommands
     {
-        public const int MaximumCount=32,PageSize=16;
-        public const string Help="/spawn <animal> [1-32] | /spawn list [filter] [page] | /spawn clear";
+        public const int PageSize=16;
+        public const string Help="/spawn <animal> [positive count] | /spawn list [filter] [page] | /spawn clear";
         static string Key(string value)=>new string(value.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
         static bool Match(FaunaPrototypeProfile p,string key)=>Key(p.slug).Contains(key)||Key(p.name).Contains(key)||p.aliases.Any(a=>Key(a).Contains(key));
         public static FaunaSpawnRequest Parse(string text,FaunaPrototypeProfile[] profiles)
@@ -27,8 +27,8 @@ namespace WorldGen.Presentation
             string last=words[end-1];bool number=end>(r.Action=="list"?2:2)&&(char.IsDigit(last[0])||last[0]=='-'||last[0]=='+');
             if(number)
             {
-                if(!int.TryParse(last,NumberStyles.Integer,CultureInfo.InvariantCulture,out int n)||n<1||r.Action=="spawn"&&n>MaximumCount)
-                {r.Error=r.Action=="spawn"?"Count must be a whole number from 1 to 32.":"Page must be a positive whole number.";return r;}
+                if(!int.TryParse(last,NumberStyles.Integer,CultureInfo.InvariantCulture,out int n)||n<1)
+                {r.Error=r.Action=="spawn"?"Count must be a positive whole number.":"Page must be a positive whole number.";return r;}
                 if(r.Action=="list")r.Page=n;else r.Count=n;end--;
             }
             if(r.Action=="list"){r.Filter=string.Join(" ",words.Skip(2).Take(end-2));return r;}

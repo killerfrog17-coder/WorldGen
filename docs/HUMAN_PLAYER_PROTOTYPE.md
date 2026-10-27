@@ -1,6 +1,6 @@
 # Human player and movement prototype
 
-The playable character uses one of the six MPFB adults from the existing human
+The playable character uses one of the six unclothed MPFB adults from the existing human
 audition, selected at random and retained in the play-session save. The original
 MPFB skeleton, skin weights and already fitted animation bank are the inputs.
 This does not use a newly generated or guessed rig. The existing animal assets
@@ -14,14 +14,23 @@ and animal renderer are separate.
   and slower movement. A full crouch collision/capsule system is not implemented.
 - F retains existing flight. Alt + wheel adjusts flight speed; plain wheel now
   adjusts the camera. Flight deliberately uses a neutral body pose.
-- `/spawn human 3` or `/humans 3`: add nearby demo humans (maximum 16).
+- `/spawn human 3` or `/humans 3`: queue nearby demo humans, without a fixed head-count cap.
 - `/humans clear`: remove the demo humans. Three try to spawn automatically
   on nearby dry, gentle ground once the initial terrain is available.
+- `/runstyle quaternius`, `/runstyle kaykit-a`, `/runstyle kaykit-b`, or
+  `/runstyle kaykit-large`: compare the four run styles on player and NPCs.
+  The selected style is saved with the play session. `/runstyle list` lists them.
+
+There is no control-instruction banner on the gameplay screen. Do not add
+unsolicited control/tutorial overlays; commands/help remain available.
 
 Third-person camera probes the existing terrain height field and pulls inward
 before crossing the ground. It does not add terrain mesh colliders. The distance
 lock locks user zoom, not obstacle avoidance. Tree/prop camera collision remains
-future work. Turning and camera distance transitions are smoothed.
+future work. Turning and camera distance transitions are smoothed. Idle body
+orientation is retained when the camera turns in either view; movement updates
+the body's facing direction. Walking toward the camera then stopping keeps
+the character facing it.
 
 First person retains torso, arms and legs. Head/hair/eyes and the upper-neck mask
 are hidden only in the owning camera's forward/depth passes, keyed by a per-human
@@ -40,13 +49,32 @@ not persistent NPC saves. A fitted swim clip is included in the bank; the existi
 controller does not yet provide a swimming mechanic. Sitting, work, combat,
 inventory, survival rules and a character creation screen are deferred.
 
-The six fixed body/skin/hair/clothing examples are placeholders from the audition,
-not the eventual prehistoric wardrobe or a finished runtime genetics/creation
-system. They retain source body proportions. Native bind geometry measures about
-1.35–1.70 metres in height including hair, with 38,240–49,764 triangles per person
+The six fixed body/skin/hair examples are placeholders from the audition,
+not a finished runtime genetics/creation system. Modern outfits are omitted;
+their body-deletion masks are removed while the helper-geometry mask is retained,
+so removing a shirt does not expose missing skin. No replacement clothing is
+added yet. They retain source body proportions. Native bind geometry measures about
+1.35–1.70 metres in height including hair, with 38,668–41,828 triangles per person
 before later LOD work. Subdivision is omitted from runtime derivatives. Skin maps
 use 2K; smaller materials use 512–1024 pixels, mipmaps and normal Unity texture
 compression. Their large number of modelling shape keys is not imported.
+
+MPFB's eye material uses a transparent outer corneal surface with black albedo.
+The initial opaque runtime material incorrectly covered the iris and sclera with
+that surface. Exported opacity now follows the native inner-eye UV coverage:
+the outer layer is clipped, while whites, iris and opaque black pupil remain.
+This preserves the underlying eye shape and pigmentation, with inexpensive
+gloss on the retained inner eye. No expensive refractive eye shader is added.
+
+Animal command counts32/64, total128 and species24 ceilings are removed.
+Their pose buffer grows geometrically as slots fill, retaining live poses and
+rebinding the GPU buffer. Explicit spawn batches remain lazy counts and are
+prepared/admitted under per-frame time budgets. Natural placement no longer
+truncates the total by ground/air/water/tiny category. Regions, density, habitat
+and streaming still determine natural distribution; physical device buffer/
+memory limits still apply. No active species is evicted to fit a model count.
+Humans similarly queue large requests across frames with no16-person cap.
+Cancellation commands clear queued requests as well as existing explicit spawns.
 
 ## Reproduction and sources
 
@@ -79,13 +107,26 @@ existing performance harness checks real skins/clips, spawning, first-person
 body and separate-camera head visibility. These are prototype checks, not an
 all-terrain animation/contact-IK or multiplayer certification.
 
-Final release player `player-human-prototype` built
+Initial release player `player-human-prototype` built
 2026-10-27T03:31:19.5268805Z. Final `human-review` passed935checks, including all
 six skins/seven clips at three phases, NPC commands/movement, body/head masking
 and a second actual camera. Root inspected rendered front/side views of all six
 people and final first-person/body/head/other-camera images. Terrain input SHA
-remained unchanged; no player exceptions/errors in the final run. The existing
-shortcut selects this build; previous `player-daylight-fill` remains available.
+remained unchanged; no player exceptions/errors in that run. This initial build
+and the previous `player-daylight-fill` remain available for comparison.
+
+The current refinement is `player-human-refinement`, built
+2026-10-27T04:12:37.0559529Z, now selected by the shortcut. It removes the control
+banner and modern outfits, fixes cornea opacity, preserves idle facing, adds the
+three KayKit run alternatives and removes fixed population/type caps. Runtime
+review passes1162checks, including24live humans,160explicitly spawned animals,
+GPU palette growth/readback and stationary facing. All six naked body variants,
+six face/eye views and five run/jog/sprint samples were actually inspected, along
+with first-person body and head/other-camera checks.20focused camera/save/large-
+request parser checks pass. No claim that every alternative run is better;
+the style selector lets the owner compare. No multiplayer or unlimited-hardware
+claim is implied by removing population caps. Evidence is under ignored
+`artifacts/human-refinement`.
 
 The broader `--play-session-only` check fails at its existing physical-noise
 macro-anchor assertion. An isolated archive of the pre-human HEAD reproduced

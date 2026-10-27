@@ -1,5 +1,37 @@
 # WorldGen repository instructions
 
+HUMAN REFINEMENT CHECKPOINT,26October2026~23:20CDT:
+Owner strongly rejects unsolicited controls/tutorial text on gameplay screen;
+DO NOT reintroduce such hints. Keep controls in help/settings. Modern clothes
+removed at owner request, adult base bodies now unclothed; no replacement clothes
+yet. Delete.clothing masks removed, Hide helpers retained, body under outfits
+restored. Eye blacks traced to native transmissive outer cornea black albedo
+becoming opaque: baked native inner-eye UV coverage now clips cornea and retains
+opaque pupil/iris/whites. Actual six face renders viewed. First-person body/head-
+only camera mask and full shadows/other-camera head remain. Idle body does not
+turn with camera in either view; last movement facing retained.
+/runstyle quaternius|kaykit-a|kaykit-b|kaykit-large compares authored free options,
+3extraKayKit clips fitted in read-only export derivatives on original53bone skin.
+Selected style optional saved field, native audition0946d797... unchanged.
+Owner explicitly removes arbitrary people/animal count limits. Human16, animal
+32request/64manual/128total/24species caps removed. Pose array/GPU buffer doubles
+on demand, preserving live data, physical API/memory limits only. Active species
+never evicted to fit a count. Natural category total cuts removed; native habitat/
+density/streaming still apply. Spawn batches lazy counts +frame-time slices;
+preparation windows are not population limits. /humans clear and /spawn clear
+cancel pending requests too. Do not silently reintroduce ceilings for performance.
+Final IL2CPP player-human-refinement BuiltUtc2026-10-27T04:12:37.0559529Z, existing
+shortcut selected; previous player retained.20focused tests +1162packaged checks
+pass, including24live humans,160manual animals, grown GPU buffer/readback, idle
+facing,6skins/10clips/3phases, unclothed bodies, real camera mask and other camera.
+Root viewed6eyes +12body views +5run pose options +FP body/head/other camera.
+No runtime errors/exceptions; snapshot stable,177wildlife bundle hashes retained.
+No better-run/FPS/contact-IK/multiplayer claim; owner can compare styles. Current
+evidence artifacts/human-refinement. Owned workers exited; no owner app closure.
+Same unrelated pre-human macro-anchor test failure documented; not changed here.
+Preserve deleted prompt and2old deer scripts unstaged; fauna appearance still
+stopped. No goal created. Back up explicit own source/docs before final.
+
 HUMAN PLAYER PROTOTYPE CHECKPOINT,26October2026~22:35CDT:
 Owner authorizes MPFB human player +basic wandering/running human NPCs, camera
 wheel first/third person, middle-click zoom lock; requests visible FP body with

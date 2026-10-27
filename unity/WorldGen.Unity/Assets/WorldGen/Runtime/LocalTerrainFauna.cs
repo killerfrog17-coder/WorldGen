@@ -11,7 +11,7 @@ using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
-    const int AnimalLimit=128,AnimalBones=128,AnimalModelLimit=24;
+    const int InitialAnimalCapacity=128,AnimalBones=128;
     sealed class AnimalModel
     {public WorldGenFaunaAsset Asset;public AssetBundle Bundle;public Material Material;public int Users;public double LastUse;}
     sealed class Animal
@@ -30,12 +30,12 @@ public sealed partial class LocalTerrainExplorer
     readonly List<FaunaPrototypeSpawn> animalWanted=new List<FaunaPrototypeSpawn>();
     readonly List<ulong> animalRemoval=new List<ulong>();
     readonly Stack<int> animalSlots=new Stack<int>();
-    readonly Matrix4x4[] animalBoneData=new Matrix4x4[AnimalLimit*AnimalBones];
+    Matrix4x4[] animalBoneData=Array.Empty<Matrix4x4>();double animalAllocationRetry;
     GraphicsBuffer animalBoneBuffer;Shader animalShader;Coroutine animalLoading;AssetBundleCreateRequest animalBundleRequest;AssetBundle animalPendingBundle;
     static LocalTerrainExplorer animalSceneOwner;
     V animalPlanAt;double nextAnimalPlan;int animalCandidates;bool animalDisposed;
     readonly bool animalDisabled=Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--worldgen-no-animals");
-    public string AnimalFaunaDebug=>animalPlanner==null?"Wildlife off":"Wildlife "+animals.Count+" / "+AnimalLimit+" animals, "+animalModels.Count+" loaded models; "+animalPlanner.MappedTaxa+" native taxa mapped"+(animalPlan!=null?"; planning":"")+(animalLoading!=null?"; loading":"")+(animalLoadFailures.Count>0?"; "+animalLoadFailures.Count+" asset failures":"");
+    public string AnimalFaunaDebug=>animalPlanner==null?"Wildlife off":"Wildlife "+animals.Count+" animals; GPU capacity "+animalBoneData.Length/AnimalBones+", "+animalModels.Count+" loaded models; "+animalPlanner.MappedTaxa+" native taxa mapped"+(animalPlan!=null?"; planning":"")+(animalLoading!=null?"; loading":"")+(animalLoadFailures.Count>0?"; "+animalLoadFailures.Count+" asset failures":"");
     void InitializeAnimalFauna()
     {
         if(animalDisabled||sourceWorld==null||sourceWorld.Ecology==null)return;
@@ -44,10 +44,27 @@ public sealed partial class LocalTerrainExplorer
         var profiles=JsonUtility.FromJson<FaunaPrototypeCatalogue>(catalogue.text);
         if(profiles.version!=1||profiles.animals.Length!=177)throw new InvalidDataException("Visible fauna catalogue mismatch");
         animalProfiles=profiles.animals;animalPlanner=new FaunaPrototypePlanner(sourceWorld,terrain,animalProfiles,HorizontalScale);
-        for(int i=AnimalLimit-1;i>=0;i--)animalSlots.Push(i);
-        animalBoneBuffer=new GraphicsBuffer(GraphicsBuffer.Target.Structured,animalBoneData.Length,64);
-        for(int i=0;i<animalBoneData.Length;i++)animalBoneData[i]=Matrix4x4.identity;
-        animalBoneBuffer.SetData(animalBoneData);Shader.SetGlobalBuffer("_FaunaBones",animalBoneBuffer);animalSceneOwner=this;
+        GrowAnimalPalette();animalSceneOwner=this;
+    }
+    bool GrowAnimalPalette()
+    {
+        if(animalSlots.Count>0)return true;
+        if(Time.realtimeSinceStartupAsDouble<animalAllocationRetry)return false;
+        GraphicsBuffer buffer=null;
+        try
+        {
+            int old=animalBoneData.Length/AnimalBones;long capacity=old==0?InitialAnimalCapacity:(long)old*2;
+            long matrices=capacity*AnimalBones,bytes=matrices*64;
+            if(matrices>int.MaxValue||bytes>SystemInfo.maxGraphicsBufferSize)throw new InvalidOperationException("Graphics API buffer size exhausted");
+            var data=new Matrix4x4[(int)matrices];Array.Copy(animalBoneData,data,animalBoneData.Length);
+            for(int i=animalBoneData.Length;i<data.Length;i++)data[i]=Matrix4x4.identity;
+            buffer=new GraphicsBuffer(GraphicsBuffer.Target.Structured,data.Length,64);buffer.SetData(data);
+            var previous=animalBoneBuffer;animalBoneBuffer=buffer;buffer=null;animalBoneData=data;
+            Shader.SetGlobalBuffer("_FaunaBones",animalBoneBuffer);previous?.Dispose();
+            for(int i=(int)capacity-1;i>=old;i--)animalSlots.Push(i);return true;
+        }
+        catch(Exception error) when(error is OutOfMemoryException||error is ArgumentException||error is InvalidOperationException)
+        {buffer?.Dispose();animalAllocationRetry=Time.realtimeSinceStartupAsDouble+5;PostExplorerChat("Could not allocate more animal pose storage: "+error.Message+". Pending spawns remain queued; /spawn clear cancels them.",true);return false;}
     }
     void UpdateAnimalFauna()
     {
@@ -87,22 +104,24 @@ public sealed partial class LocalTerrainExplorer
             animalPlan=Task.Run(()=>planner.Build(at,scale,hour,token),token);
         }
         bool localPopulation=HeightAboveGround<1200;
-        if(!localPopulation){animalWanted.Clear();animalManualWanted.Clear();foreach(var animal in animals.Values)animal.Wanted=false;}
+        if(!localPopulation){animalWanted.Clear();animalManualWanted.Clear();animalManualRequests.Clear();foreach(var animal in animals.Values)animal.Wanted=false;}
         if(!stopped&&localPopulation)
         {
             UpdateManualAnimalSpawns();
+            long admission=System.Diagnostics.Stopwatch.GetTimestamp();
             foreach(var spawn in animalWanted)
             {
-                if(animalSlots.Count<=animalManualWanted.Count)break;
                 if(animals.ContainsKey(spawn.Id)||!animalModels.TryGetValue(spawn.Profile.slug,out var model))continue;
                 if((spawn.Position-Position).Length*frame.RadiusM>spawn.Profile.radiusM)continue;
-                AddAnimal(spawn,model);
+                if(!AddAnimal(spawn,model))break;
+                if((System.Diagnostics.Stopwatch.GetTimestamp()-admission)*1000d/System.Diagnostics.Stopwatch.Frequency>1.5)break;
             }
             if(animalLoading==null&&CenterReady&&(animalManualWanted.Count>0||!NearTerrainPending()))
             {
                 var next=animalManualWanted.FirstOrDefault(s=>!animalModels.ContainsKey(s.Profile.slug)&&!animalLoadFailures.Contains(s.Profile.slug))??animalWanted.FirstOrDefault(s=>!animalModels.ContainsKey(s.Profile.slug)&&!animalLoadFailures.Contains(s.Profile.slug));
-                if(next!=null&&(animalModels.Count<AnimalModelLimit||EvictAnimalModel()||animalManualWanted.Any(s=>s.Profile.slug==next.Profile.slug)&&EvictWildAnimalModel()))
+                if(next!=null)
                 {
+                    EvictAnimalModel(); // Recycle unused models, never discard an active species for a count.
                     if(!File.Exists(Path.Combine(Application.streamingAssetsPath,"fauna",next.Profile.bundle)))
                     {animalLoadFailures.Add(next.Profile.slug);Debug.LogWarning("Missing fauna bundle "+next.Profile.slug);}
                     else animalLoading=StartCoroutine(LoadAnimalModel(next.Profile));
@@ -146,8 +165,9 @@ public sealed partial class LocalTerrainExplorer
         var old=animalModels.Where(p=>p.Value.Users==0).OrderBy(p=>p.Value.LastUse).FirstOrDefault();if(old.Value==null)return false;
         Destroy(old.Value.Material);old.Value.Bundle.Unload(true);animalModels.Remove(old.Key);return true;
     }
-    void AddAnimal(FaunaPrototypeSpawn spawn,AnimalModel model,bool manual=false)
+    bool AddAnimal(FaunaPrototypeSpawn spawn,AnimalModel model,bool manual=false)
     {
+        if(!GrowAnimalPalette())return false;
         var root=new GameObject(spawn.Profile.name,typeof(MeshFilter),typeof(MeshRenderer));root.layer=30;root.transform.SetParent(transform,false);
         root.transform.localScale=Vector3.one*(float)spawn.Profile.lengthM;
         root.GetComponent<MeshFilter>().sharedMesh=model.Asset.Mesh;var renderer=root.GetComponent<MeshRenderer>();renderer.sharedMaterial=model.Material;
@@ -164,7 +184,7 @@ public sealed partial class LocalTerrainExplorer
         var parts=options[option].parts;animal.Parts=new Vector4(parts[0],parts[1],parts[2],parts[3]);
         animal.Props.SetFloat("_Coat",coat);animal.Props.SetInt("_PaletteOffset",animal.Slot*AnimalBones);animal.Props.SetVector("_Parts",animal.Parts);
         animals.Add(spawn.Id,animal);model.Users++;model.LastUse=Time.realtimeSinceStartupAsDouble;
-        DecideAnimal(animal);UpdateAnimal(animal,0);
+        DecideAnimal(animal);UpdateAnimal(animal,0);return true;
     }
     static int ChooseAnimalCoat(WorldGenFaunaAsset asset,FaunaPrototypeSpawn spawn)
     {

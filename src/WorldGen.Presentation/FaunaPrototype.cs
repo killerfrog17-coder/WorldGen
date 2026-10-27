@@ -81,16 +81,9 @@ namespace WorldGen.Presentation
                 if(detail&&firefly!=null&&region>=0&&e.Habitat[cell].WarmTenthsC>=100&&e.Habitat[cell].AridityMilli>=500&&(hour>=18||hour<6))
                     Add(firefly,null,-1,region,key);
             }
-            // Separate visible budgets keep small insects from displacing the
-            // entire large-animal population. These are representation caps.
-            var selected=new List<FaunaPrototypeSpawn>();
-            foreach(string category in new[]{"ground","air","water","tiny"})
-            {
-                int cap=category=="ground"?48:category=="water"?32:24;
-                selected.AddRange(result.Where(s=>(s.Profile.tiny?"tiny":s.Profile.medium)==category)
-                    .OrderBy(s=>(s.Position-center).Length/Math.Max(1,s.Profile.radiusM)).ThenBy(s=>s.Id).Take(cap));
-            }
-            return selected;
+            // Ecology supplies population; admission is sliced across frames,
+            // instead of discarding members to fit a fixed entity count.
+            return result.OrderBy(s=>(s.Position-center).Length/Math.Max(1,s.Profile.radiusM)).ThenBy(s=>s.Id).ToList();
             void Add(FaunaPrototypeProfile profile,Taxon? taxon,int id,int region,ScatterKey key)
             {
                 if(profile.nocturnal&&hour>6&&hour<18)return;

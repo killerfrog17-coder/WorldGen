@@ -15,7 +15,7 @@ public sealed partial class LocalTerrainExplorer
     {
         public HumanRuntimeDefinition Definition;public GameObject Root;public Animator Animator;
         public PlayableGraph Graph;public AnimationMixerPlayable Mixer;public AnimationClipPlayable[] Inputs;
-        public float[] Weights;public int Jump=-1;public bool Airborne;
+        public float[] Weights;public int Jump=-1,RunStyle;public bool Airborne;
         public readonly List<Material> OwnedMaterials=new List<Material>();
         public TerrainMotion Motor;public V Planet;public float Yaw,TargetYaw,Speed,TargetSpeed;public double Decision,ObstacleAt,GaitPhase;
     }
@@ -25,7 +25,11 @@ public sealed partial class LocalTerrainExplorer
     WorldGenHumanLibrary humanLibrary;HumanActor humanPlayer;LocalTerrainFrame humanFrame;
     bool humansInitialized,humanAutoSpawned,humanReviewPose;int humanNextId=2,humanReviewHeadMask=-1;
     float humanCameraDistance,humanEyeOffset;double humanCameraProbeAt;Vector3 humanProbePivot,humanProbeDirection;float humanClearDistance=12;
-    double humanLastX,humanLastZ;float humanHintUntil;bool humanHideHead;
+    double humanLastX,humanLastZ;bool humanHideHead;
+    long humanSpawnQueued;
+    int humanRunStyle;
+    static readonly string[] HumanRunStyles={"quaternius","kaykit-a","kaykit-b","kaykit-large"};
+    static readonly string[] HumanRunRoles={"Run","KayKit run","KayKit run B","KayKit large run"};
     public string HumanDebug=>humanPlayer==null?"Humans unavailable":"Human "+humanPlayer.Definition.Variant+"; "+humanNpcs.Count+" demo NPCs; "+(humanCamera.FirstPerson?"first person":"third person "+humanCamera.Distance.ToString("F1")+"m")+(humanCamera.Locked?" (zoom locked)":"");
     void InitializeHumans()
     {
@@ -35,16 +39,16 @@ public sealed partial class LocalTerrainExplorer
         int variant=playState?.PlayerHumanVariant??-1;if(variant<0||variant>=humanLibrary.People.Length)variant=humanRandom.Next(humanLibrary.People.Length);
         if(playState!=null)playState.PlayerHumanVariant=variant;
         humanCamera.Restore(playState?.CameraDistance??0,playState?.CameraDistanceLocked??false);humanCameraDistance=(float)humanCamera.Distance;
-        humanPlayer=CreateHuman(variant,1);humanPlayer.Yaw=heading;
+        humanRunStyle=playState?.HumanRunStyle??0;
+        humanPlayer=CreateHuman(variant,1);humanPlayer.Yaw=humanPlayer.TargetYaw=heading;
         humanEyeOffset=humanPlayer.Definition.EyeHeight-(float)TerrainMotion.EyeHeightM;
-        humanHintUntil=Time.unscaledTime+25;
         RenderPipelineManager.beginCameraRendering+=BindHumanCamera;
     }
     HumanActor CreateHuman(int variant,int id)
     {
         var definition=humanLibrary.People[variant];var root=Instantiate(definition.Prefab,transform,false);root.name=id==1?"Player human":"Demo human "+id;
         var animator=root.GetComponent<Animator>();animator.applyRootMotion=false;animator.cullingMode=AnimatorCullingMode.AlwaysAnimate;
-        var actor=new HumanActor{Root=root,Animator=animator,Definition=definition,Inputs=new AnimationClipPlayable[definition.Clips.Length],Weights=new float[definition.Clips.Length]};
+        var actor=new HumanActor{Root=root,Animator=animator,Definition=definition,RunStyle=humanRunStyle,Inputs=new AnimationClipPlayable[definition.Clips.Length],Weights=new float[definition.Clips.Length]};
         actor.Graph=PlayableGraph.Create(root.name+" movement");actor.Graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
         actor.Mixer=AnimationMixerPlayable.Create(actor.Graph,actor.Inputs.Length);
         var output=AnimationPlayableOutput.Create(actor.Graph,"Native MPFB skin",animator);output.SetSourcePlayable(actor.Mixer);
@@ -79,13 +83,12 @@ public sealed partial class LocalTerrainExplorer
     void ReadHumanCameraInput(Mouse mouse,Keyboard keyboard)
     {
         if(mouse==null)return;
-        if(mouse.middleButton.wasPressedThisFrame){humanCamera.ToggleLock();humanHintUntil=Time.unscaledTime+4;}
+        if(mouse.middleButton.wasPressedThisFrame)humanCamera.ToggleLock();
         float scroll=mouse.scroll.ReadValue().y;if(scroll==0)return;
         // Preserve fly-speed adjustment without competing with camera zoom.
         if(motion.Flying&&keyboard!=null&&(keyboard.leftAltKey.isPressed||keyboard.rightAltKey.isPressed))
             motion.FlySpeed=Math.Max(5,Math.Min(20000,motion.FlySpeed*Math.Exp(Math.Sign(scroll)*.25)));
         else humanCamera.Zoom(Math.Sign(scroll)*Math.Max(1,Math.Min(4,Math.Abs(scroll)/120)));
-        humanHintUntil=Time.unscaledTime+4;
     }
     void UpdateHumans()
     {
@@ -105,13 +108,19 @@ public sealed partial class LocalTerrainExplorer
         double dx=motion.X-humanLastX,dz=motion.Z-humanLastZ;humanLastX=motion.X;humanLastZ=motion.Z;
         float speed=dt>0&&!changed?(float)(Math.Sqrt(dx*dx+dz*dz)/dt):0;if(speed>15)speed=0;
         bool crouch=!motion.Flying&&ActiveKeyboard!=null&&ActiveKeyboard.ctrlKey.isPressed;
-        float desiredYaw=humanCamera.FirstPerson||speed<.05f?heading:(float)(Math.Atan2(dx,dz)*180/Math.PI);
-        humanPlayer.Yaw=Mathf.MoveTowardsAngle(humanPlayer.Yaw,desiredYaw,dt*540);
+        if(speed>.05f)humanPlayer.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);
+        humanPlayer.Yaw=Mathf.MoveTowardsAngle(humanPlayer.Yaw,humanPlayer.TargetYaw,dt*540);
         humanPlayer.Root.transform.localPosition=new Vector3((float)(motion.X-originX),(float)(motion.Y-TerrainMotion.EyeHeightM),(float)(motion.Z-originZ));
         humanPlayer.Root.transform.localRotation=Quaternion.Euler(0,humanPlayer.Yaw,0);
         AnimateHuman(humanPlayer,speed,!motion.Flying&&!motion.Grounded,crouch,dt);
         if(!stopped&&CenterReady&&!humanAutoSpawned)
         {humanAutoSpawned=true;SpawnHumans(3);}
+        if(!stopped&&CenterReady&&humanSpawnQueued>0)
+        {
+            long started=System.Diagnostics.Stopwatch.GetTimestamp();int attempts=0;
+            while(humanSpawnQueued>0&&attempts++<4)
+            {humanSpawnQueued--;SpawnHumans(1);if((System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency>2)break;}
+        }
         foreach(var npc in humanNpcs)
         {
             if(dt>0)
@@ -152,7 +161,10 @@ public sealed partial class LocalTerrainExplorer
         actor.Airborne=airborne;float total=0;
         // Keep left/right foot phases aligned when mixing clips with different
         // durations, rather than blending unrelated free-running cycles.
-        float frequency=crouch?speed/3:speed<1.5f?speed/2:speed<3.4f?Mathf.Lerp(.75f,1.0714f,Mathf.InverseLerp(1.5f,3.4f,speed)):Mathf.Lerp(1.0714f,1.5f,Mathf.InverseLerp(3.4f,6,speed));
+        string runRole=HumanRunRoles[actor.RunStyle];
+        float runFrequency=1/actor.Definition.Clips[Array.IndexOf(actor.Definition.Roles,runRole)].length;
+        float sprintFrequency=actor.RunStyle==0?1.5f:runFrequency*1.4f;
+        float frequency=crouch?speed/3:speed<1.5f?speed/2:speed<3.4f?Mathf.Lerp(.75f,runFrequency,Mathf.InverseLerp(1.5f,3.4f,speed)):Mathf.Lerp(runFrequency,sprintFrequency,Mathf.InverseLerp(3.4f,6,speed));
         if(!airborne)actor.GaitPhase=(actor.GaitPhase+dt*frequency)%1;
         for(int i=0;i<actor.Inputs.Length;i++)
         {
@@ -160,14 +172,15 @@ public sealed partial class LocalTerrainExplorer
             if(airborne)target=role=="Jump"?1:0;
             else if(crouch)target=role=="Crouch"?1:0;
             else if(speed<1.5f){float walk=Mathf.Clamp01(speed/1.5f);target=role=="Idle"?1-walk:role=="Walk"?walk:0;}
-            else if(speed<3.4f){float run=Mathf.InverseLerp(1.5f,3.4f,speed);target=role=="Walk"?1-run:role=="Run"?run:0;}
+            else if(speed<3.4f){float run=Mathf.InverseLerp(1.5f,3.4f,speed);target=role=="Walk"?1-run:role==runRole?run:0;}
+            else if(actor.RunStyle>0)target=role==runRole?1:0;
             else {float sprint=Mathf.InverseLerp(3.4f,6,speed);target=role=="Run"?1-sprint:role=="Sprint"?sprint:0;}
             if(role=="Walk")rate=Mathf.Clamp(speed/1.5f,.5f,1.6f);
             if(role=="Run")rate=Mathf.Clamp(speed/3.4f,.6f,1.6f);
             if(role=="Sprint")rate=Mathf.Clamp(speed/6,.6f,1.3f);
             if(role=="Crouch")rate=speed<.05f?0:Mathf.Clamp(speed/1.5f,.3f,1.5f);
             if(role=="Jump")rate=actor.Definition.Clips[i].length/.61f;
-            if(role=="Walk"||role=="Run"||role=="Sprint"||role=="Crouch")
+            if(role=="Walk"||role=="Run"||role=="Sprint"||role=="Crouch"||role.StartsWith("KayKit ",StringComparison.Ordinal))
             {actor.Inputs[i].SetTime(actor.GaitPhase*actor.Definition.Clips[i].length);rate=0;}
             actor.Inputs[i].SetSpeed(rate);actor.Weights[i]=Mathf.Lerp(actor.Weights[i],target,1-Mathf.Exp(-dt*12));total+=actor.Weights[i];
         }
@@ -177,7 +190,7 @@ public sealed partial class LocalTerrainExplorer
     int SpawnHumans(int count)
     {
         if(humanLibrary==null||!Ready||!CenterReady)return 0;int made=0;
-        for(int i=0;i<count&&humanNpcs.Count<16;i++)
+        for(int i=0;i<count;i++)
         {
             for(int attempt=0;attempt<12;attempt++)
             {
@@ -213,19 +226,22 @@ public sealed partial class LocalTerrainExplorer
         float distance=Mathf.Min(humanCameraDistance,humanClearDistance);humanHideHead=distance<.65f;
         view.transform.localPosition=pivot+back*distance;view.transform.localRotation=rotation;
     }
-    void DrawHumanCameraHint()
-    {
-        if(humanPlayer==null||paused||mapOpen||chatOpen||ecologyOpen||Time.unscaledTime>humanHintUntil)return;
-        GUI.Label(new Rect(18,Screen.height-35,Screen.width-36,25),"Wheel: first/third person · Middle click: "+(humanCamera.Locked?"unlock zoom":"lock zoom")+" · C: walk · Shift: sprint · Ctrl: crouch · Alt+wheel: flight speed");
-    }
     PlayCommandResult ExecuteHumanCommand(string[] words)
     {
         if(words.Length==2&&words[1].Equals("clear",StringComparison.OrdinalIgnoreCase))
-        {int cleared=humanNpcs.Count;foreach(var human in humanNpcs)DestroyHuman(human);humanNpcs.Clear();humanAutoSpawned=true;return new PlayCommandResult(true,"Cleared "+cleared+" demo humans.");}
+        {int cleared=humanNpcs.Count;foreach(var human in humanNpcs)DestroyHuman(human);humanNpcs.Clear();humanSpawnQueued=0;humanAutoSpawned=true;return new PlayCommandResult(true,"Cleared "+cleared+" demo humans and cancelled pending spawns.");}
         if(humanLibrary==null)return new PlayCommandResult(false,"Human assets have not initialized yet.");
         int count=3;
-        if(words.Length>2||words.Length==2&&(!int.TryParse(words[1],out count)||count<1||count>16))return new PlayCommandResult(false,"Usage: /humans [1–16] or /humans clear. Also /spawn human [count].");
-        int made=SpawnHumans(count);return new PlayCommandResult(made>0,"Spawned "+made+" demo humans on nearby dry, gentle ground. /humans clear removes them.");
+        if(words.Length>2||words.Length==2&&(!int.TryParse(words[1],out count)||count<1))return new PlayCommandResult(false,"Usage: /humans [positive count] or /humans clear. Also /spawn human [count].");
+        humanSpawnQueued+=count;return new PlayCommandResult(true,"Queued "+count+" humans on nearby dry, gentle ground. /humans clear removes them and cancels pending spawns.");
+    }
+    PlayCommandResult ExecuteHumanRunStyle(string[] words)
+    {
+        if(words.Length!=2||words[1].Equals("list",StringComparison.OrdinalIgnoreCase))return new PlayCommandResult(true,"Run styles: "+string.Join(", ",HumanRunStyles)+". Use /runstyle <name> to compare on player and demo humans.");
+        int style=Array.FindIndex(HumanRunStyles,s=>s.Equals(words[1],StringComparison.OrdinalIgnoreCase));
+        if(style<0)return new PlayCommandResult(false,"Unknown run style. /runstyle list");
+        humanRunStyle=style;if(humanPlayer!=null)humanPlayer.RunStyle=style;foreach(var npc in humanNpcs)npc.RunStyle=style;
+        return new PlayCommandResult(true,"Run style: "+HumanRunStyles[style]);
     }
     static void DestroyHuman(HumanActor human){if(human.Graph.IsValid())human.Graph.Destroy();if(human.Root!=null)UnityEngine.Object.Destroy(human.Root);foreach(var material in human.OwnedMaterials)if(material!=null)UnityEngine.Object.Destroy(material);}
     void DisposeHumans()

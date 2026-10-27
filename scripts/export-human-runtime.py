@@ -7,12 +7,13 @@ import argparse, hashlib, json, sys, time
 from pathlib import Path
 import bpy
 import numpy as np
+import importlib.util
 
 REPO = Path(__file__).resolve().parent.parent
 SOURCE = REPO/'artifacts/human-animation-preview/Human - Animation Comparison.blend'
 OUTPUT = REPO/'artifacts/human-runtime/exports'
 EVIDENCE = REPO/'artifacts/human-runtime'
-CLIPS = {'Idle', 'Walk', 'Run', 'Sprint', 'Crouch', 'Jump', 'Swim'}
+CLIPS = {'Idle', 'Walk', 'Run', 'Sprint', 'Crouch', 'Jump', 'Swim','KayKit run','KayKit run B','KayKit large run'}
 
 
 def bake(ob, name, size, alpha=False):
@@ -30,7 +31,17 @@ def bake(ob, name, size, alpha=False):
             previous=output.inputs['Surface'].links[0].from_socket
             p=next((n for n in tree.nodes if n.type=='BSDF_PRINCIPLED'),None)
             emit=tree.nodes.new('ShaderNodeEmission')
-            if p and p.inputs['Alpha'].is_linked:tree.links.new(p.inputs['Alpha'].links[0].from_socket,emit.inputs['Color'])
+            eye=next((n for n in tree.nodes if n.type=='GROUP' and n.node_tree.nodes.get('EyeCoordinateInfo')),None)
+            if eye:
+                # MPFB has a transmissive outer cornea over an inner pigmented
+                # eye. Opaque PBR must not render that black corneal albedo.
+                # Retain the exact native inner-eye UV coverage, INCLUDING pupil.
+                eye.node_tree=eye.node_tree.copy();inner=eye.node_tree
+                inner.interface.new_socket(name='RuntimeInnerCoverage',in_out='OUTPUT',socket_type='NodeSocketFloat')
+                group_out=next(n for n in inner.nodes if n.type=='GROUP_OUTPUT')
+                inner.links.new(inner.nodes['EyeCoordinateInfo'].outputs['IsInRange'],group_out.inputs['RuntimeInnerCoverage'])
+                tree.links.new(eye.outputs['RuntimeInnerCoverage'],emit.inputs['Color'])
+            elif p and p.inputs['Alpha'].is_linked:tree.links.new(p.inputs['Alpha'].links[0].from_socket,emit.inputs['Color'])
             else:emit.inputs['Color'].default_value=(1,1,1,1)
             tree.links.new(emit.outputs[0],output.inputs['Surface']);rewires.append((tree,output,previous,emit))
         bpy.ops.object.bake(type='EMIT')
@@ -51,8 +62,17 @@ def export(letter):
     scene.view_settings.view_transform='Standard';scene.view_settings.look='None'
     collection=bpy.data.collections['MPFB_'+letter];collection.hide_viewport=False;collection.hide_render=False
     rig=next(o for o in collection.objects if o.type=='ARMATURE')
-    objects=[o for o in collection.objects if o.type=='MESH']
-    clips=json.loads(rig['preview_clips']);actions={c['action']:c for c in clips if c['label'] in CLIPS}
+    objects=[o for o in collection.objects if o.type=='MESH' and 'suit' not in o.name.lower()]
+    clips=json.loads(rig['preview_clips'])
+    sys.path.insert(0,str(REPO/'scripts'))
+    from human_motion_common import Motion
+    spec=importlib.util.spec_from_file_location('human_retarget',REPO/'scripts/build-human-animation-preview.py')
+    retarget=importlib.util.module_from_spec(spec);spec.loader.exec_module(retarget)
+    bank=REPO/'artifacts/human-animation-sources/kaykit'
+    for label,file,clip in [('KayKit run B','Rig_Medium_MovementBasic.glb','Running_B'),('KayKit large run','Rig_Large_MovementBasic.glb','Running_A')]:
+        motion=Motion(next(bank.rglob(file)));samples=[motion.sample(clip,min(i/30,motion.duration(clip))) for i in range(round(motion.duration(clip)*30)+1)]
+        clips.append(retarget.animate(rig,'MPFB',(label,motion,clip),samples))
+    actions={c['action']:c for c in clips if c['label'] in CLIPS}
     for ob in list(bpy.data.objects):
         if ob!=rig and ob not in objects:bpy.data.objects.remove(ob,do_unlink=True)
     rig.hide_set(False);rig.hide_render=False;rig.location=(0,0,0)
@@ -65,7 +85,7 @@ def export(letter):
     for ob in objects:
         ob.hide_set(False);ob.hide_render=False
         for modifier in list(ob.modifiers):
-            if modifier.type=='SUBSURF':ob.modifiers.remove(modifier)
+            if modifier.type=='SUBSURF' or modifier.type=='MASK' and modifier.name.startswith('Delete.'):ob.modifiers.remove(modifier)
         name=ob.name.replace('MPFB_'+letter+'.','').replace('.','-')
         # The MPFB RNA extension need not be installed/enabled in the exporter.
         kind=('Basemesh' if name=='body' else 'Eyes' if name=='high-poly' else
@@ -82,7 +102,7 @@ def export(letter):
         ob.select_set(True);bpy.context.view_layer.objects.active=ob
         size=2048 if kind=='Basemesh' else 512 if kind in {'Eyes','Teeth','Eyebrows','Eyelashes'} else 1024
         diffuse=bake(ob,name+' pigment',size)
-        transparent=kind in {'Hair','Eyebrows','Eyelashes'}
+        transparent=kind in {'Hair','Eyebrows','Eyelashes','Eyes'}
         if transparent:
             alpha=bake(ob,name+' opacity',size,True)
             pixels=np.empty(size*size*4,dtype=np.float32);diffuse.pixels.foreach_get(pixels)
