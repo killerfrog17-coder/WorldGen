@@ -20,14 +20,16 @@ namespace WorldGen.Core
     {
         public double Health=100,Stamina=100,Energy=100,Hunger,Thirst,CoreTemperatureC=37,Wetness;
         public bool Exhausted;
+        [System.Runtime.Serialization.OptionalField] public bool Unconscious;
         public PlayerDeathCause DeathCause;
         public bool Dead=>Health<=0;
-        public double MaximumStamina=>35+Energy*.65;
-        public bool CanSprint=>!Dead&&!Exhausted&&Stamina>0&&Energy>5&&CoreTemperatureC>33&&CoreTemperatureC<40.5;
-        public double MovementScale=>Dead?0:Math.Max(.25,Math.Min(1,Math.Min(.55+Energy*.045,Math.Min(1-(35-CoreTemperatureC)*.16,1-(CoreTemperatureC-39)*.15))));
+        public bool Incapacitated=>Dead||Unconscious;
+        public double MaximumStamina=>Energy;
+        public bool CanSprint=>!Incapacitated&&!Exhausted&&Stamina>0&&Energy>5&&CoreTemperatureC>33&&CoreTemperatureC<40.5;
+        public double MovementScale=>Incapacitated?0:Math.Max(.25,Math.Min(1,Math.Min(.55+Energy*.045,Math.Min(1-(35-CoreTemperatureC)*.16,1-(CoreTemperatureC-39)*.15))));
         public PlayerSurvival Copy()=>(PlayerSurvival)MemberwiseClone();
         public void Restore()
-        {Health=Stamina=Energy=100;Hunger=Thirst=Wetness=0;CoreTemperatureC=37;Exhausted=false;DeathCause=PlayerDeathCause.None;}
+        {Health=Stamina=Energy=100;Hunger=Thirst=Wetness=0;CoreTemperatureC=37;Exhausted=Unconscious=false;DeathCause=PlayerDeathCause.None;}
         public void Validate()
         {
             void Range(double v,double lo,double hi){if(double.IsNaN(v)||double.IsInfinity(v)||v<lo||v>hi)throw new ArgumentException("Invalid survival state.");}

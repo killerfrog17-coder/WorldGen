@@ -10,12 +10,17 @@ public sealed partial class LocalTerrainExplorer
     double survivalEnvironmentAt;
     SurvivalEnvironment survivalEnvironment;
     bool survivalSprinting;
+    double survivalMovementSpeed;
+    UnityEngine.Canvas survivalHudCanvas;
+    SurvivalHudView survivalHud;
+    Vector2 hudScreenSize;Rect hudSafeArea;
     PlaySession PlayerRules=>playState??(transientPlayer??(transientPlayer=new PlaySession()));
     public GameMode Mode=>PlayerRules.Mode;
     public PlayerSurvival Vitals=>PlayerRules.Survival??(PlayerRules.Survival=new PlayerSurvival());
     public bool UnlimitedResources=>GameModeRules.UnlimitedResources(Mode);
     bool SurvivalActive=>GameModeRules.HasSurvivalNeeds(Mode);
     bool Spectating=>Mode==GameMode.Spectator;
+    public double FeltTemperatureC=>SurvivalRules.FeelsLike(survivalEnvironment,Vitals.Wetness,survivalMovementSpeed);
     void ApplyPlayerMode()
     {
         motion.NoClip=GameModeRules.NoClip(Mode);
@@ -37,7 +42,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var s=Vitals;string Number(double n)=>n.ToString("F1",CultureInfo.InvariantCulture);
             return new PlayCommandResult(true,"Game mode: "+Mode.ToString().ToLowerInvariant()+".",
-                "Health "+Number(s.Health)+"; stamina "+Number(s.Stamina)+"; energy "+Number(s.Energy)+"; hunger "+Number(s.Hunger)+"; thirst "+Number(s.Thirst)+"; body "+Number(s.CoreTemperatureC)+" C"+(s.Dead?"; dead: "+s.DeathCause:""),usage);
+                "Health "+Number(s.Health)+"; stamina "+Number(s.Stamina)+"; energy "+Number(s.Energy)+"; hunger "+Number(s.Hunger)+"; thirst "+Number(s.Thirst)+"; feels "+Number(FeltTemperatureC)+" C; body "+Number(s.CoreTemperatureC)+" C"+(s.Dead?"; dead: "+s.DeathCause:s.Unconscious?"; unconscious":""),usage);
         }
         if(words.Length!=2||!SurvivalRules.TryMode(words[1],out var mode))return new PlayCommandResult(false,usage);
         PlayerRules.Mode=mode;
@@ -67,7 +72,25 @@ public sealed partial class LocalTerrainExplorer
                 Sunlight=daylight*(1-CurrentWeather.CloudCover*.85)*(1-canopy*.8),
                 Immersed=!double.IsNaN(water)&&water-(sample.ElevationM+feetAboveGround)>.6};
         }
-        double speed=Math.Min(TerrainMotion.RunSpeedMps,Math.Sqrt(dx*dx+dz*dz)/dt);
+        double speed=Vitals.Incapacitated?0:Math.Min(TerrainMotion.RunSpeedMps,Math.Sqrt(dx*dx+dz*dz)/dt);survivalMovementSpeed=speed;
         SurvivalRules.Advance(Vitals,dt,PlayerRules.Settings.RealMinutesPerDay,survivalEnvironment,speed,survivalSprinting);
+    }
+    void UpdateSurvivalHud()
+    {
+        bool show=SurvivalActive&&Ready&&weatherProvider!=null&&survivalEnvironmentAt>0&&!closed&&!paused&&!mapOpen&&!ecologyOpen&&!(debugOpen&&debugFull);
+        if(!show){if(survivalHudCanvas!=null)survivalHudCanvas.enabled=false;return;}
+        if(survivalHudCanvas==null)
+        {
+            var root=new GameObject("Survival HUD",typeof(RectTransform),typeof(Canvas),typeof(UnityEngine.UI.CanvasScaler));root.transform.SetParent(transform,false);root.layer=5;
+            survivalHudCanvas=root.GetComponent<Canvas>();survivalHudCanvas.renderMode=RenderMode.ScreenSpaceOverlay;survivalHudCanvas.sortingOrder=5;
+            var scaler=root.GetComponent<UnityEngine.UI.CanvasScaler>();scaler.uiScaleMode=UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1920,1080);scaler.matchWidthOrHeight=1;
+            var group=new GameObject("Approved survival display",typeof(RectTransform),typeof(CanvasRenderer),typeof(SurvivalHudView));group.transform.SetParent(root.transform,false);group.layer=5;
+            survivalHud=group.GetComponent<SurvivalHudView>();var rect=survivalHud.rectTransform;rect.anchorMin=rect.anchorMax=rect.pivot=new Vector2(1,0);rect.sizeDelta=new Vector2(256,256);
+            survivalHudCanvas.enabled=false;
+        }
+        var size=new Vector2(Screen.width,Screen.height);var safe=Screen.safeArea;
+        if(size!=hudScreenSize||safe!=hudSafeArea)
+        {hudScreenSize=size;hudSafeArea=safe;float scale=Mathf.Max(.01f,Screen.height/1080f);survivalHud.rectTransform.anchoredPosition=new Vector2(-16-(Screen.width-safe.xMax)/scale,16+safe.yMin/scale);}
+        survivalHud.SetValues(SurvivalHudValues.From(Vitals,FeltTemperatureC),!survivalHudCanvas.enabled);survivalHudCanvas.enabled=true;
     }
 }

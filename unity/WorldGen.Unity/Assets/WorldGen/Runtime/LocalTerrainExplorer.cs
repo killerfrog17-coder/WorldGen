@@ -148,13 +148,13 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         var keyboard=ActiveKeyboard;var mouse=Mouse.current;
         if(!mapOpen&&!paused&&!chatInput&&!ecologyOpen&&Application.isFocused)
         {
-            if(mouse!=null&&!passiveSkyCheck&&!passiveReanchorCheck){var d=mouse.delta.ReadValue();heading+=d.x*.1f;pitch=Mathf.Clamp(pitch-d.y*.1f,-85,85);
+            if(mouse!=null&&(!SurvivalActive||!Vitals.Incapacitated)&&!passiveSkyCheck&&!passiveReanchorCheck){var d=mouse.delta.ReadValue();heading+=d.x*.1f;pitch=Mathf.Clamp(pitch-d.y*.1f,-85,85);
                 ReadHumanCameraInput(mouse,keyboard);}
             if(keyboard!=null&&!WorldGenPerformance.Enabled)
             {
                 MovementSeconds+=Math.Max(0,Math.Min(.25,Time.unscaledDeltaTime));
                 if(Mode==GameMode.Creative&&keyboard.fKey.wasPressedThisFrame){motion.Flying=!motion.Flying;motion.VerticalSpeed=0;}
-                bool alive=!SurvivalActive||!Vitals.Dead;
+                bool alive=!SurvivalActive||!Vitals.Incapacitated;
                 survivalSprinting=keyboard.shiftKey.isPressed&&(!SurvivalActive||Vitals.CanSprint);
                 bool jump=alive&&keyboard.spaceKey.wasPressedThisFrame&&(!SurvivalActive||Vitals.Stamina>=12);
                 if(SurvivalActive&&jump&&motion.Grounded)Vitals.Stamina=Math.Max(0,Vitals.Stamina-12);
@@ -175,7 +175,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             foreach(var chunk in scatterChunks.Values)ProjectScatter(chunk);scatterDirty=true;
         }
         if(!TerrainDiagnostics.HoldTerrain)UpdatePreparedFrame();
-        UpdateHumans();UpdateCamera();UpdateFootsteps();double altitude=HeightAboveGround;
+        UpdateHumans();UpdateCamera();UpdateFootsteps();UpdateSurvivalHud();double altitude=HeightAboveGround;
         debugGroundClearance=altitude;debugElevation=groundMemoElevation+altitude;
         if(TerrainDiagnostics.HoldTerrain){UpdateScatter();UpdateAnimalFauna();UpdateWeatherPresentation();UpdateDebugReadout();return;}
         double replanDistance=TerrainLod.ReplanDistance(HorizontalScale);

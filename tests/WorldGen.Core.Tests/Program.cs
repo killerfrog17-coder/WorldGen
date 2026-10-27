@@ -3,6 +3,7 @@ using WorldGen.Serialization;
 using WorldGen.Presentation;
 if(args.Contains("--player-camera-only")){PlayerCameraRigTests.Run();return;}
 if(args.Contains("--survival-modes-only")){SurvivalModeTests.Run();return;}
+if(args.Contains("--survival-hud-only")){SurvivalHudTests.Run();return;}
 if(args.Contains("--vegetation-community-only")){VegetationCommunityTests.Run();return;}
 if(args.Contains("--streaming-fog-only")){TerrainStreamingRevealTests.Run();return;}
 if(args.Contains("--tree-rendering-lod-only")){TreeRenderingLodTests.Run();return;}

@@ -1,0 +1,113 @@
+{
+  "coordinateSystem": {
+    "viewBox": [
+      0,
+      0,
+      600,
+      600
+    ],
+    "center": [
+      300,
+      300
+    ],
+    "outerArcCenterlineRadius": 231,
+    "outerArcStroke": 10,
+    "thermalLimitRadius": 236,
+    "arcTopAndBottomGapDegrees": 10
+  },
+  "lockedLayout": {
+    "healthArc": {
+      "radius": 231,
+      "side": "left"
+    },
+    "energyArc": {
+      "radius": 231,
+      "side": "right"
+    },
+    "staminaArc": {
+      "radius": 214,
+      "side": "right"
+    },
+    "water": {
+      "translate": [
+        238,
+        261
+      ],
+      "scale": [
+        1.1282051282051282,
+        1.0084033613445378
+      ]
+    },
+    "stomach": {
+      "translate": [
+        332,
+        301
+      ],
+      "scale": [
+        1.9107142857142858,
+        2.477777777777778
+      ],
+      "pathBaseScale": 0.14,
+      "pathBaseTranslate": [
+        -430,
+        -360
+      ]
+    }
+  },
+  "sun": {
+    "center": [
+      300,
+      300
+    ],
+    "circleRadius": 160,
+    "rayLength": 40,
+    "rayCount": 6,
+    "lineWidth": 10
+  },
+  "snowflake": {
+    "center": [
+      300,
+      300
+    ],
+    "armRadius": 200,
+    "outerProngLength": 28,
+    "innerProngLength": 20,
+    "innerBranchDistance": 170,
+    "armCount": 6,
+    "lineWidth": 10
+  },
+  "temperature": {
+    "neutralRangeCelsius": [
+      19,
+      24
+    ],
+    "snowflakeFadeFullAtCelsius": 8,
+    "sunFadeFullAtCelsius": 33,
+    "coldColorMild": "#83DDEB",
+    "coldColorStrong": "#258BEB",
+    "warmColorMild": "#F5A33B",
+    "warmColorStrong": "#EF4444",
+    "colorColdStrongByCelsius": -12,
+    "colorHotStrongByCelsius": 47,
+    "fadeCurve": "smoothstep"
+  },
+  "bodyStress": {
+    "range": [
+      0,
+      100
+    ],
+    "boundaryRadius": 236,
+    "gradientType": "fixed-radius radial; smooth dynamic falloff",
+    "note": "Never switch gradients or draw a hard circle at 100%"
+  },
+  "barDirection": "fullness remains at bottom; emptiness grows from top",
+  "exampleValues": {
+    "health": 90,
+    "energy": 90,
+    "stamina": 85,
+    "thirst": 75,
+    "hunger": 65,
+    "feelsLikeCelsius": 55,
+    "bodyTemperatureStress": 100
+  }
+}

@@ -1,5 +1,40 @@
 # Version 3 validation evidence
 
+## Approved survival HUD and two temperature signals - 27 October 2026
+
+Owner supplied Unity_Survival_HUD_Export.zip and now explicitly authorizes the
+bottom-right HUD. Approved SVG/config geometry retained under assets/survival-hud;
+generated RGBA distance fields encode silhouettes, not a screenshot. A retained
+uGUI quad draws live health/energy/stamina/water/food fills, temperature symbols
+and a continuous signed core-stress glow. No labels/control hints/new panels.
+Survival only; pause/map/full diagnostics hide it, compact F3 remains usable.
+
+159 focused HUD bindings/thermal/incapacitation assertions,67 prior survival/mode
+and22 camera/save checks pass.16 actual Unity graphics checks pass: lower-half
+fills for every stat, empty/full arcs with gaps, tiny water touching actual
+bottom, stamina<=energy, exact locked silhouettes, continuous99..100 glow
+(max RGB delta2), bottom-right scaling at1920x1080,1280x720 and2560x1080. Rendered
+neutral/chilly/warm/cold/hot/partial/empty/full and anchored views inspected.
+Initial anchor check used an obsolete CanvasScaler Update reflection hook;
+fixed to current Handle before acceptance. No game performance win is claimed.
+
+Energy now caps stamina exactly. New optional saved Unconscious flag; critical
+core cold30C/heat40.5C causes incapacity, recovery uses hysteresis, continued
+exposure can be fatal. Cold/heat accumulation replaces a safe mild-cold fixed
+equilibrium; a freezing-exposure test verifies prolonged danger. Felt exposure
+includes wind/activity/sun and existing wetness hooks while core stress remains
+slow and separate. Physiology is gameplay-tuned, not clinically calibrated;
+sources and behavior in HUMAN_PLAYER_PROTOTYPE. No new fire/clothing/immersion
+mechanic or collapse animation. Human/fauna assets remain unchanged.
+
+Release IL2CPP `player-survival-hud` built2026-10-27T20:23:51.8609819Z:
+Build Finished Result Success, no C#/shader errors. Four frozen assembly hashes,
+177canonical/native/packaged fauna,42human maps and protected human native verified.
+Existing shortcut selects it; prior player retained. Owner ZIP unchanged (SHA
+c238ee7f07a3d6ac37e42fb290f8acf6626bdba40b083a8d8b0a930a089a7493).
+Own workers exited; no owner app/save changes. Full-world playtesting remains
+owner review; actual UI state renders and model tests are the acceptance evidence.
+
 ## Command-only game modes and survival needs - 27 October 2026
 
 Owner requests Creative, Survival and Spectator through `/gamemode` only, with

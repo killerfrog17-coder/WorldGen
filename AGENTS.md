@@ -1,5 +1,39 @@
 # WorldGen repository instructions
 
+APPROVED SURVIVAL HUD / FELT VS CORE TEMPERATURE,27October2026:
+Owner explicitly NOW authorizes bottom-right HUD from Downloads/Unity_Survival_
+HUD_Export.zip. Supersedes NO HUD instruction below ONLY for approved display;
+still NO controls/tutorial text, numbers or unsolicited panels. Original SVG,
+corrected neutral SVG/config/handoff kept in assets/survival-hud. Exact locked
+positions/paths; 600-square uniformly scaled,256logical px at1080p, right/bottom
+safe-area anchor. Runtime Survival-only; Creative/Spectator/pause/map/ecology/full
+F3 hide it, compact F3 coexists. Transparent background, one retained uGUI quad,
+RGBA SDF atlas1024 from SVG via scripts/build-survival-hud-masks.py, not screenshot.
+Five live top-draining fills, gray empties; water true bottom, white stomach,
+blue energy and cyan stamina. MaximumStamina NOW=Energy exactly; shader caps too.
+Sun/snow six-way connected shapes; neutral19..24C none, smooth snow below19/full8,
+sun above24/full33, cold/hot hues deepen. FeelsLike includes wind/activity/sun/
+existing wetness/insulation; fast response separate from core. Signed body glow
+fixed236radius, continuous99->100(maxactualRGBdelta2). Full core stress atcold30C
+orheat40.5C. Optional saved Unconscious flag, input incapacitation +recovery
+hysteresis; sustained exposure can kill. No physical collapse animation added.
+Core heat loss/gain accumulates rather than settling safely in freezing air;
+mildhypothermia impairs, cold injury below32C. Clinical thresholds/timing are
+gameplay approximations; NHS/CDC sources in HUMAN_PLAYER_PROTOTYPE. Existing
+rain/immersion hooks retained, no new fire/clothing/water interaction mechanic.
+159HUD/model +67survival/mode +22camera/save checks pass.16 actual Unity graphics
+checks pass incl1080p/720p/ultrawide, fills/caps/silhouettes and continuous glow.
+Rendered states inspected; opt-in Editor WorldGen/Review survival HUD is demo.
+Initial anchor fixture obsolete CanvasScaler.Update fixed to Handle. Release
+IL2CPP player-survival-hud built2026-10-27T20:23:51.8609819Z; existing shortcut
+selected, prior player-game-modes kept. Build success/no C#/shader errors;4DLL
+inputs +177canonical/native/packaged fauna +42human PNGs/protected0946...native
+verified unchanged. No world geometry/shading/animal/rig/animation changes or
+measured FPS guarantee. Evidence artifacts/survival-hud; ownsource/docs/shortcut
+checkpoint artifacts/source-checkpoints/survival-hud-20261027, GitHub push/remote
+verify. Own workers exited; owner apps/saves/ZIP untouched. Preserve prompt
+deletion +2old deer scripts. No overnight inventory/building/history work resumed.
+
 COMMAND-ONLY GAME MODES / SURVIVAL NEEDS,27October2026:
 Owner NEW explicit scope: /gamemode survival|creative|spectator, NO HUD; does NOT
 resume scrapped inventory/building/early-Homo work. New/legacy sessions Creative.

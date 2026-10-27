@@ -12,6 +12,15 @@ namespace WorldGen.Presentation
     public static class SurvivalRules
     {
         static double Clamp(double n,double lo=0,double hi=1)=>Math.Max(lo,Math.Min(hi,n));
+        public const double ColdCollapseC=30,HeatCollapseC=40.5;
+        // Perceived exposure is deliberately fast, unlike accumulated core heat.
+        public static double FeelsLike(SurvivalEnvironment e,double wetness,double speed)
+        {
+            double air=e.AirTemperatureC,wind=Clamp(e.WindMps,0,60),activity=Clamp(speed/TerrainMotion.RunSpeedMps);
+            return air-Math.Max(0,22-air)*wind*.04*(1-Clamp(e.Insulation)*.8)
+                -Clamp(wetness)*Math.Max(0,30-air)*.35+Clamp(e.Sunlight)*4+activity*4
+                +Math.Max(0,air-24)*Clamp(e.Humidity)*.18;
+        }
         public static bool TryMode(string value,out GameMode mode)
         {
             switch(value.ToLowerInvariant())
@@ -30,7 +39,7 @@ namespace WorldGen.Presentation
         static void Step(PlayerSurvival s,double dt,double minutesPerDay,SurvivalEnvironment e,double speed,bool sprinting)
         {
             double day=dt/(minutesPerDay*60),thermal=dt*60/minutesPerDay;
-            double activity=Clamp(speed/TerrainMotion.RunSpeedMps),humidity=Clamp(e.Humidity),wind=Clamp(e.WindMps,0,60),sun=Clamp(e.Sunlight);
+            double activity=s.Unconscious?0:Clamp(speed/TerrainMotion.RunSpeedMps),humidity=Clamp(e.Humidity),wind=Clamp(e.WindMps,0,60),sun=Clamp(e.Sunlight);
             double sweat=Clamp((e.AirTemperatureC-20)/12+activity*1.2+sun*.5,0,4);
             if(e.Immersed)s.Wetness=1;
             else s.Wetness=Clamp(s.Wetness+thermal*(Math.Max(0,e.RainMmPerHour)*.003+sweat*.003-(.002+wind*.0003)*(1-humidity)));
@@ -38,9 +47,14 @@ namespace WorldGen.Presentation
             if(e.Immersed)cold+=Math.Max(0,30-e.AirTemperatureC)*1.5;
             double coldLoad=Math.Max(0,cold-5-activity*8);
             double evaporation=3*(1-humidity*.75)*(1+wind*.03)*(1-Clamp((s.Thirst-45)/55)*.8);
-            double heatLoad=Math.Max(0,Math.Max(0,e.AirTemperatureC-28)*.28+activity*1.5+sun*1.5-evaporation);
-            double target=Clamp(37-coldLoad*.16+heatLoad*.5,26,43.5);
-            s.CoreTemperatureC+=(target-s.CoreTemperatureC)*(1-Math.Exp(-thermal/150));
+            double heatLoad=Math.Max(0,Math.Max(0,e.AirTemperatureC-28)*.28+Math.Max(0,e.AirTemperatureC-35)*humidity*.35+activity*1.5+sun*1.5-evaporation);
+            // Uncompensated heat loss/gain accumulates. A fixed cold equilibrium
+            // could otherwise leave a naked person at subfreezing temperatures
+            // indefinitely without progressing beyond mild hypothermia.
+            if(coldLoad>0||heatLoad>0)s.CoreTemperatureC=Clamp(s.CoreTemperatureC+(heatLoad*.0015-coldLoad*.0008)*thermal,26,43.5);
+            else s.CoreTemperatureC+=(37-s.CoreTemperatureC)*(1-Math.Exp(-thermal/150));
+            if(s.CoreTemperatureC<=ColdCollapseC||s.CoreTemperatureC>=HeatCollapseC)s.Unconscious=true;
+            else if(s.Unconscious&&s.CoreTemperatureC>=32&&s.CoreTemperatureC<=39.5)s.Unconscious=false;
             s.Hunger=Clamp(s.Hunger+day*(100+activity*70+coldLoad*.7),0,100);
             s.Thirst=Clamp(s.Thirst+day*100*(1+Math.Max(0,e.AirTemperatureC-22)*.07+activity*1.4+sweat*.5),0,100);
             bool resting=speed<.1;
@@ -51,7 +65,9 @@ namespace WorldGen.Presentation
             s.Stamina=Clamp(s.Stamina+dt*(exerting?-9:resting?14:speed<=TerrainMotion.WalkSpeedMps+.1?11:4),0,s.MaximumStamina);
             if(s.Stamina<=.01)s.Exhausted=true;
             else if(s.Exhausted&&s.Stamina>=Math.Min(25,s.MaximumStamina*.4))s.Exhausted=false;
-            double coldDamage=Math.Max(0,35-s.CoreTemperatureC)*.32,heatDamage=Math.Max(0,s.CoreTemperatureC-39.5)*.45;
+            // Critical exposure can incapacitate before it proves fatal. Mild
+            // hypothermia causes impairment, not automatic rapid health loss.
+            double coldDamage=Math.Max(0,32-s.CoreTemperatureC)*.12,heatDamage=Math.Max(0,s.CoreTemperatureC-39.5)*.25;
             double thirstDamage=s.Thirst>=100?180d/3600:0,hungerDamage=s.Hunger>=100?20d/3600:0;
             double damage=coldDamage+heatDamage+thirstDamage+hungerDamage;
             if(damage>0)

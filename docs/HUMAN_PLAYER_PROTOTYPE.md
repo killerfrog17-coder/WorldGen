@@ -18,7 +18,7 @@ and animal renderer are separate.
   its wheel/middle button do not alter the retained body-camera zoom settings.
 - `/gamemode survival`, `/gamemode creative`, `/gamemode spectator` are the only
   mode selectors. `/gamemode` alone explicitly reports mode/vitals in chat.
-  There are no new HUD elements or mode-selection menu controls.
+  Mode selection stays command-only; Survival now has the owner-approved HUD.
 - `/spawn human [count]`: queue nearby humans, one by default, without a fixed
   head-count cap. No NPC humans spawn automatically.
 - `/spawn human clear`: remove command-spawned humans and cancel their queue.
@@ -46,8 +46,8 @@ system yet. This supersedes the earlier first-person body/head-only mask.
 
 ## Game modes and survival needs
 
-Release IL2CPP `player-game-modes` built2026-10-27T18:41:07.8741946Z,
-selected by the existing shortcut. Previous `player-human-sprint` is retained.
+Earlier IL2CPP `player-game-modes` built2026-10-27T18:41:07.8741946Z,
+was selected at that delivery. Previous `player-human-sprint` is retained.
 
 New and legacy sessions default to Creative, preserving the prior sandbox.
 Creative has flight access, no survival drain/damage and an unlimited-resource
@@ -65,10 +65,12 @@ flight. It retains normal third-person/first-person camera behavior. The saved
 `PlayerSurvival` state contains Health, Stamina and Energy (100 is full), Hunger
 and Thirst (0 is satisfied, 100 depleted), CoreTemperatureC and Wetness (0..1).
 Short-term sprint stamina lasts about11s from full, recovers when not sprinting,
-and uses exhaustion hysteresis. Longer-term energy limits maximum stamina and
+and uses exhaustion hysteresis. Longer-term energy is the exact stamina cap and
 recovers with rest when fed, hydrated and thermally comfortable. Jumping costs
-stamina. Low energy or severe exposure slows movement; death blocks voluntary
-movement and records its cause. No death overlay, automatic respawn, food/drink
+stamina. Low energy or severe exposure slows movement; critical core temperature
+can cause unconsciousness, stopping movement/look input. Cooling or warming into
+a recovery band can restore consciousness; sustained exposure can still kill.
+Death blocks voluntary movement and records its cause. No death overlay, automatic respawn, food/drink
 interaction, clothing, fall/combat damage or drowning system is added here.
 
 Needs use real elapsed gameplay time and the selected solar-day duration, not
@@ -88,7 +90,60 @@ The [CDC heat/cold summary](https://www.cdc.gov/yellow-book/hcp/environmental-ha
 supports the roles of exertion, evaporation/humidity, dehydration and wet/windy
 cold exposure. The35C hypothermia threshold follows that source and the
 [NHS definition](https://www.nhs.uk/conditions/hypothermia/); the game begins
-progressive cold damage below it. Timing/damage rates are prototype balance.
+hypothermic impairment below it. Timing/damage rates are prototype balance.
+
+The HUD revision refines that behavior: below35C begins impairment, injury grows
+below32C, and critical cold30C or heat40.5C can incapacitate before death. These
+are gameplay thresholds, not universal clinical collapse temperatures. The
+[NHS heatstroke guidance](https://www.nhs.uk/conditions/heat-exhaustion-heatstroke/)
+describes possible loss of consciousness and the seriousness of heatstroke;
+[CDC cold guidance](https://www.cdc.gov/winter-weather/prevention/) describes
+progressive hypothermia and wet/cold exposure. Uncompensated heat gain/loss now
+accumulates instead of approaching a potentially safe cold equilibrium. At the
+default day length, naked freezing exposure develops over in-game hours; much
+more severe weather is faster. No collapse animation/ragdoll is claimed.
+
+## Approved survival HUD
+
+Release IL2CPP `player-survival-hud` built2026-10-27T20:23:51.8609819Z,
+selected by the existing shortcut. Prior `player-game-modes` is retained.
+
+The supplied `Unity_Survival_HUD_Export.zip` supplies the locked600x600 layout,
+configuration and SVG silhouettes under `assets/survival-hud`. It appears at the
+bottom right in Survival, with a transparent background and no numeric labels,
+control hints or extra panels. It hides in Creative/Spectator, pause, maps and
+full diagnostics; the compact F3 readout can coexist with it. The group uses
+height-based resolution scaling and safe-area anchoring. At1080p its nominal
+group is256px; transparent reference margins leave an approximately201px circle.
+
+`SurvivalHudView.SetValues(SurvivalHudValues, immediate)` is the reusable binding
+API. Health, energy, stamina, remaining hydration and remaining food are0..1;
+body stress is signed -1..1 and felt temperature is Celsius. All five resource
+fills drain from the top. The inner cyan stamina arc never exceeds blue energy,
+in the model as well as the display. `SurvivalHudValues.From` inverts saved
+Hunger/Thirst depletion. Actual approved stomach/droplet silhouettes and connected
+six-way symbols are precomputed into one1024px distance-field atlas; live fills,
+arcs, palettes and radial glow are evaluated by a single retained UI quad.
+`scripts/build-survival-hud-masks.py` reproduces it with Pillow/NumPy/SciPy.
+No HUD screenshot is used as runtime UI and no new image-generation call is used.
+
+Felt exposure reacts rapidly to weather, wind, exertion, sun, existing wetness
+and insulation hooks. The symbol is absent at19..24C inclusive, snow fades in
+below19/full by8, and the orange sun fades above24/full by33, becoming red toward47.
+Display smoothing uses one felt-temperature value, so sun and snow never directly
+crossfade over each other. Body glow is independent: healthy core temperature
+has no glow even when the wind feels freezing; residual cold core stress can
+remain blue after moving into warm air. The fixed-radius236 radial falloff is
+continuous through99..100, with full progress at the critical core thresholds.
+Existing rain/immersion hooks are retained; no fires, clothing or new water
+interaction system is added by this pass.
+
+159 focused bindings/feedback/incapacitation checks +67 prior survival/mode checks
+and22 camera/save checks pass.16 actual Unity graphics checks cover fills,
+silhouettes, full-bar gaps, low water, energy cap, glow continuity (maximum99..100
+RGB change2), and1080p/720p/ultrawide anchoring. Actual rendered states inspected.
+Editor `WorldGen/Review survival HUD` generates the preset demonstration/captures.
+Evidence: `artifacts/survival-hud`. No measured all-scene FPS guarantee is made.
 
 67 focused survival/mode/save/movement assertions and22 previous camera/save
 checks pass.15 actual Unity command/visibility checks cover mode switching,
