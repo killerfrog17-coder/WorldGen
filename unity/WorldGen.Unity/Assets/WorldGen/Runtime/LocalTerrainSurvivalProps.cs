@@ -115,10 +115,17 @@ public sealed partial class LocalTerrainExplorer
             {
                 float a=i*Mathf.PI/5,b=(i+1)*Mathf.PI/5;Vector3 foot=new Vector3(Mathf.Sin(a)*1.8f,0,Mathf.Cos(a)*1.8f),next=new Vector3(Mathf.Sin(b)*1.8f,0,Mathf.Cos(b)*1.8f),top=new Vector3(0,2.3f,0);
                 if(i==0||i==9)continue;SurvivalPole(root,"Frame pole",foot,top,.05f,SurvivalWood);
-                var mesh=new Mesh{name="Shelter panel"};mesh.vertices=new[]{foot,next,top};mesh.triangles=new[]{0,2,1,0,1,2};mesh.RecalculateNormals();mesh.RecalculateBounds();
+                var mesh=CreateSurvivalShelterPanel(foot,next,top);(root.GetComponent<SurvivalOwnedMeshes>()??root.AddComponent<SurvivalOwnedMeshes>()).Register(mesh);
                 var panel=new GameObject("Cover",typeof(MeshFilter),typeof(MeshRenderer));panel.layer=30;panel.transform.SetParent(root.transform,false);panel.GetComponent<MeshFilter>().sharedMesh=mesh;panel.GetComponent<MeshRenderer>().sharedMaterial=material;
             }
         }
         return root;
+    }
+    public static Mesh CreateSurvivalShelterPanel(Vector3 foot,Vector3 next,Vector3 top)
+    {
+        // The material is already double-sided. Opposite faces sharing the same
+        // vertices cancel their recalculated normals and break cover lighting.
+        var mesh=new Mesh{name="Shelter panel",vertices=new[]{foot,next,top},triangles=new[]{0,2,1}};
+        mesh.RecalculateNormals();mesh.RecalculateBounds();return mesh;
     }
 }

@@ -4,6 +4,21 @@ Owner scope: 27 October 2026. Gameplay prototype plus an early-history overhaul;
 no paid services, no new animal appearance work. Earlier saves retain their
 historical rules unless explicitly starting/upgrading the early-history scenario.
 
+Current selected checkpoint: `artifacts/player-survival-mesh-lifetime`, IL2CPP
+UTC `2026-10-27T14:25:08.3697541Z`, through the existing project shortcut.
+Core checks: 120 survival and 372 hominin/clock assertions; 26 native geometry/
+persistence checks, an editor mesh-lifetime regression and 20 unload cycles.
+The 20,000-year early-history canonical hash matches between CLR and IL2CPP.
+Earlier graphical survival review passed 24 functional checks; later changes
+have the narrower verification described below, not fresh visual/FPS acceptance.
+
+The owner-authorized cleanup retains the latest three players, latest per local
+day, selected and running builds. Six superseded survival players were removed
+(12.04 GiB); current rollback players are `player-survival-reach` and
+`player-survival-time-gate`, plus daily checkpoints. Older delivery paragraphs
+are chronological records; their player folders may have been purged. Source
+archives, review screenshots, native inputs and saves remain.
+
 ## Evidence and design decisions
 
 * [Smithsonian stone tools](https://humanorigins.si.edu/evidence/behavior/stone-tools):
@@ -445,3 +460,26 @@ overhead rejection and a near target aimed at from a third-person camera 8 m
 behind the player. Package DLLs and 177 fauna/rig-sidecar inputs match. These are
 geometry/persistence checks; the changed throw appearance awaits owner review.
 Animal source meshes, skins and animation clips remain unchanged.
+
+### Streamed camp mesh ownership
+
+Procedural cover meshes now belong explicitly to their streamed camp object,
+so unloading the camp releases them while keeping shared primitive assets.
+This follows [Unity's mesh ownership requirement](https://docs.unity.com/en-us/engine/6000.5/script-reference/unityengine/meshfilter/mesh).
+An editor regression reproduces the original retained allocation, then checks
+20 unload cycles with generated meshes freed and borrowed primitive meshes kept.
+
+The same audit reproduces zero normals from the old opposite-winding triangles
+sharing vertices. Cover materials already render both sides; a single face now
+keeps valid normals without changing panel vertex positions. Native checks
+verify the resulting normals. The current mesh-lifetime package passes all 26
+checks and preserves 177 fauna bundles/rig sidecars and staged DLL inputs.
+No new graphics or general memory/FPS benchmark is implied. Evidence:
+`artifacts/survival-mesh-lifetime-check.log`,
+`artifacts/survival-mesh-lifetime-native-final`, package proof JSON, and
+`artifacts/hominin-research/rules4-clr-native-proof.json`.
+
+The cleanup script now also retains the latest three, refuses to run during a
+project editor/build, protects nested running workers and writes separate audit
+manifests even on failure. Final applied cleanup:
+`artifacts/daily-cleanup-20261027-143000-084.json`.

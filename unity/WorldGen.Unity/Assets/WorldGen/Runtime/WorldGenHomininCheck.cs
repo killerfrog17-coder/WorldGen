@@ -26,6 +26,7 @@ public sealed partial class WorldGenRuntime
             Check(initial.DeepPast.Version==2&&initial.DeepPast.RulesVersion==4,"native player creates the current early-history schema and rules");
             Check(initial.DeepPast.Languages.Length==1,"native player retains the founding communication identity");
             var state=engine.AdvanceYears(initial,20000);engine.Validate(state);
+            File.WriteAllText(Path.Combine(output,"hominin-state.json"),WorldJson.Write(state));
             Check(state.DeepPast.Languages.Length==state.DeepPast.NextLanguage,"native player tracks communication branches");
             var clock=new PlaySession();clock.Accumulate(300);
             Check(!SimulationClockView.LocalHistoryEventDue(state,(long)clock.PendingHistorySeconds),"ordinary local play retains clock credit without requesting a demographic publication");
@@ -67,6 +68,8 @@ public sealed partial class WorldGenRuntime
             Check(!LocalTerrainExplorer.SurvivalHitInReach(playerEye,new Vector3(0,10,1),3),"native melee reach rejects a vertically distant target despite its nearby map location");
             var thirdPersonRay=new Ray(new Vector3(0,1.65f,-8),Vector3.forward);var targetBounds=new Bounds(new Vector3(0,1.65f,3),new Vector3(1,1,1));
             Check(targetBounds.IntersectRay(thirdPersonRay,out float rangeFromCamera)&&rangeFromCamera>3&&LocalTerrainExplorer.SurvivalHitInReach(playerEye,thirdPersonRay.GetPoint(rangeFromCamera),3),"native third-person aim does not consume the player's physical weapon reach");
+            var cover=LocalTerrainExplorer.CreateSurvivalShelterPanel(Vector3.zero,Vector3.right,Vector3.up);
+            Check(cover.triangles.Length==3&&cover.normals.Length==3&&cover.normals.All(n=>n.sqrMagnitude>.99f),"native double-sided shelter cover has valid lighting normals without cancelling duplicate faces");Destroy(cover);
             var play=new PlaySession{Survival=new SurvivalState()};play.Survival.Corpses=Enumerable.Range(0,8).Select(i=>SurvivalPhysiology.Carcass("deer",(ulong)i+1,new V(1,0,0),70,0)).ToArray();
             foreach(var corpse in play.Survival.Corpses)corpse.SettledPose=Enumerable.Repeat(.12345678f,2048).ToArray();
             string json=WorldJson.Write(play);File.WriteAllText(Path.Combine(output,"play-session.json"),json);

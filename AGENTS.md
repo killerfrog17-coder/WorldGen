@@ -1,5 +1,30 @@
 # WorldGen repository instructions
 
+CAMP MESH LIFETIME / CURRENT DELIVERY,27October2026~09:31CDT:
+Shortcut NOW player-survival-mesh-lifetime IL2CPP BuiltUtc
+2026-10-27T14:25:08.3697541Z;26native no-graphics geometry/persistence checks PASS;
+120survival/372hominin retained. 177fauna/177rigsidecars/fourDLL SHA verified.
+CLR/IL2CPP20ka canonicalstate/domainhash EXACT e4d79625d45da24e3202629ba8c7aa3e
+df5e145c4cea7da2b55f693241e0d158 (fullhash proof JSON). Shelter custommeshes now
+owned by SurvivalOwnedMeshes ExecuteAlways lifecycle component; borrowedbuiltin
+meshes neverregistered. Editoractualregression+20unloadcycles pass. Fixed cover
+duplicate opposite winding/shared vertices cancelling normals: materialCullOff
+alreadydouble-sided, singleface nowvalidnormals, samevertices. Actualnative
+normalcheck passes; no newGPUvisual/FPS/wholememorybenchmark. Earlier24actual
+survivalreview images/evidence retained. All ownedworkers exited, ownerapps left.
+Authorized cleanup rerun:6superseded survivalplayers/12.04GiB removed. Latest3
+mesh-lifetime/reach/time-gate +latestperlocalday/selected/running remain. Old
+checkpoint playerfolders named below MAYbe purged; their source/evidence kept.
+Script nowretainslatest3,refuses projectUnityrunning,protects nestedworkers,
+checks liveprocs beforedelete and uniqueJSONfinallylogs. Appliedmanifest
+artifacts/daily-cleanup-20261027-143000-084.json. Cfree34.7GiB/E29.5GiB.
+Ownsource/docs/shortcut backup+push+REMOTE COMMIT VERIFY required; no secrets/
+generatedfiles staged. Preserve unrelateddeletedprompt/2deerscripts. Asyncowner
+review pending; no duplicate question/GPUtest. Continue authorized work until
+ownerwrap, architecturefirst. Candidate next smallanimal audit: factory/runtime
+clamp carcass mass to.01kg (fireflyfallback.02), creating excess food for tiny
+animals; minimum18HP also makes mice survive multiple punches. No fix yet.
+
 PHYSICAL HUNTING REACH CHECKPOINT,27October2026~09:03CDT:
 Shortcut NOW player-survival-reach IL2CPP BuiltUtc2026-10-27T13:59:11.6533108Z.
 25native no-graphics geometry/persistence checks PASS;fourDLL/177fauna/177rig
