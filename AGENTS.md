@@ -1,5 +1,24 @@
 # WorldGen repository instructions
 
+RESPAWN OWNERSHIP CHECKPOINT,27October2026~11:31CDT:
+Shortcut NOW player-survival-respawn IL2CPP BuiltUtc2026-10-27T16:28:48.3741239Z.
+162survival/413hominin checks,47native PASS. NewCoreSurvivalRespawn.TryApply owns
+completed-bedding eligibility, full detacheddeathinventory+vitalreset. Closest
+unfinishedblueprintignored; fallbacksessionstartingpoint. No freestarterkit or
+emptydeathpile. Wear/age/portions,mass,camps,corpses,resourceuses,time,randomsequence
+retained. Livingplayer/invalidpoint calls atomicrefusal. GUIdelegatesonly, same
+teleport/camera path; no asset/rig/shader changes. FourDLL/177fauna/177rigSHA+
+20ka CLR/nativehash exact. No freshvisual/FPSclaim. Allownworkers exited,
+ownerapps untouched. Evidence survival-respawn-native-final/package-proof.
+Ownsource/docs/shortcut backup+push+REMOTEverification REQUIRED. Preserveunrelated
+deletedprompt+2deerscripts. Ownerasyncplayreviewpending; keeparchitecturefirst
+untilownerwraps. No newgoal/subagent. Largerunfinishedlimits inpriorcheckpoint
+anddocs remain. Read-onlyanimationaudit foundCC0 QuaterniusUAL2OverhandThrow
+available; current runtime19clips omitit andRMBusesSwordattack. NOTedited or
+exported; if pursued, preserveMPFB0946...source, reusedtextures, original53bone
+skin and6variants, stagedderivatives; needproperrelease/eventtiming andactual
+poseinspection, no casualre-rig. AvoidGPUcontention whileownerreviewpending.
+
 HISTORY MODEL BOUNDARY CHECKPOINT,27October2026~11:23CDT:
 Shortcut NOW player-survival-history-boundary IL2CPP BuiltUtc
 2026-10-27T16:20:48.5400957Z.413hominin/153survival checks,45native PASS.

@@ -107,6 +107,12 @@ public sealed partial class WorldGenRuntime
             long takeId=storage.Inventory.Items.Single(i=>i.Item=="raw-meat").Id;
             Check(SurvivalStorage.Drop(storage,takeId,1,new V(1,0,0),out var dropped,out _)&&SurvivalStorage.Take(storage,dropped,dropped.Contents[0],1,out _)&&!storage.Sites.Any(site=>site.Id==dropped.Id),"native dropped-item round trip retires its empty saved site");
             WorldJson.Read<SurvivalState>(WorldJson.Write(storage)).Validate();Check(storage.Sites.Single().Contents.Single().Fraction==.15,"native stored portions survive saved-data validation");
+            var deadPlayer=new SurvivalState{Dead=true,Health=0,Days=12,NextSite=3};V deathPoint=new V(1,0,0),spawnPoint=new V(0,1,0),bedPoint=new V(Math.Cos(.01),Math.Sin(.01),0);
+            deadPlayer.Sites=new[]{new SurvivalSite{Id=1,Kind="bed",Progress=.5,Position=deathPoint},new SurvivalSite{Id=2,Kind="hide-bed",Position=bedPoint}};
+            double equipmentMass=deadPlayer.Inventory.Mass;
+            Check(SurvivalRespawn.TryApply(deadPlayer,deathPoint,spawnPoint,out var respawnPoint,out _)&&(respawnPoint-bedPoint).Length<1e-12,"native respawn uses completed bedding instead of a closer unfinished plan");
+            WorldJson.Read<SurvivalState>(WorldJson.Write(deadPlayer)).Validate();
+            Check(!deadPlayer.Dead&&deadPlayer.Days==12&&deadPlayer.Inventory.Items.Length==0&&Math.Abs(deadPlayer.Sites.Single(site=>site.Kind=="drop").Contents.Sum(i=>i.Count*i.Fraction*SurvivalItems.Get(i.Item).Kg)-equipmentMass)<1e-10,"native respawn preserves dropped equipment mass, time and valid saved state");
             foreach(var corpse in play.Survival.Corpses)corpse.SettledPose=Enumerable.Repeat(.12345678f,2048).ToArray();
             string json=WorldJson.Write(play);File.WriteAllText(Path.Combine(output,"play-session.json"),json);
             Check(System.Text.Encoding.UTF8.GetByteCount(json)>65536,"native survival save exceeds the former camera-only limit");

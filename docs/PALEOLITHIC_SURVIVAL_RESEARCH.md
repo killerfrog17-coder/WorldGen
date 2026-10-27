@@ -4,9 +4,9 @@ Owner scope: 27 October 2026. Gameplay prototype plus an early-history overhaul;
 no paid services, no new animal appearance work. Earlier saves retain their
 historical rules unless explicitly starting/upgrading the early-history scenario.
 
-Current selected checkpoint: `artifacts/player-survival-history-boundary`, IL2CPP
-UTC `2026-10-27T16:20:48.5400957Z`, through the existing project shortcut.
-Core checks: 153 survival and 413 hominin/clock/view assertions; 45 native geometry/
+Current selected checkpoint: `artifacts/player-survival-respawn`, IL2CPP
+UTC `2026-10-27T16:28:48.3741239Z`, through the existing project shortcut.
+Core checks: 162 survival and 413 hominin/clock/view assertions; 47 native geometry/
 persistence checks, an editor mesh-lifetime regression and 20 unload cycles.
 The 20,000-year early-history canonical hash matches between CLR and IL2CPP.
 Earlier graphical survival review passed 24 functional checks; later changes
@@ -14,8 +14,8 @@ have the narrower verification described below, not fresh visual/FPS acceptance.
 
 The owner-authorized cleanup retains the latest three players, latest per local
 day, selected and running builds. Six superseded survival players were removed
-(12.04 GiB); current latest rollback players are `player-survival-stage-overview`
-and `player-survival-storage`, plus daily checkpoints. Older delivery paragraphs
+(12.04 GiB); current latest rollback players are `player-survival-history-boundary`
+and `player-survival-stage-overview`, plus daily checkpoints. Older delivery paragraphs
 are chronological records; their player folders may have been purged. Source
 archives, review screenshots, native inputs and saves remain.
 
@@ -650,3 +650,21 @@ IL2CPP checkpoint UTC `2026-10-27T16:20:48.5400957Z`,
 `artifacts/player-survival-history-boundary`, is selected on the shortcut. Package
 DLLs, 177 fauna bundles/rig sidecars and CLR/native early-history hash match.
 No new visual/FPS claim. Evidence: history-boundary native-final/package proof.
+
+
+### Completed-bed respawn and equipment ownership
+
+Respawn eligibility, death equipment and vital reset now belong to
+`SurvivalRespawn` in Core. Only completed bedding can anchor respawn; closer
+unfinished plans no longer qualify. With none, the existing session starting
+point is used. The full equipment inventory becomes one detached saved drop,
+with wear, age and food portions intact. No starter kit is granted, and an empty
+inventory creates no empty pile. Camps, carcasses, resource-use records, random
+consumption sequence and world time survive. A living player or invalid point
+cannot invoke this operation to heal, duplicate equipment or corrupt the save.
+
+There are 162 survival assertions and 47 native checks. IL2CPP checkpoint UTC
+`2026-10-27T16:28:48.3741239Z`, `artifacts/player-survival-respawn`, is selected
+on the existing shortcut. The history hash, 177 fauna bundles/rig sidecars and
+four staged DLL inputs are verified. This is native domain/geometry/save testing,
+not fresh graphical/FPS acceptance. Evidence: respawn native-final/package proof.

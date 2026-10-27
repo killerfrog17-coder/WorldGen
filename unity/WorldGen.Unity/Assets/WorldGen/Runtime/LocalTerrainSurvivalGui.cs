@@ -200,10 +200,8 @@ public sealed partial class LocalTerrainExplorer
         GUILayout.Label("Your equipment will remain where you fell. Camps and the world persist.");
         if(GUILayout.Button("Respawn at nearest bedding / starting point"))
         {
-            var old=survival.Inventory;survival.Sites=survival.Sites.Concat(new[]{new SurvivalSite{Id=survival.NextSite++,Kind="drop",Position=Position,Contents=old.Items.Select(i=>i.Copy()).ToArray()}}).ToArray();
-            var bed=survival.Sites.Where(s=>s.Kind=="bed"||s.Kind=="hide-bed").OrderBy(s=>(s.Position-Position).Length).FirstOrDefault();
-            survival.Inventory=new SurvivalInventory();survival.Health=100;survival.Stamina=100;survival.SprintExhausted=false;survival.EnergyKcal=4000;survival.WaterDeficitL=0;survival.Fatigue=.1;survival.CoreTemperatureC=37;survival.Wetness=survival.Bleeding=survival.Illness=0;survival.Dead=false;
-            survivalOpen=false;motion.Flying=false;Teleport(bed?.Position??startingPoint);CaptureMouse();
+            if(!SurvivalRespawn.TryApply(survival,Position,startingPoint,out var destination,out var why)){SurvivalNotice(why);return;}
+            survivalOpen=false;motion.Flying=false;Teleport(destination);CaptureMouse();
         }
     }
 }
