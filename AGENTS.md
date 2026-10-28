@@ -1,5 +1,30 @@
 # WorldGen repository instructions
 
+OWNER PLAYTEST / RELEASE VALIDATION WAITING,28October2026~11:51CDT:
+OwnerWorldGenPID7316 launched selectedFIRST itemrelease14:34Z. Leave it alone.
+ALL owned Unity/build/native/GPU/inference workers exited; no graphics tests
+alongside owner. Latest NEW release player-item-functionality-release compiled
+IL2CPP BuiltUtc2026-10-28T16:48:19.8179324Z, source3d445952..., NOTselected.
+Latest Mono physics-branches111PASS, ninebodies each squirrel/goose, maxedge
+.02334/.08718m; actual before/afterviews inspected, same15%guard. Physics varies
+with pose/terrain; no allspecies/slope quality certification. Native release
+needs own rerun AFTERownercloses. Runner refuses activeWorldGen so doNOTbypass.
+Run -PlayerFolder player-item-functionality-release -OutputName release-polish-
+verified, then after111PASS+exit run -OutputName release-polish-water -Water(13).
+Proof script artifacts/overnight-items-20261028/prove-release-package.py verifies
+578original/DLL/bundles +146sourcefreeze +177collision/sourceIDs +18audiohashes.
+No need restage/rebuildDLLs beforeproof. Sourcefreeze146hashes shouldbeexact.
+Then selectEXISTINGrootshortcut afterbackuplink; keep first/polishedfallbacks;
+update report/docs+notes commit/push/remoteverify. No package or shortcut switch
+while claiming release validationpassed untilthatnative evidence exists.
+Restored3Unity autochanges already. New docs rewrite ITEM_USE_OVERNIGHT now
+accurately says latestreleasecompiled/notselected/pendingownerplaytest. Source
+physicalLOD checkpoint3d445952d44668a70c07efb2cafcb47800cb8912 pushed/remotely
+verified. Latestreport/docs/thisnote still needcheckpoint. Owner saidkeepworking
+untilhe explicitlysayswrap; doNOTfinalatnoon automatically. Can do light docs/
+code review duringhisplaytest; avoidheavyCPU/GPU/diskjobs. No followupquestion
+needed. Preserve ownerdeletedprompt +2olddeerscripts,177fauna/42human/MPFB.
+
 ITEM PHYSICS LOD ACCEPTED FOR RELEASE CHECK,28October2026~11:46CDT:
 Latest Mono player-item-physics-branches native111PASS/no runtime errors. Both
 squirrel andgoose retain9physical bodies, all connected, max edge extensions

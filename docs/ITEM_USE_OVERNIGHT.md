@@ -1,116 +1,160 @@
-# Portable item use — 28 October checkpoint
+# Portable items and wildlife checkpoint ? 28 October 2026
 
-This is the owner-authorized continuation of portable technology. It does not
-resume the scrapped historical-simulation/building overhaul. No animal skinning,
-butchery, processing or meat drops are implemented.
+The existing shortcut currently selects the first item-use release,
+`player-item-functionality` (IL2CPP, 14:34:45Z). A separate corrected candidate,
+`player-item-functionality-release` (16:48:19Z), is compiled but **not selected**:
+its native rerun is waiting while the owner playtests. The candidate includes
+hand-restoration, shoreline and corpse corrections described below.
 
-## What the items can do
+This update does not resume the scrapped history/building overhaul. Animal
+skinning, butchery, processing and meat drops are deliberately deferred.
 
-| Items | Implemented use |
+## Items and equipment
+
+| Item group | Working function |
 |---|---|
-| Small stones, wooden/stone/bone spears, harpoon | Strike and charge/release a physical throw; mass/speed affect flight and damage. |
-| Bow and arrows | Charge/release a shot using carried arrows; arrows can lodge in bodies and be recovered. |
-| Sling and small stones | Charge/release a stone; ammunition must be small enough for the sling. |
-| Spear-thrower and darts | Launch a carried dart as a physical projectile. |
-| Bone, large stones and solid hand tools | Improvised strikes and directional blocking where appropriate. |
-| Cutting and chopping tools | Existing crafting actions, maintenance, accessible tree bark/branches; no whole-tree felling. |
+| Small stones, spears, harpoon | Melee and physical charge/release throws; mass, speed, gravity and drag affect the result. |
+| Bow and arrows | Charged shots using carried arrows; recoverable arrows can lodge in bodies. |
+| Sling and stones | Charged shots with suitably small carried stones. |
+| Spear-thrower and darts | Physical launch of a carried dart. |
+| Bones, large stones, solid tools | Improvised strikes and directional blocking where appropriate. |
+| Cutting/chopping tools | Contextual crafting, maintenance, accessible tree bark/branches; no full tree felling. |
 | Digging stick | Timed root-fibre gathering from suitable unfrozen soil. |
 | Hand-line and fibre net | Timed catch of an actual nearby small aquatic animal, landed whole on shore. |
-| Pouches, packs, basket, bark container | Dry storage with actual size/weight packing rules. |
-| Belts, sheath, cases, carry frame, quiver | Appropriate worn attachments/storage; bow has a separate slung-back position. |
-| Hide, fibre, sinew, feathers, points, shafts and other components | Crafting inputs and intermediate parts; not all raw materials are weapons. |
+| Packs, pouches, basket, bark container | Dry storage using existing size/weight and packing rules. |
+| Belts, sheath, cases, carry frame, quiver | Appropriate worn attachments/storage; bows have a separate slung-back position. |
+| Hide, fibre, sinew, feathers, points, shafts, other parts | Crafting components; not every component is a weapon. |
 
-For testing, `/give list` lists accepted item names and `/give materials` supplies
-raw crafting inputs. Inventory/context actions remain the crafting interface.
-There is no new in-game recipe book. LMB uses the right hand and RMB the left
-when both are independently occupied. With one held item, RMB uses its secondary
-action; keep the other hand free when testing throws, digging or fishing.
+The 63 portable definitions now participate in 83 contextual actions, including
+26 maintenance actions. Existing early stone/wood items remain in the same
+inventory. Hides, bones and similar processing inputs remain command-supplied.
 
-The original 63 portable definitions now have 83 contextual actions, including
-26 maintenance actions. Existing early stone/wood items remain part of the same
-inventory. There are no newly scattered hide/bone resources: animal processing
-is deliberately deferred, so those materials still come from commands.
+Crafting/tool work borrows required equipment and stows displaced items into a
+suitable attachment, then a worn carrier. A held bag is not worn storage. Items
+that cannot be stowed are set down physically above visible ground without a
+toss; manual G dropping still uses physics. Completion/cancellation restores
+both previous hands when items remain reachable. Q, actual damage and death
+interrupt world tool work. Interrupted crafting equipment is saved/restored.
 
-## Working combat and equipment
+For testing, `/give list` lists accepted names; `/give materials` supplies raw
+crafting inputs. Inventory/context actions remain the crafting interface: no
+new recipe book. LMB uses the right hand, RMB the independently occupied left.
+With one held item, RMB invokes its secondary action. Keep the other hand free
+when testing throwing, digging or fishing. Hold/release charges throws/shots.
+Controls remain in Character & help, without an unsolicited controls HUD.
 
-Crafting borrows hands, stows into an appropriate attachment/worn carrier, and
-otherwise physically drops displaced equipment. Pause/cancel/completion restores
-the prior hands when items remain reachable. A bag held in a hand is not a worn
-carrier. Bound cases/belt loops have priority. Bows can be slung separately.
+At a 60-real-minute solar day, the current gathering actions last approximately
+5 seconds for root fibres, 10 for hand-line fishing and 3.75 for a net. These are
+simple timed prototype interactions, affected by the crafting multiplier.
 
-LMB uses the right-hand item; RMB uses the left when independently occupied.
-With one item, RMB is its secondary: stones/spears throw, most solid improvised
-weapons block. Hold/release to throw or shoot. Bows use carried arrows, slings
-small stones and spear-throwers darts; ammunition is a physical recoverable item.
-Empty hands can strike/guard. Components, hides and carriers are not generic clubs.
+## Combat, blood and death
 
-Hits test the actual posed triangle surface, including original optional parts,
-after a spatial broad phase. Trees/rocks/ground obstruct attacks. Physical thrown
-items use mass, current speed, gravity, drag and swept collision. Penetrating
-projectiles follow the original hit bone and can be retrieved. Unbound stone
-spears can shed their point. Tool/edge wear has contextual timed maintenance.
+Melee/projectiles test original posed triangles after bounds filtering; terrain,
+rocks and trees obstruct them. Projectile damage is a gameplay health abstraction
+using work/impulse, mass, speed and penetrative form, not a clinical injury model.
+Blocking depends on direction and stamina. Recoverable projectiles can follow the
+hit bone into a corpse; an unsecured stone spear can lose its point.
 
-Animals have mass-scaled health; human demo NPCs use human health. Survivors
-react to their actual attacker. Species priors distinguish flight, defensive
-charges and predation; see WILDLIFE_BEHAVIOUR.md for the prototype limits.
-Death starts capsule/joint ragdoll physics using the original skin palette.
-Animal injury, coat, blood and corpse pose retain procedural identity in saves;
-streaming a killed identity back in does not revive it. NPC demo persistence is
-unchanged. Player combat damage uses the existing survival/death system.
+Animals have mass-scaled health. Human demo NPCs can be hurt, flee and die; player
+damage uses the existing Survival/death system. Death starts physical collapse,
+not a death animation. Wounded/dead animal identity, coat/options, blood and corpse
+pose persist in saves and stream back at the recorded location without reviving.
+Explicit spawn clearing removes command-spawn corpse records too. Healthy manual
+NPC/animal demo persistence otherwise remains unchanged.
 
-Blood uses a per-wounded-actor 256-square UV mask, not replacement coat textures.
-Vertebrates (including ordinary fish) use red. Invertebrate pigments are coarse
-group approximations. No injury anatomy, bleeding-out or gore dismemberment.
+Blood uses a 256-square per-wounded-actor UV mask, leaving original coat assets
+unchanged. Ordinary vertebrates, including fish, use red. Invertebrate colours
+are broad pigment approximations; classification avoids substring mistakes such
+as treating spider-monkeys or wildebeest as insects.
 
-## Data and performance
+Corpse bodies fit accepted skin influences. Common roots are always retained:
+the old short-bone filter could disconnect limb branches on 28 accepted rigs.
+Small animals and flying profiles use coarse articulated body/limb/head branches;
+fine spine/toe/feather bones follow a retained physical ancestor. Bodies sleep
+once quiet, and the local collision floor follows rolling bodies. Original skins,
+weights, rest rigs, actions and coats are unchanged. Local folds/intersections and
+imperfect ground contact can remain; these are not anatomical final ragdolls.
 
-All 177 accepted rendered bundles/native rigs/animations remain unchanged.
-`scripts/export-fauna-collision.py` derives 26.4 MiB of compressed CPU collision
-skins from exact accepted exports. They stream per species only when needed;
-the original render bundles deliberately discard CPU mesh data. Skeleton metadata
-supports ragdolls without modifying the original rig or motion library.
-No arbitrary animal/person count caps are added. Ragdoll bodies sleep once quiet.
-This is not a measured dense-forest FPS improvement or full-world performance test.
+## Art and sound
 
-## Evidence
+Original procedural item meshes now have shared generated material surfaces,
+revised silhouettes, actual-model inventory thumbnails and twelve broad white
+pickup icon categories. The item shader shares the world lighting/canopy helpers
+with simple rough nonmetallic albedo materials. This remains a prototype art pass,
+not a claim of Forest-level visual parity or owner acceptance. Sources and image
+briefs are in [PORTABLE_ITEM_ART.md](PORTABLE_ITEM_ART.md).
 
-`artifacts/overnight-items-20261028/combat-runtime-final/checks.txt`: 22 native
-checks, actual hits/blood, articulated death, identity save, stone throw, bow
-embedding/retrieval, directional guard and player death; no runtime exceptions.
-The first screenshot set is useful for hit/arrow inspection but its corpse image
-does not frame the body: dedicated visual ragdoll review remains necessary.
-`combat-package-proof.json`: 578 accepted source/bundle/human/DLL hash checks.
-Core portable crafting: 747 checks across 63 item definitions / 83 contextual
-actions (includes maintenance). Core physical-use tests: 63 checks.
+Eighteen short mono Foley clips were generated locally with the existing Stable
+Audio 3 installation: three variants each for impacts, swishes, bow release and
+gathering categories. Existing stone contacts are reused. Audio settings provide
+volume and previews. No model/server is shipped or run during gameplay. Prompts,
+seeds, crops, hashes and licensing are recorded in
+[the audio provenance](../assets/item-audio/README.md). Automated diagnostics were
+used; the agent could not listen, so owner listening approval remains pending.
 
-Later combined builds add tree-derived bark/branches, root-fibre digging and
-simple timed hand-line/net fishing. Fishing lands the actual whole animal as a
-corpse; it does not supply processed food. Tools borrow and restore hands.
+## Wildlife behaviour
 
-New shared generated material atlases and revised original item meshes cover
-portable items. Inventory uses actual-model thumbnails; ground pickup markers
-use twelve broad white categories. Eighteen short locally generated Stable Audio
-Foley clips cover impacts, swishes, bow release and gathering. Source prompts,
-seeds, crops and hashes are recorded in assets/item-audio/provenance.json.
-Owner listening/art acceptance is pending.
+Four tiers separate nearby fleeting creatures (~35 m), local small animals
+(~220 m), residents (~900?2,000 m) and notable large animals/pack hunters
+(~2,200?2,400 m). Visual range is separate. Saved regional groups decide roughly
+once per second through a sliced work queue; distant groups do not load render
+or collision skins until visually relevant. Far animation poses update less often
+while world movement remains smooth. No arbitrary population cap was added.
 
-The 40-check wildlife-review checkpoint tested deer flight, wolf pursuit and
-predation, human NPC death and nine actual model thumbnails in addition to combat.
-The combined-review2 run passed 41 checks including all eighteen mono Foley
-clips. The save-review run passed 45 checks including direct saved-corpse
-readmission, background group movement/index restoration and explicit command
-corpse clearing. No native runtime errors/exceptions or active-RT warning.
-The shape-review run passed 100 checks, including all 63 actual item thumbnails
-and asynchronous regional ground sampling beyond the walking patch. An earlier
-all-item run exposed an overly thin bare arrow shaft; its real diameter was
-corrected before the passing run. Latest distant-model admission checks are
-awaiting the final IL2CPP rerun.
-The selected user shortcut is still the preceding portable-technology build until
-the full next checkpoint is ready for review.
+Visible reactions consider movement, distance, canopy, wind, rain and line of
+sight. Deer flee, large defensive herbivores can stand/charge, and predators pursue
+suitable prey. Groups have basic hunger/thirst, rest/forage/travel/hunt/drink/flee
+and shelter intents, plus adult grouping/rut, seasonal migration and temperate
+bear denning priors. Suitable birds can seek actual branch/ground perches and
+migrating groups use V goals. Full details and natural-history references are in
+[WILDLIFE_BEHAVIOUR.md](WILDLIFE_BEHAVIOUR.md).
 
-## Physical/biological references
+This is not world-wide continuous individual ecology, reproduction, complete
+migration routes, nest/den simulation or a full navigation system. Groups outside
+the tracked region stop ticking; no unlimited offline catch-up is attempted.
 
-These inform gameplay priors, not clinical injury predictions or exact lethality.
+## Validation and preservation
+
+| Evidence | Result |
+|---|---|
+| Core item use | 63 checks pass. |
+| Portable crafting | 747 checks across 63 definitions / 83 contextual actions. |
+| Existing inventory, stone, wood, camera suites | 75 / 37 / 37 / 22 checks pass. |
+| First selected IL2CPP item release | 102 native checks pass. |
+| Intermediate IL2CPP polished candidate | 107 native + 13 actual shoreline checks pass. |
+| Latest Mono physics-branches candidate | 111 native checks pass, including all 63 model thumbnails, connected corpses, skin-extension guards, saves, predation, projectiles and player death. |
+| Latest release IL2CPP | Compiled; native rerun pending owner playtest completion. |
+
+The most recent inspected small-corpse captures retain nine physical bodies each.
+Maximum edge extension was 0.0233 m for the 0.28 m squirrel and 0.0872 m for the
+1.4 m goose; the 15%-of-length guard was retained. Earlier angle/mass-only trials
+and failing captures remain recorded, not counted as passes. Physics varies with
+pose/terrain; this does not certify every animal or slope. Ordinary batch
+ScreenCapture images were black and rejected; actual render-texture captures
+were inspected instead.
+
+Previous package proofs pass 578 protected asset/assembly hashes, all 177 derived
+collision-skin package hashes/source identities and 18 selected audio source hashes.
+The latest release needs its own proof. Its 146 runtime/shader source inputs are
+frozen for that verification. All 177 accepted animal bundles/native sources,
+42 human PNGs and protected MPFB native remain preserved. Derived CPU collision
+skins total 26.4 MiB and stream per species; physics metadata covers 5,807 bones.
+No measured dense-forest FPS improvement is claimed.
+
+Evidence is under `artifacts/overnight-items-20261028`. Source checkpoints are
+pushed to GitHub. Approved cleanup removed 19 superseded generated packages,
+about 14.34 GiB, retaining daily/latest-three/selected/running protection, release
+fallbacks, source, saves, native art and review evidence.
+
+## Deliberately unfinished systems
+
+No skinning, butchery, meat drops, processing, construction, fire, full tree
+felling, trapping, clothing, fluid storage, bait/reeling minigame, buoyancy, injury
+anatomy or bleeding-out. No new crafting/attack animation pass. Hide working is
+an abstract crafting sequence, not a complete tanning simulation. Creative still
+uses physical ammunition/materials and wear; `/give` supplies test resources.
+
+## Physical references
 
 - [Experimental hand-thrown spear performance](https://pmc.ncbi.nlm.nih.gov/articles/PMC6347593/).
 - [Stone-tipped spear experiment](https://pmc.ncbi.nlm.nih.gov/articles/PMC4146534/).
@@ -118,57 +162,4 @@ These inform gameplay priors, not clinical injury predictions or exact lethality
 - [Striking tool energy and mass](https://pubmed.ncbi.nlm.nih.gov/26449359/).
 - [Insect hemolymph](https://genent.cals.ncsu.edu/bug-bytes/circulatory-system/).
 - [Antarctic fish blood exception](https://www.bas.ac.uk/news/fish-survival-in-the-extreme-cold/).
-- [Moose aggression and safety](https://www.adfg.alaska.gov/index.cfm?adfg=livewith.aggressivemoose).
 - [Unity joint inverse-mass conditioning](https://docs.unity.com/en-us/engine/6000.6/script-reference/unityengine/joint/connectedmassscale).
-
-## Explicit remaining limits
-
-No crafting/combat animation pass, skinning, butchery, meat drops, construction,
-full tree felling, clothing, trapping, fluid containers, bait/reeling minigame,
-anatomical injury or bleeding-out system. Materials such as hides/bones remain
-command-supplied until processing is designed. Hide working is the existing
-abstract sequence, not a complete tanning simulation. Creative still uses real
-physical ammo/items and wear; /give supplies test resources. Item shaders are
-shared rough nonmetallic PBR albedo materials, not a claim of final Forest-quality artwork.
-
-## Selected release and continued polish
-
-The existing shortcut selects `player-item-functionality`, release IL2CPP built
-2026-10-28T14:34:45Z. Its 102 native checks pass, with 578 protected original
-asset/assembly hashes, 177 packaged collision-skin hashes/source identities and
-18 selected audio source hashes verified. Prior portable-technology is retained.
-
-A later Mono physics correction passes 107 native checks with deer, goose and
-squirrel articulated corpses, without runtime exceptions. Collider radii now fit
-accepted skin influences; joint frames follow the animal and torso/proximal-leg/
-tail motion is constrained. The 99th-percentile skin-edge stretch was 2.21 versus
-2.7?2.9 in rejected early correction trials; some local stretching remains. This
-is not an anatomically calibrated injury model or animation/skin replacement.
-Canonical blood groups avoid misleading substrings such as spider-monkey and
-wildebeest. Local sight tests reject terrain/obstacles between animals; retired
-neighbors cannot remain active targets. Migration heading follows seasonal trend.
-
-Those corrections are not in the selected first release yet. Actual riverbank
-checking and a separately packaged polished release are next. Fishing now uses
-three-dimensional reach and brings the catch back toward the angler. The initial
-water fixture incorrectly assumed an old coarse channel was the rendered channel;
-it was rejected and now follows current riverscape spans. No terrain was changed.
-
-The 16:05Z IL2CPP candidate passes 107 combat/item checks and 13 actual shoreline
-checks. The shoreline fixture explicitly uses the normal 0.1 world scale and a
-sampled coastal bank: timed digging creates fibres, line and net land real fish,
-and both previous hands return in their correct arrangement. A borrowed original
-off-hand tool must be cleared from the primary hand before restoring either
-original item. Displaced equipment is set down above visible ground with no toss.
-Manual dropping remains physical. Q, damage and death interrupt world tool work.
-
-Visual inspection then found a sharp squirrel-corpse spike despite the older
-finite-matrix/p99 checks. The fixed-size 8 mm bone filter had omitted its 7.84 mm
-common root, leaving separate limb branches physically disconnected. Roots are
-now always retained. Small-body solver masses and joint separation are conditioned;
-centreline checks allow rigs offset from X=0 and general angular limits are more
-conservative. All original skins, bone metadata and animations remain unchanged.
-The `physics-rooted` native run passes 111 checks, including connected-body and
-size-relative edge-extension guards. Its squirrel and goose images were inspected.
-Local skin folds/intersections remain; this is not anatomically calibrated art.
-The earlier mass-only attempts were rejected. The final release rebuild is pending.

@@ -78,6 +78,14 @@ hand-line and net catches and restoration of both original hands. Ragdoll visual
 review found additional small-animal stretching despite finite-matrix checks;
 further corrections and final selection are recorded in ITEM_USE_OVERNIGHT.md.
 
+The latest Mono diagnostic passes 111 checks, retaining the same 15%-of-length
+edge-extension guard. All physical limb branches connect to a common root.
+Small animals and flying profiles use a coarse articulated body; fine spine,
+toe and feather bones follow the nearest retained physical ancestor. These
+changes do not re-rig, reweight or replace accepted models/animations. An IL2CPP
+candidate built at 16:48:19Z is awaiting its native rerun while the owner tests
+the preceding selected item release; it is not yet selected.
+
 177 original native fauna files, their render bundles, rigs and animation banks
 are preserved. Supplementary 26.4 MiB collision skins provide actual posed surface
 hits without making the original GPU meshes readable. Rest metadata covers 5,807
