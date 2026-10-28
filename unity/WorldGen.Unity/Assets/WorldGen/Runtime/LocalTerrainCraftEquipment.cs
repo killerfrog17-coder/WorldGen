@@ -19,7 +19,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void SetAsideForWork(Possession item,float sideSign)
     {
-        if(!inventoryDrops.TryGetValue(item.Id,out var drop))return;
+        if(!inventoryDrops.TryGetValue(item.Id,out var drop)||drop.Body==null||drop.Collider==null)return;
         float Height(double x,double z)=>(float)VisibleGround(x,z,Ground(x,z));
         double x=motion.X,z=motion.Z;
         float sx=Height(x+.3,z)-Height(x-.3,z),sz=Height(x,z+.3)-Height(x,z-.3);

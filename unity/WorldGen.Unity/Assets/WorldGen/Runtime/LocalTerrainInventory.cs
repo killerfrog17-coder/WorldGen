@@ -84,7 +84,7 @@ public sealed partial class LocalTerrainExplorer
         {
             if((item.Position-Position).Length*frame.RadiusM>5)continue;
             TerrainHandoff.Coordinates(frame,item.Position,out double x,out double z);
-            var point=inventoryDrops.TryGetValue(item.Id,out var drop)?transform.InverseTransformPoint(drop.Body.worldCenterOfMass):new Vector3((float)(x-originX),(float)(Ground(x,z)+item.GroundOffsetM)+(float)item.HeightM*.5f,(float)(z-originZ));
+            var point=inventoryDrops.TryGetValue(item.Id,out var drop)&&drop.Body!=null?transform.InverseTransformPoint(drop.Body.worldCenterOfMass):new Vector3((float)(x-originX),(float)(Ground(x,z)+item.GroundOffsetM)+(float)item.HeightM*.5f,(float)(z-originZ));
             var bounds=new Bounds(point,new Vector3((float)item.WidthM+.06f,(float)item.HeightM+.06f,(float)item.DepthM+.06f));
             if((WoodCrafting.Wood(item)||PortableTechnology.Item(item.Kind)?.Long==true)&&inventoryVisuals.TryGetValue(item.Id,out var woodVisual))
             {

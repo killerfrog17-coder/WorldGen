@@ -63,7 +63,8 @@ public sealed partial class LocalTerrainExplorer
     }
     void BeginDroppedBody(Possession item,GameObject root,Vector3 velocity)
     {
-        if(inventoryDrops.ContainsKey(item.Id))return;
+        if(inventoryDrops.TryGetValue(item.Id,out var existing))
+        {if(existing.Body!=null&&existing.Collider!=null)return;RemoveDroppedBody(item.Id);}
         if(inventoryDropMaterial==null)inventoryDropMaterial=new PhysicsMaterial("Loose item friction"){dynamicFriction=.65f,staticFriction=.75f,bounciness=.12f};
         var collider=root.GetComponent<BoxCollider>();if(collider==null)collider=root.AddComponent<BoxCollider>();
         var bounds=new Bounds();bool first=true;
@@ -89,23 +90,29 @@ public sealed partial class LocalTerrainExplorer
     void CaptureInventoryPhysics()
     {
         if(frame==null)return;
-        foreach(var drop in inventoryDrops.Values)
+        foreach(var drop in inventoryDrops.Values.ToArray())
         {
-            var position=transform.InverseTransformPoint(drop.Body.position);
-            drop.Item.Position=frame.Position(position.x+originX,position.z+originZ);
-            drop.Item.GroundOffsetM=position.y+.01-Ground(position.x+originX,position.z+originZ);
-            var rotation=(Quaternion.Inverse(transform.rotation)*drop.Body.rotation).eulerAngles;
-            drop.Item.GroundRotation=new V(rotation.x,rotation.y,rotation.z);
-            var velocity=drop.Paused?drop.Velocity:drop.Body.linearVelocity;var spin=drop.Paused?drop.Spin:drop.Body.angularVelocity;
-            drop.Item.GroundVelocity=new V(velocity.x,velocity.y,velocity.z);drop.Item.GroundSpin=new V(spin.x,spin.y,spin.z);
+            if(drop.Body==null){RemoveDroppedBody(drop.Item.Id);continue;}
+            CaptureDroppedPose(drop);
         }
+    }
+    void CaptureDroppedPose(DroppedPossession drop)
+    {
+        if(frame==null||drop.Body==null)return;
+        var position=transform.InverseTransformPoint(drop.Body.position);
+        drop.Item.Position=frame.Position(position.x+originX,position.z+originZ);
+        drop.Item.GroundOffsetM=position.y+.01-Ground(position.x+originX,position.z+originZ);
+        var rotation=(Quaternion.Inverse(transform.rotation)*drop.Body.rotation).eulerAngles;
+        drop.Item.GroundRotation=new V(rotation.x,rotation.y,rotation.z);
+        var velocity=drop.Paused?drop.Velocity:drop.Body.linearVelocity;var spin=drop.Paused?drop.Spin:drop.Body.angularVelocity;
+        drop.Item.GroundVelocity=new V(velocity.x,velocity.y,velocity.z);drop.Item.GroundSpin=new V(spin.x,spin.y,spin.z);
     }
     void RemoveDroppedBody(string id,bool keepCollider=false)
     {
         itemProjectiles.Remove(id);
         if(inventoryDrops.TryGetValue(id,out var drop))
-        {drop.Body.collisionDetectionMode=CollisionDetectionMode.ContinuousSpeculative;drop.Body.isKinematic=true;drop.Body.detectCollisions=false;inventoryDrops.Remove(id);}
-        if(!keepCollider&&inventoryVisuals.TryGetValue(id,out var root))
+        {inventoryDrops.Remove(id);if(drop.Body!=null){drop.Body.collisionDetectionMode=CollisionDetectionMode.ContinuousSpeculative;drop.Body.isKinematic=true;drop.Body.detectCollisions=false;}}
+        if(!keepCollider&&inventoryVisuals.TryGetValue(id,out var root)&&root!=null)
         {var collider=root.GetComponent<BoxCollider>();if(collider!=null){collider.enabled=false;}}
     }
     void EnsureDropFloors(Vector3 position,float radius,HashSet<(int,int)> used=null)
@@ -132,6 +139,7 @@ public sealed partial class LocalTerrainExplorer
         var used=new HashSet<(int,int)>();
         foreach(var drop in inventoryDrops.Values.ToArray())
         {
+            if(drop.Body==null||drop.Collider==null){RemoveDroppedBody(drop.Item.Id);continue;}
             var body=drop.Body;
             if(drop.Paused!=pause)
             {

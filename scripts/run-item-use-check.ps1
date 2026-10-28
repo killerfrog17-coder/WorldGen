@@ -1,4 +1,4 @@
-param([string]$PlayerFolder='',[string]$OutputName='',[switch]$Water,[switch]$Firefly)
+param([string]$PlayerFolder='',[string]$OutputName='',[switch]$Water,[switch]$Firefly,[switch]$Woodwork)
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot
 if(!$OutputName){$OutputName='item-use-'+[DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss')}
@@ -18,5 +18,6 @@ $arguments=@(
     '-logFile',('"'+$testOutput+'/player.log"'))
 if($Water){$arguments+='--worldgen-item-water-check'}
 if($Firefly){$arguments+='--worldgen-firefly-check'}
+if($Woodwork){$arguments+='--worldgen-woodwork-check'}
 $run=Start-Process -FilePath $playerPath -WindowStyle Hidden -PassThru -ArgumentList $arguments
 Write-Output ('Item-use worker PID '+$run.Id+'; '+$testOutput+'/player.log')

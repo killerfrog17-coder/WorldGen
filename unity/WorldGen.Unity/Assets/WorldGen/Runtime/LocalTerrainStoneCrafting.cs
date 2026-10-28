@@ -114,6 +114,11 @@ public sealed partial class LocalTerrainExplorer
     void DestroyInventoryVisual(GameObject root)
     {
         if(root==null)return;
+        // Completing work can first set the result down to restore the player's
+        // hands. Retire that body's registration before replacing its visual.
+        var body=root.GetComponent<Rigidbody>();
+        if(body!=null)foreach(var drop in inventoryDrops.Values.Where(d=>d.Body==body).ToArray())
+        {CaptureDroppedPose(drop);RemoveDroppedBody(drop.Item.Id);}
         if(inventoryCraftMeshes.TryGetValue(root,out var meshes)){foreach(var mesh in meshes)Destroy(mesh);inventoryCraftMeshes.Remove(root);}
         portableRoots.Remove(root);root.SetActive(false);Destroy(root);
     }
