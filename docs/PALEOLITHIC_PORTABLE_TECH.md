@@ -38,7 +38,7 @@ ingredients and transforms the original workpiece identity; tools remain.
   retouchers. Tool capabilities enable corresponding crafting actions.
 - Wood/assembly: handles, notched shafts, an explicitly unbound spear stage,
   bound stone/bone/barbed spears, hafted knives, axes and adzes.
-- Ranged/fishing inventory objects: arrow shafts, unfletched/fletched arrows,
+- Ranged/fishing equipment: arrow shafts, unfletched/fletched arrows,
   bow stave/self bow, spear-thrower/dart, sling, line/hand-line and small net.
 - Functional storage: hide pouch, folded bark container, twined basket, satchel,
   carrying frame, hide pack, quiver, fibre/hide belts, needle case and sheath.
@@ -72,8 +72,11 @@ animal meshes, skeletons, textures, animations and bundles are untouched.
 
 Meshes distinguish woven baskets, panelled bags with straps/flaps/stitches,
 frames, bone objects, chipped stone, wrapped hafts, bows and fletched shafts.
-They remain procedural placeholders. Existing stone impacts/wood scrapes supply
-tool-work feedback; hand-only actions currently have no bespoke sound or animation.
+They remain procedural placeholders. The October 28 pass adds shared material
+surfaces, actual-model thumbnails, broad white pickup masks and locally generated
+Foley alongside existing stone contacts. No attack, throw or crafting animation
+pass has been added. A successful melee hit has damage, blood, sound and animal
+reaction; an attack into empty air has no visible swing yet.
 
 ## Archaeological grounding and uncertainty
 

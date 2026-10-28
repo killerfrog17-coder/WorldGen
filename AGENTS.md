@@ -1,5 +1,19 @@
 # WorldGen repository instructions
 
+OWNER FEEDBACK,28October2026~12:02CDT:
+Owner confirms physical throwing works; asks what testingquestionwas and notes
+no visible melee/throw motion. Clarified melee damageisimplemented (successful
+hits: blood,sound,animalreaction), no swing/throw/craft animation pass was done,
+per originalscope. Missing animations are NOT a newly authorized animation task;
+do not start new character/rig/animation work based only on this question.
+Owner gamePID7316 still running selectedfirstrelease. Only itsownterrainworker
+PID18456 exists; no owned Unity/native/Blender/python/inference jobs. Keep heavy
+work idle during playtest; light docs/source review okay. Runtime candidate and
+validation instructions remain in precedingnote. No final at noon: latestowner
+will explicitlysaywhenwrap. No new followupquestion sent. Original assets and
+owner deletion/2old scripts stillpreserved. Git6765e60... checkpointremoteverified;
+portable-tech doc wording updated since. Newreleasecompiled16:48Z NOTselected.
+
 OWNER PLAYTEST / RELEASE VALIDATION WAITING,28October2026~11:51CDT:
 OwnerWorldGenPID7316 launched selectedFIRST itemrelease14:34Z. Leave it alone.
 ALL owned Unity/build/native/GPU/inference workers exited; no graphics tests
