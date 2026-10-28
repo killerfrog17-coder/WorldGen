@@ -1,5 +1,38 @@
 # Version 3 validation evidence
 
+## Portable crafting and carriers - 27 October 2026
+
+63 new portable definitions and57 contextual actions. 535 targeted core checks
+exercise every action, missing reserved input, exact ingredient consumption,
+tool retention, paused save/resume, mass noncreation, material origin copying,
+slot/packing restrictions and dependency reachability. Existing75 inventory,
+37 woodworking,37 stone-crafting and22 camera/save checks also pass.
+
+256 Unity mesh/shader checks covered63 placeholder forms: finite geometry,
+UV/colour channels, bounded triangle counts and supported shaders. Contact
+sheet inspected. Native graphical flow passes26 checks: fibres to cordage,
+hide preparation, multi-input pouch work, pause/resume/save, actual tool/input
+ownership, three equipped carrier slots, belt knife, stow and original animal
+coat array binding. Actual inventory/context/gear captures inspected. Initial
+hidden-window launch failed DX11 resolution switching with the current virtual
+monitor setup;1920x1080/adapter2 completed on the initial package. Final minor
+belt/long-item/portrait fixes compiled successfully; final graphical retries hit
+the same display-driver resolution issue, so final native acceptance is pending.
+Owned failed workers were stopped. No gameplay FPS claim is made.
+
+Fast Mono package player-portable-technology; no C# or shader build errors.
+578 hashes verify4staged assemblies,177canonical and177packaged animal bundles,
+177native animal sources,42human PNGs and protected human Blender native. Fauna
+index matches exactly. No source fauna asset or human rig/animation edit.
+
+No recipe book or global crafting browser. New raw supplies are command-only;
+weapons/fishing gear remain visual inventory objects. No fire, construction,
+combat, harvesting or full tanning simulation. Carrier shapes are functional
+reconstructions, not universal excavated Paleolithic designs. Source research
+and internal action table: PALEOLITHIC_PORTABLE_TECH.md. Evidence under ignored
+artifacts/portable-technology. Approved cleanup removed17 obsolete build folders;
+daily/latest-three/selected/running builds were protected.
+
 ## Tree-derived fallen branches - 27 October 2026
 
 2721 focused branch checks pass across25 wooded detail tiles:936 pieces,890

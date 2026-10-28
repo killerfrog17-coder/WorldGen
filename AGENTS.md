@@ -1,5 +1,36 @@
 # WorldGen repository instructions
 
+PORTABLE PALEOLITHIC CRAFTING / NO RECIPE BOOK,27October2026:
+Owner authorizes broad rough portable tech tree, functional carriers/tools,
+weapons/fishing gear visual-only, raw hide/etc command-supplied, NO construction/
+fire/new systems. Owner explicitly rejects IN-GAME RECIPE BOOK/global recipe
+browser/instruction list. Keep contextual right-click work + missing requirements.
+63new item definitions,57actions; timed multi-input reserved projects, pause/
+resume/cancel, exact material consumption, reusable capability tools, provenance
+deep-saved. Existing solar-day/crafting multiplier retained. No new natural
+scatter/litter or starterbag. /give materials supplies raw inputs, /give list
+names only, individual items/animal hide coat=N supported. Stone/woodwork remains.
+Back/Shoulder/Waist slots + distinct grids, restricted quivers/cases/sheaths,
+belts tool attachments. Filled cases can attach to belts; loaded bags cannot
+nest. R searches worn carriers. Ground long items remain visible in Nearby.
+Hide products retain species/coat/seed/source ID/all origins and sample actual
+unchanged animal coat arrays using numeric torso UV regions. Mixed products
+display first origin; not whole anatomically unwrapped pelts. Art procedural
+placeholder meshes with straps/flaps/weave/hafts; no final-art claim.
+535core portable +75inventory+37wood+37stone+22camera pass.256Unity mesh/shader
+checks +26native graphical flow checks pass on initial package; native captures
+inspected. Final minor belt/long-item/portrait fixes compiled; repeated final
+native attempts hit DX11 resolution switching under virtual monitors, so do not
+claim final native rerun passed. Owned failed test workers stopped; owner apps/
+saves untouched. Mono player-portable-technology BuiltUtc2026-10-28T04:44:36.6850654Z;
+no C#/shader errors;578DLL/fauna/native/human hashes + faunaindex exact. Existing
+shortcut selected; previous tree-branches/woodworking retained. No combat,
+projectiles, fishing, harvesting, construction, clothing or full hide tanning.
+Research/limitations/internal table docs/PALEOLITHIC_PORTABLE_TECH.md. Evidence
+artifacts/portable-technology; sourcecheckpoint portable-technology-20261027.
+Approved daily/latest3/selected/running cleanup removed17old build directories.
+Preserve owner prompt deletion +2old deer scripts. Commit/push/remoteverify.
+
 TREE-DERIVED FALLEN BRANCHES,27October2026:
 Owner wants denser woody litter, ~95% from actual trees/~5% wooded background.
 Replaces old habitat-only detailchannel2 with separate stable detailchannels4/5.

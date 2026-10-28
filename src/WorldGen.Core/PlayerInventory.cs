@@ -4,8 +4,8 @@ using System.Linq;
 
 namespace WorldGen.Core
 {
-    public enum PossessionPlace { Ground,RightHand,LeftHand,Container,Back }
-    public enum PossessionKind { SmallRock,LargeRock,TestBag,StoneFlake,Branch,TrimmedPole,DiggingStick,WoodenSpear }
+    public enum PossessionPlace { Ground,RightHand,LeftHand,Container,Back,Shoulder,Waist }
+    public enum PossessionKind { SmallRock,LargeRock,TestBag,StoneFlake,Branch,TrimmedPole,DiggingStick,WoodenSpear,RawFibre,PreparedFibre,Cordage,Thread,BarkStrips,ReedBundle,RawHide,ScrapedHide,WorkedHide,RawhideStrips,Sinew,SinewCord,Feather,Bone,Antler,StoneBlade,StoneScraper,StoneChopper,Handaxe,StonePoint,Arrowhead,StoneBorer,BoneAwl,BoneNeedle,BonePoint,BarbedPoint,FishingGorge,Fishhook,AntlerRetoucher,WoodHandle,NotchedShaft,LooseStoneSpear,StoneTippedSpear,BoneTippedSpear,Harpoon,HaftedKnife,StoneAxe,StoneAdze,ArrowShaft,UnfletchedArrow,Arrow,BowStave,Bow,SpearThrower,DartShaft,SpearDart,Sling,FishingLine,HandLine,FibreNet,HidePouch,BarkContainer,WovenBasket,HideSatchel,HidePack,CarryFrame,Quiver,FibreBelt,HideBelt,NeedleCase,KnifeSheath,BarkSheet,WeavingStrips }
     [Serializable]
     public sealed class Possession
     {
@@ -24,13 +24,17 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public double WoodStraightness,WoodSoundness;
         [System.Runtime.Serialization.OptionalField] public bool BarkRemoved;
         [System.Runtime.Serialization.OptionalField] public double EdgeSharpness;
-        public string Name=>Kind==PossessionKind.Branch?"Branch":Kind==PossessionKind.TrimmedPole?"Trimmed pole":Kind==PossessionKind.DiggingStick?"Digging stick":Kind==PossessionKind.WoodenSpear?"Wooden spear":Kind==PossessionKind.SmallRock?"Small rock":Kind==PossessionKind.LargeRock?"Large rock":Kind==PossessionKind.StoneFlake?"Stone flake":"Testing bag";
-        public int Hands=>Kind==PossessionKind.LargeRock?2:1;
+        [System.Runtime.Serialization.OptionalField] public string AppearanceSpecies;
+        [System.Runtime.Serialization.OptionalField] public int AppearanceCoat,AppearanceSeed;
+        [System.Runtime.Serialization.OptionalField] public ulong SourceAnimalId;
+        [System.Runtime.Serialization.OptionalField] public List<MaterialOrigin> MaterialOrigins;
+        public string Name=>PortableTechnology.Name(this)??(Kind==PossessionKind.Branch?"Branch":Kind==PossessionKind.TrimmedPole?"Trimmed pole":Kind==PossessionKind.DiggingStick?"Digging stick":Kind==PossessionKind.WoodenSpear?"Wooden spear":Kind==PossessionKind.SmallRock?"Small rock":Kind==PossessionKind.LargeRock?"Large rock":Kind==PossessionKind.StoneFlake?"Stone flake":"Testing bag");
+        public int Hands=>Kind==PossessionKind.LargeRock?2:PortableTechnology.Item(Kind)?.Hands??1;
         public int PackedWidth=>Rotated?CellsHigh:CellsWide;
         public int PackedHeight=>Rotated?CellsWide:CellsHigh;
-        public int ContainerWidth=>Kind==PossessionKind.TestBag?6:0;
-        public int ContainerHeight=>Kind==PossessionKind.TestBag?7:0;
-        public Possession Copy()=>(Possession)MemberwiseClone();
+        public int ContainerWidth=>Kind==PossessionKind.TestBag?6:PortableTechnology.Item(Kind)?.StorageWidth??0;
+        public int ContainerHeight=>Kind==PossessionKind.TestBag?7:PortableTechnology.Item(Kind)?.StorageHeight??0;
+        public Possession Copy(){var p=(Possession)MemberwiseClone();p.MaterialOrigins=MaterialOrigins?.Select(x=>x.Copy()).ToList();return p;}
     }
     /// <summary>Physical ownership, independently of UI/terrain LOD or historical world state.</summary>
     [Serializable]
@@ -44,6 +48,7 @@ namespace WorldGen.Core
         public PlayerInventory Copy()=>new PlayerInventory{PlayerName=PlayerName,ActiveHand=ActiveHand,Items=Items.Select(i=>i.Copy()).ToList(),CollectedNatural=new List<ulong>(CollectedNatural),Crafts=(Crafts??new List<ItemCraftJob>()).Select(j=>j.Copy()).ToList()};
         public Possession Find(string id)=>Items.FirstOrDefault(i=>i.Id==id);
         public Possession AtHand(PossessionPlace hand)=>Items.FirstOrDefault(i=>i.Place==hand||i.Hands==2&&(i.Place==PossessionPlace.LeftHand||i.Place==PossessionPlace.RightHand));
+        public IEnumerable<Possession> WornContainers=>Items.Where(i=>PortableTechnology.Worn(i.Place)&&i.ContainerWidth>0).OrderBy(i=>(int)i.Place);
         public Possession Bag=>Items.FirstOrDefault(i=>i.Place==PossessionPlace.Back);
         public bool Carried(Possession item)
         {
@@ -60,8 +65,8 @@ namespace WorldGen.Core
         {
             reason="";var item=Find(id);if(item==null){reason="Item is no longer available.";return false;}
             if(!Enum.IsDefined(typeof(PossessionPlace),place)){reason="Invalid destination.";return false;}
-            if(place==PossessionPlace.Back)
-            {if(item.Kind!=PossessionKind.TestBag){reason="This item needs suitable carrying equipment.";return false;}if(Bag!=null&&Bag!=item){reason="Your back is occupied.";return false;}}
+            if(PortableTechnology.Worn(place))
+            {if(PortableTechnology.Wear(item)!=place){reason="This item does not attach there.";return false;}if(Items.Any(p=>p!=item&&p.Place==place)){reason="That attachment is occupied.";return false;}}
             if(place==PossessionPlace.RightHand||place==PossessionPlace.LeftHand)
             {
                 if(Items.Any(i=>i!=item&&(i.Place==place||i.Hands==2&&(i.Place==PossessionPlace.LeftHand||i.Place==PossessionPlace.RightHand)||item.Hands==2&&(i.Place==PossessionPlace.LeftHand||i.Place==PossessionPlace.RightHand))))
@@ -70,6 +75,8 @@ namespace WorldGen.Core
             if(place==PossessionPlace.Container)
             {
                 var bag=Find(container);if(bag==null||bag.ContainerWidth==0){reason="No container there.";return false;}
+                if(!PortableTechnology.Holds(bag,item)){reason="That carrier is not suitable for this item.";return false;}
+                if(item.ContainerWidth>0&&!PortableTechnology.Belt(bag)&&Items.Any(p=>p.ContainerId==item.Id)){reason="Empty the container before packing it inside another.";return false;}
                 var ancestor=bag;var seen=new HashSet<string>();
                 while(ancestor!=null&&seen.Add(ancestor.Id)){if(ancestor==item){reason="A bag cannot contain itself.";return false;}ancestor=ancestor.Place==PossessionPlace.Container?Find(ancestor.ContainerId):null;}
                 int w=rotated?item.CellsHigh:item.CellsWide,h=rotated?item.CellsWide:item.CellsHigh;
@@ -86,11 +93,12 @@ namespace WorldGen.Core
         }
         public bool Stow(string id,out string reason)
         {
-            reason="No worn bag with room for this item.";var bag=Bag;var item=Find(id);if(bag==null||item==null)return false;
-            for(int r=0;r<2;r++)for(int y=0;y<bag.ContainerHeight;y++)for(int x=0;x<bag.ContainerWidth;x++)
+            reason="No worn carrier with room for this item.";var item=Find(id);if(item==null)return false;
+            foreach(var bag in WornContainers.ToArray())for(int r=0;r<2;r++)for(int y=0;y<bag.ContainerHeight;y++)for(int x=0;x<bag.ContainerWidth;x++)
                 if(CanMove(id,PossessionPlace.Container,bag.Id,x,y,r==1,out _))return Move(id,PossessionPlace.Container,bag.Id,x,y,r==1,out reason);
             return false;
         }
+
         public void SwapHands()
         {
             if(AtHand(PossessionPlace.RightHand)?.Hands==2)return;
@@ -112,6 +120,7 @@ namespace WorldGen.Core
             {
                 bool Finite(double v)=>!double.IsNaN(v)&&!double.IsInfinity(v);
                 if(item==null||string.IsNullOrWhiteSpace(item.Id)||!ids.Add(item.Id)||!Enum.IsDefined(typeof(PossessionKind),item.Kind)||!Enum.IsDefined(typeof(PossessionPlace),item.Place)||item.CellsWide<1||item.CellsHigh<1||item.CellsWide>10000||item.CellsHigh>10000||!Finite(item.MassKg)||item.MassKg<=0||!Finite(item.WidthM)||item.WidthM<=0||!Finite(item.HeightM)||item.HeightM<=0||!Finite(item.DepthM)||item.DepthM<=0||!Finite(item.Tint.X)||!Finite(item.Tint.Y)||!Finite(item.Tint.Z)||item.Variant<0||item.Variant>1000)throw new ArgumentException("Invalid inventory item.");
+                if(item.AppearanceSpecies!=null&&(item.AppearanceSpecies.Length>80||item.AppearanceSpecies.Any(c=>!char.IsLetterOrDigit(c)&&c!='-'&&c!='_'))||item.AppearanceCoat<0||item.AppearanceCoat>4095||item.MaterialOrigins!=null&&item.MaterialOrigins.Any(o=>o==null||o.Species==null||o.Species.Length>80||o.Coat<0||o.Coat>4095))throw new ArgumentException("Invalid material provenance.");
                 if(!Finite(item.WoodStraightness)||item.WoodStraightness<0||item.WoodStraightness>1||!Finite(item.WoodSoundness)||item.WoodSoundness<0||item.WoodSoundness>1)throw new ArgumentException("Invalid wood traits.");
                 if(!Finite(item.GroundOffsetM)||Math.Abs(item.GroundOffsetM)>1e7||!Finite(item.GroundRotation.X)||!Finite(item.GroundRotation.Y)||!Finite(item.GroundRotation.Z))throw new ArgumentException("Invalid dropped item pose.");
                 if(item.NaturalId!=0&&!natural.Add(item.NaturalId))throw new ArgumentException("Duplicate natural item.");

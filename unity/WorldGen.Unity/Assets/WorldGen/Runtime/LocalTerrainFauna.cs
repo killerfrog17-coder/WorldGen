@@ -116,15 +116,16 @@ public sealed partial class LocalTerrainExplorer
                 if(!AddAnimal(spawn,model))break;
                 if((System.Diagnostics.Stopwatch.GetTimestamp()-admission)*1000d/System.Diagnostics.Stopwatch.Frequency>1.5)break;
             }
-            if(animalLoading==null&&CenterReady&&(animalManualWanted.Count>0||!NearTerrainPending()))
+            if(animalLoading==null&&CenterReady&&(animalManualWanted.Count>0||PendingPortableCoats||!NearTerrainPending()))
             {
                 var next=animalManualWanted.FirstOrDefault(s=>!animalModels.ContainsKey(s.Profile.slug)&&!animalLoadFailures.Contains(s.Profile.slug))??animalWanted.FirstOrDefault(s=>!animalModels.ContainsKey(s.Profile.slug)&&!animalLoadFailures.Contains(s.Profile.slug));
-                if(next!=null)
+                var profile=animalProfiles.FirstOrDefault(p=>portableCoatWanted.Contains(p.slug)&&!animalModels.ContainsKey(p.slug)&&!animalLoadFailures.Contains(p.slug))??next?.Profile;
+                if(profile!=null)
                 {
                     EvictAnimalModel(); // Recycle unused models, never discard an active species for a count.
-                    if(!File.Exists(Path.Combine(Application.streamingAssetsPath,"fauna",next.Profile.bundle)))
-                    {animalLoadFailures.Add(next.Profile.slug);Debug.LogWarning("Missing fauna bundle "+next.Profile.slug);}
-                    else animalLoading=StartCoroutine(LoadAnimalModel(next.Profile));
+                    if(!File.Exists(Path.Combine(Application.streamingAssetsPath,"fauna",profile.bundle)))
+                    {animalLoadFailures.Add(profile.slug);Debug.LogWarning("Missing fauna bundle "+profile.slug);}
+                    else animalLoading=StartCoroutine(LoadAnimalModel(profile));
                 }
             }
         }
@@ -162,7 +163,7 @@ public sealed partial class LocalTerrainExplorer
     }
     bool EvictAnimalModel()
     {
-        var old=animalModels.Where(p=>p.Value.Users==0).OrderBy(p=>p.Value.LastUse).FirstOrDefault();if(old.Value==null)return false;
+        var old=animalModels.Where(p=>p.Value.Users==0&&!portableCoatWanted.Contains(p.Key)).OrderBy(p=>p.Value.LastUse).FirstOrDefault();if(old.Value==null)return false;
         Destroy(old.Value.Material);old.Value.Bundle.Unload(true);animalModels.Remove(old.Key);return true;
     }
     bool AddAnimal(FaunaPrototypeSpawn spawn,AnimalModel model,bool manual=false)

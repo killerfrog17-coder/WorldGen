@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace WorldGen.Core
 {
-    public enum ItemCraftAction { Flake,TrimBranch,StripBark,DiggingStick,WoodenSpear }
+    public enum ItemCraftAction { Flake,TrimBranch,StripBark,DiggingStick,WoodenSpear,PortableRecipe }
     public static class WoodCrafting
     {
         public static bool Wood(Possession p)=>p!=null&&(p.Kind==PossessionKind.Branch||p.Kind==PossessionKind.TrimmedPole||p.Kind==PossessionKind.DiggingStick||p.Kind==PossessionKind.WoodenSpear);
@@ -24,7 +24,7 @@ namespace WorldGen.Core
             else return "Unknown woodworking action.";
             return "";
         }
-        public static bool Cutter(Possession p)=>p!=null&&p.Kind==PossessionKind.StoneFlake&&p.EdgeSharpness>=.2;
+        public static bool Cutter(Possession p)=>p!=null&&(PortableTechnology.Capabilities(p)&CraftCapability.Cut)!=0&&p.EdgeSharpness>=.2;
         public static ItemCraftJob Start(PlayerInventory inventory,string id,string tool,ItemCraftAction action,out string reason)
         {
             var p=inventory.Find(id);reason=Reason(p,action);if(reason.Length>0)return null;

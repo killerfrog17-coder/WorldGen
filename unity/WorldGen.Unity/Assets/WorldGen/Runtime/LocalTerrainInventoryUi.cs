@@ -48,6 +48,7 @@ public sealed partial class LocalTerrainExplorer
     string InventoryDisplayName(Possession item)=>StoneCrafting.Rock(item)?item.Name+" ("+StoneCrafting.Material(item)+")":item.Name;
     Texture2D InventoryItemIcon(Possession item)
     {
+        if(PortableTechnology.Item(item.Kind)!=null)return PortableIcon(item);
         if(item.Kind==PossessionKind.TestBag)return inventoryBagIcon;
         if(WoodCrafting.Wood(item))return inventoryWoodIcon;
         if(item.Kind==PossessionKind.StoneFlake)return inventoryFlakeIcon;
@@ -90,13 +91,14 @@ public sealed partial class LocalTerrainExplorer
         inventoryPreviewActor.Graph.Evaluate(0);
         var bones=inventoryPreviewActor.Root.GetComponentsInChildren<Transform>().GroupBy(t=>t.name).ToDictionary(g=>g.Key,g=>g.First());PoseInventoryHands(inventoryPreviewActor,bones);
         foreach(var gear in inventoryPreviewGear){DestroyInventoryVisual(gear);}inventoryPreviewGear.Clear();
-        foreach(var item in Inventory.Items.Where(i=>i.Place==PossessionPlace.Back||i.Place==PossessionPlace.RightHand||i.Place==PossessionPlace.LeftHand))
+        foreach(var item in Inventory.Items.Where(i=>PortableTechnology.Worn(i.Place)||i.Place==PossessionPlace.RightHand||i.Place==PossessionPlace.LeftHand||i.Place==PossessionPlace.Container&&PortableTechnology.Belt(Inventory.Find(i.ContainerId))&&Inventory.Carried(i)))
         {
             var gear=CreatePossessionVisual(item,29);gear.transform.SetParent(inventoryPreviewRoot.transform,true);inventoryPreviewGear.Add(gear);
-            if(item.Place==PossessionPlace.Back){gear.transform.position=bones["spine_02"].position-inventoryPreviewActor.Root.transform.forward*.18f-Vector3.up*.2f;gear.transform.rotation=inventoryPreviewActor.Root.transform.rotation;}
+            if(PortableTechnology.Item(item.Kind)!=null&&(PortableTechnology.Worn(item.Place)||item.Place==PossessionPlace.Container)){PosePortableWear(gear,item,inventoryPreviewActor.Root.transform,bones);}
+            else if(item.Place==PossessionPlace.Back){gear.transform.position=bones["spine_02"].position-inventoryPreviewActor.Root.transform.forward*.18f-Vector3.up*.2f;gear.transform.rotation=inventoryPreviewActor.Root.transform.rotation;}
             else {gear.transform.position=(item.Hands==2?(bones["hand_r"].position+bones["hand_l"].position)*.5f:bones["hand_"+(item.Place==PossessionPlace.RightHand?"r":"l")].position)-Vector3.up*(float)item.HeightM*.35f;gear.transform.rotation=inventoryPreviewActor.Root.transform.rotation;}
-            if(WoodCrafting.Wood(item)){gear.transform.rotation=inventoryPreviewActor.Root.transform.rotation*Quaternion.Euler(35,0,0);gear.transform.position=bones["hand_"+(item.Place==PossessionPlace.RightHand?"r":"l")].position-gear.transform.up*(float)item.HeightM*.35f;}
-            if(item.Kind!=PossessionKind.TestBag)
+            if(WoodCrafting.Wood(item)||PortableTechnology.Item(item.Kind)?.Long==true){gear.transform.rotation=inventoryPreviewActor.Root.transform.rotation*Quaternion.Euler(35,0,0);gear.transform.position=bones["hand_"+(item.Place==PossessionPlace.RightHand?"r":"l")].position-gear.transform.up*(float)item.HeightM*.35f;}
+            if(item.Kind!=PossessionKind.TestBag&&PortableTechnology.Item(item.Kind)==null)
             {
                 if(inventoryPreviewRockMaterial==null){inventoryPreviewRockMaterial=new Material(Resources.Load<Shader>("WorldGenInventoryPreview"));inventoryPreviewMaterials.Add(inventoryPreviewRockMaterial);}
                 foreach(var r in gear.GetComponentsInChildren<Renderer>()){r.sharedMaterial=inventoryPreviewRockMaterial;var props=new MaterialPropertyBlock();props.SetFloat("_VertexColours",1);props.SetColor("_Color",new Color((float)item.Tint.X,(float)item.Tint.Y,(float)item.Tint.Z));r.SetPropertyBlock(props);}
@@ -191,22 +193,15 @@ public sealed partial class LocalTerrainExplorer
             if(item!=null){if(item.Hands==2&&!isRight)InventoryLabel(new Rect(r.x+8*scale,r.y+30*scale,r.width-16*scale,65*scale),"Both hands occupied\n"+item.Name,Mathf.RoundToInt(14*scale));else DrawInventoryItem(new Rect(r.x+4*scale,r.y+4*scale,r.width-8*scale,r.height-8*scale),new NearbyPossession{Item=item},scale);}
 
         }
-        var back=new Rect(middle.x+inset,handY+155*scale,middle.width-2*inset,65*scale);
-        InventoryLabel(new Rect(back.x,back.y-28*scale,back.width,26*scale),"Back attachment",Mathf.RoundToInt(14*scale));InventoryFill(back,new Color(.08f,.11f,.12f));InventoryOutline(back,InventoryLine);
-        inventoryZones.Add(new InventoryZone{Rect=back,Clip=back,Place=PossessionPlace.Back});
-        var bag=Inventory.Bag;if(bag!=null)DrawInventoryItem(back,new NearbyPossession{Item=bag},scale);
-        float cell=48*scale,gridY=back.yMax+50*scale;
-        var storage=bag??Inventory.Items.FirstOrDefault(i=>i.ContainerWidth>0&&(i.Place==PossessionPlace.RightHand||i.Place==PossessionPlace.LeftHand));
-        if(storage!=null)
-        {InventoryLabel(new Rect(back.x,gridY-28*scale,back.width,26*scale),(storage==bag?"":"Held ")+storage.Name+"  ·  "+storage.ContainerWidth+" × "+storage.ContainerHeight,Mathf.RoundToInt(15*scale),InventoryGold);DrawInventoryGrid(storage,new Rect(back.x,gridY,cell*storage.ContainerWidth,cell*storage.ContainerHeight),cell,middle);}
-        else InventoryLabel(new Rect(back.x,gridY,back.width,90*scale),"No storage equipped. Items must be held or attached to suitable equipment.",Mathf.RoundToInt(16*scale));
+        float cell=48*scale;DrawEquipmentStorage(middle,handY+155*scale,inset,cell,scale);
         InventoryLabel(new Rect(right.x+inset,right.y+inset,right.width-2*inset,32*scale),"NEARBY",Mathf.RoundToInt(18*scale),InventoryGold);
         var nearbyView=new Rect(right.x+inset,right.y+60*scale,right.width-2*inset-15*scale,right.height-78*scale);
         inventoryZones.Add(new InventoryZone{Rect=nearbyView,Clip=nearbyView,Place=PossessionPlace.Ground});
         int columns=Math.Max(1,(int)(nearbyView.width/cell));var occupied=new HashSet<(int,int)>();int rows=0;
         foreach(var n in inventoryNearby)
         {
-            int w=Math.Min(columns,n.Item.PackedWidth),h=n.Item.PackedHeight,x=0,y=0;
+            // Nearby is a display layout, not a container: long loose shafts must remain visible.
+            int w=Math.Min(columns,n.Item.PackedWidth),h=Math.Min(7,n.Item.PackedHeight),x=0,y=0;
             for(;;y++)
             {bool found=false;for(x=0;x<=columns-w;x++){bool fit=true;for(int yy=0;yy<h;yy++)for(int xx=0;xx<w;xx++)if(occupied.Contains((x+xx,y+yy)))fit=false;if(fit){found=true;break;}}if(found)break;}
             for(int yy=0;yy<h;yy++)for(int xx=0;xx<w;xx++)occupied.Add((x+xx,y+yy));rows=Math.Max(rows,y+h);
@@ -223,12 +218,12 @@ public sealed partial class LocalTerrainExplorer
         if(inventoryNearby.Count==0)InventoryLabel(new Rect(nearbyView.x,nearbyView.y,nearbyView.width,55*scale),"Nothing within reach.",Mathf.RoundToInt(16*scale));
         inventoryScroll=Mathf.Clamp(inventoryScroll,0,Mathf.Max(0,content-nearbyView.height));
         if(content>nearbyView.height)inventoryScroll=GUI.VerticalScrollbar(new Rect(right.xMax-inset-12*scale,nearbyView.y,12*scale,nearbyView.height),inventoryScroll,nearbyView.height,0,content);
-        if(e.type==EventType.ScrollWheel&&nearbyView.Contains(e.mousePosition)){inventoryScroll=Mathf.Clamp(inventoryScroll+e.delta.y*cell,0,Mathf.Max(0,content-nearbyView.height));e.Use();}
+        if(inventoryContext==null&&e.type==EventType.ScrollWheel&&nearbyView.Contains(e.mousePosition)){inventoryScroll=Mathf.Clamp(inventoryScroll+e.delta.y*cell,0,Mathf.Max(0,content-nearbyView.height));e.Use();}
         var selected=InventoryCandidate(inventoryHover??inventorySelected)?.Item;
         string info=selected==null?"":selected.Name+"  ·  "+selected.MassKg.ToString("F2")+" kg  ·  "+Mathf.RoundToInt((float)selected.WidthM*100)+" × "+Mathf.RoundToInt((float)selected.HeightM*100)+" cm";
         if(selected!=null&&WoodCrafting.Wood(selected))info+=" | "+WoodDescription(selected);
         if(selected!=null&&(StoneCrafting.Rock(selected)||selected.Kind==PossessionKind.StoneFlake))info+="  ·  "+StoneCrafting.Material(selected)+(selected.Kind==PossessionKind.StoneFlake?" · cutting edge":"");
-        var activeCraft=ActiveItemCraft;if(activeCraft!=null)info=WoodCrafting.Label(activeCraft.Action)+"  ·  "+Mathf.RoundToInt((float)activeCraft.Fraction*100)+"%  ·  "+StoneCrafting.RealSecondsLeft(activeCraft,PlayerRules.Settings).ToString("F1")+" s remaining";
+        var activeCraft=ActiveItemCraft;if(activeCraft!=null)info=CraftLabel(activeCraft)+"  ·  "+Mathf.RoundToInt((float)activeCraft.Fraction*100)+"%  ·  "+StoneCrafting.RealSecondsLeft(activeCraft,PlayerRules.Settings).ToString("F1")+" s remaining";
         InventoryLabel(new Rect(pad,bottom+8*scale,Screen.width-pad*2,28*scale),Time.unscaledTime<inventoryNoticeUntil?inventoryNotice:info,Mathf.RoundToInt(15*scale),InventoryGold);
         InventoryLabel(new Rect(pad,Screen.height-38*scale,Screen.width-pad*2,30*scale),"E Pick up   ·   R Stow / rotate dragged item   ·   G Drop hovered item   ·   Q Swap hands   ·   B Set down / wear bag   ·   I / Tab Close",Mathf.RoundToInt(13*scale));
         DrawInventoryDrag(scale);DrawInventoryContext(scale);
@@ -262,40 +257,6 @@ public sealed partial class LocalTerrainExplorer
         }
         var r=new Rect(e.mousePosition.x+10*scale,e.mousePosition.y+10*scale,w*48*scale,h*48*scale);InventoryFill(r,new Color(.25f,.3f,.26f,.8f));InventoryOutline(r,InventoryGold);GUI.DrawTexture(r,InventoryItemIcon(item),ScaleMode.ScaleToFit,true);
     }
-    void DrawInventoryContext(float scale)
-    {
-        if(inventoryContext==null)return;var p=inventoryContext.Item;var job=CraftFor(p.Id);
-        var actions=job!=null?new[]{job.Action}:StoneCrafting.Rock(p)?new[]{ItemCraftAction.Flake}:WoodCrafting.Wood(p)?
-            (p.Kind==PossessionKind.Branch?new[]{ItemCraftAction.TrimBranch,ItemCraftAction.StripBark,ItemCraftAction.DiggingStick,ItemCraftAction.WoodenSpear}:p.Kind==PossessionKind.TrimmedPole?new[]{ItemCraftAction.StripBark,ItemCraftAction.DiggingStick,ItemCraftAction.WoodenSpear}:new[]{ItemCraftAction.StripBark}):Array.Empty<ItemCraftAction>();
-        var reasons=new List<string>();var available=new List<bool>();
-        foreach(var action in actions){bool ok=CraftInputs(job?.WorkpieceId??p.Id,out _,out _,out var reason,action);available.Add(ok||job?.Running==true);reasons.Add(reason);}
-        float width=380*scale;var label=new GUIStyle(GUI.skin.label){fontSize=Mathf.RoundToInt(13*scale),wordWrap=true};
-        string detail=StoneCrafting.Rock(p)?StoneCrafting.Material(p)+". "+(StoneCrafting.FractureQuality(p)>0?"Can produce cutting flakes.":"Unsuitable for this flaking method.")+" "+(StoneCrafting.StrikingStone(p)?"Suitable for striking.":"Unsuitable as the handheld striking stone."):WoodCrafting.Wood(p)?WoodDescription(p):p.Kind==PossessionKind.StoneFlake?"Cutting edge: "+Mathf.RoundToInt((float)p.EdgeSharpness*100)+"% remaining.":"";
-        float contentWidth=width-16*scale,detailHeight=detail.Length>0?label.CalcHeight(new GUIContent(detail),contentWidth)+10*scale:0;
-        float height=detailHeight+(p.Kind==PossessionKind.TestBag?5:4)*34*scale+16*scale;
-        for(int i=0;i<actions.Length;i++)height+=34*scale+(!available[i]?label.CalcHeight(new GUIContent(reasons[i]),contentWidth)+8*scale:0);
-        height=Mathf.Min(height,Screen.height-16*scale);
-        var rect=new Rect(Mathf.Clamp(inventoryMenuAt.x,0,Screen.width-width),Mathf.Clamp(inventoryMenuAt.y,0,Screen.height-height),width,height);
-        inventoryContextRect=rect;InventoryFill(rect,new Color(.075f,.1f,.11f));InventoryOutline(rect,InventoryGold);
-        GUILayout.BeginArea(new Rect(rect.x+8*scale,rect.y+8*scale,contentWidth,rect.height-16*scale));
-        if(detail.Length>0){GUILayout.Label(detail,label);GUILayout.Space(10*scale);}
-        for(int i=0;i<actions.Length;i++)
-        {
-            var action=actions[i];bool oldEnabled=GUI.enabled;Color oldColor=GUI.contentColor;
-            GUI.enabled=available[i];if(!available[i])GUI.contentColor=new Color(1,.55f,.45f);
-            string title=job!=null?(job.Running?"Pause: ":"Resume: ")+WoodCrafting.Label(action):WoodCrafting.Label(action);
-            if(GUILayout.Button(title,InventoryControlStyle(GUI.skin.button,scale),GUILayout.Height(30*scale)))
-            {if(job!=null&&job.Running)PauseItemCraft(job);else StartInventoryKnapping(job?.WorkpieceId??p.Id,action);inventoryContext=null;}
-            GUI.enabled=oldEnabled;GUI.contentColor=oldColor;
-            if(!available[i])GUILayout.Label(reasons[i],label);
-        }
-        if(GUILayout.Button("Hold in right hand",InventoryControlStyle(GUI.skin.button,scale),GUILayout.Height(30*scale))){RequestPossession(p.Id,PossessionPlace.RightHand);inventoryContext=null;}
-        if(GUILayout.Button("Hold in left hand",InventoryControlStyle(GUI.skin.button,scale),GUILayout.Height(30*scale))){RequestPossession(p.Id,PossessionPlace.LeftHand);inventoryContext=null;}
-        if(GUILayout.Button("Stow in worn bag",InventoryControlStyle(GUI.skin.button,scale),GUILayout.Height(30*scale))){RequestPossession(p.Id,PossessionPlace.Container,autoStow:true);inventoryContext=null;}
-        if(p.Kind==PossessionKind.TestBag&&GUILayout.Button("Wear on back",InventoryControlStyle(GUI.skin.button,scale),GUILayout.Height(30*scale))){RequestPossession(p.Id,PossessionPlace.Back);inventoryContext=null;}
-        if(GUILayout.Button("Put on ground",InventoryControlStyle(GUI.skin.button,scale),GUILayout.Height(30*scale))){RequestPossession(p.Id,PossessionPlace.Ground);inventoryContext=null;}
-        GUILayout.EndArea();
-        if(Event.current.type==EventType.MouseDown&&!rect.Contains(Event.current.mousePosition)){inventoryContext=null;Event.current.Use();}
-    }
+    void DrawInventoryContext(float scale)=>DrawPortableContext(scale);
     string WoodDescription(Possession p)=>p.HeightM.ToString("F2")+" m long, "+(p.WidthM*100).ToString("F1")+" cm thick; "+(p.WoodStraightness>=.7?"straight":"crooked")+", "+(p.WoodSoundness>=.65?"sound wood":"weathered/fragile wood")+(p.BarkRemoved?", bark removed.":", bark intact.");
 }

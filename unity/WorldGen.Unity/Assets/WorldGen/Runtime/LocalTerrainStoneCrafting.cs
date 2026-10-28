@@ -11,7 +11,7 @@ public sealed partial class LocalTerrainExplorer
     readonly Dictionary<GameObject,List<Mesh>> inventoryCraftMeshes=new Dictionary<GameObject,List<Mesh>>();
     ItemCraftJob ActiveItemCraft=>inventoryInitialized?Inventory.Crafts.FirstOrDefault(j=>j.Running):null;
     bool CraftWorking=>ActiveItemCraft!=null;
-    ItemCraftJob CraftFor(string id)=>Inventory.Crafts.OrderByDescending(j=>j.Running).ThenByDescending(j=>j.WorkpieceId==id).FirstOrDefault(j=>j.WorkpieceId==id||j.ToolId==id);
+    ItemCraftJob CraftFor(string id)=>Inventory.Crafts.OrderByDescending(j=>j.Running).ThenByDescending(j=>j.WorkpieceId==id).FirstOrDefault(j=>PortableCrafting.Affects(j,id));
     bool CraftInputs(string id,out NearbyPossession core,out NearbyPossession tool,out string reason,ItemCraftAction action=ItemCraftAction.Flake)
     {
         RefreshInventoryNearby();core=InventoryCandidate(id);tool=null;
@@ -19,7 +19,7 @@ public sealed partial class LocalTerrainExplorer
         if(!core.Natural&&!AccessiblePossession(core.Item)){reason="That stone is out of reach.";return false;}
         if(core.Item.Hands==2&&HeightAboveGround>3){reason="Land before working a two-handed stone on the ground.";return false;}
         var candidates=Inventory.Items.Where(AccessiblePossession).Select(p=>new NearbyPossession{Item=p}).Concat(inventoryNearby.Where(n=>n.Natural));
-        tool=candidates.Where(n=>n.Item.Id!=id&&(action==ItemCraftAction.Flake?StoneCrafting.StrikingStone(n.Item):WoodCrafting.Cutter(n.Item)))
+        tool=candidates.Where(n=>!Inventory.Crafts.Any(j=>PortableCrafting.IsJob(j)&&(j.IngredientIds?.Contains(n.Item.Id)??false))&&n.Item.Id!=id&&(action==ItemCraftAction.Flake?StoneCrafting.StrikingStone(n.Item):WoodCrafting.Cutter(n.Item)))
             .OrderByDescending(n=>n.Item.Place==PossessionPlace.RightHand||n.Item.Place==PossessionPlace.LeftHand).FirstOrDefault();
         if(tool==null){reason=action==ItemCraftAction.Flake?"Requires another suitably sized, compact stone for striking.":"Requires a usable cutting flake (at least 20% edge remaining).";return false;}
         string toolId=tool.Item.Id;
@@ -68,6 +68,7 @@ public sealed partial class LocalTerrainExplorer
         if(DeathVisible||Spectating||SurvivalActive&&Vitals.Incapacitated||!inventoryOpen&&key!=null&&
             (key.wKey.isPressed||key.aKey.isPressed||key.sKey.isPressed||key.dKey.isPressed||key.spaceKey.isPressed))
         {PauseItemCraft(job);return;}
+        if(PortableCrafting.IsJob(job)){UpdatePortableCrafting(job);return;}
         var core=Inventory.Find(job.WorkpieceId);var tool=Inventory.Find(job.ToolId);
         if(core==null||tool==null||!AccessiblePossession(core)||(tool.Place!=PossessionPlace.RightHand&&tool.Place!=PossessionPlace.LeftHand))
         {PauseItemCraft(job);return;}
@@ -114,7 +115,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(root==null)return;
         if(inventoryCraftMeshes.TryGetValue(root,out var meshes)){foreach(var mesh in meshes)Destroy(mesh);inventoryCraftMeshes.Remove(root);}
-        root.SetActive(false);Destroy(root);
+        portableRoots.Remove(root);root.SetActive(false);Destroy(root);
     }
     void AddCraftMesh(GameObject root,Mesh mesh,Material material,Possession item,int layer)
     {

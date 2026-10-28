@@ -40,6 +40,7 @@ public sealed partial class LocalTerrainExplorer
         if(!Ready||Spectating||DeathVisible)return new PlayCommandResult(false,"Use /give while alive and playing as a character.");
         int count=1,end=words.Length;
         if(end>2&&int.TryParse(words[end-1],out int quantity)){if(quantity<1)return new PlayCommandResult(false,"Count must be positive.");count=quantity;end--;}
+        var portable=TryPortableGive(words,end,count);if(portable!=null)return portable;
         string key=new string(string.Join("",words.Skip(1).Take(end-1)).Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
         PossessionKind kind;int variant=3;double length=1.9;
         switch(key){case "chert":variant=ToolStone.Encode(ToolStoneMaterial.Chert,0);kind=PossessionKind.SmallRock;break;case "quartzite":variant=ToolStone.Encode(ToolStoneMaterial.Quartzite,0);kind=PossessionKind.SmallRock;break;case "shortbranch":length=.9;kind=PossessionKind.Branch;variant=0;break;case "branch":kind=PossessionKind.Branch;variant=0;break;case "pole":kind=PossessionKind.TrimmedPole;variant=0;break;case "diggingstick":length=.9;kind=PossessionKind.DiggingStick;variant=0;break;case "woodenspear":case "spear":kind=PossessionKind.WoodenSpear;variant=0;break;case "rock":case "stone":case "smallrock":kind=PossessionKind.SmallRock;break;case "largerock":kind=PossessionKind.LargeRock;break;case "flake":case "stoneflake":kind=PossessionKind.StoneFlake;break;case "bag":case "testbag":case "testingbag":kind=PossessionKind.TestBag;break;default:return new PlayCommandResult(false,"Usage: /give <small rock | chert | quartzite | stone flake | branch | short branch | pole | digging stick | wooden spear | bag> [count]");}
@@ -47,7 +48,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateGiveItems()
     {
-        if(giveRequests.Count==0)return;
+        UpdatePortableGive();if(giveRequests.Count==0)return;
         long started=System.Diagnostics.Stopwatch.GetTimestamp();
         while(giveRequests.Count>0)
         {

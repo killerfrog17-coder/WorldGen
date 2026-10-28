@@ -11,7 +11,9 @@ namespace WorldGen.Core
         public bool Running;
         [System.Runtime.Serialization.OptionalField] public ItemCraftAction Action;
         public double Fraction=>Math.Max(0,Math.Min(1,WorkSeconds/RequiredSeconds));
-        public ItemCraftJob Copy()=>(ItemCraftJob)MemberwiseClone();
+        [System.Runtime.Serialization.OptionalField] public string RecipeId;
+        [System.Runtime.Serialization.OptionalField] public System.Collections.Generic.List<string> IngredientIds,ToolIds;
+        public ItemCraftJob Copy(){var j=(ItemCraftJob)MemberwiseClone();j.IngredientIds=IngredientIds==null?null:new System.Collections.Generic.List<string>(IngredientIds);j.ToolIds=ToolIds==null?null:new System.Collections.Generic.List<string>(ToolIds);return j;}
     }
     /// <summary>Ordinary stones acquire roles by properties, not by renaming or conversion.</summary>
     public static class StoneCrafting
@@ -53,6 +55,7 @@ namespace WorldGen.Core
         {
             if(!job.Running||realSeconds<=0)return null;
             if(double.IsNaN(realSeconds)||double.IsInfinity(realSeconds))throw new ArgumentOutOfRangeException(nameof(realSeconds));
+            if(PortableCrafting.IsJob(job))return PortableCrafting.Advance(inventory,job,realSeconds,settings);
             if(job.Action!=ItemCraftAction.Flake)return WoodCrafting.Advance(inventory,job,realSeconds,settings);
             var core=inventory.Find(job.WorkpieceId);var tool=inventory.Find(job.ToolId);
             if(PairReason(core,tool).Length>0){job.Running=false;return null;}
@@ -73,7 +76,8 @@ namespace WorldGen.Core
             if(inventory.Items.Any(p=>p.FlakeRemovals<0||!Finite(p.EdgeSharpness)||p.EdgeSharpness<0||p.EdgeSharpness>1))throw new ArgumentException("Invalid stone working state.");
             if(inventory.Crafts.Any(j=>j==null)||inventory.Crafts.Select(j=>j.WorkpieceId).Distinct().Count()!=inventory.Crafts.Count||inventory.Crafts.Count(j=>j.Running)>1)throw new ArgumentException("Invalid crafting projects.");
             foreach(var job in inventory.Crafts)
-                if(!Enum.IsDefined(typeof(ItemCraftAction),job.Action)||inventory.Find(job.WorkpieceId)==null||inventory.Find(job.ToolId)==null||job.WorkpieceId==job.ToolId||!Finite(job.WorkSeconds)||!Finite(job.RequiredSeconds)||job.RequiredSeconds<=0||job.WorkSeconds<0||job.WorkSeconds>=job.RequiredSeconds)throw new ArgumentException("Invalid saved crafting progress.");
+                if(!Enum.IsDefined(typeof(ItemCraftAction),job.Action)||inventory.Find(job.WorkpieceId)==null||(!PortableCrafting.IsJob(job)&&(inventory.Find(job.ToolId)==null||job.WorkpieceId==job.ToolId))||!Finite(job.WorkSeconds)||!Finite(job.RequiredSeconds)||job.RequiredSeconds<=0||job.WorkSeconds<0||job.WorkSeconds>=job.RequiredSeconds)throw new ArgumentException("Invalid saved crafting progress.");
+            foreach(var job in inventory.Crafts.Where(PortableCrafting.IsJob))PortableCrafting.Validate(inventory,job);
         }
     }
 }

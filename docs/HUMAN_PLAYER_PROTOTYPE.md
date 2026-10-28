@@ -6,6 +6,19 @@ MPFB skeleton, skin weights and already fitted animation bank are the inputs.
 This does not use a newly generated or guessed rig. The existing animal assets
 and animal renderer are separate.
 
+## Portable crafting expansion (27 October 2026)
+
+63 portable item types and 57 contextual actions extend the earlier stone/wood
+work. Functional back/shoulder/waist carriers, restricted quivers/tool cases and
+belt attachments share physical grid storage. Multi-input work saves exact
+reserved ingredients, consumes those inputs at completion and retains tools.
+Hide products preserve species/coat provenance and reuse existing animal coats.
+No recipe book or global crafting browser is present. Raw new resources are
+command-supplied for now (`/give materials`, `/give deer hide coat=1`); no starter
+bag or new world litter is added. Weapons/fishing gear remain inventory/visual
+prototypes; construction, fire, combat and animal harvesting remain separate.
+See [portable technology details](PALEOLITHIC_PORTABLE_TECH.md).
+
 ## Controls
 
 - I / Tab: open/close inventory. E: take an aimed-at reachable rock into a free
@@ -54,7 +67,8 @@ The body has zero general storage and new/legacy-without-inventory sessions star
 empty. There is no automatic starter bag. `/give bag` explicitly grants the temporary
 6x7 testing bag (0.6kg empty mass, round placeholder visual).
 It is a real item and may be removed or carried, retaining the very same contents.
-There are no belt tools, quickbar or persistent hand-selection controls.
+The later portable expansion adds belt tool attachments; no arbitrary quickbar or
+persistent hand-selection controls are present.
 Small rocks use one hand each, large rocks reserve both. Transfers are immediate;
 failed transfers check reach/occupancy and retain the source item. Q exchanges
 actual one-hand items, including into an empty opposite hand, without changing
@@ -66,8 +80,8 @@ their original globally stable scatter IDs. Dimensions, rock-family variant
 and tint are retained; approximate ellipsoid mass uses2600kg/m³. Rocks above
 25kg or0.55m width/0.45m height remain scenery. This is a carrying approximation,
 not a geological density model. Packing rounds width/height up to10cm cells;
-rotation is supported and items never stack. The later first stone-crafting
-action is described below; berries/arrows, harvesting and construction remain absent.
+rotation is supported and items do not stack in this pass. Later portable
+crafting adds arrows and other gear; berries, harvesting and construction remain absent.
 
 Nearby scans run at5Hz while showing proximity icons/inventory, and immediately
 on transfer requests. Icons fade in from4m to3m from the player feet; the aimed
