@@ -2,6 +2,8 @@ using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
 if(args.Contains("--item-use-only")){ItemUseTests.Run();return;}
+if(args.Contains("--wildlife-abundance-only")){WildlifeAbundanceTests.Run();return;}
+if(args.Contains("--wildlife-abundance-world")){WildlifeAbundanceTests.WorldReport(args[1],args[2]);return;}
 if(args.Contains("--portable-crafting-only")){PortableCraftingTests.Run();return;}
 if(args.Contains("--fallen-branches-only")){FallenBranchTests.Run();return;}
 if(args.Contains("--woodworking-only")){WoodCraftingTests.Run();return;}

@@ -60,9 +60,16 @@ public sealed partial class LocalTerrainExplorer
     void HandleDebugKeys()
     {
         var k=ActiveKeyboard;if(k==null)return;
+        bool radarChord=k.f3Key.isPressed&&k.aKey.wasPressedThisFrame||k.aKey.isPressed&&k.f3Key.wasPressedThisFrame;
+        if(radarChord)
+        {
+            if(radarF3Pending){debugOpen=radarPreviousDebug;debugFull=radarPreviousFull;}
+            radarF3Pending=false;ToggleWildlifeRadar();return;
+        }
+        if(k.f3Key.wasReleasedThisFrame)radarF3Pending=false;
         bool ecologyChord=k.f3Key.isPressed&&k.eKey.wasPressedThisFrame||k.eKey.isPressed&&k.f3Key.wasPressedThisFrame;
         if(ecologyChord&&!paused){ToggleEcologyDebug();return;}
-        if(k.f3Key.wasPressedThisFrame){if(k.shiftKey.isPressed){debugFull=!debugFull;debugOpen=true;}else debugOpen=!debugOpen;if(debugOpen)debugRefreshAt=debugFastAt=0;}
+        if(k.f3Key.wasPressedThisFrame){radarF3Pending=true;radarPreviousDebug=debugOpen;radarPreviousFull=debugFull;if(k.shiftKey.isPressed){debugFull=!debugFull;debugOpen=true;}else debugOpen=!debugOpen;if(debugOpen)debugRefreshAt=debugFastAt=0;}
         if(k.mKey.wasPressedThisFrame&&!paused&&!ecologyOpen){mapOpen=!mapOpen;if(mapOpen){InitializeMapSelection();InvalidateMap();}CaptureMouse();}
         if(mapOpen&&!paused)HandleMapSelectionKeys(k);
         if(k.escapeKey.wasPressedThisFrame){if(ecologyOpen)ecologyOpen=false;else if(mapOpen){mapOpen=false;mapLayerMenu=false;}else paused=!paused;CaptureMouse();}
@@ -87,6 +94,7 @@ public sealed partial class LocalTerrainExplorer
         DrawTerrainDiagnosticOverlay();
         if(ecologyOpen){DrawEcologyDebug();return;}
         if(debugOpen)DrawDebugOverlay();
+        DrawWildlifeRadar();
         if(paused){if(drawPause!=null)drawPause();else{GUILayout.BeginArea(new Rect(Screen.width/2f-130,Screen.height/2f-70,260,140),GUI.skin.box);if(GUILayout.Button("Resume"))Resume();if(GUILayout.Button("World simulation"))Close();GUILayout.EndArea();}return;}
         DrawWorldMap();DrawPickupPrompt();
     }

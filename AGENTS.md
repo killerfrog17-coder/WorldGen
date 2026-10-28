@@ -1,5 +1,41 @@
 # WorldGen repository instructions
 
+WILDLIFE ABUNDANCE / ENCOUNTER PACING IN PROGRESS,28October2026:
+LATEST steering: also implement F3+A wildlife radar. New read-only3km north-up
+overlay: tier colours, solid loaded actors/hollow coarse groups/dim inactive/
+grey corpses, explicit expanded near-field distance rings.5Hz only when enabled,
+no model/terrain loads, no population cap. Hotkey restores ordinary F3 state and
+does not strafe left while F3 held. Four native input/data/range regressions added.
+Final abundance checks now103; item-use77 pass; Unity source check passes.
+First IL2CPP player-wildlife-abundance compiled/proof150+578+177+18PASS, but its
+native135run FAILED existing corpse stretch guardp99=2.5296 (>2.5), no threshold
+weakened and not selected. It exited. Radar changes need NEW player-wildlife-radar
+build, native139 and preservation proof; inspect repeated corpse failure if any.
+All original art/rig/weights/actions unchanged. Prior selected item-followup stays.
+Owner authorizes replacing the visible zoo with shared resource-limited animal
+communities and realistic encounter pacing. Wildlife-only effective day clamps
+15..1440 real minutes; actual solar day setting remains1..10080. NO CPU/GPU/network
+restriction now. No arbitrary entity cap, paid calls, new art or subagents.
+Core WildlifeAbundance +WildlifeHabitat: shared native regional consumer budgets,
+actual local vegetation/water habitat, prey-supported carnivores incl fish diets,
+stable exposed-activity subset. Far travel uses sqrt(1440/effectiveDay), blends
+only beyond1.5x visual radius; nearby actors keep normal motion. Food-seeking
+routes, broader ranging and bounded need/decision timing; not player-directed
+quota spawns. Projection version2 clears old group proposals ONLY, keeps wounds/
+corpses/manual records. No births/full ecological feedback or calibrated hunt rate.
+Core101 abundance +77 item-use checks PASS; Unity source check PASS after staging
+new Core/Serialization/Presentation DLLs. The temporary frozen previous planner
+audit was removed from tests after before/after world runs, source retained ONLY
+under artifacts/wildlife-abundance-20261028, not game. World audit4sites x2scales
+shows density projection changed substantially; this is not full-world realism
+certification. Latest minor exposure change needs final audit rows refreshed.
+Next build NEW player-wildlife-abundance, native135 item/gameplay checks (132+3
+clock/near-speed/legacy-corpse migration assertions), preservation proof, select
+existing shortcut. Current selected player-item-followup remains fallback.
+See docs/WILDLIFE_ABUNDANCE.md for assumptions/research and pending limits.
+Do not resume scrapped history/construction/processing/animation work. Preserve
+owner prompt deletion/two old deer scripts. Commit/push/remoteverify own changes.
+
 ITEM FOLLOW-UP RELEASE SELECTED,28October2026:
 Owner is back and explicitly permits FULL CPU/GPU and ordinary resource use.
 Previous competitive-play restrictions are LIFTED. Do not ask again or throttle

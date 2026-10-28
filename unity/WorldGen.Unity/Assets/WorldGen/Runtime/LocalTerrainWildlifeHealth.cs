@@ -12,6 +12,7 @@ public sealed partial class LocalTerrainExplorer
     Dictionary<string,double> wildlifeMasses;
     void InitializeWildlifeHealth()
     {
+        EnsureWildlifePopulationVersion();
         if(wildlifeRecords==null){wildlifeRecords=Wildlife.Individuals.ToDictionary(p=>p.Id);foreach(var saved in Wildlife.Individuals.Where(p=>p.Manual))animalManualSequence=Math.Max(animalManualSequence,saved.Id);}
         if(wildlifeSkeletons==null){var json=Resources.Load<TextAsset>("FaunaPhysicsSkeletons");wildlifeSkeletons=json==null?new Dictionary<string,FaunaPhysicsSpecies>():JsonUtility.FromJson<FaunaPhysicsCatalogue>(json.text).species.ToDictionary(p=>p.slug);}
         if(wildlifeMasses==null)

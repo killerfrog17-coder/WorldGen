@@ -13,6 +13,8 @@ public sealed partial class LocalTerrainExplorer
     public IEnumerator CheckItemUseFlow(string output,List<string> report)
     {
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("ITEM USE "+text);report.Add("PASS "+text);Debug.Log("ITEM USE PASS "+text);}
+        Check(WildlifeAbundance.EffectiveDayMinutes(1)==15&&WildlifeAbundance.EffectiveDayMinutes(2880)==1440,"Wildlife encounter pacing clamps to15minutes..24hours independently of the actual clock");
+        Check(WildlifeAbundance.TravelPace(1,50,650)==1&&WildlifeAbundance.TravelPace(15,2500,650)>1,"Nearby animals retain normal travel while offscreen groups receive bounded encounter pacing");
         void ClearItems()
         {CancelItemCharge();ClearInventoryPhysics();foreach(var root in inventoryVisuals.Values.ToArray())DestroyInventoryVisual(root);inventoryVisuals.Clear();inventoryVisualPlaces.Clear();Inventory.Items.Clear();Inventory.Crafts.Clear();itemProjectiles.Clear();inventoryNearbyAt=0;}
         IEnumerator Image(string name,Animal focus=null)
@@ -62,7 +64,7 @@ public sealed partial class LocalTerrainExplorer
         stoneCore.Place=PossessionPlace.Ground;ReleasePossession(stoneCore,true);
         Check(inventoryDrops.ContainsKey(stoneCore.Id)&&inventoryVisuals[stoneCore.Id].GetComponentsInChildren<MeshFilter>().All(m=>m.sharedMesh!=null),"Worked source stone also drops immediately with valid surface geometry");
         ClearItems();
-        yield return Deer();var deer=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="deer"&&!a.Dead);Aim(deer,1.15f);deer.MaximumHealth=deer.Health=Math.Max(200,deer.MaximumHealth);paused=true;
+        yield return Deer();var deer=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="deer"&&!a.Dead);yield return CheckWildlifeRadar(deer,report);Aim(deer,1.15f);deer.MaximumHealth=deer.Health=Math.Max(200,deer.MaximumHealth);paused=true;
         ExecuteGive(new[]{"/give","wooden","spear"});var spear=Inventory.QuickHeld;Check(spear?.Kind==PossessionKind.WoodenSpear,"A real held spear is selected for melee");yield return Image("01-before-hit");
         double health=deer.Health;StrikeWithItem(spear,false);Check(deer.Health<health&&deer.Health>0,"Spear melee damages the visible surface without an instant generic kill");
         Check(deer.ThreatUntil>deer.Life&&deer.TargetSpeed>0,"A surviving struck deer immediately attempts to flee");
@@ -80,6 +82,8 @@ public sealed partial class LocalTerrainExplorer
         Check(p99<2.5f,"Articulated corpse avoids widespread extreme skin stretching (99th percentile "+p99.ToString("F2")+")");
         CaptureWildlife();var saved=WorldJson.Read<PlaySession>(WorldJson.Write(PlayerRules));saved.Validate();var dead=saved.Wildlife.Individuals.Single(p=>p.Id==deer.Spawn.Id);
         Check(dead.Dead&&dead.CorpsePose?.Length==deer.Model.Asset.BoneCount*16&&dead.BloodMask?.Length==65536,"Health, original identity, corpse pose and stain survive full save");
+        int retainedRecords=Wildlife.Individuals.Count;Wildlife.PopulationVersion=0;EnsureWildlifePopulationVersion();
+        Check(Wildlife.PopulationVersion==WildlifeAbundance.Version&&Wildlife.Groups.Count==0&&Wildlife.Individuals.Count==retainedRecords&&Wildlife.Individuals.Any(p=>p.Id==deer.Spawn.Id&&p.Dead),"Upgrading population proposals preserves the actual saved corpse and clears obsolete procedural groups");
         var spawn=deer.Spawn;var model=deer.Model;ulong deadId=spawn.Id;RemoveAnimal(deadId);
         var restoredCandidates=new List<FaunaPrototypeSpawn>();MergeSavedWildlifeCandidates(restoredCandidates);var restoredBody=restoredCandidates.Single(p=>p.Id==deadId);
         Check((restoredBody.Position-dead.Position).Length*frame.RadiusM<.001,"Saved corpse is admitted at its current location without its original planner candidate");

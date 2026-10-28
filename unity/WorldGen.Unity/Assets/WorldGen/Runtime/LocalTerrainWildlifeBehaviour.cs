@@ -97,7 +97,7 @@ public sealed partial class LocalTerrainExplorer
         }
         else
         {
-            double active=WildlifeBehaviour.Activity(behaviour,LocalSolarHour,profile.nocturnal,CurrentWeather.RainMmPerHour,Math.Sqrt(CurrentWeather.WindEastMps*CurrentWeather.WindEastMps+CurrentWeather.WindNorthMps*CurrentWeather.WindNorthMps));
+            double active=WildlifeBehaviour.Activity(behaviour,LocalSolarHour,WildlifeBehaviour.IsNocturnal(profile.slug,profile.nocturnal),CurrentWeather.RainMmPerHour,Math.Sqrt(CurrentWeather.WindEastMps*CurrentWeather.WindEastMps+CurrentWeather.WindNorthMps*CurrentWeather.WindNorthMps));
             if((animal.Spawn.Hash+(uint)(animal.Life/10))%100>active*100){animal.TargetSpeed=0;AnimalRole(animal,"idle");}
         }
         if(group!=null)animal.NextDecision=Math.Max(animal.NextDecision,animal.Life+4);

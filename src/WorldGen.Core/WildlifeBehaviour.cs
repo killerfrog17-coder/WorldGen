@@ -13,6 +13,8 @@ namespace WorldGen.Core
     /// not replace the native habitat/taxon distribution or simulate breeding.</summary>
     public static class WildlifeBehaviour
     {
+        public static bool IsNocturnal(string slug,bool catalogued=false)
+            =>catalogued||slug=="civet"||slug=="badger"||slug=="hedgehog"||slug=="porcupine";
         public static WildlifeBehaviourProfile Describe(string slug,double mass,Food eats,bool flying=false,bool tiny=false)
         {
             slug=(slug??"").ToLowerInvariant();bool Has(params string[] words){foreach(var word in words)if(slug.Contains(word))return true;return false;}

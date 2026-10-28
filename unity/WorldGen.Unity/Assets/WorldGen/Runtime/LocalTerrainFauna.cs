@@ -304,6 +304,7 @@ public sealed partial class LocalTerrainExplorer
     void DisposeAnimalFauna()
     {
         animalDisposed=true;
+        DisposeWildlifeRadar();
         if(animalBundleRequest!=null)
         {var request=animalBundleRequest;if(request.isDone)request.assetBundle?.Unload(true);else request.completed+=_=>request.assetBundle?.Unload(true);}
         if(animalLoading!=null)StopCoroutine(animalLoading);animalLoading=null;animalPendingBundle?.Unload(true);animalPendingBundle=null;

@@ -28,8 +28,9 @@ namespace WorldGen.Core
     [Serializable] public sealed class WildlifeState
     {
         public List<WildlifeIndividual> Individuals=new List<WildlifeIndividual>();
+        [System.Runtime.Serialization.OptionalField] public int PopulationVersion;
         [System.Runtime.Serialization.OptionalField] public List<WildlifeGroup> Groups=new List<WildlifeGroup>();
-        public WildlifeState Copy()=>new WildlifeState{Individuals=Individuals.Select(p=>p.Copy()).ToList(),Groups=(Groups??new List<WildlifeGroup>()).Select(g=>g.Copy()).ToList()};
+        public WildlifeState Copy()=>new WildlifeState{PopulationVersion=PopulationVersion,Individuals=Individuals.Select(p=>p.Copy()).ToList(),Groups=(Groups??new List<WildlifeGroup>()).Select(g=>g.Copy()).ToList()};
         public void Validate()
         {
             if(Individuals==null||Individuals.Any(p=>p==null)||Individuals.Select(p=>p.Id).Distinct().Count()!=Individuals.Count)throw new ArgumentException("Invalid wildlife records.");

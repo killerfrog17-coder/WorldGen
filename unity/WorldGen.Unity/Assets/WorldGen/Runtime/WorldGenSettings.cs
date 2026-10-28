@@ -96,6 +96,7 @@ public sealed partial class WorldGenRuntime
                 GUILayout.Label("Strike trees with a cutting edge for bark, or a chopping tool for reachable branches. Digging-stick secondary digs suitable unfrozen soil for fibres. Hand-line/net secondary works nearby fish; processing is deferred. Inventory tool options can also start digging/fishing. Right-click worn tools for maintenance; replacement materials are consumed.");
                 GUILayout.Space(12);GUILayout.Label("MOVEMENT & CAMERA",SectionStyle());
                 GUILayout.Label("WASD: move. C: walk. Shift: sprint. Ctrl: crouch. Space: jump. Mouse wheel: first/third person. Middle mouse: lock camera distance. Creative F: flight; Alt + wheel: flight speed. /gamemode survival | creative | spectator selects mode.");
+                GUILayout.Label("F3: debug information. Shift + F3: full debug information. F3 + A: wildlife simulation radar. F3 + E: ecology inspection.");
                 break;
         }
         GUILayout.EndScrollView();

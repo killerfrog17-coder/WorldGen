@@ -162,7 +162,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
                 bool jump=alive&&keyboard.spaceKey.wasPressedThisFrame&&(!SurvivalActive||Vitals.Stamina>=12);
                 if(SurvivalActive&&jump&&motion.Grounded)Vitals.Stamina=Math.Max(0,Vitals.Stamina-12);
                 motion.Move(Time.unscaledDeltaTime,alive?(keyboard.wKey.isPressed?1:0)-(keyboard.sKey.isPressed?1:0):0,
-                    alive?(keyboard.dKey.isPressed?1:0)-(keyboard.aKey.isPressed?1:0):0,(keyboard.spaceKey.isPressed?1:0)-(keyboard.ctrlKey.isPressed?1:0),
+                    alive?(keyboard.dKey.isPressed?1:0)-(keyboard.aKey.isPressed&&!keyboard.f3Key.isPressed?1:0):0,(keyboard.spaceKey.isPressed?1:0)-(keyboard.ctrlKey.isPressed?1:0),
                     heading,pitch,survivalSprinting,jump,Ground,walk:keyboard.cKey.isPressed||keyboard.ctrlKey.isPressed,speedScale:(SurvivalActive?Vitals.MovementScale:1)*Inventory.LoadSpeedScale);
                 double moveDt=Math.Max(.001,Math.Min(.25,Time.unscaledDeltaTime));
                 playerDeathVelocity=new Vector3((float)((motion.X-movementStartX)/moveDt),(float)(-Math.Max(-motion.VerticalSpeed,motion.LandingSpeedMps)),(float)((motion.Z-movementStartZ)/moveDt));
