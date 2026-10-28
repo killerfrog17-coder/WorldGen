@@ -1,161 +1,69 @@
 # WorldGen repository instructions
 
-KNAPPING FIX BUILD RUNNING,28October2026~12:13CDT:
-OwnerclosedWorldGen around12:12; noownerplayernow. Started NEW IL2CPP package
-player-item-functionality-knapping, ownedPTY76887. Actualflakedropfix+fivechecks
-are included; expectednative116.146runtime/shaderinputs frozen knapping-source-
-freeze.json beforebuild. NO runtime edits whilebuildactive. AFTERscriptcompletion
-(no prematureexe launch): runner -PlayerFolderplayer-item-functionality-knapping
--OutputNameknapping-release-verified; after116PASS+exit, -OutputNameknapping-
-release-water -Water(13). Runnerrefusesownerconcurrentgame; respectit. Then run
-artifacts/overnight-items-20261028/prove-knapping-package.py for578protectedhash,
-146sourcefreeze,177collision/sourceIDs,18audio. Selectexistingrootshortcut only
-whenproperlyverified; keep firstreleasefallback. Restore3Unityautochanges after
-build. Update docsnotes,commit/push/remotelyverify sourceandshortcut. Stillwait
-ownerexplicitwrap; noonminimumdoesnotmeanstop. No subagents/paidcalls/inference.
-Owner'slastfeedbackthrowworks,noattackvisual; no newanimation scope. Newflakefix
-pendingnative, sourcebackupbeingmade now. Ownerdeletedprompt+2scripts untouched.
+OVERNIGHT ITEMS CURRENT CHECKPOINT,28October2026~12:28CDT:
+Owner latest saysKEEPWORKING untilhe explicitlyaskswrap. Noonminimumwasmet;
+doNOTfinalonclockalone. Scopeautomatic hands+functionalexistingitems/combat/
+physicalthrows/block/blood/animalNPCplayerdeath, thenitemart, thenwildlifeAI.
+NO skinning/butchery/processing/meatdrops/construction/newanimationpass. Owner
+confirmedphysicalthrowswork andaskedaboutnoattackmotion; clarified swing/throw
+animationswereintentionallydeferred. DoNOTstartanimationworkbasedonthatquestion.
+No subagents/paidcalls. Original177faunabundles/natives/rigs/actions/coats,
+42humanPNG+protectedMPFB0946...native mustremainunchanged. Preserve ownerdeleted
+WorldGen_OneShot_Prompt.md and2untrackeddeerscripts. No ownerappclosure.
 
-LIVE PLAYTEST BUG FIX IN SOURCE,28October2026~12:12CDT:
-Read-only ownerPlayer.log caught NullReference in BeginDroppedBody ->
-ReleasePossession ->UpdateStoneCrafting. Ownerlogcopied taskroot/owner-playtest-
-flake-exception.log. RootCAUSE in CreatePossessionVisual: flake/workedrock branch
-created an EMPTYMeshFilter object then scheduledDestroy(obj), then actualmesh;
-immediate SAMEFRAMEdrop iterated still-present emptyFilter.sharedMesh.bounds.
-This is in FIRSTselected AND16:48compiledcandidate. FIXED SOURCE: choose worked/
-flake mesh before creating ordinary rock MeshFilter; bounds skip null optional
-mesh filters. NO BUILD OR TEST whileowner7316plays. Added actual runtimeflow:
-/givechert+/givequartzite, StartInventoryKnapping withoccupiedhands, completejob,
-sameframedropnewflakeANDworkedcore+validgeometry assertions. Adds5checks ->
-expected116, not111. Sourcechanged3runtimefiles, so16:48candidate/sourcefreeze
-areSTALE forlatestfix; DO NOTselectit aslatest orrun oldproofagainstnewsource.
-NEXTwhenownercloses: chooseNEWfolderplayer-item-functionality-knapping (notused),
-freeze146runtime/shaderfiles as knapping-source-freeze.json, buildIL2CPP there,
-runner OutputNameknapping-release-verified116 +knapping-release-water13. Adapt
-prove-release-package.py tofolder,newfreezeandnewoutputnames; verify578original+
-146source+177collision/sourceIDs+18audio. Then selectexistinglink,restore3auto,
-commit/push/remotelyverify. Existingfirstselectedownerpackageuntouched. No paid/
-inference/subagents. Currentflakefix+test stillUNCOMMITTED; savecheckpointsoon.
-No new animation scope authorized. Latestremote9169f5d705aaad3b4d63c6710fc0baeff6d299d6.
+CURRENT SELECTEDshortcut STILL first player-item-functionality14:34Z(102native
+PASS). DO NOToverwrite selectedpackage. OwnerplayedPID7316,closedaround12:12;
+noownergamecurrently. Read-only livePlayer.log caughtactualsameframeknapping
+exception(BeginDroppedBody): CreatePossessionVisualcreatedemptyMeshFilter then
+scheduledDestroy(obj), thenimmediatedropreadnullmesh. FIXsource choosesworked/
+flakebranchBEFOREordinaryrockobjectcreation; boundsalsoskipoptionalnullfilters.
+Five actualnativeknappingchecks nowcompletejobanddropfreshflake+workedcore in
+sameframe. Passedall5inIL2CPPknapping17:16build, BUT thatfullrunFAILEDgoose
+skin-extensionguard(.232m>.21), notfullPASS. Ownerlogsnapshotintaskroot.
 
-OWNER FEEDBACK,28October2026~12:02CDT:
-Owner confirms physical throwing works; asks what testingquestionwas and notes
-no visible melee/throw motion. Clarified melee damageisimplemented (successful
-hits: blood,sound,animalreaction), no swing/throw/craft animation pass was done,
-per originalscope. Missing animations are NOT a newly authorized animation task;
-do not start new character/rig/animation work based only on this question.
-Owner gamePID7316 still running selectedfirstrelease. Only itsownterrainworker
-PID18456 exists; no owned Unity/native/Blender/python/inference jobs. Keep heavy
-work idle during playtest; light docs/source review okay. Runtime candidate and
-validation instructions remain in precedingnote. No final at noon: latestowner
-will explicitlysaywhenwrap. No new followupquestion sent. Original assets and
-owner deletion/2old scripts stillpreserved. Git6765e60... checkpointremoteverified;
-portable-tech doc wording updated since. Newreleasecompiled16:48Z NOTselected.
+Animalphysics: alwaysretaincommonroot(28rigspreviouslyfiltered); root-relative
+centreline,coarsebody/limb/headbranchesforsmall<5kgandairprofiles; finefeathers/
+toes/rearspinefollowretainedownerpalette. Originalskinweights/rigsunchanged.
+StructuralchainTOHEADisnowretained(longbirdneck). LatestMONOplayer-item-physics-
+neck native116PASS inclall63thumbs+knapping+combat/save/AI/death, noexceptions;
+goose11bodies,maxedge.18474mvs1.4mlength,squirrel9bodies,.02763vs.28m. Captures
+inspected. Guard15%retained; earliermass/angle-onlytrialsrejected. Worstedge
+diagnosticrevealsbody/wingjunction,soFINALsourcealso stiffenscentralLIMB-BEARING
+torsojointslikespine(insteadofflexibleneck),andusesroot-relativeproximalleg
+classification. Thislastsourcechangeawaitsitsownnativecheck; noall-worldrigclaim.
 
-OWNER PLAYTEST / RELEASE VALIDATION WAITING,28October2026~11:51CDT:
-OwnerWorldGenPID7316 launched selectedFIRST itemrelease14:34Z. Leave it alone.
-ALL owned Unity/build/native/GPU/inference workers exited; no graphics tests
-alongside owner. Latest NEW release player-item-functionality-release compiled
-IL2CPP BuiltUtc2026-10-28T16:48:19.8179324Z, source3d445952..., NOTselected.
-Latest Mono physics-branches111PASS, ninebodies each squirrel/goose, maxedge
-.02334/.08718m; actual before/afterviews inspected, same15%guard. Physics varies
-with pose/terrain; no allspecies/slope quality certification. Native release
-needs own rerun AFTERownercloses. Runner refuses activeWorldGen so doNOTbypass.
-Run -PlayerFolder player-item-functionality-release -OutputName release-polish-
-verified, then after111PASS+exit run -OutputName release-polish-water -Water(13).
-Proof script artifacts/overnight-items-20261028/prove-release-package.py verifies
-578original/DLL/bundles +146sourcefreeze +177collision/sourceIDs +18audiohashes.
-No need restage/rebuildDLLs beforeproof. Sourcefreeze146hashes shouldbeexact.
-Then selectEXISTINGrootshortcut afterbackuplink; keep first/polishedfallbacks;
-update report/docs+notes commit/push/remoteverify. No package or shortcut switch
-while claiming release validationpassed untilthatnative evidence exists.
-Restored3Unity autochanges already. New docs rewrite ITEM_USE_OVERNIGHT now
-accurately says latestreleasecompiled/notselected/pendingownerplaytest. Source
-physicalLOD checkpoint3d445952d44668a70c07efb2cafcb47800cb8912 pushed/remotely
-verified. Latestreport/docs/thisnote still needcheckpoint. Owner saidkeepworking
-untilhe explicitlysayswrap; doNOTfinalatnoon automatically. Can do light docs/
-code review duringhisplaytest; avoidheavyCPU/GPU/diskjobs. No followupquestion
-needed. Preserve ownerdeletedprompt +2olddeerscripts,177fauna/42human/MPFB.
+NOW building NEW IL2CPPplayer-item-functionality-reviewed, ownedPTY8388.
+Frozen146runtime/shaderfiles reviewed-source-freeze.json. NO runtimeeditswhile
+buildactive. Waitscriptcompletion(no prematureexe launches). Then runner:
+-PlayerFolderplayer-item-functionality-reviewed -OutputNamereviewed-release-
+verified(expected116);afterpass+exit run -OutputNamereviewed-release-water -Water
+(expected13). Scriptsrefuseowneralreadyrunninggame; respectthat. Finalproof:
+artifacts/overnight-items-20261028/prove-reviewed-package.py verifies578protected
+hashes/DLLs+146sourcefreeze+177collisionpackage/sourceIDs+18audio. Earlierrelease/
+final/knappingcandidateproofsisNOTproofforthisnewpackage. Alloldcandidatesnot
+selectedandknownfailuresarenotpassingchecks. NewshotsuseRenderTexture,
+ordinarybatchScreenCapturewasblackandREJECTED. Noinferenceworkers.
+Afterproperproof/native,backupexistingrootshortcutthenupdateit(no newdesktop
+icons),retainfirstreleasefallback. Restore3Unityautochanges(settingsglobal,
+GroundFoliageAtlasV1.png.meta,ProjectSettings.asset) AFTERbuild. Updatecurrent
+reportdocs/ITEM_USE_OVERNIGHT.md+notes,commitexplicitownsource/docs/shortcut,
+push+remoteverify. Ownsourcecheckpoint041b6c36752281e4048134898aa9cf152c369fca
+pushed/verified(flakefix). Newneck/diagnostics/torsoeditsin2runtimefilesstill
+uncommitted;autobuildsettingsmaybemodifiedtoo. Stageonlyownfiles,notownerdeletion.
 
-ITEM PHYSICS LOD ACCEPTED FOR RELEASE CHECK,28October2026~11:46CDT:
-Latest Mono player-item-physics-branches native111PASS/no runtime errors. Both
-squirrel andgoose retain9physical bodies, all connected, max edge extensions
-.02334m/.08718m, same15%-oflengthguard retained. Before/aftercaptures inspected.
-Small(<5kg)ANDair-profile corpses use coarse articulated branch roots/head;
-fine spine/toe/featherbones follow nearest retained physical ancestor. Original
-skin/rig/weights/actions unchanged. Root skipfix stillappliesall177;28rootspreviously
-failedfilter. Smallphysics topology fixes badfolding better than merely tighter
-angles; rejected compactangle experiment remainsreverted. Coarse physicsisnot
-anatomicallycalibrated, localfolds/groundcontact mayremain, no owneracceptanceyet.
-NOW building NEW releaseIL2CPP player-item-functionality-release, PTY2802.
-Runtime/shader146file inputs frozen in release-source-freeze.json; no runtime
-source edits untilbuild finishes. After build: runner -PlayerFolderthatfolder
--OutputName release-verified; wait111PASS+exit then -OutputName release-water
--Water for13. Refuse ownerconcurrentWorldGen. New release needs adaptproofscript
-from prove-polished-package.py,578originalhash+177collision/sourceID+18audio;
-compare146sourcefreeze; THEN selectexistingrootshortcut (backuppriorlink),
-restore3Unityautochanges, update docs+thisnote, commit/push/remotelyverify.
-Current selected remains first14:34Z item release. Old unselected-final16:28Z
-failedsquirrelguard, doNOTselectit or report itsnativepass. Priorpolished16:05Z
-had107+13 butno latestroot/LOD. Latestowner sayskeepworking untilwrapmessage,
-so doNOTfinalatnoonon your own. No newfollowupquestionneeded. Own testworkers
-exited, onlycurrentUnity build; no inference or ownerappclosure. Sourcephysics
-checkpoint+finalselection stillneedsGitHubpush; preserveownerdeletedprompt+2scripts.
-
-ACTIVE PHYSICS CONTINUATION,28October2026~11:40CDT:
-Owner says keep working, will explicitly request wrap-up. STILL first selected
-player-item-functionality14:34Z; do not claim new selection yet. Git108b1f4...
-pushed/remoteverified hand-order+shore fixes, docs progress; newer physics unstaged.
-IL2CPP player-item-functionality-final built16:28:06.7027414Z,578originalhash+
-177collision/sourceIDs+18audio pass, BUT native final-release-verified fails
-new squirrel max-edge-extension guard(.0489m>.042m), despite connected root.
-Earlier physics-rooted Mono111PASS had.0322m, subsequent compact-joint and idle
-baseline trials.0530/.0594m FAILED. DO NOT weaken15%guard for green. Joint-range
-experiment reverted; root always retained and root-relative centerline remain.
-New appropriate PHYSICS LOD for animalmass<5kg: common root +first body branches
-and major limb roots/head; fine spine/toe/feather bones follow retained owner
-palette. Original mesh/weights/rest/actions exact. This avoids many independently
-folding fine bones and reduces small-body solver work. Build NOW Mono folder
-player-item-physics-lod, PTY43766; once complete run runner OutputNamephysics-lod.
-Fixture now fixed idle/time0/heading0/speed0 andFade1, capturesBEFOREandAFTER.
-If passing, build NEW/overwrittenUNSELECTED final IL2CPP(no liveprocess), then
-native111+13water; final proof script requires proper build-inputs metadata.
-Runner now refuses incomplete packages/existing evidence paths. Interrupted
-premature final-release-full was rejected, not evidence. final-release-verified
-is the actualfailedIL2CPP run. Extra source snapshot before lastbuild recommended.
-9more obsolete OWN diagnostic packages deleted6.82GiB by daily/latest3+selected+
-fallback rule; final-build-cleanup-plan/report in taskroot. Earlier10removed7.52.
-Original/polished release fallbacks and alllogs/images/source/saves retained.
-Restore3known Unity autochanges after build. New physics/source/docs/shortcut
-commit/push/remoteverify still needed. Do not close ownerapps. No more AI audio/
-GPU workers; just owned build/test. Original177animals/42humanPNG/MPFB protected.
-
-ACTIVE ITEM POLISH,28October2026~11:23CDT:
-Owner replied KEEP WORKING; will explicitly say when to start wrapping up.
-Do not end at noon simply because earlier minimum reached. No user test results
-received yet. Selected shortcut STILL first player-item-functionality14:34Z.
-New IL2CPP player-item-functionality-polished16:05:44Z passed107native+13actual
-shore checks,578protected hashes,177collision package/sourceIDs,18audio hashes.
-NOT selected: final visual review caught a small-animal corpse spike missed by
-finite/p99 assertions. Fix common root filtering: ground-squirrel Head root
-.028m*.28scale=.00784m was below .008 cutoff, leaving disconnected limb branches.
-Root must always get physical body; even a near-zero root gets tiny segment.
-New native assertions check complete limb connections and max edge extension
-relative to animal length, and save failed subject images before throwing.
-Small-body mass conditioning/projection tuning alone was NOT sufficient:
-physics-conditioned fails deer p99=2.507; physics-small fails goose extension
-.292m. Do not claim either clean. Latest ROOTED correction adds forced root,
-root-relative centreline, conservative general swing/twist (original skin/rig/
-actions untouched). Build in progress player-item-physics-rooted; check owned
-PTY15005, then run runner -PlayerFolder... -OutputName physics-rooted. Previous
-workers exited on failure. Rooted is Mono diagnostic, final IL2CPP repackage and
-native checks needed before shortcut update. No paid/inference or owner app close.
-Hands fixes are now clean: set-aside above VISIBLEground, right/left restoration
-clears mismatched borrowed original items before restoring either hand; Q/hit/
-death cancel tool work. Native shoreline uses explicit .1 worldscale/real coast,
-passes timed digging/line/net+two-hand restore. No terrain changes to fixtures.
-Docs partial updates uncommitted. Restore3known Unity autochanges before stage;
-commit only own sources/docs/shortcut, preserve ownerdeletedprompt+2deerscripts.
+Taskrootartifacts/overnight-items-20261028. Core63itemuse/747portable(63defs,
+83actions)/75inventory/37stone/37wood/22camera pass fromearlierruns;nonewCore
+sourcechangessince. Polished16:05IL2CPP107+13shorePASSbutpredateslatestphysics;
+waterfixtureexplicit.1scale,realcoast,timeddig/line/net,restoresbothhands.
+Handsfixclearsmismatchedoriginalitemsbeforeeitherhandrestore;setasideabove
+VISIBLEground,manualGstillphysical;Q/hit/deathcancelswork. Sourceart/Foley18
+clipsinrepo,ownerlistening/artacceptancepending,noattackanimations. AI4tiers,
+savedregionalgroups,season/weather/flight/defence/predation/perchesprototype;
+NO fullworldecosystem/reproduction/fullnav/FPSclaim. No populationcapsadded.
+Approvedcleanup19OWNoldtestpackages14.34GiB;daily/latest3/selected/running+
+fallbacksprotected,logs/images/native/source/savesretained. Cwas~23GiBfree.
+No heavyjobsbesideownerplaytest;whenownerlaunchesgamepauseownedgraphicswork,
+neverkillownerprocess. Sourceproofscriptneedsfreezeexact,don'trestageDLLsbefore.
 
 ITEM POLISH PROGRESS,28October2026~10:17CDT:
 Selected owner shortcut still first IL2CPP player-item-functionality14:34Z, native

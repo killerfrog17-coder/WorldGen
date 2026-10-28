@@ -49,10 +49,12 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
             // Dropping it creates free rigidbodies that tear the skin apart.
             bool root=b.parent<0;
             if(!root&&(span<Math.Max(.008f,scale*.025f)||detail))continue;
-            if(lightPhysics&&!root&&descriptions[b.parent].parent>=0&&!name.Contains("head"))
+            if(lightPhysics&&!root&&descriptions[b.parent].parent>=0&&!headChain.Contains(i))
             {
                 // Small corpses use physical branches, not a separate rigidbody
-                // for every spine segment, toe and feather. Fine original bones
+                // for every rear spine segment, toe and feather. The structural
+                // chain to the head stays articulated for long-necked birds.
+                // Fine original bones
                 // follow the nearest retained body through the owner palette.
                 float midline=Point(descriptions[0].head).x;
                 bool Central(FaunaPhysicsBone bone)=>Mathf.Abs(Point(bone.head).x-midline)<.025f&&Mathf.Abs(Point(bone.tail).x-midline)<.025f;
@@ -72,7 +74,8 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
             // Joint_02... Names alone cannot distinguish their torso and legs.
             float centerX=Point(descriptions[0].head).x;
             bool central=Mathf.Abs(Point(b.head).x-centerX)<.025f&&Mathf.Abs(Point(b.tail).x-centerX)<.025f;
-            bool spine=central&&Mathf.Abs(Point(b.tail).y-Point(b.head).y)<Mathf.Abs(Point(b.tail).z-Point(b.head).z)*.4f;
+            bool limbBearing=false;for(int child=0;child<count;child++)if(descriptions[child].parent==i&&(Mathf.Abs(Point(descriptions[child].head).x-centerX)>.025f||Mathf.Abs(Point(descriptions[child].tail).x-centerX)>.025f)){limbBearing=true;break;}
+            bool spine=central&&(limbBearing||Mathf.Abs(Point(b.tail).y-Point(b.head).y)<Mathf.Abs(Point(b.tail).z-Point(b.head).z)*.4f);
             var restAxis=Point(b.tail)-Point(b.head);bool leg=!central&&Mathf.Abs(restAxis.y)>Mathf.Abs(restAxis.x)*.6f&&(Point(b.head).y+Point(b.tail).y)*.5f<Point(descriptions[0].head).y+.04f;
             bool tail=central&&headBones.Count>0&&!headChain.Contains(i);
             Add(i,start,end,radius,Math.Max(.00001,mass),map,descriptions,velocity,spine&&!tail,leg,tail);
@@ -117,7 +120,8 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
         while(parent>=0&&!map.ContainsKey(parent)&&guard++<descriptions.Length)parent=descriptions[parent].parent;
         if(map.TryGetValue(parent,out int connected))
         {
-            bool proximal=leg&&descriptions!=null&&Mathf.Abs(Point(descriptions[parent].head).x)<.025f&&Mathf.Abs(Point(descriptions[parent].tail).x)<.025f;
+            float centerX=descriptions==null?0:Point(descriptions[0].head).x;
+            bool proximal=leg&&descriptions!=null&&Mathf.Abs(Point(descriptions[parent].head).x-centerX)<.025f&&Mathf.Abs(Point(descriptions[parent].tail).x-centerX)<.025f;
             var joint=obj.AddComponent<CharacterJoint>();joint.connectedBody=parts[connected].Body;joint.autoConfigureConnectedAnchor=false;
             joint.anchor=obj.transform.InverseTransformPoint(start);joint.connectedAnchor=joint.connectedBody.transform.InverseTransformPoint(start);joint.axis=Vector3.up;joint.swingAxis=Vector3.right;
             joint.lowTwistLimit=new SoftJointLimit{limit=spine||leg||tail?-6:-12};joint.highTwistLimit=new SoftJointLimit{limit=spine||leg||tail?6:12};joint.swing1Limit=new SoftJointLimit{limit=spine?10:tail?25:leg?(proximal?45:85):35};joint.swing2Limit=new SoftJointLimit{limit=spine?8:tail?15:leg?10:25};

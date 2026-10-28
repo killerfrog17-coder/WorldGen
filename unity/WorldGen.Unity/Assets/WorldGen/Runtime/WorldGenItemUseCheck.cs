@@ -140,10 +140,10 @@ public sealed partial class LocalTerrainExplorer
             yield return Image("before-corpse-"+slug,subject);UpdateCamera();
             var originalSubject=(Vector3[])PosedAnimal(subject).Clone();
             DamageAnimal(subject,10000,subject.Renderer.bounds.center,Vector3.right);paused=false;yield return new WaitForSecondsRealtime(4);paused=true;
-            var collapsedSubject=PosedAnimal(subject);var subjectSurface=AnimalSurface(subject);float maximumExtension=0;
+            var collapsedSubject=PosedAnimal(subject);var subjectSurface=AnimalSurface(subject);float maximumExtension=0;int worstA=0,worstB=0;
             for(int face=0;face<subjectSurface.Triangles.Length;face+=3)for(int edge=0;edge<3;edge++)
-            {int a=subjectSurface.Triangles[face+edge],b=subjectSurface.Triangles[face+(edge+1)%3];if(!subjectSurface.Visible(a,subject.Parts))continue;maximumExtension=Mathf.Max(maximumExtension,Vector3.Distance(collapsedSubject[a],collapsedSubject[b])-Vector3.Distance(originalSubject[a],originalSubject[b]));}
-            File.WriteAllText(Path.Combine(output,"corpse-"+slug+"-stretch.txt"),"Maximum edge extension m "+maximumExtension+"; animal length m "+subject.Spawn.Profile.lengthM+"; mass kg "+subject.MassKg+"; physical bodies "+subject.Ragdoll.BodyCount);
+            {int a=subjectSurface.Triangles[face+edge],b=subjectSurface.Triangles[face+(edge+1)%3];if(!subjectSurface.Visible(a,subject.Parts))continue;float extension=Vector3.Distance(collapsedSubject[a],collapsedSubject[b])-Vector3.Distance(originalSubject[a],originalSubject[b]);if(extension>maximumExtension){maximumExtension=extension;worstA=a;worstB=b;}}
+            File.WriteAllText(Path.Combine(output,"corpse-"+slug+"-stretch.txt"),"Maximum edge extension m "+maximumExtension+"; animal length m "+subject.Spawn.Profile.lengthM+"; mass kg "+subject.MassKg+"; physical bodies "+subject.Ragdoll.BodyCount+"\nWorst edge "+worstA+" / "+worstB+"\nOriginal "+originalSubject[worstA].ToString("F6")+" / "+originalSubject[worstB].ToString("F6")+"\nCollapsed "+collapsedSubject[worstA].ToString("F6")+" / "+collapsedSubject[worstB].ToString("F6")+"\nJoints "+subjectSurface.Joints[worstA]+" / "+subjectSurface.Joints[worstB]+"\nWeights "+subjectSurface.Weights[worstA]+" / "+subjectSurface.Weights[worstB]);
             yield return Image("corpse-"+slug,subject);UpdateCamera();
             Check(subject.Ragdoll.Connected,"Every corpse limb remains connected to its common root: "+slug);
             Check(maximumExtension<subject.Spawn.Profile.lengthM*.15,"Corpse avoids sharp skin spikes relative to animal size: "+slug);
