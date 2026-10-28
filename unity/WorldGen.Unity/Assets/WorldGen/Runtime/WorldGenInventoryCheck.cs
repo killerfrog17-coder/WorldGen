@@ -23,7 +23,7 @@ public sealed partial class LocalTerrainExplorer
         {yield return new WaitForEndOfFrame();var p=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,name+".png"),p.EncodeToPNG());Destroy(p);}
         try
         {
-            Check(Inventory.Items.Count==1&&Inventory.Bag!=null,"one testing bag, no invisible body storage or extra items");
+            Check(Inventory.Items.Count==0&&Inventory.Bag==null,"no automatic bag or invisible body storage");ExecuteGive(new[]{"/give","bag"});
             double deadline=Time.unscaledTimeAsDouble+90;
             while(scatterChunks.Values.Sum(c=>c.Source.Instances.Count(p=>p.Kind==ScatterKind.Stone&&RockPossession(p).Kind==PossessionKind.SmallRock))<2&&Time.unscaledTimeAsDouble<deadline)yield return null;
             var stones=scatterChunks.Values.SelectMany(c=>c.Source.Instances).Where(p=>p.Kind==ScatterKind.Stone&&RockPossession(p).Kind==PossessionKind.SmallRock).Take(2).ToArray();

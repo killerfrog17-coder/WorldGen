@@ -15,9 +15,9 @@ public sealed partial class LocalTerrainExplorer
         if(words.Length>0&&words[0].Equals("/spawn",StringComparison.OrdinalIgnoreCase))return ExecuteAnimalSpawnCommand(text);
         if(words.Length>0&&words[0].Equals("/seed",StringComparison.OrdinalIgnoreCase))
             return words.Length!=1?new PlayCommandResult(false,"Usage: /seed"):sourceWorld==null?new PlayCommandResult(false,"World seed is not available yet."):new PlayCommandResult(true,"World seed: "+sourceWorld.Recipe.Seed.ToString(System.Globalization.CultureInfo.InvariantCulture));
-        if(words.Length>0&&words[0].Equals("/flora",StringComparison.OrdinalIgnoreCase))return DescribeSpecialistFlora(words);
-        if(words.Length>0&&words[0].Equals("/midflora",StringComparison.OrdinalIgnoreCase))return DescribeMidFlora(words);
-        if(words.Length>0&&words[0].Equals("/trees",StringComparison.OrdinalIgnoreCase))return DescribeTreeFlora(words);
+        if(words.Length>0&&words[0].Equals("/flora",StringComparison.OrdinalIgnoreCase))return DescribeAllFlora(words);
+        if(words.Length>0&&words[0].Equals("/fauna",StringComparison.OrdinalIgnoreCase))return DescribeRegionalFauna(words);
+        if(words.Length>0&&words[0].Equals("/give",StringComparison.OrdinalIgnoreCase))return ExecuteGive(words);
         if(words.Length==0||(!words[0].Equals("/tp",StringComparison.OrdinalIgnoreCase)&&!words[0].Equals("/teleport",StringComparison.OrdinalIgnoreCase)))return null;
         if(!Ready)return new PlayCommandResult(false,"Terrain is not ready yet.");
         V target=default;double? height=null;

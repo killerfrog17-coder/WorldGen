@@ -1,5 +1,21 @@
 # WorldGen repository instructions
 
+COMMAND CATALOGUE CLEANUP / EMPTY START,27October2026:
+Owner requests FAST handoff. /flora unifies tree/mid/specialist catalogues with
+one global regional index; /midflora and /trees removed. /fauna regional animal
+catalogue includes audio-only/ecological taxa, local suitability marker/details.
+Redundant /spawn human HELP LINE removed, actual shared /spawn human retained.
+/give <small rock|large rock|stone flake|bag> [positive count], physical instances
+use hands/storage/ground; frame-sliced requests, no arbitrary count cap. No mode
+restriction except spectator/dead. Automatic starter bag factory DELETED; all
+new/missing inventories empty. Existing saved bags remain; /give bag explicitly
+grants one. Nearby crafting retained. No new art/world/animal changes.
+Targeted inventory/crafting/camera checks and compile/package only, no new game
+launch or prolonged native diagnostics. Ownsource/docs/shortcut backup, GitHub
+push/remoteverify and protected578hash preservation. Player-command-cleanup,
+previous player-stone-crafting retained. Owner apps/saves untouched. Preserve
+unrelated prompt deletion/two deer scripts.
+
 FIRST STONE CRAFTING / FASTER OWNER HANDOFF,27October2026:
 Owner explicitly authorizes right-click stone crafting, timed work/sounds, shared
 input progress bars and separate saved item-crafting duration multiplier. Ordinary

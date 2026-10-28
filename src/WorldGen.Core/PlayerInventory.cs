@@ -39,10 +39,6 @@ namespace WorldGen.Core
         public List<ulong> CollectedNatural=new List<ulong>();
         [System.Runtime.Serialization.OptionalField] public List<ItemCraftJob> Crafts=new List<ItemCraftJob>();
         public PossessionPlace ActiveHand=PossessionPlace.RightHand;
-        public static PlayerInventory Starter()
-        {
-            var s=new PlayerInventory();s.Items.Add(new Possession{Id="testing-bag",Kind=PossessionKind.TestBag,Place=PossessionPlace.Back,CellsWide=6,CellsHigh=7,WidthM=.6,HeightM=.7,DepthM=.22,MassKg=.6});return s;
-        }
         public PlayerInventory Copy()=>new PlayerInventory{PlayerName=PlayerName,ActiveHand=ActiveHand,Items=Items.Select(i=>i.Copy()).ToList(),CollectedNatural=new List<ulong>(CollectedNatural),Crafts=(Crafts??new List<ItemCraftJob>()).Select(j=>j.Copy()).ToList()};
         public Possession Find(string id)=>Items.FirstOrDefault(i=>i.Id==id);
         public Possession AtHand(PossessionPlace hand)=>Items.FirstOrDefault(i=>i.Place==hand||i.Hands==2&&(i.Place==PossessionPlace.LeftHand||i.Place==PossessionPlace.RightHand));

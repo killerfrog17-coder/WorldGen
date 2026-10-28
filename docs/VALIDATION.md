@@ -1,5 +1,26 @@
 # Version 3 validation evidence
 
+## Unified catalogues, give command and empty starts - 27 October 2026
+
+`/flora [number]` uses one index across all three existing plant catalogues;
+`/midflora` and `/trees` routes/help/completion are removed. `/fauna [number]`
+lists regional animal taxa, including audio-only/ecological entries, with local
+habitat suitability. The redundant human help entry is removed; `/spawn human`
+remains part of the shared spawning command.
+
+`/give <small rock | large rock | stone flake | bag> [count]` grants physical
+items, using free hands/storage and dropping overflow. Requests are frame-sliced.
+The automatic starter-bag factory is deleted, including all runtime callers;
+new and missing-inventory sessions start empty. Saved owned bags are retained.
+Inventory tests explicitly construct their own bag fixtures instead of relying
+on automatic gameplay equipment. Nearby-material crafting is unchanged.
+
+72 inventory,37 crafting and22 camera/save checks pass. Updated opt-in native
+diagnostics explicitly grant their own bag or set down the tool. No game launch,
+capture or full command runtime test for this fast handoff. Build/package and
+protected asset hash evidence: `artifacts/command-cleanup`. Prior stone-crafting
+player retained; source/docs/shortcut checkpoint and GitHub remote verification.
+
 ## First stone crafting - 27 October 2026
 
 Right-click ordinary suitable rock, timed flaking with another suitable stone,

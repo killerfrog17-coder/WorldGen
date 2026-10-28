@@ -111,7 +111,7 @@ namespace WorldGen.Presentation
             foreach(var tree in GroundFlora.For(w).Region(id).Trees)
                 b.Append("\n").Append(tree.Name).Append(" | family ").Append(tree.FamilyName).Append(" | ").Append(tree.Form).Append(" | ").Append(tree.LeafHabit)
                     .Append(" | ").Append(F(tree.HeightM)).Append("m | ").Append(tree.Morphology.LeafShape).Append(" | ").Append(tree.Morphology.BarkPattern).Append(" bark | wood ").Append(F(tree.Morphology.WoodDensityKgM3)).Append(" kg/m³ | ").Append(tree.Reproduction.Fruit);
-            b.Append("\nDerived timber/life-history proxies, not calibrated performance, dynamic growth or seasonal crops. /trees N inspects wood and tissue hazard metadata.");
+            b.Append("\nDerived timber/life-history proxies, not calibrated performance, dynamic growth or seasonal crops. /flora inspects wood and tissue hazard metadata.");
             b.Append("\n\nFOOD WEB — resource -> consumer (potential feeding, not population simulation)");
             foreach(var link in r.FoodWeb)
                 b.Append("\n").Append(e.Taxa[link.ResourceId].Name).Append(" -> ").Append(e.Taxa[link.ConsumerId].Name).Append(" | ").Append(link.Resource).Append(" | co-occurs on ").Append(F(link.OverlapPermille/10.0)).Append("% of region");

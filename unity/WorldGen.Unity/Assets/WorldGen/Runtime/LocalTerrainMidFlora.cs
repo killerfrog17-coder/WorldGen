@@ -13,9 +13,9 @@ public sealed partial class LocalTerrainExplorer
         {
             var lines=new string[species.Length+2];lines[0]="Potential mid-height flora · region "+region.RegionId+" · "+sample.Biome;
             for(int i=0;i<species.Length;i++)lines[i+1]=(i+1)+". "+species[i].Name+" · "+species[i].Form+" · "+species[i].HeightM.ToString("F2")+"m";
-            lines[lines.Length-1]="/midflora N: habitat, flowers/fruit, relative toxicity. Potential taxa, not a census of visible plants.";return new PlayCommandResult(true,lines);
+            lines[lines.Length-1]="/flora: habitat, flowers/fruit, relative toxicity. Potential taxa, not a census of visible plants.";return new PlayCommandResult(true,lines);
         }
-        if(words.Length!=2||!int.TryParse(words[1],out int index)||index<1||index>species.Length)return new PlayCommandResult(false,"Usage: /midflora [1-"+species.Length+"]");
+        if(words.Length!=2||!int.TryParse(words[1],out int index)||index<1||index>species.Length)return new PlayCommandResult(false,"Usage: /flora [1-"+species.Length+"]");
         var s=species[index-1];var r=s.Reproduction;
         string Hazard(double value)=>value<=0?"none generated":value<.25?"low":value<.6?"moderate":"high";
         return new PlayCommandResult(true,s.Name+" · "+s.Form+" · founder "+s.Founder+" · four structural variants",

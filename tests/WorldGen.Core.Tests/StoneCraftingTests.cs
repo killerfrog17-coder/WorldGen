@@ -11,7 +11,7 @@ static class StoneCraftingTests
         int count=0;void Check(bool ok,string message){count++;if(!ok)throw new Exception(message);}
         void Reject(Action action,string message){bool rejected=false;try{action();}catch(ArgumentException){rejected=true;}Check(rejected,message);}
         Possession Rock(string id,int variant,double mass)=>new Possession{Id=id,Kind=PossessionKind.SmallRock,Place=PossessionPlace.Ground,Position=new V(1,0,0),Variant=variant,WidthM=.14,HeightM=.1,DepthM=.12,MassKg=mass,CellsWide=2,CellsHigh=1};
-        PlayerInventory Fixture(){var inventory=PlayerInventory.Starter();inventory.Items.Add(Rock("work",3,.8));inventory.Items.Add(Rock("tool",0,.5));return inventory;}
+        PlayerInventory Fixture(){var inventory=new PlayerInventory();inventory.Items.Add(Rock("work",3,.8));inventory.Items.Add(Rock("tool",0,.5));return inventory;}
         var settings=new PlaySettings();var state=Fixture();state.Validate();
         Check(StoneCrafting.PairReason(state.Find("work"),state.Find("tool"))=="","Suitable ordinary stones can perform both roles");
         Check(StoneCrafting.PairReason(state.Find("work"),state.Find("work"))!="","Cannot strike a stone with itself");
@@ -19,7 +19,7 @@ static class StoneCraftingTests
         var thin=Rock("thin",0,.5);thin.HeightM=.01;Check(!StoneCrafting.StrikingStone(thin),"Thin shape is unsuitable for striking");
         var large=Rock("large",0,3);large.Kind=PossessionKind.LargeRock;Check(!StoneCrafting.StrikingStone(large),"Two-handed stone cannot be the handheld striker");
         var job=StoneCrafting.Start(state,"work","tool",out var reason);
-        Check(job!=null&&reason==""&&state.Items.Count==3,"Starting work does not consume or convert input stones");
+        Check(job!=null&&reason==""&&state.Items.Count==2,"Starting work does not consume or convert input stones");
         Check(state.Find("work").Name=="Small rock"&&state.Find("tool").Name=="Small rock","Neither role renames a stone");
         double originalSeconds=StoneCrafting.RealSecondsLeft(job,settings);
         Check(originalSeconds>1&&originalSeconds<15,"Default flaking cycle is visible but short at one-hour days");

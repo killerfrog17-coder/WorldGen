@@ -13,9 +13,9 @@ public sealed partial class LocalTerrainExplorer
         {
             var lines=new string[species.Length+2];lines[0]="Generated canopy lineages · region "+region.RegionId+" · "+at.Biome;
             for(int i=0;i<species.Length;i++)lines[i+1]=(i+1)+". "+species[i].Name+" · "+species[i].Form+" · "+species[i].LeafHabit+" · "+species[i].HeightM.ToString("F1")+"m";
-            lines[lines.Length-1]="/trees N: ancestry, anatomy, wood and reproduction. Potential catalogue, not a census.";return new PlayCommandResult(true,lines);
+            lines[lines.Length-1]="/flora: ancestry, anatomy, wood and reproduction. Potential catalogue, not a census.";return new PlayCommandResult(true,lines);
         }
-        if(words.Length!=2||!int.TryParse(words[1],out int index)||index<1||index>species.Length)return new PlayCommandResult(false,"Usage: /trees [1-"+species.Length+"]");
+        if(words.Length!=2||!int.TryParse(words[1],out int index)||index<1||index>species.Length)return new PlayCommandResult(false,"Usage: /flora [1-"+species.Length+"]");
         var s=species[index-1];var m=s.Morphology;var r=s.Reproduction;
         return new PlayCommandResult(true,s.Name+" · family "+s.FamilyName+" → province "+s.ProvinceId+" → region "+s.RegionId,
             s.Form+" · "+m.LeafShape+" · "+s.LeafHabit+" · "+m.BarkPattern+" bark; canopy potential "+s.HeightM.ToString("F1")+" × "+s.WidthM.ToString("F1")+"m; "+m.Strategy+" architecture, size cohorts and shared render archetypes.",

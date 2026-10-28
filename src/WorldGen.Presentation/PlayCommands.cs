@@ -28,10 +28,11 @@ namespace WorldGen.Presentation
     }
     public static class PlayCommands
     {
-        public static readonly string[] Help={"/date [get | set YYYY-MM-DD | add days] — playable seasonal date (365-day years)","/help — list commands","/time [get | set day/night/noon/midnight/sunrise/sunset/HH:mm | add hours]",ExplorerNavigation.TeleportHelp,"/weather [get | auto | clear | cloudy | overcast | rain | downpour | storm | snow | blizzard | fog] — temporary weather test","/flora [species number] — inspect generated regional flowers, herbs, ferns and fungi","/midflora [species number] — mid-height flora, habitat, flowers, fruits and relative tissue toxicity","/trees [species number] — generated ancestry, wood, crown/leaf traits and habitat"};
+        public static readonly string[] Help={"/date [get | set YYYY-MM-DD | add days] — playable seasonal date (365-day years)","/help — list commands","/time [get | set day/night/noon/midnight/sunrise/sunset/HH:mm | add hours]",ExplorerNavigation.TeleportHelp,"/weather [get | auto | clear | cloudy | overcast | rain | downpour | storm | snow | blizzard | fog] — temporary weather test","/flora [species number] - all regional trees, shrubs, herbs, ferns and fungi","/fauna [species number] - regional animal catalogue","/give <item> [count] - small rock, large rock, stone flake, bag"};
         public static string[] Complete(string input)
         {
-            string[] options=input.StartsWith("/tp ",StringComparison.OrdinalIgnoreCase)?new[]{"/tp random","/tp random land"}:input.StartsWith("/weather ",StringComparison.OrdinalIgnoreCase)?WeatherControl.Modes.Select(m=>"/weather "+m).ToArray():input.StartsWith("/time set ",StringComparison.OrdinalIgnoreCase)?new[]{"/time set day","/time set midnight","/time set night","/time set noon","/time set sunrise","/time set sunset"}:new[]{"/date","/flora","/midflora","/trees","/help","/time","/tp","/weather"};
+            string[] options=input.StartsWith("/tp ",StringComparison.OrdinalIgnoreCase)?new[]{"/tp random","/tp random land"}:input.StartsWith("/weather ",StringComparison.OrdinalIgnoreCase)?WeatherControl.Modes.Select(m=>"/weather "+m).ToArray():input.StartsWith("/time set ",StringComparison.OrdinalIgnoreCase)?new[]{"/time set day","/time set midnight","/time set night","/time set noon","/time set sunrise","/time set sunset"}:new[]{"/date","/flora","/fauna","/give","/help","/time","/tp","/weather"};
+            if(input.StartsWith("/give ",StringComparison.OrdinalIgnoreCase))options=new[]{"/give small rock","/give large rock","/give stone flake","/give bag"};
             if(input.StartsWith("/gamemode ",StringComparison.OrdinalIgnoreCase))options=new[]{"/gamemode survival","/gamemode creative","/gamemode spectator"};
             return options.Concat(new[]{"/seed","/spawn","/gamemode"}).Where(s=>s.StartsWith(input,StringComparison.OrdinalIgnoreCase)).OrderBy(s=>s,StringComparer.Ordinal).ToArray();
         }
@@ -40,7 +41,7 @@ namespace WorldGen.Presentation
             double localLongitude=longitude??play.PrimeMeridianLongitude,localHour=play.LocalSolarHour(localLongitude);
             var words=(input??"").Trim().Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);if(words.Length==0)return new PlayCommandResult(false,"Empty command. Try /help.");
             string command=words[0].ToLowerInvariant();
-            if(command=="/help")return words.Length==1?new PlayCommandResult(true,Help.Concat(new[]{"/seed — show world seed",FaunaSpawnCommands.Help,"/gamemode survival | creative | spectator - /gamemode alone reports current vitals","/spawn human [positive count] - spawn humans; /spawn clear removes command spawns"}).ToArray()):new PlayCommandResult(false,"Usage: /help");
+            if(command=="/help")return words.Length==1?new PlayCommandResult(true,Help.Concat(new[]{"/seed — show world seed",FaunaSpawnCommands.Help,"/gamemode survival | creative | spectator - /gamemode alone reports current vitals"}).ToArray()):new PlayCommandResult(false,"Usage: /help");
             if(command=="/weather")
             {
                 if(weather==null)return new PlayCommandResult(false,"Weather commands are available while exploring the world.");

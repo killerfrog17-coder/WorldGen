@@ -59,7 +59,7 @@ public sealed partial class LocalTerrainExplorer
         inventoryContext=new NearbyPossession{Item=work};inventoryMenuAt=new Vector2(Screen.width*.65f,Screen.height*.3f);yield return Image("craft-progress-paused");inventoryContext=null;
         var saved=new PlaySession{Settings=PlayerRules.Settings.Copy()};StorePlayer(saved);string json=WorldJson.Write(saved);File.WriteAllText(Path.Combine(output,"crafting-session.json"),json);var restored=WorldJson.Read<PlaySession>(json);restored.Validate();
         Check(Math.Abs(restored.Inventory.Crafts.Single().WorkSeconds-progress)<1e-8&&restored.Settings.ItemCraftingTimeMultiplier==4,"partial work and multiplier survive full-session serialization");
-        Check(MovePossession(hammer.Id,PossessionPlace.Container,autoStow:true),"tool can be stowed without losing the unfinished project");
+        Check(MovePossession(hammer.Id,PossessionPlace.Ground),"tool can be set down without losing the unfinished project");
         Check(StartInventoryKnapping(work.Id)&&ActiveItemCraft.WorkSeconds==progress,"resume retrieves the tool and retains work");
         deadline=Time.unscaledTimeAsDouble+30;while(Inventory.Crafts.Count>0&&Time.unscaledTimeAsDouble<deadline)yield return null;
         var flakes=Inventory.Items.Where(p=>p.Kind==PossessionKind.StoneFlake).ToArray();Check(flakes.Length==1&&Inventory.Crafts.Count==0,"one completed job yields exactly one physical cutting flake");

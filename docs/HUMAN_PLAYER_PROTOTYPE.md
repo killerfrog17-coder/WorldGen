@@ -49,8 +49,9 @@ player's original skin, rig, movement clips and first-person body mask stay
 unchanged. Basic two-bone arm positioning and held rock visuals are presentation
 placeholders, not detailed finger grips, pickup/stow animations or weapons.
 
-The body has zero general storage. One explicitly temporary testing bag starts
-on the back with a6x7 grid,0.6kg empty mass and a simple round placeholder visual.
+The body has zero general storage and new/legacy-without-inventory sessions start
+empty. There is no automatic starter bag. `/give bag` explicitly grants the temporary
+6x7 testing bag (0.6kg empty mass, round placeholder visual).
 It is a real item and may be removed or carried, retaining the very same contents.
 There are no belt tools or arbitrary quickbar yet:1/2 select physical hands.
 Small rocks use one hand each, large rocks reserve both. Transfers are immediate;
@@ -88,7 +89,7 @@ occlusion is future work because those props have no colliders yet.
 
 `PlayerInventory` owns unique item instances, container packing, both-hand
 exclusion, load and collected identities. The optional PlaySession field gets
-one starter bag for old saves; deep copies, JSON round trips and validation
+an empty inventory for old saves; deep copies, JSON round trips and validation
 retain the actual ownership. A deliberately removed bag is not replenished.
 Inventory and collected ground identities persist across game/simulation entry,
 save/load and respawn; death item loss is not designed yet. This is single-player
@@ -497,3 +498,15 @@ the same failure at PlaySessionTests.cs:32; this is not a new human/save regress
 and was not changed here. New camera/identity round-trip tests pass. Evidence
 is ignored under `artifacts/human-runtime`, with rejected first mask/collar
 captures retained separately from `final-review`. No FPS improvement is claimed.
+
+## Catalogue and give commands - 27 October
+
+`/flora [number]` combines trees, mid-height plants and specialist herbs/fungi
+with one regional index; `/midflora` and `/trees` are removed. `/fauna [number]`
+lists regional animals including audio-only/ecological taxa and marks local
+habitat suitability. These are potential catalogues, not rendered populations.
+The redundant human spawn help line is removed; `/spawn human` still works.
+`/give <small rock | large rock | stone flake | bag> [count]` grants physical
+items, using free hands/storage or dropping overflow. Explicit bags wear when
+the back is free. Large requests are processed over frames. No starter bag
+creation remains; existing owned bags are preserved. Nearby crafting is retained.

@@ -9,7 +9,7 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     sealed class NearbyPossession {public Possession Item;public bool Natural;public Vector3 Point;public Bounds Bounds;}
-    PlayerInventory Inventory=>PlayerRules.Inventory??(PlayerRules.Inventory=PlayerInventory.Starter());
+    PlayerInventory Inventory=>PlayerRules.Inventory??(PlayerRules.Inventory=new PlayerInventory());
     readonly HashSet<ulong> inventoryCollected=new HashSet<ulong>();
     readonly List<NearbyPossession> inventoryNearby=new List<NearbyPossession>(),inventoryMarkers=new List<NearbyPossession>();
     readonly Dictionary<string,GameObject> inventoryVisuals=new Dictionary<string,GameObject>();
@@ -159,7 +159,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateInventory()
     {
-        if(!Ready)return;InitializeInventory();
+        if(!Ready)return;InitializeInventory();UpdateGiveItems();
         if((DeathVisible||Spectating)&&inventoryOpen)SetInventoryOpen(false);
         if(DeathVisible){PauseItemCraft(ActiveItemCraft);return;}
         if(inventoryOpen||CraftWorking)RefreshInventoryNearby();UpdateStoneCrafting();
