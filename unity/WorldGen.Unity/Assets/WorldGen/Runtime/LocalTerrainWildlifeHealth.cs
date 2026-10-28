@@ -28,6 +28,7 @@ public sealed partial class LocalTerrainExplorer
         animal.MaximumHealth=ItemUseRules.HealthForMass(animal.MassKg);animal.Health=animal.MaximumHealth;
         if(wildlifeRecords.TryGetValue(animal.Spawn.Id,out var saved)&&saved.Species==profile.slug)
         {
+            animal.Manual=saved.Manual;
             animal.Health=saved.Health;animal.MaximumHealth=saved.MaximumHealth;animal.Planet=saved.Position;TerrainHandoff.Coordinates(frame,saved.Position,out animal.X,out animal.Z);
             animal.Heading=animal.TargetHeading=(float)saved.Heading;animal.CorpseHeightOffset=saved.CorpseHeightOffsetM;animal.Props.SetFloat("_Morph",(float)saved.Morph);
         }
@@ -79,6 +80,7 @@ public sealed partial class LocalTerrainExplorer
         InitializeWildlifeHealth();if(!wildlifeRecords.TryGetValue(animal.Spawn.Id,out var saved))
         {saved=new WildlifeIndividual{Id=animal.Spawn.Id,Species=animal.Spawn.Profile.slug};Wildlife.Individuals.Add(saved);wildlifeRecords.Add(saved.Id,saved);}
         saved.Position=animal.Planet;saved.Heading=animal.Heading;saved.Health=animal.Health;saved.MaximumHealth=animal.MaximumHealth;saved.Coat=animal.Coat;saved.Manual=animal.Manual;saved.LastSeenDays=PlayerRules.SolarDays;
+        saved.GroupId=animal.Spawn.GroupId;saved.GroupIndex=animal.Spawn.GroupIndex;saved.GroupSize=animal.Spawn.GroupSize;saved.Taxon=animal.Spawn.Taxon;
         saved.CorpseHeightOffsetM=animal.CorpseHeightOffset;saved.CorpseSettled=animal.Ragdoll?.Settled??false;saved.Morph=animal.Props.GetFloat("_Morph");
         saved.Parts=new[]{(int)animal.Parts.x,(int)animal.Parts.y,(int)animal.Parts.z,(int)animal.Parts.w};
         if(pose&&animal.Dead){saved.CorpsePose=new double[animal.Model.Asset.BoneCount*16];for(int i=0;i<animal.Model.Asset.BoneCount;i++)for(int j=0;j<16;j++)saved.CorpsePose[i*16+j]=animalBoneData[animal.Slot*AnimalBones+i][j];}
@@ -86,6 +88,28 @@ public sealed partial class LocalTerrainExplorer
     }
     void CaptureWildlife()
     {foreach(var animal in animals.Values)if(animal.Dead||animal.Health<animal.MaximumHealth||wildlifeRecords?.ContainsKey(animal.Spawn.Id)==true)RememberAnimal(animal,true);}
+    void MergeSavedWildlifeCandidates(List<FaunaPrototypeSpawn> candidates)
+    {
+        // Injured individuals and corpses are physical saved objects, not a new
+        // ecological population proposal. Their current location must survive
+        // season changes, group travel and the original spawn cell leaving view.
+        InitializeWildlifeHealth();var ids=new HashSet<ulong>(candidates.Select(p=>p.Id));
+        var bindings=FaunaPrototypePlanner.BindProfiles(sourceWorld.Ecology.Taxa,animalProfiles);
+        foreach(var record in Wildlife.Individuals)
+        {
+            var profile=animalProfiles.FirstOrDefault(p=>p.slug==record.Species);
+            if(profile==null||(record.Position-Position).Length*frame.RadiusM>profile.VisibleRadiusM)continue;
+            if(ids.Contains(record.Id))
+            {candidates.First(p=>p.Id==record.Id).Position=record.Position;continue;}
+            var sample=walkingPatch.Sample(record.Position);var habitat=sourceWorld.Ecology.Habitat[sample.Cell];
+            int taxon=record.Taxon>=0?record.Taxon:bindings.FirstOrDefault(p=>p.Value.slug==record.Species).Key;
+            if(!bindings.ContainsKey(taxon)||bindings[taxon].slug!=record.Species)taxon=-1;
+            uint hash=Rng.Mix((uint)record.Id^(uint)(record.Id>>32));
+            candidates.Add(new FaunaPrototypeSpawn{Id=record.Id,Hash=hash,Profile=profile,Position=record.Position,GroupHome=record.Position,GroupId=record.GroupId,GroupIndex=record.GroupIndex,GroupSize=Math.Max(1,record.GroupSize),
+                Taxon=taxon,Region=sourceWorld.Ecology.Region[sample.Cell],CoatSeed=unchecked((int)hash),GroundM=sample.ElevationM,WaterM=sample.WaterSurfaceM,
+                HeightM=profile.medium=="air"?Math.Max(.2,record.CorpseHeightOffsetM):profile.medium=="water"?-.6:0,ColdC=habitat.ColdTenthsC/10.0,Aridity=habitat.AridityMilli/1000.0});
+        }
+    }
     partial void PaintAnimalBlood(Animal animal,Vector3 point,Vector3 normal,double damage);
     partial void CaptureAnimalBlood(Animal animal,WildlifeIndividual saved);
     partial void ClearAnimalBlood(Animal animal);

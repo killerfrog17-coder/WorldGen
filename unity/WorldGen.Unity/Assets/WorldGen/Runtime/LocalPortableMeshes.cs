@@ -38,6 +38,31 @@ static partial class LocalScatterMeshes
             for(int i=0;i<count*24;i++){float a=i*Mathf.PI*2/24,c=(i+1)*Mathf.PI*2/24;Tube(new Vector3(Mathf.Cos(a)*radius,y+i*.00065f,Mathf.Sin(a)*radius),new Vector3(Mathf.Cos(c)*radius,y+(i+1)*.00065f,Mathf.Sin(c)*radius),.014f,cord,5);}
             Tube(new Vector3(radius,y,0),new Vector3(-radius,y+count*.015f,radius*.3f),.018f,cord,5);
         }
+        void AxeHead(bool adze)
+        {
+            // Broad flaked cutting edge, thick poll and convex cheeks. The axe
+            // cuts along its handle plane; an adze presents a transverse edge.
+            Vector3 P(float x,float y,float z)=>adze?new Vector3(z,y,x*1.6f):new Vector3(x,y,z);
+            Vector3 poll=P(-.46f,.84f,0),top=P(.06f,.99f,0),edgeTop=P(.5f,.94f,0),edgeMid=P(.56f,.82f,0),edgeBottom=P(.48f,.7f,0),bottom=P(-.04f,.69f,0);
+            var rim=new[]{poll,top,edgeTop,edgeMid,edgeBottom,bottom};
+            for(int side=0;side<2;side++)
+            {
+                var ridge=P(-.02f,.84f,(side==0?1:-1)*.32f);
+                for(int i=0;i<rim.Length;i++)
+                {
+                    int j=(i+1)%rim.Length;Vector3 shoulder=Vector3.Lerp((rim[i]+rim[j])*.5f,ridge,.42f);
+                    shoulder+=P(0,0,(side==0?1:-1)*.025f*Mathf.Sin(i*2.4f));
+                    void F(Vector3 a,Vector3 c,Vector3 e)
+                    {int v=b.Add(a,stone,new Vector2(a.x+.5f,(a.y-.69f)/.3f)),w=b.Add(c,stone,new Vector2(c.x+.5f,(c.y-.69f)/.3f)),q=b.Add(e,stone,new Vector2(e.x+.5f,(e.y-.69f)/.3f));if(side==0)b.Triangle(v,w,q);else b.Triangle(v,q,w);}
+                    F(rim[i],rim[j],shoulder);F(rim[i],shoulder,ridge);F(shoulder,rim[j],ridge);
+                }
+            }
+            for(int i=0;i<6;i++)
+            {
+                float t=i/5f;Vector3 a=P(-.19f,.76f+t*.15f,-.23f),c=P(-.19f,.76f+t*.15f,.23f);
+                Tube(a,P(-.32f,.73f+t*.15f,0),.012f,cord,5);Tube(c,P(-.32f,.73f+t*.15f,0),.012f,cord,5);
+            }
+        }
         void Container(bool basket,bool bark)
         {
             int sides=bark?4:28,rings=bark?4:10;
@@ -120,11 +145,13 @@ static partial class LocalScatterMeshes
                 for(int j=0;j<3;j++){float x=(j-1)*.2f;Tube(new Vector3(x,0,0),new Vector3(x,1,0),.012f,bone);for(int i=0;i<8;i++){float y=.2f+i*.08f;Quad(new Vector3(x,y,0),new Vector3(x-.16f,y+.12f,.02f),new Vector3(x,y+.08f,0),new Vector3(x+.16f,y+.12f,.02f),new Color(.74f,.65f,.43f,0));}}break;
             case PortableForm.Blade:case PortableForm.Point:case PortableForm.Chopper:Head(0,1,1,(item.Kind==PossessionKind.BonePoint||item.Kind==PossessionKind.BarbedPoint)?bone:stone,item.Kind==PossessionKind.BarbedPoint);break;
             case PortableForm.Knife:Tube(Vector3.zero,new Vector3(0,.45f,0),.22f,wood,8);Head(.4f,.6f,.9f,stone);Wrap(.38f,.26f,5);break;
-            case PortableForm.Axe:Tube(Vector3.zero,new Vector3(.12f,.9f,0),.1f,wood,8);Head(.72f,.26f,1,stone);Wrap(.73f,.25f,7);break;
+            case PortableForm.Axe:
+                for(int i=0;i<6;i++){float t=i/6f,q=(i+1)/6f;Tube(new Vector3(-.16f*t*t,t*.87f,0),new Vector3(-.16f*q*q,q*.87f,0),.09f,wood,10);}
+                AxeHead(item.Kind==PossessionKind.StoneAdze);Wrap(.73f,.17f,5);break;
             case PortableForm.Shaft:Tube(Vector3.zero,Vector3.up,.3f,wood,8);if(item.Kind==PossessionKind.NotchedShaft){Tube(new Vector3(-.16f,.9f,0),new Vector3(-.16f,1,0),.07f,wood);Tube(new Vector3(.16f,.9f,0),new Vector3(.16f,1,0),.07f,wood);}break;
             case PortableForm.Spear:Tube(Vector3.zero,new Vector3(0,.9f,0),.16f,wood,8);Head(.88f,.12f,1,item.Kind==PossessionKind.StoneTippedSpear||item.Kind==PossessionKind.LooseStoneSpear?stone:bone,item.Kind==PossessionKind.Harpoon);if(item.Kind!=PossessionKind.LooseStoneSpear)Wrap(.875f,.2f,5);break;
             case PortableForm.Arrow:
-                Tube(Vector3.zero,new Vector3(0,.94f,0),.09f,wood);if(item.Kind!=PossessionKind.ArrowShaft)Head(.92f,.08f,.65f,stone);
+                Tube(Vector3.zero,new Vector3(0,.94f,0),Mathf.Clamp(.0035f/(float)item.WidthM,.07f,.45f),wood);if(item.Kind!=PossessionKind.ArrowShaft)Head(.92f,.08f,.65f,stone);
                 if(item.Kind==PossessionKind.Arrow||item.Kind==PossessionKind.SpearDart)for(int i=0;i<3;i++){float a=i*Mathf.PI*2/3;Vector3 side=new Vector3(Mathf.Cos(a)*.45f,0,Mathf.Sin(a)*.45f);Quad(new Vector3(0,.04f,0),side+Vector3.up*.09f,side+Vector3.up*.22f,new Vector3(0,.26f,0),bone);}break;
             case PortableForm.Bow:
                 for(int i=0;i<16;i++){float a=i/16f,c=(i+1)/16f;Tube(new Vector3(.38f*Mathf.Pow(a*2-1,2),a,0),new Vector3(.38f*Mathf.Pow(c*2-1,2),c,0),.027f,wood,8);}if(item.Kind==PossessionKind.Bow)Tube(new Vector3(.38f,0,0),new Vector3(.38f,1,0),.006f,cord);Wrap(.45f,.06f,5);break;

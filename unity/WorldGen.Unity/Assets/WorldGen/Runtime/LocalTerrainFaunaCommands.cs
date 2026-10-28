@@ -25,6 +25,11 @@ public sealed partial class LocalTerrainExplorer
             var ids=animals.Where(p=>p.Value.Manual).Select(p=>p.Key).ToArray();
             long count=ids.Length+animalManualWanted.Count+animalManualRequests.Sum(b=>(long)b.Count-b.Index)+ClearSpawnedHumans();
             animalManualWanted.Clear();animalManualRequests.Clear();foreach(ulong id in ids)RemoveAnimal(id);
+            // Explicitly clearing command actors also clears their saved bodies;
+            // otherwise the next regional plan would restore them immediately.
+            var manualIds=new HashSet<ulong>(Wildlife.Individuals.Where(p=>p.Manual).Select(p=>p.Id));
+            Wildlife.Individuals.RemoveAll(p=>p.Manual);if(wildlifeRecords!=null)foreach(var id in manualIds)wildlifeRecords.Remove(id);
+            animalWanted.RemoveAll(p=>manualIds.Contains(p.Id));
             return new PlayCommandResult(true,"Cleared "+count+" command-spawned/queued animals and humans. Regional wildlife is retained.");
         }
         if(animalDisabled)return new PlayCommandResult(false,"Animals disabled by --worldgen-no-animals.");

@@ -29,13 +29,27 @@ Group goals sliced ~.75ms/frame; far pose update rates lower, populations not
 capped. Original177animal bundles/native/42human PNG/protected MPFB unchanged.
 Supplementary26.4MiB CPU collision skins stream before admission, actual posed
 triangle hits; 5807bone metadata drives articulated physics without re-rig.
-57core-use checks,747portable,75inventory/37stone/37wood/22camera previously pass.
-Latest licensed Mono player-item-use-review2 native41checks PASS, actual render
-captures, no runtime errors/exceptions or active-RT warning. Prior native38hands,
-22combat,40combined. No measured FPS claim or final-art/owner acceptance claim.
-Selected shortcut STILL player-portable-technology, final release pending.
-Latest commit3c05c2776bcc54c01a2138f384c2aeb2c9b56950 remotely verified; later
-combined source must checkpoint/push. Continue to17UTC/ownerwrap, don't stop early.
+59core-use checks,747portable,75inventory/37stone/37wood/22camera pass.
+Licensed Mono player-item-shape-review native100checks PASS: ALL63actual item
+thumbnails plus combat/save/group functions. Real contact sheet reviewed; corpse
+capture hides held spear for unobstructed view. One all-item run caught an actual
+bare arrow-shaft diameter error; geometry corrected (not threshold weakened).
+Wounded/manual/dead records now admit directly at saved location independently
+of original spawn proposals; social/taxon identity saved; /spawn clear removes
+command corpse records too. Native direct readmission/group index checks pass.
+Regional group queries beyond walking patch use async fallback patch, tested;
+no world terrain modification. Latest change trims per-frame visual candidates
+and prevents model/sidecar loads for invisible tracked groups, source checkPASS,
+native2assertions pending. No population cap. Audio settings preview cycles3
+variants/category; actual output listening remains owner pending.
+IL2CPP player-item-functionality rebuilding after shaft/distant-loading fixes;
+DO NOT select until fresh native run and preservation proof pass. Earlier first
+IL2CPP all-item run stopped on thin ArrowShaft (owned worker stopped). Current
+selected shortcut STILL portable-technology; prior package retained. No measured
+FPS or final-art/owner acceptance guarantee. Git checkpoint b677840 remotely
+verified; newer save/art/visibility fixes need checkpoint/push. Continue17UTC or
+ownerwrap, do not end task early. No running neural inference/server.
+
 World/dead-record reload/fishing/group native extension next; no older scrapped
 history/Homo work resumed. Preserve deletedprompt +two untracked deer scripts.
 Restore only known Unity build-autochanges in URPglobal/ProjectSettings/ground

@@ -11,6 +11,9 @@ namespace WorldGen.Core
         public int Coat;public int[] Parts;public bool Manual;public double[] CorpsePose;
         [System.Runtime.Serialization.OptionalField] public bool CorpseSettled;
         [System.Runtime.Serialization.OptionalField] public double CorpseHeightOffsetM,Morph;
+        [System.Runtime.Serialization.OptionalField] public ulong GroupId;
+        [System.Runtime.Serialization.OptionalField] public int GroupIndex,GroupSize;
+        [System.Runtime.Serialization.OptionalField] public int Taxon=-1;
         public bool Dead=>Health<=0;
         public WildlifeIndividual Copy(){var p=(WildlifeIndividual)MemberwiseClone();p.BloodMask=BloodMask==null?null:(byte[])BloodMask.Clone();p.Parts=Parts==null?null:(int[])Parts.Clone();p.CorpsePose=CorpsePose==null?null:(double[])CorpsePose.Clone();return p;}
         public void Validate()

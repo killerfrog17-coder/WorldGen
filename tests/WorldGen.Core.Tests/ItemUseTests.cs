@@ -48,6 +48,9 @@ static class ItemUseTests
         session.Wildlife.Groups.Add(new WildlifeGroup{Id=778,Species="wolf",Home=ground,Position=ground,Goal=ground,Intent=WildlifeIntent.Hunt,Hunger=.6,Members=5});var savedGroups=WorldJson.Read<PlaySession>(WorldJson.Write(session));savedGroups.Validate();Check(savedGroups.Wildlife.Groups[0].Intent==WildlifeIntent.Hunt&&savedGroups.Wildlife.Groups[0].Members==5,"Cheap regional groups save their actual intent and membership size");
         var identities=new System.Collections.Generic.HashSet<ulong>();var latticeKey=new ScatterKey(2,333,777,false);for(int g=0;g<520;g++)for(int m=0;m<12;m++)identities.Add(FaunaPrototypePlanner.Identity(latticeKey,14,g,m));Check(identities.Count==6240&&identities.All(id=>id!=0&&id<0x2000000000000000UL),"Population identities remain distinct beyond old group/slot limits and outside the manual namespace");
         Check(new FaunaPrototypeProfile{medium="air",lengthM=1.4,radiusM=170}.VisibleRadiusM==600&&new FaunaPrototypeProfile{tiny=true,radiusM=22}.VisibleRadiusM==22,"Large flying silhouettes retain distance while tiny ambient animals remain local");
+        Check(!WildlifeBehaviour.Describe("sea-lion",180,Food.Fish).PackHunter&&!WildlifeBehaviour.Describe("mountain-lion",60,Food.Vertebrate).PackHunter,"A name substring cannot turn sea lions and mountain lions into lion prides");
+        record.GroupId=778;record.GroupIndex=2;record.GroupSize=5;record.Taxon=17;var identitySave=WorldJson.Read<PlaySession>(WorldJson.Write(session));identitySave.Validate();
+        Check(identitySave.Wildlife.Individuals[0].GroupId==778&&identitySave.Wildlife.Individuals[0].Taxon==17&&identitySave.Wildlife.Individuals[0].GroupIndex==2,"Injured individual saves preserve their source taxon and social identity");
         Console.WriteLine("PASS "+checks+" item-use, physical launch, block and wildlife persistence checks");
     }
 }

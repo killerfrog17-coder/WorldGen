@@ -18,7 +18,10 @@ Visibility is separate: tiny animals keep their short visible radius; large
 flying animals may remain visible to 600 m, large aquatic animals to 450?1,000 m.
 These are quality/perception choices rather than count limits. Original motions
 are evaluated every frame nearby, at 20 Hz further out and 10 Hz in the distance;
-world movement remains smooth each frame.
+world movement remains smooth each frame. Distant tracked proposals are removed
+from the per-frame visual admission list, and cannot load a model or collision
+skin until visible. Regional ground queries outside the walking patch use a
+separate background-loaded patch, without changing the terrain.
 
 Resident/notable groups retain home, current position, membership, sex where
 relevant, hunger/thirst, goal and intent in saves. A planet-coordinate spatial
@@ -67,5 +70,6 @@ underground dens or hanging-bat animation system is included.
 - [Nature: V-formation flight](https://www.nature.com/articles/nature12939).
 
 The numerical thresholds and grouping ranges are gameplay approximations. The
-native test currently covers nearby deer flight and wolf pursuit/contact death,
-not universal species behaviour, bird landing or measured forest FPS.
+native tests cover nearby deer flight, wolf pursuit/contact death, retained group
+movement, restored group indexing and distant terrain-query safety. They do not
+certify universal species behaviour, bird landing or measured forest FPS.

@@ -46,7 +46,7 @@ public sealed partial class LocalTerrainExplorer
         var profiles=JsonUtility.FromJson<FaunaPrototypeCatalogue>(catalogue.text);
         if(profiles.version!=1||profiles.animals.Length!=177)throw new InvalidDataException("Visible fauna catalogue mismatch");
         animalProfiles=profiles.animals;InitializeWildlifeHealth();animalPlanner=new FaunaPrototypePlanner(sourceWorld,terrain,animalProfiles,HorizontalScale);
-        GrowAnimalPalette();animalSceneOwner=this;
+        GrowAnimalPalette();animalSceneOwner=this;MergeSavedWildlifeCandidates(animalWanted);
     }
     bool GrowAnimalPalette()
     {
@@ -67,6 +67,11 @@ public sealed partial class LocalTerrainExplorer
         }
         catch(Exception error) when(error is OutOfMemoryException||error is ArgumentException||error is InvalidOperationException)
         {buffer?.Dispose();animalAllocationRetry=Time.realtimeSinceStartupAsDouble+5;PostExplorerChat("Could not allocate more animal pose storage: "+error.Message+". Pending spawns remain queued; /spawn clear cancels them.",true);return false;}
+    }
+    FaunaPrototypeSpawn NextVisibleAnimalModel()
+    {
+        V at=Position;double radius=frame.RadiusM;
+        return animalWanted.FirstOrDefault(s=>!animalModels.ContainsKey(s.Profile.slug)&&!animalLoadFailures.Contains(s.Profile.slug)&&(s.Position-at).Length*radius<=s.Profile.VisibleRadiusM);
     }
     void UpdateAnimalFauna()
     {
@@ -92,7 +97,10 @@ public sealed partial class LocalTerrainExplorer
                 var playerAt=Position;double radius=frame.RadiusM;
                 // Share the model cache across media, rather than loading every
                 // ground species before considering nearby birds or insects.
-                RegisterWildlifeGroups(animalPlan.Result);animalWanted.Clear();animalWanted.AddRange(animalPlan.Result.OrderBy(s=>(s.Position-playerAt).Length*radius/Math.Max(1,s.Profile.VisibleRadiusM)).ThenBy(s=>s.Id));animalCandidates=animalWanted.Count;
+                RegisterWildlifeGroups(animalPlan.Result);MergeSavedWildlifeCandidates(animalPlan.Result);animalWanted.Clear();
+                // Regional records retain distant groups. Only visual candidates
+                // belong in the per-frame admission/model-loading list.
+                animalWanted.AddRange(animalPlan.Result.Where(s=>(s.Position-playerAt).Length*radius<=s.Profile.VisibleRadiusM*1.15).OrderBy(s=>(s.Position-playerAt).Length*radius/Math.Max(1,s.Profile.VisibleRadiusM)).ThenBy(s=>s.Id));animalCandidates=animalWanted.Count;
                 var ids=new HashSet<ulong>(animalWanted.Select(s=>s.Id));foreach(var animal in animals.Values)animal.Wanted=animal.Manual||ids.Contains(animal.Spawn.Id);
             }
             animalPlan=null;
@@ -120,7 +128,7 @@ public sealed partial class LocalTerrainExplorer
             }
             if(animalLoading==null&&CenterReady&&(animalManualWanted.Count>0||PendingPortableCoats||!NearTerrainPending()))
             {
-                var next=animalManualWanted.FirstOrDefault(s=>!animalModels.ContainsKey(s.Profile.slug)&&!animalLoadFailures.Contains(s.Profile.slug))??animalWanted.FirstOrDefault(s=>!animalModels.ContainsKey(s.Profile.slug)&&!animalLoadFailures.Contains(s.Profile.slug));
+                var next=animalManualWanted.FirstOrDefault(s=>!animalModels.ContainsKey(s.Profile.slug)&&!animalLoadFailures.Contains(s.Profile.slug))??NextVisibleAnimalModel();
                 var profile=animalProfiles.FirstOrDefault(p=>portableCoatWanted.Contains(p.slug)&&!animalModels.ContainsKey(p.slug)&&!animalLoadFailures.Contains(p.slug))??next?.Profile;
                 if(profile!=null)
                 {

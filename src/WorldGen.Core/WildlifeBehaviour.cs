@@ -19,8 +19,8 @@ namespace WorldGen.Core
             bool predator=(eats&Food.Vertebrate)!=0&&!Has("boar","pig","bear","rat","mouse","chicken","duck");
             var p=new WildlifeBehaviourProfile{Predator=predator,Tier=tiny?WildlifeTrackingTier.Fleeting:mass<2?WildlifeTrackingTier.Local:mass<20?WildlifeTrackingTier.Resident:WildlifeTrackingTier.Notable,
                 NoticeM=tiny?2:mass<2?12:predator?65:75,FlightM=tiny?1:mass<2?6:predator?20:35,TrackingM=tiny?35:mass<2?220:mass<20?900:2200};
-            if(Has("wolf","hunting-dog","dhole","hyena","lion")){p.PackHunter=true;p.GroupMin=3;p.GroupMax=8;p.Tier=WildlifeTrackingTier.Notable;p.TrackingM=2400;}
-            if(Has("deer","reindeer","elk","zebra","antelope","gazelle","wildebeest","buffalo","bison","sheep","goat","horse","ibex")){p.Herd=true;p.GroupMin=3;p.GroupMax=Has("zebra","wildebeest","reindeer")?18:8;p.Crepuscular=true;}
+            if(Has("wolf","hunting-dog","dhole","hyena")||Has("lion")&&!Has("sea-lion","sea lion","mountain-lion","mountain lion")){p.PackHunter=true;p.GroupMin=3;p.GroupMax=8;p.Tier=WildlifeTrackingTier.Notable;p.TrackingM=2400;}
+            if(Has("deer","reindeer","elk","zebra","antelope","gazelle","wildebeest","buffalo","bison","sheep","goat","horse","ibex","musk-ox","musk ox","cattle","mouflon","guanaco")){p.Herd=true;p.GroupMin=3;p.GroupMax=Has("zebra","wildebeest","reindeer")?18:8;p.Crepuscular=true;}
             if(Has("moose")){p.Herd=false;p.GroupMin=p.GroupMax=1;p.Defensive=true;p.DefendM=5;}
             if(Has("elk","bison","buffalo","boar","warthog","rhinoceros","hippopotamus","elephant")){p.Defensive=true;p.DefendM=Has("hippopotamus","rhinoceros","elephant")?9:4;}
             if(Has("bear")){p.Predator=Has("polar");p.Defensive=true;p.DefendM=6;p.Hibernates=Has("brown","black")||slug.StartsWith("bear");}

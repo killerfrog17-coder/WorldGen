@@ -29,3 +29,8 @@ Inventory thumbnails render actual item geometry/materials, one queued item per
 frame while the inventory is open. Surface texture reads apply to items only;
 the terrain/foliage shaders and populations are unchanged by this art pass.
 Actual runtime image review is required before calling the artwork accepted.
+
+The item forward pass now uses the same URP PBR/sky/canopy helpers as the world,
+with simple per-material roughness and no normal/mask atlas. Inventory thumbnails
+retain neutral preview lighting. This is an original procedural mesh/material
+pass, not scanned final art or a claim of Forest-level visual parity.

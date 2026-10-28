@@ -35,6 +35,7 @@ Shader "WorldGen/PortableItem"
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile _ _CLUSTER_LIGHT_LOOP
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             half4 frag(O i,FRONT_FACE_TYPE face:FRONT_FACE_SEMANTIC):SV_Target
             {
@@ -46,8 +47,15 @@ Shader "WorldGen/PortableItem"
                 if(_HasFur>.5&&i.color.a>.5)color=SAMPLE_TEXTURE2D_ARRAY(_SourceCoats,sampler_SourceCoats,lerp(_FurRect.xy,_FurRect.zw,saturate(i.uv)),_Coat).rgb;
                 half3 n=normalize(i.normal)*IS_FRONT_VFACE(face,1,-1);
                 if(_Preview>.5){half light=.45+.5*saturate(dot(n,normalize(float3(-.5,.8,-.6))));return half4(color*light,1);}
-                Light sun=GetMainLight(TransformWorldToShadowCoord(i.world));half3 ambient=VegetationAmbient(float4(.18,.2,.23,1)).rgb;
-                color*=ambient+sun.color*saturate(dot(n,sun.direction))*sun.shadowAttenuation;
+                InputData input=(InputData)0;input.positionWS=i.world;input.normalWS=n;input.viewDirectionWS=GetWorldSpaceNormalizeViewDir(i.world);
+                input.shadowCoord=TransformWorldToShadowCoord(i.world);input.bakedGI=VegetationAmbient(float4(.12,.14,.17,1)).rgb;input.shadowMask=1;
+                input.normalizedScreenSpaceUV=GetNormalizedScreenSpaceUV(i.position);
+                SurfaceData material=(SurfaceData)0;material.albedo=color;material.alpha=1;material.occlusion=1;material.normalTS=half3(0,0,1);
+                // Rough, nonmetallic natural materials. One shared albedo read;
+                // no generated per-item normal/mask textures or reflection maps.
+                material.smoothness=slot<.5?.28:slot<1.5?.16:slot<2.5?.05:slot<3.5?.1:slot<4.5?.14:slot<5.5?.24:.04;
+                if(_HasFur>.5&&i.color.a>.5)material.smoothness=.04;
+                color=WorldGenCanopyPbr(UniversalFragmentPBR(input,material).rgb,material.albedo,input.bakedGI,1,WorldGenCanopyShadow(1,i.world))+SecondaryCelestialLight(n,material.albedo);
                 return half4(ApplyPlanetAir(color,i.world,_WorldSpaceCameraPos,VegetationFogLinear(SRGBToLinear(float3(.57,.69,.76))),VegetationFogDistance(_FogDistance)),1);
             }
             ENDHLSL

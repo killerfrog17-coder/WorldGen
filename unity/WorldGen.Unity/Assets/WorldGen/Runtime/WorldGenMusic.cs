@@ -85,6 +85,10 @@ public sealed partial class WorldGenRuntime
         GUILayout.Label("Footsteps  "+Mathf.RoundToInt(LocalTerrainExplorer.FootstepVolume*100)+"%");
         float steps=GUILayout.HorizontalSlider(LocalTerrainExplorer.FootstepVolume,0,1);if(steps!=LocalTerrainExplorer.FootstepVolume)LocalTerrainExplorer.FootstepVolume=steps;
         GUILayout.Label("Tools and weapons  "+Mathf.RoundToInt(LocalTerrainExplorer.ItemEffectVolume*100)+"%");float items=GUILayout.HorizontalSlider(LocalTerrainExplorer.ItemEffectVolume,0,1);if(items!=LocalTerrainExplorer.ItemEffectVolume)LocalTerrainExplorer.ItemEffectVolume=items;
+        itemAudioPreviewCategory=GUILayout.SelectionGrid(itemAudioPreviewCategory,new[]{"Body impact","Swing","Wood impact","Bow release","Digging","Fibre handling"},3);
+        bool audioEnabled=GUI.enabled;GUI.enabled=audioEnabled&&terrainExplorer!=null;
+        if(GUILayout.Button("Preview tool sound ("+(itemAudioPreviewTake%3+1)+" / 3)"))terrainExplorer.PreviewItemEffect(new[]{"body-hit","weapon-swish","wood-chop","bow-release","soil-dig","fibre-handle"}[itemAudioPreviewCategory],itemAudioPreviewTake++);
+        GUI.enabled=audioEnabled;
         var weather=WeatherVideoOptions.Current;
         GUILayout.Label("Rain  "+Mathf.RoundToInt(weather.RainVolume*100)+"%");float rain=GUILayout.HorizontalSlider(weather.RainVolume,0,1);
         GUILayout.Label("Thunder  "+Mathf.RoundToInt(weather.ThunderVolume*100)+"%");float thunder=GUILayout.HorizontalSlider(weather.ThunderVolume,0,1);
@@ -92,6 +96,7 @@ public sealed partial class WorldGenRuntime
         DrawFaunaAudioOptions();
         GUILayout.Space(12);
     }
+    int itemAudioPreviewCategory,itemAudioPreviewTake;
     void DrawMasterVolume()
     {
         GUILayout.BeginHorizontal();GUILayout.Label("Master volume  "+Mathf.RoundToInt(masterVolume*100)+"%");

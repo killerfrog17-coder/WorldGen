@@ -54,7 +54,7 @@ The first screenshot set is useful for hit/arrow inspection but its corpse image
 does not frame the body: dedicated visual ragdoll review remains necessary.
 `combat-package-proof.json`: 578 accepted source/bundle/human/DLL hash checks.
 Core portable crafting: 747 checks across 63 item definitions / 83 contextual
-actions (includes maintenance). Core physical-use tests: 57 checks.
+actions (includes maintenance). Core physical-use tests: 59 checks.
 
 Later combined builds add tree-derived bark/branches, root-fibre digging and
 simple timed hand-line/net fishing. Fishing lands the actual whole animal as a
@@ -69,7 +69,15 @@ Owner listening/art acceptance is pending.
 
 The 40-check wildlife-review checkpoint tested deer flight, wolf pursuit and
 predation, human NPC death and nine actual model thumbnails in addition to combat.
-Latest scheduling/audio/fishing changes are awaiting the next native run.
+The combined-review2 run passed 41 checks including all eighteen mono Foley
+clips. The save-review run passed 45 checks including direct saved-corpse
+readmission, background group movement/index restoration and explicit command
+corpse clearing. No native runtime errors/exceptions or active-RT warning.
+The shape-review run passed 100 checks, including all 63 actual item thumbnails
+and asynchronous regional ground sampling beyond the walking patch. An earlier
+all-item run exposed an overly thin bare arrow shaft; its real diameter was
+corrected before the passing run. Latest distant-model admission checks are
+awaiting the final IL2CPP rerun.
 The selected user shortcut is still the preceding portable-technology build until
 the full next checkpoint is ready for review.
 
@@ -93,4 +101,4 @@ anatomical injury or bleeding-out system. Materials such as hides/bones remain
 command-supplied until processing is designed. Hide working is the existing
 abstract sequence, not a complete tanning simulation. Creative still uses real
 physical ammo/items and wear; /give supplies test resources. Item shaders are
-simple lit albedo materials, not a claim of final Forest-quality PBR artwork.
+shared rough nonmetallic PBR albedo materials, not a claim of final Forest-quality artwork.

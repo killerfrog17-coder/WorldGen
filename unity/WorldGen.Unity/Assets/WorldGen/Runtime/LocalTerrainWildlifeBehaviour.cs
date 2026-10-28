@@ -13,6 +13,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!WildlifeBehaviourEnabled||Time.unscaledTimeAsDouble<nextWildlifeIndex)return;nextWildlifeIndex=Time.unscaledTimeAsDouble+.5;
         var sample=walkingPatch.Sample(Position);wildlifeVisualCover=TreeFlora.CanopyShade(sample.Forest,Position,terrain.SourceSeed,frame.RadiusM);
+        foreach(var key in wildlifeNeighbours.Where(p=>p.Value.Count==0).Select(p=>p.Key).ToArray())wildlifeNeighbours.Remove(key);
         foreach(var list in wildlifeNeighbours.Values)list.Clear();
         foreach(var animal in animals.Values)
         {

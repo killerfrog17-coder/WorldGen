@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using WorldGen.Core;
 using WorldGen.Presentation;
@@ -19,6 +20,18 @@ public sealed partial class LocalTerrainExplorer
     void EnsureWildlifeGroupIndex()
     {double scale=1500/frame.RadiusM;if(wildlifeGroupIndexScale==scale)return;wildlifeGroupIndexScale=scale;wildlifeGroupIndex.Clear();foreach(var group in wildlifeGroups.Values)IndexWildlifeGroup(group);}
     double nextWildlifeGroupTick;bool reviewWildlifeBehaviour;
+    LocalTerrain.LocalTerrainPatch wildlifeDecisionPatch;Task<LocalTerrain.LocalTerrainPatch> wildlifeDecisionPatchWork;
+    bool TryWildlifeGround(V point,out LocalTerrainSample sample)
+    {
+        bool Covers(LocalTerrain.LocalTerrainPatch patch)=>patch!=null&&(point-patch.Center).Length*terrain.RadiusM<patch.HalfExtentM*1.3;
+        if(Covers(walkingPatch)){sample=walkingPatch.Sample(point);return true;}
+        if(wildlifeDecisionPatchWork?.IsCompleted==true)
+        {if(wildlifeDecisionPatchWork.IsCompletedSuccessfully)wildlifeDecisionPatch=wildlifeDecisionPatchWork.Result;else if(wildlifeDecisionPatchWork.IsFaulted)Debug.LogWarning("Regional wildlife ground: "+wildlifeDecisionPatchWork.Exception.GetBaseException().Message);wildlifeDecisionPatchWork=null;}
+        if(Covers(wildlifeDecisionPatch)){sample=wildlifeDecisionPatch.Sample(point);return true;}
+        if(wildlifeDecisionPatchWork==null)
+        {var at=Position;var data=terrain;double extent=3600/HorizontalScale;var token=cancellation.Token;wildlifeDecisionPatchWork=Task.Run(()=>data.Patch(at,extent),token);}
+        sample=default;return false;
+    }
     bool WildlifeBehaviourEnabled=>!inventoryReviewMode||reviewWildlifeBehaviour;
     WildlifeBehaviourProfile AnimalBehaviour(FaunaPrototypeProfile profile,int taxon=-1)
     {
@@ -73,7 +86,7 @@ public sealed partial class LocalTerrainExplorer
             if(group.Intent==WildlifeIntent.Rest||group.Intent==WildlifeIntent.Shelter)return;
             double speed=profile.walkMps*(group.Intent==WildlifeIntent.Flee?2.5:group.Intent==WildlifeIntent.Hunt?1.5:1);
             double gap=(group.Goal-group.Position).Length*radius;if(gap<1)return;V next=(group.Position+(group.Goal-group.Position)*Math.Min(1,speed*dt/gap)).Unit;
-            var sample=walkingPatch.Sample(next);bool wet=sample.Underwater||!double.IsNaN(sample.WaterSurfaceM)&&sample.WaterSurfaceM>sample.ElevationM+.05;
+            if(!TryWildlifeGround(next,out var sample))return;bool wet=sample.Underwater||!double.IsNaN(sample.WaterSurfaceM)&&sample.WaterSurfaceM>sample.ElevationM+.05;
             if(profile.medium=="ground"&&wet||profile.medium=="water"&&!wet){group.NextDecisionDays=current;return;}
             var oldKey=GroupIndexKey(group.Position);group.Position=next;var newKey=GroupIndexKey(next);if(!oldKey.Equals(newKey)){wildlifeGroupIndex[oldKey].Remove(group.Id);if(wildlifeGroupIndex[oldKey].Count==0)wildlifeGroupIndex.Remove(oldKey);IndexWildlifeGroup(group);}
     }
@@ -97,7 +110,7 @@ public sealed partial class LocalTerrainExplorer
         }
         if(group.Thirst>.45&&profile.medium=="ground")
         {
-            for(int i=0;i<16;i++){double a=i*Math.PI/8;V candidate=frame.Position(x+Math.Sin(a)*80,z+Math.Cos(a)*80);var sample=walkingPatch.Sample(candidate);if(sample.WaterKind==LocalWaterKind.None)continue;
+            for(int i=0;i<16;i++){double a=i*Math.PI/8;V candidate=frame.Position(x+Math.Sin(a)*80,z+Math.Cos(a)*80);if(!TryWildlifeGround(candidate,out var sample)||sample.WaterKind==LocalWaterKind.None)continue;
                 group.Intent=WildlifeIntent.Drink;group.Goal=frame.Position(x+Math.Sin(a)*65,z+Math.Cos(a)*65);if((group.Goal-group.Position).Length*frame.RadiusM<5)group.Thirst=Math.Max(0,group.Thirst-.6);return;}
         }
         if((group.Position-group.Home).Length*frame.RadiusM>(behaviour.PackHunter?850:300)&&group.Intent!=WildlifeIntent.Migrate)group.Goal=group.Home;

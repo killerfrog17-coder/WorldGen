@@ -87,7 +87,7 @@ public sealed partial class WorldGenRuntime
                 GUILayout.Label("INVENTORY & EQUIPMENT",SectionStyle());
                 GUILayout.Label("I / Tab: inventory. Drag items between hands, container grids and Nearby; R rotates an item while dragging. Right-click an item for available transfers.");
                 GUILayout.Label("E: pick up the aimed-at item into the right hand, then left. Q: swap held items. R: stow the right-hand item, or left if the right is empty. G: drop right then left; in inventory, drop the hovered item. B: set down the worn bag, or wear a nearby bag.");
-                GUILayout.Label("Small rocks use one hand; large rocks use both. Your body has no storage. The testing bag supplies a 6 by 7 grid; dropping it keeps its contents together. Transfers are immediate. Load includes everything actually carried.");
+                GUILayout.Label("Small rocks use one hand; large rocks use both. Your body has no storage. Worn carriers provide their own shaped grids; dropping one keeps its contents together. Transfers are immediate. Load includes everything actually carried.");
                 GUILayout.Label("Right-click a suitable stone: strike off a cutting flake using another suitable stone. Progress appears on both items; right-click to pause/resume. Moving an involved item or walking pauses work. Item crafting time is under World settings → Time & calendar.");
                 GUILayout.Label("Work automatically borrows tools and restores your previous hands. Displaced equipment uses attachments, then worn storage, then the ground. Held bags do not count as worn storage. Bows can be slung separately.");
                 GUILayout.Label("COMBAT & TOOLS",SectionStyle());

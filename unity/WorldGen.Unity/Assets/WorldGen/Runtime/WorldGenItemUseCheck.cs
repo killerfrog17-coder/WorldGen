@@ -17,9 +17,9 @@ public sealed partial class LocalTerrainExplorer
         {CancelItemCharge();ClearInventoryPhysics();foreach(var root in inventoryVisuals.Values.ToArray())DestroyInventoryVisual(root);inventoryVisuals.Clear();inventoryVisualPlaces.Clear();Inventory.Items.Clear();Inventory.Crafts.Clear();itemProjectiles.Clear();inventoryNearbyAt=0;}
         IEnumerator Image(string name,Animal focus=null)
         {
-            yield return null;if(focus!=null){var box=focus.Renderer.bounds;view.transform.position=box.center+new Vector3(2,1.7f,-2);view.transform.LookAt(box.center);}var old=view.targetTexture;var previous=RenderTexture.active;var target=new RenderTexture(1280,800,24);target.Create();view.targetTexture=target;view.Render();RenderTexture.active=target;
+            yield return null;var hidden=new List<GameObject>();if(focus!=null){var box=focus.Renderer.bounds;view.transform.position=box.center+new Vector3(2,1.7f,-2);view.transform.LookAt(box.center);foreach(var item in Inventory.Items.Where(p=>p.Place==PossessionPlace.RightHand||p.Place==PossessionPlace.LeftHand))if(inventoryVisuals.TryGetValue(item.Id,out var held)&&held.activeSelf){held.SetActive(false);hidden.Add(held);}}var old=view.targetTexture;var previous=RenderTexture.active;var target=new RenderTexture(1280,800,24);target.Create();view.targetTexture=target;view.Render();RenderTexture.active=target;
             var image=new Texture2D(1280,800,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1280,800),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());
-            RenderTexture.active=previous;view.targetTexture=old;target.Release();Destroy(target);Destroy(image);
+            RenderTexture.active=previous;view.targetTexture=old;target.Release();Destroy(target);Destroy(image);foreach(var held in hidden)held.SetActive(true);
         }
         IEnumerator Deer()
         {
@@ -62,7 +62,10 @@ public sealed partial class LocalTerrainExplorer
         yield return Image("03-ragdoll",deer);UpdateCamera();
         CaptureWildlife();var saved=WorldJson.Read<PlaySession>(WorldJson.Write(PlayerRules));saved.Validate();var dead=saved.Wildlife.Individuals.Single(p=>p.Id==deer.Spawn.Id);
         Check(dead.Dead&&dead.CorpsePose?.Length==deer.Model.Asset.BoneCount*16&&dead.BloodMask?.Length==65536,"Health, original identity, corpse pose and stain survive full save");
-        var spawn=deer.Spawn;var model=deer.Model;ulong deadId=spawn.Id;RemoveAnimal(deadId);AddAnimal(spawn,model,true);deer=animals[deadId];Check(deer.Dead&&deer.Ragdoll!=null,"Streaming the same procedural identity back in does not revive it");
+        var spawn=deer.Spawn;var model=deer.Model;ulong deadId=spawn.Id;RemoveAnimal(deadId);
+        var restoredCandidates=new List<FaunaPrototypeSpawn>();MergeSavedWildlifeCandidates(restoredCandidates);var restoredBody=restoredCandidates.Single(p=>p.Id==deadId);
+        Check((restoredBody.Position-dead.Position).Length*frame.RadiusM<.001,"Saved corpse is admitted at its current location without its original planner candidate");
+        AddAnimal(restoredBody,model);deer=animals[deadId];Check(deer.Dead&&deer.Ragdoll!=null&&deer.Manual,"Streaming the same saved identity restores its death and manual ownership");
         RemoveAnimal(deadId);ClearItems();paused=false;
         yield return Deer();var stoneTarget=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="deer"&&!a.Dead);Aim(stoneTarget,4);
         var rock=new Possession{Id="combat-test-rock",Kind=PossessionKind.SmallRock,Place=PossessionPlace.RightHand,Position=Position,WidthM=.045,HeightM=.04,DepthM=.04,MassKg=.1,CellsWide=1,CellsHigh=1,Variant=ToolStone.Encode(ToolStoneMaterial.Chert,0)};Inventory.Items.Add(rock);
@@ -84,7 +87,7 @@ public sealed partial class LocalTerrainExplorer
         worldToolWork.Done=119.999;paused=false;UpdateWorldToolWork();paused=true;Check(completed&&worldToolWork==null,"Timed world action completes");Check(savedHands.Place==PossessionPlace.RightHand,"Timed world action restores the displaced spear; actual place="+savedHands.Place);
         BeginWorldToolWork(digger,"Interrupted work",120,()=>{});CancelWorldToolWork();Check(savedHands.Place==PossessionPlace.RightHand&&Inventory.ToolWorkEquipment==null,"Interrupted gathering restores equipment and clears temporary work state");
         inventoryOpen=true;
-        foreach(var kind in new[]{PossessionKind.StoneTippedSpear,PossessionKind.HaftedKnife,PossessionKind.StoneAxe,PossessionKind.Bow,PossessionKind.HidePouch,PossessionKind.HidePack,PossessionKind.WovenBasket,PossessionKind.Cordage,PossessionKind.Fishhook})
+        foreach(var kind in PortableTechnology.Items.Select(p=>p.Kind))
         {
             var sample=PortableTechnology.Create(kind,Position);ItemThumbnail(sample);UpdateItemThumbnails();var thumbnail=itemThumbnails[ItemThumbnailKey(sample)];
             var target=RenderTexture.GetTemporary(192,192,0);var prior=RenderTexture.active;Graphics.Blit(thumbnail,target);RenderTexture.active=target;var pixels=new Texture2D(192,192,TextureFormat.RGBA32,false);pixels.ReadPixels(new Rect(0,0,192,192),0,0);pixels.Apply();
@@ -98,7 +101,19 @@ public sealed partial class LocalTerrainExplorer
         foreach(var a in new[]{hunter,wary}){a.Planet=frame.Position(a.X,a.Z);a.GroundY=Ground(a.X,a.Z);a.ThreatUntil=0;a.TargetSpeed=a.Speed=0;a.NextDecision=a.Life+1000;a.BehaviourAt=0;UpdateAnimal(a,0);}
         nextWildlifeIndex=0;IndexWildlifeNeighbours();UpdateAnimalBehaviour(hunter);Check(hunter.TargetSpeed>0&&Math.Sin(hunter.TargetHeading*Math.PI/180)>.8,"A hungry wolf pursues nearby deer rather than wandering independently");
         wary.Health=1;AnimalContactAttack(hunter,wary);Check(wary.Dead&&wary.Ragdoll!=null,"Predator contact attacks use actual animal health and ragdoll death");
+        double current=PlayerRules.SolarDays;var groupSpawn=new FaunaPrototypeSpawn{Id=99101,GroupId=991,GroupSize=5,GroupIndex=0,Profile=hunter.Spawn.Profile,Position=Position,Hash=123,Taxon=-1};
+        RegisterWildlifeGroups(new[]{groupSpawn});var tracked=wildlifeGroups[991];TerrainHandoff.Coordinates(frame,tracked.Position,out double tx,out double tz);tracked.Goal=frame.Position(tx+12,tz);tracked.Intent=WildlifeIntent.Travel;tracked.NextDecisionDays=current+1;tracked.LastSolarDays=current-1/(PlayerRules.Settings.RealMinutesPerDay*60);
+        V beforeGroup=tracked.Position;TickWildlifeGroup(tracked,current);Check((tracked.Position-beforeGroup).Length*frame.RadiusM>.01,"A background group advances without rendering or individual bone poses");
+        wildlifeGroups.Clear();wildlifeGroupIndex.Clear();RegisterWildlifeGroups(new[]{groupSpawn});Check(wildlifeGroups[991]==tracked&&wildlifeGroupIndex.Values.Any(b=>b.Contains(991)),"Saved groups rebuild their spatial index and retain their actual goal");
+        V farGround=frame.Position(motion.X+3100,motion.Z);bool farReady=TryWildlifeGround(farGround,out _);double farDeadline=Time.unscaledTimeAsDouble+20;
+        while(!farReady&&Time.unscaledTimeAsDouble<farDeadline){yield return null;farReady=TryWildlifeGround(farGround,out _);}
+        Check(farReady,"Regional wildlife ground loads asynchronously beyond the walking patch without an out-of-range terrain query");
+        var priorWanted=animalWanted.ToArray();animalWanted.Clear();var unseen=animalProfiles.First(p=>p.medium=="ground"&&!animalModels.ContainsKey(p.slug)&&!animalLoadFailures.Contains(p.slug));
+        var unseenSpawn=new FaunaPrototypeSpawn{Profile=unseen,Position=frame.Position(motion.X+unseen.VisibleRadiusM+100,motion.Z)};animalWanted.Add(unseenSpawn);
+        Check(NextVisibleAnimalModel()==null,"A tracked animal outside visual range cannot trigger mesh/texture/collision-skin loading");unseenSpawn.Position=Position;
+        Check(NextVisibleAnimalModel()==unseenSpawn,"The same animal becomes eligible for its visual model when it enters range");animalWanted.Clear();animalWanted.AddRange(priorWanted);
         if(SpawnHumans(1)>0){var npc=humanNpcs.Last();DamageHuman(npc,1000,null,Vector3.forward,10);Check(npc.Health<=0&&npc.Ragdoll!=null,"Manually spawned human NPC also supports combat death and ragdoll");}
+        ExecuteAnimalSpawnCommand("/spawn clear");Check(!Wildlife.Individuals.Any(p=>p.Manual)&&!animalWanted.Any(p=>p.Id==deadId),"Explicit spawn clearing removes saved command corpses so they cannot reappear");
         reviewWildlifeBehaviour=false;
         ClearItems();PlayerRules.Mode=GameMode.Survival;Vitals.Restore();ApplyPlayerMode();ExecuteGive(new[]{"/give","wooden","spear"});combatGuarding=true;
         double before=Vitals.Health,stamina=Vitals.Stamina;DamageHuman(humanPlayer,20,null,-view.transform.forward);Check(Vitals.Health>before-20&&Vitals.Stamina<stamina,"Facing weapon guard reduces incoming damage at a stamina cost");

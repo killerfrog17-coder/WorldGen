@@ -63,7 +63,7 @@ References consulted for implementation decisions:
 
 ## Current validation
 
-The combined item-use rules pass 57 checks; portable crafting passes 747 checks
+The combined item-use rules pass 59 checks; portable crafting passes 747 checks
 across 63 item definitions and 83 contextual actions. Separate inventory,
 stone-working, woodworking and camera suites cover the existing flow.
 
@@ -71,8 +71,9 @@ Licensed Unity builds now succeed after the owner restored activation. Earlier
 native checkpoints passed 38 automatic-equipment checks, then 22 combat checks,
 then 40 combined combat/tool/art/wildlife checks. Real render-texture captures
 were inspected; ordinary batch ScreenCapture files were black and were rejected.
-The latest audio, fish tether and wildlife scheduling changes require their own
-combined native rerun before selecting a release. Evidence and current build
+A later 100-check native run covers all 63 actual item renders plus the saved
+corpse/group/index and background ground-query fixes. The final IL2CPP package
+and most recent model-admission change still require their native rerun. Evidence and current build
 status are maintained in ITEM_USE_OVERNIGHT.md.
 
 177 original native fauna files, their render bundles, rigs and animation banks
