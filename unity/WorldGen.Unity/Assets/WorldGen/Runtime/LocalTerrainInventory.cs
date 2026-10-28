@@ -23,7 +23,7 @@ public sealed partial class LocalTerrainExplorer
     void InitializeInventory()
     {
         if(inventoryInitialized)return;inventoryInitialized=true;Inventory.Validate();
-        foreach(var id in Inventory.CollectedNatural)inventoryCollected.Add(id);foreach(var job in Inventory.Crafts)job.Running=false;scatterDirty=true;
+        foreach(var id in Inventory.CollectedNatural)inventoryCollected.Add(id);foreach(var job in Inventory.Crafts)PauseItemCraft(job);scatterDirty=true;
     }
     bool CollectedRock(ScatterInstance p)=>(p.Kind==ScatterKind.Stone||p.Kind==ScatterKind.Boulder||p.Kind==ScatterKind.Branch)&&inventoryCollected.Contains(p.Id);
     static Possession RockPossession(ScatterInstance p)
@@ -115,7 +115,8 @@ public sealed partial class LocalTerrainExplorer
         if(candidate.Natural)Inventory.Items.Add(item);
         string reason;bool moved=autoStow?Inventory.Stow(id,out reason):autoHand?Inventory.Hold(id,out reason):Inventory.Move(id,place,bag,x,y,rotated,out reason);
         if(!moved){if(candidate.Natural)Inventory.Items.Remove(item);InventoryFeedback(reason);return false;}
-        foreach(var job in Inventory.Crafts.Where(j=>PortableCrafting.Affects(j,id)))PauseItemCraft(job);
+        foreach(var job in Inventory.Crafts.Where(j=>PortableCrafting.Affects(j,id)))
+        {job.Equipment?.PreviousHands.RemoveAll(p=>p.Id==id);PauseItemCraft(job);}
         if(candidate.Natural){inventoryCollected.Add(item.NaturalId);Inventory.CollectedNatural.Add(item.NaturalId);scatterDirty=true;}
         if(place==PossessionPlace.Ground&&!autoStow&&!autoHand)
         {

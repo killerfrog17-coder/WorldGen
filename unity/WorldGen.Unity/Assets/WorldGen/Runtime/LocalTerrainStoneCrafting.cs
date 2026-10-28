@@ -23,21 +23,20 @@ public sealed partial class LocalTerrainExplorer
             .OrderByDescending(n=>n.Item.Place==PossessionPlace.RightHand||n.Item.Place==PossessionPlace.LeftHand).FirstOrDefault();
         if(tool==null){reason=action==ItemCraftAction.Flake?"Requires another suitably sized, compact stone for striking.":"Requires a usable cutting flake (at least 20% edge remaining).";return false;}
         string toolId=tool.Item.Id;
-        if(Inventory.Items.Any(p=>(p.Place==PossessionPlace.RightHand||p.Place==PossessionPlace.LeftHand)&&p.Id!=id&&p.Id!=toolId))
-        {reason="Put unrelated held items away before working.";return false;}
         var unfinished=Inventory.Crafts.FirstOrDefault(j=>j.WorkpieceId==id);
         if(unfinished!=null&&unfinished.Action!=action){reason="Finish the existing work on this piece first.";return false;}
         reason="";return true;
     }
     bool StartInventoryKnapping(string id,ItemCraftAction action=ItemCraftAction.Flake)
     {
-        RefreshInventoryNearby(true);
+        PauseItemCraft(ActiveItemCraft);RefreshInventoryNearby(true);
         if(!CraftInputs(id,out var core,out var tool,out var reason,action)){InventoryFeedback(reason);return false;}
         // Validate choices before claiming natural instances. Roll back a failed
         // preparation atomically, before touching scatter ownership or visuals.
         var backup=Inventory.Copy();
         if(core.Natural)Inventory.Items.Add(core.Item);
         if(tool.Natural)Inventory.Items.Add(tool.Item);
+        var equipment=PrepareWorkHands(new[]{core.Item.Id,tool.Item.Id});
         foreach(var p in new[]{core.Item,tool.Item}){p.Place=PossessionPlace.Ground;p.ContainerId="";}
         bool prepared=Inventory.Move(tool.Item.Id,PossessionPlace.RightHand,"",0,0,false,out reason)&&
             Inventory.Move(core.Item.Id,core.Item.Hands==1?PossessionPlace.LeftHand:PossessionPlace.Ground,"",0,0,false,out reason);
@@ -54,11 +53,11 @@ public sealed partial class LocalTerrainExplorer
         }
         var job=action==ItemCraftAction.Flake?StoneCrafting.Start(Inventory,id,tool.Item.Id,out reason):WoodCrafting.Start(Inventory,id,tool.Item.Id,action,out reason);
         if(job==null)throw new InvalidOperationException("Validated stone craft failed: "+reason);
-        inventorySelected=id;inventoryNotice="";inventoryNoticeUntil=0;inventoryNearbyAt=0;
+        job.Equipment=equipment;inventorySelected=id;inventoryNotice="";inventoryNoticeUntil=0;inventoryNearbyAt=0;
         PlayCraftSound(action);if(inventoryOpen)RenderInventoryPreview();return true;
     }
     void PauseItemCraft(ItemCraftJob job)
-    {if(job!=null)job.Running=false;if(stoneCraftVoice!=null)stoneCraftVoice.Stop();}
+    {if(job!=null){job.Running=false;RestoreWorkHands(job);}if(stoneCraftVoice!=null)stoneCraftVoice.Stop();}
     void UpdateStoneCrafting()
     {
         var job=ActiveItemCraft;if(job==null)return;
@@ -77,6 +76,7 @@ public sealed partial class LocalTerrainExplorer
         if(job.Action==ItemCraftAction.Flake){if((int)(job.Fraction*4)>previous)PlayStoneCraftImpact();}
         else if(Time.unscaledTimeAsDouble>=craftSoundAt)PlayCraftSound(job.Action);
         if(flake==null)return;
+        RestoreWorkHands(job);
         if(job.Action!=ItemCraftAction.Flake)
         {
             if(inventoryVisuals.TryGetValue(core.Id,out var oldWood)){DestroyInventoryVisual(oldWood);inventoryVisuals.Remove(core.Id);inventoryVisualPlaces.Remove(core.Id);}

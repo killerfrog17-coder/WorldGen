@@ -77,7 +77,7 @@ public sealed partial class LocalTerrainExplorer
             }
         }
         collider.center=bounds.center;collider.size=bounds.size*.94f;collider.sharedMaterial=inventoryDropMaterial;collider.enabled=true;
-        var body=root.AddComponent<Rigidbody>();body.mass=(float)item.MassKg;
+        var body=root.GetComponent<Rigidbody>();if(body==null)body=root.AddComponent<Rigidbody>();body.isKinematic=false;body.detectCollisions=true;body.mass=(float)item.MassKg;
         body.linearDamping=.1f;body.angularDamping=.55f;body.interpolation=RigidbodyInterpolation.Interpolate;
         body.collisionDetectionMode=CollisionDetectionMode.ContinuousDynamic;body.maxDepenetrationVelocity=2;
         body.linearVelocity=velocity;body.angularVelocity=new Vector3(1.1f,.4f,.7f);
@@ -99,9 +99,9 @@ public sealed partial class LocalTerrainExplorer
     void RemoveDroppedBody(string id,bool keepCollider=false)
     {
         if(inventoryDrops.TryGetValue(id,out var drop))
-        {drop.Body.collisionDetectionMode=CollisionDetectionMode.ContinuousSpeculative;drop.Body.isKinematic=true;Destroy(drop.Body);inventoryDrops.Remove(id);}
+        {drop.Body.collisionDetectionMode=CollisionDetectionMode.ContinuousSpeculative;drop.Body.isKinematic=true;drop.Body.detectCollisions=false;inventoryDrops.Remove(id);}
         if(!keepCollider&&inventoryVisuals.TryGetValue(id,out var root))
-        {var collider=root.GetComponent<BoxCollider>();if(collider!=null){collider.enabled=false;Destroy(collider);}}
+        {var collider=root.GetComponent<BoxCollider>();if(collider!=null){collider.enabled=false;}}
     }
     void EnsureDropFloors(Vector3 position,float radius,HashSet<(int,int)> used=null)
     {

@@ -1,5 +1,36 @@
 # WorldGen repository instructions
 
+OVERNIGHT ITEM FUNCTIONALITY IN PROGRESS,28October2026:
+Owner NEW scope supersedes earlier weapons-visual-only restrictions: automatic
+hand management; all existing item functions, weapon melee/throw/block, animal/
+NPC health/death and appropriate blood marks. NO skinning/butchery/processing;
+owner will supervise later. Keep current art/animations during functional pass;
+then overhaul item models/materials/white category pickup icons if time, then
+wildlife AI tiers/social/seasonal/reactive behaviour if time. Continue until at
+least NOON CDT28Oct (17:00UTC), or owner's explicit wrap-up instruction. No paid
+calls/assets, no recipe book, controls only in help, no population caps. Interpret
+duplicated hand sentence LMBright/RMBleft, contextual secondary when one occupied
+or two-hand item. Small rocks/spears throw; bones/bulky improvised objects block.
+Hand stage implemented: prior hands+borrowed locations deep-saved on jobs;
+auto worn bound cases/belts/slung bow, worn carriers only, then physical drop.
+Restore on pause/cancel/finish/load; do not undo explicit user moves. Bow gains
+append-only SlungBack slot. Items remember BoundContainerId. No held-bag auto
+storage. Same-frame rigidbody/collider removal/re-add bug fixed by reuse with
+physics disabled while carried.539portable+75inventory+37stone+37wood checks;
+44combat-rules/save checks. Mono player-item-use-hands native38functional checks
+pass; no valid batch screenshots (black), so NO visual claim. Original selected
+shortcut STILL portable-technology until larger checkpoint, not changed here.
+Unity license initially expired/no entitlement; owner restored free activation;
+normal build now succeeds. Windowed DX11 virtual-monitor resolution problem
+persists; batch native executes game checks. Supplementary177species/5807bone
+rest metadata extracted READ ONLY, all source SHA exact,57sec CPU/2threads.
+Physics/rules/health persistence foundations underway, attacks not wired yet.
+Keep original177animal bundles/native/42humanPNG/protected MPFB native exact.
+No overnight historical/Homo work resumed. New docs ITEM_FUNCTIONALITY.md.
+Preserve owner prompt deletion +two old deer scripts. GitHub progress checkpoints
+required; source validation helpers do NOT replace licensed Unity builds.
+
+
 PORTABLE PALEOLITHIC CRAFTING / NO RECIPE BOOK,27October2026:
 Owner authorizes broad rough portable tech tree, functional carriers/tools,
 weapons/fishing gear visual-only, raw hide/etc command-supplied, NO construction/

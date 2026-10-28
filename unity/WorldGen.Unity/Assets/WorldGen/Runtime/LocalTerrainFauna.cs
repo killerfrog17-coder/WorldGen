@@ -13,7 +13,7 @@ public sealed partial class LocalTerrainExplorer
 {
     const int InitialAnimalCapacity=128,AnimalBones=128;
     sealed class AnimalModel
-    {public WorldGenFaunaAsset Asset;public AssetBundle Bundle;public Material Material;public int Users;public double LastUse;}
+    {public WorldGenFaunaAsset Asset;public AssetBundle Bundle;public Material Material;public int Users;public double LastUse;public FaunaCollisionSurface Collision;}
     sealed class Animal
     {
         public FaunaPrototypeSpawn Spawn;public AnimalModel Model;public GameObject Root;public MeshRenderer Renderer;public MaterialPropertyBlock Props;
@@ -21,6 +21,7 @@ public sealed partial class LocalTerrainExplorer
         public float Heading,TargetHeading,Speed,TargetSpeed,Fade,NominalSpeed;
         public FaunaRuntimeClip Clip,OldClip;public bool Wanted=true,Manual;public Vector4 Parts;
         public V Planet;public Rng Random;
+        public double Health,MaximumHealth,MassKg,ThreatUntil,ThreatX,ThreatZ;public bool Dead=>Health<=0;public int Coat;public WorldGenFaunaRagdoll Ragdoll;public Vector3[] CollisionVertices;public int CollisionFrame=-1;
     }
     FaunaPrototypePlanner animalPlanner;
     Task<List<FaunaPrototypeSpawn>> animalPlan;LocalTerrainFrame animalPlanFrame,animalFrame;
@@ -178,11 +179,11 @@ public sealed partial class LocalTerrainExplorer
         var animal=new Animal{Spawn=spawn,Model=model,Manual=manual,Root=root,Renderer=renderer,Slot=animalSlots.Pop(),Random=rng,Props=new MaterialPropertyBlock(),
             Heading=(float)(rng.Unit()*360),Time=rng.Unit()*7,GroundY=frame.SurfaceY(spawn.Position,spawn.GroundM)};
         TerrainHandoff.Coordinates(frame,spawn.Position,out animal.X,out animal.Z);animal.HomeX=animal.X;animal.HomeZ=animal.Z;animal.Planet=spawn.Position;
-        animal.TargetHeading=animal.Heading;animal.Random=rng;
-        int coat=ChooseAnimalCoat(model.Asset,spawn);var options=model.Asset.Variations[coat].options;
+        animal.TargetHeading=animal.Heading;animal.Random=rng;InitializeAnimalHealth(animal);
+        int coat=wildlifeRecords.TryGetValue(spawn.Id,out var record)?Mathf.Clamp(record.Coat,0,model.Asset.Variations.Length-1):ChooseAnimalCoat(model.Asset,spawn);animal.Coat=coat;var options=model.Asset.Variations[coat].options;
         int option=(int)(spawn.Hash%(uint)options.Length);
         if(spawn.Profile.slug=="deer")option=(spawn.Hash&1)==0?0:1+(int)((spawn.Hash>>1)%(uint)Math.Max(1,options.Length-1));
-        var parts=options[option].parts;animal.Parts=new Vector4(parts[0],parts[1],parts[2],parts[3]);
+        var parts=options[option].parts;animal.Parts=record?.Parts?.Length==4?new Vector4(record.Parts[0],record.Parts[1],record.Parts[2],record.Parts[3]):new Vector4(parts[0],parts[1],parts[2],parts[3]);
         animal.Props.SetFloat("_Coat",coat);animal.Props.SetInt("_PaletteOffset",animal.Slot*AnimalBones);animal.Props.SetVector("_Parts",animal.Parts);
         animals.Add(spawn.Id,animal);model.Users++;model.LastUse=Time.realtimeSinceStartupAsDouble;
         DecideAnimal(animal);UpdateAnimal(animal,0);return true;
@@ -223,6 +224,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateAnimal(Animal animal,float dt)
     {
+        if(animal.Dead){UpdateAnimalCorpse(animal,dt);return;}
         var profile=animal.Spawn.Profile;animal.Life+=dt;if(animal.Life>=animal.NextDecision)DecideAnimal(animal);
         float turn=profile.tiny?200:profile.medium=="air"?65:profile.medium=="water"?45:85;
         animal.Heading=Mathf.MoveTowardsAngle(animal.Heading,animal.TargetHeading,turn*dt);
@@ -276,7 +278,7 @@ public sealed partial class LocalTerrainExplorer
     {var result=new Matrix4x4();for(int i=0;i<16;i++)result[i]=a[i]+(b[i]-a[i])*t;return result;}
     void RemoveAnimal(ulong id)
     {
-        var animal=animals[id];Destroy(animal.Root);animal.Model.Users--;animal.Model.LastUse=Time.realtimeSinceStartupAsDouble;animalSlots.Push(animal.Slot);animals.Remove(id);
+        var animal=animals[id];if(animal.Dead||animal.Health<animal.MaximumHealth||wildlifeRecords?.ContainsKey(id)==true)RememberAnimal(animal,true);if(animal.Ragdoll!=null)Destroy(animal.Ragdoll);ClearAnimalBlood(animal);Destroy(animal.Root);animal.Model.Users--;animal.Model.LastUse=Time.realtimeSinceStartupAsDouble;animalSlots.Push(animal.Slot);animals.Remove(id);
     }
     void DisposeAnimalFauna()
     {

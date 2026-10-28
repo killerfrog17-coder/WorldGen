@@ -1,0 +1,96 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+[Serializable] public sealed class FaunaPhysicsBone
+{public string name;public int parent;public float[] head,tail,rest;}
+[Serializable] public sealed class FaunaPhysicsSpecies
+{public string slug,source;public FaunaPhysicsBone[] bones;}
+[Serializable] public sealed class FaunaPhysicsCatalogue
+{public FaunaPhysicsSpecies[] species;}
+
+/// <summary>Articulates the original exported skin palette without changing its
+/// rig, weights, surface or clips. Unit-scale physics bodies drive palette deltas.</summary>
+public sealed class WorldGenFaunaRagdoll : MonoBehaviour
+{
+    sealed class Part
+    {public int Bone;public Rigidbody Body;public Matrix4x4 InverseStart;public Vector3 Velocity,Spin;}
+    readonly List<Part> parts=new List<Part>();int[] owners;Matrix4x4[] initial;
+    Transform model;GameObject physicsRoot,floor;Mesh groundMesh;Vector3 lastModelPosition;float age,quiet;bool settled,paused;
+    public int BodyCount=>parts.Count;public bool Settled=>settled;
+    static Vector3 Point(float[] p)=>new Vector3(p[0],p[1],p[2]);
+    public void Begin(Transform renderedModel,FaunaPhysicsSpecies skeleton,Matrix4x4[] palette,double mass,Vector3 velocity,Func<float,float,float> ground,bool freeze=false)
+    {
+        model=renderedModel;lastModelPosition=model.position;initial=(Matrix4x4[])palette.Clone();owners=new int[palette.Length];
+        physicsRoot=new GameObject("Wildlife corpse physics");physicsRoot.transform.SetParent(transform,false);
+        var map=new Dictionary<int,int>();float scale=model.lossyScale.x;
+        var descriptions=skeleton?.bones;int count=descriptions?.Length??0;
+        for(int i=0;i<count;i++)
+        {
+            var b=descriptions[i];float span=Vector3.Distance(Point(b.head),Point(b.tail))*scale;string name=b.name.ToLowerInvariant();
+            bool detail=name.Contains("eye")||name.Contains("ear")||name.Contains("jaw")||name.Contains("finger")||name.Contains("toe")||name.Contains("antler")||name.Contains("horn");
+            if(span<Math.Max(.008f,scale*.025f)||detail)continue;
+            Vector3 start=model.TransformPoint(palette[i].MultiplyPoint3x4(Point(b.head))),end=model.TransformPoint(palette[i].MultiplyPoint3x4(Point(b.tail)));
+            if(Vector3.Distance(start,end)<.006f)continue;
+            bool limb=name.Contains("leg")||name.Contains("arm")||name.Contains("foot")||name.Contains("paw")||name.Contains("shin")||name.Contains("fore")||name.Contains("wing")||name.Contains("tail");
+            float radius=Mathf.Clamp(span*(limb?.17f:.35f),scale*(limb?.012f:.025f),scale*(limb?.045f:.09f));
+            Add(i,start,end,radius,Math.Max(.00001,mass),map,descriptions,velocity);
+        }
+        if(parts.Count==0)
+        {
+            Vector3 center=model.position+Vector3.up*scale*.18f;
+            Add(0,center-model.forward*scale*.2f,center+model.forward*scale*.2f,Mathf.Max(.004f,scale*.12f),mass,map,null,velocity);
+        }
+        for(int i=0;i<owners.Length;i++)
+        {
+            int bone=i,guard=0;while(!map.ContainsKey(bone)&&descriptions!=null&&bone>=0&&bone<descriptions.Length&&guard++<descriptions.Length)bone=descriptions[bone].parent;
+            owners[i]=map.TryGetValue(bone,out int part)?part:0;
+        }
+        double total=parts.Sum(p=>{var c=p.Body.GetComponent<CapsuleCollider>();return c.radius*c.radius*c.height;});
+        foreach(var p in parts){var c=p.Body.GetComponent<CapsuleCollider>();p.Body.mass=(float)Math.Max(.00001,mass*c.radius*c.radius*c.height/Math.Max(1e-12,total));}
+        var colliders=physicsRoot.GetComponentsInChildren<Collider>();for(int i=0;i<colliders.Length;i++)for(int j=0;j<i;j++)Physics.IgnoreCollision(colliders[i],colliders[j]);
+        BuildGround(ground,model.position,Mathf.Max(8,scale*3));Physics.SyncTransforms();
+        if(freeze)Freeze();else if(parts.Count>0)parts[0].Body.AddForceAtPosition(model.right*(float)Math.Min(2,mass*.05),parts[0].Body.worldCenterOfMass+Vector3.up*.08f,ForceMode.Impulse);
+    }
+    void Add(int bone,Vector3 start,Vector3 end,float radius,double mass,Dictionary<int,int> map,FaunaPhysicsBone[] descriptions,Vector3 velocity)
+    {
+        var obj=new GameObject("Corpse bone "+bone);obj.transform.SetParent(physicsRoot.transform,false);obj.transform.position=(start+end)*.5f;
+        obj.transform.rotation=Quaternion.FromToRotation(Vector3.up,(end-start).normalized);
+        var capsule=obj.AddComponent<CapsuleCollider>();capsule.direction=1;capsule.radius=radius;capsule.height=Mathf.Max(radius*2,Vector3.Distance(start,end));
+        var body=obj.AddComponent<Rigidbody>();body.mass=(float)Math.Max(.00001,mass/10);body.linearDamping=.4f;body.angularDamping=1.3f;body.solverIterations=10;body.solverVelocityIterations=4;
+        body.collisionDetectionMode=CollisionDetectionMode.ContinuousSpeculative;body.maxDepenetrationVelocity=2;body.interpolation=RigidbodyInterpolation.Interpolate;body.linearVelocity=Vector3.ClampMagnitude(velocity,15);
+        int parent=descriptions==null?-1:descriptions[bone].parent,guard=0;
+        while(parent>=0&&!map.ContainsKey(parent)&&guard++<descriptions.Length)parent=descriptions[parent].parent;
+        if(map.TryGetValue(parent,out int connected))
+        {
+            var joint=obj.AddComponent<CharacterJoint>();joint.connectedBody=parts[connected].Body;joint.autoConfigureConnectedAnchor=false;
+            joint.anchor=obj.transform.InverseTransformPoint(start);joint.connectedAnchor=joint.connectedBody.transform.InverseTransformPoint(start);joint.axis=Vector3.up;joint.swingAxis=Vector3.right;
+            joint.lowTwistLimit=new SoftJointLimit{limit=-20};joint.highTwistLimit=new SoftJointLimit{limit=20};joint.swing1Limit=new SoftJointLimit{limit=65};joint.swing2Limit=new SoftJointLimit{limit=40};
+            joint.enableProjection=true;joint.projectionDistance=.025f;joint.projectionAngle=10;
+        }
+        map[bone]=parts.Count;parts.Add(new Part{Bone=bone,Body=body,InverseStart=(model.worldToLocalMatrix*body.transform.localToWorldMatrix).inverse});
+    }
+    void BuildGround(Func<float,float,float> height,Vector3 center,float span)
+    {
+        const int segments=20;var vertices=new Vector3[441];var triangles=new int[2400];int cursor=0;
+        for(int z=0;z<=segments;z++)for(int x=0;x<=segments;x++){float px=center.x-span*.5f+x*span/segments,pz=center.z-span*.5f+z*span/segments;vertices[z*21+x]=new Vector3(px,height(px,pz),pz);}
+        for(int z=0;z<segments;z++)for(int x=0;x<segments;x++){int a=z*21+x,b=a+1,c=a+21,d=c+1;triangles[cursor++]=a;triangles[cursor++]=c;triangles[cursor++]=b;triangles[cursor++]=b;triangles[cursor++]=c;triangles[cursor++]=d;}
+        groundMesh=new Mesh{name="Wildlife corpse ground"};groundMesh.vertices=vertices;groundMesh.triangles=triangles;groundMesh.RecalculateBounds();floor=new GameObject("Wildlife corpse ground");floor.transform.SetParent(physicsRoot.transform,false);floor.AddComponent<MeshCollider>().sharedMesh=groundMesh;
+    }
+    public void Synchronize(Matrix4x4[] target,int offset)
+    {
+        if(model==null||initial==null)return;Vector3 delta=model.position-lastModelPosition;
+        if(delta.sqrMagnitude>.000001f){foreach(var p in parts)p.Body.position+=delta;if(floor!=null)floor.transform.position+=delta;lastModelPosition=model.position;}
+        for(int i=0;i<initial.Length;i++){var part=parts[owners[i]];target[offset+i]=model.worldToLocalMatrix*part.Body.transform.localToWorldMatrix*part.InverseStart*initial[i];}
+    }
+    public void SetPaused(bool paused)
+    {if(settled||this.paused==paused)return;this.paused=paused;foreach(var p in parts){if(paused){p.Velocity=p.Body.linearVelocity;p.Spin=p.Body.angularVelocity;p.Body.isKinematic=true;}else{p.Body.isKinematic=false;p.Body.linearVelocity=p.Velocity;p.Body.angularVelocity=p.Spin;}}}
+    void Freeze(){settled=true;foreach(var p in parts){p.Body.linearVelocity=Vector3.zero;p.Body.angularVelocity=Vector3.zero;p.Body.isKinematic=true;}}
+    void FixedUpdate()
+    {
+        if(settled||paused)return;age+=Time.fixedDeltaTime;bool still=parts.All(p=>p.Body.IsSleeping()||p.Body.linearVelocity.sqrMagnitude<.01f&&p.Body.angularVelocity.sqrMagnitude<.05f);quiet=still?quiet+Time.fixedDeltaTime:0;
+        if(age>2&&quiet>1)Freeze();
+    }
+    void OnDestroy(){if(physicsRoot!=null){physicsRoot.SetActive(false);Destroy(physicsRoot);}if(groundMesh!=null)Destroy(groundMesh);}
+}

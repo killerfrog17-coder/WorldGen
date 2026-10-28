@@ -55,7 +55,9 @@ public sealed partial class LocalTerrainExplorer
     void PosePortableWear(GameObject root,Possession p,Transform body,Dictionary<string,Transform> bones)
     {
         root.transform.rotation=body.rotation;
-        if(p.Place==PossessionPlace.Back)
+        if(p.Place==PossessionPlace.SlungBack)
+        {root.transform.position=bones["spine_02"].position-body.forward*.23f-Vector3.up*(float)p.HeightM*.48f;root.transform.rotation=body.rotation*Quaternion.Euler(0,0,28);}
+        else if(p.Place==PossessionPlace.Back)
             root.transform.position=bones["spine_02"].position-body.forward*(.15f+(float)p.DepthM*.5f)-Vector3.up*((float)p.HeightM*.5f+.08f);
         else if(p.Place==PossessionPlace.Shoulder)
             root.transform.position=bones["spine_02"].position+body.right*.24f+body.forward*.04f-Vector3.up*.46f;

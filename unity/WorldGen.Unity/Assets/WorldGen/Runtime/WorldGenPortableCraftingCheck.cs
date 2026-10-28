@@ -22,6 +22,7 @@ public sealed partial class LocalTerrainExplorer
             while(Inventory.Crafts.Any(j=>j.WorkpieceId==primary.Id)&&Time.unscaledTimeAsDouble<deadline)yield return null;
             Check(!Inventory.Crafts.Any(j=>j.WorkpieceId==primary.Id),"Live work completes: "+recipe);Inventory.Validate();
         }
+        yield return CheckAutomaticCraftEquipment(report);
         InitializeInventory();Check(Inventory.Items.Count==0,"No starter equipment is silently granted");PlayerRules.Settings.ItemCraftingTimeMultiplier=.1;
         var fibre=Add(PossessionKind.RawFibre);var edge=Add(PossessionKind.StoneBlade);var awl=Add(PossessionKind.BoneAwl);var hide=Add(PossessionKind.RawHide,"deer");
         SetInventoryOpen(true);yield return Finish("prepare-fibres",fibre);yield return Finish("twist-cord",fibre);Check(fibre.Kind==PossessionKind.Cordage,"Raw fibres become a reusable physical binding ingredient");
@@ -32,6 +33,7 @@ public sealed partial class LocalTerrainExplorer
         Check(StartPortableCraft("hide-pouch",hide.Id)&&ActiveItemCraft.WorkSeconds==progress,"Resume preserves work");double finishDeadline=Time.unscaledTimeAsDouble+12;while(Inventory.Crafts.Count>0&&Time.unscaledTimeAsDouble<finishDeadline)yield return null;
         Check(hide.Kind==PossessionKind.HidePouch&&Inventory.Find(fibre.Id)==null&&Inventory.Find(edge.Id)!=null&&Inventory.Find(awl.Id)!=null,"Exactly the ingredients consumed; tools retained");
         Check(hide.AppearanceSpecies=="deer"&&hide.AppearanceCoat==1,"Specific animal coat survives pouch crafting");EmptyHands();
+        if(PortableTechnology.Worn(hide.Place))Check(MovePossession(hide.Id,PossessionPlace.Ground),"Automatically equipped finished pouch can be set down before fitting a belt");
         var pack=Add(PossessionKind.HidePack,"deer");var satchel=Add(PossessionKind.HideSatchel,"deer");var belt=Add(PossessionKind.FibreBelt);var knife=Add(PossessionKind.HaftedKnife);
         Check(MovePossession(pack.Id,PossessionPlace.Back)&&MovePossession(satchel.Id,PossessionPlace.Shoulder)&&MovePossession(belt.Id,PossessionPlace.Waist),"Back, shoulder and waist equipment coexist");
         Check(MovePossession(knife.Id,PossessionPlace.Container,belt.Id,0,0),"Belt actually carries a knife");Check(MovePossession(hide.Id,PossessionPlace.Container,autoStow:true),"Quick stow searches available worn carriers");

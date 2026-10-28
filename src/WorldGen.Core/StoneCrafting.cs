@@ -7,13 +7,14 @@ namespace WorldGen.Core
     public sealed class ItemCraftJob
     {
         public string WorkpieceId="",ToolId="";
+        [System.Runtime.Serialization.OptionalField] public CraftEquipmentState Equipment;
         public double WorkSeconds,RequiredSeconds;
         public bool Running;
         [System.Runtime.Serialization.OptionalField] public ItemCraftAction Action;
         public double Fraction=>Math.Max(0,Math.Min(1,WorkSeconds/RequiredSeconds));
         [System.Runtime.Serialization.OptionalField] public string RecipeId;
         [System.Runtime.Serialization.OptionalField] public System.Collections.Generic.List<string> IngredientIds,ToolIds;
-        public ItemCraftJob Copy(){var j=(ItemCraftJob)MemberwiseClone();j.IngredientIds=IngredientIds==null?null:new System.Collections.Generic.List<string>(IngredientIds);j.ToolIds=ToolIds==null?null:new System.Collections.Generic.List<string>(ToolIds);return j;}
+        public ItemCraftJob Copy(){var j=(ItemCraftJob)MemberwiseClone();j.Equipment=Equipment?.Copy();j.IngredientIds=IngredientIds==null?null:new System.Collections.Generic.List<string>(IngredientIds);j.ToolIds=ToolIds==null?null:new System.Collections.Generic.List<string>(ToolIds);return j;}
     }
     /// <summary>Ordinary stones acquire roles by properties, not by renaming or conversion.</summary>
     public static class StoneCrafting
@@ -77,6 +78,7 @@ namespace WorldGen.Core
             if(inventory.Crafts.Any(j=>j==null)||inventory.Crafts.Select(j=>j.WorkpieceId).Distinct().Count()!=inventory.Crafts.Count||inventory.Crafts.Count(j=>j.Running)>1)throw new ArgumentException("Invalid crafting projects.");
             foreach(var job in inventory.Crafts)
                 if(!Enum.IsDefined(typeof(ItemCraftAction),job.Action)||inventory.Find(job.WorkpieceId)==null||(!PortableCrafting.IsJob(job)&&(inventory.Find(job.ToolId)==null||job.WorkpieceId==job.ToolId))||!Finite(job.WorkSeconds)||!Finite(job.RequiredSeconds)||job.RequiredSeconds<=0||job.WorkSeconds<0||job.WorkSeconds>=job.RequiredSeconds)throw new ArgumentException("Invalid saved crafting progress.");
+            foreach(var job in inventory.Crafts)job.Equipment?.Validate();
             foreach(var job in inventory.Crafts.Where(PortableCrafting.IsJob))PortableCrafting.Validate(inventory,job);
         }
     }

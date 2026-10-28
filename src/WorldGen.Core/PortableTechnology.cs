@@ -66,7 +66,7 @@ namespace WorldGen.Core
             D(PossessionKind.UnfletchedArrow,"Unfletched arrow",PortableForm.Arrow,.025,.8,.012,.045),
             D(PossessionKind.Arrow,"Fletched arrow",PortableForm.Arrow,.045,.8,.025,.055,aliases:"arrow"),
             D(PossessionKind.BowStave,"Carved bow stave",PortableForm.Bow,.25,1.5,.035,.65,aliases:"bow stave"),
-            D(PossessionKind.Bow,"Self bow",PortableForm.Bow,.35,1.5,.035,.75,aliases:"bow"),
+            D(PossessionKind.Bow,"Self bow",PortableForm.Bow,.35,1.5,.035,.75,wear:PossessionPlace.SlungBack,aliases:"bow"),
             D(PossessionKind.SpearThrower,"Spear-thrower",PortableForm.Thrower,.055,.45,.035,.25,aliases:"atlatl|spear thrower"),
             D(PossessionKind.DartShaft,"Dart shaft",PortableForm.Shaft,.015,1.3,.015,.12),
             D(PossessionKind.SpearDart,"Spear-thrower dart",PortableForm.Arrow,.045,1.4,.02,.2,aliases:"dart"),
@@ -100,7 +100,7 @@ namespace WorldGen.Core
             if(p.Kind==PossessionKind.RawhideStrips)return species+" rawhide strips";
             return d.Name.StartsWith("Hide ")?species+"-hide "+d.Name.Substring(5):d.Name;
         }
-        public static bool Worn(PossessionPlace place)=>place==PossessionPlace.Back||place==PossessionPlace.Shoulder||place==PossessionPlace.Waist;
+        public static bool Worn(PossessionPlace place)=>place==PossessionPlace.Back||place==PossessionPlace.Shoulder||place==PossessionPlace.Waist||place==PossessionPlace.SlungBack;
         public static PossessionPlace? Wear(Possession p)=>p.Kind==PossessionKind.TestBag?PossessionPlace.Back:Item(p.Kind)?.Wear;
         public static bool Belt(Possession p)=>p!=null&&Item(p.Kind)?.Form==PortableForm.Belt;
         public static bool Holds(Possession bag,Possession item)
