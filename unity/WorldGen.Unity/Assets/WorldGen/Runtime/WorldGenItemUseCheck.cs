@@ -130,12 +130,28 @@ public sealed partial class LocalTerrainExplorer
             Check(pixels.GetPixels32().Count(p=>p.a>64)>100,"Actual textured model thumbnail renders: "+kind);File.WriteAllBytes(Path.Combine(output,"item-"+kind+".png"),pixels.EncodeToPNG());Destroy(pixels);RenderTexture.active=prior;RenderTexture.ReleaseTemporary(target);
         }
         inventoryOpen=false;
+        var labelOwl=animalProfiles.First(p=>p.slug=="owl");var labelledTaxon=sourceWorld.Ecology.Taxa[0];string originalTaxonLabel=labelledTaxon.Name,labelCacheKey=labelOwl.slug+"/0";
+        bool hadLabelCache=wildlifeBehaviours.TryGetValue(labelCacheKey,out var priorLabelBehaviour);
+        try
+        {
+            labelledTaxon.Name="western forest owl";wildlifeBehaviours.Remove(labelCacheKey);
+            Check(!AnimalBehaviour(labelOwl,0).Migratory,"A display-name fragment cannot turn an owl into a migratory tern");
+        }
+        finally{labelledTaxon.Name=originalTaxonLabel;if(hadLabelCache)wildlifeBehaviours[labelCacheKey]=priorLabelBehaviour;else wildlifeBehaviours.Remove(labelCacheKey);}
         ClearItems();reviewWildlifeBehaviour=true;paused=false;yield return Deer();var wary=animals.Values.First(a=>a.Manual&&!a.Dead&&a.Spawn.Profile.slug=="deer");paused=true;Aim(wary,8);wary.BehaviourAt=0;wary.ThreatUntil=0;UpdateAnimalBehaviour(wary);
         double awayX=wary.X-motion.X,awayZ=wary.Z-motion.Z;Check(wary.TargetSpeed>0&&Math.Sin(wary.TargetHeading*Math.PI/180)*awayX+Math.Cos(wary.TargetHeading*Math.PI/180)*awayZ>0,"Uninjured deer notices and flees a nearby player");
         paused=false;ExecuteAnimalSpawnCommand("/spawn wolf");double wolfDeadline=Time.unscaledTimeAsDouble+35;while(!animals.Values.Any(a=>a.Manual&&a.Spawn.Profile.slug=="wolf")&&Time.unscaledTimeAsDouble<wolfDeadline)yield return null;paused=true;
         var hunter=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="wolf");hunter.X=motion.X+80;hunter.Z=motion.Z+8;wary.X=hunter.X+3;wary.Z=hunter.Z;
         foreach(var a in new[]{hunter,wary}){a.Planet=frame.Position(a.X,a.Z);a.GroundY=Ground(a.X,a.Z);a.ThreatUntil=0;a.TargetSpeed=a.Speed=0;a.NextDecision=a.Life+1000;a.BehaviourAt=0;UpdateAnimal(a,0);}
         nextWildlifeIndex=0;IndexWildlifeNeighbours();UpdateAnimalBehaviour(hunter);Check(hunter.TargetSpeed>0&&Math.Sin(hunter.TargetHeading*Math.PI/180)>.8,"A hungry wolf pursues nearby deer rather than wandering independently");
+        wary.X=hunter.X+.3;wary.Z=hunter.Z;wary.Planet=frame.Position(wary.X,wary.Z);wary.GroundY=Ground(wary.X,wary.Z);UpdateAnimal(wary,0);
+        double unreachableHealth=wary.Health;var preyRootBefore=wary.Root.transform.localPosition;hunter.AttackAt=0;
+        try
+        {
+            wary.Root.transform.localPosition+=Vector3.up*8;AnimalContactAttack(hunter,wary);
+            Check(wary.Health==unreachableHealth&&hunter.AttackAt==0,"An animal cannot bite vertically unreachable prey or spend a contact cooldown on it");
+        }
+        finally{wary.Root.transform.localPosition=preyRootBefore;hunter.AttackAt=0;}
         wary.Health=1;AnimalContactAttack(hunter,wary);Check(wary.Dead&&wary.Ragdoll!=null,"Predator contact attacks use actual animal health and ragdoll death");
         double current=PlayerRules.SolarDays;var groupSpawn=new FaunaPrototypeSpawn{Id=99101,GroupId=991,GroupSize=5,GroupIndex=0,Profile=hunter.Spawn.Profile,Position=Position,Hash=123,Taxon=-1};
         RegisterWildlifeGroups(new[]{groupSpawn});var tracked=wildlifeGroups[991];TerrainHandoff.Coordinates(frame,tracked.Position,out double tx,out double tz);tracked.Goal=frame.Position(tx+12,tz);tracked.Intent=WildlifeIntent.Travel;tracked.NextDecisionDays=current+1;tracked.LastSolarDays=current-1/(PlayerRules.Settings.RealMinutesPerDay*60);

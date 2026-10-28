@@ -68,12 +68,13 @@ public sealed partial class LocalTerrainExplorer
             return;
         }
         Animal predator=null,prey=null;double threatDistance=double.MaxValue,preyDistance=double.MaxValue;
+        bool hungry=!wildlifeGroups.TryGetValue(animal.Spawn.GroupId,out var group)||group.Hunger>.3;
         Taxon taxon=animal.Spawn.Taxon>=0&&animal.Spawn.Taxon<sourceWorld.Ecology.Taxa.Length?sourceWorld.Ecology.Taxa[animal.Spawn.Taxon]:null;
         foreach(var other in NearbyAnimals(animal))
         {
             if(other.Dead)continue;double distance=Math.Sqrt(Math.Pow(other.X-animal.X,2)+Math.Pow(other.Z-animal.Z,2));var otherBehaviour=AnimalBehaviour(other.Spawn.Profile,other.Spawn.Taxon);
             if(otherBehaviour.Predator&&other.Spawn.Profile.slug!=profile.slug&&other.MassKg>animal.MassKg*.3&&distance<threatDistance){predator=other;threatDistance=distance;}
-            bool edible=other.Spawn.Profile.slug!=profile.slug&&WildlifeBehaviour.EdiblePrey(animal.MassKg,behaviour.PackHunter,taxon?.MinPreyKg??animal.MassKg*.015,taxon?.MaxPreyKg??0,other.MassKg);
+            bool edible=behaviour.Predator&&hungry&&other.Spawn.Profile.slug!=profile.slug&&WildlifeBehaviour.EdiblePrey(animal.MassKg,behaviour.PackHunter,taxon?.MinPreyKg??animal.MassKg*.015,taxon?.MaxPreyKg??0,other.MassKg);
             if(behaviour.Predator&&edible&&!otherBehaviour.Predator&&distance<preyDistance){prey=other;preyDistance=distance;}
         }
         if(predator!=null&&threatDistance<Math.Max(8,behaviour.FlightM)&&AnimalSight(animal,predator))
@@ -82,7 +83,6 @@ public sealed partial class LocalTerrainExplorer
             {SetAnimalTravel(animal,predator.X,predator.Z,true);if(threatDistance<Math.Max(1.2,profile.lengthM*.65))AnimalContactAttack(animal,predator);}
             else SetAnimalTravel(animal,animal.X+(animal.X-predator.X)*3,animal.Z+(animal.Z-predator.Z)*3,true);return;
         }
-        bool hungry=!wildlifeGroups.TryGetValue(animal.Spawn.GroupId,out var group)||group.Hunger>.3;
         if(prey!=null&&hungry&&preyDistance<55&&AnimalSight(animal,prey))
         {SetAnimalTravel(animal,prey.X,prey.Z,true);if(preyDistance<Math.Max(.6,profile.lengthM*.65))AnimalContactAttack(animal,prey);return;}
         if(hurt&&animal.Life<animal.ThreatUntil)
@@ -102,8 +102,28 @@ public sealed partial class LocalTerrainExplorer
         }
         if(group!=null)animal.NextDecision=Math.Max(animal.NextDecision,animal.Life+4);
     }
+    bool ReachesAnimalContact(Animal attacker,Animal prey)
+    {
+        if(attacker==null||attacker.Retired||attacker.Dead||attacker.Root==null||attacker.Renderer==null)return false;
+        Bounds targetBounds;
+        if(prey!=null)
+        {
+            if(prey.Retired||prey.Dead||prey.Root==null||prey.Renderer==null)return false;
+            targetBounds=prey.Renderer.bounds;
+        }
+        else
+        {
+            if(humanPlayer==null||humanPlayer.Root==null)return false;
+            float height=Mathf.Max(.8f,humanPlayer.Definition.EyeHeight+.12f);
+            targetBounds=new Bounds(humanPlayer.Root.transform.position+Vector3.up*height*.5f,new Vector3(height*.34f,height,height*.34f));
+        }
+        Vector3 from=attacker.Renderer.bounds.ClosestPoint(targetBounds.center),to=targetBounds.ClosestPoint(from);
+        float allowance=Mathf.Clamp((float)attacker.Spawn.Profile.lengthM*.15f,.15f,.6f);
+        return (to-from).sqrMagnitude<=allowance*allowance;
+    }
     void AnimalContactAttack(Animal attacker,Animal prey)
     {
+        if(!ReachesAnimalContact(attacker,prey))return;
         attacker.TargetSpeed=0;if(Time.unscaledTimeAsDouble<attacker.AttackAt)return;attacker.AttackAt=Time.unscaledTimeAsDouble+1.7;
         double damage=Math.Max(2,Math.Min(40,5*Math.Pow(attacker.MassKg,.3)));Vector3 direction;
         if(prey!=null)

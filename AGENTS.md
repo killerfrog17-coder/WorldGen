@@ -19,30 +19,33 @@ EXACTselectedrelease native123combat/item +13actualshorelinechecksPASS, clean
 noruntimeerrors/exceptions. Full proof578protectedasset/DLLhashes+146frozen
 runtime/shaders+177collisionpackage/sourceIDs+18audiohashesPASS. Sourcefeature
 checkpoint936e24e0bf0ed5a8a5fd37369a8e0803f6289f97alreadyPUSHED/remotelyverified;
-finalshortcut/docs/handoffLOCALcheckpointcommitpendingnow,NETWORKPUSHDEFERRED
+finalshortcut/docs/handoffLOCALcheckpoint0e8f0d9,NETWORKPUSHDEFERRED
 becauseownercompetitiveWIFIconstraint. DoNOTclaimlatesthandoffremoteuntilsync.
 
 
-LOW-LOAD FOLLOW-UP DRAFT,13:25CDT: preparedUNAPPLIED scripts/drafts/wildlife-
-contact-and-labels.patch (~7KiB). ProductionC#filesUNTOUCHED;selected123+13build
-stillmatchesfeaturecode936e24. Localtestedcheckpointtagcheckpoint/items-20261028
-points0e8f0d9(finalselectedlink/docs). DraftalignsruntimeAnimalBehaviourlookupwith
-planner(canonicalprofile.slugONLY,notconcatenateddisplayNamewhichcanreadwestern
-astern/rattlesnakeasrat). AddsAABB-based3DcontactreachguardbeforeHP/cooldown;
-currenthorizontalonlyadmissioncanhitflying/highprey. Draftalsoadds2native
-regressions(owlnamefragment,verticallyunreachableprey),movesoldpositivecontact
-fixturefrom3mtoactualbodycontact.Expectednative125IFapplied,notexecutedyet.
-`git apply --check --ignore-space-change scripts/drafts/wildlife-contact-and-
-labels.patch` PASS;ignore-space-changehandlesmixedsourceLF/CRLF. ThisisONLY
-hunk/contextvalidation,NOTC#compile/runtimetest. DO NOTclaimfixesshipped.
-WhenownerENDScompetitiveplayandheavyworkisallowed: applydraftwithsameflag,
-runfocused/nativechecks,fixifneeded,NEWpackagefolder(nooverwritingselected),
-sourcefreeze/proofs andnormalcheckpointflow. Fish-onlydietPredatorflagreviewis
-additionalNOT-IN-PATCHTODO;Food.FishdifferentfromVertebrateandbirddivingneeds
-reviewbeforeenablingnewpursuit. Birdwoodmeshesreadablebutlanding/swaynotcertified.
-Existingdocs/WILDLIFE_BEHAVIOUR recordsfollowup. Draft/docsbeingcommittedLOCALLY
-withgc/maintenanceautoDISABLED;NO GitHubpushduringcompetitiveplay. RemoteLAST
-verified936e24;selectedcheckpoint0e8f0d9anddraftcommitneedlaternetworksync.
+LOW-LOAD SOURCE FOLLOW-UP: current production source is AHEAD of selected build.
+Canonical model ID replaces appended display names in runtime behaviour lookup.
+AABB 3D contact reach guards damage/cooldown, retaining Creative encounter timing.
+Native prey min/max are respected inclusively; mass fallback only if max unknown.
+Herbivores/satisfied predators skip edible-prey checks. Drinking requires actual
+river/lake water, not ocean/dry footprint; bounded seven-step bank search replaces
+15m inland target, 1m drink arrival. Search <=16+8 probes per decision; rotated ray.
+No salinity/ice/new navigation model or herd-member drinking certification.
+14 new Core +2 native regressions WRITTEN ONLY: expected focused77/native125,
+NOT RUN/COMPILED. Selected release STILL123+13 verified; do not claim new fixes
+tested/shipped. Archived scripts/drafts/wildlife-contact-and-labels.patch has
+been superseded by explicit source edits: DO NOT APPLY AGAIN. Initial shell
+apply/copy/remove batch was rejected before execution; explicit apply_patch
+edits succeeded. No operations in the rejected batch ran.
+Local tested tag checkpoint/items-20261028 ->0e8f0d9; initial draft9da3747.
+Remote LAST verified936e24; later local checkpoints need eventual network sync.
+When competitive play ENDS: focused Core/native tests +actual bank approach,
+new package folder, freeze/proofs, then shortcut selection; never overwrite
+selected binary. Original source-freeze proof cannot match newer source now.
+Fish-only Predator flag remains TODO: aquatic pursuit/bird diving review first.
+Bird wood geometry readable; landing/sway still unverified. See WILDLIFE_BEHAVIOUR.
+No network/build/inference/test workers started. Local commits disable auto GC
+and maintenance. Preserve owner deletion/two old deer scripts as below.
 
 Taskscopeautomaticstow/borrow/restorehands;allportableitemfunctions,melee/
 physicalthrows/bow/sling/atlatl/block,animal/NPC/playerhealth/blood/ragdoll/saved
@@ -83,7 +86,8 @@ listeningacceptancepending,couldnotlistentoaudioinagenttooling. AI4trackingtiers
 savedregionalgroups/weather/season/flee/defence/predation/perchesprototype;
 no fullworldecosystem/reproduction/fullnav/FPSclaim,birdlandingnotnativecertified.
 No arbitrarypopulationcaps. All3Unityautochangesrestored. Sourceandselectedbuild
-match(onlyhandoffdocs/linkmodifiedsincefreeze). Cleanup19OLDOWNpackages14.34GiB,
+matched at tested checkpoint; later uncompiled source edits listed above.
+Cleanup19OLDOWNpackages14.34GiB,
 daily/latest3/selected/running+fallbackprotected;alllogs/images/native/source/
 saveskept. Manynewdiagnosticpackagesremain;DEFERfurthercleanupuntilcompetitive
 gameover. DoNOTdeletecurrentselected/firstfallback/nativeart/saves. DoNOTpush

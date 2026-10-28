@@ -34,8 +34,21 @@ namespace WorldGen.Core
             return p;
         }
         public static double Winter(double year,double latitude)=>Math.Cos((year-Math.Floor(year))*Math.PI*2)*(latitude>=0?1:-1);
+        // Lake salinity is not represented yet; freshwater here means actual
+        // river/lake water, never an ocean or a dry water-influence footprint.
+        public static bool DrinkingWater(LocalTerrainSample sample)
+            =>(sample.WaterKind==LocalWaterKind.River||sample.WaterKind==LocalWaterKind.Lake)&&
+              ItemUseRules.Finite(sample.ElevationM)&&ItemUseRules.Finite(sample.WaterSurfaceM)&&
+              ItemUseRules.Finite(sample.WaterMaskM)&&sample.Underwater;
         public static bool EdiblePrey(double predatorMass,bool pack,double minimum,double maximum,double preyMass)
-            =>preyMass>Math.Max(.001,minimum)&&preyMass<Math.Max(predatorMass*(pack?8:1.5),maximum);
+        {
+            if(!ItemUseRules.Finite(predatorMass)||predatorMass<=0||!ItemUseRules.Finite(preyMass)||preyMass<=0||
+                !ItemUseRules.Finite(minimum)||minimum<0||!ItemUseRules.Finite(maximum)||maximum<0)return false;
+            // Native ecological limits are actual bounds, as in Biogeography.
+            // Estimate from body/pack size only when no upper limit is supplied.
+            double upper=maximum>0?maximum:predatorMass*(pack?8:1.5);
+            return preyMass>=minimum&&preyMass<=upper;
+        }
         public static bool Dormant(WildlifeBehaviourProfile p,double year,double latitude,double nativeColdC,double temperatureC)
             =>p.Hibernates&&Math.Abs(latitude)>25&&nativeColdC<4&&temperatureC<8&&Winter(year,latitude)>.25;
         public static bool SeasonallyPresent(WildlifeBehaviourProfile p,double year,double latitude,double nativeColdC)

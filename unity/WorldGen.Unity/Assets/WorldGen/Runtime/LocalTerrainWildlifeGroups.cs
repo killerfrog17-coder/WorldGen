@@ -38,7 +38,7 @@ public sealed partial class LocalTerrainExplorer
         string key=taxon<0?profile.slug:profile.slug+"/"+taxon;if(wildlifeBehaviours.TryGetValue(key,out var result))return result;
         Taxon data=taxon>=0&&taxon<sourceWorld.Ecology.Taxa.Length?sourceWorld.Ecology.Taxa[taxon]:null;
         if(data==null){var binding=FaunaPrototypePlanner.BindProfiles(sourceWorld.Ecology.Taxa,new[]{profile});if(binding.Count>0)data=sourceWorld.Ecology.Taxa[binding.First().Key];}
-        result=WildlifeBehaviour.Describe(profile.slug+" "+(data?.Name??""),data?.MassKg??Math.Max(.0001,8*Math.Pow(profile.lengthM,3)),data?.Eats??Food.None,profile.medium=="air",profile.tiny);wildlifeBehaviours.Add(key,result);return result;
+        result=WildlifeBehaviour.Describe(profile.slug,data?.MassKg??Math.Max(.0001,8*Math.Pow(profile.lengthM,3)),data?.Eats??Food.None,profile.medium=="air",profile.tiny);wildlifeBehaviours.Add(key,result);return result;
     }
     void RegisterWildlifeGroups(IEnumerable<FaunaPrototypeSpawn> spawns)
     {
@@ -81,7 +81,7 @@ public sealed partial class LocalTerrainExplorer
             TerrainMapViewport.Degrees(group.Position,out double latitude,out _);var habitat=sourceWorld.Ecology.Habitat[terrain.NearestCell(group.Position)];
             if(WildlifeBehaviour.Dormant(behaviour,skyYear,latitude,habitat.ColdTenthsC/10.0,CurrentWeather.TemperatureC)){group.Intent=WildlifeIntent.Shelter;return;}
             group.Hunger=Math.Min(1,group.Hunger+dt/1800);group.Thirst=Math.Min(1,group.Thirst+dt/(CurrentWeather.TemperatureC>30?900:1800));
-            bool arrived=group.Intent!=WildlifeIntent.Rest&&group.Intent!=WildlifeIntent.Shelter&&(group.Goal-group.Position).Length*radius<3;if(arrived&&group.Intent==WildlifeIntent.Drink)group.Thirst=Math.Max(0,group.Thirst-.6);
+            bool arrived=group.Intent!=WildlifeIntent.Rest&&group.Intent!=WildlifeIntent.Shelter&&(group.Goal-group.Position).Length*radius<(group.Intent==WildlifeIntent.Drink?1:3);if(arrived&&group.Intent==WildlifeIntent.Drink)group.Thirst=Math.Max(0,group.Thirst-.6);
             if(current>=group.NextDecisionDays||arrived)ChooseGroupGoal(group,profile,behaviour);
             if(group.Intent==WildlifeIntent.Rest||group.Intent==WildlifeIntent.Shelter)return;
             double speed=profile.walkMps*(group.Intent==WildlifeIntent.Flee?2.5:group.Intent==WildlifeIntent.Hunt?1.5:1);
@@ -110,12 +110,36 @@ public sealed partial class LocalTerrainExplorer
         }
         if(group.Thirst>.45&&profile.medium=="ground")
         {
-            for(int i=0;i<16;i++){double a=i*Math.PI/8;V candidate=frame.Position(x+Math.Sin(a)*80,z+Math.Cos(a)*80);if(!TryWildlifeGround(candidate,out var sample)||sample.WaterKind==LocalWaterKind.None)continue;
-                group.Intent=WildlifeIntent.Drink;group.Goal=frame.Position(x+Math.Sin(a)*65,z+Math.Cos(a)*65);if((group.Goal-group.Position).Length*frame.RadiusM<5)group.Thirst=Math.Max(0,group.Thirst-.6);return;}
+            for(int i=0;i<16;i++)
+            {
+                double a=angle+i*Math.PI/8;V candidate=frame.Position(x+Math.Sin(a)*80,z+Math.Cos(a)*80);
+                if(!TryWildlifeGround(candidate,out var sample)||!WildlifeBehaviour.DrinkingWater(sample))continue;
+                // Limit shoreline refinement to one candidate per decision;
+                // a later decision rotates the search if this path is unusable.
+                if(!TryWildlifeDrinkingBank(group.Position,candidate,out var bank))break;
+                group.Intent=WildlifeIntent.Drink;group.Goal=bank;return;
+            }
         }
         if((group.Position-group.Home).Length*frame.RadiusM>(behaviour.PackHunter?850:300)&&group.Intent!=WildlifeIntent.Migrate)group.Goal=group.Home;
         else group.Goal=frame.Position(x+Math.Sin(angle)*reach,z+Math.Cos(angle)*reach);
         group.Heading=angle*Mathf.Rad2Deg;if(group.Intent==WildlifeIntent.Forage&&!behaviour.Predator)group.Hunger=Math.Max(0,group.Hunger-.08);
+    }
+    bool TryWildlifeDrinkingBank(V dry,V wet,out V bank)
+    {
+        bank=dry;
+        if(!TryWildlifeGround(dry,out var start)||start.Underwater||
+           !double.IsNaN(start.WaterSurfaceM)&&start.WaterSurfaceM>start.ElevationM+.05)return false;
+        // The candidate is already confirmed wet freshwater. Seven bounded
+        // subdivisions put a dry bank within .625 m on this 80 m search ray.
+        for(int i=0;i<7;i++)
+        {
+            V middle=(dry+wet).Unit;
+            if(!TryWildlifeGround(middle,out var sample))return false;
+            if(WildlifeBehaviour.DrinkingWater(sample))wet=middle;
+            else if(sample.Underwater||!double.IsNaN(sample.WaterSurfaceM)&&sample.WaterSurfaceM>sample.ElevationM+.05)return false;
+            else dry=middle;
+        }
+        bank=dry;return true;
     }
     V GroupMemberPosition(FaunaPrototypeSpawn spawn,WildlifeGroup group)
     {

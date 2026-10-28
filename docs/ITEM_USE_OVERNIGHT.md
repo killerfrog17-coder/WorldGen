@@ -8,6 +8,10 @@ The first item release is retained as a fallback. Heavy workers have exited.
 GitHub synchronization of this final handoff is deferred during the owner's
 competitive Minecraft session; the feature-code checkpoint is already remote.
 
+Subsequent small wildlife fixes exist in source only, ahead of this tested build.
+They have not been compiled or tested during competitive play; see
+[the wildlife follow-up](WILDLIFE_BEHAVIOUR.md#source-follow-up-after-the-tested-checkpoint--not-yet-tested-or-packaged).
+
 This update does not resume the scrapped history/building overhaul. Animal
 skinning, butchery, processing and meat drops are deliberately deferred.
 

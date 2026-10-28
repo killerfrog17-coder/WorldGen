@@ -1,3 +1,6 @@
+ARCHIVED INITIAL DRAFT: its changes are now implemented directly in source,
+with later corrections. DO NOT APPLY this patch again. See docs/WILDLIFE_BEHAVIOUR.md.
+
 --- a/unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainWildlifeGroups.cs
 +++ b/unity/WorldGen.Unity/Assets/WorldGen/Runtime/LocalTerrainWildlifeGroups.cs
 @@ -38,7 +38,7 @@

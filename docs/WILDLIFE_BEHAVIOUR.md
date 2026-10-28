@@ -74,28 +74,42 @@ native tests cover nearby deer flight, wolf pursuit/contact death, retained grou
 movement, restored group indexing and distant terrain-query safety. They do not
 certify universal species behaviour, bird landing or measured forest FPS.
 
-## Local follow-up draft after the tested checkpoint
+## Source follow-up after the tested checkpoint — not yet tested or packaged
 
-During the owner's competitive-play resource restriction, static review found
-two corrections worth preparing without rebuilding or changing the tested game:
+During the owner's competitive-play resource restriction, small local edits
+address the following static-review findings without rebuilding the game:
 
-- Runtime behaviour currently combines the canonical model ID with the display
-  name, while the spawn planner uses the canonical ID alone. That can interpret
-  `western` as `tern`, or `rattlesnake` as `rat`. The draft aligns runtime lookup
-  with the planner; display labels no longer imply a different animal family.
-- Contact attacks are admitted using horizontal proximity, without a final
-  three-dimensional reach check. The draft rejects vertically unreachable prey
-  before applying damage or spending the attack cooldown. Its player check uses
-  an approximate body volume; this is not anatomical mouth/limb collision.
+- Runtime behaviour now uses the canonical model ID, matching the spawn planner.
+  Appending arbitrary display names could read `western` as `tern`, or
+  `rattlesnake` as `rat`, changing the apparent animal family.
+- Contact attacks now require approximate three-dimensional body reach before
+  damage or cooldown. This rejects vertically unreachable prey; it is a body
+  bounds check, not anatomical mouth/limb collision. Creative player encounters
+  retain approach/cooldown behaviour without applying survival damage.
+- Prey selection respects explicit native minimum/maximum masses inclusively,
+  matching Biogeography. Body/pack-size estimates apply only to unknown upper
+  limits. Herbivores and satisfied predators skip unnecessary edible-prey checks.
+- Drinking searches reject ocean water and dry river/lake influence footprints.
+  Seven shoreline subdivisions replace the arbitrary goal 15 metres inland,
+  selecting a dry bank within about .625 m of a wet sample on an 80 m ray.
+  Drinking arrival is within 1 m; the previous threshold was 3 m. Search uses
+  at most 16 initial probes plus eight bank probes per decision, rotating the
+  search direction between decisions. This does not solve obstacle navigation,
+  lake salinity, freezing water or individual herd-member drinking positions.
 
-The unapplied draft is [wildlife-contact-and-labels.patch](../scripts/drafts/wildlife-contact-and-labels.patch).
-It also prepares native regressions for the owl-label and unreachable-prey cases,
-and moves the existing positive contact fixture into actual contact range.
-`git apply --check --ignore-space-change` passes against current source, including
-the workspace's mixed line endings. **The patch has not been applied, compiled or
-runtime tested**, and is not included in the selected 123 +13-check release.
-Resume with application and the focused/native checks only after competitive
-play ends. The tested local checkpoint is tagged `checkpoint/items-20261028`.
+The initial [patch](../scripts/drafts/wildlife-contact-and-labels.patch) is archived
+and superseded by the current source. **Do not apply it again.** Two native
+regressions cover label independence and vertically unreachable prey; the old
+positive attack fixture is moved into actual contact. Fourteen new Core checks
+cover prey limits and water classification. Expected totals are **77 focused
+item-use and 125 native checks**, not results: none of these additions has been
+compiled or run. Shoreline behaviour still needs an actual scene check.
+
+The selected release remains the previously verified **123 +13-check** package,
+tagged `checkpoint/items-20261028`; current source is ahead of it. After competitive
+play ends, compile/run the focused and native checks, inspect shore approach,
+and package into a new folder before changing the shortcut. GitHub sync is
+deferred; local checkpoints do not imply a remote backup.
 
 One further review item remains: `Food.Fish` is distinct from `Food.Vertebrate`,
 but the current predator flag only includes the latter. Before broadening it,
