@@ -12,6 +12,15 @@ Subsequent small wildlife fixes exist in source only, ahead of this tested build
 They have not been compiled or tested during competitive play; see
 [the wildlife follow-up](WILDLIFE_BEHAVIOUR.md#source-follow-up-after-the-tested-checkpoint--not-yet-tested-or-packaged).
 
+Additional source-only corrections serialize hand borrowing when switching
+between charged weapons, gathering and either crafting path. Previously, starting
+a craft during gathering could leave two actions restoring incompatible hand
+snapshots. Tool work now also cancels on survival incapacitation, matching crafting.
+Two native regression checks are written for gathering-to-crafting handoff and
+restoration of the original spear. These are unrun: the next native target is
+127 checks, while the selected release still has its verified 123. Focused Core
+target remains 77. No updated package or performance claim is implied.
+
 This update does not resume the scrapped history/building overhaul. Animal
 skinning, butchery, processing and meat drops are deliberately deferred.
 

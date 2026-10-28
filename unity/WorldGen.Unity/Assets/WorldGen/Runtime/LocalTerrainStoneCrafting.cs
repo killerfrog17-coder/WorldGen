@@ -29,7 +29,7 @@ public sealed partial class LocalTerrainExplorer
     }
     bool StartInventoryKnapping(string id,ItemCraftAction action=ItemCraftAction.Flake)
     {
-        PauseItemCraft(ActiveItemCraft);RefreshInventoryNearby(true);
+        CancelItemCharge();CancelWorldToolWork();PauseItemCraft(ActiveItemCraft);RefreshInventoryNearby(true);
         if(!CraftInputs(id,out var core,out var tool,out var reason,action)){InventoryFeedback(reason);return false;}
         // Validate choices before claiming natural instances. Roll back a failed
         // preparation atomically, before touching scatter ownership or visuals.

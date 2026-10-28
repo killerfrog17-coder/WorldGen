@@ -31,7 +31,7 @@ Herbivores/satisfied predators skip edible-prey checks. Drinking requires actual
 river/lake water, not ocean/dry footprint; bounded seven-step bank search replaces
 15m inland target, 1m drink arrival. Search <=16+8 probes per decision; rotated ray.
 No salinity/ice/new navigation model or herd-member drinking certification.
-14 new Core +2 native regressions WRITTEN ONLY: expected focused77/native125,
+14 new Core +4 native regressions WRITTEN ONLY: expected focused77/native127,
 NOT RUN/COMPILED. Selected release STILL123+13 verified; do not claim new fixes
 tested/shipped. Archived scripts/drafts/wildlife-contact-and-labels.patch has
 been superseded by explicit source edits: DO NOT APPLY AGAIN. Initial shell
@@ -46,6 +46,12 @@ Fish-only Predator flag remains TODO: aquatic pursuit/bird diving review first.
 Bird wood geometry readable; landing/sway still unverified. See WILDLIFE_BEHAVIOUR.
 No network/build/inference/test workers started. Local commits disable auto GC
 and maintenance. Preserve owner deletion/two old deer scripts as below.
+Later light review: crafting/tool entry points cancel charged weapons and prior
+world tool work before capturing hands. Fixes competing restore snapshots when
+switching from digging/fishing to crafting. World tool work also cancels on
+Survival incapacitation. Two new native handoff/original-spear checks WRITTEN,
+UNRUN (included in127 above). Local wildlife source checkpoint70c7b06; subsequent
+handoff edits are source-only too. No selected package/shortcut changes.
 
 Taskscopeautomaticstow/borrow/restorehands;allportableitemfunctions,melee/
 physicalthrows/bow/sling/atlatl/block,animal/NPC/playerhealth/blood/ragdoll/saved

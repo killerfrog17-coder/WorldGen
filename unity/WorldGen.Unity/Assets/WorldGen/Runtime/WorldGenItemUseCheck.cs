@@ -122,6 +122,11 @@ public sealed partial class LocalTerrainExplorer
         BeginWorldToolWork(digger,"Controlled tool-work check",120,()=>completed=true);Check(worldToolWork!=null&&savedHands.Place==PossessionPlace.Ground&&digger.Place==PossessionPlace.RightHand,"World tool work borrows occupied hands without extra storage");
         worldToolWork.Done=119.999;paused=false;UpdateWorldToolWork();paused=true;Check(completed&&worldToolWork==null,"Timed world action completes");Check(savedHands.Place==PossessionPlace.RightHand,"Timed world action restores the displaced spear; actual place="+savedHands.Place);
         BeginWorldToolWork(digger,"Interrupted work",120,()=>{});CancelWorldToolWork();Check(savedHands.Place==PossessionPlace.RightHand&&Inventory.ToolWorkEquipment==null,"Interrupted gathering restores equipment and clears temporary work state");
+        var switchFibre=PortableTechnology.Create(PossessionKind.RawFibre,Position);Inventory.Items.Add(switchFibre);SetCraftWorkArea(switchFibre);bool gatheringCancelled=false;
+        BeginWorldToolWork(digger,"Switching to crafting",120,()=>{},()=>gatheringCancelled=true);
+        Check(StartPortableCraft("prepare-fibres",switchFibre.Id)&&gatheringCancelled&&worldToolWork==null&&Inventory.ToolWorkEquipment==null,"Starting a craft cancels gathering before borrowing hands again");
+        CancelItemCraft(ActiveItemCraft);
+        Check(savedHands.Place==PossessionPlace.RightHand,"Cancelling the replacement craft restores the original spear, not the borrowed digging stick");
         inventoryOpen=true;
         foreach(var kind in PortableTechnology.Items.Select(p=>p.Kind))
         {

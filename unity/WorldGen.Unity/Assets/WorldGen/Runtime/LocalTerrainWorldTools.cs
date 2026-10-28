@@ -19,7 +19,7 @@ public sealed partial class LocalTerrainExplorer
     string GroundWorkKey(V position)=>"ground-"+Math.Round(position.X*1000000)+"-"+Math.Round(position.Y*1000000)+"-"+Math.Round(position.Z*1000000);
     void BeginWorldToolWork(Possession tool,string label,double seconds,Action complete,Action cancelled=null)
     {
-        CancelWorldToolWork();PauseItemCraft(ActiveItemCraft);var equipment=PrepareWorkHands(new[]{tool.Id});
+        CancelItemCharge();CancelWorldToolWork();PauseItemCraft(ActiveItemCraft);var equipment=PrepareWorkHands(new[]{tool.Id});
         if(!Inventory.Move(tool.Id,PossessionPlace.RightHand,"",0,0,false,out var reason)){RestoreWorkHands(new ItemCraftJob{Equipment=equipment});InventoryFeedback(reason);return;}
         RemoveDroppedBody(tool.Id);Inventory.ToolWorkEquipment=equipment;worldToolWork=new WorldToolWork{Tool=tool,Label=label,X=motion.X,Z=motion.Z,Required=seconds,Equipment=equipment,Complete=complete,Cancelled=cancelled};
         InventoryFeedback(label+"...");PlayItemEffect(label.StartsWith("Digging",StringComparison.Ordinal)?"soil-dig":"fibre-handle",view.transform.position,.4f,true);craftSoundAt=Time.unscaledTimeAsDouble+1;
@@ -31,7 +31,7 @@ public sealed partial class LocalTerrainExplorer
         var work=worldToolWork;if(work==null)return;
         if(work.Line!=null&&work.Fish?.Root!=null)
         {var start=view.transform.TransformPoint(new Vector3(.23f,-.28f,.55f));var end=work.Fish.Renderer.bounds.center;for(int i=0;i<6;i++){float t=i/5f;work.Line.SetPosition(i,Vector3.Lerp(start,end,t)-Vector3.up*(.2f*t*(1-t)));}}
-        if(DeathVisible||Spectating||Inventory.Find(work.Tool.Id)!=work.Tool||work.Tool.Place!=PossessionPlace.RightHand||Math.Pow(motion.X-work.X,2)+Math.Pow(motion.Z-work.Z,2)>.2)
+        if(DeathVisible||Spectating||SurvivalActive&&Vitals.Incapacitated||Inventory.Find(work.Tool.Id)!=work.Tool||work.Tool.Place!=PossessionPlace.RightHand||Math.Pow(motion.X-work.X,2)+Math.Pow(motion.Z-work.Z,2)>.2)
         {if(inventoryReviewMode)Debug.Log("WORLD TOOL INTERRUPT death="+DeathVisible+" spectator="+Spectating+" sameTool="+(Inventory.Find(work.Tool.Id)==work.Tool)+" place="+work.Tool.Place+" moved="+Math.Sqrt(Math.Pow(motion.X-work.X,2)+Math.Pow(motion.Z-work.Z,2)));CancelWorldToolWork();return;}
         if(paused||mapOpen||ecologyOpen||chatOpen||!Ready||!Application.isFocused&&!inventoryReviewMode)return;
         if(!SpendCombatStamina(Math.Min(.25,Time.unscaledDeltaTime)*.5)){CancelWorldToolWork();return;}

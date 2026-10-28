@@ -26,7 +26,7 @@ public sealed partial class LocalTerrainExplorer
     bool StartPortableCraft(string recipeId,string primaryId=null)
     {
         var recipe=PortableCrafting.Recipe(recipeId);if(recipe==null)return false;
-        PauseItemCraft(ActiveItemCraft);RefreshInventoryNearby(true);
+        CancelItemCharge();CancelWorldToolWork();PauseItemCraft(ActiveItemCraft);RefreshInventoryNearby(true);
         if(!PortablePlan(recipe,primaryId,out var plan,out var reason)){InventoryFeedback(reason);return false;}
         var involved=new HashSet<string>(plan.Ingredients.Concat(plan.Tools));
         var before=Inventory.Copy();var candidates=CraftAccessible().ToDictionary(p=>p.Id,p=>p);var naturals=inventoryNearby.Where(n=>n.Natural&&involved.Contains(n.Item.Id)).ToArray();
