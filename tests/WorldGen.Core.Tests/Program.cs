@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--fallen-branches-only")){FallenBranchTests.Run();return;}
 if(args.Contains("--woodworking-only")){WoodCraftingTests.Run();return;}
 if(args.Contains("--stone-crafting-only")){StoneCraftingTests.Run();return;}
 if(args.Contains("--player-inventory-only")){PlayerInventoryTests.Run();return;}

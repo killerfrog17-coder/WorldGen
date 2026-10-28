@@ -1,5 +1,25 @@
 # WorldGen repository instructions
 
+TREE-DERIVED FALLEN BRANCHES,27October2026:
+Owner wants denser woody litter, ~95% from actual trees/~5% wooded background.
+Replaces old habitat-only detailchannel2 with separate stable detailchannels4/5.
+Bounded8x8 proposals use SAME canonical TryTree planting predicate/cache via
+TryFaunaTree; broad/needle crowns only, yield scales with tree height/width.
+Parented pieces placed within6.25m of actual root; terrain/water/slope checks
+retained. Background ~1per19accepted parented pieces plus tiny gap allowance,
+wooded potential only. Ratio approximate, not a per-tile quota. Render quality/
+LOD toggles do not delete resource sources. Other rocks/plants/trees unchanged.
+2721focused checks pass:936branches/25forest tiles,890tree-derived=95.1%, actual
+parent identity/proximity, repeatability, adjacentIDs, no desert litter/world
+mutation. No native gameplay/render/FPS run; owner actively available.
+player-tree-branches Mono fast iteration build, previous woodworking kept.
+No new art/resources/recipes, no chopping/branch regeneration. Newly placed
+branch IDs change; existing owned pieces/tombstones preserved. Source checkpoint
+artifacts/source-checkpoints/tree-branches-20261027, proof artifacts/tree-branches.
+Protect578input/art hashes, push+remoteverify; preserve prompt deletion/deer files.
+Next recommended, NOT yet authorized/implemented: flake retouch, then fibres/
+cordage for hafting and carrying gear. Keep items-first progression.
+
 WOODWORKING / IDENTIFIABLE TOOLSTONE / RIGHT-FIRST HANDS,27October2026:
 Owner authorizes next resource/woodworking update; explicitly wants much more
 usable stone for compressed60min day, not punitive geological scarcity. New

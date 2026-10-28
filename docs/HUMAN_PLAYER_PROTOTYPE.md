@@ -526,12 +526,22 @@ creation remains; existing owned bags are preserved. Nearby crafting is retained
 
 ## Branches and basic woodworking - 27 October
 
-Fallen branches use a separate stable detail-scatter channel, with habitat-dependent
-availability in woody environments, no steep-cliff/water placement and the shared
-ownership tombstones. They retain actual length/diameter, shape/straightness and
-soundness. Supply is deliberately sparse rather than another blanket of ground
-clutter. Instance bounds/scales use rod dimensions; carried rods and pointed tools
-use dedicated small meshes. Existing tree/animal/human sources stay unchanged.
+Fallen branches now use stable detail-scatter channels4/5, with much denser
+supply around actual broad/needle-crowned tree placements.64 bounded candidates
+per64m patch consult the same canonical planting predicate/cache as visible trees;
+larger trees have higher yield, saplings less. Palms/tree ferns/succulents do not
+shed these woody branches. Approximately95% originate within6.25m of real tree
+roots; about5% form general woodland litter. Background count follows accepted
+parented pieces (roughly1:19) with a small forest-gap allowance. Terrain/water/
+slope constraints can change the exact local ratio. Graphics tree-density/LOD
+options do not remove underlying resource sources. No new per-frame tree census.
+
+Pieces retain actual length/diameter, shape/straightness and soundness. Instance
+bounds/scales use rod dimensions; carrying/drop/ownership and craft visuals stay
+unchanged. New placement IDs replace the old sparse habitat-only channel; already
+owned pieces and collected-ID tombstones remain saved. No litter regeneration or
+live branch shedding/tree chopping yet. Existing trees/rocks/plants retain their
+original planting/identity rules; no human/animal/native source changes.
 
 Right-click a branch with a usable cutting flake available: **Trim branch** makes
 that same instance a trimmed pole. **Strip bark** is optional and exposes lighter

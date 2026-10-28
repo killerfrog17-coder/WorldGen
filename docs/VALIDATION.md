@@ -1,5 +1,21 @@
 # Version 3 validation evidence
 
+## Tree-derived fallen branches - 27 October 2026
+
+2721 focused branch checks pass across25 wooded detail tiles:936 pieces,890
+from canonical admitted trees (95.1%). Each parent-derived piece reconstructs
+a real tree identity and lies within6.251m; revisit positions/traits/IDs exact,
+no adjacent duplicate IDs, no desert branches or saved-world mutation. Supply
+exceeds the old sparse habitat-only layout. This is a controlled forest fixture,
+not an all-biome density guarantee. Ratio is approximate after habitat/slope/
+water rejection. Sources are independent of render-density settings.
+
+Bounded8x8 parent probes plus small woodland background; no per-frame scan or
+changes to tree admission, stone placement, art, ownership/crafting or shadows.
+Fast Mono package player-tree-branches; prior player-woodworking retained. No
+new game launch/capture/performance run; owner review pending. Evidence under
+artifacts/tree-branches; source/docs/shortcut checkpoint retained.
+
 ## Tool stone, woodworking and right-first input - 27 October 2026
 
 75 inventory (including stale-hand-selection pickup/right-first/left fallback),
