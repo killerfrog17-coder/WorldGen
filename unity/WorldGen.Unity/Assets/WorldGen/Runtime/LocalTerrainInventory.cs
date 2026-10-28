@@ -193,11 +193,11 @@ public sealed partial class LocalTerrainExplorer
             var art=Art(ScatterKind.Stone,item.Variant,0);inventoryPinnedArt.Add(art);
             foreach(var part in art.Parts)
             {
-                var obj=new GameObject("Rock surface",typeof(MeshFilter),typeof(MeshRenderer));obj.layer=layer;obj.transform.SetParent(root.transform,false);
                 if(item.Kind==PossessionKind.StoneFlake||item.FlakeRemovals>0)
                 {
-                    Destroy(obj);AddCraftMesh(root,item.Kind==PossessionKind.StoneFlake?CuttingFlakeMesh():WorkedStoneMesh(part.Mesh,item.FlakeRemovals),part.Material,item,layer);continue;
+                    AddCraftMesh(root,item.Kind==PossessionKind.StoneFlake?CuttingFlakeMesh():WorkedStoneMesh(part.Mesh,item.FlakeRemovals),part.Material,item,layer);continue;
                 }
+                var obj=new GameObject("Rock surface",typeof(MeshFilter),typeof(MeshRenderer));obj.layer=layer;obj.transform.SetParent(root.transform,false);
                 obj.GetComponent<MeshFilter>().sharedMesh=part.Mesh;var renderer=obj.GetComponent<MeshRenderer>();renderer.sharedMaterial=part.Material;
                 var props=new MaterialPropertyBlock();props.SetVector("_Tint",new Vector4((float)item.Tint.X,(float)item.Tint.Y,(float)item.Tint.Z,1));props.SetVector("_LodTransition",new Vector4(0,1,0,0));renderer.SetPropertyBlock(props);
             }

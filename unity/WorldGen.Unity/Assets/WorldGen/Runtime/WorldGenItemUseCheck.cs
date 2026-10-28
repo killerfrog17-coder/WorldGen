@@ -51,6 +51,17 @@ public sealed partial class LocalTerrainExplorer
         {var p=PortableTechnology.Create(kind,Position);Inventory.Items.Add(p);Inventory.Hold(p.Id,out _);return p;}
         InitializeInventory();PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();motion.Place(motion.X,motion.Z,Ground(motion.X,motion.Z));TestHumanView(0);TerrainMapViewport.Degrees(Position,out _,out double longitude);PlayerRules.SetLocalSolarHour(12,longitude);nextDaylightAt=0;SetDaylight(LocalSolarHour,skyYear);
         var effects=Resources.LoadAll<AudioClip>("Items/Audio");Check(effects.Length==18&&effects.All(c=>c.channels==1&&c.length>.2f&&c.length<1.3f),"All eighteen local AI Foley transients load as short spatial mono clips");
+        ClearItems();
+        Check(ExecuteGive(new[]{"/give","chert"}).Success&&ExecuteGive(new[]{"/give","quartzite"}).Success,"Knapping fixture supplies two ordinary compatible stones");
+        var stoneCore=Inventory.Items.First(p=>StoneCrafting.Rock(p)&&StoneCrafting.FractureQuality(p)>0);
+        Check(StartInventoryKnapping(stoneCore.Id),"Real inventory knapping starts with occupied hands");
+        var stoneJob=ActiveItemCraft;stoneJob.WorkSeconds=stoneJob.RequiredSeconds-.000001;UpdateStoneCrafting();
+        var newFlake=Inventory.Items.FirstOrDefault(p=>p.Kind==PossessionKind.StoneFlake);
+        Check(newFlake!=null&&inventoryDrops.TryGetValue(newFlake.Id,out var flakeDrop)&&flakeDrop.Body!=null&&flakeDrop.Collider.bounds.size.sqrMagnitude>0,"Freshly chipped flake receives physical drop collision in the same frame as creation");
+        Check(inventoryVisuals[newFlake.Id].GetComponentsInChildren<MeshFilter>().All(m=>m.sharedMesh!=null),"Fresh flake visual has no deferred empty mesh children");
+        stoneCore.Place=PossessionPlace.Ground;ReleasePossession(stoneCore,true);
+        Check(inventoryDrops.ContainsKey(stoneCore.Id)&&inventoryVisuals[stoneCore.Id].GetComponentsInChildren<MeshFilter>().All(m=>m.sharedMesh!=null),"Worked source stone also drops immediately with valid surface geometry");
+        ClearItems();
         yield return Deer();var deer=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="deer"&&!a.Dead);Aim(deer,1.15f);deer.MaximumHealth=deer.Health=Math.Max(200,deer.MaximumHealth);paused=true;
         ExecuteGive(new[]{"/give","wooden","spear"});var spear=Inventory.QuickHeld;Check(spear?.Kind==PossessionKind.WoodenSpear,"A real held spear is selected for melee");yield return Image("01-before-hit");
         double health=deer.Health;StrikeWithItem(spear,false);Check(deer.Health<health&&deer.Health>0,"Spear melee damages the visible surface without an instant generic kill");

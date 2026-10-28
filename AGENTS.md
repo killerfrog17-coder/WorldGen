@@ -1,5 +1,43 @@
 # WorldGen repository instructions
 
+KNAPPING FIX BUILD RUNNING,28October2026~12:13CDT:
+OwnerclosedWorldGen around12:12; noownerplayernow. Started NEW IL2CPP package
+player-item-functionality-knapping, ownedPTY76887. Actualflakedropfix+fivechecks
+are included; expectednative116.146runtime/shaderinputs frozen knapping-source-
+freeze.json beforebuild. NO runtime edits whilebuildactive. AFTERscriptcompletion
+(no prematureexe launch): runner -PlayerFolderplayer-item-functionality-knapping
+-OutputNameknapping-release-verified; after116PASS+exit, -OutputNameknapping-
+release-water -Water(13). Runnerrefusesownerconcurrentgame; respectit. Then run
+artifacts/overnight-items-20261028/prove-knapping-package.py for578protectedhash,
+146sourcefreeze,177collision/sourceIDs,18audio. Selectexistingrootshortcut only
+whenproperlyverified; keep firstreleasefallback. Restore3Unityautochanges after
+build. Update docsnotes,commit/push/remotelyverify sourceandshortcut. Stillwait
+ownerexplicitwrap; noonminimumdoesnotmeanstop. No subagents/paidcalls/inference.
+Owner'slastfeedbackthrowworks,noattackvisual; no newanimation scope. Newflakefix
+pendingnative, sourcebackupbeingmade now. Ownerdeletedprompt+2scripts untouched.
+
+LIVE PLAYTEST BUG FIX IN SOURCE,28October2026~12:12CDT:
+Read-only ownerPlayer.log caught NullReference in BeginDroppedBody ->
+ReleasePossession ->UpdateStoneCrafting. Ownerlogcopied taskroot/owner-playtest-
+flake-exception.log. RootCAUSE in CreatePossessionVisual: flake/workedrock branch
+created an EMPTYMeshFilter object then scheduledDestroy(obj), then actualmesh;
+immediate SAMEFRAMEdrop iterated still-present emptyFilter.sharedMesh.bounds.
+This is in FIRSTselected AND16:48compiledcandidate. FIXED SOURCE: choose worked/
+flake mesh before creating ordinary rock MeshFilter; bounds skip null optional
+mesh filters. NO BUILD OR TEST whileowner7316plays. Added actual runtimeflow:
+/givechert+/givequartzite, StartInventoryKnapping withoccupiedhands, completejob,
+sameframedropnewflakeANDworkedcore+validgeometry assertions. Adds5checks ->
+expected116, not111. Sourcechanged3runtimefiles, so16:48candidate/sourcefreeze
+areSTALE forlatestfix; DO NOTselectit aslatest orrun oldproofagainstnewsource.
+NEXTwhenownercloses: chooseNEWfolderplayer-item-functionality-knapping (notused),
+freeze146runtime/shaderfiles as knapping-source-freeze.json, buildIL2CPP there,
+runner OutputNameknapping-release-verified116 +knapping-release-water13. Adapt
+prove-release-package.py tofolder,newfreezeandnewoutputnames; verify578original+
+146source+177collision/sourceIDs+18audio. Then selectexistinglink,restore3auto,
+commit/push/remotelyverify. Existingfirstselectedownerpackageuntouched. No paid/
+inference/subagents. Currentflakefix+test stillUNCOMMITTED; savecheckpointsoon.
+No new animation scope authorized. Latestremote9169f5d705aaad3b4d63c6710fc0baeff6d299d6.
+
 OWNER FEEDBACK,28October2026~12:02CDT:
 Owner confirms physical throwing works; asks what testingquestionwas and notes
 no visible melee/throw motion. Clarified melee damageisimplemented (successful

@@ -5,6 +5,8 @@ The existing shortcut currently selects the first item-use release,
 `player-item-functionality-release` (16:48:19Z), is compiled but **not selected**:
 its native rerun is waiting while the owner playtests. The candidate includes
 hand-restoration, shoreline and corpse corrections described below.
+A subsequent same-frame stone-flake drop fix now also needs packaging; the
+16:48 candidate predates it, so final validation will use a fresh package.
 
 This update does not resume the scrapped history/building overhaul. Animal
 skinning, butchery, processing and meat drops are deliberately deferred.
@@ -145,6 +147,13 @@ Evidence is under `artifacts/overnight-items-20261028`. Source checkpoints are
 pushed to GitHub. Approved cleanup removed 19 superseded generated packages,
 about 14.34 GiB, retaining daily/latest-three/selected/running protection, release
 fallbacks, source, saves, native art and review evidence.
+
+Read-only monitoring of the owner's live playtest caught a stone-flake creation
+exception: an empty MeshFilter awaiting deferred deletion was visited by a
+same-frame physical drop. Source now constructs only the actual worked surface
+and ignores optional mesh-less filters during bounds collection. Five new native
+checks complete real knapping and immediately drop the fresh flake/worked core;
+these checks are pending the next build, not counted among the earlier passes.
 
 ## Deliberately unfinished systems
 

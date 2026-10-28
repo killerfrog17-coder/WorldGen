@@ -69,6 +69,7 @@ public sealed partial class LocalTerrainExplorer
         var bounds=new Bounds();bool first=true;
         foreach(var mesh in root.GetComponentsInChildren<MeshFilter>())
         {
+            if(mesh.sharedMesh==null)continue;
             var b=mesh.sharedMesh.bounds;var matrix=root.transform.worldToLocalMatrix*mesh.transform.localToWorldMatrix;
             for(int corner=0;corner<8;corner++)
             {
