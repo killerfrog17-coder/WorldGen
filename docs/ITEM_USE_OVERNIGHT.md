@@ -4,6 +4,33 @@ This is the owner-authorized continuation of portable technology. It does not
 resume the scrapped historical-simulation/building overhaul. No animal skinning,
 butchery, processing or meat drops are implemented.
 
+## What the items can do
+
+| Items | Implemented use |
+|---|---|
+| Small stones, wooden/stone/bone spears, harpoon | Strike and charge/release a physical throw; mass/speed affect flight and damage. |
+| Bow and arrows | Charge/release a shot using carried arrows; arrows can lodge in bodies and be recovered. |
+| Sling and small stones | Charge/release a stone; ammunition must be small enough for the sling. |
+| Spear-thrower and darts | Launch a carried dart as a physical projectile. |
+| Bone, large stones and solid hand tools | Improvised strikes and directional blocking where appropriate. |
+| Cutting and chopping tools | Existing crafting actions, maintenance, accessible tree bark/branches; no whole-tree felling. |
+| Digging stick | Timed root-fibre gathering from suitable unfrozen soil. |
+| Hand-line and fibre net | Timed catch of an actual nearby small aquatic animal, landed whole on shore. |
+| Pouches, packs, basket, bark container | Dry storage with actual size/weight packing rules. |
+| Belts, sheath, cases, carry frame, quiver | Appropriate worn attachments/storage; bow has a separate slung-back position. |
+| Hide, fibre, sinew, feathers, points, shafts and other components | Crafting inputs and intermediate parts; not all raw materials are weapons. |
+
+For testing, `/give list` lists accepted item names and `/give materials` supplies
+raw crafting inputs. Inventory/context actions remain the crafting interface.
+There is no new in-game recipe book. LMB uses the right hand and RMB the left
+when both are independently occupied. With one held item, RMB uses its secondary
+action; keep the other hand free when testing throws, digging or fishing.
+
+The original 63 portable definitions now have 83 contextual actions, including
+26 maintenance actions. Existing early stone/wood items remain part of the same
+inventory. There are no newly scattered hide/bone resources: animal processing
+is deliberately deferred, so those materials still come from commands.
+
 ## Working combat and equipment
 
 Crafting borrows hands, stows into an appropriate attachment/worn carrier, and
@@ -54,7 +81,7 @@ The first screenshot set is useful for hit/arrow inspection but its corpse image
 does not frame the body: dedicated visual ragdoll review remains necessary.
 `combat-package-proof.json`: 578 accepted source/bundle/human/DLL hash checks.
 Core portable crafting: 747 checks across 63 item definitions / 83 contextual
-actions (includes maintenance). Core physical-use tests: 59 checks.
+actions (includes maintenance). Core physical-use tests: 63 checks.
 
 Later combined builds add tree-derived bark/branches, root-fibre digging and
 simple timed hand-line/net fishing. Fishing lands the actual whole animal as a

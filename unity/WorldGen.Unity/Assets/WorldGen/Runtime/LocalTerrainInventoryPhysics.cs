@@ -117,7 +117,7 @@ public sealed partial class LocalTerrainExplorer
             var key=(x,z);used?.Add(key);if(inventoryFloors.ContainsKey(key))continue;
             const int segments=8;var vertices=new Vector3[81];var indices=new int[segments*segments*6];int p=0;
             for(int iz=0;iz<=segments;iz++)for(int ix=0;ix<=segments;ix++)
-            {double px=x*4+ix*.5,pz=z*4+iz*.5;vertices[iz*9+ix]=new Vector3((float)(px-originX),(float)Ground(px,pz),(float)(pz-originZ));}
+            {double px=x*4+ix*.5,pz=z*4+iz*.5;vertices[iz*9+ix]=new Vector3((float)(px-originX),(float)VisibleGround(px,pz,Ground(px,pz)),(float)(pz-originZ));}
             for(int iz=0;iz<segments;iz++)for(int ix=0;ix<segments;ix++)
             {int a=iz*9+ix,b=a+1,c=a+9,d=c+1;indices[p++]=a;indices[p++]=c;indices[p++]=b;indices[p++]=b;indices[p++]=c;indices[p++]=d;}
             var mesh=new Mesh{name="Loose item terrain collision"};mesh.vertices=vertices;mesh.triangles=indices;mesh.RecalculateBounds();

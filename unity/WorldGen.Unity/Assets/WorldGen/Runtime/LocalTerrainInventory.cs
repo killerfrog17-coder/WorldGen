@@ -141,7 +141,7 @@ public sealed partial class LocalTerrainExplorer
             if(inventoryNameEditing)return true;
         }
         if(k.eKey.wasPressedThisFrame||k.bKey.wasPressedThisFrame)RefreshInventoryNearby(true);
-        if(k.qKey.wasPressedThisFrame){CancelItemCharge();Inventory.SwapHands();if(inventoryOpen)RenderInventoryPreview();}
+        if(k.qKey.wasPressedThisFrame){CancelItemCharge();CancelWorldToolWork();Inventory.SwapHands();if(inventoryOpen)RenderInventoryPreview();}
         var held=Inventory.QuickHeld;
         var drop=inventoryOpen?HoveredInventoryPossession():held;
         if(k.gKey.wasPressedThisFrame&&drop!=null&&drop.Place!=PossessionPlace.Ground)RequestPossession(drop.Id,PossessionPlace.Ground);
@@ -168,7 +168,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!Ready)return;InitializeInventory();UpdateGiveItems();UpdatePortableAppearances();
         if((DeathVisible||Spectating)&&inventoryOpen)SetInventoryOpen(false);
-        if(DeathVisible){PauseItemCraft(ActiveItemCraft);return;}
+        if(DeathVisible){PauseItemCraft(ActiveItemCraft);CancelWorldToolWork();return;}
         if(inventoryOpen||CraftWorking)RefreshInventoryNearby();UpdateStoneCrafting();UpdateWorldToolWork();UpdateItemThumbnails();
     }
     GameObject CreatePossessionVisual(Possession item,int layer)

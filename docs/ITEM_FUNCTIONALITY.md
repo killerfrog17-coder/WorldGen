@@ -1,9 +1,9 @@
 # Item use and wildlife interaction
 
-Work in progress for the owner-authorized overnight update, 28 October 2026.
-The selected player remains the preceding portable-crafting checkpoint until
-this work can be built and checked normally. No skinning, butchery or processing
-of animals is authorized in this pass. No in-game recipe book or controls HUD.
+Owner-authorized overnight update, 28 October 2026. The selected player and exact
+validation status are recorded in [ITEM_USE_OVERNIGHT.md](ITEM_USE_OVERNIGHT.md).
+No skinning, butchery or processing of animals is included. No in-game recipe
+book or controls HUD is added.
 
 ## Delivery order
 
@@ -63,7 +63,7 @@ References consulted for implementation decisions:
 
 ## Current validation
 
-The combined item-use rules pass 59 checks; portable crafting passes 747 checks
+The combined item-use rules pass 63 checks; portable crafting passes 747 checks
 across 63 item definitions and 83 contextual actions. Separate inventory,
 stone-working, woodworking and camera suites cover the existing flow.
 
@@ -71,10 +71,12 @@ Licensed Unity builds now succeed after the owner restored activation. Earlier
 native checkpoints passed 38 automatic-equipment checks, then 22 combat checks,
 then 40 combined combat/tool/art/wildlife checks. Real render-texture captures
 were inspected; ordinary batch ScreenCapture files were black and were rejected.
-A later 100-check native run covers all 63 actual item renders plus the saved
-corpse/group/index and background ground-query fixes. The final IL2CPP package
-and most recent model-admission change still require their native rerun. Evidence and current build
-status are maintained in ITEM_USE_OVERNIGHT.md.
+A later release IL2CPP run passes 107 checks, including all 63 actual item renders,
+saved corpse/group/index behaviour, background ground queries and distant model
+admission. A separate 13-check shoreline run exercises actual timed digging,
+hand-line and net catches and restoration of both original hands. Ragdoll visual
+review found additional small-animal stretching despite finite-matrix checks;
+further corrections and final selection are recorded in ITEM_USE_OVERNIGHT.md.
 
 177 original native fauna files, their render bundles, rigs and animation banks
 are preserved. Supplementary 26.4 MiB collision skins provide actual posed surface

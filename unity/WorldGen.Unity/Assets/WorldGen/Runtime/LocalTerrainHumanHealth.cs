@@ -11,7 +11,7 @@ public sealed partial class LocalTerrainExplorer
         if(actor==humanPlayer)
         {
             double before=Vitals.Health;damage=GuardedPlayerDamage(damage,actor.Root.transform.position-direction*3);PlayerDamageRules.Apply(Vitals,Mode,damage,PlayerDeathCause.Combat);
-            if(Vitals.Health<before){PlayItemEffect("body-hit",hit?.Point??actor.Root.transform.position,.6f,true);PaintHumanBlood(actor,hit,before-Vitals.Health);PauseItemCraft(ActiveItemCraft);CapturePlayerBlood();}
+            if(Vitals.Health<before){PlayItemEffect("body-hit",hit?.Point??actor.Root.transform.position,.6f,true);PaintHumanBlood(actor,hit,before-Vitals.Health);PauseItemCraft(ActiveItemCraft);CancelWorldToolWork();CapturePlayerBlood();}
             return;
         }
         if(actor.Health<=0)return;actor.Health=Math.Max(0,actor.Health-damage);PaintHumanBlood(actor,hit,damage);

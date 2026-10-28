@@ -1,5 +1,32 @@
 # WorldGen repository instructions
 
+ACTIVE ITEM POLISH,28October2026~11:23CDT:
+Owner replied KEEP WORKING; will explicitly say when to start wrapping up.
+Do not end at noon simply because earlier minimum reached. No user test results
+received yet. Selected shortcut STILL first player-item-functionality14:34Z.
+New IL2CPP player-item-functionality-polished16:05:44Z passed107native+13actual
+shore checks,578protected hashes,177collision package/sourceIDs,18audio hashes.
+NOT selected: final visual review caught a small-animal corpse spike missed by
+finite/p99 assertions. Fix common root filtering: ground-squirrel Head root
+.028m*.28scale=.00784m was below .008 cutoff, leaving disconnected limb branches.
+Root must always get physical body; even a near-zero root gets tiny segment.
+New native assertions check complete limb connections and max edge extension
+relative to animal length, and save failed subject images before throwing.
+Small-body mass conditioning/projection tuning alone was NOT sufficient:
+physics-conditioned fails deer p99=2.507; physics-small fails goose extension
+.292m. Do not claim either clean. Latest ROOTED correction adds forced root,
+root-relative centreline, conservative general swing/twist (original skin/rig/
+actions untouched). Build in progress player-item-physics-rooted; check owned
+PTY15005, then run runner -PlayerFolder... -OutputName physics-rooted. Previous
+workers exited on failure. Rooted is Mono diagnostic, final IL2CPP repackage and
+native checks needed before shortcut update. No paid/inference or owner app close.
+Hands fixes are now clean: set-aside above VISIBLEground, right/left restoration
+clears mismatched borrowed original items before restoring either hand; Q/hit/
+death cancel tool work. Native shoreline uses explicit .1 worldscale/real coast,
+passes timed digging/line/net+two-hand restore. No terrain changes to fixtures.
+Docs partial updates uncommitted. Restore3known Unity autochanges before stage;
+commit only own sources/docs/shortcut, preserve ownerdeletedprompt+2deerscripts.
+
 ITEM POLISH PROGRESS,28October2026~10:17CDT:
 Selected owner shortcut still first IL2CPP player-item-functionality14:34Z, native
 102PASS. DO NOT overwrite it while owner may test; no user reply yet. Continued
