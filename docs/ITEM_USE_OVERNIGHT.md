@@ -1,27 +1,26 @@
 # Portable items and wildlife checkpoint ? 28 October 2026
 
-The existing shortcut selects `player-item-functionality-complete`, release
-IL2CPP built **2026-10-28T17:54:13.3472470Z**. That exact package passes **123
+The existing shortcut selects `player-item-followup`, release
+IL2CPP built **2026-10-28T19:53:28.2701097Z**. That exact package passes **132
 combat/item checks and 13 shoreline checks**, including the owner's same-frame
 stone-flake drop regression and actual bow, sling and spear-thrower shots.
-The first item release is retained as a fallback. Heavy workers have exited.
-GitHub synchronization of this final handoff is deferred during the owner's
-competitive Minecraft session; the feature-code checkpoint is already remote.
+The preceding complete item release and first item release remain as fallbacks.
+Build/test workers have exited. The owner lifted CPU/GPU/network restrictions;
+the formerly local source checkpoints have now been pushed to GitHub.
 
-Subsequent small wildlife fixes exist in source only, ahead of this tested build.
-They have not been compiled or tested during competitive play; see
-[the wildlife follow-up](WILDLIFE_BEHAVIOUR.md#source-follow-up-after-the-tested-checkpoint--not-yet-tested-or-packaged).
+The queued wildlife fixes are now included; see
+[the wildlife follow-up](WILDLIFE_BEHAVIOUR.md#verified-follow-up-28-october-2026).
 
-Additional source-only corrections serialize hand borrowing when switching
+Additional corrections serialize hand borrowing when switching
 between charged weapons, gathering and either crafting path. Previously, starting
 a craft during gathering could leave two actions restoring incompatible hand
 snapshots. Tool work now also cancels on survival incapacitation, matching crafting.
-Two native regression checks are written for gathering-to-crafting handoff and
-restoration of the original spear. These are unrun: the next native target is
-132 checks, while the selected release still has its verified 123. Focused Core
-target remains 77. No updated package or performance claim is implied.
+Two native regression checks pass for gathering-to-crafting handoff and
+restoration of the original spear. The full release passes 132 native item/combat
+checks, 13 coastal digging/fishing checks and 77 focused Core checks. Existing
+inventory75 and portable-crafting747 checks also pass. No FPS gain is claimed.
 
-Further low-load review adds source-only ammunition/save safeguards:
+Further review adds ammunition/save safeguards:
 
 - Saving cancels a drawn ranged weapon and restores borrowed hands rather than
   saving temporary equipment assignments without their restoration snapshot.
@@ -35,8 +34,10 @@ Further low-load review adds source-only ammunition/save safeguards:
 
 Five additional native checks cover drawn-bow saving, orphaned human arrows,
 NPC-ID reuse on initialization, streamed saved-animal attachments and incapacitated combat. The existing tool
-borrowing check now also asserts that an old guard is cleared. These checks are
-written, not executed. Visual assets and the current testable build are unchanged.
+borrowing check now also asserts that an old guard is cleared. All pass in the
+selected release. Visual assets are unchanged. Animal drinking-bank approach
+and herd-member positioning still lack a dedicated scene/navigation check;
+the coastal water checks validate digging and fishing, not animal drinking.
 
 This update does not resume the scrapped history/building overhaul. Animal
 skinning, butchery, processing and meat drops are deliberately deferred.
@@ -154,13 +155,14 @@ the tracked region stop ticking; no unlimited offline catch-up is attempted.
 
 | Evidence | Result |
 |---|---|
-| Core item use | 63 checks pass. |
+| Core item use | 77 checks pass. |
 | Portable crafting | 747 checks across 63 definitions / 83 contextual actions. |
 | Existing inventory, stone, wood, camera suites | 75 / 37 / 37 / 22 checks pass. |
 | First selected IL2CPP item release | 102 native checks pass. |
 | Intermediate IL2CPP polished candidate | 107 native + 13 actual shoreline checks pass. |
 | Latest Mono ranged-check candidate | 123 native checks pass: all 63 model thumbnails, actual knapping/drop regression, bow/sling/thrower hits, connected corpses, skin-extension guards, saves, predation and player death. |
-| Selected release IL2CPP | 123 combat/item +13 actual shoreline checks pass, no runtime errors/exceptions. |
+| Previous complete IL2CPP | 123 combat/item +13 actual shoreline checks pass. |
+| Selected follow-up IL2CPP | 132 combat/item +13 actual shoreline checks pass, no runtime errors/exceptions. |
 
 Inspected captures include the squirrel and goose, with the latter retaining its
 structural neck joints. The 15%-of-length extension guard and deer 99th-percentile
@@ -178,8 +180,10 @@ All 177 accepted animal bundles/native sources,
 skins total 26.4 MiB and stream per species; physics metadata covers 5,807 bones.
 No measured dense-forest FPS improvement is claimed.
 
-Evidence is under `artifacts/overnight-items-20261028`. The tested feature-code
-checkpoint is on GitHub; later local follow-ups await network synchronization.
+Gameplay evidence is under `artifacts/overnight-items-20261028/followup-release`
+and `followup-water`; the new freeze, preservation proof and shortcut record are
+under `artifacts/item-followup-20261028`. The follow-up source checkpoint
+`964cbe1` is on GitHub; the final handoff is checkpointed separately.
 Approved cleanup removed 19 superseded generated packages,
 about 14.34 GiB, retaining daily/latest-three/selected/running protection, release
 fallbacks, source, saves, native art and review evidence.

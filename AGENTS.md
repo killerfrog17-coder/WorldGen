@@ -1,116 +1,64 @@
 # WorldGen repository instructions
 
-SELECTED ITEM RELEASE / LOW-LOAD CONTINUATION,28October2026~13:05CDT:
-LATEST OWNER: askedwraptoapausepoint,thenallowscontinuedworkONLYifitdoesnot
-notablyburdenPC/CPU/WIFI; playingCOMPETITIVEMINECRAFT. ThereforeNO builds,tests,
-renderers,inference,profiling,downloads,largecleanupIOorGitHubnetworksyncwhile
-heplays. Lightlocalcode/docreading/editingokay. DoNOTlaunchheavyjobswithout
-latersteeringindicatingcompetitiveplayisover. AllownedworkersALREADYEXITED.
-Shorelinecheckfinishedbeforehisconstraintarrived; no jobs left tostop. No new
-followupquestionneeded. MainovernightcheckpointnowREADYTESTABLE,notpendingbuild.
+ITEM FOLLOW-UP RELEASE SELECTED,28October2026:
+Owner is back and explicitly permits FULL CPU/GPU and ordinary resource use.
+Previous competitive-play restrictions are LIFTED. Do not ask again or throttle
+work on that basis. Prefer proportionate checks and fast owner collaboration.
+No subagents/paid services; no new processing/construction/animation scope.
 
-EXISTINGrootshortcut NOWselects artifacts/player-item-functionality-complete/
-WorldGen.exe, RELEASE IL2CPPBuiltUtc2026-10-28T17:54:13.3472470Z. Conditional
-WorkingDirectoryupdatedfromoldpackagefoldertonewpackagefolder,argumentsretained
-empty,newicon; no newdesktopicons. Backupshortcut-before-complete.lnk and
-selected-complete-checkpoint.json intaskroot. Firstplayer-item-functionality
-14:34Z RETAINEDfallback,priorportabletechnologyretained. No ownerappsclosed.
-EXACTselectedrelease native123combat/item +13actualshorelinechecksPASS, clean
-noruntimeerrors/exceptions. Full proof578protectedasset/DLLhashes+146frozen
-runtime/shaders+177collisionpackage/sourceIDs+18audiohashesPASS. Sourcefeature
-checkpoint936e24e0bf0ed5a8a5fd37369a8e0803f6289f97alreadyPUSHED/remotelyverified;
-finalshortcut/docs/handoffLOCALcheckpoint0e8f0d9,NETWORKPUSHDEFERRED
-becauseownercompetitiveWIFIconstraint. DoNOTclaimlatesthandoffremoteuntilsync.
+Existing root shortcut selects artifacts/player-item-followup/WorldGen.exe,
+release IL2CPP BuiltUtc2026-10-28T19:53:28.2701097Z. New folder, not an overwrite.
+Previous player-item-functionality-complete and first player-item-functionality
+retained as fallbacks. Shortcut arguments preserved; target/icon/conditional
+working directory updated. No new desktop files or owner app closures.
+Owner closed old WorldGen for final checks. Owned build and both test workers
+have EXITED; no inference/server/profiling jobs running. Owner can test now.
 
+Actual selected release: 132 item/combat +13 coastal digging/fishing checks PASS,
+no runtime errors/exceptions. Core77 item-use, inventory75, portable747 PASS.
+All578 protected asset/staged DLL hashes,146 frozen runtime/shader inputs,
+177 collision-sidecar source IDs/package hashes and18 Foley hashes PASS.
+Original177 fauna bundles/native/skin/weights/actions/coats,42human PNGs and
+protected MPFB0946... unchanged. No new visual/art/animation/terrain work.
+Current deer p99 corpse edge stretch2.215966 (<2.5 guard). Rendered corpse/arrow
+captures inspected; folds/ground contact imperfections remain. No universal
+anatomy/nav or measured FPS claim. Original guards were not weakened.
 
-LOW-LOAD SOURCE FOLLOW-UP: current production source is AHEAD of selected build.
-Canonical model ID replaces appended display names in runtime behaviour lookup.
-AABB 3D contact reach guards damage/cooldown, retaining Creative encounter timing.
-Native prey min/max are respected inclusively; mass fallback only if max unknown.
-Herbivores/satisfied predators skip edible-prey checks. Drinking requires actual
-river/lake water, not ocean/dry footprint; bounded seven-step bank search replaces
-15m inland target, 1m drink arrival. Search <=16+8 probes per decision; rotated ray.
-No salinity/ice/new navigation model or herd-member drinking certification.
-14 new Core +9 native regressions WRITTEN ONLY: expected focused77/native132,
-NOT RUN/COMPILED. Selected release STILL123+13 verified; do not claim new fixes
-tested/shipped. Archived scripts/drafts/wildlife-contact-and-labels.patch has
-been superseded by explicit source edits: DO NOT APPLY AGAIN. Initial shell
-apply/copy/remove batch was rejected before execution; explicit apply_patch
-edits succeeded. No operations in the rejected batch ran.
-Local tested tag checkpoint/items-20261028 ->0e8f0d9; initial draft9da3747.
-Remote LAST verified936e24; later local checkpoints need eventual network sync.
-When competitive play ENDS: focused Core/native tests +actual bank approach,
-new package folder, freeze/proofs, then shortcut selection; never overwrite
-selected binary. Original source-freeze proof cannot match newer source now.
-Fish-only Predator flag remains TODO: aquatic pursuit/bird diving review first.
-Bird wood geometry readable; landing/sway still unverified. See WILDLIFE_BEHAVIOUR.
-No network/build/inference/test workers started. Local commits disable auto GC
-and maintenance. Preserve owner deletion/two old deer scripts as below.
-Later light review: crafting/tool entry points cancel charged weapons and prior
-world tool work before capturing hands. Fixes competing restore snapshots when
-switching from digging/fishing to crafting. World tool work also cancels on
-Survival incapacitation. Two new native handoff/original-spear checks WRITTEN,
-UNRUN (included in132 above). Local wildlife source checkpoint70c7b06; handoff
-checkpointaf8412a; subsequent
-handoff edits are source-only too. No selected package/shortcut changes.
-Later ammo/save review: StorePlayer cancels drawn ranged action before capture,
-restoring borrowed hands without firing. On inventory initialization, temporary
-NPC-human attachments detach because their actors are not saved/IDs can repeat.
-Orphaned/explicitly cleared actor projectiles resume falling at last world pose;
-saved streamed-out animals RETAIN attachments. Bone lookup null/retired guards.
-PrepareWorkHands clears stale guard; combat resets guard before early returns
-and respects Survival incapacitation. Five new native regressions written for
-save/orphan/NPC-ID-reuse/stream/KO paths; borrowing check strengthened. All UNRUN,
-included in132 above. No worker/build/download/render/inference/push launched.
-Owner explicitly allows further work only with low CPU AND GPU use; local small
-file edits/review/checkpoints only. Pending tests/native rendering/build/art
-generation/network sync deferred until resource restriction lifted.
+Included follow-up fixes: canonical model IDs for behaviour classification;
+3D approximate body-contact reach before damage/cooldown; inclusive ecological
+prey mass limits with fallback only if upper bound unknown; herbivores/sated
+predators skip edible checks. Drinking requires actual river/lake water, not
+ocean/dry influence; seven-step dry-bank refinement replaces15m inland target,
+1m arrival; <=16+8 probes/decision, rotated search. No new ice/salinity/nav model.
+Animal freshwater-bank approach and individual herd-member drinking positions
+are NOT scene-certified; coastal tests exercise digging/fishing, not drinking.
+Fish-only predator pursuit/diving and bird landing/sway remain review TODOs.
 
-Taskscopeautomaticstow/borrow/restorehands;allportableitemfunctions,melee/
-physicalthrows/bow/sling/atlatl/block,animal/NPC/playerhealth/blood/ragdoll/saved
-corpses,toolwork/dig/simpleline/netcatch;thenitemart/Foley,thenwildlifeAI.
-NO skinning/butchery/processing/meatdrops/construction/newattack/throw/craft
-animations. Ownerconfirmedthrowswork,askednoattackmotion;clarifieddamageexists
-butswing/throwanimationsintentionallydeferred. No newanimationtaskauthorized.
-No subagents/paidcalls. Keep177originalnative/bundles/skins/weights/rest/actions/
-coats,42humanPNG/protectedMPFB0946...,ownerdeletedWorldGen_OneShot_Prompt.md+
-2untrackedolddeerscriptsuntouched. DoNOTresumeoldHomo/history/buildingnight.
+Crafting/tool entry cancels prior gathering/charged actions before borrowing
+hands. Tool work and combat respect Survival incapacitation. Save cancels a
+drawn ranged weapon and restores hands without firing. Temporary human NPC
+attachments detach on inventory initialization (NPCs not saved; IDs can repeat).
+Missing/cleared actors release arrows at last pose; saved streamed-out animals
+retain attachments. Borrowing/early returns clear stale guards. New regressions
+all pass. No attack/throw/crafting animations or processing/meat drops added.
 
-Importantfixes: commonrootalwaysretained(28rigspreviouslyfiltered); root-relative
-centreline,stifflimb-bearingtorso,structuralneckchain,coarsephysicsfor<5kg+air
-finefeather/toe/rearspinebonesfollowingowners. ALLbodymassfloor/normalization,
-connectedinverseMassconditioning,length-relativeprojection. Originalrigs/weights
-UNCHANGED. Testwaitsrequestedground/fadesdone,notanycoarsetileCenterReady.
-Guards15%small-lengthanddeerp99<2.5RETAINED,notweakenedforgreen. Selecteddeer
-p991.9764;goose11bodiesmaxedge.15245m/1.4m,squirrel9bodies.02332/.28. Actual
-releaseimagesinspected;localfolds/contactsremain,nouniversalrig-qualityclaim.
+Evidence: artifacts/overnight-items-20261028/followup-release (132), followup-water
+(13); artifacts/item-followup-20261028 has source freeze/proofs/selection record,
+shortcut-before-followup.lnk. Original complete-release evidence retained.
+Follow-up source964cbe17fd305393a50f7431f5f4b58f08dfd478 pushed to GitHub; final
+handoff/docs/shortcut checkpoint follows. Old tested tag checkpoint/items-20261028
+still points0e8f0d9 (previous complete package), not this new build.
+Archived scripts/drafts/wildlife-contact-and-labels.patch is superseded; DO NOT
+apply again. Historical low-load and pending-test notes below are obsolete where
+superseded by this selected release. Known Unity build autochanges in URPglobal,
+ProjectSettings and GroundFoliageAtlasV1 importer restored.
 
-Read-only ownerPlayer.log capturedrealBeginDroppedBodyNREfromsameframeknapping:
-CreatePossessionVisualcreatedemptyMeshFilterthenDestroyqueuedit;immediatedrop
-readnullmesh. Fixedbychoosingworked/flakebranchbeforeordinaryrockobjectcreation;
-boundsskipoptionalnullfilters. Fiveactualknap/dropchecksPASSselectedrelease.
-New/givepebblealiasordinarySmallRock4cm/~44.8g;default700gsmallrocktoobigfor
-sling. Sevennativeactualsling/atlatlammo/hit/restorechecksPASSwithbowtests.
-Handsrestoreclearsmismatchedoriginalitemsbeforeeitherhand;worksetsitemsdownabove
-VISIBLEground,manualGphysical;Q/hit/deathcancelwork. Watertestexplicit.1scale,
-realcoast,actualtimeddig/line/net+restorebothoriginalhands. No processingoutputs.
-
-Taskevidence artifacts/overnight-items-20261028:
-complete-release-verified(123),complete-release-water(13),complete-package-proof,
-complete-source-proof,complete-derived-assets,complete-source-freeze.json,
-prove-complete-package.py. OlderfailedcandidatesNOTselectedandNOTpassclaims.
-Core63use/747portable(63defs83actions)/75inventory/37stone/37wood/22camera prior
-passes;newPreschangeonlypebblecompletion. SourceArt/Foley18clipsship,ownerart/
-listeningacceptancepending,couldnotlistentoaudioinagenttooling. AI4trackingtiers/
-savedregionalgroups/weather/season/flee/defence/predation/perchesprototype;
-no fullworldecosystem/reproduction/fullnav/FPSclaim,birdlandingnotnativecertified.
-No arbitrarypopulationcaps. All3Unityautochangesrestored. Sourceandselectedbuild
-matched at tested checkpoint; later uncompiled source edits listed above.
-Cleanup19OLDOWNpackages14.34GiB,
-daily/latest3/selected/running+fallbackprotected;alllogs/images/native/source/
-saveskept. Manynewdiagnosticpackagesremain;DEFERfurthercleanupuntilcompetitive
-gameover. DoNOTdeletecurrentselected/firstfallback/nativeart/saves. DoNOTpush
-GitHubduringcurrentWIFIsensitiveplay. Canperformlightstaticreviewonly.
+Preserve unrelated owner-deleted WorldGen_OneShot_Prompt.md and two old untracked
+scripts/deer-review-controls.py, scripts/prepare-deer-review.py. Do not stage them.
+Do not resume scrapped early-Homo/history/building work. No recipe book/controls
+banner/new population cap. Owner will supervise skinning/processing later.
+No further cleanup needed this turn; preserve daily/latest3/selected/running,
+fallbacks, saves and native art if cleanup becomes necessary.
 
 ITEM POLISH PROGRESS,28October2026~10:17CDT:
 Selected owner shortcut still first IL2CPP player-item-functionality14:34Z, native

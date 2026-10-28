@@ -74,10 +74,10 @@ native tests cover nearby deer flight, wolf pursuit/contact death, retained grou
 movement, restored group indexing and distant terrain-query safety. They do not
 certify universal species behaviour, bird landing or measured forest FPS.
 
-## Source follow-up after the tested checkpoint — not yet tested or packaged
+## Verified follow-up, 28 October 2026
 
-During the owner's competitive-play resource restriction, small local edits
-address the following static-review findings without rebuilding the game:
+Edits prepared during competitive play are now compiled, checked and included
+in the selected `player-item-followup` IL2CPP build:
 
 - Runtime behaviour now uses the canonical model ID, matching the spawn planner.
   Appending arbitrary display names could read `western` as `tern`, or
@@ -101,16 +101,16 @@ The initial [patch](../scripts/drafts/wildlife-contact-and-labels.patch) is arch
 and superseded by the current source. **Do not apply it again.** Two native
 regressions cover label independence and vertically unreachable prey; the old
 positive attack fixture is moved into actual contact. Fourteen new Core checks
-cover prey limits and water classification. Expected totals are **77 focused
-item-use and 132 native checks** (including later equipment/ammunition checks),
-not results: none of these additions has been
-compiled or run. Shoreline behaviour still needs an actual scene check.
+cover prey limits and water classification. **77 focused item-use and 132 native
+checks pass**, including later equipment/ammunition checks. The 13 coastal
+digging/fishing checks pass separately; they do not exercise animals navigating
+to freshwater banks. That approach and herd-member positioning remain unverified.
 
-The selected release remains the previously verified **123 +13-check** package,
-tagged `checkpoint/items-20261028`; current source is ahead of it. After competitive
-play ends, compile/run the focused and native checks, inspect shore approach,
-and package into a new folder before changing the shortcut. GitHub sync is
-deferred; local checkpoints do not imply a remote backup.
+The selected release is **132 +13-check** IL2CPP, built
+`2026-10-28T19:53:28.2701097Z`. The previous complete release remains available;
+`checkpoint/items-20261028` still identifies that earlier verified checkpoint.
+Source freeze and asset preservation proofs pass. The owner lifted the resource
+restriction and follow-up source `964cbe1` has been pushed to GitHub.
 
 One further review item remains: `Food.Fish` is distinct from `Food.Vertebrate`,
 but the current predator flag only includes the latter. Before broadening it,
