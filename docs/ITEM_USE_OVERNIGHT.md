@@ -102,3 +102,26 @@ command-supplied until processing is designed. Hide working is the existing
 abstract sequence, not a complete tanning simulation. Creative still uses real
 physical ammo/items and wear; /give supplies test resources. Item shaders are
 shared rough nonmetallic PBR albedo materials, not a claim of final Forest-quality artwork.
+
+## Selected release and continued polish
+
+The existing shortcut selects `player-item-functionality`, release IL2CPP built
+2026-10-28T14:34:45Z. Its 102 native checks pass, with 578 protected original
+asset/assembly hashes, 177 packaged collision-skin hashes/source identities and
+18 selected audio source hashes verified. Prior portable-technology is retained.
+
+A later Mono physics correction passes 107 native checks with deer, goose and
+squirrel articulated corpses, without runtime exceptions. Collider radii now fit
+accepted skin influences; joint frames follow the animal and torso/proximal-leg/
+tail motion is constrained. The 99th-percentile skin-edge stretch was 2.21 versus
+2.7?2.9 in rejected early correction trials; some local stretching remains. This
+is not an anatomically calibrated injury model or animation/skin replacement.
+Canonical blood groups avoid misleading substrings such as spider-monkey and
+wildebeest. Local sight tests reject terrain/obstacles between animals; retired
+neighbors cannot remain active targets. Migration heading follows seasonal trend.
+
+Those corrections are not in the selected first release yet. Actual riverbank
+checking and a separately packaged polished release are next. Fishing now uses
+three-dimensional reach and brings the catch back toward the angler. The initial
+water fixture incorrectly assumed an old coarse channel was the rendered channel;
+it was rejected and now follows current riverscape spans. No terrain was changed.

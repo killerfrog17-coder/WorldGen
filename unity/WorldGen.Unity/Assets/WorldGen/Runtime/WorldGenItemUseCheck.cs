@@ -17,7 +17,7 @@ public sealed partial class LocalTerrainExplorer
         {CancelItemCharge();ClearInventoryPhysics();foreach(var root in inventoryVisuals.Values.ToArray())DestroyInventoryVisual(root);inventoryVisuals.Clear();inventoryVisualPlaces.Clear();Inventory.Items.Clear();Inventory.Crafts.Clear();itemProjectiles.Clear();inventoryNearbyAt=0;}
         IEnumerator Image(string name,Animal focus=null)
         {
-            yield return null;var hidden=new List<GameObject>();if(focus!=null){var box=focus.Renderer.bounds;view.transform.position=box.center+new Vector3(2,1.7f,-2);view.transform.LookAt(box.center);foreach(var item in Inventory.Items.Where(p=>p.Place==PossessionPlace.RightHand||p.Place==PossessionPlace.LeftHand))if(inventoryVisuals.TryGetValue(item.Id,out var held)&&held.activeSelf){held.SetActive(false);hidden.Add(held);}}var old=view.targetTexture;var previous=RenderTexture.active;var target=new RenderTexture(1280,800,24);target.Create();view.targetTexture=target;view.Render();RenderTexture.active=target;
+            yield return null;var hidden=new List<GameObject>();if(focus!=null){var box=focus.Renderer.bounds;view.transform.position=box.center+new Vector3(2,1.7f,-2).normalized*Mathf.Clamp((float)focus.Spawn.Profile.lengthM*1.5f,.5f,4);view.transform.LookAt(box.center);foreach(var other in animals.Values)if(other!=focus&&other.Root.activeSelf){other.Root.SetActive(false);hidden.Add(other.Root);}foreach(var item in Inventory.Items.Where(p=>p.Place==PossessionPlace.RightHand||p.Place==PossessionPlace.LeftHand))if(inventoryVisuals.TryGetValue(item.Id,out var held)&&held.activeSelf){held.SetActive(false);hidden.Add(held);}}var old=view.targetTexture;var previous=RenderTexture.active;var target=new RenderTexture(1280,800,24);target.Create();view.targetTexture=target;view.Render();RenderTexture.active=target;
             var image=new Texture2D(1280,800,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1280,800),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());
             RenderTexture.active=previous;view.targetTexture=old;target.Release();Destroy(target);Destroy(image);foreach(var held in hidden)held.SetActive(true);
         }
@@ -56,10 +56,17 @@ public sealed partial class LocalTerrainExplorer
         double health=deer.Health;StrikeWithItem(spear,false);Check(deer.Health<health&&deer.Health>0,"Spear melee damages the visible surface without an instant generic kill");
         Check(deer.ThreatUntil>deer.Life&&deer.TargetSpeed>0,"A surviving struck deer immediately attempts to flee");
         Check(deer.Blood!=null&&deer.Blood.Capture().Any(b=>b>0),"Impact paints a nonempty local UV stain without repainting the original coat");yield return Image("02-blood-hit");
+        var beforeCorpse=(Vector3[])PosedAnimal(deer).Clone();
         DamageAnimal(deer,10000,deer.Renderer.bounds.center,view.transform.forward,5);Check(deer.Dead&&deer.Ragdoll!=null&&deer.Ragdoll.BodyCount>0,"Lethal damage starts articulated ragdoll physics, no death animation");
         paused=false;yield return new WaitForSecondsRealtime(4);paused=true;
         Check(AnimalPalette(deer).All(m=>Enumerable.Range(0,16).All(i=>float.IsFinite(m[i]))),"Corpse palette remains finite after physics simulation");
         yield return Image("03-ragdoll",deer);UpdateCamera();
+        var afterCorpse=PosedAnimal(deer);var corpseSkin=AnimalSurface(deer);var stretch=new List<float>();
+        for(int face=0;face<corpseSkin.Triangles.Length;face+=3)for(int edge=0;edge<3;edge++)
+        {int a=corpseSkin.Triangles[face+edge],b=corpseSkin.Triangles[face+(edge+1)%3];if(!corpseSkin.Visible(a,deer.Parts))continue;float length=Vector3.Distance(beforeCorpse[a],beforeCorpse[b]);if(length>.001f)stretch.Add(Vector3.Distance(afterCorpse[a],afterCorpse[b])/length);}
+        stretch.Sort();float p99=stretch[(int)((stretch.Count-1)*.99f)];File.WriteAllText(Path.Combine(output,"corpse-skin-stretch.txt"),"Edges "+stretch.Count+"; p99 stretch "+p99+"; maximum "+stretch.Last());
+        using(var outputVertices=new BinaryWriter(File.Create(Path.Combine(output,"corpse-skin-vertices.bin"))))foreach(var points in new[]{beforeCorpse,afterCorpse})foreach(var p in points){outputVertices.Write(p.x);outputVertices.Write(p.y);outputVertices.Write(p.z);}
+        Check(p99<2.5f,"Articulated corpse avoids widespread extreme skin stretching (99th percentile "+p99.ToString("F2")+")");
         CaptureWildlife();var saved=WorldJson.Read<PlaySession>(WorldJson.Write(PlayerRules));saved.Validate();var dead=saved.Wildlife.Individuals.Single(p=>p.Id==deer.Spawn.Id);
         Check(dead.Dead&&dead.CorpsePose?.Length==deer.Model.Asset.BoneCount*16&&dead.BloodMask?.Length==65536,"Health, original identity, corpse pose and stain survive full save");
         var spawn=deer.Spawn;var model=deer.Model;ulong deadId=spawn.Id;RemoveAnimal(deadId);
@@ -112,6 +119,15 @@ public sealed partial class LocalTerrainExplorer
         var unseenSpawn=new FaunaPrototypeSpawn{Profile=unseen,Position=frame.Position(motion.X+unseen.VisibleRadiusM+100,motion.Z)};animalWanted.Add(unseenSpawn);
         Check(NextVisibleAnimalModel()==null,"A tracked animal outside visual range cannot trigger mesh/texture/collision-skin loading");unseenSpawn.Position=Position;
         Check(NextVisibleAnimalModel()==unseenSpawn,"The same animal becomes eligible for its visual model when it enters range");animalWanted.Clear();animalWanted.AddRange(priorWanted);
+        foreach(string slug in new[]{"goose","ground-squirrel"})
+        {
+            paused=false;ExecuteAnimalSpawnCommand("/spawn "+slug);double bodyDeadline=Time.unscaledTimeAsDouble+35;
+            while(!animals.Values.Any(a=>a.Manual&&!a.Dead&&a.Spawn.Profile.slug==slug)&&Time.unscaledTimeAsDouble<bodyDeadline)yield return null;
+            paused=true;var subject=animals.Values.FirstOrDefault(a=>a.Manual&&!a.Dead&&a.Spawn.Profile.slug==slug);Check(subject!=null,"Representative ragdoll subject loads: "+slug);
+            subject.X+=12;subject.Planet=frame.Position(subject.X,subject.Z);subject.GroundY=Ground(subject.X,subject.Z);UpdateAnimal(subject,0);
+            DamageAnimal(subject,10000,subject.Renderer.bounds.center,Vector3.right);paused=false;yield return new WaitForSecondsRealtime(4);paused=true;
+            Check(subject.Ragdoll.BodyCount>2&&AnimalPalette(subject).All(m=>Enumerable.Range(0,16).All(i=>float.IsFinite(m[i]))),"Original bird/root-head skeleton retains multiple stable corpse bodies: "+slug);yield return Image("corpse-"+slug,subject);UpdateCamera();
+        }
         if(SpawnHumans(1)>0){var npc=humanNpcs.Last();DamageHuman(npc,1000,null,Vector3.forward,10);Check(npc.Health<=0&&npc.Ragdoll!=null,"Manually spawned human NPC also supports combat death and ragdoll");}
         ExecuteAnimalSpawnCommand("/spawn clear");Check(!Wildlife.Individuals.Any(p=>p.Manual)&&!animalWanted.Any(p=>p.Id==deadId),"Explicit spawn clearing removes saved command corpses so they cannot reappear");
         reviewWildlifeBehaviour=false;
@@ -131,7 +147,9 @@ public sealed partial class WorldGenRuntime
         if(!worldReady||Busy||humans==null)throw new InvalidOperationException("Item-use fixture unavailable");TerrainVideoOptions.Current.ViewDistanceM=1000;TerrainVideoOptions.Revision++;ExploreTerrain(TerrainMapViewport.FromDegrees(50,10));deadline=Time.realtimeSinceStartupAsDouble+120;
         while((terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(terrainExplorer==null||!terrainExplorer.Ready)throw new InvalidOperationException("Item-use terrain unavailable");
-        yield return terrainExplorer.CheckItemUseFlow(output,report);CapturePlayer();play.Validate();ReturnFromPlay("Simulation");yield return null;yield return null;
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-item-water-check"))yield return terrainExplorer.CheckItemWaterFlow(output,report);
+        else yield return terrainExplorer.CheckItemUseFlow(output,report);
+        CapturePlayer();play.Validate();ReturnFromPlay("Simulation");yield return null;yield return null;
         Application.logMessageReceived-=listener;if(errors.Count>0)throw new InvalidOperationException(string.Join(" | ",errors));report.Add("PASS no runtime errors or exceptions");File.WriteAllLines(Path.Combine(output,"checks.txt"),report);Debug.Log("ITEM USE FLOW PASS "+report.Count);Application.Quit(0);
     }
 }

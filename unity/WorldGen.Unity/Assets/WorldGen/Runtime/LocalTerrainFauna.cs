@@ -19,7 +19,7 @@ public sealed partial class LocalTerrainExplorer
         public FaunaPrototypeSpawn Spawn;public AnimalModel Model;public GameObject Root;public MeshRenderer Renderer;public MaterialPropertyBlock Props;
         public int Slot;public double X,Z,HomeX,HomeZ,GroundY,NextDecision,Time,OldTime,BlendAge,Life,NextGround;
         public float Heading,TargetHeading,Speed,TargetSpeed,Fade,NominalSpeed;
-        public FaunaRuntimeClip Clip,OldClip;public bool Wanted=true,Manual;public Vector4 Parts;
+        public FaunaRuntimeClip Clip,OldClip;public bool Wanted=true,Manual,Retired;public Vector4 Parts;
         public V Planet;public Rng Random;
         public double BehaviourAt,ObstacleAt,NextPoseAt,AttackAt,AirHeight,AirTargetHeight,PerchHeight,PerchUntil,NextPerch;public bool PerchSelected,Perched,ThreatWasPlayer,FishingTethered;public V PerchPosition,FishingAnchor;public double FishingReach;
         public double Health,MaximumHealth,MassKg,ThreatUntil,ThreatX,ThreatZ,CorpseHeightOffset;public bool Dead=>Health<=0;public int Coat;public WorldGenFaunaRagdoll Ragdoll;public WorldGenBloodCanvas Blood;public Vector3[] CollisionVertices;public int CollisionFrame=-1;
@@ -299,7 +299,7 @@ public sealed partial class LocalTerrainExplorer
     {var result=new Matrix4x4();for(int i=0;i<16;i++)result[i]=a[i]+(b[i]-a[i])*t;return result;}
     void RemoveAnimal(ulong id)
     {
-        var animal=animals[id];if(animal.Dead||animal.Health<animal.MaximumHealth||wildlifeRecords?.ContainsKey(id)==true)RememberAnimal(animal,true);if(animal.Ragdoll!=null)Destroy(animal.Ragdoll);ClearAnimalBlood(animal);Destroy(animal.Root);animal.Model.Users--;animal.Model.LastUse=Time.realtimeSinceStartupAsDouble;animalSlots.Push(animal.Slot);animals.Remove(id);
+        var animal=animals[id];animal.Retired=true;if(animal.Dead||animal.Health<animal.MaximumHealth||wildlifeRecords?.ContainsKey(id)==true)RememberAnimal(animal,true);if(animal.Ragdoll!=null)Destroy(animal.Ragdoll);ClearAnimalBlood(animal);Destroy(animal.Root);animal.Model.Users--;animal.Model.LastUse=Time.realtimeSinceStartupAsDouble;animalSlots.Push(animal.Slot);animals.Remove(id);
     }
     void DisposeAnimalFauna()
     {

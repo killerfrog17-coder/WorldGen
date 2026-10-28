@@ -23,7 +23,7 @@ public sealed partial class LocalTerrainExplorer
     IEnumerable<Animal> NearbyAnimals(Animal animal)
     {
         int x=(int)Math.Floor(animal.X/40),z=(int)Math.Floor(animal.Z/40);
-        for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++)if(wildlifeNeighbours.TryGetValue((x+dx,z+dz),out var list))foreach(var candidate in list)if(candidate!=animal)yield return candidate;
+        for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++)if(wildlifeNeighbours.TryGetValue((x+dx,z+dz),out var list))foreach(var candidate in list)if(candidate!=animal&&!candidate.Retired&&candidate.Root!=null)yield return candidate;
     }
     void AnimalRole(Animal animal,string role)
     {
@@ -36,14 +36,16 @@ public sealed partial class LocalTerrainExplorer
         animal.TargetHeading=(float)(Math.Atan2(x-animal.X,z-animal.Z)*180/Math.PI);animal.TargetSpeed=(float)(run?animal.Spawn.Profile.runMps:animal.Spawn.Profile.walkMps);
         AnimalRole(animal,animal.Spawn.Profile.medium=="air"?"fly":animal.Spawn.Profile.medium=="water"?"swim":run?"run":"walk");
     }
-    bool WildlifeSight(Animal animal,double x,double z,float height=0)
+    bool WildlifeSight(Animal animal,double x,double z,double targetY=double.NaN)
     {
+        if(double.IsNaN(targetY))targetY=motion.Y;
         double y=animal.Root.transform.localPosition.y+Math.Max(.1,animal.Spawn.Profile.lengthM*animal.Model.Asset.Height*.6);
-        for(int i=1;i<6;i++){double t=i/6.0,px=animal.X+(x-animal.X)*t,pz=animal.Z+(z-animal.Z)*t,py=y+(motion.Y+height-y)*t;
+        for(int i=1;i<6;i++){double t=i/6.0,px=animal.X+(x-animal.X)*t,pz=animal.Z+(z-animal.Z)*t,py=y+(targetY-y)*t;
             if(VisibleGround(px,pz,double.NegativeInfinity)>py+.1)return false;}
-        Vector3 start=transform.TransformPoint(new Vector3((float)(animal.X-originX),(float)y,(float)(animal.Z-originZ))),end=transform.TransformPoint(new Vector3((float)(x-originX),(float)motion.Y+height,(float)(z-originZ)));
+        Vector3 start=transform.TransformPoint(new Vector3((float)(animal.X-originX),(float)y,(float)(animal.Z-originZ))),end=transform.TransformPoint(new Vector3((float)(x-originX),(float)targetY,(float)(z-originZ)));
         var delta=end-start;return TraceCombatObstacle(new Ray(start,delta.normalized),Mathf.Max(0,delta.magnitude-.3f),null,false)==null;
     }
+    bool AnimalSight(Animal observer,Animal target)=>!target.Retired&&target.Root!=null&&WildlifeSight(observer,target.X,target.Z,target.Root.transform.localPosition.y+Math.Max(.1,target.Spawn.Profile.lengthM*target.Model.Asset.Height*.55));
     void UpdateAnimalBehaviour(Animal animal)
     {
         if(!WildlifeBehaviourEnabled||animal.Dead||Time.unscaledTimeAsDouble<animal.BehaviourAt)return;
@@ -74,14 +76,14 @@ public sealed partial class LocalTerrainExplorer
             bool edible=other.Spawn.Profile.slug!=profile.slug&&WildlifeBehaviour.EdiblePrey(animal.MassKg,behaviour.PackHunter,taxon?.MinPreyKg??animal.MassKg*.015,taxon?.MaxPreyKg??0,other.MassKg);
             if(behaviour.Predator&&edible&&!otherBehaviour.Predator&&distance<preyDistance){prey=other;preyDistance=distance;}
         }
-        if(predator!=null&&threatDistance<Math.Max(8,behaviour.FlightM))
+        if(predator!=null&&threatDistance<Math.Max(8,behaviour.FlightM)&&AnimalSight(animal,predator))
         {
             if(behaviour.Defensive&&threatDistance<behaviour.DefendM*1.6&&animal.MassKg>predator.MassKg)
             {SetAnimalTravel(animal,predator.X,predator.Z,true);if(threatDistance<Math.Max(1.2,profile.lengthM*.65))AnimalContactAttack(animal,predator);}
             else SetAnimalTravel(animal,animal.X+(animal.X-predator.X)*3,animal.Z+(animal.Z-predator.Z)*3,true);return;
         }
         bool hungry=!wildlifeGroups.TryGetValue(animal.Spawn.GroupId,out var group)||group.Hunger>.3;
-        if(prey!=null&&hungry&&preyDistance<55)
+        if(prey!=null&&hungry&&preyDistance<55&&AnimalSight(animal,prey))
         {SetAnimalTravel(animal,prey.X,prey.Z,true);if(preyDistance<Math.Max(.6,profile.lengthM*.65))AnimalContactAttack(animal,prey);return;}
         if(hurt&&animal.Life<animal.ThreatUntil)
         {SetAnimalTravel(animal,animal.X+(animal.X-animal.ThreatX)*3,animal.Z+(animal.Z-animal.ThreatZ)*3,true);return;}

@@ -69,7 +69,7 @@ public sealed partial class LocalTerrainExplorer
     partial void BeginFishing(Possession item)
     {
         if(item==null)return;bool net=item.Kind==PossessionKind.FibreNet;float reach=net?2.8f:8;
-        var fish=animals.Values.Where(a=>!a.Dead&&!a.FishingTethered&&a.Spawn.Profile.medium=="water"&&(a.Planet-Position).Length*frame.RadiusM<reach&&a.MassKg<(net?5:12)&&Vector3.Dot(view.transform.forward,(a.Root.transform.position-view.transform.position).normalized)>.15f).OrderBy(a=>(a.Planet-Position).Length).FirstOrDefault();
+        var fish=animals.Values.Where(a=>!a.Dead&&!a.FishingTethered&&a.Spawn.Profile.medium=="water"&&Vector3.Distance(a.Renderer.bounds.center,view.transform.position)<reach&&a.MassKg<(net?5:12)&&Vector3.Dot(view.transform.forward,(a.Root.transform.position-view.transform.position).normalized)>.15f).OrderBy(a=>(a.Planet-Position).Length).FirstOrDefault();
         if(fish==null){CombatNotice(net?"Bring the net close to a small fish in shallow water.":"Cast near a fish within eight metres of shore.");return;}
         var sample=walkingPatch.Sample(fish.Planet);if(sample.WaterKind==LocalWaterKind.None){CombatNotice("There is no fishable water here.");return;}
         if(net&&!double.IsNaN(sample.WaterSurfaceM)&&frame.SurfaceY(fish.Planet,sample.WaterSurfaceM)-fish.Root.transform.localPosition.y>1.2){CombatNotice("That fish is too deep for this hand net.");return;}
@@ -79,13 +79,15 @@ public sealed partial class LocalTerrainExplorer
             if(fish.Root==null||fish.Dead||(fish.Planet-Position).Length*frame.RadiusM>reach+1){InventoryFeedback("The fish escaped.");return;}
             // Land the actual animal, not a free replacement fish or meat drop.
             // Processing remains explicitly deferred to the owner's later pass.
-            fish.X=motion.X+Math.Sin(heading*Math.PI/180);fish.Z=motion.Z+Math.Cos(heading*Math.PI/180);fish.Planet=frame.Position(fish.X,fish.Z);fish.GroundY=Ground(fish.X,fish.Z);
+            // Bring the catch back toward the angler, not forward into the water.
+            fish.X=motion.X-Math.Sin(heading*Math.PI/180)*.65;fish.Z=motion.Z-Math.Cos(heading*Math.PI/180)*.65;fish.Planet=frame.Position(fish.X,fish.Z);fish.GroundY=Ground(fish.X,fish.Z);
             fish.Root.transform.localPosition=new Vector3((float)(fish.X-originX),(float)fish.GroundY+.15f,(float)(fish.Z-originZ));
             fish.CorpseHeightOffset=.15;fish.Health=0;BeginAnimalCorpse(fish,Vector3.zero);RememberAnimal(fish,true);InventoryFeedback("Fish landed whole. Processing is not implemented yet.");
         },()=>fish.FishingTethered=false);
         if(worldToolWork?.Tool==item)
         {
-            fish.FishingTethered=true;fish.FishingAnchor=Position;fish.FishingReach=reach;worldToolWork.Fish=fish;
+            double vertical=fish.Renderer.bounds.center.y-view.transform.position.y;
+            fish.FishingTethered=true;fish.FishingAnchor=Position;fish.FishingReach=Math.Sqrt(Math.Max(.04,reach*reach-vertical*vertical));worldToolWork.Fish=fish;
             if(!net)
             {if(tackleLineMaterial==null)tackleLineMaterial=new Material(Resources.Load<Shader>("WorldGenTackleLine"));var line=new GameObject("Hand-line",typeof(LineRenderer));line.transform.SetParent(transform,false);worldToolWork.Line=line.GetComponent<LineRenderer>();worldToolWork.Line.sharedMaterial=tackleLineMaterial;worldToolWork.Line.positionCount=6;worldToolWork.Line.startWidth=worldToolWork.Line.endWidth=.002f;worldToolWork.Line.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;worldToolWork.Line.receiveShadows=false;}
         }

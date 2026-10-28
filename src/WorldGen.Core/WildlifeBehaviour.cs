@@ -42,6 +42,13 @@ namespace WorldGen.Core
             =>!p.Migratory||Math.Abs(latitude)<28||nativeColdC>2||Winter(year,latitude)<.45;
         public static bool Rut(double year,double latitude)
         {double season=(year+(latitude<0?.5:0))%1;return season>.65&&season<.91;}
+        public static double MigrationHeading(double year,double latitude)
+        {
+            // Follow the change of season, not whether today's season is cold.
+            // Otherwise a flock reverses direction halfway through spring/fall.
+            bool north=latitude>=0,poleward=Math.Sin(year*Math.PI*2)*(north?1:-1)>0;
+            return poleward==north?0:Math.PI;
+        }
         public static double Activity(WildlifeBehaviourProfile p,double hour,bool nocturnal,double rain,double wind)
         {
             double light=hour>=6&&hour<18?1:.25,activity=nocturnal?1.25-light:light;

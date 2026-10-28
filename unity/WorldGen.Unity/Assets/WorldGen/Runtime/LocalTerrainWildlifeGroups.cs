@@ -101,7 +101,7 @@ public sealed partial class LocalTerrainExplorer
         if(behaviour.Herd&&group.Sex==1&&WildlifeBehaviour.Rut(skyYear,latitude)&&group.Hunger<.7&&group.Thirst<.7)
         {var females=ActiveWildlifeGroupRecords.Where(g=>g.Species==group.Species&&g.Sex==0&&(g.Position-group.Position).Length*frame.RadiusM<700).OrderBy(g=>(g.Position-group.Position).Length).FirstOrDefault();if(females!=null){group.Intent=WildlifeIntent.Rut;group.Goal=females.Position;return;}}
         if(behaviour.Migratory&&Math.Abs(Math.Sin(skyYear*Math.PI*2))>.75)
-        {group.Intent=WildlifeIntent.Migrate;angle=(WildlifeBehaviour.Winter(skyYear,latitude)>0?(latitude>=0?Math.PI:0):(latitude>=0?0:Math.PI));reach=350;}
+        {group.Intent=WildlifeIntent.Migrate;angle=WildlifeBehaviour.MigrationHeading(skyYear,latitude);reach=350;}
         else if(behaviour.Predator&&group.Hunger>.35)
         {
             Taxon hunter=group.Taxon>=0&&group.Taxon<sourceWorld.Ecology.Taxa.Length?sourceWorld.Ecology.Taxa[group.Taxon]:null;

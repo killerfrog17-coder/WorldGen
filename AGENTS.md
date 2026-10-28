@@ -1,5 +1,65 @@
 # WorldGen repository instructions
 
+ITEM POLISH PROGRESS,28October2026~10:17CDT:
+Selected owner shortcut still first IL2CPP player-item-functionality14:34Z, native
+102PASS. DO NOT overwrite it while owner may test; no user reply yet. Continued
+polish Native Mono physics-fixed107checks PASS/no runtime errors, rendered deer/
+goose/ground-squirrel inspected. Skin-fitted capsule radii, rig-aligned joint
+axes, tighter torso/proximal leg/tail constraints improved corpse coherence;
+p99 skin-edge stretch2.21 (<2.5 guard), some localized original-weight stretching
+remains (no anatomical perfection claim). All original live skins/rigs/actions
+unchanged.5Head-rooted rigs handled (do not omit body as head detail). Generic
+Joint_XX names no longer imply thick torso-sized leg colliders. Added source
+blood classifier: invertebrate guilds only; no spider-monkey/wildebeest/panda
+substring errors.63core-use checks pass incl migration direction not reversing
+within spring/fall; animal-to-animal LOS. Fixed stale neighbor targets: retired
+actors excluded immediately and destroyedRoot guarded. Earlier diagnostic NRE
+runs rejected; physics-fixed is clean. Artifacts retain all images/logs.
+Now real-world tool native validation underway: WorldGenItemWaterCheck flag
+(--worldgen-item-use-check plus --worldgen-item-water-check), runner -Water.
+First water fixture used old coarse channel curve, no bank pair found; corrected
+fixture finds CURRENT walkingPatch.RiverSpans before shore search. Latest build
+player-item-water-review2; own native PID18188, output water-review2; CHECK log.
+Production hand-line/net now uses actual3D range, horizontal tether allowance
+accounts for height, brings catch BACK toward angler rather than forward into
+water. These latest changes awaiting real-water native validation, no pass claim.
+Next must build NEW IL2CPP polished folder, native107+water validation, assetproof
+and select it; first selected release still has older corpse/blood behavior.
+Purged10superseded OWN test packages7.52GiB using daily/latest3/selected/running
+rule; retained selected release, prior portable-technology, latest3. No native
+source/art/saves removed. Evidence cleanup-plan/report in overnight task root.
+Do not try launching deleted diagnostic package paths above; logs/images remain.
+Subsequent polish source still uncommitted; checkpoint/push/remoteverify needed.
+Continue to17UTC or owner's explicit wrap-up, no subagents, no paid calls.
+
+ITEM-USE RELEASE SELECTED / CONTINUED POLISH,28October2026~09:37CDT:
+Existing shortcut NOW selects artifacts/player-item-functionality IL2CPP,
+BuiltUtc2026-10-28T14:34:45.3169338Z, native102checks PASS inclALL63actual item
+thumbs, combat/blood/ragdolls/projectiles, saved-corpse direct admission, group
+movement/index/asyncground and no render-asset load beyond visual range. Native
+release-final no runtime/shader errors/activeRT warning.578protected source/
+fauna/human/DLL hashes pass,177collision sidecar packaged hashes/sourceIDs exact,
+18audio output source hashes verified. Original177fauna/42human/protectedMPFB
+unchanged. Prior portable-technology retained. Shortcut is modified/needs commit.
+User test requested asynchronously, NO reply yet. Test workers stopped at release,
+then owner still not running WorldGen, continued authorized polish to17UTC.
+Git a186a6be3b0acd60633844746e2852c6ee149390 pushed/remotely verified before
+selection. Subsequent source polish NOT packaged/selected yet: skin-fitted corpse
+capsules (old name-only sizing misclassified generic Joint_XX legs), model-aligned
+joint axes, torso/tail/leg limits; exact canonical blood classes (substring
+spider-monkey/wildebeest/giant-panda errors fixed); migration heading seasonal
+trend fixed, local animal-to-animal LOS. Core63checks pass. Some initial revised
+corpse runs finite but skin-stretch diagnostic p99~2.7..2.9 (>new2.5guard); fitted
+body looks more coherent, original bad edges concentrated in shoulders/tail.
+Latest orientation/proximal-leg/tail refinement awaits native: own PID22108
+player-item-physics-refined, output overnight-items-20261028/physics-refined.
+Check status/log; failed coroutine workers stay alive, stop ONLY own verifiedPID.
+Ragdoll source now accounts for5 rigs rooted atHead (do NOT skip entire body as
+head detail). Pending native addsgoose+ground-squirrel, original-rig body physics.
+No native acceptance claim for those yet. Do not overwrite selected release while
+owner may test. Next IL2CPP must use NEW folder and preservation proof vsits own
+stagedDLLs, then select after native success. Continue to17UTC or ownerwrap.
+
 OVERNIGHT ITEM FUNCTIONALITY IN PROGRESS,28October2026:
 Owner NEW scope supersedes earlier weapons-visual-only restrictions: automatic
 hand management; all existing item functions, weapon melee/throw/block, animal/

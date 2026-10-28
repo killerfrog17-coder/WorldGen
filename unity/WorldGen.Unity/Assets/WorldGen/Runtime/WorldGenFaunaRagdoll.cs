@@ -20,22 +20,47 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
     Transform model;GameObject physicsRoot,floor;Mesh groundMesh;Vector3 lastModelPosition;float age,quiet;bool settled,paused;
     public int BodyCount=>parts.Count;public bool Settled=>settled;
     static Vector3 Point(float[] p)=>new Vector3(p[0],p[1],p[2]);
-    public void Begin(Transform renderedModel,FaunaPhysicsSpecies skeleton,Matrix4x4[] palette,double mass,Vector3 velocity,Func<float,float,float> ground,bool freeze=false)
+    public void Begin(Transform renderedModel,FaunaPhysicsSpecies skeleton,Matrix4x4[] palette,double mass,Vector3 velocity,Func<float,float,float> ground,bool freeze=false,FaunaCollisionSurface skin=null,Vector3[] posed=null,Vector4 visibleParts=default)
     {
         model=renderedModel;lastModelPosition=model.position;initial=(Matrix4x4[])palette.Clone();owners=new int[palette.Length];
         physicsRoot=new GameObject("Wildlife corpse physics");physicsRoot.transform.SetParent(transform,false);
         var map=new Dictionary<int,int>();float scale=model.lossyScale.x;
         var descriptions=skeleton?.bones;int count=descriptions?.Length??0;
+        var clouds=new List<Vector3>[count];
+        if(skin!=null&&posed?.Length==skin.Vertices.Length)
+        {
+            for(int vertex=0;vertex<posed.Length;vertex++)
+            {
+                if(!skin.Visible(vertex,visibleParts))continue;int owner=0;float strongest=0;
+                for(int j=0;j<4;j++){if(skin.Weights[vertex][j]>strongest){strongest=skin.Weights[vertex][j];owner=(int)skin.Joints[vertex][j];}if(skin.ExtraWeights[vertex][j]>strongest){strongest=skin.ExtraWeights[vertex][j];owner=(int)skin.ExtraJoints[vertex][j];}}
+                if(strongest<.25f||owner<0||owner>=count)continue;if(clouds[owner]==null)clouds[owner]=new List<Vector3>();clouds[owner].Add(posed[vertex]);
+            }
+        }
+        var headBones=new HashSet<int>();for(int i=0;i<count;i++)if(descriptions[i].parent>=0&&descriptions[i].name.IndexOf("head",StringComparison.OrdinalIgnoreCase)>=0)headBones.Add(i);
+        var headChain=new HashSet<int>(headBones);foreach(int head in headBones){int parent=descriptions[head].parent,guard=0;while(parent>=0&&parent<count&&guard++<count){headChain.Add(parent);parent=descriptions[parent].parent;}}
         for(int i=0;i<count;i++)
         {
             var b=descriptions[i];float span=Vector3.Distance(Point(b.head),Point(b.tail))*scale;string name=b.name.ToLowerInvariant();
             bool detail=name.Contains("eye")||name.Contains("ear")||name.Contains("jaw")||name.Contains("finger")||name.Contains("toe")||name.Contains("antler")||name.Contains("horn");
+            int ancestor=b.parent,guard=0;while(ancestor>=0&&ancestor<count&&guard++<count){if(headBones.Contains(ancestor)){detail=true;break;}ancestor=descriptions[ancestor].parent;}
             if(span<Math.Max(.008f,scale*.025f)||detail)continue;
             Vector3 start=model.TransformPoint(palette[i].MultiplyPoint3x4(Point(b.head))),end=model.TransformPoint(palette[i].MultiplyPoint3x4(Point(b.tail)));
             if(Vector3.Distance(start,end)<.006f)continue;
             bool limb=name.Contains("leg")||name.Contains("arm")||name.Contains("foot")||name.Contains("paw")||name.Contains("shin")||name.Contains("fore")||name.Contains("wing")||name.Contains("tail");
             float radius=Mathf.Clamp(span*(limb?.17f:.35f),scale*(limb?.012f:.025f),scale*(limb?.045f:.09f));
-            Add(i,start,end,radius,Math.Max(.00001,mass),map,descriptions,velocity);
+            if(clouds[i]?.Count>=6)
+            {
+                var axis=end-start;float length2=axis.sqrMagnitude;var radii=new List<float>();
+                foreach(var point in clouds[i]){float t=Vector3.Dot(point-start,axis)/length2;if(t<.1f||t>.9f)continue;radii.Add(Vector3.Distance(point,start+axis*t));}
+                if(radii.Count>=4){radii.Sort();radius=Mathf.Clamp(radii[(int)((radii.Count-1)*.65f)]*.8f,Mathf.Max(.0015f,scale*.003f),scale*.18f);}
+            }
+            // Geometric classification is essential for rigs named Joint_01,
+            // Joint_02... Names alone cannot distinguish their torso and legs.
+            bool central=Mathf.Abs(Point(b.head).x)<.025f&&Mathf.Abs(Point(b.tail).x)<.025f;
+            bool spine=central&&Mathf.Abs(Point(b.tail).y-Point(b.head).y)<Mathf.Abs(Point(b.tail).z-Point(b.head).z)*.4f;
+            var restAxis=Point(b.tail)-Point(b.head);bool leg=!central&&Mathf.Abs(restAxis.y)>Mathf.Abs(restAxis.x)*.6f&&(Point(b.head).y+Point(b.tail).y)*.5f<Point(descriptions[0].head).y+.04f;
+            bool tail=central&&headBones.Count>0&&!headChain.Contains(i);
+            Add(i,start,end,radius,Math.Max(.00001,mass),map,descriptions,velocity,spine&&!tail,leg,tail);
         }
         if(parts.Count==0)
         {
@@ -59,10 +84,11 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
         BuildGround(ground,model.position,Mathf.Max(8,scale*3));Physics.SyncTransforms();
         if(freeze)Freeze();else if(parts.Count>0)parts[0].Body.AddForceAtPosition(model.right*(float)Math.Min(2,mass*.05),parts[0].Body.worldCenterOfMass+Vector3.up*.08f,ForceMode.Impulse);
     }
-    void Add(int bone,Vector3 start,Vector3 end,float radius,double mass,Dictionary<int,int> map,FaunaPhysicsBone[] descriptions,Vector3 velocity)
+    void Add(int bone,Vector3 start,Vector3 end,float radius,double mass,Dictionary<int,int> map,FaunaPhysicsBone[] descriptions,Vector3 velocity,bool spine=false,bool leg=false,bool tail=false)
     {
         var obj=new GameObject("Corpse bone "+bone);obj.transform.SetParent(physicsRoot.transform,false);obj.transform.position=(start+end)*.5f;
-        obj.transform.rotation=Quaternion.FromToRotation(Vector3.up,(end-start).normalized);
+        var axis=(end-start).normalized;var forward=Vector3.ProjectOnPlane(model.forward,axis);if(forward.sqrMagnitude<.001f)forward=Vector3.ProjectOnPlane(model.up,axis);
+        obj.transform.rotation=Quaternion.LookRotation(forward.normalized,axis);
         var capsule=obj.AddComponent<CapsuleCollider>();capsule.direction=1;capsule.radius=radius;capsule.height=Mathf.Max(radius*2,Vector3.Distance(start,end));
         var body=obj.AddComponent<Rigidbody>();body.mass=(float)Math.Max(.00001,mass/10);body.linearDamping=.4f;body.angularDamping=1.3f;body.solverIterations=10;body.solverVelocityIterations=4;
         body.collisionDetectionMode=CollisionDetectionMode.ContinuousSpeculative;body.maxDepenetrationVelocity=2;body.interpolation=RigidbodyInterpolation.Interpolate;body.linearVelocity=Vector3.ClampMagnitude(velocity,15);
@@ -70,9 +96,10 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
         while(parent>=0&&!map.ContainsKey(parent)&&guard++<descriptions.Length)parent=descriptions[parent].parent;
         if(map.TryGetValue(parent,out int connected))
         {
+            bool proximal=leg&&descriptions!=null&&Mathf.Abs(Point(descriptions[parent].head).x)<.025f&&Mathf.Abs(Point(descriptions[parent].tail).x)<.025f;
             var joint=obj.AddComponent<CharacterJoint>();joint.connectedBody=parts[connected].Body;joint.autoConfigureConnectedAnchor=false;
             joint.anchor=obj.transform.InverseTransformPoint(start);joint.connectedAnchor=joint.connectedBody.transform.InverseTransformPoint(start);joint.axis=Vector3.up;joint.swingAxis=Vector3.right;
-            joint.lowTwistLimit=new SoftJointLimit{limit=-20};joint.highTwistLimit=new SoftJointLimit{limit=20};joint.swing1Limit=new SoftJointLimit{limit=65};joint.swing2Limit=new SoftJointLimit{limit=40};
+            joint.lowTwistLimit=new SoftJointLimit{limit=spine||leg||tail?-6:-20};joint.highTwistLimit=new SoftJointLimit{limit=spine||leg||tail?6:20};joint.swing1Limit=new SoftJointLimit{limit=spine?10:tail?25:leg?(proximal?45:85):65};joint.swing2Limit=new SoftJointLimit{limit=spine?8:tail?15:leg?10:40};
             joint.enableProjection=true;joint.projectionDistance=.025f;joint.projectionAngle=10;
         }
         map[bone]=parts.Count;parts.Add(new Part{Bone=bone,Body=body,InverseStart=(model.worldToLocalMatrix*body.transform.localToWorldMatrix).inverse});
