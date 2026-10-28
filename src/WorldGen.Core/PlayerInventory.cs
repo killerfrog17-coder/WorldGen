@@ -5,7 +5,7 @@ using System.Linq;
 namespace WorldGen.Core
 {
     public enum PossessionPlace { Ground,RightHand,LeftHand,Container,Back }
-    public enum PossessionKind { SmallRock,LargeRock,TestBag }
+    public enum PossessionKind { SmallRock,LargeRock,TestBag,StoneFlake }
     [Serializable]
     public sealed class Possession
     {
@@ -20,7 +20,9 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public double GroundOffsetM;
         [System.Runtime.Serialization.OptionalField] public bool GroundMoving;
         [System.Runtime.Serialization.OptionalField] public V GroundRotation;
-        public string Name=>Kind==PossessionKind.SmallRock?"Small rock":Kind==PossessionKind.LargeRock?"Large rock":"Testing bag";
+        [System.Runtime.Serialization.OptionalField] public int FlakeRemovals;
+        [System.Runtime.Serialization.OptionalField] public double EdgeSharpness;
+        public string Name=>Kind==PossessionKind.SmallRock?"Small rock":Kind==PossessionKind.LargeRock?"Large rock":Kind==PossessionKind.StoneFlake?"Stone flake":"Testing bag";
         public int Hands=>Kind==PossessionKind.LargeRock?2:1;
         public int PackedWidth=>Rotated?CellsHigh:CellsWide;
         public int PackedHeight=>Rotated?CellsWide:CellsHigh;
@@ -35,12 +37,13 @@ namespace WorldGen.Core
         public string PlayerName="Survivor";
         public List<Possession> Items=new List<Possession>();
         public List<ulong> CollectedNatural=new List<ulong>();
+        [System.Runtime.Serialization.OptionalField] public List<ItemCraftJob> Crafts=new List<ItemCraftJob>();
         public PossessionPlace ActiveHand=PossessionPlace.RightHand;
         public static PlayerInventory Starter()
         {
             var s=new PlayerInventory();s.Items.Add(new Possession{Id="testing-bag",Kind=PossessionKind.TestBag,Place=PossessionPlace.Back,CellsWide=6,CellsHigh=7,WidthM=.6,HeightM=.7,DepthM=.22,MassKg=.6});return s;
         }
-        public PlayerInventory Copy()=>new PlayerInventory{PlayerName=PlayerName,ActiveHand=ActiveHand,Items=Items.Select(i=>i.Copy()).ToList(),CollectedNatural=new List<ulong>(CollectedNatural)};
+        public PlayerInventory Copy()=>new PlayerInventory{PlayerName=PlayerName,ActiveHand=ActiveHand,Items=Items.Select(i=>i.Copy()).ToList(),CollectedNatural=new List<ulong>(CollectedNatural),Crafts=(Crafts??new List<ItemCraftJob>()).Select(j=>j.Copy()).ToList()};
         public Possession Find(string id)=>Items.FirstOrDefault(i=>i.Id==id);
         public Possession AtHand(PossessionPlace hand)=>Items.FirstOrDefault(i=>i.Place==hand||i.Hands==2&&(i.Place==PossessionPlace.LeftHand||i.Place==PossessionPlace.RightHand));
         public Possession Bag=>Items.FirstOrDefault(i=>i.Place==PossessionPlace.Back);
@@ -118,6 +121,7 @@ namespace WorldGen.Core
                 if(!CanMove(item.Id,item.Place,item.ContainerId,item.X,item.Y,item.Rotated,out string reason))throw new ArgumentException(reason);
             }
             if(new HashSet<ulong>(CollectedNatural).Count!=CollectedNatural.Count)throw new ArgumentException("Duplicate collected identities.");
+            Crafts=Crafts??new List<ItemCraftJob>();StoneCrafting.Validate(this);
         }
     }
 }

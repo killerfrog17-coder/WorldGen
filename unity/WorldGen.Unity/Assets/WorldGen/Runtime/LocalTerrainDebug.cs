@@ -37,7 +37,7 @@ public sealed partial class LocalTerrainExplorer
     Texture2D mapTexture;int mapRevision;
     public bool DebugVisible=>debugOpen;
     public bool MapVisible=>mapOpen;
-    public bool Paused=>paused||inventoryOpen;
+    public bool Paused=>paused||inventoryOpen&&!CraftWorking;
     public bool MapReady=>mapSurface!=null&&!mapDirty&&!mapRefining&&shownMapRevision==mapRevision;
     public int MapBuildCount {get;private set;}
     double MaximumViewDistance=>terrain==null?250000:Math.Min(250000,terrain.RadiusM*HorizontalScale*.3);

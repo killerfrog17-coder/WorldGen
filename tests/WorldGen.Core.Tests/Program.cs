@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--stone-crafting-only")){StoneCraftingTests.Run();return;}
 if(args.Contains("--player-inventory-only")){PlayerInventoryTests.Run();return;}
 if(args.Contains("--player-death-only")){PlayerDeathTests.Run();return;}
 if(args.Contains("--player-camera-only")){PlayerCameraRigTests.Run();return;}

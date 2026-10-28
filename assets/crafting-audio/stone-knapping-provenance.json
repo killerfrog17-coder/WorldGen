@@ -1,0 +1,100 @@
+{
+  "model": "stabilityai/stable-audio-3-small-sfx",
+  "source": "local generation, existing weights; no paid service",
+  "processing": "mono fold, isolated impact crops, bounded gain, short endpoint fades; no procedural audio",
+  "listening_approval": "Owner audition pending; numerical screening is not listening approval.",
+  "license": "https://stability.ai/license",
+  "prompt_guide": "https://stability.ai/guides/stable-audio-3-prompt-guide",
+  "clips": [
+    {
+      "path": "unity\\WorldGen.Unity\\Assets\\WorldGen\\Resources\\Crafting\\Stone\\knap-01.wav",
+      "sha256": "49fcfb35eaba53db72b7c14ee44d697b39a4afe6ebd4a64294b16df6d1821a3a",
+      "source": "knapping-stone-01",
+      "source_sha256": "f14ece605a9de4f881d938114789c4ba78f8ec496ea0a3fe38b8717e147ddb94",
+      "crop_seconds": [
+        0.1,
+        0.21
+      ],
+      "seconds": 0.11,
+      "peak": 0.6500244140625,
+      "prompt": "TrackType: SFX. Several isolated hand-sized stone on stone percussion strikes for flint knapping. Close dry studio Foley. Short hard clacks with a small brittle stone chip rattle after each impact. Clear quiet pauses between impacts.",
+      "seed": 192077,
+      "model": "stabilityai/stable-audio-3-small-sfx"
+    },
+    {
+      "path": "unity\\WorldGen.Unity\\Assets\\WorldGen\\Resources\\Crafting\\Stone\\knap-02.wav",
+      "sha256": "8b62f93ed9df43f866c1eb96d89eb2bd062a3c8795708296fd4a607c39724a09",
+      "source": "knapping-stone-01",
+      "source_sha256": "f14ece605a9de4f881d938114789c4ba78f8ec496ea0a3fe38b8717e147ddb94",
+      "crop_seconds": [
+        1.44,
+        1.56
+      ],
+      "seconds": 0.12,
+      "peak": 0.6500244140625,
+      "prompt": "TrackType: SFX. Several isolated hand-sized stone on stone percussion strikes for flint knapping. Close dry studio Foley. Short hard clacks with a small brittle stone chip rattle after each impact. Clear quiet pauses between impacts.",
+      "seed": 192077,
+      "model": "stabilityai/stable-audio-3-small-sfx"
+    },
+    {
+      "path": "unity\\WorldGen.Unity\\Assets\\WorldGen\\Resources\\Crafting\\Stone\\knap-03.wav",
+      "sha256": "9262501d7a58d018eb5ed2db74caea8f9627908337eda65cda8a121942a81b98",
+      "source": "knapping-stone-01",
+      "source_sha256": "f14ece605a9de4f881d938114789c4ba78f8ec496ea0a3fe38b8717e147ddb94",
+      "crop_seconds": [
+        5.89,
+        6.0
+      ],
+      "seconds": 0.11,
+      "peak": 0.6500244140625,
+      "prompt": "TrackType: SFX. Several isolated hand-sized stone on stone percussion strikes for flint knapping. Close dry studio Foley. Short hard clacks with a small brittle stone chip rattle after each impact. Clear quiet pauses between impacts.",
+      "seed": 192077,
+      "model": "stabilityai/stable-audio-3-small-sfx"
+    },
+    {
+      "path": "unity\\WorldGen.Unity\\Assets\\WorldGen\\Resources\\Crafting\\Stone\\knap-04.wav",
+      "sha256": "e7cb1b3c62025b08061eec7980b1c4490c127b501a99de2b54b9218a983f67f0",
+      "source": "knapping-stone-02",
+      "source_sha256": "7c17a14c76208940b7f5e4e1c2828d504cecf65a6a02555168dda82f6ce2788c",
+      "crop_seconds": [
+        0.46,
+        0.58
+      ],
+      "seconds": 0.12,
+      "peak": 0.6500244140625,
+      "prompt": "TrackType: SFX. Separated stone toolmaking impacts as a rounded handheld rock strikes a hard stone cobble. Crisp compact clinks and dry granular ticks. Close isolated Foley on a quiet background, with space between each strike.",
+      "seed": 199996,
+      "model": "stabilityai/stable-audio-3-small-sfx"
+    },
+    {
+      "path": "unity\\WorldGen.Unity\\Assets\\WorldGen\\Resources\\Crafting\\Stone\\knap-05.wav",
+      "sha256": "47f1400e42903018bc432c54f245c9ffb06c8ae9c6af22be2e3079a993e9c77c",
+      "source": "knapping-stone-02",
+      "source_sha256": "7c17a14c76208940b7f5e4e1c2828d504cecf65a6a02555168dda82f6ce2788c",
+      "crop_seconds": [
+        6.37,
+        6.48
+      ],
+      "seconds": 0.11,
+      "peak": 0.649993896484375,
+      "prompt": "TrackType: SFX. Separated stone toolmaking impacts as a rounded handheld rock strikes a hard stone cobble. Crisp compact clinks and dry granular ticks. Close isolated Foley on a quiet background, with space between each strike.",
+      "seed": 199996,
+      "model": "stabilityai/stable-audio-3-small-sfx"
+    },
+    {
+      "path": "unity\\WorldGen.Unity\\Assets\\WorldGen\\Resources\\Crafting\\Stone\\knap-06.wav",
+      "sha256": "7041daf9029ecf45b440effdd69e4f00fb06b4cea186e9d8497baa88d00c7dee",
+      "source": "knapping-stone-02",
+      "source_sha256": "7c17a14c76208940b7f5e4e1c2828d504cecf65a6a02555168dda82f6ce2788c",
+      "crop_seconds": [
+        7.52,
+        7.63
+      ],
+      "seconds": 0.11,
+      "peak": 0.6500244140625,
+      "prompt": "TrackType: SFX. Separated stone toolmaking impacts as a rounded handheld rock strikes a hard stone cobble. Crisp compact clinks and dry granular ticks. Close isolated Foley on a quiet background, with space between each strike.",
+      "seed": 199996,
+      "model": "stabilityai/stable-audio-3-small-sfx"
+    }
+  ]
+}

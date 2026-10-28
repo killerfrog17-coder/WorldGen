@@ -1,5 +1,31 @@
 # WorldGen repository instructions
 
+FIRST STONE CRAFTING / FASTER OWNER HANDOFF,27October2026:
+Owner explicitly authorizes right-click stone crafting, timed work/sounds, shared
+input progress bars and separate saved item-crafting duration multiplier. Ordinary
+rocks NEVER become named hammerstone/core items: suitability determines roles.
+First action Strike off a cutting flake uses another compact ordinary stone,
+retains input identity/mass, creates a physical sharp flake, shrinks/scars original.
+Solar-day-scaled preparation/work cycle; calendar compression independent. World
+settings/Time & calendar Item crafting time defaults1,2 doubles duration. Inventory
+transfers remain INSTANT; active crafting advances clock/needs in inventory.
+Pause/resume projects saved, reopen paused; no offline work. Geometry/material
+proxies use existing rock families/variants, not physical fracture simulation.
+No wood cutting, builds, other resources, history, animation or human/fauna art changes.
+Six short local Stable Audio3 SmallSFX impacts,60KB; provenance assets/crafting-audio.
+Owner listening acceptance pending.37craft+72inventory+22camera/save core checks,
+23editor geometry/audio checks pass.10native partial flow checks pass through
+real stone collection/start/time/progress/pause. Native full-flow NOT established:
+first test wrongly required adjacent stones; second tested new empty settings
+instead of copying session settings. Diagnostic fixed, final owner test preferred.
+Owner specifically says prioritize collaboration speed while actively available:
+small targeted checks, EARLIER playable handoff, user feedback next; avoid prolonged
+automated validation/rebuild loops for diagnostic-only problems. Final package
+player-stone-crafting; prior player-pickup-icon-range retained. Own worker cleanup,
+source/docs/shortcut checkpoint and GitHub push/remoteverify required. Preserve
+owner prompt deletion/two deer scripts, all177fauna/42human maps/protected native.
+Evidence artifacts/stone-crafting. No performance or full gameplay acceptance claim.
+
 SURVIVAL CRAFTING ROADMAP PDF,27October2026:
 Owner requests researched feature order/dependency map plus per-feature research
 workflow for AI/YouTube. Delivered docs/reports/WorldGen - Survival Crafting

@@ -36,7 +36,7 @@ public sealed partial class LocalTerrainExplorer
             float distance=Vector3.Distance(feet,candidate.Point),alpha=Mathf.SmoothStep(0,1,4-distance);
             if(alpha<=0)continue;var screen=view.WorldToScreenPoint(transform.TransformPoint(candidate.Point));
             if(screen.z<=0)continue;
-            float size=27*scale;var icon=candidate.Item.Kind==PossessionKind.TestBag?inventoryBagIcon:inventoryRockIcon;
+            float size=27*scale;var icon=InventoryItemIcon(candidate.Item);
             GUI.color=new Color(0,0,0,alpha*.8f);GUI.DrawTexture(new Rect(screen.x-size/2-1,Screen.height-screen.y-size-1,size+2,size+2),icon);
             GUI.color=new Color(1,1,1,alpha);GUI.DrawTexture(new Rect(screen.x-size/2,Screen.height-screen.y-size,size,size),icon);
         }
@@ -150,7 +150,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var id in inventoryDrops.Keys.ToArray())
         {
             RemoveDroppedBody(id);
-            if(inventoryVisuals.TryGetValue(id,out var root)){root.SetActive(false);Destroy(root);inventoryVisuals.Remove(id);inventoryVisualPlaces.Remove(id);}
+            if(inventoryVisuals.TryGetValue(id,out var root)){DestroyInventoryVisual(root);inventoryVisuals.Remove(id);inventoryVisualPlaces.Remove(id);}
         }
         foreach(var floor in inventoryFloors.Values){floor.Root.SetActive(false);Destroy(floor.Root);Destroy(floor.Mesh);}inventoryFloors.Clear();
     }

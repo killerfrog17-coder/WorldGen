@@ -64,8 +64,8 @@ their original globally stable scatter IDs. Dimensions, rock-family variant
 and tint are retained; approximate ellipsoid mass uses2600kg/m³. Rocks above
 25kg or0.55m width/0.45m height remain scenery. This is a carrying approximation,
 not a geological density model. Packing rounds width/height up to10cm cells;
-rotation is supported and items never stack in this pass. No berries/arrows/
-crafting, other pickups, harvesting or construction was added.
+rotation is supported and items never stack. The later first stone-crafting
+action is described below; berries/arrows, harvesting and construction remain absent.
 
 Nearby scans run at5Hz while showing proximity icons/inventory, and immediately
 on transfer requests. Icons fade in from4m to3m from the player feet; the aimed
@@ -98,8 +98,54 @@ Mass includes worn/held items and contents of carried containers; dropping a
 loaded bag removes its entire load without changing any item's true mass.
 Movement scales smoothly above8kg via1/(1+((mass-8)/25)^1.5), with additional
 Survival exertion cost. It is prototype balance, not a measured human capacity.
-The inventory pauses local movement/needs and the play clock, releases cursor
-capture and hides the survival HUD. Spectator has no inventory interaction.
+The inventory pauses local movement/needs and the play clock except while an
+item-crafting job runs. It releases cursor capture and hides the survival HUD.
+Spectator has no inventory interaction.
+
+## First stone crafting - 27 October
+
+Right-click a suitable ordinary rock in hands, a reachable bag or Nearby and
+choose **Strike off a cutting flake**. Another compact, one-handed stone must
+be accessible, and unrelated held items must be put away. The striking stone
+goes into the right hand; the workpiece goes into the left hand or onto the
+ground if it needs both hands. Ordinary stones retain their names: hammerstone
+and core are working roles, not new inventory item types.
+
+The unavailable action explains unsuitable material, dimensions or missing
+equipment. Existing coarse rock-family/variant data serves as a prototype
+material proxy: basalt, one quartzite-like metamorphic variant, one chert-bearing
+limestone variant and one silicified sandstone variant can flake. This is not a
+detailed geological simulation or a change to generated terrain.
+
+Both involved item icons show the same progress. The context action pauses or
+resumes an unfinished project. Moving an input pauses work; walking/jumping
+outside inventory also pauses it. Explicit pause/map/chat/ecology/unfocus stop
+work. Partial projects persist through saves, reopening paused after loading;
+there is no offline completion. Ordinary inventory transfers remain immediate.
+
+Work follows solar-day speed, independently of calendar compression. **World
+settings → Time & calendar → Item crafting time** defaults to ×1; ×2 doubles
+the duration. The initial preparation-and-flaking cycle is roughly two solar
+minutes, adjusted by stone mass/material, or about 4–8 real seconds at a
+60-minute day. This is gameplay balance, not an archaeological claim that a
+single blow takes minutes. While work runs, play time and existing Survival
+needs advance even with inventory open.
+
+Completion creates one physical cutting flake and removes its actual mass from
+the same original rock. The original keeps its identity, shrinks and acquires a
+simple closed fracture scar; the flake falls beside the player rather than
+appearing in a bag. Further flaking stops when the remaining stone is too small.
+Cutting capability is recorded, but cutting wood and other downstream actions
+are not implemented yet. Held objects/arm poses remain placeholders; there is
+no new knapping animation.
+
+Six short mono stone-impact effects were generated locally using Stable Audio
+3 Small SFX, cropped with fades and packaged as Resources. Prompts, seeds,
+model/license references and hashes are in
+`assets/crafting-audio/stone-knapping-provenance.json`; the reproducible crop
+script is `scripts/publish-stone-knapping-sounds.py`. No paid generation calls
+were made. Numerical/import checks do not replace the owner's listening review.
+Stone-tool context: [Smithsonian Human Origins](https://humanorigins.si.edu/evidence/behavior/stone-tools/early-stone-age-tools).
 
 Third-person camera probes the existing terrain height field and pulls inward
 before crossing the ground. It does not add terrain mesh colliders. The distance

@@ -72,6 +72,8 @@ public sealed partial class WorldGenRuntime
         if(section==null||section=="Time"){
         GUILayout.Label("TIME & CALENDAR",SectionStyle());
         s.RealMinutesPerDay=Number("day","Day length",s.RealMinutesPerDay,1,10080,"min IRL");
+        s.ItemCraftingTimeMultiplier=Number("crafting","Item crafting time",s.ItemCraftingTimeMultiplier,.1,20,"×");
+        GUILayout.Label("Crafting ×2 takes twice as long. Work follows day length; calendar compression does not accelerate item crafting.",MutedStyle());
         s.CalendarDaysPerDay=Number("calendar","Calendar per day",s.CalendarDaysPerDay,1,365,"days");
         GUILayout.BeginHorizontal();foreach(var choice in new[]{("Day",1d),("Week",7d),("Month",SimulationTime.Year/(12d*SimulationTime.Day))})
             if(GUILayout.Button(choice.Item1)){s.CalendarDaysPerDay=choice.Item2;inputText.Remove("play-calendar");GUI.FocusControl(null);}GUILayout.EndHorizontal();

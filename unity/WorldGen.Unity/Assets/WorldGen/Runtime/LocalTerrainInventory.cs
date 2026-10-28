@@ -18,12 +18,12 @@ public sealed partial class LocalTerrainExplorer
     string inventoryNotice="",inventorySelected="";float inventoryNoticeUntil;
     Material inventoryBagMaterial;
     readonly HashSet<ArtModel> inventoryPinnedArt=new HashSet<ArtModel>();
-    readonly bool inventoryReviewMode=Environment.GetCommandLineArgs().Contains("--worldgen-inventory-check");
+    readonly bool inventoryReviewMode=Environment.GetCommandLineArgs().Contains("--worldgen-inventory-check")||Environment.GetCommandLineArgs().Contains("--worldgen-stone-craft-check");
     Transform inventoryBoneOwner;Dictionary<string,Transform> inventoryBones;
     void InitializeInventory()
     {
         if(inventoryInitialized)return;inventoryInitialized=true;Inventory.Validate();
-        foreach(var id in Inventory.CollectedNatural)inventoryCollected.Add(id);scatterDirty=true;
+        foreach(var id in Inventory.CollectedNatural)inventoryCollected.Add(id);foreach(var job in Inventory.Crafts)job.Running=false;scatterDirty=true;
     }
     bool CollectedRock(ScatterInstance p)=>(p.Kind==ScatterKind.Stone||p.Kind==ScatterKind.Boulder)&&inventoryCollected.Contains(p.Id);
     static Possession RockPossession(ScatterInstance p)
@@ -109,6 +109,7 @@ public sealed partial class LocalTerrainExplorer
         if(candidate.Natural)Inventory.Items.Add(item);
         string reason;bool moved=autoStow?Inventory.Stow(id,out reason):autoHand?Inventory.Hold(id,out reason):Inventory.Move(id,place,bag,x,y,rotated,out reason);
         if(!moved){if(candidate.Natural)Inventory.Items.Remove(item);InventoryFeedback(reason);return false;}
+        foreach(var job in Inventory.Crafts.Where(j=>j.WorkpieceId==id||j.ToolId==id))PauseItemCraft(job);
         if(candidate.Natural){inventoryCollected.Add(item.NaturalId);Inventory.CollectedNatural.Add(item.NaturalId);scatterDirty=true;}
         if(place==PossessionPlace.Ground&&!autoStow&&!autoHand)
         {
@@ -160,8 +161,8 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!Ready)return;InitializeInventory();
         if((DeathVisible||Spectating)&&inventoryOpen)SetInventoryOpen(false);
-        if(DeathVisible)return;
-        if(inventoryOpen)RefreshInventoryNearby();
+        if(DeathVisible){PauseItemCraft(ActiveItemCraft);return;}
+        if(inventoryOpen||CraftWorking)RefreshInventoryNearby();UpdateStoneCrafting();
     }
     GameObject CreatePossessionVisual(Possession item,int layer)
     {
@@ -179,11 +180,15 @@ public sealed partial class LocalTerrainExplorer
             foreach(var part in art.Parts)
             {
                 var obj=new GameObject("Rock surface",typeof(MeshFilter),typeof(MeshRenderer));obj.layer=layer;obj.transform.SetParent(root.transform,false);
+                if(item.Kind==PossessionKind.StoneFlake||item.FlakeRemovals>0)
+                {
+                    Destroy(obj);AddCraftMesh(root,item.Kind==PossessionKind.StoneFlake?CuttingFlakeMesh():WorkedStoneMesh(part.Mesh,item.FlakeRemovals),part.Material,item,layer);continue;
+                }
                 obj.GetComponent<MeshFilter>().sharedMesh=part.Mesh;var renderer=obj.GetComponent<MeshRenderer>();renderer.sharedMaterial=part.Material;
                 var props=new MaterialPropertyBlock();props.SetVector("_Tint",new Vector4((float)item.Tint.X,(float)item.Tint.Y,(float)item.Tint.Z,1));props.SetVector("_LodTransition",new Vector4(0,1,0,0));renderer.SetPropertyBlock(props);
             }
         }
-        root.transform.localScale=new Vector3((float)item.WidthM,(float)item.HeightM,(float)(item.Kind==PossessionKind.TestBag?item.DepthM/.55:item.WidthM));return root;
+        root.transform.localScale=new Vector3((float)item.WidthM,(float)item.HeightM,(float)(item.Kind==PossessionKind.TestBag?item.DepthM/.55:item.Kind==PossessionKind.StoneFlake?item.DepthM:item.WidthM));return root;
     }
     void UpdateInventoryVisuals()
     {
@@ -226,7 +231,7 @@ public sealed partial class LocalTerrainExplorer
             }
         }
         UpdateDroppedBodies();
-        foreach(var id in inventoryVisuals.Keys.Where(id=>!present.Contains(id)).ToArray()){RemoveDroppedBody(id);Destroy(inventoryVisuals[id]);inventoryVisuals.Remove(id);inventoryVisualPlaces.Remove(id);}
+        foreach(var id in inventoryVisuals.Keys.Where(id=>!present.Contains(id)).ToArray()){RemoveDroppedBody(id);DestroyInventoryVisual(inventoryVisuals[id]);inventoryVisuals.Remove(id);inventoryVisualPlaces.Remove(id);}
     }
     void PoseInventoryHands(HumanActor actor,Dictionary<string,Transform> bones)
     {
@@ -247,8 +252,9 @@ public sealed partial class LocalTerrainExplorer
     }
     void DisposeInventory()
     {
-        ClearInventoryPhysics();DisposeInventoryPreview();foreach(var root in inventoryVisuals.Values)if(root!=null)Destroy(root);inventoryVisuals.Clear();
+        ClearInventoryPhysics();DisposeInventoryPreview();foreach(var root in inventoryVisuals.Values)if(root!=null)DestroyInventoryVisual(root);inventoryVisuals.Clear();
         if(inventoryBagMaterial!=null)Destroy(inventoryBagMaterial);
         if(inventoryDropMaterial!=null)Destroy(inventoryDropMaterial);
+        if(stoneCraftVoice!=null){stoneCraftVoice.Stop();Destroy(stoneCraftVoice.gameObject);}
     }
 }

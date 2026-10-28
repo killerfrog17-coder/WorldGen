@@ -1,5 +1,31 @@
 # Version 3 validation evidence
 
+## First stone crafting - 27 October 2026
+
+Right-click ordinary suitable rock, timed flaking with another suitable stone,
+matching item bars, pause/resume and saved duration multiplier. Source rock keeps
+its identity and loses the mass of the physical cutting-flake output. No transfer
+delays, new resources/construction, wood-cutting actions or character animations.
+
+37 focused crafting checks,72 inventory checks and22 camera/save checks pass.
+23 actual Unity editor geometry/audio checks pass; original/worked/flake render
+inspected. Six local Stable Audio3 clips import correctly (mono44.1kHz,60KB total),
+but numerical/import checks are not listening approval. Provenance is tracked.
+
+10 packaged checks pass through real natural stone collection, start, unchanged
+names/ownership, clock advancement, sounds dispatch, progress and pause. Actual
+action/progress screenshots inspected. The complete native flow was not validated:
+first diagnostic wrongly required adjacent natural stones; second created fresh
+settings for its full-session assertion rather than copying current settings.
+Both diagnostic setups are corrected. Owner explicitly prioritizes immediate
+hands-on testing over another full automated run. Core completion/mass/save checks
+remain passing; do not represent the partial native run as full-flow success.
+
+IL2CPP `player-stone-crafting`, previous `player-pickup-icon-range` retained.
+Evidence: `artifacts/stone-crafting`, including rejected diagnostic logs. No FPS
+claim. Existing human/fauna assets preserved; no owner app closures or save edits.
+See HUMAN_PLAYER_PROTOTYPE for timing, controls, geological approximations and limits.
+
 ## Pickup marker range - 27 October 2026
 
 Owner adjusts icon fade to4m beginning/3m full, instead of2m/1m. Separate marker

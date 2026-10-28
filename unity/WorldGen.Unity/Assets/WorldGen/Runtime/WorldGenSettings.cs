@@ -87,7 +87,8 @@ public sealed partial class WorldGenRuntime
                 GUILayout.Label("INVENTORY & EQUIPMENT",SectionStyle());
                 GUILayout.Label("I / Tab: inventory. Drag items between hands, container grids and Nearby; R rotates an item while dragging. Right-click an item for available transfers.");
                 GUILayout.Label("E: pick up the aimed-at rock into a free hand. Q: swap held items. 1 / 2: select a hand. R: stow its item in the worn bag. G: drop its item with physics. B: set down the worn bag, or wear a nearby bag.");
-                GUILayout.Label("Small rocks use one hand; large rocks use both. Your body has no storage. The testing bag supplies a 6 by 7 grid; dropping it keeps its contents together. Bag access takes a short moment. Load includes everything actually carried.");
+                GUILayout.Label("Small rocks use one hand; large rocks use both. Your body has no storage. The testing bag supplies a 6 by 7 grid; dropping it keeps its contents together. Transfers are immediate. Load includes everything actually carried.");
+                GUILayout.Label("Right-click a suitable stone: strike off a cutting flake using another suitable stone. Progress appears on both items; right-click to pause/resume. Moving an involved item or walking pauses work. Item crafting time is under World settings → Time & calendar.");
                 GUILayout.Space(12);GUILayout.Label("MOVEMENT & CAMERA",SectionStyle());
                 GUILayout.Label("WASD: move. C: walk. Shift: sprint. Ctrl: crouch. Space: jump. Mouse wheel: first/third person. Middle mouse: lock camera distance. Creative F: flight; Alt + wheel: flight speed. /gamemode survival | creative | spectator selects mode.");
                 break;
