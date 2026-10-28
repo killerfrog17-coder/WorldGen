@@ -73,3 +73,33 @@ The numerical thresholds and grouping ranges are gameplay approximations. The
 native tests cover nearby deer flight, wolf pursuit/contact death, retained group
 movement, restored group indexing and distant terrain-query safety. They do not
 certify universal species behaviour, bird landing or measured forest FPS.
+
+## Local follow-up draft after the tested checkpoint
+
+During the owner's competitive-play resource restriction, static review found
+two corrections worth preparing without rebuilding or changing the tested game:
+
+- Runtime behaviour currently combines the canonical model ID with the display
+  name, while the spawn planner uses the canonical ID alone. That can interpret
+  `western` as `tern`, or `rattlesnake` as `rat`. The draft aligns runtime lookup
+  with the planner; display labels no longer imply a different animal family.
+- Contact attacks are admitted using horizontal proximity, without a final
+  three-dimensional reach check. The draft rejects vertically unreachable prey
+  before applying damage or spending the attack cooldown. Its player check uses
+  an approximate body volume; this is not anatomical mouth/limb collision.
+
+The unapplied draft is [wildlife-contact-and-labels.patch](../scripts/drafts/wildlife-contact-and-labels.patch).
+It also prepares native regressions for the owl-label and unreachable-prey cases,
+and moves the existing positive contact fixture into actual contact range.
+`git apply --check --ignore-space-change` passes against current source, including
+the workspace's mixed line endings. **The patch has not been applied, compiled or
+runtime tested**, and is not included in the selected 123 +13-check release.
+Resume with application and the focused/native checks only after competitive
+play ends. The tested local checkpoint is tagged `checkpoint/items-20261028`.
+
+One further review item remains: `Food.Fish` is distinct from `Food.Vertebrate`,
+but the current predator flag only includes the latter. Before broadening it,
+check aquatic pursuit and fish-eating birds' vertical movement; enabling pursuit
+alone could leave birds circling targets they cannot reach. Bird perch targets
+use readable procedural wood geometry, but actual landing and attachment during
+tree sway remain unverified. No new models, skins or animation work is proposed.

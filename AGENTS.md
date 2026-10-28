@@ -22,6 +22,28 @@ checkpoint936e24e0bf0ed5a8a5fd37369a8e0803f6289f97alreadyPUSHED/remotelyverified
 finalshortcut/docs/handoffLOCALcheckpointcommitpendingnow,NETWORKPUSHDEFERRED
 becauseownercompetitiveWIFIconstraint. DoNOTclaimlatesthandoffremoteuntilsync.
 
+
+LOW-LOAD FOLLOW-UP DRAFT,13:25CDT: preparedUNAPPLIED scripts/drafts/wildlife-
+contact-and-labels.patch (~7KiB). ProductionC#filesUNTOUCHED;selected123+13build
+stillmatchesfeaturecode936e24. Localtestedcheckpointtagcheckpoint/items-20261028
+points0e8f0d9(finalselectedlink/docs). DraftalignsruntimeAnimalBehaviourlookupwith
+planner(canonicalprofile.slugONLY,notconcatenateddisplayNamewhichcanreadwestern
+astern/rattlesnakeasrat). AddsAABB-based3DcontactreachguardbeforeHP/cooldown;
+currenthorizontalonlyadmissioncanhitflying/highprey. Draftalsoadds2native
+regressions(owlnamefragment,verticallyunreachableprey),movesoldpositivecontact
+fixturefrom3mtoactualbodycontact.Expectednative125IFapplied,notexecutedyet.
+`git apply --check --ignore-space-change scripts/drafts/wildlife-contact-and-
+labels.patch` PASS;ignore-space-changehandlesmixedsourceLF/CRLF. ThisisONLY
+hunk/contextvalidation,NOTC#compile/runtimetest. DO NOTclaimfixesshipped.
+WhenownerENDScompetitiveplayandheavyworkisallowed: applydraftwithsameflag,
+runfocused/nativechecks,fixifneeded,NEWpackagefolder(nooverwritingselected),
+sourcefreeze/proofs andnormalcheckpointflow. Fish-onlydietPredatorflagreviewis
+additionalNOT-IN-PATCHTODO;Food.FishdifferentfromVertebrateandbirddivingneeds
+reviewbeforeenablingnewpursuit. Birdwoodmeshesreadablebutlanding/swaynotcertified.
+Existingdocs/WILDLIFE_BEHAVIOUR recordsfollowup. Draft/docsbeingcommittedLOCALLY
+withgc/maintenanceautoDISABLED;NO GitHubpushduringcompetitiveplay. RemoteLAST
+verified936e24;selectedcheckpoint0e8f0d9anddraftcommitneedlaternetworksync.
+
 Taskscopeautomaticstow/borrow/restorehands;allportableitemfunctions,melee/
 physicalthrows/bow/sling/atlatl/block,animal/NPC/playerhealth/blood/ragdoll/saved
 corpses,toolwork/dig/simpleline/netcatch;thenitemart/Foley,thenwildlifeAI.
