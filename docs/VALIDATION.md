@@ -10,9 +10,11 @@ physics guards wait for settled requested ground, preserve the 15%-of-length
 small-corpse extension and deer p99 <2.5 skin-stretch limits. Earlier rejected
 trials remain evidence and are not counted as passes.
 
-The release IL2CPP package `player-item-functionality-complete` is building;
-exact-package 123 +13 shoreline checks and its preservation proof are pending.
-The existing shortcut still selects the earlier 102-check item release. No new
+The selected release IL2CPP package `player-item-functionality-complete`, built
+2026-10-28T17:54:13.3472470Z, passes 123 +13 shoreline checks without runtime
+errors/exceptions. Proof covers 578 protected asset/assembly hashes, 146 frozen
+runtime/shader sources, 177 collision-skin package/source identities and 18 audio
+source hashes. The earlier item release remains as a fallback. No new
 attack/throw animations or animal processing, no full-world AI/FPS certification.
 Current status, functions, limits and evidence paths: [ITEM_USE_OVERNIGHT.md](ITEM_USE_OVERNIGHT.md).
 

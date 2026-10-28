@@ -83,9 +83,10 @@ and the same-frame knapping/drop regression, retaining the same 15%-of-length
 edge-extension guard. All physical limb branches connect to a common root.
 Small animals and flying profiles use a coarse articulated body; fine spine,
 toe and feather bones follow the nearest retained physical ancestor. These
-changes do not re-rig, reweight or replace accepted models/animations. The release
-candidate `player-item-functionality-complete` is building and awaits its own
-combat/shoreline checks and preservation proof; it is not yet selected.
+changes do not re-rig, reweight or replace accepted models/animations. The selected
+release `player-item-functionality-complete` (17:54:13Z) passes those same 123
+native checks plus 13 actual shoreline checks. Its protected asset, frozen source,
+collision sidecar and audio hashes pass. Swing/throw animations remain deferred.
 
 177 original native fauna files, their render bundles, rigs and animation banks
 are preserved. Supplementary 26.4 MiB collision skins provide actual posed surface

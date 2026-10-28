@@ -1,11 +1,12 @@
 # Portable items and wildlife checkpoint ? 28 October 2026
 
-The existing shortcut currently selects the first item-use release,
-`player-item-functionality` (IL2CPP, 14:34:45Z). Current source passes 123 native
-diagnostic checks, including the owner's same-frame stone-flake drop regression
-and actual bow, sling and spear-thrower shots. The corrected release,
-`player-item-functionality-complete`, is building and **not selected yet**;
-its exact-package combat/shoreline checks and preservation proof remain pending.
+The existing shortcut selects `player-item-functionality-complete`, release
+IL2CPP built **2026-10-28T17:54:13.3472470Z**. That exact package passes **123
+combat/item checks and 13 shoreline checks**, including the owner's same-frame
+stone-flake drop regression and actual bow, sling and spear-thrower shots.
+The first item release is retained as a fallback. Heavy workers have exited.
+GitHub synchronization of this final handoff is deferred during the owner's
+competitive Minecraft session; the feature-code checkpoint is already remote.
 
 This update does not resume the scrapped history/building overhaul. Animal
 skinning, butchery, processing and meat drops are deliberately deferred.
@@ -129,7 +130,7 @@ the tracked region stop ticking; no unlimited offline catch-up is attempted.
 | First selected IL2CPP item release | 102 native checks pass. |
 | Intermediate IL2CPP polished candidate | 107 native + 13 actual shoreline checks pass. |
 | Latest Mono ranged-check candidate | 123 native checks pass: all 63 model thumbnails, actual knapping/drop regression, bow/sling/thrower hits, connected corpses, skin-extension guards, saves, predation and player death. |
-| Latest release IL2CPP | Building; exact-package combat/shoreline reruns and preservation proof pending. |
+| Selected release IL2CPP | 123 combat/item +13 actual shoreline checks pass, no runtime errors/exceptions. |
 
 Inspected captures include the squirrel and goose, with the latter retaining its
 structural neck joints. The 15%-of-length extension guard and deer 99th-percentile
@@ -139,10 +140,10 @@ pose/terrain; this does not certify every animal or slope. Ordinary batch
 ScreenCapture images were black and rejected; actual render-texture captures
 were inspected instead.
 
-Previous package proofs pass 578 protected asset/assembly hashes, all 177 derived
+The selected package passes 578 protected asset/assembly hashes, all 177 derived
 collision-skin package hashes/source identities and 18 selected audio source hashes.
-The latest release needs its own proof. Its 146 runtime/shader source inputs are
-frozen for that verification. All 177 accepted animal bundles/native sources,
+Its 146 runtime/shader source inputs match the files frozen before packaging.
+All 177 accepted animal bundles/native sources,
 42 human PNGs and protected MPFB native remain preserved. Derived CPU collision
 skins total 26.4 MiB and stream per species; physics metadata covers 5,807 bones.
 No measured dense-forest FPS improvement is claimed.
@@ -157,8 +158,7 @@ exception: an empty MeshFilter awaiting deferred deletion was visited by a
 same-frame physical drop. Source now constructs only the actual worked surface
 and ignores optional mesh-less filters during bounds collection. Five new native
 checks complete real knapping and immediately drop the fresh flake/worked core;
-all five pass in the latest 123-check diagnostic run and await the exact release
-package rerun.
+all five pass in both the diagnostic run and the selected release package.
 
 ## Deliberately unfinished systems
 
