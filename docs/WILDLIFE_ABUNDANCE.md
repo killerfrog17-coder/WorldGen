@@ -1,12 +1,15 @@
 # Wildlife abundance and encounter pacing
 
-Selected release: `player-wildlife-radar`, IL2CPP built
-`2026-10-28T20:57:48.2392516Z`, on the existing WorldGen shortcut. The103 focused
-abundance checks and139 packaged gameplay checks pass, including actual F3+A
-input, live actor data, projection and population-version migration. The151
-frozen source inputs and578 asset/assembly hashes pass;177 original fauna assets,
-collision derivatives and18 item clips remain verified. Previous item-followup
-is retained. Radar appearance and hunting encounter balance need owner feedback.
+Selected release: `player-firefly-target`, IL2CPP built
+`2026-10-28T21:54:56.8531193Z`, on the existing WorldGen shortcut. Its artifact
+folder points to `E:/WorldGen-builds/player-firefly-target` to conserve C: space.
+The 38 firefly, 103 abundance and 77 item-use Core checks pass. The new package
+passes 22 targeted native checks for radar, firefly rendering and target identity.
+The full 139 combat/item/ragdoll checks belong to the prior radar release; they
+were not repeated for this UI/display follow-up. Preservation verifies 322 frozen
+source/resource inputs, 578 asset/assembly hashes, 177 original fauna/collision
+assets and 18 item clips. Previous `player-wildlife-radar` remains available.
+Radar appearance and hunting encounter balance need owner feedback.
 
 This replaces independent per-species render densities. It is a resource-limited
 population projection plus local behaviour, not a new global ecology simulation.
@@ -126,3 +129,62 @@ Both failed and final evidence remain under `artifacts/overnight-items-20261028`
 
 These motivate the architecture. Game coefficients and the time-compression
 curve are authored approximations, not direct results of those papers.
+
+
+## Firefly and radar follow-up (28 October)
+
+Butterflies/moths and derived fireflies now use the Local tier with a 220 m
+tracking/render range. Other tiny insects retain their shorter range. Catalog
+metadata and its generation rule agree; original animal bundles are unchanged.
+The opt-in radar anchors to the right edge, reserves the actual upper/lower F3
+readout rectangles, and places its legend beside the plot when space is tight.
+
+The firefly asset's emission mask was entirely black, so the former shader pulse
+produced no emission. A depth-tested additive abdomen sprite supplies the light
+instead: species-specific yellow/green colour, soft flash edges and independent
+individual phases. Minimum apparent size keeps a light point visible when the
+1.8 cm body becomes subpixel. Beyond 40 m the body draw is disabled. Sprites fade
+at 220 m and obey the streaming fog; they do not illuminate nearby surfaces or
+cast shadows. Instanced submission splits API-sized batches without an entity cap.
+
+Spawning now reads the same existing generated regional Firefly profile displayed
+in ecology articles. It requires local vegetated, non-saline, dry-ground habitat,
+regional climate suitability and the regional adult display season. Activity
+requires warm, moist dusk/night conditions and declines in rain/wind. Noon has
+zero flashing and no natural spawn proposals. Existing actors lose their glow
+immediately as conditions change and retire through the ordinary planner fade.
+These profiles are derived habitat candidates, not saved native taxa or a new
+closed-loop larval/adult population simulation. The visual guild represents
+flashing night-active fireflies; not all real fireflies flash or are nocturnal.
+
+Evidence for the ecological choices: [Xerces firefly overview](https://xerces.org/endangered-species/fireflies/about),
+[NPS firefly display season and temperature](https://www.nps.gov/grsm/learn/nature/fireflies.htm/index.htm),
+[University of Illinois firefly natural history](https://extension.illinois.edu/blogs/good-growing/2022-06-09-sparks-night-fireflies-and-tips-conserving-them).
+The numerical 220 m visibility, 40 m body handoff and population density remain
+game design parameters rather than empirical biological constants.
+
+Focused checks: 38 regional/profile, activity, pulse and actual Earth-world planner
+checks passed, including warm evening candidates beyond the old 35 m boundary,
+zero noon proposals and weather/season suppression. Existing 103 abundance and
+77 item-use checks also pass. Selected-package native checks pass: glow points at 10/100/200 m, evening
+versus noon actor state, and right-edge placement clear of the F3 readouts.
+The batch player omits IMGUI repaint, so placement checks use the same production
+layout function and actual text metrics rather than an onscreen UI screenshot.
+
+
+## Shift+F3 target identity
+
+The existing 80 m aimed readout now recognizes live animals, original-skinned
+animal/NPC corpses, NPC humans and loose physical items. It reports animal health
+or corpse state and item names/materials. Living/dead animal and human targets
+use their actual posed surfaces; loose items use rendered bounds. Held/worn
+player equipment is excluded. Resident ground, rock bodies and real tree trunks
+can occlude targets; an approximate foliage envelope is not treated as an opaque
+wall. This is a debug identification query, independent of combat/interaction
+permissions, with no new models spawned or remotely generated terrain requested.
+The new native checks exercise real deer skin, its ragdoll, a ground rock and
+exclusion of that same item after putting it in a hand.
+
+The old obsolete abundance diagnostic package was not removed: automatic approval
+review rejected deletion with ?blocked by policy.? No cleanup occurred. The E:
+artifact junction and its target must be protected together while selected/running.

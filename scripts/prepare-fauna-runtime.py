@@ -56,6 +56,7 @@ for i,row in enumerate(rows):
     density=180 if medium=='air' else 120 if medium=='water' else 0
     if slug in tiny:density=18000
     radius=22 if slug in tiny else 170 if medium=='air' else 180 if medium=='water' else 70 if length<.4 else 170 if length<1 else 650
+    if slug in {'butterflies-and-moths-guild','fireflies-derived-lineage'}:radius=220
     out.append({'slug':slug,'name':row['name'],'aliases':list(dict.fromkeys(names)),'medium':medium,'lengthM':length,
                 'walkMps':round(speed,3),'runMps':round(fast,3),'radiusM':radius,'densityPerKm2':density,
                 'derivedFirefly':slug=='fireflies-derived-lineage','freshwater':slug in fresh,'tiny':slug in tiny,

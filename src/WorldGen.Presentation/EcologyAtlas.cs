@@ -64,8 +64,8 @@ namespace WorldGen.Presentation
                     "\nGENERATED PROFILE\n"+Known(s,token)+
                     (s.Representation==AmbientFaunaRepresentation.AudioOnly?
                         "\nAUDIO ONLY: no visible animals or full individual agents. Habitat-based spatial callers are implemented; activity depends on local conditions, season, solar time and weather. A finite clip bank with bounded species pitch/timing variation approximates the profile, not a full synthesis of every acoustic trait.":
-                        "\nPlanned LIGHTWEIGHT VISUAL: silent firefly display traits only; no current rendering or spawning.")+
-                    "\nNo source taxa, saved food links, native-range raster or historical simulation changed. Activity/season traits are metadata, not running populations or dynamic evolution."});
+                        "\nLIGHTWEIGHT VISUAL: silent flashing fireflies spawn in suitable local habitat during the regional display season, dusk/night hours and warm, moist, calm weather. Regional traits control flash bouts, colour and flight height; visible range is 220 m.")+
+                    "\nNo source taxa, saved food links, native-range raster or historical simulation changed. Profiles constrain local audio/display; they are not tracked breeding populations or dynamic evolution."});
             }
             foreach(var pair in byConsumer.OrderBy(p=>p.Key))
             {

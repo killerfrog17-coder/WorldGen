@@ -48,6 +48,28 @@ public sealed partial class LocalTerrainExplorer
             var hit=targetEntityHits[i];var identity=hit.collider.GetComponentInParent<WorldGenSpeciesIdentity>();
             if(identity!=null&&hit.distance<closest){closest=hit.distance;entity=identity.SpeciesName+" · "+identity.SpeciesType;selected=null;}
         }
+        // Native animal skins and item meshes are drawn without species colliders.
+        // Their actual posed surfaces must participate, including saved corpses.
+        var worldRay=new Ray(view.transform.position,view.transform.forward);
+        string dynamicName=TargetActorOrItem(worldRay,80,out float dynamicDistance);
+        if(dynamicName!=null)
+        {
+            bool blocked=dynamicDistance>=closest&&entity!=null;
+            foreach(var candidate in targetCandidates)
+            {
+                var p=candidate.Plant;
+                bool tree=p.Kind==ScatterKind.GeneratedTree||p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
+                if(tree)
+                {
+                    float trunk=(float)p.WidthM*(p.Kind==ScatterKind.GeneratedTree?(float)new TreeMorphology(p.Variant).TrunkRadius:.035f);
+                    Vector3 root=candidate.Bounds.center-Vector3.up*(float)p.HeightM*.5f;
+                    if(RayTrunk(ray,root,Mathf.Max(.015f,trunk),(float)p.HeightM*.88f,dynamicDistance,out _,out _)){blocked=true;break;}
+                }
+                else if((p.Kind==ScatterKind.Boulder||p.Kind==ScatterKind.Outcrop||p.Kind==ScatterKind.Stone)&&candidate.Bounds.IntersectRay(ray,out float t)&&t<dynamicDistance){blocked=true;break;}
+            }
+            // A canopy's loose bounding box is not an opaque wall below its leaves.
+            if(!blocked){closest=dynamicDistance;entity=dynamicName;selected=null;}
+        }
         // Only resident height grids, never generation queries, for line-of-sight.
         for(float t=1;t<closest;t+=2)
         {
@@ -66,6 +88,11 @@ public sealed partial class LocalTerrainExplorer
     }
     string ResolveTargetName(ScatterInstance plant)
     {
+        if(plant.Kind==ScatterKind.Stone||plant.Kind==ScatterKind.Boulder||plant.Kind==ScatterKind.Branch)
+        {
+            var item=RockPossession(plant);
+            if(item.MassKg<=25&&(plant.Kind==ScatterKind.Branch||plant.WidthM<=.55&&plant.HeightM<=.45))return InventoryDisplayName(item)+" · ground item";
+        }
         if(plant.Kind!=ScatterKind.GeneratedTree&&plant.Kind!=ScatterKind.MidPlant&&!IsSpecialist(plant.Kind))return plant.Kind.ToString();
         // Identity is resolved only for a new aimed-at plant, not every fast HUD tick.
         var patch=terrain.MapPatch(plant.Position,2048/HorizontalScale);var flora=terrain.FloraRegion(patch.Sample(plant.Position).Cell);
@@ -73,5 +100,44 @@ public sealed partial class LocalTerrainExplorer
         if(plant.Kind==ScatterKind.MidPlant)foreach(var s in flora.MidPlants)if((s.MorphologyCode&~3)==(plant.Variant&~3))return s.Name+" · mid-height / "+s.Form;
         if(IsSpecialist(plant.Kind))foreach(var s in flora.Specialists)if(s.MorphologyCode==plant.Variant)return s.Name+" · "+s.Form;
         return plant.Kind+" · regional identity unavailable";
+    }
+    string TargetActorOrItem(Ray ray,float maximum,out float distance)
+    {
+        distance=maximum;string label=null;
+        foreach(var animal in animals.Values)
+        {
+            if(animal.Retired||animal.Root==null||!animal.Root.activeInHierarchy||animal.Fade<.15f||!animal.Renderer.enabled)continue;
+            if(!animal.Renderer.bounds.IntersectRay(ray,out float entry)||entry>distance)continue;
+            var surface=AnimalSurface(animal);
+            if(!surface.Raycast(ray,PosedAnimal(animal),animal.Parts,distance,out float t,out _,out _,out _))continue;
+            distance=t;string name=animal.Spawn.Profile.name;
+            if(animal.Spawn.Taxon>=0&&animal.Spawn.Taxon<sourceWorld.Ecology.Taxa.Length)name=sourceWorld.Ecology.Taxa[animal.Spawn.Taxon].Name+" ("+name+")";
+            label=name+(animal.Dead?" · corpse":" · animal · "+animal.Health.ToString("0.#")+"/"+animal.MaximumHealth.ToString("0.#")+" HP");
+        }
+        foreach(var human in humanNpcs)
+        {
+            if(human.Root==null||!human.Root.activeInHierarchy)continue;
+            foreach(var renderer in human.Root.GetComponentsInChildren<SkinnedMeshRenderer>())
+            {
+                if(!renderer.enabled||!renderer.bounds.IntersectRay(ray,out float entry)||entry>distance)continue;
+                var surface=PosedHuman(renderer);
+                for(int face=0;face<surface.Triangles.Length;face+=3)
+                {
+                    int a=surface.Triangles[face],b=surface.Triangles[face+1],c=surface.Triangles[face+2];
+                    if(!FaunaCollisionSurface.RayTriangle(ray,surface.Vertices[a],surface.Vertices[b],surface.Vertices[c],distance,out float t,out _,out _))continue;
+                    distance=t;label="Human · "+(human.Health<=0?"corpse":"NPC · "+human.Health.ToString("0.#")+"/100 HP");
+                }
+            }
+        }
+        foreach(var item in Inventory.Items)
+        {
+            if(item.Place!=PossessionPlace.Ground||!inventoryVisuals.TryGetValue(item.Id,out var root)||root==null||!root.activeInHierarchy)continue;
+            foreach(var renderer in root.GetComponentsInChildren<Renderer>())
+            {
+                if(!renderer.enabled||!renderer.bounds.IntersectRay(ray,out float t)||t>=distance)continue;
+                distance=t;label=InventoryDisplayName(item)+" · "+(item.InFlight?"in flight":"ground item");
+            }
+        }
+        return label==null?null:label+" · "+distance.ToString("0.#")+" m";
     }
 }

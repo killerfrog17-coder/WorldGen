@@ -1,4 +1,4 @@
-param([string]$PlayerFolder='',[string]$OutputName='',[switch]$Water)
+param([string]$PlayerFolder='',[string]$OutputName='',[switch]$Water,[switch]$Firefly)
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot
 if(!$OutputName){$OutputName='item-use-'+[DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss')}
@@ -17,5 +17,6 @@ $arguments=@(
     '--worldgen-library-root',('"'+$repoRoot+'/artifacts/death-update/isolated-library"'),
     '-logFile',('"'+$testOutput+'/player.log"'))
 if($Water){$arguments+='--worldgen-item-water-check'}
+if($Firefly){$arguments+='--worldgen-firefly-check'}
 $run=Start-Process -FilePath $playerPath -WindowStyle Hidden -PassThru -ArgumentList $arguments
 Write-Output ('Item-use worker PID '+$run.Id+'; '+$testOutput+'/player.log')

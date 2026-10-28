@@ -234,7 +234,8 @@ public sealed partial class WorldGenRuntime
         if(!worldReady||Busy||humans==null)throw new InvalidOperationException("Item-use fixture unavailable");play.Settings.HorizontalScale=.1;TerrainVideoOptions.Current.ViewDistanceM=1000;TerrainVideoOptions.Revision++;ExploreTerrain(TerrainMapViewport.FromDegrees(50,10));deadline=Time.realtimeSinceStartupAsDouble+120;
         while((terrainExplorer==null||!terrainExplorer.PerformanceGroundSettled)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(terrainExplorer==null||!terrainExplorer.PerformanceGroundSettled)throw new InvalidOperationException("Item-use terrain did not finish its requested geometry");
-        if(Environment.GetCommandLineArgs().Contains("--worldgen-item-water-check"))yield return terrainExplorer.CheckItemWaterFlow(output,report);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-firefly-check"))yield return terrainExplorer.CheckFireflyFlow(output,report);
+        else if(Environment.GetCommandLineArgs().Contains("--worldgen-item-water-check"))yield return terrainExplorer.CheckItemWaterFlow(output,report);
         else yield return terrainExplorer.CheckItemUseFlow(output,report);
         CapturePlayer();play.Validate();ReturnFromPlay("Simulation");yield return null;yield return null;
         Application.logMessageReceived-=listener;if(errors.Count>0)throw new InvalidOperationException(string.Join(" | ",errors));report.Add("PASS no runtime errors or exceptions");File.WriteAllLines(Path.Combine(output,"checks.txt"),report);Debug.Log("ITEM USE FLOW PASS "+report.Count);Application.Quit(0);

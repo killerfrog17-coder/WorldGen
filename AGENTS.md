@@ -1,5 +1,62 @@
 # WorldGen repository instructions
 
+FIREFLY / RIGHT RADAR / TARGET READOUT SELECTED,28October2026:
+Owner full CPU/GPU/network authorization persists; no subagents or paid calls.
+Existing root shortcut now selects artifacts/player-firefly-target/WorldGen.exe,
+release IL2CPP BuiltUtc2026-10-28T21:54:56.8531193Z. This artifacts directory is a
+JUNCTION to E:/WorldGen-builds/player-firefly-target: preserve BOTH while selected
+or running. New build uses E because C has ~1.5GiB free. Automatic approval review
+rejected obsolete artifacts/player-wildlife-abundance deletion (blocked by policy).
+Both rejected deletion commands executed NOTHING; do not claim cleanup succeeded
+or retry deletion by a different mechanism. Latest3/daily/selected/running and
+item fallbacks unchanged. No owner apps/saves closed by agent, no desktop icons.
+Owner explicitly closed WorldGen for native tests; all owned workers now EXITED.
+
+Selected feature checks22 PASS/no runtime/shader exceptions, incl F3+A input,
+right-edge radar panel/non-overlap using actual F3 text metrics at1280x800,
+regional actor traits/evening flash/noonoff, real instanced luminous points at
+10/100/200m, actual original-skinned live/dead deer and loose-item target traces.
+Batch omits IMGUI repaint; native layout proof uses the shared production layout
+function + text metrics, not an onscreen UI screenshot. Initial batch test wrongly
+required repaint; rejected initial candidate/fixture failure retained. Earlier
+radar-only final17 passed too. Native22 is TARGETED, not a rerun of all139 combat/
+ragdoll/item flows or13 shoreline checks. Core38firefly +103abundance +77item-use
+PASS. Preservation578asset/DLL +322frozen source/resource inputs +177collision IDs/
+package hashes +18audio hashes PASS. Original177fauna/skins/rig/actions/coats and
+42accepted human PNGs/protected MPFB unchanged. Known Unity autochanges restored.
+
+Butterflies/moths and fireflies now Local tier220m; catalog + generator agree.
+Other tiny insects keep35m tracking. Existing regional AmbientFauna firefly
+profiles now drive actual dry-ground vegetation/moisture/climate/season/weather/
+night display, not the earlier generic climate gate. Derived profiles remain
+potential regional candidates, NOT new saved native taxa/foodweb populations.
+No natural noon proposals/glow; warm adult display-season dusk/night only. Original
+firefly mask blue channel was entirely black: old pulse emitted NOTHING. New
+instanced depth-tested additive abdomen point solves this, soft independent bouts,
+regional colour/flight height, tiny minimum apparent size, range/fog fade220m.
+Body mesh only within40m, corpses remain rendered. No dynamic point lights/shadows.
+Serialized instanced material preserves release shader variant; no asset reexport.
+
+Radar anchors right12px and reserves real upper/lower right F3 rectangles, compact
+side legend when needed. Existing opt-in/no mouse unlock behaviour preserved.
+Shift+F3 aimed readout includes live animals, animal/NPC corpses, NPC humans,
+physical loose/in-flight items, natural collectable rock/branch names/materials.
+Uses actual posed animal/human surfaces, ground item renderer bounds; excludes
+player's held/worn equipment. Existing80m scope/resident ground LOS, actual trunks/
+rocks block; loose canopy bounds alone do not conceal a visible animal. New target
+paths load no absent animal models and do not alter combat hit detection.
+
+Evidence artifacts/firefly-radar-20261028 (selected checkpoint,578/322/177/18
+proofs,38Core log, initial/radar-only proof copies, shortcut backup, cleanup block).
+Native evidence artifacts/overnight-items-20261028/firefly-target (22checks, actual
+glow images, radar layout JSON), firefly-final17 earlier, firefly-initial failed
+GUI fixture. Prior player-wildlife-radar retained as fallback. New source/docs/
+shortcut checkpoint is committed, pushed and remotely verified at final handoff;
+its SHA is recorded in artifacts/firefly-radar-20261028/source-checkpoint.json.
+Preserve owner-deleted WorldGen_OneShot_Prompt.md and TWO untracked deer scripts.
+No skinning/processing/construction/history work resumed. No FPS/all-world/owner
+visual acceptance claim. Research/limits docs/WILDLIFE_ABUNDANCE.md.
+
 WILDLIFE ABUNDANCE + F3+A RADAR SELECTED,28October2026:
 Owner allows FULL CPU/GPU/network; all earlier competitive-play limits LIFTED.
 Latest scope couples ecological abundance to food/habitat and bounds wildlife

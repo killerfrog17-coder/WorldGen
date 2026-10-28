@@ -14,7 +14,7 @@ namespace WorldGen.Presentation
         public string[] aliases=Array.Empty<string>();
         public double lengthM,walkMps,runMps,radiusM,densityPerKm2;
         public bool tiny,derivedFirefly,freshwater,nocturnal;
-        public double VisibleRadiusM=>tiny?radiusM:medium=="air"&&lengthM>=.8?Math.Max(radiusM,600):medium=="water"&&lengthM>=1.5?Math.Max(radiusM,lengthM>=8?1000:450):radiusM;
+        public double VisibleRadiusM=>slug=="butterflies-and-moths-guild"||derivedFirefly?Math.Max(radiusM,220):tiny?radiusM:medium=="air"&&lengthM>=.8?Math.Max(radiusM,600):medium=="water"&&lengthM>=1.5?Math.Max(radiusM,lengthM>=8?1000:450):radiusM;
     }
     public sealed class FaunaPrototypeSpawn
     {
@@ -70,7 +70,7 @@ namespace WorldGen.Presentation
                 .Select(p=>e.Taxa[p.TaxonId]).Where(t=>!t.Producer&&!t.BasalResource).ToArray():Array.Empty<Taxon>();
             communities[region]=found;return found;
         }
-        public List<FaunaPrototypeSpawn> Build(V center,double scale,double hour,CancellationToken token,double year=0,double temperatureC=15)
+        public List<FaunaPrototypeSpawn> Build(V center,double scale,double hour,CancellationToken token,double year=0,double temperatureC=15,double humidity=.7,double rain=0,double wind=0)
         {
             var result=new List<FaunaPrototypeSpawn>();var e=world.Ecology;if(e==null)return result;
             var patch=terrain.Patch(center,3200/scale);double radius=terrain.RadiusM*scale;
@@ -114,7 +114,7 @@ namespace WorldGen.Presentation
                     if(nativeRegion<0)continue;
                     Add(profile,taxon,id,nativeRegion,key);
                 }
-                if(detail&&firefly!=null&&region>=0&&e.Habitat[cell].WarmTenthsC>=100&&e.Habitat[cell].AridityMilli>=500&&(hour>=18||hour<6))
+                if(detail&&firefly!=null&&region>=0&&(hour>=17.5||hour<6))
                     Add(firefly,null,-1,region,key);
             }
             // Ecology supplies population; admission is sliced across frames,
@@ -122,7 +122,7 @@ namespace WorldGen.Presentation
             return result.OrderBy(s=>(s.Position-center).Length/Math.Max(1,s.Profile.radiusM)).ThenBy(s=>s.Id).ToList();
             void Add(FaunaPrototypeProfile profile,Taxon? taxon,int id,int region,ScatterKey key)
             {
-                if(WildlifeBehaviour.IsNocturnal(profile.slug,profile.nocturnal)&&hour>6&&hour<18)return;
+                if(!profile.derivedFirefly&&WildlifeBehaviour.IsNocturnal(profile.slug,profile.nocturnal)&&hour>6&&hour<18)return;
                 uint rank=Rng.Mix((uint)key.Id(0,0)^(uint)(key.Id(0,0)>>32)^(uint)(id+9127)*19349663u);
                 var rng=new Rng(world.Recipe.Seed,"local-fauna-prototype-1",unchecked((int)rank));
                 double density;
@@ -130,7 +130,11 @@ namespace WorldGen.Presentation
                     density=Population(key,region).Density(id)*WildlifeAbundance.ExposedFraction(taxon.MassKg,profile.medium=="air",profile.tiny);
                 else
                 {
-                    var site=Site(lattice.Position(key));density=Math.Max(0,profile.densityPerKm2)*site.Invertebrates*.15;
+                    V at=lattice.Position(key);var sample=patch.Sample(at);var climate=e.Habitat[sample.Cell];
+                    var lineage=AmbientFauna.For(world).Region(region).FirstOrDefault(s=>s.Family==AmbientFaunaFamily.Firefly);
+                    double habitatFit=FireflyDisplay.HabitatGain(lineage,climate,sample);
+                    double activity=FireflyDisplay.ActivityGain(lineage,hour,year,latitude,temperatureC,humidity,rain,wind);
+                    density=Math.Max(0,profile.densityPerKm2)*habitatFit*activity*.15;
                 }
                 if(density<=0)return;
                 var habitat=e.Habitat[e.Regions[region].RepresentativeCell];
@@ -154,6 +158,7 @@ namespace WorldGen.Presentation
                         if((position-center).Length*radius>Math.Max(profile.VisibleRadiusM,behaviour.TrackingM))continue;
                         int actualCell=terrain.NearestCell(position);if(e.Region[actualCell]!=region&&!world.Hydrology.OceanConnected[actualCell])continue;
                         var sample=patch.Sample(position);bool wet=sample.Underwater||!double.IsNaN(sample.WaterSurfaceM)&&sample.WaterSurfaceM>sample.ElevationM+.03;
+                        if(profile.derivedFirefly&&FireflyDisplay.HabitatGain(AmbientFauna.For(world).Region(region).First(s=>s.Family==AmbientFaunaFamily.Firefly),e.Habitat[sample.Cell],sample)<=0)continue;
                         if(taxon!=null)
                         {
                             var local=Site(position);double fit=local.Fit(taxon);
@@ -170,12 +175,17 @@ namespace WorldGen.Presentation
                         uint hash=Rng.Mix((uint)ident^(uint)(ident>>32));
                         result.Add(new FaunaPrototypeSpawn{Id=ident,GroupId=groupId,GroupIndex=member,GroupSize=groupSize,GroupHome=groupHome,Hash=hash,Profile=profile,Position=position,Region=region,Taxon=id,
                             CoatSeed=unchecked(region*8191+(id+9127)*31),GroundM=sample.ElevationM,WaterM=water,
-                            HeightM=profile.medium=="air"?(profile.tiny?.6+1.2*rng.Unit():6+18*rng.Unit()):profile.medium=="water"?-.4-2*rng.Unit():0,
+                            HeightM=profile.medium=="air"?(profile.derivedFirefly?FireflyHeight(region,rng.Unit()):profile.tiny?.6+1.2*rng.Unit():6+18*rng.Unit()):profile.medium=="water"?-.4-2*rng.Unit():0,
                             ColdC=habitat.ColdTenthsC/10.0,Aridity=habitat.AridityMilli/1000.0});
                     }
                 }
             }
         }
         static bool detailSize(ScatterKey key)=>key.Detail;
+        double FireflyHeight(int region,double unit)
+        {
+            var display=AmbientFauna.For(world).Region(region).First(s=>s.Family==AmbientFaunaFamily.Firefly).Display;
+            return display.MinFlightHeightM+(display.MaxFlightHeightM-display.MinFlightHeightM)*unit;
+        }
     }
 }

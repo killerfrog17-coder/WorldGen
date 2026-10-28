@@ -500,6 +500,7 @@ public sealed partial class LocalTerrainExplorer
         bool completion=WorldGenPerformance.Measuring&&WorldGenPerformance.ProfileRenderCompletion&&weatherCheckTarget!=null&&view!=null;
         long renderStarted=completion?System.Diagnostics.Stopwatch.GetTimestamp():0;
         long started=WorldGenPerformance.Begin();DrawScatter();WorldGenPerformance.End(1,started);started=WorldGenPerformance.Begin();trace=WorldGenPerformance.TraceBegin();DrawGroundCover();WorldGenPerformance.TraceEnd(14,trace);WorldGenPerformance.End(2,started);
+        DrawFireflyGlows();
         if(weatherCheckTarget!=null&&view!=null)view.Render();
         if(completion){WeatherCheckGpuBarrier();WorldGenPerformance.CompletedRenderMs=(System.Diagnostics.Stopwatch.GetTimestamp()-renderStarted)*1000d/System.Diagnostics.Stopwatch.Frequency;}
     }

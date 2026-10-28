@@ -20,7 +20,7 @@ public sealed partial class LocalTerrainExplorer
         public int Slot;public double X,Z,HomeX,HomeZ,GroundY,NextDecision,Time,OldTime,BlendAge,Life,NextGround;
         public float Heading,TargetHeading,Speed,TargetSpeed,Fade,NominalSpeed;
         public FaunaRuntimeClip Clip,OldClip;public bool Wanted=true,Manual,Retired;public Vector4 Parts;
-        public V Planet;public Rng Random;
+        public V Planet;public Rng Random;public AmbientFaunaSpecies Firefly;public float FireflyGlow;
         public double BehaviourAt,ObstacleAt,NextPoseAt,AttackAt,AirHeight,AirTargetHeight,PerchHeight,PerchUntil,NextPerch;public bool PerchSelected,Perched,ThreatWasPlayer,FishingTethered;public V PerchPosition,FishingAnchor;public double FishingReach;
         public double Health,MaximumHealth,MassKg,ThreatUntil,ThreatX,ThreatZ,CorpseHeightOffset;public bool Dead=>Health<=0;public int Coat;public WorldGenFaunaRagdoll Ragdoll;public WorldGenBloodCanvas Blood;public Vector3[] CollisionVertices;public int CollisionFrame=-1;
     }
@@ -110,8 +110,9 @@ public sealed partial class LocalTerrainExplorer
            (now>=nextAnimalPlan||(Position-animalPlanAt).Length*frame.RadiusM>80))
         {
             nextAnimalPlan=now+8;animalPlanAt=Position;animalPlanFrame=frame;
-            V at=Position;double hour=LocalSolarHour,scale=HorizontalScale,year=skyYear,temperature=CurrentWeather.TemperatureC;var planner=animalPlanner;var token=cancellation.Token;
-            animalPlan=Task.Run(()=>planner.Build(at,scale,hour,token,year,temperature),token);
+            V at=Position;var weather=CurrentWeather;double hour=LocalSolarHour,scale=HorizontalScale,year=skyYear,temperature=weather.TemperatureC;
+            double humidity=weather.Humidity, rain=weather.RainMmPerHour,wind=Math.Sqrt(weather.WindEastMps*weather.WindEastMps+weather.WindNorthMps*weather.WindNorthMps);var planner=animalPlanner;var token=cancellation.Token;
+            animalPlan=Task.Run(()=>planner.Build(at,scale,hour,token,year,temperature,humidity,rain,wind),token);
         }
         bool localPopulation=HeightAboveGround<1200;
         if(!localPopulation){animalWanted.Clear();animalManualWanted.Clear();animalManualRequests.Clear();foreach(var animal in animals.Values)animal.Wanted=false;}
@@ -192,6 +193,7 @@ public sealed partial class LocalTerrainExplorer
         var animal=new Animal{Spawn=spawn,Model=model,Manual=manual,Root=root,Renderer=renderer,Slot=animalSlots.Pop(),Random=rng,Props=new MaterialPropertyBlock(),
             Heading=(float)(rng.Unit()*360),Time=rng.Unit()*7,GroundY=frame.SurfaceY(spawn.Position,spawn.GroundM)};
         TerrainHandoff.Coordinates(frame,spawn.Position,out animal.X,out animal.Z);animal.HomeX=animal.X;animal.HomeZ=animal.Z;animal.Planet=spawn.Position;
+        if(spawn.Profile.derivedFirefly)animal.Firefly=AmbientFauna.For(sourceWorld).Region(sourceWorld.Ecology.Region[terrain.NearestCell(spawn.Position)]).FirstOrDefault(s=>s.Family==AmbientFaunaFamily.Firefly);
         animal.TargetHeading=animal.Heading;animal.Random=rng;animal.AirHeight=animal.AirTargetHeight=spawn.HeightM;animal.NextPerch=4+spawn.Hash%15;animal.ObstacleAt=Time.unscaledTimeAsDouble+(spawn.Hash%100)*.004;PlaceTrackedAnimal(animal);InitializeAnimalHealth(animal);
         int coat=wildlifeRecords.TryGetValue(spawn.Id,out var record)?Mathf.Clamp(record.Coat,0,model.Asset.Variations.Length-1):ChooseAnimalCoat(model.Asset,spawn);animal.Coat=coat;var options=model.Asset.Variations[coat].options;
         int option=(int)(spawn.Hash%(uint)options.Length);
@@ -238,7 +240,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateAnimal(Animal animal,float dt)
     {
-        if(animal.Dead){UpdateAnimalCorpse(animal,dt);return;}
+        if(animal.Dead){animal.Renderer.enabled=true;UpdateAnimalCorpse(animal,dt);return;}
         var profile=animal.Spawn.Profile;animal.Life+=dt;if(animal.Life>=animal.NextDecision)DecideAnimal(animal);if(dt>0){UpdateAnimalBehaviour(animal);AvoidAnimalSolids(animal);}
         float turn=profile.tiny?200:profile.medium=="air"?65:profile.medium=="water"?45:85;
         animal.Heading=Mathf.MoveTowardsAngle(animal.Heading,animal.TargetHeading,turn*dt);
@@ -281,7 +283,8 @@ public sealed partial class LocalTerrainExplorer
         }
         }
         animal.Props.SetFloat("_Fade",animal.Fade*Mathf.Clamp01(((float)profile.VisibleRadiusM-distance)/Math.Max(4,(float)profile.VisibleRadiusM*.12f)));
-        animal.Props.SetFloat("_Glow",profile.derivedFirefly?8*Mathf.Pow(Mathf.Max(0,Mathf.Sin((float)animal.Life*2+(animal.Spawn.Hash%47))),8):0);
+        UpdateFireflyGlow(animal,distance);
+        animal.Props.SetFloat("_Glow",0); // Original firefly emission mask is black; use the luminous abdomen sprite.
         animal.Renderer.SetPropertyBlock(animal.Props);animal.Renderer.shadowCastingMode=profile.lengthM>=.35&&distance<180?ShadowCastingMode.On:ShadowCastingMode.Off;
     }
     static Matrix4x4 AnimalPose(WorldGenFaunaAsset asset,FaunaRuntimeClip clip,double time,int bone)
@@ -305,6 +308,7 @@ public sealed partial class LocalTerrainExplorer
     {
         animalDisposed=true;
         DisposeWildlifeRadar();
+        DisposeFireflyGlows();
         if(animalBundleRequest!=null)
         {var request=animalBundleRequest;if(request.isDone)request.assetBundle?.Unload(true);else request.completed+=_=>request.assetBundle?.Unload(true);}
         if(animalLoading!=null)StopCoroutine(animalLoading);animalLoading=null;animalPendingBundle?.Unload(true);animalPendingBundle=null;
