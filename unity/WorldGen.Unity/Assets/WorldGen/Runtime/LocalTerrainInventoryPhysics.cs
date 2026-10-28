@@ -31,9 +31,9 @@ public sealed partial class LocalTerrainExplorer
         float scale=Mathf.Clamp(Screen.height/1080f,.6f,1.8f);
         var feet=new Vector3((float)(motion.X-originX),(float)(motion.Y-TerrainMotion.EyeHeightM),(float)(motion.Z-originZ));
         var old=GUI.color;
-        foreach(var candidate in inventoryNearby)
+        foreach(var candidate in inventoryMarkers)
         {
-            float distance=Vector3.Distance(feet,candidate.Point),alpha=Mathf.SmoothStep(0,1,2-distance);
+            float distance=Vector3.Distance(feet,candidate.Point),alpha=Mathf.SmoothStep(0,1,4-distance);
             if(alpha<=0)continue;var screen=view.WorldToScreenPoint(transform.TransformPoint(candidate.Point));
             if(screen.z<=0)continue;
             float size=27*scale;var icon=candidate.Item.Kind==PossessionKind.TestBag?inventoryBagIcon:inventoryRockIcon;

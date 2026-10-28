@@ -38,6 +38,9 @@ public sealed partial class LocalTerrainExplorer
                 UpdateCamera();var dir=(n.Point-view.transform.localPosition).normalized;pitch=-Mathf.Asin(dir.y)*Mathf.Rad2Deg;
                 UpdateCamera();Debug.Log("INVENTORY AIM PREP point="+n.Point+" ray="+new Ray(view.transform.localPosition,view.transform.forward)+" screen="+view.WorldToViewportPoint(n.Point));
             }
+            TerrainHandoff.Coordinates(frame,stones[0].Position,out double markerX,out double markerZ);
+            motion.Place(markerX+3.5,markerZ,Ground(markerX+3.5,markerZ));UpdateCamera();RefreshInventoryNearby(true);
+            Check(inventoryMarkers.Any(n=>n.Item.NaturalId==stones[0].Id)&&!inventoryNearby.Any(n=>n.Item.NaturalId==stones[0].Id),"pickup icon is visible at 3.5m while physical pickup stays out of reach");
             Aim(stones[0]);yield return null;
             Check(AimedPossession()?.Item.NaturalId==stones[0].Id,"pickup label and E share the actual invisible aim ray");yield return Image("pickup-prompt");yield return KeyPress(Key.E);
             Check(Inventory.AtHand(PossessionPlace.RightHand)?.NaturalId==stones[0].Id&&CollectedRock(stones[0]),"E picks actual stone into right hand and hides original: "+string.Join(",",Inventory.Items.Select(i=>i.Name+" "+i.Place+" "+i.NaturalId)));

@@ -11,7 +11,7 @@ public sealed partial class LocalTerrainExplorer
     sealed class NearbyPossession {public Possession Item;public bool Natural;public Vector3 Point;public Bounds Bounds;}
     PlayerInventory Inventory=>PlayerRules.Inventory??(PlayerRules.Inventory=PlayerInventory.Starter());
     readonly HashSet<ulong> inventoryCollected=new HashSet<ulong>();
-    readonly List<NearbyPossession> inventoryNearby=new List<NearbyPossession>();
+    readonly List<NearbyPossession> inventoryNearby=new List<NearbyPossession>(),inventoryMarkers=new List<NearbyPossession>();
     readonly Dictionary<string,GameObject> inventoryVisuals=new Dictionary<string,GameObject>();
     readonly Dictionary<string,PossessionPlace> inventoryVisualPlaces=new Dictionary<string,PossessionPlace>();
     bool inventoryOpen,inventoryInitialized;double inventoryNearbyAt;
@@ -39,36 +39,48 @@ public sealed partial class LocalTerrainExplorer
     {
         var eye=new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ));
         if((point-eye).sqrMagnitude>3*3)return false;
+        return InventorySight(point);
+    }
+    bool InventorySight(Vector3 point)
+    {
+        var eye=new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ));
         for(int i=1;i<8;i++){var p=Vector3.Lerp(eye,point,i/8f);if(VisibleGround(p.x+originX,p.z+originZ,double.NegativeInfinity)>p.y+.06)return false;}
         return true;
     }
     void RefreshInventoryNearby(bool force=false)
     {
         if(!Ready||!inventoryInitialized||!force&&Time.unscaledTimeAsDouble<inventoryNearbyAt)return;
-        inventoryNearbyAt=Time.unscaledTimeAsDouble+.2;inventoryNearby.Clear();
+        inventoryNearbyAt=Time.unscaledTimeAsDouble+.2;inventoryNearby.Clear();inventoryMarkers.Clear();
         var player=new Vector3((float)(motion.X-originX),(float)motion.Y,(float)(motion.Z-originZ));
+        var feet=player-Vector3.up*(float)TerrainMotion.EyeHeightM;
+        void Candidate(NearbyPossession candidate)
+        {
+            bool reachable=InventoryReach(candidate.Point);
+            if((candidate.Point-feet).sqrMagnitude<=16&&(reachable||InventorySight(candidate.Point)))inventoryMarkers.Add(candidate);
+            if(reachable)inventoryNearby.Add(candidate);
+        }
         foreach(var chunk in scatterChunks.Values)
         {
-            if(chunk.Roots==null||chunk.AllBounds.SqrDistance(player)>16)continue;
+            if(chunk.Roots==null||chunk.AllBounds.SqrDistance(player)>36)continue;
             foreach(var group in chunk.Groups)
             {
-                if(group.Bounds.SqrDistance(player)>16)continue;
+                if(group.Bounds.SqrDistance(player)>36)continue;
                 foreach(int i in group.Indices)
                 {
                     var p=chunk.Source.Instances[i];if(p.Kind!=ScatterKind.Stone&&p.Kind!=ScatterKind.Boulder||CollectedRock(p))continue;
                     var point=chunk.Roots[i]+Vector3.up*(float)p.HeightM*.5f;
-                    if(!InventoryReach(point))continue;var item=RockPossession(p);
+                    if((point-feet).sqrMagnitude>25)continue;var item=RockPossession(p);
                     if(item.MassKg>25||p.WidthM>.55||p.HeightM>.45)continue;
-                    inventoryNearby.Add(new NearbyPossession{Item=item,Natural=true,Point=point,Bounds=new Bounds(point,new Vector3((float)p.WidthM+.06f,(float)p.HeightM+.06f,(float)p.WidthM+.06f))});
+                    Candidate(new NearbyPossession{Item=item,Natural=true,Point=point,Bounds=new Bounds(point,new Vector3((float)p.WidthM+.06f,(float)p.HeightM+.06f,(float)p.WidthM+.06f))});
                 }
             }
         }
         foreach(var item in Inventory.Items.Where(i=>i.Place==PossessionPlace.Ground))
         {
-            if((item.Position-Position).Length*frame.RadiusM>4)continue;
+            if((item.Position-Position).Length*frame.RadiusM>5)continue;
             TerrainHandoff.Coordinates(frame,item.Position,out double x,out double z);
             var point=inventoryDrops.TryGetValue(item.Id,out var drop)?transform.InverseTransformPoint(drop.Body.worldCenterOfMass):new Vector3((float)(x-originX),(float)(Ground(x,z)+item.GroundOffsetM)+(float)item.HeightM*.5f,(float)(z-originZ));
-            if(InventoryReach(point))inventoryNearby.Add(new NearbyPossession{Item=item,Point=point,Bounds=new Bounds(point,new Vector3((float)item.WidthM+.06f,(float)item.HeightM+.06f,(float)item.DepthM+.06f))});
+            Candidate(new NearbyPossession{Item=item,Point=point,Bounds=new Bounds(point,new Vector3((float)item.WidthM+.06f,(float)item.HeightM+.06f,(float)item.DepthM+.06f))});
         }
         inventoryNearby.Sort((a,b)=>(a.Point-player).sqrMagnitude.CompareTo((b.Point-player).sqrMagnitude));
     }

@@ -68,8 +68,10 @@ rotation is supported and items never stack in this pass. No berries/arrows/
 crafting, other pickups, harvesting or construction was added.
 
 Nearby scans run at5Hz while showing proximity icons/inventory, and immediately
-on transfer requests. Icons fade in from2m to1m from the player feet; the aimed
-reachable item shows its name and [E] without a crosshair.
+on transfer requests. Icons fade in from4m to3m from the player feet; the aimed
+reachable item shows its name and [E] without a crosshair. Marker candidates
+are separate from reachable inventory items: seeing a marker does not extend
+physical pickup range or expose distant containers.
 Successful collection records a tombstone and removes the original from scatter
 batches/target readouts. Carried/dropped visuals reuse existing rock art, pinned
 against generated-art eviction. No second procedural scatter is introduced.

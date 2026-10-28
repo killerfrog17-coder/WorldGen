@@ -1,5 +1,20 @@
 # WorldGen repository instructions
 
+PICKUP ICON RANGE,27October2026:
+Owner changes marker fade from2->1m to4->3m, retains accepted interactions.
+Separate marker candidates from3m-eye-reachable inventory/Nearby items; expanded
+bounded scan and shared terrainLOS prevent icons being clipped by pickupreach.
+E/name prompt still requires actualreach/aim; no distantpickup/containeraccess.
+Resources/crafting discussed ONLY, no implementation authorized by this question.
+IL2CPP player-pickup-icon-range built 2026-10-28T00:21:31.2244313Z, shortcut selected,
+prior inventory-interaction retained. Build0/noC#/shadererrors;578input/art hashes
+and exactfaunaindex pass. Compiled/packaged only, no new player/profiling while
+ownerPID5760 plays; previous32nativechecks remain earlier interaction evidence,
+new3.5mmarker-vs-reach packaged assertion added but NOT run here. No new visual/
+FPS claim. Evidence artifacts/pickup-icon-range; ownsource/docs/shortcut checkpoint
+artifacts/source-checkpoints/pickup-icon-range-20261027. Push/remoteverify. Owner
+apps/saves untouched; preserve prompt deletion/two old deer scripts.
+
 INVENTORY INTERACTION CORRECTION,27October2026:
 Owner rejects artificial transferdelay, wants Q to SWAP held items, physicsdrops
 and contextual pickup labels/icons. Supersedes .65s/Qselector/nonphysical notes

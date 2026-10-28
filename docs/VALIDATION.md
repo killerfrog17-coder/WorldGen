@@ -1,5 +1,22 @@
 # Version 3 validation evidence
 
+## Pickup marker range - 27 October 2026
+
+Owner adjusts icon fade to4m beginning/3m full, instead of2m/1m. Separate marker
+and reachable-item lists allow this without increasing physical3m eye reach,
+Nearby access or the aim/name/E gate. Both still require terrain visibility.
+The source diagnostic adds a3.5m stone marker outside pickup reach; that new
+packaged assertion was not run while the owner continued playing WorldGen.
+Previous32 interaction checks remain evidence for the preceding build only.
+
+Release IL2CPP `player-pickup-icon-range`, BuiltUtc 2026-10-28T00:21:31.2244313Z.
+Build0/no C#/shader errors,578 staged input/canonical/package/native/human
+preservation hashes and exact fauna index verified. No new game launch,
+visual inspection or profiling. Existing shortcut selects the build, prior
+inventory-interaction retained. Evidence under `artifacts/pickup-icon-range`;
+source/docs/shortcut backup under `artifacts/source-checkpoints/pickup-icon-range-20261027`.
+Crafting/resource changes are design discussion only.
+
 ## Immediate inventory interaction and physics drops - 27 October 2026
 
 Owner feedback supersedes the original delay/hand-selector/nonphysical drops.
