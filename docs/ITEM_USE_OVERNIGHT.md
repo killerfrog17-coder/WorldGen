@@ -119,6 +119,7 @@ These inform gameplay priors, not clinical injury predictions or exact lethality
 - [Insect hemolymph](https://genent.cals.ncsu.edu/bug-bytes/circulatory-system/).
 - [Antarctic fish blood exception](https://www.bas.ac.uk/news/fish-survival-in-the-extreme-cold/).
 - [Moose aggression and safety](https://www.adfg.alaska.gov/index.cfm?adfg=livewith.aggressivemoose).
+- [Unity joint inverse-mass conditioning](https://docs.unity.com/en-us/engine/6000.6/script-reference/unityengine/joint/connectedmassscale).
 
 ## Explicit remaining limits
 
@@ -152,3 +153,22 @@ checking and a separately packaged polished release are next. Fishing now uses
 three-dimensional reach and brings the catch back toward the angler. The initial
 water fixture incorrectly assumed an old coarse channel was the rendered channel;
 it was rejected and now follows current riverscape spans. No terrain was changed.
+
+The 16:05Z IL2CPP candidate passes 107 combat/item checks and 13 actual shoreline
+checks. The shoreline fixture explicitly uses the normal 0.1 world scale and a
+sampled coastal bank: timed digging creates fibres, line and net land real fish,
+and both previous hands return in their correct arrangement. A borrowed original
+off-hand tool must be cleared from the primary hand before restoring either
+original item. Displaced equipment is set down above visible ground with no toss.
+Manual dropping remains physical. Q, damage and death interrupt world tool work.
+
+Visual inspection then found a sharp squirrel-corpse spike despite the older
+finite-matrix/p99 checks. The fixed-size 8 mm bone filter had omitted its 7.84 mm
+common root, leaving separate limb branches physically disconnected. Roots are
+now always retained. Small-body solver masses and joint separation are conditioned;
+centreline checks allow rigs offset from X=0 and general angular limits are more
+conservative. All original skins, bone metadata and animations remain unchanged.
+The `physics-rooted` native run passes 111 checks, including connected-body and
+size-relative edge-extension guards. Its squirrel and goose images were inspected.
+Local skin folds/intersections remain; this is not anatomically calibrated art.
+The earlier mass-only attempts were rejected. The final release rebuild is pending.

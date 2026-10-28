@@ -1,5 +1,58 @@
 # WorldGen repository instructions
 
+ITEM PHYSICS LOD ACCEPTED FOR RELEASE CHECK,28October2026~11:46CDT:
+Latest Mono player-item-physics-branches native111PASS/no runtime errors. Both
+squirrel andgoose retain9physical bodies, all connected, max edge extensions
+.02334m/.08718m, same15%-oflengthguard retained. Before/aftercaptures inspected.
+Small(<5kg)ANDair-profile corpses use coarse articulated branch roots/head;
+fine spine/toe/featherbones follow nearest retained physical ancestor. Original
+skin/rig/weights/actions unchanged. Root skipfix stillappliesall177;28rootspreviously
+failedfilter. Smallphysics topology fixes badfolding better than merely tighter
+angles; rejected compactangle experiment remainsreverted. Coarse physicsisnot
+anatomicallycalibrated, localfolds/groundcontact mayremain, no owneracceptanceyet.
+NOW building NEW releaseIL2CPP player-item-functionality-release, PTY2802.
+Runtime/shader146file inputs frozen in release-source-freeze.json; no runtime
+source edits untilbuild finishes. After build: runner -PlayerFolderthatfolder
+-OutputName release-verified; wait111PASS+exit then -OutputName release-water
+-Water for13. Refuse ownerconcurrentWorldGen. New release needs adaptproofscript
+from prove-polished-package.py,578originalhash+177collision/sourceID+18audio;
+compare146sourcefreeze; THEN selectexistingrootshortcut (backuppriorlink),
+restore3Unityautochanges, update docs+thisnote, commit/push/remotelyverify.
+Current selected remains first14:34Z item release. Old unselected-final16:28Z
+failedsquirrelguard, doNOTselectit or report itsnativepass. Priorpolished16:05Z
+had107+13 butno latestroot/LOD. Latestowner sayskeepworking untilwrapmessage,
+so doNOTfinalatnoonon your own. No newfollowupquestionneeded. Own testworkers
+exited, onlycurrentUnity build; no inference or ownerappclosure. Sourcephysics
+checkpoint+finalselection stillneedsGitHubpush; preserveownerdeletedprompt+2scripts.
+
+ACTIVE PHYSICS CONTINUATION,28October2026~11:40CDT:
+Owner says keep working, will explicitly request wrap-up. STILL first selected
+player-item-functionality14:34Z; do not claim new selection yet. Git108b1f4...
+pushed/remoteverified hand-order+shore fixes, docs progress; newer physics unstaged.
+IL2CPP player-item-functionality-final built16:28:06.7027414Z,578originalhash+
+177collision/sourceIDs+18audio pass, BUT native final-release-verified fails
+new squirrel max-edge-extension guard(.0489m>.042m), despite connected root.
+Earlier physics-rooted Mono111PASS had.0322m, subsequent compact-joint and idle
+baseline trials.0530/.0594m FAILED. DO NOT weaken15%guard for green. Joint-range
+experiment reverted; root always retained and root-relative centerline remain.
+New appropriate PHYSICS LOD for animalmass<5kg: common root +first body branches
+and major limb roots/head; fine spine/toe/feather bones follow retained owner
+palette. Original mesh/weights/rest/actions exact. This avoids many independently
+folding fine bones and reduces small-body solver work. Build NOW Mono folder
+player-item-physics-lod, PTY43766; once complete run runner OutputNamephysics-lod.
+Fixture now fixed idle/time0/heading0/speed0 andFade1, capturesBEFOREandAFTER.
+If passing, build NEW/overwrittenUNSELECTED final IL2CPP(no liveprocess), then
+native111+13water; final proof script requires proper build-inputs metadata.
+Runner now refuses incomplete packages/existing evidence paths. Interrupted
+premature final-release-full was rejected, not evidence. final-release-verified
+is the actualfailedIL2CPP run. Extra source snapshot before lastbuild recommended.
+9more obsolete OWN diagnostic packages deleted6.82GiB by daily/latest3+selected+
+fallback rule; final-build-cleanup-plan/report in taskroot. Earlier10removed7.52.
+Original/polished release fallbacks and alllogs/images/source/saves retained.
+Restore3known Unity autochanges after build. New physics/source/docs/shortcut
+commit/push/remoteverify still needed. Do not close ownerapps. No more AI audio/
+GPU workers; just owned build/test. Original177animals/42humanPNG/MPFB protected.
+
 ACTIVE ITEM POLISH,28October2026~11:23CDT:
 Owner replied KEEP WORKING; will explicitly say when to start wrapping up.
 Do not end at noon simply because earlier minimum reached. No user test results

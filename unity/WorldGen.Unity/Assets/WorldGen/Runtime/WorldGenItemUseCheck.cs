@@ -119,14 +119,24 @@ public sealed partial class LocalTerrainExplorer
         var unseenSpawn=new FaunaPrototypeSpawn{Profile=unseen,Position=frame.Position(motion.X+unseen.VisibleRadiusM+100,motion.Z)};animalWanted.Add(unseenSpawn);
         Check(NextVisibleAnimalModel()==null,"A tracked animal outside visual range cannot trigger mesh/texture/collision-skin loading");unseenSpawn.Position=Position;
         Check(NextVisibleAnimalModel()==unseenSpawn,"The same animal becomes eligible for its visual model when it enters range");animalWanted.Clear();animalWanted.AddRange(priorWanted);
-        foreach(string slug in new[]{"goose","ground-squirrel"})
+        foreach(string slug in new[]{"ground-squirrel","goose"})
         {
             paused=false;ExecuteAnimalSpawnCommand("/spawn "+slug);double bodyDeadline=Time.unscaledTimeAsDouble+35;
             while(!animals.Values.Any(a=>a.Manual&&!a.Dead&&a.Spawn.Profile.slug==slug)&&Time.unscaledTimeAsDouble<bodyDeadline)yield return null;
             paused=true;var subject=animals.Values.FirstOrDefault(a=>a.Manual&&!a.Dead&&a.Spawn.Profile.slug==slug);Check(subject!=null,"Representative ragdoll subject loads: "+slug);
-            subject.X+=12;subject.Planet=frame.Position(subject.X,subject.Z);subject.GroundY=Ground(subject.X,subject.Z);UpdateAnimal(subject,0);
+            subject.X+=12;subject.Planet=frame.Position(subject.X,subject.Z);subject.GroundY=Ground(subject.X,subject.Z);
+            subject.Clip=subject.Model.Asset.Clips.FirstOrDefault(c=>c.role=="idle")??subject.Clip;subject.OldClip=null;subject.Time=0;subject.Speed=subject.TargetSpeed=0;subject.Heading=subject.TargetHeading=0;subject.NextDecision=subject.Life+1000;subject.Fade=1;UpdateAnimal(subject,0);
+            yield return Image("before-corpse-"+slug,subject);UpdateCamera();
+            var originalSubject=(Vector3[])PosedAnimal(subject).Clone();
             DamageAnimal(subject,10000,subject.Renderer.bounds.center,Vector3.right);paused=false;yield return new WaitForSecondsRealtime(4);paused=true;
-            Check(subject.Ragdoll.BodyCount>2&&AnimalPalette(subject).All(m=>Enumerable.Range(0,16).All(i=>float.IsFinite(m[i]))),"Original bird/root-head skeleton retains multiple stable corpse bodies: "+slug);yield return Image("corpse-"+slug,subject);UpdateCamera();
+            var collapsedSubject=PosedAnimal(subject);var subjectSurface=AnimalSurface(subject);float maximumExtension=0;
+            for(int face=0;face<subjectSurface.Triangles.Length;face+=3)for(int edge=0;edge<3;edge++)
+            {int a=subjectSurface.Triangles[face+edge],b=subjectSurface.Triangles[face+(edge+1)%3];if(!subjectSurface.Visible(a,subject.Parts))continue;maximumExtension=Mathf.Max(maximumExtension,Vector3.Distance(collapsedSubject[a],collapsedSubject[b])-Vector3.Distance(originalSubject[a],originalSubject[b]));}
+            File.WriteAllText(Path.Combine(output,"corpse-"+slug+"-stretch.txt"),"Maximum edge extension m "+maximumExtension+"; animal length m "+subject.Spawn.Profile.lengthM+"; mass kg "+subject.MassKg+"; physical bodies "+subject.Ragdoll.BodyCount);
+            yield return Image("corpse-"+slug,subject);UpdateCamera();
+            Check(subject.Ragdoll.Connected,"Every corpse limb remains connected to its common root: "+slug);
+            Check(maximumExtension<subject.Spawn.Profile.lengthM*.15,"Corpse avoids sharp skin spikes relative to animal size: "+slug);
+            Check(subject.Ragdoll.BodyCount>2&&AnimalPalette(subject).All(m=>Enumerable.Range(0,16).All(i=>float.IsFinite(m[i]))),"Original bird/root-head skeleton retains multiple stable corpse bodies: "+slug);
         }
         if(SpawnHumans(1)>0){var npc=humanNpcs.Last();DamageHuman(npc,1000,null,Vector3.forward,10);Check(npc.Health<=0&&npc.Ragdoll!=null,"Manually spawned human NPC also supports combat death and ragdoll");}
         ExecuteAnimalSpawnCommand("/spawn clear");Check(!Wildlife.Individuals.Any(p=>p.Manual)&&!animalWanted.Any(p=>p.Id==deadId),"Explicit spawn clearing removes saved command corpses so they cannot reappear");
@@ -142,9 +152,9 @@ public sealed partial class WorldGenRuntime
     IEnumerator CheckItemUseRuntime()
     {
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);AudioListener.volume=0;
-        var report=new List<string>();var errors=new List<string>();Application.LogCallback listener=(m,t,k)=>{if(k==LogType.Error||k==LogType.Exception)errors.Add(m);};Application.logMessageReceived+=listener;
+        var report=new List<string>();var errors=new List<string>();Application.LogCallback listener=(m,t,k)=>{if(k==LogType.Error||k==LogType.Exception){errors.Add(m);File.WriteAllText(Path.Combine(output,"failure.txt"),m+"\n"+t);Application.Quit(1);}};Application.logMessageReceived+=listener;
         double deadline=Time.realtimeSinceStartupAsDouble+180;while((Busy||!worldReady||humans==null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
-        if(!worldReady||Busy||humans==null)throw new InvalidOperationException("Item-use fixture unavailable");TerrainVideoOptions.Current.ViewDistanceM=1000;TerrainVideoOptions.Revision++;ExploreTerrain(TerrainMapViewport.FromDegrees(50,10));deadline=Time.realtimeSinceStartupAsDouble+120;
+        if(!worldReady||Busy||humans==null)throw new InvalidOperationException("Item-use fixture unavailable");play.Settings.HorizontalScale=.1;TerrainVideoOptions.Current.ViewDistanceM=1000;TerrainVideoOptions.Revision++;ExploreTerrain(TerrainMapViewport.FromDegrees(50,10));deadline=Time.realtimeSinceStartupAsDouble+120;
         while((terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(terrainExplorer==null||!terrainExplorer.Ready)throw new InvalidOperationException("Item-use terrain unavailable");
         if(Environment.GetCommandLineArgs().Contains("--worldgen-item-water-check"))yield return terrainExplorer.CheckItemWaterFlow(output,report);

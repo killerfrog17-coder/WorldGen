@@ -17,12 +17,14 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
     sealed class Part
     {public int Bone;public Rigidbody Body;public Matrix4x4 InverseStart;public Vector3 Velocity,Spin;}
     readonly List<Part> parts=new List<Part>();int[] owners;Matrix4x4[] initial;
-    Transform model;GameObject physicsRoot,floor;Mesh groundMesh;Vector3 lastModelPosition;float age,quiet;bool settled,paused;
+    Transform model;GameObject physicsRoot,floor;Mesh groundMesh;Vector3 lastModelPosition;float age,quiet;bool settled,paused,lightPhysics;
+    Func<float,float,float> groundQuery;Vector3 floorCenter;float floorSpan;
     public int BodyCount=>parts.Count;public bool Settled=>settled;
+    public bool Connected=>parts.Skip(1).All(p=>p.Body.GetComponent<CharacterJoint>()?.connectedBody!=null);
     static Vector3 Point(float[] p)=>new Vector3(p[0],p[1],p[2]);
-    public void Begin(Transform renderedModel,FaunaPhysicsSpecies skeleton,Matrix4x4[] palette,double mass,Vector3 velocity,Func<float,float,float> ground,bool freeze=false,FaunaCollisionSurface skin=null,Vector3[] posed=null,Vector4 visibleParts=default)
+    public void Begin(Transform renderedModel,FaunaPhysicsSpecies skeleton,Matrix4x4[] palette,double mass,Vector3 velocity,Func<float,float,float> ground,bool freeze=false,FaunaCollisionSurface skin=null,Vector3[] posed=null,Vector4 visibleParts=default,bool coarse=false)
     {
-        model=renderedModel;lastModelPosition=model.position;initial=(Matrix4x4[])palette.Clone();owners=new int[palette.Length];
+        model=renderedModel;lightPhysics=coarse||mass<5;lastModelPosition=model.position;initial=(Matrix4x4[])palette.Clone();owners=new int[palette.Length];
         physicsRoot=new GameObject("Wildlife corpse physics");physicsRoot.transform.SetParent(transform,false);
         var map=new Dictionary<int,int>();float scale=model.lossyScale.x;
         var descriptions=skeleton?.bones;int count=descriptions?.Length??0;
@@ -43,9 +45,21 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
             var b=descriptions[i];float span=Vector3.Distance(Point(b.head),Point(b.tail))*scale;string name=b.name.ToLowerInvariant();
             bool detail=name.Contains("eye")||name.Contains("ear")||name.Contains("jaw")||name.Contains("finger")||name.Contains("toe")||name.Contains("antler")||name.Contains("horn");
             int ancestor=b.parent,guard=0;while(ancestor>=0&&ancestor<count&&guard++<count){if(headBones.Contains(ancestor)){detail=true;break;}ancestor=descriptions[ancestor].parent;}
-            if(span<Math.Max(.008f,scale*.025f)||detail)continue;
+            // A short common root still connects independent limb branches.
+            // Dropping it creates free rigidbodies that tear the skin apart.
+            bool root=b.parent<0;
+            if(!root&&(span<Math.Max(.008f,scale*.025f)||detail))continue;
+            if(lightPhysics&&!root&&descriptions[b.parent].parent>=0&&!name.Contains("head"))
+            {
+                // Small corpses use physical branches, not a separate rigidbody
+                // for every spine segment, toe and feather. Fine original bones
+                // follow the nearest retained body through the owner palette.
+                float midline=Point(descriptions[0].head).x;
+                bool Central(FaunaPhysicsBone bone)=>Mathf.Abs(Point(bone.head).x-midline)<.025f&&Mathf.Abs(Point(bone.tail).x-midline)<.025f;
+                if(Central(b)||!Central(descriptions[b.parent]))continue;
+            }
             Vector3 start=model.TransformPoint(palette[i].MultiplyPoint3x4(Point(b.head))),end=model.TransformPoint(palette[i].MultiplyPoint3x4(Point(b.tail)));
-            if(Vector3.Distance(start,end)<.006f)continue;
+            if(Vector3.Distance(start,end)<.006f){if(!root)continue;end=start+model.up*Mathf.Max(.001f,scale*.01f);}
             bool limb=name.Contains("leg")||name.Contains("arm")||name.Contains("foot")||name.Contains("paw")||name.Contains("shin")||name.Contains("fore")||name.Contains("wing")||name.Contains("tail");
             float radius=Mathf.Clamp(span*(limb?.17f:.35f),scale*(limb?.012f:.025f),scale*(limb?.045f:.09f));
             if(clouds[i]?.Count>=6)
@@ -56,7 +70,8 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
             }
             // Geometric classification is essential for rigs named Joint_01,
             // Joint_02... Names alone cannot distinguish their torso and legs.
-            bool central=Mathf.Abs(Point(b.head).x)<.025f&&Mathf.Abs(Point(b.tail).x)<.025f;
+            float centerX=Point(descriptions[0].head).x;
+            bool central=Mathf.Abs(Point(b.head).x-centerX)<.025f&&Mathf.Abs(Point(b.tail).x-centerX)<.025f;
             bool spine=central&&Mathf.Abs(Point(b.tail).y-Point(b.head).y)<Mathf.Abs(Point(b.tail).z-Point(b.head).z)*.4f;
             var restAxis=Point(b.tail)-Point(b.head);bool leg=!central&&Mathf.Abs(restAxis.y)>Mathf.Abs(restAxis.x)*.6f&&(Point(b.head).y+Point(b.tail).y)*.5f<Point(descriptions[0].head).y+.04f;
             bool tail=central&&headBones.Count>0&&!headChain.Contains(i);
@@ -73,7 +88,13 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
             owners[i]=map.TryGetValue(bone,out int part)?part:0;
         }
         double total=parts.Sum(p=>{var c=p.Body.GetComponent<CapsuleCollider>();return c.radius*c.radius*c.height;});
-        foreach(var p in parts){var c=p.Body.GetComponent<CapsuleCollider>();p.Body.mass=(float)Math.Max(.00001,mass*c.radius*c.radius*c.height/Math.Max(1e-12,total));}
+        // Tiny terminal capsules otherwise have thousands of times less mass
+        // than the torso. That makes the constraint solver pull their skin into
+        // spikes even though every matrix remains finite. Condition the solver
+        // masses without changing the accepted skin or the total animal mass.
+        foreach(var p in parts){var c=p.Body.GetComponent<CapsuleCollider>();p.Body.mass=(float)Math.Max(lightPhysics?mass*.002:.00001,mass*c.radius*c.radius*c.height/Math.Max(1e-12,total));}
+        if(lightPhysics){float bodyMass=parts.Sum(p=>p.Body.mass);foreach(var p in parts)p.Body.mass*=(float)mass/bodyMass;}
+        if(lightPhysics)foreach(var p in parts){var joint=p.Body.GetComponent<CharacterJoint>();if(joint!=null)joint.connectedMassScale=Mathf.Clamp(joint.connectedBody.mass/p.Body.mass,.05f,20);}
         var colliders=physicsRoot.GetComponentsInChildren<Collider>();
         for(int i=0;i<colliders.Length;i++)for(int j=0;j<i;j++)
         {
@@ -99,22 +120,25 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
             bool proximal=leg&&descriptions!=null&&Mathf.Abs(Point(descriptions[parent].head).x)<.025f&&Mathf.Abs(Point(descriptions[parent].tail).x)<.025f;
             var joint=obj.AddComponent<CharacterJoint>();joint.connectedBody=parts[connected].Body;joint.autoConfigureConnectedAnchor=false;
             joint.anchor=obj.transform.InverseTransformPoint(start);joint.connectedAnchor=joint.connectedBody.transform.InverseTransformPoint(start);joint.axis=Vector3.up;joint.swingAxis=Vector3.right;
-            joint.lowTwistLimit=new SoftJointLimit{limit=spine||leg||tail?-6:-20};joint.highTwistLimit=new SoftJointLimit{limit=spine||leg||tail?6:20};joint.swing1Limit=new SoftJointLimit{limit=spine?10:tail?25:leg?(proximal?45:85):65};joint.swing2Limit=new SoftJointLimit{limit=spine?8:tail?15:leg?10:40};
-            joint.enableProjection=true;joint.projectionDistance=.025f;joint.projectionAngle=10;
+            joint.lowTwistLimit=new SoftJointLimit{limit=spine||leg||tail?-6:-12};joint.highTwistLimit=new SoftJointLimit{limit=spine||leg||tail?6:12};joint.swing1Limit=new SoftJointLimit{limit=spine?10:tail?25:leg?(proximal?45:85):35};joint.swing2Limit=new SoftJointLimit{limit=spine?8:tail?15:leg?10:25};
+            joint.enableProjection=true;joint.projectionDistance=lightPhysics?Mathf.Clamp(Vector3.Distance(start,end)*.02f,.00025f,.005f):.025f;joint.projectionAngle=lightPhysics?5:10;
         }
         map[bone]=parts.Count;parts.Add(new Part{Bone=bone,Body=body,InverseStart=(model.worldToLocalMatrix*body.transform.localToWorldMatrix).inverse});
     }
     void BuildGround(Func<float,float,float> height,Vector3 center,float span)
     {
+        groundQuery=height;floorCenter=center;floorSpan=span;
+        if(floor!=null){floor.GetComponent<MeshCollider>().sharedMesh=null;floor.transform.position=Vector3.zero;}
         const int segments=20;var vertices=new Vector3[441];var triangles=new int[2400];int cursor=0;
         for(int z=0;z<=segments;z++)for(int x=0;x<=segments;x++){float px=center.x-span*.5f+x*span/segments,pz=center.z-span*.5f+z*span/segments;vertices[z*21+x]=new Vector3(px,height(px,pz),pz);}
         for(int z=0;z<segments;z++)for(int x=0;x<segments;x++){int a=z*21+x,b=a+1,c=a+21,d=c+1;triangles[cursor++]=a;triangles[cursor++]=c;triangles[cursor++]=b;triangles[cursor++]=b;triangles[cursor++]=c;triangles[cursor++]=d;}
-        groundMesh=new Mesh{name="Wildlife corpse ground"};groundMesh.vertices=vertices;groundMesh.triangles=triangles;groundMesh.RecalculateBounds();floor=new GameObject("Wildlife corpse ground");floor.transform.SetParent(physicsRoot.transform,false);floor.AddComponent<MeshCollider>().sharedMesh=groundMesh;
+        if(groundMesh==null)groundMesh=new Mesh{name="Wildlife corpse ground"};groundMesh.Clear();groundMesh.vertices=vertices;groundMesh.triangles=triangles;groundMesh.RecalculateBounds();
+        if(floor==null){floor=new GameObject("Wildlife corpse ground");floor.transform.SetParent(physicsRoot.transform,false);floor.AddComponent<MeshCollider>();}floor.GetComponent<MeshCollider>().sharedMesh=groundMesh;
     }
     public void Synchronize(Matrix4x4[] target,int offset)
     {
         if(model==null||initial==null)return;Vector3 delta=model.position-lastModelPosition;
-        if(delta.sqrMagnitude>.000001f){foreach(var p in parts)p.Body.position+=delta;if(floor!=null)floor.transform.position+=delta;lastModelPosition=model.position;}
+        if(delta.sqrMagnitude>.000001f){foreach(var p in parts)p.Body.position+=delta;if(floor!=null)floor.transform.position+=delta;floorCenter+=delta;lastModelPosition=model.position;}
         for(int i=0;i<initial.Length;i++){var part=parts[owners[i]];target[offset+i]=model.worldToLocalMatrix*part.Body.transform.localToWorldMatrix*part.InverseStart*initial[i];}
     }
     public Bounds LocalBounds
@@ -127,6 +151,7 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
     void FixedUpdate()
     {
         if(settled||paused)return;age+=Time.fixedDeltaTime;bool still=parts.All(p=>p.Body.IsSleeping()||p.Body.linearVelocity.sqrMagnitude<.01f&&p.Body.angularVelocity.sqrMagnitude<.05f);quiet=still?quiet+Time.fixedDeltaTime:0;
+        if(parts.Count>0&&groundQuery!=null){var offset=parts[0].Body.position-floorCenter;offset.y=0;if(offset.sqrMagnitude>floorSpan*floorSpan*.0625f)BuildGround(groundQuery,parts[0].Body.position,floorSpan);}
         if(age>2&&quiet>1)Freeze();
     }
     void OnDestroy(){if(physicsRoot!=null){physicsRoot.SetActive(false);Destroy(physicsRoot);}if(groundMesh!=null)Destroy(groundMesh);}

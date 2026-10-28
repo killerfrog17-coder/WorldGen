@@ -48,7 +48,7 @@ public sealed partial class LocalTerrainExplorer
         animal.Root.transform.localPosition=new Vector3((float)(animal.X-originX),(float)(VisibleGround(animal.X,animal.Z,animal.GroundY)+animal.CorpseHeightOffset),(float)(animal.Z-originZ));animal.Root.transform.localRotation=Quaternion.Euler(0,animal.Heading,0);
         animal.Ragdoll=gameObject.AddComponent<WorldGenFaunaRagdoll>();wildlifeSkeletons.TryGetValue(animal.Spawn.Profile.slug,out var skeleton);
         animal.CollisionFrame=-1;
-        animal.Ragdoll.Begin(animal.Root.transform,skeleton,palette,animal.MassKg,impulse,(x,z)=>(float)VisibleGround(x+originX,z+originZ,Ground(x+originX,z+originZ)),restored&&wildlifeRecords.TryGetValue(animal.Spawn.Id,out var record)&&record.CorpsePose!=null&&record.CorpseSettled,AnimalSurface(animal),PosedAnimal(animal),animal.Parts);
+        animal.Ragdoll.Begin(animal.Root.transform,skeleton,palette,animal.MassKg,impulse,(x,z)=>(float)VisibleGround(x+originX,z+originZ,Ground(x+originX,z+originZ)),restored&&wildlifeRecords.TryGetValue(animal.Spawn.Id,out var record)&&record.CorpsePose!=null&&record.CorpseSettled,AnimalSurface(animal),PosedAnimal(animal),animal.Parts,coarse:animal.Spawn.Profile.medium=="air");
         animal.TargetSpeed=animal.Speed=0;RememberAnimal(animal,true);
     }
     void UpdateAnimalCorpse(Animal animal,float dt)
