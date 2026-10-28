@@ -1,10 +1,13 @@
 # Portable items and wildlife checkpoint ? 28 October 2026
 
-The existing shortcut selects `player-item-followup`, release
-IL2CPP built **2026-10-28T19:53:28.2701097Z**. That exact package passes **132
-combat/item checks and 13 shoreline checks**, including the owner's same-frame
+The existing shortcut now selects `player-wildlife-radar`, release
+IL2CPP built **2026-10-28T20:57:48.2392516Z**, adding [resource-based wildlife
+abundance, bounded encounter pacing and F3+A radar](WILDLIFE_ABUNDANCE.md).
+It passes **139 packaged gameplay checks and103 abundance checks**.
+The previous `player-item-followup` passes **132 combat/item and13 shoreline
+checks**, including the owner's same-frame
 stone-flake drop regression and actual bow, sling and spear-thrower shots.
-The preceding complete item release and first item release remain as fallbacks.
+The preceding item-followup and complete item releases remain as fallbacks.
 Build/test workers have exited. The owner lifted CPU/GPU/network restrictions;
 the formerly local source checkpoints have now been pushed to GitHub.
 
@@ -162,7 +165,8 @@ the tracked region stop ticking; no unlimited offline catch-up is attempted.
 | Intermediate IL2CPP polished candidate | 107 native + 13 actual shoreline checks pass. |
 | Latest Mono ranged-check candidate | 123 native checks pass: all 63 model thumbnails, actual knapping/drop regression, bow/sling/thrower hits, connected corpses, skin-extension guards, saves, predation and player death. |
 | Previous complete IL2CPP | 123 combat/item +13 actual shoreline checks pass. |
-| Selected follow-up IL2CPP | 132 combat/item +13 actual shoreline checks pass, no runtime errors/exceptions. |
+| Previous follow-up IL2CPP | 132 combat/item +13 actual shoreline checks pass, no runtime errors/exceptions. |
+| Selected abundance/radar IL2CPP | 139 packaged gameplay +103 abundance checks pass; no runtime errors/exceptions. No new shoreline rerun. |
 
 Inspected captures include the squirrel and goose, with the latter retaining its
 structural neck joints. The 15%-of-length extension guard and deer 99th-percentile

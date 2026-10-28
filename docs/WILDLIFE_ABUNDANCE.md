@@ -1,5 +1,13 @@
 # Wildlife abundance and encounter pacing
 
+Selected release: `player-wildlife-radar`, IL2CPP built
+`2026-10-28T20:57:48.2392516Z`, on the existing WorldGen shortcut. The103 focused
+abundance checks and139 packaged gameplay checks pass, including actual F3+A
+input, live actor data, projection and population-version migration. The151
+frozen source inputs and578 asset/assembly hashes pass;177 original fauna assets,
+collision derivatives and18 item clips remain verified. Previous item-followup
+is retained. Radar appearance and hunting encounter balance need owner feedback.
+
 This replaces independent per-species render densities. It is a resource-limited
 population projection plus local behaviour, not a new global ecology simulation.
 The native distribution, food-web permissions, terrain, animal assets and manual
@@ -99,6 +107,12 @@ scales. Its frozen previous-planner source and before/after outputs are under
 The sampled counts include tiny insects and depend on local habitat/RNG; they
 are not a universal encounter benchmark. Full breeding, population feedback,
 territory ownership and complete navigation remain future work.
+
+One intermediate abundance-only native run failed the existing corpse stretch
+guard at2.5296. The final radar build passes at2.2513 with the same2.5 guard;
+ragdoll code/skins were not changed. This is variable existing physics, not an
+abundance-related ragdoll repair or a universal anatomy/ground-contact guarantee.
+Both failed and final evidence remain under `artifacts/overnight-items-20261028`.
 
 ## Research basis
 

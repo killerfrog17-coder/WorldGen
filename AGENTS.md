@@ -1,40 +1,71 @@
 # WorldGen repository instructions
 
-WILDLIFE ABUNDANCE / ENCOUNTER PACING IN PROGRESS,28October2026:
-LATEST steering: also implement F3+A wildlife radar. New read-only3km north-up
-overlay: tier colours, solid loaded actors/hollow coarse groups/dim inactive/
-grey corpses, explicit expanded near-field distance rings.5Hz only when enabled,
-no model/terrain loads, no population cap. Hotkey restores ordinary F3 state and
-does not strafe left while F3 held. Four native input/data/range regressions added.
-Final abundance checks now103; item-use77 pass; Unity source check passes.
-First IL2CPP player-wildlife-abundance compiled/proof150+578+177+18PASS, but its
-native135run FAILED existing corpse stretch guardp99=2.5296 (>2.5), no threshold
-weakened and not selected. It exited. Radar changes need NEW player-wildlife-radar
-build, native139 and preservation proof; inspect repeated corpse failure if any.
-All original art/rig/weights/actions unchanged. Prior selected item-followup stays.
-Owner authorizes replacing the visible zoo with shared resource-limited animal
-communities and realistic encounter pacing. Wildlife-only effective day clamps
-15..1440 real minutes; actual solar day setting remains1..10080. NO CPU/GPU/network
-restriction now. No arbitrary entity cap, paid calls, new art or subagents.
-Core WildlifeAbundance +WildlifeHabitat: shared native regional consumer budgets,
-actual local vegetation/water habitat, prey-supported carnivores incl fish diets,
-stable exposed-activity subset. Far travel uses sqrt(1440/effectiveDay), blends
-only beyond1.5x visual radius; nearby actors keep normal motion. Food-seeking
-routes, broader ranging and bounded need/decision timing; not player-directed
-quota spawns. Projection version2 clears old group proposals ONLY, keeps wounds/
-corpses/manual records. No births/full ecological feedback or calibrated hunt rate.
-Core101 abundance +77 item-use checks PASS; Unity source check PASS after staging
-new Core/Serialization/Presentation DLLs. The temporary frozen previous planner
-audit was removed from tests after before/after world runs, source retained ONLY
-under artifacts/wildlife-abundance-20261028, not game. World audit4sites x2scales
-shows density projection changed substantially; this is not full-world realism
-certification. Latest minor exposure change needs final audit rows refreshed.
-Next build NEW player-wildlife-abundance, native135 item/gameplay checks (132+3
-clock/near-speed/legacy-corpse migration assertions), preservation proof, select
-existing shortcut. Current selected player-item-followup remains fallback.
-See docs/WILDLIFE_ABUNDANCE.md for assumptions/research and pending limits.
-Do not resume scrapped history/construction/processing/animation work. Preserve
-owner prompt deletion/two old deer scripts. Commit/push/remoteverify own changes.
+WILDLIFE ABUNDANCE + F3+A RADAR SELECTED,28October2026:
+Owner allows FULL CPU/GPU/network; all earlier competitive-play limits LIFTED.
+Latest scope couples ecological abundance to food/habitat and bounds wildlife
+encounter pacing15..1440 real minutes. Actual solar-day setting1..10080 unchanged.
+Adds explicit owner-requested F3+A debug radar. No paid calls/subagents/extra art.
+
+Existing root shortcut selects artifacts/player-wildlife-radar/WorldGen.exe,
+release IL2CPP BuiltUtc2026-10-28T20:57:48.2392516Z. Target/icon/conditional working
+directory changed, arguments retained. Previous player-item-followup retained.
+No owner apps/saves closed or removed. All owned build/test workers have EXITED.
+Source feature checkpointcc3a44b already pushed; final docs/link checkpoint next.
+
+Core103 resource/pacing +77 item-use checks PASS. Selected package139gameplay
+checks PASS including F3+A sequences/live radar actor data/near-far projection,
+clock clamps, population-version migration preserving actual corpse, and existing
+combat/save/tool/ragdoll tests. No new shoreline rerun (prior13 from item-followup
+remain historical evidence). Preservation578asset/DLL +151frozen source inputs,
+177collision source IDs/package hashes +18item-audio hashes PASS. Original177
+fauna/native/rig/weights/actions/coats,42human PNGs/protected MPFB unchanged.
+No item/animal art/animation/terrain/historical simulation modifications.
+
+Core WildlifeAbundance/WildlifeHabitat +planner now share local resource budgets
+among ALL native regional consumers, not independent species allocations. Actual
+vegetation/water/season proxies; edible prey biomass shared across compatible
+predators incl fish diets. Unrendered consumers compete too. Visible proposals
+are exposed activity; no all-birds-airborne default180/km2. Missing broad nocturnal
+priors added for civet/badger/hedgehog/porcupine. Stable identity habitat filtering,
+no arbitrary entity cap. Tree graphics settings do not alter resource supply.
+Wildlife effective day clamp15..1440; sqrt(1440/effective) far travel (max9.8x)
+blends only beyond1.5x visual radius; nearby actor speeds unchanged. Decision/need
+schedules bounded, forage chooses suitable routes and broader ranges. No directing
+groups toward player, density*24 or guaranteed hunt/predator encounter quotas.
+Projection version2 rebuilds old procedural GROUPS only; wounds/corpses/manual
+individuals retained. No reproduction, closed-loop population feedback, detailed
+marine productivity, universal navigation or calibrated food sufficiency claim.
+
+Radar: opt-in F3+A,3km north-up, labelled expanded near-field distances. Tier
+colours; solid loaded actors, hollow coarse groups with estimated members,
+dim inactive records, grey corpses. No terrain/model loads/spawns.5Hz cache only
+when enabled; off has no scan. Ordinary F3 state restored for sequential chord,
+F3-held A does not strafe. No mouse unlock/control banner. Help in Character&help.
+Radar appearance still owner-review pending; input/data checked, not all-world
+pixel/FPS certification. UI textures disposed with explorer.
+
+First intermediate abundance-only build compiled/preservation passed but native
+corpse guard FAILED p99=2.5296. Final radar build passes p99=2.2513 with SAME2.5
+threshold; ragdoll code/skins unchanged. Failed evidence retained; do not claim a
+ragdoll fix/anatomical perfection or erase this transient. Later same code physics
+may still vary. Current rig ground contacts/folds remain prototype limitations.
+
+Evidence artifacts/wildlife-abundance-20261028: core-checks.log(103), final-before-
+after.json (4sites x2scales), frozen old planner audit source (NOT in shipped
+code/tests), radar-source-freeze/proofs, selected-radar-checkpoint.json and prior
+shortcut backup. Gameplay log/images/checks artifacts/overnight-items-20261028/
+radar-release(139); failed abundance-release retained. Raw counts include insects
+and vary with habitat/RNG; NOT a universal encounter benchmark. Baseline code
+was dfd2f48. Do not reintroduce archived legacy planner/draft patch in production.
+
+Known Unity build autochanges in URPglobal/ProjectSettings/ground atlas importer
+restored. Preserve unrelated owner-deleted WorldGen_OneShot_Prompt.md and old
+untracked scripts/deer-review-controls.py, scripts/prepare-deer-review.py. Do not
+stage those. No processing/skinning/meat drops/construction/history/animation
+work resumed. Owner supervises processing later. Commit/push/remoteverify own
+handoff. See docs/WILDLIFE_ABUNDANCE.md for research/assumptions/limitations.
+
+Historical item release record follows; shortcut/limits/counts above supersede it.
 
 ITEM FOLLOW-UP RELEASE SELECTED,28October2026:
 Owner is back and explicitly permits FULL CPU/GPU and ordinary resource use.

@@ -5,6 +5,12 @@ This runtime layer uses the existing ecological taxa, native regions and accepte
 population cap. Species rules are broad natural-history priors, not a complete
 individual ecology or a validated population model.
 
+The current selected build uses [shared resource budgets and bounded encounter
+pacing](WILDLIFE_ABUNDANCE.md), replacing independent species densities. F3+A
+opens its simulation radar. The wildlife clock clamps15minutes..24hours without
+restricting the actual day-length setting; offscreen travel alone accelerates.
+The abundance/radar release passes103 focused and139 packaged gameplay checks.
+
 ## Tracking and decisions
 
 | Tier | Typical animals | Local tracking radius |
