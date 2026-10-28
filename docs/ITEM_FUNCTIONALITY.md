@@ -63,21 +63,19 @@ References consulted for implementation decisions:
 
 ## Current validation
 
-Automatic equipment passes539 portable checks plus75 inventory and37 stone/37
-woodworking checks. Physical launch/block/wildlife persistence passes44 targeted
-checks. The normal Mono hands checkpoint builds successfully after the owner
-restored Unity Personal activation. Its native batch flow passes38 checks,
-including original-hand restoration on pause/completion/cancel, real drop/retrieve,
-slung bows, source coat binding and save/load. Batch screenshot files are black;
-these establish functional behaviour, not a graphical layout review. The current
-virtual-monitor setup intermittently prevents native windowed launches. Editor
-render-texture reviews remain available for artwork and shader checks.
+The combined item-use rules pass 57 checks; portable crafting passes 747 checks
+across 63 item definitions and 83 contextual actions. Separate inventory,
+stone-working, woodworking and camera suites cover the existing flow.
 
-A same-frame drop/retrieve/resume exposed Unity's deferred component destruction;
-item rigidbodies/colliders are now reused and disabled while carried, rather than
-being destroyed and immediately re-added in the same frame.
+Licensed Unity builds now succeed after the owner restored activation. Earlier
+native checkpoints passed 38 automatic-equipment checks, then 22 combat checks,
+then 40 combined combat/tool/art/wildlife checks. Real render-texture captures
+were inspected; ordinary batch ScreenCapture files were black and were rejected.
+The latest audio, fish tether and wildlife scheduling changes require their own
+combined native rerun before selecting a release. Evidence and current build
+status are maintained in ITEM_USE_OVERNIGHT.md.
 
-The physics metadata exporter inspected177 original native files/5807 bones in57
-seconds, with all source hashes preserved. Bone parents precede children in all
-records. Metadata supplies the original rest frames for palette-driven ragdolls.
-Combat foundations are in progress; this checkpoint does not yet expose attacks.
+177 original native fauna files, their render bundles, rigs and animation banks
+are preserved. Supplementary 26.4 MiB collision skins provide actual posed surface
+hits without making the original GPU meshes readable. Rest metadata covers 5,807
+bones. This is not a guarantee of exact biological injury or anatomical ragdolls.

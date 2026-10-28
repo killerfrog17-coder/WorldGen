@@ -6,13 +6,13 @@ public sealed partial class LocalTerrainExplorer
 {
     sealed class CombatObstacle
     {public float Distance;public Vector3 Point,Normal;public bool Tree;public ScatterInstance Source;}
-    CombatObstacle TraceCombatObstacle(Ray worldRay,float reach,Collider ignore=null)
+    CombatObstacle TraceCombatObstacle(Ray worldRay,float reach,Collider ignore=null,bool checkGround=true)
     {
         CombatObstacle hit=null;float closest=reach;
         var ray=new Ray(transform.InverseTransformPoint(worldRay.origin),transform.InverseTransformDirection(worldRay.direction));
         foreach(var physical in Physics.RaycastAll(worldRay,reach,~(1<<29),QueryTriggerInteraction.Ignore))
             if(physical.collider!=ignore&&physical.distance<=closest){closest=physical.distance;hit=new CombatObstacle{Distance=closest,Point=physical.point,Normal=physical.normal};}
-        for(float d=.08f;d<closest;d+=.18f)
+        for(float d=.08f;checkGround&&d<closest;d+=.18f)
         {
             var p=ray.GetPoint(d);double floor=VisibleGround(p.x+originX,p.z+originZ,Ground(p.x+originX,p.z+originZ));
             if(p.y<floor){closest=d;hit=new CombatObstacle{Distance=d,Point=worldRay.GetPoint(d),Normal=Vector3.up};break;}

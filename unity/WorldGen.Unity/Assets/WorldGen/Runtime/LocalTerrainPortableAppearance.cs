@@ -18,7 +18,7 @@ public sealed partial class LocalTerrainExplorer
     Material PortableMaterial()
     {
         if(portableItemMaterial!=null)return portableItemMaterial;
-        portableItemMaterial=new Material(Resources.Load<Shader>("WorldGenPortableItem")){name="Portable craft materials",enableInstancing=true};RegisterScatterMaterial(portableItemMaterial);return portableItemMaterial;
+        portableItemMaterial=new Material(Resources.Load<Shader>("WorldGenPortableItem")){name="Portable craft materials",enableInstancing=true};portableItemMaterial.SetTexture("_ItemSurfaces",Resources.Load<Texture2D>("PortableMaterialAtlasV1"));RegisterScatterMaterial(portableItemMaterial);return portableItemMaterial;
     }
     void CreatePortableParts(GameObject root,Possession p,int layer)
     {

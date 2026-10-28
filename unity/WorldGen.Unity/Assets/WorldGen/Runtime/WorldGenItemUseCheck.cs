@@ -15,9 +15,9 @@ public sealed partial class LocalTerrainExplorer
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("ITEM USE "+text);report.Add("PASS "+text);Debug.Log("ITEM USE PASS "+text);}
         void ClearItems()
         {CancelItemCharge();ClearInventoryPhysics();foreach(var root in inventoryVisuals.Values.ToArray())DestroyInventoryVisual(root);inventoryVisuals.Clear();inventoryVisualPlaces.Clear();Inventory.Items.Clear();Inventory.Crafts.Clear();itemProjectiles.Clear();inventoryNearbyAt=0;}
-        IEnumerator Image(string name)
+        IEnumerator Image(string name,Animal focus=null)
         {
-            yield return null;var old=view.targetTexture;var target=new RenderTexture(1280,800,24);target.Create();view.targetTexture=target;view.Render();var previous=RenderTexture.active;RenderTexture.active=target;
+            yield return null;if(focus!=null){var box=focus.Renderer.bounds;view.transform.position=box.center+new Vector3(2,1.7f,-2);view.transform.LookAt(box.center);}var old=view.targetTexture;var previous=RenderTexture.active;var target=new RenderTexture(1280,800,24);target.Create();view.targetTexture=target;view.Render();RenderTexture.active=target;
             var image=new Texture2D(1280,800,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1280,800),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());
             RenderTexture.active=previous;view.targetTexture=old;target.Release();Destroy(target);Destroy(image);
         }
@@ -49,7 +49,8 @@ public sealed partial class LocalTerrainExplorer
         }
         Possession Hold(PossessionKind kind)
         {var p=PortableTechnology.Create(kind,Position);Inventory.Items.Add(p);Inventory.Hold(p.Id,out _);return p;}
-        InitializeInventory();PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();motion.Place(motion.X,motion.Z,Ground(motion.X,motion.Z));TestHumanView(0);
+        InitializeInventory();PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();motion.Place(motion.X,motion.Z,Ground(motion.X,motion.Z));TestHumanView(0);TerrainMapViewport.Degrees(Position,out _,out double longitude);PlayerRules.SetLocalSolarHour(12,longitude);nextDaylightAt=0;SetDaylight(LocalSolarHour,skyYear);
+        var effects=Resources.LoadAll<AudioClip>("Items/Audio");Check(effects.Length==18&&effects.All(c=>c.channels==1&&c.length>.2f&&c.length<1.3f),"All eighteen local AI Foley transients load as short spatial mono clips");
         yield return Deer();var deer=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="deer"&&!a.Dead);Aim(deer,1.15f);deer.MaximumHealth=deer.Health=Math.Max(200,deer.MaximumHealth);paused=true;
         ExecuteGive(new[]{"/give","wooden","spear"});var spear=Inventory.QuickHeld;Check(spear?.Kind==PossessionKind.WoodenSpear,"A real held spear is selected for melee");yield return Image("01-before-hit");
         double health=deer.Health;StrikeWithItem(spear,false);Check(deer.Health<health&&deer.Health>0,"Spear melee damages the visible surface without an instant generic kill");
@@ -57,7 +58,8 @@ public sealed partial class LocalTerrainExplorer
         Check(deer.Blood!=null&&deer.Blood.Capture().Any(b=>b>0),"Impact paints a nonempty local UV stain without repainting the original coat");yield return Image("02-blood-hit");
         DamageAnimal(deer,10000,deer.Renderer.bounds.center,view.transform.forward,5);Check(deer.Dead&&deer.Ragdoll!=null&&deer.Ragdoll.BodyCount>0,"Lethal damage starts articulated ragdoll physics, no death animation");
         paused=false;yield return new WaitForSecondsRealtime(4);paused=true;
-        Check(AnimalPalette(deer).All(m=>Enumerable.Range(0,16).All(i=>float.IsFinite(m[i]))),"Corpse palette remains finite after physics simulation");yield return Image("03-ragdoll");
+        Check(AnimalPalette(deer).All(m=>Enumerable.Range(0,16).All(i=>float.IsFinite(m[i]))),"Corpse palette remains finite after physics simulation");
+        yield return Image("03-ragdoll",deer);UpdateCamera();
         CaptureWildlife();var saved=WorldJson.Read<PlaySession>(WorldJson.Write(PlayerRules));saved.Validate();var dead=saved.Wildlife.Individuals.Single(p=>p.Id==deer.Spawn.Id);
         Check(dead.Dead&&dead.CorpsePose?.Length==deer.Model.Asset.BoneCount*16&&dead.BloodMask?.Length==65536,"Health, original identity, corpse pose and stain survive full save");
         var spawn=deer.Spawn;var model=deer.Model;ulong deadId=spawn.Id;RemoveAnimal(deadId);AddAnimal(spawn,model,true);deer=animals[deadId];Check(deer.Dead&&deer.Ragdoll!=null,"Streaming the same procedural identity back in does not revive it");
@@ -76,6 +78,28 @@ public sealed partial class LocalTerrainExplorer
         yield return new WaitForSecondsRealtime(.4f);UpdateAttachedProjectiles();Check(arrow.Position.Length>.99999&&arrow.AttachedAnimal==arrowTarget.Spawn.Id,"Embedded arrow follows the current skin-bone pose");paused=true;yield return Image("04-embedded-arrow");
         TerrainHandoff.Coordinates(frame,arrow.Position,out double ax,out double az);motion.Place(ax-.4,az,Ground(ax-.4,az));RefreshInventoryNearby(true);
         Check(MovePossession(arrow.Id,PossessionPlace.LeftHand)&&arrow.AttachedAnimal==0,"Embedded arrow can be physically retrieved within reach");Inventory.Validate();
+        ClearItems();UpdateHumans();UpdateCamera();
+        var savedHands=Hold(PossessionKind.StoneTippedSpear);var digger=new Possession{Id="dig-test",Kind=PossessionKind.DiggingStick,Position=Position,WidthM=.03,HeightM=1,DepthM=.03,MassKg=.5,CellsHigh=10};Inventory.Items.Add(digger);bool completed=false;
+        BeginWorldToolWork(digger,"Controlled tool-work check",120,()=>completed=true);Check(worldToolWork!=null&&savedHands.Place==PossessionPlace.Ground&&digger.Place==PossessionPlace.RightHand,"World tool work borrows occupied hands without extra storage");
+        worldToolWork.Done=119.999;paused=false;UpdateWorldToolWork();paused=true;Check(completed&&worldToolWork==null,"Timed world action completes");Check(savedHands.Place==PossessionPlace.RightHand,"Timed world action restores the displaced spear; actual place="+savedHands.Place);
+        BeginWorldToolWork(digger,"Interrupted work",120,()=>{});CancelWorldToolWork();Check(savedHands.Place==PossessionPlace.RightHand&&Inventory.ToolWorkEquipment==null,"Interrupted gathering restores equipment and clears temporary work state");
+        inventoryOpen=true;
+        foreach(var kind in new[]{PossessionKind.StoneTippedSpear,PossessionKind.HaftedKnife,PossessionKind.StoneAxe,PossessionKind.Bow,PossessionKind.HidePouch,PossessionKind.HidePack,PossessionKind.WovenBasket,PossessionKind.Cordage,PossessionKind.Fishhook})
+        {
+            var sample=PortableTechnology.Create(kind,Position);ItemThumbnail(sample);UpdateItemThumbnails();var thumbnail=itemThumbnails[ItemThumbnailKey(sample)];
+            var target=RenderTexture.GetTemporary(192,192,0);var prior=RenderTexture.active;Graphics.Blit(thumbnail,target);RenderTexture.active=target;var pixels=new Texture2D(192,192,TextureFormat.RGBA32,false);pixels.ReadPixels(new Rect(0,0,192,192),0,0);pixels.Apply();
+            Check(pixels.GetPixels32().Count(p=>p.a>64)>100,"Actual textured model thumbnail renders: "+kind);File.WriteAllBytes(Path.Combine(output,"item-"+kind+".png"),pixels.EncodeToPNG());Destroy(pixels);RenderTexture.active=prior;RenderTexture.ReleaseTemporary(target);
+        }
+        inventoryOpen=false;
+        ClearItems();reviewWildlifeBehaviour=true;paused=false;yield return Deer();var wary=animals.Values.First(a=>a.Manual&&!a.Dead&&a.Spawn.Profile.slug=="deer");paused=true;Aim(wary,8);wary.BehaviourAt=0;wary.ThreatUntil=0;UpdateAnimalBehaviour(wary);
+        double awayX=wary.X-motion.X,awayZ=wary.Z-motion.Z;Check(wary.TargetSpeed>0&&Math.Sin(wary.TargetHeading*Math.PI/180)*awayX+Math.Cos(wary.TargetHeading*Math.PI/180)*awayZ>0,"Uninjured deer notices and flees a nearby player");
+        paused=false;ExecuteAnimalSpawnCommand("/spawn wolf");double wolfDeadline=Time.unscaledTimeAsDouble+35;while(!animals.Values.Any(a=>a.Manual&&a.Spawn.Profile.slug=="wolf")&&Time.unscaledTimeAsDouble<wolfDeadline)yield return null;paused=true;
+        var hunter=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="wolf");hunter.X=motion.X+80;hunter.Z=motion.Z+8;wary.X=hunter.X+3;wary.Z=hunter.Z;
+        foreach(var a in new[]{hunter,wary}){a.Planet=frame.Position(a.X,a.Z);a.GroundY=Ground(a.X,a.Z);a.ThreatUntil=0;a.TargetSpeed=a.Speed=0;a.NextDecision=a.Life+1000;a.BehaviourAt=0;UpdateAnimal(a,0);}
+        nextWildlifeIndex=0;IndexWildlifeNeighbours();UpdateAnimalBehaviour(hunter);Check(hunter.TargetSpeed>0&&Math.Sin(hunter.TargetHeading*Math.PI/180)>.8,"A hungry wolf pursues nearby deer rather than wandering independently");
+        wary.Health=1;AnimalContactAttack(hunter,wary);Check(wary.Dead&&wary.Ragdoll!=null,"Predator contact attacks use actual animal health and ragdoll death");
+        if(SpawnHumans(1)>0){var npc=humanNpcs.Last();DamageHuman(npc,1000,null,Vector3.forward,10);Check(npc.Health<=0&&npc.Ragdoll!=null,"Manually spawned human NPC also supports combat death and ragdoll");}
+        reviewWildlifeBehaviour=false;
         ClearItems();PlayerRules.Mode=GameMode.Survival;Vitals.Restore();ApplyPlayerMode();ExecuteGive(new[]{"/give","wooden","spear"});combatGuarding=true;
         double before=Vitals.Health,stamina=Vitals.Stamina;DamageHuman(humanPlayer,20,null,-view.transform.forward);Check(Vitals.Health>before-20&&Vitals.Stamina<stamina,"Facing weapon guard reduces incoming damage at a stamina cost");
         combatGuarding=false;DamageHuman(humanPlayer,1000,null,view.transform.forward);UpdatePlayerDeath();Check(DeathVisible&&Vitals.DeathCause==PlayerDeathCause.Combat&&playerRagdoll!=null,"Combat can kill the player through the existing ragdoll/death screen");yield return Image("05-player-death");

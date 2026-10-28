@@ -10,9 +10,9 @@ public sealed class FaunaCollisionSurface
 {
     public readonly Vector3[] Vertices,Morph;public readonly Vector2[] Uv;public readonly int[] Triangles;
     public readonly Vector4[] Joints,Weights,ExtraJoints,ExtraWeights;public readonly int[] Parts;
-    public FaunaCollisionSurface(string slug,string sourceSha,int expectedBones)
+    public FaunaCollisionSurface(string slug,string sourceSha,int expectedBones,string dataRoot=null)
     {
-        using var file=File.OpenRead(Path.Combine(Application.streamingAssetsPath,"fauna-collision",slug+".bin.gz"));
+        using var file=File.OpenRead(Path.Combine(dataRoot??Path.Combine(Application.streamingAssetsPath,"fauna-collision"),slug+".bin.gz"));
         using var zip=new GZipStream(file,CompressionMode.Decompress);using var r=new BinaryReader(zip);
         if(new string(r.ReadChars(8))!="WGHITS01"||BitConverter.ToString(r.ReadBytes(32)).Replace("-","").ToLowerInvariant()!=sourceSha.ToLowerInvariant())throw new InvalidDataException("Fauna hit-skin provenance mismatch: "+slug);
         int count=r.ReadInt32(),indices=r.ReadInt32(),bones=r.ReadInt32(),parts=r.ReadInt32(),influences=r.ReadInt32(),hasMorph=r.ReadInt32();

@@ -3,6 +3,7 @@ Shader "WorldGen/PortableItem"
     Properties
     {
         _SourceCoats("Original animal coats",2DArray)=""{}
+        _ItemSurfaces("Shared craft surface atlas",2D)="white"{}
         _HasFur("Use original coat",Float)=0 _Coat("Coat",Float)=0
         _FurRect("Torso UV rectangle",Vector)=(0,0,1,1)
         _Preview("Inventory lighting",Float)=0 _Wearer("Camera-scoped wearer",Float)=0
@@ -20,10 +21,11 @@ Shader "WorldGen/PortableItem"
         #include "WorldGenVegetationScene.hlsl"
         #include "WorldGenAir.hlsl"
         TEXTURE2D_ARRAY(_SourceCoats);SAMPLER(sampler_SourceCoats);
+        TEXTURE2D(_ItemSurfaces);SAMPLER(sampler_ItemSurfaces);
         float _HasFur,_Coat,_Preview,_Wearer,_FogDistance;float4 _FurRect;float _WorldGenFirstPersonHumanId;
-        struct A{float4 position:POSITION;float3 normal:NORMAL;float2 uv:TEXCOORD0;half4 color:COLOR;};
-        struct O{float4 position:SV_POSITION;float3 world:TEXCOORD0;float3 normal:TEXCOORD1;float2 uv:TEXCOORD2;half4 color:COLOR;};
-        O vert(A a){O o;o.position=TransformObjectToHClip(a.position.xyz);o.world=TransformObjectToWorld(a.position.xyz);o.normal=TransformObjectToWorldNormal(a.normal);o.uv=a.uv;o.color=a.color;return o;}
+        struct A{float4 position:POSITION;float3 normal:NORMAL;float2 uv:TEXCOORD0;float2 surface:TEXCOORD1;half4 color:COLOR;};
+        struct O{float4 position:SV_POSITION;float3 world:TEXCOORD0;float3 normal:TEXCOORD1;float2 uv:TEXCOORD2;half4 color:COLOR;nointerpolation float surface:TEXCOORD3;};
+        O vert(A a){O o;o.position=TransformObjectToHClip(a.position.xyz);o.world=TransformObjectToWorld(a.position.xyz);o.normal=TransformObjectToWorldNormal(a.normal);o.uv=a.uv;o.color=a.color;o.surface=a.surface.x;return o;}
         void ClipWearer(){clip(_Preview<.5&&_Wearer>.5&&_WorldGenFirstPersonHumanId>.5&&abs(_Wearer-_WorldGenFirstPersonHumanId)<.25?-1:1);}
         ENDHLSL
         Pass
@@ -37,6 +39,10 @@ Shader "WorldGen/PortableItem"
             half4 frag(O i,FRONT_FACE_TYPE face:FRONT_FACE_SEMANTIC):SV_Target
             {
                 ClipWearer();half3 color=i.color.rgb;
+                float slot=clamp(round(i.surface),0,7);float2 tile=float2(fmod(slot,4),1-floor(slot/4));
+                float2 grain=1-abs(frac(i.uv*2)*2-1);float2 texuv=(tile+lerp(.012,.988,grain))*float2(.25,.5);
+                half3 surface=SAMPLE_TEXTURE2D(_ItemSurfaces,sampler_ItemSurfaces,texuv).rgb;
+                color=surface*(.7+.6*i.color.rgb);
                 if(_HasFur>.5&&i.color.a>.5)color=SAMPLE_TEXTURE2D_ARRAY(_SourceCoats,sampler_SourceCoats,lerp(_FurRect.xy,_FurRect.zw,saturate(i.uv)),_Coat).rgb;
                 half3 n=normalize(i.normal)*IS_FRONT_VFACE(face,1,-1);
                 if(_Preview>.5){half light=.45+.5*saturate(dot(n,normalize(float3(-.5,.8,-.6))));return half4(color*light,1);}

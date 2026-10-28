@@ -6,6 +6,11 @@ namespace WorldGen.Core
 {
     public enum PossessionPlace { Ground,RightHand,LeftHand,Container,Back,Shoulder,Waist,SlungBack }
     public enum PossessionKind { SmallRock,LargeRock,TestBag,StoneFlake,Branch,TrimmedPole,DiggingStick,WoodenSpear,RawFibre,PreparedFibre,Cordage,Thread,BarkStrips,ReedBundle,RawHide,ScrapedHide,WorkedHide,RawhideStrips,Sinew,SinewCord,Feather,Bone,Antler,StoneBlade,StoneScraper,StoneChopper,Handaxe,StonePoint,Arrowhead,StoneBorer,BoneAwl,BoneNeedle,BonePoint,BarbedPoint,FishingGorge,Fishhook,AntlerRetoucher,WoodHandle,NotchedShaft,LooseStoneSpear,StoneTippedSpear,BoneTippedSpear,Harpoon,HaftedKnife,StoneAxe,StoneAdze,ArrowShaft,UnfletchedArrow,Arrow,BowStave,Bow,SpearThrower,DartShaft,SpearDart,Sling,FishingLine,HandLine,FibreNet,HidePouch,BarkContainer,WovenBasket,HideSatchel,HidePack,CarryFrame,Quiver,FibreBelt,HideBelt,NeedleCase,KnifeSheath,BarkSheet,WeavingStrips }
+    [Serializable] public sealed class NaturalToolRecord
+    {
+        public string Id="";public double Work;public int Bark,Branches,Digging;
+        public NaturalToolRecord Copy()=>(NaturalToolRecord)MemberwiseClone();
+    }
     [Serializable]
     public sealed class Possession
     {
@@ -52,8 +57,10 @@ namespace WorldGen.Core
         public List<Possession> Items=new List<Possession>();
         public List<ulong> CollectedNatural=new List<ulong>();
         [System.Runtime.Serialization.OptionalField] public List<ItemCraftJob> Crafts=new List<ItemCraftJob>();
+        [System.Runtime.Serialization.OptionalField] public List<NaturalToolRecord> ToolResources=new List<NaturalToolRecord>();
+        [System.Runtime.Serialization.OptionalField] public CraftEquipmentState ToolWorkEquipment;
         public PossessionPlace ActiveHand=PossessionPlace.RightHand;
-        public PlayerInventory Copy()=>new PlayerInventory{PlayerName=PlayerName,ActiveHand=ActiveHand,Items=Items.Select(i=>i.Copy()).ToList(),CollectedNatural=new List<ulong>(CollectedNatural),Crafts=(Crafts??new List<ItemCraftJob>()).Select(j=>j.Copy()).ToList()};
+        public PlayerInventory Copy()=>new PlayerInventory{PlayerName=PlayerName,ActiveHand=ActiveHand,Items=Items.Select(i=>i.Copy()).ToList(),CollectedNatural=new List<ulong>(CollectedNatural),Crafts=(Crafts??new List<ItemCraftJob>()).Select(j=>j.Copy()).ToList(),ToolResources=(ToolResources??new List<NaturalToolRecord>()).Select(r=>r.Copy()).ToList(),ToolWorkEquipment=ToolWorkEquipment?.Copy()};
         public Possession Find(string id)=>Items.FirstOrDefault(i=>i.Id==id);
         public Possession AtHand(PossessionPlace hand)=>Items.FirstOrDefault(i=>i.Place==hand||i.Hands==2&&(i.Place==PossessionPlace.LeftHand||i.Place==PossessionPlace.RightHand));
         public IEnumerable<Possession> WornContainers=>Items.Where(i=>PortableTechnology.Worn(i.Place)&&i.ContainerWidth>0).OrderBy(i=>(int)i.Place);
@@ -152,6 +159,8 @@ namespace WorldGen.Core
             }
             if(new HashSet<ulong>(CollectedNatural).Count!=CollectedNatural.Count)throw new ArgumentException("Duplicate collected identities.");
             Crafts=Crafts??new List<ItemCraftJob>();StoneCrafting.Validate(this);
+            ToolResources=ToolResources??new List<NaturalToolRecord>();if(ToolResources.Any(r=>r==null||string.IsNullOrEmpty(r.Id)||!ItemUseRules.Finite(r.Work)||r.Work<0||r.Bark<0||r.Branches<0||r.Digging<0)||ToolResources.Select(r=>r.Id).Distinct().Count()!=ToolResources.Count)throw new ArgumentException("Invalid natural tool-work ledger.");
+            ToolWorkEquipment?.Validate();
         }
     }
 }

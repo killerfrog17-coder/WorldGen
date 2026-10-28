@@ -36,9 +36,9 @@ public sealed partial class LocalTerrainExplorer
             float distance=Vector3.Distance(feet,candidate.Point),alpha=Mathf.SmoothStep(0,1,4-distance);
             if(alpha<=0)continue;var screen=view.WorldToScreenPoint(transform.TransformPoint(candidate.Point));
             if(screen.z<=0)continue;
-            float size=27*scale;var icon=InventoryItemIcon(candidate.Item);
-            GUI.color=new Color(0,0,0,alpha*.8f);GUI.DrawTexture(new Rect(screen.x-size/2-1,Screen.height-screen.y-size-1,size+2,size+2),icon);
-            GUI.color=new Color(1,1,1,alpha);GUI.DrawTexture(new Rect(screen.x-size/2,Screen.height-screen.y-size,size,size),icon);
+            float size=34*scale;
+            GUI.color=new Color(0,0,0,alpha*.8f);DrawPickupCategory(new Rect(screen.x-size/2-1,Screen.height-screen.y-size-1,size+2,size+2),candidate.Item);
+            GUI.color=new Color(1,1,1,alpha);DrawPickupCategory(new Rect(screen.x-size/2,Screen.height-screen.y-size,size,size),candidate.Item);
         }
         GUI.color=old;
         var target=AimedPossession();if(target==null)return;
@@ -82,6 +82,7 @@ public sealed partial class LocalTerrainExplorer
         body.collisionDetectionMode=CollisionDetectionMode.ContinuousDynamic;body.maxDepenetrationVelocity=2;
         body.linearVelocity=velocity;body.angularVelocity=new Vector3(1.1f,.4f,.7f);
         inventoryDrops.Add(item.Id,new DroppedPossession{Item=item,Body=body,Collider=collider});
+        var contact=root.GetComponent<WorldGenProjectileContact>();if(contact==null)contact=root.AddComponent<WorldGenProjectileContact>();contact.Owner=this;contact.ItemId=item.Id;
         EnsureDropFloors(root.transform.localPosition,Mathf.Max((float)item.WidthM,(float)item.HeightM));Physics.SyncTransforms();
     }
     void CaptureInventoryPhysics()

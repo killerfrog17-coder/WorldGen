@@ -23,8 +23,9 @@ items use mass, current speed, gravity, drag and swept collision. Penetrating
 projectiles follow the original hit bone and can be retrieved. Unbound stone
 spears can shed their point. Tool/edge wear has contextual timed maintenance.
 
-Animals and human demo NPCs have mass-scaled health. Survivors flee on injury;
-species-specific fight/flight and broader AI are not part of this checkpoint.
+Animals have mass-scaled health; human demo NPCs use human health. Survivors
+react to their actual attacker. Species priors distinguish flight, defensive
+charges and predation; see WILDLIFE_BEHAVIOUR.md for the prototype limits.
 Death starts capsule/joint ragdoll physics using the original skin palette.
 Animal injury, coat, blood and corpse pose retain procedural identity in saves;
 streaming a killed identity back in does not revive it. NPC demo persistence is
@@ -53,10 +54,22 @@ The first screenshot set is useful for hit/arrow inspection but its corpse image
 does not frame the body: dedicated visual ragdoll review remains necessary.
 `combat-package-proof.json`: 578 accepted source/bundle/human/DLL hash checks.
 Core portable crafting: 747 checks across 63 item definitions / 83 contextual
-actions (includes maintenance). Core physical-use tests: 44 checks.
+actions (includes maintenance). Core physical-use tests: 57 checks.
 
-Remaining work: world gathering/digging/fishing, final usability audit, item art,
-model thumbnails/white pickup-category icons, then broader wildlife AI if time.
+Later combined builds add tree-derived bark/branches, root-fibre digging and
+simple timed hand-line/net fishing. Fishing lands the actual whole animal as a
+corpse; it does not supply processed food. Tools borrow and restore hands.
+
+New shared generated material atlases and revised original item meshes cover
+portable items. Inventory uses actual-model thumbnails; ground pickup markers
+use twelve broad white categories. Eighteen short locally generated Stable Audio
+Foley clips cover impacts, swishes, bow release and gathering. Source prompts,
+seeds, crops and hashes are recorded in assets/item-audio/provenance.json.
+Owner listening/art acceptance is pending.
+
+The 40-check wildlife-review checkpoint tested deer flight, wolf pursuit and
+predation, human NPC death and nine actual model thumbnails in addition to combat.
+Latest scheduling/audio/fishing changes are awaiting the next native run.
 The selected user shortcut is still the preceding portable-technology build until
 the full next checkpoint is ready for review.
 
@@ -71,3 +84,13 @@ These inform gameplay priors, not clinical injury predictions or exact lethality
 - [Insect hemolymph](https://genent.cals.ncsu.edu/bug-bytes/circulatory-system/).
 - [Antarctic fish blood exception](https://www.bas.ac.uk/news/fish-survival-in-the-extreme-cold/).
 - [Moose aggression and safety](https://www.adfg.alaska.gov/index.cfm?adfg=livewith.aggressivemoose).
+
+## Explicit remaining limits
+
+No crafting/combat animation pass, skinning, butchery, meat drops, construction,
+full tree felling, clothing, trapping, fluid containers, bait/reeling minigame,
+anatomical injury or bleeding-out system. Materials such as hides/bones remain
+command-supplied until processing is designed. Hide working is the existing
+abstract sequence, not a complete tanning simulation. Creative still uses real
+physical ammo/items and wear; /give supplies test resources. Item shaders are
+simple lit albedo materials, not a claim of final Forest-quality PBR artwork.

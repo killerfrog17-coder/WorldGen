@@ -10,7 +10,7 @@ public sealed partial class LocalTerrainExplorer
     AudioClip[] stoneCraftClips;AudioSource stoneCraftVoice;int stoneCraftSoundIndex,stoneCraftSoundCount;
     readonly Dictionary<GameObject,List<Mesh>> inventoryCraftMeshes=new Dictionary<GameObject,List<Mesh>>();
     ItemCraftJob ActiveItemCraft=>inventoryInitialized?Inventory.Crafts.FirstOrDefault(j=>j.Running):null;
-    bool CraftWorking=>ActiveItemCraft!=null;
+    bool CraftWorking=>ActiveItemCraft!=null||worldToolWork!=null;
     ItemCraftJob CraftFor(string id)=>Inventory.Crafts.OrderByDescending(j=>j.Running).ThenByDescending(j=>j.WorkpieceId==id).FirstOrDefault(j=>PortableCrafting.Affects(j,id));
     bool CraftInputs(string id,out NearbyPossession core,out NearbyPossession tool,out string reason,ItemCraftAction action=ItemCraftAction.Flake)
     {

@@ -43,6 +43,7 @@ public sealed partial class LocalTerrainExplorer
         var profile=ItemUseRules.Profile(item);double weightPenalty=item==null?1:Math.Max(1,Math.Sqrt(item.MassKg/(item.Kind==PossessionKind.LargeRock?.7:1.5)));
         if(!profile.Weapon||!CombatReady(left)||!SpendCombatStamina(profile.Stamina*weightPenalty))return;
         CombatCooldown(left,profile.RecoverySeconds*weightPenalty);var ray=PlayerAttackRay();float reach=(float)profile.ReachM;
+        PlayItemEffect("weapon-swish",ray.origin,item==null?.12f:.3f,true);
         CombatHit chosen=null;CombatObstacle obstacle=null;float nearest=reach;
         // A small contact width is forgiving without treating an animal's whole
         // bounding box as flesh. Each candidate is still a real surface hit.
@@ -59,14 +60,15 @@ public sealed partial class LocalTerrainExplorer
             ApplyItemImpactWear(item,profile.EnergyJ,false);SplitLooseSpear(item);
         }
         else if(obstacle!=null)
-        {ApplyItemImpactWear(item,profile.EnergyJ,true);if(obstacle.Tree)ToolHitTree(item,obstacle,profile.EnergyJ);else if(item!=null&&StoneCrafting.Rock(item))PlayStoneCraftImpact();SplitLooseSpear(item);}
+        {PlayItemEffect(obstacle.Tree?"wood-chop":"stone-contact",obstacle.Point,.4f);ApplyItemImpactWear(item,profile.EnergyJ,true);if(obstacle.Tree)ToolHitTree(item,obstacle,profile.EnergyJ);SplitLooseSpear(item);}
     }
     void ApplyCombatHit(CombatHit hit,double damage,Vector3 direction,double momentum)
-    {if(hit.Animal!=null)DamageAnimal(hit.Animal,damage,hit.Point,direction,momentum);else if(hit.Human!=null)DamageHuman(hit.Human,damage,hit,direction,momentum);}
+    {if(hit.Animal!=null)DamageAnimal(hit.Animal,damage,hit.Point,direction,momentum,true);else if(hit.Human!=null)DamageHuman(hit.Human,damage,hit,direction,momentum);}
     void UpdateItemCombat()
     {
         if(CombatStopped){combatGuarding=false;CancelItemCharge();return;}
         var mouse=Mouse.current;if(mouse==null)return;
+        if(worldToolWork!=null){if(mouse.leftButton.wasPressedThisFrame||mouse.rightButton.wasPressedThisFrame)CancelWorldToolWork();return;}
         if(itemCharge!=null){UpdateItemCharge(mouse);return;}
         if(mouse.leftButton.wasPressedThisFrame||mouse.rightButton.wasPressedThisFrame)PauseItemCraft(ActiveItemCraft);
         var right=Inventory.AtHand(PossessionPlace.RightHand);var left=Inventory.AtHand(PossessionPlace.LeftHand);bool dual=right!=null&&left!=null&&!ReferenceEquals(right,left);

@@ -26,6 +26,7 @@ public sealed partial class LocalTerrainExplorer
         root.transform.position=origin-(PointedProjectile(item)?direction*(float)item.HeightM*.5f:Vector3.zero);
         item.GroundVelocity=CoreVector(direction*speed);var local=root.transform.localPosition;item.Position=frame.Position(local.x+originX,local.z+originZ);item.GroundOffsetM=local.y-Ground(local.x+originX,local.z+originZ);
         item.GroundRotation=CoreVector(root.transform.localEulerAngles);BeginDroppedBody(item,root,direction*speed);RegisterProjectile(item);inventoryNearbyAt=0;
+        if(itemProjectiles.TryGetValue(item.Id,out var launch))launch.Previous=origin-direction*.4f;
     }
     void RegisterProjectile(Possession item)
     {
@@ -93,6 +94,7 @@ public sealed partial class LocalTerrainExplorer
     }
     internal void ProjectileCollision(string id,Collision collision)
     {
+        if(inventoryInitialized&&inventoryDrops.TryGetValue(id,out var drop))PlayDroppedImpact(drop.Item,collision);
         if(!itemProjectiles.TryGetValue(id,out var p)||!p.Item.InFlight||collision.contactCount==0)return;
         var contact=collision.GetContact(0);StopProjectileAt(p,contact.point,contact.normal,true);
     }

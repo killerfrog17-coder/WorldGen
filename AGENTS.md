@@ -11,24 +11,36 @@ least NOON CDT28Oct (17:00UTC), or owner's explicit wrap-up instruction. No paid
 calls/assets, no recipe book, controls only in help, no population caps. Interpret
 duplicated hand sentence LMBright/RMBleft, contextual secondary when one occupied
 or two-hand item. Small rocks/spears throw; bones/bulky improvised objects block.
-Hand stage implemented: prior hands+borrowed locations deep-saved on jobs;
-auto worn bound cases/belts/slung bow, worn carriers only, then physical drop.
-Restore on pause/cancel/finish/load; do not undo explicit user moves. Bow gains
-append-only SlungBack slot. Items remember BoundContainerId. No held-bag auto
-storage. Same-frame rigidbody/collider removal/re-add bug fixed by reuse with
-physics disabled while carried.539portable+75inventory+37stone+37wood checks;
-44combat-rules/save checks. Mono player-item-use-hands native38functional checks
-pass; no valid batch screenshots (black), so NO visual claim. Original selected
-shortcut STILL portable-technology until larger checkpoint, not changed here.
-Unity license initially expired/no entitlement; owner restored free activation;
-normal build now succeeds. Windowed DX11 virtual-monitor resolution problem
-persists; batch native executes game checks. Supplementary177species/5807bone
-rest metadata extracted READ ONLY, all source SHA exact,57sec CPU/2threads.
-Physics/rules/health persistence foundations underway, attacks not wired yet.
-Keep original177animal bundles/native/42humanPNG/protected MPFB native exact.
-No overnight historical/Homo work resumed. New docs ITEM_FUNCTIONALITY.md.
-Preserve owner prompt deletion +two old deer scripts. GitHub progress checkpoints
-required; source validation helpers do NOT replace licensed Unity builds.
+Automatic equipment, physical melee/throws/ranged/block, mass-scaled animal
+health, human health, UV blood and original-skin ragdolls now working. 26 repair
+recipes; 63 portable kinds/83 actions. Contextual bark/branch extraction, rooted
+soil fibre digging and simple timed net/hand-line fishing; no full tree felling,
+construction, processing, meat drops or attack animations. Existing wear applied.
+Original code meshes revised with generated shared surface atlas; inventory actual
+model thumbnails, white broad-category pickup icons. Imagegen skill used; art
+provenance docs/PORTABLE_ITEM_ART. 18 local StableAudio3 transient clips, no paid
+service, prompts/models/seeds/crops/hashes assets/item-audio/provenance.json;
+automated classifier used, NO listening acceptance claim. Existing GPU server
+started/stopped by us, no inference left running.
+Wildlife has four tracking priors, cheap saved regional groups, local flight/
+defence/predation, sex/rut/daily/weather/season priors, migratory V goals and actual
+branch/ground perching. No breeding/whole-world ecosystem/full navigation claim.
+Group goals sliced ~.75ms/frame; far pose update rates lower, populations not
+capped. Original177animal bundles/native/42human PNG/protected MPFB unchanged.
+Supplementary26.4MiB CPU collision skins stream before admission, actual posed
+triangle hits; 5807bone metadata drives articulated physics without re-rig.
+57core-use checks,747portable,75inventory/37stone/37wood/22camera previously pass.
+Latest licensed Mono player-item-use-review2 native41checks PASS, actual render
+captures, no runtime errors/exceptions or active-RT warning. Prior native38hands,
+22combat,40combined. No measured FPS claim or final-art/owner acceptance claim.
+Selected shortcut STILL player-portable-technology, final release pending.
+Latest commit3c05c2776bcc54c01a2138f384c2aeb2c9b56950 remotely verified; later
+combined source must checkpoint/push. Continue to17UTC/ownerwrap, don't stop early.
+World/dead-record reload/fishing/group native extension next; no older scrapped
+history/Homo work resumed. Preserve deletedprompt +two untracked deer scripts.
+Restore only known Unity build-autochanges in URPglobal/ProjectSettings/ground
+atlas importer before staging. No duplicate source ZIP ritual needed.
+
 
 
 PORTABLE PALEOLITHIC CRAFTING / NO RECIPE BOOK,27October2026:

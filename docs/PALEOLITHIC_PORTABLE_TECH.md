@@ -20,7 +20,9 @@ not a new natural harvesting system or an automatic loadout.
 
 Right click a physical primary item, including one in Nearby. Tools and other
 materials can be held, packed in accessible carriers or on the ground in reach.
-Unrelated held objects must be put away first. Starting a project reserves its
+Work automatically stows unrelated held objects into suitable attachments or
+worn carriers, otherwise physically drops them, then restores the prior hands.
+Starting a project reserves its
 specific materials; all involved icons share progress. Work is timed by the
 existing solar-day/crafting multiplier, pauses on movement or interruption, and
 can resume. Cancel retains all materials. Completion consumes only the selected
@@ -41,8 +43,9 @@ ingredients and transforms the original workpiece identity; tools remain.
 - Functional storage: hide pouch, folded bark container, twined basket, satchel,
   carrying frame, hide pack, quiver, fibre/hide belts, needle case and sheath.
 
-Weapons, projectiles, nets and fishing equipment have physical inventory objects
-and placeholder meshes, **not** attacks, firing, fishing or traps. No fire,
+The October 28 item-use pass adds melee, blocking, recoverable physical
+projectiles, simple hand-line/net fishing and contextual tool work. See
+[ITEM_USE_OVERNIGHT.md](ITEM_USE_OVERNIGHT.md) for controls and limits. No traps, fire,
 construction, clothing system, butchery or tanning chemistry was added. Working
 hide is an abstract scraping/softening sequence, not a claim that untreated hide
 becomes durable waterproof leather just by rubbing it. Containers do not yet

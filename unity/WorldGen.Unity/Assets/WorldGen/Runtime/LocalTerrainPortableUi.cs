@@ -43,6 +43,7 @@ public sealed partial class LocalTerrainExplorer
         string detail=StoneCrafting.Rock(p)?StoneCrafting.Material(p)+". "+(StoneCrafting.FractureQuality(p)>0?"Can produce cutting flakes.":"Unsuitable for flaking."):WoodCrafting.Wood(p)?WoodDescription(p):p.Name;
         if(!string.IsNullOrEmpty(p.AppearanceSpecies))detail+=" - material from "+PortableTechnology.SpeciesName(p.AppearanceSpecies)+".";
         GUILayout.Label(detail,label);
+        if(ItemUseRules.Profile(p).Weapon)GUILayout.Label("Condition "+Math.Round(ItemUseRules.Condition(p)*100)+"%"+((PortableTechnology.Item(p.Kind)?.Capability&(CraftCapability.Cut|CraftCapability.Scrape))!=0?" · edge "+Math.Round(p.EdgeSharpness*100)+"%":""),label);
         void ActionButton(string title,bool ready,string reason,Action run)
         {
             bool enabled=GUI.enabled;GUI.enabled=ready;if(GUILayout.Button(title,InventoryControlStyle(GUI.skin.button,scale),GUILayout.Height(30*scale)))run();GUI.enabled=enabled;
@@ -61,6 +62,9 @@ public sealed partial class LocalTerrainExplorer
                 ()=>{if(job?.Running==true)PauseItemCraft(job);else StartPortableCraft(recipe.Id,job?.WorkpieceId??p.Id);inventoryContext=null;});
         }
         if(job!=null)ActionButton("Cancel work; keep materials",true,"",()=>{CancelItemCraft(job);});
+        if(p.Kind==PossessionKind.DiggingStick)ActionButton("Dig fibrous roots here",true,"",()=>{BeginDigging(p);inventoryContext=null;});
+        if(p.Kind==PossessionKind.HandLine||p.Kind==PossessionKind.FibreNet)ActionButton(p.Kind==PossessionKind.FibreNet?"Gather nearby fish":"Fish with hand-line",true,"",()=>{BeginFishing(p);inventoryContext=null;});
+        if(worldToolWork!=null)ActionButton("Stop tool work",true,"",()=>{CancelWorldToolWork();inventoryContext=null;});
         GUILayout.Space(5*scale);
         ActionButton("Hold in right hand",true,"",()=>{RequestPossession(p.Id,PossessionPlace.RightHand);inventoryContext=null;});
         ActionButton("Hold in left hand",true,"",()=>{RequestPossession(p.Id,PossessionPlace.LeftHand);inventoryContext=null;});

@@ -24,6 +24,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(inventoryInitialized)return;inventoryInitialized=true;Inventory.Validate();
         foreach(var id in Inventory.CollectedNatural)inventoryCollected.Add(id);foreach(var job in Inventory.Crafts)PauseItemCraft(job);scatterDirty=true;
+        if(Inventory.ToolWorkEquipment!=null){var borrowed=Inventory.ToolWorkEquipment;Inventory.ToolWorkEquipment=null;RestoreWorkHands(new ItemCraftJob{Equipment=borrowed});}
     }
     bool CollectedRock(ScatterInstance p)=>(p.Kind==ScatterKind.Stone||p.Kind==ScatterKind.Boulder||p.Kind==ScatterKind.Branch)&&inventoryCollected.Contains(p.Id);
     static Possession RockPossession(ScatterInstance p)
@@ -106,7 +107,7 @@ public sealed partial class LocalTerrainExplorer
     {inventoryNotice=text;inventoryNoticeUntil=Time.unscaledTime+4;if(!inventoryOpen)PostExplorerChat(text,true);}
     bool MovePossession(string id,PossessionPlace place,string bag="",int x=0,int y=0,bool rotated=false,bool autoStow=false,bool autoHand=false)
     {
-        CancelItemCharge();RefreshInventoryNearby(true);var candidate=InventoryCandidate(id);if(candidate==null)return false;
+        CancelItemCharge();CancelWorldToolWork();RefreshInventoryNearby(true);var candidate=InventoryCandidate(id);if(candidate==null)return false;
         var item=candidate.Item;var previousPlace=item.Place;
         if(candidate.Natural&&!inventoryNearby.Any(n=>n.Item.Id==id)||!candidate.Natural&&!AccessiblePossession(item)){InventoryFeedback("That item is out of reach.");return false;}
         if(place==PossessionPlace.Container)
@@ -168,7 +169,7 @@ public sealed partial class LocalTerrainExplorer
         if(!Ready)return;InitializeInventory();UpdateGiveItems();UpdatePortableAppearances();
         if((DeathVisible||Spectating)&&inventoryOpen)SetInventoryOpen(false);
         if(DeathVisible){PauseItemCraft(ActiveItemCraft);return;}
-        if(inventoryOpen||CraftWorking)RefreshInventoryNearby();UpdateStoneCrafting();
+        if(inventoryOpen||CraftWorking)RefreshInventoryNearby();UpdateStoneCrafting();UpdateWorldToolWork();UpdateItemThumbnails();
     }
     GameObject CreatePossessionVisual(Possession item,int layer)
     {
@@ -274,6 +275,8 @@ public sealed partial class LocalTerrainExplorer
     }
     void DisposeInventory()
     {
+        DisposeItemAudio();
+        if(worldToolWork?.Line!=null)Destroy(worldToolWork.Line.gameObject);if(tackleLineMaterial!=null)Destroy(tackleLineMaterial);
         ClearInventoryPhysics();DisposeInventoryPreview();DisposePortableAppearance();foreach(var root in inventoryVisuals.Values)if(root!=null)DestroyInventoryVisual(root);inventoryVisuals.Clear();
         if(inventoryBagMaterial!=null)Destroy(inventoryBagMaterial);
         if(inventoryDropMaterial!=null)Destroy(inventoryDropMaterial);

@@ -84,6 +84,7 @@ public sealed partial class WorldGenRuntime
         DrawMusicVolume();
         GUILayout.Label("Footsteps  "+Mathf.RoundToInt(LocalTerrainExplorer.FootstepVolume*100)+"%");
         float steps=GUILayout.HorizontalSlider(LocalTerrainExplorer.FootstepVolume,0,1);if(steps!=LocalTerrainExplorer.FootstepVolume)LocalTerrainExplorer.FootstepVolume=steps;
+        GUILayout.Label("Tools and weapons  "+Mathf.RoundToInt(LocalTerrainExplorer.ItemEffectVolume*100)+"%");float items=GUILayout.HorizontalSlider(LocalTerrainExplorer.ItemEffectVolume,0,1);if(items!=LocalTerrainExplorer.ItemEffectVolume)LocalTerrainExplorer.ItemEffectVolume=items;
         var weather=WeatherVideoOptions.Current;
         GUILayout.Label("Rain  "+Mathf.RoundToInt(weather.RainVolume*100)+"%");float rain=GUILayout.HorizontalSlider(weather.RainVolume,0,1);
         GUILayout.Label("Thunder  "+Mathf.RoundToInt(weather.ThunderVolume*100)+"%");float thunder=GUILayout.HorizontalSlider(weather.ThunderVolume,0,1);

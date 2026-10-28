@@ -62,6 +62,7 @@ public sealed partial class LocalTerrainExplorer
         Vector3 direction=Quaternion.Euler((float)(combatRandom.NextDouble()*2-1)*spread,(float)(combatRandom.NextDouble()*2-1)*spread,0)*ray.direction;
         if(charge.Equipment!=null)charge.Equipment.PreviousHands.RemoveAll(p=>p.Id==charge.Ammo.Id);
         itemCharge=null;LaunchItemProjectile(charge.Ammo,ray.origin+direction*.4f,direction,(float)speed);
+        PlayItemEffect(!charge.Throw&&profile.Primary==ItemPrimaryUse.Bow?"bow-release":"weapon-swish",ray.origin,.6f,true);
         if(!charge.Throw){charge.Weapon.UseDamage=Math.Min(1,charge.Weapon.UseDamage+.0008);RestoreWorkHands(new ItemCraftJob{Equipment=charge.Equipment});}
         CombatCooldown(charge.Left,Math.Max(.35,profile.RecoverySeconds));
     }

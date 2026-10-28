@@ -1,0 +1,224 @@
+{
+  "execution": "local CUDA ComfyUI, existing model weights; no service purchase",
+  "license": "https://stability.ai/license",
+  "processing": "mono fold, onset-aligned transient crops, bounded gain and endpoint fades only",
+  "listening": "Owner audition pending; automated classifier diagnostics are not listening approval",
+  "clips": [
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/body-hit-01.wav",
+      "sha256": "ca0a4cfbad3747f64e4b67149339a8dbcdc63331ebef5560932b7d39ab3486ce",
+      "source_sha256": "e80d24412558ab430c6e1feeff58b2a20c7e8f7e5cc130acbbad400983bbc566",
+      "model": "stabilityai/stable-audio-3-medium",
+      "prompt": "TrackType: SFX. Several separate close dry Foley impacts of a blunt wooden staff striking a thick piece of raw animal hide over a heavy soft body. Short low solid thuds, a little damp contact, distinct quiet gaps between hits. One isolated physical source.",
+      "seed": 281028,
+      "crop_seconds": [
+        5.151269841269841,
+        5.701269841269841
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/body-hit-02.wav",
+      "sha256": "a0f868e43408b22605a6642d9af54917781a072046316a8695dd32862803fec3",
+      "source_sha256": "e80d24412558ab430c6e1feeff58b2a20c7e8f7e5cc130acbbad400983bbc566",
+      "model": "stabilityai/stable-audio-3-medium",
+      "prompt": "TrackType: SFX. Several separate close dry Foley impacts of a blunt wooden staff striking a thick piece of raw animal hide over a heavy soft body. Short low solid thuds, a little damp contact, distinct quiet gaps between hits. One isolated physical source.",
+      "seed": 281028,
+      "crop_seconds": [
+        6.308639455782313,
+        6.8586394557823125
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/body-hit-03.wav",
+      "sha256": "661a0c3727943943d42a429ebcefc97c51d4c86b99e4348c9f3515cd2d1ecfa5",
+      "source_sha256": "e80d24412558ab430c6e1feeff58b2a20c7e8f7e5cc130acbbad400983bbc566",
+      "model": "stabilityai/stable-audio-3-medium",
+      "prompt": "TrackType: SFX. Several separate close dry Foley impacts of a blunt wooden staff striking a thick piece of raw animal hide over a heavy soft body. Short low solid thuds, a little damp contact, distinct quiet gaps between hits. One isolated physical source.",
+      "seed": 281028,
+      "crop_seconds": [
+        11.21748299319728,
+        11.767482993197278
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/bow-release-01.wav",
+      "sha256": "a392842d38c8c6700412249bb929e334b0df44f74fd6602a32dce944c44b3e0e",
+      "source_sha256": "d94c88fde2bf7efcfb08617cf007b1f8f9ab45175011fb898c1075f850d6bdc0",
+      "model": "stabilityai/stable-audio-3-medium",
+      "prompt": "TrackType: SFX. A bow and arrow being shot. Several isolated archery bow shots with a short dry string twang. Clear close Foley recording.",
+      "seed": 299028,
+      "crop_seconds": [
+        3.929047619047619,
+        4.729047619047619
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/bow-release-02.wav",
+      "sha256": "572a8df4cd45736eabb70864dd668a4d9eba16ec7c28a15a5bb04f72412382c5",
+      "source_sha256": "d94c88fde2bf7efcfb08617cf007b1f8f9ab45175011fb898c1075f850d6bdc0",
+      "model": "stabilityai/stable-audio-3-medium",
+      "prompt": "TrackType: SFX. A bow and arrow being shot. Several isolated archery bow shots with a short dry string twang. Clear close Foley recording.",
+      "seed": 299028,
+      "crop_seconds": [
+        5.156258503401361,
+        5.956258503401361
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/bow-release-03.wav",
+      "sha256": "9df74b3ca970ff122eee17b1259a3acac5a9d393bad621b6c877344a735343de",
+      "source_sha256": "d94c88fde2bf7efcfb08617cf007b1f8f9ab45175011fb898c1075f850d6bdc0",
+      "model": "stabilityai/stable-audio-3-medium",
+      "prompt": "TrackType: SFX. A bow and arrow being shot. Several isolated archery bow shots with a short dry string twang. Clear close Foley recording.",
+      "seed": 299028,
+      "crop_seconds": [
+        7.3612471655328795,
+        8.16124716553288
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/weapon-swish-01.wav",
+      "sha256": "23dd6ecb6700516fe981f680dfa920543c915c27901c0afafe8c69e469419731",
+      "source_sha256": "cdd7bea90d9ee88faf75a0658e8afbbb3316834da95624e033a1bd6503cddaa2",
+      "model": "stabilityai/stable-audio-3-medium",
+      "prompt": "TrackType: SFX. Several separate fast swings of a long thin wooden spear through still air. Short clean airy swishes, distinct quiet gaps. Close isolated dry Foley recording.",
+      "seed": 296866,
+      "crop_seconds": [
+        3.5000226757369615,
+        4.1000226757369616
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/weapon-swish-02.wav",
+      "sha256": "a72e5009dfd495bce958d649ee21117c7da0c9e8601160904fbadbdb495934f7",
+      "source_sha256": "cdd7bea90d9ee88faf75a0658e8afbbb3316834da95624e033a1bd6503cddaa2",
+      "model": "stabilityai/stable-audio-3-medium",
+      "prompt": "TrackType: SFX. Several separate fast swings of a long thin wooden spear through still air. Short clean airy swishes, distinct quiet gaps. Close isolated dry Foley recording.",
+      "seed": 296866,
+      "crop_seconds": [
+        6.029274376417233,
+        6.629274376417234
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/weapon-swish-03.wav",
+      "sha256": "704761a5a00ccd0b26ca00dbbec30afa47db52cf09e12eb621a129a9f7345811",
+      "source_sha256": "cdd7bea90d9ee88faf75a0658e8afbbb3316834da95624e033a1bd6503cddaa2",
+      "model": "stabilityai/stable-audio-3-medium",
+      "prompt": "TrackType: SFX. Several separate fast swings of a long thin wooden spear through still air. Short clean airy swishes, distinct quiet gaps. Close isolated dry Foley recording.",
+      "seed": 296866,
+      "crop_seconds": [
+        6.9721315192743765,
+        7.572131519274376
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/wood-chop-01.wav",
+      "sha256": "45d4f3ee524190c1fb643ef00203235e6c23a9fc86a09a7af9b0726ad16c27d7",
+      "source_sha256": "11081d919bf2f29480bbcea53c25274a6d23c871982d4cd7892b8c098dbe5131",
+      "model": "stabilityai/stable-audio-3-medium",
+      "prompt": "TrackType: SFX. Several separate strikes of a small stone axe into a dry hardwood branch. Solid woody knocks and crisp splintering cracks, small chips, short dry decay, distinct quiet gaps. Close isolated Foley recording.",
+      "seed": 304785,
+      "crop_seconds": [
+        4.477800453514739,
+        5.177800453514739
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/wood-chop-02.wav",
+      "sha256": "3adcdc0ee39457d4b7be2763453218952fc87f348b6b5b5d0f5475e07baef464",
+      "source_sha256": "11081d919bf2f29480bbcea53c25274a6d23c871982d4cd7892b8c098dbe5131",
+      "model": "stabilityai/stable-audio-3-medium",
+      "prompt": "TrackType: SFX. Several separate strikes of a small stone axe into a dry hardwood branch. Solid woody knocks and crisp splintering cracks, small chips, short dry decay, distinct quiet gaps. Close isolated Foley recording.",
+      "seed": 304785,
+      "crop_seconds": [
+        7.969863945578231,
+        8.669863945578232
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/wood-chop-03.wav",
+      "sha256": "1bd303a44843f910ea55115211124d444a904068ff31a7e4e2b123a2a9956c27",
+      "source_sha256": "11081d919bf2f29480bbcea53c25274a6d23c871982d4cd7892b8c098dbe5131",
+      "model": "stabilityai/stable-audio-3-medium",
+      "prompt": "TrackType: SFX. Several separate strikes of a small stone axe into a dry hardwood branch. Solid woody knocks and crisp splintering cracks, small chips, short dry decay, distinct quiet gaps. Close isolated Foley recording.",
+      "seed": 304785,
+      "crop_seconds": [
+        11.327233560090702,
+        11.981496598639456
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/soil-dig-01.wav",
+      "sha256": "1882c58bcb9e0ead11a68e7a7e32ab9794b55ad4ee8238114433a9c73d90e5c2",
+      "source_sha256": "4786ec5c555f7f025b93f39c0666cf196dba89560aec1e86967a378573068f4f",
+      "model": "stabilityai/stable-audio-3-small-sfx",
+      "prompt": "TrackType: SFX. A wooden digging stick scraping slowly through crumbly dry earth. Long gritty low scrapes and fine grains of soil trickling down. Close dry outdoor Foley, one source.",
+      "seed": 293947,
+      "crop_seconds": [
+        5.066462585034014,
+        6.166462585034013
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/soil-dig-02.wav",
+      "sha256": "d9b8da0ac2f3c4e55db6cc9c4cf46986127a29b3a22922fde1c6861a85291e88",
+      "source_sha256": "4786ec5c555f7f025b93f39c0666cf196dba89560aec1e86967a378573068f4f",
+      "model": "stabilityai/stable-audio-3-small-sfx",
+      "prompt": "TrackType: SFX. A wooden digging stick scraping slowly through crumbly dry earth. Long gritty low scrapes and fine grains of soil trickling down. Close dry outdoor Foley, one source.",
+      "seed": 293947,
+      "crop_seconds": [
+        9.182108843537415,
+        10.282108843537415
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/soil-dig-03.wav",
+      "sha256": "756bffd9fc93ea9ab6049ad4e1c22efd74b6496ec190be9d1f85b1b653fe6885",
+      "source_sha256": "4786ec5c555f7f025b93f39c0666cf196dba89560aec1e86967a378573068f4f",
+      "model": "stabilityai/stable-audio-3-small-sfx",
+      "prompt": "TrackType: SFX. A wooden digging stick scraping slowly through crumbly dry earth. Long gritty low scrapes and fine grains of soil trickling down. Close dry outdoor Foley, one source.",
+      "seed": 293947,
+      "crop_seconds": [
+        11.027913832199546,
+        11.981496598639456
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/fibre-handle-01.wav",
+      "sha256": "e0cf52c205f43e10b45416584a7a9de5718f356fc8d927b6fae2f94889bdc70e",
+      "source_sha256": "80ec592f24242f01bfc195706d02f726b573c2f4a526dba8ac7a4c6e21b28c5a",
+      "model": "stabilityai/stable-audio-3-small-sfx",
+      "prompt": "TrackType: SFX. Dry hemp rope rubbed slowly against itself in bare hands. Soft raspy plant fibre friction, gentle dry creaking and a faint fibrous rustle. Close dry Foley, one source.",
+      "seed": 301866,
+      "crop_seconds": [
+        8.922698412698413,
+        9.822698412698413
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/fibre-handle-02.wav",
+      "sha256": "5c45d8f6a67efa9efab798e032da166d5ea43f28f46816911f734f4cb0d694aa",
+      "source_sha256": "80ec592f24242f01bfc195706d02f726b573c2f4a526dba8ac7a4c6e21b28c5a",
+      "model": "stabilityai/stable-audio-3-small-sfx",
+      "prompt": "TrackType: SFX. Dry hemp rope rubbed slowly against itself in bare hands. Soft raspy plant fibre friction, gentle dry creaking and a faint fibrous rustle. Close dry Foley, one source.",
+      "seed": 301866,
+      "crop_seconds": [
+        10.080068027210885,
+        10.980068027210883
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Items/Audio/fibre-handle-03.wav",
+      "sha256": "90f85415d1149905d4f959ad432a79d8c6e87ff138e4b953b26021202d0f86bb",
+      "source_sha256": "80ec592f24242f01bfc195706d02f726b573c2f4a526dba8ac7a4c6e21b28c5a",
+      "model": "stabilityai/stable-audio-3-small-sfx",
+      "prompt": "TrackType: SFX. Dry hemp rope rubbed slowly against itself in bare hands. Soft raspy plant fibre friction, gentle dry creaking and a faint fibrous rustle. Close dry Foley, one source.",
+      "seed": 301866,
+      "crop_seconds": [
+        11.087777777777777,
+        11.981496598639456
+      ]
+    }
+  ]
+}

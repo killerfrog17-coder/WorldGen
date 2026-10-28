@@ -46,7 +46,7 @@ public sealed partial class LocalTerrainExplorer
         Array.Copy(palette,0,animalBoneData,animal.Slot*AnimalBones,palette.Length);
         animal.Root.transform.localPosition=new Vector3((float)(animal.X-originX),(float)(VisibleGround(animal.X,animal.Z,animal.GroundY)+animal.CorpseHeightOffset),(float)(animal.Z-originZ));animal.Root.transform.localRotation=Quaternion.Euler(0,animal.Heading,0);
         animal.Ragdoll=gameObject.AddComponent<WorldGenFaunaRagdoll>();wildlifeSkeletons.TryGetValue(animal.Spawn.Profile.slug,out var skeleton);
-        animal.Ragdoll.Begin(animal.Root.transform,skeleton,palette,animal.MassKg,impulse,(x,z)=>(float)Ground(x+originX,z+originZ),restored&&wildlifeRecords.TryGetValue(animal.Spawn.Id,out var record)&&record.CorpsePose!=null&&record.CorpseSettled);
+        animal.Ragdoll.Begin(animal.Root.transform,skeleton,palette,animal.MassKg,impulse,(x,z)=>(float)VisibleGround(x+originX,z+originZ,Ground(x+originX,z+originZ)),restored&&wildlifeRecords.TryGetValue(animal.Spawn.Id,out var record)&&record.CorpsePose!=null&&record.CorpseSettled);
         animal.TargetSpeed=animal.Speed=0;RememberAnimal(animal,true);
     }
     void UpdateAnimalCorpse(Animal animal,float dt)
@@ -58,16 +58,17 @@ public sealed partial class LocalTerrainExplorer
         animal.Props.SetFloat("_Fade",animal.Fade);animal.Renderer.SetPropertyBlock(animal.Props);
         var bounds=animal.Ragdoll.LocalBounds;bounds.Expand(animal.Model.Asset.Mesh.bounds.extents);animal.Renderer.localBounds=bounds;
     }
-    void DamageAnimal(Animal animal,double damage,Vector3 point,Vector3 direction,double momentum=0)
+    void DamageAnimal(Animal animal,double damage,Vector3 point,Vector3 direction,double momentum=0,bool fromPlayer=false)
     {
         if(animal==null||animal.Dead||!ItemUseRules.Finite(damage)||damage<=0)return;
         animal.Health=Math.Max(0,animal.Health-damage);PaintAnimalBlood(animal,point,-direction,damage);
+        if(animal.MassKg>.05)PlayItemEffect("body-hit",point,Mathf.Clamp((float)Math.Pow(animal.MassKg/70,.2),.08f,.65f));
         if(animal.Dead)
         {animal.CorpseHeightOffset=animal.Root.transform.localPosition.y-VisibleGround(animal.X,animal.Z,animal.GroundY);Vector3 movement=new Vector3(Mathf.Sin(animal.Heading*Mathf.Deg2Rad),0,Mathf.Cos(animal.Heading*Mathf.Deg2Rad))*animal.Speed;BeginAnimalCorpse(animal,movement+direction*(float)Math.Min(5,momentum/Math.Max(.01,animal.MassKg)));}
         else
         {
-            animal.ThreatUntil=animal.Life+12;animal.ThreatX=motion.X;animal.ThreatZ=motion.Z;
-            animal.TargetHeading=(float)(Math.Atan2(animal.X-motion.X,animal.Z-motion.Z)*180/Math.PI);animal.TargetSpeed=(float)animal.Spawn.Profile.runMps;animal.NextDecision=animal.ThreatUntil;
+            var source=transform.InverseTransformPoint(point-direction*(float)Math.Max(2,animal.Spawn.Profile.lengthM));animal.ThreatUntil=animal.Life+12;animal.ThreatX=source.x+originX;animal.ThreatZ=source.z+originZ;animal.ThreatWasPlayer=fromPlayer;
+            animal.TargetHeading=(float)(Math.Atan2(animal.X-animal.ThreatX,animal.Z-animal.ThreatZ)*180/Math.PI);animal.TargetSpeed=(float)animal.Spawn.Profile.runMps;animal.NextDecision=animal.ThreatUntil;
             var flee=animal.Model.Asset.Clips.FirstOrDefault(c=>c.role==(animal.Spawn.Profile.medium=="air"?"fly":animal.Spawn.Profile.medium=="water"?"swim":"run"));
             if(flee!=null&&flee!=animal.Clip){animal.OldClip=animal.Clip;animal.OldTime=animal.Time;animal.Clip=flee;animal.BlendAge=0;animal.Time=0;animal.NominalSpeed=Math.Max(.01f,(float)animal.Spawn.Profile.runMps);}
         }

@@ -10,7 +10,7 @@ public sealed partial class LocalTerrainExplorer
     {
         bool Has(params string[] words)=>words.Any(w=>slug.IndexOf(w,StringComparison.OrdinalIgnoreCase)>=0);
         if(Has("spider","crab","lobster","snail","octopus","squid","clam","mussel"))return new Color(.16f,.27f,.27f);
-        if(Has("butterfl","moth","beetle","mosquito","midge","fly","ant-","ants-","bee","wasp","termite","grasshopper","cricket","katydid","cicada","millipede","centipede"))return new Color(.33f,.29f,.12f);
+        if(Has("butterfl","moth","beetle","mosquito","midge","fly","ant-","ants-","bee","wasp","termite","grasshopper","cricket","katydid","cicada","millipede","centipede","mantis","dragonfl","damselfl","locust","roach"))return new Color(.33f,.29f,.12f);
         return new Color(.23f,.012f,.009f);
     }
     void RestoreAnimalBlood(Animal animal)

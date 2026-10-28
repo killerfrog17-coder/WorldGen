@@ -48,6 +48,7 @@ public sealed partial class LocalTerrainExplorer
     string InventoryDisplayName(Possession item)=>StoneCrafting.Rock(item)?item.Name+" ("+StoneCrafting.Material(item)+")":item.Name;
     Texture2D InventoryItemIcon(Possession item)
     {
+        var thumbnail=ItemThumbnail(item);if(thumbnail!=null)return thumbnail;
         if(PortableTechnology.Item(item.Kind)!=null)return PortableIcon(item);
         if(item.Kind==PossessionKind.TestBag)return inventoryBagIcon;
         if(WoodCrafting.Wood(item))return inventoryWoodIcon;
@@ -110,6 +111,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DisposeInventoryPreview()
     {
+        DisposeItemThumbnails();
         if(inventoryPreviewActor!=null){DestroyHuman(inventoryPreviewActor);inventoryPreviewActor=null;}
         foreach(var gear in inventoryPreviewGear)DestroyInventoryVisual(gear);
         if(inventoryPreviewRoot!=null)Destroy(inventoryPreviewRoot);inventoryPreviewRoot=null;inventoryPreviewCamera=null;
@@ -135,6 +137,10 @@ public sealed partial class LocalTerrainExplorer
         GUI.DrawTexture(new Rect(rect.x+5*scale,rect.y+5*scale,rect.width-10*scale,rect.height-10*scale),icon,ScaleMode.ScaleToFit,true);
         if(rect.width>75*scale&&rect.height>45*scale)InventoryLabel(new Rect(rect.x+5*scale,rect.yMax-23*scale,rect.width-8*scale,22*scale),item.Name,Mathf.RoundToInt(12*scale));
         var craft=CraftFor(item.Id);
+        if(worldToolWork?.Tool==item)
+        {
+            var bar=new Rect(rect.x+2*scale,rect.yMax-8*scale,rect.width-4*scale,6*scale);InventoryFill(bar,new Color(.025f,.04f,.04f));InventoryFill(new Rect(bar.x,bar.y,bar.width*(float)Math.Min(1,worldToolWork.Done/worldToolWork.Required),bar.height),new Color(.36f,.72f,.49f));
+        }
         if(craft!=null)
         {
             var bar=new Rect(rect.x+2*scale,rect.yMax-8*scale,rect.width-4*scale,6*scale);InventoryFill(bar,new Color(.025f,.04f,.04f));

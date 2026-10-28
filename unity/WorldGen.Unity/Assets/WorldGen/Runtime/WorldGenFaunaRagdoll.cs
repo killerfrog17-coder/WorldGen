@@ -49,7 +49,13 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
         }
         double total=parts.Sum(p=>{var c=p.Body.GetComponent<CapsuleCollider>();return c.radius*c.radius*c.height;});
         foreach(var p in parts){var c=p.Body.GetComponent<CapsuleCollider>();p.Body.mass=(float)Math.Max(.00001,mass*c.radius*c.radius*c.height/Math.Max(1e-12,total));}
-        var colliders=physicsRoot.GetComponentsInChildren<Collider>();for(int i=0;i<colliders.Length;i++)for(int j=0;j<i;j++)Physics.IgnoreCollision(colliders[i],colliders[j]);
+        var colliders=physicsRoot.GetComponentsInChildren<Collider>();
+        for(int i=0;i<colliders.Length;i++)for(int j=0;j<i;j++)
+        {
+            var a=colliders[i];var b=colliders[j];var joint=a.GetComponent<CharacterJoint>();var other=b.GetComponent<CharacterJoint>();
+            bool connected=joint!=null&&joint.connectedBody==b.attachedRigidbody||other!=null&&other.connectedBody==a.attachedRigidbody;
+            if(connected||Physics.ComputePenetration(a,a.transform.position,a.transform.rotation,b,b.transform.position,b.transform.rotation,out _,out _))Physics.IgnoreCollision(a,b);
+        }
         BuildGround(ground,model.position,Mathf.Max(8,scale*3));Physics.SyncTransforms();
         if(freeze)Freeze();else if(parts.Count>0)parts[0].Body.AddForceAtPosition(model.right*(float)Math.Min(2,mass*.05),parts[0].Body.worldCenterOfMass+Vector3.up*.08f,ForceMode.Impulse);
     }

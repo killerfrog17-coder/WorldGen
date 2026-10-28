@@ -14,15 +14,16 @@ namespace WorldGen.Presentation
         public string[] aliases=Array.Empty<string>();
         public double lengthM,walkMps,runMps,radiusM,densityPerKm2;
         public bool tiny,derivedFirefly,freshwater,nocturnal;
+        public double VisibleRadiusM=>tiny?radiusM:medium=="air"&&lengthM>=.8?Math.Max(radiusM,600):medium=="water"&&lengthM>=1.5?Math.Max(radiusM,lengthM>=8?1000:450):radiusM;
     }
     public sealed class FaunaPrototypeSpawn
     {
-        public ulong Id;public uint Hash;public V Position;
+        public ulong Id,GroupId;public int GroupIndex,GroupSize;public uint Hash;public V Position,GroupHome;
         public FaunaPrototypeProfile Profile=null!;
         public int Region,Taxon,CoatSeed;public double GroundM,WaterM=double.NaN,HeightM,ColdC,Aridity;
     }
-    /// <summary>Ephemeral local presentation population, never saved ecosystem
-    /// actors. Uses recorded regional presence without changing those records.</summary>
+    /// <summary>Native regional population candidates. Runtime may retain large
+    /// individuals/groups; this planner never mutates the ecology census.</summary>
     public sealed class FaunaPrototypePlanner
     {
         readonly World world;readonly LocalTerrain terrain;readonly LocalScatter lattice;
@@ -31,6 +32,11 @@ namespace WorldGen.Presentation
         readonly FaunaPrototypeProfile? firefly;
         public int MappedTaxa=>models.Count;
         static string Key(string value)=>new string(value.ToLowerInvariant().Where(char.IsLetterOrDigit).ToArray());
+        public static ulong Identity(ScatterKey key,int taxon,int group,int member)
+        {
+            ulong value=key.Id(member<0?14:15,0)^((ulong)(uint)(taxon+9127)*0x9e3779b97f4a7c15UL)^((ulong)(uint)group*0xd1b54a32d192ed03UL)^((ulong)(uint)(member+1)*0x94d049bb133111ebUL);
+            value=(value^(value>>30))*0xbf58476d1ce4e5b9UL;value=(value^(value>>27))*0x94d049bb133111ebUL;value=(value^(value>>31))&0x1fffffffffffffffUL;return value==0?1:value;
+        }
         public FaunaPrototypePlanner(World world,LocalTerrain terrain,FaunaPrototypeProfile[] profiles,double scale)
         {
             this.world=world;this.terrain=terrain;lattice=new LocalScatter(terrain,scale);
@@ -56,11 +62,12 @@ namespace WorldGen.Presentation
             if(region>=0&&region<e.Regions.Length)foreach(var presence in e.Regions[region].Species)if(models.ContainsKey(presence.TaxonId))found.Add(presence.TaxonId);
             pools[region]=found;return found;
         }
-        public List<FaunaPrototypeSpawn> Build(V center,double scale,double hour,CancellationToken token)
+        public List<FaunaPrototypeSpawn> Build(V center,double scale,double hour,CancellationToken token,double year=0,double temperatureC=15)
         {
             var result=new List<FaunaPrototypeSpawn>();var e=world.Ecology;if(e==null)return result;
             var patch=terrain.Patch(center,2000/scale);double radius=terrain.RadiusM*scale;
-            foreach(bool detail in new[]{false,true})foreach(var key in lattice.Around(center,detail?220:700,detail))
+            double latitude=Math.Asin(center.Z)*180/Math.PI;
+            foreach(bool detail in new[]{false,true})foreach(var key in lattice.Around(center,detail?220:2400,detail))
             {
                 token.ThrowIfCancellationRequested();V middle=lattice.Position(key);int cell=terrain.NearestCell(middle),region=e.Region[cell];
                 var candidates=new List<int>(Pool(region));
@@ -70,8 +77,9 @@ namespace WorldGen.Presentation
                     foreach(int id in Pool(e.Region[neighbor]))if(!candidates.Contains(id))candidates.Add(id);
                 foreach(int id in candidates)
                 {
-                    var profile=models[id];if(detail!=(profile.radiusM<250))continue;
-                    if((middle-center).Length*radius>profile.radiusM+(detail?100:800))continue;
+                    var profile=models[id];var behaviour=WildlifeBehaviour.Describe(profile.slug,e.Taxa[id].MassKg,e.Taxa[id].Eats,profile.medium=="air",profile.tiny);
+                    if(detail!=(behaviour.Tier<WildlifeTrackingTier.Resident&&profile.VisibleRadiusM<250))continue;
+                    if((middle-center).Length*radius>Math.Max(profile.VisibleRadiusM,behaviour.TrackingM)+(detail?100:800))continue;
                     var taxon=e.Taxa[id];int nativeRegion=region;
                     if(!Pool(nativeRegion).Contains(id))
                     {nativeRegion=-1;foreach(int neighbor in world.Surface.Cells[cell].Neighbors)if(Pool(e.Region[neighbor]).Contains(id)){nativeRegion=e.Region[neighbor];break;}}
@@ -101,30 +109,34 @@ namespace WorldGen.Presentation
                 else if(profile.medium=="water")
                 {if(taxon!=null&&taxon.MassKg>15)density=Math.Max(.015,2.5*Math.Pow(taxon.MassKg,-.35));else density=profile.freshwater?4500:1500;}
                 var habitat=e.Habitat[e.Regions[region].RepresentativeCell];
+                var behaviour=WildlifeBehaviour.Describe(profile.slug,taxon?.MassKg??.001,taxon?.Eats??Food.None,profile.medium=="air",profile.tiny);
+                if(WildlifeBehaviour.Dormant(behaviour,year,latitude,habitat.ColdTenthsC/10.0,temperatureC)||!WildlifeBehaviour.SeasonallyPresent(behaviour,year,latitude,habitat.ColdTenthsC/10.0))return;
                 double productivity=Math.Max(.12,Math.Min(1.4,habitat.ProductivityGCM2Year/500.0));density*=productivity;
                 V a=lattice.Position(key,0,0),b=lattice.Position(key,1,0),c=lattice.Position(key,0,1);
                 double area=V.Cross(b-a,c-a).Length*radius*radius;
-                int groupSize=profile.tiny?3:profile.medium=="water"&&profile.lengthM<1?5:taxon!=null&&taxon.MassKg>=10&&!meat?3:1;
+                int groupSize=behaviour.GroupMin+(int)(rank%(uint)(behaviour.GroupMax-behaviour.GroupMin+1));
+                if(groupSize==1)groupSize=profile.tiny?3:profile.medium=="water"&&profile.lengthM<1?5:1;
                 double expected=area*density/1000000/groupSize;
-                int groups=Math.Min(8,(int)Math.Floor(expected)+(rng.Unit()<expected-Math.Floor(expected)?1:0));
+                int groups=(int)Math.Floor(expected)+(rng.Unit()<expected-Math.Floor(expected)?1:0);
                 for(int g=0;g<groups;g++)
                 {
                     double u=.08+.84*rng.Unit(),v=.08+.84*rng.Unit();
+                    V groupHome=lattice.Position(key,u,v);ulong groupId=Identity(key,id,g,-1);
                     for(int member=0;member<groupSize;member++)
                     {
                         token.ThrowIfCancellationRequested();
                         double spread=(detailSize(key)?8:25)/Math.Max(64,Math.Sqrt(area));
                         V position=lattice.Position(key,Math.Max(.01,Math.Min(.99,u+(rng.Unit()-.5)*spread)),Math.Max(.01,Math.Min(.99,v+(rng.Unit()-.5)*spread)));
-                        if((position-center).Length*radius>profile.radiusM)continue;
+                        if((position-center).Length*radius>Math.Max(profile.VisibleRadiusM,behaviour.TrackingM))continue;
                         int actualCell=terrain.NearestCell(position);if(e.Region[actualCell]!=region&&!world.Hydrology.OceanConnected[actualCell])continue;
                         var sample=patch.Sample(position);bool wet=sample.Underwater||!double.IsNaN(sample.WaterSurfaceM)&&sample.WaterSurfaceM>sample.ElevationM+.03;
                         double water=sample.WaterSurfaceM;if(wet&&double.IsNaN(water)&&world.Hydrology.OceanConnected[actualCell])water=0;
                         if(profile.medium=="ground"&&wet||profile.medium=="water"&&(!wet||double.IsNaN(water)||water-sample.ElevationM<Math.Max(.25,profile.lengthM*.25)))continue;
                         if(profile.medium=="water"&&profile.freshwater&&world.Hydrology.OceanConnected[actualCell])continue;
                         if(profile.medium=="water"&&!profile.freshwater&&!world.Hydrology.OceanConnected[actualCell])continue;
-                        ulong ident=key.Id(15,g*16+member)^((ulong)(uint)(id+9127)*0x9e3779b97f4a7c15UL);
+                        ulong ident=Identity(key,id,g,member);
                         uint hash=Rng.Mix((uint)ident^(uint)(ident>>32));
-                        result.Add(new FaunaPrototypeSpawn{Id=ident,Hash=hash,Profile=profile,Position=position,Region=region,Taxon=id,
+                        result.Add(new FaunaPrototypeSpawn{Id=ident,GroupId=groupId,GroupIndex=member,GroupSize=groupSize,GroupHome=groupHome,Hash=hash,Profile=profile,Position=position,Region=region,Taxon=id,
                             CoatSeed=unchecked(region*8191+(id+9127)*31),GroundM=sample.ElevationM,WaterM=water,
                             HeightM=profile.medium=="air"?(profile.tiny?.6+1.2*rng.Unit():6+18*rng.Unit()):profile.medium=="water"?-.4-2*rng.Unit():0,
                             ColdC=habitat.ColdTenthsC/10.0,Aridity=habitat.AridityMilli/1000.0});

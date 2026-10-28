@@ -21,6 +21,7 @@ public sealed partial class LocalTerrainExplorer
         public float Heading,TargetHeading,Speed,TargetSpeed,Fade,NominalSpeed;
         public FaunaRuntimeClip Clip,OldClip;public bool Wanted=true,Manual;public Vector4 Parts;
         public V Planet;public Rng Random;
+        public double BehaviourAt,ObstacleAt,NextPoseAt,AttackAt,AirHeight,AirTargetHeight,PerchHeight,PerchUntil,NextPerch;public bool PerchSelected,Perched,ThreatWasPlayer,FishingTethered;public V PerchPosition,FishingAnchor;public double FishingReach;
         public double Health,MaximumHealth,MassKg,ThreatUntil,ThreatX,ThreatZ,CorpseHeightOffset;public bool Dead=>Health<=0;public int Coat;public WorldGenFaunaRagdoll Ragdoll;public WorldGenBloodCanvas Blood;public Vector3[] CollisionVertices;public int CollisionFrame=-1;
     }
     FaunaPrototypePlanner animalPlanner;
@@ -36,7 +37,7 @@ public sealed partial class LocalTerrainExplorer
     static LocalTerrainExplorer animalSceneOwner;
     V animalPlanAt;double nextAnimalPlan;int animalCandidates;bool animalDisposed;
     readonly bool animalDisabled=Array.Exists(Environment.GetCommandLineArgs(),x=>x=="--worldgen-no-animals");
-    public string AnimalFaunaDebug=>animalPlanner==null?"Wildlife off":"Wildlife "+animals.Count+" animals; GPU capacity "+animalBoneData.Length/AnimalBones+", "+animalModels.Count+" loaded models; "+animalPlanner.MappedTaxa+" native taxa mapped"+(animalPlan!=null?"; planning":"")+(animalLoading!=null?"; loading":"")+(animalLoadFailures.Count>0?"; "+animalLoadFailures.Count+" asset failures":"");
+    public string AnimalFaunaDebug=>animalPlanner==null?"Wildlife off":"Wildlife "+animals.Count+" animals; "+wildlifeGroups.Count+" tracked groups; GPU capacity "+animalBoneData.Length/AnimalBones+", "+animalModels.Count+" loaded models; "+animalPlanner.MappedTaxa+" native taxa mapped"+(animalPlan!=null?"; planning":"")+(animalLoading!=null?"; loading":"")+(animalLoadFailures.Count>0?"; "+animalLoadFailures.Count+" asset failures":"");
     void InitializeAnimalFauna()
     {
         if(animalDisabled||sourceWorld==null||sourceWorld.Ecology==null)return;
@@ -91,18 +92,18 @@ public sealed partial class LocalTerrainExplorer
                 var playerAt=Position;double radius=frame.RadiusM;
                 // Share the model cache across media, rather than loading every
                 // ground species before considering nearby birds or insects.
-                animalWanted.Clear();animalWanted.AddRange(animalPlan.Result.OrderBy(s=>(s.Position-playerAt).Length*radius/Math.Max(1,s.Profile.radiusM)).ThenBy(s=>s.Id));animalCandidates=animalWanted.Count;
+                RegisterWildlifeGroups(animalPlan.Result);animalWanted.Clear();animalWanted.AddRange(animalPlan.Result.OrderBy(s=>(s.Position-playerAt).Length*radius/Math.Max(1,s.Profile.VisibleRadiusM)).ThenBy(s=>s.Id));animalCandidates=animalWanted.Count;
                 var ids=new HashSet<ulong>(animalWanted.Select(s=>s.Id));foreach(var animal in animals.Values)animal.Wanted=animal.Manual||ids.Contains(animal.Spawn.Id);
             }
             animalPlan=null;
         }
-        bool stopped=paused||mapOpen;
+        bool stopped=paused||mapOpen||ecologyOpen||chatOpen||inventoryOpen&&!CraftWorking||!Application.isFocused&&!inventoryReviewMode;
         if(!stopped&&CenterReady&&!NearTerrainPending()&&HeightAboveGround<1200&&animalPlan==null&&ActiveWorkerCount<WorkerLimit&&
            (now>=nextAnimalPlan||(Position-animalPlanAt).Length*frame.RadiusM>80))
         {
             nextAnimalPlan=now+8;animalPlanAt=Position;animalPlanFrame=frame;
-            V at=Position;double hour=LocalSolarHour,scale=HorizontalScale;var planner=animalPlanner;var token=cancellation.Token;
-            animalPlan=Task.Run(()=>planner.Build(at,scale,hour,token),token);
+            V at=Position;double hour=LocalSolarHour,scale=HorizontalScale,year=skyYear,temperature=CurrentWeather.TemperatureC;var planner=animalPlanner;var token=cancellation.Token;
+            animalPlan=Task.Run(()=>planner.Build(at,scale,hour,token,year,temperature),token);
         }
         bool localPopulation=HeightAboveGround<1200;
         if(!localPopulation){animalWanted.Clear();animalManualWanted.Clear();animalManualRequests.Clear();foreach(var animal in animals.Values)animal.Wanted=false;}
@@ -113,7 +114,7 @@ public sealed partial class LocalTerrainExplorer
             foreach(var spawn in animalWanted)
             {
                 if(animals.ContainsKey(spawn.Id)||!animalModels.TryGetValue(spawn.Profile.slug,out var model))continue;
-                if((spawn.Position-Position).Length*frame.RadiusM>spawn.Profile.radiusM)continue;
+                if((spawn.Position-Position).Length*frame.RadiusM>spawn.Profile.VisibleRadiusM)continue;
                 if(!AddAnimal(spawn,model))break;
                 if((System.Diagnostics.Stopwatch.GetTimestamp()-admission)*1000d/System.Diagnostics.Stopwatch.Frequency>1.5)break;
             }
@@ -130,13 +131,13 @@ public sealed partial class LocalTerrainExplorer
                 }
             }
         }
-        float dt=stopped?0:Math.Min(.1f,Time.unscaledDeltaTime);
+        float dt=stopped?0:Math.Min(.1f,Time.unscaledDeltaTime);if(!stopped){UpdateWildlifeGroups();IndexWildlifeNeighbours();}
         animalRemoval.Clear();int paletteLength=0;
         foreach(var pair in animals)
         {
             var animal=pair.Value;
             double distance=(animal.Planet-Position).Length*frame.RadiusM;
-            if(distance>animal.Spawn.Profile.radiusM*1.25)animal.Wanted=false;
+            if(distance>animal.Spawn.Profile.VisibleRadiusM*1.25)animal.Wanted=false;
             animal.Fade=Mathf.MoveTowards(animal.Fade,animal.Wanted?1:0,Math.Max(.001f,dt)*2);
             if(!animal.Wanted&&animal.Fade<=0){animalRemoval.Add(pair.Key);continue;}
             UpdateAnimal(animal,dt);
@@ -157,9 +158,13 @@ public sealed partial class LocalTerrainExplorer
         var asset=request.allAssets.OfType<WorldGenFaunaAsset>().FirstOrDefault();
         if(asset==null||asset.Slug!=profile.slug||asset.BoneCount>AnimalBones||asset.Clips==null||asset.Clips.Length==0)
         {animalPendingBundle.Unload(true);animalPendingBundle=null;animalLoadFailures.Add(profile.slug);animalLoading=null;yield break;}
+        string hitRoot=Path.Combine(Application.streamingAssetsPath,"fauna-collision"),hitSlug=asset.Slug,hitSource=asset.SourceSha256;int hitBones=asset.BoneCount;
+        var hitSkin=Task.Run(()=>new FaunaCollisionSurface(hitSlug,hitSource,hitBones,hitRoot));while(!hitSkin.IsCompleted)yield return null;
+        if(animalDisposed||hitSkin.IsFaulted)
+        {if(hitSkin.IsFaulted)Debug.LogError("Wildlife hit-skin load: "+hitSkin.Exception.GetBaseException().Message);animalPendingBundle?.Unload(true);animalPendingBundle=null;animalLoadFailures.Add(profile.slug);animalLoading=null;yield break;}
         var material=new Material(animalShader){name="Wildlife "+profile.slug};
         material.SetTexture("_Coats",asset.Coats);material.SetTexture("_Mask",asset.Mask);material.SetTexture("_Normals",asset.Normal);material.SetFloat("_VegetationSceneEnabled",1);
-        animalModels.Add(profile.slug,new AnimalModel{Asset=asset,Bundle=animalPendingBundle,Material=material,LastUse=Time.realtimeSinceStartupAsDouble});
+        animalModels.Add(profile.slug,new AnimalModel{Asset=asset,Bundle=animalPendingBundle,Material=material,Collision=hitSkin.Result,LastUse=Time.realtimeSinceStartupAsDouble});
         animalPendingBundle=null;animalLoading=null;
     }
     bool EvictAnimalModel()
@@ -179,10 +184,11 @@ public sealed partial class LocalTerrainExplorer
         var animal=new Animal{Spawn=spawn,Model=model,Manual=manual,Root=root,Renderer=renderer,Slot=animalSlots.Pop(),Random=rng,Props=new MaterialPropertyBlock(),
             Heading=(float)(rng.Unit()*360),Time=rng.Unit()*7,GroundY=frame.SurfaceY(spawn.Position,spawn.GroundM)};
         TerrainHandoff.Coordinates(frame,spawn.Position,out animal.X,out animal.Z);animal.HomeX=animal.X;animal.HomeZ=animal.Z;animal.Planet=spawn.Position;
-        animal.TargetHeading=animal.Heading;animal.Random=rng;InitializeAnimalHealth(animal);
+        animal.TargetHeading=animal.Heading;animal.Random=rng;animal.AirHeight=animal.AirTargetHeight=spawn.HeightM;animal.NextPerch=4+spawn.Hash%15;animal.ObstacleAt=Time.unscaledTimeAsDouble+(spawn.Hash%100)*.004;PlaceTrackedAnimal(animal);InitializeAnimalHealth(animal);
         int coat=wildlifeRecords.TryGetValue(spawn.Id,out var record)?Mathf.Clamp(record.Coat,0,model.Asset.Variations.Length-1):ChooseAnimalCoat(model.Asset,spawn);animal.Coat=coat;var options=model.Asset.Variations[coat].options;
         int option=(int)(spawn.Hash%(uint)options.Length);
-        if(spawn.Profile.slug=="deer")option=(spawn.Hash&1)==0?0:1+(int)((spawn.Hash>>1)%(uint)Math.Max(1,options.Length-1));
+        if(spawn.Profile.slug=="deer")
+        {bool male=wildlifeGroups.TryGetValue(spawn.GroupId,out var social)&&social.Sex>=0?social.Sex==1:(spawn.Hash&1)!=0;option=male?1+(int)((spawn.Hash>>1)%(uint)Math.Max(1,options.Length-1)):0;}
         var parts=options[option].parts;animal.Parts=record?.Parts?.Length==4?new Vector4(record.Parts[0],record.Parts[1],record.Parts[2],record.Parts[3]):new Vector4(parts[0],parts[1],parts[2],parts[3]);
         animal.Props.SetFloat("_Coat",coat);animal.Props.SetInt("_PaletteOffset",animal.Slot*AnimalBones);animal.Props.SetVector("_Parts",animal.Parts);
         RestoreAnimalBlood(animal);animals.Add(spawn.Id,animal);model.Users++;model.LastUse=Time.realtimeSinceStartupAsDouble;
@@ -214,7 +220,7 @@ public sealed partial class LocalTerrainExplorer
         animal.TargetSpeed=speed*(float)(.85+.3*rng.Unit());animal.NominalSpeed=Math.Max(.01f,speed);
         animal.TargetHeading=animal.Heading+(float)((rng.Unit()-.5)*240);
         double dx=animal.HomeX-animal.X,dz=animal.HomeZ-animal.Z;
-        if(dx*dx+dz*dz>Math.Pow(Math.Min(profile.radiusM*.45,Math.Max(8,profile.lengthM*20)),2))animal.TargetHeading=(float)(Math.Atan2(dx,dz)*180/Math.PI)+(float)((rng.Unit()-.5)*35);
+        if(dx*dx+dz*dz>Math.Pow(Math.Min(profile.VisibleRadiusM*.45,Math.Max(8,profile.lengthM*20)),2))animal.TargetHeading=(float)(Math.Atan2(dx,dz)*180/Math.PI)+(float)((rng.Unit()-.5)*35);
         if(animal.Clip!=clip)
         {
             animal.OldClip=animal.Clip;animal.OldTime=animal.Time;animal.BlendAge=animal.Clip==null?1:0;
@@ -225,12 +231,14 @@ public sealed partial class LocalTerrainExplorer
     void UpdateAnimal(Animal animal,float dt)
     {
         if(animal.Dead){UpdateAnimalCorpse(animal,dt);return;}
-        var profile=animal.Spawn.Profile;animal.Life+=dt;if(animal.Life>=animal.NextDecision)DecideAnimal(animal);
+        var profile=animal.Spawn.Profile;animal.Life+=dt;if(animal.Life>=animal.NextDecision)DecideAnimal(animal);if(dt>0){UpdateAnimalBehaviour(animal);AvoidAnimalSolids(animal);}
         float turn=profile.tiny?200:profile.medium=="air"?65:profile.medium=="water"?45:85;
         animal.Heading=Mathf.MoveTowardsAngle(animal.Heading,animal.TargetHeading,turn*dt);
         animal.Speed=Mathf.MoveTowards(animal.Speed,animal.TargetSpeed,Math.Max(.15f,(float)profile.runMps)*dt*1.5f);
         double angle=animal.Heading*Math.PI/180,dx=Math.Sin(angle)*animal.Speed*dt,dz=Math.Cos(angle)*animal.Speed*dt;
         double x=animal.X+dx,z=animal.Z+dz;
+        if(animal.FishingTethered)
+        {TerrainHandoff.Coordinates(frame,animal.FishingAnchor,out double ax,out double az);double tetherDistance=Math.Sqrt(Math.Pow(x-ax,2)+Math.Pow(z-az,2));if(tetherDistance>animal.FishingReach){x=ax+(x-ax)*animal.FishingReach/tetherDistance;z=az+(z-az)*animal.FishingReach/tetherDistance;animal.TargetHeading+=100;}}
         // Refresh the occupied ground before testing a proposed step. Otherwise
         // a terrain LOD change could be mistaken for an impassable step forever,
         // leaving a stationary animal suspended at the old surface height.
@@ -241,13 +249,18 @@ public sealed partial class LocalTerrainExplorer
             ||profile.medium=="water"&&(double.IsNaN(water)||floor>water-Math.Max(.2,profile.lengthM*animal.Model.Asset.Height*.6));
         if(blocked){animal.TargetHeading+=140;animal.TargetSpeed=0;animal.NextDecision=Math.Min(animal.NextDecision,animal.Life+.7);x=animal.X;z=animal.Z;point=animal.Planet;floor=currentFloor;}
         animal.X=x;animal.Z=z;animal.Planet=point;animal.GroundY=floor;
-        if(profile.medium=="air")vertical=floor+animal.Spawn.HeightM+Math.Sin(animal.Life*(profile.tiny?1.8:.45)+animal.Spawn.Hash%31)*(profile.tiny?.15:.65);
+        if(profile.medium=="air")
+        {animal.AirHeight=Mathf.MoveTowards((float)animal.AirHeight,(float)animal.AirTargetHeight,dt*Math.Max(1,(float)profile.walkMps));vertical=floor+animal.AirHeight+(animal.PerchSelected?0:Math.Sin(animal.Life*(profile.tiny?1.8:.45)+animal.Spawn.Hash%31)*(profile.tiny?.15:.65));}
         else if(profile.medium=="water")vertical=Math.Max(floor+.1,water+animal.Spawn.HeightM-profile.lengthM*animal.Model.Asset.Height*.5);
         else vertical=floor;
         var position=new Vector3((float)(x-originX),(float)vertical,(float)(z-originZ));
         animal.Root.transform.localPosition=position;animal.Root.transform.localRotation=Quaternion.Euler(0,animal.Heading,0);
         double rate=animal.Clip.role=="idle"?1:Math.Max(.2,Math.Min(1.8,animal.Speed/animal.NominalSpeed));
         animal.Time+=dt*rate;animal.OldTime+=dt*rate;animal.BlendAge+=dt;
+        float distance=(position-view.transform.localPosition).magnitude;
+        if(dt<=0||Time.unscaledTimeAsDouble>=animal.NextPoseAt)
+        {
+        animal.NextPoseAt=Time.unscaledTimeAsDouble+(distance<150?0:distance<350?.05:.1);
         var asset=animal.Model.Asset;float blend=Mathf.SmoothStep(0,1,(float)(animal.BlendAge/.55));
         float morph=AnimalMorph(asset,animal.Clip,animal.Time);
         if(animal.OldClip!=null&&blend<1)morph=Mathf.Lerp(AnimalMorph(asset,animal.OldClip,animal.OldTime),morph,blend);
@@ -258,8 +271,8 @@ public sealed partial class LocalTerrainExplorer
             if(animal.OldClip!=null&&blend<1)pose=AnimalMatrixLerp(AnimalPose(asset,animal.OldClip,animal.OldTime,bone),pose,blend);
             animalBoneData[animal.Slot*AnimalBones+bone]=pose;
         }
-        float distance=(position-view.transform.localPosition).magnitude;
-        animal.Props.SetFloat("_Fade",animal.Fade*Mathf.Clamp01(((float)profile.radiusM-distance)/Math.Max(4,(float)profile.radiusM*.12f)));
+        }
+        animal.Props.SetFloat("_Fade",animal.Fade*Mathf.Clamp01(((float)profile.VisibleRadiusM-distance)/Math.Max(4,(float)profile.VisibleRadiusM*.12f)));
         animal.Props.SetFloat("_Glow",profile.derivedFirefly?8*Mathf.Pow(Mathf.Max(0,Mathf.Sin((float)animal.Life*2+(animal.Spawn.Hash%47))),8):0);
         animal.Renderer.SetPropertyBlock(animal.Props);animal.Renderer.shadowCastingMode=profile.lengthM>=.35&&distance<180?ShadowCastingMode.On:ShadowCastingMode.Off;
     }
@@ -290,5 +303,6 @@ public sealed partial class LocalTerrainExplorer
         foreach(var model in animalModels.Values){Destroy(model.Material);if(model.Bundle!=null)model.Bundle.Unload(true);}animalModels.Clear();
         if(ReferenceEquals(animalSceneOwner,this)){Shader.SetGlobalBuffer("_FaunaBones",(GraphicsBuffer)null);animalSceneOwner=null;}
         animalBoneBuffer?.Dispose();animalBoneBuffer=null;
+        birdPerchGeometry.Clear();wildlifeNeighbours.Clear();wildlifeGroups.Clear();wildlifeBehaviours.Clear();wildlifeGroupIndex.Clear();activeWildlifeGroups.Clear();wildlifeGroupWork.Clear();
     }
 }

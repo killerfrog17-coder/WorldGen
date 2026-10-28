@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using WorldGen.Core;
 using WorldGen.Serialization;
+using WorldGen.Presentation;
 
 static class ItemUseTests
 {
@@ -32,6 +33,21 @@ static class ItemUseTests
         var session=new PlaySession();session.Wildlife.Individuals.Add(record);var saved=WorldJson.Read<PlaySession>(WorldJson.Write(session));saved.Validate();Check(saved.Wildlife.Individuals[0].Dead&&saved.Wildlife.Individuals[0].Id==88,"Killed identity and corpse state survive full session serialization");
         var copy=session.Copy();copy.Wildlife.Individuals[0].Parts[0]=31;copy.Wildlife.Individuals[0].CorpsePose[0]=2;Check(record.Parts[0]==15&&record.CorpsePose[0]==0,"Wildlife copies do not alias mutable corpse data");
         var legacyJson=System.Text.Json.Nodes.JsonNode.Parse(WorldJson.Write(new PlaySession())).AsObject();legacyJson.Remove("Wildlife");var legacy=WorldJson.Read<PlaySession>(legacyJson.ToJsonString());legacy.Validate();Check(legacy.Wildlife!=null,"Legacy sessions initialize optional wildlife state during validation");
+        var worn=PortableTechnology.Create(PossessionKind.StoneBlade,ground);worn.UseDamage=.8;worn.EdgeSharpness=.1;double originalMass=worn.MassKg;ItemMaintenance.Complete(worn,true);
+        Check(worn.UseDamage<.1&&worn.EdgeSharpness>.8&&worn.MassKg<originalMass,"Retouching restores a useful edge at a small real material cost");
+        var inventory=new PlayerInventory();inventory.ToolResources.Add(new NaturalToolRecord{Id="tree-123",Bark=2,Branches=1,Work=30});var inventorySave=WorldJson.Read<PlayerInventory>(WorldJson.Write(inventory));inventorySave.Validate();
+        Check(inventorySave.ToolResources[0].Bark==2&&inventorySave.ToolResources[0].Work==30,"Actual tree extraction/depletion persists");var inventoryCopy=inventory.Copy();inventoryCopy.ToolResources[0].Bark=0;Check(inventory.ToolResources[0].Bark==2,"Tool-resource ledgers do not alias across copied saves");
+        var wolf=WildlifeBehaviour.Describe("wolf",40,Food.Vertebrate);var deer=WildlifeBehaviour.Describe("deer",80,Food.Browse);var moose=WildlifeBehaviour.Describe("moose",450,Food.Browse);var bear=WildlifeBehaviour.Describe("bear",200,Food.Fruit);var goose=WildlifeBehaviour.Describe("goose",4,Food.Grass,true);
+        Check(wolf.PackHunter&&wolf.TrackingM>deer.TrackingM&&wolf.GroupMin>1,"Pack predators retain wider regional tracking than ordinary prey");
+        Check(deer.Herd&&!deer.Defensive&&moose.Defensive&&!moose.Herd,"Moose defence/solitary priors differ from ordinary deer herds");
+        Check(WildlifeBehaviour.Dormant(bear,0,50,-10,-4)&&!WildlifeBehaviour.Dormant(bear,.5,50,-10,20),"Temperate bear winter denning follows season and actual cold");
+        Check(!WildlifeBehaviour.Dormant(bear,0,5,20,25)&&!WildlifeBehaviour.Dormant(WildlifeBehaviour.Describe("polar-bear",350,Food.Vertebrate),0,70,-30,-20),"Tropical bears and general polar-bear population do not receive blanket hibernation");
+        Check(!WildlifeBehaviour.SeasonallyPresent(goose,0,55,-10)&&WildlifeBehaviour.SeasonallyPresent(goose,.5,55,-10),"Cold breeding-ground migratory birds differ between winter and summer");
+        Check(WildlifeBehaviour.Winter(0,50)==WildlifeBehaviour.Winter(.5,-50),"Seasonal priors reverse with hemisphere");
+        Check(WildlifeBehaviour.Activity(deer,6,false,0,0)>WildlifeBehaviour.Activity(deer,12,false,0,0),"Crepuscular prey are more active at dawn than noon");
+        session.Wildlife.Groups.Add(new WildlifeGroup{Id=778,Species="wolf",Home=ground,Position=ground,Goal=ground,Intent=WildlifeIntent.Hunt,Hunger=.6,Members=5});var savedGroups=WorldJson.Read<PlaySession>(WorldJson.Write(session));savedGroups.Validate();Check(savedGroups.Wildlife.Groups[0].Intent==WildlifeIntent.Hunt&&savedGroups.Wildlife.Groups[0].Members==5,"Cheap regional groups save their actual intent and membership size");
+        var identities=new System.Collections.Generic.HashSet<ulong>();var latticeKey=new ScatterKey(2,333,777,false);for(int g=0;g<520;g++)for(int m=0;m<12;m++)identities.Add(FaunaPrototypePlanner.Identity(latticeKey,14,g,m));Check(identities.Count==6240&&identities.All(id=>id!=0&&id<0x2000000000000000UL),"Population identities remain distinct beyond old group/slot limits and outside the manual namespace");
+        Check(new FaunaPrototypeProfile{medium="air",lengthM=1.4,radiusM=170}.VisibleRadiusM==600&&new FaunaPrototypeProfile{tiny=true,radiusM=22}.VisibleRadiusM==22,"Large flying silhouettes retain distance while tiny ambient animals remain local");
         Console.WriteLine("PASS "+checks+" item-use, physical launch, block and wildlife persistence checks");
     }
 }
