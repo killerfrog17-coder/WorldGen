@@ -1,12 +1,11 @@
 # Portable items and wildlife checkpoint ? 28 October 2026
 
 The existing shortcut currently selects the first item-use release,
-`player-item-functionality` (IL2CPP, 14:34:45Z). A separate corrected candidate,
-`player-item-functionality-release` (16:48:19Z), is compiled but **not selected**:
-its native rerun is waiting while the owner playtests. The candidate includes
-hand-restoration, shoreline and corpse corrections described below.
-A subsequent same-frame stone-flake drop fix now also needs packaging; the
-16:48 candidate predates it, so final validation will use a fresh package.
+`player-item-functionality` (IL2CPP, 14:34:45Z). Current source passes 123 native
+diagnostic checks, including the owner's same-frame stone-flake drop regression
+and actual bow, sling and spear-thrower shots. The corrected release,
+`player-item-functionality-complete`, is building and **not selected yet**;
+its exact-package combat/shoreline checks and preservation proof remain pending.
 
 This update does not resume the scrapped history/building overhaul. Animal
 skinning, butchery, processing and meat drops are deliberately deferred.
@@ -44,6 +43,8 @@ new recipe book. LMB uses the right hand, RMB the independently occupied left.
 With one held item, RMB invokes its secondary action. Keep the other hand free
 when testing throwing, digging or fishing. Hold/release charges throws/shots.
 Controls remain in Character & help, without an unsolicited controls HUD.
+`/give pebble` supplies a smaller ordinary rock (about 45 g); the default
+700 g `/give small rock` is intentionally too heavy for the sling.
 
 At a 60-real-minute solar day, the current gathering actions last approximately
 5 seconds for root fibres, 10 for hand-line fishing and 3.75 for a net. These are
@@ -76,6 +77,9 @@ fine spine/toe/feather bones follow a retained physical ancestor. Bodies sleep
 once quiet, and the local collision floor follows rolling bodies. Original skins,
 weights, rest rigs, actions and coats are unchanged. Local folds/intersections and
 imperfect ground contact can remain; these are not anatomical final ragdolls.
+Structural neck chains stay articulated. Limb-bearing torso joints are treated
+as body supports, and solver masses/joint separation are conditioned to avoid
+extreme ratios between a large body and tiny terminal capsules.
 
 ## Art and sound
 
@@ -124,12 +128,12 @@ the tracked region stop ticking; no unlimited offline catch-up is attempted.
 | Existing inventory, stone, wood, camera suites | 75 / 37 / 37 / 22 checks pass. |
 | First selected IL2CPP item release | 102 native checks pass. |
 | Intermediate IL2CPP polished candidate | 107 native + 13 actual shoreline checks pass. |
-| Latest Mono physics-branches candidate | 111 native checks pass, including all 63 model thumbnails, connected corpses, skin-extension guards, saves, predation, projectiles and player death. |
-| Latest release IL2CPP | Compiled; native rerun pending owner playtest completion. |
+| Latest Mono ranged-check candidate | 123 native checks pass: all 63 model thumbnails, actual knapping/drop regression, bow/sling/thrower hits, connected corpses, skin-extension guards, saves, predation and player death. |
+| Latest release IL2CPP | Building; exact-package combat/shoreline reruns and preservation proof pending. |
 
-The most recent inspected small-corpse captures retain nine physical bodies each.
-Maximum edge extension was 0.0233 m for the 0.28 m squirrel and 0.0872 m for the
-1.4 m goose; the 15%-of-length guard was retained. Earlier angle/mass-only trials
+Inspected captures include the squirrel and goose, with the latter retaining its
+structural neck joints. The 15%-of-length extension guard and deer 99th-percentile
+stretch guard were retained. Earlier angle/mass-only trials
 and failing captures remain recorded, not counted as passes. Physics varies with
 pose/terrain; this does not certify every animal or slope. Ordinary batch
 ScreenCapture images were black and rejected; actual render-texture captures
@@ -153,7 +157,8 @@ exception: an empty MeshFilter awaiting deferred deletion was visited by a
 same-frame physical drop. Source now constructs only the actual worked surface
 and ignores optional mesh-less filters during bounds collection. Five new native
 checks complete real knapping and immediately drop the fresh flake/worked core;
-these checks are pending the next build, not counted among the earlier passes.
+all five pass in the latest 123-check diagnostic run and await the exact release
+package rerun.
 
 ## Deliberately unfinished systems
 

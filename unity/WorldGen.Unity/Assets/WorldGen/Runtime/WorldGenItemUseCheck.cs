@@ -99,6 +99,24 @@ public sealed partial class LocalTerrainExplorer
         yield return new WaitForSecondsRealtime(.4f);UpdateAttachedProjectiles();Check(arrow.Position.Length>.99999&&arrow.AttachedAnimal==arrowTarget.Spawn.Id,"Embedded arrow follows the current skin-bone pose");paused=true;yield return Image("04-embedded-arrow");
         TerrainHandoff.Coordinates(frame,arrow.Position,out double ax,out double az);motion.Place(ax-.4,az,Ground(ax-.4,az));RefreshInventoryNearby(true);
         Check(MovePossession(arrow.Id,PossessionPlace.LeftHand)&&arrow.AttachedAnimal==0,"Embedded arrow can be physically retrieved within reach");Inventory.Validate();
+        foreach(var ranged in new[]{("Sling",PossessionKind.Sling),("Spear-thrower",PossessionKind.SpearThrower)})
+        {
+            ClearItems();yield return new WaitForSecondsRealtime(.85f);paused=true;Aim(arrowTarget,5);
+            var launcher=Hold(ranged.Item2);Possession ammunition;
+            if(ranged.Item2==PossessionKind.Sling)
+            {
+                var given=ExecuteGive(new[]{"/give","pebble"});ammunition=Inventory.Items.FirstOrDefault(p=>p.Kind==PossessionKind.SmallRock);
+                Check(given.Success&&ammunition!=null&&ammunition.MassKg>=.015&&ammunition.MassKg<=.3&&ammunition.WidthM<.05,"Pebble command supplies an ordinary, realistically sized sling stone");
+            }
+            else ammunition=Hold(PossessionKind.SpearDart);
+            health=arrowTarget.Health;BeginItemCharge(launcher,false,0,false);
+            Check(itemCharge!=null&&itemCharge.Ammo==ammunition,ranged.Item1+" selects its actual carried ammunition");
+            itemCharge.Started-=1.2;ReleaseItemCharge();paused=false;double shotDeadline=Time.unscaledTimeAsDouble+4;
+            while(arrowTarget.Health>=health&&ammunition.InFlight&&Time.unscaledTimeAsDouble<shotDeadline)yield return null;
+            paused=true;
+            Check(arrowTarget.Health<health,ranged.Item1+" launches a physical projectile that damages the visible animal surface");
+            Check(Inventory.AtHand(PossessionPlace.RightHand)==launcher&&ammunition.Place==PossessionPlace.Ground,ranged.Item1+" retains the launcher without recalling its fired ammunition");
+        }
         ClearItems();UpdateHumans();UpdateCamera();
         var savedHands=Hold(PossessionKind.StoneTippedSpear);var digger=new Possession{Id="dig-test",Kind=PossessionKind.DiggingStick,Position=Position,WidthM=.03,HeightM=1,DepthM=.03,MassKg=.5,CellsHigh=10};Inventory.Items.Add(digger);bool completed=false;
         BeginWorldToolWork(digger,"Controlled tool-work check",120,()=>completed=true);Check(worldToolWork!=null&&savedHands.Place==PossessionPlace.Ground&&digger.Place==PossessionPlace.RightHand,"World tool work borrows occupied hands without extra storage");
@@ -166,8 +184,8 @@ public sealed partial class WorldGenRuntime
         var report=new List<string>();var errors=new List<string>();Application.LogCallback listener=(m,t,k)=>{if(k==LogType.Error||k==LogType.Exception){errors.Add(m);File.WriteAllText(Path.Combine(output,"failure.txt"),m+"\n"+t);Application.Quit(1);}};Application.logMessageReceived+=listener;
         double deadline=Time.realtimeSinceStartupAsDouble+180;while((Busy||!worldReady||humans==null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(!worldReady||Busy||humans==null)throw new InvalidOperationException("Item-use fixture unavailable");play.Settings.HorizontalScale=.1;TerrainVideoOptions.Current.ViewDistanceM=1000;TerrainVideoOptions.Revision++;ExploreTerrain(TerrainMapViewport.FromDegrees(50,10));deadline=Time.realtimeSinceStartupAsDouble+120;
-        while((terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
-        if(terrainExplorer==null||!terrainExplorer.Ready)throw new InvalidOperationException("Item-use terrain unavailable");
+        while((terrainExplorer==null||!terrainExplorer.PerformanceGroundSettled)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+        if(terrainExplorer==null||!terrainExplorer.PerformanceGroundSettled)throw new InvalidOperationException("Item-use terrain did not finish its requested geometry");
         if(Environment.GetCommandLineArgs().Contains("--worldgen-item-water-check"))yield return terrainExplorer.CheckItemWaterFlow(output,report);
         else yield return terrainExplorer.CheckItemUseFlow(output,report);
         CapturePlayer();play.Validate();ReturnFromPlay("Simulation");yield return null;yield return null;

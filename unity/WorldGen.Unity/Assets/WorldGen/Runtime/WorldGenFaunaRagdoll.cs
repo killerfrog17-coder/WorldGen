@@ -95,9 +95,9 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
         // than the torso. That makes the constraint solver pull their skin into
         // spikes even though every matrix remains finite. Condition the solver
         // masses without changing the accepted skin or the total animal mass.
-        foreach(var p in parts){var c=p.Body.GetComponent<CapsuleCollider>();p.Body.mass=(float)Math.Max(lightPhysics?mass*.002:.00001,mass*c.radius*c.radius*c.height/Math.Max(1e-12,total));}
-        if(lightPhysics){float bodyMass=parts.Sum(p=>p.Body.mass);foreach(var p in parts)p.Body.mass*=(float)mass/bodyMass;}
-        if(lightPhysics)foreach(var p in parts){var joint=p.Body.GetComponent<CharacterJoint>();if(joint!=null)joint.connectedMassScale=Mathf.Clamp(joint.connectedBody.mass/p.Body.mass,.05f,20);}
+        foreach(var p in parts){var c=p.Body.GetComponent<CapsuleCollider>();p.Body.mass=(float)Math.Max(mass*.002,mass*c.radius*c.radius*c.height/Math.Max(1e-12,total));}
+        float bodyMass=parts.Sum(p=>p.Body.mass);foreach(var p in parts)p.Body.mass*=(float)mass/bodyMass;
+        foreach(var p in parts){var joint=p.Body.GetComponent<CharacterJoint>();if(joint!=null)joint.connectedMassScale=Mathf.Clamp(joint.connectedBody.mass/p.Body.mass,.033f,30);}
         var colliders=physicsRoot.GetComponentsInChildren<Collider>();
         for(int i=0;i<colliders.Length;i++)for(int j=0;j<i;j++)
         {
@@ -125,7 +125,7 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
             var joint=obj.AddComponent<CharacterJoint>();joint.connectedBody=parts[connected].Body;joint.autoConfigureConnectedAnchor=false;
             joint.anchor=obj.transform.InverseTransformPoint(start);joint.connectedAnchor=joint.connectedBody.transform.InverseTransformPoint(start);joint.axis=Vector3.up;joint.swingAxis=Vector3.right;
             joint.lowTwistLimit=new SoftJointLimit{limit=spine||leg||tail?-6:-12};joint.highTwistLimit=new SoftJointLimit{limit=spine||leg||tail?6:12};joint.swing1Limit=new SoftJointLimit{limit=spine?10:tail?25:leg?(proximal?45:85):35};joint.swing2Limit=new SoftJointLimit{limit=spine?8:tail?15:leg?10:25};
-            joint.enableProjection=true;joint.projectionDistance=lightPhysics?Mathf.Clamp(Vector3.Distance(start,end)*.02f,.00025f,.005f):.025f;joint.projectionAngle=lightPhysics?5:10;
+            joint.enableProjection=true;joint.projectionDistance=Mathf.Clamp(Vector3.Distance(start,end)*.02f,.00025f,.005f);joint.projectionAngle=5;
         }
         map[bone]=parts.Count;parts.Add(new Part{Bone=bone,Body=body,InverseStart=(model.worldToLocalMatrix*body.transform.localToWorldMatrix).inverse});
     }

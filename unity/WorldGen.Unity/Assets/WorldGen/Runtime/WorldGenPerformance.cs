@@ -330,7 +330,8 @@ public sealed partial class LocalTerrainExplorer
         }
         finally{RenderTexture.active=prior;UnityEngine.Object.Destroy(pixels);}
     }
-    public bool PerformanceSettled=>Ready&&NearReady&&AllReady&&ScatterReady&&!DetailPlanning&&jobs.Count==0&&scatterJobs.Count==0&&coverRequests.Count==0&&previousTerrain.Count==0&&retiringFrames.Count==0&&tiles.Values.All(t=>FadeComplete(t))&&(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.FarForest||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!ForestPending)&&(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeImpostors||PendingTreeModels==0);
+    public bool PerformanceGroundSettled=>Ready&&NearReady&&AllReady&&!DetailPlanning&&jobs.Count==0&&previousTerrain.Count==0&&retiringFrames.Count==0&&tiles.Values.All(t=>FadeComplete(t));
+    public bool PerformanceSettled=>PerformanceGroundSettled&&ScatterReady&&scatterJobs.Count==0&&coverRequests.Count==0&&(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.FarForest||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!ForestPending)&&(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeImpostors||PendingTreeModels==0);
     public string PerformanceForestState=>$"fields {ForestFieldCount}/{forestPriority.Length}, roots {ForestPacketCount}, pending {ForestPending}, baked local {BakedTreeModels}, baked forest {BakedForestModels}, pending models {PendingTreeModels}, texture bytes {TreeBakeBytes}";
     public void PerformanceInvalidate(){scatterDirty=true;}
     public void PerformanceShadows(bool enabled){if(localSun!=null)localSun.shadows=enabled?LightShadows.Soft:LightShadows.None;}

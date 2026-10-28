@@ -1,5 +1,21 @@
 # Version 3 validation evidence
 
+## Portable item functionality - 28 October 2026
+
+The latest Mono ranged-check diagnostic passes 123 native checks: real knapping
+completion/same-frame flake and worked-core drops, actual bow/sling/thrower hits,
+hand restoration, blood, connected animal corpses, player/NPC death, saved corpse
+identity, regional group behaviour and all 63 portable model thumbnails. New
+physics guards wait for settled requested ground, preserve the 15%-of-length
+small-corpse extension and deer p99 <2.5 skin-stretch limits. Earlier rejected
+trials remain evidence and are not counted as passes.
+
+The release IL2CPP package `player-item-functionality-complete` is building;
+exact-package 123 +13 shoreline checks and its preservation proof are pending.
+The existing shortcut still selects the earlier 102-check item release. No new
+attack/throw animations or animal processing, no full-world AI/FPS certification.
+Current status, functions, limits and evidence paths: [ITEM_USE_OVERNIGHT.md](ITEM_USE_OVERNIGHT.md).
+
 ## Portable crafting and carriers - 27 October 2026
 
 63 new portable definitions and57 contextual actions. 535 targeted core checks

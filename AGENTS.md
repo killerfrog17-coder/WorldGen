@@ -1,69 +1,67 @@
 # WorldGen repository instructions
 
-OVERNIGHT ITEMS CURRENT CHECKPOINT,28October2026~12:28CDT:
-Owner latest saysKEEPWORKING untilhe explicitlyaskswrap. Noonminimumwasmet;
-doNOTfinalonclockalone. Scopeautomatic hands+functionalexistingitems/combat/
-physicalthrows/block/blood/animalNPCplayerdeath, thenitemart, thenwildlifeAI.
-NO skinning/butchery/processing/meatdrops/construction/newanimationpass. Owner
-confirmedphysicalthrowswork andaskedaboutnoattackmotion; clarified swing/throw
-animationswereintentionallydeferred. DoNOTstartanimationworkbasedonthatquestion.
-No subagents/paidcalls. Original177faunabundles/natives/rigs/actions/coats,
-42humanPNG+protectedMPFB0946...native mustremainunchanged. Preserve ownerdeleted
-WorldGen_OneShot_Prompt.md and2untrackeddeerscripts. No ownerappclosure.
+OVERNIGHT ITEMS CURRENT CHECKPOINT,28October2026~12:54CDT:
+Owner latest KEEPWORKING untilhe explicitlysayswrap; noonminimumalreadywasmet,
+doNOTfinaljustbecauseofclock. Currenttask functionalportableitems+automatic
+hands/combat/physicalranged/blood/death, thenitemart, thenwildlifeAI. NO skinning,
+butchery,processing,meatdrops,construction/newattack/throw/craftanimations.
+Ownerconfirmedthrowswork,askedaboutnoattackmotion; clarifieddamageexistsbut
+animationsdeferred peroriginalscope. DoNOTtreatthatquestionasnewanimationtask.
+No subagents/paidcalls. Preserve177native/bundles/skins/rigs/actions/coats,
+42humanPNG/protectedMPFB0946..., ownerdeletedprompt +2olduntrackeddeerscripts.
 
-CURRENT SELECTEDshortcut STILL first player-item-functionality14:34Z(102native
-PASS). DO NOToverwrite selectedpackage. OwnerplayedPID7316,closedaround12:12;
-noownergamecurrently. Read-only livePlayer.log caughtactualsameframeknapping
-exception(BeginDroppedBody): CreatePossessionVisualcreatedemptyMeshFilter then
-scheduledDestroy(obj), thenimmediatedropreadnullmesh. FIXsource choosesworked/
-flakebranchBEFOREordinaryrockobjectcreation; boundsalsoskipoptionalnullfilters.
-Five actualnativeknappingchecks nowcompletejobanddropfreshflake+workedcore in
-sameframe. Passedall5inIL2CPPknapping17:16build, BUT thatfullrunFAILEDgoose
-skin-extensionguard(.232m>.21), notfullPASS. Ownerlogsnapshotintaskroot.
+Selectedexistingrootshortcut STILL FIRSTplayer-item-functionality14:34Z,
+102nativePASS. OwnerplayedPID7316,closed~12:12. Noownerappcurrentlyrunning;
+onlyourbuild. DoNOToverwritefirstselectedpackage. Sourcecaught/repairedowner's
+livePlayer.log knappingexception(emptyMeshFilterawaitingDestroyvisitedbysame-
+framephysicaldrop). Fiveactualnativechecksnowpass(Startknapping+complete+drop
+newflakeANDworkedcore). Sourcefix041b6c3pushed/remotelyverified. Old16:48release,
+17:16knapping,17:30reviewedIL2CPPcandidatesNOTselected,failedvisualqualityguards;
+doNOTclaimthemnativePASS. Theyhaveprotectedhashproofsbutnotfullacceptance.
 
-Animalphysics: alwaysretaincommonroot(28rigspreviouslyfiltered); root-relative
-centreline,coarsebody/limb/headbranchesforsmall<5kgandairprofiles; finefeathers/
-toes/rearspinefollowretainedownerpalette. Originalskinweights/rigsunchanged.
-StructuralchainTOHEADisnowretained(longbirdneck). LatestMONOplayer-item-physics-
-neck native116PASS inclall63thumbs+knapping+combat/save/AI/death, noexceptions;
-goose11bodies,maxedge.18474mvs1.4mlength,squirrel9bodies,.02763vs.28m. Captures
-inspected. Guard15%retained; earliermass/angle-onlytrialsrejected. Worstedge
-diagnosticrevealsbody/wingjunction,soFINALsourcealso stiffenscentralLIMB-BEARING
-torsojointslikespine(insteadofflexibleneck),andusesroot-relativeproximalleg
-classification. Thislastsourcechangeawaitsitsownnativecheck; noall-worldrigclaim.
+KEY NEW STABILITY: bodymassfloor+normalization/connectedinverseMassconditioning
+andlength-relativejointprojectionapplyALLanimals. Rootfilter(alwaysretaincommon
+root) fixed28rigs; torso/legcenterlinebasedonrootX, limb-bearingtorsojointsare
+stiffspine; keepstructuralneckchain,coarsebodybranchesforsmall<5kg+airprofiles,
+finefeathers/toes/rearspinefollowowners. ORIGINALWEIGHTS/RIGS/ACTIONSunchanged.
+TestnowwaitsPerformanceGroundSettled (requestedground/fadesdone),notjustany
+coarsetileCenterReady. All15%-lengthanddeerp99<2.5guardsRETAINED.
+Mono physics-settled116PASSandlatestRANGED-CHECK123PASS/noerrors. Latteradds7
+actualsling/atlatl checks(weapon/ammo/hit/restore) inadditiontobow and5knapping.
+/givepebblenewaliasgivesordinarySmallRock4cm/~44.8g,notnewitemkind;default700g
+smallrocktooheavyforsling. Autocompleteadded. Latestdeerp992.1929/max6.37,
+goose11bodiesmaxedge.12218mvs1.4length,squirrel9bodies.02432vs.28. Earlier
+mass/angle-onlyfailedtrialsrejected;localfolds/contactremain,noallworldrigclaim.
 
-NOW building NEW IL2CPPplayer-item-functionality-reviewed, ownedPTY8388.
-Frozen146runtime/shaderfiles reviewed-source-freeze.json. NO runtimeeditswhile
-buildactive. Waitscriptcompletion(no prematureexe launches). Then runner:
--PlayerFolderplayer-item-functionality-reviewed -OutputNamereviewed-release-
-verified(expected116);afterpass+exit run -OutputNamereviewed-release-water -Water
-(expected13). Scriptsrefuseowneralreadyrunninggame; respectthat. Finalproof:
-artifacts/overnight-items-20261028/prove-reviewed-package.py verifies578protected
-hashes/DLLs+146sourcefreeze+177collisionpackage/sourceIDs+18audio. Earlierrelease/
-final/knappingcandidateproofsisNOTproofforthisnewpackage. Alloldcandidatesnot
-selectedandknownfailuresarenotpassingchecks. NewshotsuseRenderTexture,
-ordinarybatchScreenCapturewasblackandREJECTED. Noinferenceworkers.
-Afterproperproof/native,backupexistingrootshortcutthenupdateit(no newdesktop
-icons),retainfirstreleasefallback. Restore3Unityautochanges(settingsglobal,
-GroundFoliageAtlasV1.png.meta,ProjectSettings.asset) AFTERbuild. Updatecurrent
-reportdocs/ITEM_USE_OVERNIGHT.md+notes,commitexplicitownsource/docs/shortcut,
-push+remoteverify. Ownsourcecheckpoint041b6c36752281e4048134898aa9cf152c369fca
-pushed/verified(flakefix). Newneck/diagnostics/torsoeditsin2runtimefilesstill
-uncommitted;autobuildsettingsmaybemodifiedtoo. Stageonlyownfiles,notownerdeletion.
+NOW NEW IL2CPP BUILD player-item-functionality-complete,ownedPTY68803.
+Complete-source-freeze.json146runtime/shaderhashes;NOruntimeeditswhilebuild.
+Waitscriptcompletion(no prematureexe). Then runner -PlayerFolderthatfolder
+-OutputNamecomplete-release-verified(expected123);afterpass+exit, samefolder
+-OutputNamecomplete-release-water -Water(expected13). Refusesactiveownergame;
+respectthat. Finalproof artifacts/overnight-items-20261028/prove-complete-
+package.py verifies578protectedasset/DLLhashes+146sourcefreeze+177collision
+package/sourceIDs+18audio. PresentationDLLchangedONLY/givepebblecompletion,
+so usecurrentbuild-inputs4DLLpins,notoldpackagepins. DoNOTrestageDLLsbeforeproof.
+THEN backupexistingrootshortcutandupdatetarget/icon(no newdesktopicons,preserve
+existingWorkingDirectory/arguments),keepfirstreleasefallback. Restore3Unityauto
+changesAFTERbuild(settingsglobal,GroundFoliageAtlasV1.png.meta,ProjectSettings).
+Update reportdocs/ITEM_USE_OVERNIGHT+notes,commitsource/docs/shortcutexplicitly,
+push+remoteverify. Latestremote d0104ef2e71c6a3ed2808064cafae1cfc3d6040e;
+newmass/readiness/alias/rangedtest/docsstillUNCOMMITTED. DoNOTstageownerdeletion.
 
-Taskrootartifacts/overnight-items-20261028. Core63itemuse/747portable(63defs,
-83actions)/75inventory/37stone/37wood/22camera pass fromearlierruns;nonewCore
-sourcechangessince. Polished16:05IL2CPP107+13shorePASSbutpredateslatestphysics;
-waterfixtureexplicit.1scale,realcoast,timeddig/line/net,restoresbothhands.
-Handsfixclearsmismatchedoriginalitemsbeforeeitherhandrestore;setasideabove
-VISIBLEground,manualGstillphysical;Q/hit/deathcancelswork. Sourceart/Foley18
-clipsinrepo,ownerlistening/artacceptancepending,noattackanimations. AI4tiers,
-savedregionalgroups,season/weather/flight/defence/predation/perchesprototype;
-NO fullworldecosystem/reproduction/fullnav/FPSclaim. No populationcapsadded.
-Approvedcleanup19OWNoldtestpackages14.34GiB;daily/latest3/selected/running+
-fallbacksprotected,logs/images/native/source/savesretained. Cwas~23GiBfree.
-No heavyjobsbesideownerplaytest;whenownerlaunchesgamepauseownedgraphicswork,
-neverkillownerprocess. Sourceproofscriptneedsfreezeexact,don'trestageDLLsbefore.
+Taskroot artifacts/overnight-items-20261028. Core63use/747portable(63defs83actions)/
+75inventory/37stone/37wood/22camera passedprior;newCorelogicunchanged(onlyPres
+completionadded). SourceArt/Foley18clips,ownerlistening/artacceptancepending.
+Protected177collisionCPUskins26.4MiB+5807bonemetadata,notnativeedits. Waterold
+polishedIL2CPP13PASSexplicit.1scaleactualcoasttimeddig/line/net+bothhandsrestore;
+needsnewpackage13rerun. Handsfix: clearmismatchedoriginalhandsbeforerestore,
+setasideaboveVISIBLEground;manualGphysical;Q/hit/deathcancelwork. AI4tracking
+tiers/savedgroups/weather/season/flee/defence/predation/perchesprototype;NO full
+worldecosystem/reproduction/fullnav/FPSclaim;birdlandingnotnativecertified.
+No arbitrarypopulationcaps. Noheavyjobsalongsideownerplaytest;allpriorowned
+workers/inferenceexited. Cleanup19OLDOWNpackages14.34GiB,daily/latest3/selected/
+running+fallbackprotected;alllogs/images/native/source/savesretained. Moretest
+packagesnowexist;C~20GiBfree,canpurgeoldownonesafterfinalwithapprovedrule.
 
 ITEM POLISH PROGRESS,28October2026~10:17CDT:
 Selected owner shortcut still first IL2CPP player-item-functionality14:34Z, native

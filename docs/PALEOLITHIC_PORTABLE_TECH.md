@@ -14,6 +14,8 @@ or a starter bag. Free hands and worn storage are used first; overflow drops
 nearby. `/give stone flake` and `/give small rock` remain useful for testing.
 `/give list` lists item names, without recipes. Every new item can also be given
 individually, e.g. `/give bone needle`, `/give hide pack` or `/give cordage 5`.
+`/give pebble` supplies a smaller ordinary rock (about 45 g), suitable for a sling;
+the default `/give small rock` supplies a 700 g hand-sized rock.
 `/give deer hide coat=1` retains the actual deer coat index; other supported fauna
 names can supply hide, bone and antler. These commands are explicit test supply,
 not a new natural harvesting system or an automatic loadout.
