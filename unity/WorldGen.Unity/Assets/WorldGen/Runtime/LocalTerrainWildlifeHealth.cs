@@ -29,7 +29,7 @@ public sealed partial class LocalTerrainExplorer
         if(wildlifeRecords.TryGetValue(animal.Spawn.Id,out var saved)&&saved.Species==profile.slug)
         {
             animal.Health=saved.Health;animal.MaximumHealth=saved.MaximumHealth;animal.Planet=saved.Position;TerrainHandoff.Coordinates(frame,saved.Position,out animal.X,out animal.Z);
-            animal.Heading=animal.TargetHeading=(float)saved.Heading;
+            animal.Heading=animal.TargetHeading=(float)saved.Heading;animal.CorpseHeightOffset=saved.CorpseHeightOffsetM;animal.Props.SetFloat("_Morph",(float)saved.Morph);
         }
     }
     Matrix4x4[] AnimalPalette(Animal animal)
@@ -44,26 +44,26 @@ public sealed partial class LocalTerrainExplorer
             else for(int i=0;i<palette.Length;i++)palette[i]=AnimalPose(animal.Model.Asset,animal.Clip,animal.Time,i);
         }
         Array.Copy(palette,0,animalBoneData,animal.Slot*AnimalBones,palette.Length);
-        animal.Root.transform.localPosition=new Vector3((float)(animal.X-originX),(float)VisibleGround(animal.X,animal.Z,animal.GroundY),(float)(animal.Z-originZ));animal.Root.transform.localRotation=Quaternion.Euler(0,animal.Heading,0);
+        animal.Root.transform.localPosition=new Vector3((float)(animal.X-originX),(float)(VisibleGround(animal.X,animal.Z,animal.GroundY)+animal.CorpseHeightOffset),(float)(animal.Z-originZ));animal.Root.transform.localRotation=Quaternion.Euler(0,animal.Heading,0);
         animal.Ragdoll=gameObject.AddComponent<WorldGenFaunaRagdoll>();wildlifeSkeletons.TryGetValue(animal.Spawn.Profile.slug,out var skeleton);
-        animal.Ragdoll.Begin(animal.Root.transform,skeleton,palette,animal.MassKg,impulse,(x,z)=>(float)Ground(x+originX,z+originZ),restored&&wildlifeRecords.TryGetValue(animal.Spawn.Id,out var record)&&record.CorpsePose!=null);
+        animal.Ragdoll.Begin(animal.Root.transform,skeleton,palette,animal.MassKg,impulse,(x,z)=>(float)Ground(x+originX,z+originZ),restored&&wildlifeRecords.TryGetValue(animal.Spawn.Id,out var record)&&record.CorpsePose!=null&&record.CorpseSettled);
         animal.TargetSpeed=animal.Speed=0;RememberAnimal(animal,true);
     }
     void UpdateAnimalCorpse(Animal animal,float dt)
     {
         if(animal.Ragdoll==null)BeginAnimalCorpse(animal,Vector3.zero,true);
         animal.Ragdoll.SetPaused(paused||mapOpen||ecologyOpen||chatOpen||inventoryOpen&&!CraftWorking);
-        animal.Root.transform.localPosition=new Vector3((float)(animal.X-originX),(float)VisibleGround(animal.X,animal.Z,animal.GroundY),(float)(animal.Z-originZ));
+        animal.Root.transform.localPosition=new Vector3((float)(animal.X-originX),(float)(VisibleGround(animal.X,animal.Z,animal.GroundY)+animal.CorpseHeightOffset),(float)(animal.Z-originZ));
         animal.Ragdoll.Synchronize(animalBoneData,animal.Slot*AnimalBones);
         animal.Props.SetFloat("_Fade",animal.Fade);animal.Renderer.SetPropertyBlock(animal.Props);
-        animal.Renderer.localBounds=new Bounds(animal.Model.Asset.Mesh.bounds.center,animal.Model.Asset.Mesh.bounds.size*3+Vector3.one*.5f);
+        var bounds=animal.Ragdoll.LocalBounds;bounds.Expand(animal.Model.Asset.Mesh.bounds.extents);animal.Renderer.localBounds=bounds;
     }
     void DamageAnimal(Animal animal,double damage,Vector3 point,Vector3 direction,double momentum=0)
     {
         if(animal==null||animal.Dead||!ItemUseRules.Finite(damage)||damage<=0)return;
         animal.Health=Math.Max(0,animal.Health-damage);PaintAnimalBlood(animal,point,-direction,damage);
         if(animal.Dead)
-        {Vector3 movement=new Vector3(Mathf.Sin(animal.Heading*Mathf.Deg2Rad),0,Mathf.Cos(animal.Heading*Mathf.Deg2Rad))*animal.Speed;BeginAnimalCorpse(animal,movement+direction*(float)Math.Min(5,momentum/Math.Max(.01,animal.MassKg)));}
+        {animal.CorpseHeightOffset=animal.Root.transform.localPosition.y-VisibleGround(animal.X,animal.Z,animal.GroundY);Vector3 movement=new Vector3(Mathf.Sin(animal.Heading*Mathf.Deg2Rad),0,Mathf.Cos(animal.Heading*Mathf.Deg2Rad))*animal.Speed;BeginAnimalCorpse(animal,movement+direction*(float)Math.Min(5,momentum/Math.Max(.01,animal.MassKg)));}
         else
         {
             animal.ThreatUntil=animal.Life+12;animal.ThreatX=motion.X;animal.ThreatZ=motion.Z;
@@ -78,6 +78,7 @@ public sealed partial class LocalTerrainExplorer
         InitializeWildlifeHealth();if(!wildlifeRecords.TryGetValue(animal.Spawn.Id,out var saved))
         {saved=new WildlifeIndividual{Id=animal.Spawn.Id,Species=animal.Spawn.Profile.slug};Wildlife.Individuals.Add(saved);wildlifeRecords.Add(saved.Id,saved);}
         saved.Position=animal.Planet;saved.Heading=animal.Heading;saved.Health=animal.Health;saved.MaximumHealth=animal.MaximumHealth;saved.Coat=animal.Coat;saved.Manual=animal.Manual;saved.LastSeenDays=PlayerRules.SolarDays;
+        saved.CorpseHeightOffsetM=animal.CorpseHeightOffset;saved.CorpseSettled=animal.Ragdoll?.Settled??false;saved.Morph=animal.Props.GetFloat("_Morph");
         saved.Parts=new[]{(int)animal.Parts.x,(int)animal.Parts.y,(int)animal.Parts.z,(int)animal.Parts.w};
         if(pose&&animal.Dead){saved.CorpsePose=new double[animal.Model.Asset.BoneCount*16];for(int i=0;i<animal.Model.Asset.BoneCount;i++)for(int j=0;j<16;j++)saved.CorpsePose[i*16+j]=animalBoneData[animal.Slot*AnimalBones+i][j];}
         CaptureAnimalBlood(animal,saved);

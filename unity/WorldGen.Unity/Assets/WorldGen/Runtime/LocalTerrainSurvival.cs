@@ -23,6 +23,7 @@ public sealed partial class LocalTerrainExplorer
     public double FeltTemperatureC=>SurvivalRules.FeelsLike(survivalEnvironment,Vitals.Wetness,survivalMovementSpeed);
     void ApplyPlayerMode()
     {
+        if(Mode==GameMode.Creative&&humanPlayer!=null)ClearHumanBlood(humanPlayer);
         motion.NoClip=GameModeRules.NoClip(Mode);
         if(Spectating)motion.Flying=true;
         else if(SurvivalActive)motion.Flying=false;

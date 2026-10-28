@@ -94,10 +94,13 @@ public sealed partial class LocalTerrainExplorer
             drop.Item.GroundOffsetM=position.y+.01-Ground(position.x+originX,position.z+originZ);
             var rotation=(Quaternion.Inverse(transform.rotation)*drop.Body.rotation).eulerAngles;
             drop.Item.GroundRotation=new V(rotation.x,rotation.y,rotation.z);
+            var velocity=drop.Paused?drop.Velocity:drop.Body.linearVelocity;var spin=drop.Paused?drop.Spin:drop.Body.angularVelocity;
+            drop.Item.GroundVelocity=new V(velocity.x,velocity.y,velocity.z);drop.Item.GroundSpin=new V(spin.x,spin.y,spin.z);
         }
     }
     void RemoveDroppedBody(string id,bool keepCollider=false)
     {
+        itemProjectiles.Remove(id);
         if(inventoryDrops.TryGetValue(id,out var drop))
         {drop.Body.collisionDetectionMode=CollisionDetectionMode.ContinuousSpeculative;drop.Body.isKinematic=true;drop.Body.detectCollisions=false;inventoryDrops.Remove(id);}
         if(!keepCollider&&inventoryVisuals.TryGetValue(id,out var root))
@@ -123,7 +126,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateDroppedBodies()
     {
-        bool pause=inventoryOpen||paused||mapOpen||ecologyOpen||chatOpen||!Application.isFocused&&!inventoryReviewMode;
+        bool pause=inventoryOpen&&!CraftWorking||paused||mapOpen||ecologyOpen||chatOpen||!Application.isFocused&&!inventoryReviewMode;
         var used=new HashSet<(int,int)>();
         foreach(var drop in inventoryDrops.Values.ToArray())
         {
@@ -138,7 +141,7 @@ public sealed partial class LocalTerrainExplorer
             if(pause)continue;
             bool quiet=body.IsSleeping()||body.linearVelocity.sqrMagnitude<.0025f&&body.angularVelocity.sqrMagnitude<.04f;
             drop.Quiet=quiet?drop.Quiet+Time.unscaledDeltaTime:0;
-            if(drop.Quiet>.8f){CaptureInventoryPhysics();drop.Item.GroundMoving=false;RemoveDroppedBody(drop.Item.Id,true);}
+            if(drop.Quiet>.8f){CaptureInventoryPhysics();drop.Item.GroundMoving=false;drop.Item.InFlight=false;RemoveDroppedBody(drop.Item.Id,true);}
         }
         CaptureInventoryPhysics();
         foreach(var key in inventoryFloors.Keys.Where(k=>!used.Contains(k)).ToArray())

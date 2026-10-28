@@ -113,7 +113,7 @@ namespace WorldGen.Core
         }
         public static CraftCapability Capabilities(Possession p)
         {
-            if(p==null)return 0;
+            if(p==null||p.UseDamage>=1)return 0;
             if(StoneCrafting.Rock(p))return (StoneCrafting.StrikingStone(p)?CraftCapability.Strike:0)|(p.MassKg>=.1?CraftCapability.Grind:0);
             var cap=p.Kind==PossessionKind.StoneFlake?CraftCapability.Cut|CraftCapability.Scrape:Item(p.Kind)?.Capability??0;
             if(p.EdgeSharpness<.15)cap&=~(CraftCapability.Cut|CraftCapability.Scrape);return cap;

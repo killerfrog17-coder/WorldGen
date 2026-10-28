@@ -7,9 +7,9 @@ using UnityEngine;
 public sealed class WorldGenHumanRagdoll : MonoBehaviour
 {
     sealed class Part
-    {public Transform Bone;public Rigidbody Body;public Quaternion Rotation;public Vector3 Start;}
+    {public Transform Bone;public Rigidbody Body;public Quaternion Rotation;public Vector3 Start,Velocity,Spin;}
     readonly List<Part> parts=new List<Part>();
-    GameObject physicsRoot;Mesh groundMesh;float age,quietTime;bool settled;
+    GameObject physicsRoot;Mesh groundMesh;float age,quietTime;bool settled,paused;
     public int BodyCount=>parts.Count;
     public bool Settled=>settled;
     public Vector3 Center=>parts.Count>0?parts[0].Body.position:transform.position;
@@ -84,9 +84,11 @@ public sealed class WorldGenHumanRagdoll : MonoBehaviour
         foreach(var p in parts)if(p.Bone!=null&&p.Body!=null)
             p.Bone.SetPositionAndRotation(p.Body.transform.TransformPoint(p.Start),p.Body.rotation*p.Rotation);
     }
+    public void SetPaused(bool value)
+    {if(settled||paused==value)return;paused=value;foreach(var p in parts){if(value){p.Velocity=p.Body.linearVelocity;p.Spin=p.Body.angularVelocity;p.Body.isKinematic=true;}else{p.Body.isKinematic=false;p.Body.linearVelocity=p.Velocity;p.Body.angularVelocity=p.Spin;}}}
     void FixedUpdate()
     {
-        age+=Time.fixedDeltaTime;
+        if(paused)return;age+=Time.fixedDeltaTime;
         // Retain a stable corpse with no continuing physics cost after settling.
         bool quiet=parts.All(p=>p.Body.IsSleeping()||p.Body.linearVelocity.sqrMagnitude<.01f&&p.Body.angularVelocity.sqrMagnitude<.04f);
         quietTime=quiet?quietTime+Time.fixedDeltaTime:0;

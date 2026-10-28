@@ -17,6 +17,8 @@ public sealed partial class LocalTerrainExplorer
         public PlayableGraph Graph;public AnimationMixerPlayable Mixer;public AnimationClipPlayable[] Inputs;
         public float[] Weights;public int Jump=-1;public bool Airborne;
         public readonly List<Material> OwnedMaterials=new List<Material>();
+        public readonly Dictionary<SkinnedMeshRenderer,WorldGenBloodCanvas> Blood=new Dictionary<SkinnedMeshRenderer,WorldGenBloodCanvas>();
+        public int Id;public double Health=100;public WorldGenHumanRagdoll Ragdoll;
         public TerrainMotion Motor;public V Planet;public float Yaw,TargetYaw,Speed,TargetSpeed;public double Decision,ObstacleAt,GaitPhase;
     }
     readonly PlayerCameraRig humanCamera=new PlayerCameraRig();
@@ -36,7 +38,7 @@ public sealed partial class LocalTerrainExplorer
         int variant=playState?.PlayerHumanVariant??-1;if(variant<0||variant>=humanLibrary.People.Length)variant=humanRandom.Next(humanLibrary.People.Length);
         if(playState!=null)playState.PlayerHumanVariant=variant;
         humanCamera.Restore(playState?.CameraDistance??0,playState?.CameraDistanceLocked??false);humanCameraDistance=(float)humanCamera.Distance;
-        humanPlayer=CreateHuman(variant,1);humanPlayer.Yaw=humanPlayer.TargetYaw=heading;
+        humanPlayer=CreateHuman(variant,1);RestorePlayerBlood();humanPlayer.Yaw=humanPlayer.TargetYaw=heading;
         humanEyeOffset=humanPlayer.Definition.EyeHeight-(float)TerrainMotion.EyeHeightM;
         RenderPipelineManager.beginCameraRendering+=BindHumanCamera;
     }
@@ -44,7 +46,7 @@ public sealed partial class LocalTerrainExplorer
     {
         var definition=humanLibrary.People[variant];var root=Instantiate(definition.Prefab,transform,false);root.name=id==1?"Player human":"Demo human "+id;
         var animator=root.GetComponent<Animator>();animator.applyRootMotion=false;animator.cullingMode=AnimatorCullingMode.AlwaysAnimate;
-        var actor=new HumanActor{Root=root,Animator=animator,Definition=definition,Inputs=new AnimationClipPlayable[definition.Clips.Length],Weights=new float[definition.Clips.Length]};
+        var actor=new HumanActor{Id=id,Root=root,Animator=animator,Definition=definition,Inputs=new AnimationClipPlayable[definition.Clips.Length],Weights=new float[definition.Clips.Length]};
         actor.Graph=PlayableGraph.Create(root.name+" movement");actor.Graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
         actor.Mixer=AnimationMixerPlayable.Create(actor.Graph,actor.Inputs.Length);
         var output=AnimationPlayableOutput.Create(actor.Graph,"Native MPFB skin",animator);output.SetSourcePlayable(actor.Mixer);
@@ -119,6 +121,7 @@ public sealed partial class LocalTerrainExplorer
         }
         foreach(var npc in humanNpcs)
         {
+            if(npc.Health<=0){if(npc.Ragdoll!=null)npc.Ragdoll.SetPaused(stopped);continue;}
             if(dt>0)
             {
                 if(Time.unscaledTime>=npc.Decision)
@@ -237,7 +240,7 @@ public sealed partial class LocalTerrainExplorer
         if(arguments.Length>1||arguments.Length==1&&(!int.TryParse(arguments[0],out count)||count<1))return new PlayCommandResult(false,"Usage: /spawn human [positive count] or /spawn human clear.");
         humanSpawnQueued+=count;return new PlayCommandResult(true,"Queued "+count+" humans on nearby dry, gentle ground. /spawn clear cancels pending spawns.");
     }
-    static void DestroyHuman(HumanActor human){if(human.Graph.IsValid())human.Graph.Destroy();if(human.Root!=null)UnityEngine.Object.Destroy(human.Root);foreach(var material in human.OwnedMaterials)if(material!=null)UnityEngine.Object.Destroy(material);}
+    void DestroyHuman(HumanActor human){DisposeHumanCombatSurface(human);if(human.Ragdoll!=null)Destroy(human.Ragdoll);if(human.Graph.IsValid())human.Graph.Destroy();if(human.Root!=null)UnityEngine.Object.Destroy(human.Root);foreach(var material in human.OwnedMaterials)if(material!=null)UnityEngine.Object.Destroy(material);}
     void DisposeHumans()
     {
         RenderPipelineManager.beginCameraRendering-=BindHumanCamera;Shader.SetGlobalFloat("_WorldGenFirstPersonHumanId",0);

@@ -84,6 +84,10 @@ public sealed class WorldGenFaunaRagdoll : MonoBehaviour
         if(delta.sqrMagnitude>.000001f){foreach(var p in parts)p.Body.position+=delta;if(floor!=null)floor.transform.position+=delta;lastModelPosition=model.position;}
         for(int i=0;i<initial.Length;i++){var part=parts[owners[i]];target[offset+i]=model.worldToLocalMatrix*part.Body.transform.localToWorldMatrix*part.InverseStart*initial[i];}
     }
+    public Bounds LocalBounds
+    {
+        get {var bounds=new Bounds(model.InverseTransformPoint(parts[0].Body.position),Vector3.zero);foreach(var p in parts){var box=p.Body.GetComponent<Collider>().bounds;for(int i=0;i<8;i++)bounds.Encapsulate(model.InverseTransformPoint(box.center+Vector3.Scale(box.extents,new Vector3((i&1)==0?-1:1,(i&2)==0?-1:1,(i&4)==0?-1:1))));}return bounds;}
+    }
     public void SetPaused(bool paused)
     {if(settled||this.paused==paused)return;this.paused=paused;foreach(var p in parts){if(paused){p.Velocity=p.Body.linearVelocity;p.Spin=p.Body.angularVelocity;p.Body.isKinematic=true;}else{p.Body.isKinematic=false;p.Body.linearVelocity=p.Velocity;p.Body.angularVelocity=p.Spin;}}}
     void Freeze(){settled=true;foreach(var p in parts){p.Body.linearVelocity=Vector3.zero;p.Body.angularVelocity=Vector3.zero;p.Body.isKinematic=true;}}

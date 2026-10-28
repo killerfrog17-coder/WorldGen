@@ -13,7 +13,7 @@ namespace WorldGen.Core
     public sealed class PortableRecipe
     {
         public string Id,Name;public PossessionKind Output;public PossessionKind[] Primary;public CraftMaterialNeed[] Materials;public CraftCapability[] Tools;
-        public double WorkSeconds,Yield=.85,MinLength,MaxThickness=10;public bool SoundWood;
+        public double WorkSeconds,Yield=.85,MinLength,MaxThickness=10;public bool SoundWood,Maintenance,RestoreEdge;
         public bool Accepts(Possession p)=>p!=null&&Primary.Contains(p.Kind);
         public string Category=>PortableTechnology.Item(Output)?.Form.ToString()??"Materials";
         public string PrimaryName=>string.Join(" / ",Primary.Select(k=>PortableTechnology.Item(k)?.Name??k.ToString()));
@@ -32,7 +32,7 @@ namespace WorldGen.Core
             =>new PortableRecipe{Id=id,Name=name,Output=output,Primary=primary,WorkSeconds=work,Materials=materials??Array.Empty<CraftMaterialNeed>(),Tools=tools??Array.Empty<CraftCapability>(),Yield=yield,MinLength=length,MaxThickness=thickness,SoundWood=wood};
         static PossessionKind[] P(params PossessionKind[] kinds)=>kinds;
         static CraftCapability[] T(params CraftCapability[] caps)=>caps;
-        public static readonly PortableRecipe[] Recipes={
+        public static readonly PortableRecipe[] Recipes=new[]{
             R("prepare-fibres","Separate and prepare fibres",PossessionKind.PreparedFibre,P(PossessionKind.RawFibre),120,yield:.8),
             R("bark-fibres","Scrape inner-bark fibres",PossessionKind.PreparedFibre,P(PossessionKind.BarkStrips),180,tools:T(CraftCapability.Scrape),yield:.65),
             R("twist-cord","Twist a cordage coil",PossessionKind.Cordage,P(PossessionKind.PreparedFibre),360,yield:.95),
@@ -90,7 +90,7 @@ namespace WorldGen.Core
             R("hide-belt","Cut and lace a hide belt",PossessionKind.HideBelt,P(PossessionKind.WorkedHide),360,new[]{Binding(1)},T(CraftCapability.Cut,CraftCapability.Pierce),yield:.3),
             R("needle-case","Carve and close a bone needle case",PossessionKind.NeedleCase,P(PossessionKind.Bone),420,new[]{Binding(1)},T(CraftCapability.Cut,CraftCapability.Pierce),yield:.3),
             R("knife-sheath","Cut and lace a knife sheath",PossessionKind.KnifeSheath,P(PossessionKind.WorkedHide),480,new[]{Binding(1)},T(CraftCapability.Cut,CraftCapability.Pierce),yield:.25)
-        };
+        }.Concat(ItemMaintenance.Recipes()).ToArray();
         public static PortableRecipe Recipe(string id)=>Recipes.FirstOrDefault(r=>r.Id==id);
         public static bool IsJob(ItemCraftJob job)=>job!=null&&!string.IsNullOrEmpty(job.RecipeId);
         public static bool Affects(ItemCraftJob job,string id)=>job.WorkpieceId==id||job.ToolId==id||(job.IngredientIds?.Contains(id)??false)||(job.ToolIds?.Contains(id)??false);
@@ -147,10 +147,20 @@ namespace WorldGen.Core
         {
             if(!ResumePlan(s,s.Items,job,out var plan,out _)){job.Running=false;return null;}
             job.WorkSeconds=Math.Min(job.RequiredSeconds,job.WorkSeconds+dt*86400/(settings.RealMinutesPerDay*60*settings.ItemCraftingTimeMultiplier));if(job.WorkSeconds<job.RequiredSeconds)return null;
+            if(plan.Recipe.Maintenance)
+            {
+                var maintained=s.Find(plan.PrimaryId);
+                foreach(var id in plan.Ingredients.Where(id=>id!=maintained.Id))s.Items.Remove(s.Find(id));
+                ItemMaintenance.Complete(maintained,plan.Recipe.RestoreEdge);s.Crafts.Remove(job);return maintained;
+            }
             var ingredients=plan.Ingredients.Select(s.Find).ToArray();var p=s.Find(plan.PrimaryId);var r=plan.Recipe;var template=PortableTechnology.Create(r.Output,p.Position);double length=p.HeightM;
             var origins=ingredients.SelectMany(i=>i.MaterialOrigins??(string.IsNullOrEmpty(i.AppearanceSpecies)?new List<MaterialOrigin>():new List<MaterialOrigin>{new MaterialOrigin{Species=i.AppearanceSpecies,Coat=i.AppearanceCoat,Seed=i.AppearanceSeed,AnimalId=i.SourceAnimalId}})).Select(o=>o.Copy()).ToList();
             var stone=ingredients.FirstOrDefault(i=>StoneCrafting.Rock(i)||i.Kind==PossessionKind.StoneFlake||PortableTechnology.Item(i.Kind)?.Form==PortableForm.Blade||PortableTechnology.Item(i.Kind)?.Form==PortableForm.Point);
-            double mass=ingredients.Sum(i=>i.MassKg)*r.Yield;int variant=stone?.Variant??p.Variant;double straight=p.WoodStraightness,sound=p.WoodSoundness;
+            double mass=ingredients.Sum(i=>i.MassKg)*r.Yield;
+            // Shaping discards offcuts: a carved arrow must not retain a whole
+            // thick pole or coil mass. Multi-hide packs retain their frame mass.
+            if(r.Output!=PossessionKind.HidePack){double ratio=(r.Output==PossessionKind.NotchedShaft||r.Output==PossessionKind.LooseStoneSpear||r.Output==PossessionKind.StoneTippedSpear||r.Output==PossessionKind.BoneTippedSpear||r.Output==PossessionKind.Harpoon||r.Output==PossessionKind.Bow)?length/template.HeightM:1;mass=Math.Min(mass,template.MassKg*ratio);}
+            int variant=stone?.Variant??p.Variant;double straight=p.WoodStraightness,sound=p.WoodSoundness;
             foreach(var other in ingredients.Where(i=>i.Id!=p.Id))s.Items.Remove(other);
             p.Kind=template.Kind;p.WidthM=template.WidthM;p.HeightM=template.HeightM;p.DepthM=template.DepthM;p.MassKg=mass;p.CellsWide=template.CellsWide;p.CellsHigh=template.CellsHigh;p.EdgeSharpness=template.EdgeSharpness;p.Tint=template.Tint;p.Variant=variant;p.MaterialOrigins=origins;p.FlakeRemovals=0;
             p.WoodStraightness=straight;p.WoodSoundness=sound;

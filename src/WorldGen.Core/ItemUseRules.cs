@@ -35,7 +35,7 @@ namespace WorldGen.Core
                 case PossessionKind.DiggingStick:return P(ItemPrimaryUse.Thrust,ItemSecondaryUse.Dig,Math.Max(.8,item.HeightM*.8),25,.25,.8,4,.4);
                 case PossessionKind.Bone:case PossessionKind.Antler:case PossessionKind.AntlerRetoucher:case PossessionKind.WoodHandle:case PossessionKind.BowStave:return P(ItemPrimaryUse.Blunt,ItemSecondaryUse.Block,.75,16,0,.7,3,.3);
                 case PossessionKind.StonePoint:case PossessionKind.BonePoint:case PossessionKind.BarbedPoint:case PossessionKind.StoneBorer:case PossessionKind.BoneAwl:return P(ItemPrimaryUse.Thrust,ItemSecondaryUse.Block,.72,10,.6,.6,2,.16);
-                case PossessionKind.Arrow:case PossessionKind.SpearDart:return P(ItemPrimaryUse.Thrust,ItemSecondaryUse.Throw,Math.Max(.8,item.HeightM*.8),14,.7,.75,3,.1);
+                case PossessionKind.Arrow:case PossessionKind.UnfletchedArrow:case PossessionKind.SpearDart:return P(ItemPrimaryUse.Thrust,ItemSecondaryUse.Throw,Math.Max(.8,item.HeightM*.8),14,.7,.75,3,.1);
                 case PossessionKind.Bow:return P(ItemPrimaryUse.Bow,ItemSecondaryUse.Block,1,0,0,.55,4,.2);
                 case PossessionKind.Sling:return P(ItemPrimaryUse.Sling,ItemSecondaryUse.None,1,0,0,.8,4,0);
                 case PossessionKind.SpearThrower:return P(ItemPrimaryUse.SpearThrower,ItemSecondaryUse.Block,.8,12,0,.8,5,.2);
@@ -61,7 +61,7 @@ namespace WorldGen.Core
         public static double ThrowSpeed(Possession item,double charge,double staminaFraction=1,bool sling=false,bool thrower=false)
         {
             if(item==null||item.MassKg<=0)return 0;bool spear=Profile(item).Primary==ItemPrimaryUse.Thrust;
-            double maxSpeed=sling?42:thrower?32:spear?24:28,energy=sling?150:thrower?240:spear?180:90,impulse=sling?14:thrower?30:spear?24:11;
+            double maxSpeed=sling?42:thrower?32:spear?24:28/(1+item.MassKg/1.5),energy=sling?150:thrower?240:spear?180:90,impulse=sling?14:thrower?30:spear?24:11;
             double effort=(.2+.8*Clamp(charge))*(.35+.65*Clamp(staminaFraction));
             return Math.Min(maxSpeed,Math.Min(Math.Sqrt(2*energy/item.MassKg),impulse/item.MassKg))*Math.Sqrt(effort);
         }

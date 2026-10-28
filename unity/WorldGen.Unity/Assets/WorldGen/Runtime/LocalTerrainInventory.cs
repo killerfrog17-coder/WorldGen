@@ -18,7 +18,7 @@ public sealed partial class LocalTerrainExplorer
     string inventoryNotice="",inventorySelected="";float inventoryNoticeUntil;
     Material inventoryBagMaterial;
     readonly HashSet<ArtModel> inventoryPinnedArt=new HashSet<ArtModel>();
-    readonly bool inventoryReviewMode=Environment.GetCommandLineArgs().Contains("--worldgen-portable-craft-check")||Environment.GetCommandLineArgs().Contains("--worldgen-inventory-check")||Environment.GetCommandLineArgs().Contains("--worldgen-stone-craft-check");
+    readonly bool inventoryReviewMode=Environment.GetCommandLineArgs().Contains("--worldgen-item-use-check")||Environment.GetCommandLineArgs().Contains("--worldgen-portable-craft-check")||Environment.GetCommandLineArgs().Contains("--worldgen-inventory-check")||Environment.GetCommandLineArgs().Contains("--worldgen-stone-craft-check");
     Transform inventoryBoneOwner;Dictionary<string,Transform> inventoryBones;
     void InitializeInventory()
     {
@@ -106,7 +106,7 @@ public sealed partial class LocalTerrainExplorer
     {inventoryNotice=text;inventoryNoticeUntil=Time.unscaledTime+4;if(!inventoryOpen)PostExplorerChat(text,true);}
     bool MovePossession(string id,PossessionPlace place,string bag="",int x=0,int y=0,bool rotated=false,bool autoStow=false,bool autoHand=false)
     {
-        RefreshInventoryNearby(true);var candidate=InventoryCandidate(id);if(candidate==null)return false;
+        CancelItemCharge();RefreshInventoryNearby(true);var candidate=InventoryCandidate(id);if(candidate==null)return false;
         var item=candidate.Item;var previousPlace=item.Place;
         if(candidate.Natural&&!inventoryNearby.Any(n=>n.Item.Id==id)||!candidate.Natural&&!AccessiblePossession(item)){InventoryFeedback("That item is out of reach.");return false;}
         if(place==PossessionPlace.Container)
@@ -140,7 +140,7 @@ public sealed partial class LocalTerrainExplorer
             if(inventoryNameEditing)return true;
         }
         if(k.eKey.wasPressedThisFrame||k.bKey.wasPressedThisFrame)RefreshInventoryNearby(true);
-        if(k.qKey.wasPressedThisFrame){Inventory.SwapHands();if(inventoryOpen)RenderInventoryPreview();}
+        if(k.qKey.wasPressedThisFrame){CancelItemCharge();Inventory.SwapHands();if(inventoryOpen)RenderInventoryPreview();}
         var held=Inventory.QuickHeld;
         var drop=inventoryOpen?HoveredInventoryPossession():held;
         if(k.gKey.wasPressedThisFrame&&drop!=null&&drop.Place!=PossessionPlace.Ground)RequestPossession(drop.Id,PossessionPlace.Ground);
@@ -159,7 +159,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void SetInventoryOpen(bool open)
     {
-        inventoryOpen=open;inventoryHitTargets.Clear();inventoryDrag=null;inventoryContext=null;inventoryNameEditing=false;
+        if(open)CancelItemCharge();inventoryOpen=open;inventoryHitTargets.Clear();inventoryDrag=null;inventoryContext=null;inventoryNameEditing=false;
         if(open){RefreshInventoryNearby(true);PrepareInventoryPreview();}else if(inventoryPreviewRoot!=null)inventoryPreviewRoot.SetActive(false);
         GUIUtility.keyboardControl=0;CaptureMouse();
     }
@@ -214,7 +214,7 @@ public sealed partial class LocalTerrainExplorer
         {
             bool beltItem=item.Place==PossessionPlace.Container&&PortableTechnology.Belt(Inventory.Find(item.ContainerId))&&Inventory.Carried(item);
             if(item.Place==PossessionPlace.Container&&!beltItem)continue;
-            bool near=item.Place!=PossessionPlace.Ground||(item.Position-Position).Length*frame.RadiusM<160;
+            bool near=item.InFlight||item.Place!=PossessionPlace.Ground||(item.Position-Position).Length*frame.RadiusM<160;
             if(!near)continue;present.Add(item.Id);
             if(!inventoryVisuals.TryGetValue(item.Id,out var root)){root=CreatePossessionVisual(item,30);root.transform.SetParent(transform,false);inventoryVisuals[item.Id]=root;}
             root.SetActive(!Spectating||item.Place==PossessionPlace.Ground);
@@ -230,7 +230,7 @@ public sealed partial class LocalTerrainExplorer
                 {
                     TerrainHandoff.Coordinates(frame,item.Position,out double x,out double z);
                     root.transform.localPosition=new Vector3((float)(x-originX),(float)(Ground(x,z)+item.GroundOffsetM)-.01f,(float)(z-originZ));root.transform.localRotation=Quaternion.Euler((float)item.GroundRotation.X,(float)item.GroundRotation.Y,(float)item.GroundRotation.Z);
-                    if(item.GroundMoving)BeginDroppedBody(item,root,Vector3.zero);
+                    if(item.GroundMoving){BeginDroppedBody(item,root,new Vector3((float)item.GroundVelocity.X,(float)item.GroundVelocity.Y,(float)item.GroundVelocity.Z));if(inventoryDrops.TryGetValue(item.Id,out var restoredDrop))restoredDrop.Body.angularVelocity=new Vector3((float)item.GroundSpin.X,(float)item.GroundSpin.Y,(float)item.GroundSpin.Z);if(item.InFlight)RegisterProjectile(item);}
                 }
             }
             else if(PortableTechnology.Item(item.Kind)!=null&&(PortableTechnology.Worn(item.Place)||beltItem))

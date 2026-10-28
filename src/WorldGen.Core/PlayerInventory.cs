@@ -21,6 +21,12 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public double GroundOffsetM;
         [System.Runtime.Serialization.OptionalField] public bool GroundMoving;
         [System.Runtime.Serialization.OptionalField] public V GroundRotation;
+        [System.Runtime.Serialization.OptionalField] public V GroundVelocity,GroundSpin;
+        [System.Runtime.Serialization.OptionalField] public bool InFlight;
+        [System.Runtime.Serialization.OptionalField] public ulong AttachedAnimal;
+        [System.Runtime.Serialization.OptionalField] public int AttachedHuman,AttachedBone;
+        [System.Runtime.Serialization.OptionalField] public string AttachedBoneName;
+        [System.Runtime.Serialization.OptionalField] public V AttachedLocalPoint,AttachedDirection;
         [System.Runtime.Serialization.OptionalField] public int FlakeRemovals;
         [System.Runtime.Serialization.OptionalField] public double WoodStraightness,WoodSoundness;
         [System.Runtime.Serialization.OptionalField] public bool BarkRemoved;
@@ -102,6 +108,7 @@ namespace WorldGen.Core
             if(!CanMove(id,place,container,x,y,rotated,out reason))return false;
             var item=Find(id);
             if(place==PossessionPlace.Container){var carrier=Find(container);if(PortableTechnology.Belt(carrier)||PortableTechnology.Item(carrier.Kind)?.Form==PortableForm.Case||carrier.Kind==PossessionKind.Quiver)item.BoundContainerId=container;}
+            if(place!=PossessionPlace.Ground){item.InFlight=false;item.AttachedAnimal=0;item.AttachedHuman=0;}
             item.Place=place;item.ContainerId=place==PossessionPlace.Container?container:"";item.X=x;item.Y=y;item.Rotated=rotated;return true;
         }
         public bool Stow(string id,out string reason)
@@ -136,6 +143,7 @@ namespace WorldGen.Core
                 if(item.AppearanceSpecies!=null&&(item.AppearanceSpecies.Length>80||item.AppearanceSpecies.Any(c=>!char.IsLetterOrDigit(c)&&c!='-'&&c!='_'))||item.AppearanceCoat<0||item.AppearanceCoat>4095||item.MaterialOrigins!=null&&item.MaterialOrigins.Any(o=>o==null||o.Species==null||o.Species.Length>80||o.Coat<0||o.Coat>4095))throw new ArgumentException("Invalid material provenance.");
                 if(!Finite(item.UseDamage)||item.UseDamage<0||item.UseDamage>1)throw new ArgumentException("Invalid item wear.");
                 if(!Finite(item.WoodStraightness)||item.WoodStraightness<0||item.WoodStraightness>1||!Finite(item.WoodSoundness)||item.WoodSoundness<0||item.WoodSoundness>1)throw new ArgumentException("Invalid wood traits.");
+                if(!Finite(item.GroundVelocity.Length)||!Finite(item.GroundSpin.Length)||!Finite(item.AttachedLocalPoint.Length)||!Finite(item.AttachedDirection.Length)||item.AttachedBone<0||item.AttachedBone>=128||item.AttachedHuman<0)throw new ArgumentException("Invalid projectile pose.");
                 if(!Finite(item.GroundOffsetM)||Math.Abs(item.GroundOffsetM)>1e7||!Finite(item.GroundRotation.X)||!Finite(item.GroundRotation.Y)||!Finite(item.GroundRotation.Z))throw new ArgumentException("Invalid dropped item pose.");
                 if(item.NaturalId!=0&&!natural.Add(item.NaturalId))throw new ArgumentException("Duplicate natural item.");
                 if(item.NaturalId!=0&&!CollectedNatural.Contains(item.NaturalId))throw new ArgumentException("Missing collected ground identity.");

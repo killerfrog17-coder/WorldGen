@@ -2,6 +2,7 @@ Shader "WorldGen/AnimatedFauna"
 {
     Properties
     {
+        _BloodMask("Runtime impact stains",2D)="black"{} _BloodEnabled("Impact stains",Float)=0 _BloodColor("Blood pigment",Color)=(.23,.012,.009,1)
         _Coats("Baked native coat pigments",2DArray)=""{}
         _Mask("R roughness, G opacity, B emission",2D)="white"{}
         _Normals("RGB tangent normals",2D)="bump"{}
@@ -18,6 +19,7 @@ Shader "WorldGen/AnimatedFauna"
         #pragma target 4.5
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
         #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
+        #include "WorldGenBlood.hlsl"
         #include "WorldGenLighting.hlsl"
         #include "WorldGenVegetationScene.hlsl"
         #include "WorldGenCanopyShadows.hlsl"
@@ -26,6 +28,7 @@ Shader "WorldGen/AnimatedFauna"
         TEXTURE2D(_Mask);SAMPLER(sampler_Mask);
         TEXTURE2D(_Normals);SAMPLER(sampler_Normals);
         CBUFFER_START(UnityPerMaterial)
+        float4 _BloodColor;float _BloodEnabled;
         float4 _Parts;float _Coat,_Fade,_Glow,_Morph;int _PaletteOffset;
         CBUFFER_END
         struct Attributes
@@ -78,7 +81,7 @@ Shader "WorldGen/AnimatedFauna"
             half4 frag(Varyings i,FRONT_FACE_TYPE face:FRONT_FACE_SEMANTIC):SV_Target
             {
                 ClipFauna(i.uv,i.positionCS.xy,i.visible);
-                half3 albedo=SAMPLE_TEXTURE2D_ARRAY(_Coats,sampler_Coats,i.uv,_Coat).rgb;
+                half3 albedo=WorldGenBlood(SAMPLE_TEXTURE2D_ARRAY(_Coats,sampler_Coats,i.uv,_Coat).rgb,i.uv,_BloodEnabled,_BloodColor.rgb);
                 half3 mask=SAMPLE_TEXTURE2D(_Mask,sampler_Mask,i.uv).rgb;
                 half3 n=normalize(i.normal)*IS_FRONT_VFACE(face,1,-1),t=normalize(i.tangent.xyz);
                 half3 bump=SAMPLE_TEXTURE2D(_Normals,sampler_Normals,i.uv).rgb*2-1;

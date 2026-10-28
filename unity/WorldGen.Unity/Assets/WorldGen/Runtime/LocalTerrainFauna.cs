@@ -21,7 +21,7 @@ public sealed partial class LocalTerrainExplorer
         public float Heading,TargetHeading,Speed,TargetSpeed,Fade,NominalSpeed;
         public FaunaRuntimeClip Clip,OldClip;public bool Wanted=true,Manual;public Vector4 Parts;
         public V Planet;public Rng Random;
-        public double Health,MaximumHealth,MassKg,ThreatUntil,ThreatX,ThreatZ;public bool Dead=>Health<=0;public int Coat;public WorldGenFaunaRagdoll Ragdoll;public Vector3[] CollisionVertices;public int CollisionFrame=-1;
+        public double Health,MaximumHealth,MassKg,ThreatUntil,ThreatX,ThreatZ,CorpseHeightOffset;public bool Dead=>Health<=0;public int Coat;public WorldGenFaunaRagdoll Ragdoll;public WorldGenBloodCanvas Blood;public Vector3[] CollisionVertices;public int CollisionFrame=-1;
     }
     FaunaPrototypePlanner animalPlanner;
     Task<List<FaunaPrototypeSpawn>> animalPlan;LocalTerrainFrame animalPlanFrame,animalFrame;
@@ -44,7 +44,7 @@ public sealed partial class LocalTerrainExplorer
         if(catalogue==null||animalShader==null||!animalShader.isSupported){Debug.LogWarning("Visible fauna assets/shader unavailable.");return;}
         var profiles=JsonUtility.FromJson<FaunaPrototypeCatalogue>(catalogue.text);
         if(profiles.version!=1||profiles.animals.Length!=177)throw new InvalidDataException("Visible fauna catalogue mismatch");
-        animalProfiles=profiles.animals;animalPlanner=new FaunaPrototypePlanner(sourceWorld,terrain,animalProfiles,HorizontalScale);
+        animalProfiles=profiles.animals;InitializeWildlifeHealth();animalPlanner=new FaunaPrototypePlanner(sourceWorld,terrain,animalProfiles,HorizontalScale);
         GrowAnimalPalette();animalSceneOwner=this;
     }
     bool GrowAnimalPalette()
@@ -185,7 +185,7 @@ public sealed partial class LocalTerrainExplorer
         if(spawn.Profile.slug=="deer")option=(spawn.Hash&1)==0?0:1+(int)((spawn.Hash>>1)%(uint)Math.Max(1,options.Length-1));
         var parts=options[option].parts;animal.Parts=record?.Parts?.Length==4?new Vector4(record.Parts[0],record.Parts[1],record.Parts[2],record.Parts[3]):new Vector4(parts[0],parts[1],parts[2],parts[3]);
         animal.Props.SetFloat("_Coat",coat);animal.Props.SetInt("_PaletteOffset",animal.Slot*AnimalBones);animal.Props.SetVector("_Parts",animal.Parts);
-        animals.Add(spawn.Id,animal);model.Users++;model.LastUse=Time.realtimeSinceStartupAsDouble;
+        RestoreAnimalBlood(animal);animals.Add(spawn.Id,animal);model.Users++;model.LastUse=Time.realtimeSinceStartupAsDouble;
         DecideAnimal(animal);UpdateAnimal(animal,0);return true;
     }
     static int ChooseAnimalCoat(WorldGenFaunaAsset asset,FaunaPrototypeSpawn spawn)

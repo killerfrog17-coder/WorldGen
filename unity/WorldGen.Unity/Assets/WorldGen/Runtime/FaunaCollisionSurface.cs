@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using UnityEngine;
 
 /// <summary>Read-only copy of exported skin channels. Broad phase comes first;
@@ -8,6 +10,24 @@ public sealed class FaunaCollisionSurface
 {
     public readonly Vector3[] Vertices,Morph;public readonly Vector2[] Uv;public readonly int[] Triangles;
     public readonly Vector4[] Joints,Weights,ExtraJoints,ExtraWeights;public readonly int[] Parts;
+    public FaunaCollisionSurface(string slug,string sourceSha,int expectedBones)
+    {
+        using var file=File.OpenRead(Path.Combine(Application.streamingAssetsPath,"fauna-collision",slug+".bin.gz"));
+        using var zip=new GZipStream(file,CompressionMode.Decompress);using var r=new BinaryReader(zip);
+        if(new string(r.ReadChars(8))!="WGHITS01"||BitConverter.ToString(r.ReadBytes(32)).Replace("-","").ToLowerInvariant()!=sourceSha.ToLowerInvariant())throw new InvalidDataException("Fauna hit-skin provenance mismatch: "+slug);
+        int count=r.ReadInt32(),indices=r.ReadInt32(),bones=r.ReadInt32(),parts=r.ReadInt32(),influences=r.ReadInt32(),hasMorph=r.ReadInt32();
+        if(count<3||count>200000||indices<3||indices>2000000||bones!=expectedBones||parts<1||parts>64||(influences!=4&&influences!=8))throw new InvalidDataException("Fauna hit-skin counts");
+        Vertices=new Vector3[count];Uv=new Vector2[count];Morph=new Vector3[count];Parts=new int[count];Joints=new Vector4[count];Weights=new Vector4[count];ExtraJoints=new Vector4[count];ExtraWeights=new Vector4[count];
+        Vector4 Four()=>new Vector4(r.ReadSingle(),r.ReadSingle(),r.ReadSingle(),r.ReadSingle());
+        for(int i=0;i<count;i++)
+        {
+            Vertices[i]=new Vector3(r.ReadSingle(),r.ReadSingle(),r.ReadSingle());Uv[i]=new Vector2(r.ReadSingle(),r.ReadSingle());
+            Joints[i]=Four();if(influences==8)ExtraJoints[i]=Four();Weights[i]=Four();if(influences==8)ExtraWeights[i]=Four();Parts[i]=(int)r.ReadSingle();
+            if(hasMorph!=0)Morph[i]=new Vector3(r.ReadSingle(),r.ReadSingle(),r.ReadSingle());
+        }
+        Triangles=new int[indices];for(int i=0;i<indices;i++){Triangles[i]=r.ReadInt32();if(Triangles[i]<0||Triangles[i]>=count)throw new InvalidDataException("Fauna hit triangle");}
+        if(r.Read()!=-1)throw new InvalidDataException("Trailing fauna hit data");
+    }
     public FaunaCollisionSurface(Mesh mesh)
     {
         if(!mesh.isReadable)throw new InvalidOperationException("Wildlife collision requires the original readable mesh.");
@@ -39,6 +59,11 @@ public sealed class FaunaCollisionSurface
             uv=Uv[a]*(1-u-v)+Uv[b]*u+Uv[c]*v;
         }
         return face>=0;
+    }
+    public static Bounds WorldBounds(Bounds b,Matrix4x4 m)
+    {
+        var e=b.extents;var extent=new Vector3(Mathf.Abs(m.m00)*e.x+Mathf.Abs(m.m01)*e.y+Mathf.Abs(m.m02)*e.z,Mathf.Abs(m.m10)*e.x+Mathf.Abs(m.m11)*e.y+Mathf.Abs(m.m12)*e.z,Mathf.Abs(m.m20)*e.x+Mathf.Abs(m.m21)*e.y+Mathf.Abs(m.m22)*e.z);
+        return new Bounds(m.MultiplyPoint3x4(b.center),extent*2);
     }
     public static bool RayTriangle(Ray ray,Vector3 a,Vector3 b,Vector3 c,float maximum,out float distance,out float u,out float v)
     {

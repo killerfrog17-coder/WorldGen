@@ -2,6 +2,7 @@ Shader "WorldGen/Human"
 {
     Properties
     {
+        _BloodMask("Runtime impact stains",2D)="black"{} _BloodEnabled("Impact stains",Float)=0 _BloodColor("Blood pigment",Color)=(.23,.012,.009,1)
         _BaseMap("Pigment and opacity",2D)="white"{}
         _Roughness("Roughness",Range(.05,1))=.72
         _Cutoff("Alpha threshold",Range(0,1))=0
@@ -13,8 +14,10 @@ Shader "WorldGen/Human"
         Cull Off
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+        #include "WorldGenBlood.hlsl"
         TEXTURE2D(_BaseMap);SAMPLER(sampler_BaseMap);
         CBUFFER_START(UnityPerMaterial)
+        float4 _BloodColor;float _BloodEnabled;
         float4 _BaseMap_ST;float _Roughness,_Cutoff,_HumanViewId;
         CBUFFER_END
         // Camera-scoped identity, never a global mutation of a person's mesh.
@@ -48,7 +51,7 @@ Shader "WorldGen/Human"
             #include "WorldGenVegetationScene.hlsl"
             half4 frag(O i,FRONT_FACE_TYPE face:FRONT_FACE_SEMANTIC):SV_Target
             {
-                CutLocalBody();half3 albedo=Pigment(i.uv).rgb;
+                CutLocalBody();half3 albedo=WorldGenBlood(Pigment(i.uv).rgb,i.uv,_BloodEnabled,_BloodColor.rgb);
                 half3 n=normalize(i.normal)*IS_FRONT_VFACE(face,1,-1);
                 InputData input=(InputData)0;input.positionWS=i.world;input.normalWS=n;input.viewDirectionWS=GetWorldSpaceNormalizeViewDir(i.world);
                 input.shadowCoord=TransformWorldToShadowCoord(i.world);input.bakedGI=VegetationAmbient(float4(.12,.14,.17,1)).rgb;input.shadowMask=1;
