@@ -1,6 +1,27 @@
 # Portable items and wildlife checkpoint ? 28 October 2026
 
-The existing shortcut now selects `player-wildlife-radar`, release
+Latest correction: existing shortcut selects **player-branch-trim-fix**, release
+IL2CPP built **2026-10-28T22:25:30.4807018Z**. Artifacts link to
+`E:/WorldGen-builds/player-branch-trim-fix`; previous firefly-target is retained.
+
+Finishing nearby woodwork could restore previous hands by dropping the result,
+then destroy that item's old visual while retaining its Rigidbody registration.
+The destroyed body triggered repeated Update/LateUpdate exceptions, skipped
+vegetation drawing, and broke inventory capture for save/menu transitions. The
+owner log confirms these paths. Visual replacement now captures physical pose
+and unregisters physics before destruction; shared drop/capture/Nearby paths also
+handle unexpected retired bodies. Item identities and saved physical state remain.
+
+**16 targeted native checks pass**: actual trimming, bark stripping, digging-stick
+shaping, registration retired before replacement, valid next-frame bodies, same
+item IDs, pickup/drop, saving, unexpected body retirement recovery and world-exit
+cleanup. Core woodworking37/inventory75 and preservation578/323source/177skins/
+18clips pass. No full139 combat/ragdoll rerun. Evidence task:
+`artifacts/branch-trim-fix-20261028`; native:
+`artifacts/overnight-items-20261028/branch-trim-fix`.
+
+
+Earlier wildlife checkpoint: `player-wildlife-radar`, release
 IL2CPP built **2026-10-28T20:57:48.2392516Z**, adding [resource-based wildlife
 abundance, bounded encounter pacing and F3+A radar](WILDLIFE_ABUNDANCE.md).
 It passes **139 packaged gameplay checks and103 abundance checks**.
