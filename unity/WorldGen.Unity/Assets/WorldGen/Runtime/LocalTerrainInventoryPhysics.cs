@@ -44,8 +44,8 @@ public sealed partial class LocalTerrainExplorer
         var target=AimedPossession();if(target==null)return;
         var style=new GUIStyle(GUI.skin.label){fontSize=Mathf.RoundToInt(17*scale),alignment=TextAnchor.MiddleCenter,padding=new RectOffset(),wordWrap=false};
         var rect=new Rect(Screen.width*.5f-180*scale,Screen.height*.5f+31*scale,360*scale,30*scale);
-        style.normal.textColor=Color.black;GUI.Label(new Rect(rect.x+1,rect.y+1,rect.width,rect.height),target.Item.Name+"  [E]",style);
-        style.normal.textColor=new Color(.95f,.95f,.89f);GUI.Label(rect,target.Item.Name+"  [E]",style);
+        style.normal.textColor=Color.black;GUI.Label(new Rect(rect.x+1,rect.y+1,rect.width,rect.height),InventoryDisplayName(target.Item)+"  [E]",style);
+        style.normal.textColor=new Color(.95f,.95f,.89f);GUI.Label(rect,InventoryDisplayName(target.Item)+"  [E]",style);
     }
     void ReleasePossession(Possession item,bool fromContainer)
     {

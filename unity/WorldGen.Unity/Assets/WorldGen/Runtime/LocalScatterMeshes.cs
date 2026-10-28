@@ -53,7 +53,7 @@ static partial class LocalScatterMeshes
         }
         public void Rock(int detail,int variant,bool outcrop)
         {
-            int family=variant/3,shape=variant%3;
+            int family=(int)ToolStone.Family(variant),shape=variant>=100?(variant-100)%3:variant%3;
             bool rounded=family==0||family==3,layered=family==2||family==4||family==5;
             int sides=detail==0?24:detail==1?16:8,rings=detail==0?16:detail==1?10:6;
             int first=V.Count;
@@ -69,7 +69,16 @@ static partial class LocalScatterMeshes
                 if(outcrop&&rounded)p.y=Mathf.Pow(Mathf.Max(0,p.y),.8f);
                 if(family==5)p.x+=p.y*.10f;
                 float band=layered?.91f+.045f*Mathf.Sin(b*19+a*2+shape):.94f+.04f*Mathf.Sin(angle*4+lat*5);
-                Add(p,new Color(band,band,band,1),new Vector2(x/(float)sides,y/(float)rings));
+                var material=ToolStone.Material(variant);
+                Color surface=new Color(band,band,band,1);
+                if(variant>=100&&(material==ToolStoneMaterial.Chert||material==ToolStoneMaterial.Quartz||material==ToolStoneMaterial.FineBasalt))
+                {
+                    // Exposed fracture face plus weathered outer cortex: a physical
+                    // clue rather than a glowing collectible or hidden shape gate.
+                    if(p.x>.26f){p.x=.29f;surface=material==ToolStoneMaterial.Chert?new Color(.52f,.55f,.57f):new Color(.94f,.94f,.92f);}
+                    else if(material==ToolStoneMaterial.Chert)surface=new Color(1.45f,1.31f,1.05f);
+                }
+                Add(p,surface,new Vector2(x/(float)sides,y/(float)rings));
             }
             for(int y=0;y<rings;y++)for(int x=0;x<sides;x++){int a=first+y*(sides+1)+x;Triangle(a,a+1,a+sides+1);Triangle(a+1,a+sides+2,a+sides+1);}
         }
@@ -81,6 +90,7 @@ static partial class LocalScatterMeshes
         if(kind==ScatterKind.MidPlant)return BuildMidPlant(variant,detail);
         if(kind==ScatterKind.GeneratedTree)return BuildTree(variant,detail);
         var b=new Builder();Color leaf=kind==ScatterKind.Conifer?new Color(.19f,.32f,.16f):new Color(.29f,.43f,.15f);leaf*=new Color(1+variant*.035f,1-variant*.025f,1,1);
+        if(kind==ScatterKind.Branch)return BuildWood(variant,PossessionKind.Branch,false,true);
         if(kind==ScatterKind.Grass)b.Grass(detail,variant);
         else if(kind==ScatterKind.Conifer)b.Conifer(detail,variant,leaf);
         else if(kind==ScatterKind.Boulder||kind==ScatterKind.Stone||kind==ScatterKind.Outcrop)b.Rock(detail,variant,kind==ScatterKind.Outcrop);

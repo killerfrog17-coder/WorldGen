@@ -6,30 +6,33 @@ using WorldGen.Core;
 
 public sealed partial class LocalTerrainExplorer
 {
+    AudioClip[] woodCraftClips;double craftSoundAt;
     AudioClip[] stoneCraftClips;AudioSource stoneCraftVoice;int stoneCraftSoundIndex,stoneCraftSoundCount;
     readonly Dictionary<GameObject,List<Mesh>> inventoryCraftMeshes=new Dictionary<GameObject,List<Mesh>>();
     ItemCraftJob ActiveItemCraft=>inventoryInitialized?Inventory.Crafts.FirstOrDefault(j=>j.Running):null;
     bool CraftWorking=>ActiveItemCraft!=null;
     ItemCraftJob CraftFor(string id)=>Inventory.Crafts.OrderByDescending(j=>j.Running).ThenByDescending(j=>j.WorkpieceId==id).FirstOrDefault(j=>j.WorkpieceId==id||j.ToolId==id);
-    bool CraftInputs(string id,out NearbyPossession core,out NearbyPossession tool,out string reason)
+    bool CraftInputs(string id,out NearbyPossession core,out NearbyPossession tool,out string reason,ItemCraftAction action=ItemCraftAction.Flake)
     {
         RefreshInventoryNearby();core=InventoryCandidate(id);tool=null;
-        reason=StoneCrafting.WorkpieceReason(core?.Item);if(reason.Length>0)return false;
+        reason=action==ItemCraftAction.Flake?StoneCrafting.WorkpieceReason(core?.Item):WoodCrafting.Reason(core?.Item,action);if(reason.Length>0)return false;
         if(!core.Natural&&!AccessiblePossession(core.Item)){reason="That stone is out of reach.";return false;}
         if(core.Item.Hands==2&&HeightAboveGround>3){reason="Land before working a two-handed stone on the ground.";return false;}
         var candidates=Inventory.Items.Where(AccessiblePossession).Select(p=>new NearbyPossession{Item=p}).Concat(inventoryNearby.Where(n=>n.Natural));
-        tool=candidates.Where(n=>n.Item.Id!=id&&StoneCrafting.StrikingStone(n.Item))
+        tool=candidates.Where(n=>n.Item.Id!=id&&(action==ItemCraftAction.Flake?StoneCrafting.StrikingStone(n.Item):WoodCrafting.Cutter(n.Item)))
             .OrderByDescending(n=>n.Item.Place==PossessionPlace.RightHand||n.Item.Place==PossessionPlace.LeftHand).FirstOrDefault();
-        if(tool==null){reason="Requires another suitably sized, compact stone for striking.";return false;}
+        if(tool==null){reason=action==ItemCraftAction.Flake?"Requires another suitably sized, compact stone for striking.":"Requires a usable cutting flake (at least 20% edge remaining).";return false;}
         string toolId=tool.Item.Id;
         if(Inventory.Items.Any(p=>(p.Place==PossessionPlace.RightHand||p.Place==PossessionPlace.LeftHand)&&p.Id!=id&&p.Id!=toolId))
-        {reason="Free your hands to work on these stones.";return false;}
+        {reason="Put unrelated held items away before working.";return false;}
+        var unfinished=Inventory.Crafts.FirstOrDefault(j=>j.WorkpieceId==id);
+        if(unfinished!=null&&unfinished.Action!=action){reason="Finish the existing work on this piece first.";return false;}
         reason="";return true;
     }
-    bool StartInventoryKnapping(string id)
+    bool StartInventoryKnapping(string id,ItemCraftAction action=ItemCraftAction.Flake)
     {
         RefreshInventoryNearby(true);
-        if(!CraftInputs(id,out var core,out var tool,out var reason)){InventoryFeedback(reason);return false;}
+        if(!CraftInputs(id,out var core,out var tool,out var reason,action)){InventoryFeedback(reason);return false;}
         // Validate choices before claiming natural instances. Roll back a failed
         // preparation atomically, before touching scatter ownership or visuals.
         var backup=Inventory.Copy();
@@ -49,10 +52,10 @@ public sealed partial class LocalTerrainExplorer
             var point=view.transform.localPosition+new Vector3(view.transform.forward.x,0,view.transform.forward.z).normalized*.65f;
             core.Item.Position=frame.Position(point.x+originX,point.z+originZ);core.Item.GroundOffsetM=0;core.Item.GroundRotation=new V();
         }
-        var job=StoneCrafting.Start(Inventory,id,tool.Item.Id,out reason);
+        var job=action==ItemCraftAction.Flake?StoneCrafting.Start(Inventory,id,tool.Item.Id,out reason):WoodCrafting.Start(Inventory,id,tool.Item.Id,action,out reason);
         if(job==null)throw new InvalidOperationException("Validated stone craft failed: "+reason);
         inventorySelected=id;inventoryNotice="";inventoryNoticeUntil=0;inventoryNearbyAt=0;
-        PlayStoneCraftImpact();if(inventoryOpen)RenderInventoryPreview();return true;
+        PlayCraftSound(action);if(inventoryOpen)RenderInventoryPreview();return true;
     }
     void PauseItemCraft(ItemCraftJob job)
     {if(job!=null)job.Running=false;if(stoneCraftVoice!=null)stoneCraftVoice.Stop();}
@@ -70,8 +73,14 @@ public sealed partial class LocalTerrainExplorer
         {PauseItemCraft(job);return;}
         int previous=(int)(job.Fraction*4);
         var flake=StoneCrafting.Advance(Inventory,job,Math.Min(.25,Time.unscaledDeltaTime),PlayerRules.Settings);
-        if((int)(job.Fraction*4)>previous)PlayStoneCraftImpact();
+        if(job.Action==ItemCraftAction.Flake){if((int)(job.Fraction*4)>previous)PlayStoneCraftImpact();}
+        else if(Time.unscaledTimeAsDouble>=craftSoundAt)PlayCraftSound(job.Action);
         if(flake==null)return;
+        if(job.Action!=ItemCraftAction.Flake)
+        {
+            if(inventoryVisuals.TryGetValue(core.Id,out var oldWood)){DestroyInventoryVisual(oldWood);inventoryVisuals.Remove(core.Id);inventoryVisualPlaces.Remove(core.Id);}
+            inventoryNotice=WoodCrafting.Label(job.Action)+" finished.";inventoryNoticeUntil=Time.unscaledTime+3;inventoryNearbyAt=0;if(inventoryOpen)RenderInventoryPreview();return;
+        }
         // The mass came from this particular stone; its source ID remains depleted.
         if(inventoryVisuals.TryGetValue(core.Id,out var old)){DestroyInventoryVisual(old);inventoryVisuals.Remove(core.Id);inventoryVisualPlaces.Remove(core.Id);}
         flake.Position=frame.Position(motion.X+Math.Sin(heading*Math.PI/180)*.65,motion.Z+Math.Cos(heading*Math.PI/180)*.65);
@@ -80,6 +89,14 @@ public sealed partial class LocalTerrainExplorer
         ReleasePossession(flake,false);inventoryNearbyAt=0;
         inventoryNotice="Cutting flake finished.";inventoryNoticeUntil=Time.unscaledTime+3;
         if(inventoryOpen)RenderInventoryPreview();
+    }
+    void PlayCraftSound(ItemCraftAction action)
+    {
+        if(action==ItemCraftAction.Flake){PlayStoneCraftImpact();return;}
+        if(woodCraftClips==null)woodCraftClips=Resources.LoadAll<AudioClip>("Crafting/Wood");
+        if(woodCraftClips.Length==0)return;
+        if(stoneCraftVoice==null){var obj=new GameObject("Player handcrafting");obj.transform.SetParent(transform,false);stoneCraftVoice=obj.AddComponent<AudioSource>();stoneCraftVoice.playOnAwake=false;stoneCraftVoice.spatialBlend=0;stoneCraftVoice.dopplerLevel=0;}
+        stoneCraftVoice.pitch=.97f+(stoneCraftSoundIndex%5)*.015f;stoneCraftVoice.PlayOneShot(woodCraftClips[stoneCraftSoundIndex++%woodCraftClips.Length],.25f);craftSoundAt=Time.unscaledTimeAsDouble+1.2;
     }
     void PlayStoneCraftImpact()
     {

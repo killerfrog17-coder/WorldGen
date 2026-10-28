@@ -52,6 +52,10 @@ static class PlayerInventoryTests
         corrupt=full.Copy();corrupt.Items.Add(corrupt.Items[0].Copy());Reject(corrupt.Validate,"Reject duplicate identities");
         corrupt=full.Copy();corrupt.Find("r0").X=-1;Reject(corrupt.Validate,"Reject corrupt packing coordinates");
         corrupt=WithBag();var missing=Rock("missing");missing.NaturalId=999;corrupt.Items.Add(missing);Reject(corrupt.Validate,"Reject missing depletion marker that would duplicate a rock");
+        var priority=new PlayerInventory{ActiveHand=PossessionPlace.LeftHand};priority.Items.Add(Rock("first"));priority.Items.Add(Rock("second"));
+        Check(priority.Hold("first",out _)&&priority.AtHand(PossessionPlace.RightHand)?.Id=="first","Pickup ignores saved hand selection and fills right first");
+        Check(priority.Hold("second",out _)&&priority.AtHand(PossessionPlace.LeftHand)?.Id=="second"&&priority.QuickHeld?.Id=="first","Left is fallback, quick action prefers right");
+        priority.Move("first",PossessionPlace.Ground,"",0,0,false,out _);Check(priority.QuickHeld?.Id=="second","Quick action falls back to left when right is empty");
         Console.WriteLine("PASS "+count+" inventory packing/ownership/save checks");
     }
 }

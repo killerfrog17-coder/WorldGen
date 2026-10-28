@@ -9,8 +9,9 @@ and animal renderer are separate.
 ## Controls
 
 - I / Tab: open/close inventory. E: take an aimed-at reachable rock into a free
-  hand. Q: exchange held items. 1/2: select a hand. R: stow its item immediately;
-  G: physically drop it.
+  hand. Q: exchange held items. Pickup always fills right, then left. R: stow the
+  right-hand item, or left if right is empty; G: drop with the same priority.
+  In inventory, G drops the hovered carried/container item, without selecting it.
   B: set down the worn bag, or wear a nearby bag. Within inventory, drag between
   hands/grids/Nearby; R rotates a dragged footprint, right click opens transfers.
   Character drag/turn buttons rotate the preview. Character & help settings
@@ -53,11 +54,11 @@ The body has zero general storage and new/legacy-without-inventory sessions star
 empty. There is no automatic starter bag. `/give bag` explicitly grants the temporary
 6x7 testing bag (0.6kg empty mass, round placeholder visual).
 It is a real item and may be removed or carried, retaining the very same contents.
-There are no belt tools or arbitrary quickbar yet:1/2 select physical hands.
+There are no belt tools, quickbar or persistent hand-selection controls.
 Small rocks use one hand each, large rocks reserve both. Transfers are immediate;
 failed transfers check reach/occupancy and retain the source item. Q exchanges
 actual one-hand items, including into an empty opposite hand, without changing
-the selected active hand. A two-hand item stays in both hands. Containers
+any persistent hand-selection mode. A two-hand item stays in both hands. Containers
 may be worn, held or on reachable ground; far-away bags cannot be accessed.
 
 Loose natural Stone instances, and carryable Boulder instances only, expose
@@ -113,10 +114,22 @@ ground if it needs both hands. Ordinary stones retain their names: hammerstone
 and core are working roles, not new inventory item types.
 
 The unavailable action explains unsuitable material, dimensions or missing
-equipment. Existing coarse rock-family/variant data serves as a prototype
-material proxy: basalt, one quartzite-like metamorphic variant, one chert-bearing
-limestone variant and one silicified sandstone variant can flake. This is not a
-detailed geological simulation or a change to generated terrain.
+equipment. Loose-stone materials now come from stable local geological-source
+patches, separately from their three shape variants. Fine/coarse basalt, chert,
+quartzite, vein quartz and silicified sandstone produce flakes of differing
+quality. Ordinary granite, limestone, sandstone and mudstone do not. Legacy
+unspecified stones retain broad material identity; shape never grants a mineral.
+Names in pickup/inspection, coloured icons and cortex/fracture geometry provide
+identification. Source locations are procedural approximations, not an Earth
+geological survey. Loose-rock opportunities are boosted for a compressed day:
+three times the previous geological loose-rock chance, plus a low exposed-float
+floor on residual/glacial gravel-bearing ground. Dunes, deep alluvium and ice
+receive no artificial baseline. No promise of stone at every location.
+
+Current workpiece limits:60g-10kg,4-45cm wide,at least2cm tall. Striker:one-handed,
+60g minimum,3.5-22cm wide,height at least22% of width. Natural one-handed rock
+classification is now at most20cm wide and2kg. These are deliberately permissive
+prototype limits, not archaeological grades; coarse basalt makes a poorer edge.
 
 Both involved item icons show the same progress. The context action pauses or
 resumes an unfinished project. Moving an input pauses work; walking/jumping
@@ -136,8 +149,8 @@ Completion creates one physical cutting flake and removes its actual mass from
 the same original rock. The original keeps its identity, shrinks and acquires a
 simple closed fracture scar; the flake falls beside the player rather than
 appearing in a bag. Further flaking stops when the remaining stone is too small.
-Cutting capability is recorded, but cutting wood and other downstream actions
-are not implemented yet. Held objects/arm poses remain placeholders; there is
+Cutting capability now enables the basic woodworking actions described below;
+other downstream uses are not implemented yet. Held objects/arm poses remain placeholders; there is
 no new knapping animation.
 
 Six short mono stone-impact effects were generated locally using Stable Audio
@@ -510,3 +523,38 @@ The redundant human spawn help line is removed; `/spawn human` still works.
 items, using free hands/storage or dropping overflow. Explicit bags wear when
 the back is free. Large requests are processed over frames. No starter bag
 creation remains; existing owned bags are preserved. Nearby crafting is retained.
+
+## Branches and basic woodworking - 27 October
+
+Fallen branches use a separate stable detail-scatter channel, with habitat-dependent
+availability in woody environments, no steep-cliff/water placement and the shared
+ownership tombstones. They retain actual length/diameter, shape/straightness and
+soundness. Supply is deliberately sparse rather than another blanket of ground
+clutter. Instance bounds/scales use rod dimensions; carried rods and pointed tools
+use dedicated small meshes. Existing tree/animal/human sources stay unchanged.
+
+Right-click a branch with a usable cutting flake available: **Trim branch** makes
+that same instance a trimmed pole. **Strip bark** is optional and exposes lighter
+wood. **Shape digging stick** needs0.5-1.5m length,2-6cm thickness and sound wood;
+**Sharpen wooden spear** needs1.4-2.6m,1.8-4.5cm and a straighter shaft. Unavailable
+actions explain the missing physical capability. Tool and workpiece can be in
+reachable bags or Nearby; unrelated held items must be put away. Preparing work
+retrieves its particular inputs, without requiring a bag. A flake needs20% edge
+remaining and loses edge according to work/material quality. No retouching yet.
+
+The shared timed work/progress/save/pause system is reused, with no instant item
+recipes: approximate solar work units90(trim),150(strip),420(digging stick),900(spear),
+adjusted by diameter. At default60min/day, a3cm shaft takes about4/6/18/38 real
+seconds respectively at crafting multiplier1. Wood waste is abstracted as mass
+loss, not new litter/collectible shavings. No work animation, digging interaction,
+weapon attack/throwing/combat, hafting, fire-hardening or construction added.
+
+For quick review: `/give stone flake`, `/give branch` (straight1.9m), or
+`/give short branch` (straight0.9m). `/give chert`, `/give quartzite`, `/give pole`,
+`/give wooden spear` and `/give digging stick` are also available. No starter bag.
+Three short local Stable Audio3 scraping strokes are in Resources/Crafting/Wood;
+provenance and crop script are tracked, owner listening acceptance pending.
+
+Geology context: https://www.uwlax.edu/mvac/process-of-archaeology/lab-analysis/lithic-analysis/
+Source-limited stone and imports: https://www.nma.gov.au/audio/vaka-moana-series/transcripts/ocean-crossings-the-material-traces-of-voyaging-seminar
+Woodwork context: https://ccehn.de/concluding-research-on-schoeningens-wooden-artefacts-published

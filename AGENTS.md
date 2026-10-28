@@ -1,5 +1,31 @@
 # WorldGen repository instructions
 
+WOODWORKING / IDENTIFIABLE TOOLSTONE / RIGHT-FIRST HANDS,27October2026:
+Owner authorizes next resource/woodworking update; explicitly wants much more
+usable stone for compressed60min day, not punitive geological scarcity. New
+loose-stone material codes100..132 separate material from3shapevariants. Stable
+source patches over existing bedrock, no biome ban; stronger loose-rock chance
+plus residual/glacial gravel-bearing baseline. No universal stones in dune/
+deepalluvium/ice. Granite/limestone/mudstone still not knapping materials.
+Core60g-10kg/4-45cm/height2cm; striker60g/3.5-22cm/height22%width/onehand; natural
+small classification20cm/2kg. Named inspection/icons and fracture/cortex colours.
+New stable sparse Branch scatter channel; carry/drop/ownership same inventory.
+Trim/optional bark-strip/diggingstick/woodenspear timed work; flake-edge wear,
+physical dimensions/soundness/straightness, shared partial jobs/save/multiplier.
+No attack/digging gameplay or work animations/construction/food/history added.
+/give adds chert/quartzite/branch/shortbranch/pole/woodenspear/diggingstick.
+Owner NEW input: pickup ALWAYSright thenleft; G outside right thenleft; inventory
+G drops HOVERED carried/container item, not selection; groundhover is no-op.
+Hand selection UI/1/2 removed; legacy ActiveHand optional state retained unused
+by input/Hold. Q swaps physical items. R outside uses same right/left priority.
+75inventory+37wood/material+37stone+22camera/save checks pass;34editor geometry/
+audio checks pass and stages image inspected. No full native flow/FPS claim.
+Three short local SA3SmallSFX wood strokes; owner listening pending. Owner game
+untouched; own audio server stopped. Fast iteration player-woodworking uses
+project-default Mono, no native-compile wait; prior IL2CPPcommand-cleanup kept.
+Final source/docs/shortcut checkpoint, protected578hash check, GitHubpush+remote
+verify; preserve prompt deletion/two deer scripts. Evidence artifacts/woodworking.
+
 COMMAND CATALOGUE CLEANUP / EMPTY START,27October2026:
 Owner requests FAST handoff. /flora unifies tree/mid/specialist catalogues with
 one global regional index; /midflora and /trees removed. /fauna regional animal

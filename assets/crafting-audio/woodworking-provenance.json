@@ -1,0 +1,35 @@
+{
+  "model": "stabilityai/stable-audio-3-small-sfx",
+  "prompt": "TrackType: SFX. Repeated short strokes of a sharp stone flake scraping and shaving a dry wooden branch by hand. Close isolated Foley. Rough fibrous rasps with small crisp wood shaving ticks, separated by quiet pauses. One source, dry recording.",
+  "seed": 192077,
+  "source_sha256": "26fa5d7180341100dc90b0a39a7a09605c74ed0d40d12674db20e9fd3f10be24",
+  "processing": "mono fold, three short stroke crops, endpoint fades, bounded gain",
+  "license": "https://stability.ai/license",
+  "listening_approval": "Owner audition pending",
+  "clips": [
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Crafting/Wood/wood-01.wav",
+      "sha256": "db6c04f7c7b80dc972d3ce370f8e624010444993be6bd39f15f36c78980ed810",
+      "crop_seconds": [
+        2.32,
+        3.03
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Crafting/Wood/wood-02.wav",
+      "sha256": "545082051cb4ffa313777d35bbf4d36304305b4bc7325d988b65fc7f4967bf08",
+      "crop_seconds": [
+        3.99,
+        4.7
+      ]
+    },
+    {
+      "path": "unity/WorldGen.Unity/Assets/WorldGen/Resources/Crafting/Wood/wood-03.wav",
+      "sha256": "f4dd1f436b1018681cf0fc41a497f77f87a41977cdb1ff7ed8837cea94713d14",
+      "crop_seconds": [
+        9.77,
+        10.48
+      ]
+    }
+  ]
+}

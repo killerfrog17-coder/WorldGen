@@ -25,12 +25,13 @@ public sealed partial class LocalTerrainExplorer
         if(inventoryInitialized)return;inventoryInitialized=true;Inventory.Validate();
         foreach(var id in Inventory.CollectedNatural)inventoryCollected.Add(id);foreach(var job in Inventory.Crafts)job.Running=false;scatterDirty=true;
     }
-    bool CollectedRock(ScatterInstance p)=>(p.Kind==ScatterKind.Stone||p.Kind==ScatterKind.Boulder)&&inventoryCollected.Contains(p.Id);
+    bool CollectedRock(ScatterInstance p)=>(p.Kind==ScatterKind.Stone||p.Kind==ScatterKind.Boulder||p.Kind==ScatterKind.Branch)&&inventoryCollected.Contains(p.Id);
     static Possession RockPossession(ScatterInstance p)
     {
+        if(p.Kind==ScatterKind.Branch)return WoodCrafting.Branch(p);
         // Match visible dimensions. Massive boulders are scenery, not pocket rocks.
         double mass=p.WidthM*p.WidthM*.86*p.HeightM*Math.PI/6*2600;
-        bool small=p.WidthM<=.17&&mass<=1.5;
+        bool small=p.WidthM<=.2&&mass<=2;
         return new Possession{Id="rock-"+p.Id.ToString("x16"),NaturalId=p.Id,Kind=small?PossessionKind.SmallRock:PossessionKind.LargeRock,Place=PossessionPlace.Ground,
             WidthM=p.WidthM,HeightM=p.HeightM,DepthM=p.WidthM*.86,MassKg=Math.Max(.025,mass),
             CellsWide=Math.Max(1,(int)Math.Ceiling(p.WidthM/.1)),CellsHigh=Math.Max(1,(int)Math.Ceiling(p.HeightM/.1)),Variant=p.Variant,Position=p.Position,Tint=p.Color};
@@ -67,10 +68,10 @@ public sealed partial class LocalTerrainExplorer
                 if(group.Bounds.SqrDistance(player)>36)continue;
                 foreach(int i in group.Indices)
                 {
-                    var p=chunk.Source.Instances[i];if(p.Kind!=ScatterKind.Stone&&p.Kind!=ScatterKind.Boulder||CollectedRock(p))continue;
+                    var p=chunk.Source.Instances[i];if(p.Kind!=ScatterKind.Stone&&p.Kind!=ScatterKind.Boulder&&p.Kind!=ScatterKind.Branch||CollectedRock(p))continue;
                     var point=chunk.Roots[i]+Vector3.up*(float)p.HeightM*.5f;
                     if((point-feet).sqrMagnitude>25)continue;var item=RockPossession(p);
-                    if(item.MassKg>25||p.WidthM>.55||p.HeightM>.45)continue;
+                    if(item.MassKg>25||p.Kind!=ScatterKind.Branch&&(p.WidthM>.55||p.HeightM>.45))continue;
                     Candidate(new NearbyPossession{Item=item,Natural=true,Point=point,Bounds=new Bounds(point,new Vector3((float)p.WidthM+.06f,(float)p.HeightM+.06f,(float)p.WidthM+.06f))});
                 }
             }
@@ -80,7 +81,12 @@ public sealed partial class LocalTerrainExplorer
             if((item.Position-Position).Length*frame.RadiusM>5)continue;
             TerrainHandoff.Coordinates(frame,item.Position,out double x,out double z);
             var point=inventoryDrops.TryGetValue(item.Id,out var drop)?transform.InverseTransformPoint(drop.Body.worldCenterOfMass):new Vector3((float)(x-originX),(float)(Ground(x,z)+item.GroundOffsetM)+(float)item.HeightM*.5f,(float)(z-originZ));
-            Candidate(new NearbyPossession{Item=item,Point=point,Bounds=new Bounds(point,new Vector3((float)item.WidthM+.06f,(float)item.HeightM+.06f,(float)item.DepthM+.06f))});
+            var bounds=new Bounds(point,new Vector3((float)item.WidthM+.06f,(float)item.HeightM+.06f,(float)item.DepthM+.06f));
+            if(WoodCrafting.Wood(item)&&inventoryVisuals.TryGetValue(item.Id,out var woodVisual))
+            {
+                var renderers=woodVisual.GetComponentsInChildren<Renderer>();if(renderers.Length>0){bounds=renderers[0].bounds;foreach(var r in renderers)bounds.Encapsulate(r.bounds);point=transform.InverseTransformPoint(bounds.center);bounds.center=point;}
+            }
+            Candidate(new NearbyPossession{Item=item,Point=point,Bounds=bounds});
         }
         inventoryNearby.Sort((a,b)=>(a.Point-player).sqrMagnitude.CompareTo((b.Point-player).sqrMagnitude));
     }
@@ -129,15 +135,14 @@ public sealed partial class LocalTerrainExplorer
         if(inventoryOpen)
         {
             if(k.escapeKey.wasPressedThisFrame){SetInventoryOpen(false);return true;}
-            if(inventoryDrag!=null){if(k.rKey.wasPressedThisFrame)inventoryDragRotated=!inventoryDragRotated;return true;}
+            if(inventoryDrag!=null){if(k.gKey.wasPressedThisFrame){if(inventoryDrag.Item.Place!=PossessionPlace.Ground)RequestPossession(inventoryDrag.Item.Id,PossessionPlace.Ground);inventoryDrag=null;}else if(k.rKey.wasPressedThisFrame)inventoryDragRotated=!inventoryDragRotated;return true;}
             if(inventoryNameEditing)return true;
         }
         if(k.eKey.wasPressedThisFrame||k.bKey.wasPressedThisFrame)RefreshInventoryNearby(true);
-        if(k.digit1Key.wasPressedThisFrame)Inventory.ActiveHand=PossessionPlace.RightHand;
-        if(k.digit2Key.wasPressedThisFrame)Inventory.ActiveHand=PossessionPlace.LeftHand;
         if(k.qKey.wasPressedThisFrame){Inventory.SwapHands();if(inventoryOpen)RenderInventoryPreview();}
-        var held=Inventory.AtHand(Inventory.ActiveHand);
-        if(k.gKey.wasPressedThisFrame&&held!=null)RequestPossession(held.Id,PossessionPlace.Ground);
+        var held=Inventory.QuickHeld;
+        var drop=inventoryOpen?HoveredInventoryPossession():held;
+        if(k.gKey.wasPressedThisFrame&&drop!=null&&drop.Place!=PossessionPlace.Ground)RequestPossession(drop.Id,PossessionPlace.Ground);
         if(k.rKey.wasPressedThisFrame&&held!=null)RequestPossession(held.Id,PossessionPlace.Container,autoStow:true);
         if(k.bKey.wasPressedThisFrame)
         {
@@ -147,13 +152,13 @@ public sealed partial class LocalTerrainExplorer
         if(!inventoryOpen&&k.eKey.wasPressedThisFrame&&!k.f3Key.isPressed)
         {
             var target=AimedPossession();
-            if(target!=null)RequestPossession(target.Item.Id,Inventory.ActiveHand,autoHand:true);
+            if(target!=null)RequestPossession(target.Item.Id,PossessionPlace.RightHand,autoHand:true);
         }
         return inventoryOpen;
     }
     void SetInventoryOpen(bool open)
     {
-        inventoryOpen=open;inventoryDrag=null;inventoryContext=null;inventoryNameEditing=false;
+        inventoryOpen=open;inventoryHitTargets.Clear();inventoryDrag=null;inventoryContext=null;inventoryNameEditing=false;
         if(open){RefreshInventoryNearby(true);PrepareInventoryPreview();}else if(inventoryPreviewRoot!=null)inventoryPreviewRoot.SetActive(false);
         GUIUtility.keyboardControl=0;CaptureMouse();
     }
@@ -174,6 +179,11 @@ public sealed partial class LocalTerrainExplorer
             sphere.GetComponent<Renderer>().sharedMaterial=inventoryBagMaterial;
             var props=new MaterialPropertyBlock();props.SetFloat("_WorldLighting",layer==29?0:1);sphere.GetComponent<Renderer>().SetPropertyBlock(props);
         }
+        else if(WoodCrafting.Wood(item))
+        {
+            var art=Art(ScatterKind.Branch,item.Variant,0);inventoryPinnedArt.Add(art);
+            AddCraftMesh(root,LocalScatterMeshes.BuildWood(item.Variant,item.Kind,item.BarkRemoved),art.Parts[0].Material,item,layer);
+        }
         else
         {
             var art=Art(ScatterKind.Stone,item.Variant,0);inventoryPinnedArt.Add(art);
@@ -188,7 +198,7 @@ public sealed partial class LocalTerrainExplorer
                 var props=new MaterialPropertyBlock();props.SetVector("_Tint",new Vector4((float)item.Tint.X,(float)item.Tint.Y,(float)item.Tint.Z,1));props.SetVector("_LodTransition",new Vector4(0,1,0,0));renderer.SetPropertyBlock(props);
             }
         }
-        root.transform.localScale=new Vector3((float)item.WidthM,(float)item.HeightM,(float)(item.Kind==PossessionKind.TestBag?item.DepthM/.55:item.Kind==PossessionKind.StoneFlake?item.DepthM:item.WidthM));return root;
+        root.transform.localScale=new Vector3((float)item.WidthM,(float)item.HeightM,(float)(item.Kind==PossessionKind.TestBag?item.DepthM/.55:item.Kind==PossessionKind.StoneFlake||WoodCrafting.Wood(item)?item.DepthM:item.WidthM));return root;
     }
     void UpdateInventoryVisuals()
     {
@@ -228,6 +238,11 @@ public sealed partial class LocalTerrainExplorer
                 {root.transform.position=view.transform.TransformPoint(new Vector3(item.Hands==2?0:right?.29f:-.29f,-.32f,.62f));root.transform.rotation=view.transform.rotation;}
                 else
                 {root.transform.position=(item.Hands==2?(inventoryBones["hand_r"].position+inventoryBones["hand_l"].position)*.5f:hand.position)-Vector3.up*(float)item.HeightM*.35f;root.transform.rotation=body.rotation;}
+                if(WoodCrafting.Wood(item))
+                {
+                    root.transform.rotation=(humanHideBody?view.transform.rotation:body.rotation)*Quaternion.Euler(humanHideBody?72:35,0,0);
+                    root.transform.position-=root.transform.up*(float)item.HeightM*.35f;
+                }
             }
         }
         UpdateDroppedBodies();

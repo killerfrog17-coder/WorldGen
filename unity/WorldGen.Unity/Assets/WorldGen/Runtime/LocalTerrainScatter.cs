@@ -277,7 +277,7 @@ public sealed partial class LocalTerrainExplorer
             // Embed its broad lower body; outcrops are bedrock, not balanced eggs.
             var position=new Vector3((float)(x-originX),(float)y-ScatterEmbedding(p),(float)(z-originZ));chunk.Roots[i]=position;
             var rotation=Quaternion.FromToRotation(Vector3.up,normal)*Quaternion.Euler(0,(float)p.YawDegrees,0);
-            chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,new Vector3((float)p.WidthM,(float)p.HeightM,(float)p.WidthM));
+            chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,new Vector3((float)p.WidthM,(float)p.HeightM,(float)(p.Kind==ScatterKind.Branch?p.HeightM:p.WidthM)));
     }
     ArtModel Art(ScatterKind kind,int variant,int lod)
     {
@@ -309,7 +309,7 @@ public sealed partial class LocalTerrainExplorer
             long materialKey=ScatterArtKey(kind,variant&~7,lod<2?0:2);
             Material sharedMaterial=null;bool shared=kind==ScatterKind.GeneratedTree&&treeMaterials.TryGetValue(materialKey,out sharedMaterial);
             var material=shared?sharedMaterial:new Material(template){enableInstancing=true};
-            material.SetFloat("_Wind",kind==ScatterKind.Grass?.045f:rock||kind==ScatterKind.Fungus?0:kind==ScatterKind.Herb||kind==ScatterKind.MidPlant?.85f:.018f);material.SetFloat("_HerbWind",kind==ScatterKind.Herb||kind==ScatterKind.MidPlant?1:0);material.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));
+            material.SetFloat("_Wind",kind==ScatterKind.Grass?.045f:rock||kind==ScatterKind.Fungus||kind==ScatterKind.Branch?0:kind==ScatterKind.Herb||kind==ScatterKind.MidPlant?.85f:.018f);material.SetFloat("_HerbWind",kind==ScatterKind.Herb||kind==ScatterKind.MidPlant?1:0);material.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));
             if(kind==ScatterKind.Herb)
             {
                 var motion=PlantMotion.Herb(variant);
@@ -329,15 +329,16 @@ public sealed partial class LocalTerrainExplorer
                 material.SetFloat("_Wind",lod<2?(float)morphology.Flexibility:0);
                 material.SetVector("_PlantTraits",new Vector4((float)morphology.Flexibility,.5f,.7f,1));
             }
+            if(kind==ScatterKind.Branch){material.SetFloat("_TreeSurface",1);material.SetFloat("_TreeBarkPattern",1);}
             if(rock)
             {
-                material.SetFloat("_RockLayer",8+variant/3);material.SetTexture("_RockAlbedo",landMaterial.GetTexture("_GroundAlbedo"));
+                material.SetFloat("_RockLayer",8+(int)ToolStone.Family(variant));material.SetTexture("_RockAlbedo",landMaterial.GetTexture("_GroundAlbedo"));
                 material.SetTexture("_RockNormals",landMaterial.GetTexture("_GroundNormals"));material.SetFloat("_RockLayers",landMaterial.GetFloat("_RockLayers"));
             }
             if(!shared){RegisterScatterMaterial(material);if(kind==ScatterKind.GeneratedTree)treeMaterials[materialKey]=material;}
             parts.Add(new ArtPart{Mesh=mesh,Material=material,Submesh=0,Local=Matrix4x4.identity});
         }
-        float height=kind==ScatterKind.MidPlant||kind==ScatterKind.GeneratedTree?1:binding!=null&&binding.ReferenceHeightM>0?binding.ReferenceHeightM:Math.Max(.001f,bounds.size.y),width=kind==ScatterKind.MidPlant||kind==ScatterKind.GeneratedTree?1:binding!=null&&binding.ReferenceWidthM>0?binding.ReferenceWidthM:Math.Max(.001f,Math.Max(bounds.size.x,bounds.size.z));
+        float height=kind==ScatterKind.Branch||kind==ScatterKind.MidPlant||kind==ScatterKind.GeneratedTree?1:binding!=null&&binding.ReferenceHeightM>0?binding.ReferenceHeightM:Math.Max(.001f,bounds.size.y),width=kind==ScatterKind.Branch||kind==ScatterKind.MidPlant||kind==ScatterKind.GeneratedTree?1:binding!=null&&binding.ReferenceWidthM>0?binding.ReferenceWidthM:Math.Max(.001f,Math.Max(bounds.size.x,bounds.size.z));
         var model=new ArtModel{Parts=parts.ToArray(),Scale=Matrix4x4.Scale(new Vector3(1/width,1/height,1/width)),IdentityScale=width==1&&height==1,Fades=parts.All(part=>part.Material.HasProperty("_LodTransition")),Generated=prefab==null,LastUsed=Time.realtimeSinceStartupAsDouble};scatterArt[key]=model;return model;
     }
     void BuildScatterBatches()

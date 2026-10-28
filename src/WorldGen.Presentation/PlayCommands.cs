@@ -28,11 +28,11 @@ namespace WorldGen.Presentation
     }
     public static class PlayCommands
     {
-        public static readonly string[] Help={"/date [get | set YYYY-MM-DD | add days] — playable seasonal date (365-day years)","/help — list commands","/time [get | set day/night/noon/midnight/sunrise/sunset/HH:mm | add hours]",ExplorerNavigation.TeleportHelp,"/weather [get | auto | clear | cloudy | overcast | rain | downpour | storm | snow | blizzard | fog] — temporary weather test","/flora [species number] - all regional trees, shrubs, herbs, ferns and fungi","/fauna [species number] - regional animal catalogue","/give <item> [count] - small rock, large rock, stone flake, bag"};
+        public static readonly string[] Help={"/date [get | set YYYY-MM-DD | add days] — playable seasonal date (365-day years)","/help — list commands","/time [get | set day/night/noon/midnight/sunrise/sunset/HH:mm | add hours]",ExplorerNavigation.TeleportHelp,"/weather [get | auto | clear | cloudy | overcast | rain | downpour | storm | snow | blizzard | fog] — temporary weather test","/flora [species number] - all regional trees, shrubs, herbs, ferns and fungi","/fauna [species number] - regional animal catalogue","/give <item> [count] - rocks, cutting flakes, branches, wooden tools, bag"};
         public static string[] Complete(string input)
         {
             string[] options=input.StartsWith("/tp ",StringComparison.OrdinalIgnoreCase)?new[]{"/tp random","/tp random land"}:input.StartsWith("/weather ",StringComparison.OrdinalIgnoreCase)?WeatherControl.Modes.Select(m=>"/weather "+m).ToArray():input.StartsWith("/time set ",StringComparison.OrdinalIgnoreCase)?new[]{"/time set day","/time set midnight","/time set night","/time set noon","/time set sunrise","/time set sunset"}:new[]{"/date","/flora","/fauna","/give","/help","/time","/tp","/weather"};
-            if(input.StartsWith("/give ",StringComparison.OrdinalIgnoreCase))options=new[]{"/give small rock","/give large rock","/give stone flake","/give bag"};
+            if(input.StartsWith("/give ",StringComparison.OrdinalIgnoreCase))options=new[]{"/give small rock","/give large rock","/give stone flake","/give chert","/give quartzite","/give branch","/give short branch","/give pole","/give digging stick","/give wooden spear","/give bag"};
             if(input.StartsWith("/gamemode ",StringComparison.OrdinalIgnoreCase))options=new[]{"/gamemode survival","/gamemode creative","/gamemode spectator"};
             return options.Concat(new[]{"/seed","/spawn","/gamemode"}).Where(s=>s.StartsWith(input,StringComparison.OrdinalIgnoreCase)).OrderBy(s=>s,StringComparer.Ordinal).ToArray();
         }

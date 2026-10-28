@@ -1,5 +1,28 @@
 # Version 3 validation evidence
 
+## Tool stone, woodworking and right-first input - 27 October 2026
+
+75 inventory (including stale-hand-selection pickup/right-first/left fallback),
+37 material/woodworking/persistence,37 stone crafting and22 camera/save checks
+pass.34 actual editor geometry/audio checks pass; branch/pole/bare-wood/spear/
+digging-stick and five stone sample render inspected. Latest hand hover/drop UI
+compiled in the packaged checkpoint; no full gameplay input test or performance
+benchmark run. User actively available: prioritize handoff and visual feedback.
+
+Stable geological tool-stone sources are independent of shape. More permissive
+size limits and boosted surface availability compensate for compressed days.
+Source patches and baseline chances are gameplay models, not surveyed geology.
+Branches use a separate stable scatter channel and inventory ownership. Shared
+timed work transforms the original branch/pole and wears its actual flake.
+Tool combat/digging actions, work animation, buildings and history are absent.
+
+Three mono local Stable Audio3 wood-scraping crops import; provenance tracked.
+No paid calls. Owner listening/overall appearance acceptance pending. Inventory
+preview can opt into vertex colours; existing human materials default to prior
+behaviour. Source human/animal assets untouched. Fast iteration release player
+uses project-default Mono; no equivalence/FPS claim versus IL2CPP packages.
+Evidence: artifacts/woodworking; source/docs/shortcut checkpoint retained.
+
 ## Unified catalogues, give command and empty starts - 27 October 2026
 
 `/flora [number]` uses one index across all three existing plant catalogues;

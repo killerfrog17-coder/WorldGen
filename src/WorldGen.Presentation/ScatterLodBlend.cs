@@ -40,7 +40,7 @@ namespace WorldGen.Presentation
                 double SmoothHerb(double lo,double hi,double x){double t=Math.Max(0,Math.Min(1,(x-lo)/(hi-lo)));return t*t*(3-2*t);}
                 return new ScatterBlend(0,1,SmoothHerb(nearEnd*(12d/22),nearEnd,distance),1-SmoothHerb(end*.78,end,distance));
             }
-            double range=tree?1800:kind==ScatterKind.Grass?95:kind==ScatterKind.Shrub?220:kind==ScatterKind.Stone?70:kind==ScatterKind.Outcrop?1800:650;
+            double range=tree?1800:kind==ScatterKind.Grass?95:kind==ScatterKind.Shrub?220:kind==ScatterKind.Stone||kind==ScatterKind.Branch?70:kind==ScatterKind.Outcrop?1800:650;
             double Smooth(double lo,double hi,double x){double t=Math.Max(0,Math.Min(1,(x-lo)/(hi-lo)));return t*t*(3-2*t);}
             double visibility=1-Smooth(range*.85,range,distance);
             if(tree){if(distance<105)return new ScatterBlend(0,1,Smooth(65,105,distance),visibility);return new ScatterBlend(1,2,Smooth(280,420,distance),visibility);}
