@@ -234,7 +234,8 @@ public sealed partial class WorldGenRuntime
         if(!worldReady||Busy||humans==null)throw new InvalidOperationException("Item-use fixture unavailable");play.Settings.HorizontalScale=.1;TerrainVideoOptions.Current.ViewDistanceM=1000;TerrainVideoOptions.Revision++;ExploreTerrain(TerrainMapViewport.FromDegrees(50,10));deadline=Time.realtimeSinceStartupAsDouble+120;
         while((terrainExplorer==null||!terrainExplorer.PerformanceGroundSettled)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(terrainExplorer==null||!terrainExplorer.PerformanceGroundSettled)throw new InvalidOperationException("Item-use terrain did not finish its requested geometry");
-        if(Environment.GetCommandLineArgs().Contains("--worldgen-woodwork-check"))yield return terrainExplorer.CheckWoodworkReplacement(report);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-save-slots-check"))yield return CheckSaveSlotsRuntime(output,report);
+        else if(Environment.GetCommandLineArgs().Contains("--worldgen-woodwork-check"))yield return terrainExplorer.CheckWoodworkReplacement(report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-firefly-check"))yield return terrainExplorer.CheckFireflyFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-item-water-check"))yield return terrainExplorer.CheckItemWaterFlow(output,report);
         else yield return terrainExplorer.CheckItemUseFlow(output,report);

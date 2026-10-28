@@ -153,19 +153,37 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
         }
         finally { exportJob = null; }
     }
-    async void SaveToLibrary()
+    async void SaveToLibrary(bool quick=false,string slotName=null)
     {
-        if (library == null || world == null || Busy || exportJob != null||humanStep!=null) return;
-        // Geography is immutable; retain this exact immutable demographic checkpoint while saving.
-        CapturePlayer();var session=play.Copy();var snapshot=new World();foreach(var field in typeof(World).GetFields())field.SetValue(snapshot,field.GetValue(world));string name=saveName;
+        if(library==null||world==null||Busy||exportJob!=null)return;
         try
         {
-            libraryNotice = "Saving complete world...";
-            var saving = Task.Run(() => activeWorldId == null ? library.SaveNew(name, snapshot,play:session) : library.SaveAdditional(activeWorldId, snapshot,play:session)); exportJob = saving; var saved = await saving; activeWorldId = saved.GroupId; saveDialog = false;
-            saves = library.Entries(); libraryNotice = "Saved. Existing worlds were not overwritten.";
+            var savedWorld=world;var savedPlay=play;
+            CapturePlayer();var session=play.Copy();var snapshot=new World();foreach(var field in typeof(World).GetFields())field.SetValue(snapshot,field.GetValue(world));
+            string name=slotName??saveName,group=activeWorldId,parent=activeSaveId;
+            libraryNotice=quick?"Quicksaving...":"Saving...";quickSaveNotice=quick?libraryNotice:"";
+            var saving=Task.Run(()=>library.SaveNamed(group,name,snapshot,session,quick,parent));exportJob=saving;var saved=await saving;
+            // The captured save still completes if the player leaves the world,
+            // but its callback cannot rebind a different playthrough's slots.
+            if(!ReferenceEquals(world,savedWorld)||!ReferenceEquals(play,savedPlay)){saves=library.Entries();libraryNotice=quickSaveNotice="";return;}
+            activeWorldId=saved.GroupId;if(!quick){activeSaveId=saved.Id;saveName=saved.Name;saveDialog=false;saveEditName=null;}
+            saves=library.Entries();libraryNotice=quick?"Quicksaved.":"Saved.";
+            if(quick){quickSaveNotice=libraryNotice;quickSaveNoticeUntil=Time.unscaledTimeAsDouble+2.5;}
         }
-        catch (Exception e) { libraryNotice = "Save failed: " + e.Message; }
-        finally { exportJob = null; }
+        catch(Exception e){libraryNotice="Save failed: "+e.Message;if(quick){quickSaveNotice=libraryNotice;quickSaveNoticeUntil=Time.unscaledTimeAsDouble+6;}Debug.LogException(e);}
+        finally{exportJob=null;}
+    }
+    string quickSaveNotice="";double quickSaveNoticeUntil;
+    void HandleQuickSave(Keyboard keyboard,bool focused)
+    {
+        bool available=terrainExplorer!=null?terrainExplorer.AcceptsQuickSave:screen=="Simulation"&&!atlasOpen;
+        if(focused&&keyboard!=null&&keyboard.f5Key.wasPressedThisFrame&&!saveDialog&&!libraryOpen&&available)SaveToLibrary(true);
+    }
+    void DrawQuickSaveNotice()
+    {
+        if(quickSaveNotice.Length==0||exportJob==null&&Time.unscaledTimeAsDouble>quickSaveNoticeUntil)return;
+        var style=new GUIStyle(GUI.skin.label){alignment=TextAnchor.MiddleCenter,fontSize=15};
+        GUI.Label(new Rect(Screen.width*.5f-200,24,400,28),quickSaveNotice,style);
     }
     void RollSeed() { using(var entropy=System.Security.Cryptography.RandomNumberGenerator.Create()){var bytes=new byte[4];entropy.GetBytes(bytes);recipe.Seed=BitConverter.ToInt32(bytes,0)&0xFFFFFF;}inputText.Remove(nameof(Recipe.Seed)); dirty = true; }
     void Refresh() { if (world != null && !ApplyCachedDisplay()) BeginWork(false); }
@@ -200,7 +218,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
                 {
                     var elapsed = Stopwatch.StartNew();
                     var result = snapshotPath != null ? Path.GetExtension(snapshotPath).Equals(".world", StringComparison.OrdinalIgnoreCase)
-                        ? WorldFile.Read(File.ReadAllBytes(snapshotPath), token,stage=>progress=stage) : WorldJson.ReadWorld(File.ReadAllText(snapshotPath))
+                        ? WorldFile.ReadFile(snapshotPath, token,stage=>progress=stage) : WorldJson.ReadWorld(File.ReadAllText(snapshotPath))
                         : generate ? new WorldPipeline().Generate(snapshot, p => { progress = p.Stage; percent = p.Percent * 80 / 100; if (uiCheck) Debug.Log("WORLDGEN UI STAGE " + p.Stage + " " + elapsed.ElapsedMilliseconds + "ms"); }, token) : existing;
                     token.ThrowIfCancellationRequested();
                     if(snapshotPath!=null||generate)WorldMeridian.For(result,token);
@@ -299,7 +317,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
     void Update()
     {
         if(Keyboard.current!=null&&Keyboard.current.f11Key.wasPressedThisFrame)SetFullscreen(!Screen.fullScreen);
-        UpdateMusic();
+        UpdateMusic();HandleQuickSave(Keyboard.current,Application.isFocused);
         if(terrainExplorer!=null){PollHumans();return;}if(terrainReturnFrame==Time.frameCount)return;
         if(continueLoadedGame&&humans!=null&&!Busy&&humanStep==null){continueLoadedGame=false;RequestTerrain();}
         if((screen=="Setup"||screen=="Simulation")&&!saveDialog&&!atlasOpen&&!simulationPaused&&GUIUtility.keyboardControl==0&&Keyboard.current!=null&&!Keyboard.current.ctrlKey.isPressed&&!Keyboard.current.altKey.isPressed)
@@ -358,7 +376,7 @@ public sealed partial class WorldGenRuntime : MonoBehaviour
                     viewOptions.Projection=projection;committedOptions = viewOptions.Clone();
                     InstallPalettes(); displayedWorld=world;
                     if(loadingSnapshot){play=pendingPlay??PlaySession.Legacy();pendingPlay=null;WorldMeridian.Apply(play,world);centerLongitude=(float)play.PrimeMeridianLongitude;continueLoadedGame=play.HasPlayer;}
-                    if(loadingSnapshot){activeWorldId=pendingWorldId;saveName=pendingWorldName??"My world";worldReady=true;screen="Simulation";simulationTab="";simulationPaused=false;projection=viewOptions.Projection=committedOptions.Projection=Projection.Map;mapPan=Vector3.zero;mapZoom=1;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;setup.From(recipe);dirty=false;PrepareLocalTerrain();}
+                    if(loadingSnapshot){activeWorldId=pendingWorldId;activeSaveId=pendingSaveId;saveName=pendingWorldName??"My world";worldReady=true;screen="Simulation";simulationTab="";simulationPaused=false;projection=viewOptions.Projection=committedOptions.Projection=Projection.Map;mapPan=Vector3.zero;mapZoom=1;layer=preferredLayer=Layer.Climate;satelliteOpacity=0;humanOverlayOpacity=1;historyOverlay=HistoryOverlay.States;setup.From(recipe);dirty=false;PrepareLocalTerrain();}
                     if(!reusePendingGeometry){StartCoroutine(Release(globe)); globe = pendingRoot;}
                     globe.name = "World surface"; globe.SetActive(!libraryOpen && screen!="Menu" && screen!="Options"); ApplyCachedDisplay();
                     globe.transform.rotation=VisibleProjection==Projection.Map?Quaternion.identity:Quaternion.Euler(pitch,0,0)*Quaternion.Euler(0,yaw,0);

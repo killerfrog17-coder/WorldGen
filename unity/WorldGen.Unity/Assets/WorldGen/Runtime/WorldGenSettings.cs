@@ -85,6 +85,7 @@ public sealed partial class WorldGenRuntime
             case 6:DrawTerrainLab();break;
             case 7:
                 GUILayout.Label("INVENTORY & EQUIPMENT",SectionStyle());
+                GUILayout.Label("F5: quicksave for this playthrough. Save game: keep the name to overwrite that slot, or change it for a separate save. Gameplay continues while the window is unfocused; pause explicitly when needed.");
                 GUILayout.Label("I / Tab: inventory. Drag items between hands, container grids and Nearby; R rotates an item while dragging. Right-click an item for available transfers.");
                 GUILayout.Label("E: pick up the aimed-at item into the right hand, then left. Q: swap held items. R: stow the right-hand item, or left if the right is empty. G: drop right then left; in inventory, drop the hovered item. B: set down the worn bag, or wear a nearby bag.");
                 GUILayout.Label("Small rocks use one hand; large rocks use both. Your body has no storage. Worn carriers provide their own shaped grids; dropping one keeps its contents together. Transfers are immediate. Load includes everything actually carried.");

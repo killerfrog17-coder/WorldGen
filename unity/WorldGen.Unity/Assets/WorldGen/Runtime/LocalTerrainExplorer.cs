@@ -47,6 +47,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     double lastBuildMs,largestBuildMs; string error="";
     bool forestScheduledFirst;
     public bool Ready=>terrain!=null;
+    public bool AcceptsQuickSave=>Ready&&!DeathVisible&&!inventoryOpen&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen;
     public bool IsWalking=>!motion.Flying;
     public double TravelM=>motion.X+motion.Z;
     public double MovementSeconds {get;private set;}
@@ -135,7 +136,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(closed)return;
         CaptureMouse();
         bool inventoryInput=!WorldGenPerformance.Enabled&&HandleInventoryKeys();
-        bool chatInput=!DeathVisible&&!inventoryInput&&!WorldGenPerformance.Enabled&&HandleChatKeys();if(!DeathVisible&&!inventoryInput&&!chatInput&&!WorldGenPerformance.Enabled)HandleDebugKeys();if(closed)return;
+        bool chatInput=!DeathVisible&&!inventoryInput&&!WorldGenPerformance.Enabled&&HandleChatKeys();if(Application.isFocused&&!DeathVisible&&!inventoryInput&&!chatInput&&!WorldGenPerformance.Enabled)HandleDebugKeys();if(closed)return;
         if(terrain==null)
         {
             if(!building.IsCompleted)return;
@@ -168,6 +169,12 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
                 playerDeathVelocity=new Vector3((float)((motion.X-movementStartX)/moveDt),(float)(-Math.Max(-motion.VerticalSpeed,motion.LandingSpeedMps)),(float)((motion.Z-movementStartZ)/moveDt));
                 PlayerDamageRules.Apply(Vitals,Mode,PlayerDamageRules.FallDamage(motion.LandingSpeedMps),PlayerDeathCause.Fall);
             }
+        }
+        if(!Application.isFocused&&!DeathVisible&&!inventoryOpen&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen)
+        {
+            survivalSprinting=false;motion.Move(Time.unscaledDeltaTime,0,0,0,heading,pitch,false,false,Ground,speedScale:1);
+            playerDeathVelocity=new Vector3(0,(float)motion.VerticalSpeed,0);
+            PlayerDamageRules.Apply(Vitals,Mode,PlayerDamageRules.FallDamage(motion.LandingSpeedMps),PlayerDeathCause.Fall);
         }
         TrackStreamingMotion(motion.X-movementStartX,motion.Z-movementStartZ,Time.unscaledDeltaTime);
         UpdatePlayerSurvival(motion.X-movementStartX,motion.Z-movementStartZ);

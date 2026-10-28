@@ -1,5 +1,62 @@
 # WorldGen repository instructions
 
+SAVE SLOTS SELECTED / NEXT NATURE + FP MOTION AUTHORIZED,28October2026:
+Owner away ~1hour, explicitly authorizes rudimentary FIRST PERSON held-item action
+motion (wind-up/thrust/throws/tools), comprehensive attainable natural materials
+incl reeds/fibres, plant foods (berries/mushrooms etc) with realistic distributions/
+quantities/calorie value/toxicity, and Skyrim-style corpse LOOT. This SUPERSEDES
+older no-attack-motion/no-meat-drops rules for this new scope. No full skinning/
+butchery system or raw-meat illness penalties yet. No paid calls/subagents. Full
+CPU/GPU/network allowed. Preserve all original fauna/human skins/weights/rigs/
+actions/coats and owner prompt deletion/two untracked deer scripts. No old Homo/
+history/construction-night resumption. Sampling must not falsely certify toxic
+mushrooms/berries safe; dose/delayed symptoms/knowledge should be considered.
+
+Current root shortcut selects artifacts/player-save-slots-final/WorldGen.exe,
+release IL2CPP BuiltUtc2026-10-28T23:19:23.6484202Z, JUNCTION to E:/WorldGen-builds/
+player-save-slots-final. Protect link AND target. Prior player-branch-trim-fix kept.
+Native19 and Core69 save checks PASS; original library43 included directly in69.
+Native first save22.2566s, repeat0.2879s for bundled-world fixture, NOT owner200k
+performance guarantee. Cold reload actually returns to playable world incl terrain
+worker, binary blood masks/inventory/manual associations. Actual F5 events,
+name overwrite/new slot, context-switch callback isolation, background survival/
+craft/gravity and craft-progress visibility pass. No runtime exceptions. Initial
+candidate18 also passed before async-context fix; evidence retained separately.
+Core inventory75/stone37/wood37 pass. Preservation578asset/DLL+332frozen source/
+resources+177collision IDs/hashes+18audio pass. All owned workers EXITED. Owner
+explicitly closed WorldGen for tests; no owner apps/saves closed/modified by agent.
+Known Unity autochanges restored. No cleanup attempted, C~1.3GiB, binaries use E.
+
+Save game always editable name: same name within playthrough overwrites its manual
+slot; changed name creates separate slot. F5 updates separate playthrough quicksave,
+linked parent manual slot/name; loading retains association; before-first-manual
+F5 supported. No autosaves/F9. Cancel keeps old default name. Immutable geography
+is one .bases/<stagehash>.world per library, validated/encoded once. Per-slot
+metadata atomically selects revisions/<GUID> with small snapshot.world manifest,
+history.bin and play-session.bin. Compressed binary raw arrays replace JSON blood
+number lists. Current+previous revisions retained; old raw .world/JSON still load,
+obsolete64KB session limit removed (256MBencoded/1GiBdecoded play,4GBhistory).
+History remains full per-save, not record-level deltas; no constant terrain
+serialization/validation/heightmap export per save. Base data MUST travel with
+slot dirs when backing up. Shared bases retained with trash for recoverability.
+Game/CLI/terrain worker all support reference snapshots via WorldFile.ReadFile.
+
+Focus loss no longer pauses survival/crafting/animals/NPCs/drops/projectiles/tools;
+player gravity runs with zero input when unfocused. Cursor/new-action input remains
+focus-gated, explicit menu/inventory pause rules retained. Running handcraft bar
+at bottom centre outside inventory; grey disabled action reasons only on hover.
+Actual UI appearance/OS Alt-Tab owner trial remains pending; native exercises
+logic in background-capable batch player. No full139combat/ragdoll or13shoreline
+rerun, no new art/animal/world-data edits. Broader old --world-library-only harness
+hits unrelated pre-existing SkyChat help-order assertion BEFORE library checks;
+new focused69 invokes original43 library tests directly without weakening them.
+
+Evidence artifacts/save-slots-20261028 (69core logs, proofs, freeze, initial-proof
+copies, selected checkpoint, shortcut backup); native artifacts/overnight-items-
+20261028/save-slots-final19 and save-slots18. Docs docs/SAVE_SYSTEM.md. Source/docs/
+shortcut committed/pushed/remotely verified at handoff; SHA task source-checkpoint.
+Then continue NEW authorized nature/FP motions scope above while owner away.
+
 BRANCH TRIM PHYSICS LIFETIME FIX SELECTED,28October2026:
 Existing shortcut now selects artifacts/player-branch-trim-fix/WorldGen.exe,
 release IL2CPP BuiltUtc2026-10-28T22:25:30.4807018Z. Folder is a JUNCTION to

@@ -6,11 +6,12 @@ using WorldGen.Serialization;
 
 public sealed partial class WorldGenRuntime
 {
-    string activeWorldId, pendingWorldId, pendingWorldName, deleteId; bool deleteGroup, saveDialog, mapTypeMenu, gridMenu;
+    string activeWorldId, activeSaveId, pendingWorldId, pendingSaveId, pendingWorldName, deleteId; bool deleteGroup, saveDialog, mapTypeMenu, gridMenu;
     readonly HashSet<string> expandedWorlds=new HashSet<string>();
+    string saveEditName;
     void OpenSave(WorldLibraryEntry entry)
     {
-        Try(()=>{pendingPlay=WorldLibrary.ReadPlaySession(entry.SnapshotPath);pendingWorldId=entry.GroupId;pendingWorldName=entry.Name;libraryOpen=false;BeginWork(false,entry.SnapshotPath);});
+        Try(()=>{pendingPlay=WorldLibrary.ReadPlaySession(entry.SnapshotPath);pendingWorldId=entry.GroupId;pendingSaveId=entry.Kind=="quick"?entry.ParentSaveId:entry.Id;pendingWorldName=entry.Kind=="quick"?entry.ManualName??"New save":entry.Name;libraryOpen=false;BeginWork(false,entry.SnapshotPath);});
     }
     void DrawWorldLibrary()
     {
@@ -28,7 +29,7 @@ public sealed partial class WorldGenRuntime
             GUILayout.BeginHorizontal(GUI.skin.box);
             if(versions.Length>1){if(GUILayout.Button(expanded?"−":"+",GUILayout.Width(30))){if(expanded)expandedWorlds.Remove(group.Key);else expandedWorlds.Add(group.Key);}}
             else GUILayout.Space(34);
-            GUILayout.Label(latest.Name,GUILayout.ExpandWidth(true));
+            GUILayout.Label(latest.GroupName??latest.Name,GUILayout.ExpandWidth(true));
             bool enabled=GUI.enabled;GUI.enabled=enabled&&latest.Error.Length==0;
             if(GUILayout.Button("Load last save",GUILayout.Width(125)))OpenSave(latest);
             GUI.enabled=enabled;
@@ -37,7 +38,7 @@ public sealed partial class WorldGenRuntime
             if(expanded && versions.Length>1)foreach(var save in versions)
             {
                 GUILayout.BeginHorizontal();GUILayout.Space(40);
-                string label=DateTime.TryParse(save.SavedUtc,out var time)?time.ToLocalTime().ToString("g"):save.SavedUtc;
+                string label=save.Name+" ? "+(DateTime.TryParse(save.SavedUtc,out var time)?time.ToLocalTime().ToString("g"):save.SavedUtc);
                 GUILayout.Label(label+(save.Error.Length>0?" · "+save.Error:""));
                 GUI.enabled=enabled&&save.Error.Length==0;
                 if(GUILayout.Button("Load",GUILayout.Width(75)))OpenSave(save);
@@ -61,7 +62,7 @@ public sealed partial class WorldGenRuntime
             if(GUILayout.Button("Cancel"))deleteId=null;
             if(GUILayout.Button("Delete"))
             {
-                Try(()=>{if(deleteGroup)library.DeleteWorld(deleteId);else library.DeleteSave(deleteId);saves=library.Entries();if(activeWorldId!=null&&!saves.Any(e=>e.GroupId==activeWorldId))activeWorldId=null;});
+                Try(()=>{if(deleteGroup)library.DeleteWorld(deleteId);else library.DeleteSave(deleteId);saves=library.Entries();if(activeWorldId!=null&&!saves.Any(e=>e.GroupId==activeWorldId)){activeWorldId=null;activeSaveId=null;}});
                 deleteId=null;
             }
             GUILayout.EndHorizontal();GUILayout.EndArea();
@@ -72,11 +73,13 @@ public sealed partial class WorldGenRuntime
         GUI.Box(new Rect(0,0,Screen.width,Screen.height),"");
         GUILayout.BeginArea(new Rect(Screen.width/2-220,Screen.height/2-110,440,220),GUI.skin.box);
         GUILayout.Label(activeWorldId==null?"SAVE WORLD":"SAVE PROGRESS",new GUIStyle(GUI.skin.label){fontSize=24});
-        if(activeWorldId==null)saveName=GUILayout.TextField(saveName,80);else GUILayout.Label(saveName);
+        if(saveEditName==null)saveEditName=saveName;
+        GUI.enabled=exportJob==null;saveEditName=GUILayout.TextField(saveEditName,80);
+        GUILayout.Label("Use the same name to overwrite; a new name creates another save.");
         if(libraryNotice.Length>0)GUILayout.Label(libraryNotice);
-        GUI.enabled=exportJob==null&&humanStep==null;GUILayout.BeginHorizontal();
-        if(GUILayout.Button("Cancel"))saveDialog=false;
-        if(GUILayout.Button("Save"))SaveToLibrary();
+        GUI.enabled=exportJob==null;GUILayout.BeginHorizontal();
+        if(GUILayout.Button("Cancel")){saveDialog=false;saveEditName=null;}
+        if(GUILayout.Button("Save"))SaveToLibrary(false,saveEditName);
         GUILayout.EndHorizontal();GUI.enabled=true;GUILayout.EndArea();
     }
 }

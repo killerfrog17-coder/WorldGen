@@ -105,7 +105,7 @@ public sealed partial class LocalTerrainExplorer
             }
             animalPlan=null;
         }
-        bool stopped=paused||mapOpen||ecologyOpen||chatOpen||inventoryOpen&&!CraftWorking||!Application.isFocused&&!inventoryReviewMode;
+        bool stopped=paused||mapOpen||ecologyOpen||chatOpen||inventoryOpen&&!CraftWorking;
         if(!stopped&&CenterReady&&!NearTerrainPending()&&HeightAboveGround<1200&&animalPlan==null&&ActiveWorkerCount<WorkerLimit&&
            (now>=nextAnimalPlan||(Position-animalPlanAt).Length*frame.RadiusM>80))
         {

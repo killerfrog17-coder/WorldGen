@@ -18,7 +18,7 @@ public sealed partial class WorldGenRuntime
     {
         if(Busy||humanStep!=null)return;
         if(worldReady&&world!=null&&!discardPrompt){discardPrompt=true;return;}
-        discardPrompt=false;humanPlaying=false;humanCancellation?.Cancel();world=null;worldReady=false;humanWorld=null;humans=null;activeWorldId=null;
+        discardPrompt=false;humanPlaying=false;humanCancellation?.Cancel();world=null;worldReady=false;humanWorld=null;humans=null;activeWorldId=activeSaveId=null;
         if(globe!=null)StartCoroutine(Release(globe));globe=null;displayedWorld=null;
         play=new PlaySession();saveName="New world";recipe=new Recipe{Detail=200000};recipe=setup.Preset("Continents plus",recipe);preset="Continents plus";RollSeed();
         panels=groups.Select(_=>false).ToArray();advancedGeneration=false;setupCategory="World";inputText.Clear();screen="Setup";error="";selectedCell=-1;

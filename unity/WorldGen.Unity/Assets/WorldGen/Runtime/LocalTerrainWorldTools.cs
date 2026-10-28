@@ -33,7 +33,7 @@ public sealed partial class LocalTerrainExplorer
         {var start=view.transform.TransformPoint(new Vector3(.23f,-.28f,.55f));var end=work.Fish.Renderer.bounds.center;for(int i=0;i<6;i++){float t=i/5f;work.Line.SetPosition(i,Vector3.Lerp(start,end,t)-Vector3.up*(.2f*t*(1-t)));}}
         if(DeathVisible||Spectating||SurvivalActive&&Vitals.Incapacitated||Inventory.Find(work.Tool.Id)!=work.Tool||work.Tool.Place!=PossessionPlace.RightHand||Math.Pow(motion.X-work.X,2)+Math.Pow(motion.Z-work.Z,2)>.2)
         {if(inventoryReviewMode)Debug.Log("WORLD TOOL INTERRUPT death="+DeathVisible+" spectator="+Spectating+" sameTool="+(Inventory.Find(work.Tool.Id)==work.Tool)+" place="+work.Tool.Place+" moved="+Math.Sqrt(Math.Pow(motion.X-work.X,2)+Math.Pow(motion.Z-work.Z,2)));CancelWorldToolWork();return;}
-        if(paused||mapOpen||ecologyOpen||chatOpen||!Ready||!Application.isFocused&&!inventoryReviewMode)return;
+        if(paused||mapOpen||ecologyOpen||chatOpen||!Ready)return;
         if(!SpendCombatStamina(Math.Min(.25,Time.unscaledDeltaTime)*.5)){CancelWorldToolWork();return;}
         work.Done+=Math.Min(.25,Time.unscaledDeltaTime)*86400/(PlayerRules.Settings.RealMinutesPerDay*60*PlayerRules.Settings.ItemCraftingTimeMultiplier);
         if(Time.unscaledTimeAsDouble>=craftSoundAt){PlayItemEffect(work.Label.StartsWith("Digging",StringComparison.Ordinal)?"soil-dig":"fibre-handle",view.transform.position,.4f,true);craftSoundAt=Time.unscaledTimeAsDouble+1;}

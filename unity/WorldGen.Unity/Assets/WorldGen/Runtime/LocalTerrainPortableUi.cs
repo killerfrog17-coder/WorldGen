@@ -35,7 +35,8 @@ public sealed partial class LocalTerrainExplorer
         var recipes=job!=null?(PortableCrafting.IsJob(job)?new[]{PortableCrafting.Recipe(job.RecipeId)}:Array.Empty<PortableRecipe>()):PortableCrafting.Recipes.Where(r=>r.Accepts(p)).ToArray();
         var legacy=job!=null?(PortableCrafting.IsJob(job)?Array.Empty<ItemCraftAction>():new[]{job.Action}):StoneCrafting.Rock(p)?new[]{ItemCraftAction.Flake}:WoodCrafting.Wood(p)?
             (p.Kind==PossessionKind.Branch?new[]{ItemCraftAction.TrimBranch,ItemCraftAction.StripBark,ItemCraftAction.DiggingStick,ItemCraftAction.WoodenSpear}:p.Kind==PossessionKind.TrimmedPole?new[]{ItemCraftAction.StripBark,ItemCraftAction.DiggingStick,ItemCraftAction.WoodenSpear}:new[]{ItemCraftAction.StripBark}):Array.Empty<ItemCraftAction>();
-        float width=390*scale;float height=Mathf.Min(Screen.height-24*scale,(220+(recipes.Length+legacy.Length)*72)*scale);
+        string blockedTooltip="";
+        float width=390*scale;float height=Mathf.Min(Screen.height-24*scale,(220+(recipes.Length+legacy.Length)*34)*scale);
         var rect=new Rect(Mathf.Clamp(inventoryMenuAt.x,0,Screen.width-width),Mathf.Clamp(inventoryMenuAt.y,0,Screen.height-height),width,height);inventoryContextRect=rect;
         InventoryFill(rect,new Color(.075f,.1f,.11f));InventoryOutline(rect,InventoryGold);GUILayout.BeginArea(new Rect(rect.x+8*scale,rect.y+8*scale,rect.width-16*scale,rect.height-16*scale));
         portableContextScroll=GUILayout.BeginScrollView(portableContextScroll);
@@ -46,8 +47,8 @@ public sealed partial class LocalTerrainExplorer
         if(ItemUseRules.Profile(p).Weapon)GUILayout.Label("Condition "+Math.Round(ItemUseRules.Condition(p)*100)+"%"+((PortableTechnology.Item(p.Kind)?.Capability&(CraftCapability.Cut|CraftCapability.Scrape))!=0?" · edge "+Math.Round(p.EdgeSharpness*100)+"%":""),label);
         void ActionButton(string title,bool ready,string reason,Action run)
         {
-            bool enabled=GUI.enabled;GUI.enabled=ready;if(GUILayout.Button(title,InventoryControlStyle(GUI.skin.button,scale),GUILayout.Height(30*scale)))run();GUI.enabled=enabled;
-            if(!ready)GUILayout.Label(reason,label);
+            bool enabled=GUI.enabled;GUI.enabled=enabled&&ready;if(GUILayout.Button(new GUIContent(title,ready?"":reason),InventoryControlStyle(GUI.skin.button,scale),GUILayout.Height(30*scale)))run();GUI.enabled=enabled;
+            if(!ready&&GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition))blockedTooltip=reason;
         }
         foreach(var action in legacy)
         {
@@ -72,6 +73,12 @@ public sealed partial class LocalTerrainExplorer
         var slot=PortableTechnology.Wear(p);if(slot.HasValue)ActionButton("Wear on "+slot.Value.ToString().ToLowerInvariant(),true,"",()=>{RequestPossession(p.Id,slot.Value);inventoryContext=null;});
         ActionButton("Put on ground",true,"",()=>{RequestPossession(p.Id,PossessionPlace.Ground);inventoryContext=null;});
         GUILayout.EndScrollView();GUILayout.EndArea();
+        if(blockedTooltip.Length>0)
+        {
+            float tooltipWidth=Math.Min(320*scale,Screen.width-24),tooltipHeight=label.CalcHeight(new GUIContent(blockedTooltip),tooltipWidth-20*scale)+16*scale;
+            var mouse=Event.current.mousePosition;var tip=new Rect(Mathf.Clamp(mouse.x+16*scale,8,Screen.width-tooltipWidth-8),Mathf.Clamp(mouse.y+20*scale,8,Screen.height-tooltipHeight-8),tooltipWidth,tooltipHeight);
+            InventoryFill(tip,new Color(.04f,.06f,.065f,.98f));InventoryOutline(tip,InventoryGold);GUI.Label(new Rect(tip.x+10*scale,tip.y+8*scale,tip.width-20*scale,tip.height-16*scale),blockedTooltip,label);
+        }
         if(Event.current.type==EventType.MouseDown&&!rect.Contains(Event.current.mousePosition)){inventoryContext=null;portableContextScroll=Vector2.zero;Event.current.Use();}
     }
 }

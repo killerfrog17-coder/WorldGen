@@ -32,7 +32,7 @@ try
     if (args.Contains("--interconnectedness")) recipe.Interconnectedness = int.Parse(Arg("--interconnectedness"));
     if (args.Contains("--world") && new[] { "--seed", "--detail", "--lake-amount", "--mountain-strength", "--recipe", "--preset", "--continents", "--interconnectedness" }.Any(args.Contains)) throw new ArgumentException("Loading a world preserves its saved settings; generation overrides cannot accompany --world.");
     var sw = System.Diagnostics.Stopwatch.StartNew();
-    var w = args.Contains("--world") ? (Path.GetExtension(Arg("--world")).Equals(".world", StringComparison.OrdinalIgnoreCase) ? WorldFile.Read(File.ReadAllBytes(Arg("--world")), cancel.Token) : WorldJson.ReadWorld(File.ReadAllText(Arg("--world")))) : pipeline.Generate(recipe, p => Console.Error.WriteLine($"{p.Percent,3}% {p.Stage} [{sw.ElapsedMilliseconds} ms]"), cancel.Token);
+    var w = args.Contains("--world") ? (Path.GetExtension(Arg("--world")).Equals(".world", StringComparison.OrdinalIgnoreCase) ? WorldFile.ReadFile(Arg("--world"), cancel.Token) : WorldJson.ReadWorld(File.ReadAllText(Arg("--world")))) : pipeline.Generate(recipe, p => Console.Error.WriteLine($"{p.Percent,3}% {p.Stage} [{sw.ElapsedMilliseconds} ms]"), cancel.Token);
     recipe = w.Recipe;
     foreach (var stage in w.Stages) Console.WriteLine(stage.Name + " " + stage.Hash);
     foreach (var warning in w.Warnings) Console.Error.WriteLine("Note: " + warning);

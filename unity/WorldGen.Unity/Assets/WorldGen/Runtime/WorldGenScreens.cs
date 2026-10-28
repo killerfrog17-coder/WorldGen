@@ -53,7 +53,7 @@ public sealed partial class WorldGenRuntime
                 world=previousComplete;worldReady=world!=null;dirty=true;
                 if(world==null){StartCoroutine(Release(globe));globe=null;}
             }
-            else {world=generationJob.Result;worldReady=true;dirty=false;activeWorldId=null;play.HasPlayer=false;play.MeridianVersion=0;WorldMeridian.Apply(play,world);centerLongitude=(float)play.PrimeMeridianLongitude;if(string.IsNullOrWhiteSpace(saveName))saveName="New world";}
+            else {world=generationJob.Result;worldReady=true;dirty=false;activeWorldId=activeSaveId=null;play.HasPlayer=false;play.MeridianVersion=0;WorldMeridian.Apply(play,world);centerLongitude=(float)play.PrimeMeridianLongitude;if(string.IsNullOrWhiteSpace(saveName))saveName="New world";}
             generationJob=null;selectedCell=-1;
             if(worldReady)PrepareLocalTerrain();
             if(world!=null){layer=GenerationPreview.Available(world,preferredLayer)?preferredLayer:Layer.Terrain;Refresh();}
@@ -64,7 +64,7 @@ public sealed partial class WorldGenRuntime
     }
     void OnGUI()
     {
-        if(terrainExplorer!=null){if(saveDialog){GUI.skin=Theme();DrawSaveDialog();}return;}
+        if(terrainExplorer!=null){DrawQuickSaveNotice();if(saveDialog){GUI.skin=Theme();DrawSaveDialog();}return;}
         if(cameraView==null)return;
         GUI.skin=Theme();GUI.skin.label.wordWrap=true;GUI.color=GUI.contentColor=GUI.backgroundColor=Color.white;
         GUI.skin.button.fontSize=14;GUI.skin.label.fontSize=14;

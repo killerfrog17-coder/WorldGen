@@ -11,10 +11,11 @@ namespace WorldGen.Serialization
     {
         public string Id = "", GroupId = "", Name = "", AlgorithmVersion = "", TerrainSource = "", SavedUtc = "", Error = "", SnapshotPath = "";
         public int Detail;
+        [System.Runtime.Serialization.OptionalField] public string Revision,Kind,ParentSaveId,ManualName,GroupName;
     }
 
     /// <summary>Named, immutable full-world saves. Filesystem metadata is not generation state.</summary>
-    public sealed class WorldLibrary
+    public sealed partial class WorldLibrary
     {
         public string Root { get; }
         public WorldLibrary(string root)
@@ -38,7 +39,8 @@ namespace WorldGen.Serialization
                     var entry = WorldJson.Read<WorldLibraryEntry>(File.ReadAllText(Path.Combine(p, "metadata.json")));
                     if (entry == null || entry.Id != id || string.IsNullOrWhiteSpace(entry.Name)) throw new InvalidDataException("Invalid save metadata.");
                     if (!ValidId(entry.GroupId)) entry.GroupId = id; // Legacy snapshots are individual worlds.
-                    entry.SnapshotPath = Path.Combine(p, "snapshot.world");
+                    if(!string.IsNullOrEmpty(entry.Revision)&&!Guid.TryParseExact(entry.Revision,"N",out _))throw new InvalidDataException("Invalid save revision.");
+                    entry.SnapshotPath = string.IsNullOrEmpty(entry.Revision)?Path.Combine(p,"snapshot.world"):Path.Combine(p,"revisions",entry.Revision,"snapshot.world");
                     entry.Error = File.Exists(entry.SnapshotPath) ? "" : "Snapshot is missing.";
                     return entry;
                 }
@@ -47,10 +49,10 @@ namespace WorldGen.Serialization
         }
         public World Load(string id, CancellationToken cancellation = default)
         {
-            string path = Path.Combine(Folder(id), "snapshot.world");
+            string path = Entries().FirstOrDefault(e=>e.Id==id)?.SnapshotPath??Path.Combine(Folder(id),"snapshot.world");
             cancellation.ThrowIfCancellationRequested();
             if (new FileInfo(path).Length > WorldFile.MaximumFileBytes) throw new InvalidDataException("World snapshot is too large.");
-            return WorldFile.Read(File.ReadAllBytes(path), cancellation);
+            return WorldFile.ReadFile(path, cancellation);
         }
         public WorldLibraryEntry SaveNew(string name, World world, CancellationToken cancellation = default,PlaySession play=null)
             => Save(Guid.NewGuid().ToString("N"), name, world, cancellation,play:play);
@@ -63,9 +65,12 @@ namespace WorldGen.Serialization
         }
         public static PlaySession ReadPlaySession(string snapshotPath)
         {
-            string path=Path.Combine(Path.GetDirectoryName(Path.GetFullPath(snapshotPath)),"play-session.json");
+            string folder=Path.GetDirectoryName(Path.GetFullPath(snapshotPath));
+            string binary=Path.Combine(folder,"play-session.bin");
+            if(File.Exists(binary)){var compact=SaveStateFile.Read<PlaySession>(binary,"WGPLAY01",1073741824);compact.Validate();return compact;}
+            string path=Path.Combine(folder,"play-session.json");
             if(!File.Exists(path))return PlaySession.Legacy();
-            if(new FileInfo(path).Length>65536)throw new InvalidDataException("Play session is too large.");
+            if(new FileInfo(path).Length>WorldFile.MaximumFileBytes)throw new InvalidDataException("Play session exceeds the supported file size.");
             var session=WorldJson.Read<PlaySession>(File.ReadAllText(path))??throw new InvalidDataException("Missing play session.");session.Validate();return session;
         }
         // Recoverable deletion. Never follow a user-created directory junction outside the library.
@@ -89,7 +94,7 @@ namespace WorldGen.Serialization
         public void InstallEarth(string bundledSnapshot, CancellationToken cancellation = default)
         {
             if (Directory.Exists(Folder("earth"))) return; // Never overwrite a user's existing library entry.
-            Save("earth", "Earth", WorldFile.Read(File.ReadAllBytes(bundledSnapshot), cancellation), cancellation);
+            Save("earth", "Earth", WorldFile.ReadFile(bundledSnapshot, cancellation), cancellation);
         }
         WorldLibraryEntry Save(string id, string name, World world, CancellationToken cancellation, string groupId = null,PlaySession play=null)
         {

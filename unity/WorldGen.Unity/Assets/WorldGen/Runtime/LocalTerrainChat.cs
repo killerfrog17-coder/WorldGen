@@ -23,7 +23,7 @@ public sealed partial class LocalTerrainExplorer
     void CloseChat(){chatOpen=false;chatSelectAll=false;CaptureMouse();}
     void ChatCharacter(char character)
     {
-        if(closed)return;
+        if(closed||!Application.isFocused&&!inventoryReviewMode)return;
         if(!chatOpen){if(character=='/'&&!paused&&!mapOpen&&!ecologyOpen)OpenChat("/");return;}
         if(Time.frameCount==chatOpenedFrame||char.IsControl(character))return;InsertChat(character.ToString());
     }
@@ -48,7 +48,7 @@ public sealed partial class LocalTerrainExplorer
     {
         var keyboard=ActiveKeyboard;
         if(chatKeyboard!=keyboard){if(chatKeyboard!=null)chatKeyboard.onTextInput-=ChatCharacter;chatKeyboard=keyboard;if(chatKeyboard!=null)chatKeyboard.onTextInput+=ChatCharacter;}
-        if(keyboard==null)return chatOpen;
+        if(keyboard==null||!Application.isFocused&&!inventoryReviewMode)return chatOpen;
         bool enter=keyboard.enterKey.wasPressedThisFrame||keyboard.numpadEnterKey.wasPressedThisFrame;
         if(!chatOpen)
         {

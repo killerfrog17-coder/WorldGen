@@ -61,10 +61,10 @@ public sealed partial class LocalTerrainExplorer
     void UpdateStoneCrafting()
     {
         var job=ActiveItemCraft;if(job==null)return;
-        bool suspended=paused||mapOpen||ecologyOpen||chatOpen||!Ready||!Application.isFocused&&!inventoryReviewMode;
+        bool suspended=paused||mapOpen||ecologyOpen||chatOpen||!Ready;
         if(suspended){if(stoneCraftVoice!=null)stoneCraftVoice.Stop();return;}
         var key=ActiveKeyboard;
-        if(DeathVisible||Spectating||SurvivalActive&&Vitals.Incapacitated||!inventoryOpen&&key!=null&&
+        if(DeathVisible||Spectating||SurvivalActive&&Vitals.Incapacitated||!inventoryOpen&&Application.isFocused&&key!=null&&
             (key.wKey.isPressed||key.aKey.isPressed||key.sKey.isPressed||key.dKey.isPressed||key.spaceKey.isPressed))
         {PauseItemCraft(job);return;}
         if(PortableCrafting.IsJob(job)){UpdatePortableCrafting(job);return;}

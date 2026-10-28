@@ -9,7 +9,7 @@ using WorldGen.Core;
 namespace WorldGen.Serialization
 {
     /// <summary>Full, lossless, offline world snapshots without an intermediate enormous JSON string.</summary>
-    public static class WorldFile
+    public static partial class WorldFile
     {
         static readonly byte[] Magic = { 87, 71, 87, 82, 76, 68, 48, 49 }; // WGWRLD01
         public const int MaximumFileBytes = 256000000;
@@ -18,7 +18,7 @@ namespace WorldGen.Serialization
             var serializer=new DataContractSerializer(typeof(World),new DataContractSerializerSettings{MaxItemsInObjectGraph=int.MaxValue});
             serializer.SetSerializationSurrogateProvider(transport);return serializer;
         }
-        public static byte[] Write(World world, CancellationToken cancellation = default)
+        public static byte[] Write(World world, CancellationToken cancellation = default,CompressionLevel compression=CompressionLevel.Optimal)
         {
             cancellation.ThrowIfCancellationRequested();
             using (var memory = new MemoryStream())
@@ -29,7 +29,7 @@ namespace WorldGen.Serialization
                 // histories exceeded the file cap with Fastest despite fitting
                 // comfortably with ordinary lossless compression. No history
                 // records, terrain or integrity checks are discarded.
-                using (var gzip = new GZipStream(memory, CompressionLevel.Optimal, true))
+                using (var gzip = new GZipStream(memory, compression, true))
                 using (var guarded = new GuardedStream(gzip, cancellation))
                 using (var buffered = new BufferedStream(guarded, 65536))
                 using (var writer = XmlDictionaryWriter.CreateBinaryWriter(buffered, null, null, false))
