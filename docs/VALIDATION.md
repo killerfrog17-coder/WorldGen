@@ -1,5 +1,37 @@
 # Version 3 validation evidence
 
+## Immediate inventory interaction and physics drops - 27 October 2026
+
+Owner feedback supersedes the original delay/hand-selector/nonphysical drops.
+All transfers now execute immediately. Q exchanges the actual left/right items;
+1/2 select the active hand. Two-hand items remain in both hands. Reach and fit
+checks still reject invalid transfers without mutating ownership.
+
+Material icons fade from2m to1m (distance from feet to item). A name/[E] label
+appears only for the item hit by the invisible camera ray, using the same aim
+and reach checks as pickup. The icons are the existing generated item silhouettes,
+not copied game assets. No crosshair or permanent control banner was added.
+
+G releases a Rigidbody from the actual held visual, with a fitted box proxy,
+gravity, friction and small bounce against shared local terrain collision tiles.
+Resting drops retain planet position, height offset and orientation; optional
+saved state distinguishes airborne drops. Original and new inventory saves
+remain readable. Velocity is transient and resumes from rest after reloading or
+chart reset. Moving drops freeze with inventory/pause. Full vegetation/prop
+collision is not added. Held item presentation remains the earlier placeholder.
+
+72 core inventory checks and22 camera/save checks pass. 32 packaged
+checks cover actual E/Q/R/G/B/I/Tab input, immediate stow, real hand exchange,
+prompt aim, airborne release, falling/terrain settlement, bag contents and
+ownership/save roundtrips. Actual native prompt, falling-item and inventory
+captures inspected. Build exit0, no C#/shader/runtime errors. 578 frozen input/
+art hashes and the exact fauna index verify unchanged protected assets. No FPS
+benchmark or exact mesh-contact claim. Release IL2CPP `player-inventory-interaction`,
+BuiltUtc 2026-10-28T00:00:27.6398869Z; existing shortcut updated, priorinventory kept.
+Evidence `artifacts/inventory-interaction`; source/docs/shortcut backup under
+`artifacts/source-checkpoints/inventory-interaction-20261027`. Owner apps/saves
+were not closed or modified. Unrelated prompt deletion/two deer scripts preserved.
+
 ## Physical inventory prototype - 27 October 2026
 
 New owner scope is inventory only: Unturned-style character/container/Nearby

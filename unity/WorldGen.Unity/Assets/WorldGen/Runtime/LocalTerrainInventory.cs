@@ -16,12 +16,10 @@ public sealed partial class LocalTerrainExplorer
     readonly Dictionary<string,PossessionPlace> inventoryVisualPlaces=new Dictionary<string,PossessionPlace>();
     bool inventoryOpen,inventoryInitialized;double inventoryNearbyAt;
     string inventoryNotice="",inventorySelected="";float inventoryNoticeUntil;
-    Action inventoryPending;double inventoryPendingAt;
     Material inventoryBagMaterial;
     readonly HashSet<ArtModel> inventoryPinnedArt=new HashSet<ArtModel>();
     readonly bool inventoryReviewMode=Environment.GetCommandLineArgs().Contains("--worldgen-inventory-check");
     Transform inventoryBoneOwner;Dictionary<string,Transform> inventoryBones;
-    bool InventoryBusy=>inventoryPending!=null;
     void InitializeInventory()
     {
         if(inventoryInitialized)return;inventoryInitialized=true;Inventory.Validate();
@@ -69,7 +67,7 @@ public sealed partial class LocalTerrainExplorer
         {
             if((item.Position-Position).Length*frame.RadiusM>4)continue;
             TerrainHandoff.Coordinates(frame,item.Position,out double x,out double z);
-            var point=new Vector3((float)(x-originX),(float)Ground(x,z)+(float)item.HeightM*.5f,(float)(z-originZ));
+            var point=inventoryDrops.TryGetValue(item.Id,out var drop)?transform.InverseTransformPoint(drop.Body.worldCenterOfMass):new Vector3((float)(x-originX),(float)(Ground(x,z)+item.GroundOffsetM)+(float)item.HeightM*.5f,(float)(z-originZ));
             if(InventoryReach(point))inventoryNearby.Add(new NearbyPossession{Item=item,Point=point,Bounds=new Bounds(point,new Vector3((float)item.WidthM+.06f,(float)item.HeightM+.06f,(float)item.DepthM+.06f))});
         }
         inventoryNearby.Sort((a,b)=>(a.Point-player).sqrMagnitude.CompareTo((b.Point-player).sqrMagnitude));
@@ -88,33 +86,28 @@ public sealed partial class LocalTerrainExplorer
     }
     void InventoryFeedback(string text)
     {inventoryNotice=text;inventoryNoticeUntil=Time.unscaledTime+4;if(!inventoryOpen)PostExplorerChat(text,true);}
-    void ScheduleInventory(Action action,bool bagAccess)
-    {
-        if(InventoryBusy)return;
-        if(bagAccess){inventoryPending=action;inventoryPendingAt=Time.unscaledTimeAsDouble+.65;}else action();
-    }
     bool MovePossession(string id,PossessionPlace place,string bag="",int x=0,int y=0,bool rotated=false,bool autoStow=false,bool autoHand=false)
     {
         RefreshInventoryNearby(true);var candidate=InventoryCandidate(id);if(candidate==null)return false;
-        var item=candidate.Item;
+        var item=candidate.Item;var previousPlace=item.Place;
         if(candidate.Natural&&!inventoryNearby.Any(n=>n.Item.Id==id)||!candidate.Natural&&!AccessiblePossession(item)){InventoryFeedback("That item is out of reach.");return false;}
         if(place==PossessionPlace.Container)
         {var dest=Inventory.Find(bag);if(autoStow)dest=Inventory.Bag;if(dest==null||!AccessiblePossession(dest)){InventoryFeedback("That bag is out of reach.");return false;}}
+        if(place==PossessionPlace.Ground&&previousPlace!=PossessionPlace.Ground)UpdateInventoryVisuals();
         if(candidate.Natural)Inventory.Items.Add(item);
         string reason;bool moved=autoStow?Inventory.Stow(id,out reason):autoHand?Inventory.Hold(id,out reason):Inventory.Move(id,place,bag,x,y,rotated,out reason);
         if(!moved){if(candidate.Natural)Inventory.Items.Remove(item);InventoryFeedback(reason);return false;}
         if(candidate.Natural){inventoryCollected.Add(item.NaturalId);Inventory.CollectedNatural.Add(item.NaturalId);scatterDirty=true;}
         if(place==PossessionPlace.Ground&&!autoStow&&!autoHand)
         {
-            double yaw=heading*Math.PI/180;item.Position=frame.Position(motion.X+Math.Sin(yaw)*.85,motion.Z+Math.Cos(yaw)*.85);
+            if(previousPlace!=PossessionPlace.Ground)ReleasePossession(item,previousPlace==PossessionPlace.Container);
         }
+        if(item.Place!=PossessionPlace.Ground){RemoveDroppedBody(item.Id);item.GroundMoving=false;}
         inventoryNotice="";inventoryNoticeUntil=0;inventorySelected=id;inventoryNearbyAt=0;if(inventoryOpen)RenderInventoryPreview();return true;
     }
     void RequestPossession(string id,PossessionPlace place,string bag="",int x=0,int y=0,bool rotated=false,bool autoStow=false,bool autoHand=false)
     {
-        var item=InventoryCandidate(id)?.Item;if(item==null)return;
-        bool access=autoStow||place==PossessionPlace.Container||item.Place==PossessionPlace.Container||item.Kind==PossessionKind.TestBag;
-        ScheduleInventory(()=>MovePossession(id,place,bag,x,y,rotated,autoStow,autoHand),access);
+        MovePossession(id,place,bag,x,y,rotated,autoStow,autoHand);
     }
     bool HandleInventoryKeys()
     {
@@ -129,7 +122,7 @@ public sealed partial class LocalTerrainExplorer
         if(k.eKey.wasPressedThisFrame||k.bKey.wasPressedThisFrame)RefreshInventoryNearby(true);
         if(k.digit1Key.wasPressedThisFrame)Inventory.ActiveHand=PossessionPlace.RightHand;
         if(k.digit2Key.wasPressedThisFrame)Inventory.ActiveHand=PossessionPlace.LeftHand;
-        if(k.qKey.wasPressedThisFrame)Inventory.ActiveHand=Inventory.ActiveHand==PossessionPlace.RightHand?PossessionPlace.LeftHand:PossessionPlace.RightHand;
+        if(k.qKey.wasPressedThisFrame){Inventory.SwapHands();if(inventoryOpen)RenderInventoryPreview();}
         var held=Inventory.AtHand(Inventory.ActiveHand);
         if(k.gKey.wasPressedThisFrame&&held!=null)RequestPossession(held.Id,PossessionPlace.Ground);
         if(k.rKey.wasPressedThisFrame&&held!=null)RequestPossession(held.Id,PossessionPlace.Container,autoStow:true);
@@ -140,10 +133,7 @@ public sealed partial class LocalTerrainExplorer
         }
         if(!inventoryOpen&&k.eKey.wasPressedThisFrame&&!k.f3Key.isPressed)
         {
-            var ray=new Ray(view.transform.localPosition,view.transform.forward);float closest=float.MaxValue;NearbyPossession target=null;
-            if(inventoryReviewMode)foreach(var n in inventoryNearby)Debug.Log("INVENTORY RAY "+ray+" point="+n.Point+" screen="+view.WorldToViewportPoint(n.Point)+" heading="+heading+" pitch="+pitch+" motor="+motion.X+","+motion.Y+","+motion.Z);
-            foreach(var n in inventoryNearby)if(n.Bounds.IntersectRay(ray,out float t)&&t<closest){target=n;closest=t;}
-            if(inventoryReviewMode)Debug.Log("INVENTORY AIM target="+target?.Item.Id+" hand="+Inventory.ActiveHand+" candidates="+inventoryNearby.Count);
+            var target=AimedPossession();
             if(target!=null)RequestPossession(target.Item.Id,Inventory.ActiveHand,autoHand:true);
         }
         return inventoryOpen;
@@ -158,9 +148,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!Ready)return;InitializeInventory();
         if((DeathVisible||Spectating)&&inventoryOpen)SetInventoryOpen(false);
-        if(DeathVisible){inventoryPending=null;return;}
-        if(inventoryPending!=null&&Time.unscaledTimeAsDouble>=inventoryPendingAt&&!paused&&(Application.isFocused||inventoryReviewMode))
-        {var action=inventoryPending;inventoryPending=null;action();}
+        if(DeathVisible)return;
         if(inventoryOpen)RefreshInventoryNearby();
     }
     GameObject CreatePossessionVisual(Possession item,int layer)
@@ -205,7 +193,14 @@ public sealed partial class LocalTerrainExplorer
                 foreach(var renderer in root.GetComponentsInChildren<Renderer>()){var props=new MaterialPropertyBlock();renderer.GetPropertyBlock(props);props.SetFloat("_InventoryWearerId",item.Place==PossessionPlace.Back?1:0);renderer.SetPropertyBlock(props);}
             }
             if(item.Place==PossessionPlace.Ground)
-            {TerrainHandoff.Coordinates(frame,item.Position,out double x,out double z);root.transform.localPosition=new Vector3((float)(x-originX),(float)Ground(x,z)-.01f,(float)(z-originZ));root.transform.localRotation=Quaternion.identity;}
+            {
+                if(!inventoryDrops.ContainsKey(item.Id))
+                {
+                    TerrainHandoff.Coordinates(frame,item.Position,out double x,out double z);
+                    root.transform.localPosition=new Vector3((float)(x-originX),(float)(Ground(x,z)+item.GroundOffsetM)-.01f,(float)(z-originZ));root.transform.localRotation=Quaternion.Euler((float)item.GroundRotation.X,(float)item.GroundRotation.Y,(float)item.GroundRotation.Z);
+                    if(item.GroundMoving)BeginDroppedBody(item,root,Vector3.zero);
+                }
+            }
             else if(item.Place==PossessionPlace.Back)
             {root.transform.position=inventoryBones["spine_02"].position-body.forward*.18f-Vector3.up*.2f;root.transform.rotation=body.rotation;}
             else
@@ -218,7 +213,8 @@ public sealed partial class LocalTerrainExplorer
                 {root.transform.position=(item.Hands==2?(inventoryBones["hand_r"].position+inventoryBones["hand_l"].position)*.5f:hand.position)-Vector3.up*(float)item.HeightM*.35f;root.transform.rotation=body.rotation;}
             }
         }
-        foreach(var id in inventoryVisuals.Keys.Where(id=>!present.Contains(id)).ToArray()){Destroy(inventoryVisuals[id]);inventoryVisuals.Remove(id);inventoryVisualPlaces.Remove(id);}
+        UpdateDroppedBodies();
+        foreach(var id in inventoryVisuals.Keys.Where(id=>!present.Contains(id)).ToArray()){RemoveDroppedBody(id);Destroy(inventoryVisuals[id]);inventoryVisuals.Remove(id);inventoryVisualPlaces.Remove(id);}
     }
     void PoseInventoryHands(HumanActor actor,Dictionary<string,Transform> bones)
     {
@@ -239,7 +235,8 @@ public sealed partial class LocalTerrainExplorer
     }
     void DisposeInventory()
     {
-        DisposeInventoryPreview();foreach(var root in inventoryVisuals.Values)if(root!=null)Destroy(root);inventoryVisuals.Clear();
+        ClearInventoryPhysics();DisposeInventoryPreview();foreach(var root in inventoryVisuals.Values)if(root!=null)Destroy(root);inventoryVisuals.Clear();
         if(inventoryBagMaterial!=null)Destroy(inventoryBagMaterial);
+        if(inventoryDropMaterial!=null)Destroy(inventoryDropMaterial);
     }
 }

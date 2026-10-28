@@ -15,9 +15,11 @@ static class PlayerInventoryTests
         s.Items.Add(Rock("a"));s.Items.Add(Rock("b"));s.Items.Add(Rock("large",true,3,2));
         Check(s.Hold("a",out _)&&s.AtHand(PossessionPlace.RightHand)?.Id=="a","First pickup uses active right hand");
         Check(s.Hold("b",out _)&&s.AtHand(PossessionPlace.LeftHand)?.Id=="b","Second pickup uses free left hand");
+        var active=s.ActiveHand;s.SwapHands();Check(s.AtHand(PossessionPlace.RightHand)?.Id=="b"&&s.AtHand(PossessionPlace.LeftHand)?.Id=="a"&&s.ActiveHand==active,"Q swaps actual items while active hand stays selected");s.SwapHands();
         Check(!s.Hold("large",out _)&&s.Find("large").Place==PossessionPlace.Ground,"Two handed pickup atomic when hands full");
         Check(s.Stow("a",out _)&&s.Stow("b",out _),"Stow finds distinct free space");
         Check(s.Hold("large",out _)&&s.AtHand(PossessionPlace.RightHand)==s.AtHand(PossessionPlace.LeftHand),"One large item reserves both hands");
+        s.SwapHands();Check(s.AtHand(PossessionPlace.RightHand)?.Id=="large"&&s.AtHand(PossessionPlace.LeftHand)?.Id=="large","Two-hand item remains reserved during swap");
         Check(!s.Hold("a",out _),"Both-hand hold excludes another one-hand item");
         Check(s.Stow("large",out _),"Large item fits an appropriate bag");s.Validate();
         var a=s.Find("a");int oldX=a.X,oldY=a.Y;
@@ -29,6 +31,9 @@ static class PlayerInventoryTests
         Check(s.CarriedMassKg==0&&s.Find("a").ContainerId==bag.Id,"Dropped pack retains contents, removes their load");
         Check(!s.Stow("a",out _),"No invisible main inventory without worn bag");
         Check(s.Move(bag.Id,PossessionPlace.Back,"",0,0,false,out _)&&Math.Abs(s.CarriedMassKg-loaded)<1e-10,"Re-wearing restores actual carried mass");
+        var single=PlayerInventory.Starter();single.Items.Add(Rock("solo"));single.Hold("solo",out _);single.SwapHands();Check(single.AtHand(PossessionPlace.RightHand)==null&&single.AtHand(PossessionPlace.LeftHand)?.Id=="solo","Single item swaps into empty other hand");single.Validate();
+        single.Find("solo").GroundOffsetM=1.4;single.Find("solo").GroundRotation=new V(12,34,56);single.Find("solo").GroundMoving=true;
+        var pose=WorldJson.Read<PlayerInventory>(WorldJson.Write(single));Check(pose.Find("solo").GroundMoving&&pose.Find("solo").GroundOffsetM==1.4&&pose.Find("solo").GroundRotation.Y==34,"Dropped pose state survives serialization");
         var slim=PlayerInventory.Starter();slim.Items.Add(Rock("long",false,7,1));
         Check(slim.Stow("long",out _)&&slim.Find("long").Rotated,"Packing tries rotation for long item");
         slim.Items.Add(Rock("too-long",false,8,1));Check(!slim.Stow("too-long",out _)&&slim.Find("too-long").Place==PossessionPlace.Ground,"Physical length cannot fit despite free area");

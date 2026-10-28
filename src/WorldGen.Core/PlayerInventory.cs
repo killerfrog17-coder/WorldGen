@@ -17,6 +17,9 @@ namespace WorldGen.Core
         public ulong NaturalId;
         public double WidthM=.1,HeightM=.1,DepthM=.1,MassKg=.5;
         public V Position,Tint=new V(.6,.6,.6);
+        [System.Runtime.Serialization.OptionalField] public double GroundOffsetM;
+        [System.Runtime.Serialization.OptionalField] public bool GroundMoving;
+        [System.Runtime.Serialization.OptionalField] public V GroundRotation;
         public string Name=>Kind==PossessionKind.SmallRock?"Small rock":Kind==PossessionKind.LargeRock?"Large rock":"Testing bag";
         public int Hands=>Kind==PossessionKind.LargeRock?2:1;
         public int PackedWidth=>Rotated?CellsHigh:CellsWide;
@@ -87,6 +90,13 @@ namespace WorldGen.Core
                 if(CanMove(id,PossessionPlace.Container,bag.Id,x,y,r==1,out _))return Move(id,PossessionPlace.Container,bag.Id,x,y,r==1,out reason);
             return false;
         }
+        public void SwapHands()
+        {
+            if(AtHand(PossessionPlace.RightHand)?.Hands==2)return;
+            foreach(var item in Items)
+                if(item.Place==PossessionPlace.RightHand)item.Place=PossessionPlace.LeftHand;
+                else if(item.Place==PossessionPlace.LeftHand)item.Place=PossessionPlace.RightHand;
+        }
         public bool Hold(string id,out string reason)
         {
             if(Move(id,ActiveHand,"",0,0,false,out reason))return true;
@@ -101,6 +111,7 @@ namespace WorldGen.Core
             {
                 bool Finite(double v)=>!double.IsNaN(v)&&!double.IsInfinity(v);
                 if(item==null||string.IsNullOrWhiteSpace(item.Id)||!ids.Add(item.Id)||!Enum.IsDefined(typeof(PossessionKind),item.Kind)||!Enum.IsDefined(typeof(PossessionPlace),item.Place)||item.CellsWide<1||item.CellsHigh<1||item.CellsWide>10000||item.CellsHigh>10000||!Finite(item.MassKg)||item.MassKg<=0||!Finite(item.WidthM)||item.WidthM<=0||!Finite(item.HeightM)||item.HeightM<=0||!Finite(item.DepthM)||item.DepthM<=0||!Finite(item.Tint.X)||!Finite(item.Tint.Y)||!Finite(item.Tint.Z)||item.Variant<0||item.Variant>1000)throw new ArgumentException("Invalid inventory item.");
+                if(!Finite(item.GroundOffsetM)||Math.Abs(item.GroundOffsetM)>1e7||!Finite(item.GroundRotation.X)||!Finite(item.GroundRotation.Y)||!Finite(item.GroundRotation.Z))throw new ArgumentException("Invalid dropped item pose.");
                 if(item.NaturalId!=0&&!natural.Add(item.NaturalId))throw new ArgumentException("Duplicate natural item.");
                 if(item.NaturalId!=0&&!CollectedNatural.Contains(item.NaturalId))throw new ArgumentException("Missing collected ground identity.");
                 if(item.Place==PossessionPlace.Ground&&(!Finite(item.Position.Length)||Math.Abs(item.Position.Length-1)>1e-5))throw new ArgumentException("Invalid dropped item position.");

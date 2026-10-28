@@ -88,7 +88,7 @@ public sealed partial class LocalTerrainExplorer
         if(ecologyOpen){DrawEcologyDebug();return;}
         if(debugOpen)DrawDebugOverlay();
         if(paused){if(drawPause!=null)drawPause();else{GUILayout.BeginArea(new Rect(Screen.width/2f-130,Screen.height/2f-70,260,140),GUI.skin.box);if(GUILayout.Button("Resume"))Resume();if(GUILayout.Button("World simulation"))Close();GUILayout.EndArea();}return;}
-        DrawWorldMap();
+        DrawWorldMap();DrawPickupPrompt();
     }
     public void Pause(){paused=true;mapOpen=false;CaptureMouse();}
     public string TestDebugText()=>FastDebugText()+"\n"+DebugText();

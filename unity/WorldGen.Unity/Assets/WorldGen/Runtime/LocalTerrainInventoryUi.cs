@@ -102,7 +102,7 @@ public sealed partial class LocalTerrainExplorer
         GUI.DrawTexture(new Rect(rect.x+5*scale,rect.y+5*scale,rect.width-10*scale,rect.height-10*scale),icon,ScaleMode.ScaleToFit,true);
         if(rect.width>75*scale&&rect.height>45*scale)InventoryLabel(new Rect(rect.x+5*scale,rect.yMax-23*scale,rect.width-8*scale,22*scale),item.Name,Mathf.RoundToInt(12*scale));
         if(hover)inventoryHover=item.Id;
-        if(hover&&inventoryContext==null&&!InventoryBusy&&Event.current.type==EventType.MouseDown)
+        if(hover&&inventoryContext==null&&Event.current.type==EventType.MouseDown)
         {
             inventorySelected=item.Id;
             if(item.Place==PossessionPlace.RightHand||item.Place==PossessionPlace.LeftHand)Inventory.ActiveHand=item.Place;
@@ -190,8 +190,8 @@ public sealed partial class LocalTerrainExplorer
         if(e.type==EventType.ScrollWheel&&nearbyView.Contains(e.mousePosition)){inventoryScroll=Mathf.Clamp(inventoryScroll+e.delta.y*cell,0,Mathf.Max(0,content-nearbyView.height));e.Use();}
         var selected=InventoryCandidate(inventoryHover??inventorySelected)?.Item;
         string info=selected==null?"":selected.Name+"  ·  "+selected.MassKg.ToString("F2")+" kg  ·  "+Mathf.RoundToInt((float)selected.WidthM*100)+" × "+Mathf.RoundToInt((float)selected.HeightM*100)+" cm";
-        InventoryLabel(new Rect(pad,bottom+8*scale,Screen.width-pad*2,28*scale),InventoryBusy?"Accessing bag…":Time.unscaledTime<inventoryNoticeUntil?inventoryNotice:info,Mathf.RoundToInt(15*scale),InventoryGold);
-        InventoryLabel(new Rect(pad,Screen.height-38*scale,Screen.width-pad*2,30*scale),"E Pick up   ·   R Stow / rotate dragged item   ·   G Drop active hand   ·   Q Switch hand   ·   B Set down / wear bag   ·   I / Tab Close",Mathf.RoundToInt(13*scale));
+        InventoryLabel(new Rect(pad,bottom+8*scale,Screen.width-pad*2,28*scale),Time.unscaledTime<inventoryNoticeUntil?inventoryNotice:info,Mathf.RoundToInt(15*scale),InventoryGold);
+        InventoryLabel(new Rect(pad,Screen.height-38*scale,Screen.width-pad*2,30*scale),"E Pick up   ·   R Stow / rotate dragged item   ·   G Drop active hand   ·   Q Swap hands   ·   B Set down / wear bag   ·   I / Tab Close",Mathf.RoundToInt(13*scale));
         DrawInventoryDrag(scale);DrawInventoryContext(scale);
     }
     void DrawInventoryDrag(float scale)

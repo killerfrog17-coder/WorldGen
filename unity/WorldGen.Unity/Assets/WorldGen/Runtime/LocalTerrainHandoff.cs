@@ -206,7 +206,7 @@ public sealed partial class LocalTerrainExplorer
         V direction=(oldFrame.East*Math.Sin(yaw)+oldFrame.North*Math.Cos(yaw))*Math.Cos(tilt)-oldFrame.Origin*Math.Sin(tilt);
         V? scatterPlan=double.IsNaN(scatterX)?(V?)null:oldFrame.Position(scatterX,scatterZ);
         var oldRoot=terrainRoot;var oldTiles=tiles;
-        ResetStreamingReuse(false);
+        ClearInventoryPhysics();ResetStreamingReuse(false);
         frame=pending.Frame;tiles=pending.Tiles;terrainRoot=pending.Root;preparedFrame=null;
         double previousFog=streamedFog;ResetDetailFrame();streamedFog=previousFog;fogSafeRadius=previousFog;
         generation++;walkingPatch=null;originX=Math.Floor(x/2048)*2048;originZ=Math.Floor(z/2048)*2048;

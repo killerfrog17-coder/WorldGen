@@ -113,7 +113,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public void Teleport(V point)
     {
         if(terrain==null)return;
-        CancelPreparedFrame();
+        ClearInventoryPhysics();CancelPreparedFrame();
         ResetStreamingReuse(true);
         generation++;startingPoint=point;walkingPatch=null;originX=originZ=0;
         frame=new LocalTerrainFrame(point,terrain.RadiusM,terrain.Patch(point).Sample(0,0).ElevationM,HorizontalScale);
@@ -173,7 +173,9 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         UpdatePlayerSurvival(motion.X-movementStartX,motion.Z-movementStartZ);
         if(Math.Abs(motion.X-originX)>8192||Math.Abs(motion.Z-originZ)>8192)
         {
-            originX=Math.Floor(motion.X/2048)*2048;originZ=Math.Floor(motion.Z/2048)*2048;
+            double newOriginX=Math.Floor(motion.X/2048)*2048,newOriginZ=Math.Floor(motion.Z/2048)*2048;
+            if(newOriginX!=originX||newOriginZ!=originZ)ClearInventoryPhysics();
+            originX=newOriginX;originZ=newOriginZ;
             landMaterial.SetVector("_LocalOrigin",new Vector4((float)originX,(float)originZ,0,0));
             PublishTerrainScene();
             foreach(var entry in tiles)entry.Value.Root.transform.localPosition=new Vector3((float)(entry.Key.X*entry.Key.SizeM-originX),0,(float)(entry.Key.Z*entry.Key.SizeM-originZ));
@@ -328,7 +330,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         finally{view.targetTexture=priorTarget;RenderTexture.active=previous;target.Release();Destroy(target);Destroy(texture);}
     }
     public void TestMove(double east,double north){motion.X=east;motion.Z=north;}
-    public void StorePlayer(PlaySession session){session.HasPlayer=true;session.PlayerPosition=Position;session.Flying=motion.Flying;session.Heading=heading;session.Pitch=pitch;session.HeightAboveGround=Spectating?HeightAboveGround:Math.Max(0,HeightAboveGround);session.Mode=Mode;session.Survival=Vitals.Copy();session.Inventory=Inventory.Copy();session.CameraDistance=humanCamera.Distance;session.CameraDistanceLocked=humanCamera.Locked;if(humanPlayer!=null)session.PlayerHumanVariant=humanPlayer.Definition.Variant[0]-'A';}
+    public void StorePlayer(PlaySession session){CaptureInventoryPhysics();session.HasPlayer=true;session.PlayerPosition=Position;session.Flying=motion.Flying;session.Heading=heading;session.Pitch=pitch;session.HeightAboveGround=Spectating?HeightAboveGround:Math.Max(0,HeightAboveGround);session.Mode=Mode;session.Survival=Vitals.Copy();session.Inventory=Inventory.Copy();session.CameraDistance=humanCamera.Distance;session.CameraDistanceLocked=humanCamera.Locked;if(humanPlayer!=null)session.PlayerHumanVariant=humanPlayer.Definition.Variant[0]-'A';}
     public void Resume(){paused=false;CaptureMouse();}
     public void TestWalking(){motion.Place(motion.X,motion.Z,Ground(motion.X,motion.Z));pitch=0;}
     public void TestNearbyFlatGround()

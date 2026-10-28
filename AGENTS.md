@@ -1,5 +1,31 @@
 # WorldGen repository instructions
 
+INVENTORY INTERACTION CORRECTION,27October2026:
+Owner rejects artificial transferdelay, wants Q to SWAP held items, physicsdrops
+and contextual pickup labels/icons. Supersedes .65s/Qselector/nonphysical notes
+below. All transfers immediate; failed moves atomic. Q exchanges left/right
+actual onehanditems (including emptyotherhand); twohanditem staysboth. 1/2 still
+selectactivehand. No queuedtimer/busy gate. R stows immediately, Rdragrotate stays.
+Owner explicitly authorizes pickup UI: materialicon fades2m->1m from playerfeet;
+itemname+[E] onlywhen invisible aimray hits reachablepickup; no crosshair. Same
+reach/aim function drives E. No permanent tutorial/control banner added.
+G andgroundtransfers release from held/worn pose with Rigidbody gravity/friction/
+smallbounce and fittedbox collider. Shared4m terraincollisiontiles created only
+near movingdrops, retiredwhenunneeded; quietdrops stop simulating. Loadedbags
+retaincontents. Saved optional GroundOffsetM/GroundRotation/GroundMoving preserve
+pose; transientvelocity notsaved, airborne drops resumegravity fromrest after
+save/chartreset. Beforeteleport/origin/chartchange/save captureplanetposition.
+Inventory/pause freezes physics. Full prop/tree collision remains future work.
+72coreinventory+22camera/save pass; 32packaged flowchecks pass incl
+immediateR, realQswap, promptaim, airbornefall/terrainsettle, ownership/persistence.
+Actual contextualprompt/fallingrock/UI renders inspected. No FPS claim. IL2CPP
+player-inventory-interaction built 2026-10-28T00:00:27.6398869Z; existing shortcut
+selected, priorinventory retained. Build0/noC#/shadererrors;578assembly/fauna/
+human/native hashes+exactfaunaindex verified. Evidence artifacts/inventory-interaction;
+ownsource/docs/shortcut checkpoint artifacts/source-checkpoints/inventory-
+interaction-20261027. Push+remoteverify. Ownerapps/saves untouched; preserveprompt
+deletion/twodeerscripts. No history/crafting/building/clothing/animal changes.
+
 PHYSICAL INVENTORY PROTOTYPE,27October2026:
 Owner NEWscope authorizes inventory ONLY; no scrapped crafting/building/history
 resumption. Unturned-style left editable name/native rotatable human, middle

@@ -9,7 +9,8 @@ and animal renderer are separate.
 ## Controls
 
 - I / Tab: open/close inventory. E: take an aimed-at reachable rock into a free
-  hand. Q or1/2: active hand. R: stow its item; G: put it on the ground.
+  hand. Q: exchange held items. 1/2: select a hand. R: stow its item immediately;
+  G: physically drop it.
   B: set down the worn bag, or wear a nearby bag. Within inventory, drag between
   hands/grids/Nearby; R rotates a dragged footprint, right click opens transfers.
   Character drag/turn buttons rotate the preview. Character & help settings
@@ -52,8 +53,10 @@ The body has zero general storage. One explicitly temporary testing bag starts
 on the back with a6x7 grid,0.6kg empty mass and a simple round placeholder visual.
 It is a real item and may be removed or carried, retaining the very same contents.
 There are no belt tools or arbitrary quickbar yet:1/2 select physical hands.
-Small rocks use one hand each, large rocks reserve both. Pack access takes0.65s;
-failed transfers recheck reach/occupancy and retain the source item. Containers
+Small rocks use one hand each, large rocks reserve both. Transfers are immediate;
+failed transfers check reach/occupancy and retain the source item. Q exchanges
+actual one-hand items, including into an empty opposite hand, without changing
+the selected active hand. A two-hand item stays in both hands. Containers
 may be worn, held or on reachable ground; far-away bags cannot be accessed.
 
 Loose natural Stone instances, and carryable Boulder instances only, expose
@@ -64,12 +67,20 @@ not a geological density model. Packing rounds width/height up to10cm cells;
 rotation is supported and items never stack in this pass. No berries/arrows/
 crafting, other pickups, harvesting or construction was added.
 
-Nearby scans run on inventory/action requests, not continuously while walking.
+Nearby scans run at5Hz while showing proximity icons/inventory, and immediately
+on transfer requests. Icons fade in from2m to1m from the player feet; the aimed
+reachable item shows its name and [E] without a crosshair.
 Successful collection records a tombstone and removes the original from scatter
 batches/target readouts. Carried/dropped visuals reuse existing rock art, pinned
 against generated-art eviction. No second procedural scatter is introduced.
-Dropped items use planetary positions, re-ground in the current chart and
-render only nearby. They are placed rather than physically thrown. Reach is
+Dropped items release from their actual held/worn pose, using gravity, friction,
+small bounce and a box collision proxy fitted to the visible mesh. Nearby4m
+terrain-collision tiles are created only for moving drops, shared and discarded
+once unneeded. Settled items retain their position, orientation and ground-relative
+height; optional save fields preserve the airborne/resting state. A loaded bag
+keeps its contents throughout. Velocity is transient; an airborne saved/reframed
+drop resumes gravity from rest. Inventory/pause freezes item physics. Drops have
+terrain and dropped-item collisions, not full tree/prop collision yet. Reach is
 3m from the character eye with sampled terrain occlusion; tree/wall/prop
 occlusion is future work because those props have no colliders yet.
 
