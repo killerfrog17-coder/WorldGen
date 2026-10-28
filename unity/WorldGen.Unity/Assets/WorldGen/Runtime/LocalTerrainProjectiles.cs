@@ -116,20 +116,38 @@ public sealed partial class LocalTerrainExplorer
         var bones=hit.Human.Root.GetComponentsInChildren<Transform>();var bone=bones.Where(b=>b!=hit.Human.Root.transform).OrderBy(b=>(b.position-hit.Point).sqrMagnitude).FirstOrDefault();if(bone==null)return;
         item.AttachedHuman=hit.Human.Id;item.AttachedBoneName=bone.name;var root=inventoryVisuals[item.Id];item.AttachedLocalPoint=CoreVector(bone.InverseTransformPoint(root.transform.position));item.AttachedDirection=CoreVector(bone.InverseTransformDirection(direction));
     }
+    void ReleaseProjectileAttachment(Possession item)
+    {
+        item.AttachedAnimal=0;item.AttachedHuman=0;item.AttachedBone=0;item.AttachedBoneName=null;
+        item.AttachedLocalPoint=item.AttachedDirection=new V();item.InFlight=false;
+        // Keep the last recorded world pose; ordinary drop physics resumes
+        // when the item is visible. Do not invent another projectile or hit.
+        if(item.Place==PossessionPlace.Ground){item.GroundMoving=true;item.GroundVelocity=item.GroundSpin=new V();}
+    }
     void UpdateAttachedProjectiles()
     {
         if(!inventoryInitialized||!Ready)return;
         foreach(var item in Inventory.Items.Where(p=>p.Place==PossessionPlace.Ground&&(p.AttachedAnimal!=0||p.AttachedHuman!=0)))
         {
             Matrix4x4 matrix=Matrix4x4.identity;bool found=false;
-            if(item.AttachedAnimal!=0&&animals.TryGetValue(item.AttachedAnimal,out var animal)&&wildlifeSkeletons.TryGetValue(animal.Spawn.Profile.slug,out var skeleton)&&item.AttachedBone<skeleton.bones.Length)
+            if(item.AttachedAnimal!=0&&animals.TryGetValue(item.AttachedAnimal,out var animal)&&!animal.Retired&&animal.Root!=null&&wildlifeSkeletons!=null&&wildlifeSkeletons.TryGetValue(animal.Spawn.Profile.slug,out var skeleton)&&item.AttachedBone>=0&&item.AttachedBone<skeleton.bones.Length)
             {matrix=AnimalBoneWorld(animal,item.AttachedBone,skeleton);found=true;}
             else if(item.AttachedHuman!=0)
             {
-                var human=humanNpcs.FirstOrDefault(h=>h.Id==item.AttachedHuman);var bone=human?.Root.GetComponentsInChildren<Transform>().FirstOrDefault(t=>t.name==item.AttachedBoneName);
+                var human=humanNpcs.FirstOrDefault(h=>h.Id==item.AttachedHuman);var bone=human?.Root!=null?human.Root.GetComponentsInChildren<Transform>().FirstOrDefault(t=>t.name==item.AttachedBoneName):null;
                 if(bone!=null){matrix=bone.localToWorldMatrix;found=true;}
             }
-            if(!found)continue;var point=transform.InverseTransformPoint(matrix.MultiplyPoint3x4(UnityVector(item.AttachedLocalPoint)));var direction=transform.InverseTransformDirection(matrix.MultiplyVector(UnityVector(item.AttachedDirection))).normalized;
+            if(!found)
+            {
+                // Saved animals can simply be streamed out. Temporary humans
+                // and explicitly cleared animals have no persistent owner.
+                bool savedAnimal=item.AttachedAnimal!=0&&(wildlifeRecords?.ContainsKey(item.AttachedAnimal)??Wildlife.Individuals.Any(a=>a.Id==item.AttachedAnimal));
+                bool liveAnimal=item.AttachedAnimal!=0&&animals.ContainsKey(item.AttachedAnimal);
+                bool liveHuman=item.AttachedHuman!=0&&humanNpcs.Any(h=>h.Id==item.AttachedHuman&&h.Root!=null);
+                if(!savedAnimal&&!liveAnimal&&!liveHuman)ReleaseProjectileAttachment(item);
+                continue;
+            }
+            var point=transform.InverseTransformPoint(matrix.MultiplyPoint3x4(UnityVector(item.AttachedLocalPoint)));var direction=transform.InverseTransformDirection(matrix.MultiplyVector(UnityVector(item.AttachedDirection))).normalized;
             item.Position=frame.Position(point.x+originX,point.z+originZ);item.GroundOffsetM=point.y-Ground(point.x+originX,point.z+originZ);item.GroundRotation=CoreVector(Quaternion.FromToRotation(Vector3.up,direction).eulerAngles);
         }
     }

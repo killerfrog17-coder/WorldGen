@@ -34,8 +34,8 @@ namespace WorldGen.Core
             return p;
         }
         public static double Winter(double year,double latitude)=>Math.Cos((year-Math.Floor(year))*Math.PI*2)*(latitude>=0?1:-1);
-        // Lake salinity is not represented yet; freshwater here means actual
-        // river/lake water, never an ocean or a dry water-influence footprint.
+        // This terrain sample does not carry lake salinity; freshwater here
+        // means river/lake water, never ocean or a dry influence footprint.
         public static bool DrinkingWater(LocalTerrainSample sample)
             =>(sample.WaterKind==LocalWaterKind.River||sample.WaterKind==LocalWaterKind.Lake)&&
               ItemUseRules.Finite(sample.ElevationM)&&ItemUseRules.Finite(sample.WaterSurfaceM)&&

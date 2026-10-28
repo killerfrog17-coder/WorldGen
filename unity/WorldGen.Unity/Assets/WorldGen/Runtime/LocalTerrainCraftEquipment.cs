@@ -36,6 +36,7 @@ public sealed partial class LocalTerrainExplorer
     }
     CraftEquipmentState PrepareWorkHands(IEnumerable<string> borrowed)
     {
+        combatGuarding=false;
         var ids=new HashSet<string>(borrowed);var state=CraftEquipmentState.Capture(Inventory,ids);UpdateInventoryVisuals();
         foreach(var p in Inventory.Items.Where(p=>p.Place==PossessionPlace.LeftHand||p.Place==PossessionPlace.RightHand).ToArray())
         {

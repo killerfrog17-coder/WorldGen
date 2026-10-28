@@ -23,6 +23,9 @@ public sealed partial class LocalTerrainExplorer
     void InitializeInventory()
     {
         if(inventoryInitialized)return;inventoryInitialized=true;Inventory.Validate();
+        // Demo NPC humans are not restored with the session. Their numeric
+        // IDs can be reused, so an old arrow must not bind to a new person.
+        foreach(var item in Inventory.Items.Where(p=>p.AttachedHuman!=0))ReleaseProjectileAttachment(item);
         foreach(var id in Inventory.CollectedNatural)inventoryCollected.Add(id);foreach(var job in Inventory.Crafts)PauseItemCraft(job);scatterDirty=true;
         if(Inventory.ToolWorkEquipment!=null){var borrowed=Inventory.ToolWorkEquipment;Inventory.ToolWorkEquipment=null;RestoreWorkHands(new ItemCraftJob{Equipment=borrowed});}
     }

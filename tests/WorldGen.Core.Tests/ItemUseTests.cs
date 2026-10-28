@@ -50,7 +50,7 @@ static class ItemUseTests
         Check(!WildlifeBehaviour.EdiblePrey(1,false,2,1,1.5)&&!WildlifeBehaviour.EdiblePrey(1,false,-1,1,.5)&&!WildlifeBehaviour.EdiblePrey(1,false,0,-1,.5),"Reversed or negative prey ranges are rejected");
         var drinking=new LocalTerrainSample{WaterKind=LocalWaterKind.River,WaterSurfaceM=2,ElevationM=1,WaterMaskM=0};
         Check(WildlifeBehaviour.DrinkingWater(drinking),"Actual river water can support drinking");
-        drinking.WaterKind=LocalWaterKind.Lake;Check(WildlifeBehaviour.DrinkingWater(drinking),"Lakes are freshwater candidates until lake salinity is modeled");
+        drinking.WaterKind=LocalWaterKind.Lake;Check(WildlifeBehaviour.DrinkingWater(drinking),"Lake water is a candidate at the terrain-kind classification layer");
         drinking.WaterKind=LocalWaterKind.Ocean;Check(!WildlifeBehaviour.DrinkingWater(drinking),"Ocean water does not satisfy ordinary terrestrial thirst");
         drinking.WaterKind=LocalWaterKind.River;drinking.ElevationM=3;Check(!WildlifeBehaviour.DrinkingWater(drinking),"A dry river-influence footprint is not drinkable water");
         drinking.ElevationM=1;drinking.WaterMaskM=-1;Check(!WildlifeBehaviour.DrinkingWater(drinking),"Clipped water outside the actual footprint is not drinkable");

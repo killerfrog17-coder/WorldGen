@@ -93,7 +93,10 @@ public sealed partial class LocalTerrainExplorer
         Check(stoneTarget.Health<health,"Swept thrown-stone flight actually damages an animal");Check(Inventory.Find(rock.Id)==rock,"Thrown stone remains recoverable, not consumed as a hit effect");
         paused=true;ClearItems();RemoveAnimal(stoneTarget.Spawn.Id);paused=false;
         yield return Deer();var arrowTarget=animals.Values.First(a=>a.Manual&&a.Spawn.Profile.slug=="deer"&&!a.Dead);Aim(arrowTarget,5);arrowTarget.MaximumHealth=arrowTarget.Health=Math.Max(200,arrowTarget.MaximumHealth);var bow=Hold(PossessionKind.Bow);var arrow=Hold(PossessionKind.Arrow);health=arrowTarget.Health;
-        BeginItemCharge(bow,false,0,false);Check(itemCharge!=null&&itemCharge.Ammo==arrow,"Bow charge selects carried ammunition and borrows the off hand");itemCharge.Started-=1.2;ReleaseItemCharge();
+        BeginItemCharge(bow,false,0,false);Check(itemCharge!=null&&itemCharge.Ammo==arrow,"Bow charge selects carried ammunition and borrows the off hand");
+        var chargedSave=new PlaySession();StorePlayer(chargedSave);
+        Check(itemCharge==null&&Inventory.AtHand(PossessionPlace.RightHand)==bow&&Inventory.AtHand(PossessionPlace.LeftHand)==arrow&&chargedSave.Inventory.AtHand(PossessionPlace.LeftHand)?.Id==arrow.Id,"Saving a drawn bow restores borrowed hands and preserves unfired ammunition");
+        BeginItemCharge(bow,false,0,false);itemCharge.Started-=1.2;ReleaseItemCharge();
         impactDeadline=Time.unscaledTimeAsDouble+4;while(arrow.InFlight&&Time.unscaledTimeAsDouble<impactDeadline)yield return null;
         Check(arrowTarget.Health<health,"Bow launches a damaging physical arrow");Check(arrow.AttachedAnimal==arrowTarget.Spawn.Id&&!arrow.InFlight,"Penetrating arrow embeds into the actual hit animal");
         yield return new WaitForSecondsRealtime(.4f);UpdateAttachedProjectiles();Check(arrow.Position.Length>.99999&&arrow.AttachedAnimal==arrowTarget.Spawn.Id,"Embedded arrow follows the current skin-bone pose");paused=true;yield return Image("04-embedded-arrow");
@@ -118,8 +121,18 @@ public sealed partial class LocalTerrainExplorer
             Check(Inventory.AtHand(PossessionPlace.RightHand)==launcher&&ammunition.Place==PossessionPlace.Ground,ranged.Item1+" retains the launcher without recalling its fired ammunition");
         }
         ClearItems();UpdateHumans();UpdateCamera();
+        var orphanArrow=PortableTechnology.Create(PossessionKind.Arrow,Position);orphanArrow.AttachedHuman=int.MaxValue;orphanArrow.GroundOffsetM=1.7;Inventory.Items.Add(orphanArrow);
+        var orphanPosition=orphanArrow.Position;UpdateAttachedProjectiles();
+        Check(orphanArrow.AttachedHuman==0&&orphanArrow.GroundMoving&&!orphanArrow.InFlight&&(orphanArrow.Position-orphanPosition).Length==0&&orphanArrow.GroundOffsetM==1.7,"A vanished temporary human releases its arrow at the last recorded pose without deleting or relaunching it");
+        const ulong streamedOwner=ulong.MaxValue-1;
+        var streamedRecord=new WildlifeIndividual{Id=streamedOwner,Species="deer",Position=Position,Health=50,MaximumHealth=50};Wildlife.Individuals.Add(streamedRecord);wildlifeRecords?.Add(streamedOwner,streamedRecord);
+        var streamedArrow=PortableTechnology.Create(PossessionKind.Arrow,Position);streamedArrow.AttachedAnimal=streamedOwner;Inventory.Items.Add(streamedArrow);
+        try{UpdateAttachedProjectiles();Check(streamedArrow.AttachedAnimal==streamedOwner&&!streamedArrow.GroundMoving,"Streaming out a saved animal retains its embedded arrow attachment");}
+        finally{Wildlife.Individuals.Remove(streamedRecord);wildlifeRecords?.Remove(streamedOwner);}
+        ClearItems();
         var savedHands=Hold(PossessionKind.StoneTippedSpear);var digger=new Possession{Id="dig-test",Kind=PossessionKind.DiggingStick,Position=Position,WidthM=.03,HeightM=1,DepthM=.03,MassKg=.5,CellsHigh=10};Inventory.Items.Add(digger);bool completed=false;
-        BeginWorldToolWork(digger,"Controlled tool-work check",120,()=>completed=true);Check(worldToolWork!=null&&savedHands.Place==PossessionPlace.Ground&&digger.Place==PossessionPlace.RightHand,"World tool work borrows occupied hands without extra storage");
+        combatGuarding=true;
+        BeginWorldToolWork(digger,"Controlled tool-work check",120,()=>completed=true);Check(worldToolWork!=null&&savedHands.Place==PossessionPlace.Ground&&digger.Place==PossessionPlace.RightHand&&!combatGuarding,"World tool work borrows occupied hands without extra storage or retaining a stowed weapon's guard");
         worldToolWork.Done=119.999;paused=false;UpdateWorldToolWork();paused=true;Check(completed&&worldToolWork==null,"Timed world action completes");Check(savedHands.Place==PossessionPlace.RightHand,"Timed world action restores the displaced spear; actual place="+savedHands.Place);
         BeginWorldToolWork(digger,"Interrupted work",120,()=>{});CancelWorldToolWork();Check(savedHands.Place==PossessionPlace.RightHand&&Inventory.ToolWorkEquipment==null,"Interrupted gathering restores equipment and clears temporary work state");
         var switchFibre=PortableTechnology.Create(PossessionKind.RawFibre,Position);Inventory.Items.Add(switchFibre);SetCraftWorkArea(switchFibre);bool gatheringCancelled=false;
@@ -188,10 +201,20 @@ public sealed partial class LocalTerrainExplorer
             Check(maximumExtension<subject.Spawn.Profile.lengthM*.15,"Corpse avoids sharp skin spikes relative to animal size: "+slug);
             Check(subject.Ragdoll.BodyCount>2&&AnimalPalette(subject).All(m=>Enumerable.Range(0,16).All(i=>float.IsFinite(m[i]))),"Original bird/root-head skeleton retains multiple stable corpse bodies: "+slug);
         }
-        if(SpawnHumans(1)>0){var npc=humanNpcs.Last();DamageHuman(npc,1000,null,Vector3.forward,10);Check(npc.Health<=0&&npc.Ragdoll!=null,"Manually spawned human NPC also supports combat death and ragdoll");}
+        if(SpawnHumans(1)>0)
+        {
+            var npc=humanNpcs.Last();var staleArrow=PortableTechnology.Create(PossessionKind.Arrow,Position);staleArrow.AttachedHuman=npc.Id;Inventory.Items.Add(staleArrow);
+            inventoryInitialized=false;InitializeInventory();
+            Check(staleArrow.AttachedHuman==0&&staleArrow.GroundMoving,"Session inventory initialization detaches an old NPC arrow even if a live NPC has reused its ID");
+            DamageHuman(npc,1000,null,Vector3.forward,10);Check(npc.Health<=0&&npc.Ragdoll!=null,"Manually spawned human NPC also supports combat death and ragdoll");
+        }
         ExecuteAnimalSpawnCommand("/spawn clear");Check(!Wildlife.Individuals.Any(p=>p.Manual)&&!animalWanted.Any(p=>p.Id==deadId),"Explicit spawn clearing removes saved command corpses so they cannot reappear");
         reviewWildlifeBehaviour=false;
-        ClearItems();PlayerRules.Mode=GameMode.Survival;Vitals.Restore();ApplyPlayerMode();ExecuteGive(new[]{"/give","wooden","spear"});combatGuarding=true;
+        ClearItems();PlayerRules.Mode=GameMode.Survival;Vitals.Restore();ApplyPlayerMode();ExecuteGive(new[]{"/give","wooden","spear"});
+        bool wasPaused=paused;paused=false;Vitals.Unconscious=true;
+        try{Check(CombatStopped,"Survival unconsciousness stops item combat independently of the death screen");}
+        finally{Vitals.Unconscious=false;paused=wasPaused;}
+        combatGuarding=true;
         double before=Vitals.Health,stamina=Vitals.Stamina;DamageHuman(humanPlayer,20,null,-view.transform.forward);Check(Vitals.Health>before-20&&Vitals.Stamina<stamina,"Facing weapon guard reduces incoming damage at a stamina cost");
         combatGuarding=false;DamageHuman(humanPlayer,1000,null,view.transform.forward);UpdatePlayerDeath();Check(DeathVisible&&Vitals.DeathCause==PlayerDeathCause.Combat&&playerRagdoll!=null,"Combat can kill the player through the existing ragdoll/death screen");yield return Image("05-player-death");
         File.WriteAllLines(Path.Combine(output,"checks.txt"),report);

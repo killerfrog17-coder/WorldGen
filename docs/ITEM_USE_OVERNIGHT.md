@@ -18,8 +18,25 @@ a craft during gathering could leave two actions restoring incompatible hand
 snapshots. Tool work now also cancels on survival incapacitation, matching crafting.
 Two native regression checks are written for gathering-to-crafting handoff and
 restoration of the original spear. These are unrun: the next native target is
-127 checks, while the selected release still has its verified 123. Focused Core
+132 checks, while the selected release still has its verified 123. Focused Core
 target remains 77. No updated package or performance claim is implied.
+
+Further low-load review adds source-only ammunition/save safeguards:
+
+- Saving cancels a drawn ranged weapon and restores borrowed hands rather than
+  saving temporary equipment assignments without their restoration snapshot.
+- Temporary NPC-human attachments are cleared on session initialization because
+  those NPCs are not restored and their numeric IDs can be reused. Arrows resume
+  ordinary falling from their last recorded pose, retaining the same item.
+- Missing/explicitly cleared actors release their projectiles. A saved animal
+  that is merely streamed out retains its attachment for the animal's return.
+- Hand borrowing clears the old weapon guard; combat resets guard before early
+  returns and respects Survival incapacitation.
+
+Five additional native checks cover drawn-bow saving, orphaned human arrows,
+NPC-ID reuse on initialization, streamed saved-animal attachments and incapacitated combat. The existing tool
+borrowing check now also asserts that an old guard is cleared. These checks are
+written, not executed. Visual assets and the current testable build are unchanged.
 
 This update does not resume the scrapped history/building overhaul. Animal
 skinning, butchery, processing and meat drops are deliberately deferred.
@@ -161,8 +178,9 @@ All 177 accepted animal bundles/native sources,
 skins total 26.4 MiB and stream per species; physics metadata covers 5,807 bones.
 No measured dense-forest FPS improvement is claimed.
 
-Evidence is under `artifacts/overnight-items-20261028`. Source checkpoints are
-pushed to GitHub. Approved cleanup removed 19 superseded generated packages,
+Evidence is under `artifacts/overnight-items-20261028`. The tested feature-code
+checkpoint is on GitHub; later local follow-ups await network synchronization.
+Approved cleanup removed 19 superseded generated packages,
 about 14.34 GiB, retaining daily/latest-three/selected/running protection, release
 fallbacks, source, saves, native art and review evidence.
 

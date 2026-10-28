@@ -31,7 +31,7 @@ Herbivores/satisfied predators skip edible-prey checks. Drinking requires actual
 river/lake water, not ocean/dry footprint; bounded seven-step bank search replaces
 15m inland target, 1m drink arrival. Search <=16+8 probes per decision; rotated ray.
 No salinity/ice/new navigation model or herd-member drinking certification.
-14 new Core +4 native regressions WRITTEN ONLY: expected focused77/native127,
+14 new Core +9 native regressions WRITTEN ONLY: expected focused77/native132,
 NOT RUN/COMPILED. Selected release STILL123+13 verified; do not claim new fixes
 tested/shipped. Archived scripts/drafts/wildlife-contact-and-labels.patch has
 been superseded by explicit source edits: DO NOT APPLY AGAIN. Initial shell
@@ -50,8 +50,21 @@ Later light review: crafting/tool entry points cancel charged weapons and prior
 world tool work before capturing hands. Fixes competing restore snapshots when
 switching from digging/fishing to crafting. World tool work also cancels on
 Survival incapacitation. Two new native handoff/original-spear checks WRITTEN,
-UNRUN (included in127 above). Local wildlife source checkpoint70c7b06; subsequent
+UNRUN (included in132 above). Local wildlife source checkpoint70c7b06; handoff
+checkpointaf8412a; subsequent
 handoff edits are source-only too. No selected package/shortcut changes.
+Later ammo/save review: StorePlayer cancels drawn ranged action before capture,
+restoring borrowed hands without firing. On inventory initialization, temporary
+NPC-human attachments detach because their actors are not saved/IDs can repeat.
+Orphaned/explicitly cleared actor projectiles resume falling at last world pose;
+saved streamed-out animals RETAIN attachments. Bone lookup null/retired guards.
+PrepareWorkHands clears stale guard; combat resets guard before early returns
+and respects Survival incapacitation. Five new native regressions written for
+save/orphan/NPC-ID-reuse/stream/KO paths; borrowing check strengthened. All UNRUN,
+included in132 above. No worker/build/download/render/inference/push launched.
+Owner explicitly allows further work only with low CPU AND GPU use; local small
+file edits/review/checkpoints only. Pending tests/native rendering/build/art
+generation/network sync deferred until resource restriction lifted.
 
 Taskscopeautomaticstow/borrow/restorehands;allportableitemfunctions,melee/
 physicalthrows/bow/sling/atlatl/block,animal/NPC/playerhealth/blood/ragdoll/saved

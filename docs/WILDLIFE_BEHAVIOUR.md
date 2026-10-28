@@ -102,7 +102,7 @@ and superseded by the current source. **Do not apply it again.** Two native
 regressions cover label independence and vertically unreachable prey; the old
 positive attack fixture is moved into actual contact. Fourteen new Core checks
 cover prey limits and water classification. Expected totals are **77 focused
-item-use and 127 native checks** (including two later equipment-handoff checks),
+item-use and 132 native checks** (including later equipment/ammunition checks),
 not results: none of these additions has been
 compiled or run. Shoreline behaviour still needs an actual scene check.
 

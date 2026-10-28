@@ -8,7 +8,7 @@ public sealed partial class LocalTerrainExplorer
 {
     double combatRightReady,combatLeftReady,combatGlobalReady,combatNoticeAt;
     bool combatGuarding;
-    bool CombatStopped=>!Ready||DeathVisible||Spectating||paused||mapOpen||ecologyOpen||chatOpen||inventoryOpen||!Application.isFocused&&!inventoryReviewMode;
+    bool CombatStopped=>!Ready||DeathVisible||SurvivalActive&&Vitals.Incapacitated||Spectating||paused||mapOpen||ecologyOpen||chatOpen||inventoryOpen||!Application.isFocused&&!inventoryReviewMode;
     void CombatNotice(string text){if(Time.unscaledTimeAsDouble<combatNoticeAt)return;combatNoticeAt=Time.unscaledTimeAsDouble+1.5;InventoryFeedback(text);}
     bool SpendCombatStamina(double amount)
     {
@@ -66,13 +66,13 @@ public sealed partial class LocalTerrainExplorer
     {if(hit.Animal!=null)DamageAnimal(hit.Animal,damage,hit.Point,direction,momentum,true);else if(hit.Human!=null)DamageHuman(hit.Human,damage,hit,direction,momentum);}
     void UpdateItemCombat()
     {
-        if(CombatStopped){combatGuarding=false;CancelItemCharge();return;}
+        combatGuarding=false;
+        if(CombatStopped){CancelItemCharge();return;}
         var mouse=Mouse.current;if(mouse==null)return;
         if(worldToolWork!=null){if(mouse.leftButton.wasPressedThisFrame||mouse.rightButton.wasPressedThisFrame)CancelWorldToolWork();return;}
         if(itemCharge!=null){UpdateItemCharge(mouse);return;}
         if(mouse.leftButton.wasPressedThisFrame||mouse.rightButton.wasPressedThisFrame)PauseItemCraft(ActiveItemCraft);
         var right=Inventory.AtHand(PossessionPlace.RightHand);var left=Inventory.AtHand(PossessionPlace.LeftHand);bool dual=right!=null&&left!=null&&!ReferenceEquals(right,left);
-        combatGuarding=false;
         if(dual)
         {if(mouse.leftButton.wasPressedThisFrame)PrimaryItemAction(right,false,0);if(mouse.rightButton.wasPressedThisFrame)PrimaryItemAction(left,true,1);return;}
         var main=right??left;bool mainLeft=right==null&&left!=null;var profile=ItemUseRules.Profile(main);
