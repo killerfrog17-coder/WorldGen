@@ -1,5 +1,22 @@
 # WorldGen repository instructions
 
+SURVIVAL CRAFTING ROADMAP PDF,27October2026:
+Owner requests researched feature order/dependency map plus per-feature research
+workflow for AI/YouTube. Delivered docs/reports/WorldGen - Survival Crafting
+Roadmap.pdf,10pages: ordered M1-M10, dependency web,10 researchcards with completion
+checks and clickable YouTube searches, spear assembly diagram, shared mechanics/
+AI worksheet and12 annotated primary/institutional sources. Distinguish software
+order from inventiondates, capability/AND/OR alternatives, evidence from design
+reconstruction; no handledknife/cordage/fire universalgate for woodenspear.
+Generator scripts/build-survival-crafting-roadmap.py uses existing localreport
+libraries/embeddedWindowsfonts; no installs/inference/game launch or gamechanges.
+All10pages rendered/inspected; layoutbounds, searchabletext and55links checked
+incl10YouTubequeries. PDF123441bytes SHAe84f65008ed7d8059a73bca3328b9169b694f24b9af6c0404bc84d44d10cbd29.
+Opened via defaultPDFapp; no newDesktopfiles or ownerappclosures. Evidence
+artifacts/crafting-roadmap-20261027; ownsource/docs backup checkpoint required,
+push+remoteverify. Preserve unrelated prompt deletion/two deer scripts. This
+request is planning only; no stopped history/survival/building work resumed.
+
 PICKUP ICON RANGE,27October2026:
 Owner changes marker fade from2->1m to4->3m, retains accepted interactions.
 Separate marker candidates from3m-eye-reachable inventory/Nearby items; expanded
