@@ -75,7 +75,7 @@ public sealed partial class LocalTerrainExplorer
                 Sunlight=daylight*(1-CurrentWeather.CloudCover*.85)*(1-canopy*.8),
                 Immersed=!double.IsNaN(water)&&water-(sample.ElevationM+feetAboveGround)>.6};
         }
-        survivalEnvironment.RadiantHeatC=CampWarmth();survivalEnvironment.Sleeping=campSleeping;survivalEnvironment.SleepComfort=CampRules.BedComfort(sleepingBed);
+        survivalEnvironment.LocalHour=LocalSolarHour;survivalEnvironment.RadiantHeatC=CampWarmth();survivalEnvironment.Sleeping=campSleeping;survivalEnvironment.SleepComfort=CampRules.BedComfort(sleepingBed);
         survivalEnvironment.Insulation=campSleeping?CampRules.BedInsulation(sleepingBed):0;
         double speed=Vitals.Incapacitated||campSleeping||campResting?0:Math.Min(TerrainMotion.RunSpeedMps,Math.Sqrt(dx*dx+dz*dz)/dt);survivalMovementSpeed=speed;
         SurvivalRules.Advance(Vitals,dt*CampTimeRate,PlayerRules.Settings.RealMinutesPerDay,survivalEnvironment,speed,survivalSprinting);

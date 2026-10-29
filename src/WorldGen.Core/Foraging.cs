@@ -25,8 +25,10 @@ namespace WorldGen.Core
         {
             if(!Food(p))return null;
             string name=PortableTechnology.Item(p.Kind)?.Name??p.Kind.ToString();
-            if(p.Kind==PossessionKind.RawMeat||p.Kind==PossessionKind.RawFish||p.Kind==PossessionKind.AnimalFat)return string.IsNullOrEmpty(p.AppearanceSpecies)?name:PortableTechnology.SpeciesName(p.AppearanceSpecies)+" "+name.ToLowerInvariant();
-            return string.IsNullOrEmpty(p.FoodSpecies)?name:p.FoodSpecies+" "+name.ToLowerInvariant();
+            if(p.Cooked)name=name.Replace("Raw ","").Replace("raw ","");
+            string prefix=p.Burnt?"Charred ":p.Cooked?"Cooked ":"";
+            if(p.Kind==PossessionKind.RawMeat||p.Kind==PossessionKind.RawFish||p.Kind==PossessionKind.AnimalFat)return prefix+(string.IsNullOrEmpty(p.AppearanceSpecies)?name:PortableTechnology.SpeciesName(p.AppearanceSpecies)+" "+name.ToLowerInvariant());
+            return prefix+(string.IsNullOrEmpty(p.FoodSpecies)?name:p.FoodSpecies+" "+name.ToLowerInvariant());
         }
         static ForageProduct Product(string species,int code,PossessionKind kind,double kg,double kcal,double water,double toxin,V tint,string part="food")
         {
@@ -77,10 +79,8 @@ namespace WorldGen.Core
         {
             if(!Food(p)||state.Incapacitated)return 0;
             double mass=Math.Min(p.MassKg,sample?.005:p.Kind==PossessionKind.Nuts?.06:p.Kind==PossessionKind.AnimalFat?.06:.25);
-            double kcal=mass*p.FoodKcalPerKg;
-            // 2,400 kcal replaces a resting gameplay day's food loss. Activity
-            // already increases the existing needs drain; no mandatory meat rule.
-            state.Hunger=Math.Max(0,state.Hunger-kcal/24);state.Thirst=Math.Max(0,state.Thirst-mass*p.FoodWaterPerKg/2.5*100);
+            double kcal=mass*p.FoodKcalPerKg*(p.Burnt?.5:1);
+            PlayerMetabolism.Eat(state,mass,kcal,mass*p.FoodWaterPerKg);
             state.Energy=Math.Min(100,state.Energy+kcal/150);state.Stamina=Math.Min(state.Stamina,state.MaximumStamina);
             if(p.FoodToxicity>0)
             {
@@ -97,13 +97,14 @@ namespace WorldGen.Core
                 double active=Math.Max(0,simulatedSeconds-e.DelaySeconds);e.DelaySeconds=Math.Max(0,e.DelaySeconds-simulatedSeconds);
                 if(active<=0||e.RemainingSeconds<=0)continue;
                 double dt=Math.Min(active,e.RemainingSeconds),damage=e.RemainingDamage*dt/e.RemainingSeconds;e.RemainingDamage-=damage;e.RemainingSeconds-=dt;
-                state.Health=Math.Max(0,state.Health-damage);state.Thirst=Math.Min(100,state.Thirst+damage*.35);state.Energy=Math.Max(0,state.Energy-damage*.25);
+                state.Health=Math.Max(0,state.Health-damage);PlayerMetabolism.Hydrate(state,-damage*.0077);state.Energy=Math.Max(0,state.Energy-damage*.25);
                 if(state.Dead){state.DeathCause=PlayerDeathCause.Poison;state.Unconscious=false;}
             }
             state.FoodExposures.RemoveAll(e=>e.RemainingSeconds<=0||e.RemainingDamage<1e-9);
         }
         public static void ValidateFood(Possession p)
         {
+            if(!ItemUseRules.Finite(p.CookingSeconds)||p.CookingSeconds<0||p.CookingSeconds>1e9)throw new ArgumentException("Invalid cooking state.");
             if(p.FoodSpecies!=null&&p.FoodSpecies.Length>160||!ItemUseRules.Finite(p.FoodKcalPerKg)||p.FoodKcalPerKg<0||p.FoodKcalPerKg>10000||!ItemUseRules.Finite(p.FoodWaterPerKg)||p.FoodWaterPerKg<0||p.FoodWaterPerKg>1||!ItemUseRules.Finite(p.FoodToxicity)||p.FoodToxicity<0||p.FoodToxicity>1||!ItemUseRules.Finite(p.FoodDelayHours)||p.FoodDelayHours<0||p.FoodDelayHours>72)throw new ArgumentException("Invalid food state.");
         }
         public static List<Possession> AnimalLoot(ulong id,string species,string medium,double mass,V position,int coat,int seed,bool bird,bool mammal,bool antlers)

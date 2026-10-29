@@ -109,7 +109,7 @@ static partial class LocalScatterMeshes
         switch(d.Form)
         {
             case PortableForm.Food:
-                Color food=new Color((float)item.Tint.X,(float)item.Tint.Y,(float)item.Tint.Z,0);
+                Color food=item.Burnt?new Color(.09f,.065f,.045f,0):item.Cooked?new Color(.39f,.22f,.11f,0):new Color((float)item.Tint.X,(float)item.Tint.Y,(float)item.Tint.Z,0);
                 if(item.Kind==PossessionKind.Mushroom)
                 {Tube(Vector3.zero,new Vector3(0,.62f,0),.11f,new Color(.78f,.72f,.58f,0));b.Crown(new Vector3(0,.67f,0),new Vector3(.5f,.22f,.5f),18,6,food,29,.015f);}
                 else if(item.Kind==PossessionKind.Berries||item.Kind==PossessionKind.Nuts)

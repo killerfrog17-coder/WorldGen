@@ -5,7 +5,7 @@ namespace WorldGen.Presentation
 {
     public struct SurvivalEnvironment
     {
-        public double AirTemperatureC,Humidity,WindMps,RainMmPerHour,Sunlight,Insulation,RadiantHeatC,SleepComfort;
+        public double AirTemperatureC,Humidity,WindMps,RainMmPerHour,Sunlight,Insulation,RadiantHeatC,SleepComfort,LocalHour;
         public bool Immersed,Sleeping;
     }
     /// <summary>Approximate gameplay physiology, not a clinical thermoregulation model.</summary>
@@ -49,7 +49,7 @@ namespace WorldGen.Presentation
             double day=dt/(minutesPerDay*60),thermal=dt*60/minutesPerDay;
             Foraging.AdvancePoison(s,day*86400);if(s.Dead)return;
             WaterDrinking.AdvanceIllness(s,day*86400);
-            SleepRules.Advance(s,day*86400,e.Sleeping,e.SleepComfort);
+            SleepRules.Advance(s,day*86400,e.Sleeping,e.SleepComfort,e.LocalHour,e.Sunlight);
             double activity=s.Unconscious?0:Clamp(speed/TerrainMotion.RunSpeedMps),humidity=Clamp(e.Humidity),wind=Clamp(e.WindMps,0,60),sun=Clamp(e.Sunlight);
             double sweat=Clamp((e.AirTemperatureC-20)/12+activity*1.2+sun*.5,0,4);
             if(e.Immersed)s.Wetness=1;
@@ -57,6 +57,7 @@ namespace WorldGen.Presentation
             double cold=Math.Max(0,18-e.AirTemperatureC)*(1+wind*.05+s.Wetness*.9)*(1-Clamp(e.Insulation)*.9);
             if(e.Immersed)cold+=Math.Max(0,30-e.AirTemperatureC)*1.5;
             double coldLoad=Math.Max(0,cold-5-activity*8-e.RadiantHeatC);
+            coldLoad*=1+(1-s.BodyCondition)*.8;
             double evaporation=3*(1-humidity*.75)*(1+wind*.03)*(1-Clamp((s.Thirst-45)/55)*.8);
             double heatLoad=Math.Max(0,Math.Max(0,e.AirTemperatureC-28)*.28+Math.Max(0,e.AirTemperatureC-35)*humidity*.35+activity*1.5+sun*1.5+Math.Max(0,e.RadiantHeatC-12)*.2-evaporation);
             // Uncompensated heat loss/gain accumulates. A fixed cold equilibrium
@@ -67,28 +68,28 @@ namespace WorldGen.Presentation
             if(ResolveFatalCold(s))return;
             if(s.CoreTemperatureC>=HeatCollapseC)s.Unconscious=true;
             else if(s.Unconscious&&s.CoreTemperatureC>=32&&s.CoreTemperatureC<=39.5)s.Unconscious=false;
-            s.Hunger=Clamp(s.Hunger+day*(100+activity*70+coldLoad*.7),0,100);
-            s.Thirst=Clamp(s.Thirst+day*100*(1+Math.Max(0,e.AirTemperatureC-22)*.07+activity*1.4+sweat*.5),0,100);
+            PlayerMetabolism.Advance(s,day,activity,coldLoad,2.4+Math.Max(0,e.AirTemperatureC-22)*.09+activity*3+sweat*.6);
             bool resting=speed<.1;
             bool comfortable=s.CoreTemperatureC>=36&&s.CoreTemperatureC<=38;
-            if(resting&&s.Hunger<65&&s.Thirst<65&&comfortable)s.Energy=Clamp(s.Energy+day*(e.Sleeping?180*Math.Max(.25,e.SleepComfort):65),0,100);
+            double energyLimit=100*s.BodyCondition*(s.Hunger>90?.9:1)*(1-.25*Clamp((s.Thirst-60)/40));
+            if(resting&&s.Thirst<85&&comfortable)s.Energy=Clamp(s.Energy+day*(e.Sleeping?180*Math.Max(.25,e.SleepComfort):65),0,energyLimit);
             else s.Energy=Clamp(s.Energy-day*(8+activity*70+coldLoad*.5+heatLoad*4),0,100);
             bool exerting=sprinting&&speed>TerrainMotion.JogSpeedMps+.05&&s.CanSprint;
-            double recovery=1-.55*Clamp((s.Tiredness-70)/30);
+            double recovery=(1-.55*Clamp((s.Tiredness-70)/30))*s.BodyCondition;
             s.Stamina=Clamp(s.Stamina+dt*(exerting?-9:(resting?14:speed<=TerrainMotion.WalkSpeedMps+.1?11:4)*recovery),0,s.MaximumStamina);
             if(s.Stamina<=.01)s.Exhausted=true;
             else if(s.Exhausted&&s.Stamina>=Math.Min(25,s.MaximumStamina*.4))s.Exhausted=false;
             // Critical exposure can incapacitate before it proves fatal. Mild
             // hypothermia causes impairment, not automatic rapid health loss.
             double coldDamage=Math.Max(0,32-s.CoreTemperatureC)*.12,heatDamage=Math.Max(0,s.CoreTemperatureC-39.5)*.25;
-            double thirstDamage=s.Thirst>=100?180d/3600:0,hungerDamage=s.Hunger>=100?20d/3600:0;
+            double thirstDamage=PlayerMetabolism.DehydrationDamagePerDay(s)/3600,hungerDamage=PlayerMetabolism.StarvationDamagePerDay(s)/3600;
             double damage=coldDamage+heatDamage+thirstDamage+hungerDamage;
             if(damage>0)
             {
                 s.Health=Clamp(s.Health-damage*thermal,0,100);
                 if(s.Dead)s.DeathCause=coldDamage>=Math.Max(heatDamage,Math.Max(thirstDamage,hungerDamage))?PlayerDeathCause.Cold:heatDamage>=Math.Max(thirstDamage,hungerDamage)?PlayerDeathCause.Heat:thirstDamage>=hungerDamage?PlayerDeathCause.Dehydration:PlayerDeathCause.Starvation;
             }
-            else if(comfortable&&s.Hunger<50&&s.Thirst<50)s.Health=Clamp(s.Health+day*30,0,100);
+            else if(comfortable&&s.Hunger<70&&s.Thirst<50)s.Health=Clamp(s.Health+day*30*s.BodyCondition,0,100);
         }
     }
 }

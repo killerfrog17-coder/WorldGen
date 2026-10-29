@@ -12,6 +12,7 @@ public sealed partial class LocalTerrainExplorer
     public void PreviewItemEffect(string category,int take)=>PlayItemEffect(category,view.transform.position,.6f,true,take);
     void PlayItemEffect(string category,Vector3 position,float volume=.5f,bool owner=false,int variant=-1)
     {
+        if(!owner)ReportSleepNoise(position,volume*2);
         if(ItemEffectVolume<=0||!owner&&(position-view.transform.position).sqrMagnitude>65*65)return;
         if(!itemEffectBanks.TryGetValue(category,out var clips))
         {

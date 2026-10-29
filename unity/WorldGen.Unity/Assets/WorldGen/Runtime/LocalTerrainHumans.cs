@@ -83,6 +83,7 @@ public sealed partial class LocalTerrainExplorer
         if(mouse==null)return;
         if(!Spectating&&mouse.middleButton.wasPressedThisFrame)humanCamera.ToggleLock();
         float scroll=mouse.scroll.ReadValue().y;if(scroll==0)return;
+        if(CycleCampChoice(scroll))return;
         // Preserve fly-speed adjustment without competing with camera zoom.
         if(motion.Flying&&keyboard!=null&&(keyboard.leftAltKey.isPressed||keyboard.rightAltKey.isPressed))
             motion.FlySpeed=Math.Max(5,Math.Min(20000,motion.FlySpeed*Math.Exp(Math.Sign(scroll)*.25)));

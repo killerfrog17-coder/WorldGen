@@ -193,7 +193,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         }
         UpdatePlayerDeath();
         if(!TerrainDiagnostics.HoldTerrain&&!DeathVisible)UpdatePreparedFrame();
-        UpdateHumans();UpdateCamera();UpdatePlayerWater();UpdateItemCombat();UpdateFootsteps();UpdateSurvivalHud();double altitude=HeightAboveGround;
+        UpdateHumans();UpdateCamera();UpdatePlayerWater();UpdateItemCombat();UpdateFootsteps();UpdateBodyFeedback();UpdateSurvivalHud();double altitude=HeightAboveGround;
         debugGroundClearance=altitude;debugElevation=groundMemoElevation+altitude;
         if(TerrainDiagnostics.HoldTerrain){UpdateScatter();UpdateAnimalFauna();UpdateWeatherPresentation();UpdateDebugReadout();return;}
         double replanDistance=TerrainLod.ReplanDistance(HorizontalScale);

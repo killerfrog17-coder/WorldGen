@@ -33,6 +33,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void PrimaryItemAction(Possession item,bool left,int button)
     {
+        if(StrikeCampStake(item,left))return;
         if(!CombatReady(left))return;if(item!=null&&ItemUseRules.Condition(item)<=0){CombatNotice("This item needs repair before use.");return;}
         var profile=ItemUseRules.Profile(item);if(!profile.Weapon)return;
         if(profile.Primary==ItemPrimaryUse.Bow||profile.Primary==ItemPrimaryUse.Sling||profile.Primary==ItemPrimaryUse.SpearThrower){BeginItemCharge(item,left,button,false);return;}
@@ -40,11 +41,11 @@ public sealed partial class LocalTerrainExplorer
     }
     void StrikeWithItem(Possession item,bool left)
     {
+        if(StrikeCampStake(item,left))return;
         var profile=ItemUseRules.Profile(item);double weightPenalty=item==null?1:Math.Max(1,Math.Sqrt(item.MassKg/(item.Kind==PossessionKind.LargeRock?.7:1.5)));
         if(!profile.Weapon||!CombatReady(left)||!SpendCombatStamina(profile.Stamina*weightPenalty))return;
         CombatCooldown(left,profile.RecoverySeconds*weightPenalty);AnimateViewItem(item);var ray=PlayerAttackRay();float reach=(float)profile.ReachM;
         PlayItemEffect("weapon-swish",ray.origin,item==null?.12f:.3f,true);
-        if(HammerCamp(item,ray,reach))return;
         CombatHit chosen=null;CombatObstacle obstacle=null;float nearest=reach;
         // A small contact width is forgiving without treating an animal's whole
         // bounding box as flesh. Each candidate is still a real surface hit.

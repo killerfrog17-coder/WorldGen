@@ -29,7 +29,7 @@ namespace WorldGen.Core
             if(mode!=GameMode.Survival)return;
             litres=Math.Min(1,litres);
             double net=litres*Math.Max(-1.8,1-Math.Pow(water.SalinityPpt/7,1.2));
-            state.Thirst=Math.Max(0,Math.Min(100,state.Thirst-net*100/3));
+            PlayerMetabolism.Hydrate(state,net);
             double dose=1-Math.Pow(1-water.Contamination,litres*.4);
             if(chance<dose)
             {
@@ -44,7 +44,7 @@ namespace WorldGen.Core
             double active=Math.Max(0,seconds-state.WaterSicknessDelaySeconds);state.WaterSicknessDelaySeconds=Math.Max(0,state.WaterSicknessDelaySeconds-seconds);
             active=Math.Min(active,state.WaterSicknessSeconds);if(active<=0)return;
             state.WaterSicknessSeconds-=active;double hours=active/3600*state.WaterSicknessSeverity;
-            state.Thirst=Math.Min(100,state.Thirst+hours*8);state.Energy=Math.Max(0,state.Energy-hours*3);
+            PlayerMetabolism.Hydrate(state,-hours*.176);state.Energy=Math.Max(0,state.Energy-hours*3);
             if(state.WaterSicknessSeconds<=0)state.WaterSicknessSeverity=0;
         }
     }

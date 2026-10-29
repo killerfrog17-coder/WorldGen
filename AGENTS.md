@@ -1,5 +1,27 @@
 # WorldGen repository instructions
 
+NEWOWNER29Oct SURVIVAL/CAMP overhaulAUTHORIZED: implementday-basedcalories/body
+reserves+felt-hungerHUD,~3daycomfortablefluidloss,earlierstrongthermalglows;
+mass/size/moisturefireburn-down+shortbrokenfuelvisuals,unprocessedgrassfuel,
+quickcontextualfireitemicons/cycling/add/retrievefood(cookingnowauthorized),
+circadiansleepwithnaturalwake/light/daytimebouts/noises(nohourpicker),layered
+bedding,playernonverbalsounds(eat/gut/throat/yawn/pant/pain/shiver),cold/hot/
+lowhealthscreenfeedbackandboundedshivercamera,translucentplacementpreview,
+stakecontactdetection+shortanti-spamcooldown. NOpaid/subagents/newhumanskinned
+animations; preserveallapprovedanimal/humanart+owner3unrelatedfiles. IL2CPPONLY.
+ResearchofficialSA3guide/NASEMphysiology/Yetish2015preindustrialsleep/USDAwood.
+CURRENT29Oct~16:27CDT: sourceimplementationcomplete; focusedCorePASS24new/
+39camp/67modes/161HUD/37water/33foraging. 24localSA3bodyfoleys8groupsx3published
+sounds/player-survival(4.6MB)withassets/player-audio/provenance; trackedGit,notLFS.
+ComfyOWNserverSTOPPED. NewIL2CPPBUILDINPROGRESSexec23691 Unity22352 at
+artifacts/player-survival-experience; oldselected18:07followupUNCHANGED.
+673sourcefreeze artifacts/survival-camp-20261029/package-proof. Nativecampfixture
+addsactualEfeeding/cooking/retrieval,audioload/play,paininterrupt,placementghost,
+heavyrockshortcooldown,noise-wake,actualscreenFXpixelcomparisons. NOTRUNYET.
+Needfinishbuild,restore3knownUnityautochanges,proof/native+visuals,Gitpush,
+existingrootshortcutselection. No loading/waterfixclaim. Owner3filesunchanged.
+No paid/subagents/cleanup/newhumanskinnedanimations. No ownerappsclosed.
+
 SELECTEDIL2CPP29Oct~13:09CDT: ownerrebuild-onlyrequestDONE. Existingrootshortcut
 NOW artifacts/player-camp-water-followup/WorldGen.exe, IL2CPP RELEASE
 BuiltUtc2026-10-29T18:07:39.2457994Z, productioncommit64c1b1a. Allfutureplayer

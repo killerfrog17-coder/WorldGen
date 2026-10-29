@@ -80,7 +80,7 @@ static class SurvivalModeTests
         Check(immersed.Wetness==1&&immersed.CoreTemperatureC<wet.CoreTemperatureC,"Cold water immersion is more severe than rain");
         var hungry=new PlayerSurvival{Hunger=100};var thirsty=new PlayerSurvival{Thirst=100};
         SurvivalRules.Advance(hungry,60,60,mild,0,false);SurvivalRules.Advance(thirsty,60,60,mild,0,false);
-        Check(hungry.Health<100&&hungry.Health>90&&thirsty.Health<hungry.Health,"Starvation is gradual and dehydration is more urgent");
+        Check(hungry.Health==100&&hungry.ReserveKcal>0&&thirsty.WaterDeficitLitres>0,"An empty stomach is not starvation; actual water deficit accumulates independently of thirst sensation");
         var dead=polar.Copy();SurvivalRules.Advance(polar,100,60,mild,0,false);
         Check(polar.Health==0&&polar.Energy==dead.Energy&&polar.CoreTemperatureC==dead.CoreTemperatureC&&polar.MovementScale==0,"Death stops survival updates and voluntary movement");
         polar.Restore();Check(polar.Health==100&&polar.Stamina==100&&polar.DeathCause==PlayerDeathCause.None,"Creative reset can recover a dead prototype player");

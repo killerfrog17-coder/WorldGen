@@ -41,7 +41,7 @@ static class CampTests
         Check(stake.Materials[0].HeightM==1.8,"Hammering changes burial, never the actual stick length");
         Check(CampRules.Drive(stake,rock)==0,"Fully driven stake stops moving");
         var deep=new CampObject{Kind=CampKind.Stake,Position=at,SoilDepthM=5};CampRules.Add(deep,branch);for(int i=0;i<300;i++)CampRules.Drive(deep,rock);Check(deep.EmbedM<=1.8*.65+1e-9,"A stick cannot be driven beyond its usable length");
-        var sleeper=new PlayerSurvival{Tiredness=80,Energy=95};SleepRules.Advance(sleeper,8*3600,true,1);Check(sleeper.Tiredness==0&&sleeper.Energy==95,"Sleep pressure is independent of energy");
+        var sleeper=new PlayerSurvival{Tiredness=80,Energy=95};SleepRules.Advance(sleeper,8*3600,true,1);Check(sleeper.Tiredness<10&&sleeper.Energy==95,"Sleep pressure is independent of energy");
         sleeper=new PlayerSurvival{Tiredness=0,Energy=5};SleepRules.Advance(sleeper,3600,false);Check(sleeper.Tiredness>0&&sleeper.Energy==5,"Low energy does not imply sleepiness");
         var fatigue=new PlayerSurvival();SleepRules.Advance(fatigue,16*3600,false);Check(fatigue.Tiredness>65&&fatigue.Tiredness<80,"Normal awake day builds sleep pressure");
         var e=new SurvivalEnvironment{AirTemperatureC=20,Humidity=.4,Sleeping=true,SleepComfort=.9};var body=new PlayerSurvival{Tiredness=85,Energy=35};

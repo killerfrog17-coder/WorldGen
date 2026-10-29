@@ -45,6 +45,8 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public ulong CorpseOwner;
         [System.Runtime.Serialization.OptionalField] public string FoodSpecies;
         [System.Runtime.Serialization.OptionalField] public double FoodKcalPerKg,FoodWaterPerKg,FoodToxicity,FoodDelayHours;
+        [System.Runtime.Serialization.OptionalField] public bool Cooked,Burnt;
+        [System.Runtime.Serialization.OptionalField] public double CookingSeconds;
         public string Name=>PortableTechnology.Name(this)??(Kind==PossessionKind.Branch?"Branch":Kind==PossessionKind.TrimmedPole?"Trimmed pole":Kind==PossessionKind.DiggingStick?"Digging stick":Kind==PossessionKind.WoodenSpear?"Wooden spear":Kind==PossessionKind.SmallRock?"Small rock":Kind==PossessionKind.LargeRock?"Large rock":Kind==PossessionKind.StoneFlake?"Stone flake":"Testing bag");
         public int Hands=>Kind==PossessionKind.LargeRock?2:PortableTechnology.Item(Kind)?.Hands??1;
         public int PackedWidth=>Rotated?CellsHigh:CellsWide;

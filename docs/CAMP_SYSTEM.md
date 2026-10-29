@@ -9,14 +9,19 @@ for a later update.
 - Right-click grass, reeds, leaves or hide: spread bedding. Add further layers
   through E on the bedding. Stored material mass controls depth and comfort;
   rain wets it and wind/sun dry it. Hides retain their existing provenance.
-- Right-click fine tinder: place a fire lay. Add thin kindling and wood through
-  its contextual interaction. A stone ring is not a mandatory ignition gate.
+- Right-click fine tinder: place a fire lay. Aim at it, scroll through the
+  contextual item icons, and press E to add fuel, light it, cook food or retrieve
+  food. No fire menu is needed. Raw dry grass can be added directly. A stone
+  ring is not a mandatory ignition gate.
 - Shape a spindle/hearthboard set from two suitable wood pieces with a cutting
   edge; shred grass/bark/fibre into tinder; split wood into kindling. These are
   existing contextual, timed crafting actions, not a new recipe browser.
 - Lighting with a hand drill is timed work, borrows the actual tool and restores
   prior hands. Dry tinder and thin kindling are required before thicker fuel.
-  Fuel burns down to ash/embers; rain can extinguish an exposed fire. The camp
+  Long branches become short fuel pieces with exactly the same total mass.
+  Fuel mass, moisture and wind control burn time and flame strength; a substantial
+  load lasts hours of solar time and dwindles into embers. Live embers can kindle
+  fresh thin wood. Rain can extinguish an exposed fire. The camp
   simulation clock is independent of debug sun-position commands.
 - Ash remains visible after fuel is consumed. Live embers glow until they cool;
   standing in the flames burns the player, while nearby radiant warmth is safe.
@@ -36,10 +41,18 @@ for a later update.
   rock changes the stored embedding depth, bounded by soil depth and stick
   length. The visible shaft retains its original dimensions and branch variant.
   Later structural loading/tying of members is outside this update.
-- Z opens sleep/rest on bare ground; E on bedding allows sleep there. One, four
-  and eight-hour requests accelerate world time 32 times; Space/Escape wakes.
-  Exposure, hunger, thirst and fuel continue during sleep. Damage or dangerous
-  core temperature interrupts it. There is no offline time progression.
+- Placement shows a translucent object at the aimed ground point. Rock strikes
+  use forgiving post bounds and a separate 0.3–0.6 second anti-spam interval,
+  independent of the rock's slower combat recovery.
+- Z opens sleep/rest on bare ground; E on bedding allows sleep there. Sleep has
+  no duration picker, clock or countdown. Pressure, body-clock phase and daylight
+  determine waking, including shorter daytime bouts. Nearby moving animals or
+  loud sounds can interrupt sleep, as can damage and dangerous core temperature.
+  Sleep accelerates time 32 times; Space/Escape wakes voluntarily. Exposure,
+  hunger, thirst and fuel continue. There is no offline time progression.
+- Meat, fish, roots and mushrooms cook over accumulated fire/ember heat and char
+  if left too long. E retrieves the same physical item. Cooking does not remove
+  mushroom toxicity. Raw-meat illness remains deferred as requested.
 
 Tiredness is independent of energy. Awake rest can recover energy while sleep
 pressure increases. Sleep reduces tiredness according to bed comfort. Severe
@@ -51,7 +64,44 @@ Camp objects store planet positions, exact embedded depth and original material
 identities. Save snapshots deep-copy them and reject ownership duplication
 between carried and placed items. Old saves default to an empty camp and zero
 tiredness. There are no global building blueprints, NPC camp generation, full
-wildfire spread, cooking, water containers or new shelter system in this pass.
+wildfire spread, water containers or new shelter system in this pass.
+
+One grass bundle gives modest comfort. Further layers improve it with diminishing
+returns; a hide improves insulation without becoming a thick mattress.
+
+## Physiology and feedback revision
+
+The stomach shows felt hunger, not remaining life. Food enters a digestive store
+and then replenishes body reserves. Physiological days follow solar days regardless
+of the 24-day historical year. Activity/cold increase energy use. In the current
+focused tests, a healthy, hydrated character lasts about 34 days without food at
+rest, or 23 under continuous activity. These are gameplay approximations, not a
+promise about human survival. Comfortable unwatered survival is about 3.1 days;
+heat, activity and illness can shorten it. Old saves receive normal reserves
+rather than retroactive starvation.
+
+The owner's HUD is retained. Accumulated thermal glow rises earlier: half of the
+stress range produces 85% of the visual range, without changing death thresholds.
+Frost/heat edges, bounded camera shivering, low-health desaturation/blur and pain
+flashes supply feedback beyond the HUD. Healthy frames skip the extra screen pass.
+
+Eight body-foley groups have three locally generated variants each: eating,
+drinking, stomach, dry throat, yawning, panting, pain and shivering. They use item
+effects volume. Files are in `sounds/player-survival`; provenance and automated
+content checks are in `assets/player-audio/provenance.json`. No human listening
+approval is claimed. These small files are tracked directly in Git.
+
+Research for this revision:
+
+- [Human survival physiology review](https://physoc.onlinelibrary.wiley.com/doi/full/10.1113/EP093194).
+- [National Academies: water intake and losses](https://www.nationalacademies.org/read/10925/chapter/6).
+- [Yetish et al.: natural sleep in preindustrial societies](https://teams.semel.ucla.edu/sleep-research/publication/natural-sleep-and-its-seasonal-variations-three-pre-industrial-societies).
+- [US Forest Products Laboratory: wood energy](https://www.fpl.fs.usda.gov/documnts/fpmu/biomass_energy/basic_wood_energy_information.pdf).
+- [Stable Audio 3 prompting guide](https://stability.ai/guides/stable-audio-3-prompt-guide).
+
+Current focused checks pass: 24 physiology/camp-experience, 39 camp, 67 modes,
+161 HUD, 37 water and 33 foraging. Native verification for this revision is pending
+until its new IL2CPP candidate is built. The evidence below is historical.
 
 Research informing this approximation:
 

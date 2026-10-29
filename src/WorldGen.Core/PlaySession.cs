@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace WorldGen.Core
 {
@@ -53,7 +54,7 @@ namespace WorldGen.Core
             Inventory=Inventory??new PlayerInventory();Inventory.Validate();Wildlife=Wildlife??new WildlifeState();Wildlife.Validate();
             Camp=Camp??new CampState();Camp.Validate();
             var carriedIds=new System.Collections.Generic.HashSet<string>(Inventory.Items.ConvertAll(p=>p.Id));
-            foreach(var c in Camp.Objects)foreach(var p in c.Materials)if(carriedIds.Contains(p.Id))throw new ArgumentException("A placed material cannot also be in the inventory.");
+            foreach(var c in Camp.Objects)foreach(var p in c.Materials.Concat(c.CookingItems))if(carriedIds.Contains(p.Id))throw new ArgumentException("A placed material cannot also be in the inventory.");
             if(PlayerHumanVariant< -1||PlayerHumanVariant>5||HumanRunStyle<0||HumanRunStyle>3||!Finite(CameraDistance)||CameraDistance<0||CameraDistance>12)throw new ArgumentException("Invalid human or camera state.");
             if(Version!="play-session-1"||Settings==null)throw new ArgumentException("Unsupported play session.");Settings.Validate();
             bool Finite(double v)=>!double.IsNaN(v)&&!double.IsInfinity(v);

@@ -7,7 +7,7 @@ public sealed partial class LocalTerrainExplorer
     readonly Dictionary<string,Texture2D> itemThumbnails=new Dictionary<string,Texture2D>();
     readonly Queue<Possession> itemThumbnailQueue=new Queue<Possession>();readonly HashSet<string> itemThumbnailWanted=new HashSet<string>();
     Camera itemThumbnailCamera;RenderTexture itemThumbnailTarget;
-    string ItemThumbnailKey(Possession p)=>p.Kind+"/"+p.Variant+"/"+System.Math.Round(p.WidthM/System.Math.Max(.001,p.HeightM),2)+"/"+System.Math.Round(p.DepthM/System.Math.Max(.001,p.HeightM),2)+"/"+p.AppearanceSpecies+"/"+p.AppearanceCoat+"/"+p.FlakeRemovals+"/"+(PortableFur(p)&&animalModels.ContainsKey(p.AppearanceSpecies)?"coat":"base")+"/"+p.FoodSpecies;
+    string ItemThumbnailKey(Possession p)=>p.Kind+"/"+p.Variant+"/"+System.Math.Round(p.WidthM/System.Math.Max(.001,p.HeightM),2)+"/"+System.Math.Round(p.DepthM/System.Math.Max(.001,p.HeightM),2)+"/"+p.AppearanceSpecies+"/"+p.AppearanceCoat+"/"+p.FlakeRemovals+"/"+(PortableFur(p)&&animalModels.ContainsKey(p.AppearanceSpecies)?"coat":"base")+"/"+p.FoodSpecies+"/"+p.Cooked+"/"+p.Burnt;
     Texture2D ItemThumbnail(Possession item)
     {
         string key=ItemThumbnailKey(item);if(itemThumbnails.TryGetValue(key,out var texture))return texture;

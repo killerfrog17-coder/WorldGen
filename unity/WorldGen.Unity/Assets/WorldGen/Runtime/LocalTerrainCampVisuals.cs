@@ -7,7 +7,8 @@ using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
-    sealed class CampVisual {public GameObject Root;public AudioSource Sound;public ParticleSystem Smoke;public Quaternion SurfaceRotation;public int GroundLevel=-1;public double Mass;public bool Burning,Glowing;public double Embed;}
+    sealed class CampVisual {public GameObject Root;public AudioSource Sound;public ParticleSystem Smoke;public Quaternion SurfaceRotation;public int GroundLevel=-1;public double Mass;public bool Burning,Glowing;public double Embed;public int FoodState;public MeshRenderer[] FlameRenderers;public MaterialPropertyBlock FlameProperties=new MaterialPropertyBlock();}
+    static int CampFoodState(CampObject c){int hash=17;foreach(var p in c.CookingItems??Enumerable.Empty<Possession>())hash=unchecked(hash*31+p.Id.GetHashCode()+(p.Cooked?1:0)+(p.Burnt?2:0));return hash;}
     readonly Dictionary<string,CampVisual> campVisuals=new Dictionary<string,CampVisual>();
     Material campFlameMaterial,campEmberMaterial;
     readonly Vector4[] campLightPositions=new Vector4[4],campLightColours=new Vector4[4];bool campLightTestOff;int campLightCount;
@@ -50,13 +51,23 @@ public sealed partial class LocalTerrainExplorer
             if(!paused)CampRules.Advance(c,elapsed,CurrentWeather.RainMmPerHour,CurrentWeather.Humidity,Math.Sqrt(CurrentWeather.WindEastMps*CurrentWeather.WindEastMps+CurrentWeather.WindNorthMps*CurrentWeather.WindNorthMps),SkyFrame?.Daylight??0);
             bool near=(Position-c.Position).Length*frame.RadiusM<250;
             if(!near){InvalidateCampVisual(c);continue;}
-            if(campVisuals.TryGetValue(c.Id,out var old)&&(Math.Abs(old.Mass-c.MassKg)>.08||old.Burning!=c.Burning||old.Glowing!=(c.EmberSeconds>0)||old.Embed!=c.EmbedM)){InvalidateCampVisual(c);}
+            int foodState=CampFoodState(c);
+            if(campVisuals.TryGetValue(c.Id,out var old)&&(Math.Abs(old.Mass-c.MassKg)>.08||old.Burning!=c.Burning||old.Glowing!=(c.EmberSeconds>0)||old.Embed!=c.EmbedM||old.FoodState!=foodState)){InvalidateCampVisual(c);}
             if(!campVisuals.TryGetValue(c.Id,out var v)){v=CreateCampVisual(c);campVisuals.Add(c.Id,v);}
             TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);double visible=VisibleGround(x,z,double.NaN,out int level);float floor=(float)(double.IsNaN(visible)?Ground(x,z):visible);
             if(v.GroundLevel!=level){v.SurfaceRotation=CampSurfaceRotation(c);v.GroundLevel=level;}
             v.Root.transform.localPosition=new Vector3((float)(x-originX),floor,(float)(z-originZ));v.Root.transform.localRotation=v.SurfaceRotation;
             UpdateCampVoice(c,v);
             UpdateCampSmoke(v.Smoke);
+            if(c.Kind==CampKind.Fire)
+            {
+                float strength=Mathf.Clamp01((float)c.FirePowerKw/3);
+                foreach(var renderer in v.FlameRenderers)
+                {
+                    bool flame=renderer.name=="Flame sheet";v.FlameProperties.SetFloat("_Strength",flame?strength:Mathf.Clamp01((float)c.EmberSeconds/1200));renderer.SetPropertyBlock(v.FlameProperties);
+                    if(flame){renderer.transform.localScale=new Vector3(.58f*Mathf.Lerp(.25f,1,strength),.7f*Mathf.Lerp(.12f,1,strength),1);renderer.transform.localPosition=Vector3.up*renderer.transform.localScale.y*.5f;}
+                }
+            }
         }
         RetireCampVoices();
         foreach(var id in campVisuals.Keys.Where(id=>!Camp.Objects.Any(c=>c.Id==id)).ToArray())RemoveCampVisual(id);
@@ -64,7 +75,7 @@ public sealed partial class LocalTerrainExplorer
     CampVisual CreateCampVisual(CampObject c)
     {
         var root=new GameObject("Placed "+c.Kind);root.transform.SetParent(transform,false);root.layer=30;
-        var v=new CampVisual{Root=root,SurfaceRotation=CampSurfaceRotation(c),Mass=c.MassKg,Burning=c.Burning,Glowing=c.EmberSeconds>0,Embed=c.EmbedM};
+        var v=new CampVisual{Root=root,SurfaceRotation=CampSurfaceRotation(c),Mass=c.MassKg,Burning=c.Burning,Glowing=c.EmberSeconds>0,Embed=c.EmbedM,FoodState=CampFoodState(c)};
         if(c.Kind==CampKind.Stake)
         {
             var p=c.Materials[0];var wood=CreatePossessionVisual(p,30);wood.transform.SetParent(root.transform,false);wood.transform.localPosition=Vector3.down*(float)c.EmbedM;
@@ -92,6 +103,8 @@ public sealed partial class LocalTerrainExplorer
                 part.transform.localRotation=Quaternion.Euler(78+(i%4)*6,i*137,0);
                 i++;
             }
+            int cooking=0;foreach(var p in c.CookingItems??Enumerable.Empty<Possession>())
+            {var visualFood=p.Copy();if(p.Cooked)visualFood.Tint=p.Burnt?new V(.08,.055,.035):new V(.34,.18,.085);var part=CreatePossessionVisual(visualFood,30);part.transform.SetParent(root.transform,false);float angle=cooking++*2.39996f;part.transform.localPosition=new Vector3(Mathf.Sin(angle)*.28f,.16f,Mathf.Cos(angle)*.28f);part.transform.localRotation=Quaternion.Euler(0,cooking*137,0);}
             if(c.Burning||c.EmberSeconds>0)
             {
                 if(campEmberMaterial==null){campEmberMaterial=new Material(Resources.Load<Shader>("WorldGenCampFlame"));campEmberMaterial.SetFloat("_EmberMode",1);}
@@ -105,10 +118,10 @@ public sealed partial class LocalTerrainExplorer
                 }
             }
         }
-        return v;
+        v.FlameRenderers=root.GetComponentsInChildren<MeshRenderer>().Where(r=>r.name=="Flame sheet"||r.name=="Live ember bed").ToArray();return v;
     }
     void DisposeCamp()
-    {CancelCampPlacement();DisposeCampAudio();foreach(var c in Camp.Objects.ToArray())InvalidateCampVisual(c);if(campFlameMaterial!=null)Destroy(campFlameMaterial);if(campEmberMaterial!=null)Destroy(campEmberMaterial);if(campSmokeMaterial!=null)Destroy(campSmokeMaterial);campSleeping=campResting=false;}
+    {CancelCampPlacement();DisposeCampAudio();DisposeBodyFeedback();foreach(var c in Camp.Objects.ToArray())InvalidateCampVisual(c);if(campFlameMaterial!=null)Destroy(campFlameMaterial);if(campEmberMaterial!=null)Destroy(campEmberMaterial);if(campSmokeMaterial!=null)Destroy(campSmokeMaterial);campSleeping=campResting=false;}
 }
 
 static partial class LocalScatterMeshes

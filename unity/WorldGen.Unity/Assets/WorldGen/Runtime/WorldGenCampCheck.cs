@@ -92,9 +92,9 @@ public sealed partial class LocalTerrainExplorer
         Check(changed>500,"Actual firelight visibly illuminates world pixels, compared with the same frame without the light");Check(fire.Burning,"Debug time changes do not consume hours of physical fire fuel");
         PlayerRules.SetLocalSolarHour(12,longitude);SetDaylight(LocalSolarHour,skyYear);Vitals.Tiredness=80;Vitals.Energy=30;double solar=PlayerRules.SolarDays;
         BeginCampSleep(1,false,bed);Check(campSleeping&&CampTimeRate==32,"Sleeping on bedding begins accelerated time");Check((Position-bed.Position).Length*frame.RadiusM<.1,"Lying down places the player on the chosen bedding");
-        paused=false;deadline=Time.unscaledTimeAsDouble+14;while(campSleeping&&Time.unscaledTimeAsDouble<deadline)yield return null;paused=true;
-        Check(!campSleeping&&Vitals.Tiredness<80&&Vitals.Energy>30,"One hour of actual sleep lowers tiredness independently of energy recovery");
-        Check(PlayerRules.SolarDays-solar>.03&&PlayerRules.SolarDays-solar<.06,"Sun/calendar really advance through sleep, not just a fake fade");
+        paused=false;deadline=Time.unscaledTimeAsDouble+45;while(campSleeping&&Time.unscaledTimeAsDouble<deadline)yield return null;paused=true;
+        Check(!campSleeping&&Vitals.Tiredness<80&&Vitals.Energy>30,"A natural daytime sleep bout lowers tiredness independently of energy recovery");
+        Check(PlayerRules.SolarDays-solar>.04&&PlayerRules.SolarDays-solar<.2,"Daytime sleep wakes naturally within a short bout while advancing the actual calendar");
         BeginCampSleep(1,false,bed);Vitals.Health-=2;paused=false;UpdateCampSleep();paused=true;Check(!campSleeping,"Actual health loss interrupts sleep");
         CaptureInventoryPhysics();var json=WorldJson.Write(PlayerRules);File.WriteAllText(Path.Combine(output,"camp-play-session.json"),json);var restored=WorldJson.Read<PlaySession>(File.ReadAllText(Path.Combine(output,"camp-play-session.json")));restored.Validate();
         Check(restored.Camp.Objects.Count==3&&restored.Camp.Objects.Single(c=>c.Kind==CampKind.Stake).EmbedM==stake.EmbedM,"Saved/reloaded camp retains exact planted depth and all placed objects");
@@ -115,6 +115,7 @@ public sealed partial class LocalTerrainExplorer
         fire.EmberSeconds=0;campUpdateAt=0;UpdateCamp();Check(!campVisuals[fire.Id].Root.GetComponentsInChildren<Transform>().Any(t=>t.name=="Live ember bed"),"Ember glow retires when the saved ember state cools");
         PlayerRules.Mode=GameMode.Creative;Vitals.Restore();ApplyPlayerMode();paused=false;
         yield return CheckCampInputFlow(output,report,bed,spear);
+        yield return CheckSurvivalCampRevision(output,report);
         File.WriteAllLines(Path.Combine(output,"checks.txt"),report);
     }
 }

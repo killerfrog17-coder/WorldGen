@@ -11,6 +11,7 @@ static class SurvivalHudTests
         int n=0;void Check(bool ok,string s){n++;if(!ok)throw new Exception(s);}
         var v=SurvivalHudValues.From(new PlayerSurvival{Health=90,Energy=90,Stamina=85,Thirst=25,Hunger=35},22);
         Check(Math.Abs(v.Health-.9)<1e-6&&Math.Abs(v.Hydration-.75)<1e-6&&Math.Abs(v.Fullness-.65)<1e-6,"Resource bindings use remaining water/food, not depletion");
+        Check(Math.Abs(SurvivalHudValues.ThermalWarning(.5f)-.85f)<.0001&&SurvivalHudValues.ThermalWarning(0)==0&&SurvivalHudValues.ThermalWarning(1)==1,"Thermal warning shows the requested early 50-to85 response with exact endpoints");
         foreach(float temp in new[]{19f,22f,24f}){v.FeelsLikeC=temp;Check(v.SnowOpacity==0&&v.SunOpacity==0,"Comfort has no symbol");}
         v.FeelsLikeC=13;Check(v.SnowOpacity>0&&v.SnowOpacity<1&&v.SunOpacity==0,"Chilly snowflake fades in alone");
         v.FeelsLikeC=8;Check(v.SnowOpacity==1&&v.SunOpacity==0,"Snowflake fully visible at8C");

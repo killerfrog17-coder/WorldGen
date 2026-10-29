@@ -5,12 +5,14 @@ using UnityEngine.Rendering.Universal;
 
 public sealed class WeatherRendererFeature:ScriptableRendererFeature
 {
-    WeatherPass pass;FoliageDepthPass foliageDepth;UnderwaterPass underwaterPass;
-    public override void Create(){pass=new WeatherPass{renderPassEvent=RenderPassEvent.BeforeRenderingTransparents};foliageDepth=new FoliageDepthPass{renderPassEvent=RenderPassEvent.BeforeRenderingOpaques};underwaterPass=new UnderwaterPass{renderPassEvent=RenderPassEvent.BeforeRenderingPostProcessing};}
+    WeatherPass pass;FoliageDepthPass foliageDepth;UnderwaterPass underwaterPass;SurvivalPass survivalPass;
+    public override void Create(){pass=new WeatherPass{renderPassEvent=RenderPassEvent.BeforeRenderingTransparents};foliageDepth=new FoliageDepthPass{renderPassEvent=RenderPassEvent.BeforeRenderingOpaques};underwaterPass=new UnderwaterPass{renderPassEvent=RenderPassEvent.BeforeRenderingPostProcessing};survivalPass=new SurvivalPass{renderPassEvent=RenderPassEvent.BeforeRenderingPostProcessing};}
     public override void AddRenderPasses(ScriptableRenderer renderer,ref RenderingData renderingData)
     {
         var water=renderingData.cameraData.camera.GetComponent<LocalWaterScreen>();
         if(water!=null&&water.Blend>.001f&&water.Material!=null){water.Prepare();underwaterPass.Screen=water;renderer.EnqueuePass(underwaterPass);}
+        var survival=renderingData.cameraData.camera.GetComponent<LocalSurvivalScreen>();
+        if(survival!=null&&survival.Active&&survival.Material!=null){survivalPass.Screen=survival;renderer.EnqueuePass(survivalPass);}
         // Prime only tree cutouts, not the entire world. Forward passes keep
         // LEqual so terrain, wildlife and grass without this pass remain valid.
         if(TerrainVideoOptions.FoliageDepthPrepass&&renderingData.cameraData.camera.cullingMask==(1<<30))renderer.EnqueuePass(foliageDepth);
@@ -39,6 +41,20 @@ public sealed class WeatherRendererFeature:ScriptableRendererFeature
                 builder.SetRenderAttachmentDepth(resources.activeDepthTexture,AccessFlags.ReadWrite);
                 builder.SetRenderFunc((Data d,RasterGraphContext c)=>c.cmd.DrawRendererList(d.List));
             }
+        }
+    }
+    sealed class SurvivalPass:ScriptableRenderPass
+    {
+        public LocalSurvivalScreen Screen;
+        sealed class Data{public TextureHandle Source;public Material Material;}
+        public SurvivalPass(){requiresIntermediateTexture=true;}
+        public override void RecordRenderGraph(RenderGraph graph,ContextContainer frameData)
+        {
+            var resources=frameData.Get<UniversalResourceData>();if(resources.isActiveTargetBackBuffer)return;
+            var source=resources.activeColorTexture;var desc=graph.GetTextureDesc(source);desc.msaaSamples=MSAASamples.None;desc.clearBuffer=false;desc.name="Survival perception";var output=graph.CreateTexture(desc);
+            using(var builder=graph.AddRasterRenderPass<Data>("Cold, heat and faintness",out var data))
+            {data.Source=source;data.Material=Screen.Material;builder.UseTexture(source,AccessFlags.Read);builder.SetRenderAttachment(output,0,AccessFlags.Write);builder.SetRenderFunc((Data d,RasterGraphContext c)=>Blitter.BlitTexture(c.cmd,d.Source,new Vector4(1,1,0,0),d.Material,0));}
+            Screen.DrawCount++;resources.cameraColor=output;
         }
     }
     sealed class UnderwaterPass:ScriptableRenderPass

@@ -10,6 +10,7 @@ using WorldGen.Serialization;
 public static class WorldGenBatch
 {
     static string Root=>Path.GetFullPath(Path.Combine(Application.dataPath,"../../.."));
+    public static void CompileRuntime(){Debug.Log("WORLDGEN RUNTIME COMPILED (editor assembly check; no player build)");}
     public static void Validate()
     {
         try

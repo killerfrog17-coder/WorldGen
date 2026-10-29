@@ -52,7 +52,7 @@ public sealed partial class LocalTerrainExplorer
         }
         if(Foraging.Food(p))
         {
-            GUILayout.Label(Math.Round(p.MassKg*1000)+" g · "+Math.Round(p.MassKg*p.FoodKcalPerKg)+" kcal",label);
+            GUILayout.Label(Math.Round(p.MassKg*1000)+" g · "+Math.Round(p.MassKg*p.FoodKcalPerKg*(p.Burnt?.5:1))+" kcal",label);
             ActionButton("Eat a portion",true,"",()=>EatPossession(p,false));
             ActionButton("Taste a small sample",true,"",()=>EatPossession(p,true));
         }

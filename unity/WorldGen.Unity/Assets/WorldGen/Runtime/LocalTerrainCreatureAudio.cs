@@ -89,7 +89,7 @@ public sealed partial class LocalTerrainExplorer
                 {
                     voice.Source.clip=clip;voice.Source.pitch=(float)Math.Max(.88,Math.Min(1.12,Math.Pow(WildlifeVocalisation.ReferenceMass(AnimalVoice(animal).Bank)/Math.Max(.001,animal.MassKg),.05)));
                     voice.Source.priority=voice.Priority;voice.Source.maxDistance=voice.Flight?20:voice.Pending.Cue=="howl"?300:200;
-                    voice.Source.Play();voice.Pending=null;
+                    ReportSleepNoise(animal.Renderer.bounds.center,voice.Flight?.2f:voice.Level*2);voice.Source.Play();voice.Pending=null;
                 }
             }
             else if(!voice.Source.isPlaying){voice.Source.clip=null;voice.Actor=null;continue;}
