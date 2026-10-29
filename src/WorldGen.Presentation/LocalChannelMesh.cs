@@ -185,26 +185,20 @@ namespace WorldGen.Presentation
                 buckets.TryGetValue(z*mesh.Segments+x,out var relevant);int a=z*side+x;
                 Triangle(a,a+side,a+1,relevant);Triangle(a+1,a+side,a+side+1,relevant);
             }
-            // Adjacent cells can see different finite channel pieces. Their
-            // infinite cutting lines may leave T-junctions on the ORIGINAL
-            // grid edges/diagonals. Share every such boundary point and fan
-            // the affected triangle so land AND water use the same edge.
-            var lines=new Dictionary<(int,int),List<int>>();
-            // These coordinates have already been stored as floats and welded
-            // within a millimetre. A dimensionless 1e-6 grid test (and a 1e-5 m
-            // diagonal test) rejected valid shared points after that rounding,
-            // leaving T-junctions whose two sides had different terrain heights.
+            // Finite cuts can leave T-junctions on grid edges OR prior cut
+            // lines. Join every coincident edge using the points in its local
+            // grid cells, rather than recognizing just three grid directions.
+            // Coordinates are floats now, so compare distances in metres at
+            // their stored precision. A dimensionless 1e-6 grid test skipped
+            // valid shared points and left the two sides at different heights.
+            var pointBins=new Dictionary<(int,int),List<int>>();
             double stitchTolerance=Math.Max(.00001,mesh.SizeM*2e-7);
             int before=samples.Count;
             for(int id=0;id<before;id++)
             {
                 double x=positions[id*3],z=positions[id*3+2];
-                for(int axis=0;axis<3;axis++)
-                {
-                    double value=(axis==0?x:axis==1?z:x+z)/step;int line=(int)Math.Round(value);
-                    if(Math.Abs(value-line)*step>stitchTolerance)continue;
-                    var key=(axis,line);if(!lines.TryGetValue(key,out var list)){list=new List<int>();lines.Add(key,list);}list.Add(id);
-                }
+                var key=((int)Math.Floor(x/step),(int)Math.Floor(z/step));
+                if(!pointBins.TryGetValue(key,out var list)){list=new List<int>();pointBins.Add(key,list);}list.Add(id);
             }
             var stitched=new List<int>(indices.Count);
             for(int tri=0;tri<indices.Count;tri+=3)
@@ -214,16 +208,19 @@ namespace WorldGen.Presentation
                 {
                     int a=indices[tri+k],b=indices[tri+(k+1)%3];polygon.Add(a);
                     double ax=positions[a*3],az=positions[a*3+2],bx=positions[b*3],bz=positions[b*3+2];
-                    int axis=Math.Abs(ax-bx)<stitchTolerance?0:Math.Abs(az-bz)<stitchTolerance?1:Math.Abs(ax+az-bx-bz)<stitchTolerance?2:-1;
-                    if(axis<0)continue;double val=(axis==0?ax:axis==1?az:ax+az)/step;int line=(int)Math.Round(val);
-                    if(Math.Abs(val-line)*step>stitchTolerance||!lines.TryGetValue((axis,line),out var list))continue;
                     double dx=bx-ax,dz=bz-az,len=dx*dx+dz*dz;if(len<1e-12)continue;
                     var inside=new List<(double,int)>();
-                    foreach(int id in list)
+                    int minX=(int)Math.Floor((Math.Min(ax,bx)-stitchTolerance)/step),maxX=(int)Math.Floor((Math.Max(ax,bx)+stitchTolerance)/step);
+                    int minZ=(int)Math.Floor((Math.Min(az,bz)-stitchTolerance)/step),maxZ=(int)Math.Floor((Math.Max(az,bz)+stitchTolerance)/step);
+                    for(int z=minZ;z<=maxZ;z++)for(int x=minX;x<=maxX;x++)
                     {
-                        if(id==a||id==b)continue;
-                        double x=positions[id*3]-ax,z=positions[id*3+2]-az,t=(x*dx+z*dz)/len;
-                        if(t>1e-6&&t<1-1e-6&&Math.Abs(x*dz-z*dx)<stitchTolerance*Math.Sqrt(len))inside.Add((t,id));
+                        if(!pointBins.TryGetValue((x,z),out var list))continue;
+                        foreach(int id in list)
+                        {
+                            if(id==a||id==b)continue;
+                            double px=positions[id*3]-ax,pz=positions[id*3+2]-az,t=(px*dx+pz*dz)/len;
+                            if(t>1e-6&&t<1-1e-6&&Math.Abs(px*dz-pz*dx)<stitchTolerance*Math.Sqrt(len))inside.Add((t,id));
+                        }
                     }
                     inside.Sort((p,q)=>p.Item1.CompareTo(q.Item1));foreach(var p in inside)polygon.Add(p.Item2);
                 }

@@ -1,5 +1,27 @@
 # WorldGen repository instructions
 
+OWNERPAUSE29Oct~12:30CDT: says 'actually you're good for now just update the
+shortcut; ill check out what exists right now'. STOPfurtherQA/builds/cleanup.
+ExistingrootshortcutNOWSELECTS artifacts/player-camp-water-qa/WorldGen.exe,
+Mono(Projectdefault) BuiltUtc2026-10-29T17:27:55.2128336Z, verified4inputDLLs+
+4packagedMonoDLLshashes/faunaindexexact,BUILD0/noC#/shadererrors. No newdesktop
+icons/userappsclosed. PreviouspolishedIL2CPP107keptuntilownerreview; itsproofs
+remainHISTORICAL, notproofsofcurrentcandidate. Selectedrecord
+artifacts/camp-water-20261029/selected-resumed-qa.json;shortcutbackupalongside.
+LatestGENERALstitchsource replacesgrid-onlyrecognitionwithboundedlocalpointbins
+forALLcoincidentcut/gridtriangleedges. Firstprecision-onlynative689->39openedges
+stillSHOWEDbankSLOTS; doNOTcallthatfullyfixed. Generalstitch15CoremeshesPASS0
+interioropenedges/fullarea/nofoldsbeyondexisting1mmwelduncertainty;10318river+
+192sampling+1510major/original8cmguardPASS. FinalGENERALstitchrenderPENDING:
+ownerexplicitlywantstotrycompiledcandidateNOWbeforemorechecks. Camp73/water21
+nativepassesareEARLIERsamecampcodebeforegeneralmeshfix, notfreshnativeclaims.
+Allownedjobsfinished:69224Core0,41883Unity0,56809earliernative0; no own processes
+left. OwnerWorldGen23472observedearlierthenclosedindependently, notbyus.
+DoNOTautoresumeIL2CPP/renderersuntilnewsteering. No99%bugfreeclaim.
+Next ifowneraskscontinue: actualgeneral-stitchbankview/OBJprobe, thennewIL2CPP
+followupfolder/proof/native/shortcut. DoNOTdeleteblockedE/recoverytargets.
+No paid/subagents. Preserveownerdeletedprompt+2untrackeddeerscripts.
+
 LATEST29Oct~12:22CDT: actualbankOBJrevealed689unmatchedINTERIORgroundedges22tiles.
 ConfirmedRiverGroundSeamTests baseline9/9meshesfailed. LocalChannelMesh stitch
 grid/diagonal/perpendicular tests hadfloat-smaller tolerances; nowmetres

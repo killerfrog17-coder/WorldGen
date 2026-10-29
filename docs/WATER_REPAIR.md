@@ -140,6 +140,17 @@ folds beyond that coordinate uncertainty rather than claiming perfect exact
 arithmetic. The original 10,318 water geometry probes and 192 indexed sampling
 comparisons still pass. Fresh native bank rendering remains pending.
 
+The first native precision fix reduced unmatched edges from 689 to 39, but the
+remaining ones lay on previous channel-cut lines. The bank slits remained
+visible. The candidate now stitches all coincident triangle edges using local
+point bins instead of recognizing only grid directions. Fifteen sampled meshes
+have no internal open edges, retain projected area and pass the orientation
+uncertainty guard; the 10,318 river probes and 1,510 major-river probes still
+pass, including the original 8 cm exposed-boundary guard. At the owner's request
+the shortcut selects that compiled Mono candidate for immediate testing. Its
+final native bank render is pending; do not treat the earlier renders as proof
+that this last correction resolved the visible slits.
+
 Research for that follow-up:
 
 - [USGS, hydraulic geometry of stream channels](https://pubs.usgs.gov/publication/pp252):

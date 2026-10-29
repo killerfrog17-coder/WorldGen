@@ -9,9 +9,9 @@ static class RiverGroundSeamTests
         var world=WorldFile.ReadFile(source);var terrain=new LocalTerrain(world,horizontalScale:.1);
         var at=TerrainMapViewport.FromDegrees(-17.625665274156873,.6638456954785965);
         var frame=new LocalTerrainFrame(at,terrain.RadiusM,0,.1);int checkedMeshes=0,failures=0;
-        foreach(int segments in new[]{32,64,128})foreach(var tile in new[]{(-1,0),(-1,-1),(0,-1)})
+        foreach(int segments in new[]{32,64,128})foreach(var tile in new[]{(x:-1,z:0,level:0),(x:-1,z:-1,level:0),(x:0,z:-1,level:0),(x:-3,z:-2,level:2),(x:2,z:0,level:1)})
         {
-            const double size=102.4;var mesh=LocalTerrainMesh.Build(terrain,frame,tile.Item1*size,tile.Item2*size,size,segments);
+            double size=102.4*(1<<tile.level);var mesh=LocalTerrainMesh.Build(terrain,frame,tile.x*size,tile.z*size,size,segments);
             var edges=new Dictionary<(int,int),int>();double projectedArea=0;int inverted=0;
             for(int i=0;i<mesh.Triangles.Length;i+=3)
             {
