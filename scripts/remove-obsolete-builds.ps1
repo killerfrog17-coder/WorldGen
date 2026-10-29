@@ -28,12 +28,13 @@ foreach($entry in $audit.packages){
     $links=@(Get-ChildItem -LiteralPath $target -Recurse -Force | Where-Object {$_.Attributes -band [IO.FileAttributes]::ReparsePoint})
     if($links.Count){throw "Inspect nested directory links before deleting $target"}
     $selected=(New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $repo 'WorldGen.exe - Shortcut.lnk')).TargetPath
-    $running=@(Get-CimInstance Win32_Process -Filter "Name='WorldGen.exe'" | ForEach-Object {$_.ExecutablePath})
+    $running=@(Get-CimInstance Win32_Process -Filter "Name='WorldGen.exe' OR Name='WorldGen.Cli.exe'" | ForEach-Object {$_.ExecutablePath})
     $protected=@($selected)+$running
     foreach($executable in $protected){
         if(!$executable){continue}
         $directory=[IO.Path]::GetFullPath((Split-Path -Parent $executable)).TrimEnd('\')
-        if($directory -eq $target -or @($entry.aliases) -contains $directory){throw "Package became selected/running: $target"}
+        $prefixes=@($target)+@($entry.aliases)
+        foreach($prefix in $prefixes){if($directory -eq $prefix -or $directory.StartsWith($prefix.TrimEnd('\')+'\',[StringComparison]::OrdinalIgnoreCase)){throw "Package became selected/running: $target"}}
     }
     foreach($suffix in @('world','worlds','saves','Saves','SaveGames')){
         $candidate=Join-Path $target $suffix

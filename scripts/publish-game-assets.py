@@ -28,6 +28,7 @@ parser.add_argument('--tag',required=True)
 parser.add_argument('--work',type=Path,required=True)
 parser.add_argument('--lock',type=Path,default=ROOT/'assets/game-assets.lock.json')
 parser.add_argument('--base-lock',type=Path,action='append',default=[],help='Reuse content already preserved by another dependency manifest')
+parser.add_argument('--append-preserved',action='store_true',help='Keep immutable historical files already in this lock; for legacy asset archives only')
 parser.add_argument('--publish',action='store_true',help='Publish the verified draft release')
 args=parser.parse_args()
 args.work.mkdir(parents=True,exist_ok=True)
@@ -54,7 +55,8 @@ for record in records:
     if path.is_absolute() or '..' in path.parts or path.suffix.lower() in {'.exe','.dll','.pdb','.key','.pem','.pfx','.p12'} or path.name.startswith('.env'):
         raise ValueError('Unsafe dependency path')
 prior=json.loads(args.lock.read_text()) if args.lock.exists() else {'files':{},'packs':{}}
-if set(prior['files'])=={r['path'] for r in records} and all(prior['files'][r['path']]['sha256']==r['sha256'] for r in records):
+record_paths={r['path'] for r in records}
+if (record_paths.issubset(prior['files']) if args.append_preserved else set(prior['files'])==record_paths) and all(prior['files'][r['path']]['sha256']==r['sha256'] for r in records):
     print('No asset changes; reusing the existing versioned packs.')
     raise SystemExit(0)
 client=GitHubAssets()
@@ -94,9 +96,11 @@ for base in args.base_lock:
     known.update({r['sha256']:r for r in saved['files'].values()})
     available_packs.update(saved['packs'])
 pending={}
-files={}
-packs={}
+files=dict(prior['files']) if args.append_preserved else {}
+packs=dict(prior['packs']) if args.append_preserved else {}
 for record in records:
+    if args.append_preserved and record['path'] in files and files[record['path']]['sha256']!=record['sha256']:
+        raise ValueError('An immutable historical asset path changed: '+record['path'])
     old=known.get(record['sha256'])
     if old is not None and old['bytes']==record['bytes']:
         files[record['path']]=dict(old)

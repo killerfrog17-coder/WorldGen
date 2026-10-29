@@ -33,13 +33,15 @@ parser.add_argument('--output',type=Path,required=True)
 parser.add_argument('--legacy-inventory',type=Path,required=True)
 args=parser.parse_args()
 args.output.parent.mkdir(parents=True,exist_ok=True)
-state=json.loads(subprocess.check_output(['powershell','-NoProfile','-Command',"$s=(New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path (Get-Location) 'WorldGen.exe - Shortcut.lnk')); [ordered]@{selected=$s.TargetPath; running=@(Get-CimInstance Win32_Process -Filter \"Name='WorldGen.exe'\" | ForEach-Object {$_.ExecutablePath})} | ConvertTo-Json -Compress"],cwd=ROOT,text=True))
+state=json.loads(subprocess.check_output(['powershell','-NoProfile','-Command',"$s=(New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path (Get-Location) 'WorldGen.exe - Shortcut.lnk')); [ordered]@{selected=$s.TargetPath; running=@(Get-CimInstance Win32_Process -Filter \"Name='WorldGen.exe' OR Name='WorldGen.Cli.exe'\" | ForEach-Object {$_.ExecutablePath})} | ConvertTo-Json -Compress"],cwd=ROOT,text=True))
 protected={p.resolve() for p in args.keep}
 if state['selected']:
     protected.add(Path(state['selected']).parent.resolve())
 for p in state['running']:
     if p:
-        protected.add(Path(p).parent.resolve())
+        executable=Path(p).resolve()
+        package=next((parent for parent in executable.parents if (parent/'WorldGen.exe').is_file()),executable.parent)
+        protected.add(package)
 manifest=json.loads((ROOT/'assets/game-assets.lock.json').read_text())
 inputs=[(ROOT/p).resolve() for p in manifest['files']]
 roots=[ROOT/'artifacts',Path('E:/WorldGen-builds'),Path('C:/WorldGenBuildArtifacts')]

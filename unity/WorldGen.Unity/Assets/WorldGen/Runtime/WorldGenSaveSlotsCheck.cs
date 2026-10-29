@@ -19,6 +19,13 @@ public sealed partial class LocalTerrainExplorer
         if(!humanPlayer.Blood.ContainsKey(renderer)){var mask=new byte[65536];mask[99]=217;var canvas=new WorldGenBloodCanvas(mask);humanPlayer.Blood.Add(renderer,canvas);BindHumanBlood(renderer,canvas);}
         Wildlife.Individuals.Add(new WildlifeIndividual{Id=999,Species="deer",Position=Position,Health=0,MaximumHealth=100,BloodMask=new byte[65536]});Wildlife.Individuals.Last().BloodMask[43]=200;
         var rock=new Possession{Id="save-check-rock",Kind=PossessionKind.SmallRock,Position=Position,Place=PossessionPlace.Ground};Inventory.Items.Add(rock);Inventory.Hold(rock.Id,out _);
+        Camp.Objects.Clear();Vitals.Tiredness=63;
+        var post=new CampObject{Id="save-check-post",Kind=CampKind.Stake,Position=frame.Position(motion.X+2,motion.Z),EmbedM=.25,SoilDepthM=.8,LastSimulatedSeconds=Camp.SimulatedSeconds};
+        CampRules.Add(post,WoodCrafting.Branch(new ScatterInstance{Position=post.Position,Kind=ScatterKind.Branch,WidthM=1.5,HeightM=.03}));Camp.Objects.Add(post);
+        var bed=new CampObject{Id="save-check-bed",Kind=CampKind.Bedding,Position=frame.Position(motion.X-2,motion.Z),LastSimulatedSeconds=Camp.SimulatedSeconds};
+        CampRules.Add(bed,PortableTechnology.Create(PossessionKind.DryGrass,bed.Position));Camp.Objects.Add(bed);
+        var fire=new CampObject{Id="save-check-fire",Kind=CampKind.Fire,Position=frame.Position(motion.X,motion.Z+3.5),LastSimulatedSeconds=Camp.SimulatedSeconds};
+        CampRules.Add(fire,PortableTechnology.Create(PossessionKind.TinderBundle,fire.Position));CampRules.Add(fire,PortableTechnology.Create(PossessionKind.KindlingBundle,fire.Position));CampRules.Ignite(fire,true);Camp.Objects.Add(fire);
     }
     public IEnumerator CheckBackgroundCraft(List<string> report)
     {
@@ -48,6 +55,7 @@ public sealed partial class WorldGenRuntime
         Check(activeSaveId!=null&&library.Entries().Length==1,"Actual game save publishes a named manual slot");string camp=activeSaveId,group=activeWorldId;
         var first=library.Entries().Single();var session=WorldLibrary.ReadPlaySession(first.SnapshotPath);
         Check(session.Survival.Blood.Any(b=>b.Mask[99]==217)&&session.Wildlife.Individuals.Single(i=>i.Id==999).BloodMask[43]==200,"Packaged binary session cold-loads both player and animal blood data above the old JSON cap");
+        Check(session.Camp.Objects.Count==3&&session.Camp.Objects.Single(c=>c.Id=="save-check-post").EmbedM==.25&&session.Camp.Objects.Single(c=>c.Id=="save-check-fire").Burning&&session.Survival.Tiredness==63,"Actual named save stores bedding, planted depth, burning fuel and independent tiredness");
         string baseFile=Directory.GetFiles(Path.Combine(library.Root,".bases"),"*.world").Single();var baseTime=File.GetLastWriteTimeUtc(baseFile);
         started=Time.realtimeSinceStartupAsDouble;SaveToLibrary();while(exportJob!=null)yield return null;timings.Add("overwrite,"+(Time.realtimeSinceStartupAsDouble-started));
         Check(activeSaveId==camp&&library.Entries().Length==1&&File.GetLastWriteTimeUtc(baseFile)==baseTime,"Same-name game save overwrites its slot without rewriting the planet");
@@ -79,6 +87,7 @@ public sealed partial class WorldGenRuntime
         while((Busy||terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.PerformanceGroundSettled)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         Check(!Busy&&terrainExplorer!=null&&terrainExplorer.PerformanceGroundSettled,"Real library quicksave load returns to the playable world, including terrain-worker source loading");
         Check(activeWorldId==group&&activeSaveId==hunt&&saveName=="Hunting native check"&&play.Inventory.Items.Any(i=>i.Id=="save-check-rock"),"Reload restores quicksave inventory and its manual-slot association");
+        Check(play.Camp.Objects.Count==3&&play.Camp.Objects.Single(c=>c.Id=="save-check-post").EmbedM==.25&&play.Camp.Objects.Single(c=>c.Id=="save-check-fire").Burning&&Math.Abs(play.Survival.Tiredness-63)<.1,"Full quicksave re-entry restores the same placed camp and sleep pressure");
         File.WriteAllLines(Path.Combine(output,"save-timings.csv"),timings);
     }
 }

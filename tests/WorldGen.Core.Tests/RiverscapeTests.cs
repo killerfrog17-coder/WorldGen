@@ -4,7 +4,7 @@ using WorldGen.Presentation;
 
 static class RiverscapeTests
 {
-    public static void Run(string path,bool sitesOnly=false)
+    public static void Run(string path,bool sitesOnly=false,double scale=.1)
     {
         int checks=0;void Check(bool ok,string message){checks++;if(!ok)throw new Exception(message);}
         for(int i=0;i<=100;i++)
@@ -13,7 +13,7 @@ static class RiverscapeTests
         Check(Math.Abs(RiverscapeKernel.HalfWidth(100,.1)/RiverscapeKernel.HalfWidth(100,1)-.1)<1e-9,"Small channels retain world compression");
         Check(Math.Abs(RiverscapeKernel.HalfWidth(10000,.1)/RiverscapeKernel.HalfWidth(10000,1)-1)<1e-9,"Major channels recover physical width");
         var w=WorldFile.Read(File.ReadAllBytes(path));string hash=StateHash.Compute(w);var watch=System.Diagnostics.Stopwatch.StartNew();
-        var terrain=new LocalTerrain(w,horizontalScale:.1);Console.WriteLine($"prepare {watch.Elapsed.TotalSeconds:F3}s, {terrain.Amplification.RiverscapeReachCount} visible root reaches");
+        var terrain=new LocalTerrain(w,horizontalScale:scale);Console.WriteLine($"scale {scale:R}: prepare {watch.Elapsed.TotalSeconds:F3}s, {terrain.Amplification.RiverscapeReachCount} visible root reaches");
         if(sitesOnly)
         {
             int flat=Enumerable.Range(0,w.ElevationM.Length).Where(i=>w.ElevationM[i]>80&&w.ElevationM[i]<800).OrderBy(i=>w.Ecology.Habitat[i].ReliefM).First();
@@ -41,7 +41,7 @@ static class RiverscapeTests
                 {var sample=patch.Sample(center);Check(double.IsFinite(sample.ElevationM)&&sample.ElevationM<=sample.PreWaterElevationM+.002,"Finite cut-only bed");}
                 maxDrop=Math.Max(maxDrop,s.LevelA-s.LevelB);
             }
-            var frame=new LocalTerrainFrame(p,terrain.RadiusM,0,.1);watch.Restart();
+            var frame=new LocalTerrainFrame(p,terrain.RadiusM,0,scale);watch.Restart();
             var mesh=LocalTerrainMesh.Build(terrain,frame,-102.4,-102.4,204.8,32);
             worstTile=Math.Max(worstTile,watch.Elapsed.TotalMilliseconds);tiles++;
             for(int i=0;i<mesh.WaterPositions.Length;i++)Check(float.IsFinite(mesh.WaterPositions[i]),"Finite river geometry");
@@ -62,7 +62,7 @@ static class RiverscapeTests
         {
             var p=terrain.Amplification.RiverPoint(channel.From,.99);var patch=terrain.Patch(p,3000);
             var sea=patch.RiverSpans().Where(s=>s.Reach==channel.From&&s.LevelA==0&&s.LevelB==0&&s.WidthB>0).ToArray();if(sea.Length==0)continue;
-            p=(sea[0].A+sea[0].B).Unit;var frame=new LocalTerrainFrame(p,terrain.RadiusM,0,.1);
+            p=(sea[0].A+sea[0].B).Unit;var frame=new LocalTerrainFrame(p,terrain.RadiusM,0,scale);
             var mouth=LocalTerrainMesh.Build(terrain,frame,-32,-32,64,16);
             Check(mouth.WaterTriangles.Length>0,"Sea-level mouth retains water geometry");
             bool covered=false;for(int i=0;i<mouth.WaterTriangles.Length;i+=3)

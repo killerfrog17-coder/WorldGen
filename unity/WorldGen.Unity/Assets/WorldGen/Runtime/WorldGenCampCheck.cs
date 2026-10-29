@@ -94,6 +94,10 @@ public sealed partial class LocalTerrainExplorer
         CaptureInventoryPhysics();var json=WorldJson.Write(PlayerRules);File.WriteAllText(Path.Combine(output,"camp-play-session.json"),json);var restored=WorldJson.Read<PlaySession>(File.ReadAllText(Path.Combine(output,"camp-play-session.json")));restored.Validate();
         Check(restored.Camp.Objects.Count==3&&restored.Camp.Objects.Single(c=>c.Kind==CampKind.Stake).EmbedM==stake.EmbedM,"Saved/reloaded camp retains exact planted depth and all placed objects");
         Check(restored.Camp.Objects.Single(c=>c.Kind==CampKind.Fire).Burning&&restored.Survival.Tiredness==Vitals.Tiredness,"Fire state, remaining fuel and tiredness survive the real save serializer");
+        var detached=new PlaySession{Settings=PlayerRules.Settings.Copy()};StorePlayer(detached);
+        Check(detached.Camp.Objects.Count==3&&detached.Camp.Objects.Single(c=>c.Kind==CampKind.Stake).EmbedM==stake.EmbedM,"Capturing into a fresh session includes the complete camp");
+        double originalMass=stake.Materials[0].MassKg;detached.Camp.Objects.Single(c=>c.Kind==CampKind.Stake).Materials[0].MassKg+=1;
+        Check(stake.Materials[0].MassKg==originalMass,"A detached camp capture owns independent material copies");
         var pack=Supply(PossessionKind.HidePack);Check(Inventory.Move(pack.Id,PossessionPlace.Back,"",0,0,false,out _) ,"A real worn carrier is available for placed-material ownership checks");
         var carriedGrass=Supply(PossessionKind.DryGrass);Check(Inventory.Move(carriedGrass.Id,PossessionPlace.Container,pack.Id,0,0,false,out _),"Loose bedding material can start inside a worn pack");
         var packedBed=Place(carriedGrass,CampKind.Bedding,sx-1.3,sz+1.7);Check(packedBed.Materials[0].ContainerId==""&&!packedBed.Materials[0].GroundMoving,"Placed material is detached from its original container and drop motion");
