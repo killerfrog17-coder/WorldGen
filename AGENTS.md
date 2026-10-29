@@ -1,5 +1,42 @@
 # WorldGen repository instructions
 
+WATER UPDATE RELEASE,29October2026~00:08CDT:
+Owner authorizes drinking/fresh-salt safety, river triangles/missing ocean mouths,
+animated rivers/ocean waves, swimming and underwater blur/haze. Selected EXISTING
+root shortcut now artifacts/player-water-update -> E:/WorldGen-builds/player-water-update,
+IL2CPP BuiltUtc2026-10-29T05:01:46.3573839Z. Previous wildlife-audio-ready retained;
+owner PID26936 remains running old audio build, untouched. No new desktop files.
+E aims/drinks actual reachable water,250ml sip; auto hand borrowing/restoration.
+Ocean35ppt; existing lake salinity; low tidal river salinity approximation. Flowing
+fresh water hydrates but has nonzero untreated risk; delayed saved illness drains
+water/energy. Seawater dehydrates. No water containers/purification/transported
+pathogen field. Deep-water buoyancy/current/look-directed swim, Space up/Ctrl down;
+shallow wading, existing ORIGINAL human Swim clip, no original rig/art changes.
+Saved breath debt;45s exertion-adjusted submersion then8health/s drowning, air
+recovery. Creative/Spectator exempt; goggles bypass eye blur but retain haze.
+New dedicated URP depth/refraction/Fresnel/wind-ripple/swell water; CPU buoyancy
+matches swell. Underwater absorption+quarter-res naked-eye defocus after
+transparents. No SSR/reflection camera/fluid sim/new tessellation; opaque/depth
+camera copies required. Original body FP-hidden policy unchanged.
+River0-height skip removed. Matching outer bank refinement +1mm land/2mm water
+intersection weld. Finite ribbons tile-clipped ONLY; depth buffer hides bank
+underlap, eliminating fragile per-ground-triangle re-clipping. Existing river
+levels/finite widths/source history unchanged. Steep sample water geometry falls
+from thousands to~70-80triangles, not a whole-game FPS claim. Core37new water,
+165fall/death+67mode checks PASS. Actual-world71036checks/764spans/8tiles+3mouths
+PASS; existing8cm edge guard retained. Release native18checks PASS/no errors:
+actual sea aim/drink/hand restore, coastal buoyancy/dive/authoredSwim, actual
+underwater render graph/Survival blur/Creative clarity, drowning health, saved
+breath, inland freshwater. Ocean/unmasked/goggles captures inspected. Extra
+daylight river capture is obstructed by trees, NOT appearance certification.
+Owner should compare previously affected rivers. Earlier2native runs failed on
+DIAGNOSTIC item-factory setup, not passes; corrected final native-final run passes.
+Preservation578original/DLLhashes+629frozen production sources+177collision skins
+and packaged/source IDs+18prioritemaudio PASS. Wildlife audio untouched. All3
+known Unity build-autochanges restored. No inference/test/build workers remain.
+Evidence artifacts/water-update-20261028, docs/WATER_UPDATE.md. Preserve owner
+OneShot prompt deletion and2untracked deer scripts. Source checkpoint/push next.
+
 WILDLIFE AUDIO RELEASE,28October2026 late evening:
 Owner authorizes local SA3 sound overhaul, ambient/native callers first then
 behavior cues; asks continue. Later explicitly rejects extra sound-review UI.

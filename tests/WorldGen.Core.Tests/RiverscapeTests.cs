@@ -49,13 +49,31 @@ static class RiverscapeTests
             // a global cross-terrain sheet would exceed the bound by kilometres.
             for(int i=0;i<mesh.WaterTriangles.Length;i+=3)
             {
-                int a=mesh.WaterTriangles[i],b=mesh.WaterTriangles[i+1],c=mesh.WaterTriangles[i+2];if(mesh.WaterColors[a*4+3]<1.5)continue;
+                int a=mesh.WaterTriangles[i],b=mesh.WaterTriangles[i+1],c=mesh.WaterTriangles[i+2];if(Math.Abs(mesh.WaterColors[a*4+3]-2)>.25)continue;
                 foreach(int q in new[]{b,c})
                 {double dx=mesh.WaterPositions[a*3]-mesh.WaterPositions[q*3],dz=mesh.WaterPositions[a*3+2]-mesh.WaterPositions[q*3+2];Check(Math.Sqrt(dx*dx+dz*dz)<=204.8*1.415,"No cross-world river triangles");}
             }
             Console.WriteLine($"reach {channel.From}: {pieces.Length} local spans, {mesh.WaterTriangles.Length/3} water triangles, {mesh.BuildMilliseconds:F1}ms mesh");
             Boundary(mesh,Check,frame,patch);
         }
+        int mouths=0;
+        foreach(var channel in terrain.Hydrology.Channels.Where(c=>c.EndM<=0&&c.WidthM>10).Take(12))
+        {
+            var p=terrain.Amplification.RiverPoint(channel.From,.99);var patch=terrain.Patch(p,3000);
+            var sea=patch.RiverSpans().Where(s=>s.Reach==channel.From&&s.LevelA==0&&s.LevelB==0&&s.WidthB>0).ToArray();if(sea.Length==0)continue;
+            p=(sea[0].A+sea[0].B).Unit;var frame=new LocalTerrainFrame(p,terrain.RadiusM,0,.1);
+            var mouth=LocalTerrainMesh.Build(terrain,frame,-32,-32,64,16);
+            Check(mouth.WaterTriangles.Length>0,"Sea-level mouth retains water geometry");
+            bool covered=false;for(int i=0;i<mouth.WaterTriangles.Length;i+=3)
+            {
+                int a=mouth.WaterTriangles[i]*3,b=mouth.WaterTriangles[i+1]*3,c=mouth.WaterTriangles[i+2]*3;var q=mouth.WaterPositions;
+                double bx=q[b]-q[a],bz=q[b+2]-q[a+2],cx=q[c]-q[a],cz=q[c+2]-q[a+2],det=bx*cz-bz*cx;if(Math.Abs(det)<1e-9)continue;
+                double u=((32-q[a])*cz-(32-q[a+2])*cx)/det,v=(bx*(32-q[a+2])-bz*(32-q[a]))/det;
+                if(u>=-1e-5&&v>=-1e-5&&u+v<=1.00001)covered=true;
+            }
+            Check(covered,"Actual sea-level river-mouth centre is covered, not skipped");if(++mouths>=3)break;
+        }
+        Check(mouths>=1,"At least one actual sea-level ocean connection tested");
         Check(StateHash.Compute(w)==hash,"Source world/history unchanged");Check(spans>0&&tiles>0,"Actual river cases exercised");
         Console.WriteLine($"PASS {checks} checks, {spans} spans/{tiles} tiles, max primitive drop {maxDrop:F2}m, cold tile worst {worstTile:F1}ms");
     }
@@ -97,7 +115,7 @@ static class RiverscapeTests
         }
         foreach(var edge in incidence.Where(e=>e.Value==1))
         {
-            int a=edge.Key.Item1,b=edge.Key.Item2;if(mesh.WaterColors[a*4+3]<1.5)continue;
+            int a=edge.Key.Item1,b=edge.Key.Item2;if(Math.Abs(mesh.WaterColors[a*4+3]-2)>.25)continue;
             var p=mesh.WaterPositions;double x=(p[a*3]+p[b*3])*.5,z=(p[a*3+2]+p[b*3+2])*.5,y=(p[a*3+1]+p[b*3+1])*.5;
             if(Math.Abs(p[a*3]-p[b*3])+Math.Abs(p[a*3+2]-p[b*3+2])<.001)continue; // sub-millimetre clipping slivers
             if(x<.001||z<.001||x>mesh.SizeM-.001||z>mesh.SizeM-.001)continue;

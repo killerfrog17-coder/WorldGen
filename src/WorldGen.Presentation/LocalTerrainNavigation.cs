@@ -5,11 +5,19 @@ using WorldGen.Core;
 
 namespace WorldGen.Presentation
 {
+    public readonly struct MotionWater
+    {
+        public readonly double Surface,FlowX,FlowZ;
+        public MotionWater(double surface,double flowX=0,double flowZ=0){Surface=surface;FlowX=flowX;FlowZ=flowZ;}
+    }
     public sealed class TerrainMotion
     {
         public const double EyeHeightM=1.65, Gravity=9.81,WalkSpeedMps=1.5,JogSpeedMps=3.4,RunSpeedMps=6,JumpHeightM=.45;
         public double X,Y,Z,VerticalSpeed,FlySpeed=200;
         public bool Flying,Grounded,NoClip;
+        public bool Swimming {get;private set;}
+        public double WaterEyeOffset;
+        public Func<double,double,MotionWater>? Water;
         // Optional host collision solver; invoked for every bounded movement step.
         // Terrain-only hosts keep their existing analytic movement unchanged.
         public Action<TerrainMotion,double,double,double>? SolidContact;
@@ -19,7 +27,7 @@ namespace WorldGen.Presentation
         // never derived from terrain LOD changes or a remembered takeoff height.
         public double LandingSpeedMps {get;private set;}
         public void Place(double x,double z,double ground,bool fly=false,double aboveGround=40)
-        {X=x;Z=z;Flying=fly;Y=ground+(fly?aboveGround:EyeHeightM);VerticalSpeed=0;LandingSpeedMps=0;Grounded=!fly;}
+        {X=x;Z=z;Flying=fly;Swimming=false;Y=ground+(fly?aboveGround:EyeHeightM);VerticalSpeed=0;LandingSpeedMps=0;Grounded=!fly;}
         public void Move(double dt,double forward,double right,double up,double heading,double pitch,bool sprint,bool jump,Func<double,double,double> ground,bool walk=false,double speedScale=1)
         {
             LandingSpeedMps=0;dt=Math.Max(0,Math.Min(.25,dt));if(dt<=0)return;
@@ -37,6 +45,13 @@ namespace WorldGen.Presentation
             double dx=Math.Sin(yaw)*forward+Math.Cos(yaw)*right,dz=Math.Cos(yaw)*forward-Math.Sin(yaw)*right;
             double length=Math.Sqrt(dx*dx+dz*dz);if(length>1){dx/=length;dz/=length;}
             double rate=(Flying?FlySpeed*(sprint?3:1):walk?WalkSpeedMps:sprint?RunSpeedMps:JogSpeedMps)*dt*Math.Max(0,Math.Min(1,speedScale));
+            if(!Flying&&!NoClip&&Water!=null)
+            {
+                var water=Water(X,Z);double bed=ground(X,Z),feet=Y-EyeHeightM;
+                if(double.IsFinite(water.Surface)&&water.Surface-bed>(Swimming?.75:1.15)&&feet<water.Surface-(Swimming?.35:.65))
+                {if(!Swimming){LandingSpeedMps=Math.Max(LandingSpeedMps,Math.Max(0,-VerticalSpeed-5));VerticalSpeed=Math.Max(-3,Math.Min(2,VerticalSpeed));}Swimming=true;SwimStep(dt,forward,right,up,yaw,tilt,sprint,ground,speedScale,water);return;}
+            }
+            Swimming=false;
             if(Flying)
             {
                 double cp=Math.Cos(tilt),fx=Math.Sin(yaw)*forward*cp+Math.Cos(yaw)*right,fz=Math.Cos(yaw)*forward*cp-Math.Sin(yaw)*right,fy=-Math.Sin(tilt)*forward+up;
@@ -80,6 +95,23 @@ namespace WorldGen.Presentation
                 Y=floor;VerticalSpeed=0;Grounded=true;
             }
             else Grounded=false;
+        }
+        void SwimStep(double dt,double forward,double right,double up,double yaw,double tilt,bool sprint,Func<double,double,double> ground,double scale,MotionWater water)
+        {
+            double dx=Math.Sin(yaw)*Math.Cos(tilt)*forward+Math.Cos(yaw)*right,dz=Math.Cos(yaw)*Math.Cos(tilt)*forward-Math.Sin(yaw)*right;
+            double vertical=-Math.Sin(tilt)*forward+up,magnitude=Math.Sqrt(dx*dx+dz*dz+vertical*vertical);
+            if(magnitude>1){dx/=magnitude;dz/=magnitude;vertical/=magnitude;}
+            double speed=(sprint?2.7:1.45)*Math.Max(.15,Math.Min(1,scale));
+            double oldX=X,oldZ=Z,tx=X+(dx*speed+Math.Max(-4,Math.Min(4,water.FlowX)))*dt,tz=Z+(dz*speed+Math.Max(-4,Math.Min(4,water.FlowZ)))*dt;
+            bool Pass(double a,double b)=>ground(a,b)<=Math.Max(Y-EyeHeightM+.24,water.Surface-.55);
+            if(Pass(tx,tz)){X=tx;Z=tz;}else if(Pass(tx,Z))X=tx;else if(Pass(X,tz))Z=tz;
+            double target=water.Surface+.12-WaterEyeOffset,wanted=Math.Abs(vertical)>.08?vertical*1.6:Math.Max(-1.2,Math.Min(1.2,(target-Y)*3));
+            if(Y>target&&wanted>0)wanted=0;
+            VerticalSpeed+=(wanted-VerticalSpeed)*(1-Math.Exp(-dt*7));Y+=VerticalSpeed*dt;
+            if(Y>target&&VerticalSpeed>0){Y=target;VerticalSpeed=0;}
+            double floor=ground(X,Z)+EyeHeightM;if(Y<floor){Y=floor;VerticalSpeed=Math.Max(0,VerticalSpeed);}
+            Grounded=water.Surface-(floor-EyeHeightM)<.85;
+            if(Grounded){Swimming=false;VerticalSpeed=0;}
         }
     }
 

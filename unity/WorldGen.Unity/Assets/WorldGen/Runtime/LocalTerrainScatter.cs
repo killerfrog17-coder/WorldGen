@@ -529,6 +529,7 @@ public sealed partial class LocalTerrainExplorer
     void DisposeScatter()
     {
         DisposePlayerSolids();
+        DisposePlayerWater();
         DisposeTreeEfficiency();
         DisposeFoliageShadows();
         DisposeTreeImpostors();

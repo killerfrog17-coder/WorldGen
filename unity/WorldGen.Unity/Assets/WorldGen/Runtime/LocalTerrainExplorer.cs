@@ -76,7 +76,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         ConfigureExplorationRenderer(false);
         view.clearFlags=CameraClearFlags.SolidColor;view.backgroundColor=new Color(.57f,.69f,.76f);
         var shader=Resources.Load<Shader>("WorldGenLocalTerrain");if(shader==null||!shader.isSupported)throw new InvalidOperationException("Local terrain shader is missing or unsupported.");
-        landMaterial=new Material(shader);landMaterial.SetFloat("_GroundFlora",1);waterMaterial=new Material(landMaterial);waterMaterial.SetFloat("_Water",1);SetFog();CaptureMouse();
+        landMaterial=new Material(shader);landMaterial.SetFloat("_GroundFlora",1);InitializePlayerWater();SetFog();CaptureMouse();
     }
     float publishedFog=float.NaN;int publishedFogMaterials=-1;Material publishedFogLand,publishedFogWater;
     public void ConfigureExplorationRenderer(bool original)
@@ -151,6 +151,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         var keyboard=ActiveKeyboard;var mouse=Mouse.current;
         UpdatePlayerDeath();
         PreparePlayerSolids();
+        motion.Water=SampleMotionWater;motion.WaterEyeOffset=humanEyeOffset;
         if(!DeathVisible&&!inventoryOpen&&!inventoryInput&&!mapOpen&&!paused&&!chatInput&&!ecologyOpen&&Application.isFocused)
         {
             if(mouse!=null&&(!SurvivalActive||!Vitals.Incapacitated)&&!passiveSkyCheck&&!passiveReanchorCheck&&!inventoryReviewMode){var d=mouse.delta.ReadValue();heading+=d.x*.1f;pitch=Mathf.Clamp(pitch-d.y*.1f,-85,85);
@@ -192,7 +193,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         }
         UpdatePlayerDeath();
         if(!TerrainDiagnostics.HoldTerrain&&!DeathVisible)UpdatePreparedFrame();
-        UpdateHumans();UpdateCamera();UpdateItemCombat();UpdateFootsteps();UpdateSurvivalHud();double altitude=HeightAboveGround;
+        UpdateHumans();UpdateCamera();UpdatePlayerWater();UpdateItemCombat();UpdateFootsteps();UpdateSurvivalHud();double altitude=HeightAboveGround;
         debugGroundClearance=altitude;debugElevation=groundMemoElevation+altitude;
         if(TerrainDiagnostics.HoldTerrain){UpdateScatter();UpdateAnimalFauna();UpdateWeatherPresentation();UpdateDebugReadout();return;}
         double replanDistance=TerrainLod.ReplanDistance(HorizontalScale);

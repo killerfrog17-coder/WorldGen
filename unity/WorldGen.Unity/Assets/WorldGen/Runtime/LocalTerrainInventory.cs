@@ -160,6 +160,7 @@ public sealed partial class LocalTerrainExplorer
             var target=AimedPossession();
             float itemDistance=target!=null&&target.Bounds.IntersectRay(new Ray(view.transform.localPosition,view.transform.forward),out float hitDistance)?hitDistance:float.MaxValue;
             if(TryNatureInteract(itemDistance))return true;
+            if(TryWaterInteract(itemDistance))return true;
             if(target!=null)RequestPossession(target.Item.Id,PossessionPlace.RightHand,autoHand:true);
         }
         return inventoryOpen;

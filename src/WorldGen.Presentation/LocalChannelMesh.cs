@@ -28,6 +28,15 @@ namespace WorldGen.Presentation
                     V bl=(s.B+s.SideB*(s.WidthB/frame.RadiusM)).Unit,br=(s.B-s.SideB*(s.WidthB/frame.RadiusM)).Unit;
                     void Edge(V a,V b){exact.Add(new LocalHydrology.Piece{A=a,B=b,HalfWidthM=0});}
                     Edge(s.A,s.B);Edge(al,bl);Edge(ar,br);Edge(al,ar);Edge(bl,br);
+                    // Match the water ribbon's two-metre hidden bank overlap.
+                    // Without these cuts, its outer strip crossed coarse faces
+                    // and appeared as isolated floating triangles on steep banks.
+                    if(s.WidthA>0&&s.WidthB>0)
+                    {
+                        V ol=(s.A+s.SideA*((s.WidthA+2)/frame.RadiusM)).Unit,orr=(s.A-s.SideA*((s.WidthA+2)/frame.RadiusM)).Unit;
+                        V pl=(s.B+s.SideB*((s.WidthB+2)/frame.RadiusM)).Unit,pr=(s.B-s.SideB*((s.WidthB+2)/frame.RadiusM)).Unit;
+                        Edge(ol,pl);Edge(orr,pr);Edge(ol,orr);Edge(pl,pr);
+                    }
                 }
                 source=exact.ToArray();
             }
@@ -59,20 +68,28 @@ namespace WorldGen.Presentation
             var positions=new List<float>(mesh.Positions);var normals=new List<float>(mesh.Normals);var colors=new List<float>(mesh.Colors);
             var weights=new List<float>(mesh.SurfaceWeights);var groundB=new List<float>(mesh.GroundWeightsB);var rocks=new List<float>(mesh.Lithology);
             var samples=new List<LocalTerrainSample>(original);while(samples.Count<mesh.Positions.Length/3)samples.Add(new LocalTerrainSample{WaterSurfaceM=double.NaN,WaterMaskM=-1});
-            var indices=new List<int>();var shared=new Dictionary<(long,long),int>();
-            static (long,long) Key(double x,double z)=>((long)Math.Round(x*1000000),(long)Math.Round(z*1000000));
-            for(int i=0;i<original.Length;i++)shared[Key(positions[i*3],positions[i*3+2])]=i;
+            var indices=new List<int>();var shared=new Dictionary<(long,long),List<int>>();
+            static (long,long) Key(double x,double z)=>((long)Math.Floor(x*1000),(long)Math.Floor(z*1000));
+            void Remember((long,long) key,int id){if(!shared.TryGetValue(key,out var list)){list=new List<int>();shared.Add(key,list);}list.Add(id);}
+            for(int i=0;i<original.Length;i++)Remember(Key(positions[i*3],positions[i*3+2]),i);
             int Vertex(Point p)
             {
                 token.ThrowIfCancellationRequested();
-                var key=Key(p.X,p.Z);if(shared.TryGetValue(key,out int found))return found;
+                var key=Key(p.X,p.Z);
+                // Independently intersected bank/grid lines differ by fractions
+                // of a millimetre. Sampling those as separate terrain features
+                // can put opposite channel-side heights on coincident GPU
+                // vertices, creating needle triangles and holes in water clips.
+                for(int dz=-1;dz<=1;dz++)for(int dx=-1;dx<=1;dx++)
+                    if(shared.TryGetValue((key.Item1+dx,key.Item2+dz),out var nearby))foreach(int found in nearby)
+                    {double ex=positions[found*3]-p.X,ez=positions[found*3+2]-p.Z;if(ex*ex+ez*ez<.000001)return found;}
                 V at=frame.Position(mesh.EastM+p.X,mesh.NorthM+p.Z);var s=patch.Sample(at);
                 double Height(double x,double z){var v=frame.Position(mesh.EastM+x,mesh.NorthM+z);return frame.SurfaceY(v,patch.Sample(v).ElevationM);}
                 double here=frame.SurfaceY(at,s.ElevationM);
                 double nx=(here-Height(p.X+1,p.Z)),nz=(here-Height(p.X,p.Z+1));
                 double length=Math.Sqrt(nx*nx+1+nz*nz),up=1/length;
                 var surface=LocalGeology.Surface(s.Ground,at,terrain.SourceSeed,s.ElevationM,up,s.OceanInfluence,s.Biome==Biome.Ice?D.Clamp((up-.55)/.4):0,terrain.RadiusM*frame.HorizontalScale);
-                int id=samples.Count;samples.Add(s);shared.Add(key,id);
+                int id=samples.Count;samples.Add(s);Remember(key,id);
                 double height=frame.SurfaceY(at,s.ElevationM);
                 // Keep the existing collapsed tile perimeter exactly linear;
                 // channel refinement cannot open cracks against another LOD.

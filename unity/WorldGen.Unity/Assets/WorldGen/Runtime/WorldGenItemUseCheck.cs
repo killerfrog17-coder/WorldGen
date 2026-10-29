@@ -234,7 +234,8 @@ public sealed partial class WorldGenRuntime
         if(!worldReady||Busy||humans==null)throw new InvalidOperationException("Item-use fixture unavailable");play.Settings.HorizontalScale=.1;TerrainVideoOptions.Current.ViewDistanceM=1000;TerrainVideoOptions.Revision++;ExploreTerrain(TerrainMapViewport.FromDegrees(50,10));deadline=Time.realtimeSinceStartupAsDouble+120;
         while((terrainExplorer==null||!terrainExplorer.PerformanceGroundSettled)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(terrainExplorer==null||!terrainExplorer.PerformanceGroundSettled)throw new InvalidOperationException("Item-use terrain did not finish its requested geometry");
-        if(Environment.GetCommandLineArgs().Contains("--worldgen-wildlife-audio-check"))yield return terrainExplorer.CheckWildlifeAudioFlow(output,report);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-water-update-check"))yield return terrainExplorer.CheckWaterUpdateFlow(output,report);
+        else if(Environment.GetCommandLineArgs().Contains("--worldgen-wildlife-audio-check"))yield return terrainExplorer.CheckWildlifeAudioFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-solid-scatter-check"))yield return terrainExplorer.CheckSolidScatterFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-nature-check"))yield return terrainExplorer.CheckNatureFlow(output,report);
         else if(Environment.GetCommandLineArgs().Contains("--worldgen-save-slots-check"))yield return CheckSaveSlotsRuntime(output,report);

@@ -26,7 +26,7 @@ namespace WorldGen.Presentation
         {
             int side=mesh.Segments+1;double step=mesh.SizeM/mesh.Segments;
             var vertices=new List<float>();var colors=new List<float>();var indices=new List<int>();
-            var shared=new Dictionary<(long,long,long,bool),int>();
+            var shared=new Dictionary<(long,long,long,byte),int>();
             var input=new Vertex[12];var clipped=new Vertex[12];
             var corners=new int[3];var points=new V[3];
             int Clip(Vertex[] source,int count,Vertex[] target,bool depth,double allowance=0)
@@ -42,26 +42,26 @@ namespace WorldGen.Presentation
                 }
                 return n;
             }
-            int Index(Vertex v,double lift,bool river)
+            int Index(Vertex v,double lift,bool river,bool ocean)
             {
                 double renderedY=v.Y+lift;
-                var key=((long)Math.Round(v.X*10000),(long)Math.Round(v.Z*10000),(long)Math.Round(renderedY*10000),river);
+                var key=((long)Math.Round(v.X*10000),(long)Math.Round(v.Z*10000),(long)Math.Round(renderedY*10000),(byte)(river?2:ocean?3:1));
                 if(shared.TryGetValue(key,out int index))return index;
                 index=vertices.Count/3;shared.Add(key,index);
                 vertices.Add((float)v.X);vertices.Add((float)renderedY);vertices.Add((float)v.Z);
                 if(river){colors.Add((float)v.FlowX);colors.Add((float)v.FlowZ);colors.Add((float)v.Turbulence);colors.Add(2);}
-                else{colors.Add(.13f);colors.Add(.37f);colors.Add(.46f);colors.Add(1);}return index;
+                else{colors.Add(0);colors.Add(0);colors.Add((float)Math.Max(0,v.Y-v.Ground));colors.Add(ocean?3:1);}return index;
             }
-            void Polygon(Vertex[] polygon,int count,bool standing,bool river)
+            void Polygon(Vertex[] polygon,int count,bool standing,bool river,bool ocean)
             {
                 if(count<3)return;
                 double lift=standing||river?0:.025;
-                int first=Index(polygon[0],lift,river),previous=Index(polygon[1],lift,river);
+                int first=Index(polygon[0],lift,river,ocean),previous=Index(polygon[1],lift,river,ocean);
                 for(int k=2;k<count;k++)
                 {
                     var p=polygon[0];var q=polygon[k-1];var r=polygon[k];
                     double area=(q.X-p.X)*(r.Z-p.Z)-(q.Z-p.Z)*(r.X-p.X);
-                    int current=Index(r,lift,river);
+                    int current=Index(r,lift,river,ocean);
                     if(Math.Abs(area)>1e-10&&first!=previous&&previous!=current&&first!=current)
                     {indices.Add(first);indices.Add(previous);indices.Add(current);}previous=current;
                 }
@@ -135,7 +135,7 @@ namespace WorldGen.Presentation
                     if(count<3)continue;
                     count=Clip(clipped,count,input,true,allowance);
                     if(count<3)continue;
-                    Polygon(input,count,standing,river);
+                    Polygon(input,count,standing,river,water.WaterKind==LocalWaterKind.Ocean);
                 }
             }
             if(mesh.WaterClipTriangles.Length>0)

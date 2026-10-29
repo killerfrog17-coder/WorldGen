@@ -48,6 +48,7 @@ namespace WorldGen.Presentation
         {
             double day=dt/(minutesPerDay*60),thermal=dt*60/minutesPerDay;
             Foraging.AdvancePoison(s,day*86400);if(s.Dead)return;
+            WaterDrinking.AdvanceIllness(s,day*86400);
             double activity=s.Unconscious?0:Clamp(speed/TerrainMotion.RunSpeedMps),humidity=Clamp(e.Humidity),wind=Clamp(e.WindMps,0,60),sun=Clamp(e.Sunlight);
             double sweat=Clamp((e.AirTemperatureC-20)/12+activity*1.2+sun*.5,0,4);
             if(e.Immersed)s.Wetness=1;

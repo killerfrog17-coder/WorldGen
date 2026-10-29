@@ -105,13 +105,13 @@ public sealed partial class LocalTerrainExplorer
         }
         double dx=motion.X-humanLastX,dz=motion.Z-humanLastZ;humanLastX=motion.X;humanLastZ=motion.Z;
         float speed=dt>0&&!changed?(float)(Math.Sqrt(dx*dx+dz*dz)/dt):0;if(speed>15)speed=0;
-        bool crouch=Application.isFocused&&!motion.Flying&&ActiveKeyboard!=null&&ActiveKeyboard.ctrlKey.isPressed;
+        bool crouch=Application.isFocused&&!motion.Flying&&!motion.Swimming&&ActiveKeyboard!=null&&ActiveKeyboard.ctrlKey.isPressed;
         if(!deathPresented){
         if(speed>.05f)humanPlayer.TargetYaw=(float)(Math.Atan2(dx,dz)*180/Math.PI);
         humanPlayer.Yaw=Mathf.MoveTowardsAngle(humanPlayer.Yaw,humanPlayer.TargetYaw,dt*540);
         humanPlayer.Root.transform.localPosition=new Vector3((float)(motion.X-originX),(float)(motion.Y-TerrainMotion.EyeHeightM),(float)(motion.Z-originZ));
         humanPlayer.Root.transform.localRotation=Quaternion.Euler(0,humanPlayer.Yaw,0);
-        AnimateHuman(humanPlayer,speed,!motion.Flying&&!motion.Grounded,crouch,dt);
+        AnimateHuman(humanPlayer,speed,!motion.Flying&&!motion.Swimming&&!motion.Grounded,crouch,dt,motion.Swimming);
         }
         if(!stopped&&CenterReady&&humanSpawnQueued>0)
         {
@@ -154,7 +154,7 @@ public sealed partial class LocalTerrainExplorer
         humanEyeOffset=Mathf.Lerp(humanEyeOffset,humanPlayer.Definition.EyeHeight-(float)TerrainMotion.EyeHeightM-(crouch?.42f:0),1-Mathf.Exp(-dt*12));
         Ground(motion.X,motion.Z); // Preserve player-centred elevation/debug memo.
     }
-    static void AnimateHuman(HumanActor actor,float speed,bool airborne,bool crouch,float dt)
+    static void AnimateHuman(HumanActor actor,float speed,bool airborne,bool crouch,float dt,bool swimming=false)
     {
         if(airborne&&!actor.Airborne&&actor.Jump>=0)actor.Inputs[actor.Jump].SetTime(0);
         actor.Airborne=airborne;float total=0;
@@ -168,7 +168,8 @@ public sealed partial class LocalTerrainExplorer
         for(int i=0;i<actor.Inputs.Length;i++)
         {
             string role=actor.Definition.Roles[i];float target=0,rate=1;
-            if(airborne)target=role=="Jump"?1:0;
+            if(swimming)target=role=="Swim"?1:0;
+            else if(airborne)target=role=="Jump"?1:0;
             else if(crouch)target=role=="Crouch"?1:0;
             else if(speed<1.5f){float walk=Mathf.Clamp01(speed/1.5f);target=role=="Idle"?1-walk:role=="Walk"?walk:0;}
             else if(speed<3.4f){float run=Mathf.InverseLerp(1.5f,3.4f,speed);target=role=="Walk"?1-run:role=="Run"?run:0;}

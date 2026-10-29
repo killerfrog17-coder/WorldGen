@@ -42,7 +42,7 @@ public sealed partial class LocalTerrainExplorer
         }
         GUI.color=old;
         var target=AimedPossession();float itemDistance=target!=null&&target.Bounds.IntersectRay(new Ray(view.transform.localPosition,view.transform.forward),out float hitDistance)?hitDistance:float.MaxValue;
-        string nature=NaturePrompt(itemDistance);if(target==null&&nature==null)return;
+        string nature=NaturePrompt(itemDistance)??WaterPrompt(itemDistance);if(target==null&&nature==null)return;
         var style=new GUIStyle(GUI.skin.label){fontSize=Mathf.RoundToInt(17*scale),alignment=TextAnchor.MiddleCenter,padding=new RectOffset(),wordWrap=false};
         var rect=new Rect(Screen.width*.5f-180*scale,Screen.height*.5f+31*scale,360*scale,30*scale);
         string prompt=nature??(InventoryDisplayName(target.Item)+"  [E]");
