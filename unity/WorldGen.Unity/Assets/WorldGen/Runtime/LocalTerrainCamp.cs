@@ -141,7 +141,7 @@ public sealed partial class LocalTerrainExplorer
     void RemoveCamp(CampObject c)
     {
         if(c.Burning||c.EmberSeconds>0){InventoryFeedback("Extinguish and cool the fire first.");return;}
-        foreach(var p in c.Materials){p.Position=c.Position;p.Place=PossessionPlace.Ground;p.GroundOffsetM=.06;p.GroundMoving=true;Inventory.Items.Add(p);}
+        foreach(var p in c.Materials){p.Position=c.Position;p.Place=PossessionPlace.Ground;p.ContainerId="";p.InFlight=false;p.GroundVelocity=p.GroundSpin=new V();p.GroundOffsetM=.06;p.GroundMoving=true;Inventory.Items.Add(p);}
         c.Materials.Clear();Camp.Objects.Remove(c);InvalidateCampVisual(c);campMenu=null;inventoryNearbyAt=0;CaptureMouse();
     }
     void GatherCampGrass()

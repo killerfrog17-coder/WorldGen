@@ -1,5 +1,14 @@
 # WorldGen repository instructions
 
+05:06CDT continuation: finalIL2CPPcopyfailed specificallynonshippingGameAssembly.pdb
+(603MB); sourcecompilation succeeded. OwnnewreleaseC/backup/il2cppOutput736MB moved
+non-destructively to E:/WorldGen-builds/camp-water-native-debug-cpp, Cpathjunction
+retained. C~864MB/E265MB now, finalPDB+worker shouldfitC. No oldbuild deletions.
+Pendingfinalsource adds clean placedmaterial container/drop metadata and actual
+pack->bed->pickup nativechecks;39CorecampPASS, newnativeexpected49UNRUN.
+Re-freeze663sourcefiles beforefinalbuild; no selectedbinary/shortcutchange yet.
+
+
 CURRENT29Oct~04:58CDT: Source791436d pushed/remotelyverified, new backdrop policy
 source now pendingcommit/build. Camp44nativePASS; water11nativePASS; Core37camp,
 161hydraulics,10318repair/192index,1510major,52420Earth/62441procedural,21cachePASS.

@@ -25,6 +25,10 @@ static class CampTests
         fire.EmberSeconds=30;Check(CampRules.ContactDamagePerSecond(fire,.1,0)>0&&CampRules.ContactDamagePerSecond(fire,.1,.5)==0,"Live embers burn bare feet only close to the ground");
         var rain=Fire();CampRules.Add(rain,Item(PossessionKind.TinderBundle));CampRules.Add(rain,Item(PossessionKind.KindlingBundle));CampRules.Ignite(rain,true);CampRules.Advance(rain,1,20,.9,5,0);Check(!rain.Burning,"Heavy rain can extinguish an exposed small fire");
         var bed=new CampObject{Kind=CampKind.Bedding,Position=at};double bare=CampRules.BedComfort(null);
+        var packedGrass=Item(PossessionKind.DryGrass);packedGrass.Place=PossessionPlace.Container;packedGrass.ContainerId="worn-pack";packedGrass.GroundMoving=true;packedGrass.GroundVelocity=new V(2,0,0);
+        var looseBed=new CampObject{Kind=CampKind.Bedding,Position=at};CampRules.Add(looseBed,packedGrass);var placedGrass=looseBed.Materials.Single();
+        Check(placedGrass.Place==PossessionPlace.Ground&&placedGrass.ContainerId==""&&!placedGrass.GroundMoving&&placedGrass.GroundVelocity.Length==0,"Placed materials shed prior container ownership and projectile motion");
+        Check(packedGrass.Place==PossessionPlace.Container&&packedGrass.ContainerId=="worn-pack"&&packedGrass.GroundMoving,"Placing copies material state without secretly mutating the inventory input");
         CampRules.Add(bed,Item(PossessionKind.DryGrass));double thin=CampRules.BedComfort(bed);for(int i=0;i<7;i++)CampRules.Add(bed,Item(PossessionKind.DryGrass));
         Check(thin>bare&&CampRules.BedComfort(bed)>thin&&bed.BeddingDepthM>.08,"Adding loose grass thickens and improves bedding");
         double dryComfort=CampRules.BedComfort(bed);bed.Wetness=1;Check(CampRules.BedComfort(bed)<dryComfort-.3,"Wet bedding loses comfort and insulation");CampRules.Advance(bed,86400,0,.2,4,1);Check(bed.Wetness<.1,"Sun and wind dry placed bedding over time");

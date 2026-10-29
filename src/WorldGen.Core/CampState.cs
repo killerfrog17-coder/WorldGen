@@ -56,7 +56,8 @@ namespace WorldGen.Core
         public static void Add(CampObject c,Possession material)
         {
             if(material==null||material.MassKg<=0||c.Materials.Any(p=>p.Id==material.Id)||!(c.Kind==CampKind.Fire?Fuel(material):c.Kind==CampKind.Bedding?Bedding(material):Plantable(material))||c.Kind==CampKind.Stake&&c.Materials.Count>0)throw new ArgumentException("Unsuitable placed material.");
-            c.Materials.Add(material.Copy());
+            var placed=material.Copy();placed.Place=PossessionPlace.Ground;placed.ContainerId="";placed.GroundMoving=false;placed.InFlight=false;placed.GroundVelocity=placed.GroundSpin=new V();
+            c.Materials.Add(placed);
         }
         public static void Ignite(CampObject c,bool drill)
         {string reason=IgniteReason(c,drill);if(reason.Length>0)throw new InvalidOperationException(reason);c.Burning=true;c.EmberSeconds=900;}
