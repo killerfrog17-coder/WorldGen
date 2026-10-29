@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "killerfrog17-coder/WorldGen",
-  "source_checkpoint": "d41da6024bc8d9e5c1422c0f660430e4c2635ba1",
+  "source_checkpoint": "b30c93b58df44a43d76103ffe9edb9146a0c0994",
   "transport": "GitHub Releases; no Git LFS or metered asset storage",
   "files": {
     "artifacts/fauna-anatomy-revision/badger/Animal - Painted Species Review.blend": {
@@ -13617,6 +13617,24 @@
       "bytes": 1561594,
       "pack": "game-assets-20261029-v1/assets-22eda7e32b6e39254ef75fc58de8a96014f5182e511a688c2e478b11f5625905.zip",
       "member": "objects/d5ac661590c69fa1a452b7824932d0fa4325883a47ada4ff562df44929e7b8d6"
+    },
+    "sounds/campfire/wood-fire-01.wav": {
+      "sha256": "eb09f7f50b2c6fa8479d7244c972b06a8395e27df6686b1688424765dbd3bab0",
+      "bytes": 2469660,
+      "pack": "game-assets-20261029-v3/assets-a49a04ca7c637a7d5856991253394c15061a86c83b5a0bc495d12ebcafb3e653.zip",
+      "member": "objects/eb09f7f50b2c6fa8479d7244c972b06a8395e27df6686b1688424765dbd3bab0"
+    },
+    "sounds/campfire/wood-fire-02.wav": {
+      "sha256": "e006f15e43b3f467d37dabd2016ce6046bf4647ffbf4a13ee3c9a19ac75980fa",
+      "bytes": 2469660,
+      "pack": "game-assets-20261029-v3/assets-a49a04ca7c637a7d5856991253394c15061a86c83b5a0bc495d12ebcafb3e653.zip",
+      "member": "objects/e006f15e43b3f467d37dabd2016ce6046bf4647ffbf4a13ee3c9a19ac75980fa"
+    },
+    "sounds/campfire/wood-fire-03.wav": {
+      "sha256": "472dac5e8e6f78f3495799214e02cf60abad8b75f6032cfa75aa7be3901b366a",
+      "bytes": 2469660,
+      "pack": "game-assets-20261029-v3/assets-a49a04ca7c637a7d5856991253394c15061a86c83b5a0bc495d12ebcafb3e653.zip",
+      "member": "objects/472dac5e8e6f78f3495799214e02cf60abad8b75f6032cfa75aa7be3901b366a"
     },
     "sounds/fauna/ai/baboon/baboon-alert-f01-t01.wav": {
       "sha256": "7f7c90b7edb5ee71fac6921f636ffb5149267419eaec7054d0dc33fc197b4887",
@@ -28664,6 +28682,14 @@
       "asset_id": 688298347,
       "sha256": "b11ea2b958552a82323a5279a476bbca86cdbf30e2a3ee334675ae274d8a19ac",
       "bytes": 17389937,
+      "encoding": "zip"
+    },
+    "game-assets-20261029-v3/assets-a49a04ca7c637a7d5856991253394c15061a86c83b5a0bc495d12ebcafb3e653.zip": {
+      "tag": "game-assets-20261029-v3",
+      "name": "assets-a49a04ca7c637a7d5856991253394c15061a86c83b5a0bc495d12ebcafb3e653.zip",
+      "asset_id": 688402117,
+      "sha256": "ef6d73af7367b8f89899bc3b87e9e6436142f4847ac2cfe0e9999a557d613374",
+      "bytes": 5141447,
       "encoding": "zip"
     }
   }

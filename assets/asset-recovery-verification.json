@@ -1,0 +1,20 @@
+{
+  "verified_utc": "2026-10-29T11:50:00Z",
+  "checkpoint": "4e3a088a1ad751c994394a7c0d69215a72b17634",
+  "tag": "checkpoint/camp-water-assets-20261029",
+  "method": "Fresh shallow GitHub clone, full remote asset restore, Unity build with a new Library, actual native player gameplay checks",
+  "restored_files": 4614,
+  "downloaded_packs": 122,
+  "all_pack_and_file_sha256_verified": true,
+  "post_build_asset_hashes_unchanged": 4614,
+  "unity_version": "6000.6.0f1",
+  "build_backend": "Mono",
+  "build_utc": "2026-10-29T11:47:14.6025833Z",
+  "build_exit_code": 0,
+  "native_camp_checks_passed": 49,
+  "native_exit_code": 0,
+  "runtime_errors": 0,
+  "old_packages_removed": 47,
+  "old_package_bytes_removed": 66582752658,
+  "scope": "This proves this complete checkpoint can be rebuilt. Earlier unversioned source commits may not reproduce old binaries exactly; their unique packaged assets were preserved separately. Later asset versions use incremental packs."
+}
