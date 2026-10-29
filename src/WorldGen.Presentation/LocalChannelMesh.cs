@@ -190,6 +190,11 @@ namespace WorldGen.Presentation
             // grid edges/diagonals. Share every such boundary point and fan
             // the affected triangle so land AND water use the same edge.
             var lines=new Dictionary<(int,int),List<int>>();
+            // These coordinates have already been stored as floats and welded
+            // within a millimetre. A dimensionless 1e-6 grid test (and a 1e-5 m
+            // diagonal test) rejected valid shared points after that rounding,
+            // leaving T-junctions whose two sides had different terrain heights.
+            double stitchTolerance=Math.Max(.00001,mesh.SizeM*2e-7);
             int before=samples.Count;
             for(int id=0;id<before;id++)
             {
@@ -197,7 +202,7 @@ namespace WorldGen.Presentation
                 for(int axis=0;axis<3;axis++)
                 {
                     double value=(axis==0?x:axis==1?z:x+z)/step;int line=(int)Math.Round(value);
-                    if(Math.Abs(value-line)>1e-6)continue;
+                    if(Math.Abs(value-line)*step>stitchTolerance)continue;
                     var key=(axis,line);if(!lines.TryGetValue(key,out var list)){list=new List<int>();lines.Add(key,list);}list.Add(id);
                 }
             }
@@ -209,16 +214,16 @@ namespace WorldGen.Presentation
                 {
                     int a=indices[tri+k],b=indices[tri+(k+1)%3];polygon.Add(a);
                     double ax=positions[a*3],az=positions[a*3+2],bx=positions[b*3],bz=positions[b*3+2];
-                    int axis=Math.Abs(ax-bx)<1e-5?0:Math.Abs(az-bz)<1e-5?1:Math.Abs(ax+az-bx-bz)<1e-5?2:-1;
+                    int axis=Math.Abs(ax-bx)<stitchTolerance?0:Math.Abs(az-bz)<stitchTolerance?1:Math.Abs(ax+az-bx-bz)<stitchTolerance?2:-1;
                     if(axis<0)continue;double val=(axis==0?ax:axis==1?az:ax+az)/step;int line=(int)Math.Round(val);
-                    if(Math.Abs(val-line)>1e-6||!lines.TryGetValue((axis,line),out var list))continue;
+                    if(Math.Abs(val-line)*step>stitchTolerance||!lines.TryGetValue((axis,line),out var list))continue;
                     double dx=bx-ax,dz=bz-az,len=dx*dx+dz*dz;if(len<1e-12)continue;
                     var inside=new List<(double,int)>();
                     foreach(int id in list)
                     {
                         if(id==a||id==b)continue;
                         double x=positions[id*3]-ax,z=positions[id*3+2]-az,t=(x*dx+z*dz)/len;
-                        if(t>1e-6&&t<1-1e-6&&Math.Abs(x*dz-z*dx)<1e-4*Math.Sqrt(len))inside.Add((t,id));
+                        if(t>1e-6&&t<1-1e-6&&Math.Abs(x*dz-z*dx)<stitchTolerance*Math.Sqrt(len))inside.Add((t,id));
                     }
                     inside.Sort((p,q)=>p.Item1.CompareTo(q.Item1));foreach(var p in inside)polygon.Add(p.Item2);
                 }

@@ -32,6 +32,12 @@ public sealed partial class LocalTerrainExplorer
         }
         Color32[] Image(string name,bool underwater=false,LocalTerrainMesh mesh=null)
         {
+            if(name.StartsWith("mouth-standing-bank-",StringComparison.Ordinal))
+            {
+                var pose=new List<string>();
+                foreach(var v in new[]{view.transform.localPosition,view.transform.right,view.transform.up,view.transform.forward})pose.Add(string.Join(",",v.x.ToString("R",System.Globalization.CultureInfo.InvariantCulture),v.y.ToString("R",System.Globalization.CultureInfo.InvariantCulture),v.z.ToString("R",System.Globalization.CultureInfo.InvariantCulture)));
+                pose.Add(view.fieldOfView.ToString("R",System.Globalization.CultureInfo.InvariantCulture));File.WriteAllLines(Path.Combine(output,name+"-camera.txt"),pose);
+            }
             if(!underwater)
             {
                 var eye=view.transform.localPosition;double x=eye.x+originX,z=eye.z+originZ;
@@ -60,6 +66,26 @@ public sealed partial class LocalTerrainExplorer
             var target=transform.TransformPoint(new Vector3((float)(x-originX),(float)water,(float)(z-originZ)));
             var profile=terrain.Amplification.RiverReach(site.Item4);var nearest=profile.OrderBy(s=>((s.A+s.B).Unit-at).Length).First();float scaleCamera=Mathf.Clamp((float)Math.Max(nearest.WidthA,nearest.WidthB)/12,1,12);
             AboveGroundEye(target+new Vector3(35,45,-45)*scaleCamera,target);Image(site.Item1+"-streamed");
+            if(site.Item1=="mouth")
+            {
+                // Keep the actual streamed geometry, not a separately regenerated
+                // grid, for investigating small cracks visible from the bank.
+                using(var dump=new StreamWriter(Path.Combine(output,"mouth-streamed-geometry.obj")))
+                {
+                    int offset=1;
+                    foreach(var pair in tiles)
+                    {
+                        var tile=pair.Value;if(tile.Root==null||!tile.Root.activeInHierarchy)continue;
+                        foreach(var filter in tile.Root.GetComponentsInChildren<MeshFilter>())
+                        {
+                            var mesh=filter.sharedMesh;if(mesh==null)continue;var renderer=filter.GetComponent<MeshRenderer>();bool isWater=renderer!=null&&renderer.sharedMaterial.shader==waterMaterial.shader;
+                            dump.WriteLine("o "+(isWater?"water":"ground")+"_"+pair.Key.X+"_"+pair.Key.Z+"_"+pair.Key.Level);
+                            var vertices=mesh.vertices;foreach(var p in vertices){var q=transform.InverseTransformPoint(filter.transform.TransformPoint(p));dump.WriteLine(FormattableString.Invariant($"v {q.x:R} {q.y:R} {q.z:R}"));}
+                            var indices=mesh.triangles;for(int k=0;k<indices.Length;k+=3)dump.WriteLine($"f {indices[k]+offset} {indices[k+1]+offset} {indices[k+2]+offset}");offset+=vertices.Length;
+                        }
+                    }
+                }
+            }
             if(site.Item1=="junction")
             {
                 for(int f=0;f<4;f++){AboveGroundEye(target+new Vector3(7,3,-9),target+new Vector3(-4,0,8));Image("flow-"+f);yield return new WaitForSecondsRealtime(.6f);}

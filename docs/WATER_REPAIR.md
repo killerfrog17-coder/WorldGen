@@ -118,6 +118,28 @@ They broaden sampled coverage; they do not prove every possible river or seed.
 
 Exact logs, inputs and captures are under `artifacts/camp-water-20261029`.
 
+## Follow-up bank-view audit
+
+The 14-check `resumed-river-views` run adds dry-bank cameras 1.65 m above the
+ground, records camera clearances, and raises isolated-LOD cameras above their
+actual triangles. Earlier low-angle mouth screenshots were inside the bank and
+are not valid evidence of appearance. The new views show continuous water at
+the mouth and junction, but expose thin slits along the streamed mouth banks.
+That remaining visual issue is under investigation; the test count does not
+establish that all seams are fixed. A diagnostic candidate exports the actual
+streamed geometry and camera poses to investigate it.
+
+The exported pre-fix scene contains 689 unmatched internal terrain edges across
+22 tiles. Stored float coordinates were tested against grid/diagonal lines with
+smaller tolerances than their rounding error, skipping shared bank vertices.
+Stitching now uses a distance tolerance scaled to float precision. A focused
+test reproduced open edges in all nine sampled meshes before the fix and none
+afterwards, retaining total projected land area. Submillimetre welding can
+already produce almost-collinear slivers; the added orientation guard rejects
+folds beyond that coordinate uncertainty rather than claiming perfect exact
+arithmetic. The original 10,318 water geometry probes and 192 indexed sampling
+comparisons still pass. Fresh native bank rendering remains pending.
+
 Research for that follow-up:
 
 - [USGS, hydraulic geometry of stream channels](https://pubs.usgs.gov/publication/pp252):

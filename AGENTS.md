@@ -1,5 +1,40 @@
 # WorldGen repository instructions
 
+LATEST29Oct~12:22CDT: actualbankOBJrevealed689unmatchedINTERIORgroundedges22tiles.
+ConfirmedRiverGroundSeamTests baseline9/9meshesfailed. LocalChannelMesh stitch
+grid/diagonal/perpendicular tests hadfloat-smaller tolerances; nowmetres
+max(1e-5,mesh.SizeM*2e-7). Initial1mmtoleranceCLOSEDedgesbutaddedextraalmost-
+collinearreversals; REPLACEDwithsmallerfloat-scaledtoleranceabove. Final9meshes
+0openedges,fullprojectedarea,0foldsbeyondexisting1mmcoordinatewelduncertainty.
+PreexistingtinyreversedsliversfoundinbaselineOBJtoo; nozeroexact-reversalclaim.
+10318riverprobes+192indexedcomparisonsPASS;1510major+original8cmclearancePASS
+(worst.0459m). Logsriver-ground-seams-final,river-bank-stitch-regression,
+river-bank-stitch-major. CandidateMono rebuilt17:20-ishwithNEWPresentationDLL.
+FreshactualnativerenderRUNNINGownedPID10272/session56809, output
+resumed-river-stitched; needsview+OBJcompare. Previousresumed-river-geometry14
+PASS/EXIT0(oldunfixedbanks),OWN23736/session43074exited. NoUnityrunning.
+Coreexec42338finished0, major3521finishedlikely0(check). Afterfreshvisualpass:
+NEWIL2CPPplayer-camp-water-followup,prooffollowup-proof via
+artifacts/camp-water-20261029/prove-followup-package.py(prepared,NOTRUN),
+nativecamp73/water21/river14thenexistingrootshortcutselection. SelectedstillOLD
+polished107. Sourcecheckpointa01remoteplusnewCore/test/diag/docsdiffsneedcommit.
+No paid/subagents/blockedcleanupattempts. Preserveowner3files/authoringassets.
+
+LATESTFOLLOWUP29Oct12:10CDT: sourcecheckpoint a01fd940db0e3c98c783314dcd505deb352fd5df
+PUSHED/remotelyverified. MonoQAcandidate rebuilt, currentcamp73PASS andwater21PASS
+clean/EXIT0 (resumed-camp-check2,resumed-water-check); guardsforLOS/floodedsleep
+AREnowtested. Actualvirtualkeyboard/mousechecks included. Owned9584/18188exited.
+New14-checkactualbankviews runresumed-river-viewsPASS/EXIT0; clearancesrecorded.
+HowevernewmouthstandingviewsSHOWTHINBANKSLITS,donotclaimwaterfullyfixed.
+Investigatingactualstreamedgeometry; noCore/presentationmeshfixyet. Newfixture
+exportsOBJ+camera underresumed-river-geometry, ownedPID23736/execcell43074running.
+CurrentMonoQAbinary includesUNCOMMITTEDOBJexportfixture; codeotherwisea01fd94.
+Pythonanalyzer artifacts/camp-water-20261029/probe-bank-slits.py ready (numpy),
+needsactualOBJ/camerafiles. docs/WATER_REPAIR.md updatedhonestlyUNCOMMITTED.
+DoNOTbuilduntilnativeexits; doNOTclaimnewIL2CPPshipped. Selectedpolished107OLD
+package/shortcutremainunchanged. Finishslitdiagnosis/correction,NEWreleaseproof/
+nativebeforeselection. Noownerappclosed/nootherworkers. AllblockedcleanupOFFLIMITS.
+
 FOLLOWUP29Oct~12:00CDT: firstnewMono artifacts/player-camp-water-qa BUILD0,
 resumed-camp-check71PASS/EXIT0 inclwood-meshretirement+actualZ/E/Esc/Space/LMB/RMB
 paths. NewsourceAFTERthatbuild addsLOSobstructionplacementguard+twoinputchecks,

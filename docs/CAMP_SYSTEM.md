@@ -98,6 +98,9 @@ rebuilt or removed, consume placement clicks before weapon input, and interrupt
 sleep on damage even after prior healing. A 71-check Mono run passed those
 paths, including actual virtual keyboard/mouse input through the player loop.
 
-Additional source changes reject placing material through intervening solids,
-resting in shallow water, and lying on flooded bedding from a dry bank. Their
-new native regressions are pending; they are not yet selected or release claims.
+The subsequent 73-check camp candidate also verifies placing material cannot
+pass through intervening solids, then becomes available immediately on removing
+the obstruction. A separate 21-check water run verifies shallow-water rest and
+flooded bedding are rejected, with drinking/swimming/underwater paths retained.
+Those candidate runs passed without runtime errors. They are not yet selected
+release claims.
