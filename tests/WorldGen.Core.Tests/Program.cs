@@ -1,6 +1,8 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--river-repair-probes")){RiverRepairTests.Run(args[1],args[2]);return;}
+if(args.Contains("--water-world-audit")){WaterWorldAudit.Run(args[1],args[2],args[3]);return;}
 if(args.Contains("--camp-only")){CampTests.Run();return;}
 if(args.Contains("--player-water-only")){PlayerWaterTests.Run();return;}
 if(args.Contains("--wildlife-sounds-only")){WildlifeSoundTests.Run();return;}

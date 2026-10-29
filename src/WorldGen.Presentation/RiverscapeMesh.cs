@@ -77,6 +77,7 @@ namespace WorldGen.Presentation
             double HiddenBankOverlap(double width)=>width<=0?0:2;
             foreach(var span in spans)
             {
+                if(span.LevelA==0&&span.LevelB==0)continue; // paired cut is covered by the connected ocean mesh
                 V flow=(span.B-span.A).Unit;
                 void Junction(int id,V at,double level,double width)
                 {
@@ -113,6 +114,7 @@ namespace WorldGen.Presentation
             }
             foreach(var span in spans)
             {
+                if(span.LevelA==0&&span.LevelB==0)continue;
                 token.ThrowIfCancellationRequested();
                 V flow=(span.B-span.A).Unit;
                 // Bounded under-land overlap, analogous to accepted standing

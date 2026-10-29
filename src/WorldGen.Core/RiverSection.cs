@@ -13,7 +13,12 @@ namespace WorldGen.Core
             Level=level;HalfWidth=Math.Max(.01,halfWidth);Depth=Math.Max(0,depth);
             Support=Math.Min(supportLimit,Math.Max(HalfWidth*5,Math.Min(3000,80+HalfWidth*3+sediment*400)));
             // Geometry/animation estimate, not an assertion of hydraulic balance.
-            Speed=Math.Max(.08,Math.Min(7,Math.Sqrt(Math.Max(0,slope)*9.81*Math.Max(.1,depth))*2));
+            // The local endpoint collar may be flat without the river having
+            // stopped. Discharge through the parabolic section still carries
+            // water; slope alone incorrectly made every pool crawl at .08m/s.
+            double area=Math.Max(.05,4d/3*HalfWidth*Math.Max(.05,depth));
+            double transport=Math.Max(0,discharge)/area;
+            Speed=Math.Max(.15,Math.Min(7,Math.Max(transport,Math.Sqrt(Math.Max(0,slope)*9.81*Math.Max(.1,depth))*2)));
             Turbulence=OrogenMorphology.Smooth(.004,.09,slope)*(1-.35*D.Clamp(sediment));
         }
         public double Cut(double terrain,double distance,double alongM,double phase)

@@ -1,6 +1,60 @@
 # WorldGen repository instructions
 
-CAMP + WATER REDO IN PROGRESS,29October2026~01:23CDT:
+WATER REPAIR CURRENT,29October2026~02:20CDT:
+Camp32native PASS/source18994cf pushed; not selected. Owner explicitly says
+continue all instructions, not only water testing; no fixed deadline, back10-11am.
+Water-source UNCOMMITTED: reproduced owner Procedural seed10103612/.1scale using
+read-only isolated copy referenced in artifacts/camp-water-20261029/repro-inputs.
+Never restore/mutate owner .trash. Selected shortcut still previouswater release.
+Found true bugs: Ocean ownership skipped dry coastal carving; bank refit undid
+flatjunctioncollars; V.Dot rounds1e-9 so shortspan squared angular lengths round
+away (12m on637km planet!), causing core water gaps despite rendered ribbons.
+Fixed local RiverDot full double (canonical world math unchanged), exact quad
+interior, flatendpointcollars, dryOcean cuts. Lazy safe root-chord filter retains
+performance; localbins after RiverSpans uses same values. Coarsechannelrefinement
+now follows rendered width cutoff, finite cuts replace discarded32polygonbudget.
+Underwater boundary vertices keep true bed belowwater vs coarselinear bridge.
+Sea0ribbons now covered by connectedOcean mesh; ZWriteOn resolves overlapping
+water depths; oceanamplitude .12..1.1m (2swells), CPU+shader matched, bounds padded,
+normal detail strengthened; discharge prevents flatpool velocity=.08 regardlessQ.
+Current river-bounded-queries diagnostics:257+1183mouth and565+2322junction probes,
+ALL dry0/hidden0/missing0 including nearboundary; farLOD accepted0spans (NOT proof).
+Tests are diagnostic reports currently, still need strict asserts + widefarcase.
+Baseline nativeimages actual proceduralmouth buried, junction trianglegaps visible.
+Native-repair1 FAILED INITIAL unrelated50,10 terrain loading120stimeout, no water
+capture/pass. Fixed fixture starts directly at mouth; optimized lazy rootqueries
+instead of preparing allreach profiles perlargepatch. New candidatebuild running
+session60115; includes latestwaterchanges (SwellScale in materialCB), camp intact.
+After build restore3knownUnityautochanges, run riverrepair on isolatedsnapshot;
+inspect images AND flow/ocean sequence. Need real gameplay water regression/camp
+rerun/finalIL2CPP/proofs/select/push. No universalfixclaim until actual visual proof.
+Keep current E unselectedcampcandidatefolder for iterations (disk C1.1/E1.0GB).
+Do not retry blockedcleanup batch. No subagents/paidcalls. Sourceworld/frozen
+original177fauna/42human/protectedblend unchanged; owner prompt deletion and2old
+untrackeddeerscripts untouched. No ownerWorldGen running lastcheck; ownfailed
+native26416 and worker15988 have exited. All preceding notes context only.
+
+
+CAMP + WATER REDO CURRENT,29October2026:
+Owner clarified NO 3.5-hour deadline; expects back around10-11am, continue until
+wrap. All task parts still required: camp first (DONE tested prototype), main
+water fixes + actual visual verification, then optional riverwidth/depth/frequency.
+Camp latest32native checks PASS/noerrors; day/night/firelightcontrol captures
+inspected. Source18994cf137db0e3f9528c13d74a8485b9e33e1cd pushed/remotelyverified.
+Camp candidate unselected, rootshortcut STILL previous water-update release.
+Older camp-native1/2 diagnostic failures below superseded by native3 PASS.
+NOW water audit: reproduced on owner's PROCEDURAL seed10103612world atscale.1,
+not Earth-only old tests. Read-only isolated repro reference in taskroot/repro-
+library; original .trash save NOT restored/mutated. See repro-inputs.json.
+Exact source reach API + WaterWorldAudit added uncommitted. Actual graph audit:
+5907sea0stations,17dry Ocean-owned channel centres,30nonflat endpoint collars.
+Hypotheses confirmed dry Ocean ownership skips carving; final bankconditioning
+undoes flatcollars. Need actual GPU evidence/geometry repair, NOT fixed yet.
+Native RiverRepairCheck added (two owner-world sites, streamed +off-grid 3LODs).
+Unselected camp candidate BUILD RUNNING; do not compete/edit runtime until exits.
+Owner deletedprompt+2untrackeddeerscripts untouched. No subagents/paid services.
+
+EARLIER CAMP IN-PROGRESS NOTES (superseded native status above):
 Latest owner goes to bed; priority NON-WATER FIRST: campfire, loose bedding,
 independent tiredness/sleep, planting actual sticks and hammering them deeper
 with a rock. THEN fix water defects from owner screenshots, EXTENSIVE REAL

@@ -83,6 +83,7 @@ public sealed partial class LocalTerrainExplorer
                     if(compact){var target=data.GetIndexData<ushort>();for(int i=0;i<indices.Length;i++)target[i]=(ushort)indices[i];}
                     else data.GetIndexData<int>().CopyFrom(indices);
                     result.bounds[part]=new Bounds((low+high)*.5f,high-low);
+                    if(water)result.bounds[part].Expand(new Vector3(0,3.2f,0)); // shader swell can move above/below the stored datum
                     data.subMeshCount=1;
                     data.SetSubMesh(0,new SubMeshDescriptor(0,indices.Length,MeshTopology.Triangles){bounds=result.bounds[part],vertexCount=count},
                         MeshUpdateFlags.DontRecalculateBounds|MeshUpdateFlags.DontValidateIndices);

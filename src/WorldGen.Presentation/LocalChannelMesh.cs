@@ -14,15 +14,19 @@ namespace WorldGen.Presentation
         struct Cut {public double X,Z,DX,DZ,Length,Half;}
         public static LocalTerrainSample[] Refine(LocalTerrainMesh mesh,LocalTerrain terrain,LocalTerrainFrame frame,LocalTerrain.LocalTerrainPatch? patch,LocalTerrainSample[] original,System.Threading.CancellationToken token=default)
         {
-            double step=mesh.SizeM/mesh.Segments;if(step>32||patch==null)return original;
-            var source=patch.ChannelPieces(Math.Max(16,step*2));
+            double step=mesh.SizeM/mesh.Segments;if(patch==null)return original;
+            if(step>32&&terrain.Amplification==null)return original;
+            var source=terrain.Amplification==null?patch.ChannelPieces(Math.Max(16,step*2)):Array.Empty<LocalHydrology.Piece>();
             if(terrain.Amplification!=null)
             {
                 // Constrain the ACTUAL paired water polygon, not a parallel-
                 // bank approximation of its centre line. Those disagree at
                 // bends, tapered widths and cascade cross-sections.
                 var exact=new List<LocalHydrology.Piece>();
-                foreach(var s in patch.RiverSpans())
+                // Every river wide enough to render at this LOD needs its bed
+                // in the same mesh. Otherwise coarse faces bridge the channel
+                // while the water is correctly drawn underneath solid ground.
+                foreach(var s in patch.RiverSpans(step>32?step*.1:0))
                 {
                     V al=(s.A+s.SideA*(s.WidthA/frame.RadiusM)).Unit,ar=(s.A-s.SideA*(s.WidthA/frame.RadiusM)).Unit;
                     V bl=(s.B+s.SideB*(s.WidthB/frame.RadiusM)).Unit,br=(s.B-s.SideB*(s.WidthB/frame.RadiusM)).Unit;
@@ -68,6 +72,16 @@ namespace WorldGen.Presentation
             var positions=new List<float>(mesh.Positions);var normals=new List<float>(mesh.Normals);var colors=new List<float>(mesh.Colors);
             var weights=new List<float>(mesh.SurfaceWeights);var groundB=new List<float>(mesh.GroundWeightsB);var rocks=new List<float>(mesh.Lithology);
             var samples=new List<LocalTerrainSample>(original);while(samples.Count<mesh.Positions.Length/3)samples.Add(new LocalTerrainSample{WaterSurfaceM=double.NaN,WaterMaskM=-1});
+            // Collapsing a tile edge to a coarse neighbour may bridge a narrow
+            // channel. Both neighbours constrain the same river cross-sections;
+            // retain canonical submerged bed vertices on that shared boundary.
+            // Any difference from an extra fine vertex is below the water, while
+            // dry land still follows the existing linear LOD seam policy.
+            for(int i=0;i<original.Length;i++)
+            {
+                int x=i%side,z=i/side;if(x!=0&&z!=0&&x!=mesh.Segments&&z!=mesh.Segments)continue;
+                if(original[i].Underwater)positions[i*3+1]=(float)frame.SurfaceY(frame.Position(mesh.EastM+positions[i*3],mesh.NorthM+positions[i*3+2]),original[i].ElevationM);
+            }
             var indices=new List<int>();var shared=new Dictionary<(long,long),List<int>>();
             static (long,long) Key(double x,double z)=>((long)Math.Floor(x*1000),(long)Math.Floor(z*1000));
             void Remember((long,long) key,int id){if(!shared.TryGetValue(key,out var list)){list=new List<int>();shared.Add(key,list);}list.Add(id);}
@@ -93,7 +107,7 @@ namespace WorldGen.Presentation
                 double height=frame.SurfaceY(at,s.ElevationM);
                 // Keep the existing collapsed tile perimeter exactly linear;
                 // channel refinement cannot open cracks against another LOD.
-                if(Math.Abs(p.X)<1e-7||Math.Abs(p.X-mesh.SizeM)<1e-7||Math.Abs(p.Z)<1e-7||Math.Abs(p.Z-mesh.SizeM)<1e-7)
+                if(!s.Underwater&&(Math.Abs(p.X)<1e-7||Math.Abs(p.X-mesh.SizeM)<1e-7||Math.Abs(p.Z)<1e-7||Math.Abs(p.Z-mesh.SizeM)<1e-7))
                 {
                     bool vertical=Math.Abs(p.X)<1e-7||Math.Abs(p.X-mesh.SizeM)<1e-7;
                     double along=(vertical?p.Z:p.X)/step;int low=Math.Max(0,Math.Min(mesh.Segments-1,(int)Math.Floor(along)));double t=along-low;
@@ -123,6 +137,9 @@ namespace WorldGen.Presentation
                         var next=new List<List<Point>>();
                         foreach(var polygon in polygons)
                         {
+                            double minAlong=double.PositiveInfinity,maxAlong=double.NegativeInfinity;
+                            foreach(var p in polygon){double along=(p.X-cut.X)*cut.DX+(p.Z-cut.Z)*cut.DZ;minAlong=Math.Min(minAlong,along);maxAlong=Math.Max(maxAlong,along);}
+                            if(maxAlong<-.001||minAlong>cut.Length+.001){next.Add(polygon);continue;}
                             var left=new List<Point>();var right=new List<Point>();
                             for(int k=0;k<polygon.Count;k++)
                             {
@@ -135,9 +152,9 @@ namespace WorldGen.Presentation
                         }
                         polygons=next;
                     }
-                    // At a confluence only a few strips overlap. A hard geometry
-                    // budget prevents pathological intersections from exploding.
-                    if(polygons.Count>32)break;
+                    // Do not discard later constraints at a busy junction: that
+                    // leaves uncut ground triangles crossing the water. Finite
+                    // segment rejection above limits unrelated subdivisions.
                 }
                 foreach(var polygon in polygons)
                 {

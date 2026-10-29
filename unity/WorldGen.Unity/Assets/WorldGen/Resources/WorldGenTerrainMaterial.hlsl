@@ -10,7 +10,7 @@ float _FloraSurfaceEnabled,_MidSurfaceEnabled,_ForestSurfaceEnabled,_ForestFarEn
 float _CoverageEnabled,_CoverageTileSize,_TransitionEnabled,_LodSafetyRadius;
 float _Water,_FogDistance,_TextureMetres,_Daylight,_RockLayers,_GroundFlora,_TerrainSceneEnabled;
 float _AirObserverM,_AirHaze,_SecondaryLightCount;
-float _TerrainCull;
+float _TerrainCull,_SwellScale;
 CBUFFER_END
 // Legacy/direct material fixtures may still supply these non-property arrays;
 // production terrain reads the shared scene array instead. They are globals,

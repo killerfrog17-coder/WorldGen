@@ -3,6 +3,7 @@ Shader "WorldGen/WaterSurface"
  Properties
  {
   _Water("Water",Float)=1 _WaterNormals("Water slopes",2D)="gray"{}
+  [HideInInspector] _SwellScale("Swell displacement",Float)=1
   _FogDistance("Fog distance",Float)=200000 _FogColor("Sky colour",Color)=(.57,.69,.76,1)
   _AmbientTint("Ambient",Color)=(.12,.14,.17,1) _Daylight("Daylight",Float)=1
   [HideInInspector] _TerrainSceneEnabled("Shared scene",Float)=0
@@ -19,7 +20,7 @@ Shader "WorldGen/WaterSurface"
   Tags {"RenderType"="Transparent" "Queue"="Transparent-10" "RenderPipeline"="UniversalPipeline"}
   Pass
   {
-   Tags {"LightMode"="UniversalForward"} Cull Off ZWrite Off Blend One Zero
+   Tags {"LightMode"="UniversalForward"} Cull Off ZWrite On Blend One Zero
    HLSLPROGRAM
    #pragma target 3.5
    #pragma vertex vert
@@ -39,7 +40,7 @@ Shader "WorldGen/WaterSurface"
    O vert(A v)
    {
     O o;o.position=TransformObjectToWorld(v.positionOS.xyz);o.data=v.color;o.coverage=v.positionOS.xz/max(.001,_CoverageTileSize);
-    if(v.color.a<1.5||v.color.a>2.5)o.position.y+=WaterSwell(o.position.xz+_TerrainLocalOrigin.xy,v.color.b,step(2.5,v.color.a));
+    if(v.color.a<1.5||v.color.a>2.5)o.position.y+=_SwellScale*WaterSwell(o.position.xz+_TerrainLocalOrigin.xy,v.color.b,step(2.5,v.color.a));
     o.positionCS=TransformWorldToHClip(o.position);return o;
    }
    float2 Slopes(float2 uv){return SAMPLE_TEXTURE2D(_WaterNormals,sampler_WaterNormals,uv).rg*2-1;}
@@ -61,10 +62,12 @@ Shader "WorldGen/WaterSurface"
     float river=1-step(.4,abs(i.data.a-2)),ocean=step(2.5,i.data.a);
     float2 p=i.position.xz+_TerrainLocalOrigin.xy,wind=_WorldGenWaterWind.xy;
     float2 flow=lerp(wind*.06,i.data.xy,river);float phase=frac(_Time.y/6),other=frac(phase+.5),blend=abs(phase*2-1);
-    float2 slope=lerp(Slopes((p-flow*(phase*6))*.32),Slopes((p-flow*(other*6))*.32),blend);
+    float2 slope=lerp(Slopes((p-flow*(phase*6))*1.4),Slopes((p-flow*(other*6))*1.4),blend);
     slope+=Slopes((p+float2(-flow.y,flow.x)*_Time.y*.2)*.09)*.4;
     float3 normal=normalize(cross(ddy(i.position),ddx(i.position)));if(normal.y<0)normal=-normal;
-    normal=normalize(normal+float3(slope.x,0,slope.y)*lerp(.12,.28,saturate(length(wind)/14+river*i.data.z)));
+    float2 swellSlope=(1-river)*WaterSwellSlope(p,i.data.b,ocean);
+    if(river<.5)normal=normalize(float3(-swellSlope.x,1,-swellSlope.y));
+    normal=normalize(normal+float3(slope.x,0,slope.y)*lerp(.25,.55,saturate(length(wind)/14+river*i.data.z)));
     float3 eye=GetWorldSpaceNormalizeViewDir(i.position);if(dot(normal,eye)<0)normal=-normal;
     float2 screen=i.positionCS.xy/_ScaledScreenParams.xy;float raw=SampleSceneDepth(screen);
     float eyeDepth=LinearEyeDepth(raw,_ZBufferParams),surfaceDepth=-TransformWorldToView(i.position).z;

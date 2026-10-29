@@ -27,6 +27,11 @@ namespace WorldGen.Core
 
     public sealed partial class HyperAmplification
     {
+        // Local channel coordinates include metre-scale squared angular lengths.
+        // V.Dot rounds to 1e-9 for the world simulator: a 12m span on a
+        // 637km planet has squared length below that quantum. Preserve double
+        // precision here, without changing canonical world-generation math.
+        static double RiverDot(V a,V b)=>a.X*b.X+a.Y*b.Y+a.Z*b.Z;
         double[] riverDatums,riverNodeWidths;
         int[] riverReceivers,riverFaceOffsets,riverFaces;
         bool[] riverActive;
@@ -36,6 +41,10 @@ namespace WorldGen.Core
         readonly Queue<RiverscapeSpan[]> riverRetained=new Queue<RiverscapeSpan[]>();
         public int RiverscapeReachCount {get;private set;}
         public int CachedRiverscapeReaches {get{lock(riverGate)return riverRetained.Count;}}
+        // Exact drainage-graph profile for inspection and render validation.
+        // Return a copy so callers cannot mutate the cached world derivation.
+        public RiverscapeSpan[] RiverReach(int source)
+            =>source<0||source>=riverActive.Length||!riverActive[source]?Array.Empty<RiverscapeSpan>():(RiverscapeSpan[])PrepareRiverscape(source).Clone();
 
         void BuildRiverscapes(World world,CancellationToken token)
         {
@@ -131,7 +140,7 @@ namespace WorldGen.Core
                     var section=new RiverSection(levels[i],width,depth,a.Flow*scale*scale,slope,a.Sediment);
                     result[i]=new RiverscapeSpan{A=points[i],B=points[i+1],SideA=V.Cross(points[i],tangentA).Unit,SideB=V.Cross(points[i+1],tangentB).Unit,
                         LevelA=levels[i],LevelB=levels[i+1],WidthA=widths[i],WidthB=widths[i+1],Depth=depth,
-                        Speed=section.Speed,Turbulence=section.Turbulence,Bend=D.Clamp(V.Dot(tangentB-tangentA,V.Cross(points[i],tangentA))*.8,-.6,.6),
+                        Speed=section.Speed,Turbulence=section.Turbulence,Bend=D.Clamp(RiverDot(tangentB-tangentA,V.Cross(points[i],tangentA))*.8,-.6,.6),
                         Reach=source,From=i==0?source:-1,To=i==n-1?target:-1,
                         Primitive=slope>.08?RiverFlowPrimitive.Cascade:slope>.004?RiverFlowPrimitive.Turbulent:RiverFlowPrimitive.Calm};
                 }
@@ -190,7 +199,18 @@ namespace WorldGen.Core
                     s.LevelA=level;if(i>0){var old=result[i-1];old.LevelB=level;result[i-1]=old;}
                     previous=level;s.LevelB=Math.Max(end,Math.Min(level,Math.Min(s.LevelB,ceilings[i+1])));result[i]=s;
                 }
-                if(result.Length>0){var last=result[result.Length-1];last.LevelB=end;result[result.Length-1]=last;}
+                if(result.Length>0)
+                {
+                    // Bank fitting must not undo the shared junction collar.
+                    // The render pool replaces this end of the ribbon; a slope
+                    // here produces a vertical crack along its polygon boundary.
+                    // Keep both ends of each collar on the graph datum and
+                    // propagate the adjacent station too (no disconnected step).
+                    var first=result[0];first.LevelA=first.LevelB=start;result[0]=first;
+                    if(result.Length>1){var next=result[1];next.LevelA=start;result[1]=next;}
+                    int lastIndex=result.Length-1;var last=result[lastIndex];last.LevelA=last.LevelB=end;result[lastIndex]=last;
+                    if(lastIndex>0){var prior=result[lastIndex-1];prior.LevelB=end;result[lastIndex-1]=prior;}
+                }
                 riverCache[source]=new WeakReference<RiverscapeSpan[]>(result);riverRetained.Enqueue(result);
                 while(riverRetained.Count>128)riverRetained.Dequeue();
                 if(riverCache.Count>512){var expired=new List<int>();foreach(var item in riverCache)if(!item.Value.TryGetTarget(out _))expired.Add(item.Key);foreach(int id in expired)riverCache.Remove(id);}
@@ -215,7 +235,7 @@ namespace WorldGen.Core
                 {
                     if(!owner.riverActive[node])return;
                     int next=owner.riverReceivers[node];V a=owner.rootNodes[node].Position,b=owner.rootNodes[next].Position,d=b-a,p=center-a;
-                    double u=D.Clamp(V.Dot(p,d)/Math.Max(1e-30,V.Dot(d,d)));
+                    double u=D.Clamp(RiverDot(p,d)/Math.Max(1e-30,RiverDot(d,d)));
                     double distance=(p-d*u).Length*physical,length=d.Length*physical;
                     if(distance<=extent*1.5+length*.4+owner.riverNodeWidths[node]*8+20)candidates.Add(node);
                 }
@@ -232,7 +252,7 @@ namespace WorldGen.Core
                     if(width<minimumWidth||!owner.NearRiverscape(center,owner.RootEdge(owner.nodeChannels[id]),extent*1.5+width*8+20))continue;
                     foreach(var span in owner.PrepareRiverscape(id))
                     {
-                        V d=span.B-span.A,p=center-span.A;double u=D.Clamp(V.Dot(p,d)/Math.Max(1e-30,V.Dot(d,d)));
+                        V d=span.B-span.A,p=center-span.A;double u=D.Clamp(RiverDot(p,d)/Math.Max(1e-30,RiverDot(d,d)));
                         if((p-d*u).Length*physical<=extent*1.5+Math.Max(span.WidthA,span.WidthB)*8+20)list.Add(span);
                     }
                 }
@@ -247,7 +267,7 @@ namespace WorldGen.Core
                 for(int i=0;i<localRiverscapes.Length;i++)
                 {
                     var span=localRiverscapes[i];V a=span.A-center,b=span.B-center;
-                    double ax=V.Dot(a,riverEast)*physical,az=V.Dot(a,riverNorth)*physical,bx=V.Dot(b,riverEast)*physical,bz=V.Dot(b,riverNorth)*physical;
+                    double ax=RiverDot(a,riverEast)*physical,az=RiverDot(a,riverNorth)*physical,bx=RiverDot(b,riverEast)*physical,bz=RiverDot(b,riverNorth)*physical;
                     double pad=Math.Max(span.WidthA,span.WidthB)*5+5;
                     int x0=(int)Math.Floor((Math.Min(ax,bx)-pad)/riverBinSize),x1=(int)Math.Floor((Math.Max(ax,bx)+pad)/riverBinSize);
                     int z0=(int)Math.Floor((Math.Min(az,bz)-pad)/riverBinSize),z1=(int)Math.Floor((Math.Max(az,bz)+pad)/riverBinSize);
@@ -274,27 +294,33 @@ namespace WorldGen.Core
                     owner.CutLakeSpillMouth(point,ref surface);
                     if(surface.Height<lakeLevel)return;
                 }
-                if(surface.Kind==LocalWaterKind.Ocean)return;
+                // Ocean ownership extends inland through the interpolated
+                // coastline. A dry owned point is not already submerged: cut
+                // the river through it just as through a dry lake collar.
+                if(surface.Kind==LocalWaterKind.Ocean&&surface.Height<surface.Water)return;
+                // Sample the same finite, paired spans used by the renderer.
+                // A separate distance-to-fractal-curve rejection can miss the
+                // chord between two stations. It also made samples change once
+                // RiverSpans() populated this patch during mesh refinement.
                 double physical=owner.radius*owner.scale,best=double.PositiveInfinity;
                 void Apply(RiverscapeSpan span,ref Surface current)
                 {
-                    V d=span.B-span.A,p=point-span.A;double dd=V.Dot(d,d),raw=V.Dot(p,d)/Math.Max(1e-30,dd),u=D.Clamp(raw);
+                    V d=span.B-span.A,p=point-span.A;double dd=RiverDot(d,d),raw=RiverDot(p,d)/Math.Max(1e-30,dd),u=D.Clamp(raw);
                     double distance=(p-d*u).Length*physical,width=span.WidthA+(span.WidthB-span.WidthA)*u;
                     double support=width*5+4;if(distance>=support)return;
                     V ta=V.Cross(span.SideA,span.A).Unit,tb=V.Cross(span.SideB,span.B).Unit;
-                    bool before=V.Dot(p,ta)<-1e-10,after=V.Dot(point-span.B,tb)>1e-10;
+                    bool before=RiverDot(p,ta)<-1e-10,after=RiverDot(point-span.B,tb)>1e-10;
                     // Adjacent paired cross-sections partition longitudinal
                     // space. Round caps at EVERY station used to let a lower
                     // cascade carve underneath the preceding higher ribbon.
-                    if((before&&span.From<0)||(after&&span.To<0))return;
                     double level=span.LevelA+(span.LevelB-span.LevelA)*u,bankDistance=width-distance;
                     bool inside=bankDistance>=0;
-                    if(!before&&!after&&span.WidthA+span.WidthB>.0001)
+                    if(span.WidthA+span.WidthB>.0001)
                     {
-                        V axis=(d-span.A*V.Dot(d,span.A)).Unit,side=V.Cross(span.A,axis).Unit;
-                        double x=V.Dot(p,axis)*physical,z=V.Dot(p,side)*physical,bx=V.Dot(d,axis)*physical,bz=V.Dot(d,side)*physical;
-                        double lax=V.Dot(span.SideA,axis)*span.WidthA,laz=V.Dot(span.SideA,side)*span.WidthA;
-                        double lbx=bx+V.Dot(span.SideB,axis)*span.WidthB,lbz=bz+V.Dot(span.SideB,side)*span.WidthB;
+                        V axis=(d-span.A*RiverDot(d,span.A)).Unit,side=V.Cross(span.A,axis).Unit;
+                        double x=RiverDot(p,axis)*physical,z=RiverDot(p,side)*physical,bx=RiverDot(d,axis)*physical,bz=RiverDot(d,side)*physical;
+                        double lax=RiverDot(span.SideA,axis)*span.WidthA,laz=RiverDot(span.SideA,side)*span.WidthA;
+                        double lbx=bx+RiverDot(span.SideB,axis)*span.WidthB,lbz=bz+RiverDot(span.SideB,side)*span.WidthB;
                         double rax=-lax,raz=-laz,rbx=2*bx-lbx,rbz=2*bz-lbz;
                         double Plane(double ax,double az,double qx,double qz,double rx,double rz,double ah,double qh,double rh,out double value)
                         {
@@ -311,10 +337,14 @@ namespace WorldGen.Core
                         {double ex=qx-ax,ez=qz-az,t=D.Clamp(((x-ax)*ex+(z-az)*ez)/Math.Max(1e-20,ex*ex+ez*ez));return Math.Sqrt(Math.Pow(x-ax-ex*t,2)+Math.Pow(z-az-ez*t,2));}
                         bankDistance=Math.Min(EdgeDistance(lax,laz,lbx,lbz),EdgeDistance(rax,raz,rbx,rbz))*(inside?1:-1);
                     }
+                    // At a bend the finite quad can cross an averaged end
+                    // tangent's half-plane. Its actual interior still owns its
+                    // bed; end-plane retirement applies only outside the quad.
+                    if(!inside&&((before&&span.From<0)||(after&&span.To<0)))return;
                     // Paired unit cross-section: low bed, rising submerged
                     // banks, then compact cut-only retirement into the valley.
                     double relative=1-bankDistance/Math.Max(.01,width);
-                    double signed=V.Dot(p-d*u,span.SideA)*physical/Math.Max(.01,width);
+                    double signed=RiverDot(p-d*u,span.SideA)*physical/Math.Max(.01,width);
                     // C-type bend cross-section: deeper outer bank and a
                     // shallower point bar, without tilting the water surface.
                     double bed=level-span.Depth*(1-Math.Min(1,relative*relative))*(1+span.Bend*signed);
@@ -337,7 +367,7 @@ namespace WorldGen.Core
                 if(localRiverscapes!=null)
                 {
                     V offset=point-riverRegionCenter;
-                    var bin=((int)Math.Floor(V.Dot(offset,riverEast)*physical/riverBinSize),(int)Math.Floor(V.Dot(offset,riverNorth)*physical/riverBinSize));
+                    var bin=((int)Math.Floor(RiverDot(offset,riverEast)*physical/riverBinSize),(int)Math.Floor(RiverDot(offset,riverNorth)*physical/riverBinSize));
                     if(riverBins.TryGetValue(bin,out var nearby))foreach(int index in nearby)Apply(localRiverscapes[index],ref surface);
                 }
                 else
@@ -345,8 +375,14 @@ namespace WorldGen.Core
                     if(riverscapeCandidates==null)SelectRiverscapes(riverRegionExtent>0?riverRegionCenter:point,riverRegionExtent>0?riverRegionExtent:1);
                     foreach(int id in riverscapeCandidates)
                     {
-                        double width=Math.Max(owner.riverNodeWidths[id],owner.riverNodeWidths[owner.riverReceivers[id]]);
-                        if(!owner.NearRiverscape(point,owner.RootEdge(owner.nodeChannels[id]),width*5+4))continue;
+                        // A conservative root-chord envelope includes every
+                        // displaced station and the chords connecting them.
+                        // Do not prepare every distant reach in a large patch,
+                        // or reject a valid chord using the finer fractal line.
+                        int next=owner.riverReceivers[id];V a=owner.rootNodes[id].Position,b=owner.rootNodes[next].Position,d=b-a,p=point-a;
+                        double t=D.Clamp(RiverDot(p,d)/Math.Max(1e-30,RiverDot(d,d)));
+                        double width=Math.Max(owner.riverNodeWidths[id],owner.riverNodeWidths[next]);
+                        if((p-d*t).Length*physical>d.Length*physical*.4+width*5+4)continue;
                         foreach(var span in owner.PrepareRiverscape(id))Apply(span,ref surface);
                     }
                 }
